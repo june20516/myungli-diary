@@ -127,7 +127,7 @@
   user_state: "결제한 상품이 목록에 없는지 확인합니다."
   structure: "한 문장. 문의하라는 안내(문의 경로는 지휘 결정 대기)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 52, en: 90, ja: 38}
+  max_length: {ko: 62, en: 106, ja: 46}
   keys:
     - purchaseHistoryMissingNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -140,40 +140,60 @@
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
-- id: ui.purchase-row
-  where: "구매 내역 화면(purchase-history) purchase-row: 상태 낱말, 구매일, 사용 기간과 둘 사이 구분자(design #509)"
+- id: ui.purchase.status
+  where: "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)"
   purpose: info
-  user_state: "구매가 언제였고 지금 어떤 상태인지 봅니다."
-  structure: "상태 낱말 하나(기간권: 사용 중·사용 전·만료·환불, 상품 종류에 따라 다를 수 있음, D88 ②). `Pending`은 산 뒤 앞 기간이 끝나기를 기다리는 구매입니다. 날짜(date·start·end)는 app이 기기 locale로 만듭니다."
+  user_state: "구매가 지금 어떤 상태인지 봅니다."
+  structure: "낱말 하나(사용 중·사용 전·만료·환불, 상품 종류에 따라 다를 수 있음, D88 ②). `Pending`은 산 뒤 앞 기간이 끝나기를 기다리는 구매입니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 6, en: 9, ja: 4}
   components: [purchase-row]
   keys:
-    - purchaseRowActive
-    - purchaseRowPending
-    - purchaseRowExpired
-    - purchaseRowRefunded
-    - params: {date: text}
-      keys: [purchaseRowPurchased]
-    - params: {start: text, end: text}
-      keys: [purchaseRowPeriod]
-    - purchaseRowSeparator
+    - purchaseStatusActive
+    - purchaseStatusPending
+    - purchaseStatusExpired
+    - purchaseStatusRefunded
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: purchaseRowActive, text: "사용 중", why: "라운드 R15 선택", source: writing}
-      - {lang: ko, key: purchaseRowPending, text: "사용 전", why: "라운드 R15 선택(\"대기\"를 바꿈)", source: writing}
+      - {lang: ko, key: purchaseStatusActive, text: "사용 중", why: "라운드 R15 선택", source: writing}
+      - {lang: ko, key: purchaseStatusPending, text: "사용 전", why: "라운드 R15 선택(\"대기\"를 바꿈)", source: writing}
     bad: []
   endings: []
   a11y:
     truncation: "한 줄 안에 들어가게 짧게 씁니다."
-    screen_reader: "상품 이름 다음에 상태, 구매일, 사용 기간 순으로 읽습니다."
+    screen_reader: "상태 이름 그대로 읽습니다."
 
-- id: ui.purchase-product
+- id: ui.purchase.meta
+  where: "구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄"
+  purpose: info
+  user_state: "언제 샀고 언제까지 쓰는지 봅니다."
+  structure: "구매일(`Purchased`) + 구분자(`Separator`) + 사용 기간(`Period`). 날짜(date·start·end)는 app이 기기 locale의 짧은 날짜로 만듭니다. 사용 기간이 없는 상품은 구매일만 보입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 26, en: 48, ja: 21}
+  components: [purchase-row]
+  keys:
+    - params: {date: text}
+      keys: [purchaseMetaPurchased]
+    - params: {start: text, end: text}
+      keys: [purchaseMetaPeriod]
+    - purchaseMetaSeparator
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: purchaseMetaPurchased, text: "{date} 구매", why: "라운드 R16 선택", source: writing}
+      - {lang: ko, key: purchaseMetaPeriod, text: "{start}~{end}", why: "라운드 R16 선택", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "구매일, 사용 기간 순으로 읽습니다."
+
+- id: ui.purchase.product
   where: "구매 내역 화면(purchase-history) purchase-row: 상품 이름. 상품 종류마다 키 하나이고 app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)"
   purpose: info
   user_state: "어떤 상품을 샀는지 봅니다."
-  structure: "상품 이름 하나. 줄바꿈하므로 상한이 없습니다(design #509)."
+  structure: "상품 이름 하나. 줄바꿈하므로 상한이 없습니다(design 3.0.0)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [purchase-row]

@@ -282,7 +282,7 @@ def test_key_lengths_match_design(rules: RuleSet) -> None:
 
 # IA에서 없어졌지만 design `lengths.md`에 아직 행이 남은 자리입니다. design이 행을 지우면 이 목록에서도 뺍니다.
 # 목록에 없는 이름이 표에 있으면 오타일 수 있으므로 KeyError로 실패합니다.
-IA_REMOVED_SLOTS = frozenset({"ad-free.restore.cta"})
+IA_REMOVED_SLOTS = frozenset({"account-merge.cta.cancel"})
 
 
 @pytest.mark.contract

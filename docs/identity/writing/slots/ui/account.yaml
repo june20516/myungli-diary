@@ -198,7 +198,7 @@
   user_state: "가져올 계정을 확인하려 합니다(D85 ④)."
   structure: "한 문장. 기록을 가져올 계정을 인증하라는 안내(R15-4)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 64, en: 108, ja: 46}
+  max_length: {ko: 90, en: 150, ja: 63}
   keys:
     - accountMergeAuthBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -264,25 +264,6 @@
   examples:
     good:
       - {lang: ko, key: accountMergeCtaMerge, text: "계정 합치기", why: "라운드 R11 선택", source: writing}
-    bad: []
-  endings: []
-  a11y:
-    truncation: "잘리지 않게 씁니다."
-    screen_reader: "버튼 이름으로 읽습니다."
-
-- id: account-merge.cta.cancel
-  where: "계정 합치기 화면(account-merge): 합치지 않기"
-  purpose: guide
-  user_state: "합치지 않으려 합니다."
-  structure: "버튼 이름 하나."
-  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 19}
-  keys:
-    - accountMergeCtaCancel
-  variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples:
-    good:
-      - {lang: ko, key: accountMergeCtaCancel, text: "합치지 않기", why: "라운드 R11 선택", source: writing}
     bad: []
   endings: []
   a11y:
@@ -434,10 +415,10 @@
   where: "계정 합치기 화면(account-merge) 요약·고르기 단계: \"가져올 기록\" 상자의 머리, 줄 이름, 값(design #509)"
   purpose: info
   user_state: "가져올 계정에서 무엇이 얼마나 옮겨지는지 봅니다. 0건일 수도 있습니다."
-  structure: "머리(`Head`) 하나, 줄 이름 셋(일기·일정·광고 제거 남은 기간), 값 셋(편수·개수·남은 날, ICU plural). 0이어도 숫자로 보입니다."
+  structure: "머리(`Head`) 하나, 줄 이름 셋(일기·일정·광고 제거 남은 기간), 값 셋(편수·개수·남은 날, ICU plural). 일기·일정은 0이어도 숫자로 보이고, 광고 제거 남은 기간은 남았을 때만 보입니다(IA `account-merge.title.body`). 컴포넌트가 아닌 화면 배치입니다(design 3.0.0)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 19, en: 35, ja: 15}
-  components: [account-choice]
+  ia: [account-merge.title.body]
   keys:
     - accountMergeSummaryHead
     - accountMergeSummaryDiary

@@ -144,14 +144,14 @@
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "No purchases yet."}
 - {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "If something you paid for isn't listed, please contact us."}
-- {slot: ui.purchase-row, key: purchaseRowActive, text: "Active"}
-- {slot: ui.purchase-row, key: purchaseRowPending, text: "Upcoming"}
-- {slot: ui.purchase-row, key: purchaseRowExpired, text: "Expired"}
-- {slot: ui.purchase-row, key: purchaseRowRefunded, text: "Refunded"}
-- {slot: ui.purchase-row, key: purchaseRowPurchased, text: "Bought {date}"}
-- {slot: ui.purchase-row, key: purchaseRowPeriod, text: "{start}–{end}"}
-- {slot: ui.purchase-row, key: purchaseRowSeparator, text: " · "}
-- {slot: ui.purchase-product, key: purchaseProductAdFreeMonth, text: "Ad-free, 1 month"}
+- {slot: ui.purchase.status, key: purchaseStatusActive, text: "Active"}
+- {slot: ui.purchase.status, key: purchaseStatusPending, text: "Upcoming"}
+- {slot: ui.purchase.status, key: purchaseStatusExpired, text: "Expired"}
+- {slot: ui.purchase.status, key: purchaseStatusRefunded, text: "Refunded"}
+- {slot: ui.purchase.meta, key: purchaseMetaPurchased, text: "Bought {date}"}
+- {slot: ui.purchase.meta, key: purchaseMetaPeriod, text: "{start}–{end}"}
+- {slot: ui.purchase.meta, key: purchaseMetaSeparator, text: " · "}
+- {slot: ui.purchase.product, key: purchaseProductAdFreeMonth, text: "Ad-free, 1 month"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
@@ -349,7 +349,6 @@
 - {slot: account-merge.not-other.body, key: accountMergeNotOtherBodyNone, text: "No account is linked to this sign-in method."}
 - {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "Entries from the same day also all move to this account."}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "Merge accounts"}
-- {slot: account-merge.cta.cancel, key: accountMergeCtaCancel, text: "Don't merge"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "Merge the two accounts? This can't be undone."}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "Merge"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmCancel, text: "Cancel"}

@@ -177,11 +177,10 @@
 | account-merge.title.head | ui | account-merge.title.head |
 | account-merge.auth.body | ui | account-merge.auth.body |
 | account-merge.not-other.body | ui | account-merge.not-other.body |
-| account-merge.title.body | ui | account-merge.title.body |
+| account-merge.title.body | ui | account-merge.title.body, ui.account-merge.summary |
 | account-merge.choice.label | ui | account-merge.choice.label |
 | account-merge.overlap.notice | ui | account-merge.overlap.notice |
 | account-merge.cta.merge | ui | account-merge.cta.merge |
-| account-merge.cta.cancel | ui | account-merge.cta.cancel |
 | account-merge.merge.confirm | ui | account-merge.merge.confirm |
 | account-delete.bar.title | ui | account-delete.bar.title |
 | account-delete.title.head | ui | account-delete.title.head |

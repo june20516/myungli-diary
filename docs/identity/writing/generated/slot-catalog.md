@@ -11,10 +11,9 @@
 | account-delete.data.body | account-delete.data.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | account-delete.delete.confirm | account-delete.delete.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountDeleteDeleteConfirm` ko 34, en 60, ja 28 |
 | account-delete.title.head | account-delete.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
-| account-merge.auth.body | account-merge.auth.body | guide | - | 1 | 1 | - | ko 64, en 108, ja 46 |
+| account-merge.auth.body | account-merge.auth.body | guide | - | 1 | 1 | - | ko 90, en 150, ja 63 |
 | account-merge.bar.title | account-merge.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | account-merge.choice.label | account-merge.choice.label | guide | - | 1 | 1 | - | ko 31, en 58, ja 25 |
-| account-merge.cta.cancel | account-merge.cta.cancel | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | account-merge.cta.merge | account-merge.cta.merge | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountMergeMergeConfirm` ko 34, en 60, ja 28 |
 | account-merge.not-other.body | account-merge.not-other.body | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -149,7 +148,7 @@
 | profile-edit.recalc.notice | profile-edit.recalc.notice | info | - | 1 | 1 | - | ko -, en -, ja - |
 | purchase-history.bar.title | purchase-history.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | purchase-history.empty.body | purchase-history.empty.body | info | - | 1 | 1 | - | ko 64, en 108, ja 46 |
-| purchase-history.missing.notice | purchase-history.missing.notice | guide | - | 1 | 1 | - | ko 52, en 90, ja 38 |
+| purchase-history.missing.notice | purchase-history.missing.notice | guide | - | 1 | 1 | - | ko 62, en 106, ja 46 |
 | saju-chart.bar.title | saju-chart.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.time-unknown.notice | saju-chart.time-unknown.notice | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
 | saju-chart.yongsin.open | saju-chart.yongsin.open | guide | - | 1 | 1 | - | ko 12, en 20, ja 9 |
@@ -175,7 +174,7 @@
 | ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 2 | - | ko 11, en 19, ja 9 |
 | ui.account-merge.error | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 3 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
-| ui.account-merge.summary | 컴포넌트 account-choice | info | - | 1 | 7 | `count`: number<br>`days`: number | ko 19, en 35, ja 15 |
+| ui.account-merge.summary | account-merge.title.body | info | - | 1 | 7 | `count`: number<br>`days`: number | ko 19, en 35, ja 15 |
 | ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 10, en 16, ja 7 |
 | ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
@@ -210,8 +209,9 @@
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.purchase-product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.purchase-row | 컴포넌트 purchase-row | info | - | 1 | 7 | `date`: text<br>`start`: text<br>`end`: text | ko 6, en 9, ja 4 |
+| ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 3 | `date`: text<br>`start`: text<br>`end`: text | ko 26, en 48, ja 21 |
+| ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 6, en 9, ja 4 |
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |
 | ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |

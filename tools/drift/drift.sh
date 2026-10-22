@@ -93,7 +93,7 @@ report() {
       "* 실패한 검사: $RUN_URL" \
       "" \
       "## 관련" \
-      "PR #$PR. 이 Issue는 ci-gate가 자동으로 열었습니다. 맞춘 PR 본문에 \`Closes #<이 Issue>\`를 적어 주세요. 따라잡기 전에 다른 PR이 이 단위의 계약을 또 바꾸면 아래에 원인이 더해집니다." > body.md
+      "PR #$PR. 이 Issue는 ci-gate가 자동으로 열었습니다. 맞춘 PR 본문에는 \`Closes\`가 아니라 \`참고 #<이 Issue>\`를 적어 주세요. 이 Issue는 원인 PR이 모두 main에 들어 있고 그 단위 검사가 main에서 통과하면 자동으로 닫힙니다. 따라잡기 전에 다른 PR이 이 단위의 계약을 또 바꾸면 아래에 원인이 더해집니다." > body.md
     gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
   done
 }

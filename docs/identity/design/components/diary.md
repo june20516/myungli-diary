@@ -27,9 +27,9 @@
 
 | 요소 | 값 |
 | --- | --- |
-| 시각 | 작성 시각(`createdAt`), `type.caption.md` `text.secondary`, 고정폭, 줄바꿈 없음. 형식은 app이 기기 locale의 짧은 시각 형식으로 만듭니다 |
+| 시각 | 작성 시각(`createdAt`), `type.caption.md` `text.secondary`, 고정폭, 줄바꿈 없음. 형식은 `event-row`와 같은 24시간제 `HH:mm`(앞 0 채움)입니다. 줄마다 미리보기 시작 위치가 같고 그날 시트 안의 시각 형식이 하나가 됩니다(결정 V46, #475) |
 | 미리보기 | `sentence-block` `preview` **1줄** 말줄임, 시각 오른쪽 `space.12`, 첫 줄 기준선을 시각과 맞춤. 본문이 비어도 한 줄 높이를 지킵니다 |
-| 꺾쇠 | `caret-right` 16 Light `text.secondary`, 세로 가운데 |
+| 꺾쇠 | `caret-right` 16 Light `text.secondary`, 세로 가운데, 미리보기와 사이 `space.8`(`event-row`와 같음, V46) |
 | 높이 | 위아래 `space.12`, 최소 48 |
 | 사이 | 1px 점선(대시 4·간격 3) `color.timeline.entry`, 줄과 줄 사이에만, 줄 전체 너비 |
 
