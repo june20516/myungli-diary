@@ -233,3 +233,52 @@ drift #412에는 design 컴포넌트 계약 2.7.0(PR #439)이 들어 있어 `tes
 - [ ] **Step 4: Commit** — `docs(app): 일기 하루 여러 편 결정 A67~A71과 현재 상태`
 - [ ] **Step 5: 알림(PR을 올린 뒤)** — #418: `errorDiaryDateTaken`을 더 쓰지 않음. #424: 되살리기 UI가 없어(A50) 되살리기 422는 해당 없음. #408: 목록의 날짜 묶음 모양은 design #410 답으로 맞춤.
 - [ ] **Step 6: PR** — 본문 `Closes #412`, `Closes #437`, `Closes #424`, `Closes #408`
+
+### Task 8: design 2.8.0 컴포넌트 — `diary-row` `day`·`entries`, `guide-question-card` `full` (spec §13)
+
+main 병합(`4b89cf9e`)으로 컴포넌트 2.8.0·토큰 1.2.0·IA(#460)가 들어와 `component_contract_test` 2건(`guide-question-card` `full`, `diary-row` `day`·`entries`)이 실패하고 생성물 두 개(`ia.g.dart`·`tokens.g.dart`)가 낡았습니다. 이 task는 **생성물과 컴포넌트만** 맞춥니다. 화면 연결은 Task 9입니다.
+
+기준: spec §13, design spec `../docs/identity/design/specs/2026-10-22-diary-row-multi-design.md`, 명세 `../docs/identity/design/components/diary.json`·`diary.md`(`diary-row`), `today.json`·`today.md`(`guide-question-card`), `sentence.json`(`depth-link`), 토큰 `color.timeline.entry`.
+
+**Files:**
+- Regenerate: `lib/core/ia/gen/ia.g.dart`, `lib/design/tokens/gen/tokens.g.dart`, l10n(바뀌면)
+- Modify: `lib/design/components/diary/diary_row.dart`, `lib/design/components/today/guide_question_card.dart`, `lib/design/components/sentence/depth_link.dart`(`daySheetSlot`이 남았으면 삭제)
+- Modify: `test/contract/component_contract_test.dart`, widgetbook diary·today use case
+- Test: diary-row·guide-question-card 위젯 테스트(기존 파일), golden(diary·today)
+
+**Interfaces:**
+- Produces:
+  - `class DiaryEntryLine extends StatelessWidget { const new({required DateTime createdAt, required String excerpt, required VoidCallback onTap, bool showDivider = false, String? identifier}); }` — `showDivider`면 줄 위에 점선(첫 줄은 false).
+  - `class DiaryEntryData { const new({required DateTime createdAt, required String excerpt, required VoidCallback onTap}); }`
+  - `class DiaryDayGroup extends StatelessWidget`(`day` 두 편 이상): `DiaryRow`의 날짜·배지·태그 인자에 `entries: List<DiaryEntryData>`(2개 이상, assert)를 더하고 `onTap`은 없습니다.
+  - `class DiaryEntries extends StatelessWidget { const new({required List<DiaryEntryData> entries, required DiaryEntriesSurface surface, String? head}); }`, `enum DiaryEntriesSurface { card, plain }` — `card`는 오늘(명세 `byScreen.today`), `plain`은 그날 시트(머리 `head`가 있으면 명세 `head` 스타일로 위에). 빈 목록이면 `SizedBox.shrink()`.
+  - `DiaryEntriesSkeleton`(줄 두 개 높이).
+  - `GuideQuestionState.full`.
+
+- [ ] **Step 1: 생성물** — `dart run tool/gen_ia.dart && dart run tool/gen_tokens.dart && flutter gen-l10n`, `git status`에 두 생성 파일 차이. `flutter test test/contract/component_contract_test.dart`가 위 2건만 실패하는지 확인.
+- [ ] **Step 2: 실패하는 테스트**
+  * contract: `diary-row` 변형 `day`·`entries`, `entry`의 시각 글자 스타일·미리보기 1줄·간격 12·꺾쇠 16·위아래 12·최소 48·점선(1·4·3·`color.timeline.entry`), `entries.container.byScreen.today` 값과 `head` 값을 공개 상수와 대조. `guide-question-card` `full`의 버튼 변형·상태와 도장 유지.
+  * 위젯: `'entry 줄은 시각과 미리보기 첫 줄을 읽는다'`, `'본문이 비면 시각만 읽고 한 줄 높이를 지킨다'`, `'점선은 줄과 줄 사이에만'`(첫 줄 위·끝 줄 아래 없음), `'묶음 카드는 버튼이 아니고 그룹, 안의 줄이 각각 버튼'`, `'entries가 비면 아무것도 그리지 않는다'`, `'full이면 버튼을 눌러도 onAction이 불리지 않고 햅틱이 없다'`, `'full에서도 도장이 남는다'`.
+  * golden: `diary-row` 한 편·묶음(3편)·entries card·entries plain(머리 포함)·빈 본문 줄, `guide-question-card` before·after·full(라이트·다크, 기존 golden 글자 크기 관례).
+- [ ] **Step 3: 실패 확인** — 해당 테스트 파일 FAIL
+- [ ] **Step 4: 구현** — 값은 명세 그대로. 시각은 `createdAt.toLocal()`을 `DateFormat.jm(localeName)`으로(설정 화면과 같은 형식). 점선은 `CustomPainter`. 묶음 카드의 흐름 줄은 카드 높이만큼 잇습니다. 눌림은 `PressInkTarget`(줄 안). 
+- [ ] **Step 5: 통과 확인** — 해당 테스트 PASS, `tool/goldens_linux.sh`(단독 실행) 뒤 새 PNG를 열어 확인, `cd widgetbook && flutter analyze && flutter test` PASS
+- [ ] **Step 6: Commit** — `feat(app): 컴포넌트 2.8.0 — diary-row day·entries와 점선, guide-question-card full (D83, #410)`
+
+### Task 9: 화면에 2.8.0 연결, 결정 A72, 마무리 검사
+
+**Files:**
+- Modify: `lib/features/today/presentation/today_screen.dart`(가이드 카드 아래 `DiaryEntries` card, `full` 상태), `lib/features/calendar/presentation/day_sheet_body.dart`(머리 + `DiaryEntries` plain + 버튼, `DiaryMonthHeader` 빌림 제거), `lib/features/diary/presentation/diary_page_list.dart`(같은 날 묶음), `lib/features/diary/application/diary_summary_rows.dart`·`lib/app/diary_summary_rows.dart`(줄 builder가 entries 데이터로 바뀌면 그에 맞게, feature 간 presentation import 금지 규칙 유지)
+- Create: 묶음 순수 함수 `groupDiariesByDate(List<DiarySummary>) → List<List<DiarySummary>>`(위치는 `lib/features/diary/model/` 또는 application, 관례에 맞춤)
+- Modify: `docs/decisions.md`(A72, spec §10 문구 그대로, A69 행에 "(A72가 갱신)"), `CLAUDE.md`(현재 상태 줄에 2.8.0, real-login 초안 번호를 "A73부터 다시 매김"으로, #410 대기 bullet 삭제)
+- Test: 묶음 함수 단위 테스트, today·day-sheet·diary-list 위젯/흐름 테스트, screenshot
+
+- [ ] **Step 1: 실패하는 테스트**
+  * 묶음: `'같은 날 이웃만 묶는다'`, `'순서를 바꾸지 않는다'`(같은 날 안 작성 순 그대로), `'빈 목록은 빈 목록'`, `'한 날짜가 두 쪽에 나뉘어도 이어 붙인 뒤 한 묶음'`.
+  * today: `'오늘 쓴 일기가 있으면 가이드 카드 아래 entry 줄, 누르면 diary-view?id='`, `'0편이면 entries를 그리지 않는다'`, `'10편이면 가이드 카드가 full'`.
+  * day-sheet: `'머리 편수 → 줄 → 버튼 순서'`, `'0편이면 버튼만'`, `'머리는 링크가 아니다'`.
+  * diary-list: `'같은 날 두 편은 묶음 카드 하나, 날짜 열은 한 번'`, `'다음 쪽에 이어지는 같은 날은 같은 묶음 카드로 커진다'`.
+- [ ] **Step 2: 실패 확인** — FAIL
+- [ ] **Step 3: 구현** — spec §13. 오늘·그날 시트 줄에 태그 칩이 없어지므로 `tagLinked` 인자는 쓰는 곳이 남을 때만 유지합니다.
+- [ ] **Step 4: 전체 검사** — Task 7 Step 1·2와 같은 명령 전부(drift 재현, format, analyze 둘, `ia_coverage --check`, `flutter test --exclude-tags golden`, golden 단독, `mlw check-arb`, fixture, widgetbook), screenshot 재생성, Patrol `diary_test.dart`·`today_test.dart`
+- [ ] **Step 5: Commit** — `feat(app): 오늘·그날 시트·일기 목록에 같은 날 여러 편 모양 (D83, #410, A72)`

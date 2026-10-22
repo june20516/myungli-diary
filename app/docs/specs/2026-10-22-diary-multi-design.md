@@ -120,6 +120,7 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 * **A69** 쓰는 입구는 그날 일기 목록(`listDiaries` 같은 날짜 범위)의 편수로 `first`·`more`·`full`을 정합니다. 받지 못하면 0편으로 그리고 저장 422가 막습니다. `today`·`day-sheet`는 그날 일기 줄을 작성 순으로 둡니다. 목록 모양은 #410 전까지 지금 `diary-row`입니다.
 * **A70** 달력 도장은 `nextCursor`를 끝까지 따라 받습니다. A33의 "한 쪽으로 끝남"을 대신합니다.
 * **A71** 새 일기 저장은 화면 상태마다 `Idempotency-Key` 하나이고, `diary.day_full`은 초안을 남기고 오류 문구로 알립니다.
+* **A72** 일기 줄 모양은 design 컴포넌트 2.8.0(V42·V43)을 따릅니다. 목록·태그 모아보기는 같은 날을 `diary-row` `day` 묶음 카드 하나로, 오늘·그날 시트는 `entries`(시각 + 한 줄 미리보기)로 그립니다. A69의 "#410 전까지 지금 `diary-row`"를 대신합니다(§13).
 
 ## 11. 테스트
 
@@ -137,3 +138,31 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 * #424: 되살리기 UI가 없어(A50) 되살리기 422는 app에 해당 없음.
 * #408: 목록의 날짜 묶음 모양은 design #410 답으로 맞춘다는 것.
 * PR 본문: `Closes #412`, `Closes #437`, `Closes #424`, `Closes #408`.
+
+## 13. design 2.8.0 맞추기 (결정 A72)
+
+구현 중 main에 컴포넌트 명세 2.8.0·토큰 1.2.0(design #410 답, PR #458)과 IA `day-sheet`의 `depth-link` 제거(PR #460)가 들어왔습니다. 이 브랜치에서 main을 병합하고 맞춥니다(#408의 "모양은 #410 답을 따름"). 기준은 design spec `docs/identity/design/specs/2026-10-22-diary-row-multi-design.md`와 명세 `components/diary.json`(`diary-row`)·`today.json`(`guide-question-card`)·`input.json`(`date-picker`)·`sentence.json`(`depth-link`)·`calendar.md`, 토큰 `color.timeline.entry`입니다. 값은 명세에서 그대로 옮기고 이 절에는 app이 정하는 것만 적습니다.
+
+**생성물:** `gen_ia`·`gen_tokens`·`gen-l10n` 재생성. 토큰 `color.timeline.entry`가 생깁니다.
+
+**`diary-row` 컴포넌트**(`lib/design/components/diary/diary_row.dart`)
+* 줄 하나 `DiaryEntryLine`(명세 `entry`): 시각·한 줄 미리보기·꺾쇠, 누르면 그 일기. 시각은 `createdAt`을 기기 시간대로 바꿔 `DateFormat.jm(localeName)`로 만듭니다(설정·프로필 화면과 같은 형식). 본문이 비면 한 줄 높이를 지키고 스크린리더는 시각만 읽습니다.
+* 점선은 줄과 줄 사이에만, 줄 전체 너비로 그립니다(`CustomPainter`, 대시 4·간격 3, 1px).
+* `day` 묶음 카드: 그날 일기가 한 편이면 지금 `DiaryRow` 그대로, 두 편 이상이면 같은 카드에 배지 → entry 줄들 → 태그 칩. 카드는 버튼이 아니고 `Semantics` 그룹("날짜 요일, 배지")입니다. 흐름 줄은 카드 높이만큼 이어집니다.
+* `entries`: entry 줄만. 화면별 바탕(`today` 카드, `day-sheet` 없음)과 `day-sheet` 머리는 명세 `entries.parts.container.byScreen`·`head` 값입니다. 받는 동안은 줄 두 개 높이 skeleton.
+
+**목록 묶음**(`diary-list`·`tag-diary`): 받은 쪽들을 이어 붙인 순서에서 날짜가 같은 이웃 요약을 한 묶음으로 만듭니다. 한 날짜가 두 쪽에 나뉘면 다음 쪽을 받은 뒤 같은 묶음 카드가 커집니다(줄이 따로 생기지 않음). 순서는 server 순서 그대로이고, 다시 정렬하지 않습니다. 묶음 함수는 순수 함수로 두고 단위 테스트합니다.
+
+**화면**
+* `today`: 가이드 질문 카드 아래 `entries`(오늘 카드 바탕), 0편이면 그리지 않습니다.
+* `day-sheet`: 머리(`daySheetDiaryOpen(count)`, 명세 `head` 글자 스타일, 링크 아님) → `entries`(바탕 없음) → 쓰기 버튼. 0편이면 버튼만.
+* 오늘·그날 시트의 줄에는 태그 칩이 없으므로 §6의 "표시용 태그 칩" 처리(`tagLinked: false`)는 entries에서 사라집니다. 목록의 묶음 카드 태그 칩은 지금처럼 `tag-diary`로 갑니다.
+
+**`guide-question-card` `full`:** `GuideQuestionState.full`을 더합니다. `after` 모양(질문 흐림, 도장 유지)에 조용한 버튼 `disabled`(글자 `disabled.fg`, 명세 값). 눌러도 아무 일 없고 햅틱도 없습니다. 상태 낭독은 `after`와 같은 `todayGuideWritten`이고, 이유는 버튼 글자(`todayGuideCtaFull`)가 말합니다(새 ARB 키 없음). §6의 "`onAction` null이면 비활성(opacity 0.4)"는 이 상태로 바뀝니다.
+
+**`date-picker` `calendar`:** 상한을 채운 날도 고를 수 있고, 아래 버튼만 `disabled` + `diaryListPickDateConfirmFull`입니다(§6 표와 같음, 확인만).
+
+**`depth-link` `navigate`:** `daySheetSlot` 인자나 분기가 남아 있으면 지웁니다.
+
+**contract·테스트:** `component_contract_test`에 `diary-row` 변형 `day`·`entries`와 `entry` 값(시각 글자, 미리보기 1줄·간격, 꺾쇠, 높이, 점선), `guide-question-card` `full`, 토큰 `color.timeline.entry`를 대조합니다. golden: `diary-row` 한 편·묶음·entries(오늘 바탕·시트)·빈 본문, `guide-question-card` `full`(라이트·다크, 글자 크기 단계는 기존 golden 관례). widgetbook use case. screenshot 재생성.
+
