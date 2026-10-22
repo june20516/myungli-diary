@@ -142,3 +142,20 @@ def test_invalid_window_is_schema_error(tmp_path: Path, scope: str, window: str)
     with pytest.raises(LoadError) as raised:
         load_rules(tmp_path)
     assert [finding.rule_id for finding in raised.value.findings] == ["load.schema"]
+
+
+def test_style_rule_registers_load() -> None:
+    rules = load_rules(RULES_DIR)
+    assert rules.style["style.S3"].registers == frozenset({"haeyo"})
+    assert rules.style["style.S8"].registers == frozenset({"hamnida"})
+    assert rules.style["style.S1"].registers == frozenset()
+
+
+def test_unknown_register_in_style_rule_is_error(tmp_path: Path) -> None:
+    copy_seed_rules(tmp_path)
+    style = tmp_path / "style.yaml"
+    text = style.read_text(encoding="utf-8")
+    style.write_text(text.replace("registers: [haeyo]", "registers: [banmal]", 1), encoding="utf-8")
+    with pytest.raises(LoadError) as raised:
+        load_rules(tmp_path)
+    assert any("banmal" in finding.message for finding in raised.value.findings)

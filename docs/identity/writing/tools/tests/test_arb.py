@@ -63,6 +63,15 @@ def test_arb_slot_allowed_skips_rule(tmp_path: Path, rules: RuleSet, slots: dict
     assert check_arb([path], allowing, rules) == []
 
 
+def test_arb_slot_register_is_used(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    depth_slot = next(slot for slot in slots.values() if "depthExplain" in slot.keys)
+    formal = {**slots, depth_slot.id: replace(depth_slot, register="hamnida")}
+    path = write_arb(tmp_path, {"@@locale": "ko", "depthExplain": "풀이를 엽니다."})
+    assert check_arb([path], formal, rules) == []
+    path = write_arb(tmp_path, {"@@locale": "ko", "depthExplain": "풀이를 열어요."})
+    assert [f.rule_id for f in check_arb([path], formal, rules)] == ["style.S8"]
+
+
 def test_arb_plural_passes(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
     path = write_arb(tmp_path, {"@@locale": "ko", "citySearchResults": "결과 {count, plural, other{{count}개}}"})
     assert check_arb([path], slots, rules) == []

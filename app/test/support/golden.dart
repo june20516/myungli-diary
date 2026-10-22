@@ -128,6 +128,7 @@ Future<void> goldenMatrix(
   );
   // 비동기로 채워지는 칸(광고 불러오기 등)은 [settle]로 기다립니다.
   await (settle?.call(tester) ?? tester.pump());
+  await precacheTreeImages(tester);
 
   if (fixedCells) {
     for (final brightness in goldenBrightnesses) {
@@ -162,6 +163,22 @@ Future<void> goldenMatrix(
   }
 
   await expectLater(find.byKey(gridKey), matchesGoldenFile('$name.png'));
+}
+
+/// 트리의 [Image]를 모두 해독해 두고 한 프레임 더 그립니다.
+///
+/// `Image.asset` 해독은 실제 비동기 작업이라 가짜 시계의 pump만으로는 끝나지 않아, 그대로
+/// 비교하면 이미지 자리가 빈 채로 찍힙니다. 그래서 `tester.runAsync`로 끝까지 기다립니다.
+/// 트리에 [Image]가 없으면 아무것도 하지 않습니다.
+Future<void> precacheTreeImages(WidgetTester tester) async {
+  final images = find.byType(Image).evaluate().toList();
+  if (images.isEmpty) return;
+  await tester.runAsync(() async {
+    for (final element in images) {
+      await precacheImage((element.widget as Image).image, element);
+    }
+  });
+  await tester.pump();
 }
 
 double _scaleInCell(

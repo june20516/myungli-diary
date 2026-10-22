@@ -15,12 +15,14 @@ import 'package:myungli_diary/core/storage/cache_first.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
+import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
+import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 
@@ -35,15 +37,16 @@ const Set<String> diaryEditHandledStates = {
 /// IA `diary-edit`의 출구 대상: 저장 → `diary-view`.
 const Set<String> diaryEditExits = {ScreenIds.diaryView};
 
-/// 일기 쓰기(`diary-edit`): 그날 가이드 질문을 보며 쓰고 고칩니다. 날짜는 `?date=`이고
-/// 없으면 오늘입니다.
+/// 일기 쓰기(`diary-edit`): 그날 가이드 질문을 보며 일기 한 편을 쓰고 고칩니다. `?id=`면 그
+/// 일기를 고치고, 아니면 `?date=`(없으면 오늘)의 새 일기입니다(A67, [diaryEditTargetOf]).
 ///
-/// * 열 때 그날 초안·저장된 일기·질문을 읽는 동안 skeleton(`loading`), 저장된 일기를 읽지
-///   못하면(연결 오류 밖) 오류와 다시 시도(`error`)입니다. 기기에 남은 초안이 있으면 그
-///   글로 시작합니다(`draft`, A48).
+/// * 열 때 초안·고칠 일기·질문을 읽는 동안 skeleton(`loading`), 고칠 일기를 읽지 못하면
+///   오류와 다시 시도(`error`), 없으면(404) 찾지 못했다는 안내입니다. 기기에 남은 초안이
+///   있으면 그 글로 시작합니다(`draft`, A48).
 /// * 입력이 멈추면 초안을 기기에 쓰고 앱 바의 `draft-indicator`가 바뀝니다.
 /// * 저장이 연결 오류로 실패하면 배너(`offline`), 그 밖의 실패는 오류 toast이고, 둘 다 초안은
-///   남고 버튼으로 다시 시도합니다(A49). 성공하면 저장 순간(도장 → 태그 칩 → toast) 뒤 그날
+///   남고 버튼으로 다시 시도합니다(A49). 그날 일기가 이미 찼으면(`diary.day_full`) 그 문구의
+///   toast입니다(A71). 성공하면 저장 순간(도장 → 태그 칩 → toast) 뒤 저장한 일기의
 ///   `diary-view`로 바꿔 갑니다(뒤로 가면 쓰기 화면이 아니라 그 앞 화면).
 class DiaryEditScreen extends ConsumerWidget {
   /// diary-edit 화면을 만듭니다.
@@ -52,10 +55,11 @@ class DiaryEditScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final query = GoRouterState.of(context).uri.queryParameters[dateQuery];
-    final today = ref.read(todayProvider);
-    final date = dateOfQuery(query) ?? today;
-    final edit = ref.watch(diaryEditProvider(date));
+    final target = diaryEditTargetOf(
+      GoRouterState.of(context).uri,
+      ref.read(todayProvider),
+    );
+    final edit = ref.watch(diaryEditProvider(target));
     final state = edit.value;
     final status = state?.status;
     return PopScope(
@@ -83,16 +87,20 @@ class DiaryEditScreen extends ConsumerWidget {
                         ),
                 ),
                 Expanded(
-                  child: ScreenStateView<DiaryEditState>(
-                    value: edit,
-                    onRetry: () => ref.invalidate(diaryEditProvider(date)),
-                    data: (state) => _DiaryEditForm(
-                      // 다른 날로 바뀌면 입력 상태를 새로 만듭니다.
-                      key: ValueKey(date),
-                      date: date,
-                      initialBody: state.initialBody,
-                    ),
-                  ),
+                  child: _isNotFound(edit)
+                      ? EmptyState(body: l10n.errorDiaryNotFound)
+                      : ScreenStateView<DiaryEditState>(
+                          value: edit,
+                          onRetry: () =>
+                              ref.invalidate(diaryEditProvider(target)),
+                          data: (state) => _DiaryEditForm(
+                            // 다른 일기로 바뀌면 입력 상태를 새로 만듭니다.
+                            key: ValueKey(target),
+                            target: target,
+                            date: state.date,
+                            initialBody: state.initialBody,
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -100,6 +108,14 @@ class DiaryEditScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// 고칠 일기가 없어(404) 열지 못했는지. 다시 시도해도 같아 안내만 둡니다.
+  static bool _isNotFound(AsyncValue<DiaryEditState> edit) {
+    final error = edit.error;
+    return !edit.hasValue &&
+        error is ProblemError &&
+        error.code == 'diary.not_found';
   }
 
   static DraftIndicatorState _indicatorOf(DiaryDraftStatus status) =>
@@ -119,8 +135,16 @@ class DiaryEditScreen extends ConsumerWidget {
 
 /// 종이와 저장 버튼. 본문 입력 상태(controller)를 듭니다.
 class _DiaryEditForm extends ConsumerStatefulWidget {
-  const new({required this.date, required this.initialBody, super.key});
+  const new({
+    required this.target,
+    required this.date,
+    required this.initialBody,
+    super.key,
+  });
 
+  final DiaryEditTarget target;
+
+  /// 일기 날짜(종이의 날짜).
   final CalendarDate date;
   final String initialBody;
 
@@ -147,7 +171,7 @@ class _DiaryEditFormState extends ConsumerState<_DiaryEditForm> {
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
-    final notifier = ref.read(diaryEditProvider(widget.date).notifier);
+    final notifier = ref.read(diaryEditProvider(widget.target).notifier);
     final Diary? saved;
     try {
       saved = await notifier.save(_body.text);
@@ -170,13 +194,13 @@ class _DiaryEditFormState extends ConsumerState<_DiaryEditForm> {
     );
     if (!mounted) return;
     showMyungliToast(context, l10n.diaryEditSavedTags);
-    context.pushReplacement(datedPathOf(ScreenIds.diaryView, widget.date));
+    context.pushReplacement(diaryPathOf(ScreenIds.diaryView, saved.id));
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(diaryEditProvider(widget.date)).value;
+    final state = ref.watch(diaryEditProvider(widget.target)).value;
     // 저장 순간의 태그 칩 이름을 위해 용어 사전을 미리 받아 둡니다.
     ref.watch(glossaryProvider);
     final saving = state?.saving ?? false;
@@ -210,7 +234,7 @@ class _DiaryEditFormState extends ConsumerState<_DiaryEditForm> {
                   onChanged: (body) {
                     setState(() {});
                     ref
-                        .read(diaryEditProvider(widget.date).notifier)
+                        .read(diaryEditProvider(widget.target).notifier)
                         .edit(body);
                   },
                 ),

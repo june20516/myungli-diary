@@ -276,7 +276,8 @@ def test_generic_groups_contain_spec_components():
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
                             "check-row", "account-choice"}
-    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card"}
+    assert ids["action"] == {"primary-button", "social-login-button", "share-button", "settings-row", "offer-card",
+                             "purchase-row"}
 
 
 # main IA 변경(D53)과 최종 리뷰 반영
@@ -293,6 +294,12 @@ def test_offer_card_states():
     offer = components_by_id(("action",))["offer-card"]
     assert {"available", "active"} <= set(offer["states"])
     assert offer["parts"]["container"]["radius"] == "{radius.lg}"
+    # D88 ②: 구매 복원 버튼 대신 구매 내역으로 가는 버튼 (#494)
+    assert "restore" not in offer["parts"]
+    assert offer["parts"]["history"] == {"component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta"}
+    assert "history" not in offer["states"]["offline"]["parts"]
+    assert any("구매 내역 버튼은 상태와 관계없이 늘 보인다" in rule for rule in offer["rules"])
+    assert offer["haptic"] == [{"when": "구매 완료", "strength": "light"}]
 
 
 def test_sage_text_on_soft_seal_uses_on_soft_token():
@@ -428,8 +435,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_2_8():
-    assert VERSION == "2.8.0"
+def test_contract_version_is_3_0():
+    assert VERSION == "3.0.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -499,6 +506,8 @@ def test_evidence_sheet_section_titles_and_slots():
 SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 이미지 꼬리말: IA 화면 슬롯이 아닌 공통 자리
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
 SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
+# D88 구매 줄 낱말 (#494). 가져올 기록 상자(ui.account-merge.summary)는 컴포넌트가 아닌 화면 배치라 input.md에만 있음
+SLOTS_OUTSIDE_IA |= {"ui.purchase.meta", "ui.purchase.product", "ui.purchase.status"}
 
 
 def _slot_values(node):
@@ -802,9 +811,12 @@ def test_account_choice_card_lines():
     assert parts["card"]["bg"] == "{color.bg.sheet}" and parts["card"]["radius"] == "{radius.md}"
     assert parts["current"]["radius"] == "{radius.full}" and parts["current"]["slot"] == "ui.account-merge.choice"
     assert parts["saju"]["slot"] == "ui.account-merge.saju"
-    assert parts["providers"]["logo"] is False
-    assert parts["facts"]["wrap"] is True and parts["providers"]["overflow"] == "wrap"
     assert parts["mark"]["radius"] == "{radius.full}"
+    # V44: 기록은 모두 옮기고 인증 수단은 옮기지 않아 일기 수·수단 이름 줄을 지움
+    assert not {"facts", "diaryCount", "providers"} & set(parts)
+    shape = ("type", "fg", "border", "radius", "paddingX")
+    assert {k: parts["other"][k] for k in shape} == {k: parts["current"][k] for k in shape}
+    assert parts["other"]["slot"] == "ui.account-merge.choice" and parts["other"]["key"] == "accountChoiceOther"
 
 
 def test_social_login_order_per_language():
@@ -837,7 +849,7 @@ def test_social_login_connected_is_neutral():
     assert parts["state"]["fg"] == "{color.action.primary}" and parts["state"]["icon"] == "check"
     assert parts["logo"]["badge"] == {
         "size": {"value": 20, "unit": "px"}, "symbolSize": {"value": 14, "unit": "px"},
-        "kakao": {"bg": "#FEE500", "symbol": "#000000", "shape": "{radius.xs}"},
+        "kakao": {"bg": "#FEE500", "symbol": "#191919", "shape": "{radius.xs}"},
         "line": {"bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}"},
         "google": {"bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}"},
         "apple": {"lightMode": {"bg": "#000000", "symbol": "#FFFFFF"}, "darkMode": {"bg": "#FFFFFF", "symbol": "#000000"},
@@ -918,8 +930,6 @@ def test_written_day_entrances_open_a_new_diary():
 def test_d82_writing_keys_are_named():
     connected = component("action", "social-login-button")["states"]["connected"]["parts"]["state"]
     assert connected["slot"] == "ui.login-methods.row" and connected["key"] == "loginMethodsRowConnected"
-    providers = component("input", "account-choice")["parts"]["providers"]
-    assert providers["join"] == {"slot": "ui.account-merge.choice", "key": "accountChoiceProviderSeparator"}
 
 
 # 최종 리뷰 반영 (#410): 그날 시트 일기 머리, 변형 덮어쓰기, 묶음 카드 a11y
@@ -961,3 +971,106 @@ def test_diary_row_group_a11y_replaces_button_role():
 def test_manuscript_text_is_not_copied_into_design_docs():
     for name in ("today.md", "elements.md"):
         assert "새 일기 쓰기" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+
+
+# 계정 합치기 두 단계 (#483, D85, 결정 V44)
+def _md_section(name, heading):
+    text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
+    section = text.split(heading, 1)[1]
+    return section.split("\n## ", 1)[0].split("\n### ", 1)[0]
+
+
+def test_account_choice_chooses_profile_not_account():
+    choice = component("input", "account-choice")
+    assert "프로필" in choice["summary"] and "V44" in choice["summary"]
+    first = next(rule for rule in choice["rules"] if "처음부터 어느 쪽도 골라 두지 않는다" in rule)
+    assert "지워져" in first
+
+
+def test_account_merge_two_steps_layout():
+    section = _md_section("input.md", "### account-merge 화면 배치")
+    for text in ("인증 단계", "요약·고르기 단계", "`account-merge.auth.body`", "`account-merge.not-other.body`",
+                 "`ui.account-merge.summary`", "0이어도", "\"합치지 않기\" 버튼이 없습니다", "뒤로 가기는 동작하지 않습니다"):
+        assert text in section, text
+    # IA가 PR #511로 슬롯 account-merge.cta.cancel과 출구 "합치지 않기"를 지움(#507)
+    assert "account-merge.cta.cancel" not in section
+
+
+def test_login_methods_merge_entry():
+    section = _md_section("action.md", "### login-methods 화면 배치")
+    for text in ("`login-methods.merge.cta`", "`quiet`", "`login-methods.in-use.body`", "`notice`", "저절로 넘어가지 않습니다"):
+        assert text in section, text
+    assert "`account-merge`로 넘어갑니다" not in section
+
+
+def test_dialog_notice_covers_d85_bodies():
+    dialog = component("feedback", "dialog")
+    notice = next(v for v in dialog["variants"] if v["id"] == "notice")
+    assert "login-methods.in-use.body" in notice["when"] and "account-merge.not-other.body" in notice["when"]
+
+
+# 구매 내역 (#494, D88 ②, #502, 결정 V45)
+def test_purchase_row():
+    row = component("action", "purchase-row")
+    parts = row["parts"]
+    assert parts["product"]["type"] == "{type.subtitle}" and parts["product"]["overflow"] == "wrap"
+    assert "스토어" in parts["product"]["fallback"]
+    status = parts["status"]
+    assert status["active"] == {"element": "tag.status"} and status["align"] == "product-first-line"
+    assert status["other"]["type"] == "{type.label.md}" and status["other"]["fg"] == "{color.text.secondary}"
+    assert parts["meta"]["type"] == "{type.caption.lg}" and parts["meta"]["fontFeatures"] == ["tnum"]
+    assert "기간" in parts["meta"]["periodOnlyWhen"]
+    assert parts["row"]["divider"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}, "between": "rows-only"}
+    assert parts["group"]["bg"] == "{color.bg.sheet}" and parts["group"]["radius"] == "{radius.lg}"
+    assert "pressed" not in row["states"] and row["states"]["loading"]["component"] == "skeleton"
+    assert any("server" in rule and "순서" in rule for rule in row["rules"])
+    assert any("합치기" in rule and "표시하지 않는다" in rule for rule in row["rules"])
+
+
+def test_purchase_history_layout():
+    section = _md_section("action.md", "### purchase-history 화면 배치")
+    for text in ("`purchase-history.missing.notice`", "늘 보입니다", "`receipt`", "`empty-state`"):
+        assert text in section, text
+
+
+# app 구현에서 어긋난 값 넷 (#475, 결정 V46)
+def test_issue_475_values():
+    login = component("action", "social-login-button")
+    badge = login["states"]["connected"]["parts"]["logo"]["badge"]
+    assert badge["kakao"] == {"bg": "#FEE500", "symbol": "#191919", "shape": "{radius.xs}"}
+    line = next(v for v in login["variants"] if v["id"] == "line")
+    assert line["parts"]["label"]["width"] == {"value": 198, "unit": "px"} and "공식" in line["parts"]["label"]["widthSource"]
+    entry = component("diary", "diary-row")["parts"]["entry"]
+    assert entry["chevron"]["marginStart"] == "{space.8}"
+    assert entry["time"]["format"] == "HH:mm" and entry["time"]["hourCycle"] == "h23"
+    variants = {v["id"]: v for v in component("calendar", "event-row")["variants"]}
+    for part in (variants["summary"]["parts"]["time"], variants["list"]["parts"]["timeColumn"]):
+        assert part["format"] == "HH:mm" and part["hourCycle"] == "h23"
+    assert "기기 locale의 짧은 시각" not in (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")
+
+
+# 최종 리뷰 반영 (#480): 구매 줄 슬롯 나눔, 색인, 요약 실패·뒤로 가기·문의 안내 범위
+def test_purchase_row_slots_are_split_by_limit():
+    parts = component("action", "purchase-row")["parts"]
+    assert parts["status"]["slot"] == "ui.purchase.status" and parts["status"]["key"] == "purchaseStatus*"
+    assert parts["status"]["maxWidth"] == {"value": 80, "unit": "px"}
+    assert parts["meta"]["slot"] == "ui.purchase.meta" and parts["meta"]["join"] == {"key": "purchaseMetaSeparator"}
+
+
+def test_readme_index_lists_3_0_components():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "check-row, account-choice |" in readme and "offer-card, purchase-row |" in readme
+    assert "IA 컴포넌트 42개" not in readme and readme.count("IA 컴포넌트 43개") == 2
+
+
+def test_account_merge_failure_and_back_rules():
+    section = _md_section("input.md", "### account-merge 화면 배치")
+    assert "요약을 받지 못하면" in section and "인증 단계로 돌아갑니다" in section
+    assert "스와이프" in section and "`disabled`" in section
+    assert "'끝냄'" in section
+    assert "값 자리 56" in section
+
+
+def test_missing_notice_scope():
+    section = _md_section("action.md", "### purchase-history 화면 배치")
+    assert "`loading`·`error`·`offline`에서는" in section

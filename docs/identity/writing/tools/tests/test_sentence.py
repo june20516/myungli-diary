@@ -157,6 +157,31 @@ def test_formal_ending_still_detected(rules: RuleSet) -> None:
     assert "style.S3" in [f.rule_id for f in findings]
 
 
+def rule_ids(text: str, rules: RuleSet, register: str) -> list[str]:
+    return [f.rule_id for f in check_sentence(make_entry(text), "info", rules, None, {}, register=register)]
+
+
+def test_haeyo_is_default_register(rules: RuleSet) -> None:
+    findings = check_sentence(make_entry("되돌릴 수 없어요."), "info", rules, None, {})
+    assert "style.S8" not in [f.rule_id for f in findings]
+
+
+def test_hamnida_register_allows_formal_ending(rules: RuleSet) -> None:
+    assert not {"style.S3", "style.S8"} & set(rule_ids("되돌릴 수 없습니다. 정해진 기간 동안 보관합니다.", rules, "hamnida"))
+
+
+def test_hamnida_register_flags_haeyo_ending(rules: RuleSet) -> None:
+    ids = rule_ids("계정을 지우면 모두 지워지고 되돌릴 수 없어요.", rules, "hamnida")
+    assert "style.S8" in ids
+    assert "style.S3" not in ids
+
+
+def test_haeyo_register_still_flags_formal_ending(rules: RuleSet) -> None:
+    ids = rule_ids("남색입니다.", rules, "haeyo")
+    assert "style.S3" in ids
+    assert "style.S8" not in ids
+
+
 def test_dangsin_is_error(rules: RuleSet) -> None:
     entry = make_entry("재물의 흐름이 당신에게 어떤 의미로 다가왔나요?")
     findings = check_sentence(entry, "care", rules, None, {})

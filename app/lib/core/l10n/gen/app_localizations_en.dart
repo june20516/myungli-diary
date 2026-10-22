@@ -623,9 +623,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get adFreeRestoreCta => 'Restore purchase';
-
-  @override
   String adFreeStatusRemaining(String date) {
     return 'Ad-free until $date';
   }
@@ -652,7 +649,15 @@ class AppLocalizationsEn extends AppLocalizations {
       '(Required) Collection and use of personal information';
 
   @override
-  String get daySheetDiaryOpen => 'View this day\'s diary';
+  String daySheetDiaryOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries this day',
+      one: '$count entry this day',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get daySheetDiaryWriteCta => 'Write about this day';
@@ -819,7 +824,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayGuideCta => 'Write in diary';
 
   @override
-  String get todayGuideCtaWritten => 'View diary';
+  String get todayGuideCtaWritten => 'Write a new entry';
 
   @override
   String get todayGuideEyebrow => 'Today\'s question';
@@ -1158,7 +1163,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String diaryListPickDateConfirm(String date) {
-    return '$date entry';
+    return 'Write a $date entry';
   }
 
   @override
@@ -1275,4 +1280,169 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legalLicensesLabel => 'Open source licenses';
+
+  @override
+  String get accountMergeBarTitle => 'Merge accounts';
+
+  @override
+  String get accountMergeChoiceLabel => 'Choose the account to keep';
+
+  @override
+  String get accountMergeCtaCancel => 'Don\'t merge';
+
+  @override
+  String get accountMergeCtaMerge => 'Merge accounts';
+
+  @override
+  String get accountMergeMergeConfirm =>
+      'Merge the two accounts? This can\'t be undone.';
+
+  @override
+  String get accountMergeMergeConfirmMerge => 'Merge';
+
+  @override
+  String get accountMergeMergeConfirmCancel => 'Cancel';
+
+  @override
+  String get accountMergeOverlapNotice =>
+      'Entries from the same day also all move to this account.';
+
+  @override
+  String get accountMergeTitleBody =>
+      'The account you choose keeps its chart details, name, and settings. All diary entries from both accounts move over, and remaining ad-free time is added together. The other account is deleted.';
+
+  @override
+  String get accountMergeTitleHead => 'Merge these two accounts?';
+
+  @override
+  String get daySheetDiaryWriteCtaWritten => 'Write a new entry for this day';
+
+  @override
+  String get daySheetDiaryWriteCtaFull => 'You\'ve written enough for this day';
+
+  @override
+  String get loginMethodsBarTitle => 'Sign-in methods';
+
+  @override
+  String get loginMethodsErrorBodyLink =>
+      'We couldn\'t link it. Please try again.';
+
+  @override
+  String get loginMethodsErrorBodyUnlink =>
+      'We couldn\'t unlink it. Please try again.';
+
+  @override
+  String get loginMethodsIntroBody =>
+      'Link more than one method and you can sign in to this account with any of them.';
+
+  @override
+  String get loginMethodsLastNotice => 'You need at least one way to sign in.';
+
+  @override
+  String loginMethodsUnlinkConfirm(String provider) {
+    return 'Unlink $provider?';
+  }
+
+  @override
+  String get loginMethodsUnlinkConfirmBody =>
+      'You can keep signing in with your other linked methods.';
+
+  @override
+  String get loginMethodsUnlinkConfirmUnlink => 'Unlink';
+
+  @override
+  String get loginMethodsUnlinkConfirmCancel => 'Cancel';
+
+  @override
+  String get todayGuideCtaFull => 'You\'ve written enough for today';
+
+  @override
+  String accountChoiceDiaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '$count entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountChoiceCurrent => 'Current account';
+
+  @override
+  String get accountChoiceProviderSeparator => ', ';
+
+  @override
+  String get accountMergeError =>
+      'We couldn\'t merge the accounts. Both accounts are unchanged. Please try again.';
+
+  @override
+  String accountChoiceSaju(String date, String calendar, String time) {
+    return '$calendar $date $time';
+  }
+
+  @override
+  String accountChoiceSajuNoTime(String date, String calendar) {
+    return '$calendar $date, time unknown';
+  }
+
+  @override
+  String get accountChoiceSajuEmpty => 'No chart details';
+
+  @override
+  String get diaryListPickDateConfirmFull =>
+      'You\'ve written enough for this day';
+
+  @override
+  String get errorDiaryDayFull => 'You\'ve written enough for this day.';
+
+  @override
+  String get loginProviderKakao => 'Kakao';
+
+  @override
+  String get loginProviderLine => 'LINE';
+
+  @override
+  String get loginProviderGoogle => 'Google';
+
+  @override
+  String get loginProviderApple => 'Apple';
+
+  @override
+  String get loginMethodsRowConnected => 'Linked';
+
+  @override
+  String get loginMethodsRowUnlink => 'Unlink';
+
+  @override
+  String get loginLineLabel => 'Log in with LINE';
+
+  @override
+  String get loginGoogleLabel => 'Sign in with Google';
+
+  @override
+  String get settingsLoginMethodsLabel => 'Sign-in methods';
+
+  @override
+  String get errorAuthIdentityNotFound =>
+      'We couldn\'t find that sign-in method. Please reopen this screen.';
+
+  @override
+  String get errorAuthProviderTaken =>
+      'Another account is already linked with the same sign-in method.';
+
+  @override
+  String get errorAuthIdentityInUse =>
+      'This sign-in method is linked to another account.';
+
+  @override
+  String get errorAuthIdentityPendingDeletion =>
+      'It\'s linked to an account waiting to be deleted.';
+
+  @override
+  String get errorAuthLastIdentity => 'You need at least one way to sign in.';
+
+  @override
+  String get adFreeRestoreCta => 'Restore purchase';
 }

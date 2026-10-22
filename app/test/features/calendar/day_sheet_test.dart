@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'package:myungli_diary/app/router/sheet_registry.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -23,10 +25,10 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
-import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
@@ -70,15 +72,11 @@ Widget _visited(GoRouterState state) => Scaffold(
 
 /// day-sheet를 띄우는 앱. 첫 화면에서 [DaySheets.open]을 부를 수 있게 context를 돌려줍니다.
 final class _Harness {
-  new({
-    required this.server,
-    required this.calendar,
-    required this.diaryExists,
-  });
+  new({required this.server, required this.calendar, required this.diaries});
 
   final ScheduleTestServer server;
   final Future<Calendar> Function() calendar;
-  final Future<bool> Function(CalendarDate date) diaryExists;
+  final Future<List<DiarySummary>> Function(CalendarDate date) diaries;
 
   final diaryChecks = <CalendarDate>[];
   final crash = FakeCrashReporter();
@@ -106,9 +104,9 @@ final class _Harness {
       todayProvider.overrideWithValue(_today),
       crashReporterProvider.overrideWithValue(crash),
       calendarMonthProvider.overrideWithBuild((ref, _) => calendar()),
-      diaryExistsOnProvider.overrideWith((ref, date) {
+      diariesOnProvider.overrideWith((ref, date) {
         diaryChecks.add(date);
-        return diaryExists(date);
+        return diaries(date);
       }),
       daySheetBodyProvider.overrideWithValue(
         (date) => DaySheetBody(date: date),
@@ -135,7 +133,7 @@ Future<_Harness> _open(
   CalendarDate date, {
   ScheduleTestServer? server,
   Future<Calendar> Function()? calendar,
-  Future<bool> Function(CalendarDate date)? diaryExists,
+  Future<List<DiarySummary>> Function(CalendarDate date)? diaries,
 }) async {
   tester.view
     ..physicalSize = const Size(400, 900)
@@ -144,7 +142,7 @@ Future<_Harness> _open(
   final harness = _Harness(
     server: server ?? ScheduleTestServer(seed: _shuffledSchedules()),
     calendar: calendar ?? () async => _october(),
-    diaryExists: diaryExists ?? (_) async => false,
+    diaries: diaries ?? (_) async => const [],
   );
   addTearDown(harness.router.dispose);
   await tester.pumpWidget(harness.app());
@@ -153,6 +151,26 @@ Future<_Harness> _open(
   await tester.pumpAndSettle();
   return harness;
 }
+
+/// [date]에 쓴 일기 [count]편(작성 순, id `d<date>-<순번>`).
+List<DiarySummary> _diaries(CalendarDate date, int count) => [
+  for (var i = 1; i <= count; i++)
+    DiarySummary(
+      id: 'd${date.toIso()}-$i',
+      date: date.toIso(),
+      createdAt: DateTime.utc(date.year, date.month, date.day, 9, i),
+      excerpt: '$i번째 일기',
+      featuredTags: const [],
+    ),
+];
+
+/// 쓰기 버튼(`day-sheet.diary.write-cta`).
+PrimaryButton _writeButton(WidgetTester tester) => tester.widget<PrimaryButton>(
+  find.ancestor(
+    of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
+    matching: find.byType(PrimaryButton),
+  ),
+);
 
 List<String> _rowTitles(WidgetTester tester) => [
   for (final row in tester.widgetList<EventRow>(find.byType(EventRow)))
@@ -327,90 +345,157 @@ void main() {
       expect(_rowTitles(tester), ['엄마 생신', '팀 주간 회의', '요가 수업']);
     });
 
-    for (final written in [false, true]) {
-      testWidgets(
-        '일기 여부를 묻는 동안 입구 자리를 잡아 두어 답(written: $written) 뒤에도 높이가 같습니다',
-        (tester) async {
-          final answer = Completer<bool>();
-          tester.view
-            ..physicalSize = const Size(400, 900)
-            ..devicePixelRatio = 1;
-          addTearDown(tester.view.reset);
-          final harness = _Harness(
-            server: ScheduleTestServer(),
-            calendar: () async => _october(),
-            diaryExists: (_) => answer.future,
-          );
-          addTearDown(harness.router.dispose);
-          await tester.pumpWidget(harness.app());
-          final container = ProviderScope.containerOf(harness.context);
-          unawaited(
-            container.read(daySheetsProvider).open(harness.context, _today),
-          );
-          for (var i = 0; i < 20; i++) {
-            await tester.pump(const Duration(milliseconds: 100));
-          }
-
-          const skeleton = ValueKey('day-sheet.diary.skeleton');
-          const entry = ValueKey('day-sheet.diary.entry');
-          expect(find.byKey(skeleton), findsOneWidget);
-          final reserved = tester.getSize(find.byKey(entry)).height;
-
-          answer.complete(written);
-          await tester.pumpAndSettle();
-          expect(find.byKey(skeleton), findsNothing);
-          expect(tester.getSize(find.byKey(entry)).height, reserved);
-        },
+    testWidgets('loading: 그날 일기를 받는 동안 입구 자리에 skeleton, 오면 버튼', (tester) async {
+      final answer = Completer<List<DiarySummary>>();
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final harness = _Harness(
+        server: ScheduleTestServer(),
+        calendar: () async => _october(),
+        diaries: (_) => answer.future,
       );
-    }
-
-    testWidgets('지난 날에 일기가 있으면 일기 보기 → 그날 diary-view', (tester) async {
-      await _open(
-        tester,
-        CalendarDate(2026, 10, 12),
-        diaryExists: (_) async => true,
+      addTearDown(harness.router.dispose);
+      await tester.pumpWidget(harness.app());
+      final container = ProviderScope.containerOf(harness.context);
+      unawaited(
+        container.read(daySheetsProvider).open(harness.context, _today),
       );
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
+      const skeleton = ValueKey('day-sheet.diary.skeleton');
+      expect(find.byKey(skeleton), findsOneWidget);
       expect(
         find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
         findsNothing,
       );
-      expect(
-        tester.widget<DepthLink>(find.byType(DepthLink)).label,
-        _ko.daySheetDiaryOpen,
-      );
-      await tester.tap(
-        find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen).hitTestable(),
-      );
-      await tester.pumpAndSettle();
 
-      expect(find.text('uri /diary-view?date=2026-10-12'), findsOneWidget);
+      answer.complete(const []);
+      await tester.pumpAndSettle();
+      expect(find.byKey(skeleton), findsNothing);
+      expect(_writeButton(tester).label, _ko.daySheetDiaryWriteCta);
     });
 
-    testWidgets('오늘 일기가 없으면 일기 쓰기 → 그날 diary-edit', (tester) async {
-      final harness = await _open(tester, _today);
+    testWidgets('지난 날 0편: 머리·줄 없이 이날 일기 쓰기 → 그날 새 일기', (tester) async {
+      final harness = await _open(tester, CalendarDate(2026, 10, 12));
 
-      expect(harness.diaryChecks, [_today]);
-      // 쓰기는 실행하는 동작이라 filled 버튼입니다(V37).
-      final button = tester.widget<PrimaryButton>(
-        find.ancestor(
-          of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
-          matching: find.byType(PrimaryButton),
-        ),
-      );
-      expect(button.label, _ko.daySheetDiaryWriteCta);
-      expect(button.variant, PrimaryButtonVariant.filled);
+      expect(harness.diaryChecks, [CalendarDate(2026, 10, 12)]);
       expect(
         find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
         findsNothing,
       );
+      expect(find.byType(DiaryEntryLine), findsNothing);
+      expect(find.byKey(DiaryEntries.cardKey), findsNothing);
+      // 쓰기는 실행하는 동작이라 filled 버튼입니다(V37).
+      final button = _writeButton(tester);
+      expect(button.label, _ko.daySheetDiaryWriteCta);
+      expect(button.variant, PrimaryButtonVariant.filled);
       await tester.tap(
         find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta).hitTestable(),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('uri /diary-edit?date=2026-10-13'), findsOneWidget);
+      expect(find.text('uri /diary-edit?date=2026-10-12'), findsOneWidget);
     });
+
+    testWidgets('3편: 머리(편수) 아래 작성 순 줄 3개와 이날 새 일기 쓰기', (tester) async {
+      final day = CalendarDate(2026, 10, 12);
+      await _open(tester, day, diaries: (date) async => _diaries(date, 3));
+
+      final head = find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen);
+      expect(head, findsOneWidget);
+      expect(
+        find.descendant(
+          of: head,
+          matching: find.text(_ko.daySheetDiaryOpen(3)),
+        ),
+        findsOneWidget,
+      );
+      final lines = tester
+          .widgetList<DiaryEntryLine>(find.byType(DiaryEntryLine))
+          .toList();
+      expect(
+        [for (final line in lines) line.excerpt],
+        ['1번째 일기', '2번째 일기', '3번째 일기'],
+        reason: '작성 순 그대로',
+      );
+      // 줄만 있고 날짜 열·태그 칩은 없습니다(그날 시트 모양).
+      expect(find.byType(DiaryRow), findsNothing);
+      expect(find.byKey(DiaryRow.dateColumnKey), findsNothing);
+      expect(_writeButton(tester).label, _ko.daySheetDiaryWriteCtaWritten);
+      expect(_writeButton(tester).onPressed, isNotNull);
+
+      // 줄은 머리와 버튼 사이에 놓입니다.
+      final headTop = tester.getTopLeft(head).dy;
+      final rowTop = tester.getTopLeft(find.byType(DiaryEntryLine).first).dy;
+      final buttonTop = tester
+          .getTopLeft(find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta))
+          .dy;
+      expect(headTop, lessThan(rowTop));
+      expect(rowTop, lessThan(buttonTop));
+
+      await tester.ensureVisible(
+        find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta).hitTestable(),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('uri /diary-edit?date=2026-10-12'), findsOneWidget);
+    });
+
+    testWidgets('머리는 링크가 아니라 글자입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        CalendarDate(2026, 10, 12),
+        diaries: (date) async => _diaries(date, 2),
+      );
+      final data = tester
+          .getSemantics(find.text(_ko.daySheetDiaryOpen(2)))
+          .getSemanticsData();
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      expect(data.identifier, SlotIds.daySheetDiaryOpen);
+      handle.dispose();
+    });
+
+    testWidgets('일기 줄을 누르면 그 일기의 diary-view', (tester) async {
+      await _open(
+        tester,
+        CalendarDate(2026, 10, 12),
+        diaries: (date) async => _diaries(date, 2),
+      );
+      await tester.ensureVisible(find.byType(DiaryEntryLine).at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DiaryEntryLine).at(1));
+      await tester.pumpAndSettle();
+      expect(find.text('uri /diary-view?id=d2026-10-12-2'), findsOneWidget);
+    });
+
+    for (final count in [10, 11]) {
+      testWidgets('$count편이면 쓰기 버튼은 다 채웠다는 문구로 꺼집니다', (tester) async {
+        await _open(
+          tester,
+          _today,
+          diaries: (date) async => _diaries(date, count),
+        );
+        final button = _writeButton(tester);
+        expect(button.label, _ko.daySheetDiaryWriteCtaFull);
+        expect(button.onPressed, isNull);
+        expect(
+          find.descendant(
+            of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
+            matching: find.text(_ko.daySheetDiaryOpen(count)),
+          ),
+          findsOneWidget,
+        );
+        expect(find.byType(DiaryEntryLine), findsNWidgets(count));
+      });
+    }
 
     testWidgets('미래 날에는 일기 입구가 없고 일기를 묻지도 않습니다(D49)', (tester) async {
       final harness = await _open(tester, CalendarDate(2026, 10, 20));
@@ -436,7 +521,7 @@ void main() {
       final harness = _Harness(
         server: ScheduleTestServer(),
         calendar: () => pending.future,
-        diaryExists: (_) async => false,
+        diaries: (_) async => const [],
       );
       addTearDown(harness.router.dispose);
       await tester.pumpWidget(harness.app());

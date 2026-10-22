@@ -7,7 +7,11 @@ part of 'diary_summary.dart';
 // **************************************************************************
 
 abstract class _$DiarySummaryCWProxy {
+  DiarySummary id(String id);
+
   DiarySummary date(String date);
+
+  DiarySummary createdAt(DateTime createdAt);
 
   DiarySummary excerpt(String excerpt);
 
@@ -21,7 +25,13 @@ abstract class _$DiarySummaryCWProxy {
   /// ```dart
   /// DiarySummary(...).copyWith(id: 12, name: "My name")
   /// ```
-  DiarySummary call({String date, String excerpt, List<Tag> featuredTags});
+  DiarySummary call({
+    String id,
+    String date,
+    DateTime createdAt,
+    String excerpt,
+    List<Tag> featuredTags,
+  });
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -32,7 +42,13 @@ class _$DiarySummaryCWProxyImpl implements _$DiarySummaryCWProxy {
   final DiarySummary _value;
 
   @override
+  DiarySummary id(String id) => call(id: id);
+
+  @override
   DiarySummary date(String date) => call(date: date);
+
+  @override
+  DiarySummary createdAt(DateTime createdAt) => call(createdAt: createdAt);
 
   @override
   DiarySummary excerpt(String excerpt) => call(excerpt: excerpt);
@@ -51,15 +67,25 @@ class _$DiarySummaryCWProxyImpl implements _$DiarySummaryCWProxy {
   /// ```
   @override
   DiarySummary call({
+    Object? id = const $CopyWithPlaceholder(),
     Object? date = const $CopyWithPlaceholder(),
+    Object? createdAt = const $CopyWithPlaceholder(),
     Object? excerpt = const $CopyWithPlaceholder(),
     Object? featuredTags = const $CopyWithPlaceholder(),
   }) {
     return DiarySummary(
+      id: id == const $CopyWithPlaceholder() || id == null
+          ? _value.id
+          // ignore: cast_nullable_to_non_nullable
+          : id as String,
       date: date == const $CopyWithPlaceholder() || date == null
           ? _value.date
           // ignore: cast_nullable_to_non_nullable
           : date as String,
+      createdAt: createdAt == const $CopyWithPlaceholder() || createdAt == null
+          ? _value.createdAt
+          // ignore: cast_nullable_to_non_nullable
+          : createdAt as DateTime,
       excerpt: excerpt == const $CopyWithPlaceholder() || excerpt == null
           ? _value.excerpt
           // ignore: cast_nullable_to_non_nullable
@@ -84,25 +110,33 @@ extension $DiarySummaryCopyWith on DiarySummary {
 // JsonSerializableGenerator
 // **************************************************************************
 
-DiarySummary _$DiarySummaryFromJson(Map<String, dynamic> json) =>
-    $checkedCreate('DiarySummary', json, ($checkedConvert) {
-      $checkKeys(json, requiredKeys: const ['date', 'excerpt', 'featuredTags']);
-      final val = DiarySummary(
-        date: $checkedConvert('date', (v) => v as String),
-        excerpt: $checkedConvert('excerpt', (v) => v as String),
-        featuredTags: $checkedConvert(
-          'featuredTags',
-          (v) => (v as List<dynamic>)
-              .map((e) => Tag.fromJson(e as Map<String, dynamic>))
-              .toList(),
-        ),
-      );
-      return val;
-    });
+DiarySummary _$DiarySummaryFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('DiarySummary', json, ($checkedConvert) {
+  $checkKeys(
+    json,
+    requiredKeys: const ['id', 'date', 'createdAt', 'excerpt', 'featuredTags'],
+  );
+  final val = DiarySummary(
+    id: $checkedConvert('id', (v) => v as String),
+    date: $checkedConvert('date', (v) => v as String),
+    createdAt: $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
+    excerpt: $checkedConvert('excerpt', (v) => v as String),
+    featuredTags: $checkedConvert(
+      'featuredTags',
+      (v) => (v as List<dynamic>)
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    ),
+  );
+  return val;
+});
 
 Map<String, dynamic> _$DiarySummaryToJson(DiarySummary instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'date': instance.date,
+      'createdAt': instance.createdAt.toIso8601String(),
       'excerpt': instance.excerpt,
       'featuredTags': instance.featuredTags.map((e) => e.toJson()).toList(),
     };

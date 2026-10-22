@@ -10,6 +10,8 @@ const Set<String> pendingStateScreens = {
   // D82(#387): 로그인 수단·계정 합치기 화면은 계획 7에서 만듭니다.
   'login-methods',
   'account-merge',
+  // D88(#493): 구매 내역 화면은 계획 7에서 만듭니다.
+  'purchase-history',
 };
 
 /// 아직 IA `exits`를 구현하지 않은 page 화면 id(출구가 없는 화면은 제외).

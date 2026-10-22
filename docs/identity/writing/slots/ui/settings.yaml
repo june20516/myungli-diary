@@ -216,6 +216,26 @@
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
+- id: calc-basis.daeun.body
+  where: "계산 기준 화면(calc-basis): 대운수를 세는 방식"
+  purpose: info
+  user_state: "대운수를 어떻게 세는지 궁금합니다(D86 ⑦)."
+  structure: "한 문장. 계산 규칙만 말하고 수치 예나 다른 앱과의 차이는 쓰지 않습니다(R15-14)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  register: hamnida
+  keys:
+    - calcBasisDaeunBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: calcBasisDaeunBody, text: "대운수는 개월을 버리고 셉니다.", why: "라운드 R15 선택(계산 규칙이라 합니다체, W40)", source: writing}
+    bad: []
+  endings: ["~ㅂ니다"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
 - id: account-delete.title.head
   where: "계정 삭제 화면(account-delete): 계정 삭제 제목"
   purpose: info
@@ -239,17 +259,19 @@
   where: "계정 삭제 화면(account-delete): 지워지는 데이터 안내"
   purpose: info
   user_state: "무엇이 지워지는지 확인합니다(스토어 요건)."
-  structure: "한 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것."
+  structure: "두 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것, 법이나 부정 이용 방지에 필요한 정보만 정해진 기간 따로 보관한다는 것(D88 ③④, Apple 계정 삭제 요건). 자세한 항목은 처리방침에 둡니다. 공적인 고지라 합니다체입니다(W40)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
+  register: hamnida
   keys:
     - accountDeleteDataBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountDeleteDataBody, text: "계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
-  endings: ["~해요", "~어요"]
+      - {lang: ko, key: accountDeleteDataBody, text: "계정을 지우면 사주 정보, 일기, 태그, 일정, 구매한 상품의 남은 기간이 모두 지워지며 되돌릴 수 없습니다. 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 동안 따로 보관합니다.", why: "라운드 R15 선택(공적인 고지라 합니다체, W40)", source: writing}
+    bad:
+      - {lang: ko, text: "계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.", why: "보관하는 정보를 알리지 않음(D88 ④), 공적인 고지를 해요체로 씀(W40)", source: writing}
+  endings: ["~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."

@@ -30,7 +30,12 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-22, design 세션 작성)
+## 현재 상태 (2026-10-23, design 세션 작성)
+* **계정 합치기 두 단계·구매 내역 #480·#483·#494·#475** (브랜치 `design/catchup-480-d85-d88`, D85·D88, 컴포넌트 계약 3.0.0).
+  * `account-merge` 한 화면 두 단계(인증 → 가져올 기록·구매 상자 + `account-choice` + 합치기 버튼), "합치지 않기" 없이 뒤로 가기. `account-choice`는 프로필 고르기(`facts`·`diaryCount`·`providers` 삭제, `other` 알약 추가). `login-methods`에 합치기 입구, 연결 안 함 안내는 `dialog` `notice`(V44).
+  * `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(상품 이름 → 구매일·사용 기간, 상태 오른쪽, V45, 지휘 #502로 상품 이름 추가).
+  * #475: 카카오 배지 `#191919`, LINE 글자 198px(`lengths.py` `KEY_TARGETS`), `entry` 꺾쇠 앞 `space.8`, 시각 24시간제(V46).
+  * 근거: [spec](specs/2026-10-23-account-merge-purchase-design.md), 결정 V44~V46, 시안 `design-v2-account-merge-purchase`.
 * **같은 날 여러 편 #410** (브랜치 `design/diary-row-multi`, D83, 컴포넌트 계약 2.8.0·토큰 1.2.0).
   * `diary-row` 변형 `day`(목록·태그 모아보기: 한 편이면 지금 모양, 두 편 이상이면 날짜 하나에 카드 하나 — 배지 위·태그 아래 한 번씩, 사이에 `entry` 줄)와 `entries`(오늘·그날 시트: `entry` 줄만). `entry`는 작성 시각 + 한 줄 미리보기 + 꺾쇠, 줄 사이 1px 점선(대시 4·간격 3, 새 토큰 `color.timeline.entry`, V42).
   * 상한을 채운 날 입구: `guide-question-card` `full`(도장 남기고 버튼만 막음), 그날 시트 버튼·날짜 시트 버튼 `disabled` + writing `…Full` 키(V43). "쓴 일기 보기" 표기를 writing 키로 고침(D83 ③). 그날 시트 일기 입구는 머리(`entries.head`) + 줄 + 쓰기 버튼으로 V37을 개정하고 `depth-link` `navigate`의 `daySheetSlot`을 지움(IA day-sheet의 `depth-link`는 지휘가 PR #460으로 뺌, drift #461).
@@ -99,6 +104,7 @@
 
 ## 다음 할 일
 1. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리.
+   * 대기: writing #509 원고가 오면 글자 수를 원고와 견줍니다. 지휘 #507은 PR #511로 반영돼 drift #480으로 따라잡았습니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.

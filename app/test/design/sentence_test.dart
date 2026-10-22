@@ -14,6 +14,7 @@ import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -2273,6 +2274,36 @@ void main() {
       expect(labels, contains('식신의 뜻 보기'));
       expect(labels.where((l) => l.contains('TenGod')), isEmpty);
       handle.dispose();
+    });
+  });
+
+  group('PressInkTarget.pressed', () {
+    testWidgets('눌린 채 onTap이 null이 되면 눌림이 풀립니다', (tester) async {
+      final pressedLog = <bool>[];
+      Widget target({required VoidCallback? onTap}) => _app(
+        PressInkTarget.pressed(
+          semanticLabel: '눌러 보기',
+          onTap: onTap,
+          builder: ({required pressed}) {
+            pressedLog.add(pressed);
+            return const SizedBox(width: 80, height: 40);
+          },
+        ),
+      );
+
+      await tester.pumpWidget(target(onTap: () {}));
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(SizedBox).last),
+      );
+      await tester.pump();
+      expect(pressedLog.last, isTrue, reason: '누르는 동안 눌림');
+
+      await tester.pumpWidget(target(onTap: null));
+      expect(pressedLog.last, isFalse, reason: '눌린 채 꺼지면 눌림이 남지 않음');
+
+      await gesture.up();
+      await tester.pump();
+      expect(pressedLog.last, isFalse);
     });
   });
 }

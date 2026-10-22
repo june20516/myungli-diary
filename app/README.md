@@ -70,6 +70,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `schedule-save-error` | 로그인한 회원. 일정 만들기(createSchedule)와 고치기(updateSchedule)가 503이라 저장하지 못합니다 |
   | `daily-error` | 로그인한 회원. 오늘(getDaily)이 503 service.unavailable이라 오늘 화면의 오류 상태와 다시 시도를 확인합니다 |
   | `diary-written` | 로그인한 회원. 오늘 일기를 이미 써서(getDiary 200) 오늘 화면의 가이드 질문 카드가 쓴 뒤(after) 상태이고 쓴 일기 보기로 이어집니다 |
+  | `diary-day-full` | 로그인한 회원. 오늘 날짜에 살아 있는 일기가 이미 10편(listDiaries)이라 새 일기 입구가 막히고, 11번째를 만들면 422 diary.day_full입니다 |
   | `reaction-failed` | 로그인한 회원. 총운 문장에 반응을 남기는 요청(putReaction)이 503 service.unavailable이라 켠 반응이 되돌아가고 오류 toast가 뜹니다 |
   | `reaction-delete-failed` | 로그인한 회원. 총운 문장의 반응을 지우는 요청(deleteReaction)이 503 service.unavailable이라 끈 반응이 다시 켜지고 오류 toast가 뜹니다. 켜진 채로 시작하는 응답은 테스트가 대는 getDaily 대역으로 만듭니다 |
   | `evidence-unlocked` | 로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)과 나의 사주(getChart)가 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다. 나의 사주에는 용신 판정 근거와 원국 개인 해석(`personalReadings`)이 있습니다 |

@@ -499,3 +499,22 @@
   a11y:
     truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "화면 제목으로 먼저 읽습니다."
+
+- id: purchase-history.bar.title
+  where: "구매 내역 화면(purchase-history): app-bar 제목"
+  purpose: guide
+  user_state: "화면에 들어와 어디에 있는지 봅니다."
+  structure: "화면 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - purchaseHistoryBarTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: purchaseHistoryBarTitle, text: "구매 내역", why: "IA 화면 이름 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "app-bar 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "화면 제목으로 먼저 읽습니다."

@@ -570,9 +570,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get adFreeRestoreCta => '購入を復元';
-
-  @override
   String adFreeStatusRemaining(String date) {
     return '$dateまで広告なしで使えます';
   }
@@ -597,7 +594,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get consentRequiredLabelPrivacy => '(必須)個人情報の収集・利用';
 
   @override
-  String get daySheetDiaryOpen => 'この日の日記を見る';
+  String daySheetDiaryOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'この日の日記$count件',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get daySheetDiaryWriteCta => 'この日の日記を書く';
@@ -757,7 +761,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayGuideCta => '日記を書く';
 
   @override
-  String get todayGuideCtaWritten => '書いた日記を見る';
+  String get todayGuideCtaWritten => '新しい日記を書く';
 
   @override
   String get todayGuideEyebrow => '今日の質問';
@@ -1064,7 +1068,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String diaryListPickDateConfirm(String date) {
-    return '$dateの日記';
+    return '$dateの日記を書く';
   }
 
   @override
@@ -1178,4 +1182,157 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get legalLicensesLabel => 'オープンソースライセンス';
+
+  @override
+  String get accountMergeBarTitle => 'アカウントの統合';
+
+  @override
+  String get accountMergeChoiceLabel => '残すアカウントを選んでください';
+
+  @override
+  String get accountMergeCtaCancel => '統合しない';
+
+  @override
+  String get accountMergeCtaMerge => 'アカウントを統合';
+
+  @override
+  String get accountMergeMergeConfirm => 'アカウントを統合しますか?統合すると元に戻せません。';
+
+  @override
+  String get accountMergeMergeConfirmMerge => '統合';
+
+  @override
+  String get accountMergeMergeConfirmCancel => 'キャンセル';
+
+  @override
+  String get accountMergeOverlapNotice => '同じ日に書いた日記もすべてこのアカウントに移します。';
+
+  @override
+  String get accountMergeTitleBody =>
+      '選んだアカウントの命式の情報・呼び名・設定が残ります。日記は2つのアカウントの分をすべて移し、広告除去の残り期間は合算します。選ばなかったアカウントは削除されます。';
+
+  @override
+  String get accountMergeTitleHead => '2つのアカウントを1つにまとめますか?';
+
+  @override
+  String get daySheetDiaryWriteCtaWritten => 'この日の新しい日記を書く';
+
+  @override
+  String get daySheetDiaryWriteCtaFull => 'この日は十分に書きました';
+
+  @override
+  String get loginMethodsBarTitle => 'ログイン方法';
+
+  @override
+  String get loginMethodsErrorBodyLink => '連携できませんでした。もう一度お試しください。';
+
+  @override
+  String get loginMethodsErrorBodyUnlink => '連携を解除できませんでした。もう一度お試しください。';
+
+  @override
+  String get loginMethodsIntroBody => '複数の方法を連携しておくと、どれでもこのアカウントにログインできます。';
+
+  @override
+  String get loginMethodsLastNotice => 'ログイン方法は1つ以上残しておく必要があります。';
+
+  @override
+  String loginMethodsUnlinkConfirm(String provider) {
+    return '$providerの連携を解除しますか?';
+  }
+
+  @override
+  String get loginMethodsUnlinkConfirmBody => '連携しているほかの方法で引き続きログインできます。';
+
+  @override
+  String get loginMethodsUnlinkConfirmUnlink => '連携を解除';
+
+  @override
+  String get loginMethodsUnlinkConfirmCancel => 'キャンセル';
+
+  @override
+  String get todayGuideCtaFull => '今日は十分に書きました';
+
+  @override
+  String accountChoiceDiaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '日記$count件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountChoiceCurrent => '現在のアカウント';
+
+  @override
+  String get accountChoiceProviderSeparator => '・';
+
+  @override
+  String get accountMergeError =>
+      'アカウントを統合できませんでした。2つのアカウントはそのままです。もう一度お試しください。';
+
+  @override
+  String accountChoiceSaju(String date, String calendar, String time) {
+    return '$calendar $date $time';
+  }
+
+  @override
+  String accountChoiceSajuNoTime(String date, String calendar) {
+    return '$calendar $date 時刻不明';
+  }
+
+  @override
+  String get accountChoiceSajuEmpty => '命式の情報なし';
+
+  @override
+  String get diaryListPickDateConfirmFull => 'この日は十分に書きました';
+
+  @override
+  String get errorDiaryDayFull => 'この日は十分に書きました。';
+
+  @override
+  String get loginProviderKakao => 'Kakao';
+
+  @override
+  String get loginProviderLine => 'LINE';
+
+  @override
+  String get loginProviderGoogle => 'Google';
+
+  @override
+  String get loginProviderApple => 'Apple';
+
+  @override
+  String get loginMethodsRowConnected => '連携済み';
+
+  @override
+  String get loginMethodsRowUnlink => '連携を解除';
+
+  @override
+  String get loginLineLabel => 'LINEでログイン';
+
+  @override
+  String get loginGoogleLabel => 'Google でログイン';
+
+  @override
+  String get settingsLoginMethodsLabel => 'ログイン方法';
+
+  @override
+  String get errorAuthIdentityNotFound => 'ログイン方法が見つかりませんでした。画面を開き直してください。';
+
+  @override
+  String get errorAuthProviderTaken => '同じログイン方法で別のアカウントがすでに連携されています。';
+
+  @override
+  String get errorAuthIdentityInUse => 'このログイン方法は別のアカウントに連携されています。';
+
+  @override
+  String get errorAuthIdentityPendingDeletion => '削除待ちのアカウントに連携されています。';
+
+  @override
+  String get errorAuthLastIdentity => 'ログイン方法は1つ以上残しておく必要があります。';
+
+  @override
+  String get adFreeRestoreCta => '購入を復元';
 }

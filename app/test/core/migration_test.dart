@@ -12,24 +12,22 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  // 저장된 v1 덤프로 시작하는 틀입니다. v2를 만들 때 이전 → 다음 마이그레이션 검증에
-  // 쓰고, 이 테스트만으로는 코드 스키마와 덤프의 일치를 보장하지 않습니다.
-  test('v1 덤프가 열리고 현재 스키마와 일치한다', () async {
+  test('v1 덤프에서 v2로 올리면 v2 덤프와 일치한다', () async {
     final connection = await verifier.startAt(1);
     final database = AppDatabase.forExecutor(connection);
     addTearDown(database.close);
 
-    await verifier.migrateAndValidate(database, 1);
+    await verifier.migrateAndValidate(database, 2);
     expect(await database.select(database.cachedResponses).get(), isEmpty);
     expect(await database.select(database.diaryDrafts).get(), isEmpty);
     expect(await database.select(database.onboardingInputs).get(), isEmpty);
     expect(await database.select(database.deviceFlags).get(), isEmpty);
   });
 
-  test('코드가 만든 스키마가 저장된 v1 덤프와 일치한다', () async {
+  test('코드가 만든 스키마가 저장된 v2 덤프와 일치한다', () async {
     final database = AppDatabase.forExecutor(NativeDatabase.memory());
     addTearDown(database.close);
 
-    await verifier.migrateAndValidate(database, 1);
+    await verifier.migrateAndValidate(database, 2);
   });
 }

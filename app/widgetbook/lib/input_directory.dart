@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
+import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -19,6 +23,60 @@ WidgetbookUseCase _stage(String name, Widget Function() build) =>
       name: name,
       builder: (context) => Stage(child: build()),
     );
+
+/// 눌러서 고르는 계정 합치기 카드 두 장. 처음에는 고르지 않음(`none`)입니다.
+class _AccountChoiceDemo extends StatefulWidget {
+  const new({required this.locked, required this.loading});
+
+  /// 고름 잠금(`disabled`, 합치는 중).
+  final bool locked;
+
+  /// 불러오는 중(`loading`).
+  final bool loading;
+
+  @override
+  State<_AccountChoiceDemo> createState() => _AccountChoiceDemoState();
+}
+
+class _AccountChoiceDemoState extends State<_AccountChoiceDemo> {
+  int? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SizedBox(
+      width: 320,
+      child: AccountChoice(
+        options: [
+          AccountChoiceOption(
+            name: '달',
+            current: true,
+            saju: l10n.accountChoiceSaju('1990.04.15', '양력', '오전 7:30'),
+            diaryCount: l10n.accountChoiceDiaryCount(128),
+            providers: [
+              socialProviderName(l10n, SocialProvider.kakao),
+              socialProviderName(l10n, SocialProvider.apple),
+            ].join(l10n.accountChoiceProviderSeparator),
+          ),
+          AccountChoiceOption(
+            name: '별',
+            current: false,
+            saju: l10n.accountChoiceSajuEmpty,
+            diaryCount: l10n.accountChoiceDiaryCount(3),
+            providers: socialProviderName(l10n, SocialProvider.line),
+          ),
+        ],
+        selectedIndex: _selected,
+        onSelected: widget.locked
+            ? null
+            : (index) => setState(() => _selected = index),
+        groupLabel: l10n.accountMergeChoiceLabel,
+        currentLabel: l10n.accountChoiceCurrent,
+        loading: widget.loading,
+      ),
+    );
+  }
+}
 
 /// 입력 화면 틀. 높이를 정해야 내용이 스크롤되고 버튼이 아래에 붙습니다.
 Widget _inputStep({
@@ -93,7 +151,10 @@ Widget _checkRow(
 
 /// 달을 넘기고 날을 고르는 date-picker calendar.
 class _MonthDatePickerDemo extends StatefulWidget {
-  const new();
+  const new({this.disabled = false});
+
+  /// 고른 날 일기를 다 채워 아래 버튼이 꺼진 모양인지(D83 ②).
+  final bool disabled;
 
   @override
   State<_MonthDatePickerDemo> createState() => _MonthDatePickerDemoState();
@@ -114,8 +175,10 @@ class _MonthDatePickerDemoState extends State<_MonthDatePickerDemo> {
       markedDates: {CalendarDate(2026, 10, 2), CalendarDate(2026, 10, 12)},
       onSelect: (date) => setState(() => _selected = date),
       onMonthChange: (month) => setState(() => _month = month),
-      confirmLabel: '${_selected.month}월 ${_selected.day}일 일기',
-      onConfirm: () {},
+      confirmLabel: widget.disabled
+          ? '이날은 충분히 썼어요'
+          : '${_selected.month}월 ${_selected.day}일 일기 쓰기',
+      onConfirm: widget.disabled ? null : () {},
     ),
   );
 }
@@ -241,7 +304,7 @@ Widget _citySearch({bool loading = false, bool saving = false}) {
 }
 
 /// 입력 카탈로그: input-step, text-field, segmented, check-row,
-/// date-picker, time-picker, city-search.
+/// date-picker, time-picker, account-choice, city-search.
 final WidgetbookFolder inputDirectory = WidgetbookFolder(
   name: '입력',
   children: [
@@ -420,7 +483,14 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
             solarConfirm: const SolarConfirm.loading(),
           ),
         ),
-        _stage('calendar(일기 날짜)', () => const _MonthDatePickerDemo()),
+        WidgetbookUseCase(
+          name: 'calendar(일기 날짜)',
+          builder: (context) => Stage(
+            child: _MonthDatePickerDemo(
+              disabled: context.knobs.boolean(label: '비활성(고른 날 다 채움)'),
+            ),
+          ),
+        ),
         _stage(
           'solar(일정 날짜)',
           () => _datePicker(
@@ -451,6 +521,20 @@ final WidgetbookFolder inputDirectory = WidgetbookFolder(
           () => _timePicker(TimePickerVariant.birth, unknown: true),
         ),
         _stage('notify(5분 단위)', () => _timePicker(TimePickerVariant.notify)),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'account-choice',
+      useCases: [
+        WidgetbookUseCase(
+          name: '고르기(none → selected)',
+          builder: (context) => Stage(
+            child: _AccountChoiceDemo(
+              locked: context.knobs.boolean(label: '고름 잠금(disabled)'),
+              loading: context.knobs.boolean(label: 'loading'),
+            ),
+          ),
+        ),
       ],
     ),
     WidgetbookComponent(

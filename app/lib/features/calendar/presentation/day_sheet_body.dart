@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
@@ -13,9 +16,9 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
-import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
@@ -26,9 +29,10 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 
-/// 그날 시트(`day-sheet`) 본문: 날의 성격 한 줄, 그날 일정, 일기 입구.
+/// 그날 시트(`day-sheet`) 본문: 날의 성격 한 줄, 그날 일정, 그날 일기 줄과 쓰기 입구.
 ///
 /// * 날의 성격은 달 길흉의 그 날([calendarDayProvider])입니다(getDaily를 부르지 않음).
 ///   기다리는 동안 skeleton(`loading`), 받지 못하면 오류 화면과 다시 시도(`error`)입니다.
@@ -36,7 +40,7 @@ import 'package:myungli_diary/features/schedule/application/schedule_providers.d
 /// * 일정은 [schedulesOnDateProvider]의 하루 일정(하루 종일 먼저, 시각순)입니다. 없으면
 ///   빈 문장과 일정 추가(`empty`), 받지 못하면 빈 문장 대신 조용한 오류 한 줄과 다시 시도,
 ///   일정 추가를 둡니다(없다고 말하지 않게).
-/// * 일기 입구는 오늘·지난 날만이고(D49) 일기가 있으면 보기, 없으면 쓰기입니다. 미래 날은
+/// * 일기 입구는 오늘·지난 날만이고(D49) 그날 쓴 일기 줄과 새 일기 쓰기입니다(A69). 미래 날은
 ///   묻지도 그리지도 않습니다.
 /// * 이유 문장의 용어는 칩이고(V28) 풀이 시트를 위로 쌓습니다. day-sheet의 깊이는
 ///   `surface`·`explain`까지라 그 풀이 시트에는 근거 보기가 없습니다. 시트에는 광고 배너가
@@ -192,11 +196,11 @@ class _ScheduleSection extends ConsumerWidget {
       _push(context, pathOf(ScreenIds.eventEdit), extra: schedule);
 }
 
-/// 일기 입구(오늘·지난 날, 결정 V37). 쓴 일기를 보러 가는 이동은 `depth-link` `navigate`,
-/// 새로 쓰는 동작은 `primary-button` `filled`입니다.
+/// 일기 입구(오늘·지난 날, D49): 그날 쓴 일기가 있으면 머리(편수, 동작 아님)와 작성 순
+/// `diary-row` `entries`, 그 아래 새 일기 쓰기 `primary-button` `filled`(V37)입니다(A69).
 ///
-/// 입구 자리는 늘 링크·버튼 중 큰 쪽 높이로 잡아 둡니다. 일기 여부를 묻는 동안(skeleton)과
-/// 답이 온 뒤의 시트 높이가 같아, 시트가 출렁이지 않습니다.
+/// 쓰기 버튼은 그날 편수로 처음 쓰기·한 편 더 쓰기·다 채움(누를 수 없음)입니다(D83 ②). 그날
+/// 일기를 받는 동안은 입구 자리에 skeleton이고, 받지 못하면 0편으로 그려 쓰기를 막지 않습니다.
 class _DiaryEntry extends ConsumerWidget {
   const new({required this.date});
 
@@ -207,56 +211,53 @@ class _DiaryEntry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final written = ref.watch(diaryExistsOnProvider(date)).value;
-    // [placeholder]면 자리만 잡는 후보라 슬롯 id를 붙이지 않습니다.
-    Widget open({bool placeholder = false}) => DepthLink(
-      variant: DepthLinkVariant.navigate,
-      label: l10n.daySheetDiaryOpen,
-      slotId: placeholder ? null : SlotIds.daySheetDiaryOpen,
-      onTap: () => _openDiary(context, ref, written: true),
-    );
-    Widget write({bool placeholder = false}) => Padding(
-      padding: const EdgeInsets.only(top: Space.s12),
-      child: PrimaryButton(
-        label: l10n.daySheetDiaryWriteCta,
-        onPressed: () => _openDiary(context, ref, written: false),
-        identifier: placeholder ? null : SlotIds.daySheetDiaryWriteCta,
-      ),
-    );
-    return Stack(
+    final diaries = ref.watch(diariesOnProvider(date)).value;
+    if (diaries == null) {
+      return const _EntrySkeleton();
+    }
+    final entry = diaryWriteEntryOf(diaries.length);
+    return Column(
       key: entryKey,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 보이지 않는 후보가 자리만 잡습니다(누를 수 없고 스크린리더도 읽지 않음).
-        if (written != true)
-          Visibility.maintain(visible: false, child: open(placeholder: true)),
-        if (written != false)
-          Visibility.maintain(visible: false, child: write(placeholder: true)),
-        switch (written) {
-          null => const _LinkSkeleton(),
-          true => open(),
-          false => write(),
-        },
+        // 머리(편수, 동작 아님)와 작성 순 줄. 0편이면 아무것도 그리지 않습니다.
+        DiaryEntries(
+          surface: DiaryEntriesSurface.plain,
+          head: diaries.isEmpty ? null : l10n.daySheetDiaryOpen(diaries.length),
+          headIdentifier: SlotIds.daySheetDiaryOpen,
+          entries: diaryEntriesDataOf(context, diaries),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: Space.s12),
+          child: PrimaryButton(
+            label: switch (entry) {
+              DiaryWriteEntry.first => l10n.daySheetDiaryWriteCta,
+              DiaryWriteEntry.more => l10n.daySheetDiaryWriteCtaWritten,
+              DiaryWriteEntry.full => l10n.daySheetDiaryWriteCtaFull,
+            },
+            // 그날 일기를 다 채웠으면 누를 수 없습니다(D83 ②).
+            onPressed: entry == DiaryWriteEntry.full
+                ? null
+                : () => unawaited(_writeDiary(context, ref)),
+            identifier: SlotIds.daySheetDiaryWriteCta,
+          ),
+        ),
       ],
     );
   }
 
-  /// 일기 보기·쓰기로 갑니다. 돌아오면 일기 여부와 달력 도장을 다시 묻습니다.
-  Future<void> _openDiary(
-    BuildContext context,
-    WidgetRef ref, {
-    required bool written,
-  }) async {
-    final target = written ? ScreenIds.diaryView : ScreenIds.diaryEdit;
-    await _push(context, datedPathOf(target, date));
+  /// 그날 새 일기를 쓰러 갑니다(A67). 돌아오면 그날 일기 목록과 달력 도장을 다시 묻습니다.
+  Future<void> _writeDiary(BuildContext context, WidgetRef ref) async {
+    await _push(context, datedPathOf(ScreenIds.diaryEdit, date));
     if (!context.mounted) {
       return;
     }
+    // 저장하면 쓰기 화면이 이미 다시 묻게 합니다. 저장 없이 돌아온 경우(취소·초안만 남김)나
+    // 그 사이 다른 기기에서 바뀐 경우를 위해 돌아올 때 한 번 더 묻습니다.
     ref
-      ..invalidate(diaryExistsOnProvider(date))
+      ..invalidate(diariesOnProvider(date))
       ..invalidate(diaryDatesProvider);
-    if (date == ref.read(todayProvider)) {
-      ref.invalidate(todayDiaryExistsProvider);
-    }
   }
 }
 
@@ -273,33 +274,22 @@ Future<void> _push(BuildContext context, String location, {Object? extra}) =>
   return (line: line, bone: line * 0.6);
 }
 
-/// 일기 링크(`depth-link` `navigate`) 한 줄 자리. 위 여백과 글줄 높이가 링크와 같습니다.
-class _LinkSkeleton extends StatelessWidget {
+/// 일기 입구를 받는 동안의 자리: 쓰기 버튼(`primary-button` `filled`) 크기의 뼈. 0편(가장 흔한
+/// 답)일 때 시트 높이가 그대로입니다.
+class _EntrySkeleton extends StatelessWidget {
   const new();
 
   static const Key skeletonKey = ValueKey('day-sheet.diary.skeleton');
 
-  /// 링크 글자 폭의 어림(줄 너비 대비).
-  static const double _widthFactor = 0.3;
-
   @override
-  Widget build(BuildContext context) {
-    final metrics = _lineMetrics(context, context.tokens.typography.labelLg);
-    return Padding(
-      key: skeletonKey,
-      padding: const EdgeInsets.only(top: Space.s12),
-      child: SizedBox(
-        height: metrics.line,
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: FractionallySizedBox(
-            widthFactor: _widthFactor,
-            child: SkeletonBone(height: metrics.bone, borderRadius: Radii.xs),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+    key: skeletonKey,
+    padding: const EdgeInsets.only(top: Space.s12),
+    child: SkeletonBone(
+      height: PrimaryButtonVariant.filled.height,
+      borderRadius: Radii.md,
+    ),
+  );
 }
 
 /// 일정 두 줄(`event-row` `list` 최소 높이) 자리.

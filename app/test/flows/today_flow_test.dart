@@ -21,12 +21,12 @@ import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
-import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
@@ -91,38 +91,6 @@ final class _DailyNetwork extends Interceptor {
       return;
     }
     handler.next(options);
-  }
-}
-
-/// `/v1/diaries/`에 쓴 일기(200)로 답하고 호출 수를 셉니다.
-final class _DiaryWritten extends Interceptor {
-  int calls = 0;
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (!options.path.startsWith('/v1/diaries/')) {
-      handler.next(options);
-      return;
-    }
-    calls++;
-    handler.resolve(
-      Response<Object?>(
-        requestOptions: options,
-        statusCode: 200,
-        headers: Headers.fromMap({
-          Headers.contentTypeHeader: ['application/json'],
-        }),
-        data: {
-          'date': '2026-10-13',
-          'body': '일기',
-          'tags': {'featured': <Object>[], 'all': <Object>[]},
-          'rulesetVersion': 'r1',
-          'createdAt': '2026-10-13T12:00:00Z',
-          'updatedAt': '2026-10-13T12:00:00Z',
-        },
-      ),
-      true,
-    );
   }
 }
 
@@ -434,9 +402,7 @@ void main() {
     expect(find.byType(ErrorState), findsNothing);
   });
 
-  testWidgets('member: 가이드 카드 → diary-edit, 돌아오면 일기 여부를 다시 확인합니다', (
-    tester,
-  ) async {
+  testWidgets('member: 가이드 카드 → 오늘 새 일기 diary-edit', (tester) async {
     covers(const Covers(exits: ['today>diary-edit']));
     final container = await _openToday(tester);
     final action = find.bySemanticsIdentifier(SlotIds.todayGuideCta);
@@ -444,27 +410,10 @@ void main() {
     await tester.tap(action);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
-
-    // 일기 화면에 있는 동안 일기를 썼다고 봅니다: 이제 getDiary는 200입니다.
-    final written = _DiaryWritten();
-    final interceptors = container.read(dioProvider).interceptors;
-    interceptors.insert(interceptors.length - 1, written);
-
-    container.read(routerProvider).pop();
-    await pumpUntil(
-      tester,
-      () =>
-          tester
-              .widget<GuideQuestionCard>(find.byType(GuideQuestionCard))
-              .state ==
-          GuideQuestionState.after,
+    expect(
+      container.read(routerProvider).state.uri.toString(),
+      '/diary-edit?date=2026-10-13',
     );
-    // 돌아온 뒤 한 번 다시 물었고, 쓴 뒤 상태(도장)와 쓴 일기 보기로 바뀝니다.
-    expect(written.calls, 1);
-    final card = tester.widget<GuideQuestionCard>(
-      find.byType(GuideQuestionCard),
-    );
-    expect(card.actionLabel, _ko.todayGuideCtaWritten);
   });
 
   testWidgets('member: 오늘 일정 한 줄 → 오늘 day-sheet', (tester) async {
@@ -489,14 +438,20 @@ void main() {
     expect(titles, ['엄마 생신', '팀 주간 회의', '요가 수업']);
   });
 
-  testWidgets('diary-written: 가이드 카드 → diary-view', (tester) async {
+  testWidgets('diary-written: 오늘 쓴 일기 줄 → 그 일기의 diary-view', (tester) async {
     covers(const Covers(exits: ['today>diary-view']));
-    await _openToday(tester, scenario: 'diary-written');
-    final action = find.bySemanticsIdentifier(SlotIds.todayGuideCta);
-    await tester.ensureVisible(action);
-    await tester.tap(action);
+    final container = await _openToday(tester, scenario: 'diary-written');
+    final row = find.byType(DiaryEntryLine);
+    expect(row, findsOneWidget);
+    await tester.ensureVisible(row);
     await tester.pumpAndSettle();
+    await tester.tap(row);
+    await settleWithIo(tester);
     expect(find.byKey(const ValueKey(ScreenIds.diaryView)), findsOneWidget);
+    expect(
+      container.read(routerProvider).state.uri.toString(),
+      '/diary-view?id=7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a005',
+    );
   });
 
   testWidgets('loading: 화면을 연 채 날짜가 바뀌면 새 응답을 받는 동안 skeleton입니다', (

@@ -520,6 +520,18 @@ class $DiaryDraftsTable extends DiaryDrafts
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _diaryIdMeta = const VerificationMeta(
+    'diaryId',
+  );
+  @override
+  late final GeneratedColumn<String> diaryId = GeneratedColumn<String>(
+    'diary_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _bodyMeta = const VerificationMeta('body');
   @override
   late final GeneratedColumn<String> body = GeneratedColumn<String>(
@@ -541,7 +553,13 @@ class $DiaryDraftsTable extends DiaryDrafts
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [accountId, date, body, updatedAt];
+  List<GeneratedColumn> get $columns => [
+    accountId,
+    date,
+    diaryId,
+    body,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -570,6 +588,12 @@ class $DiaryDraftsTable extends DiaryDrafts
     } else if (isInserting) {
       context.missing(_dateMeta);
     }
+    if (data.containsKey('diary_id')) {
+      context.handle(
+        _diaryIdMeta,
+        diaryId.isAcceptableOrUnknown(data['diary_id']!, _diaryIdMeta),
+      );
+    }
     if (data.containsKey('body')) {
       context.handle(
         _bodyMeta,
@@ -590,7 +614,7 @@ class $DiaryDraftsTable extends DiaryDrafts
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {accountId, date};
+  Set<GeneratedColumn> get $primaryKey => {accountId, date, diaryId};
   @override
   DiaryDraft map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -602,6 +626,10 @@ class $DiaryDraftsTable extends DiaryDrafts
       date: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}date'],
+      )!,
+      diaryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}diary_id'],
       )!,
       body: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -627,6 +655,9 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
   /// 날짜(`YYYY-MM-DD`).
   final String date;
 
+  /// 고치는 일기 id. 새 일기 초안은 빈 문자열입니다.
+  final String diaryId;
+
   /// 초안 본문.
   final String body;
 
@@ -635,6 +666,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
   const DiaryDraft({
     required this.accountId,
     required this.date,
+    required this.diaryId,
     required this.body,
     required this.updatedAt,
   });
@@ -643,6 +675,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     final map = <String, Expression>{};
     map['account_id'] = Variable<String>(accountId);
     map['date'] = Variable<String>(date);
+    map['diary_id'] = Variable<String>(diaryId);
     map['body'] = Variable<String>(body);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -652,6 +685,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     return DiaryDraftsCompanion(
       accountId: Value(accountId),
       date: Value(date),
+      diaryId: Value(diaryId),
       body: Value(body),
       updatedAt: Value(updatedAt),
     );
@@ -665,6 +699,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     return DiaryDraft(
       accountId: serializer.fromJson<String>(json['accountId']),
       date: serializer.fromJson<String>(json['date']),
+      diaryId: serializer.fromJson<String>(json['diaryId']),
       body: serializer.fromJson<String>(json['body']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -675,6 +710,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     return <String, dynamic>{
       'accountId': serializer.toJson<String>(accountId),
       'date': serializer.toJson<String>(date),
+      'diaryId': serializer.toJson<String>(diaryId),
       'body': serializer.toJson<String>(body),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -683,11 +719,13 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
   DiaryDraft copyWith({
     String? accountId,
     String? date,
+    String? diaryId,
     String? body,
     DateTime? updatedAt,
   }) => DiaryDraft(
     accountId: accountId ?? this.accountId,
     date: date ?? this.date,
+    diaryId: diaryId ?? this.diaryId,
     body: body ?? this.body,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -695,6 +733,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     return DiaryDraft(
       accountId: data.accountId.present ? data.accountId.value : this.accountId,
       date: data.date.present ? data.date.value : this.date,
+      diaryId: data.diaryId.present ? data.diaryId.value : this.diaryId,
       body: data.body.present ? data.body.value : this.body,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -705,6 +744,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     return (StringBuffer('DiaryDraft(')
           ..write('accountId: $accountId, ')
           ..write('date: $date, ')
+          ..write('diaryId: $diaryId, ')
           ..write('body: $body, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -712,13 +752,14 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
   }
 
   @override
-  int get hashCode => Object.hash(accountId, date, body, updatedAt);
+  int get hashCode => Object.hash(accountId, date, diaryId, body, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DiaryDraft &&
           other.accountId == this.accountId &&
           other.date == this.date &&
+          other.diaryId == this.diaryId &&
           other.body == this.body &&
           other.updatedAt == this.updatedAt);
 }
@@ -726,12 +767,14 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
 class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
   final Value<String> accountId;
   final Value<String> date;
+  final Value<String> diaryId;
   final Value<String> body;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const DiaryDraftsCompanion({
     this.accountId = const Value.absent(),
     this.date = const Value.absent(),
+    this.diaryId = const Value.absent(),
     this.body = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -739,6 +782,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
   DiaryDraftsCompanion.insert({
     required String accountId,
     required String date,
+    this.diaryId = const Value.absent(),
     required String body,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -749,6 +793,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
   static Insertable<DiaryDraft> custom({
     Expression<String>? accountId,
     Expression<String>? date,
+    Expression<String>? diaryId,
     Expression<String>? body,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -756,6 +801,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     return RawValuesInsertable({
       if (accountId != null) 'account_id': accountId,
       if (date != null) 'date': date,
+      if (diaryId != null) 'diary_id': diaryId,
       if (body != null) 'body': body,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -765,6 +811,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
   DiaryDraftsCompanion copyWith({
     Value<String>? accountId,
     Value<String>? date,
+    Value<String>? diaryId,
     Value<String>? body,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -772,6 +819,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     return DiaryDraftsCompanion(
       accountId: accountId ?? this.accountId,
       date: date ?? this.date,
+      diaryId: diaryId ?? this.diaryId,
       body: body ?? this.body,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -786,6 +834,9 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     }
     if (date.present) {
       map['date'] = Variable<String>(date.value);
+    }
+    if (diaryId.present) {
+      map['diary_id'] = Variable<String>(diaryId.value);
     }
     if (body.present) {
       map['body'] = Variable<String>(body.value);
@@ -804,6 +855,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     return (StringBuffer('DiaryDraftsCompanion(')
           ..write('accountId: $accountId, ')
           ..write('date: $date, ')
+          ..write('diaryId: $diaryId, ')
           ..write('body: $body, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -1558,6 +1610,7 @@ typedef $$DiaryDraftsTableCreateCompanionBuilder =
     DiaryDraftsCompanion Function({
       required String accountId,
       required String date,
+      Value<String> diaryId,
       required String body,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -1566,6 +1619,7 @@ typedef $$DiaryDraftsTableUpdateCompanionBuilder =
     DiaryDraftsCompanion Function({
       Value<String> accountId,
       Value<String> date,
+      Value<String> diaryId,
       Value<String> body,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -1587,6 +1641,11 @@ class $$DiaryDraftsTableFilterComposer
 
   ColumnFilters<String> get date => $composableBuilder(
     column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get diaryId => $composableBuilder(
+    column: $table.diaryId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1620,6 +1679,11 @@ class $$DiaryDraftsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get diaryId => $composableBuilder(
+    column: $table.diaryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get body => $composableBuilder(
     column: $table.body,
     builder: (column) => ColumnOrderings(column),
@@ -1645,6 +1709,9 @@ class $$DiaryDraftsTableAnnotationComposer
 
   GeneratedColumn<String> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get diaryId =>
+      $composableBuilder(column: $table.diaryId, builder: (column) => column);
 
   GeneratedColumn<String> get body =>
       $composableBuilder(column: $table.body, builder: (column) => column);
@@ -1686,12 +1753,14 @@ class $$DiaryDraftsTableTableManager
               ({
                 Value<String> accountId = const Value.absent(),
                 Value<String> date = const Value.absent(),
+                Value<String> diaryId = const Value.absent(),
                 Value<String> body = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DiaryDraftsCompanion(
                 accountId: accountId,
                 date: date,
+                diaryId: diaryId,
                 body: body,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -1700,12 +1769,14 @@ class $$DiaryDraftsTableTableManager
               ({
                 required String accountId,
                 required String date,
+                Value<String> diaryId = const Value.absent(),
                 required String body,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => DiaryDraftsCompanion.insert(
                 accountId: accountId,
                 date: date,
+                diaryId: diaryId,
                 body: body,
                 updatedAt: updatedAt,
                 rowid: rowid,

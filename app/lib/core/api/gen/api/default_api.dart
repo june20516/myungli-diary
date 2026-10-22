@@ -24,17 +24,28 @@ import 'package:myungli_diary/core/api/gen/model/deletion_scheduled.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/glossary.dart';
+import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/health.dart';
+import 'package:myungli_diary/core/api/gen/model/identity_in_use_problem.dart';
+import 'package:myungli_diary/core/api/gen/model/identity_list.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
+import 'package:myungli_diary/core/api/gen/model/line_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/link_identity_request.dart';
+import 'package:myungli_diary/core/api/gen/model/login_provider.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_conversion.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date_request.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_preview.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_preview_request.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_request.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_result.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/api/gen/model/preview_request.dart';
 import 'package:myungli_diary/core/api/gen/model/problem.dart';
@@ -472,6 +483,99 @@ class DefaultApi {
     );
   }
 
+  /// 일기 쓰기
+  /// 일기를 한 편 씁니다. 하루에 살아 있는 일기는 10편까지입니다. 그날 첫 편이면 날짜 기록(태그·&#x60;rulesetVersion&#x60;·가이드 질문)을 함께 만듭니다. 같은 &#x60;Idempotency-Key&#x60;로 다시 보내면 24시간 동안 같은 응답입니다. 그날 살아 있는 일기가 이미 10편이면 422 &#x60;diary.day_full&#x60;, 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  ///
+  /// Parameters:
+  /// * [diaryInput]
+  /// * [idempotencyKey] - 같은 키로 다시 보내면 24시간 동안 같은 응답을 돌려줍니다(IETF draft-ietf-httpapi-idempotency-key-header).
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Diary] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Diary>> createDiary({
+    required DiaryInput diaryInput,
+    String? idempotencyKey,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/diaries';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        if (idempotencyKey != null) r'Idempotency-Key': idempotencyKey,
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(diaryInput);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Diary? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Diary, Diary>(rawData, 'Diary', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Diary>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 비로그인 미리보기
   /// 출생 정보와 현재 시간대로 오늘 데일리의 surface만 돌려줍니다. 입력은 저장하지 않습니다. App Check가 필요하며, IP별 요청 한도(분당 30회)가 있습니다(429 &#x60;rate_limited&#x60;). 설치(&#x60;installationId&#x60;)마다 1번이며, 두 번째는 403 &#x60;preview.used&#x60;입니다. 재설치로 값이 바뀔 수 있어 1회 제한은 최선 노력입니다. 언어는 &#x60;Accept-Language&#x60;를 씁니다. 총운 문장은 계정이 없어 순환 기록이 없으므로 &#x60;advice&#x60; 유형을 쓰고, 호칭은 없습니다.
   ///
@@ -807,10 +911,10 @@ class DefaultApi {
   }
 
   /// 일기 지우기
-  /// 일기를 지웁니다. 지운 일기는 &#x60;restoreDiary&#x60;로 되살릴 수 있습니다. 없거나 이미 지운 일기는 404 &#x60;diary.not_found&#x60;입니다.
+  /// 일기를 지웁니다. 지운 일기는 &#x60;restoreDiary&#x60;로 되살릴 수 있습니다. 없거나 이미 지운 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;입니다.
   ///
   /// Parameters:
-  /// * [date]
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -821,7 +925,7 @@ class DefaultApi {
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
   Future<Response<void>> deleteDiary({
-    required String date,
+    required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -829,11 +933,11 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}'.replaceAll(
+    final _path = r'/v1/diaries/{id}'.replaceAll(
       '{'
-      r'date'
+      r'id'
       '}',
-      date.toString(),
+      id.toString(),
     );
     final _options = Options(
       method: r'DELETE',
@@ -1454,10 +1558,10 @@ class DefaultApi {
   }
 
   /// 일기 읽기
-  /// 그날 일기를 돌려줍니다. 없거나 지운 일기는 404 &#x60;diary.not_found&#x60;입니다.
+  /// 일기 한 편을 돌려줍니다. 없거나 지운 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;입니다.
   ///
   /// Parameters:
-  /// * [date]
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1468,7 +1572,7 @@ class DefaultApi {
   /// Returns a [Future] containing a [Response] with a [Diary] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<Diary>> getDiary({
-    required String date,
+    required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1476,11 +1580,11 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}'.replaceAll(
+    final _path = r'/v1/diaries/{id}'.replaceAll(
       '{'
-      r'date'
+      r'id'
       '}',
-      date.toString(),
+      id.toString(),
     );
     final _options = Options(
       method: r'GET',
@@ -1899,6 +2003,105 @@ class DefaultApi {
     );
   }
 
+  /// 로그인 제공자 붙이기
+  /// 현재 계정에 로그인 제공자 하나를 붙입니다. 본문은 그 제공자의 로그인 증명과 같습니다. * kakao·line·google: &#x60;idToken&#x60;과 &#x60;nonce&#x60; * apple(iOS): &#x60;idToken&#x60;, &#x60;authorizationCode&#x60;, &#x60;nonce&#x60;. 로그인과 같이 code를 교환해 refresh token을 받아 새 연결에 저장합니다. * apple(Android 웹 흐름): &#x60;exchangeCode&#x60;와 &#x60;nonce&#x60;. &#x60;appleCallback&#x60;이 만든 교환 코드를 &#x60;completeAppleWebLogin&#x60;과 같은 규칙(일회용, 2분, nonce가 틀려도 소진하지 않음)으로 씁니다. 경로의 제공자와 본문 조합이 맞지 않으면 400 &#x60;request.invalid&#x60;입니다(&#x60;LinkIdentityRequest&#x60; 참고).  응답 * 201: 연결이 어디에도 없어 현재 계정에 만들었습니다. * 200: 그 연결이 이미 현재 계정에 있어 바꾸지 않았습니다(apple이면 refresh token만 새 값으로). * 401 &#x60;auth.provider_token_invalid&#x60;·&#x60;auth.exchange_invalid&#x60;: 붙이려는 증명이 틀림. 현재 세션은 유효하니 다시 로그인시키지 않고 붙이기를 다시 시도합니다. * 409 &#x60;auth.provider_taken&#x60;: 현재 계정에 같은 제공자의 다른 사용자 연결이 있습니다. * 409 &#x60;auth.identity_in_use&#x60;: 그 연결이 다른 active 계정에 있습니다. 본문에 합치기 토큰(&#x60;mergeToken&#x60;, &#x60;expiresAt&#x60;)이 있고, &#x60;previewMerge&#x60;와 &#x60;mergeAccounts&#x60;가 씁니다. * 409 &#x60;auth.identity_pending_deletion&#x60;: 그 연결이 삭제 대기 계정에 있습니다. 그 제공자로 로그인하면 계정이 복구되므로 복구한 뒤 다시 시도합니다.  409가 나면 새로 받은 Apple 승인은 저장하지 않고 버립니다. 취소(revoke)하지도 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다. &#x60;mergeToken&#x60;·&#x60;expiresAt&#x60;은 &#x60;auth.identity_in_use&#x60;일 때만 있습니다. &#x60;auth.provider_taken&#x60;·&#x60;auth.identity_pending_deletion&#x60;에는 없습니다.
+  ///
+  /// Parameters:
+  /// * [provider]
+  /// * [linkIdentityRequest]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [IdentityList] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<IdentityList>> linkIdentity({
+    required LoginProvider provider,
+    required LinkIdentityRequest linkIdentityRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/me/identities/{provider}'.replaceAll(
+      '{'
+      r'provider'
+      '}',
+      provider.toString(),
+    );
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(linkIdentityRequest);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    IdentityList? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IdentityList, IdentityList>(
+              rawData,
+              'IdentityList',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<IdentityList>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 도시 검색
   /// 출생지 도시를 이름으로 찾습니다(&#x60;ETag&#x60;). 언어는 &#x60;lang&#x60;, 생략하면 &#x60;Accept-Language&#x60;입니다. &#x60;q&#x60;는 한국어·영어·일본어 이름 중 하나의 앞부분과 같은 도시를 찾습니다(대소문자 무시). 요청 언어 이름이 앞부분과 같은 도시가 먼저, 그다음은 요청 언어 이름 순입니다. &#x60;limit&#x60;개까지 돌려줍니다. &#x60;If-None-Match&#x60;가 현재 &#x60;ETag&#x60;와 같으면 304를 돌려줍니다.
   ///
@@ -1988,7 +2191,7 @@ class DefaultApi {
   }
 
   /// 일기 목록
-  /// 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순입니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 빈 목록입니다.
+  /// 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순이고, 같은 날짜 안에서는 작성 순(&#x60;createdAt&#x60; 오름차순)입니다. &#x60;limit&#x60;은 일기 편수라 한 날짜의 일기가 두 쪽에 나뉠 수 있습니다. 날짜 하나의 일기는 &#x60;from&#x60;과 &#x60;to&#x60;에 같은 날짜를 넣어 받습니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 빈 목록입니다.
   ///
   /// Parameters:
   /// * [from]
@@ -2070,6 +2273,81 @@ class DefaultApi {
     }
 
     return Response<DiaryList>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// 연결된 로그인 제공자 목록
+  /// 현재 계정에 붙은 로그인 제공자를 붙인 순서로 돌려줍니다. 제공자 사용자 id(&#x60;subject&#x60;)는 내보내지 않습니다.
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [IdentityList] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<IdentityList>> listIdentities({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/me/identities';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    IdentityList? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IdentityList, IdentityList>(
+              rawData,
+              'IdentityList',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<IdentityList>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -2250,6 +2528,93 @@ class DefaultApi {
     );
   }
 
+  /// Google 로그인
+  /// Google OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 &#x60;loginKakao&#x60;와 같습니다. 처음 보는 연결이면 계정을 새로 만들고, 삭제 대기 계정이면 되돌립니다.
+  ///
+  /// Parameters:
+  /// * [googleLoginRequest]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [LoginResponse] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<LoginResponse>> loginGoogle({
+    required GoogleLoginRequest googleLoginRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/auth/google';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(googleLoginRequest);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    LoginResponse? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<LoginResponse, LoginResponse>(
+              rawData,
+              'LoginResponse',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<LoginResponse>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 카카오 로그인
   /// 카카오 OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 처음 보는 계정이면 새로 만듭니다.
   ///
@@ -2286,6 +2651,93 @@ class DefaultApi {
 
     try {
       _bodyData = jsonEncode(kakaoLoginRequest);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    LoginResponse? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<LoginResponse, LoginResponse>(
+              rawData,
+              'LoginResponse',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<LoginResponse>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// LINE 로그인
+  /// LINE OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 &#x60;loginKakao&#x60;와 같습니다. 처음 보는 연결이면 계정을 새로 만들고, 삭제 대기 계정이면 되돌립니다.
+  ///
+  /// Parameters:
+  /// * [lineLoginRequest]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [LoginResponse] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<LoginResponse>> loginLine({
+    required LineLoginRequest lineLoginRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/auth/line';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(lineLoginRequest);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _options.compose(_dio.options, _path),
@@ -2399,12 +2851,11 @@ class DefaultApi {
     return _response;
   }
 
-  /// 일기 쓰기
-  /// 그날 일기를 쓰거나 고칩니다(멱등 upsert, 하루 1편). 새로 쓰면 201, 고치면 200입니다. 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 저장할 때 그날 엔진 결과의 태그와 &#x60;rulesetVersion&#x60;, 가이드 질문을 함께 기록합니다. 이미 있는 일기를 고치면 본문만 바꾸고, 태그·&#x60;rulesetVersion&#x60;·가이드 질문은 처음 쓸 때 기록한 값을 유지합니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  /// 계정 합치기
+  /// 두 계정을 하나로 합칩니다. &#x60;keep&#x60;이 남길 계정(&#x60;current&#x60; 또는 &#x60;other&#x60;)이고 반대쪽이 없앨 계정입니다. 없앨 계정의 연결, 일기(지운 일기 포함, 하루 10편 상한은 검사하지 않음), 일정(지운 일정 포함)과 광고 제거권 구매를 남길 계정으로 옮깁니다. 프로필(사주 정보·호칭·설정), 약관 동의, 오늘 문장 선택 기록·변주 상태·반응은 남길 계정 것을 그대로 쓰고, 없앨 계정의 것은 옮기지 않습니다. 없앨 계정은 세션을 모두 폐기하고 삭제 대기(&#x60;pending_deletion&#x60;)로 바꿉니다. 연결이 하나도 남지 않아 로그인으로 복구되지 않고, 30일 뒤 계정 삭제와 같이 익명화합니다. 같은 제공자 연결이 양쪽에 있으면 남길 계정의 것을 남기고, 없앨 계정의 것은 지운 뒤 제공자 허가 취소를 시도합니다(LINE·Google은 생략). 같은 날짜에 양쪽 모두 날짜 기록(태그·가이드 질문)이 있으면 남길 계정의 것을 쓰고, 일기가 하루 10편을 넘어도 막지 않습니다. 합친 뒤 남길 계정의 광고 제거권을 다시 계산합니다. 이 계산이 실패해도 합치기는 성공이고 다음 동기화 때 맞춰집니다. 합친 뒤 app은 응답의 토큰으로 바꾸고 지난 계정의 캐시·초안을 지운 뒤 &#x60;getMe&#x60;부터 다시 읽습니다. 남길 계정이 현재 버전 약관에 동의하지 않았으면 이후 요청은 403 &#x60;consent.required&#x60;입니다. 응답은 남길 계정 id와 그 계정의 새 토큰 쌍입니다. 남길 계정의 기존 세션은 그대로 둡니다.  &#x60;Idempotency-Key&#x60;를 받지 않습니다. 응답에 refresh token 원문이 있어 멱등 저장소에 남기지 않습니다. 합치기 토큰은 일회용이라 합치기는 두 번 일어나지 않습니다. 응답을 잃어 다시 보내면 422 &#x60;merge.token_invalid&#x60;이고, 연결이 모두 남길 계정에 있으므로 어느 제공자로 로그인해도 남길 계정입니다. 토큰이 무효이거나 확인 시점에 조건이 바뀌었으면(두 계정이 active가 아니거나 연결이 다른 계정으로 옮겨짐) 422 &#x60;merge.token_invalid&#x60;입니다. 없앨 계정에 광고 제거권 구매 기록이 있는데 구매 조회가 실패하면 합치지 않고 503 &#x60;billing.provider_unavailable&#x60;이며 토큰도 소진하지 않으므로 다시 시도하면 됩니다.
   ///
   /// Parameters:
-  /// * [date]
-  /// * [diaryInput]
+  /// * [mergeRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2412,11 +2863,10 @@ class DefaultApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [Diary] as data
+  /// Returns a [Future] containing a [Response] with a [MergeResult] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Diary>> putDiary({
-    required String date,
-    required DiaryInput diaryInput,
+  Future<Response<MergeResult>> mergeAccounts({
+    required MergeRequest mergeRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2424,14 +2874,9 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}'.replaceAll(
-      '{'
-      r'date'
-      '}',
-      date.toString(),
-    );
+    final _path = r'/v1/me/merge';
     final _options = Options(
-      method: r'PUT',
+      method: r'POST',
       headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
@@ -2446,7 +2891,7 @@ class DefaultApi {
     dynamic _bodyData;
 
     try {
-      _bodyData = jsonEncode(diaryInput);
+      _bodyData = jsonEncode(mergeRequest);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _options.compose(_dio.options, _path),
@@ -2465,13 +2910,17 @@ class DefaultApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    Diary? _responseData;
+    MergeResult? _responseData;
 
     try {
       final rawData = _response.data;
       _responseData = rawData == null
           ? null
-          : deserialize<Diary, Diary>(rawData, 'Diary', growable: true);
+          : deserialize<MergeResult, MergeResult>(
+              rawData,
+              'MergeResult',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2482,7 +2931,99 @@ class DefaultApi {
       );
     }
 
-    return Response<Diary>(
+    return Response<MergeResult>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// 계정 합치기 요약
+  /// &#x60;linkIdentity&#x60;가 409 &#x60;auth.identity_in_use&#x60;로 준 합치기 토큰의 두 계정(현재 계정과 다른 계정)을 요약합니다. 토큰을 소진하지 않으므로 몇 번이든 부를 수 있습니다. 토큰이 URL에 남지 않도록 &#x60;GET&#x60;이 아니라 &#x60;POST&#x60;입니다. 토큰이 없거나, 만료됐거나, 이미 썼거나, 현재 계정의 토큰이 아니면 422 &#x60;merge.token_invalid&#x60;입니다. 이 경우들은 구분하지 않습니다.
+  ///
+  /// Parameters:
+  /// * [mergePreviewRequest]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [MergePreview] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<MergePreview>> previewMerge({
+    required MergePreviewRequest mergePreviewRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/me/merge/preview';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(mergePreviewRequest);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    MergePreview? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<MergePreview, MergePreview>(
+              rawData,
+              'MergePreview',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<MergePreview>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -2753,10 +3294,10 @@ class DefaultApi {
   }
 
   /// 지운 일기 되살리기
-  /// 그 날짜에 지운 일기 중 가장 늦게 지운 것을 되살립니다. 그 날짜에 이미 새 일기가 있으면 409 &#x60;diary.date_taken&#x60;, 지운 일기가 없으면 404 &#x60;diary.not_found&#x60;입니다.
+  /// 지운 일기를 되살립니다. 이미 살아 있는 일기면 그대로 200입니다. 내용을 비운 일기와 없는 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;, 그 날짜에 살아 있는 일기가 이미 10편이면 422 &#x60;diary.day_full&#x60;입니다.
   ///
   /// Parameters:
-  /// * [date]
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2767,7 +3308,7 @@ class DefaultApi {
   /// Returns a [Future] containing a [Response] with a [Diary] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<Diary>> restoreDiary({
-    required String date,
+    required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2775,11 +3316,11 @@ class DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/v1/diaries/{date}/restore'.replaceAll(
+    final _path = r'/v1/diaries/{id}/restore'.replaceAll(
       '{'
-      r'date'
+      r'id'
       '}',
-      date.toString(),
+      id.toString(),
     );
     final _options = Options(
       method: r'POST',
@@ -3042,6 +3583,153 @@ class DefaultApi {
     );
 
     return _response;
+  }
+
+  /// 로그인 제공자 떼기
+  /// 현재 계정에서 로그인 제공자 연결을 지웁니다. 떼면 그 제공자로는 이 계정에 들어오지 못합니다. 마지막 연결이면 409 &#x60;auth.last_identity&#x60;, 현재 계정에 그 제공자 연결이 없으면 404 &#x60;auth.identity_not_found&#x60;입니다. LINE·Google의 제공자 허가는 server가 취소하지 않습니다. app이 떼기 전에 SDK로 취소합니다. 카카오·Apple은 server가 취소를 시도하며, 실패해도 떼기는 성공입니다.
+  ///
+  /// Parameters:
+  /// * [provider]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future]
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<void>> unlinkIdentity({
+    required LoginProvider provider,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/me/identities/{provider}'.replaceAll(
+      '{'
+      r'provider'
+      '}',
+      provider.toString(),
+    );
+    final _options = Options(
+      method: r'DELETE',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    return _response;
+  }
+
+  /// 일기 고치기
+  /// 일기 본문을 바꿉니다(전체 교체, 멱등). 날짜 기록(태그·&#x60;rulesetVersion&#x60;·가이드 질문)은 처음 쓸 때 기록한 값 그대로입니다. 엔진을 부르지 않습니다. 없거나 지운 일기(남의 일기 포함)는 404 &#x60;diary.not_found&#x60;입니다.
+  ///
+  /// Parameters:
+  /// * [id]
+  /// * [diaryBodyInput]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Diary] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Diary>> updateDiary({
+    required String id,
+    required DiaryBodyInput diaryBodyInput,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/diaries/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
+    final _options = Options(
+      method: r'PUT',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(diaryBodyInput);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Diary? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Diary, Diary>(rawData, 'Diary', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Diary>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
   }
 
   /// 프로필 수정

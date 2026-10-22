@@ -25,6 +25,7 @@ import 'package:myungli_diary/core/api/gen/model/deletion_scheduled.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
@@ -37,18 +38,30 @@ import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_time_card.dart';
 import 'package:myungli_diary/core/api/gen/model/fortune.dart';
 import 'package:myungli_diary/core/api/gen/model/glossary.dart';
+import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/health.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stem.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
+import 'package:myungli_diary/core/api/gen/model/identity.dart';
+import 'package:myungli_diary/core/api/gen/model/identity_in_use_problem.dart';
+import 'package:myungli_diary/core/api/gen/model/identity_list.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
+import 'package:myungli_diary/core/api/gen/model/line_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/link_identity_request.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_conversion.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date_request.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_account_summary.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_preview.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_preview_request.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_request.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_result.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_saju.dart';
 import 'package:myungli_diary/core/api/gen/model/minimum_version.dart';
 import 'package:myungli_diary/core/api/gen/model/notice.dart';
 import 'package:myungli_diary/core/api/gen/model/notification_setting.dart';
@@ -168,6 +181,9 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'DevicePlatform':
     case 'Diary':
       return Diary.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DiaryBodyInput':
+      return DiaryBodyInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'DiaryInput':
       return DiaryInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DiaryList':
@@ -199,6 +215,9 @@ ReturnType deserialize<ReturnType, BaseType>(
       return Fortune.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Glossary':
       return Glossary.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'GoogleLoginRequest':
+      return GoogleLoginRequest.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'Health':
       return Health.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'HiddenStem':
@@ -206,6 +225,13 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'HiddenStemsAt':
       return HiddenStemsAt.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'Identity':
+      return Identity.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'IdentityInUseProblem':
+      return IdentityInUseProblem.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'IdentityList':
+      return IdentityList.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Insight':
       return Insight.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'KakaoLoginRequest':
@@ -214,6 +240,13 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'Language':
     case 'LegalLinks':
       return LegalLinks.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'LineLoginRequest':
+      return LineLoginRequest.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'LinkIdentityRequest':
+      return LinkIdentityRequest.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'LoginProvider':
     case 'LoginResponse':
       return LoginResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -231,6 +264,20 @@ ReturnType deserialize<ReturnType, BaseType>(
           as ReturnType;
     case 'Me':
       return Me.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'MergeAccountSummary':
+      return MergeAccountSummary.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'MergePreview':
+      return MergePreview.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'MergePreviewRequest':
+      return MergePreviewRequest.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'MergeRequest':
+      return MergeRequest.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'MergeResult':
+      return MergeResult.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'MergeSaju':
+      return MergeSaju.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'MinimumVersion':
       return MinimumVersion.fromJson(value as Map<String, dynamic>)
           as ReturnType;

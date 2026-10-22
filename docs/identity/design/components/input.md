@@ -67,26 +67,60 @@
 ## account-choice
 
 * 쓰는 화면: account-merge
-* 합칠 두 계정 가운데 남길 쪽을 고르는 카드 두 장입니다(D82 ⑥, 결정 V40). 카드 사이 `space.12`, 카드는 `bg.sheet`·`radius.md`·안쪽 `space.16`·줄 사이 `space.8`입니다.
-* 카드 안 줄(위에서 아래): ① 호칭(`type.subtitle`) + 현재 로그인한 계정이면 알약 "현재 계정"(`ui.account-merge.choice` `accountChoiceCurrent`, `type.caption.sm`, `line` 테두리, `radius.full`) ② 사주 요약 한 줄(`ui.account-merge.saju`: 생년월일·달력 종류·출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음") ③ 일기 수(`accountChoiceDiaryCount`)와 연결된 수단 이름(`loginProvider*`를 구분자로 이음). 이 줄이 넘치면 말줄임 없이 다음 줄로 감습니다. 합칠 계정을 판단하는 데 필요한 수단 이름을 가리지 않기 위해서입니다.
-* 연결된 수단은 로고 없이 이름 글자로 보입니다. Google 가이드가 "G"만 단독으로 쓰는 것을 막고, 스크린리더도 이름을 그대로 읽습니다.
-* 고름 표시는 카드 오른쪽 위 22px 알약 동그라미입니다(V26). `selected`는 카드 테두리 `action.primary` 2px + 동그라미 안 점 12px, 바뀔 때 이동 없이 스밉니다(처음 고를 때 `appear.seep`). 햅틱 selection.
-* **처음부터 어느 쪽도 골라 두지 않습니다**(`none`). 되돌릴 수 없는 합치기라 남길 계정은 사용자가 직접 고르고, 그 전에는 합치기 버튼이 `disabled`입니다.
-* `disabled`: 합치는 중(최종 확인 뒤 합치기 버튼 `loading`)에는 고름을 잠가 카드를 누를 수 없습니다. 모양은 그대로이고 실패하면 풀립니다. 화면에 보인 고름과 실제로 남는 계정이 어긋나지 않게 합니다.
+* 용어(D85 ①): 유저 계정은 명리일기 계정, 인증 계정은 카카오·LINE·Google·Apple 쪽 사용자, 프로필은 사주 정보·호칭·설정, 기록은 일기·일정·태그·날짜 기록·반응, 구매는 산 상품과 사용 기간입니다. 화면 말은 writing이 정합니다.
+* 프로필을 유저 계정 A(지금 로그인한 계정) 것으로 둘지 B(가져올 계정) 것으로 둘지 고르는 카드 두 장입니다(D85 ④, 결정 V40·V44). 남는 유저 계정은 언제나 지금 로그인한 A이고, 기록은 고르기와 상관없이 모두 옮깁니다. 카드 사이 `space.12`, 카드는 `bg.sheet`·`radius.md`·안쪽 `space.16`·줄 사이 `space.8`입니다.
+* 카드 순서는 A → B입니다.
+* 카드 안 줄(위에서 아래):
+  * ① 호칭(`type.subtitle`) + 알약. 알약은 `type.caption.sm`, `line` 테두리, `radius.full`이고 문구는 `ui.account-merge.choice`입니다.
+    * A 카드: `current`, 키 `accountChoiceCurrent`
+    * B 카드: `other`, 키 `accountChoiceOther`
+  * ② 사주 요약 한 줄(`ui.account-merge.saju`: 생년월일·달력 종류·출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음")
+* 두 카드 모두 알약을 붙이는 것은 호칭과 사주가 같은 두 계정도 가를 수 있게 하기 위해서입니다.
+* 3.0.0에서 일기 수·연결된 인증 계정 이름 줄(`facts`·`diaryCount`·`providers`)을 지웠습니다. 기록은 모두 옮기므로 일기 수는 고를 근거가 아니고, 인증 계정은 옮기지 않습니다(D85 ④). 설정은 카드에 보이지 않고 묶음 이름이 말합니다.
+* 고름 표시는 카드 오른쪽 위 22px 알약 동그라미입니다(V26).
+  * `selected`는 카드 테두리 `action.primary` 2px + 동그라미 안 점 12px입니다.
+  * 바뀔 때 이동 없이 스밉니다(처음 고를 때 `appear.seep`). 햅틱 selection.
+* **처음부터 어느 쪽도 골라 두지 않습니다**(`none`). 고르지 않은 쪽의 프로필은 지워져 되돌릴 수 없기 때문입니다. 고르기 전에는 합치기 버튼이 `disabled`입니다.
+* `disabled`: 합치는 중(최종 확인 뒤 합치기 버튼 `loading`)에는 고름을 잠가 카드를 누를 수 없습니다. 모양은 그대로이고 실패하면 풀립니다.
 * `loading`(IA `account-merge:loading`): 카드 두 장 크기의 빈 카드가 `loading.breathe`로 숨쉽니다. `skeleton` 컴포넌트를 따로 쓰지 않습니다.
-* 스크린리더: 묶음은 radio-group(이름 `account-merge.choice.label`), 카드는 radio이고 카드 안 글자를 위에서 아래 순서로 읽습니다. 터치 영역은 카드 전체입니다.
+* 스크린리더: 묶음은 radio-group(이름 `account-merge.choice.label`)이고, 카드는 radio입니다. 카드 안 글자를 위에서 아래 순서로 읽습니다. 터치 영역은 카드 전체입니다.
 
 ### account-merge 화면 배치
 
-app-bar 아래로 차례대로 놓습니다(결정 V40).
+한 화면이 두 단계로 바뀝니다(결정 V44, D85 ④). 제목 `account-merge.title.head`(`type.title`, 위 `space.12`, 아래 `space.8`)는 두 단계에 같습니다.
 
-1. `account-merge.title.head`(`type.title`, 위 `space.12`, 아래 `space.8`)
+**인증 단계** (app-bar 아래로 차례대로)
+
+1. 제목
+2. `account-merge.auth.body`(`type.body.ui`, `text.secondary`, 아래 `space.24`)
+3. `social-login-button` 네 개: `login` 화면과 같은 순서·모양·라벨입니다. `connected`는 쓰지 않습니다.
+
+* 이 단계에는 다른 버튼이 없습니다.
+* 누른 버튼만 `loading`, 나머지는 `disabled`입니다.
+* 인증한 인증 계정이 유저 계정 A의 것이거나 어느 유저 계정에도 연결돼 있지 않으면, `account-merge.not-other.body`를 `dialog` `notice`로 보입니다. 확인하면 인증 단계에 그대로 남아 다시 고를 수 있습니다(IA `account-merge:error`). 연결·합치기로 넘어가지 않으므로 D85 ④의 '끝냄'과 같습니다.
+* 인증되면 요약·고르기 단계로 바뀝니다. 요약을 받는 동안(IA `account-merge:loading`)은 가져올 기록·구매 상자와 카드 두 장 자리가 `loading.breathe`로 숨쉽니다.
+* 요약을 받지 못하면(연결 끊김 포함) `ui.account-merge.error`를 `dialog` `notice`로 보이고, 확인하면 인증 단계로 돌아갑니다. 인증 결과는 버립니다.
+
+**요약·고르기 단계** (app-bar 아래로 차례대로)
+
+1. 제목
 2. `account-merge.title.body`(`type.body.ui`, `text.secondary`, 아래 `space.24`)
-3. `account-merge.choice.label`(`type.caption.md`, `text.secondary`, 아래 `space.8`)
-4. `account-choice` 카드 두 장
-5. `account-merge.overlap.notice`: 같은 날 일기가 겹칠 때만. 위 `space.16`, 앞 아이콘 `check-circle`(Light 16, `text.secondary`) + `type.caption.lg` `text.secondary`, 사이 `space.8`. `mark.caution`을 쓰지 않고 바탕 상자도 두지 않습니다. 같은 날 일기도 지우지 않고 모두 옮긴다는 안심 안내이기 때문입니다(D83 ④).
-6. 화면 아래(내용이 짧으면 바닥에 붙음): `primary-button` `filled` `account-merge.cta.merge`(고르기 전 `disabled`) → `primary-button` `quiet` `account-merge.cta.cancel`, 사이 `space.4`
+3. 가져올 기록·구매 상자(컴포넌트가 아닌 화면 배치, 문구 `ui.account-merge.summary`)
+   * 상자: `bg.sheet`, `radius.md`, 안쪽 `space.16`, 줄 사이 `space.8`, 아래 `space.24`.
+   * 머리: `type.caption.md`, `text.secondary`.
+   * 줄마다 왼쪽에 이름(`type.body.ui`, `text.secondary`), 오른쪽에 값(`type.body.ui`, `text.primary`, 고정폭 숫자, 값 자리 56)을 둡니다.
+   * 줄 순서는 일기 편수 → 일정 개수(기록) → 광고 제거 남은 기간(구매, A의 끝에 이어 붙음, D88 ①)입니다.
+   * 일기·일정 줄은 0이어도 보입니다(D85 ④). 광고 제거 남은 기간 줄은 남은 기간이 있을 때만 보입니다.
+4. `account-merge.choice.label`(`type.caption.md`, `text.secondary`, 아래 `space.8`)
+5. `account-choice` 카드 두 장
+6. `account-merge.overlap.notice`: 같은 날 일기가 겹칠 때만 보입니다.
+   * 위 `space.16`, 앞 아이콘 `check-circle`(Light 16, `text.secondary`) + `type.caption.lg` `text.secondary`, 사이 `space.8`.
+   * `mark.caution`을 쓰지 않고 바탕 상자도 두지 않습니다. 같은 날 일기도 지우지 않고 모두 옮긴다는 안심 안내이기 때문입니다(D83 ④).
+7. 화면 아래(내용이 짧으면 바닥에 붙음): `primary-button` `filled` `account-merge.cta.merge`(고르기 전 `disabled`)
 
+* **"합치지 않기" 버튼이 없습니다.** 그만두기는 app-bar 뒤로 가기(또는 시스템 뒤로 가기)입니다. 어느 단계에서든 `login-methods`로 돌아가고 인증 결과는 버립니다.
 * 합치기 버튼을 누르면 `dialog` `destructive`(`account-merge.merge.confirm`)가 열립니다. **강조는 이 확인 창 한 곳입니다.** 화면의 합치기 버튼은 평소 무게(`filled`)로 둡니다.
-* 확정 뒤 확인 창이 닫히고 합치기 버튼이 `loading`, `account-choice`는 `disabled`(고름 잠금)입니다. 끝나면 `login-methods`로 돌아갑니다.
-* 실패(`account-merge:error`)는 `ui.account-merge.error`를 `dialog` `notice`로 보입니다. 고른 계정은 그대로 두어 버튼을 다시 누르면 됩니다. 화면 전체를 오류로 바꾸지 않습니다(IA `account-merge` 컴포넌트에 `error-state`가 없음).
+* 확정 뒤에는 확인 창이 닫히고 합치기 버튼이 `loading`, `account-choice`는 `disabled`(고름 잠금)입니다.
+  * 합치는 동안 뒤로 가기는 동작하지 않습니다. app-bar 뒤로 가기 버튼은 `disabled`(opacity 0.4)이고, 시스템 뒤로 가기와 iOS 스와이프 뒤로 가기도 막습니다. 되돌릴 수 없는 처리가 진행 중이라 화면을 떠나 결과를 놓치지 않게 합니다.
+  * 끝나면 `login-methods`로 돌아갑니다.
+* 실패(`account-merge:error`)는 `ui.account-merge.error`를 `dialog` `notice`로 보입니다. 고름은 그대로 두어 버튼을 다시 누르면 됩니다. 화면 전체를 오류로 바꾸지 않습니다(IA `account-merge` 컴포넌트에 `error-state`가 없음).

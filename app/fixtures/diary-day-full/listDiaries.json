@@ -1,0 +1,77 @@
+{
+  "status": 200,
+  "body": {
+    "items": [
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b001",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T01:00:00Z",
+        "excerpt": "아침에 일어나 창문을 열었다. 공기가 맑았다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b002",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T02:00:00Z",
+        "excerpt": "출근길에 마신 커피가 유난히 맛있었다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b003",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T03:00:00Z",
+        "excerpt": "점심은 간단히 샌드위치로 해결했다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b004",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T04:00:00Z",
+        "excerpt": "오후 회의가 예상보다 일찍 끝났다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b005",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T05:00:00Z",
+        "excerpt": "동료가 건넨 칭찬 한마디에 힘이 났다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b006",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T06:00:00Z",
+        "excerpt": "잠깐 걸으며 머리를 식혔다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b007",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "excerpt": "미뤄 둔 메일에 답장을 보냈다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b008",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T08:00:00Z",
+        "excerpt": "퇴근길 하늘이 붉게 물들어 있었다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b009",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T09:00:00Z",
+        "excerpt": "저녁은 집에서 따뜻한 국을 끓여 먹었다.",
+        "featuredTags": []
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1b010",
+        "date": "2026-10-13",
+        "createdAt": "2026-10-13T10:00:00Z",
+        "excerpt": "잠들기 전에 오늘 있었던 일을 적어 둔다.",
+        "featuredTags": []
+      }
+    ]
+  }
+}

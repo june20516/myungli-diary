@@ -32,7 +32,7 @@ final Map<String, String Function(AppLocalizations)> problemMessages = {
   'schedule.not_found': (l10n) => l10n.errorScheduleNotFound,
   'method.not_allowed': (l10n) => l10n.errorMethodNotAllowed,
   'profile.required': (l10n) => l10n.errorProfileRequired,
-  'diary.date_taken': (l10n) => l10n.errorDiaryDateTaken,
+  'diary.day_full': (l10n) => l10n.errorDiaryDayFull,
   'idempotency.in_progress': (l10n) => l10n.errorIdempotencyInProgress,
   'request.too_large': (l10n) => l10n.errorRequestTooLarge,
   'request.unsupported_media_type': (l10n) =>
@@ -63,6 +63,12 @@ final Map<String, String Function(AppLocalizations)> problemMessages = {
       l10n.errorBillingProviderUnavailable,
   'service.unavailable': (l10n) => l10n.errorServiceUnavailable,
   'engine.timeout': (l10n) => l10n.errorEngineTimeout,
+  'auth.identity_not_found': (l10n) => l10n.errorAuthIdentityNotFound,
+  'auth.provider_taken': (l10n) => l10n.errorAuthProviderTaken,
+  'auth.identity_in_use': (l10n) => l10n.errorAuthIdentityInUse,
+  'auth.identity_pending_deletion': (l10n) =>
+      l10n.errorAuthIdentityPendingDeletion,
+  'auth.last_identity': (l10n) => l10n.errorAuthLastIdentity,
 };
 
 /// [error]를 사용자에게 보일 문구로 바꿉니다.
