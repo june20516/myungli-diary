@@ -95,11 +95,49 @@
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
+- id: login-methods.in-use.body
+  where: "로그인 수단 화면(login-methods): 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결하지 않았을 때"
+  purpose: guide
+  user_state: "연결하려던 인증 수단이 다른 계정에 있습니다(D85 ③)."
+  structure: "다른 계정에서 쓰는 인증 수단이라는 사실과, 그 계정에서 연결을 끊은 뒤 다시 연결하라는 안내. 계정 합치기는 본문에서 말하지 않고 같은 화면의 입구 버튼(`login-methods.merge.cta`)이 맡습니다(R15-1)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 90, en: 150, ja: 63}
+  keys:
+    - loginMethodsInUseBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: loginMethodsInUseBody, text: "이미 다른 계정에서 쓰는 인증 수단이에요. 그 계정에서 연결을 끊은 뒤 다시 연결해 주세요.", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: login-methods.merge.cta
+  where: "로그인 수단 화면(login-methods): 계정 합치기로 가는 입구"
+  purpose: guide
+  user_state: "다른 계정의 기록을 이 계정으로 가져오려 합니다(D85 ④)."
+  structure: "동작 이름 하나. 합치기는 다른 계정의 기록을 가져오는 일이라 그 말로 씁니다(R15-2)."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 42, ja: 19}
+  keys:
+    - loginMethodsMergeCta
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: loginMethodsMergeCta, text: "다른 계정의 기록 가져오기", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "버튼 이름 그대로 읽습니다."
+
 - id: account-merge.title.head
   where: "계정 합치기 화면(account-merge): 제목"
   purpose: info
-  user_state: "붙이려는 인증 수단이 다른 계정에 연결돼 있습니다."
-  structure: "두 계정을 하나로 합친다는 제목."
+  user_state: "다른 계정의 기록을 이 계정으로 가져오려 합니다(D85 ④)."
+  structure: "다른 계정의 기록을 이 계정으로 가져와 합친다는 제목. 남는 계정은 언제나 지금 계정입니다."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 36, en: 66, ja: 30}
   keys:
@@ -107,7 +145,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountMergeTitleHead, text: "두 계정을 하나로 합칠까요?", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: accountMergeTitleHead, text: "다른 계정의 기록을 이 계정으로 가져올까요?", why: "라운드 R15 선택(D85 ④로 역할이 바뀜)", source: writing}
     bad: []
   endings: []
   a11y:
@@ -117,8 +155,8 @@
 - id: account-merge.title.body
   where: "계정 합치기 화면(account-merge): 합치면 남는 것과 옮겨지는 것"
   purpose: info
-  user_state: "두 계정을 합칠지 정하려 합니다."
-  structure: "사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두 옮김, 광고 제거 기간은 더함, 고르지 않은 계정은 지워짐(D82 ⑥, D83 ④)."
+  user_state: "합칠지 정하려 합니다. 옮길 기록이 0건일 수도 있습니다."
+  structure: "합칠 계정의 기록은 모두 이 계정으로 옮김, 사주 정보·호칭·설정은 고른 쪽, 합칠 계정과 그 인증 수단은 지워짐, 마지막에 구매도 옮김(D85 ④, D88 ①). 0건이어도 어색하지 않게 \"있는 기록은 모두\"로 쓰고, 광고 제거 기간처럼 상품 하나에 묶인 말은 쓰지 않습니다(R15-6)."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 120, en: 200, ja: 84}
   keys:
@@ -126,7 +164,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountMergeTitleBody, text: "합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: accountMergeTitleBody, text: "합칠 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 합칠 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.", why: "라운드 R15 선택", source: writing}
     bad:
       - {lang: ko, text: "같은 날 일기가 겹치면 하나는 지워져요.", why: "D83 ④로 같은 날 일기도 모두 옮김", source: writing}
   endings: ["~어요"]
@@ -135,10 +173,10 @@
     screen_reader: "문장 그대로 읽습니다."
 
 - id: account-merge.choice.label
-  where: "계정 합치기 화면(account-merge): 남길 계정 고르기 안내"
+  where: "계정 합치기 화면(account-merge): 사주 정보·호칭·설정을 어느 계정 것으로 둘지 고르는 묶음 이름"
   purpose: guide
   user_state: "두 계정 요약을 봅니다."
-  structure: "남길 계정을 고르라는 안내 한 줄."
+  structure: "질문 한 줄. 사주 정보로 대표해 묻습니다(R15-7)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 31, en: 58, ja: 25}
   keys:
@@ -146,12 +184,53 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountMergeChoiceLabel, text: "남길 계정을 골라 주세요", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: accountMergeChoiceLabel, text: "어느 계정의 사주 정보를 쓸까요?", why: "라운드 R15 선택", source: writing}
+    bad:
+      - {lang: ko, text: "남길 계정을 골라 주세요", why: "D85 ④로 남는 계정은 언제나 지금 계정", source: writing}
+  endings: ["~나요?", "~까요?"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "선택지 묶음의 이름으로 읽습니다."
+
+- id: account-merge.auth.body
+  where: "계정 합치기 화면(account-merge): 합칠 계정의 인증 수단으로 인증하라는 안내"
+  purpose: guide
+  user_state: "합칠 계정을 확인하려 합니다(D85 ④)."
+  structure: "한 문장. 기록을 가져올 계정을 인증하라는 안내(R15-4)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 64, en: 108, ja: 46}
+  keys:
+    - accountMergeAuthBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountMergeAuthBody, text: "기록을 가져올 계정을 인증해 주세요.", why: "라운드 R15 선택(R15-4 2를 사용자가 고침)", source: writing}
     bad: []
   endings: ["~해 주세요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
-    screen_reader: "선택지 묶음의 이름으로 읽습니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: account-merge.not-other.body
+  where: "계정 합치기 화면(account-merge): 합칠 계정이 없을 때. `Self`는 인증한 수단이 지금 계정 것일 때, `None`은 어느 계정에도 연결돼 있지 않을 때"
+  purpose: info
+  user_state: "합칠 계정을 찾지 못했습니다(D85 ④)."
+  structure: "무엇으로 인증했는지 말하고, `Self`만 합칠 계정으로 다시 로그인하라고 덧붙입니다. `None`은 연결로 넘어가지 않으므로 할 일을 말하지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 90, en: 150, ja: 63}
+  keys:
+    - accountMergeNotOtherBodySelf
+    - accountMergeNotOtherBodyNone
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: accountMergeNotOtherBodySelf, text: "지금 계정의 인증 수단으로 로그인했어요. 합칠 계정의 인증 수단으로 다시 로그인해 주세요.", why: "라운드 R15 선택", source: writing}
+      - {lang: ko, key: accountMergeNotOtherBodyNone, text: "이 인증 수단에 연결된 계정이 없어요.", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: ["~어요", "~해 주세요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
 
 - id: account-merge.overlap.notice
   where: "계정 합치기 화면(account-merge): 겹치는 일기 안내(같은 날 일기가 두 계정에 다 있을 때만)"

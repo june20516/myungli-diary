@@ -64,19 +64,19 @@
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
-- id: ad-free.restore.cta
-  where: "광고 제거 화면(ad-free): 구매 복원"
+- id: ad-free.history.cta
+  where: "광고 제거 화면(ad-free): 구매 내역으로 가는 버튼"
   purpose: guide
-  user_state: "다른 기기에서 산 것을 되살리려 합니다."
-  structure: "동작 이름 하나."
+  user_state: "산 것을 확인하려 합니다(D88 ②)."
+  structure: "화면 이름 그대로 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 42, ja: 19}
   keys:
-    - adFreeRestoreCta
+    - adFreeHistoryCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: adFreeRestoreCta, text: "구매 복원", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: adFreeHistoryCta, text: "구매 내역", why: "라운드 R15 선택", source: writing}
     bad: []
   endings: []
   a11y:
@@ -101,3 +101,87 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
+
+- id: purchase-history.empty.body
+  where: "구매 내역 화면(purchase-history): 구매가 없을 때"
+  purpose: info
+  user_state: "이 계정으로 산 상품이 없습니다."
+  structure: "한 문장."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 64, en: 108, ja: 46}
+  keys:
+    - purchaseHistoryEmptyBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: purchaseHistoryEmptyBody, text: "구매 내역이 없어요.", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: ["~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: purchase-history.missing.notice
+  where: "구매 내역 화면(purchase-history): 결제했는데 목록에 없을 때의 안내"
+  purpose: guide
+  user_state: "결제한 상품이 목록에 없는지 확인합니다."
+  structure: "한 문장. 문의하라는 안내(문의 경로는 지휘 결정 대기)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 52, en: 90, ja: 38}
+  keys:
+    - purchaseHistoryMissingNotice
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 문의해 주세요.", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: ["~해 주세요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.purchase.status
+  where: "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  purpose: info
+  user_state: "구매가 지금 어떤 상태인지 봅니다."
+  structure: "낱말 하나. `Pending`은 산 뒤 앞 기간이 끝나기를 기다리는 구매입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 11, en: 19, ja: 9}
+  components: [purchase-row]
+  keys:
+    - purchaseStatusActive
+    - purchaseStatusPending
+    - purchaseStatusExpired
+    - purchaseStatusRefunded
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: purchaseStatusActive, text: "사용 중", why: "라운드 R15 선택", source: writing}
+      - {lang: ko, key: purchaseStatusPending, text: "사용 전", why: "라운드 R15 선택(\"대기\"를 바꿈)", source: writing}
+      - {lang: ko, key: purchaseStatusExpired, text: "만료", why: "라운드 R15 선택", source: writing}
+      - {lang: ko, key: purchaseStatusRefunded, text: "환불", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "상태 이름 그대로 읽습니다."
+
+- id: ui.purchase.product
+  where: "구매 내역 화면(purchase-history): purchase-row의 상품 이름. 상품 종류마다 키 하나, app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)"
+  purpose: info
+  user_state: "어떤 상품을 샀는지 봅니다."
+  structure: "상품 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 42, ja: 18}
+  components: [purchase-row]
+  keys:
+    - purchaseProductAdFreeMonth
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: purchaseProductAdFreeMonth, text: "광고 제거 1개월", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "상품 이름 그대로 읽습니다."

@@ -25,6 +25,7 @@
 - {slot: birthplace.empty.body, key: birthplaceEmptyBody, text: "No matching city. Try a larger city nearby."}
 - {slot: preview.cta.save, key: previewCtaSave, text: "Save and continue"}
 - {slot: preview.cta.restart, key: previewCtaRestart, text: "Start over"}
+- {slot: preview.restart.notice, key: previewRestartNotice, text: "To see a reading with your new details, try signing in."}
 - {slot: preview.share.login-notice, key: previewShareLoginNotice, text: "Sign in to share today's reading."}
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeConfirm, text: "Sign in"}
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "Close"}
@@ -129,8 +130,9 @@
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "{degrees}°E"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "{degrees}°W"}
 - {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute."}
+- {slot: calc-basis.daeun.body, key: calcBasisDaeunBody, text: "The 10-year luck cycle's start age drops the months and counts whole years."}
 - {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "Delete account"}
-- {slot: account-delete.data.body, key: accountDeleteDataBody, text: "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time."}
+- {slot: account-delete.data.body, key: accountDeleteDataBody, text: "Deleting your account permanently erases your chart details, diary, tags, events, and any remaining time on your purchases. Only information needed for legal reasons or fraud prevention is kept separately for a set period."}
 - {slot: account-delete.cta.delete, key: accountDeleteCtaDelete, text: "Delete account"}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "Delete your account for good? This can't be undone."}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmDelete, text: "Delete"}
@@ -138,8 +140,15 @@
 - {slot: ad-free.offer.head, key: adFreeOfferHead, text: "One month with no ads, and the basis and interpretation fully unlocked."}
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price} · 1 month · no auto-renewal"}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
-- {slot: ad-free.restore.cta, key: adFreeRestoreCta, text: "Restore purchase"}
+- {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
+- {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "No purchases yet."}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "If something you paid for isn't listed, please contact us."}
+- {slot: ui.purchase.status, key: purchaseStatusActive, text: "Active"}
+- {slot: ui.purchase.status, key: purchaseStatusPending, text: "Not started"}
+- {slot: ui.purchase.status, key: purchaseStatusExpired, text: "Expired"}
+- {slot: ui.purchase.status, key: purchaseStatusRefunded, text: "Refunded"}
+- {slot: ui.purchase.product, key: purchaseProductAdFreeMonth, text: "Ad-free, 1 month"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
@@ -318,6 +327,8 @@
 - {slot: login-methods.unlink.confirm, key: loginMethodsUnlinkConfirmCancel, text: "Cancel"}
 - {slot: login-methods.error.body, key: loginMethodsErrorBodyLink, text: "We couldn't link it. Please try again."}
 - {slot: login-methods.error.body, key: loginMethodsErrorBodyUnlink, text: "We couldn't unlink it. Please try again."}
+- {slot: login-methods.in-use.body, key: loginMethodsInUseBody, text: "This sign-in method is already used by another account. Unlink it there, then link it again."}
+- {slot: login-methods.merge.cta, key: loginMethodsMergeCta, text: "Bring in another account's records"}
 - {slot: ui.login-methods.row, key: loginProviderKakao, text: "Kakao"}
 - {slot: ui.login-methods.row, key: loginProviderLine, text: "LINE"}
 - {slot: ui.login-methods.row, key: loginProviderGoogle, text: "Google"}
@@ -326,9 +337,13 @@
 - {slot: ui.login-methods.row, key: loginMethodsRowConnected, text: "Linked"}
 - {slot: ui.settings.login-methods, key: settingsLoginMethodsLabel, text: "Sign-in methods"}
 - {slot: account-merge.bar.title, key: accountMergeBarTitle, text: "Merge accounts"}
-- {slot: account-merge.title.head, key: accountMergeTitleHead, text: "Merge these two accounts?"}
-- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "The account you choose keeps its chart details, name, and settings. All diary entries from both accounts move over, and remaining ad-free time is added together. The other account is deleted."}
-- {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "Choose the account to keep"}
+- {slot: purchase-history.bar.title, key: purchaseHistoryBarTitle, text: "Purchase history"}
+- {slot: account-merge.title.head, key: accountMergeTitleHead, text: "Bring another account's records into this one?"}
+- {slot: account-merge.title.body, key: accountMergeTitleBody, text: "All records from the other account move here. Chart details, name, and settings come from the one you choose, and the other account and its sign-in methods are deleted. Purchases move here too."}
+- {slot: account-merge.choice.label, key: accountMergeChoiceLabel, text: "Which account's chart details should we use?"}
+- {slot: account-merge.auth.body, key: accountMergeAuthBody, text: "Verify the account you want to bring records from."}
+- {slot: account-merge.not-other.body, key: accountMergeNotOtherBodySelf, text: "You signed in with this account's sign-in method. Please sign in again with one from the account to merge."}
+- {slot: account-merge.not-other.body, key: accountMergeNotOtherBodyNone, text: "No account is linked to this sign-in method."}
 - {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "Entries from the same day also all move to this account."}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "Merge accounts"}
 - {slot: account-merge.cta.cancel, key: accountMergeCtaCancel, text: "Don't merge"}

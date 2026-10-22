@@ -9,9 +9,9 @@
   "@accountDeleteCtaDelete": {
     "description": "account-delete.cta.delete: 계정 삭제 버튼"
   },
-  "accountDeleteDataBody": "계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.",
+  "accountDeleteDataBody": "계정을 지우면 사주 정보, 일기, 태그, 일정, 구매한 상품의 남은 기간이 모두 지워지며 되돌릴 수 없습니다. 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 동안 따로 보관합니다.",
   "@accountDeleteDataBody": {
-    "description": "account-delete.data.body: 지워지는 데이터 안내"
+    "description": "account-delete.data.body: 지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 따로 보관한다는 한 줄, D88 ③④)"
   },
   "accountDeleteDeleteConfirm": "정말 지울까요? 지운 계정은 되돌릴 수 없어요.",
   "@accountDeleteDeleteConfirm": {
@@ -29,13 +29,17 @@
   "@accountDeleteTitleHead": {
     "description": "account-delete.title.head: 계정 삭제 제목"
   },
+  "accountMergeAuthBody": "기록을 가져올 계정을 인증해 주세요.",
+  "@accountMergeAuthBody": {
+    "description": "account-merge.auth.body: 합칠 계정에 연결된 인증 수단으로 로그인하라는 안내"
+  },
   "accountMergeBarTitle": "계정 합치기",
   "@accountMergeBarTitle": {
     "description": "account-merge.bar.title: app-bar 제목(화면 이름 \"계정 합치기\")"
   },
-  "accountMergeChoiceLabel": "남길 계정을 골라 주세요",
+  "accountMergeChoiceLabel": "어느 계정의 사주 정보를 쓸까요?",
   "@accountMergeChoiceLabel": {
-    "description": "account-merge.choice.label: 남길 계정을 고르라는 안내"
+    "description": "account-merge.choice.label: 사주 정보·호칭·설정을 어느 계정 것으로 둘지 고르라는 안내"
   },
   "accountMergeCtaCancel": "합치지 않기",
   "@accountMergeCtaCancel": {
@@ -57,21 +61,33 @@
   "@accountMergeMergeConfirmCancel": {
     "description": "account-merge.merge.confirm: 최종 확인(되돌릴 수 없음)"
   },
+  "accountMergeNotOtherBodySelf": "지금 계정의 인증 수단으로 로그인했어요. 합칠 계정의 인증 수단으로 다시 로그인해 주세요.",
+  "@accountMergeNotOtherBodySelf": {
+    "description": "account-merge.not-other.body: 인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)"
+  },
+  "accountMergeNotOtherBodyNone": "이 인증 수단에 연결된 계정이 없어요.",
+  "@accountMergeNotOtherBodyNone": {
+    "description": "account-merge.not-other.body: 인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)"
+  },
   "accountMergeOverlapNotice": "같은 날 쓴 일기도 모두 이 계정으로 옮겨요.",
   "@accountMergeOverlapNotice": {
     "description": "account-merge.overlap.notice: 같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(겹치는 날이 있을 때)"
   },
-  "accountMergeTitleBody": "합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.",
+  "accountMergeTitleBody": "합칠 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 합칠 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.",
   "@accountMergeTitleBody": {
-    "description": "account-merge.title.body: 합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)"
+    "description": "account-merge.title.body: 합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록은 이 계정으로, 사주 정보·호칭·설정은 고른 쪽, 광고 제거 기간은 더함, 합칠 계정과 그 인증 수단은 지워짐). 옮길 기록이 0건이어도 보임"
   },
-  "accountMergeTitleHead": "두 계정을 하나로 합칠까요?",
+  "accountMergeTitleHead": "다른 계정의 기록을 이 계정으로 가져올까요?",
   "@accountMergeTitleHead": {
-    "description": "account-merge.title.head: 두 계정을 하나로 합친다는 제목"
+    "description": "account-merge.title.head: 다른 계정의 기록을 이 계정으로 가져와 합친다는 제목"
   },
   "adFreeBarTitle": "광고 제거",
   "@adFreeBarTitle": {
     "description": "ad-free.bar.title: app-bar 제목(화면 이름 \"광고 제거\")"
+  },
+  "adFreeHistoryCta": "구매 내역",
+  "@adFreeHistoryCta": {
+    "description": "ad-free.history.cta: 구매 내역으로 가는 버튼(D88 ②)"
   },
   "adFreeLegalNotice": "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.",
   "@adFreeLegalNotice": {
@@ -89,10 +105,6 @@
         "type": "String"
       }
     }
-  },
-  "adFreeRestoreCta": "구매 복원",
-  "@adFreeRestoreCta": {
-    "description": "ad-free.restore.cta: 구매 복원"
   },
   "adFreeStatusRemaining": "{date}까지 광고 없이 볼 수 있어요",
   "@adFreeStatusRemaining": {
@@ -138,6 +150,10 @@
   "calcBasisConventionBody": "명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.",
   "@calcBasisConventionBody": {
     "description": "calc-basis.convention.body: 한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)"
+  },
+  "calcBasisDaeunBody": "대운수는 개월을 버리고 셉니다.",
+  "@calcBasisDaeunBody": {
+    "description": "calc-basis.daeun.body: 대운수는 개월을 버려 센다는 안내와, 다른 앱과 1 차이가 날 수 있다는 안내(core C5, D86 ⑦)"
   },
   "calcBasisLongitudeBodySubtract": "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
   "@calcBasisLongitudeBodySubtract": {
@@ -466,6 +482,10 @@
   "@loginMethodsErrorBodyUnlink": {
     "description": "login-methods.error.body: 연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
   },
+  "loginMethodsInUseBody": "이미 다른 계정에서 쓰는 인증 수단이에요. 그 계정에서 연결을 끊은 뒤 다시 연결해 주세요.",
+  "@loginMethodsInUseBody": {
+    "description": "login-methods.in-use.body: 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결할 수 없다는 안내와, 계정 합치기를 쓰거나 그 계정에서 먼저 연결을 끊으라는 안내(D85 ③)"
+  },
   "loginMethodsIntroBody": "여러 인증 수단을 연결해 두면 어느 것으로든 이 계정에 로그인할 수 있어요.",
   "@loginMethodsIntroBody": {
     "description": "login-methods.intro.body: 연결한 수단 어느 것으로 로그인해도 같은 계정이라는 설명"
@@ -473,6 +493,10 @@
   "loginMethodsLastNotice": "인증 수단이 하나는 남아 있어야 해요.",
   "@loginMethodsLastNotice": {
     "description": "login-methods.last.notice: 마지막 남은 수단은 뗄 수 없다는 안내"
+  },
+  "loginMethodsMergeCta": "다른 계정의 기록 가져오기",
+  "@loginMethodsMergeCta": {
+    "description": "login-methods.merge.cta: 계정 합치기로 가는 버튼"
   },
   "loginMethodsUnlinkConfirm": "{provider} 연결을 끊을까요?",
   "@loginMethodsUnlinkConfirm": {
@@ -622,6 +646,10 @@
   "@previewCtaSave": {
     "description": "preview.cta.save: 저장하고 계속하기 버튼"
   },
+  "previewRestartNotice": "다시 입력한 정보로 풀이를 보려면 로그인해 보세요.",
+  "@previewRestartNotice": {
+    "description": "preview.restart.notice: 다시 입력할 때, 미리보기는 한 번이라 고친 정보로 이어 보려면 로그인을 권하는 안내. 막는다는 말보다 권하는 말(D86 ⑤)"
+  },
   "previewShareLoginNotice": "로그인하면 오늘 풀이를 공유할 수 있어요.",
   "@previewShareLoginNotice": {
     "description": "preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창"
@@ -665,6 +693,18 @@
   "profileEditRecalcNotice": "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.",
   "@profileEditRecalcNotice": {
     "description": "profile-edit.recalc.notice: 바꾸면 풀이를 다시 계산한다는 안내"
+  },
+  "purchaseHistoryBarTitle": "구매 내역",
+  "@purchaseHistoryBarTitle": {
+    "description": "purchase-history.bar.title: app-bar 제목(화면 이름 \"구매 내역\")"
+  },
+  "purchaseHistoryEmptyBody": "구매 내역이 없어요.",
+  "@purchaseHistoryEmptyBody": {
+    "description": "purchase-history.empty.body: 구매가 없을 때의 안내"
+  },
+  "purchaseHistoryMissingNotice": "결제한 상품이 보이지 않으면 문의해 주세요.",
+  "@purchaseHistoryMissingNotice": {
+    "description": "purchase-history.missing.notice: 결제했는데 목록에 없으면 문의하라는 안내"
   },
   "sajuChartBarTitle": "사주 표",
   "@sajuChartBarTitle": {
@@ -1585,6 +1625,26 @@
   "timePickerMinuteLabel": "분",
   "@timePickerMinuteLabel": {
     "description": "날짜·시간 휠의 스크린리더 이름"
+  },
+  "purchaseProductAdFreeMonth": "광고 제거 1개월",
+  "@purchaseProductAdFreeMonth": {
+    "description": "구매 내역 화면(purchase-history): purchase-row의 상품 이름. 상품 종류마다 키 하나, app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)"
+  },
+  "purchaseStatusActive": "사용 중",
+  "@purchaseStatusActive": {
+    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  },
+  "purchaseStatusPending": "사용 전",
+  "@purchaseStatusPending": {
+    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  },
+  "purchaseStatusExpired": "만료",
+  "@purchaseStatusExpired": {
+    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
+  },
+  "purchaseStatusRefunded": "환불",
+  "@purchaseStatusRefunded": {
+    "description": "구매 내역 화면(purchase-history): purchase-row의 상태 낱말(기간권). 상품 종류에 따라 낱말이 다를 수 있습니다(D88 ②)"
   },
   "settingsLoginMethodsLabel": "로그인 수단",
   "@settingsLoginMethodsLabel": {

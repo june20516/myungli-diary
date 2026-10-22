@@ -6,7 +6,7 @@
 - {slot: system.notice, key: notice.ambiguous_local_time, text: "Your birth time occurred twice when the clocks changed, so we used the earlier one."}
 - {slot: system.notice, key: notice.nonexistent_local_time, text: "Your birth time was skipped when the clocks changed, so we used the time after the change."}
 - {slot: system.notice, key: notice.zi_hour_next_day, text: "Adjusted for longitude, your birth time falls in the Rat hour, which starts the next day."}
-- {slot: system.notice, key: notice.time_unknown, text: "Your birth time is unknown, so we used 12 noon. Adding it makes results more accurate."}
+- {slot: system.notice, key: notice.time_unknown, text: "Your birth time is unknown, so the hour pillar is left out. Add it for better accuracy."}
 - {slot: system.notice, key: notice.near_solar_term, text: "Born near a solar term change, your month or year pillar may vary with the exact time."}
 - {slot: system.notice, key: notice.dayun_start_approximate, text: "The age your 10-year luck cycles start is an estimate, since your birth time is unknown."}
 - {slot: system.notice, key: notice.focus_time_fallback, text: "No usual focus hour suits your chart today, so we picked a lucky hour from the calendar."}

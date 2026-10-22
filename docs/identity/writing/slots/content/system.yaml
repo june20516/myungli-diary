@@ -48,7 +48,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: notice.time_unknown, text: "태어난 시간을 몰라 낮 12시로 계산했어요. 시간을 넣으면 더 정확해져요.", why: "처리한 방식과 할 수 있는 일을 한 문장씩", source: writing}
+      - {lang: ko, key: notice.time_unknown, text: "태어난 시간을 몰라 시주를 빼고 계산했어요. 시간을 넣으면 더 정확해져요.", why: "처리한 방식과 할 수 있는 일을 한 문장씩. 실제 계산은 시주를 뺀 3주(D18 ②, R15-16)", source: writing}
     bad:
       - {lang: ko, key: notice.time_unknown, text: "출생 시각 미상으로 인해 결과의 신뢰도가 크게 떨어질 수 있습니다.", why: "걱정을 키움, 한자어 덩어리, 합니다체 style.S3", source: writing}
   endings: ["~했어요", "~해요"]
