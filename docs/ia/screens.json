@@ -2442,12 +2442,12 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "이 계정에 연결한 로그인 수단을 보여주고, 다른 제공자를 붙이거나 뗍니다(D82)",
+      "purpose": "이 계정에 연결한 인증 수단을 보여주고, 아직 없는 제공자를 붙이거나 떼며, 계정 합치기로 들어갑니다(D82, D85)",
       "depths": [],
       "states": [
         {
           "id": "error",
-          "note": "연결·떼기를 끝내지 못함"
+          "note": "연결·떼기를 끝내지 못함, 또는 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결하지 않음(D85 ③)"
         }
       ],
       "slots": [
@@ -2472,6 +2472,16 @@
           "role": "떼기 확인"
         },
         {
+          "id": "login-methods.in-use.body",
+          "source": "ui",
+          "role": "붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결할 수 없다는 안내와, 계정 합치기를 쓰거나 그 계정에서 먼저 연결을 끊으라는 안내(D85 ③)"
+        },
+        {
+          "id": "login-methods.merge.cta",
+          "source": "ui",
+          "role": "계정 합치기로 가는 버튼"
+        },
+        {
           "id": "login-methods.error.body",
           "source": "ui",
           "role": "연결·떼기를 끝내지 못했을 때의 안내(인증 창을 닫음 포함)"
@@ -2485,12 +2495,13 @@
       "exits": [
         {
           "to": "account-merge",
-          "trigger": "붙이려는 수단이 다른 계정에 연결돼 있음"
+          "trigger": "계정 합치기"
         }
       ],
       "decisions": [
         "D55",
-        "D82"
+        "D82",
+        "D85"
       ]
     },
     {
@@ -2499,16 +2510,16 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "붙이려는 로그인 수단이 다른 계정에 있을 때, 남길 계정을 골라 두 계정을 하나로 합칩니다(D82 ⑥, D83 ④)",
+      "purpose": "합칠 다른 계정의 인증 수단으로 인증해, 그 계정의 기록을 이 계정으로 가져오고 그 계정을 지웁니다. 인증 수단은 가져오지 않습니다(D85 ④, D83 ④)",
       "depths": [],
       "states": [
         {
           "id": "loading",
-          "note": "두 계정 요약을 불러오는 중"
+          "note": "합칠 계정 요약을 불러오는 중"
         },
         {
           "id": "error",
-          "note": "합치기 실패"
+          "note": "합칠 계정이 없음(인증한 수단이 이 계정 것이거나 어느 계정에도 연결돼 있지 않음, D85 ④), 또는 합치기 실패"
         }
       ],
       "slots": [
@@ -2520,17 +2531,27 @@
         {
           "id": "account-merge.title.head",
           "source": "ui",
-          "role": "두 계정을 하나로 합친다는 제목"
+          "role": "다른 계정의 기록을 이 계정으로 가져와 합친다는 제목"
+        },
+        {
+          "id": "account-merge.auth.body",
+          "source": "ui",
+          "role": "합칠 계정에 연결된 인증 수단으로 로그인하라는 안내"
+        },
+        {
+          "id": "account-merge.not-other.body",
+          "source": "ui",
+          "role": "인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)"
         },
         {
           "id": "account-merge.title.body",
           "source": "ui",
-          "role": "합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)"
+          "role": "합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록은 이 계정으로, 사주 정보·호칭·설정은 고른 쪽, 광고 제거 기간은 더함, 합칠 계정과 그 인증 수단은 지워짐). 옮길 기록이 0건이어도 보임"
         },
         {
           "id": "account-merge.choice.label",
           "source": "ui",
-          "role": "남길 계정을 고르라는 안내"
+          "role": "사주 정보·호칭·설정을 어느 계정 것으로 둘지 고르라는 안내"
         },
         {
           "id": "account-merge.overlap.notice",
@@ -2555,6 +2576,7 @@
       ],
       "components": [
         "app-bar",
+        "social-login-button",
         "account-choice",
         "primary-button",
         "dialog"
@@ -2573,7 +2595,8 @@
         "D49",
         "D53",
         "D82",
-        "D83"
+        "D83",
+        "D85"
       ]
     },
     {
@@ -2582,7 +2605,7 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "지워지는 데이터를 안내하고 최종 확인을 받아 계정을 지웁니다",
+      "purpose": "지워지는 데이터와 되돌릴 수 없다는 것을 안내하고 최종 확인을 받아 계정을 바로 지웁니다(D85 ⑤)",
       "depths": [],
       "states": [
         {
@@ -2604,7 +2627,7 @@
         {
           "id": "account-delete.data.body",
           "source": "ui",
-          "role": "지워지는 데이터 안내"
+          "role": "지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법으로 보관하는 결제 기록은 남음, D85 ⑤)"
         },
         {
           "id": "account-delete.cta.delete",
@@ -2630,7 +2653,8 @@
       ],
       "decisions": [
         "D39",
-        "D68"
+        "D68",
+        "D85"
       ]
     },
     {
