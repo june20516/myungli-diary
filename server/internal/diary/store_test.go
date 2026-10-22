@@ -235,10 +235,21 @@ func TestStore_ConcurrentRestoreOfSameEntryReturnsIt(t *testing.T) {
 		e, err := store.Restore(ctx, acc, target)
 		done <- result{e, err}
 	}()
-	time.Sleep(200 * time.Millisecond) // goroutine이 행 잠금에서 기다리게 합니다.
+	// goroutine이 잠금 대기에 들어간 것을 확인한 뒤에 commit합니다.
+	require.Eventually(t, func() bool {
+		var waiting int
+		require.NoError(t, pool.QueryRow(ctx,
+			"SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'").Scan(&waiting))
+		return waiting > 0
+	}, 10*time.Second, 10*time.Millisecond, "Restore가 잠금을 기다려야 함")
 	require.NoError(t, tx.Commit(ctx))
 
-	res := <-done
+	var res result
+	select {
+	case res = <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("Restore가 commit 뒤에도 끝나지 않음")
+	}
 	require.NoError(t, res.err, "이미 살아 있으면 10편이어도 그대로 돌려줌")
 	saved, err := store.Get(ctx, acc, target)
 	require.NoError(t, err)
