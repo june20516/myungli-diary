@@ -107,14 +107,36 @@ def test_ui_josa_position_errors(text: str, params: dict[str, ParamKind]) -> Non
     assert [finding.rule_id for finding in check_ui_josa(entry(text), params)] == [RULE_UI_JOSA_POSITION]
 
 
-@pytest.mark.parametrize("text", ["{provider}로 로그인해요", "{title}이 내일이에요", "{title}가"])
+@pytest.mark.parametrize(
+    "text",
+    [
+        "{provider}로 로그인해요",
+        "{title}이 내일이에요",
+        "{title}가",
+        "{title}가…",
+        "{title}이)",
+        '{title}이"',
+        "{title}가: 내일",
+        "{provider}로는 로그인할 수 없어요",
+        "{provider}으로도 돼요",
+        "{title}은요?",
+        "{title}와의 약속",
+        "‘{title}’이 내일이에요",
+    ],
+)
 def test_ui_josa_literal_errors(text: str) -> None:
     params = {"provider": TEXT, "title": TEXT}
     assert [finding.rule_id for finding in check_ui_josa(entry(text), params)] == [RULE_UI_JOSA_LITERAL]
 
 
+def test_ui_josa_category_placeholder_is_position_error() -> None:
+    findings = check_ui_josa(entry("{p:cat}(이)가 있어요"), {"p": TEXT})
+    assert [finding.rule_id for finding in findings] == [RULE_UI_JOSA_POSITION]
+
+
 @pytest.mark.parametrize(
-    "text", ["{date}이후", "{count}개", "{end}에 태어났어요", "{tag} 태그", "{title}(이)가", "{count}(은)는 많아요"]
+    "text",
+    ["{date}이후", "{count}개", "{end}에 태어났어요", "{tag} 태그", "{title}(이)가", "{count}(은)는 많아요", "{date}이나 내일"],
 )
 def test_ui_josa_literal_ok(text: str) -> None:
     params = {"date": TEXT, "count": ParamKind("number"), "end": TEXT, "tag": TEXT, "title": TEXT}

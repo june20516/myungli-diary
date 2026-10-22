@@ -21,6 +21,8 @@ RULE_UI_JOSA_LITERAL = "ui.josa_literal"
 RULE_UI_JOSA_NAME_CLASH = "ui.josa_name_clash"
 JOSA_LANG = "ko"
 JOSA_PARAM_KINDS = frozenset({"text", "number"})
+# 조사 뒤에 붙어도 조사로 보는 보조사입니다(`로는`, `으로도`, `은요`, `와의`).
+_TRAILING_PARTICLES = "는|도|만|요|의"
 NAME_PARAM = "name"
 VOCATIVE_PREFIX: dict[str, str] = {"ko": "{name}님, ", "ja": "{name}さん、", "en": "{name}, "}
 
@@ -87,8 +89,11 @@ def _josa_patterns() -> tuple[regex.Pattern[str], regex.Pattern[str], regex.Patt
     return (
         regex.compile(markers),
         regex.compile(rf"\{{[^{{}}]*\}}(?:{markers})?"),
-        # 조사 글자 뒤가 공백·문장부호·닫는 중괄호·끝일 때만 조사로 봅니다(`{date}이후`는 걸리지 않음).
-        regex.compile(rf"\{{(?P<name>[^{{}}:\s,]+)\}}(?P<word>{literal})(?=[\s.,!?·}}]|$)"),
+        # 닫는 따옴표 뒤의 조사도 봅니다. 조사 글자(와 흔한 보조사 하나) 뒤에 한글이 이어지지 않을 때만 조사로 봅니다
+        # (`{date}이후`·`{date}이나`는 걸리지 않고, `{provider}로는`·`{title}와의`·`{title}이)`는 걸림).
+        regex.compile(
+            rf"\{{(?P<name>[^{{}}:\s,]+)\}}['’\"”]?(?P<word>{literal})(?=(?:{_TRAILING_PARTICLES})?(?!\p{{Hangul}}))"
+        ),
     )
 
 
@@ -114,7 +119,8 @@ def check_ui_josa(entry: Entry, params: Mapping[str, ParamKind]) -> list[Finding
         if placeholder.josa is None:
             continue
         kind = params.get(placeholder.name)
-        if kind is None or kind.kind not in JOSA_PARAM_KINDS:
+        # 범주 자리표시자(`{p:cat}`)는 ARB 생성이 펼치지 않습니다.
+        if kind is None or kind.kind not in JOSA_PARAM_KINDS or placeholder.category is not None:
             add(RULE_UI_JOSA_POSITION, f"조사 표기는 text·number 매개변수 바로 뒤에만 씁니다({{{placeholder.name}}})")
         generated = josa_param(placeholder.name)
         if generated in params or generated in names:

@@ -70,7 +70,13 @@ def check_arb(arb_paths: Sequence[Path], slots: Mapping[str, Slot], rules: RuleS
             if problem is not None:
                 findings.append(Finding(path, entry.line, RULE_PLURAL, "error", problem))
                 continue
-            orphans = [name for name in _JOSA_SELECT_VAR.findall(value) if "{" + name + "}" not in value]
+            # select는 원래 매개변수 바로 뒤에 붙어 있어야 합니다(`{p}{pJosa, select, …}`).
+            orphans = [
+                name
+                for name in dict.fromkeys(_JOSA_SELECT_VAR.findall(value))
+                if value.count("{" + name + JOSA_SUFFIX + ", select,")
+                != value.count("{" + name + "}{" + name + JOSA_SUFFIX + ", select,")
+            ]
             if orphans:
                 message = f"조사 매개변수의 원래 매개변수가 없습니다: {', '.join(orphans)}"
                 findings.append(Finding(path, entry.line, RULE_ARB_JOSA_ORPHAN, "error", message))

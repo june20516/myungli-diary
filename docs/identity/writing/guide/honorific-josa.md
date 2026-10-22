@@ -116,11 +116,12 @@ app 화면 문구(ARB)는 server를 거치지 않으므로, ko ui 원고의 조�
 * **app 계약:** `josaClass(String shown)`이 `'final' | 'rieul' | 'none' | 'other'`를 돌려줍니다. 판정 순서는 위 "조사 판정"과 같고(NFC → 한글 받침 → 숫자·영문·천간지지 읽는 소리 → 그 밖은 `other`), 판정표는 Dart 코드에 둡니다. app 테스트는 `rules/josa.yaml`의 `examples`로 결과를 맞춥니다. 부르는 쪽은 **화면에 보이는 문자열 그대로**(숫자·날짜·시각은 서식 적용 뒤) 넘깁니다.
 
   ```dart
-  l10n.eventDueNotice(title: title, titleJosa: josaClass(title))
+  l10n.eventDueNotice(title, josaClass(title))
   ```
 
+* 생성 메서드는 positional 인자이고(`app/l10n.yaml`에 `use-named-parameters` 없음), `pJosa`는 원래 매개변수들 뒤에 붙습니다.
 * app은 조사 표기를 문자열에서 찾아 바꾸는 후처리를 하지 않습니다.
-* 검사: `ui.josa_position`(조사 표기는 text·number 매개변수 바로 뒤), `ui.josa_literal`(매개변수 뒤에 바뀌는 조사를 글자로 붙임), `ui.josa_name_clash`(`pJosa` 이름 충돌), `check-arb`의 `arb.josa_orphan`(원래 매개변수 없는 `pJosa`). `check-arb`는 `final`·`rieul`·`none` 가지를 펼쳐 문장 규칙을 보고, 병기형은 콘텐츠 렌더와 같은 기계적 대체라 뺍니다.
+* 검사: `ui.josa_position`(조사 표기는 범주 없는 text·number 매개변수 바로 뒤), `ui.josa_literal`(매개변수나 그 뒤 닫는 따옴표에 바뀌는 조사를 글자로 붙임, 보조사 `는·도·만·요·의`가 이어져도 잡음), `ui.josa_name_clash`(`pJosa` 이름 충돌), `check-arb`의 `arb.josa_orphan`(원래 매개변수가 select 바로 앞에 없음). `check-arb`는 `final`·`rieul`·`none` 가지를 펼쳐 문장 규칙을 보고, 병기형은 콘텐츠 렌더와 같은 기계적 대체라 뺍니다.
 
 ## 호칭 입력 검증
 

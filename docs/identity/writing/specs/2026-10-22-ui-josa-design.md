@@ -59,9 +59,9 @@ ARB 생성 때 조사 표기를 ICU `select`로 펼치고, app은 값의 받침 
 | `ui.josa_position` (새) | ui 조사 표기가 매개변수 바로 뒤에 있는지, 그 매개변수가 `text`·`number`인지 봅니다 | error |
 | `ui.josa_literal` (새) | ko ui 원고에서 `text`·`number` 매개변수 바로 뒤에 바뀌는 조사를 글자로 붙이면 막습니다. 대상 글자는 `pairs`의 받침 있음·없음 값(이·가·은·는·을·를·과·와·으로·로·이에요·예요)입니다. 조사 표기를 쓰라고 알립니다 | error |
 | `ui.josa_name_clash` (새) | 원고 매개변수 이름과 생성할 `pJosa` 이름이 겹치면 막습니다 | error |
-| `check-arb` | ko ARB의 `pJosa` 자리표시자를 슬롯 `params` 밖이어도 받습니다. 대응하는 원래 매개변수가 같은 메시지에 있어야 합니다 | error |
+| `check-arb` | ko ARB의 `pJosa` 자리표시자를 슬롯 `params` 밖이어도 받습니다. select마다 원래 매개변수가 바로 앞에 있어야 합니다(`arb.josa_orphan`). 문장 규칙은 `final`·`rieul`·`none` 가지를 펼쳐 보고, 병기형(`other`)은 괄호가 `style.S1`에 걸려 뺍니다(자리표시자가 있는 ARB 메시지는 길이를 재지 않으므로 놓치는 길이도 없음) | error |
 
-* `ui.josa_literal`은 매개변수 바로 뒤에 붙은 조사 글자이고, 그 뒤가 공백·문장부호·`}`·문장 끝일 때만 잡습니다. 그래서 `{date}이후`의 "이"는 잡지 않습니다. 받침과 상관없는 말(`{date}까지`, `{count}개`, `{tag} 태그`)과 조사(`{end}에`)도 막지 않습니다.
+* `ui.josa_literal`은 매개변수(또는 그 뒤 닫는 따옴표) 바로 뒤에 붙은 조사 글자이고, 그 뒤(흔한 보조사 `는·도·만·요·의` 하나는 건너뜀)에 한글이 이어지지 않을 때 잡습니다. 그래서 `{date}이후`·`{date}이나`는 잡지 않고 `{provider}로는`·`{title}와의`·`{title}이)`는 잡습니다. 따옴표 뒤 조사 표기(`'{title}'(이)가`)는 펼치지 않으므로 `ui.josa_position` error이고, 문장을 따옴표 없이 쓰거나 조사가 오지 않게 씁니다. 받침과 상관없는 말(`{date}까지`, `{count}개`, `{tag} 태그`)과 조사(`{end}에`)도 막지 않습니다.
 * 새 규칙은 `ui.markup`처럼 `tools/src/mlw/markup.py`의 코드 규칙이고, 걸리는 예와 통과하는 예는 `tools/tests/test_markup.py`의 parametrize 사례로 둡니다.
 
 ## 6. app 계약 (app이 구현)
@@ -72,9 +72,10 @@ ARB 생성 때 조사 표기를 ICU `select`로 펼치고, app은 값의 받침 
 * 부르는 쪽은 **화면에 보이는 문자열 그대로** 넘깁니다. 숫자는 서식을 적용한 뒤(`1,000`), 날짜·시각도 서식을 적용한 뒤입니다.
 
   ```dart
-  l10n.eventDueNotice(title: title, titleJosa: josaClass(title))
+  l10n.eventDueNotice(title, josaClass(title))
   ```
 
+* 생성 메서드는 positional 인자이고 `pJosa`는 원래 매개변수들 뒤에 붙습니다(`app/l10n.yaml`에 `use-named-parameters` 없음).
 * app은 조사 표기를 문자열에서 찾아 바꾸지 않습니다. 사용자가 입력한 값에 `(이)가`가 들어 있어도 그대로 보입니다.
 * 반복을 줄이는 감싸는 함수는 app이 정합니다.
 
@@ -84,7 +85,7 @@ ARB 생성 때 조사 표기를 ICU `select`로 펼치고, app은 값의 받침 
 * 펼친 ko ARB 문장을 `icu.plural` 파서로 다시 읽어 문법이 맞는지 봅니다.
 * `check-arb`가 `pJosa`를 받고, 원래 매개변수가 없는 `pJosa`는 막는지 봅니다.
 * 새 검사 규칙 셋의 걸리는 예·통과하는 예(`test_markup.py`).
-* `rules/josa.yaml`의 `examples`에 판정할 수 없는 예를 하나 더합니다(기호로 끝나는 값, 병기형). Python·Go·Dart가 `other` 가지까지 같은 표로 확인하게 하려는 것입니다.
+* `rules/josa.yaml`의 `examples`에 이미 있는 판정할 수 없는 예(`★`, 병기형)로 Python·Go·Dart가 `other` 가지까지 같은 표로 확인합니다.
 * 저장소 원고 전체: 지금 원고에 조사 표기가 없으므로 생성 ARB가 바뀌지 않아야 합니다(`gen-docs --check`).
 
 ## 8. 계약 버전과 결정
@@ -104,5 +105,5 @@ ARB 생성 때 조사 표기를 ICU `select`로 펼치고, app은 값의 받침 
 ## 10. 바뀌는 파일 (writing)
 
 * `tools/src/mlw/arb_export.py`(펼치기), `markup.py`(`ui.markup` 완화, 새 규칙), `arb.py`(`check-arb`), 새 규칙 등록과 테스트
-* `rules/josa.yaml`(`examples` 하나), `tests/test_markup.py`·`test_arb_export.py`·`test_arb.py`
+* `tests/test_josa_select.py`·`test_markup.py`·`test_arb_export.py`·`test_arb.py`·`test_icu.py`
 * `guide/honorific-josa.md`, `decisions.md`(W38), `docs/contracts/README.md` writing 행, writing `CLAUDE.md`

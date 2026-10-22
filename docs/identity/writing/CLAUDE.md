@@ -102,13 +102,13 @@
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
 2. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
-2. **D82·D83 후속**: design이 `lengths.md`에 로그인 수단·계정 합치기 상한을 넣으면 따라잡습니다. app이 D83 키 변화(`daySheetDiaryOpen({count})`, `daySheetDiaryWriteCtaWritten`)를 따라잡는지 봅니다.
+3. **D82·D83 후속**: design이 `lengths.md`에 로그인 수단·계정 합치기 상한을 넣으면 따라잡습니다. app이 D83 키 변화(`daySheetDiaryOpen({count})`, `daySheetDiaryWriteCtaWritten`)를 따라잡는지 봅니다.
    - 다음은 #355(`force-update` 사유별 키, 사유 `select`)와 #331(app 임시 문구 28개, 사주 사전 범주, 사주 맥락 근거 시트 제목)입니다.
-3. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
-4. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-5. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 봅니다. 원어민 검수는 완료 조건이 아니라 사용자가 감수자를 구하면 하는 보강 단계입니다(D70, W1 spec §7). 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
+4. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
+5. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
+6. **W1-3**(지금 할 일. core #258(원전 `quote` 번체 원문 여부) 답은 기다리지 않고 지금 `quote`를 글자 그대로 씁니다. spec `specs/2026-10-16-w1-content-design.md` §2): W1-3 용어·근거(용어 뜻 나머지 62개, glossary 값 이름, 근거 basis·source). 묶음마다 ko → `mlw judge`(실행 전 호출 수·토큰 예고) → 라운드 → en·ja. 라운드 기록에 judge 표시와 사용자 선택을 함께 남겨 루브릭을 다듬을지 봅니다(W32). 스토어 태그라인(R8-6과 R9-11이 다름)을 다음 라운드에서 확정합니다. ja glossary의 빈 3개 값과 en 지장간 자리 표기("year hidden stem")도 W1-3에서 봅니다. R9-15 재성 가이드("오늘 돈을 쓴 곳 하나…")는 W31 ② 전제 기준에 걸리므로 다음 라운드에서 다시 묻습니다. 콘텐츠 3개 언어 원고를 쓰고, `mlw judge`로 거른 뒤 의심 문장을 검수 라운드로 봅니다. 원어민 검수는 완료 조건이 아니라 사용자가 감수자를 구하면 하는 보강 단계입니다(D70, W1 spec §7). 근거 basis의 매개변수 종류는 spec §4대로 바꿉니다(core `detail` 값 형식은 조사 완료). ui en·ja 초안도 함께 검수합니다. 스토어 태그라인은 R8-6("내 사주로 푼 오늘, 명리일기")에서 출발합니다.
    - W1 원고가 다 차면 `.github/workflows/writing.yml`의 `mlw check ... --partial`에서 `--partial`을 뺍니다.
-6. **보낸 요청의 응답을 기다립니다.**
+7. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
    - 지휘 #158 코멘트: 閑神·極身弱·極身強 근거 보강, 용어집의 忌神 읽기 통일(きじん)
-7. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
+8. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.

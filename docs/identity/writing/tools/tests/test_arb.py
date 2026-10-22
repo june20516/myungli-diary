@@ -102,3 +102,9 @@ def test_arb_josa_select_passes(tmp_path: Path, rules: RuleSet, slots: dict[str,
 def test_arb_josa_orphan(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
     path = write_arb(tmp_path, {"@@locale": "ko", "notice": JOSA_SELECT + " 내일이에요"})
     assert [finding.rule_id for finding in check_arb([path], slots, rules)] == ["arb.josa_orphan"]
+
+
+def test_arb_josa_orphan_needs_adjacent_param(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot]) -> None:
+    path = write_arb(tmp_path, {"@@locale": "ko", "notice": "{t} 와 " + JOSA_SELECT + " 내일이에요"})
+    assert [finding.rule_id for finding in check_arb([path], slots, rules)] == ["arb.josa_orphan"]
+
