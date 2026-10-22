@@ -95,7 +95,7 @@
             "container": { "component": "sheet", "variant": "half" },
             "month": { "component": "calendar-month", "luckFill": false },
             "futureDays": { "fg": "{color.disabled.fg}", "enabled": false },
-            "bottomAction": { "component": "primary-button", "variant": "filled", "label": "고른 날짜를 담은 문구" }
+            "bottomAction": { "component": "primary-button", "variant": "filled", "label": "고른 날짜를 담은 문구", "whenFull": { "state": "disabled", "labelKey": "diaryListPickDateConfirmFull" } }
           }
         }
       ],
@@ -108,7 +108,7 @@
       "a11y": { "role": "adjustable", "label": "년·월·일 각각", "valueAnnounced": "윤달은 '윤'을 붙여 읽음", "minTarget": 44 },
       "rules": [
         "calendar 변형은 calendar-month와 같은 표시(일기 쓴 날 옅은 도장, 오늘 윤곽, 선택 굵은 숫자 + 밑줄)를 쓰고 길흉 칸 채우기만 뺀다.",
-        "미래 날짜는 흐리게 막는다(누를 수 없음).",
+        "미래 날짜는 흐리게 막는다(누를 수 없음).", "calendar 변형에서 상한을 채운 날도 고를 수 있다. 고르면 아래 버튼만 disabled(whenFull)가 된다.",
         "birth 변형의 음력 날짜는 양력으로 바꾼 날짜를 확인 줄에 보인다.",
         "birth의 목표 모양은 음력이고 그해에 윤달이 있을 때만 월 휠에 윤N월을 끼우고 확인 줄(solarConfirm)을 보이는 것이다(결정 V31).",
         "음력→양력·윤달 조회가 계약에 없으면 leapMonthFallback(check-row inline '윤달')을 휠 아래에 두고, 확인 줄은 그리지 않으며 그 자리도 비우지 않는다. 없는 윤달은 저장할 때 server 오류로 input-step 오류 줄에 보인다."

@@ -895,3 +895,21 @@ def test_diary_row_single_entry_day_is_unchanged():
     assert row["parts"]["card"]["padding"] == "{space.16}"
     assert row["parts"]["preview"] == {"component": "sentence-block", "variant": "preview", "marginTop": "{space.8}"}
     assert row["a11y"]["label"] == "날짜 요일, 배지, 미리보기 첫 줄, 태그"
+
+
+# 상한을 채운 날의 쓰는 입구 (2026-10-22-diary-row-multi-design.md §4, 결정 V43)
+def test_full_day_entrances():
+    card = component("today", "guide-question-card")
+    full = card["states"]["full"]
+    assert full["parts"]["action"] == {"component": "primary-button", "variant": "quiet", "state": "disabled", "align": "center"}
+    assert full["parts"]["seal"] == card["states"]["after"]["parts"]["seal"]
+    assert full["parts"]["question"]["fg"] == "{color.text.secondary}"
+    assert full["labelKey"] == "todayGuideCtaFull"
+    assert "더 쓸 수 없음" in card["a11y"]["stateAnnounced"]
+    calendar = next(v for v in component("input", "date-picker")["variants"] if v["id"] == "calendar")
+    assert calendar["parts"]["bottomAction"]["whenFull"] == {"state": "disabled", "labelKey": "diaryListPickDateConfirmFull"}
+
+
+def test_written_day_entrances_open_a_new_diary():
+    assert "쓴 일기 보기" not in json.dumps(component("action", "primary-button"), ensure_ascii=False)
+    assert "쓴 일기 보기" not in (COMPONENTS_DIR / "today.md").read_text(encoding="utf-8")
