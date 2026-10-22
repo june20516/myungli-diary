@@ -165,6 +165,31 @@ class DecisionTests(RepoTestCase):
         self.assertEqual(docs_check.check_decision_ids(self.root), [])
 
 
+class UserImpactTests(RepoTestCase):
+    def check(self, row: str, path: str = "server/docs/decisions.md") -> list[str]:
+        write(self.root, path, f"| ID | 날짜 | 분류 | 결정 | 근거 |\n| --- | --- | --- | --- | --- |\n{row}\n")
+        return docs_check.check_user_impact(self.root)
+
+    def test_new_row_without_marker_reported(self) -> None:
+        problems = self.check("| S105 | 2026-10-24 | 계정 | 무엇 | spec |")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("S105", problems[0])
+
+    def test_markers_accepted(self) -> None:
+        for marker in ("사용자 영향: 없음", "사용자 영향: D85", "사용자 영향: #481"):
+            with self.subTest(marker=marker):
+                self.assertEqual(self.check(f"| A73 | 2026-10-25 | 화면 | 무엇 | 계획, {marker} |", "app/docs/decisions.md"), [])
+
+    def test_rows_before_start_date_ignored(self) -> None:
+        self.assertEqual(self.check("| S104 | 2026-10-23 | API | 무엇 | spec |"), [])
+
+    def test_root_decisions_ignored(self) -> None:
+        self.assertEqual(self.check("| D88 | 2026-10-24 | 계정 | 무엇 | 사용자 결정 |", "docs/decisions.md"), [])
+
+    def test_bare_word_is_not_a_marker(self) -> None:
+        self.assertEqual(len(self.check("| W40 | 2026-10-24 | 어휘 | 사용자 영향이 큼 | 라운드 |")), 1)
+
+
 def ia_screen(**overrides: object) -> dict[str, object]:
     screen: dict[str, object] = {
         "id": "today",
