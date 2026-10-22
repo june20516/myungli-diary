@@ -49,6 +49,11 @@
     - errorAuthRefreshReused
     - errorAuthProviderTokenInvalid
     - errorAuthExchangeInvalid
+    - errorAuthIdentityNotFound
+    - errorAuthProviderTaken
+    - errorAuthIdentityInUse
+    - errorAuthIdentityPendingDeletion
+    - errorAuthLastIdentity
     - errorAppCheckInvalid
     - errorConsentRequired
     - errorPreviewUsed
