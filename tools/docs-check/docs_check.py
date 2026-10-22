@@ -17,6 +17,10 @@ SKIPPED_DIRS = {".git", ".suberpowers", ".venv", "node_modules"}
 LINK_PATTERN = re.compile(r'\]\(([^)\s]+?)(?:\s+"[^"]*")?\)')
 EXTERNAL_PATTERN = re.compile(r"[a-z]+://")
 DECISION_ROW_PATTERN = re.compile(r"^\| ([DCSAWV]\d+) \|", re.MULTILINE)
+# 단위 결정(C·S·A·W·V)의 행 머리: 번호와 날짜. 이 날짜부터 쓴 행은 근거 칸에 사용자 영향 표시가 있어야 합니다(D87).
+UNIT_DECISION_ROW_PATTERN = re.compile(r"^\| ([CSAWV]\d+) \| (\d{4}-\d{2}-\d{2}) \|.*$", re.MULTILINE)
+USER_IMPACT_SINCE = "2026-10-24"
+USER_IMPACT_PATTERN = re.compile(r"사용자 영향: (없음|D\d+|#\d+)")
 FENCED_CODE_PATTERN = re.compile(r"^[ \t]{0,3}(```|~~~).*?^[ \t]{0,3}\1", re.MULTILINE | re.DOTALL)
 INLINE_CODE_PATTERN = re.compile(r"`[^`\n]*`")
 
@@ -153,6 +157,20 @@ def check_decision_ids(root: Path) -> list[str]:
             if decision_id in seen:
                 problems.append(f"{log.relative_to(root)}: {decision_id} 중복")
             seen.add(decision_id)
+    return problems
+
+
+def check_user_impact(root: Path) -> list[str]:
+    """D87: USER_IMPACT_SINCE 이후 단위 결정 행에 `사용자 영향:` 표시가 있는지 봅니다."""
+    problems = []
+    for log in _files(root, "decisions.md"):
+        for row in UNIT_DECISION_ROW_PATTERN.finditer(log.read_text(encoding="utf-8")):
+            decision_id, date = row.group(1), row.group(2)
+            if date >= USER_IMPACT_SINCE and not USER_IMPACT_PATTERN.search(row.group(0)):
+                problems.append(
+                    f"{log.relative_to(root)}: {decision_id} 근거 칸에 `사용자 영향: 없음`·`D<n>`·`#<n>` 표시가 없습니다"
+                    " (docs/workflow.md §4, D87)"
+                )
     return problems
 
 
@@ -527,7 +545,7 @@ def check_ja_terms(root: Path) -> list[str]:
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     problems = (
-        check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_ia(root)
+        check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_user_impact(root) + check_ia(root)
         + check_ideas(root) + check_ja_terms(root)
     )
     if problems:

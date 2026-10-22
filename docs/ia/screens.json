@@ -714,6 +714,11 @@
           "role": "다시 입력 링크"
         },
         {
+          "id": "preview.restart.notice",
+          "source": "ui",
+          "role": "다시 입력할 때, 미리보기는 한 번이라 고친 정보로 이어 보려면 로그인을 권하는 안내. 막는다는 말보다 권하는 말(D86 ⑤)"
+        },
+        {
           "id": "preview.share.login-notice",
           "source": "ui",
           "role": "로그인하면 공유할 수 있다는 안내 창"
@@ -746,7 +751,8 @@
         "D19",
         "D47",
         "D50",
-        "D39"
+        "D39",
+        "D86"
       ]
     },
     {
@@ -2255,6 +2261,11 @@
           "role": "구매 복원"
         },
         {
+          "id": "ad-free.restore.notice",
+          "source": "ui",
+          "role": "구매 복원하면 그 스토어 계정의 광고 제거권이 지금 계정으로 옮겨진다는 안내(D86 ④)"
+        },
+        {
           "id": "ad-free.legal.notice",
           "source": "ui",
           "role": "이용약관·개인정보처리방침 링크 안내"
@@ -2277,7 +2288,8 @@
       ],
       "decisions": [
         "D53",
-        "D60"
+        "D60",
+        "D86"
       ]
     },
     {
@@ -2421,6 +2433,11 @@
           "id": "calc-basis.lunar.body",
           "source": "ui",
           "role": "KASI 기준 한국 음력 안내"
+        },
+        {
+          "id": "calc-basis.daeun.body",
+          "source": "ui",
+          "role": "대운수는 개월을 버려 센다는 안내와, 다른 앱과 1 차이가 날 수 있다는 안내(core C5, D86 ⑦)"
         }
       ],
       "components": [
@@ -2433,7 +2450,8 @@
         "D42",
         "D39",
         "D68",
-        "D71"
+        "D71",
+        "D86"
       ]
     },
     {
