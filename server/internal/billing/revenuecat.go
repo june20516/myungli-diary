@@ -34,8 +34,11 @@ type Purchase struct {
 	ID        string
 	ProductID string
 	// Store는 RevenueCat 스토어 이름입니다(app_store, play_store 등).
-	Store       string
-	PurchasedAt time.Time
+	Store string
+	// StorePurchaseID는 스토어 거래 id입니다(v2 store_purchase_identifier). webhook 이벤트에는 RevenueCat 구매 id가
+	// 없고 이 값이 transaction_id로 오므로, webhook이 장부의 구매를 찾는 열쇠입니다(spec §5.4).
+	StorePurchaseID string
+	PurchasedAt     time.Time
 	// Refunded는 환불된 구매인지 나타냅니다(status가 refunded).
 	Refunded bool
 	// Production은 production 환경 구매인지 나타냅니다(false면 sandbox).
@@ -76,11 +79,13 @@ func NewRevenueCat(cfg RevenueCatConfig) *RevenueCat {
 // purchasesPage는 구매 목록 응답에서 쓰는 필드입니다. 모르는 필드는 무시합니다.
 type purchasesPage struct {
 	Items []struct {
-		ID          string `json:"id"`
-		ProductID   string `json:"product_id"`
-		PurchasedAt int64  `json:"purchased_at"`
-		Status      string `json:"status"`
-		Environment string `json:"environment"`
+		ID                      string `json:"id"`
+		ProductID               string `json:"product_id"`
+		Store                   string `json:"store"`
+		StorePurchaseIdentifier string `json:"store_purchase_identifier"`
+		PurchasedAt             int64  `json:"purchased_at"`
+		Status                  string `json:"status"`
+		Environment             string `json:"environment"`
 	} `json:"items"`
 	NextPage *string `json:"next_page"`
 }
@@ -104,11 +109,13 @@ func (r *RevenueCat) Purchases(ctx context.Context, customerID string) ([]Purcha
 		}
 		for _, item := range page.Items {
 			purchases = append(purchases, Purchase{
-				ID:          item.ID,
-				ProductID:   item.ProductID,
-				PurchasedAt: time.UnixMilli(item.PurchasedAt).UTC(),
-				Refunded:    item.Status == "refunded",
-				Production:  item.Environment == "production",
+				ID:              item.ID,
+				ProductID:       item.ProductID,
+				Store:           item.Store,
+				StorePurchaseID: item.StorePurchaseIdentifier,
+				PurchasedAt:     time.UnixMilli(item.PurchasedAt).UTC(),
+				Refunded:        item.Status == "refunded",
+				Production:      item.Environment == "production",
 			})
 		}
 		// next_page의 정확한 형태가 문서로 확정되지 않아, 값이 있으면 다음 페이지가 있다고만 보고

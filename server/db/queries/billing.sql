@@ -10,30 +10,8 @@ WHERE account_id = @account_id
   AND expires_at > @now
 ORDER BY expires_at, id;
 
--- name: ListAdFreePassGrants :many
--- 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
-SELECT id, entitlement, source_ref, revoked_at
-FROM entitlement_grants
-WHERE account_id = @account_id
-  AND source = 'ad_free_pass'
-ORDER BY id;
-
--- name: UpsertGrant :exec
--- 계정의 (entitlement, source, source_ref) 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5, 옛 동기화 reconcile 전용).
--- 구매 장부(spec §5)로 바꾸는 동기화(Task 9)가 reconcile과 함께 지울 쿼리입니다.
--- 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
-INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
-VALUES (@account_id, @entitlement, @source, @source_ref, @starts_at, @expires_at)
-ON CONFLICT (account_id, entitlement, source, source_ref) DO UPDATE
-SET starts_at  = EXCLUDED.starts_at,
-    expires_at = EXCLUDED.expires_at,
-    revoked_at = NULL
-WHERE entitlement_grants.starts_at <> EXCLUDED.starts_at
-   OR entitlement_grants.expires_at <> EXCLUDED.expires_at
-   OR entitlement_grants.revoked_at IS NOT NULL;
-
 -- name: RevokeGrant :exec
--- 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
+-- 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(rechainFrom의 환불 구간, S108).
 -- account_id 조건은 호출한 계정의 행만 취소하게 하는 안전장치입니다.
 UPDATE entitlement_grants
 SET revoked_at = @now::timestamptz
@@ -43,14 +21,27 @@ WHERE id = @id
 
 -- name: InsertPurchase :execrows
 -- 구매를 장부에 적습니다. 주인과 처음 산 계정은 적는 계정입니다(S107).
--- 같은 id가 이미 있으면 아무것도 하지 않고 0행입니다(주인은 바꾸지 않음).
-INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, refunded_at, production)
-VALUES (@id, @account_id, @account_id, @product_id, @store, @purchased_at, sqlc.narg(refunded_at), @production)
+-- 같은 id가 이미 있으면 아무것도 하지 않고 0행입니다(주인은 바꾸지 않음). 빈 스토어 거래 id는 NULL로 적습니다.
+INSERT INTO purchases (id, account_id, original_account_id, product_id, store, store_purchase_id, purchased_at, refunded_at, production)
+VALUES (@id, @account_id, @account_id, @product_id, @store, NULLIF(@store_purchase_id::text, ''), @purchased_at, sqlc.narg(refunded_at), @production)
 ON CONFLICT (id) DO NOTHING;
 
 -- name: PurchaseOwner :one
 -- 구매의 지금 주인 계정입니다. 장부에 없으면 행이 없습니다.
 SELECT account_id
+FROM purchases
+WHERE id = @id;
+
+-- name: OwnersByStorePurchaseIDs :many
+-- 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
+SELECT DISTINCT account_id
+FROM purchases
+WHERE store_purchase_id = ANY(@store_purchase_ids::text[])
+ORDER BY account_id;
+
+-- name: PurchaseRefunded :one
+-- 장부의 구매가 환불로 적혀 있는지입니다. 잠그지 않은 주인 계정의 구매를 쓰지 않고 볼 때 씁니다(spec §5.4).
+SELECT (refunded_at IS NOT NULL)::boolean AS refunded
 FROM purchases
 WHERE id = @id;
 

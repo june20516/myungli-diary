@@ -9,6 +9,9 @@ CREATE TABLE purchases (
     merged_at           timestamptz,
     product_id          text        NOT NULL,
     store               text        NOT NULL,
+    -- 스토어 거래 id(RevenueCat v2 store_purchase_identifier)입니다. webhook에는 RevenueCat 구매 id 대신
+    -- 이 값이 transaction_id로 오므로, 후보 계정을 못 찾은 webhook이 장부 주인을 찾는 데 씁니다(spec §5.4).
+    store_purchase_id   text,
     purchased_at        timestamptz NOT NULL,
     refunded_at         timestamptz,
     production          boolean     NOT NULL,
@@ -16,6 +19,8 @@ CREATE TABLE purchases (
 );
 
 CREATE INDEX purchases_account_idx ON purchases (account_id, purchased_at DESC);
+-- 스토어마다 거래 id 체계가 달라 unique로 두지 않습니다. 같은 값이 여러 행이면 그 주인을 모두 동기화합니다.
+CREATE INDEX purchases_store_purchase_idx ON purchases (store_purchase_id) WHERE store_purchase_id IS NOT NULL;
 
 -- 장부 이전 동기화가 만든 광고 제거권 구간은 장부 행이 없어 다시 잇기(rechainFrom)가 다룰 수 없으므로 지웁니다.
 -- 출시 전이라 staging 데이터만 해당하고, 다음 동기화가 구매 장부와 함께 구간을 다시 만듭니다. 다른 출처 행은 남깁니다.

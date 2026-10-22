@@ -228,6 +228,7 @@ type Purchase struct {
 	MergedAt          *time.Time
 	ProductID         string
 	Store             string
+	StorePurchaseID   pgtype.Text
 	PurchasedAt       time.Time
 	RefundedAt        *time.Time
 	Production        bool

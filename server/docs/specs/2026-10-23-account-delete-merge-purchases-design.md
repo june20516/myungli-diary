@@ -113,6 +113,7 @@ FK는 없습니다(원래 인증 계정 행과 유저 계정 행을 지운 뒤�
 | `original_account_id` | 처음 산 유저 계정(FK RESTRICT) |
 | `merged_at` | 합치기로 옮긴 시각(없으면 NULL) |
 | `product_id`·`store` | RevenueCat 상품 id·스토어 |
+| `store_purchase_id` | 스토어 거래 id(RevenueCat v2 `store_purchase_identifier`, 없으면 NULL). webhook이 장부를 찾는 열쇠(§5.4) |
 | `purchased_at`·`refunded_at` | 구매·환불 시각 |
 | `production` | production 구매인지 |
 
@@ -145,9 +146,9 @@ FK는 없습니다(원래 인증 계정 행과 유저 계정 행을 지운 뒤�
 | --- | --- |
 | 장부에 없음 | 이 계정을 주인으로 적고, 기간 상품이면 구간을 놓음 |
 | 이 계정이 주인 | 환불 상태를 맞추고, 바뀌면 `rechainFrom` |
-| 다른 계정이 주인 | 주인은 그대로. 환불은 그 구매의 사실이라 장부에 적고 주인 계정을 `rechainFrom`. 두 계정 lock은 uuid 순서로 잡음 |
+| 다른 계정이 주인 | 주인은 그대로. 환불은 그 구매의 사실이라 장부에 적고 주인 계정을 `rechainFrom`. 주인 계정 lock을 잡지 않았으면 트랜잭션을 되돌리고 두 계정 lock을 lock 키 순서로 한 번에 잡아 다시 시작함(키가 계정 id의 해시라 uuid 순서로는 해시가 겹친 계정끼리 순서가 뒤집힐 수 있음) |
 
-장부에 있는데 그 계정 목록에 없는 구매(transfer로 다른 RevenueCat 고객에게 간 것)는 취소하지 않습니다. 기준은 장부입니다. webhook은 지금처럼 후보 계정을 찾아 동기화하고, 계정을 못 찾으면 이벤트에 든 구매 id로 장부의 주인을 찾아 그 계정을 동기화합니다. 지운 유저 계정이 주인인 구매도 장부에 남고, 다른 유저 계정으로 가져오지 않습니다(D88 ①, D85 ⑤).
+장부에 있는데 그 계정 목록에 없는 구매(transfer로 다른 RevenueCat 고객에게 간 것)는 취소하지 않습니다. 기준은 장부입니다. webhook은 지금처럼 후보 계정을 찾아 동기화하고, 계정을 못 찾으면 이벤트에 든 스토어 거래 id(`transaction_id`, `original_transaction_id`)로 장부의 `store_purchase_id`를 찾아 그 주인 계정을 동기화합니다. webhook 이벤트에는 RevenueCat 구매 id가 없기 때문입니다. 지운 유저 계정이 주인인 구매도 장부에 남고, 다른 유저 계정으로 가져오지 않습니다(D88 ①, D85 ⑤).
 
 ### 5.5. 구매 목록 (S109)
 

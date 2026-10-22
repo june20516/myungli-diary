@@ -31,10 +31,11 @@ func recordPurchaseTx(ctx context.Context, q *billingdb.Queries, accountID uuid.
 		ID:          p.ID,
 		AccountID:   accountID,
 		ProductID:   p.ProductID,
-		Store:       p.Store,
-		PurchasedAt: p.PurchasedAt,
-		RefundedAt:  refundedAt,
-		Production:  p.Production,
+		Store:           p.Store,
+		StorePurchaseID: p.StorePurchaseID,
+		PurchasedAt:     p.PurchasedAt,
+		RefundedAt:      refundedAt,
+		Production:      p.Production,
 	})
 	if err != nil {
 		return uuid.Nil, false, fmt.Errorf("구매 장부 기록(%s): %w", p.ID, err)
@@ -168,4 +169,18 @@ func latest(a, b time.Time) time.Time {
 		return b
 	}
 	return a
+}
+
+// addMonths는 UTC 달력으로 months개월 뒤 같은 날 같은 시각을 돌려줍니다(P7-3, D61).
+// 그 달에 그 날이 없으면 그 달 마지막 날입니다(1월 31일 + 1개월 → 2월 28일·29일).
+// time.AddDate는 넘친 날을 다음 달로 넘기므로(3월 3일) 쓰지 않습니다.
+func addMonths(t time.Time, months int) time.Time {
+	t = t.UTC()
+	year, month, day := t.Date()
+	targetMonth := month + time.Month(months)
+	// time.Date의 0일은 앞 달의 마지막 날이라, targetMonth+1의 0일이 targetMonth의 마지막 날입니다.
+	lastDayOfTargetMonth := time.Date(year, targetMonth+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	day = min(day, lastDayOfTargetMonth)
+	hour, minute, second := t.Clock()
+	return time.Date(year, targetMonth, day, hour, minute, second, t.Nanosecond(), time.UTC)
 }

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,20 +29,27 @@ var webhookIDFields = []string{"app_user_id", "original_app_user_id"}
 // webhookIDListFields는 계정 id 후보가 문자열 배열로 들어 있는 event 필드입니다(aliases, TRANSFER의 양쪽).
 var webhookIDListFields = []string{"aliases", "transferred_from", "transferred_to"}
 
+// webhookStorePurchaseFields는 스토어 거래 id가 들어 있는 event 필드입니다.
+// RevenueCat webhook에는 REST v2 구매 id가 없고 스토어 거래 id만 오므로, 장부의 store_purchase_id와 맞춰 봅니다(spec §5.4).
+var webhookStorePurchaseFields = []string{"transaction_id", "original_transaction_id"}
+
 // WebhookEvent는 webhook 본문에서 꺼낸 값입니다.
 type WebhookEvent struct {
 	ID   string
 	Type string
 	// AccountIDs는 계정 id 후보입니다. 처음 나온 순서이고 중복이 없습니다. accounts에 있는지는 확인하지 않았습니다.
 	AccountIDs []uuid.UUID
+	// StorePurchaseIDs는 스토어 거래 id 후보입니다(transaction_id, original_transaction_id 순, 중복 없음).
+	StorePurchaseIDs []string
 }
 
-// ParseWebhook은 webhook 본문에서 event.id·type과 계정 id 후보를 꺼냅니다(P7-7).
+// ParseWebhook은 webhook 본문에서 event.id·type, 계정 id 후보, 스토어 거래 id 후보를 꺼냅니다(P7-7, spec §5.4).
 //
 // event가 객체가 아니거나 event.id가 비어 있지 않은 문자열이 아니면 ErrWebhookInvalid입니다.
 // 후보는 app_user_id, original_app_user_id, aliases, transferred_from, transferred_to 순으로 모읍니다.
 // UUID 표준 소문자 표기(서버가 RevenueCat 고객 id로 쓰는 uuid.UUID.String())만 받습니다.
 // 다른 표기는 다른 RevenueCat 고객이라 버리고, `$RCAnonymousID:…` 같은 익명 id도 버립니다.
+// 스토어 거래 id는 transaction_id, original_transaction_id 순으로 비어 있지 않은 문자열만 중복 없이 모읍니다.
 func ParseWebhook(body map[string]any) (WebhookEvent, error) {
 	event, ok := body["event"].(map[string]any)
 	if !ok {
@@ -78,7 +86,16 @@ func ParseWebhook(body map[string]any) (WebhookEvent, error) {
 		seen[parsed] = true
 		accountIDs = append(accountIDs, parsed)
 	}
-	return WebhookEvent{ID: id, Type: eventType, AccountIDs: accountIDs}, nil
+
+	var storePurchaseIDs []string
+	for _, field := range webhookStorePurchaseFields {
+		value, ok := event[field].(string)
+		if !ok || value == "" || slices.Contains(storePurchaseIDs, value) {
+			continue
+		}
+		storePurchaseIDs = append(storePurchaseIDs, value)
+	}
+	return WebhookEvent{ID: id, Type: eventType, AccountIDs: accountIDs, StorePurchaseIDs: storePurchaseIDs}, nil
 }
 
 // Webhooks는 RevenueCat webhook을 검증하고 처리합니다. webhook은 신호로만 쓰고 권한은 Syncer가 다시 계산합니다.
@@ -114,10 +131,13 @@ func (w *Webhooks) Authorized(header string) bool {
 // Handle은 webhook 이벤트 하나를 처리합니다(P7-7·P7-8).
 //
 //  1. body를 해석합니다. 형식 오류는 ErrWebhookInvalid입니다.
-//  2. 후보 id 중 accounts에 있는 계정을 후보 순서대로 찾습니다.
+//  2. 동기화할 계정을 찾습니다(syncTargets). 후보 id 중 accounts에 있는 계정이 먼저이고, 없으면 스토어 거래 id로 장부의 주인을 찾습니다.
 //  3. billing_events에 기록합니다. 같은 event.id가 이미 있으면 새로 쓰지 않고, 이미 처리됐으면 바로 끝납니다.
 //  4. TEST 이벤트와 계정을 찾지 못한 이벤트는 동기화하지 않습니다(계정 없음은 Warn 로그).
 //  5. 찾은 계정마다 동기화하고, 모두 끝나면 processed_at을 찍습니다.
+//
+// 지운 유저 계정도 accounts에 껍데기로 남아 후보로 찾힙니다. 그 계정 동기화는 장부의 환불 사실과 그 계정 구간만 고치고
+// 권한을 쓸 사람은 없으므로 해가 없고, 지운 계정이 주인인 구매의 환불도 장부에 남습니다(D85 ⑤, D88 ①).
 //
 // 동기화가 실패하면 processed_at을 찍지 않고 오류를 돌려줍니다. RevenueCat이 재전송하면 다시 처리합니다.
 // 같은 이벤트가 동시에 오면 둘 다 동기화할 수 있지만 동기화가 멱등이라 결과가 같습니다.
@@ -129,7 +149,7 @@ func (w *Webhooks) Handle(ctx context.Context, body map[string]any) error {
 	}
 	queries := billingdb.New(w.pool)
 
-	accountIDs, err := w.existingAccounts(ctx, queries, event.AccountIDs)
+	accountIDs, err := w.syncTargets(ctx, queries, event)
 	if err != nil {
 		return fmt.Errorf("webhook 계정 조회(event %s): %w", event.ID, err)
 	}
@@ -162,6 +182,18 @@ func (w *Webhooks) Handle(ctx context.Context, body map[string]any) error {
 		return fmt.Errorf("webhook 처리 완료 기록(event %s): %w", event.ID, err)
 	}
 	return nil
+}
+
+// syncTargets는 이벤트로 동기화할 계정을 돌려줍니다(spec §5.4).
+// 후보 계정이 accounts에 있으면 그 계정들(후보 순서)이고, 하나도 없으면 스토어 거래 id로 찾은 장부 주인들(id 순)입니다.
+// app_user_id는 "마지막으로 쓴 App User ID"라 주인을 정하는 근거가 아니므로, 후보를 찾았을 때 주인을 따로 더하지 않습니다.
+// 후보 계정의 동기화가 다른 주인의 환불을 그 주인 장부에 적습니다.
+func (w *Webhooks) syncTargets(ctx context.Context, queries *billingdb.Queries, event WebhookEvent) ([]uuid.UUID, error) {
+	accountIDs, err := w.existingAccounts(ctx, queries, event.AccountIDs)
+	if err != nil || len(accountIDs) > 0 || len(event.StorePurchaseIDs) == 0 {
+		return accountIDs, err
+	}
+	return queries.OwnersByStorePurchaseIDs(ctx, event.StorePurchaseIDs)
 }
 
 // existingAccounts는 candidates 중 accounts에 있는 id를 candidates 순서대로 돌려줍니다.

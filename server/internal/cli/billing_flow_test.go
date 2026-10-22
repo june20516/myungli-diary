@@ -193,6 +193,7 @@ func (f *fakeRevenueCat) add(customerID, purchaseID string, purchasedAt time.Tim
 	f.purchases[customerID] = append(f.purchases[customerID], map[string]any{
 		"id": purchaseID, "product_id": flowProductID, "purchased_at": purchasedAt.UnixMilli(),
 		"status": "owned", "environment": "production",
+		"store": "app_store", "store_purchase_identifier": "store-" + purchaseID,
 	})
 }
 
@@ -269,6 +270,26 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 
 		assert.Equal(t, true, adFreeOf(access)["active"])
 		assert.True(t, chartUnlocked(access), "광고 제거권 기간의 insight가 근거를 엽니다")
+	})
+
+	t.Run("다른 계정의 restorePurchases는 구매 주인을 옮기지 않는다", func(t *testing.T) {
+		ownerAccess, ownerID := env.signUp("billing-flow-owner")
+		otherAccess, otherID := env.signUp("billing-flow-other")
+		revenueCat.add(ownerID, "purchase-shared", purchasedAt)
+		owner := env.do(http.MethodPost, "/v1/billing/restore", ownerAccess, nil)
+		require.Equal(t, http.StatusOK, owner.status, "복원 본문: %v", owner.body)
+
+		// 같은 스토어 계정으로 다른 유저 계정에서 불러오면 RevenueCat 목록에는 그 구매가 보입니다(transfer).
+		revenueCat.add(otherID, "purchase-shared", purchasedAt)
+		other := env.do(http.MethodPost, "/v1/billing/restore", otherAccess, nil)
+		require.Equal(t, http.StatusOK, other.status, "복원 본문: %v", other.body)
+		otherAdFree, _ := other.body["adFree"].(map[string]any)
+		assert.Equal(t, false, otherAdFree["active"], "주인이 아닌 계정에는 권한이 없습니다")
+		assert.Equal(t, true, adFreeOf(ownerAccess)["active"], "주인 계정의 권한은 그대로입니다")
+
+		var ledgerOwner string
+		require.NoError(t, pool.QueryRow(t.Context(), `SELECT account_id::text FROM purchases WHERE id = $1`, "purchase-shared").Scan(&ledgerOwner))
+		assert.Equal(t, ownerID, ledgerOwner)
 	})
 
 	t.Run("webhook도 같은 상태를 만든다", func(t *testing.T) {

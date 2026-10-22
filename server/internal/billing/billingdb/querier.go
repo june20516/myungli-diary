@@ -23,14 +23,12 @@ type Querier interface {
 	// 광고 제거권 구간 한 행입니다. source_ref는 구매 id입니다. 이미 있으면 아무것도 하지 않습니다.
 	InsertPassGrant(ctx context.Context, arg InsertPassGrantParams) error
 	// 구매를 장부에 적습니다. 주인과 처음 산 계정은 적는 계정입니다(S107).
-	// 같은 id가 이미 있으면 아무것도 하지 않고 0행입니다(주인은 바꾸지 않음).
+	// 같은 id가 이미 있으면 아무것도 하지 않고 0행입니다(주인은 바꾸지 않음). 빈 스토어 거래 id는 NULL로 적습니다.
 	InsertPurchase(ctx context.Context, arg InsertPurchaseParams) (int64, error)
 	// 보상형 광고 콜백을 기록합니다. 같은 transaction_id가 이미 있으면 아무것도 하지 않고 0행입니다(P7-14).
 	InsertRewardEvent(ctx context.Context, arg InsertRewardEventParams) (int64, error)
 	// 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
 	InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedAdGrantParams) error
-	// 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
-	ListAdFreePassGrants(ctx context.Context, accountID uuid.UUID) ([]ListAdFreePassGrantsRow, error)
 	// 권한 기록 쿼리입니다. 판정은 이 쿼리가 돌려준 유효한 행으로 계산합니다(spec §3.3).
 	// 계정의 취소되지 않았고 아직 만료되지 않은 권한 행입니다. 시작 전인 행도 포함하므로 호출한 쪽이 starts_at을 봅니다.
 	// 순서는 (expires_at, id) 오름차순으로 고정합니다.
@@ -45,17 +43,17 @@ type Querier interface {
 	// 새 구매 구간의 시작 = max(구매 시각, 이 계정의 같은 권한 광고 제거권 구간 끝)입니다(S108).
 	// ListPassSegments와 같이 장부에 구매가 있는 취소되지 않은 구간만 셉니다. GREATEST는 NULL(구간 없음)을 무시합니다.
 	NextPassStart(ctx context.Context, arg NextPassStartParams) (time.Time, error)
+	// 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
+	OwnersByStorePurchaseIDs(ctx context.Context, storePurchaseIds []string) ([]uuid.UUID, error)
 	// 구매의 지금 주인 계정입니다. 장부에 없으면 행이 없습니다.
 	PurchaseOwner(ctx context.Context, id string) (uuid.UUID, error)
-	// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
+	// 장부의 구매가 환불로 적혀 있는지입니다. 잠그지 않은 주인 계정의 구매를 쓰지 않고 볼 때 씁니다(spec §5.4).
+	PurchaseRefunded(ctx context.Context, id string) (bool, error)
+	// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(rechainFrom의 환불 구간, S108).
 	// account_id 조건은 호출한 계정의 행만 취소하게 하는 안전장치입니다.
 	RevokeGrant(ctx context.Context, arg RevokeGrantParams) error
 	// 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간). 취소된 구간은 옮기지 않습니다.
 	SetGrantPeriod(ctx context.Context, arg SetGrantPeriodParams) error
-	// 계정의 (entitlement, source, source_ref) 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5, 옛 동기화 reconcile 전용).
-	// 구매 장부(spec §5)로 바꾸는 동기화(Task 9)가 reconcile과 함께 지울 쿼리입니다.
-	// 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
-	UpsertGrant(ctx context.Context, arg UpsertGrantParams) error
 }
 
 var _ Querier = (*Queries)(nil)
