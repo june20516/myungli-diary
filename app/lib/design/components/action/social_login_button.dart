@@ -205,6 +205,25 @@ class SocialLoginButton extends StatelessWidget {
   /// `connected` 끝의 `check` 아이콘 크기.
   static const double connectedIconSize = 14;
 
+  /// `connected` `check`와 "연결됨" 사이(`state.gap`, `space.4`).
+  static const double connectedStateGap = Space.s4;
+
+  /// `connected` 줄 끝 안쪽 여백(`state.inset`, `space.16`).
+  static const double connectedEndInset = Space.s16;
+
+  /// `connected` 배지 바탕(`badge.<제공자>.bg`). Apple만 밝기에 따라 바뀝니다.
+  static Color badgeColor(SocialProvider provider, {required bool dark}) =>
+      switch (provider) {
+        SocialProvider.kakao => kakaoBadge,
+        SocialProvider.line => lineBackground,
+        SocialProvider.google => googleLight.background,
+        SocialProvider.apple => dark ? _appleWhite : _appleBlack,
+      };
+
+  /// `connected` 배지가 원(`radius.full`)인지. Google만 흰 원이고 나머지는 `radius.xs`입니다.
+  static bool badgeIsCircle(SocialProvider provider) =>
+      provider == SocialProvider.google;
+
   /// `disabled` 버튼 전체 투명도(명세 `states.disabled.parts.container.opacity`).
   static const double disabledOpacity = 0.4;
 
@@ -307,10 +326,11 @@ class SocialLoginButton extends StatelessWidget {
     if (provider == SocialProvider.line) {
       return VerticalHitSlop(
         minHeight: _minTarget,
-        child: _OverlayPressTarget(
+        // 눌림은 `press.ink` 대신 가이드의 덮개라 눌림 상태만 받아 면을 다시 그립니다.
+        child: PressInkTarget.pressed(
           semanticLabel: label,
           identifier: identifier,
-          onTap: onPressed!,
+          onTap: onPressed,
           builder: wide,
         ),
       );
@@ -499,9 +519,11 @@ class SocialLoginButton extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: _minHeight),
         child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: Space.s16,
-            vertical: Space.s8,
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            logoInset,
+            Space.s8,
+            connectedEndInset,
+            Space.s8,
           ),
           child: Row(
             children: [
@@ -521,7 +543,7 @@ class SocialLoginButton extends StatelessWidget {
                 size: connectedIconSize,
                 color: stateColor,
               ),
-              const SizedBox(width: Space.s4),
+              const SizedBox(width: connectedStateGap),
               Text(
                 connectedLabel!,
                 style: tokens.typography.captionLg.copyWith(color: stateColor),
@@ -585,12 +607,8 @@ class SocialLoginButton extends StatelessWidget {
   /// `connected` 로고: 제공자 색 배지(20px) 안의 공식 심볼(14px). 중립 바탕에서도 보이게
   /// 합니다. Google G는 흰 원 위에만 놓습니다.
   Widget _badge({required bool dark}) {
-    final (Color color, bool circle) = switch (provider) {
-      SocialProvider.kakao => (_kakaoContainer, false),
-      SocialProvider.line => (lineBackground, false),
-      SocialProvider.google => (googleLight.background, true),
-      SocialProvider.apple => (dark ? _appleWhite : _appleBlack, false),
-    };
+    final color = badgeColor(provider, dark: dark);
+    final circle = badgeIsCircle(provider);
     return DecoratedBox(
       key: badgeKey,
       decoration: BoxDecoration(
@@ -630,64 +648,4 @@ final class _Look {
 
   /// 안쪽 1px 테두리. null이면 없습니다.
   final Color? border;
-}
-
-/// 눌린 동안 [builder]에 `pressed: true`를 주는 누르는 자리. `press.ink` 대신 가이드의 덮개를
-/// 쓰는 LINE 버튼용입니다. 의미·키보드 확정은 `PressInkTarget`과 같습니다.
-class _OverlayPressTarget extends StatefulWidget {
-  const new({
-    required this.semanticLabel,
-    required this.identifier,
-    required this.onTap,
-    required this.builder,
-  });
-
-  final String semanticLabel;
-  final String? identifier;
-  final VoidCallback onTap;
-  final Widget Function({required bool pressed}) builder;
-
-  @override
-  State<_OverlayPressTarget> createState() => _OverlayPressTargetState();
-}
-
-class _OverlayPressTargetState extends State<_OverlayPressTarget> {
-  bool _pressed = false;
-
-  void _setPressed(bool value) {
-    if (_pressed != value) setState(() => _pressed = value);
-  }
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    container: true,
-    button: true,
-    enabled: true,
-    identifier: widget.identifier,
-    label: widget.semanticLabel,
-    onTap: widget.onTap,
-    child: ExcludeSemantics(
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.onTap();
-              return null;
-            },
-          ),
-        },
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (_) => _setPressed(true),
-          onTapUp: (_) {
-            _setPressed(false);
-            widget.onTap();
-          },
-          onTapCancel: () => _setPressed(false),
-          child: widget.builder(pressed: _pressed),
-        ),
-      ),
-    ),
-  );
 }

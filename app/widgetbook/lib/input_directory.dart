@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
@@ -52,8 +54,8 @@ class _AccountChoiceDemoState extends State<_AccountChoiceDemo> {
             saju: l10n.accountChoiceSaju('1990.04.15', '양력', '오전 7:30'),
             diaryCount: l10n.accountChoiceDiaryCount(128),
             providers: [
-              l10n.loginProviderKakao,
-              l10n.loginProviderApple,
+              socialProviderName(l10n, SocialProvider.kakao),
+              socialProviderName(l10n, SocialProvider.apple),
             ].join(l10n.accountChoiceProviderSeparator),
           ),
           AccountChoiceOption(
@@ -61,7 +63,7 @@ class _AccountChoiceDemoState extends State<_AccountChoiceDemo> {
             current: false,
             saju: l10n.accountChoiceSajuEmpty,
             diaryCount: l10n.accountChoiceDiaryCount(3),
-            providers: l10n.loginProviderLine,
+            providers: socialProviderName(l10n, SocialProvider.line),
           ),
         ],
         selectedIndex: _selected,

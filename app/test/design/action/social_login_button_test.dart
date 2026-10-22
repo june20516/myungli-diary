@@ -2,11 +2,15 @@ import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../input/input_harness.dart';
@@ -270,6 +274,18 @@ void main() {
   });
 
   group('social-login-button 2.7.0', () {
+    test('제공자 문구·이름은 ARB의 ui.login.provider·ui.login-methods.row입니다', () {
+      final l10n = lookupAppLocalizations(const Locale('ko'));
+      expect(
+        [for (final p in SocialProvider.values) socialProviderLabel(l10n, p)],
+        ['카카오 로그인', 'LINE으로 로그인', 'Google 계정으로 로그인', 'Apple로 로그인'],
+      );
+      expect(
+        [for (final p in SocialProvider.values) socialProviderName(l10n, p)],
+        ['카카오', 'LINE', 'Google', 'Apple'],
+      );
+    });
+
     testWidgets('line·google 변형이 그려집니다', (tester) async {
       Future<void> pump(SocialProvider provider, Brightness brightness) async {
         await tester.pumpWidget(
@@ -403,6 +419,27 @@ void main() {
       expect(_faceColor(tester), SocialLoginButton.lineBackground);
     });
 
+    testWidgets('line은 키보드 확정(Enter·Space)으로 onPressed가 불립니다', (tester) async {
+      var pressed = 0;
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: SocialLoginButton(
+              provider: SocialProvider.line,
+              label: 'LINE으로 로그인',
+              onPressed: () => pressed++,
+            ),
+          ),
+        ),
+      );
+      FocusScope.of(tester.element(find.byType(SocialLoginButton))).nextFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(pressed, 2);
+    });
+
     testWidgets('connected면 제공자 이름과 연결됨 라벨, 제공자 바탕색이 아닙니다', (tester) async {
       final handle = tester.ensureSemantics();
       var pressed = 0;
@@ -498,7 +535,10 @@ void main() {
         inputApp(_connected(provider: SocialProvider.line)),
       );
       expect(badge().color, SocialLoginButton.lineBackground);
-      expect(badge().borderRadius, BorderRadius.circular(4));
+      expect(
+        badge().borderRadius,
+        const BorderRadius.all(Radius.circular(Radii.xs)),
+      );
     });
   });
 }

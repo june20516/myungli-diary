@@ -533,18 +533,36 @@ void main() {
       final badge = _map(_map(_map(connected['parts'])['logo'])['badge']);
       expect(_px(badge['size']), SocialLoginButton.badgeSize);
       expect(_px(badge['symbolSize']), SocialLoginButton.badgeSymbolSize);
-      expect(
-        _hexColor(_map(badge['kakao'])['bg']),
-        SocialLoginButton.kakaoBadge,
-      );
-      expect(
-        _hexColor(_map(badge['line'])['bg']),
-        SocialLoginButton.lineBackground,
-      );
+      for (final provider in SocialProvider.values) {
+        final json = _map(badge[provider.name]);
+        expect(
+          json['shape'],
+          SocialLoginButton.badgeIsCircle(provider)
+              ? '{radius.full}'
+              : '{radius.xs}',
+          reason: provider.name,
+        );
+        for (final (mode, dark) in [('lightMode', false), ('darkMode', true)]) {
+          // Apple만 밝기마다 값이 있고, 나머지는 한 값입니다.
+          final bg = json.containsKey(mode)
+              ? _map(json[mode])['bg']
+              : json['bg'];
+          expect(
+            _hexColor(bg),
+            SocialLoginButton.badgeColor(provider, dark: dark),
+            reason: '${provider.name} $mode',
+          );
+        }
+      }
       final state = _map(_map(connected['parts'])['state']);
       expect(state['icon'], 'check');
       expect(state['weight'], 'regular');
       expect(_px(state['size']), SocialLoginButton.connectedIconSize);
+      expect(state['gap'], '{space.4}');
+      expect(SocialLoginButton.connectedStateGap, Space.s4);
+      expect(state['inset'], '{space.16}');
+      expect(SocialLoginButton.connectedEndInset, Space.s16);
+      expect(state['position'], 'end');
       final connectedDisabled = _map(
         _map(_map(connected['disabled'])['parts'])['container'],
       );
@@ -562,8 +580,13 @@ void main() {
         _px(_map(_map(parts['card'])['border'])['width']),
         AccountChoice.cardBorderWidth,
       );
+      expect(_map(parts['card'])['padding'], '{space.16}');
+      expect(AccountChoice.cardPadding, Space.s16);
       final mark = _map(parts['mark']);
       expect(_px(mark['size']), AccountChoice.markSize);
+      expect(mark['position'], 'top-end');
+      expect(mark['inset'], '{space.16}');
+      expect(AccountChoice.markInset, Space.s16);
       expect(_px(_map(mark['border'])['width']), AccountChoice.markBorderWidth);
       final selected = _map(
         _map(_map(component['states'])['selected'])['parts'],

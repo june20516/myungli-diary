@@ -75,6 +75,33 @@ void main() {
       expect(haptics, ['HapticFeedbackType.selectionClick']);
     });
 
+    testWidgets('처음 고르면 appear.seep, 바꾸면 select.seep-slide로 스밉니다', (
+      tester,
+    ) async {
+      Future<void> pumpWith(int? selectedIndex) => tester.pumpWidget(
+        inputApp(_choice(selectedIndex: selectedIndex, onSelected: (_) {})),
+      );
+      // select.seep-slide만 들어오는 표시를 키우며(Transform.scale) 스밉니다.
+      bool scaling(int index) => find
+          .ancestor(
+            of: find.byKey(AccountChoice.selectedBorderKey(index)),
+            matching: find.byType(Transform),
+          )
+          .evaluate()
+          .isNotEmpty;
+
+      await pumpWith(null);
+      await pumpWith(0);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(scaling(0), isFalse, reason: 'none에서 처음 고름은 appear.seep');
+      await tester.pumpAndSettle();
+
+      await pumpWith(1);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(scaling(1), isTrue, reason: '고름 바꿈은 select.seep-slide');
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('이미 고른 카드를 다시 누르면 아무 일도 없습니다', (tester) async {
       final chosen = <int>[];
       await tester.pumpWidget(

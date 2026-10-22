@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myungli_diary/design/interaction/motion_prefs.dart';
-import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/elements/breathing.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 /// skeleton 자리 하나. 실제 요소와 같은 크기·반경으로 두고 먹 숨쉬기로 깜빡입니다.
-class SkeletonBone extends StatefulWidget {
+class SkeletonBone extends StatelessWidget {
   /// 자리를 만듭니다.
   const new({
     required this.height,
@@ -31,58 +30,20 @@ class SkeletonBone extends StatefulWidget {
   final bool animated;
 
   @override
-  State<SkeletonBone> createState() => _SkeletonBoneState();
-}
-
-class _SkeletonBoneState extends State<SkeletonBone>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: InteractionPattern.loadingBreathe.duration,
-  );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.animated) {
-      if (!_controller.isAnimating) _controller.repeat(reverse: true);
-    } else {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void didUpdateWidget(SkeletonBone oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.animated != widget.animated) didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bone = SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.tokens.colors.skeletonBone,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: Breathing(
+      index: index,
+      animated: animated,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: context.tokens.colors.skeletonBone,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
         ),
       ),
-    );
-    return ExcludeSemantics(
-      child: animate(
-        InteractionPattern.loadingBreathe,
-        t: _controller,
-        prefs: MotionPrefs.of(context),
-        options: PatternOptions(index: widget.index),
-        child: bone,
-      ),
-    );
-  }
+    ),
+  );
 }

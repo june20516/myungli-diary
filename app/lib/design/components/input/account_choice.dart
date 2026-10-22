@@ -94,6 +94,12 @@ class AccountChoice extends StatelessWidget {
   /// 고른 카드 동그라미 안 점 지름.
   static const double dotSize = 12;
 
+  /// 카드 안쪽 여백(`card.padding`, `space.16`).
+  static const double cardPadding = Space.s16;
+
+  /// 고름 표시의 위·오른쪽 자리(`mark.inset`, `space.16`).
+  static const double markInset = Space.s16;
+
   /// 고름 표시와 글자 사이(사주 줄 칸 폭 256 = 320 − 16×2 − 22 − 10의 10).
   static const double _markGap = 10;
 
@@ -300,14 +306,17 @@ class _ChoiceCardState extends State<_ChoiceCard>
     final option = widget.option;
     final selected = widget.selected;
     final enabled = widget.onTap != null;
+    final semanticLabel = _semanticLabel(AppLocalizations.of(context));
     const tabular = [FontFeature.tabularFigures()];
 
     final content = Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(
-        Space.s16,
-        Space.s16,
-        Space.s16 + AccountChoice.markSize + AccountChoice._markGap,
-        Space.s16,
+        AccountChoice.cardPadding,
+        AccountChoice.cardPadding,
+        AccountChoice.cardPadding +
+            AccountChoice.markSize +
+            AccountChoice._markGap,
+        AccountChoice.cardPadding,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,6 +348,8 @@ class _ChoiceCardState extends State<_ChoiceCard>
           // 넘치면 말줄임 없이 다음 줄로 감습니다.
           Wrap(
             spacing: Space.s12,
+            // 감긴 줄 사이는 카드 안 줄 사이(`space.8`)와 같습니다.
+            runSpacing: Space.s8,
             children: [
               Text(
                 option.diaryCount,
@@ -386,8 +397,8 @@ class _ChoiceCardState extends State<_ChoiceCard>
         children: [
           content,
           PositionedDirectional(
-            top: Space.s16,
-            end: Space.s16,
+            top: AccountChoice.markInset,
+            end: AccountChoice.markInset,
             child: _Ring(color: colors.line),
           ),
           ?indicator,
@@ -397,7 +408,7 @@ class _ChoiceCardState extends State<_ChoiceCard>
 
     final target = enabled
         ? PressInkTarget(
-            semanticLabel: _semanticLabel(AppLocalizations.of(context)),
+            semanticLabel: semanticLabel,
             onTap: widget.onTap,
             borderRadius: _radius,
             inkColor: colors.textPrimary,
@@ -413,7 +424,7 @@ class _ChoiceCardState extends State<_ChoiceCard>
       inMutuallyExclusiveGroup: true,
       checked: selected,
       enabled: enabled,
-      label: _semanticLabel(AppLocalizations.of(context)),
+      label: semanticLabel,
       onTap: widget.onTap,
       child: target,
     );
@@ -464,8 +475,8 @@ class _SelectedMark extends StatelessWidget {
           ),
         ),
         PositionedDirectional(
-          top: Space.s16,
-          end: Space.s16,
+          top: AccountChoice.markInset,
+          end: AccountChoice.markInset,
           child: _Ring(
             color: primary,
             child: DecoratedBox(
@@ -550,10 +561,12 @@ class _LoadingCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(
-          Space.s16,
-          Space.s16,
-          Space.s16 + AccountChoice.markSize + AccountChoice._markGap,
-          Space.s16,
+          AccountChoice.cardPadding,
+          AccountChoice.cardPadding,
+          AccountChoice.cardPadding +
+              AccountChoice.markSize +
+              AccountChoice._markGap,
+          AccountChoice.cardPadding,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

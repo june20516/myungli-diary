@@ -4,6 +4,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -104,24 +105,6 @@ Widget _buttons() => Builder(
   },
 );
 
-/// 공식 문구(ARB `ui.login.provider`).
-String _providerLabel(AppLocalizations l10n, SocialProvider provider) =>
-    switch (provider) {
-      SocialProvider.kakao => l10n.loginKakaoLabel,
-      SocialProvider.line => l10n.loginLineLabel,
-      SocialProvider.google => l10n.loginGoogleLabel,
-      SocialProvider.apple => l10n.loginAppleLabel,
-    };
-
-/// 제공자 이름(ARB `ui.login-methods.row`).
-String _providerName(AppLocalizations l10n, SocialProvider provider) =>
-    switch (provider) {
-      SocialProvider.kakao => l10n.loginProviderKakao,
-      SocialProvider.line => l10n.loginProviderLine,
-      SocialProvider.google => l10n.loginProviderGoogle,
-      SocialProvider.apple => l10n.loginProviderApple,
-    };
-
 /// 카카오·LINE·Google·Apple × 기본·loading·꺼짐. Apple·Google은 밝기에 따라 바뀝니다.
 Widget _socialButtons() => Builder(
   builder: (context) {
@@ -135,13 +118,13 @@ Widget _socialButtons() => Builder(
         for (final provider in SocialProvider.values) ...[
           SocialLoginButton(
             provider: provider,
-            label: _providerLabel(l10n, provider),
+            label: socialProviderLabel(l10n, provider),
             systemFontFamily: appFont,
             onPressed: () {},
           ),
           SocialLoginButton(
             provider: provider,
-            label: _providerLabel(l10n, provider),
+            label: socialProviderLabel(l10n, provider),
             systemFontFamily: appFont,
             loading: true,
             animated: false,
@@ -149,7 +132,7 @@ Widget _socialButtons() => Builder(
           ),
           SocialLoginButton(
             provider: provider,
-            label: _providerLabel(l10n, provider),
+            label: socialProviderLabel(l10n, provider),
             systemFontFamily: appFont,
             onPressed: null,
           ),
@@ -170,7 +153,7 @@ Widget _socialConnected() => Builder(
       bool loading = false,
     }) => SocialLoginButton(
       provider: provider,
-      label: _providerName(l10n, provider),
+      label: socialProviderName(l10n, provider),
       connected: true,
       connectedLabel: l10n.loginMethodsRowConnected,
       unlinkHint: l10n.loginMethodsRowUnlink,
