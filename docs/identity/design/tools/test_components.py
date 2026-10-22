@@ -849,7 +849,7 @@ def test_social_login_connected_is_neutral():
     assert parts["state"]["fg"] == "{color.action.primary}" and parts["state"]["icon"] == "check"
     assert parts["logo"]["badge"] == {
         "size": {"value": 20, "unit": "px"}, "symbolSize": {"value": 14, "unit": "px"},
-        "kakao": {"bg": "#FEE500", "symbol": "#000000", "shape": "{radius.xs}"},
+        "kakao": {"bg": "#FEE500", "symbol": "#191919", "shape": "{radius.xs}"},
         "line": {"bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}"},
         "google": {"bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}"},
         "apple": {"lightMode": {"bg": "#000000", "symbol": "#FFFFFF"}, "darkMode": {"bg": "#FFFFFF", "symbol": "#000000"},
@@ -1031,3 +1031,19 @@ def test_purchase_history_layout():
     section = _md_section("action.md", "### purchase-history 화면 배치")
     for text in ("`purchase-history.missing.notice`", "늘 보입니다", "`receipt`", "`empty-state`"):
         assert text in section, text
+
+
+# app 구현에서 어긋난 값 넷 (#475, 결정 V46)
+def test_issue_475_values():
+    login = component("action", "social-login-button")
+    badge = login["states"]["connected"]["parts"]["logo"]["badge"]
+    assert badge["kakao"] == {"bg": "#FEE500", "symbol": "#191919", "shape": "{radius.xs}"}
+    line = next(v for v in login["variants"] if v["id"] == "line")
+    assert line["parts"]["label"]["width"] == {"value": 198, "unit": "px"} and "공식" in line["parts"]["label"]["widthSource"]
+    entry = component("diary", "diary-row")["parts"]["entry"]
+    assert entry["chevron"]["marginStart"] == "{space.8}"
+    assert entry["time"]["format"] == "HH:mm" and entry["time"]["hourCycle"] == "h23"
+    variants = {v["id"]: v for v in component("calendar", "event-row")["variants"]}
+    for part in (variants["summary"]["parts"]["time"], variants["list"]["parts"]["timeColumn"]):
+        assert part["format"] == "HH:mm" and part["hourCycle"] == "h23"
+    assert "기기 locale의 짧은 시각" not in (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")

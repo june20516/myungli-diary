@@ -86,7 +86,7 @@
           "uses": ["tag.status"],
           "parts": {
             "status": { "element": "tag.status", "values": ["in-progress", "next"] },
-            "time": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"] },
+            "time": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "format": "HH:mm", "hourCycle": "h23" },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
             "more": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
             "allPast": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
@@ -97,7 +97,7 @@
           "id": "list",
           "when": "그날 시트의 일정 목록",
           "parts": {
-            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
+            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "format": "HH:mm", "hourCycle": "h23", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
             "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
             "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
