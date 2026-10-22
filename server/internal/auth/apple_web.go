@@ -103,11 +103,7 @@ func (s *Service) storeAppleWebLogin(ctx context.Context, subject, nonceClaim st
 // 다르면 ErrExchangeInvalid입니다. nonce가 틀려도 코드를 소진하지 않습니다. 소진하면 코드를 가로챈 쪽이 틀린
 // nonce로 한 번 부르는 것만으로 정상 사용자의 로그인을 막을 수 있기 때문입니다.
 func (s *Service) CompleteAppleWebLogin(ctx context.Context, exchangeCode, rawNonce string) (LoginResult, error) {
-	exchangeHash := token.HashRefreshToken(exchangeCode)
-	prepare := func(ctx context.Context, q *authdb.Queries, now time.Time) (loginTarget, error) {
-		return s.consumeAppleWebLogin(ctx, q, now, exchangeHash, rawNonce)
-	}
-	result, err := s.login(ctx, providerApple, prepare)
+	result, err := s.login(ctx, providerApple, s.appleWebTarget(exchangeCode, rawNonce))
 	if err != nil {
 		if errors.Is(err, ErrExchangeInvalid) {
 			s.logger.InfoContext(ctx, "Apple 웹 로그인 교환 코드 거절", "provider", providerApple, "step", "complete_web")
@@ -118,7 +114,16 @@ func (s *Service) CompleteAppleWebLogin(ctx context.Context, exchangeCode, rawNo
 	return result, nil
 }
 
-// consumeAppleWebLogin은 로그인 트랜잭션 안에서 교환 코드 행을 잠그고 확인한 뒤 소진하고, 로그인할 연결을 돌려줍니다.
+// appleWebTarget은 교환 코드를 트랜잭션 안에서 확인·소진해 연결을 정하는 prepareLogin입니다.
+// 웹 로그인 완료(CompleteAppleWebLogin)와 Apple 웹 흐름의 붙이기(LinkIdentity)가 같은 규칙으로 씁니다.
+func (s *Service) appleWebTarget(exchangeCode, rawNonce string) prepareLogin {
+	exchangeHash := token.HashRefreshToken(exchangeCode)
+	return func(ctx context.Context, q *authdb.Queries, now time.Time) (loginTarget, error) {
+		return s.consumeAppleWebLogin(ctx, q, now, exchangeHash, rawNonce)
+	}
+}
+
+// consumeAppleWebLogin은 로그인(또는 붙이기) 트랜잭션 안에서 교환 코드 행을 잠그고 확인한 뒤 소진하고, 로그인할 연결을 돌려줍니다.
 //
 // 확인 순서는 존재 → 소진 여부 → 만료 → nonce입니다. 만료 행은 소진할 수 없으므로(CHECK consumed_at <= expires_at)
 // 만료를 먼저 거릅니다. nonce가 틀리면 소진하기 전에 돌아가므로 행이 그대로 남습니다.

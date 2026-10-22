@@ -18,7 +18,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 )
 
-// 이 파일은 카카오·Apple이 함께 쓰는 id_token 검증을 담습니다.
+// 이 파일은 카카오·Apple·LINE·Google이 함께 쓰는 id_token 검증을 담습니다.
 //
 // go-oidc(v3.21)를 쓰되, 장애와 토큰 오류를 가르기 위해 두 가지를 덧댑니다.
 //
@@ -153,11 +153,12 @@ func newKeySet(client *http.Client, jwksURL string) oidc.KeySet {
 	return recordingKeySet{inner: oidc.NewRemoteKeySet(ctx, jwksURL)}
 }
 
-// newVerifier는 RS256 서명만 받는 id_token 검증기를 만듭니다. exp 판정 시각은 clk에서 읽습니다.
-func newVerifier(issuer, audience string, keySet oidc.KeySet, clk clock.Clock) *oidc.IDTokenVerifier {
+// newVerifier는 algs 서명만 받는 id_token 검증기를 만듭니다(카카오·Apple은 RS256, LINE은 ES256).
+// exp 판정 시각은 clk에서 읽습니다.
+func newVerifier(issuer, audience string, algs []string, keySet oidc.KeySet, clk clock.Clock) *oidc.IDTokenVerifier {
 	return oidc.NewVerifier(issuer, keySet, &oidc.Config{
 		ClientID:             audience,
-		SupportedSigningAlgs: []string{oidc.RS256},
+		SupportedSigningAlgs: algs,
 		Now:                  clk.Now,
 	})
 }

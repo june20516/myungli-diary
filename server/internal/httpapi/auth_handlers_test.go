@@ -67,6 +67,14 @@ type fakeAuth struct {
 	gotNonce    string
 	gotExchange string
 	appleCalled bool
+
+	// 계정 연결 operation의 대역 결과와 마지막으로 받은 인자입니다.
+	identities   []auth.LinkedIdentity
+	linkResult   auth.LinkResult
+	linkErr      error
+	unlinkErr    error
+	gotProvider  string
+	gotLinkProof auth.LinkProof
 }
 
 func (f *fakeAuth) LoginKakao(context.Context, string, string) (auth.LoginResult, error) {

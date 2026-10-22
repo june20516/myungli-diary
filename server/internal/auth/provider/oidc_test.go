@@ -53,6 +53,22 @@ func TestNewKakao_RejectsMissingRequiredConfig(t *testing.T) {
 	}
 }
 
+func TestNewLINE_RejectsMissingRequiredConfig(t *testing.T) {
+	line, err := provider.NewLINE(provider.LINEConfig{})
+
+	require.Error(t, err)
+	assert.Nil(t, line)
+	assert.Contains(t, err.Error(), "ChannelID")
+}
+
+func TestNewGoogle_RejectsMissingRequiredConfig(t *testing.T) {
+	google, err := provider.NewGoogle(provider.GoogleConfig{})
+
+	require.Error(t, err)
+	assert.Nil(t, google)
+	assert.Contains(t, err.Error(), "ClientIDs")
+}
+
 func TestNewApple_RejectsMissingRequiredConfig(t *testing.T) {
 	tests := []struct {
 		field  string

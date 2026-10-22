@@ -75,8 +75,9 @@ LINE·Google 로그인을 더하고, 한 계정에 여러 제공자를 붙이고
   * 현재 계정에 같은 제공자의 다른 사용자 연결이 있음: 409 `auth.provider_taken`
   * 연결이 다른 active 계정에 있음: 409 `auth.identity_in_use`, 합치기 토큰 발급(§4.1)
   * 연결이 삭제 대기 계정에 있음: 409 `auth.identity_pending_deletion`. 그 제공자로 로그인하면 복구되므로 복구한 뒤 다시 시도합니다
-* 409가 나는 경우 새로 교환한 Apple refresh token은 저장하지 않고 버립니다. revoke하지 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다.
-* 같은 연결을 두 계정이 동시에 붙이면 한쪽이 `(provider, subject)` unique 위반을 받습니다. 그쪽은 트랜잭션을 한 번 다시 실행해 409 `auth.identity_in_use`가 됩니다(지금 로그인의 동시 첫 로그인 처리와 같은 방식).
+* 연결이 다른 계정에 있는 409(`auth.identity_in_use`·`auth.identity_pending_deletion`)에서는 새로 교환한 Apple refresh token을 저장하지 않고 버립니다. revoke하지 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다. `auth.provider_taken`은 그 Apple ID 연결이 어디에도 없으므로, 로그인과 같이 저장하지 못한 grant로 보고 revoke합니다.
+* 같은 연결을 두 계정이 동시에 붙이면 한쪽이 `(provider, subject)` unique 위반을 받습니다. 그쪽은 트랜잭션을 한 번 다시 실행해 409 `auth.identity_in_use`가 됩니다(지금 로그인의 동시 첫 로그인 처리와 같은 방식). 다른 계정이 그 연결을 떼는 중이어서 합치기 토큰 저장이 `identity_id` FK 위반을 받아도 한 번 다시 실행하며, 그때는 연결이 없으므로 201입니다.
+* 관문(동의·상태 확인)과 트랜잭션 사이에 삭제 요청이 끼어든 경합에서는 붙이기·떼기가 500입니다(드문 일시 오류, 다시 시도하면 403 계열).
 
 ### 3.2. 떼기
 

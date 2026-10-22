@@ -40,6 +40,9 @@ import (
 const (
 	providerKakao = "kakao"
 	providerApple = "apple"
+	// providerLine·providerGoogle은 LINE·Google 로그인(S99)의 연결입니다. 둘 다 Apple 토큰 열이 없습니다.
+	providerLine   = "line"
+	providerGoogle = "google"
 	// providerTest는 staging 테스트 로그인(S24)의 연결입니다. 발급 경로(LoginTest)는 build tag staging 파일에만 있고,
 	// 여기의 상수는 연결 해제가 staging의 테스트 계정 삭제를 처리하려고 씁니다.
 	providerTest = "test"
@@ -67,10 +70,13 @@ const identityLookupTimeout = 3 * time.Second
 // 첫 사용 뒤 이 시간 안(경계 포함)이고 그 다음 token이 아직 쓰이지 않았으면 탈취가 아니라 재시도로 봅니다.
 const RefreshReuseGrace = 30 * time.Second
 
-// KakaoVerifier는 카카오 id_token을 검증합니다. *provider.Kakao가 만족합니다.
-type KakaoVerifier interface {
+// IDTokenVerifier는 nonce가 있는 OIDC id_token을 검증합니다. *provider.Kakao·*provider.LINE·*provider.Google이 만족합니다.
+type IDTokenVerifier interface {
 	Verify(ctx context.Context, idToken, rawNonce string) (provider.Identity, error)
 }
+
+// KakaoVerifier는 카카오 id_token을 검증합니다. IDTokenVerifier의 다른 이름입니다.
+type KakaoVerifier = IDTokenVerifier
 
 // KakaoUnlinker는 카카오 사용자와 앱의 연결을 끊습니다. *provider.Kakao가 만족합니다.
 type KakaoUnlinker interface {
@@ -89,6 +95,8 @@ type AppleClient interface {
 // ServiceDeps는 Service가 쓰는 의존성입니다. Logger는 nil이면 아무것도 남기지 않습니다.
 type ServiceDeps struct {
 	Kakao       KakaoVerifier
+	Line        IDTokenVerifier
+	Google      IDTokenVerifier
 	Apple       AppleClient
 	KakaoUnlink KakaoUnlinker
 	Access      *token.AccessIssuer
@@ -119,6 +127,8 @@ type LoginResult struct {
 type Service struct {
 	pool        *pgxpool.Pool
 	kakao       KakaoVerifier
+	line        IDTokenVerifier
+	google      IDTokenVerifier
 	apple       AppleClient
 	kakaoUnlink KakaoUnlinker
 	access      *token.AccessIssuer
@@ -136,6 +146,8 @@ func NewService(pool *pgxpool.Pool, deps ServiceDeps) *Service {
 	return &Service{
 		pool:        pool,
 		kakao:       deps.Kakao,
+		line:        deps.Line,
+		google:      deps.Google,
 		apple:       deps.Apple,
 		kakaoUnlink: deps.KakaoUnlink,
 		access:      deps.Access,
@@ -161,6 +173,24 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 	return s.login(ctx, providerKakao, fixedTarget(identity.Subject, nil))
 }
 
+// LoginLine은 LINE id_token으로 로그인합니다. 흐름과 오류는 LoginKakao와 같습니다.
+func (s *Service) LoginLine(ctx context.Context, idToken, rawNonce string) (LoginResult, error) {
+	identity, err := s.line.Verify(ctx, idToken, rawNonce)
+	if err != nil {
+		return LoginResult{}, s.providerError(ctx, err, providerLine, "verify")
+	}
+	return s.login(ctx, providerLine, fixedTarget(identity.Subject, nil))
+}
+
+// LoginGoogle은 Google id_token으로 로그인합니다. 흐름과 오류는 LoginKakao와 같습니다.
+func (s *Service) LoginGoogle(ctx context.Context, idToken, rawNonce string) (LoginResult, error) {
+	identity, err := s.google.Verify(ctx, idToken, rawNonce)
+	if err != nil {
+		return LoginResult{}, s.providerError(ctx, err, providerGoogle, "verify")
+	}
+	return s.login(ctx, providerGoogle, fixedTarget(identity.Subject, nil))
+}
+
 // LoginApple은 iOS 앱이 받은 Apple id_token과 authorization code로 로그인합니다.
 // Apple client_id는 앱 BundleID(provider.AppleNative)로 고정합니다. Android의 웹 로그인은 BeginAppleWebLogin·CompleteAppleWebLogin입니다.
 // id_token을 검증한 뒤 code를 교환해 Apple refresh token을 받습니다. 교환 응답의 id_token sub가 로그인 id_token의
@@ -173,21 +203,31 @@ func (s *Service) LoginKakao(ctx context.Context, idToken, rawNonce string) (Log
 // Apple의 revoke는 그 사용자의 앱 승인 전체를 끊어 저장된 연결까지 무효로 만들기 때문입니다.
 // 연결 행 조회나 revoke가 실패해도 원래 로그인 오류를 그대로 돌려줍니다(revokeUnsavedAppleGrant).
 func (s *Service) LoginApple(ctx context.Context, idToken, authorizationCode, rawNonce string) (LoginResult, error) {
-	identity, err := s.apple.Verify(ctx, idToken, rawNonce, provider.AppleNative)
+	subject, grant, err := s.verifyAppleNative(ctx, idToken, authorizationCode, rawNonce)
 	if err != nil {
-		return LoginResult{}, s.providerError(ctx, err, providerApple, "verify")
+		return LoginResult{}, err
 	}
-	refreshToken, clientID, err := s.apple.ExchangeCode(ctx, authorizationCode, provider.AppleNative, identity.Subject)
+	result, err := s.login(ctx, providerApple, fixedTarget(subject, grant))
 	if err != nil {
-		return LoginResult{}, s.providerError(ctx, err, providerApple, "exchange_code")
-	}
-	grant := &appleGrant{refreshToken: refreshToken, clientID: clientID}
-	result, err := s.login(ctx, providerApple, fixedTarget(identity.Subject, grant))
-	if err != nil {
-		s.revokeUnsavedAppleGrant(ctx, identity.Subject, grant)
+		s.revokeUnsavedAppleGrant(ctx, subject, grant)
 		return LoginResult{}, err
 	}
 	return result, nil
+}
+
+// verifyAppleNative는 iOS 앱의 Apple id_token을 앱 BundleID(provider.AppleNative)로 검증하고 code를 교환해,
+// subject와 교환한 grant를 돌려줍니다. 교환 응답의 sub가 id_token의 sub와 다르면 ErrProviderTokenInvalid입니다.
+// 로그인(LoginApple)과 iOS Apple 붙이기(LinkIdentity)가 씁니다.
+func (s *Service) verifyAppleNative(ctx context.Context, idToken, authorizationCode, rawNonce string) (string, *appleGrant, error) {
+	identity, err := s.apple.Verify(ctx, idToken, rawNonce, provider.AppleNative)
+	if err != nil {
+		return "", nil, s.providerError(ctx, err, providerApple, "verify")
+	}
+	refreshToken, clientID, err := s.apple.ExchangeCode(ctx, authorizationCode, provider.AppleNative, identity.Subject)
+	if err != nil {
+		return "", nil, s.providerError(ctx, err, providerApple, "exchange_code")
+	}
+	return identity.Subject, &appleGrant{refreshToken: refreshToken, clientID: clientID}, nil
 }
 
 // revokeUnsavedAppleGrant는 로그인 트랜잭션이 실패해 저장하지 못한 Apple refresh token을, 그 subject의 연결 행이
@@ -331,47 +371,40 @@ func (s *Service) findOrCreateAccount(ctx context.Context, q *authdb.Queries, no
 	}
 
 	if apple != nil {
-		sealed, keyID, err := s.box.Seal([]byte(apple.refreshToken), existing.ID[:])
-		if err != nil {
-			return uuid.Nil, false, false, fmt.Errorf("apple refresh token 암호화: %w", err)
-		}
-		if err := q.UpdateAppleToken(ctx, authdb.UpdateAppleTokenParams{
-			AppleRefreshToken: sealed,
-			AppleTokenKeyID:   pgtype.Text{String: keyID, Valid: true},
-			AppleClientID:     pgtype.Text{String: apple.clientID, Valid: true},
-			ID:                existing.ID,
-		}); err != nil {
-			return uuid.Nil, false, false, fmt.Errorf("apple refresh token 저장: %w", err)
+		if err := s.saveAppleGrant(ctx, q, existing.ID, apple); err != nil {
+			return uuid.Nil, false, false, err
 		}
 	}
 	return existing.AccountID, false, restored, nil
 }
 
+// saveAppleGrant는 이미 있는 Apple 연결의 refresh token을 새 값으로 바꿉니다. 연결 id를 aad로 묶어 암호화합니다.
+func (s *Service) saveAppleGrant(ctx context.Context, q *authdb.Queries, identityID uuid.UUID, apple *appleGrant) error {
+	sealed, keyID, err := s.box.Seal([]byte(apple.refreshToken), identityID[:])
+	if err != nil {
+		return fmt.Errorf("apple refresh token 암호화: %w", err)
+	}
+	if err := q.UpdateAppleToken(ctx, authdb.UpdateAppleTokenParams{
+		AppleRefreshToken: sealed,
+		AppleTokenKeyID:   pgtype.Text{String: keyID, Valid: true},
+		AppleClientID:     pgtype.Text{String: apple.clientID, Valid: true},
+		ID:                identityID,
+	}); err != nil {
+		return fmt.Errorf("apple refresh token 저장: %w", err)
+	}
+	return nil
+}
+
 // createAccount는 active 계정과 identity를 새로 만듭니다.
-// Apple refresh token은 identity id를 aad로 묶어 암호화하므로, id를 먼저 만들고 암호화한 뒤 insert합니다.
+// Apple refresh token은 identity id를 aad로 묶어 암호화합니다(newIdentityParams).
 func (s *Service) createAccount(ctx context.Context, q *authdb.Queries, now time.Time, providerName, subject string, apple *appleGrant) (uuid.UUID, error) {
 	accountID, err := uuid.NewV7()
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("계정 id 생성: %w", err)
 	}
-	identityID, err := uuid.NewV7()
+	params, err := s.newIdentityParams(accountID, providerName, subject, apple)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("identity id 생성: %w", err)
-	}
-	params := authdb.CreateIdentityParams{
-		ID:        identityID,
-		AccountID: accountID,
-		Provider:  providerName,
-		Subject:   subject,
-	}
-	if apple != nil {
-		sealed, keyID, err := s.box.Seal([]byte(apple.refreshToken), identityID[:])
-		if err != nil {
-			return uuid.Nil, fmt.Errorf("apple refresh token 암호화: %w", err)
-		}
-		params.AppleRefreshToken = sealed
-		params.AppleTokenKeyID = pgtype.Text{String: keyID, Valid: true}
-		params.AppleClientID = pgtype.Text{String: apple.clientID, Valid: true}
+		return uuid.Nil, err
 	}
 
 	if err := q.CreateAccount(ctx, authdb.CreateAccountParams{ID: accountID, LastActiveAt: now}); err != nil {
@@ -382,6 +415,31 @@ func (s *Service) createAccount(ctx context.Context, q *authdb.Queries, now time
 	}
 	s.logger.InfoContext(ctx, "계정 생성", "accountId", accountID, "provider", providerName)
 	return accountID, nil
+}
+
+// newIdentityParams는 새 연결 행의 insert 값을 만듭니다. 로그인의 계정 생성과 붙이기가 씁니다.
+// Apple refresh token은 identity id를 aad로 묶어 암호화하므로, id를 먼저 만들고 암호화합니다.
+func (s *Service) newIdentityParams(accountID uuid.UUID, providerName, subject string, apple *appleGrant) (authdb.CreateIdentityParams, error) {
+	identityID, err := uuid.NewV7()
+	if err != nil {
+		return authdb.CreateIdentityParams{}, fmt.Errorf("identity id 생성: %w", err)
+	}
+	params := authdb.CreateIdentityParams{
+		ID:        identityID,
+		AccountID: accountID,
+		Provider:  providerName,
+		Subject:   subject,
+	}
+	if apple != nil {
+		sealed, keyID, err := s.box.Seal([]byte(apple.refreshToken), identityID[:])
+		if err != nil {
+			return authdb.CreateIdentityParams{}, fmt.Errorf("apple refresh token 암호화: %w", err)
+		}
+		params.AppleRefreshToken = sealed
+		params.AppleTokenKeyID = pgtype.Text{String: keyID, Valid: true}
+		params.AppleClientID = pgtype.Text{String: apple.clientID, Valid: true}
+	}
+	return params, nil
 }
 
 // isIdentityConflict는 err가 (provider, subject) unique 위반인지 알려 줍니다.

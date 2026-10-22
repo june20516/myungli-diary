@@ -40,7 +40,7 @@ func insertOldDiary(t *testing.T, pool *pgxpool.Pool, account uuid.UUID, date, c
 func TestMigration00013_SplitsDayRecords(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	require.NoError(t, postgres.Migrate(ctx, pool, "down")) // 00013만 내립니다.
+	require.NoError(t, postgres.MigrateDownTo(ctx, pool, 12)) // 00013 이전 모양
 	account := newAccount(t, pool)
 
 	insertOldDiary(t, pool, account, "2026-10-12", "2026-10-12T09:00:00Z", false, []string{"a"}, "r2")
@@ -119,7 +119,7 @@ func TestMigration00013_DownRestoresColumns(t *testing.T) {
 		 (gen_random_uuid(), $1, '2026-10-12', '지움', $2, $2)`, account, updatedAt)
 	require.NoError(t, err)
 
-	require.NoError(t, postgres.Migrate(ctx, pool, "down"))
+	require.NoError(t, postgres.MigrateDownTo(ctx, pool, 12)) // 00013 이전 모양
 
 	rows, err := pool.Query(ctx,
 		`SELECT body, all_tags, featured_tags::text, guide_question::text, ruleset_version, updated_at

@@ -132,6 +132,7 @@ var requiredAuthVars = []string{
 	"JWT_SIGNING_KEY_ID", "JWT_SIGNING_KEY",
 	"TOKEN_ENCRYPTION_KEY_ID", "TOKEN_ENCRYPTION_KEY",
 	"KAKAO_APP_KEY", "KAKAO_ADMIN_KEY",
+	"LINE_CHANNEL_ID", "GOOGLE_CLIENT_IDS",
 	"APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY", "APPLE_BUNDLE_ID",
 	"APPLE_SERVICES_ID", "APPLE_WEB_REDIRECT_URI",
 	"APP_LINK_BASE", "ANDROID_APP_PACKAGE", "ANDROID_CERT_SHA256", "ANDROID_STORE_URL",
@@ -164,6 +165,7 @@ func TestLoadAuth_ReadsAllValues(t *testing.T) {
 		TokenKeyID: "v-TOKEN_ENCRYPTION_KEY_ID", TokenKey: "v-TOKEN_ENCRYPTION_KEY",
 		TokenPreviousKeyID: "tok-prev-id", TokenPreviousKey: "tok-prev",
 		KakaoAppKey: "v-KAKAO_APP_KEY", KakaoAdminKey: "v-KAKAO_ADMIN_KEY",
+		LineChannelID: "v-LINE_CHANNEL_ID", GoogleClientIDs: []string{"v-GOOGLE_CLIENT_IDS"},
 		AppleTeamID: "v-APPLE_TEAM_ID", AppleKeyID: "v-APPLE_KEY_ID",
 		ApplePrivateKeyPEM: "v-APPLE_PRIVATE_KEY", AppleBundleID: "v-APPLE_BUNDLE_ID",
 		AppleServicesID:     "v-APPLE_SERVICES_ID",
@@ -173,14 +175,14 @@ func TestLoadAuth_ReadsAllValues(t *testing.T) {
 		AndroidCertSHA256:   "v-ANDROID_CERT_SHA256",
 		AndroidStoreURL:     "v-ANDROID_STORE_URL",
 	}
-	if cfg != want {
+	if !reflect.DeepEqual(cfg, want) {
 		t.Errorf("LoadAuth() = %+v, want %+v", cfg, want)
 	}
 }
 
 func TestLoadAuth_ReportsAllMissingRequired(t *testing.T) {
-	if len(requiredAuthVars) != 16 {
-		t.Fatalf("필수 변수 표 = %d개, want 16", len(requiredAuthVars))
+	if len(requiredAuthVars) != 18 {
+		t.Fatalf("필수 변수 표 = %d개, want 18", len(requiredAuthVars))
 	}
 	_, err := LoadAuth(fakeEnv(nil))
 	if err == nil {
@@ -249,6 +251,39 @@ func TestLoadAuth_PreviousKeyNeedsBothIDAndValue(t *testing.T) {
 				t.Errorf("LoadAuth() error = %v, want %s 언급", err, tt.want)
 			}
 		})
+	}
+}
+
+func TestLoadAuth_SplitsGoogleClientIDs(t *testing.T) {
+	env := completeAuthEnv()
+	env["GOOGLE_CLIENT_IDS"] = " a , b ,"
+
+	cfg, err := LoadAuth(fakeEnv(env))
+	if err != nil {
+		t.Fatalf("LoadAuth() error = %v, want nil", err)
+	}
+	if want := []string{"a", "b"}; !reflect.DeepEqual(cfg.GoogleClientIDs, want) {
+		t.Errorf("GoogleClientIDs = %q, want %q", cfg.GoogleClientIDs, want)
+	}
+}
+
+func TestLoadAuth_GoogleClientIDsWithoutItemsIsMissing(t *testing.T) {
+	env := completeAuthEnv()
+	env["GOOGLE_CLIENT_IDS"] = " , "
+
+	_, err := LoadAuth(fakeEnv(env))
+	if err == nil || !strings.Contains(err.Error(), "GOOGLE_CLIENT_IDS") {
+		t.Errorf("LoadAuth() error = %v, want GOOGLE_CLIENT_IDS 언급", err)
+	}
+}
+
+func TestLoadAuth_MissingLineChannelID(t *testing.T) {
+	env := completeAuthEnv()
+	delete(env, "LINE_CHANNEL_ID")
+
+	_, err := LoadAuth(fakeEnv(env))
+	if err == nil || !strings.Contains(err.Error(), "LINE_CHANNEL_ID") {
+		t.Errorf("LoadAuth() error = %v, want LINE_CHANNEL_ID 언급", err)
 	}
 }
 

@@ -82,6 +82,8 @@ func newFlowEnvWith(t *testing.T, customize func(*serverDeps)) *flowEnv {
 			AppleJWKS:   fake.JWKSURL(),
 			AppleToken:  fake.AppleTokenURL(),
 			AppleRevoke: fake.AppleRevokeURL(),
+			LineJWKS:    fake.JWKSURL(),
+			GoogleJWKS:  fake.JWKSURL(),
 		},
 	}
 	deps.Entitlements = billing.NewStore(deps.Pool, clk)
@@ -110,6 +112,8 @@ func flowAuthConfig(t *testing.T) config.AuthConfig {
 		TokenKey:            base64.StdEncoding.EncodeToString(tokenKey),
 		KakaoAppKey:         providertest.KakaoAppKey,
 		KakaoAdminKey:       providertest.KakaoAdminKey,
+		LineChannelID:       providertest.LINEChannelID,
+		GoogleClientIDs:     providertest.GoogleClientIDs,
 		AppleTeamID:         providertest.AppleTeamID,
 		AppleKeyID:          providertest.AppleKeyID,
 		ApplePrivateKeyPEM:  newP256PEM(t),
@@ -397,4 +401,28 @@ func TestAuthFlow_AndroidAppleWebLogin(t *testing.T) {
 	me := env.do(http.MethodGet, "/v1/me", access, nil)
 	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
 	assert.Equal(t, true, me.body["consentRequired"])
+}
+
+// LINE·Google 설정이 비면 조립이 provider 이름이 붙은 오류로 실패합니다.
+func TestNewServer_RejectsEmptyLineAndGoogleConfig(t *testing.T) {
+	tests := []struct {
+		name    string
+		mutate  func(*config.AuthConfig)
+		wantErr string
+	}{
+		{"LINE channel ID 없음", func(c *config.AuthConfig) { c.LineChannelID = "" }, "provider line:"},
+		{"Google client ID 없음", func(c *config.AuthConfig) { c.GoogleClientIDs = nil }, "provider google:"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := flowAuthConfig(t)
+			tt.mutate(&cfg)
+			settings, err := parseAuthSettings(cfg)
+			require.NoError(t, err)
+
+			_, err = newServer(settings, serverDeps{Logger: slog.New(slog.DiscardHandler), Clock: clocktest.New(time.Now())})
+
+			require.ErrorContains(t, err, tt.wantErr)
+		})
+	}
 }

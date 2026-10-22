@@ -1,5 +1,5 @@
 {
-  "version": "7674e4b6f9dc69d8",
+  "version": "aae9e75f83c9acda",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -8765,21 +8765,21 @@
       "key": "notice.time_unknown",
       "variant": "single",
       "lang": "en",
-      "body": "Your birth time is unknown, so we used 12 noon. Adding it makes results more accurate."
+      "body": "Your birth time is unknown, so the hour pillar is left out. Add it for better accuracy."
     },
     {
       "slot": "system.notice",
       "key": "notice.time_unknown",
       "variant": "single",
       "lang": "ja",
-      "body": "生まれた時刻がわからないため、正午で計算しました。入力するとより正確です。"
+      "body": "生まれた時刻が不明のため、時柱を除いて計算しました。入力するとより正確です。"
     },
     {
       "slot": "system.notice",
       "key": "notice.time_unknown",
       "variant": "single",
       "lang": "ko",
-      "body": "태어난 시간을 몰라 낮 12시로 계산했어요. 시간을 넣으면 더 정확해져요."
+      "body": "태어난 시간을 몰라 시주를 빼고 계산했어요. 시간을 넣으면 더 정확해져요."
     },
     {
       "slot": "system.notice",

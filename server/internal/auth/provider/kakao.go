@@ -62,7 +62,7 @@ func NewKakao(cfg KakaoConfig) (*Kakao, error) {
 	clk := orDefaultClock(cfg.Clock)
 
 	return &Kakao{
-		verifier:  newVerifier(issuer, cfg.AppKey, newKeySet(client, jwksURL), clk),
+		verifier:  newVerifier(issuer, cfg.AppKey, []string{oidc.RS256}, newKeySet(client, jwksURL), clk),
 		http:      client,
 		adminKey:  cfg.AdminKey,
 		unlinkURL: orDefault(cfg.UnlinkURL, DefaultKakaoUnlinkURL),

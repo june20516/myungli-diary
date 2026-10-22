@@ -21,6 +21,17 @@ type Account struct {
 	UpdatedAt           time.Time
 }
 
+type AccountMergeTicket struct {
+	ID             uuid.UUID
+	TokenHash      []byte
+	AccountID      uuid.UUID
+	OtherAccountID uuid.UUID
+	IdentityID     uuid.UUID
+	ExpiresAt      time.Time
+	ConsumedAt     *time.Time
+	CreatedAt      time.Time
+}
+
 type AppleWebLogin struct {
 	ID                uuid.UUID
 	ExchangeHash      []byte

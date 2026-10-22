@@ -55,6 +55,21 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, direction string) error {
 	return nil
 }
 
+// MigrateDownTo는 version보다 큰 migration을 모두 되돌려 적용된 최신 버전이 version이 되게 합니다.
+// 이미 version 이하이면 아무것도 하지 않습니다. 테스트가 특정 migration 직전 모양을 만들 때 씁니다.
+func MigrateDownTo(ctx context.Context, pool *pgxpool.Pool, version int64) error {
+	provider, closeProvider, err := newProvider(pool)
+	if err != nil {
+		return err
+	}
+	defer closeProvider()
+
+	if _, err := provider.DownTo(ctx, version); err != nil {
+		return fmt.Errorf("migrate down to %d: %w", version, err)
+	}
+	return nil
+}
+
 // Status는 모든 migration 파일의 적용 상태를 파일 순서대로 반환합니다.
 func Status(ctx context.Context, pool *pgxpool.Pool) ([]MigrationStatus, error) {
 	provider, closeProvider, err := newProvider(pool)

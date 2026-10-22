@@ -137,3 +137,40 @@ FOR UPDATE;
 UPDATE apple_web_logins
 SET consumed_at = @consumed_at::timestamptz
 WHERE id = @id AND consumed_at IS NULL;
+
+-- ListAccountIdentities는 계정의 제공자 연결을 붙인 순으로 돌려줍니다(listIdentities, S100). subject는 내보내지 않습니다.
+-- name: ListAccountIdentities :many
+SELECT provider, created_at
+FROM auth_identities
+WHERE account_id = @account_id
+ORDER BY created_at, id;
+
+-- GetIdentityForLink는 붙이려는 (provider, subject) 연결과 그 계정의 status를 읽고 계정 행을 잠급니다.
+-- 붙이기 트랜잭션이 현재 계정 행을 먼저 잠근 뒤 부르므로, 다른 계정 행은 그 다음에 잠깁니다.
+-- name: GetIdentityForLink :one
+SELECT i.id, i.account_id, a.status AS account_status
+FROM auth_identities i
+JOIN accounts a ON a.id = i.account_id
+WHERE i.provider = @provider AND i.subject = @subject
+FOR UPDATE OF a;
+
+-- AccountHasProvider는 계정에 그 제공자 연결이 이미 있는지 알려 줍니다(한 계정에 제공자마다 연결 하나).
+-- name: AccountHasProvider :one
+SELECT EXISTS (
+    SELECT 1 FROM auth_identities WHERE account_id = @account_id AND provider = @provider
+);
+
+-- name: CountIdentities :one
+SELECT count(*) FROM auth_identities WHERE account_id = @account_id;
+
+-- DeleteIdentity는 계정의 그 제공자 연결을 물리적으로 지우고, 지운 행을 돌려줍니다.
+-- 커밋 뒤 허가 취소(카카오 unlink, Apple revoke)에 subject와 Apple 토큰 열을 씁니다.
+-- name: DeleteIdentity :one
+DELETE FROM auth_identities
+WHERE account_id = @account_id AND provider = @provider
+RETURNING id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id;
+
+-- InsertMergeTicket은 합치기 토큰의 해시를 저장합니다(S101). 원문은 저장하지 않습니다.
+-- name: InsertMergeTicket :exec
+INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
+VALUES (@id, @token_hash, @account_id, @other_account_id, @identity_id, @expires_at::timestamptz);

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -117,6 +118,10 @@ type AuthConfig struct {
 	TokenPreviousKeyID, TokenPreviousKey string
 	// KakaoAppKey는 카카오 앱 키(id_token 검증의 audience)이고, KakaoAdminKey는 unlink 호출용 어드민 키입니다.
 	KakaoAppKey, KakaoAdminKey string
+	// LineChannelID는 LINE Login 채널 ID(id_token 검증의 audience)입니다.
+	LineChannelID string
+	// GoogleClientIDs는 Google id_token의 audience로 받는 OAuth client ID 목록입니다(GOOGLE_CLIENT_IDS, 쉼표 구분).
+	GoogleClientIDs []string
 	// AppleTeamID·AppleKeyID·ApplePrivateKeyPEM은 Apple client secret(ES256 JWT)을 만드는 재료입니다.
 	AppleTeamID, AppleKeyID, ApplePrivateKeyPEM string
 	// AppleBundleID는 앱 로그인의 audience이고, AppleServicesID는 웹 로그인의 audience입니다.
@@ -159,6 +164,8 @@ func LoadAuth(getenv func(string) string) (AuthConfig, error) {
 		TokenPreviousKey:    getenv("TOKEN_PREVIOUS_KEY"),
 		KakaoAppKey:         require("KAKAO_APP_KEY"),
 		KakaoAdminKey:       require("KAKAO_ADMIN_KEY"),
+		LineChannelID:       require("LINE_CHANNEL_ID"),
+		GoogleClientIDs:     splitList(require("GOOGLE_CLIENT_IDS")),
 		AppleTeamID:         require("APPLE_TEAM_ID"),
 		AppleKeyID:          require("APPLE_KEY_ID"),
 		ApplePrivateKeyPEM:  require("APPLE_PRIVATE_KEY"),
@@ -169,6 +176,11 @@ func LoadAuth(getenv func(string) string) (AuthConfig, error) {
 		AndroidAppPackage:   require("ANDROID_APP_PACKAGE"),
 		AndroidCertSHA256:   require("ANDROID_CERT_SHA256"),
 		AndroidStoreURL:     require("ANDROID_STORE_URL"),
+	}
+
+	// 쉼표뿐인 값처럼 항목이 하나도 남지 않으면 비어 있는 것으로 봅니다.
+	if len(cfg.GoogleClientIDs) == 0 && !slices.Contains(missing, "GOOGLE_CLIENT_IDS") {
+		missing = append(missing, "GOOGLE_CLIENT_IDS")
 	}
 
 	var errs []error

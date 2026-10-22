@@ -1,7 +1,8 @@
-// Package providertest는 카카오·Apple 연동을 테스트하기 위한 가짜 제공자 서버입니다.
+// Package providertest는 카카오·Apple·LINE·Google 연동을 테스트하기 위한 가짜 제공자 서버입니다.
 //
 // 하나의 httptest.Server가 다음 엔드포인트를 모두 내줍니다.
-//   - JWKS(카카오·Apple 공용): 테스트용 RSA 키의 공개 키 목록
+//   - JWKS(카카오·Apple·LINE·Google 공용): 테스트용 RSA 키와 ES256(P-256) 키의 공개 키 목록
+//     (카카오·Apple·Google은 RSA 키로, LINE은 ES256 키로 서명한 토큰을 씁니다)
 //   - Apple /auth/token, /auth/revoke
 //     (/auth/token은 AppleCode로 만든 code를 받으면 그 subject로 서명한 id_token과 refresh token을 돌려줍니다)
 //   - 카카오 /v1/user/unlink
@@ -59,6 +60,16 @@ const (
 	AppleRefreshToken = "providertest-apple-refresh-token"
 )
 
+// LINEConfig·GoogleConfig가 채우는 테스트용 설정 값입니다.
+const (
+	LINEChannelID = "1650000000"
+	// es256KeyID는 JWKS가 내주는 ES256 키의 kid입니다. RSA 키와 달리 RotateKey로 바뀌지 않습니다.
+	es256KeyID = "providertest-es256"
+)
+
+// GoogleClientIDs는 GoogleConfig가 받는 테스트용 OAuth client ID(aud) 목록입니다.
+var GoogleClientIDs = []string{"test-ios.apps.googleusercontent.com", "test-web.apps.googleusercontent.com"}
+
 // appleCodePrefix는 AppleCode가 만드는 authorization code의 앞부분입니다. 뒤에 subject가 붙습니다.
 const appleCodePrefix = "providertest-code:"
 
@@ -89,6 +100,8 @@ type signingKey struct {
 type Server struct {
 	srv      *httptest.Server
 	appleKey *ecdsa.PrivateKey
+	// es256Key는 LINE id_token 서명용 키입니다. kid는 es256KeyID로 고정입니다.
+	es256Key *ecdsa.PrivateKey
 
 	mu         sync.Mutex
 	keyCount   int
@@ -113,8 +126,13 @@ func New(t testing.TB) *Server {
 	if err != nil {
 		t.Fatalf("providertest: Apple 키 생성 실패: %v", err)
 	}
+	es256Key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("providertest: ES256 키 생성 실패: %v", err)
+	}
 	s := &Server{
 		appleKey:     appleKey,
+		es256Key:     es256Key,
 		jwksStatus:   http.StatusOK,
 		appleRefresh: AppleRefreshToken,
 		clock:        clock.System{},
@@ -211,6 +229,49 @@ func (s *Server) NewApple(t testing.TB, clk clock.Clock) *provider.Apple {
 	return apple
 }
 
+// LINEConfig는 이 대역 서버를 가리키는 LINE 설정을 돌려줍니다.
+// id_token의 exp는 clk 기준으로 검사합니다.
+func (s *Server) LINEConfig(clk clock.Clock) provider.LINEConfig {
+	return provider.LINEConfig{
+		ChannelID: LINEChannelID,
+		Issuer:    provider.DefaultLINEIssuer,
+		JWKSURL:   s.JWKSURL(),
+		HTTP:      s.Client(),
+		Clock:     clk,
+	}
+}
+
+// GoogleConfig는 이 대역 서버를 가리키는 Google 설정을 돌려줍니다.
+// id_token의 exp는 clk 기준으로 검사합니다.
+func (s *Server) GoogleConfig(clk clock.Clock) provider.GoogleConfig {
+	return provider.GoogleConfig{
+		ClientIDs: GoogleClientIDs,
+		JWKSURL:   s.JWKSURL(),
+		HTTP:      s.Client(),
+		Clock:     clk,
+	}
+}
+
+// NewLINE은 LINEConfig(clk)로 provider.LINE을 만듭니다. 설정 오류면 테스트를 멈춥니다.
+func (s *Server) NewLINE(t testing.TB, clk clock.Clock) *provider.LINE {
+	t.Helper()
+	line, err := provider.NewLINE(s.LINEConfig(clk))
+	if err != nil {
+		t.Fatalf("providertest: NewLINE: %v", err)
+	}
+	return line
+}
+
+// NewGoogle은 GoogleConfig(clk)로 provider.Google을 만듭니다. 설정 오류면 테스트를 멈춥니다.
+func (s *Server) NewGoogle(t testing.TB, clk clock.Clock) *provider.Google {
+	t.Helper()
+	google, err := provider.NewGoogle(s.GoogleConfig(clk))
+	if err != nil {
+		t.Fatalf("providertest: NewGoogle: %v", err)
+	}
+	return google
+}
+
 // HashNonce는 nonce 원문을 id_token의 nonce claim 값(hex(sha256(원문)))으로 바꿉니다.
 func HashNonce(rawNonce string) string {
 	sum := sha256.Sum256([]byte(rawNonce))
@@ -222,6 +283,31 @@ func KakaoClaims(subject, rawNonce string, now time.Time) map[string]any {
 	return map[string]any{
 		"iss":   KakaoIssuer,
 		"aud":   KakaoAppKey,
+		"sub":   subject,
+		"iat":   now.Unix(),
+		"exp":   now.Add(time.Hour).Unix(),
+		"nonce": HashNonce(rawNonce),
+	}
+}
+
+// LINEClaims는 LINEConfig로 검증을 통과하는 id_token claim을 만듭니다. exp는 now+1시간입니다.
+func LINEClaims(subject, rawNonce string, now time.Time) map[string]any {
+	return map[string]any{
+		"iss":   provider.DefaultLINEIssuer,
+		"aud":   LINEChannelID,
+		"sub":   subject,
+		"iat":   now.Unix(),
+		"exp":   now.Add(time.Hour).Unix(),
+		"nonce": HashNonce(rawNonce),
+	}
+}
+
+// GoogleClaims는 GoogleConfig로 검증을 통과하는 id_token claim을 만듭니다. exp는 now+1시간입니다.
+// aud와 iss는 호출하는 쪽이 정해, 허용 범위 안팎을 모두 만들 수 있습니다.
+func GoogleClaims(subject, rawNonce, aud, iss string, now time.Time) map[string]any {
+	return map[string]any{
+		"iss":   iss,
+		"aud":   aud,
 		"sub":   subject,
 		"iat":   now.Unix(),
 		"exp":   now.Add(time.Hour).Unix(),
@@ -258,6 +344,19 @@ func (s *Server) SignIDToken(claims map[string]any) string {
 	if err != nil {
 		// 메모리 안의 RSA 키 서명은 실패할 일이 없습니다. 실패하면 테스트 환경 자체가 깨진 것입니다.
 		panic(fmt.Sprintf("providertest: id_token 서명 실패: %v", err))
+	}
+	return signed
+}
+
+// SignES256IDToken은 ES256 키로 claims에 서명하고 header에 고정 kid를 넣은 JWT를 돌려줍니다.
+// JWKS가 이 키의 공개 키도 내주므로 LINE처럼 ES256을 쓰는 제공자의 토큰을 만들 때 씁니다.
+func (s *Server) SignES256IDToken(claims map[string]any) string {
+	tok := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims(claims))
+	tok.Header["kid"] = es256KeyID
+	signed, err := tok.SignedString(s.es256Key)
+	if err != nil {
+		// 메모리 안의 EC 키 서명은 실패할 일이 없습니다. 실패하면 테스트 환경 자체가 깨진 것입니다.
+		panic(fmt.Sprintf("providertest: ES256 id_token 서명 실패: %v", err))
 	}
 	return signed
 }
@@ -364,7 +463,7 @@ func (s *Server) requests(e *endpoint) []Request {
 	return out
 }
 
-// serveJWKS는 현재 키의 공개 키를 JWK Set으로 내줍니다.
+// serveJWKS는 현재 RSA 키와 ES256 키의 공개 키를 JWK Set으로 내줍니다.
 func (s *Server) serveJWKS(w http.ResponseWriter, _ *http.Request) {
 	s.mu.Lock()
 	s.jwksHits++
@@ -377,6 +476,12 @@ func (s *Server) serveJWKS(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	pub := key.private.PublicKey
+	// 비압축 점 인코딩(0x04 || X || Y)에서 각 32바이트 좌표를 꺼냅니다. ecdsa.PublicKey의 X·Y 필드는 deprecated입니다.
+	ecPoint, err := s.es256Key.PublicKey.Bytes()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	set := map[string]any{
 		"keys": []map[string]string{{
 			"kty": "RSA",
@@ -385,6 +490,15 @@ func (s *Server) serveJWKS(w http.ResponseWriter, _ *http.Request) {
 			"alg": "RS256",
 			"n":   base64.RawURLEncoding.EncodeToString(pub.N.Bytes()),
 			"e":   base64.RawURLEncoding.EncodeToString(big.NewInt(int64(pub.E)).Bytes()),
+		}, {
+			"kty": "EC",
+			"kid": es256KeyID,
+			"use": "sig",
+			"alg": "ES256",
+			"crv": "P-256",
+			// 좌표는 곡선 크기(32바이트)로 고정된 길이입니다(RFC 7518 6.2.1.2).
+			"x": base64.RawURLEncoding.EncodeToString(ecPoint[1:33]),
+			"y": base64.RawURLEncoding.EncodeToString(ecPoint[33:65]),
 		}},
 	}
 	w.Header().Set("Content-Type", "application/json")
