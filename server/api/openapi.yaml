@@ -2659,7 +2659,7 @@ components:
     MergeSaju:
       type: object
       description: |
-        `status`가 `saved`일 때만 `calendar`·`date`·`isLeapMonth`·`birthTime`이 있습니다(`Birth`와 같은 모양)(프로필이 있음). `none`은 프로필이 없음입니다.
+        `status`가 `saved`일 때만 `calendar`·`date`·`isLeapMonth`·`birthTime`이 있습니다(프로필이 있음, `Birth`와 같은 모양). `none`은 프로필이 없음입니다.
         출생 시각을 모르면 `birthTime.status`가 `unknown`입니다.
       required: [status]
       properties:
