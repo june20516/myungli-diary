@@ -521,10 +521,15 @@ func TestContract_LoginNonceDocumentsHashRule(t *testing.T) {
 		}
 	}
 
-	// 로그인 operation 네 개와 linkIdentity의 설명, 계약 머리말이 같은 규칙을 말해야 합니다.
+	// nonce를 받는 operation은 설명 또는 요청 스키마의 nonce 설명에 해시 규칙이 있어야 합니다.
 	for _, id := range []string{"loginKakao", "loginApple", "loginLine", "loginGoogle", "linkIdentity"} {
-		if description := operationByID(t, doc, id).Description; description == "" {
-			t.Errorf("%s: 설명이 비어 있음", id)
+		op := operationByID(t, doc, id)
+		documented := strings.Contains(op.Description, "SHA-256")
+		if body := op.RequestBody.Value.Content["application/json"].Schema.Value; body.Properties["nonce"] != nil {
+			documented = documented || strings.Contains(body.Properties["nonce"].Value.Description, "SHA-256")
+		}
+		if !documented {
+			t.Errorf("%s: 설명과 요청 스키마 nonce 설명 어디에도 SHA-256 규칙이 없음", id)
 		}
 	}
 	for _, text := range []string{"일회용으로 기록하지 않습니다", "Google"} {
@@ -1423,6 +1428,15 @@ func TestContract_Draft13ProblemCodes(t *testing.T) {
 	}
 }
 
+// enumStrings는 문자열 enum 스키마의 값을 []string으로 바꿉니다.
+func enumStrings(schema *openapi3.Schema) []string {
+	values := make([]string, 0, len(schema.Enum))
+	for _, value := range schema.Enum {
+		values = append(values, value.(string))
+	}
+	return values
+}
+
 // sameElements는 got과 want가 순서와 상관없이 같은 원소 집합인지 확인합니다.
 func sameElements(t *testing.T, label string, got, want []string) {
 	t.Helper()
@@ -1485,11 +1499,17 @@ func TestContract_Draft14Identities(t *testing.T) {
 	})
 
 	t.Run("LoginProvider", func(t *testing.T) {
-		var got []string
-		for _, value := range schemaOf(t, doc, "LoginProvider").Enum {
-			got = append(got, value.(string))
+		sameElements(t, "LoginProvider.enum", enumStrings(schemaOf(t, doc, "LoginProvider")), []string{"kakao", "apple", "line", "google"})
+	})
+
+	t.Run("새 bearer operation의 공통 응답", func(t *testing.T) {
+		for _, id := range []string{"listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts"} {
+			op := operationByID(t, doc, id)
+			requireResponses(t, id, op, "401", "403")
+			if id == "linkIdentity" || id == "previewMerge" || id == "mergeAccounts" {
+				requireResponses(t, id, op, "400", "413", "415")
+			}
 		}
-		sameElements(t, "LoginProvider.enum", got, []string{"kakao", "apple", "line", "google"})
 	})
 
 	t.Run("listIdentities", func(t *testing.T) {
@@ -1538,6 +1558,12 @@ func TestContract_Draft14Identities(t *testing.T) {
 		op := operationByID(t, doc, "linkIdentity")
 		providerParam(t, "linkIdentity")
 		requireResponses(t, "linkIdentity", op, "200", "201", "400", "401", "409", "503")
+		for _, status := range []string{"200", "201"} {
+			media := op.Responses.Value(status).Value.Content["application/json"]
+			if media == nil || media.Schema.Ref != "#/components/schemas/IdentityList" {
+				t.Errorf("linkIdentity %s JSON 스키마가 IdentityList가 아님", status)
+			}
+		}
 		if got := jsonBodyRef(t, op); got != "#/components/schemas/LinkIdentityRequest" {
 			t.Errorf("linkIdentity 본문 = %s, want LinkIdentityRequest", got)
 		}
@@ -1619,11 +1645,7 @@ func TestContract_Draft14Identities(t *testing.T) {
 		if summary.Properties["honorific"] == nil {
 			t.Error("MergeAccountSummary.honorific이 없음")
 		}
-		var statuses []string
-		for _, value := range schemaOf(t, doc, "MergeSaju").Properties["status"].Value.Enum {
-			statuses = append(statuses, value.(string))
-		}
-		sameElements(t, "MergeSaju.status", statuses, []string{"saved", "none"})
+		sameElements(t, "MergeSaju.status", enumStrings(schemaOf(t, doc, "MergeSaju").Properties["status"].Value), []string{"saved", "none"})
 		if birthTime := schemaOf(t, doc, "MergeSaju").Properties["birthTime"]; birthTime == nil || birthTime.Ref != "#/components/schemas/BirthTime" {
 			t.Error("MergeSaju.birthTime이 BirthTime 참조가 아님")
 		}
@@ -1636,11 +1658,7 @@ func TestContract_Draft14Identities(t *testing.T) {
 		}
 		request := schemaOf(t, doc, "MergeRequest")
 		sameElements(t, "MergeRequest.required", request.Required, []string{"mergeToken", "keep"})
-		var keep []string
-		for _, value := range request.Properties["keep"].Value.Enum {
-			keep = append(keep, value.(string))
-		}
-		sameElements(t, "MergeRequest.keep", keep, []string{"current", "other"})
+		sameElements(t, "MergeRequest.keep", enumStrings(request.Properties["keep"].Value), []string{"current", "other"})
 		if got := okSchemaRef(t, op); got != "#/components/schemas/MergeResult" {
 			t.Errorf("mergeAccounts 200 = %s, want MergeResult", got)
 		}
