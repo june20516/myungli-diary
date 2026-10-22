@@ -68,7 +68,7 @@ LINE·Google 로그인을 더하고, 한 계정에 여러 제공자를 붙이고
   * 카카오·LINE·Google: `{idToken, nonce}`
   * Apple(iOS): `{idToken, authorizationCode, nonce}`. 로그인과 같이 code를 교환해 refresh token을 받고, 새 연결에 암호화해 저장합니다.
   * Apple(Android 웹 흐름): `{exchangeCode, nonce}`. `appleCallback`이 만든 교환 코드를 `completeAppleWebLogin`과 같은 규칙(일회용, 2분, nonce가 틀려도 소진하지 않음)으로 씁니다.
-  * 경로의 제공자와 본문 모양이 맞지 않으면 400 `request.invalid`입니다.
+  * 경로의 제공자와 본문 조합이 맞지 않으면 400 `request.invalid`입니다(없는 필드는 `code: required`, 그 제공자가 쓰지 않는 필드는 `code: additionalProperties`, field는 JSON Pointer).
 * 결과
   * 연결이 어디에도 없음: 현재 계정에 연결을 만들고 201
   * 연결이 이미 현재 계정에 있음: 바꾸지 않고 200(Apple이면 refresh token만 새 값으로)
@@ -137,7 +137,7 @@ LINE·Google 로그인을 더하고, 한 계정에 여러 제공자를 붙이고
 | 대상 | 규칙 |
 | --- | --- |
 | 연결 | 없앨 계정의 연결을 모두 `account_id`만 바꿔 옮깁니다. Apple 암호화는 연결 id에 묶여 있어 그대로 유효합니다. 같은 제공자 연결이 양쪽에 있으면 남길 계정의 것을 남기고, 없앨 계정의 것은 지운 뒤 commit 뒤에 §3.2처럼 허가 취소를 시도합니다(LINE·Google은 생략) |
-| 일기 | 전부 옮깁니다(S95). 남길 계정에 그 날짜의 날짜 기록이 없으면 날짜 기록째 옮기고, 있으면 남길 계정의 날짜 기록을 씁니다(없앨 계정의 그 날짜 기록은 남아 P8이 정리). 지운 일기도 옮깁니다. 10편 상한은 검사하지 않습니다(D83 ④) |
+| 일기 | 전부 옮깁니다(S95). 남길 계정에 그 날짜의 날짜 기록이 없으면 없앨 계정의 날짜 기록을 남길 계정으로 복사하고, 있으면 남길 계정의 날짜 기록을 씁니다. 그다음 일기 행의 `account_id`를 바꿉니다(`diaries_day_fk`가 `(account_id, date)`를 참조해 날짜 기록 행의 키를 바꿀 수 없으므로 복사). 없앨 계정의 날짜 기록은 남아 P8이 정리합니다. 지운 일기도 옮깁니다. 10편 상한은 검사하지 않습니다(D83 ④) |
 | 일정 | 전부 옮깁니다(지운 일정 포함). 확인 없이 데이터를 지우지 않는다는 D82 ⑥을 따릅니다 |
 | 광고 제거권 | §4.4 |
 
@@ -200,7 +200,7 @@ commit한 뒤 허가 취소(4의 중복 연결)와 남길 계정의 결제 동�
 
 * `info.version` `1.0.0-draft.14`. 모두 추가라 하위 호환입니다.
 * 새 operation 7개: `loginLine`, `loginGoogle`, `listIdentities`, `linkIdentity`, `unlinkIdentity`, `previewMerge`, `mergeAccounts`
-* 새 스키마: `LineLoginRequest`, `GoogleLoginRequest`, `Identity`, `IdentityList`, `LinkIdentityRequest`(제공자별 oneOf), `IdentityInUseProblem`(Problem + `mergeToken`·`expiresAt`), `MergePreviewRequest`, `MergePreview`, `MergeAccountSummary`, `MergeSaju`, `MergeRequest`, `MergeResult`, `LoginProvider` enum
+* 새 스키마: `LineLoginRequest`, `GoogleLoginRequest`, `Identity`, `IdentityList`, `LinkIdentityRequest`(필드 `idToken`·`authorizationCode`·`exchangeCode`는 선택, `nonce`만 필수. 제공자별 조합은 server가 검사해 어긋나면 400 `request.invalid`. 계약에 `additionalProperties: false`가 없어 oneOf로 나누면 Apple iOS 증명이 두 갈래에 다 맞으므로 쓰지 않음), `IdentityInUseProblem`(Problem + `mergeToken`·`expiresAt`), `MergePreviewRequest`, `MergePreview`, `MergeAccountSummary`, `MergeSaju`, `MergeRequest`, `MergeResult`, `LoginProvider` enum
 * 계약 머리말에 nonce 규칙(네 제공자 공통, 일회용 기록 없음, Google 반복 가능)을 적습니다.
 
 ## 7. 계약 변경 알림
@@ -212,8 +212,8 @@ commit한 뒤 허가 취소(4의 중복 연결)와 남길 계정의 결제 동�
 ## 8. PR 나누기
 
 1. **PR A (계약):** 이 spec, 계획, openapi draft.14, 새 operation 7개의 `Unimplemented` 501, 계약 테스트, problem code, 계약 표 REST 행, app Issue·지휘 Issue
-2. **PR B (제공자·연결):** migration `00014`, OIDC 검증 확장과 LINE·Google verifier, 로그인 2개, 연결 목록·붙이기·떼기(409 `auth.identity_in_use`는 PR C 전까지 토큰 없이), `DisconnectProviders` 확장
-3. **PR C (합치기):** migration `00015`(`account_merge_tickets`·`account_merges`·`merged_purchases`), 합치기 토큰 발급, `previewMerge`·`mergeAccounts`, billing 동기화 확장. `Closes #386`
+2. **PR B (제공자·연결):** migration `00014`(provider CHECK·UNIQUE·`account_merge_tickets`), OIDC 검증 확장과 LINE·Google verifier, 로그인 2개, 연결 목록·붙이기·떼기와 409 `auth.identity_in_use`의 합치기 토큰 발급(계약의 409 본문이 토큰을 요구하므로 PR B에 둠), `DisconnectProviders` 확장
+3. **PR C (합치기):** migration `00015`(`account_merges`·`merged_purchases`), `previewMerge`·`mergeAccounts`, billing 동기화 확장. `Closes #386`
 
 ## 9. 테스트
 
