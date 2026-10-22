@@ -138,6 +138,7 @@ def _entry_sentence_findings(
             values,
             allowed=slot.allowed,
             forbidden=slot.forbidden,
+            register=slot.register,
         )
     )
     return findings

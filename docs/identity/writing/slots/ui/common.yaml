@@ -381,6 +381,7 @@
   # ja 카카오 라벨은 영문이라 en 상한으로 잽니다(design lengths.md 키별 상한, #446).
   key_max_length:
     loginKakaoLabel: {ko: 19, en: 34, ja: 34}
+    loginLineLabel: {ko: 16, en: 28, ja: 13}
   components: [social-login-button]
   keys:
     - loginKakaoLabel

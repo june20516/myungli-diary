@@ -311,6 +311,20 @@ def test_valid_slot_is_loaded(tmp_path: Path, rules: RuleSet) -> None:
     assert slot.line == 1
 
 
+def test_register_defaults_to_haeyo(tmp_path: Path, rules: RuleSet) -> None:
+    slots = load_slots(make_slots_dir(tmp_path, VALID_SLOT), rules)
+    assert slots["test.slot"].register == "haeyo"
+
+
+def test_register_loads_and_rejects_unknown(tmp_path: Path, rules: RuleSet) -> None:
+    slots = load_slots(make_slots_dir(tmp_path, VALID_SLOT + "  register: hamnida\n"), rules)
+    assert slots["test.slot"].register == "hamnida"
+    (tmp_path / "bad").mkdir()
+    with pytest.raises(LoadError) as raised:
+        load_slots(make_slots_dir(tmp_path / "bad", VALID_SLOT + "  register: banmal\n"), rules)
+    assert any("register" in finding.message for finding in raised.value.findings)
+
+
 def test_unknown_rule_reference(tmp_path: Path, rules: RuleSet) -> None:
     slots_dir = make_slots_dir(tmp_path, VALID_SLOT + "  allowed: [slop.P99]\n")
     with pytest.raises(LoadError) as raised:

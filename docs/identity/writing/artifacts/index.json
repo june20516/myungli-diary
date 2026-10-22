@@ -229,5 +229,44 @@
     ],
     "status": "chosen",
     "note": "단독 '수단' 금지 → '인증 수단', 새 오류 키 5개, merge.token_invalid는 accountMergeError"
+  },
+  {
+    "id": "round-R15",
+    "title": "라운드 R15 — D85·D86·D88 원고 (#479·#482·#487·#495)",
+    "kind": "copy-sample",
+    "file": "2026-10-23-round-R15.md",
+    "date": "2026-10-23",
+    "milestone": "W1",
+    "screens": [
+      "login-methods",
+      "account-merge",
+      "ad-free",
+      "purchase-history",
+      "preview",
+      "calc-basis",
+      "account-delete"
+    ],
+    "decisions": [
+      "W40"
+    ],
+    "status": "chosen",
+    "note": "합치기는 기록 가져오기, 구매 내역, 삭제 안내·대운수는 합니다체(W40), 시간 모름은 시주를 뺀 계산"
+  },
+  {
+    "id": "round-R16",
+    "title": "라운드 R16 — 가져올 계정·요약 상자·구매 줄 (design #509)",
+    "kind": "copy-sample",
+    "file": "2026-10-23-round-R16.md",
+    "date": "2026-10-23",
+    "milestone": "W1",
+    "screens": [
+      "account-merge",
+      "purchase-history"
+    ],
+    "decisions": [
+      "W41"
+    ],
+    "status": "chosen",
+    "note": "합칠 다른 계정은 '가져올 계정', 요약 상자 '가져올 기록', 구매 줄 틀"
   }
 ]

@@ -5,7 +5,7 @@
 
 ## primary-button
 
-* 쓰는 화면: force-update, welcome, 온보딩 단계(onboard-call, onboard-birth, onboard-time, onboard-gender), preview, consent, notify-ask, evidence-sheet, share-preview, day-sheet, event-edit, diary-edit, ad-free, account-delete, account-merge
+* 쓰는 화면: force-update, welcome, 온보딩 단계(onboard-call, onboard-birth, onboard-time, onboard-gender), preview, consent, notify-ask, evidence-sheet, share-preview, day-sheet, event-edit, diary-edit, ad-free, account-delete, login-methods, account-merge
 * 둥근 사각(`radius.md`), 높이 52, 너비는 채움.
 
 | 변형 | 바탕 | 글자 | 쓰임 |
@@ -52,7 +52,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 1. `login-methods.intro.body`(`type.body.ui`, `text.secondary`, 아래 `space.20`)
 2. 버튼 네 개(위 순서, 연결된 것은 `connected`). 연결하지 않은 수단은 로그인 화면과 같은 버튼·라벨입니다(연결은 그 제공자로 다시 로그인, D82 ⑤).
 3. 하나만 남았을 때 `login-methods.last.notice`
-4. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선을 긋고, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`를 둡니다. 연결된 인증 계정 수와 관계없이 늘 보입니다(D85 ④). IA `login-methods` 컴포넌트에 `primary-button`이 아직 없어 지휘에 더해 달라고 요청했습니다. 그래서 `primary-button`의 쓰는 화면 줄에는 아직 적지 않습니다.
+4. **계정 합치기 입구:** 위 `space.32`에 1px `color.line` 가로선을 긋고, 그 아래 `space.16`에 `primary-button` `quiet` `login-methods.merge.cta`를 둡니다. 연결된 인증 계정 수와 관계없이 늘 보입니다(D85 ④).
 
 * 오류(`login-methods.error.body`)는 `dialog` `notice`로 보입니다.
 * 붙이려는 인증 계정이 다른 유저 계정에 연결돼 있으면 연결하지 않고, `login-methods.in-use.body`를 `dialog` `notice`로 보입니다. 확인하면 이 화면에 그대로 있습니다. 합치기로 저절로 넘어가지 않습니다(D85 ③).

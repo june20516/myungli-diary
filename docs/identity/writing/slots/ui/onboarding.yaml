@@ -525,6 +525,25 @@
     truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "버튼 이름 그대로 읽습니다."
 
+- id: preview.restart.notice
+  where: "첫 풀이 화면(preview): 다시 입력할 때의 안내"
+  purpose: guide
+  user_state: "입력을 고쳐 다시 보려 합니다. 미리보기는 설치당 한 번입니다(D86 ⑤)."
+  structure: "한 문장. 막는 말(한 번만 볼 수 있어요) 대신 로그인을 권합니다(D86 ⑤, W36, R15-13)."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: 52, en: 90, ja: 38}
+  keys:
+    - previewRestartNotice
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: previewRestartNotice, text: "다시 입력한 정보로 풀이를 보려면 로그인해 보세요.", why: "라운드 R15 선택", source: writing}
+    bad: []
+  endings: ["~해 보세요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
 - id: preview.share.login-notice
   where: "첫 풀이 화면(preview): 로그인하면 공유할 수 있다는 안내 창"
   purpose: guide
