@@ -692,5 +692,26 @@
     ],
     "status": "chosen",
     "note": "목록은 날짜 하나에 카드 하나(A안, B안 카드 여러 장은 버림). 줄 사이는 사용자가 고른 점선(실선과 같은 1px, 대시 4·간격 3). 10편 채운 날 입구는 disabled + writing Full 문구"
+  },
+  {
+    "id": "design-v2-account-merge-purchase",
+    "title": "계정 합치기 두 단계·구매 내역 (D85·D88)",
+    "kind": "concept",
+    "file": "2026-10-23-v2-account-merge-purchase.png",
+    "source": "2026-10-23-v2-account-merge-purchase.html",
+    "date": "2026-10-23",
+    "milestone": "V2",
+    "screens": [
+      "login-methods",
+      "account-merge",
+      "ad-free",
+      "purchase-history"
+    ],
+    "decisions": [
+      "V44",
+      "V45"
+    ],
+    "status": "chosen",
+    "note": "한 화면 두 단계, 가져올 기록 상자는 고르기 밖, 합치지 않기 버튼 없이 뒤로 가기. 구매 줄은 상품 이름이 먼저(#502), 사용 중만 꼬리표"
   }
 ]
