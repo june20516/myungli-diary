@@ -37,7 +37,7 @@
 ## 현재 진행 순서 (2026-10-22 기준, app 계획 6 완료 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #412·#420·#428(IA 생성 코드 `ia.g.dart`, PR #411·#423), design #395·#414·#421·#427(`account-choice` 명세 없음과 `primary-button` 사용처, PR #390·#411), writing #426(생성 ARB, PR #423)입니다. 같은 단위의 drift는 원인이 같아 한 PR에서 함께 닫습니다. writing #413은 PR #416으로 끝났습니다. design과 writing의 drift는 그 단위 자기 PR의 계약 테스트를 막으므로 가장 먼저 합니다. server·app·design이 쓰는 `mlw check`는 통과해 다른 단위는 막지 않습니다. 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림).
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #412(IA 생성 코드 `ia.g.dart`, 원인 PR #411·#419·#423), design #395(`account-choice` 명세 없음과 `primary-button` 사용처, 원인 PR #390·#411·#419·#423), writing #426(생성 ARB, PR #423)입니다. 단위마다 열린 drift는 하나이고, 따라잡기 전에 계약이 또 바뀌면 그 Issue에 원인 PR이 더해집니다(PR #430). writing #413은 PR #416으로 끝났습니다. design과 writing의 drift는 그 단위 자기 PR의 계약 테스트를 막으므로 가장 먼저 합니다. server·app·design이 쓰는 `mlw check`는 통과해 다른 단위는 막지 않습니다. 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림).
 * **검사 범위·시점 정리(D81) 완료:** 지휘 몫(PR #357·#366)과 다섯 단위 몫(app #364, core #365, server #368, writing #369, design #371)이 끝났고, `ci-gate`가 모든 단위에 `mode`를 넘깁니다(#366·#367·#370·#373). 캐시·건너뛰기는 D81 ⑥을 따릅니다.
 * **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
@@ -50,7 +50,7 @@
 | 지금 | writing | drift #426(`mlw gen-docs`, PR #419에서 함께 해도 됨) → D82 슬롯 원고(#388)와 D83 역할 바뀐 슬롯 원고(#409, PR #419)와 10편 상한 문구(#425) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #304(`GetBirthHour`가 성별 미지정을 받게, 막지 않음), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | server S69 되돌림 |
-| 다음 | design | drift #395·#414 = #389의 `account-choice` 명세(자기 PR을 막음, 가장 먼저) → app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 `social-login-button` LINE·Google 변형과 `account-choice`(#389), D83 `diary-row` 같은 날 여러 편 표시(#410)는 app #387·#408 화면 전에 | - |
+| 다음 | design | drift #395 = #389의 `account-choice` 명세와 `primary-button` 사용처(자기 PR을 막음, 가장 먼저) → app 요청 #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. D82 `social-login-button` LINE·Google 변형과 `account-choice`(#389), D83 `diary-row` 같은 날 여러 편 표시(#410)는 app #387·#408 화면 전에 | - |
 
 ## 외부 준비물
 | 항목 | 필요한 시점 | 담당 |
