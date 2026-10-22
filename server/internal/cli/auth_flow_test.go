@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -52,6 +53,8 @@ type flowEnv struct {
 	client *http.Client
 	fake   *providertest.Server
 	clk    *clocktest.Fake
+	// pool은 server와 같은 DB입니다. 응답으로 보이지 않는 저장 상태를 확인할 때 씁니다.
+	pool *pgxpool.Pool
 }
 
 // newFlowEnv는 serve와 같은 조립(newServer)으로 server를 띄웁니다. 제공자 주소만 providertest 대역으로 바꿉니다.
@@ -95,7 +98,7 @@ func newFlowEnvWith(t *testing.T, customize func(*serverDeps)) *flowEnv {
 
 	srv := httptest.NewServer(handler)
 	t.Cleanup(srv.Close)
-	return &flowEnv{t: t, url: srv.URL, client: srv.Client(), fake: fake, clk: clk}
+	return &flowEnv{t: t, url: srv.URL, client: srv.Client(), fake: fake, clk: clk, pool: deps.Pool}
 }
 
 // flowAuthConfig는 providertest 대역의 앱 키·Apple ID를 쓰는 인증 설정을 만듭니다.
@@ -283,45 +286,38 @@ func TestAuthFlow_KakaoLoginConsentMeRefreshLogout(t *testing.T) {
 		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 }
 
-// TODO(PR 2): 즉시 삭제로 바뀌면 이 테스트를 지우고 "삭제 뒤 같은 인증 계정 로그인은 새 유저 계정" 테스트로 다시 씁니다.
-func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
+// 계정을 지우면 그 access·refresh token은 바로 못 쓰고, 같은 인증 계정으로 다시 로그인하면 새 유저 계정입니다(S105).
+func TestAuthFlow_DeleteThenLoginCreatesNewAccount(t *testing.T) {
 	env := newFlowEnv(t)
 
 	login := env.loginAppleNative("apple-flow-subject")
 	require.Equal(t, http.StatusOK, login.status, "로그인 본문: %v", login.body)
 	access, refresh := login.tokens(t)
+	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
+	require.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
+	before := env.do(http.MethodGet, "/v1/me", access, nil)
+	require.Equal(t, http.StatusOK, before.status, "me 본문: %v", before.body)
 
 	deleted := env.do(http.MethodDelete, "/v1/me", access, nil)
 	require.Equal(t, http.StatusNoContent, deleted.status, "삭제 본문: %v", deleted.body)
 
-	// 삭제 대기 중에도 같은 access token으로 내 정보는 볼 수 있지만(복구 안내), 기능 라우트는 막힙니다.
-	pending := env.do(http.MethodGet, "/v1/me", access, nil)
-	require.Equal(t, http.StatusOK, pending.status, "삭제 대기 me 본문: %v", pending.body)
-	assert.NotContains(t, pending.body, "status")
-	env.do(http.MethodGet, "/v1/chart", access, nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
-
-	// 삭제 예약 뒤 로그인 때 받은 Apple refresh token을 revoke합니다.
-	revokes := env.fake.AppleRevokeRequests()
-	require.Len(t, revokes, 1, "Apple revoke 호출 수")
-	assert.Equal(t, providertest.AppleRefreshToken, revokes[0].Form.Get("token"))
-
-	// 삭제 예약이 세션을 모두 끝냈으므로 이전 refresh token은 쓸 수 없습니다.
+	env.do(http.MethodGet, "/v1/me", access, nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).
 		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 
-	// 유예 기간 안에 같은 subject로 다시 로그인하면 계정이 되살아납니다.
-	restored := env.loginAppleNative("apple-flow-subject")
-	require.Equal(t, http.StatusOK, restored.status, "재로그인 본문: %v", restored.body)
-	assert.Equal(t, false, restored.body["isNewAccount"])
-	access2, _ := restored.tokens(t)
+	// 로그인 때 받은 Apple refresh token은 허가 취소 대기 행으로 남습니다.
+	var queued int
+	require.NoError(t, env.pool.QueryRow(t.Context(), `SELECT count(*) FROM provider_revocations WHERE provider = 'apple'`).Scan(&queued))
+	assert.Equal(t, 1, queued)
 
+	again := env.loginAppleNative("apple-flow-subject")
+	require.Equal(t, http.StatusOK, again.status, "재로그인 본문: %v", again.body)
+	assert.Equal(t, true, again.body["isNewAccount"])
+	assert.Equal(t, true, again.body["consentRequired"], "새 유저 계정은 약관 동의부터 합니다")
+	access2, _ := again.tokens(t)
 	me := env.do(http.MethodGet, "/v1/me", access2, nil)
 	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
-	assert.NotContains(t, me.body, "status")
-
-	// 복구는 삭제 전 세션을 되살리지 않습니다.
-	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).
-		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
+	assert.NotEqual(t, before.body["accountId"], me.body["accountId"])
 }
 
 // postAppleCallback은 Apple 웹 콜백(form_post)을 보내고 redirect를 따라가지 않은 응답을 돌려줍니다.

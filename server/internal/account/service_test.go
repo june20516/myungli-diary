@@ -1,12 +1,8 @@
 package account_test
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"log/slog"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -25,48 +21,48 @@ import (
 
 var testNow = time.Date(2026, 10, 13, 9, 0, 0, 0, time.UTC)
 
-// fakeSessions는 SessionEnder 대역입니다. 호출 횟수를 세고 지정한 오류를 돌려줍니다.
-type fakeSessions struct {
-	revokeCalls     atomic.Int32
-	disconnectCalls atomic.Int32
-	disconnectErr   error
-	revokeErr       error
-	// onRevoke가 있으면 RevokeAllSessions 시작 때 불립니다(호출자 ctx 취소 시뮬레이션).
-	onRevoke func()
-	// ctxErrs는 두 함수가 받은 ctx의 Err() 기록입니다.
-	mu      sync.Mutex
-	ctxErrs []error
+// revokerCall은 fakeRevoker가 받은 호출 하나입니다.
+type revokerCall struct {
+	ids []int64
+	// ctxErr는 받은 ctx의 Err()입니다.
+	ctxErr error
 }
 
-func (f *fakeSessions) recordCtx(ctx context.Context) {
+// fakeRevoker는 Revoker 대역입니다. 받은 호출을 기록합니다.
+type fakeRevoker struct {
+	mu       sync.Mutex
+	recorded []revokerCall
+	// beforeAttempt가 있으면 ctx를 기록하기 전에 불립니다(호출자 ctx 취소 시뮬레이션).
+	beforeAttempt func()
+	// onAttempt가 있으면 호출을 기록한 뒤 불립니다.
+	onAttempt func(ids []int64)
+}
+
+func (f *fakeRevoker) Attempt(ctx context.Context, ids []int64) {
+	if f.beforeAttempt != nil {
+		f.beforeAttempt()
+	}
+	f.mu.Lock()
+	f.recorded = append(f.recorded, revokerCall{ids: ids, ctxErr: ctx.Err()})
+	f.mu.Unlock()
+	if f.onAttempt != nil {
+		f.onAttempt(ids)
+	}
+}
+
+func (f *fakeRevoker) calls() []revokerCall {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	f.ctxErrs = append(f.ctxErrs, ctx.Err())
-}
-
-func (f *fakeSessions) RevokeAllSessions(ctx context.Context, _ uuid.UUID) error {
-	f.revokeCalls.Add(1)
-	if f.onRevoke != nil {
-		f.onRevoke()
-	}
-	f.recordCtx(ctx)
-	return f.revokeErr
-}
-
-func (f *fakeSessions) DisconnectProviders(ctx context.Context, _ uuid.UUID) error {
-	f.disconnectCalls.Add(1)
-	f.recordCtx(ctx)
-	return f.disconnectErr
+	return append([]revokerCall(nil), f.recorded...)
 }
 
 type fixture struct {
-	ctx      context.Context
-	pool     *pgxpool.Pool
-	clk      *clocktest.Fake
-	sessions *fakeSessions
-	logs     *bytes.Buffer
-	service  *account.Service
-	id       uuid.UUID
+	ctx     context.Context
+	pool    *pgxpool.Pool
+	clk     *clocktest.Fake
+	revoker *fakeRevoker
+	service *account.Service
+	id      uuid.UUID
 }
 
 // newFixture는 active 계정 하나(last_active_at = testNow)를 가진 서비스를 만듭니다.
@@ -75,16 +71,15 @@ func newFixture(t *testing.T) *fixture {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 	clk := clocktest.New(testNow)
-	sessions := &fakeSessions{}
-	logs := &bytes.Buffer{}
+	revoker := &fakeRevoker{}
 
 	id, err := uuid.NewV7()
 	require.NoError(t, err)
 	require.NoError(t, authdb.New(pool).CreateAccount(ctx, authdb.CreateAccountParams{ID: id, LastActiveAt: testNow}))
 
 	return &fixture{
-		ctx: ctx, pool: pool, clk: clk, sessions: sessions, logs: logs, id: id,
-		service: account.NewService(pool, sessions, clk, slog.New(slog.NewTextHandler(logs, nil))),
+		ctx: ctx, pool: pool, clk: clk, revoker: revoker, id: id,
+		service: account.NewService(pool, revoker, clk),
 	}
 }
 
@@ -97,8 +92,13 @@ func (f *fixture) lastActiveAt(t *testing.T) time.Time {
 
 func (f *fixture) status(t *testing.T) string {
 	t.Helper()
+	return f.statusOf(t, f.id)
+}
+
+func (f *fixture) statusOf(t *testing.T, id uuid.UUID) string {
+	t.Helper()
 	var got string
-	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT status FROM accounts WHERE id = $1`, f.id).Scan(&got))
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT status FROM accounts WHERE id = $1`, id).Scan(&got))
 	return got
 }
 
@@ -212,88 +212,6 @@ func TestAgreeConsents_BumpedVersionRequiresAgain(t *testing.T) {
 	assert.False(t, after.ConsentRequired)
 }
 
-func TestRequestDeletion_SchedulesAndEndsSessions(t *testing.T) {
-	f := newFixture(t)
-
-	got, err := f.service.RequestDeletion(f.ctx, f.id)
-
-	require.NoError(t, err)
-	assert.True(t, testNow.Add(30*24*time.Hour).Equal(got))
-	assert.Equal(t, "pending_deletion", f.status(t))
-	assert.EqualValues(t, 1, f.sessions.revokeCalls.Load())
-	assert.EqualValues(t, 1, f.sessions.disconnectCalls.Load())
-
-	access, err := f.service.Access(f.ctx, f.id)
-	require.NoError(t, err)
-	assert.Equal(t, account.StatusPendingDeletion, access.Status)
-	require.NotNil(t, access.DeletionScheduledAt)
-	assert.True(t, got.Equal(*access.DeletionScheduledAt))
-}
-
-func TestRequestDeletion_IsIdempotent(t *testing.T) {
-	f := newFixture(t)
-	// 나노초가 있는 시각이어도 첫 호출과 재호출(DB 값)의 정밀도가 같아야 합니다.
-	f.clk.Set(testNow.Add(123456789 * time.Nanosecond))
-	first, err := f.service.RequestDeletion(f.ctx, f.id)
-	require.NoError(t, err)
-
-	f.clk.Advance(48 * time.Hour)
-	second, err := f.service.RequestDeletion(f.ctx, f.id)
-
-	require.NoError(t, err)
-	assert.True(t, first.Equal(second), "기존 예정일을 그대로 돌려줍니다")
-	assert.EqualValues(t, 1, f.sessions.revokeCalls.Load())
-	assert.EqualValues(t, 1, f.sessions.disconnectCalls.Load())
-}
-
-func TestRequestDeletion_ConcurrentCallsEndSessionsOnce(t *testing.T) {
-	f := newFixture(t)
-
-	const callers = 5
-	results := make([]time.Time, callers)
-	errs := make([]error, callers)
-	var wg sync.WaitGroup
-	for i := range callers {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			results[i], errs[i] = f.service.RequestDeletion(f.ctx, f.id)
-		}()
-	}
-	wg.Wait()
-
-	for i := range callers {
-		require.NoError(t, errs[i])
-		assert.True(t, results[0].Equal(results[i]))
-	}
-	assert.EqualValues(t, 1, f.sessions.revokeCalls.Load())
-	assert.EqualValues(t, 1, f.sessions.disconnectCalls.Load())
-}
-
-func TestRequestDeletion_SessionEndFailureStillSchedules(t *testing.T) {
-	f := newFixture(t)
-	f.sessions.disconnectErr = errors.New("kakao unlink 실패")
-
-	got, err := f.service.RequestDeletion(f.ctx, f.id)
-
-	require.NoError(t, err)
-	assert.True(t, testNow.Add(30*24*time.Hour).Equal(got))
-	assert.Equal(t, "pending_deletion", f.status(t))
-	assert.Contains(t, f.logs.String(), "level=WARN")
-	assert.Contains(t, f.logs.String(), f.id.String())
-	assert.Contains(t, f.logs.String(), "*errors.errorString")
-	assert.NotContains(t, f.logs.String(), "kakao unlink 실패", "오류 문구는 남기지 않습니다")
-}
-
-func TestRequestDeletion_UnknownAccountIsNotFound(t *testing.T) {
-	f := newFixture(t)
-
-	_, err := f.service.RequestDeletion(f.ctx, uuid.New())
-
-	assert.ErrorIs(t, err, account.ErrNotFound)
-	assert.Zero(t, f.sessions.revokeCalls.Load())
-}
-
 func TestAccess_UnknownAccountIsNotFound(t *testing.T) {
 	f := newFixture(t)
 
@@ -302,29 +220,4 @@ func TestAccess_UnknownAccountIsNotFound(t *testing.T) {
 
 	_, err = f.service.Me(f.ctx, uuid.New())
 	assert.ErrorIs(t, err, account.ErrNotFound)
-}
-
-func TestRequestDeletion_RevokeFailureStillDisconnectsAndSchedules(t *testing.T) {
-	f := newFixture(t)
-	f.sessions.revokeErr = errors.New("revoke 실패")
-
-	_, err := f.service.RequestDeletion(f.ctx, f.id)
-
-	require.NoError(t, err)
-	assert.Equal(t, "pending_deletion", f.status(t))
-	assert.EqualValues(t, 1, f.sessions.disconnectCalls.Load())
-	assert.Contains(t, f.logs.String(), "level=WARN")
-}
-
-func TestRequestDeletion_EndSessionsIgnoresCallerCancellation(t *testing.T) {
-	f := newFixture(t)
-	ctx, cancel := context.WithCancel(f.ctx)
-	defer cancel()
-	f.sessions.onRevoke = cancel // commit 직후 호출자가 떠난 상황
-
-	_, err := f.service.RequestDeletion(ctx, f.id)
-
-	require.NoError(t, err)
-	assert.Equal(t, []error{nil, nil}, f.sessions.ctxErrs, "정리 함수는 취소되지 않은 ctx를 받습니다")
-	assert.Empty(t, f.logs.String())
 }

@@ -61,6 +61,18 @@ func TestWriteHandlerError_BearerChallengeAddsHeader(t *testing.T) {
 	assert.Equal(t, `Bearer error="invalid_token"`, rec.Header().Get("WWW-Authenticate"))
 }
 
+// 삭제 중이던 계정에 쓰다 DB trigger에 막힌 오류는 deleted 계정 토큰과 같은 401 auth.token_invalid입니다.
+func TestWriteHandlerError_AccountDeletedWriteIs401(t *testing.T) {
+	err := fmt.Errorf("일기 저장: %w", &pgconn.PgError{Code: account.SQLStateAccountDeleted, Message: "account is deleted"})
+
+	rec, p, logs := serveHandlerError(t, err)
+
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	assert.Equal(t, "auth.token_invalid", p.Code)
+	assert.Equal(t, `Bearer error="invalid_token"`, rec.Header().Get("WWW-Authenticate"))
+	assert.Empty(t, logs, "사용자 요청의 정상 결과라 오류 로그를 남기지 않습니다")
+}
+
 func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
 	original := domainErrors
 	domainErrors = append([]domainError{{target: errTestSentinel, code: problem.Code{Value: "auth.test", Status: http.StatusUnauthorized}, title: "Test"}}, original...)

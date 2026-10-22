@@ -110,11 +110,12 @@ func (f *fakeAuth) Logout(_ context.Context, id uuid.UUID, raw string) error {
 
 // fakeAccounts는 AccountService 대역입니다.
 type fakeAccounts struct {
-	me          account.Me
-	scheduledAt time.Time
-	err         error
-	agreeErr    error
-	gotDocs     []account.ConsentDocument
+	me       account.Me
+	err      error
+	agreeErr error
+	gotDocs  []account.ConsentDocument
+	// deleted는 Delete가 받은 계정 id입니다.
+	deleted []uuid.UUID
 }
 
 func (f *fakeAccounts) Me(context.Context, uuid.UUID) (account.Me, error) { return f.me, f.err }
@@ -124,8 +125,9 @@ func (f *fakeAccounts) AgreeConsents(_ context.Context, _ uuid.UUID, docs []acco
 	return f.agreeErr
 }
 
-func (f *fakeAccounts) RequestDeletion(context.Context, uuid.UUID) (time.Time, error) {
-	return f.scheduledAt, f.err
+func (f *fakeAccounts) Delete(_ context.Context, id uuid.UUID) error {
+	f.deleted = append(f.deleted, id)
+	return f.err
 }
 
 // fakeProfiles는 ProfileService 대역입니다. 받은 인자를 기록하고 정해 둔 결과를 돌려줍니다.

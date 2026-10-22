@@ -98,7 +98,8 @@ var domainErrors = []domainError{
 }
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
-// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422), domainErrors 표, DB 연결 실패(503), 그 밖(500).
+// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422),
+// 지운 계정 쓰기(401 auth.token_invalid), domainErrors 표, DB 연결 실패(503), 그 밖(500).
 // 프로필 저장, 음력 변환, 데일리·달력(핸들러가 직접 422로 바꿈) 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
 func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
 	if errors.Is(err, ErrNotImplemented) {
@@ -129,6 +130,12 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
 		p.Errors = explicit.Errors
 		writeProblem(w, r, p, explicit.BearerChallenge, explicit.RetryAfter)
+		return
+	}
+
+	// 삭제 중이던 계정에 쓰려다 DB trigger에 막혔습니다. 미들웨어가 deleted 계정에 주는 응답과 같습니다.
+	if account.IsAccountDeletedError(err) {
+		writeTokenInvalid(w, r)
 		return
 	}
 

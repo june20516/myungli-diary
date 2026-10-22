@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/idempotencydb"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
@@ -146,7 +147,8 @@ func (s *PgIdempotencyStore) Release(ctx context.Context, accountID uuid.UUID, k
 //   - 요청 지문(메서드·경로·본문의 SHA-256)이 다르면 422 idempotency.mismatch입니다.
 //   - 첫 요청이 처리 중이면 409 idempotency.in_progress, 끝났으면 저장한 응답을 그대로 다시 보냅니다.
 //
-// 저장소 오류는 응답 본문 없이 panic으로 올려 recoverPanic이 로그(본문 제외)와 500으로 처리하게 합니다.
+// 삭제 중이던 계정이라 키를 선점하지 못하면 401 auth.token_invalid입니다.
+// 그 밖의 저장소 오류는 응답 본문 없이 panic으로 올려 recoverPanic이 로그(본문 제외)와 500으로 처리하게 합니다.
 func Idempotency(store IdempotencyStore, clk clock.Clock, log *slog.Logger, operations ...string) func(op Operation, next http.Handler) http.Handler {
 	return func(op Operation, next http.Handler) http.Handler {
 		if !slices.Contains(operations, op.ID) {
@@ -179,6 +181,11 @@ func serveIdempotent(store IdempotencyStore, clk clock.Clock, log *slog.Logger, 
 
 	claimed, existing, err := store.Claim(r.Context(), accountID, key, hash, clk.Now())
 	if err != nil {
+		if account.IsAccountDeletedError(err) {
+			// 삭제 중이던 계정이라 키를 선점하지 못했습니다. 미들웨어가 deleted 계정에 주는 응답과 같습니다.
+			writeTokenInvalid(w, r)
+			return
+		}
 		if errors.Is(err, context.Canceled) {
 			// Claim 전에 클라이언트가 끊었습니다. 경보가 되지 않게 조용히 연결을 닫습니다.
 			panic(http.ErrAbortHandler)

@@ -2,6 +2,7 @@ package httpapi_test
 
 import (
 	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -29,7 +30,13 @@ type realAuth struct {
 	pool     *pgxpool.Pool
 	auth     *auth.Service
 	accounts *account.Service
+	access   *token.AccessIssuer
 }
+
+// noopRevoker는 허가 취소를 시도하지 않는 account.Revoker 대역입니다.
+type noopRevoker struct{}
+
+func (noopRevoker) Attempt(context.Context, []int64) {}
 
 func newRealAuth(t *testing.T) realAuth {
 	t.Helper()
@@ -42,7 +49,7 @@ func newRealAuth(t *testing.T) realAuth {
 	box, err := secretbox.New(secretbox.Key{ID: "b1", Bytes: bytes.Repeat([]byte{7}, 32)}, nil)
 	require.NoError(t, err)
 	authService := auth.NewService(pool, auth.ServiceDeps{Access: access, Box: box, Clock: clk})
-	return realAuth{pool: pool, auth: authService, accounts: account.NewService(pool, authService, clk, nil)}
+	return realAuth{pool: pool, auth: authService, accounts: account.NewService(pool, noopRevoker{}, clk), access: access}
 }
 
 // countTestIdentities는 provider test 연결 수입니다.

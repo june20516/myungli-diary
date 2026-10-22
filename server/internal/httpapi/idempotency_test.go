@@ -345,6 +345,20 @@ func TestIdempotency_CompleteFailureKeepsRowAndLogs(t *testing.T) {
 	assert.Equal(t, 1, env.count(t, "schedules"))
 }
 
+// 삭제 중이던 계정이라 키 선점이 DB trigger에 막히면 401 auth.token_invalid이고 행을 남기지 않습니다.
+func TestIdempotency_DeletedAccountClaimIs401(t *testing.T) {
+	env := newIdempotencyEnv(t)
+	_, err := env.pool.Exec(t.Context(), `UPDATE accounts SET status = 'deleted', deleted_at = now(),
+		deletion_requested_at = now(), anonymized_at = now() WHERE id = $1`, env.accounts["a"])
+	require.NoError(t, err)
+
+	rec := env.post(t, "key-1", "a", createBody)
+
+	expectBearerFailure(t, rec, "auth.token_invalid")
+	assert.Zero(t, env.count(t, "idempotency_keys"))
+	assert.Zero(t, env.count(t, "schedules"))
+}
+
 // 본문 읽기 중 MaxBytesReader 상한을 넘으면 413 request.too_large이고, 핸들러도 표도 건드리지 않습니다.
 // (전체 체인에서는 계약 검증이 먼저 같은 오류를 내므로, 멱등 층만 떼어 그 경로를 직접 확인합니다.)
 func TestIdempotency_BodyTooLargeReturns413WithoutRow(t *testing.T) {

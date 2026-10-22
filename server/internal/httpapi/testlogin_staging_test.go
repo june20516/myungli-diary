@@ -78,7 +78,7 @@ func TestLogin_TestLoginIssuesLoginResponse(t *testing.T) {
 	first := f.login(t, "e2e01")
 	assert.Equal(t, true, first["isNewAccount"])
 	assert.Equal(t, true, first["consentRequired"], "새 계정은 약관 동의가 필요합니다")
-	assert.Equal(t, false, first["restoredFromDeletion"])
+	assert.NotContains(t, first, "restoredFromDeletion", "계약 draft.15에서 없어진 필드입니다")
 	accountID := f.accountOf(t, "e2e01")
 
 	again := f.login(t, "e2e01")
@@ -177,8 +177,10 @@ func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
 	f := newTestLoginFixture(t)
 	f.login(t, "e2e01")
 	accountID := f.accountOf(t, "e2e01")
-	_, err := f.accounts.RequestDeletion(t.Context(), accountID)
+	// 삭제 예약 API는 없어졌으므로(S105) 남은 삭제 대기 계정을 SQL로 만들고 그 뒷정리를 직접 부릅니다.
+	_, err := f.pool.Exec(t.Context(), `UPDATE accounts SET status = 'pending_deletion', deletion_requested_at = now() WHERE id = $1`, accountID)
 	require.NoError(t, err)
+	require.NoError(t, f.auth.DisconnectProviders(t.Context(), accountID))
 	var disconnected bool
 	require.NoError(t, f.pool.QueryRow(t.Context(),
 		`SELECT provider_disconnected_at IS NOT NULL FROM auth_identities WHERE account_id = $1`, accountID).Scan(&disconnected))
@@ -186,7 +188,7 @@ func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
 
 	body := f.login(t, "e2e01")
 
-	assert.Equal(t, true, body["restoredFromDeletion"])
+	assert.NotContains(t, body, "restoredFromDeletion", "계약 draft.15에서 없어진 필드입니다")
 	assert.Equal(t, false, body["isNewAccount"])
 	assert.Equal(t, accountID, f.accountOf(t, "e2e01"))
 }

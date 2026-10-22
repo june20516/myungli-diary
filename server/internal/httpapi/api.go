@@ -48,7 +48,8 @@ type AuthService interface {
 type AccountService interface {
 	Me(ctx context.Context, id uuid.UUID) (account.Me, error)
 	AgreeConsents(ctx context.Context, id uuid.UUID, docs []account.ConsentDocument) error
-	RequestDeletion(ctx context.Context, id uuid.UUID) (time.Time, error)
+	// Delete는 계정을 바로 지웁니다. 이미 지운 계정이면 아무것도 하지 않습니다.
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 // ProfileService는 핸들러가 쓰는 프로필 서비스입니다. *profile.Service가 만족합니다.

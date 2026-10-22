@@ -77,14 +77,14 @@ func (a *API) AgreeConsents(ctx context.Context, req gen.AgreeConsentsRequestObj
 	return gen.AgreeConsents204Response{}, nil
 }
 
-// DeleteMe는 계정 삭제를 요청하고 본문 없이 204로 답합니다.
-// 즉시 삭제는 아직 없고 지금은 삭제 예약(RequestDeletion)을 그대로 부릅니다. 응답 모양만 계약(draft.15)에 맞춥니다.
+// DeleteMe는 계정의 개인 데이터를 바로 지우고 본문 없이 204로 답합니다(S105).
+// 허가 취소의 성공 여부와 상관없이 204이고, 그 뒤 같은 access token은 401입니다.
 func (a *API) DeleteMe(ctx context.Context, _ gen.DeleteMeRequestObject) (gen.DeleteMeResponseObject, error) {
 	id, _, ok := AccountFrom(ctx)
 	if !ok {
 		return nil, errNoAccount
 	}
-	if _, err := a.Accounts.RequestDeletion(ctx, id); err != nil {
+	if err := a.Accounts.Delete(ctx, id); err != nil {
 		return nil, err
 	}
 	return gen.DeleteMe204Response{}, nil

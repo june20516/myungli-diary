@@ -490,8 +490,8 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Clock:       deps.Clock,
 		Logger:      deps.Logger,
 	})
-	// 계정 삭제 예약 뒤 세션 폐기와 제공자 연결 해제는 auth 서비스가 맡습니다.
-	accountService := account.NewService(deps.Pool, authService, deps.Clock, deps.Logger)
+	// 계정 삭제가 남긴 허가 취소 대기 행은 아직 바로 시도하지 않고 쌓아 둡니다(재시도 조립 전까지).
+	accountService := account.NewService(deps.Pool, queueOnlyRevoker{}, deps.Clock)
 
 	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
 
@@ -590,3 +590,10 @@ func serveHTTP(ctx context.Context, listener net.Listener, handler http.Handler,
 	}
 	return nil
 }
+
+// queueOnlyRevoker는 허가 취소 대기 행을 시도하지 않는 account.Revoker입니다.
+// 허가 취소 재시도(S106)를 조립하기 전까지 대기 행은 provider_revocations에 남습니다.
+type queueOnlyRevoker struct{}
+
+// Attempt는 아무것도 하지 않습니다.
+func (queueOnlyRevoker) Attempt(context.Context, []int64) {}
