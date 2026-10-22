@@ -88,9 +88,10 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 * 상한을 채운 날의 시험용 fake 시나리오 `diary-day-full`(오늘 일기 10편)을 둡니다.
 
 **일기 줄**
+모양은 §13(A72)이 대신합니다. 아래 불릿의 "지금 `diary-row`"는 §13의 줄·묶음 카드로 읽습니다.
 * `today`: 가이드 질문 카드 아래에 오늘 쓴 일기의 `diary-row`를 작성 순으로 둡니다. 누르면 `diary-view?id=`. 0편이면 줄이 없습니다.
 * `day-sheet`: 그날 일기가 있으면 머리 `daySheetDiaryOpen(count)`(동작 링크가 아님) 아래에 `diary-row`를 작성 순으로 두고, 그 아래 쓰기 버튼입니다. 미래 날은 일기 입구가 없습니다(D49, 그대로).
-* `diary-list`·`tag-diary`: server 순서(날짜 내림차순, 같은 날 작성 순)대로 지금 `diary-row`를 이어 그립니다. 줄마다 날짜를 보이므로 같은 날 여러 편도 구분됩니다. 날짜 아래 묶음 모양은 design #410 답에 맞춰 바꿉니다. 한 날짜가 두 쪽에 나뉘어도 줄 단위라 그대로 이어집니다.
+* `diary-list`·`tag-diary`: server 순서(날짜 내림차순, 같은 날 작성 순)대로 지금 `diary-row`를 이어 그립니다. 줄마다 날짜를 보이므로 같은 날 여러 편도 구분됩니다. 같은 날은 §13의 묶음 카드 하나로 그리고, 한 날짜가 두 쪽에 나뉘면 다음 쪽을 받을 때 같은 묶음 카드가 커집니다.
 * `diary-row`의 배지·그날 성격은 지금처럼 달 길흉 캐시에서 읽습니다(A46).
 
 ## 7. 달력 도장 (결정 A70)
@@ -146,7 +147,7 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 **생성물:** `gen_ia`·`gen_tokens`·`gen-l10n` 재생성. 토큰 `color.timeline.entry`가 생깁니다.
 
 **`diary-row` 컴포넌트**(`lib/design/components/diary/diary_row.dart`)
-* 줄 하나 `DiaryEntryLine`(명세 `entry`): 시각·한 줄 미리보기·꺾쇠, 누르면 그 일기. 시각은 `createdAt`을 기기 시간대로 바꿔 `DateFormat.jm(localeName)`로 만듭니다(설정·프로필 화면과 같은 형식). 본문이 비면 한 줄 높이를 지키고 스크린리더는 시각만 읽습니다.
+* 줄 하나 `DiaryEntryLine`(명세 `entry`): 시각·한 줄 미리보기·꺾쇠, 누르면 그 일기. 시각은 `createdAt`을 기기 시간대로 바꿔 `DateFormat.jm(locale)`로 만듭니다. `locale`은 `Localizations.localeOf(context).toLanguageTag()`입니다. 미리보기는 화면도 스크린리더도 본문의 첫 비지 않은 줄입니다(앞의 빈 줄은 건너뜀). 본문이 비면 한 줄 높이를 지키고 스크린리더는 시각만 읽습니다.
 * 점선은 줄과 줄 사이에만, 줄 전체 너비로 그립니다(`CustomPainter`, 대시 4·간격 3, 1px).
 * `day` 묶음 카드: 그날 일기가 한 편이면 지금 `DiaryRow` 그대로, 두 편 이상이면 같은 카드에 배지 → entry 줄들 → 태그 칩. 카드는 버튼이 아니고 `Semantics` 그룹("날짜 요일, 배지")입니다. 흐름 줄은 카드 높이만큼 이어집니다.
 * `entries`: entry 줄만. 화면별 바탕(`today` 카드, `day-sheet` 없음)과 `day-sheet` 머리는 명세 `entries.parts.container.byScreen`·`head` 값입니다. 받는 동안은 줄 두 개 높이 skeleton.
@@ -158,7 +159,7 @@ D47 ②(오프라인은 로컬 초안만)와 A48 규칙은 그대로이고, 초�
 * `day-sheet`: 머리(`daySheetDiaryOpen(count)`, 명세 `head` 글자 스타일, 링크 아님) → `entries`(바탕 없음) → 쓰기 버튼. 0편이면 버튼만.
 * 오늘·그날 시트의 줄에는 태그 칩이 없으므로 §6의 "표시용 태그 칩" 처리(`tagLinked: false`)는 entries에서 사라집니다. 목록의 묶음 카드 태그 칩은 지금처럼 `tag-diary`로 갑니다.
 
-**`guide-question-card` `full`:** `GuideQuestionState.full`을 더합니다. `after` 모양(질문 흐림, 도장 유지)에 조용한 버튼 `disabled`(글자 `disabled.fg`, 명세 값). 눌러도 아무 일 없고 햅틱도 없습니다. 상태 낭독은 `after`와 같은 `todayGuideWritten`이고, 이유는 버튼 글자(`todayGuideCtaFull`)가 말합니다(새 ARB 키 없음). §6의 "`onAction` null이면 비활성(opacity 0.4)"는 이 상태로 바뀝니다.
+**`guide-question-card` `full`:** `GuideQuestionState.full`을 더합니다. `after` 모양(질문 흐림, 도장 유지)에 조용한 버튼 `disabled`(글자 `disabled.fg`, 명세 값). 눌러도 아무 일 없고 햅틱도 없습니다. `after`에서 `full`이 되는 순간에는 "더 쓸 수 없음"(명세 a11y `stateAnnounced`)을 기존 `todayGuideCtaFull`로 한 번 낭독하고(`before`에서 곧바로 `full`이면 `todayGuideWritten`에 이어 읽음), `full`로 다시 그릴 때와 처음부터 `full`일 때는 낭독하지 않습니다(새 ARB 키 없음, 도장 애니메이션은 `before`→쓴 모양에서만). §6의 "`onAction` null이면 비활성(opacity 0.4)"는 이 상태로 바뀝니다.
 
 **`date-picker` `calendar`:** 상한을 채운 날도 고를 수 있고, 아래 버튼만 `disabled` + `diaryListPickDateConfirmFull`입니다(§6 표와 같음, 확인만).
 
