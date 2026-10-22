@@ -11,16 +11,25 @@ import (
 )
 
 type Querier interface {
+	// AccountHasProvider는 계정에 그 제공자 연결이 이미 있는지 알려 줍니다(한 계정에 제공자마다 연결 하나).
+	AccountHasProvider(ctx context.Context, arg AccountHasProviderParams) (bool, error)
 	ClearProviderDisconnected(ctx context.Context, accountID uuid.UUID) error
 	// ConsumeAppleWebLogin은 아직 소진되지 않은 행만 소진 처리합니다. 바뀐 행 수가 0이면 이미 소진된 것입니다.
 	ConsumeAppleWebLogin(ctx context.Context, arg ConsumeAppleWebLoginParams) (int64, error)
+	CountIdentities(ctx context.Context, accountID uuid.UUID) (int64, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) error
 	CreateIdentity(ctx context.Context, arg CreateIdentityParams) error
+	// DeleteIdentity는 계정의 그 제공자 연결을 물리적으로 지우고, 지운 행을 돌려줍니다.
+	// 커밋 뒤 허가 취소(카카오 unlink, Apple revoke)에 subject와 Apple 토큰 열을 씁니다.
+	DeleteIdentity(ctx context.Context, arg DeleteIdentityParams) (DeleteIdentityRow, error)
 	// GetAppleWebLoginForUpdate는 교환 코드 해시로 행을 읽고 잠급니다. 같은 코드의 동시 교환이 한 줄로 처리됩니다.
 	GetAppleWebLoginForUpdate(ctx context.Context, exchangeHash []byte) (GetAppleWebLoginForUpdateRow, error)
 	// GetIdentity는 제공자 연결과 계정 status를 함께 읽고 계정 행을 잠급니다.
 	// 같은 계정에 대한 동시 로그인·복구가 한 줄로 처리됩니다.
 	GetIdentity(ctx context.Context, arg GetIdentityParams) (GetIdentityRow, error)
+	// GetIdentityForLink는 붙이려는 (provider, subject) 연결과 그 계정의 status를 읽고 계정 행을 잠급니다.
+	// 붙이기 트랜잭션이 현재 계정 행을 먼저 잠근 뒤 부르므로, 다른 계정 행은 그 다음에 잠깁니다.
+	GetIdentityForLink(ctx context.Context, arg GetIdentityForLinkParams) (GetIdentityForLinkRow, error)
 	// GetRefreshTokenByIDForUpdate는 id로 refresh 행을 잠그고 사용·폐기 상태를 돌려줍니다.
 	// 유예 처리에서 이미 쓴 토큰의 다음 토큰을 확인할 때 씁니다.
 	GetRefreshTokenByIDForUpdate(ctx context.Context, id uuid.UUID) (GetRefreshTokenByIDForUpdateRow, error)
@@ -32,7 +41,11 @@ type Querier interface {
 	IdentityExists(ctx context.Context, arg IdentityExistsParams) (bool, error)
 	// InsertAppleWebLogin은 Apple 웹 콜백이 교환한 결과를 교환 코드 해시와 함께 저장합니다.
 	InsertAppleWebLogin(ctx context.Context, arg InsertAppleWebLoginParams) error
+	// InsertMergeTicket은 합치기 토큰의 해시를 저장합니다(S101). 원문은 저장하지 않습니다.
+	InsertMergeTicket(ctx context.Context, arg InsertMergeTicketParams) error
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
+	// ListAccountIdentities는 계정의 제공자 연결을 붙인 순으로 돌려줍니다(listIdentities, S100). subject는 내보내지 않습니다.
+	ListAccountIdentities(ctx context.Context, accountID uuid.UUID) ([]ListAccountIdentitiesRow, error)
 	ListIdentities(ctx context.Context, accountID uuid.UUID) ([]ListIdentitiesRow, error)
 	// LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
 	// 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.

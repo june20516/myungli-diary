@@ -123,39 +123,66 @@ func disconnectFailureReason(err error) string {
 	}
 }
 
+// RemovedIdentity는 허가 취소(RevokeGrant)에 쓰는 연결 한 행입니다. 떼기(UnlinkIdentity)로 지운 행이나
+// 계정 삭제 뒤 해제할 행에서 만듭니다. AppleRefreshToken은 연결 id(ID)를 aad로 묶어 암호화한 값입니다.
+type RemovedIdentity struct {
+	ID, AccountID     uuid.UUID
+	Provider, Subject string
+	AppleRefreshToken []byte
+	AppleTokenKeyID   string
+	AppleClientID     string
+}
+
 // disconnect는 제공자 연결 하나를 해제하는 외부 호출을 합니다.
 func (s *Service) disconnect(ctx context.Context, identity authdb.ListIdentitiesRow) error {
-	switch identity.Provider {
+	return s.RevokeGrant(ctx, RemovedIdentity{
+		ID:                identity.ID,
+		AccountID:         identity.AccountID,
+		Provider:          identity.Provider,
+		Subject:           identity.Subject,
+		AppleRefreshToken: identity.AppleRefreshToken,
+		AppleTokenKeyID:   identity.AppleTokenKeyID.String,
+		AppleClientID:     identity.AppleClientID.String,
+	})
+}
+
+// RevokeGrant는 연결 하나의 제공자 허가를 취소하는 외부 호출을 합니다.
+//
+//   - 카카오: 앱과의 연결을 끊습니다(unlink).
+//   - Apple: 저장한 refresh token을 복호화해 revoke합니다(revokeApple).
+//   - LINE·Google: 허가 취소에 필요한 사용자 token이 server에 없어 app SDK가 하므로(S100) 아무것도 하지 않습니다.
+//   - 테스트(staging, S24): 외부 제공자가 없어 아무것도 하지 않습니다.
+func (s *Service) RevokeGrant(ctx context.Context, removed RemovedIdentity) error {
+	switch removed.Provider {
 	case providerKakao:
-		if err := s.kakaoUnlink.Unlink(ctx, identity.Subject); err != nil {
+		if err := s.kakaoUnlink.Unlink(ctx, removed.Subject); err != nil {
 			return fmt.Errorf("카카오 unlink: %w", err)
 		}
 		return nil
 	case providerApple:
-		return s.revokeApple(ctx, identity)
+		return s.revokeApple(ctx, removed)
 	case providerLine, providerGoogle, providerTest:
-		// LINE·Google은 허가 취소를 app SDK가 하고, 테스트 연결은 외부 제공자가 없어 server가 끊을 것이 없습니다.
-		// 해제된 것으로 기록되게 성공으로 돌려줍니다.
+		// server가 끊을 것이 없으므로 성공으로 돌려줍니다. 계정 삭제에서는 해제된 것으로 기록됩니다.
 		return nil
 	default:
-		return fmt.Errorf("identity %s: 알 수 없는 제공자 %q", identity.ID, identity.Provider)
+		return fmt.Errorf("identity %s: 알 수 없는 제공자 %q", removed.ID, removed.Provider)
 	}
 }
 
 // revokeApple은 저장한 Apple refresh token을 복호화해 revoke합니다.
 // 저장한 토큰이 없으면 revoke할 것이 없으므로 처리된 것으로 봅니다.
 // Apple이 invalid_grant(이미 무효인 토큰)로 거절하면 다시 시도해도 같으므로 역시 처리된 것으로 봅니다.
-func (s *Service) revokeApple(ctx context.Context, identity authdb.ListIdentitiesRow) error {
-	if identity.AppleRefreshToken == nil {
+func (s *Service) revokeApple(ctx context.Context, removed RemovedIdentity) error {
+	if removed.AppleRefreshToken == nil {
 		return nil
 	}
-	plain, err := s.box.Open(identity.AppleRefreshToken, identity.AppleTokenKeyID.String, identity.ID[:])
+	plain, err := s.box.Open(removed.AppleRefreshToken, removed.AppleTokenKeyID, removed.ID[:])
 	if err != nil {
 		return fmt.Errorf("%w: apple refresh token 복호화: %w", errDecrypt, err)
 	}
-	err = s.apple.Revoke(ctx, string(plain), identity.AppleClientID.String)
+	err = s.apple.Revoke(ctx, string(plain), removed.AppleClientID)
 	if errors.Is(err, provider.ErrTokenInvalid) {
-		s.logger.InfoContext(ctx, "Apple refresh token이 이미 무효여서 revoke를 건너뜀", "accountId", identity.AccountID)
+		s.logger.InfoContext(ctx, "Apple refresh token이 이미 무효여서 revoke를 건너뜀", "accountId", removed.AccountID)
 		return nil
 	}
 	if err != nil {

@@ -13,6 +13,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const accountHasProvider = `-- name: AccountHasProvider :one
+SELECT EXISTS (
+    SELECT 1 FROM auth_identities WHERE account_id = $1 AND provider = $2
+)
+`
+
+type AccountHasProviderParams struct {
+	AccountID uuid.UUID
+	Provider  string
+}
+
+// AccountHasProvider는 계정에 그 제공자 연결이 이미 있는지 알려 줍니다(한 계정에 제공자마다 연결 하나).
+func (q *Queries) AccountHasProvider(ctx context.Context, arg AccountHasProviderParams) (bool, error) {
+	row := q.db.QueryRow(ctx, accountHasProvider, arg.AccountID, arg.Provider)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const clearProviderDisconnected = `-- name: ClearProviderDisconnected :exec
 UPDATE auth_identities
 SET provider_disconnected_at = NULL
@@ -42,6 +61,17 @@ func (q *Queries) ConsumeAppleWebLogin(ctx context.Context, arg ConsumeAppleWebL
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const countIdentities = `-- name: CountIdentities :one
+SELECT count(*) FROM auth_identities WHERE account_id = $1
+`
+
+func (q *Queries) CountIdentities(ctx context.Context, accountID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countIdentities, accountID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const createAccount = `-- name: CreateAccount :exec
@@ -85,6 +115,44 @@ func (q *Queries) CreateIdentity(ctx context.Context, arg CreateIdentityParams) 
 		arg.AppleClientID,
 	)
 	return err
+}
+
+const deleteIdentity = `-- name: DeleteIdentity :one
+DELETE FROM auth_identities
+WHERE account_id = $1 AND provider = $2
+RETURNING id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id
+`
+
+type DeleteIdentityParams struct {
+	AccountID uuid.UUID
+	Provider  string
+}
+
+type DeleteIdentityRow struct {
+	ID                uuid.UUID
+	AccountID         uuid.UUID
+	Provider          string
+	Subject           string
+	AppleRefreshToken []byte
+	AppleTokenKeyID   pgtype.Text
+	AppleClientID     pgtype.Text
+}
+
+// DeleteIdentity는 계정의 그 제공자 연결을 물리적으로 지우고, 지운 행을 돌려줍니다.
+// 커밋 뒤 허가 취소(카카오 unlink, Apple revoke)에 subject와 Apple 토큰 열을 씁니다.
+func (q *Queries) DeleteIdentity(ctx context.Context, arg DeleteIdentityParams) (DeleteIdentityRow, error) {
+	row := q.db.QueryRow(ctx, deleteIdentity, arg.AccountID, arg.Provider)
+	var i DeleteIdentityRow
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Provider,
+		&i.Subject,
+		&i.AppleRefreshToken,
+		&i.AppleTokenKeyID,
+		&i.AppleClientID,
+	)
+	return i, err
 }
 
 const getAppleWebLoginForUpdate = `-- name: GetAppleWebLoginForUpdate :one
@@ -168,6 +236,34 @@ func (q *Queries) GetIdentity(ctx context.Context, arg GetIdentityParams) (GetId
 		&i.ProviderDisconnectedAt,
 		&i.AccountStatus,
 	)
+	return i, err
+}
+
+const getIdentityForLink = `-- name: GetIdentityForLink :one
+SELECT i.id, i.account_id, a.status AS account_status
+FROM auth_identities i
+JOIN accounts a ON a.id = i.account_id
+WHERE i.provider = $1 AND i.subject = $2
+FOR UPDATE OF a
+`
+
+type GetIdentityForLinkParams struct {
+	Provider string
+	Subject  string
+}
+
+type GetIdentityForLinkRow struct {
+	ID            uuid.UUID
+	AccountID     uuid.UUID
+	AccountStatus string
+}
+
+// GetIdentityForLink는 붙이려는 (provider, subject) 연결과 그 계정의 status를 읽고 계정 행을 잠급니다.
+// 붙이기 트랜잭션이 현재 계정 행을 먼저 잠근 뒤 부르므로, 다른 계정 행은 그 다음에 잠깁니다.
+func (q *Queries) GetIdentityForLink(ctx context.Context, arg GetIdentityForLinkParams) (GetIdentityForLinkRow, error) {
+	row := q.db.QueryRow(ctx, getIdentityForLink, arg.Provider, arg.Subject)
+	var i GetIdentityForLinkRow
+	err := row.Scan(&i.ID, &i.AccountID, &i.AccountStatus)
 	return i, err
 }
 
@@ -288,6 +384,33 @@ func (q *Queries) InsertAppleWebLogin(ctx context.Context, arg InsertAppleWebLog
 	return err
 }
 
+const insertMergeTicket = `-- name: InsertMergeTicket :exec
+INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6::timestamptz)
+`
+
+type InsertMergeTicketParams struct {
+	ID             uuid.UUID
+	TokenHash      []byte
+	AccountID      uuid.UUID
+	OtherAccountID uuid.UUID
+	IdentityID     uuid.UUID
+	ExpiresAt      time.Time
+}
+
+// InsertMergeTicket은 합치기 토큰의 해시를 저장합니다(S101). 원문은 저장하지 않습니다.
+func (q *Queries) InsertMergeTicket(ctx context.Context, arg InsertMergeTicketParams) error {
+	_, err := q.db.Exec(ctx, insertMergeTicket,
+		arg.ID,
+		arg.TokenHash,
+		arg.AccountID,
+		arg.OtherAccountID,
+		arg.IdentityID,
+		arg.ExpiresAt,
+	)
+	return err
+}
+
 const insertRefreshToken = `-- name: InsertRefreshToken :exec
 INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at)
 VALUES ($1, $2, $3, $4, $5)
@@ -310,6 +433,39 @@ func (q *Queries) InsertRefreshToken(ctx context.Context, arg InsertRefreshToken
 		arg.ExpiresAt,
 	)
 	return err
+}
+
+const listAccountIdentities = `-- name: ListAccountIdentities :many
+SELECT provider, created_at
+FROM auth_identities
+WHERE account_id = $1
+ORDER BY created_at, id
+`
+
+type ListAccountIdentitiesRow struct {
+	Provider  string
+	CreatedAt time.Time
+}
+
+// ListAccountIdentities는 계정의 제공자 연결을 붙인 순으로 돌려줍니다(listIdentities, S100). subject는 내보내지 않습니다.
+func (q *Queries) ListAccountIdentities(ctx context.Context, accountID uuid.UUID) ([]ListAccountIdentitiesRow, error) {
+	rows, err := q.db.Query(ctx, listAccountIdentities, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAccountIdentitiesRow
+	for rows.Next() {
+		var i ListAccountIdentitiesRow
+		if err := rows.Scan(&i.Provider, &i.CreatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listIdentities = `-- name: ListIdentities :many
