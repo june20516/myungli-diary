@@ -542,7 +542,6 @@ const List<IaScreen> iaScreens = [
       'event-row',
       'diary-row',
       'term-token',
-      'depth-link',
       'primary-button',
     ],
   ),

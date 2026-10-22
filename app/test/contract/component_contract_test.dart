@@ -15,6 +15,7 @@ import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
@@ -22,6 +23,7 @@ import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -598,6 +600,119 @@ void main() {
       final haptic = _map((component['haptic']! as List<Object?>).single);
       expect(haptic['strength'], 'selection');
     });
+  });
+
+  group('컴포넌트 2.8.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    Map<String, Object?> variantParts(String id) => _map(
+      _map(
+        (specs['diary-row']!['variants']! as List<Object?>)
+            .map(_map)
+            .firstWhere((v) => v['id'] == id),
+      )['parts'],
+    );
+
+    Map<String, Object?> rowParts() => _map(specs['diary-row']!['parts']);
+
+    test('diary-row 변형은 day·entries, 상태는 pressed·loading입니다', () {
+      expect(variantIds(specs['diary-row']!), {'day', 'entries'});
+      expect(stateKeys(specs['diary-row']!), {'pressed', 'loading'});
+    });
+
+    test('diary-row entry 시각 글자·미리보기 1줄·간격·꺾쇠가 명세와 같습니다', () {
+      final entry = _map(rowParts()['entry']);
+      final time = _map(entry['time']);
+      expect(time['source'], 'createdAt');
+      expect(time['type'], '{type.caption.md}');
+      expect(time['fg'], '{color.text.secondary}');
+      expect(time['fontFeatures'], ['tnum']);
+      expect(time['wrap'], false);
+      final preview = _map(entry['preview']);
+      expect(preview['variant'], 'preview');
+      expect(preview['maxLines'], DiaryEntryLine.previewMaxLines);
+      expect(preview['marginStart'], '{space.12}');
+      expect(DiaryEntryLine.timeGap, Space.s12);
+      expect(preview['baseline'], 'time');
+      expect(preview['emptyKeepsLineHeight'], true);
+      final chevron = _map(entry['chevron']);
+      expect(chevron['icon'], 'caret-right');
+      expect(chevron['weight'], 'light');
+      expect(_px(chevron['size']), DiaryEntryLine.chevronSize);
+      expect(chevron['fg'], '{color.text.secondary}');
+      expect(entry['paddingY'], '{space.12}');
+      expect(DiaryEntryLine.paddingY, Space.s12);
+      expect(_px(entry['minHeight']), DiaryEntryLine.minHeight);
+    });
+
+    test('diary-row entry 점선은 1px 대시 4 간격 3이고 줄 사이에만 있습니다', () {
+      final divider = _map(_map(rowParts()['entry'])['divider']);
+      expect(divider['style'], 'dashed');
+      expect(_px(divider['width']), DiaryEntryLine.dividerWidth);
+      expect(_px(divider['dash']), DiaryEntryLine.dividerDash);
+      expect(_px(divider['gap']), DiaryEntryLine.dividerGap);
+      expect(divider['color'], '{color.timeline.entry}');
+      expect(divider['between'], 'entries-only');
+      expect(divider['span'], 'row');
+      expect(divider['inMinHeight'], true);
+    });
+
+    test('diary-row day 묶음 카드 간격과 눌림 규칙이 명세와 같습니다', () {
+      final group = _map(variantParts('day')['group']);
+      expect(group['pressable'], false);
+      expect(group['order'], ['badge', 'entries', 'tag']);
+      expect(group['entriesMarginTop'], '{space.4}');
+      expect(DiaryRow.entriesMarginTop, Space.s4);
+      expect(_map(group['tag'])['marginTop'], '{space.8}');
+      expect(DiaryRow.groupTagMarginTop, Space.s8);
+      expect(_map(group['preview'])['visible'], false);
+    });
+
+    test('diary-row entries 오늘 바탕과 그날 시트 머리가 명세와 같습니다', () {
+      final parts = variantParts('entries');
+      final byScreen = _map(_map(parts['container'])['byScreen']);
+      final today = _map(byScreen['today']);
+      expect(today['bg'], '{color.bg.sheet}');
+      expect(today['radius'], '{radius.lg}');
+      expect(today['paddingX'], '{space.16}');
+      expect(DiaryEntries.cardPaddingX, Space.s16);
+      expect(today['paddingY'], '{space.4}');
+      expect(DiaryEntries.cardPaddingY, Space.s4);
+      expect(today['marginTop'], '{space.12}');
+      expect(DiaryEntries.cardMarginTop, Space.s12);
+      expect(byScreen['day-sheet'], 'none');
+      expect(_map(parts['container'])['whenEmpty'], '그리지 않음');
+      final head = _map(parts['head']);
+      expect(head['screens'], ['day-sheet']);
+      expect(head['type'], '{type.label.md}');
+      expect(head['fg'], '{color.text.secondary}');
+      expect(head['marginTop'], '{space.16}');
+      expect(DiaryEntries.headMarginTop, Space.s16);
+      expect(head['marginBottom'], '{space.4}');
+      expect(DiaryEntries.headMarginBottom, Space.s4);
+    });
+
+    test(
+      'guide-question-card full은 quiet disabled 버튼과 52 도장, 낭독은 after와 같습니다',
+      () {
+        final component = specs['guide-question-card']!;
+        expect(stateKeys(component), {'before', 'after', 'full'});
+        final full = _map(_map(component['states'])['full']);
+        expect(full['labelKey'], 'todayGuideCtaFull');
+        final parts = _map(full['parts']);
+        final action = _map(parts['action']);
+        expect(action['variant'], 'quiet');
+        expect(action['state'], 'disabled');
+        expect(_px(_map(parts['seal'])['size']), SealSize.card.logical);
+        expect(_map(parts['seal'])['layer'], 'behind-action-label');
+        expect(component['haptic'], isEmpty);
+        expect(GuideQuestionState.values.map((s) => s.name), [
+          'before',
+          'after',
+          'full',
+        ]);
+      },
+    );
   });
 
   group('InteractionPattern 대조', () {

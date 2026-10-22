@@ -125,7 +125,7 @@ Widget _luckyCardWithTags() => Builder(
 Widget _guideQuestionCard(GuideQuestionState state) => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
-    final written = state == GuideQuestionState.after;
+    final written = state != GuideQuestionState.before;
     return GuideQuestionCard(
       state: state,
       eyebrow: ja ? '今日の質問' : '오늘의 질문',
@@ -258,6 +258,16 @@ void main() {
       tester,
       'today_guide_question_card_after',
       () => _guideQuestionCard(GuideQuestionState.after),
+    );
+  });
+
+  goldenTest('guide-question-card: full(상한을 채운 날, 도장 유지·버튼 disabled)', (
+    tester,
+  ) async {
+    await goldenMatrix(
+      tester,
+      'today_guide_question_card_full',
+      () => _guideQuestionCard(GuideQuestionState.full),
     );
   });
 

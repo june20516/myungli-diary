@@ -19,6 +19,10 @@ enum GuideQuestionState {
 
   /// 그날 일기를 씀. 질문 글자가 옅어지고 버튼은 quiet, 그 글자 뒤에 옅은 도장이 놓입니다.
   after,
+
+  /// 그날 일기가 상한을 채움(D83 ②). `after`와 같은 모양에서 버튼만 막습니다
+  /// (글자 `disabled.fg`). 도장은 그날 일기를 썼다는 표시라 남깁니다.
+  full,
 }
 
 /// 가이드 질문과 쓰기 입구(`guide-question-card`).
@@ -26,10 +30,12 @@ enum GuideQuestionState {
 /// 데이터 조회 없는 순수 컴포넌트입니다. 상태와 문구·동작을 모두 밖에서 받아, 오늘 화면과
 /// 계획 4 `day-sheet`·계획 5 `diary-edit`이 같은 카드를 씁니다. 버튼 글자(쓰기/한 편 더 쓰기/다 채움)는
 /// 상태에 맞춰 호출하는 쪽이 [actionLabel]로 주고, 누를 수 없으면 [onAction]을 null로 줍니다.
+/// [GuideQuestionState.full]은 [onAction]을 받아도 버튼을 끄고, 눌러도 아무 일도 없으며
+/// 햅틱도 없습니다. 이유는 버튼 글자가 말하고 상태 낭독은 `after`와 같습니다.
 ///
-/// [state]가 `before`에서 `after`로 바뀌는 순간(일기를 쓰고 돌아왔을 때)에만 도장이
+/// [state]가 `before`에서 `after`·`full`로 바뀌는 순간(일기를 쓰고 돌아왔을 때)에만 도장이
 /// `seal.stamp`로 찍히고, 상태 알림(`todayGuideWritten`)을 스크린리더에 한 번 보냅니다.
-/// 처음부터 `after`로 그릴 때는 움직임도 알림도 없이 도장이 이미 찍혀 있습니다. 동작 줄이기는
+/// 처음부터 쓴 상태로 그릴 때는 움직임도 알림도 없이 도장이 이미 찍혀 있습니다. 동작 줄이기는
 /// 패턴의 대체 규칙(투명도만)을 따릅니다. 눌림(`press.ink`)은 [PrimaryButton]이 입힙니다.
 ///
 /// 명세 a11y `role: group`에 해당하는 Flutter 역할이 없어(`SemanticsRole`에 group 없음)
@@ -55,6 +61,7 @@ class GuideQuestionCard extends StatefulWidget {
   static const ComponentSpec spec = ComponentSpec('guide-question-card', {}, {
     'before',
     'after',
+    'full',
   });
 
   /// 도장 층(버튼 글자 뒤)을 찾는 테스트용 키.
@@ -72,7 +79,8 @@ class GuideQuestionCard extends StatefulWidget {
   /// 버튼 글자.
   final String actionLabel;
 
-  /// 버튼을 눌렀을 때. null이면 버튼이 꺼집니다(`disabled`, 예 그날 일기를 다 채움).
+  /// 버튼을 눌렀을 때. null이면 버튼이 꺼집니다(`disabled`). [GuideQuestionState.full]은
+  /// 값과 관계없이 꺼집니다.
   final VoidCallback? onAction;
 
   /// 질문이 채우는 IA 슬롯 id.
@@ -90,7 +98,11 @@ class GuideQuestionCard extends StatefulWidget {
 
 class _GuideQuestionCardState extends State<GuideQuestionCard>
     with TickerProviderStateMixin {
-  // 처음부터 after면 이미 찍힌 상태(1)로 시작해 움직이지 않습니다.
+  // 그날 일기를 쓴 모양(after·full)인지.
+  static bool _written(GuideQuestionState state) =>
+      state != GuideQuestionState.before;
+
+  // 처음부터 쓴 모양이면 이미 찍힌 상태(1)로 시작해 움직이지 않습니다.
   late final AnimationController _stamp;
   late final AnimationController _erase;
 
@@ -106,7 +118,7 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
   @override
   void initState() {
     super.initState();
-    final after = widget.state == GuideQuestionState.after;
+    final after = _written(widget.state);
     _sealShown = after;
     _stamp = AnimationController(
       vsync: this,
@@ -130,8 +142,9 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
   @override
   void didUpdateWidget(GuideQuestionCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.state == oldWidget.state) return;
-    if (widget.state == GuideQuestionState.after) {
+    // after와 full은 같은 모양이라 둘 사이에서는 도장을 다시 찍지 않습니다.
+    if (_written(widget.state) == _written(oldWidget.state)) return;
+    if (_written(widget.state)) {
       _announce = true;
       _sealShown = true;
       _erasing = false;
@@ -199,7 +212,8 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
     final tokens = context.tokens;
     final colors = tokens.colors;
     final l10n = AppLocalizations.of(context);
-    final after = widget.state == GuideQuestionState.after;
+    final after = _written(widget.state);
+    final full = widget.state == GuideQuestionState.full;
     final question = SentenceBlock(
       variant: SentenceBlockVariant.card,
       text: widget.question,
@@ -209,7 +223,7 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
     final button = PrimaryButton(
       key: GuideQuestionCard.buttonKey,
       label: widget.actionLabel,
-      onPressed: widget.onAction,
+      onPressed: full ? null : widget.onAction,
       variant: after ? PrimaryButtonVariant.quiet : PrimaryButtonVariant.filled,
       labelColor: after ? colors.sealOnSoft : null,
       identifier: widget.actionSlotId,
