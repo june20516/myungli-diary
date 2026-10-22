@@ -153,6 +153,32 @@ func (q *Queries) DeleteRevocation(ctx context.Context, id int64) error {
 	return err
 }
 
+const findActiveIdentity = `-- name: FindActiveIdentity :one
+SELECT i.id, i.account_id
+FROM auth_identities i
+JOIN accounts a ON a.id = i.account_id
+WHERE i.provider = $1 AND i.subject = $2 AND a.status = 'active'
+`
+
+type FindActiveIdentityParams struct {
+	Provider string
+	Subject  string
+}
+
+type FindActiveIdentityRow struct {
+	ID        uuid.UUID
+	AccountID uuid.UUID
+}
+
+// FindActiveIdentity는 (provider, subject) 연결과 그 유저 계정을 잠그지 않고 찾습니다(합치기 증명, S110).
+// 지운 유저 계정에는 연결이 없어야 하지만(S105), 어긋나게 남은 연결도 없는 것으로 봅니다.
+func (q *Queries) FindActiveIdentity(ctx context.Context, arg FindActiveIdentityParams) (FindActiveIdentityRow, error) {
+	row := q.db.QueryRow(ctx, findActiveIdentity, arg.Provider, arg.Subject)
+	var i FindActiveIdentityRow
+	err := row.Scan(&i.ID, &i.AccountID)
+	return i, err
+}
+
 const getAppleWebLoginForUpdate = `-- name: GetAppleWebLoginForUpdate :one
 SELECT id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id,
        expires_at, consumed_at
@@ -378,34 +404,6 @@ func (q *Queries) InsertAppleWebLogin(ctx context.Context, arg InsertAppleWebLog
 		arg.AppleRefreshToken,
 		arg.AppleTokenKeyID,
 		arg.AppleClientID,
-		arg.ExpiresAt,
-	)
-	return err
-}
-
-const insertMergeTicket = `-- name: InsertMergeTicket :exec
-INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
-VALUES ($1, $2, $3, $4, $5, $6::timestamptz)
-`
-
-type InsertMergeTicketParams struct {
-	ID             uuid.UUID
-	TokenHash      []byte
-	AccountID      uuid.UUID
-	OtherAccountID uuid.UUID
-	IdentityID     uuid.UUID
-	ExpiresAt      time.Time
-}
-
-// InsertMergeTicket은 합치기 토큰의 해시를 저장합니다. 원문은 저장하지 않습니다.
-// 연결 409는 더 이상 토큰을 만들지 않고(S110), 합치기 요약(previewMerge, S110)이 이 쿼리로 발급합니다.
-func (q *Queries) InsertMergeTicket(ctx context.Context, arg InsertMergeTicketParams) error {
-	_, err := q.db.Exec(ctx, insertMergeTicket,
-		arg.ID,
-		arg.TokenHash,
-		arg.AccountID,
-		arg.OtherAccountID,
-		arg.IdentityID,
 		arg.ExpiresAt,
 	)
 	return err

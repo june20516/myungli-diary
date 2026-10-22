@@ -163,21 +163,8 @@ func parseClock(value *string) (*profile.LocalTime, error) {
 
 // fromProfile은 도메인 프로필을 응답 본문으로 바꿉니다. 경도는 birth.place가 아니라 birthCity에만 내보냅니다.
 func (a *API) fromProfile(ctx context.Context, p profile.Profile) gen.Profile {
-	birth := gen.Birth{
-		Calendar:    gen.CalendarType(p.Birth.Calendar),
-		Date:        gen.LunarOrSolarDate{Year: p.Birth.Date.Year, Month: p.Birth.Date.Month, Day: p.Birth.Date.Day},
-		Gender:      gen.BirthGender(p.Birth.Gender),
-		IsLeapMonth: p.Birth.IsLeapMonth,
-		Place:       gen.BirthPlace{Status: gen.BirthPlaceStatus(p.Birth.PlaceStatus)},
-		Time:        gen.BirthTime{Status: gen.BirthTimeStatus(p.Birth.TimeStatus), Value: formatClock(p.Birth.Time)},
-		Timezone:    p.Birth.Timezone,
-	}
-	if p.Birth.PlaceStatus == profile.PlaceCity {
-		cityID := p.Birth.CityID
-		birth.Place.CityId = &cityID
-	}
 	return gen.Profile{
-		Birth:           birth,
+		Birth:           toGenBirth(p.Birth),
 		BirthCity:       a.birthCity(ctx, p),
 		CurrentTimezone: p.CurrentTimezone,
 		Honorific:       p.Honorific,
@@ -187,6 +174,25 @@ func (a *API) fromProfile(ctx context.Context, p profile.Profile) gen.Profile {
 			Time:   formatClock(p.Notification.Time),
 		},
 	}
+}
+
+// toGenBirth는 도메인 출생 정보를 계약 Birth로 바꿉니다. 경도는 내보내지 않습니다(프로필 응답은 birthCity에만 담음).
+// 프로필 응답과 합치기 요약(previewMerge)이 씁니다.
+func toGenBirth(b profile.Birth) gen.Birth {
+	birth := gen.Birth{
+		Calendar:    gen.CalendarType(b.Calendar),
+		Date:        gen.LunarOrSolarDate{Year: b.Date.Year, Month: b.Date.Month, Day: b.Date.Day},
+		Gender:      gen.BirthGender(b.Gender),
+		IsLeapMonth: b.IsLeapMonth,
+		Place:       gen.BirthPlace{Status: gen.BirthPlaceStatus(b.PlaceStatus)},
+		Time:        gen.BirthTime{Status: gen.BirthTimeStatus(b.TimeStatus), Value: formatClock(b.Time)},
+		Timezone:    b.Timezone,
+	}
+	if b.PlaceStatus == profile.PlaceCity {
+		cityID := b.CityID
+		birth.Place.CityId = &cityID
+	}
+	return birth
 }
 
 // birthCity는 출생 도시를 프로필 언어 이름으로 돌려줍니다(#199). 도시 출생이 아니면 nil입니다.

@@ -122,3 +122,13 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/merge.sql
+    gen:
+      go:
+        package: mergedb
+        out: ../internal/merge/mergedb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides

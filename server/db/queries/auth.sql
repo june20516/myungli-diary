@@ -140,11 +140,13 @@ DELETE FROM auth_identities
 WHERE account_id = @account_id AND provider = @provider
 RETURNING id, account_id, provider, subject, apple_refresh_token, apple_token_key_id, apple_client_id;
 
--- InsertMergeTicket은 합치기 토큰의 해시를 저장합니다. 원문은 저장하지 않습니다.
--- 연결 409는 더 이상 토큰을 만들지 않고(S110), 합치기 요약(previewMerge, S110)이 이 쿼리로 발급합니다.
--- name: InsertMergeTicket :exec
-INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
-VALUES (@id, @token_hash, @account_id, @other_account_id, @identity_id, @expires_at::timestamptz);
+-- FindActiveIdentity는 (provider, subject) 연결과 그 유저 계정을 잠그지 않고 찾습니다(합치기 증명, S110).
+-- 지운 유저 계정에는 연결이 없어야 하지만(S105), 어긋나게 남은 연결도 없는 것으로 봅니다.
+-- name: FindActiveIdentity :one
+SELECT i.id, i.account_id
+FROM auth_identities i
+JOIN accounts a ON a.id = i.account_id
+WHERE i.provider = @provider AND i.subject = @subject AND a.status = 'active';
 
 -- QueueRevocation은 카카오·Apple 허가 취소 대기 행을 하나 넣고 id를 돌려줍니다(S106).
 -- created_at은 30일 포기 판정의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.

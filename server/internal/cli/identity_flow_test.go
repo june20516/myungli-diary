@@ -66,9 +66,17 @@ func TestIdentityFlow_LinkUnlinkAndInUse(t *testing.T) {
 	assert.NotContains(t, inUse.body, "mergeToken")
 	assert.NotContains(t, inUse.body, "expiresAt")
 
-	// 합치기 operation은 아직 구현 전입니다(PR C).
-	env.do(http.MethodPost, "/v1/me/merge/preview", access, map[string]string{"provider": "line", "idToken": lineToken, "nonce": flowNonce}).
-		requireProblem(t, http.StatusNotImplemented, "not_implemented")
+	// 합치기는 별도 입구입니다. 그 LINE 증명으로 요약을 부르면 합치기 토큰과 요약을 줍니다(S110).
+	preview := env.do(http.MethodPost, "/v1/me/merge/preview", access, map[string]string{"provider": "line", "idToken": lineToken, "nonce": flowNonce})
+	require.Equal(t, http.StatusOK, preview.status, "요약 본문: %v", preview.body)
+	assert.Len(t, preview.body["mergeToken"], 43)
+	assert.Contains(t, preview.body, "summary")
+	// 현재 계정의 연결(Google)로 부르면 같은 계정, 어디에도 없는 연결이면 연결 없음입니다.
+	env.do(http.MethodPost, "/v1/me/merge/preview", access, map[string]string{"provider": "google", "idToken": googleToken, "nonce": flowNonce}).
+		requireProblem(t, http.StatusUnprocessableEntity, "merge.same_account")
+	freeToken := env.fake.SignES256IDToken(providertest.LINEClaims("line-free", flowNonce, env.clk.Now()))
+	env.do(http.MethodPost, "/v1/me/merge/preview", access, map[string]string{"provider": "line", "idToken": freeToken, "nonce": flowNonce}).
+		requireProblem(t, http.StatusUnprocessableEntity, "merge.no_account")
 
 	// Google을 떼면 204, 마지막 하나인 카카오는 뗄 수 없습니다.
 	unlinked := env.do(http.MethodDelete, "/v1/me/identities/google", access, nil)
