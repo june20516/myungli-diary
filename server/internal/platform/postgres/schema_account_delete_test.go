@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -218,6 +219,23 @@ func TestSchema00015_PendingAccountsDeleted(t *testing.T) {
 		accountA, appleToken, appleKeyID, appleClientID).Scan(&appleIdentity); err != nil {
 		t.Fatal(err)
 	}
+	// 그 Apple 인증 계정의 웹 로그인 기록과, 다른 subject의 기록입니다.
+	for i, subject := range []string{"apple-pending", "apple-someone-else"} {
+		if _, err := pool.Exec(ctx, `INSERT INTO apple_web_logins (id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id, expires_at)
+			VALUES (gen_random_uuid(), $1, $2, $3, '\x01', 'box-1', 'web.client', now() + interval '1 minute')`,
+			bytes.Repeat([]byte{byte(0x70 + i)}, 32), subject, strings.Repeat("a", 64)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// 프로필을 고치기 전 출생 정보로 남은 선택 기록과 캐시입니다.
+	oldHash := bytes.Repeat([]byte{0x6F}, 32)
+	if _, err := pool.Exec(ctx, `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+		VALUES ($1, '2026-10-01', 'overall', $2, 'msg.old', 'v1', 'seed-v1')`, accountA, oldHash); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO chart_cache (birth_hash, ruleset_version, as_of_year, response) VALUES ($1, 'r1', 2026, '\x00')`, oldHash); err != nil {
+		t.Fatal(err)
+	}
 	// 합치기 토큰은 삭제 대기 계정이 A(account_id)인 것과 B(other_account_id)인 것 둘 다 지워야 합니다.
 	for i, pair := range [][2]string{{accountA, accountB}, {accountB, accountA}} {
 		if _, err := pool.Exec(ctx, `INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
@@ -255,6 +273,22 @@ func TestSchema00015_PendingAccountsDeleted(t *testing.T) {
 		if got := countRows(t, ctx, pool, query, birthHashOf(accountB)); got != 1 {
 			t.Errorf("active 계정의 %s = %d행, want 1(그대로)", table, got)
 		}
+	}
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM chart_cache WHERE birth_hash = $1`, oldHash); got != 0 {
+		t.Errorf("삭제 대기 계정의 옛 출생 해시 캐시 = %d행, want 0", got)
+	}
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM apple_web_logins WHERE subject = 'apple-pending'`); got != 0 {
+		t.Errorf("삭제 대기 계정의 Apple 웹 로그인 기록 = %d행, want 0", got)
+	}
+	if got := countRows(t, ctx, pool, `SELECT count(*) FROM apple_web_logins WHERE subject = 'apple-someone-else'`); got != 1 {
+		t.Errorf("다른 subject의 Apple 웹 로그인 기록 = %d행, want 1(그대로)", got)
+	}
+	var lastActiveAt time.Time
+	if err := pool.QueryRow(ctx, `SELECT last_active_at FROM accounts WHERE id = $1`, accountA).Scan(&lastActiveAt); err != nil {
+		t.Fatal(err)
+	}
+	if !lastActiveAt.Equal(requestedAt) {
+		t.Errorf("삭제 대기 계정의 last_active_at = %v, want 지운 시각 %v", lastActiveAt, requestedAt)
 	}
 	if got := countRows(t, ctx, pool, `SELECT count(*) FROM account_merge_tickets`); got != 0 {
 		t.Errorf("합치기 토큰 = %d행, want 0(A·B 어느 쪽이든 지움)", got)

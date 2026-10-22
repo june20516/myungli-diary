@@ -49,7 +49,7 @@ func newRealAuth(t *testing.T) realAuth {
 	box, err := secretbox.New(secretbox.Key{ID: "b1", Bytes: bytes.Repeat([]byte{7}, 32)}, nil)
 	require.NoError(t, err)
 	authService := auth.NewService(pool, auth.ServiceDeps{Access: access, Box: box, Clock: clk})
-	return realAuth{pool: pool, auth: authService, accounts: account.NewService(pool, noopRevoker{}, clk), access: access}
+	return realAuth{pool: pool, auth: authService, accounts: account.NewService(pool, noopRevoker{}, clk, nil), access: access}
 }
 
 // countTestIdentities는 provider test 연결 수입니다.

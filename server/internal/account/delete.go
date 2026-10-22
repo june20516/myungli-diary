@@ -38,9 +38,13 @@ type deleteStep struct {
 }
 
 // deleteSteps는 지우는 순서입니다. FK가 모두 ON DELETE RESTRICT라 자식부터 지우고,
-// 캐시는 프로필의 출생 해시로 찾으므로 프로필보다 먼저 지웁니다.
+// 캐시는 프로필과 문장 선택 기록의 출생 해시로 찾으므로 맨 먼저, Apple 웹 로그인 기록은 인증 계정의 subject로
+// 찾으므로 인증 계정보다 먼저 지웁니다.
 func deleteSteps(q *accountdb.Queries) []deleteStep {
 	return []deleteStep{
+		{"차트 캐시", q.DeleteChartCacheByAccount},
+		{"데일리 캐시", q.DeleteDailyCacheByAccount},
+		{"월 캐시", q.DeleteMonthCacheByAccount},
 		{"반응", q.DeleteReactionsByAccount},
 		{"문장 선택 기록", q.DeleteDailySelectionsByAccount},
 		{"순환 상태", q.DeleteRotationStateByAccount},
@@ -51,10 +55,8 @@ func deleteSteps(q *accountdb.Queries) []deleteStep {
 		{"합치기 토큰", q.DeleteMergeTicketsByAccount},
 		{"refresh token", q.DeleteRefreshTokensByAccount},
 		{"약관 동의", q.DeleteConsentsByAccount},
+		{"Apple 웹 로그인 기록", q.DeleteAppleWebLoginsByAccount},
 		{"인증 계정", q.DeleteIdentitiesByAccount},
-		{"차트 캐시", q.DeleteChartCacheByProfile},
-		{"데일리 캐시", q.DeleteDailyCacheByProfile},
-		{"월 캐시", q.DeleteMonthCacheByProfile},
 		{"프로필", q.DeleteProfileByAccount},
 	}
 }
@@ -110,6 +112,7 @@ func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
 		}
 		return fmt.Errorf("계정 삭제: %w", err)
 	}
+	s.logger.InfoContext(ctx, "계정 삭제", "accountId", id, "revocations", len(revocationIDs))
 
 	if len(revocationIDs) > 0 {
 		// 이미 commit된 삭제의 뒷정리이므로, 클라이언트가 응답 전에 연결을 끊어 ctx가 취소돼도 끝까지 수행합니다.

@@ -1,7 +1,9 @@
 package account_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
 	"sync"
 	"testing"
 	"time"
@@ -61,6 +63,7 @@ type fixture struct {
 	pool    *pgxpool.Pool
 	clk     *clocktest.Fake
 	revoker *fakeRevoker
+	logs    *bytes.Buffer
 	service *account.Service
 	id      uuid.UUID
 }
@@ -77,9 +80,10 @@ func newFixture(t *testing.T) *fixture {
 	require.NoError(t, err)
 	require.NoError(t, authdb.New(pool).CreateAccount(ctx, authdb.CreateAccountParams{ID: id, LastActiveAt: testNow}))
 
+	logs := &bytes.Buffer{}
 	return &fixture{
-		ctx: ctx, pool: pool, clk: clk, revoker: revoker, id: id,
-		service: account.NewService(pool, revoker, clk),
+		ctx: ctx, pool: pool, clk: clk, revoker: revoker, logs: logs, id: id,
+		service: account.NewService(pool, revoker, clk, slog.New(slog.NewJSONHandler(logs, nil))),
 	}
 }
 

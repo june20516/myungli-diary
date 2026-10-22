@@ -520,7 +520,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Logger:  deps.Logger,
 		Revoker: revocations,
 	})
-	accountService := account.NewService(deps.Pool, revocations, deps.Clock)
+	accountService := account.NewService(deps.Pool, revocations, deps.Clock, deps.Logger)
 
 	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -36,6 +37,8 @@ var deletedTables = map[string]string{ //nolint:gosec // 표 이름(refresh_toke
 	"idempotency_keys": `SELECT count(*) FROM idempotency_keys WHERE account_id = $1`,
 	"account_merge_tickets": `SELECT count(*) FROM account_merge_tickets
 		WHERE account_id = $1 OR other_account_id = $1`,
+	// 그 계정 Apple 인증 계정의 웹 로그인 기록입니다. seedAccount가 Apple subject를 'apple-<계정 id>'로 둡니다.
+	"apple_web_logins": `SELECT count(*) FROM apple_web_logins WHERE subject = 'apple-' || $1::text`,
 }
 
 // keptTables는 계정 삭제가 건드리지 않는 표의 전체 행 수 쿼리입니다(spec §3.2 "남김", purchases는 PR 3).
@@ -55,6 +58,8 @@ type seededAccount struct {
 	birthHash []byte
 	// selectionID는 이 계정의 첫 문장 선택 기록 id입니다.
 	selectionID int64
+	// oldBirthHash는 프로필을 고치기 전 출생 해시입니다. 문장 선택 기록과 캐시에만 남아 있습니다.
+	oldBirthHash []byte
 }
 
 // newAccount는 active 계정 하나를 만듭니다.
@@ -98,6 +103,13 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 	identityID := uuid.Must(uuid.NewV7())
 	exec(`INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'kakao', $3)`,
 		identityID, id, subjectPrefix+"-kakao")
+	// Apple 인증 계정(저장한 token 없음)과 그 subject의 웹 로그인 기록입니다.
+	appleSubject := "apple-" + id.String()
+	exec(`INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'apple', $3)`,
+		uuid.Must(uuid.NewV7()), id, appleSubject)
+	exec(`INSERT INTO apple_web_logins (id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id, expires_at)
+		VALUES ($1, $2, $3, $4, '\x01', 'box-1', 'web.client', $5)`,
+		uuid.Must(uuid.NewV7()), bytes.Repeat([]byte{hashByte ^ 0x33}, 32), appleSubject, strings.Repeat("a", 64), testNow.Add(time.Minute))
 	// 회전된 refresh token 쌍입니다. 앞 token이 replaced_by_id로 뒤 token을 가리키므로(자기참조 RESTRICT)
 	// 한 번의 DELETE로 둘 다 지울 수 있어야 합니다.
 	family, rotated := uuid.Must(uuid.NewV7()), uuid.Must(uuid.NewV7())
@@ -124,8 +136,13 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 		VALUES ($1, 'r1', '2026-10-12', 'Asia/Seoul', '\x00')`, hash)
 	exec(`INSERT INTO month_cache (birth_hash, ruleset_version, year, month, current_timezone, response)
 		VALUES ($1, 'r1', 2026, 10, 'Asia/Seoul', '\x00')`, hash)
+	// 프로필을 고치기 전 출생 정보로 만든 선택 기록과 캐시입니다.
+	oldHash := bytes.Repeat([]byte{hashByte ^ 0x0F}, 32)
+	exec(`INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
+		VALUES ($1, '2026-10-01', 'overall', $2, 'msg.old', 'v1', 'seed-v1')`, id, oldHash)
+	exec(`INSERT INTO chart_cache (birth_hash, ruleset_version, as_of_year, response) VALUES ($1, 'r1', 2026, '\x00')`, oldHash)
 
-	return seededAccount{id: id, birthHash: hash, selectionID: selectionID}
+	return seededAccount{id: id, birthHash: hash, selectionID: selectionID, oldBirthHash: oldHash}
 }
 
 // deleteInTx는 DeleteAccountTx를 트랜잭션 하나에서 실행해 commit합니다.
@@ -187,12 +204,17 @@ func TestDeleteAccountTx_RemovesPersonalData(t *testing.T) {
 		assert.Zero(t, countRows(t, f.ctx, f.pool, `SELECT count(*) FROM `+table+` WHERE birth_hash = $1`, target.birthHash), "지운 계정의 %s", table)
 		assert.Equal(t, 1, countRows(t, f.ctx, f.pool, `SELECT count(*) FROM `+table+` WHERE birth_hash = $1`, other.birthHash), "다른 계정의 %s", table)
 	}
+	// 옛 출생 정보(선택 기록에만 남은 해시)의 캐시도 지웁니다.
+	assert.Zero(t, countRows(t, f.ctx, f.pool, `SELECT count(*) FROM chart_cache WHERE birth_hash = $1`, target.oldBirthHash), "지운 계정의 옛 출생 해시 캐시")
+	assert.Equal(t, 1, countRows(t, f.ctx, f.pool, `SELECT count(*) FROM chart_cache WHERE birth_hash = $1`, other.oldBirthHash), "다른 계정의 옛 출생 해시 캐시")
 
 	var status string
-	var gotDeletedAt time.Time
-	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT status, deleted_at FROM accounts WHERE id = $1`, target.id).Scan(&status, &gotDeletedAt))
+	var gotDeletedAt, gotLastActiveAt time.Time
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT status, deleted_at, last_active_at FROM accounts WHERE id = $1`, target.id).
+		Scan(&status, &gotDeletedAt, &gotLastActiveAt))
 	assert.Equal(t, "deleted", status)
 	assert.True(t, deletedAt.Equal(gotDeletedAt), "deleted_at = %v", gotDeletedAt)
+	assert.True(t, deletedAt.Equal(gotLastActiveAt), "껍데기에 활동 시각을 남기지 않습니다(last_active_at = deleted_at): %v", gotLastActiveAt)
 	assert.Equal(t, "active", f.statusOf(t, other.id))
 }
 
@@ -456,6 +478,48 @@ func TestDeletedAccount_RejectsReactionOnStaleSelection(t *testing.T) {
 	requireDeletedAccountError(t, <-done)
 }
 
+// 자식 행을 먼저 잠그는 쓰기(PutReaction: 선택 기록 FOR UPDATE 뒤 반응 INSERT)와 계정 삭제는 서로를 기다려 deadlock이 납니다.
+// PostgreSQL이 한쪽을 40P01로 끝내고, 삭제 쪽이면 InTx가 다시 실행해 끝냅니다. 어느 쪽이 끝나든 삭제는 성공하고
+// 지운 계정의 반응·선택 기록은 남지 않습니다.
+func TestService_Delete_DeadlockWithReactionWriteResolves(t *testing.T) {
+	f := newFixture(t)
+	target := seedAccount(t, f.ctx, f.pool, 0xA1, "target")
+	// 활성 반응은 하나뿐이라(부분 unique) 기존 반응을 미리 취소해 둡니다.
+	_, err := f.pool.Exec(f.ctx, `UPDATE reactions SET deleted_at = now() WHERE selection_id = $1`, target.selectionID)
+	require.NoError(t, err)
+
+	// PutReaction처럼 선택 기록을 먼저 잠급니다.
+	writer, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = writer.Rollback(context.Background()) })
+	_, err = writer.Exec(f.ctx, `SELECT 1 FROM daily_selections WHERE id = $1 FOR UPDATE`, target.selectionID)
+	require.NoError(t, err)
+
+	deleted := make(chan error, 1)
+	go func() { deleted <- f.service.Delete(f.ctx, target.id) }()
+	// 삭제가 계정 행을 잡은 뒤 선택 기록 삭제에서 writer를 기다립니다.
+	waitForLockWaiter(t, f.ctx, f.pool)
+
+	// writer의 반응 INSERT는 trigger가 계정 행을 FOR KEY SHARE로 읽다 삭제를 기다리므로 deadlock입니다.
+	_, insertErr := writer.Exec(f.ctx, `INSERT INTO reactions (selection_id, reaction) VALUES ($1, 'dislike')`, target.selectionID)
+	if insertErr == nil {
+		// 삭제가 deadlock으로 끝나고 다시 실행되는 중입니다. writer가 commit하면 그 뒤에 지웁니다.
+		t.Log("deadlock으로 끝난 쪽: 계정 삭제(InTx가 다시 실행)")
+		require.NoError(t, writer.Commit(f.ctx))
+	} else {
+		var pgErr *pgconn.PgError
+		require.ErrorAs(t, insertErr, &pgErr)
+		assert.Equal(t, "40P01", pgErr.Code, "writer 쪽이 deadlock으로 끝났습니다")
+		t.Log("deadlock으로 끝난 쪽: writer")
+		require.NoError(t, writer.Rollback(f.ctx))
+	}
+
+	require.NoError(t, <-deleted)
+	assert.Equal(t, "deleted", f.statusOf(t, target.id))
+	assert.Zero(t, countRows(t, f.ctx, f.pool, deletedTables["reactions"], target.id))
+	assert.Zero(t, countRows(t, f.ctx, f.pool, deletedTables["daily_selections"], target.id))
+}
+
 // waitForLockWaiter는 이 DB에서 잠금을 기다리는 세션이 하나 생길 때까지 기다립니다.
 func waitForLockWaiter(t *testing.T, ctx context.Context, pool *pgxpool.Pool) {
 	t.Helper()
@@ -529,6 +593,22 @@ func TestService_Delete_AttemptsQueuedRevocationsAfterCommit(t *testing.T) {
 	calls := f.revoker.calls()
 	require.Len(t, calls, 1)
 	assert.Len(t, calls[0].ids, 1)
+}
+
+// commit 뒤 계정 id와 대기 행 수만 Info로 남깁니다.
+func TestService_Delete_LogsAccountAndRevocationCount(t *testing.T) {
+	f := newFixture(t)
+	_, err := f.pool.Exec(f.ctx, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'kakao', 'K-secret-subject')`,
+		uuid.Must(uuid.NewV7()), f.id)
+	require.NoError(t, err)
+
+	require.NoError(t, f.service.Delete(f.ctx, f.id))
+
+	logs := f.logs.String()
+	assert.Contains(t, logs, `"msg":"계정 삭제"`)
+	assert.Contains(t, logs, `"accountId":"`+f.id.String()+`"`)
+	assert.Contains(t, logs, `"revocations":1`)
+	assert.NotContains(t, logs, "K-secret-subject", "subject는 남기지 않습니다")
 }
 
 func TestService_Delete_NoRevocationsSkipsAttempt(t *testing.T) {

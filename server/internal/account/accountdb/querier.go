@@ -11,11 +11,15 @@ import (
 )
 
 type Querier interface {
-	// 계산 캐시는 이 계정 프로필의 출생 해시로 지웁니다. 프로필이 없으면 지울 것이 없습니다.
+	// DeleteAppleWebLoginsByAccount는 이 계정 Apple 인증 계정의 웹 로그인 기록(subject·nonce 해시·암호화 refresh token)을
+	// 지웁니다. subject로 찾으므로 인증 계정보다 먼저 지웁니다.
+	DeleteAppleWebLoginsByAccount(ctx context.Context, accountID uuid.UUID) error
+	// 계산 캐시는 이 계정의 출생 해시로 지웁니다. 지금 프로필의 해시와, 프로필을 고치기 전 출생 정보로 남은
+	// 문장 선택 기록의 해시를 함께 봅니다. 그래서 프로필·선택 기록보다 먼저 지웁니다.
 	// 같은 출생 정보의 다른 계정도 쓰던 행일 수 있지만 다시 계산할 수 있습니다(D88 ③).
-	DeleteChartCacheByProfile(ctx context.Context, accountID uuid.UUID) error
+	DeleteChartCacheByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteConsentsByAccount(ctx context.Context, accountID uuid.UUID) error
-	DeleteDailyCacheByProfile(ctx context.Context, accountID uuid.UUID) error
+	DeleteDailyCacheByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDailySelectionsByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDiariesByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDiaryDaysByAccount(ctx context.Context, accountID uuid.UUID) error
@@ -23,7 +27,7 @@ type Querier interface {
 	DeleteIdentitiesByAccount(ctx context.Context, accountID uuid.UUID) error
 	// DeleteMergeTicketsByAccount는 이 계정이 A(account_id)이거나 B(other_account_id)인 합치기 토큰을 지웁니다.
 	DeleteMergeTicketsByAccount(ctx context.Context, accountID uuid.UUID) error
-	DeleteMonthCacheByProfile(ctx context.Context, accountID uuid.UUID) error
+	DeleteMonthCacheByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteProfileByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteReactionsByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteRefreshTokensByAccount(ctx context.Context, accountID uuid.UUID) error
@@ -36,12 +40,14 @@ type Querier interface {
 	// LockAccountForDelete는 계정 행을 잠그고 상태를 돌려줍니다. 같은 계정에 쓰는 요청은 이 잠금 뒤에서 기다립니다.
 	LockAccountForDelete(ctx context.Context, id uuid.UUID) (string, error)
 	// MarkAccountDeleted는 계정을 껍데기(id·status·created_at·deleted_at)로 남깁니다.
+	// last_active_at은 NOT NULL이라 지운 시각으로 덮어 마지막 활동 시각을 남기지 않습니다.
 	MarkAccountDeleted(ctx context.Context, arg MarkAccountDeletedParams) error
 	// QueueProviderRevocations는 카카오와, 저장한 token이 있는 Apple 인증 계정마다 허가 취소 대기 행을 넣습니다(S106).
 	// Apple refresh token은 원래 행의 암호화 값 그대로 옮기고, 복호화의 aad인 원래 인증 계정 id를 함께 남깁니다.
 	// created_at은 30일 포기 판정(S106)의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.
 	QueueProviderRevocations(ctx context.Context, arg QueueProviderRevocationsParams) ([]int64, error)
 	// TallyReactions는 살아 있는 반응을 계정과 끊긴 문장별 집계에 더합니다(D57).
+	// 집계 행 잠금 순서를 고정해 두 계정 삭제가 같은 문장 집계를 반대 순서로 잠그는 deadlock을 막습니다.
 	TallyReactions(ctx context.Context, accountID uuid.UUID) error
 	// TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
 	// 지운 계정의 껍데기는 갱신하지 않습니다.

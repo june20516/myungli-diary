@@ -12,16 +12,33 @@ import (
 	"github.com/google/uuid"
 )
 
-const deleteChartCacheByProfile = `-- name: DeleteChartCacheByProfile :exec
-
-DELETE FROM chart_cache
-WHERE birth_hash = (SELECT birth_hash FROM profiles WHERE account_id = $1)
+const deleteAppleWebLoginsByAccount = `-- name: DeleteAppleWebLoginsByAccount :exec
+DELETE FROM apple_web_logins
+WHERE subject IN (SELECT i.subject FROM auth_identities i WHERE i.account_id = $1 AND i.provider = 'apple')
 `
 
-// 계산 캐시는 이 계정 프로필의 출생 해시로 지웁니다. 프로필이 없으면 지울 것이 없습니다.
+// DeleteAppleWebLoginsByAccount는 이 계정 Apple 인증 계정의 웹 로그인 기록(subject·nonce 해시·암호화 refresh token)을
+// 지웁니다. subject로 찾으므로 인증 계정보다 먼저 지웁니다.
+func (q *Queries) DeleteAppleWebLoginsByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteAppleWebLoginsByAccount, accountID)
+	return err
+}
+
+const deleteChartCacheByAccount = `-- name: DeleteChartCacheByAccount :exec
+
+DELETE FROM chart_cache
+WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p WHERE p.account_id = $1
+    UNION
+    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
+)
+`
+
+// 계산 캐시는 이 계정의 출생 해시로 지웁니다. 지금 프로필의 해시와, 프로필을 고치기 전 출생 정보로 남은
+// 문장 선택 기록의 해시를 함께 봅니다. 그래서 프로필·선택 기록보다 먼저 지웁니다.
 // 같은 출생 정보의 다른 계정도 쓰던 행일 수 있지만 다시 계산할 수 있습니다(D88 ③).
-func (q *Queries) DeleteChartCacheByProfile(ctx context.Context, accountID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteChartCacheByProfile, accountID)
+func (q *Queries) DeleteChartCacheByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteChartCacheByAccount, accountID)
 	return err
 }
 
@@ -34,13 +51,17 @@ func (q *Queries) DeleteConsentsByAccount(ctx context.Context, accountID uuid.UU
 	return err
 }
 
-const deleteDailyCacheByProfile = `-- name: DeleteDailyCacheByProfile :exec
+const deleteDailyCacheByAccount = `-- name: DeleteDailyCacheByAccount :exec
 DELETE FROM daily_cache
-WHERE birth_hash = (SELECT birth_hash FROM profiles WHERE account_id = $1)
+WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p WHERE p.account_id = $1
+    UNION
+    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
+)
 `
 
-func (q *Queries) DeleteDailyCacheByProfile(ctx context.Context, accountID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteDailyCacheByProfile, accountID)
+func (q *Queries) DeleteDailyCacheByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteDailyCacheByAccount, accountID)
 	return err
 }
 
@@ -99,13 +120,17 @@ func (q *Queries) DeleteMergeTicketsByAccount(ctx context.Context, accountID uui
 	return err
 }
 
-const deleteMonthCacheByProfile = `-- name: DeleteMonthCacheByProfile :exec
+const deleteMonthCacheByAccount = `-- name: DeleteMonthCacheByAccount :exec
 DELETE FROM month_cache
-WHERE birth_hash = (SELECT birth_hash FROM profiles WHERE account_id = $1)
+WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p WHERE p.account_id = $1
+    UNION
+    SELECT DISTINCT s.birth_hash FROM daily_selections s WHERE s.account_id = $1 AND s.birth_hash IS NOT NULL
+)
 `
 
-func (q *Queries) DeleteMonthCacheByProfile(ctx context.Context, accountID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteMonthCacheByProfile, accountID)
+func (q *Queries) DeleteMonthCacheByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteMonthCacheByAccount, accountID)
 	return err
 }
 
@@ -251,7 +276,8 @@ func (q *Queries) LockAccountForDelete(ctx context.Context, id uuid.UUID) (strin
 const markAccountDeleted = `-- name: MarkAccountDeleted :exec
 UPDATE accounts
 SET status = 'deleted',
-    deleted_at = $1::timestamptz
+    deleted_at = $1::timestamptz,
+    last_active_at = $1::timestamptz
 WHERE id = $2
 `
 
@@ -261,6 +287,7 @@ type MarkAccountDeletedParams struct {
 }
 
 // MarkAccountDeleted는 계정을 껍데기(id·status·created_at·deleted_at)로 남깁니다.
+// last_active_at은 NOT NULL이라 지운 시각으로 덮어 마지막 활동 시각을 남기지 않습니다.
 func (q *Queries) MarkAccountDeleted(ctx context.Context, arg MarkAccountDeletedParams) error {
 	_, err := q.db.Exec(ctx, markAccountDeleted, arg.DeletedAt, arg.ID)
 	return err
@@ -317,11 +344,13 @@ FROM reactions r
 JOIN daily_selections s ON s.id = r.selection_id
 WHERE s.account_id = $1 AND r.deleted_at IS NULL
 GROUP BY s.message_key, s.variant, r.reaction
+ORDER BY s.message_key, s.variant, r.reaction
 ON CONFLICT (message_key, variant, reaction) DO UPDATE
 SET count = reaction_tallies.count + EXCLUDED.count
 `
 
 // TallyReactions는 살아 있는 반응을 계정과 끊긴 문장별 집계에 더합니다(D57).
+// 집계 행 잠금 순서를 고정해 두 계정 삭제가 같은 문장 집계를 반대 순서로 잠그는 deadlock을 막습니다.
 func (q *Queries) TallyReactions(ctx context.Context, accountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, tallyReactions, accountID)
 	return err

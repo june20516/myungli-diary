@@ -148,12 +148,23 @@ func (r *Revocations) handleOne(ctx context.Context, lock func(q *authdb.Queries
 	return handled, nil
 }
 
-// process는 잠근 대기 행을 처리합니다. 30일이 지났으면 부르지 않고 지우고, 아니면 제공자를 불러
-// 성공하면 지우고 실패하면 다음 시각을 정합니다. 로그에는 id·provider·결과만 남깁니다.
+// process는 잠근 대기 행을 처리합니다. 30일(기한)이 지났으면 부르지 않고 지우고, 아니면 제공자를 불러
+// 성공하면 지우고 실패하면 다음 시각을 정합니다. 다음 시각은 기한을 넘지 않으며, 기한 시각의 시도가 실패하면
+// 마지막 시도로 보고 지웁니다. 로그에는 id·provider·결과만 남깁니다.
 func (r *Revocations) process(ctx context.Context, q *authdb.Queries, row authdb.ProviderRevocation) error {
 	now := r.clock.Now()
-	if now.After(row.CreatedAt.Add(revocationGiveUpAfter)) {
+	deadline := row.CreatedAt.Add(revocationGiveUpAfter)
+	if now.After(deadline) {
 		r.logger.ErrorContext(ctx, "허가 취소를 포기함", "id", row.ID, "provider", row.Provider)
+		return r.deleteRow(ctx, q, row.ID)
+	}
+	relinked, err := r.kakaoRelinked(ctx, q, row)
+	if err != nil {
+		return err
+	}
+	if relinked {
+		// 같은 카카오 사용자가 다시 가입했습니다. unlink는 사용자 단위라 새 계정의 연결까지 끊으므로 부르지 않습니다.
+		r.logger.InfoContext(ctx, "다시 가입한 카카오 사용자라 허가 취소 생략", "id", row.ID, "provider", row.Provider)
 		return r.deleteRow(ctx, q, row.ID)
 	}
 
@@ -167,9 +178,17 @@ func (r *Revocations) process(ctx context.Context, q *authdb.Queries, row authdb
 		attempts := row.Attempts + 1
 		r.logger.WarnContext(ctx, "허가 취소 실패", "id", row.ID, "provider", row.Provider,
 			"attempts", attempts, "reason", revocationFailureReason(err))
+		if !now.Before(deadline) {
+			r.logger.ErrorContext(ctx, "허가 취소를 포기함", "id", row.ID, "provider", row.Provider)
+			return r.deleteRow(ctx, q, row.ID)
+		}
+		next := now.Add(revocationBackoff(attempts))
+		if next.After(deadline) {
+			next = deadline
+		}
 		if err := q.ScheduleRevocationRetry(ctx, authdb.ScheduleRevocationRetryParams{
 			Attempts:      attempts,
-			NextAttemptAt: now.Add(revocationBackoff(attempts)),
+			NextAttemptAt: next,
 			ID:            row.ID,
 		}); err != nil {
 			return fmt.Errorf("다음 시도 시각 기록: %w", err)
@@ -178,6 +197,19 @@ func (r *Revocations) process(ctx context.Context, q *authdb.Queries, row authdb
 	}
 	r.logger.InfoContext(ctx, "허가 취소 완료", "id", row.ID, "provider", row.Provider)
 	return r.deleteRow(ctx, q, row.ID)
+}
+
+// kakaoRelinked는 카카오 대기 행의 subject로 지금 인증 계정이 있는지(같은 사용자가 다시 가입했는지) 알려 줍니다.
+// Apple 대기 행은 subject가 없고 token 단위로 취소하므로 해당하지 않습니다.
+func (r *Revocations) kakaoRelinked(ctx context.Context, q *authdb.Queries, row authdb.ProviderRevocation) (bool, error) {
+	if row.Provider != providerKakao {
+		return false, nil
+	}
+	exists, err := q.IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerKakao, Subject: row.Subject.String})
+	if err != nil {
+		return false, fmt.Errorf("카카오 인증 계정 확인: %w", err)
+	}
+	return exists, nil
 }
 
 func (r *Revocations) deleteRow(ctx context.Context, q *authdb.Queries, id int64) error {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sort"
 	"time"
 
@@ -77,11 +78,15 @@ type Service struct {
 	queries *accountdb.Queries
 	revoker Revoker
 	clk     clock.Clock
+	logger  *slog.Logger
 }
 
-// NewService는 Service를 만듭니다. revoker는 계정 삭제 뒤 허가 취소를 시도합니다.
-func NewService(pool *pgxpool.Pool, revoker Revoker, clk clock.Clock) *Service {
-	return &Service{pool: pool, queries: accountdb.New(pool), revoker: revoker, clk: clk}
+// NewService는 Service를 만듭니다. revoker는 계정 삭제 뒤 허가 취소를 시도합니다. logger가 nil이면 아무것도 남기지 않습니다.
+func NewService(pool *pgxpool.Pool, revoker Revoker, clk clock.Clock, logger *slog.Logger) *Service {
+	if logger == nil {
+		logger = slog.New(slog.DiscardHandler)
+	}
+	return &Service{pool: pool, queries: accountdb.New(pool), revoker: revoker, clk: clk, logger: logger}
 }
 
 // Access는 계정의 접근 상태를 돌려줍니다. 요청마다 불립니다.

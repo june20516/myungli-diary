@@ -50,8 +50,11 @@ CREATE TABLE reaction_tallies (
 -- 지운 계정에 개인 데이터 행이 새로 붙지 않게 막습니다(S105).
 -- 삭제 트랜잭션은 계정 행을 FOR UPDATE로 잠근 채 개인 데이터를 지우므로, 미들웨어를 이미 통과한 쓰기가
 -- 그 사이에 행을 넣으면 FK는 껍데기 계정 행으로 통과해 버립니다. 그래서 쓰기마다 계정 행을 FOR KEY SHARE
--- (FK 검사와 같은 잠금)로 읽어, 삭제가 끝날 때까지 기다렸다가 commit된 상태를 봅니다.
--- 'deleted'면 SQLSTATE MD001(account.SQLStateAccountDeleted)로 실패하고 server는 401 auth.token_invalid로 답합니다.
+-- (FK 검사와 같은 잠금)로 읽습니다. 삭제 중이면 그 잠금을 기다리고, 삭제가 commit되면 'deleted'를 봐
+-- SQLSTATE MD001(account.SQLStateAccountDeleted)로 실패하며 server는 401 auth.token_invalid로 답합니다.
+-- 다만 삭제가 지울 자식 행을 먼저 잠근 쓰기(PutReaction의 선택 기록 잠금 뒤 반응 INSERT, 문장 선택 갱신,
+-- refresh token 회전)는 삭제와 서로를 기다려 deadlock(40P01)이 날 수 있습니다. PostgreSQL이 한쪽을 끝내고
+-- postgres.InTx가 그 트랜잭션을 다시 실행하므로 풀립니다(다시 실행한 쓰기는 MD001이나 행 없음으로 끝남).
 -- 계정 삭제 자신은 지우기만 하고 마지막에 accounts를 바꾸므로 이 trigger에 걸리지 않습니다.
 -- +goose StatementBegin
 CREATE FUNCTION reject_deleted_account_write() RETURNS trigger AS $$
@@ -128,6 +131,25 @@ JOIN accounts a ON a.id = i.account_id
 WHERE a.status = 'pending_deletion'
   AND (i.provider = 'kakao' OR (i.provider = 'apple' AND i.apple_refresh_token IS NOT NULL));
 
+-- 계산 캐시는 프로필과 문장 선택 기록(고치기 전 출생 정보)의 출생 해시로 찾으므로 그 둘보다 먼저 지웁니다.
+DELETE FROM chart_cache WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
+    UNION
+    SELECT s.birth_hash FROM daily_selections s JOIN accounts a ON a.id = s.account_id
+    WHERE a.status = 'pending_deletion' AND s.birth_hash IS NOT NULL
+);
+DELETE FROM daily_cache WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
+    UNION
+    SELECT s.birth_hash FROM daily_selections s JOIN accounts a ON a.id = s.account_id
+    WHERE a.status = 'pending_deletion' AND s.birth_hash IS NOT NULL
+);
+DELETE FROM month_cache WHERE birth_hash IN (
+    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
+    UNION
+    SELECT s.birth_hash FROM daily_selections s JOIN accounts a ON a.id = s.account_id
+    WHERE a.status = 'pending_deletion' AND s.birth_hash IS NOT NULL
+);
 DELETE FROM reactions
 WHERE selection_id IN (
     SELECT s.id FROM daily_selections s JOIN accounts a ON a.id = s.account_id WHERE a.status = 'pending_deletion'
@@ -143,21 +165,18 @@ WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion')
    OR other_account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
 DELETE FROM refresh_tokens WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
 DELETE FROM consents WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
+-- Apple 웹 로그인 기록은 인증 계정의 subject로 찾으므로 인증 계정보다 먼저 지웁니다.
+DELETE FROM apple_web_logins WHERE subject IN (
+    SELECT i.subject FROM auth_identities i JOIN accounts a ON a.id = i.account_id
+    WHERE a.status = 'pending_deletion' AND i.provider = 'apple'
+);
 DELETE FROM auth_identities WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
--- 계산 캐시는 프로필의 출생 해시로 찾으므로 프로필보다 먼저 지웁니다.
-DELETE FROM chart_cache WHERE birth_hash IN (
-    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
-);
-DELETE FROM daily_cache WHERE birth_hash IN (
-    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
-);
-DELETE FROM month_cache WHERE birth_hash IN (
-    SELECT p.birth_hash FROM profiles p JOIN accounts a ON a.id = p.account_id WHERE a.status = 'pending_deletion'
-);
 DELETE FROM profiles WHERE account_id IN (SELECT id FROM accounts WHERE status = 'pending_deletion');
 -- 지운 시각은 삭제를 요청한 시각으로 둡니다. 옛 CHECK가 deleted에 anonymized_at을 요구하므로 같은 값으로 채웁니다.
+-- 계정 삭제처럼 껍데기에 마지막 활동 시각을 남기지 않도록 last_active_at도 지운 시각으로 덮습니다.
 UPDATE accounts
-SET status = 'deleted', deleted_at = deletion_requested_at, anonymized_at = deletion_requested_at
+SET status = 'deleted', deleted_at = deletion_requested_at, anonymized_at = deletion_requested_at,
+    last_active_at = deletion_requested_at
 WHERE status = 'pending_deletion';
 
 -- 상태는 active·deleted 둘뿐이고, 지운 시각은 deleted일 때만 있습니다.

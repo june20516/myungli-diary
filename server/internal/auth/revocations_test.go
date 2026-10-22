@@ -177,6 +177,48 @@ func TestRevocations_GiveUpAfter30Days(t *testing.T) {
 	assert.Equal(t, 1, f.revocation(t, fresh).attempts)
 }
 
+// 다음 시도 시각은 created_at + 30일을 넘지 않습니다. 그 시각의 시도가 실패하면 마지막 시도로 보고 포기합니다.
+func TestRevocations_RetryNeverPassesGiveUpDeadline(t *testing.T) {
+	f := newFixture(t)
+	revocations := f.newRevocations(t)
+	id := f.queueKakao(t, "kakao-1")
+	deadline := f.clk.Now().Add(30 * 24 * time.Hour)
+	// 실패가 쌓여 다음 간격이 1일인 행을, 기한 한 시간 전에 시도합니다.
+	f.exec(t, `UPDATE provider_revocations SET attempts = 20, next_attempt_at = $2 WHERE id = $1`, id, deadline.Add(-time.Hour))
+	f.fake.SetKakaoUnlinkResponse(http.StatusServiceUnavailable, "")
+	f.clk.Set(deadline.Add(-time.Hour))
+
+	_, err := revocations.RetryDue(f.ctx)
+
+	require.NoError(t, err)
+	row := f.revocation(t, id)
+	assert.Equal(t, 21, row.attempts)
+	assert.True(t, row.nextAttemptAt.Equal(deadline), "next_attempt_at = %v, want 기한 %v", row.nextAttemptAt, deadline)
+
+	// 기한 시각의 시도가 마지막입니다. 실패하면 행을 지웁니다.
+	f.clk.Set(deadline)
+	_, err = revocations.RetryDue(f.ctx)
+
+	require.NoError(t, err)
+	assert.Len(t, f.fake.KakaoUnlinkRequests(), 2, "기한 시각에도 한 번 더 부릅니다")
+	assert.Zero(t, f.revocationCount(t))
+}
+
+// 같은 카카오 사용자가 다시 가입해 그 subject의 인증 계정이 있으면, unlink하면 새 계정까지 끊기므로 부르지 않고 지웁니다.
+func TestRevocations_KakaoRelinkedSkipsUnlink(t *testing.T) {
+	f := newFixture(t)
+	revocations := f.newRevocations(t)
+	f.queueKakao(t, "kakao-1")
+	f.loginKakao(t, "kakao-1")
+
+	attempted, err := revocations.RetryDue(f.ctx)
+
+	require.NoError(t, err)
+	assert.Equal(t, 1, attempted)
+	assert.Empty(t, f.fake.KakaoUnlinkRequests())
+	assert.Zero(t, f.revocationCount(t))
+}
+
 func TestRevocations_RetryDueSkipsLocked(t *testing.T) {
 	f := newFixture(t)
 	revocations := f.newRevocations(t)
