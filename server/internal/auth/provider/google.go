@@ -54,8 +54,21 @@ func NewGoogle(cfg GoogleConfig) (*Google, error) {
 	return &Google{verifier: verifier, clientIDs: slices.Clone(cfg.ClientIDs)}, nil
 }
 
+// authorizedParty는 id_token의 azp claim을 돌려줍니다. 없거나 문자열이 아니면 빈 문자열입니다.
+func authorizedParty(token *oidc.IDToken) string {
+	var claims struct {
+		AZP string `json:"azp"`
+	}
+	if err := token.Claims(&claims); err != nil {
+		return ""
+	}
+	return claims.AZP
+}
+
 // Verify는 Google id_token을 검증합니다.
 // iss(두 표기 중 하나), aud(ClientIDs 중 하나), exp, RS256 서명, nonce(hex(sha256(rawNonce)))를 확인합니다.
+// aud가 둘 이상이면 azp claim이 있고 ClientIDs 안에 있어야 합니다(OIDC Core 3.1.3.7).
+// Android token은 azp가 Android client ID이므로, aud가 여럿인 토큰을 받으려면 그 ID도 GOOGLE_CLIENT_IDS에 넣어야 합니다.
 func (g *Google) Verify(ctx context.Context, idToken, rawNonce string) (Identity, error) {
 	const name = "Google id_token"
 	token, err := verifyIDTokenClaims(ctx, g.verifier, name, idToken)
@@ -67,6 +80,9 @@ func (g *Google) Verify(ctx context.Context, idToken, rawNonce string) (Identity
 	}
 	if !slices.ContainsFunc(token.Audience, func(aud string) bool { return slices.Contains(g.clientIDs, aud) }) {
 		return Identity{}, fmt.Errorf("%w: %s: aud 불일치", ErrTokenInvalid, name)
+	}
+	if len(token.Audience) > 1 && !slices.Contains(g.clientIDs, authorizedParty(token)) {
+		return Identity{}, fmt.Errorf("%w: %s: azp 불일치", ErrTokenInvalid, name)
 	}
 	if !nonceMatches(token.Nonce, rawNonce) {
 		return Identity{}, fmt.Errorf("%w: %s: nonce 불일치", ErrTokenInvalid, name)

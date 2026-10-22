@@ -3,6 +3,7 @@ package postgres_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
@@ -96,5 +97,28 @@ func TestInit_SetUpdatedAtTouchesRow(t *testing.T) {
 	}
 	if !touched {
 		t.Error("UPDATE 뒤 updated_at이 갱신되지 않았습니다")
+	}
+}
+
+func TestMigrateDownTo_StopsAtVersion(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+
+	if err := postgres.MigrateDownTo(ctx, pool, 12); err != nil {
+		t.Fatal(err)
+	}
+
+	statuses, err := postgres.Status(ctx, pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var latestApplied string
+	for _, s := range statuses {
+		if s.Applied {
+			latestApplied = s.Source
+		}
+	}
+	if !strings.HasPrefix(latestApplied, "00012_") {
+		t.Errorf("최신 적용 migration = %s, want 00012_*", latestApplied)
 	}
 }

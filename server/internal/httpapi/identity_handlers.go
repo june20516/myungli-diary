@@ -50,6 +50,7 @@ func (a *API) LinkIdentity(ctx context.Context, req gen.LinkIdentityRequestObjec
 	if err != nil {
 		return nil, err
 	}
+	// 연결은 이미 commit됐습니다. 목록 조회가 실패하면 500이고, 다시 요청하면 200(Created=false)입니다.
 	identities, err := a.Auth.ListIdentities(ctx, id)
 	if err != nil {
 		return nil, err

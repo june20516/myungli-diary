@@ -116,19 +116,26 @@ func TestGoogle_JWKSFailureIsUnavailable(t *testing.T) {
 }
 
 func TestGoogle_VerifyHandlesArrayAudience(t *testing.T) {
+	multi := []string{"other.apps.googleusercontent.com", providertest.GoogleClientIDs[1]}
 	tests := []struct {
 		name    string
 		aud     []string
+		azp     string // 빈 문자열이면 azp claim을 넣지 않습니다.
 		wantErr bool
 	}{
-		{"배열에 설정된 client ID가 있음", []string{"other.apps.googleusercontent.com", providertest.GoogleClientIDs[1]}, false},
-		{"배열에 설정된 client ID가 없음", []string{"a.example", "b.example"}, true},
+		{"배열 aud에 설정된 client ID가 있고 azp도 목록 안", multi, providertest.GoogleClientIDs[1], false},
+		{"배열 aud인데 azp가 없음", multi, "", true},
+		{"배열 aud인데 azp가 목록 밖", multi, "other.apps.googleusercontent.com", true},
+		{"배열에 설정된 client ID가 없음", []string{"a.example", "b.example"}, providertest.GoogleClientIDs[1], true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			google, fake := newGoogle(t)
 			claims := providertest.GoogleClaims(googleSubject, testRawNonce, "", provider.GoogleIssuers[0], testNow)
 			claims["aud"] = tt.aud
+			if tt.azp != "" {
+				claims["azp"] = tt.azp
+			}
 
 			_, err := google.Verify(context.Background(), fake.SignIDToken(claims), testRawNonce)
 

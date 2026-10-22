@@ -11,9 +11,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
-const (
-	identityLine = "00000000-0000-7000-8000-0000000000b1"
-)
+const identityLine = "00000000-0000-7000-8000-0000000000b1"
 
 // wantConstraint는 err가 위반한 제약 이름이 want와 같은지 확인합니다.
 func wantConstraint(t *testing.T, err error, want string) {
@@ -36,8 +34,12 @@ func TestSchema_LineGoogleIdentities(t *testing.T) {
 		}
 	}
 	insert := func(id, account, provider, subject, apple string) error {
-		_, err := pool.Exec(ctx, `INSERT INTO auth_identities (id, account_id, provider, subject`+apple+`)
-			VALUES ($1, $2, $3, $4`+map[bool]string{true: `, '\x01', 'key', 'client'`, false: ``}[apple != ""]+`)`, id, account, provider, subject)
+		columns, values := `id, account_id, provider, subject`, `$1, $2, $3, $4`
+		if apple != "" {
+			columns += apple
+			values += `, '\x01', 'key', 'client'`
+		}
+		_, err := pool.Exec(ctx, `INSERT INTO auth_identities (`+columns+`) VALUES (`+values+`)`, id, account, provider, subject)
 		return err
 	}
 	const withApple = `, apple_refresh_token, apple_token_key_id, apple_client_id`
@@ -104,7 +106,7 @@ func TestSchema_Migration00014Down(t *testing.T) {
 		if err := insertAccount(ctx, pool, accountA, "active", false, false); err != nil {
 			t.Fatal(err)
 		}
-		if err := postgres.Migrate(ctx, pool, "down"); err != nil { // 00014만 내립니다.
+		if err := postgres.MigrateDownTo(ctx, pool, 13); err != nil { // 00014만 내립니다.
 			t.Fatal(err)
 		}
 		var exists bool
@@ -135,10 +137,10 @@ func TestSchema_Migration00014Down(t *testing.T) {
 			VALUES ($1, $2, 'line', 'line-1')`, identityLine, accountA); err != nil {
 			t.Fatal(err)
 		}
-		err := postgres.Migrate(ctx, pool, "down")
+		err := postgres.MigrateDownTo(ctx, pool, 13)
 		var pgErr *pgconn.PgError
 		if !errors.As(err, &pgErr) || pgErr.Code != checkViolation {
-			t.Errorf("Migrate(down) = %v, want CHECK 위반", err)
+			t.Errorf("MigrateDownTo(13) = %v, want CHECK 위반", err)
 		}
 	})
 }

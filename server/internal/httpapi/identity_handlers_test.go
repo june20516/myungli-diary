@@ -109,6 +109,7 @@ func TestLinkIdentity_StatusByResult(t *testing.T) {
 			fake: &fakeAuth{linkErr: &auth.InvalidProofError{Field: "/exchangeCode", Code: "additionalProperties"}},
 		},
 		{name: "교환 코드 거절", fake: &fakeAuth{linkErr: auth.ErrExchangeInvalid}, wantStatus: http.StatusUnauthorized, wantCode: "auth.exchange_invalid"},
+		{name: "제공자에 닿지 못함", fake: &fakeAuth{linkErr: auth.ErrProviderUnavailable}, wantStatus: http.StatusServiceUnavailable, wantCode: "auth.provider_unavailable"},
 		{name: "제공자 토큰 거절", fake: &fakeAuth{linkErr: auth.ErrProviderTokenInvalid}, wantStatus: http.StatusUnauthorized, wantCode: "auth.provider_token_invalid"},
 	}
 	for _, tt := range tests {

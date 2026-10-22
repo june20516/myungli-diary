@@ -181,6 +181,30 @@ func TestLinkIdentity_InUseDiscardsNewAppleGrantWithoutRevoke(t *testing.T) {
 	assert.Equal(t, providertest.AppleRefreshToken, f.appleRefreshOf(t, other), "다른 계정의 토큰은 그대로입니다")
 }
 
+// 같은 계정에 다른 Apple subject를 붙이면 거절되고, 교환한 grant는 저장되지 않으므로 revoke합니다.
+func TestLinkIdentity_ProviderTakenRevokesUnsavedAppleGrant(t *testing.T) {
+	f := newFixture(t)
+	accountID := f.loginApple(t, "A1").AccountID
+
+	_, err := f.service.LinkIdentity(f.ctx, accountID, "apple", f.appleProof("A2"))
+
+	require.ErrorIs(t, err, auth.ErrProviderTaken)
+	assert.Len(t, f.fake.AppleRevokeRequests(), 1, "저장하지 못한 grant 정리")
+}
+
+// 삭제 대기 계정이 가진 Apple을 붙이면 거절되고, 그 subject의 연결 행이 있으므로 revoke하지 않습니다.
+func TestLinkIdentity_PendingDeletionAppleDoesNotRevoke(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginApple(t, "A1").AccountID
+	f.markPendingDeletion(t, other)
+	me := f.loginKakao(t, "kakao-1").AccountID
+
+	_, err := f.service.LinkIdentity(f.ctx, me, "apple", f.appleProof("A1"))
+
+	require.ErrorIs(t, err, auth.ErrIdentityPendingDeletion)
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+}
+
 func TestLinkIdentity_PendingDeletionOwner(t *testing.T) {
 	f := newFixture(t)
 	other := f.loginLine(t, "U1").AccountID
