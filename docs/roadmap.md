@@ -46,7 +46,7 @@
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
 | 지금 | app | drift #412(`ia.g.dart`, #408과 같은 PR도 됨) → 계획 7 수익·알림·실제 로그인(#311: 카카오·Apple adapter, D82 범위 확장 #387(LINE·Google adapter, 로그인 수단·계정 합치기 화면), D83 일기 하루 여러 편 #408(입구는 언제나 새 일기, 일기 줄)과 한 날짜 10편 상한 #424(입구 막기, 422), REST draft.13 일기 클라이언트 #437, writing ARB #418, ui 조사 `josaClass` #453(D84), App Link, FCM과 알림 기기 호출 시점 #347 ②, AdMob·RevenueCat 실제 adapter). #311의 release 서명 지문·스토어 URL만 Google Play 개발자 계정(외부 준비물) 뒤 | A1 완료, A2 |
-| 지금 | server | D83 일기 구현 #407(계약 draft.13은 PR #438로 완료, 저장 분리·10편 상한 구현은 `server/d83-diary-impl`)과 D82 인증 확장 #386(LINE·Google 로그인, 연결·떼기·합치기 API, freeze 전 계약), S69 되돌림(core #304 완료) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화). 대운 시작 연도(#351, PR #385 draft.12) 완료 | S2 완료, S3, A2 |
+| 지금 | server | D82 인증 확장 #386(LINE·Google 로그인, 연결·떼기·합치기 API, freeze 전 계약. 합치기는 같은 날 일기를 10편을 넘어도 모두 옮김, D83 ④), S69 되돌림(core #304 완료) → S3 REST v1 freeze PR(#347 ① 답 받음, S93) → P8 Job(precompute·notify·retention과 익명화). 대운 시작 연도(#351, PR #385 draft.12)와 D83 일기 하루 여러 편(#407, 계약 PR #438·구현 PR #456) 완료 | S2 완료, S3, A2 |
 | 다음 | writing | (D82·D83 원고 #388·#409·#425·#441은 PR #419·#436으로 완료) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`) | I3, server 시드 strict(S38) |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때). #304는 PR #432로 완료 | - |
