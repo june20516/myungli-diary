@@ -96,8 +96,9 @@
 
 * 이 단계에는 다른 버튼이 없습니다.
 * 누른 버튼만 `loading`, 나머지는 `disabled`입니다.
-* 인증한 수단이 지금 계정의 것이거나 어느 계정에도 연결돼 있지 않으면, `account-merge.not-other.body`를 `dialog` `notice`로 보입니다. 확인하면 인증 단계에 그대로 남아 다시 고를 수 있습니다(IA `account-merge:error`).
+* 인증한 수단이 지금 계정의 것이거나 어느 계정에도 연결돼 있지 않으면, `account-merge.not-other.body`를 `dialog` `notice`로 보입니다. 확인하면 인증 단계에 그대로 남아 다시 고를 수 있습니다(IA `account-merge:error`). 연결·합치기로 넘어가지 않으므로 D85 ④의 '끝냄'과 같습니다.
 * 인증되면 요약·고르기 단계로 바뀝니다. 요약을 받는 동안(IA `account-merge:loading`)은 가져올 기록 상자와 카드 두 장 자리가 `loading.breathe`로 숨쉽니다.
+* 요약을 받지 못하면(연결 끊김 포함) `ui.account-merge.error`를 `dialog` `notice`로 보이고, 확인하면 인증 단계로 돌아갑니다. 인증 결과는 버립니다.
 
 **요약·고르기 단계** (app-bar 아래로 차례대로)
 
@@ -106,7 +107,7 @@
 3. 가져올 기록 상자(컴포넌트가 아닌 화면 배치, 문구 `ui.account-merge.summary`)
    * 상자: `bg.sheet`, `radius.md`, 안쪽 `space.16`, 줄 사이 `space.8`, 아래 `space.24`.
    * 머리: `type.caption.md`, `text.secondary`.
-   * 줄마다 왼쪽에 이름(`type.body.ui`, `text.secondary`), 오른쪽에 값(`type.body.ui`, `text.primary`, 고정폭 숫자)을 둡니다.
+   * 줄마다 왼쪽에 이름(`type.body.ui`, `text.secondary`), 오른쪽에 값(`type.body.ui`, `text.primary`, 고정폭 숫자, 값 자리 56)을 둡니다.
    * 줄 순서는 일기 편수 → 일정 개수 → 광고 제거 남은 기간입니다.
    * 일기·일정 줄은 0이어도 보입니다(D85 ④). 광고 제거 남은 기간 줄은 남은 기간이 있을 때만 보입니다.
 4. `account-merge.choice.label`(`type.caption.md`, `text.secondary`, 아래 `space.8`)
@@ -119,6 +120,6 @@
 * **"합치지 않기" 버튼이 없습니다.** 그만두기는 app-bar 뒤로 가기(또는 시스템 뒤로 가기)입니다. 어느 단계에서든 `login-methods`로 돌아가고 인증 결과는 버립니다. IA의 `account-merge.cta.cancel` 슬롯과 "합치지 않기" 출구를 지우도록 지휘에 요청했습니다.
 * 합치기 버튼을 누르면 `dialog` `destructive`(`account-merge.merge.confirm`)가 열립니다. **강조는 이 확인 창 한 곳입니다.** 화면의 합치기 버튼은 평소 무게(`filled`)로 둡니다.
 * 확정 뒤에는 확인 창이 닫히고 합치기 버튼이 `loading`, `account-choice`는 `disabled`(고름 잠금)입니다.
-  * 합치는 동안 뒤로 가기는 동작하지 않습니다. 되돌릴 수 없는 처리가 진행 중이라 화면을 떠나 결과를 놓치지 않게 합니다.
+  * 합치는 동안 뒤로 가기는 동작하지 않습니다. app-bar 뒤로 가기 버튼은 `disabled`(opacity 0.4)이고, 시스템 뒤로 가기와 iOS 스와이프 뒤로 가기도 막습니다. 되돌릴 수 없는 처리가 진행 중이라 화면을 떠나 결과를 놓치지 않게 합니다.
   * 끝나면 `login-methods`로 돌아갑니다.
 * 실패(`account-merge:error`)는 `ui.account-merge.error`를 `dialog` `notice`로 보입니다. 고름은 그대로 두어 버튼을 다시 누르면 됩니다. 화면 전체를 오류로 바꾸지 않습니다(IA `account-merge` 컴포넌트에 `error-state`가 없음).

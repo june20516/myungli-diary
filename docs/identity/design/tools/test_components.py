@@ -507,7 +507,7 @@ SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 �
 # IA 밖 writing ui 슬롯(D77 ②): 컴포넌트 안 낱말 (#389)
 SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
 # D88 구매 줄 낱말 (#494). 가져올 기록 상자(ui.account-merge.summary)는 컴포넌트가 아닌 화면 배치라 input.md에만 있음
-SLOTS_OUTSIDE_IA |= {"ui.purchase-row", "ui.purchase-product"}
+SLOTS_OUTSIDE_IA |= {"ui.purchase-row", "ui.purchase-product", "ui.purchase-status"}
 
 
 def _slot_values(node):
@@ -1047,3 +1047,30 @@ def test_issue_475_values():
     for part in (variants["summary"]["parts"]["time"], variants["list"]["parts"]["timeColumn"]):
         assert part["format"] == "HH:mm" and part["hourCycle"] == "h23"
     assert "기기 locale의 짧은 시각" not in (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")
+
+
+# 최종 리뷰 반영 (#480): 구매 줄 슬롯 나눔, 색인, 요약 실패·뒤로 가기·문의 안내 범위
+def test_purchase_row_slots_are_split_by_limit():
+    parts = component("action", "purchase-row")["parts"]
+    assert parts["status"]["slot"] == "ui.purchase-status" and parts["status"]["key"] == "purchaseRowStatus*"
+    assert parts["status"]["maxWidth"] == {"value": 80, "unit": "px"}
+    assert parts["meta"]["slot"] == "ui.purchase-row" and parts["meta"]["join"] == {"key": "purchaseRowSeparator"}
+
+
+def test_readme_index_lists_3_0_components():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "check-row, account-choice |" in readme and "offer-card, purchase-row |" in readme
+    assert "IA 컴포넌트 42개" not in readme and readme.count("IA 컴포넌트 43개") == 2
+
+
+def test_account_merge_failure_and_back_rules():
+    section = _md_section("input.md", "### account-merge 화면 배치")
+    assert "요약을 받지 못하면" in section and "인증 단계로 돌아갑니다" in section
+    assert "스와이프" in section and "`disabled`" in section
+    assert "'끝냄'" in section
+    assert "값 자리 56" in section
+
+
+def test_missing_notice_scope():
+    section = _md_section("action.md", "### purchase-history 화면 배치")
+    assert "`loading`·`error`·`offline`에서는" in section

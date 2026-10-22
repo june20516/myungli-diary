@@ -40,15 +40,15 @@
 | `elements.json` | 반복 요소 16개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역 등) |
 | `frame.json` | tab-bar, app-bar, sheet, ad-banner |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
-| `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row |
-| `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card |
+| `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row, account-choice |
+| `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card, purchase-row |
 | `sentence.json` | sentence-block, term-token, depth-link, reaction-button |
 | `today.json` | day-character, lucky-card, guide-question-card, share-image |
 | `calendar.json` | calendar-month, day-cell, event-row |
 | `diary.json` | diary-row, diary-editor, draft-indicator, tag-chip |
 | `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table |
 
-IA 컴포넌트 42개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
+IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action).
 
 ## 공통 규칙
 
@@ -95,7 +95,7 @@ python3 docs/identity/design/tools/components.py     # 저장소 루트에서
 
 검사하는 것(`tools/test_components.py`가 커밋된 파일에 돌림):
 
-* IA 컴포넌트 42개 id가 정확히 한 번(빠짐·넘침·겹침)
+* IA 컴포넌트 43개 id가 정확히 한 번(빠짐·넘침·겹침)
 * 구성 요소가 가리키는 `component`(IA 컴포넌트)·`element`(요소)가 있음, 변형 id 겹침 없음, 햅틱 세기는 selection·light·medium
 * 문자열 중간에 섞인 `{토큰}` 없음(값 하나에 참조 하나)
 * 모든 `{토큰}` 참조가 테마 조합 4가지 모두에 있음(깊이와 관계없이)

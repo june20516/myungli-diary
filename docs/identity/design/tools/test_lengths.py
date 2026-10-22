@@ -59,7 +59,7 @@ ISSUE_389 = {
 # D85 계정 합치기 두 단계·D88 구매 내역 (#480·#483·#494, spec 2026-10-23 §8)
 ISSUE_480 = {
     "login-methods.merge.cta", "ad-free.history.cta", "account-merge.auth.body", "purchase-history.missing.notice",
-    "ui.account-merge.summary", "ui.purchase-row",
+    "ui.account-merge.summary", "ui.purchase-row", "ui.purchase-status",
 }
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
@@ -287,3 +287,10 @@ def test_line_label_is_measured_at_198():
     # LINE 공식 버튼 자산의 구분선 비율을 따르면 글자 자리가 198px (#475, 결정 V46)
     target = lengths.KEY_TARGETS[("ui.login.provider", "loginLineLabel")]
     assert (target.width, target.font, target.size) == (198, "ui-600", 14)
+
+
+def test_purchase_meta_and_status_are_measured_apart():
+    places = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    assert places["ui.purchase-status"].width == 80 - 2 * 8
+    assert places["ui.purchase-row"].width == lengths.CONTENT_WIDTH - 2 * 16
+    assert "가져올 계정" in places["ui.account-merge.choice"].where

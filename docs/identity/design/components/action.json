@@ -193,7 +193,7 @@
           "position": "end",
           "align": "product-first-line",
           "gap": "{space.12}",
-          "slot": "ui.purchase-row",
+          "slot": "ui.purchase-status",
           "active": {
             "element": "tag.status"
           },
@@ -202,7 +202,12 @@
             "fg": "{color.text.secondary}",
             "bg": "none"
           },
-          "note": "사용 중이면 tag.status, 대기·만료·환불은 바탕 없는 글자. 낱말은 상품 종류에 따라 다를 수 있음(D88 ②)"
+          "note": "사용 중이면 tag.status, 대기·만료·환불은 바탕 없는 글자. 낱말은 상품 종류에 따라 다를 수 있음(D88 ②)",
+          "key": "purchaseRowStatus*",
+          "maxWidth": {
+            "value": 80,
+            "unit": "px"
+          }
         },
         "meta": {
           "type": "{type.caption.lg}",
@@ -220,7 +225,10 @@
             "key": "purchaseRowPeriod",
             "source": "server가 준 사용 구간(시작·끝) 그대로"
           },
-          "periodOnlyWhen": "server가 사용 기간을 준 상품(기간권·구독). 없으면 구매일만"
+          "periodOnlyWhen": "server가 사용 기간을 준 상품(기간권·구독). 없으면 구매일만",
+          "join": {
+            "key": "purchaseRowSeparator"
+          }
         }
       },
       "states": {

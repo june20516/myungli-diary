@@ -99,8 +99,8 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 | 부품 | 모습 |
 | --- | --- |
 | `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase-product` `purchaseProduct*`, 줄바꿈하므로 글자 수 상한 없음), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
-| `status` | 오른쪽, `product` 첫 줄과 세로 가운데. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
-| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 기기 locale의 짧은 날짜) + 사용 기간(`purchaseRowPeriod`). 사용 기간이 없는 상품은 구매일만 |
+| `status` | 오른쪽, `product` 첫 줄과 세로 가운데, 최대 폭 80(사이 `space.12`). 낱말은 `ui.purchase-status` `purchaseRowStatus*`. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
+| `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 구매일(`purchaseRowPurchased`, 기기 locale의 짧은 날짜) + 구분자(`purchaseRowSeparator`) + 사용 기간(`purchaseRowPeriod`). 문구는 `ui.purchase-row`. 사용 기간이 없는 상품은 구매일만 |
 
 * 순서는 server가 준 순서 그대로입니다(최근 구매가 위).
 * 사용 기간은 server가 준 구간 그대로입니다. 합치기로 옮겨 온 구매는 이 계정에서 쓰는 구간만 오므로 구매일이 사용 기간 시작보다 이를 수 있습니다. 대기 구매와 같습니다.
@@ -113,7 +113,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 
 1. app-bar(`purchase-history.bar.title`)
 2. 위 `space.12`에 `purchase-row` 묶음 카드
-3. `purchase-history.missing.notice`: 위 `space.16`, `type.caption.lg`, `text.secondary`, 좌우 안쪽 `space.4`. 목록이 있든 비었든 늘 보입니다. 결제했는데 목록에 없을 수 있기 때문입니다.
+3. `purchase-history.missing.notice`: 위 `space.16`, `type.caption.lg`, `text.secondary`, 좌우 안쪽 `space.4`. 목록이 있든 비었든(`empty`) 늘 보입니다. 결제했는데 목록에 없을 수 있기 때문입니다. `loading`·`error`·`offline`에서는 `stateMap` 화면만 보이고 이 안내는 없습니다.
 
 * `empty`: 화면 상태 대응표(`stateMap`)대로 `empty-state`입니다. 아이콘은 Phosphor `receipt`, 문장은 `purchase-history.empty.body`이고 주 버튼은 없습니다. `missing.notice`는 그 문장 아래 `space.16`에 둡니다.
 * `loading`·`error`·`offline`은 `stateMap` 그대로입니다. 들어갈 때 결제 기록을 다시 불러오는 동안(D88 ②)이 `loading`입니다.

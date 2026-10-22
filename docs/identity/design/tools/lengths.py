@@ -176,7 +176,7 @@ TARGETS = (
     Target(("account-merge.choice.label",), "account-choice 묶음 이름 (본문 폭)", "ui-500", 12, -0.24, CONTENT_WIDTH, 1, False, None),
     Target(("account-merge.overlap.notice",), "account-merge 겹치는 날 안내 (아이콘 16 + 간격 8)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 16 - 8, 2, True, None),
-    Target(("ui.account-merge.choice",), "account-choice 현재 계정 알약 (카드 안 256의 절반, 좌우 8 + 테두리 1)",
+    Target(("ui.account-merge.choice",), "account-choice 현재·가져올 계정 알약 (카드 안 256의 절반, 좌우 8 + 테두리 1)",
            "ui-500", 11, -0.22, (CONTENT_WIDTH - 2 * 16 - 32) / 2 - 2 * 8 - 2, 1, False, None),
     Target(("ui.account-merge.saju",), "account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None),
@@ -187,8 +187,11 @@ TARGETS = (
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 56, 1, False, None),
     Target(("purchase-history.missing.notice",), "purchase-history 문의 안내 (본문 폭, 좌우 4)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 4, 2, True, None),
-    # 꼬리표 하나 폭 80에서 좌우 8. meta 줄은 날짜가 대부분이라 상태 낱말만 잼
-    Target(("ui.purchase-row",), "purchase-row 상태 낱말 (꼬리표 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
+    # 상태 꼬리표 최대 폭 80(purchase-row status.maxWidth)에서 좌우 8
+    Target(("ui.purchase-status",), "purchase-row 상태 낱말 (꼬리표 최대 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
+    # meta 줄(구매일 · 사용 기간, 날짜 매개변수 포함)은 상품 이름 아래 카드 안 폭 전체를 씀(안쪽 16 양쪽)
+    Target(("ui.purchase-row",), "purchase-row 구매일·사용 기간 줄 (카드 안쪽 16)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16, 1, False, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
