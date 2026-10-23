@@ -418,5 +418,6 @@
   "purchaseStatusPending": "Upcoming",
   "purchaseStatusExpired": "Expired",
   "purchaseStatusRefunded": "Refunded",
-  "errorMergeTokenInvalid": "We couldn't continue the merge. Verify the account you're bringing in again."
+  "errorMergeTokenInvalid": "We couldn't continue the merge. Verify the account you're bringing in again.",
+  "adFreeBuyCta": "Buy"
 }

@@ -1542,4 +1542,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorMergeTokenInvalid =>
       'We couldn\'t continue the merge. Verify the account you\'re bringing in again.';
+
+  @override
+  String get adFreeBuyCta => 'Buy';
 }

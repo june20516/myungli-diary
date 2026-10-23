@@ -418,5 +418,6 @@
   "purchaseStatusPending": "利用前",
   "purchaseStatusExpired": "期限切れ",
   "purchaseStatusRefunded": "返金済み",
-  "errorMergeTokenInvalid": "統合を続けられませんでした。取り込むアカウントを再認証してください。"
+  "errorMergeTokenInvalid": "統合を続けられませんでした。取り込むアカウントを再認証してください。",
+  "adFreeBuyCta": "購入する"
 }

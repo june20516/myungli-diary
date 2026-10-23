@@ -1986,5 +1986,9 @@
   "errorMergeTokenInvalid": "계정 합치기를 이어 가지 못했어요. 가져올 계정을 다시 인증해 주세요.",
   "@errorMergeTokenInvalid": {
     "description": "오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다"
+  },
+  "adFreeBuyCta": "구매하기",
+  "@adFreeBuyCta": {
+    "description": "임시, #548 원고 전(A7). ad-free 구매 버튼 문구(IA 슬롯 ad-free.buy.cta 제안)"
   }
 }

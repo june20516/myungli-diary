@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
+import 'package:myungli_diary/design/components/action/offer_card_sample.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/action/purchase_row_sample.dart';
@@ -171,26 +172,9 @@ WidgetbookUseCase _offerCard(OfferCardState state) => WidgetbookUseCase(
   name: state.name,
   builder: (context) {
     final l10n = AppLocalizations.of(context);
-    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    final locale = Localizations.localeOf(context).toLanguageTag();
     return Stage(
-      child: SizedBox(
-        width: 360,
-        child: OfferCard(
-          state: state,
-          head: l10n.adFreeOfferHead,
-          // 공개 저장소라 가격 수치를 쓰지 않습니다.
-          price: l10n.adFreeOfferPrice('가격'),
-          // 구매 버튼 문구는 아직 ARB에 없어(임시 키는 화면 task가 더함) 여기서만 고정 문구입니다.
-          buyLabel: ja ? '購入する' : '구매하기',
-          historyLabel: l10n.adFreeHistoryCta,
-          legalNotice: l10n.adFreeLegalNotice,
-          statusLabel: l10n.purchaseStatusActive,
-          remaining: l10n.adFreeStatusRemaining(ja ? '11月23日' : '11월 23일'),
-          onBuy: () {},
-          onHistory: () {},
-          onLegal: () {},
-        ),
-      ),
+      child: SizedBox(width: 360, child: offerCardSample(l10n, locale, state)),
     );
   },
 );

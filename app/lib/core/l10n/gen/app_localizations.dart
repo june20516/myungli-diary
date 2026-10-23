@@ -2621,6 +2621,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'계정 합치기를 이어 가지 못했어요. 가져올 계정을 다시 인증해 주세요.'**
   String get errorMergeTokenInvalid;
+
+  /// 임시, #548 원고 전(A7). ad-free 구매 버튼 문구(IA 슬롯 ad-free.buy.cta 제안)
+  ///
+  /// In ko, this message translates to:
+  /// **'구매하기'**
+  String get adFreeBuyCta;
 }
 
 class _AppLocalizationsDelegate

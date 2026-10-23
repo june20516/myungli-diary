@@ -27,6 +27,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/me/application/settings_controller.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
+import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
 
 /// IA `settings`의 출구 대상. `welcome`은 로그아웃 뒤 진입이 다시 계산돼 라우터 redirect가
 /// 보내는 곳이고, `birthplace`는 언어 변경 뒤 출생지 안내에서 엽니다.
@@ -54,14 +55,8 @@ String notificationLabel(AppLocalizations l10n, NotificationSetting setting) {
 ///
 /// 만료 시각(UTC)을 프로필 시간대의 날짜로 보입니다.
 String? adFreeLabel(AppLocalizations l10n, AdFree? adFree, String timezone) {
-  final expiresAt = adFree?.expiresAt;
-  if (adFree == null || !adFree.active || expiresAt == null) {
-    return null;
-  }
-  final local = localTimeIn(expiresAt, timezone);
-  final date = DateFormat.yMMMd(l10n.localeName)
-      .format(DateTime(local.year, local.month, local.day));
-  return l10n.settingsAdFreeLabelActive(date);
+  final date = adFreeExpiryDate(l10n.localeName, adFree, timezone);
+  return date == null ? null : l10n.settingsAdFreeLabelActive(date);
 }
 
 /// 설정(`settings`, 결정 A59·A60·A63, D79).

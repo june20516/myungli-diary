@@ -1424,4 +1424,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get errorMergeTokenInvalid => '統合を続けられませんでした。取り込むアカウントを再認証してください。';
+
+  @override
+  String get adFreeBuyCta => '購入する';
 }

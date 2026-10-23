@@ -1427,4 +1427,7 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get errorMergeTokenInvalid =>
       '계정 합치기를 이어 가지 못했어요. 가져올 계정을 다시 인증해 주세요.';
+
+  @override
+  String get adFreeBuyCta => '구매하기';
 }
