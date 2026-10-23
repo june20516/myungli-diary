@@ -39,7 +39,6 @@ LoginResponse _login({required bool isNewAccount}) => LoginResponse(
 
 Me _me({required bool hasProfile}) => Me.fromJson({
   'accountId': '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
-  'status': 'active',
   'consentRequired': false,
   'requiredConsents': <Object?>[],
   'hasProfile': hasProfile,

@@ -121,12 +121,32 @@ void main() {
   test('401이면 이미 지워진 것으로 보고 로컬 로그아웃한다', () async {
     final api = _Api(deleteStatus: 401);
     final tokens = await _signedIn(MemorySecureStore());
+    final events = <AuthEvent>[];
+    tokens.events.listen(events.add);
     final container = _containerOf(api, tokens);
 
     await container.read(accountDeleteControllerProvider.notifier).delete();
+    await pumpEventQueue();
 
     expect(api.logoutCalls, 0);
     expect(await tokens.hasSession(), isFalse);
+    expect(events, [AuthEvent.signedOut]);
+  });
+
+  test('세션이 이미 없는 상태의 401이면 signOut을 다시 부르지 않는다', () async {
+    final api = _Api(deleteStatus: 401);
+    final tokens = await _signedIn(MemorySecureStore());
+    // interceptor가 먼저 로그아웃한 상태.
+    await tokens.discardWithoutEvent();
+    final events = <AuthEvent>[];
+    tokens.events.listen(events.add);
+    final container = _containerOf(api, tokens);
+
+    await container.read(accountDeleteControllerProvider.notifier).delete();
+    await pumpEventQueue();
+
+    expect(await tokens.hasSession(), isFalse);
+    expect(events, isEmpty);
   });
 
   test('503이면 로그인 상태 그대로 AppError를 던진다', () async {
