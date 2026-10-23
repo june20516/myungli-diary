@@ -22,7 +22,7 @@ final class AccountChoiceOption {
   final String name;
 
   /// 지금 로그인한 계정(A)이면 true. 호칭 뒤에 "현재 계정"(`current`) 알약을, 아니면 가져올 계정(B)이라
-  /// "다른 계정"(`other`) 알약을 둡니다.
+  /// "가져올 계정"(`other`) 알약을 둡니다.
   final bool current;
 
   /// 사주 요약 한 줄(`ui.account-merge.saju`). 사주가 없으면 "사주 정보 없음".
@@ -112,7 +112,7 @@ class AccountChoice extends StatelessWidget {
   /// "현재 계정" 알약을 찾는 테스트용 키.
   static const Key currentPillKey = ValueKey('account-choice-current');
 
-  /// "다른 계정"(B 카드) 알약을 찾는 테스트용 키.
+  /// "가져올 계정"(B 카드) 알약을 찾는 테스트용 키.
   static const Key otherPillKey = ValueKey('account-choice-other');
 
   /// 두 계정.
@@ -474,7 +474,7 @@ class _SelectedMark extends StatelessWidget {
   }
 }
 
-/// 호칭 뒤 알약("현재 계정"·"다른 계정").
+/// 호칭 뒤 알약("현재 계정"·"가져올 계정").
 class _Pill extends StatelessWidget {
   const new({required this.label, super.key});
 
