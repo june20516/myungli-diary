@@ -85,9 +85,9 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산합니다.", why: "라운드 R19 선택(W43)", source: writing}
     bad: []
-  endings: ["~해요", "~어요"]
+  endings: ["~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
