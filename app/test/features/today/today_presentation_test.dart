@@ -89,7 +89,7 @@ void main() {
       expect(formatFocusRange(const [], 'Asia/Seoul'), '');
     });
 
-    test('명세 lucky-card time 값의 24시간·프로필 시간대는 따르고, 글자 모양은 화면 문구 규칙을 따릅니다', () {
+    test('명세 lucky-card time의 clock과 timeZone은 따르고 글자 모양은 #546 규칙을 따릅니다', () {
       final variants =
           loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
       final time = variants.cast<Map<String, Object?>>().singleWhere(
