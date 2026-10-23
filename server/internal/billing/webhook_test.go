@@ -4,8 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -16,6 +21,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
+	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
 )
 
@@ -77,6 +83,52 @@ func TestParseWebhook_NonCanonicalUUIDIgnored(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Empty(t, got.AccountIDs)
+}
+
+func TestParseWebhook_CollectsStorePurchaseIDs(t *testing.T) {
+	body := webhookBody("evt-1", "CANCELLATION", map[string]any{
+		"store":                   "APP_STORE",
+		"transaction_id":          "2000000002",
+		"original_transaction_id": "2000000001",
+	})
+
+	got, err := billing.ParseWebhook(body)
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"2000000002", "2000000001"}, got.StorePurchaseIDs)
+	assert.Equal(t, "app_store", got.Store, "webhook 대문자 스토어 이름을 v2 소문자로 맞춤")
+}
+
+// 다른 스토어의 같은 거래 id로는 장부 주인을 찾지 않습니다(장부 키는 (store, store_purchase_id)).
+func TestWebhook_FallbackNeedsSameStore(t *testing.T) {
+	f := newWebhookFixture(t)
+	owner := newAccount(t, f.pool)
+	f.source.set(owner, owned("p1", oct1))
+	require.NoError(t, f.syncer.Sync(context.Background(), owner))
+
+	body := webhookBody("evt-1", "CANCELLATION", map[string]any{
+		"app_user_id": uuid.New().String(), "store": "PLAY_STORE", "transaction_id": "store-p1",
+	})
+	require.NoError(t, f.webhooks.Handle(context.Background(), body))
+
+	assert.EqualValues(t, 1, f.source.calls.Load(), "주인을 찾지 못해 동기화하지 않음")
+	rows := eventRows(t, f.pool, "evt-1")
+	require.Len(t, rows, 1)
+	assert.False(t, rows[0].AccountID.Valid)
+}
+
+func TestParseWebhook_StorePurchaseIDsDeduplicatedAndNonEmpty(t *testing.T) {
+	body := webhookBody("evt-1", "NON_RENEWING_PURCHASE", map[string]any{
+		"transaction_id":          "GPA.1",
+		"original_transaction_id": "GPA.1",
+	})
+	got, err := billing.ParseWebhook(body)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"GPA.1"}, got.StorePurchaseIDs)
+
+	got, err = billing.ParseWebhook(webhookBody("evt-2", "RENEWAL", map[string]any{"transaction_id": "", "original_transaction_id": 7.0}))
+	require.NoError(t, err)
+	assert.Empty(t, got.StorePurchaseIDs)
 }
 
 func TestParseWebhook_TypeMissing_Empty(t *testing.T) {
@@ -255,11 +307,14 @@ func TestWebhooks_Handle_TestEvent_NoSync(t *testing.T) {
 	assert.NotNil(t, rows[0].ProcessedAt)
 }
 
-func TestWebhooks_Handle_Transfer_SyncsBothAccounts(t *testing.T) {
+// TRANSFER는 양쪽 계정을 모두 동기화하지만 주인은 옮기지 않습니다(S107). 옮겨 준 계정의 구간도 그대로입니다.
+func TestWebhooks_Handle_Transfer_SyncsBothAccountsOwnerStays(t *testing.T) {
 	f := newWebhookFixture(t)
 	from, to := newAccount(t, f.pool), newAccount(t, f.pool)
+	f.source.set(from, owned("p1", oct1))
+	require.NoError(t, f.syncer.Sync(context.Background(), from))
+	f.source.set(from)
 	f.source.set(to, owned("p1", oct1))
-	insertGrant(t, f.pool, from, grant(billing.AdFree, billing.SourceAdFreePass, "old", oct1, nov1))
 	body := webhookBody("evt-1", "TRANSFER", map[string]any{
 		"transferred_from": []any{from.String()},
 		"transferred_to":   []any{to.String()},
@@ -267,13 +322,119 @@ func TestWebhooks_Handle_Transfer_SyncsBothAccounts(t *testing.T) {
 
 	require.NoError(t, f.webhooks.Handle(context.Background(), body))
 
-	assert.EqualValues(t, 2, f.source.calls.Load())
+	assert.EqualValues(t, 3, f.source.calls.Load(), "앞선 동기화 1번 + 양쪽 계정 2번")
+	assert.Equal(t, from, ledgerOf(t, f.pool, "p1").Owner)
 	grants := allGrants(t, f.pool)
-	assert.Equal(t, to, findGrant(t, grants, billing.AdFree, "p1").AccountID)
-	assert.NotNil(t, findGrant(t, grants, billing.AdFree, "old").RevokedAt, "옮겨 간 계정의 이전 행은 취소됩니다")
+	require.Len(t, grants, 2)
+	assert.Equal(t, from, findGrant(t, grants, billing.AdFree, "p1").AccountID)
+	assertPeriod(t, grants, "p1", oct1, nov1, nil)
 	rows := eventRows(t, f.pool, "evt-1")
 	require.Len(t, rows, 1)
 	assert.Equal(t, uuid.NullUUID{UUID: from, Valid: true}, rows[0].AccountID, "account_id는 찾은 첫 계정입니다")
+}
+
+// 결제 직후 동기화가 RevenueCat 장애(503)로 실패하면 장부는 비어 있고, 뒤에 온 webhook의 후보 계정이 주인이 됩니다(spec §5.2).
+// 같은 이벤트 재전송과 같은 구매의 다른 이벤트도 구간을 하나만 둡니다.
+func TestWebhook_FirstSeenByWebhookOwnsOnce(t *testing.T) {
+	pool := dbtest.New(t)
+	clk := clocktest.New(now)
+	accountID := newAccount(t, pool)
+	var unavailable atomic.Bool
+	unavailable.Store(true)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if unavailable.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		if !strings.Contains(r.URL.Path, "/customers/"+accountID.String()+"/") {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		_, _ = fmt.Fprintf(w, `{"object":"list","next_page":null,"items":[{"id":"pur_1","product_id":%q,"purchased_at":%d,
+			"status":"owned","environment":"production","store":"app_store","store_purchase_identifier":"2000000001"}]}`,
+			testAdFreeProduct, oct1.UnixMilli())
+	}))
+	t.Cleanup(server.Close)
+	revenueCat := billing.NewRevenueCat(billing.RevenueCatConfig{ProjectID: "proj_test", APIKey: "sk_test", BaseURL: server.URL})
+	syncer := billing.NewSyncer(pool, revenueCat, billing.SyncConfig{Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct})}, clk)
+	webhooks := billing.NewWebhooks(pool, syncer, "Bearer test-secret", clk, logging.New(&bytes.Buffer{}, slog.LevelDebug, ""))
+
+	require.ErrorIs(t, syncer.Sync(context.Background(), accountID), billing.ErrProviderUnavailable)
+	assert.Zero(t, ledgerCount(t, pool), "실패한 동기화는 장부에 아무것도 남기지 않음")
+
+	unavailable.Store(false)
+	body := webhookBody("evt-1", "NON_RENEWING_PURCHASE", map[string]any{
+		"app_user_id": accountID.String(), "transaction_id": "2000000001",
+	})
+	require.NoError(t, webhooks.Handle(context.Background(), body))
+	clk.Advance(time.Minute)
+	require.NoError(t, webhooks.Handle(context.Background(), body))
+	require.NoError(t, webhooks.Handle(context.Background(), webhookBody("evt-2", "NON_RENEWING_PURCHASE", map[string]any{
+		"app_user_id": accountID.String(), "transaction_id": "2000000001",
+	})))
+
+	row := ledgerOf(t, pool, "pur_1")
+	assert.Equal(t, accountID, row.Owner)
+	assert.Equal(t, "app_store", row.Store)
+	require.NotNil(t, row.StorePurchaseID)
+	assert.Equal(t, "2000000001", *row.StorePurchaseID)
+	grants := allGrants(t, pool)
+	require.Len(t, grants, 2, "구매 하나는 ad_free·insight 구간 하나씩")
+	assertPeriod(t, grants, "pur_1", oct1, nov1, nil)
+}
+
+// 후보 계정이 accounts에 없으면 이벤트의 스토어 거래 id로 장부의 주인을 찾아 동기화합니다(spec §5.4).
+func TestWebhook_UnknownCandidateFallsBackToLedgerOwner(t *testing.T) {
+	tests := []struct {
+		name   string
+		fields map[string]any
+	}{
+		{"transaction_id", map[string]any{"store": "APP_STORE", "transaction_id": "store-p1"}},
+		{"original_transaction_id", map[string]any{"store": "APP_STORE", "transaction_id": "store-unknown", "original_transaction_id": "store-p1"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newWebhookFixture(t)
+			owner := newAccount(t, f.pool)
+			f.source.set(owner, owned("p1", oct1))
+			require.NoError(t, f.syncer.Sync(context.Background(), owner))
+
+			f.clk.Advance(time.Hour)
+			refundedAt := f.clk.Now()
+			f.source.set(owner, refunded("p1", oct1))
+			fields := map[string]any{"app_user_id": uuid.New().String(), "original_app_user_id": "$RCAnonymousID:abc123"}
+			for k, v := range tt.fields {
+				fields[k] = v
+			}
+
+			require.NoError(t, f.webhooks.Handle(context.Background(), webhookBody("evt-1", "CANCELLATION", fields)))
+
+			assert.EqualValues(t, 2, f.source.calls.Load(), "주인 계정을 한 번 더 동기화")
+			assertPeriod(t, allGrants(t, f.pool), "p1", oct1, nov1, &refundedAt)
+			rows := eventRows(t, f.pool, "evt-1")
+			require.Len(t, rows, 1)
+			assert.Equal(t, uuid.NullUUID{UUID: owner, Valid: true}, rows[0].AccountID)
+			assert.NotNil(t, rows[0].ProcessedAt)
+			assert.Contains(t, f.logs.String(), owner.String())
+		})
+	}
+}
+
+// 후보 계정도 장부 주인도 못 찾으면 기록만 하고 Warn 로그를 남깁니다.
+func TestWebhooks_Handle_UnknownAccountAndPurchase_RecordsOnly(t *testing.T) {
+	f := newWebhookFixture(t)
+	body := webhookBody("evt-1", "CANCELLATION", map[string]any{
+		"app_user_id": uuid.New().String(), "store": "APP_STORE", "transaction_id": "store-nowhere",
+	})
+
+	require.NoError(t, f.webhooks.Handle(context.Background(), body))
+
+	assert.Zero(t, f.source.calls.Load())
+	rows := eventRows(t, f.pool, "evt-1")
+	require.Len(t, rows, 1)
+	assert.False(t, rows[0].AccountID.Valid)
+	assert.NotNil(t, rows[0].ProcessedAt)
+	assert.Contains(t, f.logs.String(), `"severity":"WARNING"`)
 }
 
 func TestWebhooks_Handle_InvalidBody_NoRow(t *testing.T) {

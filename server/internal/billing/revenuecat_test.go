@@ -30,7 +30,7 @@ func TestRevenueCat_Purchases_요청_모양과_해석(t *testing.T) {
 		defer mu.Unlock()
 		gotPath, gotQuery, gotAuth = r.URL.EscapedPath(), r.URL.RawQuery, r.Header.Get("Authorization")
 		_, _ = w.Write([]byte(`{"object":"list","next_page":null,"items":[
-			{"id":"pur_1","product_id":"test.ad_free.month","purchased_at":1760918400123,"status":"owned","environment":"production","unknown":{"a":1}},
+			{"id":"pur_1","product_id":"test.ad_free.month","purchased_at":1760918400123,"status":"owned","environment":"production","store":"app_store","store_purchase_identifier":"2000000001","unknown":{"a":1}},
 			{"id":"pur_2","product_id":"test.other","purchased_at":1760918400000,"status":"refunded","environment":"sandbox"}]}`))
 	})
 
@@ -52,6 +52,9 @@ func TestRevenueCat_Purchases_요청_모양과_해석(t *testing.T) {
 	first := got[0]
 	if first.ID != "pur_1" || first.ProductID != "test.ad_free.month" || first.Refunded || !first.Production {
 		t.Errorf("첫 구매 = %+v", first)
+	}
+	if first.Store != "app_store" || first.StorePurchaseID != "2000000001" {
+		t.Errorf("첫 구매 스토어 = %q, 스토어 거래 id = %q, want app_store, 2000000001", first.Store, first.StorePurchaseID)
 	}
 	if want := time.UnixMilli(1760918400123).UTC(); !first.PurchasedAt.Equal(want) || first.PurchasedAt.Location() != time.UTC {
 		t.Errorf("PurchasedAt = %v, want UTC %v", first.PurchasedAt, want)

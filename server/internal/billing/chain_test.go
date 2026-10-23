@@ -12,47 +12,13 @@ const (
 	testAndroidProduct = "test.ad_free.month.android"
 )
 
-var testProducts = map[string]bool{testIOSProduct: true, testAndroidProduct: true}
+var testProducts = AdFreeCatalog([]string{testIOSProduct, testAndroidProduct})
 
 func utc(year int, month time.Month, day, hour int) time.Time {
 	return time.Date(year, month, day, hour, 0, 0, 0, time.UTC)
 }
 
-// pair는 구매 하나가 만드는 두 행(ad_free, insight)입니다.
-func pair(ref string, starts, expires time.Time) []Grant {
-	return []Grant{
-		{Entitlement: AdFree, Source: SourceAdFreePass, SourceRef: ref, StartsAt: starts, ExpiresAt: expires},
-		{Entitlement: Insight, Source: SourceAdFreePass, SourceRef: ref, StartsAt: starts, ExpiresAt: expires},
-	}
-}
-
-// inUTC는 시각을 UTC로 맞춘 사본입니다. 같은 순간이라도 Location이 다르면 assert.Equal이 다르다고 보기 때문입니다.
-func inUTC(grants []Grant) []Grant {
-	if grants == nil {
-		return nil
-	}
-	out := make([]Grant, len(grants))
-	for i, g := range grants {
-		g.StartsAt = g.StartsAt.UTC()
-		g.ExpiresAt = g.ExpiresAt.UTC()
-		out[i] = g
-	}
-	return out
-}
-
-func purchase(id string, at time.Time) Purchase {
-	return Purchase{ID: id, ProductID: testIOSProduct, PurchasedAt: at, Production: true}
-}
-
-func concat(groups ...[]Grant) []Grant {
-	var out []Grant
-	for _, g := range groups {
-		out = append(out, g...)
-	}
-	return out
-}
-
-func TestAddMonth(t *testing.T) {
+func TestAddMonths_OneMonth(t *testing.T) {
 	tests := []struct {
 		name string
 		in   time.Time
@@ -67,107 +33,31 @@ func TestAddMonth(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := addMonth(tt.in)
+			got := addMonths(tt.in, 1)
 			assert.True(t, got.Equal(tt.want), "got %v, want %v", got, tt.want)
 			assert.Equal(t, time.UTC, got.Location())
 		})
 	}
 }
 
-func TestAdFreeGrants(t *testing.T) {
-	jan10 := utc(2026, 1, 10, 9)
-	feb10 := utc(2026, 2, 10, 9)
-	mar10 := utc(2026, 3, 10, 9)
-	apr10 := utc(2026, 4, 10, 9)
-
+func TestAddMonths(t *testing.T) {
 	tests := []struct {
-		name           string
-		purchases      []Purchase
-		productionOnly bool
-		want           []Grant
+		name   string
+		in     time.Time
+		months int
+		want   time.Time
 	}{
-		{
-			name:      "구매 없음",
-			purchases: nil,
-			want:      nil,
-		},
-		{
-			name:      "구매 하나는 같은 기간의 두 행",
-			purchases: []Purchase{purchase("p1", jan10)},
-			want:      pair("p1", jan10, feb10),
-		},
-		{
-			name:      "만료 전 재구매는 직전 만료에서 시작(D61)",
-			purchases: []Purchase{purchase("p1", jan10), purchase("p2", utc(2026, 1, 25, 0))},
-			want:      concat(pair("p1", jan10, feb10), pair("p2", feb10, mar10)),
-		},
-		{
-			name:      "만료 뒤 재구매는 구매일에서 시작",
-			purchases: []Purchase{purchase("p1", jan10), purchase("p2", utc(2026, 3, 1, 0))},
-			want:      concat(pair("p1", jan10, feb10), pair("p2", utc(2026, 3, 1, 0), utc(2026, 4, 1, 0))),
-		},
-		{
-			name:      "만료 시각에 재구매하면 끊김 없이 이어짐",
-			purchases: []Purchase{purchase("p1", jan10), purchase("p2", feb10)},
-			want:      concat(pair("p1", jan10, feb10), pair("p2", feb10, mar10)),
-		},
-		{
-			name: "섞인 입력은 구매일 순, 같은 구매일은 id 순",
-			purchases: []Purchase{
-				purchase("c", utc(2026, 2, 1, 0)),
-				purchase("b", jan10),
-				purchase("a", jan10),
-			},
-			want: concat(pair("a", jan10, feb10), pair("b", feb10, mar10), pair("c", mar10, apr10)),
-		},
-		{
-			name: "환불 구매는 빼고 다시 이어 붙임",
-			purchases: []Purchase{
-				purchase("p1", jan10),
-				{ID: "p2", ProductID: testIOSProduct, PurchasedAt: utc(2026, 1, 20, 0), Refunded: true, Production: true},
-				purchase("p3", utc(2026, 1, 25, 0)),
-			},
-			want: concat(pair("p1", jan10, feb10), pair("p3", feb10, mar10)),
-		},
-		{
-			name: "목록 밖 상품은 제외, 다른 플랫폼 상품은 포함",
-			purchases: []Purchase{
-				{ID: "other", ProductID: "test.something.else", PurchasedAt: jan10, Production: true},
-				{ID: "android", ProductID: testAndroidProduct, PurchasedAt: jan10, Production: true},
-			},
-			want: pair("android", jan10, feb10),
-		},
-		{
-			name: "productionOnly면 sandbox 제외",
-			purchases: []Purchase{
-				{ID: "sandbox", ProductID: testIOSProduct, PurchasedAt: utc(2026, 1, 1, 0), Production: false},
-				purchase("prod", jan10),
-			},
-			productionOnly: true,
-			want:           pair("prod", jan10, feb10),
-		},
-		{
-			name: "productionOnly가 아니면 sandbox도 셈",
-			purchases: []Purchase{
-				{ID: "sandbox", ProductID: testIOSProduct, PurchasedAt: utc(2026, 1, 1, 0), Production: false},
-				purchase("prod", jan10),
-			},
-			want: concat(pair("sandbox", utc(2026, 1, 1, 0), utc(2026, 2, 1, 0)), pair("prod", utc(2026, 2, 1, 0), utc(2026, 3, 1, 0))),
-		},
+		{"1개월은 addMonth와 같음", time.Date(2026, 1, 31, 10, 0, 0, 0, time.UTC), 1, time.Date(2026, 2, 28, 10, 0, 0, 0, time.UTC)},
+		{"3개월 같은 날", time.Date(2026, 10, 5, 0, 0, 0, 0, time.UTC), 3, time.Date(2027, 1, 5, 0, 0, 0, 0, time.UTC)},
+		{"3개월 뒤에 없는 날은 그 달 마지막 날", time.Date(2026, 11, 30, 0, 0, 0, 0, time.UTC), 3, time.Date(2027, 2, 28, 0, 0, 0, 0, time.UTC)},
+		{"12개월은 다음 해 같은 날", time.Date(2028, 2, 29, 0, 0, 0, 0, time.UTC), 12, time.Date(2029, 2, 28, 0, 0, 0, 0, time.UTC)},
+		{"UTC가 아닌 입력은 UTC 달력으로", time.Date(2026, 2, 1, 1, 0, 0, 0, time.FixedZone("KST", 9*3600)), 2, time.Date(2026, 3, 31, 16, 0, 0, 0, time.UTC)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := adFreeGrants(tt.purchases, testProducts, tt.productionOnly)
-
-			assert.Equal(t, inUTC(tt.want), inUTC(got))
+			got := addMonths(tt.in, tt.months)
+			assert.True(t, got.Equal(tt.want), "got %v, want %v", got, tt.want)
+			assert.Equal(t, time.UTC, got.Location())
 		})
 	}
-}
-
-func TestAdFreeGrants_DoesNotReorderInput(t *testing.T) {
-	purchases := []Purchase{purchase("b", utc(2026, 2, 1, 0)), purchase("a", utc(2026, 1, 1, 0))}
-
-	adFreeGrants(purchases, testProducts, false)
-
-	assert.Equal(t, "b", purchases[0].ID, "입력 slice 순서를 바꾸지 않음")
 }

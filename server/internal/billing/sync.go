@@ -3,9 +3,10 @@ package billing
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -16,18 +17,27 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
-// billingLockSQL은 한 계정의 광고 제거권 동기화를 트랜잭션 하나씩 차례로 하게 하는 advisory lock입니다(P7-6).
+// 계정 advisory lock(S82)은 한 계정의 결제 동기화를 트랜잭션 하나씩 차례로 하게 합니다(P7-6).
 // 동시에 온 webhook·구매 복원이 lock을 잡은 뒤 RevenueCat을 조회하므로, 먼저 조회한 오래된 목록이
-// 나중에 조회한 새 목록의 조정 결과를 덮지 않습니다. 트랜잭션이 끝나면 자동으로 풀립니다.
+// 나중에 조회한 새 목록의 결과를 덮지 않습니다. 트랜잭션이 끝나면 자동으로 풀립니다.
 //
 // 키 도출: 두 int4 키 형식 (billingLockClass, hashtext(계정 id 문자열))을 씁니다(content.selectionLockSQL과 같은 방식).
 //   - PostgreSQL은 bigint 키 하나 형식과 int4 키 둘 형식을 서로 다른 lock으로 다룹니다. 시드 적재·goose migration lock은 bigint 형식이라 겹치지 않습니다.
 //   - 첫 키 billingLockClass는 이 용도의 고정값이라 문장 선택 lock(첫 키 "sel")과 겹치지 않습니다.
 //   - 둘째 키는 32비트 해시라 서로 다른 계정이 같은 값을 가질 수 있습니다. 그때는 두 계정이 잠시 차례로 기다릴 뿐 결과는 같습니다.
-const billingLockSQL = "SELECT pg_advisory_xact_lock($1::int4, hashtext($2::text))"
+const (
+	// billingLockKeysSQL은 계정 id들의 둘째 키를 중복 없이 오름차순으로 돌려줍니다.
+	billingLockKeysSQL = "SELECT DISTINCT hashtext(id) AS lock_key FROM unnest($1::text[]) AS id ORDER BY lock_key"
+	// billingLockSQL은 키 하나의 lock을 잡습니다.
+	billingLockSQL = "SELECT pg_advisory_xact_lock($1::int4, $2::int4)"
+)
 
-// billingLockClass는 billingLockSQL의 첫 키입니다("bil"의 ASCII).
+// billingLockClass는 계정 advisory lock의 첫 키입니다("bil"의 ASCII).
 const billingLockClass int32 = 0x62696c
+
+// maxLockRounds는 Sync가 잠글 계정을 늘려 다시 시작하는 횟수 상한입니다.
+// 첫 판에 자기 계정, 둘째 판에 다른 주인 계정까지 잡으면 끝나고, 그 사이 합치기로 주인이 바뀐 경우를 위해 여유를 둡니다.
+const maxLockRounds = 4
 
 // PurchaseSource는 고객의 구매 목록을 알려 줍니다. *RevenueCat이 만족합니다.
 type PurchaseSource interface {
@@ -36,106 +46,182 @@ type PurchaseSource interface {
 
 var _ PurchaseSource = (*RevenueCat)(nil)
 
-// SyncConfig는 광고 제거권 동기화 설정입니다(P7-2).
+// SyncConfig는 결제 동기화 설정입니다(P7-2, spec §5.1).
 type SyncConfig struct {
-	// AdFreeProductIDs는 광고 제거권 상품 id(iOS·Android)입니다. 목록 밖 상품은 무시합니다.
-	AdFreeProductIDs []string
-	// ProductionOnly가 true면 production 구매만 셉니다(APP_ENV가 prod일 때).
+	// Catalog는 사용 구간을 만드는 상품 목록입니다. 목록 밖 상품은 장부에만 적습니다.
+	Catalog Catalog
+	// ProductionOnly가 true면 production 구매만 장부에 적습니다(APP_ENV가 prod일 때).
 	ProductionOnly bool
+	// Logger는 장부 기록의 경고를 남깁니다. nil이면 버립니다.
+	Logger *slog.Logger
 }
 
-// Syncer는 RevenueCat 구매 목록으로 계정의 광고 제거권 행을 다시 계산해 맞춥니다.
+// Syncer는 계정의 RevenueCat 구매 목록으로 구매 장부와 사용 구간을 맞춥니다(spec §5.4).
 type Syncer struct {
 	pool           *pgxpool.Pool
 	source         PurchaseSource
-	products       map[string]bool
+	catalog        Catalog
 	productionOnly bool
 	clk            clock.Clock
 	store          *Store
+	log            *slog.Logger
 }
 
 // NewSyncer는 Syncer를 만듭니다.
 func NewSyncer(pool *pgxpool.Pool, src PurchaseSource, cfg SyncConfig, clk clock.Clock) *Syncer {
-	products := make(map[string]bool, len(cfg.AdFreeProductIDs))
-	for _, id := range cfg.AdFreeProductIDs {
-		products[id] = true
-	}
 	return &Syncer{
 		pool:           pool,
 		source:         src,
-		products:       products,
+		catalog:        cfg.Catalog,
 		productionOnly: cfg.ProductionOnly,
 		clk:            clk,
 		store:          NewStore(pool, clk),
+		log:            cmp.Or(cfg.Logger, slog.New(slog.DiscardHandler)),
 	}
 }
 
-// grantKey는 계정 안에서 ad_free_pass 행 하나를 가리킵니다. 표의 unique (entitlement, source, source_ref) 중 source는 늘 ad_free_pass입니다.
-type grantKey struct {
-	entitlement Entitlement
-	sourceRef   string
+// needLocksError는 이 판에서 잡지 않은 주인 계정의 구간을 고쳐야 해서 그 계정까지 잡고 다시 시작해야 한다는 뜻입니다.
+// 트랜잭션을 되돌리려고 fn이 돌려주는 내부 값이고 Sync 밖으로 나가지 않습니다.
+type needLocksError struct {
+	accountIDs []uuid.UUID
 }
 
-// Sync는 계정의 구매 목록을 다시 조회해 ad_free_pass 행을 맞춥니다(P7-4·P7-5·P7-6).
+func (e *needLocksError) Error() string {
+	return fmt.Sprintf("잠그지 않은 주인 계정 %d개", len(e.accountIDs))
+}
+
+// Sync는 계정의 구매 목록을 다시 조회해 구매 장부와 사용 구간을 맞춥니다(spec §5.4, S107·S108).
 //
-//   - 계정 advisory lock을 잡은 뒤 같은 트랜잭션 안에서 구매 목록을 조회하고 조정합니다.
-//   - 원하는 행(adFreeGrants)은 없으면 넣고, 기간이 다르거나 취소돼 있으면 고칩니다.
-//   - 원하는 집합에 없는 이 계정의 ad_free_pass 행은 revoked_at = now입니다(이미 찍혀 있으면 그대로). 행을 지우지 않습니다.
+//   - 장부에 없는 구매는 이 계정을 주인으로 적고, 상품 목록에 있으면 구간을 놓습니다(recordPurchaseTx).
+//   - 장부에 있는 구매는 주인을 바꾸지 않습니다. 목록에서 환불로 보이면 장부에 환불을 적고 주인 계정을 now부터 다시 잇습니다.
+//   - 장부에 있는데 목록에 없는 구매는 취소하지 않습니다. 기준은 장부입니다.
 //   - rewarded_ad·subscription 출처 행은 건드리지 않습니다.
+//
+// 잠금: 계정 advisory lock을 잡은 뒤 같은 트랜잭션 안에서 목록을 조회하고 적습니다. 다른 주인 계정의 구간을 고쳐야 하면
+// 이미 잡은 lock 뒤에 더 잡지 않고(deadlock을 피함), 트랜잭션을 되돌린 뒤 그 계정까지 lockBillingAccounts로 한 번에 잡고 다시 시작합니다.
 //
 // 조회 오류는 감싸서 돌려주고(errors.Is로 ErrProviderUnavailable을 확인할 수 있음) 아무 행도 바꾸지 않습니다.
 func (s *Syncer) Sync(ctx context.Context, accountID uuid.UUID) error {
-	// InTx가 fn을 다시 실행할 수 있습니다. fn은 매번 처음부터 조회하고 원하는 상태로 맞추므로 결과가 같습니다.
-	return postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, billingLockSQL, billingLockClass, accountID.String()); err != nil {
-			return fmt.Errorf("결제 동기화 잠금: %w", err)
+	locked := []uuid.UUID{accountID}
+	for range maxLockRounds {
+		// InTx가 fn을 다시 실행할 수 있습니다. fn은 매번 처음부터 조회해 적으므로 결과가 같습니다.
+		err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+			if err := lockBillingAccounts(ctx, tx, locked...); err != nil {
+				return err
+			}
+			return s.syncLocked(ctx, billingdb.New(tx), accountID, locked)
+		})
+		var need *needLocksError
+		if !errors.As(err, &need) {
+			return err
 		}
-
-		purchases, err := s.source.Purchases(ctx, accountID.String())
-		if err != nil {
-			return fmt.Errorf("구매 목록 조회(계정 %s): %w", accountID, err)
-		}
-		return s.reconcile(ctx, billingdb.New(tx), accountID, adFreeGrants(purchases, s.products, s.productionOnly))
-	})
+		locked = appendMissing(locked, need.accountIDs...)
+	}
+	return fmt.Errorf("결제 동기화(계정 %s): 잠글 계정을 %d번 늘려도 끝나지 않았습니다", accountID, maxLockRounds)
 }
 
-// reconcile은 계정의 ad_free_pass 행을 want에 맞춥니다(P7-5).
-//
-// UpsertGrant는 다른 계정에 있던 같은 구매 행을 이 계정으로 옮깁니다(transfer). lock은 계정별이라, transfer 전에 조회한
-// 원래 계정의 오래된 목록이 새 주인보다 늦게 upsert하면 행이 원래 계정으로 되돌아가고, 원래 계정의 다음 동기화가 그 행을 취소해
-// 새 주인이 다시 동기화할 때까지 권한이 빠질 수 있습니다. TRANSFER 이벤트 하나에 transferred_from·transferred_to가 함께 오고 webhook이 그 계정들을 모두 동기화하므로(P7-7) 결국 수렴해 받아들입니다.
-func (s *Syncer) reconcile(ctx context.Context, q *billingdb.Queries, accountID uuid.UUID, want []Grant) error {
-	wanted := make(map[grantKey]bool, len(want))
-	for _, g := range want {
-		wanted[grantKey{entitlement: g.Entitlement, sourceRef: g.SourceRef}] = true
-		err := q.UpsertGrant(ctx, billingdb.UpsertGrantParams{
-			AccountID:   accountID,
-			Entitlement: string(g.Entitlement),
-			Source:      string(g.Source),
-			SourceRef:   g.SourceRef,
-			StartsAt:    g.StartsAt,
-			ExpiresAt:   g.ExpiresAt,
-		})
-		if err != nil {
-			return fmt.Errorf("권한 행 저장(%s %s): %w", g.Entitlement, g.SourceRef, err)
-		}
+// syncLocked는 locked 계정의 lock을 잡은 트랜잭션에서 accountID의 목록을 장부에 적습니다.
+// locked에 없는 주인 계정의 구간을 고쳐야 하면 그 계정들을 needLocksError로 돌려줍니다(트랜잭션은 되돌아감).
+func (s *Syncer) syncLocked(ctx context.Context, q *billingdb.Queries, accountID uuid.UUID, locked []uuid.UUID) error {
+	purchases, err := s.source.Purchases(ctx, accountID.String())
+	if err != nil {
+		return fmt.Errorf("구매 목록 조회(계정 %s): %w", accountID, err)
 	}
 
-	existing, err := q.ListAdFreePassGrants(ctx, accountID)
-	if err != nil {
-		return fmt.Errorf("광고 제거권 행 조회: %w", err)
-	}
 	now := s.clk.Now()
-	for _, row := range existing {
-		key := grantKey{entitlement: Entitlement(row.Entitlement), sourceRef: row.SourceRef}
-		if wanted[key] || row.RevokedAt != nil {
+	var rechainOwners, unlockedOwners []uuid.UUID
+	for _, p := range s.ledgerOrder(purchases) {
+		owner, created, err := recordPurchaseTx(ctx, q, s.log, accountID, p, s.catalog, now)
+		if err != nil {
+			return err
+		}
+		if created || !p.Refunded {
 			continue
 		}
-		if err := q.RevokeGrant(ctx, billingdb.RevokeGrantParams{Now: now, ID: row.ID, AccountID: accountID}); err != nil {
-			return fmt.Errorf("권한 행 취소(%s %s): %w", row.Entitlement, row.SourceRef, err)
+		if !slices.Contains(locked, owner) {
+			// 잠그지 않은 주인의 구매는 쓰지 않고 읽기만 합니다. 이미 환불로 적혀 있으면 할 일이 없어 다시 시작하지 않습니다.
+			alreadyRefunded, err := q.PurchaseRefunded(ctx, p.ID)
+			if err != nil {
+				return fmt.Errorf("구매 환불 조회(%s): %w", p.ID, err)
+			}
+			if !alreadyRefunded {
+				unlockedOwners = appendMissing(unlockedOwners, owner)
+			}
+			continue
+		}
+		changed, err := markRefundedTx(ctx, q, p.ID, now)
+		if err != nil {
+			return err
+		}
+		if changed {
+			rechainOwners = appendMissing(rechainOwners, owner)
+		}
+	}
+	if len(unlockedOwners) > 0 {
+		return &needLocksError{accountIDs: unlockedOwners}
+	}
+
+	for _, owner := range rechainOwners {
+		if err := rechainFromTx(ctx, q, owner, now); err != nil {
+			return fmt.Errorf("구간 다시 잇기(계정 %s): %w", owner, err)
 		}
 	}
 	return nil
+}
+
+// ledgerOrder는 장부에 적을 구매를 (구매 시각, id) 순으로 돌려줍니다. 새 구간이 구매 순서대로 이어 붙도록 정렬합니다(S108).
+// productionOnly면 sandbox 구매를 뺍니다(P7). 입력 slice는 바꾸지 않습니다.
+func (s *Syncer) ledgerOrder(purchases []Purchase) []Purchase {
+	ordered := make([]Purchase, 0, len(purchases))
+	for _, p := range purchases {
+		if s.productionOnly && !p.Production {
+			continue
+		}
+		ordered = append(ordered, p)
+	}
+	slices.SortFunc(ordered, func(a, b Purchase) int {
+		if c := a.PurchasedAt.Compare(b.PurchasedAt); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.ID, b.ID)
+	})
+	return ordered
+}
+
+// lockBillingAccounts는 계정들의 advisory lock을 한 번에 잡습니다(S82, spec §5.4).
+//
+// 모든 호출이 같은 전역 순서로 잡아야 두 트랜잭션이 서로의 lock을 기다리는 일이 없습니다. 실제로 잡는 것은
+// 계정 id가 아니라 둘째 키(hashtext)라서, 계정 id 순으로 잡으면 해시가 겹친 두 계정이 순서를 뒤집을 수 있습니다.
+// 그래서 키를 중복 없이 오름차순으로 정해 그 순서로 잡습니다. 같은 키를 두 번 잡지 않으므로 해시가 겹쳐도 안전합니다.
+func lockBillingAccounts(ctx context.Context, tx pgx.Tx, ids ...uuid.UUID) error {
+	idStrings := make([]string, len(ids))
+	for i, id := range ids {
+		idStrings[i] = id.String()
+	}
+	rows, err := tx.Query(ctx, billingLockKeysSQL, idStrings)
+	if err != nil {
+		return fmt.Errorf("결제 동기화 잠금 키: %w", err)
+	}
+	keys, err := pgx.CollectRows(rows, pgx.RowTo[int32])
+	if err != nil {
+		return fmt.Errorf("결제 동기화 잠금 키: %w", err)
+	}
+	for _, key := range keys {
+		if _, err := tx.Exec(ctx, billingLockSQL, billingLockClass, key); err != nil {
+			return fmt.Errorf("결제 동기화 잠금: %w", err)
+		}
+	}
+	return nil
+}
+
+// appendMissing은 list에 없는 id만 차례로 더합니다.
+func appendMissing(list []uuid.UUID, ids ...uuid.UUID) []uuid.UUID {
+	for _, id := range ids {
+		if !slices.Contains(list, id) {
+			list = append(list, id)
+		}
+	}
+	return list
 }
 
 // Restore는 구매 복원입니다. 동기화한 뒤 계정의 권한 상태를 돌려줍니다.
@@ -144,60 +230,4 @@ func (s *Syncer) Restore(ctx context.Context, accountID uuid.UUID) (Status, erro
 		return Status{}, err
 	}
 	return s.store.Status(ctx, accountID)
-}
-
-// adFreeGrants는 구매 목록에서 광고 제거권 행을 계산합니다(P7-3·P7-4, D61).
-//
-// products에 있는 상품의 환불되지 않은 구매만 셉니다. productionOnly면 sandbox 구매도 뺍니다.
-// 구매를 (구매일, id) 순으로 놓고 starts_at = max(직전 만료일, 구매일), expires_at = starts_at + 1개월로 이어 붙입니다.
-// 구매 하나는 같은 기간의 ad_free·insight 두 행(출처 ad_free_pass, source_ref = 구매 id)이 됩니다(D60 ③).
-// 입력 slice는 바꾸지 않습니다.
-func adFreeGrants(purchases []Purchase, products map[string]bool, productionOnly bool) []Grant {
-	counted := make([]Purchase, 0, len(purchases))
-	for _, p := range purchases {
-		if p.Refunded || !products[p.ProductID] || (productionOnly && !p.Production) {
-			continue
-		}
-		counted = append(counted, p)
-	}
-	slices.SortFunc(counted, func(a, b Purchase) int {
-		if c := a.PurchasedAt.Compare(b.PurchasedAt); c != 0 {
-			return c
-		}
-		return cmp.Compare(a.ID, b.ID)
-	})
-
-	var grants []Grant
-	var previousExpiry time.Time
-	for _, p := range counted {
-		startsAt := p.PurchasedAt.UTC()
-		if previousExpiry.After(startsAt) {
-			startsAt = previousExpiry
-		}
-		expiresAt := addMonth(startsAt)
-		for _, entitlement := range []Entitlement{AdFree, Insight} {
-			grants = append(grants, Grant{
-				Entitlement: entitlement,
-				Source:      SourceAdFreePass,
-				SourceRef:   p.ID,
-				StartsAt:    startsAt,
-				ExpiresAt:   expiresAt,
-			})
-		}
-		previousExpiry = expiresAt
-	}
-	return grants
-}
-
-// addMonth는 UTC 달력으로 한 달 뒤 같은 날 같은 시각을 돌려줍니다(P7-3).
-// 다음 달에 그 날이 없으면 그 달 마지막 날입니다(1월 31일 → 2월 28일·29일).
-// time.AddDate는 넘친 날을 다음 달로 넘기므로(3월 3일) 쓰지 않습니다.
-func addMonth(t time.Time) time.Time {
-	t = t.UTC()
-	year, month, day := t.Date()
-	// time.Date의 0일은 앞 달의 마지막 날이라, month+2의 0일이 다음 달의 마지막 날입니다.
-	lastDayOfNextMonth := time.Date(year, month+2, 0, 0, 0, 0, 0, time.UTC).Day()
-	day = min(day, lastDayOfNextMonth)
-	hour, minute, second := t.Clock()
-	return time.Date(year, month+1, day, hour, minute, second, t.Nanosecond(), time.UTC)
 }

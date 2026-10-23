@@ -413,3 +413,65 @@ func TestAdmobRewardCallback_MissingDependency_503(t *testing.T) {
 		})
 	}
 }
+
+// fakeLedger는 PurchaseLister 대역입니다.
+type fakeLedger struct {
+	items      []billing.PurchaseItem
+	err        error
+	gotAccount uuid.UUID
+}
+
+func (f *fakeLedger) Purchases(_ context.Context, accountID uuid.UUID) ([]billing.PurchaseItem, error) {
+	f.gotAccount = accountID
+	return f.items, f.err
+}
+
+func TestListPurchases_Handler(t *testing.T) {
+	started := handlerNow.AddDate(0, 0, -3)
+	ledger := &fakeLedger{items: []billing.PurchaseItem{
+		{ProductID: "test.ad_free.month", PurchasedAt: started, Status: billing.PurchaseActive,
+			Period: &billing.Period{StartsAt: started, EndsAt: started.AddDate(0, 1, 0)}},
+		{ProductID: "test.other.product", PurchasedAt: started.AddDate(0, -1, 0), Status: billing.PurchaseOwned},
+	}}
+	rec, req, check := getJSON(t, &httpapi.API{Ledger: ledger}, "/v1/me/purchases")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	check(rec, req)
+	assert.Equal(t, fixedAccountID, ledger.gotAccount)
+	var got gen.PurchaseList
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.Len(t, got.Items, 2)
+	assert.Equal(t, gen.PurchaseStatus("active"), got.Items[0].Status)
+	require.NotNil(t, got.Items[0].Period)
+	assert.True(t, got.Items[0].Period.EndsAt.Equal(started.AddDate(0, 1, 0)))
+	assert.Equal(t, gen.PurchaseStatus("owned"), got.Items[1].Status)
+	assert.Nil(t, got.Items[1].Period, "기간 없는 상품은 period가 없습니다")
+}
+
+func TestListPurchases_EmptyIsEmptyArray(t *testing.T) {
+	rec, _, _ := getJSON(t, &httpapi.API{Ledger: &fakeLedger{}}, "/v1/me/purchases")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.JSONEq(t, `{"items":[]}`, rec.Body.String())
+}
+
+func TestListPurchases_Unconfigured_503(t *testing.T) {
+	rec, _, _ := getJSON(t, &httpapi.API{}, "/v1/me/purchases")
+
+	require.Equal(t, http.StatusServiceUnavailable, rec.Code, rec.Body.String())
+	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+}
+
+func TestListPurchases_Error_500(t *testing.T) {
+	rec, _, _ := getJSON(t, &httpapi.API{Ledger: &fakeLedger{err: errors.New("db down")}}, "/v1/me/purchases")
+
+	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+}
+
+func TestListPurchases_RequiresBearer(t *testing.T) {
+	handler := newBearerHandler(t, fakeVerifier{}, activeGate())
+
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/me/purchases", nil))
+
+	expectBearerFailure(t, rec, "auth.token_invalid")
+}

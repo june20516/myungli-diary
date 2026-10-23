@@ -68,6 +68,7 @@ func wireBillingReadings(t *testing.T, deps *serverDeps, service *fortune.Servic
 	deps.Contents = contents
 	store := billing.NewStore(deps.Pool, deps.Clock)
 	deps.Entitlements = store
+	deps.Ledger = store
 	deps.Readings = newReadings(contents, service, store, deps.Logger, deps.Clock)
 	code, _, stderr := runCLIWithEnv(t, map[string]string{"DATABASE_URL": deps.Pool.Config().ConnString()}, "seed")
 	require.Equal(t, 0, code, "seed stderr: %s", stderr)
@@ -193,6 +194,7 @@ func (f *fakeRevenueCat) add(customerID, purchaseID string, purchasedAt time.Tim
 	f.purchases[customerID] = append(f.purchases[customerID], map[string]any{
 		"id": purchaseID, "product_id": flowProductID, "purchased_at": purchasedAt.UnixMilli(),
 		"status": "owned", "environment": "production",
+		"store": "app_store", "store_purchase_identifier": "store-" + purchaseID,
 	})
 }
 
@@ -269,6 +271,66 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 
 		assert.Equal(t, true, adFreeOf(access)["active"])
 		assert.True(t, chartUnlocked(access), "광고 제거권 기간의 insight가 근거를 엽니다")
+	})
+
+	t.Run("restorePurchases 뒤 listPurchases는 구매를 최근 먼저 보여 준다", func(t *testing.T) {
+		access, accountID := env.signUp("billing-flow-list")
+		empty := env.do(http.MethodGet, "/v1/me/purchases", access, nil)
+		require.Equal(t, http.StatusOK, empty.status, "목록 본문: %v", empty.body)
+		assert.Equal(t, []any{}, empty.body["items"])
+
+		revenueCat.add(accountID, "purchase-list-old", purchasedAt)
+		revenueCat.add(accountID, "purchase-list-new", purchasedAt.Add(time.Hour))
+		restored := env.do(http.MethodPost, "/v1/billing/restore", access, nil)
+		require.Equal(t, http.StatusOK, restored.status, "복원 본문: %v", restored.body)
+
+		listed := env.do(http.MethodGet, "/v1/me/purchases", access, nil)
+		require.Equal(t, http.StatusOK, listed.status, "목록 본문: %v", listed.body)
+		items, _ := listed.body["items"].([]any)
+		require.Len(t, items, 2)
+		newer, _ := items[0].(map[string]any)
+		older, _ := items[1].(map[string]any)
+		assert.Equal(t, flowProductID, newer["productId"])
+		assert.Equal(t, "active", older["status"], "먼저 산 구매가 사용 중입니다")
+		assert.Equal(t, "pending", newer["status"], "나중 구매는 앞 구간 뒤에 대기합니다")
+		olderPeriod, _ := older["period"].(map[string]any)
+		newerPeriod, _ := newer["period"].(map[string]any)
+		require.NotNil(t, olderPeriod, "older: %v", older)
+		require.NotNil(t, newerPeriod, "newer: %v", newer)
+		utcString := func(at time.Time) string { return at.UTC().Format(time.RFC3339) }
+		parse := func(value any) time.Time {
+			t.Helper()
+			text, _ := value.(string)
+			parsed, err := time.Parse(time.RFC3339Nano, text)
+			require.NoError(t, err, "시각 %v", value)
+			return parsed
+		}
+		assert.True(t, parse(olderPeriod["startsAt"]).Equal(parse(older["purchasedAt"])), "먼저 산 구매는 구매 시각부터: %v", olderPeriod)
+		assert.Equal(t, utcString(purchasedAt.AddDate(0, 1, 0)), utcString(parse(olderPeriod["endsAt"])), "1개월 뒤 끝")
+		assert.True(t, parse(newerPeriod["startsAt"]).Equal(parse(olderPeriod["endsAt"])), "나중 구매는 앞 구간 끝부터: %v", newerPeriod)
+		assert.Greater(t, newer["purchasedAt"], older["purchasedAt"], "ISO 8601 UTC 문자열은 시각 순으로 비교됩니다")
+
+		env.do(http.MethodGet, "/v1/me/purchases", "", nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
+	})
+
+	t.Run("다른 계정의 restorePurchases는 구매 주인을 옮기지 않는다", func(t *testing.T) {
+		ownerAccess, ownerID := env.signUp("billing-flow-owner")
+		otherAccess, otherID := env.signUp("billing-flow-other")
+		revenueCat.add(ownerID, "purchase-shared", purchasedAt)
+		owner := env.do(http.MethodPost, "/v1/billing/restore", ownerAccess, nil)
+		require.Equal(t, http.StatusOK, owner.status, "복원 본문: %v", owner.body)
+
+		// 같은 스토어 계정으로 다른 유저 계정에서 불러오면 RevenueCat 목록에는 그 구매가 보입니다(transfer).
+		revenueCat.add(otherID, "purchase-shared", purchasedAt)
+		other := env.do(http.MethodPost, "/v1/billing/restore", otherAccess, nil)
+		require.Equal(t, http.StatusOK, other.status, "복원 본문: %v", other.body)
+		otherAdFree, _ := other.body["adFree"].(map[string]any)
+		assert.Equal(t, false, otherAdFree["active"], "주인이 아닌 계정에는 권한이 없습니다")
+		assert.Equal(t, true, adFreeOf(ownerAccess)["active"], "주인 계정의 권한은 그대로입니다")
+
+		var ledgerOwner string
+		require.NoError(t, pool.QueryRow(t.Context(), `SELECT account_id::text FROM purchases WHERE id = $1`, "purchase-shared").Scan(&ledgerOwner))
+		assert.Equal(t, ownerID, ledgerOwner)
 	})
 
 	t.Run("webhook도 같은 상태를 만든다", func(t *testing.T) {

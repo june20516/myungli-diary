@@ -92,6 +92,68 @@ func (q *Queries) InsertBillingEvent(ctx context.Context, arg InsertBillingEvent
 	return err
 }
 
+const insertPassGrant = `-- name: InsertPassGrant :exec
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES ($1, $2, 'ad_free_pass', $3, $4, $5)
+ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING
+`
+
+type InsertPassGrantParams struct {
+	AccountID   uuid.UUID
+	Entitlement string
+	SourceRef   string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+}
+
+// 광고 제거권 구간 한 행입니다. source_ref는 구매 id입니다. 이미 있으면 아무것도 하지 않습니다.
+func (q *Queries) InsertPassGrant(ctx context.Context, arg InsertPassGrantParams) error {
+	_, err := q.db.Exec(ctx, insertPassGrant,
+		arg.AccountID,
+		arg.Entitlement,
+		arg.SourceRef,
+		arg.StartsAt,
+		arg.ExpiresAt,
+	)
+	return err
+}
+
+const insertPurchase = `-- name: InsertPurchase :execrows
+INSERT INTO purchases (id, account_id, original_account_id, product_id, store, store_purchase_id, purchased_at, refunded_at, production)
+VALUES ($1, $2, $2, $3, $4, NULLIF($5::text, ''), $6, $7, $8)
+ON CONFLICT (id) DO NOTHING
+`
+
+type InsertPurchaseParams struct {
+	ID              string
+	AccountID       uuid.UUID
+	ProductID       string
+	Store           string
+	StorePurchaseID string
+	PurchasedAt     time.Time
+	RefundedAt      *time.Time
+	Production      bool
+}
+
+// 구매를 장부에 적습니다. 주인과 처음 산 계정은 적는 계정입니다(S107).
+// 같은 id가 이미 있으면 아무것도 하지 않고 0행입니다(주인은 바꾸지 않음). 빈 스토어 거래 id는 NULL로 적습니다.
+func (q *Queries) InsertPurchase(ctx context.Context, arg InsertPurchaseParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertPurchase,
+		arg.ID,
+		arg.AccountID,
+		arg.ProductID,
+		arg.Store,
+		arg.StorePurchaseID,
+		arg.PurchasedAt,
+		arg.RefundedAt,
+		arg.Production,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const insertRewardEvent = `-- name: InsertRewardEvent :execrows
 INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, raw_query, received_at)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -126,7 +188,7 @@ func (q *Queries) InsertRewardEvent(ctx context.Context, arg InsertRewardEventPa
 const insertRewardedAdGrant = `-- name: InsertRewardedAdGrant :exec
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES ($1, 'insight', 'rewarded_ad', $2, $3, $4)
-ON CONFLICT (entitlement, source, source_ref) DO NOTHING
+ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING
 `
 
 type InsertRewardedAdGrantParams struct {
@@ -147,36 +209,58 @@ func (q *Queries) InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedA
 	return err
 }
 
-const listAdFreePassGrants = `-- name: ListAdFreePassGrants :many
-SELECT id, entitlement, source_ref, revoked_at
-FROM entitlement_grants
-WHERE account_id = $1
-  AND source = 'ad_free_pass'
-ORDER BY id
+const listAccountPurchases = `-- name: ListAccountPurchases :many
+SELECT p.id, p.product_id, p.purchased_at, p.refunded_at,
+       g.starts_at AS segment_starts_at, g.expires_at AS segment_expires_at, g.revoked_at AS segment_revoked_at
+FROM purchases p
+LEFT JOIN entitlement_grants g
+       ON g.source_ref = p.id
+      AND g.account_id = $1
+      AND g.source = 'ad_free_pass'
+      -- unique (account_id, entitlement, source, source_ref)라 권한 하나를 고르면 한 행입니다.
+      -- LATERAL 하위 쿼리 대신 이 형태를 쓰는 것은 sqlc가 LEFT JOIN 표의 열을 NULL 가능으로 추론하게 하려는 것입니다.
+      AND g.entitlement = (
+          SELECT min(eg.entitlement)
+          FROM entitlement_grants eg
+          WHERE eg.source_ref = p.id
+            AND eg.account_id = $1
+            AND eg.source = 'ad_free_pass'
+      )
+WHERE p.account_id = $1
+ORDER BY p.purchased_at DESC, p.id
 `
 
-type ListAdFreePassGrantsRow struct {
-	ID          int64
-	Entitlement string
-	SourceRef   string
-	RevokedAt   *time.Time
+type ListAccountPurchasesRow struct {
+	ID               string
+	ProductID        string
+	PurchasedAt      time.Time
+	RefundedAt       *time.Time
+	SegmentStartsAt  *time.Time
+	SegmentExpiresAt *time.Time
+	SegmentRevokedAt *time.Time
 }
 
-// 계정의 광고 제거권 출처(ad_free_pass) 행 전체입니다. 취소된 행도 포함합니다(동기화가 조정할 대상, P7-5).
-func (q *Queries) ListAdFreePassGrants(ctx context.Context, accountID uuid.UUID) ([]ListAdFreePassGrantsRow, error) {
-	rows, err := q.db.Query(ctx, listAdFreePassGrants, accountID)
+// 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
+// 한 구매의 권한 행은 같은 구간이라 이 계정의 행 하나만 봅니다(권한 이름 순 첫 행). 권한을 고정하지 않으므로 insight만 주는
+// 기간 상품도 구간이 나옵니다(spec §5.6). 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
+// 구간이 없는 구매(목록 밖 상품, 시작 전 환불로 구간이 없던 구매)는 구간 열이 NULL입니다.
+func (q *Queries) ListAccountPurchases(ctx context.Context, accountID uuid.UUID) ([]ListAccountPurchasesRow, error) {
+	rows, err := q.db.Query(ctx, listAccountPurchases, accountID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListAdFreePassGrantsRow
+	var items []ListAccountPurchasesRow
 	for rows.Next() {
-		var i ListAdFreePassGrantsRow
+		var i ListAccountPurchasesRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Entitlement,
-			&i.SourceRef,
-			&i.RevokedAt,
+			&i.ProductID,
+			&i.PurchasedAt,
+			&i.RefundedAt,
+			&i.SegmentStartsAt,
+			&i.SegmentExpiresAt,
+			&i.SegmentRevokedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -238,6 +322,52 @@ func (q *Queries) ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) 
 	return items, nil
 }
 
+const listPassSegments = `-- name: ListPassSegments :many
+SELECT g.id, g.entitlement, g.starts_at, g.expires_at, (p.refunded_at IS NOT NULL)::boolean AS refunded
+FROM entitlement_grants g
+JOIN purchases p ON p.id = g.source_ref
+WHERE g.account_id = $1
+  AND g.source = 'ad_free_pass'
+  AND g.revoked_at IS NULL
+ORDER BY g.entitlement, p.purchased_at, p.id
+`
+
+type ListPassSegmentsRow struct {
+	ID          int64
+	Entitlement string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+	Refunded    bool
+}
+
+// 계정의 취소되지 않은 광고 제거권 구간과 그 구매의 환불 여부입니다(rechainFrom, S108).
+// 순서는 권한, 구매 시각, 구매 id입니다. 장부 이전 구간은 00016이 지웠으므로 모든 구간에 장부 행이 있습니다.
+func (q *Queries) ListPassSegments(ctx context.Context, accountID uuid.UUID) ([]ListPassSegmentsRow, error) {
+	rows, err := q.db.Query(ctx, listPassSegments, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPassSegmentsRow
+	for rows.Next() {
+		var i ListPassSegmentsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Entitlement,
+			&i.StartsAt,
+			&i.ExpiresAt,
+			&i.Refunded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const markBillingEventProcessed = `-- name: MarkBillingEventProcessed :exec
 UPDATE billing_events
 SET processed_at = $1::timestamptz
@@ -256,6 +386,143 @@ func (q *Queries) MarkBillingEventProcessed(ctx context.Context, arg MarkBilling
 	return err
 }
 
+const markPurchaseRefunded = `-- name: MarkPurchaseRefunded :execrows
+UPDATE purchases
+SET refunded_at = $1::timestamptz
+WHERE id = $2
+  AND refunded_at IS NULL
+`
+
+type MarkPurchaseRefundedParams struct {
+	RefundedAt time.Time
+	ID         string
+}
+
+// 구매를 환불로 적습니다. 이미 환불된 구매는 처음 시각을 그대로 두고 0행입니다.
+func (q *Queries) MarkPurchaseRefunded(ctx context.Context, arg MarkPurchaseRefundedParams) (int64, error) {
+	result, err := q.db.Exec(ctx, markPurchaseRefunded, arg.RefundedAt, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const nextPassStart = `-- name: NextPassStart :one
+SELECT GREATEST($1::timestamptz, max(g.expires_at))::timestamptz AS starts_at
+FROM entitlement_grants g
+JOIN purchases p ON p.id = g.source_ref
+WHERE g.account_id = $2
+  AND g.entitlement = $3
+  AND g.source = 'ad_free_pass'
+  AND g.revoked_at IS NULL
+`
+
+type NextPassStartParams struct {
+	PurchasedAt time.Time
+	AccountID   uuid.UUID
+	Entitlement string
+}
+
+// 새 구매 구간의 시작 = max(구매 시각, 이 계정의 같은 권한 광고 제거권 구간 끝)입니다(S108).
+// ListPassSegments와 같이 장부에 구매가 있는 취소되지 않은 구간만 셉니다. GREATEST는 NULL(구간 없음)을 무시합니다.
+func (q *Queries) NextPassStart(ctx context.Context, arg NextPassStartParams) (time.Time, error) {
+	row := q.db.QueryRow(ctx, nextPassStart, arg.PurchasedAt, arg.AccountID, arg.Entitlement)
+	var starts_at time.Time
+	err := row.Scan(&starts_at)
+	return starts_at, err
+}
+
+const ownersByStorePurchaseIDs = `-- name: OwnersByStorePurchaseIDs :many
+SELECT DISTINCT account_id
+FROM purchases
+WHERE store = $1
+  AND store_purchase_id = ANY($2::text[])
+ORDER BY account_id
+`
+
+type OwnersByStorePurchaseIDsParams struct {
+	Store            string
+	StorePurchaseIds []string
+}
+
+// 그 스토어에서 스토어 거래 id 중 하나를 가진 구매의 주인 계정입니다(webhook 대체 경로, spec §5.4). 중복 없이 id 순입니다.
+func (q *Queries) OwnersByStorePurchaseIDs(ctx context.Context, arg OwnersByStorePurchaseIDsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, ownersByStorePurchaseIDs, arg.Store, arg.StorePurchaseIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var account_id uuid.UUID
+		if err := rows.Scan(&account_id); err != nil {
+			return nil, err
+		}
+		items = append(items, account_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const purchaseBySameStoreTransaction = `-- name: PurchaseBySameStoreTransaction :one
+SELECT id, account_id
+FROM purchases
+WHERE store = $1
+  AND store_purchase_id = $2::text
+  AND id <> $3
+ORDER BY created_at, id
+LIMIT 1
+`
+
+type PurchaseBySameStoreTransactionParams struct {
+	Store           string
+	StorePurchaseID string
+	ID              string
+}
+
+type PurchaseBySameStoreTransactionRow struct {
+	ID        string
+	AccountID uuid.UUID
+}
+
+// 같은 스토어 거래(store, store_purchase_id)를 다른 구매 id로 먼저 적은 행입니다(spec §5.2 방어). 먼저 적은 행 하나입니다.
+func (q *Queries) PurchaseBySameStoreTransaction(ctx context.Context, arg PurchaseBySameStoreTransactionParams) (PurchaseBySameStoreTransactionRow, error) {
+	row := q.db.QueryRow(ctx, purchaseBySameStoreTransaction, arg.Store, arg.StorePurchaseID, arg.ID)
+	var i PurchaseBySameStoreTransactionRow
+	err := row.Scan(&i.ID, &i.AccountID)
+	return i, err
+}
+
+const purchaseOwner = `-- name: PurchaseOwner :one
+SELECT account_id
+FROM purchases
+WHERE id = $1
+`
+
+// 구매의 지금 주인 계정입니다. 장부에 없으면 행이 없습니다.
+func (q *Queries) PurchaseOwner(ctx context.Context, id string) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, purchaseOwner, id)
+	var account_id uuid.UUID
+	err := row.Scan(&account_id)
+	return account_id, err
+}
+
+const purchaseRefunded = `-- name: PurchaseRefunded :one
+SELECT (refunded_at IS NOT NULL)::boolean AS refunded
+FROM purchases
+WHERE id = $1
+`
+
+// 장부의 구매가 환불로 적혀 있는지입니다. 잠그지 않은 주인 계정의 구매를 쓰지 않고 볼 때 씁니다(spec §5.4).
+func (q *Queries) PurchaseRefunded(ctx context.Context, id string) (bool, error) {
+	row := q.db.QueryRow(ctx, purchaseRefunded, id)
+	var refunded bool
+	err := row.Scan(&refunded)
+	return refunded, err
+}
+
 const revokeGrant = `-- name: RevokeGrant :exec
 UPDATE entitlement_grants
 SET revoked_at = $1::timestamptz
@@ -270,47 +537,36 @@ type RevokeGrantParams struct {
 	AccountID uuid.UUID
 }
 
-// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(P7-5).
-// account_id 조건은 그 사이 다른 계정의 동기화가 이 행을 옮겨 간 경우(transfer) 그 계정 행을 취소하지 않게 합니다.
+// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(rechainFrom의 환불 구간, S108).
+// account_id 조건은 호출한 계정의 행만 취소하게 하는 안전장치입니다.
 func (q *Queries) RevokeGrant(ctx context.Context, arg RevokeGrantParams) error {
 	_, err := q.db.Exec(ctx, revokeGrant, arg.Now, arg.ID, arg.AccountID)
 	return err
 }
 
-const upsertGrant = `-- name: UpsertGrant :exec
-INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
-VALUES ($1, $2, $3, $4, $5, $6)
-ON CONFLICT (entitlement, source, source_ref) DO UPDATE
-SET account_id = EXCLUDED.account_id,
-    starts_at  = EXCLUDED.starts_at,
-    expires_at = EXCLUDED.expires_at,
-    revoked_at = NULL
-WHERE entitlement_grants.account_id <> EXCLUDED.account_id
-   OR entitlement_grants.starts_at <> EXCLUDED.starts_at
-   OR entitlement_grants.expires_at <> EXCLUDED.expires_at
-   OR entitlement_grants.revoked_at IS NOT NULL
+const setGrantPeriod = `-- name: SetGrantPeriod :exec
+UPDATE entitlement_grants
+SET starts_at  = $1,
+    expires_at = $2
+WHERE id = $3
+  AND account_id = $4
+  AND revoked_at IS NULL
 `
 
-type UpsertGrantParams struct {
-	AccountID   uuid.UUID
-	Entitlement string
-	Source      string
-	SourceRef   string
-	StartsAt    time.Time
-	ExpiresAt   time.Time
+type SetGrantPeriodParams struct {
+	StartsAt  time.Time
+	ExpiresAt time.Time
+	ID        int64
+	AccountID uuid.UUID
 }
 
-// (entitlement, source, source_ref)로 행을 찾아 기간을 맞추고 취소를 풉니다(P7-4·P7-5).
-// 같은 구매가 다른 계정 행으로 이미 있으면(RevenueCat transfer 등) 지금 구매 목록에 그 구매가 있는 계정으로 옮깁니다(구매 목록이 권위).
-// 바뀐 값이 없으면 행을 다시 쓰지 않습니다.
-func (q *Queries) UpsertGrant(ctx context.Context, arg UpsertGrantParams) error {
-	_, err := q.db.Exec(ctx, upsertGrant,
-		arg.AccountID,
-		arg.Entitlement,
-		arg.Source,
-		arg.SourceRef,
+// 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간). 취소된 구간은 옮기지 않습니다.
+func (q *Queries) SetGrantPeriod(ctx context.Context, arg SetGrantPeriodParams) error {
+	_, err := q.db.Exec(ctx, setGrantPeriod,
 		arg.StartsAt,
 		arg.ExpiresAt,
+		arg.ID,
+		arg.AccountID,
 	)
 	return err
 }
