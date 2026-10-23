@@ -148,6 +148,15 @@
     "description": "사주가 저장된 계정으로 이 기기에 처음 로그인하는 사용자. 토큰이 없고, 로그인하면 기존 계정(isNewAccount false)이며 getMe는 member와 같습니다(약관 동의, 프로필 있음)."
   },
   {
+    "id": "consented-no-profile",
+    "extends": "returning-user",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": false,
+    "description": "약관에 동의했지만 사주가 없는 계정으로 이 기기에 처음 로그인하는 사용자. 토큰이 없고, 로그인하면 기존 계정(isNewAccount false, consentRequired false)이며 getMe는 로그인 직후 두 번(기존 계정의 사주 확인, 진입 계산)은 프로필 없음, 프로필을 만든 뒤 있음입니다."
+  },
+  {
     "id": "login-provider-down",
     "extends": "new-user",
     "today": "2026-10-13",

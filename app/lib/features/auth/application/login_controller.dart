@@ -8,11 +8,13 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
+import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/features/auth/data/auth_repository.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 
@@ -163,6 +165,12 @@ class LoginController extends AsyncNotifier<void> {
       draft: ref.read(onboardingDraftProvider.notifier),
       // 로그인이 실패해 기다리지 않게 돼도 읽기 오류가 미처리로 남지 않게 합니다.
       draftValue: ref.read(onboardingDraftProvider.future)..ignore(),
+      // 마무리 의존성은 계정 id가 필요해 진입 계산 뒤에야 읽을 수 있습니다. 그때 이 controller가
+      // 버려졌으면 읽지 않고, 저장은 onboard-call이 이어받습니다.
+      readCompleter: () =>
+          ref.mounted ? ref.read(onboardingCompleterProvider) : null,
+      readMe: () => ref.mounted ? ref.read(meProvider) : null,
+      notice: ref.read(onboardingRejectionNoticeProvider.notifier),
       crashReporter: ref.read(crashReporterProvider),
     );
     try {
@@ -197,6 +205,9 @@ final class _Session {
     required this.entry,
     required this.draft,
     required this.draftValue,
+    required this.readCompleter,
+    required this.readMe,
+    required this.notice,
     required this.crashReporter,
   });
 
@@ -206,9 +217,13 @@ final class _Session {
   final EntryController entry;
   final OnboardingDraftController draft;
   final Future<OnboardingDraft> draftValue;
+  final OnboardingCompleter? Function() readCompleter;
+  final Me? Function() readMe;
+  final OnboardingRejectionNotice notice;
   final CrashReporter crashReporter;
 
-  /// 토큰을 저장하고, 필요하면 입력을 쓰지 않는다는 안내 뒤 입력을 지우고, 진입을 다시 계산합니다.
+  /// 토큰을 저장하고, 필요하면 입력을 쓰지 않는다는 안내 뒤 입력을 지우거나 입력을 프로필로
+  /// 저장하고, 진입을 다시 계산합니다.
   ///
   /// 진입 계산이 실패하면 그 오류를, 아니면 null을 돌려줍니다.
   Future<AppError?> enter(LoginResponse response, DiscardNotice? notice) async {
@@ -229,7 +244,19 @@ final class _Session {
         crashReporter.record(CrashSummary.from(error), stack);
       }
     }
-    return await entry.refresh();
+    final entryError = await entry.refresh();
+    if (entryError != null) {
+      return entryError;
+    }
+    // 내 정보는 진입 계산이 낸 값이라 여기서 처음 압니다(D90 ③).
+    // 동의했고 사주가 없는 계정이 미리보기 입력을 가졌으면 onboard-call 없이 저장합니다.
+    // 동의가 필요한 계정은 동의 화면이 저장을 맡습니다. 저장은 마지막에 진입을 다시 계산하고,
+    // 실패하면 진입이 이미 `profileRequired`라 onboard-call이 안내하거나 다시 저장합니다.
+    final me = readMe();
+    if (me != null && !me.consentRequired && !me.hasProfile) {
+      await readCompleter()?.completeIfReady(notice: this.notice);
+    }
+    return null;
   }
 
   /// 사주가 저장된 기존 계정이고 온보딩 입력이 남아 있으면 true.

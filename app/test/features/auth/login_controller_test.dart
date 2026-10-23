@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,18 +14,42 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_web_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/birth.dart';
+import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
+import 'package:myungli_diary/core/api/gen/model/profile_response.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
+import 'package:myungli_diary/core/storage/app_database.dart';
+import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/auth/application/login_controller.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
+
+/// `createProfile` 성공 응답(fixture `member`).
+final Map<String, dynamic> _createdProfile =
+    (jsonDecode(File('fixtures/member/createProfile.json').readAsStringSync())
+            as Map<String, dynamic>)['body']
+        as Map<String, dynamic>;
+
+/// 프로필을 만들 만큼 다 받은 온보딩 입력(한국 기기).
+final _completeDraft = OnboardingDraft(
+  honorific: '별님',
+  calendar: CalendarType.solar,
+  date: LunarOrSolarDate(year: 1990, month: 5, day: 15),
+  time: BirthTime(status: BirthTimeStatusEnum.known, value: '14:30'),
+  gender: BirthGenderEnum.female,
+);
 
 final _tokens = TokenPair(
   accessToken: 'login-access-token',
@@ -31,20 +58,22 @@ final _tokens = TokenPair(
   refreshTokenExpiresAt: DateTime.utc(2026, 11, 12),
 );
 
-LoginResponse _login({required bool isNewAccount}) => LoginResponse(
-  tokens: _tokens,
-  isNewAccount: isNewAccount,
-  consentRequired: isNewAccount,
-);
+LoginResponse _login({required bool isNewAccount, bool? consentRequired}) =>
+    LoginResponse(
+      tokens: _tokens,
+      isNewAccount: isNewAccount,
+      consentRequired: consentRequired ?? isNewAccount,
+    );
 
-Me _me({required bool hasProfile}) => Me.fromJson({
-  'accountId': '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
-  'consentRequired': false,
-  'requiredConsents': <Object?>[],
-  'hasProfile': hasProfile,
-  'adFree': {'active': false},
-  'insight': {'active': false},
-});
+Me _me({required bool hasProfile, bool consentRequired = false}) =>
+    Me.fromJson({
+      'accountId': '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
+      'consentRequired': consentRequired,
+      'requiredConsents': <Object?>[],
+      'hasProfile': hasProfile,
+      'adFree': {'active': false},
+      'insight': {'active': false},
+    });
 
 DioException _problem(int status, String code) {
   final options = RequestOptions();
@@ -66,6 +95,7 @@ DioException _problem(int status, String code) {
 class _FakeApi implements DefaultApi {
   new({
     this.isNewAccount = true,
+    this.consentRequired,
     this.hasProfile = false,
     this.kakaoProblem,
     this.getMeFails = false,
@@ -73,6 +103,9 @@ class _FakeApi implements DefaultApi {
   }) : _webProblems = [...webProblems];
 
   final bool isNewAccount;
+
+  /// 로그인 응답의 `consentRequired`. null이면 새 계정일 때만 true입니다.
+  final bool? consentRequired;
   final bool hasProfile;
 
   /// true면 getMe가 503으로 실패합니다.
@@ -114,7 +147,9 @@ class _FakeApi implements DefaultApi {
         problem,
       );
     }
-    return _ok(_login(isNewAccount: isNewAccount));
+    return _ok(
+      _login(isNewAccount: isNewAccount, consentRequired: consentRequired),
+    );
   }
 
   @override
@@ -128,7 +163,9 @@ class _FakeApi implements DefaultApi {
     ProgressCallback? onReceiveProgress,
   }) async {
     appleRequests.add(appleLoginRequest);
-    return _ok(_login(isNewAccount: isNewAccount));
+    return _ok(
+      _login(isNewAccount: isNewAccount, consentRequired: consentRequired),
+    );
   }
 
   @override
@@ -145,7 +182,9 @@ class _FakeApi implements DefaultApi {
     if (_webProblems.isNotEmpty) {
       throw _problem(401, _webProblems.removeAt(0));
     }
-    return _ok(_login(isNewAccount: isNewAccount));
+    return _ok(
+      _login(isNewAccount: isNewAccount, consentRequired: consentRequired),
+    );
   }
 
   @override
@@ -195,7 +234,13 @@ class _FakeEntry extends EntryController {
   Future<AppError?> refresh() async {
     log.refreshes++;
     log.onRefresh?.call();
-    return log.refreshError;
+    final error = log.refreshError;
+    final me = log.me;
+    if (error == null && me != null) {
+      // 진입 계산이 내 정보를 내는 것을 흉내 냅니다(meProvider의 출처).
+      state = AsyncData(EntrySnapshot(EntryState.profileRequired, me));
+    }
+    return error;
   }
 }
 
@@ -208,6 +253,9 @@ class _EntryLog {
 
   /// 갱신 결과. null이면 성공입니다.
   AppError? refreshError;
+
+  /// 갱신이 낼 내 정보. null이면 내지 않습니다.
+  Me? me;
 }
 
 /// [_FakeDraft]의 호출 기록.
@@ -232,8 +280,18 @@ class _FakeDraft extends OnboardingDraftController {
   }
 }
 
+/// 프로필 저장 대역의 호출 기록과 응답 설정.
+class _ProfileLog {
+  int creates = 0;
+
+  /// 저장이 던질 오류. null이면 성공입니다.
+  AppError? createError;
+}
+
 final class _Harness {
   new({
+    required this.profile,
+    required this.flags,
     required this.container,
     required this.api,
     required this.kakao,
@@ -256,6 +314,8 @@ final class _Harness {
 
   final _EntryLog entry;
   final _DraftLog draft;
+  final _ProfileLog profile;
+  final DeviceFlagsStore flags;
 
   String? get accessToken => container.read(tokenStoreProvider).accessToken;
 }
@@ -268,15 +328,22 @@ Future<_Harness> _harness({
   SecureStore? secureStore,
   TargetPlatform platform = TargetPlatform.android,
   OnboardingDraft draft = const OnboardingDraft(),
+  AppError? createProfileError,
+  Me? meAfterLogin,
 }) async {
   final server = api ?? _FakeApi();
   final kakaoAuth = kakao ?? FakeKakaoAuth();
   final native = appleNative ?? FakeAppleNativeAuth();
   final crashReporter = FakeCrashReporter();
   final web = appleWeb ?? FakeAppleWebAuth();
-  final entryLog = _EntryLog();
+  final entryLog = _EntryLog()..me = meAfterLogin;
   final draftLog = _DraftLog();
-  final container = ProviderContainer(
+  final profileLog = _ProfileLog()..createError = createProfileError;
+  final database = AppDatabase.forExecutor(NativeDatabase.memory());
+  addTearDown(database.close);
+  final flags = DeviceFlagsStore(database);
+  late final ProviderContainer container;
+  container = ProviderContainer(
     overrides: [
       restClientProvider.overrideWithValue(server),
       secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
@@ -287,6 +354,29 @@ Future<_Harness> _harness({
       targetPlatformProvider.overrideWithValue(platform),
       entryStateProvider.overrideWith(() => _FakeEntry(entryLog)),
       onboardingDraftProvider.overrideWith(() => _FakeDraft(draft, draftLog)),
+      onboardingCompleterProvider.overrideWithValue(
+        OnboardingCompleter(
+          createProfile: (_) async {
+            profileLog.creates++;
+            final error = profileLog.createError;
+            if (error != null) {
+              throw error;
+            }
+            return ProfileResponse.fromJson(_createdProfile);
+          },
+          readDraft: () => container.read(onboardingDraftProvider.future),
+          clearDraft: () =>
+              container.read(onboardingDraftProvider.notifier).clear(),
+          language: Language.ko,
+          deviceRegionIsKorea: true,
+          deviceTimezone: () async => 'Asia/Seoul',
+          flags: flags,
+          needsProfile: () => container.read(meProvider)?.hasProfile == false,
+          refreshEntry: () =>
+              container.read(entryStateProvider.notifier).refresh(),
+          crashReporter: crashReporter,
+        ),
+      ),
     ],
   );
   addTearDown(container.dispose);
@@ -302,6 +392,8 @@ Future<_Harness> _harness({
     crashReporter: crashReporter,
     entry: entryLog,
     draft: draftLog,
+    profile: profileLog,
+    flags: flags,
   );
 }
 
@@ -617,6 +709,111 @@ void main() {
 
       expect(notices, 0);
       expect(h.draft.clears, 0);
+      expect(h.entry.refreshes, 1);
+    });
+  });
+
+  group('동의했고 사주가 없는 계정', () {
+    final noProfile = _me(hasProfile: false);
+
+    test('입력이 다 있으면 저장하고 진입을 다시 계산합니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        draft: _completeDraft,
+        meAfterLogin: noProfile,
+      );
+
+      final outcome = await h.controller.signInWithKakao();
+
+      expect(outcome, isA<LoginSucceeded>());
+      expect(h.profile.creates, 1);
+      expect(await h.flags.readBool(notifyAskPendingKey), isTrue);
+      expect(h.draft.clears, 1);
+      // 로그인의 진입 계산 한 번, 저장 마지막의 진입 계산 한 번입니다.
+      expect(h.entry.refreshes, 2);
+    });
+
+    test('입력이 없으면 저장하지 않습니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        meAfterLogin: noProfile,
+      );
+
+      await h.controller.signInWithKakao();
+
+      expect(h.profile.creates, 0);
+      expect(await h.flags.readBool(notifyAskPendingKey), isFalse);
+      expect(h.entry.refreshes, 1);
+    });
+
+    test('저장이 422면 안내를 남기고 진입은 그대로 둡니다', () async {
+      const rejected = ProblemError(
+        code: 'name.invalid',
+        status: 422,
+        fieldErrors: [],
+        traceId: 'test',
+      );
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        draft: _completeDraft,
+        createProfileError: rejected,
+        meAfterLogin: noProfile,
+      );
+
+      final outcome = await h.controller.signInWithKakao();
+
+      expect(outcome, isA<LoginSucceeded>());
+      expect(h.profile.creates, 1);
+      expect(h.container.read(onboardingRejectionNoticeProvider), rejected);
+      expect(h.draft.clears, 0);
+      expect(h.entry.refreshes, 1);
+    });
+
+    test('그 밖의 저장 실패는 안내 없이 onboard-call에 맡깁니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        draft: _completeDraft,
+        createProfileError: const ProblemError(
+          code: 'server.unavailable',
+          status: 503,
+          fieldErrors: [],
+          traceId: 'test',
+        ),
+        meAfterLogin: noProfile,
+      );
+
+      final outcome = await h.controller.signInWithKakao();
+
+      expect(outcome, isA<LoginSucceeded>());
+      expect(h.profile.creates, 1);
+      expect(h.container.read(onboardingRejectionNoticeProvider), isNull);
+      expect(h.entry.refreshes, 1);
+    });
+
+    test('동의가 필요한 계정은 저장하지 않습니다(consent가 저장을 맡음)', () async {
+      final h = await _harness(
+        api: _FakeApi(consentRequired: true),
+        draft: _completeDraft,
+        meAfterLogin: _me(hasProfile: false, consentRequired: true),
+      );
+
+      await h.controller.signInWithKakao();
+
+      expect(h.profile.creates, 0);
+      expect(h.entry.refreshes, 1);
+    });
+
+    test('사주가 있는 계정은 저장하지 않습니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false, hasProfile: true),
+        draft: _completeDraft,
+        meAfterLogin: _me(hasProfile: true),
+      );
+
+      await h.controller.signInWithKakao(showDiscardNotice: () async {});
+
+      expect(h.profile.creates, 0);
+      expect(h.draft.clears, 1);
       expect(h.entry.refreshes, 1);
     });
   });

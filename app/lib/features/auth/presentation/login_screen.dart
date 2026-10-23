@@ -20,6 +20,8 @@ const Set<String> loginExits = {
   ScreenIds.consent,
   ScreenIds.today,
   ScreenIds.adConsent,
+  ScreenIds.notifyAsk,
+  ScreenIds.onboardCall,
 };
 
 /// IA `login`이 직접 처리하는 상태. 로그인 실패와 취소를 버튼 위 안내로 그립니다.

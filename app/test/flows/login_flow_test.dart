@@ -216,6 +216,37 @@ void main() {
     expect(saved, isNull);
   });
 
+  testWidgets(
+    'consented-no-profile: 미리보기 입력이 있으면 저장하고 onboard-call 없이 notify-ask',
+    (tester) async {
+      covers(const Covers(exits: ['login>notify-ask'], decisions: ['D90']));
+      final container = await openPreviewStep(
+        tester,
+        scenario: 'consented-no-profile',
+      );
+      await tester.tap(_screen(SlotIds.previewCtaSave));
+      await tester.pumpAndSettle();
+
+      await tester.tap(_kakaoButton);
+      // 저장이 끝나 진입이 바뀌면 notify-ask가 열립니다. 그 사이 onboard-call이 잠깐 보일 수 있습니다.
+      await _pumpUntil(
+        tester,
+        () => _screen(ScreenIds.notifyAsk).evaluate().isNotEmpty,
+      );
+      await settleTimezoneSync(tester, container);
+      await tester.pumpAndSettle();
+
+      expect(_screen(ScreenIds.notifyAsk), findsOneWidget);
+      expect(_screen(ScreenIds.onboardCall), findsNothing);
+      // 저장은 로그인에서 한 번뿐입니다(onboard-call이 다시 저장하지 않음).
+      expect(_fake(container).requestBodiesOf('createProfile'), hasLength(1));
+      expect(
+        container.read(onboardingDraftProvider).value,
+        const OnboardingDraft(),
+      );
+    },
+  );
+
   testWidgets('login-provider-down: 재시도 안내, 토큰 없음, 다시 누르면 다시 요청', (
     tester,
   ) async {

@@ -5,8 +5,6 @@ import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/consent_document.dart';
-import 'package:myungli_diary/core/platform/crash_reporter.dart';
-import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/auth/data/consent_repository.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 
@@ -75,7 +73,6 @@ class ConsentController extends AsyncNotifier<void> {
     final entry = ref.read(entryStateProvider.notifier);
     final completer = ref.read(onboardingCompleterProvider);
     final notice = ref.read(onboardingRejectionNoticeProvider.notifier);
-    final crashReporter = ref.read(crashReporterProvider);
     // 동의 전 내 정보로 정합니다. 동의 뒤 진입 갱신 전이라도 값이 바뀌지 않게 먼저 잡습니다.
     final needsProfile = ref.read(meProvider)?.hasProfile == false;
     try {
@@ -86,19 +83,8 @@ class ConsentController extends AsyncNotifier<void> {
       }
       return error;
     }
-    if (needsProfile && await completer.isReady()) {
-      try {
-        await completer.complete();
-        return null;
-      } on OnboardingInputRejected catch (rejected) {
-        notice.leave(rejected.error);
-      } on AppError {
-        // 입력 오류(422)가 아닌 server·통신 실패와 저장 뒤 진입 계산 실패가 여기로 옵니다.
-        // 동의는 끝났으므로 진입을 다시 계산하고, onboard-call이 진입할 때 한 번 다시 저장합니다.
-      } on Object catch (error, stack) {
-        // 진단을 위해 요약(오류 타입)만 보고합니다(D64 ②: 출생 정보·호칭은 싣지 않음).
-        crashReporter.record(CrashSummary.from(error), stack);
-      }
+    if (needsProfile && await completer.completeIfReady(notice: notice)) {
+      return null;
     }
     // 진입 계산이 실패하면 화면이 머물러 안내하고, 다시 누르면 동의부터 다시 합니다(같은 버전).
     return await entry.refresh();

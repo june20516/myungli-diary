@@ -64,6 +64,8 @@ final Map<String, ScreenSpec> _implementedScreens = {
       ScreenIds.adConsent,
       ScreenIds.welcome,
       ScreenIds.forceUpdate,
+      ScreenIds.consent,
+      ScreenIds.onboardCall,
     },
   ),
   ScreenIds.forceUpdate: const ScreenSpec(
