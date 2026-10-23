@@ -357,7 +357,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 * 실기기에서 Auth Tab이 303을 받지 못하면, 안내 페이지 intent 경로가 기본이 되는지 다시 판단합니다. 이 경우 server와 페이지 문구를 맞춰야 할 수 있어 Issue로 올립니다.
 * 재전송 `merge.token_invalid` 뒤 합쳐졌는지 가를 방법: server #552(답이 오면 §9 잠정 판정을 바꿈).
 * 떼기·계정 삭제 때 LINE·Google 허가 취소가 A82 때문에 사실상 생략되는 점: root #553(D87). 답이 오기 전에는 지금 동작(token 없으면 생략)입니다(§5.6).
-* Google 프로세스 nonce 재사용(§5.4): 아직 Issue가 없습니다. 이 PR 뒤 바로 server에 Issue로 올립니다.
+* Google 프로세스 nonce 재사용(§5.4): #555(server)로 물었습니다.
 * LINE `logout`의 허가 취소 범위와 LINE 앱 연동 해제(deauthorize) API: 계획 7 착수 때 확인합니다(§5.6).
 
 ## 14. 계획 7 수익 쪽 과제 (`app/d85-d88`에서 넘김)
