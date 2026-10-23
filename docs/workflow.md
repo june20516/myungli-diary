@@ -89,6 +89,12 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **결정은 git에:** Issue에서 정한 결정은 결정 로그(§4)에 적고, 그 번호를 Issue에 남깁니다.
 * `docs/coordination/`은 이관 전(2026-10-10) 문서의 보관소입니다. 새 문서는 만들지 않습니다.
 
+### 5.3. 외부 준비물 (D91 ②)
+* 사용자만 할 수 있는 외부 계정·설정·서류는 대장 [`docs/external-prep.md`](external-prep.md) 하나로 관리합니다. 고치는 쪽은 지휘입니다.
+* 단위가 외부 값이나 계정이 필요해지면 `to:root`·`kind:prep` Issue로 올립니다. 사용자에게 직접 묻지 않습니다.
+* 지휘는 때가 된 항목마다 `to:user`·`kind:prep` Issue를 열어 절차(공식 문서 출처 포함)와 넘길 값을 적습니다. 공개 값은 그 Issue 코멘트로 받고, 비밀 값은 사용자가 Issue에 적힌 곳에 직접 넣습니다. 비밀 값은 저장소·Issue·대화에 붙이지 않습니다.
+* 받은 값은 지휘가 쓰는 단위의 Issue로 전달하고, 대장의 상태를 고친 뒤 `kind:prep` Issue를 닫습니다.
+
 ## 6. Git
 * 저장소: `june20516/myungli-diary` (모노레포, D33).
 * **`main` 중심, 짧은 브랜치 (D44):** 브랜치는 마일스톤 하나나 task 몇 개 단위로 짧게 씁니다. 이름은 `<단위>/<주제>`(예: `core/engine-mvp`, `writing/rounds-2026-10-11`). 지휘 세션은 `root/<주제>`.
