@@ -20,6 +20,7 @@ from mlw.arb import check_arb
 from mlw.bundles import check_days, check_weeks
 from mlw.completeness import RULE_MISSING, check_completeness
 from mlw.docs import RULE_STALE, render_docs, stale_docs, write_docs
+from mlw.endings import ENDING_KINDS, KIND_LABELS, ending_rows, screen_counts
 from mlw.evidence import check_evidence
 from mlw.glossary import term_ids
 from mlw.hanja import HANJA_FILE_NAME, check_hanja, load_hanja
@@ -138,7 +139,6 @@ def _entry_sentence_findings(
             values,
             allowed=slot.allowed,
             forbidden=slot.forbidden,
-            register=slot.register,
         )
     )
     return findings
@@ -393,6 +393,21 @@ def _gen_docs(args: argparse.Namespace) -> int:
     return _print_findings(findings)
 
 
+def _endings(args: argparse.Namespace) -> int:
+    """맺음 현황(W43). 보고만 하고 늘 0으로 끝납니다(막지 않음)."""
+    rules = load_rules(args.rules_dir)
+    rows = ending_rows(load_content(args.content), load_slots(args.slots_dir, rules), load_ia(args.ia))
+    if args.screen:
+        for row in rows:
+            if row.screen == args.screen:
+                print(f"[{KIND_LABELS[row.kind]}] {row.slot} {row.key}: {row.sentence}")
+        return 0
+    print("\t".join(["화면", *(KIND_LABELS[kind] for kind in ENDING_KINDS)]))
+    for screen, counts in screen_counts(rows).items():
+        print("\t".join([screen, *(str(counts[kind]) for kind in ENDING_KINDS)]))
+    return 0
+
+
 def _positive_int(text: str) -> int:
     value = int(text)
     if value < 1:
@@ -488,6 +503,13 @@ def _build_parser() -> argparse.ArgumentParser:
     add_dirs(gen_docs)
     add_ia(gen_docs)
     gen_docs.set_defaults(handler=_gen_docs)
+
+    endings = commands.add_parser("endings", help="ko 원고의 맺음(해요체·합니다체) 현황을 화면별로 보여 줍니다(막지 않음)")
+    endings.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
+    endings.add_argument("--screen", help="이 화면의 문장을 맺음과 함께 모두 보여 줍니다")
+    add_dirs(endings)
+    add_ia(endings)
+    endings.set_defaults(handler=_endings)
 
     judge = commands.add_parser("judge", help="judge: llm slop 규칙으로 원고를 모델에 물어 의심 문장을 표시합니다(로컬, 막지 않음)")
     judge.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")

@@ -45,7 +45,7 @@
     good:
       - {lang: ko, key: personal.day_master.byeong, text: "내 사주의 [[병화|stem.byeong]]는 힘이 아주 약한 편이에요. 목 기운이 균형을 잡아 주니 가까이하고, 수 기운은 덜어 내면 좋아요.", why: "내 일간의 강약 + 용신·기신을 이유와 함께(R10-4)", source: round-R10-4}
     bad:
-      - {lang: ko, key: personal.day_master.gap, text: "갑목(甲木) 일간은 신약하므로 수(水)를 용신으로 합니다.", why: "괄호 풀이 style.S1, 합니다체 style.S3, 판정 근거 구역과 중복", source: writing}
+      - {lang: ko, key: personal.day_master.gap, text: "갑목(甲木) 일간은 신약하므로 수(水)를 용신으로 합니다.", why: "괄호 풀이 style.S1, 판정 근거 구역과 중복", source: writing}
       - {lang: ko, key: personal.day_master.gap, text: "갑목은 리더의 기운이에요. 당신은 타고난 리더예요.", why: "누구에게나 같은 일반 뜻(explain 몫), 당신 style.S6, 성격 단정", source: writing}
   a11y:
     truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.

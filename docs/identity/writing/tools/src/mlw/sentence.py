@@ -5,7 +5,7 @@ from collections.abc import Mapping
 
 import regex
 
-from mlw.model import DEFAULT_REGISTER, Detect, Entry, Finding, RuleSet, Severity, SlopRule, StyleRule
+from mlw.model import Detect, Entry, Finding, RuleSet, Severity, SlopRule, StyleRule
 from mlw.placeholders import parse, parse_tokens, strip_token_marks, substitute
 
 # 규칙 탐지용 정규화에서 자리표시자 자리에 들어가는 값입니다.
@@ -61,13 +61,11 @@ def check_sentence(
     longest_values: Mapping[str, str],
     allowed: frozenset[str] = frozenset(),
     forbidden: frozenset[str] = frozenset(),
-    register: str = DEFAULT_REGISTER,
 ) -> list[Finding]:
     """원고 한 문장을 검사합니다.
 
-    `allowed`·`forbidden`·`register`는 슬롯 명세의 같은 이름 필드입니다. `allowed`의 규칙은 이 슬롯에서 건너뛰고,
-    `forbidden`의 규칙은 `exempt_purposes`와 관계없이 적용합니다. `registers`가 있는 문체 규칙은
-    그 맺음 갈래의 슬롯에만 적용합니다(W40).
+    `allowed`·`forbidden`은 슬롯 명세의 같은 이름 필드입니다. `allowed`의 규칙은 이 슬롯에서 건너뛰고,
+    `forbidden`의 규칙은 `exempt_purposes`와 관계없이 적용합니다.
     """
     def finding(rule_id: str, severity: Severity, message: str) -> Finding:
         return Finding(entry.file, entry.line, rule_id, severity, message)
@@ -88,8 +86,6 @@ def check_sentence(
         if rule.detect is None or not _runs_in_ci(rule) or rule.id in allowed:
             continue
         if effective_purpose in rule.exempt_purposes and rule.id not in forbidden:
-            continue
-        if isinstance(rule, StyleRule) and rule.registers and register not in rule.registers:
             continue
         text = unicodedata.normalize("NFC", entry.text) if rule.detect.raw else normalized
         if matches(rule.detect, entry.lang, text):
