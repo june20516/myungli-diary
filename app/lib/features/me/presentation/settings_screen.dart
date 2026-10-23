@@ -277,7 +277,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           label: l10n.settingsLanguageLabel,
                           value: profile == null
                               ? null
-                              : languageNames[profile.language],
+                              : languageNameOf(profile.language),
                           onTap: profileRow(
                             SettingsField.language,
                             _editLanguage,

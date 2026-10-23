@@ -128,6 +128,26 @@ final class _BirthCity extends Interceptor {
   }
 }
 
+/// 프로필 응답의 언어를 계약에 없는 값으로 바꿉니다(REST 1.0.0 열린 enum).
+final class _UnknownLanguage extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/me/profile' && data is Map) {
+      final body = Map<String, Object?>.of(data.cast<String, Object?>());
+      body['profile'] = {
+        ...(body['profile']! as Map).cast<String, Object?>(),
+        'language': 'xx',
+      };
+      response.data = body;
+    }
+    handler.next(response);
+  }
+}
+
 /// 알림 권한 요청 수를 세는 푸시 대역.
 final class _CountingPush implements PushMessaging {
   new({this.granted = true});
@@ -348,6 +368,11 @@ void main() {
       _row(tester, SettingsScreen.notifyRowKey).value,
       _ko.settingsNotifyOff,
     );
+  });
+
+  testWidgets('프로필 언어가 모르는 값이면 언어 줄에 English가 보인다', (tester) async {
+    await _openSettings(tester, startNetwork: _UnknownLanguage());
+    expect(_row(tester, SettingsScreen.languageRowKey).value, 'English');
   });
 
   testWidgets('언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드', (

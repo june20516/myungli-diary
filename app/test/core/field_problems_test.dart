@@ -34,4 +34,8 @@ void main() {
     expect(honorificMaxLength(Language.ja), 10);
     expect(honorificMaxLength(Language.en), 20);
   });
+
+  test('모르는 언어의 호칭 상한은 en과 같은 20', () {
+    expect(honorificMaxLength(Language.unknownDefaultOpenApi), 20);
+  });
 }

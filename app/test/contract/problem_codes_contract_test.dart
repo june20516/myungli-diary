@@ -23,10 +23,12 @@ const _notUserFacing = {
   'device.not_found',
 };
 
-/// writing 오류 문구(`slots/ui/common.yaml`)가 아직 없는 code입니다. 그동안은 4xx 일반
-/// 문구(`errorClient`)로 보입니다. writing이 ARB 키를 더하면 아래 '대기 목록' 테스트가
-/// 실패하니, 이 목록에서 지우고 [problemMessages]에 연결합니다. D82 draft.14 code, writing 문구 대기.
-const Set<String> _awaitingWriting = {'merge.token_invalid'};
+/// 오류 문구를 `problemMessages`가 아니라 화면이 직접 맡는 code와 ARB 키입니다. 화면마다 상황
+/// 문구가 달라서(계정 합치기 안내, writing W42) 일반 오류 문구에 두지 않습니다.
+const Map<String, String> _screenMessages = {
+  'merge.same_account': 'accountMergeNotOtherBodySelf',
+  'merge.no_account': 'accountMergeNotOtherBodyNone',
+};
 
 /// 계약 `Problem.code`의 `x-problem-codes` 목록을 읽습니다.
 Set<String> _contractCodes() {
@@ -48,7 +50,7 @@ void main() {
   final codes = _contractCodes();
   final userFacing = codes
       .difference(_notUserFacing)
-      .difference(_awaitingWriting);
+      .difference(_screenMessages.keys.toSet());
 
   test('계약에서 x-problem-codes를 읽는다', () {
     expect(codes, contains('auth.exchange_invalid'));
@@ -75,19 +77,25 @@ void main() {
     expect(extra, isEmpty, reason: '계약에 없는 code: $extra');
   });
 
-  test('writing 문구 대기 code는 계약에 있고 아직 어느 ARB에도 없다', () {
-    expect(codes, containsAll(_awaitingWriting));
+  test('화면이 문구를 맡는 code는 계약에 있고 그 키가 세 언어 ARB에 있다', () {
+    expect(codes, containsAll(_screenMessages.keys));
     for (final locale in ['ko', 'en', 'ja']) {
       final arb = _arb(locale);
-      for (final code in _awaitingWriting) {
-        final key = problemMessageKey(code);
+      for (final MapEntry(:key, :value) in _screenMessages.entries) {
         expect(
-          arb.containsKey(key),
-          isFalse,
-          reason: '$locale ARB에 $key가 생겼습니다. 대기 목록에서 지우고 연결하세요',
+          arb[value],
+          isA<String>(),
+          reason: '$locale ARB에 $value 없음 ($key)',
         );
       }
     }
+  });
+
+  test('화면이 맡는 code는 problemMessages에 없다', () {
+    expect(
+      problemMessages.keys.toSet().intersection(_screenMessages.keys.toSet()),
+      isEmpty,
+    );
   });
 
   for (final locale in ['ko', 'en', 'ja']) {

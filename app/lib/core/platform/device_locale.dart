@@ -10,6 +10,11 @@ Language resolveAppLanguage(Locale device) => switch (device.languageCode) {
   _ => Language.en,
 };
 
+/// 계약에 없는 언어(REST 1.0.0 열린 enum, 결정 A78)는 기본 언어 `Language.en`으로 봅니다.
+/// 기기 언어 판정([resolveAppLanguage])의 기본값과 같습니다. 아는 값은 그대로입니다.
+Language knownLanguageOf(Language language) =>
+    language.isKnown ? language : Language.en;
+
 /// 화면 언어이자 프로필 `language`가 될 값.
 final appLanguageProvider = Provider<Language>(
   (ref) => resolveAppLanguage(ref.watch(localeProvider)),
