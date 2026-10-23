@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/widgets.dart' show ValueKey;
+import 'package:flutter/widgets.dart'
+    show SingleChildScrollView, TextDirection, ValueKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -345,5 +346,46 @@ void main() {
     await untilLoaded(tester);
     expect(find.text('스토어 이름'), findsOneWidget);
     expect(find.text('store_x'), findsNothing);
+  });
+
+  testWidgets('광고 제거권 줄만 있으면 스토어 상품 목록을 받지 않는다', (tester) async {
+    final purchases = GatedPurchases();
+    await _open(
+      tester,
+      purchases: purchases,
+      network: _listReplaced([
+        _item('ad_free_1month', '2026-10-12T03:00:00Z', 'owned'),
+        _item('ad_free_1month', '2026-07-01T03:00:00Z', 'owned'),
+      ]),
+    );
+    expect(find.byKey(PurchaseRowGroup.rowKey), findsNWidgets(2));
+    expect(purchases.productsCalls, 0);
+  });
+
+  testWidgets('목록 아래 missing.notice도 space.16 간격이다', (tester) async {
+    await _open(tester);
+    expect(
+      tester.getTopLeft(_notice).dy -
+          tester.getBottomLeft(find.byType(PurchaseRowGroup)).dy,
+      closeTo(Space.s16, 0.01),
+    );
+  });
+
+  testWidgets('빈 목록도 아래 여백에 하단 safe area를 더한다', (tester) async {
+    tester.view.viewPadding = FakeViewPadding(
+      bottom: 34 * tester.view.devicePixelRatio,
+    );
+    addTearDown(tester.view.resetViewPadding);
+    await _open(tester, scenario: 'member');
+    final scroll = tester.widget<SingleChildScrollView>(
+      find.ancestor(
+        of: find.byType(EmptyState),
+        matching: find.byType(SingleChildScrollView),
+      ),
+    );
+    final padding = scroll.padding!.resolve(TextDirection.ltr);
+    expect(padding.bottom, closeTo(Space.s24 + 34, 0.01));
+    expect(padding.left, Space.s20);
+    expect(padding.right, Space.s20);
   });
 }

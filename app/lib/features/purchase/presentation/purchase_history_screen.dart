@@ -7,6 +7,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
@@ -107,10 +108,18 @@ class PurchaseHistoryScreen extends ConsumerWidget {
   }
 }
 
+/// 상품 이름을 스토어에서 받아야 하는 줄(광고 제거권이 아닌 상품)이 있는지.
+bool _needsStoreNames(WidgetRef ref, List<Purchase> purchases) {
+  final adFreeProductIds = ref.watch(adFreeProductIdsProvider);
+  return purchases.any(
+    (purchase) => !adFreeProductIds.contains(purchase.productId),
+  );
+}
+
 /// 상품 이름을 스토어에서 받아야 하는 줄이 있으면 그 목록이 올 때까지 loading으로 둡니다.
 ///
 /// 이름이 상품 id에서 스토어 title로 깜빡 바뀌지 않게 첫 그리기 전에 함께 기다립니다.
-/// 광고 제거권 줄만 있으면(스토어 이름이 필요 없으면) 기다리지 않습니다.
+/// 광고 제거권 줄만 있으면(스토어 이름이 필요 없으면) 상품 목록을 받지 않습니다.
 AsyncValue<List<Purchase>> _awaitingStoreNames(
   WidgetRef ref,
   AsyncValue<List<Purchase>> history,
@@ -119,15 +128,20 @@ AsyncValue<List<Purchase>> _awaitingStoreNames(
   if (purchases == null) {
     return history;
   }
-  final adFreeProductIds = ref.watch(adFreeProductIdsProvider);
-  final needsStoreNames = purchases.any(
-    (purchase) => !adFreeProductIds.contains(purchase.productId),
-  );
-  if (needsStoreNames && ref.watch(storeProductsProvider).isLoading) {
+  if (_needsStoreNames(ref, purchases) &&
+      ref.watch(storeProductsProvider).isLoading) {
     return const AsyncLoading<List<Purchase>>();
   }
   return history;
 }
+
+/// 목록과 빈 목록이 함께 쓰는 바깥 여백. 좌우 `space.20`, 아래는 하단 safe area까지 둡니다.
+EdgeInsets _contentPadding(BuildContext context) => EdgeInsets.fromLTRB(
+  Space.s20,
+  Space.s12,
+  Space.s20,
+  Space.s24 + MediaQuery.viewPaddingOf(context).bottom,
+);
 
 /// 빈 목록: `empty-state`와 `missing.notice`를 한 묶음으로 화면 세로 40% 지점에 둡니다.
 class _EmptyWithNotice extends StatelessWidget {
@@ -140,6 +154,7 @@ class _EmptyWithNotice extends StatelessWidget {
     return Align(
       alignment: const Alignment(0, -0.2),
       child: SingleChildScrollView(
+        padding: _contentPadding(context),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -151,11 +166,7 @@ class _EmptyWithNotice extends StatelessWidget {
               body: body,
               identifier: SlotIds.purchaseHistoryEmptyBody,
             ),
-            const SizedBox(height: Space.s16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: Space.s20),
-              child: _MissingNotice(),
-            ),
+            const _MissingNotice(),
           ],
         ),
       ),
@@ -172,18 +183,15 @@ class _PurchaseList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final adFreeProductIds = ref.watch(adFreeProductIdsProvider);
-    final storeProducts = ref.watch(storeProductsProvider).value ?? const [];
+    // 광고 제거권 줄만 있으면 스토어 이름이 필요 없어 상품 목록을 받지 않습니다.
+    final storeProducts = _needsStoreNames(ref, purchases)
+        ? ref.watch(storeProductsProvider).value ?? const <StoreProduct>[]
+        : const <StoreProduct>[];
     // 구매 날짜는 프로필 시간대가 아니라 기기 시간대 기준입니다(spec §6).
     final timezone =
         ref.watch(deviceTimezoneNameProvider).value ?? fallbackTimezone;
-    final bottom = MediaQuery.viewPaddingOf(context).bottom;
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        Space.s20,
-        Space.s12,
-        Space.s20,
-        Space.s24 + bottom,
-      ),
+      padding: _contentPadding(context),
       children: [
         PurchaseRowGroup(
           rows: [
@@ -206,7 +214,6 @@ class _PurchaseList extends ConsumerWidget {
               ),
           ],
         ),
-        const SizedBox(height: Space.s16),
         const _MissingNotice(),
       ],
     );
@@ -214,18 +221,26 @@ class _PurchaseList extends ConsumerWidget {
 }
 
 /// 결제한 상품이 안 보일 때의 안내(`purchase-history.missing.notice`).
+///
+/// 목록이든 빈 목록이든 바로 위 묶음과 [gap]만큼 떨어집니다.
 class _MissingNotice extends StatelessWidget {
   const new();
+
+  /// 위 묶음(`purchase-row` 카드나 `empty-state`)과의 간격.
+  static const double gap = Space.s16;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    return Semantics(
-      identifier: SlotIds.purchaseHistoryMissingNotice,
-      child: Text(
-        AppLocalizations.of(context).purchaseHistoryMissingNotice,
-        style: tokens.typography.captionMd.copyWith(
-          color: tokens.colors.textSecondary,
+    return Padding(
+      padding: const EdgeInsets.only(top: gap),
+      child: Semantics(
+        identifier: SlotIds.purchaseHistoryMissingNotice,
+        child: Text(
+          AppLocalizations.of(context).purchaseHistoryMissingNotice,
+          style: tokens.typography.captionMd.copyWith(
+            color: tokens.colors.textSecondary,
+          ),
         ),
       ),
     );
