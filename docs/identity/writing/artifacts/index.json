@@ -268,5 +268,21 @@
     ],
     "status": "chosen",
     "note": "합칠 다른 계정은 '가져올 계정', 요약 상자 '가져올 기록', 구매 줄 틀"
+  },
+  {
+    "id": "round-R17",
+    "title": "라운드 R17 — 합치기 토큰 오류 (#482, REST draft.15)",
+    "kind": "copy-sample",
+    "file": "2026-10-23-round-R17.md",
+    "date": "2026-10-23",
+    "milestone": "W1",
+    "screens": [
+      "account-merge"
+    ],
+    "decisions": [
+      "W42"
+    ],
+    "status": "chosen",
+    "note": "merge.token_invalid는 errorMergeTokenInvalid(가져올 계정 다시 인증), errorAuthIdentityPendingDeletion 삭제"
   }
 ]
