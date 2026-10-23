@@ -12,10 +12,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider/providertest"
@@ -23,6 +25,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth/token"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 var testNow = time.Date(2026, 10, 13, 9, 0, 0, 0, time.UTC)
@@ -55,20 +58,22 @@ func newFixture(t *testing.T, opts ...func(*auth.ServiceDeps)) *fixture {
 
 	kakao := fake.NewKakao(t, clk)
 	deps := auth.ServiceDeps{
-		Kakao:       kakao,
-		Line:        fake.NewLINE(t, clk),
-		Google:      fake.NewGoogle(t, clk),
-		Apple:       fake.NewApple(t, clk),
-		KakaoUnlink: kakao,
-		Access:      access,
-		Box:         box,
-		Clock:       clk,
+		Kakao:  kakao,
+		Line:   fake.NewLINE(t, clk),
+		Google: fake.NewGoogle(t, clk),
+		Apple:  fake.NewApple(t, clk),
+		Access: access,
+		Box:    box,
+		Clock:  clk,
 	}
 	for _, opt := range opts {
 		opt(&deps)
 	}
-	service := auth.NewService(pool, deps)
-	return &fixture{ctx: context.Background(), pool: pool, clk: clk, fake: fake, box: box, service: service}
+	// Revoker는 opts가 바꾼 제공자를 따라가도록 opts 적용 뒤 값으로 만듭니다.
+	deps.Revoker = auth.NewRevocations(pool, deps.Kakao.(auth.KakaoUnlinker), deps.Apple, deps.Box, deps.Clock, nil)
+	f := &fixture{ctx: context.Background(), pool: pool, clk: clk, fake: fake, box: box}
+	f.service = auth.NewService(pool, deps)
+	return f
 }
 
 // kakaoToken은 subject로 검증을 통과하는 카카오 id_token을 만듭니다.
@@ -108,11 +113,19 @@ func (f *fixture) exec(t *testing.T, sql string, args ...any) {
 	require.NoError(t, err)
 }
 
-// markPendingDeletion은 계정을 삭제 대기로 바꾸고 제공자 연결 해제 시각을 기록합니다(DELETE /v1/me 직후 상태).
-func (f *fixture) markPendingDeletion(t *testing.T, accountID uuid.UUID) {
+// deleteAccount는 계정 삭제(deleteMe)와 같이 계정을 지웁니다(S105). 인증 계정·refresh token 행도 지워집니다.
+func (f *fixture) deleteAccount(t *testing.T, accountID uuid.UUID) {
 	t.Helper()
-	f.exec(t, `UPDATE accounts SET status = 'pending_deletion', deletion_requested_at = $2 WHERE id = $1`, accountID, f.clk.Now())
-	f.exec(t, `UPDATE auth_identities SET provider_disconnected_at = $2 WHERE account_id = $1`, accountID, f.clk.Now())
+	require.NoError(t, postgres.InTx(f.ctx, f.pool, func(tx pgx.Tx) error {
+		_, err := account.DeleteAccountTx(f.ctx, tx, accountID, f.clk.Now())
+		return err
+	}))
+}
+
+// markDeletedKeepingRows는 개인 데이터 행을 남긴 채 계정만 deleted로 바꿉니다. 삭제와 어긋난 데이터를 흉내 냅니다.
+func (f *fixture) markDeletedKeepingRows(t *testing.T, accountID uuid.UUID) {
+	t.Helper()
+	f.exec(t, `UPDATE accounts SET status = 'deleted', deleted_at = $2 WHERE id = $1`, accountID, f.clk.Now())
 }
 
 // refreshRow는 refresh token 원문으로 DB 행의 family·만료·사용 시각을 읽습니다.
@@ -154,7 +167,6 @@ func TestLoginKakao_NewSubjectCreatesAccount(t *testing.T) {
 	res := f.loginKakao(t, "kakao-1")
 
 	assert.True(t, res.IsNewAccount)
-	assert.False(t, res.RestoredFromDeletion)
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts WHERE id = $1 AND status = 'active' AND last_active_at = $2`, res.AccountID, testNow))
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND provider = 'kakao' AND subject = 'kakao-1' AND apple_refresh_token IS NULL`, res.AccountID))
 
@@ -173,7 +185,6 @@ func TestLoginKakao_KnownSubjectReusesAccount(t *testing.T) {
 	second := f.loginKakao(t, "kakao-1")
 
 	assert.False(t, second.IsNewAccount)
-	assert.False(t, second.RestoredFromDeletion, "active 계정은 RestoreAccount가 0행이므로 복구가 아닙니다")
 	assert.Equal(t, first.AccountID, second.AccountID)
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts`))
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities`))
@@ -246,34 +257,135 @@ func TestLoginKakao_UniqueConflictRetriesWithExistingIdentity(t *testing.T) {
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts`), "실패한 첫 시도의 계정 행은 rollback됩니다")
 }
 
-func TestLoginKakao_RestoresPendingDeletion(t *testing.T) {
+// 지운 계정의 인증 계정으로 다시 로그인하면 새 유저 계정이고, 약관 동의부터 다시 합니다(S105).
+func TestLogin_AfterDeleteCreatesNewAccount(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginKakao(t, "kakao-1")
-	f.markPendingDeletion(t, first.AccountID)
+	f.deleteAccount(t, first.AccountID)
 
 	res := f.loginKakao(t, "kakao-1")
 
-	assert.Equal(t, first.AccountID, res.AccountID)
-	assert.True(t, res.RestoredFromDeletion)
-	// 삭제 요청 뒤 세션 폐기가 실패했더라도(markPendingDeletion은 토큰을 건드리지 않음) 복구가 이전 세션을 되살리지 않습니다.
+	assert.True(t, res.IsNewAccount)
+	assert.NotEqual(t, first.AccountID, res.AccountID)
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND subject = 'kakao-1'`, res.AccountID))
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts WHERE id = $1 AND status = 'deleted'`, first.AccountID), "지운 계정은 껍데기로 남습니다")
 	_, err := f.service.Refresh(f.ctx, first.Tokens.RefreshToken)
-	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "복구 전에 받은 refresh token")
-	_, err = f.service.Refresh(f.ctx, res.Tokens.RefreshToken)
-	require.NoError(t, err, "복구 로그인이 새로 받은 refresh token")
-	assert.False(t, res.IsNewAccount)
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts WHERE id = $1 AND status = 'active' AND deletion_requested_at IS NULL`, res.AccountID))
-	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE account_id = $1 AND provider_disconnected_at IS NULL`, res.AccountID))
+	require.ErrorIs(t, err, auth.ErrRefreshInvalid, "지운 계정의 refresh token")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM consents WHERE account_id = $1`, res.AccountID), "새 계정은 동의 기록이 없습니다")
 }
 
+// 로그인이 지우는 중인 계정 행 잠금을 기다리면, GetIdentity는 계정 행만 다시 확인하므로 이미 지운 연결 행을 돌려줍니다.
+// 그 연결이 정말 없어졌는지 다시 확인해 새 유저 계정을 만듭니다.
+func TestLoginKakao_WaitsForDeleteThenCreatesNewAccount(t *testing.T) {
+	f := newFixture(t)
+	first := f.loginKakao(t, "kakao-1")
+
+	// 계정 삭제 트랜잭션을 commit하지 않은 채로 둡니다. 계정 행은 FOR UPDATE로 잠겨 있습니다.
+	tx, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = tx.Rollback(context.Background()) })
+	_, err = account.DeleteAccountTx(f.ctx, tx, first.AccountID, f.clk.Now())
+	require.NoError(t, err)
+
+	type outcome struct {
+		res auth.LoginResult
+		err error
+	}
+	done := make(chan outcome, 1)
+	idToken := f.kakaoToken("kakao-1")
+	go func() {
+		res, err := f.service.LoginKakao(f.ctx, idToken, testNonce)
+		done <- outcome{res, err}
+	}()
+
+	// 로그인이 계정 행 잠금을 기다릴 때까지 기다린 뒤 삭제를 commit합니다.
+	require.Eventually(t, func() bool {
+		return f.count(t, `SELECT count(*) FROM pg_stat_activity
+			WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FOR UPDATE OF a%'`) == 1
+	}, 10*time.Second, 20*time.Millisecond)
+	require.NoError(t, tx.Commit(f.ctx))
+
+	got := <-done
+	require.NoError(t, got.err)
+	assert.True(t, got.res.IsNewAccount)
+	assert.NotEqual(t, first.AccountID, got.res.AccountID)
+}
+
+// relinkDuringDelete는 accountID의 삭제가 commit된 직후, 그 계정 행 잠금을 먼저 기다리던 다른 트랜잭션이 같은
+// (provider, subject)로 새 계정을 만들어 commit하는 경합을 결정적으로 재현합니다. waiter는 그 뒤에 잠금을 기다리는
+// 호출(로그인·붙이기)이며, waitQuery는 waiter가 잠금을 기다릴 때 pg_stat_activity에 보이는 쿼리 조각입니다.
+// 돌려주는 값은 새로 만든 계정 id입니다.
+func (f *fixture) relinkDuringDelete(t *testing.T, accountID uuid.UUID, provider, subject, waitQuery string, waiter func()) uuid.UUID {
+	t.Helper()
+	deleteTx, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = deleteTx.Rollback(context.Background()) })
+	_, err = account.DeleteAccountTx(f.ctx, deleteTx, accountID, f.clk.Now())
+	require.NoError(t, err)
+
+	// 다른 트랜잭션이 먼저 계정 행 잠금을 기다리고, 잠금을 얻으면 같은 연결로 새 계정을 만들어 commit합니다.
+	newAccount := uuid.Must(uuid.NewV7())
+	relinked := make(chan error, 1)
+	go func() {
+		relinked <- postgres.InTx(f.ctx, f.pool, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(f.ctx, `SELECT 1 /* relink */ FROM accounts WHERE id = $1 FOR UPDATE`, accountID); err != nil {
+				return err
+			}
+			if _, err := tx.Exec(f.ctx, `INSERT INTO accounts (id, status, last_active_at) VALUES ($1, 'active', $2)`, newAccount, testNow); err != nil {
+				return err
+			}
+			_, err := tx.Exec(f.ctx, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, $3, $4)`,
+				uuid.Must(uuid.NewV7()), newAccount, provider, subject)
+			return err
+		})
+	}()
+	waiting := func(fragment string) func() bool {
+		return func() bool {
+			return f.count(t, `SELECT count(*) FROM pg_stat_activity
+				WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE $1`, "%"+fragment+"%") == 1
+		}
+	}
+	require.Eventually(t, waiting("/* relink */"), 10*time.Second, 20*time.Millisecond)
+	go waiter()
+	require.Eventually(t, waiting(waitQuery), 10*time.Second, 20*time.Millisecond)
+	require.NoError(t, deleteTx.Commit(f.ctx))
+	require.NoError(t, <-relinked)
+	return newAccount
+}
+
+// 로그인이 기다린 사이 계정이 지워지고 같은 연결로 새 계정이 생기면, 로그인은 트랜잭션을 다시 실행해 그 새 계정으로 들어갑니다.
+func TestLoginKakao_RetriesWhenIdentityRelinkedDuringDelete(t *testing.T) {
+	f := newFixture(t)
+	first := f.loginKakao(t, "kakao-1")
+	type outcome struct {
+		res auth.LoginResult
+		err error
+	}
+	done := make(chan outcome, 1)
+	idToken := f.kakaoToken("kakao-1")
+
+	relinked := f.relinkDuringDelete(t, first.AccountID, "kakao", "kakao-1", "FOR UPDATE OF a", func() {
+		res, err := f.service.LoginKakao(f.ctx, idToken, testNonce)
+		done <- outcome{res, err}
+	})
+
+	got := <-done
+	require.NoError(t, got.err)
+	assert.Equal(t, relinked, got.res.AccountID)
+	assert.False(t, got.res.IsNewAccount)
+}
+
+// 지운 계정에 연결 행이 남은 것은 삭제와 어긋난 데이터라 서버 오류로 멈춥니다.
 func TestLoginKakao_DeletedAccountIdentityFails(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginKakao(t, "kakao-1")
-	f.exec(t, `UPDATE accounts SET status = 'deleted', deletion_requested_at = $2, anonymized_at = $2 WHERE id = $1`, first.AccountID, testNow)
+	f.markDeletedKeepingRows(t, first.AccountID)
 
 	_, err := f.service.LoginKakao(f.ctx, f.kakaoToken("kakao-1"), testNonce)
 
-	require.Error(t, err)
+	require.ErrorContains(t, err, "지운 계정에 연결된 identity", "한 번 다시 실행해도 같으면 서버 오류입니다")
 	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM refresh_tokens`), "새 토큰을 만들지 않습니다")
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM accounts`), "새 계정을 만들지 않습니다")
 }
 
 func TestLoginKakao_ProviderErrorsMapToSentinels(t *testing.T) {
@@ -402,13 +514,13 @@ func TestLoginApple_ExchangedSubjectMismatchCreatesNothing(t *testing.T) {
 func TestLoginApple_FailedTransactionDoesNotRevoke(t *testing.T) {
 	f := newFixture(t)
 	first := f.loginApple(t, "apple-1")
-	f.exec(t, `UPDATE accounts SET status = 'deleted', deletion_requested_at = $2, anonymized_at = $2 WHERE id = $1`, first.AccountID, testNow)
+	f.markDeletedKeepingRows(t, first.AccountID)
 	f.fake.SetAppleRefreshToken("unsaved-refresh")
 	idToken := f.fake.SignIDToken(providertest.AppleClaims("apple-1", testNonce, provider.AppleNative, f.clk.Now()))
 
 	_, err := f.service.LoginApple(f.ctx, idToken, providertest.AppleCode("apple-1"), testNonce)
 
-	require.ErrorContains(t, err, "익명화된 계정", "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
+	require.ErrorContains(t, err, "지운 계정", "원래 오류(트랜잭션 실패)를 그대로 돌려줍니다")
 	assert.NotErrorIs(t, err, auth.ErrProviderTokenInvalid)
 	assert.NotErrorIs(t, err, auth.ErrProviderUnavailable)
 	assert.Empty(t, f.fake.AppleRevokeRequests())
@@ -733,10 +845,11 @@ func TestRefresh_ExpiredOrUnknownIsInvalid(t *testing.T) {
 	}
 }
 
-func TestRefresh_PendingDeletionAccountIsInvalid(t *testing.T) {
+// 계정 상태가 deleted면 refresh token 행이 남아 있어도 갱신하지 않습니다.
+func TestRefresh_DeletedAccountIsInvalid(t *testing.T) {
 	f := newFixture(t)
 	login := f.loginKakao(t, "kakao-1")
-	f.markPendingDeletion(t, login.AccountID)
+	f.markDeletedKeepingRows(t, login.AccountID)
 
 	_, err := f.service.Refresh(f.ctx, login.Tokens.RefreshToken)
 
@@ -764,22 +877,6 @@ func TestLogout_RevokesOnlyOwnFamily(t *testing.T) {
 	require.ErrorIs(t, err, auth.ErrRefreshInvalid)
 	_, err = f.service.Refresh(f.ctx, mineOtherDevice.Tokens.RefreshToken)
 	require.NoError(t, err, "같은 계정의 다른 family는 그대로입니다")
-}
-
-func TestRevokeAllSessions_RevokesEveryFamilyOfAccount(t *testing.T) {
-	f := newFixture(t)
-	first := f.loginKakao(t, "kakao-mine")
-	second := f.loginKakao(t, "kakao-mine")
-	theirs := f.loginKakao(t, "kakao-theirs")
-
-	require.NoError(t, f.service.RevokeAllSessions(f.ctx, first.AccountID))
-
-	for _, raw := range []string{first.Tokens.RefreshToken, second.Tokens.RefreshToken} {
-		_, err := f.service.Refresh(f.ctx, raw)
-		require.ErrorIs(t, err, auth.ErrRefreshInvalid)
-	}
-	_, err := f.service.Refresh(f.ctx, theirs.Tokens.RefreshToken)
-	require.NoError(t, err)
 }
 
 // loginLine은 subject로 LINE 로그인을 하고 성공을 확인합니다.

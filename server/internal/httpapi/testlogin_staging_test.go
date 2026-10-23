@@ -78,8 +78,7 @@ func TestLogin_TestLoginIssuesLoginResponse(t *testing.T) {
 	first := f.login(t, "e2e01")
 	assert.Equal(t, true, first["isNewAccount"])
 	assert.Equal(t, true, first["consentRequired"], "새 계정은 약관 동의가 필요합니다")
-	_, hasRestored := first["restoredFromDeletion"]
-	assert.False(t, hasRestored, "draft.15 응답에는 restoredFromDeletion이 없습니다")
+	assert.NotContains(t, first, "restoredFromDeletion", "계약 draft.15에서 없어진 필드입니다")
 	accountID := f.accountOf(t, "e2e01")
 
 	again := f.login(t, "e2e01")
@@ -173,29 +172,18 @@ func TestLogin_TestLoginConsentFlow(t *testing.T) {
 	assert.Equal(t, false, f.login(t, "e2e01")["consentRequired"])
 }
 
-// 삭제 대기 계정은 정상 로그인처럼 되살아나고, 테스트 연결도 계정 삭제의 연결 해제를 거칩니다.
-// TODO(PR 2): 삭제 대기·복구가 없어지면 이 테스트를 삭제 뒤 새 계정 테스트로 바꿈
-func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
+// 지운 계정의 label로 다시 로그인하면 정상 로그인처럼 새 유저 계정이고 약관 동의부터 합니다(S105).
+func TestLogin_TestLoginAfterDeleteCreatesNewAccount(t *testing.T) {
 	f := newTestLoginFixture(t)
 	f.login(t, "e2e01")
 	accountID := f.accountOf(t, "e2e01")
-	_, err := f.accounts.RequestDeletion(t.Context(), accountID)
-	require.NoError(t, err)
-	var disconnected bool
-	require.NoError(t, f.pool.QueryRow(t.Context(),
-		`SELECT provider_disconnected_at IS NOT NULL FROM auth_identities WHERE account_id = $1`, accountID).Scan(&disconnected))
-	assert.True(t, disconnected, "테스트 연결은 외부 호출 없이 해제된 것으로 기록됩니다")
+	require.NoError(t, f.accounts.Delete(t.Context(), accountID))
 
 	body := f.login(t, "e2e01")
 
-	_, hasRestored := body["restoredFromDeletion"]
-	assert.False(t, hasRestored, "draft.15 응답에는 restoredFromDeletion이 없습니다")
-	assert.Equal(t, false, body["isNewAccount"])
-	assert.Equal(t, accountID, f.accountOf(t, "e2e01"))
-	var status string
-	require.NoError(t, f.pool.QueryRow(t.Context(),
-		`SELECT status FROM accounts WHERE id = $1`, accountID).Scan(&status))
-	assert.Equal(t, "active", status, "복구된 계정은 active 상태여야 합니다")
+	assert.Equal(t, true, body["isNewAccount"])
+	assert.Equal(t, true, body["consentRequired"], "새 유저 계정은 약관 동의가 필요합니다")
+	assert.NotEqual(t, accountID, f.accountOf(t, "e2e01"))
 }
 
 // 로그에 비밀과 label을 남기지 않습니다(label은 테스트 계정의 subject입니다).

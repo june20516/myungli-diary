@@ -238,27 +238,14 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		previousSigning = append(previousSigning, previous)
 	}
 
-	boxKey, err := secretbox.ParseKey(cfg.TokenKeyID, cfg.TokenKey)
+	box, err := parseTokenBox(cfg.TokenKeyID, cfg.TokenKey, cfg.TokenPreviousKeyID, cfg.TokenPreviousKey)
 	if err != nil {
-		return authSettings{}, fmt.Errorf("TOKEN_ENCRYPTION_KEY: %w", err)
-	}
-	var previousBoxKeys []secretbox.Key
-	if cfg.TokenPreviousKeyID != "" {
-		previous, err := secretbox.ParseKey(cfg.TokenPreviousKeyID, cfg.TokenPreviousKey)
-		if err != nil {
-			return authSettings{}, fmt.Errorf("TOKEN_PREVIOUS_KEY: %w", err)
-		}
-		previousBoxKeys = append(previousBoxKeys, previous)
-	}
-	box, err := secretbox.New(boxKey, previousBoxKeys)
-	if err != nil {
-		return authSettings{}, fmt.Errorf("TOKEN_ENCRYPTION_KEY·TOKEN_PREVIOUS_KEY: %w", err)
+		return authSettings{}, err
 	}
 
-	// Apple .p8도 PKCS8 PEM의 P-256 EC 키라 access token 서명 키와 같은 규칙으로 읽습니다.
-	appleKey, err := token.ParseSigningKey(cfg.AppleKeyID, cfg.ApplePrivateKeyPEM)
+	appleKey, err := parseApplePrivateKey(cfg.AppleKeyID, cfg.ApplePrivateKeyPEM)
 	if err != nil {
-		return authSettings{}, fmt.Errorf("APPLE_PRIVATE_KEY: %w", err)
+		return authSettings{}, err
 	}
 
 	appLink, err := parseAppLink(cfg)
@@ -274,6 +261,36 @@ func parseAuthSettings(cfg config.AuthConfig) (authSettings, error) {
 		applePrivate:    appleKey.Private,
 		appLink:         appLink,
 	}, nil
+}
+
+// parseTokenBox는 제공자 token 암호화 키(와 교체 중인 이전 키)로 secretbox를 만듭니다. 오류에는 변수 이름만 담습니다.
+func parseTokenBox(keyID, key, previousKeyID, previousKey string) (*secretbox.Box, error) {
+	boxKey, err := secretbox.ParseKey(keyID, key)
+	if err != nil {
+		return nil, fmt.Errorf("TOKEN_ENCRYPTION_KEY: %w", err)
+	}
+	var previousBoxKeys []secretbox.Key
+	if previousKeyID != "" {
+		previous, err := secretbox.ParseKey(previousKeyID, previousKey)
+		if err != nil {
+			return nil, fmt.Errorf("TOKEN_PREVIOUS_KEY: %w", err)
+		}
+		previousBoxKeys = append(previousBoxKeys, previous)
+	}
+	box, err := secretbox.New(boxKey, previousBoxKeys)
+	if err != nil {
+		return nil, fmt.Errorf("TOKEN_ENCRYPTION_KEY·TOKEN_PREVIOUS_KEY: %w", err)
+	}
+	return box, nil
+}
+
+// parseApplePrivateKey는 Apple .p8 키를 읽습니다. .p8도 PKCS8 PEM의 P-256 EC 키라 access token 서명 키와 같은 규칙입니다.
+func parseApplePrivateKey(keyID, pem string) (token.SigningKey, error) {
+	key, err := token.ParseSigningKey(keyID, pem)
+	if err != nil {
+		return token.SigningKey{}, fmt.Errorf("APPLE_PRIVATE_KEY: %w", err)
+	}
+	return key, nil
 }
 
 // androidPackagePattern은 Android 패키지 이름 형식입니다. 점으로 나눈 조각이 둘 이상이고,
@@ -421,27 +438,20 @@ func newReadings(store *content.Store, service *fortune.Service, insight fortune
 	return fortune.NewViews(service, store, content.NewRenderer(logger), insight, clk, logger)
 }
 
-// newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
-//
-// 의존 방향은 핸들러(httpapi.API) → 서비스(auth·account) → provider·DB입니다.
-// bearer 라우트는 BearerAuth가 access token을 검증하고 계정 접근 상태(동의, 삭제 대기)를 확인한 뒤 핸들러로 넘깁니다.
-func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
+// newGrantProviders는 로그인 허가를 취소하는 제공자(카카오 unlink, Apple revoke) 클라이언트를 만듭니다.
+// serve와 job retention이 같은 설정으로 조립합니다.
+func newGrantProviders(settings authSettings, urls providerURLs, httpClient *http.Client, clk clock.Clock) (*provider.Kakao, *provider.Apple, error) {
 	cfg := settings.config
-
-	access, err := token.NewAccessIssuer(settings.signing, settings.previousSigning, deps.Clock)
-	if err != nil {
-		return nil, fmt.Errorf("access token 발급기: %w", err)
-	}
 	kakao, err := provider.NewKakao(provider.KakaoConfig{
 		AppKey:    cfg.KakaoAppKey,
 		AdminKey:  cfg.KakaoAdminKey,
-		JWKSURL:   deps.Providers.KakaoJWKS,
-		UnlinkURL: deps.Providers.KakaoUnlink,
-		HTTP:      deps.HTTP,
-		Clock:     deps.Clock,
+		JWKSURL:   urls.KakaoJWKS,
+		UnlinkURL: urls.KakaoUnlink,
+		HTTP:      httpClient,
+		Clock:     clk,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("provider kakao: %w", err)
+		return nil, nil, fmt.Errorf("provider kakao: %w", err)
 	}
 	apple, err := provider.NewApple(provider.AppleConfig{
 		TeamID:         cfg.AppleTeamID,
@@ -450,14 +460,32 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		BundleID:       cfg.AppleBundleID,
 		ServicesID:     cfg.AppleServicesID,
 		WebRedirectURI: cfg.AppleWebRedirectURI,
-		JWKSURL:        deps.Providers.AppleJWKS,
-		TokenURL:       deps.Providers.AppleToken,
-		RevokeURL:      deps.Providers.AppleRevoke,
-		HTTP:           deps.HTTP,
-		Clock:          deps.Clock,
+		JWKSURL:        urls.AppleJWKS,
+		TokenURL:       urls.AppleToken,
+		RevokeURL:      urls.AppleRevoke,
+		HTTP:           httpClient,
+		Clock:          clk,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("provider apple: %w", err)
+		return nil, nil, fmt.Errorf("provider apple: %w", err)
+	}
+	return kakao, apple, nil
+}
+
+// newServer는 인증·계정·프로필 서비스와 계약 라우트를 조립해 http.Handler를 만듭니다.
+//
+// 의존 방향은 핸들러(httpapi.API) → 서비스(auth·account) → provider·DB입니다.
+// bearer 라우트는 BearerAuth가 access token을 검증하고 계정 접근 상태(지운 계정, 동의)를 확인한 뒤 핸들러로 넘깁니다.
+func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
+	cfg := settings.config
+
+	access, err := token.NewAccessIssuer(settings.signing, settings.previousSigning, deps.Clock)
+	if err != nil {
+		return nil, fmt.Errorf("access token 발급기: %w", err)
+	}
+	kakao, apple, err := newGrantProviders(settings, deps.Providers, deps.HTTP, deps.Clock)
+	if err != nil {
+		return nil, err
 	}
 
 	line, err := provider.NewLINE(provider.LINEConfig{
@@ -479,19 +507,20 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		return nil, fmt.Errorf("provider google: %w", err)
 	}
 
+	// 허가 취소 대기 행은 commit 뒤 한 번 시도하고, 실패하면 job retention이 다시 시도합니다(S106).
+	revocations := auth.NewRevocations(deps.Pool, kakao, apple, settings.box, deps.Clock, deps.Logger)
 	authService := auth.NewService(deps.Pool, auth.ServiceDeps{
-		Kakao:       kakao,
-		Line:        line,
-		Google:      google,
-		Apple:       apple,
-		KakaoUnlink: kakao,
-		Access:      access,
-		Box:         settings.box,
-		Clock:       deps.Clock,
-		Logger:      deps.Logger,
+		Kakao:   kakao,
+		Line:    line,
+		Google:  google,
+		Apple:   apple,
+		Access:  access,
+		Box:     settings.box,
+		Clock:   deps.Clock,
+		Logger:  deps.Logger,
+		Revoker: revocations,
 	})
-	// 계정 삭제 예약 뒤 세션 폐기와 제공자 연결 해제는 auth 서비스가 맡습니다.
-	accountService := account.NewService(deps.Pool, authService, deps.Clock, deps.Logger)
+	accountService := account.NewService(deps.Pool, revocations, deps.Clock, deps.Logger)
 
 	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
 

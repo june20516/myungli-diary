@@ -6,10 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/account"
+	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 )
@@ -64,11 +66,11 @@ func TestGetMe_NoRequiredConsentsIsEmptyArray(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-func TestGetMe_PendingDeletionOmitsStatusAndSchedule(t *testing.T) {
-	at := handlerNow.AddDate(0, 0, 30)
+// Me에는 계정 상태와 삭제 예정 시각이 없습니다(draft.15).
+func TestGetMe_OmitsStatusAndSchedule(t *testing.T) {
 	accts := &fakeAccounts{me: account.Me{
 		AccountID: fixedAccountID,
-		Access:    account.Access{Status: account.StatusPendingDeletion, DeletionScheduledAt: &at},
+		Access:    account.Access{Status: account.StatusActive},
 	}}
 	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
 
@@ -80,7 +82,7 @@ func TestGetMe_PendingDeletionOmitsStatusAndSchedule(t *testing.T) {
 	requireNoDeletionFields(t, rec.Body.Bytes())
 }
 
-// requireNoDeletionFields는 Me 응답의 최상위에 삭제 대기 필드가 없는지 JSON key로 확인합니다.
+// requireNoDeletionFields는 Me 응답의 최상위에 계정 상태·삭제 예정 필드가 없는지 JSON key로 확인합니다.
 func requireNoDeletionFields(t *testing.T, body []byte) {
 	t.Helper()
 	var raw map[string]any
@@ -130,8 +132,8 @@ func TestAgreeConsents_StaleVersionIs422WithPointer(t *testing.T) {
 }
 
 func TestDeleteMe_Returns204WithoutBody(t *testing.T) {
-	at := handlerNow.AddDate(0, 0, 30)
-	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: &fakeAccounts{scheduledAt: at}})
+	accts := &fakeAccounts{}
+	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodDelete, "/v1/me", nil)
 	rec := serve(handler, req)
@@ -139,4 +141,42 @@ func TestDeleteMe_Returns204WithoutBody(t *testing.T) {
 	require.Equal(t, http.StatusNoContent, rec.Code, rec.Body.String())
 	expectContractResponse(t, spec, req, rec)
 	assert.Empty(t, rec.Body.String())
+	assert.Equal(t, []uuid.UUID{fixedAccountID}, accts.deleted)
+}
+
+// 실제 계정 서비스와 bearer 관문으로, 삭제 뒤 같은 access token은 401 auth.token_invalid입니다.
+func TestDeleteMe_SameAccessTokenIs401Afterwards(t *testing.T) {
+	real := newRealAuth(t)
+	accountID := uuid.Must(uuid.NewV7())
+	require.NoError(t, authdb.New(real.pool).CreateAccount(t.Context(), authdb.CreateAccountParams{ID: accountID, LastActiveAt: handlerNow}))
+	accessToken, _, err := real.access.Issue(accountID)
+	require.NoError(t, err)
+
+	spec, err := gen.GetSpec()
+	require.NoError(t, err)
+	deps, _ := newTestDeps()
+	api := &httpapi.API{Accounts: real.accounts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}, Logger: deps.Logger, AppLink: testAppLink(t)}
+	handler := httpapi.NewHandler(deps, func(mux *http.ServeMux) {
+		httpapi.RegisterAPI(mux, api, deps, httpapi.Routes{
+			Spec:         spec,
+			Validate:     httpapi.ValidateRequests(spec, deps.Logger),
+			Authenticate: httpapi.BearerAuth(real.access, real.accounts, deps.Logger),
+		})
+	})
+	request := func(method string) *http.Request {
+		req := httptest.NewRequestWithContext(t.Context(), method, "/v1/me", nil)
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+		return req
+	}
+
+	// 약관 동의 전이어도 deleteMe는 열려 있습니다.
+	deleteReq := request(http.MethodDelete)
+	deleted := serve(handler, deleteReq)
+	require.Equal(t, http.StatusNoContent, deleted.Code, deleted.Body.String())
+	expectContractResponse(t, spec, deleteReq, deleted)
+
+	meReq := request(http.MethodGet)
+	me := serve(handler, meReq)
+	expectBearerFailure(t, me, "auth.token_invalid")
+	expectContractResponse(t, spec, meReq, me)
 }

@@ -34,7 +34,7 @@ func NewRewards(pool *pgxpool.Pool, clk clock.Clock, log *slog.Logger) *Rewards 
 //
 // 모두 한 트랜잭션입니다. 같은 transaction_id가 이미 있으면(동시에 온 경우 포함) 아무것도 바꾸지 않고 nil입니다.
 // user_id가 없거나 UUID가 아니거나 모르는 계정이면 account_id NULL로 기록만 하고 Warn 로그를 남깁니다(재시도를 막음).
-// pending_deletion·deleted 계정도 그대로 기록하고 부여합니다.
+// 지운 계정(deleted 껍데기)도 그대로 기록하고 부여합니다. 권한 부여 기록은 계정 삭제가 남기는 표입니다(S105).
 // 프로필이 없으면 UTC 자정이고, 프로필의 시간대 이름을 읽지 못하면(저장 시 검증하므로 버그) UTC로 계산하고 Error 로그를 남깁니다.
 func (r *Rewards) Grant(ctx context.Context, cb RewardCallback, rawQuery string) error {
 	now := r.clk.Now()

@@ -75,6 +75,36 @@ type Apple struct {
 	http      *http.Client
 	clock     clock.Clock
 	verifiers map[AppleClient]*oidc.IDTokenVerifier
+	revoker   *AppleRevoker
+}
+
+// AppleRevoker는 Apple refresh token revoke만 맡습니다. id_token 검증과 code 교환은 하지 않으므로
+// 허가 취소 job(retention)처럼 client_secret 서명 키만 있는 곳에서 씁니다. Apple이 이것으로 revoke합니다.
+type AppleRevoker struct {
+	cfg   AppleConfig
+	http  *http.Client
+	clock clock.Clock
+}
+
+// NewAppleRevoker는 cfg로 AppleRevoker를 만듭니다. TeamID·KeyID·PrivateKey가 비면 오류입니다.
+// cfg에서 TeamID·KeyID·PrivateKey·RevokeURL·HTTP·Clock만 읽습니다. client_id는 Revoke 인자로 받습니다.
+func NewAppleRevoker(cfg AppleConfig) (*AppleRevoker, error) {
+	if err := checkRequired("Apple",
+		requiredField{"TeamID", cfg.TeamID == ""},
+		requiredField{"KeyID", cfg.KeyID == ""},
+		requiredField{"PrivateKey", cfg.PrivateKey == nil},
+	); err != nil {
+		return nil, err
+	}
+	return newAppleRevoker(cfg), nil
+}
+
+func newAppleRevoker(cfg AppleConfig) *AppleRevoker {
+	return &AppleRevoker{
+		cfg:   AppleConfig{TeamID: cfg.TeamID, KeyID: cfg.KeyID, PrivateKey: cfg.PrivateKey, RevokeURL: orDefault(cfg.RevokeURL, DefaultAppleRevokeURL)},
+		http:  orDefaultClient(cfg.HTTP),
+		clock: orDefaultClock(cfg.Clock),
+	}
 }
 
 // NewApple은 cfg로 Apple을 만듭니다.
@@ -100,9 +130,10 @@ func NewApple(cfg AppleConfig) (*Apple, error) {
 
 	keySet := newKeySet(client, cfg.JWKSURL)
 	return &Apple{
-		cfg:   cfg,
-		http:  client,
-		clock: clk,
+		cfg:     cfg,
+		http:    client,
+		clock:   clk,
+		revoker: newAppleRevoker(AppleConfig{TeamID: cfg.TeamID, KeyID: cfg.KeyID, PrivateKey: cfg.PrivateKey, RevokeURL: cfg.RevokeURL, HTTP: client, Clock: clk}),
 		verifiers: map[AppleClient]*oidc.IDTokenVerifier{
 			AppleNative: newVerifier(cfg.Issuer, cfg.BundleID, []string{oidc.RS256}, keySet, clk),
 			AppleWeb:    newVerifier(cfg.Issuer, cfg.ServicesID, []string{oidc.RS256}, keySet, clk),
@@ -201,7 +232,12 @@ func (a *Apple) ExchangeCode(ctx context.Context, code string, client AppleClien
 // Revoke는 Apple refresh token을 폐기합니다. clientID는 ExchangeCode가 돌려준 값입니다.
 // 오류 분류는 ExchangeCode와 같습니다(400 invalid_grant는 ErrTokenInvalid).
 func (a *Apple) Revoke(ctx context.Context, refreshToken, clientID string) error {
-	secret, err := a.clientSecret(clientID)
+	return a.revoker.Revoke(ctx, refreshToken, clientID)
+}
+
+// Revoke는 Apple.Revoke와 같습니다.
+func (r *AppleRevoker) Revoke(ctx context.Context, refreshToken, clientID string) error {
+	secret, err := r.clientSecret(clientID)
 	if err != nil {
 		return err
 	}
@@ -212,7 +248,7 @@ func (a *Apple) Revoke(ctx context.Context, refreshToken, clientID string) error
 		"client_secret":   {secret},
 	}
 
-	resp, err := postForm(ctx, a.http, "Apple revoke", a.cfg.RevokeURL, form, nil)
+	resp, err := postForm(ctx, r.http, "Apple revoke", r.cfg.RevokeURL, form, nil)
 	if err != nil {
 		return err
 	}
@@ -234,17 +270,21 @@ func (a *Apple) clientID(client AppleClient) (string, error) {
 // clientSecret은 Apple이 요구하는 client_secret JWT를 만듭니다.
 // ES256 서명, header kid=KeyID, claim iss=TeamID·iat=지금·exp=iat+5분·aud=https://appleid.apple.com·sub=clientID.
 func (a *Apple) clientSecret(clientID string) (string, error) {
-	now := a.clock.Now()
+	return a.revoker.clientSecret(clientID)
+}
+
+func (r *AppleRevoker) clientSecret(clientID string) (string, error) {
+	now := r.clock.Now()
 	claims := jwt.RegisteredClaims{
-		Issuer:    a.cfg.TeamID,
+		Issuer:    r.cfg.TeamID,
 		Subject:   clientID,
 		Audience:  jwt.ClaimStrings{appleClientSecretAudience},
 		IssuedAt:  jwt.NewNumericDate(now),
 		ExpiresAt: jwt.NewNumericDate(now.Add(appleClientSecretTTL)),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-	token.Header["kid"] = a.cfg.KeyID
-	signed, err := token.SignedString(a.cfg.PrivateKey)
+	token.Header["kid"] = r.cfg.KeyID
+	signed, err := token.SignedString(r.cfg.PrivateKey)
 	if err != nil {
 		return "", fmt.Errorf("Apple client_secret: 서명 실패: %w", err)
 	}

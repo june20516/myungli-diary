@@ -66,7 +66,7 @@ func (s *Service) Create(ctx context.Context, accountID uuid.UUID, p profile.Pro
 	}
 	entry, err := s.entries.CreateEntry(ctx, accountID, date, body, nil)
 	if errors.Is(err, ErrDayRecordMissing) {
-		// 확인과 저장 사이에 날짜 기록이 지워졌습니다(익명화·합치기). 기록을 만들어 한 번만 다시 부릅니다.
+		// 확인과 저장 사이에 날짜 기록이 지워졌습니다(계정 삭제·합치기). 기록을 만들어 한 번만 다시 부릅니다.
 		return s.createWithNewRecord(ctx, accountID, p, date, body)
 	}
 	return entry, err

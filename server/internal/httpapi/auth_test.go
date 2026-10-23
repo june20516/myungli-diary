@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/google/uuid"
@@ -202,41 +201,6 @@ func TestBearer_ConsentRequiredBlocksOtherOperations(t *testing.T) {
 	}
 }
 
-func TestBearer_PendingDeletionAllowsOnlyMeDeleteLogout(t *testing.T) {
-	scheduled := time.Date(2026, 11, 10, 0, 0, 0, 0, time.UTC)
-	tests := []struct {
-		name            string
-		consentRequired bool
-	}{
-		{name: "동의 완료", consentRequired: false},
-		// 두 조건이 함께면 삭제 대기 규칙이 먼저입니다. 동의 요청도 401입니다.
-		{name: "동의 필요", consentRequired: true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gate := fakeGate{access: account.Access{
-				Status:              account.StatusPendingDeletion,
-				DeletionScheduledAt: &scheduled,
-				ConsentRequired:     tt.consentRequired,
-			}}
-			handler := newBearerHandler(t, fakeVerifier{}, gate)
-
-			expectBearerFailure(t, serve(handler, bearerRequest(t, http.MethodGet, "/v1/chart", "")), "auth.token_invalid")
-			expectBearerFailure(t, serve(handler, bearerRequest(t, http.MethodPost, "/v1/me/consents",
-				`{"documents":[{"document":"terms","version":"1"}]}`)), "auth.token_invalid")
-
-			for _, allowed := range []struct{ method, target, body string }{
-				{http.MethodGet, "/v1/me", ""},
-				{http.MethodDelete, "/v1/me", ""},
-				{http.MethodPost, "/v1/auth/logout", `{"refreshToken":"r"}`},
-			} {
-				rec := serve(handler, bearerRequest(t, allowed.method, allowed.target, allowed.body))
-				assert.Equal(t, http.StatusNotImplemented, rec.Code, "%s %s body = %s", allowed.method, allowed.target, rec.Body.String())
-			}
-		})
-	}
-}
-
 func TestBearer_DeletedOrUnknownAccountIs401(t *testing.T) {
 	tests := []struct {
 		name string
@@ -275,8 +239,7 @@ func TestBearer_GateUnknownErrorIs500(t *testing.T) {
 }
 
 func TestBearerAuth_PutsAccountInContext(t *testing.T) {
-	scheduled := time.Date(2026, 11, 10, 0, 0, 0, 0, time.UTC)
-	want := account.Access{Status: account.StatusPendingDeletion, DeletionScheduledAt: &scheduled}
+	want := account.Access{Status: account.StatusActive, ConsentRequired: true}
 	deps, _ := newTestDeps()
 	authenticate := httpapi.BearerAuth(fakeVerifier{}, fakeGate{access: want}, deps.Logger)
 

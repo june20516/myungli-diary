@@ -12,13 +12,12 @@ import (
 )
 
 type Account struct {
-	ID                  uuid.UUID
-	Status              string
-	DeletionRequestedAt *time.Time
-	AnonymizedAt        *time.Time
-	LastActiveAt        time.Time
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	ID           uuid.UUID
+	Status       string
+	LastActiveAt time.Time
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    *time.Time
 }
 
 type AccountMergeTicket struct {
@@ -46,16 +45,15 @@ type AppleWebLogin struct {
 }
 
 type AuthIdentity struct {
-	ID                     uuid.UUID
-	AccountID              uuid.UUID
-	Provider               string
-	Subject                string
-	AppleRefreshToken      []byte
-	AppleTokenKeyID        pgtype.Text
-	AppleClientID          pgtype.Text
-	ProviderDisconnectedAt *time.Time
-	CreatedAt              time.Time
-	UpdatedAt              time.Time
+	ID                uuid.UUID
+	AccountID         uuid.UUID
+	Provider          string
+	Subject           string
+	AppleRefreshToken []byte
+	AppleTokenKeyID   pgtype.Text
+	AppleClientID     pgtype.Text
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 type BillingEvent struct {
@@ -206,9 +204,21 @@ type Profile struct {
 	NotifyStatus     string
 	NotifyTime       pgtype.Time
 	BirthHash        []byte
-	AnonymizedAt     *time.Time
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+}
+
+type ProviderRevocation struct {
+	ID                int64
+	Provider          string
+	Subject           pgtype.Text
+	IdentityID        uuid.UUID
+	AppleRefreshToken []byte
+	AppleTokenKeyID   pgtype.Text
+	AppleClientID     pgtype.Text
+	Attempts          int32
+	NextAttemptAt     time.Time
+	CreatedAt         time.Time
 }
 
 type RateLimit struct {
@@ -222,6 +232,13 @@ type Reaction struct {
 	Reaction    string
 	CreatedAt   time.Time
 	DeletedAt   *time.Time
+}
+
+type ReactionTally struct {
+	MessageKey string
+	Variant    string
+	Reaction   string
+	Count      int64
 }
 
 type RefreshToken struct {

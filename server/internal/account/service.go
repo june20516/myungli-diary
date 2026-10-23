@@ -1,4 +1,4 @@
-// Package account는 계정의 접근 상태, 약관 동의, 삭제 예약을 맡습니다.
+// Package account는 계정의 접근 상태, 약관 동의, 계정 삭제를 맡습니다.
 package account
 
 import (
@@ -22,15 +22,12 @@ import (
 const (
 	// lastActiveInterval은 last_active_at을 다시 갱신하기까지의 최소 간격입니다(하루 1번까지).
 	lastActiveInterval = 24 * time.Hour
-	// deletionGracePeriod는 삭제 요청부터 익명화까지의 유예 기간입니다.
-	deletionGracePeriod = 30 * 24 * time.Hour
 
 	// pgForeignKeyViolation은 PostgreSQL의 foreign_key_violation SQLSTATE입니다.
 	pgForeignKeyViolation = "23503"
 )
 
 // ErrNotFound는 계정 행이 없을 때 돌려줍니다.
-// 삭제 예약(RequestDeletion)만은 익명화가 끝난(deleted) 계정도 예약할 대상이 없으므로 이 오류로 돌려줍니다.
 var ErrNotFound = errors.New("account: not found")
 
 // ConsentVersionMismatchError는 동의 요청 항목의 버전이 현재 버전과 다를 때의 오류입니다.
@@ -50,17 +47,13 @@ type Status string
 const (
 	// StatusActive는 정상 계정입니다.
 	StatusActive Status = "active"
-	// StatusPendingDeletion은 삭제를 요청하고 유예 기간 중인 계정입니다.
-	StatusPendingDeletion Status = "pending_deletion"
-	// StatusDeleted는 익명화가 끝난 계정입니다.
+	// StatusDeleted는 개인 데이터를 지우고 껍데기만 남은 계정입니다.
 	StatusDeleted Status = "deleted"
 )
 
 // Access는 요청마다 확인하는 계정 접근 상태입니다.
 type Access struct {
 	Status Status
-	// DeletionScheduledAt은 삭제 대기 계정의 익명화 예정 시각입니다. 그 밖에는 nil입니다.
-	DeletionScheduledAt *time.Time
 	// ConsentRequired는 현재 버전 문서 중 아직 동의하지 않은 것이 있으면 true입니다.
 	ConsentRequired bool
 }
@@ -79,25 +72,21 @@ type Me struct {
 	RequiredConsents []ConsentDocument
 }
 
-// SessionEnder는 계정 삭제 예약 뒤에 세션과 제공자 연결을 정리하는 의존성입니다. *auth.Service가 만족합니다.
-type SessionEnder interface {
-	RevokeAllSessions(ctx context.Context, accountID uuid.UUID) error
-	// DisconnectProviders는 계정이 pending_deletion일 때만 기록하므로 상태 변경을 commit한 뒤에 불러야 합니다.
-	DisconnectProviders(ctx context.Context, accountID uuid.UUID) error
-}
-
-// Service는 계정 접근 상태, 약관 동의, 삭제 예약을 처리합니다.
+// Service는 계정 접근 상태, 약관 동의, 계정 삭제를 처리합니다.
 type Service struct {
-	pool     *pgxpool.Pool
-	queries  *accountdb.Queries
-	sessions SessionEnder
-	clk      clock.Clock
-	logger   *slog.Logger
+	pool    *pgxpool.Pool
+	queries *accountdb.Queries
+	revoker Revoker
+	clk     clock.Clock
+	logger  *slog.Logger
 }
 
-// NewService는 Service를 만듭니다.
-func NewService(pool *pgxpool.Pool, sessions SessionEnder, clk clock.Clock, logger *slog.Logger) *Service {
-	return &Service{pool: pool, queries: accountdb.New(pool), sessions: sessions, clk: clk, logger: logger}
+// NewService는 Service를 만듭니다. revoker는 계정 삭제 뒤 허가 취소를 시도합니다. logger가 nil이면 아무것도 남기지 않습니다.
+func NewService(pool *pgxpool.Pool, revoker Revoker, clk clock.Clock, logger *slog.Logger) *Service {
+	if logger == nil {
+		logger = slog.New(slog.DiscardHandler)
+	}
+	return &Service{pool: pool, queries: accountdb.New(pool), revoker: revoker, clk: clk, logger: logger}
 }
 
 // Access는 계정의 접근 상태를 돌려줍니다. 요청마다 불립니다.
@@ -168,67 +157,6 @@ func (s *Service) AgreeConsents(ctx context.Context, id uuid.UUID, docs []Consen
 	return nil
 }
 
-// RequestDeletion은 active 계정을 pending_deletion으로 바꾸고 익명화 예정 시각(요청 시각 + 30일)을 돌려줍니다.
-// 상태를 commit한 뒤 세션과 제공자 연결을 정리하며, 그 실패는 경고 로그만 남기고 성공으로 취급합니다.
-// 이미 pending_deletion이면 아무것도 바꾸지 않고 기존 예정 시각을 돌려줍니다.
-// 동시에 두 번 불려도 UPDATE가 갱신한 행 수가 1인 호출만 정리를 수행합니다.
-func (s *Service) RequestDeletion(ctx context.Context, id uuid.UUID) (time.Time, error) {
-	var (
-		scheduled time.Time
-		changed   bool
-	)
-	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
-		// InTx가 fn을 다시 실행할 수 있으므로 결과를 먼저 초기화합니다.
-		scheduled, changed = time.Time{}, false
-		q := s.queries.WithTx(tx)
-
-		now := s.clk.Now()
-		rows, err := q.RequestDeletion(ctx, accountdb.RequestDeletionParams{DeletionRequestedAt: now, ID: id})
-		if err != nil {
-			return err
-		}
-		if rows == 1 {
-			// DB는 마이크로초 정밀도로 저장하므로, 재호출이 돌려주는 값과 같도록 맞춥니다.
-			scheduled, changed = now.Truncate(time.Microsecond).Add(deletionGracePeriod), true
-			return nil
-		}
-
-		// 0행이면 계정이 없거나 이미 active가 아닙니다. 상태를 읽어 구분합니다.
-		row, err := q.GetAccountAccess(ctx, id)
-		if err != nil {
-			return notFoundOr(err, "계정 조회")
-		}
-		if Status(row.Status) != StatusPendingDeletion || row.DeletionRequestedAt == nil {
-			return ErrNotFound
-		}
-		scheduled = row.DeletionRequestedAt.Add(deletionGracePeriod)
-		return nil
-	})
-	if err != nil {
-		if errors.Is(err, ErrNotFound) {
-			return time.Time{}, err
-		}
-		return time.Time{}, fmt.Errorf("삭제 예약: %w", err)
-	}
-
-	if changed {
-		// 이미 commit된 삭제 예약의 뒷정리이므로, 클라이언트가 응답 전에 연결을 끊어 ctx가 취소돼도 끝까지 수행합니다.
-		s.endSessions(context.WithoutCancel(ctx), id)
-	}
-	return scheduled, nil
-}
-
-// endSessions는 commit된 삭제 예약 뒤에 세션 폐기와 제공자 연결 해제를 시도합니다.
-// 둘은 서로 독립이라 하나가 실패해도 다른 하나를 부르고, 실패는 계정 id와 오류 타입만 경고로 남깁니다.
-func (s *Service) endSessions(ctx context.Context, id uuid.UUID) {
-	if err := s.sessions.RevokeAllSessions(ctx, id); err != nil {
-		s.logger.WarnContext(ctx, "삭제 예약 뒤 세션 폐기 실패", "accountId", id, "errorType", fmt.Sprintf("%T", err))
-	}
-	if err := s.sessions.DisconnectProviders(ctx, id); err != nil {
-		s.logger.WarnContext(ctx, "삭제 예약 뒤 제공자 연결 해제 실패", "accountId", id, "errorType", fmt.Sprintf("%T", err))
-	}
-}
-
 // missingConsents는 현재 버전 문서 중 동의 기록이 없는 것을 문서 이름 순으로 돌려줍니다.
 func (s *Service) missingConsents(ctx context.Context, q *accountdb.Queries, id uuid.UUID) ([]ConsentDocument, error) {
 	rows, err := q.ListConsents(ctx, id)
@@ -251,12 +179,7 @@ func (s *Service) missingConsents(ctx context.Context, q *accountdb.Queries, id 
 
 // buildAccess는 조회 행을 Access로 바꿉니다.
 func buildAccess(row accountdb.GetAccountAccessRow, consentRequired bool) Access {
-	a := Access{Status: Status(row.Status), ConsentRequired: consentRequired}
-	if row.DeletionRequestedAt != nil {
-		t := row.DeletionRequestedAt.Add(deletionGracePeriod)
-		a.DeletionScheduledAt = &t
-	}
-	return a
+	return Access{Status: Status(row.Status), ConsentRequired: consentRequired}
 }
 
 // notFoundOr는 행 없음을 ErrNotFound로, 그 밖의 오류를 맥락을 붙여 돌려줍니다.

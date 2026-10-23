@@ -197,6 +197,54 @@ func LoadAuth(getenv func(string) string) (AuthConfig, error) {
 	return cfg, nil
 }
 
+// RevocationConfig는 허가 취소 재시도 job(retention)이 쓰는 설정입니다. serve의 AuthConfig 중
+// 카카오 unlink, Apple revoke, 저장한 Apple refresh token 복호화에 필요한 값만 담습니다.
+type RevocationConfig struct {
+	// TokenKeyID·TokenKey는 Apple refresh token 암호화 키이고, 이전 키는 키 교체 중 복호화에만 씁니다(없으면 비어 있음).
+	TokenKeyID, TokenKey                 string
+	TokenPreviousKeyID, TokenPreviousKey string
+	// KakaoAdminKey는 카카오 unlink의 Admin 키입니다.
+	KakaoAdminKey string
+	// AppleTeamID·AppleKeyID·ApplePrivateKeyPEM은 Apple revoke의 client_secret을 서명합니다.
+	AppleTeamID, AppleKeyID, ApplePrivateKeyPEM string
+}
+
+// LoadRevocation은 getenv로 허가 취소 재시도 설정을 읽습니다. 규칙은 LoadAuth와 같습니다:
+// 값의 앞뒤 공백을 지우고, 필수 값이 빈 변수와 이전 키의 짝 오류를 모아 errors.Join으로 돌려주며, 오류에는 변수 이름만 담습니다.
+// JWT 서명 키처럼 이 job이 쓰지 않는 값은 읽지 않습니다.
+func LoadRevocation(getenv func(string) string) (RevocationConfig, error) {
+	getenv = trimmedEnv(getenv)
+	var missing []string
+	require := func(name string) string {
+		value := getenv(name)
+		if value == "" {
+			missing = append(missing, name)
+		}
+		return value
+	}
+
+	cfg := RevocationConfig{
+		TokenKeyID:         require("TOKEN_ENCRYPTION_KEY_ID"),
+		TokenKey:           require("TOKEN_ENCRYPTION_KEY"),
+		TokenPreviousKeyID: getenv("TOKEN_PREVIOUS_KEY_ID"),
+		TokenPreviousKey:   getenv("TOKEN_PREVIOUS_KEY"),
+		KakaoAdminKey:      require("KAKAO_ADMIN_KEY"),
+		AppleTeamID:        require("APPLE_TEAM_ID"),
+		AppleKeyID:         require("APPLE_KEY_ID"),
+		ApplePrivateKeyPEM: require("APPLE_PRIVATE_KEY"),
+	}
+
+	var errs []error
+	if len(missing) > 0 {
+		errs = append(errs, fmt.Errorf("필수 허가 취소 설정이 없습니다: %s", strings.Join(missing, ", ")))
+	}
+	errs = append(errs, requirePair("TOKEN_PREVIOUS_KEY_ID", cfg.TokenPreviousKeyID, "TOKEN_PREVIOUS_KEY", cfg.TokenPreviousKey))
+	if err := errors.Join(errs...); err != nil {
+		return RevocationConfig{}, err
+	}
+	return cfg, nil
+}
+
 // trimmedEnv는 getenv가 돌려주는 값의 앞뒤 공백을 지우는 getenv를 만듭니다.
 func trimmedEnv(getenv func(string) string) func(string) string {
 	return func(name string) string { return strings.TrimSpace(getenv(name)) }

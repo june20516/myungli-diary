@@ -19,7 +19,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile/profiledb"
 )
 
-// ErrNotFound는 프로필이 없거나 익명화되었을 때 돌려줍니다.
+// ErrNotFound는 프로필이 없을 때 돌려줍니다.
 var ErrNotFound = errors.New("profile not found")
 
 // ChartChecker는 출생 정보를 엔진으로 검증하는 의존성입니다. fortune.Service가 만족합니다.
@@ -55,13 +55,13 @@ func NewService(pool *pgxpool.Pool, charts ChartChecker, clk clock.Clock) *Servi
 	return &Service{queries: profiledb.New(pool), charts: charts, clock: clk}
 }
 
-// Get은 프로필을 돌려줍니다. 없거나 익명화되었으면 ErrNotFound입니다.
+// Get은 프로필을 돌려줍니다. 없으면 ErrNotFound입니다.
 func (s *Service) Get(ctx context.Context, accountID uuid.UUID) (Profile, error) {
 	p, _, err := s.load(ctx, accountID)
 	return p, err
 }
 
-// Exists는 익명화되지 않은 프로필이 있는지 알려 줍니다.
+// Exists는 프로필이 있는지 알려 줍니다.
 func (s *Service) Exists(ctx context.Context, accountID uuid.UUID) (bool, error) {
 	exists, err := s.queries.ProfileExists(ctx, accountID)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *Service) Exists(ctx context.Context, accountID uuid.UUID) (bool, error)
 	return exists, nil
 }
 
-// Put은 프로필을 만들거나 통째로 바꿉니다. 익명화된 계정은 되살리지 않고 ErrNotFound입니다.
+// Put은 프로필을 만들거나 통째로 바꿉니다. 계정을 지우는 중이면 저장이 DB trigger에 막힙니다(account.IsAccountDeletedError).
 func (s *Service) Put(ctx context.Context, accountID uuid.UUID, p Profile) (Saved, error) {
 	var storedHash []byte // 새 등록이면 nil이라 항상 엔진을 부릅니다.
 	row, err := s.loadRow(ctx, accountID)
@@ -78,8 +78,6 @@ func (s *Service) Put(ctx context.Context, accountID uuid.UUID, p Profile) (Save
 	case errors.Is(err, ErrNotFound):
 	case err != nil:
 		return Saved{}, err
-	case row.AnonymizedAt != nil:
-		return Saved{}, ErrNotFound
 	default:
 		storedHash = row.BirthHash
 	}
@@ -137,14 +135,11 @@ func (s *Service) loadRow(ctx context.Context, accountID uuid.UUID) (profiledb.P
 	return row, nil
 }
 
-// load는 익명화되지 않은 프로필과 저장된 출생 해시를 읽습니다. 익명화된 행은 없는 것으로 봅니다.
+// load는 프로필과 저장된 출생 해시를 읽습니다.
 func (s *Service) load(ctx context.Context, accountID uuid.UUID) (Profile, []byte, error) {
 	row, err := s.loadRow(ctx, accountID)
 	if err != nil {
 		return Profile{}, nil, err
-	}
-	if row.AnonymizedAt != nil {
-		return Profile{}, nil, ErrNotFound
 	}
 	return profileFromRow(row), row.BirthHash, nil
 }
@@ -160,7 +155,7 @@ type saveOptions struct {
 // 읽기·엔진 호출·upsert를 한 트랜잭션에 묶지 않습니다. 엔진 호출이 최대 수 초 걸리므로
 // 그 동안 DB 연결과 락을 쥐지 않기 위해서입니다. 동시 요청이 엔진을 두 번 불러도 정확성에는 문제가 없고,
 // upsert는 ON CONFLICT라 둘 다 성공합니다. 동시 Patch도 엔진을 두 번 부를 수 있고,
-// 행 전체를 쓰므로 마지막 쓰기가 이깁니다(허용). 익명화는 upsert의 WHERE가 막습니다.
+// 행 전체를 쓰므로 마지막 쓰기가 이깁니다(허용). 그 사이 계정이 지워지면 upsert의 INSERT가 DB trigger에 막힙니다.
 func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, opts saveOptions) (Saved, error) {
 	var warnings []honorific.Code
 	if opts.normalizeHonorific {
@@ -200,10 +195,6 @@ func (s *Service) save(ctx context.Context, accountID uuid.UUID, p Profile, opts
 	}
 
 	row, err := s.queries.UpsertProfile(ctx, upsertParams(accountID, p, hash))
-	if errors.Is(err, pgx.ErrNoRows) {
-		// 읽은 뒤(엔진 호출 중에) 익명화가 커밋된 경우입니다. 익명화된 행은 갱신되지 않습니다.
-		return Saved{}, ErrNotFound
-	}
 	if err != nil {
 		return Saved{}, fmt.Errorf("프로필 저장: %w", err)
 	}

@@ -2,13 +2,16 @@ package httpapi_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
@@ -300,9 +303,10 @@ func TestUpdateProfile_MissingIs409(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-func TestCreateProfile_MissingProfileIs401LikeUnknownAccount(t *testing.T) {
-	// 계약 PUT에는 409가 없습니다. 익명화 경합으로 계정이 사라진 경우는 계정 없음과 같은 401입니다.
-	handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: &fakeProfiles{err: profile.ErrNotFound}})
+func TestCreateProfile_AccountDeletedDuringSaveIs401(t *testing.T) {
+	// 계약 PUT에는 409가 없습니다. 저장 도중 계정이 지워져 DB trigger에 막히면 지운 계정과 같은 401입니다.
+	deleted := fmt.Errorf("프로필 저장: %w", &pgconn.PgError{Code: account.SQLStateAccountDeleted, Message: "account is deleted"})
+	handler, spec := newHandlerAPI(t, &httpapi.API{Profiles: &fakeProfiles{err: deleted}})
 
 	req := newBodyRequest(t, http.MethodPut, "/v1/me/profile", contentTypeJSON, profileWithNotificationTime("07:05"))
 	rec := serve(handler, req)

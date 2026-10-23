@@ -3,12 +3,11 @@ SELECT * FROM profiles
 WHERE account_id = @account_id;
 
 -- name: ProfileExists :one
-SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = @account_id AND anonymized_at IS NULL);
+SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = @account_id);
 
 -- UpsertProfile은 프로필을 만들거나 통째로 바꿉니다.
 -- 동시에 첫 등록이 두 번 들어와도 둘 다 성공하며, 나중에 실행된 값이 남습니다.
--- anonymized_at은 다루지 않고, 이미 익명화된 행은 WHERE로 갱신하지 않습니다.
--- 그때는 행이 반환되지 않아 pgx.ErrNoRows가 되므로 익명화된 행에 출생 정보가 다시 쓰이지 않습니다.
+-- 계정을 지우는 중에 오면 INSERT가 DB trigger(migration 00015)에 막혀 지운 계정에 프로필이 다시 생기지 않습니다.
 -- name: UpsertProfile :one
 INSERT INTO profiles (
     account_id, honorific, language, current_timezone,
@@ -42,5 +41,4 @@ ON CONFLICT (account_id) DO UPDATE SET
     notify_status      = EXCLUDED.notify_status,
     notify_time        = EXCLUDED.notify_time,
     birth_hash         = EXCLUDED.birth_hash
-WHERE profiles.anonymized_at IS NULL
 RETURNING *;

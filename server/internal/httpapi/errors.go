@@ -76,8 +76,9 @@ var domainErrors = []domainError{
 	{target: auth.ErrRefreshReused, code: problem.AuthRefreshReused, title: "Refresh token reused"},
 	{target: auth.ErrExchangeInvalid, code: problem.AuthExchangeInvalid, title: "Exchange code invalid"},
 	{target: auth.ErrProviderTaken, code: problem.AuthProviderTaken, title: "Provider already linked"},
-	// 삭제 대기 계정은 계약에서 없어졌습니다(D85). auth 패키지가 아직 이 오류를 돌려주므로 다른 계정의 연결과 같은 409로 답합니다.
-	{target: auth.ErrIdentityPendingDeletion, code: problem.AuthIdentityInUse, title: "Identity in use"},
+	// 붙이기·떼기 도중 현재 계정이 지워졌습니다. 미들웨어가 지운 계정에 주는 응답과 같은 bearer 실패입니다.
+	{target: auth.ErrAccountDeleted, code: problem.AuthTokenInvalid, title: "Token invalid", bearerChallenge: true},
+	{target: auth.ErrIdentityInUse, code: problem.AuthIdentityInUse, title: "Identity in use"},
 	{target: auth.ErrLastIdentity, code: problem.AuthLastIdentity, title: "Last identity"},
 	{target: auth.ErrIdentityNotFound, code: problem.AuthIdentityNotFound, title: "Identity not found"},
 	{target: profile.ErrNotFound, code: problem.ProfileRequired, title: "Profile required"},
@@ -98,7 +99,8 @@ var domainErrors = []domainError{
 }
 
 // writeHandlerError는 핸들러가 돌려준 오류를 problem으로 씁니다.
-// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422), domainErrors 표, DB 연결 실패(503), 그 밖(500).
+// 순서: ErrNotImplemented(501), *Error(그대로, 상태가 범위 밖이면 500), *profile.ValidationError(422),
+// 지운 계정 쓰기(401 auth.token_invalid), domainErrors 표, DB 연결 실패(503), 그 밖(500).
 // 프로필 저장, 음력 변환, 데일리·달력(핸들러가 직접 422로 바꿈) 밖에서 온 engine.ErrInvalidArgument·ErrOutOfRange는 server 쪽 입력 구성 오류라 표에 없고 500입니다.
 func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err error) {
 	if errors.Is(err, ErrNotImplemented) {
@@ -109,14 +111,11 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 	// 호출자가 지정한 오류와 프로필 의미 검사 위반(422)은 같은 *Error 경로로 답합니다.
 	var explicit *Error
 	var violation *profile.ValidationError
-	var inUse *auth.IdentityInUseError
 	var invalidProof *auth.InvalidProofError
 	switch {
 	case errors.As(err, &explicit):
 	case errors.As(err, &violation):
 		explicit = validationError(violation)
-	case errors.As(err, &inUse): // 합치기 토큰은 본문에 싣지 않습니다(draft.15).
-		explicit = newError(problem.AuthIdentityInUse, "Identity in use")
 	case errors.As(err, &invalidProof):
 		explicit = invalidProofError(invalidProof)
 	}
@@ -129,6 +128,12 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
 		p.Errors = explicit.Errors
 		writeProblem(w, r, p, explicit.BearerChallenge, explicit.RetryAfter)
+		return
+	}
+
+	// 삭제 중이던 계정에 쓰려다 DB trigger에 막혔습니다. 미들웨어가 deleted 계정에 주는 응답과 같습니다.
+	if account.IsAccountDeletedError(err) {
+		writeTokenInvalid(w, r)
 		return
 	}
 

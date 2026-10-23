@@ -8,15 +8,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
 )
 
@@ -336,56 +339,28 @@ func TestPatch_MissingProfileIsNotFound(t *testing.T) {
 	assert.False(t, exists)
 }
 
-func TestAnonymizedProfileIsTreatedAsMissing(t *testing.T) {
+// 출생 정보가 바뀌어 엔진을 부르는 동안 계정이 지워지면, 저장은 DB trigger에 막혀 지운 계정 오류이고
+// 지운 프로필이 다시 생기지 않습니다(S105, httpapi는 401 auth.token_invalid로 답함).
+func TestPut_AccountDeletedDuringEngineCallIsRejected(t *testing.T) {
 	f := newServiceFixture(t)
 	ctx := context.Background()
 	_, err := f.svc.Put(ctx, f.accountID, validProfile())
 	require.NoError(t, err)
-	_, err = f.pool.Exec(ctx, `UPDATE profiles SET anonymized_at = $2 WHERE account_id = $1`, f.accountID, f.clock.Now())
-	require.NoError(t, err)
-	calls := f.charts.callCount()
-
-	_, err = f.svc.Get(ctx, f.accountID)
-	require.ErrorIs(t, err, ErrNotFound)
-	_, err = f.svc.Patch(ctx, f.accountID, Patch{Language: ptr("en")})
-	require.ErrorIs(t, err, ErrNotFound)
-	_, err = f.svc.Put(ctx, f.accountID, validProfile())
-	require.ErrorIs(t, err, ErrNotFound)
-	exists, err := f.svc.Exists(ctx, f.accountID)
-	require.NoError(t, err)
-	assert.False(t, exists)
-
-	assert.Equal(t, calls, f.charts.callCount(), "익명화된 프로필에는 엔진을 부르지 않습니다")
-	var anonymized bool
-	require.NoError(t, f.pool.QueryRow(ctx, `SELECT anonymized_at IS NOT NULL FROM profiles`).Scan(&anonymized))
-	assert.True(t, anonymized)
-}
-
-func TestPut_AnonymizedDuringEngineCallStaysAnonymized(t *testing.T) {
-	f := newServiceFixture(t)
-	ctx := context.Background()
-	_, err := f.svc.Put(ctx, f.accountID, validProfile())
-	require.NoError(t, err)
-	// 출생 정보가 바뀌어 엔진을 부르는 동안 익명화가 커밋되는 경우입니다.
 	f.charts.onCall = func() {
-		_, execErr := f.pool.Exec(ctx, `
-			UPDATE profiles SET anonymized_at = $2, honorific = NULL, calendar = NULL, is_leap_month = NULL,
-				birth_year = NULL, birth_month = NULL, birth_day = NULL, birth_time_status = NULL,
-				gender = NULL, birth_timezone = NULL, birth_place_status = NULL, birth_hash = NULL
-			WHERE account_id = $1`, f.accountID, f.clock.Now())
-		require.NoError(t, execErr)
+		require.NoError(t, postgres.InTx(ctx, f.pool, func(tx pgx.Tx) error {
+			_, err := account.DeleteAccountTx(ctx, tx, f.accountID, f.clock.Now())
+			return err
+		}))
 	}
 	changed := validProfile()
 	changed.Birth.Gender = "male"
 
 	_, err = f.svc.Put(ctx, f.accountID, changed)
 
-	require.ErrorIs(t, err, ErrNotFound)
-	var piiColumns int
-	require.NoError(t, f.pool.QueryRow(ctx, `
-		SELECT count(*) FROM profiles
-		WHERE honorific IS NOT NULL OR birth_year IS NOT NULL OR gender IS NOT NULL OR birth_hash IS NOT NULL`).Scan(&piiColumns))
-	assert.Equal(t, 0, piiColumns, "익명화된 행에 PII가 다시 쓰이면 안 됩니다")
+	require.True(t, account.IsAccountDeletedError(err), "err = %v", err)
+	var profiles int
+	require.NoError(t, f.pool.QueryRow(ctx, `SELECT count(*) FROM profiles`).Scan(&profiles))
+	assert.Zero(t, profiles, "지운 계정의 프로필이 다시 생기면 안 됩니다")
 }
 
 func TestPatch_SameCityBirthWithoutLongitudeSkipsEngine(t *testing.T) {

@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
@@ -59,6 +58,18 @@ func TestWriteHandlerError_BearerChallengeAddsHeader(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 	assert.Equal(t, "auth.token_invalid", p.Code)
 	assert.Equal(t, `Bearer error="invalid_token"`, rec.Header().Get("WWW-Authenticate"))
+}
+
+// 삭제 중이던 계정에 쓰다 DB trigger에 막힌 오류는 deleted 계정 토큰과 같은 401 auth.token_invalid입니다.
+func TestWriteHandlerError_AccountDeletedWriteIs401(t *testing.T) {
+	err := fmt.Errorf("일기 저장: %w", &pgconn.PgError{Code: account.SQLStateAccountDeleted, Message: "account is deleted"})
+
+	rec, p, logs := serveHandlerError(t, err)
+
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	assert.Equal(t, "auth.token_invalid", p.Code)
+	assert.Equal(t, `Bearer error="invalid_token"`, rec.Header().Get("WWW-Authenticate"))
+	assert.Empty(t, logs, "사용자 요청의 정상 결과라 오류 로그를 남기지 않습니다")
 }
 
 func TestWriteHandlerError_DomainSentinelIsMapped(t *testing.T) {
@@ -161,25 +172,24 @@ func TestWriteHandlerError_EngineInternalIs502(t *testing.T) {
 	assert.Equal(t, "engine.error", p.Code)
 }
 
-// 합치기 토큰은 draft.15부터 409 본문에 싣지 않습니다(previewMerge가 발급).
-func TestWriteHandlerError_IdentityInUseOmitsMergeToken(t *testing.T) {
-	expires := time.Date(2026, 10, 13, 9, 10, 0, 0, time.UTC)
-	rec, p, _ := serveHandlerError(t, fmt.Errorf("wrap: %w", &auth.IdentityInUseError{MergeToken: "tok", ExpiresAt: expires}))
+// 다른 유저 계정의 연결은 409 identity_in_use만이고 합치기 토큰 필드가 없습니다(S110).
+func TestWriteHandlerError_IdentityInUseIs409WithoutMergeFields(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, fmt.Errorf("wrap: %w", auth.ErrIdentityInUse))
 
 	assert.Equal(t, http.StatusConflict, rec.Code)
 	assert.Equal(t, "auth.identity_in_use", p.Code)
-	assert.NotContains(t, rec.Body.String(), "tok")
 	assert.NotContains(t, rec.Body.String(), "mergeToken")
 	assert.NotContains(t, rec.Body.String(), "expiresAt")
 	assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
 }
 
-// auth 패키지가 아직 돌려주는 삭제 대기 오류는 계약에서 없어진 code 대신 identity_in_use 409로 답합니다.
-func TestWriteHandlerError_PendingDeletionIsIdentityInUse(t *testing.T) {
-	rec, p, _ := serveHandlerError(t, auth.ErrIdentityPendingDeletion)
+// 붙이기·떼기 도중 자기 계정이 지워지면 미들웨어가 지운 계정에 주는 것과 같은 401입니다.
+func TestWriteHandlerError_AccountDeletedIsTokenInvalid(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, fmt.Errorf("line 붙이기: %w", auth.ErrAccountDeleted))
 
-	assert.Equal(t, http.StatusConflict, rec.Code)
-	assert.Equal(t, "auth.identity_in_use", p.Code)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	assert.Equal(t, "auth.token_invalid", p.Code)
+	assert.NotEmpty(t, rec.Header().Get("WWW-Authenticate"))
 }
 
 func TestWriteHandlerError_InvalidProofIsRequestInvalidWithOneField(t *testing.T) {

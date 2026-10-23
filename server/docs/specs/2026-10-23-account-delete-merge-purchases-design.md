@@ -55,17 +55,18 @@ drift #478은 server가 고칠 것이 없습니다(원인은 writing 슬롯, #47
 5. `accounts`를 `status = 'deleted'`, `deleted_at = now`로 바꿉니다.
 6. commit 뒤 허가 취소 대기 행을 한 번씩 시도합니다(§4.2). 결과와 상관없이 204입니다.
 
-같은 인증 계정으로 다시 로그인하면 새 유저 계정이 생깁니다. 다른 요청이 삭제 중인 계정을 쓰면 계정 행 잠금 뒤에 기다리고, 기다린 뒤 `deleted`를 보면 401 `auth.unauthorized`로 끝납니다. 이 함수(`account.DeleteAccount(ctx, tx, accountID)`)는 합치기의 B 삭제가 같은 트랜잭션 안에서 그대로 부릅니다(D85 ④).
+같은 인증 계정으로 다시 로그인하면 새 유저 계정이 생깁니다. 다른 요청이 삭제 중인 계정을 쓰면 계정 행 잠금 뒤에 기다리고, 기다린 뒤 `deleted`를 보면 401 `auth.token_invalid`로 끝납니다. 이 함수(`account.DeleteAccount(ctx, tx, accountID)`)는 합치기의 B 삭제가 같은 트랜잭션 안에서 그대로 부릅니다(D85 ④).
 
 ### 3.2. 지우는 것과 남기는 것
 
 | 지움 | 남김(기간은 §7) |
 | --- | --- |
-| `profiles` | `accounts` 껍데기(id·status·`created_at`·`deleted_at`) |
+| `profiles` | `accounts` 껍데기(id·status·`created_at`·`deleted_at`, `last_active_at`은 `deleted_at`으로 덮음) |
 | `diaries`, `diary_days`, `schedules` | `purchases`, `entitlement_grants`, `billing_events`(결제·분쟁) |
 | `daily_selections`, `reactions`, `rotation_state` | `reward_events`(부정 이용 방지·정산 확인) |
 | `consents`, `auth_identities`, `refresh_tokens`, `idempotency_keys`, `account_merge_tickets`(이 계정이 A이거나 B인 것) | `preview_usage`(설치 id 해시, 계정과 무관) |
-| 이 계정 프로필의 `birth_hash`로 만든 `chart_cache`·`daily_cache`·`month_cache` 행 | `provider_revocations`(§4, 끝나면 지움) |
+| `apple_web_logins`(그 계정 Apple 인증 계정의 웹 로그인 기록: subject·nonce 해시·암호화 refresh token) | |
+| 이 계정 프로필과 문장 선택 기록(고치기 전 출생 정보)의 `birth_hash`로 만든 `chart_cache`·`daily_cache`·`month_cache` 행 | `provider_revocations`(§4, 끝나면 지움) |
 
 * 반응은 지우기 전에 계정과 끊긴 문장별 집계 표 `reaction_tallies(message_key, variant, reaction, count)`에 더합니다(D57). 지운 반응(`deleted_at` 있음)은 더하지 않습니다.
 * 캐시는 같은 출생 정보의 다른 계정도 쓸 수 있지만 다시 계산할 수 있으므로 지웁니다(D88 ③ "출생 정보로 만든 계산 캐시").
@@ -90,11 +91,12 @@ FK는 없습니다(원래 인증 계정 행과 유저 계정 행을 지운 뒤�
 ### 4.2. 규칙
 
 1. 떼기(`unlinkIdentity`)·계정 삭제·합치기(B 삭제)가 인증 계정 행을 지우는 트랜잭션에서, 카카오·Apple 인증 계정마다 한 행을 넣습니다. LINE·Google·테스트 제공자는 넣지 않습니다(S100).
-2. commit 직후 그 행들을 한 번씩 시도합니다. 성공하면 행을 지우고, 실패하면 `attempts`를 늘리고 `next_attempt_at`을 정합니다(1분 × 2^(attempts−1), 최대 1일).
+2. commit 직후 그 행들을 한 번씩 시도합니다. 성공하면 행을 지우고, 실패하면 `attempts`를 늘리고 `next_attempt_at`을 정합니다(1분 × 2^(attempts−1), 최대 1일). `next_attempt_at`은 `created_at` + 30일을 넘지 않습니다.
 3. `server job retention`이 `next_attempt_at <= now`인 행을 `FOR UPDATE SKIP LOCKED`로 집어 다시 시도합니다. 겹쳐 도는 job은 같은 행을 부르지 않습니다.
 4. 이미 끊긴 경우는 성공입니다: Apple `invalid_grant`(지금과 같음), 저장한 Apple token이 없음, 카카오가 이미 앱과 연결되지 않은 사용자라고 답함.
-5. `created_at`에서 30일이 지난 행은 포기합니다. Error 로그(`id`·`provider`만)를 남기고 지웁니다.
-6. 로그에 subject·token을 남기지 않습니다.
+5. `created_at`에서 30일이 지난 행은 포기합니다. Error 로그(`id`·`provider`만)를 남기고 지웁니다. 30일 시점의 시도가 실패해도 마지막 시도로 보고 같이 포기합니다.
+6. 카카오 행은 부르기 전에 같은 카카오 사용자(subject)의 인증 계정이 지금 있는지 봅니다. 있으면(다시 가입함) unlink가 새 계정의 연결까지 끊으므로 부르지 않고 성공으로 지웁니다. Apple 행은 subject가 없고 token 단위로 취소하므로 해당하지 않습니다.
+7. 로그에 subject·token을 남기지 않습니다.
 
 `auth.DisconnectProviders`·`stillPendingDeletion`·`markDisconnected`와 `auth_identities`의 해제 기록 열은 없앱니다. `job retention`은 지금 이름만 있으므로 이 재시도만 채우고, 나머지 정리는 P8 계획에 둡니다. 실행 주기(Cloud Scheduler)는 배포 설정 몫입니다.
 

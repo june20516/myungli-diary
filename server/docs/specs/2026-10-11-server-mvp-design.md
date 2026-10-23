@@ -23,6 +23,8 @@ server는 app이 쓰는 유일한 API입니다. 다음을 맡습니다.
 
 ## 2. 실행 구조 (S1)
 
+> 이 절의 `job retention` 익명화와 `account/`의 삭제 예약·복구·익명화는 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3·§4·§7이 대체합니다(S105·S106·S113).
+
 Go 바이너리 하나를 하위 명령으로 나눠 실행합니다.
 
 | 하위 명령 | 실행 환경 | 하는 일 |
@@ -85,11 +87,15 @@ server/
 
 ### 3.1 공통 원칙
 
+> 이 절의 "계정은 물리 삭제하지 않고 익명화" 원칙은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3이 대체합니다(S105). 계정 삭제는 개인 데이터 행을 지우고 계정 행만 껍데기로 남깁니다.
+
 * ID는 UUIDv7, 시각은 `timestamptz`, 날짜는 `date`입니다.
 * **행을 물리적으로 지우지 않습니다 (S6·S7).** 계정은 익명화하고(§9), 사용자가 지우는 일기·일정은 soft delete합니다. 그래서 FK는 모두 `ON DELETE RESTRICT`로 두어 실수로 지우는 일을 DB가 막습니다. 예외는 사용자 데이터가 아닌 시스템 데이터(캐시, 만료된 refresh token, 요청 한도 카운터, 멱등 키 `idempotency_keys`, Apple 웹 로그인 교환 코드 `apple_web_logins`)로, 정리할 때 지웁니다.
 * soft delete 행은 `deleted_at`으로 표시하고, 조회는 모두 `deleted_at IS NULL` 조건으로 합니다.
 
 ### 3.2 "모름"과 null (S5)
+
+> 이 절의 익명화된 프로필(`anonymized_at`) 행은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3이 대체합니다(S105). 계정 삭제가 프로필 행을 지우고, migration 00015가 `profiles.anonymized_at`을 없앴습니다.
 
 null은 "값이 없음"만 뜻하고 사용자의 선택을 담지 않습니다. 선택은 상태 열에 명시하고, 상태와 값 열이 짝이 맞는지는 CHECK 제약으로 DB가 보장합니다. "묻지 않음", "물었지만 입력하지 않음", "입력함"을 늘 구분합니다.
 
@@ -107,6 +113,8 @@ null은 "값이 없음"만 뜻하고 사용자의 선택을 담지 않습니다.
 * API도 같은 원칙을 따릅니다(§5.1).
 
 ### 3.3 테이블
+
+> 이 절의 `accounts`(status·삭제 시각), `auth_identities.provider_disconnected_at`, 익명화 때 남기거나 비우는 설명(`daily_selections.birth_hash`, 콘텐츠 표 FK, `devices`)은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3·§4가 대체합니다(S105·S106).
 
 **계정과 인증**
 
@@ -199,6 +207,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 새 계정은 `POST /v1/me/consents`로 현재 버전 문서에 동의하기 전까지 `/v1/me`, 동의, 로그아웃, 계정 삭제 말고는 403 `consent.required`를 받습니다. 문서 버전이 바뀌어도 같습니다.
 
 ### 4.4 계정 삭제 (S7)
+
+> 이 절은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3·§4가 대체합니다(S105·S106). 삭제 대기·30일 유예·로그인 복구는 없고 `deleteMe`가 바로 지웁니다.
 
 1. `DELETE /v1/me` → status `pending_deletion`, deletion_requested_at 기록.
 2. 상태 변경을 commit한 뒤 바로 처리합니다.
@@ -369,11 +379,15 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 
 ### 8.3 `job retention` (하루 1번)
 
+> 이 절의 익명화와 허가 취소 재시도는 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §4·§7이 대체합니다(S105·S106·S113).
+
 * 삭제 요청 뒤 30일이 지난 계정을 익명화합니다(§9). 실패했던 Apple revoke·카카오 unlink도 다시 시도합니다.
 * soft delete 뒤 30일이 지난 일기·일정의 내용을 비웁니다. 일기는 body·guide_question, 일정은 title·memo를 비우고 `content_purged_at`을 기록합니다. 행은 남깁니다.
 * 지우는 것: 이전 `ruleset_version` 캐시, 30일 지난 `daily_cache`·`month_cache`, 만료된 refresh token, 지난 `rate_limits`, 24시간 지난 `idempotency_keys`.
 
 ## 9. 익명화 (S7)
+
+> 이 절은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3이 대체합니다(S105). 익명화는 없고 계정 삭제가 개인 데이터를 지웁니다.
 
 행은 남기고 민감 정보만 바꿉니다. FK와 통계가 그대로 남습니다.
 
@@ -416,6 +430,8 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 
 ### 10.1 보상형 광고 SSV (D60, S14)
 
+> 이 절의 `pending_deletion` 계정 설명은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3이 대체합니다(S105). 계정 상태는 `active`·`deleted`뿐입니다.
+
 1. app은 보상형 광고를 띄울 때 SSV 옵션의 `user_id`에 계정 id를 넣습니다.
 2. AdMob이 `GET /webhooks/admob-ssv?...&signature=…&key_id=…`로 부릅니다. server는 서명 대상 문자열(쿼리에서 `signature` 앞까지)을 AdMob 공개 키(`https://www.gstatic.com/admob/reward/verifier-keys.json`, `key_id`로 고름)로 ECDSA 검증합니다. 공개 키는 24시간 캐시하되, 모르는 `key_id`가 오면 마지막 조회 뒤 1분이 지났을 때만 다시 받습니다. 캐시가 없거나 만료된 상태에서 받기에 실패하면 10초 동안은 키 서버를 부르지 않고 바로 503입니다(장애 중 호출 억제, S86).
 3. 검증에 실패하면 401로 응답하고 아무것도 부여하지 않습니다.
@@ -442,6 +458,8 @@ RFC 9457 `application/problem+json`을 씁니다.
 * `type`의 도메인은 실제 도메인이 정해지면 바꿉니다. 그 전까지는 문서 안의 식별자로만 씁니다.
 
 ### 11.2 요청 처리
+
+> 이 절의 `auth.identity_pending_deletion`과 409 합치기 토큰 설명은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §6.1·§8이 대체합니다(S110·S112).
 
 400과 422의 경계: 스키마로 표현되는 형식·범위 위반(타입, 필수 필드, `enum`, `pattern`, 길이, `minimum`·`maximum`, `format`)은 모두 400 `request.invalid`이고 `errors[].code`(위반한 keyword)로 구분합니다. 422는 스키마로 표현할 수 없는 의미 검사(D41 범위 밖, `LunarOrSolarDate`의 없는 날짜, 상태-값 짝 위반, 엔진 판정과 업무 규칙)에만 씁니다. `format: date` 문자열의 없는 날짜(예 `2026-02-30`)는 형식 위반이라 400입니다.
 

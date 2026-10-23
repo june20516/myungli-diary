@@ -6,6 +6,7 @@ package authdb
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -13,7 +14,6 @@ import (
 type Querier interface {
 	// AccountHasProvider는 계정에 그 제공자 연결이 이미 있는지 알려 줍니다(한 계정에 제공자마다 연결 하나).
 	AccountHasProvider(ctx context.Context, arg AccountHasProviderParams) (bool, error)
-	ClearProviderDisconnected(ctx context.Context, accountID uuid.UUID) error
 	// ConsumeAppleWebLogin은 아직 소진되지 않은 행만 소진 처리합니다. 바뀐 행 수가 0이면 이미 소진된 것입니다.
 	ConsumeAppleWebLogin(ctx context.Context, arg ConsumeAppleWebLoginParams) (int64, error)
 	CountIdentities(ctx context.Context, accountID uuid.UUID) (int64, error)
@@ -22,13 +22,16 @@ type Querier interface {
 	// DeleteIdentity는 계정의 그 제공자 연결을 물리적으로 지우고, 지운 행을 돌려줍니다.
 	// 커밋 뒤 허가 취소(카카오 unlink, Apple revoke)에 subject와 Apple 토큰 열을 씁니다.
 	DeleteIdentity(ctx context.Context, arg DeleteIdentityParams) (DeleteIdentityRow, error)
+	DeleteRevocation(ctx context.Context, id int64) error
 	// GetAppleWebLoginForUpdate는 교환 코드 해시로 행을 읽고 잠급니다. 같은 코드의 동시 교환이 한 줄로 처리됩니다.
 	GetAppleWebLoginForUpdate(ctx context.Context, exchangeHash []byte) (GetAppleWebLoginForUpdateRow, error)
 	// GetIdentity는 제공자 연결과 계정 status를 함께 읽고 계정 행을 잠급니다.
-	// 같은 계정에 대한 동시 로그인·복구가 한 줄로 처리됩니다.
+	// 같은 계정에 대한 동시 로그인·계정 삭제가 한 줄로 처리됩니다. 잠금을 기다린 뒤 다시 확인하는 것은 계정 행뿐이라,
+	// 기다리는 사이 지워진 연결 행을 돌려줄 수 있습니다(호출자가 IdentityExists로 다시 확인).
 	GetIdentity(ctx context.Context, arg GetIdentityParams) (GetIdentityRow, error)
 	// GetIdentityForLink는 붙이려는 (provider, subject) 연결과 그 계정의 status를 읽고 계정 행을 잠급니다.
 	// 붙이기 트랜잭션이 현재 계정 행을 먼저 잠근 뒤 부르므로, 다른 계정 행은 그 다음에 잠깁니다.
+	// GetIdentity와 같이 기다리는 사이 지워진 연결 행을 돌려줄 수 있습니다.
 	GetIdentityForLink(ctx context.Context, arg GetIdentityForLinkParams) (GetIdentityForLinkRow, error)
 	// GetRefreshTokenByIDForUpdate는 id로 refresh 행을 잠그고 사용·폐기 상태를 돌려줍니다.
 	// 유예 처리에서 이미 쓴 토큰의 다음 토큰을 확인할 때 씁니다.
@@ -37,31 +40,36 @@ type Querier interface {
 	// 동시에 같은 토큰으로 refresh하면 한쪽이 잠금을 기다린 뒤 used_at을 보게 됩니다.
 	GetRefreshTokenForUpdate(ctx context.Context, tokenHash []byte) (GetRefreshTokenForUpdateRow, error)
 	// IdentityExists는 (provider, subject) 연결 행이 있는지 잠그지 않고 확인합니다.
-	// Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때 씁니다.
+	// Apple 로그인 트랜잭션이 실패한 뒤 교환한 토큰을 revoke해도 되는지 판단할 때와, 계정 행 잠금을 기다린 뒤
+	// 연결 행이 정말 남아 있는지 다시 확인할 때 씁니다.
 	IdentityExists(ctx context.Context, arg IdentityExistsParams) (bool, error)
 	// InsertAppleWebLogin은 Apple 웹 콜백이 교환한 결과를 교환 코드 해시와 함께 저장합니다.
 	InsertAppleWebLogin(ctx context.Context, arg InsertAppleWebLoginParams) error
-	// InsertMergeTicket은 합치기 토큰의 해시를 저장합니다(S101). 원문은 저장하지 않습니다.
+	// InsertMergeTicket은 합치기 토큰의 해시를 저장합니다. 원문은 저장하지 않습니다.
+	// 연결 409는 더 이상 토큰을 만들지 않고(S110), 합치기 요약(previewMerge, S110)이 이 쿼리로 발급합니다.
 	InsertMergeTicket(ctx context.Context, arg InsertMergeTicketParams) error
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
 	// ListAccountIdentities는 계정의 제공자 연결을 붙인 순으로 돌려줍니다(listIdentities, S100). subject는 내보내지 않습니다.
 	ListAccountIdentities(ctx context.Context, accountID uuid.UUID) ([]ListAccountIdentitiesRow, error)
-	ListIdentities(ctx context.Context, accountID uuid.UUID) ([]ListIdentitiesRow, error)
 	// LockAccountStatus는 계정 행을 잠그고 status를 돌려줍니다.
-	// 제공자 연결 해제를 기록하기 전에 부르면, 그 사이 복구 로그인이 끼어들어 새로 저장한 연결을 덮지 않습니다.
 	LockAccountStatus(ctx context.Context, id uuid.UUID) (string, error)
-	// MarkProviderDisconnected는 Apple 토큰 세 열을 비우고 연결 해제 시각을 기록합니다.
-	MarkProviderDisconnected(ctx context.Context, arg MarkProviderDisconnectedParams) error
+	// LockDueRevocation은 시각이 된 대기 행 하나를 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+	LockDueRevocation(ctx context.Context, now time.Time) (ProviderRevocation, error)
+	// LockRevocation은 아직 시도하지 않은(attempts = 0) 대기 행 하나를 id로 잠그고 돌려줍니다. 다른 곳이 잠근 행은 건너뜁니다.
+	// 이미 실패 처리된 행은 재시도 job의 몫이라, Attempt가 곧바로 다시 부르지 않게 합니다.
+	LockRevocation(ctx context.Context, id int64) (ProviderRevocation, error)
 	// MarkRefreshTokenUsed는 토큰을 쓴 시각과 그 대신 발급한 다음 토큰을 기록합니다.
 	// 다음 토큰은 replaced_by_id 외래 키 때문에 먼저 저장돼 있어야 합니다.
 	MarkRefreshTokenUsed(ctx context.Context, arg MarkRefreshTokenUsedParams) (int64, error)
-	// RestoreAccount는 삭제 대기 계정을 되살립니다. 갱신된 행 수를 돌려줍니다.
-	RestoreAccount(ctx context.Context, id uuid.UUID) (int64, error)
-	RevokeAccountTokens(ctx context.Context, arg RevokeAccountTokensParams) error
+	// QueueRevocation은 카카오·Apple 허가 취소 대기 행을 하나 넣고 id를 돌려줍니다(S106).
+	// created_at은 30일 포기 판정의 기준이라 DB 기본값 대신 앱 시각을 넣습니다.
+	QueueRevocation(ctx context.Context, arg QueueRevocationParams) (int64, error)
 	// RevokeFamily는 family에서 아직 폐기되지 않은 토큰을 모두 폐기합니다. 바뀐 행 수를 돌려줍니다.
 	RevokeFamily(ctx context.Context, arg RevokeFamilyParams) (int64, error)
 	// RevokeRefreshToken은 아직 폐기되지 않은 토큰 하나를 폐기합니다. 바뀐 행 수를 돌려줍니다.
 	RevokeRefreshToken(ctx context.Context, arg RevokeRefreshTokenParams) (int64, error)
+	// ScheduleRevocationRetry는 실패한 대기 행의 시도 횟수와 다음 시각을 정합니다.
+	ScheduleRevocationRetry(ctx context.Context, arg ScheduleRevocationRetryParams) error
 	// SetRefreshTokenReplacedBy는 이미 쓴 토큰의 다음 토큰을 바꿉니다. used_at은 그대로 둡니다(유예 창이 늘어나지 않게).
 	SetRefreshTokenReplacedBy(ctx context.Context, arg SetRefreshTokenReplacedByParams) (int64, error)
 	UpdateAppleToken(ctx context.Context, arg UpdateAppleTokenParams) error

@@ -19,7 +19,8 @@ const (
 	DefaultKakaoUnlinkURL = "https://kapi.kakao.com/v1/user/unlink"
 )
 
-// kakaoNotRegisteredCode는 카카오가 "이미 연결이 끊긴(앱에 가입되지 않은) 사용자"에 돌려주는 오류 코드입니다.
+// kakaoNotRegisteredCode는 카카오가 "해당 앱에 카카오계정 연결이 완료되지 않은 사용자가 호출한 경우"에 돌려주는 오류 코드(-101, HTTP 400)입니다.
+// 카카오 개발자 문서 "카카오 로그인 > 문제 해결"의 -101 항목에서 확인했습니다(2026-10-23).
 const kakaoNotRegisteredCode = -101
 
 // KakaoConfig는 카카오 연동 설정입니다. 빈 URL은 Default* 값을 씁니다.
@@ -41,10 +42,33 @@ type KakaoConfig struct {
 
 // Kakao는 카카오 id_token 검증과 연결 끊기를 맡습니다. 여러 고루틴에서 함께 써도 안전합니다.
 type Kakao struct {
-	verifier  *oidc.IDTokenVerifier
+	KakaoUnlinker
+	verifier *oidc.IDTokenVerifier
+}
+
+// KakaoUnlinker는 카카오 사용자와 앱의 연결 끊기(unlink)만 맡습니다. id_token 검증은 하지 않으므로
+// 허가 취소 job(retention)처럼 Admin 키만 있는 곳에서 씁니다. Kakao가 포함합니다.
+type KakaoUnlinker struct {
 	http      *http.Client
 	adminKey  string
 	unlinkURL string
+}
+
+// NewKakaoUnlinker는 cfg로 KakaoUnlinker를 만듭니다. AdminKey가 비면 오류입니다.
+// cfg에서 AdminKey·UnlinkURL·HTTP만 읽습니다.
+func NewKakaoUnlinker(cfg KakaoConfig) (*KakaoUnlinker, error) {
+	if err := checkRequired("카카오", requiredField{"AdminKey", cfg.AdminKey == ""}); err != nil {
+		return nil, err
+	}
+	return newKakaoUnlinker(cfg), nil
+}
+
+func newKakaoUnlinker(cfg KakaoConfig) *KakaoUnlinker {
+	return &KakaoUnlinker{
+		http:      orDefaultClient(cfg.HTTP),
+		adminKey:  cfg.AdminKey,
+		unlinkURL: orDefault(cfg.UnlinkURL, DefaultKakaoUnlinkURL),
+	}
 }
 
 // NewKakao는 cfg로 Kakao를 만듭니다. AppKey·AdminKey가 비면 오류입니다.
@@ -60,12 +84,11 @@ func NewKakao(cfg KakaoConfig) (*Kakao, error) {
 	jwksURL := orDefault(cfg.JWKSURL, DefaultKakaoJWKSURL)
 	client := orDefaultClient(cfg.HTTP)
 	clk := orDefaultClock(cfg.Clock)
+	cfg.HTTP = client
 
 	return &Kakao{
-		verifier:  newVerifier(issuer, cfg.AppKey, []string{oidc.RS256}, newKeySet(client, jwksURL), clk),
-		http:      client,
-		adminKey:  cfg.AdminKey,
-		unlinkURL: orDefault(cfg.UnlinkURL, DefaultKakaoUnlinkURL),
+		KakaoUnlinker: *newKakaoUnlinker(cfg),
+		verifier:      newVerifier(issuer, cfg.AppKey, []string{oidc.RS256}, newKeySet(client, jwksURL), clk),
 	}, nil
 }
 
@@ -76,8 +99,8 @@ func (k *Kakao) Verify(ctx context.Context, idToken, rawNonce string) (Identity,
 }
 
 // Unlink는 카카오 사용자와 우리 앱의 연결을 끊습니다(Admin 키 방식).
-// 이미 연결이 끊긴 사용자(code -101)는 목적을 이룬 것이므로 성공으로 봅니다.
-func (k *Kakao) Unlink(ctx context.Context, subject string) error {
+// 이미 앱과 연결되지 않은 사용자(code -101)에는 ErrKakaoNotLinked를 돌려줍니다. 호출하는 쪽이 성공으로 다룹니다.
+func (k *KakaoUnlinker) Unlink(ctx context.Context, subject string) error {
 	form := url.Values{
 		"target_id_type": {"user_id"},
 		"target_id":      {subject},
@@ -102,7 +125,7 @@ func (k *Kakao) Unlink(ctx context.Context, subject string) error {
 		return fmt.Errorf("카카오 unlink: 상태 %d, 오류 코드를 읽지 못했습니다", resp.status)
 	}
 	if *body.Code == kakaoNotRegisteredCode {
-		return nil
+		return ErrKakaoNotLinked
 	}
 	return fmt.Errorf("카카오 unlink: 상태 %d, 오류 코드 %d", resp.status, *body.Code)
 }

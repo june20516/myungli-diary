@@ -7,14 +7,14 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | 순서 | 계획 | spec 절 | 상태 |
 | --- | --- | --- | --- |
 | P1 | [기반과 REST 계약 초안](2026-10-11-p1-foundation.md): 모듈, 하위 명령, 설정, Clock, 로깅, DB·migration, HTTP 뼈대, 오류 형식, `openapi.yaml` 초안, 생성 코드, CI, 이미지 | §2, §5, §11.1, §12, §13.1 일부 | **완료** |
-| P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구 | §3.3 계정, §4 | **완료** |
+| P2 | [인증·계정·약관](2026-10-13-p2-auth-account.md): 카카오·Apple 검증, JWT, refresh rotation, 동의, 삭제 예약·복구(S105로 즉시 삭제로 바뀜) | §3.3 계정, §4 | **완료** |
 | P2a | [Apple 웹 로그인 복귀](2026-10-13-apple-web-login.md): 일회용 교환 코드, `completeAppleWebLogin`, App Link 안내 페이지·assetlinks (Issue #89, S22) | §4 | **완료** |
 | P3 | [프로필·엔진·캐시](2026-10-15-p3-profile-engine-cache.md): 프로필 검증(호칭 규칙, D41, 엔진 검증), proto 생성, 엔진 클라이언트·대역, `ResultCache`, `ruleset_version` 확인 (S25~S31). 음력 변환(`convertLunarDate`)은 core RPC(#164) 병합 뒤 #170으로 구현 | §3.2, §3.3 프로필·캐시, §7 | **완료** |
 | P4 | [콘텐츠](2026-10-16-p4-content.md): 시드 변환·적재, 렌더러(조사·호칭·토큰), 선택·순환·돌봄 상한, 값 이름 사전, 데일리·나의 사주·캘린더 응답, 반응, 시드 CI (#55·#129, 계약 draft.5, S33~S44) | §6 | **완료** |
 | P5 | [일기·일정](2026-10-20-p5-diary-schedule.md): soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록, `Idempotency-Key`(계약 draft.7, S50~S64) | §5.3, §3.3 일기, §11.2 | **완료** |
 | P6 | [비로그인·참조](2026-10-20-p6-public-reference.md): 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config, staging 테스트 로그인(#93), 계약 draft.8, S65~S78 | §5.3, §3.3 기타, §13.2 | **완료** |
 | P7 | [결제와 권한](2026-10-20-p7-billing.md): RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60), 계약 draft.9, S79~S89 | §10 | **완료** |
-| P8 | Job: precompute, notify(FCM), retention과 익명화 | §8, §9 | 대기 |
+| P8 | Job: precompute, notify(FCM), retention(허가 취소 재시도 S106은 구현됨, 보관 기간 정리 S113). 익명화는 없어짐(S105) | §8 | 대기 |
 | P9 | 배포: staging·prod, Cloud Run service·Jobs·Scheduler, Cloud SQL 연결, OpenTelemetry, 외부 준비 안내 | §13 | 대기 |
 
 P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 서로 기다리지 않습니다.
@@ -41,22 +41,20 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 **P7 (결제와 권한)** — 완료. 실행 중 정한 것은 S79~S89와 spec §10·§10.1·§11.3·§13.3에 옮겼습니다.
 
 **P8 (Job)**
-* 익명화 때 `reward_events`·`billing_events`·`entitlement_grants`는 남깁니다(spec §9). 세 표의 계정 FK는 `ON DELETE RESTRICT`이고 결제 기록 보관 의무가 있어 계정을 물리적으로 지우는 경로가 없습니다.
+* 계정 삭제(S105)는 `reward_events`·`billing_events`·`entitlement_grants`를 남기고 계정 행을 껍데기로 둡니다(2026-10-23 spec §3.2). 세 표의 계정 FK는 `ON DELETE RESTRICT`이고 결제 기록 보관 의무가 있어 계정 행을 물리적으로 지우는 경로가 없습니다. 보관 기간이 지난 행의 정리는 S113입니다.
 * 인증 엔드포인트에 rate limit을 둡니다. 처음 보는 kid의 `id_token`을 반복해 JWKS 재조회를 일으키는 경우도 막습니다. 처음 보는 `kid`로 서명한 위조 토큰이 공개 라우트(App Check)와 로그인 경로에서 JWKS 재조회를 매번 일으키므로 App Check도 이 제한에 포함합니다.
 * 요청 한도(S68)의 키 IP 해시를 서버 비밀 HMAC으로 바꿀지 재검토합니다(salt 없는 SHA-256은 IPv4 전수 대입으로 되찾을 수 있음).
 * soft delete 30일 뒤 일기·일정 내용 비우기(spec §8)는 `content_purged_at`을 찍습니다. 복원은 이미 비워진 행을 제외합니다(P5에서 쿼리에 반영).
 * 멱등 선점 lease: 프로세스가 죽어 남은 `completed_at IS NULL` 선점은 24시간 동안 409가 됩니다. 요청 상한 시간(서버 WriteTimeout의 몇 배)이 지난 미완료 선점을 `ClaimIdempotencyKey`가 덮어쓸지(커밋 직후 죽은 극소수 경우 중복 가능, S61 확장 결정 필요)와, app이 409 `idempotency.in_progress`에 백오프 재시도할지를 계약에 적을지 정합니다.
-* 계정 익명화 때 일기 본문·일정 제목·메모를 지우고 `content_purged_at`을 기록합니다(열은 P5에서 만듦).
 * `job retention`이 24시간 지난 `idempotency_keys`를 지웁니다. `completed_at IS NULL`이고 오래된 행(프로세스가 죽어 남은 선점)도 정리 대상입니다. FK가 `ON DELETE RESTRICT`라 계정을 물리적으로 지우는 경로가 생기면 이 표를 먼저 지워야 합니다.
 * `registerDevice`를 멱등 대상(`Idempotency(..., "createSchedule", "registerDevice")`)에 더합니다.
-* 계정 삭제 때 기기 비활성: `devices`가 생기면 `RequestDeletion`에 추가합니다.
-* `apple_web_logins` 만료·소진 행을 정리합니다. 만료됐는데 소진되지 않은 행은 그 subject의 연결 행이 없을 때만 Apple refresh token을 revoke합니다(S19와 같은 규칙). 소진된 행도 암호화한 Apple refresh token과 subject를 담으므로, 계정 익명화보다 먼저(또는 같은 작업에서) 지웁니다.
-* `job retention`이 `DisconnectProviders`를 재시도하고 만료된 refresh token을 지웁니다. `DisconnectProviders`는 계정이 `pending_deletion`일 때만 외부 호출과 기록을 하고, 그 밖의 상태(active·deleted)에서는 아무것도 하지 않습니다. 그래서 retention은 **연결 해제 재시도를 익명화(`deleted` 전환)보다 먼저** 해야 합니다. 익명화한 뒤에는 남은 연결을 더 이상 끊을 수 없습니다.
+* 계정 삭제 때 기기: `devices`가 생기면 `account.DeleteAccountTx`의 지움 목록(`deleteSteps`)과 그 trigger(migration 00015의 `reject_deleted_account_write`)에 더합니다.
+* `apple_web_logins` 만료·소진 행을 정리합니다. 만료됐는데 소진되지 않은 행은 그 subject의 연결 행이 없을 때만 Apple refresh token을 revoke합니다(S19와 같은 규칙). 소진된 행도 암호화한 Apple refresh token과 subject를 담으므로 만료 뒤 지웁니다.
+* `job retention`이 허가 취소 대기 행(`provider_revocations`)을 재시도하는 것은 S106으로 구현했습니다(`auth.Revocations.RetryDue`). 남은 일은 만료된 refresh token을 지우는 것입니다.
 * 만료된 refresh token 정리는 "행을 물리적으로 지우지 않는다"(S6·S7, spec §2)의 예외입니다(시스템 데이터). 다만 `refresh_tokens.replaced_by_id`가 같은 테이블을 `ON DELETE RESTRICT`로 참조하므로(S20), 앞 토큰이 남아 있는 동안 그 다음 토큰은 지울 수 없습니다. family의 모든 토큰이 만료됐을 때 family 단위로 지우되 참조하는 행(앞 토큰)부터 지워야 합니다. RESTRICT는 한 DELETE 문 안에서도 행마다 즉시 검사하므로 한 문장에 몰아 지울 때의 순서에 기대지 않습니다(필요하면 FK를 `NO ACTION`으로 바꾸는 것을 검토).
 * 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
-* 익명화 때 `daily_selections`·`rotation_state`·`reactions`는 남깁니다(spec §9 "남기는 것"). 콘텐츠 표의 FK가 `ON DELETE RESTRICT`인 것도 이 때문입니다. 다만 `daily_selections.birth_hash`는 `profiles.birth_hash`를 비우는 이유(생년월일시를 되찾을 수 있음)가 같이 해당하므로 P8 retention이 익명화 때 비웁니다(spec §9, S34). 열은 P4에서 이미 NULL을 허용합니다(값이 있으면 32바이트 CHECK).
-* 프로필 익명화 전용 쿼리를 둡니다. 출생 열·호칭·해시를 비우고 `anonymized_at`을 기록하며, CHECK `profiles_complete_until_anonymized`에 맞춥니다.
+* 계정 삭제(S105)는 `daily_selections`·`rotation_state`·`reactions`·`profiles`도 지우고, 반응은 지우기 전에 `reaction_tallies`에 더합니다(D57). 그래서 익명화 때 `birth_hash`를 비우는 일과 프로필 익명화 쿼리는 없어졌습니다. `profiles.anonymized_at` 열과 CHECK `profiles_complete_until_anonymized`도 migration 00015가 없애고, 출생 정보가 모두 있어야 한다는 조건은 CHECK `profiles_complete`로 남겼습니다.
 * 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 지우지 않습니다(1회 제한).
 
 **P9 (배포)**

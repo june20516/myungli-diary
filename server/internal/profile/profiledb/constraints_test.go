@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -139,7 +138,7 @@ func TestProfiles_AcceptsNotifyMinuteMultipleOf5(t *testing.T) {
 	require.Equal(t, timeOfDay(7, 5), profile.NotifyTime)
 }
 
-func TestProfiles_RejectsIncompleteUntilAnonymized(t *testing.T) {
+func TestProfiles_RejectsIncomplete(t *testing.T) {
 	tests := []struct {
 		name   string
 		mutate func(*profiledb.UpsertProfileParams)
@@ -158,42 +157,9 @@ func TestProfiles_RejectsIncompleteUntilAnonymized(t *testing.T) {
 
 			_, err := q.UpsertProfile(context.Background(), params)
 
-			requireCheckViolation(t, err, "profiles_complete_until_anonymized")
+			requireCheckViolation(t, err, "profiles_complete")
 		})
 	}
-}
-
-// insertAnonymized는 익명화된 행(출생 열이 비어 있음)을 만들고, extraColumn = extraValue를 더해 넣습니다.
-// UpsertProfile은 anonymized_at을 다루지 않으므로 직접 INSERT합니다.
-func insertAnonymized(pool *pgxpool.Pool, accountID uuid.UUID, extraColumn, extraValue string) error {
-	_, err := pool.Exec(context.Background(), `
-		INSERT INTO profiles (account_id, language, current_timezone, notify_status, anonymized_at, `+extraColumn+`)
-		VALUES ($1, 'ko', 'Asia/Seoul', 'disabled', '2026-10-15T01:00:00Z', `+extraValue+`)`, accountID)
-	return err
-}
-
-func TestProfiles_AnonymizedMayDropBirthColumns(t *testing.T) {
-	_, pool, accountID := newDB(t)
-
-	err := insertAnonymized(pool, accountID, "birth_time_status", "NULL")
-
-	require.NoError(t, err)
-}
-
-func TestProfiles_AnonymizedRowStillRejectsTimeWithoutStatus(t *testing.T) {
-	_, pool, accountID := newDB(t)
-
-	err := insertAnonymized(pool, accountID, "birth_time", "'07:30'")
-
-	requireCheckViolation(t, err, "profiles_birth_time_status_value")
-}
-
-func TestProfiles_AnonymizedRowStillRejectsCityIDWithoutStatus(t *testing.T) {
-	_, pool, accountID := newDB(t)
-
-	err := insertAnonymized(pool, accountID, "birth_city_id", "'seoul'")
-
-	requireCheckViolation(t, err, "profiles_birth_place_status_value")
 }
 
 func TestProfiles_KnownTimeWithValueIsAccepted(t *testing.T) {
@@ -215,22 +181,6 @@ func TestProfiles_RejectsUnknownTimeWithValue(t *testing.T) {
 	_, err := q.UpsertProfile(context.Background(), params)
 
 	requireCheckViolation(t, err, "profiles_birth_time_status_value")
-}
-
-func TestProfiles_UpsertDoesNotTouchAnonymizedRow(t *testing.T) {
-	ctx := context.Background()
-	q, pool, accountID := newDB(t)
-	require.NoError(t, insertAnonymized(pool, accountID, "birth_time_status", "NULL"))
-
-	_, err := q.UpsertProfile(ctx, validParams(accountID))
-
-	require.ErrorIs(t, err, pgx.ErrNoRows)
-	row, err := q.GetProfile(ctx, accountID)
-	require.NoError(t, err)
-	require.NotNil(t, row.AnonymizedAt)
-	require.True(t, row.AnonymizedAt.Equal(time.Date(2026, 10, 15, 1, 0, 0, 0, time.UTC)))
-	require.False(t, row.Honorific.Valid)
-	require.Nil(t, row.BirthHash)
 }
 
 func TestProfiles_RejectsBirthHashOfWrongLength(t *testing.T) {
@@ -266,16 +216,6 @@ func TestProfiles_UpsertKeepsOneRow(t *testing.T) {
 
 func TestProfiles_ProfileExistsFalseWithoutRow(t *testing.T) {
 	q, accountID := newQueries(t)
-
-	exists, err := q.ProfileExists(context.Background(), accountID)
-
-	require.NoError(t, err)
-	require.False(t, exists)
-}
-
-func TestProfiles_ProfileExistsFalseForAnonymizedRow(t *testing.T) {
-	q, pool, accountID := newDB(t)
-	require.NoError(t, insertAnonymized(pool, accountID, "birth_time_status", "NULL"))
 
 	exists, err := q.ProfileExists(context.Background(), accountID)
 
