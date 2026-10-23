@@ -31,12 +31,11 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 	var got gen.Me
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
-	assert.Equal(t, gen.Active, got.Status)
 	assert.Len(t, got.RequiredConsents, 2)
 	assert.False(t, got.HasProfile)
 	assert.False(t, got.AdFree.Active)
 	assert.False(t, got.Insight.Active)
-	assert.Nil(t, got.DeletionScheduledAt)
+	requireNoDeletionFields(t, rec.Body.Bytes())
 }
 
 func TestGetMe_HasProfileTrue(t *testing.T) {
@@ -65,7 +64,7 @@ func TestGetMe_NoRequiredConsentsIsEmptyArray(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-func TestGetMe_PendingDeletionShowsSchedule(t *testing.T) {
+func TestGetMe_PendingDeletionOmitsStatusAndSchedule(t *testing.T) {
 	at := handlerNow.AddDate(0, 0, 30)
 	accts := &fakeAccounts{me: account.Me{
 		AccountID: fixedAccountID,
@@ -78,11 +77,16 @@ func TestGetMe_PendingDeletionShowsSchedule(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectContractResponse(t, spec, req, rec)
-	var got gen.Me
-	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
-	assert.Equal(t, gen.PendingDeletion, got.Status)
-	require.NotNil(t, got.DeletionScheduledAt)
-	assert.True(t, at.Equal(*got.DeletionScheduledAt))
+	requireNoDeletionFields(t, rec.Body.Bytes())
+}
+
+// requireNoDeletionFields는 Me 응답의 최상위에 삭제 대기 필드가 없는지 JSON key로 확인합니다.
+func requireNoDeletionFields(t *testing.T, body []byte) {
+	t.Helper()
+	var raw map[string]any
+	require.NoError(t, json.Unmarshal(body, &raw))
+	assert.NotContains(t, raw, "status")
+	assert.NotContains(t, raw, "deletionScheduledAt")
 }
 
 func TestGetMe_UnknownAccountIs401(t *testing.T) {
@@ -125,16 +129,14 @@ func TestAgreeConsents_StaleVersionIs422WithPointer(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 }
 
-func TestDeleteMe_Returns202WithSchedule(t *testing.T) {
+func TestDeleteMe_Returns204WithoutBody(t *testing.T) {
 	at := handlerNow.AddDate(0, 0, 30)
 	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: &fakeAccounts{scheduledAt: at}})
 
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodDelete, "/v1/me", nil)
 	rec := serve(handler, req)
 
-	require.Equal(t, http.StatusAccepted, rec.Code, rec.Body.String())
+	require.Equal(t, http.StatusNoContent, rec.Code, rec.Body.String())
 	expectContractResponse(t, spec, req, rec)
-	var got gen.DeletionScheduled
-	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
-	assert.True(t, at.Equal(got.DeletionScheduledAt))
+	assert.Empty(t, rec.Body.String())
 }

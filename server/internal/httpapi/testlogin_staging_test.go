@@ -78,7 +78,8 @@ func TestLogin_TestLoginIssuesLoginResponse(t *testing.T) {
 	first := f.login(t, "e2e01")
 	assert.Equal(t, true, first["isNewAccount"])
 	assert.Equal(t, true, first["consentRequired"], "새 계정은 약관 동의가 필요합니다")
-	assert.Equal(t, false, first["restoredFromDeletion"])
+	_, hasRestored := first["restoredFromDeletion"]
+	assert.False(t, hasRestored, "draft.15 응답에는 restoredFromDeletion이 없습니다")
 	accountID := f.accountOf(t, "e2e01")
 
 	again := f.login(t, "e2e01")
@@ -173,6 +174,7 @@ func TestLogin_TestLoginConsentFlow(t *testing.T) {
 }
 
 // 삭제 대기 계정은 정상 로그인처럼 되살아나고, 테스트 연결도 계정 삭제의 연결 해제를 거칩니다.
+// TODO(PR 2): 삭제 대기·복구가 없어지면 이 테스트를 삭제 뒤 새 계정 테스트로 바꿈
 func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
 	f := newTestLoginFixture(t)
 	f.login(t, "e2e01")
@@ -186,9 +188,14 @@ func TestLogin_TestLoginRestoresPendingDeletion(t *testing.T) {
 
 	body := f.login(t, "e2e01")
 
-	assert.Equal(t, true, body["restoredFromDeletion"])
+	_, hasRestored := body["restoredFromDeletion"]
+	assert.False(t, hasRestored, "draft.15 응답에는 restoredFromDeletion이 없습니다")
 	assert.Equal(t, false, body["isNewAccount"])
 	assert.Equal(t, accountID, f.accountOf(t, "e2e01"))
+	var status string
+	require.NoError(t, f.pool.QueryRow(t.Context(),
+		`SELECT status FROM accounts WHERE id = $1`, accountID).Scan(&status))
+	assert.Equal(t, "active", status, "복구된 계정은 active 상태여야 합니다")
 }
 
 // 로그에 비밀과 label을 남기지 않습니다(label은 테스트 계정의 subject입니다).

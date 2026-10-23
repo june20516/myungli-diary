@@ -204,6 +204,10 @@ func (Unimplemented) UnlinkIdentity(context.Context, gen.UnlinkIdentityRequestOb
 	return nil, ErrNotImplemented
 }
 
+func (Unimplemented) ListPurchases(context.Context, gen.ListPurchasesRequestObject) (gen.ListPurchasesResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
 func (Unimplemented) PreviewMerge(context.Context, gen.PreviewMergeRequestObject) (gen.PreviewMergeResponseObject, error) {
 	return nil, ErrNotImplemented
 }

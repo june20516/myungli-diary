@@ -161,16 +161,25 @@ func TestWriteHandlerError_EngineInternalIs502(t *testing.T) {
 	assert.Equal(t, "engine.error", p.Code)
 }
 
-func TestWriteHandlerError_IdentityInUseCarriesMergeToken(t *testing.T) {
+// 합치기 토큰은 draft.15부터 409 본문에 싣지 않습니다(previewMerge가 발급).
+func TestWriteHandlerError_IdentityInUseOmitsMergeToken(t *testing.T) {
 	expires := time.Date(2026, 10, 13, 9, 10, 0, 0, time.UTC)
 	rec, p, _ := serveHandlerError(t, fmt.Errorf("wrap: %w", &auth.IdentityInUseError{MergeToken: "tok", ExpiresAt: expires}))
 
 	assert.Equal(t, http.StatusConflict, rec.Code)
 	assert.Equal(t, "auth.identity_in_use", p.Code)
-	assert.Equal(t, "tok", p.MergeToken)
-	require.NotNil(t, p.ExpiresAt)
-	assert.True(t, expires.Equal(*p.ExpiresAt))
+	assert.NotContains(t, rec.Body.String(), "tok")
+	assert.NotContains(t, rec.Body.String(), "mergeToken")
+	assert.NotContains(t, rec.Body.String(), "expiresAt")
 	assert.Empty(t, rec.Header().Get("WWW-Authenticate"))
+}
+
+// auth 패키지가 아직 돌려주는 삭제 대기 오류는 계약에서 없어진 code 대신 identity_in_use 409로 답합니다.
+func TestWriteHandlerError_PendingDeletionIsIdentityInUse(t *testing.T) {
+	rec, p, _ := serveHandlerError(t, auth.ErrIdentityPendingDeletion)
+
+	assert.Equal(t, http.StatusConflict, rec.Code)
+	assert.Equal(t, "auth.identity_in_use", p.Code)
 }
 
 func TestWriteHandlerError_InvalidProofIsRequestInvalidWithOneField(t *testing.T) {
@@ -181,9 +190,9 @@ func TestWriteHandlerError_InvalidProofIsRequestInvalidWithOneField(t *testing.T
 	assert.Equal(t, []problem.FieldError{{Field: "/exchangeCode", Code: "additionalProperties"}}, p.Errors)
 }
 
-// 합치기 토큰 필드는 identity_in_use에만 있고, 다른 problem 본문에는 키 자체가 나오지 않습니다.
+// problem 본문에는 합치기 토큰 키가 나오지 않습니다.
 func TestWriteHandlerError_OtherProblemsOmitMergeFields(t *testing.T) {
-	for _, err := range []error{auth.ErrProviderTaken, auth.ErrIdentityPendingDeletion, auth.ErrLastIdentity, auth.ErrIdentityNotFound, auth.ErrProviderTokenInvalid} {
+	for _, err := range []error{auth.ErrProviderTaken, auth.ErrLastIdentity, auth.ErrIdentityNotFound, auth.ErrProviderTokenInvalid} {
 		rec, _, _ := serveHandlerError(t, err)
 
 		assert.NotContains(t, rec.Body.String(), "mergeToken", "%v", err)

@@ -10,7 +10,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 )
 
-// GetMe는 계정 상태, 동의 필요 여부, 권한(adFree, insight)을 돌려줍니다.
+// GetMe는 동의 필요 여부, 권한(adFree, insight)을 돌려줍니다.
 // 권한 판정(Entitlements)이 없으면 503 service.unavailable입니다.
 func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
 	id, _, ok := AccountFrom(ctx)
@@ -48,10 +48,6 @@ func (a *API) GetMe(ctx context.Context, _ gen.GetMeRequestObject) (gen.GetMeRes
 		HasProfile:       hasProfile,
 		Insight:          entitlements.Insight,
 		RequiredConsents: required,
-		Status:           gen.MeStatus(me.Status),
-	}
-	if me.Status == account.StatusPendingDeletion {
-		body.DeletionScheduledAt = me.DeletionScheduledAt
 	}
 	return gen.GetMe200JSONResponse(body), nil
 }
@@ -81,15 +77,15 @@ func (a *API) AgreeConsents(ctx context.Context, req gen.AgreeConsentsRequestObj
 	return gen.AgreeConsents204Response{}, nil
 }
 
-// DeleteMe는 계정 삭제를 예약하고 익명화 예정 시각을 202로 돌려줍니다.
+// DeleteMe는 계정 삭제를 요청하고 본문 없이 204로 답합니다.
+// 즉시 삭제는 아직 없고 지금은 삭제 예약(RequestDeletion)을 그대로 부릅니다. 응답 모양만 계약(draft.15)에 맞춥니다.
 func (a *API) DeleteMe(ctx context.Context, _ gen.DeleteMeRequestObject) (gen.DeleteMeResponseObject, error) {
 	id, _, ok := AccountFrom(ctx)
 	if !ok {
 		return nil, errNoAccount
 	}
-	scheduledAt, err := a.Accounts.RequestDeletion(ctx, id)
-	if err != nil {
+	if _, err := a.Accounts.RequestDeletion(ctx, id); err != nil {
 		return nil, err
 	}
-	return gen.DeleteMe202JSONResponse{DeletionScheduledAt: scheduledAt}, nil
+	return gen.DeleteMe204Response{}, nil
 }

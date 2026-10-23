@@ -39,9 +39,6 @@ type Error struct {
 	BearerChallenge bool
 	// RetryAfter가 0보다 크면 Retry-After 헤더(초)를 붙입니다.
 	RetryAfter time.Duration
-	// MergeToken이 비어 있지 않으면 auth.identity_in_use 409로서 합치기 토큰과 만료 시각(MergeExpiresAt)을 본문에 담습니다.
-	MergeToken     string
-	MergeExpiresAt time.Time
 }
 
 // newError는 registry의 code로 *Error를 만듭니다. 상태는 code가 정하므로 호출자가 따로 적지 않습니다.
@@ -79,7 +76,8 @@ var domainErrors = []domainError{
 	{target: auth.ErrRefreshReused, code: problem.AuthRefreshReused, title: "Refresh token reused"},
 	{target: auth.ErrExchangeInvalid, code: problem.AuthExchangeInvalid, title: "Exchange code invalid"},
 	{target: auth.ErrProviderTaken, code: problem.AuthProviderTaken, title: "Provider already linked"},
-	{target: auth.ErrIdentityPendingDeletion, code: problem.AuthIdentityPendingDeletion, title: "Identity pending deletion"},
+	// 삭제 대기 계정은 계약에서 없어졌습니다(D85). auth 패키지가 아직 이 오류를 돌려주므로 다른 계정의 연결과 같은 409로 답합니다.
+	{target: auth.ErrIdentityPendingDeletion, code: problem.AuthIdentityInUse, title: "Identity in use"},
 	{target: auth.ErrLastIdentity, code: problem.AuthLastIdentity, title: "Last identity"},
 	{target: auth.ErrIdentityNotFound, code: problem.AuthIdentityNotFound, title: "Identity not found"},
 	{target: profile.ErrNotFound, code: problem.ProfileRequired, title: "Profile required"},
@@ -117,8 +115,8 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 	case errors.As(err, &explicit):
 	case errors.As(err, &violation):
 		explicit = validationError(violation)
-	case errors.As(err, &inUse):
-		explicit = identityInUseError(inUse)
+	case errors.As(err, &inUse): // 합치기 토큰은 본문에 싣지 않습니다(draft.15).
+		explicit = newError(problem.AuthIdentityInUse, "Identity in use")
 	case errors.As(err, &invalidProof):
 		explicit = invalidProofError(invalidProof)
 	}
@@ -130,10 +128,6 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 	if explicit != nil {
 		p := problem.New(explicit.Status, explicit.Code, explicit.Title)
 		p.Errors = explicit.Errors
-		if explicit.MergeToken != "" {
-			expiresAt := explicit.MergeExpiresAt.UTC()
-			p.MergeToken, p.ExpiresAt = explicit.MergeToken, &expiresAt
-		}
 		writeProblem(w, r, p, explicit.BearerChallenge, explicit.RetryAfter)
 		return
 	}
@@ -163,13 +157,6 @@ func writeHandlerError(deps Deps, w http.ResponseWriter, r *http.Request, err er
 
 	logHandlerError(r.Context(), deps.Logger, err)
 	problem.Write(w, r, problem.Internal.Problem("Internal server error"))
-}
-
-// identityInUseError는 다른 계정에 붙어 있는 연결을 409와 합치기 토큰으로 바꿉니다.
-func identityInUseError(e *auth.IdentityInUseError) *Error {
-	out := newError(problem.AuthIdentityInUse, "Identity in use")
-	out.MergeToken, out.MergeExpiresAt = e.MergeToken, e.ExpiresAt
-	return out
 }
 
 // invalidProofError는 제공자별 증명 필드 조합 위반을 400과 errors[] 한 항목으로 바꿉니다.

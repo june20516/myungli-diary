@@ -251,7 +251,7 @@ func TestAuthFlow_KakaoLoginConsentMeRefreshLogout(t *testing.T) {
 	me := env.do(http.MethodGet, "/v1/me", access, nil)
 	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
 	assert.Equal(t, false, me.body["consentRequired"])
-	assert.Equal(t, "active", me.body["status"])
+	assert.NotContains(t, me.body, "status", "삭제 대기 상태는 계약에서 없어졌습니다(draft.15)")
 
 	refreshed := env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh})
 	require.Equal(t, http.StatusOK, refreshed.status, "갱신 본문: %v", refreshed.body)
@@ -283,6 +283,7 @@ func TestAuthFlow_KakaoLoginConsentMeRefreshLogout(t *testing.T) {
 		requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 }
 
+// TODO(PR 2): 즉시 삭제로 바뀌면 이 테스트를 지우고 "삭제 뒤 같은 인증 계정 로그인은 새 유저 계정" 테스트로 다시 씁니다.
 func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	env := newFlowEnv(t)
 
@@ -291,13 +292,12 @@ func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	access, refresh := login.tokens(t)
 
 	deleted := env.do(http.MethodDelete, "/v1/me", access, nil)
-	require.Equal(t, http.StatusAccepted, deleted.status, "삭제 본문: %v", deleted.body)
-	assert.NotEmpty(t, deleted.body["deletionScheduledAt"])
+	require.Equal(t, http.StatusNoContent, deleted.status, "삭제 본문: %v", deleted.body)
 
 	// 삭제 대기 중에도 같은 access token으로 내 정보는 볼 수 있지만(복구 안내), 기능 라우트는 막힙니다.
 	pending := env.do(http.MethodGet, "/v1/me", access, nil)
 	require.Equal(t, http.StatusOK, pending.status, "삭제 대기 me 본문: %v", pending.body)
-	assert.Equal(t, "pending_deletion", pending.body["status"])
+	assert.NotContains(t, pending.body, "status")
 	env.do(http.MethodGet, "/v1/chart", access, nil).requireProblem(t, http.StatusUnauthorized, "auth.token_invalid")
 
 	// 삭제 예약 뒤 로그인 때 받은 Apple refresh token을 revoke합니다.
@@ -312,13 +312,12 @@ func TestAuthFlow_DeleteThenRestoreByLogin(t *testing.T) {
 	// 유예 기간 안에 같은 subject로 다시 로그인하면 계정이 되살아납니다.
 	restored := env.loginAppleNative("apple-flow-subject")
 	require.Equal(t, http.StatusOK, restored.status, "재로그인 본문: %v", restored.body)
-	assert.Equal(t, true, restored.body["restoredFromDeletion"])
 	assert.Equal(t, false, restored.body["isNewAccount"])
 	access2, _ := restored.tokens(t)
 
 	me := env.do(http.MethodGet, "/v1/me", access2, nil)
 	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
-	assert.Equal(t, "active", me.body["status"])
+	assert.NotContains(t, me.body, "status")
 
 	// 복구는 삭제 전 세션을 되살리지 않습니다.
 	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refresh}).

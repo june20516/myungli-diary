@@ -60,14 +60,14 @@ func TestIdentityFlow_LinkUnlinkAndInUse(t *testing.T) {
 	lineLogin := env.do(http.MethodPost, "/v1/auth/line", "", map[string]string{"idToken": lineToken, "nonce": flowNonce})
 	env.loginAgreed(lineLogin)
 
-	// 첫 계정에서 그 LINE을 붙이면 다른 active 계정의 연결이라 합치기 토큰과 함께 409입니다.
+	// 첫 계정에서 그 LINE을 붙이면 다른 active 계정의 연결이라 409입니다. 합치기 토큰은 본문에 없습니다(draft.15).
 	inUse := env.do(http.MethodPost, "/v1/me/identities/line", access, map[string]string{"idToken": lineToken, "nonce": flowNonce})
 	inUse.requireProblem(t, http.StatusConflict, "auth.identity_in_use")
-	assert.NotEmpty(t, inUse.body["mergeToken"])
-	assert.NotEmpty(t, inUse.body["expiresAt"])
+	assert.NotContains(t, inUse.body, "mergeToken")
+	assert.NotContains(t, inUse.body, "expiresAt")
 
 	// 합치기 operation은 아직 구현 전입니다(PR C).
-	env.do(http.MethodPost, "/v1/me/merge/preview", access, map[string]string{"mergeToken": "x"}).
+	env.do(http.MethodPost, "/v1/me/merge/preview", access, map[string]string{"provider": "line", "idToken": lineToken, "nonce": flowNonce}).
 		requireProblem(t, http.StatusNotImplemented, "not_implemented")
 
 	// Google을 떼면 204, 마지막 하나인 카카오는 뗄 수 없습니다.
