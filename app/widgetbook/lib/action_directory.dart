@@ -179,7 +179,7 @@ WidgetbookUseCase _offerCard(OfferCardState state) => WidgetbookUseCase(
           state: state,
           head: l10n.adFreeOfferHead,
           // 공개 저장소라 가격 수치를 쓰지 않습니다.
-          price: l10n.adFreeOfferPrice('—'),
+          price: l10n.adFreeOfferPrice('가격'),
           // 구매 버튼 문구는 아직 ARB에 없어(임시 키는 화면 task가 더함) 여기서만 고정 문구입니다.
           buyLabel: ja ? '購入する' : '구매하기',
           historyLabel: l10n.adFreeHistoryCta,

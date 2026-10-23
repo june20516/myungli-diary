@@ -14,7 +14,7 @@ void main() {
       'ad_free_1month',
       adFreeProductIds: adFreeIds,
       storeProducts: const [
-        StoreProduct(id: 'ad_free_1month', title: '다른 이름', priceLabel: '—'),
+        StoreProduct(id: 'ad_free_1month', title: '다른 이름', priceLabel: '가격'),
       ],
     );
     expect(name, '광고 제거 1개월');
@@ -26,7 +26,7 @@ void main() {
       'other',
       adFreeProductIds: adFreeIds,
       storeProducts: const [
-        StoreProduct(id: 'other', title: '스토어 이름', priceLabel: '—'),
+        StoreProduct(id: 'other', title: '스토어 이름', priceLabel: '가격'),
       ],
     );
     expect(name, '스토어 이름');

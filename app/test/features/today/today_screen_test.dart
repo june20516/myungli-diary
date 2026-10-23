@@ -189,7 +189,7 @@ void main() {
     expect(find.text('초록'), findsOneWidget);
     expect(find.text(_ko.direction8E), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
-    expect(find.text('09:30–11:30'), findsOneWidget);
+    expect(find.text('09:30~11:30'), findsOneWidget);
 
     final guide = tester.widget<GuideQuestionCard>(
       find.byType(GuideQuestionCard),

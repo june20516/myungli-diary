@@ -179,7 +179,7 @@ Widget _socialConnected() => Builder(
 );
 
 /// offer-card: available·active·purchasing·offline. 문구는 ARB(`adFree*`)에서 읽고,
-/// 가격 자리는 '—'입니다(공개 저장소라 가격 수치를 쓰지 않음). 구매 버튼 문구는 ARB에 아직 없어(임시 키는
+/// 가격 자리는 '가격'입니다(공개 저장소라 가격 수치를 쓰지 않음). 구매 버튼 문구는 ARB에 아직 없어(임시 키는
 /// 화면 task가 더함) golden에서만 고정 문구를 씁니다.
 Widget _offerCards() => Builder(
   builder: (context) {
@@ -188,7 +188,7 @@ Widget _offerCards() => Builder(
     OfferCard card(OfferCardState state) => OfferCard(
       state: state,
       head: l10n.adFreeOfferHead,
-      price: l10n.adFreeOfferPrice('—'),
+      price: l10n.adFreeOfferPrice('가격'),
       buyLabel: ja ? '購入する' : '구매하기',
       historyLabel: l10n.adFreeHistoryCta,
       legalNotice: l10n.adFreeLegalNotice,

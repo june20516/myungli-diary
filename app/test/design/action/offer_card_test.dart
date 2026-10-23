@@ -9,7 +9,7 @@ import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 const _head = '한 달 동안 광고 없이 봐요';
-const _price = '— · 1개월 · 자동 갱신 없음';
+const _price = '가격 · 1개월 · 자동 갱신 없음';
 
 Widget _app(Widget child) => MaterialApp(
   locale: const Locale('ko'),

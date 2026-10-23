@@ -101,7 +101,7 @@ void main() {
               item: LuckyItem(
                 variant: LuckyCardVariant.time,
                 name: '집중 시간',
-                value: '09:30–11:30 · 13:30–15:30',
+                value: '09:30~11:30, 13:30~15:30',
                 explain: _text('오전에 집중이 잘 돼요.'),
               ),
               open: false,
@@ -110,7 +110,7 @@ void main() {
           ),
         ),
       );
-      final time = tester.widget<Text>(find.text('09:30–11:30 · 13:30–15:30'));
+      final time = tester.widget<Text>(find.text('09:30~11:30, 13:30~15:30'));
       expect(time.style!.fontFeatures, LuckyChip.timeValueFeatures);
       expect(
         LuckyChip.timeValueFeatures,

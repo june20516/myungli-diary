@@ -47,12 +47,12 @@ void main() {
   });
 
   group('formatFocusRange', () {
-    test('+09:00 응답을 Asia/Seoul 기준 HH:mm–HH:mm으로 씁니다', () {
+    test('+09:00 응답을 Asia/Seoul 기준 HH:mm~HH:mm으로 씁니다', () {
       expect(
         formatFocusRange([
           _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
         ], 'Asia/Seoul'),
-        '09:30–11:30',
+        '09:30~11:30',
       );
     });
 
@@ -61,17 +61,17 @@ void main() {
         formatFocusRange([
           _slot('2026-10-13T00:30:00Z', '2026-10-13T02:30:00Z'),
         ], 'Asia/Seoul'),
-        '09:30–11:30',
+        '09:30~11:30',
       );
     });
 
-    test('두 칸이면 가운뎃점으로 잇습니다', () {
+    test('두 칸이면 쉼표로 잇습니다', () {
       expect(
         formatFocusRange([
           _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
           _slot('2026-10-13T13:30:00+09:00', '2026-10-13T15:30:00+09:00'),
         ], 'Asia/Seoul'),
-        '09:30–11:30 · 13:30–15:30',
+        '09:30~11:30, 13:30~15:30',
       );
     });
 
@@ -81,7 +81,7 @@ void main() {
         formatFocusRange([
           _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
         ], 'America/New_York'),
-        '20:30–22:30',
+        '20:30~22:30',
       );
     });
 
@@ -89,7 +89,7 @@ void main() {
       expect(formatFocusRange(const [], 'Asia/Seoul'), '');
     });
 
-    test('명세 lucky-card time 값 형식(HH:mm–HH:mm, 이음 " · ")과 같습니다', () {
+    test('명세 lucky-card time 값의 24시간·프로필 시간대는 따르고, 글자 모양은 화면 문구 규칙을 따릅니다', () {
       final variants =
           loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
       final time = variants.cast<Map<String, Object?>>().singleWhere(
@@ -100,18 +100,13 @@ void main() {
               as Map<String, Object?>;
       expect(value['clock'], '24h');
       expect(value['timeZone'], 'profile');
-      String range(String start, String end) => (value['format']! as String)
-          .replaceFirst('HH:mm', start)
-          .replaceFirst('HH:mm', end);
+      // 명세의 범위 대시·가운뎃점 대신 화면에는 `~`와 쉼표를 씁니다(Issue #546, 명세 따라잡기는 design).
       expect(
         formatFocusRange([
           _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
           _slot('2026-10-13T13:30:00+09:00', '2026-10-13T15:30:00+09:00'),
         ], 'Asia/Seoul'),
-        [
-          range('09:30', '11:30'),
-          range('13:30', '15:30'),
-        ].join(value['join']! as String),
+        '09:30~11:30, 13:30~15:30',
       );
     });
   });
@@ -132,7 +127,7 @@ void main() {
         '초록',
         l10n.direction8E,
         '3',
-        '09:30–11:30',
+        '09:30~11:30',
       ]);
       expect(items.map((i) => i.name), [
         l10n.todayLuckyColorName,

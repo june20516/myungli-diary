@@ -56,7 +56,7 @@ final List<LuckyItem> _luckyItems = [
   LuckyItem(
     variant: LuckyCardVariant.time,
     name: '집중하기 좋은 시간',
-    value: '09:30–11:30 · 13:30–15:30',
+    value: '09:30~11:30, 13:30~15:30',
     explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
   ),
 ];

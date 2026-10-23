@@ -332,7 +332,7 @@ final class FakePurchases implements Purchases {
       StoreProduct(
         id: fakeAdFreeProductId,
         title: '광고 제거 1개월',
-        priceLabel: '—',
+        priceLabel: '가격',
       ),
     ],
     this.outcomes = const [PurchaseSucceeded()],
