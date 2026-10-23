@@ -1557,7 +1557,7 @@
   "@sajuChartTabNatal": {
     "description": "임시. saju-chart 탭 이름: 원국표·오행 분포·용신 판정 근거(A57)"
   },
-  "sajuChartTabLuck": "만세력·대운",
+  "sajuChartTabLuck": "만세력과 대운",
   "@sajuChartTabLuck": {
     "description": "임시. saju-chart 탭 이름: 만세력 표·대운·세운(A57)"
   },

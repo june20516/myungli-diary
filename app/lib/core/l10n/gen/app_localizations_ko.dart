@@ -1117,7 +1117,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sajuChartTabNatal => '원국';
 
   @override
-  String get sajuChartTabLuck => '만세력·대운';
+  String get sajuChartTabLuck => '만세력과 대운';
 
   @override
   String get sajuPillarHour => '시주';

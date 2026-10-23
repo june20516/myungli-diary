@@ -162,7 +162,7 @@ _Open _sajuChart({
   await after?.call(tester);
 };
 
-/// "만세력·대운" 탭을 누릅니다.
+/// "만세력과 대운" 탭을 누릅니다.
 Future<void> _sajuLuckTab(WidgetTester tester) async {
   await tester.tap(find.text(AppLocalizationsKo().sajuChartTabLuck));
   await settleWithIo(tester);

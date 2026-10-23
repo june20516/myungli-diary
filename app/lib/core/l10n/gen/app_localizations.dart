@@ -2085,7 +2085,7 @@ abstract class AppLocalizations {
   /// 임시. saju-chart 탭 이름: 만세력 표·대운·세운(A57)
   ///
   /// In ko, this message translates to:
-  /// **'만세력·대운'**
+  /// **'만세력과 대운'**
   String get sajuChartTabLuck;
 
   /// 임시. saju-pillars·manse-table 열 머리: 시주

@@ -71,7 +71,7 @@
   * Task 1~2: 결정과 임시 문구 22개(A64), `getChart` fixture(`tool/gen_chart_fixtures.py`)·차트 캐시(A56)·차트 근거 주제(`ChartEvidenceSubject`)
   * Task 3~7: `settings-row`·`ohaeng.cell`·`saju-pillars`·`ohaeng-bar`·`manse-table`·`daeun-table` 컴포넌트, 간지 표(A65)
   * Task 8: `my-saju`(A55). 문장 자리는 `Chart.ilganHead`·`ilganBody`·`yongsinSummary`(선택, #344)로 그리고 없으면 그리지 않습니다
-  * Task 9: `saju-chart`. 두 탭 "원국"·"만세력·대운"(A57, 떠났다 오면 원국부터), 표 칸 용어 → 풀이 시트 → 근거 시트의 원국 개인 해석(A58), 보상형 광고로 풀면 차트를 다시 받습니다
+  * Task 9: `saju-chart`. 두 탭 "원국"·"만세력과 대운"(A57, 떠났다 오면 원국부터), 표 칸 용어 → 풀이 시트 → 근거 시트의 원국 개인 해석(A58), 보상형 광고로 풀면 차트를 다시 받습니다
   * Task 10: `settings`. 기본 깊이 줄 없음(D79), 알림 시각·앱 언어(A59·A60, 바꾸면 PATCH 뒤 앱 전체가 그 언어), 광고 제거 줄, 로그아웃 확인 창(A63), `settings` → `calc-basis` 출구
   * Task 11: `profile-edit`(A62). 호칭은 바로 저장, 무거운 변경은 확인 창 뒤 PATCH 한 번과 사주 캐시 지우기 → `my-saju`. 사본이 없으면 `getProfile`로 채웁니다(#312). 시간 화면 수정 모드는 `TimeStepEdit`(화면 안 생일로 시진 확인)
   * Task 12: `account-delete`(A63, `deleteMe` 202 → `revokeAndSignOut`. A73으로 204 뒤 로컬 로그아웃만으로 바뀜)·`legal`(A61, D80). 문서 주소는 `getAppConfig`의 `AppConfig.legal`에 `?lang=`을 붙여 `ExternalBrowser` 경계로 엽니다. 출처는 `legalLinksProvider` 하나이고 상수 파일은 없습니다. 오픈소스 라이선스는 `LicensePage`이고 GeoNames(CC BY 4.0)·글꼴 고지를 더합니다(`lib/app/licenses.dart`, #312)
