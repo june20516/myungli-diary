@@ -69,7 +69,6 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 1. **S3(REST v1 freeze):** 점검 목록의 "freeze 전에 남은 일"(app 생성 옵션 요청 #347의 답, 예시, IA 대조)을 마치고 freeze PR(`info.version` `1.0.0`, 계약 표 상태)을 올립니다. freeze 뒤에는 추가만 합니다(S93).
 2. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
-4. core #304 반영됨(PR #432): 시진 확인 성별을 `GENDER_UNSPECIFIED`로 되돌립니다(S69).
-5. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-6. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
-7. app 질문(#100·#114·#165)이 오면 답합니다.
+4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
+5. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
+6. app 질문(#100·#114·#165)이 오면 답합니다.

@@ -25,9 +25,9 @@ func mustLoadLocation(name string) *time.Location {
 	return loc
 }
 
-// birthHourGender는 시진 확인 요청에 싣는 고정 성별입니다. 시진은 출생 시각·시간대·경도로만 정해져 성별과 무관하지만,
-// 실제 엔진이 GENDER_UNSPECIFIED를 거부해 고정 값을 보냅니다. core 요청 #304가 반영되면 UNSPECIFIED로 되돌립니다.
-const birthHourGender = enginev1.Gender_GENDER_MALE
+// birthHourGender는 시진 확인 요청에 싣는 성별입니다. 시진은 출생 시각·시간대·경도로만 정해져 성별과 무관하므로
+// 미지정을 보냅니다. 엔진은 시진 확인에서만 GENDER_UNSPECIFIED를 받습니다(core #304, S69).
+const birthHourGender = enginev1.Gender_GENDER_UNSPECIFIED
 
 // BirthHourChecker는 시진 확인 핸들러가 쓰는 엔진 RPC입니다. engine.Engine이 만족합니다.
 type BirthHourChecker interface {
@@ -35,7 +35,7 @@ type BirthHourChecker interface {
 }
 
 // GetBirthHour는 출생 시각이 속한 시진과 그 시작·끝(Asia/Seoul 벽시계 HH:MM)을 알려 줍니다. 입력은 저장하지 않습니다.
-// 성별은 계산과 무관해 고정 값으로 보냅니다(birthHourGender). 양력인데 isLeapMonth가 true면 422 request.inconsistent,
+// 성별은 계산과 무관해 미지정으로 보냅니다(birthHourGender). 양력인데 isLeapMonth가 true면 422 request.inconsistent,
 // 없는 날짜는 422 date.invalid, 지원 범위 밖은 422 date.out_of_range입니다.
 // 시진 확인은 윤달 여부를 가리려고 엔진을 다시 부르지 않아 date.invalid의 field가 늘 /date입니다(음력 변환과 다름).
 // 엔진이 조립되지 않았으면 503 service.unavailable입니다.
