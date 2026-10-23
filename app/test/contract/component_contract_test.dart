@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
@@ -777,6 +778,44 @@ void main() {
       final chevron = _map(entry['chevron']);
       expect(chevron['marginStart'], '{space.8}');
       expect(DiaryEntryLine.chevronGap, Space.s8);
+    });
+
+    test('offer-card 부품 값(바탕·radius·padding·아이콘 sparkle 28·간격 12/16/20/12)이 명세와 같다', () {
+      final offer = specs['offer-card']!;
+      final parts = _map(offer['parts']);
+      final container = _map(parts['container']);
+      expect(container['bg'], '{color.bg.sheet}');
+      expect(container['radius'], '{radius.lg}');
+      expect(container['padding'], '{space.20}');
+      expect(OfferCard.padding, Space.s20);
+      expect(Radii.lg, 20);
+
+      final icon = _map(parts['icon']);
+      expect(icon['name'], 'sparkle');
+      expect(icon['weight'], 'light');
+      expect(_px(icon['size']), OfferCard.iconSize);
+      expect(OfferCard.iconSize, AppIconSize.state.logical);
+      expect(OfferCard.iconSize, 28);
+      expect(icon['color'], '{color.action.primary}');
+
+      expect(_map(parts['head'])['type'], '{type.subtitle}');
+      expect(_map(parts['head'])['marginTop'], '{space.12}');
+      expect(OfferCard.headGap, Space.s12);
+      expect(_map(parts['price'])['type'], '{type.title}');
+      expect(_map(parts['price'])['fontFeatures'], ['tnum']);
+      expect(_map(parts['price'])['marginTop'], '{space.16}');
+      expect(OfferCard.priceGap, Space.s16);
+      expect(_map(parts['remaining'])['type'], '{type.body.ui}');
+      expect(_map(parts['remaining'])['fontFeatures'], ['tnum']);
+      expect(_map(parts['buy'])['marginTop'], '{space.20}');
+      expect(OfferCard.buyGap, Space.s20);
+      expect(_map(parts['legal'])['type'], '{type.caption.md}');
+      expect(_map(parts['legal'])['marginTop'], '{space.12}');
+      expect(OfferCard.legalGap, Space.s12);
+
+      expect(_map(parts['buy'])['variant'], 'filled');
+      expect(_map(parts['history'])['variant'], 'quiet');
+      expect(_map(_map(offer['states'])['active'])['pattern'], 'appear.seep');
     });
   });
 

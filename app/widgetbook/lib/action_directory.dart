@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
@@ -164,8 +165,37 @@ class _SettingsRowsDemoState extends State<_SettingsRowsDemo> {
   );
 }
 
+WidgetbookUseCase _offerCard(OfferCardState state) => WidgetbookUseCase(
+  name: state.name,
+  builder: (context) {
+    final l10n = AppLocalizations.of(context);
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    return Stage(
+      child: SizedBox(
+        width: 360,
+        child: OfferCard(
+          state: state,
+          head: l10n.adFreeOfferHead,
+          // 공개 저장소라 가격 수치를 쓰지 않습니다.
+          price: l10n.adFreeOfferPrice('—'),
+          // 구매 버튼 문구는 아직 ARB에 없어(임시 키는 화면 task가 더함) 여기서만 고정 문구입니다.
+          buyLabel: ja ? '購入する' : '구매하기',
+          historyLabel: l10n.adFreeHistoryCta,
+          legalNotice: l10n.adFreeLegalNotice,
+          statusLabel: l10n.purchaseStatusActive,
+          remaining: l10n.adFreeStatusRemaining(ja ? '11月23日' : '11월 23일'),
+          onBuy: () {},
+          onHistory: () {},
+          onLegal: () {},
+        ),
+      ),
+    );
+  },
+);
+
 /// 동작 카탈로그: primary-button(filled·quiet·destructive), social-login-button
-/// (kakao·line·google·apple, connected), share-button(icon·soft),
+/// (kakao·line·google·apple, connected), offer-card(네 상태),
+/// share-button(icon·soft),
 /// settings-row(묶음).
 final WidgetbookFolder actionDirectory = WidgetbookFolder(
   name: '동작',
@@ -183,6 +213,10 @@ final WidgetbookFolder actionDirectory = WidgetbookFolder(
       children: [
         for (final provider in SocialProvider.values) _social(provider),
       ],
+    ),
+    WidgetbookComponent(
+      name: 'offer-card',
+      useCases: [for (final state in OfferCardState.values) _offerCard(state)],
     ),
     WidgetbookFolder(
       name: 'share-button',

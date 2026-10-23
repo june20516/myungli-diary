@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
@@ -175,6 +176,35 @@ Widget _socialConnected() => Builder(
   },
 );
 
+/// offer-card: available·active·purchasing·offline. 문구는 ARB(`adFree*`)에서 읽고,
+/// 가격 자리는 '—'입니다(공개 저장소라 가격 수치를 쓰지 않음). 구매 버튼 문구는 ARB에 아직 없어(임시 키는
+/// 화면 task가 더함) golden에서만 고정 문구를 씁니다.
+Widget _offerCards() => Builder(
+  builder: (context) {
+    final l10n = AppLocalizations.of(context);
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    OfferCard card(OfferCardState state) => OfferCard(
+      state: state,
+      head: l10n.adFreeOfferHead,
+      price: l10n.adFreeOfferPrice('—'),
+      buyLabel: ja ? '購入する' : '구매하기',
+      historyLabel: l10n.adFreeHistoryCta,
+      legalNotice: l10n.adFreeLegalNotice,
+      statusLabel: l10n.purchaseStatusActive,
+      remaining: l10n.adFreeStatusRemaining(ja ? '11月23日' : '11월 23일'),
+      onBuy: () {},
+      onHistory: () {},
+      onLegal: () {},
+      animated: false,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s12,
+      children: [for (final state in OfferCardState.values) card(state)],
+    );
+  },
+);
+
 /// share-button: icon(앱 바 동작)·soft(본문 안 입구).
 Widget _shareButtons() => Builder(
   builder: (context) {
@@ -227,6 +257,10 @@ void main() {
       _socialConnected,
       settle: (tester) => tester.pumpAndSettle(),
     );
+  });
+
+  goldenTest('offer-card: available·active·purchasing·offline', (tester) async {
+    await goldenMatrix(tester, 'action_offer_card', _offerCards);
   });
 
   goldenTest('share-button: icon·soft', (tester) async {
