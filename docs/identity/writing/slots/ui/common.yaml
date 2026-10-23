@@ -27,7 +27,7 @@
       - {lang: ko, key: errorOffline, text: "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요.", why: "#143 공용 문구 원고", source: writing}
       - {lang: ko, key: errorTimeout, text: "응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.", why: "#143 공용 문구 원고", source: writing}
     bad:
-      - {lang: ko, text: "오류가 발생했습니다.", why: "합니다체(style.S3)이고 무엇을 하면 되는지 말하지 않음", source: writing}
+      - {lang: ko, text: "오류가 발생했습니다.", why: "무엇을 하면 되는지 말하지 않음", source: writing}
   endings: ["~어요", "~해 주세요"]
   a11y:
     truncation: "두 줄 안에 들어가게 씁니다."
@@ -98,7 +98,7 @@
       - {lang: ko, key: errorRequestMalformed, text: "요청을 처리하지 못했어요. 다시 시도해 주세요.", why: "#143 공용 문구 원고", source: writing}
       - {lang: ko, key: errorRequestInvalid, text: "입력한 내용을 다시 확인해 주세요.", why: "#143 공용 문구 원고", source: writing}
     bad:
-      - {lang: ko, text: "요청 본문을 파싱할 수 없습니다(400).", why: "기술 용어와 상태 코드 노출, 합니다체", source: writing}
+      - {lang: ko, text: "요청 본문을 파싱할 수 없습니다(400).", why: "기술 용어와 상태 코드 노출", source: writing}
   endings: ["~어요", "~해 주세요"]
   a11y:
     truncation: "두 줄 안에 들어가게 씁니다."
@@ -486,7 +486,7 @@
       - {lang: ko, key: todayGuideWritten, text: "오늘 일기를 썼어요", why: "#153 공용 문구 원고", source: writing}
     bad:
       - {lang: ko, text: "질문", why: "무엇에 대한 질문인지 알 수 없음", source: writing}
-      - {lang: ko, text: "오늘 일기 씀", why: "해요체가 아님(W6)", source: writing}
+      - {lang: ko, text: "오늘 일기 씀", why: "'씀'으로 끊는 메모 말투", source: writing}
   endings: []
   a11y:
     truncation: "화면에 보이지 않습니다."

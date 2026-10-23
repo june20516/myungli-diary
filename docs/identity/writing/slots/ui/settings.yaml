@@ -223,7 +223,6 @@
   structure: "한 문장. 계산 규칙만 말하고 수치 예나 다른 앱과의 차이는 쓰지 않습니다(R15-14)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  register: hamnida
   keys:
     - calcBasisDaeunBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -259,10 +258,9 @@
   where: "계정 삭제 화면(account-delete): 지워지는 데이터 안내"
   purpose: info
   user_state: "무엇이 지워지는지 확인합니다(스토어 요건)."
-  structure: "두 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것, 법이나 부정 이용 방지에 필요한 정보만 정해진 기간 따로 보관한다는 것(D88 ③④, Apple 계정 삭제 요건). 자세한 항목은 처리방침에 둡니다. 공적인 고지라 합니다체입니다(W40)."
+  structure: "두 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것, 법이나 부정 이용 방지에 필요한 정보만 정해진 기간 따로 보관한다는 것(D88 ③④, Apple 계정 삭제 요건). 자세한 항목은 처리방침에 둡니다. 공적인 고지라 합니다체로 썼습니다(W40·W43)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  register: hamnida
   keys:
     - accountDeleteDataBody
   variants: {count: 1, rotation: "변주가 하나입니다"}

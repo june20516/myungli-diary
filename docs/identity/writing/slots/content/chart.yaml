@@ -27,7 +27,7 @@
       - {lang: ko, key: yongsin.method.johu, text: "태어난 계절의 온도를 맞추는 오행으로 [[용신|role.yongsin]]을 정했어요.", why: "판정 방식을 일상어로", source: writing}
       - {lang: ko, key: yongsin.method.eokbu, text: "넘치는 기운은 덜고 모자란 기운을 채우는 쪽으로 [[용신|role.yongsin]]을 골랐어요.", why: "억부를 쉬운 말로", source: writing}
     bad:
-      - {lang: ko, text: "조후(계절의 온도 조절)를 기준으로 용신을 산출합니다.", why: "괄호 풀이 style.S1, 합니다체 style.S3, 기술 어휘 slop.P9", source: writing}
+      - {lang: ko, text: "조후(계절의 온도 조절)를 기준으로 용신을 산출합니다.", why: "괄호 풀이 style.S1, 기술 어휘 slop.P9", source: writing}
   depth:
     explain: 판정 방식의 뜻
     evidence: 조후표·억부 점수와 원전
@@ -66,7 +66,7 @@
     good:
       - {lang: ko, key: ilgan.head.gap, text: "{name}님, 곧게 자라는 큰 나무를 닮았어요.", why: "비유 하나로 중심을 말함, 호칭 덩어리", source: writing}
     bad:
-      - {lang: ko, key: ilgan.head.gap, text: "갑목 일간은 리더십이 뛰어나고 진취적인 성향을 지닙니다.", why: "성격 형용 나열 slop.P6, 합니다체 style.S3", source: writing}
+      - {lang: ko, key: ilgan.head.gap, text: "갑목 일간은 리더십이 뛰어나고 진취적인 성향을 지닙니다.", why: "성격 형용 나열 slop.P6", source: writing}
   depth:
     explain: 일간이라는 말의 뜻은 풀이에서 씁니다.
   endings: ["~닮았어요", "~같아요"]
@@ -123,7 +123,7 @@
     good:
       - {lang: ko, key: yongsin.summary, text: "나를 돕는 기운은 [[{yongsin}]]이에요. 그래서 {yongsin:color}(이)가 잘 맞아요.", why: "오행과 색을 이어 말함", source: writing}
     bad:
-      - {lang: ko, key: yongsin.summary, text: "용신 {yongsin}의 행운 컬러는 {yongsin:color}입니다.", why: "외래어 섞음, 합니다체 style.S3", source: writing}
+      - {lang: ko, key: yongsin.summary, text: "용신 {yongsin}의 행운 컬러는 {yongsin:color}입니다.", why: "외래어 섞음", source: writing}
   endings: ["~이에요", "~맞아요"]
   a11y:
     truncation: 잘리지 않게 씁니다.

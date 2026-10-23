@@ -13,7 +13,6 @@ import yaml
 
 from mlw.glossary import glossary_values
 from mlw.model import (
-    DEFAULT_REGISTER,
     DETECT_KINDS,
     JUDGES,
     LANGS,
@@ -22,7 +21,6 @@ from mlw.model import (
     PARAM_KIND_NUMBER,
     PARAM_KIND_TEXT,
     PURPOSES,
-    REGISTERS,
     SCOPES,
     SENTENCE_TYPES,
     SEVERITIES,
@@ -58,7 +56,7 @@ SCHEMA_RULE_ID = "load.schema"
 YAML_RULE_ID = "load.yaml"
 
 SLOP_KEYS = {"id", "name", "judge", "severity", "detect", "rubric", "exempt_purposes", "examples"}
-STYLE_KEYS = {"id", "name", "severity", "detect", "exempt_purposes", "registers", "examples"}
+STYLE_KEYS = {"id", "name", "severity", "detect", "exempt_purposes", "examples"}
 LIMIT_KEYS = {"id", "name", "scope", "count", "max", "severity", "window"}
 MIN_WINDOW = 2
 MAX_WINDOW = 7
@@ -243,7 +241,6 @@ def _parse_style(data: dict[str, object], line: int, problems: _Problems) -> Sty
     severity = item.choice("severity", SEVERITIES)
     detect = _parse_detect(item, required=True)
     exempt = item.string_list("exempt_purposes", PURPOSES)
-    registers = item.string_list("registers", REGISTERS)
     examples = _parse_examples(item)
     if rule_id is None or name is None or severity is None or detect is None:
         return None
@@ -255,7 +252,6 @@ def _parse_style(data: dict[str, object], line: int, problems: _Problems) -> Sty
         exempt_purposes=frozenset(exempt),
         examples=examples,
         line=line,
-        registers=frozenset(registers),
     )
 
 
@@ -907,7 +903,6 @@ def _parse_slot(
         structure=_plain_text(data, "structure") or "",
         tone=_parse_tone(item),
         endings=item.string_list("endings"),
-        register=_plain_text(data, "register") or DEFAULT_REGISTER,
         ia=item.string_list("ia"),
         components=item.string_list("components"),
         select=_plain_text(data, "select") or "",
