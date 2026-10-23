@@ -21,6 +21,7 @@
 | `docs/ia/screens.json` (IA, 없으면 MVP 임시 화면 목록) | 화면(탭별 묶음, 슬롯·컴포넌트·상태·경로 상세) |
 | 비공개 내부 저장소의 `ideas.md`, 그 `검토` 상태가 가리키는 문서의 첫 제목·`상태:` 줄(세 번째 인자로 내부 저장소를 넘길 때만, D74) | 아이디어(흐름 보드: 대기 → 검토 중 → 채택 → 보류·기각) |
 | `gh issue list` (실패하면 빈 목록) | 열린 Issue, 역 상세 |
+| `app/docs/artifacts/e2e-coverage.json` (app E2E 커버리지, app 결정 A13, 없으면 표시 안 함) | 화면 탭 머리의 전체 커버리지, 화면 카드·상세의 경로·상태 커버리지와 덮지 못한 항목(#87) |
 
 ## 갱신 (지휘 세션 정기 일과)
 1. 지휘 디렉터리(본 저장소)를 `main` 최신으로 맞춥니다: `git fetch origin && git merge origin/main`
@@ -30,7 +31,7 @@
    rm -rf "$OUT" && python3 -I tools/product-map/build_map_data.py . "$OUT" ../myungli-diary-internal
    cp tools/product-map/page/index.html "$OUT/"
    ```
-3. Artifact를 **같은 URL로** 다시 publish합니다: `url`에 위 주소, `file_path`에 `$OUT/index.html`, `root`에 `$OUT`, `files`에 `data.json`과 `images/` 아래 모든 파일. `icon`은 넘기지 않습니다.
+3. Artifact를 **같은 URL로** 다시 publish합니다: `url`에 위 주소, `file_path`에 `$OUT/index.html`, `root`에 `$OUT`, `files`에 `data.json`과 `images/` 아래 파일. `icon`은 넘기지 않습니다. 넘기지 않은 파일은 이전 판 것이 남으므로, Artifact `list`(`scope: files`)로 이미 올라간 목록을 보고 `images/` 중 새 파일만 넘겨도 됩니다. `data.json`만 넘기면 새 산출물 이미지가 빠집니다.
 4. 페이지 틀(`page/index.html`)을 바꿨다면 PR로 합칩니다. 데이터만 바뀐 갱신은 commit할 것이 없습니다.
 
 ## 테스트

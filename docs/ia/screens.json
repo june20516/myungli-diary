@@ -2269,7 +2269,17 @@
         {
           "id": "ad-free.offer.price",
           "source": "ui",
-          "role": "가격과 기간(1개월, 자동 갱신 아님) 고지"
+          "role": "가격(고정폭 숫자, D53). 기간과 자동 갱신 아님 고지는 offer.period"
+        },
+        {
+          "id": "ad-free.offer.period",
+          "source": "ui",
+          "role": "기간(1개월)과 자동 갱신 아님 고지. 가격 아래 작은 글씨이고 구매 버튼보다 위(D53, design offer-card)"
+        },
+        {
+          "id": "ad-free.buy.cta",
+          "source": "ui",
+          "role": "광고 제거권 구매를 시작하는 주 버튼(출구 system-purchase, #548)"
         },
         {
           "id": "ad-free.status.remaining",

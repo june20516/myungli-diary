@@ -164,6 +164,7 @@ img.zoomable { cursor: zoom-in; }
 
   <section class="panel" id="tab-screens" hidden>
     <div class="notice" id="screens-notice" hidden>IA(D39)가 아직 없어 MVP 범위로 만든 임시 화면 목록입니다.</div>
+    <p class="muted" id="e2e-summary" hidden></p>
     <div class="cards" id="screens"></div>
   </section>
 
@@ -417,6 +418,17 @@ const SCREEN_LABELS = {
   auth: { guest: "로그인 전", member: "로그인 필요", any: "누구나" },
 };
 
+// app E2E 커버리지(#87). 보고서가 없으면 null이고, 그때는 아무것도 보이지 않습니다.
+function e2eOf(id) { return DATA.e2e && DATA.e2e.by_screen ? DATA.e2e.by_screen[id] : null; }
+function ratio(part) { return part ? `${part.covered}/${part.total}` : "-"; }
+function e2eUncovered(id) {
+  if (!DATA.e2e) return { exits: [], states: [] };
+  return {
+    exits: DATA.e2e.uncovered.exits.filter((x) => x.startsWith(`${id}>`)),
+    states: DATA.e2e.uncovered.states.filter((x) => x.startsWith(`${id}:`)),
+  };
+}
+
 function screenCard(s) {
   const arts = DATA.artifacts.filter((a) => (a.screens || []).includes(s.id));
   const images = arts.filter((a) => isImage(a.path));
@@ -425,7 +437,7 @@ function screenCard(s) {
   return `<button class="card" type="button" data-id="${esc(s.id)}">${cover ? `<img src="${imgSrc(cover.path)}" alt="" loading="lazy">` : ""}
     <h3>${esc(s.title)} <span class="muted" style="font-size:.75rem;font-weight:400">${esc(s.id)}</span></h3>
     <span class="muted" style="font-size:.85rem">${esc(s.purpose || s.summary || "")}</span>
-    <span class="meta">${[...counts, `산출물 ${arts.length}`].map((t) => `<span>${esc(t)}</span>`).join("")}</span></button>`;
+    <span class="meta">${[...counts, `산출물 ${arts.length}`, ...(e2eOf(s.id) ? [`E2E 경로 ${ratio(e2eOf(s.id).exits)} · 상태 ${ratio(e2eOf(s.id).states)}`] : [])].map((t) => `<span>${esc(t)}</span>`).join("")}</span></button>`;
 }
 
 function openScreen(id) {
@@ -450,12 +462,23 @@ function openScreen(id) {
     ${section("컴포넌트", comps && `<p style="margin:0;line-height:1.9">${comps}</p>`)}
     ${section("상태", states && `<ul class="plain">${states}</ul>`)}
     ${section("결정", (s.decisions || []).length ? `<p class="muted" style="margin:0">${esc(s.decisions.join(" · "))}</p>` : "")}
+    ${section("app E2E", e2eOf(s.id) ? (() => {
+      const miss = e2eUncovered(s.id);
+      const list = [...miss.exits.map((x) => `경로 ${x.replace(">", " → ")}`), ...miss.states.map((x) => `상태 ${x.split(":")[1]}`)];
+      return `<p style="margin:0">경로 ${ratio(e2eOf(s.id).exits)} · 상태 ${ratio(e2eOf(s.id).states)}</p>${list.length ? `<p class="muted" style="margin:4px 0 0">덮지 못함: ${list.map(esc).join(", ")}</p>` : ""}`;
+    })() : "")}
     <div><h3>시안·스크린샷</h3>${thumbs(arts)}</div>`);
   document.getElementById("sheet").querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => openScreen(b.dataset.go)));
 }
 
 function renderScreens() {
   document.getElementById("screens-notice").hidden = !DATA.screens.some((s) => s.provisional);
+  const summary = document.getElementById("e2e-summary");
+  if (DATA.e2e) {
+    const t = DATA.e2e.totals;
+    summary.textContent = `app E2E 커버리지 (${(DATA.e2e.generated_at || "").slice(0, 10)} 기준): 경로 ${ratio(t.exits)} · 상태 ${ratio(t.states)} · 결정 ${ratio(t.decisions)}`;
+    summary.hidden = false;
+  }
   const tabs = DATA.screen_tabs || [];
   const groups = tabs.length
     ? [...tabs.map((t) => ({ title: `${t.title} 탭`, items: DATA.screens.filter((s) => s.tab === t.id) })),
