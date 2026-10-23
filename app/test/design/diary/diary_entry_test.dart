@@ -90,7 +90,7 @@ void main() {
       expect(time.maxLines, 1);
     });
 
-    testWidgets('시각은 createdAt을 기기 시간대로 바꿔 짧은 시각 형식으로 만듭니다', (tester) async {
+    testWidgets('시각은 createdAt을 기기 시간대로 바꿔 24시간제 HH:mm으로 만듭니다', (tester) async {
       final utc = DateTime.utc(2026, 10, 12, 0, 30);
       await tester.pumpWidget(
         _app(DiaryEntryLine(createdAt: utc, excerpt: '글', onTap: () {})),

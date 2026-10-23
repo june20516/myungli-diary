@@ -1289,9 +1289,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Which account\'s chart details should we use?';
 
   @override
-  String get accountMergeCtaCancel => 'Don\'t merge';
-
-  @override
   String get accountMergeCtaMerge => 'Merge accounts';
 
   @override
@@ -1359,21 +1356,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayGuideCtaFull => 'You\'ve written enough for today';
 
   @override
-  String accountChoiceDiaryCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count entries',
-      one: '$count entry',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get accountChoiceCurrent => 'Current account';
-
-  @override
-  String get accountChoiceProviderSeparator => ', ';
 
   @override
   String get accountMergeError =>

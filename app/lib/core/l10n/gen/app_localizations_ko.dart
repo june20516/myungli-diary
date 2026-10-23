@@ -1192,9 +1192,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountMergeChoiceLabel => '어느 계정의 사주 정보를 쓸까요?';
 
   @override
-  String get accountMergeCtaCancel => '합치지 않기';
-
-  @override
   String get accountMergeCtaMerge => '계정 합치기';
 
   @override
@@ -1256,20 +1253,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayGuideCtaFull => '오늘은 충분히 썼어요';
 
   @override
-  String accountChoiceDiaryCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count편',
-    );
-    return '일기 $_temp0';
-  }
-
-  @override
   String get accountChoiceCurrent => '현재 계정';
-
-  @override
-  String get accountChoiceProviderSeparator => ' · ';
 
   @override
   String get accountMergeError => '계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.';

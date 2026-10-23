@@ -1190,9 +1190,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get accountMergeChoiceLabel => 'どちらの命式の情報を使いますか?';
 
   @override
-  String get accountMergeCtaCancel => '統合しない';
-
-  @override
   String get accountMergeCtaMerge => 'アカウントを統合';
 
   @override
@@ -1253,20 +1250,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayGuideCtaFull => '今日は十分に書きました';
 
   @override
-  String accountChoiceDiaryCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '日記$count件',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get accountChoiceCurrent => '現在のアカウント';
-
-  @override
-  String get accountChoiceProviderSeparator => '・';
 
   @override
   String get accountMergeError =>

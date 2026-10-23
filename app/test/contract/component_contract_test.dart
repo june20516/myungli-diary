@@ -737,7 +737,6 @@ void main() {
           expect(pill['paddingX'], '{space.8}', reason: id);
           expect(pill['gap'], '{space.8}', reason: id);
         }
-        expect(Space.s8, 8);
       },
     );
 

@@ -1667,10 +1667,6 @@
   "@accountMergeChoiceLabel": {
     "description": "account-merge.choice.label: 프로필(사주 정보·호칭·설정)을 어느 계정 것으로 둘지 고르라는 안내. 남는 계정은 언제나 지금 계정"
   },
-  "accountMergeCtaCancel": "합치지 않기",
-  "@accountMergeCtaCancel": {
-    "description": "account-merge.cta.cancel: 합치지 않기"
-  },
   "accountMergeCtaMerge": "계정 합치기",
   "@accountMergeCtaMerge": {
     "description": "account-merge.cta.merge: 합치기 버튼"
@@ -1752,22 +1748,9 @@
   "@todayGuideCtaFull": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
   },
-  "accountChoiceDiaryCount": "일기 {count, plural, other{{count}편}}",
-  "@accountChoiceDiaryCount": {
-    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "accountChoiceCurrent": "현재 계정",
   "@accountChoiceCurrent": {
     "description": "계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)"
-  },
-  "accountChoiceProviderSeparator": " · ",
-  "@accountChoiceProviderSeparator": {
-    "description": "계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)"
   },
   "accountMergeError": "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요.",
   "@accountMergeError": {

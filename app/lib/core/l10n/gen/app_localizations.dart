@@ -2220,12 +2220,6 @@ abstract class AppLocalizations {
   /// **'어느 계정의 사주 정보를 쓸까요?'**
   String get accountMergeChoiceLabel;
 
-  /// account-merge.cta.cancel: 합치지 않기
-  ///
-  /// In ko, this message translates to:
-  /// **'합치지 않기'**
-  String get accountMergeCtaCancel;
-
   /// account-merge.cta.merge: 합치기 버튼
   ///
   /// In ko, this message translates to:
@@ -2340,23 +2334,11 @@ abstract class AppLocalizations {
   /// **'오늘은 충분히 썼어요'**
   String get todayGuideCtaFull;
 
-  /// 계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)
-  ///
-  /// In ko, this message translates to:
-  /// **'일기 {count, plural, other{{count}편}}'**
-  String accountChoiceDiaryCount(int count);
-
   /// 계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)
   ///
   /// In ko, this message translates to:
   /// **'현재 계정'**
   String get accountChoiceCurrent;
-
-  /// 계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)
-  ///
-  /// In ko, this message translates to:
-  /// **' · '**
-  String get accountChoiceProviderSeparator;
 
   /// 계정 합치기 화면(account-merge) 오류 상태: 합치기 실패. 고른 계정을 둔 채 다시 누를 수 있게 dialog notice로 보입니다(design #441)
   ///

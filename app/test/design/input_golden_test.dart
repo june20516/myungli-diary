@@ -552,8 +552,7 @@ Widget _accountChoices() => Builder(
       onSelected: locked ? null : (_) {},
       groupLabel: l10n.accountMergeChoiceLabel,
       currentLabel: l10n.accountChoiceCurrent,
-      // accountChoiceOther ARB 키는 writing 반영 때 들어옵니다. 그 전까지 고정 문구입니다.
-      otherLabel: ja ? '他のアカウント' : '다른 계정',
+      otherLabel: l10n.accountChoiceOther,
       loading: loading,
       animated: false,
     );

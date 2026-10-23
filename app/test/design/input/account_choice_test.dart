@@ -25,7 +25,7 @@ Widget _choice({
     onSelected: onSelected,
     groupLabel: '남길 계정을 골라 주세요',
     currentLabel: '현재 계정',
-    otherLabel: '다른 계정',
+    otherLabel: '가져올 계정',
     loading: loading,
     animated: false,
   ),
@@ -33,7 +33,7 @@ Widget _choice({
 
 /// 두 카드의 스크린리더 라벨(카드 안 글자를 위에서 아래로).
 const String _firstLabel = '달, 현재 계정, 양력 1990.04.15 오전 7:30';
-const String _secondLabel = '별, 다른 계정, 사주 정보 없음';
+const String _secondLabel = '별, 가져올 계정, 사주 정보 없음';
 
 void main() {
   group('account-choice', () {
@@ -64,7 +64,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('다른 계정'), findsOneWidget);
+      expect(find.text('가져올 계정'), findsOneWidget);
     });
 
     testWidgets('카드를 누르면 onSelected(그 index)와 selection 햅틱입니다', (tester) async {
