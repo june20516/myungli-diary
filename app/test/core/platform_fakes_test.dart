@@ -396,13 +396,27 @@ void main() {
       expect(purchases.loggedInAccountId, isNull);
     });
 
-    test('restore는 주입한 결과를 낸다', () async {
-      expect(await FakePurchases().restore(), isA<PurchaseSucceeded>());
-      expect(
-        await FakePurchases(restoreOutcome: const PurchaseCancelled())
-            .restore(),
-        isA<PurchaseCancelled>(),
+    test('sync는 syncFailWith를 던지고 호출 수를 센다', () async {
+      final purchases = FakePurchases();
+      await purchases.sync();
+      expect(purchases.syncCalls, 1);
+      var called = 0;
+      final failing = FakePurchases(
+        syncFailWith: const OfflineError(),
+        onSync: () => called++,
       );
+      await expectLater(failing.sync(), throwsA(isA<OfflineError>()));
+      expect(failing.syncCalls, 1);
+      expect(called, 1);
+    });
+
+    test('기본 상품은 광고 제거 1개월이고 buy를 센다', () async {
+      final purchases = FakePurchases();
+      final product = (await purchases.products()).single;
+      expect(product.id, fakeAdFreeProductId);
+      expect(product.title, '광고 제거 1개월');
+      await purchases.buy(product.id);
+      expect(purchases.buyCalls, 1);
     });
   });
 

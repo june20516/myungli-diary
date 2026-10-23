@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "body": {
+    "items": [
+      {
+        "productId": "ad_free_1month",
+        "purchasedAt": "2026-10-12T03:00:00Z",
+        "status": "active",
+        "period": {
+          "startsAt": "2026-10-12T03:00:00Z",
+          "endsAt": "2026-11-12T03:00:00Z"
+        }
+      },
+      {
+        "productId": "ad_free_1month",
+        "purchasedAt": "2026-09-20T03:00:00Z",
+        "status": "refunded",
+        "period": {
+          "startsAt": "2026-09-20T03:00:00Z",
+          "endsAt": "2026-10-20T03:00:00Z"
+        }
+      },
+      {
+        "productId": "ad_free_1month",
+        "purchasedAt": "2026-08-10T03:00:00Z",
+        "status": "expired",
+        "period": {
+          "startsAt": "2026-08-10T03:00:00Z",
+          "endsAt": "2026-09-10T03:00:00Z"
+        }
+      },
+      {
+        "productId": "ad_free_1month",
+        "purchasedAt": "2026-07-01T03:00:00Z",
+        "status": "expired"
+      }
+    ]
+  }
+}
