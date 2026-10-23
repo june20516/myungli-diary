@@ -15,7 +15,7 @@ const _price = '가격';
 const _period = '1개월, 자동 갱신 없음';
 
 /// 카드 라벨의 항목 구분자(ko).
-final _separator = AppLocalizationsKo().a11yListSeparator;
+final String _separator = AppLocalizationsKo().a11yListSeparator;
 
 Widget _app(Widget child) => MaterialApp(
   locale: const Locale('ko'),
