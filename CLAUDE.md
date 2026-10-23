@@ -30,6 +30,7 @@
      * 닫힌 Issue의 `docs/coordination/` 원문을 `archive/`로 옮깁니다(예외는 `docs/coordination/README.md`).
      * 열린 `drift` Issue(`gh issue list --label drift`)를 확인하고, 받는 쪽 단위의 다음 할 일 맨 앞에 둡니다(`docs/workflow.md` §6.1).
      * 새로 병합된 단위 결정 행(C·S·A·W·V)의 `사용자 영향` 표시를 확인합니다. `#<n>`이면 루트 결정·IA·원고 요청·수집·보관 대장에 반영하고, `없음`이 맞는지도 봅니다(D87).
+     * 외부 준비물 대장(`docs/external-prep.md`)을 봅니다. 때가 된 항목은 `to:user`·`kind:prep` Issue로 안내하고, 사용자에게 지금 준비할 것을 알립니다. 받은 값은 단위에 전달합니다(D91 ②, `docs/workflow.md` §5.3).
   2. `docs/roadmap.md` "현재 진행 순서"를 갱신합니다.
   3. 제품 지도를 갱신합니다(`tools/product-map/README.md`).
 
@@ -39,6 +40,7 @@
 | 제품 배경 원문 (00~06) | 비공개 내부 저장소 `../myungli-diary-internal`의 `background/` (D74) |
 | 제품·아키텍처 결정 | `docs/decisions.md` |
 | 통합 로드맵 | `docs/roadmap.md` |
+| 외부 준비물 대장 | `docs/external-prep.md` |
 | 제품 아이디어 함 | 내부 저장소 `ideas.md` |
 | 수익화 결정 체계·시장 조사 | 내부 저장소 `business/` |
 | 계약 목록 | `docs/contracts/README.md` |

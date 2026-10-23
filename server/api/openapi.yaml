@@ -1,18 +1,18 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0-draft.15
+  version: 1.0.0
   description: |
-    명리일기 server가 app에 제공하는 REST API v1 계약입니다(초안).
+    명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
     호환과 버전
     * v1을 freeze(마일스톤 S3)한 뒤에는 하위 호환 변경만 합니다. 하위 호환 변경은 operation 추가, 선택 요청 필드 추가, 응답 필드 추가,
       아래 "열린 enum"의 값 추가, problem code 추가, 응답 헤더 추가입니다. app은 모르는 응답 필드와 헤더를 무시합니다.
-    * 하위 호환을 깨야 하면 `/v2` 경로를 새로 엽니다. freeze 전 초안에서는 사용하는 쪽에 `kind:request`로 알린 뒤 바꿉니다(D78).
+    * 하위 호환을 깨야 하면 `/v2` 경로를 새로 엽니다. v1에서는 하위 호환을 깨는 변경을 하지 않습니다.
     * `info.version`은 freeze 때 `1.0.0`이 되고, 그 뒤 하위 호환 추가마다 minor를, 설명만 바꾸면 patch를 올립니다.
     * 열린 enum: 값이 늘어날 수 있는 응답 enum입니다. app은 모르는 값이 와도 응답 전체를 실패로 보지 않고 그 항목만 건너뛰거나 기본 표시를 씁니다.
       `NoticeCode`, `ShinsalKind`, `RelationKind`, `PersonalReading.kind`, `FocusSlot.reasons`의 항목, `SlotText.variant`, `Insight.source`,
-      `ConsentDocument.document`, `Problem.code`, `LoginProvider`, `PurchaseStatus`입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
+      `ConsentDocument.document`, `Problem.code`, `LoginProvider`, `PurchaseStatus`, `YongsinMethod`, `SlotText.reaction`, `Language`입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
 
     공통 규약
     * JSON 필드는 camelCase입니다. 단, Apple이 보내는 `appleCallback`의 form 필드는 Apple이 정한 이름을 그대로 씁니다.
@@ -1131,6 +1131,7 @@ paths:
       description: |
         날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순이고, 같은 날짜 안에서는 작성 순(`createdAt` 오름차순)입니다.
         `limit`은 일기 편수라 한 날짜의 일기가 두 쪽에 나뉠 수 있습니다. 날짜 하나의 일기는 `from`과 `to`에 같은 날짜를 넣어 받습니다.
+        합친 유저 계정은 한 날짜에 10편을 넘을 수 있으니(D83 ④) 날짜 하나를 받을 때도 `nextCursor`를 따라갑니다.
         `from`이 `to`보다 늦으면 빈 목록입니다.
       parameters:
         - name: from
@@ -1673,7 +1674,7 @@ paths:
       description: |
         이 유저 계정의 구매 장부를 최근 구매 먼저 돌려줍니다. 상품 이름은 app이 `productId`로 자기 문구나 스토어 이름에서 찾습니다.
         기간 상품이면 `period`에 이 유저 계정의 사용 구간이 있습니다. 합친 구매는 현재 유저 계정의 구간만 담습니다. 산 유저 계정과 합치기 출처는 주지 않습니다.
-        production이 아닌 구매는 `BILLING_PRODUCTION_ONLY`가 꺼진 환경에서만 보입니다. 페이지 나누기는 필요해지면 선택 필드로 더합니다.
+        production이 아닌 구매는 `BILLING_PRODUCTION_ONLY`가 꺼진 환경에서만 보입니다. 페이지 나누기는 필요해지면 선택 필드로 더하고, 그 뒤에도 그 필드 없이 부르면 전부 돌려줍니다.
       responses:
         '200':
           description: 구매 목록
@@ -2317,6 +2318,7 @@ components:
             그 밖(예 `ProfileResponse.warnings`)에서는 그 응답이 정한 코드입니다.
     Language:
       type: string
+      description: 언어. 요청에서는 이 값만 받습니다(밖의 값은 400). 응답에서는 열린 enum이라 app은 모르는 값이면 기본 언어로 표시합니다.
       enum: [ko, en, ja]
     RenderedText:
       type: object
@@ -2366,7 +2368,7 @@ components:
         reaction:
           type: string
           enum: [like]
-          description: 이 사용자가 남긴 반응. 반응이 없으면 생략합니다.
+          description: 이 사용자가 남긴 반응. 반응이 없으면 생략합니다. 열린 enum이라 app은 모르는 값이면 반응이 없는 것으로 표시합니다.
         todayReason:
           $ref: '#/components/schemas/RenderedText'
         evidence:
@@ -2457,6 +2459,7 @@ components:
       enum: [very_weak, weak, neutral, strong, very_strong]
     YongsinMethod:
       type: string
+      description: 용신을 고른 방법. 열린 enum입니다(통관·병약·격국 용신이 더해질 수 있음). app은 모르는 값이면 방법 표시를 건너뜁니다.
       enum: [johu, johu_neutral, eokbu]
     LuckLevel:
       type: string
@@ -2691,11 +2694,11 @@ components:
         diaries:
           type: integer
           minimum: 0
-          description: 옮길 일기 수(지운 일기 포함)
+          description: 옮길 살아 있는 일기 수. 지운 일기도 함께 옮기지만 화면에서 되살릴 수 없어 세지 않습니다.
         schedules:
           type: integer
           minimum: 0
-          description: 옮길 일정 수(지운 일정 포함)
+          description: 옮길 살아 있는 일정 수. 지운 일정도 함께 옮기지만 세지 않습니다.
         dateRecords:
           type: integer
           minimum: 0
@@ -2773,6 +2776,10 @@ components:
           $ref: '#/components/schemas/Insight'
     ConsentDocument:
       type: object
+      description: |
+        동의할 문서. `document`는 열린 enum이지만 app은 받은 `document`·`version`을 해석하지 않고 `agreeConsents`로 그대로 돌려보냅니다.
+        새 문서를 필수 동의로 더할 때 server는 그 문서를 아는 앱 버전으로 `AppConfig.minimumVersion`을 함께 올립니다.
+        이전 app은 모르는 필수 문서가 있으면 동의 화면 대신 강제 업데이트 화면으로 보냅니다.
       required: [document, version]
       properties:
         document:
@@ -3789,7 +3796,7 @@ components:
           $ref: '#/components/schemas/DevicePlatform'
     AdFree:
       type: object
-      description: 광고 제거권. `active`가 true일 때만 `expiresAt`이 있습니다.
+      description: 광고 제거권. `active`가 true일 때만 `expiresAt`이 있고, 이어 붙인 대기 구간까지 포함한 끝입니다.
       required: [active]
       properties:
         active:

@@ -15,7 +15,7 @@ MVP 화면, 목적, 경로, 상태, 문장 슬롯, 컴포넌트를 정한 계약
 
 ## 시작과 로그인 (D50)
 
-로그인 전에는 `welcome`, 온보딩 입력, `birthplace`, `calc-basis`(출생지 화면에서, D71), `preview`, `login`, `consent`, `legal`, `force-update`만 볼 수 있습니다. 첫 풀이를 먼저 보여주고 저장할 때 로그인을 받습니다.
+로그인 전에는 `welcome`, 온보딩 입력, `birthplace`, `calc-basis`(출생지 화면에서, D71), `preview`, `login`, `consent`, `legal`, `force-update`만 볼 수 있습니다. 첫 풀이를 먼저 보여주고 저장할 때 로그인을 받습니다. 동의 화면에서 그만두었거나 사주를 저장하기 전에 그만둔 계정은 다시 들어올 때 빠진 단계로 갑니다(D90 ③).
 
 ```mermaid
 flowchart LR
@@ -27,9 +27,13 @@ flowchart LR
   onboard-gender -->|기기 지역이 한국 밖| birthplace --> preview
   preview -->|저장하고 계속하기 / 공유| login
   welcome -->|이미 계정이 있어요| login
-  login -->|새 계정| consent
+  login -->|필수 동의 없음| consent
   consent -->|미리보기를 거침| notify-ask --> ad-consent --> today
   consent -->|미리보기 없이 옴| onboard-call
+  login -->|동의했지만 사주 없음, 미리보기를 거침| notify-ask
+  login -->|동의했지만 사주 없음, 미리보기 없이 옴| onboard-call
+  launch -->|로그인 상태, 필수 동의 없음| consent
+  launch -->|로그인 상태, 사주 없음| onboard-call
   login -->|사주가 저장된 계정| today
   login -->|사주가 저장된 계정, 이 기기에서 광고 동의 전| ad-consent
   launch -->|로그인 상태, 이 기기에서 광고 동의 전| ad-consent

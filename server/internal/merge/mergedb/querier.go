@@ -15,7 +15,7 @@ type Querier interface {
 	// CopyOtherOnlyDiaryDays는 B에만 있는 날짜 기록을 A에 만듭니다. B 행은 B 삭제가 지웁니다.
 	CopyOtherOnlyDiaryDays(ctx context.Context, arg CopyOtherOnlyDiaryDaysParams) error
 	// CountMovableRecords는 B에서 A로 옮길 기록 수를 셉니다(spec §6.2).
-	// 일기·일정은 지운 것을 포함합니다. 날짜 기록은 A와 날짜가 겹치지 않는 것만 date_records로 세고, 겹친 날은 overlap_days로 셉니다.
+	// 일기·일정은 살아 있는 것만 셉니다(지운 것도 옮기지만 화면에서 되살릴 수 없어 세지 않음, D85 ⑦·S114). 날짜 기록은 A와 날짜가 겹치지 않는 것만 date_records로 세고, 겹친 날은 overlap_days로 셉니다.
 	// 반응은 B의 문장 선택 기록에 붙은 살아 있는 반응입니다.
 	CountMovableRecords(ctx context.Context, arg CountMovableRecordsParams) (CountMovableRecordsRow, error)
 	// DeleteOverlappingReactions는 지울 쪽 겹친 선택의 반응(취소 이력 포함)을 지웁니다.

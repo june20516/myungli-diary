@@ -594,7 +594,7 @@ app E2E를 staging에서 사람 손 없이 돌리기 위한 장치입니다. pro
 | root → writing | 미리보기에서 호칭이 들어가는 슬롯을 호칭 없이 보이는 방법 |
 | root → app | GeoNames 출처 표기를 오픈소스 고지에 넣기 |
 | core (완료) | `core/message_params.json`(Issue #38), D58 시진 RPC `GetBirthHour` |
-| core (요청) | 시진 확인에 성별 미지정을 허용(#304). 반영되면 `GENDER_UNSPECIFIED`로 되돌림(S69) |
+| core (요청) | 시진 확인에 성별 미지정을 허용(#304). 반영되면 `GENDER_UNSPECIFIED`로 되돌림(S69). 반영됨(PR #432), 되돌림 완료 |
 | core (요청) | `ruleset_version` 조회 RPC (§7.1). 완료: `GetInfo`, PR #67 |
 
 ## 15. 구현 순서 (계획의 큰 줄기)
