@@ -164,10 +164,10 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountMergeTitleBody, text: "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.", why: "라운드 R15 선택", source: writing}
+      - {lang: ko, key: accountMergeTitleBody, text: "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.", why: "라운드 R19 선택(W43)", source: writing}
     bad:
       - {lang: ko, text: "같은 날 일기가 겹치면 하나는 지워져요.", why: "D83 ④로 같은 날 일기도 모두 옮김", source: writing}
-  endings: ["~어요"]
+  endings: ["~어요", "~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -286,11 +286,11 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountMergeMergeConfirm, text: "두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없어요.", why: "라운드 R11 선택", source: writing}
+      - {lang: ko, key: accountMergeMergeConfirm, text: "두 계정을 합칠까요? 합친 뒤에는 되돌릴 수 없습니다.", why: "라운드 R19 선택(W43)", source: writing}
       - {lang: ko, key: accountMergeMergeConfirmMerge, text: "합치기", why: "라운드 R11 선택", source: writing}
       - {lang: ko, key: accountMergeMergeConfirmCancel, text: "취소", why: "다른 확인 창과 같음", source: writing}
     bad: []
-  endings: ["~까요?", "~어요"]
+  endings: ["~까요?", "~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "제목, 본문, 버튼 순서로 읽습니다."

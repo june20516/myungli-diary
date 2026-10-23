@@ -197,7 +197,6 @@
       - {lang: ko, text: "오늘은 남색이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.", why: "두 문장형, 같은 틀 반복을 피할 때", source: round-R2-4}
     bad:
       - {lang: ko, text: "남색, 오늘 당신을 지켜 줄 색이에요.", why: "사물 주어 slop.P3, 당신", source: round-R1-1}
-      - {lang: ko, text: "오늘 맞는 색은 남색입니다.", why: "합니다체 style.S3", source: round-R1-1}
       - {lang: ko, text: "남색은 차분하게 가라앉은 물의 기운을 끌어당기는 색이에요.", why: "카드에는 과한 효능 설명, 풀이로", source: round-R1-1}
   a11y:
     truncation: 잘리지 않게 씁니다.

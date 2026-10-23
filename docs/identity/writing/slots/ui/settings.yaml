@@ -85,9 +85,9 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산해요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산합니다.", why: "라운드 R19 선택(W43)", source: writing}
     bad: []
-  endings: ["~해요", "~어요"]
+  endings: ["~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -133,10 +133,10 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.", why: "D71 표현 기준: 보편적이고 근거가 있다고만 말함", source: writing}
+      - {lang: ko, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준을 따릅니다. 여러 유파 가운데 하나로, 근거가 있는 기준이에요.", why: "라운드 R18 선택(W43)", source: writing}
     bad:
       - {lang: ko, text: "명리 해석은 가장 정통인 한국 기준을 따라요.", why: "다른 유파보다 낫다고 말함(D71)", source: writing}
-  endings: ["~해요", "~이에요"]
+  endings: ["~ㅂ니다", "~이에요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -153,10 +153,10 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: calcBasisSchoolsBody, text: "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.", why: "D71 재료(지장간 모두 표시, 자시 통합 D6)를 다르게 나올 수 있는 이유로 씀", source: writing}
+      - {lang: ko, key: calcBasisSchoolsBody, text: "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산합니다. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
     bad:
       - {lang: ko, text: "다른 앱은 지장간을 하나만 보여 줘서 틀릴 수 있어요.", why: "다른 유파를 틀렸다고 말함(D71)", source: writing}
-  endings: ["~해요", "~어요"]
+  endings: ["~해요", "~ㅂ니다", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -186,13 +186,13 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "엔진 계산 순서(서머타임 → 경도 보정)를 그대로 말함(#214)", source: writing}
+      - {lang: ko, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
+      - {lang: ko, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
+      - {lang: ko, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
       - {lang: ko, key: calcBasisLongitudeBodyEast, text: "동경 {degrees}°", why: "경도 표기", source: writing}
     bad:
       - {lang: ko, text: "정확한 계산을 위해 최선을 다하고 있어요.", why: "무엇을 했는지 말하지 않음 slop.P1, 자기 성격 형용 slop.P6", source: writing}
-  endings: ["~해요", "~어요"]
+  endings: ["~ㅂ니다", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -209,9 +209,9 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따라요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따릅니다.", why: "라운드 R18 선택(W43)", source: writing}
     bad: []
-  endings: ["~해요", "~어요"]
+  endings: ["~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -223,13 +223,12 @@
   structure: "한 문장. 계산 규칙만 말하고 수치 예나 다른 앱과의 차이는 쓰지 않습니다(R15-14)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  register: hamnida
   keys:
     - calcBasisDaeunBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: calcBasisDaeunBody, text: "대운수는 개월을 버리고 셉니다.", why: "라운드 R15 선택(계산 규칙이라 합니다체, W40)", source: writing}
+      - {lang: ko, key: calcBasisDaeunBody, text: "대운수는 개월을 버리고 계산합니다.", why: "라운드 R18 선택(W43)", source: writing}
     bad: []
   endings: ["~ㅂ니다"]
   a11y:
@@ -259,10 +258,9 @@
   where: "계정 삭제 화면(account-delete): 지워지는 데이터 안내"
   purpose: info
   user_state: "무엇이 지워지는지 확인합니다(스토어 요건)."
-  structure: "두 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것, 법이나 부정 이용 방지에 필요한 정보만 정해진 기간 따로 보관한다는 것(D88 ③④, Apple 계정 삭제 요건). 자세한 항목은 처리방침에 둡니다. 공적인 고지라 합니다체입니다(W40)."
+  structure: "두 문장. 지워지는 것을 모두 적고 되돌릴 수 없다는 것, 법이나 부정 이용 방지에 필요한 정보만 정해진 기간 따로 보관한다는 것(D88 ③④, Apple 계정 삭제 요건). 자세한 항목은 처리방침에 둡니다. 공적인 고지라 합니다체로 썼습니다(W40·W43)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  register: hamnida
   keys:
     - accountDeleteDataBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -311,11 +309,11 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountDeleteDeleteConfirm, text: "정말 지울까요? 지운 계정은 되돌릴 수 없어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: accountDeleteDeleteConfirm, text: "정말 지울까요? 지운 계정은 되돌릴 수 없습니다.", why: "라운드 R18 선택(W43)", source: writing}
       - {lang: ko, key: accountDeleteDeleteConfirmDelete, text: "지우기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: accountDeleteDeleteConfirmCancel, text: "취소", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
     bad: []
-  endings: ["~까요?"]
+  endings: ["~까요?", "~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "제목, 본문, 버튼 순서로 읽습니다."

@@ -38,7 +38,7 @@
     good:
       - {lang: ko, key: forceUpdateNoticeBody, text: "풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
     bad:
-      - {lang: ko, text: "API 버전이 호환되지 않습니다.", why: "기술 어휘 slop.P9, 합니다체 style.S3", source: writing}
+      - {lang: ko, text: "API 버전이 호환되지 않습니다.", why: "기술 어휘 slop.P9", source: writing}
   endings: ["~해요", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
@@ -248,9 +248,9 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: onboardBirthBasisNote, text: "한국에서 태어난 것을 기준으로 계산해요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: onboardBirthBasisNote, text: "한국에서 태어난 것을 기준으로 계산합니다.", why: "라운드 R19 선택(W43)", source: writing}
     bad: []
-  endings: ["~해요", "~어요"]
+  endings: ["~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -269,7 +269,7 @@
     good:
       - {lang: ko, key: onboardBirthErrorRange, text: "1900년 1월 31일부터 2099년 12월 31일 사이의 날짜만 계산할 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
     bad:
-      - {lang: ko, text: "잘못된 입력입니다.", why: "무엇이 잘못인지 말하지 않음, 합니다체 style.S3", source: writing}
+      - {lang: ko, text: "잘못된 입력입니다.", why: "무엇이 잘못인지 말하지 않음", source: writing}
   endings: ["~해 주세요", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
@@ -328,7 +328,7 @@
     good:
       - {lang: ko, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요.", why: "D58 예시를 괄호 없이(style.S1)", source: writing}
     bad:
-      - {lang: ko, text: "입력하신 시각은 {branch}시에 해당합니다.", why: "합니다체 style.S3, 범위 없음", source: writing}
+      - {lang: ko, text: "입력하신 시각은 {branch}시에 해당합니다.", why: "범위 없음", source: writing}
   endings: ["~태어났어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
@@ -422,10 +422,10 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: birthplaceStandardNote, text: "명리일기는 한국에서 널리 쓰는 기준으로 계산해요. 여러 유파 가운데 하나로, 근거가 있는 방식이에요.", why: "D71 표현 기준: 보편적이고 근거가 있다고만 말함", source: writing}
+      - {lang: ko, key: birthplaceStandardNote, text: "명리일기는 한국에서 널리 쓰는 기준으로 계산해요. 여러 유파 가운데 하나로, 근거가 있는 방식입니다.", why: "라운드 R19 선택(W43)", source: writing}
     bad:
       - {lang: ko, text: "명리일기는 정통 한국식으로 가장 정확하게 계산해요.", why: "다른 유파보다 낫다고 말함(D71), 근거 없는 최상급", source: writing}
-  endings: ["~해요", "~이에요"]
+  endings: ["~해요", "~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."

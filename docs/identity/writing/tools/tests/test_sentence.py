@@ -147,39 +147,10 @@ def test_llm_rule_with_detect_is_not_run(rules: RuleSet) -> None:
     assert check_sentence(make_entry("금지어가 있어요."), "info", custom, None, {}) == []
 
 
-@pytest.mark.parametrize("text", ["바쁜 날이니까 하나만 골라 해 보세요.", "몸이 무거우니까 천천히 가도 괜찮아요."])
-def test_connective_nikka_is_not_formal_ending(rules: RuleSet, text: str) -> None:
-    assert "style.S3" not in [f.rule_id for f in check_sentence(make_entry(text), "info", rules, None, {})]
-
-
-def test_formal_ending_still_detected(rules: RuleSet) -> None:
-    findings = check_sentence(make_entry("남색입니다. 좋습니까?"), "info", rules, None, {})
-    assert "style.S3" in [f.rule_id for f in findings]
-
-
-def rule_ids(text: str, rules: RuleSet, register: str) -> list[str]:
-    return [f.rule_id for f in check_sentence(make_entry(text), "info", rules, None, {}, register=register)]
-
-
-def test_haeyo_is_default_register(rules: RuleSet) -> None:
-    findings = check_sentence(make_entry("되돌릴 수 없어요."), "info", rules, None, {})
-    assert "style.S8" not in [f.rule_id for f in findings]
-
-
-def test_hamnida_register_allows_formal_ending(rules: RuleSet) -> None:
-    assert not {"style.S3", "style.S8"} & set(rule_ids("되돌릴 수 없습니다. 정해진 기간 동안 보관합니다.", rules, "hamnida"))
-
-
-def test_hamnida_register_flags_haeyo_ending(rules: RuleSet) -> None:
-    ids = rule_ids("계정을 지우면 모두 지워지고 되돌릴 수 없어요.", rules, "hamnida")
-    assert "style.S8" in ids
-    assert "style.S3" not in ids
-
-
-def test_haeyo_register_still_flags_formal_ending(rules: RuleSet) -> None:
-    ids = rule_ids("남색입니다.", rules, "haeyo")
-    assert "style.S3" in ids
-    assert "style.S8" not in ids
+@pytest.mark.parametrize("text", ["오늘 맞는 색은 남색입니다.", "대운수는 개월을 버리고 셉니다.", "되돌릴 수 없어요."])
+def test_sentence_ending_is_not_checked(rules: RuleSet, text: str) -> None:
+    # 맺음은 쓸 때 고르고 검사하지 않습니다(W43). 현황은 `mlw endings`가 보여 줍니다.
+    assert check_sentence(make_entry(text), "info", rules, None, {}) == []
 
 
 def test_dangsin_is_error(rules: RuleSet) -> None:

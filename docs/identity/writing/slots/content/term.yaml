@@ -97,7 +97,7 @@
     good:
       - {lang: ko, key: term.ten_god.pyeongwan, text: "나를 다그치고 시험하는 기운이에요. 버티는 힘을 길러 주기도 해요.", why: "일상어 풀이와 드러나는 모습", source: writing}
     bad:
-      - {lang: ko, key: term.ten_god.pyeongwan, text: "편관(칠살)은 일간을 극하는 음양이 같은 오행입니다.", why: "괄호 풀이 style.S1, 원리 설명, 합니다체 style.S3", source: writing}
+      - {lang: ko, key: term.ten_god.pyeongwan, text: "편관(칠살)은 일간을 극하는 음양이 같은 오행입니다.", why: "괄호 풀이 style.S1, 원리 설명", source: writing}
   endings: ["~기운이에요", "~해요"]
   a11y:
     truncation: 잘리지 않게 씁니다.

@@ -7,7 +7,7 @@
 
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import regex
@@ -37,6 +37,8 @@ class Ia:
     roles: dict[str, str]
     components: frozenset[str]
     file: Path
+    # IA 슬롯 id -> 그 슬롯이 있는 화면 id
+    screens: dict[str, str] = field(default_factory=dict)
 
 
 def _load_error(path: Path, message: str) -> LoadError:
@@ -54,10 +56,11 @@ def load_ia(path: Path) -> Ia:
             slot["id"]: slot["source"] for screen in data["screens"] for slot in screen.get("slots", [])
         }
         roles = {slot["id"]: slot.get("role", "") for screen in data["screens"] for slot in screen.get("slots", [])}
+        screens = {slot["id"]: screen["id"] for screen in data["screens"] for slot in screen.get("slots", [])}
         components = frozenset(component["id"] for component in data["components"])
     except (KeyError, TypeError) as error:
         raise _load_error(path, f"IA 파일 구조가 맞지 않습니다: {error}") from error
-    return Ia(slots=slots, roles=roles, components=components, file=path)
+    return Ia(slots=slots, roles=roles, components=components, file=path, screens=screens)
 
 
 def camel(ia_id: str) -> str:

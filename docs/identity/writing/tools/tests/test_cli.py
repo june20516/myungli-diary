@@ -321,31 +321,9 @@ def test_vocative_sentence_findings_are_not_duplicated() -> None:
         file=Path("slots/content/test.yaml"),
         vocative=True,
     )
-    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "{name}님, 오늘은 맑습니다.")
+    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "{name}님, 일간(나를 뜻하는 글자)이 강해요.")
     findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
-    assert [finding.rule_id for finding in findings].count("style.S3") == 1
-
-
-def test_slot_register_reaches_sentence_check() -> None:
-    slot = Slot(
-        id="s.slot",
-        where="시험",
-        purpose="info",
-        types=(),
-        variants=1,
-        keys={"k": {}},
-        co_display=(),
-        max_length={"ko": None, "en": None, "ja": None},
-        allowed=frozenset(),
-        forbidden=frozenset(),
-        examples={},
-        line=1,
-        file=Path("slots/content/test.yaml"),
-        register="hamnida",
-    )
-    entry = Entry(Path("content/ko/t.yaml"), 2, "s.slot", "k", None, 1, "ko", "되돌릴 수 없어요.")
-    findings = sentence_findings({"s.slot": slot}, [entry], load_rules(RULES_DIR))
-    assert [finding.rule_id for finding in findings] == ["style.S8"]
+    assert [finding.rule_id for finding in findings].count("style.S1") == 1
 
 
 def test_vocative_stripped_text_is_checked_for_length() -> None:

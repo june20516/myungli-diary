@@ -311,17 +311,10 @@ def test_valid_slot_is_loaded(tmp_path: Path, rules: RuleSet) -> None:
     assert slot.line == 1
 
 
-def test_register_defaults_to_haeyo(tmp_path: Path, rules: RuleSet) -> None:
-    slots = load_slots(make_slots_dir(tmp_path, VALID_SLOT), rules)
-    assert slots["test.slot"].register == "haeyo"
-
-
-def test_register_loads_and_rejects_unknown(tmp_path: Path, rules: RuleSet) -> None:
-    slots = load_slots(make_slots_dir(tmp_path, VALID_SLOT + "  register: hamnida\n"), rules)
-    assert slots["test.slot"].register == "hamnida"
-    (tmp_path / "bad").mkdir()
+def test_register_field_is_unknown(tmp_path: Path, rules: RuleSet) -> None:
+    # 맺음 갈래 필드는 W43에서 없앴습니다.
     with pytest.raises(LoadError) as raised:
-        load_slots(make_slots_dir(tmp_path / "bad", VALID_SLOT + "  register: banmal\n"), rules)
+        load_slots(make_slots_dir(tmp_path, VALID_SLOT + "  register: hamnida\n"), rules)
     assert any("register" in finding.message for finding in raised.value.findings)
 
 

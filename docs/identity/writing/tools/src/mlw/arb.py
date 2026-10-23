@@ -7,7 +7,7 @@ from pathlib import Path
 
 from mlw.icu import RULE_PLURAL, expand_entry, plural_problem
 from mlw.josa_select import JOSA_SUFFIX
-from mlw.model import DEFAULT_REGISTER, LANGS, Entry, Finding, LoadError, RuleSet, Slot
+from mlw.model import LANGS, Entry, Finding, LoadError, RuleSet, Slot
 from mlw.sentence import check_sentence
 
 RULE_ARB = "arb.format"
@@ -85,12 +85,11 @@ def check_arb(arb_paths: Sequence[Path], slots: Mapping[str, Slot], rules: RuleS
             max_length = slot.length_limit(lang, key) if slot else None
             allowed = slot.allowed if slot else frozenset()
             forbidden = slot.forbidden if slot else frozenset()
-            register = slot.register if slot else DEFAULT_REGISTER
             # plural은 형태마다 펼친 문장을 검사하고, 같은 문제는 한 번만 냅니다.
             seen: set[tuple[str, str]] = set()
             for form in expand_entry(entry):
                 for finding in check_sentence(
-                    form, purpose, rules, max_length, {}, allowed=allowed, forbidden=forbidden, register=register
+                    form, purpose, rules, max_length, {}, allowed=allowed, forbidden=forbidden
                 ):
                     if (finding.rule_id, finding.message) not in seen:
                         seen.add((finding.rule_id, finding.message))

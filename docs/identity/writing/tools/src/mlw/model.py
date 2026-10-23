@@ -104,11 +104,6 @@ class Limit:
     window: int = 7
 
 
-# 문장 맺음 갈래(W40)입니다. 말을 거는 문장은 해요체, 공적이고 명확한 사실은 합니다체입니다.
-REGISTERS = ("haeyo", "hamnida")
-DEFAULT_REGISTER = "haeyo"
-
-
 @dataclass(frozen=True)
 class StyleRule:
     id: str
@@ -118,8 +113,6 @@ class StyleRule:
     exempt_purposes: frozenset[str]
     examples: Examples
     line: int
-    # 이 규칙을 적용할 슬롯 맺음 갈래입니다. 비어 있으면 모든 슬롯에 적용합니다.
-    registers: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -243,8 +236,6 @@ class Slot:
     structure: str = ""
     tone: dict[str, int] = field(default_factory=dict)
     endings: tuple[str, ...] = ()
-    # 문장 맺음 갈래(W40)입니다. `REGISTERS` 중 하나입니다.
-    register: str = DEFAULT_REGISTER
     # 문장이 들어가는 IA 슬롯 id입니다(슬롯 명세 v1.1).
     ia: tuple[str, ...] = ()
     # IA 슬롯이 아니라 컴포넌트 안에 들어가는 이름의 자리(IA 컴포넌트 id)입니다.
