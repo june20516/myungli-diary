@@ -59,6 +59,6 @@ abstract interface class Purchases {
   /// 살 수 있는 상품.
   Future<List<StoreProduct>> products();
 
-  /// [productId]를 삽니다.
+  /// [productId]를 삽니다. 실패는 던지지 않고 [PurchaseFailed]로 돌려줍니다.
   Future<PurchaseOutcome> buy(String productId);
 }

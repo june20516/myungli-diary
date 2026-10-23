@@ -41,10 +41,10 @@ class OfferCard extends StatelessWidget {
   const new({
     required this.state,
     required this.head,
-    required this.price,
     required this.buyLabel,
     required this.historyLabel,
     required this.legalNotice,
+    this.price,
     this.statusLabel,
     this.remaining,
     this.onBuy,
@@ -109,7 +109,9 @@ class OfferCard extends StatelessWidget {
   final String head;
 
   /// 가격 + 기간 + 자동 갱신 아님 한 줄(`ad-free.offer.price`).
-  final String price;
+  ///
+  /// null이면 가격 줄과 그 간격을 그리지 않습니다(상품을 받지 못한 오프라인 등).
+  final String? price;
 
   /// 구매 버튼 문구.
   final String buyLabel;
@@ -149,7 +151,7 @@ class OfferCard extends StatelessWidget {
       key: cardKey,
       container: true,
       explicitChildNodes: true,
-      label: [head, price].join(l10n.a11yListSeparator),
+      label: [head, ?price].join(l10n.a11yListSeparator),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.bgSheet,
@@ -179,16 +181,18 @@ class OfferCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: priceGap),
-              ExcludeSemantics(
-                child: Text(
-                  price,
-                  style: tokens.typography.title.copyWith(
-                    color: colors.textPrimary,
-                    fontFeatures: _tabular,
+              if (price != null) ...[
+                const SizedBox(height: priceGap),
+                ExcludeSemantics(
+                  child: Text(
+                    price!,
+                    style: tokens.typography.title.copyWith(
+                      color: colors.textPrimary,
+                      fontFeatures: _tabular,
+                    ),
                   ),
                 ),
-              ),
+              ],
               const SizedBox(height: buyGap),
               SeepOnChange(
                 changeKey: active,

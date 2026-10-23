@@ -49,6 +49,7 @@ Interceptor _unavailableRestore() => InterceptorsWrapper(
 Future<ProviderContainer> _start(
   Purchases purchases, {
   Interceptor? network,
+  bool listen = true,
 }) async {
   final container = await bootstrapForTest(
     'member',
@@ -60,8 +61,10 @@ Future<ProviderContainer> _start(
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
   }
-  final subscription = container.listen(adFreeControllerProvider, (_, _) {});
-  addTearDown(subscription.close);
+  if (listen) {
+    final subscription = container.listen(adFreeControllerProvider, (_, _) {});
+    addTearDown(subscription.close);
+  }
   return container;
 }
 
@@ -108,6 +111,28 @@ final class _SlowPurchases implements Purchases {
   }
 }
 
+FakeCrashReporter _crashOf(ProviderContainer container) =>
+    container.read(crashReporterProvider) as FakeCrashReporter;
+
+/// 계약을 어기고 buy에서 예외를 던지는 대역.
+final class _ThrowingPurchases implements Purchases {
+  @override
+  Future<void> logIn(String accountId) async {}
+
+  @override
+  Future<void> logOut() async {}
+
+  @override
+  Future<void> sync() async {}
+
+  @override
+  Future<List<StoreProduct>> products() async => const [];
+
+  @override
+  Future<PurchaseOutcome> buy(String productId) async =>
+      throw StateError('product ad_free_1month');
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -140,6 +165,8 @@ void main() {
 
     expect(outcome, isA<PurchaseSucceeded>());
     expect(_fake(container).callCountOf('getMe'), getMeBefore + 1);
+    // 503은 서버 장애로 알려진 오류라 crash 기록을 남기지 않습니다.
+    expect(_crashOf(container).errors, isEmpty);
   });
 
   test('취소면 아무것도 부르지 않는다', () async {
@@ -188,5 +215,36 @@ void main() {
     expect(await first, isA<PurchaseSucceeded>());
     expect(purchases.inner.buyCalls, 1);
     expect(_fake(container).callCountOf('restorePurchases'), 1);
+  });
+
+  test('구매 중 화면을 떠나도(구독 해제) 장부 맞추기와 getMe가 끝까지 간다', () async {
+    final gate = Completer<void>();
+    final container = await _start(_SlowPurchases(gate), listen: false);
+    final subscription = container.listen(adFreeControllerProvider, (_, _) {});
+    final getMeBefore = _fake(container).callCountOf('getMe');
+    final pending = container
+        .read(adFreeControllerProvider.notifier)
+        .buy(fakeAdFreeProductId);
+
+    subscription.close();
+    await Future<void>.delayed(Duration.zero);
+    gate.complete();
+
+    expect(await pending, isA<PurchaseSucceeded>());
+    expect(_fake(container).callCountOf('restorePurchases'), 1);
+    expect(_fake(container).callCountOf('getMe'), getMeBefore + 1);
+  });
+
+  test('buy가 예상 밖 예외를 던지면 crash 요약을 남기고 PurchaseFailed로 감싼다', () async {
+    final container = await _start(_ThrowingPurchases());
+
+    final outcome = await container
+        .read(adFreeControllerProvider.notifier)
+        .buy(fakeAdFreeProductId);
+
+    expect(outcome, isA<PurchaseFailed>());
+    expect((outcome as PurchaseFailed).error, isA<UnexpectedError>());
+    expect(_crashOf(container).errors, hasLength(1));
+    expect(container.read(adFreeControllerProvider), isFalse);
   });
 }

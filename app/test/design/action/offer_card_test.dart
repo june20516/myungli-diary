@@ -139,6 +139,29 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('price가 null이면 가격 줄과 간격이 없고 라벨은 head만이다', (tester) async {
+      final handle = tester.ensureSemantics();
+      const card = OfferCard(
+        state: OfferCardState.offline,
+        head: _head,
+        buyLabel: '구매하기',
+        historyLabel: '구매 내역',
+        legalNotice: '구매 전에 약관을 확인해 주세요.',
+      );
+      await tester.pumpWidget(_app(card));
+      final noPrice = tester.getSize(find.byKey(OfferCard.cardKey)).height;
+      expect(find.text(_price), findsNothing);
+      expect(tester.getSemantics(find.byKey(OfferCard.cardKey)).label, _head);
+      await tester.pumpWidget(_app(_card(OfferCardState.offline)));
+      final priced = tester.getSize(find.byKey(OfferCard.cardKey)).height;
+      expect(
+        priced - noPrice,
+        greaterThanOrEqualTo(OfferCard.priceGap),
+        reason: '가격 줄과 그 위 간격이 빠짐',
+      );
+      handle.dispose();
+    });
+
     testWidgets('아이콘은 명세대로 sparkle light 28이다', (tester) async {
       await tester.pumpWidget(_app(_card(OfferCardState.available)));
       final icon = tester.widget<AppIcon>(find.byType(AppIcon));
