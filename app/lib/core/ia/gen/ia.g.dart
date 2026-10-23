@@ -208,6 +208,8 @@ abstract final class SlotIds {
   static const String adFreeBarTitle = 'ad-free.bar.title';
   static const String adFreeOfferHead = 'ad-free.offer.head';
   static const String adFreeOfferPrice = 'ad-free.offer.price';
+  static const String adFreeOfferPeriod = 'ad-free.offer.period';
+  static const String adFreeBuyCta = 'ad-free.buy.cta';
   static const String adFreeStatusRemaining = 'ad-free.status.remaining';
   static const String adFreeHistoryCta = 'ad-free.history.cta';
   static const String adFreeLegalNotice = 'ad-free.legal.notice';
