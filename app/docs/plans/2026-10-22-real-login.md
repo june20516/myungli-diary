@@ -30,7 +30,7 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 
 | Task | A1에서 할 것 | A2로 미루는 것 |
 | --- | --- | --- |
-| 1 | `SocialProvider`를 `lib/core/platform/social_provider.dart`로 옮김, **Step 4 결정 기록 A80~A85**(A2 내용 결정도 이때 기록) | `auth.json`, `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`, README·`patrol_local.sh`·`app.yml`의 `--dart-define-from-file`, Step 1~3·5 |
+| 1 | `SocialProvider`를 `lib/core/platform/social_provider.dart`로 옮김, **Step 4 결정 기록 A80~A85**(A2 내용 결정도 이때 기록), **Step 4a commit** | `auth.json`, `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`, README·`patrol_local.sh`·`app.yml`의 `--dart-define-from-file`, Step 1~3·5 |
 | 2 | 없음 | 전부(패키지, 네이티브 설정, `gen_native_config.dart`, CI `--check`) |
 | 3 | 전부(`LineAuth`·`GoogleAuth`와 대역, `keepSession`, `ProviderRevoker` interface와 `FakeProviderRevoker`) | 없음 |
 | 4·5·6 | 없음 | 전부(실제 adapter, LINE `hasAccessToken`·Google `disconnect` 경계) |
@@ -38,7 +38,7 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 | 8·9·11·12 | 전부. 허가 취소는 `ProviderRevoker` interface(대역)로 연결 | 없음(실제 취소는 Task 7 A2의 `SdkProviderRevoker`가 끼워지며 동작) |
 | 13 | 전부. Step 5는 `gen_native_config --check`를 빼고, Step 6 문서는 A1 기준 | A2 마무리(아래) |
 
-**A2 마무리:** 전체 검사에 `dart run tool/gen_native_config.dart --check`와 `flutter build apk --debug --dart-define-from-file=config/auth.json`을 더해 통과, `tool/patrol_local.sh patrol_test/login_test.dart` 회귀 0, LINE `logout`·deauthorize 확인 결과를 spec §5.6에 적고 허가가 남으면 지휘에 알림, `app/CLAUDE.md` 현재 상태에 A2를 적음. Commit `feat(app): 계획 7 A2 실제 로그인 adapter 마무리`.
+**A2 마무리:** `flutter test test/core/provider_revoker_test.dart test/app test/features/auth`(revoker·부팅·`ProviderNotConfigured` 테스트) PASS, 전체 검사에 `dart run tool/gen_native_config.dart --check`와 `flutter build apk --debug --dart-define-from-file=config/auth.json`을 더해 통과, `tool/patrol_local.sh patrol_test/login_test.dart` 회귀 0, LINE `logout`·deauthorize 확인 결과를 spec §5.6에 적고 허가가 남으면 지휘에 알림, `app/CLAUDE.md` 현재 상태에 A2를 적음. Commit `feat(app): 계획 7 A2 실제 로그인 adapter 마무리`.
 
 A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모두 옮겼습니다. A1의 테스트는 `AuthConfig`·실제 adapter·`gen_native_config` 없이 돕니다.
 
@@ -110,7 +110,8 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
 - [ ] **Step 1: 실패하는 테스트 작성**: `AuthConfig 빈 값은 모든 제공자가 설정 안 됨`, `isGoogleConfigured는 ios면 iOS client id도 봅니다`(server만 채우면 android true·ios false), `isAppleWebConfigured는 셋 중 하나라도 비면 false`.
 - [ ] **Step 2: 실행해 실패 확인**: `flutter test test/core/auth_config_test.dart`. Expected: FAIL(`AuthConfig` 없음).
 - [ ] **Step 3: 구현**: `fromEnvironment`는 키마다 `String.fromEnvironment('<JSON 키>')`. 판정은 `trim().isNotEmpty`.
-- [ ] **Step 4: 결정 기록**: spec §11의 A80~A85를 표 형식 그대로 옮깁니다(A85는 위 "이 계획이 정하는 것"의 문구 행).
+- [ ] **Step 4: 결정 기록**(A1): spec §11의 A80~A85를 표 형식 그대로 옮깁니다(A85는 위 "이 계획이 정하는 것"의 문구 행).
+- [ ] **Step 4a: A1 몫 확인과 Commit**(A1): `SocialProvider`를 `lib/core/platform/social_provider.dart`로 옮기고(`social_login_button.dart`가 export) `flutter analyze` 경고 0, `flutter test test/design test/features/auth --exclude-tags golden` PASS. Commit `refactor(app): SocialProvider를 플랫폼 계층으로, 결정 A80~A85 기록`. 나머지 Step 1~3·5·6은 A2입니다.
 - [ ] **Step 5: 실행해 통과 확인**: 같은 명령 PASS, `flutter analyze` 경고 0.
 - [ ] **Step 6: Commit** `feat(app): 로그인 제공자 설정 파일과 AuthConfig (A81)`
 
@@ -244,7 +245,7 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
 - Test: `app/test/features/auth/provider_authenticator_test.dart`, `app/test/core/provider_revoker_test.dart`, `app/test/features/auth/login_controller_test.dart`(수정), `app/test/app/bootstrap_test.dart`(있으면 수정, 없으면 만듦)
 
 **Interfaces:**
-- Consumes: Task 3~6의 interface·adapter
+- Consumes: A1은 Task 3의 interface·대역, A2는 Task 4~6의 실제 adapter
 - Produces:
   - `sealed class ProviderProof { SocialProvider get provider; String get rawNonce; }`, `final class IdTokenProof extends ProviderProof { const new({required SocialProvider provider, required String idToken, required String rawNonce, String? authorizationCode}); }`, `final class AppleWebExchangeProof extends ProviderProof { const new({required String exchangeCode, required String rawNonce}); }`
   - `final class ProviderAuthenticator { const new(Ref ref); Future<ProviderAuthResult> authenticate(SocialProvider provider, {required String rawNonce, bool keepSession = false}); }`. `sealed class ProviderAuthResult`: `ProviderAuthenticated(ProviderProof proof)`, `ProviderAppleWebFailed(AppleWebError error)`. 취소는 `SocialSignInCancelled`를 던짐
@@ -258,10 +259,10 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
   - revoker(A2): `LINE·Google만 SDK를 부릅니다`, `hasSession이 false면 revoke가 SDK를 부르지 않습니다`, `revoke 실패는 삼키고 오류 요약만 보고합니다`
   - controller: 기존 카카오·Apple 테스트를 `signIn(SocialProvider.x)`로 옮기고 모두 그대로 통과(A79 미리보기 입력 저장 갈래 포함). 더할 것: `line·google 로그인 성공은 카카오와 같은 진입 계산`, (A2) `ProviderNotConfigured는 LoginFailed(UnexpectedError)이고 오류 요약을 보고합니다`
   - 부팅(A2): `realPlatformOverrides(http)는 다섯 provider와 revoker를 실제 구현으로`, `fake는 대역`(spec §12 "부팅")
-- [ ] **Step 2: 실행해 실패 확인**: `flutter test test/features/auth test/core/provider_revoker_test.dart test/app`. Expected: FAIL.
+- [ ] **Step 2: 실행해 실패 확인**(A1): `flutter test test/features/auth`. Expected: FAIL. revoker·부팅 테스트(`test/core/provider_revoker_test.dart`, `test/app`)는 A2 마무리에서 돌립니다.
 - [ ] **Step 3: 구현**: 진행 중 재호출·nonce 규칙은 그대로입니다. 대역 서버(`FakeServer`)가 `loginLine`·`loginGoogle`을 `loginKakao`와 같은 fixture 규칙으로 답하게 합니다.
-- [ ] **Step 4: 실행해 통과 확인**: 같은 명령 PASS, `flutter test test/flows`(로그인 흐름 회귀) PASS.
-- [ ] **Step 5: Commit** `feat(app): 제공자 인증 경계와 로그인 합치기 (A84)`
+- [ ] **Step 4: 실행해 통과 확인**(A1): `flutter test test/features/auth test/flows`(로그인 흐름 회귀 포함) PASS.
+- [ ] **Step 5: Commit**(A1) `feat(app): 제공자 인증 경계와 로그인 합치기 (A84)`. A2의 `SdkProviderRevoker`·부팅 끼우기는 A2 마무리 commit에 담습니다.
 
 ### Task 8: 로그인 화면 네 버튼
 

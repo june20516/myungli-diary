@@ -267,7 +267,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 
 **합치기 흐름**
 1. 합치기 → `account-merge.merge.confirm` `dialog` `destructive`(되돌릴 수 없음). 확인 없이는 부르지 않습니다(D82 ⑥).
-2. 확정하면 `Idempotency-Key` 하나를 만들고 `AccountLinkRepository.merge(token, profile, key)`(`mergeAccounts`, 본문 `{mergeToken, profile: current|other}`). 합치는 동안 합치기 버튼 `loading`, `account-choice` `disabled`이고 **뒤로 가기(app-bar·시스템)를 모두 막습니다**.
+2. 확정하면 `Idempotency-Key`를 정하고(키는 (`mergeToken`, `profile`) 조합마다 하나, 같은 조합으로 다시 확정하면 같은 키, 토큰이나 프로필이 바뀌면 새 키) `AccountLinkRepository.merge(token, profile, key)`(`mergeAccounts`, 본문 `{mergeToken, profile: current|other}`). 합치는 동안 합치기 버튼 `loading`, `account-choice` `disabled`이고 **뒤로 가기(app-bar·시스템)를 모두 막습니다**.
 3. 응답은 A의 `Me`이고 새 세션이 없습니다. **토큰을 바꾸지 않습니다.** 계약("합친 유저 계정 기준으로 캐시·초안을 지운 뒤 `getMe`부터 다시 읽습니다")대로 이 계정의 캐시(오늘·달력·일기 목록·나의 사주·프로필 사본)와 이 기기의 일기 초안을 지우고(기기 플래그는 남김), `meProvider`를 응답 `Me`로 갱신한 뒤 진입을 다시 계산합니다.
 4. §5.6대로 B의 증명에 쓴 LINE·Google 허가를 취소하고 햅틱 light를 냅니다.
 5. 이동: 진입 계산이 회원 갈래 그대로(동의 있음, 사주 있음)면 `login-methods`로 돌아갑니다(IA 출구). 그 밖의 갈래(고른 쪽 프로필이 없어 `status: none` 등)면 진입 계산이 정한 화면이 우선합니다.
@@ -312,7 +312,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
   * 네 제공자 모두 제공자에게 nonce 해시를, server에 원문을 보냅니다.
   * Google SDK는 nonce를 `initialize` 한 번에만 받으므로, 프로세스마다 원문 nonce 하나를 만들어 앱이 꺼질 때까지 씁니다. adapter가 실제로 쓴 원문을 credential로 돌려줍니다.
   * LINE·Google 모두 이메일·프로필 scope를 받지 않습니다(D82 ④).
-* **A84:** 제공자 인증(`ProviderAuthenticator` → `ProviderProof`)은 로그인, 로그인 수단 붙이기, 합치기 인증이 함께 씁니다. server에 보내는 곳(`AuthRepository.login`, `AccountLinkRepository.link`·`preview`)만 다릅니다. 연결·합치기 데이터는 `AccountLinkRepository`(REST 1.0.0 생성 클라이언트 위)이고 fake 모드는 대역 서버가 답합니다. 연결 409는 합치기로 넘기지 않고 안내만 하며(D85 ③), 합치기는 `previewMerge` → 확인 → `mergeAccounts`(`Idempotency-Key` 하나, 응답 `Me`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음)입니다. 같은 키 재전송의 422 `merge.token_invalid`는 `getMe`로 합쳐졌는지 확인해 합쳐졌으면 성공 갈래, 아니면 `errorMergeTokenInvalid`와 인증 단계입니다. 합쳐졌는지의 판정은 요약에서 기대한 변화로 보는 **잠정 규칙**이고 server 판정 수단을 기다립니다(#552, §9). 합친 뒤 캐시와 일기 초안을 지웁니다(계약).
+* **A84:** 제공자 인증(`ProviderAuthenticator` → `ProviderProof`)은 로그인, 로그인 수단 붙이기, 합치기 인증이 함께 씁니다. server에 보내는 곳(`AuthRepository.login`, `AccountLinkRepository.link`·`preview`)만 다릅니다. 연결·합치기 데이터는 `AccountLinkRepository`(REST 1.0.0 생성 클라이언트 위)이고 fake 모드는 대역 서버가 답합니다. 연결 409는 합치기로 넘기지 않고 안내만 하며(D85 ③), 합치기는 `previewMerge` → 확인 → `mergeAccounts`(`Idempotency-Key`는 (`mergeToken`, `profile`) 조합마다 하나이고 같은 조합 재확정은 같은 키, 응답 `Me`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음)입니다. 같은 키 재전송의 422 `merge.token_invalid`는 `getMe`로 합쳐졌는지 확인해 합쳐졌으면 성공 갈래, 아니면 `errorMergeTokenInvalid`와 인증 단계입니다. 합쳐졌는지의 판정은 요약에서 기대한 변화로 보는 **잠정 규칙**이고 server 판정 수단을 기다립니다(#552, §9). 합친 뒤 캐시와 일기 초안을 지웁니다(계약).
 * **A85:** 로그인 수단·계정 합치기 문구는 writing 원고 키(W39·W40·W42)를 그대로 씁니다. 원고 없는 자리가 새로 나오면 A7 임시 키로 두고 writing에 요청합니다. 화면 문구 problem code는 A74 규칙(`_screenMessages`)을 따릅니다. 사용자에게 보이는 글자에는 U+2014·U+2013·U+00B7을 쓰지 않습니다(#546).
 
 ## 12. 테스트와 계획 단계
