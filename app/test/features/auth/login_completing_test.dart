@@ -6,9 +6,7 @@ void main() {
   test('앞 시도가 끝나도 뒤 시도의 보류는 유지된다', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
-    final completing = container.read(loginCompletingProvider.notifier);
-
-    completing
+    final completing = container.read(loginCompletingProvider.notifier)
       ..begin() // 첫 로그인
       ..begin() // 보류 중 다시 연 login의 두 번째 로그인
       ..end(); // 첫 로그인이 먼저 끝남
