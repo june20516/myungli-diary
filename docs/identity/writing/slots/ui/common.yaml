@@ -52,8 +52,8 @@
     - errorAuthIdentityNotFound
     - errorAuthProviderTaken
     - errorAuthIdentityInUse
-    - errorAuthIdentityPendingDeletion
     - errorAuthLastIdentity
+    - errorMergeTokenInvalid
     - errorAppCheckInvalid
     - errorConsentRequired
     - errorPreviewUsed
