@@ -119,22 +119,22 @@
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmBody, text: "{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요."}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmCancel, text: "취소"}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "바꾸기"}
-- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준을 따라요. 여러 유파 가운데 하나로, 근거가 있는 기준이에요."}
-- {slot: calc-basis.schools.body, key: calcBasisSchoolsBody, text: "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산해요. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더해서 계산해요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "출생 시각은 서머타임 {dstMinutes}분만 빼고 계산해요. {longitude} 기준이라 경도 보정은 따로 하지 않아요. 진태양시는 쓰지 않아요. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "명리 해석은 한국에서 널리 쓰는 기준을 따릅니다. 여러 유파 가운데 하나로, 근거가 있는 기준이에요."}
+- {slot: calc-basis.schools.body, key: calcBasisSchoolsBody, text: "지장간은 하나만 고르지 않고 모두 보여 드려요. 자시에 태어났다면 자정 전이라도 다음 날로 계산합니다. 유파마다 처리가 달라서 다른 앱이나 책과 결과가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 더해서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더해서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "출생 시각은 서머타임 {dstMinutes}분만 빼고 계산합니다. {longitude} 기준이라 경도 보정은 따로 하지 않습니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "동경 {degrees}°"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "서경 {degrees}°"}
-- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따라요."}
-- {slot: calc-basis.daeun.body, key: calcBasisDaeunBody, text: "대운수는 개월을 버리고 셉니다."}
+- {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "음력은 한국천문연구원 기준의 한국 음력을 따릅니다."}
+- {slot: calc-basis.daeun.body, key: calcBasisDaeunBody, text: "대운수는 개월을 버리고 계산합니다."}
 - {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "계정 삭제"}
 - {slot: account-delete.data.body, key: accountDeleteDataBody, text: "계정을 지우면 사주 정보, 일기, 태그, 일정, 구매한 상품의 남은 기간이 모두 지워지며 되돌릴 수 없습니다. 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 동안 따로 보관합니다."}
 - {slot: account-delete.cta.delete, key: accountDeleteCtaDelete, text: "계정 지우기"}
-- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "정말 지울까요? 지운 계정은 되돌릴 수 없어요."}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "정말 지울까요? 지운 계정은 되돌릴 수 없습니다."}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmDelete, text: "지우기"}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "취소"}
 - {slot: ad-free.offer.head, key: adFreeOfferHead, text: "한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요."}
