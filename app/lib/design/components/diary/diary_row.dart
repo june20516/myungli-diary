@@ -456,7 +456,7 @@ class DiaryRowSkeleton extends StatelessWidget {
   final int index;
 
   static const double _weekdayBoneWidth = 16;
-  static const double _lineHeight = 12;
+  static const double _lineHeight = SkeletonBone.lineHeight;
   static const double _lastLineFactor = 0.6;
 
   @override
@@ -867,7 +867,7 @@ class DiaryEntriesSkeleton extends StatelessWidget {
   final DiaryEntriesSurface surface;
 
   static const double _timeBoneWidth = 48;
-  static const double _boneHeight = 12;
+  static const double _boneHeight = SkeletonBone.lineHeight;
   static const int _lineCount = 2;
 
   @override

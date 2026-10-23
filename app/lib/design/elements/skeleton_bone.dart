@@ -14,6 +14,9 @@ class SkeletonBone extends StatelessWidget {
     super.key,
   });
 
+  /// 글줄 한 줄 자리의 높이(여러 skeleton이 함께 씁니다).
+  static const double lineHeight = 12;
+
   /// 너비. 없으면 부모가 주는 만큼.
   final double? width;
 

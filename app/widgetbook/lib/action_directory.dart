@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/purchase_row.dart';
+import 'package:myungli_diary/design/components/action/purchase_row_sample.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
@@ -193,9 +195,25 @@ WidgetbookUseCase _offerCard(OfferCardState state) => WidgetbookUseCase(
   },
 );
 
+WidgetbookUseCase _purchaseRows({required bool loading}) => WidgetbookUseCase(
+  name: loading ? 'loading' : '묶음',
+  builder: (context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return Stage(
+      child: SizedBox(
+        width: 360,
+        child: loading
+            ? const PurchaseRowGroup.loading()
+            : PurchaseRowGroup(rows: purchaseRowSamples(l10n, locale)),
+      ),
+    );
+  },
+);
+
 /// 동작 카탈로그: primary-button(filled·quiet·destructive), social-login-button
 /// (kakao·line·google·apple, connected), offer-card(네 상태),
-/// share-button(icon·soft),
+/// purchase-row(묶음과 loading), share-button(icon, soft),
 /// settings-row(묶음).
 final WidgetbookFolder actionDirectory = WidgetbookFolder(
   name: '동작',
@@ -217,6 +235,10 @@ final WidgetbookFolder actionDirectory = WidgetbookFolder(
     WidgetbookComponent(
       name: 'offer-card',
       useCases: [for (final state in OfferCardState.values) _offerCard(state)],
+    ),
+    WidgetbookComponent(
+      name: 'purchase-row',
+      useCases: [_purchaseRows(loading: false), _purchaseRows(loading: true)],
     ),
     WidgetbookFolder(
       name: 'share-button',

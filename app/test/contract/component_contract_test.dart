@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
+import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
@@ -821,6 +822,47 @@ void main() {
       expect(_map(parts['buy'])['variant'], 'filled');
       expect(_map(parts['history'])['variant'], 'quiet');
       expect(_map(_map(offer['states'])['active'])['pattern'], 'appear.seep');
+    });
+
+    test('purchase-row 부품 값(바탕, radius, 간격 16/16/4/12, 상태 폭 80)이 명세와 같다', () {
+      final purchase = specs['purchase-row']!;
+      final parts = _map(purchase['parts']);
+      final group = _map(parts['group']);
+      expect(group['bg'], '{color.bg.sheet}');
+      expect(group['radius'], '{radius.lg}');
+      expect(group['paddingX'], '{space.16}');
+      expect(PurchaseRowGroup.paddingX, Space.s16);
+
+      final row = _map(parts['row']);
+      expect(row['paddingY'], '{space.16}');
+      expect(PurchaseRowGroup.rowPaddingY, Space.s16);
+      expect(row['pressable'], isFalse);
+      final divider = _map(row['divider']);
+      expect(divider['color'], '{color.line}');
+      expect(_px(divider['width']), 1);
+      expect(divider['between'], 'rows-only');
+
+      expect(_map(parts['product'])['type'], '{type.subtitle}');
+      expect(_map(parts['product'])['overflow'], 'wrap');
+
+      final status = _map(parts['status']);
+      expect(status['gap'], '{space.12}');
+      expect(PurchaseRowGroup.statusGap, Space.s12);
+      expect(_px(status['maxWidth']), PurchaseRowGroup.statusMaxWidth);
+      expect(_map(status['active'])['element'], 'tag.status');
+      expect(_map(status['other'])['type'], '{type.label.md}');
+      expect(_map(status['other'])['fg'], '{color.text.secondary}');
+
+      final meta = _map(parts['meta']);
+      expect(meta['type'], '{type.caption.lg}');
+      expect(meta['fontFeatures'], ['tnum']);
+      expect(meta['marginTop'], '{space.4}');
+      expect(PurchaseRowGroup.metaGap, Space.s4);
+
+      expect(
+        _map(_map(purchase['states'])['loading'])['component'],
+        'skeleton',
+      );
     });
   });
 
