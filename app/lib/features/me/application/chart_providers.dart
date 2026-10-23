@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
 import 'package:myungli_diary/core/api/gen/model/position.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_kind.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -153,7 +154,7 @@ final class ChartController extends AsyncNotifier<Chart> {
       ? null
       : chartKey(
           fingerprint: sajuFingerprint(profile),
-          language: profile.language.value,
+          language: knownLanguageOf(profile.language).value,
           year: year,
         );
 }

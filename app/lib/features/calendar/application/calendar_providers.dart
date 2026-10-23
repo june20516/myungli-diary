@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/api/gen/model/calendar.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -247,7 +248,7 @@ Future<String?> _cacheKeyFor(Ref ref, CalendarMonth month) async {
   }
   return calendarKey(
     fingerprint: sajuFingerprint(profile),
-    language: profile.language.value,
+    language: knownLanguageOf(profile.language).value,
     year: month.year,
     month: month.month,
   );

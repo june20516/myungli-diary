@@ -375,5 +375,13 @@ void main() {
       );
       expect(used, [Language.en]);
     });
+
+    test('프로필 언어가 모르는 값이면 en으로 요청한다', () async {
+      final used = await languagesUsed(
+        profile: () async =>
+            Profile.fromJson({...seoulProfile, 'language': 'xx'}),
+      );
+      expect(used, [Language.en]);
+    });
   });
 }

@@ -1,6 +1,6 @@
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
-import 'package:myungli_diary/core/platform/device_locale.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 
 /// 프로필 입력 칸에 붙이는 필드 오류 위치(JSON Pointer)입니다.
 const ({

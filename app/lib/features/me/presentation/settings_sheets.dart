@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/notification_setting.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
@@ -24,12 +24,6 @@ const Map<Language, String> languageNames = {
 /// [language]의 자기 이름. 계약에 없는 언어는 기본 언어로 봅니다(A78, [knownLanguageOf]).
 String languageNameOf(Language language) =>
     languageNames[knownLanguageOf(language)]!;
-
-/// 언어 시트에서 고를 수 있는 언어(계약이 아는 값).
-final List<Language> _selectableLanguages = [
-  for (final language in Language.values)
-    if (language.isKnown) language,
-];
 
 /// 알림을 처음 켤 때 휠이 가리키는 시각(notify-ask와 같은 08:00).
 const TimeOfDay defaultNotifyTime = TimeOfDay(hour: 8, minute: 0);
@@ -198,7 +192,7 @@ class LanguageSheet extends StatelessWidget {
           const SizedBox(height: Space.s12),
           SettingsGroup(
             children: [
-              for (final language in _selectableLanguages)
+              for (final language in languageNames.keys)
                 // 언어 이름은 그 언어의 글꼴로 그립니다(한국어 글꼴에는 日本語 글자가 없음).
                 Theme(
                   data: buildTheme(

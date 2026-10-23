@@ -218,11 +218,17 @@ Future<void> _untilCachedReaction(
 void main() {
   setUpAll(ensureTimeZonesInitialized);
 
-  testWidgets('모르는 reaction 값은 반응 없음으로 그린다', (tester) async {
-    final (container, _) = await _boot(tester);
-    final head = _head(container);
+  test('모르는 reaction 값은 반응 없음으로 그린다', () {
     final unknown = SlotText.fromJson({
-      ...head.toJson(),
+      'slot': 'daily.fortune.head',
+      'messageKey': 'k',
+      'variant': 'plain',
+      'text': {
+        'segments': [
+          {'text': '문장'},
+        ],
+      },
+      'reactable': true,
       'reaction': 'unknown_future_reaction',
     });
     expect(unknown.reaction, SlotTextReactionEnum.unknownDefaultOpenApi);

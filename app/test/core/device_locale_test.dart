@@ -13,13 +13,6 @@ void main() {
     expect(resolveAppLanguage(const Locale('fr', 'FR')), Language.en);
   });
 
-  test('knownLanguageOf는 아는 값은 그대로, 모르는 값은 en이다', () {
-    expect(knownLanguageOf(Language.ko), Language.ko);
-    expect(knownLanguageOf(Language.en), Language.en);
-    expect(knownLanguageOf(Language.ja), Language.ja);
-    expect(knownLanguageOf(Language.unknownDefaultOpenApi), Language.en);
-  });
-
   ProviderContainer containerWith(Locale locale) {
     final container = ProviderContainer(
       overrides: [localeProvider.overrideWithValue(locale)],
@@ -71,6 +64,14 @@ void main() {
       expect(container.read(appLanguageProvider), Language.en);
       // 기기 지역 판정(D29·D58)은 앱 언어를 바꿔도 기기 지역을 따릅니다.
       expect(container.read(deviceRegionIsKoreaProvider), isTrue);
+    });
+
+    test('프로필 언어가 모르는 값이면 en으로 쓴다', () {
+      final container = containerOf(
+        const Locale('ko', 'KR'),
+        Language.unknownDefaultOpenApi,
+      );
+      expect(container.read(localeProvider), const Locale('en', 'KR'));
     });
 
     test('기본 profileLanguageProvider는 null이다(사본 연결은 app 계층)', () {

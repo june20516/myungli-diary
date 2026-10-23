@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -38,7 +39,7 @@ final localeProvider = Provider<Locale>((ref) {
   if (language == null) {
     return device;
   }
-  return Locale(language.value, device.countryCode);
+  return Locale(knownLanguageOf(language).value, device.countryCode);
 });
 
 /// 보안 저장소.
