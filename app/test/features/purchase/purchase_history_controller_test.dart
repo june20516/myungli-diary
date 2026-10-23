@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,9 +9,11 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/features/purchase/application/purchase_history_controller.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/purchase_stubs.dart';
 
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
@@ -50,7 +54,7 @@ DioException _unavailable(RequestOptions options) {
 }
 
 Future<ProviderContainer> _start({
-  FakePurchases? purchases,
+  Purchases? purchases,
   Interceptor? network,
 }) async {
   final container = await bootstrapForTest(
@@ -221,5 +225,24 @@ void main() {
     expect(errors, hasLength(1));
     expect(errors.single.code, isNull);
     expect(errors.single.status, isNull);
+  });
+
+  test('다시 시도 중 화면을 떠나도 예외 없이 끝난다', () async {
+    final purchases = GatedPurchases();
+    final container = await _start(purchases: purchases);
+    final subscription = container.listen(purchaseHistoryProvider, (_, _) {});
+    await container.read(purchaseHistoryProvider.future);
+    final gate = Completer<void>();
+    purchases.syncGate = gate;
+
+    final retrying = container.read(purchaseHistoryProvider.notifier).retry();
+    await Future<void>.delayed(Duration.zero);
+    expect(purchases.syncCalls, 2);
+    subscription.close();
+    // autoDispose가 provider를 버리게 한 차례 넘깁니다.
+    await Future<void>.delayed(Duration.zero);
+    gate.complete();
+
+    await expectLater(retrying, completes);
   });
 }

@@ -30,12 +30,17 @@ final class PurchaseHistoryController extends AsyncNotifier<List<Purchase>> {
   }
 
   /// 1부터 다시 합니다. 이미 불러오는 중이면 겹쳐 돌지 않도록 무시합니다.
+  ///
+  /// 다시 하는 동안 화면을 떠나 provider가 버려졌으면 결과를 쓰지 않습니다.
   Future<void> retry() async {
     if (state.isLoading) {
       return;
     }
     state = const AsyncLoading();
-    state = await AsyncValue.guard(build);
+    final next = await AsyncValue.guard(build);
+    if (ref.mounted) {
+      state = next;
+    }
   }
 
   Future<void> _syncQuietly() async {
@@ -61,15 +66,8 @@ final class PurchaseHistoryController extends AsyncNotifier<List<Purchase>> {
 
   /// AppError(오프라인, 503 등)는 기록 없이 삼키고, 예상 밖 오류만 요약을 남깁니다.
   void _recordIfUnexpected(Object error, StackTrace stack) {
-    final unexpected = switch (error) {
-      UnexpectedError(:final cause) => cause,
-      AppError() => null,
-      _ => error,
-    };
-    if (unexpected != null && ref.mounted) {
-      ref
-          .read(crashReporterProvider)
-          .record(CrashSummary.from(unexpected), stack);
+    if (ref.mounted) {
+      recordUnlessAppError(ref.read(crashReporterProvider), error, stack);
     }
   }
 }

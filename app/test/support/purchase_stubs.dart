@@ -23,8 +23,8 @@ final class GatedPurchases implements Purchases {
            ? FakePurchases()
            : FakePurchases(catalog: catalog);
 
-  /// 열릴 때까지 `sync`를 붙잡는 게이트.
-  final Completer<void>? syncGate;
+  /// 열릴 때까지 `sync`를 붙잡는 게이트. 첫 불러오기 뒤에 걸어 다시 시도만 붙잡을 수 있습니다.
+  Completer<void>? syncGate;
 
   /// 열릴 때까지 `products`를 붙잡는 게이트.
   final Completer<void>? productsGate;

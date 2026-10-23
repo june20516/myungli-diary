@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +23,9 @@ class _SwitchableApi extends DefaultApi {
   Exception? failWith;
   int getMeCalls = 0;
 
+  /// 있으면 열릴 때까지 `getMe`를 붙잡습니다.
+  Completer<void>? gate;
+
   @override
   Future<Response<Me>> getMe({
     CancelToken? cancelToken,
@@ -31,6 +36,7 @@ class _SwitchableApi extends DefaultApi {
     ProgressCallback? onReceiveProgress,
   }) async {
     getMeCalls++;
+    await gate?.future;
     final override = meOverride;
     final failure = failWith;
     if (failure != null) {
@@ -135,5 +141,33 @@ void main() {
     await container.read(entryStateProvider.notifier).reloadMe();
 
     expect(api.getMeCalls, callsBefore);
+  });
+
+  test('getMe를 기다리는 사이 진입 계산이 시작되면 결과를 쓰지 않는다', () async {
+    final (container, api) = await _start();
+    final before = container.read(entryStateProvider).value!;
+    final gate = Completer<void>();
+    api
+      ..gate = gate
+      ..meOverride = before.me!.copyWith(accountId: 'reloaded');
+    final notifier = container.read(entryStateProvider.notifier);
+    final reloading = notifier.reloadMe();
+    await Future<void>.delayed(Duration.zero);
+
+    // 진입 계산 중 끼어든 값(계산 중이 아닌 data)이 나오는지 지켜봅니다.
+    final settled = <AsyncValue<Object?>>[];
+    final subscription = container.listen(entryStateProvider, (_, next) {
+      if (!next.isLoading) settled.add(next);
+    });
+    addTearDown(subscription.close);
+    final refreshing = notifier.refresh();
+    await Future<void>.delayed(Duration.zero);
+    expect(container.read(entryStateProvider).isLoading, isTrue);
+
+    gate.complete();
+    await reloading;
+    expect(settled, isEmpty, reason: '계산 중에는 reloadMe가 state를 바꾸지 않음');
+    expect(await refreshing, isNull);
+    expect(settled, hasLength(1));
   });
 }

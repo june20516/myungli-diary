@@ -73,6 +73,25 @@ Future<T> guardUnexpected<T>(
   }
 }
 
+/// 조용히 넘기는 실패의 기록 규칙입니다. [AppError](오프라인, 503 등 이미 분류된 실패)는
+/// 기록 없이 삼키고, 예상 밖 오류만 [reporter]에 [CrashSummary]로 남깁니다(D64).
+///
+/// [UnexpectedError]는 감싼 원인(`cause`)을 풀어 그 타입으로 기록합니다.
+void recordUnlessAppError(
+  CrashReporter reporter,
+  Object error,
+  StackTrace stack,
+) {
+  final unexpected = switch (error) {
+    UnexpectedError(:final cause) => cause,
+    AppError() => null,
+    _ => error,
+  };
+  if (unexpected != null) {
+    reporter.record(CrashSummary.from(unexpected), stack);
+  }
+}
+
 /// 비정상 종료 보고(Crashlytics).
 ///
 /// 일기 본문, 출생 정보, 호칭은 어떤 경로로도 넘기지 않습니다(D64 ②).

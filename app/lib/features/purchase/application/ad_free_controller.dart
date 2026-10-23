@@ -90,15 +90,8 @@ class AdFreeController extends Notifier<bool> {
 
   /// AppError(오프라인, 503 등)는 기록 없이 삼키고, 예상 밖 오류만 요약을 남깁니다.
   void _recordIfUnexpected(Object error, StackTrace stack) {
-    final unexpected = switch (error) {
-      UnexpectedError(:final cause) => cause,
-      AppError() => null,
-      _ => error,
-    };
-    if (unexpected != null && ref.mounted) {
-      ref
-          .read(crashReporterProvider)
-          .record(CrashSummary.from(unexpected), stack);
+    if (ref.mounted) {
+      recordUnlessAppError(ref.read(crashReporterProvider), error, stack);
     }
   }
 }
