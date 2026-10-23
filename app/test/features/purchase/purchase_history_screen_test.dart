@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart'
-    show SingleChildScrollView, TextDirection, ValueKey;
+    show RenderBox, SingleChildScrollView, TextDirection, ValueKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -385,7 +385,23 @@ void main() {
     );
     final padding = scroll.padding!.resolve(TextDirection.ltr);
     expect(padding.bottom, closeTo(Space.s24 + 34, 0.01));
-    expect(padding.left, Space.s20);
-    expect(padding.right, Space.s20);
+    // 좌우 여백은 empty-state가 스스로 두므로 바깥에서 더하지 않습니다.
+    expect(padding.left, 0);
+    expect(padding.right, 0);
+  });
+
+  testWidgets('빈 목록의 empty-state 글자 좌우는 20px이고 notice와 맞는다', (tester) async {
+    await _open(tester, scenario: 'member');
+    final width = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    final emptyText = find.text(_ko.purchaseHistoryEmptyBody);
+    // 두 글자 모두 좌우 20px 안쪽의 같은 폭에서 줄을 나누고, 같은 가운데에 놓입니다.
+    for (final text in [emptyText, _notice]) {
+      final box = tester.renderObject<RenderBox>(text);
+      expect(box.constraints.maxWidth, closeTo(width - 2 * Space.s20, 0.01));
+      final rect = tester.getRect(text);
+      expect(rect.left, greaterThanOrEqualTo(Space.s20 - 0.01));
+      expect(rect.right, lessThanOrEqualTo(width - Space.s20 + 0.01));
+      expect(rect.center.dx, closeTo(width / 2, 0.5));
+    }
   });
 }

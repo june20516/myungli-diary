@@ -135,7 +135,7 @@ AsyncValue<List<Purchase>> _awaitingStoreNames(
   return history;
 }
 
-/// 목록과 빈 목록이 함께 쓰는 바깥 여백. 좌우 `space.20`, 아래는 하단 safe area까지 둡니다.
+/// 목록의 바깥 여백. 좌우 `space.20`, 아래는 하단 safe area까지 둡니다. 빈 목록은 세로만 씁니다.
 EdgeInsets _contentPadding(BuildContext context) => EdgeInsets.fromLTRB(
   Space.s20,
   Space.s12,
@@ -144,6 +144,9 @@ EdgeInsets _contentPadding(BuildContext context) => EdgeInsets.fromLTRB(
 );
 
 /// 빈 목록: `empty-state`와 `missing.notice`를 한 묶음으로 화면 세로 40% 지점에 둡니다.
+///
+/// `empty-state`가 좌우 `space.20`을 스스로 두므로 바깥 여백은 세로만 두고, notice에만
+/// 좌우 `space.20`을 줘 둘의 글자 시작을 맞춥니다.
 class _EmptyWithNotice extends StatelessWidget {
   const new({required this.body});
 
@@ -154,7 +157,7 @@ class _EmptyWithNotice extends StatelessWidget {
     return Align(
       alignment: const Alignment(0, -0.2),
       child: SingleChildScrollView(
-        padding: _contentPadding(context),
+        padding: _contentPadding(context).copyWith(left: 0, right: 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -166,7 +169,10 @@ class _EmptyWithNotice extends StatelessWidget {
               body: body,
               identifier: SlotIds.purchaseHistoryEmptyBody,
             ),
-            const _MissingNotice(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: Space.s20),
+              child: _MissingNotice(),
+            ),
           ],
         ),
       ),
