@@ -110,5 +110,6 @@ def test_endings_command_reports_without_failing(capsys: pytest.CaptureFixture[s
 def test_endings_command_lists_one_screen(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["endings", "--screen", "calc-basis"]) == 0
     out = capsys.readouterr().out
-    assert "[합니다체] calc-basis.daeun.body calcBasisDaeunBody: 대운수는 개월을 버리고 셉니다." in out
+    # 원고 문구에 묶이지 않게 줄 형식과 맺음 판정만 봅니다.
+    assert any(line.startswith("[합니다체] calc-basis.daeun.body calcBasisDaeunBody: ") for line in out.splitlines())
     assert "today" not in out
