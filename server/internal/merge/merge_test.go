@@ -320,8 +320,8 @@ func TestPreview_OtherAccount(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, merge.Summary{
-		Diaries:     3,
-		Schedules:   2,
+		Diaries:     2, // 지운 일기는 옮기지만 세지 않습니다
+		Schedules:   1,
 		DateRecords: 1,
 		Reactions:   1,
 		OverlapDays: 1,
