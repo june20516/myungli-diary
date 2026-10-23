@@ -142,6 +142,33 @@ void main() {
     expect(find.text(_ko.adFreeHistoryCta), findsOneWidget);
   });
 
+  testWidgets('카드 부품에 IA 슬롯 identifier가 붙는다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _open(tester, FakePurchases());
+    for (final id in [
+      SlotIds.adFreeOfferHead,
+      SlotIds.adFreeOfferPrice,
+      SlotIds.adFreeOfferPeriod,
+      SlotIds.adFreeBuyCta,
+      SlotIds.adFreeHistoryCta,
+      SlotIds.adFreeLegalNotice,
+    ]) {
+      expect(find.bySemanticsIdentifier(id), findsOneWidget, reason: id);
+    }
+    handle.dispose();
+  });
+
+  testWidgets('이용 중이면 남은 기간에 IA 슬롯 identifier가 붙는다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _open(tester, FakePurchases(), scenario: 'ad-free-active');
+    expect(
+      find.bySemanticsIdentifier(SlotIds.adFreeStatusRemaining),
+      findsOneWidget,
+    );
+    expect(find.bySemanticsIdentifier(SlotIds.adFreeBuyCta), findsNothing);
+    handle.dispose();
+  });
+
   testWidgets('상품 실패면 error와 다시 시도', (tester) async {
     covers(const Covers(states: ['ad-free:error']));
     final purchases = _ProductsFailing(UnexpectedError(StateError('x')));
@@ -160,7 +187,7 @@ void main() {
     expect(find.byType(NoticeBanner), findsOneWidget);
     expect(find.text(_ko.noticeOffline), findsOneWidget);
     expect(_buy(tester).onPressed, isNull);
-    expect(find.text('가격'), findsNothing);
+    expect(tester.widget<OfferCard>(find.byType(OfferCard)).price, isNull);
     expect(find.text(_ko.adFreeOfferPeriod), findsOneWidget);
     expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
     final history = tester.widget<PrimaryButton>(

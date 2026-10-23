@@ -142,6 +142,15 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
           onBuy: product == null ? null : () => _buy(product),
           onHistory: () => _open(ScreenIds.purchaseHistory),
           onLegal: () => _open(ScreenIds.legal),
+          identifiers: const OfferCardIdentifiers(
+            head: SlotIds.adFreeOfferHead,
+            price: SlotIds.adFreeOfferPrice,
+            period: SlotIds.adFreeOfferPeriod,
+            remaining: SlotIds.adFreeStatusRemaining,
+            buy: SlotIds.adFreeBuyCta,
+            history: SlotIds.adFreeHistoryCta,
+            legal: SlotIds.adFreeLegalNotice,
+          ),
         ),
       ],
     );

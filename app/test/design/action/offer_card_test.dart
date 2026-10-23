@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -12,6 +13,9 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 const _head = '한 달 동안 광고 없이 봐요';
 const _price = '가격';
 const _period = '1개월, 자동 갱신 없음';
+
+/// 카드 라벨의 항목 구분자(ko).
+final _separator = AppLocalizationsKo().a11yListSeparator;
 
 Widget _app(Widget child) => MaterialApp(
   locale: const Locale('ko'),
@@ -131,10 +135,7 @@ void main() {
       final node = tester.getSemantics(find.byKey(OfferCard.cardKey));
       final data = node.getSemanticsData();
       expect(data.flagsCollection.isButton, isFalse);
-      expect(data.label, contains(_head));
-      expect(data.label, contains(_price));
-      expect(data.label, contains(_period));
-      expect(data.label, isNot(endsWith(',')));
+      expect(data.label, [_head, _price, _period].join(_separator));
       var children = 0;
       node.visitChildren((_) {
         children++;
@@ -146,19 +147,20 @@ void main() {
 
     testWidgets('period는 가격 아래 작은 보조색 글씨이고 구매 버튼보다 위다', (tester) async {
       await tester.pumpWidget(_app(_card(OfferCardState.available)));
-      final priceTop = tester.getTopLeft(find.text(_price)).dy;
       final priceBottom = tester.getBottomLeft(find.text(_price)).dy;
       final periodTop = tester.getTopLeft(find.text(_period)).dy;
       final periodBottom = tester.getBottomLeft(find.text(_period)).dy;
       final buyTop = tester.getTopLeft(find.byKey(OfferCard.buyKey)).dy;
-      expect(priceTop, lessThan(periodTop));
       expect(periodTop - priceBottom, OfferCard.periodGap);
       expect(buyTop - periodBottom, OfferCard.buyGap);
 
       final context = tester.element(find.byKey(OfferCard.cardKey));
       final tokens = context.tokens;
+      final captionLg = tokens.typography.captionLg;
       final style = tester.widget<Text>(find.text(_period)).style!;
-      expect(style.fontSize, tokens.typography.captionLg.fontSize);
+      expect(style.fontSize, captionLg.fontSize);
+      expect(style.fontWeight, captionLg.fontWeight);
+      expect(style.height, captionLg.height);
       expect(style.color, tokens.colors.textSecondary);
     });
 
@@ -175,8 +177,7 @@ void main() {
       await tester.pumpWidget(_app(card));
       expect(find.text(_period), findsNothing);
       final label = tester.getSemantics(find.byKey(OfferCard.cardKey)).label;
-      expect(label, contains(_price));
-      expect(label, isNot(endsWith(',')));
+      expect(label, [_head, _price].join(_separator));
       handle.dispose();
     });
 
@@ -194,8 +195,11 @@ void main() {
       expect(find.text(_period), findsOneWidget);
       expect(find.text(_price), findsNothing);
       final label = tester.getSemantics(find.byKey(OfferCard.cardKey)).label;
-      expect(label, contains(_head));
-      expect(label, contains(_period));
+      expect(label, [_head, _period].join(_separator));
+      // 가격 줄이 없으면 head 아래 가격 자리 간격(priceGap)으로 기간이 시작합니다.
+      final headBottom = tester.getBottomLeft(find.text(_head)).dy;
+      final periodTop = tester.getTopLeft(find.text(_period)).dy;
+      expect(periodTop - headBottom, OfferCard.priceGap);
       handle.dispose();
     });
 
@@ -231,6 +235,56 @@ void main() {
         find.descendant(of: find.byType(AppIcon), matching: find.byType(Icon)),
       );
       expect(drawn.icon, PhosphorIconsLight.sparkle);
+    });
+
+    testWidgets('부품별 identifier가 Semantics identifier로 붙는다', (tester) async {
+      final handle = tester.ensureSemantics();
+      const ids = OfferCardIdentifiers(
+        head: 'x.offer.head',
+        price: 'x.offer.price',
+        period: 'x.offer.period',
+        remaining: 'x.status.remaining',
+        buy: 'x.buy.cta',
+        history: 'x.history.cta',
+        legal: 'x.legal.notice',
+      );
+      OfferCard card(OfferCardState state) => OfferCard(
+        state: state,
+        head: _head,
+        price: _price,
+        period: _period,
+        buyLabel: '구매하기',
+        historyLabel: '구매 내역',
+        legalNotice: '구매 전에 약관을 확인해 주세요.',
+        statusLabel: '사용 중',
+        remaining: '11월 23일까지 광고 없이 볼 수 있어요',
+        onBuy: () {},
+        identifiers: ids,
+      );
+
+      await tester.pumpWidget(_app(card(OfferCardState.available)));
+      for (final id in [
+        ids.head,
+        ids.price,
+        ids.period,
+        ids.buy,
+        ids.history,
+        ids.legal,
+      ]) {
+        expect(find.bySemanticsIdentifier(id!), findsOneWidget, reason: id);
+      }
+      expect(find.bySemanticsIdentifier(ids.remaining!), findsNothing);
+      // identifier를 달아도 카드는 head·price·period를 한 라벨로 읽습니다.
+      expect(
+        tester.getSemantics(find.byKey(OfferCard.cardKey)).label,
+        [_head, _price, _period].join(_separator),
+      );
+
+      await tester.pumpWidget(_app(card(OfferCardState.active)));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsIdentifier(ids.remaining!), findsOneWidget);
+      expect(find.bySemanticsIdentifier(ids.buy!), findsNothing);
+      handle.dispose();
     });
   });
 }

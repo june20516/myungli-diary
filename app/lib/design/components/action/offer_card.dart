@@ -26,6 +26,45 @@ enum OfferCardState {
   offline,
 }
 
+/// [OfferCard] 부품별 IA 슬롯 id. 있는 것만 그 부품의 Semantics `identifier`로 붙습니다.
+///
+/// 화면이 `SlotIds`(예 `ad-free.offer.head`)를 넘깁니다. 카드 묶음이 함께 읽는
+/// [head]·[price]·[period]는 읽기에서 빠진 글자라, 찾기용 빈 노드에 identifier만 답니다.
+@immutable
+final class OfferCardIdentifiers {
+  /// 부품별 슬롯 id를 정합니다. 모두 선택입니다.
+  const new({
+    this.head,
+    this.price,
+    this.period,
+    this.remaining,
+    this.buy,
+    this.history,
+    this.legal,
+  });
+
+  /// [OfferCard.head] 슬롯.
+  final String? head;
+
+  /// [OfferCard.price] 슬롯.
+  final String? price;
+
+  /// [OfferCard.period] 슬롯.
+  final String? period;
+
+  /// [OfferCard.remaining] 슬롯.
+  final String? remaining;
+
+  /// 구매 버튼 슬롯.
+  final String? buy;
+
+  /// 구매 내역 버튼 슬롯.
+  final String? history;
+
+  /// 약관 안내 슬롯.
+  final String? legal;
+}
+
 /// 광고 제거권 카드(`offer-card`, D53·D54).
 ///
 /// 위에서 아래로 아이콘 → [head] → [price] → [period] →
@@ -53,6 +92,7 @@ class OfferCard extends StatelessWidget {
     this.onBuy,
     this.onHistory,
     this.onLegal,
+    this.identifiers = const OfferCardIdentifiers(),
     this.animated = true,
     super.key,
   });
@@ -149,8 +189,17 @@ class OfferCard extends StatelessWidget {
   /// 약관 안내를 눌렀을 때.
   final VoidCallback? onLegal;
 
+  /// 부품별 IA 슬롯 id.
+  final OfferCardIdentifiers identifiers;
+
   /// false면 구매 버튼의 점이 정지 상태로 그려집니다.
   final bool animated;
+
+  /// 카드 묶음이 읽는 글자([child])에 찾기용 [identifier]를 답니다. 없으면 [child] 그대로입니다.
+  static Widget _identified(String? identifier, Widget child) =>
+      identifier == null
+      ? child
+      : Semantics(container: true, identifier: identifier, child: child);
 
   @override
   Widget build(BuildContext context) {
@@ -185,22 +234,28 @@ class OfferCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: headGap),
-              ExcludeSemantics(
-                child: Text(
-                  head,
-                  style: tokens.typography.subtitle.copyWith(
-                    color: colors.textPrimary,
+              _identified(
+                identifiers.head,
+                ExcludeSemantics(
+                  child: Text(
+                    head,
+                    style: tokens.typography.subtitle.copyWith(
+                      color: colors.textPrimary,
+                    ),
                   ),
                 ),
               ),
               if (price != null) ...[
                 const SizedBox(height: priceGap),
-                ExcludeSemantics(
-                  child: Text(
-                    price!,
-                    style: tokens.typography.title.copyWith(
-                      color: colors.textPrimary,
-                      fontFeatures: _tabular,
+                _identified(
+                  identifiers.price,
+                  ExcludeSemantics(
+                    child: Text(
+                      price!,
+                      style: tokens.typography.title.copyWith(
+                        color: colors.textPrimary,
+                        fontFeatures: _tabular,
+                      ),
                     ),
                   ),
                 ),
@@ -208,11 +263,14 @@ class OfferCard extends StatelessWidget {
               if (period != null) ...[
                 // 가격이 없으면 head 바로 아래에서 시작하므로 가격 자리의 간격을 씁니다.
                 SizedBox(height: price != null ? periodGap : priceGap),
-                ExcludeSemantics(
-                  child: Text(
-                    period!,
-                    style: tokens.typography.captionLg.copyWith(
-                      color: colors.textSecondary,
+                _identified(
+                  identifiers.period,
+                  ExcludeSemantics(
+                    child: Text(
+                      period!,
+                      style: tokens.typography.captionLg.copyWith(
+                        color: colors.textSecondary,
+                      ),
                     ),
                   ),
                 ),
@@ -226,6 +284,7 @@ class OfferCard extends StatelessWidget {
                 key: historyKey,
                 label: historyLabel,
                 variant: PrimaryButtonVariant.quiet,
+                identifier: identifiers.history,
                 onPressed: onHistory,
                 animated: animated,
               ),
@@ -242,6 +301,7 @@ class OfferCard extends StatelessWidget {
     key: buyKey,
     label: buyLabel,
     loading: state == OfferCardState.purchasing,
+    identifier: identifiers.buy,
     // offline은 꺼짐(null), purchasing은 PrimaryButton이 눌림을 무시합니다.
     onPressed: state == OfferCardState.offline ? null : onBuy,
     animated: animated,
@@ -256,11 +316,14 @@ class OfferCard extends StatelessWidget {
       children: [
         if (statusLabel != null) StatusTag(statusLabel!),
         if (remaining != null)
-          Text(
-            remaining!,
-            style: tokens.typography.bodyUi.copyWith(
-              color: tokens.colors.textPrimary,
-              fontFeatures: _tabular,
+          Semantics(
+            identifier: identifiers.remaining,
+            child: Text(
+              remaining!,
+              style: tokens.typography.bodyUi.copyWith(
+                color: tokens.colors.textPrimary,
+                fontFeatures: _tabular,
+              ),
             ),
           ),
       ],
@@ -274,6 +337,7 @@ class OfferCard extends StatelessWidget {
       child: PressInkTarget(
         key: legalKey,
         semanticLabel: legalNotice,
+        identifier: identifiers.legal,
         link: true,
         onTap: onLegal,
         borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
