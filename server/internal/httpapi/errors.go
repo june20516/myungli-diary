@@ -17,6 +17,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
+	"github.com/june20516/myungli-diary/server/internal/merge"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/profile/honorific"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
@@ -81,6 +82,9 @@ var domainErrors = []domainError{
 	{target: auth.ErrIdentityInUse, code: problem.AuthIdentityInUse, title: "Identity in use"},
 	{target: auth.ErrLastIdentity, code: problem.AuthLastIdentity, title: "Last identity"},
 	{target: auth.ErrIdentityNotFound, code: problem.AuthIdentityNotFound, title: "Identity not found"},
+	{target: merge.ErrSameAccount, code: problem.MergeSameAccount, title: "Same account"},
+	{target: merge.ErrNoAccount, code: problem.MergeNoAccount, title: "No account"},
+	{target: merge.ErrTokenInvalid, code: problem.MergeTokenInvalid, title: "Merge token invalid"},
 	{target: profile.ErrNotFound, code: problem.ProfileRequired, title: "Profile required"},
 	{target: engine.ErrUnavailable, code: problem.EngineUnavailable, title: "Engine unavailable", retryAfter: engineRetryAfter},
 	{target: engine.ErrTimeout, code: problem.EngineTimeout, title: "Engine timeout"},

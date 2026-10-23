@@ -17,6 +17,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
+	"github.com/june20516/myungli-diary/server/internal/merge"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
 	"github.com/june20516/myungli-diary/server/legal"
@@ -59,6 +60,16 @@ type ProfileService interface {
 	Put(ctx context.Context, accountID uuid.UUID, p profile.Profile) (profile.Saved, error)
 	Patch(ctx context.Context, accountID uuid.UUID, p profile.Patch) (profile.Saved, error)
 }
+
+// MergeService는 계정 합치기 operation이 쓰는 서비스입니다. *merge.Service가 만족합니다.
+type MergeService interface {
+	// Preview는 다른 유저 계정의 증명을 검증하고 합치기 토큰·만료와 요약을 돌려줍니다(previewMerge).
+	Preview(ctx context.Context, accountID uuid.UUID, providerName string, proof auth.LinkProof) (token string, expiresAt time.Time, summary merge.Summary, err error)
+	// Execute는 합치기 토큰으로 다른 유저 계정을 현재 계정에 합칩니다(mergeAccounts).
+	Execute(ctx context.Context, accountID uuid.UUID, token string, profile merge.Profile) error
+}
+
+var _ MergeService = (*merge.Service)(nil)
 
 // LunarConverter는 음력 변환 핸들러가 쓰는 엔진 RPC입니다. *engine.Client가 만족합니다.
 type LunarConverter interface {
@@ -166,7 +177,9 @@ type API struct {
 	Auth     AuthService
 	Accounts AccountService
 	Profiles ProfileService
-	Lunar    LunarConverter
+	// Merges는 계정 합치기입니다. 비어 있으면 previewMerge·mergeAccounts는 503 service.unavailable입니다.
+	Merges MergeService
+	Lunar  LunarConverter
 	// BirthHour는 시진 확인(getBirthHour)이 쓰는 엔진입니다. 조립에서 반드시 넣습니다.
 	BirthHour BirthHourChecker
 	// Readings는 운세 화면 묶음입니다. 비어 있으면 운세 operation은 503 service.unavailable입니다.

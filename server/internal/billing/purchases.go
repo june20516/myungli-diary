@@ -43,7 +43,7 @@ func (s *Store) Purchases(ctx context.Context, accountID uuid.UUID) ([]PurchaseI
 	now := s.clk.Now()
 	items := make([]PurchaseItem, 0, len(rows))
 	for _, row := range rows {
-		items = append(items, purchaseItemOf(row, now))
+		items = append(items, purchaseItemOf(row, s.catalog, now))
 	}
 	return items, nil
 }
@@ -51,12 +51,19 @@ func (s *Store) Purchases(ctx context.Context, accountID uuid.UUID) ([]PurchaseI
 // purchaseItemOf는 장부 행과 지금 시각으로 상태와 구간을 정합니다.
 // 취소된 구간은 취소 시각에서 끊기므로(환불·합치기), 구간 끝은 원래 끝과 취소 시각 중 이른 것입니다.
 // 끝이 시작보다 늦지 않으면(시작 전 환불·취소) 쓴 구간이 없어 period를 주지 않습니다.
-func purchaseItemOf(row billingdb.ListAccountPurchasesRow, now time.Time) PurchaseItem {
+//
+// 이 계정의 구간이 없는 구매는 상품 목록으로 나눕니다. 기간 상품(목록에 있고 Months > 0)이면 이 계정에서 쓸 기간이
+// 남지 않은 것이라(합치기 전에 끝난 B 구매 등) expired이고, 목록 밖 상품이면 owned입니다. 환불이면 둘 다 refunded입니다.
+func purchaseItemOf(row billingdb.ListAccountPurchasesRow, catalog Catalog, now time.Time) PurchaseItem {
 	item := PurchaseItem{ProductID: row.ProductID, PurchasedAt: row.PurchasedAt}
 	if row.SegmentStartsAt == nil || row.SegmentExpiresAt == nil {
-		item.Status = PurchaseOwned
-		if row.RefundedAt != nil {
+		switch {
+		case row.RefundedAt != nil:
 			item.Status = PurchaseRefunded
+		case catalog[row.ProductID].Months > 0:
+			item.Status = PurchaseExpired
+		default:
+			item.Status = PurchaseOwned
 		}
 		return item
 	}

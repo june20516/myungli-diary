@@ -41,6 +41,26 @@ func (q *Queries) BillingEventProcessedAt(ctx context.Context, eventID string) (
 	return processed_at, err
 }
 
+const endGrantAt = `-- name: EndGrantAt :exec
+UPDATE entitlement_grants
+SET expires_at = $1::timestamptz
+WHERE id = $2
+  AND account_id = $3
+  AND revoked_at IS NULL
+`
+
+type EndGrantAtParams struct {
+	Now       time.Time
+	ID        int64
+	AccountID uuid.UUID
+}
+
+// 사용 중 구간을 지금에서 끝냅니다(합치기로 옮긴 B 구간). 취소된 구간은 바꾸지 않습니다.
+func (q *Queries) EndGrantAt(ctx context.Context, arg EndGrantAtParams) error {
+	_, err := q.db.Exec(ctx, endGrantAt, arg.Now, arg.ID, arg.AccountID)
+	return err
+}
+
 const existingAccountIDs = `-- name: ExistingAccountIDs :many
 SELECT id
 FROM accounts
@@ -322,6 +342,57 @@ func (q *Queries) ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) 
 	return items, nil
 }
 
+const listMovablePassSegments = `-- name: ListMovablePassSegments :many
+SELECT g.id, g.entitlement, g.source_ref, g.starts_at, g.expires_at
+FROM entitlement_grants g
+WHERE g.account_id = $1
+  AND g.source = 'ad_free_pass'
+  AND g.revoked_at IS NULL
+  AND g.expires_at > $2::timestamptz
+ORDER BY g.entitlement, g.starts_at, g.id
+`
+
+type ListMovablePassSegmentsParams struct {
+	AccountID uuid.UUID
+	Now       time.Time
+}
+
+type ListMovablePassSegmentsRow struct {
+	ID          int64
+	Entitlement string
+	SourceRef   string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+}
+
+// 계정 합치기(MovePurchasesTx, spec §5.3·§6.3)로 옮길 계정의 아직 끝나지 않은 광고 제거권 구간입니다. 끊긴 구간(환불)과 보상형 광고 구간은 옮기지 않으므로 뺍니다.
+// 순서는 권한, 그 계정 사슬의 시작 순입니다(받는 계정 끝에 차례로 붙임).
+func (q *Queries) ListMovablePassSegments(ctx context.Context, arg ListMovablePassSegmentsParams) ([]ListMovablePassSegmentsRow, error) {
+	rows, err := q.db.Query(ctx, listMovablePassSegments, arg.AccountID, arg.Now)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListMovablePassSegmentsRow
+	for rows.Next() {
+		var i ListMovablePassSegmentsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Entitlement,
+			&i.SourceRef,
+			&i.StartsAt,
+			&i.ExpiresAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPassSegments = `-- name: ListPassSegments :many
 SELECT g.id, g.entitlement, g.starts_at, g.expires_at, (p.refunded_at IS NOT NULL)::boolean AS refunded
 FROM entitlement_grants g
@@ -405,6 +476,25 @@ func (q *Queries) MarkPurchaseRefunded(ctx context.Context, arg MarkPurchaseRefu
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const movePurchasesOwner = `-- name: MovePurchasesOwner :exec
+UPDATE purchases
+SET account_id = $1,
+    merged_at = $2::timestamptz
+WHERE account_id = $3
+`
+
+type MovePurchasesOwnerParams struct {
+	ToAccountID   uuid.UUID
+	Now           time.Time
+	FromAccountID uuid.UUID
+}
+
+// 계정이 주인인 구매를 모두 받는 계정으로 옮기고 합친 시각을 적습니다. 처음 산 계정(original_account_id)은 그대로입니다.
+func (q *Queries) MovePurchasesOwner(ctx context.Context, arg MovePurchasesOwnerParams) error {
+	_, err := q.db.Exec(ctx, movePurchasesOwner, arg.ToAccountID, arg.Now, arg.FromAccountID)
+	return err
 }
 
 const nextPassStart = `-- name: NextPassStart :one

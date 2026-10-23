@@ -89,7 +89,7 @@ func newFlowEnvWith(t *testing.T, customize func(*serverDeps)) *flowEnv {
 			GoogleJWKS:  fake.JWKSURL(),
 		},
 	}
-	deps.Entitlements = billing.NewStore(deps.Pool, clk)
+	deps.Entitlements = billing.NewStore(deps.Pool, clk, nil)
 	if customize != nil {
 		customize(&deps)
 	}

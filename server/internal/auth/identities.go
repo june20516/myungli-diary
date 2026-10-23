@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/june20516/myungli-diary/server/internal/auth/authdb"
+	"github.com/june20516/myungli-diary/server/internal/auth/provider"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
@@ -183,6 +184,93 @@ func (s *Service) verifyLinkProof(ctx context.Context, providerName string, proo
 			return verifiedLink{}, s.providerError(ctx, err, providerName, "verify")
 		}
 		return verifiedLink{prepare: fixedTarget(identity.Subject, nil)}, nil
+	}
+}
+
+// errProofIdentityNotFound는 Apple 웹 흐름 합치기 증명에서 연결을 찾지 못해 교환 코드 소진을 되돌릴 때 씁니다.
+// VerifyProof 밖으로 나가지 않습니다.
+var errProofIdentityNotFound = errors.New("auth: proof identity not found")
+
+// VerifyProof는 합치기 요약(previewMerge, S110)이 받은 다른 유저 계정(B)의 증명을 검증하고, 그 인증 계정과
+// 연결된 유저 계정을 찾습니다. 연결을 만들거나 바꾸지 않습니다. 증명 조합 검사와 오류 sentinel은 LinkIdentity와 같습니다.
+//
+//   - 연결이 없거나 그 유저 계정이 지워졌으면 found=false입니다.
+//   - iOS Apple은 소유 확인에 id_token만 씁니다. code는 교환하지 않으므로 저장하거나 revoke할 grant가 없습니다(spec §6.2).
+//   - Apple 웹 흐름은 교환 코드를 LinkIdentity와 같은 규칙으로 트랜잭션 안에서 확인하고, 연결을 찾았을 때만 소진합니다.
+//     못 찾으면 rollback해 코드가 남으므로 app은 그 코드로 linkIdentity를 부를 수 있습니다. 교환 결과의 Apple token은
+//     저장하지 않고 revoke하지도 않습니다. 같은 Apple 허가는 B를 지울 때 B에 저장한 token으로 취소됩니다(§4).
+func (s *Service) VerifyProof(ctx context.Context, providerName string, proof LinkProof) (identityID, accountID uuid.UUID, found bool, err error) {
+	if err := checkLinkProof(providerName, proof); err != nil {
+		return uuid.Nil, uuid.Nil, false, err
+	}
+	if providerName == providerApple && proof.ExchangeCode != "" {
+		return s.verifyAppleWebProof(ctx, proof)
+	}
+
+	subject, err := s.verifyProofSubject(ctx, providerName, proof)
+	if err != nil {
+		return uuid.Nil, uuid.Nil, false, err
+	}
+	row, err := authdb.New(s.pool).FindActiveIdentity(ctx, authdb.FindActiveIdentityParams{Provider: providerName, Subject: subject})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return uuid.Nil, uuid.Nil, false, nil
+	}
+	if err != nil {
+		return uuid.Nil, uuid.Nil, false, fmt.Errorf("합치기 증명 연결 조회: %w", err)
+	}
+	return row.ID, row.AccountID, true, nil
+}
+
+// verifyProofSubject는 id_token 증명(카카오·LINE·Google·iOS Apple)을 제공자에게 검증하고 subject를 돌려줍니다.
+func (s *Service) verifyProofSubject(ctx context.Context, providerName string, proof LinkProof) (string, error) {
+	if providerName == providerApple {
+		identity, err := s.apple.Verify(ctx, proof.IDToken, proof.RawNonce, provider.AppleNative)
+		if err != nil {
+			return "", s.providerError(ctx, err, providerApple, "verify")
+		}
+		return identity.Subject, nil
+	}
+	verifier, err := s.idTokenVerifier(providerName)
+	if err != nil {
+		return "", err
+	}
+	identity, err := verifier.Verify(ctx, proof.IDToken, proof.RawNonce)
+	if err != nil {
+		return "", s.providerError(ctx, err, providerName, "verify")
+	}
+	return identity.Subject, nil
+}
+
+// verifyAppleWebProof는 Apple 웹 흐름의 합치기 증명을 확인합니다. 교환 코드 확인·소진과 연결 조회를 한 트랜잭션에서 하고,
+// 연결이 없으면 rollback해 코드를 소진하지 않습니다.
+func (s *Service) verifyAppleWebProof(ctx context.Context, proof LinkProof) (identityID, accountID uuid.UUID, found bool, err error) {
+	prepare := s.appleWebTarget(proof.ExchangeCode, proof.RawNonce)
+	err = postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := authdb.New(tx)
+		target, err := prepare(ctx, q, s.clock.Now())
+		if err != nil {
+			return err
+		}
+		row, err := q.FindActiveIdentity(ctx, authdb.FindActiveIdentityParams{Provider: providerApple, Subject: target.subject})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errProofIdentityNotFound
+		}
+		if err != nil {
+			return fmt.Errorf("합치기 증명 연결 조회: %w", err)
+		}
+		identityID, accountID = row.ID, row.AccountID
+		return nil
+	})
+	switch {
+	case err == nil:
+		return identityID, accountID, true, nil
+	case errors.Is(err, errProofIdentityNotFound):
+		return uuid.Nil, uuid.Nil, false, nil
+	case errors.Is(err, ErrExchangeInvalid):
+		s.logger.InfoContext(ctx, "Apple 웹 흐름 합치기 증명 교환 코드 거절", "provider", providerApple, "step", "merge_web")
+		return uuid.Nil, uuid.Nil, false, ErrExchangeInvalid
+	default:
+		return uuid.Nil, uuid.Nil, false, fmt.Errorf("apple 합치기 증명: %w", err)
 	}
 }
 

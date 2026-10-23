@@ -55,13 +55,15 @@ type Status struct {
 
 // Store는 권한 기록을 읽어 판정합니다.
 type Store struct {
-	pool *pgxpool.Pool
-	clk  clock.Clock
+	pool    *pgxpool.Pool
+	clk     clock.Clock
+	catalog Catalog
 }
 
-// NewStore는 연결 풀과 시계 위에 Store를 만듭니다.
-func NewStore(pool *pgxpool.Pool, clk clock.Clock) *Store {
-	return &Store{pool: pool, clk: clk}
+// NewStore는 연결 풀과 시계 위에 Store를 만듭니다. catalog는 구매 목록이 기간 상품을 알아보는 상품 목록이며
+// 결제 동기화(SyncConfig.Catalog)와 같은 값을 넘깁니다. 비어 있으면 구간 없는 구매는 모두 기간 없는 상품으로 보입니다.
+func NewStore(pool *pgxpool.Pool, clk clock.Clock, catalog Catalog) *Store {
+	return &Store{pool: pool, clk: clk, catalog: catalog}
 }
 
 // Status는 계정의 권한 상태를 계산합니다(P7-15).

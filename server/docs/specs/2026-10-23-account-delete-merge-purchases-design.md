@@ -162,7 +162,7 @@ FK는 없습니다(원래 인증 계정 행과 유저 계정 행을 지운 뒤�
 | `status` | 열린 enum `PurchaseStatus`: 기간 상품 `active`·`pending`·`expired`·`refunded`, 기간 없는 상품 `owned`·`refunded` |
 | `period` | 기간 상품만. 이 계정의 사용 구간 `{startsAt, endsAt}`. 합친 구매는 A 구간만(D88 ②) |
 
-산 계정과 합치기 출처는 주지 않습니다(D88 ②, #500). 페이지 나누기는 필요해지면 선택 필드로 더합니다. production이 아닌 구매는 `BILLING_PRODUCTION_ONLY`(P7)가 꺼진 환경에서만 보입니다.
+산 계정과 합치기 출처는 주지 않습니다(D88 ②, #500). 이 계정 구간이 없는 기간 상품(상품 목록에 있음, 예: 합치기 전에 끝난 B 구매)은 `expired`(환불이면 `refunded`)이고 `period`가 없습니다. 페이지 나누기는 필요해지면 선택 필드로 더합니다. production이 아닌 구매는 `BILLING_PRODUCTION_ONLY`(P7)가 꺼진 환경에서만 보입니다.
 
 ### 5.6. 확장 범위
 
@@ -191,13 +191,16 @@ FK는 없습니다(원래 인증 계정 행과 유저 계정 행을 지운 뒤�
 
 `POST /v1/me/merge`, 요청 `{mergeToken, profile: current | other}`, `Idempotency-Key`를 받습니다(S60). 응답은 A의 `Me`입니다. 남는 유저 계정이 언제나 A라 새 세션을 주지 않고, 응답에 비밀 값이 없어 멱등 기록에 저장할 수 있습니다(S102의 "받지 않음"을 바꿈).
 
+트랜잭션 전에 B의 결제를 한 번 동기화합니다(§5.4, best-effort). 결제 직후 동기화가 실패하고 webhook도 늦어 장부에 없는 B 구매가 합친 뒤 지운 B의 것이 되는 경로를 줄이려는 것이고, 실패하면 경고 로그만 남기고 장부에 있는 것으로 합칩니다.
+
 한 트랜잭션에서:
 
 1. A·B 행을 uuid 순서로 `FOR UPDATE`. 토큰이 있고, 안 썼고, 안 지났고, bearer가 A이고, B가 `active`인지 확인합니다. 아니면 422 `merge.token_invalid`. 토큰을 씀으로 표시합니다.
 2. **기록:** B의 `diaries`(지운 것 포함, 10편 상한 무시, D83 ④)·`schedules`·`diary_days`·`daily_selections`(+`reactions`)를 A로 옮깁니다.
    * 같은 날짜의 `diary_days`가 둘 다 있으면 **고른 프로필 쪽** 날짜 기록을 남기고, 다른 쪽 일기는 모두 남긴 날짜 기록 아래로 옮깁니다. 일기는 하나도 지우지 않습니다(S95 개정).
    * 같은 `(date, slot, birth_hash)`의 `daily_selections`가 둘 다 있으면 고른 프로필 쪽을 남깁니다. 다른 쪽 선택에 붙은 반응은 `reaction_tallies`에 더한 뒤 지웁니다. 두 계정의 출생 정보가 같고 같은 날 같은 자리를 본 경우에만 생깁니다.
-3. **프로필:** `profile = other`면 B의 프로필로 A의 `profiles` 행을 바꿉니다.
+   * 옮긴 일기·일정의 `updated_at`은 원래 값을 유지합니다(migration 00017, `account_id`만 바뀌는 UPDATE에는 수정 시각 trigger가 돌지 않음).
+3. **프로필:** `profile = other`면 B의 프로필로 A의 `profiles` 행을 바꿉니다. B 프로필이 없으면 합친 뒤 A도 프로필이 없습니다.
 4. **구매:** B가 주인인 `purchases`를 A로 옮기고(`account_id = A`, `merged_at = now`, `original_account_id`는 그대로), `rechainFrom`으로 B 구간을 끊고 A 끝에 붙입니다(§5.3).
 5. **B 삭제:** `account.DeleteAccount(tx, B)`(§3.1). B의 인증 계정·세션·`rotation_state`·`consents` 등이 지워지고 허가 취소 대기 행이 생깁니다. 인증 계정은 옮기지 않습니다(D85 ④).
 

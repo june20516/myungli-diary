@@ -51,7 +51,7 @@ func grant(entitlement billing.Entitlement, source billing.Source, ref string, s
 func newStore(t *testing.T) (*billing.Store, *pgxpool.Pool) {
 	t.Helper()
 	pool := dbtest.New(t)
-	return billing.NewStore(pool, clocktest.New(now)), pool
+	return billing.NewStore(pool, clocktest.New(now), nil), pool
 }
 
 func TestStore_Status_NoRows_BothInactive(t *testing.T) {

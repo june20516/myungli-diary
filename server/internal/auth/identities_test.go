@@ -568,3 +568,116 @@ func TestUnlinkIdentity_ConcurrentUnlinkKeepsOne(t *testing.T) {
 	assert.Equal(t, 1, last)
 	assert.Len(t, f.providers(t, accountID), 1)
 }
+
+// identityIDOf는 (provider, subject) 연결 행의 id입니다.
+func (f *fixture) identityIDOf(t *testing.T, prov, subject string) uuid.UUID {
+	t.Helper()
+	var id uuid.UUID
+	require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT id FROM auth_identities WHERE provider = $1 AND subject = $2`, prov, subject).Scan(&id))
+	return id
+}
+
+// 합치기 증명은 연결과 같이 검증하고, 그 인증 계정이 연결된 유저 계정을 돌려줍니다(S110). 연결을 만들거나 옮기지 않습니다.
+func TestVerifyProof_FindsLinkedAccount(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginLine(t, "U1").AccountID
+	identitiesBefore := f.count(t, `SELECT count(*) FROM auth_identities`)
+
+	identityID, accountID, found, err := f.service.VerifyProof(f.ctx, "line", f.lineProof("U1"))
+
+	require.NoError(t, err)
+	assert.True(t, found)
+	assert.Equal(t, other, accountID)
+	assert.Equal(t, f.identityIDOf(t, "line", "U1"), identityID)
+	assert.Equal(t, identitiesBefore, f.count(t, `SELECT count(*) FROM auth_identities`))
+}
+
+// 어디에도 없는 인증 계정은 found=false이고 연결 행을 만들지 않습니다(merge.no_account, 연결로 넘어가지 않음).
+func TestVerifyProof_UnknownIdentityIsNotFound(t *testing.T) {
+	f := newFixture(t)
+
+	_, _, found, err := f.service.VerifyProof(f.ctx, "line", f.lineProof("U-unknown"))
+
+	require.NoError(t, err)
+	assert.False(t, found)
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM auth_identities`))
+}
+
+// 지운 유저 계정에 어긋나게 남은 연결은 없는 것으로 봅니다.
+func TestVerifyProof_DeletedAccountIsNotFound(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginKakao(t, "kakao-1").AccountID
+	f.markDeletedKeepingRows(t, other)
+
+	_, _, found, err := f.service.VerifyProof(f.ctx, "kakao", auth.LinkProof{IDToken: f.kakaoToken("kakao-1"), RawNonce: testNonce})
+
+	require.NoError(t, err)
+	assert.False(t, found)
+}
+
+// 증명 오류는 연결과 같은 sentinel입니다.
+func TestVerifyProof_ProofErrorsMatchLink(t *testing.T) {
+	f := newFixture(t)
+	f.loginLine(t, "U1")
+
+	_, _, _, err := f.service.VerifyProof(f.ctx, "line", auth.LinkProof{IDToken: "not-a-jwt", RawNonce: testNonce})
+	require.ErrorIs(t, err, auth.ErrProviderTokenInvalid)
+
+	_, _, _, err = f.service.VerifyProof(f.ctx, "line", auth.LinkProof{RawNonce: testNonce})
+	var invalid *auth.InvalidProofError
+	require.ErrorAs(t, err, &invalid)
+	assert.Equal(t, "/idToken", invalid.Field)
+}
+
+// iOS Apple은 소유 확인에 id_token만 씁니다. code를 교환하지 않으므로 저장·revoke할 grant도 없습니다(spec §6.2).
+func TestVerifyProof_AppleNativeUsesIDTokenOnly(t *testing.T) {
+	f := newFixture(t)
+	other := f.loginApple(t, "A1").AccountID
+	tokenRequests := len(f.fake.AppleTokenRequests())
+	refreshBefore := f.appleRefreshOf(t, other)
+
+	_, accountID, found, err := f.service.VerifyProof(f.ctx, "apple", f.appleProof("A1"))
+
+	require.NoError(t, err)
+	assert.True(t, found)
+	assert.Equal(t, other, accountID)
+	assert.Len(t, f.fake.AppleTokenRequests(), tokenRequests, "code 교환을 부르지 않습니다")
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+	assert.Equal(t, refreshBefore, f.appleRefreshOf(t, other), "B에 저장한 token은 그대로입니다")
+
+	// 연결이 없는 subject도 revoke하지 않습니다.
+	_, _, found, err = f.service.VerifyProof(f.ctx, "apple", f.appleProof("A-unknown"))
+	require.NoError(t, err)
+	assert.False(t, found)
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+}
+
+// Apple 웹 흐름은 B를 찾았을 때만 교환 코드를 소진합니다. 못 찾으면 코드가 남아 그 코드로 linkIdentity를 부를 수 있습니다.
+// 교환으로 받은 grant는 저장하지 않고 revoke하지도 않습니다.
+func TestVerifyProof_AppleWebConsumesOnlyWhenFound(t *testing.T) {
+	f := newFixture(t)
+	unknownCode := f.beginAppleWeb(t, "A-unknown")
+
+	_, _, found, err := f.service.VerifyProof(f.ctx, "apple", auth.LinkProof{ExchangeCode: unknownCode, RawNonce: testNonce})
+
+	require.NoError(t, err)
+	assert.False(t, found)
+	assert.Nil(t, f.appleWebRow(t, unknownCode).consumedAt, "못 찾으면 소진하지 않습니다")
+
+	other := f.loginApple(t, "A1").AccountID
+	code := f.beginAppleWeb(t, "A1")
+	_, _, _, err = f.service.VerifyProof(f.ctx, "apple", auth.LinkProof{ExchangeCode: code, RawNonce: "wrong-nonce"})
+	require.ErrorIs(t, err, auth.ErrExchangeInvalid)
+
+	_, accountID, found, err := f.service.VerifyProof(f.ctx, "apple", auth.LinkProof{ExchangeCode: code, RawNonce: testNonce})
+
+	require.NoError(t, err)
+	assert.True(t, found)
+	assert.Equal(t, other, accountID)
+	assert.NotNil(t, f.appleWebRow(t, code).consumedAt)
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM auth_identities WHERE provider = 'apple'`))
+
+	_, _, _, err = f.service.VerifyProof(f.ctx, "apple", auth.LinkProof{ExchangeCode: code, RawNonce: testNonce})
+	require.ErrorIs(t, err, auth.ErrExchangeInvalid, "소진한 코드는 다시 쓸 수 없습니다")
+}

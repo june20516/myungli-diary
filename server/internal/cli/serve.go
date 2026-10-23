@@ -30,6 +30,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
+	"github.com/june20516/myungli-diary/server/internal/merge"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
@@ -136,8 +137,9 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}()
 	fortuneService := fortune.NewService(engineClient, versions, fortune.NewPostgresCache(pool), logger)
 	contents := content.NewStore(pool, clock.System{}, logger)
-	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements 응답에 쓰입니다.
-	entitlements := billing.NewStore(pool, clock.System{})
+	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements·listPurchases 응답에 쓰입니다.
+	// 구매 목록이 기간 상품을 알아보도록 결제 동기화(newBillingParts)와 같은 상품 목록을 넘깁니다.
+	entitlements := billing.NewStore(pool, clock.System{}, billing.AdFreeCatalog(billingCfg.AdFreeProductIDs))
 	readings := newReadings(contents, fortuneService, entitlements, logger, clock.System{})
 
 	// 외부 제공자 호출(로그인 제공자·App Check)이 이 client 하나를 나눠 씁니다.
@@ -407,6 +409,8 @@ type billingParts struct {
 	Webhooks       httpapi.RevenueCatWebhooks
 	RewardVerifier httpapi.RewardVerifier
 	Rewards        httpapi.RewardGranter
+	// Sync는 계정 합치기가 합치기 전에 B의 결제를 동기화하는 데 씁니다. 결제 설정이 없으면 비어 있습니다.
+	Sync merge.PurchaseSyncer
 }
 
 // newBillingParts는 결제 의존성을 조립합니다.
@@ -432,6 +436,7 @@ func newBillingParts(cfg config.BillingConfig, pool *pgxpool.Pool, httpClient *h
 		Logger:         logger,
 	}, clk)
 	parts.Purchases = syncer
+	parts.Sync = syncer
 	parts.Webhooks = billing.NewWebhooks(pool, syncer, cfg.RevenueCatWebhookAuth, clk, logger)
 	return parts
 }
@@ -527,6 +532,16 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	accountService := account.NewService(deps.Pool, revocations, deps.Clock, deps.Logger)
 
 	profileService := profile.NewService(deps.Pool, deps.Charts, deps.Clock)
+	// 계정 합치기는 B의 증명 검증을 인증 서비스에, 프로필 요약을 프로필 서비스에 맡기고, 합치기 전에 B의 결제를 동기화하며,
+	// B를 지운 뒤 허가 취소를 시도합니다(S110·S111).
+	mergeService := merge.NewService(deps.Pool, merge.Deps{
+		Proofs:    authService,
+		Profiles:  profileService,
+		Purchases: deps.Billing.Sync,
+		Revoker:   revocations,
+		Clock:     deps.Clock,
+		Logger:    deps.Logger,
+	})
 
 	// 계약(내장 spec)으로 요청을 검증하고, 아직 구현하지 않은 operation은 501로 답합니다.
 	spec, err := gen.GetSpec()
@@ -543,8 +558,9 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
-		// Idempotency-Key는 일정 만들기와 일기 만들기에만 적용합니다. registerDevice는 P8에서 더합니다.
-		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule", "createDiary"),
+		// Idempotency-Key는 일정 만들기, 일기 만들기, 계정 합치기에 적용합니다. registerDevice는 P8에서 더합니다.
+		// 계정 합치기는 토큰이 일회용이라 같은 키의 재전송에 저장한 첫 응답(A의 Me)을 돌려줍니다(S111).
+		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule", "createDiary", "mergeAccounts"),
 		// 미리보기·시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.
 		RateLimit: httpapi.RateLimit(ratelimit.New(deps.Pool, deps.Clock), deps.ProxyHops, publicRateLimit, time.Minute, "createPreview", "getBirthHour", "convertLunarDate"),
 	}
@@ -556,6 +572,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Auth:      authService,
 		Accounts:  accountService,
 		Profiles:  profileService,
+		Merges:    mergeService,
 		Lunar:     deps.Lunar,
 		BirthHour: deps.BirthHour,
 		Readings:  deps.Readings,

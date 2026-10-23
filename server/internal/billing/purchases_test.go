@@ -23,7 +23,7 @@ func purchaseOf(id, productID string, at time.Time) Purchase {
 
 func TestPurchases_StatusesAndPeriods(t *testing.T) {
 	f := newLedgerFixture(t)
-	store := NewStore(f.pool, clocktest.New(purchasesNow))
+	store := NewStore(f.pool, clocktest.New(purchasesNow), testProducts)
 	a := f.newAccount(t)
 
 	expiredAt, activeAt, pendingAt := utc(2026, 9, 1, 0), utc(2026, 10, 10, 0), utc(2026, 10, 12, 0)
@@ -86,7 +86,7 @@ func TestPurchases_StatusesAndPeriods(t *testing.T) {
 
 func TestPurchases_RefundedAfterStartKeepsUsedPeriod(t *testing.T) {
 	f := newLedgerFixture(t)
-	store := NewStore(f.pool, clocktest.New(purchasesNow))
+	store := NewStore(f.pool, clocktest.New(purchasesNow), testProducts)
 	a := f.newAccount(t)
 	boughtAt, refundedAt := utc(2026, 10, 10, 0), utc(2026, 10, 15, 0)
 	f.record(t, a, ledgerPurchase("pur_used", boughtAt), boughtAt)
@@ -104,7 +104,7 @@ func TestPurchases_RefundedAfterStartKeepsUsedPeriod(t *testing.T) {
 
 func TestPurchases_OnlyThisAccountSegment(t *testing.T) {
 	f := newLedgerFixture(t)
-	store := NewStore(f.pool, clocktest.New(purchasesNow))
+	store := NewStore(f.pool, clocktest.New(purchasesNow), testProducts)
 	a, b := f.newAccount(t), f.newAccount(t)
 	boughtAt := utc(2026, 10, 10, 0)
 	f.record(t, a, ledgerPurchase("pur_merged", boughtAt), boughtAt)
@@ -129,7 +129,7 @@ func TestPurchases_OnlyThisAccountSegment(t *testing.T) {
 
 func TestPurchases_NoPurchasesIsEmptyNotNil(t *testing.T) {
 	f := newLedgerFixture(t)
-	store := NewStore(f.pool, clocktest.New(purchasesNow))
+	store := NewStore(f.pool, clocktest.New(purchasesNow), testProducts)
 
 	got, err := store.Purchases(context.Background(), f.newAccount(t))
 	require.NoError(t, err)
@@ -140,7 +140,7 @@ func TestPurchases_NoPurchasesIsEmptyNotNil(t *testing.T) {
 // insight만 주는 기간 상품도 이 계정 구간으로 period가 나옵니다(spec §5.6).
 func TestPurchases_InsightOnlyProductHasPeriod(t *testing.T) {
 	f := newLedgerFixture(t)
-	store := NewStore(f.pool, clocktest.New(purchasesNow))
+	store := NewStore(f.pool, clocktest.New(purchasesNow), testProducts)
 	a := f.newAccount(t)
 	catalog := Catalog{"test.insight.month": {Months: 1, Entitlements: []Entitlement{Insight}}}
 	boughtAt := utc(2026, 10, 10, 0)
@@ -181,12 +181,15 @@ func TestPurchaseItemOf(t *testing.T) {
 		{"쓰던 중 끊긴 구간은 끊은 시각까지", segment(at(middle), nil), middle.Add(time.Hour), PurchaseExpired, &Period{starts, middle}},
 		{"환불 전 사용 중", segment(nil, nil), middle, PurchaseActive, &Period{starts, expires}},
 		{"환불 뒤는 refunded, 쓴 구간까지", segment(at(middle), at(middle)), middle.Add(time.Hour), PurchaseRefunded, &Period{starts, middle}},
-		{"구간 없는 구매는 owned", billingdb.ListAccountPurchasesRow{ProductID: "test.other", PurchasedAt: starts}, middle, PurchaseOwned, nil},
-		{"구간 없는 환불 구매는 refunded", billingdb.ListAccountPurchasesRow{ProductID: "test.other", PurchasedAt: starts, RefundedAt: at(middle)}, middle, PurchaseRefunded, nil},
+		{"목록 밖 상품·구간 없음은 owned", billingdb.ListAccountPurchasesRow{ProductID: "test.other", PurchasedAt: starts}, middle, PurchaseOwned, nil},
+		{"목록 밖 상품·구간 없음·환불은 refunded", billingdb.ListAccountPurchasesRow{ProductID: "test.other", PurchasedAt: starts, RefundedAt: at(middle)}, middle, PurchaseRefunded, nil},
+		// 합치기 전에 끝나 이 계정에 구간을 받지 못한 기간 상품입니다.
+		{"기간 상품·구간 없음은 expired", billingdb.ListAccountPurchasesRow{ProductID: testIOSProduct, PurchasedAt: starts}, middle, PurchaseExpired, nil},
+		{"기간 상품·구간 없음·환불은 refunded", billingdb.ListAccountPurchasesRow{ProductID: testIOSProduct, PurchasedAt: starts, RefundedAt: at(middle)}, middle, PurchaseRefunded, nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := purchaseItemOf(tt.row, tt.now)
+			got := purchaseItemOf(tt.row, testProducts, tt.now)
 			assert.Equal(t, tt.wantStatus, got.Status)
 			if tt.wantPeriod == nil {
 				assert.Nil(t, got.Period)

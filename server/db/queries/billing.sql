@@ -166,3 +166,29 @@ WHERE account_id = @account_id;
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 VALUES (@account_id, 'insight', 'rewarded_ad', @source_ref, @starts_at, @expires_at)
 ON CONFLICT (account_id, entitlement, source, source_ref) DO NOTHING;
+
+-- name: ListMovablePassSegments :many
+-- 계정 합치기(MovePurchasesTx, spec §5.3·§6.3)로 옮길 계정의 아직 끝나지 않은 광고 제거권 구간입니다. 끊긴 구간(환불)과 보상형 광고 구간은 옮기지 않으므로 뺍니다.
+-- 순서는 권한, 그 계정 사슬의 시작 순입니다(받는 계정 끝에 차례로 붙임).
+SELECT g.id, g.entitlement, g.source_ref, g.starts_at, g.expires_at
+FROM entitlement_grants g
+WHERE g.account_id = @account_id
+  AND g.source = 'ad_free_pass'
+  AND g.revoked_at IS NULL
+  AND g.expires_at > @now::timestamptz
+ORDER BY g.entitlement, g.starts_at, g.id;
+
+-- name: EndGrantAt :exec
+-- 사용 중 구간을 지금에서 끝냅니다(합치기로 옮긴 B 구간). 취소된 구간은 바꾸지 않습니다.
+UPDATE entitlement_grants
+SET expires_at = @now::timestamptz
+WHERE id = @id
+  AND account_id = @account_id
+  AND revoked_at IS NULL;
+
+-- name: MovePurchasesOwner :exec
+-- 계정이 주인인 구매를 모두 받는 계정으로 옮기고 합친 시각을 적습니다. 처음 산 계정(original_account_id)은 그대로입니다.
+UPDATE purchases
+SET account_id = @to_account_id,
+    merged_at = @now::timestamptz
+WHERE account_id = @from_account_id;
