@@ -131,9 +131,9 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
             purchasing: purchasing,
           ),
           head: l10n.adFreeOfferHead,
-          price: product == null
-              ? null
-              : l10n.adFreeOfferPrice(product.priceLabel),
+          // 가격은 스토어 문자열 그대로, 기간·자동 갱신 아님은 가격과 상관없이 늘 보입니다.
+          price: product?.priceLabel,
+          period: l10n.adFreeOfferPeriod,
           buyLabel: l10n.adFreeBuyCta,
           historyLabel: l10n.adFreeHistoryCta,
           legalNotice: l10n.adFreeLegalNotice,

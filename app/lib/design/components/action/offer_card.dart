@@ -28,13 +28,15 @@ enum OfferCardState {
 
 /// 광고 제거권 카드(`offer-card`, D53·D54).
 ///
-/// 위에서 아래로 아이콘 → [head] → [price] → (이용 중이면 [statusLabel]·[remaining], 아니면
-/// 구매 버튼) → 구매 내역 조용한 버튼 → 약관 안내입니다. 가격·기간·자동 갱신 아님 고지
-/// ([price])는 구매 버튼보다 위, 같은 카드 안에 둡니다. 구매 내역 버튼은 [state]와 관계없이 늘
-/// 보입니다(따로 누르는 구매 복원 버튼은 없음, D88 ②).
+/// 위에서 아래로 아이콘 → [head] → [price] → [period] →
+/// (이용 중이면 [statusLabel]·[remaining], 아니면 구매 버튼) → 구매 내역 조용한 버튼 →
+/// 약관 안내입니다. 가격·기간·자동 갱신 아님 고지([price]·[period])는 구매 버튼보다 위,
+/// 같은 카드 안에 둡니다. 구매 내역 버튼은 [state]와 관계없이 늘 보입니다(따로 누르는
+/// 구매 복원 버튼은 없음, D88 ②).
 ///
 /// 문구는 모두 화면이 ARB에서 읽어 넘깁니다. 구매 완료 햅틱(light)도 화면의 몫입니다.
-/// 스크린리더는 카드를 한 묶음으로 보고 [head]와 [price]를 함께 읽으며, 버튼은 따로 읽습니다.
+/// 스크린리더는 카드를 한 묶음으로 보고 [head]·[price]·[period]를 함께 읽으며,
+/// 버튼은 따로 읽습니다.
 class OfferCard extends StatelessWidget {
   /// 카드를 만듭니다. [statusLabel]("사용 중")과 [remaining]은 [state]가 `active`일 때 씁니다.
   /// [animated]가 false면 구매 버튼의 점이 정지 상태로 그려집니다(golden).
@@ -45,6 +47,7 @@ class OfferCard extends StatelessWidget {
     required this.historyLabel,
     required this.legalNotice,
     this.price,
+    this.period,
     this.statusLabel,
     this.remaining,
     this.onBuy,
@@ -86,7 +89,11 @@ class OfferCard extends StatelessWidget {
   /// [head]와 [price] 사이(`parts.price.marginTop`, `space.16`).
   static const double priceGap = Space.s16;
 
-  /// [price]와 구매 버튼·이용 중 표시 사이(`parts.buy.marginTop`, `space.20`).
+  /// [price]와 [period] 사이. 명세에 값이 없어 purchase-row 보조 줄 간격
+  /// (`PurchaseRowGroup.metaGap`, `space.4`)을 따릅니다.
+  static const double periodGap = Space.s4;
+
+  /// 마지막 안내(가격·기간)와 구매 버튼·이용 중 표시 사이(`parts.buy.marginTop`, `space.20`).
   static const double buyGap = Space.s20;
 
   /// 구매 내역 버튼과 약관 안내 사이(`parts.legal.marginTop`, `space.12`).
@@ -108,10 +115,15 @@ class OfferCard extends StatelessWidget {
   /// 주는 것 한 줄(`ad-free.offer.head`).
   final String head;
 
-  /// 가격 + 기간 + 자동 갱신 아님 한 줄(`ad-free.offer.price`).
+  /// 가격 한 줄(`ad-free.offer.price`, 고정폭 숫자). 스토어가 준 가격 문자열 그대로입니다.
   ///
   /// null이면 가격 줄과 그 간격을 그리지 않습니다(상품을 받지 못한 오프라인 등).
   final String? price;
+
+  /// 기간과 자동 갱신 아님 고지(`ad-free.offer.period`). 가격 아래 작은 글씨입니다.
+  ///
+  /// 가격과 상관없는 고지라 [price]가 null이어도 보입니다. null이면 그리지 않습니다.
+  final String? period;
 
   /// 구매 버튼 문구.
   final String buyLabel;
@@ -151,7 +163,7 @@ class OfferCard extends StatelessWidget {
       key: cardKey,
       container: true,
       explicitChildNodes: true,
-      label: [head, ?price].join(l10n.a11yListSeparator),
+      label: [head, ?price, ?period].join(l10n.a11yListSeparator),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.bgSheet,
@@ -189,6 +201,18 @@ class OfferCard extends StatelessWidget {
                     style: tokens.typography.title.copyWith(
                       color: colors.textPrimary,
                       fontFeatures: _tabular,
+                    ),
+                  ),
+                ),
+              ],
+              if (period != null) ...[
+                // 가격이 없으면 head 바로 아래에서 시작하므로 가격 자리의 간격을 씁니다.
+                SizedBox(height: price != null ? periodGap : priceGap),
+                ExcludeSemantics(
+                  child: Text(
+                    period!,
+                    style: tokens.typography.captionLg.copyWith(
+                      color: colors.textSecondary,
                     ),
                   ),
                 ),

@@ -1990,5 +1990,9 @@
   "adFreeBuyCta": "구매하기",
   "@adFreeBuyCta": {
     "description": "임시, #548 원고 전(A7). ad-free 구매 버튼 문구(IA 슬롯 ad-free.buy.cta 제안)"
+  },
+  "adFreeOfferPeriod": "1개월, 자동 갱신 없음",
+  "@adFreeOfferPeriod": {
+    "description": "임시, IA ad-free.offer.period(#549), writing 원고 전(A7). 기간과 자동 갱신 아님 고지"
   }
 }

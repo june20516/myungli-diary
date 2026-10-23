@@ -1545,4 +1545,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adFreeBuyCta => 'Buy';
+
+  @override
+  String get adFreeOfferPeriod => '1 month, no auto-renewal';
 }

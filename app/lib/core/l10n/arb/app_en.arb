@@ -419,5 +419,6 @@
   "purchaseStatusExpired": "Expired",
   "purchaseStatusRefunded": "Refunded",
   "errorMergeTokenInvalid": "We couldn't continue the merge. Verify the account you're bringing in again.",
-  "adFreeBuyCta": "Buy"
+  "adFreeBuyCta": "Buy",
+  "adFreeOfferPeriod": "1 month, no auto-renewal"
 }

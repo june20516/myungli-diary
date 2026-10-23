@@ -6,10 +6,12 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 const _head = '한 달 동안 광고 없이 봐요';
-const _price = '가격 · 1개월 · 자동 갱신 없음';
+const _price = '가격';
+const _period = '1개월, 자동 갱신 없음';
 
 Widget _app(Widget child) => MaterialApp(
   locale: const Locale('ko'),
@@ -28,6 +30,7 @@ OfferCard _card(
   state: state,
   head: _head,
   price: _price,
+  period: _period,
   buyLabel: '구매하기',
   historyLabel: '구매 내역',
   legalNotice: '구매 전에 약관을 확인해 주세요.',
@@ -130,6 +133,8 @@ void main() {
       expect(data.flagsCollection.isButton, isFalse);
       expect(data.label, contains(_head));
       expect(data.label, contains(_price));
+      expect(data.label, contains(_period));
+      expect(data.label, isNot(endsWith(',')));
       var children = 0;
       node.visitChildren((_) {
         children++;
@@ -139,7 +144,62 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('price가 null이면 가격 줄과 간격이 없고 라벨은 head만이다', (tester) async {
+    testWidgets('period는 가격 아래 작은 보조색 글씨이고 구매 버튼보다 위다', (tester) async {
+      await tester.pumpWidget(_app(_card(OfferCardState.available)));
+      final priceTop = tester.getTopLeft(find.text(_price)).dy;
+      final priceBottom = tester.getBottomLeft(find.text(_price)).dy;
+      final periodTop = tester.getTopLeft(find.text(_period)).dy;
+      final periodBottom = tester.getBottomLeft(find.text(_period)).dy;
+      final buyTop = tester.getTopLeft(find.byKey(OfferCard.buyKey)).dy;
+      expect(priceTop, lessThan(periodTop));
+      expect(periodTop - priceBottom, OfferCard.periodGap);
+      expect(buyTop - periodBottom, OfferCard.buyGap);
+
+      final context = tester.element(find.byKey(OfferCard.cardKey));
+      final tokens = context.tokens;
+      final style = tester.widget<Text>(find.text(_period)).style!;
+      expect(style.fontSize, tokens.typography.captionLg.fontSize);
+      expect(style.color, tokens.colors.textSecondary);
+    });
+
+    testWidgets('period가 null이면 기간 줄이 없고 라벨에 끝 구분자가 남지 않는다', (tester) async {
+      final handle = tester.ensureSemantics();
+      const card = OfferCard(
+        state: OfferCardState.available,
+        head: _head,
+        price: _price,
+        buyLabel: '구매하기',
+        historyLabel: '구매 내역',
+        legalNotice: '구매 전에 약관을 확인해 주세요.',
+      );
+      await tester.pumpWidget(_app(card));
+      expect(find.text(_period), findsNothing);
+      final label = tester.getSemantics(find.byKey(OfferCard.cardKey)).label;
+      expect(label, contains(_price));
+      expect(label, isNot(endsWith(',')));
+      handle.dispose();
+    });
+
+    testWidgets('price가 null이어도 period는 보인다', (tester) async {
+      final handle = tester.ensureSemantics();
+      const card = OfferCard(
+        state: OfferCardState.offline,
+        head: _head,
+        period: _period,
+        buyLabel: '구매하기',
+        historyLabel: '구매 내역',
+        legalNotice: '구매 전에 약관을 확인해 주세요.',
+      );
+      await tester.pumpWidget(_app(card));
+      expect(find.text(_period), findsOneWidget);
+      expect(find.text(_price), findsNothing);
+      final label = tester.getSemantics(find.byKey(OfferCard.cardKey)).label;
+      expect(label, contains(_head));
+      expect(label, contains(_period));
+      handle.dispose();
+    });
+
+    testWidgets('price와 period가 모두 null이면 라벨은 head만이다', (tester) async {
       final handle = tester.ensureSemantics();
       const card = OfferCard(
         state: OfferCardState.offline,

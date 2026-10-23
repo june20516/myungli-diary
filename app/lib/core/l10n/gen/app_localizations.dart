@@ -2627,6 +2627,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'구매하기'**
   String get adFreeBuyCta;
+
+  /// 임시, IA ad-free.offer.period(#549), writing 원고 전(A7). 기간과 자동 갱신 아님 고지
+  ///
+  /// In ko, this message translates to:
+  /// **'1개월, 자동 갱신 없음'**
+  String get adFreeOfferPeriod;
 }
 
 class _AppLocalizationsDelegate

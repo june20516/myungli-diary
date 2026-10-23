@@ -1430,4 +1430,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get adFreeBuyCta => '구매하기';
+
+  @override
+  String get adFreeOfferPeriod => '1개월, 자동 갱신 없음';
 }

@@ -123,7 +123,7 @@ PrimaryButton _buy(WidgetTester tester) =>
     tester.widget<PrimaryButton>(find.byKey(OfferCard.buyKey));
 
 void main() {
-  testWidgets('loading 중에는 skeleton, 받은 뒤 상품 가격 문장이 보인다', (tester) async {
+  testWidgets('loading 중에는 skeleton, 받은 뒤 스토어 가격과 기간 줄이 보인다', (tester) async {
     covers(const Covers(states: ['ad-free:loading']));
     final gate = Completer<void>();
     await _open(tester, _GatedProducts(gate), allowOngoing: true);
@@ -134,7 +134,8 @@ void main() {
     await settleWithIo(tester);
     await expectAppBarTitle(tester, SlotIds.adFreeBarTitle, _ko.adFreeBarTitle);
     expect(find.byKey(const ValueKey('screen-state.loading')), findsNothing);
-    expect(find.text(_ko.adFreeOfferPrice('가격')), findsOneWidget);
+    expect(find.text('가격'), findsOneWidget);
+    expect(find.text(_ko.adFreeOfferPeriod), findsOneWidget);
     expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
     expect(_buy(tester).label, _ko.adFreeBuyCta);
     expect(_buy(tester).onPressed, isNotNull);
@@ -159,7 +160,8 @@ void main() {
     expect(find.byType(NoticeBanner), findsOneWidget);
     expect(find.text(_ko.noticeOffline), findsOneWidget);
     expect(_buy(tester).onPressed, isNull);
-    expect(find.textContaining(_ko.adFreeOfferPrice('')), findsNothing);
+    expect(find.text('가격'), findsNothing);
+    expect(find.text(_ko.adFreeOfferPeriod), findsOneWidget);
     expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
     final history = tester.widget<PrimaryButton>(
       find.byKey(OfferCard.historyKey),

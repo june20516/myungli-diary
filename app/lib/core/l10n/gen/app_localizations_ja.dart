@@ -1427,4 +1427,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get adFreeBuyCta => '購入する';
+
+  @override
+  String get adFreeOfferPeriod => '1か月、自動更新なし';
 }
