@@ -20,9 +20,7 @@ import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
-import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
-import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -40,6 +38,7 @@ import '../support/golden.dart';
 import '../support/onboarding_steps.dart';
 import '../support/profile_network.dart';
 import '../support/purchase_network.dart';
+import '../support/purchase_stubs.dart';
 
 final bool _enabled = Platform.environment['MYUNGLI_SCREENSHOTS'] == '1';
 
@@ -73,28 +72,6 @@ final class _Shot {
   final String scenario;
   final _Open open;
   final List<Override> overrides;
-}
-
-/// `sync`가 끝나지 않는 구매 대역(구매 내역이 받는 중인 채로 찍음).
-final class _HeldSync implements Purchases {
-  new();
-
-  final inner = FakePurchases();
-
-  @override
-  Future<void> logIn(String accountId) async {}
-
-  @override
-  Future<void> logOut() async {}
-
-  @override
-  Future<void> sync() => Completer<void>().future;
-
-  @override
-  Future<List<StoreProduct>> products() => inner.products();
-
-  @override
-  Future<PurchaseOutcome> buy(String productId) => inner.buy(productId);
 }
 
 /// 앱이 진입 화면에 도착한 채로 둡니다.
@@ -235,13 +212,7 @@ _Open _purchaseHistory({Interceptor? network, bool hold = false}) =>
         await tester.pump(const Duration(seconds: 1));
         return;
       }
-      await pumpUntil(
-        tester,
-        () => find
-            .byKey(const ValueKey('screen-state.loading'))
-            .evaluate()
-            .isEmpty,
-      );
+      await untilLoaded(tester);
     };
 
 Future<void> _tapAndSettle(WidgetTester tester, Finder finder) async {
@@ -494,7 +465,11 @@ final List<_Shot> _shots = [
     'loading',
     'ad-free-active',
     _purchaseHistory(hold: true),
-    overrides: [purchasesProvider.overrideWithValue(_HeldSync())],
+    overrides: [
+      purchasesProvider.overrideWithValue(
+        GatedPurchases(syncGate: Completer<void>()),
+      ),
+    ],
   ),
   _Shot(
     'purchase-history',

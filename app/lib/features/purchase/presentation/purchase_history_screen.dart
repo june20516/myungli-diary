@@ -7,7 +7,6 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
-import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
@@ -53,16 +52,6 @@ String purchaseMeta(
       '${l10n.purchaseMetaPeriod(date(period.startsAt), date(period.endsAt))}';
 }
 
-/// 스토어 상품 목록(상품 이름용). 받지 못하면 빈 목록이라 이름이 상품 id로 보입니다.
-final FutureProvider<List<StoreProduct>> storeProductsProvider =
-    FutureProvider.autoDispose<List<StoreProduct>>((ref) async {
-      try {
-        return await ref.watch(purchasesProvider).products();
-      } on Object {
-        return const [];
-      }
-    });
-
 /// 구매 내역(`purchase-history`, 결정 A76, D88).
 ///
 /// 들어올 때마다 [PurchaseHistoryController]가 sync, 장부 맞추기, 목록 받기를 차례로 합니다.
@@ -93,7 +82,7 @@ class PurchaseHistoryScreen extends ConsumerWidget {
               ),
               Expanded(
                 child: ScreenStateView<List<Purchase>>(
-                  value: history,
+                  value: _awaitingStoreNames(ref, history),
                   onRetry: () =>
                       ref.read(purchaseHistoryProvider.notifier).retry(),
                   skeleton: const Padding(
@@ -106,34 +95,68 @@ class PurchaseHistoryScreen extends ConsumerWidget {
                     child: PurchaseRowGroup.loading(),
                   ),
                   isEmpty: (purchases) => purchases.isEmpty,
-                  empty: Column(
-                    children: [
-                      Expanded(
-                        child: EmptyState(
-                          icon: const AppGlyph(
-                            light: PhosphorIconsLight.receipt,
-                            regular: PhosphorIconsRegular.receipt,
-                          ),
-                          body: l10n.purchaseHistoryEmptyBody,
-                          identifier: SlotIds.purchaseHistoryEmptyBody,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          Space.s20,
-                          Space.s16,
-                          Space.s20,
-                          Space.s24 + MediaQuery.viewPaddingOf(context).bottom,
-                        ),
-                        child: const _MissingNotice(),
-                      ),
-                    ],
-                  ),
+                  empty: _EmptyWithNotice(body: l10n.purchaseHistoryEmptyBody),
                   data: (purchases) => _PurchaseList(purchases: purchases),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 상품 이름을 스토어에서 받아야 하는 줄이 있으면 그 목록이 올 때까지 loading으로 둡니다.
+///
+/// 이름이 상품 id에서 스토어 title로 깜빡 바뀌지 않게 첫 그리기 전에 함께 기다립니다.
+/// 광고 제거권 줄만 있으면(스토어 이름이 필요 없으면) 기다리지 않습니다.
+AsyncValue<List<Purchase>> _awaitingStoreNames(
+  WidgetRef ref,
+  AsyncValue<List<Purchase>> history,
+) {
+  final purchases = history.value;
+  if (purchases == null) {
+    return history;
+  }
+  final adFreeProductIds = ref.watch(adFreeProductIdsProvider);
+  final needsStoreNames = purchases.any(
+    (purchase) => !adFreeProductIds.contains(purchase.productId),
+  );
+  if (needsStoreNames && ref.watch(storeProductsProvider).isLoading) {
+    return const AsyncLoading<List<Purchase>>();
+  }
+  return history;
+}
+
+/// 빈 목록: `empty-state`와 `missing.notice`를 한 묶음으로 화면 세로 40% 지점에 둡니다.
+class _EmptyWithNotice extends StatelessWidget {
+  const new({required this.body});
+
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: const Alignment(0, -0.2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EmptyState(
+              icon: const AppGlyph(
+                light: PhosphorIconsLight.receipt,
+                regular: PhosphorIconsRegular.receipt,
+              ),
+              body: body,
+              identifier: SlotIds.purchaseHistoryEmptyBody,
+            ),
+            const SizedBox(height: Space.s16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: Space.s20),
+              child: _MissingNotice(),
+            ),
+          ],
         ),
       ),
     );
@@ -150,7 +173,9 @@ class _PurchaseList extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final adFreeProductIds = ref.watch(adFreeProductIdsProvider);
     final storeProducts = ref.watch(storeProductsProvider).value ?? const [];
-    final timezone = ref.watch(profileTimezoneProvider);
+    // 구매 날짜는 프로필 시간대가 아니라 기기 시간대 기준입니다(spec §6).
+    final timezone =
+        ref.watch(deviceTimezoneNameProvider).value ?? fallbackTimezone;
     final bottom = MediaQuery.viewPaddingOf(context).bottom;
     return ListView(
       padding: EdgeInsets.fromLTRB(

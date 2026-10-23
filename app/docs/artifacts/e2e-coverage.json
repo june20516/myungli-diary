@@ -1,12 +1,11 @@
 {
-  "generatedAt": "2026-10-23T08:07:36.072800Z",
+  "generatedAt": "2026-10-23T08:27:08.815235Z",
   "exits": {
-    "covered": 74,
+    "covered": 75,
     "total": 88,
     "uncovered": [
       "account-merge>login-methods",
       "ad-free>legal",
-      "ad-free>purchase-history",
       "ad-free>system-purchase",
       "birthplace>notify-ask",
       "launch>ad-consent",
@@ -29,6 +28,10 @@
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
         "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
+      ],
+      "ad-free>purchase-history": [
+        "test/flows/purchase_flow_test.dart:78 설정 → 광고 제거(사용 중) → 구매 내역에 네 줄",
+        "patrol_test/me_test.dart:62"
       ],
       "birthplace>calc-basis": [
         "test/flows/birthplace_flow_test.dart:159 링크를 누르면 calc-basis로 쌓이고, 돌아오면 검색어와 결과가 그대로입니다",
@@ -112,7 +115,7 @@
         "test/flows/saju_chart_flow_test.dart:377 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
         "test/flows/today_flow_test.dart:166 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
         "test/flows/today_flow_test.dart:253 evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장",
-        "patrol_test/me_test.dart:61",
+        "patrol_test/me_test.dart:62",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "launch>force-update": [
@@ -152,7 +155,7 @@
       "my-saju>saju-chart": [
         "test/flows/me_journey_flow_test.dart:212 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
         "test/flows/my_saju_flow_test.dart:132 근거 보기 → 사주 표",
-        "patrol_test/me_test.dart:61"
+        "patrol_test/me_test.dart:62"
       ],
       "my-saju>settings": [
         "test/flows/me_journey_flow_test.dart:294 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
@@ -160,7 +163,7 @@
         "test/flows/me_journey_flow_test.dart:402 정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)",
         "test/flows/me_journey_flow_test.dart:440 설정에서 언어를 en으로 바꾸면 나의 사주를 다시 받아 en 문장이 보입니다(A60)",
         "test/flows/my_saju_flow_test.dart:155 톱니 → 설정",
-        "patrol_test/me_test.dart:61"
+        "patrol_test/me_test.dart:62"
       ],
       "notify-ask>ad-consent": [
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
@@ -219,7 +222,7 @@
       "profile-edit>onboard-birth": [
         "test/flows/me_journey_flow_test.dart:294 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
         "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다",
-        "patrol_test/me_test.dart:61"
+        "patrol_test/me_test.dart:62"
       ],
       "profile-edit>onboard-call": [
         "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
@@ -236,14 +239,16 @@
       "saju-chart>explain-sheet": [
         "test/flows/me_journey_flow_test.dart:212 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
         "test/flows/saju_chart_flow_test.dart:377 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
-        "patrol_test/me_test.dart:61"
+        "patrol_test/me_test.dart:62"
       ],
       "settings>account-delete": [
         "test/flows/account_delete_flow_test.dart:76 제목·안내·삭제 버튼(destructive)이 있습니다",
         "test/flows/settings_flow_test.dart:549"
       ],
       "settings>ad-free": [
-        "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free"
+        "test/flows/purchase_flow_test.dart:78 설정 → 광고 제거(사용 중) → 구매 내역에 네 줄",
+        "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
+        "patrol_test/me_test.dart:62"
       ],
       "settings>birthplace": [
         "test/flows/settings_flow_test.dart:381 언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드"
@@ -260,12 +265,12 @@
         "test/flows/profile_edit_flow_test.dart:629 settings 출생지 안내에서 고른 도시는 켜진 저장 버튼으로 열리고, 한국 기기여도 그 도시로 저장합니다(D29)",
         "test/flows/settings_flow_test.dart:410 출생지 수정 모드에서 고른 도시는 정보 수정으로 넘깁니다(무거운 변경 확인은 그 화면, A6)",
         "test/flows/settings_flow_test.dart:549",
-        "patrol_test/me_test.dart:61"
+        "patrol_test/me_test.dart:62"
       ],
       "settings>welcome": [
         "test/flows/me_journey_flow_test.dart:379 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
         "test/flows/settings_flow_test.dart:571 로그아웃: 확인 창에서 취소하면 그대로, 확정하면 revokeAndSignOut → welcome",
-        "patrol_test/me_test.dart:61"
+        "patrol_test/me_test.dart:62"
       ],
       "share-preview>system-share": [
         "test/flows/today_flow_test.dart:301 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다"
@@ -318,27 +323,29 @@
     }
   },
   "states": {
-    "covered": 47,
+    "covered": 54,
     "total": 61,
     "uncovered": [
       "account-merge:error",
       "account-merge:loading",
-      "ad-free:error",
-      "ad-free:loading",
-      "ad-free:offline",
       "event-edit:loading",
       "event-edit:offline",
       "launch:loading",
       "login-methods:error",
-      "onboard-birth:out-of-range",
-      "purchase-history:empty",
-      "purchase-history:error",
-      "purchase-history:loading",
-      "purchase-history:offline"
+      "onboard-birth:out-of-range"
     ],
     "coveredBy": {
       "account-delete:error": [
         "test/flows/account_delete_flow_test.dart:132 지우지 못하면 오류 toast이고 화면에 남아, 다시 누르면 다시 시도합니다"
+      ],
+      "ad-free:error": [
+        "test/flows/purchase_flow_test.dart:160 광고 제거 error는 다시 시도"
+      ],
+      "ad-free:loading": [
+        "test/flows/purchase_flow_test.dart:144 광고 제거 loading은 skeleton, 상품을 받으면 카드"
+      ],
+      "ad-free:offline": [
+        "test/flows/purchase_flow_test.dart:172 광고 제거 offline은 안내와 꺼진 구매 버튼"
       ],
       "birthplace:empty": [
         "test/flows/birthplace_flow_test.dart:306 결과가 없으면 안내 문장이 나옵니다"
@@ -457,6 +464,18 @@
       "profile-edit:error": [
         "test/flows/profile_edit_flow_test.dart:513 저장이 실패하면 오류 배너와 다시 시도, 바꾼 값과 이전 캐시는 그대로입니다"
       ],
+      "purchase-history:empty": [
+        "test/flows/purchase_flow_test.dart:92 구매 내역이 비면 empty와 missing.notice"
+      ],
+      "purchase-history:error": [
+        "test/flows/purchase_flow_test.dart:116 구매 내역 error는 다시 시도로 회복"
+      ],
+      "purchase-history:loading": [
+        "test/flows/purchase_flow_test.dart:102 구매 내역 loading은 skeleton, 끝나면 목록"
+      ],
+      "purchase-history:offline": [
+        "test/flows/purchase_flow_test.dart:132 구매 내역 offline은 오프라인 안내"
+      ],
       "saju-chart:error": [
         "test/flows/saju_chart_flow_test.dart:636 error: 받지 못하면 오류와 다시 시도"
       ],
@@ -527,6 +546,7 @@
         "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
+        "test/flows/purchase_flow_test.dart:182 광고 제거 구매 성공 뒤 설정 줄이 남은 기간으로 바뀐다",
         "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
@@ -535,7 +555,7 @@
         "test/flows/me_journey_flow_test.dart:402 정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)",
         "test/flows/saju_chart_flow_test.dart:310 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)",
         "test/flows/today_flow_test.dart:537 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
-        "patrol_test/me_test.dart:61",
+        "patrol_test/me_test.dart:62",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ]
     }
@@ -843,11 +863,11 @@
     },
     "ad-free": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 3
       },
       "states": {
-        "covered": 0,
+        "covered": 3,
         "total": 3
       }
     },
@@ -867,7 +887,7 @@
         "total": 0
       },
       "states": {
-        "covered": 0,
+        "covered": 4,
         "total": 4
       }
     },

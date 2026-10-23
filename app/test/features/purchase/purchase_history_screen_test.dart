@@ -6,9 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/api/gen/model/purchase.dart';
 import 'package:myungli_diary/core/api/gen/model/purchase_period.dart';
 import 'package:myungli_diary/core/api/gen/model/purchase_status.dart';
+import 'package:myungli_diary/core/clock/clock.dart'
+    show profileTimezoneProvider;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -16,41 +19,17 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/features/purchase/presentation/purchase_history_screen.dart';
 
 import '../../support/app_bar_title.dart';
 import '../../support/app_harness.dart';
 import '../../support/onboarding_steps.dart';
 import '../../support/purchase_network.dart';
+import '../../support/purchase_stubs.dart';
 
 final _ko = AppLocalizationsKo();
-
-/// `sync`를 [gate]가 열릴 때까지 붙잡고 호출 수를 세는 구매 대역.
-final class _GatedSync implements Purchases {
-  new(this.gate);
-
-  final Completer<void> gate;
-  int syncCalls = 0;
-
-  @override
-  Future<void> logIn(String accountId) async {}
-
-  @override
-  Future<void> logOut() async {}
-
-  @override
-  Future<void> sync() async {
-    syncCalls++;
-    await gate.future;
-  }
-
-  @override
-  Future<List<StoreProduct>> products() async => const [];
-
-  @override
-  Future<PurchaseOutcome> buy(String productId) async =>
-      const PurchaseCancelled();
-}
 
 /// `listPurchases` 응답을 [items]로 바꿉니다.
 Interceptor _listReplaced(List<Map<String, Object?>> items) =>
@@ -85,17 +64,34 @@ Future<ProviderContainer> _open(
   );
   await pumpUntilScreen(tester, ScreenIds.purchaseHistory);
   if (!allowOngoing) {
-    await _untilLoaded(tester);
+    await untilLoaded(tester);
   }
   await settleWithIo(tester, allowOngoing: allowOngoing);
   return container;
 }
 
-/// 불러오기(sync, 장부 맞추기, 목록)가 끝나 skeleton이 사라질 때까지 기다립니다.
-Future<void> _untilLoaded(WidgetTester tester) => pumpUntil(
-  tester,
-  () => find.byKey(const ValueKey('screen-state.loading')).evaluate().isEmpty,
-);
+/// 구매일과 (있으면) 사용 기간으로 meta 한 줄을 ARB 조각으로 조립합니다.
+String _meta(String purchased, {String? start, String? end}) {
+  final head = _ko.purchaseMetaPurchased(purchased);
+  if (start == null || end == null) {
+    return head;
+  }
+  final period = _ko.purchaseMetaPeriod(start, end);
+  return '$head${_ko.purchaseMetaSeparator}$period';
+}
+
+Map<String, Object?> _item(
+  String productId,
+  String purchasedAt,
+  String status, {
+  String? startsAt,
+  String? endsAt,
+}) => {
+  'productId': productId,
+  'purchasedAt': purchasedAt,
+  'status': status,
+  if (startsAt != null) 'period': {'startsAt': startsAt, 'endsAt': endsAt},
+};
 
 Finder get _notice => find.text(_ko.purchaseHistoryMissingNotice);
 
@@ -123,16 +119,16 @@ void main() {
     test('구매일, 구분자, 기간을 잇는다', () {
       expect(
         meta(DateTime.utc(2026, 10, 13, 3), period),
-        '2026. 10. 13. 구매 · 2026. 10. 13.~2026. 11. 12.',
+        _meta('2026. 10. 13.', start: '2026. 10. 13.', end: '2026. 11. 12.'),
       );
     });
 
     test('기간이 없으면 구매일만', () {
-      expect(meta(DateTime.utc(2026, 10, 13, 3)), '2026. 10. 13. 구매');
+      expect(meta(DateTime.utc(2026, 10, 13, 3)), _meta('2026. 10. 13.'));
     });
 
     test('날짜는 기기 시간대 기준이다', () {
-      expect(meta(DateTime.utc(2026, 10, 12, 15, 30)), '2026. 10. 13. 구매');
+      expect(meta(DateTime.utc(2026, 10, 12, 15, 30)), _meta('2026. 10. 13.'));
     });
   });
 
@@ -149,10 +145,12 @@ void main() {
     expect(find.text(_ko.purchaseStatusRefunded), findsOneWidget);
     expect(find.text(_ko.purchaseStatusExpired), findsNWidgets(2));
     expect(
-      find.text('2026. 10. 12. 구매 · 2026. 10. 12.~2026. 11. 12.'),
+      find.text(
+        _meta('2026. 10. 12.', start: '2026. 10. 12.', end: '2026. 11. 12.'),
+      ),
       findsOneWidget,
     );
-    expect(find.text('2026. 7. 1. 구매'), findsOneWidget);
+    expect(find.text(_meta('2026. 7. 1.')), findsOneWidget);
     expect(_notice, findsOneWidget);
   });
 
@@ -164,9 +162,11 @@ void main() {
     expect(find.byType(EmptyState), findsOneWidget);
     expect(find.text(_ko.purchaseHistoryEmptyBody), findsOneWidget);
     expect(_notice, findsOneWidget);
+    // empty-state 바로 아래 space.16에 놓입니다.
     expect(
-      tester.getTopLeft(_notice).dy,
-      greaterThan(tester.getBottomLeft(find.byType(EmptyState)).dy),
+      tester.getTopLeft(_notice).dy -
+          tester.getBottomLeft(find.byType(EmptyState)).dy,
+      closeTo(Space.s16, 0.01),
     );
   });
 
@@ -174,11 +174,15 @@ void main() {
     tester,
   ) async {
     final gate = Completer<void>();
-    await _open(tester, purchases: _GatedSync(gate), allowOngoing: true);
+    await _open(
+      tester,
+      purchases: GatedPurchases(syncGate: gate),
+      allowOngoing: true,
+    );
     expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);
     expect(_notice, findsNothing);
     gate.complete();
-    await _untilLoaded(tester);
+    await untilLoaded(tester);
     expect(_notice, findsOneWidget);
   });
 
@@ -206,7 +210,7 @@ void main() {
     expect(purchases.syncCalls, 1);
 
     await tester.tap(find.text(_ko.actionRetry));
-    await _untilLoaded(tester);
+    await untilLoaded(tester);
 
     expect(purchases.syncCalls, 2);
     expect(find.byKey(PurchaseRowGroup.rowKey), findsNWidgets(4));
@@ -233,5 +237,113 @@ void main() {
     expect(find.byKey(PurchaseRowGroup.statusKey), findsNothing);
     // 스토어에도 광고 제거권 목록에도 없는 상품은 상품 id 그대로입니다.
     expect(find.text('other_product'), findsOneWidget);
+  });
+
+  testWidgets('pending·expired(기간 없음)·합친 구매를 받은 그대로 server 순서로 보인다', (
+    tester,
+  ) async {
+    // 세 번째는 합친 구매라 구매일이 사용 기간 시작보다 이릅니다(spec §10).
+    final pending = _meta(
+      '2026. 10. 12.',
+      start: '2026. 10. 13.',
+      end: '2026. 11. 13.',
+    );
+    final expired = _meta('2026. 9. 1.');
+    final merged = _meta(
+      '2026. 10. 1.',
+      start: '2026. 10. 5.',
+      end: '2026. 11. 5.',
+    );
+    await _open(
+      tester,
+      network: _listReplaced([
+        _item(
+          'ad_free_1month',
+          '2026-10-12T03:00:00Z',
+          'pending',
+          startsAt: '2026-10-13T03:00:00Z',
+          endsAt: '2026-11-13T03:00:00Z',
+        ),
+        _item('ad_free_1month', '2026-09-01T03:00:00Z', 'expired'),
+        _item(
+          'ad_free_1month',
+          '2026-10-01T03:00:00Z',
+          'active',
+          startsAt: '2026-10-05T03:00:00Z',
+          endsAt: '2026-11-05T03:00:00Z',
+        ),
+      ]),
+    );
+    expect(find.text(_ko.purchaseStatusPending), findsOneWidget);
+    expect(find.text(_ko.purchaseStatusExpired), findsOneWidget);
+    final tops = [
+      for (final meta in [pending, expired, merged])
+        tester.getTopLeft(find.text(meta)).dy,
+    ];
+    expect(tops, orderedEquals([...tops]..sort()));
+  });
+
+  testWidgets('날짜는 프로필 시간대가 아니라 기기 시간대 기준이다', (tester) async {
+    // 기기(시나리오) 시간대는 Asia/Seoul, 프로필 시간대는 뉴욕으로 어긋나게 둡니다.
+    // 2026-10-12T15:30Z는 서울에서 13일, 뉴욕에서 12일입니다.
+    final container = await pumpApp(
+      tester,
+      scenario: 'ad-free-active',
+      overrides: [
+        cachedProfileProvider.overrideWith(
+          (ref) async => Profile.fromJson({
+            'honorific': '하늘',
+            'language': 'ko',
+            'currentTimezone': 'America/New_York',
+            'birth': {
+              'calendar': 'solar',
+              'date': {'year': 1990, 'month': 5, 'day': 15},
+              'isLeapMonth': false,
+              'time': {'status': 'unknown'},
+              'gender': 'female',
+              'timezone': 'Asia/Seoul',
+              'place': {'status': 'not_asked'},
+            },
+            'notification': {'status': 'not_asked'},
+          }),
+        ),
+      ],
+      network: _listReplaced([
+        _item('ad_free_1month', '2026-10-12T15:30:00Z', 'owned'),
+      ]),
+    );
+    unawaited(
+      container
+          .read(routerProvider)
+          .push<void>(pathOf(ScreenIds.purchaseHistory)),
+    );
+    await pumpUntilScreen(tester, ScreenIds.purchaseHistory);
+    await untilLoaded(tester);
+    expect(container.read(profileTimezoneProvider), 'America/New_York');
+    expect(find.text(_meta('2026. 10. 13.')), findsOneWidget);
+  });
+
+  testWidgets('스토어 이름이 필요한 줄은 상품 목록이 올 때까지 loading, 이름은 title', (tester) async {
+    final gate = Completer<void>();
+    await _open(
+      tester,
+      purchases: GatedPurchases(
+        productsGate: gate,
+        catalog: const [
+          StoreProduct(id: 'store_x', title: '스토어 이름', priceLabel: '가격'),
+        ],
+      ),
+      network: _listReplaced([
+        _item('store_x', '2026-10-12T03:00:00Z', 'owned'),
+      ]),
+      allowOngoing: true,
+    );
+    expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);
+    expect(find.text('store_x'), findsNothing);
+
+    gate.complete();
+    await untilLoaded(tester);
+    expect(find.text('스토어 이름'), findsOneWidget);
+    expect(find.text('store_x'), findsNothing);
   });
 }
