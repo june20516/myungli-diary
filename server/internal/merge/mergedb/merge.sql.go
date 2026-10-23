@@ -49,8 +49,8 @@ func (q *Queries) CopyOtherOnlyDiaryDays(ctx context.Context, arg CopyOtherOnlyD
 
 const countMovableRecords = `-- name: CountMovableRecords :one
 SELECT
-    (SELECT count(*) FROM diaries d WHERE d.account_id = $1)::bigint AS diaries,
-    (SELECT count(*) FROM schedules s WHERE s.account_id = $1)::bigint AS schedules,
+    (SELECT count(*) FROM diaries d WHERE d.account_id = $1 AND d.deleted_at IS NULL)::bigint AS diaries,
+    (SELECT count(*) FROM schedules s WHERE s.account_id = $1 AND s.deleted_at IS NULL)::bigint AS schedules,
     (SELECT count(*) FROM diary_days b
         WHERE b.account_id = $1
           AND NOT EXISTS (SELECT 1 FROM diary_days a WHERE a.account_id = $2 AND a.date = b.date))::bigint AS date_records,
@@ -76,7 +76,7 @@ type CountMovableRecordsRow struct {
 }
 
 // CountMovableRecords는 B에서 A로 옮길 기록 수를 셉니다(spec §6.2).
-// 일기·일정은 지운 것을 포함합니다. 날짜 기록은 A와 날짜가 겹치지 않는 것만 date_records로 세고, 겹친 날은 overlap_days로 셉니다.
+// 일기·일정은 살아 있는 것만 셉니다(지운 것도 옮기지만 화면에서 되살릴 수 없어 세지 않음, D85 ⑦·S114). 날짜 기록은 A와 날짜가 겹치지 않는 것만 date_records로 세고, 겹친 날은 overlap_days로 셉니다.
 // 반응은 B의 문장 선택 기록에 붙은 살아 있는 반응입니다.
 func (q *Queries) CountMovableRecords(ctx context.Context, arg CountMovableRecordsParams) (CountMovableRecordsRow, error) {
 	row := q.db.QueryRow(ctx, countMovableRecords, arg.OtherAccountID, arg.AccountID)

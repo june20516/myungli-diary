@@ -66,7 +66,7 @@ type ProfileSummary struct {
 
 // Summary는 합치면 B에서 A로 옮겨지거나 더해지는 것의 요약입니다(계약 MergeSummary).
 type Summary struct {
-	// Diaries·Schedules는 지운 것을 포함한 B의 일기·일정 수입니다.
+	// Diaries·Schedules는 B의 살아 있는 일기·일정 수입니다. 지운 것도 옮기지만 세지 않습니다(S114).
 	Diaries, Schedules int
 	// DateRecords는 A와 날짜가 겹치지 않는 B의 날짜 기록 수이고, OverlapDays는 두 계정 모두 날짜 기록이 있는 날 수입니다.
 	DateRecords int

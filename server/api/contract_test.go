@@ -685,10 +685,30 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-func TestContract_VersionIsDraft15(t *testing.T) {
+// TestContract_VersionIsFrozen은 v1 freeze 버전을 고정합니다. freeze 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114)
+func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0-draft.15" {
-		t.Errorf("info.version = %q, want 1.0.0-draft.15", doc.Info.Version)
+	if doc.Info.Version != "1.0.0" {
+		t.Errorf("info.version = %q, want 1.0.0", doc.Info.Version)
+	}
+}
+
+// TestContract_FreezeOpenEnums는 info.description의 열린 enum 목록 전체를 고정합니다.
+// app 생성기가 이 문장에서 열린 enum을 읽으므로 목록에서 빠지면 app의 모르는 값 처리가 사라집니다. (S93, S114, app A66)
+func TestContract_FreezeOpenEnums(t *testing.T) {
+	doc := loadDoc(t)
+	for _, name := range []string{
+		"NoticeCode", "ShinsalKind", "RelationKind", "PersonalReading.kind", "FocusSlot.reasons", "SlotText.variant", "Insight.source",
+		"ConsentDocument.document", "Problem.code", "LoginProvider", "PurchaseStatus", "YongsinMethod", "SlotText.reaction", "Language",
+	} {
+		if !strings.Contains(doc.Info.Description, "`"+name+"`") {
+			t.Errorf("info.description의 열린 enum 목록에 %s가 없음", name)
+		}
+	}
+	for _, name := range []string{"YongsinMethod", "Language"} {
+		if !strings.Contains(schemaOf(t, doc, name).Description, "열린 enum") {
+			t.Errorf("%s 설명에 열린 enum이 없음", name)
+		}
 	}
 }
 
