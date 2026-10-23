@@ -188,4 +188,38 @@ void main() {
     expect(_fake(container).callCountOf('listPurchases'), 2);
     expect(container.read(purchaseHistoryProvider).value, hasLength(4));
   });
+
+  test('불러오는 중 retry를 겹쳐 불러도 한 번만 다시 한다', () async {
+    final purchases = FakePurchases();
+    final container = await _start(purchases: purchases);
+    final subscription = container.listen(purchaseHistoryProvider, (_, _) {});
+    addTearDown(subscription.close);
+    await container.read(purchaseHistoryProvider.future);
+    final notifier = container.read(purchaseHistoryProvider.notifier);
+
+    await Future.wait([notifier.retry(), notifier.retry()]);
+
+    expect(purchases.syncCalls, 2);
+  });
+
+  test('예상 밖 reconcile 오류는 crash 기록 한 번, code·status 없이', () async {
+    final container = await _start(
+      network: _failing(
+        '/v1/billing/restore',
+        (options) => DioException(
+          requestOptions: options,
+          error: StateError('product ad_free_1month'),
+        ),
+      ),
+    );
+    final subscription = container.listen(purchaseHistoryProvider, (_, _) {});
+    addTearDown(subscription.close);
+
+    await container.read(purchaseHistoryProvider.future);
+
+    final errors = _crashOf(container).errors;
+    expect(errors, hasLength(1));
+    expect(errors.single.code, isNull);
+    expect(errors.single.status, isNull);
+  });
 }

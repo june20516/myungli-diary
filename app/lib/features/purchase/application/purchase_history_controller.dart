@@ -19,13 +19,21 @@ final class PurchaseHistoryController extends AsyncNotifier<List<Purchase>> {
   @override
   Future<List<Purchase>> build() async {
     await _syncQuietly();
+    if (!ref.mounted) {
+      return const [];
+    }
     await _reconcileQuietly();
-    final purchases = await ref.read(purchaseRepositoryProvider).list();
-    return purchases;
+    if (!ref.mounted) {
+      return const [];
+    }
+    return await ref.read(purchaseRepositoryProvider).list();
   }
 
-  /// 1부터 다시 합니다.
+  /// 1부터 다시 합니다. 이미 불러오는 중이면 겹쳐 돌지 않도록 무시합니다.
   Future<void> retry() async {
+    if (state.isLoading) {
+      return;
+    }
     state = const AsyncLoading();
     state = await AsyncValue.guard(build);
   }
