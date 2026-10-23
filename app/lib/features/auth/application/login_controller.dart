@@ -281,8 +281,11 @@ final class _Session {
       return null;
     }
     final completer = readCompleter();
-    if (completer != null &&
-        await completer.completeIfReady(notice: rejectionNotice)) {
+    // 입력이 없으면 저장을 시도하지 않았으니 진입은 이미 최신입니다.
+    if (completer == null || !await completer.isReady()) {
+      return null;
+    }
+    if (await completer.completeIfReady(notice: rejectionNotice)) {
       return null;
     }
     return await entry.refresh();

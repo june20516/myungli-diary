@@ -744,7 +744,7 @@ void main() {
 
       expect(h.profile.creates, 0);
       expect(await h.flags.readBool(notifyAskPendingKey), isFalse);
-      expect(h.entry.refreshes, 2);
+      expect(h.entry.refreshes, 1);
     });
 
     test('저장이 422면 안내를 남기고 진입을 다시 계산한다', () async {
