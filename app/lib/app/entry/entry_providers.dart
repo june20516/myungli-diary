@@ -83,7 +83,7 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
   /// 내 정보(`getMe`)만 다시 받아 state의 `me`를 바꿉니다. 갈래·앱 설정은 그대로입니다.
   ///
   /// 구매·동기화 뒤 광고 제거 상태를 갱신하려고 씁니다. 다시 계산하지 않으므로 라우터가
-  /// launch로 되돌아가지 않습니다. 로그아웃 상태이거나 기다리는 사이 state가 바뀌었으면
+  /// launch로 되돌아가지 않습니다. 로그아웃 판단은 `me` 유무로 합니다. 로그아웃 상태이거나 기다리는 사이 state가 바뀌었으면
   /// (새 계산·로그아웃) 아무것도 하지 않습니다. 통신 실패는 삼키고 이전 `me`를 둡니다.
   Future<void> reloadMe() async {
     final current = state.value;
@@ -93,13 +93,13 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     final Me me;
     try {
       me = await _call(ref.read(restClientProvider).getMe);
-    } on AppError catch (error) {
-      if (error is UnexpectedError) {
-        _recordCrash(error.cause, StackTrace.current);
-      }
-      return;
     } on Object catch (error, stack) {
-      _recordCrash(error, stack);
+      // 통신 실패(AppError)는 삼키고, 예상 밖 오류만 기록합니다.
+      if (error is UnexpectedError) {
+        _recordCrash(error.cause, stack);
+      } else if (error is! AppError) {
+        _recordCrash(error, stack);
+      }
       return;
     }
     if (!ref.mounted || !identical(state.value, current)) {

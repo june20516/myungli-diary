@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
-import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/features/purchase/data/ad_free_product_ids.dart';
 
 void main() {

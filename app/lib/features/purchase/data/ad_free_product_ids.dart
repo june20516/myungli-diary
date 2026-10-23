@@ -1,5 +1,5 @@
 import 'package:myungli_diary/core/api/http_client.dart';
-import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/purchases.dart';
 
 /// 쉼표로 이어 적은 광고 제거권 상품 id([value])를 집합으로 나눕니다.
 ///

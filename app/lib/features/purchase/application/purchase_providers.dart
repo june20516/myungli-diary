@@ -11,7 +11,7 @@ final adFreeProductIdsProvider = Provider<Set<String>>(
   ),
 );
 
-/// 구매 저장소. 로그인한 계정에서만 물을 수 있습니다.
+/// 구매 저장소. 로그인 여부는 확인하지 않으므로 부르는 쪽이 로그인한 계정에서만 씁니다.
 final purchaseRepositoryProvider = Provider<PurchaseRepository>(
   (ref) => PurchaseRepository(ref.watch(restClientProvider)),
 );

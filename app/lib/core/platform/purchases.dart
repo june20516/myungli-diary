@@ -1,5 +1,8 @@
 import 'package:myungli_diary/core/api/app_error.dart';
 
+/// 대역 모드의 광고 제거권 상품 id. 실제 id는 빌드 설정(`AD_FREE_PRODUCT_IDS`)으로 받습니다.
+const fakeAdFreeProductId = 'ad_free_1month';
+
 /// 스토어 상품.
 final class StoreProduct {
   /// 상품 id와 스토어가 현지화한 이름·가격을 담습니다.

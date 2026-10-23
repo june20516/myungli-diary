@@ -323,9 +323,6 @@ final class _FakeRewardedAd implements RewardedAdHandle {
   Future<RewardedResult> show() async => result;
 }
 
-/// 대역 모드의 광고 제거권 상품 id. 실제 id는 빌드 설정(`AD_FREE_PRODUCT_IDS`)으로 받습니다.
-const fakeAdFreeProductId = 'ad_free_1month';
-
 /// 인앱결제 대역.
 final class FakePurchases implements Purchases {
   /// 상품과 구매 결과를 정합니다.
