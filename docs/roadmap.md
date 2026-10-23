@@ -55,7 +55,7 @@
 ## 외부 준비물
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다.
 
-* **지금 진행 중(사용자):** E15 사업자등록·통신판매업 #534, E3 Google Play 개인 계정과 테스터 12명 모집 #535, E2 Apple Developer #536, E4 GCP #537, E6 도메인 #538, E13 AdMob 계정 #539. E1은 개인사업자(D92). server 질문 #540(도메인 연결 방식, Android 상품 유형).
+* **지금 진행 중(사용자):** E3 Google Play 개인 계정과 테스터 12명 모집 #535, E2 Apple Developer #536, E4 GCP #537, E6 도메인 #538, E13 AdMob 계정 #539. E1은 개인사업자(D92). E15 사업자등록·통신판매업 #534는 앱을 받아 본 뒤(보류). server 질문 #540(도메인 연결 방식, Android 상품 유형).
 * **server 배포(P9)와 I1·I2는 E7~E12가 모두 있어야 합니다.** server가 staging·prod에서 그 값이 비면 시작하지 않습니다.
 
 ## 지휘 세션 미결 (서브 프로젝트 설계 전에 정할 것)
