@@ -71,17 +71,6 @@ Future<ProviderContainer> _signedInWithDraft(
 }
 
 void main() {
-  testWidgets('동시에 두 번 불러도 프로필은 한 번만 만들고 같은 결과를 받습니다', (tester) async {
-    final container = await _signedInWithDraft(tester, 'profile-required');
-    final completer = container.read(onboardingCompleterProvider);
-
-    await tester.runAsync(
-      () => Future.wait([completer.complete(), completer.complete()]),
-    );
-
-    expect(_fake(container).requestBodiesOf('createProfile'), hasLength(1));
-  });
-
   testWidgets('완전한 입력이면 프로필을 만들고 입력을 지운 뒤 알림 허락 대기를 켜고 진입을 다시 계산합니다', (
     tester,
   ) async {

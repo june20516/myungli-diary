@@ -175,6 +175,39 @@ void main() {
       );
     });
 
+    test('profileRequired는 로그인이 저장하는 보류 중일 때만 그대로 둔다(A79)', () {
+      expect(
+        entryRedirect(entry: EntryState.profileRequired, location: '/login'),
+        '/onboard-call',
+      );
+      expect(
+        entryRedirect(
+          entry: EntryState.profileRequired,
+          location: '/login',
+          holdLogin: true,
+        ),
+        isNull,
+      );
+      // login 아래에 쌓인 화면(welcome)에서 다시 평가해도 붙듭니다.
+      expect(
+        entryRedirect(
+          entry: EntryState.profileRequired,
+          location: '/welcome',
+          holdLogin: true,
+        ),
+        isNull,
+      );
+      // 보류는 profileRequired에서만 뜻이 있습니다.
+      expect(
+        entryRedirect(
+          entry: EntryState.consentRequired,
+          location: '/login',
+          holdLogin: true,
+        ),
+        '/consent',
+      );
+    });
+
     test('ready에서 guest 화면은 /today', () {
       expect(
         entryRedirect(entry: EntryState.ready, location: '/welcome'),

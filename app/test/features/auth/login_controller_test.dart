@@ -31,6 +31,7 @@ import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
+import 'package:myungli_diary/features/auth/application/login_completing.dart';
 import 'package:myungli_diary/features/auth/application/login_controller.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -716,7 +717,7 @@ void main() {
   group('동의했고 사주가 없는 계정', () {
     final noProfile = _me(hasProfile: false);
 
-    test('입력이 다 있으면 저장하고 진입을 다시 계산합니다', () async {
+    test('동의했고 사주가 없고 입력이 다 있으면 저장하고 진입을 다시 계산한다', () async {
       final h = await _harness(
         api: _FakeApi(isNewAccount: false),
         draft: _completeDraft,
@@ -733,7 +734,7 @@ void main() {
       expect(h.entry.refreshes, 2);
     });
 
-    test('입력이 없으면 저장하지 않습니다', () async {
+    test('입력이 없으면 저장하지 않는다', () async {
       final h = await _harness(
         api: _FakeApi(isNewAccount: false),
         meAfterLogin: noProfile,
@@ -743,10 +744,10 @@ void main() {
 
       expect(h.profile.creates, 0);
       expect(await h.flags.readBool(notifyAskPendingKey), isFalse);
-      expect(h.entry.refreshes, 1);
+      expect(h.entry.refreshes, 2);
     });
 
-    test('저장이 422면 안내를 남기고 진입은 그대로 둡니다', () async {
+    test('저장이 422면 안내를 남기고 진입을 다시 계산한다', () async {
       const rejected = ProblemError(
         code: 'name.invalid',
         status: 422,
@@ -766,7 +767,7 @@ void main() {
       expect(h.profile.creates, 1);
       expect(h.container.read(onboardingRejectionNoticeProvider), rejected);
       expect(h.draft.clears, 0);
-      expect(h.entry.refreshes, 1);
+      expect(h.entry.refreshes, 2);
     });
 
     test('그 밖의 저장 실패는 안내 없이 onboard-call에 맡깁니다', () async {
@@ -787,10 +788,10 @@ void main() {
       expect(outcome, isA<LoginSucceeded>());
       expect(h.profile.creates, 1);
       expect(h.container.read(onboardingRejectionNoticeProvider), isNull);
-      expect(h.entry.refreshes, 1);
+      expect(h.entry.refreshes, 2);
     });
 
-    test('동의가 필요한 계정은 저장하지 않습니다(consent가 저장을 맡음)', () async {
+    test('동의가 필요한 계정은 저장하지 않는다', () async {
       final h = await _harness(
         api: _FakeApi(consentRequired: true),
         draft: _completeDraft,
@@ -803,7 +804,7 @@ void main() {
       expect(h.entry.refreshes, 1);
     });
 
-    test('사주가 있는 계정은 저장하지 않습니다', () async {
+    test('사주가 있는 계정은 저장하지 않는다', () async {
       final h = await _harness(
         api: _FakeApi(isNewAccount: false, hasProfile: true),
         draft: _completeDraft,
@@ -815,6 +816,66 @@ void main() {
       expect(h.profile.creates, 0);
       expect(h.draft.clears, 1);
       expect(h.entry.refreshes, 1);
+    });
+    test('저장하는 동안 라우터 보류를 켜고, 끝나면 끕니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        draft: _completeDraft,
+        meAfterLogin: noProfile,
+      );
+      final holds = <bool>[];
+      h.entry.onRefresh = () =>
+          holds.add(h.container.read(loginCompletingProvider));
+
+      await h.controller.signInWithKakao();
+
+      // 진입 계산(로그인), 저장 마지막의 진입 계산 모두 보류 중에 돕니다.
+      expect(holds, [true, true]);
+      expect(h.container.read(loginCompletingProvider), isFalse);
+    });
+
+    test('진입 계산이 실패해도 라우터 보류를 끕니다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        draft: _completeDraft,
+        meAfterLogin: noProfile,
+      );
+      h.entry.refreshError = const OfflineError();
+
+      final outcome = await h.controller.signInWithKakao();
+
+      expect(outcome, isA<LoginFailed>());
+      expect(h.profile.creates, 0);
+      expect(h.container.read(loginCompletingProvider), isFalse);
+    });
+
+    test('저장이 예상 밖 오류로 실패해도 라우터 보류를 끄고 진입을 다시 계산한다', () async {
+      final h = await _harness(
+        api: _FakeApi(isNewAccount: false),
+        draft: _completeDraft,
+        createProfileError: UnexpectedError(StateError('boom')),
+        meAfterLogin: noProfile,
+      );
+
+      await h.controller.signInWithKakao();
+
+      expect(h.container.read(loginCompletingProvider), isFalse);
+      expect(h.entry.refreshes, 2);
+    });
+
+    test('동의가 필요한 계정은 라우터 보류를 켜지 않는다', () async {
+      final h = await _harness(
+        api: _FakeApi(consentRequired: true),
+        draft: _completeDraft,
+        meAfterLogin: _me(hasProfile: false, consentRequired: true),
+      );
+      final holds = <bool>[];
+      h.entry.onRefresh = () =>
+          holds.add(h.container.read(loginCompletingProvider));
+
+      await h.controller.signInWithKakao();
+
+      expect(holds, [false]);
     });
   });
 }

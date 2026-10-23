@@ -55,13 +55,9 @@ AppError onboardingErrorOf(Object error) => switch (error) {
 /// 부르는 쪽이 진입 `profileRequired`(또는 동의 전 `hasProfile == false`)를 확인하고, 여기서도
 /// 한 번 더 막습니다. 알림 허락 대기가 켜져 있으면 이 계정의 프로필은 이미 저장된 것이라
 /// 다시 저장하지 않고 진입만 다시 계산합니다(앞선 진입 갱신이 실패한 뒤 다시 누른 경우).
-///
-/// 마무리는 한 번에 하나만 돕니다. 로그인 직후 저장(`login`)이 도는 동안 진입이
-/// `profileRequired`가 되어 `onboard-call`이 열려 같은 저장을 부르면, 새 요청 없이 돌고 있는
-/// 저장의 결과를 받습니다.
 final class OnboardingCompleter {
   /// 의존성을 받습니다. 함수 인자는 부를 때마다 현재 값을 읽습니다.
-  new({
+  const new({
     required this._createProfile,
     required this._readDraft,
     required this._clearDraft,
@@ -84,8 +80,6 @@ final class OnboardingCompleter {
   final bool Function() _needsProfile;
   final Future<AppError?> Function() _refreshEntry;
   final CrashReporter _crashReporter;
-
-  Future<void>? _running;
 
   /// 프로필을 만들 만큼 입력을 다 받았는지. 입력을 읽지 못하면 false입니다.
   Future<bool> isReady() async {
@@ -130,10 +124,7 @@ final class OnboardingCompleter {
   /// 입력 오류(422)면 입력을 남기고 [OnboardingInputRejected]를 던집니다. 그 밖의 저장 실패는
   /// [AppError] 그대로이고, 어느 쪽이든 진입은 다시 계산하지 않습니다. 저장 뒤 진입 계산이
   /// 실패하면 그 [AppError]를 던집니다. 프로필이 있는 계정이면 [StateError]입니다.
-  Future<void> complete() =>
-      _running ??= _complete().whenComplete(() => _running = null);
-
-  Future<void> _complete() async {
+  Future<void> complete() async {
     if (await _flags.readBool(notifyAskPendingKey)) {
       // 이 계정의 프로필은 이미 저장했습니다(로그아웃하면 꺼지는 플래그). 갱신만 다시 합니다.
       await _refreshOrThrow();

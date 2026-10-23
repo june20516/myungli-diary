@@ -13,6 +13,7 @@ import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
+import 'package:myungli_diary/features/auth/application/login_completing.dart';
 import 'package:myungli_diary/features/auth/data/auth_repository.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -170,7 +171,8 @@ class LoginController extends AsyncNotifier<void> {
       readCompleter: () =>
           ref.mounted ? ref.read(onboardingCompleterProvider) : null,
       readMe: () => ref.mounted ? ref.read(meProvider) : null,
-      notice: ref.read(onboardingRejectionNoticeProvider.notifier),
+      rejectionNotice: ref.read(onboardingRejectionNoticeProvider.notifier),
+      completing: ref.read(loginCompletingProvider.notifier),
       crashReporter: ref.read(crashReporterProvider),
     );
     try {
@@ -207,7 +209,8 @@ final class _Session {
     required this.draftValue,
     required this.readCompleter,
     required this.readMe,
-    required this.notice,
+    required this.rejectionNotice,
+    required this.completing,
     required this.crashReporter,
   });
 
@@ -219,14 +222,18 @@ final class _Session {
   final Future<OnboardingDraft> draftValue;
   final OnboardingCompleter? Function() readCompleter;
   final Me? Function() readMe;
-  final OnboardingRejectionNotice notice;
+  final OnboardingRejectionNotice rejectionNotice;
+  final LoginCompleting completing;
   final CrashReporter crashReporter;
 
   /// 토큰을 저장하고, 필요하면 입력을 쓰지 않는다는 안내 뒤 입력을 지우거나 입력을 프로필로
   /// 저장하고, 진입을 다시 계산합니다.
   ///
   /// 진입 계산이 실패하면 그 오류를, 아니면 null을 돌려줍니다.
-  Future<AppError?> enter(LoginResponse response, DiscardNotice? notice) async {
+  Future<AppError?> enter(
+    LoginResponse response,
+    DiscardNotice? discardNotice,
+  ) async {
     // 이전 세션의 토큰(진입 계산 실패 뒤 다시 로그인한 경우)이 server에 남지 않게 먼저 폐기를 시도합니다.
     // 로컬 로그아웃 이벤트는 내지 않습니다. 곧 새 토큰이 덮어씁니다.
     await revokeStoredRefreshToken(
@@ -236,7 +243,7 @@ final class _Session {
     );
     await tokens.save(response.tokens);
     if (await _discardsDraft(response)) {
-      await notice?.call();
+      await discardNotice?.call();
       try {
         await draft.clear();
       } on Object catch (error, stack) {
@@ -244,19 +251,53 @@ final class _Session {
         crashReporter.record(CrashSummary.from(error), stack);
       }
     }
+    // 진입 계산이 profileRequired를 알리는 순간 라우터가 onboard-call로 보내므로, 입력을 저장할
+    // 수 있는 로그인(동의함 + 입력 있음)은 끝날 때까지 login에 붙들어 둡니다(A79).
+    final holds = await _mayCompleteProfile(response);
+    if (holds) {
+      completing.begin();
+    }
+    try {
+      return await _refreshAndComplete();
+    } finally {
+      if (holds) {
+        completing.end();
+      }
+    }
+  }
+
+  /// 진입을 계산하고, 동의했고 사주가 없는 계정이 미리보기 입력을 가졌으면 저장합니다(D90 ③).
+  ///
+  /// 내 정보는 진입 계산이 낸 값이라 계산 뒤에야 알 수 있습니다. 동의가 필요한 계정은 동의
+  /// 화면이 저장을 맡습니다. 저장이 입력 오류(422)면 안내를 남기고, 그 밖의 실패와 입력이
+  /// 모자란 경우는 진입을 다시 계산해 `onboard-call`에 맡깁니다.
+  Future<AppError?> _refreshAndComplete() async {
     final entryError = await entry.refresh();
     if (entryError != null) {
       return entryError;
     }
-    // 내 정보는 진입 계산이 낸 값이라 여기서 처음 압니다(D90 ③).
-    // 동의했고 사주가 없는 계정이 미리보기 입력을 가졌으면 onboard-call 없이 저장합니다.
-    // 동의가 필요한 계정은 동의 화면이 저장을 맡습니다. 저장은 마지막에 진입을 다시 계산하고,
-    // 실패하면 진입이 이미 `profileRequired`라 onboard-call이 안내하거나 다시 저장합니다.
     final me = readMe();
-    if (me != null && !me.consentRequired && !me.hasProfile) {
-      await readCompleter()?.completeIfReady(notice: this.notice);
+    if (me == null || me.consentRequired || me.hasProfile) {
+      return null;
     }
-    return null;
+    final completer = readCompleter();
+    if (completer != null &&
+        await completer.completeIfReady(notice: rejectionNotice)) {
+      return null;
+    }
+    return await entry.refresh();
+  }
+
+  /// 동의했고(로그인 응답) 온보딩 입력이 남아 있어 저장할 수도 있는 로그인이면 true.
+  Future<bool> _mayCompleteProfile(LoginResponse response) async {
+    if (response.consentRequired) {
+      return false;
+    }
+    try {
+      return await draftValue != const OnboardingDraft();
+    } on Object {
+      return false;
+    }
   }
 
   /// 사주가 저장된 기존 계정이고 온보딩 입력이 남아 있으면 true.
