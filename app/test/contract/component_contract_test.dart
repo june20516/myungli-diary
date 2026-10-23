@@ -115,11 +115,11 @@ void main() {
   group('ComponentSpec 대조', () {
     final specs = loadSpecComponents();
 
-    test('명세 묶음에서 IA 컴포넌트 42개를 읽습니다', () {
-      expect(specs, hasLength(42));
+    test('명세 묶음에서 IA 컴포넌트 43개를 읽습니다', () {
+      expect(specs, hasLength(43));
     });
 
-    test('42개 전체의 variants·states 형태가 기대와 같습니다', () {
+    test('43개 전체의 variants·states 형태가 기대와 같습니다', () {
       for (final component in specs.values) {
         // variantIds·stateKeys가 형태(list/null, 문자열 id, dict/null)를 assert합니다.
         variantIds(component);
@@ -127,7 +127,7 @@ void main() {
       }
     });
 
-    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(42개)', () {
+    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(43개)', () {
       for (final component in specs.values) {
         final spec = ComponentSpec(
           component['id']! as String,
@@ -713,6 +713,72 @@ void main() {
         ]);
       },
     );
+  });
+
+  group('컴포넌트 3.0.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    test(
+      'account-choice 부품에 facts·diaryCount·providers가 없고 current·other 알약이 있다',
+      () {
+        final parts = _map(specs['account-choice']!['parts']);
+        for (final removed in ['facts', 'diaryCount', 'providers']) {
+          expect(parts, isNot(contains(removed)), reason: removed);
+        }
+        for (final (id, key) in [
+          ('current', 'accountChoiceCurrent'),
+          ('other', 'accountChoiceOther'),
+        ]) {
+          final pill = _map(parts[id]);
+          expect(pill['key'], key, reason: id);
+          expect(pill['type'], '{type.caption.sm}', reason: id);
+          expect(pill['radius'], '{radius.full}', reason: id);
+          expect(_map(pill['border'])['color'], '{color.line}', reason: id);
+          expect(pill['paddingX'], '{space.8}', reason: id);
+          expect(pill['gap'], '{space.8}', reason: id);
+        }
+        expect(Space.s8, 8);
+      },
+    );
+
+    test('social-login-button 카카오 connected 배지는 #191919', () {
+      final connected = _map(
+        _map(specs['social-login-button']!['states'])['connected'],
+      );
+      final badge = _map(_map(_map(connected['parts'])['logo'])['badge']);
+      final kakao = _map(badge['kakao']);
+      expect(_hexColor(kakao['symbol']), SocialLoginButton.kakaoBadgeSymbol);
+      expect(
+        File('assets/brand/kakao/kakao_symbol.svg').readAsStringSync(),
+        contains('fill="${kakao['symbol']}"'),
+        reason: '배지 안 공식 심볼 자산의 색',
+      );
+    });
+
+    test('social-login-button LINE 글자 자리 198, 다른 제공자 232', () {
+      final variants = {
+        for (final variant
+            in specs['social-login-button']!['variants']! as List<Object?>)
+          _map(variant)['id']! as String: _map(variant),
+      };
+      final line = _map(_map(variants['line']!['parts'])['label']);
+      expect(
+        _px(line['width']),
+        SocialLoginButton.labelWidth(SocialProvider.line),
+      );
+      expect(_px(line['width']), 198);
+      expect(_map(line)['widthSource'], contains('232px'));
+      expect(SocialLoginButton.labelWidth(SocialProvider.kakao), 232);
+      expect(SocialLoginButton.labelWidth(SocialProvider.google), 232);
+      expect(SocialLoginButton.labelWidth(SocialProvider.apple), 232);
+    });
+
+    test('diary-row entry 꺾쇠 앞 간격은 space.8', () {
+      final entry = _map(_map(_map(specs['diary-row']!['parts'])['entry']));
+      final chevron = _map(entry['chevron']);
+      expect(chevron['marginStart'], '{space.8}');
+      expect(DiaryEntryLine.chevronGap, Space.s8);
+    });
   });
 
   group('InteractionPattern 대조', () {

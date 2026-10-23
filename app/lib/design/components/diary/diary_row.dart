@@ -550,8 +550,8 @@ class DiaryEntryData {
 /// 본문이 비면 시각만 읽습니다. [showDivider]면 줄 위에 1px 점선을 긋습니다(첫 줄은 false,
 /// 줄과 줄 사이에만 있음).
 class DiaryEntryLine extends StatelessWidget {
-  /// 줄을 만듭니다. 시각은 [createdAt]을 기기 시간대로 바꿔 locale의 짧은 시각 형식으로
-  /// 그립니다(설정 화면과 같은 `DateFormat.jm`).
+  /// 줄을 만듭니다. 시각은 [createdAt]을 기기 시간대로 바꿔 24시간제 `HH:mm`으로
+  /// 그립니다(locale과 상관없음).
   const new({
     required this.createdAt,
     required this.excerpt,
@@ -591,8 +591,8 @@ class DiaryEntryLine extends StatelessWidget {
   /// 점선 대시 사이 간격(`entry.divider.gap`).
   static const double dividerGap = 3;
 
-  // 미리보기와 꺾쇠 사이(명세에 값이 없어 event-row 목록과 같은 space.8).
-  static const double _chevronGap = Space.s8;
+  /// 미리보기와 꺾쇠 사이(`entry.chevron.marginStart`, `space.8`).
+  static const double chevronGap = Space.s8;
 
   /// 작성 시각.
   final DateTime createdAt;
@@ -623,8 +623,7 @@ class DiaryEntryLine extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final time = DateFormat.jm(locale).format(createdAt.toLocal());
+    final time = DateFormat('HH:mm').format(createdAt.toLocal());
     final firstLine = _firstLine;
     final label = [
       time,
@@ -665,7 +664,7 @@ class DiaryEntryLine extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: _chevronGap),
+          const SizedBox(width: chevronGap),
           AppIcon(
             _caretRight,
             key: chevronKey,
@@ -900,7 +899,7 @@ class DiaryEntriesSkeleton extends StatelessWidget {
                       index: i + 1,
                     ),
                   ),
-                  const SizedBox(width: DiaryEntryLine._chevronGap),
+                  const SizedBox(width: DiaryEntryLine.chevronGap),
                   const SizedBox.square(dimension: DiaryEntryLine.chevronSize),
                 ],
               ),

@@ -126,6 +126,10 @@ class SocialLoginButton extends StatelessWidget {
   /// `connected` 카카오 배지 바탕(`badge.kakao.bg`).
   static const Color kakaoBadge = _kakaoContainer;
 
+  /// `connected` 카카오 배지 안 심볼 색(`badge.kakao.symbol`). 공식 심볼 자산
+  /// (`assets/brand/kakao/kakao_symbol.svg`)의 색과 같습니다.
+  static const Color kakaoBadgeSymbol = Color(0xFF191919);
+
   /// LINE 바탕(`variants.line.parts.container.bg`). `connected` 배지 바탕도 같습니다.
   static const Color lineBackground = Color(0xFF06C755);
 
@@ -241,7 +245,7 @@ class SocialLoginButton extends StatelessWidget {
 
   /// 글자 양옆에 비우는 폭. 로고가 왼쪽에 고정돼 있어 글자가 가운데에 오도록 양쪽을 같이
   /// 비웁니다(로고 안쪽 16 + 로고 20 + 간격 8, 글자 수 상한 232px의 근거).
-  static const double _labelInset = logoInset + logoSize + Space.s8;
+  static const double labelInset = logoInset + logoSize + Space.s8;
 
   /// LINE 구분선 자리. 공식 자산(`btn_login_base`)은 버튼 높이만 한 정사각 칸 가운데에 아이콘을
   /// 두고 그 칸 오른쪽 끝에 1px 구분선을 긋습니다. 높이 52에서 로고(16~36)가 가운데인 칸의 끝이
@@ -249,7 +253,18 @@ class SocialLoginButton extends StatelessWidget {
   static const double _lineSeparatorStart = _minHeight;
 
   /// LINE 글자 양옆 폭. 글자가 구분선에 닿지 않게 구분선 뒤 `space.8`까지 비웁니다.
-  static const double _lineLabelInset = _lineSeparatorStart + 1 + Space.s8;
+  static const double lineLabelInset = _lineSeparatorStart + 1 + Space.s8;
+
+  /// 명세가 글자 자리를 재는 버튼 폭(`parts.label.width`의 기준).
+  static const double referenceWidth = 320;
+
+  /// [provider] 버튼의 글자 자리 폭(`parts.label.width`): LINE 198, 나머지 232.
+  static double labelWidth(
+    SocialProvider provider, {
+    double buttonWidth = referenceWidth,
+  }) =>
+      buttonWidth -
+      2 * (provider == SocialProvider.line ? lineLabelInset : labelInset);
 
   /// 제공자.
   final SocialProvider provider;
@@ -428,7 +443,7 @@ class SocialLoginButton extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: line ? _lineLabelInset : _labelInset,
+                horizontal: line ? lineLabelInset : labelInset,
                 vertical: Space.s8,
               ),
               child: loading

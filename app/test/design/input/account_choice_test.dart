@@ -9,20 +9,8 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'input_harness.dart';
 
 const List<AccountChoiceOption> _options = [
-  AccountChoiceOption(
-    name: '달',
-    current: true,
-    saju: '양력 1990.04.15 오전 7:30',
-    diaryCount: '일기 12편',
-    providers: '카카오 · Apple',
-  ),
-  AccountChoiceOption(
-    name: '별',
-    current: false,
-    saju: '사주 정보 없음',
-    diaryCount: '일기 3편',
-    providers: 'LINE',
-  ),
+  AccountChoiceOption(name: '달', current: true, saju: '양력 1990.04.15 오전 7:30'),
+  AccountChoiceOption(name: '별', current: false, saju: '사주 정보 없음'),
 ];
 
 Widget _choice({
@@ -37,15 +25,15 @@ Widget _choice({
     onSelected: onSelected,
     groupLabel: '남길 계정을 골라 주세요',
     currentLabel: '현재 계정',
+    otherLabel: '다른 계정',
     loading: loading,
     animated: false,
   ),
 );
 
 /// 두 카드의 스크린리더 라벨(카드 안 글자를 위에서 아래로).
-const String _firstLabel =
-    '달, 현재 계정, 양력 1990.04.15 오전 7:30, 일기 12편, 카카오 · Apple';
-const String _secondLabel = '별, 사주 정보 없음, 일기 3편, LINE';
+const String _firstLabel = '달, 현재 계정, 양력 1990.04.15 오전 7:30';
+const String _secondLabel = '별, 다른 계정, 사주 정보 없음';
 
 void main() {
   group('account-choice', () {
@@ -63,6 +51,20 @@ void main() {
       expect(find.byKey(AccountChoice.dotKey(0)), findsNothing);
       expect(find.byKey(AccountChoice.dotKey(1)), findsNothing);
       handle.dispose();
+    });
+
+    testWidgets('B 카드에 other 알약이 보인다', (tester) async {
+      await tester.pumpWidget(inputApp(_choice(onSelected: (_) {})));
+      expect(find.byKey(AccountChoice.currentPillKey), findsOneWidget);
+      expect(find.byKey(AccountChoice.otherPillKey), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(AccountChoice.cardKey(1)),
+          matching: find.byKey(AccountChoice.otherPillKey),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('다른 계정'), findsOneWidget);
     });
 
     testWidgets('카드를 누르면 onSelected(그 index)와 selection 햅틱입니다', (tester) async {
@@ -218,6 +220,7 @@ void main() {
             onSelected: null,
             groupLabel: 'x',
             currentLabel: 'y',
+            otherLabel: 'z',
           ),
         ),
       );

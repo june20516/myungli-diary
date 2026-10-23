@@ -20,7 +20,7 @@ final _morning = DateTime(2026, 10, 12, 9, 5);
 final _noon = DateTime(2026, 10, 12, 12, 30);
 final _night = DateTime(2026, 10, 12, 22, 40);
 
-String _time(DateTime value) => DateFormat.jm('ko').format(value);
+String _time(DateTime value) => DateFormat('HH:mm').format(value);
 
 DiaryEntryData _data(DateTime at, String excerpt, {VoidCallback? onTap}) =>
     DiaryEntryData(createdAt: at, excerpt: excerpt, onTap: onTap ?? () {});
@@ -96,6 +96,23 @@ void main() {
         _app(DiaryEntryLine(createdAt: utc, excerpt: '글', onTap: () {})),
       );
       expect(find.text(_time(utc.toLocal())), findsOneWidget);
+    });
+
+    testWidgets('entry 시각은 locale과 상관없이 HH:mm', (tester) async {
+      for (final locale in const [Locale('en'), Locale('ja'), Locale('ko')]) {
+        for (final (at, expected) in [
+          (DateTime(2026, 10, 12, 9, 5), '09:05'),
+          (DateTime(2026, 10, 12, 21), '21:00'),
+        ]) {
+          await tester.pumpWidget(
+            inputApp(
+              DiaryEntryLine(createdAt: at, excerpt: '글', onTap: () {}),
+              locale: locale,
+            ),
+          );
+          expect(find.text(expected), findsOneWidget, reason: '$locale $at');
+        }
+      }
     });
 
     testWidgets('미리보기는 sentence-block preview 한 줄이고 시각 오른쪽 12에서 시작합니다', (

@@ -5,8 +5,6 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/design/components/action/social_login_button.dart';
-import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
@@ -537,19 +535,11 @@ Widget _accountChoices() => Builder(
           ja ? '陽暦' : '양력',
           ja ? '午前7:30' : '오전 7:30',
         ),
-        diaryCount: l10n.accountChoiceDiaryCount(128),
-        providers: [
-          socialProviderName(l10n, SocialProvider.kakao),
-          socialProviderName(l10n, SocialProvider.google),
-          socialProviderName(l10n, SocialProvider.apple),
-        ].join(l10n.accountChoiceProviderSeparator),
       ),
       AccountChoiceOption(
         name: ja ? 'ほし' : '별',
         current: false,
         saju: l10n.accountChoiceSajuEmpty,
-        diaryCount: l10n.accountChoiceDiaryCount(3),
-        providers: socialProviderName(l10n, SocialProvider.line),
       ),
     ];
     AccountChoice choice({
@@ -562,6 +552,8 @@ Widget _accountChoices() => Builder(
       onSelected: locked ? null : (_) {},
       groupLabel: l10n.accountMergeChoiceLabel,
       currentLabel: l10n.accountChoiceCurrent,
+      // accountChoiceOther ARB 키는 writing 반영 때 들어옵니다. 그 전까지 고정 문구입니다.
+      otherLabel: ja ? '他のアカウント' : '다른 계정',
       loading: loading,
       animated: false,
     );
