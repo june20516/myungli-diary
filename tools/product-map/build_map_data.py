@@ -22,6 +22,9 @@ DECISION_LOGS = (
     "docs/identity/design/decisions.md",
 )
 IA_PATH = "docs/ia/screens.json"
+# app E2E가 IA 경로·상태·결정을 얼마나 덮는지 내는 보고서입니다(app 결정 A13, #87).
+E2E_COVERAGE_PATH = "app/docs/artifacts/e2e-coverage.json"
+E2E_KINDS = ("exits", "states", "decisions")
 # 아이디어 함은 비공개 내부 저장소(myungli-diary-internal)의 ideas.md에 있습니다(D74). 지휘가 로컬에서 세 번째 인자로 넘깁니다.
 # 표 파싱 규칙은 tools/docs-check/docs_check.py와 같습니다. 바꾸면 그쪽도 바꿉니다.
 IDEAS_PATH = "docs/ideas.md"
@@ -140,6 +143,28 @@ def collect_artifacts(root: Path) -> list[dict[str, object]]:
             item["path"] = f"{directory}/{entry['file']}"
             artifacts.append(item)
     return artifacts
+
+
+def collect_e2e(root: Path) -> dict[str, object] | None:
+    """app E2E 커버리지 보고서를 지도용으로 줄입니다. 없거나 형식이 틀리면 None입니다."""
+    path = root / E2E_COVERAGE_PATH
+    if not path.exists():
+        return None
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        print(f"건너뜀: {E2E_COVERAGE_PATH} JSON 형식 오류", file=sys.stderr)
+        return None
+    if not isinstance(report, dict) or not all(isinstance(report.get(kind), dict) for kind in E2E_KINDS):
+        print(f"건너뜀: {E2E_COVERAGE_PATH}에 {', '.join(E2E_KINDS)}가 없음", file=sys.stderr)
+        return None
+    by_screen = report.get("byScreen")
+    return {
+        "generated_at": report.get("generatedAt", ""),
+        "totals": {kind: {"covered": report[kind].get("covered", 0), "total": report[kind].get("total", 0)} for kind in E2E_KINDS},
+        "uncovered": {kind: list(report[kind].get("uncovered", [])) for kind in E2E_KINDS},
+        "by_screen": by_screen if isinstance(by_screen, dict) else {},
+    }
 
 
 def collect_issues(root: Path) -> list[dict[str, object]] | None:
@@ -290,6 +315,7 @@ def build(root: Path, internal: Path | None = None) -> dict[str, object]:
         "ideas": ideas,
         "idea_reviews": idea_reviews,
         "artifacts": collect_artifacts(root),
+        "e2e": collect_e2e(root),
         "decisions": decisions,
         "issues": issues or [],
         "issues_available": issues is not None,

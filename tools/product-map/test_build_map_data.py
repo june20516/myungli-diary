@@ -92,6 +92,28 @@ class RepoTests(unittest.TestCase):
         self.assertEqual(by_id["b"]["unit"], "design")
         self.assertEqual(by_id["b"]["path"], "docs/identity/design/artifacts/b.png")
 
+    def test_collect_e2e_reduces_report(self) -> None:
+        report = {
+            "generatedAt": "2026-10-20T15:54:43Z",
+            "exits": {"covered": 1, "total": 2, "uncovered": ["today>calendar"], "coveredBy": {"today>diary-edit": ["t.dart:1"]}},
+            "states": {"covered": 1, "total": 1, "uncovered": [], "coveredBy": {}},
+            "decisions": {"covered": 0, "total": 1, "uncovered": ["D30"], "coveredBy": {}},
+            "byScreen": {"today": {"exits": {"covered": 1, "total": 2}, "states": {"covered": 1, "total": 1}}},
+        }
+        write(self.root, build_map_data.E2E_COVERAGE_PATH, json.dumps(report))
+        e2e = build_map_data.collect_e2e(self.root)
+        self.assertEqual(e2e["generated_at"], "2026-10-20T15:54:43Z")
+        self.assertEqual(e2e["totals"]["exits"], {"covered": 1, "total": 2})
+        self.assertEqual(e2e["uncovered"]["decisions"], ["D30"])
+        self.assertEqual(e2e["by_screen"]["today"]["exits"]["total"], 2)
+        self.assertNotIn("coveredBy", json.dumps(e2e))
+
+    def test_collect_e2e_without_report_or_with_bad_report_is_none(self) -> None:
+        self.assertIsNone(build_map_data.collect_e2e(self.root))
+        write(self.root, build_map_data.E2E_COVERAGE_PATH, json.dumps({"exits": {}}))
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertIsNone(build_map_data.collect_e2e(self.root))
+
     def test_collect_issues_without_gh_returns_empty(self) -> None:
         with mock.patch.dict(os.environ, {"PATH": ""}):
             self.assertIsNone(build_map_data.collect_issues(self.root))
