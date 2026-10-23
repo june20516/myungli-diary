@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 const _head = '한 달 동안 광고 없이 봐요';
 const _price = '— · 1개월 · 자동 갱신 없음';
@@ -116,22 +118,36 @@ void main() {
       expect(legal, 1);
     });
 
-    testWidgets('카드 semantics는 group이고 가격 문장을 함께 읽는다', (tester) async {
+    testWidgets('카드 semantics는 라벨 있는 묶음이고 가격 문장을 함께 읽는다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(_card(OfferCardState.available)));
+      // 이 Flutter에는 group 역할이 없어 container + explicitChildNodes로 묶습니다.
+      final group = tester.widget<Semantics>(find.byKey(OfferCard.cardKey));
+      expect(group.container, isTrue);
+      expect(group.explicitChildNodes, isTrue);
       final node = tester.getSemantics(find.byKey(OfferCard.cardKey));
       final data = node.getSemanticsData();
-      // 이 Flutter에는 group 역할이 없어, 라벨 있는 묶음(하위 버튼은 따로 읽힘)으로 둡니다.
       expect(data.flagsCollection.isButton, isFalse);
+      expect(data.label, contains(_head));
+      expect(data.label, contains(_price));
       var children = 0;
       node.visitChildren((_) {
         children++;
         return true;
       });
       expect(children, greaterThanOrEqualTo(2), reason: '구매·구매 내역 버튼은 따로 읽힘');
-      expect(data.label, contains(_head));
-      expect(data.label, contains(_price));
       handle.dispose();
+    });
+
+    testWidgets('아이콘은 명세대로 sparkle light 28이다', (tester) async {
+      await tester.pumpWidget(_app(_card(OfferCardState.available)));
+      final icon = tester.widget<AppIcon>(find.byType(AppIcon));
+      expect(icon.weight, AppIconWeight.light);
+      expect(icon.size.logical, 28);
+      final drawn = tester.widget<Icon>(
+        find.descendant(of: find.byType(AppIcon), matching: find.byType(Icon)),
+      );
+      expect(drawn.icon, PhosphorIconsLight.sparkle);
     });
   });
 }

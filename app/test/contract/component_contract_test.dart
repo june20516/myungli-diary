@@ -805,6 +805,11 @@ void main() {
       expect(_map(parts['price'])['fontFeatures'], ['tnum']);
       expect(_map(parts['price'])['marginTop'], '{space.16}');
       expect(OfferCard.priceGap, Space.s16);
+      // 명세에는 `period` 부품이 있지만 따로 그리지 않습니다. writing 키
+      // `adFreeOfferPrice`가 가격·기간·자동 갱신 없음을 한 문장으로 정해 price 줄에 함께
+      // 그립니다.
+      expect(parts, contains('period'));
+      expect(_map(parts['status'])['element'], 'tag.status');
       expect(_map(parts['remaining'])['type'], '{type.body.ui}');
       expect(_map(parts['remaining'])['fontFeatures'], ['tnum']);
       expect(_map(parts['buy'])['marginTop'], '{space.20}');
