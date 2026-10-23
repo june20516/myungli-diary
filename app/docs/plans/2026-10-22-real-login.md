@@ -25,8 +25,22 @@
 ## 진행 순서 (루트 D91)
 
 D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제 SDK adapter는 A2(실제 연동)입니다. 그래서 Task 번호 차례가 아니라 아래 차례로 합니다.
-1. **A1(화면, 대역):** Task 1의 `SocialProvider` 옮기기만 → Task 3 → Task 7(부팅 끼우기 Step 제외, adapter는 대역) → Task 8 → Task 9 → Task 11 → Task 12 → Task 13. #387의 화면 일과 #484가 이것으로 끝납니다.
-2. **A2(실제 연동):** Task 1(나머지) → Task 2 → Task 4 → Task 5 → Task 6 → Task 7의 부팅 끼우기 Step. `local` server로 REST 연동을 먼저 확인하고, 외부 값이 필요한 adapter는 준비물이 오는 대로 합니다(`docs/external-prep.md`). spec §14 수익 쪽 과제도 A2입니다.
+1. **A1(화면, 대역):** 아래 표의 A1 몫을 Task 1 → 3 → 7 → 8 → 9 → 11 → 12 → 13 차례로 합니다. #387의 화면 일과 #484가 이것으로 끝납니다.
+2. **A2(실제 연동):** 아래 표의 A2 몫을 Task 1 → 2 → 4 → 5 → 6 → 7 → A2 마무리 차례로 합니다. `local` server로 REST 연동을 먼저 확인하고, 외부 값이 필요한 adapter는 준비물이 오는 대로 합니다(`docs/external-prep.md`). spec §14 수익 쪽 과제도 A2입니다.
+
+| Task | A1에서 할 것 | A2로 미루는 것 |
+| --- | --- | --- |
+| 1 | `SocialProvider`를 `lib/core/platform/social_provider.dart`로 옮김, **Step 4 결정 기록 A80~A85**(A2 내용 결정도 이때 기록) | `auth.json`, `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`, README·`patrol_local.sh`·`app.yml`의 `--dart-define-from-file`, Step 1~3·5 |
+| 2 | 없음 | 전부(패키지, 네이티브 설정, `gen_native_config.dart`, CI `--check`) |
+| 3 | 전부(`LineAuth`·`GoogleAuth`와 대역, `keepSession`, `ProviderRevoker` interface와 `FakeProviderRevoker`) | 없음 |
+| 4·5·6 | 없음 | 전부(실제 adapter, LINE `hasAccessToken`·Google `disconnect` 경계) |
+| 7 | `ProviderAuthenticator`(대역 adapter로), `AuthRepository.login`(LINE·Google operation, 대역 서버), `LoginController.signIn`. 테스트는 authenticator·repository·controller(`ProviderNotConfigured` 테스트 제외) | `provider_revoker.dart`의 `SdkProviderRevoker`, `bootstrap.dart` 부팅 끼우기(실제 adapter·revoker, `KakaoSdk.init`·`LineSDK.setup`), revoker SDK 테스트·부팅 테스트, `ProviderNotConfigured`가 `LoginFailed`가 되는 controller 테스트 |
+| 8·9·11·12 | 전부. 허가 취소는 `ProviderRevoker` interface(대역)로 연결 | 없음(실제 취소는 Task 7 A2의 `SdkProviderRevoker`가 끼워지며 동작) |
+| 13 | 전부. Step 5는 `gen_native_config --check`를 빼고, Step 6 문서는 A1 기준 | A2 마무리(아래) |
+
+**A2 마무리:** 전체 검사에 `dart run tool/gen_native_config.dart --check`와 `flutter build apk --debug --dart-define-from-file=config/auth.json`을 더해 통과, `tool/patrol_local.sh patrol_test/login_test.dart` 회귀 0, LINE `logout`·deauthorize 확인 결과를 spec §5.6에 적고 허가가 남으면 지휘에 알림, `app/CLAUDE.md` 현재 상태에 A2를 적음. Commit `feat(app): 계획 7 A2 실제 로그인 adapter 마무리`.
+
+A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모두 옮겼습니다. A1의 테스트는 `AuthConfig`·실제 adapter·`gen_native_config` 없이 돕니다.
 
 ## 외부 대기 (이 계획은 기다리지 않고 진행)
 
@@ -45,9 +59,9 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 | 연결된 줄의 모양 | `SocialLoginButton(connected: true, connectedLabel: loginMethodsRowConnected)`. 누르면 `login-methods.unlink.confirm` dialog. 마지막 하나면 `onPressed: null`이고 그 줄 아래에 `loginMethodsLastNotice`(V39) |
 | 합치기 토큰 보관 | `AccountMergeController` 상태에만 둡니다. route extra·복원 상태·URL에 두지 않습니다. 화면을 떠나면 버립니다 |
 | `account-merge`에 바로 들어옴(복원·딥링크) | 언제나 인증 단계부터입니다. 들고 올 값이 없어 따로 돌려보내지 않습니다 |
-| 합치기 재전송 간격 | 409 `idempotency.in_progress`는 1초 뒤 같은 키로, 최대 5번. 응답 없음(시간 초과·연결 끊김)은 같은 키로 한 번. 그래도 끝나지 않으면 `accountMergeError` |
-| 합친 뒤 지울 캐시 | 이 계정의 오늘·달력·일기 목록·나의 사주 캐시와 프로필 사본. 일기 초안은 남깁니다(spec §9 "초안") |
-| fake 연결·합치기 규칙 | 대역 서버의 처음 연결은 `[kakao]`(fake 시나리오 회원). `google` 붙이기는 409 `auth.identity_in_use`, 나머지는 201. 떼기는 마지막이면 409 `auth.last_identity`. 합치기 인증은 카카오 422 `merge.same_account`, Apple 422 `merge.no_account`, LINE·Google은 요약 200(`diaries` 2, `schedules` 0, `overlapDays` 1, `addedDays.adFree` 12, `current`는 시나리오 프로필, `other`는 호칭 "다른 계정"). `mergeAccounts`는 시나리오 `Me`. 시나리오 `merge-token-invalid`는 `mergeAccounts`가 422 `merge.token_invalid`, `merge-in-progress`는 처음 한 번 409 `idempotency.in_progress` |
+| 합치기 멱등 키와 재전송 간격 | 키는 (`mergeToken`, `profile`) 조합마다 하나입니다. 같은 토큰·같은 프로필로 다시 확정하면(실패 dialog 뒤 다시 누름 등) 같은 키를 다시 쓰고, 토큰이나 프로필이 바뀌면 새 키입니다. 409 `idempotency.in_progress`는 1초 뒤 같은 키로, 최대 5번. 응답 없음(시간 초과·연결 끊김)은 같은 키로 한 번. 그래도 끝나지 않으면 `accountMergeError` |
+| 합친 뒤 지울 것 | 계약 `mergeAccounts`대로 이 계정의 오늘·달력·일기 목록·나의 사주 캐시, 프로필 사본, 이 기기의 일기 초안. 기기 플래그는 남깁니다(spec §9 "초안") |
+| fake 연결·합치기 규칙 | 대역 서버의 처음 연결은 `[kakao]`(fake 시나리오 회원). `google` 붙이기는 409 `auth.identity_in_use`, 나머지는 201. 떼기는 마지막이면 409 `auth.last_identity`. 합치기 인증은 이 계정에 이미 연결된 제공자면 422 `merge.same_account`(처음엔 카카오, 붙인 뒤엔 그 제공자도), Apple 422 `merge.no_account`, 그 밖(연결하지 않은 LINE·Google)은 요약 200(`diaries` 2, `schedules` 0, `overlapDays` 1, `addedDays.adFree` 12, `current`는 시나리오 프로필, `other`는 호칭 "다른 계정"). `mergeAccounts`는 시나리오 `Me`. 시나리오 `merge-token-invalid`는 `mergeAccounts`가 422 `merge.token_invalid`, `merge-in-progress`는 처음 한 번 409 `idempotency.in_progress` |
 
 ## Global Constraints
 
@@ -68,8 +82,8 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 
 1. 붙이기가 진행 중일 때 다른 줄의 붙이기·떼기나 합치기 입구를 누르면 새 요청이 나가지 않고, 진행 중인 결과 하나만 반영됩니다(로그인 화면의 진행 중 규칙과 같음).
 2. Google 로그인과 붙이기가 거의 동시에 처음 불려도 `initialize`는 한 번만 불리고, 둘 다 같은 프로세스 nonce를 돌려줍니다.
-3. 합치는 동안 app-bar·시스템 뒤로 가기가 모두 막히고, 409 `idempotency.in_progress`·응답 없음에서 같은 `Idempotency-Key`로 다시 보냅니다. 키는 확정 한 번에 하나입니다.
-4. 같은 키 재전송의 422 `merge.token_invalid`에서 `getMe` 갱신 뒤 `errorMergeTokenInvalid`와 인증 단계로 갑니다. 토큰 저장소는 어느 갈래에서도 바뀌지 않습니다.
+3. 합치는 동안 app-bar·시스템 뒤로 가기가 모두 막히고, 409 `idempotency.in_progress`·응답 없음에서 같은 `Idempotency-Key`로 다시 보냅니다. 키는 (`mergeToken`, `profile`) 조합마다 하나이고, 같은 조합으로 다시 확정하면 같은 키입니다.
+4. 같은 키 재전송의 422 `merge.token_invalid`에서 `getMe`로 합쳐졌는지 판정해(잠정 규칙, #552) 합쳐졌으면 성공 갈래, 아니면 `errorMergeTokenInvalid`와 인증 단계로 갑니다. 토큰 저장소는 어느 갈래에서도 바뀌지 않습니다.
 5. 지원하지 않는 언어(예 `zh`)이거나 국가 코드가 붙은 로케일(`ja_JP`)이어도 버튼 순서가 정해집니다(en·ja 규칙).
 6. 합치기 인증의 LINE·Google SDK 세션은 합치기가 끝나거나 그만둘 때 꼭 한 번 정리·취소됩니다(새는 세션 없음).
 
@@ -162,7 +176,7 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
   - `final class KakaoSdkAuth implements KakaoAuth { const new({required AuthConfig config, KakaoLoginApi api = const SdkKakaoLoginApi()}); }`
   - `abstract interface class LineLoginApi { Future<String?> login({required String nonce}); Future<void> logout(); }`(scope `['openid']`, `LoginOption(false, 'normal')`는 경계 구현이 고정, 돌려주는 값은 `idTokenRaw`), 기본 구현 `SdkLineLoginApi`
   - `final class LineSdkAuth implements LineAuth { const new({required AuthConfig config, LineLoginApi api = const SdkLineLoginApi()}); }`
-  - `LineLoginApi`에 `Future<bool> hasAccessToken()`(`currentAccessToken` 있음)을 더하고, LINE 허가 취소는 `logout`(access token 폐기)입니다. `logout`이 앱 허가까지 끊는지 SDK 문서로 확인해 결과를 결정 A82 행에 적습니다(spec §5.6)
+  - `LineLoginApi`에 `Future<bool> hasAccessToken()`(`currentAccessToken` 있음)을 더하고, LINE 허가 취소는 `logout`(access token 폐기)입니다. `logout`이 앱 허가까지 끊는지, LINE 앱 연동 해제(deauthorize) API가 있고 app이 부를 수 있는지 SDK·API 문서로 확인해 결과를 spec §5.6에 적습니다
 
 - [ ] **Step 1: 실패하는 테스트 작성**(대역 `KakaoLoginApi`·`LineLoginApi`로, spec §5.1·§5.2 순서 그대로):
   - 카카오: `카카오톡이 있으면 해시 nonce로 카카오톡 로그인`, `카카오톡 CANCELED는 SocialSignInCancelled이고 계정 로그인을 부르지 않습니다`, `카카오톡 그 밖의 실패는 계정 로그인으로 넘어갑니다`, `카카오톡이 없으면 바로 계정 로그인`, `계정 로그인 CANCELED는 SocialSignInCancelled`, `계정 로그인 그 밖의 오류는 그대로 던집니다`, `idToken이 없으면 StateError`, `성공 뒤 토큰을 지우고, 지우기 실패해도 credential을 돌려줍니다`, `설정이 없으면 ProviderNotConfigured이고 SDK를 부르지 않습니다`
@@ -224,9 +238,9 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 
 **Files:**
 - Create: `app/lib/features/auth/application/provider_authenticator.dart`
-- Create: `app/lib/core/platform/provider_revoker.dart`(`SdkProviderRevoker`: LINE은 `LineLoginApi`, Google은 `GoogleSignInApi`로)
+- Create(A2): `app/lib/core/platform/provider_revoker.dart`(`SdkProviderRevoker`: LINE은 `LineLoginApi`, Google은 `GoogleSignInApi`로)
 - Modify: `app/lib/features/auth/data/auth_repository.dart`, `app/lib/features/auth/application/login_controller.dart`, `app/lib/features/auth/presentation/login_screen.dart`(`controller.signIn(provider, …)` 하나로)
-- Modify: `app/lib/app/bootstrap.dart`(`realPlatformOverrides(ApiMode.http)`에 adapter 다섯과 `SdkProviderRevoker`, 설정이 있으면 `KakaoSdk.init`·`LineSDK.instance.setup`)
+- Modify(A2): `app/lib/app/bootstrap.dart`(`realPlatformOverrides(ApiMode.http)`에 adapter 다섯과 `SdkProviderRevoker`, 설정이 있으면 `KakaoSdk.init`·`LineSDK.instance.setup`)
 - Test: `app/test/features/auth/provider_authenticator_test.dart`, `app/test/core/provider_revoker_test.dart`, `app/test/features/auth/login_controller_test.dart`(수정), `app/test/app/bootstrap_test.dart`(있으면 수정, 없으면 만듦)
 
 **Interfaces:**
@@ -241,9 +255,9 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 - [ ] **Step 1: 실패하는 테스트 작성**:
   - authenticator: `apple은 Android면 웹, iOS면 네이티브 adapter`, `카카오·LINE credential → IdTokenProof(같은 rawNonce)`, `Google은 credential의 rawNonce를 proof에 넣습니다`, `Apple 웹 교환 → AppleWebExchangeProof`, `Apple 웹 실패 → ProviderAppleWebFailed`, `취소는 SocialSignInCancelled를 그대로`, `keepSession을 LINE·Google adapter에 넘깁니다`
   - repository: `IdTokenProof(kakao) → loginKakao`, `IdTokenProof(line) → loginLine`, `IdTokenProof(google) → loginGoogle`, `IdTokenProof(apple, authorizationCode) → loginApple`, `AppleWebExchangeProof → completeAppleWebLogin`
-  - revoker: `LINE·Google만 SDK를 부릅니다`, `hasSession이 false면 revoke가 SDK를 부르지 않습니다`, `revoke 실패는 삼키고 오류 요약만 보고합니다`
-  - controller: 기존 카카오·Apple 테스트를 `signIn(SocialProvider.x)`로 옮기고 모두 그대로 통과(A79 미리보기 입력 저장 갈래 포함). 더할 것: `ProviderNotConfigured는 LoginFailed(UnexpectedError)이고 오류 요약을 보고합니다`, `line·google 로그인 성공은 카카오와 같은 진입 계산`
-  - 부팅: `realPlatformOverrides(http)는 다섯 provider와 revoker를 실제 구현으로`, `fake는 대역`(spec §12 "부팅")
+  - revoker(A2): `LINE·Google만 SDK를 부릅니다`, `hasSession이 false면 revoke가 SDK를 부르지 않습니다`, `revoke 실패는 삼키고 오류 요약만 보고합니다`
+  - controller: 기존 카카오·Apple 테스트를 `signIn(SocialProvider.x)`로 옮기고 모두 그대로 통과(A79 미리보기 입력 저장 갈래 포함). 더할 것: `line·google 로그인 성공은 카카오와 같은 진입 계산`, (A2) `ProviderNotConfigured는 LoginFailed(UnexpectedError)이고 오류 요약을 보고합니다`
+  - 부팅(A2): `realPlatformOverrides(http)는 다섯 provider와 revoker를 실제 구현으로`, `fake는 대역`(spec §12 "부팅")
 - [ ] **Step 2: 실행해 실패 확인**: `flutter test test/features/auth test/core/provider_revoker_test.dart test/app`. Expected: FAIL.
 - [ ] **Step 3: 구현**: 진행 중 재호출·nonce 규칙은 그대로입니다. 대역 서버(`FakeServer`)가 `loginLine`·`loginGoogle`을 `loginKakao`와 같은 fixture 규칙으로 답하게 합니다.
 - [ ] **Step 4: 실행해 통과 확인**: 같은 명령 PASS, `flutter test test/flows`(로그인 흐름 회귀) PASS.
@@ -329,20 +343,20 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 - Test: `app/test/features/account/account_merge_screen_test.dart`, `app/test/features/account/account_merge_controller_test.dart`
 
 **Interfaces:**
-- Consumes: `ProviderAuthenticator`(`keepSession: true`), `ProviderRevoker`, `AccountLinkRepository`, `AccountChoice`, 캐시 정리(`SignOutCleaner`의 계정 캐시 지우기를 함수로 떼어 씀, 초안·기기 플래그 제외), `meProvider`·진입 계산
+- Consumes: `ProviderAuthenticator`(`keepSession: true`), `ProviderRevoker`, `AccountLinkRepository`, `AccountChoice`, 캐시 정리(`SignOutCleaner`의 계정 캐시·초안 지우기를 함수로 떼어 씀, 기기 플래그 제외), `meProvider`·진입 계산
 - Produces:
-  - `class AccountMergeController extends AutoDisposeNotifier<AccountMergeState>`. 상태: `MergeAuth(busy: SocialProvider?)`, `MergeSummaryLoading`, `MergeChoosing(preview, selected: MergeProfile?)`, `MergeRunning(preview, selected)`. 동작: `Future<MergeAuthOutcome> authenticate(SocialProvider provider)`(`MergeAuthDone`·`MergeNotOther(selfOrNone)`·`MergeAuthFailed`·`MergeAuthCancelled`), `void choose(MergeProfile profile)`, `Future<MergeOutcome> merge()`(`MergeDone`·`MergeTokenInvalid`·`MergeFailed`), `Future<void> abandon()`(세션 정리)
+  - `class AccountMergeController extends Notifier<AccountMergeState>`, `final accountMergeControllerProvider = NotifierProvider.autoDispose<AccountMergeController, AccountMergeState>(AccountMergeController.new)`(Riverpod 3.x). 상태: `MergeAuth(busy: SocialProvider?)`, `MergeSummaryLoading`, `MergeChoosing(preview, selected: MergeProfile?)`, `MergeRunning(preview, selected)`. 동작: `Future<MergeAuthOutcome> authenticate(SocialProvider provider)`(`MergeAuthDone`·`MergeNotOther(selfOrNone)`·`MergeAuthFailed`·`MergeAuthCancelled`), `void choose(MergeProfile profile)`, `Future<MergeOutcome> merge()`(`MergeDone`·`MergeTokenInvalid`·`MergeFailed`), `Future<void> abandon()`(세션 정리)
   - `const Set<String> accountMergeExits = {ScreenIds.loginMethods}`, `const Set<String> accountMergeHandledStates = {'loading', 'error'}`
 
 - [ ] **Step 1: 실패하는 테스트 작성**:
   - controller:
     - `authenticate는 keepSession으로 인증하고 previewMerge`, `422 same_account → MergeNotOther(self)`, `422 no_account → MergeNotOther(none)이고 linkIdentity를 부르지 않음`, `그 밖의 실패 → MergeAuthFailed`, `MergeNotOther·실패면 LINE·Google 세션을 정리`
-    - `merge는 확정마다 Idempotency-Key 하나`, `409 idempotency.in_progress면 1초 뒤 같은 키로 다시(최대 5번)`, `응답 없음이면 같은 키로 한 번 다시`, `재전송이 422 token_invalid면 getMe 갱신과 캐시 정리 뒤 MergeTokenInvalid`, `첫 요청 422 token_invalid도 MergeTokenInvalid`, `성공이면 캐시 정리·meProvider를 응답 Me로·진입 다시 계산`, `어느 갈래에서도 토큰 저장소를 바꾸지 않음`(Review Focus 4), `성공 뒤 LINE·Google이면 revoke`, `abandon은 세션 정리`(Review Focus 6), `일기 초안은 남음`
+    - `merge의 Idempotency-Key는 (mergeToken, profile) 조합마다 하나이고 같은 조합 재확정은 같은 키`, `409 idempotency.in_progress면 1초 뒤 같은 키로 다시(최대 5번)`, `응답 없음이면 같은 키로 한 번 다시`, `재전송이 422 token_invalid이고 getMe에 기대한 변화(광고 제거 만료 늘어남, other 프로필의 hasProfile 변화)가 보이면 성공 갈래(MergeDone)`, `재전송이 422 token_invalid이고 단서가 없으면 MergeTokenInvalid`(잠정 규칙, #552), `첫 요청 422 token_invalid도 MergeTokenInvalid`, `성공이면 캐시와 일기 초안을 지우고 meProvider를 응답 Me로·진입 다시 계산`, `어느 갈래에서도 토큰 저장소를 바꾸지 않음`(Review Focus 4), `성공 뒤 LINE·Google이면 revoke`, `abandon은 세션 정리`(Review Focus 6), `일기 초안도 지움`(기기 플래그는 남음)
   - 화면:
     - 인증 단계: `제목·auth.body·네 버튼(loginProviderOrder)`, `누른 버튼만 loading`, `not-other 두 갈래 dialog notice 뒤 인증 단계`, `요약 실패 accountMergeError dialog 뒤 인증 단계`
     - `loading`: `요약 상자·카드 자리 숨쉬기`
     - 요약·고르기: `title.body`, `상자 줄 순서 일기 → 일정 → 광고 제거`, `일기·일정 0이어도 보임`, `adFree 0이면 광고 제거 줄 없음`, `overlapDays 0이면 overlap.notice 없음, 1 이상이면 있음(고르기와 무관)`, `account-choice A → B, 처음엔 고르지 않음`, `고르기 전 합치기 버튼 disabled`, `status none 카드는 accountChoiceSajuEmpty`
-    - 합치기: `확인 dialog destructive 뒤에만 merge`, `합치는 동안 버튼 loading·카드 disabled·뒤로 가기(app-bar·시스템) 막힘`(Review Focus 3), `완료 → login-methods`, `MergeTokenInvalid → errorMergeTokenInvalid dialog 뒤 인증 단계`, `MergeFailed → accountMergeError dialog, 고름 유지`
+    - 합치기: `확인 dialog destructive 뒤에만 merge`, `합치는 동안 버튼 loading·카드 disabled·뒤로 가기(app-bar·시스템) 막힘`(Review Focus 3), `완료 → login-methods(진입 계산이 회원 갈래일 때), 그 밖의 진입 갈래면 그 화면이 우선`, `MergeTokenInvalid → errorMergeTokenInvalid dialog 뒤 인증 단계`, `MergeFailed → accountMergeError dialog, 고름 유지`
     - `"합치지 않기" 버튼 없음, 뒤로 가기는 어느 단계에서든 login-methods와 abandon`
 - [ ] **Step 2: 실행해 실패 확인**: `flutter test test/features/account`. Expected: FAIL.
 - [ ] **Step 3: 구현**: 확인 dialog는 `showMyungliConfirm` 계열(`dialog` `destructive`). 뒤로 가기 막기는 `PopScope(canPop: false)`와 app-bar 뒤로 버튼 비활성. 완료·그만두기 이동은 `context.pop()`(login-methods가 목록을 다시 읽음). 사용자에게 보이는 글자를 조립하지 않고 ARB 키만 씁니다(#546).
@@ -355,14 +369,14 @@ D91 ①로 A1은 대역 데이터로 화면을 만드는 데까지이고, 실제
 - Create: `app/test/flows/login_methods_flow_test.dart`, `app/patrol_test/account_test.dart`(`test_bundle.dart` 갱신)
 - Modify: `app/tool/coverage_baseline.json`(도구가 갱신), `app/README.md`(fake 연결·합치기 규칙), `app/CLAUDE.md`(현재 상태·다음 할 일), 화면 스크린샷 등록(`tool/register_screenshots.dart`, 계획 6과 같은 절차)
 
-- [ ] **Step 1: 흐름 테스트 작성**: fake 회원으로 `settings → login-methods → LINE 붙이기(목록에 LINE) → Google 붙이기(in-use dialog, 화면에 남음) → 합치기 입구 → account-merge 인증(LINE) → 요약 → 다른 계정 프로필 고름 → 확인 → login-methods`. 토큰이 그대로이고 `meProvider`가 응답 `Me`인지 확인합니다.
+- [ ] **Step 1: 흐름 테스트 작성**: fake 회원으로 `settings → login-methods → LINE 붙이기(목록에 LINE) → Google 붙이기(in-use dialog, 화면에 남음) → 합치기 입구 → account-merge 인증(연결하지 않은 Google) → 요약 → 다른 계정 프로필 고름 → 확인 → login-methods`. 토큰이 그대로이고 `meProvider`가 응답 `Me`인지 확인합니다.
 - [ ] **Step 2: 실행해 통과 확인**: `flutter test test/flows/login_methods_flow_test.dart` PASS.
 - [ ] **Step 3: Patrol**: 같은 흐름을 `patrol_test/account_test.dart`로 만들고 `tool/patrol_local.sh patrol_test/account_test.dart`. Expected: 종료 코드 0. 로그인 흐름 회귀로 `tool/patrol_local.sh patrol_test/login_test.dart`도 0.
 - [ ] **Step 4: 커버리지**: `dart run tool/ia_coverage.dart --check` 통과(새 경로 `settings>login-methods`, `login-methods>account-merge`, `account-merge>login-methods`와 상태).
-- [ ] **Step 5: 전체 검사**(PR 직전): `flutter analyze`(app·widgetbook), `dart analyze`, `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed lib test tool widgetbook/lib patrol_test`, `tool/goldens_linux.sh`, `dart run tool/gen_native_config.dart --check`, 생성물 차이 없음. 모두 통과.
-- [ ] **Step 6: 문서**: `app/CLAUDE.md` 현재 상태에 계획 7 단계 A·B를 적고, 다음 할 일에 실기기 확인 목록(spec §12), #347 ②, 수익 쪽 과제(spec §14: RevenueCat `Purchases.sync()`·iOS sandbox 확인, `products()` 시간 한계, `AD_FREE_PRODUCT_IDS` 배선, `adFreeBuyCta` #548)를 남깁니다.
+- [ ] **Step 5: 전체 검사**(PR 직전): `flutter analyze`(app·widgetbook), `dart analyze`, `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed lib test tool widgetbook/lib patrol_test`, `tool/goldens_linux.sh`, 생성물 차이 없음. 모두 통과. `gen_native_config --check`는 A2 마무리에서 더합니다.
+- [ ] **Step 6: 문서**(A1 기준): `app/CLAUDE.md` 현재 상태에 계획 7 A1(화면·대역, 단계 B와 그 경계)을 적고, 다음 할 일에 A2 몫(진행 순서 표), 실기기 확인 목록(spec §12), #347 ②, #552·#553 답 대기, 수익 쪽 과제(spec §14: RevenueCat `Purchases.sync()`·iOS sandbox 확인, `products()` 시간 한계, `AD_FREE_PRODUCT_IDS` 배선, `adFreeBuyCta` #548)를 남깁니다.
 - [ ] **Step 7: 알림**:
-  - server #386(닫혔으면 새 `to:server` Issue)에 Google nonce 제약(spec §5.4)과 spec §13의 확인 세 가지를 남깁니다.
-  - LINE `logout`이 허가를 끊지 않으면 지휘에 알립니다(D85 ⑥, spec §5.6).
+  - Google nonce 제약(spec §5.4) Issue가 `app/d85-d88` 뒤에 올라갔는지 확인하고, 없으면 `to:server`로 올립니다.
+  - LINE `logout`·deauthorize 확인과 알림은 A2 마무리에서 합니다.
   - #311·#387에 반영 범위를 남깁니다(#311은 ③ release 지문 때문에 열어 둠).
 - [ ] **Step 8: Commit** `test(app): 로그인 수단·계정 합치기 흐름과 Patrol, 현재 상태 갱신`
