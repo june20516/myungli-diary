@@ -129,7 +129,7 @@
     },
     {
       "id": "account-choice",
-      "role": "합칠 두 계정 가운데 남길 쪽 고르기(호칭·사주 요약·일기 수·연결된 수단)"
+      "role": "계정 합치기에서 프로필(사주 정보·호칭·설정)을 지금 계정 것과 합칠 계정 것 가운데 고르기. 남는 계정은 언제나 지금 계정(D85 ④)"
     },
     {
       "id": "primary-button",
@@ -227,6 +227,14 @@
         {
           "to": "ad-consent",
           "trigger": "로그인 상태, 이 기기에서 광고 동의를 받지 않음"
+        },
+        {
+          "to": "consent",
+          "trigger": "로그인 상태, 필수 동의가 없음(동의 화면에서 그만둔 계정, D90 ③)"
+        },
+        {
+          "to": "onboard-call",
+          "trigger": "로그인 상태, 동의는 했지만 사주가 없음(D90 ③)"
         },
         {
           "to": "welcome",
@@ -700,7 +708,7 @@
         {
           "id": "preview.fortune.head",
           "source": "content",
-          "role": "총운 첫 문장, 호칭 자리"
+          "role": "총운 첫 문장. 미리보기에서는 호칭을 넣지 않음(D90 ②, writing W18)"
         },
         {
           "id": "preview.fortune.body",
@@ -808,7 +816,15 @@
       "exits": [
         {
           "to": "consent",
-          "trigger": "새 계정"
+          "trigger": "필수 동의가 없는 계정(새 계정이거나 동의 화면에서 그만둔 계정, D90 ③)"
+        },
+        {
+          "to": "notify-ask",
+          "trigger": "동의는 했지만 사주가 없는 계정, 미리보기를 거침(미리보기 입력을 저장, D90 ③)"
+        },
+        {
+          "to": "onboard-call",
+          "trigger": "동의는 했지만 사주가 없는 계정, 미리보기를 거치지 않음(D90 ③)"
         },
         {
           "to": "today",
@@ -833,7 +849,7 @@
       "tab": null,
       "presentation": "page",
       "auth": "member",
-      "purpose": "새 계정에서 필수 약관과 개인정보 수집 동의를 받습니다",
+      "purpose": "필수 동의가 없는 계정(새 계정, 동의 화면에서 그만둔 계정)에서 필수 약관과 개인정보 수집 동의를 받습니다",
       "depths": [],
       "states": [
         {
@@ -871,11 +887,11 @@
       "exits": [
         {
           "to": "notify-ask",
-          "trigger": "동의(미리보기를 거친 새 계정)"
+          "trigger": "동의(미리보기를 거친 계정)"
         },
         {
           "to": "onboard-call",
-          "trigger": "동의(그 외 새 계정)"
+          "trigger": "동의(그 외 계정)"
         },
         {
           "to": "legal",
@@ -1869,7 +1885,7 @@
         {
           "id": "diary-view.character.label",
           "source": "content",
-          "role": "그날 성격 이름"
+          "role": "그날 성격 이름. 일기를 쓸 때 기록한 값이고, 사주 정보를 고쳐도 바뀌지 않음(D90 ①)"
         },
         {
           "id": "diary-view.delete.confirm",
