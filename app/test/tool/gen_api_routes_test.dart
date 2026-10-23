@@ -85,12 +85,13 @@ void main() {
 
   group('실제 계약', () {
     // draft.13(D83)에서 일기 putDiary가 createDiary·updateDiary로 나뉘어 41개,
-    // draft.14(D82)에서 로그인 수단·연결·합치기가 더해져 48개입니다.
-    test('operation 48개가 route 표에 모두 있다', () {
-      expect(apiRoutes, hasLength(48));
+    // draft.14(D82)에서 로그인 수단·연결·합치기가 더해져 48개, draft.15에서 구매 내역
+    // `listPurchases`가 더해져 1.0.0(S114)까지 49개입니다(계약 `operationId` 수).
+    test('operation 49개가 route 표에 모두 있다', () {
+      expect(apiRoutes, hasLength(49));
       expect(
         apiRoutes.map((route) => route.operationId).toSet(),
-        hasLength(48),
+        hasLength(49),
       );
     });
 

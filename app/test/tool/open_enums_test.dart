@@ -98,7 +98,7 @@ void main() {
       );
     });
 
-    test('실제 계약에서 10개를 읽는다', () {
+    test('실제 계약에서 14개를 읽는다', () {
       expect(contractOpenEnumNames(loadOpenApi()), [
         'NoticeCode',
         'ShinsalKind',
@@ -110,6 +110,11 @@ void main() {
         'ConsentDocument.document',
         'Problem.code',
         'LoginProvider',
+        // draft.15·1.0.0(S114)에서 열린 enum이 된 것들입니다.
+        'PurchaseStatus',
+        'YongsinMethod',
+        'SlotText.reaction',
+        'Language',
       ]);
     });
   });
