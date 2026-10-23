@@ -310,7 +310,7 @@ func birthHourInfo(gender enginev1.Gender, date *enginev1.LocalDate, hour, minut
 	}}
 }
 
-// 서버는 시진 확인에 고정 성별을 보냅니다(엔진이 UNSPECIFIED를 거부). 성별이 결과를 바꾸지 않는다는 근거를 고정합니다.
+// 서버는 시진 확인에 미지정 성별을 보냅니다(S69). 엔진이 미지정을 받고, 성별이 결과를 바꾸지 않는다는 근거를 고정합니다.
 // 자시 경계(00:10은 전날 23:30부터)처럼 날을 넘는 시각도 함께 확인합니다.
 func TestRealEngine_GetBirthHourIgnoresGender(t *testing.T) {
 	client := newRealClient(t)
@@ -328,10 +328,15 @@ func TestRealEngine_GetBirthHourIgnoresGender(t *testing.T) {
 			require.NoError(t, err)
 			female, err := client.GetBirthHour(t.Context(), birthHourInfo(enginev1.Gender_GENDER_FEMALE, tt.date, tt.hour, tt.minute))
 			require.NoError(t, err)
+			unspecified, err := client.GetBirthHour(t.Context(), birthHourInfo(enginev1.Gender_GENDER_UNSPECIFIED, tt.date, tt.hour, tt.minute))
+			require.NoError(t, err)
 			assert.Equal(t, tt.wantBranch, male.GetBranch())
 			assert.Equal(t, male.GetBranch(), female.GetBranch())
 			assert.True(t, male.GetStart().AsTime().Equal(female.GetStart().AsTime()))
 			assert.True(t, male.GetEnd().AsTime().Equal(female.GetEnd().AsTime()))
+			assert.Equal(t, male.GetBranch(), unspecified.GetBranch())
+			assert.True(t, male.GetStart().AsTime().Equal(unspecified.GetStart().AsTime()))
+			assert.True(t, male.GetEnd().AsTime().Equal(unspecified.GetEnd().AsTime()))
 			if tt.hour == 0 {
 				assert.Equal(t, 23, male.GetStart().AsTime().In(seoul(t)).Hour())
 				assert.Equal(t, 30, male.GetStart().AsTime().In(seoul(t)).Minute())
