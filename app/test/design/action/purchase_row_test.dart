@@ -210,6 +210,29 @@ void main() {
       expect(tag.center.dy, closeTo(product.center.dy, 1));
     });
 
+    for (final scale in [1.3, 2.0]) {
+      testWidgets('꼬리표가 첫 줄보다 커지면 위쪽을 맞춘다 (글자 $scale배)', (tester) async {
+        await tester.pumpWidget(
+          _app(
+            const PurchaseRowGroup(
+              rows: [
+                PurchaseRowData(
+                  product: '광고 제거',
+                  status: '사용 중',
+                  active: true,
+                  meta: _meta,
+                ),
+              ],
+            ),
+            scale: scale,
+          ),
+        );
+        final product = tester.getRect(find.text('광고 제거'));
+        final tag = tester.getRect(find.byType(StatusTag));
+        expect(tag.top, closeTo(product.top, 1));
+      });
+    }
+
     testWidgets('한 줄을 상품 이름, 상태, meta 한 덩어리로 읽고 누를 수 없다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
@@ -251,6 +274,20 @@ void main() {
 
       visit(root);
       expect(labelled, 0);
+      // 뼈 자체의 ExcludeSemantics와 별개로, 묶음이 줄들을 통째로 가립니다.
+      final guard = find.descendant(
+        of: find.byType(PurchaseRowGroup),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is ExcludeSemantics && widget.excluding,
+        ),
+      );
+      expect(
+        find.descendant(
+          of: guard.first,
+          matching: find.byKey(PurchaseRowGroup.rowKey),
+        ),
+        findsNWidgets(3),
+      );
       expect(find.byKey(PurchaseRowGroup.rowKey), findsNWidgets(3));
       expect(find.byType(SkeletonBone), findsNWidgets(6));
       expect(find.byKey(PurchaseRowGroup.dividerKey), findsNWidgets(2));
