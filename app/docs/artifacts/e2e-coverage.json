@@ -1,24 +1,30 @@
 {
-  "generatedAt": "2026-10-20T15:54:43.765209Z",
+  "generatedAt": "2026-10-23T08:07:36.072800Z",
   "exits": {
-    "covered": 72,
-    "total": 80,
+    "covered": 74,
+    "total": 88,
     "uncovered": [
+      "account-merge>login-methods",
       "ad-free>legal",
+      "ad-free>purchase-history",
       "ad-free>system-purchase",
       "birthplace>notify-ask",
       "launch>ad-consent",
+      "launch>consent",
+      "launch>onboard-call",
+      "login-methods>account-merge",
       "onboard-gender>notify-ask",
+      "settings>login-methods",
       "system-apple-return>welcome",
       "system-purchase>ad-free",
       "system-rewarded-ad>evidence-sheet"
     ],
     "coveredBy": {
       "account-delete>welcome": [
-        "test/flows/account_delete_flow_test.dart:101 확인 창에서 취소하면 지우지 않고, 확정하면 deleteMe 한 번 → 로그아웃 정리 → welcome(A63)"
+        "test/flows/account_delete_flow_test.dart:101 확인 창에서 취소하면 지우지 않고, 확정하면 deleteMe 한 번 → 로컬 로그아웃 정리 → welcome(A73)"
       ],
       "ad-consent>today": [
-        "test/flows/login_flow_test.dart:138 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
         "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다",
@@ -39,11 +45,11 @@
         "test/flows/birthplace_flow_test.dart:386"
       ],
       "calendar>day-sheet": [
-        "test/flows/calendar_flow_test.dart:201 member: 날짜를 누르면 선택하고 그날 시트를 엽니다",
+        "test/flows/calendar_flow_test.dart:202 member: 날짜를 누르면 선택하고 그날 시트를 엽니다",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
       ],
       "calendar>event-edit": [
-        "test/flows/calendar_flow_test.dart:215 member: 일정 추가 → 선택한 날의 event-edit"
+        "test/flows/calendar_flow_test.dart:216 member: 일정 추가 → 선택한 날의 event-edit"
       ],
       "consent>legal": [
         "test/flows/consent_flow_test.dart:321 '보기'는 legal을 열고, 돌아오면 체크가 그대로입니다"
@@ -57,55 +63,55 @@
         "test/flows/consent_flow_test.dart:210 new-user-signin: 동의 → onboard-call → 입력을 마치면 미리보기 없이 notify-ask"
       ],
       "day-sheet>diary-edit": [
-        "test/flows/day_sheet_flow_test.dart:146 member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다"
+        "test/flows/day_sheet_flow_test.dart:117 member: 일기 쓰기 → 새 일기 저장, 돌아오면 그날 일기 줄과 새 일기 쓰기"
       ],
       "day-sheet>diary-view": [
-        "test/flows/day_sheet_flow_test.dart:175 diary-written: 지난 날 일기 보기 → diary-view"
+        "test/flows/day_sheet_flow_test.dart:169 diary-written: 지난 날 일기 줄 → 그 일기의 diary-view"
       ],
       "day-sheet>event-edit": [
-        "test/flows/day_sheet_flow_test.dart:105 member: 오늘 시트의 성격·일정, 일정 누름 → event-edit",
-        "test/flows/day_sheet_flow_test.dart:126 member: 일정 없는 날은 빈 문장, 일정 추가 → 그날 event-edit",
+        "test/flows/day_sheet_flow_test.dart:78 member: 오늘 시트의 성격·일정, 일정 누름 → event-edit",
+        "test/flows/day_sheet_flow_test.dart:99 member: 일정 없는 날은 빈 문장, 일정 추가 → 그날 event-edit",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
       ],
       "day-sheet>explain-sheet": [
-        "test/flows/day_sheet_flow_test.dart:202 member: 이유 문장의 용어 칩 → 풀이 시트가 위로 쌓입니다"
+        "test/flows/day_sheet_flow_test.dart:230 member: 이유 문장의 용어 칩 → 풀이 시트가 위로 쌓입니다"
       ],
       "diary-edit>diary-view": [
-        "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
+        "test/flows/diary_edit_flow_test.dart:155 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-list>diary-edit": [
-        "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기",
+        "test/flows/diary_list_flow_test.dart:266 날짜 골라 쓰기: 미래는 막고, 이미 쓴 날도 그날 새 일기",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-list>diary-view": [
-        "test/flows/diary_list_flow_test.dart:116 줄을 누르면 그날 diary-view, 태그 칩을 누르면 tag-diary"
+        "test/flows/diary_list_flow_test.dart:127 줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary"
       ],
       "diary-list>tag-diary": [
-        "test/flows/diary_list_flow_test.dart:116 줄을 누르면 그날 diary-view, 태그 칩을 누르면 tag-diary"
+        "test/flows/diary_list_flow_test.dart:127 줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary"
       ],
       "diary-view>diary-edit": [
-        "test/flows/diary_view_flow_test.dart:153 고치기는 이 화면을 그날 쓰기 화면으로 바꿉니다"
+        "test/flows/diary_view_flow_test.dart:151 고치기는 이 화면을 그 일기 쓰기 화면으로 바꾸고, 저장하면 같은 일기 보기"
       ],
       "diary-view>explain-sheet": [
-        "test/flows/diary_view_flow_test.dart:140 성격을 누르면 그 성격 용어의 풀이 시트"
+        "test/flows/diary_view_flow_test.dart:138 성격을 누르면 그 성격 용어의 풀이 시트"
       ],
       "diary-view>tag-diary": [
-        "test/flows/tag_diary_flow_test.dart:162 diary-view의 태그 칩 → 그 태그 모아보기",
+        "test/flows/tag_diary_flow_test.dart:161 diary-view의 태그 칩 → 그 태그 모아보기",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "evidence-sheet>ad-free": [
-        "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
+        "test/flows/today_flow_test.dart:537 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
       ],
       "evidence-sheet>system-rewarded-ad": [
-        "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
+        "test/flows/today_flow_test.dart:537 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "explain-sheet>evidence-sheet": [
-        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
-        "test/flows/saju_chart_flow_test.dart:383 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
-        "test/flows/today_flow_test.dart:194 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
-        "test/flows/today_flow_test.dart:281 evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장",
+        "test/flows/me_journey_flow_test.dart:212 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/saju_chart_flow_test.dart:377 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
+        "test/flows/today_flow_test.dart:166 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
+        "test/flows/today_flow_test.dart:253 evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장",
         "patrol_test/me_test.dart:61",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
@@ -120,31 +126,39 @@
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
       ],
       "login>ad-consent": [
-        "test/flows/login_flow_test.dart:138 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
-        "test/flows/login_flow_test.dart:186 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today",
+        "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/login_flow_test.dart:187 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today",
         "patrol_test/login_test.dart:12 기존 사용자: welcome에서 로그인하면 today로 갑니다"
       ],
       "login>consent": [
-        "test/flows/login_flow_test.dart:115 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
+        "test/flows/login_flow_test.dart:116 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
+      "login>notify-ask": [
+        "test/flows/login_flow_test.dart:223 consented-no-profile: 미리보기 입력이 있으면 저장하고 onboard-call 없이 notify-ask"
+      ],
+      "login>onboard-call": [
+        "test/flows/login_flow_test.dart:258 consented-profile-invalid: 저장이 422면 onboard-call에서 안내를 한 번만 보이고 입력은 남습니다"
+      ],
       "login>today": [
-        "test/flows/login_flow_test.dart:138 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
-        "test/flows/login_flow_test.dart:162 returning-user: 이 기기에서 광고 동의를 이미 했으면 바로 today",
-        "test/flows/login_flow_test.dart:186 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
+        "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/login_flow_test.dart:163 returning-user: 이 기기에서 광고 동의를 이미 했으면 바로 today",
+        "test/flows/login_flow_test.dart:187 returning-user: 미리보기 입력이 있으면 쓰지 않는다는 안내 뒤 입력을 지우고 today"
       ],
       "my-saju>explain-sheet": [
         "test/flows/my_saju_flow_test.dart:124 일간 이름 용어 → 풀이 시트"
       ],
       "my-saju>saju-chart": [
-        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/me_journey_flow_test.dart:212 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
         "test/flows/my_saju_flow_test.dart:132 근거 보기 → 사주 표",
         "patrol_test/me_test.dart:61"
       ],
       "my-saju>settings": [
-        "test/flows/me_journey_flow_test.dart:220 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
-        "test/flows/me_journey_flow_test.dart:291 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
+        "test/flows/me_journey_flow_test.dart:294 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/me_journey_flow_test.dart:379 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
+        "test/flows/me_journey_flow_test.dart:402 정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)",
+        "test/flows/me_journey_flow_test.dart:440 설정에서 언어를 en으로 바꾸면 나의 사주를 다시 받아 en 문장이 보입니다(A60)",
         "test/flows/my_saju_flow_test.dart:155 톱니 → 설정",
         "patrol_test/me_test.dart:61"
       ],
@@ -203,7 +217,7 @@
         "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
       ],
       "profile-edit>onboard-birth": [
-        "test/flows/me_journey_flow_test.dart:220 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/me_journey_flow_test.dart:294 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
         "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다",
         "patrol_test/me_test.dart:61"
       ],
@@ -217,76 +231,79 @@
         "test/flows/profile_edit_flow_test.dart:230 줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다"
       ],
       "saju-chart>evidence-sheet": [
-        "test/flows/saju_chart_flow_test.dart:316 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)"
+        "test/flows/saju_chart_flow_test.dart:310 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)"
       ],
       "saju-chart>explain-sheet": [
-        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
-        "test/flows/saju_chart_flow_test.dart:383 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
+        "test/flows/me_journey_flow_test.dart:212 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/saju_chart_flow_test.dart:377 evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)",
         "patrol_test/me_test.dart:61"
       ],
       "settings>account-delete": [
         "test/flows/account_delete_flow_test.dart:76 제목·안내·삭제 버튼(destructive)이 있습니다",
-        "test/flows/settings_flow_test.dart:524"
+        "test/flows/settings_flow_test.dart:549"
       ],
       "settings>ad-free": [
-        "test/flows/settings_flow_test.dart:485 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free"
+        "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free"
       ],
       "settings>birthplace": [
-        "test/flows/settings_flow_test.dart:356 언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드"
+        "test/flows/settings_flow_test.dart:381 언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드"
       ],
       "settings>calc-basis": [
-        "test/flows/settings_flow_test.dart:524"
+        "test/flows/settings_flow_test.dart:549"
       ],
       "settings>legal": [
-        "test/flows/settings_flow_test.dart:524"
+        "test/flows/settings_flow_test.dart:549"
       ],
       "settings>profile-edit": [
-        "test/flows/me_journey_flow_test.dart:220 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/me_journey_flow_test.dart:294 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
+        "test/flows/me_journey_flow_test.dart:402 정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)",
         "test/flows/profile_edit_flow_test.dart:629 settings 출생지 안내에서 고른 도시는 켜진 저장 버튼으로 열리고, 한국 기기여도 그 도시로 저장합니다(D29)",
-        "test/flows/settings_flow_test.dart:385 출생지 수정 모드에서 고른 도시는 정보 수정으로 넘깁니다(무거운 변경 확인은 그 화면, A6)",
-        "test/flows/settings_flow_test.dart:524",
+        "test/flows/settings_flow_test.dart:410 출생지 수정 모드에서 고른 도시는 정보 수정으로 넘깁니다(무거운 변경 확인은 그 화면, A6)",
+        "test/flows/settings_flow_test.dart:549",
         "patrol_test/me_test.dart:61"
       ],
       "settings>welcome": [
-        "test/flows/me_journey_flow_test.dart:291 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
-        "test/flows/settings_flow_test.dart:546 로그아웃: 확인 창에서 취소하면 그대로, 확정하면 revokeAndSignOut → welcome",
+        "test/flows/me_journey_flow_test.dart:379 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
+        "test/flows/settings_flow_test.dart:571 로그아웃: 확인 창에서 취소하면 그대로, 확정하면 revokeAndSignOut → welcome",
         "patrol_test/me_test.dart:61"
       ],
       "share-preview>system-share": [
-        "test/flows/today_flow_test.dart:329 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다"
+        "test/flows/today_flow_test.dart:301 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다"
       ],
       "system-push>today": [
         "test/flows/push_open_flow_test.dart:15 꺼진 앱을 아침 알림으로 열면 진입 계산 뒤 today에 닿습니다",
         "test/flows/push_open_flow_test.dart:69 실행 중 알림을 누르면 today로 갑니다"
       ],
       "tag-diary>diary-view": [
-        "test/flows/tag_diary_flow_test.dart:183 줄을 누르면 그날 diary-view",
+        "test/flows/tag_diary_flow_test.dart:185 줄을 누르면 그 일기의 diary-view",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "tag-diary>explain-sheet": [
-        "test/flows/tag_diary_flow_test.dart:196 뜻의 용어 칩 → 풀이 시트"
+        "test/flows/tag_diary_flow_test.dart:198 뜻의 용어 칩 → 풀이 시트"
       ],
       "today>day-sheet": [
-        "test/flows/today_flow_test.dart:467 member: 오늘 일정 한 줄 → 오늘 day-sheet",
+        "test/flows/today_flow_test.dart:420 member: 오늘 일정 한 줄 → 오늘 day-sheet",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
       ],
       "today>diary-edit": [
-        "test/flows/today_flow_test.dart:436 member: 가이드 카드 → diary-edit, 돌아오면 일기 여부를 다시 확인합니다"
+        "test/flows/today_diary_flow_test.dart:71 오늘 한 편 쓰고 돌아오면 줄 1개, 한 편 더 쓰면 줄 2개와 달력 도장",
+        "test/flows/today_flow_test.dart:406 member: 가이드 카드 → 오늘 새 일기 diary-edit"
       ],
       "today>diary-view": [
-        "test/flows/today_flow_test.dart:489 diary-written: 가이드 카드 → diary-view"
+        "test/flows/today_diary_flow_test.dart:71 오늘 한 편 쓰고 돌아오면 줄 1개, 한 편 더 쓰면 줄 2개와 달력 도장",
+        "test/flows/today_flow_test.dart:442 diary-written: 오늘 쓴 일기 줄 → 그 일기의 diary-view"
       ],
       "today>evidence-sheet": [
-        "test/flows/today_flow_test.dart:194 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기"
+        "test/flows/today_flow_test.dart:166 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기"
       ],
       "today>explain-sheet": [
-        "test/flows/today_flow_test.dart:194 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
-        "test/flows/today_flow_test.dart:281 evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장",
+        "test/flows/today_flow_test.dart:166 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
+        "test/flows/today_flow_test.dart:253 evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "today>share-preview": [
-        "test/flows/today_flow_test.dart:194 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
-        "test/flows/today_flow_test.dart:329 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다",
+        "test/flows/today_flow_test.dart:166 member: 용어 칩 → 풀이 시트, 근거 보기 → 근거 시트, 공유 → 공유 미리보기",
+        "test/flows/today_flow_test.dart:301 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ],
       "welcome>login": [
@@ -302,15 +319,22 @@
   },
   "states": {
     "covered": 47,
-    "total": 54,
+    "total": 61,
     "uncovered": [
+      "account-merge:error",
+      "account-merge:loading",
       "ad-free:error",
       "ad-free:loading",
       "ad-free:offline",
       "event-edit:loading",
       "event-edit:offline",
       "launch:loading",
-      "onboard-birth:out-of-range"
+      "login-methods:error",
+      "onboard-birth:out-of-range",
+      "purchase-history:empty",
+      "purchase-history:error",
+      "purchase-history:loading",
+      "purchase-history:offline"
     ],
     "coveredBy": {
       "account-delete:error": [
@@ -326,85 +350,85 @@
         "test/flows/birthplace_flow_test.dart:241 입력이 멈추고 300ms 뒤에 한 번 요청하고, 받는 동안 skeleton입니다"
       ],
       "calendar:error": [
-        "test/flows/calendar_flow_test.dart:292 calendar-error: 오류와 다시 시도",
-        "test/flows/calendar_flow_test.dart:378 offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다"
+        "test/flows/calendar_flow_test.dart:295 calendar-error: 오류와 다시 시도",
+        "test/flows/calendar_flow_test.dart:381 offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다"
       ],
       "calendar:loading": [
-        "test/flows/calendar_flow_test.dart:274 member: 달을 받는 동안 격자 skeleton입니다"
+        "test/flows/calendar_flow_test.dart:277 member: 달을 받는 동안 격자 skeleton입니다"
       ],
       "calendar:offline": [
-        "test/flows/calendar_flow_test.dart:323 offline: 받아 둔 달은 배너와 함께, 받은 적 없는 달은 오류입니다",
-        "test/flows/calendar_flow_test.dart:378 offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다"
+        "test/flows/calendar_flow_test.dart:326 offline: 받아 둔 달은 배너와 함께, 받은 적 없는 달은 오류입니다",
+        "test/flows/calendar_flow_test.dart:381 offline에서 연 달은 연결이 돌아온 뒤 다시 시도로 길흉·점·도장이 다 보입니다"
       ],
       "consent:error": [
         "test/flows/consent_flow_test.dart:442 consent-mismatch: 내 정보를 다시 받아 체크를 풀고 오류 문구를 보입니다"
       ],
       "day-sheet:empty": [
-        "test/flows/day_sheet_flow_test.dart:126 member: 일정 없는 날은 빈 문장, 일정 추가 → 그날 event-edit",
+        "test/flows/day_sheet_flow_test.dart:99 member: 일정 없는 날은 빈 문장, 일정 추가 → 그날 event-edit",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
       ],
       "day-sheet:error": [
-        "test/flows/day_sheet_flow_test.dart:254 calendar-error: 오류 화면과 다시 시도"
+        "test/flows/day_sheet_flow_test.dart:282 calendar-error: 오류 화면과 다시 시도"
       ],
       "day-sheet:loading": [
-        "test/flows/day_sheet_flow_test.dart:233 loading: 달 길흉을 기다리는 동안 skeleton, 오면 내용"
+        "test/flows/day_sheet_flow_test.dart:261 loading: 달 길흉을 기다리는 동안 skeleton, 오면 내용"
       ],
       "diary-edit:draft": [
-        "test/flows/diary_edit_flow_test.dart:211 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
+        "test/flows/diary_edit_flow_test.dart:243 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
       ],
       "diary-edit:error": [
-        "test/flows/diary_edit_flow_test.dart:241 error: 저장된 일기를 읽지 못하면 오류 화면과 다시 시도"
+        "test/flows/diary_edit_flow_test.dart:275 error: 저장된 일기를 읽지 못하면 오류 화면과 다시 시도"
       ],
       "diary-edit:loading": [
-        "test/flows/diary_edit_flow_test.dart:119 새 일기: 그날 질문과 안내, 빈 본문이면 저장할 수 없습니다",
+        "test/flows/diary_edit_flow_test.dart:139 새 일기: 그날 질문과 안내, 빈 본문이면 저장할 수 없습니다",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-edit:offline": [
-        "test/flows/diary_edit_flow_test.dart:211 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
+        "test/flows/diary_edit_flow_test.dart:243 offline: 저장이 연결 오류로 실패하면 배너, 화면과 글은 그대로"
       ],
       "diary-list:empty": [
-        "test/flows/diary_list_flow_test.dart:143 empty: 쓴 일기가 없으면 안내와 날짜 골라 쓰기"
+        "test/flows/diary_list_flow_test.dart:211 empty: 쓴 일기가 없으면 안내와 날짜 골라 쓰기"
       ],
       "diary-list:error": [
-        "test/flows/diary_list_flow_test.dart:156 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록"
+        "test/flows/diary_list_flow_test.dart:224 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록"
       ],
       "diary-list:loading": [
-        "test/flows/diary_list_flow_test.dart:156 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록",
+        "test/flows/diary_list_flow_test.dart:224 error: 받은 적 없이 오프라인이면 오류 화면, 다시 시도하면 목록",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "diary-list:offline": [
-        "test/flows/diary_list_flow_test.dart:167 offline: 받아 둔 목록이 있으면 그대로 보이고 배너"
+        "test/flows/diary_list_flow_test.dart:235 offline: 받아 둔 목록이 있으면 그대로 보이고 배너"
       ],
       "diary-view:error": [
-        "test/flows/diary_view_flow_test.dart:238 error: 일기를 받지 못하면 오류 화면과 다시 시도"
+        "test/flows/diary_view_flow_test.dart:264 error: 일기를 받지 못하면 오류 화면과 다시 시도"
       ],
       "diary-view:loading": [
-        "test/flows/diary_view_flow_test.dart:224 loading: 일기를 받는 동안 skeleton, 오면 본문"
+        "test/flows/diary_view_flow_test.dart:250 loading: 일기를 받는 동안 skeleton, 오면 본문"
       ],
       "event-edit:error": [
         "test/flows/event_edit_flow_test.dart:92 schedule-save-error: 저장 실패 toast를 띄우고 화면과 입력이 남습니다"
       ],
       "evidence-sheet:error": [
-        "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
+        "test/flows/today_flow_test.dart:537 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
       ],
       "evidence-sheet:loading": [
-        "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
+        "test/flows/today_flow_test.dart:537 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림"
       ],
       "explain-sheet:error": [
-        "test/flows/today_flow_test.dart:374 풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름"
+        "test/flows/today_flow_test.dart:346 풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름"
       ],
       "explain-sheet:loading": [
-        "test/flows/today_flow_test.dart:374 풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름"
+        "test/flows/today_flow_test.dart:346 풀이 시트: 사전을 받는 동안 skeleton, 실패하면 오류 화면, 다시 시도하면 이름"
       ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:68 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
       ],
       "login:error": [
-        "test/flows/login_flow_test.dart:222 login-provider-down: 재시도 안내, 토큰 없음, 다시 누르면 다시 요청",
-        "test/flows/login_flow_test.dart:245 login-entry-unavailable: 로그인 뒤 진입 계산이 실패하면 안내하고, 다시 누르면 consent",
-        "test/flows/login_flow_test.dart:268 카카오 취소는 오류 상태에 취소 안내를 보입니다",
-        "test/flows/login_flow_test.dart:291 login-exchange-invalid: Android Apple 웹 교환 코드가 만료되면 처음부터 다시 안내",
-        "test/flows/login_flow_test.dart:318 Android Apple 웹 로그인을 취소하면 취소 안내를 보이고 server를 부르지 않습니다"
+        "test/flows/login_flow_test.dart:289 login-provider-down: 재시도 안내, 토큰 없음, 다시 누르면 다시 요청",
+        "test/flows/login_flow_test.dart:312 login-entry-unavailable: 로그인 뒤 진입 계산이 실패하면 안내하고, 다시 누르면 consent",
+        "test/flows/login_flow_test.dart:335 카카오 취소는 오류 상태에 취소 안내를 보입니다",
+        "test/flows/login_flow_test.dart:358 login-exchange-invalid: Android Apple 웹 교환 코드가 만료되면 처음부터 다시 안내",
+        "test/flows/login_flow_test.dart:385 Android Apple 웹 로그인을 취소하면 취소 안내를 보이고 server를 부르지 않습니다"
       ],
       "my-saju:error": [
         "test/flows/my_saju_flow_test.dart:190 error: 받지 못하면 오류와 다시 시도"
@@ -434,34 +458,34 @@
         "test/flows/profile_edit_flow_test.dart:513 저장이 실패하면 오류 배너와 다시 시도, 바꾼 값과 이전 캐시는 그대로입니다"
       ],
       "saju-chart:error": [
-        "test/flows/saju_chart_flow_test.dart:642 error: 받지 못하면 오류와 다시 시도"
+        "test/flows/saju_chart_flow_test.dart:636 error: 받지 못하면 오류와 다시 시도"
       ],
       "saju-chart:loading": [
-        "test/flows/saju_chart_flow_test.dart:628 loading: 받는 동안 skeleton, 오면 내용"
+        "test/flows/saju_chart_flow_test.dart:622 loading: 받는 동안 skeleton, 오면 내용"
       ],
       "saju-chart:time-unknown": [
-        "test/flows/saju_chart_flow_test.dart:608 time-unknown: 시주 빈 칸과 안내"
+        "test/flows/saju_chart_flow_test.dart:602 time-unknown: 시주 빈 칸과 안내"
       ],
       "tag-diary:empty": [
-        "test/flows/tag_diary_flow_test.dart:209 empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다"
+        "test/flows/tag_diary_flow_test.dart:211 empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다"
       ],
       "tag-diary:error": [
-        "test/flows/tag_diary_flow_test.dart:249 error: 목록을 받지 못하면 오류 화면과 다시 시도"
+        "test/flows/tag_diary_flow_test.dart:251 error: 목록을 받지 못하면 오류 화면과 다시 시도"
       ],
       "tag-diary:loading": [
-        "test/flows/tag_diary_flow_test.dart:230 loading: 목록을 받는 동안 skeleton, 오면 줄"
+        "test/flows/tag_diary_flow_test.dart:232 loading: 목록을 받는 동안 skeleton, 오면 줄"
       ],
       "today:error": [
-        "test/flows/today_flow_test.dart:528 daily-error: 오류 화면과 다시 시도"
+        "test/flows/today_flow_test.dart:487 daily-error: 오류 화면과 다시 시도"
       ],
       "today:loading": [
-        "test/flows/today_flow_test.dart:501 loading: 화면을 연 채 날짜가 바뀌면 새 응답을 받는 동안 skeleton입니다"
+        "test/flows/today_flow_test.dart:460 loading: 화면을 연 채 날짜가 바뀌면 새 응답을 받는 동안 skeleton입니다"
       ],
       "today:offline": [
-        "test/flows/today_flow_test.dart:538 offline: 받아 둔 오늘 풀이와 배너, 연결이 돌아와 다시 받으면 배너가 사라집니다"
+        "test/flows/today_flow_test.dart:497 offline: 받아 둔 오늘 풀이와 배너, 연결이 돌아와 다시 받으면 배너가 사라집니다"
       ],
       "today:time-unknown": [
-        "test/flows/today_flow_test.dart:564 member-time-unknown: 시간 모름 배너"
+        "test/flows/today_flow_test.dart:523 member-time-unknown: 시간 모름 배너"
       ]
     }
   },
@@ -473,24 +497,24 @@
     ],
     "coveredBy": {
       "D47": [
-        "test/flows/diary_list_flow_test.dart:94 member: 달 머리 아래 일기 줄(날짜 내림차순)과 배지·대표 태그",
+        "test/flows/diary_list_flow_test.dart:105 member: 달 머리 아래 일기 줄(날짜 내림차순)과 배지·대표 태그",
         "test/flows/event_edit_flow_test.dart:80 새 일정을 저장하면 닫히고 보이는 달 범위를 다시 받아 점이 갱신됩니다 (A34)",
-        "test/flows/tag_diary_flow_test.dart:144 제목은 태그 이름, 뜻 한 줄, 그 태그의 일기 줄",
-        "test/flows/today_flow_test.dart:329 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다",
+        "test/flows/tag_diary_flow_test.dart:143 제목은 태그 이름, 뜻 한 줄, 그 태그의 일기 줄",
+        "test/flows/today_flow_test.dart:301 member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다",
         "patrol_test/calendar_test.dart:76 member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다"
       ],
       "D49": [
-        "test/flows/day_sheet_flow_test.dart:146 member: 일기 쓰기 → diary-edit, 돌아오면 일기 여부를 다시 묻습니다",
-        "test/flows/day_sheet_flow_test.dart:191 member: 미래 날은 일기 입구가 없습니다(D49)",
-        "test/flows/diary_edit_flow_test.dart:135 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
-        "test/flows/diary_list_flow_test.dart:198 날짜 골라 쓰기: 미래는 막고, 일기 있는 날은 보기·없는 날은 쓰기",
+        "test/flows/day_sheet_flow_test.dart:117 member: 일기 쓰기 → 새 일기 저장, 돌아오면 그날 일기 줄과 새 일기 쓰기",
+        "test/flows/day_sheet_flow_test.dart:219 member: 미래 날은 일기 입구가 없습니다(D49)",
+        "test/flows/diary_edit_flow_test.dart:155 쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view",
+        "test/flows/diary_list_flow_test.dart:266 날짜 골라 쓰기: 미래는 막고, 이미 쓴 날도 그날 새 일기",
         "patrol_test/diary_test.dart:44 member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다"
       ],
       "D50": [
         "test/flows/consent_flow_test.dart:165 new-user: 미리보기 뒤 동의하면 프로필을 저장하고 notify-ask",
         "test/flows/consent_flow_test.dart:248 consent-renewal: 약관 개정 동의 뒤 프로필 저장 없이 today로 갑니다",
         "test/flows/launch_flow_test.dart:42 new-user 시나리오는 welcome 화면에 도착합니다",
-        "test/flows/login_flow_test.dart:115 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
+        "test/flows/login_flow_test.dart:116 new-user: 미리보기 뒤 카카오 로그인 → 새 계정이라 consent",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/onboarding_flow_test.dart:106 onboard-call: 빈 호칭은 막고 10자까지만 받으며 다음에서 호칭을 저장합니다",
         "test/flows/preview_flow_test.dart:44 new-user: skeleton 뒤 용신의 날 배지와 총운 문장, 저장하고 계속하기 → login",
@@ -500,16 +524,17 @@
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "D53": [
-        "test/flows/login_flow_test.dart:138 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
+        "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
-        "test/flows/settings_flow_test.dart:485 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
+        "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "D60": [
-        "test/flows/me_journey_flow_test.dart:138 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
-        "test/flows/saju_chart_flow_test.dart:316 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)",
-        "test/flows/today_flow_test.dart:578 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
+        "test/flows/me_journey_flow_test.dart:212 나의 사주 → 근거 보기 → 사주 표(만세력·대운 → 원국) → 용어 → 풀이 → 근거",
+        "test/flows/me_journey_flow_test.dart:402 정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)",
+        "test/flows/saju_chart_flow_test.dart:310 잠긴 용신 판정 근거의 \"열기\" → 근거 시트(잠김)",
+        "test/flows/today_flow_test.dart:537 reward-unlock: 근거 시트 → 광고 제거권 안내, 광고 보고 열기 → 확인 → 다시 받아 열림",
         "patrol_test/me_test.dart:61",
         "patrol_test/today_test.dart:38 reward-unlock: 용어 칩 → 풀이 → 근거 → 광고 보고 열기 → 좋아요, 다크에서도 공유 미리보기는 라이트"
       ]
@@ -519,7 +544,7 @@
     "launch": {
       "exits": {
         "covered": 3,
-        "total": 4
+        "total": 6
       },
       "states": {
         "covered": 1,
@@ -608,8 +633,8 @@
     },
     "login": {
       "exits": {
-        "covered": 3,
-        "total": 3
+        "covered": 5,
+        "total": 5
       },
       "states": {
         "covered": 1,
@@ -809,7 +834,7 @@
     "settings": {
       "exits": {
         "covered": 7,
-        "total": 7
+        "total": 8
       },
       "states": {
         "covered": 0,
@@ -819,7 +844,7 @@
     "ad-free": {
       "exits": {
         "covered": 0,
-        "total": 2
+        "total": 3
       },
       "states": {
         "covered": 0,
@@ -834,6 +859,16 @@
       "states": {
         "covered": 0,
         "total": 0
+      }
+    },
+    "purchase-history": {
+      "exits": {
+        "covered": 0,
+        "total": 0
+      },
+      "states": {
+        "covered": 0,
+        "total": 4
       }
     },
     "system-rewarded-ad": {
@@ -864,6 +899,26 @@
       "states": {
         "covered": 0,
         "total": 0
+      }
+    },
+    "login-methods": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 1
+      }
+    },
+    "account-merge": {
+      "exits": {
+        "covered": 0,
+        "total": 1
+      },
+      "states": {
+        "covered": 0,
+        "total": 2
       }
     },
     "account-delete": {

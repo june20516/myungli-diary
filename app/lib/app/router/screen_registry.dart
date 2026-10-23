@@ -27,6 +27,7 @@ import 'package:myungli_diary/features/onboarding/presentation/welcome_screen.da
 import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
 import 'package:myungli_diary/features/profile/presentation/profile_edit_screen.dart';
 import 'package:myungli_diary/features/purchase/presentation/ad_free_screen.dart';
+import 'package:myungli_diary/features/purchase/presentation/purchase_history_screen.dart';
 import 'package:myungli_diary/features/schedule/presentation/event_edit_screen.dart';
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
@@ -201,6 +202,11 @@ final Map<String, ScreenSpec> _implementedScreens = {
     handledStates: adFreeHandledStates,
     exits: adFreeExits,
   ),
+  ScreenIds.purchaseHistory: const ScreenSpec(
+    ScreenIds.purchaseHistory,
+    _buildPurchaseHistory,
+    handledStates: purchaseHistoryHandledStates,
+  ),
   ScreenIds.legal: const ScreenSpec(ScreenIds.legal, _buildLegal),
   ScreenIds.eventEdit: const ScreenSpec(
     ScreenIds.eventEdit,
@@ -223,6 +229,9 @@ final Map<String, ScreenSpec> screenRegistry = {
 };
 
 Widget _buildAdFree(BuildContext context) => const AdFreeScreen();
+
+Widget _buildPurchaseHistory(BuildContext context) =>
+    const PurchaseHistoryScreen();
 
 Widget _buildLaunch(BuildContext context) => const LaunchScreen();
 

@@ -20,6 +20,9 @@ import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -36,6 +39,7 @@ import '../support/depth_link_finders.dart';
 import '../support/golden.dart';
 import '../support/onboarding_steps.dart';
 import '../support/profile_network.dart';
+import '../support/purchase_network.dart';
 
 final bool _enabled = Platform.environment['MYUNGLI_SCREENSHOTS'] == '1';
 
@@ -69,6 +73,28 @@ final class _Shot {
   final String scenario;
   final _Open open;
   final List<Override> overrides;
+}
+
+/// `sync`가 끝나지 않는 구매 대역(구매 내역이 받는 중인 채로 찍음).
+final class _HeldSync implements Purchases {
+  new();
+
+  final inner = FakePurchases();
+
+  @override
+  Future<void> logIn(String accountId) async {}
+
+  @override
+  Future<void> logOut() async {}
+
+  @override
+  Future<void> sync() => Completer<void>().future;
+
+  @override
+  Future<List<StoreProduct>> products() => inner.products();
+
+  @override
+  Future<PurchaseOutcome> buy(String productId) => inner.buy(productId);
 }
 
 /// 앱이 진입 화면에 도착한 채로 둡니다.
@@ -189,6 +215,33 @@ _Open _settings({Future<void> Function(WidgetTester tester)? after}) =>
       await pumpUntilScreen(tester, ScreenIds.settings);
       await settleWithIo(tester);
       await after?.call(tester);
+    };
+
+/// 구매 내역을 엽니다. [network]는 대역 서버 앞에 끼우고, [hold]면 받는 중(skeleton)에서 멈춥니다.
+_Open _purchaseHistory({Interceptor? network, bool hold = false}) =>
+    (tester, container) async {
+      if (network != null) {
+        final interceptors = container.read(dioProvider).interceptors;
+        interceptors.insert(interceptors.length - 1, network);
+      }
+      unawaited(
+        container
+            .read(routerProvider)
+            .push<void>(pathOf(ScreenIds.purchaseHistory)),
+      );
+      await pumpUntilScreen(tester, ScreenIds.purchaseHistory);
+      if (hold) {
+        // 받는 중 skeleton이 숨 쉬는 채로 찍습니다.
+        await tester.pump(const Duration(seconds: 1));
+        return;
+      }
+      await pumpUntil(
+        tester,
+        () => find
+            .byKey(const ValueKey('screen-state.loading'))
+            .evaluate()
+            .isEmpty,
+      );
     };
 
 Future<void> _tapAndSettle(WidgetTester tester, Finder finder) async {
@@ -433,6 +486,27 @@ final List<_Shot> _shots = [
     'logout-confirm',
     'member',
     _settings(after: _settingsLogout),
+  ),
+  _Shot('purchase-history', 'default', 'ad-free-active', _purchaseHistory()),
+  _Shot('purchase-history', 'empty', 'member', _purchaseHistory()),
+  _Shot(
+    'purchase-history',
+    'loading',
+    'ad-free-active',
+    _purchaseHistory(hold: true),
+    overrides: [purchasesProvider.overrideWithValue(_HeldSync())],
+  ),
+  _Shot(
+    'purchase-history',
+    'error',
+    'ad-free-active',
+    _purchaseHistory(network: listPurchasesFailing(1, serverFailure)),
+  ),
+  _Shot(
+    'purchase-history',
+    'offline',
+    'ad-free-active',
+    _purchaseHistory(network: listPurchasesFailing(1, offlineFailure)),
   ),
   _Shot('profile-edit', 'default', 'member', _profileEdit()),
   _Shot(

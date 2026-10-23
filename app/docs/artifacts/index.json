@@ -756,5 +756,75 @@
     "decisions": [],
     "status": "draft",
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.default.2026-10-23",
+    "title": "purchase-history (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-default.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.empty.2026-10-23",
+    "title": "purchase-history (empty) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-empty.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "empty 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.error.2026-10-23",
+    "title": "purchase-history (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-error.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.loading.2026-10-23",
+    "title": "purchase-history (loading) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-loading.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.offline.2026-10-23",
+    "title": "purchase-history (offline) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-offline.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "offline 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   }
 ]
