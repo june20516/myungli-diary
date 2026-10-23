@@ -82,7 +82,7 @@ func TestGetBirthHour_SendsSeoulFixedGenderWithoutLongitude(t *testing.T) {
 			assert.EqualValues(t, 0, birth.GetTime().GetHour())
 			assert.EqualValues(t, 10, birth.GetTime().GetMinute())
 			assert.Equal(t, "Asia/Seoul", birth.GetTimezone())
-			assert.Equal(t, enginev1.Gender_GENDER_MALE, birth.GetGender())
+			assert.Equal(t, enginev1.Gender_GENDER_UNSPECIFIED, birth.GetGender())
 			assert.Nil(t, birth.Longitude)
 		})
 	}
