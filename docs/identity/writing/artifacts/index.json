@@ -284,5 +284,42 @@
     ],
     "status": "chosen",
     "note": "merge.token_invalid는 errorMergeTokenInvalid(가져올 계정 다시 인증), errorAuthIdentityPendingDeletion 삭제"
+  },
+  {
+    "id": "round-R18",
+    "title": "라운드 R18 — 공적인 사실 문장의 맺음 (W43)",
+    "kind": "copy-sample",
+    "file": "2026-10-23-round-R18.md",
+    "date": "2026-10-23",
+    "milestone": "W1",
+    "screens": [
+      "calc-basis",
+      "account-delete"
+    ],
+    "decisions": [
+      "W43"
+    ],
+    "status": "chosen",
+    "note": "계산 규칙·삭제 고지 문장을 문장마다 합니다체로, 주의·말 거는 문장은 해요체 그대로"
+  },
+  {
+    "id": "round-R19",
+    "title": "라운드 R19 — 다른 화면의 규칙·고지 문장 (W43)",
+    "kind": "copy-sample",
+    "file": "2026-10-23-round-R19.md",
+    "date": "2026-10-23",
+    "milestone": "W1",
+    "screens": [
+      "account-merge",
+      "diary-view",
+      "onboard-birth",
+      "birthplace",
+      "profile-edit"
+    ],
+    "decisions": [
+      "W43"
+    ],
+    "status": "chosen",
+    "note": "되돌릴 수 없다는 고지·계산 기준 문장을 문장마다 합니다체로, 엔진 안내는 그대로"
   }
 ]
