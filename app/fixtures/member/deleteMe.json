@@ -1,6 +1,3 @@
 {
-  "status": 202,
-  "body": {
-    "deletionScheduledAt": "2026-11-12T15:00:00Z"
-  }
+  "status": 204
 }

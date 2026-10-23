@@ -17,7 +17,6 @@ _spec.loader.exec_module(validate_fixtures)
 def _me_body(**overrides):
     body = {
         "accountId": "0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10",
-        "status": "active",
         "consentRequired": False,
         "requiredConsents": [],
         "hasProfile": True,
@@ -94,11 +93,11 @@ class ValidateFixtureTest(unittest.TestCase):
             "getMe",
             {
                 "status": 200,
-                "body": _me_body(status="pending_deletion", deletionScheduledAt="내일"),
+                "body": _me_body(adFree={"active": True, "expiresAt": "내일"}),
             },
         )
         self.assertEqual(len(errors), 1)
-        self.assertIn("/body/deletionScheduledAt", errors[0])
+        self.assertIn("/body/adFree/expiresAt", errors[0])
 
     def test_sequence_validates_every_response(self):
         problem = {

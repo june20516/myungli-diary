@@ -76,3 +76,4 @@ app 안의 결정입니다(번호 `A<n>`, `docs/workflow.md` §4). 마일스톤 
 | A70 | 2026-10-22 | 데이터 | 달력 도장은 `nextCursor`를 끝까지 따라 받습니다. A33의 "한 쪽으로 끝남"을 대신합니다. | [일기 하루 여러 편 spec](specs/2026-10-22-diary-multi-design.md), D83 |
 | A71 | 2026-10-22 | 통신·화면 | 새 일기 저장은 화면 상태마다 `Idempotency-Key` 하나이고, `diary.day_full`은 초안을 남기고 오류 문구로 알립니다. | [일기 하루 여러 편 spec](specs/2026-10-22-diary-multi-design.md), D83 |
 | A72 | 2026-10-22 | 화면 | 일기 줄 모양은 design 컴포넌트 2.8.0(V42·V43)을 따릅니다. 목록·태그 모아보기는 같은 날을 `diary-row` `day` 묶음 카드 하나로, 오늘·그날 시트는 `entries`(시각 + 한 줄 미리보기)로 그립니다. A69의 "#410 전까지 지금 `diary-row`"를 대신합니다(§13). | [일기 하루 여러 편 spec](specs/2026-10-22-diary-multi-design.md) §13, D83 |
+| A73 | 2026-10-23 | 계정 | 계정 삭제는 `deleteMe` 204 뒤 server `logout` 없이 로컬 로그아웃(`TokenStore.signOut`)만 하고, 401이면 이미 지워진 것으로 보고 같게 처리합니다. 진입 계산의 삭제 대기 갈래(`isPendingDeletion`)를 지웁니다. A63을 대신합니다. | [d85-d88 spec](specs/2026-10-23-d85-d88-design.md) §3, 사용자 영향: D85 |

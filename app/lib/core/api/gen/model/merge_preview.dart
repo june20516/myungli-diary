@@ -3,7 +3,7 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:myungli_diary/core/api/gen/model/merge_account_summary.dart';
+import 'package:myungli_diary/core/api/gen/model/merge_summary.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -19,35 +19,35 @@ part 'merge_preview.g.dart';
 class MergePreview {
   /// Returns a new [MergePreview] instance.
   MergePreview({
-    required this.current,
+    required this.mergeToken,
 
-    required this.other,
+    required this.expiresAt,
 
-    required this.overlapDayCount,
+    required this.summary,
   });
 
-  @JsonKey(name: r'current', required: true, includeIfNull: false)
-  final MergeAccountSummary current;
+  /// 합치기 토큰(랜덤 32바이트, base64url 패딩 없음). 일회용이고 현재 유저 계정의 bearer만 `mergeAccounts`에 쓸 수 있습니다. URL에 넣지 않습니다.
+  @JsonKey(name: r'mergeToken', required: true, includeIfNull: false)
+  final String mergeToken;
 
-  @JsonKey(name: r'other', required: true, includeIfNull: false)
-  final MergeAccountSummary other;
+  /// 합치기 토큰 만료 시각(발급 + 10분)
+  @JsonKey(name: r'expiresAt', required: true, includeIfNull: false)
+  final DateTime expiresAt;
 
-  /// 두 계정 모두 살아 있는 일기가 있는 날짜 수. 0이면 app은 겹치는 날 안내를 보이지 않습니다.
-  // minimum: 0
-  @JsonKey(name: r'overlapDayCount', required: true, includeIfNull: false)
-  final int overlapDayCount;
+  @JsonKey(name: r'summary', required: true, includeIfNull: false)
+  final MergeSummary summary;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MergePreview &&
-          other.current == current &&
-          other.other == other &&
-          other.overlapDayCount == overlapDayCount;
+          other.mergeToken == mergeToken &&
+          other.expiresAt == expiresAt &&
+          other.summary == summary;
 
   @override
   int get hashCode =>
-      current.hashCode + other.hashCode + overlapDayCount.hashCode;
+      mergeToken.hashCode + expiresAt.hashCode + summary.hashCode;
 
   factory MergePreview.fromJson(Map<String, dynamic> json) =>
       _$MergePreviewFromJson(json);

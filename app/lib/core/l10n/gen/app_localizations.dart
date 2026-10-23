@@ -1096,10 +1096,10 @@ abstract class AppLocalizations {
   /// **'계정 지우기'**
   String get accountDeleteCtaDelete;
 
-  /// account-delete.data.body: 지워지는 데이터 안내
+  /// account-delete.data.body: 지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 따로 보관한다는 한 줄, D88 ③④)
   ///
   /// In ko, this message translates to:
-  /// **'계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.'**
+  /// **'계정을 지우면 사주 정보, 일기, 태그, 일정, 구매한 상품의 남은 기간이 모두 지워지며 되돌릴 수 없습니다. 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 동안 따로 보관합니다.'**
   String get accountDeleteDataBody;
 
   /// account-delete.delete.confirm: 최종 확인
@@ -2214,10 +2214,10 @@ abstract class AppLocalizations {
   /// **'계정 합치기'**
   String get accountMergeBarTitle;
 
-  /// account-merge.choice.label: 남길 계정을 고르라는 안내
+  /// account-merge.choice.label: 프로필(사주 정보·호칭·설정)을 어느 계정 것으로 둘지 고르라는 안내. 남는 계정은 언제나 지금 계정
   ///
   /// In ko, this message translates to:
-  /// **'남길 계정을 골라 주세요'**
+  /// **'어느 계정의 사주 정보를 쓸까요?'**
   String get accountMergeChoiceLabel;
 
   /// account-merge.cta.cancel: 합치지 않기
@@ -2256,16 +2256,16 @@ abstract class AppLocalizations {
   /// **'같은 날 쓴 일기도 모두 이 계정으로 옮겨요.'**
   String get accountMergeOverlapNotice;
 
-  /// account-merge.title.body: 합치면 무엇이 남고 옮겨지는지 설명(사주 정보·호칭·설정은 고른 계정, 일기는 같은 날 것까지 모두, 광고 제거 기간은 더함)
+  /// account-merge.title.body: 합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록과 구매는 이 계정으로, 프로필은 고른 쪽, 합칠 계정과 그 인증 수단은 지워짐, 용어는 D85 ①). 옮길 기록이 0건이어도 보임. 가져올 기록은 일기 편수·일정 개수(0이어도)와 광고 제거 남은 기간(남았을 때만)으로 보임
   ///
   /// In ko, this message translates to:
-  /// **'합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.'**
+  /// **'가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.'**
   String get accountMergeTitleBody;
 
-  /// account-merge.title.head: 두 계정을 하나로 합친다는 제목
+  /// account-merge.title.head: 다른 계정의 기록을 이 계정으로 가져와 합친다는 제목
   ///
   /// In ko, this message translates to:
-  /// **'두 계정을 하나로 합칠까요?'**
+  /// **'다른 계정의 기록을 이 계정으로 가져올까요?'**
   String get accountMergeTitleHead;
 
   /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
@@ -2346,7 +2346,7 @@ abstract class AppLocalizations {
   /// **'일기 {count, plural, other{{count}편}}'**
   String accountChoiceDiaryCount(int count);
 
-  /// 계정 합치기 화면(account-merge) account-choice: 계정 요약 낱말(일기 수, 지금 로그인한 계정 표시)
+  /// 계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)
   ///
   /// In ko, this message translates to:
   /// **'현재 계정'**
@@ -2469,20 +2469,176 @@ abstract class AppLocalizations {
   /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
   ///
   /// In ko, this message translates to:
-  /// **'삭제 대기 중인 계정에 연결되어 있어요.'**
-  String get errorAuthIdentityPendingDeletion;
+  /// **'인증 수단이 하나는 남아 있어야 해요.'**
+  String get errorAuthLastIdentity;
+
+  /// account-merge.auth.body: 합칠 계정에 연결된 인증 수단으로 로그인하라는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'기록을 가져올 계정을 인증해 주세요.'**
+  String get accountMergeAuthBody;
+
+  /// account-merge.not-other.body: 인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 계정의 인증 수단으로 로그인했어요. 가져올 계정의 인증 수단으로 다시 로그인해 주세요.'**
+  String get accountMergeNotOtherBodySelf;
+
+  /// account-merge.not-other.body: 인증한 수단이 이 계정 것이면 합칠 계정의 인증 수단으로 다시 로그인하라는 안내, 어느 계정에도 연결돼 있지 않으면 합칠 계정이 없다는 안내(D85 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'이 인증 수단에 연결된 계정이 없어요.'**
+  String get accountMergeNotOtherBodyNone;
+
+  /// ad-free.history.cta: 구매 내역으로 가는 버튼(D88 ②)
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 내역'**
+  String get adFreeHistoryCta;
+
+  /// calc-basis.daeun.body: 대운수는 개월을 버려 센다는 안내(core C5, D86 ⑦). 다른 앱과의 차이는 말하지 않음
+  ///
+  /// In ko, this message translates to:
+  /// **'대운수는 개월을 버리고 셉니다.'**
+  String get calcBasisDaeunBody;
+
+  /// login-methods.in-use.body: 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결할 수 없다는 안내와, 그 계정에서 먼저 연결을 끊으라는 안내. 합치기 길은 같은 화면의 `merge.cta`가 맡음(D85 ③)
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 다른 계정에서 쓰는 인증 수단이에요. 그 계정에서 연결을 끊은 뒤 다시 연결해 주세요.'**
+  String get loginMethodsInUseBody;
+
+  /// login-methods.merge.cta: 계정 합치기로 가는 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 계정의 기록 가져오기'**
+  String get loginMethodsMergeCta;
+
+  /// preview.restart.notice: 다시 입력할 때, 미리보기는 한 번이라 고친 정보로 이어 보려면 로그인을 권하는 안내. 막는다는 말보다 권하는 말(D86 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 입력한 정보로 풀이를 보려면 로그인해 보세요.'**
+  String get previewRestartNotice;
+
+  /// purchase-history.bar.title: app-bar 제목(화면 이름 "구매 내역")
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 내역'**
+  String get purchaseHistoryBarTitle;
+
+  /// purchase-history.empty.body: 구매가 없을 때의 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 내역이 없어요.'**
+  String get purchaseHistoryEmptyBody;
+
+  /// purchase-history.missing.notice: 결제했는데 목록에 없으면 문의하라는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'결제한 상품이 보이지 않으면 문의해 주세요.'**
+  String get purchaseHistoryMissingNotice;
+
+  /// 계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)
+  ///
+  /// In ko, this message translates to:
+  /// **'가져올 계정'**
+  String get accountChoiceOther;
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'가져올 기록'**
+  String get accountMergeSummaryHead;
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'일기'**
+  String get accountMergeSummaryDiary;
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'일정'**
+  String get accountMergeSummaryEvent;
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 제거 남은 기간'**
+  String get accountMergeSummaryAdFree;
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'{count, plural, other{{count}편}}'**
+  String accountMergeSummaryDiaryCount(int count);
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'{count, plural, other{{count}개}}'**
+  String accountMergeSummaryEventCount(int count);
+
+  /// 계정 합치기 화면(account-merge) 요약·고르기 단계: "가져올 기록" 상자의 머리, 줄 이름, 값(design #509)
+  ///
+  /// In ko, this message translates to:
+  /// **'{days, plural, other{{days}일}}'**
+  String accountMergeSummaryAdFreeDays(int days);
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄
+  ///
+  /// In ko, this message translates to:
+  /// **'{date} 구매'**
+  String purchaseMetaPurchased(String date);
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄
+  ///
+  /// In ko, this message translates to:
+  /// **'{start}~{end}'**
+  String purchaseMetaPeriod(String start, String end);
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄
+  ///
+  /// In ko, this message translates to:
+  /// **' · '**
+  String get purchaseMetaSeparator;
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 상품 이름. 상품 종류마다 키 하나이고 app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 제거 1개월'**
+  String get purchaseProductAdFreeMonth;
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 중'**
+  String get purchaseStatusActive;
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 전'**
+  String get purchaseStatusPending;
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  ///
+  /// In ko, this message translates to:
+  /// **'만료'**
+  String get purchaseStatusExpired;
+
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  ///
+  /// In ko, this message translates to:
+  /// **'환불'**
+  String get purchaseStatusRefunded;
 
   /// 오류 상태·토스트: server 오류 코드(`server/api/openapi.yaml`)별 안내. 키 이름은 app이 오류 코드에서 만든 이름입니다
   ///
   /// In ko, this message translates to:
-  /// **'인증 수단이 하나는 남아 있어야 해요.'**
-  String get errorAuthLastIdentity;
-
-  /// ad-free.restore.cta: 구매 복원
-  ///
-  /// In ko, this message translates to:
-  /// **'구매 복원'**
-  String get adFreeRestoreCta;
+  /// **'계정 합치기를 이어 가지 못했어요. 가져올 계정을 다시 인증해 주세요.'**
+  String get errorMergeTokenInvalid;
 }
 
 class _AppLocalizationsDelegate

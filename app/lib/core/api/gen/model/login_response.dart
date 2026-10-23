@@ -24,8 +24,6 @@ class LoginResponse {
     required this.isNewAccount,
 
     required this.consentRequired,
-
-    required this.restoredFromDeletion,
   });
 
   @JsonKey(name: r'tokens', required: true, includeIfNull: false)
@@ -37,25 +35,17 @@ class LoginResponse {
   @JsonKey(name: r'consentRequired', required: true, includeIfNull: false)
   final bool consentRequired;
 
-  /// 삭제 대기 중이던 계정이 이 로그인으로 되돌아왔는지
-  @JsonKey(name: r'restoredFromDeletion', required: true, includeIfNull: false)
-  final bool restoredFromDeletion;
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is LoginResponse &&
           other.tokens == tokens &&
           other.isNewAccount == isNewAccount &&
-          other.consentRequired == consentRequired &&
-          other.restoredFromDeletion == restoredFromDeletion;
+          other.consentRequired == consentRequired;
 
   @override
   int get hashCode =>
-      tokens.hashCode +
-      isNewAccount.hashCode +
-      consentRequired.hashCode +
-      restoredFromDeletion.hashCode;
+      tokens.hashCode + isNewAccount.hashCode + consentRequired.hashCode;
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) =>
       _$LoginResponseFromJson(json);

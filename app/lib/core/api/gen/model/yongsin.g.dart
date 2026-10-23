@@ -157,7 +157,11 @@ Yongsin _$YongsinFromJson(Map<String, dynamic> json) => $checkedCreate(
       ),
       method: $checkedConvert(
         'method',
-        (v) => $enumDecode(_$YongsinMethodEnumMap, v),
+        (v) => $enumDecode(
+          _$YongsinMethodEnumMap,
+          v,
+          unknownValue: YongsinMethod.unknownDefaultOpenApi,
+        ),
       ),
       johuStem: $checkedConvert(
         'johuStem',
@@ -194,6 +198,7 @@ const _$YongsinMethodEnumMap = {
   YongsinMethod.johu: 'johu',
   YongsinMethod.johuNeutral: 'johu_neutral',
   YongsinMethod.eokbu: 'eokbu',
+  YongsinMethod.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 
 const _$StemEnumMap = {

@@ -23,10 +23,6 @@ class Me {
   Me({
     required this.accountId,
 
-    required this.status,
-
-    this.deletionScheduledAt,
-
     required this.consentRequired,
 
     required this.requiredConsents,
@@ -40,13 +36,6 @@ class Me {
 
   @JsonKey(name: r'accountId', required: true, includeIfNull: false)
   final String accountId;
-
-  @JsonKey(name: r'status', required: true, includeIfNull: false)
-  final MeStatusEnum status;
-
-  /// `status`가 `pending_deletion`일 때만 있습니다.
-  @JsonKey(name: r'deletionScheduledAt', required: false, includeIfNull: false)
-  final DateTime? deletionScheduledAt;
 
   @JsonKey(name: r'consentRequired', required: true, includeIfNull: false)
   final bool consentRequired;
@@ -69,8 +58,6 @@ class Me {
       identical(this, other) ||
       other is Me &&
           other.accountId == accountId &&
-          other.status == status &&
-          other.deletionScheduledAt == deletionScheduledAt &&
           other.consentRequired == consentRequired &&
           other.requiredConsents == requiredConsents &&
           other.hasProfile == hasProfile &&
@@ -80,8 +67,6 @@ class Me {
   @override
   int get hashCode =>
       accountId.hashCode +
-      status.hashCode +
-      deletionScheduledAt.hashCode +
       consentRequired.hashCode +
       requiredConsents.hashCode +
       hasProfile.hashCode +
@@ -96,18 +81,4 @@ class Me {
   String toString() {
     return toJson().toString();
   }
-}
-
-enum MeStatusEnum {
-  @JsonValue(r'active')
-  active(r'active'),
-  @JsonValue(r'pending_deletion')
-  pendingDeletion(r'pending_deletion');
-
-  const MeStatusEnum(this.value);
-
-  final String value;
-
-  @override
-  String toString() => value;
 }

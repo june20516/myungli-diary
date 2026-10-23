@@ -120,7 +120,14 @@ Glossary _$GlossaryFromJson(
   );
   final val = Glossary(
     seedVersion: $checkedConvert('seedVersion', (v) => v as String),
-    lang: $checkedConvert('lang', (v) => $enumDecode(_$LanguageEnumMap, v)),
+    lang: $checkedConvert(
+      'lang',
+      (v) => $enumDecode(
+        _$LanguageEnumMap,
+        v,
+        unknownValue: Language.unknownDefaultOpenApi,
+      ),
+    ),
     values: $checkedConvert(
       'values',
       (v) => (v as Map<String, dynamic>).map(
@@ -150,4 +157,5 @@ const _$LanguageEnumMap = {
   Language.ko: 'ko',
   Language.en: 'en',
   Language.ja: 'ja',
+  Language.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

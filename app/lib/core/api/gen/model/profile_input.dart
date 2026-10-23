@@ -36,7 +36,12 @@ class ProfileInput {
   @JsonKey(name: r'honorific', required: true, includeIfNull: false)
   final String honorific;
 
-  @JsonKey(name: r'language', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'language',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: Language.unknownDefaultOpenApi,
+  )
   final Language language;
 
   /// 현재 기기 시간대 IANA 이름. \"오늘\"의 기준입니다.

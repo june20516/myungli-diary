@@ -7,11 +7,11 @@ part of 'merge_preview.dart';
 // **************************************************************************
 
 abstract class _$MergePreviewCWProxy {
-  MergePreview current(MergeAccountSummary current);
+  MergePreview mergeToken(String mergeToken);
 
-  MergePreview other(MergeAccountSummary other);
+  MergePreview expiresAt(DateTime expiresAt);
 
-  MergePreview overlapDayCount(int overlapDayCount);
+  MergePreview summary(MergeSummary summary);
 
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
@@ -22,9 +22,9 @@ abstract class _$MergePreviewCWProxy {
   /// MergePreview(...).copyWith(id: 12, name: "My name")
   /// ```
   MergePreview call({
-    MergeAccountSummary current,
-    MergeAccountSummary other,
-    int overlapDayCount,
+    String mergeToken,
+    DateTime expiresAt,
+    MergeSummary summary,
   });
 }
 
@@ -36,14 +36,13 @@ class _$MergePreviewCWProxyImpl implements _$MergePreviewCWProxy {
   final MergePreview _value;
 
   @override
-  MergePreview current(MergeAccountSummary current) => call(current: current);
+  MergePreview mergeToken(String mergeToken) => call(mergeToken: mergeToken);
 
   @override
-  MergePreview other(MergeAccountSummary other) => call(other: other);
+  MergePreview expiresAt(DateTime expiresAt) => call(expiresAt: expiresAt);
 
   @override
-  MergePreview overlapDayCount(int overlapDayCount) =>
-      call(overlapDayCount: overlapDayCount);
+  MergePreview summary(MergeSummary summary) => call(summary: summary);
 
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
@@ -55,25 +54,24 @@ class _$MergePreviewCWProxyImpl implements _$MergePreviewCWProxy {
   /// ```
   @override
   MergePreview call({
-    Object? current = const $CopyWithPlaceholder(),
-    Object? other = const $CopyWithPlaceholder(),
-    Object? overlapDayCount = const $CopyWithPlaceholder(),
+    Object? mergeToken = const $CopyWithPlaceholder(),
+    Object? expiresAt = const $CopyWithPlaceholder(),
+    Object? summary = const $CopyWithPlaceholder(),
   }) {
     return MergePreview(
-      current: current == const $CopyWithPlaceholder() || current == null
-          ? _value.current
+      mergeToken:
+          mergeToken == const $CopyWithPlaceholder() || mergeToken == null
+          ? _value.mergeToken
           // ignore: cast_nullable_to_non_nullable
-          : current as MergeAccountSummary,
-      other: other == const $CopyWithPlaceholder() || other == null
-          ? _value.other
+          : mergeToken as String,
+      expiresAt: expiresAt == const $CopyWithPlaceholder() || expiresAt == null
+          ? _value.expiresAt
           // ignore: cast_nullable_to_non_nullable
-          : other as MergeAccountSummary,
-      overlapDayCount:
-          overlapDayCount == const $CopyWithPlaceholder() ||
-              overlapDayCount == null
-          ? _value.overlapDayCount
+          : expiresAt as DateTime,
+      summary: summary == const $CopyWithPlaceholder() || summary == null
+          ? _value.summary
           // ignore: cast_nullable_to_non_nullable
-          : overlapDayCount as int,
+          : summary as MergeSummary,
     );
   }
 }
@@ -89,32 +87,24 @@ extension $MergePreviewCopyWith on MergePreview {
 // JsonSerializableGenerator
 // **************************************************************************
 
-MergePreview _$MergePreviewFromJson(Map<String, dynamic> json) =>
-    $checkedCreate('MergePreview', json, ($checkedConvert) {
-      $checkKeys(
-        json,
-        requiredKeys: const ['current', 'other', 'overlapDayCount'],
-      );
-      final val = MergePreview(
-        current: $checkedConvert(
-          'current',
-          (v) => MergeAccountSummary.fromJson(v as Map<String, dynamic>),
-        ),
-        other: $checkedConvert(
-          'other',
-          (v) => MergeAccountSummary.fromJson(v as Map<String, dynamic>),
-        ),
-        overlapDayCount: $checkedConvert(
-          'overlapDayCount',
-          (v) => (v as num).toInt(),
-        ),
-      );
-      return val;
-    });
+MergePreview _$MergePreviewFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('MergePreview', json, ($checkedConvert) {
+  $checkKeys(json, requiredKeys: const ['mergeToken', 'expiresAt', 'summary']);
+  final val = MergePreview(
+    mergeToken: $checkedConvert('mergeToken', (v) => v as String),
+    expiresAt: $checkedConvert('expiresAt', (v) => DateTime.parse(v as String)),
+    summary: $checkedConvert(
+      'summary',
+      (v) => MergeSummary.fromJson(v as Map<String, dynamic>),
+    ),
+  );
+  return val;
+});
 
 Map<String, dynamic> _$MergePreviewToJson(MergePreview instance) =>
     <String, dynamic>{
-      'current': instance.current.toJson(),
-      'other': instance.other.toJson(),
-      'overlapDayCount': instance.overlapDayCount,
+      'mergeToken': instance.mergeToken,
+      'expiresAt': instance.expiresAt.toIso8601String(),
+      'summary': instance.summary.toJson(),
     };

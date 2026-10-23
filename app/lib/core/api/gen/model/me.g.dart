@@ -9,10 +9,6 @@ part of 'me.dart';
 abstract class _$MeCWProxy {
   Me accountId(String accountId);
 
-  Me status(MeStatusEnum status);
-
-  Me deletionScheduledAt(DateTime? deletionScheduledAt);
-
   Me consentRequired(bool consentRequired);
 
   Me requiredConsents(List<ConsentDocument> requiredConsents);
@@ -33,8 +29,6 @@ abstract class _$MeCWProxy {
   /// ```
   Me call({
     String accountId,
-    MeStatusEnum status,
-    DateTime? deletionScheduledAt,
     bool consentRequired,
     List<ConsentDocument> requiredConsents,
     bool hasProfile,
@@ -52,13 +46,6 @@ class _$MeCWProxyImpl implements _$MeCWProxy {
 
   @override
   Me accountId(String accountId) => call(accountId: accountId);
-
-  @override
-  Me status(MeStatusEnum status) => call(status: status);
-
-  @override
-  Me deletionScheduledAt(DateTime? deletionScheduledAt) =>
-      call(deletionScheduledAt: deletionScheduledAt);
 
   @override
   Me consentRequired(bool consentRequired) =>
@@ -88,8 +75,6 @@ class _$MeCWProxyImpl implements _$MeCWProxy {
   @override
   Me call({
     Object? accountId = const $CopyWithPlaceholder(),
-    Object? status = const $CopyWithPlaceholder(),
-    Object? deletionScheduledAt = const $CopyWithPlaceholder(),
     Object? consentRequired = const $CopyWithPlaceholder(),
     Object? requiredConsents = const $CopyWithPlaceholder(),
     Object? hasProfile = const $CopyWithPlaceholder(),
@@ -101,14 +86,6 @@ class _$MeCWProxyImpl implements _$MeCWProxy {
           ? _value.accountId
           // ignore: cast_nullable_to_non_nullable
           : accountId as String,
-      status: status == const $CopyWithPlaceholder() || status == null
-          ? _value.status
-          // ignore: cast_nullable_to_non_nullable
-          : status as MeStatusEnum,
-      deletionScheduledAt: deletionScheduledAt == const $CopyWithPlaceholder()
-          ? _value.deletionScheduledAt
-          // ignore: cast_nullable_to_non_nullable
-          : deletionScheduledAt as DateTime?,
       consentRequired:
           consentRequired == const $CopyWithPlaceholder() ||
               consentRequired == null
@@ -155,7 +132,6 @@ Me _$MeFromJson(Map<String, dynamic> json) =>
         json,
         requiredKeys: const [
           'accountId',
-          'status',
           'consentRequired',
           'requiredConsents',
           'hasProfile',
@@ -165,14 +141,6 @@ Me _$MeFromJson(Map<String, dynamic> json) =>
       );
       final val = Me(
         accountId: $checkedConvert('accountId', (v) => v as String),
-        status: $checkedConvert(
-          'status',
-          (v) => $enumDecode(_$MeStatusEnumEnumMap, v),
-        ),
-        deletionScheduledAt: $checkedConvert(
-          'deletionScheduledAt',
-          (v) => v == null ? null : DateTime.parse(v as String),
-        ),
         consentRequired: $checkedConvert('consentRequired', (v) => v as bool),
         requiredConsents: $checkedConvert(
           'requiredConsents',
@@ -195,16 +163,9 @@ Me _$MeFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$MeToJson(Me instance) => <String, dynamic>{
   'accountId': instance.accountId,
-  'status': _$MeStatusEnumEnumMap[instance.status]!,
-  'deletionScheduledAt': ?instance.deletionScheduledAt?.toIso8601String(),
   'consentRequired': instance.consentRequired,
   'requiredConsents': instance.requiredConsents.map((e) => e.toJson()).toList(),
   'hasProfile': instance.hasProfile,
   'adFree': instance.adFree.toJson(),
   'insight': instance.insight.toJson(),
-};
-
-const _$MeStatusEnumEnumMap = {
-  MeStatusEnum.active: 'active',
-  MeStatusEnum.pendingDeletion: 'pending_deletion',
 };

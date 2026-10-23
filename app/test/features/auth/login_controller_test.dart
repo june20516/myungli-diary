@@ -35,7 +35,6 @@ LoginResponse _login({required bool isNewAccount}) => LoginResponse(
   tokens: _tokens,
   isNewAccount: isNewAccount,
   consentRequired: isNewAccount,
-  restoredFromDeletion: false,
 );
 
 Me _me({required bool hasProfile}) => Me.fromJson({

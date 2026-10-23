@@ -546,7 +546,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get accountDeleteDataBody =>
-      '계정을 지우면 사주 정보, 일기, 태그, 일정, 남은 광고 제거 기간이 모두 지워지고 되돌릴 수 없어요.';
+      '계정을 지우면 사주 정보, 일기, 태그, 일정, 구매한 상품의 남은 기간이 모두 지워지며 되돌릴 수 없습니다. 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 동안 따로 보관합니다.';
 
   @override
   String get accountDeleteDeleteConfirm => '정말 지울까요? 지운 계정은 되돌릴 수 없어요.';
@@ -1189,7 +1189,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountMergeBarTitle => '계정 합치기';
 
   @override
-  String get accountMergeChoiceLabel => '남길 계정을 골라 주세요';
+  String get accountMergeChoiceLabel => '어느 계정의 사주 정보를 쓸까요?';
 
   @override
   String get accountMergeCtaCancel => '합치지 않기';
@@ -1211,10 +1211,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get accountMergeTitleBody =>
-      '합치면 고른 계정의 사주 정보·호칭·설정이 남아요. 일기는 두 계정 것을 모두 옮기고, 남은 광고 제거 기간은 더해요. 고르지 않은 계정은 지워져요.';
+      '가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워져요. 구매도 이 계정으로 옮겨요.';
 
   @override
-  String get accountMergeTitleHead => '두 계정을 하나로 합칠까요?';
+  String get accountMergeTitleHead => '다른 계정의 기록을 이 계정으로 가져올까요?';
 
   @override
   String get daySheetDiaryWriteCtaWritten => '이날 새 일기 쓰기';
@@ -1330,11 +1330,117 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorAuthIdentityInUse => '다른 계정에 연결된 인증 수단이에요.';
 
   @override
-  String get errorAuthIdentityPendingDeletion => '삭제 대기 중인 계정에 연결되어 있어요.';
-
-  @override
   String get errorAuthLastIdentity => '인증 수단이 하나는 남아 있어야 해요.';
 
   @override
-  String get adFreeRestoreCta => '구매 복원';
+  String get accountMergeAuthBody => '기록을 가져올 계정을 인증해 주세요.';
+
+  @override
+  String get accountMergeNotOtherBodySelf =>
+      '지금 계정의 인증 수단으로 로그인했어요. 가져올 계정의 인증 수단으로 다시 로그인해 주세요.';
+
+  @override
+  String get accountMergeNotOtherBodyNone => '이 인증 수단에 연결된 계정이 없어요.';
+
+  @override
+  String get adFreeHistoryCta => '구매 내역';
+
+  @override
+  String get calcBasisDaeunBody => '대운수는 개월을 버리고 셉니다.';
+
+  @override
+  String get loginMethodsInUseBody =>
+      '이미 다른 계정에서 쓰는 인증 수단이에요. 그 계정에서 연결을 끊은 뒤 다시 연결해 주세요.';
+
+  @override
+  String get loginMethodsMergeCta => '다른 계정의 기록 가져오기';
+
+  @override
+  String get previewRestartNotice => '다시 입력한 정보로 풀이를 보려면 로그인해 보세요.';
+
+  @override
+  String get purchaseHistoryBarTitle => '구매 내역';
+
+  @override
+  String get purchaseHistoryEmptyBody => '구매 내역이 없어요.';
+
+  @override
+  String get purchaseHistoryMissingNotice => '결제한 상품이 보이지 않으면 문의해 주세요.';
+
+  @override
+  String get accountChoiceOther => '가져올 계정';
+
+  @override
+  String get accountMergeSummaryHead => '가져올 기록';
+
+  @override
+  String get accountMergeSummaryDiary => '일기';
+
+  @override
+  String get accountMergeSummaryEvent => '일정';
+
+  @override
+  String get accountMergeSummaryAdFree => '광고 제거 남은 기간';
+
+  @override
+  String accountMergeSummaryDiaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count편',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountMergeSummaryEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountMergeSummaryAdFreeDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days일',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String purchaseMetaPurchased(String date) {
+    return '$date 구매';
+  }
+
+  @override
+  String purchaseMetaPeriod(String start, String end) {
+    return '$start~$end';
+  }
+
+  @override
+  String get purchaseMetaSeparator => ' · ';
+
+  @override
+  String get purchaseProductAdFreeMonth => '광고 제거 1개월';
+
+  @override
+  String get purchaseStatusActive => '사용 중';
+
+  @override
+  String get purchaseStatusPending => '사용 전';
+
+  @override
+  String get purchaseStatusExpired => '만료';
+
+  @override
+  String get purchaseStatusRefunded => '환불';
+
+  @override
+  String get errorMergeTokenInvalid =>
+      '계정 합치기를 이어 가지 못했어요. 가져올 계정을 다시 인증해 주세요.';
 }

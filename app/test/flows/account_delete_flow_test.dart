@@ -96,7 +96,7 @@ void main() {
   });
 
   testWidgets(
-    '확인 창에서 취소하면 지우지 않고, 확정하면 deleteMe 한 번 → 로그아웃 정리 → welcome(A63)',
+    '확인 창에서 취소하면 지우지 않고, 확정하면 deleteMe 한 번 → 로컬 로그아웃 정리 → welcome(A73)',
     (tester) async {
       covers(const Covers(exits: ['account-delete>welcome']));
       final container = await _openAccountDelete(tester);
@@ -120,8 +120,8 @@ void main() {
       await pumpUntilScreen(tester, ScreenIds.welcome);
       await settleWithIo(tester);
       expect(_fake(container).callCountOf('deleteMe'), 1);
-      // 로그아웃은 revokeAndSignOut(server logout 시도 뒤 로컬 로그아웃)입니다.
-      expect(_fake(container).callCountOf('logout'), 1);
+      // 세션이 이미 지워졌으므로 server logout 없이 로컬 로그아웃만 합니다(A73).
+      expect(_fake(container).callCountOf('logout'), 0);
       expect(await container.read(tokenStoreProvider).hasSession(), isFalse);
       // 계정 삭제는 server가 기기를 모두 비활성으로 바꾸므로 따로 부르지 않습니다(계약 draft.11).
       expect(_fake(container).callCountOf('deleteDevice'), 0);

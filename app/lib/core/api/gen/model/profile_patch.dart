@@ -36,7 +36,12 @@ class ProfilePatch {
   @JsonKey(name: r'honorific', required: false, includeIfNull: false)
   final String? honorific;
 
-  @JsonKey(name: r'language', required: false, includeIfNull: false)
+  @JsonKey(
+    name: r'language',
+    required: false,
+    includeIfNull: false,
+    unknownEnumValue: Language.unknownDefaultOpenApi,
+  )
   final Language? language;
 
   /// 현재 기기 시간대 IANA 이름

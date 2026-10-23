@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/entry/entry_state.dart';
-import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
@@ -31,8 +30,7 @@ final targetPlatformProvider = Provider<TargetPlatform>(
 /// 설치 확인 → `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 설치 표시
 /// ([installedKey])가 없으면 다시 설치한 것이라 이전 설치의 토큰을 버립니다. 통신이 실패하면 오류 상태가
 /// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 남은 토큰을 지우고
-/// (`TokenStore.signOut`) 로그아웃으로 봅니다. 삭제 대기 계정이면 server에 토큰 폐기를
-/// 시도한 뒤 로그아웃합니다([revokeAndSignOut]). 어느 쪽이든 `signedOut` 이벤트가 나가
+/// (`TokenStore.signOut`) 로그아웃으로 봅니다. `signedOut` 이벤트가 나가
 /// 로컬 정리가 돕니다. 토큰 이벤트(로그아웃, 약관 동의 필요)를 받으면 다시 계산합니다.
 ///
 /// 이 계산이 내는 [meProvider]가 세션 복원과 로그인 뒤 계정 연결의 유일한 출처입니다
@@ -114,12 +112,6 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
         }
         return EntrySnapshot(EntryState.signedOut, null, config: config);
       }
-    }
-
-    if (me != null && isPendingDeletion(me)) {
-      // signOut 이벤트로 다시 계산되며, 그때는 세션이 없어 getMe를 부르지 않습니다.
-      await revokeAndSignOut(api: api, tokens: tokens);
-      return EntrySnapshot(EntryState.signedOut, null, config: config);
     }
 
     final notifyAskPending = await flags.readBool(notifyAskPendingKey);

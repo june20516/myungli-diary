@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:myungli_diary/core/api/gen/model/merge_profile.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -17,25 +18,24 @@ part 'merge_request.g.dart';
 )
 class MergeRequest {
   /// Returns a new [MergeRequest] instance.
-  MergeRequest({required this.mergeToken, required this.keep});
+  MergeRequest({required this.mergeToken, required this.profile});
 
-  /// `linkIdentity`의 409 `auth.identity_in_use`가 준 합치기 토큰
+  /// `previewMerge`가 준 합치기 토큰
   @JsonKey(name: r'mergeToken', required: true, includeIfNull: false)
   final String mergeToken;
 
-  /// 남길 계정. `current`는 요청한 bearer 계정, `other`는 붙이려던 연결을 가진 다른 계정입니다. 반대쪽이 없앨 계정입니다.
-  @JsonKey(name: r'keep', required: true, includeIfNull: false)
-  final MergeRequestKeepEnum keep;
+  @JsonKey(name: r'profile', required: true, includeIfNull: false)
+  final MergeProfile profile;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MergeRequest &&
           other.mergeToken == mergeToken &&
-          other.keep == keep;
+          other.profile == profile;
 
   @override
-  int get hashCode => mergeToken.hashCode + keep.hashCode;
+  int get hashCode => mergeToken.hashCode + profile.hashCode;
 
   factory MergeRequest.fromJson(Map<String, dynamic> json) =>
       _$MergeRequestFromJson(json);
@@ -46,19 +46,4 @@ class MergeRequest {
   String toString() {
     return toJson().toString();
   }
-}
-
-/// 남길 계정. `current`는 요청한 bearer 계정, `other`는 붙이려던 연결을 가진 다른 계정입니다. 반대쪽이 없앨 계정입니다.
-enum MergeRequestKeepEnum {
-  @JsonValue(r'current')
-  current(r'current'),
-  @JsonValue(r'other')
-  other(r'other');
-
-  const MergeRequestKeepEnum(this.value);
-
-  final String value;
-
-  @override
-  String toString() => value;
 }

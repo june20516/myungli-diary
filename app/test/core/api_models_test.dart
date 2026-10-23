@@ -10,7 +10,6 @@ void main() {
   group('Me', () {
     const meJson = <String, Object?>{
       'accountId': '3f2c1a56-0000-4000-8000-000000000001',
-      'status': 'active',
       'consentRequired': false,
       'requiredConsents': <Object?>[],
       'hasProfile': true,
@@ -21,12 +20,10 @@ void main() {
     test('필수 필드만 있는 JSON을 읽고, 생략한 필드를 null 키로 내보내지 않는다', () {
       final me = Me.fromJson(meJson);
       expect(me.accountId, '3f2c1a56-0000-4000-8000-000000000001');
-      expect(me.deletionScheduledAt, isNull);
       expect(me.adFree.expiresAt, isNull);
 
       final back = jsonDecode(jsonEncode(me.toJson())) as Map<String, Object?>;
       expect(back, meJson);
-      expect(back.containsKey('deletionScheduledAt'), isFalse);
       expect((back['adFree']! as Map).containsKey('expiresAt'), isFalse);
     });
   });

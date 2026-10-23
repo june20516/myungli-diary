@@ -58,8 +58,13 @@ class SlotText {
   @JsonKey(name: r'reactable', required: true, includeIfNull: false)
   final bool reactable;
 
-  /// 이 사용자가 남긴 반응. 반응이 없으면 생략합니다.
-  @JsonKey(name: r'reaction', required: false, includeIfNull: false)
+  /// 이 사용자가 남긴 반응. 반응이 없으면 생략합니다. 열린 enum이라 app은 모르는 값이면 반응이 없는 것으로 표시합니다.
+  @JsonKey(
+    name: r'reaction',
+    required: false,
+    includeIfNull: false,
+    unknownEnumValue: SlotTextReactionEnum.unknownDefaultOpenApi,
+  )
   final SlotTextReactionEnum? reaction;
 
   @JsonKey(name: r'todayReason', required: false, includeIfNull: false)
@@ -133,14 +138,21 @@ enum SlotTextVariantEnum {
   String toString() => value;
 }
 
-/// 이 사용자가 남긴 반응. 반응이 없으면 생략합니다.
+/// 이 사용자가 남긴 반응. 반응이 없으면 생략합니다. 열린 enum이라 app은 모르는 값이면 반응이 없는 것으로 표시합니다.
 enum SlotTextReactionEnum {
   @JsonValue(r'like')
-  like(r'like');
+  like(r'like'),
+
+  /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
+  @JsonValue(r'unknown_default_open_api')
+  unknownDefaultOpenApi(r'unknown_default_open_api');
 
   const SlotTextReactionEnum(this.value);
 
   final String value;
+
+  /// 계약이 정한 값이면 true, 모르는 값([unknownDefaultOpenApi])이면 false입니다.
+  bool get isKnown => this != unknownDefaultOpenApi;
 
   @override
   String toString() => value;

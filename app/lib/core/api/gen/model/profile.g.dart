@@ -140,7 +140,11 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) =>
         honorific: $checkedConvert('honorific', (v) => v as String),
         language: $checkedConvert(
           'language',
-          (v) => $enumDecode(_$LanguageEnumMap, v),
+          (v) => $enumDecode(
+            _$LanguageEnumMap,
+            v,
+            unknownValue: Language.unknownDefaultOpenApi,
+          ),
         ),
         currentTimezone: $checkedConvert('currentTimezone', (v) => v as String),
         birth: $checkedConvert(
@@ -172,4 +176,5 @@ const _$LanguageEnumMap = {
   Language.ko: 'ko',
   Language.en: 'en',
   Language.ja: 'ja',
+  Language.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

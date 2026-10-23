@@ -34,7 +34,12 @@ class Glossary {
   @JsonKey(name: r'seedVersion', required: true, includeIfNull: false)
   final String seedVersion;
 
-  @JsonKey(name: r'lang', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'lang',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: Language.unknownDefaultOpenApi,
+  )
   final Language lang;
 
   /// 범주 → (값 → 이름). 범주는 writing `glossary.value_name` 키의 `<범주>`, 그리고 `tag`·`focus_reason`·`score_item`·`solar_term`입니다.

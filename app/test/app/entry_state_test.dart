@@ -30,12 +30,9 @@ Me meWith({
   bool consentRequired = false,
   bool hasProfile = true,
   String accountId = 'acc-1',
-  bool pendingDeletion = false,
   List<String> requiredDocuments = const [],
 }) => Me.fromJson({
   'accountId': accountId,
-  'status': pendingDeletion ? 'pending_deletion' : 'active',
-  if (pendingDeletion) 'deletionScheduledAt': '2026-11-13T00:00:00Z',
   'consentRequired': consentRequired,
   'requiredConsents': [
     for (final document in requiredDocuments)
@@ -163,22 +160,12 @@ void main() {
       );
     });
 
-    test('모르는 필수 문서가 있어도 로그아웃·삭제 대기는 signedOut이 먼저', () {
+    test('모르는 필수 문서가 있어도 로그아웃은 signedOut이 먼저', () {
       final me = meWith(
         consentRequired: true,
         requiredDocuments: ['added_after_freeze'],
       );
       expect(compute(hasSession: false, me: me), EntryState.signedOut);
-      expect(
-        compute(
-          me: meWith(
-            consentRequired: true,
-            pendingDeletion: true,
-            requiredDocuments: ['added_after_freeze'],
-          ),
-        ),
-        EntryState.signedOut,
-      );
     });
 
     test('프로필이 없으면 광고 동의 전보다 먼저 profileRequired', () {
@@ -233,24 +220,6 @@ void main() {
 
     test('모두 갖추면 ready', () {
       expect(compute(me: meWith()), EntryState.ready);
-    });
-
-    test('삭제 대기 계정은 다른 조건과 상관없이 signedOut (S16)', () {
-      expect(compute(me: meWith(pendingDeletion: true)), EntryState.signedOut);
-      expect(
-        compute(
-          me: meWith(pendingDeletion: true, consentRequired: true),
-          adConsentDone: false,
-        ),
-        EntryState.signedOut,
-      );
-    });
-
-    test('삭제 대기여도 forceUpdate가 먼저입니다', () {
-      expect(
-        compute(minimum: '1.0.1', me: meWith(pendingDeletion: true)),
-        EntryState.forceUpdate,
-      );
     });
 
     test('빌드 번호는 버전 비교에 영향이 없습니다', () {
@@ -528,40 +497,11 @@ void main() {
       expect(signedOut.config?.legal, _legal);
     });
 
-    test('세션이 없거나 삭제 대기여도 snapshot에 앱 설정이 있습니다', () async {
+    test('세션이 없어도 snapshot에 앱 설정이 있습니다', () async {
       expect(
         (await container().read(entryStateProvider.future)).config,
         isNotNull,
       );
-    });
-
-    test('삭제 대기 계정이면 signOut해 토큰을 지우고 signedOut', () async {
-      await signIn();
-      api.me = meWith(pendingDeletion: true);
-      final events = <AuthEvent>[];
-      tokens.events.listen(events.add);
-      final c = container();
-      final snapshot = await c.read(entryStateProvider.future);
-      expect(snapshot.entry, EntryState.signedOut);
-      expect(snapshot.me, isNull);
-      expect(tokens.accessToken, isNull);
-      expect(await tokens.refreshToken(), isNull);
-      expect(events, contains(AuthEvent.signedOut));
-      expect(api.logoutTokens, [
-        'refresh',
-      ], reason: 'server에 refresh token 폐기를 시도합니다');
-    });
-
-    test('삭제 대기 계정의 server logout이 실패해도 로컬 로그아웃은 합니다', () async {
-      await signIn();
-      api
-        ..me = meWith(pendingDeletion: true)
-        ..logoutError = _status(503);
-      final c = container();
-      final snapshot = await c.read(entryStateProvider.future);
-      expect(snapshot.entry, EntryState.signedOut);
-      expect(api.logoutTokens, ['refresh']);
-      expect(await tokens.refreshToken(), isNull);
     });
 
     test('consentRequired 이벤트를 받으면 다시 계산합니다', () async {

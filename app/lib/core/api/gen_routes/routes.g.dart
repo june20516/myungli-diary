@@ -78,6 +78,7 @@ const List<ApiRoute> apiRoutes = [
   ApiRoute('POST', '/v1/devices', 'registerDevice'),
   ApiRoute('DELETE', '/v1/devices/{id}', 'deleteDevice'),
   ApiRoute('GET', '/v1/me/entitlements', 'getEntitlements'),
+  ApiRoute('GET', '/v1/me/purchases', 'listPurchases'),
   ApiRoute('POST', '/v1/billing/restore', 'restorePurchases'),
   ApiRoute(
     'POST',

@@ -9,7 +9,7 @@ part of 'merge_request.dart';
 abstract class _$MergeRequestCWProxy {
   MergeRequest mergeToken(String mergeToken);
 
-  MergeRequest keep(MergeRequestKeepEnum keep);
+  MergeRequest profile(MergeProfile profile);
 
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
@@ -19,7 +19,7 @@ abstract class _$MergeRequestCWProxy {
   /// ```dart
   /// MergeRequest(...).copyWith(id: 12, name: "My name")
   /// ```
-  MergeRequest call({String mergeToken, MergeRequestKeepEnum keep});
+  MergeRequest call({String mergeToken, MergeProfile profile});
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -33,7 +33,7 @@ class _$MergeRequestCWProxyImpl implements _$MergeRequestCWProxy {
   MergeRequest mergeToken(String mergeToken) => call(mergeToken: mergeToken);
 
   @override
-  MergeRequest keep(MergeRequestKeepEnum keep) => call(keep: keep);
+  MergeRequest profile(MergeProfile profile) => call(profile: profile);
 
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
@@ -46,7 +46,7 @@ class _$MergeRequestCWProxyImpl implements _$MergeRequestCWProxy {
   @override
   MergeRequest call({
     Object? mergeToken = const $CopyWithPlaceholder(),
-    Object? keep = const $CopyWithPlaceholder(),
+    Object? profile = const $CopyWithPlaceholder(),
   }) {
     return MergeRequest(
       mergeToken:
@@ -54,10 +54,10 @@ class _$MergeRequestCWProxyImpl implements _$MergeRequestCWProxy {
           ? _value.mergeToken
           // ignore: cast_nullable_to_non_nullable
           : mergeToken as String,
-      keep: keep == const $CopyWithPlaceholder() || keep == null
-          ? _value.keep
+      profile: profile == const $CopyWithPlaceholder() || profile == null
+          ? _value.profile
           // ignore: cast_nullable_to_non_nullable
-          : keep as MergeRequestKeepEnum,
+          : profile as MergeProfile,
     );
   }
 }
@@ -75,12 +75,12 @@ extension $MergeRequestCopyWith on MergeRequest {
 
 MergeRequest _$MergeRequestFromJson(Map<String, dynamic> json) =>
     $checkedCreate('MergeRequest', json, ($checkedConvert) {
-      $checkKeys(json, requiredKeys: const ['mergeToken', 'keep']);
+      $checkKeys(json, requiredKeys: const ['mergeToken', 'profile']);
       final val = MergeRequest(
         mergeToken: $checkedConvert('mergeToken', (v) => v as String),
-        keep: $checkedConvert(
-          'keep',
-          (v) => $enumDecode(_$MergeRequestKeepEnumEnumMap, v),
+        profile: $checkedConvert(
+          'profile',
+          (v) => $enumDecode(_$MergeProfileEnumMap, v),
         ),
       );
       return val;
@@ -89,10 +89,10 @@ MergeRequest _$MergeRequestFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$MergeRequestToJson(MergeRequest instance) =>
     <String, dynamic>{
       'mergeToken': instance.mergeToken,
-      'keep': _$MergeRequestKeepEnumEnumMap[instance.keep]!,
+      'profile': _$MergeProfileEnumMap[instance.profile]!,
     };
 
-const _$MergeRequestKeepEnumEnumMap = {
-  MergeRequestKeepEnum.current: 'current',
-  MergeRequestKeepEnum.other: 'other',
+const _$MergeProfileEnumMap = {
+  MergeProfile.current: 'current',
+  MergeProfile.other: 'other',
 };

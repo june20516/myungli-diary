@@ -20,7 +20,6 @@ import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/api/gen/model/city_list.dart';
 import 'package:myungli_diary/core/api/gen/model/consent_request.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
-import 'package:myungli_diary/core/api/gen/model/deletion_scheduled.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
@@ -31,7 +30,6 @@ import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/health.dart';
-import 'package:myungli_diary/core/api/gen/model/identity_in_use_problem.dart';
 import 'package:myungli_diary/core/api/gen/model/identity_list.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
@@ -45,7 +43,6 @@ import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/merge_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/merge_preview_request.dart';
 import 'package:myungli_diary/core/api/gen/model/merge_request.dart';
-import 'package:myungli_diary/core/api/gen/model/merge_result.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/api/gen/model/preview_request.dart';
 import 'package:myungli_diary/core/api/gen/model/problem.dart';
@@ -53,6 +50,7 @@ import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_input.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_patch.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_response.dart';
+import 'package:myungli_diary/core/api/gen/model/purchase_list.dart';
 import 'package:myungli_diary/core/api/gen/model/reaction_input.dart';
 import 'package:myungli_diary/core/api/gen/model/refresh_request.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule.dart';
@@ -963,7 +961,7 @@ class DefaultApi {
   }
 
   /// 계정 삭제 요청
-  /// 계정을 삭제 대기(&#x60;pending_deletion&#x60;)로 바꿉니다. 30일 안에 같은 제공자로 로그인하면 되돌아오고, 지나면 익명화합니다.
+  /// 유저 계정을 바로 삭제합니다. 삭제 대기 기간이 없고 되돌릴 수 없습니다. 그 유저 계정의 프로필, 기록(일기·일정·날짜 기록·반응), 인증 계정 연결, 세션을 지웁니다. 구매와 결제 기록은 법정 보관을 위해 지운 유저 계정 앞으로 남고, 반응은 지우기 전에 유저 계정과 끊긴 문장별 집계에 더합니다. 카카오·Apple 제공자 허가는 server가 취소를 시도하며, 실패해도 삭제는 성공입니다(LINE·Google은 app이 삭제 전에 SDK로 취소). 같은 인증 계정으로 다시 로그인하면 새 유저 계정이 만들어집니다. 이미 삭제된 유저 계정의 access token은 401입니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -973,9 +971,9 @@ class DefaultApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [DeletionScheduled] as data
+  /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<DeletionScheduled>> deleteMe({
+  Future<Response<void>> deleteMe({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1004,37 +1002,7 @@ class DefaultApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    DeletionScheduled? _responseData;
-
-    try {
-      final rawData = _response.data;
-      _responseData = rawData == null
-          ? null
-          : deserialize<DeletionScheduled, DeletionScheduled>(
-              rawData,
-              'DeletionScheduled',
-              growable: true,
-            );
-    } catch (error, stackTrace) {
-      throw DioException(
-        requestOptions: _response.requestOptions,
-        response: _response,
-        type: DioExceptionType.unknown,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return Response<DeletionScheduled>(
-      data: _responseData,
-      headers: _response.headers,
-      isRedirect: _response.isRedirect,
-      requestOptions: _response.requestOptions,
-      redirects: _response.redirects,
-      statusCode: _response.statusCode,
-      statusMessage: _response.statusMessage,
-      extra: _response.extra,
-    );
+    return _response;
   }
 
   /// 문장 반응 지우기
@@ -1861,8 +1829,8 @@ class DefaultApi {
     );
   }
 
-  /// 내 계정 상태
-  /// 계정 상태, 동의 필요 여부, 프로필 유무, 광고 제거 상태를 돌려줍니다. 약관 동의 전에도 부를 수 있습니다.
+  /// 내 정보
+  /// 유저 계정 id, 동의 필요 여부와 동의할 문서, 프로필 유무, 권한(광고 제거·근거 열람) 상태를 돌려줍니다. 약관 동의 전에도 부를 수 있습니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -2004,7 +1972,7 @@ class DefaultApi {
   }
 
   /// 로그인 제공자 붙이기
-  /// 현재 계정에 로그인 제공자 하나를 붙입니다. 본문은 그 제공자의 로그인 증명과 같습니다. * kakao·line·google: &#x60;idToken&#x60;과 &#x60;nonce&#x60; * apple(iOS): &#x60;idToken&#x60;, &#x60;authorizationCode&#x60;, &#x60;nonce&#x60;. 로그인과 같이 code를 교환해 refresh token을 받아 새 연결에 저장합니다. * apple(Android 웹 흐름): &#x60;exchangeCode&#x60;와 &#x60;nonce&#x60;. &#x60;appleCallback&#x60;이 만든 교환 코드를 &#x60;completeAppleWebLogin&#x60;과 같은 규칙(일회용, 2분, nonce가 틀려도 소진하지 않음)으로 씁니다. 경로의 제공자와 본문 조합이 맞지 않으면 400 &#x60;request.invalid&#x60;입니다(&#x60;LinkIdentityRequest&#x60; 참고).  응답 * 201: 연결이 어디에도 없어 현재 계정에 만들었습니다. * 200: 그 연결이 이미 현재 계정에 있어 바꾸지 않았습니다(apple이면 refresh token만 새 값으로). * 401 &#x60;auth.provider_token_invalid&#x60;·&#x60;auth.exchange_invalid&#x60;: 붙이려는 증명이 틀림. 현재 세션은 유효하니 다시 로그인시키지 않고 붙이기를 다시 시도합니다. * 409 &#x60;auth.provider_taken&#x60;: 현재 계정에 같은 제공자의 다른 사용자 연결이 있습니다. * 409 &#x60;auth.identity_in_use&#x60;: 그 연결이 다른 active 계정에 있습니다. 본문에 합치기 토큰(&#x60;mergeToken&#x60;, &#x60;expiresAt&#x60;)이 있고, &#x60;previewMerge&#x60;와 &#x60;mergeAccounts&#x60;가 씁니다. * 409 &#x60;auth.identity_pending_deletion&#x60;: 그 연결이 삭제 대기 계정에 있습니다. 그 제공자로 로그인하면 계정이 복구되므로 복구한 뒤 다시 시도합니다.  409가 나면 새로 받은 Apple 승인은 저장하지 않고 버립니다. 취소(revoke)하지도 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다. &#x60;mergeToken&#x60;·&#x60;expiresAt&#x60;은 &#x60;auth.identity_in_use&#x60;일 때만 있습니다. &#x60;auth.provider_taken&#x60;·&#x60;auth.identity_pending_deletion&#x60;에는 없습니다.
+  /// 현재 계정에 로그인 제공자 하나를 붙입니다. 본문은 그 제공자의 로그인 증명과 같습니다. * kakao·line·google: &#x60;idToken&#x60;과 &#x60;nonce&#x60; * apple(iOS): &#x60;idToken&#x60;, &#x60;authorizationCode&#x60;, &#x60;nonce&#x60;. 로그인과 같이 code를 교환해 refresh token을 받아 새 연결에 저장합니다. * apple(Android 웹 흐름): &#x60;exchangeCode&#x60;와 &#x60;nonce&#x60;. &#x60;appleCallback&#x60;이 만든 교환 코드를 &#x60;completeAppleWebLogin&#x60;과 같은 규칙(일회용, 2분, nonce가 틀려도 소진하지 않음)으로 씁니다. 경로의 제공자와 본문 조합이 맞지 않으면 400 &#x60;request.invalid&#x60;입니다(&#x60;LinkIdentityRequest&#x60; 참고).  응답 * 201: 연결이 어디에도 없어 현재 계정에 만들었습니다. * 200: 그 연결이 이미 현재 계정에 있어 바꾸지 않았습니다(apple이면 refresh token만 새 값으로). * 401 &#x60;auth.provider_token_invalid&#x60;·&#x60;auth.exchange_invalid&#x60;: 붙이려는 증명이 틀림. 현재 세션은 유효하니 다시 로그인시키지 않고 붙이기를 다시 시도합니다. * 409 &#x60;auth.provider_taken&#x60;: 현재 계정에 같은 제공자의 다른 사용자 연결이 있습니다. * 409 &#x60;auth.identity_in_use&#x60;: 그 인증 계정이 다른 유저 계정에 연결돼 있습니다. 본문은 일반 &#x60;Problem&#x60;이고 합치기 토큰은 없습니다. 두 유저 계정을 합치려면 app이 그 인증 계정으로 &#x60;previewMerge&#x60;를 부릅니다.  409가 나면 새로 받은 Apple 승인은 저장하지 않고 버립니다. 취소(revoke)하지도 않습니다. Apple revoke는 그 사용자의 앱 승인 전체를 끊어 다른 계정에 저장된 연결까지 무효로 만들기 때문입니다.
   ///
   /// Parameters:
   /// * [provider]
@@ -2191,7 +2159,7 @@ class DefaultApi {
   }
 
   /// 일기 목록
-  /// 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순이고, 같은 날짜 안에서는 작성 순(&#x60;createdAt&#x60; 오름차순)입니다. &#x60;limit&#x60;은 일기 편수라 한 날짜의 일기가 두 쪽에 나뉠 수 있습니다. 날짜 하나의 일기는 &#x60;from&#x60;과 &#x60;to&#x60;에 같은 날짜를 넣어 받습니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 빈 목록입니다.
+  /// 날짜 범위와 태그로 일기를 찾습니다. 날짜 내림차순이고, 같은 날짜 안에서는 작성 순(&#x60;createdAt&#x60; 오름차순)입니다. &#x60;limit&#x60;은 일기 편수라 한 날짜의 일기가 두 쪽에 나뉠 수 있습니다. 날짜 하나의 일기는 &#x60;from&#x60;과 &#x60;to&#x60;에 같은 날짜를 넣어 받습니다. 합친 유저 계정은 한 날짜에 10편을 넘을 수 있으니(D83 ④) 날짜 하나를 받을 때도 &#x60;nextCursor&#x60;를 따라갑니다. &#x60;from&#x60;이 &#x60;to&#x60;보다 늦으면 빈 목록입니다.
   ///
   /// Parameters:
   /// * [from]
@@ -2348,6 +2316,81 @@ class DefaultApi {
     }
 
     return Response<IdentityList>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// 구매 목록
+  /// 이 유저 계정의 구매 장부를 최근 구매 먼저 돌려줍니다. 상품 이름은 app이 &#x60;productId&#x60;로 자기 문구나 스토어 이름에서 찾습니다. 기간 상품이면 &#x60;period&#x60;에 이 유저 계정의 사용 구간이 있습니다. 합친 구매는 현재 유저 계정의 구간만 담습니다. 산 유저 계정과 합치기 출처는 주지 않습니다. production이 아닌 구매는 &#x60;BILLING_PRODUCTION_ONLY&#x60;가 꺼진 환경에서만 보입니다. 페이지 나누기는 필요해지면 선택 필드로 더하고, 그 뒤에도 그 필드 없이 부르면 전부 돌려줍니다.
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [PurchaseList] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<PurchaseList>> listPurchases({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/me/purchases';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    PurchaseList? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PurchaseList, PurchaseList>(
+              rawData,
+              'PurchaseList',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<PurchaseList>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -2529,7 +2572,7 @@ class DefaultApi {
   }
 
   /// Google 로그인
-  /// Google OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 &#x60;loginKakao&#x60;와 같습니다. 처음 보는 연결이면 계정을 새로 만들고, 삭제 대기 계정이면 되돌립니다.
+  /// Google OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 &#x60;loginKakao&#x60;와 같습니다. 처음 보는 인증 계정이면 유저 계정을 새로 만듭니다. 삭제한 유저 계정의 인증 계정은 남지 않으므로 같은 인증 계정으로 다시 로그인하면 새 유저 계정입니다.
   ///
   /// Parameters:
   /// * [googleLoginRequest]
@@ -2703,7 +2746,7 @@ class DefaultApi {
   }
 
   /// LINE 로그인
-  /// LINE OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 &#x60;loginKakao&#x60;와 같습니다. 처음 보는 연결이면 계정을 새로 만들고, 삭제 대기 계정이면 되돌립니다.
+  /// LINE OIDC &#x60;id_token&#x60;과 nonce 원문을 검증하고 자체 토큰을 발급합니다. 흐름은 &#x60;loginKakao&#x60;와 같습니다. 처음 보는 인증 계정이면 유저 계정을 새로 만듭니다. 삭제한 유저 계정의 인증 계정은 남지 않으므로 같은 인증 계정으로 다시 로그인하면 새 유저 계정입니다.
   ///
   /// Parameters:
   /// * [lineLoginRequest]
@@ -2852,10 +2895,11 @@ class DefaultApi {
   }
 
   /// 계정 합치기
-  /// 두 계정을 하나로 합칩니다. &#x60;keep&#x60;이 남길 계정(&#x60;current&#x60; 또는 &#x60;other&#x60;)이고 반대쪽이 없앨 계정입니다. 없앨 계정의 연결, 일기(지운 일기 포함, 하루 10편 상한은 검사하지 않음), 일정(지운 일정 포함)과 광고 제거권 구매를 남길 계정으로 옮깁니다. 프로필(사주 정보·호칭·설정), 약관 동의, 오늘 문장 선택 기록·변주 상태·반응은 남길 계정 것을 그대로 쓰고, 없앨 계정의 것은 옮기지 않습니다. 없앨 계정은 세션을 모두 폐기하고 삭제 대기(&#x60;pending_deletion&#x60;)로 바꿉니다. 연결이 하나도 남지 않아 로그인으로 복구되지 않고, 30일 뒤 계정 삭제와 같이 익명화합니다. 같은 제공자 연결이 양쪽에 있으면 남길 계정의 것을 남기고, 없앨 계정의 것은 지운 뒤 제공자 허가 취소를 시도합니다(LINE·Google은 생략). 같은 날짜에 양쪽 모두 날짜 기록(태그·가이드 질문)이 있으면 남길 계정의 것을 쓰고, 일기가 하루 10편을 넘어도 막지 않습니다. 합친 뒤 남길 계정의 광고 제거권을 다시 계산합니다. 이 계산이 실패해도 합치기는 성공이고 다음 동기화 때 맞춰집니다. 합친 뒤 app은 응답의 토큰으로 바꾸고 지난 계정의 캐시·초안을 지운 뒤 &#x60;getMe&#x60;부터 다시 읽습니다. 남길 계정이 현재 버전 약관에 동의하지 않았으면 이후 요청은 403 &#x60;consent.required&#x60;입니다. 응답은 남길 계정 id와 그 계정의 새 토큰 쌍입니다. 남길 계정의 기존 세션은 그대로 둡니다.  &#x60;Idempotency-Key&#x60;를 받지 않습니다. 응답에 refresh token 원문이 있어 멱등 저장소에 남기지 않습니다. 합치기 토큰은 일회용이라 합치기는 두 번 일어나지 않습니다. 응답을 잃어 다시 보내면 422 &#x60;merge.token_invalid&#x60;이고, 연결이 모두 남길 계정에 있으므로 어느 제공자로 로그인해도 남길 계정입니다. 토큰이 무효이거나 확인 시점에 조건이 바뀌었으면(두 계정이 active가 아니거나 연결이 다른 계정으로 옮겨짐) 422 &#x60;merge.token_invalid&#x60;입니다. 없앨 계정에 광고 제거권 구매 기록이 있는데 구매 조회가 실패하면 합치지 않고 503 &#x60;billing.provider_unavailable&#x60;이며 토큰도 소진하지 않으므로 다시 시도하면 됩니다.
+  /// &#x60;previewMerge&#x60;가 준 합치기 토큰으로 다른 유저 계정(B)을 현재 유저 계정(A)에 합칩니다. 남는 유저 계정은 언제나 A입니다. B의 일기(지운 일기 포함, 하루 10편 상한은 검사하지 않음)·일정·날짜 기록·오늘 문장 선택 기록·반응과 구매를 A로 옮기고, B는 삭제합니다(&#x60;deleteMe&#x60;와 같이 즉시, 되돌릴 수 없음). &#x60;profile&#x60;은 합친 뒤 쓸 프로필(사주 정보·호칭)입니다. &#x60;current&#x60;는 A의 것을 그대로 두고, &#x60;other&#x60;는 B의 것으로 A의 프로필을 바꿉니다. 같은 날짜에 양쪽 모두 날짜 기록(태그·가이드 질문)이 있으면 고른 프로필 쪽을 남기고, 다른 쪽 일기는 모두 남긴 날짜 기록 아래로 옮깁니다. 일기는 지우지 않습니다. 고른 쪽 프로필이 없으면(&#x60;status&#x60;가 &#x60;none&#x60;) 합친 뒤 A는 프로필이 없습니다. 인증 계정 연결, 세션, 약관 동의는 옮기지 않습니다. B의 인증 계정 연결은 B와 함께 사라지고 A의 세션은 그대로입니다. B의 카카오·Apple 제공자 허가는 server가 취소를 시도합니다. B의 LINE·Google 허가는 server가 취소하지 않으므로, app은 증명에 쓴 그 제공자(LINE·Google)를 SDK로 취소할 수 있습니다. B의 다른 LINE·Google 인증 계정은 취소가 생략됩니다.  응답은 A의 &#x60;Me&#x60;입니다. 새 세션을 주지 않으므로 app은 토큰을 바꾸지 않고, 합친 유저 계정 기준으로 캐시·초안을 지운 뒤 &#x60;getMe&#x60;부터 다시 읽습니다. &#x60;Idempotency-Key&#x60;를 받습니다. 같은 키로 다시 보내면 24시간 동안 처음 응답을 돌려줍니다. 키 없이 다시 보내면 토큰이 일회용이라 422 &#x60;merge.token_invalid&#x60;입니다. 같은 키의 요청이 처리 중이면 409 &#x60;idempotency.in_progress&#x60;이고, 잠시 뒤 같은 키로 다시 보냅니다. 응답을 받지 못했는데 같은 키 재전송이 422 &#x60;merge.token_invalid&#x60;이면 &#x60;getMe&#x60;로 합쳐졌는지 확인합니다(server 장애 같은 드문 경우). 토큰이 없거나, 만료됐거나, 이미 썼거나, 현재 유저 계정의 토큰이 아니거나, 확인 시점에 조건이 바뀌었으면(B가 이미 없어짐, 증명한 인증 계정이 B에서 떨어짐) 422 &#x60;merge.token_invalid&#x60;이고 이 경우들은 구분하지 않습니다.
   ///
   /// Parameters:
   /// * [mergeRequest]
+  /// * [idempotencyKey] - 같은 키로 다시 보내면 24시간 동안 같은 응답을 돌려줍니다(IETF draft-ietf-httpapi-idempotency-key-header).
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2863,10 +2907,11 @@ class DefaultApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [MergeResult] as data
+  /// Returns a [Future] containing a [Response] with a [Me] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<MergeResult>> mergeAccounts({
+  Future<Response<Me>> mergeAccounts({
     required MergeRequest mergeRequest,
+    String? idempotencyKey,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2877,7 +2922,10 @@ class DefaultApi {
     final _path = r'/v1/me/merge';
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{...?headers},
+      headers: <String, dynamic>{
+        if (idempotencyKey != null) r'Idempotency-Key': idempotencyKey,
+        ...?headers,
+      },
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
           {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
@@ -2910,17 +2958,13 @@ class DefaultApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    MergeResult? _responseData;
+    Me? _responseData;
 
     try {
       final rawData = _response.data;
       _responseData = rawData == null
           ? null
-          : deserialize<MergeResult, MergeResult>(
-              rawData,
-              'MergeResult',
-              growable: true,
-            );
+          : deserialize<Me, Me>(rawData, 'Me', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2931,7 +2975,7 @@ class DefaultApi {
       );
     }
 
-    return Response<MergeResult>(
+    return Response<Me>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -2944,7 +2988,7 @@ class DefaultApi {
   }
 
   /// 계정 합치기 요약
-  /// &#x60;linkIdentity&#x60;가 409 &#x60;auth.identity_in_use&#x60;로 준 합치기 토큰의 두 계정(현재 계정과 다른 계정)을 요약합니다. 토큰을 소진하지 않으므로 몇 번이든 부를 수 있습니다. 토큰이 URL에 남지 않도록 &#x60;GET&#x60;이 아니라 &#x60;POST&#x60;입니다. 토큰이 없거나, 만료됐거나, 이미 썼거나, 현재 계정의 토큰이 아니면 422 &#x60;merge.token_invalid&#x60;입니다. 이 경우들은 구분하지 않습니다.
+  /// 합칠 다른 유저 계정(B)의 로그인 증명을 받아, 현재 유저 계정(A)과 B를 합칠 때 옮겨질 것을 요약하고 합치기 토큰을 발급합니다. 본문은 &#x60;linkIdentity&#x60;의 본문에 &#x60;provider&#x60;를 더한 것이고 검증도 같습니다(&#x60;MergePreviewRequest&#x60; 참고). Apple은 소유 확인에 id_token만 씁니다. Android 웹 흐름의 code 교환으로 받은 refresh token은 저장하지 않습니다.  응답 * 200: 증명한 인증 계정이 B에 연결돼 있습니다. 합치기 토큰(&#x60;mergeToken&#x60;, &#x60;expiresAt&#x60;)과 요약(&#x60;summary&#x60;)을 줍니다. 옮길 기록이 없어도 줍니다.   토큰은 일회용이고 10분 동안 현재 유저 계정(A)의 bearer만 쓸 수 있으며, 증명한 인증 계정을 B에서 떼면 무효가 됩니다. URL에 넣지 않습니다. * 400 &#x60;request.invalid&#x60;: &#x60;provider&#x60;와 본문 조합이 맞지 않음. * 401 &#x60;auth.provider_token_invalid&#x60;·&#x60;auth.exchange_invalid&#x60;: 증명이 틀림. 현재 세션은 유효합니다. * 422 &#x60;merge.same_account&#x60;: 증명한 인증 계정이 현재 유저 계정에 이미 연결돼 있습니다. * 422 &#x60;merge.no_account&#x60;: 증명한 인증 계정이 어느 유저 계정에도 연결돼 있지 않습니다. 이 응답은 인증 계정을 연결하지 않으니 app은 &#x60;linkIdentity&#x60;를 부릅니다.
   ///
   /// Parameters:
   /// * [mergePreviewRequest]
@@ -3372,7 +3416,7 @@ class DefaultApi {
   }
 
   /// 구매 복원
-  /// RevenueCat 구매 목록을 다시 조회해 광고 제거권을 처음부터 다시 계산합니다. 환불된 구매는 빼고 계산합니다. app은 RevenueCat &#x60;Purchases.logIn&#x60;에 &#x60;Me.accountId&#x60; 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다. 다른 표기면 server가 구매를 찾지 못합니다. RevenueCat 장애는 503 &#x60;billing.provider_unavailable&#x60;입니다.
+  /// 이 유저 계정의 RevenueCat 구매 목록으로 구매 장부를 다시 맞추고 광고 제거권을 처음부터 다시 계산합니다. 환불된 구매는 빼고 계산합니다. 장부에 없는 구매는 이 유저 계정의 것으로 적습니다. 다른 유저 계정이 주인인 구매는 주인을 바꾸거나 가져오지 않습니다(환불 사실만 장부에 맞춥니다). 장부에 있는데 이 유저 계정의 RevenueCat 목록에 없는 구매는 취소하지 않습니다. app은 RevenueCat &#x60;Purchases.logIn&#x60;에 &#x60;Me.accountId&#x60; 문자열(소문자 표준 UUID 표기)을 그대로 넘깁니다. 다른 표기면 server가 구매를 찾지 못합니다. RevenueCat 장애는 503 &#x60;billing.provider_unavailable&#x60;입니다.
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
