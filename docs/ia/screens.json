@@ -2550,7 +2550,7 @@
       "states": [
         {
           "id": "error",
-          "note": "연결·떼기를 끝내지 못함, 또는 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결하지 않음(D85 ③)"
+          "note": "연결·떼기를 끝내지 못함, 또는 붙이려는 인증 수단이 다른 계정에 연결돼 있어 연결하지 않음(D85 ③). 떼기 전 다시 인증을 끝내지 못하면 다시 시도하거나 건너뛰고 뗄 수 있음(D94 ③)"
         }
       ],
       "slots": [
@@ -2572,7 +2572,12 @@
         {
           "id": "login-methods.unlink.confirm",
           "source": "ui",
-          "role": "떼기 확인"
+          "role": "떼기 확인. LINE·Google이면 확인 뒤 그 제공자로 한 번 더 인증해 제공자 쪽 허가를 취소한다는 안내를 담음(D94 ①)"
+        },
+        {
+          "id": "login-methods.reauth-failed.confirm",
+          "source": "ui",
+          "role": "다시 인증을 끝내지 못했을 때(창을 닫음 포함)의 확인. 연결만 떼면 그 제공자 쪽 허가가 남고 제공자 설정에서 직접 끊을 수 있다는 안내, 다시 시도와 건너뛰고 떼기(D94 ③)"
         },
         {
           "id": "login-methods.in-use.body",
@@ -2700,12 +2705,12 @@
       "tab": "me",
       "presentation": "page",
       "auth": "member",
-      "purpose": "지워지는 데이터와 되돌릴 수 없다는 것을 안내하고 최종 확인을 받아 계정을 바로 지웁니다(D85 ⑤)",
+      "purpose": "지워지는 데이터와 되돌릴 수 없다는 것을 안내하고, LINE·Google 허가를 다시 인증해 취소한 뒤 최종 확인을 받아 계정을 바로 지웁니다(D85 ⑤, D94)",
       "depths": [],
       "states": [
         {
           "id": "error",
-          "note": "삭제 실패"
+          "note": "삭제 실패. 삭제 전 다시 인증을 끝내지 못하면 다시 시도하거나 건너뛰고 삭제할 수 있음(D94 ③)"
         }
       ],
       "slots": [
@@ -2725,6 +2730,11 @@
           "role": "지워지는 데이터 안내(바로 지워지고 되돌릴 수 없음, 법이나 부정 이용 방지를 위해 필요한 정보만 정해진 기간 따로 보관한다는 한 줄, D88 ③④)"
         },
         {
+          "id": "account-delete.reauth.body",
+          "source": "ui",
+          "role": "LINE·Google이 연결돼 있으면, 삭제 전에 그 제공자마다 한 번 더 인증해 제공자 쪽 허가를 취소한다는 안내(D94 ②). 연결이 없으면 보이지 않음"
+        },
+        {
           "id": "account-delete.cta.delete",
           "source": "ui",
           "role": "계정 삭제 버튼"
@@ -2733,6 +2743,11 @@
           "id": "account-delete.delete.confirm",
           "source": "ui",
           "role": "최종 확인"
+        },
+        {
+          "id": "account-delete.reauth-failed.confirm",
+          "source": "ui",
+          "role": "다시 인증을 끝내지 못했을 때(창을 닫음 포함)의 확인. 그 제공자 쪽 허가는 남고 제공자 설정에서 직접 끊을 수 있다는 안내, 다시 시도와 건너뛰고 삭제(D94 ③)"
         }
       ],
       "components": [
