@@ -45,12 +45,12 @@
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | **A1 마무리:** drift #504 → 화면 일 #387(로그인 수단·계정 합치기 화면, 대역 adapter), writing ARB #418, 조사 `josaClass` #453(D84). writing #546·#548·#559와 design #560 원고·모양이 병합되면 같은 박자에 맞춤. (따라잡기 PR #554로 #518·#484·#493 완료.) **A2(D91 ①, A1과 나란히 가능):** `local` server로 REST 연동 → 외부 준비물이 오는 대로 실제 SDK adapter(#311 카카오·Apple, #387 LINE·Google, #463, D94 다시 인증해 허가 취소 #561, App Link, FCM과 알림 기기 호출 #347 ②, RevenueCat·AdMob). server 질문 #552·#555 답을 반영. app이 따라잡는 PR이 열려 있는 동안에는 app에 닿는 새 변경을 다음 박자로 모음(D91 ③) | A1, A2 |
+| 지금 | app | **A1 마무리:** drift #504 → 화면 일 #387(로그인 수단·계정 합치기 화면, 대역 adapter), writing ARB #418, 조사 `josaClass` #453(D84). writing #546·#548 원고가 병합되면 같은 박자에 맞춤. (따라잡기 PR #554로 #518·#484·#493 완료.) **A2(D91 ①, A1과 나란히 가능):** `local` server로 REST 연동 → 외부 준비물이 오는 대로 실제 SDK adapter(#311 카카오·Apple, #387 LINE·Google, #463(LINE·Google SDK 허가 취소는 D95로 빠짐), App Link, FCM과 알림 기기 호출 #347 ②, RevenueCat·AdMob). server 질문 #552·#555 답을 반영. app이 따라잡는 PR이 열려 있는 동안에는 app에 닿는 새 변경을 다음 박자로 모음(D91 ③) | A1, A2 |
 | 지금 | server | D90 ① 일기의 그날 성격 기록·`Diary` 선택 필드 #530(계약 minor) → P8 Job(precompute·notify·retention). (S3 REST v1 freeze는 PR #528로 완료(`1.0.0`, S114). D85·D88 묶음 #481·#492는 계약 draft.15 PR #517, 계정 즉시 삭제 #519, 구매 장부·구매 목록 #520, 계정 합치기 #521로 완료(S105~S113). S69 되돌림은 PR #525. D82 인증 확장 #386은 PR #466·#473·#521로 완료. 대운 시작 연도 #351(PR #385), D83 일기 하루 여러 편 #407(PR #438·#456) 완료) | S2 완료, S3, A2 |
-| 지금 | writing | drift #551 + D93 원고의 긴 대시·가운뎃점 고침과 검사기 규칙 #546 + `ad-free` 구매 버튼·가격·기간 #548 + D94 다시 인증 원고 #559를 한 PR → 구매 상태 `owned` 키 #531(MVP 밖) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`). (맺음 검사 없앰 W43 #543, 맺음 라운드 R18·R19 #544, D85 원고 #482는 #510·#524로 완료) | I3, server 시드 strict(S38), app A1 |
+| 지금 | writing | drift #551 + D93 원고의 긴 대시·가운뎃점 고침과 검사기 규칙 #546 + `ad-free` 구매 버튼·가격·기간 #548를 한 PR → 구매 상태 `owned` 키 #531(MVP 밖) → W1-3 용어·근거(`term.meaning`·`glossary.value_name`·`evidence.basis`·`evidence.source`, `--partial` 제거, 스토어 태그라인). 원전 `quote`는 글자 그대로(core #258 답). app 계획 6 임시 문구 22개·사주 용어 사전 범주(#331), force-update 사유별 문구(#355, 슬롯 안 `select`). (맺음 검사 없앰 W43 #543, 맺음 라운드 R18·R19 #544, D85 원고 #482는 #510·#524로 완료) | I3, server 시드 strict(S38), app A1 |
 | 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
 | 필요할 때 | core | #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때). #304는 PR #432로 완료 | - |
-| 다음 | design | drift #558 + D94 다시 인증 확인 창·계정 삭제 배치 #560 → #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. (컴포넌트 계약 2.7.0 #439, 2.8.0 #458, 3.0.0 #512, drift #480은 #514로 완료) | app A1 |
+| 다음 | design | drift #558(원인 IA #557은 D95로 되돌림) → #353(십성 라벨 자리)·#354(notice-banner 오류 변형, dialog 기본 선택, toast와 하단 CTA 위치). app이 그 화면을 다시 만지기 전에. (컴포넌트 계약 2.7.0 #439, 2.8.0 #458, 3.0.0 #512, drift #480은 #514로 완료) | app A1 |
 
 ## 외부 준비물
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다.
