@@ -544,7 +544,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get accountDeleteDataBody =>
-      'アカウントを削除すると、命式の情報・日記・タグ・予定・広告除去の残り期間がすべて消え、元に戻せません。';
+      'アカウントを削除すると、命式の情報・日記・タグ・予定・購入した商品の残り期間がすべて消え、元に戻せません。法令や不正利用防止のために必要な情報のみ、定められた期間、別途保管します。';
 
   @override
   String get accountDeleteDeleteConfirm => '本当に削除しますか?削除したアカウントは元に戻せません。';
@@ -1187,10 +1187,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get accountMergeBarTitle => 'アカウントの統合';
 
   @override
-  String get accountMergeChoiceLabel => '残すアカウントを選んでください';
-
-  @override
-  String get accountMergeCtaCancel => '統合しない';
+  String get accountMergeChoiceLabel => 'どちらの命式の情報を使いますか?';
 
   @override
   String get accountMergeCtaMerge => 'アカウントを統合';
@@ -1209,10 +1206,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get accountMergeTitleBody =>
-      '選んだアカウントの命式の情報・呼び名・設定が残ります。日記は2つのアカウントの分をすべて移し、広告除去の残り期間は合算します。選ばなかったアカウントは削除されます。';
+      '取り込むアカウントの記録はすべてこちらに移します。命式の情報・呼び名・設定は選んだ方を使い、取り込むアカウントとそのログイン方法は削除されます。購入もこちらに移します。';
 
   @override
-  String get accountMergeTitleHead => '2つのアカウントを1つにまとめますか?';
+  String get accountMergeTitleHead => '別のアカウントの記録をこちらに移しますか?';
 
   @override
   String get daySheetDiaryWriteCtaWritten => 'この日の新しい日記を書く';
@@ -1253,20 +1250,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayGuideCtaFull => '今日は十分に書きました';
 
   @override
-  String accountChoiceDiaryCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '日記$count件',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get accountChoiceCurrent => '現在のアカウント';
-
-  @override
-  String get accountChoiceProviderSeparator => '・';
 
   @override
   String get accountMergeError =>
@@ -1328,11 +1312,122 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorAuthIdentityInUse => 'このログイン方法は別のアカウントに連携されています。';
 
   @override
-  String get errorAuthIdentityPendingDeletion => '削除待ちのアカウントに連携されています。';
-
-  @override
   String get errorAuthLastIdentity => 'ログイン方法は1つ以上残しておく必要があります。';
 
   @override
-  String get adFreeRestoreCta => '購入を復元';
+  String get accountMergeAuthBody => '取り込むアカウントで認証してください。';
+
+  @override
+  String get accountMergeNotOtherBodySelf =>
+      'このアカウントのログイン方法でログインしました。取り込むアカウントのログイン方法でもう一度ログインしてください。';
+
+  @override
+  String get accountMergeNotOtherBodyNone => 'このログイン方法に連携しているアカウントはありません。';
+
+  @override
+  String get adFreeHistoryCta => '購入履歴';
+
+  @override
+  String get calcBasisDaeunBody => '大運の始まる年齢は、月数を切り捨てて数えます。';
+
+  @override
+  String get loginMethodsInUseBody =>
+      'このログイン方法はすでに別のアカウントで使われています。そちらで連携を解除してから、もう一度連携してください。';
+
+  @override
+  String get loginMethodsMergeCta => '別のアカウントの記録を移す';
+
+  @override
+  String get previewRestartNotice => '入力し直した情報で見るには、ログインしてみてください。';
+
+  @override
+  String get purchaseHistoryBarTitle => '購入履歴';
+
+  @override
+  String get purchaseHistoryEmptyBody => '購入履歴はありません。';
+
+  @override
+  String get purchaseHistoryMissingNotice => '支払った商品が表示されない場合は、お問い合わせください。';
+
+  @override
+  String get accountChoiceOther => '取り込むアカウント';
+
+  @override
+  String get accountMergeSummaryHead => '取り込む記録';
+
+  @override
+  String get accountMergeSummaryDiary => '日記';
+
+  @override
+  String get accountMergeSummaryEvent => '予定';
+
+  @override
+  String get accountMergeSummaryAdFree => '広告除去の残り期間';
+
+  @override
+  String accountMergeSummaryDiaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count編',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountMergeSummaryEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountMergeSummaryAdFreeDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days日',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String purchaseMetaPurchased(String date) {
+    return '$date購入';
+  }
+
+  @override
+  String purchaseMetaPeriod(String start, String end) {
+    return '$start〜$end';
+  }
+
+  @override
+  String get purchaseMetaSeparator => ' · ';
+
+  @override
+  String get purchaseProductAdFreeMonth => '広告なし1か月';
+
+  @override
+  String get purchaseStatusActive => '利用中';
+
+  @override
+  String get purchaseStatusPending => '利用前';
+
+  @override
+  String get purchaseStatusExpired => '期限切れ';
+
+  @override
+  String get purchaseStatusRefunded => '返金済み';
+
+  @override
+  String get errorMergeTokenInvalid => '統合を続けられませんでした。取り込むアカウントを再認証してください。';
+
+  @override
+  String get adFreeBuyCta => '購入する';
+
+  @override
+  String get adFreeOfferPeriod => '1か月、自動更新なし';
 }

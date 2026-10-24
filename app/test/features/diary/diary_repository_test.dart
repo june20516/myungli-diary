@@ -219,6 +219,30 @@ void main() {
     });
   });
 
+  group('DiaryRepository.diariesOn 이어 받기', () {
+    test('diariesOn은 nextCursor가 없을 때까지 이어 받는다', () async {
+      final server = _Server((options) {
+        final first = options.queryParameters['cursor'] == null;
+        return (
+          200,
+          {
+            'items': [
+              if (first)
+                _summaryJson('a', '2026-10-13')
+              else
+                _summaryJson('b', '2026-10-13'),
+            ],
+            if (first) 'nextCursor': 'c1',
+          },
+        );
+      });
+      final items = await _repository(server).diariesOn(_date);
+      expect(items.map((item) => item.id), ['a', 'b']);
+      expect(server.requests, hasLength(2));
+      expect(server.requests.last.queryParameters['cursor'], 'c1');
+    });
+  });
+
   group('DiaryRepository.datesIn', () {
     test('datesIn은 nextCursor가 없을 때까지 이어 받는다', () async {
       final server = _Server((options) {

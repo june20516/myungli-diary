@@ -168,7 +168,11 @@ SlotText _$SlotTextFromJson(
     reactable: $checkedConvert('reactable', (v) => v as bool),
     reaction: $checkedConvert(
       'reaction',
-      (v) => $enumDecodeNullable(_$SlotTextReactionEnumEnumMap, v),
+      (v) => $enumDecodeNullable(
+        _$SlotTextReactionEnumEnumMap,
+        v,
+        unknownValue: SlotTextReactionEnum.unknownDefaultOpenApi,
+      ),
     ),
     todayReason: $checkedConvert(
       'todayReason',
@@ -206,4 +210,7 @@ const _$SlotTextVariantEnumEnumMap = {
   SlotTextVariantEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 
-const _$SlotTextReactionEnumEnumMap = {SlotTextReactionEnum.like: 'like'};
+const _$SlotTextReactionEnumEnumMap = {
+  SlotTextReactionEnum.like: 'like',
+  SlotTextReactionEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
+};

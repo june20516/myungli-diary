@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
@@ -37,7 +38,7 @@ Future<GlossaryNames> _loadGlossary(Ref ref) async {
   }
   // 앱 언어는 항상 구독해, 프로필이 없다가 생겨도 다시 계산됩니다.
   final appLanguage = ref.watch(appLanguageProvider);
-  final language = profile?.language ?? appLanguage;
+  final language = knownLanguageOf(profile?.language ?? appLanguage);
   final repository = ref.watch(glossaryRepositoryProvider);
   return await repository.load(language);
 }

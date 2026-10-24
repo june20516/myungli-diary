@@ -13,8 +13,6 @@ abstract class _$LoginResponseCWProxy {
 
   LoginResponse consentRequired(bool consentRequired);
 
-  LoginResponse restoredFromDeletion(bool restoredFromDeletion);
-
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `LoginResponse(...).copyWith.fieldName(value)`.
@@ -27,7 +25,6 @@ abstract class _$LoginResponseCWProxy {
     TokenPair tokens,
     bool isNewAccount,
     bool consentRequired,
-    bool restoredFromDeletion,
   });
 }
 
@@ -49,10 +46,6 @@ class _$LoginResponseCWProxyImpl implements _$LoginResponseCWProxy {
   LoginResponse consentRequired(bool consentRequired) =>
       call(consentRequired: consentRequired);
 
-  @override
-  LoginResponse restoredFromDeletion(bool restoredFromDeletion) =>
-      call(restoredFromDeletion: restoredFromDeletion);
-
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `LoginResponse(...).copyWith.fieldName(value)`.
@@ -66,7 +59,6 @@ class _$LoginResponseCWProxyImpl implements _$LoginResponseCWProxy {
     Object? tokens = const $CopyWithPlaceholder(),
     Object? isNewAccount = const $CopyWithPlaceholder(),
     Object? consentRequired = const $CopyWithPlaceholder(),
-    Object? restoredFromDeletion = const $CopyWithPlaceholder(),
   }) {
     return LoginResponse(
       tokens: tokens == const $CopyWithPlaceholder() || tokens == null
@@ -84,12 +76,6 @@ class _$LoginResponseCWProxyImpl implements _$LoginResponseCWProxy {
           ? _value.consentRequired
           // ignore: cast_nullable_to_non_nullable
           : consentRequired as bool,
-      restoredFromDeletion:
-          restoredFromDeletion == const $CopyWithPlaceholder() ||
-              restoredFromDeletion == null
-          ? _value.restoredFromDeletion
-          // ignore: cast_nullable_to_non_nullable
-          : restoredFromDeletion as bool,
     );
   }
 }
@@ -109,12 +95,7 @@ LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
     $checkedCreate('LoginResponse', json, ($checkedConvert) {
       $checkKeys(
         json,
-        requiredKeys: const [
-          'tokens',
-          'isNewAccount',
-          'consentRequired',
-          'restoredFromDeletion',
-        ],
+        requiredKeys: const ['tokens', 'isNewAccount', 'consentRequired'],
       );
       final val = LoginResponse(
         tokens: $checkedConvert(
@@ -123,10 +104,6 @@ LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
         ),
         isNewAccount: $checkedConvert('isNewAccount', (v) => v as bool),
         consentRequired: $checkedConvert('consentRequired', (v) => v as bool),
-        restoredFromDeletion: $checkedConvert(
-          'restoredFromDeletion',
-          (v) => v as bool,
-        ),
       );
       return val;
     });
@@ -136,5 +113,4 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
       'tokens': instance.tokens.toJson(),
       'isNewAccount': instance.isNewAccount,
       'consentRequired': instance.consentRequired,
-      'restoredFromDeletion': instance.restoredFromDeletion,
     };

@@ -16,11 +16,11 @@
     "note": "Patrol E2E가 welcome 화면(default)에 도착해 남긴 캡처"
   },
   {
-    "id": "render.account-delete.confirm.2026-10-20",
+    "id": "render.account-delete.confirm.2026-10-23",
     "title": "account-delete (confirm) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-account-delete-confirm.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-account-delete-confirm.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "account-delete"
@@ -30,11 +30,11 @@
     "note": "confirm 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-delete.default.2026-10-20",
+    "id": "render.account-delete.default.2026-10-23",
     "title": "account-delete (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-account-delete-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-account-delete-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "account-delete"
@@ -44,11 +44,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-delete.error.2026-10-20",
+    "id": "render.account-delete.error.2026-10-23",
     "title": "account-delete (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-account-delete-error.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-account-delete-error.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "account-delete"
@@ -58,11 +58,11 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.calc-basis.default.2026-10-20",
+    "id": "render.calc-basis.default.2026-10-23",
     "title": "calc-basis (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-calc-basis-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-calc-basis-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "calc-basis"
@@ -114,11 +114,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.day-sheet.default.2026-10-22",
+    "id": "render.day-sheet.default.2026-10-23",
     "title": "day-sheet (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-22-day-sheet-default.png",
-    "date": "2026-10-22",
+    "file": "2026-10-23-day-sheet-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "day-sheet"
@@ -128,11 +128,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.day-sheet.diary-full.2026-10-22",
+    "id": "render.day-sheet.diary-full.2026-10-23",
     "title": "day-sheet (diary-full) 화면",
     "kind": "screenshot",
-    "file": "2026-10-22-day-sheet-diary-full.png",
-    "date": "2026-10-22",
+    "file": "2026-10-23-day-sheet-diary-full.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "day-sheet"
@@ -170,11 +170,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.diary-list.multi.2026-10-22",
+    "id": "render.diary-list.multi.2026-10-23",
     "title": "diary-list (multi) 화면",
     "kind": "screenshot",
-    "file": "2026-10-22-diary-list-multi.png",
-    "date": "2026-10-22",
+    "file": "2026-10-23-diary-list-multi.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "diary-list"
@@ -212,11 +212,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.locked.2026-10-20",
+    "id": "render.evidence-sheet.locked.2026-10-23",
     "title": "evidence-sheet (locked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-evidence-sheet-locked.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-evidence-sheet-locked.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -226,11 +226,11 @@
     "note": "locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.personal-locked.2026-10-20",
+    "id": "render.evidence-sheet.personal-locked.2026-10-23",
     "title": "evidence-sheet (personal-locked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-evidence-sheet-personal-locked.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-evidence-sheet-personal-locked.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -240,11 +240,11 @@
     "note": "personal-locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.personal.2026-10-20",
+    "id": "render.evidence-sheet.personal.2026-10-23",
     "title": "evidence-sheet (personal) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-evidence-sheet-personal.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-evidence-sheet-personal.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -254,11 +254,11 @@
     "note": "personal 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.unlocked.2026-10-20",
+    "id": "render.evidence-sheet.unlocked.2026-10-23",
     "title": "evidence-sheet (unlocked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-evidence-sheet-unlocked.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-evidence-sheet-unlocked.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -268,11 +268,11 @@
     "note": "unlocked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.explain-sheet.default.2026-10-20",
+    "id": "render.explain-sheet.default.2026-10-23",
     "title": "explain-sheet (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-explain-sheet-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-explain-sheet-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "explain-sheet"
@@ -422,11 +422,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.changed.2026-10-20",
+    "id": "render.profile-edit.changed.2026-10-23",
     "title": "profile-edit (changed) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-profile-edit-changed.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-profile-edit-changed.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -436,11 +436,11 @@
     "note": "changed 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.confirm.2026-10-20",
+    "id": "render.profile-edit.confirm.2026-10-23",
     "title": "profile-edit (confirm) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-profile-edit-confirm.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-profile-edit-confirm.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -450,11 +450,11 @@
     "note": "confirm 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.default.2026-10-20",
+    "id": "render.profile-edit.default.2026-10-23",
     "title": "profile-edit (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-profile-edit-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-profile-edit-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -464,11 +464,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.error.2026-10-20",
+    "id": "render.profile-edit.error.2026-10-23",
     "title": "profile-edit (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-profile-edit-error.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-profile-edit-error.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -478,11 +478,81 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.default.2026-10-20",
+    "id": "render.purchase-history.default.2026-10-23",
+    "title": "purchase-history (default) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-default.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.empty.2026-10-23",
+    "title": "purchase-history (empty) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-empty.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "empty 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.error.2026-10-23",
+    "title": "purchase-history (error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-error.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.loading.2026-10-23",
+    "title": "purchase-history (loading) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-loading.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.purchase-history.offline.2026-10-23",
+    "title": "purchase-history (offline) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-23-purchase-history-offline.png",
+    "date": "2026-10-23",
+    "milestone": "A1",
+    "screens": [
+      "purchase-history"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "offline 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.saju-chart.default.2026-10-23",
     "title": "saju-chart (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-saju-chart-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-saju-chart-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -492,11 +562,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.error.2026-10-20",
+    "id": "render.saju-chart.error.2026-10-23",
     "title": "saju-chart (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-saju-chart-error.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-saju-chart-error.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -506,11 +576,11 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.loading.2026-10-20",
+    "id": "render.saju-chart.loading.2026-10-23",
     "title": "saju-chart (loading) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-saju-chart-loading.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-saju-chart-loading.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -520,11 +590,11 @@
     "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.luck.2026-10-20",
+    "id": "render.saju-chart.luck.2026-10-23",
     "title": "saju-chart (luck) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-saju-chart-luck.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-saju-chart-luck.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -534,11 +604,11 @@
     "note": "luck 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.time-unknown.2026-10-20",
+    "id": "render.saju-chart.time-unknown.2026-10-23",
     "title": "saju-chart (time-unknown) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-saju-chart-time-unknown.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-saju-chart-time-unknown.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -548,11 +618,11 @@
     "note": "time-unknown 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.unlocked.2026-10-20",
+    "id": "render.saju-chart.unlocked.2026-10-23",
     "title": "saju-chart (unlocked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-saju-chart-unlocked.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-saju-chart-unlocked.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -646,11 +716,11 @@
     "note": "notify-sheet 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.share-preview.default.2026-10-20",
+    "id": "render.share-preview.default.2026-10-23",
     "title": "share-preview (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-share-preview-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-share-preview-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "share-preview"
@@ -674,11 +744,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.today.default.2026-10-20",
+    "id": "render.today.default.2026-10-23",
     "title": "today (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-today-default.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-today-default.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "today"
@@ -688,11 +758,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.today.diary-full.2026-10-22",
+    "id": "render.today.diary-full.2026-10-23",
     "title": "today (diary-full) 화면",
     "kind": "screenshot",
-    "file": "2026-10-22-today-diary-full.png",
-    "date": "2026-10-22",
+    "file": "2026-10-23-today-diary-full.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "today"
@@ -702,11 +772,11 @@
     "note": "diary-full 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.today.diary-written.2026-10-22",
+    "id": "render.today.diary-written.2026-10-23",
     "title": "today (diary-written) 화면",
     "kind": "screenshot",
-    "file": "2026-10-22-today-diary-written.png",
-    "date": "2026-10-22",
+    "file": "2026-10-23-today-diary-written.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "today"
@@ -730,11 +800,11 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.today.time-unknown.2026-10-20",
+    "id": "render.today.time-unknown.2026-10-23",
     "title": "today (time-unknown) 화면",
     "kind": "screenshot",
-    "file": "2026-10-20-today-time-unknown.png",
-    "date": "2026-10-20",
+    "file": "2026-10-23-today-time-unknown.png",
+    "date": "2026-10-23",
     "milestone": "A1",
     "screens": [
       "today"

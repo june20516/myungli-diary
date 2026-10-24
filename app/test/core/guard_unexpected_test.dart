@@ -33,4 +33,42 @@ void main() {
     expect(reporter.errors.single.errorType, 'StateError');
     expect(reporter.errors.single.code, isNull);
   });
+
+  group('recordUnlessAppError', () {
+    test('AppError는 기록하지 않습니다', () {
+      final reporter = FakeCrashReporter();
+      recordUnlessAppError(reporter, const OfflineError(), StackTrace.empty);
+      recordUnlessAppError(
+        reporter,
+        const ProblemError(
+          code: 'billing.provider_unavailable',
+          status: 503,
+          fieldErrors: [],
+          traceId: 't',
+        ),
+        StackTrace.empty,
+      );
+      expect(reporter.errors, isEmpty);
+    });
+
+    test('UnexpectedError는 감싼 원인의 타입으로 한 번 기록합니다', () {
+      final reporter = FakeCrashReporter();
+      recordUnlessAppError(
+        reporter,
+        UnexpectedError(StateError('하늘 1990-05-15')),
+        StackTrace.empty,
+      );
+      expect(reporter.errors, hasLength(1));
+      expect(reporter.errors.single.errorType, 'StateError');
+      expect(reporter.errors.single.code, isNull);
+      expect(reporter.errors.single.status, isNull);
+    });
+
+    test('그 밖의 오류는 그 타입으로 한 번 기록합니다', () {
+      final reporter = FakeCrashReporter();
+      recordUnlessAppError(reporter, ArgumentError('x'), StackTrace.empty);
+      expect(reporter.errors, hasLength(1));
+      expect(reporter.errors.single.errorType, 'ArgumentError');
+    });
+  });
 }

@@ -16,6 +16,7 @@ import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
@@ -215,6 +216,72 @@ void main() {
     );
     expect(saved, isNull);
   });
+
+  testWidgets(
+    'consented-no-profile: 미리보기 입력이 있으면 저장하고 onboard-call 없이 notify-ask',
+    (tester) async {
+      covers(const Covers(exits: ['login>notify-ask'], decisions: ['D90']));
+      final container = await openPreviewStep(
+        tester,
+        scenario: 'consented-no-profile',
+      );
+      await tester.tap(_screen(SlotIds.previewCtaSave));
+      await tester.pumpAndSettle();
+
+      await tester.tap(_kakaoButton);
+      // 저장이 끝나 진입이 바뀔 때까지 프레임마다 onboard-call이 한 번도 보이지 않아야 합니다.
+      await _pumpUntil(tester, () {
+        expect(
+          _screen(ScreenIds.onboardCall),
+          findsNothing,
+          reason: '로그인이 저장하는 동안 onboard-call을 거치면 안 됩니다',
+        );
+        return _screen(ScreenIds.notifyAsk).evaluate().isNotEmpty;
+      });
+      await settleTimezoneSync(tester, container);
+      await tester.pumpAndSettle();
+
+      expect(_screen(ScreenIds.notifyAsk), findsOneWidget);
+      expect(_screen(ScreenIds.onboardCall), findsNothing);
+      // 저장은 로그인에서 한 번뿐입니다(onboard-call이 다시 저장하지 않음).
+      expect(_fake(container).requestBodiesOf('createProfile'), hasLength(1));
+      expect(
+        container.read(onboardingDraftProvider).value,
+        const OnboardingDraft(),
+      );
+    },
+  );
+
+  testWidgets(
+    'consented-profile-invalid: 저장이 422면 onboard-call에서 안내를 한 번만 보이고 입력은 남습니다',
+    (tester) async {
+      covers(const Covers(exits: ['login>onboard-call'], decisions: ['D90']));
+      final container = await openPreviewStep(
+        tester,
+        scenario: 'consented-profile-invalid',
+      );
+      await tester.tap(_screen(SlotIds.previewCtaSave));
+      await tester.pumpAndSettle();
+
+      await tester.tap(_kakaoButton);
+      await _pumpUntil(
+        tester,
+        () => _screen(ScreenIds.onboardCall).evaluate().isNotEmpty,
+      );
+      await settleTimezoneSync(tester, container);
+      await tester.pumpAndSettle();
+
+      expect(find.text(_ko.errorBirthInvalid), findsOneWidget);
+      expect(_fake(container).callCountOf('createProfile'), 1);
+      // 안내는 onboard-call이 꺼내 비웠습니다. 다시 들어가도 남지 않습니다.
+      expect(container.read(onboardingRejectionNoticeProvider), isNull);
+      expect(
+        container.read(onboardingDraftProvider).value,
+        isNot(const OnboardingDraft()),
+      );
+      await tester.pump(const Duration(seconds: 10));
+    },
+  );
 
   testWidgets('login-provider-down: 재시도 안내, 토큰 없음, 다시 누르면 다시 요청', (
     tester,

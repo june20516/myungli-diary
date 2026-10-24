@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -276,7 +277,7 @@ class DailyController extends AsyncNotifier<DailyView> {
     }
     return dailyKey(
       fingerprint: sajuFingerprint(profile),
-      language: profile.language.value,
+      language: knownLanguageOf(profile.language).value,
       date: date.toIso(),
     );
   }

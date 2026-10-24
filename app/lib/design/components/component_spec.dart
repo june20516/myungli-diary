@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
@@ -95,6 +97,8 @@ const List<ComponentSpec> implementedComponents = [
   ShareImage.spec,
   ShareButton.spec,
   SocialLoginButton.spec,
+  OfferCard.spec,
+  PurchaseRowGroup.spec,
   EventRow.spec,
   CalendarMonthView.spec,
   DayCell.spec,

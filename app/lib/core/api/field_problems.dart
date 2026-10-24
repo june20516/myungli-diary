@@ -1,5 +1,6 @@
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
+import 'package:myungli_diary/core/api/known_language.dart';
 
 /// 프로필 입력 칸에 붙이는 필드 오류 위치(JSON Pointer)입니다.
 const ({
@@ -34,7 +35,9 @@ FieldProblem? fieldProblemAt(AppError error, String pointer) {
 /// 호칭 입력 칸의 글자 수 상한입니다(프로필 언어 기준).
 ///
 /// 스키마 상한은 20이지만 server 규칙(`name.too_long`)이 ko·ja 10, en 20입니다.
-int honorificMaxLength(Language language) => switch (language) {
-  Language.ko || Language.ja => 10,
-  Language.en => 20,
-};
+/// 모르는 언어는 기본 언어(en)로 봅니다([knownLanguageOf]).
+int honorificMaxLength(Language language) =>
+    switch (knownLanguageOf(language)) {
+      Language.ko || Language.ja => 10,
+      Language.en || Language.unknownDefaultOpenApi => 20,
+    };

@@ -3,12 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/entry/entry_state.dart';
-import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/app_config.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
+import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
@@ -31,8 +31,7 @@ final targetPlatformProvider = Provider<TargetPlatform>(
 /// 설치 확인 → `getAppConfig` → 토큰 확인 → `getMe` 순서입니다. 설치 표시
 /// ([installedKey])가 없으면 다시 설치한 것이라 이전 설치의 토큰을 버립니다. 통신이 실패하면 오류 상태가
 /// 되고(launch 화면이 다시 시도를 보임), `getMe`가 401이면 남은 토큰을 지우고
-/// (`TokenStore.signOut`) 로그아웃으로 봅니다. 삭제 대기 계정이면 server에 토큰 폐기를
-/// 시도한 뒤 로그아웃합니다([revokeAndSignOut]). 어느 쪽이든 `signedOut` 이벤트가 나가
+/// (`TokenStore.signOut`) 로그아웃으로 봅니다. `signedOut` 이벤트가 나가
 /// 로컬 정리가 돕니다. 토큰 이벤트(로그아웃, 약관 동의 필요)를 받으면 다시 계산합니다.
 ///
 /// 이 계산이 내는 [meProvider]가 세션 복원과 로그인 뒤 계정 연결의 유일한 출처입니다
@@ -81,6 +80,37 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     }
   }
 
+  /// 내 정보(`getMe`)만 다시 받아 state의 `me`를 바꿉니다. 갈래·앱 설정은 그대로입니다.
+  ///
+  /// 구매·동기화 뒤 광고 제거 상태를 갱신하려고 씁니다. 다시 계산하지 않으므로 라우터가
+  /// launch로 되돌아가지 않습니다. 로그아웃 판단은 `me` 유무로 합니다.
+  ///
+  /// 로그아웃 상태이거나 진입을 다시 계산하는 중이면 아무것도 하지 않습니다. 기다리는 사이
+  /// state가 바뀌었거나(새 계산·로그아웃) 다시 계산이 시작됐으면 결과를 버립니다.
+  /// 통신 실패는 삼키고 이전 `me`를 둡니다.
+  Future<void> reloadMe() async {
+    final current = state.value;
+    if (!ref.mounted ||
+        state.isLoading ||
+        current == null ||
+        current.me == null) {
+      return;
+    }
+    final Me me;
+    try {
+      me = await _call(ref.read(restClientProvider).getMe);
+    } on Object catch (error, stack) {
+      if (ref.mounted) {
+        recordUnlessAppError(ref.read(crashReporterProvider), error, stack);
+      }
+      return;
+    }
+    if (!ref.mounted || state.isLoading || !identical(state.value, current)) {
+      return;
+    }
+    state = AsyncData(EntrySnapshot(current.entry, me, config: current.config));
+  }
+
   Future<EntrySnapshot> _compute() async {
     final api = ref.read(restClientProvider);
     final tokens = ref.read(tokenStoreProvider);
@@ -114,12 +144,6 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
         }
         return EntrySnapshot(EntryState.signedOut, null, config: config);
       }
-    }
-
-    if (me != null && isPendingDeletion(me)) {
-      // signOut 이벤트로 다시 계산되며, 그때는 세션이 없어 getMe를 부르지 않습니다.
-      await revokeAndSignOut(api: api, tokens: tokens);
-      return EntrySnapshot(EntryState.signedOut, null, config: config);
     }
 
     final notifyAskPending = await flags.readBool(notifyAskPendingKey);
@@ -160,7 +184,8 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
       }
       return data;
     } on DioException catch (e) {
-      throw appErrorFrom(e);
+      // 원래 요청 위치의 stack을 남겨 crash 기록이 실패 지점을 가리키게 합니다.
+      Error.throwWithStackTrace(appErrorFrom(e), e.stackTrace);
     }
   }
 }

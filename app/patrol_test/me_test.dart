@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart'
     show Finder, expect, find, findsNothing, findsOneWidget;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
@@ -68,6 +69,8 @@ void main() {
           'settings>profile-edit',
           'profile-edit>onboard-birth',
           'settings>welcome',
+          'settings>ad-free',
+          'ad-free>purchase-history',
         ],
         decisions: ['D60'],
       ),
@@ -171,6 +174,23 @@ void main() {
     // 톱니 → 설정 → 로그아웃 → 확인 → welcome.
     await $(find.byKey(MySajuScreen.settingsKey)).tap();
     await waitForScreen($, ScreenIds.settings);
+
+    // 광고 제거 → 구매 내역(이 시나리오는 구매가 없어 빈 목록) → 뒤로 두 번.
+    await $(find.byKey(SettingsScreen.adFreeRowKey)).scrollTo();
+    await $(find.byKey(SettingsScreen.adFreeRowKey)).tap();
+    await waitForScreen($, ScreenIds.adFree);
+    await $(find.byKey(OfferCard.historyKey)).tap();
+    await waitForScreen($, ScreenIds.purchaseHistory);
+    await _waitUntil(
+      $,
+      () => find.text(l10n.purchaseHistoryEmptyBody).evaluate().isNotEmpty,
+    );
+    expect(find.text(l10n.purchaseHistoryMissingNotice), findsOneWidget);
+    await expectScreen($, ScreenIds.purchaseHistory, state: 'empty');
+    await _back($);
+    await _back($);
+    await waitForScreen($, ScreenIds.settings);
+
     await $(find.byKey(SettingsScreen.logoutRowKey)).scrollTo();
     await $(find.byKey(SettingsScreen.logoutRowKey)).tap();
     await $(find.text(l10n.settingsLogoutConfirm)).waitUntilVisible();

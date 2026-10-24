@@ -116,7 +116,11 @@ ProfilePatch _$ProfilePatchFromJson(Map<String, dynamic> json) =>
         honorific: $checkedConvert('honorific', (v) => v as String?),
         language: $checkedConvert(
           'language',
-          (v) => $enumDecodeNullable(_$LanguageEnumMap, v),
+          (v) => $enumDecodeNullable(
+            _$LanguageEnumMap,
+            v,
+            unknownValue: Language.unknownDefaultOpenApi,
+          ),
         ),
         currentTimezone: $checkedConvert(
           'currentTimezone',
@@ -149,4 +153,5 @@ const _$LanguageEnumMap = {
   Language.ko: 'ko',
   Language.en: 'en',
   Language.ja: 'ja',
+  Language.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

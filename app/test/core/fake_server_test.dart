@@ -226,6 +226,8 @@ void main() {
         'preview-used',
         'preview-invalid',
         'returning-user',
+        'consented-no-profile',
+        'consented-profile-invalid',
         'login-provider-down',
         'login-exchange-invalid',
         'new-user-signin',

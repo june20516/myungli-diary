@@ -97,19 +97,27 @@ final class DiaryRepository {
 
   /// [date]에 쓴 일기의 요약. server 순서(같은 날은 작성 순) 그대로입니다.
   ///
-  /// 하루 상한([diaryDayLimit])이 `limit`보다 작아 한 쪽으로 끝납니다. 실패는 [find]와 같은
+  /// 하루 상한([diaryDayLimit])이 `limit`보다 작아 보통 한 쪽이지만, `nextCursor`가 있으면
+  /// [datesIn]처럼 최대 [_maxDatePages]쪽까지 이어 받습니다. 실패는 [find]와 같은
   /// [AppError]입니다.
-  Future<List<DiarySummary>> diariesOn(CalendarDate date) async {
-    final list = await page(from: date, to: date, limit: _maxPageLimit);
-    return list.items;
-  }
+  Future<List<DiarySummary>> diariesOn(CalendarDate date) =>
+      _allItems(from: date, to: date);
 
   /// [from]~[to](둘 다 포함)에 쓴 일기의 날짜(A33). 달력 격자(42일)에는 같은 날 여러 편이
-  /// 있을 수 있어 `nextCursor`가 없을 때까지 이어 받되, 최대 [_maxDatePages]쪽이고 같은
-  /// cursor가 다시 오면 멈춥니다. 상한에 닿으면 받은 날짜까지만 돌려줍니다. 실패는 [find]와
-  /// 같은 [AppError]입니다.
+  /// 있을 수 있어 `nextCursor`를 이어 받습니다([_allItems]). 상한에 닿으면 받은 날짜까지만
+  /// 돌려줍니다. 실패는 [find]와 같은 [AppError]입니다.
   Future<Set<CalendarDate>> datesIn(CalendarDate from, CalendarDate to) async {
-    final dates = <CalendarDate>{};
+    final items = await _allItems(from: from, to: to);
+    return {for (final item in items) CalendarDate.parse(item.date)};
+  }
+
+  /// [from]~[to]의 일기 요약을 `nextCursor`가 없을 때까지 이어 받되, 최대 [_maxDatePages]쪽이고
+  /// 같은 cursor가 다시 오면 멈춥니다.
+  Future<List<DiarySummary>> _allItems({
+    required CalendarDate from,
+    required CalendarDate to,
+  }) async {
+    final items = <DiarySummary>[];
     String? cursor;
     for (var received = 0; received < _maxDatePages; received++) {
       final list = await page(
@@ -118,14 +126,14 @@ final class DiaryRepository {
         cursor: cursor,
         limit: _maxPageLimit,
       );
-      dates.addAll(list.items.map((item) => CalendarDate.parse(item.date)));
+      items.addAll(list.items);
       final next = list.nextCursor;
       if (next == null || next == cursor) {
         break;
       }
       cursor = next;
     }
-    return dates;
+    return items;
   }
 
   /// 일기 목록 한 쪽(날짜 내림차순, 같은 날은 작성 순). [cursor]는 앞 쪽의 `nextCursor`이고,

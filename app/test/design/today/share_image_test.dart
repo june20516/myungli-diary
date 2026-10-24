@@ -42,7 +42,7 @@ List<LuckyItem> _items() => [
   LuckyItem(
     variant: LuckyCardVariant.time,
     name: '집중 시간',
-    value: '09:30–11:30',
+    value: '09:30~11:30',
     explain: _text('오후 3시에 집중이 잘 돼요.'),
   ),
 ];

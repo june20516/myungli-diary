@@ -16,28 +16,17 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 @immutable
 final class AccountChoiceOption {
   /// 카드 글자로 만듭니다.
-  const new({
-    required this.name,
-    required this.current,
-    required this.saju,
-    required this.diaryCount,
-    required this.providers,
-  });
+  const new({required this.name, required this.current, required this.saju});
 
   /// 호칭.
   final String name;
 
-  /// 지금 로그인한 계정이면 true. 호칭 뒤에 "현재 계정" 알약을 둡니다.
+  /// 지금 로그인한 계정(A)이면 true. 호칭 뒤에 "현재 계정"(`current`) 알약을, 아니면 가져올 계정(B)이라
+  /// "가져올 계정"(`other`) 알약을 둡니다.
   final bool current;
 
   /// 사주 요약 한 줄(`ui.account-merge.saju`). 사주가 없으면 "사주 정보 없음".
   final String saju;
-
-  /// 일기 수("일기 12편", `accountChoiceDiaryCount`).
-  final String diaryCount;
-
-  /// 연결된 수단 이름을 구분자로 이은 글자("카카오 · Apple"). 로고는 쓰지 않습니다.
-  final String providers;
 }
 
 /// 합칠 두 계정 가운데 남길 쪽 고르기(`account-choice`, 결정 V40).
@@ -54,16 +43,19 @@ final class AccountChoiceOption {
 /// 화면에 보인 고름과 남는 계정이 어긋나지 않게 합니다. [loading]이면 카드 두 장 크기의 빈
 /// 카드가 숨쉽니다(`loading.breathe`, IA `account-merge:loading`).
 ///
-/// 일기 수와 수단 이름 줄은 넘치면 말줄임 없이 다음 줄로 감깁니다.
+/// 카드 순서는 [options] 순서(A → B)이고, 두 카드 모두 호칭 뒤에 알약을 붙여 호칭·사주가 같은
+/// 두 계정도 가릅니다. 일기 수·인증 계정 이름 줄은 없습니다(3.0.0).
 class AccountChoice extends StatelessWidget {
   /// 고르기 묶음을 만듭니다. [options]는 두 개입니다. [groupLabel]은 묶음의 스크린리더 이름
-  /// (`account-merge.choice.label`), [currentLabel]은 "현재 계정" 알약 글자입니다.
+  /// (`account-merge.choice.label`), [currentLabel]은 "현재 계정" 알약 글자,
+  /// [otherLabel]은 B 카드 알약 글자입니다.
   const new({
     required this.options,
     required this.selectedIndex,
     required this.onSelected,
     required this.groupLabel,
     required this.currentLabel,
+    required this.otherLabel,
     this.loading = false,
     this.identifier,
     this.animated = true,
@@ -120,6 +112,9 @@ class AccountChoice extends StatelessWidget {
   /// "현재 계정" 알약을 찾는 테스트용 키.
   static const Key currentPillKey = ValueKey('account-choice-current');
 
+  /// "가져올 계정"(B 카드) 알약을 찾는 테스트용 키.
+  static const Key otherPillKey = ValueKey('account-choice-other');
+
   /// 두 계정.
   final List<AccountChoiceOption> options;
 
@@ -134,6 +129,9 @@ class AccountChoice extends StatelessWidget {
 
   /// "현재 계정" 알약 글자(`accountChoiceCurrent`).
   final String currentLabel;
+
+  /// B 카드 알약 글자(`accountChoiceOther`).
+  final String otherLabel;
 
   /// 불러오는 중. 카드 글자 없이 빈 카드 두 장이 숨쉽니다.
   final bool loading;
@@ -195,6 +193,7 @@ class AccountChoice extends StatelessWidget {
               index: i,
               option: option,
               currentLabel: currentLabel,
+              otherLabel: otherLabel,
               selected: i == selectedIndex,
               anySelected: selectedIndex != null,
               onTap: onSelected == null ? null : () => _choose(i),
@@ -211,6 +210,7 @@ class _ChoiceCard extends StatefulWidget {
     required this.index,
     required this.option,
     required this.currentLabel,
+    required this.otherLabel,
     required this.selected,
     required this.anySelected,
     required this.onTap,
@@ -220,6 +220,7 @@ class _ChoiceCard extends StatefulWidget {
   final int index;
   final AccountChoiceOption option;
   final String currentLabel;
+  final String otherLabel;
   final bool selected;
 
   /// 묶음에 고른 카드가 있는지. `none`에서 처음 고를 때를 가립니다.
@@ -287,15 +288,13 @@ class _ChoiceCardState extends State<_ChoiceCard>
     super.dispose();
   }
 
+  /// 호칭 뒤 알약 글자.
+  String get _pillLabel =>
+      widget.option.current ? widget.currentLabel : widget.otherLabel;
+
   String _semanticLabel(AppLocalizations l10n) {
     final option = widget.option;
-    return [
-      option.name,
-      if (option.current) widget.currentLabel,
-      option.saju,
-      option.diaryCount,
-      option.providers,
-    ].join(l10n.a11yListSeparator);
+    return [option.name, _pillLabel, option.saju].join(l10n.a11yListSeparator);
   }
 
   @override
@@ -332,10 +331,13 @@ class _ChoiceCardState extends State<_ChoiceCard>
                   ),
                 ),
               ),
-              if (option.current) ...[
-                const SizedBox(width: Space.s8),
-                _CurrentPill(label: widget.currentLabel),
-              ],
+              const SizedBox(width: Space.s8),
+              _Pill(
+                key: option.current
+                    ? AccountChoice.currentPillKey
+                    : AccountChoice.otherPillKey,
+                label: _pillLabel,
+              ),
             ],
           ),
           Text(
@@ -344,25 +346,6 @@ class _ChoiceCardState extends State<_ChoiceCard>
               color: colors.textSecondary,
               fontFeatures: tabular,
             ),
-          ),
-          // 넘치면 말줄임 없이 다음 줄로 감습니다.
-          Wrap(
-            spacing: Space.s12,
-            // 감긴 줄 사이는 카드 안 줄 사이(`space.8`)와 같습니다.
-            runSpacing: Space.s8,
-            children: [
-              Text(
-                option.diaryCount,
-                style: typography.captionLg.copyWith(
-                  color: colors.textPrimary,
-                  fontFeatures: tabular,
-                ),
-              ),
-              Text(
-                option.providers,
-                style: typography.captionLg.copyWith(color: colors.textPrimary),
-              ),
-            ],
           ),
         ],
       ),
@@ -491,9 +474,9 @@ class _SelectedMark extends StatelessWidget {
   }
 }
 
-/// "현재 계정" 알약.
-class _CurrentPill extends StatelessWidget {
-  const new({required this.label});
+/// 호칭 뒤 알약("현재 계정"·"가져올 계정").
+class _Pill extends StatelessWidget {
+  const new({required this.label, super.key});
 
   final String label;
 
@@ -501,7 +484,6 @@ class _CurrentPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     return DecoratedBox(
-      key: AccountChoice.currentPillKey,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
         border: Border.all(color: tokens.colors.line),
@@ -574,7 +556,6 @@ class _LoadingCard extends StatelessWidget {
           children: [
             line(typography.subtitle, 0.4),
             line(typography.captionLg, 0.8),
-            line(typography.captionLg, 0.6),
           ],
         ),
       ),

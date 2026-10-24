@@ -5,7 +5,7 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 
 /// 인증 상태 변화 이벤트입니다.
 enum AuthEvent {
-  /// 로그아웃됐습니다(refresh 거부, `getMe` 401, 삭제 대기 계정, 자발적 로그아웃).
+  /// 로그아웃됐습니다(refresh 거부, `getMe` 401, 계정 삭제, 자발적 로그아웃).
   /// 로컬 정리·외부 SDK 연결 해제·진입 재계산이 이 이벤트를 듣습니다.
   signedOut,
 
@@ -65,7 +65,7 @@ final class TokenStore {
 
   /// 토큰을 지우고 [AuthEvent.signedOut]을 알립니다. 모든 로그아웃의 단일 진입점입니다.
   ///
-  /// server에 refresh token 폐기까지 하려면(자발적 로그아웃, 삭제 대기 계정)
+  /// server에 refresh token 폐기까지 하려면(자발적 로그아웃)
   /// `revokeAndSignOut`(app/entry/sign_out.dart)를 씁니다.
   Future<void> signOut() async {
     await discardWithoutEvent();

@@ -17,7 +17,6 @@ _spec.loader.exec_module(validate_fixtures)
 def _me_body(**overrides):
     body = {
         "accountId": "0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10",
-        "status": "active",
         "consentRequired": False,
         "requiredConsents": [],
         "hasProfile": True,
@@ -46,6 +45,37 @@ class ValidateFixtureTest(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("hasProfile", errors[0])
         self.assertTrue(errors[0].startswith("/body"))
+
+    def test_unknown_property_fails(self):
+        errors = self.check(
+            "getMe", {"status": 200, "body": _me_body(status="active")}
+        )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("status", errors[0])
+        self.assertTrue(errors[0].startswith("/body:"), errors[0])
+
+    def test_unknown_nested_property_fails(self):
+        errors = self.check(
+            "getMe",
+            {"status": 200, "body": _me_body(adFree={"active": False, "x": 1})},
+        )
+        self.assertEqual(len(errors), 1)
+        self.assertTrue(errors[0].startswith("/body/adFree:"), errors[0])
+
+    def test_declared_additional_properties_is_respected(self):
+        schema = {
+            "type": "object",
+            "properties": {"a": {"type": "string"}},
+            "additionalProperties": {"type": "integer"},
+        }
+        closed = validate_fixtures._close_objects(schema)
+        self.assertEqual(closed["additionalProperties"], {"type": "integer"})
+        self.assertIs(
+            validate_fixtures._close_objects(
+                {"type": "object", "properties": {"a": {"type": "string"}}}
+            )["additionalProperties"],
+            False,
+        )
 
     def test_nested_error_reports_json_pointer(self):
         errors = self.check(
@@ -94,11 +124,11 @@ class ValidateFixtureTest(unittest.TestCase):
             "getMe",
             {
                 "status": 200,
-                "body": _me_body(status="pending_deletion", deletionScheduledAt="내일"),
+                "body": _me_body(adFree={"active": True, "expiresAt": "내일"}),
             },
         )
         self.assertEqual(len(errors), 1)
-        self.assertIn("/body/deletionScheduledAt", errors[0])
+        self.assertIn("/body/adFree/expiresAt", errors[0])
 
     def test_sequence_validates_every_response(self):
         problem = {

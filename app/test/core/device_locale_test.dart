@@ -66,6 +66,14 @@ void main() {
       expect(container.read(deviceRegionIsKoreaProvider), isTrue);
     });
 
+    test('프로필 언어가 모르는 값이면 en으로 쓴다', () {
+      final container = containerOf(
+        const Locale('ko', 'KR'),
+        Language.unknownDefaultOpenApi,
+      );
+      expect(container.read(localeProvider), const Locale('en', 'KR'));
+    });
+
     test('기본 profileLanguageProvider는 null이다(사본 연결은 app 계층)', () {
       final container = ProviderContainer(
         overrides: [

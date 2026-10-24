@@ -49,7 +49,12 @@ class Yongsin {
   @JsonKey(name: r'tonggwan', required: true, includeIfNull: false)
   final FiveElement tonggwan;
 
-  @JsonKey(name: r'method', required: true, includeIfNull: false)
+  @JsonKey(
+    name: r'method',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: YongsinMethod.unknownDefaultOpenApi,
+  )
   final YongsinMethod method;
 
   @JsonKey(name: r'johuStem', required: false, includeIfNull: false)

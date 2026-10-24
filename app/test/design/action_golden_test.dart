@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
+import 'package:myungli_diary/design/components/action/offer_card_sample.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/purchase_row.dart';
+import 'package:myungli_diary/design/components/action/purchase_row_sample.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
@@ -175,6 +179,40 @@ Widget _socialConnected() => Builder(
   },
 );
 
+/// offer-card: available·active·purchasing·offline.
+/// 견본은 앱 lib의 `offerCardSample`(widgetbook과 공용)입니다.
+Widget _offerCards() => Builder(
+  builder: (context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s12,
+      children: [
+        for (final state in OfferCardState.values)
+          offerCardSample(l10n, locale, state, animated: false),
+      ],
+    );
+  },
+);
+
+/// purchase-row: 사용 중, 대기, 만료, 환불, 기간 없음 한 묶음과 loading.
+/// 견본은 앱 lib의 `purchaseRowSamples`(widgetbook과 공용)입니다.
+Widget _purchaseRows() => Builder(
+  builder: (context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.s12,
+      children: [
+        PurchaseRowGroup(rows: purchaseRowSamples(l10n, locale)),
+        const PurchaseRowGroup.loading(animated: false),
+      ],
+    );
+  },
+);
+
 /// share-button: icon(앱 바 동작)·soft(본문 안 입구).
 Widget _shareButtons() => Builder(
   builder: (context) {
@@ -227,6 +265,14 @@ void main() {
       _socialConnected,
       settle: (tester) => tester.pumpAndSettle(),
     );
+  });
+
+  goldenTest('offer-card: available·active·purchasing·offline', (tester) async {
+    await goldenMatrix(tester, 'action_offer_card', _offerCards);
+  });
+
+  goldenTest('purchase-row: 상태 넷, 기간 없음, loading', (tester) async {
+    await goldenMatrix(tester, 'action_purchase_row', _purchaseRows);
   });
 
   goldenTest('share-button: icon·soft', (tester) async {

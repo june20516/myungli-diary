@@ -147,6 +147,8 @@ flutter:
     - fixtures/preview-used/
     - fixtures/preview-invalid/
     - fixtures/returning-user/
+    - fixtures/consented-no-profile/
+    - fixtures/consented-profile-invalid/
     - fixtures/login-provider-down/
     - fixtures/login-exchange-invalid/
     - fixtures/new-user-signin/

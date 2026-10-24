@@ -81,6 +81,10 @@ void main() {
       'Insight.source',
       'ConsentDocument.document',
       'LoginProvider',
+      'PurchaseStatus',
+      'YongsinMethod',
+      'SlotText.reaction',
+      'Language',
     });
     expect(targets.where((t) => !t.isEnum).map((t) => t.name), [
       'Problem.code',
@@ -151,7 +155,14 @@ void main() {
       'insight.dart:source',
       'consent_document.dart:document',
       'identity.dart:provider',
-      'merge_account_summary.dart:providers',
+      'merge_preview_request.dart:provider',
+      'purchase.dart:status',
+      'yongsin.dart:method',
+      'slot_text.dart:reaction',
+      'profile.dart:language',
+      'profile_input.dart:language',
+      'profile_patch.dart:language',
+      'glossary.dart:lang',
     });
   });
 }

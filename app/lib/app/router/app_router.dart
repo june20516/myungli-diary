@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/features/auth/application/login_completing.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
 
@@ -149,6 +150,9 @@ String? entryRedirect({
   required EntryState? entry,
   required String location,
   String? pending,
+
+  /// 로그인이 프로필을 저장하는 중이라 `profileRequired`여도 보내지 않을 때 true입니다.
+  bool holdLogin = false,
 }) {
   final launch = pathOf(ScreenIds.launch);
   final uri = Uri.parse(location);
@@ -168,7 +172,11 @@ String? entryRedirect({
     EntryState.forceUpdate => id == ScreenIds.forceUpdate ? null : home,
     EntryState.signedOut => screen.auth == IaAuth.member ? home : null,
     EntryState.consentRequired => _consentIds.contains(id) ? null : home,
-    EntryState.profileRequired => _onboardingIds.contains(id) ? null : home,
+    // 로그인이 입력을 저장하는 동안은 onboard-call로 보내지 않고 그대로 둡니다(A79). 다시
+    // 평가할 때의 위치가 login이 아니라 그 아래에 쌓인 화면(예 welcome)일 수 있어 위치와 상관없이
+    // 붙듭니다.
+    EntryState.profileRequired =>
+      holdLogin || _onboardingIds.contains(id) ? null : home,
     EntryState.notifyAskRequired => id == ScreenIds.notifyAsk ? null : home,
     // 관문 화면(consent·notify-ask)은 member 화면이지만 자기 갈래에서만 열립니다. 끝나면
     // 진입이 바뀌어 이 갈래로 오므로 today로 보냅니다. 온보딩 단계도 프로필이 생기면 끝난
@@ -217,6 +225,7 @@ String? _redirect(Ref ref, {required Uri uri}) {
     entry: entry,
     location: location,
     pending: atLaunch ? pending.take() : null,
+    holdLogin: ref.read(loginCompletingProvider),
   );
 }
 
@@ -235,6 +244,8 @@ GoRouter buildRouter(Ref ref) {
   final refresh = ValueNotifier<int>(0);
   ref
     ..listen(entryProvider, (_, _) => refresh.value++)
+    // 보류가 풀리면 머물던 login을 다시 평가합니다.
+    ..listen(loginCompletingProvider, (_, _) => refresh.value++)
     ..onDispose(refresh.dispose);
 
   final tabRootSet = tabRoots.toSet();

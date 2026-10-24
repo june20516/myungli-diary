@@ -10,6 +10,8 @@ import 'package:flutter/widgets.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/offer_card.dart';
+import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
@@ -115,11 +117,11 @@ void main() {
   group('ComponentSpec 대조', () {
     final specs = loadSpecComponents();
 
-    test('명세 묶음에서 IA 컴포넌트 42개를 읽습니다', () {
-      expect(specs, hasLength(42));
+    test('명세 묶음에서 IA 컴포넌트 43개를 읽습니다', () {
+      expect(specs, hasLength(43));
     });
 
-    test('42개 전체의 variants·states 형태가 기대와 같습니다', () {
+    test('43개 전체의 variants·states 형태가 기대와 같습니다', () {
       for (final component in specs.values) {
         // variantIds·stateKeys가 형태(list/null, 문자열 id, dict/null)를 assert합니다.
         variantIds(component);
@@ -127,7 +129,7 @@ void main() {
       }
     });
 
-    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(42개)', () {
+    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(43개)', () {
       for (final component in specs.values) {
         final spec = ComponentSpec(
           component['id']! as String,
@@ -713,6 +715,159 @@ void main() {
         ]);
       },
     );
+  });
+
+  group('컴포넌트 3.0.0 값 대조', () {
+    final specs = loadSpecComponents();
+
+    test(
+      'account-choice 부품에 facts·diaryCount·providers가 없고 current·other 알약이 있다',
+      () {
+        final parts = _map(specs['account-choice']!['parts']);
+        for (final removed in ['facts', 'diaryCount', 'providers']) {
+          expect(parts, isNot(contains(removed)), reason: removed);
+        }
+        for (final (id, key) in [
+          ('current', 'accountChoiceCurrent'),
+          ('other', 'accountChoiceOther'),
+        ]) {
+          final pill = _map(parts[id]);
+          expect(pill['key'], key, reason: id);
+          expect(pill['type'], '{type.caption.sm}', reason: id);
+          expect(pill['radius'], '{radius.full}', reason: id);
+          expect(_map(pill['border'])['color'], '{color.line}', reason: id);
+          expect(pill['paddingX'], '{space.8}', reason: id);
+          expect(pill['gap'], '{space.8}', reason: id);
+        }
+      },
+    );
+
+    test('social-login-button 카카오 connected 배지는 #191919', () {
+      final connected = _map(
+        _map(specs['social-login-button']!['states'])['connected'],
+      );
+      final badge = _map(_map(_map(connected['parts'])['logo'])['badge']);
+      final kakao = _map(badge['kakao']);
+      expect(_hexColor(kakao['symbol']), SocialLoginButton.kakaoBadgeSymbol);
+      expect(
+        File('assets/brand/kakao/kakao_symbol.svg').readAsStringSync(),
+        contains('fill="${kakao['symbol']}"'),
+        reason: '배지 안 공식 심볼 자산의 색',
+      );
+    });
+
+    test('social-login-button LINE 글자 자리 198, 다른 제공자 232', () {
+      final variants = {
+        for (final variant
+            in specs['social-login-button']!['variants']! as List<Object?>)
+          _map(variant)['id']! as String: _map(variant),
+      };
+      final line = _map(_map(variants['line']!['parts'])['label']);
+      expect(
+        _px(line['width']),
+        SocialLoginButton.labelWidth(SocialProvider.line),
+      );
+      expect(_px(line['width']), 198);
+      expect(_map(line)['widthSource'], contains('232px'));
+      expect(SocialLoginButton.labelWidth(SocialProvider.kakao), 232);
+      expect(SocialLoginButton.labelWidth(SocialProvider.google), 232);
+      expect(SocialLoginButton.labelWidth(SocialProvider.apple), 232);
+    });
+
+    test('diary-row entry 꺾쇠 앞 간격은 space.8', () {
+      final entry = _map(_map(_map(specs['diary-row']!['parts'])['entry']));
+      final chevron = _map(entry['chevron']);
+      expect(chevron['marginStart'], '{space.8}');
+      expect(DiaryEntryLine.chevronGap, Space.s8);
+    });
+
+    test('offer-card 부품 값(바탕·radius·padding·아이콘 sparkle 28·간격 12/16/20/12)이 명세와 같다', () {
+      final offer = specs['offer-card']!;
+      final parts = _map(offer['parts']);
+      final container = _map(parts['container']);
+      expect(container['bg'], '{color.bg.sheet}');
+      expect(container['radius'], '{radius.lg}');
+      expect(container['padding'], '{space.20}');
+      expect(OfferCard.padding, Space.s20);
+      expect(Radii.lg, 20);
+
+      final icon = _map(parts['icon']);
+      expect(icon['name'], 'sparkle');
+      expect(icon['weight'], 'light');
+      expect(_px(icon['size']), OfferCard.iconSize);
+      expect(OfferCard.iconSize, AppIconSize.state.logical);
+      expect(OfferCard.iconSize, 28);
+      expect(icon['color'], '{color.action.primary}');
+
+      expect(_map(parts['head'])['type'], '{type.subtitle}');
+      expect(_map(parts['head'])['marginTop'], '{space.12}');
+      expect(OfferCard.headGap, Space.s12);
+      expect(_map(parts['price'])['type'], '{type.title}');
+      expect(_map(parts['price'])['fontFeatures'], ['tnum']);
+      expect(_map(parts['price'])['marginTop'], '{space.16}');
+      expect(OfferCard.priceGap, Space.s16);
+      // period(IA ad-free.offer.period): 글자 값은 명세, 가격과의 간격은 명세에 없어
+      // purchase-row 보조 줄 간격(space.4)을 따릅니다.
+      final period = _map(parts['period']);
+      expect(period['type'], '{type.caption.lg}');
+      expect(period['fg'], '{color.text.secondary}');
+      expect(period, isNot(contains('marginTop')));
+      expect(OfferCard.periodGap, PurchaseRowGroup.metaGap);
+      expect(OfferCard.periodGap, Space.s4);
+      expect(_map(parts['status'])['element'], 'tag.status');
+      expect(_map(parts['remaining'])['type'], '{type.body.ui}');
+      expect(_map(parts['remaining'])['fontFeatures'], ['tnum']);
+      expect(_map(parts['buy'])['marginTop'], '{space.20}');
+      expect(OfferCard.buyGap, Space.s20);
+      expect(_map(parts['legal'])['type'], '{type.caption.md}');
+      expect(_map(parts['legal'])['marginTop'], '{space.12}');
+      expect(OfferCard.legalGap, Space.s12);
+
+      expect(_map(parts['buy'])['variant'], 'filled');
+      expect(_map(parts['history'])['variant'], 'quiet');
+      expect(_map(_map(offer['states'])['active'])['pattern'], 'appear.seep');
+    });
+
+    test('purchase-row 부품 값(바탕, radius, 간격 16/16/4/12, 상태 폭 80)이 명세와 같다', () {
+      final purchase = specs['purchase-row']!;
+      final parts = _map(purchase['parts']);
+      final group = _map(parts['group']);
+      expect(group['bg'], '{color.bg.sheet}');
+      expect(group['radius'], '{radius.lg}');
+      expect(group['paddingX'], '{space.16}');
+      expect(PurchaseRowGroup.paddingX, Space.s16);
+
+      final row = _map(parts['row']);
+      expect(row['paddingY'], '{space.16}');
+      expect(PurchaseRowGroup.rowPaddingY, Space.s16);
+      expect(row['pressable'], isFalse);
+      final divider = _map(row['divider']);
+      expect(divider['color'], '{color.line}');
+      expect(_px(divider['width']), 1);
+      expect(divider['between'], 'rows-only');
+
+      expect(_map(parts['product'])['type'], '{type.subtitle}');
+      expect(_map(parts['product'])['overflow'], 'wrap');
+
+      final status = _map(parts['status']);
+      expect(status['gap'], '{space.12}');
+      expect(PurchaseRowGroup.statusGap, Space.s12);
+      expect(_px(status['maxWidth']), PurchaseRowGroup.statusMaxWidth);
+      expect(_map(status['active'])['element'], 'tag.status');
+      expect(_map(status['other'])['type'], '{type.label.md}');
+      expect(_map(status['other'])['fg'], '{color.text.secondary}');
+
+      final meta = _map(parts['meta']);
+      expect(meta['type'], '{type.caption.lg}');
+      expect(meta['fontFeatures'], ['tnum']);
+      expect(meta['marginTop'], '{space.4}');
+      expect(PurchaseRowGroup.metaGap, Space.s4);
+
+      expect(
+        _map(_map(purchase['states'])['loading'])['component'],
+        'skeleton',
+      );
+    });
   });
 
   group('InteractionPattern 대조', () {

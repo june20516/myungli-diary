@@ -118,15 +118,15 @@ String birthFieldLabel(
   BirthField.place => birthplaceLabel(l10n, values.place) ?? '',
 };
 
-/// 확인 창 본문의 바뀌기 전·뒤 글자. 바뀐 항목만 ` · `로 잇습니다(A62).
+/// 확인 창 본문의 바뀌기 전·뒤 글자. 바뀐 항목만 `, `로 잇습니다(A62).
 ({String before, String after}) recalcChangeLabels(
   AppLocalizations l10n,
   List<BirthField> changes, {
   required BirthValues before,
   required BirthValues after,
 }) => (
-  before: changes.map((f) => birthFieldLabel(l10n, f, before)).join(' · '),
-  after: changes.map((f) => birthFieldLabel(l10n, f, after)).join(' · '),
+  before: changes.map((f) => birthFieldLabel(l10n, f, before)).join(', '),
+  after: changes.map((f) => birthFieldLabel(l10n, f, after)).join(', '),
 );
 
 /// 정보 수정(`profile-edit`, 결정 A62).

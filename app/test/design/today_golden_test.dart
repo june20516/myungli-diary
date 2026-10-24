@@ -80,7 +80,7 @@ List<LuckyItem> _goldenLuckyItems({required bool ja}) {
     LuckyItem(
       variant: LuckyCardVariant.time,
       name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-      value: '09:30–11:30 · 13:30–15:30',
+      value: '09:30~11:30, 13:30~15:30',
       explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
     ),
   ];
@@ -190,7 +190,7 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
           LuckyItem(
             variant: LuckyCardVariant.time,
             name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-            value: '09:30–11:30 · 13:30–15:30',
+            value: '09:30~11:30, 13:30~15:30',
             explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
           ),
         ],

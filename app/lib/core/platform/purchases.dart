@@ -1,12 +1,18 @@
 import 'package:myungli_diary/core/api/app_error.dart';
 
+/// 대역 모드의 광고 제거권 상품 id. 실제 id는 빌드 설정(`AD_FREE_PRODUCT_IDS`)으로 받습니다.
+const fakeAdFreeProductId = 'ad_free_1month';
+
 /// 스토어 상품.
 final class StoreProduct {
-  /// 상품 id와 표시용 가격을 담습니다.
-  const new({required this.id, required this.priceLabel});
+  /// 상품 id와 스토어가 현지화한 이름·가격을 담습니다.
+  const new({required this.id, required this.title, required this.priceLabel});
 
   /// 스토어 상품 id.
   final String id;
+
+  /// 스토어가 현지화한 상품 이름. 구매 내역에서 app이 이름을 모르는 상품에 씁니다(D88).
+  final String title;
 
   /// 스토어가 현지화한 가격 문자열.
   final String priceLabel;
@@ -47,12 +53,12 @@ abstract interface class Purchases {
   /// 로그아웃할 때 구매 계정 연결을 끊습니다.
   Future<void> logOut();
 
-  /// 구매를 복원합니다.
-  Future<PurchaseOutcome> restore();
+  /// 스토어 구매 내역을 RevenueCat에 다시 맞춥니다. 실패하면 `AppError`를 던집니다.
+  Future<void> sync();
 
   /// 살 수 있는 상품.
   Future<List<StoreProduct>> products();
 
-  /// [productId]를 삽니다.
+  /// [productId]를 삽니다. 실패는 던지지 않고 [PurchaseFailed]로 돌려줍니다.
   Future<PurchaseOutcome> buy(String productId);
 }

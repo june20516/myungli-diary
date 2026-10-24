@@ -66,25 +66,6 @@ Response<Object?> _problem(RequestOptions options, int status, String code) =>
       data: {'status': status, 'code': code, 'title': code, 'traceId': 't'},
     );
 
-Response<Object?> _pendingDeletionMe(RequestOptions options) =>
-    Response<Object?>(
-      requestOptions: options,
-      statusCode: 200,
-      headers: Headers.fromMap({
-        Headers.contentTypeHeader: ['application/json'],
-      }),
-      data: {
-        'accountId': _memberAccountId,
-        'status': 'pending_deletion',
-        'deletionScheduledAt': '2026-11-12T00:00:00Z',
-        'consentRequired': false,
-        'requiredConsents': <Object?>[],
-        'hasProfile': true,
-        'adFree': {'active': false},
-        'insight': {'active': false},
-      },
-    );
-
 /// 이전 실행이 남긴 것처럼 로컬 데이터를 심습니다.
 Future<void> _seedLocalData(AppDatabase database) async {
   await database
@@ -293,29 +274,6 @@ void main() {
     _expectCleaned(remaining);
     expect(remaining.adConsentDone, isTrue, reason: '기기 플래그는 남습니다');
     expect(purchases.loggedInAccountId, isNull, reason: '이전 실행의 구매 계정 해제');
-    expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
-  });
-
-  testWidgets('시작 때 삭제 대기 계정이면 server logout을 시도하고 로컬 데이터를 비웁니다', (
-    tester,
-  ) async {
-    final (container, stub) = await launchWithLeftovers(
-      tester,
-      scenario: 'member',
-      stubs: {
-        'GET /v1/me': _pendingDeletionMe,
-        // 폐기가 실패해도 로컬 로그아웃은 합니다.
-        'POST /v1/auth/logout': (o) => _problem(o, 503, 'service.unavailable'),
-      },
-    );
-
-    final logout = stub.calls.where((o) => o.path == '/v1/auth/logout');
-    expect(logout, hasLength(1));
-    expect(logout.single.data, contains('fake-refresh-token'));
-    _expectCleaned(await _remaining(tester, container));
-    expect(container.read(meProvider), isNull);
-    expect(purchases.loggedInAccountId, isNull);
-    expect(crash.userId, isNull, reason: '삭제 대기 계정은 연결하지 않습니다');
     expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
   });
 

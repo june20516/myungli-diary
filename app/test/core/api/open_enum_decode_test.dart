@@ -195,6 +195,17 @@ void main() {
     });
   });
 
+  test('열린 enum SlotText.reaction: 모르는 값은 모르는 값으로 decode된다 (A78)', () {
+    final json = _body('member/getDaily');
+    ((json['fortune'] as Map<String, dynamic>)['head']
+            as Map<String, dynamic>)['reaction'] =
+        _unknown;
+    expect(
+      Daily.fromJson(json).fortune.head.reaction,
+      SlotTextReactionEnum.unknownDefaultOpenApi,
+    );
+  });
+
   group('닫힌 enum: 모르는 값은 지금처럼 decode 실패다', () {
     test('Daily.dayKind', () {
       final json = _body('member/getDaily')..['dayKind'] = _unknown;
@@ -211,17 +222,6 @@ void main() {
           _unknown;
       expect(
         () => Chart.fromJson(json),
-        throwsA(isA<CheckedFromJsonException>()),
-      );
-    });
-
-    test('SlotText.reaction', () {
-      final json = _body('member/getDaily');
-      ((json['fortune'] as Map<String, dynamic>)['head']
-              as Map<String, dynamic>)['reaction'] =
-          _unknown;
-      expect(
-        () => Daily.fromJson(json),
         throwsA(isA<CheckedFromJsonException>()),
       );
     });

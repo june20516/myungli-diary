@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/design/components/action/social_login_button.dart';
-import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
@@ -52,18 +50,11 @@ class _AccountChoiceDemoState extends State<_AccountChoiceDemo> {
             name: '달',
             current: true,
             saju: l10n.accountChoiceSaju('1990.04.15', '양력', '오전 7:30'),
-            diaryCount: l10n.accountChoiceDiaryCount(128),
-            providers: [
-              socialProviderName(l10n, SocialProvider.kakao),
-              socialProviderName(l10n, SocialProvider.apple),
-            ].join(l10n.accountChoiceProviderSeparator),
           ),
           AccountChoiceOption(
             name: '별',
             current: false,
             saju: l10n.accountChoiceSajuEmpty,
-            diaryCount: l10n.accountChoiceDiaryCount(3),
-            providers: socialProviderName(l10n, SocialProvider.line),
           ),
         ],
         selectedIndex: _selected,
@@ -72,6 +63,7 @@ class _AccountChoiceDemoState extends State<_AccountChoiceDemo> {
             : (index) => setState(() => _selected = index),
         groupLabel: l10n.accountMergeChoiceLabel,
         currentLabel: l10n.accountChoiceCurrent,
+        otherLabel: l10n.accountChoiceOther,
         loading: widget.loading,
       ),
     );

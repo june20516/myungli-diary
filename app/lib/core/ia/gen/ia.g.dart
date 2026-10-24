@@ -208,6 +208,8 @@ abstract final class SlotIds {
   static const String adFreeBarTitle = 'ad-free.bar.title';
   static const String adFreeOfferHead = 'ad-free.offer.head';
   static const String adFreeOfferPrice = 'ad-free.offer.price';
+  static const String adFreeOfferPeriod = 'ad-free.offer.period';
+  static const String adFreeBuyCta = 'ad-free.buy.cta';
   static const String adFreeStatusRemaining = 'ad-free.status.remaining';
   static const String adFreeHistoryCta = 'ad-free.history.cta';
   static const String adFreeLegalNotice = 'ad-free.legal.notice';
@@ -241,7 +243,6 @@ abstract final class SlotIds {
   static const String accountMergeOverlapNotice =
       'account-merge.overlap.notice';
   static const String accountMergeCtaMerge = 'account-merge.cta.merge';
-  static const String accountMergeCtaCancel = 'account-merge.cta.cancel';
   static const String accountMergeMergeConfirm = 'account-merge.merge.confirm';
   static const String accountDeleteBarTitle = 'account-delete.bar.title';
   static const String accountDeleteTitleHead = 'account-delete.title.head';
@@ -263,6 +264,11 @@ const List<IaScreen> iaScreens = [
     exits: [
       IaExit(to: 'today', trigger: '로그인 상태'),
       IaExit(to: 'ad-consent', trigger: '로그인 상태, 이 기기에서 광고 동의를 받지 않음'),
+      IaExit(
+        to: 'consent',
+        trigger: '로그인 상태, 필수 동의가 없음(동의 화면에서 그만둔 계정, D90 ③)',
+      ),
+      IaExit(to: 'onboard-call', trigger: '로그인 상태, 동의는 했지만 사주가 없음(D90 ③)'),
       IaExit(to: 'welcome', trigger: '로그아웃 상태'),
       IaExit(to: 'force-update', trigger: '앱 버전이 최소 버전보다 낮음'),
     ],
@@ -387,7 +393,18 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.guest,
     states: ['error'],
     exits: [
-      IaExit(to: 'consent', trigger: '새 계정'),
+      IaExit(
+        to: 'consent',
+        trigger: '필수 동의가 없는 계정(새 계정이거나 동의 화면에서 그만둔 계정, D90 ③)',
+      ),
+      IaExit(
+        to: 'notify-ask',
+        trigger: '동의는 했지만 사주가 없는 계정, 미리보기를 거침(미리보기 입력을 저장, D90 ③)',
+      ),
+      IaExit(
+        to: 'onboard-call',
+        trigger: '동의는 했지만 사주가 없는 계정, 미리보기를 거치지 않음(D90 ③)',
+      ),
       IaExit(to: 'today', trigger: '사주가 저장된 계정'),
       IaExit(to: 'ad-consent', trigger: '사주가 저장된 계정, 이 기기에서 광고 동의를 받지 않음'),
     ],
@@ -400,8 +417,8 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['error'],
     exits: [
-      IaExit(to: 'notify-ask', trigger: '동의(미리보기를 거친 새 계정)'),
-      IaExit(to: 'onboard-call', trigger: '동의(그 외 새 계정)'),
+      IaExit(to: 'notify-ask', trigger: '동의(미리보기를 거친 계정)'),
+      IaExit(to: 'onboard-call', trigger: '동의(그 외 계정)'),
       IaExit(to: 'legal', trigger: '약관 전문 보기'),
     ],
     components: ['app-bar', 'check-row', 'primary-button'],
@@ -784,7 +801,7 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['error'],
     exits: [IaExit(to: 'account-merge', trigger: '계정 합치기')],
-    components: ['app-bar', 'social-login-button', 'dialog'],
+    components: ['app-bar', 'social-login-button', 'primary-button', 'dialog'],
   ),
   IaScreen(
     id: 'account-merge',
@@ -792,10 +809,7 @@ const List<IaScreen> iaScreens = [
     presentation: IaPresentation.page,
     auth: IaAuth.member,
     states: ['loading', 'error'],
-    exits: [
-      IaExit(to: 'login-methods', trigger: '합치기 완료'),
-      IaExit(to: 'login-methods', trigger: '합치지 않기'),
-    ],
+    exits: [IaExit(to: 'login-methods', trigger: '합치기 완료')],
     components: [
       'app-bar',
       'social-login-button',

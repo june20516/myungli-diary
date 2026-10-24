@@ -328,10 +328,17 @@ final class FakePurchases implements Purchases {
   /// 상품과 구매 결과를 정합니다.
   new({
     // 가격은 비공개 결정이라 대역은 통화 기호 없는 자리표시 값을 씁니다(D74, #180).
-    this.catalog = const [StoreProduct(id: 'ad_free_1month', priceLabel: '—')],
+    this.catalog = const [
+      StoreProduct(
+        id: fakeAdFreeProductId,
+        title: '광고 제거 1개월',
+        priceLabel: '가격',
+      ),
+    ],
     this.outcomes = const [PurchaseSucceeded()],
-    this.restoreOutcome = const PurchaseSucceeded(),
     this.logInFailWith,
+    this.syncFailWith,
+    this.onSync,
   });
 
   /// [products]의 응답.
@@ -340,13 +347,20 @@ final class FakePurchases implements Purchases {
   /// [buy]의 호출마다 차례로 돌려줄 응답. 끝에 닿으면 마지막 값을 반복합니다.
   final List<PurchaseOutcome> outcomes;
 
-  /// [restore]의 응답.
-  final PurchaseOutcome restoreOutcome;
-
   /// [logIn]이 던질 오류. null이면 던지지 않습니다.
   final AppError? logInFailWith;
 
-  var _buyCalls = 0;
+  /// [sync]가 던질 오류. null이면 던지지 않습니다.
+  final AppError? syncFailWith;
+
+  /// [sync]가 불릴 때마다 실행하는 훅. 호출 순서를 확인하는 테스트가 씁니다.
+  final void Function()? onSync;
+
+  /// [sync]를 부른 횟수.
+  int syncCalls = 0;
+
+  /// [buy]를 부른 횟수.
+  int buyCalls = 0;
 
   /// 마지막으로 [logIn]한 계정 id.
   String? loggedInAccountId;
@@ -364,15 +378,22 @@ final class FakePurchases implements Purchases {
   Future<void> logOut() async => loggedInAccountId = null;
 
   @override
-  Future<PurchaseOutcome> restore() async => restoreOutcome;
+  Future<void> sync() async {
+    syncCalls++;
+    onSync?.call();
+    final error = syncFailWith;
+    if (error != null) {
+      throw error;
+    }
+  }
 
   @override
   Future<List<StoreProduct>> products() async => catalog;
 
   @override
   Future<PurchaseOutcome> buy(String productId) async {
-    final index = _buyCalls < outcomes.length ? _buyCalls : outcomes.length - 1;
-    _buyCalls++;
+    final index = buyCalls < outcomes.length ? buyCalls : outcomes.length - 1;
+    buyCalls++;
     return outcomes[index];
   }
 }

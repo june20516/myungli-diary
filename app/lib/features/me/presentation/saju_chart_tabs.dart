@@ -373,7 +373,7 @@ class _YongsinBasis extends StatelessWidget {
   }
 }
 
-/// "만세력·대운" 탭: 만세력 표(`manse-table`) → 대운·세운 표(`daeun-table`, A57).
+/// "만세력과 대운" 탭: 만세력 표(`manse-table`) → 대운·세운 표(`daeun-table`, A57).
 ///
 /// 지금 대운과 올해 세운은 기기 오늘([todayProvider]) 기준이라 해가 바뀌면 새 해를 따릅니다
 /// (Review Focus 4). 대운 시작 연도는 계약 `DaeunPeriod.startYear`입니다.

@@ -359,8 +359,8 @@ void main() {
     expect(
       find.text(
         _ko.profileEditRecalcConfirmBody(
-          '${_birthLabel(15)} · ${_ko.genderFemale}',
-          '${_birthLabel(16)} · ${_ko.genderMale}',
+          '${_birthLabel(15)}, ${_ko.genderFemale}',
+          '${_birthLabel(16)}, ${_ko.genderMale}',
         ),
       ),
       findsOneWidget,

@@ -82,13 +82,13 @@ String _hourMinute(DateTime instant, String timezone) {
   return '${_twoDigits(local.hour)}:${_twoDigits(local.minute)}';
 }
 
-/// 집중 시간 칸을 [timezone](프로필 시간대) 현지 `HH:mm–HH:mm`으로 쓰고, 둘이면 ` · `로 잇습니다.
+/// 집중 시간 칸을 [timezone](프로필 시간대) 현지 `HH:mm~HH:mm`으로 쓰고, 둘이면 `, `로 잇습니다.
 ///
 /// 응답 시각은 오프셋이 붙어 오지만 같은 순간이면 UTC로 바뀌어도 같은 값입니다(결정 A27).
 String formatFocusRange(List<FocusSlot> picks, String timezone) => [
   for (final pick in picks)
-    '${_hourMinute(pick.start, timezone)}–${_hourMinute(pick.end, timezone)}',
-].join(' · ');
+    '${_hourMinute(pick.start, timezone)}~${_hourMinute(pick.end, timezone)}',
+].join(', ');
 
 /// [daily]의 행운 항목 4개(색·방향·숫자·시간, 결정 A27).
 ///

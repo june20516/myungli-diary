@@ -66,9 +66,8 @@ final Map<String, String Function(AppLocalizations)> problemMessages = {
   'auth.identity_not_found': (l10n) => l10n.errorAuthIdentityNotFound,
   'auth.provider_taken': (l10n) => l10n.errorAuthProviderTaken,
   'auth.identity_in_use': (l10n) => l10n.errorAuthIdentityInUse,
-  'auth.identity_pending_deletion': (l10n) =>
-      l10n.errorAuthIdentityPendingDeletion,
   'auth.last_identity': (l10n) => l10n.errorAuthLastIdentity,
+  'merge.token_invalid': (l10n) => l10n.errorMergeTokenInvalid,
 };
 
 /// [error]를 사용자에게 보일 문구로 바꿉니다.

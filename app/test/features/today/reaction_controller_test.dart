@@ -218,6 +218,23 @@ Future<void> _untilCachedReaction(
 void main() {
   setUpAll(ensureTimeZonesInitialized);
 
+  test('모르는 reaction 값은 반응 없음으로 그린다', () {
+    final unknown = SlotText.fromJson({
+      'slot': 'daily.fortune.head',
+      'messageKey': 'k',
+      'variant': 'plain',
+      'text': {
+        'segments': [
+          {'text': '문장'},
+        ],
+      },
+      'reactable': true,
+      'reaction': 'unknown_future_reaction',
+    });
+    expect(unknown.reaction, SlotTextReactionEnum.unknownDefaultOpenApi);
+    expect(ReactionController.isLiked(const {}, _today, unknown), isFalse);
+  });
+
   testWidgets('누르면 바로 켜지고 PUT 한 번, 성공하면 캐시도 like', (tester) async {
     final (container, tap) = await _boot(tester);
     expect(_liked(container), isFalse);

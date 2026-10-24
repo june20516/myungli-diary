@@ -7,6 +7,10 @@ app/에서 실행합니다(rfc3339-validator는 `date-time` format 검사에 필
 `status`(없으면 `default`) 응답 스키마로 검증합니다. `{ "sequence": [응답, ...] }`
 형식이면 각 응답을 같은 규칙으로 검증합니다. 실패하면 파일과 JSON Pointer를
 출력하고 종료 코드 1입니다.
+
+스키마에 없는 속성은 오류입니다. `properties`가 있고 `additionalProperties`를 적지 않은
+객체 스키마는 `additionalProperties: false`로 보고 검증합니다(없어진 필드가 fixture에 남지
+않게). 계약이 `additionalProperties`를 적은 스키마는 그 값을 그대로 따릅니다.
 """
 
 from __future__ import annotations
@@ -36,7 +40,9 @@ class Contract:
 
     def __init__(self, spec: dict[str, Any]) -> None:
         self.spec = spec
-        resource = Resource.from_contents(spec, default_specification=DRAFT202012)
+        resource = Resource.from_contents(
+            _close_objects(spec), default_specification=DRAFT202012
+        )
         self.registry = Registry().with_resource(SPEC_URI, resource)
         self.operations: dict[str, dict[str, Any]] = {}
         # operationId -> 경로 템플릿 순서의 path 매개변수 스키마 목록
@@ -133,7 +139,7 @@ def validate_response(
 
     schema = content[media_type].get("schema", {})
     validator = Draft202012Validator(
-        _absolute_refs(schema),
+        _absolute_refs(_close_objects(schema)),
         registry=contract.registry,
         format_checker=Draft202012Validator.FORMAT_CHECKER,
     )
@@ -189,6 +195,27 @@ def check_file_name(contract: Contract, file: Path) -> list[str]:
         f"파일 이름의 값 `{suffix}`이 {operation_id}의 path 매개변수 "
         f"{len(schemas)}개와 맞지 않습니다"
     ]
+
+
+def _close_objects(node: Any) -> Any:
+    """`additionalProperties`를 적지 않은 객체 스키마에 `false`를 더한 사본을 돌려줍니다.
+
+    `properties`가 스키마 이름 → 스키마 사전인 노드만 객체 스키마로 봅니다.
+    """
+    if isinstance(node, list):
+        return [_close_objects(item) for item in node]
+    if not isinstance(node, dict):
+        return node
+    closed = {key: _close_objects(value) for key, value in node.items()}
+    properties = node.get("properties")
+    if (
+        isinstance(properties, dict)
+        and all(isinstance(value, dict) for value in properties.values())
+        and "additionalProperties" not in node
+        and "patternProperties" not in node
+    ):
+        closed["additionalProperties"] = False
+    return closed
 
 
 def _absolute_refs(node: Any) -> Any:

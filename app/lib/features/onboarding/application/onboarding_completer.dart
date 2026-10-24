@@ -91,6 +91,34 @@ final class OnboardingCompleter {
     }
   }
 
+  /// 프로필이 필요한 계정에서 입력이 다 있으면 [complete]로 마무리합니다(약관 동의 직후·로그인 직후).
+  ///
+  /// 부르는 쪽이 이 계정에 프로필이 없음(진입 `profileRequired`)을 확인했어야 합니다.
+  /// 입력 오류(422)면 `onboard-call`이 보일 안내를 [notice]에 남기고, 그 밖의 AppError는
+  /// 삼키며(`onboard-call`이 진입할 때 한 번 다시 저장), 예상 밖 오류는 요약(오류 타입)만
+  /// 보고합니다(D64 ②: 출생 정보·호칭은 싣지 않음).
+  ///
+  /// 마무리해 진입까지 다시 계산했으면 true입니다. 입력이 모자라거나 실패했으면 false이고,
+  /// 부르는 쪽이 진입을 다시 계산해야 합니다.
+  Future<bool> completeIfReady({
+    required OnboardingRejectionNotice notice,
+  }) async {
+    if (!await isReady()) {
+      return false;
+    }
+    try {
+      await complete();
+      return true;
+    } on OnboardingInputRejected catch (rejected) {
+      notice.leave(rejected.error);
+    } on AppError {
+      // 입력 오류(422)가 아닌 server·통신 실패와 저장 뒤 진입 계산 실패가 여기로 옵니다.
+    } on Object catch (error, stack) {
+      _crashReporter.record(CrashSummary.from(error), stack);
+    }
+    return false;
+  }
+
   /// 입력으로 프로필을 만들고 마무리합니다.
   ///
   /// 입력 오류(422)면 입력을 남기고 [OnboardingInputRejected]를 던집니다. 그 밖의 저장 실패는

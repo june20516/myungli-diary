@@ -594,7 +594,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleteDataBody =>
-      'Deleting your account permanently erases your chart details, diary, tags, events, and any remaining ad-free time.';
+      'Deleting your account permanently erases your chart details, diary, tags, events, and any remaining time on your purchases. Only information needed for legal reasons or fraud prevention is kept separately for a set period.';
 
   @override
   String get accountDeleteDeleteConfirm =>
@@ -1285,10 +1285,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountMergeBarTitle => 'Merge accounts';
 
   @override
-  String get accountMergeChoiceLabel => 'Choose the account to keep';
-
-  @override
-  String get accountMergeCtaCancel => 'Don\'t merge';
+  String get accountMergeChoiceLabel =>
+      'Which account\'s chart details should we use?';
 
   @override
   String get accountMergeCtaMerge => 'Merge accounts';
@@ -1309,10 +1307,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountMergeTitleBody =>
-      'The account you choose keeps its chart details, name, and settings. All diary entries from both accounts move over, and remaining ad-free time is added together. The other account is deleted.';
+      'All records from the account you\'re bringing in move here. Chart details, name, and settings come from the one you pick, and that account and its sign-in methods are deleted. Purchases move here too.';
 
   @override
-  String get accountMergeTitleHead => 'Merge these two accounts?';
+  String get accountMergeTitleHead =>
+      'Bring another account\'s records into this one?';
 
   @override
   String get daySheetDiaryWriteCtaWritten => 'Write a new entry for this day';
@@ -1357,21 +1356,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayGuideCtaFull => 'You\'ve written enough for today';
 
   @override
-  String accountChoiceDiaryCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count entries',
-      one: '$count entry',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get accountChoiceCurrent => 'Current account';
-
-  @override
-  String get accountChoiceProviderSeparator => ', ';
 
   @override
   String get accountMergeError =>
@@ -1437,12 +1422,130 @@ class AppLocalizationsEn extends AppLocalizations {
       'This sign-in method is linked to another account.';
 
   @override
-  String get errorAuthIdentityPendingDeletion =>
-      'It\'s linked to an account waiting to be deleted.';
-
-  @override
   String get errorAuthLastIdentity => 'You need at least one way to sign in.';
 
   @override
-  String get adFreeRestoreCta => 'Restore purchase';
+  String get accountMergeAuthBody => 'Verify the account you\'re bringing in.';
+
+  @override
+  String get accountMergeNotOtherBodySelf =>
+      'You signed in with this account\'s sign-in method. Please sign in again with one from the account you\'re bringing in.';
+
+  @override
+  String get accountMergeNotOtherBodyNone =>
+      'No account is linked to this sign-in method.';
+
+  @override
+  String get adFreeHistoryCta => 'Purchase history';
+
+  @override
+  String get calcBasisDaeunBody =>
+      'The 10-year luck cycle\'s start age drops the months and counts whole years.';
+
+  @override
+  String get loginMethodsInUseBody =>
+      'This sign-in method is already used by another account. Unlink it there, then link it again.';
+
+  @override
+  String get loginMethodsMergeCta => 'Bring in another account\'s records';
+
+  @override
+  String get previewRestartNotice =>
+      'To see a reading with your new details, try signing in.';
+
+  @override
+  String get purchaseHistoryBarTitle => 'Purchase history';
+
+  @override
+  String get purchaseHistoryEmptyBody => 'No purchases yet.';
+
+  @override
+  String get purchaseHistoryMissingNotice =>
+      'If something you paid for isn\'t listed, please contact us.';
+
+  @override
+  String get accountChoiceOther => 'Account to bring in';
+
+  @override
+  String get accountMergeSummaryHead => 'Records to bring in';
+
+  @override
+  String get accountMergeSummaryDiary => 'Diary';
+
+  @override
+  String get accountMergeSummaryEvent => 'Events';
+
+  @override
+  String get accountMergeSummaryAdFree => 'Ad-free time left';
+
+  @override
+  String accountMergeSummaryDiaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '$count entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountMergeSummaryEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events',
+      one: '$count event',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountMergeSummaryAdFreeDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '$days day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String purchaseMetaPurchased(String date) {
+    return 'Bought $date';
+  }
+
+  @override
+  String purchaseMetaPeriod(String start, String end) {
+    return '$start–$end';
+  }
+
+  @override
+  String get purchaseMetaSeparator => ' · ';
+
+  @override
+  String get purchaseProductAdFreeMonth => 'Ad-free, 1 month';
+
+  @override
+  String get purchaseStatusActive => 'Active';
+
+  @override
+  String get purchaseStatusPending => 'Upcoming';
+
+  @override
+  String get purchaseStatusExpired => 'Expired';
+
+  @override
+  String get purchaseStatusRefunded => 'Refunded';
+
+  @override
+  String get errorMergeTokenInvalid =>
+      'We couldn\'t continue the merge. Verify the account you\'re bringing in again.';
+
+  @override
+  String get adFreeBuyCta => 'Buy';
+
+  @override
+  String get adFreeOfferPeriod => '1 month, no auto-renewal';
 }
