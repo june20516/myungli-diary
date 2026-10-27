@@ -111,7 +111,35 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
     state = AsyncData(EntrySnapshot(current.entry, me, config: current.config));
   }
 
-  Future<EntrySnapshot> _compute() async {
+  /// 받은 내 정보 [me]로 state의 `me`를 바꾸고 갈래를 다시 계산합니다. `getMe`를 부르지 않습니다.
+  ///
+  /// 계정 합치기처럼 응답이 곧 새 내 정보일 때 씁니다(`mergeAccounts`). 앱 설정은 지금 값을
+  /// 다시 쓰고, 없을 때만(대역·테스트) 받습니다. 토큰은 읽기만 합니다.
+  ///
+  /// 실패하면 그 오류를, 아니면 null을 돌려줍니다. 실패하면 state는 그대로입니다.
+  Future<AppError?> applyMe(Me me) async {
+    if (!ref.mounted) {
+      return null;
+    }
+    try {
+      final snapshot = await _compute(
+        knownMe: me,
+        knownConfig: state.value?.config,
+      );
+      if (ref.mounted) {
+        state = AsyncData(snapshot);
+      }
+      return null;
+    } on AppError catch (error) {
+      return error;
+    } on Object catch (error) {
+      return UnexpectedError(error);
+    }
+  }
+
+  /// 진입 갈래를 계산합니다. [knownMe]·[knownConfig]가 있으면 그 요청(`getMe`·
+  /// `getAppConfig`)을 부르지 않고 그 값을 씁니다.
+  Future<EntrySnapshot> _compute({Me? knownMe, AppConfig? knownConfig}) async {
     final api = ref.read(restClientProvider);
     final tokens = ref.read(tokenStoreProvider);
     final flags = ref.read(deviceFlagsStoreProvider);
@@ -124,14 +152,16 @@ class EntryController extends AsyncNotifier<EntrySnapshot> {
       await flags.writeBool(installedKey, value: true);
     }
 
-    final config = await _call(api.getAppConfig);
+    final config = knownConfig ?? await _call<AppConfig>(api.getAppConfig);
     final minimum = parseAppVersion(
       minimumVersionFor(config, ref.read(targetPlatformProvider)),
     );
 
     final hasSession = await tokens.hasSession();
     Me? me;
-    if (hasSession && appVersion >= minimum) {
+    if (hasSession && appVersion >= minimum && knownMe != null) {
+      me = knownMe;
+    } else if (hasSession && appVersion >= minimum) {
       try {
         me = await _call(api.getMe);
       } on AppError catch (e) {

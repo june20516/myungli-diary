@@ -266,6 +266,17 @@ void main() {
       expect(await count(database.deviceFlags), 1);
     });
 
+    test('clearAccountData는 모든 계정의 캐시·초안을 지우고 온보딩 입력과 기기 플래그는 남긴다', () async {
+      await seed();
+
+      await database.clearAccountData();
+
+      expect(await count(database.cachedResponses), 0);
+      expect(await count(database.diaryDrafts), 0);
+      expect(await count(database.onboardingInputs), 1);
+      expect(await count(database.deviceFlags), 1);
+    });
+
     test('clearSignedOutData는 모든 계정의 캐시·초안과 온보딩 입력을 지우고 기기 플래그는 남긴다', () async {
       await seed();
 

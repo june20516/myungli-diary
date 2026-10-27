@@ -13,7 +13,8 @@ import 'package:myungli_diary/core/storage/device_flags.dart';
 /// 어떤 경로의 로그아웃이든(refresh 거부, `getMe` 401, 계정 삭제, 자발적 로그아웃)
 /// `TokenStore.signOut`의 이벤트로 돕니다. 기기에는 한 번에 한 계정만 로그인하므로 계정
 /// id를 기억하지 않고 모든 계정의 캐시·일기 초안과 온보딩 입력을 지웁니다
-/// ([AppDatabase.clearSignedOutData]). 기기 플래그는 남기고 알림 허락 대기
+/// ([AppDatabase.clearSignedOutData]). 캐시·초안 지우기는 계정 합치기 뒤 정리
+/// ([AppDatabase.clearAccountData])와 같은 함수입니다. 기기 플래그는 남기고 알림 허락 대기
 /// ([notifyAskPendingKey])만 끕니다. 그래서 이번 실행에서 내 정보를 받기 전에 로그아웃돼도
 /// 정리됩니다. 외부 SDK 연결 해제는 `AccountLinker`가 맡습니다.
 final class SignOutCleaner {

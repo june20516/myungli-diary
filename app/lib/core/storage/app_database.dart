@@ -131,10 +131,21 @@ class AppDatabase extends _$AppDatabase {
   /// 기기에는 한 번에 한 계정만 로그인하므로 계정 id를 몰라도(이번 실행에서 내 정보를
   /// 받기 전에 로그아웃된 경우) 이전 계정의 흔적이 다음 계정에게 보이지 않게 모두 지웁니다.
   Future<void> clearSignedOutData() => transaction(() async {
-    await delete(cachedResponses).go();
-    await delete(diaryDrafts).go();
+    await _deleteAccountRows();
     await delete(onboardingInputs).go();
   });
+
+  /// 계정 데이터 정리. 모든 계정의 캐시(오늘·달력·일기 목록·나의 사주·프로필 사본)와 일기
+  /// 초안을 지우고, 온보딩 입력과 기기 플래그는 남깁니다.
+  ///
+  /// 로그아웃 정리([clearSignedOutData])와 같은 범위에서 온보딩 입력만 뺀 것이고, 계정
+  /// 합치기 뒤에 씁니다(계약 `mergeAccounts`).
+  Future<void> clearAccountData() => transaction(_deleteAccountRows);
+
+  Future<void> _deleteAccountRows() async {
+    await delete(cachedResponses).go();
+    await delete(diaryDrafts).go();
+  }
 
   /// 모든 표의 행을 지웁니다. fake 모드가 시작할 때 시나리오가 섞이지 않게 씁니다.
   Future<void> clearAll() => transaction(() async {
