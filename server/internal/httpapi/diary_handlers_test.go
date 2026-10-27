@@ -400,6 +400,20 @@ func TestListDiaries_SummaryHasIDAndCreatedAt(t *testing.T) {
 	assert.Equal(t, "2026-10-20T01:02:03.456789Z", item["createdAt"])
 }
 
+// 목록 요약의 그날 성격은 일기를 쓸 때 기록한 값이고, 기록이 없는 날은 생략합니다. (D96)
+func TestListDiaries_SummaryDayKind(t *testing.T) {
+	entries := listEntries(2)
+	entries[0].DayKind = "gwiin_day"
+	req, rec := sendRequest(t, diaryAPI(&fakeDiaries{list: entries}), http.MethodGet, diariesTarget, "")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	items := decodeMap(t, rec)["items"].([]any)
+	require.Len(t, items, 2)
+	assert.Equal(t, "gwiin_day", items[0].(map[string]any)["dayKind"])
+	assert.NotContains(t, items[1].(map[string]any), "dayKind", "그날 성격 기록이 없는 날은 생략합니다")
+}
+
 func TestListDiaries_DefaultLimitAndFilters(t *testing.T) {
 	diaries := &fakeDiaries{}
 	req, rec := sendRequest(t, diaryAPI(diaries), http.MethodGet, "/v1/diaries?from=2026-10-01&to=2026-10-31&tag=tag.a", "")

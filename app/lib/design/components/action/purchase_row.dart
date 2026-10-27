@@ -31,8 +31,8 @@ final class PurchaseRowData {
 
   /// 사용 기간 줄(`ui.purchase.meta`의 `purchaseMetaPeriod`). null이면 보이지 않습니다.
   ///
-  /// 구매일과 한 줄로 잇지 않고 다음 줄에 둡니다(writing W44, #564). design 배치가 오기 전의
-  /// 임시 배치입니다(결정 A87).
+  /// 구매일과 한 줄로 잇지 않고 그 아래 [PurchaseRowGroup.periodGap]에 둡니다
+  /// (writing W44, design V47).
   final String? period;
 }
 
@@ -49,7 +49,8 @@ class PurchaseRowGroup extends StatelessWidget {
     super.key,
   });
 
-  /// 불러오는 중: 줄 세 개 자리(상품 이름 줄 + meta 줄 뼈). 스크린리더는 읽지 않습니다.
+  /// 불러오는 중: 줄 세 개 자리(상품 이름 줄 + 구매일 줄 + 사용 기간 줄 뼈, V47).
+  /// 스크린리더는 읽지 않습니다.
   const new loading({this.animated = true, super.key}) : rows = null;
 
   /// 명세 대조용 요약.
@@ -78,16 +79,23 @@ class PurchaseRowGroup extends StatelessWidget {
   /// 상품 줄과 meta 줄 사이(`parts.meta.marginTop`, `space.4`).
   static const double metaGap = Space.s4;
 
+  /// 구매일 줄과 사용 기간 줄 사이(`parts.meta.period.marginTop`, `space.2`).
+  static const double periodGap = Space.s2;
+
   /// 상태 글자 최대 폭(`parts.status.maxWidth`).
   static const double statusMaxWidth = 80;
 
   static const int _skeletonRowCount = 3;
   static const double _productBoneWidth = 160;
-  static const double _metaBoneWidth = 220;
+  static const double _purchasedBoneWidth = 120;
+  static const double _periodBoneWidth = 200;
   static const double _boneHeight = SkeletonBone.lineHeight;
 
-  /// loading에서 상품 줄 뼈와 meta 줄 뼈 사이(실제 줄 높이 차이를 뼈 높이로 어림).
+  /// loading에서 상품 줄 뼈와 구매일 줄 뼈 사이(실제 줄 높이 차이를 뼈 높이로 어림).
   static const double _skeletonLineGap = metaGap + Space.s8;
+
+  /// loading에서 구매일 줄 뼈와 사용 기간 줄 뼈 사이(같은 어림).
+  static const double _skeletonPeriodGap = periodGap + Space.s4;
 
   static const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
@@ -174,7 +182,10 @@ class PurchaseRowGroup extends StatelessWidget {
               ),
               const SizedBox(height: metaGap),
               Text(row.purchased, style: metaStyle),
-              if (period != null) Text(period, style: metaStyle),
+              if (period != null) ...[
+                const SizedBox(height: periodGap),
+                Text(period, style: metaStyle),
+              ],
             ],
           ),
         ),
@@ -224,10 +235,18 @@ class PurchaseRowGroup extends StatelessWidget {
         ),
         const SizedBox(height: _skeletonLineGap),
         SkeletonBone(
-          width: _metaBoneWidth,
+          width: _purchasedBoneWidth,
           height: _boneHeight,
           borderRadius: Radii.xs,
           index: index + 1,
+          animated: animated,
+        ),
+        const SizedBox(height: _skeletonPeriodGap),
+        SkeletonBone(
+          width: _periodBoneWidth,
+          height: _boneHeight,
+          borderRadius: Radii.xs,
+          index: index + 2,
           animated: animated,
         ),
       ],
