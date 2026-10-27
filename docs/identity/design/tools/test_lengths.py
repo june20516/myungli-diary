@@ -61,6 +61,8 @@ ISSUE_480 = {
     "login-methods.merge.cta", "ad-free.history.cta", "account-merge.auth.body", "purchase-history.missing.notice",
     "ui.account-merge.summary", "ui.purchase.meta", "ui.purchase.status",
 }
+# #548·#564: IA ad-free 구매 버튼과 기간 고지
+ISSUE_564 = {"ad-free.buy.cta", "ad-free.offer.period"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -183,7 +185,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480
+    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
@@ -253,13 +255,15 @@ def test_d82_ia_slots_are_measured():
     ia_slots = {slot["id"] for sid in ("login-methods", "account-merge", "purchase-history")
                 for slot in screens[sid]["slots"]
                 if not slot["id"].endswith(".bar.title") and slot["id"] != "purchase-history.empty.body"}
-    ia_slots.add("ad-free.history.cta")
+    ia_slots |= {"ad-free.history.cta", "ad-free.buy.cta", "ad-free.offer.period"}
     measured = {slot for target in lengths.TARGETS for slot in target.slots}
     assert ia_slots <= measured | set(lengths.NO_LIMIT)
     places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
     assert places["account-merge.cta.merge"].startswith("primary-button")
     assert places["login-methods.merge.cta"].startswith("primary-button")
-    assert places["ad-free.history.cta"].startswith("primary-button")
+    # offer-card 안 버튼은 카드 안쪽 20 안이라 화면 폭 버튼보다 좁음 (#548·#564)
+    assert places["ad-free.history.cta"].startswith("offer-card 안 primary-button")
+    assert places["ad-free.buy.cta"] == places["ad-free.history.cta"]
     assert "ad-free.restore.cta" not in places
     assert "44px" in lengths.NO_LIMIT["ui.day-cell.lunar"]
     assert next(t for t in lengths.TARGETS if "ui.login.provider" in t.slots).width == 232
@@ -293,4 +297,13 @@ def test_purchase_meta_and_status_are_measured_apart():
     places = {slot: target for target in lengths.TARGETS for slot in target.slots}
     assert places["ui.purchase.status"].width == 80 - 2 * 8
     assert places["ui.purchase.meta"].width == lengths.CONTENT_WIDTH - 2 * 16
+    # 구매일과 사용 기간은 줄을 나눠 키마다 한 줄 (W44, 결정 V47)
+    assert places["ui.purchase.meta"].lines == 1 and "키마다 한 줄" in places["ui.purchase.meta"].where
+
+
+def test_offer_card_slots_are_measured_inside_card():
+    places = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    assert places["ad-free.buy.cta"].width == lengths.CONTENT_WIDTH - 2 * 20 - 2 * 20
+    assert places["ad-free.offer.period"].width == lengths.CONTENT_WIDTH - 2 * 20
+    assert "ad-free.history.cta" not in next(t for t in lengths.TARGETS if "welcome.cta.start" in t.slots).slots
     assert "가져올 계정" in places["ui.account-merge.choice"].where
