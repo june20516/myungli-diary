@@ -255,6 +255,7 @@ void main() {
       _ko.settingsNotifyLabel,
       _ko.settingsLanguageLabel,
       _ko.settingsAdFreeLabel,
+      _ko.loginMethodsBarTitle,
       _ko.profileEditBarTitle,
       _ko.calcBasisBarTitle,
       _ko.legalBarTitle,

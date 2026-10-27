@@ -13,7 +13,7 @@ import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dar
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/auth/application/login_controller.dart';
-import 'package:myungli_diary/features/auth/presentation/login_provider_order.dart';
+import 'package:myungli_diary/features/auth/model/login_provider_order.dart';
 
 /// IA `login`의 출구 대상. 모두 진입 상태가 바뀌는 이동이라 화면은 직접 이동하지 않고
 /// 로그인 뒤 진입 갱신으로 라우터 redirect가 보냅니다.

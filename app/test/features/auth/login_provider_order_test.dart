@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/platform/social_provider.dart';
-import 'package:myungli_diary/features/auth/presentation/login_provider_order.dart';
+import 'package:myungli_diary/features/auth/model/login_provider_order.dart';
 
 void main() {
   const kakao = SocialProvider.kakao;

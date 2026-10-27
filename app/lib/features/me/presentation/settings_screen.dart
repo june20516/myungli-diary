@@ -33,6 +33,7 @@ import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
 /// 보내는 곳이고, `birthplace`는 언어 변경 뒤 출생지 안내에서 엽니다.
 const Set<String> settingsExits = {
   ScreenIds.adFree,
+  ScreenIds.loginMethods,
   ScreenIds.profileEdit,
   ScreenIds.birthplace,
   ScreenIds.calcBasis,
@@ -62,7 +63,7 @@ String? adFreeLabel(AppLocalizations l10n, AdFree? adFree, String timezone) {
 /// 설정(`settings`, 결정 A59·A60·A63, D79).
 ///
 /// 묶음 네 개(`settings-row`): ① 알림 시각·언어(값 줄, 시트를 엶) ② 광고 제거(활성이면 만료
-/// 날짜) ③ 정보 수정·계산 기준·약관·정책 ④ 로그아웃·계정 삭제(`destructive`). 기본 깊이 줄은
+/// 날짜) ③ 로그인 수단·정보 수정·계산 기준·약관·정책 ④ 로그아웃·계정 삭제(`destructive`). 기본 깊이 줄은
 /// 없습니다(D79).
 ///
 /// * 알림 시각·언어 값은 프로필 사본(없으면 `getProfile`로 받음)입니다. 받는 동안 그 두 줄은 값
@@ -86,6 +87,9 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
   /// 광고 제거 줄.
   static const Key adFreeRowKey = ValueKey(SlotIds.settingsAdFreeLabel);
+
+  /// 로그인 수단 줄.
+  static const Key loginMethodsRowKey = ValueKey('settings.row.login-methods');
 
   /// 정보 수정 줄.
   static const Key profileEditRowKey = ValueKey('settings.row.profile-edit');
@@ -297,6 +301,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     SettingsGroup(
                       children: [
                         // 다른 화면 제목과 같은 줄 이름은 그 화면 제목 원고를 씁니다(A64).
+                        SettingsRow(
+                          key: SettingsScreen.loginMethodsRowKey,
+                          variant: SettingsRowVariant.navigate,
+                          label: l10n.loginMethodsBarTitle,
+                          onTap: whenIdle(() => _open(ScreenIds.loginMethods)),
+                        ),
                         SettingsRow(
                           key: SettingsScreen.profileEditRowKey,
                           variant: SettingsRowVariant.navigate,
