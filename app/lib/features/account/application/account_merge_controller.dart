@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/app/entry/account_data_providers.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/merge_preview.dart';
@@ -154,6 +155,9 @@ const _inProgress = 'idempotency.in_progress';
 
 /// 계정 합치기 화면의 동작입니다(D85 ④, spec §9).
 ///
+/// 합치면 캐시·초안을 지우고 계정 데이터 provider([accountDataProviders])를 다시 만든 뒤,
+/// 응답 `Me`로 진입을 다시 계산합니다.
+///
 /// 인증은 시도마다 새 원문 nonce로 하고 세션은 로그인처럼 바로 정리합니다. 그만두기는 화면을
 /// 떠나 이 provider가 버려지며 합치기 토큰도 함께 버려지는 것이라 따로 동작이 없습니다.
 /// 어느 갈래에서도 제공자 허가를 취소하지 않고(D95) 토큰 저장소를 바꾸지 않습니다.
@@ -289,6 +293,7 @@ class AccountMergeController extends Notifier<AccountMergeState> {
     final database = ref.read(appDatabaseProvider);
     final entry = ref.read(entryStateProvider.notifier);
     final crashReporter = ref.read(crashReporterProvider);
+    final container = ref.container;
     final token = preview.mergeToken;
     final key = _keyFor(token, selected);
     var inProgressRetries = 0;
@@ -302,6 +307,9 @@ class AccountMergeController extends Notifier<AccountMergeState> {
             idempotencyKey: key,
           );
           await _guard(crashReporter, database.clearAccountData);
+          // 계정 id가 그대로라 Riverpod이 저절로 알리지 않으므로, 계정 데이터 provider를
+          // 다시 만들어 가져온 기록과 고른 프로필의 사주로 다시 받게 합니다.
+          accountDataProviders.forEach(container.invalidate);
           final entryError = await entry.applyMe(me);
           if (entryError != null) {
             // 합쳐졌으므로 성공으로 둡니다. 갈래는 다음 진입 계산이 맞춥니다.

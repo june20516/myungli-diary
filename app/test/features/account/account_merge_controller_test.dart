@@ -24,6 +24,10 @@ import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/features/account/application/account_merge_controller.dart';
 import 'package:myungli_diary/features/account/data/account_link_repository.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
+import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
+import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import 'fake_identity_api.dart';
 
@@ -119,6 +123,7 @@ Future<_Harness> _harness({
       appDatabaseProvider.overrideWithValue(database),
       tokenStoreProvider.overrideWithValue(tokens),
       entryStateProvider.overrideWith(_FakeEntry.new),
+      currentAccountIdProvider.overrideWithValue(mergedMe().accountId),
       mergeRetryDelayProvider.overrideWithValue((duration) async {
         delays.add(duration);
       }),
@@ -485,6 +490,50 @@ void main() {
       expect(h.entry.applied, [me]);
       expect(h.container.read(meProvider), me);
       expect(h.container.read(entryProvider), EntryState.ready);
+    });
+
+    /// 오늘·달력·일기 목록·일정 저장소. 그 화면 provider는 이것을 build에서 watch합니다.
+    List<Object> accountRepositories(ProviderContainer container) => [
+      container.read(dailyRepositoryProvider),
+      container.read(calendarRepositoryProvider),
+      container.read(diaryRepositoryProvider),
+      container.read(scheduleRepositoryProvider),
+    ];
+
+    test('성공이면 오늘·달력·일기 목록·일정 provider를 다시 만듦(계정 id가 같아도)', () async {
+      final h = await _harness();
+      // 일기 목록처럼 저장소를 watch하는 화면 provider가 다시 build되는지 셉니다.
+      var diaryListBuilds = 0;
+      final diaryList = Provider((ref) {
+        diaryListBuilds++;
+        return ref.watch(diaryRepositoryProvider);
+      });
+      h.container.listen(diaryList, (_, _) {});
+      final before = accountRepositories(h.container);
+      await h.chooseAfterAuth(MergeProfile.other);
+
+      expect(await h.controller.merge(), isA<MergeDone>());
+
+      final after = accountRepositories(h.container);
+      for (var i = 0; i < before.length; i++) {
+        expect(after[i], isNot(same(before[i])));
+      }
+      h.container.read(diaryList);
+      expect(diaryListBuilds, 2);
+    });
+
+    test('실패 갈래에서는 계정 데이터 provider를 다시 만들지 않음', () async {
+      final h = await _harness();
+      final before = accountRepositories(h.container);
+      await h.chooseAfterAuth(MergeProfile.other);
+      h.api.mergeAnswers.add(problemOf(500, 'internal'));
+
+      expect(await h.controller.merge(), isA<MergeFailed>());
+
+      final after = accountRepositories(h.container);
+      for (var i = 0; i < before.length; i++) {
+        expect(after[i], same(before[i]));
+      }
     });
 
     test('일기 초안도 지움(기기 플래그는 남음)', () async {
