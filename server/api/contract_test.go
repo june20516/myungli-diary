@@ -688,8 +688,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // TestContract_VersionIsFrozen은 v1의 현재 버전을 고정합니다. freeze(1.0.0) 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114~S116)
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.1.0" {
-		t.Errorf("info.version = %q, want 1.1.0", doc.Info.Version)
+	if doc.Info.Version != "1.2.0" {
+		t.Errorf("info.version = %q, want 1.2.0", doc.Info.Version)
 	}
 }
 
@@ -1905,6 +1905,27 @@ func TestContract_1_1DiaryDayKind(t *testing.T) {
 	}
 	if !strings.Contains(d.Description, "사주 정보를 고쳐도 바뀌지 않습니다") {
 		t.Error("Diary 설명에 dayKind가 기록 값이라는 규칙이 없음")
+	}
+}
+
+// TestContract_1_2DiarySummaryDayKind는 일기 목록 요약의 그날 성격이 Diary와 같은 기록 값이고 선택 필드임을 고정합니다. (D96, #576)
+func TestContract_1_2DiarySummaryDayKind(t *testing.T) {
+	doc := loadDoc(t)
+	s := doc.Components.Schemas["DiarySummary"].Value
+	kind := s.Properties["dayKind"]
+	if kind == nil {
+		t.Fatal("DiarySummary.dayKind가 없음")
+	}
+	if kind.Ref != "#/components/schemas/DayKind" {
+		t.Errorf("DiarySummary.dayKind ref = %q, want DayKind", kind.Ref)
+	}
+	if slices.Contains(s.Required, "dayKind") {
+		t.Error("DiarySummary.dayKind는 선택 필드여야 함(1.1.0 전 날짜 기록은 값이 없음)")
+	}
+	for _, text := range []string{"`Diary.dayKind`와 같은 날짜 기록 값", "D96", "1.2.0"} {
+		if !strings.Contains(s.Description, text) {
+			t.Errorf("DiarySummary 설명에 %q가 없음", text)
+		}
 	}
 }
 
