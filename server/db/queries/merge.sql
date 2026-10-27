@@ -181,3 +181,19 @@ SET honorific = EXCLUDED.honorific,
 
 -- name: DeleteProfile :exec
 DELETE FROM profiles WHERE account_id = @account_id;
+
+-- InsertMergeReceipt는 합치기 영수증을 남깁니다(S115). 토큰은 한 번만 쓰이므로 해시가 겹치지 않습니다.
+-- name: InsertMergeReceipt :exec
+INSERT INTO account_merge_receipts (token_hash, account_id, merged_at)
+VALUES (@token_hash, @account_id, @merged_at);
+
+-- MergeReceiptExists는 account_id가 since 뒤에 이 토큰으로 합친 영수증이 있는지 봅니다.
+-- name: MergeReceiptExists :one
+SELECT EXISTS (
+    SELECT 1 FROM account_merge_receipts
+    WHERE token_hash = @token_hash AND account_id = @account_id AND merged_at > @since::timestamptz
+);
+
+-- DeleteExpiredMergeReceipts는 before 이전에 합친 영수증을 지웁니다(job retention).
+-- name: DeleteExpiredMergeReceipts :execrows
+DELETE FROM account_merge_receipts WHERE merged_at <= @before::timestamptz;

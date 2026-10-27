@@ -31,6 +31,9 @@ import (
 // MergeTicketTTL은 합치기 토큰의 유효 시간입니다(spec §6.2).
 const MergeTicketTTL = 10 * time.Minute
 
+// ReceiptTTL은 합치기 영수증으로 같은 토큰의 재전송을 성공으로 답하는 시간입니다. 멱등 키 보관 시간과 같습니다(S115).
+const ReceiptTTL = 24 * time.Hour
+
 // day는 남은 날을 셀 때의 하루 길이입니다.
 const day = 24 * time.Hour
 
@@ -265,6 +268,8 @@ func (s *Service) profileSummary(ctx context.Context, accountID uuid.UUID) (Prof
 // 토큰이 없거나, 썼거나, 지났거나, A의 것이 아니거나, A·B가 active가 아니거나, 증명한 인증 계정이 B에서 떨어졌으면
 // ErrTokenInvalid이고 아무것도 바꾸지 않습니다. A와 B가 서로를 동시에 합치면 잠금 순서 때문에 하나만 성공하고,
 // 다른 쪽은 상대가 지워져(토큰 행도 함께 지워짐) ErrTokenInvalid입니다.
+// 같은 트랜잭션에 합치기 영수증을 남기므로, 이미 이 토큰으로 합친 A가 ReceiptTTL 안에 다시 보내면 다시 합치지 않고 nil입니다(S115).
+// 고른 프로필이 처음과 달라도 처음 합친 결과를 그대로 둡니다.
 func (s *Service) Execute(ctx context.Context, accountID uuid.UUID, mergeToken string, chosen Profile) error {
 	if chosen != ProfileCurrent && chosen != ProfileOther {
 		return fmt.Errorf("합치기 프로필 선택 %q: 알 수 없는 값", chosen)
@@ -296,6 +301,9 @@ func (s *Service) Execute(ctx context.Context, accountID uuid.UUID, mergeToken s
 		if err := billing.MovePurchasesTx(ctx, tx, otherID, accountID, now); err != nil {
 			return fmt.Errorf("합치기 구매 옮기기: %w", err)
 		}
+		if err := q.InsertMergeReceipt(ctx, mergedb.InsertMergeReceiptParams{TokenHash: hash, AccountID: accountID, MergedAt: now}); err != nil {
+			return fmt.Errorf("합치기 영수증 저장: %w", err)
+		}
 		// B의 인증 계정·세션·rotation_state·consents·합치기 토큰(이번 토큰 포함) 등을 계정 삭제와 같이 지웁니다(D85 ④).
 		// 이번 토큰은 이미 쓴 것으로 표시했고 응답에 쓰지 않으므로 지워져도 됩니다. 같은 요청의 재전송은 멱등 기록이 답합니다.
 		revocationIDs, err = account.DeleteAccountTx(ctx, tx, otherID, now)
@@ -306,7 +314,7 @@ func (s *Service) Execute(ctx context.Context, accountID uuid.UUID, mergeToken s
 	})
 	if err != nil {
 		if errors.Is(err, ErrTokenInvalid) {
-			return ErrTokenInvalid
+			return s.resentOrInvalid(ctx, accountID, hash)
 		}
 		return fmt.Errorf("계정 합치기: %w", err)
 	}
@@ -446,4 +454,31 @@ func replaceProfile(ctx context.Context, q *mergedb.Queries, accountID, otherID 
 		return fmt.Errorf("프로필 지우기: %w", err)
 	}
 	return nil
+}
+
+// resentOrInvalid는 토큰을 쓸 수 없을 때, 이 토큰으로 이미 합친 A의 재전송이면 nil이고 아니면 ErrTokenInvalid입니다(S115).
+// 같은 토큰의 동시 요청은 먼저 잠근 쪽이 commit한 뒤 이 확인에 닿으므로 영수증을 봅니다.
+func (s *Service) resentOrInvalid(ctx context.Context, accountID uuid.UUID, hash []byte) error {
+	resent, err := mergedb.New(s.pool).MergeReceiptExists(ctx, mergedb.MergeReceiptExistsParams{
+		TokenHash: hash,
+		AccountID: accountID,
+		Since:     s.clock.Now().Add(-ReceiptTTL),
+	})
+	if err != nil {
+		return fmt.Errorf("합치기 영수증 조회: %w", err)
+	}
+	if !resent {
+		return ErrTokenInvalid
+	}
+	s.logger.InfoContext(ctx, "계정 합치기 재전송", "accountId", accountID)
+	return nil
+}
+
+// DeleteExpiredReceipts는 now 기준 ReceiptTTL이 지난 합치기 영수증을 지우고 지운 수를 돌려줍니다(job retention, S115).
+func DeleteExpiredReceipts(ctx context.Context, pool *pgxpool.Pool, now time.Time) (int64, error) {
+	n, err := mergedb.New(pool).DeleteExpiredMergeReceipts(ctx, now.Add(-ReceiptTTL))
+	if err != nil {
+		return 0, fmt.Errorf("합치기 영수증 정리: %w", err)
+	}
+	return n, nil
 }

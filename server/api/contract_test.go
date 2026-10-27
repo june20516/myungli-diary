@@ -1907,3 +1907,22 @@ func TestContract_1_1DiaryDayKind(t *testing.T) {
 		t.Error("Diary 설명에 dayKind가 기록 값이라는 규칙이 없음")
 	}
 }
+
+// TestContract_1_1MergeResend는 합친 토큰의 재전송 규칙(같은 계정, 24시간, 200 Me)을 고정합니다. (S115, #552)
+func TestContract_1_1MergeResend(t *testing.T) {
+	doc := loadDoc(t)
+	op := operationByID(t, doc, "mergeAccounts")
+	for _, text := range []string{
+		"합치기가 끝난 토큰을 같은 유저 계정이 24시간 안에 다시 보내면",
+		"`Idempotency-Key`와 상관없이 다시 합치지 않고 200 `Me`",
+	} {
+		if !strings.Contains(op.Description, text) {
+			t.Errorf("mergeAccounts 설명에 %q가 없음", text)
+		}
+	}
+	for _, old := range []string{"키 없이 다시 보내면 토큰이 일회용이라 422", "`getMe`로 합쳐졌는지 확인"} {
+		if strings.Contains(op.Description, old) {
+			t.Errorf("mergeAccounts 설명에 1.1.0 전 규칙 %q가 남음", old)
+		}
+	}
+}

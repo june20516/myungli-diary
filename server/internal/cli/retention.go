@@ -11,6 +11,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/auth/provider"
+	"github.com/june20516/myungli-diary/server/internal/merge"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
@@ -63,7 +64,7 @@ func runRetention(ctx context.Context, getenv func(string) string, stderr io.Wri
 	return nil
 }
 
-// retention은 시각이 된 허가 취소 대기 행을 다시 시도합니다(S106).
+// retention은 시각이 된 허가 취소 대기 행을 다시 시도하고(S106), 기간이 지난 합치기 영수증을 지웁니다(S115).
 // 제공자 호출이 실패한 행은 대기 행에 남으므로 오류가 아니고, 설정·DB 오류만 실패로 돌려줍니다.
 func retention(ctx context.Context, cfg config.RevocationConfig, deps retentionDeps) error {
 	box, err := parseTokenBox(cfg.TokenKeyID, cfg.TokenKey, cfg.TokenPreviousKeyID, cfg.TokenPreviousKey)
@@ -100,5 +101,11 @@ func retention(ctx context.Context, cfg config.RevocationConfig, deps retentionD
 		return err
 	}
 	deps.Logger.InfoContext(ctx, "허가 취소 재시도 완료", "attempted", attempted)
+
+	receipts, err := merge.DeleteExpiredReceipts(ctx, deps.Pool, deps.Clock.Now())
+	if err != nil {
+		return err
+	}
+	deps.Logger.InfoContext(ctx, "합치기 영수증 정리 완료", "deleted", receipts)
 	return nil
 }

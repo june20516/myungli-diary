@@ -722,15 +722,7 @@ func TestExecute_TokenInvalidCases(t *testing.T) {
 		})
 	}
 
-	t.Run("재사용", func(t *testing.T) {
-		f := newFixture(t)
-		me := f.loginKakao(t, "kakao-a")
-		f.loginLine(t, "U-b")
-		token := f.issueToken(t, me, "U-b")
-		require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
-
-		require.ErrorIs(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent), merge.ErrTokenInvalid)
-	})
+	// 합친 뒤 같은 토큰의 재사용은 영수증 규칙을 따릅니다(TestExecute_ResendAfterMerge, TestExecute_ResendAfterReceiptTTLIsInvalid).
 	t.Run("쓴 토큰(consumed_at)", func(t *testing.T) {
 		f := newFixture(t)
 		me := f.loginKakao(t, "kakao-a")
@@ -903,4 +895,79 @@ func TestExecute_DayKindFollowsDayRecord(t *testing.T) {
 			assert.Equal(t, "gisin_day", kindOf("2026-10-13"), "B에만 있던 날은 B 값을 옮깁니다")
 		})
 	}
+}
+
+// 합치기가 끝난 토큰을 같은 A가 다시 보내면 다시 합치지 않고 성공입니다(#552, S115).
+func TestExecute_ResendAfterMerge(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	f.seedDay(t, other, "2026-10-14")
+	f.seedDiary(t, other, "2026-10-14", false)
+	token := f.issueToken(t, me, "U-b")
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	f.clk.Advance(merge.ReceiptTTL - time.Second)
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileOther), "고른 프로필이 달라도 이미 합친 결과를 그대로 둡니다")
+
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, me))
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_receipts WHERE account_id = $1`, me))
+}
+
+// 영수증은 합친 A에게만 유효합니다. 다른 계정이 같은 토큰을 보내면 422입니다.
+func TestExecute_ResendFromOtherAccountIsInvalid(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	f.loginLine(t, "U-b")
+	token := f.issueToken(t, me, "U-b")
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	stranger := f.loginKakao(t, "kakao-c")
+	assert.ErrorIs(t, f.service.Execute(f.ctx, stranger, token, merge.ProfileCurrent), merge.ErrTokenInvalid)
+}
+
+// 영수증 유효 시간(24시간)이 지나면 같은 A라도 422입니다.
+func TestExecute_ResendAfterReceiptTTLIsInvalid(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	f.loginLine(t, "U-b")
+	token := f.issueToken(t, me, "U-b")
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	f.clk.Advance(merge.ReceiptTTL)
+	assert.ErrorIs(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent), merge.ErrTokenInvalid)
+}
+
+// 같은 토큰의 두 요청이 동시에 오면 하나가 합치고 다른 하나는 영수증을 보고 성공합니다.
+func TestExecute_ConcurrentSameTokenBothSucceed(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	f.seedDay(t, other, "2026-10-14")
+	f.seedDiary(t, other, "2026-10-14", false)
+	token := f.issueToken(t, me, "U-b")
+
+	// 두 계정 행을 잡아 두 실행을 잠금 앞에 세웁니다.
+	blocker, err := f.pool.Begin(f.ctx)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = blocker.Rollback(context.Background()) })
+	_, err = blocker.Exec(f.ctx, `SELECT id FROM accounts WHERE id = ANY($1) ORDER BY id FOR UPDATE`, []uuid.UUID{me, other})
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(f.ctx, 15*time.Second)
+	defer cancel()
+	results := make(chan error, 2)
+	for range 2 {
+		go func() { results <- f.service.Execute(ctx, me, token, merge.ProfileCurrent) }()
+	}
+	require.Eventually(t, func() bool {
+		return f.count(t, `SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'`) >= 2
+	}, 10*time.Second, 20*time.Millisecond, "두 실행이 모두 잠금을 기다립니다")
+	require.NoError(t, blocker.Rollback(f.ctx))
+
+	for range 2 {
+		assert.NoError(t, <-results)
+	}
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM diaries WHERE account_id = $1`, me))
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM account_merge_receipts`))
 }

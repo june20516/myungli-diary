@@ -37,6 +37,7 @@ var deletedTables = map[string]string{ //nolint:gosec // 표 이름(refresh_toke
 	"idempotency_keys": `SELECT count(*) FROM idempotency_keys WHERE account_id = $1`,
 	"account_merge_tickets": `SELECT count(*) FROM account_merge_tickets
 		WHERE account_id = $1 OR other_account_id = $1`,
+	"account_merge_receipts": `SELECT count(*) FROM account_merge_receipts WHERE account_id = $1`,
 	// 그 계정 Apple 인증 계정의 웹 로그인 기록입니다. seedAccount가 Apple subject를 'apple-<계정 id>'로 둡니다.
 	"apple_web_logins": `SELECT count(*) FROM apple_web_logins WHERE subject = 'apple-' || $1::text`,
 }
@@ -120,6 +121,9 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 		uuid.Must(uuid.NewV7()), id, bytes.Repeat([]byte{hashByte ^ 0xFF}, 32), family, testNow.Add(time.Hour), testNow, rotated)
 	exec(`INSERT INTO idempotency_keys (account_id, key, request_hash, created_at) VALUES ($1, 'k1', $2, $3)`,
 		id, bytes.Repeat([]byte{1}, 32), testNow)
+	// 이 계정이 A로 합친 영수증입니다(S115). 계정마다 다른 토큰 해시를 씁니다.
+	exec(`INSERT INTO account_merge_receipts (token_hash, account_id, merged_at) VALUES ($1, $2, $3)`,
+		bytes.Repeat([]byte{hashByte ^ 0xFF}, 32), id, testNow)
 
 	// 남김 표입니다.
 	exec(`INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)

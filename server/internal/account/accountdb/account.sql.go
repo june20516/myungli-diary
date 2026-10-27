@@ -110,6 +110,16 @@ func (q *Queries) DeleteIdentitiesByAccount(ctx context.Context, accountID uuid.
 	return err
 }
 
+const deleteMergeReceiptsByAccount = `-- name: DeleteMergeReceiptsByAccount :exec
+DELETE FROM account_merge_receipts WHERE account_id = $1
+`
+
+// DeleteMergeReceiptsByAccount는 이 계정이 A로 합친 영수증을 지웁니다(S115).
+func (q *Queries) DeleteMergeReceiptsByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteMergeReceiptsByAccount, accountID)
+	return err
+}
+
 const deleteMergeTicketsByAccount = `-- name: DeleteMergeTicketsByAccount :exec
 DELETE FROM account_merge_tickets WHERE account_id = $1 OR other_account_id = $1
 `
