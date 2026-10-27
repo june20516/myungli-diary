@@ -1,10 +1,10 @@
 # 실제 로그인 adapter와 로그인 수단·계정 합치기 설계
 
-* 작성: app 세션, 2026-10-21 (D82 범위 반영 2026-10-22, D83 ④ 합치기 일기 정정 2026-10-22, **D85·REST 1.0.0 개정 2026-10-23**)
+* 작성: app 세션, 2026-10-21 (D82 범위 반영 2026-10-22, D83 ④ 합치기 일기 정정 2026-10-22, **D85·REST 1.0.0 개정 2026-10-23**, **D95·REST 1.1.0 개정 2026-10-27**)
 * 상태: 초안 (설계 대화 승인 2026-10-21·2026-10-22, 2026-10-23 개정은 [D85·D88 따라잡기 spec](2026-10-23-d85-d88-design.md) §7)
 * 요청: Issue #311 (#100 ⑥, #114 ①④⑤의 남은 일), #387 (D82 범위 확장, D83 ④ 정정 코멘트), #484 (D85 연결 거절·합치기 별도 흐름·삭제 복구 없음)
-* 관련 결정: app A12(이 spec이 A80으로 갱신), A80~A85(새로 기록. 처음 초안 번호는 일기 결정과 겹쳐 §11에서 다시 매김), A73·A74·A79(`app/d85-d88`에서 정함), 루트 D49·D53·D55·D64·D82·D83·D85·D88·D90, server S15·S22·S99~S101·S105·S110·S111·S114
-* 쓰는 계약: REST API `server/api/openapi.yaml` `1.0.0`(freeze, S114. `loginKakao`·`loginApple`·`completeAppleWebLogin`·`loginLine`·`loginGoogle`·`listIdentities`·`linkIdentity`·`unlinkIdentity`·`previewMerge`·`mergeAccounts`·`getMe`·`deleteMe`), server spec `2026-10-13-apple-web-callback-design.md`, IA 화면 `login`·`settings`·`login-methods`·`account-merge`, design 컴포넌트 3.0.0(`social-login-button`·`account-choice`·`primary-button`·`dialog`, V39·V44), writing ARB(W39·W40·W42)
+* 관련 결정: app A12(이 spec이 A80으로 갱신), A80~A85(새로 기록. 처음 초안 번호는 일기 결정과 겹쳐 §11에서 다시 매김), A73·A74·A79(`app/d85-d88`에서 정함), 루트 D49·D53·D55·D64·D82·D83·D85·D88·D90·D95, server S15·S22·S99~S101·S105·S110·S111·S114·S115
+* 쓰는 계약: REST API `server/api/openapi.yaml` `1.1.0`(1.0.0 freeze S114 뒤 하위 호환 추가, S115·S116. `loginKakao`·`loginApple`·`completeAppleWebLogin`·`loginLine`·`loginGoogle`·`listIdentities`·`linkIdentity`·`unlinkIdentity`·`previewMerge`·`mergeAccounts`·`getMe`·`deleteMe`), server spec `2026-10-13-apple-web-callback-design.md`, IA 화면 `login`·`settings`·`login-methods`·`account-merge`, design 컴포넌트 3.0.0(`social-login-button`·`account-choice`·`primary-button`·`dialog`, V39·V44), writing ARB(W39·W40·W42)
 * 기다리는 계약: 없습니다. 처음 초안이 기다리던 server #386(draft.14)·#407 ④(draft.15 `MergeSummary`)는 REST 1.0.0에 포함됐고, design #389는 컴포넌트 2.7.0·3.0.0, writing #388은 W39·W40·W42 원고로 왔습니다.
 
 ## 1. 목적과 범위
@@ -15,7 +15,8 @@
 * 네 제공자의 실제 adapter, 설정값 주입, 네이티브 설정(§3~§5)
 * 로그인·붙이기·합치기 인증이 함께 쓰는 제공자 인증 경계(§6)
 * 로그인 화면의 네 버튼(§7), 로그인 수단 화면(§8), 계정 합치기 화면(§9)
-* LINE·Google 제공자 허가 취소(§5.6)
+
+LINE·Google 제공자 허가는 app이 취소하지 않습니다(D95, §5.6).
 
 **이미 끝난 일(`app/d85-d88`·`app/d83-diary`, 2026-10-23 기준)**
 * 컴포넌트 `social-login-button`(카카오·LINE·Google·Apple, `connected`, 공식 로고 자산, 3.0.0 값)과 `account-choice`(3.0.0: 알약 `current`·`other`, `otherLabel`, 처음엔 고르지 않음), golden·widgetbook.
@@ -27,7 +28,7 @@
 
 **성공 기준**
 * fake 모드와 기존 테스트·Patrol 흐름이 그대로 통과합니다.
-* 실제 adapter의 로직(nonce 전달, 취소·실패 변환, 카카오톡 → 계정 전환, SDK 세션 정리·허가 취소, 설정 없음)은 SDK 없이 단위 테스트로 검증합니다.
+* 실제 adapter의 로직(nonce 전달, 취소·실패 변환, 카카오톡 → 계정 전환, SDK 세션 정리, 설정 없음)은 SDK 없이 단위 테스트로 검증합니다.
 * 외부 준비물(카카오 앱, LINE 채널, Google OAuth client, Apple Services ID, 서비스 도메인)이 생기면 `app/config/auth.json` 값만 채워 실기기에서 로그인할 수 있습니다.
 * 로그인 수단·계정 합치기 화면은 fake 모드(대역 서버)로 IA 상태·출구를 모두 지나고, `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`가 빠집니다.
 
@@ -158,7 +159,7 @@
 4. `authentication.idToken`이 없으면 `StateError`입니다. `GoogleCredential(idToken, rawNonce: 프로세스 nonce 원문)`을 돌려주고, 호출하는 쪽은 이 `rawNonce`를 server에 보냅니다.
 5. 세션 정리: `signOut()`. 다음 인증 때 계정 선택이 다시 뜹니다.
 
-> server #386에 "Google nonce는 로그인마다가 아니라 앱 프로세스마다 하나"라는 제약을 코멘트로 알립니다. server가 nonce를 일회용으로 확인하려 하면 이 제약과 맞지 않습니다. REST 1.0.0의 nonce 설명("id_token `nonce` claim = SHA-256(원문)")은 일회용을 요구하지 않습니다. 계획 7 착수 때 server 구현이 같은 원문을 다시 받는지 확인하고, 막히면 Issue로 올립니다.
+> **server 확인(#555, 닫힘):** server는 Google id_token의 nonce 원문을 일회용으로 기록하지 않아, 같은 프로세스 nonce를 여러 번 보내도 받습니다. 검증은 id_token의 nonce가 보낸 원문의 해시와 맞는지만 보고, 재사용 방지는 id_token 만료(`exp`)에 맡깁니다.
 
 ### 5.5. Apple Android 웹 (결정 A80, A12 갱신)
 
@@ -174,15 +175,11 @@
 * **기다리는 로그인이 없음**(앱이 내려간 뒤 돌아온 링크): `CallbackActivity`가 링크를 버리고 앱을 엽니다. nonce 원문이 메모리에만 있어 그 교환 코드는 쓸 수 없고, 사용자는 다시 시도합니다.
 * **붙이기·합치기에서의 Android Apple:** server 콜백은 로그인과 붙이기를 가리지 않고 교환 코드를 줍니다. 그 교환 코드를 `completeAppleWebLogin`·`linkIdentity`·`previewMerge` 중 어디로 보낼지는 app이 정합니다(§6). REST 1.0.0의 `LinkIdentityRequest`·`MergePreviewRequest`가 `exchangeCode`를 받습니다.
 
-### 5.6. LINE·Google 제공자 허가 취소 (D82 ⑤, D85 ⑥)
+### 5.6. LINE·Google 제공자 허가는 취소하지 않음 (D95)
 
-카카오·Apple 허가는 server가 취소합니다. LINE·Google은 server가 사용자 token을 갖지 않으므로 app이 SDK로 취소하고, 그 기기에 제공자 token이 없으면 생략합니다(계약 `unlinkIdentity`·`deleteMe`·`mergeAccounts` 설명).
-* **합친 뒤:** `account-merge`에서 B의 증명에 LINE·Google을 썼으면, `mergeAccounts`가 성공한 뒤 그 SDK 허가를 취소합니다. 그래서 합치기 인증에서는 §5 공통의 세션 정리를 미루고 SDK 세션을 합치기가 끝날 때까지 둡니다. 합치기를 그만두거나(뒤로 가기, `not-other`, 요약 실패) 합치기가 실패하면 그때 세션만 정리합니다.
-* **계정 삭제 전:** `account-delete`에서 `deleteMe`를 부르기 전에, 이 기기에 LINE·Google 제공자 token이 있으면 취소합니다. A82로 로그인·붙이기 뒤 세션을 지우므로 보통은 token이 없어 생략됩니다.
-* **떼기 전:** 계약은 떼기 전에도 app이 취소한다고 적습니다. 위와 같은 이유로 보통은 생략되며, 같은 경계(`ProviderRevoker`)로 부릅니다.
-* **떼기·삭제에서 사실상 생략되는 점(#553):** A82(인증 뒤 SDK 세션 정리) 때문에 떼기·계정 삭제 때는 기기에 LINE·Google token이 거의 없어 허가가 제공자 쪽에 남습니다. 지휘에 root #553(D87)으로 올렸고, **답이 오기 전에는 지금 동작(token이 없으면 생략)**입니다. 답에 따라 떼기·삭제 직전 재인증 같은 설계를 다시 정합니다.
-* 취소 실패는 합치기·삭제·떼기를 막지 않고 오류 요약만 crash 기록에 남깁니다(D64).
-* SDK 경계: Google은 `disconnect()`, LINE은 access token 폐기(`logout`)입니다. 계획 7 착수 때 확인할 것: ① LINE `logout`이 앱 허가까지 끊는지, 아니면 token 폐기뿐인지 ② LINE에 앱 연동 해제(deauthorize) API가 있는지와 app이 부를 수 있는지. **확인 결과는 이 절에 적고**, 허가가 남으면 지휘에 알립니다.
+* 떼기·계정 삭제·합치기 어디서도 app은 LINE·Google 제공자 허가를 취소하지 않습니다. 연결 기록은 server가 지웁니다. 카카오·Apple 허가는 지금처럼 server가 취소합니다(D85 ⑥, S106).
+* 그래서 허가 취소 경계(처음 초안의 `ProviderRevoker`)와 합치기 인증의 세션 유지(`keepSession`)는 만들지 않습니다. 로그인·붙이기·합치기 인증 모두 id_token을 받은 뒤 SDK 세션을 바로 정리합니다(A82).
+* 떼기·탈퇴 직전 재인증을 두지 않는 이유와 제공자 쪽 연결 앱 기록이 남는 안내는 D95에 있습니다. 안내는 화면이 아니라 개인정보 처리방침과 수집·보관 대장이 맡습니다(지휘 몫).
 
 ## 6. 제공자 인증 경계 (결정 A84)
 
@@ -243,7 +240,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
    * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`: 붙이려는 증명이 틀린 것이고 현재 세션은 유효합니다. 로그아웃하지 않고 `error` 상태로 안내합니다(auth interceptor는 `auth.token_expired`만 refresh·로그아웃 처리하므로 그대로 둠).
 3. 취소·Apple 웹 실패·그 밖의 `AppError`는 `error` 상태입니다.
 
-**떼기 흐름:** `login-methods.unlink.confirm` dialog(제공자 이름 `{provider}`) → LINE·Google이면 §5.6 허가 취소(token 있을 때만) → `AccountLinkRepository.unlink(provider)`(`unlinkIdentity` 204) → `listIdentities`로 목록 갱신. 마지막 하나는 화면이 막고, server가 409 `auth.last_identity`로 거절해도 `error` 상태로 안내합니다. 404 `auth.identity_not_found`면 다른 기기에서 이미 뗀 것이므로 목록만 다시 읽습니다. 카카오·Apple 쪽 허가 취소는 server가 합니다(D85 ⑥).
+**떼기 흐름:** `login-methods.unlink.confirm` dialog(제공자 이름 `{provider}`) → `AccountLinkRepository.unlink(provider)`(`unlinkIdentity` 204) → `listIdentities`로 목록 갱신. 마지막 하나는 화면이 막고, server가 409 `auth.last_identity`로 거절해도 `error` 상태로 안내합니다. 404 `auth.identity_not_found`면 다른 기기에서 이미 뗀 것이므로 목록만 다시 읽습니다. 카카오·Apple 쪽 허가 취소는 server가 하고, LINE·Google 허가는 취소하지 않습니다(D95, §5.6).
 
 **상태 관리:** `LoginMethodsController`(AsyncNotifier)가 목록 읽기·붙이기·떼기를 갖고, 진행 중에는 다른 줄의 동작과 합치기 입구를 막습니다(`LoginController`의 진행 중 규칙과 같음). `account-merge`에서 돌아오면 목록을 다시 읽습니다.
 
@@ -253,7 +250,7 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 
 **인증 단계**
 * app-bar 제목, `account-merge.title.head`, `account-merge.auth.body`, `social-login-button` 네 개(로그인 화면과 같은 순서·라벨, `connected` 아님). 누른 버튼만 `loading`, 나머지 `disabled`.
-* 버튼 → 새 원문 nonce로 `ProviderAuthenticator.authenticate`(§5.6대로 LINE·Google 세션은 합치기 끝까지 둠) → `AccountLinkRepository.preview(proof)`(`previewMerge`, 본문 `MergePreviewRequest`. `provider`는 proof에서 읽음). 받는 동안 IA `loading`(요약 상자·카드 자리 숨쉬기).
+* 버튼 → 새 원문 nonce로 `ProviderAuthenticator.authenticate`(세션은 로그인처럼 바로 정리, §5.6) → `AccountLinkRepository.preview(proof)`(`previewMerge`, 본문 `MergePreviewRequest`. `provider`는 proof에서 읽음). 받는 동안 IA `loading`(요약 상자·카드 자리 숨쉬기).
 * 422 `merge.same_account` → `accountMergeNotOtherBodySelf`, 422 `merge.no_account` → `accountMergeNotOtherBodyNone`을 `dialog` `notice`로 보이고 인증 단계에 남습니다(IA `error`, A74 `_screenMessages`). `merge.no_account`에서 `linkIdentity`로 넘어가지 않습니다(D85 ④ "연결로 넘어가지 않음").
 * 401 `auth.provider_token_invalid`·`auth.exchange_invalid`, 그 밖의 요약 실패는 `accountMergeError`를 `dialog` `notice`로 보이고 인증 단계에 남습니다. 취소는 아무 안내 없이 인증 단계입니다.
 
@@ -269,16 +266,15 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 1. 합치기 → `account-merge.merge.confirm` `dialog` `destructive`(되돌릴 수 없음). 확인 없이는 부르지 않습니다(D82 ⑥).
 2. 확정하면 `Idempotency-Key`를 정하고(키는 (`mergeToken`, `profile`) 조합마다 하나, 같은 조합으로 다시 확정하면 같은 키, 토큰이나 프로필이 바뀌면 새 키) `AccountLinkRepository.merge(token, profile, key)`(`mergeAccounts`, 본문 `{mergeToken, profile: current|other}`). 합치는 동안 합치기 버튼 `loading`, `account-choice` `disabled`이고 **뒤로 가기(app-bar·시스템)를 모두 막습니다**.
 3. 응답은 A의 `Me`이고 새 세션이 없습니다. **토큰을 바꾸지 않습니다.** 계약("합친 유저 계정 기준으로 캐시·초안을 지운 뒤 `getMe`부터 다시 읽습니다")대로 이 계정의 캐시(오늘·달력·일기 목록·나의 사주·프로필 사본)와 이 기기의 일기 초안을 지우고(기기 플래그는 남김), `meProvider`를 응답 `Me`로 갱신한 뒤 진입을 다시 계산합니다.
-4. §5.6대로 B의 증명에 쓴 LINE·Google 허가를 취소하고 햅틱 light를 냅니다.
+4. 햅틱 light를 냅니다. LINE·Google 허가는 취소하지 않습니다(D95).
 5. 이동: 진입 계산이 회원 갈래 그대로(동의 있음, 사주 있음)면 `login-methods`로 돌아갑니다(IA 출구). 그 밖의 갈래(고른 쪽 프로필이 없어 `status: none` 등)면 진입 계산이 정한 화면이 우선합니다.
 
-**재전송 규칙**(계약 `mergeAccounts` 설명, #518 server 답)
+**재전송 규칙**(계약 `mergeAccounts` 설명, #518·#552 server 답, S115)
 * 409 `idempotency.in_progress`: 잠시 뒤 **같은 키**로 다시 보냅니다. 화면은 `loading` 그대로입니다.
-* 응답을 받지 못함(시간 초과·연결 끊김): 같은 키로 한 번 다시 보냅니다. 같은 키는 24시간 동안 처음 응답을 돌려줍니다.
-* 같은 키 재전송이 422 `merge.token_invalid`이면 `getMe`로 합쳐졌는지 확인합니다(server 장애 같은 드문 경우라 이미 합쳐졌을 수 있음). 합쳐졌으면 3~5의 성공 갈래, 합쳐지지 않았으면 `errorMergeTokenInvalid`(W42)를 `dialog` `notice`로 보이고 인증 단계로 돌아갑니다.
-  * **판정(잠정, server 판정 수단 대기 #552):** `Me`(1.0.0)에는 합쳐졌는지 가르는 필드가 없어, 요약에서 기대한 변화가 `getMe`에 보이면 합친 것으로 봅니다. 예: 요약의 `addedDays.adFree`가 0보다 크면 합치기 전 `Me.adFree` 만료보다 늘었는지, 고른 프로필이 `other`이고 A·B의 프로필 유무가 다르면 `hasProfile`이 B 쪽으로 바뀌었는지. 단서가 없으면(기대한 변화가 없거나 비교할 변화가 없는 합치기) 합쳐지지 않은 것으로 봅니다. #552 답이 오면 이 규칙을 바꿉니다.
+* 응답을 받지 못함(시간 초과·연결 끊김): **같은 토큰·같은 본문·같은 키**로 한 번 다시 보냅니다. 200 `Me`면 합쳐진 것이고 3~5의 성공 갈래입니다. server는 같은 계정 A가 24시간 안에 이미 합친 토큰을 다시 보내면 키와 상관없이 처음 결과로 200을 줍니다(S115). 그래서 처음 초안의 `getMe` 판정(요약에서 기대한 변화로 추정)은 두지 않습니다.
+* 재전송이 422 `merge.token_invalid`면 합쳐지지 않은 것입니다(다른 계정의 토큰이거나 24시간 뒤, 또는 토큰 만료). `errorMergeTokenInvalid`(W42)를 `dialog` `notice`로 보이고 인증 단계로 돌아갑니다.
 * 첫 요청이 422 `merge.token_invalid`(토큰 만료 10분 등)여도 `errorMergeTokenInvalid` 뒤 인증 단계입니다.
-* 그 밖의 실패는 `accountMergeError` `dialog` `notice`이고 고름은 그대로 둡니다.
+* 그 밖의 실패는 `accountMergeError` `dialog` `notice`이고 고름은 그대로 둡니다. 결과를 모르는 채 실패 안내가 나간 뒤 다른 프로필로 다시 확정해도(새 키), server가 영수증으로 처음 결과 200을 주므로 성공 갈래입니다(S115 "`profile`이 처음과 달라도 처음 결과").
 
 **초안:** 합친 뒤 캐시와 함께 이 기기의 일기 초안도 지웁니다(계약 `mergeAccounts`). 합치기 확인 dialog(`account-merge.merge.confirm`)가 그 확인입니다.
 
@@ -306,13 +302,13 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
   * 근거: 탭을 닫은 취소를 플랫폼이 알려 주고, 링크가 `CallbackActivity`로만 와서 라우터 가로채기가 필요 없습니다. `app_links`와 직접 띄운 브라우저 조합은 취소를 앱 재개로 추정해야 합니다.
   * 안정판 5.x를 씁니다. 6.x(AGP 9 전용)가 안정판이 되고 호환 설정(`builtInKotlin=false`)을 걷어 낼 때 함께 올립니다.
 * **A81:** 비밀이 아닌 제공자 식별자는 `app/config/auth.json` 한 곳에 커밋합니다. Dart는 `--dart-define-from-file`, Gradle은 `manifestPlaceholders`, iOS는 생성한 `Auth.xcconfig`로 읽고, 동기화는 `contract` 테스트가 확인합니다. 빈 값이면 해당 adapter가 `ProviderNotConfigured`입니다.
-* **A82:** 카카오는 카카오톡이 있으면 카카오톡, 실패하면 계정 로그인입니다(공식 예제). 사용자 취소는 계정 로그인으로 넘어가지 않습니다. SDK 선택 시트(`loginWithKakao`)는 디자인 시스템 밖 UI라 쓰지 않습니다. 모든 제공자는 id_token을 받은 뒤 SDK 세션을 지웁니다(카카오 토큰 삭제, LINE `logout`, Google `signOut`). 예외는 합치기 인증의 LINE·Google로, 합치기가 끝난 뒤 허가를 취소하므로 그때까지 세션을 둡니다(§5.6).
+* **A82:** 카카오는 카카오톡이 있으면 카카오톡, 실패하면 계정 로그인입니다(공식 예제). 사용자 취소는 계정 로그인으로 넘어가지 않습니다. SDK 선택 시트(`loginWithKakao`)는 디자인 시스템 밖 UI라 쓰지 않습니다. 모든 제공자는 id_token을 받은 뒤 SDK 세션을 지웁니다(카카오 토큰 삭제, LINE `logout`, Google `signOut`).
 * **A83:** LINE은 `flutter_line_sdk` 2.7.2, Google은 `google_sign_in` 7.2.0입니다.
   * LINE 3.x는 AGP built-in Kotlin을 요구해 `flutter_web_auth_2` 5.x와 함께 쓸 수 없습니다. 둘을 함께 3.x·6.x로 올리고 호환 설정을 걷어 냅니다(A80과 같은 시점).
   * 네 제공자 모두 제공자에게 nonce 해시를, server에 원문을 보냅니다.
   * Google SDK는 nonce를 `initialize` 한 번에만 받으므로, 프로세스마다 원문 nonce 하나를 만들어 앱이 꺼질 때까지 씁니다. adapter가 실제로 쓴 원문을 credential로 돌려줍니다.
   * LINE·Google 모두 이메일·프로필 scope를 받지 않습니다(D82 ④).
-* **A84:** 제공자 인증(`ProviderAuthenticator` → `ProviderProof`)은 로그인, 로그인 수단 붙이기, 합치기 인증이 함께 씁니다. server에 보내는 곳(`AuthRepository.login`, `AccountLinkRepository.link`·`preview`)만 다릅니다. 연결·합치기 데이터는 `AccountLinkRepository`(REST 1.0.0 생성 클라이언트 위)이고 fake 모드는 대역 서버가 답합니다. 연결 409는 합치기로 넘기지 않고 안내만 하며(D85 ③), 합치기는 `previewMerge` → 확인 → `mergeAccounts`(`Idempotency-Key`는 (`mergeToken`, `profile`) 조합마다 하나이고 같은 조합 재확정은 같은 키, 응답 `Me`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음)입니다. 같은 키 재전송의 422 `merge.token_invalid`는 `getMe`로 합쳐졌는지 확인해 합쳐졌으면 성공 갈래, 아니면 `errorMergeTokenInvalid`와 인증 단계입니다. 합쳐졌는지의 판정은 요약에서 기대한 변화로 보는 **잠정 규칙**이고 server 판정 수단을 기다립니다(#552, §9). 합친 뒤 캐시와 일기 초안을 지웁니다(계약).
+* **A84:** 제공자 인증(`ProviderAuthenticator` → `ProviderProof`)은 로그인, 로그인 수단 붙이기, 합치기 인증이 함께 씁니다. server에 보내는 곳(`AuthRepository.login`, `AccountLinkRepository.link`·`preview`)만 다릅니다. 연결·합치기 데이터는 `AccountLinkRepository`(REST 1.0.0 생성 클라이언트 위)이고 fake 모드는 대역 서버가 답합니다. 연결 409는 합치기로 넘기지 않고 안내만 하며(D85 ③), 합치기는 `previewMerge` → 확인 → `mergeAccounts`(`Idempotency-Key`는 (`mergeToken`, `profile`) 조합마다 하나이고 같은 조합 재확정은 같은 키, 응답 `Me`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음)입니다. 응답을 받지 못하면 같은 토큰·본문·키로 다시 보내 200이면 합쳐진 것이고, 422 `merge.token_invalid`면 `errorMergeTokenInvalid`와 인증 단계입니다(S115, §9). 합친 뒤 캐시와 일기 초안을 지웁니다(계약). LINE·Google 제공자 허가는 어디서도 취소하지 않습니다(D95).
 * **A85:** 로그인 수단·계정 합치기 문구는 writing 원고 키(W39·W40·W42)를 그대로 씁니다. 원고 없는 자리가 새로 나오면 A7 임시 키로 두고 writing에 요청합니다. 화면 문구 problem code는 A74 규칙(`_screenMessages`)을 따릅니다. 사용자에게 보이는 글자에는 U+2014·U+2013·U+00B7을 쓰지 않습니다(#546).
 
 ## 12. 테스트와 계획 단계
@@ -324,11 +320,10 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
   * Google: 첫 호출에만 initialize(동시 호출 포함), iOS·Android client id, initialize에 해시·credential에 원문(같은 프로세스 nonce), `canceled` 변환, idToken 없음, signOut, 설정 없음.
   * Apple iOS: 해시와 빈 scope, 취소 변환, identityToken 없음.
   * Apple 웹: authorize URL(Services ID·redirect·해시·state), `httpsHost`·`httpsPath`, 성공 결과 해석, state 불일치, `CANCELED` → `userCancelled`, 그 밖의 예외 전달, 설정 없음.
-* **`ProviderAuthenticator`:** 제공자·플랫폼별 adapter 선택, proof 변환, Google nonce 전달, 취소·웹 실패 전달, 합치기 인증에서 LINE·Google 세션을 남기는지.
-* **허가 취소(§5.6):** 합친 뒤 LINE·Google만 취소, 그만두면 세션만 정리, 계정 삭제 전 token이 있을 때만, 실패해도 막지 않음.
+* **`ProviderAuthenticator`:** 제공자·플랫폼별 adapter 선택, proof 변환, Google nonce 전달, 취소·웹 실패 전달.
 * **`AuthConfig`·`loginProviderOrder`:** 빈 값·채운 값 판정, 언어별 순서.
 * **repository:** proof → `LinkIdentityRequest`·`MergePreviewRequest` 조합(제공자별), `LoginProvider` 모르는 값 건너뜀, 409·401·422 code 전달.
-* **화면**(fake): 로그인 네 버튼과 순서. 로그인 수단의 붙이기·떼기·마지막 하나 막기·409 `in-use` dialog(합치기로 가지 않음)·401 증명 오류는 로그아웃 없이 `error`·합치기 입구. 계정 합치기의 인증 단계 → `loading` → 요약(0이어도 일기·일정, 광고 제거는 있을 때만, 겹침 안내는 `overlapDays`로만)·고르기 전 버튼 비활성·확인 dialog·합치는 동안 뒤로 가기 막음·`not-other` 두 갈래·`idempotency.in_progress` 같은 키 재전송·재전송 `merge.token_invalid` → `getMe` 판정 두 갈래(합쳐짐: 성공 갈래, 아님: `errorMergeTokenInvalid`와 인증 단계, 잠정 규칙 #552)·토큰 그대로·합친 뒤 캐시와 일기 초안 지움·진입 갈래가 `login-methods` 복귀보다 우선. IA 계약 테스트가 세 화면의 상태·출구를 확인하고, `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`를 지웁니다.
+* **화면**(fake): 로그인 네 버튼과 순서. 로그인 수단의 붙이기·떼기·마지막 하나 막기·409 `in-use` dialog(합치기로 가지 않음)·401 증명 오류는 로그아웃 없이 `error`·합치기 입구. 계정 합치기의 인증 단계 → `loading` → 요약(0이어도 일기·일정, 광고 제거는 있을 때만, 겹침 안내는 `overlapDays`로만)·고르기 전 버튼 비활성·확인 dialog·합치는 동안 뒤로 가기 막음·`not-other` 두 갈래·`idempotency.in_progress` 같은 키 재전송·응답 없음 재전송 두 갈래(200: 성공 갈래, 422 `merge.token_invalid`: `errorMergeTokenInvalid`와 인증 단계, S115)·토큰 그대로·합친 뒤 캐시와 일기 초안 지움·진입 갈래가 `login-methods` 복귀보다 우선. IA 계약 테스트가 세 화면의 상태·출구를 확인하고, `ia_pending.dart`에서 `settings`·`login-methods`·`account-merge`를 지웁니다.
 * **golden:** 두 화면(컴포넌트 golden은 끝남).
 * **부팅:** `realPlatformOverrides(ApiMode.http)`가 실제 adapter를 끼우고, fake 모드는 대역인지 확인합니다(기존 테스트에 더함).
 * **계약:** `native_auth_config_test.dart`(§4), `problem_codes`의 `_screenMessages`(끝남), 새 화면 문구에 금지 문자가 없는지(#546 검사가 있으면 그대로 통과).
@@ -336,8 +331,8 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 * Android 빌드(디버그 APK)가 manifest placeholder·새 플러그인으로 깨지지 않는지는 CI `own` 범위의 APK 빌드와 로컬 빌드로 확인합니다. iOS 빌드는 로컬에서 확인합니다.
 
 **계획 단계** (spec 하나, 구현 계획은 단계별)
-* **A. 실제 로그인:** `AuthConfig`·설정 파일·네이티브 설정, adapter 다섯(카카오·LINE·Google·Apple 둘), `ProviderAuthenticator`, `LoginController` 합치기(LINE·Google 로그인 operation 포함), 로그인 화면 네 버튼, 허가 취소 경계.
-* **B. 로그인 수단·계정 합치기 화면:** `AccountLinkRepository`(http)와 대역 서버 응답, 설정 줄, 두 화면, 계정 삭제 전 허가 취소 연결.
+* **A. 실제 로그인:** `AuthConfig`·설정 파일·네이티브 설정, adapter 다섯(카카오·LINE·Google·Apple 둘), `ProviderAuthenticator`, `LoginController` 합치기(LINE·Google 로그인 operation 포함), 로그인 화면 네 버튼.
+* **B. 로그인 수단·계정 합치기 화면:** `AccountLinkRepository`(http)와 대역 서버 응답, 설정 줄, 두 화면.
 * ~~C. http 연결~~: REST 1.0.0에 연결·합치기·LINE·Google 로그인이 모두 들어와 단계 B에 합쳤습니다.
 * **진행 순서(루트 D91 ①):** 화면은 A1(대역 데이터), 실제 SDK adapter는 A2(실제 연동)입니다. 그래서 단계 B와 그에 필요한 경계(제공자 인증 경계·대역)를 먼저 하고, 단계 A의 실제 adapter·네이티브 설정은 A2에서 합니다. 차례는 계획 문서 "진행 순서"에 있습니다.
 
@@ -348,17 +343,14 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 * iOS Apple 로그인·취소
 * Android Auth Tab이 server 303을 받는지, 안내 페이지 intent 복귀, 앱이 내려간 뒤 복귀
 * `assetlinks.json` 검증(`adb shell pm get-app-links app.myungli.diary`)
-* 붙이기·떼기·합치기, 합친 뒤 LINE·Google 허가가 제공자 쪽 연결 앱 목록에서 사라지는지
+* 붙이기·떼기·합치기(LINE·Google 허가는 제공자 쪽 연결 앱 목록에 남는 것이 맞음, D95)
 
 ## 13. 남기는 일
 
 * #311 ③ release 지문·스토어 URL: Play 계정 뒤. 그때까지 #311은 열어 둡니다.
 * 실기기 확인 목록: 외부 준비물 뒤.
 * 실기기에서 Auth Tab이 303을 받지 못하면, 안내 페이지 intent 경로가 기본이 되는지 다시 판단합니다. 이 경우 server와 페이지 문구를 맞춰야 할 수 있어 Issue로 올립니다.
-* 재전송 `merge.token_invalid` 뒤 합쳐졌는지 가를 방법: server #552(답이 오면 §9 잠정 판정을 바꿈).
-* 떼기·계정 삭제 때 LINE·Google 허가 취소가 A82 때문에 사실상 생략되는 점: root #553(D87). 답이 오기 전에는 지금 동작(token 없으면 생략)입니다(§5.6).
-* Google 프로세스 nonce 재사용(§5.4): #555(server)로 물었습니다.
-* LINE `logout`의 허가 취소 범위와 LINE 앱 연동 해제(deauthorize) API: 계획 7 착수 때 확인합니다(§5.6).
+* 답을 받은 것(2026-10-27): 재전송 뒤 합쳐졌는지(#552 → S115, §9), 떼기·삭제의 LINE·Google 허가(#553 → D95, §5.6), Google 프로세스 nonce 재사용(#555, §5.4). LINE `logout`의 허가 범위 확인은 D95로 필요 없어졌습니다.
 
 ## 14. 계획 7 수익 쪽 과제 (`app/d85-d88`에서 넘김)
 
