@@ -455,7 +455,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: legalBarTitle, text: "약관·정책", why: "들어오는 곳의 이름과 같은 말", source: writing}
+      - {lang: ko, key: legalBarTitle, text: "약관과 정책", why: "들어오는 곳의 이름과 같은 말, 가운뎃점 대신 \"과\"(W44)", source: writing}
     bad: []
   endings: []
   a11y:

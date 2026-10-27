@@ -188,11 +188,11 @@
 - {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "부딪히는 두 기운 사이를 이어 주는 기운의 방향을 골라서 그래요."}
 - {slot: explain.today_reason, key: "reason.direction/yongsin", text: "오늘 힘을 얻은, 내 사주를 돕는 기운의 방향을 골라서 그래요."}
 - {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "후보 시간이 모두 내 사주와 부딪혀, 그날 달력의 길한 시간을 골라서 그래요."}
-- {slot: explain.today_reason, key: "reason.focus_time/score", text: "내 사주와 부딪히지 않는 시간 가운데 귀인·용신·합이 많이 겹치는 때를 골라서 그래요."}
+- {slot: explain.today_reason, key: "reason.focus_time/score", text: "내 사주와 부딪히지 않는 시간 가운데 귀인, 용신, 합이 많이 겹치는 때를 골라서 그래요."}
 - {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "오늘의 천간이 내 일간과 만나는 관계가 이 기운이라 그래요."}
 - {slot: explain.today_reason, key: "reason.fortune/tag", text: "오늘 일진과 내 사주가 만나 이 태그가 함께 들어서 그래요."}
 - {slot: explain.today_reason, key: "reason.number/hado", text: "오늘의 색과 같은 기운의 수 가운데, 오늘 천간의 음양에 맞는 수를 골라서 그래요."}
-- {slot: explain.today_reason, key: "reason.tags/select", text: "오늘 일진이 내 사주와 만나 생긴 합·충, 신살, 많아진 십성을 모아서 그래요."}
+- {slot: explain.today_reason, key: "reason.tags/select", text: "오늘 일진이 내 사주와 만나 생긴 합과 충, 신살, 많아진 십성을 모아서 그래요."}
 - {slot: calendar.day_level, key: calendar.caution, text: "조심할 날"}
 - {slot: calendar.day_level, key: calendar.good, text: "잘 풀리는 날"}
 - {slot: calendar.day_level, key: calendar.neutral, text: "무난한 날"}

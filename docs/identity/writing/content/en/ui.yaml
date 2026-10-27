@@ -42,7 +42,7 @@
 - {slot: today.guide.cta, key: todayGuideCta, text: "Write in diary"}
 - {slot: today.guide.cta, key: todayGuideCtaWritten, text: "Write a new entry"}
 - {slot: today.guide.cta, key: todayGuideCtaFull, text: "You've written enough for today"}
-- {slot: today.event.summary, key: todayEventSummary, text: "Events today: {count} · {title}"}
+- {slot: today.event.summary, key: todayEventSummary, text: "Events today: {count}, {title}"}
 - {slot: today.event.summary, key: todayEventSummaryOngoing, text: "Now"}
 - {slot: today.event.summary, key: todayEventSummaryNext, text: "Next"}
 - {slot: today.event.summary, key: todayEventSummaryDone, text: "All of today's events are done"}
@@ -51,7 +51,7 @@
 - {slot: today.reaction.label, key: todayReactionLabel, text: "Like"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "Unlike"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "Myungli Diary"}
-- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "Today, read for your chart · Myungli Diary"}
+- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "Myungli Diary: today, read for your chart"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelStory, text: "Story"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelFeed, text: "Feed"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelSquare, text: "Square"}
@@ -138,7 +138,9 @@
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmDelete, text: "Delete"}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "Cancel"}
 - {slot: ad-free.offer.head, key: adFreeOfferHead, text: "One month with no ads, and the basis and interpretation fully unlocked."}
-- {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price} · 1 month · no auto-renewal"}
+- {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
+- {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1 month, no automatic charge"}
+- {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "Buy"}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
@@ -149,11 +151,10 @@
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "Expired"}
 - {slot: ui.purchase.status, key: purchaseStatusRefunded, text: "Refunded"}
 - {slot: ui.purchase.meta, key: purchaseMetaPurchased, text: "Bought {date}"}
-- {slot: ui.purchase.meta, key: purchaseMetaPeriod, text: "{start}–{end}"}
-- {slot: ui.purchase.meta, key: purchaseMetaSeparator, text: " · "}
+- {slot: ui.purchase.meta, key: purchaseMetaPeriod, text: "{start} to {end}"}
 - {slot: ui.purchase.product, key: purchaseProductAdFreeMonth, text: "Ad-free, 1 month"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
-- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, {start}–{end}."}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, from {start} to {end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
 
 # 공용 문구(slots/ui/common.yaml, #143)

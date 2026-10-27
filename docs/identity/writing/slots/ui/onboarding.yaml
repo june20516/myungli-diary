@@ -659,7 +659,7 @@
   examples:
     good:
       - {lang: ko, key: consentRequiredLabelTerms, text: "(필수) 이용약관", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: consentRequiredLabelPrivacy, text: "(필수) 개인정보 수집·이용", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: consentRequiredLabelPrivacy, text: "(필수) 개인정보 수집 및 이용", why: "가이드 규칙(W6·W10)으로 쓴 원고, 가운뎃점 대신 \"및\"(W44)", source: writing}
     bad: []
   endings: []
   a11y:

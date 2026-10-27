@@ -85,7 +85,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: profileEditRecalcNotice, text: "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산합니다.", why: "라운드 R19 선택(W43)", source: writing}
+      - {lang: ko, key: profileEditRecalcNotice, text: "생일, 시간, 성별, 출생지를 바꾸면 풀이를 다시 계산합니다.", why: "라운드 R19 선택(W43), 가운뎃점은 쉼표로(W44)", source: writing}
     bad: []
   endings: ["~ㅂ니다"]
   a11y:
@@ -112,7 +112,7 @@
   examples:
     good:
       - {lang: ko, key: profileEditRecalcConfirmTitle, text: "정보를 바꿀까요?", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: profileEditRecalcConfirmBody, text: "{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: profileEditRecalcConfirmBody, text: "{before} → {after}\n오늘, 달력, 나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.", why: "가이드 규칙(W6·W10)으로 쓴 원고, 가운뎃점은 쉼표로(W44)", source: writing}
       - {lang: ko, key: profileEditRecalcConfirmCancel, text: "취소", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: profileEditRecalcConfirmSave, text: "바꾸기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
     bad: []

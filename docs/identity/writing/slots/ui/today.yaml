@@ -50,7 +50,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: todayEventSummary, text: "오늘 일정 {count}개 · {title}", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: todayEventSummary, text: "오늘 일정 {count}개, {title}", why: "가이드 규칙(W6·W10)으로 쓴 원고, 가운뎃점은 쉼표로(W44)", source: writing}
       - {lang: ko, key: todayEventSummaryOngoing, text: "진행 중", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: todayEventSummaryNext, text: "다음", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: todayEventSummaryDone, text: "오늘 일정이 모두 끝났어요", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}

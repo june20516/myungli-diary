@@ -151,6 +151,8 @@
 | ad-free.bar.title | ui | ad-free.bar.title |
 | ad-free.offer.head | ui | ad-free.offer.head |
 | ad-free.offer.price | ui | ad-free.offer.price |
+| ad-free.offer.period | ui | ad-free.offer.period |
+| ad-free.buy.cta | ui | ad-free.buy.cta |
 | ad-free.status.remaining | ui | ad-free.status.remaining |
 | ad-free.history.cta | ui | ad-free.history.cta |
 | ad-free.legal.notice | ui | ad-free.legal.notice |
