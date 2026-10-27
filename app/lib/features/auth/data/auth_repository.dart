@@ -8,7 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/line_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/platform/social_provider.dart';
-import 'package:myungli_diary/features/auth/application/provider_authenticator.dart';
+import 'package:myungli_diary/features/auth/model/provider_proof.dart';
 
 /// 소셜 로그인 server 요청입니다(D55, Issue #100·#114).
 ///
@@ -62,12 +62,12 @@ final class AuthRepository {
     ),
   );
 
-  Future<LoginResponse> _loginAppleNative(IdTokenProof proof) {
+  Future<LoginResponse> _loginAppleNative(IdTokenProof proof) async {
     final authorizationCode = proof.authorizationCode;
     if (authorizationCode == null) {
       throw UnexpectedError(StateError('Apple 증명에 authorization code가 없습니다.'));
     }
-    return _send(
+    return await _send(
       () => _api.loginApple(
         appleLoginRequest: AppleLoginRequest(
           idToken: proof.idToken,

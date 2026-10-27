@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_web_login_request.dart';
@@ -158,6 +159,13 @@ void main() {
     expect(request.authorizationCode, 'auth-code');
     expect(request.nonce, 'raw-nonce');
     expect(api.calls, hasLength(1));
+  });
+
+  test('authorizationCode 없는 Apple 증명은 Future 오류이고 server를 부르지 않습니다', () async {
+    final future = repository.login(proof(SocialProvider.apple));
+
+    await expectLater(future, throwsA(isA<UnexpectedError>()));
+    expect(api.calls, isEmpty);
   });
 
   test('AppleWebExchangeProof는 completeAppleWebLogin입니다', () async {

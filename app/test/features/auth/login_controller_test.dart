@@ -333,6 +333,7 @@ final class _Harness {
     required this.container,
     required this.api,
     required this.kakao,
+    required this.google,
     required this.appleNative,
     required this.appleWeb,
     required this.crashReporter,
@@ -343,6 +344,7 @@ final class _Harness {
   final ProviderContainer container;
   final _FakeApi api;
   final FakeKakaoAuth kakao;
+  final FakeGoogleAuth google;
   final FakeAppleNativeAuth appleNative;
   final FakeAppleWebAuth appleWeb;
   final FakeCrashReporter crashReporter;
@@ -371,6 +373,7 @@ Future<_Harness> _harness({
 }) async {
   final server = api ?? _FakeApi();
   final kakaoAuth = kakao ?? FakeKakaoAuth();
+  final googleAuth = FakeGoogleAuth();
   final native = appleNative ?? FakeAppleNativeAuth();
   final crashReporter = FakeCrashReporter();
   final web = appleWeb ?? FakeAppleWebAuth();
@@ -387,6 +390,7 @@ Future<_Harness> _harness({
       secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
       crashReporterProvider.overrideWithValue(crashReporter),
       kakaoAuthProvider.overrideWithValue(kakaoAuth),
+      googleAuthProvider.overrideWithValue(googleAuth),
       appleNativeAuthProvider.overrideWithValue(native),
       appleWebAuthProvider.overrideWithValue(web),
       targetPlatformProvider.overrideWithValue(platform),
@@ -425,6 +429,7 @@ Future<_Harness> _harness({
     container: container,
     api: server,
     kakao: kakaoAuth,
+    google: googleAuth,
     appleNative: native,
     appleWeb: web,
     crashReporter: crashReporter,
@@ -689,6 +694,7 @@ void main() {
       final request = h.api.googleRequests.single;
       expect(request.idToken, 'fake-google-id-token');
       expect(request.nonce, hasLength(32));
+      expect(h.google.providerNonces.single, hashNonce(request.nonce));
       expect(h.accessToken, 'login-access-token');
       expect(h.entry.refreshes, 1);
     });

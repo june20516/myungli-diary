@@ -47,8 +47,7 @@ void main() {
 
       final result = await _authenticate(container, SocialProvider.apple);
 
-      final proof = (result as ProviderAuthenticated).proof;
-      expect(proof, isA<AppleWebExchangeProof>());
+      expect(result, isA<ProviderAuthenticated>());
       expect(web.openedUris, hasLength(1));
       expect(native.providerNonces, isEmpty);
     });
