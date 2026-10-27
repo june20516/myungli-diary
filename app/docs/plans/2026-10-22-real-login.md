@@ -246,6 +246,7 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
 **Interfaces:**
 - Consumes: A1은 Task 3의 interface·대역, A2는 Task 4~6의 실제 adapter
 - Produces:
+  - 위치: `ProviderProof`와 그 하위 타입은 `lib/features/auth/model/provider_proof.dart`에 둡니다(`features/account`가 `features/auth/application`을 import하지 않도록 layering 검사 때문에 model로 뺌). `ProviderAuthenticator`는 `lib/features/auth/application/provider_authenticator.dart`.
   - `sealed class ProviderProof { SocialProvider get provider; String get rawNonce; }`, `final class IdTokenProof extends ProviderProof { const new({required SocialProvider provider, required String idToken, required String rawNonce, String? authorizationCode}); }`, `final class AppleWebExchangeProof extends ProviderProof { const new({required String exchangeCode, required String rawNonce}); }`
   - `final class ProviderAuthenticator { const new(Ref ref); Future<ProviderAuthResult> authenticate(SocialProvider provider, {required String rawNonce}); }`. `sealed class ProviderAuthResult`: `ProviderAuthenticated(ProviderProof proof)`, `ProviderAppleWebFailed(AppleWebError error)`. 취소는 `SocialSignInCancelled`를 던짐
   - `final providerAuthenticatorProvider = Provider<ProviderAuthenticator>(ProviderAuthenticator.new);`
@@ -265,14 +266,14 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
 ### Task 8: 로그인 화면 네 버튼
 
 **Files:**
-- Create: `app/lib/features/auth/presentation/login_provider_order.dart`
+- Create: `app/lib/features/auth/model/login_provider_order.dart`
 - ~~Modify: `social_login_button.dart`(`line`·`google` 그리기), `assets/brand/line/`·`assets/brand/google/`, `pubspec.yaml`(assets), `widgetbook/lib/action_directory.dart`, `test/design/action_golden_test.dart`~~ **끝남**(design 3.0.0 값, 공식 로고 자산, golden·widgetbook)
 - ~~Modify: ARB `loginLineLabel`·`loginGoogleLabel` 임시~~ **끝남**(writing 원고 키)
 - Modify: `app/lib/features/auth/presentation/login_screen.dart`
 - Test: `app/test/features/auth/login_provider_order_test.dart`, `app/test/features/auth/login_screen_test.dart`(있으면 수정)
 
 **Interfaces:**
-- Produces: `List<SocialProvider> loginProviderOrder(Locale locale)`. `login-methods`·`account-merge` 인증 단계도 같은 함수를 씁니다
+- Produces: `List<SocialProvider> loginProviderOrder(Locale locale)`(`lib/features/auth/model/login_provider_order.dart`, `features/account`가 `features/auth/presentation`을 import하면 layering 검사에 걸려 model에 둠). `login-methods`·`account-merge` 인증 단계도 같은 함수를 씁니다
 
 - [ ] **Step 1: 실패하는 테스트 작성**:
   - 순서: `ko → kakao, line, google, apple`, `ja → line, kakao, google, apple`, `en → google, kakao, line, apple`, `zh와 ja_JP`(Review Focus 5: `zh`는 en 순서, `ja_JP`는 ja 순서)

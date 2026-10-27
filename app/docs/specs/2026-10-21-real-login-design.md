@@ -24,7 +24,7 @@ LINE·Google 제공자 허가는 app이 취소하지 않습니다(D95, §5.6).
 * 계정 삭제 204 처리(A73)와 삭제 대기 갈래 삭제. `LoginResponse`에는 `tokens`·`isNewAccount`·`consentRequired`만 있습니다.
 * 화면 문구 problem code(A74): `merge.same_account`·`merge.no_account`는 `problemMessages` 밖 `_screenMessages`(화면이 `accountMergeNotOtherBodySelf`·`accountMergeNotOtherBodyNone`을 씀), `merge.token_invalid`는 `problemMessages`의 `errorMergeTokenInvalid`.
 * 로그인 뒤 동의·사주 없는 계정의 갈래(D90 ③, A79): 미리보기 입력이 있으면 로그인 화면이 저장하고 `notify-ask`로 갑니다. §6의 `LoginController` 정리는 이 갈래를 그대로 둡니다.
-* 로그인 수단·계정 합치기 문구: writing 원고 키가 ARB에 있습니다(`loginLineLabel`·`loginGoogleLabel`, `loginProvider*`, `loginMethods*`, `accountMerge*`, `accountChoice*`). 임시 키를 만들지 않습니다(A85).
+* 로그인 수단·계정 합치기 문구: writing 원고 키가 ARB에 있습니다(`loginLineLabel`·`loginGoogleLabel`, `loginProvider*`, `loginMethods*`, `accountMerge*`, `accountChoice*`). 지금 원고 키가 모두 있어 임시 키를 만들지 않았습니다. 원고 없는 자리가 새로 나오면 A85대로 합니다.
 
 **성공 기준**
 * fake 모드와 기존 테스트·Patrol 흐름이 그대로 통과합니다.
