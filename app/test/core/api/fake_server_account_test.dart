@@ -37,7 +37,7 @@ Future<List<LoginProvider>> _providers(DefaultApi api) async => [
   for (final item in (await api.listIdentities()).data!.items) item.provider,
 ];
 
-Future<Object?> _link(DefaultApi api, LoginProvider provider) => api
+Future<int?> _link(DefaultApi api, LoginProvider provider) => api
     .linkIdentity(
       provider: provider,
       linkIdentityRequest: LinkIdentityRequest(idToken: 't', nonce: _nonce),

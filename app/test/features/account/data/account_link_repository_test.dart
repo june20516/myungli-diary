@@ -51,14 +51,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('link 본문', () {
-    for (final provider in [
-      SocialProvider.kakao,
-      SocialProvider.line,
-      SocialProvider.apple,
-    ]) {
-      if (provider == SocialProvider.apple) {
-        continue;
-      }
+    for (final provider in [SocialProvider.kakao, SocialProvider.line]) {
       test('${provider.name} id_token 증명은 idToken과 nonce만 보냅니다', () async {
         final (repository, server) = await _repository();
         await repository.link(_idToken(provider));
@@ -123,14 +116,33 @@ void main() {
   });
 
   group('preview 본문', () {
-    test('LINE id_token 증명은 provider, idToken, nonce를 보냅니다', () async {
-      final (repository, server) = await _repository();
+    for (final provider in [
+      SocialProvider.kakao,
+      SocialProvider.line,
+      SocialProvider.google,
+    ]) {
+      test(
+        '${provider.name} id_token 증명은 provider, idToken, nonce를 보냅니다',
+        () async {
+          final (repository, server) = await _repository();
+          // 카카오는 이미 연결돼 있어 대역 응답이 422입니다. 본문만 확인합니다.
+          try {
+            await repository.preview(_idToken(provider));
+          } on AppError {
+            // 응답은 이 테스트의 관심이 아닙니다.
+          }
+          expect(_bodyOf(server, 'previewMerge'), {
+            'provider': provider.name,
+            'idToken': 'id-token',
+            'nonce': _nonce,
+          });
+        },
+      );
+    }
+
+    test('연결하지 않은 LINE은 합치기 토큰과 요약을 받습니다', () async {
+      final (repository, _) = await _repository();
       final preview = await repository.preview(_idToken(SocialProvider.line));
-      expect(_bodyOf(server, 'previewMerge'), {
-        'provider': 'line',
-        'idToken': 'id-token',
-        'nonce': _nonce,
-      });
       expect(preview.mergeToken, isNotEmpty);
       expect(preview.summary.diaries, 2);
     });
