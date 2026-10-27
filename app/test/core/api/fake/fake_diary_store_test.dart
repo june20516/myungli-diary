@@ -20,6 +20,7 @@ Map<String, Object?> _summary(
 
 const _daily = <String, Object?>{
   'rulesetVersion': 'r1',
+  'dayKind': 'yongsin_day',
   'tags': {
     'featured': [
       {'key': 'cheoneul_gwiin', 'polarity': 'good'},
@@ -101,6 +102,7 @@ void main() {
     expect(diary['tags'], _daily['tags']);
     expect(diary['guideQuestion'], (_daily['guide']! as Map)['text']);
     expect(diary['rulesetVersion'], 'r1');
+    expect(diary['dayKind'], 'yongsin_day');
     expect(diary['createdAt'], '2026-10-13T03:00:00.000Z');
     expect(store.get(diary['id']! as String)['body'], '새 일기');
     final items = _items(store.list());
@@ -113,7 +115,15 @@ void main() {
     final second = store.create({'date': '2026-10-11', 'body': '둘째'});
     expect(second['id'], isNot(first['id']));
     expect(second['tags'], first['tags']);
+    expect(second['dayKind'], first['dayKind']);
     expect(_ids(store.list()), [first['id'], second['id']]);
+  });
+
+  test('그날 성격을 기록하기 전(1.1.0 전)에 쓴 날짜 기록은 dayKind가 없습니다', () {
+    final store = _store(summaries: [_summary('a', '2026-10-12', '점심')]);
+    expect(store.get('a').containsKey('dayKind'), isFalse);
+    final later = store.create({'date': '2026-10-12', 'body': '저녁'});
+    expect(later.containsKey('dayKind'), isFalse);
   });
 
   test('새 일기는 시계가 멈춰 있어도 fixture의 같은 날 일기 뒤에 섭니다', () {

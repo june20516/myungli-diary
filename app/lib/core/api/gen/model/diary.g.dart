@@ -19,6 +19,8 @@ abstract class _$DiaryCWProxy {
 
   Diary rulesetVersion(String rulesetVersion);
 
+  Diary dayKind(DayKind? dayKind);
+
   Diary createdAt(DateTime createdAt);
 
   Diary updatedAt(DateTime updatedAt);
@@ -38,6 +40,7 @@ abstract class _$DiaryCWProxy {
     RenderedText? guideQuestion,
     DayTags tags,
     String rulesetVersion,
+    DayKind? dayKind,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -71,6 +74,9 @@ class _$DiaryCWProxyImpl implements _$DiaryCWProxy {
       call(rulesetVersion: rulesetVersion);
 
   @override
+  Diary dayKind(DayKind? dayKind) => call(dayKind: dayKind);
+
+  @override
   Diary createdAt(DateTime createdAt) => call(createdAt: createdAt);
 
   @override
@@ -92,6 +98,7 @@ class _$DiaryCWProxyImpl implements _$DiaryCWProxy {
     Object? guideQuestion = const $CopyWithPlaceholder(),
     Object? tags = const $CopyWithPlaceholder(),
     Object? rulesetVersion = const $CopyWithPlaceholder(),
+    Object? dayKind = const $CopyWithPlaceholder(),
     Object? createdAt = const $CopyWithPlaceholder(),
     Object? updatedAt = const $CopyWithPlaceholder(),
   }) {
@@ -122,6 +129,10 @@ class _$DiaryCWProxyImpl implements _$DiaryCWProxy {
           ? _value.rulesetVersion
           // ignore: cast_nullable_to_non_nullable
           : rulesetVersion as String,
+      dayKind: dayKind == const $CopyWithPlaceholder()
+          ? _value.dayKind
+          // ignore: cast_nullable_to_non_nullable
+          : dayKind as DayKind?,
       createdAt: createdAt == const $CopyWithPlaceholder() || createdAt == null
           ? _value.createdAt
           // ignore: cast_nullable_to_non_nullable
@@ -174,6 +185,10 @@ Diary _$DiaryFromJson(
       (v) => DayTags.fromJson(v as Map<String, dynamic>),
     ),
     rulesetVersion: $checkedConvert('rulesetVersion', (v) => v as String),
+    dayKind: $checkedConvert(
+      'dayKind',
+      (v) => $enumDecodeNullable(_$DayKindEnumMap, v),
+    ),
     createdAt: $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
     updatedAt: $checkedConvert('updatedAt', (v) => DateTime.parse(v as String)),
   );
@@ -187,6 +202,14 @@ Map<String, dynamic> _$DiaryToJson(Diary instance) => <String, dynamic>{
   'guideQuestion': ?instance.guideQuestion?.toJson(),
   'tags': instance.tags.toJson(),
   'rulesetVersion': instance.rulesetVersion,
+  'dayKind': ?_$DayKindEnumMap[instance.dayKind],
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt.toIso8601String(),
+};
+
+const _$DayKindEnumMap = {
+  DayKind.gwiinDay: 'gwiin_day',
+  DayKind.yongsinDay: 'yongsin_day',
+  DayKind.gisinDay: 'gisin_day',
+  DayKind.ordinaryDay: 'ordinary_day',
 };

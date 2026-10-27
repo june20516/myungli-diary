@@ -12,9 +12,10 @@ import 'package:uuid/uuid.dart';
 ///   넘으면 422 `diary.day_full`입니다.
 /// * 만들기는 201이고, 같은 `Idempotency-Key`로 같은 본문이 다시 오면 처음 응답을 돌려줍니다.
 ///   고치기는 본문만 바꿉니다(태그·`rulesetVersion`·가이드 질문·`createdAt`은 처음 값).
-/// * 날짜 기록(태그·가이드 질문·`rulesetVersion`)은 그날 첫 편을 쓸 때 `daily`(시나리오의
-///   `getDaily` 본문)에서 가져와 같은 날 일기에 똑같이 붙습니다. 대역은 날짜마다 다른 일진을
-///   계산하지 않습니다.
+/// * 날짜 기록(태그·가이드 질문·`rulesetVersion`·`dayKind`)은 그날 첫 편을 쓸 때 `daily`
+///   (시나리오의 `getDaily` 본문)에서 가져와 같은 날 일기에 똑같이 붙습니다. 대역은 날짜마다
+///   다른 일진을 계산하지 않습니다. fixture에서 시작한 날짜 기록에 `dayKind`가 없으면 1.1.0 전에
+///   만든 기록처럼 끝까지 비워 둡니다(S116).
 /// * 지운 일기는 목록·보기에서 사라집니다(404 `diary.not_found`). 되살리기는 대역이 구현하지
 ///   않습니다(앱이 부르지 않음).
 /// * 오늘(`today`) 이후 날짜는 422 `diary.future_date`입니다.
@@ -75,8 +76,8 @@ final class FakeDiaryStore {
   /// id → 살아 있는 일기(`Diary` JSON).
   final _diaries = <String, Map<String, Object?>>{};
 
-  /// 날짜(`YYYY-MM-DD`) → 날짜 기록(`tags`·`guideQuestion`·`rulesetVersion`). 그날 일기를
-  /// 다 지워도 남습니다.
+  /// 날짜(`YYYY-MM-DD`) → 날짜 기록(`tags`·`guideQuestion`·`rulesetVersion`·
+  /// `dayKind`). 그날 일기를 다 지워도 남습니다.
   final _dayRecords = <String, Map<String, Object?>>{};
 
   /// `Idempotency-Key` → (요청 본문, 처음 응답).
@@ -224,9 +225,10 @@ final class FakeDiaryStore {
     'tags': diary['tags'],
     'rulesetVersion': diary['rulesetVersion'],
     if (diary['guideQuestion'] != null) 'guideQuestion': diary['guideQuestion'],
+    if (diary['dayKind'] != null) 'dayKind': diary['dayKind'],
   };
 
-  /// 그날 첫 편의 날짜 기록: `daily`의 태그·가이드 질문·`rulesetVersion`.
+  /// 그날 첫 편의 날짜 기록: `daily`의 태그·가이드 질문·`rulesetVersion`·`dayKind`.
   Map<String, Object?> _newDayRecord() {
     final guide = _daily['guide'];
     return {
@@ -235,6 +237,7 @@ final class FakeDiaryStore {
       'tags':
           _daily['tags'] ?? const {'featured': <Object?>[], 'all': <Object?>[]},
       'rulesetVersion': _daily['rulesetVersion'] ?? 'fake',
+      if (_daily['dayKind'] != null) 'dayKind': _daily['dayKind'],
     };
   }
 

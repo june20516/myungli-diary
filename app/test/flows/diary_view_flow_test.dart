@@ -14,6 +14,7 @@ import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -110,6 +111,19 @@ Future<ProviderContainer> _openView(
   return container;
 }
 
+/// 그날 성격 슬롯 안의 [DayCharacter] 이름.
+String _characterLabel(WidgetTester tester) => tester
+    .widget<DayCharacter>(
+      find.descendant(
+        of: find.byKey(const ValueKey(SlotIds.diaryViewCharacterLabel)),
+        matching: find.byType(DayCharacter),
+      ),
+    )
+    .label;
+
+/// 그날 성격의 이유 문장(달 길흉 캐시의 `characterReason`).
+Finder get _reason => find.byType(SentenceBlock);
+
 /// 종이에 그려진 일기 본문.
 Finder get _paper => find.textContaining('오랜만에 연락이 온 친구');
 
@@ -128,10 +142,37 @@ void main() {
       _ko.diaryViewBarTitle('10월 12일'),
     );
     expect(find.byType(DayCharacter), findsOneWidget);
+    // 시드 일기는 그날 성격을 기록하기 전(1.1.0 전)의 것이라 달 길흉 캐시의 성격과 이유입니다.
+    expect(_characterLabel(tester), _ko.dayKindGwiinDay);
+    expect(_reason, findsOneWidget);
     expect(_paper, findsOneWidget);
     expect(find.byType(TagChip), findsWidgets);
     expect(find.byKey(DiaryViewScreen.editKey), findsOneWidget);
     expect(find.byKey(DiaryViewScreen.deleteKey), findsOneWidget);
+  });
+
+  testWidgets('쓸 때 기록한 그날 성격이 지금 달 길흉과 다르면 기록한 성격만, 이유 없이', (tester) async {
+    // 대역은 쓸 때 daily의 성격(용신일)을 기록하고, 달 길흉에서 2026-10-11은 기신일입니다.
+    final container = await pumpApp(tester, scenario: 'member');
+    final response = await tester.runAsync(
+      () => container
+          .read(dioProvider)
+          .post<Map<String, Object?>>(
+            '/v1/diaries',
+            data: {'date': '2026-10-11', 'body': '오랜만에 연락이 온 친구와 통화했다'},
+          ),
+    );
+    final id = response!.data!['id']! as String;
+    unawaited(
+      container
+          .read(routerProvider)
+          .push<void>(diaryPathOf(ScreenIds.diaryView, id)),
+    );
+    await pumpUntil(tester, () => _paper.evaluate().isNotEmpty);
+    await settleWithIo(tester);
+
+    expect(_characterLabel(tester), _ko.dayKindYongsinDay);
+    expect(_reason, findsNothing);
   });
 
   testWidgets('성격을 누르면 그 성격 용어의 풀이 시트', (tester) async {
