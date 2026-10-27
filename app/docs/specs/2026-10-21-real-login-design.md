@@ -358,4 +358,3 @@ sealed class ProviderAuthFailure … // 취소(SocialSignInCancelled), Android A
 * **RevenueCat adapter:** `Purchases.sync()`를 RevenueCat `syncPurchases`로 구현합니다. 사용자에게 아무것도 띄우지 않는 것이 전제입니다(A76). iOS sandbox에서 `syncPurchases`가 Apple ID 로그인 창을 띄우는지 확인하고, **띄우면 지휘에 알립니다**(#493, 구매 내역 진입마다 부르는 설계를 다시 정해야 함).
 * `Purchases.products()`의 시간 한계(timeout)를 정합니다. 구매 내역의 `sync`가 길어질 때의 `loading` 길이도 같은 기준으로 정합니다(d85-d88 spec §10).
 * 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS`(광고 제거권 상품 id 쉼표 목록, A77)를 배선합니다. 상품 id는 저장소에 두지 않습니다(S89, D74).
-* 구매 버튼 문구는 임시 키 `adFreeBuyCta`입니다(#548 원고 대기). 원고가 오면 가져오고 `_allowedTemporaryKeys`에서 지웁니다.
