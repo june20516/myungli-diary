@@ -141,7 +141,7 @@ void main() {
       expect(find.byKey(PurchaseRowGroup.statusKey), findsNWidgets(2));
     });
 
-    testWidgets('구매일과 사용 기간은 구분 글자 없이 두 줄로 나뉜다', (tester) async {
+    testWidgets('구매일과 사용 기간은 구분 글자 없이 space.2 사이를 둔 두 줄로 나뉜다', (tester) async {
       await tester.pumpWidget(
         _app(
           const PurchaseRowGroup(
@@ -158,7 +158,8 @@ void main() {
       final purchased = tester.getRect(find.text(_purchased));
       final period = tester.getRect(find.text(_period));
       expect(period.left, purchased.left);
-      expect(period.top, purchased.bottom);
+      expect(period.top, purchased.bottom + PurchaseRowGroup.periodGap);
+      expect(PurchaseRowGroup.periodGap, Space.s2);
     });
 
     testWidgets('사용 기간이 없으면 구매일 줄만 있다', (tester) async {
@@ -326,7 +327,9 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('loading은 줄 세 개 자리 뼈를 그리고 읽지 않는다', (tester) async {
+    testWidgets('loading은 줄 세 개 자리에 상품, 구매일, 사용 기간 뼈를 그리고 읽지 않는다', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(const PurchaseRowGroup.loading()));
       final root = tester.getSemantics(find.byType(PurchaseRowGroup));
@@ -356,7 +359,8 @@ void main() {
         findsNWidgets(3),
       );
       expect(find.byKey(PurchaseRowGroup.rowKey), findsNWidgets(3));
-      expect(find.byType(SkeletonBone), findsNWidgets(6));
+      // 줄마다 상품 이름 줄, 구매일 줄, 사용 기간 줄 뼈(V47).
+      expect(find.byType(SkeletonBone), findsNWidgets(9));
       expect(find.byKey(PurchaseRowGroup.dividerKey), findsNWidgets(2));
       handle.dispose();
     });

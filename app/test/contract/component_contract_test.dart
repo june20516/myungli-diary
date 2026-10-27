@@ -828,7 +828,7 @@ void main() {
       expect(_map(_map(offer['states'])['active'])['pattern'], 'appear.seep');
     });
 
-    test('purchase-row 부품 값(바탕, radius, 간격 16/16/4/12, 상태 폭 80)이 명세와 같다', () {
+    test('purchase-row 부품 값(바탕, radius, 간격 16/16/4/2/12, 상태 폭 80)이 명세와 같다', () {
       final purchase = specs['purchase-row']!;
       final parts = _map(purchase['parts']);
       final group = _map(parts['group']);
@@ -862,6 +862,11 @@ void main() {
       expect(meta['fontFeatures'], ['tnum']);
       expect(meta['marginTop'], '{space.4}');
       expect(PurchaseRowGroup.metaGap, Space.s4);
+      // 3.1.0(V47): 구매일 줄 아래 space.2에 사용 기간 줄, 구분자로 잇지 않음.
+      expect(meta['layout'], 'lines');
+      expect(meta, isNot(contains('join')));
+      expect(_map(meta['period'])['marginTop'], '{space.2}');
+      expect(PurchaseRowGroup.periodGap, Space.s2);
 
       expect(
         _map(_map(purchase['states'])['loading'])['component'],
