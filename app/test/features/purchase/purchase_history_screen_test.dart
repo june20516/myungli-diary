@@ -71,14 +71,21 @@ Future<ProviderContainer> _open(
   return container;
 }
 
-/// 구매일과 (있으면) 사용 기간으로 meta 한 줄을 ARB 조각으로 조립합니다.
-String _meta(String purchased, {String? start, String? end}) {
-  final head = _ko.purchaseMetaPurchased(purchased);
-  if (start == null || end == null) {
-    return head;
+/// 구매일 줄과 (있으면) 사용 기간 줄을 ARB 조각으로 만듭니다.
+PurchaseMeta _meta(String purchased, {String? start, String? end}) => (
+  purchased: _ko.purchaseMetaPurchased(purchased),
+  period: start == null || end == null
+      ? null
+      : _ko.purchaseMetaPeriod(start, end),
+);
+
+/// [meta]의 줄이 화면에 하나씩 있는지 봅니다.
+void _expectMeta(PurchaseMeta meta) {
+  expect(find.text(meta.purchased), findsOneWidget);
+  final period = meta.period;
+  if (period != null) {
+    expect(find.text(period), findsOneWidget);
   }
-  final period = _ko.purchaseMetaPeriod(start, end);
-  return '$head${_ko.purchaseMetaSeparator}$period';
 }
 
 Map<String, Object?> _item(
@@ -105,19 +112,20 @@ void main() {
       endsAt: DateTime.utc(2026, 11, 12, 3),
     );
 
-    String meta(DateTime purchasedAt, [PurchasePeriod? period]) => purchaseMeta(
-      _ko,
-      Purchase(
-        productId: 'p',
-        purchasedAt: purchasedAt,
-        status: PurchaseStatus.active,
-        period: period,
-      ),
-      locale: 'ko',
-      timezone: 'Asia/Seoul',
-    );
+    PurchaseMeta meta(DateTime purchasedAt, [PurchasePeriod? period]) =>
+        purchaseMeta(
+          _ko,
+          Purchase(
+            productId: 'p',
+            purchasedAt: purchasedAt,
+            status: PurchaseStatus.active,
+            period: period,
+          ),
+          locale: 'ko',
+          timezone: 'Asia/Seoul',
+        );
 
-    test('구매일, 구분자, 기간을 잇는다', () {
+    test('구매일과 기간을 따로 만든다', () {
       expect(
         meta(DateTime.utc(2026, 10, 13, 3), period),
         _meta('2026. 10. 13.', start: '2026. 10. 13.', end: '2026. 11. 12.'),
@@ -145,13 +153,10 @@ void main() {
     expect(find.text(_ko.purchaseStatusActive), findsOneWidget);
     expect(find.text(_ko.purchaseStatusRefunded), findsOneWidget);
     expect(find.text(_ko.purchaseStatusExpired), findsNWidgets(2));
-    expect(
-      find.text(
-        _meta('2026. 10. 12.', start: '2026. 10. 12.', end: '2026. 11. 12.'),
-      ),
-      findsOneWidget,
+    _expectMeta(
+      _meta('2026. 10. 12.', start: '2026. 10. 12.', end: '2026. 11. 12.'),
     );
-    expect(find.text(_meta('2026. 7. 1.')), findsOneWidget);
+    _expectMeta(_meta('2026. 7. 1.'));
     expect(_notice, findsOneWidget);
   });
 
@@ -279,7 +284,7 @@ void main() {
     expect(find.text(_ko.purchaseStatusExpired), findsOneWidget);
     final tops = [
       for (final meta in [pending, expired, merged])
-        tester.getTopLeft(find.text(meta)).dy,
+        tester.getTopLeft(find.text(meta.purchased)).dy,
     ];
     expect(tops, orderedEquals([...tops]..sort()));
   });
@@ -321,7 +326,7 @@ void main() {
     await pumpUntilScreen(tester, ScreenIds.purchaseHistory);
     await untilLoaded(tester);
     expect(container.read(profileTimezoneProvider), 'America/New_York');
-    expect(find.text(_meta('2026. 10. 13.')), findsOneWidget);
+    _expectMeta(_meta('2026. 10. 13.'));
   });
 
   testWidgets('스토어 이름이 필요한 줄은 상품 목록이 올 때까지 loading, 이름은 title', (tester) async {

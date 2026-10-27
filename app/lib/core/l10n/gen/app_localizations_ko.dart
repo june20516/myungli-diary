@@ -283,7 +283,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get timePickerMeridiemLabel => '오전·오후';
+  String get timePickerMeridiemLabel => '오전 또는 오후';
 
   @override
   String get timePickerHourLabel => '시';
@@ -568,7 +568,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String adFreeOfferPrice(String price) {
-    return '$price · 1개월 · 자동 갱신 없음';
+    return '$price';
   }
 
   @override
@@ -593,7 +593,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get consentRequiredLabelTerms => '(필수) 이용약관';
 
   @override
-  String get consentRequiredLabelPrivacy => '(필수) 개인정보 수집·이용';
+  String get consentRequiredLabelPrivacy => '(필수) 개인정보 수집 및 이용';
 
   @override
   String daySheetDiaryOpen(int count) {
@@ -679,7 +679,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String profileEditRecalcConfirmBody(String before, String after) {
-    return '$before → $after\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.';
+    return '$before → $after\n오늘, 달력, 나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.';
   }
 
   @override
@@ -689,7 +689,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileEditRecalcConfirmSave => '바꾸기';
 
   @override
-  String get profileEditRecalcNotice => '생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산합니다.';
+  String get profileEditRecalcNotice => '생일, 시간, 성별, 출생지를 바꾸면 풀이를 다시 계산합니다.';
 
   @override
   String get sajuChartTimeUnknownNotice => '태어난 시간을 몰라 시주는 빼고 보여 드려요.';
@@ -747,7 +747,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String todayEventSummary(int count, String title) {
-    return '오늘 일정 $count개 · $title';
+    return '오늘 일정 $count개, $title';
   }
 
   @override
@@ -1004,7 +1004,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get legalBarTitle => '약관·정책';
+  String get legalBarTitle => '약관과 정책';
 
   @override
   String get loginBarTitle => '로그인';
@@ -1208,7 +1208,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get accountMergeTitleBody =>
-      '가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.';
+      '가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보, 호칭, 설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.';
 
   @override
   String get accountMergeTitleHead => '다른 계정의 기록을 이 계정으로 가져올까요?';
@@ -1407,9 +1407,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get purchaseMetaSeparator => ' · ';
-
-  @override
   String get purchaseProductAdFreeMonth => '광고 제거 1개월';
 
   @override
@@ -1432,5 +1429,5 @@ class AppLocalizationsKo extends AppLocalizations {
   String get adFreeBuyCta => '구매하기';
 
   @override
-  String get adFreeOfferPeriod => '1개월, 자동 갱신 없음';
+  String get adFreeOfferPeriod => '1개월, 자동 결제 없음';
 }

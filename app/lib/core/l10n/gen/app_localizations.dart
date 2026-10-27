@@ -613,7 +613,7 @@ abstract class AppLocalizations {
   /// 날짜·시간 휠의 스크린리더 이름
   ///
   /// In ko, this message translates to:
-  /// **'오전·오후'**
+  /// **'오전 또는 오후'**
   String get timePickerMeridiemLabel;
 
   /// 날짜·시간 휠의 스크린리더 이름
@@ -1138,10 +1138,10 @@ abstract class AppLocalizations {
   /// **'한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요.'**
   String get adFreeOfferHead;
 
-  /// ad-free.offer.price: 가격과 기간(1개월, 자동 갱신 아님) 고지
+  /// ad-free.offer.price: 가격(고정폭 숫자, D53). 기간과 자동 갱신 아님 고지는 offer.period
   ///
   /// In ko, this message translates to:
-  /// **'{price} · 1개월 · 자동 갱신 없음'**
+  /// **'{price}'**
   String adFreeOfferPrice(String price);
 
   /// ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일
@@ -1183,7 +1183,7 @@ abstract class AppLocalizations {
   /// consent.required.label: 필수 동의 항목 이름
   ///
   /// In ko, this message translates to:
-  /// **'(필수) 개인정보 수집·이용'**
+  /// **'(필수) 개인정보 수집 및 이용'**
   String get consentRequiredLabelPrivacy;
 
   /// day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다
@@ -1339,7 +1339,7 @@ abstract class AppLocalizations {
   /// profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)
   ///
   /// In ko, this message translates to:
-  /// **'{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.'**
+  /// **'{before} → {after}\n오늘, 달력, 나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.'**
   String profileEditRecalcConfirmBody(String before, String after);
 
   /// profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)
@@ -1357,7 +1357,7 @@ abstract class AppLocalizations {
   /// profile-edit.recalc.notice: 바꾸면 풀이를 다시 계산한다는 안내
   ///
   /// In ko, this message translates to:
-  /// **'생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산합니다.'**
+  /// **'생일, 시간, 성별, 출생지를 바꾸면 풀이를 다시 계산합니다.'**
   String get profileEditRecalcNotice;
 
   /// saju-chart.time-unknown.notice: 시간 모름으로 시주가 빠졌다는 안내
@@ -1465,7 +1465,7 @@ abstract class AppLocalizations {
   /// today.event.summary: 오늘 일정 개수와 첫 일정
   ///
   /// In ko, this message translates to:
-  /// **'오늘 일정 {count}개 · {title}'**
+  /// **'오늘 일정 {count}개, {title}'**
   String todayEventSummary(int count, String title);
 
   /// today.event.summary: 오늘 일정 개수와 첫 일정
@@ -1875,7 +1875,7 @@ abstract class AppLocalizations {
   /// legal.bar.title: app-bar 제목(화면 이름 "약관·정책")
   ///
   /// In ko, this message translates to:
-  /// **'약관·정책'**
+  /// **'약관과 정책'**
   String get legalBarTitle;
 
   /// login.bar.title: app-bar 제목(화면 이름 "로그인")
@@ -2253,7 +2253,7 @@ abstract class AppLocalizations {
   /// account-merge.title.body: 합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록과 구매는 이 계정으로, 프로필은 고른 쪽, 합칠 계정과 그 인증 수단은 지워짐, 용어는 D85 ①). 옮길 기록이 0건이어도 보임. 가져올 기록은 일기 편수·일정 개수(0이어도)와 광고 제거 남은 기간(남았을 때만)으로 보임
   ///
   /// In ko, this message translates to:
-  /// **'가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.'**
+  /// **'가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보, 호칭, 설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.'**
   String get accountMergeTitleBody;
 
   /// account-merge.title.head: 다른 계정의 기록을 이 계정으로 가져와 합친다는 제목
@@ -2580,12 +2580,6 @@ abstract class AppLocalizations {
   /// **'{start}~{end}'**
   String purchaseMetaPeriod(String start, String end);
 
-  /// 구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄
-  ///
-  /// In ko, this message translates to:
-  /// **' · '**
-  String get purchaseMetaSeparator;
-
   /// 구매 내역 화면(purchase-history) purchase-row: 상품 이름. 상품 종류마다 키 하나이고 app이 상품 id를 이 키에 잇습니다(상품 id는 저장소에 두지 않음, server S89). 키가 없는 상품은 스토어의 현지화된 이름을 씁니다(D88 ②)
   ///
   /// In ko, this message translates to:
@@ -2622,16 +2616,16 @@ abstract class AppLocalizations {
   /// **'계정 합치기를 이어 가지 못했어요. 가져올 계정을 다시 인증해 주세요.'**
   String get errorMergeTokenInvalid;
 
-  /// 임시, #548 원고 전(A7). ad-free 구매 버튼 문구(IA 슬롯 ad-free.buy.cta(#549))
+  /// ad-free.buy.cta: 광고 제거권 구매를 시작하는 주 버튼(출구 system-purchase, #548)
   ///
   /// In ko, this message translates to:
   /// **'구매하기'**
   String get adFreeBuyCta;
 
-  /// 임시, IA ad-free.offer.period(#549), writing 원고 전(A7). 기간과 자동 갱신 아님 고지
+  /// ad-free.offer.period: 기간(1개월)과 자동 갱신 아님 고지. 가격 아래 작은 글씨이고 구매 버튼보다 위(D53, design offer-card)
   ///
   /// In ko, this message translates to:
-  /// **'1개월, 자동 갱신 없음'**
+  /// **'1개월, 자동 결제 없음'**
   String get adFreeOfferPeriod;
 }
 
