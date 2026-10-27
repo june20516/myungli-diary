@@ -61,17 +61,18 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * D88 PR 3(브랜치 `server/d88-purchase-ledger`): 구매 장부 `purchases`(migration 00016), 장부 기준 결제 동기화(주인은 처음 적은 계정, 환불·합치기는 지금부터 구간 다시 잇기), 구매 목록 `GET /v1/me/purchases`(`listPurchases`)와 `restorePurchases` 뒤 목록 흐름. 결정 S107~S109.
 * D85·D88 PR 4(브랜치 `server/d85-merge`): 계정 합치기 요약 `previewMerge`와 실행 `mergeAccounts`(`Idempotency-Key`, 응답은 A의 `Me`). B의 기록·구매를 A로 옮기고(겹친 날짜 기록·문장 선택 기록은 고른 프로필 쪽, B 구간은 지금에서 끊고 남은 길이를 A 끝에 붙임) B를 계정 삭제와 같이 지웁니다. 결정 S110·S111.
 * **S3(REST v1 freeze, 브랜치 `server/s3-freeze`):** 계약 `1.0.0`. IA 화면 40개와 끝까지 대조해 freeze 뒤 못 고치는 것만 고쳤습니다(열린 enum 3개 추가, 합치기 요약은 살아 있는 기록만 셈, 설명 보강). 결정 S114. freeze 뒤 할 일은 점검 목록 [`docs/plans/2026-10-20-s3-freeze-prep.md`](docs/plans/2026-10-20-s3-freeze-prep.md)의 "freeze 뒤 할 일"입니다.
-* **freeze 뒤 첫 계약 추가(브랜치 `server/contract-1.1`):** drift #550 따라잡기(D93 원고 시드), D95 설명(LINE·Google 허가는 취소하지 않음), 합치기 영수증으로 같은 토큰 재전송 200 `Me`(#552, S115, migration 00019), 일기의 그날 성격 `Diary.dayKind`(#530, S116, migration 00018). #555(Google nonce 반복)는 계약 draft.14부터 일회용 기록이 없다고 적혀 있어 답만 하면 됩니다. 계획은 [`docs/plans/2026-10-27-contract-1-1.md`](docs/plans/2026-10-27-contract-1-1.md)입니다.
+* **freeze 뒤 첫 계약 추가(PR #571 병합):** drift #550 따라잡기(D93 원고 시드), D95 설명(LINE·Google 허가는 취소하지 않음), 합치기 영수증으로 같은 토큰 재전송 200 `Me`(#552, S115, migration 00019), 일기의 그날 성격 `Diary.dayKind`(#530, S116, migration 00018). #555(Google nonce 반복)는 계약 draft.14부터 일회용 기록이 없다고 적혀 있어 Issue에 답했습니다. 계획은 [`docs/plans/2026-10-27-contract-1-1.md`](docs/plans/2026-10-27-contract-1-1.md)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. #540 결정: 커스텀 도메인 연결 방식(P9)과 Android 1개월 상품 유형(prepaid base plan 또는 일회성 상품, 장부 S107·S108에 맞는 쪽)을 정해 결정 행과 Issue 답에 적습니다.
-2. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106)와 합치기 영수증 정리(S115) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
-3. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
-4. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
-5. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-6. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
-7. app 질문이 오면 답합니다.
+1. #576(D96): 일기 목록의 `DiarySummary`에 그날 성격을 선택 필드로 더합니다(계약 minor). 값은 S116의 날짜 기록 값이고, 값이 없는 날짜 기록은 `Diary.dayKind`와 같이 생략합니다.
+2. #540 결정: 커스텀 도메인 연결 방식(P9)과 Android 1개월 상품 유형(prepaid base plan 또는 일회성 상품, 장부 S107·S108에 맞는 쪽)을 정해 결정 행과 Issue 답에 적습니다.
+3. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106)와 합치기 영수증 정리(S115) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
+4. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
+5. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
+6. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
+7. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
+8. app 질문이 오면 답합니다.
