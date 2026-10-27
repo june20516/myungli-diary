@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -152,7 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                     for (final (index, provider) in order.indexed) ...[
                       if (index > 0) const SizedBox(height: Space.s12),
-                      _button(provider, _label(l10n, provider)),
+                      _button(provider, socialProviderLabel(l10n, provider)),
                     ],
                   ],
                 ),
@@ -163,14 +164,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
-
-  String _label(AppLocalizations l10n, SocialProvider provider) =>
-      switch (provider) {
-        SocialProvider.kakao => l10n.loginKakaoLabel,
-        SocialProvider.line => l10n.loginLineLabel,
-        SocialProvider.google => l10n.loginGoogleLabel,
-        SocialProvider.apple => l10n.loginAppleLabel,
-      };
 
   Widget _button(SocialProvider provider, String label) {
     final busy = _busy;

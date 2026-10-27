@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
@@ -12,6 +13,9 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/account/application/login_methods_controller.dart';
 import 'package:myungli_diary/features/account/data/account_link_repository.dart';
 import 'package:myungli_diary/features/account/presentation/login_methods_screen.dart';
 
@@ -39,6 +43,7 @@ Future<_Harness> _pump(
   Locale locale = const Locale('ko'),
   FakeIdentityApi? api,
   double textScale = 1.0,
+  List<Override> overrides = const [],
 }) async {
   final server = api ?? FakeIdentityApi(identities: identities);
   final pushed = <String>[];
@@ -67,6 +72,7 @@ Future<_Harness> _pump(
         accountLinkRepositoryProvider.overrideWithValue(
           AccountLinkRepository(server),
         ),
+        ...overrides,
       ],
       child: MaterialApp.router(
         routerConfig: router,
@@ -108,6 +114,13 @@ List<SocialProvider> _shownOrder(WidgetTester tester) {
 }
 
 Finder get _mergeCta => find.byKey(LoginMethodsScreen.mergeCtaKey);
+
+/// 붙이기가 결과 대신 예외를 던지는 controller입니다(화면 `_run`의 catch 갈래).
+class _ThrowingLinkController extends LoginMethodsController {
+  @override
+  Future<LinkAttempt> link(SocialProvider provider) async =>
+      throw StateError('boom');
+}
 
 void main() {
   testWidgets('app-bar 제목은 login-methods.bar.title 슬롯', (tester) async {
@@ -179,6 +192,32 @@ void main() {
       expect(_widget(tester, SocialProvider.kakao).onPressed, isNull);
       expect(find.text(_ko.loginMethodsLastNotice), findsOneWidget);
       expect(_widget(tester, SocialProvider.line).onPressed, isNotNull);
+    });
+
+    testWidgets('last.notice: 버튼 묶음 아래 space.12, caption.lg', (tester) async {
+      await _pump(tester);
+      final notice = find.text(_ko.loginMethodsLastNotice);
+      // ko 순서의 마지막 버튼은 Apple입니다.
+      final lastButton = _button(SocialProvider.apple);
+      expect(
+        tester.getTopLeft(notice).dy - tester.getBottomLeft(lastButton).dy,
+        Space.s12,
+      );
+      final style = tester.widget<Text>(notice).style!;
+      final tokens = tester.element(notice).tokens;
+      expect(style.fontSize, tokens.typography.captionLg.fontSize);
+      expect(style.height, tokens.typography.captionLg.height);
+      expect(style.fontWeight, tokens.typography.captionLg.fontWeight);
+      expect(style.color, tokens.colors.textSecondary);
+      // 네 버튼 사이는 12px 리듬 그대로입니다.
+      final order = _shownOrder(tester);
+      for (var i = 1; i < order.length; i++) {
+        expect(
+          tester.getTopLeft(_button(order[i])).dy -
+              tester.getBottomLeft(_button(order[i - 1])).dy,
+          Space.s12,
+        );
+      }
     });
 
     testWidgets('둘 이상 연결이면 줄이 눌리고 last.notice가 없음', (tester) async {
@@ -297,6 +336,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(_ko.loginMethodsErrorBodyUnlink), findsOneWidget);
     expect(_widget(tester, SocialProvider.line).onPressed, isNotNull);
+    expect(tester.widget<PrimaryButton>(_mergeCta).onPressed, isNotNull);
+  });
+
+  testWidgets('controller가 붙이기에서 던져도 처리 중이 풀리고 errorBodyLink', (tester) async {
+    await _pump(
+      tester,
+      overrides: [
+        loginMethodsControllerProvider.overrideWith(
+          _ThrowingLinkController.new,
+        ),
+      ],
+    );
+    await tester.tap(_button(SocialProvider.line));
+    await tester.pumpAndSettle();
+    expect(find.text(_ko.loginMethodsErrorBodyLink), findsOneWidget);
+    expect(_widget(tester, SocialProvider.line).loading, isFalse);
+    expect(_widget(tester, SocialProvider.line).onPressed, isNotNull);
+    expect(_widget(tester, SocialProvider.google).onPressed, isNotNull);
     expect(tester.widget<PrimaryButton>(_mergeCta).onPressed, isNotNull);
   });
 

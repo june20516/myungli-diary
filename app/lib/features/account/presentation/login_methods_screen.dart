@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
@@ -28,7 +29,7 @@ enum _Failure { link, unlink }
 /// `loginProviderOrder`), 가로선, 합치기 입구(`primary-button` `quiet`)입니다.
 ///
 /// * 연결된 줄은 `connected`이고 누르면 떼기 확인 창이 열립니다. 연결이 하나뿐이면 그 줄은
-///   누를 수 없고 줄 아래에 안내가 붙습니다.
+///   누를 수 없고 버튼 묶음 아래에 안내가 붙습니다.
 /// * 연결 안 된 줄은 그 제공자 로그인 버튼이고 누르면 붙이기를 시작합니다. 이미 다른 계정에
 ///   연결된 인증 수단이면 안내 창만 띄우고 이 화면에 남습니다(합치기로 넘어가지 않음).
 /// * 붙이기·떼기를 끝내지 못하면 소개 아래에 안내를 보입니다(인증 창을 닫음 포함).
@@ -119,7 +120,7 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
     final confirmed = await showMyungliDialog(
       context,
       variant: DialogVariant.destructive,
-      title: l10n.loginMethodsUnlinkConfirm(_providerName(l10n, provider)),
+      title: l10n.loginMethodsUnlinkConfirm(socialProviderName(l10n, provider)),
       body: l10n.loginMethodsUnlinkConfirmBody,
       confirm: l10n.loginMethodsUnlinkConfirmUnlink,
       cancel: l10n.loginMethodsUnlinkConfirmCancel,
@@ -220,18 +221,19 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
         for (final (index, provider) in order.indexed) ...[
           if (index > 0) const SizedBox(height: Space.s12),
           _row(l10n, provider, linked: linked, busy: busy),
-          if (linked.length == 1 && linked.single == provider) ...[
-            const SizedBox(height: Space.s8),
-            Semantics(
-              identifier: SlotIds.loginMethodsLastNotice,
-              child: Text(
-                l10n.loginMethodsLastNotice,
-                style: tokens.typography.bodyUi.copyWith(
-                  color: tokens.colors.textSecondary,
-                ),
+        ],
+        // 연결이 하나뿐이면 버튼 묶음 아래에 늘 안내합니다(`connected` `lastOne`).
+        if (linked.length == 1) ...[
+          const SizedBox(height: Space.s12),
+          Semantics(
+            identifier: SlotIds.loginMethodsLastNotice,
+            child: Text(
+              l10n.loginMethodsLastNotice,
+              style: tokens.typography.captionLg.copyWith(
+                color: tokens.colors.textSecondary,
               ),
             ),
-          ],
+          ),
         ],
         const SizedBox(height: Space.s32),
         Container(
@@ -267,8 +269,8 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
       connected: connected,
       connectedLabel: connected ? l10n.loginMethodsRowConnected : null,
       label: connected
-          ? _providerName(l10n, provider)
-          : _loginLabel(l10n, provider),
+          ? socialProviderName(l10n, provider)
+          : socialProviderLabel(l10n, provider),
       onPressed: switch ((connected, idle)) {
         (true, true) when linked.length > 1 => () => _unlink(provider),
         (false, true) => () => _link(provider),
@@ -277,21 +279,3 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
     );
   }
 }
-
-/// 제공자 이름("카카오").
-String _providerName(AppLocalizations l10n, SocialProvider provider) =>
-    switch (provider) {
-      SocialProvider.kakao => l10n.loginProviderKakao,
-      SocialProvider.line => l10n.loginProviderLine,
-      SocialProvider.google => l10n.loginProviderGoogle,
-      SocialProvider.apple => l10n.loginProviderApple,
-    };
-
-/// 연결 안 된 줄의 로그인 버튼 문구(로그인 화면과 같은 제공자 공식 문구).
-String _loginLabel(AppLocalizations l10n, SocialProvider provider) =>
-    switch (provider) {
-      SocialProvider.kakao => l10n.loginKakaoLabel,
-      SocialProvider.line => l10n.loginLineLabel,
-      SocialProvider.google => l10n.loginGoogleLabel,
-      SocialProvider.apple => l10n.loginAppleLabel,
-    };

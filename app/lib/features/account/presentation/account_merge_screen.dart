@@ -15,10 +15,12 @@ import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -26,6 +28,12 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/account/application/account_merge_controller.dart';
 import 'package:myungli_diary/features/account/presentation/merge_summary_box.dart';
 import 'package:myungli_diary/features/auth/model/login_provider_order.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
+
+const AppGlyph _checkCircle = AppGlyph(
+  light: PhosphorIconsLight.checkCircle,
+  regular: PhosphorIconsRegular.checkCircle,
+);
 
 /// 카드 순서(A → B)와 남길 프로필.
 const List<MergeProfile> _cardProfiles = [
@@ -219,7 +227,7 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
           if (index > 0) const SizedBox(height: Space.s12),
           SocialLoginButton(
             provider: provider,
-            label: _loginLabel(l10n, provider),
+            label: socialProviderLabel(l10n, provider),
             loading: busy == provider,
             // 다른 버튼이 처리 중이면 흐리게 꺼 둡니다.
             disabled: busy != null && busy != provider,
@@ -242,7 +250,7 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
     final selectedIndex = selected == null
         ? null
         : _cardProfiles.indexOf(selected);
-    return OnboardingPageLayout(
+    return OnboardingPageLayout.top(
       body: [
         _title(),
         _body(l10n.accountMergeTitleBody, SlotIds.accountMergeTitleBody),
@@ -280,10 +288,7 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
         ),
         if (summary != null && summary.overlapDays > 0) ...[
           const SizedBox(height: Space.s16),
-          _body(
-            l10n.accountMergeOverlapNotice,
-            SlotIds.accountMergeOverlapNotice,
-          ),
+          _overlapNotice(l10n.accountMergeOverlapNotice),
         ],
       ],
       actions: [
@@ -295,6 +300,34 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
           onPressed: selected == null || running ? null : _merge,
         ),
       ],
+    );
+  }
+
+  /// 같은 날 일기가 겹친다는 안심 안내. 경고 표시 없이 `check-circle`과 caption입니다.
+  Widget _overlapNotice(String text) {
+    final tokens = context.tokens;
+    final style = tokens.typography.captionLg.copyWith(
+      color: tokens.colors.textSecondary,
+    );
+    return Semantics(
+      identifier: SlotIds.accountMergeOverlapNotice,
+      child: Row(
+        key: const ValueKey(SlotIds.accountMergeOverlapNotice),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: Space.s8,
+        children: [
+          // 아이콘을 첫 줄 글자 높이 가운데에 맞춥니다.
+          SizedBox(
+            height: style.fontSize! * style.height!,
+            child: AppIcon(
+              _checkCircle,
+              size: AppIconSize.inline,
+              color: tokens.colors.textSecondary,
+            ),
+          ),
+          Expanded(child: Text(text, style: style)),
+        ],
+      ),
     );
   }
 
@@ -334,12 +367,3 @@ String _sajuLine(AppLocalizations l10n, MergeProfileSummary profile) {
     formatBirthClock(l10n.localeName, clock),
   );
 }
-
-/// 제공자 로그인 버튼 문구(로그인 화면과 같은 제공자 공식 문구).
-String _loginLabel(AppLocalizations l10n, SocialProvider provider) =>
-    switch (provider) {
-      SocialProvider.kakao => l10n.loginKakaoLabel,
-      SocialProvider.line => l10n.loginLineLabel,
-      SocialProvider.google => l10n.loginGoogleLabel,
-      SocialProvider.apple => l10n.loginAppleLabel,
-    };

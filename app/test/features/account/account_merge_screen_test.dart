@@ -31,11 +31,15 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/account/application/account_merge_controller.dart';
 import 'package:myungli_diary/features/account/data/account_link_repository.dart';
 import 'package:myungli_diary/features/account/presentation/account_merge_screen.dart';
 import 'package:myungli_diary/features/account/presentation/merge_summary_box.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../../support/app_bar_title.dart';
 import 'fake_identity_api.dart';
@@ -350,6 +354,76 @@ void main() {
       expect(find.text(_ko.accountMergeSummaryDiaryCount(0)), findsOneWidget);
       expect(find.text(_ko.accountMergeSummaryEventCount(0)), findsOneWidget);
       expect(find.text(_ko.accountMergeSummaryAdFree), findsNothing);
+    });
+
+    testWidgets('제목은 두 단계에서 같은 자리(app-bar 아래 space.12)', (tester) async {
+      await _pump(tester);
+      final title = find.text(_ko.accountMergeTitleHead);
+      final barBottom = tester.getBottomLeft(find.byType(MyungliAppBar)).dy;
+      final authTop = _top(tester, title);
+      expect(authTop - barBottom, Space.s12);
+      await _authenticate(tester);
+      expect(_top(tester, title), authTop);
+    });
+
+    testWidgets('본문은 위 정렬이고 합치기 버튼은 바닥(내용이 짧을 때)', (tester) async {
+      await _pump(tester);
+      await _authenticate(tester);
+      final body = find.text(_ko.accountMergeTitleBody);
+      final title = find.text(_ko.accountMergeTitleHead);
+      expect(_top(tester, body) - tester.getBottomLeft(title).dy, Space.s8);
+      final screenBottom =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      expect(
+        tester.getBottomLeft(_cta).dy,
+        moreOrLessEquals(screenBottom - Space.s24),
+      );
+    });
+
+    testWidgets('내용이 길면 합치기 버튼이 본문 뒤로 이어 스크롤', (tester) async {
+      await _pump(tester);
+      tester.view.physicalSize = const Size(960, 1200);
+      await tester.pumpAndSettle();
+      await _authenticate(tester);
+      await tester.ensureVisible(_cta);
+      await tester.pumpAndSettle();
+      final notice = find.text(_ko.accountMergeOverlapNotice);
+      expect(_top(tester, _cta) - tester.getBottomLeft(notice).dy, Space.s32);
+    });
+
+    testWidgets('overlap.notice: check-circle 16, 사이 space.8, caption.lg', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await _authenticate(tester);
+      final notice = find.text(_ko.accountMergeOverlapNotice);
+      final tokens = tester.element(notice).tokens;
+      expect(
+        _top(
+              tester,
+              find.byKey(const ValueKey(SlotIds.accountMergeOverlapNotice)),
+            ) -
+            tester.getBottomLeft(find.byType(AccountChoice)).dy,
+        Space.s16,
+      );
+      final icon = find.descendant(
+        of: find.byKey(const ValueKey(SlotIds.accountMergeOverlapNotice)),
+        matching: find.byType(AppIcon),
+      );
+      expect(icon, findsOneWidget);
+      final glyph = tester.widget<AppIcon>(icon);
+      expect(glyph.icon.light, PhosphorIconsLight.checkCircle);
+      expect(glyph.weight, AppIconWeight.light);
+      expect(glyph.size, AppIconSize.inline);
+      expect(glyph.color, tokens.colors.textSecondary);
+      expect(
+        tester.getTopLeft(notice).dx - tester.getTopRight(icon).dx,
+        Space.s8,
+      );
+      final style = tester.widget<Text>(notice).style!;
+      expect(style.fontSize, tokens.typography.captionLg.fontSize);
+      expect(style.height, tokens.typography.captionLg.height);
+      expect(style.color, tokens.colors.textSecondary);
     });
 
     testWidgets('overlapDays 0이면 overlap.notice 없음', (tester) async {
