@@ -55,7 +55,9 @@ const AppGlyph _trash = AppGlyph(
 ///
 /// * 일기를 받는 동안 skeleton(`loading`), 받지 못하면 오류와 다시 시도(`error`)입니다.
 ///   일기가 없으면(다른 곳에서 지워짐, `id` 없음) 그 안내만 둡니다.
-/// * 그날 성격은 달 길흉 캐시(A46)이고, 받지 못하면 성격 줄 없이 일기만 보입니다.
+/// * 그날 성격은 쓸 때 기록한 값이고, 기록이 없으면 달 길흉 캐시(A46)입니다(A88).
+///   이유 문장은 달 길흉의 성격이 그 성격과 같을 때만 보입니다.
+///   둘 다 없으면 성격 줄 없이 일기만 보입니다.
 /// * 고치기는 이 화면을 그 일기의 `diary-edit`로 바꿔 엽니다(저장하면 다시 이 화면으로 바뀜).
 ///   지우기는 확인 창(`dialog` `destructive`) 뒤 지우고 앞 화면으로 돌아가 toast입니다.
 ///   되살리기는 없습니다(A50).
@@ -198,6 +200,12 @@ class _DiaryViewBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final date = CalendarDate.parse(diary.date);
     final day = ref.watch(calendarDayProvider(date)).value;
+    // 쓸 때 기록한 성격이 먼저이고, 기록이 없으면(1.1.0 전 일기) 달 길흉 캐시입니다(A88).
+    final kind = diary.dayKind ?? day?.dayKind;
+    // 이유 문장은 달 길흉의 성격이 보이는 성격과 같을 때만 맞는 설명입니다.
+    final reason = day != null && day.dayKind == kind
+        ? day.characterReason.text
+        : null;
     final names = ref.watch(glossaryProvider).value;
     final sheets = ref.read(depthSheetsProvider);
     return SingleChildScrollView(
@@ -210,7 +218,7 @@ class _DiaryViewBody extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (day != null) ...[
+          if (kind != null) ...[
             Semantics(
               identifier: SlotIds.diaryViewCharacterLabel,
               container: true,
@@ -220,28 +228,27 @@ class _DiaryViewBody extends ConsumerWidget {
                   alignment: AlignmentDirectional.centerStart,
                   // 날의 성격을 누르면 그 성격 용어(`day_kind.<값>`)의 풀이 시트입니다.
                   child: PressInkTarget(
-                    semanticLabel: dayKindName(l10n, day.dayKind),
+                    semanticLabel: dayKindName(l10n, kind),
                     borderRadius: const BorderRadius.all(
                       Radius.circular(Radii.full),
                     ),
                     onTap: () => sheets.openExplain(
                       context,
-                      termId: 'day_kind.${day.dayKind.value}',
+                      termId: 'day_kind.${kind.value}',
                     ),
                     child: DayCharacter(
-                      variant: dayCharacterVariantOf(day.dayKind),
-                      label: dayKindName(l10n, day.dayKind),
+                      variant: dayCharacterVariantOf(kind),
+                      label: dayKindName(l10n, kind),
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: Space.s12),
-            // diary-view의 IA에는 term-token이 없어 용어는 일반 글자입니다(V28).
-            SentenceBlock(
-              variant: SentenceBlockVariant.body,
-              text: day.characterReason.text,
-            ),
+            if (reason != null) ...[
+              const SizedBox(height: Space.s12),
+              // diary-view의 IA에는 term-token이 없어 용어는 일반 글자입니다(V28).
+              SentenceBlock(variant: SentenceBlockVariant.body, text: reason),
+            ],
             const SizedBox(height: Space.s24),
           ],
           DiaryEditor.view(

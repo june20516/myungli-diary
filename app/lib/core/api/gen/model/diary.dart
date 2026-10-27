@@ -5,6 +5,7 @@
 // ignore_for_file: unused_element
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/day_tags.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -32,6 +33,8 @@ class Diary {
 
     required this.rulesetVersion,
 
+    this.dayKind,
+
     required this.createdAt,
 
     required this.updatedAt,
@@ -55,6 +58,9 @@ class Diary {
   @JsonKey(name: r'rulesetVersion', required: true, includeIfNull: false)
   final String rulesetVersion;
 
+  @JsonKey(name: r'dayKind', required: false, includeIfNull: false)
+  final DayKind? dayKind;
+
   @JsonKey(name: r'createdAt', required: true, includeIfNull: false)
   final DateTime createdAt;
 
@@ -71,6 +77,7 @@ class Diary {
           other.guideQuestion == guideQuestion &&
           other.tags == tags &&
           other.rulesetVersion == rulesetVersion &&
+          other.dayKind == dayKind &&
           other.createdAt == createdAt &&
           other.updatedAt == updatedAt;
 
@@ -82,6 +89,7 @@ class Diary {
       guideQuestion.hashCode +
       tags.hashCode +
       rulesetVersion.hashCode +
+      dayKind.hashCode +
       createdAt.hashCode +
       updatedAt.hashCode;
 
