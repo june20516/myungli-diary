@@ -308,11 +308,14 @@ final class FakeServerInterceptor extends Interceptor {
     if (!_identityOperations.contains(operationId)) {
       return null;
     }
-    final fileWins = operationId == 'listIdentities'
-        ? fixture != null && fixture.status != 200
-        : operationId == 'previewMerge'
-        ? fixture == null || fixture.status != 200
-        : fixture != null;
+    final fileWins = switch (operationId) {
+      // 200 파일은 처음 목록이고, 그 밖의 status 파일이 답합니다.
+      'listIdentities' => fixture != null && fixture.status != 200,
+      // 연결 목록으로 인증을 가린 뒤 200 파일이 요약을 답합니다.
+      'previewMerge' => fixture == null || fixture.status != 200,
+      // 붙이기·떼기는 파일이 있으면 파일이 우선입니다.
+      _ => fixture != null,
+    };
     if (fileWins) {
       return null;
     }

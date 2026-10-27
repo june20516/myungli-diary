@@ -18,7 +18,8 @@
         "requiredConsents": [],
         "hasProfile": true,
         "adFree": {
-          "active": false
+          "active": true,
+          "expiresAt": "2026-10-25T03:00:00Z"
         },
         "insight": {
           "active": false

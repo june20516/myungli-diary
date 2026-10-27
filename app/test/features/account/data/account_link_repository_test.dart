@@ -125,11 +125,17 @@ void main() {
         '${provider.name} id_token 증명은 provider, idToken, nonce를 보냅니다',
         () async {
           final (repository, server) = await _repository();
-          // 카카오는 이미 연결돼 있어 대역 응답이 422입니다. 본문만 확인합니다.
-          try {
+          // 카카오는 이미 이 계정에 연결돼 있어 대역 응답이 422 `merge.same_account`입니다.
+          // 다른 제공자는 요약을 받아야 합니다.
+          if (provider == SocialProvider.kakao) {
+            final error = await _errorOf(
+              () => repository.preview(_idToken(provider)),
+            );
+            expect(error, isA<ProblemError>());
+            expect((error as ProblemError).status, 422);
+            expect(_codeOf(error), 'merge.same_account');
+          } else {
             await repository.preview(_idToken(provider));
-          } on AppError {
-            // 응답은 이 테스트의 관심이 아닙니다.
           }
           expect(_bodyOf(server, 'previewMerge'), {
             'provider': provider.name,

@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/features/account/presentation/account_merge_screen.dart';
@@ -112,5 +114,20 @@ void main() {
     expect(tokens.accessToken, accessToken);
     expect(await tester.runAsync(tokens.refreshToken), refreshToken);
     expect(_connected(tester, SocialProvider.line), isTrue);
+
+    // 가져온 광고 제거 기간이 내 정보와 설정의 광고 제거 줄에 보입니다.
+    expect(container.read(meProvider)!.adFree.active, isTrue);
+    container.read(routerProvider).pop();
+    await _arrive(tester, ScreenIds.settings);
+    final adFreeRow = tester.widget<SettingsRow>(
+      find.byKey(SettingsScreen.adFreeRowKey),
+    );
+    expect(adFreeRow.variant, SettingsRowVariant.value);
+    expect(
+      adFreeRow.value,
+      _ko.settingsAdFreeLabelActive(
+        DateFormat.yMMMd('ko').format(DateTime(2026, 10, 25)),
+      ),
+    );
   });
 }
