@@ -19,12 +19,14 @@ final class _Harness {
     required this.api,
     required this.container,
     required this.google,
+    required this.crash,
     required this.kakao,
   });
 
   final FakeIdentityApi api;
   final ProviderContainer container;
   final FakeGoogleAuth google;
+  final FakeCrashReporter crash;
   final FakeKakaoAuth kakao;
 
   LoginMethodsController get controller =>
@@ -44,8 +46,10 @@ Future<_Harness> _harness({
   final server = api ?? FakeIdentityApi(identities: identities);
   final googleAuth = google ?? FakeGoogleAuth();
   final kakaoAuth = kakao ?? FakeKakaoAuth();
+  final crash = FakeCrashReporter();
   final container = ProviderContainer(
     overrides: [
+      crashReporterProvider.overrideWithValue(crash),
       accountLinkRepositoryProvider.overrideWithValue(
         AccountLinkRepository(server),
       ),
@@ -63,6 +67,7 @@ Future<_Harness> _harness({
     api: server,
     container: container,
     google: googleAuth,
+    crash: crash,
     kakao: kakaoAuth,
   );
 }
@@ -94,7 +99,7 @@ void main() {
       });
     }
 
-    test('401 provider_token_invalid는 LinkFailed이고 로그아웃하지 않습니다', () async {
+    test('401 provider_token_invalid는 LinkFailed이고 목록을 오류로 바꾸지 않음', () async {
       final h = await _harness();
       h.api.linkError = problemOf(401, 'auth.provider_token_invalid');
       final outcome = await h.controller.link(SocialProvider.line);
@@ -223,6 +228,29 @@ void main() {
       expect(outcome, isA<UnlinkDone>());
       expect(h.api.listCalls, listsBefore + 1);
       expect(h.methods, [SocialProvider.kakao]);
+    });
+  });
+
+  group('AppError가 아닌 예외', () {
+    test('unlink는 UnlinkFailed이고 요약만 보고', () async {
+      final h = await _harness(
+        identities: [LoginProvider.kakao, LoginProvider.line],
+      );
+      h.api.unlinkThrows = StateError('secret-detail');
+      expect(
+        await h.controller.unlink(SocialProvider.line),
+        isA<UnlinkFailed>(),
+      );
+      expect(h.crash.errors, hasLength(1));
+      expect(h.methods, [SocialProvider.kakao, SocialProvider.line]);
+    });
+
+    test('refresh는 이전 목록을 두고 요약만 보고', () async {
+      final h = await _harness();
+      h.api.listThrows = StateError('secret-detail');
+      await h.controller.refresh();
+      expect(h.methods, [SocialProvider.kakao]);
+      expect(h.crash.errors, hasLength(1));
     });
   });
 

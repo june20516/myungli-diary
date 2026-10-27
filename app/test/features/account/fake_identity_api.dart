@@ -50,6 +50,12 @@ class FakeIdentityApi implements DefaultApi {
   /// `unlinkIdentity`가 낼 오류. null이면 성공.
   DioException? unlinkError;
 
+  /// 있으면 `unlinkIdentity`가 이 예외를 던집니다(AppError가 아닌 예외).
+  StateError? unlinkThrows;
+
+  /// 있으면 `listIdentities`가 이 예외를 던집니다(AppError가 아닌 예외).
+  StateError? listThrows;
+
   /// 뗀 뒤 `listIdentities`가 낼 오류. null이면 성공.
   DioException? listError;
 
@@ -79,6 +85,10 @@ class FakeIdentityApi implements DefaultApi {
     ProgressCallback? onReceiveProgress,
   }) async {
     listCalls++;
+    final thrown = listThrows;
+    if (thrown != null) {
+      throw thrown;
+    }
     final error = listError;
     if (error != null) {
       throw error;
@@ -118,6 +128,10 @@ class FakeIdentityApi implements DefaultApi {
     ProgressCallback? onReceiveProgress,
   }) async {
     unlinkCalls.add(provider);
+    final thrown = unlinkThrows;
+    if (thrown != null) {
+      throw thrown;
+    }
     final error = unlinkError;
     if (error != null) {
       throw error;

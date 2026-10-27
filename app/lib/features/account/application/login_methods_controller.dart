@@ -104,6 +104,7 @@ class LoginMethodsController extends AsyncNotifier<List<SocialProvider>> {
   /// 목록을 다시 읽습니다(합치기에서 돌아온 뒤). 로딩 없이 값만 바꾸고, 실패하면 이전 값을 둡니다.
   Future<void> refresh() async {
     final repository = ref.read(accountLinkRepositoryProvider);
+    final crashReporter = ref.read(crashReporterProvider);
     try {
       final methods = await repository.methods();
       if (ref.mounted) {
@@ -111,6 +112,9 @@ class LoginMethodsController extends AsyncNotifier<List<SocialProvider>> {
       }
     } on AppError {
       // 이전 목록을 그대로 둡니다.
+    } on Object catch (error, stack) {
+      // 통신 밖 실패도 이전 목록을 둡니다(D64 ②: 요약만 보고).
+      crashReporter.record(CrashSummary.from(error), stack);
     }
   }
 
@@ -152,6 +156,7 @@ class LoginMethodsController extends AsyncNotifier<List<SocialProvider>> {
 
   Future<UnlinkAttempt> _unlink(SocialProvider provider) async {
     final repository = ref.read(accountLinkRepositoryProvider);
+    final crashReporter = ref.read(crashReporterProvider);
     try {
       try {
         await repository.unlink(provider);
@@ -167,6 +172,10 @@ class LoginMethodsController extends AsyncNotifier<List<SocialProvider>> {
       }
       return const UnlinkDone();
     } on AppError {
+      return const UnlinkFailed();
+    } on Object catch (error, stack) {
+      // 통신 밖 실패도 화면이 안내할 수 있게 모읍니다(D64 ②: 요약만 보고).
+      crashReporter.record(CrashSummary.from(error), stack);
       return const UnlinkFailed();
     }
   }

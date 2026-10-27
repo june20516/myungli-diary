@@ -63,8 +63,11 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
       ref.read(loginMethodsControllerProvider.notifier);
 
   /// 처리 중이 아닐 때만 [action]을 시작하고, 끝나면 처리 중을 풉니다.
+  ///
+  /// [action]이 예상 밖 예외를 던져도 처리 중을 풀고 [onError] 안내를 보입니다.
   Future<void> _run(
     SocialProvider provider,
+    _Failure onError,
     Future<_Failure?> Function() action,
   ) async {
     // 같은 프레임의 두 번째 누름도 막도록 상태를 바로 바꿉니다.
@@ -73,17 +76,24 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
       _busy = provider;
       _failure = null;
     });
-    final failure = await action();
-    if (!mounted) return;
-    setState(() {
-      _busy = null;
-      _failure = failure;
-    });
+    _Failure? failure;
+    try {
+      failure = await action();
+    } on Object {
+      failure = onError;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _busy = null;
+          _failure = failure;
+        });
+      }
+    }
   }
 
   Future<void> _link(SocialProvider provider) async {
     LinkAttempt? outcome;
-    await _run(provider, () async {
+    await _run(provider, _Failure.link, () async {
       outcome = await _controller.link(provider);
       return outcome is LinkFailed ? _Failure.link : null;
     });
@@ -116,7 +126,7 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
       identifier: SlotIds.loginMethodsUnlinkConfirm,
     );
     if (!confirmed || !mounted) return;
-    await _run(provider, () async {
+    await _run(provider, _Failure.unlink, () async {
       final outcome = await _controller.unlink(provider);
       return outcome is UnlinkFailed ? _Failure.unlink : null;
     });

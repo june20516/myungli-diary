@@ -285,6 +285,21 @@ void main() {
     });
   });
 
+  testWidgets('떼기가 예상 밖 예외여도 안내하고 줄이 다시 눌림', (tester) async {
+    final h = await _pump(
+      tester,
+      identities: [LoginProvider.kakao, LoginProvider.line],
+    );
+    h.api.unlinkThrows = StateError('boom');
+    await tester.tap(_button(SocialProvider.line));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_ko.loginMethodsUnlinkConfirmUnlink));
+    await tester.pumpAndSettle();
+    expect(find.text(_ko.loginMethodsErrorBodyUnlink), findsOneWidget);
+    expect(_widget(tester, SocialProvider.line).onPressed, isNotNull);
+    expect(tester.widget<PrimaryButton>(_mergeCta).onPressed, isNotNull);
+  });
+
   group('합치기 입구', () {
     for (final count in [1, 4]) {
       testWidgets('연결 $count개여도 가로선 아래 quiet 버튼이 보임', (tester) async {
