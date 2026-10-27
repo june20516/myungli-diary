@@ -30,7 +30,8 @@ Widget _app(Widget child, {double width = 360, double scale = 1}) =>
       ),
     );
 
-const _meta = '2026. 10. 13. 구매, 2026. 10. 13.~2026. 11. 13.';
+const _purchased = '2026. 10. 13. 구매';
+const _period = '2026. 10. 13.~2026. 11. 13.';
 
 void main() {
   group('purchase-row', () {
@@ -39,9 +40,21 @@ void main() {
         _app(
           const PurchaseRowGroup(
             rows: [
-              PurchaseRowData(product: '광고 제거 1개월', meta: _meta),
-              PurchaseRowData(product: '광고 제거 1개월', meta: _meta),
-              PurchaseRowData(product: '광고 제거 1개월', meta: _meta),
+              PurchaseRowData(
+                product: '광고 제거 1개월',
+                purchased: _purchased,
+                period: _period,
+              ),
+              PurchaseRowData(
+                product: '광고 제거 1개월',
+                purchased: _purchased,
+                period: _period,
+              ),
+              PurchaseRowData(
+                product: '광고 제거 1개월',
+                purchased: _purchased,
+                period: _period,
+              ),
             ],
           ),
         ),
@@ -75,10 +88,20 @@ void main() {
                 product: '광고 제거 1개월',
                 status: '사용 중',
                 active: true,
-                meta: _meta,
+                purchased: _purchased,
+                period: _period,
               ),
-              PurchaseRowData(product: '광고 제거 1개월', status: '만료', meta: _meta),
-              PurchaseRowData(product: '광고 제거 1개월', meta: _meta),
+              PurchaseRowData(
+                product: '광고 제거 1개월',
+                status: '만료',
+                purchased: _purchased,
+                period: _period,
+              ),
+              PurchaseRowData(
+                product: '광고 제거 1개월',
+                purchased: _purchased,
+                period: _period,
+              ),
             ],
           ),
         ),
@@ -118,6 +141,40 @@ void main() {
       expect(find.byKey(PurchaseRowGroup.statusKey), findsNWidgets(2));
     });
 
+    testWidgets('구매일과 사용 기간은 구분 글자 없이 두 줄로 나뉜다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const PurchaseRowGroup(
+            rows: [
+              PurchaseRowData(
+                product: '광고 제거 1개월',
+                purchased: _purchased,
+                period: _period,
+              ),
+            ],
+          ),
+        ),
+      );
+      final purchased = tester.getRect(find.text(_purchased));
+      final period = tester.getRect(find.text(_period));
+      expect(period.left, purchased.left);
+      expect(period.top, purchased.bottom);
+    });
+
+    testWidgets('사용 기간이 없으면 구매일 줄만 있다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const PurchaseRowGroup(
+            rows: [
+              PurchaseRowData(product: '광고 제거 1개월', purchased: _purchased),
+            ],
+          ),
+        ),
+      );
+      expect(find.text(_purchased), findsOneWidget);
+      expect(find.text(_period), findsNothing);
+    });
+
     testWidgets('긴 상품 이름은 말줄임 없이 감긴다', (tester) async {
       const longName = '아주아주아주 긴 스토어 상품 이름이 한 줄에 다 들어가지 않을 만큼 길게 이어집니다 정말로 길게';
       await tester.pumpWidget(
@@ -128,7 +185,8 @@ void main() {
                 product: longName,
                 status: '사용 중',
                 active: true,
-                meta: _meta,
+                purchased: _purchased,
+                period: _period,
               ),
             ],
           ),
@@ -139,7 +197,7 @@ void main() {
       expect(text.maxLines, isNull);
       expect(tester.takeException(), isNull);
       final lineHeight = tester.getSize(find.text(longName)).height;
-      final single = tester.getSize(find.text(_meta)).height;
+      final single = tester.getSize(find.text(_purchased)).height;
       expect(lineHeight, greaterThan(single * 1.5));
     });
 
@@ -152,7 +210,8 @@ void main() {
                 PurchaseRowData(
                   product: '광고 제거 1개월',
                   status: status,
-                  meta: _meta,
+                  purchased: _purchased,
+                  period: _period,
                 ),
               ],
             ),
@@ -178,7 +237,12 @@ void main() {
           _app(
             const PurchaseRowGroup(
               rows: [
-                PurchaseRowData(product: '광고 제거', status: '만료', meta: _meta),
+                PurchaseRowData(
+                  product: '광고 제거',
+                  status: '만료',
+                  purchased: _purchased,
+                  period: _period,
+                ),
               ],
             ),
             scale: scale,
@@ -199,7 +263,8 @@ void main() {
                 product: '광고 제거',
                 status: '사용 중',
                 active: true,
-                meta: _meta,
+                purchased: _purchased,
+                period: _period,
               ),
             ],
           ),
@@ -220,7 +285,8 @@ void main() {
                   product: '광고 제거',
                   status: '사용 중',
                   active: true,
-                  meta: _meta,
+                  purchased: _purchased,
+                  period: _period,
                 ),
               ],
             ),
@@ -233,7 +299,7 @@ void main() {
       });
     }
 
-    testWidgets('한 줄을 상품 이름, 상태, meta 한 덩어리로 읽고 누를 수 없다', (tester) async {
+    testWidgets('한 줄을 상품 이름, 상태, 구매일, 사용 기간 한 덩어리로 읽고 누를 수 없다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
@@ -243,7 +309,8 @@ void main() {
                 product: '광고 제거 1개월',
                 status: '사용 중',
                 active: true,
-                meta: _meta,
+                purchased: _purchased,
+                period: _period,
               ),
             ],
           ),
@@ -252,7 +319,7 @@ void main() {
       final data = tester
           .getSemantics(find.byKey(PurchaseRowGroup.rowKey))
           .getSemanticsData();
-      expect(data.label, '광고 제거 1개월, 사용 중, $_meta');
+      expect(data.label, '광고 제거 1개월, 사용 중, $_purchased, $_period');
       expect(data.hasAction(SemanticsAction.tap), isFalse);
       expect(data.flagsCollection.isButton, isFalse);
       expect(find.byType(InkWell), findsNothing);

@@ -327,7 +327,7 @@ void main() {
       await tester.pumpWidget(inputApp(_picker()));
       // 오전·오후는 칸이 둘뿐이라 끝 칸에서는 한쪽 동작만 있습니다.
       for (final (label, value, increase, decrease) in [
-        ('오전·오후', '오전', true, false),
+        ('오전 또는 오후', '오전', true, false),
         ('시', '7시', true, true),
         ('분', '30분', true, true),
       ]) {

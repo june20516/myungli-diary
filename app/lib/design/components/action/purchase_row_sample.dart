@@ -15,22 +15,23 @@ List<PurchaseRowData> purchaseRowSamples(
   final start = format.format(DateTime(2026, 10, 13));
   final end = format.format(DateTime(2026, 11, 13));
   final purchased = l10n.purchaseMetaPurchased(start);
-  final withPeriod = [
-    purchased,
-    l10n.purchaseMetaPeriod(start, end),
-  ].join(l10n.purchaseMetaSeparator);
-  PurchaseRowData row(String? status, {bool active = false, String? meta}) =>
-      PurchaseRowData(
-        product: l10n.purchaseProductAdFreeMonth,
-        status: status,
-        active: active,
-        meta: meta ?? withPeriod,
-      );
+  final period = l10n.purchaseMetaPeriod(start, end);
+  PurchaseRowData row(
+    String? status, {
+    bool active = false,
+    bool withPeriod = true,
+  }) => PurchaseRowData(
+    product: l10n.purchaseProductAdFreeMonth,
+    status: status,
+    active: active,
+    purchased: purchased,
+    period: withPeriod ? period : null,
+  );
   return [
     row(l10n.purchaseStatusActive, active: true),
     row(l10n.purchaseStatusPending),
     row(l10n.purchaseStatusExpired),
-    row(l10n.purchaseStatusRefunded, meta: purchased),
-    row(null, meta: purchased),
+    row(l10n.purchaseStatusRefunded, withPeriod: false),
+    row(null, withPeriod: false),
   ];
 }

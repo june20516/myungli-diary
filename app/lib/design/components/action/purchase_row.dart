@@ -11,7 +11,8 @@ final class PurchaseRowData {
   /// 구매 한 건을 만듭니다. [status]가 null이면 상태 자리가 없습니다.
   const new({
     required this.product,
-    required this.meta,
+    required this.purchased,
+    this.period,
     this.status,
     this.active = false,
   });
@@ -25,15 +26,21 @@ final class PurchaseRowData {
   /// true면 상태를 `tag.status` 꼬리표로, 아니면 바탕 없는 글자로 그립니다.
   final bool active;
 
-  /// 구매일과 사용 기간 한 줄(`ui.purchase.meta`, 화면이 `purchaseMeta*`로 잇습니다).
-  final String meta;
+  /// 구매일 줄(`ui.purchase.meta`의 `purchaseMetaPurchased`).
+  final String purchased;
+
+  /// 사용 기간 줄(`ui.purchase.meta`의 `purchaseMetaPeriod`). null이면 보이지 않습니다.
+  ///
+  /// 구매일과 한 줄로 잇지 않고 다음 줄에 둡니다(writing W44, #564). design 배치가 오기 전의
+  /// 임시 배치입니다(결정 A87).
+  final String? period;
 }
 
 /// 산 상품 줄들을 카드 한 장에 담은 묶음(`purchase-row`, D88 ②, V45).
 ///
 /// 줄은 누를 수 없고(눌림 상태 없음) 줄 사이에만 1px `line` 구분선이 있습니다. 순서는
-/// 넘겨받은 [rows] 그대로이며 다시 정렬하지 않습니다. 스크린리더는 한 줄을 상품 이름, 상태, meta를
-/// 한 덩어리로 읽습니다.
+/// 넘겨받은 [rows] 그대로이며 다시 정렬하지 않습니다. 스크린리더는 한 줄을 상품 이름, 상태, 구매일,
+/// 사용 기간 한 덩어리로 읽습니다.
 class PurchaseRowGroup extends StatelessWidget {
   /// 묶음을 만듭니다.
   const new({
@@ -122,10 +129,20 @@ class PurchaseRowGroup extends StatelessWidget {
     final tokens = context.tokens;
     final l10n = AppLocalizations.of(context);
     final status = row.status;
+    final period = row.period;
+    final metaStyle = tokens.typography.captionLg.copyWith(
+      color: tokens.colors.textSecondary,
+      fontFeatures: _tabular,
+    );
     return Semantics(
       key: rowKey,
       container: true,
-      label: [row.product, ?status, row.meta].join(l10n.a11yListSeparator),
+      label: [
+        row.product,
+        ?status,
+        row.purchased,
+        ?period,
+      ].join(l10n.a11yListSeparator),
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: rowPaddingY),
@@ -156,13 +173,8 @@ class PurchaseRowGroup extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: metaGap),
-              Text(
-                row.meta,
-                style: tokens.typography.captionLg.copyWith(
-                  color: tokens.colors.textSecondary,
-                  fontFeatures: _tabular,
-                ),
-              ),
+              Text(row.purchased, style: metaStyle),
+              if (period != null) Text(period, style: metaStyle),
             ],
           ),
         ),

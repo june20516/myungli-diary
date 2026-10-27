@@ -173,7 +173,7 @@
   "accountDeleteTitleHead": "アカウント削除",
   "adFreeLegalNotice": "購入前に利用規約とプライバシーポリシーをご確認ください。",
   "adFreeOfferHead": "1か月間、広告なしで、根拠と解釈まですべて開いて見られます。",
-  "adFreeOfferPrice": "{price}・1か月・自動更新なし",
+  "adFreeOfferPrice": "{price}",
   "adFreeStatusRemaining": "{date}まで広告なしで使えます",
   "calcBasisConventionBody": "読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。",
   "calcBasisLunarBody": "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。",
@@ -412,7 +412,6 @@
   "accountMergeSummaryAdFreeDays": "{days, plural, other{{days}日}}",
   "purchaseMetaPurchased": "{date}購入",
   "purchaseMetaPeriod": "{start}〜{end}",
-  "purchaseMetaSeparator": " · ",
   "purchaseProductAdFreeMonth": "広告なし1か月",
   "purchaseStatusActive": "利用中",
   "purchaseStatusPending": "利用前",
@@ -420,5 +419,5 @@
   "purchaseStatusRefunded": "返金済み",
   "errorMergeTokenInvalid": "統合を続けられませんでした。取り込むアカウントを再認証してください。",
   "adFreeBuyCta": "購入する",
-  "adFreeOfferPeriod": "1か月、自動更新なし"
+  "adFreeOfferPeriod": "1か月、自動決済なし"
 }

@@ -436,7 +436,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String onboardTimeHourConfirm(String branch, String start, String end) {
-    return 'You were born in the $branch hour, $start–$end.';
+    return 'You were born in the $branch hour, from $start to $end.';
   }
 
   @override
@@ -619,7 +619,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String adFreeOfferPrice(String price) {
-    return '$price · 1 month · no auto-renewal';
+    return '$price';
   }
 
   @override
@@ -786,7 +786,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharePreviewImageTagline =>
-      'Today, read for your chart · Myungli Diary';
+      'Myungli Diary: today, read for your chart';
 
   @override
   String get sharePreviewRatioLabelStory => 'Story';
@@ -808,7 +808,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String todayEventSummary(int count, String title) {
-    return 'Events today: $count · $title';
+    return 'Events today: $count, $title';
   }
 
   @override
@@ -1518,11 +1518,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String purchaseMetaPeriod(String start, String end) {
-    return '$start–$end';
+    return '$start to $end';
   }
-
-  @override
-  String get purchaseMetaSeparator => ' · ';
 
   @override
   String get purchaseProductAdFreeMonth => 'Ad-free, 1 month';
@@ -1547,5 +1544,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adFreeBuyCta => 'Buy';
 
   @override
-  String get adFreeOfferPeriod => '1 month, no auto-renewal';
+  String get adFreeOfferPeriod => '1 month, no automatic charge';
 }

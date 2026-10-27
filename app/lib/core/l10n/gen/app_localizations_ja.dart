@@ -566,7 +566,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String adFreeOfferPrice(String price) {
-    return '$price・1か月・自動更新なし';
+    return '$price';
   }
 
   @override
@@ -1405,9 +1405,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get purchaseMetaSeparator => ' · ';
-
-  @override
   String get purchaseProductAdFreeMonth => '広告なし1か月';
 
   @override
@@ -1429,5 +1426,5 @@ class AppLocalizationsJa extends AppLocalizations {
   String get adFreeBuyCta => '購入する';
 
   @override
-  String get adFreeOfferPeriod => '1か月、自動更新なし';
+  String get adFreeOfferPeriod => '1か月、自動決済なし';
 }

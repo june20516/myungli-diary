@@ -28,11 +28,13 @@ const Set<String> purchaseHistoryHandledStates = {
   'offline',
 };
 
-/// 구매 한 건의 `purchase-row` meta 한 줄: 구매일 + 구분자 + 사용 기간.
+/// `purchase-row`의 구매일 줄과 사용 기간 줄입니다. 기간이 없으면 `period`가 null입니다.
+typedef PurchaseMeta = ({String purchased, String? period});
+
+/// 구매 한 건의 `purchase-row` meta: 구매일과 사용 기간을 따로 만듭니다(구분 글자로 잇지 않음, W44).
 ///
-/// 날짜는 [timezone]의 달력 날짜를 [locale]의 짧은 날짜로 보입니다. 기간이 없으면 구매일만
-/// 보입니다.
-String purchaseMeta(
+/// 날짜는 [timezone]의 달력 날짜를 [locale]의 짧은 날짜로 보입니다.
+PurchaseMeta purchaseMeta(
   AppLocalizations l10n,
   Purchase purchase, {
   required String locale,
@@ -44,13 +46,13 @@ String purchaseMeta(
         .format(DateTime(local.year, local.month, local.day));
   }
 
-  final purchased = l10n.purchaseMetaPurchased(date(purchase.purchasedAt));
   final period = purchase.period;
-  if (period == null) {
-    return purchased;
-  }
-  return '$purchased${l10n.purchaseMetaSeparator}'
-      '${l10n.purchaseMetaPeriod(date(period.startsAt), date(period.endsAt))}';
+  return (
+    purchased: l10n.purchaseMetaPurchased(date(purchase.purchasedAt)),
+    period: period == null
+        ? null
+        : l10n.purchaseMetaPeriod(date(period.startsAt), date(period.endsAt)),
+  );
 }
 
 /// 구매 내역(`purchase-history`, 결정 A76, D88).
@@ -196,29 +198,32 @@ class _PurchaseList extends ConsumerWidget {
     // 구매 날짜는 프로필 시간대가 아니라 기기 시간대 기준입니다(spec §6).
     final timezone =
         ref.watch(deviceTimezoneNameProvider).value ?? fallbackTimezone;
+    PurchaseRowData rowOf(Purchase purchase) {
+      final meta = purchaseMeta(
+        l10n,
+        purchase,
+        locale: l10n.localeName,
+        timezone: timezone,
+      );
+      return PurchaseRowData(
+        product: purchaseProductName(
+          l10n,
+          purchase.productId,
+          adFreeProductIds: adFreeProductIds,
+          storeProducts: storeProducts,
+        ),
+        status: purchaseStatusLabel(l10n, purchase.status),
+        active: purchase.status == PurchaseStatus.active,
+        purchased: meta.purchased,
+        period: meta.period,
+      );
+    }
+
     return ListView(
       padding: _contentPadding(context),
       children: [
         PurchaseRowGroup(
-          rows: [
-            for (final purchase in purchases)
-              PurchaseRowData(
-                product: purchaseProductName(
-                  l10n,
-                  purchase.productId,
-                  adFreeProductIds: adFreeProductIds,
-                  storeProducts: storeProducts,
-                ),
-                status: purchaseStatusLabel(l10n, purchase.status),
-                active: purchase.status == PurchaseStatus.active,
-                meta: purchaseMeta(
-                  l10n,
-                  purchase,
-                  locale: l10n.localeName,
-                  timezone: timezone,
-                ),
-              ),
-          ],
+          rows: [for (final purchase in purchases) rowOf(purchase)],
         ),
         const _MissingNotice(),
       ],
