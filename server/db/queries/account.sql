@@ -87,6 +87,10 @@ DELETE FROM idempotency_keys WHERE account_id = @account_id;
 -- name: DeleteMergeTicketsByAccount :exec
 DELETE FROM account_merge_tickets WHERE account_id = @account_id OR other_account_id = @account_id;
 
+-- DeleteMergeReceiptsByAccount는 이 계정이 A로 합친 영수증을 지웁니다(S115).
+-- name: DeleteMergeReceiptsByAccount :exec
+DELETE FROM account_merge_receipts WHERE account_id = @account_id;
+
 -- name: DeleteRefreshTokensByAccount :exec
 DELETE FROM refresh_tokens WHERE account_id = @account_id;
 

@@ -52,6 +52,63 @@ func TestJobRetention_RunsRevocationRetry(t *testing.T) {
 	assert.Zero(t, rows)
 }
 
+// retention이 24시간 지난 합치기 영수증만 지운다(S115).
+func TestJobRetention_DeletesExpiredMergeReceipts(t *testing.T) {
+	fake := providertest.New(t)
+	clk := clocktest.New(time.Date(2026, 10, 23, 9, 0, 0, 0, time.UTC))
+	fake.SetClock(clk)
+	pool := dbtest.New(t)
+	authCfg := flowAuthConfig(t)
+	cfg := config.RevocationConfig{
+		TokenKeyID: authCfg.TokenKeyID, TokenKey: authCfg.TokenKey, KakaoAdminKey: authCfg.KakaoAdminKey,
+		AppleTeamID: authCfg.AppleTeamID, AppleKeyID: authCfg.AppleKeyID, ApplePrivateKeyPEM: authCfg.ApplePrivateKeyPEM,
+	}
+	var accountID uuid.UUID
+	require.NoError(t, pool.QueryRow(t.Context(),
+		`INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id`).Scan(&accountID))
+	for i, mergedAt := range []time.Time{clk.Now().Add(-24 * time.Hour), clk.Now().Add(-24*time.Hour + time.Second)} {
+		_, err := pool.Exec(t.Context(), `INSERT INTO account_merge_receipts (token_hash, account_id, merged_at) VALUES ($1, $2, $3)`,
+			[]byte{byte(i)}, accountID, mergedAt)
+		require.NoError(t, err)
+	}
+
+	err := retention(t.Context(), cfg, retentionDeps{
+		Pool:      pool,
+		Clock:     clk,
+		Logger:    slog.New(slog.DiscardHandler),
+		HTTP:      fake.Client(),
+		Providers: providerURLs{KakaoUnlink: fake.KakaoUnlinkURL(), AppleRevoke: fake.AppleRevokeURL()},
+	})
+
+	require.NoError(t, err)
+	var kept []byte
+	require.NoError(t, pool.QueryRow(t.Context(), `SELECT token_hash FROM account_merge_receipts`).Scan(&kept), "하나만 남습니다")
+	assert.Equal(t, []byte{1}, kept, "24시간이 안 된 영수증은 남깁니다")
+}
+
+// 허가 취소 설정이 잘못돼 그 단계가 실패해도 합치기 영수증 정리는 먼저 끝냅니다(보관 기간 약속, S115).
+func TestJobRetention_DeletesMergeReceiptsEvenWhenRevocationConfigFails(t *testing.T) {
+	clk := clocktest.New(time.Date(2026, 10, 23, 9, 0, 0, 0, time.UTC))
+	pool := dbtest.New(t)
+	var accountID uuid.UUID
+	require.NoError(t, pool.QueryRow(t.Context(),
+		`INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id`).Scan(&accountID))
+	_, err := pool.Exec(t.Context(), `INSERT INTO account_merge_receipts (token_hash, account_id, merged_at) VALUES ($1, $2, $3)`,
+		[]byte{0}, accountID, clk.Now().Add(-25*time.Hour))
+	require.NoError(t, err)
+
+	err = retention(t.Context(), config.RevocationConfig{TokenKeyID: "k1", TokenKey: "not-base64"}, retentionDeps{
+		Pool:   pool,
+		Clock:  clk,
+		Logger: slog.New(slog.DiscardHandler),
+	})
+
+	require.Error(t, err)
+	var rows int
+	require.NoError(t, pool.QueryRow(t.Context(), `SELECT count(*) FROM account_merge_receipts`).Scan(&rows))
+	assert.Zero(t, rows)
+}
+
 // job retention은 더 이상 not implemented가 아니라 설정을 읽는 단계부터 실행한다.
 func TestRun_RetentionWithoutDatabaseURL_Exits1WithConfigError(t *testing.T) {
 	code, stderr := runCLI(t, "job", "retention")

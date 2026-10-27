@@ -29,8 +29,8 @@ func (q *Queries) ConsumeMergeTicket(ctx context.Context, arg ConsumeMergeTicket
 }
 
 const copyOtherOnlyDiaryDays = `-- name: CopyOtherOnlyDiaryDays :exec
-INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, created_at)
-SELECT $1, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.created_at
+INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, day_kind, created_at)
+SELECT $1, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.day_kind, b.created_at
 FROM diary_days b
 WHERE b.account_id = $2
   AND NOT EXISTS (SELECT 1 FROM diary_days a WHERE a.account_id = $1 AND a.date = b.date)
@@ -89,6 +89,19 @@ func (q *Queries) CountMovableRecords(ctx context.Context, arg CountMovableRecor
 		&i.Reactions,
 	)
 	return i, err
+}
+
+const deleteExpiredMergeReceipts = `-- name: DeleteExpiredMergeReceipts :execrows
+DELETE FROM account_merge_receipts WHERE merged_at <= $1::timestamptz
+`
+
+// DeleteExpiredMergeReceipts는 before 이전에 합친 영수증을 지웁니다(job retention).
+func (q *Queries) DeleteExpiredMergeReceipts(ctx context.Context, before time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteExpiredMergeReceipts, before)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const deleteOverlappingReactions = `-- name: DeleteOverlappingReactions :exec
@@ -159,6 +172,23 @@ func (q *Queries) IdentityLinkedTo(ctx context.Context, arg IdentityLinkedToPara
 	return linked, err
 }
 
+const insertMergeReceipt = `-- name: InsertMergeReceipt :exec
+INSERT INTO account_merge_receipts (token_hash, account_id, merged_at)
+VALUES ($1, $2, $3)
+`
+
+type InsertMergeReceiptParams struct {
+	TokenHash []byte
+	AccountID uuid.UUID
+	MergedAt  time.Time
+}
+
+// InsertMergeReceipt는 합치기 영수증을 남깁니다(S115). 토큰은 한 번만 쓰이므로 해시가 겹치지 않습니다.
+func (q *Queries) InsertMergeReceipt(ctx context.Context, arg InsertMergeReceiptParams) error {
+	_, err := q.db.Exec(ctx, insertMergeReceipt, arg.TokenHash, arg.AccountID, arg.MergedAt)
+	return err
+}
+
 const insertMergeTicket = `-- name: InsertMergeTicket :exec
 INSERT INTO account_merge_tickets (id, token_hash, account_id, other_account_id, identity_id, expires_at)
 VALUES ($1, $2, $3, $4, $5, $6::timestamptz)
@@ -192,6 +222,7 @@ SET all_tags = b.all_tags,
     featured_tags = b.featured_tags,
     guide_question = b.guide_question,
     ruleset_version = b.ruleset_version,
+    day_kind = b.day_kind,
     created_at = b.created_at
 FROM diary_days b
 WHERE a.account_id = $1
@@ -338,6 +369,27 @@ func (q *Queries) LockMergeTicket(ctx context.Context, arg LockMergeTicketParams
 		&i.ConsumedAt,
 	)
 	return i, err
+}
+
+const mergeReceiptExists = `-- name: MergeReceiptExists :one
+SELECT EXISTS (
+    SELECT 1 FROM account_merge_receipts
+    WHERE token_hash = $1 AND account_id = $2 AND merged_at > $3::timestamptz
+)
+`
+
+type MergeReceiptExistsParams struct {
+	TokenHash []byte
+	AccountID uuid.UUID
+	Since     time.Time
+}
+
+// MergeReceiptExists는 account_id가 since 뒤에 이 토큰으로 합친 영수증이 있는지 봅니다.
+func (q *Queries) MergeReceiptExists(ctx context.Context, arg MergeReceiptExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, mergeReceiptExists, arg.TokenHash, arg.AccountID, arg.Since)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const mergeTicketAccounts = `-- name: MergeTicketAccounts :one

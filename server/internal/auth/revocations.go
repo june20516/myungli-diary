@@ -42,7 +42,7 @@ type RevocationAttempter interface {
 }
 
 // Revocations는 카카오·Apple 허가 취소 대기 행(provider_revocations)을 시도하고 재시도합니다(S106).
-// LINE·Google은 app SDK가 허가를 취소하므로(S100) 대기 행이 없습니다. 여러 goroutine과 여러 프로세스에서 동시에 써도 안전합니다.
+// LINE·Google 허가는 취소하지 않으므로(D95) 대기 행이 없습니다. 여러 goroutine과 여러 프로세스에서 동시에 써도 안전합니다.
 type Revocations struct {
 	pool   *pgxpool.Pool
 	kakao  KakaoUnlinker

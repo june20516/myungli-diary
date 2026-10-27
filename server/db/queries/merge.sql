@@ -80,6 +80,7 @@ SET all_tags = b.all_tags,
     featured_tags = b.featured_tags,
     guide_question = b.guide_question,
     ruleset_version = b.ruleset_version,
+    day_kind = b.day_kind,
     created_at = b.created_at
 FROM diary_days b
 WHERE a.account_id = @account_id
@@ -88,8 +89,8 @@ WHERE a.account_id = @account_id
 
 -- CopyOtherOnlyDiaryDays는 B에만 있는 날짜 기록을 A에 만듭니다. B 행은 B 삭제가 지웁니다.
 -- name: CopyOtherOnlyDiaryDays :exec
-INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, created_at)
-SELECT @account_id, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.created_at
+INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, day_kind, created_at)
+SELECT @account_id, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.day_kind, b.created_at
 FROM diary_days b
 WHERE b.account_id = @other_account_id
   AND NOT EXISTS (SELECT 1 FROM diary_days a WHERE a.account_id = @account_id AND a.date = b.date);
@@ -180,3 +181,19 @@ SET honorific = EXCLUDED.honorific,
 
 -- name: DeleteProfile :exec
 DELETE FROM profiles WHERE account_id = @account_id;
+
+-- InsertMergeReceipt는 합치기 영수증을 남깁니다(S115). 토큰은 한 번만 쓰이므로 해시가 겹치지 않습니다.
+-- name: InsertMergeReceipt :exec
+INSERT INTO account_merge_receipts (token_hash, account_id, merged_at)
+VALUES (@token_hash, @account_id, @merged_at);
+
+-- MergeReceiptExists는 account_id가 since 뒤에 이 토큰으로 합친 영수증이 있는지 봅니다.
+-- name: MergeReceiptExists :one
+SELECT EXISTS (
+    SELECT 1 FROM account_merge_receipts
+    WHERE token_hash = @token_hash AND account_id = @account_id AND merged_at > @since::timestamptz
+);
+
+-- DeleteExpiredMergeReceipts는 before 이전에 합친 영수증을 지웁니다(job retention).
+-- name: DeleteExpiredMergeReceipts :execrows
+DELETE FROM account_merge_receipts WHERE merged_at <= @before::timestamptz;

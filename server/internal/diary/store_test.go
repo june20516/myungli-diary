@@ -462,3 +462,35 @@ func TestStore_StoresJSONShape(t *testing.T) {
 	assert.Equal(t, 2, withoutTerm, "term 없는 조각 둘에는 term 키 자체가 없음")
 	assert.JSONEq(t, `[{"key":"dohwa","polarity":"neutral"}]`, featured)
 }
+
+// 그날 성격은 날짜 기록에 적혀 같은 날 일기와 목록에 똑같이 붙습니다(D90 ①).
+func TestStore_DayKindRecorded(t *testing.T) {
+	ctx := context.Background()
+	store, acc, _ := setup(t)
+	rec := record("a")
+	rec.DayKind = "yongsin_day"
+
+	first := mustCreate(t, store, acc, 10, "첫째", rec)
+	second := mustCreate(t, store, acc, 10, "둘째", nil)
+	listed, err := store.List(ctx, acc, diary.ListQuery{Limit: 10})
+	require.NoError(t, err)
+
+	assert.Equal(t, "yongsin_day", first.DayKind)
+	assert.Equal(t, "yongsin_day", second.DayKind)
+	require.Len(t, listed, 2)
+	assert.Equal(t, "yongsin_day", listed[0].DayKind)
+}
+
+// 그날 성격이 없는 기록(1.1.0 전에 만든 날짜 기록)은 NULL로 두고 빈 값으로 읽습니다.
+func TestStore_DayKindMissingIsEmpty(t *testing.T) {
+	ctx := context.Background()
+	store, acc, pool := setup(t)
+
+	got := mustCreate(t, store, acc, 10, "본문", record("a"))
+
+	assert.Empty(t, got.DayKind)
+	var stored *string
+	require.NoError(t, pool.QueryRow(ctx,
+		"SELECT day_kind FROM diary_days WHERE account_id = $1 AND date = $2", acc, profile.PgDate(day(10))).Scan(&stored))
+	assert.Nil(t, stored)
+}

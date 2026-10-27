@@ -64,9 +64,16 @@ func TestMergeFlow_MergeAccounts(t *testing.T) {
 	replayed := env.doWithKey(http.MethodPost, "/v1/me/merge", accessA, "merge-key-1", body)
 	require.Equal(t, http.StatusOK, replayed.status, "재전송 본문: %v", replayed.body)
 	assert.Equal(t, merged.body, replayed.body)
-	// 다른 키로 보내면 토큰을 이미 썼으므로 422입니다.
-	env.doWithKey(http.MethodPost, "/v1/me/merge", accessA, "merge-key-2", body).
-		requireProblem(t, http.StatusUnprocessableEntity, "merge.token_invalid")
+	// 다른 키나 키 없이 같은 토큰을 다시 보내도 합치기 영수증으로 다시 합치지 않고 200 Me입니다(S115, #552).
+	otherKey := env.doWithKey(http.MethodPost, "/v1/me/merge", accessA, "merge-key-2", body)
+	require.Equal(t, http.StatusOK, otherKey.status, "다른 키 재전송 본문: %v", otherKey.body)
+	assert.Equal(t, merged.body, otherKey.body)
+	// 같은 키에 본문이 다르면 멱등 미들웨어가 먼저 422 idempotency.mismatch로 답합니다.
+	env.doWithKey(http.MethodPost, "/v1/me/merge", accessA, "merge-key-1", map[string]any{"mergeToken": mergeToken, "profile": "other"}).
+		requireProblem(t, http.StatusUnprocessableEntity, "idempotency.mismatch")
+	noKey := env.do(http.MethodPost, "/v1/me/merge", accessA, body)
+	require.Equal(t, http.StatusOK, noKey.status, "키 없는 재전송 본문: %v", noKey.body)
+	assert.Equal(t, merged.body, noKey.body)
 
 	// B는 지워져 세션이 끝납니다.
 	env.do(http.MethodPost, "/v1/auth/refresh", "", map[string]string{"refreshToken": refreshB}).

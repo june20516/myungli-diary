@@ -6,6 +6,7 @@ package mergedb
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -18,12 +19,16 @@ type Querier interface {
 	// 일기·일정은 살아 있는 것만 셉니다(지운 것도 옮기지만 화면에서 되살릴 수 없어 세지 않음, D85 ⑦·S114). 날짜 기록은 A와 날짜가 겹치지 않는 것만 date_records로 세고, 겹친 날은 overlap_days로 셉니다.
 	// 반응은 B의 문장 선택 기록에 붙은 살아 있는 반응입니다.
 	CountMovableRecords(ctx context.Context, arg CountMovableRecordsParams) (CountMovableRecordsRow, error)
+	// DeleteExpiredMergeReceipts는 before 이전에 합친 영수증을 지웁니다(job retention).
+	DeleteExpiredMergeReceipts(ctx context.Context, before time.Time) (int64, error)
 	// DeleteOverlappingReactions는 지울 쪽 겹친 선택의 반응(취소 이력 포함)을 지웁니다.
 	DeleteOverlappingReactions(ctx context.Context, arg DeleteOverlappingReactionsParams) error
 	DeleteOverlappingSelections(ctx context.Context, arg DeleteOverlappingSelectionsParams) error
 	DeleteProfile(ctx context.Context, accountID uuid.UUID) error
 	// IdentityLinkedTo는 인증 계정이 아직 그 유저 계정에 연결돼 있는지 알려 줍니다.
 	IdentityLinkedTo(ctx context.Context, arg IdentityLinkedToParams) (bool, error)
+	// InsertMergeReceipt는 합치기 영수증을 남깁니다(S115). 토큰은 한 번만 쓰이므로 해시가 겹치지 않습니다.
+	InsertMergeReceipt(ctx context.Context, arg InsertMergeReceiptParams) error
 	// InsertMergeTicket은 합치기 토큰의 해시를 저장합니다. 원문은 저장하지 않습니다.
 	InsertMergeTicket(ctx context.Context, arg InsertMergeTicketParams) error
 	// KeepOtherDiaryDays는 두 계정 모두 날짜 기록이 있는 날에 B의 날짜 기록 값으로 A 행을 바꿉니다(profile = other).
@@ -39,6 +44,8 @@ type Querier interface {
 	LockMergeAccounts(ctx context.Context, ids []uuid.UUID) ([]LockMergeAccountsRow, error)
 	// LockMergeTicket은 A·B에 묶인 합치기 토큰 행을 잠급니다. 그 사이 B 삭제·인증 계정 떼기로 지워졌으면 행이 없습니다.
 	LockMergeTicket(ctx context.Context, arg LockMergeTicketParams) (LockMergeTicketRow, error)
+	// MergeReceiptExists는 account_id가 since 뒤에 이 토큰으로 합친 영수증이 있는지 봅니다.
+	MergeReceiptExists(ctx context.Context, arg MergeReceiptExistsParams) (bool, error)
 	// MergeTicketAccounts는 토큰 해시로 합치기 토큰의 A·B를 찾습니다. 잠그기 전에 잠글 계정을 정하려고 읽으며, 확인은 LockMergeTicket이 합니다.
 	MergeTicketAccounts(ctx context.Context, tokenHash []byte) (MergeTicketAccountsRow, error)
 	// MoveDiaries는 B의 일기를 지운 것까지 모두 A로 옮깁니다. 하루 10편 상한은 검사하지 않습니다(D83 ④).

@@ -685,11 +685,11 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 	}
 }
 
-// TestContract_VersionIsFrozen은 v1 freeze 버전을 고정합니다. freeze 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114)
+// TestContract_VersionIsFrozen은 v1의 현재 버전을 고정합니다. freeze(1.0.0) 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114~S116)
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.0.0" {
-		t.Errorf("info.version = %q, want 1.0.0", doc.Info.Version)
+	if doc.Info.Version != "1.1.0" {
+		t.Errorf("info.version = %q, want 1.1.0", doc.Info.Version)
 	}
 }
 
@@ -1634,10 +1634,21 @@ func TestContract_Draft14Identities(t *testing.T) {
 		if op.RequestBody != nil {
 			t.Error("unlinkIdentity에 요청 본문이 있음")
 		}
-		if !strings.Contains(op.Description, "LINE·Google의 제공자 허가는 server가 취소하지 않습니다") {
-			t.Error("unlinkIdentity 설명에 LINE·Google 허가 취소 규칙이 없음")
-		}
 	})
+}
+
+// TestContract_D95NoLineGoogleRevoke는 떼기·계정 삭제·합치기 설명이 LINE·Google 허가를 취소하지 않는다고 적는지 고정합니다(D95).
+func TestContract_D95NoLineGoogleRevoke(t *testing.T) {
+	doc := loadDoc(t)
+	for _, id := range []string{"unlinkIdentity", "deleteMe", "mergeAccounts"} {
+		op := operationByID(t, doc, id)
+		if !strings.Contains(op.Description, "LINE·Google 제공자 허가는") || !strings.Contains(op.Description, "server도 app도 취소하지 않습니다(D95)") {
+			t.Errorf("%s 설명에 D95 LINE·Google 허가 규칙이 없음", id)
+		}
+		if strings.Contains(op.Description, "SDK로 취소") {
+			t.Errorf("%s 설명에 D95 전 규칙(app SDK 취소)이 남음", id)
+		}
+	}
 }
 
 // TestContract_Draft14ProblemCodes는 draft.14에서 더한 problem code를 고정합니다. (D82, S104)
@@ -1876,4 +1887,43 @@ func ptrValue(value *uint64) []uint64 {
 		return nil
 	}
 	return []uint64{*value}
+}
+
+// TestContract_1_1DiaryDayKind는 일기의 그날 성격 Diary.dayKind(선택, DayKind)를 고정합니다. (D90 ①, S116, #530)
+func TestContract_1_1DiaryDayKind(t *testing.T) {
+	doc := loadDoc(t)
+	d := doc.Components.Schemas["Diary"].Value
+	kind := d.Properties["dayKind"]
+	if kind == nil {
+		t.Fatal("Diary.dayKind가 없음")
+	}
+	if kind.Ref != "#/components/schemas/DayKind" {
+		t.Errorf("Diary.dayKind ref = %q, want DayKind", kind.Ref)
+	}
+	if slices.Contains(d.Required, "dayKind") {
+		t.Error("Diary.dayKind는 선택 필드여야 함(1.1.0 전 날짜 기록은 값이 없음)")
+	}
+	if !strings.Contains(d.Description, "사주 정보를 고쳐도 바뀌지 않습니다") {
+		t.Error("Diary 설명에 dayKind가 기록 값이라는 규칙이 없음")
+	}
+}
+
+// TestContract_1_1MergeResend는 합친 토큰의 재전송 규칙(같은 계정, 24시간, 200 Me)을 고정합니다. (S115, #552)
+func TestContract_1_1MergeResend(t *testing.T) {
+	doc := loadDoc(t)
+	op := operationByID(t, doc, "mergeAccounts")
+	for _, text := range []string{
+		"합치기가 끝난 토큰을 같은 유저 계정이 24시간 안에 다시 보내면",
+		"키 없이 보내거나 다른 키로 보내도 다시 합치지 않고 200 `Me`",
+		"같은 키에 본문(`profile`)이 다르면 422 `idempotency.mismatch`",
+	} {
+		if !strings.Contains(op.Description, text) {
+			t.Errorf("mergeAccounts 설명에 %q가 없음", text)
+		}
+	}
+	for _, old := range []string{"키 없이 다시 보내면 토큰이 일회용이라 422", "`getMe`로 합쳐졌는지 확인"} {
+		if strings.Contains(op.Description, old) {
+			t.Errorf("mergeAccounts 설명에 1.1.0 전 규칙 %q가 남음", old)
+		}
+	}
 }

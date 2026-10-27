@@ -25,6 +25,8 @@ type Querier interface {
 	DeleteDiaryDaysByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteIdempotencyKeysByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteIdentitiesByAccount(ctx context.Context, accountID uuid.UUID) error
+	// DeleteMergeReceiptsByAccount는 이 계정이 A로 합친 영수증을 지웁니다(S115).
+	DeleteMergeReceiptsByAccount(ctx context.Context, accountID uuid.UUID) error
 	// DeleteMergeTicketsByAccount는 이 계정이 A(account_id)이거나 B(other_account_id)인 합치기 토큰을 지웁니다.
 	DeleteMergeTicketsByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteMonthCacheByAccount(ctx context.Context, accountID uuid.UUID) error

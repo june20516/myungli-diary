@@ -20,6 +20,12 @@ type Account struct {
 	DeletedAt    *time.Time
 }
 
+type AccountMergeReceipt struct {
+	TokenHash []byte
+	AccountID uuid.UUID
+	MergedAt  time.Time
+}
+
 type AccountMergeTicket struct {
 	ID             uuid.UUID
 	TokenHash      []byte
@@ -144,6 +150,7 @@ type DiaryDay struct {
 	GuideQuestion  []byte
 	RulesetVersion string
 	CreatedAt      time.Time
+	DayKind        pgtype.Text
 }
 
 type EntitlementGrant struct {
