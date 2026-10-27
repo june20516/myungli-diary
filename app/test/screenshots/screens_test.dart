@@ -26,6 +26,7 @@ import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
@@ -74,6 +75,11 @@ final class _Shot {
   final _Open open;
   final List<Override> overrides;
 }
+
+/// 렌더 환경에는 플랫폼 시스템 글꼴이 없어 Apple·Google 버튼 글자가 상자로 그려집니다. golden
+/// (`systemFontFamily: appFont`)과 같게 앱 글꼴로 대신합니다. 사례는 모두 ko입니다.
+Widget _withSystemFontStandIn(Widget app) =>
+    SocialLoginSystemFont(fontFamily: koType.labelLg.fontFamily!, child: app);
 
 /// 앱이 진입 화면에 도착한 채로 둡니다.
 Future<void> _arrived(WidgetTester tester, ProviderContainer _) =>
@@ -328,18 +334,36 @@ Future<void> _tapProvider(WidgetTester tester, SocialProvider provider) =>
       ),
     );
 
-/// 이미 다른 계정에 연결된 Google을 붙여 login-methods의 안내 창(error)을 띄웁니다.
-Future<void> _loginMethodsInUse(WidgetTester tester) async {
-  // 연결 목록이 올 때까지 기다립니다.
+/// login-methods의 연결 목록(대역 연결 저장소를 읽는 비동기 응답)이 올 때까지 기다립니다.
+Future<void> _loginMethodsLoaded(WidgetTester tester) async {
   await pumpUntil(
     tester,
     () => find.byType(SocialLoginButton).evaluate().isNotEmpty,
   );
+  await settleWithIo(tester);
+}
+
+/// 이미 다른 계정에 연결된 Google을 붙여 login-methods의 안내 창(error)을 띄웁니다.
+Future<void> _loginMethodsInUse(WidgetTester tester) async {
+  await _loginMethodsLoaded(tester);
   await _tapProvider(tester, SocialProvider.google);
   await pumpUntil(
     tester,
     () => find
         .text(AppLocalizationsKo().loginMethodsInUseBody)
+        .evaluate()
+        .isNotEmpty,
+  );
+}
+
+/// LINE 붙이기가 실패해(대역 503) 소개 아래 화면 안 안내(`loginMethodsErrorBodyLink`)가 보입니다.
+Future<void> _loginMethodsLinkFailed(WidgetTester tester) async {
+  await _loginMethodsLoaded(tester);
+  await _tapProvider(tester, SocialProvider.line);
+  await pumpUntil(
+    tester,
+    () => find
+        .text(AppLocalizationsKo().loginMethodsErrorBodyLink)
         .evaluate()
         .isNotEmpty,
   );
@@ -583,13 +607,27 @@ final List<_Shot> _shots = [
     'login-methods',
     'default',
     'member',
-    _pushWith(ScreenIds.loginMethods),
+    _pushWith(ScreenIds.loginMethods, after: _loginMethodsLoaded),
   ),
   _Shot(
     'login-methods',
     'error',
     'member',
     _pushWith(ScreenIds.loginMethods, after: _loginMethodsInUse),
+  ),
+  _Shot(
+    'login-methods',
+    'link-error',
+    'member',
+    _pushWith(
+      ScreenIds.loginMethods,
+      network: ProfileRequestGate(
+        failures: 1,
+        method: 'POST',
+        path: '/v1/me/identities/line',
+      ),
+      after: _loginMethodsLinkFailed,
+    ),
   ),
   _Shot(
     'account-merge',
@@ -674,6 +712,7 @@ void main() {
           tester,
           scenario: shot.scenario,
           overrides: shot.overrides,
+          wrap: _withSystemFontStandIn,
         );
         await shot.open(tester, container);
       }

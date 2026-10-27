@@ -34,6 +34,27 @@ final class GoogleButtonTheme {
   final Color foreground;
 }
 
+/// 아래 [SocialLoginButton]들의 Apple·Google 글자 글꼴을 한꺼번에 정합니다.
+///
+/// 앱은 쓰지 않습니다(플랫폼 기본 글꼴). 시스템 글꼴이 없는 테스트 렌더(화면 스크린샷)가 앱
+/// 전체를 감싸 대신 쓸 글꼴을 줍니다. 버튼의 `systemFontFamily`가 있으면 그것이 먼저입니다.
+class SocialLoginSystemFont extends InheritedWidget {
+  /// [fontFamily]를 아래 버튼들의 시스템 글꼴 자리에 둡니다.
+  const new({required this.fontFamily, required super.child, super.key});
+
+  /// 시스템 글꼴 대신 쓸 글꼴.
+  final String fontFamily;
+
+  /// 위에 [SocialLoginSystemFont]가 있으면 그 글꼴, 없으면 null입니다.
+  static String? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<SocialLoginSystemFont>()
+      ?.fontFamily;
+
+  @override
+  bool updateShouldNotify(SocialLoginSystemFont oldWidget) =>
+      fontFamily != oldWidget.fontFamily;
+}
+
 /// 소셜 로그인 버튼(`social-login-button`).
 ///
 /// 색·로고·문구는 각 제공자의 공식 가이드와 공식 자산(`assets/brand/`)을 따르고 아이콘 세트를
@@ -282,8 +303,9 @@ class SocialLoginButton extends StatelessWidget {
   /// false면 점·숨쉬기가 정지 상태로 그립니다.
   final bool animated;
 
-  /// Apple·Google 글자의 글꼴. null이면 플랫폼 기본(시스템) 글꼴입니다. 테스트·golden에는
-  /// 시스템 글꼴이 없어 대신 쓸 글꼴을 줍니다.
+  /// Apple·Google 글자의 글꼴. null이면 위의 [SocialLoginSystemFont]가 준 글꼴이고, 그것도
+  /// 없으면 플랫폼 기본(시스템) 글꼴입니다. 테스트·golden에는 시스템 글꼴이 없어 대신 쓸
+  /// 글꼴을 줍니다.
   final String? systemFontFamily;
 
   static const BorderRadius _radius = BorderRadius.all(
@@ -352,6 +374,8 @@ class SocialLoginButton extends StatelessWidget {
   /// 제공자·밝기·꺼짐에 맞는 색과 글자 모양.
   _Look _lookOf(BuildContext context, {required bool dark, required bool off}) {
     final labelToken = context.tokens.typography.labelLg;
+    final systemFontFamily =
+        this.systemFontFamily ?? SocialLoginSystemFont.maybeOf(context);
     // Apple HIG와 Google 가이드는 버튼 글자를 각자의 글꼴로 쓰게 합니다. 앱 글꼴을 상속하지 않고
     // (`inherit: false`) 플랫폼 기본 글꼴로 그립니다. Apple은 크기·굵기·줄 높이를 명세의
     // label.lg로, Google은 가이드의 Medium 14/20으로 둡니다.

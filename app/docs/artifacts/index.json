@@ -58,11 +58,11 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-merge.default.2026-10-27",
+    "id": "render.account-merge.default.2026-10-28",
     "title": "account-merge (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-account-merge-default.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-account-merge-default.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "account-merge"
@@ -72,11 +72,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-merge.error.2026-10-27",
+    "id": "render.account-merge.error.2026-10-28",
     "title": "account-merge (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-account-merge-error.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-account-merge-error.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "account-merge"
@@ -86,11 +86,11 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-merge.loading.2026-10-27",
+    "id": "render.account-merge.loading.2026-10-28",
     "title": "account-merge (loading) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-account-merge-loading.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-account-merge-loading.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "account-merge"
@@ -100,11 +100,11 @@
     "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-merge.summary.2026-10-27",
+    "id": "render.account-merge.summary.2026-10-28",
     "title": "account-merge (summary) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-account-merge-summary.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-account-merge-summary.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "account-merge"
@@ -380,11 +380,11 @@
     "note": "no-address 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.login-methods.default.2026-10-27",
+    "id": "render.login-methods.default.2026-10-28",
     "title": "login-methods (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-login-methods-default.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-login-methods-default.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "login-methods"
@@ -394,11 +394,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.login-methods.error.2026-10-27",
+    "id": "render.login-methods.error.2026-10-28",
     "title": "login-methods (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-login-methods-error.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-login-methods-error.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "login-methods"
@@ -406,6 +406,20 @@
     "decisions": [],
     "status": "draft",
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
+  },
+  {
+    "id": "render.login-methods.link-error.2026-10-28",
+    "title": "login-methods (link-error) 화면",
+    "kind": "screenshot",
+    "file": "2026-10-28-login-methods-link-error.png",
+    "date": "2026-10-28",
+    "milestone": "A1",
+    "screens": [
+      "login-methods"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "link-error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
     "id": "render.my-saju.default.2026-10-20",

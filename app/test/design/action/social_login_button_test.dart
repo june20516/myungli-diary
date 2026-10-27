@@ -192,6 +192,46 @@ void main() {
       expect(kakao.fontFamily, isNotNull);
     });
 
+    testWidgets('SocialLoginSystemFont가 시스템 글꼴 자리를 채우고 인자가 먼저', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          SocialLoginSystemFont(
+            fontFamily: 'Fallback',
+            child: Center(
+              child: Column(
+                children: [
+                  SocialLoginButton(
+                    provider: SocialProvider.apple,
+                    label: 'Apple로 로그인',
+                    onPressed: () {},
+                  ),
+                  SocialLoginButton(
+                    provider: SocialProvider.google,
+                    label: 'Google로 로그인',
+                    systemFontFamily: 'Explicit',
+                    onPressed: () {},
+                  ),
+                  SocialLoginButton(
+                    provider: SocialProvider.kakao,
+                    label: '카카오 로그인',
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      final apple = tester.widget<Text>(find.text('Apple로 로그인')).style!;
+      expect(apple.inherit, isFalse);
+      expect(apple.fontFamily, 'Fallback');
+      final google = tester.widget<Text>(find.text('Google로 로그인')).style!;
+      expect(google.fontFamily, 'Explicit');
+      // 카카오는 앱 글꼴 그대로입니다.
+      final kakao = tester.widget<Text>(find.text('카카오 로그인')).style!;
+      expect(kakao.fontFamily, isNot('Fallback'));
+    });
+
     testWidgets('카카오는 공식 노랑 바탕에 심볼과 레이블입니다', (tester) async {
       await tester.pumpWidget(
         inputApp(
