@@ -144,6 +144,7 @@ type DiaryDay struct {
 	GuideQuestion  []byte
 	RulesetVersion string
 	CreatedAt      time.Time
+	DayKind        pgtype.Text
 }
 
 type EntitlementGrant struct {

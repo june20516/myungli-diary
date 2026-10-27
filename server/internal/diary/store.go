@@ -34,7 +34,7 @@ var (
 )
 
 // Entry는 일기 한 편입니다.
-// AllTags·Featured·GuideQuestion·RulesetVersion은 그날 첫 편을 쓸 때 본 엔진 결과와 질문의 기록(날짜 기록)이고, 같은 날 일기에 똑같이 붙습니다.
+// AllTags·Featured·GuideQuestion·RulesetVersion·DayKind는 그날 첫 편을 쓸 때 본 엔진 결과와 질문의 기록(날짜 기록)이고, 같은 날 일기에 똑같이 붙습니다.
 type Entry struct {
 	ID             uuid.UUID
 	Date           profile.LocalDate
@@ -43,6 +43,7 @@ type Entry struct {
 	Featured       []fortune.FeaturedTag
 	GuideQuestion  []render.Segment // 질문이 없으면 비어 있습니다(DB에는 NULL).
 	RulesetVersion string
+	DayKind        string // 그날 성격의 계약 값입니다. 기록이 없는 날(1.1.0 전)은 비어 있습니다(DB에는 NULL).
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
@@ -263,7 +264,7 @@ type segmentJSON struct {
 	Term string `json:"term,omitempty"`
 }
 
-// newDayParams는 날짜 기록을 InsertDiaryDay 인자로 바꿉니다. 질문이 비어 있으면 guide는 NULL입니다.
+// newDayParams는 날짜 기록을 InsertDiaryDay 인자로 바꿉니다. 질문이 비어 있으면 guide는, 그날 성격이 비어 있으면 day_kind는 NULL입니다.
 func newDayParams(accountID uuid.UUID, date profile.LocalDate, r *fortune.DayRecord) (diarydb.InsertDiaryDayParams, error) {
 	featured, guide, err := encodeJSON(r)
 	if err != nil {
@@ -280,6 +281,7 @@ func newDayParams(accountID uuid.UUID, date profile.LocalDate, r *fortune.DayRec
 		FeaturedTags:   featured,
 		GuideQuestion:  guide,
 		RulesetVersion: r.RulesetVersion,
+		DayKind:        pgtype.Text{String: r.DayKind, Valid: r.DayKind != ""},
 	}, nil
 }
 
@@ -334,6 +336,7 @@ func toEntry(row diarydb.GetDiaryRow) (Entry, error) {
 		Featured:       featured,
 		GuideQuestion:  guide,
 		RulesetVersion: row.RulesetVersion,
+		DayKind:        row.DayKind.String,
 		CreatedAt:      row.CreatedAt,
 		UpdatedAt:      row.UpdatedAt,
 	}, nil

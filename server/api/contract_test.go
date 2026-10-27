@@ -1888,3 +1888,22 @@ func ptrValue(value *uint64) []uint64 {
 	}
 	return []uint64{*value}
 }
+
+// TestContract_1_1DiaryDayKind는 일기의 그날 성격 Diary.dayKind(선택, DayKind)를 고정합니다. (D90 ①, S116, #530)
+func TestContract_1_1DiaryDayKind(t *testing.T) {
+	doc := loadDoc(t)
+	d := doc.Components.Schemas["Diary"].Value
+	kind := d.Properties["dayKind"]
+	if kind == nil {
+		t.Fatal("Diary.dayKind가 없음")
+	}
+	if kind.Ref != "#/components/schemas/DayKind" {
+		t.Errorf("Diary.dayKind ref = %q, want DayKind", kind.Ref)
+	}
+	if slices.Contains(d.Required, "dayKind") {
+		t.Error("Diary.dayKind는 선택 필드여야 함(1.1.0 전 날짜 기록은 값이 없음)")
+	}
+	if !strings.Contains(d.Description, "사주 정보를 고쳐도 바뀌지 않습니다") {
+		t.Error("Diary 설명에 dayKind가 기록 값이라는 규칙이 없음")
+	}
+}

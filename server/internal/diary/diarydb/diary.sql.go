@@ -52,7 +52,7 @@ func (q *Queries) DiaryDayExists(ctx context.Context, arg DiaryDayExistsParams) 
 }
 
 const getDiary = `-- name: GetDiary :one
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.id = $1 AND d.account_id = $2 AND d.deleted_at IS NULL
@@ -72,6 +72,7 @@ type GetDiaryRow struct {
 	FeaturedTags   []byte
 	GuideQuestion  []byte
 	RulesetVersion string
+	DayKind        pgtype.Text
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
@@ -88,6 +89,7 @@ func (q *Queries) GetDiary(ctx context.Context, arg GetDiaryParams) (GetDiaryRow
 		&i.FeaturedTags,
 		&i.GuideQuestion,
 		&i.RulesetVersion,
+		&i.DayKind,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -133,7 +135,7 @@ WITH inserted AS (
     VALUES ($1, $2, $3, $4)
     RETURNING id, account_id, date, body, created_at, updated_at
 )
-SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, i.created_at, i.updated_at
+SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
 FROM inserted i
 JOIN diary_days dd ON dd.account_id = i.account_id AND dd.date = i.date
 `
@@ -154,6 +156,7 @@ type InsertDiaryRow struct {
 	FeaturedTags   []byte
 	GuideQuestion  []byte
 	RulesetVersion string
+	DayKind        pgtype.Text
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
@@ -175,6 +178,7 @@ func (q *Queries) InsertDiary(ctx context.Context, arg InsertDiaryParams) (Inser
 		&i.FeaturedTags,
 		&i.GuideQuestion,
 		&i.RulesetVersion,
+		&i.DayKind,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -182,8 +186,8 @@ func (q *Queries) InsertDiary(ctx context.Context, arg InsertDiaryParams) (Inser
 }
 
 const insertDiaryDay = `-- name: InsertDiaryDay :exec
-INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, day_kind)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (account_id, date) DO NOTHING
 `
 
@@ -194,6 +198,7 @@ type InsertDiaryDayParams struct {
 	FeaturedTags   []byte
 	GuideQuestion  []byte
 	RulesetVersion string
+	DayKind        pgtype.Text
 }
 
 // 그날 첫 편이면 날짜 기록을 만들고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
@@ -205,12 +210,13 @@ func (q *Queries) InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) 
 		arg.FeaturedTags,
 		arg.GuideQuestion,
 		arg.RulesetVersion,
+		arg.DayKind,
 	)
 	return err
 }
 
 const listDiaries = `-- name: ListDiaries :many
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.account_id = $1 AND d.deleted_at IS NULL
@@ -245,6 +251,7 @@ type ListDiariesRow struct {
 	FeaturedTags   []byte
 	GuideQuestion  []byte
 	RulesetVersion string
+	DayKind        pgtype.Text
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
@@ -278,6 +285,7 @@ func (q *Queries) ListDiaries(ctx context.Context, arg ListDiariesParams) ([]Lis
 			&i.FeaturedTags,
 			&i.GuideQuestion,
 			&i.RulesetVersion,
+			&i.DayKind,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -350,7 +358,7 @@ WITH changed AS (
     WHERE diaries.id = $2 AND diaries.account_id = $3 AND diaries.deleted_at IS NULL
     RETURNING id, account_id, date, body, created_at, updated_at
 )
-SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, u.created_at, u.updated_at
+SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
 FROM changed u
 JOIN diary_days dd ON (dd.account_id, dd.date) = (u.account_id, u.date)
 `
@@ -370,6 +378,7 @@ type UpdateDiaryBodyRow struct {
 	FeaturedTags   []byte
 	GuideQuestion  []byte
 	RulesetVersion string
+	DayKind        pgtype.Text
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
@@ -387,6 +396,7 @@ func (q *Queries) UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams
 		&i.FeaturedTags,
 		&i.GuideQuestion,
 		&i.RulesetVersion,
+		&i.DayKind,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -270,7 +270,7 @@ func dateString(d profile.LocalDate) string {
 	return time.Date(d.Year, time.Month(d.Month), d.Day, 0, 0, 0, 0, time.UTC).Format(time.DateOnly)
 }
 
-// toDiary는 일기 한 편을 계약 Diary로 옮깁니다. 가이드 질문이 없으면 필드를 생략합니다.
+// toDiary는 일기 한 편을 계약 Diary로 옮깁니다. 가이드 질문이나 그날 성격 기록이 없으면 그 필드를 생략합니다.
 func toDiary(e diary.Entry) (gen.Diary, error) {
 	c := &converter{}
 	out := gen.Diary{
@@ -285,6 +285,10 @@ func toDiary(e diary.Entry) (gen.Diary, error) {
 			Featured: featuredTags(c, e),
 		},
 		UpdatedAt: e.UpdatedAt,
+	}
+	if e.DayKind != "" {
+		kind := gen.DayKind(e.DayKind)
+		out.DayKind = &kind
 	}
 	if c.err != nil {
 		return gen.Diary{}, c.err

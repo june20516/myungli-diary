@@ -80,6 +80,7 @@ SET all_tags = b.all_tags,
     featured_tags = b.featured_tags,
     guide_question = b.guide_question,
     ruleset_version = b.ruleset_version,
+    day_kind = b.day_kind,
     created_at = b.created_at
 FROM diary_days b
 WHERE a.account_id = @account_id
@@ -88,8 +89,8 @@ WHERE a.account_id = @account_id
 
 -- CopyOtherOnlyDiaryDays는 B에만 있는 날짜 기록을 A에 만듭니다. B 행은 B 삭제가 지웁니다.
 -- name: CopyOtherOnlyDiaryDays :exec
-INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, created_at)
-SELECT @account_id, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.created_at
+INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, day_kind, created_at)
+SELECT @account_id, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.day_kind, b.created_at
 FROM diary_days b
 WHERE b.account_id = @other_account_id
   AND NOT EXISTS (SELECT 1 FROM diary_days a WHERE a.account_id = @account_id AND a.date = b.date);

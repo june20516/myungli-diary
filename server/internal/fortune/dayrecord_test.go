@@ -69,3 +69,18 @@ func TestViews_DayRecordUnknownAllTagIsError(t *testing.T) {
 	_, err := fx.views.DayRecord(context.Background(), fx.account, viewProfile("ko"), viewDate)
 	assert.Error(t, err)
 }
+
+// 날의 성격은 엔진 값을 계약 값으로 바꿔 기록합니다(D90 ①).
+func TestViews_DayRecordDayKind(t *testing.T) {
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		r := dailyResponse(true)
+		r.Kind = enginev1.DayKind_DAY_KIND_YONGSIN_DAY
+		return r, nil
+	}}
+	fx := newViewsFixture(t, fake, viewSeed(t, ""), fakeInsight{})
+
+	got, err := fx.views.DayRecord(context.Background(), fx.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	assert.Equal(t, "yongsin_day", got.DayKind)
+}

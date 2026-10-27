@@ -93,6 +93,7 @@ func sampleEntry() diary.Entry {
 		Featured:       []fortune.FeaturedTag{{Key: "tag.a", Polarity: fortune.Polarity("good")}},
 		GuideQuestion:  []render.Segment{{Text: "오늘은 "}, {Text: "비견", Term: "ten_god.bigyeon"}},
 		RulesetVersion: "v1",
+		DayKind:        "yongsin_day",
 		CreatedAt:      time.Date(2026, 10, 13, 1, 0, 0, 123456000, time.UTC),
 		UpdatedAt:      time.Date(2026, 10, 13, 2, 0, 0, 0, time.UTC),
 	}
@@ -126,6 +127,7 @@ func TestCreateDiary_Returns201WithLocation(t *testing.T) {
 	assert.Equal(t, sampleDiaryID.String(), body["id"])
 	assert.Equal(t, "2026-10-13", body["date"])
 	assert.Equal(t, "v1", body["rulesetVersion"])
+	assert.Equal(t, "yongsin_day", body["dayKind"])
 	tags, ok := body["tags"].(map[string]any)
 	require.True(t, ok)
 	assert.Equal(t, []any{"tag.a", "tag.b"}, tags["all"])
@@ -140,13 +142,14 @@ func TestCreateDiary_Returns201WithLocation(t *testing.T) {
 
 func TestCreateDiary_OmitsGuideQuestionWhenEmpty(t *testing.T) {
 	entry := sampleEntry()
-	entry.GuideQuestion, entry.Featured, entry.AllTags = nil, nil, nil
+	entry.GuideQuestion, entry.Featured, entry.AllTags, entry.DayKind = nil, nil, nil, ""
 	req, rec := sendRequest(t, diaryAPI(&fakeDiaries{entry: entry}), http.MethodPost, diariesTarget, createDiaryJS)
 
 	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
 	expectFortuneContract(t, req, rec)
 	body := decodeMap(t, rec)
 	assert.NotContains(t, body, "guideQuestion")
+	assert.NotContains(t, body, "dayKind", "그날 성격 기록이 없는 날은 생략합니다")
 	assert.Equal(t, map[string]any{"all": []any{}, "featured": []any{}}, body["tags"])
 }
 

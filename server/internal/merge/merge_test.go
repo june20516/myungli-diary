@@ -869,3 +869,38 @@ func TestExecute_SyncFailureStillMerges(t *testing.T) {
 	assert.Equal(t, "deleted", f.accountStatus(t, other))
 	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM purchases`))
 }
+
+// 그날 성격도 날짜 기록 값이라 겹친 날은 고른 프로필 쪽, B에만 있는 날은 B 값을 남깁니다(D90 ①, S116).
+func TestExecute_DayKindFollowsDayRecord(t *testing.T) {
+	cases := []struct {
+		name       string
+		profile    merge.Profile
+		overlapped string
+	}{
+		{name: "other", profile: merge.ProfileOther, overlapped: "yongsin_day"},
+		{name: "current", profile: merge.ProfileCurrent, overlapped: "gwiin_day"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			f := newFixture(t)
+			me := f.loginKakao(t, "kakao-a")
+			other := f.loginLine(t, "U-b")
+			f.seedTaggedDay(t, me, "2026-10-12", "tag.a")
+			f.seedTaggedDay(t, other, "2026-10-12", "tag.b")
+			f.seedTaggedDay(t, other, "2026-10-13", "tag.b")
+			f.exec(t, `UPDATE diary_days SET day_kind = 'gwiin_day' WHERE account_id = $1`, me)
+			f.exec(t, `UPDATE diary_days SET day_kind = CASE date WHEN '2026-10-12' THEN 'yongsin_day' ELSE 'gisin_day' END WHERE account_id = $1`, other)
+			token := f.issueToken(t, me, "U-b")
+
+			require.NoError(t, f.service.Execute(f.ctx, me, token, tc.profile))
+
+			kindOf := func(date string) string {
+				var kind string
+				require.NoError(t, f.pool.QueryRow(f.ctx, `SELECT day_kind FROM diary_days WHERE account_id = $1 AND date = $2`, me, date).Scan(&kind))
+				return kind
+			}
+			assert.Equal(t, tc.overlapped, kindOf("2026-10-12"))
+			assert.Equal(t, "gisin_day", kindOf("2026-10-13"), "B에만 있던 날은 B 값을 옮깁니다")
+		})
+	}
+}

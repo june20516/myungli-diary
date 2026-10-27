@@ -25,6 +25,8 @@ type DayRecord struct {
 	RulesetVersion string
 	// GuideQuestion은 렌더한 가이드 질문(daily.guide)입니다. 원고가 없어 문장이 비면 nil입니다.
 	GuideQuestion []render.Segment
+	// DayKind는 그날 날의 성격의 계약 값입니다(예 gwiin_day). 사주 정보를 고쳐도 기록은 그대로입니다(D90 ①).
+	DayKind string
 }
 
 // DayRecord는 date의 그날 기록을 만듭니다. 오늘 화면 묶음(Daily)에서 뽑으므로 그날 선택 기록이 없으면 이때 남습니다.
@@ -62,5 +64,6 @@ func (v *Views) DayRecord(ctx context.Context, accountID uuid.UUID, p profile.Pr
 		Featured:       featured,
 		RulesetVersion: response.GetMeta().GetRulesetVersion(),
 		GuideQuestion:  guide,
+		DayKind:        dayKindValue(response.GetKind()),
 	}, nil
 }

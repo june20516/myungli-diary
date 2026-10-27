@@ -3623,7 +3623,9 @@ components:
       type: object
       description: |
         `guideQuestion`은 그날 첫 편을 쓸 때 보인 가이드 질문의 렌더된 원문이고, 그날 가이드 질문이 없었으면 생략합니다.
-        `tags`·`guideQuestion`·`rulesetVersion`은 그날 첫 편을 쓸 때 기록한 날짜 기록이고 같은 날 일기에 똑같이 붙습니다.
+        `tags`·`guideQuestion`·`rulesetVersion`·`dayKind`는 그날 첫 편을 쓸 때 기록한 날짜 기록이고 같은 날 일기에 똑같이 붙습니다.
+        `dayKind`는 그때 본 날의 성격이며 사주 정보를 고쳐도 바뀌지 않습니다(D90 ①). 이름은 용어 사전 `day_kind.*`에서 찾습니다.
+        1.1.0 전에 만든 날짜 기록에는 값이 없어 생략합니다(1.1.0에서 더함).
       required: [id, date, body, tags, rulesetVersion, createdAt, updatedAt]
       properties:
         id:
@@ -3640,6 +3642,8 @@ components:
           $ref: '#/components/schemas/DayTags'
         rulesetVersion:
           type: string
+        dayKind:
+          $ref: '#/components/schemas/DayKind'
         createdAt:
           type: string
           format: date-time

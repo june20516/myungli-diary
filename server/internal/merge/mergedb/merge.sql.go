@@ -29,8 +29,8 @@ func (q *Queries) ConsumeMergeTicket(ctx context.Context, arg ConsumeMergeTicket
 }
 
 const copyOtherOnlyDiaryDays = `-- name: CopyOtherOnlyDiaryDays :exec
-INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, created_at)
-SELECT $1, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.created_at
+INSERT INTO diary_days (account_id, date, all_tags, featured_tags, guide_question, ruleset_version, day_kind, created_at)
+SELECT $1, b.date, b.all_tags, b.featured_tags, b.guide_question, b.ruleset_version, b.day_kind, b.created_at
 FROM diary_days b
 WHERE b.account_id = $2
   AND NOT EXISTS (SELECT 1 FROM diary_days a WHERE a.account_id = $1 AND a.date = b.date)
@@ -192,6 +192,7 @@ SET all_tags = b.all_tags,
     featured_tags = b.featured_tags,
     guide_question = b.guide_question,
     ruleset_version = b.ruleset_version,
+    day_kind = b.day_kind,
     created_at = b.created_at
 FROM diary_days b
 WHERE a.account_id = $1
