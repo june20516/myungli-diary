@@ -33,6 +33,41 @@ abstract interface class KakaoAuth {
   Future<KakaoCredential> signIn({required String rawNonce});
 }
 
+/// LINE 로그인 결과. 계약 `LineLoginRequest`의 `idToken`입니다.
+final class LineCredential {
+  /// OIDC id_token을 담습니다.
+  const new({required this.idToken});
+
+  /// LINE OIDC id_token.
+  final String idToken;
+}
+
+/// LINE 로그인.
+abstract interface class LineAuth {
+  /// nonce 원문 [rawNonce]의 해시로 로그인하고 자격을 받습니다.
+  /// 사용자가 취소하면 [SocialSignInCancelled], 그 밖의 실패는 `AppError`를 던집니다.
+  Future<LineCredential> signIn({required String rawNonce});
+}
+
+/// Google 로그인 결과. 계약 `GoogleLoginRequest`의 필드입니다.
+final class GoogleCredential {
+  /// id_token과 server에 보낼 nonce 원문을 담습니다.
+  const new({required this.idToken, required this.rawNonce});
+
+  /// Google OIDC id_token.
+  final String idToken;
+
+  /// id_token의 nonce에 해당하는 원문. SDK가 돌려준 값을 server에 그대로 보냅니다.
+  final String rawNonce;
+}
+
+/// Google 로그인.
+abstract interface class GoogleAuth {
+  /// nonce 원문 [rawNonce]의 해시로 로그인하고 자격을 받습니다.
+  /// 사용자가 취소하면 [SocialSignInCancelled], 그 밖의 실패는 `AppError`를 던집니다.
+  Future<GoogleCredential> signIn({required String rawNonce});
+}
+
 /// iOS Apple 로그인 결과. 계약 `AppleLoginRequest`의 필드입니다.
 final class AppleNativeCredential {
   /// identity_token과 authorization code를 담습니다.

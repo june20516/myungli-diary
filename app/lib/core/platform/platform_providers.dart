@@ -21,6 +21,12 @@ import 'package:myungli_diary/core/platform/store_launcher.dart';
 /// 카카오 로그인.
 final kakaoAuthProvider = Provider<KakaoAuth>((ref) => FakeKakaoAuth());
 
+/// LINE 로그인.
+final lineAuthProvider = Provider<LineAuth>((ref) => FakeLineAuth());
+
+/// Google 로그인.
+final googleAuthProvider = Provider<GoogleAuth>((ref) => FakeGoogleAuth());
+
 /// iOS Apple 로그인.
 final appleNativeAuthProvider = Provider<AppleNativeAuth>(
   (ref) => FakeAppleNativeAuth(),
