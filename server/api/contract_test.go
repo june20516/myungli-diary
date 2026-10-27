@@ -1634,10 +1634,21 @@ func TestContract_Draft14Identities(t *testing.T) {
 		if op.RequestBody != nil {
 			t.Error("unlinkIdentity에 요청 본문이 있음")
 		}
-		if !strings.Contains(op.Description, "LINE·Google의 제공자 허가는 server가 취소하지 않습니다") {
-			t.Error("unlinkIdentity 설명에 LINE·Google 허가 취소 규칙이 없음")
-		}
 	})
+}
+
+// TestContract_D95NoLineGoogleRevoke는 떼기·계정 삭제·합치기 설명이 LINE·Google 허가를 취소하지 않는다고 적는지 고정합니다(D95).
+func TestContract_D95NoLineGoogleRevoke(t *testing.T) {
+	doc := loadDoc(t)
+	for _, id := range []string{"unlinkIdentity", "deleteMe", "mergeAccounts"} {
+		op := operationByID(t, doc, id)
+		if !strings.Contains(op.Description, "LINE·Google 제공자 허가는") || !strings.Contains(op.Description, "server도 app도 취소하지 않습니다(D95)") {
+			t.Errorf("%s 설명에 D95 LINE·Google 허가 규칙이 없음", id)
+		}
+		if strings.Contains(op.Description, "SDK로 취소") {
+			t.Errorf("%s 설명에 D95 전 규칙(app SDK 취소)이 남음", id)
+		}
+	}
 }
 
 // TestContract_Draft14ProblemCodes는 draft.14에서 더한 problem code를 고정합니다. (D82, S104)

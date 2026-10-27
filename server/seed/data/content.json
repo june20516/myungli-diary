@@ -1,5 +1,5 @@
 {
-  "version": "aae9e75f83c9acda",
+  "version": "924748863135c68b",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -5762,7 +5762,7 @@
       "key": "reason.focus_time/score",
       "variant": "single",
       "lang": "ko",
-      "body": "내 사주와 부딪히지 않는 시간 가운데 귀인·용신·합이 많이 겹치는 때를 골라서 그래요."
+      "body": "내 사주와 부딪히지 않는 시간 가운데 귀인, 용신, 합이 많이 겹치는 때를 골라서 그래요."
     },
     {
       "slot": "explain.today_reason",
@@ -5846,7 +5846,7 @@
       "key": "reason.tags/select",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘 일진이 내 사주와 만나 생긴 합·충, 신살, 많아진 십성을 모아서 그래요."
+      "body": "오늘 일진이 내 사주와 만나 생긴 합과 충, 신살, 많아진 십성을 모아서 그래요."
     },
     {
       "slot": "glossary.value_name",
