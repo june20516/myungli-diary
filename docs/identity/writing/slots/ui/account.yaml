@@ -164,7 +164,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: accountMergeTitleBody, text: "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.", why: "라운드 R19 선택(W43)", source: writing}
+      - {lang: ko, key: accountMergeTitleBody, text: "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보, 호칭, 설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.", why: "라운드 R19 선택(W43), 가운뎃점은 쉼표로(W44)", source: writing}
     bad:
       - {lang: ko, text: "같은 날 일기가 겹치면 하나는 지워져요.", why: "D83 ④로 같은 날 일기도 모두 옮김", source: writing}
   endings: ["~어요", "~ㅂ니다"]

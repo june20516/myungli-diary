@@ -21,10 +21,12 @@
 | account-merge.title.body | account-merge.title.body | info | - | 1 | 1 | - | ko 120, en 200, ja 84 |
 | account-merge.title.head | account-merge.title.head | info | - | 1 | 1 | - | ko 36, en 66, ja 30 |
 | ad-free.bar.title | ad-free.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| ad-free.buy.cta | ad-free.buy.cta<br>컴포넌트 offer-card | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.history.cta | ad-free.history.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ad-free.legal.notice | ad-free.legal.notice | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.offer.head | ad-free.offer.head | info | - | 1 | 1 | - | ko -, en -, ja - |
-| ad-free.offer.price | ad-free.offer.price | info | - | 1 | 1 | `price`: text | ko -, en -, ja - |
+| ad-free.offer.period | ad-free.offer.period<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ad-free.offer.price | ad-free.offer.price<br>컴포넌트 offer-card | info | - | 1 | 1 | `price`: text | ko -, en -, ja - |
 | ad-free.status.remaining | ad-free.status.remaining | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | birthplace.bar.title | birthplace.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.empty.body | birthplace.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -209,7 +211,7 @@
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 3 | `date`: text<br>`start`: text<br>`end`: text | ko 26, en 48, ja 21 |
+| ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 2 | `date`: text<br>`start`: text<br>`end`: text | ko 26, en 48, ja 21 |
 | ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 6, en 9, ja 4 |
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |

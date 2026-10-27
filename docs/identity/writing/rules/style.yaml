@@ -96,3 +96,23 @@
       - {lang: ko, slot_purpose: guide, text: "시간이 충분해요. 잠금을 풀고 근거를 보세요."}
       - {lang: en, slot_purpose: guide, text: "Watch a short ad to unlock the evidence."}
       - {lang: ja, slot_purpose: info, text: "今日は空亡の日です。予定を詰め込みすぎないでください。"}
+
+# D93: 사용자에게 보이는 글에 긴 대시(U+2014), 범위 대시(U+2013), 가운뎃점(U+00B7)을 쓰지 않습니다. AI가 남용하는 글자라 기계가 쓴 글로 읽힙니다.
+# 나열은 쉼표나 "와/과", 범위는 `~`(en은 " to ")를 씁니다. ja의 나카구로 `・`(U+30FB)는 일본어 표준 구두점이라 대상이 아닙니다(W44).
+- id: style.S9
+  name: 긴 대시·범위 대시·가운뎃점 금지
+  severity: error
+  detect:
+    kind: regex
+    pattern: '[—–·]'
+    raw: true
+  exempt_purposes: []
+  examples:
+    hit:
+      - {lang: ko, slot_purpose: info, text: "오늘·달력·나의 사주를 다시 계산해요."}
+      - {lang: en, slot_purpose: info, text: "You were born in the Rat hour, 23:30–01:29."}
+      - {lang: en, slot_purpose: info, text: "Today — read for your chart."}
+    pass:
+      - {lang: ko, slot_purpose: info, text: "오늘, 달력, 나의 사주를 다시 계산해요."}
+      - {lang: en, slot_purpose: info, text: "You were born in the Rat hour, from 23:30 to 01:29."}
+      - {lang: ja, slot_purpose: info, text: "今日・カレンダー・わたしの命式を計算し直します。"}

@@ -69,7 +69,7 @@
   "@accountMergeOverlapNotice": {
     "description": "account-merge.overlap.notice: 같은 날 일기가 겹쳐도 지우지 않고 모두 옮긴다는 안내(겹치는 날이 있을 때)"
   },
-  "accountMergeTitleBody": "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보·호칭·설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.",
+  "accountMergeTitleBody": "가져올 계정의 기록은 모두 이 계정으로 옮겨요. 사주 정보, 호칭, 설정은 고른 쪽 것을 쓰고, 가져올 계정과 그 인증 수단은 지워집니다. 구매도 이 계정으로 옮겨요.",
   "@accountMergeTitleBody": {
     "description": "account-merge.title.body: 합치면 무엇이 옮겨지고 무엇이 지워지는지 설명(합칠 계정의 기록과 구매는 이 계정으로, 프로필은 고른 쪽, 합칠 계정과 그 인증 수단은 지워짐, 용어는 D85 ①). 옮길 기록이 0건이어도 보임. 가져올 기록은 일기 편수·일정 개수(0이어도)와 광고 제거 남은 기간(남았을 때만)으로 보임"
   },
@@ -80,6 +80,10 @@
   "adFreeBarTitle": "광고 제거",
   "@adFreeBarTitle": {
     "description": "ad-free.bar.title: app-bar 제목(화면 이름 \"광고 제거\")"
+  },
+  "adFreeBuyCta": "구매하기",
+  "@adFreeBuyCta": {
+    "description": "ad-free.buy.cta: 광고 제거권 구매를 시작하는 주 버튼(출구 system-purchase, #548)"
   },
   "adFreeHistoryCta": "구매 내역",
   "@adFreeHistoryCta": {
@@ -93,9 +97,13 @@
   "@adFreeOfferHead": {
     "description": "ad-free.offer.head: 광고 제거권이 주는 것 한 줄(배너 제거, 근거·해석 열림, D60)"
   },
-  "adFreeOfferPrice": "{price} · 1개월 · 자동 갱신 없음",
+  "adFreeOfferPeriod": "1개월, 자동 결제 없음",
+  "@adFreeOfferPeriod": {
+    "description": "ad-free.offer.period: 기간(1개월)과 자동 갱신 아님 고지. 가격 아래 작은 글씨이고 구매 버튼보다 위(D53, design offer-card)"
+  },
+  "adFreeOfferPrice": "{price}",
   "@adFreeOfferPrice": {
-    "description": "ad-free.offer.price: 가격과 기간(1개월, 자동 갱신 아님) 고지",
+    "description": "ad-free.offer.price: 가격(고정폭 숫자, D53). 기간과 자동 갱신 아님 고지는 offer.period",
     "placeholders": {
       "price": {
         "type": "String"
@@ -276,7 +284,7 @@
   "@consentRequiredLabelTerms": {
     "description": "consent.required.label: 필수 동의 항목 이름"
   },
-  "consentRequiredLabelPrivacy": "(필수) 개인정보 수집·이용",
+  "consentRequiredLabelPrivacy": "(필수) 개인정보 수집 및 이용",
   "@consentRequiredLabelPrivacy": {
     "description": "consent.required.label: 필수 동의 항목 이름"
   },
@@ -462,7 +470,7 @@
   "@forceUpdateNoticeHead": {
     "description": "force-update.notice.head: 업데이트가 필요하다는 제목"
   },
-  "legalBarTitle": "약관·정책",
+  "legalBarTitle": "약관과 정책",
   "@legalBarTitle": {
     "description": "legal.bar.title: app-bar 제목(화면 이름 \"약관·정책\")"
   },
@@ -666,7 +674,7 @@
   "@profileEditRecalcConfirmTitle": {
     "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
   },
-  "profileEditRecalcConfirmBody": "{before} → {after}\n오늘·달력·나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.",
+  "profileEditRecalcConfirmBody": "{before} → {after}\n오늘, 달력, 나의 사주를 다시 계산해요. 이미 쓴 일기와 태그는 그대로 남아요.",
   "@profileEditRecalcConfirmBody": {
     "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)",
     "placeholders": {
@@ -686,7 +694,7 @@
   "@profileEditRecalcConfirmSave": {
     "description": "profile-edit.recalc.confirm: 생일·시간·성별·출생지를 바꿔 저장할 때의 확인 창. 바뀌기 전 → 뒤 값과 영향(오늘·달력·나의 사주를 다시 계산하고, 이미 쓴 일기와 태그는 그때 기록 그대로 남음)"
   },
-  "profileEditRecalcNotice": "생일·시간·성별·출생지를 바꾸면 풀이를 다시 계산합니다.",
+  "profileEditRecalcNotice": "생일, 시간, 성별, 출생지를 바꾸면 풀이를 다시 계산합니다.",
   "@profileEditRecalcNotice": {
     "description": "profile-edit.recalc.notice: 바꾸면 풀이를 다시 계산한다는 안내"
   },
@@ -796,7 +804,7 @@
   "@todayBarTitle": {
     "description": "today.bar.title: app-bar 제목(화면 이름 \"오늘\")"
   },
-  "todayEventSummary": "오늘 일정 {count}개 · {title}",
+  "todayEventSummary": "오늘 일정 {count}개, {title}",
   "@todayEventSummary": {
     "description": "today.event.summary: 오늘 일정 개수와 첫 일정",
     "placeholders": {
@@ -1644,7 +1652,7 @@
   "@datePickerDayLabel": {
     "description": "날짜·시간 휠의 스크린리더 이름"
   },
-  "timePickerMeridiemLabel": "오전·오후",
+  "timePickerMeridiemLabel": "오전 또는 오후",
   "@timePickerMeridiemLabel": {
     "description": "날짜·시간 휠의 스크린리더 이름"
   },
@@ -1676,10 +1684,6 @@
         "type": "String"
       }
     }
-  },
-  "purchaseMetaSeparator": " · ",
-  "@purchaseMetaSeparator": {
-    "description": "구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄"
   },
   "purchaseProductAdFreeMonth": "광고 제거 1개월",
   "@purchaseProductAdFreeMonth": {
