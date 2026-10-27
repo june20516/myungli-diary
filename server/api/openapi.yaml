@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.0.0
+  version: 1.1.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
