@@ -305,7 +305,7 @@ func (s *Service) Execute(ctx context.Context, accountID uuid.UUID, mergeToken s
 			return fmt.Errorf("합치기 영수증 저장: %w", err)
 		}
 		// B의 인증 계정·세션·rotation_state·consents·합치기 토큰(이번 토큰 포함) 등을 계정 삭제와 같이 지웁니다(D85 ④).
-		// 이번 토큰은 이미 쓴 것으로 표시했고 응답에 쓰지 않으므로 지워져도 됩니다. 같은 요청의 재전송은 멱등 기록이 답합니다.
+		// 이번 토큰은 이미 쓴 것으로 표시했고 응답에 쓰지 않으므로 지워져도 됩니다. 같은 요청의 재전송은 멱등 기록이나 합치기 영수증(S115)이 답합니다.
 		revocationIDs, err = account.DeleteAccountTx(ctx, tx, otherID, now)
 		if err != nil {
 			return fmt.Errorf("합친 계정 삭제: %w", err)

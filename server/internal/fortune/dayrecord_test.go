@@ -84,3 +84,17 @@ func TestViews_DayRecordDayKind(t *testing.T) {
 
 	assert.Equal(t, "yongsin_day", got.DayKind)
 }
+
+// 계약에 없는 날의 성격(UNSPECIFIED 등)은 엔진 계약 위반이라 DB에 닿기 전에 오류입니다.
+func TestViews_DayRecordUnknownDayKindIsError(t *testing.T) {
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		r := dailyResponse(true)
+		r.Kind = enginev1.DayKind_DAY_KIND_UNSPECIFIED
+		return r, nil
+	}}
+	fx := newViewsFixture(t, fake, viewSeed(t, ""), fakeInsight{})
+
+	_, err := fx.views.DayRecord(context.Background(), fx.account, viewProfile("ko"), viewDate)
+
+	require.ErrorContains(t, err, "날의 성격")
+}

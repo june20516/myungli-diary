@@ -1914,7 +1914,8 @@ func TestContract_1_1MergeResend(t *testing.T) {
 	op := operationByID(t, doc, "mergeAccounts")
 	for _, text := range []string{
 		"합치기가 끝난 토큰을 같은 유저 계정이 24시간 안에 다시 보내면",
-		"`Idempotency-Key`와 상관없이 다시 합치지 않고 200 `Me`",
+		"키 없이 보내거나 다른 키로 보내도 다시 합치지 않고 200 `Me`",
+		"같은 키에 본문(`profile`)이 다르면 422 `idempotency.mismatch`",
 	} {
 		if !strings.Contains(op.Description, text) {
 			t.Errorf("mergeAccounts 설명에 %q가 없음", text)

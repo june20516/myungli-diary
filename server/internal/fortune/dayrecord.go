@@ -3,6 +3,7 @@ package fortune
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/google/uuid"
 
@@ -29,14 +30,21 @@ type DayRecord struct {
 	DayKind string
 }
 
+// recordedDayKinds는 날짜 기록에 적을 수 있는 날의 성격입니다. 계약 DayKind와 migration 00018의 CHECK와 같습니다.
+var recordedDayKinds = []string{"gwiin_day", "yongsin_day", "gisin_day", "ordinary_day"}
+
 // DayRecord는 date의 그날 기록을 만듭니다. 오늘 화면 묶음(Daily)에서 뽑으므로 그날 선택 기록이 없으면 이때 남습니다.
-// 전체 태그나 대표 태그가 길흉 표에 없으면 엔진 계약 위반이라 오류입니다.
+// 전체 태그나 대표 태그가 길흉 표에 없거나 날의 성격이 계약 값이 아니면 엔진 계약 위반이라 오류입니다.
 func (v *Views) DayRecord(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate) (DayRecord, error) {
 	daily, err := v.Daily(ctx, accountID, p, date)
 	if err != nil {
 		return DayRecord{}, err
 	}
 	response := daily.Response
+	dayKind := dayKindValue(response.GetKind())
+	if !slices.Contains(recordedDayKinds, dayKind) {
+		return DayRecord{}, fmt.Errorf("엔진 날의 성격 %q를 모릅니다", response.GetKind())
+	}
 
 	allTags := make([]string, 0, len(response.GetAllTags()))
 	for _, key := range response.GetAllTags() {
@@ -64,6 +72,6 @@ func (v *Views) DayRecord(ctx context.Context, accountID uuid.UUID, p profile.Pr
 		Featured:       featured,
 		RulesetVersion: response.GetMeta().GetRulesetVersion(),
 		GuideQuestion:  guide,
-		DayKind:        dayKindValue(response.GetKind()),
+		DayKind:        dayKind,
 	}, nil
 }
