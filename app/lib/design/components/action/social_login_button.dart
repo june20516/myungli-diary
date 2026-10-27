@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/social_provider.dart';
 import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
@@ -10,23 +11,8 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
-/// 소셜 로그인 제공자(`social-login-button` `variants`).
-///
-/// 값의 순서는 명세의 기본 순서(`parts.stack.order.base`)입니다. 언어마다 맨 위에 올 제공자는
-/// 화면이 정합니다(`parts.stack.order.top`).
-enum SocialProvider {
-  /// 카카오 로그인.
-  kakao,
-
-  /// LINE으로 로그인.
-  line,
-
-  /// Google 계정으로 로그인.
-  google,
-
-  /// Apple로 로그인(iOS·Android 모두, Android는 웹 흐름).
-  apple,
-}
+/// `SocialProvider`는 플랫폼 계층이 소유하고, 기존 import가 그대로 동작하도록 다시 내보냅니다.
+export 'package:myungli_diary/core/platform/social_provider.dart';
 
 /// Google 버튼 테마 한 벌(Google Sign-In branding의 light·dark 테마).
 @immutable
