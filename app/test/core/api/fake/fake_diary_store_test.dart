@@ -126,6 +126,17 @@ void main() {
     expect(later.containsKey('dayKind'), isFalse);
   });
 
+  test('목록 요약에 날짜 기록의 dayKind가 붙고, 기록이 없는 날짜는 생략합니다 (D96)', () {
+    final store = _store(summaries: [_summary('a', '2026-10-12', '점심')]);
+    final created = store.create({'date': '2026-10-11', 'body': '새 일기'});
+    final byId = {
+      for (final item in _items(store.list()))
+        (item! as Map)['id']: item as Map<String, Object?>,
+    };
+    expect(byId[created['id']]!['dayKind'], 'yongsin_day');
+    expect(byId['a']!.containsKey('dayKind'), isFalse);
+  });
+
   test('새 일기는 시계가 멈춰 있어도 fixture의 같은 날 일기 뒤에 섭니다', () {
     final store = _store(summaries: [_summary('a', '2026-10-13', '먼저')]);
     final created = store.create({'date': '2026-10-13', 'body': '나중'});

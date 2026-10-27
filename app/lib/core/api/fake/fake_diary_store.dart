@@ -179,6 +179,9 @@ final class FakeDiaryStore {
       for (final diary in _diaries.values)
         if (tagKey == null || _allTags(diary).contains(tagKey))
           {
+            // 날짜 기록의 값입니다. 기록에 없으면(1.2.0 전 날짜) 생략합니다.
+            if (_dayRecords[diary['date']]?['dayKind'] != null)
+              'dayKind': _dayRecords[diary['date']]!['dayKind'],
             'id': diary['id'],
             'date': diary['date'],
             'createdAt': diary['createdAt'],

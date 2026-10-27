@@ -54,6 +54,7 @@
 
 ## 현재 상태 (2026-10-28, app 세션 갱신)
 * **계획 7 A1(화면, 대역) 완료**, 브랜치 `app/real-login-2`. spec [`docs/specs/2026-10-21-real-login-design.md`](docs/specs/2026-10-21-real-login-design.md), 계획 [`docs/plans/2026-10-22-real-login.md`](docs/plans/2026-10-22-real-login.md), 결정 A80~A85. 실제 SDK adapter와 네이티브 설정은 A2입니다.
+* **REST 1.2.0 따라잡기(drift #585, D96, A89):** `DiarySummary.dayKind`를 받아 `diary-row` 배지가 기록값을 먼저, 없으면 A46 달 길흉을 씁니다. 대역 목록 응답에도 날짜 기록의 `dayKind`를 붙였습니다.
   * **새 화면 두 개.** `login-methods`(설정 > 로그인 수단, D85 ③: 네 줄은 연결 여부에 따라 떼기 확인·붙이기, 연결 409는 `dialog` `notice`만이고 합치기로 넘어가지 않으며, 합치기 입구는 늘 보이고 돌아오면 목록을 다시 읽음)와 `account-merge`(D85 ④: 인증 → `previewMerge` 요약·프로필 고르기 → 확인 → `mergeAccounts`, `Idempotency-Key`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음). 합친 뒤에는 캐시·일기 초안을 지우고 계정 데이터 provider(`accountDataProviders`, `lib/app/entry/account_data_providers.dart`)를 다시 읽습니다. 응답 없음은 같은 토큰·본문·키로 한 번 다시 보내 200이면 합쳐진 것, 422 `merge.token_invalid`면 `errorMergeTokenInvalid`와 인증 단계입니다(S115). `ia_pending.dart`에서 세 화면이 빠졌습니다.
   * **경계.** `ProviderAuthenticator`(`lib/features/auth/application/`)가 제공자 하나로 인증해 `ProviderProof`를 돌려주고 로그인·붙이기·합치기 인증이 함께 씁니다. `AccountLinkRepository`(`lib/features/account/data/`)가 연결 목록·붙이기·떼기·합치기 요약·합치기를 맡습니다. 로그인 화면은 네 버튼(`loginProviderOrder`)입니다.
   * **바뀐 위치(layering 검사 때문).** `ProviderProof`는 `lib/features/auth/model/provider_proof.dart`, `loginProviderOrder`는 `lib/features/auth/model/login_provider_order.dart`입니다(계획·spec은 이에 맞춰 고침).
@@ -129,8 +130,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **drift #585(server PR #584, REST 1.2.0, D96):** 일기 목록 요약 `DiarySummary.dayKind`(선택)를 따라잡습니다. 생성 클라이언트를 받고, 대역 저장소 목록 응답에 날짜 기록의 `dayKind`를 붙이고, `diary-row` 배지를 A88과 같은 규칙(기록값 먼저, 없으면 A46)으로 바꿉니다. drift #504는 닫혔습니다.
-2. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
+1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
    * **Task 1 나머지:** `config/auth.json`과 `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`, README·`patrol_local.sh`·`app.yml`의 `--dart-define-from-file`.
    * **Task 2:** 패키지, 네이티브 설정, `tool/gen_native_config.dart`, CI `--check`.
    * **Task 4·5·6:** 실제 adapter(카카오, LINE, Google, Apple iOS·Android 웹).
@@ -141,13 +141,13 @@
    * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
    * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
    * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
-3. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. `ad-free`·`purchase-history` 제목도 `app/d85-d88`에서 반영했습니다(`test/contract/app_bar_title_contract_test.dart` 대조, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
-4. **계획 5(일기)에서 넘긴 것:**
+2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. `ad-free`·`purchase-history` 제목도 `app/d85-d88`에서 반영했습니다(`test/contract/app_bar_title_contract_test.dart` 대조, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
+3. **계획 5(일기)에서 넘긴 것:**
    * 연결 상태 provider가 생기면 달력·일기 목록 오프라인 배너를 그것으로 바꿉니다. 지금은 요청의 `OfflineError`로 판단합니다(`calendar_screen.dart`, 일기 목록은 `ScreenStateView`).
    * 지운 일기 아래 쌓인 `diary-view`(태그 모아보기에서 다시 열어 지운 경우)는 돌아가면 "일기를 찾지 못했어요" 안내만 보입니다. 쌓인 화면을 정리할지는 실제 사용을 보고 정합니다.
-5. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제, `repeat`·한자 `fontFallback`은 PR #269), 원전 인용 fixture는 writing 원고(W1-3)가 오면 채웁니다.
-6. **writing 대기 문구.** 대기 problem code는 없습니다. 화면이 문구를 맡는 code 2개(`merge.same_account`·`merge.no_account`)는 `problemMessages`가 아니라 `test/contract/problem_codes_contract_test.dart`의 `_screenMessages`로 대조합니다(A74, W42).
-7. **이후 계획으로 넘긴 사항**
+4. **원전 source fixture.** 근거 `source` 문장의 표시는 연결했고(A22 해제, `repeat`·한자 `fontFallback`은 PR #269), 원전 인용 fixture는 writing 원고(W1-3)가 오면 채웁니다.
+5. **writing 대기 문구.** 대기 problem code는 없습니다. 화면이 문구를 맡는 code 2개(`merge.same_account`·`merge.no_account`)는 `problemMessages`가 아니라 `test/contract/problem_codes_contract_test.dart`의 `_screenMessages`로 대조합니다(A74, W42).
+6. **이후 계획으로 넘긴 사항**
    * 계획 6에서 넘긴 사항(차트 근거 주제, `legal`의 GeoNames 고지, 로그아웃·계정 삭제의 `revokeAndSignOut`, `getProfile` 사본 채우기, 수정 모드 extra)은 모두 반영했습니다. `toBirth(deviceRegionIsKorea)`는 한국 기기면 도시가 남아 있어도 `not_asked`·`Asia/Seoul`입니다(D29). 해외 출생 한국 거주자는 `profile-edit`의 출생지 줄로 지정합니다.
    * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함, 위 2의 #347 ②). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. RevenueCat·Crashlytics adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 `flutter_web_auth_2`의 `CallbackActivity`로만 받으므로 라우터 가로채기는 만들지 않습니다(A80). 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
    * 계획 7(수익·알림, 실제 adapter):
@@ -156,6 +156,6 @@
      * **로그아웃 때 server 기기 등록 해제(`deleteDevice`)와 `push.deviceId` 삭제를 반드시 연결합니다**(`SignOutCleaner`, `_guard`로 감쌈). 지금은 로그아웃해도 기기 등록이 남아 이전 계정의 아침 알림이 이 기기로 계속 올 수 있습니다. 다른 사람이 같은 기기로 로그인하면 이전 계정의 운세가 알림으로 보이는 개인정보 문제라, 계획 7에서 실제 FCM을 붙일 때 함께 막습니다.
      * 스토어 앱 id(iOS App Store id, Android 스토어 URL)를 `force-update`의 스토어 열기에 연결합니다.
      * `social-login-button` 공식 자산 확인: Apple 로고 라이선스 검토, 카카오 심볼 색은 design V46으로 `#191919`, 카카오 버튼 ja 문구는 writing W22 원고("Login with Kakao")로 정해졌습니다.
-8. **출시 전(I4) 확인:** 실기기에서 iOS 백업 제외(설정 > iCloud > 저장 공간에 DB가 잡히지 않는지)와 기기 이전 뒤 로그아웃 상태로 시작하는지 확인합니다(기반은 빌드·단위 테스트까지만 확인).
+7. **출시 전(I4) 확인:** 실기기에서 iOS 백업 제외(설정 > iCloud > 저장 공간에 DB가 잡히지 않는지)와 기기 이전 뒤 로그아웃 상태로 시작하는지 확인합니다(기반은 빌드·단위 테스트까지만 확인).
    * 글꼴 31M를 release 빌드 다운로드 크기로 보고 subset 여부 재판단. Pretendard 업스트림 저작권 고지(Inter·Source Han Sans·M PLUS 1p `NOTICE.txt`)가 법적으로 충분한지 라이선스 검토. Apple 로고 라이선스 검토도 출시 전에 마칩니다.
-9. 받은 요청은 `gh issue list --label to:app`으로 확인합니다. 기반 PR 때 design에 보내는 notice(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘 선택, 컴포넌트 변형 등)의 답도 확인합니다.
+8. 받은 요청은 `gh issue list --label to:app`으로 확인합니다. 기반 PR 때 design에 보내는 notice(아이콘 패키지 `phosphor_glyphs`, 탭 아이콘 선택, 컴포넌트 변형 등)의 답도 확인합니다.

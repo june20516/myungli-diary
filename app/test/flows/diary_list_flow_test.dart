@@ -33,6 +33,9 @@ final class _Network extends Interceptor {
   bool offline = false;
   bool emptyDiaries = false;
 
+  /// true면 달 길흉(`/v1/calendar/...`)만 연결 오류로 끊습니다.
+  bool failCalendar = false;
+
   /// 하루 범위(`from`==`to`) 일기 목록을 날짜마다 물은 횟수.
   final dayQueries = <String, int>{};
 
@@ -41,6 +44,16 @@ final class _Network extends Interceptor {
     if (offline) {
       handler.reject(
         DioException.connectionError(requestOptions: options, reason: '오프라인'),
+        true,
+      );
+      return;
+    }
+    if (failCalendar && options.path.startsWith('/v1/calendar/')) {
+      handler.reject(
+        DioException.connectionError(
+          requestOptions: options,
+          reason: '달 길흉 실패',
+        ),
         true,
       );
       return;
@@ -121,6 +134,61 @@ void main() {
     expect(first.tag!.name, '천을귀인');
     expect(first.tag!.variant, TagChipVariant.good);
     expect(tester.widget<DiaryRow>(find.byType(DiaryRow).last).isLast, isTrue);
+  });
+
+  testWidgets('배지는 쓸 때 기록한 성격이 먼저, 기록이 없는 일기만 달 길흉 (A89, D96)', (tester) async {
+    // 대역은 쓸 때 daily의 성격(용신일)을 기록하고, 달 길흉에서 2026-10-11은 기신일입니다.
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    await tester.runAsync(
+      () => container
+          .read(dioProvider)
+          .post<Map<String, Object?>>(
+            '/v1/diaries',
+            data: {'date': '2026-10-11', 'body': '기록한 성격 확인'},
+          ),
+    );
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    DiaryRow rowOn(CalendarDate date) => tester
+        .widgetList<DiaryRow>(find.byType(DiaryRow))
+        .firstWhere((row) => row.date == date);
+    final recorded = rowOn(CalendarDate(2026, 10, 11));
+    expect(recorded.characterLabel, _ko.dayKindYongsinDay);
+    expect(recorded.characterPending, isFalse);
+    // 기록이 없는 시드 일기는 달 길흉 캐시를 씁니다.
+    expect(
+      rowOn(CalendarDate(2026, 10, 12)).characterLabel,
+      _ko.dayKindGwiinDay,
+    );
+  });
+
+  testWidgets('달 길흉을 받지 못해도 기록한 성격이 있는 일기는 배지를 그립니다 (A89)', (tester) async {
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    await tester.runAsync(
+      () => container
+          .read(dioProvider)
+          .post<Map<String, Object?>>(
+            '/v1/diaries',
+            data: {'date': '2026-10-11', 'body': '기록한 성격 확인'},
+          ),
+    );
+    network.failCalendar = true;
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    final rows = tester.widgetList<DiaryRow>(find.byType(DiaryRow));
+    final recorded = rows.firstWhere(
+      (row) => row.date == CalendarDate(2026, 10, 11),
+    );
+    expect(recorded.characterLabel, _ko.dayKindYongsinDay);
+    expect(recorded.characterPending, isFalse);
   });
 
   testWidgets('줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary', (tester) async {

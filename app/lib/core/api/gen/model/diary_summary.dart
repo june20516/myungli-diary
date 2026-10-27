@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/tag.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -28,6 +29,8 @@ class DiarySummary {
     required this.excerpt,
 
     required this.featuredTags,
+
+    this.dayKind,
   });
 
   @JsonKey(name: r'id', required: true, includeIfNull: false)
@@ -46,6 +49,9 @@ class DiarySummary {
   @JsonKey(name: r'featuredTags', required: true, includeIfNull: false)
   final List<Tag> featuredTags;
 
+  @JsonKey(name: r'dayKind', required: false, includeIfNull: false)
+  final DayKind? dayKind;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -54,7 +60,8 @@ class DiarySummary {
           other.date == date &&
           other.createdAt == createdAt &&
           other.excerpt == excerpt &&
-          other.featuredTags == featuredTags;
+          other.featuredTags == featuredTags &&
+          other.dayKind == dayKind;
 
   @override
   int get hashCode =>
@@ -62,7 +69,8 @@ class DiarySummary {
       date.hashCode +
       createdAt.hashCode +
       excerpt.hashCode +
-      featuredTags.hashCode;
+      featuredTags.hashCode +
+      dayKind.hashCode;
 
   factory DiarySummary.fromJson(Map<String, dynamic> json) =>
       _$DiarySummaryFromJson(json);

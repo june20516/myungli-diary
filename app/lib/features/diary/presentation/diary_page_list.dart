@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/diary_entry_data.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
@@ -169,18 +170,34 @@ class DiaryDayRow extends ConsumerWidget {
     }
     final l10n = AppLocalizations.of(context);
     final date = CalendarDate.parse(summaries.first.date);
-    final day = ref.watch(calendarDayProvider(date));
-    final kind = day.value?.dayKind;
+    // 날짜 기록 값이라 같은 날 일기 모두에 같습니다. 첫 값을 씁니다.
+    final recorded = summaries.map((summary) => summary.dayKind).nonNulls;
+    final badge = _watchDayBadge(ref, date, recorded.firstOrNull);
+    final kind = badge.kind;
     return DiaryDayGroup(
       date: date,
       entries: diaryEntriesDataOf(context, summaries),
       character: kind == null ? null : dayCharacterVariantOf(kind),
       characterLabel: kind == null ? null : dayKindName(l10n, kind),
-      characterPending: day.isLoading && !day.hasValue,
+      characterPending: badge.pending,
       tag: _featuredTagChip(context, ref, summaries.first, listTag),
       isLast: isLast,
     );
   }
+}
+
+/// 일기 줄 배지의 그날 성격(`kind`)과 받는 중 여부(`pending`).
+typedef _DayBadge = ({DayKind? kind, bool pending});
+
+/// 줄 배지의 그날 성격을 정합니다(A89, D96). 일기에 기록된 [recorded]가 먼저이고, 없는
+/// 일기(REST 1.2.0 전 날짜 기록)만 달 길흉 캐시(A46)를 씁니다. 기록값이 있으면 달 길흉을
+/// 읽지도 기다리지도 않아 받지 못해도 배지를 그립니다.
+_DayBadge _watchDayBadge(WidgetRef ref, CalendarDate date, DayKind? recorded) {
+  if (recorded != null) {
+    return (kind: recorded, pending: false);
+  }
+  final day = ref.watch(calendarDayProvider(date));
+  return (kind: day.value?.dayKind, pending: day.isLoading && !day.hasValue);
 }
 
 /// [summary]의 대표 태그 칩(없으면 null). [listTag]와 같은 태그는 누를 수 없는 표시입니다.
@@ -202,7 +219,7 @@ TagChip? _featuredTagChip(
   );
 }
 
-/// 일기 한 편의 줄: 그날 성격 배지(달 길흉 캐시, A46)와 대표 태그 칩을 채운 `diary-row`.
+/// 일기 한 편의 줄: 그날 성격 배지(기록값 먼저, 없으면 달 길흉 캐시, A89)와 대표 태그 칩을 채운 `diary-row`.
 ///
 /// 일기 목록·태그 모아보기가 같은 날 한 편일 때 씁니다. 누르면 그 일기의 `diary-view`(A67)이고,
 /// 대표 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([listTag])와 같은 칩은 같은
@@ -229,14 +246,14 @@ class DiarySummaryRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final date = CalendarDate.parse(summary.date);
-    final day = ref.watch(calendarDayProvider(date));
-    final kind = day.value?.dayKind;
+    final badge = _watchDayBadge(ref, date, summary.dayKind);
+    final kind = badge.kind;
     return DiaryRow(
       date: date,
       excerpt: summary.excerpt,
       character: kind == null ? null : dayCharacterVariantOf(kind),
       characterLabel: kind == null ? null : dayKindName(l10n, kind),
-      characterPending: day.isLoading && !day.hasValue,
+      characterPending: badge.pending,
       tag: _featuredTagChip(context, ref, summary, listTag),
       isLast: isLast,
       onTap: () => pushDiaryView(context, summary.id),
