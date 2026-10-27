@@ -285,10 +285,7 @@ func toDiary(e diary.Entry) (gen.Diary, error) {
 			Featured: featuredTags(c, e),
 		},
 		UpdatedAt: e.UpdatedAt,
-	}
-	if e.DayKind != "" {
-		kind := gen.DayKind(e.DayKind)
-		out.DayKind = &kind
+		DayKind:   optionalDayKind(e.DayKind),
 	}
 	if c.err != nil {
 		return gen.Diary{}, c.err
@@ -296,12 +293,13 @@ func toDiary(e diary.Entry) (gen.Diary, error) {
 	return out, nil
 }
 
-// toDiarySummary는 목록의 일기 한 편을 요약으로 옮깁니다.
+// toDiarySummary는 목록의 일기 한 편을 요약으로 옮깁니다. 그날 성격 기록이 없으면 그 필드를 생략합니다(D96).
 func toDiarySummary(e diary.Entry) (gen.DiarySummary, error) {
 	c := &converter{}
 	out := gen.DiarySummary{
 		CreatedAt:    e.CreatedAt,
 		Date:         contractDate(e.Date),
+		DayKind:      optionalDayKind(e.DayKind),
 		Excerpt:      excerpt(e.Body),
 		FeaturedTags: featuredTags(c, e),
 		Id:           e.ID,
@@ -310,6 +308,15 @@ func toDiarySummary(e diary.Entry) (gen.DiarySummary, error) {
 		return gen.DiarySummary{}, c.err
 	}
 	return out, nil
+}
+
+// optionalDayKind는 날짜 기록의 그날 성격을 계약 값으로 옮기고, 기록이 없으면 nil을 돌려줍니다.
+func optionalDayKind(kind string) *gen.DayKind {
+	if kind == "" {
+		return nil
+	}
+	out := gen.DayKind(kind)
+	return &out
 }
 
 // featuredTags는 대표 태그를 계약 Tag로 옮깁니다. 길흉이 계약 값이 아니면 c에 오류를 남깁니다(저장된 값이 깨진 경우).
