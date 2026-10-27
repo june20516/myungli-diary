@@ -31,6 +31,7 @@ Future<void> _pumpLogin(
   required Locale locale,
   required List<SocialProvider> pressed,
   Completer<LoginOutcome>? gate,
+  double textScale = 1.0,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -41,6 +42,11 @@ Future<void> _pumpLogin(
       ],
       child: MaterialApp(
         locale: locale,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
         theme: buildTheme(brightness: Brightness.light, locale: locale),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -70,37 +76,63 @@ List<SocialProvider> _shownOrder(WidgetTester tester) {
 }
 
 void main() {
-  testWidgets('네 버튼이 앱 언어 순서대로 같은 크기', (tester) async {
-    final expected = {
-      const Locale('ko'): [
-        SocialProvider.kakao,
-        SocialProvider.line,
-        SocialProvider.google,
-        SocialProvider.apple,
-      ],
-      const Locale('ja'): [
-        SocialProvider.line,
-        SocialProvider.kakao,
-        SocialProvider.google,
-        SocialProvider.apple,
-      ],
-      const Locale('en'): [
-        SocialProvider.google,
-        SocialProvider.kakao,
-        SocialProvider.line,
-        SocialProvider.apple,
-      ],
-    };
-    for (final entry in expected.entries) {
-      await _pumpLogin(tester, locale: entry.key, pressed: []);
-      expect(_shownOrder(tester), entry.value, reason: '${entry.key}');
+  final orders = {
+    'ko': [
+      SocialProvider.kakao,
+      SocialProvider.line,
+      SocialProvider.google,
+      SocialProvider.apple,
+    ],
+    'ja': [
+      SocialProvider.line,
+      SocialProvider.kakao,
+      SocialProvider.google,
+      SocialProvider.apple,
+    ],
+    'en': [
+      SocialProvider.google,
+      SocialProvider.kakao,
+      SocialProvider.line,
+      SocialProvider.apple,
+    ],
+  };
+  for (final entry in orders.entries) {
+    testWidgets('${entry.key}: 네 버튼이 앱 언어 순서대로 같은 크기', (tester) async {
+      await _pumpLogin(tester, locale: Locale(entry.key), pressed: []);
+      expect(_shownOrder(tester), entry.value);
       final sizes = {
         for (final provider in SocialProvider.values)
           tester.getSize(_button(provider)),
       };
-      expect(sizes, hasLength(1), reason: '${entry.key} 버튼 크기');
-    }
-  });
+      expect(sizes, hasLength(1));
+    });
+  }
+
+  for (final entry in orders.entries) {
+    testWidgets('${entry.key}: 320x568, 글자 배율 2.0, 오류 안내가 있어도 넘치지 않음', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await _pumpLogin(
+        tester,
+        locale: Locale(entry.key),
+        pressed: [],
+        textScale: 2,
+      );
+      // 취소로 끝나 오류 안내를 띄웁니다.
+      await tester.ensureVisible(_button(SocialProvider.apple));
+      await tester.tap(_button(SocialProvider.apple));
+      await tester.pumpAndSettle();
+      expect(find.byKey(loginErrorKey), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      for (final provider in SocialProvider.values) {
+        await tester.ensureVisible(_button(provider));
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('한 버튼이 처리 중이면 나머지 셋이 꺼짐', (tester) async {
     final gate = Completer<LoginOutcome>();
