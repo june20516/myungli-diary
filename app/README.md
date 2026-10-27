@@ -68,6 +68,8 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `profile-name-invalid` | 미리보기 없이 로그인한 새 계정(`new-user-signin`과 같음). 첫 프로필 저장(createProfile)이 422 name.emoji(필드 `/honorific`)이고 두 번째에 저장됩니다. 호칭 칸 오류 줄을 확인합니다 |
   | `login-entry-unavailable` | 처음 설치한 사용자. 로그인은 성공하지만 직후 내 정보(getMe)가 한 번 503 service.unavailable이라 진입 계산이 실패합니다(login 화면 안내와 다시 시도). 두 번째부터는 약관 동의가 필요한 새 계정입니다 |
   | `member-time-unknown` | 로그인한 회원. 오늘(getDaily)과 나의 사주(getChart) 응답에 time_unknown notice가 있어 오늘·나의 사주·사주 표에 시간 모름 배너가 보이고, 사주 표의 시주가 빈 칸입니다 |
+  | `merge-token-invalid` | 로그인한 회원. 계정 합치기 확정(mergeAccounts)이 422 `merge.token_invalid`라 토큰 만료 안내와 인증 단계로 돌아가는 흐름을 확인합니다. 연결 목록은 처음 카카오 하나이고, 붙이기·떼기·합치기 인증은 `member`의 대역 규칙(Google 붙이기 409, 마지막 떼기 409, 연결된 제공자와 Apple 합치기 인증 422)을 따릅니다 |
+  | `merge-in-progress` | 로그인한 회원. 계정 합치기 확정(mergeAccounts)이 처음 한 번 409 `idempotency.in_progress`이고 같은 키로 다시 보내면 합쳐집니다 |
   | `calendar-error` | 로그인한 회원. 달력(getCalendar)이 503이라 달력 격자를 불러오지 못합니다 |
   | `schedule-save-error` | 로그인한 회원. 일정 만들기(createSchedule)와 고치기(updateSchedule)가 503이라 저장하지 못합니다 |
   | `daily-error` | 로그인한 회원. 오늘(getDaily)이 503 service.unavailable이라 오늘 화면의 오류 상태와 다시 시도를 확인합니다 |

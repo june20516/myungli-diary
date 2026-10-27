@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/api_route.dart';
 import 'package:myungli_diary/core/api/fake/fake_diary_store.dart';
+import 'package:myungli_diary/core/api/fake/fake_identity_store.dart';
 import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/api/fake/fake_schedule_store.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
@@ -94,6 +95,7 @@ final class FakeServerInterceptor extends Interceptor {
     final stored =
         await _answerFromScheduleStore(route, path, options, fixture) ??
         await _answerFromDiaryStore(route, path, options, fixture) ??
+        await _answerFromIdentityStore(route, path, options, fixture) ??
         await _answerFromProfile(route, options, fixture);
     _respond(
       options,
@@ -286,6 +288,76 @@ final class FakeServerInterceptor extends Interceptor {
     problem.detail,
     errors: problem.errors,
   );
+
+  FakeIdentityStore? _identityStore;
+
+  /// 로그인 수단 연결 operation이면 대역 연결 목록으로 답합니다. 그 밖의 operation이면 null입니다.
+  ///
+  /// 시나리오에 `listIdentities` 파일(200)이 없으면 null이라 fixture 규칙을 따릅니다.
+  /// `listIdentities` 파일이 200이면 처음 목록이고, 그 밖의 status면 파일이 답합니다.
+  /// `linkIdentity`·`unlinkIdentity` 파일이 있으면 파일이 우선입니다. `previewMerge`는
+  /// 연결 목록으로 인증을 가린 뒤, 통과하면 시나리오 `previewMerge` 파일이 요약을 답합니다.
+  /// `mergeAccounts`는 파일이 답합니다.
+  Future<_Fixture?> _answerFromIdentityStore(
+    ApiRoute route,
+    String path,
+    RequestOptions options,
+    _Fixture? fixture,
+  ) async {
+    final operationId = route.operationId;
+    if (!_identityOperations.contains(operationId)) {
+      return null;
+    }
+    final fileWins = operationId == 'listIdentities'
+        ? fixture != null && fixture.status != 200
+        : operationId == 'previewMerge'
+        ? fixture == null || fixture.status != 200
+        : fixture != null;
+    if (fileWins) {
+      return null;
+    }
+    final store = _identityStore ??= await _loadIdentityStore();
+    if (store == null) {
+      return null;
+    }
+    try {
+      switch (operationId) {
+        case 'listIdentities':
+          return _ok(200, store.list());
+        case 'linkIdentity':
+          final (created, list) = store.link(
+            route.pathParametersOf(path)!['provider']!,
+          );
+          return _ok(created ? 201 : 200, list);
+        case 'unlinkIdentity':
+          store.unlink(route.pathParametersOf(path)!['provider']!);
+          return const _Fixture(status: 204, headers: {}, body: null);
+        default:
+          store.checkMergeable('${decodeJsonObject(options.data)['provider']}');
+          return null;
+      }
+    } on FakeProblem catch (problem) {
+      return _problemOf(problem);
+    }
+  }
+
+  /// 시나리오 `listIdentities` 파일의 첫 응답이 200이면 그 `items`로 시작합니다. 아니면 null.
+  Future<FakeIdentityStore?> _loadIdentityStore() async {
+    final found = await findFixtureSource(const ['listIdentities.json']);
+    final first = found == null
+        ? null
+        : _parseFixture(found.source, found.key).first;
+    final body = first?.status == 200 ? first!.body : null;
+    final items = body is Map<String, Object?> ? body['items'] : null;
+    if (items is! List<Object?>) {
+      return null;
+    }
+    final clock = noonClockOn(scenario.today, scenario.timezone);
+    return FakeIdentityStore(
+      seed: [for (final item in items) Map<String, Object?>.from(item! as Map)],
+      nowUtc: clock.nowUtc,
+    );
+  }
 
   /// 마지막으로 저장한 프로필(`Profile` JSON). 처음 저장 전에는 null입니다.
   Map<String, Object?>? _profile;
@@ -496,6 +568,14 @@ const _diaryOperations = {
   'getDiary',
   'updateDiary',
   'deleteDiary',
+};
+
+/// 대역 연결 목록이 답하는 operation.
+const _identityOperations = {
+  'listIdentities',
+  'linkIdentity',
+  'unlinkIdentity',
+  'previewMerge',
 };
 
 /// `ProfilePatch`의 필드. 대역 프로필 저장이 이 필드만 덮습니다.

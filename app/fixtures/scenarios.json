@@ -401,5 +401,23 @@
     "network": "online",
     "signedIn": true,
     "description": "광고 제거권이 활성인 회원(2026-11-12T03:00Z 만료, 한국 시각 11월 12일 정오). 설정의 광고 제거 줄에 만료 날짜가 보입니다."
+  },
+  {
+    "id": "merge-token-invalid",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 계정 합치기 확정(mergeAccounts)이 422 merge.token_invalid라 합치기 토큰 만료 안내와 인증 단계로 돌아가는 흐름을 확인합니다."
+  },
+  {
+    "id": "merge-in-progress",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 계정 합치기 확정(mergeAccounts)이 처음 한 번 409 idempotency.in_progress이고 같은 키로 다시 보내면 합쳐집니다."
   }
 ]

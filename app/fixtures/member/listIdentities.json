@@ -1,0 +1,6 @@
+{
+  "status": 200,
+  "body": {
+    "items": [{ "provider": "kakao", "linkedAt": "2026-10-01T00:00:00Z" }]
+  }
+}

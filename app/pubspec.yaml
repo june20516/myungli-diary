@@ -163,6 +163,8 @@ flutter:
     - fixtures/login-entry-unavailable/
     - fixtures/member-time-unknown/
     - fixtures/member-overseas/
+    - fixtures/merge-token-invalid/
+    - fixtures/merge-in-progress/
     - fixtures/ad-free-active/
     - fixtures/daily-error/
     - fixtures/diary-written/
