@@ -52,8 +52,11 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-10-23, app 세션 갱신)
-* **D85·D88·D90 ③·REST 1.0.0 따라잡기 완료**, 브랜치 `app/d85-d88`(PR 전). spec [`docs/specs/2026-10-23-d85-d88-design.md`](docs/specs/2026-10-23-d85-d88-design.md), 계획 [`docs/plans/2026-10-23-d85-d88.md`](docs/plans/2026-10-23-d85-d88.md), 결정 A73~A79. drift #504, #518(REST draft.15), #484, #493을 한 PR에 담습니다.
+## 현재 상태 (2026-10-27, app 세션 갱신)
+* **#453 조사 `josaClass`(D84) 완료**, 브랜치 `app/josa-class`. `lib/core/l10n/josa_class.dart`의 `josaClass(shown)`이 `'final'`·`'rieul'`·`'none'`·`'other'`를 돌려줍니다(결정 A86). 부르는 쪽은 화면에 보이는 문자열 그대로 넘깁니다: `l10n.eventDueNotice(title, josaClass(title))`. 테스트 `test/core/josa_class_test.dart`가 `rules/josa.yaml`의 `examples`를 `select` 가지 표로 펼쳐 맞춥니다. NFC는 `unorm_dart`. 아직 조사 `select`가 든 ARB 키는 없고, writing이 키마다 알려 오면 부르는 곳에 붙입니다.
+* D95(#563): LINE·Google 제공자 허가는 떼기·계정 삭제·합치기 어디서도 취소하지 않습니다. 계획 7 spec §5.6과 계획의 `ProviderRevoker`·허가 취소 단계는 A1 브랜치 첫 commit에서 지웁니다.
+* 아래는 2026-10-23까지의 상태입니다.
+* **D85·D88·D90 ③·REST 1.0.0 따라잡기 완료**이고 PR #554로 main에 병합됐습니다(2026-10-24), 브랜치 `app/d85-d88`. spec [`docs/specs/2026-10-23-d85-d88-design.md`](docs/specs/2026-10-23-d85-d88-design.md), 계획 [`docs/plans/2026-10-23-d85-d88.md`](docs/plans/2026-10-23-d85-d88.md), 결정 A73~A79. drift #504(그때까지의 원인), #518(REST draft.15), #484, #493을 함께 담았습니다.
   * **REST 1.0.0(freeze, S114) 생성 클라이언트.** `Me`·`LoginResponse`에서 삭제 대기 필드가 없어졌고, 열린 enum `PurchaseStatus`·`Language`·`SlotText.reaction`·`YongsinMethod`를 견딥니다(A78: `Language` 모르는 값은 `Language.en`, 반응 모르는 값은 반응 없음). 같은 날 일기도 `nextCursor`를 끝까지 받습니다.
   * **계정 삭제(D85 ⑤, A73):** `deleteMe` 204 뒤 로컬 로그아웃만, 401도 같게 처리. 진입 계산의 삭제 대기 갈래를 지웠습니다.
   * **화면 문구 problem code(A74):** `merge.same_account`·`merge.no_account`는 `problem_codes_contract_test`의 `_screenMessages`(화면 키 `accountMergeNotOtherBodySelf`·`…None`), `merge.token_invalid`는 `problemMessages`의 `errorMergeTokenInvalid`.
@@ -116,13 +119,14 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-1. **#453 조사 `josaClass`(D84, writing 호칭·조사 규칙 v1.2):** ui ARB 조사를 `josaClass`로 구현합니다. `app/d85-d88` PR이 병합된 뒤 main에서 새 브랜치로 시작합니다. 열린 drift가 생기면 그보다 먼저 맞춥니다.
+1. **drift #504:** 원인 IA #557은 #563(D95)이 되돌려 app이 고칠 것은 없습니다. 다음 app PR 본문에 `참고 #504`를 적으면 main 검사 통과 뒤 `drift-close`가 닫습니다.
 2. **계획 7(#311·#387·#484):** 개정된 [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md)대로, 루트 D91 진행 순서를 따릅니다.
-   * **A1(화면, 대역):** 제공자 인증 경계·대역 → 로그인 네 버튼 → `AccountLinkRepository`와 대역 서버 → `login-methods`(연결 409는 `dialog` `notice`만, 합치기 입구) → `account-merge` 두 단계(`previewMerge` → 확인 → `mergeAccounts`, `Idempotency-Key`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음, 합친 뒤 캐시·일기 초안 지움) → 흐름·Patrol. 끝나면 `ia_pending.dart`가 빕니다. 컴포넌트(`social-login-button`·`account-choice`)와 문구는 이미 있습니다.
-   * **A2(실제 연동):** 카카오·LINE·Google·Apple adapter, `config/auth.json`과 네이티브 설정, 실제 SDK revoker(`SdkProviderRevoker`)만. 허가 취소를 부르는 자리(합친 뒤·계정 삭제 전·떼기 전)는 A1에서 대역 `ProviderRevoker`로 연결합니다(떼기·삭제 때 사실상 생략되는 점은 #553 답 대기, 합친 뒤 판정은 #552 답 대기). Android App Link(#311 ③ release 지문은 Play 계정 뒤), `local` server REST 연동. 외부 준비물은 `docs/external-prep.md`.
+   * **A1 첫 commit:** D95를 spec §5.6·§9·§12·§16과 계획 Task 3·8·9·11·12에 반영합니다(`ProviderRevoker`·`FakeProviderRevoker`·`SdkProviderRevoker`, 합치기 `keepSession`, 계정 삭제 전 취소 제거).
+   * **A1(화면, 대역):** #418 원고(PR #474로 가져옴)를 쓰는 화면도 여기서 만들고, #387 PR로 #418을 함께 닫습니다. 제공자 인증 경계·대역 → 로그인 네 버튼 → `AccountLinkRepository`와 대역 서버 → `login-methods`(연결 409는 `dialog` `notice`만, 합치기 입구) → `account-merge` 두 단계(`previewMerge` → 확인 → `mergeAccounts`, `Idempotency-Key`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음, 합친 뒤 캐시·일기 초안 지움) → 흐름·Patrol. 끝나면 `ia_pending.dart`가 빕니다. 컴포넌트(`social-login-button`·`account-choice`)와 문구는 이미 있습니다.
+   * **A2(실제 연동):** 카카오·LINE·Google·Apple adapter, `config/auth.json`과 네이티브 설정, LINE·Google 허가 취소는 하지 않습니다(D95, `ProviderRevoker` 없음). 합친 뒤 판정은 #552 답 대기, Google nonce 재사용은 #555 답 대기. Android App Link(#311 ③ release 지문은 Play 계정 뒤), `local` server REST 연동. 외부 준비물은 `docs/external-prep.md`.
    * **수익 쪽(spec §14, A2):** RevenueCat adapter에서 `Purchases.sync()` 실제 구현과 iOS sandbox에서 Apple ID 로그인 창이 뜨는지 확인(뜨면 지휘에 알림, #493), `Purchases.products()` 시간 한계, 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS` 배선, 보상형 광고·공유 실제 adapter.
    * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
-   * **답을 기다리는 것:** #546(긴 대시·가운뎃점 금지, writing 원고 ARB 17개 정리. 원고가 오면 가져옴), #548(구매 버튼 원고. IA 슬롯 `ad-free.buy.cta`는 #549로 생김. 원고가 오면 `adFreeBuyCta` 임시 키를 바꾸고 `_allowedTemporaryKeys`에서 지움), #418(D82·D83 원고), writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
+   * **답을 기다리는 것:** #546(긴 대시·가운뎃점 금지, writing 원고 ARB 17개 정리. 원고가 오면 가져옴), #548(구매 버튼 원고. IA 슬롯 `ad-free.buy.cta`는 #549로 생김. 원고가 오면 `adFreeBuyCta` 임시 키를 바꾸고 `_allowedTemporaryKeys`에서 지움), writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
    * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
 3. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. `ad-free`·`purchase-history` 제목도 `app/d85-d88`에서 반영했습니다(`test/contract/app_bar_title_contract_test.dart` 대조, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
 4. **계획 5(일기)에서 넘긴 것:**
