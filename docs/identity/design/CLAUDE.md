@@ -30,7 +30,10 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-23, design 세션 작성)
+## 현재 상태 (2026-10-27, design 세션 작성)
+* **구매 줄 두 줄·광고 제거 새 슬롯 #564·#548** (브랜치 `design/purchase-meta-564`, W44, 컴포넌트 계약 3.1.0).
+  * `purchase-row` `meta`: 구매일 줄 아래 `space.2`에 사용 기간 줄, 구분자 `join`(`purchaseMetaSeparator`) 삭제, `loading` bone 세 줄(결정 V47). 글자 수는 키마다 한 줄이라 `ui.purchase.meta` 상한 그대로.
+  * `offer-card` `buy` → `ad-free.buy.cta`, `period` → `ad-free.offer.period`. 카드 안 버튼(구매, 구매 내역)은 240px 행으로 따로 잼(`ad-free.history.cta` 23·19·42 → 20·16·35), 기간 고지는 280px 한 줄. `lengths.md` 상한 없음 표의 겹친 윤달 표지 행 정리.
 * **계정 합치기 두 단계·구매 내역 #480·#483·#494·#475** (브랜치 `design/catchup-480-d85-d88`, D85·D88, 컴포넌트 계약 3.0.0).
   * `account-merge` 한 화면 두 단계(인증 → 가져올 기록·구매 상자 + `account-choice` + 합치기 버튼), "합치지 않기" 없이 뒤로 가기. `account-choice`는 프로필 고르기(`facts`·`diaryCount`·`providers` 삭제, `other` 알약 추가). `login-methods`에 합치기 입구, 연결 안 함 안내는 `dialog` `notice`(V44).
   * `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(상품 이름 → 구매일·사용 기간, 상태 오른쪽, V45, 지휘 #502로 상품 이름 추가).
@@ -103,11 +106,11 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리.
-   * 대기: writing #509 원고가 오면 글자 수를 원고와 견줍니다. 지휘 #507은 PR #511로 반영돼 drift #480으로 따라잡았습니다.
+1. **#546 design 몫(D93·W44):** `today.json`·`today.md` `lucky-card` 시간 칸 형식 `HH:mm–HH:mm`과 ` · ` 잇기. app은 `HH:mm~HH:mm`과 쉼표 잇기로 바꿨지만, W44(한 줄에 값을 구분 글자로 잇지 않음)와 겹쳐 여러 구간을 줄로 나눌지 사용자 확인이 필요합니다.
+2. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리. writing #509 원고는 PR #510으로 왔습니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-2. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
-3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-5. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+3. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
+4. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+5. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+6. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

@@ -298,6 +298,9 @@ def test_offer_card_states():
     assert "restore" not in offer["parts"]
     assert offer["parts"]["history"] == {"component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta"}
     assert "history" not in offer["states"]["offline"]["parts"]
+    # #548: 구매 버튼과 기간 고지를 IA 슬롯에 걸음
+    assert offer["parts"]["buy"]["slot"] == "ad-free.buy.cta"
+    assert offer["parts"]["period"]["slot"] == "ad-free.offer.period"
     assert any("구매 내역 버튼은 상태와 관계없이 늘 보인다" in rule for rule in offer["rules"])
     assert offer["haptic"] == [{"when": "구매 완료", "strength": "light"}]
 
@@ -436,7 +439,7 @@ def test_actions_are_rounded_rectangles():
 
 
 def test_contract_version_is_3_0():
-    assert VERSION == "3.0.0"
+    assert VERSION == "3.1.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1054,7 +1057,7 @@ def test_purchase_row_slots_are_split_by_limit():
     parts = component("action", "purchase-row")["parts"]
     assert parts["status"]["slot"] == "ui.purchase.status" and parts["status"]["key"] == "purchaseStatus*"
     assert parts["status"]["maxWidth"] == {"value": 80, "unit": "px"}
-    assert parts["meta"]["slot"] == "ui.purchase.meta" and parts["meta"]["join"] == {"key": "purchaseMetaSeparator"}
+    assert parts["meta"]["slot"] == "ui.purchase.meta"
 
 
 def test_readme_index_lists_3_0_components():
@@ -1074,3 +1077,11 @@ def test_account_merge_failure_and_back_rules():
 def test_missing_notice_scope():
     section = _md_section("action.md", "### purchase-history 화면 배치")
     assert "`loading`·`error`·`offline`에서는" in section
+
+
+def test_purchase_row_meta_has_no_separator():
+    # W44·#564: 구매일과 사용 기간을 구분 글자로 잇지 않고 두 줄로 나눔 (결정 V47)
+    meta = components_by_id(("action",))["purchase-row"]["parts"]["meta"]
+    assert "join" not in meta and "purchaseMetaSeparator" not in json.dumps(meta)
+    assert meta["layout"] == "lines"
+    assert meta["period"]["marginTop"] == "{space.2}"

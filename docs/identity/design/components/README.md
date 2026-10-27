@@ -1,6 +1,6 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 3.0.0 · 토큰 계약 1.2.0 이상을 기대합니다.
+컴포넌트 계약 3.1.0 · 토큰 계약 1.2.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), [로그인 수단·계정 합치기 spec](../specs/2026-10-22-login-methods-account-merge-design.md), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md), [계정 합치기·구매 내역 spec](../specs/2026-10-23-account-merge-purchase-design.md), 결정 V13~V46([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v4([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
@@ -86,6 +86,7 @@ IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 2.7.0 | 2026-10-22 | D82·D83(#389): `social-login-button` `line`·`google` 변형과 언어별 순서(`parts.stack.order`)·`connected`(V39), `account-choice` 새 컴포넌트와 `account-merge` 배치(V40), 두 버튼 `dialog` 첫 초점 삭제(V41, #354 ②), `day-cell` 윤달 표지 슬롯(#260), `diary-row` 쓰는 화면에 today·day-sheet(D83). 추가와 값 변경 |
 | 2.8.0 | 2026-10-22 | D83(#410): `diary-row` 변형 `day`(같은 날 묶음 카드)·`entries`(오늘·그날 시트)와 `entry` 줄·점선(V42), `guide-question-card` 상태 `full`과 `date-picker` `calendar` 상한 규칙(V43), 토큰 1.2.0 이상 기대(`color.timeline.entry`), writing 키 이름 채움(`loginMethodsRowConnected`·`accountChoiceProviderSeparator`, #441), 그날 시트 일기 입구를 머리(`entries.head`) + 줄로 바꾸고 `depth-link` `navigate`의 `label.daySheetSlot` 삭제(V37 개정). 추가와 값 변경 |
 | 3.0.0 | 2026-10-23 | D85·D88(#480·#483·#494): `account-choice` 쓰임 바뀜(프로필 고르기, 부품 `facts`·`diaryCount`·`providers` 삭제, `other` 추가), `account-merge` 두 단계와 `login-methods` 합치기 입구(V44), `offer-card` `restore` → `history`, `purchase-row` 새 컴포넌트(V45), #475 값(카카오 배지 `#191919`, LINE 글자 198px, `entry` 꺾쇠 앞 `space.8`, 시각 24시간제 `HH:mm`, V46). 부품 삭제라 major |
+| 3.1.0 | 2026-10-27 | W44·#564: `purchase-row` `meta`는 구매일 줄과 사용 기간 줄 두 줄(사이 `space.2`)이고 구분자 `join`(`purchaseMetaSeparator`)을 지움(V47). #548: `offer-card` `buy`·`period`에 IA 슬롯 `ad-free.buy.cta`·`ad-free.offer.period`. 하위 필드 삭제와 슬롯 추가(app은 #569로 이미 구분자를 지움) |
 
 ## 검사 (design)
 

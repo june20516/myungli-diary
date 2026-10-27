@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
+  "version": "3.1.0",
   "group": "action",
   "components": [
     {
@@ -132,10 +132,10 @@
         "icon": { "name": "sparkle", "weight": "light", "size": { "value": 28, "unit": "px" }, "color": "{color.action.primary}" },
         "head": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "ad-free.offer.head", "marginTop": "{space.12}" },
         "price": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "ad-free.offer.price", "marginTop": "{space.16}", "fontFeatures": ["tnum"] },
-        "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "note": "1개월, 자동 갱신 아님" },
+        "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "ad-free.offer.period", "note": "기간과 자동 결제 없음 고지(#548)" },
         "status": { "element": "tag.status", "slot": "ad-free.status.remaining" },
         "remaining": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
-        "buy": { "component": "primary-button", "variant": "filled", "marginTop": "{space.20}" },
+        "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.20}" },
         "history": { "component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta" },
         "legal": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slot": "ad-free.legal.notice", "marginTop": "{space.12}" }
       },
@@ -146,7 +146,7 @@
         "offline": { "parts": { "buy": { "state": "disabled" } }, "note": "화면 위 notice-banner offline. 구매 내역 버튼은 누를 수 있음(purchase-history가 자기 offline 상태를 가짐)" }
       },
       "haptic": [{ "when": "구매 완료", "strength": "light" }],
-      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 '자동 갱신 아님'을 함께 읽음" },
+      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 기간 고지(ad-free.offer.period)를 함께 읽음" },
       "rules": [
         "가격·기간·자동 갱신 아님 고지는 구매 버튼보다 위에, 같은 카드 안에서 보인다.",
         "이용 중에는 구매 버튼 대신 남은 기간을 보이고, 만료되면 available로 돌아간다.",
@@ -217,24 +217,24 @@
           ],
           "marginTop": "{space.4}",
           "slot": "ui.purchase.meta",
+          "layout": "lines",
+          "note": "구매일 줄 아래 사용 기간 줄. 한 줄에 구분 글자로 잇지 않는다(W44, 결정 V47)",
           "purchased": {
             "key": "purchaseMetaPurchased",
             "date": "app이 기기 locale의 짧은 날짜 형식으로 만듦"
           },
           "period": {
             "key": "purchaseMetaPeriod",
+            "marginTop": "{space.2}",
             "source": "server가 준 사용 구간(시작·끝) 그대로"
           },
-          "periodOnlyWhen": "server가 사용 기간을 준 상품(기간권·구독). 없으면 구매일만",
-          "join": {
-            "key": "purchaseMetaSeparator"
-          }
+          "periodOnlyWhen": "server가 사용 기간을 준 상품(기간권·구독). 없으면 구매일 줄만"
         }
       },
       "states": {
         "loading": {
           "component": "skeleton",
-          "note": "줄 세 개 자리(상품 이름 줄 + meta 줄 bone)"
+          "note": "bone 세 줄(상품 이름 줄 + 구매일 줄 + 사용 기간 줄)"
         }
       },
       "a11y": {

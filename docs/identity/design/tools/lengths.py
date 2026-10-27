@@ -110,8 +110,8 @@ TARGETS = (
             "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save",
             # D82 account-merge 아래 버튼 (#389)
             "account-merge.cta.merge",
-            # D85·D88 계정 합치기 입구, 구매 내역 버튼(ad-free.restore.cta 대신) (#480). 합치지 않기 버튼은 IA에서 빠짐(PR #511)
-            "login-methods.merge.cta", "ad-free.history.cta"),
+            # D85 계정 합치기 입구 (#480). 합치지 않기 버튼은 IA에서 빠짐(PR #511)
+            "login-methods.merge.cta"),
            "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
     # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15
     Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15)",
@@ -189,9 +189,13 @@ TARGETS = (
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 4, 2, True, None),
     # 상태 꼬리표 최대 폭 80(purchase-row status.maxWidth)에서 좌우 8
     Target(("ui.purchase.status",), "purchase-row 상태 낱말 (꼬리표 최대 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
-    # meta 줄(구매일 · 사용 기간, 날짜 매개변수 포함)은 상품 이름 아래 카드 안 폭 전체를 씀(안쪽 16 양쪽)
-    Target(("ui.purchase.meta",), "purchase-row 구매일·사용 기간 줄 (카드 안쪽 16)",
+    # meta는 구매일 줄과 사용 기간 줄 두 줄이고(W44, 결정 V47), 줄마다 상품 이름 아래 카드 안 폭 전체를 씀(안쪽 16 양쪽)
+    Target(("ui.purchase.meta",), "purchase-row 구매일 줄, 사용 기간 줄 (키마다 한 줄, 카드 안쪽 16)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16, 1, False, None),
+    # offer-card 안 버튼: 카드 안쪽 20 안에서 primary-button 좌우 20 (#548, 구매 내역 버튼은 화면 폭 행에서 옮김)
+    Target(("ad-free.buy.cta", "ad-free.history.cta"), "offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20)",
+           "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20 - 2 * 20, 1, False, None),
+    Target(("ad-free.offer.period",), "offer-card 기간 고지 (카드 안쪽 20)", "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 20, 1, False, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
