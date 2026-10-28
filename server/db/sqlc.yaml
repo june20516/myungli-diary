@@ -132,3 +132,13 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/device.sql
+    gen:
+      go:
+        package: devicedb
+        out: ../internal/device/devicedb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
