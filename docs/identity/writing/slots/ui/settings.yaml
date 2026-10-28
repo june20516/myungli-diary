@@ -79,7 +79,7 @@
   user_state: "정보 수정 화면에 들어왔습니다."
   structure: "한 문장. 무엇을 바꾸면 다시 계산하는지."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 62, en: 104, ja: 46}
   keys:
     - profileEditRecalcNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}

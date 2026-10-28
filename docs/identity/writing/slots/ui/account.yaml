@@ -388,7 +388,7 @@
   where: "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)"
   purpose: info
   user_state: "두 계정의 사주 정보를 견줍니다."
-  structure: "달력 이름(calendar, `calendarSolar`·`calendarLunar`), 생일(app이 짧은 서식으로 넣는 date), 태어난 시각(time) 순서입니다. 시각을 모르면 `NoTime`, 사주 정보가 없는 계정은 `Empty`."
+  structure: "달력 이름(calendar, `calendarSolar`·`calendarLunar`), 생일(app이 짧은 서식으로 넣는 date), 태어난 시각(time) 순서입니다. 시각을 모르면 `NoTime`, 사주 정보가 없는 계정은 `Empty`. 음력 윤달이면 달력 이름 바로 뒤, 날짜 앞에 윤달 낱말(`dayCellLeapMonth`와 같은 표기)을 둔 `Leap` 키를 씁니다(design V48)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 43, ja: 18}
   components: [account-choice]
@@ -397,12 +397,19 @@
       keys: [accountChoiceSaju]
     - params: {date: text, calendar: text}
       keys: [accountChoiceSajuNoTime]
+    - params: {date: text, calendar: text, time: text}
+      keys: [accountChoiceSajuLeap]
+    - params: {date: text, calendar: text}
+      keys: [accountChoiceSajuNoTimeLeap]
     - accountChoiceSajuEmpty
+  select: "Birth.isLeapMonth와 시각 유무 → 키. 윤달이 아니면 accountChoiceSaju·accountChoiceSajuNoTime, 윤달이면 accountChoiceSajuLeap·accountChoiceSajuNoTimeLeap, 사주 정보가 없으면 accountChoiceSajuEmpty(#587, W46)"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: accountChoiceSaju, text: "{calendar} {date} {time}", why: "라운드 R13 선택", source: writing}
       - {lang: ko, key: accountChoiceSajuNoTime, text: "{calendar} {date} 시각 모름", why: "라운드 R13 선택", source: writing}
+      - {lang: ko, key: accountChoiceSajuLeap, text: "{calendar} 윤달 {date} {time}", why: "design V48 자리, 낱말은 dayCellLeapMonth(W46)", source: writing}
+      - {lang: ko, key: accountChoiceSajuNoTimeLeap, text: "{calendar} 윤달 {date} 시각 모름", why: "design V48 자리, 낱말은 dayCellLeapMonth(W46)", source: writing}
       - {lang: ko, key: accountChoiceSajuEmpty, text: "사주 정보 없음", why: "라운드 R13 선택", source: writing}
     bad:
       - {lang: ko, text: "사주 여정을 아직 시작하지 않았어요", why: "R13-3 대조군, 과한 추상화(slop.P1)", source: writing}
