@@ -420,5 +420,8 @@
   "errorMergeTokenInvalid": "We couldn't continue the merge. Verify the account you're bringing in again.",
   "adFreeBuyCta": "Buy",
   "adFreeOfferPeriod": "1 month, no automatic charge",
-  "forceUpdateNoticeBodyConsent": "You need to update to see the new terms."
+  "forceUpdateNoticeBodyConsent": "You need to update to see the new terms.",
+  "systemPushChannelMorning": "Today's reading alerts",
+  "accountChoiceSajuLeap": "{calendar} leap month {date} {time}",
+  "accountChoiceSajuNoTimeLeap": "{calendar} leap month {date}, time unknown"
 }

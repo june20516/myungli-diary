@@ -1549,4 +1549,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forceUpdateNoticeBodyConsent =>
       'You need to update to see the new terms.';
+
+  @override
+  String get systemPushChannelMorning => 'Today\'s reading alerts';
+
+  @override
+  String accountChoiceSajuLeap(String date, String calendar, String time) {
+    return '$calendar leap month $date $time';
+  }
+
+  @override
+  String accountChoiceSajuNoTimeLeap(String date, String calendar) {
+    return '$calendar leap month $date, time unknown';
+  }
 }

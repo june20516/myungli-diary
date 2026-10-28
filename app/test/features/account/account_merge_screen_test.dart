@@ -20,6 +20,7 @@ import 'package:myungli_diary/core/api/gen/model/merge_profile.dart';
 import 'package:myungli_diary/core/api/gen/model/merge_profile_summary.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -494,6 +495,57 @@ void main() {
       expect(options[0].saju, isNot(_ko.accountChoiceSajuEmpty));
       expect(options[0].saju, startsWith(_ko.calendarSolar));
       expect(options[0].saju, contains('1990'));
+    });
+
+    testWidgets('음력 윤달 생일은 달력 종류 뒤에 윤달 낱말이 붙는 틀입니다(V48, W46)', (tester) async {
+      Birth lunar({required bool leap, required BirthTime time}) => Birth(
+        calendar: CalendarType.lunar,
+        date: LunarOrSolarDate(year: 1990, month: 6, day: 15),
+        isLeapMonth: leap,
+        time: time,
+        gender: BirthGenderEnum.female,
+        timezone: 'Asia/Seoul',
+        place: BirthPlace(status: BirthPlaceStatusEnum.notAsked),
+      );
+      final api = FakeIdentityApi()
+        ..preview = mergePreview(
+          current: MergeProfileSummary(
+            status: MergeProfileSummaryStatusEnum.saved,
+            honorific: '하늘',
+            birth: lunar(
+              leap: true,
+              time: BirthTime(
+                status: BirthTimeStatusEnum.known,
+                value: '08:30',
+              ),
+            ),
+          ),
+          other: MergeProfileSummary(
+            status: MergeProfileSummaryStatusEnum.saved,
+            honorific: '바다',
+            birth: lunar(
+              leap: true,
+              time: BirthTime(status: BirthTimeStatusEnum.unknown),
+            ),
+          ),
+        );
+      await _pump(tester, api: api);
+      await _authenticate(tester);
+      final options = _choice(tester).options;
+      final date = formatBirthDay('ko', 1990, 6, 15);
+      expect(
+        options[0].saju,
+        _ko.accountChoiceSajuLeap(
+          date,
+          _ko.calendarLunar,
+          formatBirthClock('ko', '08:30'),
+        ),
+      );
+      expect(
+        options[1].saju,
+        _ko.accountChoiceSajuNoTimeLeap(date, _ko.calendarLunar),
+      );
+      expect(options[0].saju, startsWith('${_ko.calendarLunar} 윤달 '));
     });
   });
 
