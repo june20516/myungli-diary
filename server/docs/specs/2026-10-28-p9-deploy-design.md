@@ -39,6 +39,8 @@ Terraform `>= 1.9`와 google provider 버전을 고정하고 `.terraform.lock.hc
 | Secret Manager | §5의 틀만 만듦(버전 없음) |
 
 * **엔진 호출 경로:** server와 Job은 private ranges만 VPC로 보내고, 비공개 DNS가 `run.app`을 Google API 대역으로 풀어 그 요청만 VPC를 거칩니다. 그래서 엔진의 internal ingress를 통과하고, 외부 호출(카카오, Apple, RevenueCat, FCM)은 그대로 인터넷으로 나가 Cloud NAT가 필요 없습니다(Cloud Run 문서 "Private networking", Private Google Access와 DNS 방식). 엔진은 IAM 인증도 요구하고 `ENGINE_AUDIENCE`는 엔진 서비스 URL입니다.
+* **env와 Secret 연결:** Terraform은 server 서비스와 Job에 env·Secret을 두지 않고(`ignore_changes`), 값을 출력(`server_env`, `secret_ids`)만 합니다. 값이 없는 Secret을 연결하면 revision이 뜨지 않아 첫 apply가 실패하고, 설정 변경이 준비 확인 없이 새 revision을 만들기 때문입니다. 배포 workflow가 준비를 확인한 뒤 이미지와 함께 `--env-vars-file`·`--set-secrets`로 붙입니다. Secret 값을 바꾸면 다음 배포 때 새 revision이 새 값을 읽습니다.
+* **Scheduler:** `retention-daily`는 멈춘 채 만들고(`paused`, 이후 Terraform은 무시), 첫 server 배포 때 workflow가 다시 켭니다.
 * **이미지:** Terraform은 Cloud Run 서비스·Job의 이미지를 `lifecycle.ignore_changes`로 두고 배포 workflow가 이미지를 바꿉니다. 배포 순서를 workflow가 지키기 위해서입니다. 처음 만들 때 server와 Job은 공개 placeholder(`us-docker.pkg.dev/cloudrun/container/hello`)를 쓰고, 엔진은 h2c·gRPC probe 때문에 placeholder로 뜨지 않으므로 `deploy-engine`이 먼저 push한 `myungli/engine:current`를 씁니다. Artifact Registry가 bootstrap에 있는 이유입니다.
 
 ## 4. 서비스 계정과 권한
@@ -46,12 +48,12 @@ Terraform `>= 1.9`와 google provider 버전을 고정하고 `.terraform.lock.hc
 | 계정 | 만드는 곳 | 권한 |
 | --- | --- | --- |
 | `deployer` | bootstrap | env 자원을 만들고 바꾸는 역할(Cloud Run admin, Cloud SQL admin, Artifact Registry writer, Secret Manager admin, Scheduler admin, Compute network admin, DNS admin, IAM 서비스 계정 admin, 프로젝트 IAM admin, Firebase Hosting admin), 실행 계정에 대한 `iam.serviceAccountUser`, state bucket 쓰기 |
-| `planner` | bootstrap | `roles/viewer`, `roles/iam.securityReviewer`, `roles/secretmanager.viewer`, state bucket 읽기 |
+| `planner` | bootstrap | env 자원의 서비스별 읽기 역할(run, cloudsql, compute network, dns, scheduler, secretmanager, 서비스 계정)과 `roles/iam.securityReviewer`, state bucket 읽기. PR 브랜치 코드가 쓰므로 로그를 읽는 `roles/viewer`는 주지 않음 |
 | `server-runtime` | env | Secret 읽기(§5 Secret만), `cloudsql.client`, `cloudsql.instanceUser`, 엔진 `run.invoker`, `firebasecloudmessaging.admin`(P8-4 발송) |
 | `engine-runtime` | env | 없음 |
 | `scheduler-invoker` | env | `server-retention` Job의 `run.invoker`(Job 실행) |
 
-WIF provider는 이 저장소(`june20516/myungli-diary`)의 토큰만 받습니다. `deployer`는 GitHub environment가 `staging` 또는 `prod`인 토큰만, `planner`는 같은 저장소의 `pull_request` 토큰만 쓸 수 있습니다. environment가 붙은 job의 OIDC `sub`에는 ref가 없으므로, main 전용 조건은 두 environment의 "Deployment branches"를 `main`으로 제한해 맡깁니다(사용자 준비 §8).
+WIF provider는 이 저장소(`june20516/myungli-diary`)의 토큰만 받습니다. `deployer`는 environment와 ref를 묶은 속성(`attribute.env_ref`)이 `staging@refs/heads/main` 또는 `prod@refs/heads/main`인 토큰만, `planner`는 같은 저장소의 `pull_request` 토큰만 쓸 수 있습니다. 두 environment의 "Deployment branches"를 `main`으로 제한하는 것은 이중 장치입니다(사용자 준비 §8).
 
 ## 5. 설정과 Secret
 
@@ -87,7 +89,8 @@ Secret id는 환경 변수 이름 그대로입니다. Cloud Run은 Secret을 `la
   6. `server-retention` 이미지 갱신
   7. Firebase Hosting 배포(`firebase deploy --only hosting --project <id>`, `server/deploy/firebase`)
 * `prod`: `staging` 성공 뒤 environment `prod`(필수 승인자). 같은 순서, prod 이미지는 태그 없이 빌드.
-* `concurrency`: 환경마다 하나(`deploy-<env>`), 진행 중인 것을 취소하지 않습니다.
+* apply 전에 `engine:current`가 없으면(deploy-engine 전) 요약을 남기고 끝냅니다(실패 아님).
+* `concurrency`: workflow·환경마다 하나(`deploy-server-<env>`, `deploy-engine-<env>`), 진행 중인 것을 취소하지 않습니다. 두 workflow가 한 group을 쓰면 대기 job이 서로를 밀어내므로 나눕니다.
 
 ### 7.2 `deploy-engine.yml`
 
@@ -113,7 +116,11 @@ Secret id는 환경 변수 이름 그대로입니다. Cloud Run은 Secret을 `la
 
 * CI: `terraform fmt`·`validate`, `actionlint`(이 PR에서 server CI에 더함).
 * Go: Cloud SQL 연결 설정 선택(`CLOUD_SQL_INSTANCE` 유무)과 `ENGINE_AUDIENCE` 필수 검사를 단위 테스트로.
-* 실제 GCP 동작은 staging 첫 배포에서 확인합니다: 엔진 비공개 DNS 경로와 h2c·probe, Cloud SQL IAM 연결, S117 확인 항목 셋.
+* 실제 GCP 동작은 staging 첫 배포에서 확인합니다: 엔진 비공개 DNS 경로와 h2c·probe, Cloud SQL IAM 연결(첫 connector 연결이 `connectTimeout` 5초 안인지 포함), S117 확인 항목 셋.
+
+## 12. 남긴 위험
+
+* `server-runtime` 하나가 serve와 migration을 함께 맡아 `cloudsqlsuperuser`를 가집니다. 인터넷에 열린 serve가 DDL 권한을 갖는 셈이라, 출시 전에 migration 전용 `server-migrator`(migrate·seed Job)와 DML 권한만 가진 실행 역할로 나눕니다. 테이블 주인이 굳기 전, staging 첫 배포 뒤 바로 하는 것이 쌉니다.
 
 ## 11. 결정
 

@@ -33,7 +33,7 @@
 **Files:** Modify `internal/platform/postgres/postgres.go`, `postgres_test.go`, `internal/platform/config/config.go`, `config_test.go`, `internal/cli/cli.go`, `serve.go`, `retention.go`, `go.mod`
 
 **Interfaces:**
-- Produces: `config.Config.CloudSQLInstance string`(`CLOUD_SQL_INSTANCE`), `type postgres.Dialer interface { Dial(ctx context.Context, instance string) (net.Conn, error) }`, `func postgres.OpenWithDialer(ctx context.Context, url, instance string, d Dialer) (*pgxpool.Pool, error)`, `func postgres.OpenCloudSQL(ctx context.Context, url, instance string) (*pgxpool.Pool, error)`(IAM 인증 `cloudsqlconn` dialer를 만들어 OpenWithDialer, 풀이 닫힐 때 dialer도 닫음), cli의 `openDatabase(ctx, cfg config.Config) (*pgxpool.Pool, error)`
+- Produces: `config.Config.CloudSQLInstance string`(`CLOUD_SQL_INSTANCE`), `type postgres.DialFunc func(ctx context.Context, instance string) (net.Conn, error)`, `func postgres.OpenWithDialer(ctx context.Context, url, instance string, dial DialFunc) (*pgxpool.Pool, error)`, `func postgres.OpenCloudSQL(ctx context.Context, url, instance string) (*pgxpool.Pool, func() error, error)`(IAM 인증 `cloudsqlconn` dialer, 돌려준 close로 dialer를 닫음), cli의 `openDatabase(ctx, cfg config.Config) (*pgxpool.Pool, func(), error)`(풀과 dialer를 닫는 함수)
 - `config.LoadEngine`은 `APP_ENV`가 비어 있지 않고 `local`이 아니면 `ENGINE_AUDIENCE`를 요구합니다.
 
 - [ ] Step 1: 테스트 — `TestOpenWithDialer_DialsInstance`(가짜 dialer가 실제 테스트 DB로 TCP 연결을 이어 주고, 받은 instance 이름이 같음), `TestLoadEngine_RequiresAudienceOutsideLocal`(`APP_ENV=prod`, audience 없음 → `ENGINE_AUDIENCE` 오류), `TestLoadEngine_LocalAllowsNoAudience`, `TestLoad_ReadsCloudSQLInstance`

@@ -1,5 +1,6 @@
 # 환경 하나에 server를 배포합니다(deploy-server.yml이 부름, spec §7.1).
-# 순서: Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job 이미지 → Firebase Hosting.
+# 순서: 엔진 이미지 확인 → Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job → Scheduler → Firebase Hosting.
+# env와 Secret 연결은 Terraform이 두지 않고, 준비를 확인한 뒤 이미지와 함께 여기서 붙입니다(S121).
 name: deploy-server-env
 
 on:
@@ -33,10 +34,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    # 같은 환경의 배포(엔진 포함)는 하나씩, 진행 중인 것을 취소하지 않습니다.
+    # 같은 환경의 server 배포는 하나씩, 진행 중인 것을 취소하지 않습니다. 엔진 배포는 group이 달라 서로 대기 job을 밀어내지 않습니다.
     concurrency:
-      group: deploy-${{ inputs.environment }}
+      group: deploy-server-${{ inputs.environment }}
       cancel-in-progress: false
+    env:
+      PROJECT: ${{ inputs.project_id }}
     steps:
       - uses: actions/checkout@v7
       - uses: google-github-actions/auth@v3
@@ -49,23 +52,38 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
 
+      # Terraform은 엔진 서비스를 engine:current로 만들므로, deploy-engine이 아직 push하지 않았으면 여기서 멈춥니다(실패 아님).
+      - name: 엔진 이미지 확인
+        id: engine
+        run: |
+          if gcloud artifacts docker images describe "${REGION}-docker.pkg.dev/${PROJECT}/myungli/engine:current" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "### 배포 건너뜀 (${{ inputs.environment }}): engine:current가 없습니다. deploy-engine을 먼저 실행하세요." >> "$GITHUB_STEP_SUMMARY"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: terraform apply
+        if: steps.engine.outputs.exists == 'true'
         working-directory: server/deploy/terraform/env
         run: |
-          terraform init -input=false -backend-config="bucket=${{ inputs.project_id }}-tfstate"
+          terraform init -input=false -backend-config="bucket=${PROJECT}-tfstate"
           terraform apply -input=false -auto-approve -var-file="${{ inputs.environment }}.tfvars"
 
       # 필수 설정이나 Secret 값이 비어 있으면 server가 시작하지 못하므로 server 배포를 건너뜁니다(인프라는 이미 적용됨).
       - name: 설정과 Secret 확인
+        if: steps.engine.outputs.exists == 'true'
         id: ready
         working-directory: server/deploy/terraform/env
         run: |
           missing="$(terraform output -json missing_server_settings | jq -r '.[]')"
+          secrets=""
           for secret in $(terraform output -json secret_ids | jq -r '.[]'); do
-            version="$(gcloud secrets versions list "$secret" --project "${{ inputs.project_id }}" --filter=state=enabled --limit=1 --format='value(name)')"
+            version="$(gcloud secrets versions list "$secret" --project "$PROJECT" --filter='state:ENABLED' --limit=1 --format='value(name)')"
             if [ -z "$version" ]; then
               missing="$missing"$'\n'"secret:$secret"
             fi
+            secrets="${secrets:+$secrets,}${secret}=${secret}:latest"
           done
           missing="$(echo "$missing" | sed '/^$/d')"
           if [ -n "$missing" ]; then
@@ -75,15 +93,20 @@ jobs:
               while IFS= read -r name; do echo "* $name"; done <<< "$missing"
             } >> "$GITHUB_STEP_SUMMARY"
             echo "ready=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          # 쉼표가 든 값(ANDROID_CERT_SHA256 등)이 있어 env는 YAML 파일로 넘깁니다.
+          terraform output -json server_env | jq -r 'to_entries[] | "\(.key): \(.value | @json)"' > "$RUNNER_TEMP/server-env.yaml"
+          {
+            echo "ready=true"
+            echo "secrets=$secrets"
+          } >> "$GITHUB_OUTPUT"
 
       - name: 이미지 빌드와 push
         if: steps.ready.outputs.ready == 'true'
         id: image
         run: |
-          image="${REGION}-docker.pkg.dev/${{ inputs.project_id }}/myungli/server:${GITHUB_SHA}"
+          image="${REGION}-docker.pkg.dev/${PROJECT}/myungli/server:${GITHUB_SHA}"
           gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
           docker build \
             --build-arg GO_VERSION="$(cd server && go list -m -f '{{.GoVersion}}')" \
@@ -96,24 +119,35 @@ jobs:
       - name: migrate
         if: steps.ready.outputs.ready == 'true'
         run: |
-          gcloud run jobs update server-migrate --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
-          gcloud run jobs execute server-migrate --wait --region "$REGION" --project "${{ inputs.project_id }}"
+          gcloud run jobs update server-migrate --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+          gcloud run jobs execute server-migrate --wait --region "$REGION" --project "$PROJECT"
 
       - name: seed
         if: steps.ready.outputs.ready == 'true'
         run: |
-          gcloud run jobs update server-seed --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
-          gcloud run jobs execute server-seed --wait --region "$REGION" --project "${{ inputs.project_id }}"
+          gcloud run jobs update server-seed --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+          gcloud run jobs execute server-seed --wait --region "$REGION" --project "$PROJECT"
 
       - name: server 배포
         if: steps.ready.outputs.ready == 'true'
-        run: gcloud run services update server --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+        run: |
+          gcloud run services update server --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
 
-      - name: Job 이미지 갱신
+      - name: retention Job과 Scheduler
         if: steps.ready.outputs.ready == 'true'
-        run: gcloud run jobs update server-retention --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+        run: |
+          gcloud run jobs update server-retention --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+          gcloud scheduler jobs resume retention-daily --location "$REGION" --project "$PROJECT"
 
       - name: Firebase Hosting
         if: steps.ready.outputs.ready == 'true'
         working-directory: server/deploy/firebase
-        run: npx --yes firebase-tools@14 deploy --only hosting --project "${{ inputs.project_id }}" --non-interactive
+        run: npx --yes firebase-tools@14 deploy --only hosting --project "$PROJECT" --non-interactive

@@ -43,6 +43,9 @@ resource "google_cloud_run_v2_service_iam_member" "engine_invoker" {
   member   = "serviceAccount:${google_service_account.server.email}"
 }
 
+# env와 Secret 연결은 Terraform이 두지 않습니다. 값이 없는 Secret을 연결하면 revision이 뜨지 않아 apply가 실패하고,
+# 설정 변경이 준비 확인 없이 새 revision을 만들기 때문입니다. 배포 workflow가 준비를 확인한 뒤 이미지와 함께
+# Terraform 출력(server_env, secret_ids)으로 붙입니다(S121).
 resource "google_cloud_run_v2_service" "server" {
   name                = "server"
   location            = var.region
@@ -63,35 +66,12 @@ resource "google_cloud_run_v2_service" "server" {
 
     containers {
       image = local.placeholder_image
-
-      dynamic "env" {
-        for_each = local.server_env
-        content {
-          name  = env.key
-          value = env.value
-        }
-      }
-
-      dynamic "env" {
-        for_each = google_secret_manager_secret.server
-        content {
-          name = env.key
-          value_source {
-            secret_key_ref {
-              secret  = env.value.secret_id
-              version = "latest"
-            }
-          }
-        }
-      }
     }
   }
 
   lifecycle {
-    ignore_changes = [template[0].containers[0].image, client, client_version]
+    ignore_changes = [template[0].containers[0].image, template[0].containers[0].env, client, client_version]
   }
-
-  depends_on = [google_secret_manager_secret_iam_member.server, google_sql_user.server]
 }
 
 resource "google_cloud_run_v2_service_iam_member" "server_public" {

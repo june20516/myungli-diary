@@ -6,11 +6,13 @@ resource "google_cloud_run_v2_job_iam_member" "scheduler_retention" {
 }
 
 # 하루 1번 보관 기간 정리(S120). 엔진 배포 직후와 겹치지 않는 새벽 시각입니다.
+# 실제 이미지와 설정이 붙기 전에는 placeholder가 끝나지 않으므로 멈춘 채 만들고, 배포 workflow가 첫 server 배포 뒤 다시 켭니다.
 resource "google_cloud_scheduler_job" "retention" {
   name      = "retention-daily"
   region    = var.region
   schedule  = "30 4 * * *"
   time_zone = "Asia/Seoul"
+  paused    = true
 
   http_target {
     http_method = "POST"
@@ -20,5 +22,9 @@ resource "google_cloud_scheduler_job" "retention" {
       service_account_email = google_service_account.scheduler.email
       scope                 = "https://www.googleapis.com/auth/cloud-platform"
     }
+  }
+
+  lifecycle {
+    ignore_changes = [paused]
   }
 }

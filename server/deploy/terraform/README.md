@@ -24,8 +24,8 @@
 | `GCP_PLANNER_STAGING`, `GCP_PLANNER_PROD` | `planner_email` |
 | `DEPLOY_ENABLED` | `true` (두 프로젝트 bootstrap과 아래 준비가 끝난 뒤) |
 
-6. GitHub environment `staging`, `prod`를 만들고, 둘 다 "Deployment branches"를 `main`으로 제한합니다. prod에는 필수 승인자를 둡니다. WIF는 environment 값으로 `deployer`를 묶으므로 이 제한이 main 전용 조건을 맡습니다.
-7. Secret 값을 넣습니다. Secret 틀은 첫 `deploy-server` 실행(env apply)이 만들고, server 배포는 값이 들어올 때까지 건너뜁니다.
+6. GitHub environment `staging`, `prod`를 만들고, 둘 다 "Deployment branches"를 `main`으로 제한합니다. prod에는 필수 승인자를 둡니다. WIF도 environment와 main ref를 함께 보지만 이 제한은 이중 장치입니다.
+7. Secret 값을 넣습니다. Secret 틀은 첫 `deploy-server` 실행(env apply)이 만들고, server 배포는 값이 들어올 때까지 건너뜁니다. Secret 값을 바꾼 뒤에는 `deploy-server`를 다시 돌려야 새 revision이 새 값을 읽습니다.
 
 ```sh
 printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프로젝트> --data-file=-
@@ -35,7 +35,7 @@ Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `AP
 
 ## 첫 배포 순서
 
-bootstrap → `deploy-engine`(`workflow_dispatch`, 엔진 이미지 `engine:current` push) → `deploy-server`(env apply가 엔진 서비스를 만들고 server를 배포).
+bootstrap → `deploy-engine`(`workflow_dispatch`, 엔진 이미지 `engine:current` push) → `deploy-server`(env apply가 엔진 서비스를 만들고 server를 배포). `engine:current`가 없으면 `deploy-server`는 요약만 남기고 끝납니다. Scheduler `retention-daily`는 첫 server 배포 때 켜집니다.
 
 ## 로컬 검사
 

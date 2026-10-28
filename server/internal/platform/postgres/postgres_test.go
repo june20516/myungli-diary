@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/url"
 	"strings"
@@ -110,4 +111,21 @@ func TestOpenWithDialer_DialsInstance(t *testing.T) {
 	if len(dialer.instances) == 0 || dialer.instances[0] != "p:asia-northeast3:myungli-pg" {
 		t.Errorf("dialer instances = %v", dialer.instances)
 	}
+}
+
+// 배포의 DATABASE_URL은 host 없는 keyword 형식(user=… dbname=… sslmode=disable)입니다. 그 모양도 dialer로 붙습니다.
+func TestOpenWithDialer_KeywordDSNWithoutHost(t *testing.T) {
+	parsed, err := url.Parse(dbtest.NewURL(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	password, _ := parsed.User.Password()
+	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", parsed.User.Username(), password, strings.TrimPrefix(parsed.Path, "/"))
+	dialer := &tcpDialer{addr: parsed.Host}
+
+	pool, err := postgres.OpenWithDialer(context.Background(), dsn, "p:asia-northeast3:myungli-pg", dialer.Dial)
+	if err != nil {
+		t.Fatalf("OpenWithDialer() error = %v", err)
+	}
+	pool.Close()
 }

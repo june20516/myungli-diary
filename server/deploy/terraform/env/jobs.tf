@@ -1,4 +1,5 @@
-# server 이미지의 하위 명령을 실행하는 Job입니다(S1). env·Secret·VPC는 server 서비스와 같습니다.
+# server 이미지의 하위 명령을 실행하는 Job입니다(S1). VPC는 server 서비스와 같고, env·Secret은 server 서비스처럼
+# 배포 workflow가 붙입니다(run.tf의 설명).
 # precompute·notify는 P8-3·P8-4에서 더합니다.
 locals {
   server_jobs = {
@@ -33,34 +34,11 @@ resource "google_cloud_run_v2_job" "server" {
       containers {
         image = local.placeholder_image
         args  = each.value
-
-        dynamic "env" {
-          for_each = local.server_env
-          content {
-            name  = env.key
-            value = env.value
-          }
-        }
-
-        dynamic "env" {
-          for_each = google_secret_manager_secret.server
-          content {
-            name = env.key
-            value_source {
-              secret_key_ref {
-                secret  = env.value.secret_id
-                version = "latest"
-              }
-            }
-          }
-        }
       }
     }
   }
 
   lifecycle {
-    ignore_changes = [template[0].template[0].containers[0].image, client, client_version]
+    ignore_changes = [template[0].template[0].containers[0].image, template[0].template[0].containers[0].env, client, client_version]
   }
-
-  depends_on = [google_secret_manager_secret_iam_member.server, google_sql_user.server]
 }

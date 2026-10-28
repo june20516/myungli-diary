@@ -34,11 +34,17 @@ locals {
     "roles/serviceusage.serviceUsageConsumer",
   ]
 
-  # planner는 PR에서 plan만 돌리므로 읽기 역할만 가집니다.
+  # planner는 PR에서 plan만 돌리므로 env 자원의 읽기 역할만 가집니다. 같은 저장소 PR 브랜치 코드가 쓰므로
+  # 로그를 읽을 수 있는 roles/viewer는 주지 않습니다(앱 로그에 개인정보가 섞일 수 있음).
   planner_roles = [
+    "roles/cloudscheduler.viewer",
+    "roles/cloudsql.viewer",
+    "roles/compute.networkViewer",
+    "roles/dns.reader",
     "roles/iam.securityReviewer",
+    "roles/iam.serviceAccountViewer",
+    "roles/run.viewer",
     "roles/secretmanager.viewer",
-    "roles/viewer",
   ]
 }
 
@@ -90,6 +96,8 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.ref"         = "assertion.ref"
     "attribute.environment" = "assertion.environment"
     "attribute.event_name"  = "assertion.event_name"
+    # environment가 붙은 job의 sub에는 ref가 없으므로 environment와 ref를 묶은 속성으로 deployer를 main에만 허용합니다.
+    "attribute.env_ref" = "has(assertion.environment) ? assertion.environment + '@' + assertion.ref : 'none'"
   }
 
   oidc {
@@ -100,11 +108,15 @@ resource "google_iam_workload_identity_pool_provider" "github" {
 resource "google_service_account" "deployer" {
   account_id   = "deployer"
   display_name = "GitHub Actions 배포"
+
+  depends_on = [google_project_service.enabled]
 }
 
 resource "google_service_account" "planner" {
   account_id   = "planner"
   display_name = "GitHub Actions plan (읽기 전용)"
+
+  depends_on = [google_project_service.enabled]
 }
 
 resource "google_project_iam_member" "deployer" {
@@ -113,6 +125,8 @@ resource "google_project_iam_member" "deployer" {
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:${google_service_account.deployer.email}"
+
+  depends_on = [google_project_service.enabled]
 }
 
 resource "google_project_iam_member" "planner" {
@@ -121,6 +135,8 @@ resource "google_project_iam_member" "planner" {
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:${google_service_account.planner.email}"
+
+  depends_on = [google_project_service.enabled]
 }
 
 resource "google_storage_bucket_iam_member" "deployer_state" {
@@ -135,14 +151,14 @@ resource "google_storage_bucket_iam_member" "planner_state" {
   member = "serviceAccount:${google_service_account.planner.email}"
 }
 
-# deployer는 main에서 environment staging·prod로 도는 job만 씁니다. GitHub OIDC의 sub는 environment가 있으면
-# repo:<owner/name>:environment:<env> 형식이므로 environment 값으로 묶고, ref 조건은 workflow의 if와 environment 보호 규칙이 맡습니다.
+# deployer는 main에서 environment staging·prod로 도는 job만 씁니다(attribute.env_ref). GitHub environment의
+# "Deployment branches = main" 제한은 이중 장치입니다(README).
 resource "google_service_account_iam_member" "deployer_wif" {
   for_each = toset(["staging", "prod"])
 
   service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.environment/${each.value}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.env_ref/${each.value}@refs/heads/main"
 }
 
 # planner는 같은 저장소의 pull_request 토큰만 씁니다.
