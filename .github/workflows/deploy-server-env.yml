@@ -1,0 +1,119 @@
+# 환경 하나에 server를 배포합니다(deploy-server.yml이 부름, spec §7.1).
+# 순서: Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job 이미지 → Firebase Hosting.
+name: deploy-server-env
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      project_id:
+        type: string
+        required: true
+      go_tags:
+        type: string
+        required: true
+      wif_provider:
+        type: string
+        required: true
+      service_account:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: asia-northeast3
+  TERRAFORM_VERSION: "1.17.0"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    # 같은 환경의 배포(엔진 포함)는 하나씩, 진행 중인 것을 취소하지 않습니다.
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ inputs.wif_provider }}
+          service_account: ${{ inputs.service_account }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: terraform apply
+        working-directory: server/deploy/terraform/env
+        run: |
+          terraform init -input=false -backend-config="bucket=${{ inputs.project_id }}-tfstate"
+          terraform apply -input=false -auto-approve -var-file="${{ inputs.environment }}.tfvars"
+
+      # 필수 설정이나 Secret 값이 비어 있으면 server가 시작하지 못하므로 server 배포를 건너뜁니다(인프라는 이미 적용됨).
+      - name: 설정과 Secret 확인
+        id: ready
+        working-directory: server/deploy/terraform/env
+        run: |
+          missing="$(terraform output -json missing_server_settings | jq -r '.[]')"
+          for secret in $(terraform output -json secret_ids | jq -r '.[]'); do
+            version="$(gcloud secrets versions list "$secret" --project "${{ inputs.project_id }}" --filter=state=enabled --limit=1 --format='value(name)')"
+            if [ -z "$version" ]; then
+              missing="$missing"$'\n'"secret:$secret"
+            fi
+          done
+          missing="$(echo "$missing" | sed '/^$/d')"
+          if [ -n "$missing" ]; then
+            {
+              echo "### server 배포 건너뜀 (${{ inputs.environment }})"
+              echo "비어 있는 설정·Secret:"
+              while IFS= read -r name; do echo "* $name"; done <<< "$missing"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 이미지 빌드와 push
+        if: steps.ready.outputs.ready == 'true'
+        id: image
+        run: |
+          image="${REGION}-docker.pkg.dev/${{ inputs.project_id }}/myungli/server:${GITHUB_SHA}"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build \
+            --build-arg GO_VERSION="$(cd server && go list -m -f '{{.GoVersion}}')" \
+            --build-arg GO_TAGS="${{ inputs.go_tags }}" \
+            -t "$image" server
+          docker push "$image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      # migrate가 실패하면 --wait가 실패로 끝나 이후 단계(seed, server)가 돌지 않고 이전 리비전이 남습니다.
+      - name: migrate
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          gcloud run jobs update server-migrate --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+          gcloud run jobs execute server-migrate --wait --region "$REGION" --project "${{ inputs.project_id }}"
+
+      - name: seed
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          gcloud run jobs update server-seed --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+          gcloud run jobs execute server-seed --wait --region "$REGION" --project "${{ inputs.project_id }}"
+
+      - name: server 배포
+        if: steps.ready.outputs.ready == 'true'
+        run: gcloud run services update server --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+
+      - name: Job 이미지 갱신
+        if: steps.ready.outputs.ready == 'true'
+        run: gcloud run jobs update server-retention --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+
+      - name: Firebase Hosting
+        if: steps.ready.outputs.ready == 'true'
+        working-directory: server/deploy/firebase
+        run: npx --yes firebase-tools@14 deploy --only hosting --project "${{ inputs.project_id }}" --non-interactive

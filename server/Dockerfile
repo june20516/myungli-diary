@@ -2,11 +2,13 @@
 # GO_VERSION 기본값은 go.mod의 go 지시어와 같아야 하고, CI는 go.mod 값을 넘긴다.
 ARG GO_VERSION=1.27
 FROM golang:${GO_VERSION} AS build
+# GO_TAGS는 빌드 태그다. staging 배포만 staging을 넘겨 테스트 로그인을 넣는다(spec §13.2).
+ARG GO_TAGS=
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -o /server ./cmd/server
+RUN CGO_ENABLED=0 go build -trimpath -tags "${GO_TAGS}" -o /server ./cmd/server
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /server /server

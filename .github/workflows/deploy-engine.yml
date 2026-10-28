@@ -1,0 +1,40 @@
+# 엔진 배포(D65, spec server/docs/specs/2026-10-28-p9-deploy-design.md §7.2, S121).
+# 엔진 이미지와 실행 조건은 core 소유(#79), 서비스 정의는 deploy-server의 Terraform이 맡습니다.
+# 첫 배포: bootstrap 뒤 workflow_dispatch로 돌려 engine:current를 push하고(서비스가 없으면 push만), 그다음 deploy-server를 돌립니다.
+name: deploy-engine
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "core/**"
+      - ".github/workflows/deploy-engine*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-engine-env.yml
+    with:
+      environment: staging
+      project_id: myungli-diary-staging
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_STAGING }}
+      service_account: ${{ vars.GCP_DEPLOYER_STAGING }}
+
+  prod:
+    needs: staging
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-engine-env.yml
+    with:
+      environment: prod
+      project_id: myungli-diary
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
+      service_account: ${{ vars.GCP_DEPLOYER_PROD }}

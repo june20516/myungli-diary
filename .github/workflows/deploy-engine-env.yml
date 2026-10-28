@@ -1,0 +1,59 @@
+# 환경 하나에 엔진을 배포합니다(deploy-engine.yml이 부름, spec §7.2).
+name: deploy-engine-env
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      project_id:
+        type: string
+        required: true
+      wif_provider:
+        type: string
+        required: true
+      service_account:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: asia-northeast3
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ inputs.wif_provider }}
+          service_account: ${{ inputs.service_account }}
+      - uses: google-github-actions/setup-gcloud@v3
+
+      # 빌드 맥락은 core/만입니다(D33). engine:current는 Terraform이 엔진 서비스를 처음 만들 때 쓰는 이미지입니다.
+      - name: 이미지 빌드와 push
+        id: image
+        run: |
+          repo="${REGION}-docker.pkg.dev/${{ inputs.project_id }}/myungli"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build -t "$repo/engine:${GITHUB_SHA}" -t "$repo/engine:current" core
+          docker push "$repo/engine:${GITHUB_SHA}"
+          docker push "$repo/engine:current"
+          echo "image=$repo/engine:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: 엔진 배포
+        run: |
+          if gcloud run services describe engine --region "$REGION" --project "${{ inputs.project_id }}" --format='value(name)' >/dev/null 2>&1; then
+            gcloud run services update engine --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+          else
+            echo "### 엔진 서비스가 아직 없어 이미지 push만 했습니다. deploy-server가 Terraform으로 만듭니다." >> "$GITHUB_STEP_SUMMARY"
+          fi

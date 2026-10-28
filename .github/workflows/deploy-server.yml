@@ -1,0 +1,108 @@
+# server 배포(D65, spec server/docs/specs/2026-10-28-p9-deploy-design.md §7.1, S121).
+# PR: Terraform fmt·validate와 workflow 검사, bootstrap 뒤에는 plan. main: staging 배포 뒤 prod(environment 승인).
+# 저장소 변수 DEPLOY_ENABLED가 true가 아니면(bootstrap 전) plan과 배포 job은 건너뜁니다.
+name: deploy-server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/**"
+      - ".github/workflows/deploy-*.yml"
+  pull_request:
+    paths:
+      - "server/**"
+      - ".github/workflows/deploy-*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TERRAFORM_VERSION: "1.17.0"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - name: terraform fmt
+        run: terraform fmt -check -recursive server/deploy/terraform
+      - name: terraform validate
+        run: |
+          for dir in server/deploy/terraform/bootstrap server/deploy/terraform/env; do
+            terraform -chdir="$dir" init -backend=false -input=false
+            terraform -chdir="$dir" validate
+          done
+      - name: actionlint
+        run: docker run --rm -v "$PWD":/repo -w /repo rhysd/actionlint:1.7.12 -color
+
+  plan:
+    needs: checks
+    # fork PR은 OIDC 토큰을 받지 못하므로 같은 저장소 PR만 plan합니다.
+    if: >-
+      github.event_name == 'pull_request'
+      && vars.DEPLOY_ENABLED == 'true'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: staging
+            project_id: myungli-diary-staging
+          - environment: prod
+            project_id: myungli-diary
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ matrix.environment == 'prod' && vars.GCP_WIF_PROVIDER_PROD || vars.GCP_WIF_PROVIDER_STAGING }}
+          service_account: ${{ matrix.environment == 'prod' && vars.GCP_PLANNER_PROD || vars.GCP_PLANNER_STAGING }}
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - name: terraform plan
+        working-directory: server/deploy/terraform/env
+        run: |
+          terraform init -input=false -backend-config="bucket=${{ matrix.project_id }}-tfstate"
+          terraform plan -input=false -lock=false -no-color -var-file="${{ matrix.environment }}.tfvars" > plan.txt
+          {
+            echo "### terraform plan (${{ matrix.environment }})"
+            echo '```'
+            grep -E '^(Plan:|No changes)' plan.txt || tail -n 20 plan.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  staging:
+    needs: checks
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-server-env.yml
+    with:
+      environment: staging
+      project_id: myungli-diary-staging
+      go_tags: staging
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_STAGING }}
+      service_account: ${{ vars.GCP_DEPLOYER_STAGING }}
+
+  prod:
+    needs: staging
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-server-env.yml
+    with:
+      environment: prod
+      project_id: myungli-diary
+      go_tags: ""
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
+      service_account: ${{ vars.GCP_DEPLOYER_PROD }}
