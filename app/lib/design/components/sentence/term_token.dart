@@ -30,6 +30,8 @@ class TermToken extends StatelessWidget {
     required this.variant,
     required this.onTap,
     this.textStyle,
+    this.textAlign,
+    this.maxLines,
     this.before,
     this.after,
     super.key,
@@ -52,8 +54,14 @@ class TermToken extends StatelessWidget {
   final VoidCallback onTap;
 
   /// 글자 스타일. `inline`은 문장 스타일을 넘기고, 없으면 주변 [DefaultTextStyle]입니다.
-  /// `label`은 무시하고 `type.caption.md`를 씁니다.
+  /// `label`은 없으면 `type.caption.md`이고, 칸 폭 라벨이 글자를 줄일 때(V49) 넘깁니다.
   final TextStyle? textStyle;
+
+  /// 칩 안 글자 정렬(여러 줄일 때). 없으면 시작 정렬입니다.
+  final TextAlign? textAlign;
+
+  /// 칩 안 최대 줄 수. 넘치는 줄은 말줄임 없이 잘립니다. 없으면 제한이 없습니다.
+  final int? maxLines;
 
   /// 칩 바로 앞에 공백 없이 붙은 글자. 칩 밖이라 눌리지 않지만 한 덩어리로 줄이 바뀌고,
   /// 스크린리더 라벨은 칩 라벨에 묶입니다.
@@ -70,7 +78,7 @@ class TermToken extends StatelessWidget {
     final base = switch (variant) {
       TermTokenVariant.inline =>
         textStyle ?? DefaultTextStyle.of(context).style,
-      TermTokenVariant.label => tokens.typography.captionMd,
+      TermTokenVariant.label => textStyle ?? tokens.typography.captionMd,
     };
     final paddingX = switch (variant) {
       TermTokenVariant.inline => 3.0,
@@ -88,7 +96,14 @@ class TermToken extends StatelessWidget {
         decoration: BoxDecoration(color: colors.termBg, borderRadius: radius),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: paddingX),
-          child: Text(label, style: base.copyWith(color: colors.termFg)),
+          // 한국어는 어절 안에서 줄을 바꾸지 않습니다(칸 폭 라벨이 두 줄이 될 때, V49).
+          child: Text.rich(
+            TextSpan(children: keepAllSpans(locale, label)),
+            style: base.copyWith(color: colors.termFg),
+            textAlign: textAlign,
+            maxLines: maxLines,
+            overflow: maxLines == null ? null : TextOverflow.clip,
+          ),
         ),
       ),
     );

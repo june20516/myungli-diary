@@ -527,6 +527,7 @@ void main() {
 
     final banner = tester.widget<NoticeBanner>(_banner);
     expect(banner.present, isTrue);
+    expect(banner.variant, NoticeBannerVariant.error);
     expect(banner.message, _ko.errorServiceUnavailable);
     expect(find.byKey(const ValueKey(ScreenIds.profileEdit)), findsOneWidget);
     expect(_row(tester, ProfileEditScreen.genderRowKey).value, _ko.genderMale);

@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -124,6 +125,24 @@ final class _ChartText {
     }
     final hanja = names?.hanjaOf('$category.$value');
     return hanja == null ? null : plainLabel(hanja);
+  }
+
+  /// 대운·세운 표의 [category].[value] 라벨(V49). 이름이 없으면 누를 수 없는 한자 글자,
+  /// 그것도 없으면 null(자리만 남김)입니다.
+  LuckLabel? luckLabel(
+    String category,
+    String value,
+    PersonalReadingKey personal,
+  ) {
+    final name = names?.valueName(category, value);
+    if (name != null) {
+      return LuckLabel(
+        name,
+        onTap: () => openTerm('$category.$value', personal),
+      );
+    }
+    final hanja = names?.hanjaOf('$category.$value');
+    return hanja == null ? null : LuckLabel(hanja);
   }
 
   /// 표 값 칸(12운성·신살)의 용어. 글자는 표가 주는 값 글자를 따릅니다(`term-token` `inline`).
@@ -418,7 +437,13 @@ class SajuChartLuckTab extends ConsumerWidget {
                   startYear: period.startYear,
                   stem: _mini(period.pillar.stem),
                   branch: _miniBranch(period.pillar.branch),
-                  stemLabel: text.termLabel(
+                  ageSemanticLabel: l10n.daeunTableLabel(period.startAgeKorean),
+                  semanticLabel: text.join([
+                    text.stemText(period.pillar.stem),
+                    text.branchText(period.pillar.branch),
+                  ]),
+                  yearSemanticLabel: l10n.luckYearLabel(period.startYear),
+                  stemLabel: text.luckLabel(
                     'ten_god',
                     period.stemTenGod.value,
                     PersonalReadingKey(
@@ -427,7 +452,7 @@ class SajuChartLuckTab extends ConsumerWidget {
                       index: index,
                     ),
                   ),
-                  branchLabel: text.termLabel(
+                  branchLabel: text.luckLabel(
                     'ten_god',
                     period.branchTenGod.value,
                     PersonalReadingKey(
@@ -436,12 +461,15 @@ class SajuChartLuckTab extends ConsumerWidget {
                       index: index,
                     ),
                   ),
-                  semanticLabel: text.join([
-                    l10n.daeunTableLabel(period.startAgeKorean),
-                    l10n.luckYearLabel(period.startYear),
-                    text.stemText(period.pillar.stem),
-                    text.branchText(period.pillar.branch),
-                  ]),
+                  stageLabel: text.luckLabel(
+                    'twelve_stage',
+                    period.twelveStage.value,
+                    PersonalReadingKey(
+                      kind: PersonalReadingKindEnum
+                          .PersonalReadingKindDaeunTwelveStage,
+                      index: index,
+                    ),
+                  ),
                 ),
             ],
             seun: [
@@ -450,7 +478,12 @@ class SajuChartLuckTab extends ConsumerWidget {
                   year: year.year,
                   stem: _mini(year.pillar.stem),
                   branch: _miniBranch(year.pillar.branch),
-                  label: text.termLabel(
+                  yearSemanticLabel: l10n.luckYearLabel(year.year),
+                  semanticLabel: text.join([
+                    text.stemText(year.pillar.stem),
+                    text.branchText(year.pillar.branch),
+                  ]),
+                  label: text.luckLabel(
                     'ten_god',
                     year.tenGod.value,
                     PersonalReadingKey(
@@ -459,11 +492,6 @@ class SajuChartLuckTab extends ConsumerWidget {
                       index: index,
                     ),
                   ),
-                  semanticLabel: text.join([
-                    l10n.luckYearLabel(year.year),
-                    text.stemText(year.pillar.stem),
-                    text.branchText(year.pillar.branch),
-                  ]),
                 ),
             ],
             currentIndex: currentDaeun,

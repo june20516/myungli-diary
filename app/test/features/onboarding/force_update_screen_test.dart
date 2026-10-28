@@ -23,6 +23,8 @@ void main() {
       find.byKey(const ValueKey(SlotIds.forceUpdateNoticeBody)),
       findsOneWidget,
     );
+    // 버전 사유의 이유 문장입니다(W45).
+    expect(find.text(_ko.forceUpdateNoticeBody), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey(SlotIds.forceUpdateCtaStore)));
     await tester.pump();

@@ -2627,6 +2627,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'1개월, 자동 결제 없음'**
   String get adFreeOfferPeriod;
+
+  /// force-update.notice.body: 업데이트해야 하는 이유
+  ///
+  /// In ko, this message translates to:
+  /// **'새 약관을 확인하려면 업데이트가 필요해요.'**
+  String get forceUpdateNoticeBodyConsent;
 }
 
 class _AppLocalizationsDelegate

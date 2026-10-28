@@ -103,6 +103,8 @@ final WidgetbookFolder feedbackDirectory = WidgetbookFolder(
                     NoticeBannerVariant.timeUnknown =>
                       '태어난 시간을 몰라 시주 없이 풀이했어요.',
                     NoticeBannerVariant.draft => '이어 쓸 일기가 있어요.',
+                    NoticeBannerVariant.error =>
+                      '잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.',
                   },
                 ),
               ),

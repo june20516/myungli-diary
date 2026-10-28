@@ -5,7 +5,7 @@ import 'package:pub_semver/pub_semver.dart';
 
 /// 앱을 열었을 때 보낼 갈래.
 enum EntryState {
-  /// 앱 버전이 최소 버전보다 낮습니다.
+  /// 업데이트가 필요합니다. 사유는 [forceUpdateReasonOf]입니다.
   forceUpdate,
 
   /// 로그아웃 상태입니다.
@@ -72,6 +72,24 @@ EntryState computeEntry({
 /// `ConsentDocument.document`는 계약의 열린 enum이라 freeze 뒤 새 문서가 올 수 있습니다(A66).
 bool requiresUnknownConsent(Me me) =>
     me.requiredConsents.any((consent) => !consent.document.isKnown);
+
+/// 업데이트가 필요한 사유(`force-update.notice.body`의 키를 고름, W45·A66).
+enum ForceUpdateReason {
+  /// 앱 버전이 최소 버전보다 낮습니다(`forceUpdateNoticeBody`).
+  version,
+
+  /// 이 앱 버전이 모르는 필수 동의 문서가 왔습니다(`forceUpdateNoticeBodyConsent`).
+  consent,
+}
+
+/// `forceUpdate` 갈래의 사유. [me]는 그 계산이 받은 내 정보입니다.
+///
+/// 버전이 낮으면 진입 계산이 내 정보를 받지 않으므로([computeEntry]가 버전을 먼저 봄),
+/// 내 정보에 모르는 필수 동의 문서가 있을 때만 [ForceUpdateReason.consent]입니다.
+ForceUpdateReason forceUpdateReasonOf(Me? me) =>
+    me != null && me.consentRequired && requiresUnknownConsent(me)
+    ? ForceUpdateReason.consent
+    : ForceUpdateReason.version;
 
 /// 진입 갈래와 그때 받은 내 정보·앱 설정. 로그아웃이면 [me]가 null입니다.
 @immutable

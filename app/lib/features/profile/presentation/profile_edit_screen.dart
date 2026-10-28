@@ -22,7 +22,6 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/interaction/single_open_guard.dart';
-import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/onboarding/model/time_step_edit.dart';
 import 'package:myungli_diary/features/profile/application/profile_edit_controller.dart';
@@ -108,8 +107,8 @@ String birthFieldLabel(
 
 /// 정보 수정(`profile-edit`, 결정 A62).
 ///
-/// 묶음 두 개(`settings-row` 값 줄): ① 호칭 ② 생일·태어난 시간·성별·출생지. ② 위에 다시 계산
-/// 안내(`profile-edit.recalc.notice`), 아래에 저장 버튼이 있습니다.
+/// 묶음 두 개(`settings-row` 값 줄): ① 호칭 ② 생일·태어난 시간·성별·출생지. ② 위에 묶음 안내
+/// `groupNote`로 다시 계산 안내(`profile-edit.recalc.notice`, V50), 아래에 저장 버튼이 있습니다.
 ///
 /// * 줄 값은 프로필 사본(없으면 `getProfile`로 받음, #312)에 화면 안 변경을 더한 값입니다. 받는
 ///   동안 줄은 값 없이 비활성이고, 받지 못하면 오류 toast를 보이고 줄을 누르면 다시 받습니다.
@@ -118,10 +117,10 @@ String birthFieldLabel(
 ///   눌러도 또 열지 않습니다.
 /// * 호칭은 가벼운 변경이라 돌아오면 바로 저장합니다. 실패하면 오류 toast와 이전 값입니다.
 /// * 무거운 항목이 바뀌면 저장 버튼이 켜지고, 누르면 확인 창(`profile-edit.recalc.confirm`,
-///   첫 초점 취소)이 바뀐 항목만 `before → after`로 보입니다. 확정하면 저장하고 바뀌기 전
-///   사주의 캐시를 지운 뒤 `my-saju`로 갑니다(`go`).
-/// * 저장이 실패하면 `profile-edit:error`: 오류 배너(`notice-banner`)와 "다시 시도" 버튼이고,
-///   바꾼 값과 이전 캐시는 그대로입니다. 다시 시도는 이미 확인한 변경을 다시 보냅니다.
+///   `dialog` `confirm`)이 바뀐 항목만 `before → after`로 보입니다. 확정하면 저장하고
+///   바뀌기 전 사주의 캐시를 지운 뒤 `my-saju`로 갑니다(`go`).
+/// * 저장이 실패하면 `profile-edit:error`: 오류 배너(`notice-banner` `error`, V50)와
+///   "다시 시도" 버튼이고, 바꾼 값과 이전 캐시는 그대로입니다. 다시 시도는 이미 확인한 변경을 다시 보냅니다.
 /// * 열 때 `extra`가 [City]면(settings 출생지 안내) 출생지를 그 도시로 바꾼 채 엽니다.
 class ProfileEditScreen extends ConsumerStatefulWidget {
   /// profile-edit 화면을 만듭니다.
@@ -248,7 +247,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tokens = context.tokens;
     final state = ref.watch(_provider);
     final profileState = ref.watch(profileProvider);
     final profile = profileState.value;
@@ -308,10 +306,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
                     Space.s24,
                   ),
                   children: [
-                    // 오류 배너의 변형은 명세에 오류용이 없어 연결 없음 변형을 씁니다(design #354에 요청).
                     NoticeBanner(
                       key: ProfileEditScreen.errorKey,
-                      variant: NoticeBannerVariant.offline,
+                      variant: NoticeBannerVariant.error,
                       message: _bannerMessage,
                       present: error != null,
                     ),
@@ -329,27 +326,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
                         ),
                       ],
                     ),
-                    // 다시 계산 안내는 맞는 배너 변형이 없어 묶음 위 캡션입니다(design #354).
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        Space.s16,
-                        0,
-                        Space.s16,
-                        Space.s8,
-                      ),
-                      child: Semantics(
-                        identifier: SlotIds.profileEditRecalcNotice,
-                        container: true,
-                        child: Text(
-                          l10n.profileEditRecalcNotice,
-                          key: const ValueKey(SlotIds.profileEditRecalcNotice),
-                          style: tokens.typography.captionMd.copyWith(
-                            color: tokens.colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ),
                     SettingsGroup(
+                      note: l10n.profileEditRecalcNotice,
+                      noteIdentifier: SlotIds.profileEditRecalcNotice,
                       children: [
                         SettingsRow(
                           key: ProfileEditScreen.birthRowKey,
@@ -427,11 +406,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
                   Space.s20,
                   Space.s16 + bottom,
                 ),
-                child: PrimaryButton(
-                  key: ProfileEditScreen.saveKey,
-                  label: saveLabel,
-                  loading: state.savingBirth,
-                  onPressed: onSave,
+                child: ToastAnchor(
+                  child: PrimaryButton(
+                    key: ProfileEditScreen.saveKey,
+                    label: saveLabel,
+                    loading: state.savingBirth,
+                    onPressed: onSave,
+                  ),
                 ),
               ),
             ],

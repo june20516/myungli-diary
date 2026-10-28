@@ -268,16 +268,32 @@ class _Switch extends StatelessWidget {
 
 /// 설정 줄 묶음 카드(`settings-row` `group`): `bg.sheet` `radius.md`, 줄 사이 1px
 /// `line`(안쪽 16), 아래로 20 띄움. [title]이 있으면 카드 위에 `caption.md`
-/// `text.secondary` 묶음 제목입니다.
+/// `text.secondary` 묶음 제목이고, [note]가 있으면 같은 자리에 묶음 안내
+/// 문장(`groupNote`, 두 줄까지, V50)입니다.
 class SettingsGroup extends StatelessWidget {
-  /// 묶음을 만듭니다.
-  const new({required this.children, this.title, super.key});
+  /// 묶음을 만듭니다. 제목과 안내는 같은 자리라 하나만 받습니다.
+  const new({
+    required this.children,
+    this.title,
+    this.note,
+    this.noteIdentifier,
+    super.key,
+  }) : assert(title == null || note == null, '제목과 안내는 같은 자리입니다');
 
   /// 묶음 안 줄들(위에서 아래).
   final List<Widget> children;
 
   /// 묶음 제목.
   final String? title;
+
+  /// 묶음 전체에 걸리는 안내 문장(`groupNote`). 늘 보이고 누르지 않습니다.
+  final String? note;
+
+  /// [note]의 IA 슬롯 id. 있으면 Key와 Semantics `identifier`로 붙입니다.
+  final String? noteIdentifier;
+
+  /// 묶음 안내의 최대 줄 수(`groupNote.maxLines`).
+  static const int noteMaxLines = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -291,6 +307,8 @@ class SettingsGroup extends StatelessWidget {
       rows.add(child);
     }
     final heading = title;
+    final note = this.note;
+    final noteIdentifier = this.noteIdentifier;
     return Padding(
       padding: const EdgeInsets.only(bottom: Space.s20),
       child: Column(
@@ -308,6 +326,30 @@ class SettingsGroup extends StatelessWidget {
                 header: true,
                 child: Text(
                   heading,
+                  style: tokens.typography.captionMd.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          if (note != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Space.s16,
+                0,
+                Space.s16,
+                Space.s8,
+              ),
+              child: Semantics(
+                identifier: noteIdentifier,
+                container: true,
+                child: Text(
+                  note,
+                  key: noteIdentifier == null
+                      ? null
+                      : ValueKey<String>(noteIdentifier),
+                  maxLines: noteMaxLines,
+                  overflow: TextOverflow.ellipsis,
                   style: tokens.typography.captionMd.copyWith(
                     color: colors.textSecondary,
                   ),

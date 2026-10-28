@@ -1545,4 +1545,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adFreeOfferPeriod => '1 month, no automatic charge';
+
+  @override
+  String get forceUpdateNoticeBodyConsent =>
+      'You need to update to see the new terms.';
 }

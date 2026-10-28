@@ -141,6 +141,24 @@ void main() {
       );
     });
 
+    test('업데이트 사유: 모르는 필수 문서면 consent, 아니면 version(W45)', () {
+      expect(
+        forceUpdateReasonOf(
+          meWith(
+            consentRequired: true,
+            requiredDocuments: ['terms', 'added_after_freeze'],
+          ),
+        ),
+        ForceUpdateReason.consent,
+      );
+      // 버전이 낮으면 진입 계산이 내 정보를 받지 않습니다.
+      expect(forceUpdateReasonOf(null), ForceUpdateReason.version);
+      expect(
+        forceUpdateReasonOf(meWith(requiredDocuments: ['added_after_freeze'])),
+        ForceUpdateReason.version,
+      );
+    });
+
     test('아는 문서만 필수면 consentRequired 그대로', () {
       expect(
         compute(

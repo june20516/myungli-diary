@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
@@ -114,6 +115,30 @@ void main() {
     final tokens = context.tokens;
     expect(style.fontSize, tokens.typography.bodyUi.fontSize);
     expect(style.color, tokens.colors.textPrimary);
+  });
+
+  testWidgets('지장간은 늘 "한자와 독음 / 십성" 두 줄 묶음이고 묶음 사이는 space.4입니다(V49)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      inputApp(SizedBox(width: 360, child: _table(onHiddenTenGod: () {}))),
+    );
+    final stem = tester.getRect(find.textContaining('乙').at(1));
+    final label = tester.getRect(find.text('일주-정재'));
+    final next = tester.getRect(find.textContaining('癸').at(1));
+    expect(label.top, stem.bottom + 2);
+    expect(next.top, label.bottom + Space.s4);
+  });
+
+  testWidgets('같은 줄 칸은 위로 맞춥니다(V49)', (tester) async {
+    await tester.pumpWidget(
+      inputApp(SizedBox(width: 360, child: _table(onHiddenTenGod: () {}))),
+    );
+    // 일주만 라벨이 있어 키가 커도 다른 열 지장간 첫 줄은 같은 높이에서 시작합니다.
+    expect(
+      tester.getRect(find.textContaining('乙').at(0)).top,
+      tester.getRect(find.textContaining('乙').at(1)).top,
+    );
   });
 
   testWidgets('지장간 옆 용어 라벨을 누르면 그 콜백(지장간 십성 풀이)', (tester) async {

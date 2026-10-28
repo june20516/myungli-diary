@@ -54,6 +54,19 @@ Widget _settingsRows() => Builder(
           ],
         ),
         SettingsGroup(
+          note: ja
+              ? '誕生日・時間・性別・出生地を変えると、読み解きを計算し直します。'
+              : '생일, 시간, 성별, 출생지를 바꾸면 풀이를 다시 계산합니다.',
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.value,
+              label: ja ? '生年月日' : '생일',
+              value: '1990. 6. 15.',
+              onTap: () {},
+            ),
+          ],
+        ),
+        SettingsGroup(
           children: [
             SettingsRow(
               variant: SettingsRowVariant.destructive,

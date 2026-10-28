@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -48,6 +49,16 @@ import '../support/test_today.dart';
 final _ko = AppLocalizationsKo();
 
 final Finder _chart = find.byKey(const ValueKey(ScreenIds.sajuChart));
+
+/// 대운·세운 표 [cell] 안에서 글자가 [label]인 용어 칩. 같은 글자가 여럿이면 위의 것입니다.
+Finder _luckChip(Key cell, LuckLabel label) => find
+    .descendant(
+      of: find.byKey(cell),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is TermToken && widget.label == label.text,
+      ),
+    )
+    .first;
 
 Finder _inChart(Finder matching) =>
     find.descendant(of: _chart, matching: matching);
@@ -459,8 +470,11 @@ void main() {
     await _openFromMySaju(tester, scenario: 'evidence-unlocked');
     await _openLuckTab(tester);
     final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
-    expect(daeun.daeun[3].branchLabel, isA<TermToken>());
-    await _openPersonal(tester, find.byWidget(daeun.daeun[3].stemLabel!));
+    expect(daeun.daeun[3].branchLabel?.onTap, isNotNull);
+    await _openPersonal(
+      tester,
+      _luckChip(DaeunTable.daeunKey(3), daeun.daeun[3].stemLabel!),
+    );
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -475,7 +489,10 @@ void main() {
     await _openFromMySaju(tester, scenario: 'evidence-unlocked');
     await _openLuckTab(tester);
     final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
-    await _openPersonal(tester, find.byWidget(daeun.seun[3].label!));
+    await _openPersonal(
+      tester,
+      _luckChip(DaeunTable.seunKey(daeun.seun[3].year), daeun.seun[3].label!),
+    );
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -484,6 +501,35 @@ void main() {
       ),
     );
     expect(_personalText('이 세운 자리는'), findsOneWidget);
+  });
+
+  testWidgets('대운 12운성은 사전 이름이 있으면 칩, 누르면 대운 12운성 개인 해석(V49)', (tester) async {
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      overrides: [
+        glossaryProvider.overrideWith((ref) => _glossaryWithStages()),
+      ],
+    );
+    await _openLuckTab(tester);
+    final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
+    // 사전 대역은 12운성 중 '양'(첫 대운)만 이름이 있고, 나머지는 한자 글자입니다(A65).
+    final first = daeun.daeun[0].stageLabel!;
+    expect(first.text, '양');
+    expect(first.onTap, isNotNull);
+    expect(daeun.daeun[1].stageLabel?.onTap, isNull);
+
+    await tester.ensureVisible(_luckChip(DaeunTable.daeunKey(0), first));
+    await tester.pumpAndSettle();
+    await _openPersonal(tester, _luckChip(DaeunTable.daeunKey(0), first));
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindDaeunTwelveStage,
+        index: 0,
+      ),
+    );
+    expect(_personalText('이 대운 12운성 자리는'), findsOneWidget);
   });
 
   testWidgets('사전에 12운성·신살 이름이 있으면 그 칸도 개인 해석으로 이어집니다', (tester) async {

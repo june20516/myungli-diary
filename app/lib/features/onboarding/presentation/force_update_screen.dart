@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -23,7 +25,11 @@ Future<void> _openStore(BuildContext context, WidgetRef ref) async {
   }
 }
 
-/// 앱 버전이 최소 버전보다 낮을 때의 안내 화면. 스토어 열기 버튼 하나뿐이고 출구가 없습니다.
+/// 업데이트가 필요할 때의 안내 화면. 스토어 열기 버튼 하나뿐이고 출구가 없습니다.
+///
+/// 이유 문장(`force-update.notice.body`)은 사유([forceUpdateReasonOf])로 키를 고릅니다(W45):
+/// 앱 버전이 낮으면 `forceUpdateNoticeBody`, 모르는 필수 동의 문서가 오면
+/// `forceUpdateNoticeBodyConsent`입니다.
 ///
 /// 뒤로 가기로 벗어날 수 없어야 하므로 [PopScope]로 막습니다.
 ///
@@ -37,6 +43,11 @@ class ForceUpdateScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
+    final reason = forceUpdateReasonOf(ref.watch(meProvider));
+    final body = switch (reason) {
+      ForceUpdateReason.version => l10n.forceUpdateNoticeBody,
+      ForceUpdateReason.consent => l10n.forceUpdateNoticeBodyConsent,
+    };
     return PopScope(
       canPop: false,
       child: Semantics(
@@ -61,7 +72,7 @@ class ForceUpdateScreen extends ConsumerWidget {
                 Semantics(
                   identifier: SlotIds.forceUpdateNoticeBody,
                   child: Text(
-                    l10n.forceUpdateNoticeBody,
+                    body,
                     key: const ValueKey(SlotIds.forceUpdateNoticeBody),
                     style: tokens.typography.bodyUi.copyWith(
                       color: tokens.colors.textSecondary,

@@ -1430,4 +1430,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get adFreeOfferPeriod => '1개월, 자동 결제 없음';
+
+  @override
+  String get forceUpdateNoticeBodyConsent => '새 약관을 확인하려면 업데이트가 필요해요.';
 }

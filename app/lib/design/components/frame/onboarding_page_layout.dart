@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 안내형 화면의 공통 골격. 위쪽 [body]와 아래쪽 [actions] 사이를 비우고,
@@ -24,7 +25,7 @@ class OnboardingPageLayout extends StatelessWidget {
   /// true면 [body]를 위에 붙입니다.
   final bool alignTop;
 
-  /// 바닥에 놓이는 버튼들.
+  /// 바닥에 놓이는 버튼들. 토스트는 이 묶음 위에 뜹니다([ToastAnchor]).
   final List<Widget> actions;
 
   @override
@@ -42,7 +43,13 @@ class OnboardingPageLayout extends StatelessWidget {
                 ...body,
                 const SizedBox(height: Space.s32),
                 const Spacer(),
-                ...actions,
+                // 바닥 버튼 묶음 위로 토스트가 뜹니다(V51).
+                ToastAnchor(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: actions,
+                  ),
+                ),
                 const SizedBox(height: Space.s24),
               ],
             ),

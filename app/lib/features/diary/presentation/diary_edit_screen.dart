@@ -249,11 +249,13 @@ class _DiaryEditFormState extends ConsumerState<_DiaryEditForm> {
             Space.s20,
             Space.s16,
           ),
-          child: PrimaryButton(
-            label: l10n.diaryEditSave,
-            identifier: SlotIds.diaryEditSaveCta,
-            loading: saving,
-            onPressed: _savable && !saving ? () => unawaited(_save()) : null,
+          child: ToastAnchor(
+            child: PrimaryButton(
+              label: l10n.diaryEditSave,
+              identifier: SlotIds.diaryEditSaveCta,
+              loading: saving,
+              onPressed: _savable && !saving ? () => unawaited(_save()) : null,
+            ),
           ),
         ),
       ],
