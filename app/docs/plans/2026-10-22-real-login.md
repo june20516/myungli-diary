@@ -125,7 +125,7 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
 - Modify: `app/android/app/src/main/AndroidManifest.xml`(spec §4 "네이티브 설정 추가"의 Android 세 항목)
 - Create: `app/tool/gen_native_config.dart`, `app/ios/Flutter/Auth.xcconfig`(생성물, commit)
 - Modify: `app/ios/Flutter/Debug.xcconfig`·`Release.xcconfig`(`#include "Auth.xcconfig"`), `app/ios/Runner/Info.plist`(URL Types 셋, `LSApplicationQueriesSchemes`), Create `app/ios/Runner/Runner.entitlements`와 `project.pbxproj`의 `CODE_SIGN_ENTITLEMENTS`
-- Test: `app/test/contract/native_auth_config_test.dart`(`@Tags(['contract'])`)
+- Test: `app/test/tool/native_auth_config_test.dart`(app 안 파일만 읽어 `contract` 태그 없음, D81)
 
 **Interfaces:**
 - Consumes: `app/config/auth.json`(Task 1)
@@ -136,7 +136,7 @@ A2 산출물에 기대는 A1 Step은 위 표의 "A2로 미루는 것"으로 모�
   - `빈 GOOGLE_IOS_CLIENT_ID는 google-unconfigured`, `채운 값 123-abc.apps.googleusercontent.com은 com.googleusercontent.apps.123-abc`(생성 함수 단위)
   - `AndroidManifest에 kakao AuthCodeHandlerActivity·CallbackActivity /auth/apple·queries 두 패키지가 있습니다`(문자열 포함 검사)
   - `Info.plist에 kakao$(KAKAO_NATIVE_APP_KEY)·line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)·$(GOOGLE_REVERSED_CLIENT_ID)와 lineauth2가 있습니다`
-- [ ] **Step 2: 실행해 실패 확인**: `flutter test test/contract/native_auth_config_test.dart`. Expected: FAIL.
+- [ ] **Step 2: 실행해 실패 확인**: `flutter test test/tool/native_auth_config_test.dart`. Expected: FAIL.
 - [ ] **Step 3: 구현**: 패키지 추가(`flutter pub get`), 생성 도구(순수 함수 `String renderAuthXcconfig(Map<String, String> config)`를 `tool/gen_native_config.dart`에 두고 테스트가 import), 네이티브 파일 수정.
 - [ ] **Step 4: 실행해 통과 확인**: 계약 테스트 PASS. `flutter build apk --debug --dart-define-from-file=config/auth.json` 성공. iOS는 `flutter build ios --debug --no-codesign --dart-define-from-file=config/auth.json` 성공.
 - [ ] **Step 5: README**: "생성 코드" 표에 `config/auth.json` → `tool/gen_native_config.dart` → `ios/Flutter/Auth.xcconfig` 행을 더합니다. CI `checks`에 `dart run tool/gen_native_config.dart --check`를 더합니다(`app.yml`).
