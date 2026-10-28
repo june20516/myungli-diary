@@ -20,8 +20,9 @@
 | `server/deploy/terraform/env/` | 환경 하나의 자원. backend는 GCS(bucket은 `-backend-config`로 넘김) |
 | `server/deploy/terraform/env/staging.tfvars`, `prod.tfvars` | 비밀이 아닌 설정 값(공개 값만) |
 | `server/deploy/firebase/firebase.json` | Hosting 설정 |
-| `.github/workflows/deploy-server.yml` | Terraform plan·apply, server 이미지, Job, Hosting 배포 |
-| `.github/workflows/deploy-engine.yml` | 엔진 이미지(`core/`만으로 빌드, D33)와 엔진 서비스 배포 |
+| `.github/workflows/deploy-server.yml` | 검사, PR plan, staging → prod 호출 |
+| `.github/workflows/deploy-server-env.yml` | 환경 하나의 Terraform apply, server 이미지, Job, Hosting 배포(재사용 workflow) |
+| `.github/workflows/deploy-engine.yml`, `deploy-engine-env.yml` | 엔진 이미지(`core/`만으로 빌드, D33)와 엔진 서비스 배포 |
 
 Terraform `>= 1.9`와 google provider 버전을 고정하고 `.terraform.lock.hcl`을 commit합니다.
 
@@ -50,7 +51,7 @@ Terraform `>= 1.9`와 google provider 버전을 고정하고 `.terraform.lock.hc
 | `engine-runtime` | env | 없음 |
 | `scheduler-invoker` | env | `server-retention` Job의 `run.invoker`(Job 실행) |
 
-WIF provider는 이 저장소(`june20516/myungli-diary`)의 토큰만 받습니다. `deployer`는 `refs/heads/main`이면서 GitHub environment가 `staging` 또는 `prod`인 토큰만, `planner`는 같은 저장소의 `pull_request` 토큰만 쓸 수 있습니다.
+WIF provider는 이 저장소(`june20516/myungli-diary`)의 토큰만 받습니다. `deployer`는 GitHub environment가 `staging` 또는 `prod`인 토큰만, `planner`는 같은 저장소의 `pull_request` 토큰만 쓸 수 있습니다. environment가 붙은 job의 OIDC `sub`에는 ref가 없으므로, main 전용 조건은 두 environment의 "Deployment branches"를 `main`으로 제한해 맡깁니다(사용자 준비 §8).
 
 ## 5. 설정과 Secret
 
