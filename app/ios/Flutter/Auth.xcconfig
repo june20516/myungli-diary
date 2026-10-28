@@ -1,4 +1,4 @@
 // 생성 코드: dart run tool/gen_native_config.dart. 손으로 고치지 않습니다.
 // 출처: config/auth.json(결정 A81)
-KAKAO_NATIVE_APP_KEY=-unconfigured
+KAKAO_NATIVE_APP_KEY=8229ec22910b377c40ea71b1081c2a66
 GOOGLE_REVERSED_CLIENT_ID=google-unconfigured
