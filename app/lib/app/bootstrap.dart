@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:myungli_diary/app/auth_sdk_setup.dart';
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/licenses.dart';
@@ -15,10 +16,15 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/apple_native_auth.dart';
+import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/google_auth.dart';
+import 'package:myungli_diary/core/platform/kakao_auth.dart';
+import 'package:myungli_diary/core/platform/line_auth.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
@@ -108,6 +114,15 @@ Future<ProviderContainer> bootstrap({
   if (installErrorHandlers) {
     _installErrorHandlers(reporter);
   }
+  if (resolvedMode == ApiMode.http) {
+    // 실패해도 앱은 뜹니다. 그 제공자 로그인만 실패로 끝나므로 요약만 보고합니다(D64).
+    final failures = await initializeAuthSdks(
+      container.read(authConfigProvider),
+    );
+    for (final failure in failures) {
+      reporter.record(CrashSummary.from(failure.error), failure.stack);
+    }
+  }
   try {
     if (scenario != null) {
       await container.read(appDatabaseProvider).clearAll();
@@ -125,9 +140,12 @@ Future<ProviderContainer> bootstrap({
   return container;
 }
 
-/// 계정이 필요 없는 실제 platform adapter를 끼우는 override. fake 모드는 대역을 그대로 씁니다.
+/// 실제 platform adapter를 끼우는 override. fake 모드는 대역을 그대로 씁니다.
 ///
-/// 계정이 필요한 adapter(카카오·Apple·Firebase·AdMob·RevenueCat)는 준비되면 여기에 더합니다.
+/// 로그인 adapter 다섯은 `config/auth.json`(A81) 값이 비면 로그인할 때
+/// `ProviderNotConfigured`를 던집니다. http 모드에서 로그인 대역을 쓰지 않는 것은 가짜
+/// 토큰을 실제 server에 보내지 않기 위해서입니다. 남은 adapter(Firebase·AdMob·RevenueCat)는
+/// 준비되면 여기에 더합니다.
 @visibleForTesting
 List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
   ApiMode.fake => const [],
@@ -135,6 +153,28 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
     deviceTimezoneProvider.overrideWithValue(const FlutterDeviceTimezone()),
     storeLauncherProvider.overrideWithValue(const UrlStoreLauncher()),
     externalBrowserProvider.overrideWithValue(const UrlExternalBrowser()),
+    kakaoAuthProvider.overrideWith(
+      (ref) => KakaoSdkAuth(config: ref.watch(authConfigProvider)),
+    ),
+    lineAuthProvider.overrideWith(
+      (ref) => LineSdkAuth(config: ref.watch(authConfigProvider)),
+    ),
+    googleAuthProvider.overrideWith(
+      (ref) => GoogleSdkAuth(
+        config: ref.watch(authConfigProvider),
+        isIos: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
+        nonces: ref.watch(nonceGeneratorProvider),
+      ),
+    ),
+    appleNativeAuthProvider.overrideWithValue(
+      const SignInWithAppleNativeAuth(),
+    ),
+    appleWebAuthProvider.overrideWith(
+      (ref) => WebAuthAppleWebAuth(
+        config: ref.watch(authConfigProvider),
+        nonces: ref.watch(nonceGeneratorProvider),
+      ),
+    ),
   ],
 };
 

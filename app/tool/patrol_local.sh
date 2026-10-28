@@ -163,7 +163,7 @@ say "기기 $serial"
 run_once() {
   local log="$1"
   "$patrol" test -d "$serial" -t "$target" \
-    --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 \
+    --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 \
     "${extra_args[@]+"${extra_args[@]}"}" </dev/null >"$log" 2>&1 &
   run_pid=$!
   local elapsed=0 offline=0 verdict=""

@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
+import 'package:myungli_diary/core/platform/auth_config.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/external_browser.dart';
@@ -17,6 +18,11 @@ import 'package:myungli_diary/core/platform/store_launcher.dart';
 
 // 기본값은 대역입니다. 실제 adapter는 계정 준비 뒤 override로 끼웁니다.
 // App Check는 `appCheckProvider`(api_providers.dart)에 있습니다.
+
+/// 로그인 제공자 설정(`config/auth.json`, A81). 테스트는 override로 값을 줍니다.
+final authConfigProvider = Provider<AuthConfig>(
+  (ref) => AuthConfig.fromEnvironment,
+);
 
 /// 카카오 로그인.
 final kakaoAuthProvider = Provider<KakaoAuth>((ref) => FakeKakaoAuth());

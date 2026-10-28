@@ -38,19 +38,24 @@ dependencies:
   drift_flutter: ^0.3.1
   flutter:
     sdk: flutter
+  flutter_line_sdk: 2.7.2
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.4.3
   flutter_secure_storage: ^11.2.0
   flutter_svg: ^2.3.0
   flutter_timezone: ^5.1.1
+  flutter_web_auth_2: 5.1.0
   go_router: ^18.0.2
+  google_sign_in: 7.2.0
   intl: ^0.20.3
   json_annotation: ^4.12.0
+  kakao_flutter_sdk_user: 2.0.1
   package_info_plus: ^10.2.2
   path_provider: ^2.1.6
   phosphor_glyphs: ^2.1.2+1
   pub_semver: ^2.2.1
+  sign_in_with_apple: 8.2.0
   timezone: ^0.11.2
   unorm_dart: ^0.3.3
   url_launcher: ^6.3.3
