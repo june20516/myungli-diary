@@ -408,5 +408,21 @@
     ],
     "status": "chosen",
     "note": "원전은 한글 독음, 뜻은 원문이 말한 것만 요점형, 근거 문장은 값을 먼저"
+  },
+  {
+    "id": "round-R25",
+    "title": "라운드 R25: 스토어 태그라인 (W49)",
+    "kind": "copy-sample",
+    "file": "2026-10-28-round-R25.md",
+    "date": "2026-10-28",
+    "milestone": "W1",
+    "screens": [
+      "share-preview"
+    ],
+    "decisions": [
+      "W49"
+    ],
+    "status": "chosen",
+    "note": "R9-11과 같은 답, 오늘 일진을 내 사주에 맞춰 풀어 주는 일기"
   }
 ]

@@ -52,7 +52,7 @@
 - {slot: today.reaction.label, key: todayReactionLabel, text: "좋아요"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "좋아요 취소"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "명리일기"}
-- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "내 사주로 푼 오늘, 명리일기"}
+- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelStory, text: "스토리"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelFeed, text: "피드"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelSquare, text: "정사각"}

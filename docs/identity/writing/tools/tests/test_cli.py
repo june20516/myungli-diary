@@ -31,9 +31,10 @@ BAD_CONTENT = """\
 
 
 def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["check", str(CONTENT_DIR), "--partial"]) == 0
-    # 근거 슬롯 키를 core 목록으로 채워 경고도 남지 않습니다(#130).
-    assert capsys.readouterr().out == ""
+    # W1 원고가 다 차서 --partial 없이 통과합니다. 남는 것은 일부러 비워 둔 원고(pending) 경고뿐입니다.
+    assert main(["check", str(CONTENT_DIR)]) == 0
+    lines = capsys.readouterr().out.splitlines()
+    assert all(" complete.pending warn " in line for line in lines)
 
 
 def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -51,15 +52,28 @@ def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     assert any("slop.P8" in line for line in lines)
 
 
-def test_cli_without_partial_reports_missing(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["check", str(CONTENT_DIR)]) == 1
+def content_missing_one_entry(tmp_path: Path) -> Path:
+    """저장소 원고 사본에서 원고 한 줄을 지워 빠짐을 만듭니다."""
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    term_file = content / "ko" / "term.yaml"
+    lines = term_file.read_text(encoding="utf-8").splitlines(keepends=True)
+    term_file.write_text("".join(line for line in lines if "key: term.luck.seun," not in line), encoding="utf-8")
+    return content
+
+
+def test_cli_without_partial_reports_missing(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = content_missing_one_entry(tmp_path)
+    assert main(["check", str(content)]) == 1
     assert "complete.missing" in capsys.readouterr().out
+    assert main(["check", str(content), "--partial"]) == 0
 
 
-def test_cli_output_sorted_by_file_and_line(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["check", str(CONTENT_DIR)]) == 1
+def test_cli_output_sorted_by_file_and_line(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["check", str(content_missing_one_entry(tmp_path))]) == 1
     parsed = [line.split(" ")[0].rsplit(":", 1) for line in capsys.readouterr().out.splitlines()]
     keys = [(file, int(line)) for file, line in parsed]
+    assert len(keys) > 1
     assert keys == sorted(keys)
 
 

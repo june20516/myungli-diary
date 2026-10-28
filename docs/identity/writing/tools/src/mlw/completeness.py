@@ -23,6 +23,8 @@ RULE_BAD_CATEGORY = "complete.bad_category"
 RULE_UNRENDERABLE_PARAM = "complete.unrenderable_param"
 RULE_UNSLOTTED_KEY = "complete.unslotted_key"
 RULE_PARAM_MISMATCH = "complete.param_mismatch"
+RULE_PENDING = "complete.pending"
+RULE_STALE_PENDING = "complete.stale_pending"
 
 # 어느 슬롯에서나 쓸 수 있는 매개변수입니다(호칭). 범주를 붙이지 않습니다.
 NAME_PARAM = "name"
@@ -114,8 +116,28 @@ def _missing_findings(
                         if (slot.id, key, type_, variant, lang) in present:
                             continue
                         type_text = type_ if type_ is not None else "유형 없음"
-                        message = f"원고가 없습니다: 슬롯 {slot.id}, 키 {key}, 유형 {type_text}, 변주 {variant}, 언어 {lang}"
-                        findings.append(Finding(slot.file, slot.line, RULE_MISSING, "error", message))
+                        where = f"슬롯 {slot.id}, 키 {key}, 유형 {type_text}, 변주 {variant}, 언어 {lang}"
+                        reason = slot.pending.get(key, {}).get(lang)
+                        if reason is not None:
+                            message = f"비워 둔 원고입니다: {where}. 이유: {reason}"
+                            findings.append(Finding(slot.file, slot.line, RULE_PENDING, "warn", message))
+                            continue
+                        findings.append(Finding(slot.file, slot.line, RULE_MISSING, "error", f"원고가 없습니다: {where}"))
+    return findings
+
+
+def _stale_pending_findings(
+    slots: Mapping[str, Slot], present: set[tuple[str, str, str | None, int, str]]
+) -> list[Finding]:
+    """`pending`에 적었는데 원고가 생긴 키·언어를 찾습니다. 비워 둔 목록이 낡지 않게 지우도록 합니다."""
+    written = {(slot_id, key, lang) for slot_id, key, _type, _variant, lang in present}
+    findings: list[Finding] = []
+    for slot in slots.values():
+        for key, reasons in slot.pending.items():
+            for lang in reasons:
+                if (slot.id, key, lang) in written:
+                    message = f"원고가 있는데 pending에 남아 있습니다: 슬롯 {slot.id}, 키 {key}, 언어 {lang}. pending에서 지웁니다"
+                    findings.append(Finding(slot.file, slot.line, RULE_STALE_PENDING, "error", message))
     return findings
 
 
@@ -148,7 +170,7 @@ def check_completeness(
     langs: Sequence[str],
     message_params: Mapping[str, Sequence[str]] | None = None,
 ) -> list[Finding]:
-    """완결성 문제를 모두 돌려줍니다. 모두 `error`입니다.
+    """완결성 문제를 모두 돌려줍니다. 비워 둔 원고(`complete.pending`)만 `warn`이고 나머지는 `error`입니다.
 
     `message_params`가 None이면 매개변수 대조(`check_params`)를 건너뜁니다.
     """
@@ -167,6 +189,7 @@ def check_completeness(
             findings.append(_entry_finding(entry, RULE_DUPLICATE, message))
         present.add(identity)
     findings.extend(_missing_findings(slots, present, langs))
+    findings.extend(_stale_pending_findings(slots, present))
     slotted_keys = {key for slot in slots.values() for key in slot.keys}
     for key in message_keys:
         if key not in slotted_keys:

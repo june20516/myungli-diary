@@ -1,5 +1,6 @@
 """완결성 검사 테스트."""
 
+from dataclasses import replace
 from pathlib import Path
 
 from mlw.completeness import check_completeness, check_params
@@ -263,3 +264,25 @@ def test_placeholder_inside_plural_is_checked() -> None:
     slot = make_slot(keys={KEY: {"count": ParamKind("number")}}, types=())
     entry = make_entry(type_=None, text="{count, plural, other{{cnt}개}}")
     assert "complete.unknown_param" in rule_ids(check(slot, [entry]))
+
+
+def test_pending_missing_is_warning_with_reason() -> None:
+    slot = replace(make_slot(types=()), pending={KEY: {"ko": "근거 보강 대기"}})
+    [finding] = check(slot, [])
+    assert finding.rule_id == "complete.pending"
+    assert finding.severity == "warn"
+    assert KEY in finding.message and "근거 보강 대기" in finding.message
+
+
+def test_pending_only_covers_listed_language() -> None:
+    slot = replace(make_slot(types=()), pending={KEY: {"en": "이유"}})
+    findings = check_completeness({slot.id: slot}, [], (KEY,), ("ko", "en"))
+    assert sorted(rule_ids(findings)) == ["complete.missing", "complete.pending"]
+
+
+def test_stale_pending_is_error() -> None:
+    slot = replace(make_slot(types=()), pending={KEY: {"ko": "이유"}})
+    [finding] = check(slot, [make_entry(type_=None)])
+    assert finding.rule_id == "complete.stale_pending"
+    assert finding.severity == "error"
+    assert KEY in finding.message
