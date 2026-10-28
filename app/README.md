@@ -39,7 +39,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | id | 상태 |
   | --- | --- |
   | `new-user` | 처음 설치. 토큰 없음. 로그인하면 새 계정(약관 동의 필요, 프로필 없음). 동의하면 미리보기 입력으로 프로필을 저장합니다 |
-  | `member` | 로그인한 회원. 약관 동의, 프로필 있음 |
+  | `member` | 로그인한 회원. 약관 동의, 프로필 있음. 로그인 수단 연결 목록은 처음 카카오 하나이고, Google 붙이기는 409 `auth.identity_in_use`, 마지막 하나 떼기는 409 `auth.last_identity`, 합치기 인증은 연결된 제공자면 422 `merge.same_account`, Apple이면 422 `merge.no_account`, 그 밖은 요약 200입니다 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
   | `profile-required` | 약관 동의했지만 프로필 없음. 프로필을 저장하면 내 정보가 프로필 있음으로 바뀝니다 |
   | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아니고 프로필 언어가 en이라 앱이 영어입니다(A60) |
@@ -68,6 +68,8 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
   | `profile-name-invalid` | 미리보기 없이 로그인한 새 계정(`new-user-signin`과 같음). 첫 프로필 저장(createProfile)이 422 name.emoji(필드 `/honorific`)이고 두 번째에 저장됩니다. 호칭 칸 오류 줄을 확인합니다 |
   | `login-entry-unavailable` | 처음 설치한 사용자. 로그인은 성공하지만 직후 내 정보(getMe)가 한 번 503 service.unavailable이라 진입 계산이 실패합니다(login 화면 안내와 다시 시도). 두 번째부터는 약관 동의가 필요한 새 계정입니다 |
   | `member-time-unknown` | 로그인한 회원. 오늘(getDaily)과 나의 사주(getChart) 응답에 time_unknown notice가 있어 오늘·나의 사주·사주 표에 시간 모름 배너가 보이고, 사주 표의 시주가 빈 칸입니다 |
+  | `merge-token-invalid` | `member` 규칙을 따름. 계정 합치기 확정(mergeAccounts)이 422 `merge.token_invalid`라 토큰 만료 안내와 인증 단계로 돌아가는 흐름을 확인합니다 |
+  | `merge-in-progress` | `member` 규칙을 따름. 계정 합치기 확정(mergeAccounts)이 처음 한 번 409 `idempotency.in_progress`이고 같은 키로 다시 보내면 합쳐집니다 |
   | `calendar-error` | 로그인한 회원. 달력(getCalendar)이 503이라 달력 격자를 불러오지 못합니다 |
   | `schedule-save-error` | 로그인한 회원. 일정 만들기(createSchedule)와 고치기(updateSchedule)가 503이라 저장하지 못합니다 |
   | `daily-error` | 로그인한 회원. 오늘(getDaily)이 503 service.unavailable이라 오늘 화면의 오류 상태와 다시 시도를 확인합니다 |

@@ -110,6 +110,34 @@ void main() {
       );
     });
 
+    test('FakeLineAuth는 해시 nonce를 기록하고 idToken을 돌려줍니다', () async {
+      final auth = FakeLineAuth();
+      final credential = await auth.signIn(rawNonce: _rawNonce);
+      expect(credential.idToken, isNotEmpty);
+      expect(auth.providerNonces, [hashNonce(_rawNonce)]);
+    });
+
+    test('FakeGoogleAuth는 받은 원문 nonce를 credential에 담습니다', () async {
+      final auth = FakeGoogleAuth();
+      final credential = await auth.signIn(rawNonce: _rawNonce);
+      expect(credential.idToken, isNotEmpty);
+      expect(credential.rawNonce, _rawNonce);
+      expect(auth.providerNonces, [hashNonce(_rawNonce)]);
+    });
+
+    test('LINE·Google 대역의 failWith는 취소를 SocialSignInCancelled로 던집니다', () async {
+      await expectLater(
+        FakeLineAuth(failWith: const SocialSignInCancelled())
+            .signIn(rawNonce: _rawNonce),
+        throwsA(isA<SocialSignInCancelled>()),
+      );
+      await expectLater(
+        FakeGoogleAuth(failWith: const SocialSignInCancelled())
+            .signIn(rawNonce: _rawNonce),
+        throwsA(isA<SocialSignInCancelled>()),
+      );
+    });
+
     test('Apple native 대역은 idToken·authorizationCode를 내고 해시를 보낸다', () async {
       final auth = FakeAppleNativeAuth();
       final credential = await auth.signIn(rawNonce: _rawNonce);

@@ -95,6 +95,24 @@ void main() {
     expect(after.config, same(before.config));
   });
 
+  test('applyMe는 getMe 없이 받은 me로 바꾸고 갈래를 다시 계산한다', () async {
+    final (container, api) = await _start();
+    final before = container.read(entryStateProvider).value!;
+    final callsBefore = api.getMeCalls;
+    final merged = before.me!.copyWith(hasProfile: false);
+
+    final error = await container
+        .read(entryStateProvider.notifier)
+        .applyMe(merged);
+
+    expect(error, isNull);
+    final after = container.read(entryStateProvider).value!;
+    expect(after.me, merged);
+    expect(after.entry, EntryState.profileRequired);
+    expect(after.config, same(before.config));
+    expect(api.getMeCalls, callsBefore);
+  });
+
   DioException offline() => DioException.connectionError(
     requestOptions: RequestOptions(path: '/v1/me'),
     reason: '테스트 실패',

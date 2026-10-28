@@ -254,12 +254,14 @@ void main() {
         'calendar-error',
         'schedule-save-error',
         'ad-free-active',
+        'merge-token-invalid',
+        'merge-in-progress',
       ]);
       final newUser = scenarios.first;
       expect(newUser.today, CalendarDate(2026, 10, 13));
       expect(newUser.timezone, 'Asia/Seoul');
       expect(newUser.signedIn, isFalse);
-      expect(scenarios.where((s) => s.signedIn), hasLength(25));
+      expect(scenarios.where((s) => s.signedIn), hasLength(27));
       expect(
         scenarios.singleWhere((s) => s.id == 'overseas').locale,
         const Locale('en', 'US'),

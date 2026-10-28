@@ -41,6 +41,53 @@ final class FakeKakaoAuth implements KakaoAuth {
   }
 }
 
+/// LINE 로그인 대역.
+final class FakeLineAuth implements LineAuth {
+  /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).
+  new({this.failWith});
+
+  /// 던질 오류(`AppError` 또는 `SocialSignInCancelled`). null이면 성공.
+  final Exception? failWith;
+
+  /// 제공자에게 보낸 nonce(해시) 기록.
+  final providerNonces = <String>[];
+
+  @override
+  Future<LineCredential> signIn({required String rawNonce}) async {
+    final error = failWith;
+    if (error != null) {
+      throw error;
+    }
+    providerNonces.add(hashNonce(rawNonce));
+    return const LineCredential(idToken: 'fake-line-id-token');
+  }
+}
+
+/// Google 로그인 대역.
+final class FakeGoogleAuth implements GoogleAuth {
+  /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).
+  new({this.failWith});
+
+  /// 던질 오류(`AppError` 또는 `SocialSignInCancelled`). null이면 성공.
+  final Exception? failWith;
+
+  /// 제공자에게 보낸 nonce(해시) 기록.
+  final providerNonces = <String>[];
+
+  @override
+  Future<GoogleCredential> signIn({required String rawNonce}) async {
+    final error = failWith;
+    if (error != null) {
+      throw error;
+    }
+    providerNonces.add(hashNonce(rawNonce));
+    return GoogleCredential(
+      idToken: 'fake-google-id-token',
+      rawNonce: rawNonce,
+    );
+  }
+}
+
 /// iOS Apple 로그인 대역.
 final class FakeAppleNativeAuth implements AppleNativeAuth {
   /// [failWith]를 주면 그 오류로 실패합니다(취소는 `SocialSignInCancelled`).

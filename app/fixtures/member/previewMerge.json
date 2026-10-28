@@ -1,0 +1,41 @@
+{
+  "status": 200,
+  "body": {
+    "mergeToken": "fake-merge-token-0123456789abcdefghijklmnopq",
+    "expiresAt": "2026-10-13T03:10:00Z",
+    "summary": {
+      "diaries": 2,
+      "schedules": 0,
+      "dateRecords": 2,
+      "reactions": 0,
+      "overlapDays": 1,
+      "addedDays": { "adFree": 12 },
+      "current": {
+        "status": "saved",
+        "honorific": "하늘",
+        "birth": {
+          "calendar": "solar",
+          "date": { "year": 1990, "month": 5, "day": 15 },
+          "isLeapMonth": false,
+          "time": { "status": "known", "value": "14:30" },
+          "gender": "female",
+          "timezone": "Asia/Seoul",
+          "place": { "status": "not_asked" }
+        }
+      },
+      "other": {
+        "status": "saved",
+        "honorific": "다른 계정",
+        "birth": {
+          "calendar": "solar",
+          "date": { "year": 1992, "month": 8, "day": 3 },
+          "isLeapMonth": false,
+          "time": { "status": "unknown" },
+          "gender": "male",
+          "timezone": "Asia/Seoul",
+          "place": { "status": "not_asked" }
+        }
+      }
+    }
+  }
+}

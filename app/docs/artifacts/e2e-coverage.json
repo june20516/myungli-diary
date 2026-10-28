@@ -1,19 +1,16 @@
 {
-  "generatedAt": "2026-10-23T08:27:08.815235Z",
+  "generatedAt": "2026-10-27T08:52:25.544167Z",
   "exits": {
-    "covered": 75,
+    "covered": 78,
     "total": 88,
     "uncovered": [
-      "account-merge>login-methods",
       "ad-free>legal",
       "ad-free>system-purchase",
       "birthplace>notify-ask",
       "launch>ad-consent",
       "launch>consent",
       "launch>onboard-call",
-      "login-methods>account-merge",
       "onboard-gender>notify-ask",
-      "settings>login-methods",
       "system-apple-return>welcome",
       "system-purchase>ad-free",
       "system-rewarded-ad>evidence-sheet"
@@ -21,6 +18,10 @@
     "coveredBy": {
       "account-delete>welcome": [
         "test/flows/account_delete_flow_test.dart:101 확인 창에서 취소하면 지우지 않고, 확정하면 deleteMe 한 번 → 로컬 로그아웃 정리 → welcome(A73)"
+      ],
+      "account-merge>login-methods": [
+        "test/flows/login_methods_flow_test.dart:43 설정 > 로그인 수단: 붙이기, 이미 쓰는 인증 수단 안내, 계정 합치기까지 토큰은 그대로",
+        "patrol_test/account_test.dart:43 설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기"
       ],
       "ad-consent>today": [
         "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
@@ -94,10 +95,10 @@
         "test/flows/diary_list_flow_test.dart:127 줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary"
       ],
       "diary-view>diary-edit": [
-        "test/flows/diary_view_flow_test.dart:151 고치기는 이 화면을 그 일기 쓰기 화면으로 바꾸고, 저장하면 같은 일기 보기"
+        "test/flows/diary_view_flow_test.dart:192 고치기는 이 화면을 그 일기 쓰기 화면으로 바꾸고, 저장하면 같은 일기 보기"
       ],
       "diary-view>explain-sheet": [
-        "test/flows/diary_view_flow_test.dart:138 성격을 누르면 그 성격 용어의 풀이 시트"
+        "test/flows/diary_view_flow_test.dart:179 성격을 누르면 그 성격 용어의 풀이 시트"
       ],
       "diary-view>tag-diary": [
         "test/flows/tag_diary_flow_test.dart:161 diary-view의 태그 칩 → 그 태그 모아보기",
@@ -127,6 +128,10 @@
       "launch>welcome": [
         "test/flows/launch_flow_test.dart:42 new-user 시나리오는 welcome 화면에 도착합니다",
         "patrol_test/launch_test.dart:9 new-user 시나리오는 welcome 화면에 도착합니다"
+      ],
+      "login-methods>account-merge": [
+        "test/flows/login_methods_flow_test.dart:43 설정 > 로그인 수단: 붙이기, 이미 쓰는 인증 수단 안내, 계정 합치기까지 토큰은 그대로",
+        "patrol_test/account_test.dart:43 설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기"
       ],
       "login>ad-consent": [
         "test/flows/login_flow_test.dart:139 returning-user: 입력이 없으면 광고 동의를 한 번 거쳐 today",
@@ -243,33 +248,37 @@
       ],
       "settings>account-delete": [
         "test/flows/account_delete_flow_test.dart:76 제목·안내·삭제 버튼(destructive)이 있습니다",
-        "test/flows/settings_flow_test.dart:549"
+        "test/flows/settings_flow_test.dart:550"
       ],
       "settings>ad-free": [
         "test/flows/purchase_flow_test.dart:78 설정 → 광고 제거(사용 중) → 구매 내역에 네 줄",
-        "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
+        "test/flows/settings_flow_test.dart:511 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
         "patrol_test/me_test.dart:62"
       ],
       "settings>birthplace": [
-        "test/flows/settings_flow_test.dart:381 언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드"
+        "test/flows/settings_flow_test.dart:382 언어를 바꾸면 PATCH 뒤 앱이 그 언어로, 출생지를 묻지 않았으면 안내 → birthplace 수정 모드"
       ],
       "settings>calc-basis": [
-        "test/flows/settings_flow_test.dart:549"
+        "test/flows/settings_flow_test.dart:550"
       ],
       "settings>legal": [
-        "test/flows/settings_flow_test.dart:549"
+        "test/flows/settings_flow_test.dart:550"
+      ],
+      "settings>login-methods": [
+        "test/flows/login_methods_flow_test.dart:43 설정 > 로그인 수단: 붙이기, 이미 쓰는 인증 수단 안내, 계정 합치기까지 토큰은 그대로",
+        "patrol_test/account_test.dart:43 설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기"
       ],
       "settings>profile-edit": [
         "test/flows/me_journey_flow_test.dart:294 설정 → 정보 수정 → 생일 바꿔 저장 → 확인 → 나의 사주가 새 원국",
         "test/flows/me_journey_flow_test.dart:402 정보 수정에서 호칭을 바꾸면 나의 사주를 다시 받아 새 호칭 문장이 보입니다(A56)",
         "test/flows/profile_edit_flow_test.dart:629 settings 출생지 안내에서 고른 도시는 켜진 저장 버튼으로 열리고, 한국 기기여도 그 도시로 저장합니다(D29)",
-        "test/flows/settings_flow_test.dart:410 출생지 수정 모드에서 고른 도시는 정보 수정으로 넘깁니다(무거운 변경 확인은 그 화면, A6)",
-        "test/flows/settings_flow_test.dart:549",
+        "test/flows/settings_flow_test.dart:411 출생지 수정 모드에서 고른 도시는 정보 수정으로 넘깁니다(무거운 변경 확인은 그 화면, A6)",
+        "test/flows/settings_flow_test.dart:550",
         "patrol_test/me_test.dart:62"
       ],
       "settings>welcome": [
         "test/flows/me_journey_flow_test.dart:379 설정 → 로그아웃 → welcome, 로컬 프로필 사본이 비워집니다",
-        "test/flows/settings_flow_test.dart:571 로그아웃: 확인 창에서 취소하면 그대로, 확정하면 revokeAndSignOut → welcome",
+        "test/flows/settings_flow_test.dart:572 로그아웃: 확인 창에서 취소하면 그대로, 확정하면 revokeAndSignOut → welcome",
         "patrol_test/me_test.dart:62"
       ],
       "share-preview>system-share": [
@@ -323,7 +332,7 @@
     }
   },
   "states": {
-    "covered": 54,
+    "covered": 55,
     "total": 61,
     "uncovered": [
       "account-merge:error",
@@ -331,7 +340,6 @@
       "event-edit:loading",
       "event-edit:offline",
       "launch:loading",
-      "login-methods:error",
       "onboard-birth:out-of-range"
     ],
     "coveredBy": {
@@ -407,10 +415,10 @@
         "test/flows/diary_list_flow_test.dart:235 offline: 받아 둔 목록이 있으면 그대로 보이고 배너"
       ],
       "diary-view:error": [
-        "test/flows/diary_view_flow_test.dart:264 error: 일기를 받지 못하면 오류 화면과 다시 시도"
+        "test/flows/diary_view_flow_test.dart:305 error: 일기를 받지 못하면 오류 화면과 다시 시도"
       ],
       "diary-view:loading": [
-        "test/flows/diary_view_flow_test.dart:250 loading: 일기를 받는 동안 skeleton, 오면 본문"
+        "test/flows/diary_view_flow_test.dart:291 loading: 일기를 받는 동안 skeleton, 오면 본문"
       ],
       "event-edit:error": [
         "test/flows/event_edit_flow_test.dart:92 schedule-save-error: 저장 실패 toast를 띄우고 화면과 입력이 남습니다"
@@ -429,6 +437,10 @@
       ],
       "launch:offline": [
         "test/flows/launch_flow_test.dart:68 offline이고 캐시가 없으면 launch가 offline 오류와 다시 시도를 보입니다"
+      ],
+      "login-methods:error": [
+        "test/flows/login_methods_flow_test.dart:43 설정 > 로그인 수단: 붙이기, 이미 쓰는 인증 수단 안내, 계정 합치기까지 토큰은 그대로",
+        "patrol_test/account_test.dart:43 설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기"
       ],
       "login:error": [
         "test/flows/login_flow_test.dart:289 login-provider-down: 재시도 안내, 토큰 없음, 다시 누르면 다시 요청",
@@ -547,7 +559,7 @@
         "test/flows/new_user_flow_test.dart:51 new-user: welcome에서 today까지 계정 만들기 전체 흐름",
         "test/flows/notify_ask_flow_test.dart:86 허락: 07:30을 골라 기기를 등록하고 알림을 켠 뒤 광고 동의를 거쳐 today",
         "test/flows/purchase_flow_test.dart:182 광고 제거 구매 성공 뒤 설정 줄이 남은 기간으로 바뀐다",
-        "test/flows/settings_flow_test.dart:510 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
+        "test/flows/settings_flow_test.dart:511 광고 제거 줄: 비활성이면 이름만, 누르면 ad-free",
         "patrol_test/onboarding_test.dart:18 새 사용자: welcome에서 today까지 계정을 만듭니다"
       ],
       "D60": [
@@ -853,7 +865,7 @@
     },
     "settings": {
       "exits": {
-        "covered": 7,
+        "covered": 8,
         "total": 8
       },
       "states": {
@@ -923,17 +935,17 @@
     },
     "login-methods": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       }
     },
     "account-merge": {
       "exits": {
-        "covered": 0,
+        "covered": 1,
         "total": 1
       },
       "states": {

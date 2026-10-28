@@ -4,7 +4,7 @@ import 'package:dio/dio.dart' show Interceptor;
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart' show Locale;
+import 'package:flutter/widgets.dart' show Locale, Widget;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -150,7 +150,8 @@ Future<void> settleTimezoneSync(
 ///
 /// 도착 화면의 응답을 일부러 붙잡는 테스트는 [allowOngoing]을 true로 줍니다.
 /// [network]는 진입 계산 전에 대역 서버 바로 앞에 끼울 interceptor입니다(fixture로 둘 수
-/// 없는 계약 밖 응답 등).
+/// 없는 계약 밖 응답 등). [wrap]이 있으면 앱 위에 감쌀 위젯을 만듭니다(화면 스크린샷의
+/// 테스트 전용 기본값 등).
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   required String scenario,
@@ -158,6 +159,7 @@ Future<ProviderContainer> pumpApp(
   Locale? locale = const Locale('ko'),
   bool allowOngoing = false,
   Interceptor? network,
+  Widget Function(Widget app)? wrap,
 }) async {
   final container = (await tester.runAsync(
     () => bootstrapForTest(scenario, overrides: overrides, locale: locale),
@@ -167,8 +169,12 @@ Future<ProviderContainer> pumpApp(
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
   }
+  const Widget app = MyungliApp();
   await tester.pumpWidget(
-    UncontrolledProviderScope(container: container, child: const MyungliApp()),
+    UncontrolledProviderScope(
+      container: container,
+      child: wrap == null ? app : wrap(app),
+    ),
   );
   await settleEntry(tester, container, allowOngoing: allowOngoing);
   return container;

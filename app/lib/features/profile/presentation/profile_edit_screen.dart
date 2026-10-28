@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
@@ -11,6 +10,7 @@ import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
@@ -47,35 +47,17 @@ const Set<String> profileEditHandledStates = {'error'};
 /// 음력 날은 양력 달력에 없는 날(2월 30일)일 수 있어 날짜 계산 없이 날 숫자를 그대로 씁니다.
 String birthDateLabel(AppLocalizations l10n, BirthDateValue value) {
   final lunar = value.calendar == BirthCalendar.lunar;
-  final date = _formatDate(l10n.localeName, value.year, value.month, value.day);
+  final date = formatBirthDay(
+    l10n.localeName,
+    value.year,
+    value.month,
+    value.day,
+  );
   final calendar = lunar ? l10n.calendarLunar : l10n.calendarSolar;
   final leap = lunar && value.isLeapMonth
       ? ' (${l10n.datePickerLeapMonthValue(value.month)})'
       : '';
   return '$calendar $date$leap';
-}
-
-/// [locale]의 연월일 모양(`yMMMMd`)으로 쓰되, 날 칸은 [day] 숫자를 그대로 넣습니다.
-String _formatDate(String locale, int year, int month, int day) {
-  final pattern = DateFormat.yMMMMd(locale).pattern!;
-  final buffer = StringBuffer();
-  var quoted = false;
-  for (var i = 0; i < pattern.length; i++) {
-    final char = pattern[i];
-    if (char == "'") {
-      quoted = !quoted;
-      buffer.write(char);
-    } else if (!quoted && char == 'd') {
-      // 날 칸(d, dd)을 글자 그대로의 숫자로 바꿉니다.
-      while (i + 1 < pattern.length && pattern[i + 1] == 'd') {
-        i++;
-      }
-      buffer.write("'$day'");
-    } else {
-      buffer.write(char);
-    }
-  }
-  return DateFormat(buffer.toString(), locale).format(DateTime(year, month));
 }
 
 /// 태어난 시간 글자. 알면 그 언어의 시각(예 "오후 2:30"), 모르면 "모름"입니다.
@@ -84,12 +66,7 @@ String birthTimeLabel(AppLocalizations l10n, BirthTime time) {
   if (time.status != BirthTimeStatusEnum.known || value == null) {
     return l10n.timeUnknownLabel;
   }
-  final parts = value.split(':');
-  final hour = int.tryParse(parts.first);
-  final minute = parts.length == 2 ? int.tryParse(parts.last) : null;
-  if (hour == null || minute == null) return value;
-  return DateFormat.jm(l10n.localeName)
-      .format(DateTime(2000, 1, 1, hour, minute));
+  return formatBirthClock(l10n.localeName, value);
 }
 
 /// 성별 글자.

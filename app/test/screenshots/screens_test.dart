@@ -23,8 +23,10 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
+import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
@@ -73,6 +75,11 @@ final class _Shot {
   final _Open open;
   final List<Override> overrides;
 }
+
+/// 렌더 환경에는 플랫폼 시스템 글꼴이 없어 Apple·Google 버튼 글자가 상자로 그려집니다. golden
+/// (`systemFontFamily: appFont`)과 같게 앱 글꼴로 대신합니다. 사례는 모두 ko입니다.
+Widget _withSystemFontStandIn(Widget app) =>
+    SocialLoginSystemFont(fontFamily: koType.labelLg.fontFamily!, child: app);
 
 /// 앱이 진입 화면에 도착한 채로 둡니다.
 Future<void> _arrived(WidgetTester tester, ProviderContainer _) =>
@@ -318,7 +325,70 @@ Future<void> _accountDeleteError(WidgetTester tester) async {
   );
 }
 
-/// 등록할 화면·상태. 계획 2~6에서 만든 화면입니다.
+/// [provider]의 `social-login-button`을 누르고 화면이 정착하기를 기다립니다.
+Future<void> _tapProvider(WidgetTester tester, SocialProvider provider) =>
+    _tapAndSettle(
+      tester,
+      find.byWidgetPredicate(
+        (w) => w is SocialLoginButton && w.provider == provider,
+      ),
+    );
+
+/// login-methods의 연결 목록(대역 연결 저장소를 읽는 비동기 응답)이 올 때까지 기다립니다.
+Future<void> _loginMethodsLoaded(WidgetTester tester) async {
+  await pumpUntil(
+    tester,
+    () => find.byType(SocialLoginButton).evaluate().isNotEmpty,
+  );
+  await settleWithIo(tester);
+}
+
+/// 이미 다른 계정에 연결된 Google을 붙여 login-methods의 안내 창(error)을 띄웁니다.
+Future<void> _loginMethodsInUse(WidgetTester tester) async {
+  await _loginMethodsLoaded(tester);
+  await _tapProvider(tester, SocialProvider.google);
+  await pumpUntil(
+    tester,
+    () => find
+        .text(AppLocalizationsKo().loginMethodsInUseBody)
+        .evaluate()
+        .isNotEmpty,
+  );
+}
+
+/// LINE 붙이기가 실패해(대역 503) 소개 아래 화면 안 안내(`loginMethodsErrorBodyLink`)가 보입니다.
+Future<void> _loginMethodsLinkFailed(WidgetTester tester) async {
+  await _loginMethodsLoaded(tester);
+  await _tapProvider(tester, SocialProvider.line);
+  await pumpUntil(
+    tester,
+    () => find
+        .text(AppLocalizationsKo().loginMethodsErrorBodyLink)
+        .evaluate()
+        .isNotEmpty,
+  );
+}
+
+/// 연결하지 않은 Google로 인증해 account-merge의 요약·고르기 단계로 갑니다.
+Future<void> _mergeSummary(WidgetTester tester) =>
+    _tapProvider(tester, SocialProvider.google);
+
+/// 요약 요청이 끝나지 않은 채로 둡니다(요약 상자와 카드 자리가 숨 쉼).
+Future<void> _mergeLoading(WidgetTester tester) async {
+  await tester.tap(
+    find.byWidgetPredicate(
+      (w) => w is SocialLoginButton && w.provider == SocialProvider.google,
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
+}
+
+/// 합칠 계정이 없는 Apple로 인증해 account-merge의 안내 창(error)을 띄웁니다.
+Future<void> _mergeNotOther(WidgetTester tester) =>
+    _tapProvider(tester, SocialProvider.apple);
+
+/// 등록할 화면·상태. 계획 2~7에서 만든 화면입니다.
 final List<_Shot> _shots = [
   // 계획 2: 온보딩·로그인
   const _Shot('welcome', 'default', 'new-user', _arrived),
@@ -532,6 +602,65 @@ final List<_Shot> _shots = [
     ),
   ),
   _Shot('legal', 'default', 'member', _pushWith(ScreenIds.legal)),
+  // 계획 7: 로그인 수단·계정 합치기
+  _Shot(
+    'login-methods',
+    'default',
+    'member',
+    _pushWith(ScreenIds.loginMethods, after: _loginMethodsLoaded),
+  ),
+  _Shot(
+    'login-methods',
+    'error',
+    'member',
+    _pushWith(ScreenIds.loginMethods, after: _loginMethodsInUse),
+  ),
+  _Shot(
+    'login-methods',
+    'link-error',
+    'member',
+    _pushWith(
+      ScreenIds.loginMethods,
+      network: ProfileRequestGate(
+        failures: 1,
+        method: 'POST',
+        path: '/v1/me/identities/line',
+      ),
+      after: _loginMethodsLinkFailed,
+    ),
+  ),
+  _Shot(
+    'account-merge',
+    'default',
+    'member',
+    _pushWith(ScreenIds.accountMerge),
+  ),
+  _Shot(
+    'account-merge',
+    'summary',
+    'member',
+    _pushWith(ScreenIds.accountMerge, after: _mergeSummary),
+  ),
+  _Shot(
+    'account-merge',
+    'loading',
+    'member',
+    _pushWith(
+      ScreenIds.accountMerge,
+      network: ProfileRequestGate(
+        gate: Completer<void>(),
+        method: 'POST',
+        path: '/v1/me/merge/preview',
+      ),
+      after: _mergeLoading,
+    ),
+  ),
+  _Shot(
+    'account-merge',
+    'error',
+    'member',
+    _pushWith(ScreenIds.accountMerge, after: _mergeNotOther),
+  ),
   // 진입 계산이 받은 주소가 없고 다시 받는 요청이 끝나지 않은 상태: 두 문서 줄이 비활성입니다(A61).
   _Shot(
     'legal',
@@ -583,6 +712,7 @@ void main() {
           tester,
           scenario: shot.scenario,
           overrides: shot.overrides,
+          wrap: _withSystemFontStandIn,
         );
         await shot.open(tester, container);
       }

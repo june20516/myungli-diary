@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/action/social_provider_text.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -13,6 +14,7 @@ import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dar
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/auth/application/login_controller.dart';
+import 'package:myungli_diary/features/auth/model/login_provider_order.dart';
 
 /// IA `login`의 출구 대상. 모두 진입 상태가 바뀌는 이동이라 화면은 직접 이동하지 않고
 /// 로그인 뒤 진입 갱신으로 라우터 redirect가 보냅니다.
@@ -30,10 +32,11 @@ const Set<String> loginHandledStates = {'error'};
 /// 오류 상태 안내를 찾는 테스트용 키.
 const Key loginErrorKey = ValueKey('login.error');
 
-/// 소셜 로그인(D55, D50). 카카오 위, Apple 아래이고 두 버튼은 같은 크기입니다.
+/// 소셜 로그인(D55, D50, D82 ①). 카카오·LINE·Google·Apple 네 버튼이 같은 크기로, 앱 언어의
+/// 대표 제공자가 맨 위인 순서(`loginProviderOrder`)로 놓입니다.
 ///
 /// 슬롯이 모두 `ui`(ARB 문자열)라 `SentenceBlock` 대신 같은 글자 역할의 [Text]로 그립니다.
-/// 한 버튼이 처리 중이면 두 버튼 모두 다시 받지 않습니다. 실패하거나 취소하면 버튼 위에
+/// 한 버튼이 처리 중이면 네 버튼 모두 다시 받지 않습니다. 실패하거나 취소하면 버튼 위에
 /// 안내를 보이고, 다시 누르면 새 nonce로 처음부터 다시 로그인합니다.
 class LoginScreen extends ConsumerStatefulWidget {
   /// login 화면을 만듭니다.
@@ -58,18 +61,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _failure = null;
     });
     final controller = ref.read(loginControllerProvider.notifier);
-    final outcome = switch (provider) {
-      SocialProvider.kakao => await controller.signInWithKakao(
-        showDiscardNotice: _showDiscardNotice,
-      ),
-      SocialProvider.apple => await controller.signInWithApple(
-        showDiscardNotice: _showDiscardNotice,
-      ),
-      // LINE·Google 버튼은 아직 이 화면에 없습니다(계획 7에서 adapter와 함께 붙임).
-      SocialProvider.line || SocialProvider.google => throw StateError(
-        '$provider 로그인은 아직 연결하지 않았습니다.',
-      ),
-    };
+    final outcome = await controller.signIn(
+      provider,
+      showDiscardNotice: _showDiscardNotice,
+    );
     if (!mounted) return;
     setState(() {
       _busy = null;
@@ -96,6 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.watch(loginControllerProvider);
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
+    final order = loginProviderOrder(Localizations.localeOf(context));
     final failure = _failure;
     final failureMessage = failure == null
         ? null
@@ -155,9 +151,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: Space.s16),
                     ],
-                    _button(SocialProvider.kakao, l10n.loginKakaoLabel),
-                    const SizedBox(height: Space.s12),
-                    _button(SocialProvider.apple, l10n.loginAppleLabel),
+                    for (final (index, provider) in order.indexed) ...[
+                      if (index > 0) const SizedBox(height: Space.s12),
+                      _button(provider, socialProviderLabel(l10n, provider)),
+                    ],
                   ],
                 ),
               ),

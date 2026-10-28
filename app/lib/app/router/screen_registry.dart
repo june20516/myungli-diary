@@ -3,6 +3,10 @@ import 'package:myungli_diary/app/router/placeholder_screen.dart';
 import 'package:myungli_diary/app/screens/launch_screen.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
+import 'package:myungli_diary/features/account/application/account_merge_controller.dart';
+import 'package:myungli_diary/features/account/application/login_methods_controller.dart';
+import 'package:myungli_diary/features/account/presentation/account_merge_screen.dart';
+import 'package:myungli_diary/features/account/presentation/login_methods_screen.dart';
 import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
@@ -184,6 +188,18 @@ final Map<String, ScreenSpec> _implementedScreens = {
     _buildSettings,
     exits: settingsExits,
   ),
+  ScreenIds.loginMethods: const ScreenSpec(
+    ScreenIds.loginMethods,
+    _buildLoginMethods,
+    handledStates: loginMethodsHandledStates,
+    exits: loginMethodsExits,
+  ),
+  ScreenIds.accountMerge: const ScreenSpec(
+    ScreenIds.accountMerge,
+    _buildAccountMerge,
+    handledStates: accountMergeHandledStates,
+    exits: accountMergeExits,
+  ),
   ScreenIds.profileEdit: const ScreenSpec(
     ScreenIds.profileEdit,
     _buildProfileEdit,
@@ -278,6 +294,10 @@ Widget _buildMySaju(BuildContext context) => const MySajuScreen();
 Widget _buildSajuChart(BuildContext context) => const SajuChartScreen();
 
 Widget _buildSettings(BuildContext context) => const SettingsScreen();
+
+Widget _buildLoginMethods(BuildContext context) => const LoginMethodsScreen();
+
+Widget _buildAccountMerge(BuildContext context) => const AccountMergeScreen();
 
 Widget _buildProfileEdit(BuildContext context) => const ProfileEditScreen();
 

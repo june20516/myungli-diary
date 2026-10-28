@@ -3,8 +3,12 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/apple_web_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/line_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
+import 'package:myungli_diary/core/platform/social_provider.dart';
+import 'package:myungli_diary/features/auth/model/provider_proof.dart';
 
 /// 소셜 로그인 server 요청입니다(D55, Issue #100·#114).
 ///
@@ -18,43 +22,67 @@ final class AuthRepository {
 
   final DefaultApi _api;
 
-  /// 카카오 OIDC [idToken]으로 로그인합니다(`loginKakao`).
-  Future<LoginResponse> kakao({
-    required String idToken,
-    required String rawNonce,
-  }) => _send(
-    () => _api.loginKakao(
-      kakaoLoginRequest: KakaoLoginRequest(idToken: idToken, nonce: rawNonce),
-    ),
-  );
+  /// [proof]의 종류와 제공자에 맞는 operation으로 로그인합니다(결정 A84).
+  ///
+  /// 카카오·LINE·Google은 `loginKakao`·`loginLine`·`loginGoogle`, iOS Apple은
+  /// `loginApple`, Android Apple 웹 흐름의 교환 코드는 `completeAppleWebLogin`입니다.
+  /// 교환 코드는 2분 일회용이라 실패하면 같은 코드로 다시 보내지 않고 처음부터 다시 로그인합니다.
+  Future<LoginResponse> login(ProviderProof proof) => switch (proof) {
+    AppleWebExchangeProof() => _loginAppleWeb(proof),
+    IdTokenProof(provider: SocialProvider.kakao) => _loginKakao(proof),
+    IdTokenProof(provider: SocialProvider.line) => _loginLine(proof),
+    IdTokenProof(provider: SocialProvider.google) => _loginGoogle(proof),
+    IdTokenProof(provider: SocialProvider.apple) => _loginAppleNative(proof),
+  };
 
-  /// iOS 네이티브 Apple 자격으로 로그인합니다(`loginApple`).
-  Future<LoginResponse> appleNative({
-    required String idToken,
-    required String authorizationCode,
-    required String rawNonce,
-  }) => _send(
-    () => _api.loginApple(
-      appleLoginRequest: AppleLoginRequest(
-        idToken: idToken,
-        authorizationCode: authorizationCode,
-        nonce: rawNonce,
+  Future<LoginResponse> _loginKakao(IdTokenProof proof) => _send(
+    () => _api.loginKakao(
+      kakaoLoginRequest: KakaoLoginRequest(
+        idToken: proof.idToken,
+        nonce: proof.rawNonce,
       ),
     ),
   );
 
-  /// Android Apple 웹 흐름의 교환 코드로 로그인합니다(`completeAppleWebLogin`).
-  ///
-  /// [exchangeCode]는 2분 일회용입니다. 실패하면 같은 코드로 다시 보내지 않고 처음부터
-  /// 다시 로그인합니다.
-  Future<LoginResponse> appleWeb({
-    required String exchangeCode,
-    required String rawNonce,
-  }) => _send(
+  Future<LoginResponse> _loginLine(IdTokenProof proof) => _send(
+    () => _api.loginLine(
+      lineLoginRequest: LineLoginRequest(
+        idToken: proof.idToken,
+        nonce: proof.rawNonce,
+      ),
+    ),
+  );
+
+  Future<LoginResponse> _loginGoogle(IdTokenProof proof) => _send(
+    () => _api.loginGoogle(
+      googleLoginRequest: GoogleLoginRequest(
+        idToken: proof.idToken,
+        nonce: proof.rawNonce,
+      ),
+    ),
+  );
+
+  Future<LoginResponse> _loginAppleNative(IdTokenProof proof) async {
+    final authorizationCode = proof.authorizationCode;
+    if (authorizationCode == null) {
+      throw UnexpectedError(StateError('Apple 증명에 authorization code가 없습니다.'));
+    }
+    return await _send(
+      () => _api.loginApple(
+        appleLoginRequest: AppleLoginRequest(
+          idToken: proof.idToken,
+          authorizationCode: authorizationCode,
+          nonce: proof.rawNonce,
+        ),
+      ),
+    );
+  }
+
+  Future<LoginResponse> _loginAppleWeb(AppleWebExchangeProof proof) => _send(
     () => _api.completeAppleWebLogin(
       appleWebLoginRequest: AppleWebLoginRequest(
-        exchangeCode: exchangeCode,
-        nonce: rawNonce,
+        exchangeCode: proof.exchangeCode,
+        nonce: proof.rawNonce,
       ),
     ),
   );

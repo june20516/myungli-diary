@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
@@ -18,6 +19,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
@@ -33,14 +35,70 @@ final class _Network extends Interceptor {
   bool offline = false;
   bool emptyDiaries = false;
 
+  /// true면 달 길흉(`/v1/calendar/...`)만 연결 오류로 끊습니다.
+  bool failCalendar = false;
+
+  /// 달 길흉 요청을 끊은 횟수(주입이 실제로 닿았는지 확인용).
+  final blockedPaths = <String>[];
+
+  /// 값이 있으면 목록 응답에서 [secondOnlyDate]의 둘째 일기에만 이 `dayKind`를 붙입니다
+  /// (첫 일기는 기록 없음, 묶음 카드의 "첫 비-null" 경로).
+  String? secondOnlyKind;
+  String secondOnlyDate = '';
+
+  /// 값이 있으면 달 길흉 응답(`/v1/calendar/...`)에서 [calendarOverrideDate]의 `dayKind`를 이 값으로
+  /// 바꿔, 달 길흉이 알려진 값이 되게 합니다.
+  String? calendarOverrideKind;
+  String calendarOverrideDate = '';
+
   /// 하루 범위(`from`==`to`) 일기 목록을 날짜마다 물은 횟수.
   final dayQueries = <String, int>{};
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final kind = secondOnlyKind;
+    final data = response.data;
+    final override = calendarOverrideKind;
+    if (override != null &&
+        response.requestOptions.path.startsWith('/v1/calendar/') &&
+        data is Map) {
+      for (final day in data['days'] as List<Object?>) {
+        if ((day! as Map)['date'] == calendarOverrideDate) {
+          (day as Map)['dayKind'] = override;
+        }
+      }
+    }
+    if (kind != null &&
+        response.requestOptions.path == '/v1/diaries' &&
+        data is Map) {
+      final sameDay = [
+        for (final item in data['items'] as List<Object?>)
+          if ((item! as Map)['date'] == secondOnlyDate) item as Map,
+      ];
+      sameDay[1]['dayKind'] = kind;
+    }
+    handler.next(response);
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (offline) {
       handler.reject(
         DioException.connectionError(requestOptions: options, reason: '오프라인'),
+        true,
+      );
+      return;
+    }
+    if (failCalendar && options.path.startsWith('/v1/calendar/')) {
+      blockedPaths.add(options.path);
+      handler.reject(
+        DioException.connectionError(
+          requestOptions: options,
+          reason: '달 길흉 실패',
+        ),
         true,
       );
       return;
@@ -121,6 +179,94 @@ void main() {
     expect(first.tag!.name, '천을귀인');
     expect(first.tag!.variant, TagChipVariant.good);
     expect(tester.widget<DiaryRow>(find.byType(DiaryRow).last).isLast, isTrue);
+  });
+
+  testWidgets('배지는 쓸 때 기록한 성격이 먼저, 기록이 없는 일기만 달 길흉 (A89, D96)', (tester) async {
+    // 대역은 쓸 때 daily의 성격(용신일)을 기록하고, 달 길흉에서 2026-10-11은 기신일입니다.
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    await tester.runAsync(
+      () => container
+          .read(dioProvider)
+          .post<Map<String, Object?>>(
+            '/v1/diaries',
+            data: {'date': '2026-10-11', 'body': '기록한 성격 확인'},
+          ),
+    );
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    DiaryRow rowOn(CalendarDate date) => tester
+        .widgetList<DiaryRow>(find.byType(DiaryRow))
+        .firstWhere((row) => row.date == date);
+    // 기록값이 달 길흉과 달라야 기록값을 무시하는 구현을 잡습니다.
+    final calendarDay = await tester.runAsync(
+      () => container.read(
+        calendarDayProvider(CalendarDate(2026, 10, 11)).future,
+      ),
+    );
+    expect(calendarDay!.dayKind, DayKind.gisinDay);
+    final recorded = rowOn(CalendarDate(2026, 10, 11));
+    expect(recorded.characterLabel, _ko.dayKindYongsinDay);
+    expect(recorded.characterPending, isFalse);
+    // 기록이 없는 시드 일기는 달 길흉 캐시를 씁니다.
+    expect(
+      rowOn(CalendarDate(2026, 10, 12)).characterLabel,
+      _ko.dayKindGwiinDay,
+    );
+  });
+
+  testWidgets('달 길흉을 받지 못해도 기록한 성격이 있는 일기는 배지를 그립니다 (A89)', (tester) async {
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    await tester.runAsync(
+      () => container
+          .read(dioProvider)
+          .post<Map<String, Object?>>(
+            '/v1/diaries',
+            data: {'date': '2026-10-11', 'body': '기록한 성격 확인'},
+          ),
+    );
+    network.failCalendar = true;
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    // 달 길흉 요청이 실제로 끊겼는지(주입이 닿았는지) 확인합니다.
+    expect(network.blockedPaths, contains('/v1/calendar/2026/10'));
+    final rows = tester.widgetList<DiaryRow>(find.byType(DiaryRow));
+    final recorded = rows.firstWhere(
+      (row) => row.date == CalendarDate(2026, 10, 11),
+    );
+    expect(recorded.characterLabel, _ko.dayKindYongsinDay);
+    expect(recorded.characterPending, isFalse);
+  });
+
+  testWidgets('같은 날 묶음 카드도 기록값 먼저, 첫 비-null 기록값을 씁니다 (A89)', (tester) async {
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'diary-day-full');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    final date = CalendarDate(2026, 10, 13);
+    // 달 길흉은 기신일로 고정하고, 둘째 일기에만 그와 다른 성격을 기록합니다.
+    // 첫 일기에는 기록이 없습니다(첫 비-null 경로).
+    const calendarKind = DayKind.gisinDay;
+    final recordedKind = DayKind.values.firstWhere((k) => k != calendarKind);
+    network
+      ..calendarOverrideKind = calendarKind.value
+      ..calendarOverrideDate = date.toIso()
+      ..secondOnlyKind = recordedKind.value
+      ..secondOnlyDate = date.toIso();
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    final group = tester.widget<DiaryDayGroup>(find.byType(DiaryDayGroup));
+    expect(group.character, dayCharacterVariantOf(recordedKind));
+    expect(group.character, isNot(dayCharacterVariantOf(calendarKind)));
+    expect(group.characterPending, isFalse);
   });
 
   testWidgets('줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary', (tester) async {

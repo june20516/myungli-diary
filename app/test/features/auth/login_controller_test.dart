@@ -17,8 +17,10 @@ import 'package:myungli_diary/core/api/gen/model/apple_web_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
+import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
+import 'package:myungli_diary/core/api/gen/model/line_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/login_response.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
@@ -28,6 +30,7 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
+import 'package:myungli_diary/core/platform/social_provider.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/core/storage/secure_store.dart';
@@ -119,6 +122,8 @@ class _FakeApi implements DefaultApi {
   final List<String> _webProblems;
 
   final kakaoRequests = <KakaoLoginRequest>[];
+  final lineRequests = <LineLoginRequest>[];
+  final googleRequests = <GoogleLoginRequest>[];
   final appleRequests = <AppleLoginRequest>[];
   final webRequests = <AppleWebLoginRequest>[];
   int getMeCalls = 0;
@@ -148,6 +153,38 @@ class _FakeApi implements DefaultApi {
         problem,
       );
     }
+    return _ok(
+      _login(isNewAccount: isNewAccount, consentRequired: consentRequired),
+    );
+  }
+
+  @override
+  Future<Response<LoginResponse>> loginLine({
+    required LineLoginRequest lineLoginRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    lineRequests.add(lineLoginRequest);
+    return _ok(
+      _login(isNewAccount: isNewAccount, consentRequired: consentRequired),
+    );
+  }
+
+  @override
+  Future<Response<LoginResponse>> loginGoogle({
+    required GoogleLoginRequest googleLoginRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    googleRequests.add(googleLoginRequest);
     return _ok(
       _login(isNewAccount: isNewAccount, consentRequired: consentRequired),
     );
@@ -296,6 +333,7 @@ final class _Harness {
     required this.container,
     required this.api,
     required this.kakao,
+    required this.google,
     required this.appleNative,
     required this.appleWeb,
     required this.crashReporter,
@@ -306,6 +344,7 @@ final class _Harness {
   final ProviderContainer container;
   final _FakeApi api;
   final FakeKakaoAuth kakao;
+  final FakeGoogleAuth google;
   final FakeAppleNativeAuth appleNative;
   final FakeAppleWebAuth appleWeb;
   final FakeCrashReporter crashReporter;
@@ -334,6 +373,7 @@ Future<_Harness> _harness({
 }) async {
   final server = api ?? _FakeApi();
   final kakaoAuth = kakao ?? FakeKakaoAuth();
+  final googleAuth = FakeGoogleAuth();
   final native = appleNative ?? FakeAppleNativeAuth();
   final crashReporter = FakeCrashReporter();
   final web = appleWeb ?? FakeAppleWebAuth();
@@ -350,6 +390,7 @@ Future<_Harness> _harness({
       secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
       crashReporterProvider.overrideWithValue(crashReporter),
       kakaoAuthProvider.overrideWithValue(kakaoAuth),
+      googleAuthProvider.overrideWithValue(googleAuth),
       appleNativeAuthProvider.overrideWithValue(native),
       appleWebAuthProvider.overrideWithValue(web),
       targetPlatformProvider.overrideWithValue(platform),
@@ -388,6 +429,7 @@ Future<_Harness> _harness({
     container: container,
     api: server,
     kakao: kakaoAuth,
+    google: googleAuth,
     appleNative: native,
     appleWeb: web,
     crashReporter: crashReporter,
@@ -403,7 +445,7 @@ void main() {
     test('원문 nonce(32자)는 server에, 해시는 제공자에 보내고 토큰 저장 뒤 진입을 갱신합니다', () async {
       final h = await _harness();
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginSucceeded>());
       final request = h.api.kakaoRequests.single;
@@ -417,8 +459,8 @@ void main() {
     test('시도마다 새 nonce를 만듭니다', () async {
       final h = await _harness();
 
-      await h.controller.signInWithKakao();
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
+      await h.controller.signIn(SocialProvider.kakao);
 
       final nonces = h.api.kakaoRequests.map((r) => r.nonce).toList();
       expect(nonces, hasLength(2));
@@ -430,7 +472,7 @@ void main() {
         kakao: FakeKakaoAuth(failWith: const SocialSignInCancelled()),
       );
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginCancelled>());
       expect(h.api.kakaoRequests, isEmpty);
@@ -442,7 +484,7 @@ void main() {
         kakao: FakeKakaoAuth(failWith: const OfflineError()),
       );
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect((outcome as LoginFailed).error, isA<OfflineError>());
       expect(h.api.kakaoRequests, isEmpty);
@@ -451,7 +493,7 @@ void main() {
     test('AppError가 아닌 실패는 요약만 보고하고 LoginFailed(UnexpectedError)입니다', () async {
       final h = await _harness(secureStore: _FailingSecureStore());
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect((outcome as LoginFailed).error, isA<UnexpectedError>());
       final reported = h.crashReporter.errors.single;
@@ -465,7 +507,7 @@ void main() {
         api: _FakeApi(kakaoProblem: 'auth.provider_token_invalid'),
       );
 
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
 
       expect(h.crashReporter.errors, isEmpty);
     });
@@ -475,7 +517,7 @@ void main() {
         api: _FakeApi(kakaoProblem: 'auth.provider_unavailable'),
       );
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       final error = (outcome as LoginFailed).error as ProblemError;
       expect(error.code, 'auth.provider_unavailable');
@@ -488,7 +530,7 @@ void main() {
       final h = await _harness();
       h.entry.refreshError = const OfflineError();
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginFailed>());
       expect((outcome as LoginFailed).error, isA<OfflineError>());
@@ -501,8 +543,8 @@ void main() {
       final api = _FakeApi()..kakaoGate = Completer<void>();
       final h = await _harness(api: api);
 
-      final first = h.controller.signInWithKakao();
-      final second = h.controller.signInWithKakao();
+      final first = h.controller.signIn(SocialProvider.kakao);
+      final second = h.controller.signIn(SocialProvider.kakao);
       api.kakaoGate!.complete();
       await Future.wait([first, second]);
 
@@ -518,7 +560,7 @@ void main() {
       () async {
         final h = await _harness();
 
-        final outcome = await h.controller.signInWithApple();
+        final outcome = await h.controller.signIn(SocialProvider.apple);
 
         expect(outcome, isA<LoginSucceeded>());
         expect(h.api.appleRequests, isEmpty);
@@ -537,7 +579,7 @@ void main() {
     test('iOS는 native 자격과 원문 nonce로 loginApple을 부릅니다', () async {
       final h = await _harness(platform: TargetPlatform.iOS);
 
-      final outcome = await h.controller.signInWithApple();
+      final outcome = await h.controller.signIn(SocialProvider.apple);
 
       expect(outcome, isA<LoginSucceeded>());
       expect(h.api.webRequests, isEmpty);
@@ -556,7 +598,7 @@ void main() {
         ),
       );
 
-      final outcome = await h.controller.signInWithApple();
+      final outcome = await h.controller.signIn(SocialProvider.apple);
 
       expect(outcome, isA<LoginCancelled>());
       expect(h.api.appleRequests, isEmpty);
@@ -572,7 +614,7 @@ void main() {
           ),
         );
 
-        final outcome = await h.controller.signInWithApple();
+        final outcome = await h.controller.signIn(SocialProvider.apple);
 
         expect((outcome as AppleWebFailed).error, AppleWebError.userCancelled);
         expect(h.api.webRequests, isEmpty);
@@ -587,7 +629,7 @@ void main() {
           appleWeb: FakeAppleWebAuth(returnedState: 'forged'),
         );
 
-        final outcome = await h.controller.signInWithApple();
+        final outcome = await h.controller.signIn(SocialProvider.apple);
 
         expect((outcome as AppleWebFailed).error, AppleWebError.stateMismatch);
         expect(h.api.webRequests, isEmpty);
@@ -603,7 +645,7 @@ void main() {
           api: _FakeApi(webProblems: ['auth.exchange_invalid']),
         );
 
-        final failed = await h.controller.signInWithApple();
+        final failed = await h.controller.signIn(SocialProvider.apple);
 
         expect(
           ((failed as LoginFailed).error as ProblemError).code,
@@ -613,7 +655,7 @@ void main() {
         expect(h.appleWeb.openedUris, hasLength(1));
         expect(h.accessToken, isNull);
 
-        final retried = await h.controller.signInWithApple();
+        final retried = await h.controller.signIn(SocialProvider.apple);
 
         expect(retried, isA<LoginSucceeded>());
         expect(h.appleWeb.openedUris, hasLength(2));
@@ -628,6 +670,36 @@ void main() {
     );
   });
 
+  group('LINE·Google', () {
+    test('LINE 로그인 성공은 카카오와 같은 진입 계산입니다', () async {
+      final h = await _harness();
+
+      final outcome = await h.controller.signIn(SocialProvider.line);
+
+      expect(outcome, isA<LoginSucceeded>());
+      final request = h.api.lineRequests.single;
+      expect(request.idToken, 'fake-line-id-token');
+      expect(request.nonce, hasLength(32));
+      expect(h.api.kakaoRequests, isEmpty);
+      expect(h.accessToken, 'login-access-token');
+      expect(h.entry.refreshes, 1);
+    });
+
+    test('Google 로그인 성공은 credential의 원문 nonce를 server에 보냅니다', () async {
+      final h = await _harness();
+
+      final outcome = await h.controller.signIn(SocialProvider.google);
+
+      expect(outcome, isA<LoginSucceeded>());
+      final request = h.api.googleRequests.single;
+      expect(request.idToken, 'fake-google-id-token');
+      expect(request.nonce, hasLength(32));
+      expect(h.google.providerNonces.single, hashNonce(request.nonce));
+      expect(h.accessToken, 'login-access-token');
+      expect(h.entry.refreshes, 1);
+    });
+  });
+
   group('사주가 저장된 계정과 온보딩 입력', () {
     const draft = OnboardingDraft(honorific: '별님');
 
@@ -639,7 +711,8 @@ void main() {
       final order = <String>[];
       h.entry.onRefresh = () => order.add('refresh');
 
-      final outcome = await h.controller.signInWithKakao(
+      final outcome = await h.controller.signIn(
+        SocialProvider.kakao,
         showDiscardNotice: () async {
           order.add('notice(clears=${h.draft.clears})');
         },
@@ -656,7 +729,8 @@ void main() {
       );
       var notices = 0;
 
-      await h.controller.signInWithKakao(
+      await h.controller.signIn(
+        SocialProvider.kakao,
         showDiscardNotice: () async => notices++,
       );
 
@@ -669,7 +743,8 @@ void main() {
       final h = await _harness(draft: draft);
       var notices = 0;
 
-      await h.controller.signInWithKakao(
+      await h.controller.signIn(
+        SocialProvider.kakao,
         showDiscardNotice: () async => notices++,
       );
 
@@ -685,7 +760,8 @@ void main() {
       );
       var notices = 0;
 
-      final outcome = await h.controller.signInWithKakao(
+      final outcome = await h.controller.signIn(
+        SocialProvider.kakao,
         showDiscardNotice: () async => notices++,
       );
 
@@ -704,7 +780,8 @@ void main() {
       );
       var notices = 0;
 
-      await h.controller.signInWithKakao(
+      await h.controller.signIn(
+        SocialProvider.kakao,
         showDiscardNotice: () async => notices++,
       );
 
@@ -724,7 +801,7 @@ void main() {
         meAfterLogin: noProfile,
       );
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginSucceeded>());
       expect(h.profile.creates, 1);
@@ -740,7 +817,7 @@ void main() {
         meAfterLogin: noProfile,
       );
 
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
 
       expect(h.profile.creates, 0);
       expect(await h.flags.readBool(notifyAskPendingKey), isFalse);
@@ -761,7 +838,7 @@ void main() {
         meAfterLogin: noProfile,
       );
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginSucceeded>());
       expect(h.profile.creates, 1);
@@ -783,7 +860,7 @@ void main() {
         meAfterLogin: noProfile,
       );
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginSucceeded>());
       expect(h.profile.creates, 1);
@@ -798,7 +875,7 @@ void main() {
         meAfterLogin: _me(hasProfile: false, consentRequired: true),
       );
 
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
 
       expect(h.profile.creates, 0);
       expect(h.entry.refreshes, 1);
@@ -811,7 +888,10 @@ void main() {
         meAfterLogin: _me(hasProfile: true),
       );
 
-      await h.controller.signInWithKakao(showDiscardNotice: () async {});
+      await h.controller.signIn(
+        SocialProvider.kakao,
+        showDiscardNotice: () async {},
+      );
 
       expect(h.profile.creates, 0);
       expect(h.draft.clears, 1);
@@ -827,7 +907,7 @@ void main() {
       h.entry.onRefresh = () =>
           holds.add(h.container.read(loginCompletingProvider));
 
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
 
       // 진입 계산(로그인), 저장 마지막의 진입 계산 모두 보류 중에 돕니다.
       expect(holds, [true, true]);
@@ -842,7 +922,7 @@ void main() {
       );
       h.entry.refreshError = const OfflineError();
 
-      final outcome = await h.controller.signInWithKakao();
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
 
       expect(outcome, isA<LoginFailed>());
       expect(h.profile.creates, 0);
@@ -857,7 +937,7 @@ void main() {
         meAfterLogin: noProfile,
       );
 
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
 
       expect(h.container.read(loginCompletingProvider), isFalse);
       expect(h.entry.refreshes, 2);
@@ -873,7 +953,7 @@ void main() {
       h.entry.onRefresh = () =>
           holds.add(h.container.read(loginCompletingProvider));
 
-      await h.controller.signInWithKakao();
+      await h.controller.signIn(SocialProvider.kakao);
 
       expect(holds, [false]);
     });

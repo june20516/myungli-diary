@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/social_provider.dart';
 import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
@@ -10,23 +11,8 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
-/// 소셜 로그인 제공자(`social-login-button` `variants`).
-///
-/// 값의 순서는 명세의 기본 순서(`parts.stack.order.base`)입니다. 언어마다 맨 위에 올 제공자는
-/// 화면이 정합니다(`parts.stack.order.top`).
-enum SocialProvider {
-  /// 카카오 로그인.
-  kakao,
-
-  /// LINE으로 로그인.
-  line,
-
-  /// Google 계정으로 로그인.
-  google,
-
-  /// Apple로 로그인(iOS·Android 모두, Android는 웹 흐름).
-  apple,
-}
+/// `SocialProvider`는 플랫폼 계층이 소유하고, 기존 import가 그대로 동작하도록 다시 내보냅니다.
+export 'package:myungli_diary/core/platform/social_provider.dart';
 
 /// Google 버튼 테마 한 벌(Google Sign-In branding의 light·dark 테마).
 @immutable
@@ -46,6 +32,27 @@ final class GoogleButtonTheme {
 
   /// 글자.
   final Color foreground;
+}
+
+/// 아래 [SocialLoginButton]들의 Apple·Google 글자 글꼴을 한꺼번에 정합니다.
+///
+/// 앱은 쓰지 않습니다(플랫폼 기본 글꼴). 시스템 글꼴이 없는 테스트 렌더(화면 스크린샷)가 앱
+/// 전체를 감싸 대신 쓸 글꼴을 줍니다. 버튼의 `systemFontFamily`가 있으면 그것이 먼저입니다.
+class SocialLoginSystemFont extends InheritedWidget {
+  /// [fontFamily]를 아래 버튼들의 시스템 글꼴 자리에 둡니다.
+  const new({required this.fontFamily, required super.child, super.key});
+
+  /// 시스템 글꼴 대신 쓸 글꼴.
+  final String fontFamily;
+
+  /// 위에 [SocialLoginSystemFont]가 있으면 그 글꼴, 없으면 null입니다.
+  static String? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<SocialLoginSystemFont>()
+      ?.fontFamily;
+
+  @override
+  bool updateShouldNotify(SocialLoginSystemFont oldWidget) =>
+      fontFamily != oldWidget.fontFamily;
 }
 
 /// 소셜 로그인 버튼(`social-login-button`).
@@ -296,8 +303,9 @@ class SocialLoginButton extends StatelessWidget {
   /// false면 점·숨쉬기가 정지 상태로 그립니다.
   final bool animated;
 
-  /// Apple·Google 글자의 글꼴. null이면 플랫폼 기본(시스템) 글꼴입니다. 테스트·golden에는
-  /// 시스템 글꼴이 없어 대신 쓸 글꼴을 줍니다.
+  /// Apple·Google 글자의 글꼴. null이면 위의 [SocialLoginSystemFont]가 준 글꼴이고, 그것도
+  /// 없으면 플랫폼 기본(시스템) 글꼴입니다. 테스트·golden에는 시스템 글꼴이 없어 대신 쓸
+  /// 글꼴을 줍니다.
   final String? systemFontFamily;
 
   static const BorderRadius _radius = BorderRadius.all(
@@ -366,6 +374,8 @@ class SocialLoginButton extends StatelessWidget {
   /// 제공자·밝기·꺼짐에 맞는 색과 글자 모양.
   _Look _lookOf(BuildContext context, {required bool dark, required bool off}) {
     final labelToken = context.tokens.typography.labelLg;
+    final systemFontFamily =
+        this.systemFontFamily ?? SocialLoginSystemFont.maybeOf(context);
     // Apple HIG와 Google 가이드는 버튼 글자를 각자의 글꼴로 쓰게 합니다. 앱 글꼴을 상속하지 않고
     // (`inherit: false`) 플랫폼 기본 글꼴로 그립니다. Apple은 크기·굵기·줄 높이를 명세의
     // label.lg로, Google은 가이드의 Medium 14/20으로 둡니다.

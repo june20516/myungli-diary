@@ -13,7 +13,9 @@ import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
+import 'package:myungli_diary/core/platform/social_provider.dart';
 import 'package:myungli_diary/features/auth/application/login_completing.dart';
+import 'package:myungli_diary/features/auth/application/provider_authenticator.dart';
 import 'package:myungli_diary/features/auth/data/auth_repository.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -85,53 +87,27 @@ class LoginController extends AsyncNotifier<void> {
 
   Future<LoginOutcome>? _inFlight;
 
-  /// 카카오로 로그인합니다.
+  /// [provider]로 로그인합니다. Apple은 Android면 웹 흐름(교환 코드), 그 밖(iOS)은 네이티브입니다.
   ///
   /// 사주가 저장된 기존 계정인데 온보딩 입력이 남아 있으면 [showDiscardNotice]를 기다린 뒤
   /// 입력을 지웁니다.
-  Future<LoginOutcome> signInWithKakao({DiscardNotice? showDiscardNotice}) {
-    final kakao = ref.read(kakaoAuthProvider);
+  Future<LoginOutcome> signIn(
+    SocialProvider provider, {
+    DiscardNotice? showDiscardNotice,
+  }) {
+    final authenticator = ref.read(providerAuthenticatorProvider);
     final repository = ref.read(authRepositoryProvider);
     return _once((rawNonce) async {
-      final credential = await kakao.signIn(rawNonce: rawNonce);
-      return LoginSucceeded(
-        await repository.kakao(idToken: credential.idToken, rawNonce: rawNonce),
+      final result = await authenticator.authenticate(
+        provider,
+        rawNonce: rawNonce,
       );
-    }, showDiscardNotice);
-  }
-
-  /// Apple로 로그인합니다. Android는 웹 흐름(교환 코드), 그 밖(iOS)은 네이티브입니다.
-  ///
-  /// [showDiscardNotice]는 [signInWithKakao]와 같습니다.
-  Future<LoginOutcome> signInWithApple({DiscardNotice? showDiscardNotice}) {
-    final repository = ref.read(authRepositoryProvider);
-    if (ref.read(targetPlatformProvider) == TargetPlatform.android) {
-      final web = ref.read(appleWebAuthProvider);
-      return _once((rawNonce) async {
-        final result = await web.signIn(rawNonce: rawNonce);
-        // 교환 코드는 일회용이라 실패해도 같은 코드로 다시 보내지 않습니다.
-        // 다음 시도는 새 nonce로 authorize부터 다시 합니다.
-        return switch (result) {
-          AppleWebExchange(:final exchangeCode) => LoginSucceeded(
-            await repository.appleWeb(
-              exchangeCode: exchangeCode,
-              rawNonce: rawNonce,
-            ),
-          ),
-          AppleWebFailure(:final error) => AppleWebFailed(error),
-        };
-      }, showDiscardNotice);
-    }
-    final native = ref.read(appleNativeAuthProvider);
-    return _once((rawNonce) async {
-      final credential = await native.signIn(rawNonce: rawNonce);
-      return LoginSucceeded(
-        await repository.appleNative(
-          idToken: credential.idToken,
-          authorizationCode: credential.authorizationCode,
-          rawNonce: rawNonce,
+      return switch (result) {
+        ProviderAuthenticated(:final proof) => LoginSucceeded(
+          await repository.login(proof),
         ),
-      );
+        ProviderAppleWebFailed(:final error) => AppleWebFailed(error),
+      };
     }, showDiscardNotice);
   }
 
