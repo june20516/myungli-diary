@@ -53,7 +53,8 @@
   keys:
     - params: {breakdown: none, score: number}
       keys: ["basis.calendar/score"]
-    - params: {day_kind: [day_kind], element: [element, color], note: none, role: none}
+    # 행운 색의 role 값은 YONGSIN·TONGGWAN이라 glossary role에 TONGGWAN이 없습니다. 종류는 같은 슬롯의 role과 맞추되 문장에 쓰지 않습니다(W48).
+    - params: {day_kind: [day_kind], element: [element, color], note: none, role: [role]}
       keys: ["basis.color/lucky_element"]
     - params: {day_branch: text, day_kind: [day_kind], direction: [direction8]}
       keys: ["basis.direction/gwiin_branch"]
@@ -91,7 +92,7 @@
       keys: ["basis.personal/ten_god"]
     - params: {element: [element, color], place: [place], role: [role], strength: [strength]}
       keys: ["basis.personal/twelve_stage"]
-    - params: {all: none, day_kind: none, featured: none}
+    - params: {all: none, day_kind: [day_kind], featured: none}
       keys: ["basis.tags/select"]
     - params: {strength_level: [strength], strength_score: none}
       keys: ["basis.yongsin/eokbu"]

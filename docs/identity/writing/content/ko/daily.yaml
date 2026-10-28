@@ -152,6 +152,10 @@
 - {slot: daily.number, key: number.gwiin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
 - {slot: daily.number, key: number.ordinary_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
 - {slot: daily.number, key: number.yongsin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
+- {slot: daily.color, key: color.gisin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.gwiin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.ordinary_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.yongsin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
 - {slot: daily.focus_time, key: focus_time.fallback, text: "오늘은 이 시간에 집중이 잘 돼요."}
 - {slot: daily.focus_time, key: focus_time.gwiin, text: "이 시간에는 도움을 청하면 잘 통해요."}
 - {slot: daily.focus_time, key: focus_time.hap, text: "이 시간에는 사람을 만나 이야기하기 좋아요."}
