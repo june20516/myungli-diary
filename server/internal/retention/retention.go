@@ -22,7 +22,7 @@ const (
 	IdempotencyTTL = 24 * time.Hour
 	// RateLimitWindow는 요청 한도의 고정 창 길이입니다(S68). 끝난 창은 지웁니다.
 	RateLimitWindow = time.Minute
-	// ExpiredGrace는 일회용 토큰 행(합치기 토큰)을 만료 뒤 남겨 두는 기간입니다.
+	// ExpiredGrace는 일회용 토큰 행(합치기 토큰, Apple 웹 로그인 교환 코드)을 만료 뒤 남겨 두는 기간입니다.
 	ExpiredGrace = 24 * time.Hour
 	// InactiveDeviceTTL은 비활성 알림 기기를 마지막으로 본 뒤 남겨 두는 기간입니다(S119).
 	InactiveDeviceTTL = 30 * 24 * time.Hour
@@ -68,6 +68,7 @@ func (s *Store) Steps() []Step {
 			return s.q.DeleteExpiredRefreshTokens(ctx, s.clk.Now())
 		}},
 		{Name: "합치기 토큰", Run: s.before(ExpiredGrace, s.q.DeleteMergeTicketsExpiredBefore)},
+		{Name: "Apple 웹 로그인", Run: s.deleteExpiredAppleWebLogins},
 		{Name: "알림 기기", Run: s.before(InactiveDeviceTTL, s.q.DeleteInactiveDevicesSeenBefore)},
 		{Name: "미리보기 설치 해시", Run: s.yearsBefore(PreviewUsageYears, s.q.DeletePreviewUsageBefore)},
 		{Name: "보상 기록", Run: s.deleteRewardRecords},
@@ -109,6 +110,24 @@ func (s *Store) deleteBillingRecords(ctx context.Context) (int64, error) {
 		return err
 	})
 	return total, err
+}
+
+// deleteExpiredAppleWebLogins는 만료 + 1일 지난 Apple 웹 로그인 행을 지우고, 연결되지 않은 행의 Apple 토큰은
+// 같은 트랜잭션에서 허가 취소 대기 행으로 넘깁니다. 지운 행 수를 돌려줍니다.
+func (s *Store) deleteExpiredAppleWebLogins(ctx context.Context) (int64, error) {
+	now := s.clk.Now()
+	cutoff := now.Add(-ExpiredGrace)
+	var deleted int64
+	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := s.q.WithTx(tx)
+		_, err := q.QueueUnclaimedAppleWebLoginRevocations(ctx, retentiondb.QueueUnclaimedAppleWebLoginRevocationsParams{Now: now, Cutoff: cutoff})
+		if err != nil {
+			return err
+		}
+		deleted, err = q.DeleteAppleWebLoginsExpiredBefore(ctx, cutoff)
+		return err
+	})
+	return deleted, err
 }
 
 func (s *Store) purgeDeletedDiaries(ctx context.Context) (int64, error) {

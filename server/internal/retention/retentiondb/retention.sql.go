@@ -10,6 +10,18 @@ import (
 	"time"
 )
 
+const deleteAppleWebLoginsExpiredBefore = `-- name: DeleteAppleWebLoginsExpiredBefore :execrows
+DELETE FROM apple_web_logins WHERE expires_at < $1
+`
+
+func (q *Queries) DeleteAppleWebLoginsExpiredBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteAppleWebLoginsExpiredBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteBillingEventsBefore = `-- name: DeleteBillingEventsBefore :execrows
 DELETE FROM billing_events WHERE received_at < $1
 `
@@ -264,6 +276,33 @@ type PurgeDeletedSchedulesParams struct {
 
 func (q *Queries) PurgeDeletedSchedules(ctx context.Context, arg PurgeDeletedSchedulesParams) (int64, error) {
 	result, err := q.db.Exec(ctx, purgeDeletedSchedules, arg.Now, arg.Cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const queueUnclaimedAppleWebLoginRevocations = `-- name: QueueUnclaimedAppleWebLoginRevocations :execrows
+INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at)
+SELECT 'apple', w.subject, w.id, w.apple_refresh_token, w.apple_token_key_id, w.apple_client_id, $1::timestamptz
+FROM apple_web_logins AS w
+WHERE w.expires_at < $2::timestamptz
+  AND w.consumed_at IS NULL
+  AND NOT EXISTS (
+      SELECT 1 FROM auth_identities AS i WHERE i.provider = 'apple' AND i.subject = w.subject
+  )
+`
+
+type QueueUnclaimedAppleWebLoginRevocationsParams struct {
+	Now    time.Time
+	Cutoff time.Time
+}
+
+// 만료 + 1일 지난 Apple 웹 로그인 중 app이 오지 않아 쓰이지 않았고 그 subject의 연결 행도 없는 행의
+// Apple refresh token을 허가 취소 대기 행으로 넘깁니다(S19, apple web callback spec §2.5).
+// 토큰은 웹 로그인 행 id를 aad로 암호화했고 재시도는 identity_id를 aad로 여므로 identity_id에 그 id를 넣습니다.
+func (q *Queries) QueueUnclaimedAppleWebLoginRevocations(ctx context.Context, arg QueueUnclaimedAppleWebLoginRevocationsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, queueUnclaimedAppleWebLoginRevocations, arg.Now, arg.Cutoff)
 	if err != nil {
 		return 0, err
 	}

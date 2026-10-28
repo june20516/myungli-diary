@@ -10,6 +10,7 @@ import (
 )
 
 type Querier interface {
+	DeleteAppleWebLoginsExpiredBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	DeleteBillingEventsBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	// job retention의 정리 쿼리입니다(spec §8.3, S113, S119, S120). 기준 시각은 모두 호출하는 쪽이 계산해 넘깁니다.
 	DeleteChartCacheBefore(ctx context.Context, cutoff time.Time) (int64, error)
@@ -38,6 +39,10 @@ type Querier interface {
 	// 복구 기간이 지난 지운 일기의 본문을 비웁니다(S6). 가이드 질문과 태그는 날짜 기록(diary_days)에 남깁니다(S95).
 	PurgeDeletedDiaries(ctx context.Context, arg PurgeDeletedDiariesParams) (int64, error)
 	PurgeDeletedSchedules(ctx context.Context, arg PurgeDeletedSchedulesParams) (int64, error)
+	// 만료 + 1일 지난 Apple 웹 로그인 중 app이 오지 않아 쓰이지 않았고 그 subject의 연결 행도 없는 행의
+	// Apple refresh token을 허가 취소 대기 행으로 넘깁니다(S19, apple web callback spec §2.5).
+	// 토큰은 웹 로그인 행 id를 aad로 암호화했고 재시도는 identity_id를 aad로 여므로 identity_id에 그 id를 넣습니다.
+	QueueUnclaimedAppleWebLoginRevocations(ctx context.Context, arg QueueUnclaimedAppleWebLoginRevocationsParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

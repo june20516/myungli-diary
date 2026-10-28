@@ -354,3 +354,66 @@ func TestSteps_PurgesSoftDeletedScheduleAfter30Days(t *testing.T) {
 	assert.Equal(t, 1, f.count("SELECT count(*) FROM schedules WHERE id = $1 AND title = '' AND memo IS NULL AND content_purged_at = $2", old, now))
 	assert.Equal(t, 1, f.count("SELECT count(*) FROM schedules WHERE id = $1 AND title = 'title' AND memo = 'memo' AND content_purged_at IS NULL", recent))
 }
+
+// insertAppleWebLogin은 Apple 웹 로그인 교환 행을 넣습니다. 토큰 열은 암호문 대신 고정 바이트입니다.
+func (f *fixture) insertAppleWebLogin(subject string, expiresAt time.Time, consumed bool) uuid.UUID {
+	f.t.Helper()
+	id := uuid.Must(uuid.NewV7())
+	var consumedAt *time.Time
+	if consumed {
+		consumedAt = &expiresAt
+	}
+	f.exec(`INSERT INTO apple_web_logins (id, exchange_hash, subject, nonce_hash, apple_refresh_token, apple_token_key_id, apple_client_id, expires_at, consumed_at)
+		VALUES ($1, $2, $3, repeat('a', 64), '\x0102', 'box-1', 'web.client', $4, $5)`, id, id[:], subject, expiresAt, consumedAt)
+	return id
+}
+
+func (f *fixture) appleWebLoginExists(id uuid.UUID) bool {
+	f.t.Helper()
+	return f.count("SELECT count(*) FROM apple_web_logins WHERE id = $1", id) == 1
+}
+
+// 콜백에서 Apple 토큰을 받았지만 app이 오지 않아 연결되지 않은 subject는 허가 취소 대기 행으로 넘깁니다(S19).
+// 암호화 aad가 웹 로그인 행 id이므로 identity_id에 그 id를 넣습니다.
+func TestSteps_QueuesAppleRevokeForUnclaimedWebLogin(t *testing.T) {
+	f := newFixture(t)
+	id := f.insertAppleWebLogin("apple-1", now.Add(-25*time.Hour), false)
+
+	f.runSteps()
+
+	assert.False(t, f.appleWebLoginExists(id))
+	assert.Equal(t, 1, f.count(`SELECT count(*) FROM provider_revocations
+		WHERE provider = 'apple' AND subject = 'apple-1' AND identity_id = $1 AND apple_refresh_token = '\x0102'
+		  AND apple_token_key_id = 'box-1' AND apple_client_id = 'web.client' AND attempts = 0 AND next_attempt_at = $2`, id, now))
+}
+
+func TestSteps_SkipsAppleRevokeWhenIdentityExists(t *testing.T) {
+	f := newFixture(t)
+	f.exec("INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'apple', 'apple-1')", uuid.Must(uuid.NewV7()), f.account())
+	id := f.insertAppleWebLogin("apple-1", now.Add(-25*time.Hour), false)
+
+	f.runSteps()
+
+	assert.False(t, f.appleWebLoginExists(id))
+	assert.Zero(t, f.count("SELECT count(*) FROM provider_revocations"))
+}
+
+func TestSteps_SkipsAppleRevokeForConsumedWebLogin(t *testing.T) {
+	f := newFixture(t)
+	id := f.insertAppleWebLogin("apple-1", now.Add(-25*time.Hour), true)
+
+	f.runSteps()
+
+	assert.False(t, f.appleWebLoginExists(id))
+	assert.Zero(t, f.count("SELECT count(*) FROM provider_revocations"))
+}
+
+func TestSteps_KeepsWebLoginWithinGrace(t *testing.T) {
+	f := newFixture(t)
+	id := f.insertAppleWebLogin("apple-1", now.Add(-23*time.Hour), false)
+
+	f.runSteps()
+
+	assert.True(t, f.appleWebLoginExists(id))
+	assert.Zero(t, f.count("SELECT count(*) FROM provider_revocations"))
+}
