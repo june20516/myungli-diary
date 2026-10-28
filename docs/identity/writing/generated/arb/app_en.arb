@@ -97,6 +97,7 @@
   "evidenceSheetUnlockFailed": "Confirming the ad is taking longer than usual. Please try again shortly.",
   "forceUpdateCtaStore": "Update",
   "forceUpdateNoticeBody": "The way readings are calculated has changed, so this version can't open them.",
+  "forceUpdateNoticeBodyConsent": "You need to update to see the new terms.",
   "forceUpdateNoticeHead": "Please update to the new version",
   "legalBarTitle": "Terms & policies",
   "loginMethodsBarTitle": "Sign-in methods",

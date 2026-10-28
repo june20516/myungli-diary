@@ -97,6 +97,7 @@
   "evidenceSheetUnlockFailed": "広告の確認に時間がかかっています。少し待って開き直してください。",
   "forceUpdateCtaStore": "アップデートする",
   "forceUpdateNoticeBody": "読み解きの計算方法が変わったため、このバージョンでは開けません。",
+  "forceUpdateNoticeBodyConsent": "新しい規約を確認するには、アップデートが必要です。",
   "forceUpdateNoticeHead": "新しいバージョンにアップデートしてください",
   "legalBarTitle": "規約とポリシー",
   "loginMethodsBarTitle": "ログイン方法",

@@ -76,7 +76,8 @@
   required: false
   type: string
   description: >-
-    렌더하는 쪽이 키를 고르는 방법. core 메시지 키가 아닌 writing 식별자 키를 쓰는 content 슬롯에 적습니다.
+    렌더하는 쪽이 키를 고르는 방법. core 메시지 키가 아닌 writing 식별자 키를 쓰는 content 슬롯과,
+    app이 상태(사유)로 키를 고르는 ui 슬롯에 적습니다.
     예 "DailyResponse.day_kind 값 v → 키 character.reason.<v>"
 - name: vocative
   required: false

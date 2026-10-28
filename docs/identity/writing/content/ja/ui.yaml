@@ -1,6 +1,7 @@
 # 화면 문구 원고(ja). 원어민 검수 전 초안입니다(W1에서 검수). 슬롯 명세는 slots/ui/입니다.
 - {slot: force-update.notice.head, key: forceUpdateNoticeHead, text: "新しいバージョンにアップデートしてください"}
 - {slot: force-update.notice.body, key: forceUpdateNoticeBody, text: "読み解きの計算方法が変わったため、このバージョンでは開けません。"}
+- {slot: force-update.notice.body, key: forceUpdateNoticeBodyConsent, text: "新しい規約を確認するには、アップデートが必要です。"}
 - {slot: force-update.cta.store, key: forceUpdateCtaStore, text: "アップデートする"}
 - {slot: welcome.concept.head, key: welcomeConceptHead, text: "今日の干支を、自分の命式に合わせて読み解きます"}
 - {slot: welcome.concept.body, key: welcomeConceptBody, text: "読み解きに合わせた質問ひとつで、その日の日記を始めます。"}
