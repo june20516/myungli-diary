@@ -35,7 +35,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 ```
 
-* **로컬 server(http):** `server/`에서 `docker compose up -d --wait`(DB, 엔진), `server migrate up`, `server serve`로 띄웁니다(인증 값은 로컬에서도 모두 필요합니다. 서명 키는 이 기기에서만 쓰는 임시 값으로 만들고 저장소에 넣지 않습니다). Android 에뮬레이터는 `adb reverse tcp:8080 tcp:8080`으로 기기의 localhost를 Mac에 잇고 `API_BASE_URL`을 비워 둡니다(debug 기본값 `http://localhost:8080`). 평문 http는 debug 빌드에서만 localhost에 허용합니다(`android/app/src/debug/res/xml/network_security_config.xml`). 미리보기, 시진 확인, 음력 변환은 App Check 요청이라 Firebase 설정 전에는 503입니다.
+* **로컬 server(http):** `server/`에서 `docker compose up -d --wait`(DB, 엔진), `server migrate up`, `server serve`로 띄웁니다(인증 값은 로컬에서도 모두 필요합니다. 서명 키는 이 기기에서만 쓰는 임시 값으로 만들어 `app/.local/server/`(gitignore)에 두고 `source app/.local/server/env.sh`로 읽습니다). Android 에뮬레이터는 `adb reverse tcp:8080 tcp:8080`으로 기기의 localhost를 Mac에 잇고 `API_BASE_URL`을 비워 둡니다(debug 기본값 `http://localhost:8080`). 평문 http는 debug 빌드에서만 localhost에 허용합니다(`android/app/src/debug/res/xml/network_security_config.xml`). 미리보기, 시진 확인, 음력 변환은 App Check 요청이라 Firebase 설정 전에는 503입니다.
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |
