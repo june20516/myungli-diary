@@ -40,3 +40,39 @@ DELETE FROM account_merge_tickets WHERE expires_at < @cutoff;
 
 -- name: DeleteInactiveDevicesSeenBefore :execrows
 DELETE FROM devices WHERE NOT active AND last_seen_at < @cutoff;
+
+-- name: DeletePreviewUsageBefore :execrows
+DELETE FROM preview_usage WHERE used_at < @cutoff;
+
+-- name: DeleteRewardEventsBefore :execrows
+DELETE FROM reward_events WHERE received_at < @cutoff;
+
+-- 보상형 광고 구간은 보상 기록이라 1년 기준이고, 끝난 시각으로 셉니다.
+-- name: DeleteRewardGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants WHERE source = 'rewarded_ad' AND expires_at < @cutoff;
+
+-- name: DeleteBillingEventsBefore :execrows
+DELETE FROM billing_events WHERE received_at < @cutoff;
+
+-- 결제 구간은 끝난 시각이 기준보다 앞일 때 지웁니다. 끝난 구간은 rechain이 건너뛰므로 최근 구간에 영향이 없습니다.
+-- name: DeletePaidGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants WHERE source IN ('ad_free_pass', 'subscription') AND expires_at < @cutoff;
+
+-- 구매는 결제일이 기준보다 앞이고 그 구매의 구간이 남아 있지 않을 때 지웁니다(구간을 먼저 지운 뒤 부릅니다).
+-- 앞 구간 끝에 이어 붙어 늦게 끝난 구매는 구간과 함께 남습니다.
+-- name: DeletePurchasesBefore :execrows
+DELETE FROM purchases AS p
+WHERE p.purchased_at < @cutoff
+  AND NOT EXISTS (
+      SELECT 1 FROM entitlement_grants AS g
+      WHERE g.source IN ('ad_free_pass', 'subscription') AND g.source_ref = p.id
+  );
+
+-- 복구 기간이 지난 지운 일기의 본문을 비웁니다(S6). 가이드 질문과 태그는 날짜 기록(diary_days)에 남깁니다(S95).
+-- name: PurgeDeletedDiaries :execrows
+UPDATE diaries SET body = '', content_purged_at = @now::timestamptz
+WHERE deleted_at < @cutoff::timestamptz AND content_purged_at IS NULL;
+
+-- name: PurgeDeletedSchedules :execrows
+UPDATE schedules SET title = '', memo = NULL, content_purged_at = @now::timestamptz
+WHERE deleted_at < @cutoff::timestamptz AND content_purged_at IS NULL;

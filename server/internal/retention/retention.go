@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/internal/retention/retentiondb"
 )
 
@@ -24,6 +26,18 @@ const (
 	ExpiredGrace = 24 * time.Hour
 	// InactiveDeviceTTL은 비활성 알림 기기를 마지막으로 본 뒤 남겨 두는 기간입니다(S119).
 	InactiveDeviceTTL = 30 * 24 * time.Hour
+	// SoftDeleteTTL은 사용자가 지운 일기·일정을 복구할 수 있는 기간입니다. 지나면 내용을 비웁니다(S6).
+	SoftDeleteTTL = 30 * 24 * time.Hour
+)
+
+// 연 단위 보관 기간입니다(S113). 달력 기준으로 now.AddDate(-n, 0, 0)을 씁니다.
+const (
+	// PreviewUsageYears는 미리보기 설치 id 해시의 보관 기간입니다.
+	PreviewUsageYears = 1
+	// RewardYears는 보상형 광고 기록(SSV 콜백과 보상 구간)의 보관 기간입니다.
+	RewardYears = 1
+	// BillingYears는 결제 기록(webhook 수신, 구매 장부, 결제 구간)의 보관 기간입니다.
+	BillingYears = 5
 )
 
 // Step은 정리 단계 하나입니다. Run은 지우거나 비운 행 수를 돌려줍니다.
@@ -55,6 +69,11 @@ func (s *Store) Steps() []Step {
 		}},
 		{Name: "합치기 토큰", Run: s.before(ExpiredGrace, s.q.DeleteMergeTicketsExpiredBefore)},
 		{Name: "알림 기기", Run: s.before(InactiveDeviceTTL, s.q.DeleteInactiveDevicesSeenBefore)},
+		{Name: "미리보기 설치 해시", Run: s.yearsBefore(PreviewUsageYears, s.q.DeletePreviewUsageBefore)},
+		{Name: "보상 기록", Run: s.deleteRewardRecords},
+		{Name: "결제 기록", Run: s.deleteBillingRecords},
+		{Name: "지운 일기", Run: s.purgeDeletedDiaries},
+		{Name: "지운 일정", Run: s.purgeDeletedSchedules},
 	}
 }
 
@@ -63,6 +82,43 @@ func (s *Store) before(age time.Duration, del func(context.Context, time.Time) (
 	return func(ctx context.Context) (int64, error) {
 		return del(ctx, s.clk.Now().Add(-age))
 	}
+}
+
+// yearsBefore는 now에서 years년 전을 기준 시각으로 넘기는 단계 함수를 만듭니다.
+func (s *Store) yearsBefore(years int, del func(context.Context, time.Time) (int64, error)) func(context.Context) (int64, error) {
+	return func(ctx context.Context) (int64, error) {
+		return del(ctx, s.clk.Now().AddDate(-years, 0, 0))
+	}
+}
+
+// deleteRewardRecords는 1년 지난 보상형 광고 콜백 기록과 1년 전에 끝난 보상 구간을 지웁니다.
+func (s *Store) deleteRewardRecords(ctx context.Context) (int64, error) {
+	cutoff := s.clk.Now().AddDate(-RewardYears, 0, 0)
+	return sum(ctx, cutoff, s.q.DeleteRewardEventsBefore, s.q.DeleteRewardGrantsEndedBefore)
+}
+
+// deleteBillingRecords는 5년 지난 결제 기록을 지웁니다. 구매는 남은 구간이 없을 때만 지우므로
+// 구간을 먼저 지우고, 둘 사이에 다른 쓰기가 끼지 않도록 한 트랜잭션으로 묶습니다.
+func (s *Store) deleteBillingRecords(ctx context.Context) (int64, error) {
+	cutoff := s.clk.Now().AddDate(-BillingYears, 0, 0)
+	var total int64
+	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := s.q.WithTx(tx)
+		n, err := sum(ctx, cutoff, q.DeletePaidGrantsEndedBefore, q.DeletePurchasesBefore, q.DeleteBillingEventsBefore)
+		total = n
+		return err
+	})
+	return total, err
+}
+
+func (s *Store) purgeDeletedDiaries(ctx context.Context) (int64, error) {
+	now := s.clk.Now()
+	return s.q.PurgeDeletedDiaries(ctx, retentiondb.PurgeDeletedDiariesParams{Now: now, Cutoff: now.Add(-SoftDeleteTTL)})
+}
+
+func (s *Store) purgeDeletedSchedules(ctx context.Context) (int64, error) {
+	now := s.clk.Now()
+	return s.q.PurgeDeletedSchedules(ctx, retentiondb.PurgeDeletedSchedulesParams{Now: now, Cutoff: now.Add(-SoftDeleteTTL)})
 }
 
 func (s *Store) deleteExpiredCaches(ctx context.Context) (int64, error) {

@@ -10,6 +10,18 @@ import (
 	"time"
 )
 
+const deleteBillingEventsBefore = `-- name: DeleteBillingEventsBefore :execrows
+DELETE FROM billing_events WHERE received_at < $1
+`
+
+func (q *Queries) DeleteBillingEventsBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteBillingEventsBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteChartCacheBefore = `-- name: DeleteChartCacheBefore :execrows
 
 DELETE FROM chart_cache WHERE created_at < $1
@@ -146,6 +158,112 @@ DELETE FROM month_cache WHERE ruleset_version <> $1
 
 func (q *Queries) DeleteMonthCacheOtherVersions(ctx context.Context, current string) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteMonthCacheOtherVersions, current)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deletePaidGrantsEndedBefore = `-- name: DeletePaidGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants WHERE source IN ('ad_free_pass', 'subscription') AND expires_at < $1
+`
+
+// 결제 구간은 끝난 시각이 기준보다 앞일 때 지웁니다. 끝난 구간은 rechain이 건너뛰므로 최근 구간에 영향이 없습니다.
+func (q *Queries) DeletePaidGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deletePaidGrantsEndedBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deletePreviewUsageBefore = `-- name: DeletePreviewUsageBefore :execrows
+DELETE FROM preview_usage WHERE used_at < $1
+`
+
+func (q *Queries) DeletePreviewUsageBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deletePreviewUsageBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deletePurchasesBefore = `-- name: DeletePurchasesBefore :execrows
+DELETE FROM purchases AS p
+WHERE p.purchased_at < $1
+  AND NOT EXISTS (
+      SELECT 1 FROM entitlement_grants AS g
+      WHERE g.source IN ('ad_free_pass', 'subscription') AND g.source_ref = p.id
+  )
+`
+
+// 구매는 결제일이 기준보다 앞이고 그 구매의 구간이 남아 있지 않을 때 지웁니다(구간을 먼저 지운 뒤 부릅니다).
+// 앞 구간 끝에 이어 붙어 늦게 끝난 구매는 구간과 함께 남습니다.
+func (q *Queries) DeletePurchasesBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deletePurchasesBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteRewardEventsBefore = `-- name: DeleteRewardEventsBefore :execrows
+DELETE FROM reward_events WHERE received_at < $1
+`
+
+func (q *Queries) DeleteRewardEventsBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteRewardEventsBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteRewardGrantsEndedBefore = `-- name: DeleteRewardGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants WHERE source = 'rewarded_ad' AND expires_at < $1
+`
+
+// 보상형 광고 구간은 보상 기록이라 1년 기준이고, 끝난 시각으로 셉니다.
+func (q *Queries) DeleteRewardGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteRewardGrantsEndedBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const purgeDeletedDiaries = `-- name: PurgeDeletedDiaries :execrows
+UPDATE diaries SET body = '', content_purged_at = $1::timestamptz
+WHERE deleted_at < $2::timestamptz AND content_purged_at IS NULL
+`
+
+type PurgeDeletedDiariesParams struct {
+	Now    time.Time
+	Cutoff time.Time
+}
+
+// 복구 기간이 지난 지운 일기의 본문을 비웁니다(S6). 가이드 질문과 태그는 날짜 기록(diary_days)에 남깁니다(S95).
+func (q *Queries) PurgeDeletedDiaries(ctx context.Context, arg PurgeDeletedDiariesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, purgeDeletedDiaries, arg.Now, arg.Cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const purgeDeletedSchedules = `-- name: PurgeDeletedSchedules :execrows
+UPDATE schedules SET title = '', memo = NULL, content_purged_at = $1::timestamptz
+WHERE deleted_at < $2::timestamptz AND content_purged_at IS NULL
+`
+
+type PurgeDeletedSchedulesParams struct {
+	Now    time.Time
+	Cutoff time.Time
+}
+
+func (q *Queries) PurgeDeletedSchedules(ctx context.Context, arg PurgeDeletedSchedulesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, purgeDeletedSchedules, arg.Now, arg.Cutoff)
 	if err != nil {
 		return 0, err
 	}

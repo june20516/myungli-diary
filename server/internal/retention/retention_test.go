@@ -206,3 +206,151 @@ func TestSteps_DeletesInactiveDevicesAfter30Days(t *testing.T) {
 	assert.Equal(t, 1, f.count("SELECT count(*) FROM devices WHERE id = $1", recent))
 	assert.Equal(t, 1, f.count("SELECT count(*) FROM devices WHERE id = $1", active))
 }
+
+func TestSteps_DeletesPreviewUsageAfterOneYear(t *testing.T) {
+	f := newFixture(t)
+	insert := `INSERT INTO preview_usage (device_hash, used_at) VALUES ($1, $2)`
+	f.exec(insert, birthHash(1), now.AddDate(-1, 0, -1))
+	f.exec(insert, birthHash(2), now.AddDate(-1, 0, 1))
+
+	f.runSteps()
+
+	assert.Zero(t, f.count("SELECT count(*) FROM preview_usage WHERE device_hash = $1", birthHash(1)))
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM preview_usage WHERE device_hash = $1", birthHash(2)))
+}
+
+// insertGrant는 권한 구간 한 행을 넣습니다. 구간은 expiresAt 하루 전에 시작합니다.
+func (f *fixture) insertGrant(account uuid.UUID, source, sourceRef string, expiresAt time.Time) {
+	f.t.Helper()
+	entitlement := "ad_free"
+	f.exec(`INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+		VALUES ($1, $2, $3, $4, $5, $6)`, account, entitlement, source, sourceRef, expiresAt.Add(-24*time.Hour), expiresAt)
+}
+
+func (f *fixture) grantExists(sourceRef string) bool {
+	f.t.Helper()
+	return f.count("SELECT count(*) FROM entitlement_grants WHERE source_ref = $1", sourceRef) == 1
+}
+
+func TestSteps_DeletesRewardRecordsAfterOneYear(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	insert := `INSERT INTO reward_events (transaction_id, account_id, raw_query, received_at) VALUES ($1, $2, '', $3)`
+	f.exec(insert, "old", account, now.AddDate(-1, 0, -1))
+	f.exec(insert, "recent", account, now.AddDate(-1, 0, 1))
+	f.insertGrant(account, "rewarded_ad", "old", now.AddDate(-1, 0, -1))
+	f.insertGrant(account, "rewarded_ad", "recent", now.AddDate(-1, 0, 1))
+
+	f.runSteps()
+
+	assert.Zero(t, f.count("SELECT count(*) FROM reward_events WHERE transaction_id = 'old'"))
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM reward_events WHERE transaction_id = 'recent'"))
+	assert.False(t, f.grantExists("old"))
+	assert.True(t, f.grantExists("recent"))
+}
+
+func (f *fixture) insertPurchase(account uuid.UUID, id string, purchasedAt time.Time) {
+	f.t.Helper()
+	f.exec(`INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, production)
+		VALUES ($1, $2, $2, 'ad_free_30d', 'app_store', $3, true)`, id, account, purchasedAt)
+}
+
+func (f *fixture) purchaseExists(id string) bool {
+	f.t.Helper()
+	return f.count("SELECT count(*) FROM purchases WHERE id = $1", id) == 1
+}
+
+func TestSteps_DeletesBillingRecordsAfterFiveYears(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	insert := `INSERT INTO billing_events (event_id, account_id, payload, received_at) VALUES ($1, $2, '{}', $3)`
+	f.exec(insert, "old", account, now.AddDate(-5, 0, -1))
+	f.exec(insert, "recent", account, now.AddDate(-5, 0, 1))
+	f.insertPurchase(account, "old", now.AddDate(-5, 0, -2))
+	f.insertGrant(account, "ad_free_pass", "old", now.AddDate(-5, 0, -1))
+	f.insertPurchase(account, "recent", now.AddDate(-5, 0, 1))
+	f.insertGrant(account, "ad_free_pass", "recent", now.AddDate(-5, 0, 2))
+
+	f.runSteps()
+
+	assert.Zero(t, f.count("SELECT count(*) FROM billing_events WHERE event_id = 'old'"))
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM billing_events WHERE event_id = 'recent'"))
+	assert.False(t, f.purchaseExists("old"))
+	assert.False(t, f.grantExists("old"))
+	assert.True(t, f.purchaseExists("recent"))
+	assert.True(t, f.grantExists("recent"))
+}
+
+// 5년 전에 샀어도 구간이 5년 안에 끝났으면 구매와 구간을 함께 남깁니다(앞 구간 끝에 이어 붙은 구매).
+func TestSteps_KeepsPurchaseWhoseGrantEndedWithinFiveYears(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	f.insertPurchase(account, "chained", now.AddDate(-6, 0, 0))
+	f.insertGrant(account, "ad_free_pass", "chained", now.AddDate(-4, 0, 0))
+
+	f.runSteps()
+
+	assert.True(t, f.purchaseExists("chained"))
+	assert.True(t, f.grantExists("chained"))
+}
+
+// insertDiary는 date 날짜 기록과 일기 한 편을 넣습니다. deletedAt이 있으면 지운 일기입니다.
+func (f *fixture) insertDiary(account uuid.UUID, date string, deletedAt, purgedAt *time.Time) uuid.UUID {
+	f.t.Helper()
+	f.exec(`INSERT INTO diary_days (account_id, date, all_tags, featured_tags, ruleset_version)
+		VALUES ($1, $2, '{tag}', '[]', 'rs-1') ON CONFLICT DO NOTHING`, account, date)
+	id := uuid.Must(uuid.NewV7())
+	f.exec(`INSERT INTO diaries (id, account_id, date, body, deleted_at, content_purged_at) VALUES ($1, $2, $3, 'body', $4, $5)`,
+		id, account, date, deletedAt, purgedAt)
+	return id
+}
+
+func (f *fixture) diaryContent(id uuid.UUID) (string, *time.Time) {
+	f.t.Helper()
+	var body string
+	var purgedAt *time.Time
+	require.NoError(f.t, f.pool.QueryRow(context.Background(),
+		"SELECT body, content_purged_at FROM diaries WHERE id = $1", id).Scan(&body, &purgedAt))
+	return body, purgedAt
+}
+
+func TestSteps_PurgesSoftDeletedDiaryAfter30Days(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	oldDeleted, recentDeleted, earlier := now.AddDate(0, 0, -31), now.AddDate(0, 0, -29), now.AddDate(0, 0, -1)
+	old := f.insertDiary(account, "2026-09-01", &oldDeleted, nil)
+	recent := f.insertDiary(account, "2026-09-02", &recentDeleted, nil)
+	purged := f.insertDiary(account, "2026-09-03", &oldDeleted, &earlier)
+	live := f.insertDiary(account, "2026-09-04", nil, nil)
+
+	f.runSteps()
+
+	body, purgedAt := f.diaryContent(old)
+	assert.Empty(t, body)
+	require.NotNil(t, purgedAt)
+	assert.True(t, purgedAt.Equal(now))
+	body, purgedAt = f.diaryContent(recent)
+	assert.Equal(t, "body", body)
+	assert.Nil(t, purgedAt)
+	_, purgedAt = f.diaryContent(purged)
+	require.NotNil(t, purgedAt)
+	assert.True(t, purgedAt.Equal(earlier), "이미 비운 행의 시각은 그대로입니다")
+	body, _ = f.diaryContent(live)
+	assert.Equal(t, "body", body)
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM diary_days WHERE account_id = $1 AND date = '2026-09-01' AND all_tags = '{tag}'", account),
+		"날짜 기록(태그·질문)은 남깁니다")
+}
+
+func TestSteps_PurgesSoftDeletedScheduleAfter30Days(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	insert := `INSERT INTO schedules (id, account_id, date, all_day, title, memo, deleted_at) VALUES ($1, $2, '2026-09-01', true, 'title', 'memo', $3)`
+	old, recent := uuid.Must(uuid.NewV7()), uuid.Must(uuid.NewV7())
+	f.exec(insert, old, account, now.AddDate(0, 0, -31))
+	f.exec(insert, recent, account, now.AddDate(0, 0, -29))
+
+	f.runSteps()
+
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM schedules WHERE id = $1 AND title = '' AND memo IS NULL AND content_purged_at = $2", old, now))
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM schedules WHERE id = $1 AND title = 'title' AND memo = 'memo' AND content_purged_at IS NULL", recent))
+}

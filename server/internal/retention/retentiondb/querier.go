@@ -10,6 +10,7 @@ import (
 )
 
 type Querier interface {
+	DeleteBillingEventsBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	// job retention의 정리 쿼리입니다(spec §8.3, S113, S119, S120). 기준 시각은 모두 호출하는 쪽이 계산해 넘깁니다.
 	DeleteChartCacheBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	DeleteChartCacheOtherVersions(ctx context.Context, current string) (int64, error)
@@ -25,6 +26,18 @@ type Querier interface {
 	DeleteMergeTicketsExpiredBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	DeleteMonthCacheBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	DeleteMonthCacheOtherVersions(ctx context.Context, current string) (int64, error)
+	// 결제 구간은 끝난 시각이 기준보다 앞일 때 지웁니다. 끝난 구간은 rechain이 건너뛰므로 최근 구간에 영향이 없습니다.
+	DeletePaidGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	DeletePreviewUsageBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	// 구매는 결제일이 기준보다 앞이고 그 구매의 구간이 남아 있지 않을 때 지웁니다(구간을 먼저 지운 뒤 부릅니다).
+	// 앞 구간 끝에 이어 붙어 늦게 끝난 구매는 구간과 함께 남습니다.
+	DeletePurchasesBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	DeleteRewardEventsBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	// 보상형 광고 구간은 보상 기록이라 1년 기준이고, 끝난 시각으로 셉니다.
+	DeleteRewardGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	// 복구 기간이 지난 지운 일기의 본문을 비웁니다(S6). 가이드 질문과 태그는 날짜 기록(diary_days)에 남깁니다(S95).
+	PurgeDeletedDiaries(ctx context.Context, arg PurgeDeletedDiariesParams) (int64, error)
+	PurgeDeletedSchedules(ctx context.Context, arg PurgeDeletedSchedulesParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)
