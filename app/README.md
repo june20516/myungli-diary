@@ -109,6 +109,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 | `../docs/identity/design/tokens/` | `dart run tool/gen_tokens.dart` | `lib/design/tokens/gen/` |
 | `lib/core/l10n/arb/*.arb` | `flutter gen-l10n` | `lib/core/l10n/gen/` |
 | `../server/api/openapi.yaml` | `tool/gen_api.sh` (Docker) | `lib/core/api/gen/`, route 표. 끝에 `build_runner`를 돌립니다 |
+| `config/auth.json` | `dart run tool/gen_native_config.dart` | `ios/Flutter/Auth.xcconfig` (카카오 키, Google reversed client id). CI는 `--check`. Android는 `build.gradle.kts`가 같은 파일을 바로 읽습니다 |
 | drift·json 직렬화 | `dart run build_runner build --delete-conflicting-outputs` | `*.g.dart` |
 
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
