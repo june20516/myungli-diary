@@ -142,3 +142,13 @@ sql:
         sql_package: pgx/v5
         emit_interface: true
         overrides: *overrides
+  - engine: postgresql
+    schema: migrations
+    queries: queries/retention.sql
+    gen:
+      go:
+        package: retentiondb
+        out: ../internal/retention/retentiondb
+        sql_package: pgx/v5
+        emit_interface: true
+        overrides: *overrides
