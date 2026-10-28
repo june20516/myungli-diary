@@ -30,11 +30,22 @@ type retentionDeps struct {
 	// Providers는 제공자 엔드포인트 주소입니다. KakaoUnlink·AppleRevoke만 쓰며, 빈 값은 실제 제공자 주소를 씁니다.
 	Providers providerURLs
 	// Engine은 이전 ruleset_version 캐시 정리에서 지금 버전(GetInfo)을 묻는 엔진입니다.
-	Engine engine.Engine
+	// nil이면 그 단계는 EngineErr(엔진 설정·client 오류)로 실패하고 다른 단계는 그대로 돕니다.
+	Engine    engine.Engine
+	EngineErr error
+}
+
+// newRetentionEngine은 ENGINE_ADDR·ENGINE_AUDIENCE로 엔진 client를 만듭니다.
+func newRetentionEngine(getenv func(string) string) (*engine.Client, error) {
+	engineCfg, err := config.LoadEngine(getenv)
+	if err != nil {
+		return nil, err
+	}
+	return engine.NewClient(engine.ClientConfig{Addr: engineCfg.Addr, Audience: engineCfg.Audience})
 }
 
 // runRetention은 설정을 읽고 DB에 연결해 retention을 실행합니다.
-// DB, 허가 취소에 필요한 설정(카카오 admin key, Apple client_secret 서명 키, token 암호화 키), 엔진 주소만 읽고 검사합니다.
+// DB, 허가 취소에 필요한 설정(카카오 admin key, Apple client_secret 서명 키, token 암호화 키), 엔진 주소만 읽습니다.
 // serve 전체 설정(JWT 서명 키, 제공자 앱 ID 등)은 요구하지 않습니다.
 func runRetention(ctx context.Context, getenv func(string) string, stderr io.Writer) error {
 	cfg, err := config.Load(getenv)
@@ -48,10 +59,6 @@ func runRetention(ctx context.Context, getenv func(string) string, stderr io.Wri
 	if err != nil {
 		return err
 	}
-	engineCfg, err := config.LoadEngine(getenv)
-	if err != nil {
-		return err
-	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
@@ -61,20 +68,22 @@ func runRetention(ctx context.Context, getenv func(string) string, stderr io.Wri
 	}
 	defer pool.Close()
 
-	engineClient, err := engine.NewClient(engine.ClientConfig{Addr: engineCfg.Addr, Audience: engineCfg.Audience})
-	if err != nil {
-		logger.ErrorContext(ctx, "엔진 client 생성 실패", "error", err)
-		return &loggedError{err: err}
-	}
-	defer func() { _ = engineClient.Close() }()
-
-	if err := retention(ctx, revocationCfg, retentionDeps{
+	deps := retentionDeps{
 		Pool:   pool,
 		Clock:  clock.System{},
 		Logger: logger,
 		HTTP:   newProviderHTTPClient(),
-		Engine: engineClient,
-	}); err != nil {
+	}
+	// 엔진 설정·client 오류는 이전 버전 캐시 정리 단계의 실패로만 셉니다. 법정 보관 기간 정리를 막지 않기 위해서입니다.
+	engineClient, err := newRetentionEngine(getenv)
+	if err != nil {
+		deps.EngineErr = err
+	} else {
+		deps.Engine = engineClient
+		defer func() { _ = engineClient.Close() }()
+	}
+
+	if err := retention(ctx, revocationCfg, deps); err != nil {
 		logger.ErrorContext(ctx, "retention 실패", "error", err)
 		return &loggedError{err: err}
 	}
@@ -92,7 +101,7 @@ func retention(ctx context.Context, cfg config.RevocationConfig, deps retentionD
 			return merge.DeleteExpiredReceipts(ctx, deps.Pool, deps.Clock.Now())
 		}},
 		retentionpkg.Step{Name: "이전 ruleset_version 캐시", Run: func(ctx context.Context) (int64, error) {
-			return deleteStaleRulesetCaches(ctx, store, deps.Engine)
+			return deleteStaleRulesetCaches(ctx, store, deps.Engine, deps.EngineErr)
 		}},
 		retentionpkg.Step{Name: "허가 취소 재시도", Run: func(ctx context.Context) (int64, error) {
 			return retryRevocations(ctx, cfg, deps)
@@ -113,8 +122,12 @@ func retention(ctx context.Context, cfg config.RevocationConfig, deps retentionD
 }
 
 // deleteStaleRulesetCaches는 엔진에 지금 ruleset_version을 물어 그 밖의 버전 캐시를 지웁니다.
-func deleteStaleRulesetCaches(ctx context.Context, store *retentionpkg.Store, eng engine.Engine) (int64, error) {
+// eng가 nil이면 engineErr(없으면 일반 오류)로 실패합니다.
+func deleteStaleRulesetCaches(ctx context.Context, store *retentionpkg.Store, eng engine.Engine, engineErr error) (int64, error) {
 	if eng == nil {
+		if engineErr != nil {
+			return 0, engineErr
+		}
 		return 0, errors.New("엔진이 없습니다")
 	}
 	info, err := eng.GetInfo(ctx)

@@ -55,7 +55,8 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
 * 계정 삭제(S105)는 `daily_selections`·`rotation_state`·`reactions`·`profiles`도 지우고, 반응은 지우기 전에 `reaction_tallies`에 더합니다(D57). 그래서 익명화 때 `birth_hash`를 비우는 일과 프로필 익명화 쿼리는 없어졌습니다. `profiles.anonymized_at` 열과 CHECK `profiles_complete_until_anonymized`도 migration 00015가 없애고, 출생 정보가 모두 있어야 한다는 조건은 CHECK `profiles_complete`로 남겼습니다.
-* 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 지우지 않습니다(1회 제한).
+* 지난 `rate_limits` 창을 정리합니다(`window_start` 인덱스 있음). `preview_usage`는 1년 뒤 지웁니다(S113, S120).
+* `job retention`의 정리 쿼리는 대부분 인덱스 없이 표를 훑습니다(캐시 `created_at`, `idempotency_keys.created_at`, `refresh_tokens.expires_at`, 결제·보상 수신 시각, 지운 일기·일정). MVP 규모에서는 괜찮고, 한 번 실행이 5분을 넘거나 `daily_cache`·`diaries`가 백만 행을 넘으면 인덱스나 나눠 지우기(`LIMIT` 반복)를 넣습니다. 엔진 `ruleset_version`이 오른 첫 실행은 캐시를 한 문장으로 통째 지우므로, 엔진 배포 직후(rolling 중 옛 버전 응답)와 겹치지 않게 Scheduler 시각을 잡습니다.
 
 **P9 (배포)**
 * 결제 설정 4개를 Secret Manager에 둡니다(`config.LoadBilling`의 이름 그대로): `REVENUECAT_PROJECT_ID`, `REVENUECAT_API_KEY`(REST v2 secret key), `REVENUECAT_WEBHOOK_AUTH`(대시보드에 적은 Authorization 값 전체), `AD_FREE_PRODUCT_IDS`(쉼표 목록). `APP_ENV`가 local이 아니면 모두 필수이고 없으면 시작에 실패합니다.

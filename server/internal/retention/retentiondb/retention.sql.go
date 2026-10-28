@@ -102,12 +102,13 @@ DELETE FROM refresh_tokens AS t
 WHERE t.expires_at < $1
   AND NOT EXISTS (
       SELECT 1 FROM refresh_tokens AS r
-      WHERE r.replaced_by_id = t.id AND r.expires_at >= $1
+      WHERE r.family_id = t.family_id AND r.expires_at >= $1
   )
 `
 
-// 만료된 refresh token을 지웁니다. 회전 사슬(replaced_by_id, RESTRICT)에서 아직 살아 있는 토큰이 가리키는 행은 남깁니다.
-// 회전한 토큰은 뒤 토큰이 늦게 만료되므로 보통 사슬째 함께 지워지고, 이 조건은 TTL을 줄인 배포 뒤의 뒤집힌 사슬을 위한 것입니다.
+// 만료된 refresh token을 지웁니다. 같은 로그인(family_id)에 아직 살아 있는 토큰이 있으면 그 family는 통째로 남깁니다.
+// 회전 사슬(replaced_by_id, RESTRICT)은 family 안에서만 이어지므로, family 단위로 지우면 TTL을 줄인 배포 뒤의
+// 뒤집힌 사슬(살아 있는 앞 토큰이 만료된 뒤 토큰을 가리킴)에서도 가리켜지는 행만 지우는 일이 없습니다.
 func (q *Queries) DeleteExpiredRefreshTokens(ctx context.Context, now time.Time) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteExpiredRefreshTokens, now)
 	if err != nil {
@@ -283,8 +284,8 @@ func (q *Queries) PurgeDeletedSchedules(ctx context.Context, arg PurgeDeletedSch
 }
 
 const queueUnclaimedAppleWebLoginRevocations = `-- name: QueueUnclaimedAppleWebLoginRevocations :execrows
-INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at)
-SELECT 'apple', w.subject, w.id, w.apple_refresh_token, w.apple_token_key_id, w.apple_client_id, $1::timestamptz
+INSERT INTO provider_revocations (provider, subject, identity_id, apple_refresh_token, apple_token_key_id, apple_client_id, next_attempt_at, created_at)
+SELECT 'apple', w.subject, w.id, w.apple_refresh_token, w.apple_token_key_id, w.apple_client_id, $1::timestamptz, $1::timestamptz
 FROM apple_web_logins AS w
 WHERE w.expires_at < $2::timestamptz
   AND w.consumed_at IS NULL
@@ -301,6 +302,7 @@ type QueueUnclaimedAppleWebLoginRevocationsParams struct {
 // 만료 + 1일 지난 Apple 웹 로그인 중 app이 오지 않아 쓰이지 않았고 그 subject의 연결 행도 없는 행의
 // Apple refresh token을 허가 취소 대기 행으로 넘깁니다(S19, apple web callback spec §2.5).
 // 토큰은 웹 로그인 행 id를 aad로 암호화했고 재시도는 identity_id를 aad로 여므로 identity_id에 그 id를 넣습니다.
+// subject를 남겨 재시도 때 그 사이 생긴 연결을 다시 확인합니다(계정 삭제에서 온 Apple 행은 subject가 없음).
 func (q *Queries) QueueUnclaimedAppleWebLoginRevocations(ctx context.Context, arg QueueUnclaimedAppleWebLoginRevocationsParams) (int64, error) {
 	result, err := q.db.Exec(ctx, queueUnclaimedAppleWebLoginRevocations, arg.Now, arg.Cutoff)
 	if err != nil {

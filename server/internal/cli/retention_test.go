@@ -151,11 +151,11 @@ func TestRun_RetentionSucceedsWithOnlyRevocationSettings(t *testing.T) {
 	assert.Contains(t, stderr, "이전 ruleset_version 캐시")
 }
 
-// 엔진 설정이 빠지면 DB에 연결하기 전에 변수 이름과 함께 실패한다(이전 버전 캐시 정리에 GetInfo가 필요).
-func TestRun_RetentionMissingEngineAddr_Exits1(t *testing.T) {
+// 엔진 설정이 빠지면 이전 버전 캐시 정리만 실패하고, 법정 보관 기간 정리와 허가 취소 재시도는 끝낸 뒤 job이 실패로 끝난다.
+func TestRun_RetentionMissingEngineAddr_RunsOtherStepsAndExits1(t *testing.T) {
 	authCfg := flowAuthConfig(t)
 	env := map[string]string{
-		"DATABASE_URL":            "postgres://127.0.0.1:1/x",
+		"DATABASE_URL":            dbtest.NewURL(t),
 		"TOKEN_ENCRYPTION_KEY_ID": authCfg.TokenKeyID,
 		"TOKEN_ENCRYPTION_KEY":    authCfg.TokenKey,
 		"KAKAO_ADMIN_KEY":         authCfg.KakaoAdminKey,
@@ -168,6 +168,8 @@ func TestRun_RetentionMissingEngineAddr_Exits1(t *testing.T) {
 
 	assert.Equal(t, 1, code)
 	assert.Contains(t, stderr, "ENGINE_ADDR")
+	assert.Contains(t, stderr, "결제 기록 완료")
+	assert.Contains(t, stderr, "허가 취소 재시도 완료")
 }
 
 // infoEngine은 GetInfo만 답하는 엔진 gRPC 대역입니다.

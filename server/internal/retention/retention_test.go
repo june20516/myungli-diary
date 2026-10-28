@@ -129,6 +129,7 @@ func TestSteps_DeletesEndedRateLimitWindows(t *testing.T) {
 }
 
 // insertRefreshToken은 refresh token 행을 넣습니다. replacedBy가 있으면 이미 쓴 토큰입니다.
+// 회전 사슬은 같은 로그인에서 나오므로 계정 id를 family로 씁니다(계정마다 로그인 하나).
 func (f *fixture) insertRefreshToken(account uuid.UUID, expiresAt time.Time, replacedBy *uuid.UUID) uuid.UUID {
 	f.t.Helper()
 	id := uuid.Must(uuid.NewV7())
@@ -137,7 +138,7 @@ func (f *fixture) insertRefreshToken(account uuid.UUID, expiresAt time.Time, rep
 		usedAt = &now
 	}
 	f.exec(`INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at, used_at, replaced_by_id)
-		VALUES ($1, $2, $3, $1, $4, $5, $6)`, id, account, id[:], expiresAt, usedAt, replacedBy)
+		VALUES ($1, $2, $3, $2, $4, $5, $6)`, id, account, id[:], expiresAt, usedAt, replacedBy)
 	return id
 }
 
@@ -151,7 +152,7 @@ func TestSteps_DeletesExpiredRefreshTokens(t *testing.T) {
 	account := f.account()
 	b := f.insertRefreshToken(account, now.Add(-time.Hour), nil)
 	a := f.insertRefreshToken(account, now.Add(-2*time.Hour), &b)
-	live := f.insertRefreshToken(account, now.Add(time.Hour), nil)
+	live := f.insertRefreshToken(f.account(), now.Add(time.Hour), nil)
 
 	f.runSteps()
 
@@ -169,6 +170,32 @@ func TestSteps_KeepsExpiredRefreshTokenReferencedByLiveToken(t *testing.T) {
 
 	f.runSteps()
 
+	assert.True(t, f.refreshTokenExists(a))
+	assert.True(t, f.refreshTokenExists(b))
+}
+
+// 세 고리 뒤집힌 사슬(살아 있는 X → 만료 A → 만료 B)에서도 FK 오류 없이 사슬 전체를 남깁니다.
+func TestSteps_KeepsWholeFamilyWhileAnyTokenLives(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	family := uuid.Must(uuid.NewV7())
+	insert := func(expiresAt time.Time, replacedBy *uuid.UUID) uuid.UUID {
+		id := uuid.Must(uuid.NewV7())
+		var usedAt *time.Time
+		if replacedBy != nil {
+			usedAt = &now
+		}
+		f.exec(`INSERT INTO refresh_tokens (id, account_id, token_hash, family_id, expires_at, used_at, replaced_by_id)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)`, id, account, id[:], family, expiresAt, usedAt, replacedBy)
+		return id
+	}
+	b := insert(now.Add(-time.Hour), nil)
+	a := insert(now.Add(-2*time.Hour), &b)
+	x := insert(now.Add(time.Hour), &a)
+
+	f.runSteps()
+
+	assert.True(t, f.refreshTokenExists(x))
 	assert.True(t, f.refreshTokenExists(a))
 	assert.True(t, f.refreshTokenExists(b))
 }
@@ -384,7 +411,7 @@ func TestSteps_QueuesAppleRevokeForUnclaimedWebLogin(t *testing.T) {
 	assert.False(t, f.appleWebLoginExists(id))
 	assert.Equal(t, 1, f.count(`SELECT count(*) FROM provider_revocations
 		WHERE provider = 'apple' AND subject = 'apple-1' AND identity_id = $1 AND apple_refresh_token = '\x0102'
-		  AND apple_token_key_id = 'box-1' AND apple_client_id = 'web.client' AND attempts = 0 AND next_attempt_at = $2`, id, now))
+		  AND apple_token_key_id = 'box-1' AND apple_client_id = 'web.client' AND attempts = 0 AND next_attempt_at = $2 AND created_at = $2`, id, now))
 }
 
 func TestSteps_SkipsAppleRevokeWhenIdentityExists(t *testing.T) {

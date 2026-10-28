@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/internal/retention/retentiondb"
@@ -37,7 +38,8 @@ const (
 	// RewardYears는 보상형 광고 기록(SSV 콜백과 보상 구간)의 보관 기간입니다.
 	RewardYears = 1
 	// BillingYears는 결제 기록(webhook 수신, 구매 장부, 결제 구간)의 보관 기간입니다.
-	BillingYears = 5
+	// 결제 동기화가 이보다 오래된 구매를 다시 적지 않도록 billing과 같은 값을 씁니다.
+	BillingYears = billing.RecordYears
 )
 
 // Step은 정리 단계 하나입니다. Run은 지우거나 비운 행 수를 돌려줍니다.
