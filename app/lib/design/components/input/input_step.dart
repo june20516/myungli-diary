@@ -7,6 +7,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
+import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -324,11 +325,13 @@ class _InputStepState extends State<InputStep> {
                 Space.s20,
                 Space.s16 + bottomInset,
               ),
-              child: PrimaryButton(
-                label: actionLabel,
-                loading: widget.actionLoading,
-                identifier: widget.actionIdentifier,
-                onPressed: error == null ? widget.onAction : null,
+              child: ToastAnchor(
+                child: PrimaryButton(
+                  label: actionLabel,
+                  loading: widget.actionLoading,
+                  identifier: widget.actionIdentifier,
+                  onPressed: error == null ? widget.onAction : null,
+                ),
               ),
             ),
         ],

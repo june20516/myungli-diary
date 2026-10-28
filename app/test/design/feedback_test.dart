@@ -625,6 +625,95 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
     });
 
+    testWidgets('아래 고정 버튼(ToastAnchor)이 있으면 탭 바보다 먼저 그 위 16px입니다(V51)', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      const buttonKey = ValueKey('bottom-button');
+      await tester.pumpWidget(
+        _app(
+          const BottomBarInsetScope(
+            height: 120,
+            child: Column(
+              children: [
+                Expanded(child: SizedBox.expand(key: hostKey)),
+                ToastAnchor(child: SizedBox(key: buttonKey, height: 52)),
+                SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      );
+      showMyungliToast(hostContext(tester), '위치');
+      await tester.pumpAndSettle();
+      expect(
+        tester.getBottomLeft(find.byType(ToastPill)).dy,
+        tester.getTopLeft(find.byKey(buttonKey)).dy - 16,
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
+    testWidgets('키보드가 올라와 버튼이 움직이면 토스트도 따라갑니다(V51)', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      const buttonKey = ValueKey('bottom-button');
+      await tester.pumpWidget(
+        _app(
+          const Column(
+            children: [
+              Expanded(child: SizedBox.expand(key: hostKey)),
+              ToastAnchor(child: SizedBox(key: buttonKey, height: 52)),
+            ],
+          ),
+        ),
+      );
+      showMyungliToast(hostContext(tester), '위치');
+      await tester.pump(const Duration(milliseconds: 600));
+      final before = tester.getTopLeft(find.byKey(buttonKey)).dy;
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pump();
+      final after = tester.getTopLeft(find.byKey(buttonKey)).dy;
+      expect(after, before - 300);
+      expect(tester.getBottomLeft(find.byType(ToastPill)).dy, after - 16);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
+    testWidgets('버튼이 있던 화면이 닫히면 처음 자리에 남습니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await pumpHost(tester);
+      const pageKey = ValueKey('toast-page');
+      Navigator.of(hostContext(tester)).push(
+        PageRouteBuilder<void>(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, _, _) => const Column(
+            children: [
+              Expanded(child: SizedBox.expand(key: pageKey)),
+              ToastAnchor(child: SizedBox(height: 52)),
+              SizedBox(height: 100),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final page = tester.element(find.byKey(pageKey));
+      showMyungliToast(page, '저장했어요');
+      Navigator.of(page).pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(tester.takeException(), isNull);
+      expect(800 - tester.getBottomLeft(find.byType(ToastPill)).dy, 152 + 16);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
+
     testWidgets('scope 높이가 바뀌면 다음 토스트부터 따라갑니다', (tester) async {
       tester.view
         ..physicalSize = const Size(400, 800)
@@ -742,7 +831,7 @@ void main() {
         await tester.pumpAndSettle();
         seen.add(tester.widget<Icon>(find.byType(Icon)).icon!);
       }
-      expect(seen, hasLength(3));
+      expect(seen, hasLength(NoticeBannerVariant.values.length));
     });
   });
 

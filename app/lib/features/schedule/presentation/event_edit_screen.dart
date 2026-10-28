@@ -386,27 +386,29 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
             Space.s20,
             Space.s16,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PrimaryButton(
-                key: EventEditScreen.saveKey,
-                label: l10n.eventEditSave,
-                identifier: SlotIds.eventEditSaveCta,
-                loading: saving,
-                onPressed: _savable ? () => unawaited(_save()) : null,
-              ),
-              if (_editing) ...[
-                const SizedBox(height: Space.s8),
+          child: ToastAnchor(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 PrimaryButton(
-                  key: EventEditScreen.deleteKey,
-                  variant: PrimaryButtonVariant.quiet,
-                  label: l10n.eventEditDelete,
-                  identifier: SlotIds.eventEditDeleteCta,
-                  onPressed: saving ? null : () => unawaited(_delete()),
+                  key: EventEditScreen.saveKey,
+                  label: l10n.eventEditSave,
+                  identifier: SlotIds.eventEditSaveCta,
+                  loading: saving,
+                  onPressed: _savable ? () => unawaited(_save()) : null,
                 ),
+                if (_editing) ...[
+                  const SizedBox(height: Space.s8),
+                  PrimaryButton(
+                    key: EventEditScreen.deleteKey,
+                    variant: PrimaryButtonVariant.quiet,
+                    label: l10n.eventEditDelete,
+                    identifier: SlotIds.eventEditDeleteCta,
+                    onPressed: saving ? null : () => unawaited(_delete()),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ],

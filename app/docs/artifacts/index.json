@@ -44,11 +44,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.account-delete.error.2026-10-23",
+    "id": "render.account-delete.error.2026-10-28",
     "title": "account-delete (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-23-account-delete-error.png",
-    "date": "2026-10-23",
+    "file": "2026-10-28-account-delete-error.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "account-delete"
@@ -562,11 +562,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.error.2026-10-27",
+    "id": "render.profile-edit.error.2026-10-28",
     "title": "profile-edit (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-profile-edit-error.png",
-    "date": "2026-10-27",
+    "file": "2026-10-28-profile-edit-error.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -688,11 +688,11 @@
     "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.luck.2026-10-23",
+    "id": "render.saju-chart.luck.2026-10-28",
     "title": "saju-chart (luck) 화면",
     "kind": "screenshot",
-    "file": "2026-10-23-saju-chart-luck.png",
-    "date": "2026-10-23",
+    "file": "2026-10-28-saju-chart-luck.png",
+    "date": "2026-10-28",
     "milestone": "A1",
     "screens": [
       "saju-chart"

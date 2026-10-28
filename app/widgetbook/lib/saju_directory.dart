@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -9,6 +10,8 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
+
+void _noop() {}
 
 TermToken _label(String text) =>
     TermToken(label: text, variant: TermTokenVariant.label, onTap: () {});
@@ -186,9 +189,12 @@ Widget _daeun() {
             startYear: 1989 + age,
             stem: _mini(se, sh),
             branch: _mini(be, bh),
-            stemLabel: _label('비견'),
-            branchLabel: _label('편인'),
-            semanticLabel: '$age세',
+            ageSemanticLabel: '대운 $age세부터',
+            semanticLabel: '$sh $bh',
+            yearSemanticLabel: '${1989 + age}년',
+            stemLabel: const LuckLabel('비견', onTap: _noop),
+            branchLabel: const LuckLabel('편인', onTap: _noop),
+            stageLabel: const LuckLabel('장생', onTap: _noop),
           ),
       ],
       seun: [
@@ -197,8 +203,9 @@ Widget _daeun() {
             year: year,
             stem: _mini(se, sh),
             branch: _mini(be, bh),
-            label: _label('상관'),
-            semanticLabel: '$year년',
+            yearSemanticLabel: '$year년',
+            semanticLabel: '$sh $bh',
+            label: const LuckLabel('상관', onTap: _noop),
           ),
       ],
       currentIndex: 3,

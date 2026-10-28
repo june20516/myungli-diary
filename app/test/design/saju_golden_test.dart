@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -19,6 +20,8 @@ bool _ja(BuildContext context) =>
 
 TermToken _label(String text) =>
     TermToken(label: text, variant: TermTokenVariant.label, onTap: () {});
+
+LuckLabel _luck(String text) => LuckLabel(text, onTap: () {});
 
 OhaengCell _cell(FiveElement element, String hanja, String reading) =>
     OhaengCell(element: element, hanja: hanja, reading: reading);
@@ -213,9 +216,11 @@ Widget _daeun(BuildContext context) {
           startYear: 1989 + age,
           stem: stem(s),
           branch: branch(b),
-          stemLabel: _label(ja ? '比肩' : '비견'),
-          branchLabel: _label(ja ? '偏印' : '편인'),
+          ageSemanticLabel: '$age',
           semanticLabel: '$age',
+          stemLabel: _luck(ja ? '比肩' : '비견'),
+          branchLabel: _luck(ja ? '偏印' : '편인'),
+          stageLabel: _luck(ja ? '長生' : '장생'),
         ),
     ],
     seun: [
@@ -224,8 +229,9 @@ Widget _daeun(BuildContext context) {
           year: year,
           stem: stem(s),
           branch: branch(b),
-          label: _label(ja ? '傷官' : '상관'),
+          yearSemanticLabel: '$year',
           semanticLabel: '$year',
+          label: _luck(ja ? '傷官' : '상관'),
         ),
     ],
     currentIndex: 3,

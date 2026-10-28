@@ -369,6 +369,9 @@ void main() {
       );
       expect(me.answered, greaterThan(0));
       expect(_screen(ScreenIds.forceUpdate), findsOneWidget);
+      // 이유 문장은 약관 사유 키입니다(W45).
+      expect(find.text(_ko.forceUpdateNoticeBodyConsent), findsOneWidget);
+      expect(find.text(_ko.forceUpdateNoticeBody), findsNothing);
       expect(_screen(ScreenIds.consent), findsNothing);
       expect(_fake(container).callCountOf('agreeConsents'), 0);
     });

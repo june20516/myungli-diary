@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -19,6 +21,7 @@ Widget _table({
   double width = 360,
   bool knownYears = true,
   void Function(String term)? onTerm,
+  LuckLabel? Function(int index)? stage,
 }) => SizedBox(
   width: width,
   child: DaeunTable(
@@ -29,9 +32,12 @@ Widget _table({
           startYear: knownYears ? 1993 + i * 10 : null,
           stem: _cell,
           branch: _cell,
+          ageSemanticLabel: '${4 + i * 10}세',
+          semanticLabel: '庚 경 庚 경',
+          yearSemanticLabel: knownYears ? '${1993 + i * 10}년' : null,
           stemLabel: onTerm == null ? null : _term('대운$i-천간', onTerm),
           branchLabel: onTerm == null ? null : _term('대운$i-지지', onTerm),
-          semanticLabel: '${4 + i * 10}세',
+          stageLabel: stage?.call(i),
         ),
     ],
     seun: [
@@ -40,8 +46,9 @@ Widget _table({
           year: year,
           stem: _cell,
           branch: _cell,
+          yearSemanticLabel: '$year년',
+          semanticLabel: '庚 경 庚 경',
           label: onTerm == null ? null : _term('세운$year', onTerm),
-          semanticLabel: '$year년',
         ),
     ],
     currentIndex: current,
@@ -53,10 +60,8 @@ Widget _table({
 );
 
 /// 누르면 [onTerm]에 [text]를 알리는 용어 라벨.
-Widget _term(String text, void Function(String term) onTerm) => Semantics(
-  button: true,
-  child: GestureDetector(onTap: () => onTerm(text), child: Text(text)),
-);
+LuckLabel _term(String text, void Function(String term) onTerm) =>
+    LuckLabel(text, onTap: () => onTerm(text));
 
 bool _tagVisible(WidgetTester tester, Key pillar) => tester
     .widget<Visibility>(
@@ -161,8 +166,112 @@ void main() {
     await tester.tap(find.text('세운2026'));
     expect(tapped, ['대운3-천간', '세운2026']);
     // 라벨은 기둥 글과 따로 눌리는 자리로 읽힙니다.
-    expect(find.bySemanticsLabel('대운3-지지'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('^대운3-지지')), findsOneWidget);
     expect(find.bySemanticsLabel('34세, 지금'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('12운성은 지지 십성 아래 2px이고, 두 줄 라벨이면 같은 줄 기둥이 그 높이를 따릅니다(V49)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      inputApp(
+        SingleChildScrollView(
+          child: _table(
+            onTerm: (_) {},
+            // 1번 기둥만 낱말 두 개라 두 줄, 2번 기둥은 이름이 없어 자리만 남습니다.
+            stage: (i) => switch (i) {
+              1 => const LuckLabel('제왕 건록'),
+              2 => null,
+              _ => const LuckLabel('장생'),
+            },
+          ),
+        ),
+      ),
+    );
+    Rect cellsOf(int index) => tester.getRect(
+      find
+          .descendant(
+            of: find.byKey(DaeunTable.daeunKey(index)),
+            matching: find.byType(OhaengCell),
+          )
+          .last,
+    );
+    expect(
+      tester.getRect(find.text('대운0-지지')).bottom + 2,
+      tester.getRect(find.text('장생').first).top,
+    );
+    final twoLines = tester.getRect(find.text('제왕 건록'));
+    final oneLine = tester.getRect(find.text('장생').first);
+    expect(twoLines.height, greaterThan(oneLine.height * 1.5));
+    // 간지 칸과 시작 연도가 모든 기둥에서 나란합니다.
+    expect(cellsOf(1).top, cellsOf(0).top);
+    expect(cellsOf(2).top, cellsOf(0).top);
+    expect(
+      tester.getRect(find.text('1993')).top,
+      tester.getRect(find.text('2003')).top,
+    );
+    expect(
+      tester.getRect(find.text('2013')).top,
+      tester.getRect(find.text('2003')).top,
+    );
+  });
+
+  testWidgets('글자 크기 1.3배에서 낱말이 칸보다 넓으면 caption.sm으로 줄이고 말줄임이 없습니다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+        child: inputApp(
+          SingleChildScrollView(
+            child: _table(stage: (i) => const LuckLabel('Prosperity')),
+          ),
+        ),
+      ),
+    );
+    final typography = tester
+        .element(find.byType(DaeunTable))
+        .tokens
+        .typography;
+    final text = tester.widget<Text>(find.text('Prosperity').first);
+    expect(text.style?.fontSize, typography.captionSm.fontSize);
+    expect(text.overflow, TextOverflow.clip);
+  });
+
+  testWidgets('대운 기둥은 나이 → 천간 십성 → 간지 → 지지 십성 → 12운성 → 시작 연도 순서로 읽습니다', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      inputApp(
+        SingleChildScrollView(
+          child: _table(
+            current: null,
+            onTerm: (_) {},
+            stage: (_) => const LuckLabel('장생'),
+          ),
+        ),
+      ),
+    );
+    final pillar = tester.getSemantics(find.byKey(DaeunTable.daeunKey(0)));
+    final labels = <String>[];
+    void collect(SemanticsNode node) {
+      if (node.label.isNotEmpty) labels.add(node.label);
+      node.visitChildren((child) {
+        collect(child);
+        return true;
+      });
+    }
+
+    collect(pillar);
+    expect(labels, hasLength(6));
+    expect(labels[0], '4세');
+    expect(labels[1], startsWith('대운0-천간'));
+    expect(labels[2], '庚 경 庚 경');
+    expect(labels[3], startsWith('대운0-지지'));
+    expect(labels[4], '장생');
+    expect(labels[5], '1993년');
     handle.dispose();
   });
 

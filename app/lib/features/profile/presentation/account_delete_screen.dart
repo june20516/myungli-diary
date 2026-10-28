@@ -23,7 +23,7 @@ const Set<String> accountDeleteHandledStates = {'error'};
 /// 계정 삭제(`account-delete`, 결정 A63).
 ///
 /// 제목과 지워지는 데이터 안내, 삭제 버튼(`primary-button` `destructive`)입니다. 버튼은 확인 창
-/// (`dialog` `destructive`, 첫 초점은 취소) 뒤 `deleteMe` → 로그아웃 정리이고, 끝나면 진입이
+/// (`dialog` `destructive`) 뒤 `deleteMe` → 로그아웃 정리이고, 끝나면 진입이
 /// `welcome`으로 갑니다. 지우는 중에는 버튼이 처리 중 표시이고 뒤로 가기를 막습니다. 실패하면
 /// 오류 toast(`account-delete:error`)이고 버튼을 다시 누를 수 있습니다.
 ///

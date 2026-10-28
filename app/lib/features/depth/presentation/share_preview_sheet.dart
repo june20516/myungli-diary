@@ -163,11 +163,13 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
                 ),
               ),
               const SizedBox(height: Space.s24),
-              PrimaryButton(
-                label: l10n.sharePreviewCtaShare,
-                identifier: SlotIds.sharePreviewCtaShare,
-                loading: _sharing,
-                onPressed: () => unawaited(_share(share)),
+              ToastAnchor(
+                child: PrimaryButton(
+                  label: l10n.sharePreviewCtaShare,
+                  identifier: SlotIds.sharePreviewCtaShare,
+                  loading: _sharing,
+                  onPressed: () => unawaited(_share(share)),
+                ),
               ),
             ],
           ),

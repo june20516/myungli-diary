@@ -165,5 +165,26 @@ void main() {
       );
       handle.dispose();
     });
+
+    testWidgets('묶음 안내는 카드 위에 두 줄까지, 슬롯 id로 찾습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(
+          SettingsGroup(
+            note: '바꾸면 사주를 다시 계산해요. ' * 10,
+            noteIdentifier: 'x.notice',
+            children: [_row(SettingsRowVariant.navigate, onTap: () {})],
+          ),
+        ),
+      );
+      final note = find.byKey(const ValueKey('x.notice'));
+      expect(tester.widget<Text>(note).maxLines, SettingsGroup.noteMaxLines);
+      expect(
+        tester.getBottomLeft(note).dy,
+        lessThan(tester.getTopLeft(find.byType(SettingsRow)).dy),
+      );
+      expect(find.bySemanticsIdentifier('x.notice'), findsOneWidget);
+      handle.dispose();
+    });
   });
 }
