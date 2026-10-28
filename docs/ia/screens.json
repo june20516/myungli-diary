@@ -972,6 +972,11 @@
           "id": "system-push.morning.body",
           "source": "content",
           "role": "아침 운세 알림 문장. 그날 데일리로 개인화하고 호칭은 넣지 않음(잠금 화면)"
+        },
+        {
+          "id": "system-push.channel.morning",
+          "source": "ui",
+          "role": "Android 알림 채널 이름(기기 설정 > 앱 > 알림의 채널 목록, 채널 id `morning`). 사용자가 아침 알림만 끌 때 읽는 짧은 이름이고 앱 언어를 따름. iOS에는 채널이 없어 보이지 않음"
         }
       ],
       "components": [],
