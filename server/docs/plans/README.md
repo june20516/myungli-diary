@@ -14,7 +14,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P5 | [일기·일정](2026-10-20-p5-diary-schedule.md): soft delete, 복구, 태그 조회, 저장 시 태그·가이드 질문 기록, `Idempotency-Key`(계약 draft.7, S50~S64) | §5.3, §3.3 일기, §11.2 | **완료** |
 | P6 | [비로그인·참조](2026-10-20-p6-public-reference.md): 미리보기, 시진 확인, App Check, 요청 한도, 도시, app-config, staging 테스트 로그인(#93), 계약 draft.8, S65~S78 | §5.3, §3.3 기타, §13.2 | **완료** |
 | P7 | [결제와 권한](2026-10-20-p7-billing.md): RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60), 계약 draft.9, S79~S89 | §10 | **완료** |
-| P8 | Job: precompute, notify(FCM), retention(허가 취소 재시도 S106은 구현됨, 보관 기간 정리 S113). 익명화는 없어짐(S105) | §8 | 대기 |
+| P8 | Job: precompute, notify(FCM), retention(허가 취소 재시도 S106, 보관 기간 정리 S113·S120은 구현됨). 익명화는 없어짐(S105) | §8 | 대기 |
 | P9 | 배포: staging·prod, Cloud Run service·Jobs·Scheduler, Cloud SQL 연결, OpenTelemetry, 외부 준비 안내 | §13 | 대기 |
 
 P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 서로 기다리지 않습니다.
@@ -50,7 +50,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * `registerDevice`를 멱등 대상(`Idempotency(..., "createSchedule", "registerDevice")`)에 더합니다.
 * 계정 삭제 때 기기: `devices`가 생기면 `account.DeleteAccountTx`의 지움 목록(`deleteSteps`)과 그 trigger(migration 00015의 `reject_deleted_account_write`)에 더합니다.
 * `apple_web_logins` 만료·소진 행을 정리합니다. 만료됐는데 소진되지 않은 행은 그 subject의 연결 행이 없을 때만 Apple refresh token을 revoke합니다(S19와 같은 규칙). 소진된 행도 암호화한 Apple refresh token과 subject를 담으므로 만료 뒤 지웁니다.
-* `job retention`이 허가 취소 대기 행(`provider_revocations`)을 재시도하는 것은 S106으로 구현했습니다(`auth.Revocations.RetryDue`). 남은 일은 만료된 refresh token을 지우는 것입니다.
+* `job retention`이 허가 취소 대기 행(`provider_revocations`)을 재시도하고(S106, `auth.Revocations.RetryDue`) 만료된 refresh token을 지웁니다(P8-2, `internal/retention`).
 * 만료된 refresh token 정리는 "행을 물리적으로 지우지 않는다"(S6·S7, spec §2)의 예외입니다(시스템 데이터). 다만 `refresh_tokens.replaced_by_id`가 같은 테이블을 `ON DELETE RESTRICT`로 참조하므로(S20), 앞 토큰이 남아 있는 동안 그 다음 토큰은 지울 수 없습니다. family의 모든 토큰이 만료됐을 때 family 단위로 지우되 참조하는 행(앞 토큰)부터 지워야 합니다. RESTRICT는 한 DELETE 문 안에서도 행마다 즉시 검사하므로 한 문장에 몰아 지울 때의 순서에 기대지 않습니다(필요하면 FK를 `NO ACTION`으로 바꾸는 것을 검토).
 * 클라이언트가 연결을 끊은 요청과 엔진 호출자 취소(`context.Canceled`)가 500과 오류 로그로 남는 잡음을 정리합니다.
 * 이전 `ruleset_version` 캐시 행을 정리합니다.
@@ -60,7 +60,7 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 **P9 (배포)**
 * 결제 설정 4개를 Secret Manager에 둡니다(`config.LoadBilling`의 이름 그대로): `REVENUECAT_PROJECT_ID`, `REVENUECAT_API_KEY`(REST v2 secret key), `REVENUECAT_WEBHOOK_AUTH`(대시보드에 적은 Authorization 값 전체), `AD_FREE_PRODUCT_IDS`(쉼표 목록). `APP_ENV`가 local이 아니면 모두 필수이고 없으면 시작에 실패합니다.
 * staging에서 확인할 것(문서로 확정되지 않은 외부 사실): AdMob 테스트 콜백의 `timestamp` 단위(ms/µs), RevenueCat webhook Authorization 헤더의 실제 형식(값 그대로인지), v2 구매 목록의 `next_page` 형태, Apple 비갱신 구독이 v2 구매 목록에 일회성 구매로 오는지.
-* `billing_events`는 5년 보관하므로 `job retention`이 지우지 않습니다.
+* `billing_events`는 5년 보관하고, 그 뒤 `job retention`이 지웁니다(S113, P8-2).
 * 앞단에 Load Balancer를 두면 `TRUSTED_PROXY_HOPS`=2입니다. 실제 요청의 `X-Forwarded-For` 개수를 로그로 한 번 확인합니다(IP 원문은 남기지 않음).
 * 배포 설정: `FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`(Cloud Run 앞단 수를 확인합니다. 실제보다 크거나 0이면 모든 클라이언트가 한 키를 공유합니다), `APP_MIN_VERSION_IOS`·`APP_MIN_VERSION_ANDROID`, `TEST_LOGIN_SECRET`(staging만, `openssl rand -base64 32` 같은 난수). staging 이미지는 `-tags staging`으로 빌드합니다(Dockerfile·deploy workflow). App Check debug token은 staging Firebase 콘솔에만 둡니다.
 * Cloud Run 엔진 서비스를 h2c end-to-end로 확인하고, gRPC startup probe(`myungli.engine.v1.MyungliEngine`), internal ingress, 8초 grace를 설정합니다(#79).
