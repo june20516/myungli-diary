@@ -43,7 +43,7 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 | E8 | Android 앱 서명 지문과 스토어 URL (#311, #114 ④) | P9, App Link | E3 | - | 공개: `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL` | server, app | 완료(Play 앱 서명 지문, 값은 server #607·app #311·카카오 #590. debug 지문은 app #311에 요청) | #612 |
 | E9 | Kakao Developers 앱과 카카오 로그인 (D55) | P9, A2 실제 로그인 | - | - | 공개: `KAKAO_APP_KEY`(id_token audience), 앱에 넣는 네이티브 앱 키 / 비밀: `KAKAO_ADMIN_KEY` | server, app | 진행 중(앱과 키 완료, 값은 server #610·app #311. OpenID Connect 켬. 플랫폼 등록 안내함, 어드민 키 Secret 대기) | #590 |
 | E10 | LINE Developers 로그인 채널(이메일 권한 신청 없음, D82) | P9, A2 실제 로그인 | E2·E3(앱 식별자) | - | 공개: `LINE_CHANNEL_ID` | server, app | 준비 전 | #592 |
-| E11 | Google OAuth client(iOS·Android·Web)와 동의 화면 (D82) | P9, A2 실제 로그인 | E3(Android 서명 지문) | 동의 화면 검증이 필요할 때 | 공개: `GOOGLE_CLIENT_IDS` | server, app | 준비 전 | #593 |
+| E11 | Google OAuth client(iOS·Android·Web)와 동의 화면 (D82) | P9, A2 실제 로그인 | E3(Android 서명 지문) | 동의 화면 검증이 필요할 때 | 공개: `GOOGLE_CLIENT_IDS` | server, app | 진행 중(client는 prod 프로젝트 하나에, staging server도 같은 ID) | #593 |
 | E12 | RevenueCat 프로젝트, App Store Connect·Google Play 연결, 광고 제거권 상품 (D53) | P9, A2 결제 | E2·E3 | 스토어 상품 심사 | 공개: `REVENUECAT_PROJECT_ID`·`AD_FREE_PRODUCT_IDS`, 앱 공개 SDK 키 / 비밀: `REVENUECAT_API_KEY`·`REVENUECAT_WEBHOOK_AUTH` | server, app | 준비 전 | - |
 | E13 | AdMob 계정, 앱 등록, 보상형 광고 단위, SSV 콜백 URL(server가 주소 안내) (D53·D60) | A2 광고, I4 | E6 | 계정 검증(보통 하루, 최대 2주), 앱 검토 | 공개: AdMob 앱 ID, 광고 단위 ID | server, app | 진행 중(계정) | #539 |
 | E14 | 문의 전용 메일 주소(앱 문의하기와 스토어 지원 연락처, D89) | A2 문의하기, 스토어 등록 | - | - | 공개: 주소 | app, writing | 준비 전 | - |
