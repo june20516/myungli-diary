@@ -147,7 +147,7 @@
 | preview.share.login-notice | preview.share.login-notice | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`previewShareLoginNotice` ko 34, en 60, ja 28 |
 | profile-edit.bar.title | profile-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | profile-edit.recalc.confirm | profile-edit.recalc.confirm | guide | - | 1 | 4 | `before`: text<br>`after`: text | ko 10, en 16, ja 7<br>`profileEditRecalcConfirmTitle` ko 34, en 60, ja 28<br>`profileEditRecalcConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| profile-edit.recalc.notice | profile-edit.recalc.notice | info | - | 1 | 1 | - | ko -, en -, ja - |
+| profile-edit.recalc.notice | profile-edit.recalc.notice | info | - | 1 | 1 | - | ko 62, en 104, ja 46 |
 | purchase-history.bar.title | purchase-history.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | purchase-history.empty.body | purchase-history.empty.body | info | - | 1 | 1 | - | ko 64, en 108, ja 46 |
 | purchase-history.missing.notice | purchase-history.missing.notice | guide | - | 1 | 1 | - | ko 62, en 106, ja 46 |
@@ -163,6 +163,7 @@
 | share-preview.image.footer | share-preview.image.footer | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.image.tagline | share-preview.image.tagline | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.ratio.label | share-preview.ratio.label | info | - | 1 | 3 | - | ko 8, en 13, ja 6 |
+| system-push.channel.morning | system-push.channel.morning | info | - | 1 | 1 | - | ko -, en -, ja - |
 | system.apple_return | system-apple-return.page.title<br>system-apple-return.page.body<br>system-apple-return.page.open<br>system-apple-return.page.install | guide | - | 1 | 4 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | system.notice | 컴포넌트 notice-banner | info | - | 1 | 7 | - | ko 52, en 90, ja 38 |
 | tag-diary.bar.title | tag-diary.bar.title | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
@@ -175,7 +176,7 @@
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 2 | - | ko 11, en 19, ja 9 |
 | ui.account-merge.error | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 3 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
+| ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 5 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
 | ui.account-merge.summary | account-merge.title.body | info | - | 1 | 7 | `count`: number<br>`days`: number | ko 19, en 35, ja 15 |
 | ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 10, en 16, ja 7 |
 | ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |

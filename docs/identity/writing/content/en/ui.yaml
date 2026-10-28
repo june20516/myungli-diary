@@ -157,6 +157,7 @@
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, from {start} to {end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
+- {slot: system-push.channel.morning, key: systemPushChannelMorning, text: "Today's reading alerts"}
 
 # 공용 문구(slots/ui/common.yaml, #143)
 - {slot: ui.error.client, key: errorOffline, text: "You're offline. Please check your connection."}
@@ -358,6 +359,8 @@
 - {slot: ui.account-merge.choice, key: accountChoiceOther, text: "Account to bring in"}
 - {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date}, time unknown"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuLeap, text: "{calendar} leap month {date} {time}"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuNoTimeLeap, text: "{calendar} leap month {date}, time unknown"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "No chart details"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "We couldn't merge the accounts. Both accounts are unchanged. Please try again."}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryHead, text: "Records to bring in"}

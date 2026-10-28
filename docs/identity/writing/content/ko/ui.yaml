@@ -157,6 +157,7 @@
 - {slot: ui.depth.explain, key: depthExplain, text: "풀이"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}시, {start}~{end}에 태어났어요."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "알림 받기"}
+- {slot: system-push.channel.morning, key: systemPushChannelMorning, text: "오늘 풀이 알림"}
 
 # 공용 문구(slots/ui/common.yaml, #143)
 - {slot: ui.error.client, key: errorOffline, text: "인터넷에 연결되어 있지 않아요. 연결을 확인해 주세요."}
@@ -358,6 +359,8 @@
 - {slot: ui.account-merge.choice, key: accountChoiceOther, text: "가져올 계정"}
 - {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date} 시각 모름"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuLeap, text: "{calendar} 윤달 {date} {time}"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuNoTimeLeap, text: "{calendar} 윤달 {date} 시각 모름"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "사주 정보 없음"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "계정을 합치지 못했어요. 두 계정 모두 그대로 있어요. 다시 시도해 주세요."}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryHead, text: "가져올 기록"}
