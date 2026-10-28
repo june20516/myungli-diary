@@ -46,6 +46,11 @@ final class _Network extends Interceptor {
   String? secondOnlyKind;
   String secondOnlyDate = '';
 
+  /// 값이 있으면 달 길흉 응답(`/v1/calendar/...`)에서 [calendarOverrideDate]의 `dayKind`를 이 값으로
+  /// 바꿔, 달 길흉이 알려진 값이 되게 합니다.
+  String? calendarOverrideKind;
+  String calendarOverrideDate = '';
+
   /// 하루 범위(`from`==`to`) 일기 목록을 날짜마다 물은 횟수.
   final dayQueries = <String, int>{};
 
@@ -56,6 +61,16 @@ final class _Network extends Interceptor {
   ) {
     final kind = secondOnlyKind;
     final data = response.data;
+    final override = calendarOverrideKind;
+    if (override != null &&
+        response.requestOptions.path.startsWith('/v1/calendar/') &&
+        data is Map) {
+      for (final day in data['days'] as List<Object?>) {
+        if ((day! as Map)['date'] == calendarOverrideDate) {
+          (day as Map)['dayKind'] = override;
+        }
+      }
+    }
     if (kind != null &&
         response.requestOptions.path == '/v1/diaries' &&
         data is Map) {
@@ -236,9 +251,13 @@ void main() {
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
     final date = CalendarDate(2026, 10, 13);
-    // 첫 일기에는 기록이 없고 둘째에만 있습니다(첫 비-null 경로).
-    const recordedKind = DayKind.gisinDay;
+    // 달 길흉은 기신일로 고정하고, 둘째 일기에만 그와 다른 성격을 기록합니다.
+    // 첫 일기에는 기록이 없습니다(첫 비-null 경로).
+    const calendarKind = DayKind.gisinDay;
+    final recordedKind = DayKind.values.firstWhere((k) => k != calendarKind);
     network
+      ..calendarOverrideKind = calendarKind.value
+      ..calendarOverrideDate = date.toIso()
       ..secondOnlyKind = recordedKind.value
       ..secondOnlyDate = date.toIso();
     await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
@@ -246,6 +265,7 @@ void main() {
 
     final group = tester.widget<DiaryDayGroup>(find.byType(DiaryDayGroup));
     expect(group.character, dayCharacterVariantOf(recordedKind));
+    expect(group.character, isNot(dayCharacterVariantOf(calendarKind)));
     expect(group.characterPending, isFalse);
   });
 
