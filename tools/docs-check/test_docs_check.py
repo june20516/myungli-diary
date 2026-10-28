@@ -636,8 +636,8 @@ class ReviewItemTests(RepoTestCase):
     def test_sent_or_done_needs_issue(self) -> None:
         self.write_items(review_row(status="보냄", tasks="Issue 열 예정"), review_row("F-002", status="끝남"))
         self.assertEqual(docs_check.check_review_items(self.root), [
-            "docs/review/items.md [F-001]: 보냄·끝남은 작업 칸에 Issue 번호가 있어야 합니다",
-            "docs/review/items.md [F-002]: 보냄·끝남은 작업 칸에 Issue 번호가 있어야 합니다",
+            "docs/review/items.md [F-001]: 보냄과 끝남은 작업 칸에 Issue 번호가 있어야 합니다",
+            "docs/review/items.md [F-002]: 보냄과 끝남은 작업 칸에 Issue 번호가 있어야 합니다",
         ])
 
     def test_merged_target(self) -> None:
@@ -667,6 +667,18 @@ class ReviewItemTests(RepoTestCase):
         self.assertEqual(
             docs_check.check_review_items(self.root), ["docs/review/items.md [F-001]: 칸 수가 8이 아닙니다 (3)"]
         )
+
+    def test_merge_target_must_end_at_three_digits(self) -> None:
+        self.write_items(review_row("F-001", status="합침", tasks="→ F-0025"), review_row("F-002"))
+        self.assertEqual(docs_check.check_review_items(self.root), [
+            "docs/review/items.md [F-001]: 합침은 작업 칸에 → F-<번호>를 적습니다",
+        ])
+
+    def test_rows_after_blank_line_are_reported(self) -> None:
+        write(self.root, "docs/review/items.md", REVIEW_HEADER + review_row() + "\n\n" + review_row("F-002", status="진행") + "\n")
+        self.assertEqual(docs_check.check_review_items(self.root), [
+            "docs/review/items.md: 표 밖에 항목 행이 1개 있습니다(빈 줄 등으로 표가 끊겼는지 보세요)",
+        ])
 
     def test_main_reports_review_problem(self) -> None:
         self.write_items(review_row(status="진행"))

@@ -96,7 +96,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 받은 값은 지휘가 쓰는 단위의 Issue로 전달하고, 대장의 상태를 고친 뒤 `kind:prep` Issue를 닫습니다.
 
 ### 5.4. 검수 피드백
-* 검수와 폴리싱 피드백(스크린샷과 자연어)은 지휘가 받아 [`docs/review/items.md`](review/items.md)의 항목으로 정리하고, 단위 작업 Issue(`review`, `sev:1`, `sev:2`, `sev:3`)로 보냅니다. 원요청은 비공개 내부 저장소에 둡니다. 절차는 [`docs/review/README.md`](review/README.md)입니다.
+* 검수와 폴리싱 피드백(스크린샷과 자연어)은 지휘가 받아 [`docs/review/items.md`](review/items.md)의 항목으로 정리하고, 단위 작업 Issue(`review`와 심각도 라벨 하나 `sev:<n>`)로 보냅니다. 원요청은 비공개 내부 저장소에 둡니다. 절차는 [`docs/review/README.md`](review/README.md)입니다.
 * 단위의 할 일 순서는 drift → `sev:1` → 로드맵 일 → `sev:2` → `sev:3`입니다.
 * 단위가 동의하지 않으면(단위 결정과 부딪힘, 더 나은 방법) 고치지 않고 작업 Issue에 이유를 코멘트합니다. 지휘가 사용자에게 다시 확인합니다.
 

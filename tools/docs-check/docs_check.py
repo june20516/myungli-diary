@@ -63,7 +63,8 @@ REVIEW_STATUSES = {"받음", "확인 중", "보냄", "끝남", "보류", "합침
 REVIEW_SEVERITIES = {"S1", "S2", "S3"}
 REVIEW_ID_PATTERN = re.compile(r"F-\d{3}")
 REVIEW_ISSUE_PATTERN = re.compile(r"#\d+")
-REVIEW_MERGE_PATTERN = re.compile(r"→ (F-\d{3})")
+REVIEW_MERGE_PATTERN = re.compile(r"→ (F-\d{3})(?!\d)")
+REVIEW_ROW_LINE = re.compile(r"\|\s*F-")
 
 # ja 근거 용어집(D70). 출처 종류별 등급과 신뢰도 규칙은 docs/research/ja-terms/README.md와 같습니다.
 JA_TERMS_DIR = "docs/research/ja-terms"
@@ -347,7 +348,7 @@ def check_ia(root: Path) -> list[str]:
     return [p if p.startswith(IA_PATH) else f"{IA_PATH} {p}" for p in problems]
 
 
-def _idea_cells(line: str) -> list[str]:
+def _table_cells(line: str) -> list[str]:
     body = line.strip()
     body = body[1:] if body.startswith("|") else body
     body = body[:-1] if body.endswith("|") and not body.endswith("\\|") else body
@@ -358,7 +359,7 @@ def _table_rows(text: str, columns: tuple[str, ...]) -> list[list[str]] | None:
     """머리가 columns이고 바로 아래가 구분선인 첫 표의 데이터 행. 표가 없으면 None."""
     lines = text.splitlines()
     for index, line in enumerate(lines):
-        if line.startswith("|") and tuple(_idea_cells(line)) == columns:
+        if line.startswith("|") and tuple(_table_cells(line)) == columns:
             separator = lines[index + 1].strip() if index + 1 < len(lines) else ""
             if not TABLE_SEPARATOR.fullmatch(separator):
                 continue
@@ -366,7 +367,7 @@ def _table_rows(text: str, columns: tuple[str, ...]) -> list[list[str]] | None:
             for row in lines[index + 2:]:
                 if not row.startswith("|"):
                     break
-                rows.append(_idea_cells(row))
+                rows.append(_table_cells(row))
             return rows
     return None
 
@@ -431,7 +432,6 @@ def check_ideas(root: Path) -> list[str]:
     ]
 
 
-
 def _check_review_row(cells: list[str], known_ids: set[str], seen: set[str]) -> list[str]:
     if len(cells) != len(REVIEW_COLUMNS):
         return [f"칸 수가 {len(REVIEW_COLUMNS)}이 아닙니다 ({len(cells)})"]
@@ -447,7 +447,7 @@ def _check_review_row(cells: list[str], known_ids: set[str], seen: set[str]) -> 
     if status not in REVIEW_STATUSES:
         problems.append(f"상태 값이 아닙니다: {status}")
     elif status in ("보냄", "끝남") and not REVIEW_ISSUE_PATTERN.search(tasks):
-        problems.append("보냄·끝남은 작업 칸에 Issue 번호가 있어야 합니다")
+        problems.append("보냄과 끝남은 작업 칸에 Issue 번호가 있어야 합니다")
     elif status == "합침":
         match = REVIEW_MERGE_PATTERN.search(tasks)
         if not match:
@@ -463,16 +463,24 @@ def check_review_items(root: Path) -> list[str]:
     path = root / REVIEW_ITEMS_PATH
     if not path.exists():
         return []
-    rows = _table_rows(path.read_text(encoding="utf-8"), REVIEW_COLUMNS)
+    text = path.read_text(encoding="utf-8")
+    rows = _table_rows(text, REVIEW_COLUMNS)
     if rows is None:
         return [f"{REVIEW_ITEMS_PATH}: 피드백 항목 표가 없습니다 (머리: {' | '.join(REVIEW_COLUMNS)})"]
     known_ids = {cells[0] for cells in rows if cells and REVIEW_ID_PATTERN.fullmatch(cells[0])}
     seen: set[str] = set()
-    return [
+    problems = [
         f"{REVIEW_ITEMS_PATH} [{cells[0]}]: {reason}"
         for cells in rows
         for reason in _check_review_row(cells, known_ids, seen)
     ]
+    item_lines = sum(1 for line in text.splitlines() if REVIEW_ROW_LINE.match(line))
+    table_item_rows = sum(1 for cells in rows if cells and cells[0].startswith("F-"))
+    if item_lines > table_item_rows:
+        problems.append(
+            f"{REVIEW_ITEMS_PATH}: 표 밖에 항목 행이 {item_lines - table_item_rows}개 있습니다(빈 줄 등으로 표가 끊겼는지 보세요)"
+        )
+    return problems
 
 
 def _glossary_keys(root: Path) -> set[str] | None:
