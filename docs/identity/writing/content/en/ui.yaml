@@ -52,7 +52,7 @@
 - {slot: today.reaction.label, key: todayReactionLabel, text: "Like"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "Unlike"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "Myungli Diary"}
-- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "Myungli Diary: today, read for your chart"}
+- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "A diary that reads today for your own chart"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelStory, text: "Story"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelFeed, text: "Feed"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelSquare, text: "Square"}

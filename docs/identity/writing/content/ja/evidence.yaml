@@ -1,0 +1,25 @@
+# 근거 문장(evidence.basis) 원고(ja). W1-3b. ko 원고(content/ko/evidence.yaml)와 같은 정보를 옮긴 원어민 검수 전 초안입니다.
+- {slot: evidence.basis, key: "basis.calendar/score", text: "その日が貴人の日や用神の日なら点数を加え、忌神の日か、あなたの命式と[[冲|relation.chung]]や[[刑|relation.hyeong]]が生じる日なら差し引いて、等級をつけました。"}
+- {slot: evidence.basis, key: "basis.color/lucky_element", text: "忌神の日には滞った流れをつなぐ五行を、それ以外の日にはあなたの[[用神|role.yongsin]]の五行を、今日の色と見ました。今日は{element}の気の色です。"}
+- {slot: evidence.basis, key: "basis.direction/gwiin_branch", text: "貴人の日なので、今日の地支{day_branch}の方位である{direction}を、今日の方角と見ました。"}
+- {slot: evidence.basis, key: "basis.direction/yongsin", text: "用神の日なので、あなたの[[用神|role.yongsin]]の五行である{element}に合う方位、{direction}を、今日の方角と見ました。"}
+- {slot: evidence.basis, key: "basis.direction/tonggwan", text: "忌神の日なので、滞った流れをつなぐ五行である{element}に合う方位、{direction}を、今日の方角と見ました。"}
+- {slot: evidence.basis, key: "basis.direction/ordinary_deity_yongsin", text: "普通の日なので、この日の吉方位のうち、あなたの[[用神|role.yongsin]]の五行である{element}に合う{direction}を選びました。"}
+- {slot: evidence.basis, key: "basis.direction/ordinary_deity_huisin", text: "普通の日なので、この日の吉方位のうち、[[喜神|role.huisin]]の五行である{element}に合う{direction}を選びました。"}
+- {slot: evidence.basis, key: "basis.direction/ordinary_fallback", text: "普通の日ですが、この日の吉方位に合う五行がなかったので、あなたの[[用神|role.yongsin]]の五行である{element}に合う方位、{direction}を選びました。"}
+- {slot: evidence.basis, key: "basis.focus_time/score", text: "貴人が巡る時間、用神や喜神が巡る時間、あなたの命式と合になる時間に点数をつけ、あなたの命式と[[冲|relation.chung]]になる時間は差し引いて、最も点数の高い時間を選びました。"}
+- {slot: evidence.basis, key: "basis.focus_time/fallback", text: "今日は候補の時間がすべてあなたの命式と[[冲|relation.chung]]になるので、昔から吉とされてきた時間のうち、最も早い時間を選びました。"}
+- {slot: evidence.basis, key: "basis.fortune/day_kind", text: "今日は{day_kind}で、今日の天干があなたの日干にとって{ten_god}にあたるので、この二つをもとに総運を選びました。"}
+- {slot: evidence.basis, key: "basis.fortune/tag", text: "今日付いたタグのうち、最も優先されるものをもとに、総運の下の文を選びました。"}
+- {slot: evidence.basis, key: "basis.guide/question", text: "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる{ten_god:ten_god_group}で、今日の質問を選びました。"}
+- {slot: evidence.basis, key: "basis.number/hado", text: "今日の色と同じ五行である{element}の河図の数二つのうち、今日の天干{day_stem}の陰陽に合わせて、陽なら奇数、陰なら偶数を選びました。"}
+- {slot: evidence.basis, key: "basis.personal/day_master", text: "日干を助ける五行と抑える五行の重さを比べて、あなたの日干の力を{strength}と見ました。そこで{yongsin}を[[用神|role.yongsin]]、{gisin}を[[忌神|role.gisin]]と見ました。"}
+- {slot: evidence.basis, key: "basis.personal/ten_god", text: "{place}の五行{element}は、あなたの命式では{role}です。この役割に、同じグループの通変星の数と日干の力を合わせて、解釈を選びました。"}
+- {slot: evidence.basis, key: "basis.personal/twelve_stage", text: "{place}の五行{element}は、あなたの命式では{role}です。この役割に日干の力を合わせて、十二運の解釈を選びました。"}
+- {slot: evidence.basis, key: "basis.personal/shinsal", text: "神殺がある{place}の五行{element}は、あなたの命式では{role}です。この役割に合わせて、神殺の解釈を選びました。"}
+- {slot: evidence.basis, key: "basis.personal/luck_ten_god", text: "{luck}の{part}の五行{element}は、あなたの命式では{role}です。この役割に合わせて、解釈を選びました。"}
+- {slot: evidence.basis, key: "basis.personal/luck_twelve_stage", text: "大運の地支の五行{element}は、あなたの命式では{role}です。この役割に合わせて、十二運の解釈を選びました。"}
+- {slot: evidence.basis, key: "basis.tags/select", text: "今日の干支があなたの命式と作る合と冲、一つの通変星グループへの偏り、神殺の順にタグを探し、先頭の二つを代表タグに選びました。"}
+- {slot: evidence.basis, key: "basis.yongsin/eokbu", text: "扶抑法で[[用神|role.yongsin]]を決めました。あなたの日干の力が{strength_level}なので、その力を釣り合わせる五行を選びました。"}
+- {slot: evidence.basis, key: "basis.yongsin/johu", text: "夏か冬に生まれ、暑さや寒さが行き過ぎた命式なので、温度を整える調候法で[[用神|role.yongsin]]を決めました。{month_branch}月のあなたの日干に合う五行は、窮通宝鑑の調候表に従いました。"}
+- {slot: evidence.basis, key: "basis.yongsin/johu_neutral", text: "あなたの日干の力が釣り合っているので、扶抑法ではなく調候法で[[用神|role.yongsin]]を決めました。生まれた月のあなたの日干に合う五行は、窮通宝鑑の調候表に従いました。"}

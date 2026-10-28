@@ -505,3 +505,28 @@ def test_bad_max_length_word_is_schema_error(tmp_path: Path, rules: RuleSet) -> 
     with pytest.raises(LoadError) as raised:
         load_slots(make_slots_dir(tmp_path, broken), rules)
     assert any("unbounded" in finding.message for finding in raised.value.findings)
+
+
+def test_pending_is_loaded(tmp_path: Path, rules: RuleSet) -> None:
+    slot_yaml = VALID_SLOT + "  pending:\n    b.plain: {ja: \"근거 보강 대기\"}\n"
+    slot = load_slots(make_slots_dir(tmp_path, slot_yaml), rules)["test.slot"]
+    assert slot.pending == {"b.plain": {"ja": "근거 보강 대기"}}
+
+
+def test_pending_defaults_to_empty(tmp_path: Path, rules: RuleSet) -> None:
+    assert load_slots(make_slots_dir(tmp_path, VALID_SLOT), rules)["test.slot"].pending == {}
+
+
+@pytest.mark.parametrize(
+    ("extra", "needle"),
+    [
+        ("  pending:\n    nope.key: {ja: \"이유\"}\n", "nope.key"),
+        ("  pending:\n    b.plain: {fr: \"이유\"}\n", "fr"),
+        ("  pending:\n    b.plain: {ja: \"\"}\n", "b.plain"),
+        ("  pending:\n    b.plain: \"이유\"\n", "b.plain"),
+    ],
+)
+def test_bad_pending_is_schema_error(tmp_path: Path, rules: RuleSet, extra: str, needle: str) -> None:
+    with pytest.raises(LoadError) as raised:
+        load_slots(make_slots_dir(tmp_path, VALID_SLOT + extra), rules)
+    assert any(needle in finding.message for finding in raised.value.findings)

@@ -1,6 +1,6 @@
 [project]
 name = "myungli-writing"
-version = "0.11.0"
+version = "0.12.0"
 description = "명리일기 라이팅 검사기: 원고가 슬롯 명세와 규칙을 지키는지 검사합니다"
 requires-python = ">=3.13"
 dependencies = [

@@ -246,6 +246,8 @@ class Slot:
     vocative: bool = False
     # 키별 언어별 상한입니다. 적힌 언어는 슬롯 상한 대신 씁니다(확인 창의 제목·본문·버튼처럼 칸이 다른 키, #191).
     key_max_length: dict[str, dict[str, LengthLimit]] = field(default_factory=dict)
+    # 원고를 일부러 비워 둔 키와 언어, 그 이유입니다. 빠져도 error가 아니라 warn으로 보고합니다.
+    pending: dict[str, dict[str, str]] = field(default_factory=dict)
 
     def length_limit(self, lang: str, key: str | None = None) -> int | None:
         """검사에 쓸 글자 수 상한입니다. 미정(None)과 상한 없음(UNBOUNDED)은 둘 다 재지 않으므로 None입니다."""

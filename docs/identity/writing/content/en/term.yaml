@@ -14,3 +14,65 @@
 - {slot: term.meaning, key: term.tag.ten_god_rush.inseong, text: "Inseong, already strong in your chart, comes in again that day, so thoughts multiply and you want someone to lean on."}
 - {slot: term.meaning, key: term.tag.yeokma, text: "A shinsal for movement, so trips and time outside tend to increase."}
 - {slot: term.meaning, key: term.tag.yongsin_day, text: "A day when the energy your chart needs comes in, so what you're doing tends to go smoothly."}
+- {slot: term.meaning, key: term.element.wood, text: "The nature of a tree, growing upward and spreading in every direction. In a person, it shows as the wish to start something new and help it grow."}
+- {slot: term.meaning, key: term.element.fire, text: "The nature of a flame, burning and spreading light. In a person, it shows as the wish to show and express what's inside."}
+- {slot: term.meaning, key: term.element.earth, text: "The nature of soil, taking things in and holding them in place. In a person, it shows as the wish to connect people and keep things steady."}
+- {slot: term.meaning, key: term.element.metal, text: "The nature of iron, hard and sharp enough to cut cleanly. In a person, it shows as the wish to tell right from wrong and see things through."}
+- {slot: term.meaning, key: term.element.water, text: "The nature of water, flowing to low places and soaking in. In a person, it shows as a habit of thinking deeply and quietly taking things in."}
+- {slot: term.meaning, key: term.stem.gap, text: "The first of the ten heavenly stems, like a tall tree growing straight up. It keeps steadily to a path once it's chosen."}
+- {slot: term.meaning, key: term.stem.eul, text: "The second of the ten heavenly stems, like a wildflower that takes root anywhere. It bends to fit its situation and keeps on growing."}
+- {slot: term.meaning, key: term.stem.byeong, text: "The third of the ten heavenly stems, like the midday sun shining bright. It hides nothing and lights up everything around it."}
+- {slot: term.meaning, key: term.stem.jeong, text: "The fourth of the ten heavenly stems, like a lamp that lights up the dark. It keeps what's close by warm and lit for a long time."}
+- {slot: term.meaning, key: term.stem.mu, text: "The fifth of the ten heavenly stems, like a great mountain that holds its ground. It doesn't shake easily and stays put for others."}
+- {slot: term.meaning, key: term.stem.gi, text: "The sixth of the ten heavenly stems, like a wide field where seeds grow. It takes things in and raises them step by step."}
+- {slot: term.meaning, key: term.stem.gyeong, text: "The seventh of the ten heavenly stems, like solid metal that's yet to be shaped. It doesn't bend and decides things straight away."}
+- {slot: term.meaning, key: term.stem.sin, text: "The eighth of the ten heavenly stems, like a finely cut gem. It sorts things with care and polishes them clean."}
+- {slot: term.meaning, key: term.stem.im, text: "The ninth of the ten heavenly stems, like a great river flowing far. It takes in a lot and keeps moving without getting stuck."}
+- {slot: term.meaning, key: term.stem.gye, text: "The tenth of the ten heavenly stems, like a spring of clear, still water. It quietly looks after what's around it."}
+- {slot: term.meaning, key: term.branch.ja, text: "The earthly branch of the Rat. It stands for midwinter and the middle of the night."}
+- {slot: term.meaning, key: term.branch.chuk, text: "The earthly branch of the Ox. It stands for late winter and the hours before dawn."}
+- {slot: term.meaning, key: term.branch.in, text: "The earthly branch of the Tiger. It stands for early spring and dawn."}
+- {slot: term.meaning, key: term.branch.myo, text: "The earthly branch of the Rabbit. It stands for mid-spring and sunrise."}
+- {slot: term.meaning, key: term.branch.jin, text: "The earthly branch of the Dragon. It stands for late spring and morning."}
+- {slot: term.meaning, key: term.branch.sa, text: "The earthly branch of the Snake. It stands for early summer and late morning."}
+- {slot: term.meaning, key: term.branch.o, text: "The earthly branch of the Horse. It stands for midsummer and midday."}
+- {slot: term.meaning, key: term.branch.mi, text: "The earthly branch of the Goat. It stands for late summer and early afternoon."}
+- {slot: term.meaning, key: term.branch.shin, text: "The earthly branch of the Monkey. It stands for early autumn and late afternoon."}
+- {slot: term.meaning, key: term.branch.yu, text: "The earthly branch of the Rooster. It stands for mid-autumn and sunset."}
+- {slot: term.meaning, key: term.branch.sul, text: "The earthly branch of the Dog. It stands for late autumn and early evening."}
+- {slot: term.meaning, key: term.branch.hae, text: "The earthly branch of the Pig. It stands for early winter and night."}
+- {slot: term.meaning, key: term.ten_god.bigyeon, text: "An energy on equal footing with you, like a friend or coworker at your side. It often shows as wanting to do things on your own, and as stubbornness."}
+- {slot: term.meaning, key: term.ten_god.geopjae, text: "An energy like a rival who resembles you and competes for your share. It shows as a drive not to lose and as bold decisions."}
+- {slot: term.meaning, key: term.ten_god.siksin, text: "An energy that lets out what you have, easily and comfortably. It shows as time to eat and enjoy, and a knack for steadily making things."}
+- {slot: term.meaning, key: term.ten_god.sanggwan, text: "An energy that puts your thoughts out into the world without holding back. It often shows as a sharp tongue and wit that breaks the mold."}
+- {slot: term.meaning, key: term.ten_god.pyeonjae, text: "An energy for money and chances that come and go in large amounts. It shows as a knack for taking on a lot and getting to know all kinds of people."}
+- {slot: term.meaning, key: term.ten_god.jeongjae, text: "An energy for money saved bit by bit and the share you keep safe. It shows as being careful, thrifty, and dependable."}
+- {slot: term.meaning, key: term.ten_god.pyeongwan, text: "An energy for strict standards and challenges that toughen you up. It shows as the strength to hold on when things get hard."}
+- {slot: term.meaning, key: term.ten_god.jeonggwan, text: "An energy for the rules and duties that keep you on the right track. It shows as keeping your promises and doing the job you're given."}
+- {slot: term.meaning, key: term.ten_god.pyeonin, text: "An energy for learning and seeing things by an unusual path. It shows as original ideas and digging deep into one thing."}
+- {slot: term.meaning, key: term.ten_god.jeongin, text: "An energy for the care and learning that look after you and help you grow. It shows as learning calmly and being grateful for the help you get."}
+- {slot: term.meaning, key: term.ten_god_group.bigyeop, text: "The name for Bigyeon and Geopjae together, the energy that stands shoulder to shoulder with you. It covers the drive to protect yourself and claim your share."}
+- {slot: term.meaning, key: term.ten_god_group.siksang, text: "The name for Siksin and Sanggwan together, the energy that brings what's inside you out. It covers talking, expressing yourself, and skill with your hands."}
+- {slot: term.meaning, key: term.ten_god_group.jaeseong, text: "The name for Pyeonjae and Jeongjae together, the money and results you handle and earn. It covers running a household, results at work, and a practical sense."}
+- {slot: term.meaning, key: term.ten_god_group.gwanseong, text: "The name for Pyeongwan and Jeonggwan together, the rules and duties that keep you in line. It covers your job, your good name, and promises you need to keep."}
+- {slot: term.meaning, key: term.ten_god_group.inseong, text: "The name for Pyeonin and Jeongin together, the learning and care that help you grow. It covers study, thinking, and the help you receive."}
+- {slot: term.meaning, key: term.shinsal.cheoneul_gwiin, text: "The shinsal for the most valued kind of help. It's read as the luck of someone unexpected lending you a hand when things are hard."}
+- {slot: term.meaning, key: term.shinsal.dohwa, text: "A shinsal for the charm that draws people's eyes. It often shows as popularity, style, and romantic attention."}
+- {slot: term.meaning, key: term.shinsal.yeokma, text: "A shinsal that means a horse running far. It often shows as moving house, travel, or a busy stretch of getting from place to place."}
+- {slot: term.meaning, key: term.shinsal.hwagae, text: "A shinsal for the power to look deep within on your own. It shows as getting absorbed in one thing, like study or art."}
+- {slot: term.meaning, key: term.shinsal.yangin, text: "A shinsal for drive as strong as a blade. With that much push, it's worth watching out for fights and injuries."}
+- {slot: term.meaning, key: term.shinsal.gongmang, text: "A shinsal for an empty seat. Results may not show right away for the effort you put in, so it's read as a time to want a little less."}
+- {slot: term.meaning, key: term.day_kind.gwiin_day, text: "A day when the day's energy reaches your chart as a helper. People who can help you tend to come close."}
+- {slot: term.meaning, key: term.day_kind.yongsin_day, text: "A day when the energy your chart needs most comes in. It's a good day to work through things you've put off."}
+- {slot: term.meaning, key: term.day_kind.gisin_day, text: "A day when an energy that doesn't suit your chart comes in. It's a good day to keep to what you're already doing without pushing yourself."}
+- {slot: term.meaning, key: term.day_kind.ordinary_day, text: "A day when the energy coming in does little to help or hold back your chart. It's a good day to go about things as you usually do."}
+- {slot: term.meaning, key: term.relation.stem_hap, text: "Two heavenly stems drawn to each other and pairing up. People or plans may join hands when you don't expect it."}
+- {slot: term.meaning, key: term.relation.branch_hap, text: "Two earthly branches locking together as one. Relationships tend to grow closer and work tends to fit together well."}
+- {slot: term.meaning, key: term.relation.chung, text: "Two earthly branches on opposite sides colliding. Plans may change, or you may end up moving somewhere new."}
+- {slot: term.meaning, key: term.relation.hyeong, text: "Earthly branches wearing each other down. Small frictions or things to fix tend to surface, so it helps to look things over carefully."}
+- {slot: term.meaning, key: term.role.yongsin, text: "The element your chart needs most to stay in balance. Things tend to go well when this energy comes in."}
+- {slot: term.meaning, key: term.role.huisin, text: "An element that backs up the one your chart needs most. It's not quite as strong, but it's still a welcome energy."}
+- {slot: term.meaning, key: term.role.gisin, text: "An element that doesn't suit your chart. When this energy is strong, it's best not to push yourself."}
+- {slot: term.meaning, key: term.role.neutral, text: "An element that does little to help or harm your chart. On its own, it's an easygoing energy."}
+- {slot: term.meaning, key: term.luck.daeun, text: "A big current that changes every 10 years, like the seasons of a life."}
+- {slot: term.meaning, key: term.luck.seun, text: "The current of a single year, changing each year. It shows how the energy coming in that year gets along with your chart."}
