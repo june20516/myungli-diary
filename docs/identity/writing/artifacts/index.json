@@ -374,5 +374,55 @@
     ],
     "status": "chosen",
     "note": "알림 채널 이름은 오늘 풀이 알림, 윤달 사주 줄 틀은 design V48 그대로"
+  },
+  {
+    "id": "round-R23",
+    "title": "라운드 R23: 용어 뜻과 값 이름 (W1-3a, W47)",
+    "kind": "copy-sample",
+    "file": "2026-10-28-round-R23.md",
+    "date": "2026-10-28",
+    "milestone": "W1",
+    "screens": [
+      "explain-sheet",
+      "tag-diary",
+      "saju-chart"
+    ],
+    "decisions": [
+      "W47"
+    ],
+    "status": "chosen",
+    "note": "천간 이름은 오행을 붙임, 합충형은 천간합과 지지합, 범주마다 한 틀, 양인은 조심할 일을 직접 말함"
+  },
+  {
+    "id": "round-R24",
+    "title": "라운드 R24: 근거 문장과 원전 출처 (W1-3b, W48)",
+    "kind": "copy-sample",
+    "file": "2026-10-28-round-R24.md",
+    "date": "2026-10-28",
+    "milestone": "W1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "W48"
+    ],
+    "status": "chosen",
+    "note": "원전은 한글 독음, 뜻은 원문이 말한 것만 요점형, 근거 문장은 값을 먼저"
+  },
+  {
+    "id": "round-R25",
+    "title": "라운드 R25: 스토어 태그라인 (W49)",
+    "kind": "copy-sample",
+    "file": "2026-10-28-round-R25.md",
+    "date": "2026-10-28",
+    "milestone": "W1",
+    "screens": [
+      "share-preview"
+    ],
+    "decisions": [
+      "W49"
+    ],
+    "status": "chosen",
+    "note": "R9-11과 같은 답, 오늘 일진을 내 사주에 맞춰 풀어 주는 일기"
   }
 ]

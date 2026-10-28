@@ -52,7 +52,7 @@
 - {slot: today.reaction.label, key: todayReactionLabel, text: "いいね"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "いいねを取り消す"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "命理日記"}
-- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "自分の命式で読む今日、命理日記"}
+- {slot: share-preview.image.tagline, key: sharePreviewImageTagline, text: "今日の干支を、あなたの命式に合わせて読み解く日記"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelStory, text: "ストーリー"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelFeed, text: "フィード"}
 - {slot: share-preview.ratio.label, key: sharePreviewRatioLabelSquare, text: "正方形"}

@@ -46,7 +46,7 @@ jobs:
         if: env.CONTRACT_ONLY == 'true'
         run: uv run pytest -q -m contract
       - run: uv run mlw gen-docs --check
-      - run: uv run mlw check ../content --partial
+      - run: uv run mlw check ../content
       - name: 생성 코드가 proto와 일치하는지 확인
         run: |
           bash gen_proto.sh

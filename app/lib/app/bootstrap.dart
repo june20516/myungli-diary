@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:myungli_diary/app/auth_sdk_setup.dart';
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/firebase_setup.dart';
 import 'package:myungli_diary/app/licenses.dart';
 import 'package:myungli_diary/app/profile_language.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
@@ -16,6 +17,7 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/firebase/firebase_env.dart';
 import 'package:myungli_diary/core/platform/apple_native_auth.dart';
 import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -115,7 +117,18 @@ Future<ProviderContainer> bootstrap({
     _installErrorHandlers(reporter);
   }
   if (resolvedMode == ApiMode.http) {
-    // 실패해도 앱은 뜹니다. 그 제공자 로그인만 실패로 끝나므로 요약만 보고합니다(D64).
+    // Firebase(A93)와 로그인 SDK는 실패해도 앱이 뜹니다. 그 기능만 실패로 끝나므로
+    // 요약만 보고합니다(D64).
+    final firebaseFailure = await initializeFirebase(
+      env: firebaseEnvFromEnvironment(),
+      platform: container.read(targetPlatformProvider),
+    );
+    if (firebaseFailure != null) {
+      reporter.record(
+        CrashSummary.from(firebaseFailure.error),
+        firebaseFailure.stack,
+      );
+    }
     final failures = await initializeAuthSdks(
       container.read(authConfigProvider),
     );

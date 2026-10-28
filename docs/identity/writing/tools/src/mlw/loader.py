@@ -825,6 +825,30 @@ def _parse_key_max_length(item: _Item, keys: Mapping[str, object]) -> dict[str, 
     return result
 
 
+def _parse_pending(item: _Item, keys: Mapping[str, object]) -> dict[str, dict[str, str]]:
+    """일부러 비워 둔 원고(`pending`)를 읽습니다. 키 → 언어 → 이유이고, 키는 이 슬롯의 `keys`에 있어야 합니다."""
+    raw = item.data.get("pending")
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[str, dict[str, str]] = {}
+    for key, reasons in raw.items():
+        field_name = f"pending.{key}"
+        if key not in keys:
+            item.fail(f"{field_name}: 이 슬롯의 keys에 없는 키입니다")
+            continue
+        if not isinstance(reasons, dict):
+            item.fail(f"{field_name}은(는) 언어 → 이유인 매핑이어야 합니다")
+            continue
+        for lang, reason in reasons.items():
+            if lang not in LANGS:
+                item.fail(f"{field_name}의 언어 '{lang}'은(는) 허용되지 않습니다. 허용 값: {', '.join(LANGS)}")
+            elif not isinstance(reason, str) or not reason.strip():
+                item.fail(f"{field_name}.{lang}: 비워 둔 이유를 문자열로 적어야 합니다")
+            else:
+                result.setdefault(str(key), {})[str(lang)] = reason
+    return result
+
+
 def _parse_tone(item: _Item) -> dict[str, int]:
     tone: dict[str, int] = {}
     for axis, value in cast(dict[str, object], item.data["tone"]).items():
@@ -894,6 +918,7 @@ def _parse_slot(
         co_display=item.string_list("co_display"),
         max_length=_parse_slot_max_length(item),
         key_max_length=_parse_key_max_length(item, keys),
+        pending=_parse_pending(item, keys),
         allowed=frozenset(item.string_list("allowed")),
         forbidden=frozenset(item.string_list("forbidden")),
         examples=_parse_slot_examples(item),

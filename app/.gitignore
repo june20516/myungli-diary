@@ -54,3 +54,5 @@ app.*.map.json
 # Patrol이 가져온 네이티브 스크린샷(임시)
 /patrol_test/screenshots/
 /patrol_test/test_bundle.dart
+# 이 기기에서만 쓰는 로컬 개발 파일(로컬 server 임시 키·환경 파일 등). commit하지 않습니다.
+/.local/

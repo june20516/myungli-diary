@@ -158,13 +158,13 @@ func (r *Revocations) process(ctx context.Context, q *authdb.Queries, row authdb
 		r.logger.ErrorContext(ctx, "허가 취소를 포기함", "id", row.ID, "provider", row.Provider)
 		return r.deleteRow(ctx, q, row.ID)
 	}
-	relinked, err := r.kakaoRelinked(ctx, q, row)
+	relinked, err := r.relinked(ctx, q, row)
 	if err != nil {
 		return err
 	}
 	if relinked {
-		// 같은 카카오 사용자가 다시 가입했습니다. unlink는 사용자 단위라 새 계정의 연결까지 끊으므로 부르지 않습니다.
-		r.logger.InfoContext(ctx, "다시 가입한 카카오 사용자라 허가 취소 생략", "id", row.ID, "provider", row.Provider)
+		// 같은 사용자가 다시 가입했습니다. 카카오 unlink와 Apple revoke는 사용자·앱 단위라 새 계정의 연결까지 끊으므로 부르지 않습니다.
+		r.logger.InfoContext(ctx, "다시 가입한 사용자라 허가 취소 생략", "id", row.ID, "provider", row.Provider)
 		return r.deleteRow(ctx, q, row.ID)
 	}
 
@@ -199,15 +199,16 @@ func (r *Revocations) process(ctx context.Context, q *authdb.Queries, row authdb
 	return r.deleteRow(ctx, q, row.ID)
 }
 
-// kakaoRelinked는 카카오 대기 행의 subject로 지금 인증 계정이 있는지(같은 사용자가 다시 가입했는지) 알려 줍니다.
-// Apple 대기 행은 subject가 없고 token 단위로 취소하므로 해당하지 않습니다.
-func (r *Revocations) kakaoRelinked(ctx context.Context, q *authdb.Queries, row authdb.ProviderRevocation) (bool, error) {
-	if row.Provider != providerKakao {
+// relinked는 대기 행의 subject로 지금 인증 계정이 있는지(같은 사용자가 다시 가입했는지) 알려 줍니다.
+// 카카오 행은 언제나 subject가 있습니다. Apple 행은 계정 삭제·떼기에서 온 것은 subject가 없어 token 단위로 취소하고,
+// job retention이 쓰이지 않은 Apple 웹 로그인에서 넘긴 행(S120)만 subject가 있어 연결을 다시 확인합니다.
+func (r *Revocations) relinked(ctx context.Context, q *authdb.Queries, row authdb.ProviderRevocation) (bool, error) {
+	if !row.Subject.Valid {
 		return false, nil
 	}
-	exists, err := q.IdentityExists(ctx, authdb.IdentityExistsParams{Provider: providerKakao, Subject: row.Subject.String})
+	exists, err := q.IdentityExists(ctx, authdb.IdentityExistsParams{Provider: row.Provider, Subject: row.Subject.String})
 	if err != nil {
-		return false, fmt.Errorf("카카오 인증 계정 확인: %w", err)
+		return false, fmt.Errorf("인증 계정 확인: %w", err)
 	}
 	return exists, nil
 }

@@ -64,7 +64,8 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **freeze 뒤 첫 계약 추가(PR #571 병합):** drift #550 따라잡기(D93 원고 시드), D95 설명(LINE·Google 허가는 취소하지 않음), 합치기 영수증으로 같은 토큰 재전송 200 `Me`(#552, S115, migration 00019), 일기의 그날 성격 `Diary.dayKind`(#530, S116, migration 00018). #555(Google nonce 반복)는 계약 draft.14부터 일회용 기록이 없다고 적혀 있어 Issue에 답했습니다. 계획은 [`docs/plans/2026-10-27-contract-1-1.md`](docs/plans/2026-10-27-contract-1-1.md)입니다.
 * **일기 목록의 그날 성격(브랜치 `server/d96-summary-daykind`):** 계약 1.2.0. `DiarySummary.dayKind`(#576, D96)를 선택 필드로 더했습니다. 값은 `Diary.dayKind`와 같은 날짜 기록 값이라 저장소와 쿼리는 바꾸지 않았습니다.
 * **외부 준비물 결정(#540):** 커스텀 도메인은 Firebase Hosting rewrite, 서울 리전(S117). Android 1개월 광고 제거권은 일회성 consumable 상품(S118). P9 staging 확인 항목은 두 결정 행에 있습니다.
-* **P8-1 알림 기기(브랜치 `server/p8-devices`):** `registerDevice`·`deleteDevice`를 `devices` 표(migration 00020)와 함께 조립했습니다. 계정 삭제와 합치기의 B 삭제가 기기 행을 지웁니다. 결정 S119. 계획은 [`docs/plans/2026-10-28-p8-1-devices.md`](docs/plans/2026-10-28-p8-1-devices.md)이고, P8 나머지는 P8-2(retention 확장), P8-3(precompute), P8-4(notify, app 답 #603 기다림)입니다.
+* **P8-1 알림 기기(브랜치 `server/p8-devices`):** `registerDevice`·`deleteDevice`를 `devices` 표(migration 00020)와 함께 조립했습니다. 계정 삭제와 합치기의 B 삭제가 기기 행을 지웁니다. 결정 S119. 계획은 [`docs/plans/2026-10-28-p8-1-devices.md`](docs/plans/2026-10-28-p8-1-devices.md)입니다.
+* **P8-2 보관 기간 정리(브랜치 `server/p8-retention`):** `job retention`이 `internal/retention`의 정리 단계(캐시, 일회용 기록, 만료 토큰, 비활성 기기, S113 보관 기간, 지운 일기·일정 내용 비우기, 쓰이지 않은 Apple 웹 로그인의 revoke 대기)와 합치기 영수증, 이전 버전 캐시(엔진 `GetInfo`), 허가 취소 재시도를 단계마다 따로 돌립니다. 결정 S120. 계획은 [`docs/plans/2026-10-28-p8-2-retention.md`](docs/plans/2026-10-28-p8-2-retention.md)입니다.
 * **P9 배포 준비(브랜치 `server/p9-deploy-prep`):** Terraform `server/deploy/terraform`(bootstrap, env, tfvars), 배포 workflow `deploy-server`·`deploy-engine`(환경별 재사용 workflow 포함), Firebase Hosting `server/deploy/firebase`, Cloud SQL IAM 연결(`CLOUD_SQL_INSTANCE`), 배포 환경의 `ENGINE_AUDIENCE` 필수. 결정 S121. spec은 [`docs/specs/2026-10-28-p9-deploy-design.md`](docs/specs/2026-10-28-p9-deploy-design.md), 사용자 준비는 [`deploy/terraform/README.md`](deploy/terraform/README.md)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
@@ -72,9 +73,9 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P8 나머지: P8-2 `job retention` 확장(spec §8.3 정리와 S113 보관 기간, 30일 지난 비활성 기기 S119, 익명화는 없음 S105), P8-3 `job precompute`(spec §8.1), P8-4 `notification_log`·FCM 발송·`job notify`(spec §8.2, 메시지 형식은 app 답 #603). 나누기는 [`docs/plans/2026-10-28-p8-1-devices.md`](docs/plans/2026-10-28-p8-1-devices.md) "P8 전체 나누기"입니다.
+1. P8 나머지: P8-3 `job precompute`(spec §8.1), P8-4 `notification_log`·FCM 발송·`job notify`(spec §8.2, 메시지 형식은 app 답 #603). 나누기는 [`docs/plans/2026-10-28-p8-1-devices.md`](docs/plans/2026-10-28-p8-1-devices.md) "P8 전체 나누기"입니다.
 2. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 그때 정합니다. 남은 P9: 출시 전 migration 전용 계정 `server-migrator` 분리(serve의 `cloudsqlsuperuser` 제거, spec §12), OpenTelemetry, 로그 제외 필터(`/auth/apple` query), 알림 발송 Job(P8-4).
+5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 그때 정합니다. 남은 P9: 출시 전 migration 전용 계정 `server-migrator` 분리(serve의 `cloudsqlsuperuser` 제거, spec §12), OpenTelemetry, 로그 제외 필터(`/auth/apple` query), 알림 발송 Job(P8-4).
 6. app 질문이 오면 답합니다.

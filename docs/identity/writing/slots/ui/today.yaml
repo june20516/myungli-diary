@@ -104,7 +104,7 @@
   where: "공유 미리보기 화면(share-preview): 공유 이미지 태그라인"
   purpose: info
   user_state: "공유 이미지를 받은 사람이 앱을 처음 봅니다."
-  structure: "짧은 한 문장 태그라인(라운드 R8, W1 태그라인과 같은 문장)."
+  structure: "짧은 한 문장 태그라인. 스토어 태그라인(`guide/store-copy.md`)과 같은 문장(W49)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -112,7 +112,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: sharePreviewImageTagline, text: "내 사주로 푼 오늘, 명리일기", why: "라운드 R8 선택", source: writing}
+      - {lang: ko, key: sharePreviewImageTagline, text: "오늘 일진을 내 사주에 맞춰 풀어 주는 일기", why: "라운드 R9-11·R25-1 선택(W49)", source: writing}
     bad: []
   endings: ["~해요", "~어요"]
   a11y:

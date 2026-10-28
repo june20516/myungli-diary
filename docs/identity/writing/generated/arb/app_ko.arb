@@ -775,7 +775,7 @@
   "@sharePreviewImageFooter": {
     "description": "share-preview.image.footer: 이미지 아래 앱 이름"
   },
-  "sharePreviewImageTagline": "내 사주로 푼 오늘, 명리일기",
+  "sharePreviewImageTagline": "오늘 일진을 내 사주에 맞춰 풀어 주는 일기",
   "@sharePreviewImageTagline": {
     "description": "share-preview.image.tagline: 공유 이미지 태그라인"
   },
