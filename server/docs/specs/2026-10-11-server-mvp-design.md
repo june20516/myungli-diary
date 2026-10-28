@@ -380,6 +380,8 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 ### 8.3 `job retention` (하루 1번)
 
 > 이 절의 익명화와 허가 취소 재시도는 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §4·§7이 대체합니다(S105·S106·S113).
+>
+> **S120으로 개정:** 정리 대상과 기간은 결정 S120이 기준입니다. `chart_cache`도 30일 뒤 지우고, 지운 일기는 본문만 비웁니다(가이드 질문과 태그는 날짜 기록에 있음).
 
 * 삭제 요청 뒤 30일이 지난 계정을 익명화합니다(§9). 실패했던 Apple revoke·카카오 unlink도 다시 시도합니다.
 * soft delete 뒤 30일이 지난 일기·일정의 내용을 비웁니다. 일기는 body·guide_question, 일정은 title·memo를 비우고 `content_purged_at`을 기록합니다. 행은 남깁니다.

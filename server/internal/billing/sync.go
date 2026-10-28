@@ -35,6 +35,10 @@ const (
 // billingLockClass는 계정 advisory lock의 첫 키입니다("bil"의 ASCII).
 const billingLockClass int32 = 0x62696c
 
+// RecordYears는 결제 기록(webhook 수신, 구매 장부, 결제 구간)의 보관 기간입니다(S113). job retention이 이 기간이 지난
+// 기록을 지우고(S120), Sync는 결제일이 이 기간보다 오래된 구매를 장부에 적지 않아 지운 기록을 되살리지 않습니다.
+const RecordYears = 5
+
 // maxLockRounds는 Sync가 잠글 계정을 늘려 다시 시작하는 횟수 상한입니다.
 // 첫 판에 자기 계정, 둘째 판에 다른 주인 계정까지 잡으면 끝나고, 그 사이 합치기로 주인이 바뀐 경우를 위해 여유를 둡니다.
 const maxLockRounds = 4
@@ -129,8 +133,13 @@ func (s *Syncer) syncLocked(ctx context.Context, q *billingdb.Queries, accountID
 	}
 
 	now := s.clk.Now()
+	recordCutoff := now.AddDate(-RecordYears, 0, 0)
 	var rechainOwners, unlockedOwners []uuid.UUID
 	for _, p := range s.ledgerOrder(purchases) {
+		if p.PurchasedAt.Before(recordCutoff) {
+			// 보관 기간이 지난 구매는 job retention이 지웠거나 곧 지울 기록이라 적지도 고치지도 않습니다(S120).
+			continue
+		}
 		owner, created, err := recordPurchaseTx(ctx, q, s.log, accountID, p, s.catalog, now)
 		if err != nil {
 			return err
