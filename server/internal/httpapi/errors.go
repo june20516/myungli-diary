@@ -14,6 +14,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/device"
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
@@ -95,6 +96,7 @@ var domainErrors = []domainError{
 	{target: diary.ErrFutureDate, code: problem.DiaryFutureDate, title: "Diary date in the future"},
 	{target: diary.ErrDayFull, code: problem.DiaryDayFull, title: "Diary day full"},
 	{target: schedule.ErrNotFound, code: problem.ScheduleNotFound, title: "Schedule not found"},
+	{target: device.ErrNotFound, code: problem.DeviceNotFound, title: "Device not found"},
 	// 경로·쿼리 매개변수 위반의 errors[].field는 이름 그대로입니다.
 	{target: schedule.ErrRangeTooLong, code: problem.RangeTooLong, title: "Range too long", field: "to"},
 	{target: schedule.ErrRangeReversed, code: problem.RequestInvalid, title: "Range reversed", field: "from"},

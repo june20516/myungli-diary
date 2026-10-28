@@ -469,6 +469,26 @@ func TestExecute_MovesRecordsAndDeletesB(t *testing.T) {
 	assert.Len(t, calls[0], 1)
 }
 
+// B의 알림 기기는 옮기지 않고 B와 함께 지웁니다(S119). 같은 단말은 app이 다음 실행 때 A로 다시 등록합니다.
+func TestExecute_DeletesOtherDevices(t *testing.T) {
+	f := newFixture(t)
+	me := f.loginKakao(t, "kakao-a")
+	other := f.loginLine(t, "U-b")
+	seedDevice := func(accountID uuid.UUID, token string) {
+		f.exec(t, `INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at)
+			VALUES ($1, $2, $3, sha256(convert_to($3, 'UTF8')), 'ios', true, now())`, uuid.Must(uuid.NewV7()), accountID, token)
+	}
+	seedDevice(me, "fcm-a")
+	seedDevice(other, "fcm-b")
+	token := f.issueToken(t, me, "U-b")
+
+	require.NoError(t, f.service.Execute(f.ctx, me, token, merge.ProfileCurrent))
+
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM devices WHERE account_id = $1`, other), "B의 기기는 지웁니다")
+	assert.Equal(t, 1, f.count(t, `SELECT count(*) FROM devices WHERE account_id = $1 AND fcm_token = 'fcm-a'`, me), "A의 기기는 그대로입니다")
+	assert.Equal(t, 0, f.count(t, `SELECT count(*) FROM devices WHERE fcm_token = 'fcm-b'`), "B의 기기를 A로 옮기지 않습니다")
+}
+
 // 같은 날짜의 날짜 기록과 같은 (date, slot, birth_hash)의 문장 선택 기록은 고른 프로필 쪽을 남깁니다(spec §6.3).
 // 다른 쪽 일기는 모두 남긴 날짜 기록 아래로 옮기고, 다른 쪽 선택에 붙은 반응은 집계에 더한 뒤 지웁니다.
 func TestExecute_OverlapKeepsChosenProfileSide(t *testing.T) {

@@ -74,6 +74,16 @@ func (q *Queries) DeleteDailySelectionsByAccount(ctx context.Context, accountID 
 	return err
 }
 
+const deleteDevicesByAccount = `-- name: DeleteDevicesByAccount :exec
+DELETE FROM devices WHERE account_id = $1
+`
+
+// DeleteDevicesByAccount는 알림 기기를 비활성 행까지 지웁니다(S119).
+func (q *Queries) DeleteDevicesByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteDevicesByAccount, accountID)
+	return err
+}
+
 const deleteDiariesByAccount = `-- name: DeleteDiariesByAccount :exec
 DELETE FROM diaries WHERE account_id = $1
 `

@@ -21,6 +21,8 @@ type Querier interface {
 	DeleteConsentsByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDailyCacheByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDailySelectionsByAccount(ctx context.Context, accountID uuid.UUID) error
+	// DeleteDevicesByAccount는 알림 기기를 비활성 행까지 지웁니다(S119).
+	DeleteDevicesByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDiariesByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteDiaryDaysByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteIdempotencyKeysByAccount(ctx context.Context, accountID uuid.UUID) error

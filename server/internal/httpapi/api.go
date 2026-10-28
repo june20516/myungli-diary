@@ -12,6 +12,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/auth"
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/content"
+	"github.com/june20516/myungli-diary/server/internal/device"
 	"github.com/june20516/myungli-diary/server/internal/diary"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
@@ -168,6 +169,14 @@ type ScheduleService interface {
 
 var _ ScheduleService = (*schedule.Service)(nil)
 
+// DeviceService는 알림 기기 operation이 쓰는 서비스입니다. *device.Store가 만족합니다.
+type DeviceService interface {
+	Register(ctx context.Context, accountID uuid.UUID, token string, platform device.Platform) (device.Device, bool, error)
+	Deactivate(ctx context.Context, accountID, id uuid.UUID) error
+}
+
+var _ DeviceService = (*device.Store)(nil)
+
 // API는 gen.StrictServerInterface 구현입니다. 아직 구현하지 않은 operation은 Unimplemented가 501로 답합니다.
 type API struct {
 	Unimplemented
@@ -204,6 +213,8 @@ type API struct {
 	Diaries DiaryService
 	// Schedules는 일정 서비스입니다. 비어 있으면 일정 operation은 503 service.unavailable입니다.
 	Schedules ScheduleService
+	// Devices는 알림 기기 저장소입니다. 비어 있으면 registerDevice·deleteDevice는 503 service.unavailable입니다.
+	Devices DeviceService
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
 	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)와 결제 핸들러(webhook·구매 복원)가 원인을 남길 때 씁니다.
