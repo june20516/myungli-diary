@@ -131,6 +131,16 @@ type DailySelection struct {
 	CreatedAt   time.Time
 }
 
+type Device struct {
+	ID         uuid.UUID
+	AccountID  uuid.UUID
+	FcmToken   string
+	Platform   string
+	Active     bool
+	LastSeenAt time.Time
+	CreatedAt  time.Time
+}
+
 type Diary struct {
 	ID              uuid.UUID
 	AccountID       uuid.UUID
