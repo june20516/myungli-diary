@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- debug 빌드 전용: 로컬 server(http, adb reverse로 이은 localhost)에만 평문 http를 허용합니다.
+     release(main) 빌드에는 이 파일이 없어 평문 http는 모두 막힙니다. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
