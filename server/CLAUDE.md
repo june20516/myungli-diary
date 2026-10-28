@@ -45,7 +45,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **commit 전:** `go vet ./... && golangci-lint run ./... && go test -race ./...`. staging 태그를 건드렸으면 `-tags staging`으로 vet·lint를 한 번 더 돌립니다.
 
 ## 현재 상태 (2026-10-27, server 세션 갱신)
-* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조)·P7(결제와 권한) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S116)에 모읍니다.
+* **설계(S1) 완료, 구현 P1(기반과 REST 계약 초안)·P2(인증·계정·약관)·P2a(Apple 웹 로그인 복귀)·P3(프로필·엔진·캐시)·P4(콘텐츠)·P5(일기·일정)·P6(비로그인·참조)·P7(결제와 권한) 완료**입니다: [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md). server 결정은 [`docs/decisions.md`](docs/decisions.md)(S1~S118)에 모읍니다.
 * P2로 카카오·Apple 로그인, JWT 발급·refresh rotation, 약관 동의, 계정 삭제 예약·복구(S105로 즉시 삭제로 바뀜), `/v1/me`가 `serve`에 조립됐습니다. P2a(#89)로 Android Apple 웹 로그인이 조립됐습니다(S22). 새 결정은 S15~S24(nonce, 삭제 대기 계정, 도메인별 sqlc, 동의 문서 버전, Apple 토큰 처리, refresh 유예, Apple 웹 교환 코드, 문장 선택 지문, staging 테스트 로그인)입니다.
 * P3로 프로필 저장·조회·수정(`PUT/GET/PATCH /v1/me/profile`), 엔진 gRPC 클라이언트·대역, 결과 캐시(`ResultCache`)와 `ruleset_version` 확인, 도시 자료 내장이 조립됐습니다. 계약 변경은 PR #163으로 먼저 병합했습니다. 새 결정은 S25(프로필 Put 멱등)·S26(출생 해시 = 사주 지문)·S27(엔진 연결)·S28(도시 자료)·S29(엔진 검증 시점)·S30(캐시 흐름)·S31(tzdata 내장)입니다. `convertLunarDate`(`POST /v1/lunar-date`)는 core RPC(#164) 병합 뒤 #170으로 조립됐습니다(엔진 `INVALID_ARGUMENT` → 422 `date.invalid`, `OUT_OF_RANGE` → 422 `date.out_of_range`).
 * P4로 콘텐츠 모듈이 조립됐습니다: 원고 → 시드 변환(`go generate ./seed/`)과 `seed` 명령, 렌더러(호칭·조사·용어 토큰), 문장 선택·순환·돌봄 상한, 용어 사전(`getGlossary`, ETag), 데일리·캘린더·나의 사주 응답과 잠금(D60, P7에서 실제 판정으로 연결), 문장 반응(`put/deleteReaction`), 시드 CI(`mlw check --partial`). 새 결정은 S33~S44(문장 틀 키, 선택 지문, 변환 때 용어 역조회, 태그 polarity 표, serve는 시드를 넣지 않음, `--partial`, 반응 이력, 계정 advisory lock, 상한 우선, 잠금 시 근거 렌더 생략, 한자 표, 시드 출처 열 없음)입니다.
@@ -63,16 +63,16 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **S3(REST v1 freeze, 브랜치 `server/s3-freeze`):** 계약 `1.0.0`. IA 화면 40개와 끝까지 대조해 freeze 뒤 못 고치는 것만 고쳤습니다(열린 enum 3개 추가, 합치기 요약은 살아 있는 기록만 셈, 설명 보강). 결정 S114. freeze 뒤 할 일은 점검 목록 [`docs/plans/2026-10-20-s3-freeze-prep.md`](docs/plans/2026-10-20-s3-freeze-prep.md)의 "freeze 뒤 할 일"입니다.
 * **freeze 뒤 첫 계약 추가(PR #571 병합):** drift #550 따라잡기(D93 원고 시드), D95 설명(LINE·Google 허가는 취소하지 않음), 합치기 영수증으로 같은 토큰 재전송 200 `Me`(#552, S115, migration 00019), 일기의 그날 성격 `Diary.dayKind`(#530, S116, migration 00018). #555(Google nonce 반복)는 계약 draft.14부터 일회용 기록이 없다고 적혀 있어 Issue에 답했습니다. 계획은 [`docs/plans/2026-10-27-contract-1-1.md`](docs/plans/2026-10-27-contract-1-1.md)입니다.
 * **일기 목록의 그날 성격(브랜치 `server/d96-summary-daykind`):** 계약 1.2.0. `DiarySummary.dayKind`(#576, D96)를 선택 필드로 더했습니다. 값은 `Diary.dayKind`와 같은 날짜 기록 값이라 저장소와 쿼리는 바꾸지 않았습니다.
+* **외부 준비물 결정(#540):** 커스텀 도메인은 Firebase Hosting rewrite, 서울 리전(S117). Android 1개월 광고 제거권은 일회성 consumable 상품(S118). P9 staging 확인 항목은 두 결정 행에 있습니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. #540 결정: 커스텀 도메인 연결 방식(P9)과 Android 1개월 상품 유형(prepaid base plan 또는 일회성 상품, 장부 S107·S108에 맞는 쪽)을 정해 결정 행과 Issue 답에 적습니다.
-2. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106)와 합치기 영수증 정리(S115) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
-3. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
-4. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
-5. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-6. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다.
-7. app 질문이 오면 답합니다.
+1. P8(Job: precompute, notify, retention)과 `registerDevice`·`deleteDevice` 구현(계약은 draft.11로 확정, S92). 익명화는 없고(S105) `retention`은 허가 취소 재시도(S106)와 합치기 영수증 정리(S115) 외에 기간이 지난 행의 정리(S113)를 맡습니다.
+2. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
+3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
+4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
+5. #79 배포 설정(h2c, startup probe, `ENGINE_ADDR`·`ENGINE_AUDIENCE`)과 P6 배포 설정(`FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`, `APP_MIN_VERSION_*`, `TEST_LOGIN_SECRET`, staging `-tags staging` 빌드)은 P9에서 합니다. P9에는 Firebase Hosting `firebase.json`(서울 리전 rewrite, S117)과 두 결정 행의 staging 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)도 들어갑니다.
+6. app 질문이 오면 답합니다.
