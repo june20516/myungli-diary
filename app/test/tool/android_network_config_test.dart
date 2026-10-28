@@ -20,7 +20,7 @@ void main() {
     final config = File(
       'android/app/src/debug/res/xml/network_security_config.xml',
     ).readAsStringSync();
-    final domains = RegExp(r'<domain[^>]*>([^<]+)</domain>')
+    final domains = RegExp('<domain[^>]*>([^<]+)</domain>')
         .allMatches(config)
         .map((match) => match.group(1))
         .toList();
