@@ -71,7 +71,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33·D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
-1. P8 나머지: P8-2 `job retention` 확장(spec §8.3 정리와 S113 보관 기간, 익명화는 없음 S105), P8-3 `job precompute`(spec §8.1), P8-4 `notification_log`·FCM 발송·`job notify`(spec §8.2, 메시지 형식은 app 답 #603). 나누기는 [`docs/plans/2026-10-28-p8-1-devices.md`](docs/plans/2026-10-28-p8-1-devices.md) "P8 전체 나누기"입니다.
+1. P8 나머지: P8-2 `job retention` 확장(spec §8.3 정리와 S113 보관 기간, 30일 지난 비활성 기기 S119, 익명화는 없음 S105), P8-3 `job precompute`(spec §8.1), P8-4 `notification_log`·FCM 발송·`job notify`(spec §8.2, 메시지 형식은 app 답 #603). 나누기는 [`docs/plans/2026-10-28-p8-1-devices.md`](docs/plans/2026-10-28-p8-1-devices.md) "P8 전체 나누기"입니다.
 2. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
