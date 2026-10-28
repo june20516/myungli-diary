@@ -41,7 +41,7 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 | E6 | 서비스 도메인 구입과 DNS: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json`, Apple 웹 로그인 복귀 주소 (#89, S22) | E7, P9 | - | DNS 전파 | 공개: 도메인 | server, app | 진행 중 | #538 |
 | E7 | Apple 로그인 설정: App ID(Sign in with Apple), Services ID, 웹 복귀 주소, 로그인 키 | P9, A2 실제 로그인 | E2·E6 | - | 공개: `APPLE_TEAM_ID`·`APPLE_BUNDLE_ID`·`APPLE_SERVICES_ID`·`APPLE_KEY_ID`·`APPLE_WEB_REDIRECT_URI` / 비밀: `APPLE_PRIVATE_KEY`(.p8) | server, app | 준비 전 | #591 |
 | E8 | Android 앱 서명 지문과 스토어 URL (#311, #114 ④) | P9, App Link | E3 | - | 공개: `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL` | server, app | 준비 전 | - |
-| E9 | Kakao Developers 앱과 카카오 로그인 (D55) | P9, A2 실제 로그인 | - | - | 공개: `KAKAO_APP_KEY`(id_token audience), 앱에 넣는 네이티브 앱 키 / 비밀: `KAKAO_ADMIN_KEY` | server, app | 준비 전 | #590 |
+| E9 | Kakao Developers 앱과 카카오 로그인 (D55) | P9, A2 실제 로그인 | - | - | 공개: `KAKAO_APP_KEY`(id_token audience), 앱에 넣는 네이티브 앱 키 / 비밀: `KAKAO_ADMIN_KEY` | server, app | 진행 중(앱과 키 완료, 값은 server #610·app #311. 어드민 키 Secret과 플랫폼 등록 대기) | #590 |
 | E10 | LINE Developers 로그인 채널(이메일 권한 신청 없음, D82) | P9, A2 실제 로그인 | E2·E3(앱 식별자) | - | 공개: `LINE_CHANNEL_ID` | server, app | 준비 전 | #592 |
 | E11 | Google OAuth client(iOS·Android·Web)와 동의 화면 (D82) | P9, A2 실제 로그인 | E3(Android 서명 지문) | 동의 화면 검증이 필요할 때 | 공개: `GOOGLE_CLIENT_IDS` | server, app | 준비 전 | #593 |
 | E12 | RevenueCat 프로젝트, App Store Connect·Google Play 연결, 광고 제거권 상품 (D53) | P9, A2 결제 | E2·E3 | 스토어 상품 심사 | 공개: `REVENUECAT_PROJECT_ID`·`AD_FREE_PRODUCT_IDS`, 앱 공개 SDK 키 / 비밀: `REVENUECAT_API_KEY`·`REVENUECAT_WEBHOOK_AUTH` | server, app | 준비 전 | - |
