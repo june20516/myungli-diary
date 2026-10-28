@@ -21,11 +21,11 @@
 | account-merge.title.body | account-merge.title.body | info | - | 1 | 1 | - | ko 120, en 200, ja 84 |
 | account-merge.title.head | account-merge.title.head | info | - | 1 | 1 | - | ko 36, en 66, ja 30 |
 | ad-free.bar.title | ad-free.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| ad-free.buy.cta | ad-free.buy.cta<br>컴포넌트 offer-card | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| ad-free.history.cta | ad-free.history.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| ad-free.buy.cta | ad-free.buy.cta<br>컴포넌트 offer-card | guide | - | 1 | 1 | - | ko 20, en 35, ja 16 |
+| ad-free.history.cta | ad-free.history.cta | guide | - | 1 | 1 | - | ko 20, en 35, ja 16 |
 | ad-free.legal.notice | ad-free.legal.notice | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | ad-free.offer.head | ad-free.offer.head | info | - | 1 | 1 | - | ko -, en -, ja - |
-| ad-free.offer.period | ad-free.offer.period<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ad-free.offer.period | ad-free.offer.period<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko 25, en 47, ja 20 |
 | ad-free.offer.price | ad-free.offer.price<br>컴포넌트 offer-card | info | - | 1 | 1 | `price`: text | ko -, en -, ja - |
 | ad-free.status.remaining | ad-free.status.remaining | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | birthplace.bar.title | birthplace.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -98,7 +98,7 @@
 | evidence.source | evidence-sheet.source.quote | info | - | 1 | 124 | - | ko -, en -, ja - |
 | explain.today_reason | explain-sheet.today.reason | info | - | 1 | 13 | - | ko -, en -, ja - |
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
-| force-update.notice.body | force-update.notice.body | info | - | 1 | 1 | - | ko -, en -, ja - |
+| force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 94 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |

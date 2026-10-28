@@ -1,6 +1,7 @@
 # 화면 문구 원고(en). 원어민 검수 전 초안입니다(W1에서 검수). 슬롯 명세는 slots/ui/입니다.
 - {slot: force-update.notice.head, key: forceUpdateNoticeHead, text: "Please update to the new version"}
 - {slot: force-update.notice.body, key: forceUpdateNoticeBody, text: "The way readings are calculated has changed, so this version can't open them."}
+- {slot: force-update.notice.body, key: forceUpdateNoticeBodyConsent, text: "You need to update to see the new terms."}
 - {slot: force-update.cta.store, key: forceUpdateCtaStore, text: "Update"}
 - {slot: welcome.concept.head, key: welcomeConceptHead, text: "Today's day pillar, read for your own chart"}
 - {slot: welcome.concept.body, key: welcomeConceptBody, text: "One question based on that reading starts your diary for the day."}

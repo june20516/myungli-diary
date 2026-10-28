@@ -1,6 +1,7 @@
 # 화면 문구 원고(ko). 슬롯 명세는 slots/ui/입니다.
 - {slot: force-update.notice.head, key: forceUpdateNoticeHead, text: "새 버전으로 업데이트해 주세요"}
 - {slot: force-update.notice.body, key: forceUpdateNoticeBody, text: "풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요."}
+- {slot: force-update.notice.body, key: forceUpdateNoticeBodyConsent, text: "새 약관을 확인하려면 업데이트가 필요해요."}
 - {slot: force-update.cta.store, key: forceUpdateCtaStore, text: "업데이트하기"}
 - {slot: welcome.concept.head, key: welcomeConceptHead, text: "오늘 일진을 내 사주에 맞춰 풀어 드려요"}
 - {slot: welcome.concept.body, key: welcomeConceptBody, text: "풀이에 맞춘 질문 하나로 그날 일기를 시작해요."}

@@ -466,6 +466,10 @@
   "@forceUpdateNoticeBody": {
     "description": "force-update.notice.body: 업데이트해야 하는 이유"
   },
+  "forceUpdateNoticeBodyConsent": "새 약관을 확인하려면 업데이트가 필요해요.",
+  "@forceUpdateNoticeBodyConsent": {
+    "description": "force-update.notice.body: 업데이트해야 하는 이유"
+  },
   "forceUpdateNoticeHead": "새 버전으로 업데이트해 주세요",
   "@forceUpdateNoticeHead": {
     "description": "force-update.notice.head: 업데이트가 필요하다는 제목"

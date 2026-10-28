@@ -28,17 +28,21 @@
   where: "업데이트 필요 화면(force-update): 업데이트해야 하는 이유"
   purpose: info
   user_state: "왜 막혔는지 궁금합니다."
-  structure: "한 문장. 바뀐 것과 그래서 열 수 없다는 것을 말합니다. 기술 용어를 쓰지 않습니다."
+  structure: "한 문장. 업데이트가 필요한 이유를 말합니다. 기술 용어를 쓰지 않습니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - forceUpdateNoticeBody
+    - forceUpdateNoticeBodyConsent
+  select: "업데이트 사유 → 키. 앱 버전이 AppConfig.minimumVersion보다 낮으면 forceUpdateNoticeBody, 이 앱 버전이 모르는 필수 동의 문서가 오면 forceUpdateNoticeBodyConsent(app A66, #355, W45)"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: forceUpdateNoticeBody, text: "풀이를 계산하는 방식이 바뀌어서 지금 버전으로는 열 수 없어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: forceUpdateNoticeBodyConsent, text: "새 약관을 확인하려면 업데이트가 필요해요.", why: "라운드 R21-1 선택(W45)", source: writing}
     bad:
       - {lang: ko, text: "API 버전이 호환되지 않습니다.", why: "기술 어휘 slop.P9", source: writing}
+      - {lang: ko, key: forceUpdateNoticeBodyConsent, text: "더 나은 서비스를 위해 새로운 약관이 준비되었어요! 업데이트하고 확인해 보세요.", why: "들뜬 강조(slop.P8), 라운드 R21-1 대조군", source: writing}
   endings: ["~해요", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
