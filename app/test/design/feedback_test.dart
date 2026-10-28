@@ -215,21 +215,26 @@ void main() {
       }
     });
 
-    testWidgets('destructive: 처음 초점은 취소입니다', (tester) async {
-      await open(tester, DialogVariant.destructive);
-      expect(Focus.of(tester.element(find.text('취소'))).hasPrimaryFocus, isTrue);
-      expect(
-        Focus.of(tester.element(find.text('지우기'))).hasPrimaryFocus,
-        isFalse,
-      );
-    });
+    for (final variant in [DialogVariant.confirm, DialogVariant.destructive]) {
+      testWidgets('${variant.name}: 처음 초점을 받는 버튼이 없습니다(V41)', (tester) async {
+        await open(tester, variant);
+        for (final label in ['취소', '지우기']) {
+          expect(
+            Focus.of(tester.element(find.text(label))).hasPrimaryFocus,
+            isFalse,
+            reason: label,
+          );
+        }
+      });
+    }
 
-    testWidgets('confirm: 처음 초점은 확정입니다', (tester) async {
-      await open(tester, DialogVariant.confirm);
-      expect(
-        Focus.of(tester.element(find.text('지우기'))).hasPrimaryFocus,
-        isTrue,
-      );
+    testWidgets('destructive: 뒤로 가기는 취소와 같이 false로 닫힙니다', (tester) async {
+      final results = <bool>[];
+      await open(tester, DialogVariant.destructive, result: results);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(DialogCard), findsNothing);
+      expect(results, [false]);
     });
 
     testWidgets('destructive: 경고 표시가 제목 앞에 있고 빨간색이 없습니다', (tester) async {

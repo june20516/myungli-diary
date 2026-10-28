@@ -25,6 +25,7 @@ import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/saju_fingerprint.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
+import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -365,9 +366,12 @@ void main() {
       ),
       findsOneWidget,
     );
-    // 기본 선택은 취소입니다.
+    // 파괴적이지 않은 무거운 변경이라 경고 표시 없는 일반 확인 창입니다(V41).
+    expect(
+      tester.widget<DialogCard>(find.byType(DialogCard)).variant,
+      DialogVariant.confirm,
+    );
     final cancel = find.text(_ko.profileEditRecalcConfirmCancel);
-    expect(Focus.of(tester.element(cancel)).hasPrimaryFocus, isTrue);
     await tester.tap(cancel);
     await settleWithIo(tester);
 
