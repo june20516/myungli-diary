@@ -392,5 +392,21 @@
     ],
     "status": "chosen",
     "note": "천간 이름은 오행을 붙임, 합충형은 천간합과 지지합, 범주마다 한 틀, 양인은 조심할 일을 직접 말함"
+  },
+  {
+    "id": "round-R24",
+    "title": "라운드 R24: 근거 문장과 원전 출처 (W1-3b, W48)",
+    "kind": "copy-sample",
+    "file": "2026-10-28-round-R24.md",
+    "date": "2026-10-28",
+    "milestone": "W1",
+    "screens": [
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "W48"
+    ],
+    "status": "chosen",
+    "note": "원전은 한글 독음, 뜻은 원문이 말한 것만 요점형, 근거 문장은 값을 먼저"
   }
 ]
