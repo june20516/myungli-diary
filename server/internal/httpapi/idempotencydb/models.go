@@ -135,6 +135,7 @@ type Device struct {
 	ID         uuid.UUID
 	AccountID  uuid.UUID
 	FcmToken   string
+	TokenHash  []byte
 	Platform   string
 	Active     bool
 	LastSeenAt time.Time

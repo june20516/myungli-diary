@@ -33,7 +33,7 @@ func (q *Queries) DeactivateDevice(ctx context.Context, arg DeactivateDevicePara
 
 const deactivateOverflowDevices = `-- name: DeactivateOverflowDevices :execrows
 UPDATE devices SET active = false
-WHERE devices.id IN (
+WHERE devices.account_id = $1 AND devices.active AND devices.id IN (
     SELECT d.id FROM devices AS d
     WHERE d.account_id = $1 AND d.active
     ORDER BY d.last_seen_at DESC, d.id DESC
@@ -47,6 +47,8 @@ type DeactivateOverflowDevicesParams struct {
 }
 
 // 계정의 활성 기기를 최근 순으로 세워 max_active대 뒤를 비활성으로 바꿉니다.
+// 바깥 조건에도 주인과 활성을 다시 적습니다. 고른 행을 다른 계정이 동시에 옮겨 가면, 그 커밋을 기다린 뒤
+// 바뀐 행으로 조건을 다시 보는데 subquery 결과(id)만으로는 옮겨 간 기기까지 꺼 버리기 때문입니다.
 func (q *Queries) DeactivateOverflowDevices(ctx context.Context, arg DeactivateOverflowDevicesParams) (int64, error) {
 	result, err := q.db.Exec(ctx, deactivateOverflowDevices, arg.AccountID, arg.MaxActive)
 	if err != nil {
@@ -57,9 +59,9 @@ func (q *Queries) DeactivateOverflowDevices(ctx context.Context, arg DeactivateO
 
 const upsertDevice = `-- name: UpsertDevice :one
 
-INSERT INTO devices (id, account_id, fcm_token, platform, active, last_seen_at)
-VALUES ($1, $2, $3, $4, true, $5)
-ON CONFLICT (fcm_token) DO UPDATE
+INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at)
+VALUES ($1, $2, $3, $4, $5, true, $6)
+ON CONFLICT (token_hash) DO UPDATE
 SET account_id = EXCLUDED.account_id, platform = EXCLUDED.platform, active = true, last_seen_at = EXCLUDED.last_seen_at
 RETURNING id, platform, (xmax = 0)::boolean AS inserted
 `
@@ -68,6 +70,7 @@ type UpsertDeviceParams struct {
 	ID        uuid.UUID
 	AccountID uuid.UUID
 	FcmToken  string
+	TokenHash []byte
 	Platform  string
 	SeenAt    time.Time
 }
@@ -85,6 +88,7 @@ func (q *Queries) UpsertDevice(ctx context.Context, arg UpsertDeviceParams) (Ups
 		arg.ID,
 		arg.AccountID,
 		arg.FcmToken,
+		arg.TokenHash,
 		arg.Platform,
 		arg.SeenAt,
 	)

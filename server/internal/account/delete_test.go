@@ -38,6 +38,7 @@ var deletedTables = map[string]string{ //nolint:gosec // 표 이름(refresh_toke
 	"account_merge_tickets": `SELECT count(*) FROM account_merge_tickets
 		WHERE account_id = $1 OR other_account_id = $1`,
 	"account_merge_receipts": `SELECT count(*) FROM account_merge_receipts WHERE account_id = $1`,
+	"devices":                `SELECT count(*) FROM devices WHERE account_id = $1`,
 	// 그 계정 Apple 인증 계정의 웹 로그인 기록입니다. seedAccount가 Apple subject를 'apple-<계정 id>'로 둡니다.
 	"apple_web_logins": `SELECT count(*) FROM apple_web_logins WHERE subject = 'apple-' || $1::text`,
 }
@@ -94,6 +95,8 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 	exec(`INSERT INTO diaries (id, account_id, date, body) VALUES ($1, $2, '2026-10-12', '일기')`, uuid.Must(uuid.NewV7()), id)
 	exec(`INSERT INTO schedules (id, account_id, date, all_day, title) VALUES ($1, $2, '2026-10-21', true, '회의')`,
 		uuid.Must(uuid.NewV7()), id)
+	exec(`INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at)
+		VALUES ($1, $2, $3, sha256(convert_to($3, 'UTF8')), 'android', true, now())`, uuid.Must(uuid.NewV7()), id, "fcm-"+id.String())
 	var selectionID int64
 	require.NoError(t, pool.QueryRow(ctx, `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
 		VALUES ($1, '2026-10-12', 'overall', $2, 'msg.a', 'v1', 'seed-v1') RETURNING id`, id, hash).Scan(&selectionID))
@@ -432,10 +435,13 @@ func TestDeletedAccount_RejectsPersonalWrites(t *testing.T) {
 			[]any{uuid.Must(uuid.NewV7()), target.id, bytes.Repeat([]byte{0xEE}, 32), uuid.Must(uuid.NewV7())}},
 		"idempotency_keys insert": {`INSERT INTO idempotency_keys (account_id, key, request_hash, created_at) VALUES ($1, 'k2', $2, now())`,
 			[]any{target.id, bytes.Repeat([]byte{1}, 32)}},
+		"devices insert": {`INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at) VALUES ($1, $2, 'fcm-new', sha256('fcm-new'), 'ios', true, now())`,
+			[]any{uuid.Must(uuid.NewV7()), target.id}},
 		// 나중 합치기처럼 account_id를 바꾸는 UPDATE도 지운 계정으로는 옮기지 못합니다.
 		"diaries account_id update": {`UPDATE diaries SET account_id = $1 WHERE account_id = $2`, []any{target.id, other.id}},
 		"auth_identities account_id update": {`UPDATE auth_identities SET account_id = $1 WHERE account_id = $2`,
 			[]any{target.id, other.id}},
+		"devices account_id update": {`UPDATE devices SET account_id = $1 WHERE account_id = $2`, []any{target.id, other.id}},
 	}
 	for name, w := range writes {
 		t.Run(name, func(t *testing.T) {

@@ -12,6 +12,8 @@ type Querier interface {
 	// 자기 기기면 이미 비활성이어도 1행입니다. 없거나 남의 기기면 0행입니다.
 	DeactivateDevice(ctx context.Context, arg DeactivateDeviceParams) (int64, error)
 	// 계정의 활성 기기를 최근 순으로 세워 max_active대 뒤를 비활성으로 바꿉니다.
+	// 바깥 조건에도 주인과 활성을 다시 적습니다. 고른 행을 다른 계정이 동시에 옮겨 가면, 그 커밋을 기다린 뒤
+	// 바뀐 행으로 조건을 다시 보는데 subquery 결과(id)만으로는 옮겨 간 기기까지 꺼 버리기 때문입니다.
 	DeactivateOverflowDevices(ctx context.Context, arg DeactivateOverflowDevicesParams) (int64, error)
 	// 알림 기기 쿼리입니다(S92, S119).
 	// 토큰이 이미 있으면 같은 행을 요청한 계정의 활성 기기로 되살립니다. inserted는 새 행일 때만 true입니다.

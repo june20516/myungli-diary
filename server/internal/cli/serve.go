@@ -559,7 +559,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
-		// Idempotency-Key는 일정 만들기, 일기 만들기, 계정 합치기에 적용합니다. registerDevice는 P8에서 더합니다.
+		// Idempotency-Key는 일정 만들기, 일기 만들기, 계정 합치기, 알림 기기 등록에 적용합니다.
 		// 계정 합치기는 토큰이 일회용이라 같은 키의 재전송에 저장한 첫 응답(A의 Me)을 돌려줍니다(S111).
 		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule", "createDiary", "mergeAccounts", "registerDevice"),
 		// 미리보기·시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.

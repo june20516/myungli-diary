@@ -2,6 +2,7 @@ package device
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -49,8 +50,9 @@ func (s *Store) Register(ctx context.Context, accountID uuid.UUID, token string,
 			return fmt.Errorf("알림 기기 id 생성: %w", err)
 		}
 		q := devicedb.New(tx)
+		hash := sha256.Sum256([]byte(token))
 		row, err := q.UpsertDevice(ctx, devicedb.UpsertDeviceParams{
-			ID: id, AccountID: accountID, FcmToken: token, Platform: string(platform), SeenAt: s.clk.Now(),
+			ID: id, AccountID: accountID, FcmToken: token, TokenHash: hash[:], Platform: string(platform), SeenAt: s.clk.Now(),
 		})
 		if err != nil {
 			return fmt.Errorf("알림 기기 등록: %w", err)
