@@ -73,6 +73,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 * 쓰는 화면: settings, profile-edit, legal
 * 묶음 카드(`bg.sheet`, `radius.md`) 안에서 1px `line`으로 나눕니다(왼쪽 16px 들여서). 카드 사이 20px, 카드 위 묶음 이름 `type.caption.md`.
 * 변형 `navigate`(화살표) / `value`(오른쪽 값 `text.secondary` + 화살표) / `toggle`(스위치, 햅틱 selection) / `destructive`(로그아웃·계정 삭제: 본문색 600, 앞에 `mark.caution`, 화살표 없음).
+* **묶음 안내 `groupNote`(V50, #354 ③):** 묶음 전체에 걸리는 안내 문장은 카드 위 묶음 이름 자리에 둡니다(`type.caption.md` `text.secondary`, 좌우 16, 아래 8, 두 줄까지). 늘 보이고 누르지 않습니다. `profile-edit`는 생일·태어난 시간·성별·출생지 묶음 위에 `profile-edit.recalc.notice`를 둡니다.
 
 ## offer-card
 

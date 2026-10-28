@@ -74,7 +74,7 @@
   * ① 호칭(`type.subtitle`) + 알약. 알약은 `type.caption.sm`, `line` 테두리, `radius.full`이고 문구는 `ui.account-merge.choice`입니다.
     * A 카드: `current`, 키 `accountChoiceCurrent`
     * B 카드: `other`, 키 `accountChoiceOther`
-  * ② 사주 요약 한 줄(`ui.account-merge.saju`: 생년월일·달력 종류·출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음")
+  * ② 사주 요약 한 줄(`ui.account-merge.saju`: 달력 종류 → 생년월일 → 출생 시각, 모르면 "시간 모름", 사주가 없으면 "사주 정보 없음"). 음력 윤달 생일이면 달력 종류 바로 뒤에 윤달 낱말(`dayCellLeapMonth`와 같은 낱말)을 둡니다. 예: "음력 윤달 1990. 6. 15. 08:30". 날짜 형식은 기기 언어 그대로이고, 낱말은 writing 틀이 잇습니다(결정 V48, #587)
 * 두 카드 모두 알약을 붙이는 것은 호칭과 사주가 같은 두 계정도 가를 수 있게 하기 위해서입니다.
 * 3.0.0에서 일기 수·연결된 인증 계정 이름 줄(`facts`·`diaryCount`·`providers`)을 지웠습니다. 기록은 모두 옮기므로 일기 수는 고를 근거가 아니고, 인증 계정은 옮기지 않습니다(D85 ④). 설정은 카드에 보이지 않고 묶음 이름이 말합니다.
 * 고름 표시는 카드 오른쪽 위 22px 알약 동그라미입니다(V26).

@@ -1,6 +1,6 @@
 # feedback: 알림과 화면 상태 (`feedback.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.2, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.3·§3, 결정 V14·V18
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.2, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.3·§3, [십성 라벨·피드백 spec](../specs/2026-10-28-feedback-saju-labels-design.md) §3, 결정 V14·V18·V50·V51
 * 시안: `design-v2-appear`(스밈), `design-v2-skeleton`(먹 숨쉬기), `design-v2-kit`, `design-v2-caution-mark`
 
 ## 화면 상태 대응표 (`stateMap`)
@@ -11,7 +11,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 | --- | --- | --- |
 | `loading` | skeleton | 스피너 없음 |
 | `empty` | empty-state | |
-| `error` | error-state | `generic` 변형 |
+| `error` | error-state 또는 notice-banner `error` | 보일 내용이 없으면 error-state `generic`. 화면 내용(바꾼 값 등)을 남긴 채 실패를 알릴 때는 notice-banner `error`(예 `profile-edit:error`, V50) |
 | `offline` | notice-banner `offline` | 받아둔 내용이 없으면 error-state `offline` |
 | `draft` | draft-indicator + notice-banner `draft` | 이어 쓸 초안 |
 | `time-unknown` | notice-banner `time-unknown` | 사주 표는 시주 칸을 비움 |
@@ -29,7 +29,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 ## toast
 
 * 쓰는 화면: evidence-sheet(해제 실패), event-edit(저장 실패), diary-edit(저장 완료), diary-view(지운 뒤)
-* 반전색 알약(`inverse.bg`/`inverse.fg`), 탭 바 위 16px. `appear.seep`으로 나타나 `toast-hold`(2.5초) 뒤 `disappear.seep`.
+* 반전색 알약(`inverse.bg`/`inverse.fg`). 화면 아래에 붙은 것 중 가장 위의 것에서 16px 위에 뜹니다: 아래 고정 버튼(`primary-button`, `input-step` 주 버튼, 키보드 위 버튼) → 광고 배너 → 탭 바 → 아래 안전 영역 순서로 먼저 있는 것이 기준입니다. 버튼을 덮지 않고, 키보드가 올라오면 함께 올라갑니다(V51, #354 ④). `appear.seep`으로 나타나 `toast-hold`(2.5초) 뒤 `disappear.seep`.
 * 한 번에 하나만 보입니다. 누르는 동작을 담지 않습니다.
 
 ## notice-banner
@@ -37,6 +37,9 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 * 쓰는 화면: diary-edit, saju-chart, profile-edit (그리고 오프라인일 때 받아둔 내용을 보여 주는 모든 화면)
 * 화면 맨 위 내용의 첫 줄입니다. 떠 있지 않고 내용과 함께 스크롤됩니다. `bg.sheet`, `radius.md`, 아이콘 16 + `type.caption.lg` `text.secondary`.
 * 닫기 버튼이 없습니다. 상태가 풀리면 `disappear.seep`으로 사라집니다.
+* 변형: `offline`(`wifi-slash`), `time-unknown`(`clock`), `draft`(`note-pencil`), `error`(`cloud-warning`, V50).
+* **`error`(V50):** 연결은 있지만 요청이 실패했을 때입니다(server 오류, 다시 계산 실패). `offline`과 아이콘만 다르고, 빨간색이나 `mark.caution`을 쓰지 않습니다. 버튼을 담지 않습니다. 다시 시도는 화면의 원래 동작 버튼이 맡습니다. 예: `profile-edit`는 저장 버튼 글자가 "다시 시도"로 바뀌고 바꾼 값은 그대로 남습니다.
+* 늘 보이는 안내(예 `profile-edit.recalc.notice`)는 배너가 아니라 `settings-row` `groupNote`입니다(V50).
 
 ## skeleton
 
