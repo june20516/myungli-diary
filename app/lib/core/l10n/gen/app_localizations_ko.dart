@@ -1433,4 +1433,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get forceUpdateNoticeBodyConsent => '새 약관을 확인하려면 업데이트가 필요해요.';
+
+  @override
+  String get systemPushChannelMorning => '오늘 풀이 알림';
+
+  @override
+  String accountChoiceSajuLeap(String date, String calendar, String time) {
+    return '$calendar 윤달 $date $time';
+  }
+
+  @override
+  String accountChoiceSajuNoTimeLeap(String date, String calendar) {
+    return '$calendar 윤달 $date 시각 모름';
+  }
 }

@@ -342,7 +342,8 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
   );
 }
 
-/// 카드의 사주 요약 줄(`ui.account-merge.saju`). 사주가 없으면 "사주 정보 없음"입니다.
+/// 카드의 사주 요약 줄(`ui.account-merge.saju`). 사주가 없으면 "사주 정보 없음"이고, 음력 윤달
+/// 생일은 달력 종류 뒤에 윤달 낱말이 붙는 틀입니다.
 String _sajuLine(AppLocalizations l10n, MergeProfileSummary profile) {
   final birth = profile.birth;
   if (profile.status == MergeProfileSummaryStatusEnum.none || birth == null) {
@@ -357,13 +358,16 @@ String _sajuLine(AppLocalizations l10n, MergeProfileSummary profile) {
     birth.date.month,
     birth.date.day,
   );
+  // 음력 윤달 생일은 윤달 틀입니다(design V48, writing W46). 글자는 원고 틀이 잇습니다.
+  final leap = birth.calendar == CalendarType.lunar && birth.isLeapMonth;
   final clock = birth.time.value;
   if (birth.time.status != BirthTimeStatusEnum.known || clock == null) {
-    return l10n.accountChoiceSajuNoTime(date, calendar);
+    return leap
+        ? l10n.accountChoiceSajuNoTimeLeap(date, calendar)
+        : l10n.accountChoiceSajuNoTime(date, calendar);
   }
-  return l10n.accountChoiceSaju(
-    date,
-    calendar,
-    formatBirthClock(l10n.localeName, clock),
-  );
+  final time = formatBirthClock(l10n.localeName, clock);
+  return leap
+      ? l10n.accountChoiceSajuLeap(date, calendar, time)
+      : l10n.accountChoiceSaju(date, calendar, time);
 }

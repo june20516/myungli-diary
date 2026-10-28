@@ -420,5 +420,8 @@
   "errorMergeTokenInvalid": "統合を続けられませんでした。取り込むアカウントを再認証してください。",
   "adFreeBuyCta": "購入する",
   "adFreeOfferPeriod": "1か月、自動決済なし",
-  "forceUpdateNoticeBodyConsent": "新しい規約を確認するには、アップデートが必要です。"
+  "forceUpdateNoticeBodyConsent": "新しい規約を確認するには、アップデートが必要です。",
+  "systemPushChannelMorning": "今日の読み解きの通知",
+  "accountChoiceSajuLeap": "{calendar} 閏月 {date} {time}",
+  "accountChoiceSajuNoTimeLeap": "{calendar} 閏月 {date} 時刻不明"
 }

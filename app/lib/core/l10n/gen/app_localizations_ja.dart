@@ -1430,4 +1430,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get forceUpdateNoticeBodyConsent => '新しい規約を確認するには、アップデートが必要です。';
+
+  @override
+  String get systemPushChannelMorning => '今日の読み解きの通知';
+
+  @override
+  String accountChoiceSajuLeap(String date, String calendar, String time) {
+    return '$calendar 閏月 $date $time';
+  }
+
+  @override
+  String accountChoiceSajuNoTimeLeap(String date, String calendar) {
+    return '$calendar 閏月 $date 時刻不明';
+  }
 }

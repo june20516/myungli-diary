@@ -2633,6 +2633,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'새 약관을 확인하려면 업데이트가 필요해요.'**
   String get forceUpdateNoticeBodyConsent;
+
+  /// system-push.channel.morning: Android 알림 채널 이름(기기 설정 > 앱 > 알림의 채널 목록, 채널 id `morning`). 사용자가 아침 알림만 끌 때 읽는 짧은 이름이고 앱 언어를 따름. iOS에는 채널이 없어 보이지 않음
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 풀이 알림'**
+  String get systemPushChannelMorning;
+
+  /// 계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)
+  ///
+  /// In ko, this message translates to:
+  /// **'{calendar} 윤달 {date} {time}'**
+  String accountChoiceSajuLeap(String date, String calendar, String time);
+
+  /// 계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)
+  ///
+  /// In ko, this message translates to:
+  /// **'{calendar} 윤달 {date} 시각 모름'**
+  String accountChoiceSajuNoTimeLeap(String date, String calendar);
 }
 
 class _AppLocalizationsDelegate
