@@ -14,7 +14,7 @@
 
 * 리전 `asia-northeast3`, 프로젝트 staging `myungli-diary-staging`(번호 `1056563158649`), prod `myungli-diary`(번호 `21526308173`), 저장소 `june20516/myungli-diary`.
 * 자원 이름은 spec §3·§4 그대로입니다. Secret id는 환경 변수 이름 그대로입니다.
-* Terraform `required_version = ">= 1.9"`, google provider `~> 7.0`. `.terraform.lock.hcl`을 commit합니다.
+* Terraform `required_version = ">= 1.9"`, google provider `~> 8.9`(작성 시점 최신 8.9.0). `.terraform.lock.hcl`을 commit합니다.
 * tfvars에는 공개 값만 둡니다. 아직 오지 않은 값은 빈 문자열입니다.
 * 단위 `CLAUDE.md`에는 버전을 적지 않습니다. 사용자에게 보이는 글은 없습니다(D93 해당 없음).
 
