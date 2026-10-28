@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
@@ -18,6 +19,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
@@ -36,8 +38,35 @@ final class _Network extends Interceptor {
   /// true면 달 길흉(`/v1/calendar/...`)만 연결 오류로 끊습니다.
   bool failCalendar = false;
 
+  /// 달 길흉 요청을 끊은 횟수(주입이 실제로 닿았는지 확인용).
+  final blockedPaths = <String>[];
+
+  /// 값이 있으면 목록 응답에서 [secondOnlyDate]의 둘째 일기에만 이 `dayKind`를 붙입니다
+  /// (첫 일기는 기록 없음, 묶음 카드의 "첫 비-null" 경로).
+  String? secondOnlyKind;
+  String secondOnlyDate = '';
+
   /// 하루 범위(`from`==`to`) 일기 목록을 날짜마다 물은 횟수.
   final dayQueries = <String, int>{};
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final kind = secondOnlyKind;
+    final data = response.data;
+    if (kind != null &&
+        response.requestOptions.path == '/v1/diaries' &&
+        data is Map) {
+      final sameDay = [
+        for (final item in data['items'] as List<Object?>)
+          if ((item! as Map)['date'] == secondOnlyDate) item as Map,
+      ];
+      sameDay[1]['dayKind'] = kind;
+    }
+    handler.next(response);
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -49,6 +78,7 @@ final class _Network extends Interceptor {
       return;
     }
     if (failCalendar && options.path.startsWith('/v1/calendar/')) {
+      blockedPaths.add(options.path);
       handler.reject(
         DioException.connectionError(
           requestOptions: options,
@@ -156,6 +186,13 @@ void main() {
     DiaryRow rowOn(CalendarDate date) => tester
         .widgetList<DiaryRow>(find.byType(DiaryRow))
         .firstWhere((row) => row.date == date);
+    // 기록값이 달 길흉과 달라야 기록값을 무시하는 구현을 잡습니다.
+    final calendarDay = await tester.runAsync(
+      () => container.read(
+        calendarDayProvider(CalendarDate(2026, 10, 11)).future,
+      ),
+    );
+    expect(calendarDay!.dayKind, DayKind.gisinDay);
     final recorded = rowOn(CalendarDate(2026, 10, 11));
     expect(recorded.characterLabel, _ko.dayKindYongsinDay);
     expect(recorded.characterPending, isFalse);
@@ -183,12 +220,33 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
     await settleWithIo(tester);
 
+    // 달 길흉 요청이 실제로 끊겼는지(주입이 닿았는지) 확인합니다.
+    expect(network.blockedPaths, contains('/v1/calendar/2026/10'));
     final rows = tester.widgetList<DiaryRow>(find.byType(DiaryRow));
     final recorded = rows.firstWhere(
       (row) => row.date == CalendarDate(2026, 10, 11),
     );
     expect(recorded.characterLabel, _ko.dayKindYongsinDay);
     expect(recorded.characterPending, isFalse);
+  });
+
+  testWidgets('같은 날 묶음 카드도 기록값 먼저, 첫 비-null 기록값을 씁니다 (A89)', (tester) async {
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'diary-day-full');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    final date = CalendarDate(2026, 10, 13);
+    // 첫 일기에는 기록이 없고 둘째에만 있습니다(첫 비-null 경로).
+    const recordedKind = DayKind.gisinDay;
+    network
+      ..secondOnlyKind = recordedKind.value
+      ..secondOnlyDate = date.toIso();
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+
+    final group = tester.widget<DiaryDayGroup>(find.byType(DiaryDayGroup));
+    expect(group.character, dayCharacterVariantOf(recordedKind));
+    expect(group.characterPending, isFalse);
   });
 
   testWidgets('줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary', (tester) async {
