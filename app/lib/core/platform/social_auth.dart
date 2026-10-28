@@ -3,6 +3,7 @@
 // 원문은 호출한 쪽이 server(`loginKakao`·`loginApple`·`completeAppleWebLogin`)에 보냅니다.
 
 import 'package:flutter/foundation.dart';
+import 'package:myungli_diary/core/platform/social_provider.dart';
 
 /// 사용자가 제공자 로그인 창을 닫았습니다.
 ///
@@ -15,6 +16,21 @@ final class SocialSignInCancelled implements Exception {
 
   @override
   String toString() => 'SocialSignInCancelled';
+}
+
+/// 제공자 설정(`config/auth.json`)이 비어 로그인할 수 없습니다(A81).
+///
+/// 외부 준비물이 오기 전의 빌드에서 버튼을 누르면 adapter가 던집니다. 버튼은 숨기지 않고,
+/// 로그인 화면은 다른 실패와 같이 알립니다.
+final class ProviderNotConfigured implements Exception {
+  /// [provider]의 설정이 비었습니다.
+  const new(this.provider);
+
+  /// 설정이 빈 제공자.
+  final SocialProvider provider;
+
+  @override
+  String toString() => 'ProviderNotConfigured(${provider.name})';
 }
 
 /// 카카오 로그인 결과. 계약 `KakaoLoginRequest`의 `idToken`입니다.
