@@ -357,5 +357,23 @@
     ],
     "status": "chosen",
     "note": "앱이 모르는 필수 동의 문서 사유 문장, 제목과 기존 사유는 그대로"
+  },
+  {
+    "id": "round-R23",
+    "title": "라운드 R23: 용어 뜻과 값 이름 (W1-3a, W47)",
+    "kind": "copy-sample",
+    "file": "2026-10-28-round-R23.md",
+    "date": "2026-10-28",
+    "milestone": "W1",
+    "screens": [
+      "explain-sheet",
+      "tag-diary",
+      "saju-chart"
+    ],
+    "decisions": [
+      "W47"
+    ],
+    "status": "chosen",
+    "note": "천간 이름은 오행을 붙임, 합충형은 천간합과 지지합, 범주마다 한 틀, 양인은 조심할 일을 직접 말함"
   }
 ]

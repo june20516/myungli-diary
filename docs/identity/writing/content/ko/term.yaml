@@ -14,3 +14,65 @@
 - {slot: term.meaning, key: term.tag.ten_god_rush.inseong, text: "내 사주에 이미 많은 인성이 그날 또 들어온 것으로, 생각이 많아지고 기대고 싶어져요."}
 - {slot: term.meaning, key: term.tag.yeokma, text: "움직임을 뜻하는 신살로, 이동하거나 바깥에 나갈 일이 늘어요."}
 - {slot: term.meaning, key: term.tag.yongsin_day, text: "내 사주에 필요한 기운이 들어오는 날이라, 하던 일이 순하게 풀리기 쉬워요."}
+- {slot: term.meaning, key: term.element.wood, text: "나무처럼 위로 자라고 사방으로 뻗어 가는 성질이에요. 사람에게서는 새로 시작하고 키워 가려는 마음으로 드러나요."}
+- {slot: term.meaning, key: term.element.fire, text: "불처럼 타오르며 밝게 퍼지는 성질이에요. 사람에게서는 드러내고 표현하려는 마음으로 나타나요."}
+- {slot: term.meaning, key: term.element.earth, text: "흙처럼 받아들이고 붙잡아 두는 성질이에요. 사람에게서는 사이를 잇고 중심을 지키려는 마음으로 드러나요."}
+- {slot: term.meaning, key: term.element.metal, text: "쇠처럼 단단하고 날카롭게 가르는 성질이에요. 사람에게서는 옳고 그름을 나누고 일을 맺으려는 마음으로 드러나요."}
+- {slot: term.meaning, key: term.element.water, text: "물처럼 낮은 곳으로 흐르고 스며드는 성질이에요. 사람에게서는 깊이 생각하고 조용히 살피는 마음으로 드러나요."}
+- {slot: term.meaning, key: term.stem.gap, text: "열 개의 천간 가운데 첫째로, 곧게 자라는 큰 나무를 닮았어요. 한번 정한 길을 꾸준히 가는 모습이에요."}
+- {slot: term.meaning, key: term.stem.eul, text: "열 개의 천간 가운데 둘째로, 어디서든 뿌리내리는 풀꽃을 닮았어요. 형편에 맞춰 휘어지면서도 끈질기게 자라는 모습이에요."}
+- {slot: term.meaning, key: term.stem.byeong, text: "열 개의 천간 가운데 셋째로, 환하게 비추는 한낮의 해를 닮았어요. 숨기지 않고 두루 밝게 드러내는 모습이에요."}
+- {slot: term.meaning, key: term.stem.jeong, text: "열 개의 천간 가운데 넷째로, 어둠을 밝히는 등불을 닮았어요. 가까운 곳을 오래 따뜻하게 비추는 모습이에요."}
+- {slot: term.meaning, key: term.stem.mu, text: "열 개의 천간 가운데 다섯째로, 묵직하게 자리를 지키는 큰 산을 닮았어요. 쉽게 흔들리지 않고 버텨 주는 모습이에요."}
+- {slot: term.meaning, key: term.stem.gi, text: "열 개의 천간 가운데 여섯째로, 씨앗을 길러 내는 너른 밭을 닮았어요. 받아들인 것을 차근차근 키워 내는 모습이에요."}
+- {slot: term.meaning, key: term.stem.gyeong, text: "열 개의 천간 가운데 일곱째로, 다듬기 전의 단단한 쇠를 닮았어요. 굽히지 않고 곧장 결정하는 모습이에요."}
+- {slot: term.meaning, key: term.stem.sin, text: "열 개의 천간 가운데 여덟째로, 곱게 다듬은 보석을 닮았어요. 섬세하게 가려내고 깔끔하게 다듬는 모습이에요."}
+- {slot: term.meaning, key: term.stem.im, text: "열 개의 천간 가운데 아홉째로, 멀리 흘러가는 큰 강을 닮았어요. 넓게 받아들이며 막힘없이 나아가는 모습이에요."}
+- {slot: term.meaning, key: term.stem.gye, text: "열 개의 천간 가운데 열째로, 맑게 고인 샘물을 닮았어요. 조용히 곁을 살피는 모습이에요."}
+- {slot: term.meaning, key: term.branch.ja, text: "쥐띠를 뜻하는 지지예요. 한겨울과 한밤을 가리켜요."}
+- {slot: term.meaning, key: term.branch.chuk, text: "소띠를 뜻하는 지지예요. 늦겨울과 새벽 전을 가리켜요."}
+- {slot: term.meaning, key: term.branch.in, text: "호랑이띠를 뜻하는 지지예요. 이른 봄과 새벽을 가리켜요."}
+- {slot: term.meaning, key: term.branch.myo, text: "토끼띠를 뜻하는 지지예요. 한봄과 해 뜰 무렵을 가리켜요."}
+- {slot: term.meaning, key: term.branch.jin, text: "용띠를 뜻하는 지지예요. 늦봄과 아침을 가리켜요."}
+- {slot: term.meaning, key: term.branch.sa, text: "뱀띠를 뜻하는 지지예요. 이른 여름과 늦은 오전을 가리켜요."}
+- {slot: term.meaning, key: term.branch.o, text: "말띠를 뜻하는 지지예요. 한여름과 한낮을 가리켜요."}
+- {slot: term.meaning, key: term.branch.mi, text: "양띠를 뜻하는 지지예요. 늦여름과 이른 오후를 가리켜요."}
+- {slot: term.meaning, key: term.branch.shin, text: "원숭이띠를 뜻하는 지지예요. 이른 가을과 늦은 오후를 가리켜요."}
+- {slot: term.meaning, key: term.branch.yu, text: "닭띠를 뜻하는 지지예요. 한가을과 해 질 무렵을 가리켜요."}
+- {slot: term.meaning, key: term.branch.sul, text: "개띠를 뜻하는 지지예요. 늦가을과 초저녁을 가리켜요."}
+- {slot: term.meaning, key: term.branch.hae, text: "돼지띠를 뜻하는 지지예요. 이른 겨울과 밤을 가리켜요."}
+- {slot: term.meaning, key: term.ten_god.bigyeon, text: "어깨를 나란히 하는 친구나 동료처럼 나와 대등한 기운이에요. 내 힘으로 해내려는 마음과 고집으로 드러나기 쉬워요."}
+- {slot: term.meaning, key: term.ten_god.geopjae, text: "나와 닮았으면서 내 몫을 다투는 경쟁자 같은 기운이에요. 지지 않으려는 승부욕과 과감한 결정으로 나타나요."}
+- {slot: term.meaning, key: term.ten_god.siksin, text: "내가 가진 것을 편안하게 풀어내는 기운이에요. 먹고 즐기는 여유, 꾸준히 무언가를 만들어 내는 재주로 드러나요."}
+- {slot: term.meaning, key: term.ten_god.sanggwan, text: "내 생각을 거침없이 밖으로 꺼내는 기운이에요. 날카로운 말솜씨와 틀을 깨는 재치로 나타나기 쉬워요."}
+- {slot: term.meaning, key: term.ten_god.pyeonjae, text: "크게 오가는 돈과 기회를 뜻하는 기운이에요. 일을 넓게 벌이고 사람을 두루 사귀는 수완으로 드러나요."}
+- {slot: term.meaning, key: term.ten_god.jeongjae, text: "차곡차곡 모으는 돈과 내가 지킬 몫을 뜻하는 기운이에요. 꼼꼼하게 챙기고 아끼는 성실함으로 나타나요."}
+- {slot: term.meaning, key: term.ten_god.pyeongwan, text: "나를 단련시키는 엄격한 기준과 도전을 뜻하는 기운이에요. 어려움 앞에서 버티는 힘으로 드러나요."}
+- {slot: term.meaning, key: term.ten_god.jeonggwan, text: "나를 바르게 이끄는 규칙과 책임을 뜻하는 기운이에요. 약속을 지키고 맡은 자리를 해내는 모습으로 나타나요."}
+- {slot: term.meaning, key: term.ten_god.pyeonin, text: "남다른 길로 배우고 깨닫는 기운이에요. 독특한 생각과 한 가지를 깊이 파고드는 모습으로 드러나요."}
+- {slot: term.meaning, key: term.ten_god.jeongin, text: "나를 아끼고 길러 주는 보살핌과 배움을 뜻하는 기운이에요. 차분히 배우고 받은 도움을 고맙게 여기는 모습으로 나타나요."}
+- {slot: term.meaning, key: term.ten_god_group.bigyeop, text: "비견과 겁재를 함께 부르는 이름으로, 나와 어깨를 나란히 하는 기운이에요. 나를 지키고 내 몫을 챙기려는 힘이 여기에 들어요."}
+- {slot: term.meaning, key: term.ten_god_group.siksang, text: "식신과 상관을 함께 부르는 이름으로, 내 안의 것을 밖으로 풀어내는 기운이에요. 말, 표현, 손재주가 여기에 들어요."}
+- {slot: term.meaning, key: term.ten_god_group.jaeseong, text: "편재와 정재를 함께 부르는 이름으로, 내가 다루고 얻는 돈과 결과를 뜻해요. 살림, 일의 성과, 현실 감각이 여기에 들어요."}
+- {slot: term.meaning, key: term.ten_god_group.gwanseong, text: "편관과 정관을 함께 부르는 이름으로, 나를 다스리는 규칙과 책임을 뜻해요. 직장, 명예, 지켜야 할 약속이 여기에 들어요."}
+- {slot: term.meaning, key: term.ten_god_group.inseong, text: "편인과 정인을 함께 부르는 이름으로, 나를 길러 주는 배움과 보살핌을 뜻해요. 공부, 생각, 받는 도움이 여기에 들어요."}
+- {slot: term.meaning, key: term.shinsal.cheoneul_gwiin, text: "신살 가운데 가장 귀한 도움을 뜻해요. 어려울 때 뜻밖의 사람이 손을 내밀어 주는 복으로 봐요."}
+- {slot: term.meaning, key: term.shinsal.dohwa, text: "사람의 눈길을 끄는 매력을 뜻하는 신살이에요. 인기와 멋, 이성의 관심으로 드러나기 쉬워요."}
+- {slot: term.meaning, key: term.shinsal.yeokma, text: "멀리 달리는 말을 뜻하는 신살이에요. 이사, 여행, 바쁜 이동처럼 자리를 옮기는 일로 나타나기 쉬워요."}
+- {slot: term.meaning, key: term.shinsal.hwagae, text: "혼자 깊이 들여다보는 힘을 뜻하는 신살이에요. 공부나 예술처럼 한곳에 몰두하는 모습으로 드러나요."}
+- {slot: term.meaning, key: term.shinsal.yangin, text: "칼날처럼 아주 센 추진력을 뜻하는 신살이에요. 밀어붙이는 힘이 큰 만큼 다툼이나 다침을 조심해야 해요."}
+- {slot: term.meaning, key: term.shinsal.gongmang, text: "비어 있는 자리를 뜻하는 신살이에요. 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어, 욕심을 덜어 내는 때로 봐요."}
+- {slot: term.meaning, key: term.day_kind.gwiin_day, text: "그날의 기운이 내 사주에 귀인으로 닿는 날이에요. 나를 돕는 사람이 가까이 오기 쉬워요."}
+- {slot: term.meaning, key: term.day_kind.yongsin_day, text: "내 사주에 가장 필요한 기운이 들어오는 날이에요. 미뤄 둔 일을 풀어 보기 좋아요."}
+- {slot: term.meaning, key: term.day_kind.gisin_day, text: "내 사주와 잘 안 맞는 기운이 들어오는 날이에요. 무리하지 않고 하던 일을 지키기 좋아요."}
+- {slot: term.meaning, key: term.day_kind.ordinary_day, text: "내 사주를 크게 돕지도 막지도 않는 기운이 들어오는 날이에요. 평소 하던 대로 꾸려 가기 좋아요."}
+- {slot: term.meaning, key: term.relation.stem_hap, text: "두 천간이 서로 끌려 짝을 이루는 것이에요. 사람이나 일이 뜻밖에 손을 잡기 쉬워요."}
+- {slot: term.meaning, key: term.relation.branch_hap, text: "두 지지가 서로 맞물려 하나가 되는 것이에요. 관계가 가까워지고 일이 잘 어우러지기 쉬워요."}
+- {slot: term.meaning, key: term.relation.chung, text: "서로 반대편에 있는 두 지지가 맞부딪히는 것이에요. 계획이 바뀌거나 자리를 옮기는 일이 생기기 쉬워요."}
+- {slot: term.meaning, key: term.relation.hyeong, text: "지지끼리 서로 깎아 내는 것이에요. 작은 마찰이나 고칠 일이 드러나기 쉬워, 꼼꼼히 살피는 게 좋아요."}
+- {slot: term.meaning, key: term.role.yongsin, text: "내 사주의 균형을 맞추는 데 가장 필요한 오행이에요. 이 기운이 들어오는 때에 일이 잘 풀리기 쉬워요."}
+- {slot: term.meaning, key: term.role.huisin, text: "용신을 곁에서 도와 힘을 보태는 오행이에요. 용신만큼은 아니어도 반가운 기운이에요."}
+- {slot: term.meaning, key: term.role.gisin, text: "내 사주와 잘 안 맞는 오행이에요. 이 기운이 센 때에는 무리하지 않는 게 좋아요."}
+- {slot: term.meaning, key: term.role.neutral, text: "내 사주를 크게 돕지도 해치지도 않는 오행이에요. 그 자체로는 무난한 기운이에요."}
+- {slot: term.meaning, key: term.luck.daeun, text: "인생의 계절처럼 10년 단위로 찾아오는 큰 흐름이에요."}
+- {slot: term.meaning, key: term.luck.seun, text: "해마다 바뀌는 한 해의 흐름이에요. 그해에 들어오는 기운이 내 사주와 어떻게 어울리는지 보여 줘요."}
