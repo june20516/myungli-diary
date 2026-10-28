@@ -33,6 +33,7 @@
      * 열린 `drift` Issue(`gh issue list --label drift`)를 확인하고, 받는 쪽 단위의 다음 할 일 맨 앞에 둡니다(`docs/workflow.md` §6.1).
      * 새로 병합된 단위 결정 행(C·S·A·W·V)의 `사용자 영향` 표시를 확인합니다. `#<n>`이면 루트 결정·IA·원고 요청·수집·보관 대장에 반영하고, `없음`이 맞는지도 봅니다(D87).
      * 외부 준비물 대장(`docs/external-prep.md`)을 봅니다. 때가 된 항목은 `to:user`·`kind:prep` Issue로 안내하고, 사용자에게 지금 준비할 것을 알립니다. 받은 값은 단위에 전달합니다(D91 ②, `docs/workflow.md` §5.3).
+     * 열린 검수 피드백 항목(`docs/review/items.md`의 `보냄`)의 작업 Issue가 모두 닫혔으면 `끝남`으로 바꿉니다(`docs/review/README.md`).
   2. `docs/roadmap.md` "현재 진행 순서"를 갱신합니다.
   3. 제품 지도를 갱신합니다(`tools/product-map/README.md`).
 
