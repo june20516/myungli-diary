@@ -196,6 +196,9 @@ TARGETS = (
     Target(("ad-free.buy.cta", "ad-free.history.cta"), "offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20 - 2 * 20, 1, False, None),
     Target(("ad-free.offer.period",), "offer-card 기간 고지 (카드 안쪽 20)", "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 20, 1, False, None),
+    # 묶음 카드 위 안내 문장 (#354 ③, 결정 V50)
+    Target(("profile-edit.recalc.notice",), "settings-row groupNote (묶음 카드 위, 좌우 16)",
+           "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 16, 2, True, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)

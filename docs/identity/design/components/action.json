@@ -1,5 +1,5 @@
 {
-  "version": "3.1.0",
+  "version": "3.2.0",
   "group": "action",
   "components": [
     {
@@ -113,7 +113,8 @@
         "value": { "type": "{type.body.ui}", "fg": "{color.text.secondary}" },
         "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
         "toggle": { "trackOn": "{color.action.primary}", "trackOff": "{color.line}", "thumb": "{color.bg.sheet}" },
-        "groupTitle": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}" }
+        "groupTitle": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}" },
+        "groupNote": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}", "maxLines": 2, "position": "묶음 카드 위(groupTitle 자리)", "slots": ["profile-edit.recalc.notice"], "note": "묶음 전체에 걸리는 안내 문장. 늘 보이고 누르지 않음" }
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
@@ -121,7 +122,8 @@
       },
       "haptic": [{ "when": "toggle 변형 켜고 끔", "strength": "selection" }],
       "a11y": { "role": "button", "label": "글자 + 값", "toggleRole": "switch", "minTarget": 48 },
-      "rules": ["묶음 카드 안에서 1px 선으로 나눈다. 카드 사이는 20px 띄운다."]
+      "rules": ["묶음 카드 안에서 1px 선으로 나눈다. 카드 사이는 20px 띄운다.",
+        "묶음에 걸리는 안내 문장(groupNote)은 카드 위 묶음 이름 자리에 둔다. 배너(notice-banner)는 상태를 알리는 것이라 늘 보이는 안내에 쓰지 않는다(#354 ③)."]
     },
     {
       "id": "offer-card",

@@ -30,7 +30,12 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-27, design 세션 작성)
+## 현재 상태 (2026-10-28, design 세션 작성)
+* **사주 표 십성 라벨·피드백 표시·윤달 사주 줄 #353·#354·#587** (브랜치 `design/feedback-saju-353-354-587`, 결정 V48~V51).
+  * #353(V49): `daeun-table` 대운 기둥에 천간·지지 십성과 12운성(`term-token` `label`, 줄 순서 `order`), 세운은 천간 십성 하나. 라벨은 칸 폭 안 두 줄 줄바꿈, 넘치면 `type.caption.sm`까지 줄임, 줄마다 높이 맞춤. `manse-table` 지장간은 "한자와 독음 / 십성" 두 줄 묶음을 늘 쓰고, 12운성·신살 값은 `term-token` `inline`. 십성 라벨 상한 행은 두지 않음(`glossary.value_name`이 다른 자리와 같은 슬롯).
+  * #354(V50·V51): `notice-banner` `error`(`cloud-warning`, 버튼 없음, 다시 시도는 화면 저장 버튼), `stateMap.error`에 배너 추가, `settings-row` `groupNote`(묶음 카드 위 안내, `profile-edit.recalc.notice`, 상한 62·46·104), toast는 아래 고정 버튼 위 16px.
+  * #587(V48): `account-choice` 사주 줄은 달력 종류 뒤에 윤달 낱말(`dayCellLeapMonth`와 같은 낱말). 256px 안(en 시각 모름 248.8px). 틀은 writing 차례.
+  * 근거: [spec](specs/2026-10-28-feedback-saju-labels-design.md). 시안 없이 app 임시 구현을 기준으로 정함.
 * **구매 줄 두 줄·광고 제거 새 슬롯 #564·#548** (브랜치 `design/purchase-meta-564`, W44, 컴포넌트 계약 3.1.0).
   * `purchase-row` `meta`: 구매일 줄 아래 `space.2`에 사용 기간 줄, 구분자 `join`(`purchaseMetaSeparator`) 삭제, `loading` bone 세 줄(결정 V47). 글자 수는 키마다 한 줄이라 `ui.purchase.meta` 상한 그대로.
   * `offer-card` `buy` → `ad-free.buy.cta`, `period` → `ad-free.offer.period`. 카드 안 버튼(구매, 구매 내역)은 240px 행으로 따로 잼(`ad-free.history.cta` 23·19·42 → 20·16·35), 기간 고지는 280px 한 줄. `lengths.md` 상한 없음 표의 겹친 윤달 표지 행 정리.
@@ -107,7 +112,7 @@
 
 ## 다음 할 일
 1. **#546 design 몫(D93·W44):** `today.json`·`today.md` `lucky-card` 시간 칸 형식 `HH:mm–HH:mm`과 ` · ` 잇기. app은 `HH:mm~HH:mm`과 쉼표 잇기로 바꿨지만, W44(한 줄에 값을 구분 글자로 잇지 않음)와 겹쳐 여러 구간을 줄로 나눌지 사용자 확인이 필요합니다.
-2. **#354 ①③④·#353:** `notice-banner` 오류 변형, 다시 계산 안내 표시, toast와 하단 CTA, 십성 라벨 자리. writing #509 원고는 PR #510으로 왔습니다.
+2. **#353·#354·#587 마무리:** PR 병합 뒤 app·writing 확인을 받아 닫습니다. #587은 writing이 윤달 틀을 주면 닫힙니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 3. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.

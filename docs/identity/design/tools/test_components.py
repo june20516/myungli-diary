@@ -388,7 +388,7 @@ def test_cli_exit_code_is_zero(capsys):
 
 def test_state_map_matches_spec():
     state_map = load_documents(COMPONENTS_DIR)["feedback"]["stateMap"]
-    assert state_map == {"loading": "skeleton", "empty": "empty-state", "error": "error-state",
+    assert state_map == {"loading": "skeleton", "empty": "empty-state", "error": ["error-state", "notice-banner"],
                          "offline": "notice-banner", "draft": ["draft-indicator", "notice-banner"],
                          "time-unknown": "notice-banner", "out-of-range": "input-step"}
 
@@ -439,7 +439,7 @@ def test_actions_are_rounded_rectangles():
 
 
 def test_contract_version_is_3_0():
-    assert VERSION == "3.1.0"
+    assert VERSION == "3.2.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1085,3 +1085,35 @@ def test_purchase_row_meta_has_no_separator():
     assert "join" not in meta and "purchaseMetaSeparator" not in json.dumps(meta)
     assert meta["layout"] == "lines"
     assert meta["period"]["marginTop"] == "{space.2}"
+
+
+# 사주 표 십성 라벨·피드백 표시·윤달 사주 줄 (#353·#354·#587, 결정 V48~V51)
+def test_luck_and_manse_tables_have_ten_god_labels():
+    by_id = components_by_id(BRAND_GROUPS)
+    daeun = by_id["daeun-table"]["parts"]
+    pillar = daeun["daeun"]
+    for part in ("stemTenGod", "branchTenGod", "twelveStage"):
+        assert (pillar[part]["component"], pillar[part]["variant"]) == ("term-token", "label")
+    assert pillar["order"] == ["age", "stemTenGod", "cells", "branchTenGod", "twelveStage", "startYear"]
+    assert daeun["seun"]["stemTenGod"]["source"] == "SeunYear.tenGod"
+    assert daeun["label"]["maxLines"] == 2
+    hidden = by_id["manse-table"]["parts"]["hiddenStems"]
+    assert (hidden["tenGod"]["component"], hidden["tenGod"]["variant"]) == ("term-token", "label")
+    assert hidden["stack"]["direction"] == "vertical"
+
+
+def test_feedback_error_banner_group_note_and_toast_position():
+    by_id = components_by_id(("feedback", "action"))
+    banner = by_id["notice-banner"]
+    error = next(variant for variant in banner["variants"] if variant["id"] == "error")
+    assert error["parts"]["icon"]["name"] == "cloud-warning"
+    assert "button" not in banner["parts"]
+    note = by_id["settings-row"]["parts"]["groupNote"]
+    assert note["slots"] == ["profile-edit.recalc.notice"] and note["maxLines"] == 2
+    assert by_id["toast"]["parts"]["container"]["position"] == "above-bottom-bar"
+
+
+def test_account_choice_saju_has_leap_month_place():
+    saju = components_by_id(("input",))["account-choice"]["parts"]["saju"]
+    assert saju["leapMonth"]["source"] == "MergeProfileSummary.birth.isLeapMonth"
+    assert saju["slot"] == "ui.account-merge.saju"
