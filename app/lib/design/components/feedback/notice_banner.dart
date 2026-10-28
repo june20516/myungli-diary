@@ -32,6 +32,15 @@ enum NoticeBannerVariant {
       light: PhosphorIconsLight.notePencil,
       regular: PhosphorIconsRegular.notePencil,
     ),
+  ),
+
+  /// 연결은 있지만 요청이 실패함(server 오류, 다시 계산 실패, V50). `offline`과 아이콘만
+  /// 다르고, 다시 시도는 화면의 원래 동작 버튼이 맡습니다.
+  error(
+    AppGlyph(
+      light: PhosphorIconsLight.cloudWarning,
+      regular: PhosphorIconsRegular.cloudWarning,
+    ),
   );
 
   new(this.glyph);
@@ -57,7 +66,7 @@ class NoticeBanner extends StatelessWidget {
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'notice-banner',
-    {'offline', 'time-unknown', 'draft'},
+    {'offline', 'time-unknown', 'draft', 'error'},
     {'showing', 'resolved'},
   );
 

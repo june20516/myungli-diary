@@ -419,5 +419,6 @@
   "purchaseStatusRefunded": "返金済み",
   "errorMergeTokenInvalid": "統合を続けられませんでした。取り込むアカウントを再認証してください。",
   "adFreeBuyCta": "購入する",
-  "adFreeOfferPeriod": "1か月、自動決済なし"
+  "adFreeOfferPeriod": "1か月、自動決済なし",
+  "forceUpdateNoticeBodyConsent": "新しい規約を確認するには、アップデートが必要です。"
 }

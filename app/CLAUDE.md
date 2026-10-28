@@ -53,6 +53,12 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-10-28, app 세션 갱신)
+* **drift #600 따라잡기(design 3.2.0 PR #599, writing W45 PR #598)**, 브랜치 `app/drift-600`. 결정 A90·A91.
+  * `notice-banner` `error`(`cloud-warning`, V50)로 `profile-edit:error` 배너를 바꾸고, 다시 계산 안내는 `SettingsGroup.note`(`groupNote`, 두 줄)입니다.
+  * toast는 부른 화면의 `ToastAnchor`(아래 고정 버튼) → 하단 틀 → 안전 영역(키보드) 위 16px이고, 버튼을 `LayerLink`로 따라갑니다(V51, A90).
+  * 대운 기둥은 나이 → 천간 십성 → 간지 → 지지 십성 → 12운성 → 시작 연도, 세운은 천간 위 십성이고, 라벨은 `LuckLabel` 데이터로 받아 줄 높이를 맞춥니다(V49, A91). 대운 12운성 칩은 `daeun_twelve_stage` 개인 해석으로 이어집니다. 만세력 지장간은 늘 "한자와 독음 / 십성" 두 줄 묶음, 같은 줄 칸은 위 정렬입니다. `TermToken` `label`은 글자 스타일·정렬·줄 수를 받고 keep-all로 줄을 바꿉니다.
+  * `force-update` 이유 문장은 사유로 키를 고릅니다(`forceUpdateReasonOf`, W45): 모르는 필수 동의 문서면 `forceUpdateNoticeBodyConsent`, 아니면 `forceUpdateNoticeBody`.
+  * #587(합치기 카드 사주 줄 윤달, V48)은 writing 틀을 기다립니다. app은 글자를 잇지 않으므로 그대로입니다.
 * **계획 7 A1(화면, 대역) 완료**, 브랜치 `app/real-login-2`. spec [`docs/specs/2026-10-21-real-login-design.md`](docs/specs/2026-10-21-real-login-design.md), 계획 [`docs/plans/2026-10-22-real-login.md`](docs/plans/2026-10-22-real-login.md), 결정 A80~A85. 실제 SDK adapter와 네이티브 설정은 A2입니다.
 * **REST 1.2.0 따라잡기(drift #585, D96, A89):** `DiarySummary.dayKind`를 받아 `diary-row` 배지가 기록값을 먼저, 없으면 A46 달 길흉을 씁니다. 대역 목록 응답에도 날짜 기록의 `dayKind`를 붙였습니다.
   * **새 화면 두 개.** `login-methods`(설정 > 로그인 수단, D85 ③: 네 줄은 연결 여부에 따라 떼기 확인·붙이기, 연결 409는 `dialog` `notice`만이고 합치기로 넘어가지 않으며, 합치기 입구는 늘 보이고 돌아오면 목록을 다시 읽음)와 `account-merge`(D85 ④: 인증 → `previewMerge` 요약·프로필 고르기 → 확인 → `mergeAccounts`, `Idempotency-Key`, 토큰 교체 없음, 합치는 동안 뒤로 가기 막음). 합친 뒤에는 캐시·일기 초안을 지우고 계정 데이터 provider(`accountDataProviders`, `lib/app/entry/account_data_providers.dart`)를 다시 읽습니다. 응답 없음은 같은 토큰·본문·키로 한 번 다시 보내 200이면 합쳐진 것, 422 `merge.token_invalid`면 `errorMergeTokenInvalid`와 인증 단계입니다(S115). `ia_pending.dart`에서 세 화면이 빠졌습니다.
@@ -139,7 +145,7 @@
    * **실기기 확인 목록(spec §12, 외부 준비물 뒤):** 카카오톡 로그인·계정 로그인·각 취소, LINE 앱·웹 로그인(LINE 앱 없음)·취소, Google 계정 선택·취소와 두 번째 로그인에서 계정 선택이 다시 뜨는지, iOS Apple 로그인·취소, Android Auth Tab이 server 303을 받는지·안내 페이지 intent 복귀·앱이 내려간 뒤 복귀, `assetlinks.json` 검증(`adb shell pm get-app-links app.myungli.diary`), 붙이기·떼기·합치기(LINE·Google 허가는 제공자 쪽 연결 앱 목록에 남는 것이 맞음, D95). Auth Tab이 303을 받지 못하면 안내 페이지 intent 경로를 기본으로 할지 다시 판단하고 server와 문구는 Issue로 올립니다.
    * **수익 쪽(spec §14, A2):** RevenueCat adapter에서 `Purchases.sync()`를 `syncPurchases`로 구현하고 iOS sandbox에서 Apple ID 로그인 창이 뜨는지 확인(뜨면 지휘에 알림, #493), `Purchases.products()` 시간 한계(구매 내역 `loading` 길이도 같은 기준), 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS` 배선(상품 id는 저장소에 두지 않음, S89·D74), 보상형 광고·공유 실제 adapter.
    * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
-   * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨), design #353(만세력·대운 십성 라벨 자리)·#354(`notice-banner` 오류 변형, `dialog` 기본 선택, 다시 계산 안내, toast 위치). 답에 따라 그 화면을 고칩니다.
+   * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨, en 십성 이름이 오면 대운 라벨 두 줄 규칙을 실제 글자로 확인), writing #587(합치기 카드 사주 줄의 윤달 틀, V48). 답에 따라 그 화면을 고칩니다. design #353·#354는 drift #600에서 반영했습니다.
    * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. `ad-free`·`purchase-history` 제목도 `app/d85-d88`에서 반영했습니다(`test/contract/app_bar_title_contract_test.dart` 대조, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
 3. **계획 5(일기)에서 넘긴 것:**

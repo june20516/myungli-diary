@@ -16,7 +16,8 @@ final class ManseHiddenStem {
   /// 독음.
   final String? reading;
 
-  /// 지장간 십성 용어(`term-token` `label`, 누르면 풀이). 없으면 한자·독음만입니다.
+  /// 지장간 십성 용어(`term-token` `label`, 누르면 풀이). 한자·독음 줄 2px 아래에 둡니다.
+  /// 없으면 한자·독음 한 줄만입니다.
   final Widget? label;
 }
 
@@ -60,10 +61,14 @@ final class ManseColumn {
 /// 열 순서는 원국표와 같은 시·일·월·연입니다. 맨 위 줄은 기둥 이름과 천간·지지 `ohaeng.cell`
 /// `mini`, 아래 줄 머리는 너비 52의 `term-token` `label`([hiddenStemsHeader] 등, 누르면 풀이)
 /// 입니다. 값은 `type.body.ui` `text.primary` 가운데입니다(값 칸 위젯에 [DefaultTextStyle]로
-/// 주고, 용어 토큰 `inline`은 이 글자를 씀). 지장간 한자는 `font.family.hanja`, 독음은
-/// `type.caption.sm` `text.secondary`이고 십성 라벨은 그 뒤에 붙으며 칸이 좁으면 다음 줄로
-/// 넘어갑니다. 줄 사이는 1px `line`입니다. 시간 모름이면 시주 열이 비고(`time-unknown`), 글자
-/// 크기는 1.3배에서 멈춥니다. 스크린리더는 표 이름 [tableLabel]과 줄 머리를 읽습니다.
+/// 주고, 용어 토큰 `inline`은 이 글자를 씀). 지장간 하나는 늘 두 줄 묶음입니다(V49):
+/// 위 줄 한자(`font.family.hanja`)와 독음(`type.caption.sm` `text.secondary`), 2px 아래
+/// 십성 라벨. 묶음은 계약 순서로 `space.4` 간격을 두고 쌓고, 신살도 하나씩 `space.4`
+/// 간격으로 쌓습니다.
+/// 같은 줄 칸(줄 머리 포함)은 위로 맞추고 가장 높은 칸만큼 줄이 늘어납니다. 줄 사이는
+/// 1px `line`입니다. 시간 모름이면 시주 열이 비고(`time-unknown`), 글자 크기는 1.3배에서
+/// 멈춥니다. 스크린리더는 표 이름 [tableLabel]과 줄 머리를 읽고, 지장간은 한자와 독음, 십성
+/// 순서로 읽습니다.
 class ManseTable extends StatelessWidget {
   /// 만세력 표를 만듭니다.
   const new({
@@ -124,7 +129,8 @@ class ManseTable extends StatelessWidget {
 
     Widget cell(Widget child) => Padding(
       padding: const EdgeInsets.symmetric(vertical: Space.s8, horizontal: 2),
-      child: Center(
+      child: Align(
+        alignment: Alignment.topCenter,
         child: DefaultTextStyle(
           style: valueStyle,
           textAlign: TextAlign.center,
@@ -135,37 +141,38 @@ class ManseTable extends StatelessWidget {
 
     Widget header(Widget child) => Padding(
       padding: const EdgeInsets.symmetric(vertical: Space.s8),
-      child: Align(alignment: AlignmentDirectional.centerStart, child: child),
+      child: Align(alignment: AlignmentDirectional.topStart, child: child),
     );
 
     Widget hidden(ManseColumn column) => Column(
       mainAxisSize: MainAxisSize.min,
+      spacing: Space.s4,
       children: [
         for (final stem in column.hiddenStems)
-          Text.rich(
-            TextSpan(
-              children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              Text.rich(
                 TextSpan(
-                  text: stem.hanja,
-                  style: valueStyle.copyWith(fontFamily: hanjaFamily),
-                ),
-                if (stem.reading != null)
-                  TextSpan(
-                    text: ' ${stem.reading}',
-                    style: tokens.typography.captionSm.copyWith(
-                      color: colors.textSecondary,
+                  children: [
+                    TextSpan(
+                      text: stem.hanja,
+                      style: valueStyle.copyWith(fontFamily: hanjaFamily),
                     ),
-                  ),
-                if (stem.label case final label?) ...[
-                  const TextSpan(text: ' '),
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: label,
-                  ),
-                ],
-              ],
-            ),
-            textAlign: TextAlign.center,
+                    if (stem.reading != null)
+                      TextSpan(
+                        text: ' ${stem.reading}',
+                        style: tokens.typography.captionSm.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              ?stem.label,
+            ],
           ),
       ],
     );
@@ -177,7 +184,6 @@ class ManseTable extends StatelessWidget {
         label: tableLabel,
         child: Table(
           columnWidths: const {0: FixedColumnWidth(rowHeaderWidth)},
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           border: TableBorder(horizontalInside: BorderSide(color: colors.line)),
           children: [
             TableRow(
@@ -225,7 +231,7 @@ class ManseTable extends StatelessWidget {
                   cell(
                     Column(
                       mainAxisSize: MainAxisSize.min,
-                      spacing: 2,
+                      spacing: Space.s4,
                       children: column.shinsal,
                     ),
                   ),

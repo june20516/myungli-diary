@@ -1427,4 +1427,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get adFreeOfferPeriod => '1か月、自動決済なし';
+
+  @override
+  String get forceUpdateNoticeBodyConsent => '新しい規約を確認するには、アップデートが必要です。';
 }
