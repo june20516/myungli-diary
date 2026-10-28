@@ -37,7 +37,7 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 | E2 | Apple Developer Program 가입 | E7·E12, P9, I4 | E1 | 본인 확인·심사 | 공개: Team ID | server, app | 진행 중 | #536 |
 | E3 | Google Play Console 개발자 계정과 앱 만들기 | E8·E11·E12, P9, T1(비공개 테스트 트랙, 새 개인 계정의 출시 전 비공개 테스트 의무), I4 | E1 | 본인 확인, 비공개 테스트(테스터 12명 이상 14일 연속 + 심사 약 7일) | 공개: 패키지 이름 확인 | server, app | 진행 중 | #535 |
 | E4 | GCP 프로젝트: 결제 계정, Cloud Run·Cloud SQL·Artifact Registry·Secret Manager API, GitHub Actions용 Workload Identity Federation (D56) | P9 → I1·I2 | - | - | 공개: 프로젝트 id, 리전 | server(절차는 server가 함께 안내) | 진행 중 | #537 |
-| E5 | Firebase(같은 GCP 프로젝트): App Check, FCM, Crashlytics, iOS APNs 키 (D64) | P9, 아침 알림, A2 | E2·E4 | - | 공개: `FIREBASE_PROJECT_NUMBER`, 앱 설정 파일 / 비밀: APNs 키 | server, app | 준비 전 | - |
+| E5 | Firebase(같은 GCP 프로젝트): App Check, FCM, Crashlytics, iOS APNs 키 (D64) | P9, 아침 알림, A2 | E2·E4 | - | 공개: `FIREBASE_PROJECT_NUMBER`, 앱 설정 파일 / 비밀: APNs 키 | server, app | 준비 전 | #605 |
 | E6 | 서비스 도메인 구입과 DNS: API 주소, Android App Link(`APP_LINK_BASE`)·`assetlinks.json`, Apple 웹 로그인 복귀 주소 (#89, S22) | E7, P9 | - | DNS 전파 | 공개: 도메인 | server, app | 진행 중 | #538 |
 | E7 | Apple 로그인 설정: App ID(Sign in with Apple), Services ID, 웹 복귀 주소, 로그인 키 | P9, A2 실제 로그인 | E2·E6 | - | 공개: `APPLE_TEAM_ID`·`APPLE_BUNDLE_ID`·`APPLE_SERVICES_ID`·`APPLE_KEY_ID`·`APPLE_WEB_REDIRECT_URI` / 비밀: `APPLE_PRIVATE_KEY`(.p8) | server, app | 준비 전 | #591 |
 | E8 | Android 앱 서명 지문과 스토어 URL (#311, #114 ④) | P9, App Link | E3 | - | 공개: `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL` | server, app | 준비 전 | - |
