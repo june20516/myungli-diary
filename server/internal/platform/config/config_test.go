@@ -333,6 +333,20 @@ func TestLoadEngine(t *testing.T) {
 			t.Errorf("LoadEngine() = %+v", cfg)
 		}
 	})
+	t.Run("APP_ENV가 local이 아니면 ENGINE_AUDIENCE가 필요함", func(t *testing.T) {
+		for _, env := range []string{"staging", "prod"} {
+			_, err := LoadEngine(fakeEnv(map[string]string{"APP_ENV": env, "ENGINE_ADDR": "engine.run.app:443"}))
+			if err == nil || !strings.Contains(err.Error(), "ENGINE_AUDIENCE가 필요합니다") {
+				t.Errorf("LoadEngine(APP_ENV=%s) error = %v, want ENGINE_AUDIENCE 필수 오류", env, err)
+			}
+		}
+	})
+	t.Run("APP_ENV가 local이면 audience 없이도 정상", func(t *testing.T) {
+		_, err := LoadEngine(fakeEnv(map[string]string{"APP_ENV": "local", "ENGINE_ADDR": "localhost:50051"}))
+		if err != nil {
+			t.Errorf("LoadEngine() error = %v, want nil", err)
+		}
+	})
 	t.Run("audience 없이도 정상", func(t *testing.T) {
 		cfg, err := LoadEngine(fakeEnv(map[string]string{"ENGINE_ADDR": "localhost:50051"}))
 		if err != nil || cfg.Audience != "" || cfg.Addr != "localhost:50051" {
@@ -586,5 +600,15 @@ func TestLoadRevocation_ErrorDoesNotContainValues(t *testing.T) {
 
 	if err == nil || strings.Contains(err.Error(), "v-TOKEN_ENCRYPTION_KEY") {
 		t.Errorf("오류에 값이 들어 있거나 오류가 없습니다: %v", err)
+	}
+}
+
+func TestLoad_ReadsCloudSQLInstance(t *testing.T) {
+	cfg, err := Load(fakeEnv(map[string]string{"CLOUD_SQL_INSTANCE": "myungli-diary:asia-northeast3:myungli-pg"}))
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.CloudSQLInstance != "myungli-diary:asia-northeast3:myungli-pg" {
+		t.Errorf("CloudSQLInstance = %q", cfg.CloudSQLInstance)
 	}
 }

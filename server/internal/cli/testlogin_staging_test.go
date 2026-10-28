@@ -55,6 +55,7 @@ func TestServe_AssemblesTestLogin(t *testing.T) {
 func TestServe_StagingBuildRefusesProdEnv(t *testing.T) {
 	env := testAuthEnv(t)
 	env["APP_ENV"] = "prod"
+	env["ENGINE_AUDIENCE"] = "https://engine.example.run.app"
 	env["PORT"] = freePort(t)
 	env["DATABASE_URL"] = "postgres://x@127.0.0.1:1/x"
 	var stdout, stderr bytes.Buffer

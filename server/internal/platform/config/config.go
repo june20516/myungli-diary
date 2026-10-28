@@ -27,6 +27,9 @@ type Config struct {
 	Port int
 	// DatabaseURL은 PostgreSQL 연결 문자열입니다. 필요한 명령만 RequireDatabase로 검사합니다.
 	DatabaseURL string
+	// CloudSQLInstance는 Cloud SQL 연결 이름(project:region:instance, CLOUD_SQL_INSTANCE)입니다.
+	// 있으면 Cloud SQL Go connector와 IAM DB 인증으로 붙고 DATABASE_URL의 host는 쓰지 않습니다(S121).
+	CloudSQLInstance string
 	// LogLevel은 로그 최소 수준입니다.
 	LogLevel slog.Level
 	// GCPProjectID는 GCP 프로젝트 ID입니다.
@@ -49,8 +52,9 @@ var logLevels = map[string]slog.Level{
 func Load(getenv func(string) string) (Config, error) {
 	cfg := Config{
 		Env:          orDefault(getenv("APP_ENV"), defaultEnv),
-		DatabaseURL:  getenv("DATABASE_URL"),
-		GCPProjectID: getenv("GOOGLE_CLOUD_PROJECT"),
+		DatabaseURL:      getenv("DATABASE_URL"),
+		CloudSQLInstance: getenv("CLOUD_SQL_INSTANCE"),
+		GCPProjectID:     getenv("GOOGLE_CLOUD_PROJECT"),
 	}
 
 	var errs []error
@@ -266,7 +270,8 @@ type EngineConfig struct {
 	Audience string
 }
 
-// LoadEngine은 getenv로 엔진 설정을 읽습니다. ENGINE_ADDR는 필수이고 ENGINE_AUDIENCE는 선택이며 있으면 https URL이어야 합니다.
+// LoadEngine은 getenv로 엔진 설정을 읽습니다. ENGINE_ADDR는 필수이고 ENGINE_AUDIENCE는 있으면 https URL이어야 합니다.
+// APP_ENV가 local(기본값)이 아니면 ENGINE_AUDIENCE도 필수입니다. 배포 환경의 엔진은 IAM 인증을 요구하기 때문입니다(S121).
 // 오류에는 변수 이름만 담고 값은 담지 않습니다.
 func LoadEngine(getenv func(string) string) (EngineConfig, error) {
 	getenv = trimmedEnv(getenv)
@@ -276,7 +281,10 @@ func LoadEngine(getenv func(string) string) (EngineConfig, error) {
 	if cfg.Addr == "" {
 		errs = append(errs, errors.New("ENGINE_ADDR가 필요합니다"))
 	}
-	if cfg.Audience != "" && !isHTTPSURL(cfg.Audience) {
+	switch {
+	case cfg.Audience == "" && orDefault(getenv("APP_ENV"), defaultEnv) != defaultEnv:
+		errs = append(errs, errors.New("ENGINE_AUDIENCE가 필요합니다(APP_ENV가 local일 때만 비워 둘 수 있습니다)"))
+	case cfg.Audience != "" && !isHTTPSURL(cfg.Audience):
 		errs = append(errs, errors.New("ENGINE_AUDIENCE는 https URL이어야 합니다"))
 	}
 	if err := errors.Join(errs...); err != nil {

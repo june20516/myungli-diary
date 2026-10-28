@@ -118,12 +118,12 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
-	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	pool, closeDB, err := openDatabase(ctx, cfg)
 	if err != nil {
 		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
 		return &loggedError{err: err}
 	}
-	defer pool.Close()
+	defer closeDB()
 
 	if direction == "status" {
 		return printStatus(ctx, pool, stdout, logger)
@@ -173,12 +173,12 @@ func runSeed(ctx context.Context, args []string, getenv func(string) string, _, 
 		logger.ErrorContext(ctx, "내장 시드 읽기 실패", "error", err)
 		return &loggedError{err: err}
 	}
-	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	pool, closeDB, err := openDatabase(ctx, cfg)
 	if err != nil {
 		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
 		return &loggedError{err: err}
 	}
-	defer pool.Close()
+	defer closeDB()
 
 	applied, err := content.Apply(ctx, pool, s)
 	if err != nil {
@@ -200,4 +200,24 @@ func runJob(ctx context.Context, args []string, getenv func(string) string, _, s
 		return runRetention(ctx, getenv, stderr)
 	}
 	return ErrNotImplemented
+}
+
+// openDatabase는 설정에 맞는 DB 연결 풀을 열고, 풀(과 Cloud SQL dialer)을 닫는 함수를 함께 돌려줍니다.
+// CLOUD_SQL_INSTANCE가 있으면 Cloud SQL Go connector와 IAM 인증으로, 없으면 DATABASE_URL로 바로 붙습니다(S121).
+func openDatabase(ctx context.Context, cfg config.Config) (*pgxpool.Pool, func(), error) {
+	if cfg.CloudSQLInstance == "" {
+		pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+		if err != nil {
+			return nil, nil, err
+		}
+		return pool, pool.Close, nil
+	}
+	pool, closeDialer, err := postgres.OpenCloudSQL(ctx, cfg.DatabaseURL, cfg.CloudSQLInstance)
+	if err != nil {
+		return nil, nil, err
+	}
+	return pool, func() {
+		pool.Close()
+		_ = closeDialer()
+	}, nil
 }

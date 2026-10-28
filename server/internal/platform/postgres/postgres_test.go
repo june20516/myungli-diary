@@ -2,7 +2,10 @@ package postgres_test
 
 import (
 	"context"
+	"net"
+	"net/url"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -68,5 +71,43 @@ func TestDBTest_ChangesInOneDatabaseAreInvisibleToAnother(t *testing.T) {
 	}
 	if exists {
 		t.Error("한 DB에서 만든 테이블이 다른 DB에서 보입니다")
+	}
+}
+
+// tcpDialer는 instance 이름을 기록하고 테스트 DB 주소로 TCP 연결을 이어 주는 Cloud SQL dialer 대역입니다.
+type tcpDialer struct {
+	addr      string
+	mu        sync.Mutex
+	instances []string
+}
+
+func (d *tcpDialer) Dial(ctx context.Context, instance string) (net.Conn, error) {
+	d.mu.Lock()
+	d.instances = append(d.instances, instance)
+	d.mu.Unlock()
+	return (&net.Dialer{}).DialContext(ctx, "tcp", d.addr)
+}
+
+// Cloud SQL 연결은 DATABASE_URL의 host가 아니라 dialer로 instance에 붙습니다.
+func TestOpenWithDialer_DialsInstance(t *testing.T) {
+	databaseURL := dbtest.NewURL(t)
+	parsed, err := url.Parse(databaseURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dialer := &tcpDialer{addr: parsed.Host}
+	// host를 닿지 않는 주소로 바꿔도 dialer로 붙어야 합니다.
+	parsed.Host = "127.0.0.1:1"
+
+	pool, err := postgres.OpenWithDialer(context.Background(), parsed.String(), "p:asia-northeast3:myungli-pg", dialer.Dial)
+	if err != nil {
+		t.Fatalf("OpenWithDialer() error = %v", err)
+	}
+	defer pool.Close()
+
+	dialer.mu.Lock()
+	defer dialer.mu.Unlock()
+	if len(dialer.instances) == 0 || dialer.instances[0] != "p:asia-northeast3:myungli-pg" {
+		t.Errorf("dialer instances = %v", dialer.instances)
 	}
 }
