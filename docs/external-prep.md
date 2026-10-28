@@ -50,6 +50,7 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 | E16 | 이용약관·개인정보 처리방침 ko·en·ja 원문(D80·D86 ⑥). 수집·보관 항목은 `docs/legal/data-inventory.md` | I4 | E14·E15 | - | 원문 `docs/legal/<언어>/` (초안은 지휘) | server | 준비 전 | - |
 | E17 | 출시 전 정책 검토: AdMob 보상형 광고 고지 문구(`evidence-sheet.lock.reward`), 스토어 심사 기준 | I4 | E13 | - | - | writing, design | 준비 전 | - |
 | E18 | 영어·일본어 원어민 검수 | W1 | - | - | - | writing | 준비 전 | - |
+| E17 | P9 배포 준비: Terraform bootstrap(staging, prod 각각), GitHub 저장소 변수와 environment, 비밀 값(`JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, staging `TEST_LOGIN_SECRET`, 뒤에 Apple, RevenueCat) (server S121) | P9, T1 | E4·E5, server PR #634 병합 | - | 공개: bootstrap 출력(WIF provider, deployer, planner) / 비밀: 위 Secret 값은 GCP Secret Manager에 직접 | server | 준비 전(#634 병합 뒤) | #636 |
 
 ### 끝난 것
 
