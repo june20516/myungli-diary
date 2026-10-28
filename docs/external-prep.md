@@ -23,8 +23,8 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 * **개인사업자는 Apple에 Individual로만 가입하고 판매자 이름이 실명입니다.** Google 개인 계정으로 판매하면 전체 주소와 전화번호가 공개됩니다(D92).
 * **Google Play 새 개인 계정은 출시 전 비공개 테스트 의무가 있습니다.** 테스터 12명 이상이 14일 연속 참여하고, 그 뒤 production 심사가 보통 7일입니다(E3).
 * **외부 서비스에 등록하는 Android 지문은 Play가 보관한 앱 서명 키의 것입니다**(로컬 upload key 아님). 카카오는 SHA-1을 Base64로 바꾼 키 해시를 씁니다(E8~E11).
-* Cloud Run 커스텀 도메인 연결은 Preview이고 서울 리전을 지원하지 않습니다. 연결 방식은 server가 정합니다(#540, E6).
-* LINE 로그인의 서비스 지역에 한국이 없어 Japan을 고릅니다(E10). Android 1개월 이용권의 상품 유형은 server가 정합니다(#540, E12).
+* **커스텀 도메인은 Firebase Hosting rewrite로 연결합니다(server S117, #540).** Cloud Run 자체 연결은 Preview이고 서울을 지원하지 않습니다. 호스트 하나(예: `api.<도메인>`, staging은 별도 이름)가 API, App Link, Apple 웹 복귀, 법적 문서를 모두 맡고 apex는 비워 둡니다. 도메인(E6)을 산 뒤 GCP 프로젝트에 Firebase Hosting을 켜고, 콘솔이 주는 DNS 레코드를 넣고, 정한 호스트 이름을 server에 알립니다(그 이름이 `APP_LINK_BASE`, `APPLE_WEB_REDIRECT_URI`, E7 복귀 주소에 들어감).
+* LINE 로그인의 서비스 지역에 한국이 없어 Japan을 고릅니다(E10). **광고 제거 1개월권은 두 스토어 같은 상품 id 하나**로 만들고(소문자, 숫자, 밑줄, 지운 id는 다시 못 씀), App Store는 Non-Renewing Subscription, Play는 일회성 제품, RevenueCat에서 Android 상품을 Consumable로 표시합니다(server S118, #540, E12).
 
 ## 대장
 
