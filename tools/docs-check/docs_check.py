@@ -57,6 +57,13 @@ IDEA_STATUS_PATTERN = re.compile(r"대기|보류|기각|채택 (D\d+)|검토 (\S
 UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 TABLE_SEPARATOR = re.compile(r"\|(\s*:?-+:?\s*\|)+")
 IDEA_DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}")
+REVIEW_ITEMS_PATH = "docs/review/items.md"
+REVIEW_COLUMNS = ("번호", "화면", "문제", "바라는 것", "심각도", "상태", "원요청", "작업")
+REVIEW_STATUSES = {"받음", "확인 중", "보냄", "끝남", "보류", "합침", "버림"}
+REVIEW_SEVERITIES = {"S1", "S2", "S3"}
+REVIEW_ID_PATTERN = re.compile(r"F-\d{3}")
+REVIEW_ISSUE_PATTERN = re.compile(r"#\d+")
+REVIEW_MERGE_PATTERN = re.compile(r"→ (F-\d{3})")
 
 # ja 근거 용어집(D70). 출처 종류별 등급과 신뢰도 규칙은 docs/research/ja-terms/README.md와 같습니다.
 JA_TERMS_DIR = "docs/research/ja-terms"
@@ -347,11 +354,11 @@ def _idea_cells(line: str) -> list[str]:
     return [cell.strip() for cell in UNESCAPED_PIPE.split(body)]
 
 
-def _idea_rows(text: str) -> list[list[str]] | None:
-    """머리가 IDEA_COLUMNS인 첫 표의 데이터 행. 표가 없으면 None."""
+def _table_rows(text: str, columns: tuple[str, ...]) -> list[list[str]] | None:
+    """머리가 columns이고 바로 아래가 구분선인 첫 표의 데이터 행. 표가 없으면 None."""
     lines = text.splitlines()
     for index, line in enumerate(lines):
-        if line.startswith("|") and tuple(_idea_cells(line)) == IDEA_COLUMNS:
+        if line.startswith("|") and tuple(_idea_cells(line)) == columns:
             separator = lines[index + 1].strip() if index + 1 < len(lines) else ""
             if not TABLE_SEPARATOR.fullmatch(separator):
                 continue
@@ -362,6 +369,11 @@ def _idea_rows(text: str) -> list[list[str]] | None:
                 rows.append(_idea_cells(row))
             return rows
     return None
+
+
+def _idea_rows(text: str) -> list[list[str]] | None:
+    """머리가 IDEA_COLUMNS인 첫 표의 데이터 행. 표가 없으면 None."""
+    return _table_rows(text, IDEA_COLUMNS)
 
 
 def _review_doc_exists(root: Path, relative: str) -> bool:
@@ -416,6 +428,50 @@ def check_ideas(root: Path) -> list[str]:
         f"{IDEAS_PATH} [{cells[0]}]: {reason}"
         for cells in rows
         for reason in _check_idea_row(cells, root, decision_ids, seen)
+    ]
+
+
+
+def _check_review_row(cells: list[str], known_ids: set[str], seen: set[str]) -> list[str]:
+    if len(cells) != len(REVIEW_COLUMNS):
+        return [f"칸 수가 {len(REVIEW_COLUMNS)}이 아닙니다 ({len(cells)})"]
+    item_id, _, _, _, severity, status, _, tasks = cells
+    problems = []
+    if not REVIEW_ID_PATTERN.fullmatch(item_id):
+        problems.append("번호 형식은 F-<세 자리>입니다")
+    elif item_id in seen:
+        problems.append("번호 중복")
+    seen.add(item_id)
+    if severity not in REVIEW_SEVERITIES:
+        problems.append(f"심각도 값이 아닙니다: {severity}")
+    if status not in REVIEW_STATUSES:
+        problems.append(f"상태 값이 아닙니다: {status}")
+    elif status in ("보냄", "끝남") and not REVIEW_ISSUE_PATTERN.search(tasks):
+        problems.append("보냄·끝남은 작업 칸에 Issue 번호가 있어야 합니다")
+    elif status == "합침":
+        match = REVIEW_MERGE_PATTERN.search(tasks)
+        if not match:
+            problems.append("합침은 작업 칸에 → F-<번호>를 적습니다")
+        elif match.group(1) == item_id:
+            problems.append("합침 대상이 자기 자신입니다")
+        elif match.group(1) not in known_ids:
+            problems.append(f"합침 대상이 대장에 없습니다: {match.group(1)}")
+    return problems
+
+
+def check_review_items(root: Path) -> list[str]:
+    path = root / REVIEW_ITEMS_PATH
+    if not path.exists():
+        return []
+    rows = _table_rows(path.read_text(encoding="utf-8"), REVIEW_COLUMNS)
+    if rows is None:
+        return [f"{REVIEW_ITEMS_PATH}: 피드백 항목 표가 없습니다 (머리: {' | '.join(REVIEW_COLUMNS)})"]
+    known_ids = {cells[0] for cells in rows if cells and REVIEW_ID_PATTERN.fullmatch(cells[0])}
+    seen: set[str] = set()
+    return [
+        f"{REVIEW_ITEMS_PATH} [{cells[0]}]: {reason}"
+        for cells in rows
+        for reason in _check_review_row(cells, known_ids, seen)
     ]
 
 
@@ -546,7 +602,7 @@ def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     problems = (
         check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_user_impact(root) + check_ia(root)
-        + check_ideas(root) + check_ja_terms(root)
+        + check_ideas(root) + check_review_items(root) + check_ja_terms(root)
     )
     if problems:
         print("\n".join(problems))

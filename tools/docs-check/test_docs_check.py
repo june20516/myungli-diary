@@ -585,6 +585,94 @@ class JaTermTests(RepoTestCase):
         self.assertEqual(len(docs_check.check_ja_terms(self.root)), 1)
 
 
+REVIEW_HEADER = (
+    "| 번호 | 화면 | 문제 | 바라는 것 | 심각도 | 상태 | 원요청 | 작업 |\n"
+    "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+)
+REVIEW_SOURCE = "비공개 기록 `review/inbox/2026-11-02.md` #1"
+
+
+def review_row(
+    item_id: str = "F-001", screen: str = "today", problem: str = "잘림", want: str = "",
+    severity: str = "S2", status: str = "받음", source: str = REVIEW_SOURCE, tasks: str = "",
+) -> str:
+    return f"| {item_id} | {screen} | {problem} | {want} | {severity} | {status} | {source} | {tasks} |"
+
+
+class ReviewItemTests(RepoTestCase):
+    def write_items(self, *rows: str) -> None:
+        write(self.root, "docs/review/items.md", "# 대장\n\n" + REVIEW_HEADER + "".join(f"{row}\n" for row in rows))
+
+    def test_missing_file_is_ok(self) -> None:
+        self.assertEqual(docs_check.check_review_items(self.root), [])
+
+    def test_header_only_is_ok(self) -> None:
+        self.write_items()
+        self.assertEqual(docs_check.check_review_items(self.root), [])
+
+    def test_valid_rows_pass(self) -> None:
+        self.write_items(
+            review_row(),
+            review_row("F-002", status="보냄", tasks="#701, #702"),
+            review_row("F-003", status="합침", tasks="→ F-004"),
+            review_row("F-004"),
+        )
+        self.assertEqual(docs_check.check_review_items(self.root), [])
+
+    def test_bad_id_and_duplicate(self) -> None:
+        self.write_items(review_row("F-1"), review_row("F-002"), review_row("F-002"))
+        self.assertEqual(docs_check.check_review_items(self.root), [
+            "docs/review/items.md [F-1]: 번호 형식은 F-<세 자리>입니다",
+            "docs/review/items.md [F-002]: 번호 중복",
+        ])
+
+    def test_bad_status_and_severity(self) -> None:
+        self.write_items(review_row(status="진행"), review_row("F-002", severity="높음"))
+        self.assertEqual(docs_check.check_review_items(self.root), [
+            "docs/review/items.md [F-001]: 상태 값이 아닙니다: 진행",
+            "docs/review/items.md [F-002]: 심각도 값이 아닙니다: 높음",
+        ])
+
+    def test_sent_or_done_needs_issue(self) -> None:
+        self.write_items(review_row(status="보냄", tasks="Issue 열 예정"), review_row("F-002", status="끝남"))
+        self.assertEqual(docs_check.check_review_items(self.root), [
+            "docs/review/items.md [F-001]: 보냄·끝남은 작업 칸에 Issue 번호가 있어야 합니다",
+            "docs/review/items.md [F-002]: 보냄·끝남은 작업 칸에 Issue 번호가 있어야 합니다",
+        ])
+
+    def test_merged_target(self) -> None:
+        self.write_items(
+            review_row(status="합침", tasks="→ F-009"),
+            review_row("F-002", status="합침", tasks="→ F-002"),
+            review_row("F-003", status="합침", tasks="F-001"),
+        )
+        self.assertEqual(docs_check.check_review_items(self.root), [
+            "docs/review/items.md [F-001]: 합침 대상이 대장에 없습니다: F-009",
+            "docs/review/items.md [F-002]: 합침 대상이 자기 자신입니다",
+            "docs/review/items.md [F-003]: 합침은 작업 칸에 → F-<번호>를 적습니다",
+        ])
+
+    def test_escaped_pipe_in_problem(self) -> None:
+        self.write_items(review_row(problem="a \\| b"))
+        self.assertEqual(docs_check.check_review_items(self.root), [])
+
+    def test_wrong_header_is_reported(self) -> None:
+        write(self.root, "docs/review/items.md", "| 번호 | 화면 |\n| --- | --- |\n")
+        problems = docs_check.check_review_items(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("피드백 항목 표가 없습니다", problems[0])
+
+    def test_wrong_cell_count(self) -> None:
+        self.write_items("| F-001 | today | 잘림 |")
+        self.assertEqual(
+            docs_check.check_review_items(self.root), ["docs/review/items.md [F-001]: 칸 수가 8이 아닙니다 (3)"]
+        )
+
+    def test_main_reports_review_problem(self) -> None:
+        self.write_items(review_row(status="진행"))
+        self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
+
+
 class MainTests(RepoTestCase):
     def test_main_returns_zero_on_clean_repo(self) -> None:
         write(self.root, "a.md", "# a")
