@@ -219,6 +219,29 @@ func TestRevocations_KakaoRelinkedSkipsUnlink(t *testing.T) {
 	assert.Zero(t, f.revocationCount(t))
 }
 
+// job retention이 쓰이지 않은 Apple 웹 로그인에서 넘긴 대기 행에는 subject가 있습니다(S120). 재시도 전에 같은 사용자가
+// Apple로 가입해 연결이 생겼으면, Apple revoke는 앱 승인 전체를 끊으므로 부르지 않고 지웁니다(S19).
+func TestRevocations_AppleRelinkedSkipsRevoke(t *testing.T) {
+	f := newFixture(t)
+	revocations := f.newRevocations(t)
+	id := f.queueApple(t)
+	_, err := f.pool.Exec(f.ctx, `UPDATE provider_revocations SET subject = 'apple-1' WHERE id = $1`, id)
+	require.NoError(t, err)
+	var accountID uuid.UUID
+	require.NoError(t, f.pool.QueryRow(f.ctx,
+		`INSERT INTO accounts (id, status, last_active_at) VALUES (gen_random_uuid(), 'active', now()) RETURNING id`).Scan(&accountID))
+	_, err = f.pool.Exec(f.ctx, `INSERT INTO auth_identities (id, account_id, provider, subject) VALUES ($1, $2, 'apple', 'apple-1')`,
+		uuid.Must(uuid.NewV7()), accountID)
+	require.NoError(t, err)
+
+	attempted, err := revocations.RetryDue(f.ctx)
+
+	require.NoError(t, err)
+	assert.Equal(t, 1, attempted)
+	assert.Empty(t, f.fake.AppleRevokeRequests())
+	assert.Zero(t, f.revocationCount(t))
+}
+
 func TestRevocations_RetryDueSkipsLocked(t *testing.T) {
 	f := newFixture(t)
 	revocations := f.newRevocations(t)

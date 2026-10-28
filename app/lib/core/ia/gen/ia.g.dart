@@ -102,6 +102,7 @@ abstract final class SlotIds {
   static const String notifyAskCtaAllow = 'notify-ask.cta.allow';
   static const String notifyAskCtaSkip = 'notify-ask.cta.skip';
   static const String systemPushMorningBody = 'system-push.morning.body';
+  static const String systemPushChannelMorning = 'system-push.channel.morning';
   static const String systemAppleReturnPageTitle =
       'system-apple-return.page.title';
   static const String systemAppleReturnPageBody =
