@@ -228,11 +228,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
         before: before,
         after: after,
       );
-      // 첫 초점·기본 동작이 취소인 변형입니다(A62, dialog 명세의 destructive 규칙).
-      // confirm 변형에 첫 초점 취소가 생기면 바꿉니다(design #354).
+      // 파괴적이지 않은 무거운 변경이라 일반 확인 창입니다(V41).
       final confirmed = await showMyungliDialog(
         context,
-        variant: DialogVariant.destructive,
+        variant: DialogVariant.confirm,
         title: l10n.profileEditRecalcConfirmTitle,
         body: l10n.profileEditRecalcConfirmBody(labels.before, labels.after),
         confirm: l10n.profileEditRecalcConfirmSave,

@@ -41,8 +41,9 @@ abstract final class MyungliDialog {
 
 /// 확인 창을 열고 확정이면 true, 취소·바깥 누르기·뒤로 가기면 false를 돌려줍니다.
 ///
-/// destructive는 처음 초점이 취소에 있고 바깥을 눌러도 닫히지 않으며, 확정 버튼을 누르면
-/// 햅틱 medium이 울립니다. [identifier]는 창이 채우는 IA 슬롯 id입니다.
+/// 버튼 두 개짜리 창에는 처음 초점을 받는 버튼이 없습니다(V41). destructive는 바깥을 눌러도
+/// 닫히지 않고(뒤로 가기는 취소), 확정 버튼을 누르면 햅틱 medium이 울립니다.
+/// [identifier]는 창이 채우는 IA 슬롯 id입니다.
 /// 확인 버튼 하나짜리 안내는 [showMyungliNotice]를 씁니다.
 Future<bool> showMyungliDialog(
   BuildContext context, {
@@ -344,13 +345,13 @@ class DialogCard extends StatelessWidget {
                     FeedbackTextAction(
                       label: cancel,
                       style: cancelStyle,
-                      autofocus: destructive,
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
                   FeedbackTextAction(
                     label: confirm,
                     style: confirmStyle,
-                    autofocus: !destructive,
+                    // 처음 초점은 notice의 확인 버튼만 받습니다(V41).
+                    autofocus: variant == DialogVariant.notice,
                     onPressed: () {
                       if (destructive) unawaited(Haptics.medium());
                       Navigator.of(context).pop(true);
