@@ -157,6 +157,7 @@
 - {slot: ui.depth.explain, key: depthExplain, text: "読み解き"}
 - {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "{branch}の刻、{start}〜{end}に生まれました。"}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "通知を受け取る"}
+- {slot: system-push.channel.morning, key: systemPushChannelMorning, text: "今日の読み解きの通知"}
 
 # 공용 문구(slots/ui/common.yaml, #143)
 - {slot: ui.error.client, key: errorOffline, text: "インターネットに接続されていません。接続を確認してください。"}
@@ -358,6 +359,8 @@
 - {slot: ui.account-merge.choice, key: accountChoiceOther, text: "取り込むアカウント"}
 - {slot: ui.account-merge.saju, key: accountChoiceSaju, text: "{calendar} {date} {time}"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuNoTime, text: "{calendar} {date} 時刻不明"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuLeap, text: "{calendar} 閏月 {date} {time}"}
+- {slot: ui.account-merge.saju, key: accountChoiceSajuNoTimeLeap, text: "{calendar} 閏月 {date} 時刻不明"}
 - {slot: ui.account-merge.saju, key: accountChoiceSajuEmpty, text: "命式の情報なし"}
 - {slot: ui.account-merge.error, key: accountMergeError, text: "アカウントを統合できませんでした。2つのアカウントはそのままです。もう一度お試しください。"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryHead, text: "取り込む記録"}

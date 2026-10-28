@@ -59,6 +59,7 @@
 | notify-ask.cta.allow | ui | notify-ask.cta.allow |
 | notify-ask.cta.skip | ui | notify-ask.cta.skip |
 | system-push.morning.body | content | daily.fortune.head |
+| system-push.channel.morning | ui | system-push.channel.morning |
 | system-apple-return.page.title | content | system.apple_return |
 | system-apple-return.page.body | content | system.apple_return |
 | system-apple-return.page.open | content | system.apple_return |

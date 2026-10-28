@@ -791,6 +791,10 @@
   "@sharePreviewRatioLabelSquare": {
     "description": "share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)"
   },
+  "systemPushChannelMorning": "오늘 풀이 알림",
+  "@systemPushChannelMorning": {
+    "description": "system-push.channel.morning: Android 알림 채널 이름(기기 설정 > 앱 > 알림의 채널 목록, 채널 id `morning`). 사용자가 아침 알림만 끌 때 읽는 짧은 이름이고 앱 언어를 따름. iOS에는 채널이 없어 보이지 않음"
+  },
   "tagDiaryBarTitle": "{tag} 태그",
   "@tagDiaryBarTitle": {
     "description": "tag-diary.bar.title: app-bar 제목. 고른 태그 이름을 넣는 틀입니다(매개변수 tag)",
@@ -964,6 +968,33 @@
   },
   "accountChoiceSajuNoTime": "{calendar} {date} 시각 모름",
   "@accountChoiceSajuNoTime": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "calendar": {
+        "type": "String"
+      }
+    }
+  },
+  "accountChoiceSajuLeap": "{calendar} 윤달 {date} {time}",
+  "@accountChoiceSajuLeap": {
+    "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "calendar": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "accountChoiceSajuNoTimeLeap": "{calendar} 윤달 {date} 시각 모름",
+  "@accountChoiceSajuNoTimeLeap": {
     "description": "계정 합치기 화면(account-merge) account-choice: 카드의 사주 요약 줄(design #441)",
     "placeholders": {
       "date": {

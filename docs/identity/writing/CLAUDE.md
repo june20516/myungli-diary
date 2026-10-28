@@ -49,6 +49,7 @@
 ## 현재 상태 (2026-10-28, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **알림 채널 이름과 윤달 사주 줄**(#614·#587, drift #574, 라운드 R22 `artifacts/2026-10-28-round-R22.md`, W46): IA 새 슬롯 `system-push.channel.morning` "오늘 풀이 알림", 계정 합치기 사주 줄 윤달 키 `accountChoiceSajuLeap`·`accountChoiceSajuNoTimeLeap`(design V48), design 3.2.0 상한 `profile-edit.recalc.notice`.
 * **업데이트 사유별 문구와 drift #574**(#355, 라운드 R21 `artifacts/2026-10-28-round-R21.md`, W45): `force-update.notice.body`에 동의 문서 사유 키 `forceUpdateNoticeBodyConsent`("새 약관을 확인하려면 업데이트가 필요해요.")를 더했고 app이 사유로 고릅니다(슬롯 `select`). 제목과 기존 사유 문구는 그대로입니다. design 3.1.0 상한을 광고 제거 버튼 둘과 기간 고지에 넣었습니다(#564 후속 끝).
 * **D93 대시·가운뎃점 금지와 광고 제거 새 슬롯**(#546·#548, drift #551, 라운드 R20 `artifacts/2026-10-27-round-R20.md`, W44, 검사기 v0.11.0): 새 규칙 `style.S9`가 모든 원고에서 U+2014, U+2013, U+00B7을 막습니다(ja `・`는 대상 아님). ARB 16개 키와 ko 콘텐츠 2개를 쉼표, "와/과", en " to "로 고쳤습니다. IA 새 슬롯 `ad-free.buy.cta`("구매하기"), `ad-free.offer.period`("1개월, 자동 결제 없음"), `adFreeOfferPrice`는 `{price}`만. 한 줄에 값을 구분 글자로 잇지 않고 레이아웃으로 나눠 `purchaseMetaSeparator`를 지웠습니다. 두 새 슬롯 상한과 구매 줄 배치는 design에 요청했습니다(#564).
 * **맺음 검사 없앰**(W43, 검사기 v0.10.0): `style.S3`·`style.S8`과 슬롯 `register`를 지우고, 맺음 현황 명령 `mlw endings`(화면별 해요체·합니다체 분포, 막지 않음)를 더했습니다. 맺음은 쓸 때 문장마다 고릅니다. 라운드 R18(`artifacts/2026-10-23-round-R18.md`): 계산 기준 화면의 규칙 문장과 계정 삭제 확인의 고지 문장을 합니다체로 바꿨습니다(키 이름 그대로). 라운드 R19(`artifacts/2026-10-23-round-R19.md`): 합치기·일기 삭제 확인, 합치기 설명의 지워지는 고지, 온보딩·출생지·프로필 수정의 계산 안내 문장을 합니다체로 바꿨고 엔진 안내는 그대로 뒀습니다.
@@ -82,7 +83,7 @@
 * **IA v3·D70~D72**(PR #185, W24): IA v3 ui 슬롯 3개, 출생 시간대별 경도 키, glossary ja 근거 표기(91개, 閑神·極身弱·極身強은 비움), D72 규칙 `style.S7`.
 * **공용 ui 문구·ICU plural**(PR #155, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22): 공용 ui 슬롯(`slots/ui/common.yaml`), glossary 지지·날의 성격·방향 이름(`content/<lang>/glossary.yaml`, ARB로도 나감), ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`). `writing.yml`은 ci-gate만 부릅니다(#148).
 * **IA 슬롯 정렬**(spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 151개입니다(#548로 구매 버튼과 기간 고지 더함, IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298, D82 13개, D85·D86·D88 10개 포함, D79로 기본 깊이 설명, D88로 구매 복원 버튼, #511로 합치지 않기 버튼 빠짐).
+  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 152개입니다(#614로 알림 채널 이름 더함, #548로 구매 버튼과 기간 고지 더함, IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298, D82 13개, D85·D86·D88 10개 포함, D79로 기본 깊이 설명, D88로 구매 복원 버튼, #511로 합치지 않기 버튼 빠짐).
   * 슬롯 명세 필드 `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
   * 호칭·조사 규칙: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
@@ -104,13 +105,12 @@
     * 검사기 코드를 고쳤을 때: `docs/identity/writing/tools`에서 `uv run pytest -q tests/test_<모듈>.py`, PR 전에 `uv run pytest -q`(전체 약 15초)와 `uv run ruff check .`·`uv run mypy src`
     * 계약(IA·core JSON·proto·design `lengths.md`)이 바뀌었을 때: `uv run pytest -q -m contract`와 위 원고 검사. CI `drift`·`gate`도 이 범위만 돕니다(`writing.yml`)
     * 테스트는 한 실행 안에서 같은 원고 읽기와 묶음 검사 결과를 다시 씁니다(`tests/session_cache.py`, 키는 파일 내용 해시). 공유 원고를 고치는 테스트는 `tmp_path` 사본을 쓰고, 고치면 세션 끝 확인이 실패합니다
-* 결정은 W1~W45입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
+* 결정은 W1~W46입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
 2. **#331**(app 임시 문구 28개, 사주 사전 범주 천간·십성·12운성·신살, 사주 맥락 근거 시트 제목). 원고는 라운드로 고릅니다. 십성 라벨 자리(#353)는 design 몫이고 이름은 이 사전 범주를 씁니다.
-   - **#587**(계정 합치기 사주 줄의 윤달 틀): design이 `account-choice` 윤달 모양을 정하면 `accountChoiceSaju`·`accountChoiceSajuNoTime` 윤달 틀을 줍니다.
 3. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
 4. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
 5. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
