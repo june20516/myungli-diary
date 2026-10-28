@@ -658,3 +658,21 @@ func TestSyncer_Restore_ProviderError_Returned(t *testing.T) {
 
 	assert.ErrorIs(t, err, billing.ErrProviderUnavailable)
 }
+
+// 보관 기간(S113)이 지나 job retention이 지운 구매는 스토어 목록에 다시 와도 장부에 다시 적지 않습니다.
+// 다시 적으면 지운 결제 기록이 되살아나고, 지금 구간 끝에 대가 없는 구간이 이어 붙습니다.
+func TestSyncer_Sync_SkipsPurchasesPastRecordRetention(t *testing.T) {
+	f := newSyncFixture(t)
+	accountID := newAccount(t, f.pool)
+	old := f.clk.Now().AddDate(-billing.RecordYears, 0, -1)
+	f.source.set(accountID, owned("p-old", old), owned("p1", oct1))
+
+	require.NoError(t, f.syncer.Sync(context.Background(), accountID))
+
+	assert.Equal(t, 1, ledgerCount(t, f.pool), "보관 기간이 지난 구매는 적지 않습니다")
+	grants := allGrants(t, f.pool)
+	for _, g := range grants {
+		assert.NotEqual(t, "p-old", g.SourceRef)
+	}
+	assertPeriod(t, grants, "p1", oct1, nov1, nil)
+}
