@@ -26,7 +26,9 @@ import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/profile_response.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
+import 'package:myungli_diary/core/platform/auth_config.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
@@ -363,6 +365,7 @@ final class _Harness {
 Future<_Harness> _harness({
   _FakeApi? api,
   FakeKakaoAuth? kakao,
+  KakaoAuth? kakaoAdapter,
   FakeAppleWebAuth? appleWeb,
   FakeAppleNativeAuth? appleNative,
   SecureStore? secureStore,
@@ -389,7 +392,7 @@ Future<_Harness> _harness({
       restClientProvider.overrideWithValue(server),
       secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
       crashReporterProvider.overrideWithValue(crashReporter),
-      kakaoAuthProvider.overrideWithValue(kakaoAuth),
+      kakaoAuthProvider.overrideWithValue(kakaoAdapter ?? kakaoAuth),
       googleAuthProvider.overrideWithValue(googleAuth),
       appleNativeAuthProvider.overrideWithValue(native),
       appleWebAuthProvider.overrideWithValue(web),
@@ -499,6 +502,20 @@ void main() {
       final reported = h.crashReporter.errors.single;
       expect(reported.errorType, 'StateError');
       expect(reported.code, isNull);
+      expect(h.entry.refreshes, 0);
+    });
+
+    test('설정이 빈 제공자(ProviderNotConfigured)는 LoginFailed(UnexpectedError)이고 '
+        '오류 요약을 보고합니다(A81)', () async {
+      final h = await _harness(
+        kakaoAdapter: const KakaoSdkAuth(config: AuthConfig.fromEnvironment),
+      );
+
+      final outcome = await h.controller.signIn(SocialProvider.kakao);
+
+      expect((outcome as LoginFailed).error, isA<UnexpectedError>());
+      expect(h.crashReporter.errors.single.errorType, 'ProviderNotConfigured');
+      expect(h.api.kakaoRequests, isEmpty);
       expect(h.entry.refreshes, 0);
     });
 

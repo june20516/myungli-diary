@@ -108,7 +108,7 @@ LINE·Google 제공자 허가는 app이 취소하지 않습니다(D95, §5.6).
   * `KAKAO_NATIVE_APP_KEY`
   * `GOOGLE_REVERSED_CLIENT_ID`: `GOOGLE_IOS_CLIENT_ID`의 `.apps.googleusercontent.com` 앞부분을 `com.googleusercontent.apps.` 뒤에 붙인 값. 비면 `google-unconfigured`
   * Info.plist URL scheme은 `kakao$(KAKAO_NATIVE_APP_KEY)`, `line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)`, `$(GOOGLE_REVERSED_CLIENT_ID)`입니다.
-* **동기화 검사:** `test/contract/native_auth_config_test.dart`(`@Tags(['contract'])`)가 생성한 xcconfig가 JSON과 같은지, manifest와 Info.plist에 자리가 있는지 확인합니다.
+* **동기화 검사:** `test/tool/native_auth_config_test.dart`가(app 안 파일만 읽어 `contract` 태그는 붙이지 않음, D81) 생성한 xcconfig가 JSON과 같은지, manifest와 Info.plist에 자리가 있는지 확인합니다.
 
 **네이티브 설정 추가**
 * Android `AndroidManifest.xml`:

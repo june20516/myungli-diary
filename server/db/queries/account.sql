@@ -80,6 +80,10 @@ DELETE FROM diary_days WHERE account_id = @account_id;
 -- name: DeleteSchedulesByAccount :exec
 DELETE FROM schedules WHERE account_id = @account_id;
 
+-- DeleteDevicesByAccount는 알림 기기를 비활성 행까지 지웁니다(S119).
+-- name: DeleteDevicesByAccount :exec
+DELETE FROM devices WHERE account_id = @account_id;
+
 -- name: DeleteIdempotencyKeysByAccount :exec
 DELETE FROM idempotency_keys WHERE account_id = @account_id;
 

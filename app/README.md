@@ -28,10 +28,11 @@ VS Code에서 `.vscode/launch.json`의 구성을 고릅니다.
 | `http` | `--dart-define=API_MODE=http --dart-define=API_BASE_URL=http://localhost:8080` |
 
 터미널에서는 다음과 같습니다. `API_MODE`를 생략하면 `http`입니다. release 빌드에서는 fake 모드를 쓸 수 없습니다.
+실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. 값이 빈 제공자는 버튼을 눌러도 로그인하지 않고 실패로 알립니다(`ProviderNotConfigured`).
 
 ```
-flutter run --dart-define=API_MODE=fake
-flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
+flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
+flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 ```
 
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
@@ -108,6 +109,7 @@ flutter run --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 | `../docs/identity/design/tokens/` | `dart run tool/gen_tokens.dart` | `lib/design/tokens/gen/` |
 | `lib/core/l10n/arb/*.arb` | `flutter gen-l10n` | `lib/core/l10n/gen/` |
 | `../server/api/openapi.yaml` | `tool/gen_api.sh` (Docker) | `lib/core/api/gen/`, route 표. 끝에 `build_runner`를 돌립니다 |
+| `config/auth.json` | `dart run tool/gen_native_config.dart` | `ios/Flutter/Auth.xcconfig` (카카오 키, Google reversed client id). CI는 `--check`. Android는 `build.gradle.kts`가 같은 파일을 바로 읽습니다 |
 | drift·json 직렬화 | `dart run build_runner build --delete-conflicting-outputs` | `*.g.dart` |
 
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
@@ -195,7 +197,7 @@ tool/patrol_local.sh patrol_test/diary_test.dart  # 흐름 하나
 ```
 
 * 에뮬레이터가 필요합니다. 연결된 에뮬레이터가 하나면 그것을 쓰고, 여럿이면 `PATROL_DEVICE`, 하나도 없으면 `PATROL_AVD`(띄울 AVD 이름)를 줍니다. CI(`e2e-android`)는 API 34 에뮬레이터에서 `patrol test`를 직접 돌립니다.
-* `tool/patrol_local.sh`는 `patrol test -d <기기> --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`를 감싸 멈춤을 막습니다.
+* `tool/patrol_local.sh`는 `patrol test -d <기기> --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`를 감싸 멈춤을 막습니다.
   * 기기를 늘 지정하고 입력을 닫습니다. 기기가 여러 대일 때 patrol이 고르라고 묻는 입력에서 멈추지 않게 하기 위해서입니다.
   * 실행 중 기기 상태를 10초마다 봅니다. 기기가 `PATROL_OFFLINE_GRACE`(기본 60초)보다 오래 빠지거나 `PATROL_RUN_TIMEOUT`(기본 1800초)을 넘기면 끝냅니다.
   * 테스트가 하나도 돌지 못한 기기 문제(설치 단계 `device offline` 등)는 기기가 돌아오면 `PATROL_RETRIES`(기본 1)번 다시 돌립니다. 테스트 실패는 다시 돌리지 않습니다.

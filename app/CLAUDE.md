@@ -53,6 +53,13 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-10-28, app 세션 갱신)
+* **계획 7 A2(실제 연동) 코드 몫**, 브랜치 `app/real-login-a2`. 결정 A92.
+  * Task 1: `config/auth.json`(카카오 네이티브 앱 키만 채움, E9)과 `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`. 실행·빌드·Patrol·CI에 `--dart-define-from-file=config/auth.json`.
+  * Task 2: SDK 다섯(버전 고정), Android `manifestPlaceholders`(`kakaoScheme`·`appLinkHost`, 비면 자리 값)와 manifest 세 항목, iOS `Auth.xcconfig`(`tool/gen_native_config.dart`, CI `--check`)·URL Types·조회 scheme·entitlements. 동기화 검사 `test/tool/native_auth_config_test.dart`.
+  * LINE 2.7.2 호환(A92): Android는 `android/build.gradle.kts`에서 이 라이브러리에만 `kotlin-android`와 앱 `compileSdk`, iOS는 `Package.resolved`에서 LINE SDK 5.16.0 고정.
+  * Task 4~6: `KakaoSdkAuth`·`LineSdkAuth`·`GoogleSdkAuth`(프로세스 nonce)·`SignInWithAppleNativeAuth`·`WebAuthAppleWebAuth`, SDK 호출은 경계 interface 뒤.
+  * Task 7: `realPlatformOverrides(http)`에 다섯 adapter, `initializeAuthSdks`(`lib/app/auth_sdk_setup.dart`, 실패는 요약 보고만).
+  * 확인: 디버그 APK, iOS(서명 없음) 빌드, Patrol `login_test` 통과.
 * **drift #600 따라잡기(design 3.2.0 PR #599, writing W45 PR #598)**, 브랜치 `app/drift-600`. 결정 A90·A91.
   * `notice-banner` `error`(`cloud-warning`, V50)로 `profile-edit:error` 배너를 바꾸고, 다시 계산 안내는 `SettingsGroup.note`(`groupNote`, 두 줄)입니다.
   * toast는 부른 화면의 `ToastAnchor`(아래 고정 버튼) → 하단 틀 → 안전 영역(키보드) 위 16px이고, 버튼을 `LayerLink`로 따라갑니다(V51, A90).
@@ -137,10 +144,9 @@
 
 ## 다음 할 일
 1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
-   * **Task 1 나머지:** `config/auth.json`과 `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`, README·`patrol_local.sh`·`app.yml`의 `--dart-define-from-file`.
-   * **Task 2:** 패키지, 네이티브 설정, `tool/gen_native_config.dart`, CI `--check`.
-   * **Task 4·5·6:** 실제 adapter(카카오, LINE, Google, Apple iOS·Android 웹).
-   * **Task 7 나머지:** `bootstrap.dart` 부팅 끼우기(`realPlatformOverrides(ApiMode.http)`, `KakaoSdk.init`·`LineSDK.setup`), 부팅 테스트, `ProviderNotConfigured`가 `LoginFailed`가 되는 controller 테스트.
+   * Task 1·2·4~7 코드는 `app/real-login-a2`에서 끝났습니다(위 현재 상태).
+   * **로컬 실제 로그인(카카오):** 카카오 콘솔에 Android 플랫폼(패키지 `app.myungli.diary`, 이 개발 Mac의 debug 키 해시)을 등록하면, 로컬 server(`KAKAO_APP_KEY`)와 에뮬레이터 http 모드로 welcome → 로그인 → 동의 → 온보딩 → 프로필 저장 → 로그인 뒤 화면을 실제 REST로 확인합니다. 미리보기, 시진 확인, 음력 변환은 App Check라 로컬 server에서 503입니다(Firebase E5 뒤).
+   * **#603 아침 알림 형식:** app 답을 남겼습니다(교체 키 `tag`·`apns-collapse-id` 제안). 실제 FCM adapter에서 채널 `morning` 생성과 누름 처리(`data.kind == morning` → `today`)를 합니다. 채널 이름 슬롯은 #614(지휘)로 요청했습니다.
    * **A2 마무리:** `flutter test test/app test/features/auth`, 전체 검사에 `dart run tool/gen_native_config.dart --check`와 `flutter build apk --debug --dart-define-from-file=config/auth.json`, `tool/patrol_local.sh patrol_test/login_test.dart` 회귀 0. Android App Link(#311 ③ release 지문은 Play 계정 뒤), `local` server REST 연동. 외부 준비물은 `docs/external-prep.md`. Google nonce 재사용은 #555 답으로 허용(같은 프로세스 nonce)입니다.
    * **실기기 확인 목록(spec §12, 외부 준비물 뒤):** 카카오톡 로그인·계정 로그인·각 취소, LINE 앱·웹 로그인(LINE 앱 없음)·취소, Google 계정 선택·취소와 두 번째 로그인에서 계정 선택이 다시 뜨는지, iOS Apple 로그인·취소, Android Auth Tab이 server 303을 받는지·안내 페이지 intent 복귀·앱이 내려간 뒤 복귀, `assetlinks.json` 검증(`adb shell pm get-app-links app.myungli.diary`), 붙이기·떼기·합치기(LINE·Google 허가는 제공자 쪽 연결 앱 목록에 남는 것이 맞음, D95). Auth Tab이 303을 받지 못하면 안내 페이지 intent 경로를 기본으로 할지 다시 판단하고 server와 문구는 Issue로 올립니다.
    * **수익 쪽(spec §14, A2):** RevenueCat adapter에서 `Purchases.sync()`를 `syncPurchases`로 구현하고 iOS sandbox에서 Apple ID 로그인 창이 뜨는지 확인(뜨면 지휘에 알림, #493), `Purchases.products()` 시간 한계(구매 내역 `loading` 길이도 같은 기준), 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS` 배선(상품 id는 저장소에 두지 않음, S89·D74), 보상형 광고·공유 실제 adapter.

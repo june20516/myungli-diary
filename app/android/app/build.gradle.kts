@@ -1,8 +1,17 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// 로그인 제공자 공개 식별자(결정 A81). Dart(--dart-define-from-file)와 같은 파일을 읽습니다.
+// 값이 비면 어떤 링크와도 맞지 않는 자리 값을 넣어 manifest가 늘 유효하게 합니다.
+@Suppress("UNCHECKED_CAST")
+val authConfig = JsonSlurper().parse(file("../../config/auth.json")) as Map<String, String>
+
+fun authValue(key: String): String = authConfig[key]?.trim().orEmpty()
 
 android {
     namespace = "app.myungli.diary"
@@ -29,6 +38,11 @@ android {
         // Patrol E2E: instrumentation 실행기와 테스트마다 앱 데이터 초기화
         testInstrumentationRunner = "pl.leancode.patrol.PatrolJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
+        val kakaoKey = authValue("KAKAO_NATIVE_APP_KEY")
+        manifestPlaceholders["kakaoScheme"] =
+            if (kakaoKey.isEmpty()) "kakao-unconfigured" else "kakao$kakaoKey"
+        manifestPlaceholders["appLinkHost"] =
+            authValue("APP_LINK_HOST").ifEmpty { "unconfigured.invalid" }
     }
 
     testOptions {
