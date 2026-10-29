@@ -17,6 +17,11 @@ SKIPPED_DIRS = {".git", ".suberpowers", ".venv", "node_modules"}
 LINK_PATTERN = re.compile(r'\]\(([^)\s]+?)(?:\s+"[^"]*")?\)')
 EXTERNAL_PATTERN = re.compile(r"[a-z]+://")
 DECISION_ROW_PATTERN = re.compile(r"^\| ([DCSAWV]\d+) \|", re.MULTILINE)
+# 대장 파일과 그 행 머리 id: 외부 준비물(E, D91 ②), 로컬 값(K, D98).
+LEDGER_ID_PATTERNS = {
+    "docs/external-prep.md": re.compile(r"^\| (E\d+) \|", re.MULTILINE),
+    "docs/local-values.md": re.compile(r"^\| (K\d+) \|", re.MULTILINE),
+}
 # 단위 결정(C·S·A·W·V)의 행 머리: 번호와 날짜. 이 날짜부터 쓴 행은 근거 칸에 사용자 영향 표시가 있어야 합니다(D87).
 UNIT_DECISION_ROW_PATTERN = re.compile(r"^\| ([CSAWV]\d+) \| (\d{4}-\d{2}-\d{2}) \|.*$", re.MULTILINE)
 USER_IMPACT_SINCE = "2026-10-24"
@@ -165,6 +170,20 @@ def check_decision_ids(root: Path) -> list[str]:
             if decision_id in seen:
                 problems.append(f"{log.relative_to(root)}: {decision_id} 중복")
             seen.add(decision_id)
+    return problems
+
+
+def check_ledger_ids(root: Path) -> list[str]:
+    problems = []
+    for relative, pattern in LEDGER_ID_PATTERNS.items():
+        ledger = root / relative
+        if not ledger.is_file():
+            continue
+        seen: set[str] = set()
+        for ledger_id in pattern.findall(ledger.read_text(encoding="utf-8")):
+            if ledger_id in seen:
+                problems.append(f"{relative}: {ledger_id} 중복")
+            seen.add(ledger_id)
     return problems
 
 
@@ -609,7 +628,7 @@ def check_ja_terms(root: Path) -> list[str]:
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     problems = (
-        check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_user_impact(root) + check_ia(root)
+        check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_ledger_ids(root) + check_user_impact(root) + check_ia(root)
         + check_ideas(root) + check_review_items(root) + check_ja_terms(root)
     )
     if problems:
