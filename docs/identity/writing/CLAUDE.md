@@ -68,7 +68,7 @@
 * **규칙 정합성 점검·남은 ui 원고**(PR #297, D78, #283·#268·#260·#275): W20 개정(D77 예외), 원어민 검수는 보강 단계(D70), 가이드 질문 W31 ③ 기준을 voice-tone에, 사용 계약 행 정리. 오류 문구 `errorCityNotFound`·`errorTimezoneInvalid`, 윤달 초하루 표지 `dayCellLeapNewMoon`(en `L{month}.1`은 칸 폭 때문에 한 글자 표지), 일기 보기 아이콘 라벨과 태그 칩 틀·길흉 낱말.
 * **jev 판정 평가**(PR #263, `artifacts/2026-10-20-jev-evaluation.md`, W32): `mlw judge` 본 판정은 `claude -p` 그대로입니다. jev는 갈린 문장 17건 중 15건이 오탐이었습니다. `--shadow jev`와 기록은 남깁니다. `claude -p`도 사람이 문제로 본 문장을 많이 놓쳐, W1-3 라운드에서 judge 표시와 사용자 선택을 함께 봅니다.
 * **W1-2 사주·개인 해석**(PR #254, 계획 `plans/2026-10-16-w1-2-chart.md`, W31, #52·#237)
-  * 명식(`chart.*` 24)·원국 개인 해석(`personal.*` 60)과 그 문장에 끼우는 값 이름 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김)의 3개 언어 원고. ja 조각은 W24 용어 표기 그대로이고, 빈 3개(閑神·極身弱·極身強)는 W1-3.
+  * 명식(`chart.*` 24)·원국 개인 해석(`personal.*` 60)과 그 문장에 끼우는 값 이름 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김)의 3개 언어 원고. ja 조각은 W24 용어 표기 그대로이고, 閑神·極身弱·極身強은 D97로 채웠습니다(W50).
   * 라운드 R10(`artifacts/2026-10-17-round-R10.md`, W31): 개인 해석 둘째 문장은 오행 역할 사실, 오행 목·화·토·금·수, 역할 "나와 잘 맞는 기운"류. 가이드 질문 기준 ①②(과거형, 전제 없음) 확정과 3개 언어 23건 반영.
   * #237 오류 문구 3건(`ui.error.code`).
 * **W1-1 오늘 화면·엔진 안내**(PR #249, spec `specs/2026-10-16-w1-content-design.md`, 계획 `plans/2026-10-16-w1-1-today.md`, W28~W30, #232·#240)
@@ -114,10 +114,10 @@
 2. **#331 남은 몫**: app 임시 ui 문구 28개(`ui.*` 슬롯, 키 이름 그대로), 사주 맥락 근거 시트 제목을 따로 둘지, 12운성 값 이름 범주(glossary에 `twelve_stage` 범주가 없음, core enum 확인). 천간·십성·신살 이름은 W1-3에서 채웠습니다(W47). 원고는 라운드로 고릅니다.
 3. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
 4. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
-5. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. 단 ja glossary의 빈 3개(role.neutral·strength.very_weak·strength.very_strong)를 W1-3에서 채우기 전에는 ja 개인 해석이 그 값에서 렌더되지 않습니다(#52 코멘트). app은 오류 문구 3건을 씁니다(#237).
+5. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. app은 오류 문구 3건을 씁니다(#237).
 6. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-7. **W1-3 후속**: core #625(조후표와 원문이 어긋나는 칸) 답이 오면 해당 `source.*` 뜻 문장을 다시 씁니다. server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. ja glossary의 빈 3개와 en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준) 재출제는 그대로 남습니다.
+7. **W1-3 후속**: core #625(조후표와 원문이 어긋나는 칸) 답이 오면 해당 `source.*` 뜻 문장을 다시 씁니다. server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준) 재출제는 그대로 남습니다.
 8. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
-   - 지휘 #158 코멘트: 閑神·極身弱·極身強 근거 보강, 용어집의 忌神 읽기 통일(きじん)
+   - 지휘 #158 코멘트: 용어집의 忌神 읽기 통일(きじん). 閑神·極身弱·極身強은 D97로 채움(W50, #639)
 9. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
