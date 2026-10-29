@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -12,6 +13,19 @@ plugins {
 val authConfig = JsonSlurper().parse(file("../../config/auth.json")) as Map<String, String>
 
 fun authValue(key: String): String = authConfig[key]?.trim().orEmpty()
+
+// release 업로드 키(결정 A94). 저장소 밖 보관 폴더(D98, docs/local-values.md K1)에서 읽습니다.
+// 파일이 없으면 release도 debug 키로 서명합니다(로컬 확인용, Play에 올릴 수 없음).
+val localValuesDir =
+    System.getenv("MYUNGLI_LOCAL_DIR")?.takeIf { it.isNotBlank() }
+        ?: "${System.getProperty("user.home")}/.config/myungli"
+val uploadKeyFile = file("$localValuesDir/app/shared/key.properties")
+val uploadKey: Properties? =
+    if (uploadKeyFile.isFile) {
+        Properties().apply { uploadKeyFile.inputStream().use { load(it) } }
+    } else {
+        null
+    }
 
 android {
     namespace = "app.myungli.diary"
@@ -49,11 +63,26 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 
+    signingConfigs {
+        if (uploadKey != null) {
+            create("upload") {
+                storeFile = uploadKeyFile.parentFile.resolve(uploadKey.getProperty("storeFile"))
+                storePassword = uploadKey.getProperty("storePassword")
+                keyAlias = uploadKey.getProperty("keyAlias")
+                keyPassword = uploadKey.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                if (uploadKey != null) {
+                    signingConfigs.getByName("upload")
+                } else {
+                    logger.warn("업로드 키가 없어 release를 debug 키로 서명합니다: $uploadKeyFile")
+                    signingConfigs.getByName("debug")
+                }
         }
     }
 }
