@@ -16,12 +16,12 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
 3. 프로젝트를 고르고 init합니다. 다른 프로젝트로 바꿀 때도 같은 명령을 씁니다(`-reconfigure`).
 
    ```sh
-   project=myungli-diary-staging   # prod는 myungli-diary
+   env=staging; project=myungli-diary-staging   # prod는 env=prod; project=myungli-diary
    terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
    ```
 
    state bucket이 아직 없는 새 프로젝트는 아래 "새 프로젝트"를 먼저 합니다.
-4. `terraform apply -var project_id="$project"`
+4. `terraform apply -var-file="$env.tfvars"` (`staging.tfvars`, `prod.tfvars`에 프로젝트와 environment가 짝으로 있습니다. deployer는 그 environment의 main job만 씁니다)
 5. 출력값을 GitHub 저장소 변수로 넣습니다.
 
 | 변수 | 값 |
@@ -49,21 +49,9 @@ gcloud storage buckets create "gs://${project}-tfstate" --project "$project" --l
   --uniform-bucket-level-access --public-access-prevention
 gcloud storage buckets update "gs://${project}-tfstate" --versioning
 terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
-terraform import -var project_id="$project" google_storage_bucket.tfstate "${project}-tfstate"
-terraform apply -var project_id="$project"
+terraform import -var-file="$env.tfvars" google_storage_bucket.tfstate "${project}-tfstate"
+terraform apply -var-file="$env.tfvars"
 ```
-
-### 로컬 state 옮기기 (한 번, #662)
-
-D98 전에 bootstrap을 apply했다면 state가 이 디렉터리의 `terraform.tfstate.d/<env>/`에 있습니다. 두 workspace를 각자의 bucket으로 옮깁니다. `terraform init -migrate-state`는 두 workspace를 한 bucket에 함께 옮기므로 쓰지 않습니다.
-
-```sh
-gcloud storage cp terraform.tfstate.d/staging/terraform.tfstate gs://myungli-diary-staging-tfstate/bootstrap/default.tfstate
-gcloud storage cp terraform.tfstate.d/prod/terraform.tfstate gs://myungli-diary-tfstate/bootstrap/default.tfstate
-rm -rf .terraform   # 로컬 backend와 workspace 선택 기록. provider는 init이 다시 받습니다
-```
-
-그다음 프로젝트마다 위 3번으로 init하고, apply 대신 `terraform plan -var project_id="$project"`로 `No changes.`를 확인합니다. 두 프로젝트 모두 확인되면 `terraform.tfstate.d/`를 지웁니다.
 
 ## 첫 배포 순서
 

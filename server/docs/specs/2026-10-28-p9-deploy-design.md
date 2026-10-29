@@ -53,7 +53,7 @@ Terraform `>= 1.9`와 google provider 버전을 고정하고 `.terraform.lock.hc
 | `engine-runtime` | env | 없음 |
 | `scheduler-invoker` | env | `server-retention` Job의 `run.invoker`(Job 실행) |
 
-WIF provider는 이 저장소(`june20516/myungli-diary`)의 토큰만 받습니다. `deployer`는 environment와 ref를 묶은 속성(`attribute.env_ref`)이 `staging@refs/heads/main` 또는 `prod@refs/heads/main`인 토큰만, `planner`는 같은 저장소의 `pull_request` 토큰만 쓸 수 있습니다. 두 environment의 "Deployment branches"를 `main`으로 제한하는 것은 이중 장치입니다(사용자 준비 §8).
+WIF provider는 이 저장소(`june20516/myungli-diary`)의 토큰만 받습니다. `deployer`는 environment와 ref를 묶은 속성(`attribute.env_ref`)이 그 프로젝트의 environment와 main인 토큰만(staging 프로젝트는 `staging@refs/heads/main`, prod 프로젝트는 `prod@refs/heads/main`, #644), `planner`는 같은 저장소의 `pull_request` 토큰만 쓸 수 있습니다. 두 environment의 "Deployment branches"를 `main`으로 제한하는 것은 이중 장치입니다(사용자 준비 §8).
 
 ## 5. 설정과 Secret
 

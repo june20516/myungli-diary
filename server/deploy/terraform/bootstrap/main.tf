@@ -151,10 +151,11 @@ resource "google_storage_bucket_iam_member" "planner_state" {
   member = "serviceAccount:${google_service_account.planner.email}"
 }
 
-# deployer는 main에서 environment staging·prod로 도는 job만 씁니다(attribute.env_ref). GitHub environment의
-# "Deployment branches = main" 제한은 이중 장치입니다(README).
+# deployer는 main에서 이 프로젝트의 environment로 도는 job만 씁니다(attribute.env_ref). 다른 environment의 job은
+# 이 프로젝트에 들어오지 못합니다(#644). GitHub environment의 "Deployment branches = main" 제한은 이중 장치입니다(README).
+# for_each key를 environment 이름으로 두어, 두 environment를 모두 연결하던 state에서 맞는 연결은 그대로 남습니다.
 resource "google_service_account_iam_member" "deployer_wif" {
-  for_each = toset(["staging", "prod"])
+  for_each = toset([var.environment])
 
   service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
