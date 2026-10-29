@@ -46,11 +46,11 @@
 | K5 | Firebase 네이티브 설정 파일(`google-services.json`, `GoogleService-Info.plist`) | L3 | `app/staging/`, `app/prod/` 아래 같은 이름 | - | app | `flutterfire configure`나 Firebase 콘솔에서 다시 받습니다 | E5 | 사용 중 |
 | K6 | app의 로컬 server 실행 값(`env.sh`, JWT 키, Apple 대역 키) | L2 | `app/local/` | - | app | 로컬에서 새로 만듭니다 | - | 사용 중 |
 | K7 | TypeSafe jev API 키 | L2 | `writing/shared/typesafe.key` | - | writing | TypeSafe에서 다시 발급합니다 | - | 사용 중 |
-| K8 | server 배포 비밀(`JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, staging `TEST_LOGIN_SECRET`) | 클라우드 원본 | 로컬에 두지 않음 | Secret Manager(staging, prod 각각, Terraform이 틀을 만듦) | server | 키 교체는 `server/deploy/terraform/README.md`의 Secret 절을 따릅니다(이전 키 id를 tfvars에 넣어 `*_PREVIOUS_KEY`를 둠). `TOKEN_ENCRYPTION_KEY`를 잃으면 저장된 token을 풀 수 없으니 교체 전 버전을 지우지 않습니다 | E17 | 사용 중 |
+| K8 | server 배포 비밀(`JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, staging `TEST_LOGIN_SECRET`, 키 교체 중에만 `JWT_PREVIOUS_KEY`, `TOKEN_PREVIOUS_KEY`) | 클라우드 원본 | 로컬에 두지 않음 | Secret Manager(staging, prod 각각, Terraform이 틀을 만듦) | server | 키 교체는 `server/deploy/terraform/README.md`의 Secret 절을 따릅니다(이전 키 id를 tfvars에 넣어 `*_PREVIOUS_KEY`를 둠). `TOKEN_ENCRYPTION_KEY`를 잃으면 저장된 token을 풀 수 없으니 교체 전 버전을 지우지 않습니다 | E17 | 사용 중 |
 | K9 | App Store In-App Purchase 키(`.p8`) | L1 | `root/shared/appstore-iap.p8` | RevenueCat 대시보드 | 지휘 | 다시 내려받을 수 없습니다. 새 키를 만들어 RevenueCat에 다시 올리고 옛 키는 폐기합니다 | E12, #632 | 만들기 전 |
 | K10 | Play 서비스 계정 키(JSON, RevenueCat 연결용) | 클라우드 원본 | 로컬에 두지 않음(올린 뒤 내려받은 파일을 지움) | RevenueCat 대시보드 | 지휘 | GCP에서 새 키를 만들어 다시 올리고 옛 키를 지웁니다 | E12, #632 | 만들기 전 |
 | K11 | Android debug keystore | L2 | `~/.android/debug.keystore`(도구 기본 경로, §3 예외) | - | app | 새로 생기지만 지문이 바뀌어, 카카오 키 해시, Google OAuth client, server `assetlinks.json`의 debug 지문을 다시 등록해야 합니다. 백업을 권장합니다 | E8, #311 | 사용 중 |
-| K12 | Terraform bootstrap state(staging, prod) | L1 | 옮기는 중(지금은 `server/deploy/terraform/bootstrap/` 안, #662) | - | server | 잃으면 bootstrap이 만든 자원을 import로 되살려야 합니다 | E17, #636 | 사용 중 |
+| K12 | Terraform bootstrap state(staging, prod) | 클라우드 원본 | 로컬에 두지 않음 | 각 프로젝트의 state bucket `<프로젝트>-tfstate`의 `bootstrap/default.tfstate`(버전 관리, backend `gcs`) | server | bucket의 이전 버전으로 되살립니다. bucket까지 잃으면 bootstrap이 만든 자원을 import로 되살려야 합니다(`server/deploy/terraform/README.md`) | E17, #636, #662 | 사용 중 |
 
 ## 6. 새 기기로 옮기기, 값을 잃었을 때
 * **새 기기:** 옛 기기의 보관 폴더를 통째로 옮기거나(암호화된 매체로), L1은 기기 밖 백업에서 되살립니다. 권한을 700/600으로 맞춘 뒤, §5의 행마다 보관 경로에 파일이 있는지 `test -f`로 확인합니다. L2, L3 중 없는 것은 "잃었을 때" 칸대로 다시 만듭니다.

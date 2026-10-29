@@ -1,4 +1,4 @@
-# provider 내려받기와 state는 commit하지 않습니다. bootstrap의 로컬 state도 공개 저장소에 올리지 않습니다.
+# provider 내려받기와 state는 commit하지 않습니다. state 원본은 프로젝트의 state bucket입니다(D98). 옮기기 전 로컬 state가 실수로 올라가지 않게 막아 둡니다.
 .terraform/
 *.tfstate
 *.tfstate.*
