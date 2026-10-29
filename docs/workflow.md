@@ -94,6 +94,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * 단위가 외부 값이나 계정이 필요해지면 `to:root`·`kind:prep` Issue로 올립니다. 사용자에게 직접 묻지 않습니다.
 * 지휘는 때가 된 항목마다 `to:user`·`kind:prep` Issue를 열어 절차(공식 문서 출처 포함)와 넘길 값을 적습니다. 공개 값은 그 Issue 코멘트로 받고, 비밀 값은 사용자가 Issue에 적힌 곳에 직접 넣습니다. 비밀 값은 저장소·Issue·대화에 붙이지 않습니다.
 * 받은 값은 지휘가 쓰는 단위의 Issue로 전달하고, 대장의 상태를 고친 뒤 `kind:prep` Issue를 닫습니다.
+* 저장소에 넣지 않는 값(비밀, 빌드 설정 파일, 개발용 키)의 등급, 보관 위치, 찾는 방법, 전달과 복구는 [`docs/local-values.md`](local-values.md)를 따릅니다(D98). 저장소 안 `.local/`에는 버려도 되는 산출물만 둡니다.
 
 ### 5.4. 검수 피드백
 * 검수와 폴리싱 피드백(스크린샷과 자연어)은 지휘가 받아 [`docs/review/items.md`](review/items.md)의 항목으로 정리하고, 단위 작업 Issue(`review`와 심각도 라벨 하나 `sev:<n>`)로 보냅니다. 원요청은 비공개 내부 저장소에 둡니다. 절차는 [`docs/review/README.md`](review/README.md)입니다.
