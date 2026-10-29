@@ -685,6 +685,20 @@ class ReviewItemTests(RepoTestCase):
         self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
 
 
+class LedgerIdTests(RepoTestCase):
+    def test_duplicate_prep_id_reported(self) -> None:
+        write(self.root, "docs/external-prep.md", "| E17 | a |\n| E18 | b |\n| E17 | c |\n")
+        self.assertEqual(docs_check.check_ledger_ids(self.root), ["docs/external-prep.md: E17 중복"])
+
+    def test_duplicate_local_value_id_reported(self) -> None:
+        write(self.root, "docs/local-values.md", "| K1 | a |\n| K1 | b |\n")
+        self.assertEqual(docs_check.check_ledger_ids(self.root), ["docs/local-values.md: K1 중복"])
+
+    def test_unique_ids_and_missing_files_ok(self) -> None:
+        write(self.root, "docs/external-prep.md", "| E1 | a |\n| E2 | b |\n")
+        self.assertEqual(docs_check.check_ledger_ids(self.root), [])
+
+
 class MainTests(RepoTestCase):
     def test_main_returns_zero_on_clean_repo(self) -> None:
         write(self.root, "a.md", "# a")
