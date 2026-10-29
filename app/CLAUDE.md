@@ -34,6 +34,8 @@
 ## 고칠 수 있는 곳
 `app/`, `.github/workflows/app.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:app`). 그 밖은 읽기만 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
+로컬 값은 `docs/local-values.md`(D98)를 따릅니다. 원본은 `$MYUNGLI_LOCAL_DIR/app/<환경>/`(기본 `~/.config/myungli`), `app/.local/`에는 버려도 되는 산출물만 둡니다. 비밀 파일은 경로로만 다루고 내용을 출력하지 않습니다.
+
 ## 검사
 작업 단계와 속도에 맞춰 자원을 고릅니다. 반복 중에는 로컬에서, PR 직전 확인이나 CI 환경에서만 나는 문제는 GitHub Actions에서 돌립니다.
 * **로컬 빠른 경로(반복 중, D81):** 바꾼 범위의 테스트만 돌립니다. `flutter test <바꾼 테스트 파일·디렉터리>`(예 `flutter test test/features/me test/flows/my_saju_flow_test.dart`), 계약 파일(openapi·IA·토큰·컴포넌트·원고)을 따라잡았으면 `flutter test --tags contract`, golden은 바꾼 컴포넌트의 파일만 `tool/goldens_linux.sh test/design/<파일>`. 기기 E2E는 바꾼 흐름 파일만 `tool/patrol_local.sh patrol_test/<흐름>_test.dart`로 돌리고, 전체 Patrol은 `main` push·밤 실행(`e2e-android`)에 맡깁니다. 아래 전체 검사는 PR 직전에 한 번 돌립니다.
