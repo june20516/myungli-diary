@@ -1,5 +1,5 @@
 {
-  "version": "39f81b247c436ff0",
+  "version": "2abbf2c0a5d45bda",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -10214,6 +10214,13 @@
       "slot": "glossary.value_name",
       "key": "role.neutral",
       "variant": "single",
+      "lang": "ja",
+      "body": "閑神"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "role.neutral",
+      "variant": "single",
       "lang": "ko",
       "body": "무난한 기운"
     },
@@ -10627,6 +10634,13 @@
       "slot": "glossary.value_name",
       "key": "strength.very_strong",
       "variant": "single",
+      "lang": "ja",
+      "body": "極身強"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "strength.very_strong",
+      "variant": "single",
       "lang": "ko",
       "body": "힘이 아주 센 편"
     },
@@ -10636,6 +10650,13 @@
       "variant": "single",
       "lang": "en",
       "body": "very weak"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "strength.very_weak",
+      "variant": "single",
+      "lang": "ja",
+      "body": "極身弱"
     },
     {
       "slot": "glossary.value_name",
