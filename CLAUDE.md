@@ -13,6 +13,7 @@
 * spec과 계획은 서브 프로젝트의 `docs/specs/`, `docs/plans/`에 둡니다. 작업 단위는 `docs/identity/<writing|design>/specs/`, `plans/`에 둡니다. suberpowers 기본 경로(`docs/suberpowers/…`)는 쓰지 않습니다.
 * 같은 작업 디렉터리에서 세션 두 개를 동시에 돌리지 않습니다. 동시에 진행하려면 `git worktree`를 씁니다.
 * **사용자에게 보이는 글에는 긴 대시(U+2014 —), 범위 대시(U+2013 –), 가운뎃점(U+00B7 ·)을 쓰지 않습니다(D93).** 화면 문구, ARB와 콘텐츠 원고, 공유 이미지, 알림, 스토어 문구, 법적 문서 원문, server가 내주는 페이지가 해당합니다. 나열은 쉼표나 "와/과", 범위는 `~`를 씁니다. commit, PR, Issue, spec, plan, 결정 로그처럼 작업에만 남는 글은 괜찮습니다.
+* **로컬 값(D98):** 저장소에 넣지 않는 비밀, 설정 파일, 개발용 키의 원본은 저장소 밖 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/<단위>/<환경>/`에 두고, 단위 `.local/`에는 버려도 되는 산출물만 둡니다. 세션은 비밀 파일을 경로로만 다루고 내용을 출력하지 않습니다. 규칙과 대장은 [`docs/local-values.md`](docs/local-values.md)입니다.
 * **공개 저장소(D74):** Issue·PR·커밋·문서·코드(fixture 포함)에 가격·수익 수치 같은 내부 정보를 적지 않습니다. 제품 배경 원문·수익화 기록·아이디어 함은 비공개 저장소에 있고, 링크하지 않고 "비공개 기록 `…`"으로 글로만 적습니다. 근거가 필요하면 지휘에게 Issue로 묻습니다.
 * **세션을 열면:** `git fetch origin && git merge origin/main` 뒤 `gh issue list --label to:<단위>`를 봅니다. 그중 `drift` Issue(계약 변경 따라잡기)가 있으면 다른 일보다 먼저, 다음 PR에서 맞춥니다(`docs/workflow.md` §6.1).
 * **사용자에게 답할 때 결정 번호(D·C·S·A·W·V)와 Issue·PR 번호(`#n`)에는 맥락에 맞는 짧은 요약을 붙입니다.** 예: "D90 ①(일기 보기의 그날 성격은 쓸 때 기록한 값)", "#564(구매 줄 구분자 삭제와 새 슬롯 상한)". 사용자가 번호를 따로 찾아보지 않아도 대화만으로 알 수 있게 합니다. 같은 답에서 다시 나오면 번호만 써도 됩니다. Issue, PR, commit, 문서처럼 링크로 따라갈 수 있는 글에는 붙이지 않아도 됩니다.
@@ -44,6 +45,7 @@
 | 제품·아키텍처 결정 | `docs/decisions.md` |
 | 통합 로드맵 | `docs/roadmap.md` |
 | 외부 준비물 대장 | `docs/external-prep.md` |
+| 로컬 값 보관 규칙과 대장 | `docs/local-values.md` |
 | 제품 아이디어 함 | 내부 저장소 `ideas.md` |
 | 수익화 결정 체계·시장 조사 | 내부 저장소 `business/` |
 | 계약 목록 | `docs/contracts/README.md` |
