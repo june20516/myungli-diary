@@ -59,19 +59,20 @@ P1 실행 중 정한 것 가운데 다음 계획이 알아야 할 것입니다. 
 * `job retention`의 정리 쿼리는 대부분 인덱스 없이 표를 훑습니다(캐시 `created_at`, `idempotency_keys.created_at`, `refresh_tokens.expires_at`, 결제·보상 수신 시각, 지운 일기·일정). MVP 규모에서는 괜찮고, 한 번 실행이 5분을 넘거나 `daily_cache`·`diaries`가 백만 행을 넘으면 인덱스나 나눠 지우기(`LIMIT` 반복)를 넣습니다. 엔진 `ruleset_version`이 오른 첫 실행은 캐시를 한 문장으로 통째 지우므로, 엔진 배포 직후(rolling 중 옛 버전 응답)와 겹치지 않게 Scheduler 시각을 잡습니다.
 
 **P9 (배포)**
+* 배포 구조는 spec [`2026-10-28-p9-deploy-design.md`](../specs/2026-10-28-p9-deploy-design.md)와 S121, 계획은 [`2026-10-28-p9-deploy-prep.md`](2026-10-28-p9-deploy-prep.md)입니다. 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값)는 `server/deploy/terraform/README.md`에 있습니다.
 * 결제 설정 4개를 Secret Manager에 둡니다(`config.LoadBilling`의 이름 그대로): `REVENUECAT_PROJECT_ID`, `REVENUECAT_API_KEY`(REST v2 secret key), `REVENUECAT_WEBHOOK_AUTH`(대시보드에 적은 Authorization 값 전체), `AD_FREE_PRODUCT_IDS`(쉼표 목록). `APP_ENV`가 local이 아니면 모두 필수이고 없으면 시작에 실패합니다.
 * staging에서 확인할 것(문서로 확정되지 않은 외부 사실): AdMob 테스트 콜백의 `timestamp` 단위(ms/µs), RevenueCat webhook Authorization 헤더의 실제 형식(값 그대로인지), v2 구매 목록의 `next_page` 형태, Apple 비갱신 구독이 v2 구매 목록에 일회성 구매로 오는지.
 * `billing_events`는 5년 보관하고, 그 뒤 `job retention`이 지웁니다(S113, P8-2).
 * 앞단에 Load Balancer를 두면 `TRUSTED_PROXY_HOPS`=2입니다. 실제 요청의 `X-Forwarded-For` 개수를 로그로 한 번 확인합니다(IP 원문은 남기지 않음).
 * 배포 설정: `FIREBASE_PROJECT_NUMBER`, `TRUSTED_PROXY_HOPS`(Cloud Run 앞단 수를 확인합니다. 실제보다 크거나 0이면 모든 클라이언트가 한 키를 공유합니다), `APP_MIN_VERSION_IOS`·`APP_MIN_VERSION_ANDROID`, `TEST_LOGIN_SECRET`(staging만, `openssl rand -base64 32` 같은 난수). staging 이미지는 `-tags staging`으로 빌드합니다(Dockerfile·deploy workflow). App Check debug token은 staging Firebase 콘솔에만 둡니다.
 * Cloud Run 엔진 서비스를 h2c end-to-end로 확인하고, gRPC startup probe(`myungli.engine.v1.MyungliEngine`), internal ingress, 8초 grace를 설정합니다(#79).
-* server의 `ENGINE_ADDR`·`ENGINE_AUDIENCE`를 배포 설정에 넣고, `APP_ENV`가 local이 아니면 `ENGINE_AUDIENCE` 필수 검사를 추가합니다. CI 엔진 이미지 빌드 캐시도 검토합니다.
+* server의 `ENGINE_ADDR`·`ENGINE_AUDIENCE`는 Terraform이 엔진 서비스 URL로 채우고, `APP_ENV`가 local이 아니면 `ENGINE_AUDIENCE`가 필수입니다(S121). CI 엔진 이미지 빌드 캐시는 아직 검토하지 않았습니다.
 * 인증 설정 20개를 Secret Manager에 둡니다(`config.LoadAuth`의 이름 그대로). 필수 16개: `JWT_SIGNING_KEY_ID`, `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY_ID`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_APP_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `APPLE_BUNDLE_ID`, `APPLE_SERVICES_ID`, `APPLE_WEB_REDIRECT_URI`, `APP_LINK_BASE`, `ANDROID_APP_PACKAGE`, `ANDROID_CERT_SHA256`, `ANDROID_STORE_URL`. 선택 4개(키 교체 때만, ID와 값이 짝): `JWT_PREVIOUS_KEY_ID`, `JWT_PREVIOUS_KEY`, `TOKEN_PREVIOUS_KEY_ID`, `TOKEN_PREVIOUS_KEY`.
 * 시작 때 키·설정을 파싱하고 실패하면 종료 코드 1입니다. 키 ID가 중복되거나 비어 있어도 시작에 실패합니다.
 * Apple refresh token은 AES-GCM(secretbox)으로 암호화하고 associated data로 `auth_identities` 행 id를 묶습니다.
 * `APPLE_CALLBACK_DEEPLINK`는 없어졌습니다(S22). 대신 `APP_LINK_BASE`(https, path 없음)의 도메인이 정해져야 하고, 그 도메인이 `/auth/apple`과 `/.well-known/assetlinks.json`을 내줍니다. `ANDROID_CERT_SHA256`은 Play 앱 서명 키 지문과 맞춥니다.
 * Cloud Run은 `GOOGLE_CLOUD_PROJECT`를 자동으로 넣지 않으므로 배포 설정에 명시해야 로그의 trace 상관관계가 켜집니다. `X-Cloud-Trace-Context`만 오는 경로가 있는지 확인합니다.
 * Cloud Run 요청 로그에서 `/auth/apple` query 제외(로그 제외 필터)를 검토합니다. 위험 수용 근거는 S22 설계 §2.3입니다.
-* Cloud SQL Go connector를 쓰려면 `postgres.Open`이 `*pgxpool.Config`나 dial 옵션을 받도록 바꿉니다.
+* Cloud SQL은 `CLOUD_SQL_INSTANCE`가 있으면 Go connector와 IAM DB 인증으로 붙습니다(`postgres.OpenCloudSQL`, S121).
 * `server.yml`은 ci-gate가 부르는 전용(`workflow_call`·`workflow_dispatch`)입니다. 직접 push·PR 트리거는 지웠습니다(#102).
 * 요청 검증은 kin-openapi가 3.1 문서에서 format을 검사하지 않아 버전만 3.0.3으로 낮춘 계약 사본으로 합니다. 계약 테스트가 3.0 Schema 키워드 allowlist로 이 전제를 지킵니다.

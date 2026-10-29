@@ -35,7 +35,6 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
-	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	"github.com/june20516/myungli-diary/server/internal/preview"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/ratelimit"
@@ -112,12 +111,12 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
 	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
-	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	pool, closeDB, err := openDatabase(ctx, cfg)
 	if err != nil {
 		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
 		return &loggedError{err: err}
 	}
-	defer pool.Close()
+	defer closeDB()
 
 	engineClient, err := engine.NewClient(engine.ClientConfig{Addr: engineCfg.Addr, Audience: engineCfg.Audience})
 	if err != nil {

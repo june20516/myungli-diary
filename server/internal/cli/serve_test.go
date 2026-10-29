@@ -244,6 +244,7 @@ func TestRun_ServeRequiresBillingConfigOutsideLocal(t *testing.T) {
 	env := testAuthEnv(t)
 	env["PORT"] = freePort(t)
 	env["APP_ENV"] = "staging"
+	env["ENGINE_AUDIENCE"] = "https://engine.example.run.app"
 	env["FIREBASE_PROJECT_NUMBER"] = "123456789012"
 	// 결제 설정 검사는 DB 연결보다 먼저이므로 닿지 않는 주소여도 설정 오류로 끝나야 합니다.
 	env["DATABASE_URL"] = "postgres://x@127.0.0.1:1/x"

@@ -1,5 +1,5 @@
 {
-  "version": "924748863135c68b",
+  "version": "39f81b247c436ff0",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -242,85 +242,128 @@
           "kind": "none"
         },
         "day_branch": {
-          "kind": "none"
+          "kind": "text"
         },
         "day_kind": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "day_kind"
+          ]
         },
         "day_stem": {
-          "kind": "none"
+          "kind": "text"
         },
         "deity": {
           "kind": "none"
         },
         "direction": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "direction8"
+          ]
         },
         "element": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
         },
         "featured": {
           "kind": "none"
         },
         "gisin": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
         },
         "group": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "ten_god_group"
+          ]
         },
         "group_count": {
-          "kind": "none"
+          "kind": "number"
         },
         "luck": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "luck"
+          ]
         },
         "month_branch": {
-          "kind": "none"
+          "kind": "text"
         },
         "note": {
           "kind": "none"
         },
         "number": {
-          "kind": "none"
+          "kind": "number"
         },
         "parity": {
           "kind": "none"
         },
         "part": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "part"
+          ]
         },
         "picks": {
           "kind": "none"
         },
         "place": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "place"
+          ]
         },
         "role": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "role"
+          ]
         },
         "score": {
-          "kind": "none"
+          "kind": "number"
         },
         "share": {
           "kind": "none"
         },
         "strength": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "strength"
+          ]
         },
         "strength_level": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "strength"
+          ]
         },
         "strength_score": {
           "kind": "none"
         },
         "ten_god": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "ten_god",
+            "ten_god_group"
+          ]
         },
         "threshold": {
           "kind": "none"
         },
         "yongsin": {
-          "kind": "none"
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
         }
       }
     },
@@ -1818,6 +1861,13 @@
     },
     {
       "slot": "daily.color",
+      "key": "color.gisin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘은 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
       "key": "color.gwiin_day",
       "variant": "single",
       "lang": "en",
@@ -1829,6 +1879,13 @@
       "variant": "single",
       "lang": "ja",
       "body": "今日は{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.gwiin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘은 {element:color}(이)가 잘 맞아요."
     },
     {
       "slot": "daily.color",
@@ -1846,6 +1903,13 @@
     },
     {
       "slot": "daily.color",
+      "key": "color.ordinary_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘은 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
       "key": "color.yongsin_day",
       "variant": "single",
       "lang": "en",
@@ -1857,6 +1921,13 @@
       "variant": "single",
       "lang": "ja",
       "body": "今日は{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.yongsin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘은 {element:color}(이)가 잘 맞아요."
     },
     {
       "slot": "daily.direction",
@@ -5576,6 +5647,3114 @@
       "body": "용신의 날"
     },
     {
+      "slot": "evidence.basis",
+      "key": "basis.calendar/score",
+      "variant": "single",
+      "lang": "en",
+      "body": "We added points if the day was a Day of helpers or a Day in your favor, took points off if it was a Day to go gently or formed [[Chung|relation.chung]] or [[Hyeong|relation.hyeong]] with your chart, and set the grade from there."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.calendar/score",
+      "variant": "single",
+      "lang": "ja",
+      "body": "その日が貴人の日や用神の日なら点数を加え、忌神の日か、あなたの命式と[[冲|relation.chung]]や[[刑|relation.hyeong]]が生じる日なら差し引いて、等級をつけました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.calendar/score",
+      "variant": "single",
+      "lang": "ko",
+      "body": "그날이 귀인의 날이나 용신의 날이면 점수를 더하고, 기신의 날이거나 내 사주와 [[충|relation.chung]]이나 [[형|relation.hyeong]]이 생기면 빼서 등급을 매겼어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/lucky_element",
+      "variant": "single",
+      "lang": "en",
+      "body": "On a Day to go gently, we took your lucky color from the element that reconnects a blocked flow, and on other days from your [[Yongsin|role.yongsin]] element. Today it's the color of {element} energy."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/lucky_element",
+      "variant": "single",
+      "lang": "ja",
+      "body": "忌神の日には滞った流れをつなぐ五行を、それ以外の日にはあなたの[[用神|role.yongsin]]の五行を、今日の色と見ました。今日は{element}の気の色です。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/lucky_element",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기신의 날에는 막힌 흐름을 이어 주는 오행을, 그 밖의 날에는 내 [[용신|role.yongsin]] 오행을 행운 색으로 봤어요. 오늘은 {element} 기운의 색이에요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/gwiin_branch",
+      "variant": "single",
+      "lang": "en",
+      "body": "Since it's a Day of helpers, we took {direction}, the direction of today's branch {day_branch}, as your lucky direction."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/gwiin_branch",
+      "variant": "single",
+      "lang": "ja",
+      "body": "貴人の日なので、今日の地支{day_branch}の方位である{direction}を、今日の方角と見ました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/gwiin_branch",
+      "variant": "single",
+      "lang": "ko",
+      "body": "귀인의 날이라 오늘 지지 {day_branch}의 방위인 {direction}쪽을 행운 방향으로 봤어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_deity_huisin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Since it's an Ordinary day, from the day's lucky directions we chose {direction}, which matches {element}, your [[Huisin|role.huisin]] element."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_deity_huisin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "普通の日なので、この日の吉方位のうち、[[喜神|role.huisin]]の五行である{element}に合う{direction}を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_deity_huisin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "평범한 날이라 이날 길한 방위 가운데 [[희신|role.huisin]] 오행인 {element}에 맞는 {direction}쪽을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_deity_yongsin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Since it's an Ordinary day, from the day's lucky directions we chose {direction}, which matches {element}, your [[Yongsin|role.yongsin]] element."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_deity_yongsin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "普通の日なので、この日の吉方位のうち、あなたの[[用神|role.yongsin]]の五行である{element}に合う{direction}を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_deity_yongsin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "평범한 날이라 이날 길한 방위 가운데 내 [[용신|role.yongsin]] 오행인 {element}에 맞는 {direction}쪽을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_fallback",
+      "variant": "single",
+      "lang": "en",
+      "body": "It's an Ordinary day, but none of the day's lucky directions matched a fitting element, so we chose {direction}, the direction that matches {element}, your [[Yongsin|role.yongsin]] element."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_fallback",
+      "variant": "single",
+      "lang": "ja",
+      "body": "普通の日ですが、この日の吉方位に合う五行がなかったので、あなたの[[用神|role.yongsin]]の五行である{element}に合う方位、{direction}を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/ordinary_fallback",
+      "variant": "single",
+      "lang": "ko",
+      "body": "평범한 날인데 이날 길한 방위 가운데 맞는 오행이 없어서, 내 [[용신|role.yongsin]] 오행인 {element}에 맞는 방위, {direction}쪽을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/tonggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "Since it's a Day to go gently, we looked to {element}, the element that reconnects a blocked flow, and took its direction, {direction}, as your lucky direction."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/tonggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "忌神の日なので、滞った流れをつなぐ五行である{element}に合う方位、{direction}を、今日の方角と見ました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/tonggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기신의 날이라 막힌 흐름을 이어 주는 오행인 {element}에 맞는 방위, {direction}쪽을 행운 방향으로 봤어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/yongsin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Since it's a Day in your favor, we looked to {element}, your [[Yongsin|role.yongsin]] element, and took its direction, {direction}, as your lucky direction."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/yongsin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "用神の日なので、あなたの[[用神|role.yongsin]]の五行である{element}に合う方位、{direction}を、今日の方角と見ました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.direction/yongsin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "용신의 날이라 내 [[용신|role.yongsin]] 오행인 {element}에 맞는 방위, {direction}쪽을 행운 방향으로 봤어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/fallback",
+      "variant": "single",
+      "lang": "en",
+      "body": "Today every candidate hour formed [[Chung|relation.chung]] with your chart, so we chose the earliest of the hours traditionally seen as lucky."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/fallback",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日は候補の時間がすべてあなたの命式と[[冲|relation.chung]]になるので、昔から吉とされてきた時間のうち、最も早い時間を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/fallback",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘은 모든 후보 시간이 내 사주와 [[충|relation.chung]]이 되어, 예부터 길하다고 본 시간 가운데 가장 이른 때를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/score",
+      "variant": "single",
+      "lang": "en",
+      "body": "We gave points to hours that bring helpers, hours that bring your Yongsin or Huisin, and hours that form Hap with your chart, and took points off hours that form [[Chung|relation.chung]] with it. Then we chose the highest-scoring hour."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/score",
+      "variant": "single",
+      "lang": "ja",
+      "body": "貴人が巡る時間、用神や喜神が巡る時間、あなたの命式と合になる時間に点数をつけ、あなたの命式と[[冲|relation.chung]]になる時間は差し引いて、最も点数の高い時間を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/score",
+      "variant": "single",
+      "lang": "ko",
+      "body": "귀인이 드는 시간, 용신이나 희신이 드는 시간, 내 사주와 합이 되는 시간에 점수를 주고, 내 사주와 [[충|relation.chung]]이 되는 시간은 빼서 가장 높은 시간을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.fortune/day_kind",
+      "variant": "single",
+      "lang": "en",
+      "body": "Today is marked {day_kind}, and today's heavenly stem counts as {ten_god} to your Day Master, so we chose today's main reading based on these two."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.fortune/day_kind",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日は{day_kind}で、今日の天干があなたの日干にとって{ten_god}にあたるので、この二つをもとに総運を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.fortune/day_kind",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘은 {day_kind}이고 오늘 천간이 내 일간에게 {ten_god}에 해당해서, 이 둘을 바탕으로 총운을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.fortune/tag",
+      "variant": "single",
+      "lang": "en",
+      "body": "We chose the line under today's main reading based on the top tag of the day."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.fortune/tag",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日付いたタグのうち、最も優先されるものをもとに、総運の下の文を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.fortune/tag",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 붙은 태그 가운데 가장 앞선 것을 바탕으로 총운 아래 문장을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.guide/question",
+      "variant": "single",
+      "lang": "en",
+      "body": "We chose today's question from the top tag of the day if there is one, and if not, from {ten_god:ten_god_group}, the group today's heavenly stem falls into for your Day Master."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.guide/question",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる{ten_god:ten_god_group}で、今日の質問を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.guide/question",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 {ten_god:ten_god_group}(으)로 가이드 질문을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.number/hado",
+      "variant": "single",
+      "lang": "en",
+      "body": "Of the two Hado numbers for {element}, the same element as your lucky color, we chose the odd one if today's heavenly stem {day_stem} is yang and the even one if it's yin."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.number/hado",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日の色と同じ五行である{element}の河図の数二つのうち、今日の天干{day_stem}の陰陽に合わせて、陽なら奇数、陰なら偶数を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.number/hado",
+      "variant": "single",
+      "lang": "ko",
+      "body": "행운 색과 같은 오행인 {element}의 하도 수 두 개 가운데, 오늘 천간 {day_stem}의 음양에 따라 양이면 홀수, 음이면 짝수를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/day_master",
+      "variant": "single",
+      "lang": "en",
+      "body": "We weighed the elements that support your Day Master against those that press on it and found it to be {strength}. So we took {yongsin} as your [[Yongsin|role.yongsin]] and {gisin} as your [[Gisin|role.gisin]]."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/day_master",
+      "variant": "single",
+      "lang": "ja",
+      "body": "日干を助ける五行と抑える五行の重さを比べて、あなたの日干の力を{strength}と見ました。そこで{yongsin}を[[用神|role.yongsin]]、{gisin}を[[忌神|role.gisin]]と見ました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/day_master",
+      "variant": "single",
+      "lang": "ko",
+      "body": "일간을 돕는 오행과 누르는 오행의 무게를 견줘 내 일간의 힘을 {strength}(으)로 봤어요. 그래서 {yongsin}(을)를 [[용신|role.yongsin]], {gisin}(을)를 [[기신|role.gisin]](으)로 봤어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/luck_ten_god",
+      "variant": "single",
+      "lang": "en",
+      "body": "The {part} element of your {luck}, {element}, is {role} in your chart. We chose the reading to fit that role."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/luck_ten_god",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{luck}の{part}の五行{element}は、あなたの命式では{role}です。この役割に合わせて、解釈を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/luck_ten_god",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{luck}의 {part} 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 맞춰 풀이를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/luck_twelve_stage",
+      "variant": "single",
+      "lang": "en",
+      "body": "The branch element of your 10-year luck cycle, {element}, is {role} in your chart. We chose the Twelve Stages reading to fit that role."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/luck_twelve_stage",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大運の地支の五行{element}は、あなたの命式では{role}です。この役割に合わせて、十二運の解釈を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/luck_twelve_stage",
+      "variant": "single",
+      "lang": "ko",
+      "body": "대운 지지의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 맞춰 12운성 풀이를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/shinsal",
+      "variant": "single",
+      "lang": "en",
+      "body": "This shinsal sits in your {place}, and its element, {element}, is {role} in your chart. We chose the shinsal reading to fit that role."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/shinsal",
+      "variant": "single",
+      "lang": "ja",
+      "body": "神殺がある{place}の五行{element}は、あなたの命式では{role}です。この役割に合わせて、神殺の解釈を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/shinsal",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신살이 놓인 {place}의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 맞춰 신살 풀이를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/ten_god",
+      "variant": "single",
+      "lang": "en",
+      "body": "The element of your {place}, {element}, is {role} in your chart. We chose this reading from that role, along with how many ten gods of the same group you have and your Day Master's strength."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/ten_god",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の五行{element}は、あなたの命式では{role}です。この役割に、同じグループの通変星の数と日干の力を合わせて、解釈を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/ten_god",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 같은 묶음 십성의 수와 일간의 힘을 더해 풀이를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/twelve_stage",
+      "variant": "single",
+      "lang": "en",
+      "body": "The element of your {place}, {element}, is {role} in your chart. We chose this Twelve Stages reading from that role, along with your Day Master's strength."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/twelve_stage",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の五行{element}は、あなたの命式では{role}です。この役割に日干の力を合わせて、十二運の解釈を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.personal/twelve_stage",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 일간의 힘을 더해 12운성 풀이를 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/select",
+      "variant": "single",
+      "lang": "en",
+      "body": "We looked for tags in this order: the Hap and Chung that today's day pillar forms with your chart, a crowding of one ten god group, then shinsal. We picked the first two as the main tags."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/select",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日の干支があなたの命式と作る合と冲、一つの通変星グループへの偏り、神殺の順にタグを探し、先頭の二つを代表タグに選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/select",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 일진이 내 사주와 만드는 합과 충, 한 십성 묶음의 쏠림, 신살 순서로 태그를 찾고, 앞의 두 개를 대표 태그로 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/eokbu",
+      "variant": "single",
+      "lang": "en",
+      "body": "We set your [[Yongsin|role.yongsin]] by the Eokbu method. Your Day Master is {strength_level}, so we chose the element that evens out its strength."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/eokbu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "扶抑法で[[用神|role.yongsin]]を決めました。あなたの日干の力が{strength_level}なので、その力を釣り合わせる五行を選びました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/eokbu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "억부법으로 [[용신|role.yongsin]]을 정했어요. 내 일간의 힘이 {strength_level}이라, 그 힘을 고르게 맞추는 오행을 골랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/johu",
+      "variant": "single",
+      "lang": "en",
+      "body": "You were born in summer or winter and your chart runs too hot or too cold, so we set your [[Yongsin|role.yongsin]] by the Johu method, which evens out temperature. The element that fits your Day Master in the {month_branch} month follows the Johu table of Gungtong Bogam."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/johu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "夏か冬に生まれ、暑さや寒さが行き過ぎた命式なので、温度を整える調候法で[[用神|role.yongsin]]を決めました。{month_branch}月のあなたの日干に合う五行は、窮通宝鑑の調候表に従いました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/johu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "여름이나 겨울에 태어나 더위나 추위가 지나친 사주라, 온도를 맞추는 조후법으로 [[용신|role.yongsin]]을 정했어요. {month_branch}월의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/johu_neutral",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your Day Master's strength is fairly even, so we set your [[Yongsin|role.yongsin]] by the Johu method instead of the Eokbu method. The element that fits your Day Master in your birth month follows the Johu table of Gungtong Bogam."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/johu_neutral",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの日干の力が釣り合っているので、扶抑法ではなく調候法で[[用神|role.yongsin]]を決めました。生まれた月のあなたの日干に合う五行は、窮通宝鑑の調候表に従いました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.yongsin/johu_neutral",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 일간의 힘이 고른 편이라 억부법 대신 조후법으로 [[용신|role.yongsin]]을 정했어요. 태어난 달의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#balance_principle",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五行總論\n以义推之，夫万物负阴而抱阳，冲气以和。过与不及，皆为乖道。故高者抑之使平，下者举之使崇，或益其不及，或损其太过。所以贵在折衷，归於中道，使无有余不足之累，即才官印食贵人驿马之微意也。行运亦如之，识其微意，则於命理之说，思过半矣。\nTaking from what runs over and filling in what's lacking to bring things back to the middle is the core of myungli."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#balance_principle",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五行総論」\n以义推之，夫万物负阴而抱阳，冲气以和。过与不及，皆为乖道。故高者抑之使平，下者举之使崇，或益其不及，或损其太过。所以贵在折衷，归於中道，使无有余不足之累，即才官印食贵人驿马之微意也。行运亦如之，识其微意，则於命理之说，思过半矣。\n多すぎるものは減らし、足りないものは補って中ほどへ戻すことが、命理の要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#balance_principle",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오행총론」\n以义推之，夫万物负阴而抱阳，冲气以和。过与不及，皆为乖道。故高者抑之使平，下者举之使崇，或益其不及，或损其太过。所以贵在折衷，归於中道，使无有余不足之累，即才官印食贵人驿马之微意也。行运亦如之，识其微意，则於命理之说，思过半矣。\n넘치는 것은 덜고 모자란 것은 채워 가운데로 돌리는 것이 명리의 핵심이라는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#color",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五行總論\n推其形色，则水黑、火赤、木青、土黄，此正色也。及其变易，则不然。常以生旺从正色，死绝从母色，成形冠带从妻色，病败从鬼色，旺墓从子色。\nEach element has its true color: Water is black, Fire is red, Wood is blue-green, and Earth is yellow."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#color",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五行総論」\n推其形色，则水黑、火赤、木青、土黄，此正色也。及其变易，则不然。常以生旺从正色，死绝从母色，成形冠带从妻色，病败从鬼色，旺墓从子色。\n五行にはそれぞれ本来の色があり、水は黒、火は赤、木は青、土は黄だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#color",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오행총론」\n推其形色，则水黑、火赤、木青、土黄，此正色也。及其变易，则不然。常以生旺从正色，死绝从母色，成形冠带从妻色，病败从鬼色，旺墓从子色。\n오행마다 바른 색이 있어 수는 검정, 화는 빨강, 목은 푸른색, 토는 노랑이라는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#direction",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五行總論\n北方阴极而生寒，寒生水。南方阳极而生热，热生火。东方阳散以泄而生风，风生木。西方阴止以收而生燥，燥生金。中央阴阳交而生温，温生土。其相生也所以相维，其相克也所以相制，此之谓有伦。\nThe north gives rise to Water, the south to Fire, the east to Wood, the west to Metal, and the center to Earth."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#direction",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五行総論」\n北方阴极而生寒，寒生水。南方阳极而生热，热生火。东方阳散以泄而生风，风生木。西方阴止以收而生燥，燥生金。中央阴阳交而生温，温生土。其相生也所以相维，其相克也所以相制，此之谓有伦。\n北は水、南は火、東は木、西は金、中央は土を生むという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#direction",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오행총론」\n北方阴极而生寒，寒生水。南方阳极而生热，热生火。东方阳散以泄而生风，风生木。西方阴止以收而生燥，燥生金。中央阴阳交而生温，温生土。其相生也所以相维，其相克也所以相制，此之谓有伦。\n북쪽은 수, 남쪽은 화, 동쪽은 목, 서쪽은 금, 가운데는 토를 낳는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#number",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五行總論\n其数则水一、火二、木三、金四、土五。生旺加倍，死绝减半。\nEach element has a number: Water is 1, Fire is 2, Wood is 3, Metal is 4, and Earth is 5."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#number",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五行総論」\n其数则水一、火二、木三、金四、土五。生旺加倍，死绝减半。\n五行にはそれぞれ数があり、水は1、火は2、木は3、金は4、土は5だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/five_elements#number",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오행총론」\n其数则水一、火二、木三、金四、土五。生旺加倍，死绝减半。\n오행마다 수가 있어 수는 1, 화는 2, 목은 3, 금은 4, 토는 5라는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三冬丁\n三冬丁火微寒，耑用庚甲。\nFor a Jeonghwa Day Master born in the twelfth month, Gyeonggeum and Gapmok are used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三冬丁」\n三冬丁火微寒，耑用庚甲。\n十二月生まれの丁の日干には、庚と甲を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼동정」\n三冬丁火微寒，耑用庚甲。\n12월에 태어난 정화 일간에게는 경금과 갑목을 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三冬丁\n三冬丁火微寒，耑用庚甲。\nFor a Jeonghwa Day Master born in the tenth month, Gyeonggeum and Gapmok are used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三冬丁」\n三冬丁火微寒，耑用庚甲。\n十月生まれの丁の日干には、庚と甲を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼동정」\n三冬丁火微寒，耑用庚甲。\n10월에 태어난 정화 일간에게는 경금과 갑목을 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月丁\n五月丁火，时归建禄，不宜乱用甲木。\nIn the fifth month, Jeonghwa is strong on its own, so Gapmok should not be used carelessly."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月丁」\n五月丁火，时归建禄，不宜乱用甲木。\n五月の丁は自ら力が強い時期なので、甲をむやみに用いてはいけないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월정」\n五月丁火，时归建禄，不宜乱用甲木。\n5월의 정화는 스스로 힘이 강한 때라 갑목을 함부로 쓰면 안 된다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月丁\n二月丁火，溼乙伤丁，先庚后甲，非庚不能去乙，非甲不能引丁。\nFor a Jeonghwa Day Master born in the second month, Gyeonggeum is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月丁」\n二月丁火，溼乙伤丁，先庚后甲，非庚不能去乙，非甲不能引丁。\n二月生まれの丁の日干には、まず庚が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월정」\n二月丁火，溼乙伤丁，先庚后甲，非庚不能去乙，非甲不能引丁。\n2월에 태어난 정화 일간에게는 경금이 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月丁\n十一月丁火，或仲冬水多癸旺，全无比印，此作弃命从杀，亦有异途功名。\nIn the eleventh month, when water runs over and no energy helps it, Jeonghwa forms a chart that follows the force pressing on it and makes its name by another path."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月丁」\n十一月丁火，或仲冬水多癸旺，全无比印，此作弃命从杀，亦有异途功名。\n十一月の丁は、水があふれて助けとなる気がなければ、抑える力に従う命式となり、別の道で名を上げるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월정」\n十一月丁火，或仲冬水多癸旺，全无比印，此作弃命从杀，亦有异途功名。\n11월의 정화는 물이 넘치고 도울 기운이 없으면 누르는 힘을 따르는 사주가 되어 다른 길로 이름을 낸다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月丁\n正月丁火，甲木当权，乃为母旺，非庚不能噼甲，何以引丁，姑用庚金。\nFor a Jeonghwa Day Master born in the first month, Gyeonggeum is used to split the strong Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月丁」\n正月丁火，甲木当权，乃为母旺，非庚不能噼甲，何以引丁，姑用庚金。\n正月生まれの丁の日干には、力の強い甲を割る庚を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월정」\n正月丁火，甲木当权，乃为母旺，非庚不能噼甲，何以引丁，姑用庚金。\n정월에 태어난 정화 일간에게는 힘이 센 갑목을 쪼갤 경금을 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月丁\n四月丁火乘旺，虽取甲引丁，必用庚噼甲。\nFor a Jeonghwa Day Master born in the fourth month, Gapmok is used, but Gyeonggeum must split it."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月丁」\n四月丁火乘旺，虽取甲引丁，必用庚噼甲。\n四月生まれの丁の日干には、甲を用いつつ、必ず庚で甲を割らなければならないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월정」\n四月丁火乘旺，虽取甲引丁，必用庚噼甲。\n4월에 태어난 정화 일간에게는 갑목을 쓰되 반드시 경금으로 갑목을 쪼개야 한다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月丁\n或九月一派戊土，洩丁火之气，不见甲木，为伤官伤尽，非寻常可比。\nIn the ninth month, Muto fills the chart and drains Jeonghwa's fire, and if there is no Gapmok, it becomes an unusual chart instead."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月丁」\n或九月一派戊土，洩丁火之气，不见甲木，为伤官伤尽，非寻常可比。\n九月の丁は、戊が多くて火の気を奪い、甲がなければ、かえって並外れた命式になるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월정」\n或九月一派戊土，洩丁火之气，不见甲木，为伤官伤尽，非寻常可比。\n9월의 정화는 무토가 가득해 불기운을 빼앗고 갑목이 없으면 오히려 남다른 사주가 된다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月丁\n六月之丁，阴柔退气，但值三伏生寒，丁弱极矣，专取甲木，壬水次之。\nFor a Jeonghwa Day Master born in the sixth month, Gapmok is needed first, then Imsu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月丁」\n六月之丁，阴柔退气，但值三伏生寒，丁弱极矣，专取甲木，壬水次之。\n六月生まれの丁の日干には、まず甲が、次に壬が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월정」\n六月之丁，阴柔退气，但值三伏生寒，丁弱极矣，专取甲木，壬水次之。\n6월에 태어난 정화 일간에게는 갑목이 먼저, 그다음 임수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月丁\n七月丁火，退气柔弱，端用甲木，金虽乘旺司权，无伤丁之理，仍取庚劈甲，为引火之物，或借丙暖金晒甲，不虑丙夺丁光，凡两丙夹丁者，夏月忌之，余月不忌，但此格少年困苦刑克中年富贵，必要地支见水制丙，方妙。\nFor a Jeonghwa Day Master born in the seventh month, Gapmok is needed first, then Gyeonggeum to split it, and Byeonghwa may also be borrowed."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月丁」\n七月丁火，退气柔弱，端用甲木，金虽乘旺司权，无伤丁之理，仍取庚劈甲，为引火之物，或借丙暖金晒甲，不虑丙夺丁光，凡两丙夹丁者，夏月忌之，余月不忌，但此格少年困苦刑克中年富贵，必要地支见水制丙，方妙。\n七月生まれの丁の日干には、まず甲が、次に甲を割る庚が必要で、丙を借りることもできるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월정」\n七月丁火，退气柔弱，端用甲木，金虽乘旺司权，无伤丁之理，仍取庚劈甲，为引火之物，或借丙暖金晒甲，不虑丙夺丁光，凡两丙夹丁者，夏月忌之，余月不忌，但此格少年困苦刑克中年富贵，必要地支见水制丙，方妙。\n7월에 태어난 정화 일간에게는 갑목이 먼저, 그다음 갑목을 쪼갤 경금이 필요하고 병화를 빌릴 수도 있다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月丁\n三月丁火，戊土司令，洩弱丁气，先用甲木引丁制土，次看庚金。\nFor a Jeonghwa Day Master born in the third month, Gapmok is needed first, then Gyeonggeum."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月丁」\n三月丁火，戊土司令，洩弱丁气，先用甲木引丁制土，次看庚金。\n三月生まれの丁の日干には、まず甲が、次に庚が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월정」\n三月丁火，戊土司令，洩弱丁气，先用甲木引丁制土，次看庚金。\n3월에 태어난 정화 일간에게는 갑목이 먼저, 그다음 경금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月丁\n或八月一派辛金，不见庚金，又无比劫，此弃命从财，富而且贵，虽不科甲，亦有异途。\nIn the eighth month, if Singeum fills the chart and there is no Gyeonggeum and no fire to help, Jeonghwa forms a chart that follows wealth and becomes rich and honored."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月丁」\n或八月一派辛金，不见庚金，又无比劫，此弃命从财，富而且贵，虽不科甲，亦有异途。\n八月の丁は、辛が多く、庚も助けとなる火もなければ、財に従う命式となり、豊かで尊くなるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丁.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월정」\n或八月一派辛金，不见庚金，又无比劫，此弃命从财，富而且贵，虽不科甲，亦有异途。\n8월의 정화는 신금이 가득하고 경금도 도울 불도 없으면 재물을 따르는 사주가 되어 부유하고 귀하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十二月丙\n十二月丙火，气进二阳，侮雪欺霜，喜壬为用。\nFor a Byeonghwa Day Master born in the twelfth month, Imsu is needed first."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十二月丙」\n十二月丙火，气进二阳，侮雪欺霜，喜壬为用。\n十二月生まれの丙の日干には、まず壬が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십이월병」\n十二月丙火，气进二阳，侮雪欺霜，喜壬为用。\n12월에 태어난 병화 일간에게는 임수가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月丙\n十月丙火，太阳失令，得见甲戊庚出干，可云科甲，主为人性好清高，斯文领袖。\nA Byeonghwa Day Master born in the tenth month passes exams and makes a name when Gapmok, Muto, and Gyeonggeum show in the chart."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月丙」\n十月丙火，太阳失令，得见甲戊庚出干，可云科甲，主为人性好清高，斯文领袖。\n十月生まれの丙の日干は、甲、戊、庚が現れれば、試験に受かって名を上げるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월병」\n十月丙火，太阳失令，得见甲戊庚出干，可云科甲，主为人性好清高，斯文领袖。\n10월에 태어난 병화 일간은 갑목, 무토, 경금이 드러나면 시험에 붙어 이름을 낸다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月丙\n五月丙火，得壬高透，方为上命。\nA Byeonghwa Day Master born in the fifth month makes a good chart only when Imsu shows prominently."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月丙」\n五月丙火，得壬高透，方为上命。\n五月生まれの丙の日干は、壬が高く現れてこそ、よい命式になるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월병」\n五月丙火，得壬高透，方为上命。\n5월에 태어난 병화 일간은 임수가 높이 드러나야 좋은 사주가 된다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月丙\n二月丙火，阳气舒升，耑用壬水。\nFor a Byeonghwa Day Master born in the second month, only Imsu is used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月丙」\n二月丙火，阳气舒升，耑用壬水。\n二月生まれの丙の日干には、壬だけを用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월병」\n二月丙火，阳气舒升，耑用壬水。\n2월에 태어난 병화 일간에게는 임수만 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月丙\n十一月丙火，冬至一阳生，弱中复强，壬水为最，戊土佐之。\nFor a Byeonghwa Day Master born in the eleventh month, Imsu is needed first, then Muto."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月丙」\n十一月丙火，冬至一阳生，弱中复强，壬水为最，戊土佐之。\n十一月生まれの丙の日干には、まず壬が、次に戊が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월병」\n十一月丙火，冬至一阳生，弱中复强，壬水为最，戊土佐之。\n11월에 태어난 병화 일간에게는 임수가 먼저, 그다음 무토가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月丙\n正月用壬，庚辛为助。\nFor a Byeonghwa Day Master born in the first month, Imsu is needed first, with Gyeonggeum and Singeum helping."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月丙」\n正月用壬，庚辛为助。\n正月生まれの丙の日干には、まず壬が必要で、庚と辛が助けるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월병」\n正月用壬，庚辛为助。\n정월에 태어난 병화 일간에게는 임수가 먼저 필요하고 경금과 신금이 돕는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月丙\n四月耑用壬水，金为佐。\nFor a Byeonghwa Day Master born in the fourth month, Imsu is used above all, with Metal energy helping."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月丙」\n四月耑用壬水，金为佐。\n四月生まれの丙の日干には、壬を第一に用い、金の気が助けるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월병」\n四月耑用壬水，金为佐。\n4월에 태어난 병화 일간에게는 임수를 으뜸으로 쓰고 금 기운이 돕는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月丙\n九月丙火，火气愈退，所忌土晦光火，必须先用甲木，次取壬水。\nFor a Byeonghwa Day Master born in the ninth month, Gapmok is needed first, then Imsu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月丙」\n九月丙火，火气愈退，所忌土晦光火，必须先用甲木，次取壬水。\n九月生まれの丙の日干には、まず甲が、次に壬が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월병」\n九月丙火，火气愈退，所忌土晦光火，必须先用甲木，次取壬水。\n9월에 태어난 병화 일간에게는 갑목이 먼저, 그다음 임수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月丙\n六月丙火退气，三伏生寒，壬水为用，取庚辅佐。\nFor a Byeonghwa Day Master born in the sixth month, Imsu is needed first, then Gyeonggeum."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月丙」\n六月丙火退气，三伏生寒，壬水为用，取庚辅佐。\n六月生まれの丙の日干には、まず壬が、次に庚が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월병」\n六月丙火退气，三伏生寒，壬水为用，取庚辅佐。\n6월에 태어난 병화 일간에게는 임수가 먼저, 그다음 경금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月丙\n七月丙火，太阳转西，阳气衰矣。\nIn the seventh month, Byeonghwa weakens as the sun sinks toward the west."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月丙」\n七月丙火，太阳转西，阳气衰矣。\n七月の丙は、日が西に傾いて気が弱まるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월병」\n七月丙火，太阳转西，阳气衰矣。\n7월의 병화는 해가 서쪽으로 기울어 기운이 약해진다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月丙\n三月丙火，气渐炎升，用壬水。\nFor a Byeonghwa Day Master born in the third month, Imsu is needed first."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月丙」\n三月丙火，气渐炎升，用壬水。\n三月生まれの丙の日干には、まず壬が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월병」\n三月丙火，气渐炎升，用壬水。\n3월에 태어난 병화 일간에게는 임수가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月丙\n八月丙火，日近黄昏，丙火之余光，存于光湖，仍用壬水辅映。\nFor a Byeonghwa Day Master born in the eighth month, Imsu is still needed to reflect its fading light."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月丙」\n八月丙火，日近黄昏，丙火之余光，存于光湖，仍用壬水辅映。\n八月生まれの丙の日干には、沈んでいく光を映す壬が、今も必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#丙.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월병」\n八月丙火，日近黄昏，丙火之余光，存于光湖，仍用壬水辅映。\n8월에 태어난 병화 일간에게는 저무는 빛을 비춰 줄 임수가 여전히 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三冬乙\n冬月之木，虽取戊制水，不可作用，耑取丙火则可。\nFor an Eulmok Day Master born in the twelfth month, only Byeonghwa is used, not Muto."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三冬乙」\n冬月之木，虽取戊制水，不可作用，耑取丙火则可。\n十二月生まれの乙の日干には、戊ではなく丙だけを用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼동을」\n冬月之木，虽取戊制水，不可作用，耑取丙火则可。\n12월에 태어난 을목 일간에게는 무토가 아니라 병화만 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月乙\n十月乙木，木不受气，而壬水司令，取丙为用，戊土次之。\nFor an Eulmok Day Master born in the tenth month, Byeonghwa is needed first, then Muto."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月乙」\n十月乙木，木不受气，而壬水司令，取丙为用，戊土次之。\n十月生まれの乙の日干には、まず丙が、次に戊が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월을」\n十月乙木，木不受气，而壬水司令，取丙为用，戊土次之。\n10월에 태어난 을목 일간에게는 병화가 먼저, 그다음 무토가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月乙\n五月乙木，丁火司权，禾稼俱旱。\nFor Eulmok, the fifth month is a time when Jeonghwa holds power and all the grain is parched."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月乙」\n五月乙木，丁火司权，禾稼俱旱。\n五月の乙は、丁が力を握り、穀物がみな日照りに遭う時期だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월을」\n五月乙木，丁火司权，禾稼俱旱。\n5월의 을목은 정화가 힘을 쥐어 곡식이 모두 가문 때라는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月乙\n二月乙木，阳气渐升，木不寒矣，以丙为君，癸为臣，丙癸两透，不透庚金，大富大贵。\nFor an Eulmok Day Master born in the second month, Byeonghwa is needed first, then Gyesu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月乙」\n二月乙木，阳气渐升，木不寒矣，以丙为君，癸为臣，丙癸两透，不透庚金，大富大贵。\n二月生まれの乙の日干には、まず丙が、次に癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월을」\n二月乙木，阳气渐升，木不寒矣，以丙为君，癸为臣，丙癸两透，不透庚金，大富大贵。\n2월에 태어난 을목 일간에게는 병화가 먼저, 그다음 계수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月乙\n十一月乙木，花木寒冻，一阳来复，喜用丙火解冻，则花木有向阳之意，不宜用癸以冻花木，故耑用丙火。\nFor an Eulmok Day Master born in the eleventh month, only Byeonghwa is used, and Gyesu is not."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月乙」\n十一月乙木，花木寒冻，一阳来复，喜用丙火解冻，则花木有向阳之意，不宜用癸以冻花木，故耑用丙火。\n十一月生まれの乙の日干には、丙だけを用い、癸は用いないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월을」\n十一月乙木，花木寒冻，一阳来复，喜用丙火解冻，则花木有向阳之意，不宜用癸以冻花木，故耑用丙火。\n11월에 태어난 을목 일간에게는 병화만 쓰고 계수는 쓰지 않는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月乙\n正月乙木，必须用丙，因天气尤有余寒，非丙不暖，虽有癸水，恐凝寒气，故以丙火为先，癸水次之。\nFor an Eulmok Day Master born in the first month, Byeonghwa is needed first, then Gyesu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月乙」\n正月乙木，必须用丙，因天气尤有余寒，非丙不暖，虽有癸水，恐凝寒气，故以丙火为先，癸水次之。\n正月生まれの乙の日干には、まず丙が、次に癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월을」\n正月乙木，必须用丙，因天气尤有余寒，非丙不暖，虽有癸水，恐凝寒气，故以丙火为先，癸水次之。\n정월에 태어난 을목 일간에게는 병화가 먼저, 그다음 계수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月乙\n四月乙木，自有丙火，耑取癸水为尊。\nFor an Eulmok Day Master born in the fourth month, Gyesu is needed first."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月乙」\n四月乙木，自有丙火，耑取癸水为尊。\n四月生まれの乙の日干には、まず癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월을」\n四月乙木，自有丙火，耑取癸水为尊。\n4월에 태어난 을목 일간에게는 계수가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月乙\n九月乙木，根枯叶落，必赖癸水滋养。\nAn Eulmok Day Master born in the ninth month has dry roots and fallen leaves, so Gyesu is truly needed."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月乙」\n九月乙木，根枯叶落，必赖癸水滋养。\n九月生まれの乙の日干は、根が枯れて葉が落ちるので、癸がぜひ必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월을」\n九月乙木，根枯叶落，必赖癸水滋养。\n9월에 태어난 을목 일간은 뿌리가 마르고 잎이 져서 계수가 꼭 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月乙\n六月乙木，木性且寒，柱多金水，丙火为尊。\nFor an Eulmok Day Master born in the sixth month, Byeonghwa is needed first if the chart has a lot of Metal and Water."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月乙」\n六月乙木，木性且寒，柱多金水，丙火为尊。\n六月生まれの乙の日干は、命式に金と水が多ければ、まず丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월을」\n六月乙木，木性且寒，柱多金水，丙火为尊。\n6월에 태어난 을목 일간은 사주에 금과 물이 많으면 병화가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月乙\n七月乙木，庚金乘令，庚虽输情于乙妹，怎奈干乙难合支金。\nIn the seventh month, Gyeonggeum holds power and is drawn to Eulmok, but it is hard to join with the metal hidden in the earth."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月乙」\n七月乙木，庚金乘令，庚虽输情于乙妹，怎奈干乙难合支金。\n七月の乙は、庚が力を握って乙に惹かれるものの、地中の金とは合しにくいという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월을」\n七月乙木，庚金乘令，庚虽输情于乙妹，怎奈干乙难合支金。\n7월의 을목은 경금이 힘을 쥐고 을목에 끌리지만, 땅속의 쇠와는 합하기 어렵다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月乙\n三月乙木，阳气愈炽，先癸后丙。\nFor an Eulmok Day Master born in the third month, Gyesu is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月乙」\n三月乙木，阳气愈炽，先癸后丙。\n三月生まれの乙の日干には、まず癸が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월을」\n三月乙木，阳气愈炽，先癸后丙。\n3월에 태어난 을목 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月乙\n八月乙木，芝兰禾稼均退。\nFor Eulmok, the eighth month is a time when flowers and grain alike have lost their energy."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月乙」\n八月乙木，芝兰禾稼均退。\n八月の乙は、花も穀物もみな気が退いた時期だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#乙.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월을」\n八月乙木，芝兰禾稼均退。\n8월의 을목은 꽃과 곡식이 모두 기운이 물러간 때라는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十二月壬\n十二月壬水，旺极复衰，何也？上半月癸辛主事，故旺，专用丙火。\nFor an Imsu Day Master born in the twelfth month, the energy is strong early in the month, so only Byeonghwa is used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十二月壬」\n十二月壬水，旺极复衰，何也？上半月癸辛主事，故旺，专用丙火。\n十二月生まれの壬の日干は、月の前半に気が強いので、丙だけを用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십이월임」\n十二月壬水，旺极复衰，何也？上半月癸辛主事，故旺，专用丙火。\n12월에 태어난 임수 일간은 달 초반에 기운이 세므로 병화만 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月壬\n十月壬水司权，至旺之极，取戊为用，若生辰日干，又见辰时，必须戊透，又须庚制甲，不伤戊土，戊庚两全，定主豋科乃第，位显权高。\nFor an Imsu Day Master born in the tenth month, Muto is needed first, and with Gyeonggeum as well, great honor follows."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月壬」\n十月壬水司权，至旺之极，取戊为用，若生辰日干，又见辰时，必须戊透，又须庚制甲，不伤戊土，戊庚两全，定主豋科乃第，位显权高。\n十月生まれの壬の日干には、まず戊が必要で、庚まで共にそろえば大いに尊くなるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월임」\n十月壬水司权，至旺之极，取戊为用，若生辰日干，又见辰时，必须戊透，又须庚制甲，不伤戊土，戊庚两全，定主豋科乃第，位显权高。\n10월에 태어난 임수 일간에게는 무토가 먼저 필요하고, 경금까지 함께 갖추면 크게 귀해진다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月壬\n五月壬水，丁旺壬弱，取癸为用，取庚为佐。\nFor an Imsu Day Master born in the fifth month, Gyesu is needed first, with Gyeonggeum helping."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月壬」\n五月壬水，丁旺壬弱，取癸为用，取庚为佐。\n五月生まれの壬の日干には、まず癸が必要で、庚が助けるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월임」\n五月壬水，丁旺壬弱，取癸为用，取庚为佐。\n5월에 태어난 임수 일간에게는 계수가 먼저 필요하고 경금이 돕는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月壬\n二月壬水，寒气初除，有并流之象，不用丙暖，专取戊土辛金。\nFor an Imsu Day Master born in the second month, Muto and Singeum are used, not Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月壬」\n二月壬水，寒气初除，有并流之象，不用丙暖，专取戊土辛金。\n二月生まれの壬の日干には、丙は用いず、戊と辛を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월임」\n二月壬水，寒气初除，有并流之象，不用丙暖，专取戊土辛金。\n2월에 태어난 임수 일간에게는 병화는 쓰지 않고 무토와 신금을 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月壬\n十一月壬水，阳刃帮身，较前更旺，先取戊土，次用丙火，丙戊两透，富贵荣华。\nFor an Imsu Day Master born in the eleventh month, Muto is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月壬」\n十一月壬水，阳刃帮身，较前更旺，先取戊土，次用丙火，丙戊两透，富贵荣华。\n十一月生まれの壬の日干には、まず戊が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월임」\n十一月壬水，阳刃帮身，较前更旺，先取戊土，次用丙火，丙戊两透，富贵荣华。\n11월에 태어난 임수 일간에게는 무토가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月壬\n正月壬水，汪洋之象，能并百川之流，然水性柔弱，宜用庚金之源，庶不致汪洋无度。\nFor an Imsu Day Master born in the first month, Gyeonggeum is needed first as the source of its water."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月壬」\n正月壬水，汪洋之象，能并百川之流，然水性柔弱，宜用庚金之源，庶不致汪洋无度。\n正月生まれの壬の日干には、まず水の源となる庚が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월임」\n正月壬水，汪洋之象，能并百川之流，然水性柔弱，宜用庚金之源，庶不致汪洋无度。\n정월에 태어난 임수 일간에게는 물의 근원이 될 경금이 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月壬\n四月壬水，丙火司权，水弱极矣，专取壬水比肩为助，次取辛金发源，且暗合丙火，庚金为佐。\nFor an Imsu Day Master born in the fourth month, another Imsu is needed first, then Singeum, with Gyeonggeum helping."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月壬」\n四月壬水，丙火司权，水弱极矣，专取壬水比肩为助，次取辛金发源，且暗合丙火，庚金为佐。\n四月生まれの壬の日干には、まず同じ壬が、次に辛が必要で、庚が助けるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월임」\n四月壬水，丙火司权，水弱极矣，专取壬水比肩为助，次取辛金发源，且暗合丙火，庚金为佐。\n4월에 태어난 임수 일간에게는 같은 임수가 먼저, 그다음 신금이 필요하고 경금이 돕는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月壬\n九月壬水进气，其性特厚，若一派壬水，见一甲、制戌中之戊，戊又出干，斯用丙火。\nIn the ninth month, when Imsu is abundant, Gapmok holds down Muto, and if Muto shows again, Byeonghwa is used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月壬」\n九月壬水进气，其性特厚，若一派壬水，见一甲、制戌中之戊，戊又出干，斯用丙火。\n九月の壬は、壬が多いとき、甲が戊を抑え、戊が再び現れれば丙を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월임」\n九月壬水进气，其性特厚，若一派壬水，见一甲、制戌中之戊，戊又出干，斯用丙火。\n9월의 임수는 임수가 가득할 때 갑목이 무토를 누르고 무토가 다시 드러나면 병화를 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月壬\n六月壬水，己土当权，丁火退气，先用辛金癸水，次用甲木噼土。\nFor an Imsu Day Master born in the sixth month, Singeum and Gyesu are needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月壬」\n六月壬水，己土当权，丁火退气，先用辛金癸水，次用甲木噼土。\n六月生まれの壬の日干には、まず辛と癸が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월임」\n六月壬水，己土当权，丁火退气，先用辛金癸水，次用甲木噼土。\n6월에 태어난 임수 일간에게는 신금과 계수가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月壬\n七月壬水，庚金司令，壬得申之长生，源流自远，转弱为强，专用戊土，次取丁火佐戊制庚。\nFor an Imsu Day Master born in the seventh month, Muto is needed first, then Jeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月壬」\n七月壬水，庚金司令，壬得申之长生，源流自远，转弱为强，专用戊土，次取丁火佐戊制庚。\n七月生まれの壬の日干には、まず戊が、次に丁が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월임」\n七月壬水，庚金司令，壬得申之长生，源流自远，转弱为强，专用戊土，次取丁火佐戊制庚。\n7월에 태어난 임수 일간에게는 무토가 먼저, 그다음 정화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月壬\n三月壬水，戊土司权，恐有推山填海之患，先用甲疏季土，次取庚金。\nFor an Imsu Day Master born in the third month, Gapmok is needed first, then Gyeonggeum."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月壬」\n三月壬水，戊土司权，恐有推山填海之患，先用甲疏季土，次取庚金。\n三月生まれの壬の日干には、まず甲が、次に庚が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월임」\n三月壬水，戊土司权，恐有推山填海之患，先用甲疏季土，次取庚金。\n3월에 태어난 임수 일간에게는 갑목이 먼저, 그다음 경금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月壬\n八月壬水，辛金司权，正金白水清，忌戊土为病，专用甲木。\nFor an Imsu Day Master born in the eighth month, only Gapmok is used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月壬」\n八月壬水，辛金司权，正金白水清，忌戊土为病，专用甲木。\n八月生まれの壬の日干には、甲だけを用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#壬.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월임」\n八月壬水，辛金司权，正金白水清，忌戊土为病，专用甲木。\n8월에 태어난 임수 일간에게는 갑목만 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三冬己\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\nFor a Gito Day Master born in the twelfth month, Byeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三冬己」\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\n十二月生まれの己の日干には、まず丙が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼동기」\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\n12월에 태어난 기토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三冬己\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\nFor a Gito Day Master born in the tenth month, Byeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三冬己」\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\n十月生まれの己の日干には、まず丙が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼동기」\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\n10월에 태어난 기토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三夏己\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\nFor a Gito Day Master born in the fifth month, Gyesu is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三夏己」\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\n五月生まれの己の日干には、まず癸が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼하기」\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\n5월에 태어난 기토 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月己\n二月己土，阳气渐升，虽禾稼未成，万物出土，田园未展，先取甲木疏之，忌合。\nFor a Gito Day Master born in the second month, Gapmok is needed first."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月己」\n二月己土，阳气渐升，虽禾稼未成，万物出土，田园未展，先取甲木疏之，忌合。\n二月生まれの己の日干には、まず甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월기」\n二月己土，阳气渐升，虽禾稼未成，万物出土，田园未展，先取甲木疏之，忌合。\n2월에 태어난 기토 일간에게는 갑목이 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三冬己\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\nFor a Gito Day Master born in the eleventh month, Byeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三冬己」\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\n十一月生まれの己の日干には、まず丙が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼동기」\n三冬己土，溼泥寒冻，非丙暖不生，取丙为尊，甲木参酌。\n11월에 태어난 기토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月己\n正月己土，田园犹冻，盖因腊气未除，余寒未退，故丙为尊。\nFor a Gito Day Master born in the first month, Byeonghwa is needed first."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月己」\n正月己土，田园犹冻，盖因腊气未除，余寒未退，故丙为尊。\n正月生まれの己の日干には、まず丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월기」\n正月己土，田园犹冻，盖因腊气未除，余寒未退，故丙为尊。\n정월에 태어난 기토 일간에게는 병화가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三夏己\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\nFor a Gito Day Master born in the fourth month, Gyesu is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三夏己」\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\n四月生まれの己の日干には、まず癸が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼하기」\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\n4월에 태어난 기토 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三秋己\n三秋己土，万物收藏之际，外虚内实，寒气渐升，须丙火温之，癸水润之，不特此也，且癸能洩金，丙能制金，补土精神，则秋生之物咸茂矣。\nFor a Gito Day Master born in the ninth month, Byeonghwa to warm it and Gyesu to moisten it are used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三秋己」\n三秋己土，万物收藏之际，外虚内实，寒气渐升，须丙火温之，癸水润之，不特此也，且癸能洩金，丙能制金，补土精神，则秋生之物咸茂矣。\n九月生まれの己の日干には、温める丙と潤す癸を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼추기」\n三秋己土，万物收藏之际，外虚内实，寒气渐升，须丙火温之，癸水润之，不特此也，且癸能洩金，丙能制金，补土精神，则秋生之物咸茂矣。\n9월에 태어난 기토 일간에게는 따뜻하게 할 병화와 적셔 줄 계수를 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三夏己\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\nFor a Gito Day Master born in the sixth month, Gyesu is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三夏己」\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\n六月生まれの己の日干には、まず癸が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼하기」\n三夏己土，杂气才官，禾稼在田，最喜甘沛，取癸为要，次用丙火。\n6월에 태어난 기토 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三秋己\n三秋己土，万物收藏之际，外虚内实，寒气渐升，须丙火温之，癸水润之，不特此也，且癸能洩金，丙能制金，补土精神，则秋生之物咸茂矣。\nFor a Gito Day Master born in the seventh month, Byeonghwa to warm it and Gyesu to moisten it are used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三秋己」\n三秋己土，万物收藏之际，外虚内实，寒气渐升，须丙火温之，癸水润之，不特此也，且癸能洩金，丙能制金，补土精神，则秋生之物咸茂矣。\n七月生まれの己の日干には、温める丙と潤す癸を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼추기」\n三秋己土，万物收藏之际，外虚内实，寒气渐升，须丙火温之，癸水润之，不特此也，且癸能洩金，丙能制金，补土精神，则秋生之物咸茂矣。\n7월에 태어난 기토 일간에게는 따뜻하게 할 병화와 적셔 줄 계수를 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月己\n三月己土，正栽培禾稼之时，先丙后癸，土暖而润，随用甲疏，三者俱透天干，必官居黄阁。\nFor a Gito Day Master born in the third month, Byeonghwa is needed first, then Gyesu, and after that Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月己」\n三月己土，正栽培禾稼之时，先丙后癸，土暖而润，随用甲疏，三者俱透天干，必官居黄阁。\n三月生まれの己の日干には、まず丙が、次に癸が、続いて甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월기」\n三月己土，正栽培禾稼之时，先丙后癸，土暖而润，随用甲疏，三者俱透天干，必官居黄阁。\n3월에 태어난 기토 일간에게는 병화가 먼저, 그다음 계수, 이어서 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月己\n八月支成金局，无丙丁出救，此人零丁孤苦。\nIn the eighth month, metal energy gathers in the earth of Gito, and without Byeonghwa or Jeonghwa to rescue it, life is lonely and hard."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月己」\n八月支成金局，无丙丁出救，此人零丁孤苦。\n八月の己は、地に金の気が固まり、丙や丁が救わなければ、孤独で苦労するという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#己.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월기」\n八月支成金局，无丙丁出救，此人零丁孤苦。\n8월의 기토는 땅에 쇠 기운이 뭉쳤는데 병화나 정화가 구해 주지 않으면 외롭고 고생한다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十二月庚\n十二月庚金，寒气太重，且多湿泥，愈寒愈冻，先取丙火解冻，次取丁火炼金，甲亦不可少。\nFor a Gyeonggeum Day Master born in the twelfth month, Byeonghwa is needed first, then Jeonghwa, and Gapmok cannot be left out either."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十二月庚」\n十二月庚金，寒气太重，且多湿泥，愈寒愈冻，先取丙火解冻，次取丁火炼金，甲亦不可少。\n十二月生まれの庚の日干には、まず丙が、次に丁が必要で、甲も欠かせないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십이월경」\n十二月庚金，寒气太重，且多湿泥，愈寒愈冻，先取丙火解冻，次取丁火炼金，甲亦不可少。\n12월에 태어난 경금 일간에게는 병화가 먼저, 그다음 정화가 필요하고 갑목도 빠질 수 없다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月庚\n十月庚金，水冷性寒，非丁莫造，非丙不暖。\nFor a Gyeonggeum Day Master born in the tenth month, Jeonghwa to refine it and Byeonghwa to warm it are used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月庚」\n十月庚金，水冷性寒，非丁莫造，非丙不暖。\n十月生まれの庚の日干には、鍛える丁と温める丙を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월경」\n十月庚金，水冷性寒，非丁莫造，非丙不暖。\n10월에 태어난 경금 일간에게는 다듬을 정화와 데울 병화를 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月庚\n五月庚金，丁火旺烈，庚金败地，专用壬水，癸又次之。\nFor a Gyeonggeum Day Master born in the fifth month, Imsu is needed first, then Gyesu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月庚」\n五月庚金，丁火旺烈，庚金败地，专用壬水，癸又次之。\n五月生まれの庚の日干には、まず壬が、次に癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월경」\n五月庚金，丁火旺烈，庚金败地，专用壬水，癸又次之。\n5월에 태어난 경금 일간에게는 임수가 먼저, 그다음 계수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月庚\n二月庚金，柱中自然有乙，当令之乙，见庚必输情于乙，此金有暗强之势，如秋金一理，故二月庚金，专用丁火，借甲引丁，借庚噼甲。\nFor a Gyeonggeum Day Master born in the second month, Jeonghwa is needed first, then Gapmok to keep Jeonghwa burning and Gyeonggeum to split Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月庚」\n二月庚金，柱中自然有乙，当令之乙，见庚必输情于乙，此金有暗强之势，如秋金一理，故二月庚金，专用丁火，借甲引丁，借庚噼甲。\n二月生まれの庚の日干には、まず丁が、次に丁を生かす甲と、甲を割る庚が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월경」\n二月庚金，柱中自然有乙，当令之乙，见庚必输情于乙，此金有暗强之势，如秋金一理，故二月庚金，专用丁火，借甲引丁，借庚噼甲。\n2월에 태어난 경금 일간에게는 정화가 먼저, 그다음 정화를 살릴 갑목과 갑목을 쪼갤 경금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月庚\n十一月庚金，天气严寒，仍取丁甲，次取丙火照暖。\nFor a Gyeonggeum Day Master born in the eleventh month, Jeonghwa and Gapmok are needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月庚」\n十一月庚金，天气严寒，仍取丁甲，次取丙火照暖。\n十一月生まれの庚の日干には、まず丁と甲が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월경」\n十一月庚金，天气严寒，仍取丁甲，次取丙火照暖。\n11월에 태어난 경금 일간에게는 정화와 갑목이 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月庚\n正月庚金，木旺之际，有土皆死，不能生金，且金之寒气未除，先用丙暖庚性，又虑土厚埋金，须甲疏洩。\nFor a Gyeonggeum Day Master born in the first month, Byeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月庚」\n正月庚金，木旺之际，有土皆死，不能生金，且金之寒气未除，先用丙暖庚性，又虑土厚埋金，须甲疏洩。\n正月生まれの庚の日干には、まず丙が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월경」\n正月庚金，木旺之际，有土皆死，不能生金，且金之寒气未除，先用丙暖庚性，又虑土厚埋金，须甲疏洩。\n정월에 태어난 경금 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月庚\n四月庚金，长生于巳，巳内有戊。\nIn the fourth month, Gyeonggeum first gains strength, and Muto lies hidden within the month."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月庚」\n四月庚金，长生于巳，巳内有戊。\n四月の庚は、この月に初めて力を得て、月の中に戊が隠れているという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월경」\n四月庚金，长生于巳，巳内有戊。\n4월의 경금은 이 달에 처음 힘을 받고, 달 안에 무토가 숨어 있다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月庚\n九月庚金，戊土司令，最怕土厚埋金，宜先用甲疏，后用壬洗，则金自出矣。\nFor a Gyeonggeum Day Master born in the ninth month, Gapmok is needed first, then Imsu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月庚」\n九月庚金，戊土司令，最怕土厚埋金，宜先用甲疏，后用壬洗，则金自出矣。\n九月生まれの庚の日干には、まず甲が、次に壬が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월경」\n九月庚金，戊土司令，最怕土厚埋金，宜先用甲疏，后用壬洗，则金自出矣。\n9월에 태어난 경금 일간에게는 갑목이 먼저, 그다음 임수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月庚\n六月庚金，三伏生寒，顽钝极矣，先用丁火，次取甲木。\nFor a Gyeonggeum Day Master born in the sixth month, Jeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月庚」\n六月庚金，三伏生寒，顽钝极矣，先用丁火，次取甲木。\n六月生まれの庚の日干には、まず丁が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월경」\n六月庚金，三伏生寒，顽钝极矣，先用丁火，次取甲木。\n6월에 태어난 경금 일간에게는 정화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月庚\n七月庚金，刚锐极矣。\nIn the seventh month, Gyeonggeum is at its hardest and sharpest."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月庚」\n七月庚金，刚锐极矣。\n七月の庚は、かたさと鋭さが最も強いという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월경」\n七月庚金，刚锐极矣。\n7월의 경금은 단단하고 날카로움이 가장 강하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月庚\n三月庚金，戊土司令，无生金之理，有埋金之忧，故先甲后丁，不用庚噼甲。\nFor a Gyeonggeum Day Master born in the third month, Gapmok is needed first, then Jeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月庚」\n三月庚金，戊土司令，无生金之理，有埋金之忧，故先甲后丁，不用庚噼甲。\n三月生まれの庚の日干には、まず甲が、次に丁が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월경」\n三月庚金，戊土司令，无生金之理，有埋金之忧，故先甲后丁，不用庚噼甲。\n3월에 태어난 경금 일간에게는 갑목이 먼저, 그다음 정화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月庚\n八月庚金，刚锐未退，用丁用甲，丙不可少。\nFor a Gyeonggeum Day Master born in the eighth month, Jeonghwa and Gapmok are used, and Byeonghwa cannot be left out either."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月庚」\n八月庚金，刚锐未退，用丁用甲，丙不可少。\n八月生まれの庚の日干には、丁と甲を用い、丙も欠かせないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#庚.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월경」\n八月庚金，刚锐未退，用丁用甲，丙不可少。\n8월에 태어난 경금 일간에게는 정화와 갑목을 쓰고 병화도 빠질 수 없다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一二月戊\n十一二月严寒冰冻，丙火为专，甲木为佐。\nFor a Muto Day Master born in the twelfth month, Byeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一二月戊」\n十一二月严寒冰冻，丙火为专，甲木为佐。\n十二月生まれの戊の日干には、まず丙が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일이월무」\n十一二月严寒冰冻，丙火为专，甲木为佐。\n12월에 태어난 무토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月戊\n十月戊土，时值小阳，阳气略出，先用甲木，次取丙火。\nFor a Muto Day Master born in the tenth month, Gapmok is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月戊」\n十月戊土，时值小阳，阳气略出，先用甲木，次取丙火。\n十月生まれの戊の日干には、まず甲が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월무」\n十月戊土，时值小阳，阳气略出，先用甲木，次取丙火。\n10월에 태어난 무토 일간에게는 갑목이 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月戊\n五月戊土，仲夏火炎，先看壬水，次取甲木，丙火酌用，用癸力微。\nFor a Muto Day Master born in the fifth month, Imsu is needed first, then Gapmok, and Byeonghwa is used as the situation calls for."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月戊」\n五月戊土，仲夏火炎，先看壬水，次取甲木，丙火酌用，用癸力微。\n五月生まれの戊の日干には、まず壬が、次に甲が必要で、丙は状況に応じて用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월무」\n五月戊土，仲夏火炎，先看壬水，次取甲木，丙火酌用，用癸力微。\n5월에 태어난 무토 일간에게는 임수가 먼저, 그다음 갑목이 필요하고 병화는 형편에 따라 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正二月戊\n正二月即有甲癸，若无丙除寒，如万物生而不长，故无丙者，富贵艰辛。\nFor a Muto Day Master born in the second month, even with Gapmok and Gyesu present, Byeonghwa is needed first to clear away the cold."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正二月戊」\n正二月即有甲癸，若无丙除寒，如万物生而不长，故无丙者，富贵艰辛。\n二月生まれの戊の日干には、甲と癸があっても、まず寒さを払う丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정이월무」\n正二月即有甲癸，若无丙除寒，如万物生而不长，故无丙者，富贵艰辛。\n2월에 태어난 무토 일간에게는 갑목과 계수가 있어도 추위를 걷을 병화가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一二月戊\n十一二月严寒冰冻，丙火为专，甲木为佐。\nFor a Muto Day Master born in the eleventh month, Byeonghwa is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一二月戊」\n十一二月严寒冰冻，丙火为专，甲木为佐。\n十一月生まれの戊の日干には、まず丙が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일이월무」\n十一二月严寒冰冻，丙火为专，甲木为佐。\n11월에 태어난 무토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正二月戊\n正二月即有甲癸，若无丙除寒，如万物生而不长，故无丙者，富贵艰辛。\nFor a Muto Day Master born in the first month, even with Gapmok and Gyesu present, Byeonghwa is needed first to clear away the cold."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正二月戊」\n正二月即有甲癸，若无丙除寒，如万物生而不长，故无丙者，富贵艰辛。\n正月生まれの戊の日干には、甲と癸があっても、まず寒さを払う丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정이월무」\n正二月即有甲癸，若无丙除寒，如万物生而不长，故无丙者，富贵艰辛。\n정월에 태어난 무토 일간에게는 갑목과 계수가 있어도 추위를 걷을 병화가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月戊\n四月戊土，阳气发升，寒气内藏，外实内虚，不畏火炎，无阳气相催，万物不长，故先用甲疏噼，次取丙癸为佐。\nFor a Muto Day Master born in the fourth month, Gapmok is needed first, then Byeonghwa and Gyesu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月戊」\n四月戊土，阳气发升，寒气内藏，外实内虚，不畏火炎，无阳气相催，万物不长，故先用甲疏噼，次取丙癸为佐。\n四月生まれの戊の日干には、まず甲が、次に丙と癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월무」\n四月戊土，阳气发升，寒气内藏，外实内虚，不畏火炎，无阳气相催，万物不长，故先用甲疏噼，次取丙癸为佐。\n4월에 태어난 무토 일간에게는 갑목이 먼저, 그다음 병화와 계수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月戊\n九月戊土当权，不可专用丙，先看甲木，次取癸水，却忌化合。\nFor a Muto Day Master born in the ninth month, Gapmok is needed first, then Gyesu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月戊」\n九月戊土当权，不可专用丙，先看甲木，次取癸水，却忌化合。\n九月生まれの戊の日干には、まず甲が、次に癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월무」\n九月戊土当权，不可专用丙，先看甲木，次取癸水，却忌化合。\n9월에 태어난 무토 일간에게는 갑목이 먼저, 그다음 계수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月戊\n六月戊土，遇夏干枯，先看癸水，次用丙火甲木。\nFor a Muto Day Master born in the sixth month, Gyesu is needed first, then Byeonghwa and Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月戊」\n六月戊土，遇夏干枯，先看癸水，次用丙火甲木。\n六月生まれの戊の日干には、まず癸が、次に丙と甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월무」\n六月戊土，遇夏干枯，先看癸水，次用丙火甲木。\n6월에 태어난 무토 일간에게는 계수가 먼저, 그다음 병화와 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月戊\n七月戊土，阳气渐入，寒气渐出，先丙后癸，甲木次之。\nFor a Muto Day Master born in the seventh month, Byeonghwa is needed first, then Gyesu, and finally Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月戊」\n七月戊土，阳气渐入，寒气渐出，先丙后癸，甲木次之。\n七月生まれの戊の日干には、まず丙が、次に癸が、最後に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월무」\n七月戊土，阳气渐入，寒气渐出，先丙后癸，甲木次之。\n7월에 태어난 무토 일간에게는 병화가 먼저, 그다음 계수, 마지막으로 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月戊\n三月戊土司令，不见丙甲癸者，愚而且贱。\nA Muto Day Master born in the third month ends up foolish and in a low position if none of Byeonghwa, Gapmok, or Gyesu appears."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月戊」\n三月戊土司令，不见丙甲癸者，愚而且贱。\n三月生まれの戊の日干は、丙、甲、癸がひとつも見えなければ、愚かで低い立場になるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월무」\n三月戊土司令，不见丙甲癸者，愚而且贱。\n3월에 태어난 무토 일간은 병화, 갑목, 계수가 하나도 보이지 않으면 어리석고 낮은 처지가 된다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月戊\n八月戊土，金洩身寒，赖丙照暖，喜水滋润，先丙后癸，不必木疏。\nFor a Muto Day Master born in the eighth month, Byeonghwa is needed first, then Gyesu, and Wood is not needed."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月戊」\n八月戊土，金洩身寒，赖丙照暖，喜水滋润，先丙后癸，不必木疏。\n八月生まれの戊の日干には、まず丙が、次に癸が必要で、木は要らないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#戊.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월무」\n八月戊土，金洩身寒，赖丙照暖，喜水滋润，先丙后癸，不必木疏。\n8월에 태어난 무토 일간에게는 병화가 먼저, 그다음 계수가 필요하고 나무는 필요 없다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十二月甲\n十二月甲木，天寒气冻，木性极寒，无生发之象，先用庚噼甲，方引丁火始得木火有通明之象，故丁次之。\nFor a Gapmok Day Master born in the twelfth month, Gyeonggeum is needed first, then Jeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十二月甲」\n十二月甲木，天寒气冻，木性极寒，无生发之象，先用庚噼甲，方引丁火始得木火有通明之象，故丁次之。\n十二月生まれの甲の日干には、まず庚が、次に丁が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십이월갑」\n十二月甲木，天寒气冻，木性极寒，无生发之象，先用庚噼甲，方引丁火始得木火有通明之象，故丁次之。\n12월에 태어난 갑목 일간에게는 경금이 먼저, 그다음 정화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月甲\n十月甲木，庚丁为要，丙火次之。\nFor a Gapmok Day Master born in the tenth month, Gyeonggeum and Jeonghwa are needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月甲」\n十月甲木，庚丁为要，丙火次之。\n十月生まれの甲の日干には、まず庚と丁が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월갑」\n十月甲木，庚丁为要，丙火次之。\n10월에 태어난 갑목 일간에게는 경금과 정화가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五六月甲\n五六月甲木，木性虚焦，一理共推。\nIn the fifth month, Gapmok is hollow and dry inside, so it is read by the same principle as the sixth month."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五六月甲」\n五六月甲木，木性虚焦，一理共推。\n五月の甲は、木の中が空いて乾いているので、六月と同じ理屈で見るという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오뉴월갑」\n五六月甲木，木性虚焦，一理共推。\n5월의 갑목은 나무가 속이 비고 말라 있어 6월과 같은 이치로 본다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月甲\n二月甲木，庚金得所，名阳刃驾杀，可云小贵，异途显达，或主武职，但要财资之。\nIn the second month, Gapmok gains some honor and makes a name by another path once Gyeonggeum settles into place, but it needs the backing of wealth."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月甲」\n二月甲木，庚金得所，名阳刃驾杀，可云小贵，异途显达，或主武职，但要财资之。\n二月の甲は、庚が所を得れば少し尊くなり、別の道で名を上げますが、財の後ろ盾が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월갑」\n二月甲木，庚金得所，名阳刃驾杀，可云小贵，异途显达，或主武职，但要财资之。\n2월의 갑목은 경금이 제자리를 잡으면 조금 귀해지고 다른 길로 이름을 내지만, 재물의 뒷받침이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月甲\n十一月甲木，木性生寒，丁先庚后，丙火佐之。\nFor a Gapmok Day Master born in the eleventh month, Jeonghwa is needed first, then Gyeonggeum, with Byeonghwa helping."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月甲」\n十一月甲木，木性生寒，丁先庚后，丙火佐之。\n十一月生まれの甲の日干には、まず丁が、次に庚が必要で、丙が助けるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월갑」\n十一月甲木，木性生寒，丁先庚后，丙火佐之。\n11월에 태어난 갑목 일간에게는 정화가 먼저, 그다음 경금이 필요하고 병화가 돕는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月甲\n正月甲木，初春尚有余寒，得丙癸逢，富贵双全。\nA Gapmok Day Master born in the first month still has cold lingering, so meeting Byeonghwa and Gyesu brings both wealth and honor."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月甲」\n正月甲木，初春尚有余寒，得丙癸逢，富贵双全。\n正月生まれの甲の日干は、まだ寒さが残るので、丙と癸に出会えば富と名誉を共に得るという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월갑」\n正月甲木，初春尚有余寒，得丙癸逢，富贵双全。\n정월에 태어난 갑목 일간은 아직 추위가 남아 병화와 계수를 만나면 부와 명예를 함께 얻는다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月甲\n四月甲木退气，丙火司权，先癸后丁。\nFor a Gapmok Day Master born in the fourth month, Gyesu is needed first, then Jeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月甲」\n四月甲木退气，丙火司权，先癸后丁。\n四月生まれの甲の日干には、まず癸が、次に丁が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월갑」\n四月甲木退气，丙火司权，先癸后丁。\n4월에 태어난 갑목 일간에게는 계수가 먼저, 그다음 정화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月甲\n九月甲木，木星凋零，独爱丁火，壬癸滋扶，丁壬癸透，戊己亦透，此命配得中和，可许一榜。\nFor a Gapmok Day Master born in the ninth month, Jeonghwa is needed first, then Imsu and Gyesu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月甲」\n九月甲木，木星凋零，独爱丁火，壬癸滋扶，丁壬癸透，戊己亦透，此命配得中和，可许一榜。\n九月生まれの甲の日干には、まず丁が、次に壬と癸が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월갑」\n九月甲木，木星凋零，独爱丁火，壬癸滋扶，丁壬癸透，戊己亦透，此命配得中和，可许一榜。\n9월에 태어난 갑목 일간에게는 정화가 먼저, 그다음 임수와 계수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五六月甲\n五六月甲木，木性虚焦，一理共推。\nIn the sixth month, Gapmok is hollow and dry inside, so it is read by the same principle as the fifth month."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五六月甲」\n五六月甲木，木性虚焦，一理共推。\n六月の甲は、木の中が空いて乾いているので、五月と同じ理屈で見るという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오뉴월갑」\n五六月甲木，木性虚焦，一理共推。\n6월의 갑목은 나무가 속이 비고 말라 있어 5월과 같은 이치로 본다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月甲\n七月甲木，丁火为尊，庚金次之，庚金不可少。\nFor a Gapmok Day Master born in the seventh month, Jeonghwa is needed first, then Gyeonggeum, and Gyeonggeum cannot be left out."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月甲」\n七月甲木，丁火为尊，庚金次之，庚金不可少。\n七月生まれの甲の日干には、まず丁が、次に庚が必要で、庚は欠かせないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월갑」\n七月甲木，丁火为尊，庚金次之，庚金不可少。\n7월에 태어난 갑목 일간에게는 정화가 먼저, 그다음 경금이 필요하고 경금은 빠질 수 없다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月甲\n三月甲木，木气相竭。\nIn the third month, Gapmok's wood energy is running out."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月甲」\n三月甲木，木气相竭。\n三月の甲は、木の気が尽きていくという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월갑」\n三月甲木，木气相竭。\n3월의 갑목은 나무의 기운이 다해 간다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月甲\n八月甲木，木囚金旺。\nIn the eighth month, Gapmok's wood energy is shut in and metal energy is strong."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月甲」\n八月甲木，木囚金旺。\n八月の甲は、木の気が閉じ込められ、金の気が強いという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#甲.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월갑」\n八月甲木，木囚金旺。\n8월의 갑목은 나무 기운이 갇히고 쇠 기운이 강하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十二月癸\n十二月癸水，寒极成冰，万物不能舒泰，宜丙火解冻。\nFor a Gyesu Day Master born in the twelfth month, Byeonghwa is needed first."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十二月癸」\n十二月癸水，寒极成冰，万物不能舒泰，宜丙火解冻。\n十二月生まれの癸の日干には、まず丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십이월계」\n十二月癸水，寒极成冰，万物不能舒泰，宜丙火解冻。\n12월에 태어난 계수 일간에게는 병화가 먼저 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月癸\n十月癸水，旺中有弱，何也？因亥摇木，洩散元神，宜用庚辛为妙。\nFor a Gyesu Day Master born in the tenth month, Gyeonggeum and Singeum are used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月癸」\n十月癸水，旺中有弱，何也？因亥摇木，洩散元神，宜用庚辛为妙。\n十月生まれの癸の日干には、庚と辛を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월계」\n十月癸水，旺中有弱，何也？因亥摇木，洩散元神，宜用庚辛为妙。\n10월에 태어난 계수 일간에게는 경금과 신금을 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月癸\n五月癸水，至弱无根，必须庚辛为生身之本，但丁火司权，金难敌火，安能滋养癸水，宜见比劫，方得辛金之用。\nFor a Gyesu Day Master born in the fifth month, Gyeonggeum and Singeum are needed, and they only work properly with fellow Water energy present."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月癸」\n五月癸水，至弱无根，必须庚辛为生身之本，但丁火司权，金难敌火，安能滋养癸水，宜见比劫，方得辛金之用。\n五月生まれの癸の日干には、庚と辛が必要で、同じ水の気があってこそ、うまく用いることができるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월계」\n五月癸水，至弱无根，必须庚辛为生身之本，但丁火司权，金难敌火，安能滋养癸水，宜见比劫，方得辛金之用。\n5월에 태어난 계수 일간에게는 경금과 신금이 필요하고, 같은 물 기운이 있어야 제대로 쓸 수 있다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月癸\n二月癸水，不刚不柔，乙木司令，洩弱元神，专以庚金为用，辛金次之。\nFor a Gyesu Day Master born in the second month, Gyeonggeum is needed first, then Singeum."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月癸」\n二月癸水，不刚不柔，乙木司令，洩弱元神，专以庚金为用，辛金次之。\n二月生まれの癸の日干には、まず庚が、次に辛が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월계」\n二月癸水，不刚不柔，乙木司令，洩弱元神，专以庚金为用，辛金次之。\n2월에 태어난 계수 일간에게는 경금이 먼저, 그다음 신금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月癸\n十一月癸水，值冰冻之时，金水无交欢之象，专用丙火解冻，庶不致成冰，又要辛金滋扶，无丙有辛，不妙。\nFor a Gyesu Day Master born in the eleventh month, Byeonghwa is needed first, then Singeum."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月癸」\n十一月癸水，值冰冻之时，金水无交欢之象，专用丙火解冻，庶不致成冰，又要辛金滋扶，无丙有辛，不妙。\n十一月生まれの癸の日干には、まず丙が、次に辛が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월계」\n十一月癸水，值冰冻之时，金水无交欢之象，专用丙火解冻，庶不致成冰，又要辛金滋扶，无丙有辛，不妙。\n11월에 태어난 계수 일간에게는 병화가 먼저, 그다음 신금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月癸\n正月癸水，值三阳之候，雨露之精，其性至柔，先用辛金，生癸水之源，次用丙火照暖，名阴阳和合，万物发生。\nFor a Gyesu Day Master born in the first month, Singeum is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月癸」\n正月癸水，值三阳之候，雨露之精，其性至柔，先用辛金，生癸水之源，次用丙火照暖，名阴阳和合，万物发生。\n正月生まれの癸の日干には、まず辛が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월계」\n正月癸水，值三阳之候，雨露之精，其性至柔，先用辛金，生癸水之源，次用丙火照暖，名阴阳和合，万物发生。\n정월에 태어난 계수 일간에게는 신금이 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月癸\n四月癸水，喜辛金为用，无辛用庚。\nFor a Gyesu Day Master born in the fourth month, Singeum is used, and if there is no Singeum, Gyeonggeum is used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月癸」\n四月癸水，喜辛金为用，无辛用庚。\n四月生まれの癸の日干には、辛を用い、辛がなければ庚を用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월계」\n四月癸水，喜辛金为用，无辛用庚。\n4월에 태어난 계수 일간에게는 신금을 쓰고, 신금이 없으면 경금을 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月癸\n九月癸水，失令无根，戊土司权，剋制太过，专用辛金发水之源，要比肩滋甲制戊方妙。\nFor a Gyesu Day Master born in the ninth month, Singeum is needed first, and it is good when another Gyesu nourishes Gapmok to hold down Muto."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月癸」\n九月癸水，失令无根，戊土司权，剋制太过，专用辛金发水之源，要比肩滋甲制戊方妙。\n九月生まれの癸の日干には、まず辛が必要で、同じ癸が甲を育てて戊を抑えるとよいという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월계」\n九月癸水，失令无根，戊土司权，剋制太过，专用辛金发水之源，要比肩滋甲制戊方妙。\n9월에 태어난 계수 일간에게는 신금이 먼저 필요하고, 같은 계수가 갑목을 키워 무토를 눌러야 좋다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月癸\n六月癸水，有上下月之分。\nIn the sixth month, Gyesu is read separately for the early and late parts of the month."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月癸」\n六月癸水，有上下月之分。\n六月の癸は、月の前半と後半に分けて見るという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월계」\n六月癸水，有上下月之分。\n6월의 계수는 달 초반과 후반을 나눠서 본다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月癸\n七月癸水，正母旺子相之时，癸虽死申，殊不知申中有庚生之，名死处逢生，弱中复强，即运行西北，亦不死也。\nIn the seventh month, Gyesu may look weak, but the Gyeonggeum within the month keeps it alive, so it grows strong instead."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月癸」\n七月癸水，正母旺子相之时，癸虽死申，殊不知申中有庚生之，名死处逢生，弱中复强，即运行西北，亦不死也。\n七月の癸は、弱く見えても、この月の中の庚が生かしてくれるので、かえって強くなるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월계」\n七月癸水，正母旺子相之时，癸虽死申，殊不知申中有庚生之，名死处逢生，弱中复强，即运行西北，亦不死也。\n7월의 계수는 약해 보여도 이 달 안의 경금이 살려 주어 오히려 강해진다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月癸\n三月癸水，要分清明谷雨。\nIn the third month, Gyesu is read differently depending on whether the birth falls near the solar term Cheongmyeong or near Gogu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月癸」\n三月癸水，要分清明谷雨。\n三月の癸は、清明のころか穀雨のころかを分けて見るという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월계」\n三月癸水，要分清明谷雨。\n3월의 계수는 청명 무렵인지 곡우 무렵인지 나눠서 본다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月癸\n八月癸水，辛金虚灵，非顽金可比，正金白水清，故取辛金为用，丙火佐之。\nFor a Gyesu Day Master born in the eighth month, Singeum is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月癸」\n八月癸水，辛金虚灵，非顽金可比，正金白水清，故取辛金为用，丙火佐之。\n八月生まれの癸の日干には、まず辛が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#癸.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월계」\n八月癸水，辛金虚灵，非顽金可比，正金白水清，故取辛金为用，丙火佐之。\n8월에 태어난 계수 일간에게는 신금이 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.丑",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十二月辛\n十二月辛金，寒冻之极，先丙后壬，无丙不能解冻，无壬不能洗淘。\nFor a Singeum Day Master born in the twelfth month, Byeonghwa is needed first, then Imsu."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.丑",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十二月辛」\n十二月辛金，寒冻之极，先丙后壬，无丙不能解冻，无壬不能洗淘。\n十二月生まれの辛の日干には、まず丙が、次に壬が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.丑",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십이월신」\n十二月辛金，寒冻之极，先丙后壬，无丙不能解冻，无壬不能洗淘。\n12월에 태어난 신금 일간에게는 병화가 먼저, 그다음 임수가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.亥",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十月辛\n十月辛金，时值小阳，阳气渐升，寒气将降，先用壬水，次取丙火，壬丙两透，金榜题名，何也？盖辛金有壬水丙火，名金白水清，又在亥月故发。\nFor a Singeum Day Master born in the tenth month, Imsu is needed first, then Byeonghwa."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.亥",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十月辛」\n十月辛金，时值小阳，阳气渐升，寒气将降，先用壬水，次取丙火，壬丙两透，金榜题名，何也？盖辛金有壬水丙火，名金白水清，又在亥月故发。\n十月生まれの辛の日干には、まず壬が、次に丙が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.亥",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「시월신」\n十月辛金，时值小阳，阳气渐升，寒气将降，先用壬水，次取丙火，壬丙两透，金榜题名，何也？盖辛金有壬水丙火，名金白水清，又在亥月故发。\n10월에 태어난 신금 일간에게는 임수가 먼저, 그다음 병화가 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.午",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 五月辛\n五月辛金，丁火司权，辛金失令，阴柔之极，不宜煅炼，须己壬兼用，何也？己为泥沙，壬为湖海，己无壬不湿，辛无己不生，故壬己并用。\nFor a Singeum Day Master born in the fifth month, Gito and Imsu are used together."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.午",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「五月辛」\n五月辛金，丁火司权，辛金失令，阴柔之极，不宜煅炼，须己壬兼用，何也？己为泥沙，壬为湖海，己无壬不湿，辛无己不生，故壬己并用。\n五月生まれの辛の日干には、己と壬を共に用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.午",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「오월신」\n五月辛金，丁火司权，辛金失令，阴柔之极，不宜煅炼，须己壬兼用，何也？己为泥沙，壬为湖海，己无壬不湿，辛无己不生，故壬己并用。\n5월에 태어난 신금 일간에게는 기토와 임수를 함께 쓴다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.卯",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 二月辛\n二月辛金，阳和之际，壬水为尊，见戊己为病。\nFor a Singeum Day Master born in the second month, Imsu is needed first, and Muto and Gito do harm."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.卯",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「二月辛」\n二月辛金，阳和之际，壬水为尊，见戊己为病。\n二月生まれの辛の日干には、まず壬が必要で、戊と己は害になるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.卯",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「이월신」\n二月辛金，阳和之际，壬水为尊，见戊己为病。\n2월에 태어난 신금 일간에게는 임수가 먼저 필요하고 무토와 기토는 해롭다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.子",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 十一月辛\n十一月辛金，癸水司令，为寒冬雨露，切忌癸出冻金，而困丙火，壬丙两透，不见戊癸，衣锦腰金。\nA Singeum Day Master born in the eleventh month dislikes Gyesu showing in the chart, and gains great honor when Imsu and Byeonghwa show together."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.子",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「十一月辛」\n十一月辛金，癸水司令，为寒冬雨露，切忌癸出冻金，而困丙火，壬丙两透，不见戊癸，衣锦腰金。\n十一月生まれの辛の日干は、癸が現れるのを嫌い、壬と丙が共に現れれば大いに尊くなるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.子",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「십일월신」\n十一月辛金，癸水司令，为寒冬雨露，切忌癸出冻金，而困丙火，壬丙两透，不见戊癸，衣锦腰金。\n11월에 태어난 신금 일간은 계수가 드러나면 꺼리고, 임수와 병화가 함께 드러나면 크게 귀해진다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.寅",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 正月辛\n正月辛金，阳气舒而寒气未除，不知正月建寅，中有长生之丙，解去寒气，忌甲木司权，辛金失令，取己土为生身之本，欲得辛金发现，全赖壬水之功，己壬两透，支见庚制甲，科甲定然。\nFor a Singeum Day Master born in the first month, Gito and Imsu are used, and it is good when Gyeonggeum holds down Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.寅",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「正月辛」\n正月辛金，阳气舒而寒气未除，不知正月建寅，中有长生之丙，解去寒气，忌甲木司权，辛金失令，取己土为生身之本，欲得辛金发现，全赖壬水之功，己壬两透，支见庚制甲，科甲定然。\n正月生まれの辛の日干には、己と壬を用い、庚が甲を抑えてくれるとよいという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.寅",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「정월신」\n正月辛金，阳气舒而寒气未除，不知正月建寅，中有长生之丙，解去寒气，忌甲木司权，辛金失令，取己土为生身之本，欲得辛金发现，全赖壬水之功，己壬两透，支见庚制甲，科甲定然。\n정월에 태어난 신금 일간에게는 기토와 임수를 쓰고, 경금이 갑목을 눌러 주면 좋다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.巳",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 四月辛\n四月辛金，时逢首夏，忌丙火之燥烈，喜壬水之洗淘。\nFor a Singeum Day Master born in the fourth month, Imsu is needed to wash it clean, and hot Byeonghwa is unwelcome."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.巳",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「四月辛」\n四月辛金，时逢首夏，忌丙火之燥烈，喜壬水之洗淘。\n四月生まれの辛の日干には、洗い清める壬が必要で、熱い丙は嫌うという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.巳",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「사월신」\n四月辛金，时逢首夏，忌丙火之燥烈，喜壬水之洗淘。\n4월에 태어난 신금 일간에게는 씻어 줄 임수가 필요하고 뜨거운 병화는 꺼린다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.戌",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 九月辛\n九月辛金，戊土司令，母旺子相，须甲疏土，壬洩旺金，先壬后甲。\nFor a Singeum Day Master born in the ninth month, Imsu is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.戌",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「九月辛」\n九月辛金，戊土司令，母旺子相，须甲疏土，壬洩旺金，先壬后甲。\n九月生まれの辛の日干には、まず壬が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.戌",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「구월신」\n九月辛金，戊土司令，母旺子相，须甲疏土，壬洩旺金，先壬后甲。\n9월에 태어난 신금 일간에게는 임수가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.未",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 六月辛\n六月辛金，己土当权，辅助太多，恐掩金光，先用壬水，取庚佐之。\nFor a Singeum Day Master born in the sixth month, Imsu is needed first, then Gyeonggeum."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.未",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「六月辛」\n六月辛金，己土当权，辅助太多，恐掩金光，先用壬水，取庚佐之。\n六月生まれの辛の日干には、まず壬が、次に庚が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.未",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「유월신」\n六月辛金，己土当权，辅助太多，恐掩金光，先用壬水，取庚佐之。\n6월에 태어난 신금 일간에게는 임수가 먼저, 그다음 경금이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.申",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 七月辛\n七月辛金，值庚司令，不旺自旺，且壬水居申，四柱不见戊土，胎元戊藏申内，为壬堤岸，人命得此，为官清正，但不富耳。\nIn the seventh month, with Imsu present and Muto serving as its embankment, Singeum becomes an honest official but not a rich one."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.申",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「七月辛」\n七月辛金，值庚司令，不旺自旺，且壬水居申，四柱不见戊土，胎元戊藏申内，为壬堤岸，人命得此，为官清正，但不富耳。\n七月の辛は、壬があり、戊が堤となってくれれば清廉な官吏になりますが、金持ちにはならないという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.申",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「칠월신」\n七月辛金，值庚司令，不旺自旺，且壬水居申，四柱不见戊土，胎元戊藏申内，为壬堤岸，人命得此，为官清正，但不富耳。\n7월의 신금은 임수가 있고 무토가 둑이 되어 주면 깨끗한 관리가 되지만 부자는 못 된다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.辰",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 三月辛\n三月辛金，戊土司令，辛承正气，母旺子相，先壬后甲。\nFor a Singeum Day Master born in the third month, Imsu is needed first, then Gapmok."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.辰",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「三月辛」\n三月辛金，戊土司令，辛承正气，母旺子相，先壬后甲。\n三月生まれの辛の日干には、まず壬が、次に甲が必要だという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.辰",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「삼월신」\n三月辛金，戊土司令，辛承正气，母旺子相，先壬后甲。\n3월에 태어난 신금 일간에게는 임수가 먼저, 그다음 갑목이 필요하다는 뜻이에요."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.酉",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gungtong Bogam, 八月辛\n八月辛金，当权得令，旺之极矣，专用壬水淘洗火，故云：金见水以流通。\nFor a Singeum Day Master born in the eighth month, only Imsu is used."
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.酉",
+      "variant": "single",
+      "lang": "ja",
+      "body": "窮通宝鑑「八月辛」\n八月辛金，当权得令，旺之极矣，专用壬水淘洗火，故云：金见水以流通。\n八月生まれの辛の日干には、壬だけを用いるという意味です。"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.gungtong-bogam/johu_evidence#辛.酉",
+      "variant": "single",
+      "lang": "ko",
+      "body": "궁통보감 「팔월신」\n八月辛金，当权得令，旺之极矣，专用壬水淘洗火，故云：金见水以流通。\n8월에 태어난 신금 일간에게는 임수만 쓴다는 뜻이에요."
+    },
+    {
       "slot": "explain.today_reason",
       "key": "reason.color/lucky_element",
       "variant": "single",
@@ -6902,8 +10081,29 @@
       "slot": "glossary.value_name",
       "key": "relation.branch_hap",
       "variant": "single",
+      "lang": "en",
+      "body": "Jijihap"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.branch_hap",
+      "variant": "single",
       "lang": "ja",
       "body": "支合"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.branch_hap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "지지합"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.chung",
+      "variant": "single",
+      "lang": "en",
+      "body": "Chung"
     },
     {
       "slot": "glossary.value_name",
@@ -6914,6 +10114,20 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "relation.chung",
+      "variant": "single",
+      "lang": "ko",
+      "body": "충"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.hyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Hyeong"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "relation.hyeong",
       "variant": "single",
       "lang": "ja",
@@ -6921,10 +10135,31 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "relation.hyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "형"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.stem_hap",
+      "variant": "single",
+      "lang": "en",
+      "body": "Cheonganhap"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "relation.stem_hap",
       "variant": "single",
       "lang": "ja",
       "body": "干合"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "relation.stem_hap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "천간합"
     },
     {
       "slot": "glossary.value_name",
@@ -7007,8 +10242,29 @@
       "slot": "glossary.value_name",
       "key": "shinsal.cheoneul_gwiin",
       "variant": "single",
+      "lang": "en",
+      "body": "Cheoneul Gwiin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheoneul_gwiin",
+      "variant": "single",
       "lang": "ja",
       "body": "天乙貴人"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheoneul_gwiin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "천을귀인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.dohwa",
+      "variant": "single",
+      "lang": "en",
+      "body": "Dohwa"
     },
     {
       "slot": "glossary.value_name",
@@ -7019,10 +10275,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "shinsal.dohwa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "도화"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gongmang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gongmang"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "shinsal.gongmang",
       "variant": "single",
       "lang": "ja",
       "body": "空亡"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gongmang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "공망"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.hwagae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Hwagae"
     },
     {
       "slot": "glossary.value_name",
@@ -7033,10 +10317,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "shinsal.hwagae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "화개"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.yangin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yangin"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "shinsal.yangin",
       "variant": "single",
       "lang": "ja",
       "body": "羊刃"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.yangin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.yeokma",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yeokma"
     },
     {
       "slot": "glossary.value_name",
@@ -7047,10 +10359,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "shinsal.yeokma",
+      "variant": "single",
+      "lang": "ko",
+      "body": "역마"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.byeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Byeonghwa"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "stem.byeong",
       "variant": "single",
       "lang": "ja",
       "body": "丙"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.byeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "병화"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.eul",
+      "variant": "single",
+      "lang": "en",
+      "body": "Eulmok"
     },
     {
       "slot": "glossary.value_name",
@@ -7061,10 +10401,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "stem.eul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "을목"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gap",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gapmok"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "stem.gap",
       "variant": "single",
       "lang": "ja",
       "body": "甲"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "갑목"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gito"
     },
     {
       "slot": "glossary.value_name",
@@ -7075,10 +10443,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "stem.gi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기토"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gye",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gyesu"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "stem.gye",
       "variant": "single",
       "lang": "ja",
       "body": "癸"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gye",
+      "variant": "single",
+      "lang": "ko",
+      "body": "계수"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.gyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gyeonggeum"
     },
     {
       "slot": "glossary.value_name",
@@ -7089,10 +10485,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "stem.gyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "경금"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.im",
+      "variant": "single",
+      "lang": "en",
+      "body": "Imsu"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "stem.im",
       "variant": "single",
       "lang": "ja",
       "body": "壬"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.im",
+      "variant": "single",
+      "lang": "ko",
+      "body": "임수"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.jeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeonghwa"
     },
     {
       "slot": "glossary.value_name",
@@ -7103,6 +10527,20 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "stem.jeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정화"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.mu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Muto"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "stem.mu",
       "variant": "single",
       "lang": "ja",
@@ -7110,10 +10548,31 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "stem.mu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "무토"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.sin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Singeum"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "stem.sin",
       "variant": "single",
       "lang": "ja",
       "body": "辛"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem.sin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신금"
     },
     {
       "slot": "glossary.value_name",
@@ -7210,8 +10669,29 @@
       "slot": "glossary.value_name",
       "key": "ten_god.bigyeon",
       "variant": "single",
+      "lang": "en",
+      "body": "Bigyeon"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.bigyeon",
+      "variant": "single",
       "lang": "ja",
       "body": "比肩"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.bigyeon",
+      "variant": "single",
+      "lang": "ko",
+      "body": "비견"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.geopjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Geopjae"
     },
     {
       "slot": "glossary.value_name",
@@ -7222,10 +10702,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god.geopjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "겁재"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeonggwan"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god.jeonggwan",
       "variant": "single",
       "lang": "ja",
       "body": "正官"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정관"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeongin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeongin"
     },
     {
       "slot": "glossary.value_name",
@@ -7236,10 +10744,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god.jeongin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeongjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeongjae"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god.jeongjae",
       "variant": "single",
       "lang": "ja",
       "body": "正財"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.jeongjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정재"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "Pyeongwan"
     },
     {
       "slot": "glossary.value_name",
@@ -7250,10 +10786,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편관"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeonin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Pyeonin"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god.pyeonin",
       "variant": "single",
       "lang": "ja",
       "body": "偏印"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeonin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Pyeonjae"
     },
     {
       "slot": "glossary.value_name",
@@ -7264,10 +10828,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편재"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.sanggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sanggwan"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god.sanggwan",
       "variant": "single",
       "lang": "ja",
       "body": "傷官"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.sanggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "상관"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god.siksin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Siksin"
     },
     {
       "slot": "glossary.value_name",
@@ -7278,10 +10870,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god.siksin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "식신"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.bigyeop",
+      "variant": "single",
+      "lang": "en",
+      "body": "Bigyeop"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god_group.bigyeop",
       "variant": "single",
       "lang": "ja",
       "body": "比劫"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.bigyeop",
+      "variant": "single",
+      "lang": "ko",
+      "body": "비겁"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gwanseong"
     },
     {
       "slot": "glossary.value_name",
@@ -7292,10 +10912,38 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "관성"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.inseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Inseong"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god_group.inseong",
       "variant": "single",
       "lang": "ja",
       "body": "印星"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.inseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "인성"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jaeseong"
     },
     {
       "slot": "glossary.value_name",
@@ -7306,10 +10954,31 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "재성"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.siksang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Siksang"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "ten_god_group.siksang",
       "variant": "single",
       "lang": "ja",
       "body": "食傷"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "ten_god_group.siksang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "식상"
     },
     {
       "slot": "personal.day_master",
@@ -8804,6 +12473,993 @@
     },
     {
       "slot": "term.meaning",
+      "key": "term.branch.chuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Ox. It stands for late winter and the hours before dawn."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.chuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うし年を表す地支です。冬の終わりと夜明け前を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.chuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "소띠를 뜻하는 지지예요. 늦겨울과 새벽 전을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.hae",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Pig. It stands for early winter and night."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.hae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "いのしし年を表す地支です。初冬と夜を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.hae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "돼지띠를 뜻하는 지지예요. 이른 겨울과 밤을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.in",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Tiger. It stands for early spring and dawn."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.in",
+      "variant": "single",
+      "lang": "ja",
+      "body": "とら年を表す地支です。早春と明け方を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.in",
+      "variant": "single",
+      "lang": "ko",
+      "body": "호랑이띠를 뜻하는 지지예요. 이른 봄과 새벽을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Rat. It stands for midwinter and the middle of the night."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ねずみ年を表す地支です。真冬と真夜中を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "쥐띠를 뜻하는 지지예요. 한겨울과 한밤을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.jin",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Dragon. It stands for late spring and morning."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.jin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "たつ年を表す地支です。晩春と朝を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.jin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "용띠를 뜻하는 지지예요. 늦봄과 아침을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.mi",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Goat. It stands for late summer and early afternoon."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.mi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひつじ年を表す地支です。晩夏と昼過ぎを指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.mi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양띠를 뜻하는 지지예요. 늦여름과 이른 오후를 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.myo",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Rabbit. It stands for mid-spring and sunrise."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.myo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うさぎ年を表す地支です。春の盛りと日の出のころを指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.myo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "토끼띠를 뜻하는 지지예요. 한봄과 해 뜰 무렵을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.o",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Horse. It stands for midsummer and midday."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.o",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うま年を表す地支です。真夏と真昼を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.o",
+      "variant": "single",
+      "lang": "ko",
+      "body": "말띠를 뜻하는 지지예요. 한여름과 한낮을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.sa",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Snake. It stands for early summer and late morning."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.sa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "へび年を表す地支です。初夏と昼前を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.sa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "뱀띠를 뜻하는 지지예요. 이른 여름과 늦은 오전을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.shin",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Monkey. It stands for early autumn and late afternoon."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.shin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "さる年を表す地支です。初秋と夕方前を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.shin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원숭이띠를 뜻하는 지지예요. 이른 가을과 늦은 오후를 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.sul",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Dog. It stands for late autumn and early evening."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.sul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "いぬ年を表す地支です。晩秋と宵の口を指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.sul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "개띠를 뜻하는 지지예요. 늦가을과 초저녁을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.yu",
+      "variant": "single",
+      "lang": "en",
+      "body": "The earthly branch of the Rooster. It stands for mid-autumn and sunset."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.yu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "とり年を表す地支です。秋の盛りと日の入りのころを指します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.branch.yu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "닭띠를 뜻하는 지지예요. 한가을과 해 질 무렵을 가리켜요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.gisin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "A day when an energy that doesn't suit your chart comes in. It's a good day to keep to what you're already doing without pushing yourself."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.gisin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命式とあまり合わない気が入る日です。無理をせず、今していることを守るのに向いています。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.gisin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주와 잘 안 맞는 기운이 들어오는 날이에요. 무리하지 않고 하던 일을 지키기 좋아요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.gwiin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "A day when the day's energy reaches your chart as a helper. People who can help you tend to come close."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.gwiin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "その日の気が、命式に貴人として届く日です。自分を助けてくれる人が近づきやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.gwiin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "그날의 기운이 내 사주에 귀인으로 닿는 날이에요. 나를 돕는 사람이 가까이 오기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.ordinary_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "A day when the energy coming in does little to help or hold back your chart. It's a good day to go about things as you usually do."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.ordinary_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命式を大きく助けも妨げもしない気が入る日です。いつも通りに過ごすのに向いています。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.ordinary_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주를 크게 돕지도 막지도 않는 기운이 들어오는 날이에요. 평소 하던 대로 꾸려 가기 좋아요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.yongsin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "A day when the energy your chart needs most comes in. It's a good day to work through things you've put off."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.yongsin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命式に最も必要な気が入る日です。後回しにしていたことに手をつけるのに向いています。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.day_kind.yongsin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 가장 필요한 기운이 들어오는 날이에요. 미뤄 둔 일을 풀어 보기 좋아요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.earth",
+      "variant": "single",
+      "lang": "en",
+      "body": "The nature of soil, taking things in and holding them in place. In a person, it shows as the wish to connect people and keep things steady."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.earth",
+      "variant": "single",
+      "lang": "ja",
+      "body": "土のように受け止めて、つなぎとめておく性質です。人には、間を取り持ち、中心を守ろうとする心として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.earth",
+      "variant": "single",
+      "lang": "ko",
+      "body": "흙처럼 받아들이고 붙잡아 두는 성질이에요. 사람에게서는 사이를 잇고 중심을 지키려는 마음으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.fire",
+      "variant": "single",
+      "lang": "en",
+      "body": "The nature of a flame, burning and spreading light. In a person, it shows as the wish to show and express what's inside."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.fire",
+      "variant": "single",
+      "lang": "ja",
+      "body": "火のように燃え上がり、明るく広がる性質です。人には、表に出して伝えようとする心として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.fire",
+      "variant": "single",
+      "lang": "ko",
+      "body": "불처럼 타오르며 밝게 퍼지는 성질이에요. 사람에게서는 드러내고 표현하려는 마음으로 나타나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.metal",
+      "variant": "single",
+      "lang": "en",
+      "body": "The nature of iron, hard and sharp enough to cut cleanly. In a person, it shows as the wish to tell right from wrong and see things through."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.metal",
+      "variant": "single",
+      "lang": "ja",
+      "body": "金属のようにかたく、鋭く切り分ける性質です。人には、物事の是非を分け、きちんとけりをつけようとする心として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.metal",
+      "variant": "single",
+      "lang": "ko",
+      "body": "쇠처럼 단단하고 날카롭게 가르는 성질이에요. 사람에게서는 옳고 그름을 나누고 일을 맺으려는 마음으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.water",
+      "variant": "single",
+      "lang": "en",
+      "body": "The nature of water, flowing to low places and soaking in. In a person, it shows as a habit of thinking deeply and quietly taking things in."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.water",
+      "variant": "single",
+      "lang": "ja",
+      "body": "水のように低いほうへ流れ、しみ込んでいく性質です。人には、深く考え、静かに見守る心として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.water",
+      "variant": "single",
+      "lang": "ko",
+      "body": "물처럼 낮은 곳으로 흐르고 스며드는 성질이에요. 사람에게서는 깊이 생각하고 조용히 살피는 마음으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.wood",
+      "variant": "single",
+      "lang": "en",
+      "body": "The nature of a tree, growing upward and spreading in every direction. In a person, it shows as the wish to start something new and help it grow."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.wood",
+      "variant": "single",
+      "lang": "ja",
+      "body": "木のように上へ伸び、四方へ広がっていく性質です。人には、新しく始めて育てていこうとする心として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.element.wood",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나무처럼 위로 자라고 사방으로 뻗어 가는 성질이에요. 사람에게서는 새로 시작하고 키워 가려는 마음으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.luck.daeun",
+      "variant": "single",
+      "lang": "en",
+      "body": "A big current that changes every 10 years, like the seasons of a life."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.luck.daeun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "人生の季節のように、10年ごとに巡ってくる大きな流れです。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.luck.daeun",
+      "variant": "single",
+      "lang": "ko",
+      "body": "인생의 계절처럼 10년 단위로 찾아오는 큰 흐름이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.luck.seun",
+      "variant": "single",
+      "lang": "en",
+      "body": "The current of a single year, changing each year. It shows how the energy coming in that year gets along with your chart."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.luck.seun",
+      "variant": "single",
+      "lang": "ja",
+      "body": "年ごとに変わる、一年の流れです。その年に入る気が命式とどう合うかを表します。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.luck.seun",
+      "variant": "single",
+      "lang": "ko",
+      "body": "해마다 바뀌는 한 해의 흐름이에요. 그해에 들어오는 기운이 내 사주와 어떻게 어울리는지 보여 줘요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.branch_hap",
+      "variant": "single",
+      "lang": "en",
+      "body": "Two earthly branches locking together as one. Relationships tend to grow closer and work tends to fit together well."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.branch_hap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "二つの地支がかみ合い、一つになることです。関係が近づき、物事がよくなじみやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.branch_hap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "두 지지가 서로 맞물려 하나가 되는 것이에요. 관계가 가까워지고 일이 잘 어우러지기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.chung",
+      "variant": "single",
+      "lang": "en",
+      "body": "Two earthly branches on opposite sides colliding. Plans may change, or you may end up moving somewhere new."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.chung",
+      "variant": "single",
+      "lang": "ja",
+      "body": "向かい合う位置にある二つの地支がぶつかり合うことです。予定が変わったり、居場所を移したりすることが起きやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.chung",
+      "variant": "single",
+      "lang": "ko",
+      "body": "서로 반대편에 있는 두 지지가 맞부딪히는 것이에요. 계획이 바뀌거나 자리를 옮기는 일이 생기기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.hyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Earthly branches wearing each other down. Small frictions or things to fix tend to surface, so it helps to look things over carefully."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.hyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "地支同士が互いに削り合うことです。小さな摩擦や直すべきところが見えやすいので、丁寧に確かめるとよいでしょう。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.hyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "지지끼리 서로 깎아 내는 것이에요. 작은 마찰이나 고칠 일이 드러나기 쉬워, 꼼꼼히 살피는 게 좋아요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.stem_hap",
+      "variant": "single",
+      "lang": "en",
+      "body": "Two heavenly stems drawn to each other and pairing up. People or plans may join hands when you don't expect it."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.stem_hap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "二つの天干が引かれ合い、対になることです。人や物事が思いがけず手を結びやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.relation.stem_hap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "두 천간이 서로 끌려 짝을 이루는 것이에요. 사람이나 일이 뜻밖에 손을 잡기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.gisin",
+      "variant": "single",
+      "lang": "en",
+      "body": "An element that doesn't suit your chart. When this energy is strong, it's best not to push yourself."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.gisin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命式とあまり合わない五行です。この気が強い時期は、無理をしないのがよいでしょう。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.gisin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주와 잘 안 맞는 오행이에요. 이 기운이 센 때에는 무리하지 않는 게 좋아요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.huisin",
+      "variant": "single",
+      "lang": "en",
+      "body": "An element that backs up the one your chart needs most. It's not quite as strong, but it's still a welcome energy."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.huisin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "用神をそばで助け、力を添える五行です。用神ほどではなくても、うれしい気です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.huisin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "용신을 곁에서 도와 힘을 보태는 오행이에요. 용신만큼은 아니어도 반가운 기운이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.neutral",
+      "variant": "single",
+      "lang": "en",
+      "body": "An element that does little to help or harm your chart. On its own, it's an easygoing energy."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.neutral",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命式を大きく助けも損ないもしない五行です。それ自体は穏やかな気です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.neutral",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주를 크게 돕지도 해치지도 않는 오행이에요. 그 자체로는 무난한 기운이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.yongsin",
+      "variant": "single",
+      "lang": "en",
+      "body": "The element your chart needs most to stay in balance. Things tend to go well when this energy comes in."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.yongsin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "命式のバランスを整えるのに最も必要な五行です。この気が入る時期は、物事が順調に運びやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.yongsin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주의 균형을 맞추는 데 가장 필요한 오행이에요. 이 기운이 들어오는 때에 일이 잘 풀리기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheoneul_gwiin",
+      "variant": "single",
+      "lang": "en",
+      "body": "The shinsal for the most valued kind of help. It's read as the luck of someone unexpected lending you a hand when things are hard."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheoneul_gwiin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "神殺の中で最も尊い助けを表します。困ったときに、思いがけない人が手を差し伸べてくれる福と見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheoneul_gwiin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신살 가운데 가장 귀한 도움을 뜻해요. 어려울 때 뜻밖의 사람이 손을 내밀어 주는 복으로 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.dohwa",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for the charm that draws people's eyes. It often shows as popularity, style, and romantic attention."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.dohwa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "人の目を引く魅力を表す神殺です。人気やおしゃれ、異性からの関心として表れやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.dohwa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "사람의 눈길을 끄는 매력을 뜻하는 신살이에요. 인기와 멋, 이성의 관심으로 드러나기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gongmang",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for an empty seat. Results may not show right away for the effort you put in, so it's read as a time to want a little less."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gongmang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "空いた席を表す神殺です。努力した分の結果がすぐには手に入らないことがあり、欲を少し手放すときと見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gongmang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "비어 있는 자리를 뜻하는 신살이에요. 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어, 욕심을 덜어 내는 때로 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.hwagae",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for the power to look deep within on your own. It shows as getting absorbed in one thing, like study or art."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.hwagae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "内側を深く見つめる力を表す神殺です。勉強や芸術のように、一つのことに打ち込む姿として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.hwagae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "혼자 깊이 들여다보는 힘을 뜻하는 신살이에요. 공부나 예술처럼 한곳에 몰두하는 모습으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.yangin",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for drive as strong as a blade. With that much push, it's worth watching out for fights and injuries."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.yangin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "刃のようにとても強い推進力を表す神殺です。押し進める力が大きい分、争いやけがに気をつける必要があります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.yangin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "칼날처럼 아주 센 추진력을 뜻하는 신살이에요. 밀어붙이는 힘이 큰 만큼 다툼이나 다침을 조심해야 해요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.yeokma",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal that means a horse running far. It often shows as moving house, travel, or a busy stretch of getting from place to place."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.yeokma",
+      "variant": "single",
+      "lang": "ja",
+      "body": "遠くへ駆ける馬を表す神殺です。引っ越し、旅行、忙しい移動のように、居場所を移すこととして表れやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.yeokma",
+      "variant": "single",
+      "lang": "ko",
+      "body": "멀리 달리는 말을 뜻하는 신살이에요. 이사, 여행, 바쁜 이동처럼 자리를 옮기는 일로 나타나기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.byeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "The third of the ten heavenly stems, like the midday sun shining bright. It hides nothing and lights up everything around it."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.byeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の三番目で、明るく照らす真昼の太陽に似ています。隠さず、広く明るく表に出す姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.byeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 셋째로, 환하게 비추는 한낮의 해를 닮았어요. 숨기지 않고 두루 밝게 드러내는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.eul",
+      "variant": "single",
+      "lang": "en",
+      "body": "The second of the ten heavenly stems, like a wildflower that takes root anywhere. It bends to fit its situation and keeps on growing."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.eul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の二番目で、どこにでも根を張る草花に似ています。状況に合わせてしなりながらも、粘り強く育つ姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.eul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 둘째로, 어디서든 뿌리내리는 풀꽃을 닮았어요. 형편에 맞춰 휘어지면서도 끈질기게 자라는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gap",
+      "variant": "single",
+      "lang": "en",
+      "body": "The first of the ten heavenly stems, like a tall tree growing straight up. It keeps steadily to a path once it's chosen."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の一番目で、まっすぐ伸びる大きな木に似ています。一度決めた道をこつこつ進む姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 첫째로, 곧게 자라는 큰 나무를 닮았어요. 한번 정한 길을 꾸준히 가는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gi",
+      "variant": "single",
+      "lang": "en",
+      "body": "The sixth of the ten heavenly stems, like a wide field where seeds grow. It takes things in and raises them step by step."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の六番目で、種を育てる広い畑に似ています。受け入れたものを一歩ずつ育てていく姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 여섯째로, 씨앗을 길러 내는 너른 밭을 닮았어요. 받아들인 것을 차근차근 키워 내는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gye",
+      "variant": "single",
+      "lang": "en",
+      "body": "The tenth of the ten heavenly stems, like a spring of clear, still water. It quietly looks after what's around it."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gye",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の十番目で、澄んだ湧き水に似ています。静かにそばを見守る姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gye",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 열째로, 맑게 고인 샘물을 닮았어요. 조용히 곁을 살피는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "The seventh of the ten heavenly stems, like solid metal that's yet to be shaped. It doesn't bend and decides things straight away."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の七番目で、磨く前のかたい鉄に似ています。曲げずに、すぐに決める姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.gyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 일곱째로, 다듬기 전의 단단한 쇠를 닮았어요. 굽히지 않고 곧장 결정하는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.im",
+      "variant": "single",
+      "lang": "en",
+      "body": "The ninth of the ten heavenly stems, like a great river flowing far. It takes in a lot and keeps moving without getting stuck."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.im",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の九番目で、遠くへ流れていく大河に似ています。広く受け入れながら、滞りなく進んでいく姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.im",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 아홉째로, 멀리 흘러가는 큰 강을 닮았어요. 넓게 받아들이며 막힘없이 나아가는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.jeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "The fourth of the ten heavenly stems, like a lamp that lights up the dark. It keeps what's close by warm and lit for a long time."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.jeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の四番目で、暗がりを照らす灯火に似ています。身近なところを長く温かく照らす姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.jeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 넷째로, 어둠을 밝히는 등불을 닮았어요. 가까운 곳을 오래 따뜻하게 비추는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.mu",
+      "variant": "single",
+      "lang": "en",
+      "body": "The fifth of the ten heavenly stems, like a great mountain that holds its ground. It doesn't shake easily and stays put for others."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.mu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の五番目で、どっしりと構える大きな山に似ています。簡単には揺らがず、支えてくれる姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.mu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 다섯째로, 묵직하게 자리를 지키는 큰 산을 닮았어요. 쉽게 흔들리지 않고 버텨 주는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.sin",
+      "variant": "single",
+      "lang": "en",
+      "body": "The eighth of the ten heavenly stems, like a finely cut gem. It sorts things with care and polishes them clean."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.sin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十干の八番目で、美しく磨いた宝石に似ています。細やかに見分け、きれいに整える姿です。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.stem.sin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "열 개의 천간 가운데 여덟째로, 곱게 다듬은 보석을 닮았어요. 섬세하게 가려내고 깔끔하게 다듬는 모습이에요."
+    },
+    {
+      "slot": "term.meaning",
       "key": "term.tag.big_change",
       "variant": "single",
       "lang": "en",
@@ -9116,6 +13772,321 @@
       "variant": "single",
       "lang": "ko",
       "body": "내 사주에 필요한 기운이 들어오는 날이라, 하던 일이 순하게 풀리기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.bigyeon",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy on equal footing with you, like a friend or coworker at your side. It often shows as wanting to do things on your own, and as stubbornness."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.bigyeon",
+      "variant": "single",
+      "lang": "ja",
+      "body": "肩を並べる友人や仲間のように、自分と対等な気です。自分の力でやり遂げようとする心や、こだわりの強さとして表れやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.bigyeon",
+      "variant": "single",
+      "lang": "ko",
+      "body": "어깨를 나란히 하는 친구나 동료처럼 나와 대등한 기운이에요. 내 힘으로 해내려는 마음과 고집으로 드러나기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.geopjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy like a rival who resembles you and competes for your share. It shows as a drive not to lose and as bold decisions."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.geopjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "自分に似ていながら、自分の取り分を争うライバルのような気です。負けたくない気持ちや、思い切った決断として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.geopjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나와 닮았으면서 내 몫을 다투는 경쟁자 같은 기운이에요. 지지 않으려는 승부욕과 과감한 결정으로 나타나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy for the rules and duties that keep you on the right track. It shows as keeping your promises and doing the job you're given."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "自分を正しく導く決まりや責任を表す気です。約束を守り、任された役目を果たす姿として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나를 바르게 이끄는 규칙과 책임을 뜻하는 기운이에요. 약속을 지키고 맡은 자리를 해내는 모습으로 나타나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeongin",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy for the care and learning that look after you and help you grow. It shows as learning calmly and being grateful for the help you get."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeongin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "自分を大切にし、育ててくれる慈しみや学びを表す気です。落ち着いて学び、受けた助けをありがたく思う姿として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeongin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나를 아끼고 길러 주는 보살핌과 배움을 뜻하는 기운이에요. 차분히 배우고 받은 도움을 고맙게 여기는 모습으로 나타나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeongjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy for money saved bit by bit and the share you keep safe. It shows as being careful, thrifty, and dependable."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeongjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "少しずつ貯めるお金や、自分が守る取り分を表す気です。きちんと管理し、大切に使う誠実さとして表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.jeongjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "차곡차곡 모으는 돈과 내가 지킬 몫을 뜻하는 기운이에요. 꼼꼼하게 챙기고 아끼는 성실함으로 나타나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy for strict standards and challenges that toughen you up. It shows as the strength to hold on when things get hard."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "自分を鍛える厳しい基準や試練を表す気です。困難の前で踏みとどまる力として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나를 단련시키는 엄격한 기준과 도전을 뜻하는 기운이에요. 어려움 앞에서 버티는 힘으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeonin",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy for learning and seeing things by an unusual path. It shows as original ideas and digging deep into one thing."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeonin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "人とは違う道で学び、気づいていく気です。独特な発想や、一つのことを深く掘り下げる姿として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeonin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "남다른 길로 배우고 깨닫는 기운이에요. 독특한 생각과 한 가지를 깊이 파고드는 모습으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy for money and chances that come and go in large amounts. It shows as a knack for taking on a lot and getting to know all kinds of people."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大きく動くお金や機会を表す気です。物事を広く手がけ、人と幅広く付き合う手腕として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "크게 오가는 돈과 기회를 뜻하는 기운이에요. 일을 넓게 벌이고 사람을 두루 사귀는 수완으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.sanggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy that puts your thoughts out into the world without holding back. It often shows as a sharp tongue and wit that breaks the mold."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.sanggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "自分の考えを、ためらわず外へ出す気です。鋭い話しぶりや、型を破る機転として表れやすくなります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.sanggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 생각을 거침없이 밖으로 꺼내는 기운이에요. 날카로운 말솜씨와 틀을 깨는 재치로 나타나기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.siksin",
+      "variant": "single",
+      "lang": "en",
+      "body": "An energy that lets out what you have, easily and comfortably. It shows as time to eat and enjoy, and a knack for steadily making things."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.siksin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "自分が持っているものを、のびのびと表に出す気です。食べて楽しむゆとりや、こつこつ何かを生み出す才として表れます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god.siksin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내가 가진 것을 편안하게 풀어내는 기운이에요. 먹고 즐기는 여유, 꾸준히 무언가를 만들어 내는 재주로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.bigyeop",
+      "variant": "single",
+      "lang": "en",
+      "body": "The name for Bigyeon and Geopjae together, the energy that stands shoulder to shoulder with you. It covers the drive to protect yourself and claim your share."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.bigyeop",
+      "variant": "single",
+      "lang": "ja",
+      "body": "比肩と劫財をまとめた呼び名で、自分と肩を並べる気です。自分を守り、自分の取り分を確保しようとする力がここに入ります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.bigyeop",
+      "variant": "single",
+      "lang": "ko",
+      "body": "비견과 겁재를 함께 부르는 이름으로, 나와 어깨를 나란히 하는 기운이에요. 나를 지키고 내 몫을 챙기려는 힘이 여기에 들어요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "The name for Pyeongwan and Jeonggwan together, the rules and duties that keep you in line. It covers your job, your good name, and promises you need to keep."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏官と正官をまとめた呼び名で、自分を律する決まりや責任を表します。職場、名誉、守るべき約束がここに入ります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편관과 정관을 함께 부르는 이름으로, 나를 다스리는 규칙과 책임을 뜻해요. 직장, 명예, 지켜야 할 약속이 여기에 들어요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.inseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "The name for Pyeonin and Jeongin together, the learning and care that help you grow. It covers study, thinking, and the help you receive."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.inseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏印と印綬をまとめた呼び名で、自分を育ててくれる学びや慈しみを表します。勉強、考えごと、受ける助けがここに入ります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.inseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편인과 정인을 함께 부르는 이름으로, 나를 길러 주는 배움과 보살핌을 뜻해요. 공부, 생각, 받는 도움이 여기에 들어요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "The name for Pyeonjae and Jeongjae together, the money and results you handle and earn. It covers running a household, results at work, and a practical sense."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏財と正財をまとめた呼び名で、自分が扱い、手にするお金や結果を表します。暮らしのやりくり、仕事の成果、現実感覚がここに入ります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편재와 정재를 함께 부르는 이름으로, 내가 다루고 얻는 돈과 결과를 뜻해요. 살림, 일의 성과, 현실 감각이 여기에 들어요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.siksang",
+      "variant": "single",
+      "lang": "en",
+      "body": "The name for Siksin and Sanggwan together, the energy that brings what's inside you out. It covers talking, expressing yourself, and skill with your hands."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.siksang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "食神と傷官をまとめた呼び名で、内にあるものを外へ表す気です。言葉、表現、手先の器用さがここに入ります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.ten_god_group.siksang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "식신과 상관을 함께 부르는 이름으로, 내 안의 것을 밖으로 풀어내는 기운이에요. 말, 표현, 손재주가 여기에 들어요."
     }
   ],
   "hanja": {

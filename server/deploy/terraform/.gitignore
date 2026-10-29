@@ -1,0 +1,6 @@
+# provider 내려받기와 state는 commit하지 않습니다. bootstrap의 로컬 state도 공개 저장소에 올리지 않습니다.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log

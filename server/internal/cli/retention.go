@@ -17,7 +17,6 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
-	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 	retentionpkg "github.com/june20516/myungli-diary/server/internal/retention"
 )
 
@@ -61,12 +60,12 @@ func runRetention(ctx context.Context, getenv func(string) string, stderr io.Wri
 	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
-	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	pool, closeDB, err := openDatabase(ctx, cfg)
 	if err != nil {
 		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
 		return &loggedError{err: err}
 	}
-	defer pool.Close()
+	defer closeDB()
 
 	deps := retentionDeps{
 		Pool:   pool,
