@@ -1,7 +1,7 @@
 # 값 이름 원고(ja). 슬롯 명세는 slots/content/glossary.yaml입니다.
 # 표기는 근거 용어집 docs/research/ja-terms/의 신뢰도 상·자체를 따릅니다(D70, W24). 방향(direction8)은 용어집 밖의 일반어입니다.
 # 지장간 자리(place.*_hidden)는 용어집 표기의 신뢰도가 하·중이라 「年支の蔵干」처럼 풀어 씁니다.
-# role.neutral(閑神)·strength.very_weak(極身弱)·strength.very_strong(極身強)은 신뢰도 중이라 근거를 보강할 때까지 비워 둡니다.
+# role.neutral(閑神)·strength.very_weak(極身弱)·strength.very_strong(極身強)은 신뢰도 중(서로 다른 발행처 2곳 이상)이라 D97에 따라 씁니다(W50).
 # 지지·날의 성격·방향은 앱 ARB로도 나갑니다(#143·#153). 원어민 검수(W1) 전 초안입니다.
 # 지지 이름에는 시·hour·刻을 붙이지 않습니다. 시진 확인 줄(onboardTimeHourConfirm) 틀이 붙입니다.
 - {slot: glossary.value_name, key: element.wood, text: "木"}
@@ -88,9 +88,12 @@
 - {slot: glossary.value_name, key: role.yongsin, text: "用神"}
 - {slot: glossary.value_name, key: role.huisin, text: "喜神"}
 - {slot: glossary.value_name, key: role.gisin, text: "忌神"}
+- {slot: glossary.value_name, key: role.neutral, text: "閑神"}
+- {slot: glossary.value_name, key: strength.very_weak, text: "極身弱"}
 - {slot: glossary.value_name, key: strength.weak, text: "身弱"}
 - {slot: glossary.value_name, key: strength.neutral, text: "中和"}
 - {slot: glossary.value_name, key: strength.strong, text: "身旺"}
+- {slot: glossary.value_name, key: strength.very_strong, text: "極身強"}
 - {slot: glossary.value_name, key: luck.daeun, text: "大運"}
 - {slot: glossary.value_name, key: luck.seun, text: "年運"}
 - {slot: glossary.value_name, key: part.stem, text: "天干"}

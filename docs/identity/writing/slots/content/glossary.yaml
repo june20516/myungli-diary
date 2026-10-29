@@ -22,10 +22,6 @@
     role은 "나와 잘 맞는 기운"처럼 역할을(R10-8), strength·luck·part는 "힘이 센 편"·"대운"·"천간"처럼 씁니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 10, en: 18, ja: 10}
-  pending:
-    role.neutral: {ja: "閑神은 근거 용어집 신뢰도 중이라 근거를 보강할 때까지 비워 둡니다(W24, #158)"}
-    strength.very_weak: {ja: "極身弱은 근거 용어집 신뢰도 중이라 근거를 보강할 때까지 비워 둡니다(W24, #158)"}
-    strength.very_strong: {ja: "極身強은 근거 용어집 신뢰도 중이라 근거를 보강할 때까지 비워 둡니다(W24, #158)"}
   ia: [today.character.label, preview.character.label, day-sheet.character.label, diary-view.character.label]
   components: [lucky-card, saju-pillars, manse-table, daeun-table, ohaeng-bar]
   keys:
