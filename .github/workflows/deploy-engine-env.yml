@@ -52,10 +52,11 @@ jobs:
 
       - name: 엔진 배포
         run: |
-          # 서비스가 없을 때(NOT_FOUND)만 push로 끝내고, 권한·일시 오류는 실패로 드러냅니다.
+          # 서비스가 없을 때만 push로 끝내고, 권한·일시 오류는 실패로 드러냅니다(#647).
+          # gcloud 591은 "Cannot find service [engine]"을 내고, 앞의 두 문구는 API 원문(NOT_FOUND)을 그대로 낼 때를 위해 둡니다.
           if output="$(gcloud run services describe engine --region "$REGION" --project "${{ inputs.project_id }}" --format='value(name)' 2>&1)"; then
             gcloud run services update engine --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
-          elif grep -q "NOT_FOUND\|could not be found" <<< "$output"; then
+          elif grep -q "Cannot find service\|NOT_FOUND\|could not be found" <<< "$output"; then
             echo "### 엔진 서비스가 아직 없어 이미지 push만 했습니다. deploy-server가 Terraform으로 만듭니다." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "$output" >&2

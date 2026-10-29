@@ -53,14 +53,18 @@ jobs:
           terraform_wrapper: false
 
       # Terraform은 엔진 서비스를 engine:current로 만들므로, deploy-engine이 아직 push하지 않았으면 여기서 멈춥니다(실패 아님).
+      # 이미지가 없을 때("Image not found", gcloud 591)만 건너뛰고, 권한·일시 오류는 실패로 드러냅니다(#647).
       - name: 엔진 이미지 확인
         id: engine
         run: |
-          if gcloud artifacts docker images describe "${REGION}-docker.pkg.dev/${PROJECT}/myungli/engine:current" >/dev/null 2>&1; then
+          if output="$(gcloud artifacts docker images describe "${REGION}-docker.pkg.dev/${PROJECT}/myungli/engine:current" --format='value(image_summary.digest)' 2>&1)"; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
+          elif grep -q "Image not found" <<< "$output"; then
             echo "### 배포 건너뜀 (${{ inputs.environment }}): engine:current가 없습니다. deploy-engine을 먼저 실행하세요." >> "$GITHUB_STEP_SUMMARY"
             echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$output" >&2
+            exit 1
           fi
 
       - name: terraform apply
