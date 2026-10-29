@@ -40,8 +40,8 @@
 | id | 값 | 등급 | 보관 경로 | CI, 클라우드 짝 | 고치는 단위 | 잃었을 때 | 관련 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | K1 | Android upload keystore와 비밀번호 | L1 | `app/shared/upload-keystore.jks`, `app/shared/key.properties` | GitHub Secret(CI 서명을 붙일 때 app이 정함) | app | Play Console에 upload key 재설정을 요청하고 새 keystore를 만듭니다(Play 앱 서명 키는 Google이 보관하므로 앱 서명 지문은 그대로) | E3, E8 | 만들기 전 |
-| K2 | Apple Sign in with Apple 키(`.p8`) | L1 | `server/shared/apple-signin.p8` | Secret Manager `APPLE_PRIVATE_KEY`(staging, prod) | server | 다시 내려받을 수 없습니다. Apple Developer에서 새 키를 만들고, 두 Secret Manager 값과 `APPLE_KEY_ID`를 바꿉니다 | E7 | 사용 중 |
-| K3 | Apple APNs, DeviceCheck 키(`.p8`) | L1 | `root/shared/apns-devicecheck.p8` | Firebase 콘솔(두 프로젝트의 App Check DeviceCheck, 클라우드 메시징 개발과 프로덕션 칸) | 지휘 | 다시 내려받을 수 없습니다. 새 키를 만들고 Firebase의 여섯 곳을 모두 바꿉니다 | E5 | 사용 중 |
+| K2 | Apple Sign in with Apple 키(`.p8`, Key ID `34D2V94KFV`) | L1 | `server/shared/apple-signin.p8` | Secret Manager `APPLE_PRIVATE_KEY`(staging, prod) | server | 다시 내려받을 수 없습니다. Apple Developer에서 새 키를 만들고, 두 Secret Manager 값과 `APPLE_KEY_ID`를 바꿉니다 | E7 | 사용 중 |
+| K3 | Apple APNs, DeviceCheck 키(`.p8`, Key ID `AP9H8R45ZZ`) | L1 | `root/shared/apns-devicecheck.p8` | Firebase 콘솔(두 프로젝트의 App Check DeviceCheck, 클라우드 메시징 개발과 프로덕션 칸) | 지휘 | 다시 내려받을 수 없습니다. 새 키를 만들고 Firebase의 여섯 곳을 모두 바꿉니다 | E5 | 사용 중 |
 | K4 | App Check debug token(staging) | L2 | `app/staging/dart-defines.json` | GitHub Secret(E2E를 CI에서 돌릴 때 app이 정함), Firebase 콘솔 staging 디버그 토큰 | app | Firebase 콘솔에서 새로 만들고 옛 토큰을 지웁니다 | E5, #659 | 만듦(staging 두 앱에 등록, 앱 연결은 App Check adapter) |
 | K5 | Firebase 네이티브 설정 파일(`google-services.json`, `GoogleService-Info.plist`) | L3 | `app/staging/`, `app/prod/` 아래 같은 이름 | - | app | `flutterfire configure`나 Firebase 콘솔에서 다시 받습니다 | E5 | 보관만(빌드는 Dart 설정 `firebase_options_*.dart`로 초기화, A93) |
 | K6 | app의 로컬 server 실행 값(`env.sh`, JWT 키, Apple 대역 키) | L2 | `app/local/` | - | app | 로컬에서 새로 만듭니다 | - | 사용 중 |
