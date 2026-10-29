@@ -31,6 +31,8 @@
 ## 고칠 수 있는 곳
 `docs/identity/writing/`, `.github/workflows/writing.yml`(검사기 CI), `docs/contracts/README.md`의 writing 행(슬롯 명세·호칭 조사·검사기·라운드 원고), GitHub Issues(요청·보고 작성, `gh issue list --label to:writing`). 그 밖은 읽기만 합니다. 콘텐츠를 server 시드 파일로 넣는 일은 server가 합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
 
+로컬 값은 [`docs/local-values.md`](../../local-values.md)(D98)를 따릅니다. 원본은 `$MYUNGLI_LOCAL_DIR/writing/<환경>/`, 키는 경로로만 넘기고 내용을 출력하지 않습니다.
+
 ## 계약
 | 계약 | 역할 | 상대 |
 | --- | --- | --- |
@@ -74,7 +76,7 @@
 * **W1-1 오늘 화면·엔진 안내**(PR #249, spec `specs/2026-10-16-w1-content-design.md`, 계획 `plans/2026-10-16-w1-1-today.md`, W28~W30, #232·#240)
   * 오늘 화면 content 슬롯(총운·가이드·카드·태그·이유·달력)과 새 엔진 안내 슬롯 `system.notice`의 3개 언어 원고(en·ja는 원어민 검수 전 초안). 오늘 화면 대표 태그 뜻은 `term.tag.*`(D76).
   * 라운드 R9(`artifacts/2026-10-16-round-R9.md`): 총운 state만 호칭, 보조 문장 토큰 없음. 가이드 질문 기준·태그라인은 보류.
-  * `mlw judge --shadow jev`(W30)와 첫 라운드 판정 쌍 `artifacts/judge-shadow/`. 대체 가능성 평가는 위 jev 판정 평가(W32). jev 키는 저장소 밖 `~/.config/myungli/typesafe.key`.
+  * `mlw judge --shadow jev`(W30)와 첫 라운드 판정 쌍 `artifacts/judge-shadow/`. 대체 가능성 평가는 위 jev 판정 평가(W32). jev 키는 저장소 밖 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/writing/shared/typesafe.key`(D98 대장 K7).
 * **LLM 판정 명령**(PR #235, W27): `mlw judge`가 `judge: llm` slop 규칙을 루브릭으로 `claude -p`에 물어 의심 문장을 `warn`으로 표시합니다(로컬 1차 거르기, 막지 않음, CI 밖). 사용법은 `guide/review-procedure.md`.
 * **W1 전 정리**(PR #230, W26, #191·#217·#226)
   * design 글자 수 상한(`docs/identity/design/lengths.md`)을 슬롯 91개에 넣었습니다. 상한 없음은 `unbounded`, 확인 창은 키별 상한 `key_max_length`입니다. 테스트가 lengths.md와 대조합니다.

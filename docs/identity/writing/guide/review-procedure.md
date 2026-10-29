@@ -16,7 +16,7 @@ uv run --project docs/identity/writing/tools mlw judge docs/identity/writing/con
 
 * `rules/slop.yaml`에서 `judge: llm`인 패턴의 `rubric`과 예를 루브릭으로 넘깁니다. 슬롯 목적 예외·`allowed`는 빼고 `forbidden`은 넣습니다(`check`와 같음).
 * 모델은 로컬 `claude` CLI(`claude -p`)로 부릅니다. 기본 `sonnet`이고 `--model`로 바꿉니다. 한 번에 묻는 문장 수는 `--batch-size`(기본 40)입니다.
-* `--shadow jev --shadow-out <파일>`을 주면 같은 문장을 TypeSafe jev에도 물어 판정 쌍을 JSONL로 남깁니다(W30, W1 첫 라운드용). 키는 `TYPESAFE_API_KEY="$(cat ~/.config/myungli/typesafe.key)"`로 넘기고, 본 판정 결과는 바뀌지 않습니다.
+* `--shadow jev --shadow-out <파일>`을 주면 같은 문장을 TypeSafe jev에도 물어 판정 쌍을 JSONL로 남깁니다(W30, W1 첫 라운드용). 키는 `TYPESAFE_API_KEY="$(cat "${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/writing/shared/typesafe.key")"`(D98 대장 K7)로 넘기고, 본 판정 결과는 바뀌지 않습니다.
 * 판정은 실행마다 조금씩 다를 수 있습니다. 고친 슬롯을 다시 돌리면 새 의심이 나올 수 있습니다.
 * 출력은 `check`와 같은 `파일:줄 규칙 warn 메시지` 형식이고, 종료 코드는 늘 0입니다. 호출이 실패하거나 응답이 잘못되면 `judge.call_failed`·`judge.bad_response` 경고를 남기고 다음 묶음을 계속합니다.
 * 의심 표시는 판정이 아닙니다. 표시된 문장은 아래 라운드에서 고쳐 쓴 선택지와 함께 내고, 같은 성격이 반복되면 규칙이나 `rubric`을 고칩니다.
