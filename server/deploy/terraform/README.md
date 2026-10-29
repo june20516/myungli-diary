@@ -9,12 +9,19 @@
 
 ## 처음 한 번 (프로젝트마다)
 
+bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tfstate` 안 `bootstrap/default.tfstate`입니다(D98, `docs/local-values.md` K12). 저장소 안에는 state를 두지 않습니다. bucket은 버전 관리가 켜져 있어 지난 state를 되살릴 수 있습니다.
+
 1. `gcloud auth application-default login`
 2. `cd server/deploy/terraform/bootstrap`
-3. `terraform init`
-4. `terraform apply -var project_id=myungli-diary-staging` (prod는 `myungli-diary`)
-   * state 파일은 이 디렉터리에 남습니다. 공개 저장소이므로 commit하지 않고(`.gitignore`), 잃어버리지 않게 따로 보관합니다.
-   * 두 프로젝트를 차례로 apply하려면 프로젝트마다 `terraform workspace new <env>`로 state를 나눕니다.
+3. 프로젝트를 고르고 init합니다. 다른 프로젝트로 바꿀 때도 같은 명령을 씁니다(`-reconfigure`).
+
+   ```sh
+   project=myungli-diary-staging   # prod는 myungli-diary
+   terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
+   ```
+
+   state bucket이 아직 없는 새 프로젝트는 아래 "새 프로젝트"를 먼저 합니다.
+4. `terraform apply -var project_id="$project"`
 5. 출력값을 GitHub 저장소 변수로 넣습니다.
 
 | 변수 | 값 |
@@ -32,6 +39,31 @@ printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프
 ```
 
 Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, staging만 `TEST_LOGIN_SECRET`. 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다.
+
+### 새 프로젝트
+
+state bucket은 bootstrap이 만들지만 backend가 그 bucket을 쓰므로, 처음에는 bucket만 손으로 만들고 Terraform으로 가져옵니다.
+
+```sh
+gcloud storage buckets create "gs://${project}-tfstate" --project "$project" --location asia-northeast3 \
+  --uniform-bucket-level-access --public-access-prevention
+gcloud storage buckets update "gs://${project}-tfstate" --versioning
+terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
+terraform import -var project_id="$project" google_storage_bucket.tfstate "${project}-tfstate"
+terraform apply -var project_id="$project"
+```
+
+### 로컬 state 옮기기 (한 번, #662)
+
+D98 전에 bootstrap을 apply했다면 state가 이 디렉터리의 `terraform.tfstate.d/<env>/`에 있습니다. 두 workspace를 각자의 bucket으로 옮깁니다. `terraform init -migrate-state`는 두 workspace를 한 bucket에 함께 옮기므로 쓰지 않습니다.
+
+```sh
+gcloud storage cp terraform.tfstate.d/staging/terraform.tfstate gs://myungli-diary-staging-tfstate/bootstrap/default.tfstate
+gcloud storage cp terraform.tfstate.d/prod/terraform.tfstate gs://myungli-diary-tfstate/bootstrap/default.tfstate
+rm -rf .terraform   # 로컬 backend와 workspace 선택 기록. provider는 init이 다시 받습니다
+```
+
+그다음 프로젝트마다 위 3번으로 init하고, apply 대신 `terraform plan -var project_id="$project"`로 `No changes.`를 확인합니다. 두 프로젝트 모두 확인되면 `terraform.tfstate.d/`를 지웁니다.
 
 ## 첫 배포 순서
 

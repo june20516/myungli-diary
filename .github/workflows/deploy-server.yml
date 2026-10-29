@@ -65,10 +65,29 @@ jobs:
         with:
           workload_identity_provider: ${{ matrix.environment == 'prod' && vars.GCP_WIF_PROVIDER_PROD || vars.GCP_WIF_PROVIDER_STAGING }}
           service_account: ${{ matrix.environment == 'prod' && vars.GCP_PLANNER_PROD || vars.GCP_PLANNER_STAGING }}
+      - uses: google-github-actions/setup-gcloud@v3
+      # 첫 env apply 전에는 state 객체가 없고, init이 빈 state를 쓰려다 읽기 전용 planner라 막힙니다.
+      # 객체가 없을 때만 건너뛰고, 권한, 일시 오류는 실패로 드러냅니다(#668). bucket이 없을 때도 같은 404지만,
+      # 그때는 bootstrap 전이라 WIF가 없어 앞의 auth가 먼저 실패합니다.
+      - name: env state 확인
+        id: state
+        run: |
+          object="gs://${{ matrix.project_id }}-tfstate/env/default.tfstate"
+          if output="$(gcloud storage objects describe "$object" --format='value(name)' 2>&1)"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          elif grep -q "not found: 404" <<< "$output"; then
+            echo "### terraform plan (${{ matrix.environment }}) 건너뜀: env state가 아직 없습니다(첫 배포 전)." >> "$GITHUB_STEP_SUMMARY"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$output" >&2
+            exit 1
+          fi
       - uses: hashicorp/setup-terraform@v4
+        if: steps.state.outputs.exists == 'true'
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
       - name: terraform plan
+        if: steps.state.outputs.exists == 'true'
         working-directory: server/deploy/terraform/env
         run: |
           terraform init -input=false -backend-config="bucket=${{ matrix.project_id }}-tfstate"
