@@ -3,6 +3,16 @@ variable "project_id" {
   type        = string
 }
 
+variable "environment" {
+  description = "이 프로젝트에 배포하는 GitHub environment. deployer는 이 environment의 main job만 씁니다(#644)"
+  type        = string
+
+  validation {
+    condition     = contains(["staging", "prod"], var.environment)
+    error_message = "environment는 staging 또는 prod입니다."
+  }
+}
+
 variable "region" {
   description = "리전 (S117)"
   type        = string
