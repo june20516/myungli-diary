@@ -173,7 +173,7 @@ final class FakeAppCheck implements AppCheck {
   final String tokenValue;
 
   @override
-  Future<String> token() async => tokenValue;
+  Future<String?> token() async => tokenValue;
 }
 
 /// 푸시 대역. 사건은 [addOpen]·[addTokenRefresh]로 넣습니다.

@@ -3,17 +3,18 @@ import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/api_route.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 
-/// App Check 토큰을 내는 쪽입니다(Firebase 구현은 별도 task).
+/// App Check 토큰을 내는 쪽입니다(실제 구현 `FirebaseAppCheckAdapter`).
 abstract interface class AppCheckTokenSource {
-  /// 지금 쓸 App Check 토큰.
-  Future<String> token();
+  /// 지금 쓸 App Check 토큰. 받지 못하면 null입니다.
+  Future<String?> token();
 }
 
 /// 공통 헤더를 붙입니다.
 ///
 /// * `Accept-Language`: access token이 없는 요청에만(bearer 요청은 프로필 언어).
 /// * `X-Firebase-AppCheck`: 계약 `security`에 appCheck가 있는 operation에만
-///   (생성된 `ApiRoute.requiresAppCheck`).
+///   (생성된 `ApiRoute.requiresAppCheck`). 토큰을 받지 못하면 헤더 없이 보내고, 막을지는
+///   server가 정합니다(#657).
 final class CommonHeadersInterceptor extends Interceptor {
   /// 헤더 interceptor를 만듭니다.
   new({required this.tokens, required this.appCheck, required this.locale});
@@ -38,7 +39,8 @@ final class CommonHeadersInterceptor extends Interceptor {
       }
       final route = matchRoute(options.method, routePathOf(options));
       if (route?.requiresAppCheck ?? false) {
-        options.headers['X-Firebase-AppCheck'] = await appCheck.token();
+        final token = await appCheck.token();
+        if (token != null) options.headers['X-Firebase-AppCheck'] = token;
       }
     } on Object catch (error, stackTrace) {
       handler.reject(
