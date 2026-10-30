@@ -22,6 +22,7 @@ import (
 //
 //   - 장부에 없으면 accountID를 주인·처음 산 계정으로 적고 created = true입니다. catalog에 있는 상품이고 환불되지 않았으면
 //     상품의 권한마다 사용 구간을 놓습니다(starts_at = max(구매 시각, 이 계정의 같은 권한 구간 끝), expires_at = starts_at + Months개월).
+//     catalog에 없는 상품이면 Warn 로그를 남깁니다(S124).
 //   - 이미 있으면 아무것도 바꾸지 않고 지금 주인을 돌려줍니다(created = false). 환불 반영은 markRefundedTx 몫입니다.
 //   - 같은 스토어 거래(store, store_purchase_id)가 다른 구매 id로 이미 있으면 새로 적지 않고 그 행의 주인을 돌려주며
 //     구간도 만들지 않습니다(created = false, Warn 로그). D88 ①은 transfer·다른 App User ID 복원 뒤에도 RevenueCat 구매 id가
@@ -63,7 +64,13 @@ func recordPurchaseTx(ctx context.Context, q *billingdb.Queries, log *slog.Logge
 	}
 
 	product, ok := catalog[p.ProductID]
-	if !ok || p.Refunded {
+	if !ok {
+		// 장부에 적힌 구매는 설정을 고쳐도 구간이 생기지 않으므로, AD_FREE_PRODUCT_IDS 실수를 바로 알 수 있게 남깁니다(S124).
+		log.WarnContext(ctx, "목록 밖 상품이라 사용 구간을 만들지 않음",
+			"purchaseId", p.ID, "productId", p.ProductID, "store", p.Store, "accountId", accountID)
+		return accountID, true, nil
+	}
+	if p.Refunded {
 		return accountID, true, nil
 	}
 	for _, entitlement := range product.Entitlements {

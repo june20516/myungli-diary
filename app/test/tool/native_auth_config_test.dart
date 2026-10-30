@@ -16,6 +16,31 @@ void main() {
     );
   });
 
+  test('auth.json은 환경과 상관없는 제공자 식별자 다섯을 모두 채웁니다', () {
+    final config = readAuthConfigJson(File(authConfigPath));
+    expect(config.keys, unorderedEquals(providerIdentifierKeys));
+    for (final key in providerIdentifierKeys) {
+      expect(config[key]!.trim(), isNotEmpty, reason: key);
+    }
+  });
+
+  for (final (env, host) in [
+    ('staging', 'api-staging.myungli-diary.app'),
+    ('prod', 'api.myungli-diary.app'),
+  ]) {
+    test('config/env/$env.json은 $host의 API, App Link, Apple 복귀 주소입니다(A97)', () {
+      final config = readAuthConfigJson(File(envConfigPath(env)));
+      expect(config.keys, unorderedEquals(environmentKeys));
+      expect(config['FIREBASE_ENV'], env);
+      expect(config['API_BASE_URL'], 'https://$host');
+      expect(config['APP_LINK_HOST'], host);
+      expect(
+        config['APPLE_REDIRECT_URI'],
+        'https://$host/v1/auth/apple/callback',
+      );
+    });
+  }
+
   test('빈 GOOGLE_IOS_CLIENT_ID는 google-unconfigured', () {
     expect(googleReversedClientId(''), 'google-unconfigured');
     expect(googleReversedClientId('  '), 'google-unconfigured');

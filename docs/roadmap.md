@@ -29,7 +29,9 @@
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3, T1 | - |
 | H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 준비 메모 [`docs/specs/2026-10-30-context-slimming-design.md`](specs/2026-10-30-context-slimming-design.md) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | 시작 전 |
 | Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
-| T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
+| O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | 시작 전 |
+| T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
+| L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | 시작 전 (T1과 나란히) |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1 | Phase 2 | - |
 
@@ -42,14 +44,14 @@
 
 * **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 없습니다(app #600, server #629, server #642는 끝남). 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다. 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다. 검사 범위(D81)와 규칙 정합성(D78) 정리는 끝났습니다.
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** staging server 기동 → 엔진 실행 조건(#79)과 I1 → app 실제 adapter(로그인 #311·#463, RevenueCat #684, AdMob #686) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 시작합니다.
-* **staging 상태:** 인프라(Terraform bootstrap, WIF, 비밀 값 네 개, Firebase, App Check)는 끝났습니다. staging 배포(run 41012687111)는 인프라 단계까지 성공했고, server 기동은 tfvars 공개 값 7개(#607)가 비어 건너뛰었습니다. 결제는 PR #681(S123)로 RevenueCat 값 없이 끈 채 배포하고, #683에서 Test Store로 켭니다(D99). app은 PR #675로 release 서명과 Firebase adapter를 갖췄고, 첫 staging AAB가 Play 내부 테스트에 올라갔습니다(K1).
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** 엔진 실행 조건(#79)과 I1 → app 실제 adapter(로그인 #311·#463, RevenueCat #684, AdMob #686) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. O1(관측)은 staging 기동 뒤 T1 전까지, L1(부하 테스트)은 T1과 나란히. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 시작합니다.
+* **staging 상태:** server와 엔진이 떴습니다(2026-10-30, PR #689로 tfvars 공개 값을 채운 뒤 run 41019226137). 공개 주소 `api-staging.myungli-diary.app`에서 server가 응답하고, 엔진은 내부 전용(호출은 server 서비스 계정만)입니다. 결제는 PR #681(S123)로 RevenueCat 값 없이 끈 채 배포하고, #683에서 Test Store로 켭니다(D99). app은 PR #675로 release 서명과 Firebase adapter를 갖췄고, 첫 staging AAB가 Play 내부 테스트에 올라갔습니다(K1).
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | server | **#607**(staging tfvars 공개 값 7개, staging 기동을 막는 유일한 원인) → #79(엔진 컨테이너 실행 조건, I1) → #683(staging 결제를 Test Store로, webhook 둘, D99) → #655(staging 광고 제거권) → #610(카카오 `KAKAO_APP_KEY`). (P9 준비 PR #634, deployer WIF PR #671, bootstrap state bucket PR #667(S122), 결제 끈 staging 배포 PR #681(S123), drift #642는 PR #643으로 완료) | T1, I1, I2 |
+| 지금 | server | #79(엔진 컨테이너 실행 조건, I1) → #683(staging 결제를 Test Store로, webhook 둘, D99) → #655(staging 광고 제거권) → #610(카카오 `KAKAO_APP_KEY`). (staging 기동 #607은 PR #689로, P9 준비 PR #634, deployer WIF PR #671, bootstrap state bucket PR #667(S122), 결제 끈 staging 배포 PR #681(S123), drift #642는 PR #643으로 완료) | T1, I1, I2 |
 | 지금 | app | #680(plan 사실 표 정정) → 실제 로그인 adapter #311·#463 → RevenueCat adapter #684(debug는 Test Store 키, D99) → AdMob adapter #686(UMP, debug는 테스트 광고). (staging 준비 PR #675, 야간 E2E 회귀 #676은 PR #685로 완료. A1 후속 #587·#353·#331은 design·writing 답이 오는 대로) | I2, T1 |
-| 지금 | 지휘 | #607 병합 뒤 `deploy-server` 재실행과 staging 기동 확인 → AdMob SSV 콜백 주소 안내(#539) → #636(E17) 닫기 → I1·I2 시점 판단 | T1 |
+| 지금 | 지휘 | AdMob SSV 콜백 주소 안내(#539) → O1 착수 → I1·I2 시점 판단 | T1 |
 | 필요할 때 | writing | #331(app 임시 문구, 사주 용어 사전 범주) → 구매 상태 `owned` 키 #531(MVP 밖). core #625(조후표 용신 순서와 원전 인용) 답이 오면 반영 | I3 |
 | 필요할 때 | design | 요청이 오면. #587은 writing 틀과 app 반영 뒤 닫음 | - |
 | 필요할 때 | core | #625(writing 요청, 조후표 칸), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | I3 |
@@ -58,7 +60,7 @@
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다.
 
 * **지금(사용자):** E3 테스터 12명 모집 #535(T1을 가장 오래 막음), E14 문의 메일 주소. E13 AdMob #539는 SSV 콜백 주소만 남음(staging 기동 뒤). E12 RevenueCat #632는 스토어 연결과 SDK 키까지 끝났고 상품은 E15 뒤.
-* **완료:** E2 Apple Developer, E4 GCP, E5 Firebase(#605), E6 도메인, E7 Apple 로그인, E8 서명 지문, E9 카카오 콘솔, E10 LINE, E11 Google 로그인, E17 bootstrap과 비밀 값(#636, staging 기동 확인 뒤 닫음).
+* **완료:** E2 Apple Developer, E4 GCP, E5 Firebase(#605), E6 도메인, E7 Apple 로그인, E8 서명 지문, E9 카카오 콘솔, E10 LINE, E11 Google 로그인, E17 staging 몫(#636, prod 비밀 값은 I4 전).
 * **T1 직전:** LINE 채널 Published(E10), Google 동의 화면 프로덕션 전환이나 테스터 등록(E11), staging debug token 교체.
 * **I4 전(보류):** E15 사업자등록 #534(앱을 받아 본 뒤, D92), E16 약관과 처리방침 원문(AdMob 동의 메시지가 가리키는 주소, 실제 사용자에게 광고가 나가기 전까지 열려야 함), E18 원어민 검수, E19 정책 검토.
 
