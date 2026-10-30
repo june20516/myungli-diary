@@ -15,6 +15,7 @@ import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
+import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/share.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
@@ -173,17 +174,30 @@ final class FakeAppCheck implements AppCheck {
   final String tokenValue;
 
   @override
-  Future<String> token() async => tokenValue;
+  Future<String?> token() async => tokenValue;
+}
+
+/// 알림 채널 대역. 만든 아침 채널 이름을 기록합니다.
+final class FakeNotificationChannels implements NotificationChannels {
+  /// 빈 기록으로 시작합니다.
+  new();
+
+  /// [ensureMorning]에 받은 이름(부른 차례대로).
+  final morningNames = <String>[];
+
+  @override
+  Future<void> ensureMorning(String name) async => morningNames.add(name);
 }
 
 /// 푸시 대역. 사건은 [addOpen]·[addTokenRefresh]로 넣습니다.
 final class FakePushMessaging implements PushMessaging {
-  /// 권한 응답과 기기 토큰을 정합니다.
+  /// 권한 응답과 기기 토큰을 정합니다. [alreadyGranted]면 묻기 전부터 권한이 있습니다.
   new({
     this.permissionGranted = true,
     this.tokenValue = 'fake-push-token',
     this.initial,
-  });
+    bool alreadyGranted = false,
+  }) : _granted = alreadyGranted;
 
   /// [initialOpen]의 응답. 앱이 꺼진 상태에서 알림으로 시작한 경우를 흉내 냅니다.
   final PushOpen? initial;
@@ -203,8 +217,16 @@ final class FakePushMessaging implements PushMessaging {
   /// 기기 토큰 갱신을 넣습니다.
   void addTokenRefresh(String token) => _refreshes.add(token);
 
+  bool _granted;
+
   @override
-  Future<bool> requestPermission() async => permissionGranted;
+  Future<bool> requestPermission() async {
+    _granted = permissionGranted;
+    return permissionGranted;
+  }
+
+  @override
+  Future<bool> hasPermission() async => _granted;
 
   @override
   Future<String?> token() async => tokenValue;

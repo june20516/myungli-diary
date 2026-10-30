@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/app/dev/scenario_picker.dart';
 import 'package:myungli_diary/app/entry/account_linker.dart';
+import 'package:myungli_diary/app/entry/device_registrar.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/entry/leftover_draft_cleaner.dart';
@@ -28,10 +29,12 @@ class MyungliApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 계정 연결·로그아웃 정리·남은 온보딩 입력 정리 담당을 앱이 떠 있는 동안 붙들어 둡니다.
+    // 계정 연결·로그아웃 정리·알림 기기 등록·남은 온보딩 입력 정리 담당을 앱이 떠 있는 동안
+    // 붙들어 둡니다.
     ref
       ..watch(accountLinkerProvider)
       ..watch(signOutCleanerProvider)
+      ..watch(deviceRegistrarProvider)
       ..watch(leftoverDraftCleanerProvider);
     final locale = ref.watch(localeProvider);
     final showDevMenu =
@@ -56,7 +59,7 @@ class MyungliApp extends ConsumerWidget {
   }
 }
 
-/// 앱 셸 수준의 hook을 모읍니다: 다시 앞으로 올 때 하는 일과 알림 열기.
+/// 앱 셸 수준의 hook을 모읍니다: 다시 앞으로 올 때 하는 일, 알림 열기, 알림 채널 이름.
 ///
 /// 알림으로 앱이 열리면(꺼진 상태에서 시작 [PushMessaging.initialOpen], 실행 중
 /// [PushMessaging.opens]) 그 화면 경로로 `go`합니다. 진입 계산 전이면 라우터가 그 경로를
@@ -75,6 +78,7 @@ class AppLifecycleHooks extends ConsumerStatefulWidget {
 class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
     with WidgetsBindingObserver {
   StreamSubscription<PushOpen>? _pushOpens;
+  String? _morningChannelName;
 
   @override
   void initState() {
@@ -89,6 +93,21 @@ class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
         unawaited(ref.read(timezoneSyncProvider).syncIfChanged());
       }
     }, fireImmediately: true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 아침 알림 채널 이름은 기기 설정에 보이는 글이라 앱 언어가 정해지거나 바뀔 때마다
+    // 다시 만듭니다(같은 id면 이름만 바뀜, W46).
+    final name = Localizations.of<AppLocalizations>(
+      context,
+      AppLocalizations,
+    )?.systemPushChannelMorning;
+    if (name != null && name != _morningChannelName) {
+      _morningChannelName = name;
+      unawaited(ref.read(notificationChannelsProvider).ensureMorning(name));
+    }
   }
 
   @override

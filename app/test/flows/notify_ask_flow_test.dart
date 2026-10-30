@@ -355,6 +355,9 @@ class _NoPermissionPush implements PushMessaging {
   Future<bool> requestPermission() => throw StateError('권한을 요청하면 안 됩니다');
 
   @override
+  Future<bool> hasPermission() async => false;
+
+  @override
   Future<String?> token() async => 'fake-push-token';
 
   @override

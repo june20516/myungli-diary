@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/app/entry/device_registrar.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/sign_out.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
@@ -83,6 +84,7 @@ class SettingsController extends Notifier<Set<SettingsField>> {
     () => revokeAndSignOut(
       api: ref.read(restClientProvider),
       tokens: ref.read(tokenStoreProvider),
+      releaseDevice: ref.read(deviceRegistrarProvider).releaseForSignOut,
     ),
   );
 

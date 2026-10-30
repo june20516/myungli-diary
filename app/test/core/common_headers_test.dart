@@ -32,8 +32,12 @@ class _RecordingAdapter implements HttpClientAdapter {
 }
 
 class _FakeAppCheck implements AppCheckTokenSource {
+  new([this.value = 'app-check-token']);
+
+  final String? value;
+
   @override
-  Future<String> token() async => 'app-check-token';
+  Future<String?> token() async => value;
 }
 
 void main() {
@@ -63,6 +67,24 @@ void main() {
       for (final r in adapter.requests) r.headers['X-Firebase-AppCheck'],
     ];
     expect(headers, ['app-check-token', 'app-check-token', null, null]);
+  });
+
+  test('App Check 토큰이 없으면 헤더 없이 보낸다(거절하지 않음, #657)', () async {
+    final noToken = buildDio(
+      mode: ApiMode.http,
+      baseUrl: Uri.parse('https://api.test'),
+      tokens: tokens,
+      appCheck: _FakeAppCheck(null),
+      locale: () => const Locale('ja'),
+    )..httpClientAdapter = adapter;
+
+    await noToken.post<Object?>('/v1/preview');
+
+    expect(adapter.requests, hasLength(1));
+    expect(
+      adapter.requests.single.headers.containsKey('X-Firebase-AppCheck'),
+      isFalse,
+    );
   });
 
   test('Accept-Language는 access token이 없는 요청에만 붙는다', () async {

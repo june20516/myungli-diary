@@ -14,8 +14,9 @@ import 'package:myungli_diary/core/storage/device_flags.dart';
 /// `TokenStore.signOut`의 이벤트로 돕니다. 기기에는 한 번에 한 계정만 로그인하므로 계정
 /// id를 기억하지 않고 모든 계정의 캐시·일기 초안과 온보딩 입력을 지웁니다
 /// ([AppDatabase.clearSignedOutData]). 캐시·초안 지우기는 계정 합치기 뒤 정리
-/// ([AppDatabase.clearAccountData])와 같은 함수입니다. 기기 플래그는 남기고 알림 허락 대기
-/// ([notifyAskPendingKey])만 끕니다. 그래서 이번 실행에서 내 정보를 받기 전에 로그아웃돼도
+/// ([AppDatabase.clearAccountData])와 같은 함수입니다. 기기 플래그는 남기고 알림 허락
+/// 대기([notifyAskPendingKey])를 끄고 저장된 알림 기기 id([registeredDeviceIdKey])를
+/// 지웁니다. 그래서 이번 실행에서 내 정보를 받기 전에 로그아웃돼도
 /// 정리됩니다. 외부 SDK 연결 해제는 `AccountLinker`가 맡습니다.
 final class SignOutCleaner {
   /// [_ref]로 DB와 보고 담당을 읽는 정리 담당을 만듭니다.
@@ -32,8 +33,12 @@ final class SignOutCleaner {
           .read(deviceFlagsStoreProvider)
           .writeBool(notifyAskPendingKey, value: false),
     );
-    // 알림 기기 해제(deleteDevice)는 기기 id 저장이 계획 7 몫이라 계획 7에서 연결합니다.
-    // 연결할 때 위처럼 `_guard`로 감싸 한 단계 실패가 나머지를 막지 않게 합니다.
+    // 자발적 로그아웃은 server 로그아웃 전에 기기를 해제했습니다(revokeAndSignOut). 강제
+    // 로그아웃(refresh 거부, 401)과 계정 삭제는 해제 요청을 보낼 수 없거나 server가 이미
+    // 비활성으로 바꿨으므로, 저장된 기기 id만 지워 다음 계정에 넘기지 않습니다.
+    await _guard(
+      () => _ref.read(deviceFlagsStoreProvider).remove(registeredDeviceIdKey),
+    );
   }
 
   Future<void> _guard(Future<void> Function() step) async {

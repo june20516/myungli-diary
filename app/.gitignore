@@ -56,3 +56,7 @@ app.*.map.json
 /patrol_test/test_bundle.dart
 # 이 기기에서만 쓰는 로컬 개발 파일(로컬 server 임시 키·환경 파일 등). commit하지 않습니다.
 /.local/
+
+# 업로드 키는 저장소 밖 보관 폴더에 둡니다(A94, D98 K1). 실수로 복사해도 올라가지 않게 막습니다.
+*.jks
+key.properties

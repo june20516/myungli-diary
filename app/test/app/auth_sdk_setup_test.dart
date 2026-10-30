@@ -4,15 +4,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/auth_sdk_setup.dart';
 import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/platform/apple_native_auth.dart';
 import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/auth_config.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/firebase_app_check.dart';
+import 'package:myungli_diary/core/platform/firebase_crash_reporter.dart';
+import 'package:myungli_diary/core/platform/firebase_push.dart';
 import 'package:myungli_diary/core/platform/google_auth.dart';
 import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/line_auth.dart';
+import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/push_channel.dart';
+import 'package:myungli_diary/core/platform/unavailable_store.dart';
 
 AuthConfig _config({String kakao = '', String line = ''}) => AuthConfig(
   kakaoNativeAppKey: kakao,
@@ -39,6 +46,44 @@ void main() {
         isA<SignInWithAppleNativeAuth>(),
       );
       expect(container.read(appleWebAuthProvider), isA<WebAuthAppleWebAuth>());
+    });
+
+    test('http는 App Check, Crashlytics, FCM, 알림 채널을 실제 구현으로, fake는 대역', () {
+      final http = ProviderContainer(
+        overrides: realPlatformOverrides(ApiMode.http),
+      );
+      addTearDown(http.dispose);
+      final fake = ProviderContainer(
+        overrides: realPlatformOverrides(ApiMode.fake),
+      );
+      addTearDown(fake.dispose);
+      expect(http.read(appCheckProvider), isA<FirebaseAppCheckAdapter>());
+      expect(fake.read(appCheckProvider), isA<FakeAppCheck>());
+      expect(http.read(crashReporterProvider), isA<FirebaseCrashReporter>());
+      expect(fake.read(crashReporterProvider), isA<FakeCrashReporter>());
+      expect(http.read(pushMessagingProvider), isA<FirebasePushMessaging>());
+      expect(fake.read(pushMessagingProvider), isA<FakePushMessaging>());
+      expect(
+        http.read(notificationChannelsProvider),
+        isA<LocalNotificationChannels>(),
+      );
+      expect(
+        fake.read(notificationChannelsProvider),
+        isA<FakeNotificationChannels>(),
+      );
+      expect(http.read(purchasesProvider), isA<UnavailablePurchases>());
+      expect(http.read(adConsentProvider), isA<NonPersonalizedAdConsent>());
+      expect(http.read(shareSheetProvider), isA<OsShareSheet>());
+      expect(fake.read(purchasesProvider), isA<FakePurchases>());
+      expect(fake.read(shareSheetProvider), isA<FakeShareSheet>());
+    });
+
+    test('http 모드 adsProvider는 NoAds', () {
+      final container = ProviderContainer(
+        overrides: [apiModeProvider.overrideWithValue(ApiMode.http)],
+      );
+      addTearDown(container.dispose);
+      expect(container.read(adsProvider), isA<NoAds>());
     });
 
     test('Google adapter는 실행 플랫폼이 iOS인지 압니다', () {

@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -13,12 +14,31 @@ val authConfig = JsonSlurper().parse(file("../../config/auth.json")) as Map<Stri
 
 fun authValue(key: String): String = authConfig[key]?.trim().orEmpty()
 
+// release 업로드 키(결정 A94). 저장소 밖 보관 폴더(D98, docs/local-values.md K1)에서 읽습니다.
+// 파일이 없으면 release도 debug 키로 서명합니다(로컬 확인용, Play에 올릴 수 없음).
+val localValuesDir =
+    System.getenv("MYUNGLI_LOCAL_DIR")?.takeIf { it.isNotBlank() }
+        ?: "${System.getProperty("user.home")}/.config/myungli"
+val uploadKeyFile = file("$localValuesDir/app/shared/key.properties")
+val uploadKey: Properties? =
+    if (uploadKeyFile.isFile) {
+        Properties().apply { uploadKeyFile.inputStream().use { load(it) } }
+    } else {
+        null
+    }
+
+fun uploadKeyValue(name: String): String =
+    uploadKey?.getProperty(name)?.takeIf { it.isNotBlank() }
+        ?: throw GradleException("$uploadKeyFile 에 $name 값이 없습니다(README \"staging 빌드\").")
+
 android {
     namespace = "app.myungli.diary"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // flutter_local_notifications(아침 알림 채널)가 요구합니다.
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -49,11 +69,26 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 
+    signingConfigs {
+        if (uploadKey != null) {
+            create("upload") {
+                storeFile = uploadKeyFile.parentFile.resolve(uploadKeyValue("storeFile"))
+                storePassword = uploadKeyValue("storePassword")
+                keyAlias = uploadKeyValue("keyAlias")
+                keyPassword = uploadKeyValue("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                if (uploadKey != null) {
+                    signingConfigs.getByName("upload")
+                } else {
+                    logger.warn("업로드 키가 없어 release를 debug 키로 서명합니다: $uploadKeyFile")
+                    signingConfigs.getByName("debug")
+                }
         }
     }
 }
@@ -69,5 +104,6 @@ flutter {
 }
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     androidTestUtil("androidx.test:orchestrator:1.5.1")
 }

@@ -35,7 +35,18 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --dart-define=SCENARIO=member
 ```
 
-* **로컬 server(http):** `server/`에서 `docker compose up -d --wait`(DB, 엔진), `server migrate up`, `server seed`(콘텐츠 문장 틀. 없으면 오늘 화면이 503), `server serve`로 띄웁니다(인증 값은 로컬에서도 모두 필요합니다. 서명 키는 이 기기에서만 쓰는 임시 값으로 만들어 보관 폴더 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/local/`(D98, `docs/local-values.md` K6)에 두고 `source "${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/local/env.sh"`로 읽습니다. server 바이너리와 로그처럼 버려도 되는 것만 `app/.local/`(gitignore)에 둡니다. `KAKAO_APP_KEY`는 카카오 네이티브 앱 키입니다(id_token `aud`, #610). Android 에뮬레이터는 `adb reverse tcp:8080 tcp:8080`으로 기기의 localhost를 Mac에 잇고 `API_BASE_URL`을 비워 둡니다(debug 기본값 `http://localhost:8080`). 평문 http는 debug 빌드에서만 localhost에 허용합니다(`android/app/src/debug/res/xml/network_security_config.xml`). 미리보기, 시진 확인, 음력 변환은 App Check 요청이라 Firebase 설정 전에는 503입니다.
+* **로컬 server(http):** `server/`에서 `docker compose up -d --wait`(DB, 엔진), `server migrate up`, `server seed`(콘텐츠 문장 틀. 없으면 오늘 화면이 503), `server serve`로 띄웁니다(인증 값은 로컬에서도 모두 필요합니다. 서명 키는 이 기기에서만 쓰는 임시 값으로 만들어 보관 폴더 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/local/`(D98, `docs/local-values.md` K6)에 두고 `source "${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/local/env.sh"`로 읽습니다. server 바이너리와 로그처럼 버려도 되는 것만 `app/.local/`(gitignore)에 둡니다. `KAKAO_APP_KEY`는 카카오 네이티브 앱 키입니다(id_token `aud`, #610). Android 에뮬레이터는 `adb reverse tcp:8080 tcp:8080`으로 기기의 localhost를 Mac에 잇고 `API_BASE_URL`을 비워 둡니다(debug 기본값 `http://localhost:8080`). 평문 http는 debug 빌드에서만 localhost에 허용합니다(`android/app/src/debug/res/xml/network_security_config.xml`). 미리보기, 시진 확인, 음력 변환은 App Check 요청입니다. debug 빌드는 staging Firebase의 debug provider를 쓰고, 토큰은 콘솔에 등록한 고정 값을 `--dart-define-from-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/staging/dart-defines.json"`(`APP_CHECK_DEBUG_TOKEN`, D98 K4, #659)으로 넘깁니다. debug provider는 넘긴 고정 토큰도 logcat(`DebugAppCheckProvider`)에 그대로 찍으니 그 로그를 공유하거나 붙여 넣지 않습니다. 파일 없이 실행하면 SDK가 첫 실행 때 만든 토큰을 로그에 찍고, 그 토큰을 콘솔에 등록하기 전까지는 헤더 없이 나갑니다(#657). release는 staging이어도 기기 증명(Android Play Integrity, iOS DeviceCheck)만 씁니다.
+* **staging 빌드(Play 내부 테스트):** release는 저장소 밖 보관 폴더의 업로드 키로 서명합니다(A94, D98 K1). 키는 한 번만 만들고, 두 파일은 잃으면 다시 얻을 수 없으니 기기 밖(비밀번호 관리자 등)에 꼭 백업합니다. 파일이 없으면 release도 debug 키로 서명되고 Gradle이 경고를 한 줄 냅니다(Play에 올릴 수 없음).
+  ```
+  D="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/shared"; mkdir -p "$D" && chmod 700 "$D"
+  keytool -genkeypair -v -keystore "$D/upload-keystore.jks" -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+  # $D/key.properties: storeFile=upload-keystore.jks, storePassword=…, keyAlias=upload, keyPassword=…
+  chmod 600 "$D"/*
+  flutter build appbundle --release --dart-define-from-file=config/auth.json \
+    --dart-define=API_BASE_URL=<staging API> --dart-define=FIREBASE_ENV=staging \
+    --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>
+  ```
+  `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 소유자가 업로드 키인지 확인합니다. 앱 서명 키는 Play가 보관합니다(E8).
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |

@@ -21,6 +21,9 @@ abstract interface class PushMessaging {
   /// 알림 권한을 요청합니다. 허용하면 true.
   Future<bool> requestPermission();
 
+  /// 묻지 않고, 지금 OS 알림 권한이 허락돼 있는지. 묻기 전이거나 거절했으면 false.
+  Future<bool> hasPermission();
+
   /// 지금의 기기 토큰. 없으면 null.
   Future<String?> token();
 
