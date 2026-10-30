@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -606,6 +607,33 @@ func TestSync_UnknownProduct_LedgerOnly(t *testing.T) {
 
 	assert.Equal(t, accountID, ledgerOf(t, f.pool, "other").Owner)
 	assert.Empty(t, allGrants(t, f.pool))
+}
+
+// 목록 밖 상품을 처음 적을 때 상품 id와 스토어를 Warn으로 남깁니다(S124). 장부에 적힌 구매는 설정을 고쳐도
+// 구간이 생기지 않으므로, AD_FREE_PRODUCT_IDS를 잘못 넣었을 때 로그로 바로 알아야 합니다.
+func TestSync_UnknownProduct_WarnsWithProductID(t *testing.T) {
+	pool := dbtest.New(t)
+	source := newFakePurchases()
+	logs := &bytes.Buffer{}
+	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
+		Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct}),
+		Logger:  logging.New(logs, slog.LevelDebug, ""),
+	}, clocktest.New(now))
+	accountID := newAccount(t, pool)
+	other := owned("other", oct1)
+	other.ProductID = "prod_unlisted"
+	other.Store = "test_store"
+	source.set(accountID, other, owned("listed", oct10))
+
+	require.NoError(t, syncer.Sync(context.Background(), accountID))
+	require.NoError(t, syncer.Sync(context.Background(), accountID))
+
+	out := logs.String()
+	assert.Contains(t, out, `"severity":"WARNING"`)
+	assert.Contains(t, out, "prod_unlisted")
+	assert.Contains(t, out, "test_store")
+	assert.Equal(t, 1, strings.Count(out, "prod_unlisted"), "처음 적을 때 한 번만")
+	assert.NotContains(t, out, `"listed"`, "목록 안 상품은 남기지 않음")
 }
 
 func TestSyncer_Sync_ConcurrentSameAccount_LookupsDoNotOverlap(t *testing.T) {
