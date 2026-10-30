@@ -6,6 +6,7 @@ import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/platform/admob_ads.dart';
 import 'package:myungli_diary/core/platform/apple_native_auth.dart';
 import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/auth_config.dart';
@@ -19,6 +20,7 @@ import 'package:myungli_diary/core/platform/line_auth.dart';
 import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
+import 'package:myungli_diary/core/platform/ump_ad_consent.dart';
 import 'package:myungli_diary/core/platform/unavailable_store.dart';
 
 AuthConfig _config({String kakao = '', String line = ''}) => AuthConfig(
@@ -72,7 +74,8 @@ void main() {
         isA<FakeNotificationChannels>(),
       );
       expect(http.read(purchasesProvider), isA<UnavailablePurchases>());
-      expect(http.read(adConsentProvider), isA<NonPersonalizedAdConsent>());
+      expect(http.read(adConsentProvider), isA<UmpAdConsent>());
+      expect(http.read(adsProvider), isA<AdMobAds>());
       expect(http.read(shareSheetProvider), isA<OsShareSheet>());
       expect(fake.read(purchasesProvider), isA<FakePurchases>());
       expect(fake.read(shareSheetProvider), isA<FakeShareSheet>());

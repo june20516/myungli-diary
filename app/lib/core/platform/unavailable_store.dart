@@ -1,10 +1,10 @@
 import 'package:myungli_diary/core/api/app_error.dart';
-import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 
-// http 모드에서 아직 실제 adapter가 없는 결제와 광고입니다. RevenueCat(E12, #632)과
-// AdMob(E13, #539) 값이 오면 실제 adapter로 바꿉니다. 대역처럼 가짜 성공을 만들지 않습니다.
+// http 모드에서 아직 실제 adapter가 없는 결제(RevenueCat, #684)와, 부팅이 AdMob
+// adapter(결정 A99)를 끼우지 않은 http 모드(테스트 등)의 광고입니다. 대역처럼 가짜 성공을
+// 만들지 않습니다.
 
 /// 결제를 아직 쓸 수 없는 구현. 상품이 없고 사려 하면 실패로 끝납니다.
 final class UnavailablePurchases implements Purchases {
@@ -39,13 +39,4 @@ final class NoAds implements Ads {
   @override
   Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
       null;
-}
-
-/// 광고 동의를 묻지 않고 비맞춤으로 두는 구현. 광고가 없으니 묻지 않습니다.
-final class NonPersonalizedAdConsent implements AdConsent {
-  /// 구현을 만듭니다.
-  const new();
-
-  @override
-  Future<AdConsentResult> gather() async => AdConsentResult.nonPersonalized;
 }

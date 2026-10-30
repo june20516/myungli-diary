@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
-import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/unavailable_store.dart';
 
@@ -31,12 +30,5 @@ void main() {
       expect(await ads.loadBanner(width: 320), isNull);
       expect(await ads.loadRewarded(userId: 'account'), isNull);
     });
-  });
-
-  test('NonPersonalizedAdConsent는 nonPersonalized', () async {
-    expect(
-      await const NonPersonalizedAdConsent().gather(),
-      AdConsentResult.nonPersonalized,
-    );
   });
 }
