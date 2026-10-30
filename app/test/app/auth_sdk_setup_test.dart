@@ -19,6 +19,7 @@ import 'package:myungli_diary/core/platform/line_auth.dart';
 import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
+import 'package:myungli_diary/core/platform/revenuecat_purchases.dart';
 import 'package:myungli_diary/core/platform/unavailable_store.dart';
 
 AuthConfig _config({String kakao = '', String line = ''}) => AuthConfig(
@@ -71,7 +72,14 @@ void main() {
         fake.read(notificationChannelsProvider),
         isA<FakeNotificationChannels>(),
       );
-      expect(http.read(purchasesProvider), isA<UnavailablePurchases>());
+      expect(
+        http.read(purchasesProvider),
+        isA<RevenueCatPurchases>().having(
+          (p) => p.apiKey,
+          'apiKey',
+          revenueCatApiKey(platform: http.read(targetPlatformProvider)),
+        ),
+      );
       expect(http.read(adConsentProvider), isA<NonPersonalizedAdConsent>());
       expect(http.read(shareSheetProvider), isA<OsShareSheet>());
       expect(fake.read(purchasesProvider), isA<FakePurchases>());

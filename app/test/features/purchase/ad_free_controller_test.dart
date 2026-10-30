@@ -11,7 +11,7 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
-import 'package:myungli_diary/core/platform/unavailable_store.dart';
+import 'package:myungli_diary/core/platform/revenuecat_purchases.dart';
 import 'package:myungli_diary/features/purchase/application/ad_free_controller.dart';
 
 import '../../support/app_harness.dart';
@@ -249,8 +249,10 @@ void main() {
     expect(container.read(adFreeControllerProvider), isFalse);
   });
 
-  test('결제를 쓸 수 없으면(http 모드, E12 전) 상품은 오류 상태이고 보고는 남지 않습니다', () async {
-    final container = await _start(const UnavailablePurchases());
+  test('광고 제거권 id가 없으면(E12 전) 상품은 오류 상태이고 보고는 남지 않습니다', () async {
+    final container = await _start(
+      RevenueCatPurchases(apiKey: 'test_key', productIds: const {}),
+    );
     await expectLater(
       container.read(adFreeProductProvider.future),
       throwsA(isA<UnexpectedError>()),

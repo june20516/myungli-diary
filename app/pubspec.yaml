@@ -60,6 +60,7 @@ dependencies:
   path_provider: ^2.1.6
   phosphor_glyphs: ^2.1.2+1
   pub_semver: ^2.2.1
+  purchases_flutter: ^11.0.0
   share_plus: ^13.3.1
   sign_in_with_apple: 8.2.0
   timezone: ^0.11.2
