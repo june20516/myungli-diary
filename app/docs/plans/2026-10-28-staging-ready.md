@@ -26,7 +26,7 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 | 사실 | 출처 |
 | --- | --- |
 | iOS App Check는 DeviceCheck만 두 프로젝트에 등록. App Attest는 결정된 적 없음 | #605 닫는 코멘트, `Runner.entitlements` |
-| Android Play Integrity는 prod에만 연결, staging Android는 토큰을 못 받는 것이 정상 | #657, #656, 대장 E5 |
+| Android Play Integrity는 staging과 prod 모두 연결(Play 앱 하나에 Cloud 프로젝트 최대 5개). staging release 빌드도 Play Integrity 토큰을 받습니다. staging server도 App Check를 막습니다(S66, #656 취소). 토큰 없이 보내기(#657)는 장애 대비로 남깁니다. 처음 적은 "prod에만 연결"은 확인하지 않은 전제였습니다 | #680, #657, 대장 E5 |
 | staging debug token은 콘솔 두 앱에 등록, 보관 `$D/app/staging/dart-defines.json` | #659, `docs/local-values.md` K4 |
 | Firebase 네이티브 설정 파일은 빌드가 읽지 않음(Dart 설정으로 초기화) | A93, K5 |
 | `CrashSummary`에는 `toString`이 없음 | `lib/core/platform/crash_reporter.dart` |
