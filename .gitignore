@@ -39,3 +39,9 @@ app/android/.gradle/
 app/android/local.properties
 *.iml
 .suberpowers/
+
+# 비밀 키 파일은 저장소에 두지 않습니다(D98). 원본은 보관 폴더(docs/local-values.md).
+*.p8
+*.jks
+*.keystore
+key.properties
