@@ -18,6 +18,17 @@ variable "environment" {
   }
 }
 
+variable "billing_enabled" {
+  description = "결제(RevenueCat) 설정을 server에 붙이는지. false면 결제 설정 둘과 결제 Secret 둘을 필수에서 빼고 붙이지 않아 server가 결제를 끈 채 시작합니다(#654). prod는 true만 됩니다"
+  type        = bool
+  default     = true
+
+  validation {
+    condition     = var.billing_enabled || var.environment != "prod"
+    error_message = "prod는 billing_enabled = true여야 합니다."
+  }
+}
+
 variable "region" {
   description = "리전 (S117)"
   type        = string

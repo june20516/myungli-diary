@@ -8,7 +8,12 @@ output "server_url" {
 
 output "secret_ids" {
   description = "값(버전)이 있어야 server가 시작하는 Secret. workflow가 버전 유무를 확인한 뒤 latest로 붙입니다"
-  value       = sort(local.secret_ids)
+  value       = sort(local.server_secret_ids)
+}
+
+output "billing_enabled" {
+  description = "결제 설정을 server에 붙였는지. false면 server가 결제를 끈 채 시작합니다(#654)"
+  value       = var.billing_enabled
 }
 
 output "missing_server_settings" {
