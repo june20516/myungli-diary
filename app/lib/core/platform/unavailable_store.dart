@@ -1,8 +1,7 @@
-import 'package:myungli_diary/core/platform/ad_consent.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 
-// http 모드에서 아직 실제 adapter가 없는 광고입니다. AdMob(E13, #539) 값이 오면 실제
-// adapter로 바꿉니다. 대역처럼 가짜 성공을 만들지 않습니다.
+// 부팅이 AdMob adapter(결정 A99)를 끼우지 않은 http 모드(테스트 등)의 광고입니다. 대역처럼
+// 가짜 성공을 만들지 않습니다.
 
 /// 광고를 아직 쓸 수 없는 구현. 배너는 비고 보상형 버튼은 꺼집니다.
 final class NoAds implements Ads {
@@ -15,13 +14,4 @@ final class NoAds implements Ads {
   @override
   Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
       null;
-}
-
-/// 광고 동의를 묻지 않고 비맞춤으로 두는 구현. 광고가 없으니 묻지 않습니다.
-final class NonPersonalizedAdConsent implements AdConsent {
-  /// 구현을 만듭니다.
-  const new();
-
-  @override
-  Future<AdConsentResult> gather() async => AdConsentResult.nonPersonalized;
 }

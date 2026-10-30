@@ -54,6 +54,10 @@
                     android:path="/auth/apple" />
             </intent-filter>
         </activity>
+        <!-- AdMob 앱 ID(결정 A99). 빌드 모드와 상관없이 실제 값이고, 없으면 SDK가 시작 때 종료합니다. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-5703509220233743~1675843971" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
