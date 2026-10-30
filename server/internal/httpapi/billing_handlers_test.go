@@ -69,6 +69,20 @@ func TestGetMe_FillsEntitlementsFromService(t *testing.T) {
 	assert.Equal(t, gen.AdFreePass, *got.Insight.Source)
 }
 
+// staging 테스트 광고 제거 기간(test_grant)은 계약 enum 밖이라 같은 권한인 ad_free_pass로 보냅니다(S125).
+func TestGetMe_TestGrantSourceSentAsAdFreePass(t *testing.T) {
+	status, _ := activeStatus()
+	status.Insight.Source = billing.SourceTestGrant
+	rec, req, check := getJSON(t, meAPI(fakeEntitlements{status: status}), "/v1/me")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	check(rec, req)
+	var got gen.Me
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+	require.NotNil(t, got.Insight.Source)
+	assert.Equal(t, gen.AdFreePass, *got.Insight.Source)
+}
+
 func TestGetMe_InactiveEntitlementsOmitExpiryAndSource(t *testing.T) {
 	rec, req, check := getJSON(t, meAPI(fakeEntitlements{}), "/v1/me")
 

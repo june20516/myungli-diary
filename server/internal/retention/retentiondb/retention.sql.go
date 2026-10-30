@@ -246,6 +246,21 @@ func (q *Queries) DeleteRewardGrantsEndedBefore(ctx context.Context, cutoff time
 	return result.RowsAffected(), nil
 }
 
+const deleteTestGrantsEndedBefore = `-- name: DeleteTestGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants
+WHERE source = 'test_grant'
+  AND (expires_at < $1 OR revoked_at < $1)
+`
+
+// staging 테스트 광고 제거 기간(S125)은 끝나거나 회수된 뒤 1년이 지나면 지웁니다. 회수한 행은 원래 만료가 멀어도 회수 시각으로 셉니다.
+func (q *Queries) DeleteTestGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteTestGrantsEndedBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const purgeDeletedDiaries = `-- name: PurgeDeletedDiaries :execrows
 UPDATE diaries SET body = '', content_purged_at = $1::timestamptz
 WHERE deleted_at < $2::timestamptz AND content_purged_at IS NULL

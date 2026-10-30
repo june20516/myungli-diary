@@ -52,6 +52,12 @@ DELETE FROM reward_events WHERE received_at < @cutoff;
 -- name: DeleteRewardGrantsEndedBefore :execrows
 DELETE FROM entitlement_grants WHERE source = 'rewarded_ad' AND expires_at < @cutoff;
 
+-- staging 테스트 광고 제거 기간(S125)은 끝나거나 회수된 뒤 1년이 지나면 지웁니다. 회수한 행은 원래 만료가 멀어도 회수 시각으로 셉니다.
+-- name: DeleteTestGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants
+WHERE source = 'test_grant'
+  AND (expires_at < @cutoff OR revoked_at < @cutoff);
+
 -- name: DeleteBillingEventsBefore :execrows
 DELETE FROM billing_events WHERE received_at < @cutoff;
 

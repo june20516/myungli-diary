@@ -173,7 +173,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | --- | --- | --- |
 | `devices` | account_id, fcm_token(unique, nullable), platform, active, last_seen_at | 무효 토큰이면 active=false. 익명화 때 토큰을 지움. **S119로 개정:** fcm_token은 NOT NULL이고 unique는 SHA-256 `token_hash`에 걸며, 해제·상한 초과는 비활성 행으로 남기고, 계정 삭제와 합치기의 B 삭제가 행을 지움 |
 | `notification_log` | account_id, local_date, sent_at, result | unique(account_id, local_date) |
-| `entitlement_grants` | account_id, entitlement(`ad_free`·`insight`), source(`ad_free_pass`·`rewarded_ad`·`subscription`), source_ref(구매 id·`transaction_id`), starts_at, expires_at, revoked_at | 권한 부여 한 건이 한 행입니다. 판정은 같은 entitlement의 유효한 행(`revoked_at`이 없고 `starts_at ≤ now < expires_at`)이 하나라도 있는지입니다. 출처를 기록하라는 D60④를 이 구조가 만족하고, 구독도 같은 모양으로 담습니다 (D53·D60) |
+| `entitlement_grants` | account_id, entitlement(`ad_free`·`insight`), source(`ad_free_pass`·`rewarded_ad`·`subscription`, staging만 `test_grant`(S125)), source_ref(구매 id·`transaction_id`), starts_at, expires_at, revoked_at | 권한 부여 한 건이 한 행입니다. 판정은 같은 entitlement의 유효한 행(`revoked_at`이 없고 `starts_at ≤ now < expires_at`)이 하나라도 있는지입니다. 출처를 기록하라는 D60④를 이 구조가 만족하고, 구독도 같은 모양으로 담습니다 (D53·D60) |
 | `reward_events` | transaction_id(unique), account_id, ad_unit, reward_item, raw_query, received_at | AdMob SSV 원본. 같은 `transaction_id`는 한 번만 처리 (D60④) |
 | `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
 | `preview_usage` | device_hash(PK, 설치 id의 SHA-256 32바이트), used_at | 지우지 않음. 지우면 1회 제한이 풀림. 출생 정보는 저장하지 않음(S70) |
@@ -570,6 +570,10 @@ app E2E를 staging에서 사람 손 없이 돌리기 위한 장치입니다. pro
   * 요청 헤더 `X-Test-Login-Secret`이 Secret Manager의 `TEST_LOGIN_SECRET`과 같아야 합니다(상수 시간 비교). 다르면 404로 라우트가 없는 것처럼 답합니다.
   * 본문 `{label}`(영숫자 32자 이하)로 provider `test`, subject `<label>`인 계정을 찾거나 만들고, 정상 로그인과 같은 `LoginResponse`를 돌려줍니다. 약관 동의·삭제 흐름은 실제와 같게 거칩니다.
   * `auth_identities.provider` CHECK에 `test`를 더하는 migration은 staging과 prod가 같습니다. prod에는 발급 경로가 없으므로 `test` 행이 생기지 않고, 테스트가 이를 확인합니다(prod 빌드에 라우트가 없음).
+* **테스트 광고 제거 기간(S125):** `POST /test/v1/billing/ad-free`(본문 `{accountId, days}`, days 1~366)는 계정에 지금부터 days일의 `ad_free`, `insight`를 출처 `test_grant`로 주고, `DELETE /test/v1/billing/ad-free?accountId=`는 그 계정의 끝나지 않은 테스트 기간을 지금 끊습니다(`revoked_at`). 테스트 로그인과 같이 build tag `staging`에만 있고 같은 비밀 헤더를 씁니다(틀리면 404). 응답은 계약 `Entitlements`입니다.
+  * 권한은 실제 광고 제거권과 같습니다(배너 없음, `evidenceAccess: unlocked`). 계약 `Insight.source`는 닫힌 enum이라 `test_grant`를 `ad_free_pass`로 보내고, 테스트임은 DB 출처에만 남습니다.
+  * 구매 장부에 적지 않아 구매 목록에 나오지 않고, 광고 제거권 구간과 이어 붙이지 않으며, 계정 합치기로 옮기지 않습니다. job retention이 끝나거나 회수된 뒤 1년 지난 행을 지웁니다.
+  * 계정 id로 개발자나 지휘가 대신 부여합니다(앱 작업 없음). 부여와 회수 모두 없는 계정, 지운 계정은 400 `request.invalid`(`/accountId`, `not_found`)입니다. 계정 행을 `FOR SHARE`로 잡아 계정 삭제와 직렬화합니다.
 * **App Check debug token:** App Check 검증(P6)은 Firebase가 debug token을 정식으로 받습니다. E2E 기기·에뮬레이터의 debug token은 staging Firebase 프로젝트 콘솔에만 등록하고 prod에는 등록하지 않습니다. server 코드는 바꾸지 않습니다. 등록 절차는 배포 단계 안내(§13.3)에 넣습니다.
 
 ### 13.3 사용자가 준비할 것

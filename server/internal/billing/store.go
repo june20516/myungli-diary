@@ -30,6 +30,8 @@ const (
 	SourceAdFreePass   Source = "ad_free_pass"
 	SourceRewardedAd   Source = "rewarded_ad"
 	SourceSubscription Source = "subscription"
+	// SourceTestGrant는 staging에서 결제 없이 준 광고 제거 기간입니다(S125). 쓰는 코드는 staging 빌드에만 있습니다.
+	SourceTestGrant Source = "test_grant"
 )
 
 // Grant는 권한 한 건입니다. entitlement_grants의 한 행에 대응합니다.

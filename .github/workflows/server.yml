@@ -94,13 +94,13 @@ jobs:
         run: |
           go test -race -count=1 ./api/ ./seed/... ./legal/... ./internal/content/render/ ./internal/profile/honorific/
           go test -race -count=1 -run 'TestRegisterAPI_|TestProblemCodes_|TestLegalPage_|TestAppCheck_' ./internal/httpapi/
-      - name: staging 테스트 로그인
+      - name: staging 테스트 로그인과 테스트 광고 제거 기간
         if: env.OWN == 'true'
-        # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24).
-        run: go test -race -count=1 -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv'
+        # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24, S125).
+        run: go test -race -count=1 -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/billing/ ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv|TestTestGrant|TestServe_AssemblesTestGrant'
       - name: prod 바이너리에 테스트 로그인이 없는지 확인
         if: env.OWN == 'true'
-        # prod 빌드(tag 없음)에는 없고 staging 빌드에는 있어야 합니다. staging 쪽도 확인해 검사가 헛돌지 않게 합니다(S24).
+        # prod 빌드(tag 없음)에는 없고 staging 빌드에는 있어야 합니다. staging 쪽도 확인해 검사가 헛돌지 않게 합니다(S24, S125).
         run: |
           out="$RUNNER_TEMP/testlogin-check"
           mkdir -p "$out"
@@ -110,11 +110,13 @@ jobs:
             symbol=$(go tool nm "$out/$1" | grep -c 'auth.(\*Service).LoginTest' || true)
             header=$(grep -c -a 'X-Test-Login-Secret' "$out/$1" || true)
             route=$(grep -c -a '/test/v1/auth/login' "$out/$1" || true)
-            echo "$1: LoginTest=$symbol X-Test-Login-Secret=$header /test/v1/auth/login=$route"
+            grant=$(go tool nm "$out/$1" | grep -c 'billing.(\*Store).GrantTest' || true)
+            grant_route=$(grep -c -a '/test/v1/billing/ad-free' "$out/$1" || true)
+            echo "$1: LoginTest=$symbol X-Test-Login-Secret=$header /test/v1/auth/login=$route GrantTest=$grant /test/v1/billing/ad-free=$grant_route"
             if [ "$2" = absent ]; then
-              [ "$symbol" -eq 0 ] && [ "$header" -eq 0 ] && [ "$route" -eq 0 ]
+              [ "$symbol" -eq 0 ] && [ "$header" -eq 0 ] && [ "$route" -eq 0 ] && [ "$grant" -eq 0 ] && [ "$grant_route" -eq 0 ]
             else
-              [ "$symbol" -gt 0 ] && [ "$header" -gt 0 ] && [ "$route" -gt 0 ]
+              [ "$symbol" -gt 0 ] && [ "$header" -gt 0 ] && [ "$route" -gt 0 ] && [ "$grant" -gt 0 ] && [ "$grant_route" -gt 0 ]
             fi
           }
           check prod absent

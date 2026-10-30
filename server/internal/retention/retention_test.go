@@ -276,6 +276,26 @@ func TestSteps_DeletesRewardRecordsAfterOneYear(t *testing.T) {
 	assert.True(t, f.grantExists("recent"))
 }
 
+// staging 테스트 광고 제거 기간(S125)은 끝나거나 회수된 뒤 1년이 지나면 지웁니다.
+func TestSteps_DeletesTestGrantsAfterOneYear(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	f.insertGrant(account, "test_grant", "test-old", now.AddDate(-1, 0, -1))
+	f.insertGrant(account, "test_grant", "test-recent", now.AddDate(-1, 0, 1))
+	// 회수한 행은 원래 만료가 멀어도 회수 시각으로 셉니다.
+	f.insertGrant(account, "test_grant", "test-revoked-old", now.AddDate(0, 6, 0))
+	f.exec(`UPDATE entitlement_grants SET revoked_at = $1 WHERE source_ref = 'test-revoked-old'`, now.AddDate(-1, 0, -1))
+	f.insertGrant(account, "test_grant", "test-revoked-recent", now.AddDate(0, 6, 0))
+	f.exec(`UPDATE entitlement_grants SET revoked_at = $1 WHERE source_ref = 'test-revoked-recent'`, now.AddDate(-1, 0, 1))
+
+	f.runSteps()
+
+	assert.False(t, f.grantExists("test-old"))
+	assert.True(t, f.grantExists("test-recent"))
+	assert.False(t, f.grantExists("test-revoked-old"))
+	assert.True(t, f.grantExists("test-revoked-recent"))
+}
+
 func (f *fixture) insertPurchase(account uuid.UUID, id string, purchasedAt time.Time) {
 	f.t.Helper()
 	f.exec(`INSERT INTO purchases (id, account_id, original_account_id, product_id, store, purchased_at, production)
