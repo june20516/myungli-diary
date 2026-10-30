@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
@@ -120,7 +121,16 @@ class _AdBannerState extends ConsumerState<AdBanner>
   void _reportVisible() {
     if (_reportedVisible == _visible) return;
     _reportedVisible = _visible;
-    widget.onVisibleChanged?.call(_visible);
+    final scheduler = SchedulerBinding.instance;
+    if (scheduler.schedulerPhase != SchedulerPhase.persistentCallbacks) {
+      widget.onVisibleChanged?.call(_visible);
+      return;
+    }
+    // 움직임 줄이기면 사라짐이 0초라 갱신(didUpdateWidget) 중에 끝납니다. 그때 부모는 빌드
+    // 중이라 프레임이 끝난 뒤 마지막 값을 알립니다.
+    scheduler.addPostFrameCallback((_) {
+      if (mounted) widget.onVisibleChanged?.call(_reportedVisible);
+    });
   }
 
   void _onPresence(AnimationStatus status) {
