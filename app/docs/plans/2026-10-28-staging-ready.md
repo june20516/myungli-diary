@@ -19,6 +19,26 @@
 * 비밀 값과 로컬 설정 파일은 저장소 밖 보관 폴더 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/<환경>/`에 둡니다(D98, `docs/local-values.md`). 이 plan에서 `$D`로 씁니다. 스크립트는 파일을 경로로만 다루고 내용을 출력하지 않습니다.
 * 사용자에게 보이는 글자는 ARB 원고 키만 씁니다. 새 문구가 필요하면 A7 임시 키와 writing Issue입니다.
 
+## 확인한 사실 (2026-10-30, 출처와 함께)
+
+plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니다. 표에 없는 가정이 task에 필요하면 착수 전에 출처(Issue, 대장, 계약, 코드)로 확인해 이 표에 더한 뒤 진행합니다. 2026-10-29 실행에서 App Attest(확인 안 하고 적음)와 테스트 경로가 틀렸던 데서 나왔습니다.
+
+| 사실 | 출처 |
+| --- | --- |
+| iOS App Check는 DeviceCheck만 두 프로젝트에 등록. App Attest는 결정된 적 없음 | #605 닫는 코멘트, `Runner.entitlements` |
+| Android Play Integrity는 prod에만 연결, staging Android는 토큰을 못 받는 것이 정상 | #657, #656, 대장 E5 |
+| staging debug token은 콘솔 두 앱에 등록, 보관 `$D/app/staging/dart-defines.json` | #659, `docs/local-values.md` K4 |
+| Firebase 네이티브 설정 파일은 빌드가 읽지 않음(Dart 설정으로 초기화) | A93, K5 |
+| `CrashSummary`에는 `toString`이 없음 | `lib/core/platform/crash_reporter.dart` |
+| FCM 메시지: 제목 없음, `data.kind`(`morning`, 열린 값), `data.date`, Android 채널 `morning`, tag·collapse-id `morning` | #603 app 답 |
+| 기기 호출: 실행 때와 토큰이 바뀔 때 `registerDevice`, 바뀌면 새 등록 뒤 이전 id `deleteDevice`, 로그아웃 전 `deleteDevice`(동의 전에도 가능), 404 `device.not_found`, 계정 삭제는 부르지 않음 | `server/api/openapi.yaml` deleteDevice·registerDevice, #347 ② |
+| 기기 id 저장 키 `registeredDeviceIdKey`(`push.deviceId`), 처음 등록은 설정과 notify-ask | `lib/core/storage/device_flags.dart`, `settings_controller.dart` |
+| iOS `Runner.entitlements`에 `aps-environment` 없음 | 파일 |
+| RevenueCat 공개 SDK 키, 상품 id는 아직 없음(상품은 E15 뒤) | #632, 대장 E12 |
+| AdMob은 계정 단계 | 대장 E13, #539 |
+| 패키지: `firebase_crashlytics` 6.0.1, `firebase_messaging` 17.0.1(둘 다 `firebase_core` ^5.1.0), `flutter_local_notifications` 22.3.3, `share_plus` 13.3.1 | pub.dev |
+| Crashlytics Android 공식 설정은 `com.google.firebase.crashlytics` Gradle plugin과 `google-services` plugin을 씀. 이 앱은 둘 다 없음(A93) | Firebase 문서 crashlytics/android/get-started, `android/app/build.gradle.kts` |
+
 ## Review Focus
 
 1. Firebase 초기화가 실패한 채 App Check 토큰, Crashlytics 기록, FCM 토큰을 부르면: 앱이 죽지 않고 App Check는 토큰 없음(헤더 없이 보냄, #657), Crashlytics는 조용히 버림, FCM은 토큰 없음(null)으로 끝나야 합니다.
@@ -73,6 +93,7 @@
 **Files:**
 - Create: `app/lib/core/platform/firebase_crash_reporter.dart`
 - Modify: `app/lib/app/bootstrap.dart`(`crashReporterProvider` override), `app/lib/app/firebase_setup.dart`(수집 켜기: `!kDebugMode`)
+- Modify: `app/lib/core/platform/crash_reporter.dart`(`CrashSummary.toString()` 추가: `CrashSummary(errorType: X, code: Y, status: Z)`처럼 세 값만, 없는 값은 뺌)
 - Test: `app/test/core/firebase_crash_reporter_test.dart`
 
 **Interfaces:**
@@ -81,7 +102,8 @@
   - `abstract interface class CrashlyticsApi { Future<void> recordError(Object exception, StackTrace stack); Future<void> setUserIdentifier(String id); Future<void> log(String message); Future<void> setCollectionEnabled(bool enabled); }`, 기본 구현 `SdkCrashlyticsApi`
   - `final class FirebaseCrashReporter implements CrashReporter { const new({CrashlyticsApi api = const SdkCrashlyticsApi()}); }`
 
-- [ ] **Step 1: 실패하는 테스트:** `record는 원문 오류가 아니라 CrashSummary만 싣습니다`(recordError의 exception 문자열이 `CrashSummary.toString()`과 같고 원문 메시지를 담지 않음), `setUser(null)은 빈 id`, `setUser는 sanitizeAccountId를 거친 값`, `breadcrumb은 sanitizeScreenId가 null이면 싣지 않음`, `SDK가 던져도 record·setUser·breadcrumb은 던지지 않음`(Review Focus 1).
+- [ ] **Step 0: 착수 전 확인(Android build ID).** 패키지를 넣고 http debug 빌드를 에뮬레이터에서 띄워 logcat에서 Crashlytics 초기화 오류(build ID 없음 등)를 봅니다. 오류가 없고 `FirebaseCrashlytics.instance.recordError`가 동작하면(이 확인 때만 debug에서 수집을 켜고 콘솔 staging Crashlytics에 기록이 오는지 봄) Gradle plugin 없이 갑니다. 오류가 나면 `com.google.firebase.crashlytics` plugin만 적용해(매핑 업로드 끔) build ID를 넣는 방법을 확인하고, 그것도 `google-services` plugin이나 네이티브 설정 파일을 요구하면 A93과 부딪히므로 멈추고 사용자에게 선택지를 묻습니다. 결과를 이 plan "확인한 사실"에 더합니다.
+- [ ] **Step 1: 실패하는 테스트:** `CrashSummary.toString은 타입, code, status만`, `record는 원문 오류가 아니라 CrashSummary만 싣습니다`(recordError에 넘긴 exception이 그 `CrashSummary`이고, 문자열에 원문 메시지가 없음), `setUser(null)은 빈 id`, `setUser는 sanitizeAccountId를 거친 값`, `breadcrumb은 sanitizeScreenId가 null이면 싣지 않음`, `SDK가 던져도 record·setUser·breadcrumb은 던지지 않음`(Review Focus 1).
 - [ ] **Step 2:** FAIL 확인.
 - [ ] **Step 3: 구현.** 패키지 `firebase_crashlytics: 6.0.1`. SDK 호출은 기다리지 않고(`unawaited`) 오류는 삼킵니다.
 - [ ] **Step 4:** PASS. 디버그 빌드는 수집을 끕니다(`setCollectionEnabled(false)`).
@@ -91,7 +113,7 @@
 
 **Files:**
 - Create: `app/lib/core/platform/firebase_push.dart`, `app/lib/core/platform/push_channel.dart`
-- Modify: `app/lib/app/bootstrap.dart`(`pushMessagingProvider` override), `app/lib/app/myungli_app.dart`(앱 언어가 정해지거나 바뀔 때 채널 만들기)
+- Modify: `app/lib/app/bootstrap.dart`(`pushMessagingProvider` override), `app/lib/app/myungli_app.dart`(앱 언어가 정해지거나 바뀔 때 채널 만들기), `app/ios/Runner/Runner.entitlements`(`aps-environment` `development`, release 서명 때 Xcode가 production으로 바꿈), `app/android/app/build.gradle.kts`(빌드가 요구하면 core library desugaring)
 - Test: `app/test/core/firebase_push_test.dart`, `app/test/core/push_channel_test.dart`
 
 **Interfaces:**
@@ -105,7 +127,7 @@
 - [ ] **Step 1: 실패하는 테스트:** `kind morning → today`, `모르는 kind·빈 data → null`(Review Focus 4), `getToken이 던지면 null`(Review Focus 1), `opens는 morning만 흘림`, `initialOpen은 처음 메시지의 data로`, 채널: `ensureMorning은 id morning과 받은 이름`, `언어가 바뀌면 새 이름으로 다시`(Review Focus 5, `myungli_app` 위젯 테스트에서 대역 `NotificationChannels`로).
 - [ ] **Step 2:** FAIL 확인.
 - [ ] **Step 3: 구현.** 패키지 `firebase_messaging: 17.0.1`, `flutter_local_notifications: 22.3.3`. Android 13 알림 권한은 기존 `requestPermission` 흐름(notify-ask)이 맡습니다.
-- [ ] **Step 4:** PASS. 디버그 APK 빌드 성공.
+- [ ] **Step 4:** PASS. 디버그 APK 빌드 성공(desugaring 요구 오류가 나면 `isCoreLibraryDesugaringEnabled = true`와 `coreLibraryDesugaring` 의존성을 더함), `flutter build ios --debug --no-codesign` 성공.
 - [ ] **Step 5: Commit** `feat(app): FCM 실제 adapter와 아침 알림 채널 (#603, W46)`
 
 ## Task 5: 알림 기기 등록 시점과 로그아웃 해제 (#347 ②)
@@ -154,5 +176,5 @@
 
 - [ ] **Step 1: 전체 검사:** `flutter analyze`(app·widgetbook), `dart analyze`, `dart format --set-exit-if-changed .`, `flutter test --exclude-tags golden`, `dart run tool/ia_coverage.dart --check`, `dart run tool/gen_native_config.dart --check`, `flutter build apk --debug --dart-define-from-file=config/auth.json`, `flutter build ios --debug --no-codesign --dart-define-from-file=config/auth.json`, `tool/patrol_local.sh patrol_test/login_test.dart`.
 - [ ] **Step 2: 로컬 server 확인:** http 모드 debug 빌드로 카카오 로그인 → 오늘 → 설정에서 알림 켜기(`POST /v1/devices`) → 로그아웃(`DELETE /v1/devices/{id}` 뒤 `POST /v1/auth/logout`) 순서를 server 로그로 확인.
-- [ ] **Step 3: 문서:** `app/CLAUDE.md` 현재 상태·다음 할 일, README "staging 빌드".
+- [ ] **Step 3: 문서:** `app/CLAUDE.md` 현재 상태·다음 할 일, README "staging 빌드". PR 본문에 사용자 할 일: 업로드 키 만들기와 기기 밖 백업(README 명령, 만든 뒤 `docs/local-values.md` K1 상태를 `사용 중`으로), 2026-10-29에 대화 기록에 남은 staging debug token 교체(D98 §6: 콘솔에서 새로 만들고 옛 토큰 삭제, K4 파일 갱신, 지휘에 `to:root` 알림).
 - [ ] **Step 4: Commit·PR** `참고 #311`, `참고 #605`, `Closes #347`, `Closes #603`.
