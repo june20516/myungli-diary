@@ -35,29 +35,30 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-10-28 기준, writing PR #627 병합 뒤)
+## 현재 진행 순서 (2026-10-30 기준, PR #687 병합 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금은 app #600(IA #616 알림 채널 이름 슬롯, 슬롯 명세 v1.18 이후 원고), server #629(W1-3 원고를 시드로)입니다. writing #574는 PR #623, server #617은 PR #624 뒤 main 검사 통과로 끝났습니다. app #585는 PR #588로, app #504는 PR #579 뒤 main 검사 통과로, writing #551은 PR #566, design #558은 D95 되돌림, server #550은 PR #571로 끝났습니다. 단위마다 열린 drift는 하나이고, 따라잡기 전에 계약이 또 바뀌면 그 Issue에 원인 PR이 더해집니다(PR #430). 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다(닫으면 다음 PR 실행에서 새로 열림). 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다.
-* **검사 범위·시점 정리(D81) 완료:** 지휘 몫(PR #357·#366)과 다섯 단위 몫(app #364, core #365, server #368, writing #369, design #371)이 끝났고, `ci-gate`가 모든 단위에 `mode`를 넘깁니다(#366·#367·#370·#373). 캐시·건너뛰기는 D81 ⑥을 따릅니다.
-* **규칙 정합성 점검(D78) 완료:** 지휘 몫(PR #280·#306)과 다섯 단위 몫(#285·#283·#284·#281·#282, app은 PR #303·#310)이 모두 끝났습니다.
-* **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 나머지는 요청이 왔을 때만 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
-* **가장 긴 경로:** A1(따라잡기·남은 화면) → A2(REST 연동, 실제 adapter), 외부 준비물 E2~E12 → server 배포 P9 → I1·I2, 그리고 S2(남은 P8) → A2 → I2. S3(REST v1 freeze)는 PR #528로 끝났습니다. W1(남은 W1-3)은 I3만 막고, I3는 I1·I2 뒤라 그다음입니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 없습니다(app #600, server #629, server #642는 끝남). 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다. 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다.
+* **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다. 검사 범위(D81)와 규칙 정합성(D78) 정리는 끝났습니다.
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** staging server 기동(#607 tfvars) → 엔진 실행 조건(#79)과 I1 → app 실제 adapter(로그인 #311·#463, RevenueCat #684, AdMob #686) → I2(staging에서 app E2E) → T1. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 시작합니다.
+* **staging 상태:** 인프라(Terraform bootstrap, WIF, 비밀 값 네 개, Firebase, App Check)는 끝났습니다. staging 배포(run 41012687111)는 인프라 단계까지 성공했고, server 기동은 tfvars 공개 값 7개(#607)가 비어 건너뛰었습니다. 결제는 PR #681(S123)로 RevenueCat 값 없이 끈 채 배포하고, #683에서 Test Store로 켭니다(D99). app은 PR #675로 release 서명과 Firebase adapter를 갖췄고, 첫 staging AAB가 Play 내부 테스트에 올라갔습니다(K1).
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | **drift #600**(남은 몫: IA #616 `system-push.channel.morning` 생성 코드) → **A2 진행(실제 연동, D91 ①):** 첫 PR #615로 실제 로그인 adapter 다섯, `config/auth.json`, 네이티브 설정(A92). 다음은 `local` server REST 연동과 부팅 배선, #311의 debug 서명 지문·카카오 키 해시 회신. **A1 후속:** design·writing 답이 오는 대로 #587(합치기 카드 윤달 표시), #353·#354, 임시 문구 #331. (A1 완료: 마지막 화면 `login-methods`·`account-merge`와 writing ARB #418, REST 1.2.0 drift #585는 PR #588로. 따라잡기 PR #554로 #518·#484·#493, 조사 `josaClass` #453(D84, A86)은 PR #565로, writing PR #566 따라잡기(`style.S9`, 구매 줄 구분자 삭제, A87)는 PR #569로, REST 1.1.0 따라잡기(`Diary.dayKind`, A88)는 PR #578로, design 3.1.0 구매 줄 두 줄 배치(V47, #564)는 PR #579로 완료.) Firebase 앱 등록은 app이 `flutterfire configure`로(staging, prod 두 프로젝트, 사용자가 그 세션에서 `firebase login`, #605). **A2 다음:** 외부 준비물이 오는 대로 실제 SDK adapter(#311 카카오·Apple·LINE·Google, #463(LINE·Google SDK 허가 취소는 D95로 빠짐), App Link, FCM과 알림 기기 호출 #347 ②, RevenueCat·AdMob. RevenueCat SDK는 7.11.0 이상, Android 광고 제거권은 일회성 Consumable 구매 흐름(server S118)). app이 따라잡는 PR이 열려 있는 동안에는 app에 닿는 새 변경을 다음 박자로 모음(D91 ③) | A1, A2 |
-| 지금 | server | drift #629(W1-3 원고 시드) → P8 나머지 Job(precompute, notify는 #603 형식) → P9 준비 PR #634(Terraform, 배포 workflow, S121) 병합, 사용자 준비 E17 #636. (P8-2 retention은 PR #624(S120, 비활성 알림 기기 30일)로, P8-1 알림 기기 API는 PR #609(S119)로 완료. D96 `DiarySummary.dayKind` #576은 REST 1.2.0 PR #584로 완료. REST 1.1.0 PR #571로 drift #550, S100의 D95 정정, D90 ① 그날 성격 #530(S116), 합치기 재전송 #552(S115), Google nonce #555 완료. S3 REST v1 freeze는 PR #528로 완료(`1.0.0`, S114). D85·D88 묶음 #481·#492는 계약 draft.15 PR #517, 계정 즉시 삭제 #519, 구매 장부·구매 목록 #520, 계정 합치기 #521로 완료(S105~S113). S69 되돌림은 PR #525. D82 인증 확장 #386은 PR #466·#473·#521로 완료. 대운 시작 연도 #351(PR #385), D83 일기 하루 여러 편 #407(PR #438·#456) 완료) | S2 완료, S3, A2 |
-| 지금 | writing | #331(app 임시 문구, 사주 용어 사전 범주, W47·W49로 일부 반영) → 구매 상태 `owned` 키 #531(MVP 밖). (W1 완료: W1-3 용어·근거, 태그라인은 PR #627(W47~W49). 알림 채널 이름과 윤달 틀 #614·#587, drift #574는 PR #623(W46). force-update 사유 키 #355는 PR #598(W45)로. drift #551, D93 원고와 검사기 규칙 `style.S9` #546, `ad-free` 구매 버튼·가격·기간 #548은 PR #566으로 완료(W44, 라운드 R20). 맺음 검사 없앰 W43 #543, 맺음 라운드 R18·R19 #544, D85 원고 #482는 #510·#524로 완료) | I3, server 시드 strict(S38), app A1 |
-| 필요할 때 | design | 요청이 오면. #587은 writing 틀과 app 반영 뒤 닫음(#354는 app PR #604로 닫힘). (#353 십성 라벨 자리, #354 ①③④, #587 윤달 자리는 PR #599(3.2.0, V48~V51)로, 컴포넌트 계약 2.7.0 #439, 2.8.0 #458, 3.0.0 #512, drift #480은 #514로, drift #558은 D95 되돌림으로, 구매 줄 배치와 새 슬롯 상한 #564는 PR #573(3.1.0, V47)으로 완료) | app A1 |
-| 그다음 | server | staging 테스트 로그인·App Check debug token(S24, P9), #79(엔진 실행 조건, D65 배포 workflow) | I2 |
-| 필요할 때 | core | #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때). #304는 PR #432로 완료 | - |
+| 지금 | server | **#607**(staging tfvars 공개 값 7개, staging 기동을 막는 유일한 원인) → #79(엔진 컨테이너 실행 조건, I1) → #683(staging 결제를 Test Store로, webhook 둘, D99) → #655(staging 광고 제거권) → #610(카카오 `KAKAO_APP_KEY`). (P9 준비 PR #634, deployer WIF PR #671, bootstrap state bucket PR #667(S122), 결제 끈 staging 배포 PR #681(S123), drift #642는 PR #643으로 완료) | T1, I1, I2 |
+| 지금 | app | #680(plan 사실 표 정정) → 실제 로그인 adapter #311·#463 → RevenueCat adapter #684(debug는 Test Store 키, D99) → AdMob adapter #686(UMP, debug는 테스트 광고). (staging 준비 PR #675, 야간 E2E 회귀 #676은 PR #685로 완료. A1 후속 #587·#353·#331은 design·writing 답이 오는 대로) | I2, T1 |
+| 지금 | 지휘 | #607 병합 뒤 `deploy-server` 재실행과 staging 기동 확인 → AdMob SSV 콜백 주소 안내(#539) → #636(E17) 닫기 → I1·I2 시점 판단 | T1 |
+| 필요할 때 | writing | #331(app 임시 문구, 사주 용어 사전 범주) → 구매 상태 `owned` 키 #531(MVP 밖). core #625(조후표 용신 순서와 원전 인용) 답이 오면 반영 | I3 |
+| 필요할 때 | design | 요청이 오면. #587은 writing 틀과 app 반영 뒤 닫음 | - |
+| 필요할 때 | core | #625(writing 요청, 조후표 칸), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | I3 |
 
 ## 외부 준비물
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다.
 
-* **지금 진행 중(사용자):** E3 Google Play 테스터 12명 모집 #535(계정, 본인 인증, 앱은 만듦), E5 Firebase #605(Android App Check 등록), E12 RevenueCat #632(프로젝트는 지금, 상품은 E15 뒤), E17 P9 배포 준비 #636(server PR #634 병합 뒤), E13 AdMob 계정 #539. E4 GCP(staging, prod 두 프로젝트, 값은 server #607), E8 Android 앱 서명 지문(#612), E9 카카오 콘솔 설정(#590), E6 도메인 `myungli-diary.app` 연결(#645), E2 Apple Developer(#536), E7 Apple 로그인(#591), E11 Google 로그인(#593), E10 LINE 로그인(#592)은 완료. 다음: iOS App Check와 APNs 키(#605), RevenueCat App Store 연결(#632). E1은 개인사업자(D92). E15 사업자등록·통신판매업 #534는 앱을 받아 본 뒤(보류). 도메인 연결 방식과 Android 상품 유형은 server S117, S118(#540).
-* **server 배포(P9)와 I1·I2는 E7~E12가 모두 있어야 합니다.** server가 staging·prod에서 그 값이 비면 시작하지 않습니다.
+* **지금(사용자):** E3 테스터 12명 모집 #535(T1을 가장 오래 막음), E14 문의 메일 주소. E13 AdMob #539는 SSV 콜백 주소만 남음(staging 기동 뒤). E12 RevenueCat #632는 스토어 연결과 SDK 키까지 끝났고 상품은 E15 뒤.
+* **완료:** E2 Apple Developer, E4 GCP, E5 Firebase(#605), E6 도메인, E7 Apple 로그인, E8 서명 지문, E9 카카오 콘솔, E10 LINE, E11 Google 로그인, E17 bootstrap과 비밀 값(#636, staging 기동 확인 뒤 닫음).
+* **T1 직전:** LINE 채널 Published(E10), Google 동의 화면 프로덕션 전환이나 테스터 등록(E11), staging debug token 교체.
+* **I4 전(보류):** E15 사업자등록 #534(앱을 받아 본 뒤, D92), E16 약관과 처리방침 원문(AdMob 동의 메시지가 가리키는 주소, 실제 사용자에게 광고가 나가기 전까지 열려야 함), E18 원어민 검수, E19 정책 검토.
 
 ## 지휘 세션 미결 (서브 프로젝트 설계 전에 정할 것)
 | 항목 | 걸린 곳 | 근거 |
