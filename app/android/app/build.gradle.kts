@@ -116,6 +116,13 @@ flutter {
     source = "../.."
 }
 
+// LINE SDK 5.11이 끌어오는 kotlin-android-extensions-runtime 1.7.20의 kotlinx.android.parcel은
+// RevenueCat이 끌어오는 kotlin-parcelize-runtime 2.x에 함께 들어 있어 클래스가 겹칩니다(A98).
+// LINE SDK와 그 플러그인은 이 라이브러리의 클래스를 참조하지 않습니다.
+configurations.configureEach {
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+}
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     androidTestUtil("androidx.test:orchestrator:1.5.1")
