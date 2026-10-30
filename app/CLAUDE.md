@@ -54,7 +54,15 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-10-28, app 세션 갱신)
+## 현재 상태 (2026-10-30, app 세션 갱신)
+* **staging 배포 준비**, 브랜치 `app/staging-ready`. 계획 [`docs/plans/2026-10-28-staging-ready.md`](docs/plans/2026-10-28-staging-ready.md)("확인한 사실" 표에 외부 상태와 출처), 결정 A94~A96.
+  * Android release는 보관 폴더(D98 K1)의 업로드 키로 서명, 없으면 debug 키와 경고(A94). 키는 아직 만들지 않았습니다(사용자 몫, README "staging 빌드").
+  * App Check: debug 빌드이고 staging일 때만 debug provider(고정 토큰 `APP_CHECK_DEBUG_TOKEN`, K4), 그 밖은 Play Integrity, iOS DeviceCheck. 토큰을 3초 안에 못 받으면 헤더 없이 보냄(A95, #657, #659).
+  * Crashlytics: `CrashSummary`와 정제한 id만, release에서만 수집. Gradle plugin 없이 기록과 전송까지 확인했습니다.
+  * FCM: 토큰, 알림 누름(`kind morning` → 오늘), 채널 `morning`(앱 언어 이름), iOS `aps-environment`, Android desugaring. 꺼진 앱에서도 알림 표시와 누름 진입을 확인했습니다(네이티브 기본 FirebaseApp이 없어 전달 통계만 빠짐).
+  * 알림 기기(#347 ②): 로그인하고 OS 알림 권한이 있는 기기는 실행 때와 토큰이 바뀔 때 등록하고 이전 id 해제(발송은 server가 프로필 설정으로 거름, S13), 자발적 로그아웃은 server 로그아웃 전에 해제, 강제 로그아웃과 계정 삭제는 저장된 id만 지움(`DeviceRegistrar`).
+  * http 모드의 결제는 상품 없음과 구매 실패, 광고 없음, 광고 동의 비맞춤(E12, E13 전), 공유는 `share_plus`.
+  * Firebase 플러그인은 `firebase_core` 4.x 줄(A96). 5.x는 `google_sign_in_ios`와 iOS SPM 충돌이라 #630 병합 뒤 main iOS 빌드가 깨져 있었고 이 브랜치에서 고쳤습니다.
 * **계획 7 A2(실제 연동) 코드 몫**, 브랜치 `app/real-login-a2`. 결정 A92.
   * Task 1: `config/auth.json`(카카오 네이티브 앱 키만 채움, E9)과 `AuthConfig`·`authConfigProvider`, `ProviderNotConfigured`. 실행·빌드·Patrol·CI에 `--dart-define-from-file=config/auth.json`.
   * Task 2: SDK 다섯(버전 고정), Android `manifestPlaceholders`(`kakaoScheme`·`appLinkHost`, 비면 자리 값)와 manifest 세 항목, iOS `Auth.xcconfig`(`tool/gen_native_config.dart`, CI `--check`)·URL Types·조회 scheme·entitlements. 동기화 검사 `test/tool/native_auth_config_test.dart`.
@@ -148,11 +156,11 @@
 1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
    * Task 1·2·4~7 코드는 `app/real-login-a2`에서 끝났습니다(위 현재 상태).
    * **로컬 실제 로그인(카카오):** 로컬 server(README "로컬 server")와 에뮬레이터 http 모드로 `getAppConfig` 200, welcome, 카카오 계정 로그인 페이지 열림까지 확인했습니다(debug 전용 localhost 평문 허용). 남은 것: 카카오 콘솔 Android 플랫폼에 debug 키 해시(#311 코멘트) 등록, 사용자 카카오 계정으로 로그인한 뒤 약관 동의 → 온보딩 → 프로필 저장 → 로그인 뒤 화면을 실제 REST로 확인. 미리보기, 시진 확인, 음력 변환은 App Check라 Firebase(E5, #605) 뒤입니다.
-   * **#603 아침 알림 형식:** app 답을 남겼습니다(교체 키 `tag`·`apns-collapse-id` 제안). 실제 FCM adapter에서 채널 `morning` 생성과 누름 처리(`data.kind == morning` → `today`)를 합니다. 채널 이름 슬롯은 #614(지휘)로 요청했습니다.
+   * **#603 아침 알림 형식:** 채널 `morning`과 누름 처리는 `app/staging-ready`에서 끝났습니다. 교체 키(`tag`·`apns-collapse-id`)에 대한 server 답은 아직 없습니다.
    * **A2 마무리:** `flutter test test/app test/features/auth`, 전체 검사에 `dart run tool/gen_native_config.dart --check`와 `flutter build apk --debug --dart-define-from-file=config/auth.json`, `tool/patrol_local.sh patrol_test/login_test.dart` 회귀 0. Android App Link(#311 ③ release 지문은 Play 계정 뒤), `local` server REST 연동. 외부 준비물은 `docs/external-prep.md`. Google nonce 재사용은 #555 답으로 허용(같은 프로세스 nonce)입니다.
    * **실기기 확인 목록(spec §12, 외부 준비물 뒤):** 카카오톡 로그인·계정 로그인·각 취소, LINE 앱·웹 로그인(LINE 앱 없음)·취소, Google 계정 선택·취소와 두 번째 로그인에서 계정 선택이 다시 뜨는지, iOS Apple 로그인·취소, Android Auth Tab이 server 303을 받는지·안내 페이지 intent 복귀·앱이 내려간 뒤 복귀, `assetlinks.json` 검증(`adb shell pm get-app-links app.myungli.diary`), 붙이기·떼기·합치기(LINE·Google 허가는 제공자 쪽 연결 앱 목록에 남는 것이 맞음, D95). Auth Tab이 303을 받지 못하면 안내 페이지 intent 경로를 기본으로 할지 다시 판단하고 server와 문구는 Issue로 올립니다.
-   * **수익 쪽(spec §14, A2):** RevenueCat adapter에서 `Purchases.sync()`를 `syncPurchases`로 구현하고 iOS sandbox에서 Apple ID 로그인 창이 뜨는지 확인(뜨면 지휘에 알림, #493), `Purchases.products()` 시간 한계(구매 내역 `loading` 길이도 같은 기준), 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS` 배선(상품 id는 저장소에 두지 않음, S89·D74), 보상형 광고·공유 실제 adapter.
-   * **#347 ② 알림 기기 호출 시점(S92):** `registerDevice`는 앱을 실행할 때와 FCM 토큰이 바뀔 때 부릅니다(새 토큰 201, 이미 등록된 토큰은 같은 `id`로 200). 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 `id`를 `deleteDevice`로 해제합니다. 로그아웃하기 전에 `SignOutCleaner`에서 `deleteDevice`를 부르고 `push.deviceId`를 지웁니다(약관 동의 전에도 부를 수 있고, 404 `device.not_found`는 사용자 문구 없이 넘깁니다). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 따로 부르지 않습니다. 반영하면 #347에 알리고 닫습니다.
+   * **수익 쪽(spec §14, A2):** RevenueCat 공개 SDK 키와 상품 id(#632, E12)가 오면 `UnavailablePurchases`를 실제 adapter로 바꿉니다. RevenueCat adapter에서 `Purchases.sync()`를 `syncPurchases`로 구현하고 iOS sandbox에서 Apple ID 로그인 창이 뜨는지 확인(뜨면 지휘에 알림, #493), `Purchases.products()` 시간 한계(구매 내역 `loading` 길이도 같은 기준), 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS` 배선(상품 id는 저장소에 두지 않음, S89·D74), 보상형 광고 실제 adapter(AdMob, E13 뒤 `NoAds`·`NonPersonalizedAdConsent` 교체). 공유는 `OsShareSheet`로 끝났습니다.
+   * **#347 ② 알림 기기 호출 시점(S92):** `app/staging-ready`에서 끝났습니다(PR의 `Closes #347`). 강제 로그아웃(refresh 거부, 401)은 해제 요청을 보낼 수 없어 server에 기기가 남고, 다음 계정이 같은 토큰을 등록하면 server가 옮깁니다(알려진 한계).
    * **답을 기다리는 것:** writing #331(답이 오면 임시 키를 원고로 가져오고 `_allowedTemporaryKeys`에서 지움, 사전에 12운성·신살 이름이 오면 그 칸이 누를 수 있게 됨, en 십성 이름이 오면 대운 라벨 두 줄 규칙을 실제 글자로 확인). 답에 따라 그 화면을 고칩니다. design #353·#354는 drift #600에서 반영했습니다.
    * 차트·달력은 캐시를 먼저 보이고 매 진입 server로 확인합니다(A32·A56). 캐시가 있는 채로 오프라인 진입하면 오늘 화면과 달리 stale·오프라인 표시가 없습니다(`loadCacheFirst`의 `stale`을 버림). 연결 상태 provider를 만들 때 오늘과 같은 표시로 맞춥니다(계획 6 최종 review 관찰, 회귀 아님).
 2. **IA v3·drift 남은 대기.** 도시 경도(A29)·서머타임 문구(A31)·`calc-basis` 제목(A30)·app-bar 제목, 계획 6 화면의 `<화면>.bar.title`, `settings` → `calc-basis` 출구를 모두 반영했습니다. `ad-free`·`purchase-history` 제목도 `app/d85-d88`에서 반영했습니다(`test/contract/app_bar_title_contract_test.dart` 대조, A30). #211(design) 응답은 `ProsePageBody`·skeleton·`InputStep.preface` 간격에 반영합니다.
@@ -163,11 +171,11 @@
 5. **writing 대기 문구.** 대기 problem code는 없습니다. 화면이 문구를 맡는 code 2개(`merge.same_account`·`merge.no_account`)는 `problemMessages`가 아니라 `test/contract/problem_codes_contract_test.dart`의 `_screenMessages`로 대조합니다(A74, W42).
 6. **이후 계획으로 넘긴 사항**
    * 계획 6에서 넘긴 사항(차트 근거 주제, `legal`의 GeoNames 고지, 로그아웃·계정 삭제의 `revokeAndSignOut`, `getProfile` 사본 채우기, 수정 모드 extra)은 모두 반영했습니다. `toBirth(deviceRegionIsKorea)`는 한국 기기면 도시가 남아 있어도 `not_asked`·`Asia/Seoul`입니다(D29). 해외 출생 한국 거주자는 `profile-edit`의 출생지 줄로 지정합니다.
-   * 계획 7(수익·알림): `SignOutCleaner`에 알림 기기 해제(`deleteDevice`) 연결(기기 id 저장 포함, 위 2의 #347 ②). 실제 SDK adapter(카카오·Apple·Firebase·AdMob·RevenueCat)로 override합니다. RevenueCat·Crashlytics adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 `flutter_web_auth_2`의 `CallbackActivity`로만 받으므로 라우터 가로채기는 만들지 않습니다(A80). 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
+   * 계획 7(수익·알림): 실제 SDK adapter 중 AdMob·RevenueCat이 남았습니다(Firebase, 로그인 다섯은 끝남). RevenueCat adapter는 인터페이스만 구현하면 됩니다. 호출(`logIn`·`logOut`·`setUser`·`breadcrumb`)은 `AccountLinker`와 라우터가 이미 합니다. `AccountLinker`는 `logIn` 실패를 진입 계산·앱 재개마다 다시 시도하므로, 실제 SDK 오류 의미에 맞춰 재시도 간격과 반복 오류 보고 억제를 정합니다. Crashlytics adapter는 `sanitizeAccountId`·`sanitizeScreenId`를 거칩니다(D64). App Link `/auth/apple`은 `flutter_web_auth_2`의 `CallbackActivity`로만 받으므로 라우터 가로채기는 만들지 않습니다(A80). 카카오·Apple adapter는 받은 원문 nonce를 `hashNonce`해 제공자에 보냅니다. Android Apple 웹 adapter는 `buildAppleAuthorizeUri`(Services ID, server 콜백 `redirect_uri`)로 브라우저를 열고 App Link `/auth/apple`(또는 안내 페이지 intent) 복귀를 `parseAppleWebReturn`으로 해석합니다. App Link intent filter와 **패키지 이름·서명 인증서 SHA-256 지문(debug·release·Play App Signing)과 스토어 URL을 #114에 알리는 일**도 이 계획입니다(server `ANDROID_APP_PACKAGE`·`ANDROID_CERT_SHA256`·`ANDROID_STORE_URL`).
    * 계획 7(수익·알림, 실제 adapter):
      * 근거 시트의 보상형 광고(`Ads.loadRewarded`·`RewardedAdHandle.show`)와 공유(`ShareSheet.sharePng`)를 실제 AdMob·OS 공유 adapter로 바꿉니다. 화면과 잠금 해제 흐름(A26)은 인터페이스만 보므로 adapter만 더합니다.
      * 실제 로그인 adapter는 SDK 취소를 `SocialSignInCancelled`로 바꿔 던집니다(login 화면이 취소 안내를 정합니다).
-     * **로그아웃 때 server 기기 등록 해제(`deleteDevice`)와 `push.deviceId` 삭제를 반드시 연결합니다**(`SignOutCleaner`, `_guard`로 감쌈). 지금은 로그아웃해도 기기 등록이 남아 이전 계정의 아침 알림이 이 기기로 계속 올 수 있습니다. 다른 사람이 같은 기기로 로그인하면 이전 계정의 운세가 알림으로 보이는 개인정보 문제라, 계획 7에서 실제 FCM을 붙일 때 함께 막습니다.
+     * 로그아웃 때 기기 해제와 `push.deviceId` 삭제는 `app/staging-ready`에서 연결했습니다(`DeviceRegistrar.releaseForSignOut`, `SignOutCleaner`).
      * 스토어 앱 id(iOS App Store id, Android 스토어 URL)를 `force-update`의 스토어 열기에 연결합니다.
      * `social-login-button` 공식 자산 확인: Apple 로고 라이선스 검토, 카카오 심볼 색은 design V46으로 `#191919`, 카카오 버튼 ja 문구는 writing W22 원고("Login with Kakao")로 정해졌습니다.
 7. **출시 전(I4) 확인:** 실기기에서 iOS 백업 제외(설정 > iCloud > 저장 공간에 DB가 잡히지 않는지)와 기기 이전 뒤 로그아웃 상태로 시작하는지 확인합니다(기반은 빌드·단위 테스트까지만 확인).

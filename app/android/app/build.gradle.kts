@@ -27,6 +27,10 @@ val uploadKey: Properties? =
         null
     }
 
+fun uploadKeyValue(name: String): String =
+    uploadKey?.getProperty(name)?.takeIf { it.isNotBlank() }
+        ?: throw GradleException("$uploadKeyFile 에 $name 값이 없습니다(README \"staging 빌드\").")
+
 android {
     namespace = "app.myungli.diary"
     compileSdk = flutter.compileSdkVersion
@@ -68,10 +72,10 @@ android {
     signingConfigs {
         if (uploadKey != null) {
             create("upload") {
-                storeFile = uploadKeyFile.parentFile.resolve(uploadKey.getProperty("storeFile"))
-                storePassword = uploadKey.getProperty("storePassword")
-                keyAlias = uploadKey.getProperty("keyAlias")
-                keyPassword = uploadKey.getProperty("keyPassword")
+                storeFile = uploadKeyFile.parentFile.resolve(uploadKeyValue("storeFile"))
+                storePassword = uploadKeyValue("storePassword")
+                keyAlias = uploadKeyValue("keyAlias")
+                keyPassword = uploadKeyValue("keyPassword")
             }
         }
     }

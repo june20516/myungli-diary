@@ -25,20 +25,34 @@ Future<({Object error, StackTrace stack})?> initializeFirebase({
   AppCheckApi appCheck = const SdkAppCheckApi(),
   CrashlyticsApi crashlytics = const SdkCrashlyticsApi(),
   bool isDebug = kDebugMode,
-  String debugToken = const String.fromEnvironment('APP_CHECK_DEBUG_TOKEN'),
+  // release에서는 상수 접힘으로 빠져 토큰 문자열이 바이너리에 남지 않습니다.
+  String debugToken = kDebugMode
+      ? const String.fromEnvironment('APP_CHECK_DEBUG_TOKEN')
+      : '',
 }) async {
   try {
     await initialize(firebaseOptionsFor(env, platform));
-    final mode = appCheckModeFor(env: env, isDebug: isDebug);
-    await appCheck.activate(
+  } on Object catch (error, stack) {
+    return (error: error, stack: stack);
+  }
+  final mode = appCheckModeFor(env: env, isDebug: isDebug);
+  // 두 단계는 서로 막지 않습니다. 하나가 실패해도 나머지를 하고 첫 실패를 돌려줍니다.
+  final steps = <Future<void> Function()>[
+    () => crashlytics.setCollectionEnabled(enabled: !isDebug),
+    () => appCheck.activate(
       mode: mode,
       debugToken: mode == AppCheckMode.debug && debugToken.isNotEmpty
           ? debugToken
           : null,
-    );
-    await crashlytics.setCollectionEnabled(enabled: !isDebug);
-    return null;
-  } on Object catch (error, stack) {
-    return (error: error, stack: stack);
+    ),
+  ];
+  ({Object error, StackTrace stack})? failure;
+  for (final step in steps) {
+    try {
+      await step();
+    } on Object catch (error, stack) {
+      failure ??= (error: error, stack: stack);
+    }
   }
+  return failure;
 }

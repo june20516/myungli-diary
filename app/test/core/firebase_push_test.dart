@@ -15,6 +15,9 @@ final class _FakeMessagingApi implements MessagingApi {
   Future<bool> requestPermission() async => true;
 
   @override
+  Future<bool> hasPermission() async => true;
+
+  @override
   Future<String?> getToken() async => 'fcm-token';
 
   @override
@@ -31,6 +34,9 @@ final class _FakeMessagingApi implements MessagingApi {
 final class _ThrowingMessagingApi implements MessagingApi {
   @override
   Future<bool> requestPermission() => Future.error(StateError('실패'));
+
+  @override
+  Future<bool> hasPermission() => throw StateError('초기화 전');
 
   @override
   Future<String?> getToken() => Future.error(StateError('실패'));
@@ -74,6 +80,18 @@ void main() {
       expect(
         await FirebasePushMessaging(api: _ThrowingMessagingApi()).token(),
         isNull,
+      );
+    });
+
+    test('hasPermission은 SDK 값, 실패하면 false', () async {
+      expect(
+        await FirebasePushMessaging(api: _FakeMessagingApi()).hasPermission(),
+        isTrue,
+      );
+      expect(
+        await FirebasePushMessaging(api: _ThrowingMessagingApi())
+            .hasPermission(),
+        isFalse,
       );
     });
 

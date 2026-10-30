@@ -33,7 +33,8 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 | FCM 메시지: 제목 없음, `data.kind`(`morning`, 열린 값), `data.date`, Android 채널 `morning`. tag·collapse-id `morning`은 app이 제안했고 server 답은 아직 없음(앱 코드 영향 없음) | #603 app 답 |
 | 기기 호출: 실행 때와 토큰이 바뀔 때 `registerDevice`, 바뀌면 새 등록 뒤 이전 id `deleteDevice`, 로그아웃 전 `deleteDevice`(동의 전에도 가능), 404 `device.not_found`, 계정 삭제는 부르지 않음 | `server/api/openapi.yaml` deleteDevice·registerDevice, #347 ② |
 | 기기 id 저장 키 `registeredDeviceIdKey`(`push.deviceId`). `DeviceRepository.register`는 성공하면 새 id로 덮어씀. 처음 등록은 notify-ask(새 프로필을 만들 때만)와 설정(꺼짐에서 켤 때, 저장된 id가 없을 때만) | `device_flags.dart:7-25`, `device_repository.dart:40`, `settings_controller.dart:62,131`, `notify_ask_controller.dart` |
-| 프로필 알림 설정은 `Profile.notification.status`(`NotificationSettingStatusEnum`) | `lib/core/api/gen/model/notification_setting.dart` |
+| 프로필 알림 설정은 `Profile.notification.status`(`NotificationSettingStatusEnum`). `Me`에는 알림 상태가 없음. 프로필 사본은 로그아웃 정리(`clearSignedOutData`)로 지워지고, 사본이 없을 때 server에서 받는 것은 설정과 정보 수정 화면(`profileProvider`)뿐 | `notification_setting.dart`, `me.dart`, `profile_providers.dart`, `app_database.dart` |
+| server는 알림 시각 설정이 있는 대상에게만 보냄(설정에서 알림을 꺼도 기기 등록은 남는 지금 구조의 전제) | server 결정 S13 |
 | fake server는 fixture가 없는 operation에 501 `not_implemented`(ProblemError, AppError라 보고 안 함). `deleteDevice` fixture는 없음, `registerDevice`는 `new-user`, `notify-register-unavailable`에만. 204 fixture는 `{"status": 204}` | `fake_server.dart:95-110`, `fixtures/` |
 | `revokeAndSignOut({api, tokens})`는 Ref 없는 최상위 함수, 호출부 `settings_controller.dart:83`, 테스트 `test/app/sign_out_test.dart`, `test/flows/sign_out_flow_test.dart`, `test/flows/settings_flow_test.dart` | 코드 |
 | 광고 제거 화면은 상품이 비면 `UnexpectedError`로 오류 상태(다시 시도)를 그림. 보상형은 `loadRewarded`가 null이면 `lockedNoAd` | `ad_free_controller.dart:23-25`, `ad_free_screen.dart:96-102`, `evidence_unlock_controller.dart:419-433` |
@@ -161,7 +162,7 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 - Produces:
   - `DeviceRepository.delete(String deviceId) → Future<void>`: server 해제만 합니다. 저장 키는 건드리지 않습니다(새 등록이 이미 새 id로 덮어썼을 수 있음). 404 `device.not_found`는 성공으로 봅니다.
   - `final class DeviceRegistrar { new(Ref ref); Future<void> sync(); Future<void> releaseForSignOut(); }`, `final deviceRegistrarProvider = Provider<DeviceRegistrar>(...)`.
-    - `sync()`: 로그인, 약관 동의, 프로필 `notification.status == enabled`이고 토큰이 있을 때만 지금 토큰을 `register`합니다. 돌려받은 id가 등록 전 저장된 id와 다르고 이전 id가 있었으면 이전 id를 `delete`합니다(앱이 꺼진 사이 토큰이 바뀐 경우 포함). 실행 때(진입이 `ready`가 된 뒤 한 번)와 `tokenRefreshes`마다 부르고, 동시에 두 번 돌지 않게 앞 호출이 끝난 뒤 이어서 돕니다. 실패는 `recordUnlessAppError`로 처리하고 던지지 않습니다.
+    - `sync()`: 로그인, 약관 동의(진입 `ready`), OS 알림 권한 허락(`PushMessaging.hasPermission`, 최종 review 뒤 바꿈: 프로필 사본은 로그아웃 정리로 지워져 다시 로그인한 계정을 놓치고, 사본을 받으면 앱 전체 상태가 바뀜. 발송은 server가 프로필 설정으로 거름, S13)이고 토큰이 있을 때만 지금 토큰을 `register`합니다. 돌려받은 id가 등록 전 저장된 id와 다르고 이전 id가 있었으면 이전 id를 `delete`합니다(앱이 꺼진 사이 토큰이 바뀐 경우 포함). 실행 때(진입이 `ready`가 된 뒤 한 번)와 `tokenRefreshes`마다 부르고, 동시에 두 번 돌지 않게 앞 호출이 끝난 뒤 이어서 돕니다. 실패는 `recordUnlessAppError`로 처리하고 던지지 않습니다.
     - `releaseForSignOut()`: 저장된 id가 있으면 `delete`하고, 성공 여부와 상관없이 저장 키를 지웁니다. 실패는 `recordUnlessAppError`, 던지지 않습니다.
   - `revokeAndSignOut({required DefaultApi api, required TokenStore tokens, required Future<void> Function() releaseDevice})`: server 로그아웃 요청 **전에** `releaseDevice()`를 부릅니다(계약: "로그아웃하기 전에 `deleteDevice`"). 계정 삭제는 부르지 않습니다(server가 기기를 비활성으로 바꿈). 강제 로그아웃(`TokenStore.signOut` 직접)은 해제 없이 `SignOutCleaner`가 저장 키만 지웁니다(Review Focus 3).
 

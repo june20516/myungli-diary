@@ -153,4 +153,17 @@ void main() {
     );
     expect(failure?.error, same(error));
   });
+
+  test('App Check 활성화가 실패해도 debug의 Crashlytics 수집은 끕니다', () async {
+    final crashlytics = _RecordingCrashlyticsApi();
+    final failure = await initializeFirebase(
+      env: FirebaseEnv.staging,
+      platform: TargetPlatform.android,
+      initialize: (_) async {},
+      appCheck: _RecordingAppCheckApi(error: StateError('활성화 실패')),
+      crashlytics: crashlytics,
+    );
+    expect(failure, isNotNull);
+    expect(crashlytics.collection, [false]);
+  });
 }

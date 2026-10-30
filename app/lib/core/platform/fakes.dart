@@ -191,12 +191,13 @@ final class FakeNotificationChannels implements NotificationChannels {
 
 /// 푸시 대역. 사건은 [addOpen]·[addTokenRefresh]로 넣습니다.
 final class FakePushMessaging implements PushMessaging {
-  /// 권한 응답과 기기 토큰을 정합니다.
+  /// 권한 응답과 기기 토큰을 정합니다. [alreadyGranted]면 묻기 전부터 권한이 있습니다.
   new({
     this.permissionGranted = true,
     this.tokenValue = 'fake-push-token',
     this.initial,
-  });
+    bool alreadyGranted = false,
+  }) : _granted = alreadyGranted;
 
   /// [initialOpen]의 응답. 앱이 꺼진 상태에서 알림으로 시작한 경우를 흉내 냅니다.
   final PushOpen? initial;
@@ -216,8 +217,16 @@ final class FakePushMessaging implements PushMessaging {
   /// 기기 토큰 갱신을 넣습니다.
   void addTokenRefresh(String token) => _refreshes.add(token);
 
+  bool _granted;
+
   @override
-  Future<bool> requestPermission() async => permissionGranted;
+  Future<bool> requestPermission() async {
+    _granted = permissionGranted;
+    return permissionGranted;
+  }
+
+  @override
+  Future<bool> hasPermission() async => _granted;
 
   @override
   Future<String?> token() async => tokenValue;

@@ -162,6 +162,9 @@ final class _CountingPush implements PushMessaging {
   }
 
   @override
+  Future<bool> hasPermission() async => granted && permissionRequests > 0;
+
+  @override
   Future<String?> token() async => 'fake-push-token';
 
   @override

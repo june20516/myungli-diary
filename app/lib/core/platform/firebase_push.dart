@@ -13,6 +13,9 @@ abstract interface class MessagingApi {
   /// 알림 권한을 요청합니다. 허용(임시 허용 포함)하면 true.
   Future<bool> requestPermission();
 
+  /// 묻지 않고 지금 알림 권한이 허락(임시 허용 포함)돼 있는지.
+  Future<bool> hasPermission();
+
   /// 지금의 FCM 토큰.
   Future<String?> getToken();
 
@@ -32,15 +35,21 @@ final class SdkMessagingApi implements MessagingApi {
   const new();
 
   @override
-  Future<bool> requestPermission() async {
-    final settings = await FirebaseMessaging.instance.requestPermission();
-    return switch (settings.authorizationStatus) {
-      AuthorizationStatus.authorized || AuthorizationStatus.provisional => true,
-      AuthorizationStatus.denied ||
-      AuthorizationStatus.deniedPermanently ||
-      AuthorizationStatus.notDetermined => false,
-    };
-  }
+  Future<bool> requestPermission() async =>
+      _allowed(await FirebaseMessaging.instance.requestPermission());
+
+  @override
+  Future<bool> hasPermission() async =>
+      _allowed(await FirebaseMessaging.instance.getNotificationSettings());
+
+  static bool _allowed(NotificationSettings settings) =>
+      switch (settings.authorizationStatus) {
+        AuthorizationStatus.authorized ||
+        AuthorizationStatus.provisional => true,
+        AuthorizationStatus.denied ||
+        AuthorizationStatus.deniedPermanently ||
+        AuthorizationStatus.notDetermined => false,
+      };
 
   @override
   Future<String?> getToken() => FirebaseMessaging.instance.getToken();
@@ -73,6 +82,15 @@ final class FirebasePushMessaging implements PushMessaging {
   Future<bool> requestPermission() async {
     try {
       return await api.requestPermission();
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> hasPermission() async {
+    try {
+      return await api.hasPermission();
     } on Object {
       return false;
     }

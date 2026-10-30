@@ -24,6 +24,7 @@ import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push.dart';
+import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
@@ -37,6 +38,35 @@ final class _DeviceApi implements DefaultApi {
   /// `deleteDevice`를 실패시키는 함수(던짐).
   Never Function()? failDelete;
 
+  /// `getProfile` 응답. null이면 오프라인으로 실패합니다.
+  Profile? serverProfile;
+  int profileFetches = 0;
+
+  /// 있으면 `registerDevice`가 이것이 끝날 때까지 기다립니다.
+  Completer<void>? registerGate;
+
+  /// `registerDevice`가 처음 불리면 완료됩니다.
+  final registerStarted = Completer<void>();
+
+  @override
+  Future<Response<Profile>> getProfile({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    profileFetches++;
+    final profile = serverProfile;
+    if (profile == null) throw _offline();
+    return Response(
+      requestOptions: RequestOptions(),
+      statusCode: 200,
+      data: profile,
+    );
+  }
+
   @override
   Future<Response<Device>> registerDevice({
     required DeviceInput deviceInput,
@@ -48,6 +78,8 @@ final class _DeviceApi implements DefaultApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
+    if (!registerStarted.isCompleted) registerStarted.complete();
+    await registerGate?.future;
     registered.add(deviceInput.fcmToken);
     return Response(
       requestOptions: RequestOptions(),
@@ -83,6 +115,9 @@ final class _Push implements PushMessaging {
   new(this.current);
 
   String? current;
+
+  /// OS 알림 권한이 허락됐는지.
+  bool granted = true;
   final _refreshes = StreamController<String>.broadcast();
 
   /// 토큰을 바꾸고 변경 사건을 냅니다.
@@ -105,6 +140,9 @@ final class _Push implements PushMessaging {
 
   @override
   Future<bool> requestPermission() async => true;
+
+  @override
+  Future<bool> hasPermission() async => granted;
 }
 
 /// 진입 상태를 테스트가 바꿉니다.
@@ -136,23 +174,28 @@ Profile _profile(NotificationSettingStatusEnum status) => Profile(
   notification: NotificationSetting(status: status, time: '08:00'),
 );
 
+const _accountId = '0b7c2f1e-3d4a-4b5c-8d9e-0f1a2b3c4d5e';
+
 final class _Harness {
+  /// [cacheCleared]면 프로필 사본이 없는 상태(로그아웃 정리 뒤 다시 로그인, 재설치)입니다.
   new({
     String? token = 't1',
     NotificationSettingStatusEnum notification =
         NotificationSettingStatusEnum.enabled,
+    bool cacheCleared = false,
   }) : push = _Push(token) {
     container = ProviderContainer(
       overrides: [
         ...testOverrides(),
         entryProvider.overrideWith((ref) => ref.watch(_entryHolderProvider)),
         cachedProfileProvider.overrideWith(
-          (ref) async => _profile(notification),
+          (ref) async => cacheCleared ? null : _profile(notification),
         ),
         pushMessagingProvider.overrideWithValue(push),
         restClientProvider.overrideWithValue(api),
         crashReporterProvider.overrideWithValue(reporter),
         targetPlatformProvider.overrideWithValue(TargetPlatform.android),
+        currentAccountIdProvider.overrideWithValue(_accountId),
       ],
     );
   }
@@ -215,10 +258,10 @@ void main() {
 
   tearDown(() => h.dispose());
 
-  test('알림이 꺼져 있으면 실행 때 등록하지 않음', () async {
+  test('알림이 꺼져 있어도 실행 때 등록(발송은 server가 프로필 설정으로 거름, S13)', () async {
     h = _Harness(notification: NotificationSettingStatusEnum.disabled)..start();
     await h.enter(EntryState.ready);
-    expect(h.api.registered, isEmpty);
+    expect(h.api.registered, ['t1']);
   });
 
   test('로그인·동의·알림 켬이면 실행 때 등록', () async {
@@ -345,5 +388,53 @@ void main() {
     await pumpEventQueue();
     expect(h.api.deleted, isEmpty);
     expect(await h.storedId(), isNull);
+  });
+
+  test('프로필 사본이 없어도(로그아웃 정리 뒤 다시 로그인, 재설치) 실행 때 등록하고 프로필은 받지 않음', () async {
+    h = _Harness(cacheCleared: true)..start();
+    await h.enter(EntryState.ready);
+    expect(h.api.registered, ['t1']);
+    expect(h.api.profileFetches, 0);
+  });
+
+  test('강제 로그아웃(저장 id만 지움) 뒤 같은 실행에서 다시 ready면 같은 토큰도 다시 등록', () async {
+    h = _Harness()..start();
+    await h.enter(EntryState.ready);
+    await h.flags.remove(registeredDeviceIdKey);
+    await h.enter(EntryState.signedOut);
+    await h.enter(EntryState.ready);
+    expect(h.api.registered, ['t1', 't1']);
+  });
+
+  test('로그아웃 해제 뒤에는 대기 중이던 동기화가 등록하지 않음', () async {
+    h = _Harness()..start();
+    h.api.registerGate = Completer<void>();
+    h.container.read(_entryHolderProvider.notifier).set(EntryState.ready);
+    unawaited(h.registrar.sync());
+    await h.api.registerStarted.future;
+    h.push.refresh('t2');
+    final release = h.registrar.releaseForSignOut();
+    h.api.registerGate!.complete();
+    await release;
+    await h.settle();
+    expect(h.api.registered, ['t1']);
+    expect(h.api.deleted, ['device-t1']);
+    expect(await h.storedId(), isNull);
+  });
+
+  test('해제 뒤 진입이 아직 ready여도 토큰이 바뀌면 다시 등록하지 않음', () async {
+    h = _Harness()..start();
+    await h.enter(EntryState.ready);
+    await h.registrar.releaseForSignOut();
+    h.push.refresh('t2');
+    await h.settle();
+    expect(h.api.registered, ['t1']);
+  });
+
+  test('OS 알림 권한이 없으면(거절, 아직 묻지 않음) 등록하지 않음', () async {
+    h = _Harness()..start();
+    h.push.granted = false;
+    await h.enter(EntryState.ready);
+    expect(h.api.registered, isEmpty);
   });
 }
