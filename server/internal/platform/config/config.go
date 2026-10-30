@@ -51,7 +51,7 @@ var logLevels = map[string]slog.Level{
 // 잘못된 값은 모두 모아 errors.Join으로 한 번에 돌려줍니다.
 func Load(getenv func(string) string) (Config, error) {
 	cfg := Config{
-		Env:          orDefault(getenv("APP_ENV"), defaultEnv),
+		Env:              orDefault(getenv("APP_ENV"), defaultEnv),
 		DatabaseURL:      getenv("DATABASE_URL"),
 		CloudSQLInstance: getenv("CLOUD_SQL_INSTANCE"),
 		GCPProjectID:     getenv("GOOGLE_CLOUD_PROJECT"),
@@ -375,7 +375,7 @@ type BillingConfig struct {
 	RevenueCatAPIKey string
 	// RevenueCatWebhookAuth는 webhook Authorization 헤더와 비교할 값 전체입니다(예: "Bearer <난수>").
 	RevenueCatWebhookAuth string
-	// AdFreeProductIDs는 광고 제거권으로 치는 상품 id 목록입니다(iOS·Android). 목록 밖 상품은 무시합니다.
+	// AdFreeProductIDs는 광고 제거권으로 치는 RevenueCat 상품 id(prod…) 목록입니다(스토어마다 하나, S124). 목록 밖 상품은 무시합니다.
 	AdFreeProductIDs []string
 	// ProductionOnly가 true면 production 환경 구매만 셉니다(APP_ENV가 prod일 때, P7-2).
 	ProductionOnly bool
