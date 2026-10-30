@@ -6,6 +6,10 @@ sql_tier            = "db-f1-micro"
 deletion_protection = false
 test_login_enabled  = true
 
+# RevenueCat 값은 사업자등록(E15) 뒤에 만들 수 있어, 그때까지 staging server는 결제를 끈 채 배포합니다(#654, #632).
+# 값이 오면 결제 설정 둘과 Secret 둘을 채우고 true로 바꿉니다.
+billing_enabled = false
+
 # 공개 값만 둡니다(spec §5). 빈 값은 아직 오지 않은 값이고, 필수 값이 비어 있으면 server 배포를 건너뜁니다.
 # TRUSTED_PROXY_HOPS는 Firebase Hosting 앞단의 X-Forwarded-For 위치를 staging에서 확인해 정합니다(S117).
 server_settings = {

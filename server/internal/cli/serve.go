@@ -109,6 +109,10 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		return err
 	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
+	if !billingCfg.Configured() {
+		// local과 결제 값이 아직 없는 staging(#654)입니다. 구매 복원은 503 billing.provider_unavailable, webhook은 500으로 답합니다.
+		logger.WarnContext(ctx, "결제 설정이 없어 결제 기능을 끈 채 시작합니다", "env", cfg.Env)
+	}
 
 	// 연결 문자열에는 비밀번호가 있을 수 있어 로그에는 오류만 남기고 주소는 남기지 않습니다.
 	pool, closeDB, err := openDatabase(ctx, cfg)
@@ -414,7 +418,7 @@ type billingParts struct {
 }
 
 // newBillingParts는 결제 의존성을 조립합니다.
-// 구매 복원과 webhook은 RevenueCat 설정이 모두 있을 때만 조립하고(없으면 APP_ENV=local이며 503·500 경로),
+// 구매 복원과 webhook은 RevenueCat 설정이 모두 있을 때만 조립하고(없으면 local이나 결제 값 없는 staging이며 503·500 경로, #654),
 // AdMob 검증기와 보상 처리는 설정과 무관하게 늘 조립합니다.
 func newBillingParts(cfg config.BillingConfig, pool *pgxpool.Pool, httpClient *http.Client, urls billingURLs, clk clock.Clock, logger *slog.Logger) billingParts {
 	parts := billingParts{

@@ -386,8 +386,14 @@ func (c BillingConfig) Configured() bool {
 	return c.RevenueCatProjectID != "" && c.RevenueCatAPIKey != "" && c.RevenueCatWebhookAuth != "" && len(c.AdFreeProductIDs) > 0
 }
 
+// empty는 결제 값 넷이 모두 비어 있는지 알려 줍니다.
+func (c BillingConfig) empty() bool {
+	return c.RevenueCatProjectID == "" && c.RevenueCatAPIKey == "" && c.RevenueCatWebhookAuth == "" && len(c.AdFreeProductIDs) == 0
+}
+
 // LoadBilling은 getenv로 결제 설정을 읽습니다. REVENUECAT_PROJECT_ID·REVENUECAT_API_KEY·REVENUECAT_WEBHOOK_AUTH·
 // AD_FREE_PRODUCT_IDS(쉼표 목록)는 APP_ENV가 local(기본값)이 아니면 모두 필수입니다(P7-16).
+// staging은 넷 다 비어 있을 때만 결제를 끈 채(Configured false) 통과합니다(#654). 일부만 비면 설정 실수로 보고 오류입니다.
 // 오류에는 변수 이름만 담고 값은 담지 않습니다.
 func LoadBilling(getenv func(string) string) (BillingConfig, error) {
 	getenv = trimmedEnv(getenv)
@@ -401,7 +407,8 @@ func LoadBilling(getenv func(string) string) (BillingConfig, error) {
 		ProductionOnly:        env == "prod",
 	}
 
-	if env != defaultEnv {
+	billingOff := env == defaultEnv || (env == "staging" && cfg.empty())
+	if !billingOff {
 		var missing []string
 		for _, required := range []struct {
 			name    string

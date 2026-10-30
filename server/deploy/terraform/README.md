@@ -38,7 +38,7 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
 printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프로젝트> --data-file=-
 ```
 
-Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, staging만 `TEST_LOGIN_SECRET`. 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다.
+Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, staging만 `TEST_LOGIN_SECRET`. 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
 
 ### 새 프로젝트
 

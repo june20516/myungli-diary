@@ -17,17 +17,25 @@ locals {
     var.token_previous_key_id != "" ? ["TOKEN_PREVIOUS_KEY"] : [],
   )
 
+  # 결제(RevenueCat) 값입니다. billing_enabled가 false면 필수에서 빼고 server에 붙이지 않습니다(#654).
+  # server는 staging에서 넷이 모두 없을 때만 결제를 끈 채 시작하므로, 일부만 붙이는 일이 없게 함께 뺍니다.
+  billing_settings = ["AD_FREE_PRODUCT_IDS", "REVENUECAT_PROJECT_ID"]
+  billing_secrets  = ["REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH"]
+
   # serve가 APP_ENV non-local에서 요구하는 비밀이 아닌 설정입니다(config.LoadAuth·LoadBilling·LoadAppCheck).
   # 하나라도 비어 있으면 workflow가 server 배포를 건너뜁니다.
-  required_server_settings = [
-    "AD_FREE_PRODUCT_IDS", "ANDROID_APP_PACKAGE", "ANDROID_CERT_SHA256", "ANDROID_STORE_URL", "APP_LINK_BASE",
+  required_server_settings = concat([
+    "ANDROID_APP_PACKAGE", "ANDROID_CERT_SHA256", "ANDROID_STORE_URL", "APP_LINK_BASE",
     "APPLE_BUNDLE_ID", "APPLE_KEY_ID", "APPLE_SERVICES_ID", "APPLE_TEAM_ID", "APPLE_WEB_REDIRECT_URI",
-    "GOOGLE_CLIENT_IDS", "JWT_SIGNING_KEY_ID", "KAKAO_APP_KEY", "LINE_CHANNEL_ID", "REVENUECAT_PROJECT_ID",
+    "GOOGLE_CLIENT_IDS", "JWT_SIGNING_KEY_ID", "KAKAO_APP_KEY", "LINE_CHANNEL_ID",
     "TOKEN_ENCRYPTION_KEY_ID",
-  ]
+  ], var.billing_enabled ? local.billing_settings : [])
+
+  # 값(버전)이 있어야 하고 server에 붙이는 Secret입니다. Secret 틀은 결제가 꺼져 있어도 secret_ids 전부를 만듭니다.
+  server_secret_ids = [for id in local.secret_ids : id if var.billing_enabled || !contains(local.billing_secrets, id)]
 
   server_env = merge(
-    { for name, value in var.server_settings : name => value if value != "" },
+    { for name, value in var.server_settings : name => value if value != "" && (var.billing_enabled || !contains(local.billing_settings, name)) },
     {
       APP_ENV                 = var.environment
       GOOGLE_CLOUD_PROJECT    = var.project_id

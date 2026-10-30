@@ -479,6 +479,18 @@ func TestLoadBilling(t *testing.T) {
 			}
 		}
 	})
+	t.Run("staging에서 넷 다 비면 통과하고 Configured는 false(결제 꺼짐, #654)", func(t *testing.T) {
+		cfg, err := LoadBilling(fakeEnv(map[string]string{"APP_ENV": "staging"}))
+		if err != nil || cfg.Configured() {
+			t.Errorf("LoadBilling(staging, 모두 빔) = %+v, %v, want 미설정과 nil 오류", cfg, err)
+		}
+	})
+	t.Run("prod에서 넷 다 비면 오류", func(t *testing.T) {
+		_, err := LoadBilling(fakeEnv(map[string]string{"APP_ENV": "prod"}))
+		if err == nil || !strings.Contains(err.Error(), "REVENUECAT_PROJECT_ID") {
+			t.Errorf("LoadBilling(prod, 모두 빔) error = %v, want 변수 이름을 담은 오류", err)
+		}
+	})
 	t.Run("staging에서 하나라도 비면 오류이고 변수 이름만 담음", func(t *testing.T) {
 		for _, name := range []string{"REVENUECAT_PROJECT_ID", "REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH", "AD_FREE_PRODUCT_IDS"} {
 			_, err := LoadBilling(fakeEnv(with(map[string]string{name: " "})))

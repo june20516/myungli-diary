@@ -184,6 +184,10 @@ func TestServe_StartsWhenEngineInfoFails(t *testing.T) {
 	if strings.Contains(logs, testClosedEngineAddr) {
 		t.Errorf("로그에 엔진 주소가 남았습니다: %q", logs)
 	}
+	// 결제 값이 없으면 결제를 끈 채 시작하고, 조용히 넘어가지 않도록 Warn 로그를 남깁니다(#654).
+	if !strings.Contains(logs, `"severity":"WARNING","message":"결제 설정이 없어 결제 기능을 끈 채 시작합니다"`) {
+		t.Errorf("시작 로그에 결제 꺼짐 Warn이 없습니다: %q", logs)
+	}
 }
 
 func TestRun_ServeRequiresDatabaseURL(t *testing.T) {
@@ -240,10 +244,12 @@ func TestRun_ServeRequiresAuthConfig(t *testing.T) {
 	}
 }
 
-func TestRun_ServeRequiresBillingConfigOutsideLocal(t *testing.T) {
+// staging은 결제 값이 모두 없으면 결제를 끈 채 시작하지만(#654), 일부만 있으면 설정 실수로 보고 시작하지 않습니다.
+func TestRun_ServeRequiresCompleteBillingConfigOutsideLocal(t *testing.T) {
 	env := testAuthEnv(t)
 	env["PORT"] = freePort(t)
 	env["APP_ENV"] = "staging"
+	env["REVENUECAT_PROJECT_ID"] = "proj_test"
 	env["ENGINE_AUDIENCE"] = "https://engine.example.run.app"
 	env["FIREBASE_PROJECT_NUMBER"] = "123456789012"
 	// 결제 설정 검사는 DB 연결보다 먼저이므로 닿지 않는 주소여도 설정 오류로 끝나야 합니다.
@@ -254,7 +260,7 @@ func TestRun_ServeRequiresBillingConfigOutsideLocal(t *testing.T) {
 	if code != 1 {
 		t.Errorf("종료 코드 = %d, want 1", code)
 	}
-	if !strings.Contains(stderr.String(), "REVENUECAT_PROJECT_ID") {
+	if !strings.Contains(stderr.String(), "REVENUECAT_API_KEY") {
 		t.Errorf("stderr에 누락된 변수 이름이 없습니다: %q", stderr.String())
 	}
 	if strings.Contains(stderr.String(), "DB 연결 실패") {
