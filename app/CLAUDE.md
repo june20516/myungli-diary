@@ -56,7 +56,7 @@
 
 ## 현재 상태 (2026-10-30, app 세션 갱신)
 * **staging 배포 준비**, 브랜치 `app/staging-ready`. 계획 [`docs/plans/2026-10-28-staging-ready.md`](docs/plans/2026-10-28-staging-ready.md)("확인한 사실" 표에 외부 상태와 출처), 결정 A94~A96.
-  * Android release는 보관 폴더(D98 K1)의 업로드 키로 서명, 없으면 debug 키와 경고(A94). 키는 아직 만들지 않았습니다(사용자 몫, README "staging 빌드").
+  * Android release는 보관 폴더(D98 K1)의 업로드 키로 서명, 없으면 debug 키와 경고(A94). 키는 사용자가 만들었고 첫 staging AAB(1.0.0+1)를 그 키로 서명했습니다(#677). Play 업로드는 사용자 몫입니다.
   * App Check: debug 빌드이고 staging일 때만 debug provider(고정 토큰 `APP_CHECK_DEBUG_TOKEN`, K4), 그 밖은 Play Integrity, iOS DeviceCheck. 토큰을 3초 안에 못 받으면 헤더 없이 보냄(A95, #657, #659).
   * Crashlytics: `CrashSummary`와 정제한 id만, release에서만 수집. Gradle plugin 없이 기록과 전송까지 확인했습니다.
   * FCM: 토큰, 알림 누름(`kind morning` → 오늘), 채널 `morning`(앱 언어 이름), iOS `aps-environment`, Android desugaring. 꺼진 앱에서도 알림 표시와 누름 진입을 확인했습니다(네이티브 기본 FirebaseApp이 없어 전달 통계만 빠짐).

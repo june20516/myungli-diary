@@ -43,10 +43,10 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   # $D/key.properties: storeFile=upload-keystore.jks, storePassword=…, keyAlias=upload, keyPassword=…
   chmod 600 "$D"/*
   flutter build appbundle --release --dart-define-from-file=config/auth.json \
-    --dart-define=API_BASE_URL=<staging API> --dart-define=FIREBASE_ENV=staging \
-    --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>
+    --dart-define=API_BASE_URL=https://api-staging.myungli-diary.app --dart-define=FIREBASE_ENV=staging
+  # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
-  `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 소유자가 업로드 키인지 확인합니다. 앱 서명 키는 Play가 보관합니다(E8).
+  `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. Play에 올릴 때마다 `pubspec.yaml`의 빌드 번호(`+N`)를 올립니다. 앱 서명 키는 Play가 보관합니다(E8).
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |
