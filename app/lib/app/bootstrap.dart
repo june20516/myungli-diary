@@ -30,9 +30,11 @@ import 'package:myungli_diary/core/platform/firebase_push.dart';
 import 'package:myungli_diary/core/platform/google_auth.dart';
 import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/line_auth.dart';
+import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
+import 'package:myungli_diary/core/platform/unavailable_store.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 
@@ -170,6 +172,9 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
     appCheckProvider.overrideWithValue(const FirebaseAppCheckAdapter()),
     crashReporterProvider.overrideWithValue(const FirebaseCrashReporter()),
     pushMessagingProvider.overrideWithValue(const FirebasePushMessaging()),
+    purchasesProvider.overrideWithValue(const UnavailablePurchases()),
+    adConsentProvider.overrideWithValue(const NonPersonalizedAdConsent()),
+    shareSheetProvider.overrideWithValue(const OsShareSheet()),
     notificationChannelsProvider.overrideWith(
       (ref) => LocalNotificationChannels(
         isAndroid: ref.watch(targetPlatformProvider) == TargetPlatform.android,

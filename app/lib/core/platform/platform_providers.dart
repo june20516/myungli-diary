@@ -16,6 +16,7 @@ import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/share.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
+import 'package:myungli_diary/core/platform/unavailable_store.dart';
 
 // 기본값은 대역입니다. 실제 adapter는 계정 준비 뒤 override로 끼웁니다.
 // App Check는 `appCheckProvider`(api_providers.dart)에 있습니다.
@@ -63,12 +64,13 @@ final crashReporterProvider = Provider<CrashReporter>(
 /// 광고 동의.
 final adConsentProvider = Provider<AdConsent>((ref) => const FakeAdConsent());
 
-/// 광고. fake 모드에서는 시나리오의 보상형 광고 결과(`rewardedAd`)대로 동작하는 대역입니다.
+/// 광고. fake 모드에서는 시나리오의 보상형 광고 결과(`rewardedAd`)대로 동작하는 대역이고,
+/// http 모드는 AdMob 값(E13)이 오기 전까지 [NoAds]입니다.
 ///
 /// 시작 코드가 아니라 여기서 시나리오를 읽으므로 테스트는 이 provider를 직접 override할 수 있습니다.
 final adsProvider = Provider<Ads>((ref) {
   if (ref.watch(apiModeProvider) != ApiMode.fake) {
-    return FakeAds();
+    return const NoAds();
   }
   return fakeAdsFor(ref.watch(scenarioProvider).rewardedAd);
 });

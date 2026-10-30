@@ -40,6 +40,7 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 | `adsProvider`는 `realPlatformOverrides`가 아니라 provider 안에서 모드로 분기(http는 지금 `FakeAds`) | `platform_providers.dart:62-67` |
 | `AppLifecycleHooks.initState`가 `push.opens.listen`을 try 없이 부름 | `myungli_app.dart:83-84` |
 | 앱은 iPad를 지원(`TARGETED_DEVICE_FAMILY = "1,2"`) | `ios/Runner.xcodeproj/project.pbxproj` |
+| `share_plus` 13.3.1은 iPad에서 `sharePositionOrigin`이 없으면 화면 가운데에 띄움(죽지 않음, 예전 버전만 문제). `ShareSheet`는 그대로 둠 | share_plus 13.3.1 README "iPad"(Task 6 Step 0) |
 | `tool/patrol_local.sh`는 늘 `API_MODE=fake`라 Patrol은 실제 adapter를 거치지 않음 | `patrol_local.sh:166` |
 | iOS `Runner.entitlements`에 `aps-environment` 없음 | 파일 |
 | RevenueCat 공개 SDK 키, 상품 id는 아직 없음(상품은 E15 뒤) | #632, 대장 E12 |

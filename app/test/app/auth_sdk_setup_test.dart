@@ -16,8 +16,10 @@ import 'package:myungli_diary/core/platform/firebase_push.dart';
 import 'package:myungli_diary/core/platform/google_auth.dart';
 import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/line_auth.dart';
+import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
+import 'package:myungli_diary/core/platform/unavailable_store.dart';
 
 AuthConfig _config({String kakao = '', String line = ''}) => AuthConfig(
   kakaoNativeAppKey: kakao,
@@ -69,6 +71,19 @@ void main() {
         fake.read(notificationChannelsProvider),
         isA<FakeNotificationChannels>(),
       );
+      expect(http.read(purchasesProvider), isA<UnavailablePurchases>());
+      expect(http.read(adConsentProvider), isA<NonPersonalizedAdConsent>());
+      expect(http.read(shareSheetProvider), isA<OsShareSheet>());
+      expect(fake.read(purchasesProvider), isA<FakePurchases>());
+      expect(fake.read(shareSheetProvider), isA<FakeShareSheet>());
+    });
+
+    test('http 모드 adsProvider는 NoAds', () {
+      final container = ProviderContainer(
+        overrides: [apiModeProvider.overrideWithValue(ApiMode.http)],
+      );
+      addTearDown(container.dispose);
+      expect(container.read(adsProvider), isA<NoAds>());
     });
 
     test('Google adapter는 실행 플랫폼이 iOS인지 압니다', () {
