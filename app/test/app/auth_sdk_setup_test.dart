@@ -11,6 +11,7 @@ import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/auth_config.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/firebase_app_check.dart';
+import 'package:myungli_diary/core/platform/firebase_crash_reporter.dart';
 import 'package:myungli_diary/core/platform/google_auth.dart';
 import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/line_auth.dart';
@@ -43,7 +44,7 @@ void main() {
       expect(container.read(appleWebAuthProvider), isA<WebAuthAppleWebAuth>());
     });
 
-    test('http는 App Check를 실제 구현으로, fake는 대역', () {
+    test('http는 App Check와 Crashlytics를 실제 구현으로, fake는 대역', () {
       final http = ProviderContainer(
         overrides: realPlatformOverrides(ApiMode.http),
       );
@@ -54,6 +55,8 @@ void main() {
       addTearDown(fake.dispose);
       expect(http.read(appCheckProvider), isA<FirebaseAppCheckAdapter>());
       expect(fake.read(appCheckProvider), isA<FakeAppCheck>());
+      expect(http.read(crashReporterProvider), isA<FirebaseCrashReporter>());
+      expect(fake.read(crashReporterProvider), isA<FakeCrashReporter>());
     });
 
     test('Google adapter는 실행 플랫폼이 iOS인지 압니다', () {

@@ -52,6 +52,17 @@ final class CrashSummary {
 
   /// `ProblemError.status`. 없으면 null.
   final int? status;
+
+  /// 보고 화면에 보이는 문자열. 세 값만 담고 없는 값은 뺍니다.
+  @override
+  String toString() {
+    final fields = [
+      'errorType: $errorType',
+      if (code != null) 'code: $code',
+      if (status != null) 'status: $status',
+    ];
+    return 'CrashSummary(${fields.join(', ')})';
+  }
 }
 
 /// [action]을 실행해 결과를 돌려줍니다. 화면 동작 controller의 예상 밖 오류 가드입니다.

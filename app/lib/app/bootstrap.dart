@@ -25,6 +25,7 @@ import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/firebase_app_check.dart';
+import 'package:myungli_diary/core/platform/firebase_crash_reporter.dart';
 import 'package:myungli_diary/core/platform/google_auth.dart';
 import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/line_auth.dart';
@@ -165,6 +166,7 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
   ApiMode.fake => const [],
   ApiMode.http => [
     appCheckProvider.overrideWithValue(const FirebaseAppCheckAdapter()),
+    crashReporterProvider.overrideWithValue(const FirebaseCrashReporter()),
     deviceTimezoneProvider.overrideWithValue(const FlutterDeviceTimezone()),
     storeLauncherProvider.overrideWithValue(const UrlStoreLauncher()),
     externalBrowserProvider.overrideWithValue(const UrlExternalBrowser()),

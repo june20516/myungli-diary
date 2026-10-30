@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/firebase/firebase_env.dart';
 import 'package:myungli_diary/core/firebase/firebase_options_prod.dart';
 import 'package:myungli_diary/core/firebase/firebase_options_staging.dart';
 import 'package:myungli_diary/core/platform/firebase_app_check.dart';
+import 'package:myungli_diary/core/platform/firebase_crash_reporter.dart';
 
 final class _RecordingAppCheckApi implements AppCheckApi {
   new({this.error});
@@ -26,7 +27,46 @@ final class _RecordingAppCheckApi implements AppCheckApi {
   Future<String?> getToken() async => null;
 }
 
+final class _RecordingCrashlyticsApi implements CrashlyticsApi {
+  final collection = <bool>[];
+
+  @override
+  Future<void> setCollectionEnabled({required bool enabled}) async =>
+      collection.add(enabled);
+
+  @override
+  Future<void> recordError(Object exception, StackTrace stack) async {}
+
+  @override
+  Future<void> setUserIdentifier(String id) async {}
+
+  @override
+  Future<void> log(String message) async {}
+}
+
 void main() {
+  test('debug 빌드는 Crashlytics 수집을 끄고 release는 켭니다', () async {
+    final debug = _RecordingCrashlyticsApi();
+    final release = _RecordingCrashlyticsApi();
+    await initializeFirebase(
+      env: FirebaseEnv.staging,
+      platform: TargetPlatform.android,
+      initialize: (_) async {},
+      appCheck: _RecordingAppCheckApi(),
+      crashlytics: debug,
+    );
+    await initializeFirebase(
+      env: FirebaseEnv.staging,
+      platform: TargetPlatform.android,
+      initialize: (_) async {},
+      appCheck: _RecordingAppCheckApi(),
+      crashlytics: release,
+      isDebug: false,
+    );
+    expect(debug.collection, [false]);
+    expect(release.collection, [true]);
+  });
+
   test('환경과 플랫폼에 맞는 설정으로 초기화합니다', () async {
     final used = <FirebaseOptions>[];
     final staging = await initializeFirebase(
@@ -34,12 +74,14 @@ void main() {
       platform: TargetPlatform.android,
       initialize: (options) async => used.add(options),
       appCheck: _RecordingAppCheckApi(),
+      crashlytics: _RecordingCrashlyticsApi(),
     );
     final prod = await initializeFirebase(
       env: FirebaseEnv.prod,
       platform: TargetPlatform.iOS,
       initialize: (options) async => used.add(options),
       appCheck: _RecordingAppCheckApi(),
+      crashlytics: _RecordingCrashlyticsApi(),
     );
     expect(staging, isNull);
     expect(prod, isNull);
@@ -54,6 +96,7 @@ void main() {
       platform: TargetPlatform.android,
       initialize: (_) async => throw error,
       appCheck: appCheck,
+      crashlytics: _RecordingCrashlyticsApi(),
     );
     expect(failure?.error, same(error));
     expect(appCheck.activations, isEmpty);
@@ -66,6 +109,7 @@ void main() {
       platform: TargetPlatform.android,
       initialize: (_) async {},
       appCheck: appCheck,
+      crashlytics: _RecordingCrashlyticsApi(),
       debugToken: 'debug-token',
     );
     expect(failure, isNull);
@@ -79,6 +123,7 @@ void main() {
       platform: TargetPlatform.android,
       initialize: (_) async {},
       appCheck: appCheck,
+      crashlytics: _RecordingCrashlyticsApi(),
     );
     expect(appCheck.activations, [(AppCheckMode.debug, null)]);
   });
@@ -90,6 +135,7 @@ void main() {
       platform: TargetPlatform.android,
       initialize: (_) async {},
       appCheck: appCheck,
+      crashlytics: _RecordingCrashlyticsApi(),
       isDebug: false,
       debugToken: 'debug-token',
     );
@@ -103,6 +149,7 @@ void main() {
       platform: TargetPlatform.android,
       initialize: (_) async {},
       appCheck: _RecordingAppCheckApi(error: error),
+      crashlytics: _RecordingCrashlyticsApi(),
     );
     expect(failure?.error, same(error));
   });
