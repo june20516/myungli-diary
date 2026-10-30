@@ -33,6 +33,11 @@ const MotionPrefs _normal = MotionPrefs(
   reduceTransparency: false,
   lowEnd: false,
 );
+const MotionPrefs _reducedMotion = MotionPrefs(
+  reduceMotion: true,
+  reduceTransparency: false,
+  lowEnd: false,
+);
 const MotionPrefs _transparent = MotionPrefs(
   reduceMotion: false,
   reduceTransparency: true,
@@ -709,6 +714,7 @@ void main() {
       bool consent = true,
       FakeAds? ads,
       ValueChanged<double>? onHeight,
+      MotionPrefs prefs = _normal,
     }) => _app(
       MyungliBottomBar(
         index: 0,
@@ -719,6 +725,7 @@ void main() {
         onHeightChanged: onHeight,
       ),
       ads: ads,
+      prefs: prefs,
     );
 
     /// 위 0.5px 선 개수(하단 틀 안).
@@ -791,6 +798,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       expect(lines(tester), 1);
       await tester.pumpAndSettle();
+      expect(lines(tester), 1);
+      expect(find.byKey(const ValueKey('ad-banner.region')), findsNothing);
+    });
+
+    testWidgets('움직임 줄이기에서 광고 제거가 켜져도 바로 사라지고 선이 탭 바 위로 돌아옵니다', (tester) async {
+      // 사라짐이 0초라 배너 갱신 중에 끝나도 하단 틀을 빌드 도중에 다시 그리지 않습니다.
+      await tester.pumpWidget(bottom(prefs: _reducedMotion));
+      await tester.pumpAndSettle();
+      expect(lineIsAboveBanner(tester), isTrue);
+      await tester.pumpWidget(bottom(adFree: true, prefs: _reducedMotion));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
       expect(lines(tester), 1);
       expect(find.byKey(const ValueKey('ad-banner.region')), findsNothing);
     });

@@ -106,8 +106,9 @@ void main() {
     // 만세력·대운 탭 → 만세력·대운 표, 다시 원국 탭.
     await $(_inScreen(ScreenIds.sajuChart, find.text(l10n.sajuChartTabLuck)))
         .tap();
+    // 표 칸은 위로 맞춰(V49) 표 가운데가 빈칸이라 hit test로 기다리지 않습니다.
     await $(_inScreen(ScreenIds.sajuChart, find.byType(ManseTable)))
-        .waitUntilVisible();
+        .waitUntilExists();
     expect(
       _inScreen(ScreenIds.sajuChart, find.byType(DaeunTable)),
       findsOneWidget,
