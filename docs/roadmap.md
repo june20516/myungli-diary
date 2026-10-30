@@ -27,7 +27,9 @@
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | **완료** (W1-3 용어·근거와 스토어 태그라인 PR #627(W47~W49)로 3개 언어 원고가 모두 참, 원고 검사 `--partial` 제거. 원어민 검수는 완료 조건이 아닌 보강 단계(D70). W1 spec `docs/identity/writing/specs/2026-10-16-w1-content-design.md`. W1-1 오늘 화면·엔진 안내 PR #249, W1-2 사주·개인 해석 PR #254, D77 IA ui 슬롯·남은 ui 원고 PR #279·#297(W33), 기본 깊이 원고 삭제 PR #326(D79), 생일 음력 문구 PR #328(W34). 다음 W1-3 용어·근거. 원어민 검수는 사용자 준비물) |
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3, T1 | - |
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3, T1 | - |
-| T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
+| H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 준비 메모 [`docs/specs/2026-10-30-context-slimming-design.md`](specs/2026-10-30-context-slimming-design.md) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | 시작 전 |
+| Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
+| T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1 | Phase 2 | - |
 
@@ -40,7 +42,7 @@
 
 * **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 없습니다(app #600, server #629, server #642는 끝남). 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다. 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다.
 * **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다. 검사 범위(D81)와 규칙 정합성(D78) 정리는 끝났습니다.
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** staging server 기동(#607 tfvars) → 엔진 실행 조건(#79)과 I1 → app 실제 adapter(로그인 #311·#463, RevenueCat #684, AdMob #686) → I2(staging에서 app E2E) → T1. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 시작합니다.
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** staging server 기동 → 엔진 실행 조건(#79)과 I1 → app 실제 adapter(로그인 #311·#463, RevenueCat #684, AdMob #686) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 시작합니다.
 * **staging 상태:** 인프라(Terraform bootstrap, WIF, 비밀 값 네 개, Firebase, App Check)는 끝났습니다. staging 배포(run 41012687111)는 인프라 단계까지 성공했고, server 기동은 tfvars 공개 값 7개(#607)가 비어 건너뛰었습니다. 결제는 PR #681(S123)로 RevenueCat 값 없이 끈 채 배포하고, #683에서 Test Store로 켭니다(D99). app은 PR #675로 release 서명과 Firebase adapter를 갖췄고, 첫 staging AAB가 Play 내부 테스트에 올라갔습니다(K1).
 
 | 박자 | 담당 | 할 일 | 막는 것 |
