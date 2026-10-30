@@ -45,7 +45,7 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 | RevenueCat 공개 SDK 키, 상품 id는 아직 없음(상품은 E15 뒤) | #632, 대장 E12 |
 | AdMob은 계정 검증 끝, 앱 등록 전(광고 단위 id 없음) | 대장 E13(origin/main), #539 2026-10-29 |
 | 패키지: `firebase_crashlytics` 6.0.1, `firebase_messaging` 17.0.1(둘 다 `firebase_core` ^5.1.0), `flutter_local_notifications` 22.3.3, `share_plus` 13.3.1 | pub.dev |
-| Crashlytics Android SDK 21.0.1은 Gradle plugin 없이 Dart 초기화 뒤 build ID 오류 없이 초기화되고 설정을 받아 옴(기록 도착은 Task 3 Step 4에서 확인) | 2026-10-30 에뮬레이터 logcat(Task 3 Step 0) |
+| Crashlytics Android SDK 21.0.1은 Gradle plugin 없이 Dart 초기화 뒤 build ID 오류 없이 초기화되고 설정을 받아 옴. 기록은 다음 실행 때 DataTransport로 전송됨(`successfully enqueued`, Task 3 Step 4) | 2026-10-30 에뮬레이터 logcat(Task 3 Step 0, 4) |
 | Crashlytics Android 공식 설정은 `com.google.firebase.crashlytics` Gradle plugin과 `google-services` plugin을 씀. 이 앱은 둘 다 없음(A93) | Firebase 문서 crashlytics/android/get-started, `android/app/build.gradle.kts` |
 
 ## Review Focus
