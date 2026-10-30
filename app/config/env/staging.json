@@ -1,0 +1,6 @@
+{
+  "API_BASE_URL": "https://api-staging.myungli-diary.app",
+  "FIREBASE_ENV": "staging",
+  "APP_LINK_HOST": "api-staging.myungli-diary.app",
+  "APPLE_REDIRECT_URI": "https://api-staging.myungli-diary.app/v1/auth/apple/callback"
+}
