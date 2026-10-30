@@ -61,17 +61,38 @@ void main() {
       throw DioException(requestOptions: RequestOptions());
     });
 
-    await revokeAndSignOut(api: api, tokens: tokens);
+    await revokeAndSignOut(
+      api: api,
+      tokens: tokens,
+      releaseDevice: () async {},
+    );
     await Future<void>.delayed(Duration.zero);
 
     expect(api.calls, 1);
     expect(events, [AuthEvent.signedOut]);
   });
 
+  test('기기 해제를 server 로그아웃보다 먼저 부릅니다(#347 ②)', () async {
+    final order = <String>[];
+    final api = _LogoutApi(() async => order.add('logout'));
+
+    await revokeAndSignOut(
+      api: api,
+      tokens: tokens,
+      releaseDevice: () async => order.add('releaseDevice'),
+    );
+
+    expect(order, ['releaseDevice', 'logout']);
+  });
+
   test('logout이 성공하면 토큰을 지우고 signedOut을 한 번 냅니다', () async {
     final api = _LogoutApi(() async {});
 
-    await revokeAndSignOut(api: api, tokens: tokens);
+    await revokeAndSignOut(
+      api: api,
+      tokens: tokens,
+      releaseDevice: () async {},
+    );
     await Future<void>.delayed(Duration.zero);
 
     expect(events, [AuthEvent.signedOut]);

@@ -12,10 +12,15 @@ import 'package:myungli_diary/core/api/token_store.dart';
 ///
 /// server가 이미 거부한 토큰(refresh 거부, `getMe` 401)에는 폐기할 것이 없으므로
 /// [TokenStore.signOut]을 바로 씁니다.
+///
+/// 알림 기기 해제([releaseDevice], 던지지 않음)는 server 로그아웃 **전에** 부릅니다. 해제는
+/// bearer 요청이라 토큰을 폐기한 뒤에는 보낼 수 없습니다(계약 `deleteDevice`, #347 ②).
 Future<void> revokeAndSignOut({
   required DefaultApi api,
   required TokenStore tokens,
+  required Future<void> Function() releaseDevice,
 }) async {
+  await releaseDevice();
   await revokeStoredRefreshToken(api: api, tokens: tokens);
   // `logout`은 bearer 요청이라, access token이 만료됐고 refresh가 거부되면 interceptor가
   // 이미 로그아웃했을 수 있습니다. 그때 signedOut을 두 번 내지 않습니다.

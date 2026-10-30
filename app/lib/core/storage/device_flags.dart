@@ -56,6 +56,11 @@ final class DeviceFlagsStore {
   /// [key]에 [value]를 씁니다. 같은 키면 덮어씁니다.
   Future<void> writeBool(String key, {required bool value}) =>
       writeString(key, value: value ? _trueValue : _falseValue);
+
+  /// [key]를 지웁니다. 없으면 아무것도 하지 않습니다.
+  Future<void> remove(String key) => (_database.delete(
+    _database.deviceFlags,
+  )..where((t) => t.key.equals(key))).go();
 }
 
 /// 기기 플래그 저장소.

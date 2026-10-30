@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/entry/device_registrar.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/entry/sign_out.dart';
@@ -307,6 +308,9 @@ void main() {
       () => revokeAndSignOut(
         api: container.read(restClientProvider),
         tokens: container.read(tokenStoreProvider),
+        releaseDevice: container
+            .read(deviceRegistrarProvider)
+            .releaseForSignOut,
       ),
     );
     await _settle(tester);
