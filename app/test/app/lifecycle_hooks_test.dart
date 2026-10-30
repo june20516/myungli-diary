@@ -6,6 +6,8 @@ import 'package:myungli_diary/app/entry/entry_state.dart';
 import 'package:myungli_diary/app/myungli_app.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 
 import '../support/app_harness.dart';
@@ -135,6 +137,33 @@ void main() {
     await settleTimezoneSync(tester, container);
     expect(server.bodies, [
       {'currentTimezone': 'Asia/Tokyo'},
+    ]);
+  });
+
+  testWidgets('아침 알림 채널 이름은 앱 언어를 따르고 언어가 바뀌면 다시 만든다', (tester) async {
+    final channels = FakeNotificationChannels();
+    final (container, _, _) = await setUpSync(
+      tester,
+      device: 'Asia/Seoul',
+      overrides: [notificationChannelsProvider.overrideWithValue(channels)],
+    );
+    Widget app(Locale locale) => UncontrolledProviderScope(
+      container: container,
+      child: Localizations(
+        locale: locale,
+        delegates: AppLocalizations.localizationsDelegates,
+        child: const AppLifecycleHooks(child: SizedBox()),
+      ),
+    );
+    await tester.pumpWidget(app(const Locale('ko')));
+    await tester.pump();
+    await tester.pumpWidget(app(const Locale('ja')));
+    await tester.pump();
+    await settleTimezoneSync(tester, container);
+
+    expect(channels.morningNames, [
+      lookupAppLocalizations(const Locale('ko')).systemPushChannelMorning,
+      lookupAppLocalizations(const Locale('ja')).systemPushChannelMorning,
     ]);
   });
 }

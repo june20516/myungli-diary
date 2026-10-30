@@ -15,6 +15,7 @@ import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
+import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/share.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
@@ -174,6 +175,18 @@ final class FakeAppCheck implements AppCheck {
 
   @override
   Future<String?> token() async => tokenValue;
+}
+
+/// 알림 채널 대역. 만든 아침 채널 이름을 기록합니다.
+final class FakeNotificationChannels implements NotificationChannels {
+  /// 빈 기록으로 시작합니다.
+  new();
+
+  /// [ensureMorning]에 받은 이름(부른 차례대로).
+  final morningNames = <String>[];
+
+  @override
+  Future<void> ensureMorning(String name) async => morningNames.add(name);
 }
 
 /// 푸시 대역. 사건은 [addOpen]·[addTokenRefresh]로 넣습니다.

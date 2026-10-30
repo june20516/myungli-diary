@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/nonce.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/core/platform/push.dart';
+import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/share.dart';
 import 'package:myungli_diary/core/platform/social_auth.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
@@ -46,6 +47,12 @@ final appleWebAuthProvider = Provider<AppleWebAuth>(
 /// 푸시 알림.
 final pushMessagingProvider = Provider<PushMessaging>(
   (ref) => FakePushMessaging(),
+);
+
+/// 알림 채널. 기본은 대역이고, http 모드 부팅이 실제 구현으로 바꿉니다(플러그인을
+/// fake 모드와 테스트에서 부르지 않게).
+final notificationChannelsProvider = Provider<NotificationChannels>(
+  (ref) => FakeNotificationChannels(),
 );
 
 /// 비정상 종료 보고.

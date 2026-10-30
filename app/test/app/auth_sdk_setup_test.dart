@@ -12,10 +12,12 @@ import 'package:myungli_diary/core/platform/auth_config.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/firebase_app_check.dart';
 import 'package:myungli_diary/core/platform/firebase_crash_reporter.dart';
+import 'package:myungli_diary/core/platform/firebase_push.dart';
 import 'package:myungli_diary/core/platform/google_auth.dart';
 import 'package:myungli_diary/core/platform/kakao_auth.dart';
 import 'package:myungli_diary/core/platform/line_auth.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/core/platform/push_channel.dart';
 
 AuthConfig _config({String kakao = '', String line = ''}) => AuthConfig(
   kakaoNativeAppKey: kakao,
@@ -44,7 +46,7 @@ void main() {
       expect(container.read(appleWebAuthProvider), isA<WebAuthAppleWebAuth>());
     });
 
-    test('http는 App Check와 Crashlytics를 실제 구현으로, fake는 대역', () {
+    test('http는 App Check, Crashlytics, FCM, 알림 채널을 실제 구현으로, fake는 대역', () {
       final http = ProviderContainer(
         overrides: realPlatformOverrides(ApiMode.http),
       );
@@ -57,6 +59,16 @@ void main() {
       expect(fake.read(appCheckProvider), isA<FakeAppCheck>());
       expect(http.read(crashReporterProvider), isA<FirebaseCrashReporter>());
       expect(fake.read(crashReporterProvider), isA<FakeCrashReporter>());
+      expect(http.read(pushMessagingProvider), isA<FirebasePushMessaging>());
+      expect(fake.read(pushMessagingProvider), isA<FakePushMessaging>());
+      expect(
+        http.read(notificationChannelsProvider),
+        isA<LocalNotificationChannels>(),
+      );
+      expect(
+        fake.read(notificationChannelsProvider),
+        isA<FakeNotificationChannels>(),
+      );
     });
 
     test('Google adapter는 실행 플랫폼이 iOS인지 압니다', () {

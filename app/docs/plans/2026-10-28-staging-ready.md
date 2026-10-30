@@ -6,7 +6,7 @@
 
 **Architecture:** 실제 SDK는 지금까지처럼 작은 경계 interface 뒤에 두고 분기는 adapter에서 테스트합니다(spec `2026-10-21-real-login-design.md` §3). 끼우는 곳은 `realPlatformOverrides(ApiMode.http)` 하나이고, fake 모드는 대역 그대로입니다. Firebase 초기화(A93)가 실패해도 앱은 뜨므로, Firebase를 쓰는 adapter는 초기화되지 않은 상태에서도 앱을 죽이지 않습니다.
 
-**Tech Stack:** Flutter 3.47.7, Riverpod 3.x, `firebase_core` 5.1.0(이미 있음), 새 패키지 `firebase_app_check` 0.5.1, `firebase_crashlytics` 6.0.1, `firebase_messaging` 17.0.1, `flutter_local_notifications` 22.3.3, `share_plus`(최신 안정판, Task 6에서 고정).
+**Tech Stack:** Flutter 3.47.7, Riverpod 3.x, `firebase_core` 4.15.2(5.1.0에서 낮춤, A96), `firebase_app_check` 0.4.9, `firebase_crashlytics` 5.4.1, `firebase_messaging` 16.7.1, `flutter_local_notifications` 22.3.3, `share_plus`(최신 안정판, Task 6에서 고정).
 
 **Spec:** 별도 spec 없음. 근거는 결정과 계약입니다: app A81·A84·A92·A93, D62(아침 알림), D64(크래시 기록에 개인정보 금지), S92·#347 ②(알림 기기 호출 시점), #603(FCM 메시지 형식, app 답), #614·W46(채널 이름 `systemPushChannelMorning`), REST `registerDevice`·`deleteDevice`, `docs/external-prep.md` E3·E5·E8.
 
@@ -45,6 +45,10 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 | RevenueCat 공개 SDK 키, 상품 id는 아직 없음(상품은 E15 뒤) | #632, 대장 E12 |
 | AdMob은 계정 검증 끝, 앱 등록 전(광고 단위 id 없음) | 대장 E13(origin/main), #539 2026-10-29 |
 | 패키지: `firebase_crashlytics` 6.0.1, `firebase_messaging` 17.0.1(둘 다 `firebase_core` ^5.1.0), `flutter_local_notifications` 22.3.3, `share_plus` 13.3.1 | pub.dev |
+| `firebase_core` 5.x(iOS SDK 13.x, gtm 4 이상)와 `google_sign_in_ios` 6.3.8(GoogleSignIn 9.x, gtm 3.x)은 iOS SPM에서 함께 풀리지 않음. #630 병합 뒤 main iOS 빌드가 깨져 있었음. `firebase_core` 4.15.2(iOS SDK 12.19.3, gtm 3.4.1..<6)와 그 줄의 App Check 0.4.9(`debugToken` 있음), Crashlytics 5.4.1, Messaging 16.7.1로 낮추면 iOS, Android 모두 빌드됨 | 2026-10-30 `flutter build ios` 출력, firebase-ios-sdk Package.swift 12.x·13.0.0, `google_sign_in_ios` Package.swift |
+| `flutter_local_notifications`는 Android core library desugaring을 요구 | 2026-10-30 `checkDebugAarMetadata` 오류 |
+| 앱이 꺼진 상태(force-stop 아님)에서 FCM 알림은 채널 `morning`, tag `morning`으로 표시되고 누르면 앱이 오늘 화면으로 열림. 네이티브 기본 FirebaseApp은 초기화되지 않아(A93) 전달 통계(GA, BigQuery)만 빠짐 | 2026-10-30 에뮬레이터, FCM v1 전송(Task 4 Step 0) |
+| 채널 `morning`은 앱 언어 이름(ko)과 중요도 3(default)으로 만들어짐 | 2026-10-30 `dumpsys notification` |
 | Crashlytics Android SDK 21.0.1은 Gradle plugin 없이 Dart 초기화 뒤 build ID 오류 없이 초기화되고 설정을 받아 옴. 기록은 다음 실행 때 DataTransport로 전송됨(`successfully enqueued`, Task 3 Step 4) | 2026-10-30 에뮬레이터 logcat(Task 3 Step 0, 4) |
 | Crashlytics Android 공식 설정은 `com.google.firebase.crashlytics` Gradle plugin과 `google-services` plugin을 씀. 이 앱은 둘 다 없음(A93) | Firebase 문서 crashlytics/android/get-started, `android/app/build.gradle.kts` |
 
