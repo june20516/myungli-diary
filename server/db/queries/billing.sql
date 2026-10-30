@@ -192,3 +192,22 @@ UPDATE purchases
 SET account_id = @to_account_id,
     merged_at = @now::timestamptz
 WHERE account_id = @from_account_id;
+
+-- name: LockActiveAccountForTestGrant :one
+-- staging 테스트 광고 제거 기간(S125)을 다룰 계정의 상태입니다. 행이 없으면 없는 계정입니다.
+-- FOR SHARE로 잡아 계정 삭제(FOR UPDATE)와 직렬화하므로, 지우는 중인 계정에 기간이 남지 않습니다.
+SELECT (status = 'active')::boolean AS active FROM accounts WHERE id = @account_id FOR SHARE;
+
+-- name: InsertTestGrant :exec
+-- staging 테스트 광고 제거 기간 한 행입니다(S125). source_ref는 부여마다 새로 만든 id입니다.
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES (@account_id, @entitlement, 'test_grant', @source_ref, @starts_at, @expires_at);
+
+-- name: RevokeTestGrants :execrows
+-- 계정의 끝나지 않은 테스트 광고 제거 기간을 지금 끊습니다(S125).
+UPDATE entitlement_grants
+SET revoked_at = @now::timestamptz
+WHERE account_id = @account_id
+  AND source = 'test_grant'
+  AND revoked_at IS NULL
+  AND expires_at > @now::timestamptz;

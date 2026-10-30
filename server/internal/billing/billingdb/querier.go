@@ -31,6 +31,8 @@ type Querier interface {
 	InsertRewardEvent(ctx context.Context, arg InsertRewardEventParams) (int64, error)
 	// 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
 	InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedAdGrantParams) error
+	// staging 테스트 광고 제거 기간 한 행입니다(S125). source_ref는 부여마다 새로 만든 id입니다.
+	InsertTestGrant(ctx context.Context, arg InsertTestGrantParams) error
 	// 계정이 주인인 구매와 이 계정의 광고 제거권 사용 구간입니다(구매 목록, spec §5.5). 최근 구매 먼저입니다.
 	// 한 구매의 권한 행은 같은 구간이라 이 계정의 행 하나만 봅니다(권한 이름 순 첫 행). 권한을 고정하지 않으므로 insight만 주는
 	// 기간 상품도 구간이 나옵니다(spec §5.6). 구간 행은 이 계정의 것만 잇고(합친 구매의 B 구간 제외),
@@ -46,6 +48,9 @@ type Querier interface {
 	// 계정의 취소되지 않은 광고 제거권 구간과 그 구매의 환불 여부입니다(rechainFrom, S108).
 	// 순서는 권한, 구매 시각, 구매 id입니다. 장부 이전 구간은 00016이 지웠으므로 모든 구간에 장부 행이 있습니다.
 	ListPassSegments(ctx context.Context, accountID uuid.UUID) ([]ListPassSegmentsRow, error)
+	// staging 테스트 광고 제거 기간(S125)을 다룰 계정의 상태입니다. 행이 없으면 없는 계정입니다.
+	// FOR SHARE로 잡아 계정 삭제(FOR UPDATE)와 직렬화하므로, 지우는 중인 계정에 기간이 남지 않습니다.
+	LockActiveAccountForTestGrant(ctx context.Context, accountID uuid.UUID) (bool, error)
 	// 이벤트 처리를 마쳤다고 찍습니다. 이미 찍혀 있으면 처음 시각을 그대로 둡니다.
 	MarkBillingEventProcessed(ctx context.Context, arg MarkBillingEventProcessedParams) error
 	// 구매를 환불로 적습니다. 이미 환불된 구매는 처음 시각을 그대로 두고 0행입니다.
@@ -66,6 +71,8 @@ type Querier interface {
 	// 행을 취소합니다. 이미 취소된 행의 revoked_at은 그대로 둡니다(rechainFrom의 환불 구간, S108).
 	// account_id 조건은 호출한 계정의 행만 취소하게 하는 안전장치입니다.
 	RevokeGrant(ctx context.Context, arg RevokeGrantParams) error
+	// 계정의 끝나지 않은 테스트 광고 제거 기간을 지금 끊습니다(S125).
+	RevokeTestGrants(ctx context.Context, arg RevokeTestGrantsParams) (int64, error)
 	// 구간의 시작·끝을 옮깁니다(rechainFrom의 대기 구간). 취소된 구간은 옮기지 않습니다.
 	SetGrantPeriod(ctx context.Context, arg SetGrantPeriodParams) error
 }

@@ -51,6 +51,37 @@ func TestServe_AssemblesTestLogin(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
 }
 
+// 테스트 로그인을 켜면 같은 비밀로 테스트 광고 제거 기간(S125)도 켜져, 받은 계정의 getEntitlements가 광고 제거 상태입니다.
+func TestServe_AssemblesTestGrant(t *testing.T) {
+	const secret = "staging-test-login-secret-0123456789" //nolint:gosec // 테스트 값이며 실제 자격 증명이 아닙니다
+	env := newFlowEnvWith(t, func(deps *serverDeps) {
+		deps.TestLogin = testLoginSettings{secret: secret}
+	})
+	send := func(method, path, body string) flowResponse {
+		req, err := http.NewRequestWithContext(t.Context(), method, env.url+path, strings.NewReader(body))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Test-Login-Secret", secret)
+		return env.send(req)
+	}
+	login := send(http.MethodPost, "/test/v1/auth/login", `{"label":"grant01"}`)
+	require.Equal(t, http.StatusOK, login.status, "로그인 본문: %v", login.body)
+	access, _ := login.tokens(t)
+	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
+	require.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
+	me := env.do(http.MethodGet, "/v1/me", access, nil)
+	require.Equal(t, http.StatusOK, me.status, "me 본문: %v", me.body)
+	accountID, _ := me.body["accountId"].(string)
+
+	grant := send(http.MethodPost, "/test/v1/billing/ad-free", `{"accountId":"`+accountID+`","days":30}`)
+	require.Equal(t, http.StatusOK, grant.status, "부여 본문: %v", grant.body)
+
+	entitlements := env.do(http.MethodGet, "/v1/me/entitlements", access, nil)
+	require.Equal(t, http.StatusOK, entitlements.status, "권한 본문: %v", entitlements.body)
+	adFree, _ := entitlements.body["adFree"].(map[string]any)
+	assert.Equal(t, true, adFree["active"])
+}
+
 // staging 빌드는 APP_ENV가 prod면 시작하지 않습니다. 테스트 로그인이 든 바이너리가 prod에 배포되는 것을 막습니다.
 func TestServe_StagingBuildRefusesProdEnv(t *testing.T) {
 	env := testAuthEnv(t)

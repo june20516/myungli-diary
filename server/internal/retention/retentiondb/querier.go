@@ -37,6 +37,8 @@ type Querier interface {
 	DeleteRewardEventsBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	// 보상형 광고 구간은 보상 기록이라 1년 기준이고, 끝난 시각으로 셉니다.
 	DeleteRewardGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	// staging 테스트 광고 제거 기간(S125)은 끝나거나 회수된 뒤 1년이 지나면 지웁니다. 회수한 행은 원래 만료가 멀어도 회수 시각으로 셉니다.
+	DeleteTestGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	// 복구 기간이 지난 지운 일기의 본문을 비웁니다(S6). 가이드 질문과 태그는 날짜 기록(diary_days)에 남깁니다(S95).
 	PurgeDeletedDiaries(ctx context.Context, arg PurgeDeletedDiariesParams) (int64, error)
 	PurgeDeletedSchedules(ctx context.Context, arg PurgeDeletedSchedulesParams) (int64, error)
