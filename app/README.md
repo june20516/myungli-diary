@@ -28,7 +28,7 @@ VS Code에서 `.vscode/launch.json`의 구성을 고릅니다.
 | `http` | `--dart-define=API_MODE=http --dart-define=API_BASE_URL=http://localhost:8080` |
 
 터미널에서는 다음과 같습니다. `API_MODE`를 생략하면 `http`입니다. release 빌드에서는 fake 모드를 쓸 수 없습니다.
-실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. 값이 빈 제공자는 버튼을 눌러도 로그인하지 않고 실패로 알립니다(`ProviderNotConfigured`).
+실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. staging이나 prod server를 쓰는 빌드는 그 뒤에 `--dart-define-from-file=config/env/<staging|prod>.json`(API 주소, Firebase 환경, App Link 호스트, Apple 복귀 주소, A97)을 하나 더 붙입니다. 환경 파일 없이 만든 빌드는 Android Apple 로그인이 `ProviderNotConfigured`로 실패합니다(로컬 server 개발은 Apple 웹 복귀를 받을 수 없음).
 
 ```
 flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
@@ -43,7 +43,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   # $D/key.properties: storeFile=upload-keystore.jks, storePassword=…, keyAlias=upload, keyPassword=…
   chmod 600 "$D"/*
   flutter build appbundle --release --dart-define-from-file=config/auth.json \
-    --dart-define=API_BASE_URL=https://api-staging.myungli-diary.app --dart-define=FIREBASE_ENV=staging
+    --dart-define-from-file=config/env/staging.json
   # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. Play에 올릴 때마다 `pubspec.yaml`의 빌드 번호(`+N`)를 올립니다. 앱 서명 키는 Play가 보관합니다(E8).
