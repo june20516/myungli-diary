@@ -34,11 +34,12 @@ import 'package:myungli_diary/core/platform/line_auth.dart';
 import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
+import 'package:myungli_diary/core/platform/revenuecat_purchases.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
 import 'package:myungli_diary/core/platform/ump_ad_consent.dart';
-import 'package:myungli_diary/core/platform/unavailable_store.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
+import 'package:myungli_diary/features/purchase/application/purchase_providers.dart';
 
 /// fake 모드에서 시나리오를 정하지 않았을 때 쓰는 시나리오.
 const defaultScenarioId = 'new-user';
@@ -173,7 +174,12 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
     appCheckProvider.overrideWithValue(const FirebaseAppCheckAdapter()),
     crashReporterProvider.overrideWithValue(const FirebaseCrashReporter()),
     pushMessagingProvider.overrideWithValue(const FirebasePushMessaging()),
-    purchasesProvider.overrideWithValue(const UnavailablePurchases()),
+    purchasesProvider.overrideWith(
+      (ref) => RevenueCatPurchases(
+        apiKey: revenueCatApiKey(platform: ref.watch(targetPlatformProvider)),
+        productIds: ref.watch(adFreeProductIdsProvider),
+      ),
+    ),
     adConsentProvider.overrideWith(
       (ref) => UmpAdConsent(
         isIOS: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,

@@ -229,6 +229,31 @@ func (q *Queries) InsertRewardedAdGrant(ctx context.Context, arg InsertRewardedA
 	return err
 }
 
+const insertTestGrant = `-- name: InsertTestGrant :exec
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES ($1, $2, 'test_grant', $3, $4, $5)
+`
+
+type InsertTestGrantParams struct {
+	AccountID   uuid.UUID
+	Entitlement string
+	SourceRef   string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+}
+
+// staging 테스트 광고 제거 기간 한 행입니다(S125). source_ref는 부여마다 새로 만든 id입니다.
+func (q *Queries) InsertTestGrant(ctx context.Context, arg InsertTestGrantParams) error {
+	_, err := q.db.Exec(ctx, insertTestGrant,
+		arg.AccountID,
+		arg.Entitlement,
+		arg.SourceRef,
+		arg.StartsAt,
+		arg.ExpiresAt,
+	)
+	return err
+}
+
 const listAccountPurchases = `-- name: ListAccountPurchases :many
 SELECT p.id, p.product_id, p.purchased_at, p.refunded_at,
        g.starts_at AS segment_starts_at, g.expires_at AS segment_expires_at, g.revoked_at AS segment_revoked_at
@@ -439,6 +464,19 @@ func (q *Queries) ListPassSegments(ctx context.Context, accountID uuid.UUID) ([]
 	return items, nil
 }
 
+const lockActiveAccountForTestGrant = `-- name: LockActiveAccountForTestGrant :one
+SELECT (status = 'active')::boolean AS active FROM accounts WHERE id = $1 FOR SHARE
+`
+
+// staging 테스트 광고 제거 기간(S125)을 다룰 계정의 상태입니다. 행이 없으면 없는 계정입니다.
+// FOR SHARE로 잡아 계정 삭제(FOR UPDATE)와 직렬화하므로, 지우는 중인 계정에 기간이 남지 않습니다.
+func (q *Queries) LockActiveAccountForTestGrant(ctx context.Context, accountID uuid.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, lockActiveAccountForTestGrant, accountID)
+	var active bool
+	err := row.Scan(&active)
+	return active, err
+}
+
 const markBillingEventProcessed = `-- name: MarkBillingEventProcessed :exec
 UPDATE billing_events
 SET processed_at = $1::timestamptz
@@ -632,6 +670,29 @@ type RevokeGrantParams struct {
 func (q *Queries) RevokeGrant(ctx context.Context, arg RevokeGrantParams) error {
 	_, err := q.db.Exec(ctx, revokeGrant, arg.Now, arg.ID, arg.AccountID)
 	return err
+}
+
+const revokeTestGrants = `-- name: RevokeTestGrants :execrows
+UPDATE entitlement_grants
+SET revoked_at = $1::timestamptz
+WHERE account_id = $2
+  AND source = 'test_grant'
+  AND revoked_at IS NULL
+  AND expires_at > $1::timestamptz
+`
+
+type RevokeTestGrantsParams struct {
+	Now       time.Time
+	AccountID uuid.UUID
+}
+
+// 계정의 끝나지 않은 테스트 광고 제거 기간을 지금 끊습니다(S125).
+func (q *Queries) RevokeTestGrants(ctx context.Context, arg RevokeTestGrantsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeTestGrants, arg.Now, arg.AccountID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const setGrantPeriod = `-- name: SetGrantPeriod :exec

@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 
 /// 로그인 제공자의 공개 식별자(결정 A81).
 ///
-/// 값은 비밀이 아니고 앱 바이너리에 그대로 들어갑니다. 출처는 `config/auth.json` 한 곳이고,
-/// 실행·빌드 명령의 `--dart-define-from-file=config/auth.json`으로 들어옵니다. 값이 빈
-/// 제공자는 adapter가 `ProviderNotConfigured`를 던집니다(버튼은 숨기지 않음).
+/// 값은 비밀이 아니고 앱 바이너리에 그대로 들어갑니다. 제공자 식별자는 `config/auth.json`,
+/// server 주소를 따르는 [appleRedirectUri]와 [appLinkHost]는 환경 파일
+/// `config/env/<staging|prod>.json`(A97)이 출처이고, 실행·빌드 명령의
+/// `--dart-define-from-file`로 들어옵니다. 값이 빈 제공자는 adapter가
+/// `ProviderNotConfigured`를 던집니다(버튼은 숨기지 않음).
 @immutable
 final class AuthConfig {
   /// 값을 직접 담습니다(테스트용). 앱은 [fromEnvironment]를 씁니다.
@@ -18,7 +20,7 @@ final class AuthConfig {
     required this.appLinkHost,
   });
 
-  /// 빌드에 넘긴 `config/auth.json` 값. 넘기지 않았으면 모두 빈 값입니다.
+  /// 빌드에 넘긴 `config/auth.json`과 환경 파일 값. 넘기지 않았으면 빈 값입니다.
   static const AuthConfig fromEnvironment = AuthConfig(
     kakaoNativeAppKey: String.fromEnvironment('KAKAO_NATIVE_APP_KEY'),
     lineChannelId: String.fromEnvironment('LINE_CHANNEL_ID'),

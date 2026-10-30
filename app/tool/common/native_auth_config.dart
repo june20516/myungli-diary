@@ -7,6 +7,27 @@ import 'dart:io';
 /// 로그인 제공자 공개 식별자 파일(app 기준 경로).
 const authConfigPath = 'config/auth.json';
 
+/// 환경(staging, prod)마다 다른 값 파일(app 기준 경로, A97). 실행·빌드 명령에
+/// `config/auth.json` 다음에 `--dart-define-from-file`로 붙입니다.
+String envConfigPath(String env) => 'config/env/$env.json';
+
+/// `config/auth.json`의 키: 환경과 상관없는 로그인 제공자 공개 식별자(A81).
+const providerIdentifierKeys = {
+  'KAKAO_NATIVE_APP_KEY',
+  'LINE_CHANNEL_ID',
+  'GOOGLE_IOS_CLIENT_ID',
+  'GOOGLE_SERVER_CLIENT_ID',
+  'APPLE_SERVICES_ID',
+};
+
+/// 환경 파일의 키: server 주소와 그 주소를 따르는 값(A97).
+const environmentKeys = {
+  'API_BASE_URL',
+  'FIREBASE_ENV',
+  'APP_LINK_HOST',
+  'APPLE_REDIRECT_URI',
+};
+
 /// 생성하는 iOS 빌드 설정 파일(app 기준 경로).
 const authXcconfigPath = 'ios/Flutter/Auth.xcconfig';
 

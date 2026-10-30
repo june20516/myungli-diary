@@ -1,0 +1,6 @@
+{
+  "API_BASE_URL": "https://api.myungli-diary.app",
+  "FIREBASE_ENV": "prod",
+  "APP_LINK_HOST": "api.myungli-diary.app",
+  "APPLE_REDIRECT_URI": "https://api.myungli-diary.app/v1/auth/apple/callback"
+}

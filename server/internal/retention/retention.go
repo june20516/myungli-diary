@@ -37,6 +37,8 @@ const (
 	PreviewUsageYears = 1
 	// RewardYears는 보상형 광고 기록(SSV 콜백과 보상 구간)의 보관 기간입니다.
 	RewardYears = 1
+	// TestGrantYears는 staging 테스트 광고 제거 기간(S125)을 끝난 뒤 남겨 두는 기간입니다. prod에는 이 행이 없습니다.
+	TestGrantYears = 1
 	// BillingYears는 결제 기록(webhook 수신, 구매 장부, 결제 구간)의 보관 기간입니다.
 	// 결제 동기화가 이보다 오래된 구매를 다시 적지 않도록 billing과 같은 값을 씁니다.
 	BillingYears = billing.RecordYears
@@ -74,6 +76,7 @@ func (s *Store) Steps() []Step {
 		{Name: "알림 기기", Run: s.before(InactiveDeviceTTL, s.q.DeleteInactiveDevicesSeenBefore)},
 		{Name: "미리보기 설치 해시", Run: s.yearsBefore(PreviewUsageYears, s.q.DeletePreviewUsageBefore)},
 		{Name: "보상 기록", Run: s.deleteRewardRecords},
+		{Name: "테스트 광고 제거 기간", Run: s.yearsBefore(TestGrantYears, s.q.DeleteTestGrantsEndedBefore)},
 		{Name: "결제 기록", Run: s.deleteBillingRecords},
 		{Name: "지운 일기", Run: s.purgeDeletedDiaries},
 		{Name: "지운 일정", Run: s.purgeDeletedSchedules},

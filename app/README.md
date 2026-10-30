@@ -28,7 +28,7 @@ VS Code에서 `.vscode/launch.json`의 구성을 고릅니다.
 | `http` | `--dart-define=API_MODE=http --dart-define=API_BASE_URL=http://localhost:8080` |
 
 터미널에서는 다음과 같습니다. `API_MODE`를 생략하면 `http`입니다. release 빌드에서는 fake 모드를 쓸 수 없습니다.
-실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. 값이 빈 제공자는 버튼을 눌러도 로그인하지 않고 실패로 알립니다(`ProviderNotConfigured`).
+실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. staging이나 prod server를 쓰는 빌드는 그 뒤에 `--dart-define-from-file=config/env/<staging|prod>.json`(API 주소, Firebase 환경, App Link 호스트, Apple 복귀 주소, A97)을 하나 더 붙입니다. 환경 파일 없이 만든 빌드는 Android Apple 로그인이 `ProviderNotConfigured`로 실패합니다(로컬 server 개발은 Apple 웹 복귀를 받을 수 없음).
 
 ```
 flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
@@ -43,10 +43,24 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   # $D/key.properties: storeFile=upload-keystore.jks, storePassword=…, keyAlias=upload, keyPassword=…
   chmod 600 "$D"/*
   flutter build appbundle --release --dart-define-from-file=config/auth.json \
-    --dart-define=API_BASE_URL=https://api-staging.myungli-diary.app --dart-define=FIREBASE_ENV=staging
+    --dart-define-from-file=config/env/staging.json
   # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. Play에 올릴 때마다 `pubspec.yaml`의 빌드 번호(`+N`)를 올립니다. 앱 서명 키는 Play가 보관합니다(E8).
+* **빌드 모드와 환경 값(D99 ①):** 둘은 따로입니다. 빌드 모드는 `flutter run`(debug)과 `flutter build --release`(release), 환경 값은 붙이는 환경 파일(`config/env/<staging|prod>.json`, A97)입니다. staging은 빌드 모드가 아니라 환경 값이라 debug와 release 모두 staging server에 붙을 수 있습니다.
+
+  | 빌드 모드 \ 환경 | 환경 파일 없음(로컬 server) | staging | prod |
+  | --- | --- | --- | --- |
+  | debug | 개발. App Check debug provider, RevenueCat Test Store 키 | 결제 흐름 전체 시험(아래 명령). App Check debug token(K4), Test Store 키 | 쓰지 않음 |
+  | release | 쓰지 않음 | T1 테스터(Play 내부 테스트). Play Integrity·DeviceCheck, 플랫폼 키라 Test Store 불가(결제 없이 광고 제거권은 #655) | 출시 |
+
+  RevenueCat 키는 빌드 모드로 고릅니다(A98): debug는 Test Store 키, release는 Android `goog_…`, iOS `appl_…`이고, release 바이너리에는 Test Store 키 문자열이 들어가지 않습니다(SDK가 release에서 Test Store 키를 보면 앱을 종료함). App Check provider도 같은 축입니다(debug이고 staging이면 debug provider, A95).
+* **결제 시험(debug + staging, D99 ④):** staging server가 결제를 켠 뒤(server S123) 다음으로 실행합니다. `AD_FREE_PRODUCT_IDS`는 **스토어 상품 id**(`getProducts`로 찾는 값, 세 스토어가 같은 값)입니다. server의 같은 이름 설정은 RevenueCat 상품 id(`prod…`, S124)라 값이 다릅니다.
+  ```
+  flutter run --dart-define-from-file=config/auth.json --dart-define-from-file=config/env/staging.json \
+    --dart-define-from-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/staging/dart-defines.json" \
+    --dart-define=AD_FREE_PRODUCT_IDS=<스토어 상품 id>
+  ```
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |

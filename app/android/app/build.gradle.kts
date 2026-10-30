@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -13,6 +14,18 @@ plugins {
 val authConfig = JsonSlurper().parse(file("../../config/auth.json")) as Map<String, String>
 
 fun authValue(key: String): String = authConfig[key]?.trim().orEmpty()
+
+// 환경 파일(config/env/<env>.json, 결정 A97)의 값. Flutter가 --dart-define-from-file 값을
+// -Pdart-defines(항목마다 "키=값"의 base64, 쉼표로 이음)로 넘깁니다. 넘기지 않았으면 빈 값입니다.
+val dartDefines: Map<String, String> =
+    (findProperty("dart-defines") as String?).orEmpty()
+        .split(',')
+        .filter { it.isNotBlank() }
+        .map { String(Base64.getDecoder().decode(it), Charsets.UTF_8) }
+        .filter { '=' in it }
+        .associate { it.substringBefore('=') to it.substringAfter('=') }
+
+fun envValue(key: String): String = dartDefines[key]?.trim().orEmpty()
 
 // release 업로드 키(결정 A94). 저장소 밖 보관 폴더(D98, docs/local-values.md K1)에서 읽습니다.
 // 파일이 없으면 release도 debug 키로 서명합니다(로컬 확인용, Play에 올릴 수 없음).
@@ -62,7 +75,7 @@ android {
         manifestPlaceholders["kakaoScheme"] =
             if (kakaoKey.isEmpty()) "kakao-unconfigured" else "kakao$kakaoKey"
         manifestPlaceholders["appLinkHost"] =
-            authValue("APP_LINK_HOST").ifEmpty { "unconfigured.invalid" }
+            envValue("APP_LINK_HOST").ifEmpty { "unconfigured.invalid" }
     }
 
     testOptions {
@@ -101,6 +114,13 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+// LINE SDK 5.11이 끌어오는 kotlin-android-extensions-runtime 1.7.20의 kotlinx.android.parcel은
+// RevenueCat이 끌어오는 kotlin-parcelize-runtime 2.x에 함께 들어 있어 클래스가 겹칩니다(A98).
+// LINE SDK와 그 플러그인은 이 라이브러리의 클래스를 참조하지 않습니다.
+configurations.configureEach {
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
 }
 
 dependencies {

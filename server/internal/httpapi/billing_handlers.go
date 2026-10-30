@@ -36,10 +36,19 @@ func toEntitlements(s billing.Status) gen.Entitlements {
 	}
 	if s.Insight.Active {
 		out.Insight.ExpiresAt = s.Insight.ExpiresAt
-		source := gen.InsightSource(s.Insight.Source)
+		source := contractSource(s.Insight.Source)
 		out.Insight.Source = &source
 	}
 	return out
+}
+
+// contractSource는 권한 출처를 계약 enum으로 바꿉니다. staging 테스트 광고 제거 기간(test_grant)은 계약 밖이라
+// 같은 권한인 ad_free_pass로 보냅니다(S125). 테스트임은 DB 출처에만 남습니다.
+func contractSource(source billing.Source) gen.InsightSource {
+	if source == billing.SourceTestGrant {
+		return gen.AdFreePass
+	}
+	return gen.InsightSource(source)
 }
 
 // ListPurchases는 계정이 주인인 구매를 최근 구매 먼저 돌려줍니다(S109).

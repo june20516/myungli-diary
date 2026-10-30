@@ -100,7 +100,7 @@ LINE·Google 제공자 허가는 app이 취소하지 않습니다(D95, §5.6).
 }
 ```
 
-* `APPLE_REDIRECT_URI`는 server 콜백 전체 주소입니다(`<API 주소>/v1/auth/apple/callback`). Apple Services ID에 등록한 값과 글자까지 같아야 합니다. `APP_LINK_HOST`는 server `APP_LINK_BASE`의 host입니다.
+* `APPLE_REDIRECT_URI`는 server 콜백 전체 주소입니다(`<API 주소>/v1/auth/apple/callback`). Apple Services ID에 등록한 값과 글자까지 같아야 합니다. `APP_LINK_HOST`는 server `APP_LINK_BASE`의 host입니다. (2026-10-30, A97) 이 두 값은 환경마다 달라 `config/env/<staging|prod>.json`으로 옮겼고, `auth.json`에는 나머지 다섯만 남습니다.
 * `GOOGLE_SERVER_CLIENT_ID`는 Google 웹 client id입니다. server가 id_token의 `aud`로 확인하는 값이라 server 설정과 같아야 합니다. Android는 이 값만 쓰고(패키지 이름·서명 지문을 Android client로 콘솔에 등록), iOS는 `GOOGLE_IOS_CLIENT_ID`도 씁니다.
 * **Dart:** 실행·빌드 명령에 `--dart-define-from-file=config/auth.json`을 붙입니다. 고칠 곳은 README 실행 명령, `tool/patrol_local.sh`, `app.yml`의 빌드·E2E 단계입니다.
 * **Android:** `app/build.gradle.kts`가 같은 JSON을 읽어 `manifestPlaceholders`의 `kakaoScheme`(`kakao<키>`)과 `appLinkHost`를 채웁니다. 값이 비면 어떤 링크와도 맞지 않는 `unconfigured.invalid`(scheme은 `kakao-unconfigured`)를 넣어 manifest가 항상 유효하게 합니다. LINE·Google은 Android manifest 값이 필요 없습니다.
