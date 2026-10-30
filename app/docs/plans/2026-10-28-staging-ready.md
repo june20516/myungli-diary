@@ -30,20 +30,28 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 | staging debug token은 콘솔 두 앱에 등록, 보관 `$D/app/staging/dart-defines.json` | #659, `docs/local-values.md` K4 |
 | Firebase 네이티브 설정 파일은 빌드가 읽지 않음(Dart 설정으로 초기화) | A93, K5 |
 | `CrashSummary`에는 `toString`이 없음 | `lib/core/platform/crash_reporter.dart` |
-| FCM 메시지: 제목 없음, `data.kind`(`morning`, 열린 값), `data.date`, Android 채널 `morning`, tag·collapse-id `morning` | #603 app 답 |
+| FCM 메시지: 제목 없음, `data.kind`(`morning`, 열린 값), `data.date`, Android 채널 `morning`. tag·collapse-id `morning`은 app이 제안했고 server 답은 아직 없음(앱 코드 영향 없음) | #603 app 답 |
 | 기기 호출: 실행 때와 토큰이 바뀔 때 `registerDevice`, 바뀌면 새 등록 뒤 이전 id `deleteDevice`, 로그아웃 전 `deleteDevice`(동의 전에도 가능), 404 `device.not_found`, 계정 삭제는 부르지 않음 | `server/api/openapi.yaml` deleteDevice·registerDevice, #347 ② |
-| 기기 id 저장 키 `registeredDeviceIdKey`(`push.deviceId`), 처음 등록은 설정과 notify-ask | `lib/core/storage/device_flags.dart`, `settings_controller.dart` |
+| 기기 id 저장 키 `registeredDeviceIdKey`(`push.deviceId`). `DeviceRepository.register`는 성공하면 새 id로 덮어씀. 처음 등록은 notify-ask(새 프로필을 만들 때만)와 설정(꺼짐에서 켤 때, 저장된 id가 없을 때만) | `device_flags.dart:7-25`, `device_repository.dart:40`, `settings_controller.dart:62,131`, `notify_ask_controller.dart` |
+| 프로필 알림 설정은 `Profile.notification.status`(`NotificationSettingStatusEnum`) | `lib/core/api/gen/model/notification_setting.dart` |
+| fake server는 fixture가 없는 operation에 501 `not_implemented`(ProblemError, AppError라 보고 안 함). `deleteDevice` fixture는 없음, `registerDevice`는 `new-user`, `notify-register-unavailable`에만. 204 fixture는 `{"status": 204}` | `fake_server.dart:95-110`, `fixtures/` |
+| `revokeAndSignOut({api, tokens})`는 Ref 없는 최상위 함수, 호출부 `settings_controller.dart:83`, 테스트 `test/app/sign_out_test.dart`, `test/flows/sign_out_flow_test.dart`, `test/flows/settings_flow_test.dart` | 코드 |
+| 광고 제거 화면은 상품이 비면 `UnexpectedError`로 오류 상태(다시 시도)를 그림. 보상형은 `loadRewarded`가 null이면 `lockedNoAd` | `ad_free_controller.dart:23-25`, `ad_free_screen.dart:96-102`, `evidence_unlock_controller.dart:419-433` |
+| `adsProvider`는 `realPlatformOverrides`가 아니라 provider 안에서 모드로 분기(http는 지금 `FakeAds`) | `platform_providers.dart:62-67` |
+| `AppLifecycleHooks.initState`가 `push.opens.listen`을 try 없이 부름 | `myungli_app.dart:83-84` |
+| 앱은 iPad를 지원(`TARGETED_DEVICE_FAMILY = "1,2"`) | `ios/Runner.xcodeproj/project.pbxproj` |
+| `tool/patrol_local.sh`는 늘 `API_MODE=fake`라 Patrol은 실제 adapter를 거치지 않음 | `patrol_local.sh:166` |
 | iOS `Runner.entitlements`에 `aps-environment` 없음 | 파일 |
 | RevenueCat 공개 SDK 키, 상품 id는 아직 없음(상품은 E15 뒤) | #632, 대장 E12 |
-| AdMob은 계정 단계 | 대장 E13, #539 |
+| AdMob은 계정 검증 끝, 앱 등록 전(광고 단위 id 없음) | 대장 E13(origin/main), #539 2026-10-29 |
 | 패키지: `firebase_crashlytics` 6.0.1, `firebase_messaging` 17.0.1(둘 다 `firebase_core` ^5.1.0), `flutter_local_notifications` 22.3.3, `share_plus` 13.3.1 | pub.dev |
 | Crashlytics Android 공식 설정은 `com.google.firebase.crashlytics` Gradle plugin과 `google-services` plugin을 씀. 이 앱은 둘 다 없음(A93) | Firebase 문서 crashlytics/android/get-started, `android/app/build.gradle.kts` |
 
 ## Review Focus
 
 1. Firebase 초기화가 실패한 채 App Check 토큰, Crashlytics 기록, FCM 토큰을 부르면: 앱이 죽지 않고 App Check는 토큰 없음(헤더 없이 보냄, #657), Crashlytics는 조용히 버림, FCM은 토큰 없음(null)으로 끝나야 합니다.
-2. 로그아웃 상태나 약관 동의 전에 FCM 토큰이 바뀌면: `registerDevice`를 부르지 않고(401·403을 만들지 않음) 다음 로그인 뒤 실행 때 등록합니다.
-3. 로그아웃 때 `deleteDevice`가 오프라인 등으로 실패하면: 로그아웃은 계속하고 저장된 기기 id는 지우며 요약만 보고합니다(로그아웃을 막지 않음). 404 `device.not_found`는 보고하지 않습니다.
+2. 로그아웃 상태나 약관 동의 전에 FCM 토큰이 바뀌면: `registerDevice`를 부르지 않고(401·403을 만들지 않음) 다음 로그인 뒤 실행 때 등록합니다. 알림을 켠 계정이 로그아웃 뒤 다시 로그인해도 다음 실행 때 다시 등록되어 아침 알림이 끊기지 않아야 합니다.
+3. 로그아웃 때 `deleteDevice`가 오프라인 등으로 실패하면: 로그아웃은 계속하고 저장된 기기 id는 지웁니다(로그아웃을 막지 않음). AppError(오프라인, 404 `device.not_found`, fake 501)는 보고하지 않고 예상 밖 오류만 요약 보고합니다. 401·refresh 거부로 강제 로그아웃되면 `deleteDevice`를 부를 수 없어 기기가 server에 활성으로 남습니다. 이 기기 토큰으로 다음 계정이 등록하면 server가 그 계정으로 옮깁니다(`registerDevice` 설명). 남는 경우는 알려진 한계로 둡니다.
 4. 알림 `data.kind`가 `morning`이 아니거나 `data`가 비어 있으면: 앱만 열고 화면 이동은 하지 않습니다.
 5. 앱 언어를 바꾸면: Android 채널 이름이 새 언어로 바뀝니다(같은 id로 다시 만들면 이름만 갱신됨).
 
@@ -103,7 +111,7 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
   - `final class FirebaseCrashReporter implements CrashReporter { const new({CrashlyticsApi api = const SdkCrashlyticsApi()}); }`
 
 - [ ] **Step 0: 착수 전 확인(Android build ID).** 패키지를 넣고 http debug 빌드를 에뮬레이터에서 띄워 logcat에서 Crashlytics 초기화 오류(build ID 없음 등)를 봅니다. 오류가 없고 `FirebaseCrashlytics.instance.recordError`가 동작하면(이 확인 때만 debug에서 수집을 켜고 콘솔 staging Crashlytics에 기록이 오는지 봄) Gradle plugin 없이 갑니다. 오류가 나면 `com.google.firebase.crashlytics` plugin만 적용해(매핑 업로드 끔) build ID를 넣는 방법을 확인하고, 그것도 `google-services` plugin이나 네이티브 설정 파일을 요구하면 A93과 부딪히므로 멈추고 사용자에게 선택지를 묻습니다. 결과를 이 plan "확인한 사실"에 더합니다.
-- [ ] **Step 1: 실패하는 테스트:** `CrashSummary.toString은 타입, code, status만`, `record는 원문 오류가 아니라 CrashSummary만 싣습니다`(recordError에 넘긴 exception이 그 `CrashSummary`이고, 문자열에 원문 메시지가 없음), `setUser(null)은 빈 id`, `setUser는 sanitizeAccountId를 거친 값`, `breadcrumb은 sanitizeScreenId가 null이면 싣지 않음`, `SDK가 던져도 record·setUser·breadcrumb은 던지지 않음`(Review Focus 1).
+- [ ] **Step 1: 실패하는 테스트:** `CrashSummary.toString은 타입, code, status만`, `record는 원문 오류가 아니라 CrashSummary만 싣습니다`(recordError에 넘긴 exception이 그 `CrashSummary`이고, 문자열에 원문 메시지가 없음), `setUser(null)은 빈 id`, `setUser는 sanitizeAccountId를 거친 값`, `breadcrumb은 sanitizeScreenId가 null이면 싣지 않음`, `SDK가 던져도(비동기 실패와 `FirebaseCrashlytics.instance`의 동기 예외 모두) record·setUser·breadcrumb은 던지지 않음`(Review Focus 1).
 - [ ] **Step 2:** FAIL 확인.
 - [ ] **Step 3: 구현.** 패키지 `firebase_crashlytics: 6.0.1`. SDK 호출은 기다리지 않고(`unawaited`) 오류는 삼킵니다.
 - [ ] **Step 4:** PASS. 디버그 빌드는 수집을 끕니다(`setCollectionEnabled(false)`).
@@ -113,8 +121,8 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 
 **Files:**
 - Create: `app/lib/core/platform/firebase_push.dart`, `app/lib/core/platform/push_channel.dart`
-- Modify: `app/lib/app/bootstrap.dart`(`pushMessagingProvider` override), `app/lib/app/myungli_app.dart`(앱 언어가 정해지거나 바뀔 때 채널 만들기), `app/ios/Runner/Runner.entitlements`(`aps-environment` `development`, release 서명 때 Xcode가 production으로 바꿈), `app/android/app/build.gradle.kts`(빌드가 요구하면 core library desugaring)
-- Test: `app/test/core/firebase_push_test.dart`, `app/test/core/push_channel_test.dart`
+- Modify: `app/lib/core/platform/platform_providers.dart`(`notificationChannelsProvider`, 기본 대역), `app/lib/core/platform/fakes.dart`(`FakeNotificationChannels`), `app/lib/app/bootstrap.dart`(`pushMessagingProvider`, `notificationChannelsProvider` http override), `app/lib/app/myungli_app.dart`(앱 언어가 정해지거나 바뀔 때 채널 만들기), `app/ios/Runner/Runner.entitlements`(`aps-environment` `development`, release 서명 때 Xcode가 production으로 바꿈), `app/android/app/build.gradle.kts`(빌드가 요구하면 core library desugaring)
+- Test: `app/test/core/firebase_push_test.dart`, `app/test/core/push_channel_test.dart`, `app/test/app/lifecycle_hooks_test.dart`(채널 언어), `app/test/app/auth_sdk_setup_test.dart`(override)
 
 **Interfaces:**
 - Consumes: `PushMessaging`·`PushOpen`(기존), ARB `systemPushChannelMorning`(W46)
@@ -122,9 +130,12 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
   - `abstract interface class MessagingApi { Future<bool> requestPermission(); Future<String?> getToken(); Stream<String> get onTokenRefresh; Stream<Map<String, Object?>> get onMessageOpenedApp; Future<Map<String, Object?>?> getInitialMessageData(); }`, 기본 구현 `SdkMessagingApi`
   - `final class FirebasePushMessaging implements PushMessaging { const new({MessagingApi api = const SdkMessagingApi()}); }`
   - `PushOpen? pushOpenFromData(Map<String, Object?> data)`: `data['kind'] == 'morning'`이면 `PushOpen.tryCreate(ScreenIds.today)`, 아니면 null
-  - `const String morningChannelId = 'morning'`, `abstract interface class NotificationChannels { Future<void> ensureMorning(String name); }`, 기본 구현 `LocalNotificationChannels`(`flutter_local_notifications`의 `AndroidNotificationChannel(morningChannelId, name, importance: Importance.defaultImportance)`, iOS는 아무것도 안 함)
+  - `const String morningChannelId = 'morning'`, `abstract interface class NotificationChannels { Future<void> ensureMorning(String name); }`, 실제 구현 `LocalNotificationChannels`(`flutter_local_notifications`의 `AndroidNotificationChannel(morningChannelId, name, importance: Importance.defaultImportance)`, iOS는 아무것도 안 함, 실패는 삼킴)
+  - `final notificationChannelsProvider = Provider<NotificationChannels>((ref) => FakeNotificationChannels())`(기본 대역, 받은 이름을 기록), http 모드만 `LocalNotificationChannels`로 override. fake 모드와 위젯 테스트가 플러그인을 부르지 않게 합니다.
+  - `FirebasePushMessaging`은 SDK 호출 전체를 try로 감쌉니다. `FirebaseMessaging.instance`가 Firebase 초기화 실패로 동기로 던져도 `token()`은 null, `opens`·`tokenRefreshes`는 빈 스트림, `initialOpen()`은 null, `requestPermission()`은 false입니다.
 
-- [ ] **Step 1: 실패하는 테스트:** `kind morning → today`, `모르는 kind·빈 data → null`(Review Focus 4), `getToken이 던지면 null`(Review Focus 1), `opens는 morning만 흘림`, `initialOpen은 처음 메시지의 data로`, 채널: `ensureMorning은 id morning과 받은 이름`, `언어가 바뀌면 새 이름으로 다시`(Review Focus 5, `myungli_app` 위젯 테스트에서 대역 `NotificationChannels`로).
+- [ ] **Step 0: 착수 전 확인(앱이 꺼진 상태의 Android 수신).** 이 앱은 `google-services` plugin 없이 Dart에서 초기화합니다(A93). 패키지를 넣은 http debug 빌드로 알림을 켠 뒤 앱을 완전히 끄고, Firebase 콘솔 staging 메시지 보내기(테스트 기기 토큰, 채널 `morning`, `data.kind=morning`)로 보내 표시, 누름 진입, logcat의 Firebase 초기화 오류를 봅니다. 토큰은 앱 로그에 찍지 말고 테스트 코드나 디버거로만 꺼냅니다. 표시되지 않거나 기본 앱 없음 오류가 나면 멈추고 선택지를 묻습니다. 결과를 "확인한 사실"에 더합니다.
+- [ ] **Step 1: 실패하는 테스트:** `kind morning → today`, `모르는 kind·빈 data → null`(Review Focus 4), `getToken이 던지면 null`(Review Focus 1), `SDK getter가 동기로 던져도 opens·tokenRefreshes는 빈 스트림, initialOpen은 null`, `opens는 morning만 흘림`, `initialOpen은 처음 메시지의 data로`, 채널: `ensureMorning은 id morning과 받은 이름`, `언어가 바뀌면 새 이름으로 다시`(Review Focus 5, `myungli_app` 위젯 테스트에서 대역 `NotificationChannels`로).
 - [ ] **Step 2:** FAIL 확인.
 - [ ] **Step 3: 구현.** 패키지 `firebase_messaging: 17.0.1`, `flutter_local_notifications: 22.3.3`. Android 13 알림 권한은 기존 `requestPermission` 흐름(notify-ask)이 맡습니다.
 - [ ] **Step 4:** PASS. 디버그 APK 빌드 성공(desugaring 요구 오류가 나면 `isCoreLibraryDesugaringEnabled = true`와 `coreLibraryDesugaring` 의존성을 더함), `flutter build ios --debug --no-codesign` 성공.
@@ -135,27 +146,30 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
 **Files:**
 - Modify: `app/lib/features/onboarding/data/device_repository.dart`(`delete`)
 - Create: `app/lib/app/entry/device_registrar.dart`
-- Modify: `app/lib/app/entry/sign_out.dart`(`revokeAndSignOut`가 토큰 폐기 전에 해제), `app/lib/app/entry/sign_out_cleaner.dart`(남은 기기 id 지우기)
-- Test: `app/test/app/device_registrar_test.dart`, `app/test/app/sign_out_test.dart`(추가)
+- Modify: `app/lib/app/entry/sign_out.dart`(`revokeAndSignOut`가 토큰 폐기 전에 해제), `app/lib/app/entry/sign_out_cleaner.dart`(남은 기기 id 지우기, 기존 "계획 7에서 연결" 주석 정리), `app/lib/features/me/application/settings_controller.dart`(`revokeAndSignOut` 호출부), `app/lib/app/myungli_app.dart`(진입이 `ready`가 되면 `onLaunch`, 토큰 변경 구독)
+- Create: `app/fixtures/new-user/deleteDevice.json`, `app/fixtures/notify-register-unavailable/deleteDevice.json`(`{"status": 204}`)
+- Test: `app/test/app/device_registrar_test.dart`, `app/test/app/sign_out_test.dart`(추가), `app/test/flows/sign_out_flow_test.dart`, `app/test/flows/settings_flow_test.dart`, `app/test/flows/notify_ask_flow_test.dart`(회귀)
 
 **Interfaces:**
-- Consumes: `DeviceRepository.register`(기존), `PushMessaging.token`·`tokenRefreshes`, `registeredDeviceIdKey`
+- Consumes: `DeviceRepository.register`(기존, 성공하면 새 id로 저장 키를 덮어씀), `PushMessaging.token`·`tokenRefreshes`, `registeredDeviceIdKey`, 프로필 `notification.status`, 진입 상태
 - Produces:
-  - `DeviceRepository.delete(String deviceId) → Future<void>`: 404 `device.not_found`는 성공으로 봅니다. 성공하면 `registeredDeviceIdKey`를 지웁니다.
-  - `final class DeviceRegistrar { new(Ref ref); Future<void> onLaunch(); void listenTokenRefresh(); }`: 저장된 기기 id가 있고(사용자가 알림을 켠 적 있음) 로그인·동의 상태일 때만, 실행 때 지금 토큰을 등록(같은 토큰이면 server가 같은 id로 200)하고, 토큰이 바뀌면 새 토큰을 등록한 뒤 이전 id를 `delete`합니다. 기기 id가 없으면 아무것도 하지 않습니다(처음 등록은 notify-ask·설정이 함).
-  - 로그아웃: `revokeAndSignOut`가 server 로그아웃 요청 **전에** `DeviceRepository.delete`를 부릅니다(계약: "로그아웃하기 전에 `deleteDevice`"). 해제 실패는 로그아웃을 막지 않고 기기 id를 지운 뒤 요약만 보고합니다(Review Focus 3). 계정 삭제는 server가 기기를 비활성으로 바꾸므로 부르지 않습니다.
+  - `DeviceRepository.delete(String deviceId) → Future<void>`: server 해제만 합니다. 저장 키는 건드리지 않습니다(새 등록이 이미 새 id로 덮어썼을 수 있음). 404 `device.not_found`는 성공으로 봅니다.
+  - `final class DeviceRegistrar { new(Ref ref); Future<void> sync(); Future<void> releaseForSignOut(); }`, `final deviceRegistrarProvider = Provider<DeviceRegistrar>(...)`.
+    - `sync()`: 로그인, 약관 동의, 프로필 `notification.status == enabled`이고 토큰이 있을 때만 지금 토큰을 `register`합니다. 돌려받은 id가 등록 전 저장된 id와 다르고 이전 id가 있었으면 이전 id를 `delete`합니다(앱이 꺼진 사이 토큰이 바뀐 경우 포함). 실행 때(진입이 `ready`가 된 뒤 한 번)와 `tokenRefreshes`마다 부르고, 동시에 두 번 돌지 않게 앞 호출이 끝난 뒤 이어서 돕니다. 실패는 `recordUnlessAppError`로 처리하고 던지지 않습니다.
+    - `releaseForSignOut()`: 저장된 id가 있으면 `delete`하고, 성공 여부와 상관없이 저장 키를 지웁니다. 실패는 `recordUnlessAppError`, 던지지 않습니다.
+  - `revokeAndSignOut({required DefaultApi api, required TokenStore tokens, required Future<void> Function() releaseDevice})`: server 로그아웃 요청 **전에** `releaseDevice()`를 부릅니다(계약: "로그아웃하기 전에 `deleteDevice`"). 계정 삭제는 부르지 않습니다(server가 기기를 비활성으로 바꿈). 강제 로그아웃(`TokenStore.signOut` 직접)은 해제 없이 `SignOutCleaner`가 저장 키만 지웁니다(Review Focus 3).
 
-- [ ] **Step 1: 실패하는 테스트:** `기기 id가 없으면 실행 때 등록하지 않음`, `기기 id가 있고 로그인·동의면 실행 때 등록`, `로그아웃·동의 전이면 토큰이 바뀌어도 등록하지 않음`(Review Focus 2), `토큰이 바뀌면 새 토큰 등록 뒤 이전 id 해제`, `로그아웃은 해제를 먼저 부르고 그다음 토큰 폐기`, `해제가 실패해도 로그아웃되고 기기 id는 지워지고 요약 보고`, `404는 보고하지 않음`, `계정 삭제는 해제를 부르지 않음`.
+- [ ] **Step 1: 실패하는 테스트:** `알림이 꺼져 있으면 실행 때 등록하지 않음`, `로그인·동의·알림 켬이면 실행 때 등록`, `로그아웃 뒤 다시 로그인하면 다음 실행 때 다시 등록`(Review Focus 2), `로그아웃·동의 전이면 토큰이 바뀌어도 등록하지 않음`(Review Focus 2), `토큰이 바뀌면 새 토큰 등록 뒤 이전 id 해제, 저장된 id는 새 id`, `앱이 꺼진 사이 토큰이 바뀌었으면 실행 때 새 id를 받고 이전 id 해제`, `실행 등록과 토큰 변경이 겹쳐도 차례로 한 번씩`, `로그아웃은 해제를 먼저 부르고 그다음 토큰 폐기`, `해제가 실패해도 로그아웃되고 기기 id는 지워짐, AppError는 보고 안 함, 예상 밖 오류만 요약 보고`, `404는 보고하지 않음`, `계정 삭제는 해제를 부르지 않음`, `강제 로그아웃은 저장 키만 지움`.
 - [ ] **Step 2:** FAIL 확인.
-- [ ] **Step 3: 구현.** 실행 때 호출은 진입 계산이 `ready`가 된 뒤 한 번(`myungli_app`의 기존 진입 listener 자리).
-- [ ] **Step 4:** `flutter test test/app test/features/me test/features/profile test/features/onboarding` PASS. 로컬 server에서 `POST /v1/devices`·`DELETE /v1/devices/{id}` 로그 확인(server가 501이면 그 사실만 기록).
-- [ ] **Step 5:** #347에 반영 알리고 닫기. **Commit** `feat(app): 알림 기기 등록 시점과 로그아웃 전 해제 (#347 ②)`
+- [ ] **Step 3: 구현.**
+- [ ] **Step 4:** `flutter test test/app test/flows test/features/me test/features/profile test/features/onboarding` PASS. 로컬 server에서 `POST /v1/devices`·`DELETE /v1/devices/{id}` 로그 확인(server가 501이면 그 사실만 기록).
+- [ ] **Step 5:** #347에 반영 코멘트만 남깁니다(닫기는 PR의 `Closes #347`). **Commit** `feat(app): 알림 기기 등록 시점과 로그아웃 전 해제 (#347 ②)`
 
 ## Task 6: http 모드에 남은 대역 정리
 
 **Files:**
 - Create: `app/lib/core/platform/unavailable_store.dart`(결제·광고·광고 동의의 "아직 없음" 구현), `app/lib/core/platform/os_share.dart`
-- Modify: `app/lib/core/platform/platform_providers.dart`(`adsProvider`의 http 분기), `app/lib/app/bootstrap.dart`
+- Modify: `app/lib/core/platform/platform_providers.dart`(`adsProvider`의 fake 아닌 분기를 `NoAds`로, 이 분기는 provider 안에 둠), `app/lib/app/bootstrap.dart`(`purchasesProvider`, `adConsentProvider`, `shareSheetProvider` http override)
 - Test: `app/test/core/unavailable_store_test.dart`, `app/test/core/os_share_test.dart`, `app/test/app/auth_sdk_setup_test.dart`(override 목록 추가)
 
 **Interfaces:**
@@ -166,15 +180,16 @@ plan의 외부 상태 가정은 이 표에 출처와 함께 적은 것만 씁니
   - `final class OsShareSheet implements ShareSheet`(`share_plus`, 경계 `typedef ShareFiles = Future<void> Function(List<XFile> files, {String? text})`).
   - RevenueCat·AdMob 실제 adapter가 오면(E12·E13) 이 셋을 바꿉니다.
 
-- [ ] **Step 1: 실패하는 테스트:** `UnavailablePurchases.buy는 PurchaseFailed(UnexpectedError)`, `products는 빈 목록`, `NoAds는 null`, `동의는 nonPersonalized`, `OsShareSheet는 PNG 파일 하나와 문구를 넘김`, `realPlatformOverrides(http)는 이 넷과 Task 2~4 adapter를 끼움, fake는 대역`.
+- [ ] **Step 0: 착수 전 확인.** `share_plus` 13.3.1 README와 소스에서 iPad의 `sharePositionOrigin` 요구를 봅니다. 없으면 실패하거나 죽는다면 `ShareSheet.sharePng`에 기준 위치 인자를 더하는 쪽으로 이 task를 넓히고 "확인한 사실"에 더합니다.
+- [ ] **Step 1: 실패하는 테스트:** `UnavailablePurchases.buy는 PurchaseFailed(UnexpectedError)`, `products는 빈 목록`, `NoAds는 null`, `동의는 nonPersonalized`, `OsShareSheet는 PNG 파일 하나와 문구를 넘김`, `http 모드 adsProvider는 NoAds, fake는 시나리오 대역`, `realPlatformOverrides(http)는 결제, 광고 동의, 공유와 Task 2~4 adapter(App Check, Crashlytics, FCM, 알림 채널)를 끼움, fake는 대역`.
 - [ ] **Step 2:** FAIL 확인.
 - [ ] **Step 3: 구현.**
-- [ ] **Step 4:** PASS. 광고 제거 화면과 근거 시트 보상형 버튼이 "쓸 수 없음" 상태로 그려지는지 기존 화면 테스트를 http override로 한 번 확인.
+- [ ] **Step 4:** PASS. 기존 화면 테스트를 http override로 한 번 돌려 확인합니다: 광고 제거 화면은 상품이 없어 오류 상태(다시 시도, 기존 동작)이고 보고는 남지 않음(`UnexpectedError`는 AppError), 근거 시트 보상형은 `lockedNoAd`. 상품 없음을 따로 안내할지는 RevenueCat 값이 올 때(E12) 정합니다.
 - [ ] **Step 5: Commit** `feat(app): http 모드의 결제·광고는 쓸 수 없음, 공유는 OS 공유`
 
 ## Task 7: 마무리
 
 - [ ] **Step 1: 전체 검사:** `flutter analyze`(app·widgetbook), `dart analyze`, `dart format --set-exit-if-changed .`, `flutter test --exclude-tags golden`, `dart run tool/ia_coverage.dart --check`, `dart run tool/gen_native_config.dart --check`, `flutter build apk --debug --dart-define-from-file=config/auth.json`, `flutter build ios --debug --no-codesign --dart-define-from-file=config/auth.json`, `tool/patrol_local.sh patrol_test/login_test.dart`.
-- [ ] **Step 2: 로컬 server 확인:** http 모드 debug 빌드로 카카오 로그인 → 오늘 → 설정에서 알림 켜기(`POST /v1/devices`) → 로그아웃(`DELETE /v1/devices/{id}` 뒤 `POST /v1/auth/logout`) 순서를 server 로그로 확인.
-- [ ] **Step 3: 문서:** `app/CLAUDE.md` 현재 상태·다음 할 일, README "staging 빌드". PR 본문에 사용자 할 일: 업로드 키 만들기와 기기 밖 백업(README 명령, 만든 뒤 `docs/local-values.md` K1 상태를 `사용 중`으로), 2026-10-29에 대화 기록에 남은 staging debug token 교체(D98 §6: 콘솔에서 새로 만들고 옛 토큰 삭제, K4 파일 갱신, 지휘에 `to:root` 알림).
+- [ ] **Step 2: 로컬 server 확인(실제 adapter는 여기서만 거침, Patrol은 fake):** http 모드 debug 빌드로 카카오 로그인 → 오늘 → 설정에서 알림 켜기(`POST /v1/devices`) → 로그아웃(`DELETE /v1/devices/{id}` 뒤 `POST /v1/auth/logout`) 순서를 server 로그로 확인.
+- [ ] **Step 3: 문서:** `app/CLAUDE.md` 현재 상태·다음 할 일, README "staging 빌드". PR 본문에 사용자 할 일: 업로드 키 만들기와 기기 밖 백업(README 명령, 만든 뒤 알려 주면 app이 다음 PR에서 `docs/local-values.md` K1 상태를 `사용 중`으로), 2026-10-29에 대화 기록에 남은 staging debug token 교체(D98 §6: 콘솔에서 새로 만들고 옛 토큰 삭제, K4 파일 갱신, 지휘에 `to:root` 알림).
 - [ ] **Step 4: Commit·PR** `참고 #311`, `참고 #605`, `Closes #347`, `Closes #603`.
