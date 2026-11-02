@@ -12,6 +12,8 @@ import (
 
 type Querier interface {
 	GetProfile(ctx context.Context, accountID uuid.UUID) (Profile, error)
+	// job precompute의 대상 후보입니다(P8-3). 활동 계정의 프로필을 계정 id 순으로 페이지를 나눠 읽습니다.
+	ListActiveProfiles(ctx context.Context, arg ListActiveProfilesParams) ([]ListActiveProfilesRow, error)
 	ProfileExists(ctx context.Context, accountID uuid.UUID) (bool, error)
 	// UpsertProfile은 프로필을 만들거나 통째로 바꿉니다.
 	// 동시에 첫 등록이 두 번 들어와도 둘 다 성공하며, 나중에 실행된 값이 남습니다.
