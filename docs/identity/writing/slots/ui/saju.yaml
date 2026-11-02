@@ -61,3 +61,101 @@
   a11y:
     truncation: "한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "이름 그대로 읽습니다."
+
+# IA 밖 사주 표 컴포넌트 문구(#331, app A57·A64). 키 이름은 app ARB 이름 그대로입니다(W22). 상한은 design 측정 전이라 null입니다.
+# 명리 용어는 기존 원고와 같은 이름을 씁니다. ja는 근거 용어집(docs/research/ja-terms/) 신뢰도 상 표기입니다(W24).
+- id: ui.saju-chart.tab
+  where: "사주 표 화면(saju-chart): 위쪽 segmented 두 칸(원국표, 오행 분포, 용신 판정 근거 / 만세력 표, 대운, 세운)"
+  purpose: info
+  user_state: "사주 표 화면에서 볼 내용을 고릅니다."
+  structure: "탭 이름 하나. 명리 용어 그대로 씁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [segmented]
+  keys:
+    - sajuChartTabNatal
+    - sajuChartTabLuck
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuChartTabNatal, text: "원국", why: "라운드 R26-2", source: writing}
+      - {lang: ko, key: sajuChartTabLuck, text: "만세력과 대운", why: "라운드 R26-2", source: writing}
+    bad:
+      - {lang: ko, text: "펼쳐질 나의 이야기", why: "탭 이름에 감성 꾸밈을 얹음(slop.P1, R26-2 대조군)", source: writing}
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "탭 이름과 선택 상태를 읽습니다."
+
+- id: ui.saju.header
+  where: "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  purpose: info
+  user_state: "사주 표의 칸이 무엇인지 봅니다."
+  structure: "명리 용어 이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [saju-pillars, manse-table, term-token]
+  keys:
+    - sajuPillarHour
+    - sajuPillarDay
+    - sajuPillarMonth
+    - sajuPillarYear
+    - sajuPillarDayMaster
+    - manseRowHiddenStems
+    - manseRowTwelveStages
+    - manseRowShinsal
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuPillarHour, text: "시주", why: "명리 용어 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "칸 폭 안에 들어가게 씁니다."
+    screen_reader: "열 머리와 행 머리로 읽습니다."
+
+- id: ui.saju.tag
+  where: "saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)"
+  purpose: info
+  user_state: "표에서 내 자리와 지금 시기를 찾습니다."
+  structure: "낱말 하나."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [saju-pillars, daeun-table]
+  keys:
+    - sajuTagMe
+    - daeunTagNow
+    - seunTagThisYear
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuTagMe, text: "나", why: "일간이 나라는 뜻을 한 글자로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "꼬리표 폭 안에 들어가게 씁니다."
+    screen_reader: "칸 내용 다음에 읽습니다."
+
+- id: ui.saju.a11y
+  where: "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목"
+  purpose: info
+  user_state: "스크린리더로 사주 표를 듣습니다."
+  structure: "표 이름이나 항목 하나. 연도와 나이는 숫자 그대로 넣습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [saju-pillars, manse-table, daeun-table, ohaeng-bar]
+  keys:
+    - sajuPillarsTableLabel
+    - manseTableLabel
+    - {params: {age: number}, keys: [daeunTableLabel]}
+    - {params: {year: number}, keys: [luckYearLabel]}
+    - {params: {element: text, count: text}, keys: [ohaengBarItem]}
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: ohaengBarItem, text: "{element} {count}개", why: "개수라는 것이 들리게 씀", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "스크린리더만 읽습니다. 오행 항목은 a11yListSeparator로 잇습니다."

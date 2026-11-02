@@ -60,6 +60,7 @@ def glossary_values() -> dict[str, tuple[str, ...]]:
         "ten_god_group": TEN_GOD_GROUPS,
         "direction8": _enum_value_names(engine_pb2.Direction8),
         "shinsal": _enum_value_names(engine_pb2.Shinsal),
+        "twelve_stage": _enum_value_names(engine_pb2.TwelveStage),
         "day_kind": _enum_value_names(engine_pb2.DayKind),
         "relation": _enum_value_names(engine_pb2.RelationKind),
         "place": _place_values(),

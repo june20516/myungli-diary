@@ -234,6 +234,24 @@ def test_glossary_values_names() -> None:
     assert values["stem"][0] == "gap"
 
 
+def test_glossary_values_twelve_stage() -> None:
+    """12운성 범주는 proto `TwelveStage` 순서 그대로입니다(#331, app A65)."""
+    assert glossary_values()["twelve_stage"] == (
+        "jangsaeng",
+        "mokyok",
+        "gwandae",
+        "geonrok",
+        "jewang",
+        "soe",
+        "byeong",
+        "sa",
+        "myo",
+        "jeol",
+        "tae",
+        "yang",
+    )
+
+
 def test_glossary_values_relation() -> None:
     assert glossary_values()["relation"] == ("stem_hap", "branch_hap", "chung", "hyeong")
 

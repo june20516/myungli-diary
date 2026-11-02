@@ -122,12 +122,12 @@
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmSave, text: "変更する"}
 - {slot: calc-basis.convention.body, key: calcBasisConventionBody, text: "読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。"}
 - {slot: calc-basis.schools.body, key: calcBasisSchoolsBody, text: "蔵干はひとつに絞らず、すべて表示します。子の刻に生まれた場合は、午前0時より前でも翌日として計算します。流派によって扱いが異なるため、ほかのアプリや本と結果が異なることがあります。"}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "出生時刻は{longitude}を基準に{minutes}分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "出生時刻は{longitude}を基準に{minutes}分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "出生時刻は{longitude}を基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "出生時刻は、サマータイムの{dstMinutes}分を先に引き、{longitude}を基準にさらに{minutes}分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "出生時刻は、サマータイムの{dstMinutes}分を先に引き、{longitude}を基準に{minutes}分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "出生時刻は、サマータイムの{dstMinutes}分だけを引いて計算します。{longitude}が基準のため、経度の補正はしません。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "出生時刻は{longitude}を基準に{minutes}分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "出生時刻は{longitude}を基準に{minutes}分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "出生時刻は{longitude}を基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "出生時刻は、サマータイムの{dstMinutes}分を先に引き、{longitude}を基準にさらに{minutes}分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "出生時刻は、サマータイムの{dstMinutes}分を先に引き、{longitude}を基準に{minutes}分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。"}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "出生時刻は、サマータイムの{dstMinutes}分だけを引いて計算します。{longitude}が基準のため、経度の補正はしません。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "東経{degrees}°"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "西経{degrees}°"}
 - {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。"}
@@ -274,7 +274,7 @@
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Appleでのサインインをキャンセルしました。"}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "Appleでサインインできませんでした。もう一度お試しください。"}
 - {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "根拠を見る"}
-- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "今日の読み解きの根拠"}
+- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "読み解きの根拠"}
 - {slot: ui.guide.card, key: todayGuideEyebrow, text: "今日の質問"}
 - {slot: ui.guide.a11y, key: todayGuideLabel, text: "日記の質問"}
 - {slot: ui.guide.a11y, key: todayGuideWritten, text: "今日の日記を書きました"}
@@ -370,3 +370,38 @@
 - {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, other{{count}編}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryEventCount, text: "{count, plural, other{{count}件}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryAdFreeDays, text: "{days, plural, other{{days}日}}"}
+# IA 밖 app 임시 문구(#331, 라운드 R26)와 ATT 본문(#697).
+- {slot: ui.settings.row, key: settingsNotifyLabel, text: "通知時刻"}
+- {slot: ui.settings.row, key: settingsNotifyOff, text: "オフ"}
+- {slot: ui.settings.row, key: settingsLanguageLabel, text: "言語"}
+- {slot: ui.settings.row, key: settingsLogoutLabel, text: "ログアウト"}
+- {slot: ui.legal.row, key: legalTermsLabel, text: "利用規約"}
+- {slot: ui.legal.row, key: legalPrivacyLabel, text: "プライバシーポリシー"}
+- {slot: ui.legal.row, key: legalLicensesLabel, text: "オープンソースライセンス"}
+- {slot: ui.profile-edit.birthplace, key: profileEditBirthplaceKorea, text: "韓国の基準"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabNatal, text: "命式"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabLuck, text: "万年暦と大運"}
+- {slot: ui.saju.header, key: sajuPillarHour, text: "時柱"}
+- {slot: ui.saju.header, key: sajuPillarDay, text: "日柱"}
+- {slot: ui.saju.header, key: sajuPillarMonth, text: "月柱"}
+- {slot: ui.saju.header, key: sajuPillarYear, text: "年柱"}
+- {slot: ui.saju.header, key: sajuPillarDayMaster, text: "日干"}
+- {slot: ui.saju.header, key: manseRowHiddenStems, text: "蔵干"}
+- {slot: ui.saju.header, key: manseRowTwelveStages, text: "十二運"}
+- {slot: ui.saju.header, key: manseRowShinsal, text: "神殺"}
+- {slot: ui.saju.tag, key: sajuTagMe, text: "わたし"}
+- {slot: ui.saju.tag, key: daeunTagNow, text: "今"}
+- {slot: ui.saju.tag, key: seunTagThisYear, text: "今年"}
+- {slot: ui.saju.a11y, key: sajuPillarsTableLabel, text: "命式表"}
+- {slot: ui.saju.a11y, key: manseTableLabel, text: "万年暦の表"}
+- {slot: ui.saju.a11y, key: daeunTableLabel, text: "{age}歳からの大運"}
+- {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}年"}
+- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {count}つ"}
+- {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "この位置には個別の読み解きがありません。"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "ラッキーカラー"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "ラッキー方位"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "ラッキーナンバー"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "集中しやすい時間"}
+- {slot: ui.share.a11y, key: shareImageSemantics, text: "今日の一文の画像プレビュー"}
+- {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "共有画像の比率"}
+- {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。"}

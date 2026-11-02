@@ -317,3 +317,71 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
+
+# IA 밖 설정 줄 문구(#331, app A59~A61·A63). 키 이름은 app ARB 이름 그대로입니다(W22). 상한은 design 측정 전이라 null입니다.
+- id: ui.settings.row
+  where: "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+  purpose: info
+  user_state: "설정에서 바꿀 수 있는 항목을 훑어봅니다."
+  structure: "줄 이름 하나. 알림 시각 줄은 오른쪽에 시각이나 꺼짐(`Off`)이 붙습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [settings-row]
+  keys:
+    - settingsNotifyLabel
+    - settingsNotifyOff
+    - settingsLanguageLabel
+    - settingsLogoutLabel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: settingsNotifyLabel, text: "알림 시각", why: "라운드 R26-1", source: writing}
+    bad:
+      - {lang: ko, text: "매일 아침 나를 깨우는 알림", why: "줄 이름에 꾸밈을 얹음(slop.P1, R26-1 대조군)", source: writing}
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "이름 다음에 값을 읽습니다."
+
+- id: ui.legal.row
+  where: "약관과 정책 화면(legal): 문서 줄 이름"
+  purpose: info
+  user_state: "약관이나 정책 문서를 찾습니다."
+  structure: "문서 이름 하나. 동의 화면과 구매 안내에서 쓰는 문서 이름과 같게 씁니다."
+  tone: {진지: 3, 격식: 4, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [settings-row]
+  keys:
+    - legalTermsLabel
+    - legalPrivacyLabel
+    - legalLicensesLabel
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: legalTermsLabel, text: "이용약관", why: "동의 화면 문서 이름과 같음", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "이름 그대로 읽습니다."
+
+- id: ui.profile-edit.birthplace
+  where: "정보 수정 화면(profile-edit): 출생지를 묻지 않았거나 건너뛰었을 때 출생지 줄의 값"
+  purpose: info
+  user_state: "출생지 없이 한국 기준으로 계산되고 있습니다(D29)."
+  structure: "값 하나. 나라 이름이 아니라 계산 기준이라는 것이 보이게 씁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [settings-row]
+  keys:
+    - profileEditBirthplaceKorea
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: profileEditBirthplaceKorea, text: "한국 기준", why: "라운드 R26-5", source: writing}
+    bad:
+      - {lang: ko, text: "한국", why: "한국에서 태어났다고 입력한 것처럼 읽힘(R26-5)", source: writing}
+  endings: []
+  a11y:
+    truncation: "한 줄 안에 들어가게 짧게 씁니다."
+    screen_reader: "줄 이름 다음에 값을 읽습니다."

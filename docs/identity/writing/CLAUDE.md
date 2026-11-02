@@ -48,9 +48,10 @@
 | `core/evidence_rules.json`·`core/evidence_sources.json` | **사용** (근거 슬롯 키·`detail` 매개변수·원전 원문 대조, W25) | core |
 | 엔진 gRPC API (`engine.proto`) | **사용** (검사기 생성 코드 `tools/gen_proto.sh`, #144) | core |
 
-## 현재 상태 (2026-10-28, writing 세션 작성)
+## 현재 상태 (2026-11-03, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **app 임시 문구와 ATT 본문**(#331·#697, 라운드 R26 `artifacts/2026-11-03-round-R26.md`, W51, 검사기 v0.13.0): app 임시 키 33개를 IA 밖 `ui.*` 슬롯 10개로 옮겼습니다(설정 줄 "알림 시각", 약관 줄, 출생지 기본값 "한국 기준", 사주 탭 "원국"·"만세력과 대운", 표 머리, 꼬리표, 스크린리더 이름, 행운 칩과 공유 이미지 이름). 근거 시트 제목은 두 화면이 같이 쓰는 "풀이의 근거", 개인 해석이 없는 자리는 "이 자리는 따로 풀이한 내용이 없어요.". glossary `twelve_stage` 12개(개인 해석 문장과 같은 표기). ATT 본문 `iosTrackingUsageDescription`(`ui.system.tracking`, app이 `InfoPlist.strings`에 옮김). ja 만세력을 「万年暦」로 고쳤습니다(W24). 새 슬롯 상한은 design 측정 전이라 `null`입니다.
 * **W1-3 용어·근거 완료**(계획 `plans/2026-10-28-w1-3-terms-evidence.md`, 라운드 R23~R25, W47~W49, 검사기 v0.12.0): 용어 뜻 62개, glossary 값 이름 35개(천간 갑목~계수, 십성, 십성 묶음, 신살, 천간합·지지합·충·형), 근거 문장 `evidence.basis` 24개(매개변수 종류를 glossary 범주·`text`·`number`로), 원전 출처 `evidence.source` 124개(궁통보감 「대목」 + core `quote` + 원문이 말한 것만 옮긴 뜻)를 3개 언어로 채웠습니다. 세 언어 `mlw judge` 의심은 ko 용어 뜻 2건(R23에서 정함)뿐입니다. 비워 둔 원고는 슬롯 `pending`(warn)으로 적고 CI `mlw check`에서 `--partial`을 뺐습니다(ja glossary 3개만, W24). 조후표와 원문이 어긋나는 칸은 core #625. 태그라인은 "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"(`guide/store-copy.md`, 공유 이미지와 같음).
 * **알림 채널 이름과 윤달 사주 줄**(#614·#587, drift #574, 라운드 R22 `artifacts/2026-10-28-round-R22.md`, W46): IA 새 슬롯 `system-push.channel.morning` "오늘 풀이 알림", 계정 합치기 사주 줄 윤달 키 `accountChoiceSajuLeap`·`accountChoiceSajuNoTimeLeap`(design V48), design 3.2.0 상한 `profile-edit.recalc.notice`.
 * **업데이트 사유별 문구와 drift #574**(#355, 라운드 R21 `artifacts/2026-10-28-round-R21.md`, W45): `force-update.notice.body`에 동의 문서 사유 키 `forceUpdateNoticeBodyConsent`("새 약관을 확인하려면 업데이트가 필요해요.")를 더했고 app이 사유로 고릅니다(슬롯 `select`). 제목과 기존 사유 문구는 그대로입니다. design 3.1.0 상한을 광고 제거 버튼 둘과 기간 고지에 넣었습니다(#564 후속 끝).
@@ -108,12 +109,12 @@
     * 검사기 코드를 고쳤을 때: `docs/identity/writing/tools`에서 `uv run pytest -q tests/test_<모듈>.py`, PR 전에 `uv run pytest -q`(전체 약 15초)와 `uv run ruff check .`·`uv run mypy src`
     * 계약(IA·core JSON·proto·design `lengths.md`)이 바뀌었을 때: `uv run pytest -q -m contract`와 위 원고 검사. CI `drift`·`gate`도 이 범위만 돕니다(`writing.yml`)
     * 테스트는 한 실행 안에서 같은 원고 읽기와 묶음 검사 결과를 다시 씁니다(`tests/session_cache.py`, 키는 파일 내용 해시). 공유 원고를 고치는 테스트는 `tmp_path` 사본을 쓰고, 고치면 세션 끝 확인이 실패합니다
-* 결정은 W1~W49입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
+* 결정은 W1~W51입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **#331 남은 몫**: app 임시 ui 문구 28개(`ui.*` 슬롯, 키 이름 그대로), 사주 맥락 근거 시트 제목을 따로 둘지, 12운성 값 이름 범주(glossary에 `twelve_stage` 범주가 없음, core enum 확인). 천간·십성·신살 이름은 W1-3에서 채웠습니다(W47). 원고는 라운드로 고릅니다.
+2. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). 새 슬롯 상한은 design 측정 요청에 답이 오면 넣습니다. ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
 3. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
 4. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
 5. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. app은 오류 문구 3건을 씁니다(#237).

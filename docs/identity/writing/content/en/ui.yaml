@@ -274,7 +274,7 @@
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Sign in with Apple was cancelled."}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "We couldn't sign you in with Apple. Please try again."}
 - {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "See the basis"}
-- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "The basis for today's reading"}
+- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "The basis for this reading"}
 - {slot: ui.guide.card, key: todayGuideEyebrow, text: "Today's question"}
 - {slot: ui.guide.a11y, key: todayGuideLabel, text: "Diary question"}
 - {slot: ui.guide.a11y, key: todayGuideWritten, text: "You wrote today's entry"}
@@ -370,3 +370,38 @@
 - {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, one{{count} entry} other{{count} entries}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryEventCount, text: "{count, plural, one{{count} event} other{{count} events}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryAdFreeDays, text: "{days, plural, one{{days} day} other{{days} days}}"}
+# IA 밖 app 임시 문구(#331, 라운드 R26)와 ATT 본문(#697).
+- {slot: ui.settings.row, key: settingsNotifyLabel, text: "Alert time"}
+- {slot: ui.settings.row, key: settingsNotifyOff, text: "Off"}
+- {slot: ui.settings.row, key: settingsLanguageLabel, text: "Language"}
+- {slot: ui.settings.row, key: settingsLogoutLabel, text: "Sign out"}
+- {slot: ui.legal.row, key: legalTermsLabel, text: "Terms of Service"}
+- {slot: ui.legal.row, key: legalPrivacyLabel, text: "Privacy Policy"}
+- {slot: ui.legal.row, key: legalLicensesLabel, text: "Open source licenses"}
+- {slot: ui.profile-edit.birthplace, key: profileEditBirthplaceKorea, text: "Korea (default)"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabNatal, text: "Natal chart"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabLuck, text: "Calendar and luck cycles"}
+- {slot: ui.saju.header, key: sajuPillarHour, text: "Hour"}
+- {slot: ui.saju.header, key: sajuPillarDay, text: "Day"}
+- {slot: ui.saju.header, key: sajuPillarMonth, text: "Month"}
+- {slot: ui.saju.header, key: sajuPillarYear, text: "Year"}
+- {slot: ui.saju.header, key: sajuPillarDayMaster, text: "Day master"}
+- {slot: ui.saju.header, key: manseRowHiddenStems, text: "Hidden stems"}
+- {slot: ui.saju.header, key: manseRowTwelveStages, text: "12 stages"}
+- {slot: ui.saju.header, key: manseRowShinsal, text: "Shinsal"}
+- {slot: ui.saju.tag, key: sajuTagMe, text: "Me"}
+- {slot: ui.saju.tag, key: daeunTagNow, text: "Now"}
+- {slot: ui.saju.tag, key: seunTagThisYear, text: "This year"}
+- {slot: ui.saju.a11y, key: sajuPillarsTableLabel, text: "Natal chart"}
+- {slot: ui.saju.a11y, key: manseTableLabel, text: "Calendar table"}
+- {slot: ui.saju.a11y, key: daeunTableLabel, text: "10-year luck cycles from age {age}"}
+- {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}"}
+- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {count}"}
+- {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "There's no separate reading for this spot."}
+- {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "Lucky color"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "Lucky number"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "Best time to focus"}
+- {slot: ui.share.a11y, key: shareImageSemantics, text: "Preview of today's sentence image"}
+- {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "Share image ratio"}
+- {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way."}

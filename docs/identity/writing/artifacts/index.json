@@ -424,5 +424,25 @@
     ],
     "status": "chosen",
     "note": "R9-11과 같은 답, 오늘 일진을 내 사주에 맞춰 풀어 주는 일기"
+  },
+  {
+    "id": "round-R26",
+    "title": "라운드 R26: app 임시 문구와 ATT 창 본문 (W51)",
+    "kind": "copy-sample",
+    "file": "2026-11-03-round-R26.md",
+    "date": "2026-11-03",
+    "milestone": "W1",
+    "screens": [
+      "settings",
+      "profile-edit",
+      "saju-chart",
+      "evidence-sheet",
+      "legal"
+    ],
+    "decisions": [
+      "W51"
+    ],
+    "status": "chosen",
+    "note": "원국 / 만세력과 대운, 풀이의 근거 하나로, 없는 해석은 없다고, ATT는 재촉하지 않음"
   }
 ]
