@@ -297,6 +297,72 @@ class DefaultApi {
     );
   }
 
+  /// 헬스 체크
+  /// 정상(DB 연결 확인)이면 200, 비정상이면 503입니다. 외부 uptime check는 이 경로를 씁니다. Cloud Run 앞단이 &#x60;z&#x60;로 끝나는 일부 경로를 가로채므로 &#x60;/healthz&#x60;(&#x60;getHealth&#x60;) 대신 이 경로를 씁니다(1.3.0에서 더함).
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Health] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Health>> checkHealth({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/health';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Health? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Health, Health>(rawData, 'Health', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Health>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// Apple 웹 로그인 완료 (Android)
   /// &#x60;appleCallback&#x60;이 app link로 넘긴 교환 코드와 nonce 원문으로 자체 토큰을 발급합니다. 교환 코드는 일회용이고 수명이 2분입니다. nonce가 틀려도 교환 코드는 소진되지 않습니다. 교환 코드가 없거나 만료됐거나 이미 썼거나 nonce가 맞지 않으면 401 &#x60;auth.exchange_invalid&#x60;이며, 이 경우들을 구분하지 않습니다.
   ///
@@ -1763,8 +1829,8 @@ class DefaultApi {
     );
   }
 
-  /// 헬스 체크
-  /// 정상이면 200, 비정상이면 503입니다.
+  /// 헬스 체크 (deprecated)
+  /// &#x60;checkHealth&#x60;(&#x60;/health&#x60;)와 같은 동작입니다. Cloud Run에 배포한 server에서는 앞단이 이 경로를 가로채 server에 닿지 않으므로 &#x60;checkHealth&#x60;를 씁니다. v1에서는 지우지 않습니다(S93).
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -1776,6 +1842,7 @@ class DefaultApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Health] as data
   /// Throws [DioException] if API call or serialization fails
+  @Deprecated('This operation has been deprecated')
   Future<Response<Health>> getHealth({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

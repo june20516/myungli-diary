@@ -94,5 +94,6 @@ const List<ApiRoute> apiRoutes = [
   ),
   ApiRoute('GET', '/v1/cities', 'listCities', requiresBearer: false),
   ApiRoute('GET', '/v1/app-config', 'getAppConfig', requiresBearer: false),
+  ApiRoute('GET', '/health', 'checkHealth', requiresBearer: false),
   ApiRoute('GET', '/healthz', 'getHealth', requiresBearer: false),
 ];
