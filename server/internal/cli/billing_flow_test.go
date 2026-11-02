@@ -14,6 +14,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"sync"
 	"testing"
@@ -214,12 +215,15 @@ func newFakeAdMobKeys(t *testing.T) (*ecdsa.PrivateKey, string) {
 	return key, srv.URL
 }
 
-// signedRewardQuery는 AdMob SSV 콜백의 원본 쿼리를 만듭니다. 서명 대상은 "&signature=" 앞까지입니다.
+// signedRewardQuery는 AdMob SSV 콜백의 원본 쿼리를 만듭니다. 보상 이름은 실제 광고 단위처럼 한글과 공백이고,
+// 서명 대상은 signature, key_id 앞의 쌍을 URL 디코딩한 문자열입니다(#703, S126).
 func signedRewardQuery(t *testing.T, key *ecdsa.PrivateKey, userID, transactionID string, at time.Time) string {
 	t.Helper()
-	message := fmt.Sprintf("ad_network=5450213213286189855&ad_unit=1234&reward_amount=1&reward_item=insight&timestamp=%d&transaction_id=%s&user_id=%s",
+	message := fmt.Sprintf("ad_network=5450213213286189855&ad_unit=1234&reward_amount=1&reward_item=%%EC%%9D%%BC%%EC%%8B%%9C+%%EB%%B8%%94%%EB%%9D%%BD+%%ED%%95%%B4%%EC%%A0%%9C&timestamp=%d&transaction_id=%s&user_id=%s",
 		at.UnixMilli(), transactionID, userID)
-	digest := sha256.Sum256([]byte(message))
+	decoded, err := url.QueryUnescape(message)
+	require.NoError(t, err)
+	digest := sha256.Sum256([]byte(decoded))
 	sig, err := ecdsa.SignASN1(rand.Reader, key, digest[:])
 	require.NoError(t, err)
 	return fmt.Sprintf("%s&signature=%s&key_id=%d", message, base64.RawURLEncoding.EncodeToString(sig), flowRewardKeyID)

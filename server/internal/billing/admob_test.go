@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -81,10 +82,14 @@ func rewardKeysJSON(t *testing.T, entries map[uint64]any) string {
 	return string(out)
 }
 
-// signRewardQuery는 message를 서명해 "message&signature=…&key_id=…" 원본 쿼리를 만듭니다.
-func signRewardQuery(t *testing.T, key *ecdsa.PrivateKey, keyID uint64, message string, pad bool) string {
+// signRewardMessage는 인코딩된 message를 AdMob처럼 URL 디코딩한 문자열에 서명하고 base64url 서명을 돌려줍니다.
+func signRewardMessage(t *testing.T, key *ecdsa.PrivateKey, message string, pad bool) string {
 	t.Helper()
-	digest := sha256.Sum256([]byte(message))
+	decoded, err := url.QueryUnescape(message)
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest := sha256.Sum256([]byte(decoded))
 	sig, err := ecdsa.SignASN1(rand.Reader, key, digest[:])
 	if err != nil {
 		t.Fatal(err)
@@ -93,7 +98,13 @@ func signRewardQuery(t *testing.T, key *ecdsa.PrivateKey, keyID uint64, message 
 	if pad {
 		encoding = base64.URLEncoding
 	}
-	return fmt.Sprintf("%s&signature=%s&key_id=%d", message, encoding.EncodeToString(sig), keyID)
+	return encoding.EncodeToString(sig)
+}
+
+// signRewardQuery는 실제 광고 콜백 형태("message&signature=…&key_id=…")의 원본 쿼리를 만듭니다.
+func signRewardQuery(t *testing.T, key *ecdsa.PrivateKey, keyID uint64, message string, pad bool) string {
+	t.Helper()
+	return fmt.Sprintf("%s&signature=%s&key_id=%d", message, signRewardMessage(t, key, message, pad), keyID)
 }
 
 func rewardMessage(timestamp string) string {
@@ -156,20 +167,59 @@ func TestReward_user_id와_custom_data가_없어도_통과한다(t *testing.T) {
 	}
 }
 
-func TestReward_인코딩된_원본_쿼리는_통과하고_재인코딩한_쿼리는_실패한다(t *testing.T) {
+func TestReward_같은_값의_다른_인코딩도_통과한다(t *testing.T) {
 	f := newRewardFixture(t)
-	message := rewardMessage(rewardTimestampMillis(rewardNow))
-	query := f.signed(t, message)
-	if _, err := f.verify.Verify(context.Background(), query); err != nil {
-		t.Fatalf("원본 쿼리 실패: %v", err)
-	}
-	// custom_data=a%2Fb+c 를 같은 값의 다른 인코딩(a/b%20c)으로 바꾼 쿼리입니다.
+	query := f.signed(t, rewardMessage(rewardTimestampMillis(rewardNow)))
+	// custom_data=a%2Fb+c 를 같은 값의 다른 인코딩(a/b%20c)으로 바꾼 쿼리입니다. 서명 대상은 디코딩한 문자열이라 같습니다.
 	reencoded := strings.Replace(query, "custom_data=a%2Fb+c", "custom_data=a/b%20c", 1)
 	if reencoded == query {
 		t.Fatal("테스트 전제가 어긋났습니다")
 	}
-	if _, err := f.verify.Verify(context.Background(), reencoded); !errors.Is(err, ErrRewardSignature) {
-		t.Fatalf("err = %v, want ErrRewardSignature", err)
+	if _, err := f.verify.Verify(context.Background(), reencoded); err != nil {
+		t.Fatalf("다시 인코딩한 쿼리 실패: %v", err)
+	}
+}
+
+func TestReward_key_id가_signature_앞에_와도_통과한다(t *testing.T) {
+	// AdMob 콘솔의 콜백 URL 확인 요청은 쿼리를 알파벳 순으로 보내 key_id가 signature 앞에 옵니다(#703).
+	f := newRewardFixture(t)
+	message := "ad_network=1&ad_unit=1234&reward_amount=1&reward_item=%EC%9D%BC%EC%8B%9C+%EB%B8%94%EB%9D%BD" +
+		"&timestamp=" + rewardTimestampMillis(rewardNow) + "&transaction_id=tx-3"
+	sig := signRewardMessage(t, f.key, message, false)
+	query := fmt.Sprintf("ad_network=1&ad_unit=1234&key_id=%d&reward_amount=1&reward_item=%%EC%%9D%%BC%%EC%%8B%%9C+%%EB%%B8%%94%%EB%%9D%%BD"+
+		"&signature=%s&timestamp=%s&transaction_id=tx-3", testRewardKeyID, sig, rewardTimestampMillis(rewardNow))
+
+	got, err := f.verify.Verify(context.Background(), query)
+	if err != nil {
+		t.Fatalf("Verify 실패: %v", err)
+	}
+	if got.TransactionID != "tx-3" || got.RewardItem != "일시 블락" {
+		t.Fatalf("콜백 = %+v", got)
+	}
+}
+
+// adMobConsoleQuery는 staging이 2026-11-02 22:36:58 UTC에 받은 AdMob 콘솔 확인 요청의 쿼리 그대로입니다(#703).
+const adMobConsoleQuery = "ad_network=5450213213286189855&ad_unit=1234567890&key_id=3335741209&reward_amount=1" +
+	"&reward_item=%EC%9D%BC%EC%8B%9C+%EB%B8%94%EB%9D%BD+%ED%95%B4%EC%A0%9C" +
+	"&signature=MEQCIA5nTJqGmxlvVFgy8Nz1bwokSXtUAOG2WCG936ueHoF9AiA8VSvVxJdnq4gySr_EOW7LBRNaDe0z25rO3BP3rPq6Gg" +
+	"&timestamp=1793659018671&transaction_id=123456789"
+
+// adMobKey3335741209는 https://www.gstatic.com/admob/reward/verifier-keys.json 의 keyId 3335741209 공개 키입니다.
+const adMobKey3335741209 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE+nzvoGqvDeB9+SzE6igTl7TyK4JBbglwir9oTcQta8NuG26ZpZFxt+F2NDk7asTE6/2Yc8i1ATcGIqtuS5hv0Q=="
+
+func TestReward_실제_AdMob_콘솔_확인_요청이_통과한다(t *testing.T) {
+	body := fmt.Sprintf(`{"keys":[{"keyId":%d,"pem":"","base64":%q}]}`, testRewardKeyID, adMobKey3335741209)
+	server := newRewardKeyServer(t, body)
+	receivedAt := time.UnixMilli(1793659018671).UTC()
+	verifier := NewRewardVerifier(RewardVerifierConfig{KeysURL: server.URL, Clock: clocktest.New(receivedAt)})
+
+	got, err := verifier.Verify(context.Background(), adMobConsoleQuery)
+	if err != nil {
+		t.Fatalf("Verify 실패: %v", err)
+	}
+	want := RewardCallback{TransactionID: "123456789", AdUnit: "1234567890", RewardItem: "일시 블락 해제", Timestamp: receivedAt}
+	if got != want {
+		t.Fatalf("콜백 = %+v, want %+v", got, want)
 	}
 }
 
@@ -217,10 +267,30 @@ func TestReward_형식이_틀린_쿼리는_서명_오류다(t *testing.T) {
 		"key_id가 숫자 아님":  good[:strings.Index(good, "&key_id=")] + "&key_id=abc",
 		"서명 패딩이 3개 이상":   good[:strings.Index(good, "&key_id=")] + "===&key_id=3335741209",
 		"서명이 base64 아님":  strings.Replace(good, good[sigStart:sigStart+4], "!!!!", 1),
+		"signature가 둘":   good + "&signature=" + good[sigStart:strings.Index(good, "&key_id=")],
+		"key_id가 둘":      good + "&key_id=3335741209",
+		"퍼센트 인코딩이 깨짐":    strings.Replace(good, "reward_item=insight", "reward_item=%zz", 1),
 	}
 	for name, query := range cases {
 		t.Run(name, func(t *testing.T) {
 			if _, err := f.verify.Verify(context.Background(), query); !errors.Is(err, ErrRewardSignature) {
+				t.Fatalf("err = %v, want ErrRewardSignature", err)
+			}
+		})
+	}
+}
+
+func TestReward_디코딩하면_쌍_구조가_바뀌는_쿼리는_서명_오류다(t *testing.T) {
+	// 값 안의 %26(&)과 키 안의 %3D(=)는 디코딩한 서명 대상에서 쌍 경계와 구분되지 않습니다.
+	// 서명된 문자열을 그대로 두고 쌍만 바꿔 값을 숨기는 일을 막으려고 거부합니다.
+	f := newRewardFixture(t)
+	ts := rewardTimestampMillis(rewardNow)
+	for name, message := range map[string]string{
+		"값 안의 &": "ad_unit=1&custom_data=x%26user_id%3Dother&timestamp=" + ts + "&transaction_id=tx-4",
+		"키 안의 =": "ad_unit=1&custom%3Ddata=x&timestamp=" + ts + "&transaction_id=tx-5",
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := f.verify.Verify(context.Background(), f.signed(t, message)); !errors.Is(err, ErrRewardSignature) {
 				t.Fatalf("err = %v, want ErrRewardSignature", err)
 			}
 		})
