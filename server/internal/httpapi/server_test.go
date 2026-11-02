@@ -61,7 +61,7 @@ func decodeProblem(t *testing.T, rec *httptest.ResponseRecorder) problem.Problem
 func TestHandler_Healthz(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
@@ -214,7 +214,7 @@ func TestHandler_AccessLog_UsesRoutePatternNotActualPath(t *testing.T) {
 func TestHandler_TraceHeaderOnResponse(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil))
 
 	if rec.Header().Get("X-Trace-Id") == "" {
 		t.Error("X-Trace-Id 헤더가 없습니다")

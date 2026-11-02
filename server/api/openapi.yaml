@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.2.1
+  version: 1.3.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -1909,11 +1909,36 @@ paths:
         default:
           $ref: '#/components/responses/UnexpectedError'
 
+  /health:
+    get:
+      operationId: checkHealth
+      summary: 헬스 체크
+      description: |
+        정상(DB 연결 확인)이면 200, 비정상이면 503입니다. 외부 uptime check는 이 경로를 씁니다.
+        Cloud Run 앞단이 `z`로 끝나는 일부 경로를 가로채므로 `/healthz`(`getHealth`) 대신 이 경로를 씁니다(1.3.0에서 더함).
+      security: []
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
   /healthz:
     get:
       operationId: getHealth
-      summary: 헬스 체크
-      description: 정상이면 200, 비정상이면 503입니다.
+      summary: 헬스 체크 (deprecated)
+      description: |
+        `checkHealth`(`/health`)와 같은 동작입니다. Cloud Run에 배포한 server에서는 앞단이 이 경로를 가로채 server에 닿지 않으므로 `checkHealth`를 씁니다.
+        v1에서는 지우지 않습니다(S93).
+      deprecated: true
       security: []
       responses:
         '200':

@@ -509,41 +509,53 @@ func TestAppleCallback_MissingStateIs400(t *testing.T) {
 	}
 }
 
-func TestGetHealth_NilDBIs503(t *testing.T) {
+// healthPaths는 health 확인 경로입니다. /health가 기본이고 /healthz는 Cloud Run 앞단이 가로채 deprecated입니다(#699, S127).
+var healthPaths = []string{"/health", "/healthz"}
+
+func TestHealth_NilDBIs503(t *testing.T) {
 	handler, spec := newHandlerAPI(t, &httpapi.API{})
+	for _, path := range healthPaths {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, path, nil)
+			rec := serve(handler, req)
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil)
-	rec := serve(handler, req)
-
-	require.Equal(t, http.StatusServiceUnavailable, rec.Code, "DB가 없으면 503")
-	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
-	expectContractResponse(t, spec, req, rec)
+			require.Equal(t, http.StatusServiceUnavailable, rec.Code, "DB가 없으면 503")
+			assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+			expectContractResponse(t, spec, req, rec)
+		})
+	}
 }
 
-func TestGetHealth_DBPingOKIs200(t *testing.T) {
+func TestHealth_DBPingOKIs200(t *testing.T) {
 	handler, spec := newHandlerAPI(t, &httpapi.API{DB: dbtest.New(t)})
+	for _, path := range healthPaths {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, path, nil)
+			rec := serve(handler, req)
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil)
-	rec := serve(handler, req)
-
-	require.Equal(t, http.StatusOK, rec.Code, "DB ping이 성공하면 200")
-	var body gen.Health
-	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
-	assert.Equal(t, gen.Ok, body.Status)
-	expectContractResponse(t, spec, req, rec)
+			require.Equal(t, http.StatusOK, rec.Code, "DB ping이 성공하면 200")
+			var body gen.Health
+			require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+			assert.Equal(t, gen.Ok, body.Status)
+			expectContractResponse(t, spec, req, rec)
+		})
+	}
 }
 
-func TestGetHealth_DBDownIs503(t *testing.T) {
+func TestHealth_DBDownIs503(t *testing.T) {
 	// 연결을 맺을 수 없는 주소입니다. pool은 지연 연결이라 생성은 성공하고 ping이 실패합니다.
 	pool, err := pgxpool.New(t.Context(), "postgres://u:p@127.0.0.1:1/db?connect_timeout=1")
 	require.NoError(t, err)
 	t.Cleanup(pool.Close)
 	handler, spec := newHandlerAPI(t, &httpapi.API{DB: pool})
+	for _, path := range healthPaths {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, path, nil)
+			rec := serve(handler, req)
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil)
-	rec := serve(handler, req)
-
-	require.Equal(t, http.StatusServiceUnavailable, rec.Code)
-	assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
-	expectContractResponse(t, spec, req, rec)
+			require.Equal(t, http.StatusServiceUnavailable, rec.Code)
+			assert.Equal(t, "service.unavailable", decodeProblem(t, rec).Code)
+			expectContractResponse(t, spec, req, rec)
+		})
+	}
 }

@@ -252,7 +252,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 알림 기기 | `POST /v1/devices`, `DELETE /v1/devices/{id}` | 새 토큰 201, 등록된 토큰은 같은 `id`로 200(다른 계정이면 옮김), 계정당 활성 10대, 해제는 로그아웃 전과 토큰 교체 때(S92) |
 | 결제 | `GET /v1/me/entitlements`, `POST /v1/billing/restore`, `POST /webhooks/revenuecat`, `GET /webhooks/admob-ssv` | §10 |
 | 참조 | `GET /v1/cities?q=&lang=`, `GET /v1/app-config`, `GET /v1/glossary` | 도시는 ETag. app-config는 플랫폼별 최소 앱 버전. glossary는 enum 값(오행·십성·태그 등)의 언어별 이름 사전(writing `glossary.value_name` 등)으로, 응답마다 이름을 싣는 대신 한 번 받아 둠(ETag) |
-| 운영 | `GET /healthz` | |
+| 운영 | `GET /health` (`/healthz`는 deprecated, S127) | |
 
 ### 5.3 동작 규칙
 

@@ -7,14 +7,15 @@ sql_tier            = "db-f1-micro"
 deletion_protection = false
 test_login_enabled  = true
 
-# RevenueCat 값은 사업자등록(E15) 뒤에 만들 수 있어, 그때까지 staging server는 결제를 끈 채 배포합니다(#654, #632).
-# 값이 오면 결제 설정 둘과 Secret 둘을 채우고 true로 바꿉니다. AD_FREE_PRODUCT_IDS는 Test Store 상품의 RevenueCat 상품 id(prod…)입니다(#683, S124).
-billing_enabled = false
+# staging 결제는 RevenueCat Test Store(sandbox) 구매로 켭니다(D99, #683). APP_ENV가 prod가 아니라 sandbox 구매도 장부에 적습니다.
+# AD_FREE_PRODUCT_IDS는 Test Store 상품(식별자 ad_free_1m, consumable)의 RevenueCat 상품 id입니다(S124).
+# Secret REVENUECAT_API_KEY, REVENUECAT_WEBHOOK_AUTH는 staging Secret Manager에 있습니다(K8).
+billing_enabled = true
 
 # 공개 값만 둡니다(spec §5). 빈 값은 아직 오지 않은 값이고, 필수 값이 비어 있으면 server 배포를 건너뜁니다.
 # TRUSTED_PROXY_HOPS는 Firebase Hosting 앞단의 X-Forwarded-For 위치를 staging에서 확인해 정합니다(S117).
 server_settings = {
-  AD_FREE_PRODUCT_IDS     = ""
+  AD_FREE_PRODUCT_IDS     = "prod0bc032dedf"
   ANDROID_APP_PACKAGE     = "app.myungli.diary"
   ANDROID_CERT_SHA256     = "69:6D:33:B9:F7:41:1A:76:9A:70:23:C3:EC:F0:D6:36:B1:17:33:DC:D7:BC:7D:DB:78:FA:43:9B:4F:B3:9A:93,E2:FA:71:8C:F4:CD:F1:4C:E4:7E:C7:38:32:FA:F3:86:D0:E7:BD:EF:5B:E9:EE:CC:E6:8C:CD:DC:60:E0:F5:DE"
   ANDROID_STORE_URL       = "https://play.google.com/store/apps/details?id=app.myungli.diary"
@@ -31,7 +32,7 @@ server_settings = {
   KAKAO_APP_KEY           = "8229ec22910b377c40ea71b1081c2a66"
   LINE_CHANNEL_ID         = "2012273411"
   LOG_LEVEL               = "info"
-  REVENUECAT_PROJECT_ID   = ""
+  REVENUECAT_PROJECT_ID   = "proj43a24b27"
   TOKEN_ENCRYPTION_KEY_ID = "tok-2026-1"
   TRUSTED_PROXY_HOPS      = ""
 }
