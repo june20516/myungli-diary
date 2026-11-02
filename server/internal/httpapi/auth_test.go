@@ -157,7 +157,7 @@ func TestBearer_PublicRoutesSkipAuthentication(t *testing.T) {
 	rec := serve(handler, newBodyRequest(t, http.MethodPost, "/v1/auth/refresh", contentTypeJSON, `{"refreshToken":"r"}`))
 	assert.Equal(t, http.StatusNotImplemented, rec.Code, "body = %s", rec.Body.String())
 
-	rec = serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
+	rec = serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil))
 	assert.Equal(t, http.StatusOK, rec.Code, "body = %s", rec.Body.String())
 }
 
@@ -165,7 +165,7 @@ func TestBearer_PublicRoutesSkipAuthentication(t *testing.T) {
 func TestBearer_PublicRoutesIgnoreInvalidAuthorization(t *testing.T) {
 	handler := newBearerHandler(t, fakeVerifier{}, activeGate())
 
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health", nil)
 	req.Header.Set("Authorization", "Bearer other")
 
 	assert.Equal(t, http.StatusOK, serve(handler, req).Code)

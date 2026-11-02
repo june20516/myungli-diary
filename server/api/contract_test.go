@@ -28,7 +28,7 @@ var expectedOperationIDs = []string{
 	"listSchedules", "createSchedule", "updateSchedule", "deleteSchedule", "restoreSchedule",
 	"registerDevice", "deleteDevice",
 	"getEntitlements", "restorePurchases", "revenuecatWebhook", "admobRewardCallback",
-	"listCities", "getAppConfig", "getHealth",
+	"listCities", "getAppConfig", "checkHealth", "getHealth",
 	"loginLine", "loginGoogle", "listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts", "listPurchases",
 }
 
@@ -46,6 +46,7 @@ var securityOverrides = map[string][]string{
 	"admobRewardCallback":   {},
 	"listCities":            {},
 	"getAppConfig":          {},
+	"checkHealth":           {},
 	"getHealth":             {},
 	"createPreview":         {"appCheck"},
 	"getBirthHour":          {"appCheck"},
@@ -688,8 +689,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // TestContract_VersionIsFrozen은 v1의 현재 버전을 고정합니다. freeze(1.0.0) 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114~S116, S126)
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.2.1" {
-		t.Errorf("info.version = %q, want 1.2.1", doc.Info.Version)
+	if doc.Info.Version != "1.3.0" {
+		t.Errorf("info.version = %q, want 1.3.0", doc.Info.Version)
 	}
 }
 

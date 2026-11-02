@@ -110,7 +110,7 @@ func TestRun_ServeStartsAndStopsOnCancel(t *testing.T) {
 		}
 	})
 
-	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
+	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/health")
 	// 인증을 조립했으므로 bearer 라우트에 토큰 없이 보낸 요청은 401입니다.
 	// 종료를 늦추지 않게 본문을 끝까지 읽고 유휴 연결을 닫습니다.
 	client := &http.Client{Timeout: 2 * time.Second}
@@ -166,7 +166,7 @@ func TestServe_StartsWhenEngineInfoFails(t *testing.T) {
 		done <- Run(ctx, []string{"serve"}, func(key string) string { return env[key] }, &stdout, &stderr)
 	}()
 
-	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/healthz")
+	waitForHealthz(t, "http://127.0.0.1:"+env["PORT"]+"/health")
 	cancel()
 
 	select {
