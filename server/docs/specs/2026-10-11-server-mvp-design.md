@@ -435,7 +435,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 > 이 절의 `pending_deletion` 계정 설명은 2026-10-23 spec(`2026-10-23-account-delete-merge-purchases-design.md`) §3이 대체합니다(S105). 계정 상태는 `active`·`deleted`뿐입니다.
 
 1. app은 보상형 광고를 띄울 때 SSV 옵션의 `user_id`에 계정 id를 넣습니다.
-2. AdMob이 `GET /webhooks/admob-ssv?...&signature=…&key_id=…`로 부릅니다. server는 서명 대상 문자열(쿼리에서 `signature` 앞까지)을 AdMob 공개 키(`https://www.gstatic.com/admob/reward/verifier-keys.json`, `key_id`로 고름)로 ECDSA 검증합니다. 공개 키는 24시간 캐시하되, 모르는 `key_id`가 오면 마지막 조회 뒤 1분이 지났을 때만 다시 받습니다. 캐시가 없거나 만료된 상태에서 받기에 실패하면 10초 동안은 키 서버를 부르지 않고 바로 503입니다(장애 중 호출 억제, S86).
+2. AdMob이 `GET /webhooks/admob-ssv?...&signature=…&key_id=…`로 부릅니다. server는 서명 대상 문자열(쿼리에서 `signature`, `key_id`를 뺀 쌍을 받은 순서대로 이어 URL 디코딩한 것, S126)을 AdMob 공개 키(`https://www.gstatic.com/admob/reward/verifier-keys.json`, `key_id`로 고름)로 ECDSA 검증합니다. 공개 키는 24시간 캐시하되, 모르는 `key_id`가 오면 마지막 조회 뒤 1분이 지났을 때만 다시 받습니다. 캐시가 없거나 만료된 상태에서 받기에 실패하면 10초 동안은 키 서버를 부르지 않고 바로 503입니다(장애 중 호출 억제, S86).
 3. 검증에 실패하면 401로 응답하고 아무것도 부여하지 않습니다.
 4. `transaction_id`로 `reward_events`에 한 번만 저장하고, 같은 트랜잭션에서 `insight` 권한을 출처 `rewarded_ad`로 부여합니다. 만료는 그 계정의 **현재 시간대 기준 다음 자정**입니다(D60③). 같은 `transaction_id`가 다시 오면 아무것도 하지 않고 200을 돌려줍니다.
 5. `user_id`가 없거나 존재하지 않는 계정이면 이벤트만 기록하고 200을 돌려줍니다. AdMob이 재시도하지 않게 하기 위해서이며, 로그에 경고를 남깁니다.
