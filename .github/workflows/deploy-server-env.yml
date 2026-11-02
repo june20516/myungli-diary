@@ -146,13 +146,17 @@ jobs:
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
 
-      - name: retention Job과 Scheduler
+      - name: 배치 Job과 Scheduler
         if: steps.ready.outputs.ready == 'true'
         run: |
           gcloud run jobs update server-retention --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
           gcloud scheduler jobs resume retention-daily --location "$REGION" --project "$PROJECT"
+          gcloud run jobs update server-precompute --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+          gcloud scheduler jobs resume precompute-half-hourly --location "$REGION" --project "$PROJECT"
 
       - name: Firebase Hosting
         if: steps.ready.outputs.ready == 'true'
