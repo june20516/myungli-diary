@@ -18,6 +18,7 @@ import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/firebase/firebase_env.dart';
+import 'package:myungli_diary/core/platform/admob_ads.dart';
 import 'package:myungli_diary/core/platform/apple_native_auth.dart';
 import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -35,7 +36,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/revenuecat_purchases.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
-import 'package:myungli_diary/core/platform/unavailable_store.dart';
+import 'package:myungli_diary/core/platform/ump_ad_consent.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/features/purchase/application/purchase_providers.dart';
@@ -165,8 +166,7 @@ Future<ProviderContainer> bootstrap({
 ///
 /// 로그인 adapter 다섯은 `config/auth.json`(A81) 값이 비면 로그인할 때
 /// `ProviderNotConfigured`를 던집니다. http 모드에서 로그인 대역을 쓰지 않는 것은 가짜
-/// 토큰을 실제 server에 보내지 않기 위해서입니다. 남은 adapter(AdMob)는 준비되면 여기에
-/// 더합니다.
+/// 토큰을 실제 server에 보내지 않기 위해서입니다.
 @visibleForTesting
 List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
   ApiMode.fake => const [],
@@ -180,7 +180,14 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
         productIds: ref.watch(adFreeProductIdsProvider),
       ),
     ),
-    adConsentProvider.overrideWithValue(const NonPersonalizedAdConsent()),
+    adConsentProvider.overrideWith(
+      (ref) => UmpAdConsent(
+        isIOS: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
+      ),
+    ),
+    adsProvider.overrideWith(
+      (ref) => AdMobAds(platform: ref.watch(targetPlatformProvider)),
+    ),
     shareSheetProvider.overrideWithValue(const OsShareSheet()),
     notificationChannelsProvider.overrideWith(
       (ref) => LocalNotificationChannels(
