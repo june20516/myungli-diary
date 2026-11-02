@@ -231,7 +231,7 @@ tool/patrol_local.sh patrol_test/diary_test.dart  # 흐름 하나
   * 종료 코드: 0 통과, 1 테스트 실패, 2 기기 문제, 3 환경 문제(잠금·기기 없음·CLI 없음), 4 시간 초과.
   * adb 서버는 다른 프로젝트와 함께 쓰므로 `adb kill-server`를 하지 않습니다.
 * **테스트 뒤 Activity 닫기(A100, #700):** `MainActivityTest`의 `@After`가 테스트마다 앱 Activity를 `finishAndRemoveTask()`로 닫고 destroy될 때까지(최대 10초) 기다립니다. Patrol은 앱을 닫지 않는데, Activity가 살아 있는 채로 instrumentation이 끝나면 API 34 에뮬레이터는 task 제거를 약 1.4초 뒤로 미루고 그때 같은 이름의 앱 프로세스를 죽입니다. Orchestrator가 그 사이에 다음 테스트 프로세스를 띄우면 그 테스트가 "Test instrumentation process crashed"로 빠집니다.
-* **실패 읽기:** Patrol 요약(`Total`)은 프로세스가 죽어 돌지 못한 테스트를 세지 않습니다. 요약이 모두 통과인데 `Gradle test execution failed`면 `androidTest-results/connected/debug/*/testlog/test-results.log` 끝(`Tests found`, `There was N failure`)을 봅니다. CI는 실패할 때 이 끝을 로그에 찍고, artifact `e2e-gradle-reports`에 기기 전체 logcat을 남깁니다. logcat에서는 `remove task`, `failed to attach`를 찾습니다.
+* **실패 읽기:** Patrol 요약(`Total`)은 프로세스가 죽어 돌지 못한 테스트를 세지 않습니다. 요약이 모두 통과인데 `Gradle test execution failed`면 `androidTest-results/connected/debug/*/testlog/test-results.log` 끝(`Tests found`, `There was N failure`)을 봅니다. CI는 실패할 때 이 끝을 로그에 찍고, artifact `e2e-gradle-reports`에 기기 전체 logcat을 남깁니다. logcat에서는 `remove task`, `failed to attach`를 찾습니다. CI는 통과해도 `remove-task destroy timeout=<개수>`를 찍고, 0이 아니면 경고를 남깁니다(A100이 깨졌다는 신호).
 * **커버리지 보고:** `dart run tool/ia_coverage.dart`가 선언을 `screens.json`·결정 로그와 대조해 `docs/artifacts/e2e-coverage.json`을 씁니다. `--check`는 `tool/coverage_baseline.json`보다 줄었을 때만 실패합니다(개수만 비교). 덮는 범위를 넓힌 PR은 `dart run tool/ia_coverage.dart --update-baseline`으로 baseline을 올려 같이 commit합니다. 대상 결정은 `tool/decision_targets.json`입니다.
 * **스크린샷 등록:** `expectScreen`이 `<화면>__<상태|default>` 태그로 캡처합니다(네이티브 캡처는 Android만 동작).
   ```
