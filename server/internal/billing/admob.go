@@ -32,8 +32,9 @@ const (
 	// adMobFailedRetryDelay는 키 조회가 실패한 뒤 캐시 없이는 다시 부르지 않는 시간입니다.
 	// 키 서버 장애 중에 요청마다 키 서버를 부르거나 mutex 안에서 줄 서는 일을 막습니다.
 	adMobFailedRetryDelay = 10 * time.Second
-	// signatureMarker는 서명 대상의 끝을 알리는 쿼리 조각입니다. 서명 대상에는 이 앞까지만 들어갑니다.
-	signatureMarker = "&signature="
+	// rewardSignatureParam과 rewardKeyIDParam은 서명 대상에서 빼는 쿼리 이름입니다.
+	rewardSignatureParam = "signature"
+	rewardKeyIDParam     = "key_id"
 )
 
 var (
@@ -97,25 +98,21 @@ func NewRewardVerifier(cfg RewardVerifierConfig) *RewardVerifier {
 	return &RewardVerifier{keysURL: keysURL, client: client, clk: clk}
 }
 
-// Verify는 원본 쿼리 문자열(디코딩·재정렬하지 않은 것)의 서명을 검증하고 콜백 값을 돌려줍니다.
-// 서명 대상은 첫 "&signature=" 앞까지의 바이트 그대로입니다. 서명이 맞은 뒤에 timestamp를 검사합니다.
+// Verify는 원본 쿼리 문자열의 서명을 검증하고 콜백 값을 돌려줍니다. 서명이 맞은 뒤에 timestamp를 검사합니다.
+//
+// 서명 대상은 signature와 key_id를 뺀 나머지 쌍을 받은 순서대로 "&"로 이어 URL 디코딩("+"는 공백)한
+// 문자열입니다(Google Tink RewardedAdsVerifier와 같은 디코딩). 실제 광고 콜백은 두 값이 맨 뒤에 오지만
+// 콘솔의 콜백 URL 확인 요청은 쿼리가 알파벳 순이라 key_id가 signature 앞에 옵니다(#703, S126).
 func (v *RewardVerifier) Verify(ctx context.Context, rawQuery string) (RewardCallback, error) {
-	boundary := strings.Index(rawQuery, signatureMarker)
-	if boundary <= 0 {
-		return RewardCallback{}, ErrRewardSignature
+	query, err := splitRewardQuery(rawQuery)
+	if err != nil {
+		return RewardCallback{}, err
 	}
-	message := rawQuery[:boundary]
-
-	// signature와 key_id는 서명 대상 뒤에 이 순서로 붙습니다.
-	tail, err := url.ParseQuery(rawQuery[boundary+1:])
+	signature, err := decodeRewardSignature(query.signature)
 	if err != nil {
 		return RewardCallback{}, ErrRewardSignature
 	}
-	signature, err := decodeRewardSignature(tail.Get("signature"))
-	if err != nil {
-		return RewardCallback{}, ErrRewardSignature
-	}
-	keyID, err := strconv.ParseUint(tail.Get("key_id"), 10, 64)
+	keyID, err := strconv.ParseUint(query.keyID, 10, 64)
 	if err != nil {
 		return RewardCallback{}, ErrRewardSignature
 	}
@@ -124,16 +121,13 @@ func (v *RewardVerifier) Verify(ctx context.Context, rawQuery string) (RewardCal
 	if err != nil {
 		return RewardCallback{}, err
 	}
-	digest := sha256.Sum256([]byte(message))
+	digest := sha256.Sum256([]byte(query.message))
 	if !ecdsa.VerifyASN1(key, digest[:], signature) {
 		return RewardCallback{}, ErrRewardSignature
 	}
 
-	// 서명이 맞은 부분에서만 값을 꺼냅니다.
-	values, err := url.ParseQuery(message)
-	if err != nil {
-		return RewardCallback{}, ErrRewardSignature
-	}
+	// 서명이 맞은 쌍에서만 값을 꺼냅니다.
+	values := query.values
 	transactionID := values.Get("transaction_id")
 	if transactionID == "" {
 		return RewardCallback{}, ErrRewardSignature
@@ -152,6 +146,60 @@ func (v *RewardVerifier) Verify(ctx context.Context, rawQuery string) (RewardCal
 		RewardItem:    values.Get("reward_item"),
 		Timestamp:     timestamp,
 	}, nil
+}
+
+// rewardQuery는 보상 콜백 쿼리를 서명 검증에 쓰는 부분으로 나눈 것입니다.
+type rewardQuery struct {
+	// message는 서명 대상(signature, key_id를 뺀 쌍을 받은 순서대로 이어 디코딩한 문자열)입니다.
+	message string
+	// values는 message를 이루는 쌍의 디코딩한 값입니다.
+	values    url.Values
+	signature string
+	keyID     string
+}
+
+// splitRewardQuery는 원본 쿼리를 서명 대상과 signature, key_id로 나눕니다.
+// signature와 key_id는 정확히 하나씩 있어야 합니다. 디코딩한 키나 값에 "&"가 있거나 키에 "="가 있으면
+// 디코딩한 서명 대상에서 쌍 경계가 달라지므로(서명된 문자열을 두고 값을 숨길 수 있음) 거부합니다.
+func splitRewardQuery(rawQuery string) (rewardQuery, error) {
+	result := rewardQuery{values: url.Values{}}
+	var signatureCount, keyIDCount int
+	var messagePairs []string
+	for _, pair := range strings.Split(rawQuery, "&") {
+		rawKey, rawValue, _ := strings.Cut(pair, "=")
+		key, err := url.QueryUnescape(rawKey)
+		if err != nil {
+			return rewardQuery{}, ErrRewardSignature
+		}
+		value, err := url.QueryUnescape(rawValue)
+		if err != nil {
+			return rewardQuery{}, ErrRewardSignature
+		}
+		switch key {
+		case rewardSignatureParam:
+			signatureCount++
+			result.signature = value
+			continue
+		case rewardKeyIDParam:
+			keyIDCount++
+			result.keyID = value
+			continue
+		}
+		if strings.ContainsAny(key, "&=") || strings.Contains(value, "&") {
+			return rewardQuery{}, ErrRewardSignature
+		}
+		decodedPair := key
+		if strings.Contains(pair, "=") {
+			decodedPair += "=" + value
+		}
+		messagePairs = append(messagePairs, decodedPair)
+		result.values.Add(key, value)
+	}
+	if signatureCount != 1 || keyIDCount != 1 || len(messagePairs) == 0 {
+		return rewardQuery{}, ErrRewardSignature
+	}
+	result.message = strings.Join(messagePairs, "&")
+	return result, nil
 }
 
 // decodeRewardSignature는 base64url 서명을 풉니다. 패딩은 있어도 없어도 받습니다(P7-12).

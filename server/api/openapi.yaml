@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.2.0
+  version: 1.2.1
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -1763,7 +1763,9 @@ paths:
       summary: AdMob 보상형 광고 SSV 콜백
       description: |
         AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다.
-        서명은 핸들러가 원본 쿼리 문자열(`signature` 앞까지)로 AdMob 공개 키(`key_id`로 고름)를 써 ECDSA 검증합니다.
+        서명은 핸들러가 AdMob 공개 키(`key_id`로 고름)로 ECDSA 검증합니다. 서명 대상은 쿼리에서 `signature`, `key_id`를 뺀 나머지 쌍을 받은 순서대로 `&`로 이어 URL 디코딩(`+`는 공백)한 문자열입니다.
+        실제 광고 콜백은 `signature`, `key_id`가 맨 뒤에 오지만 콘솔의 콜백 URL 확인 요청은 쿼리가 알파벳 순이라 `key_id`가 `signature` 앞에 옵니다. 둘 다 받습니다.
+        `signature`나 `key_id`가 없거나 둘 이상이면, 또는 디코딩한 이름에 `&`, `=`가 있거나 값에 `&`가 있으면 서명 검증 실패입니다.
         `user_id`는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 `transaction_id`는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다.
         서명이 맞아도 `user_id`가 없거나 없는 계정이면 기록만 하고 200입니다(재시도를 막음).
         검증되면 근거 열람 권한(`insight`)을 출처 `rewarded_ad`로 그 계정 현재 시간대의 다음 자정까지 부여합니다.
