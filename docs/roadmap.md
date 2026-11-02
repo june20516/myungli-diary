@@ -16,7 +16,7 @@
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, P2a Apple 웹 로그인 복귀 PR #113, P3 프로필·엔진·캐시 PR #163·#171(REST draft.3), draft.4 PR #225(근거 문장·도시 경도)·draft.5 PR #233(일정 범위·달력 캐시), P4 콘텐츠 모듈 PR #238(시드·렌더러·운세 operation·용어 사전·반응), P4 후속 PR #262(notice 렌더·`birthCity`, draft.6), P5 일기·일정·`Idempotency-Key` PR #270(draft.7), P6 비로그인·참조와 D66·D60·D75 정리 PR #305(draft.8), P7 결제와 권한(RevenueCat·AdMob SSV·권한 판정)과 S77 필드 제거 PR #338(draft.9), 나의 사주 문장 필드·법적 문서 정적 페이지 PR #342(draft.10, D80), S3 freeze 준비 PR #346(draft.11, 열린 enum·알림 기기 S92·S93). S3 freeze PR #528(1.0.0), 그 뒤 하위 호환 추가 1.1.0 PR #571, 1.2.0 PR #584. 남은 것: P8 Job(precompute, notify, retention)과 알림 기기 API `registerDevice`·`deleteDevice`. staging 배포 P9는 T1에서) |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | **완료** (PR #528 `1.0.0`, S114. IA 화면 40개와 계약 대조, 남은 빈틈은 freeze 뒤 minor. 제품 판단 #527은 D90) |
 | A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **완료** (IA 화면 40개를 대역 데이터로 모두 구현, 마지막 화면 `login-methods`·`account-merge`는 PR #588(2026-10-28). 후속 맞춤 #587·#353·#354·#331은 A2와 나란히. 아키텍처 spec·결정 A1~A15 PR #95, 기반 구현 PR #117: 앱 셸·통신·캐시·디자인 시스템·플랫폼 대역·E2E 뼈대, 결정 A16. 계획 2 온보딩·로그인 PR #149: 화면 13개, 결정 A17~A21, IA v2 반영. 계획 3 오늘·깊이 시트 PR #196: today·풀이·근거·공유 시트, 결정 A22~A27, 컴포넌트 2.3.0 반영. IA v3 화면 PR #215(birthplace 한국 표준 소개·calc-basis, 결정 A28~A31). 계획 4 달력·일정 PR #253(결정 A32~A43, 오늘 대표 태그 D76), 컴포넌트 2.6.0·draft.6 따라잡기 PR #269(A44), 계획 5 일기 1부(컴포넌트·데이터, A45~A53) PR #303, 계획 5 화면 4개·흐름·E2E와 생일 음력 V31 모양 PR #310(A54, 규칙 정합성 #282 마무리), 계획 6 나·설정 PR #345(A55~A66: `my-saju`·`saju-chart`·`settings`·`profile-edit`·`account-delete`·`legal`, drift draft.9~11·IA v4 따라잡기, 열린 enum #347 ①, 화면 스크린샷 도구 #336). 남은 것: 따라잡기 #504·#518·#484·#493과 화면 일 #387(로그인 수단·계정 합치기 화면)·#418·#453. 실제 SDK adapter(계획 7)는 A2로 옮김(D91 ①)) |
-| A2 | app의 실제 API 연동: `local` server로 REST 연동, 실제 SDK adapter(카카오·Apple·LINE·Google 로그인 #311, App Link, FCM #347 ②, RevenueCat·AdMob, D91 ①) | app | S3 (A1과 나란히) | I2 | 시작 전 (외부 값이 필요한 adapter는 외부 준비물 E7~E13 뒤) |
+| A2 | app의 실제 API 연동: `local` server로 REST 연동, 실제 SDK adapter(카카오·Apple·LINE·Google 로그인 #311, App Link, FCM #347 ②, RevenueCat·AdMob, D91 ①) | app | S3 (A1과 나란히) | I2 | **진행 중** (staging 준비 PR #675(release 서명, Firebase), 로그인 값과 환경 파일 PR #693(A97), RevenueCat PR #695(A98), AdMob과 UMP PR #698(A99). 남은 것: 실제 로그인 adapter #311·#463. iOS ATT는 문구 #697 뒤) |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | **완료** (D47~D51, `docs/ia/screens.json` v1). v2: 선택 동의 제거(D67)와 계획 2 차이(D68), PR #133. v3: 출생지 화면의 한국 기준 소개·계산 기준 로그인 전 열람(D71), PR #157 |
 | M0 | 수익화 결정 체계 수립과 첫 사이클, MVP 범위 재검증 | 지휘 | IA | S1·A1 착수 | **완료** (D53, 비공개 기록 `business/`) |
@@ -39,30 +39,31 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-10-30 기준, PR #687 병합 뒤)
+## 현재 진행 순서 (2026-11-03 기준, PR #698 병합 뒤)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 없습니다(app #600, server #629, server #642는 끝남). 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다. 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다.
-* **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다. 검사 범위(D81)와 규칙 정합성(D78) 정리는 끝났습니다.
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** 엔진 실행 조건(#79)과 I1 → app 실제 adapter(로그인 #311·#463, RevenueCat #684, AdMob #686) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. O1(관측)은 staging 기동 뒤 T1 전까지, L1(부하 테스트)은 T1과 나란히. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 시작합니다.
-* **staging 상태:** server와 엔진이 떴습니다(2026-10-30, PR #689로 tfvars 공개 값을 채운 뒤 run 41019226137). 공개 주소 `api-staging.myungli-diary.app`에서 server가 응답하고, 엔진은 내부 전용(호출은 server 서비스 계정만)입니다. 결제는 PR #681(S123)로 RevenueCat 값 없이 끈 채 배포하고, #683에서 Test Store로 켭니다(D99). app은 PR #675로 release 서명과 Firebase adapter를 갖췄고, 첫 staging AAB가 Play 내부 테스트에 올라갔습니다(K1).
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 없습니다. 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. drift는 손으로 닫지 않습니다. 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다.
+* **동시에 도는 단위 세션은 둘까지입니다**(지휘는 세지 않고, 요청에 답하려고 연 세션은 셉니다, D78). 가장 긴 경로에 있는 단위부터 엽니다. 단위 하나가 PR을 올려 병합되기까지를 한 박자로 보고, 박자마다 지휘가 정기 일과를 돕니다.
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** app 야간 E2E 안정화(#700) → 실제 로그인 adapter(#311·#463) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. O1(관측)은 T1 전까지, L1(부하 테스트)은 T1과 나란히. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 진행합니다.
+* **staging 상태:** server와 엔진이 떠 있습니다(2026-10-30, run 41019226137). 공개 주소 `api-staging.myungli-diary.app`에서 server가 응답하고, 엔진은 내부 전용(실행 조건 #79 완료)입니다. 결제는 S123대로 끈 채이고, #683에서 Test Store로 켭니다(D99, 상품은 사용자가 #632에서 만듦). 결제 없이 광고 제거 기간을 주는 staging 경로가 있습니다(PR #696, S125). `/healthz`는 Cloud Run 예약 경로라 밖에서 404입니다(#699). app은 RevenueCat(A98)과 AdMob(A99) adapter까지 갖췄습니다. AdMob 보상형 SSV 콜백은 T1 동안 staging 주소를 씁니다(#539, I4 전에 prod로 바꿈).
+* **I1 판단:** 엔진 실행 조건(#79)과 server의 엔진 호출 설정이 staging에 올라가 있습니다. 실제 호출 성공은 staging 로그나 I2 E2E에서 확인한 뒤 완료로 적습니다.
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | server | #79(엔진 컨테이너 실행 조건, I1) → #683(staging 결제를 Test Store로, webhook 둘, D99) → #655(staging 광고 제거권) → #610(카카오 `KAKAO_APP_KEY`). (staging 기동 #607은 PR #689로, P9 준비 PR #634, deployer WIF PR #671, bootstrap state bucket PR #667(S122), 결제 끈 staging 배포 PR #681(S123), drift #642는 PR #643으로 완료) | T1, I1, I2 |
-| 지금 | app | #680(plan 사실 표 정정) → 실제 로그인 adapter #311·#463 → RevenueCat adapter #684(debug는 Test Store 키, D99) → AdMob adapter #686(UMP, debug는 테스트 광고). (staging 준비 PR #675, 야간 E2E 회귀 #676은 PR #685로 완료. A1 후속 #587·#353·#331은 design·writing 답이 오는 대로) | I2, T1 |
-| 지금 | 지휘 | AdMob SSV 콜백 주소 안내(#539) → O1 착수 → I1·I2 시점 판단 | T1 |
-| 필요할 때 | writing | #331(app 임시 문구, 사주 용어 사전 범주) → 구매 상태 `owned` 키 #531(MVP 밖). core #625(조후표 용신 순서와 원전 인용) 답이 오면 반영 | I3 |
+| 지금 | server | #699(health 경로를 `z`로 끝나지 않게, O1 전) → #683(Test Store 상품이 생기면 staging 결제 켜기, D99). (#79 엔진 실행 조건, #610 카카오 키, #655 staging 광고 제거권 PR #696(S125), 상품 id 정리 PR #691(S124)은 완료) | O1, I2 |
+| 지금 | app | #700(야간 e2e-android 간헐 실패) → 실제 로그인 adapter #311·#463. (#680 plan 정정 PR #690, 로그인 값 PR #693(A97), RevenueCat #684 PR #695(A98), AdMob #686 PR #698(A99)은 완료. iOS ATT는 writing #697 뒤. A1 후속 #587·#353·#331은 design·writing 답이 오는 대로) | I2, T1 |
+| 지금 | 지휘 | I1 확인(staging에서 server의 엔진 호출) → O1 착수(범위 사용자 확인) → I2 시점 판단 | T1 |
+| 필요할 때 | writing | #697(iOS ATT 권한 창 문구, iOS 출시 준비 전) → #331(app 임시 문구, 사주 용어 사전 범주) → 구매 상태 `owned` 키 #531(MVP 밖). core #625(조후표 용신 순서와 원전 인용) 답이 오면 반영 | I3 |
 | 필요할 때 | design | 요청이 오면. #587은 writing 틀과 app 반영 뒤 닫음 | - |
 | 필요할 때 | core | #625(writing 요청, 조후표 칸), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | I3 |
 
 ## 외부 준비물
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다.
 
-* **지금(사용자):** E3 테스터 12명 모집 #535(T1을 가장 오래 막음), E14 문의 메일 주소. E13 AdMob #539는 SSV 콜백 주소만 남음(staging 기동 뒤). E12 RevenueCat #632는 스토어 연결과 SDK 키까지 끝났고 상품은 E15 뒤.
+* **지금(사용자):** E3 테스터 12명 모집 #535(T1을 가장 오래 막음), E12 Test Store 상품 만들기 #632(staging 결제, #683을 막음), E13 보상형 단위 두 개에 staging SSV 콜백 URL 넣기 #539, E14 문의 메일 주소. 스토어 상품은 E15 뒤.
 * **완료:** E2 Apple Developer, E4 GCP, E5 Firebase(#605), E6 도메인, E7 Apple 로그인, E8 서명 지문, E9 카카오 콘솔, E10 LINE, E11 Google 로그인, E17 staging 몫(#636, prod 비밀 값은 I4 전).
 * **T1 직전:** LINE 채널 Published(E10), Google 동의 화면 프로덕션 전환이나 테스터 등록(E11), staging debug token 교체.
-* **I4 전(보류):** E15 사업자등록 #534(앱을 받아 본 뒤, D92), E16 약관과 처리방침 원문(AdMob 동의 메시지가 가리키는 주소, 실제 사용자에게 광고가 나가기 전까지 열려야 함), E18 원어민 검수, E19 정책 검토.
+* **I4 전(보류):** E13 보상형 단위 SSV 콜백 URL을 staging에서 prod 주소로 바꾸기(#539), E15 사업자등록 #534(앱을 받아 본 뒤, D92), E16 약관과 처리방침 원문(AdMob 동의 메시지가 가리키는 주소, 실제 사용자에게 광고가 나가기 전까지 열려야 함), E18 원어민 검수, E19 정책 검토.
 
 ## 지휘 세션 미결 (서브 프로젝트 설계 전에 정할 것)
 | 항목 | 걸린 곳 | 근거 |

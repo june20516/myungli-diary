@@ -19,7 +19,7 @@
 | Cloud SQL | staging `db-f1-micro`, prod `db-custom-1-3840`. 연결 수 상한과 server 연결 풀 크기 대조 전 |
 | server 과부하 보호 | rate limit, 부하 차단을 코드에서 찾지 못함(확인 필요) |
 | app 과부하 대응 | 오류 화면 컴포넌트 있음. 429, 503, 시간 초과에서 재시도와 안내가 어떻게 되는지 확인 전 |
-| 외부 health 확인 | `/healthz`는 직접 주소와 공개 주소 모두 Google 앞단의 404(Cloud Run 예약 경로로 보임, 확인 필요). `/v1/me`는 server의 401 응답이 와서 서비스는 정상. 외부 uptime check를 둘 경로는 착수 때 정함 |
+| 외부 health 확인 | `/healthz`는 직접 주소와 공개 주소 모두 Google 앞단의 404. Cloud Run known issues 문서가 `z`로 끝나는 일부 경로를 예약하고 모두 피하라고 권함(2026-11-03 확인). 경로 변경은 server #699. `/v1/me`는 server의 401 응답이 와서 서비스는 정상. 외부 uptime check를 둘 경로는 착수 때 정함 |
 
 ## 3. O1 범위(T1 전)
 
