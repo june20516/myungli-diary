@@ -18,6 +18,11 @@ type Unimplemented struct{}
 
 var _ gen.StrictServerInterface = Unimplemented{}
 
+// CheckHealth는 프로세스가 요청을 받을 수 있으면 200 {"status":"ok"}입니다.
+func (Unimplemented) CheckHealth(context.Context, gen.CheckHealthRequestObject) (gen.CheckHealthResponseObject, error) {
+	return gen.CheckHealth200JSONResponse{Status: gen.Ok}, nil
+}
+
 // GetHealth는 프로세스가 요청을 받을 수 있으면 200 {"status":"ok"}입니다.
 // 의존성 점검(503)은 의존성이 생기는 계획에서 덮어씁니다.
 func (Unimplemented) GetHealth(context.Context, gen.GetHealthRequestObject) (gen.GetHealthResponseObject, error) {

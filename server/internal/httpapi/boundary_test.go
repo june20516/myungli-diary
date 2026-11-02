@@ -153,7 +153,7 @@ func TestHandler_ErrAbortHandlerIsRethrownWithoutErrorLog(t *testing.T) {
 func TestHandler_HeadHealthz(t *testing.T) {
 	handler, _ := newAPIHandler(t)
 
-	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodHead, "/healthz", nil))
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodHead, "/health", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", rec.Code)

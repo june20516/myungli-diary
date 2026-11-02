@@ -234,16 +234,31 @@ type AppConfig struct {
 
 var _ gen.StrictServerInterface = (*API)(nil)
 
-// GetHealth는 DB ping이 1초 안에 성공하면 200, 아니면 503 service.unavailable입니다.
-// DB가 설정되지 않은 것도 조립 실수이므로 503으로 드러냅니다.
+// CheckHealth는 DB ping이 1초 안에 성공하면 200, 아니면 503 service.unavailable입니다(#699).
+func (a *API) CheckHealth(ctx context.Context, _ gen.CheckHealthRequestObject) (gen.CheckHealthResponseObject, error) {
+	if err := a.pingDB(ctx); err != nil {
+		return nil, err
+	}
+	return gen.CheckHealth200JSONResponse{Status: gen.Ok}, nil
+}
+
+// GetHealth는 deprecated 경로 /healthz입니다. CheckHealth와 같은 판정입니다.
 func (a *API) GetHealth(ctx context.Context, _ gen.GetHealthRequestObject) (gen.GetHealthResponseObject, error) {
+	if err := a.pingDB(ctx); err != nil {
+		return nil, err
+	}
+	return gen.GetHealth200JSONResponse{Status: gen.Ok}, nil
+}
+
+// pingDB는 health 판정입니다. DB가 설정되지 않은 것도 조립 실수이므로 503으로 드러냅니다.
+func (a *API) pingDB(ctx context.Context) error {
 	if a.DB == nil {
-		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+		return newError(problem.ServiceUnavailable, "Service unavailable")
 	}
 	pingCtx, cancel := context.WithTimeout(ctx, healthPingTimeout)
 	defer cancel()
 	if err := a.DB.Ping(pingCtx); err != nil {
-		return nil, newError(problem.ServiceUnavailable, "Service unavailable")
+		return newError(problem.ServiceUnavailable, "Service unavailable")
 	}
-	return gen.GetHealth200JSONResponse{Status: gen.Ok}, nil
+	return nil
 }

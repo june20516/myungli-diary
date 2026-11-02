@@ -422,13 +422,14 @@ func TestAPI_AccessLogUsesContractRoute(t *testing.T) {
 	}
 }
 
-func TestNewHandler_HealthzIsOnlyContractRoute(t *testing.T) {
+func TestNewHandler_HealthIsOnlyContractRoute(t *testing.T) {
 	handler, _ := newTestHandler(t, nil)
 
-	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/healthz", nil))
-
-	if rec.Code != http.StatusNotFound {
-		t.Errorf("status = %d, want 404 (healthz는 RegisterAPI가 등록합니다)", rec.Code)
+	for _, path := range []string{"/health", "/healthz"} {
+		rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, path, nil))
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("%s status = %d, want 404 (health 경로는 RegisterAPI가 등록합니다)", path, rec.Code)
+		}
 	}
 }
 
@@ -496,6 +497,7 @@ var minimalRequests = map[string]operationRequest{
 		"/webhooks/admob-ssv?ad_network=1&key_id=3335741209&signature=MEUCIQ&timestamp=1507770365237823&transaction_id=18fa792de1bca816048293fc71035638", "", ""},
 	"listCities":   {http.MethodGet, "/v1/cities?q=Seoul", "", ""},
 	"getAppConfig": {http.MethodGet, "/v1/app-config", "", ""},
+	"checkHealth":  {http.MethodGet, "/health", "", ""},
 	"getHealth":    {http.MethodGet, "/healthz", "", ""},
 }
 
@@ -533,7 +535,7 @@ func TestAPI_EveryOperationIsRouted(t *testing.T) {
 			rec := serve(handler, req)
 
 			want := http.StatusNotImplemented
-			if operationID == "getHealth" {
+			if operationID == "checkHealth" || operationID == "getHealth" {
 				want = http.StatusOK
 			}
 			if rec.Code != want {
