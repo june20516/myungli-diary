@@ -10,6 +10,16 @@ resource "google_cloud_run_v2_service" "engine" {
     containers {
       image = local.engine_image
 
+      # cold start는 늘 일어나므로(인스턴스 0개까지 줄어듦) 시작 중에 CPU를 더 받아 뜨는 시간을 줄입니다(S132).
+      # limits는 지금 적용된 기본값 그대로입니다. 용량 값은 L1에서 정합니다.
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
+        startup_cpu_boost = true
+      }
+
       # 엔진은 TLS 없는 h2c gRPC입니다. 포트 이름 h2c가 HTTP/2 end-to-end를 켭니다(#79).
       ports {
         name           = "h2c"
@@ -66,6 +76,16 @@ resource "google_cloud_run_v2_service" "server" {
 
     containers {
       image = local.placeholder_image
+
+      # cold start는 늘 일어나므로(인스턴스 0개까지 줄어듦) 시작 중에 CPU를 더 받아 뜨는 시간을 줄입니다(S132).
+      # limits는 지금 적용된 기본값 그대로입니다. 용량 값은 L1에서 정합니다.
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
+        startup_cpu_boost = true
+      }
     }
   }
 

@@ -22,7 +22,9 @@ import (
 const cacheWriteTimeout = time.Second
 
 // VersionSource는 엔진의 현재 ruleset_version을 줍니다. *engine.Versions가 만족합니다.
-type VersionSource interface{ Current() (string, error) }
+type VersionSource interface {
+	Ensure(ctx context.Context) (string, error)
+}
 
 // Service는 엔진 결과를 캐시와 함께 조회합니다.
 // 돌려주는 응답은 같은 키로 동시에 기다린 호출자끼리 공유될 수 있으므로 바꾸지 않습니다.
@@ -41,7 +43,7 @@ func NewService(e engine.Engine, v VersionSource, c ResultCache, logger *slog.Lo
 
 // Chart는 원국을 조회합니다. 캐시 키는 asOf의 연도입니다.
 func (s *Service) Chart(ctx context.Context, b profile.Birth, asOf profile.LocalDate) (*enginev1.ChartResponse, error) {
-	ruleset, err := s.currentRuleset()
+	ruleset, err := s.currentRuleset(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (s *Service) Chart(ctx context.Context, b profile.Birth, asOf profile.Local
 
 // Daily는 사용자 현재 시간대의 날짜 하나의 운세를 조회합니다.
 func (s *Service) Daily(ctx context.Context, b profile.Birth, date profile.LocalDate, currentTimezone string) (*enginev1.DailyResponse, error) {
-	ruleset, err := s.currentRuleset()
+	ruleset, err := s.currentRuleset(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +101,7 @@ func (s *Service) Daily(ctx context.Context, b profile.Birth, date profile.Local
 // DailyUncached는 Daily와 같은 요청을 캐시와 singleflight 없이 엔진에 바로 보냅니다.
 // 계정 없는 요청(미리보기)처럼 출생 정보에서 되찾을 수 있는 값(birth_hash)을 저장하면 안 될 때 씁니다(D50).
 func (s *Service) DailyUncached(ctx context.Context, b profile.Birth, date profile.LocalDate, currentTimezone string) (*enginev1.DailyResponse, error) {
-	if _, err := s.currentRuleset(); err != nil {
+	if _, err := s.currentRuleset(ctx); err != nil {
 		return nil, err
 	}
 	info, err := toBirthInfo(b)
@@ -116,7 +118,7 @@ func dailyRequest(info *enginev1.BirthInfo, date profile.LocalDate, currentTimez
 
 // Month는 한 달 달력을 조회합니다.
 func (s *Service) Month(ctx context.Context, b profile.Birth, year, month int, currentTimezone string) (*enginev1.MonthResponse, error) {
-	ruleset, err := s.currentRuleset()
+	ruleset, err := s.currentRuleset(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -145,9 +147,10 @@ func (s *Service) Month(ctx context.Context, b profile.Birth, year, month int, c
 	})
 }
 
-// currentRuleset은 캐시 조회 키에 쓸 ruleset_version을 줍니다. 아직 모르면 엔진을 쓸 수 없는 것으로 봅니다.
-func (s *Service) currentRuleset() (string, error) {
-	ruleset, err := s.versions.Current()
+// currentRuleset은 캐시 조회 키에 쓸 ruleset_version을 줍니다. 아직 모르면 엔진에 물어 기다리고(S132),
+// 그래도 모르면 엔진을 쓸 수 없는 것으로 봅니다.
+func (s *Service) currentRuleset(ctx context.Context) (string, error) {
+	ruleset, err := s.versions.Ensure(ctx)
 	if err != nil {
 		if errors.Is(err, engine.ErrVersionUnknown) {
 			return "", fmt.Errorf("%w: %w", engine.ErrUnavailable, err)
