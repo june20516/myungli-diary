@@ -374,7 +374,7 @@
   "manseTableLabel": "万年暦の表",
   "daeunTableLabel": "{age}歳からの大運",
   "luckYearLabel": "{year}年",
-  "ohaengBarItem": "{element} {count}つ",
+  "ohaengBarItem": "{element} {weight}",
   "sajuPillarHour": "時柱",
   "sajuPillarDay": "日柱",
   "sajuPillarMonth": "月柱",

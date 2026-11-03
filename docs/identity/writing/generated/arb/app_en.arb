@@ -374,7 +374,7 @@
   "manseTableLabel": "Calendar table",
   "daeunTableLabel": "10-year luck cycles from age {age}",
   "luckYearLabel": "{year}",
-  "ohaengBarItem": "{element} {count}",
+  "ohaengBarItem": "{element} {weight}",
   "sajuPillarHour": "Hour",
   "sajuPillarDay": "Day",
   "sajuPillarMonth": "Month",

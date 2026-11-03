@@ -220,7 +220,7 @@
 | ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 6, en 9, ja 4 |
 | ui.saju-chart.tab | 컴포넌트 segmented | info | - | 1 | 2 | - | ko -, en -, ja - |
-| ui.saju.a11y | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 5 | `age`: number<br>`year`: number<br>`element`: text<br>`count`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.saju.a11y | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 5 | `age`: number<br>`year`: number<br>`element`: text<br>`weight`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.saju.header | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 term-token | info | - | 1 | 8 | - | ko -, en -, ja - |
 | ui.saju.tag | 컴포넌트 saju-pillars<br>컴포넌트 daeun-table | info | - | 1 | 3 | - | ko -, en -, ja - |
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |

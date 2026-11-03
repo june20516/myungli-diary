@@ -1810,14 +1810,14 @@
       }
     }
   },
-  "ohaengBarItem": "{element} {count}개",
+  "ohaengBarItem": "{element} {weight}",
   "@ohaengBarItem": {
     "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목",
     "placeholders": {
       "element": {
         "type": "String"
       },
-      "count": {
+      "weight": {
         "type": "String"
       }
     }
