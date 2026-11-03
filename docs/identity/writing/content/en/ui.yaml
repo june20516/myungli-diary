@@ -396,7 +396,7 @@
 - {slot: ui.saju.a11y, key: manseTableLabel, text: "Calendar table"}
 - {slot: ui.saju.a11y, key: daeunTableLabel, text: "10-year luck cycles from age {age}"}
 - {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}"}
-- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {count}"}
+- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {weight}"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "There's no separate reading for this spot."}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "Lucky color"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
