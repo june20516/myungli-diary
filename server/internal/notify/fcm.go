@@ -22,8 +22,10 @@ const (
 	FCMScope = "https://www.googleapis.com/auth/firebase.messaging"
 	// defaultFCMEndpoint는 FCM HTTP v1 주소입니다(테스트에서 바꿉니다).
 	defaultFCMEndpoint = "https://fcm.googleapis.com"
-	// fcmRequestTimeout은 요청 한 번의 상한입니다.
-	fcmRequestTimeout = 10 * time.Second
+	// defaultFCMRequestTimeout은 요청 한 번의 상한입니다.
+	defaultFCMRequestTimeout = 10 * time.Second
+	// maxRetryAfter보다 오래 기다리라는 Retry-After는 이번 실행에서 따르지 않고 실패로 둡니다(다음 실행이 다시 보냄).
+	maxRetryAfter = 30 * time.Second
 	// fcmMaxErrorBody는 오류 응답에서 읽는 최대 바이트입니다.
 	fcmMaxErrorBody = 64 << 10
 
@@ -32,9 +34,11 @@ const (
 )
 
 // fcmRetryDelays는 일시 오류 뒤 다시 보내기 전에 기다리는 시간입니다(지수 backoff 3번, spec §8.2).
+// Retry-After가 더 길면 그 시간을 기다립니다.
 var fcmRetryDelays = []time.Duration{time.Second, 2 * time.Second, 4 * time.Second}
 
-// ErrTokenInvalid는 FCM이 등록 토큰을 무효라고 답했다는 뜻입니다(UNREGISTERED, 또는 token 필드가 잘못된 INVALID_ARGUMENT).
+// ErrTokenInvalid는 FCM이 등록 토큰을 이 프로젝트로 다시 쓸 수 없다고 답했다는 뜻입니다
+// (UNREGISTERED, SENDER_ID_MISMATCH, 또는 token 필드가 잘못된 INVALID_ARGUMENT).
 // 호출자는 그 기기를 비활성으로 바꿉니다(S92).
 var ErrTokenInvalid = errors.New("FCM 등록 토큰이 무효입니다")
 
@@ -61,14 +65,17 @@ type FCMConfig struct {
 	Clock clock.Clock
 	// Sleep이 nil이면 timer로 기다립니다(ctx가 끝나면 그 오류).
 	Sleep func(ctx context.Context, d time.Duration) error
+	// RequestTimeout이 0이면 10초입니다.
+	RequestTimeout time.Duration
 }
 
 // FCM은 FCM HTTP v1으로 메시지를 보냅니다.
 type FCM struct {
-	url    string
-	client *http.Client
-	clk    clock.Clock
-	sleep  func(ctx context.Context, d time.Duration) error
+	url     string
+	client  *http.Client
+	clk     clock.Clock
+	sleep   func(ctx context.Context, d time.Duration) error
+	timeout time.Duration
 }
 
 // NewFCM은 FCM client를 만듭니다.
@@ -92,15 +99,22 @@ func NewFCM(cfg FCMConfig) (*FCM, error) {
 	if sleep == nil {
 		sleep = sleepContext
 	}
+	timeout := cfg.RequestTimeout
+	if timeout == 0 {
+		timeout = defaultFCMRequestTimeout
+	}
 	return &FCM{
-		url:    strings.TrimRight(endpoint, "/") + "/v1/projects/" + cfg.ProjectID + "/messages:send",
-		client: client,
-		clk:    clk,
-		sleep:  sleep,
+		url:     strings.TrimRight(endpoint, "/") + "/v1/projects/" + cfg.ProjectID + "/messages:send",
+		client:  client,
+		clk:     clk,
+		sleep:   sleep,
+		timeout: timeout,
 	}, nil
 }
 
-// Send는 메시지를 보냅니다. 일시 오류(QUOTA_EXCEEDED, UNAVAILABLE, INTERNAL, HTTP 429·5xx)는 3번까지 다시 보냅니다.
+// Send는 메시지를 보냅니다. 일시 오류(UNAVAILABLE, INTERNAL, HTTP 5xx, 연결 오류, 요청 timeout)는 3번까지 다시 보냅니다.
+// QUOTA_EXCEEDED(429)는 공식 권고(최소 1분 뒤)를 실행 상한 안에서 지킬 수 없어 다시 보내지 않습니다.
+// 같은 날 알림은 교체 키(Android tag, APNs apns-collapse-id)로 바뀌므로, 전달됐는지 모르는 요청을 다시 보내도 하나로 보입니다.
 // 토큰이 무효면 ErrTokenInvalid를 감싸 돌려줍니다. 오류에는 토큰과 본문을 담지 않습니다.
 func (f *FCM) Send(ctx context.Context, m Message) error {
 	payload, err := json.Marshal(f.request(m))
@@ -108,37 +122,57 @@ func (f *FCM) Send(ctx context.Context, m Message) error {
 		return fmt.Errorf("FCM 요청 직렬화: %w", err)
 	}
 	for attempt := 0; ; attempt++ {
-		retryable, err := f.post(ctx, payload)
-		if err == nil || !retryable || attempt == len(fcmRetryDelays) {
-			return err
+		result := f.post(ctx, payload)
+		if result.err == nil || !result.retryable || attempt == len(fcmRetryDelays) {
+			return result.err
 		}
-		if err := f.sleep(ctx, fcmRetryDelays[attempt]); err != nil {
+		if result.retryAfter > maxRetryAfter {
+			return result.err
+		}
+		if err := f.sleep(ctx, max(fcmRetryDelays[attempt], result.retryAfter)); err != nil {
 			return err
 		}
 	}
 }
 
-// post는 요청을 한 번 보냅니다. 실패하면 다시 보낼 만한지와 오류를 돌려줍니다.
-func (f *FCM) post(ctx context.Context, payload []byte) (bool, error) {
-	ctx, cancel := context.WithTimeout(ctx, fcmRequestTimeout)
+// postResult는 요청 한 번의 결과입니다.
+type postResult struct {
+	err        error
+	retryable  bool
+	retryAfter time.Duration
+}
+
+// post는 요청을 한 번 보냅니다.
+func (f *FCM) post(parent context.Context, payload []byte) postResult {
+	ctx, cancel := context.WithTimeout(parent, f.timeout)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, f.url, bytes.NewReader(payload))
 	if err != nil {
-		return false, fmt.Errorf("FCM 요청 생성: %w", err)
+		return postResult{err: fmt.Errorf("FCM 요청 생성: %w", err)}
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := f.client.Do(req)
 	if err != nil {
-		// 연결 오류는 일시 오류로 봅니다. 상위 ctx가 끝났으면 다시 보내지 않습니다.
-		return ctx.Err() == nil, fmt.Errorf("FCM 요청 실패: %w", err)
+		// 연결 오류와 요청 timeout은 다시 보냅니다. Job ctx가 끝났으면 다시 보내지 않습니다.
+		return postResult{err: fmt.Errorf("FCM 요청 실패: %w", err), retryable: parent.Err() == nil}
 	}
 	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode == http.StatusOK {
 		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, fcmMaxErrorBody))
-		return false, nil
+		return postResult{}
 	}
 	body, _ := io.ReadAll(io.LimitReader(resp.Body, fcmMaxErrorBody))
-	return classifyFCMError(resp.StatusCode, body)
+	retryable, err := classifyFCMError(resp.StatusCode, body)
+	return postResult{err: err, retryable: retryable, retryAfter: parseRetryAfter(resp.Header.Get("Retry-After"))}
+}
+
+// parseRetryAfter는 초 단위 Retry-After 값을 읽습니다. 없거나 읽지 못하면 0입니다(HTTP 날짜 형식은 쓰지 않음).
+func parseRetryAfter(value string) time.Duration {
+	seconds, err := strconv.Atoi(strings.TrimSpace(value))
+	if err != nil || seconds < 0 {
+		return 0
+	}
+	return time.Duration(seconds) * time.Second
 }
 
 // fcmErrorResponse는 FCM 오류 응답에서 쓰는 필드입니다.
@@ -174,11 +208,11 @@ func classifyFCMError(status int, body []byte) (bool, error) {
 	}
 	err := fmt.Errorf("FCM 응답 %d %s", status, code)
 	switch {
-	case code == "UNREGISTERED", code == "INVALID_ARGUMENT" && tokenField:
+	case code == "UNREGISTERED", code == "SENDER_ID_MISMATCH", code == "INVALID_ARGUMENT" && tokenField:
 		return false, fmt.Errorf("%w: %w", ErrTokenInvalid, err)
-	case code == "QUOTA_EXCEEDED", code == "UNAVAILABLE", code == "INTERNAL":
-		return true, err
-	case status == http.StatusTooManyRequests, status >= http.StatusInternalServerError:
+	case code == "QUOTA_EXCEEDED", status == http.StatusTooManyRequests:
+		return false, err
+	case code == "UNAVAILABLE", code == "INTERNAL", status >= http.StatusInternalServerError:
 		return true, err
 	default:
 		return false, err

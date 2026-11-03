@@ -21,8 +21,9 @@ import (
 
 // fcmReply는 가짜 FCM 서버의 응답 하나입니다.
 type fcmReply struct {
-	status int
-	body   string
+	status     int
+	body       string
+	retryAfter string
 }
 
 // fakeFCM은 요청 경로와 본문을 기록하고 replies를 차례로 돌려줍니다. 다 쓰면 마지막 응답을 되풀이합니다.
@@ -32,6 +33,8 @@ type fakeFCM struct {
 	replies []fcmReply
 	paths   []string
 	bodies  []map[string]any
+	// firstDelay만큼 첫 요청의 응답을 늦춥니다(요청 timeout 재현).
+	firstDelay time.Duration
 }
 
 func newFakeFCM(t *testing.T, replies ...fcmReply) *fakeFCM {
@@ -45,7 +48,17 @@ func newFakeFCM(t *testing.T, replies ...fcmReply) *fakeFCM {
 		f.paths = append(f.paths, r.Method+" "+r.URL.Path)
 		f.bodies = append(f.bodies, body)
 		reply := f.replies[min(len(f.paths), len(f.replies))-1]
+		delay := time.Duration(0)
+		if len(f.paths) == 1 {
+			delay = f.firstDelay
+		}
 		f.mu.Unlock()
+		if delay > 0 {
+			time.Sleep(delay)
+		}
+		if reply.retryAfter != "" {
+			w.Header().Set("Retry-After", reply.retryAfter)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(reply.status)
 		_, _ = w.Write([]byte(reply.body))
@@ -174,8 +187,8 @@ func TestFCM_InvalidTokenArgumentIsTokenInvalid(t *testing.T) {
 func TestFCM_RetriesTransient(t *testing.T) {
 	server := newFakeFCM(t,
 		fcmError(http.StatusServiceUnavailable, "UNAVAILABLE", ""),
-		fcmError(http.StatusTooManyRequests, "QUOTA_EXCEEDED", ""),
 		fcmError(http.StatusInternalServerError, "INTERNAL", ""),
+		fcmError(http.StatusBadGateway, "", ""),
 		fcmOK,
 	)
 	waits := &sleeps{}
@@ -184,6 +197,56 @@ func TestFCM_RetriesTransient(t *testing.T) {
 
 	assert.Equal(t, 4, server.calls())
 	assert.Equal(t, []time.Duration{time.Second, 2 * time.Second, 4 * time.Second}, waits.list)
+}
+
+// QUOTA_EXCEEDED는 공식 권고(최소 1분 뒤 재시도)를 실행 상한 안에서 지킬 수 없어 이번 실행에서는 다시 보내지 않습니다.
+func TestFCM_QuotaExceededNotRetried(t *testing.T) {
+	server := newFakeFCM(t, fcmError(http.StatusTooManyRequests, "QUOTA_EXCEEDED", ""))
+
+	err := newTestFCM(t, server, &sleeps{}).Send(context.Background(), morningMessage(t))
+
+	require.Error(t, err)
+	assert.False(t, errors.Is(err, notify.ErrTokenInvalid))
+	assert.Equal(t, 1, server.calls())
+}
+
+func TestFCM_HonorsRetryAfter(t *testing.T) {
+	withHeader := func(seconds string) fcmReply {
+		r := fcmError(http.StatusServiceUnavailable, "UNAVAILABLE", "")
+		r.retryAfter = seconds
+		return r
+	}
+	server := newFakeFCM(t, withHeader("3"), fcmOK)
+	waits := &sleeps{}
+	require.NoError(t, newTestFCM(t, server, waits).Send(context.Background(), morningMessage(t)))
+	assert.Equal(t, []time.Duration{3 * time.Second}, waits.list)
+
+	tooLong := newFakeFCM(t, withHeader("120"), fcmOK)
+	err := newTestFCM(t, tooLong, &sleeps{}).Send(context.Background(), morningMessage(t))
+	require.Error(t, err, "30초를 넘게 기다리라면 이번 실행에서는 포기합니다")
+	assert.Equal(t, 1, tooLong.calls())
+}
+
+func TestFCM_SenderIDMismatchIsTokenInvalid(t *testing.T) {
+	server := newFakeFCM(t, fcmError(http.StatusForbidden, "SENDER_ID_MISMATCH", ""))
+
+	err := newTestFCM(t, server, &sleeps{}).Send(context.Background(), morningMessage(t))
+
+	require.ErrorIs(t, err, notify.ErrTokenInvalid)
+}
+
+// 요청 timeout도 다시 보냅니다. 같은 날 알림은 교체 키(tag, apns-collapse-id)로 바뀌므로 중복으로 받아도 하나로 보입니다.
+func TestFCM_RetriesRequestTimeout(t *testing.T) {
+	server := newFakeFCM(t, fcmOK)
+	server.firstDelay = 200 * time.Millisecond
+	fcm, err := notify.NewFCM(notify.FCMConfig{
+		ProjectID: "proj-1", HTTPClient: server.Client(), Endpoint: server.URL,
+		Clock: clocktest.New(fcmNow), Sleep: (&sleeps{}).sleep, RequestTimeout: 50 * time.Millisecond,
+	})
+	require.NoError(t, err)
+
+	require.NoError(t, fcm.Send(context.Background(), morningMessage(t)))
+	assert.Equal(t, 2, server.calls())
 }
 
 func TestFCM_GivesUpAfterThreeRetries(t *testing.T) {
