@@ -725,7 +725,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharePreviewImageFooter => '명리일기';
 
   @override
-  String get sharePreviewImageTagline => '내 사주로 푼 오늘, 명리일기';
+  String get sharePreviewImageTagline => '오늘 일진을 내 사주에 맞춰 풀어 주는 일기';
 
   @override
   String get sharePreviewRatioLabelStory => '스토리';
@@ -796,7 +796,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayLuckyTimeName => '집중하기 좋은 시간';
 
   @override
-  String get evidenceSheetTitle => '오늘 풀이의 근거';
+  String get evidenceSheetTitle => '풀이의 근거';
 
   @override
   String get a11yListSeparator => ', ';
@@ -1111,7 +1111,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsLogoutLabel => '로그아웃';
 
   @override
-  String get profileEditBirthplaceKorea => '한국';
+  String get profileEditBirthplaceKorea => '한국 기준';
 
   @override
   String get sajuChartTabNatal => '원국';
@@ -1155,8 +1155,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String ohaengBarItem(String element, String count) {
-    return '$element $count';
+  String ohaengBarItem(String element, String weight) {
+    return '$element $weight';
   }
 
   @override
@@ -1169,7 +1169,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get manseTableLabel => '만세력 표';
 
   @override
-  String get evidenceSheetPersonalEmpty => '이 자리의 해석은 아직 준비 중이에요.';
+  String get evidenceSheetPersonalEmpty => '이 자리는 따로 풀이한 내용이 없어요.';
 
   @override
   String luckYearLabel(int year) {
@@ -1446,4 +1446,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String accountChoiceSajuNoTimeLeap(String date, String calendar) {
     return '$calendar 윤달 $date 시각 모름';
   }
+
+  @override
+  String get iosTrackingUsageDescription =>
+      '허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.';
 }
