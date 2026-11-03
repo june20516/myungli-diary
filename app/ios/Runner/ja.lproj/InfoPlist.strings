@@ -1,0 +1,3 @@
+/* tool/gen_native_strings.dart가 ARB에서 생성합니다. 손대지 않습니다. */
+"CFBundleDisplayName" = "命理日記";
+"NSUserTrackingUsageDescription" = "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。";

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- tool/gen_native_strings.dart가 ARB에서 생성합니다. 손대지 않습니다. -->
+<resources>
+    <string name="app_name">명리일기</string>
+</resources>

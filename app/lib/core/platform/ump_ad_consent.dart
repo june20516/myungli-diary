@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 import 'package:myungli_diary/core/platform/ad_consent.dart';
+import 'package:myungli_diary/core/platform/tracking_authorization.dart';
 
 /// UMP(Google User Messaging Platform) 경계. SDK 호출을 옮기기만 하고 분기는
 /// [UmpAdConsent]에 둡니다.
@@ -58,11 +59,16 @@ final class SdkUmpApi implements UmpApi {
 /// 처음 광고 전에 동의 정보를 받고, 필요한 지역이면 동의 창을 띄웁니다. AdMob 콘솔의 동의
 /// 메시지는 개인정보처리방침 주소(E16) 뒤에 게시하므로, 그 전에 창이 없거나 오류여도 던지지
 /// 않고 비맞춤으로 끝납니다. 광고 요청에 쓰는 동의 값은 SDK가 직접 읽고, 결과는 기록용입니다:
-/// 동의 대상 지역 밖의 Android만 맞춤이고, 사용자가 고른 지역은 고른 값을 알 수 없어
-/// 비맞춤으로 봅니다. iOS는 ATT를 아직 묻지 않아(권한 창 문구 원고 대기, 결정 A99) 비맞춤입니다.
+/// 동의 대상 지역 밖이면 맞춤이고, 사용자가 고른 지역은 고른 값을 알 수 없어 비맞춤으로
+/// 봅니다. iOS는 동의 창이 IDFA 안내 다음에 ATT를 묻고(결정 A101), ATT를 허용했을 때만
+/// 맞춤입니다.
 final class UmpAdConsent implements AdConsent {
   /// adapter를 만듭니다.
-  const new({required this.isIOS, this.api = const SdkUmpApi()});
+  const new({
+    required this.isIOS,
+    this.api = const SdkUmpApi(),
+    this.tracking = const ChannelTrackingAuthorization(),
+  });
 
   /// iOS인지.
   final bool isIOS;
@@ -70,12 +76,18 @@ final class UmpAdConsent implements AdConsent {
   /// UMP 경계.
   final UmpApi api;
 
+  /// iOS ATT 상태 경계. Android에서는 부르지 않습니다.
+  final TrackingAuthorization tracking;
+
   @override
   Future<AdConsentResult> gather() async {
     try {
       await api.requestUpdate();
       await api.showFormIfRequired();
-      if (isIOS || !await api.consentNotRequired()) {
+      if (!await api.consentNotRequired()) {
+        return AdConsentResult.nonPersonalized;
+      }
+      if (isIOS && !await tracking.isAuthorized()) {
         return AdConsentResult.nonPersonalized;
       }
       return AdConsentResult.personalized;

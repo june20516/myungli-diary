@@ -1,0 +1,3 @@
+/* tool/gen_native_strings.dart가 ARB에서 생성합니다. 손대지 않습니다. */
+"CFBundleDisplayName" = "Myungli Diary";
+"NSUserTrackingUsageDescription" = "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way.";
