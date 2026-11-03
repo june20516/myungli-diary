@@ -28,11 +28,11 @@ func TestDueAt(t *testing.T) {
 		date     profile.LocalDate
 		expire   time.Time
 	}{
-		"정각":          {at(2026, 11, 4, 7, 0, 0), profile.LocalTime{Hour: 7}, true, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, at(2026, 11, 5, 0, 0, 0)},
-		"1초 전":        {at(2026, 11, 4, 6, 59, 59), profile.LocalTime{Hour: 7}, false, profile.LocalDate{}, time.Time{}},
-		"60분 뒤 경계 포함": {at(2026, 11, 4, 8, 0, 0), profile.LocalTime{Hour: 7}, true, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, at(2026, 11, 5, 0, 0, 0)},
-		"60분 1초 뒤":    {at(2026, 11, 4, 8, 0, 1), profile.LocalTime{Hour: 7}, false, profile.LocalDate{}, time.Time{}},
-		"자정을 넘는 창":    {at(2026, 11, 5, 0, 10, 0), profile.LocalTime{Hour: 23, Minute: 55}, true, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, at(2026, 11, 5, 0, 0, 0)},
+		"정각":           {at(2026, 11, 4, 7, 0, 0), profile.LocalTime{Hour: 7}, true, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, at(2026, 11, 5, 0, 0, 0)},
+		"1초 전":         {at(2026, 11, 4, 6, 59, 59), profile.LocalTime{Hour: 7}, false, profile.LocalDate{}, time.Time{}},
+		"60분 뒤 경계 포함":  {at(2026, 11, 4, 8, 0, 0), profile.LocalTime{Hour: 7}, true, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, at(2026, 11, 5, 0, 0, 0)},
+		"60분 1초 뒤":     {at(2026, 11, 4, 8, 0, 1), profile.LocalTime{Hour: 7}, false, profile.LocalDate{}, time.Time{}},
+		"자정을 넘는 창":     {at(2026, 11, 5, 0, 10, 0), profile.LocalTime{Hour: 23, Minute: 55}, true, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, at(2026, 11, 5, 0, 0, 0)},
 		"자정 뒤 아침 알림 전": {at(2026, 11, 5, 0, 10, 0), profile.LocalTime{Hour: 7}, false, profile.LocalDate{}, time.Time{}},
 	}
 	for name, c := range cases {
@@ -64,4 +64,34 @@ func TestDueAt_NonexistentLocalTime(t *testing.T) {
 func TestDueAt_InvalidTimezone(t *testing.T) {
 	_, _, err := notify.DueAt(time.Date(2026, 11, 4, 0, 0, 0, 0, time.UTC), "Nowhere/Invalid", profile.LocalTime{Hour: 7})
 	require.Error(t, err)
+}
+
+// America/Santiago 2026-09-06은 00:00이 없습니다(00:00 → 01:00). 현지 날짜와 만료가 하루 어긋나지 않아야 합니다.
+func TestDueAt_MissingMidnight(t *testing.T) {
+	santiago := mustLocation(t, "America/Santiago")
+	cases := map[string]struct {
+		now    time.Time
+		date   profile.LocalDate
+		expire time.Time
+	}{
+		"자정이 없는 날 아침": {time.Date(2026, 9, 6, 7, 10, 0, 0, santiago), profile.LocalDate{Year: 2026, Month: 9, Day: 6}, time.Date(2026, 9, 7, 0, 0, 0, 0, santiago)},
+		"그 전날 아침":     {time.Date(2026, 9, 5, 7, 10, 0, 0, santiago), profile.LocalDate{Year: 2026, Month: 9, Day: 5}, time.Date(2026, 9, 6, 1, 0, 0, 0, santiago)},
+	}
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			got, due, err := notify.DueAt(c.now, "America/Santiago", profile.LocalTime{Hour: 7})
+			require.NoError(t, err)
+			require.True(t, due)
+			assert.Equal(t, c.date, got.LocalDate)
+			assert.True(t, got.Expire.Equal(c.expire), "expire = %v, want %v", got.Expire, c.expire)
+		})
+	}
+}
+
+// 가을 DST 끝(America/New_York 2026-11-01 01:00~02:00이 두 번)에도 그날 한 번 대상이 됩니다.
+func TestDueAt_RepeatedLocalTime(t *testing.T) {
+	got, due, err := notify.DueAt(time.Date(2026, 11, 1, 5, 40, 0, 0, time.UTC), "America/New_York", profile.LocalTime{Hour: 1, Minute: 30})
+	require.NoError(t, err)
+	assert.True(t, due)
+	assert.Equal(t, profile.LocalDate{Year: 2026, Month: 11, Day: 1}, got.LocalDate)
 }

@@ -192,8 +192,9 @@ func targetDate(now time.Time, timezone string) (profile.LocalDate, bool, error)
 	if local.Hour() != windowStartHour || local.Minute() >= windowMinutes {
 		return profile.LocalDate{}, false, nil
 	}
-	next := time.Date(local.Year(), local.Month(), local.Day()+1, 0, 0, 0, 0, location)
-	return profile.LocalDate{Year: next.Year(), Month: int(next.Month()), Day: next.Day()}, true, nil
+	// 날짜는 시간대와 무관하게 더합니다. 현지 자정을 만들면 DST로 자정이 없는 날 전날로 정규화됩니다.
+	today := profile.LocalDate{Year: local.Year(), Month: int(local.Month()), Day: local.Day()}
+	return today.AddDays(1), true, nil
 }
 
 // compute는 사용자 한 명의 다음 날 데일리와(1일이면) 그 달 캘린더를 계산합니다. 하나라도 실패하면 false입니다.

@@ -378,3 +378,10 @@ func TestRun_LogsPhaseDurations(t *testing.T) {
 		assert.Contains(t, logs.String(), key)
 	}
 }
+
+// America/Santiago 2026-09-06은 00:00이 없습니다. 9-05 22:10의 다음 날은 9-06입니다.
+func TestRun_NextDateWhenMidnightMissing(t *testing.T) {
+	f, _, err := run(t, time.Date(2026, 9, 6, 2, 10, 0, 0, time.UTC), user("America/Santiago", "a"))
+	require.NoError(t, err)
+	assert.Equal(t, []dailyCall{{Date: date(2026, 9, 6), Timezone: "America/Santiago"}}, f.fortune.dailies)
+}

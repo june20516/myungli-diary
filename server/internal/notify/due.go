@@ -25,17 +25,33 @@ func DueAt(now time.Time, timezone string, notifyAt profile.LocalTime) (Due, boo
 	}
 	local := now.In(location)
 	year, month, day := local.Date()
-	scheduled := time.Date(year, month, day, notifyAt.Hour, notifyAt.Minute, 0, 0, location)
+	date := profile.LocalDate{Year: year, Month: int(month), Day: day}
+	scheduled := atLocal(date, notifyAt, location)
 	if scheduled.After(now) {
-		day--
-		scheduled = time.Date(year, month, day, notifyAt.Hour, notifyAt.Minute, 0, 0, location)
+		date = date.AddDays(-1)
+		scheduled = atLocal(date, notifyAt, location)
 	}
 	if now.Sub(scheduled) > dueWindow {
 		return Due{}, false, nil
 	}
-	date := time.Date(year, month, day, 0, 0, 0, 0, location)
-	return Due{
-		LocalDate: profile.LocalDate{Year: date.Year(), Month: int(date.Month()), Day: date.Day()},
-		Expire:    time.Date(date.Year(), date.Month(), date.Day()+1, 0, 0, 0, 0, location),
-	}, true, nil
+	return Due{LocalDate: date, Expire: startOfDay(date.AddDays(1), location)}, true, nil
+}
+
+// atLocal은 date의 현지 시각 t입니다. 없는 시각은 Go time.Date가 정규화한 시각입니다.
+func atLocal(date profile.LocalDate, t profile.LocalTime, location *time.Location) time.Time {
+	return time.Date(date.Year, time.Month(date.Month), date.Day, t.Hour, t.Minute, 0, 0, location)
+}
+
+// startOfDay는 date의 현지 날짜가 시작되는 첫 순간입니다. DST로 00:00이 없는 날은 Go가 전날 시각으로
+// 정규화하므로, 현지 날짜가 date가 될 때까지 한 시간씩 옮깁니다(America/Santiago 2026-09-06은 01:00).
+func startOfDay(date profile.LocalDate, location *time.Location) time.Time {
+	t := time.Date(date.Year, time.Month(date.Month), date.Day, 0, 0, 0, 0, location)
+	for range 3 {
+		year, month, day := t.Date()
+		if (profile.LocalDate{Year: year, Month: int(month), Day: day}) == date {
+			return t
+		}
+		t = t.Add(time.Hour)
+	}
+	return t
 }
