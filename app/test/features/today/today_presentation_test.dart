@@ -47,68 +47,70 @@ void main() {
   });
 
   group('formatFocusRange', () {
+    final morning = _slot(
+      '2026-10-13T09:30:00+09:00',
+      '2026-10-13T11:30:00+09:00',
+    );
+
     test('+09:00 응답을 Asia/Seoul 기준 HH:mm~HH:mm으로 씁니다', () {
-      expect(
-        formatFocusRange([
-          _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
-        ], 'Asia/Seoul'),
-        '09:30~11:30',
-      );
+      expect(formatFocusRange(morning, 'Asia/Seoul', 'ko'), '09:30~11:30');
     });
 
     test('UTC로 바뀐 같은 순간도 Asia/Seoul 기준 같은 값입니다', () {
       expect(
-        formatFocusRange([
+        formatFocusRange(
           _slot('2026-10-13T00:30:00Z', '2026-10-13T02:30:00Z'),
-        ], 'Asia/Seoul'),
+          'Asia/Seoul',
+          'ko',
+        ),
         '09:30~11:30',
-      );
-    });
-
-    test('두 칸이면 쉼표로 잇습니다', () {
-      expect(
-        formatFocusRange([
-          _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
-          _slot('2026-10-13T13:30:00+09:00', '2026-10-13T15:30:00+09:00'),
-        ], 'Asia/Seoul'),
-        '09:30~11:30, 13:30~15:30',
       );
     });
 
     test('America/New_York이면 그 시간대 값입니다', () {
       // 2026-10-13은 서머타임(UTC-4)이라 한국 09:30은 전날 20:30입니다.
       expect(
-        formatFocusRange([
-          _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
-        ], 'America/New_York'),
+        formatFocusRange(morning, 'America/New_York', 'ko'),
         '20:30~22:30',
       );
     });
 
-    test('칸이 없으면 빈 글자입니다', () {
-      expect(formatFocusRange(const [], 'Asia/Seoul'), '');
+    test('범위 표기는 언어별입니다(ko ~, ja 〜, en to, 그 밖은 en)', () {
+      expect(formatFocusRange(morning, 'Asia/Seoul', 'ja'), '09:30〜11:30');
+      expect(formatFocusRange(morning, 'Asia/Seoul', 'en'), '09:30 to 11:30');
+      expect(formatFocusRange(morning, 'Asia/Seoul', 'fr'), '09:30 to 11:30');
     });
 
-    test('명세 lucky-card time의 clock과 timeZone은 따르고 글자 모양은 #546 규칙을 따릅니다', () {
-      final variants =
-          loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
-      final time = variants.cast<Map<String, Object?>>().singleWhere(
-        (variant) => variant['id'] == 'time',
-      );
-      final value =
-          (time['parts']! as Map<String, Object?>)['value']!
-              as Map<String, Object?>;
-      expect(value['clock'], '24h');
-      expect(value['timeZone'], 'profile');
-      // 명세의 범위 대시·가운뎃점 대신 화면에는 `~`와 쉼표를 씁니다(Issue #546, 명세 따라잡기는 design).
-      expect(
-        formatFocusRange([
-          _slot('2026-10-13T09:30:00+09:00', '2026-10-13T11:30:00+09:00'),
-          _slot('2026-10-13T13:30:00+09:00', '2026-10-13T15:30:00+09:00'),
-        ], 'Asia/Seoul'),
-        '09:30~11:30, 13:30~15:30',
-      );
-    });
+    test(
+      '명세 lucky-card time의 clock, timeZone, 언어별 format, repeat를 따릅니다(V52)',
+      () {
+        final variants =
+            loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
+        final time = variants.cast<Map<String, Object?>>().singleWhere(
+          (variant) => variant['id'] == 'time',
+        );
+        final value =
+            (time['parts']! as Map<String, Object?>)['value']!
+                as Map<String, Object?>;
+        expect(value['clock'], '24h');
+        expect(value['timeZone'], 'profile');
+        expect(value.containsKey('join'), isFalse);
+        expect(
+          (time['repeat']! as Map<String, Object?>)['max'],
+          maxFocusTimePicks,
+        );
+        final format = value['format']! as Map<String, Object?>;
+        for (final MapEntry(key: language, value: pattern) in format.entries) {
+          expect(
+            formatFocusRange(morning, 'Asia/Seoul', language),
+            (pattern! as String)
+                .replaceFirst('HH:mm', '09:30')
+                .replaceFirst('HH:mm', '11:30'),
+            reason: language,
+          );
+        }
+      },
+    );
   });
 
   group('luckyItemsOf', () {
@@ -138,6 +140,49 @@ void main() {
       expect(items.first.element, FiveElement.wood);
       expect(items.first.explain, daily.cards.color.text.text);
       expect(items.last.explain, daily.cards.focusTime.text.text);
+    });
+
+    test('집중 시간 구간이 둘이면 구간마다 시간 칩 하나를 계약 순서대로 만듭니다(V52)', () {
+      final json = memberDailyJson();
+      final cards = json['cards']! as Map<String, Object?>;
+      final focus = cards['focusTime']! as Map<String, Object?>;
+      final first =
+          (focus['picks']! as List<Object?>).first! as Map<String, Object?>;
+      focus['picks'] = [
+        first,
+        {
+          ...first,
+          'start': '2026-10-13T13:30:00+09:00',
+          'end': '2026-10-13T15:30:00+09:00',
+        },
+      ];
+      final items = luckyItemsOf(
+        Daily.fromJson(json),
+        _names,
+        l10n,
+        'Asia/Seoul',
+      );
+      final times = items
+          .where((item) => item.variant == LuckyCardVariant.time)
+          .toList();
+      expect(times.map((item) => item.value), ['09:30~11:30', '13:30~15:30']);
+      expect(times.map((item) => item.ordinal), [0, 1]);
+      expect(times.map((item) => item.name).toSet(), {l10n.todayLuckyTimeName});
+      expect(times.first.explain, same(times.last.explain));
+      expect(items, hasLength(5));
+    });
+
+    test('en, ja 문구면 시간 칩 값도 그 언어의 범위 표기입니다', () async {
+      final en = await AppLocalizations.delegate.load(const Locale('en'));
+      final ja = await AppLocalizations.delegate.load(const Locale('ja'));
+      expect(
+        luckyItemsOf(daily, _names, en, 'Asia/Seoul').last.value,
+        '09:30 to 11:30',
+      );
+      expect(
+        luckyItemsOf(daily, _names, ja, 'Asia/Seoul').last.value,
+        '09:30〜11:30',
+      );
     });
 
     test('glossary에 색 이름이 없으면 값 id를 그대로 씁니다', () {

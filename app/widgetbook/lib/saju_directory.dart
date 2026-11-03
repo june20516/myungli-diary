@@ -150,9 +150,10 @@ Widget _manse({bool hourUnknown = false}) => SizedBox(
       ],
       twelveStage: _value('목욕'),
     ),
-    hiddenStemsHeader: _label('지장간'),
-    twelveStageHeader: _label('12운성'),
-    shinsalHeader: _label('신살'),
+    // 줄 머리는 앱처럼 누를 수 없는 라벨입니다(V53).
+    hiddenStemsHeader: const LuckLabel('지장간'),
+    twelveStageHeader: const LuckLabel('12운성'),
+    shinsalHeader: const LuckLabel('신살'),
     tableLabel: '만세력 표',
   ),
 );

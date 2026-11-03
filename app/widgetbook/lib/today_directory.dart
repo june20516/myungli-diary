@@ -53,11 +53,19 @@ final List<LuckyItem> _luckyItems = [
     value: '3',
     explain: RenderedText(segments: [Segment(text: '3이 흐름을 열어 줘요.')]),
   ),
+  // 집중 시간은 구간마다 칩 하나입니다(V52).
   LuckyItem(
     variant: LuckyCardVariant.time,
     name: '집중하기 좋은 시간',
-    value: '09:30~11:30, 13:30~15:30',
+    value: '09:30~11:30',
     explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
+  ),
+  LuckyItem(
+    variant: LuckyCardVariant.time,
+    name: '집중하기 좋은 시간',
+    value: '13:30~15:30',
+    explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
+    ordinal: 1,
   ),
 ];
 

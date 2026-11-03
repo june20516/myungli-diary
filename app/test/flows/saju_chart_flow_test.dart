@@ -452,7 +452,7 @@ void main() {
     expect((label! as TermToken).label, '정인');
     // 사전에 12운성·신살 이름이 없으면 칸을 비우고(A65) 줄 머리는 누를 수 없는 라벨입니다.
     expect(manse.year.twelveStage, isNull);
-    expect(manse.hiddenStemsHeader, isNot(isA<TermToken>()));
+    expect(manse.hiddenStemsHeader.onTap, isNull);
 
     await _openPersonal(tester, find.byWidget(label));
     expect(

@@ -51,13 +51,14 @@ ShareImage _image(
   ShareImageVariant variant, {
   String sentence = _sentenceText,
   bool withReason = true,
+  List<LuckyItem>? items,
 }) => ShareImage(
   variant: variant,
   date: '10월 15일 목요일',
   dayKind: DayKind.yongsinDay,
   dayKindLabel: '좋은 날',
   sentence: _text(sentence),
-  items: _items(),
+  items: items ?? _items(),
   footer: '명리일기',
   reason: withReason ? _text('기운의 흐름이 나를 도와주는 날이라서요.') : null,
 );
@@ -364,6 +365,24 @@ void main() {
       expect(find.text('좋은 날'), findsOneWidget);
       expect(find.text('10월 15일 목요일'), findsOneWidget);
       expect(find.text('명리일기'), findsOneWidget);
+    });
+
+    testWidgets('story: 시간 구간이 둘이어도 첫 구간 칩 하나만 넣습니다(V52)', (tester) async {
+      await _bigScreen(tester);
+      final second = LuckyItem(
+        variant: LuckyCardVariant.time,
+        name: '집중 시간',
+        value: '13:30~15:30',
+        explain: _text('오후 3시에 집중이 잘 돼요.'),
+        ordinal: 1,
+      );
+      // 둘째 구간을 앞에 두어도 빠집니다(앞에서 자르는 것에 기대지 않음).
+      await tester.pumpWidget(
+        _app(_image(ShareImageVariant.story, items: [second, ..._items()])),
+      );
+      expect(_chipCount(tester), 4);
+      expect(find.text('09:30~11:30'), findsOneWidget);
+      expect(find.text('13:30~15:30'), findsNothing);
     });
 
     testWidgets('story: reason이 null이면 이유 줄이 없습니다', (tester) async {

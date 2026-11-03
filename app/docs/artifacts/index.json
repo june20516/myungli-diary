@@ -268,11 +268,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.locked.2026-10-23",
+    "id": "render.evidence-sheet.locked.2026-11-04",
     "title": "evidence-sheet (locked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-23-evidence-sheet-locked.png",
-    "date": "2026-10-23",
+    "file": "2026-11-04-evidence-sheet-locked.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -282,11 +282,11 @@
     "note": "locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.personal-locked.2026-10-23",
+    "id": "render.evidence-sheet.personal-locked.2026-11-04",
     "title": "evidence-sheet (personal-locked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-23-evidence-sheet-personal-locked.png",
-    "date": "2026-10-23",
+    "file": "2026-11-04-evidence-sheet-personal-locked.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -296,11 +296,11 @@
     "note": "personal-locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.personal.2026-10-23",
+    "id": "render.evidence-sheet.personal.2026-11-04",
     "title": "evidence-sheet (personal) 화면",
     "kind": "screenshot",
-    "file": "2026-10-23-evidence-sheet-personal.png",
-    "date": "2026-10-23",
+    "file": "2026-11-04-evidence-sheet-personal.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -310,11 +310,11 @@
     "note": "personal 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.unlocked.2026-10-23",
+    "id": "render.evidence-sheet.unlocked.2026-11-04",
     "title": "evidence-sheet (unlocked) 화면",
     "kind": "screenshot",
-    "file": "2026-10-23-evidence-sheet-unlocked.png",
-    "date": "2026-10-23",
+    "file": "2026-11-04-evidence-sheet-unlocked.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -520,11 +520,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.changed.2026-10-27",
+    "id": "render.profile-edit.changed.2026-11-04",
     "title": "profile-edit (changed) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-profile-edit-changed.png",
-    "date": "2026-10-27",
+    "file": "2026-11-04-profile-edit-changed.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -548,11 +548,11 @@
     "note": "confirm 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.default.2026-10-27",
+    "id": "render.profile-edit.default.2026-11-04",
     "title": "profile-edit (default) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-profile-edit-default.png",
-    "date": "2026-10-27",
+    "file": "2026-11-04-profile-edit-default.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -562,11 +562,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.profile-edit.error.2026-10-28",
+    "id": "render.profile-edit.error.2026-11-04",
     "title": "profile-edit (error) 화면",
     "kind": "screenshot",
-    "file": "2026-10-28-profile-edit-error.png",
-    "date": "2026-10-28",
+    "file": "2026-11-04-profile-edit-error.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "profile-edit"
@@ -688,11 +688,11 @@
     "note": "loading 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.saju-chart.luck.2026-10-28",
+    "id": "render.saju-chart.luck.2026-11-04",
     "title": "saju-chart (luck) 화면",
     "kind": "screenshot",
-    "file": "2026-10-28-saju-chart-luck.png",
-    "date": "2026-10-28",
+    "file": "2026-11-04-saju-chart-luck.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "saju-chart"
@@ -744,11 +744,11 @@
     "note": "ad-free 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.settings.birthplace-notice.2026-10-27",
+    "id": "render.settings.birthplace-notice.2026-11-04",
     "title": "settings (birthplace-notice) 화면",
     "kind": "screenshot",
-    "file": "2026-10-27-settings-birthplace-notice.png",
-    "date": "2026-10-27",
+    "file": "2026-11-04-settings-birthplace-notice.png",
+    "date": "2026-11-04",
     "milestone": "A1",
     "screens": [
       "settings"

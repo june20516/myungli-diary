@@ -34,6 +34,8 @@ type testLoginHolder struct {
 	testLogin *testLoginState
 	// testGrant는 테스트 광고 제거 기간(S125) 서비스입니다. EnableTestGrant만 채우고, 테스트 로그인의 비밀을 함께 씁니다.
 	testGrant TestGrantService
+	// testReward는 staging 보상형 광고 보상(S131) 서비스입니다. EnableTestReward만 채우고, 인증은 Bearer 토큰입니다.
+	testReward TestRewardService
 }
 
 // testLoginState는 켜진 테스트 로그인의 비밀(SHA-256)과 서비스입니다.
@@ -52,20 +54,23 @@ func (a *API) EnableTestLogin(secret string, service TestLoginService) {
 	a.testLogin = &testLoginState{secretHash: sha256.Sum256([]byte(secret)), service: service}
 }
 
-// testLoginRoutes는 테스트 로그인이 켜져 있으면 그 경로와, 켜져 있으면 테스트 광고 제거 기간 경로를 돌려줍니다.
-// 메서드 없이 등록해, 비밀이 틀린 요청은 메서드와 관계없이 404를 받습니다(405로 경로의 존재를 드러내지 않음).
-func (a *API) testLoginRoutes() []staticRoute {
-	state := a.testLogin
-	if state == nil {
-		return nil
-	}
-	routes := []staticRoute{{pattern: testLoginPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		a.serveTestLogin(state, w, r)
-	})}}
-	if a.testGrant != nil {
-		routes = append(routes, staticRoute{pattern: testGrantPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			a.serveTestGrant(state, w, r)
+// testLoginRoutes는 켜진 staging 경로를 돌려줍니다: 테스트 로그인, 테스트 광고 제거 기간(테스트 로그인의 비밀),
+// 보상형 광고 보상(authenticate로 Bearer 인증). 비밀을 쓰는 두 경로는 메서드 없이 등록해, 비밀이 틀린 요청은
+// 메서드와 관계없이 404를 받습니다(405로 경로의 존재를 드러내지 않음).
+func (a *API) testLoginRoutes(authenticate func(Operation, http.Handler) http.Handler) []staticRoute {
+	var routes []staticRoute
+	if state := a.testLogin; state != nil {
+		routes = append(routes, staticRoute{pattern: testLoginPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			a.serveTestLogin(state, w, r)
 		})})
+		if a.testGrant != nil {
+			routes = append(routes, staticRoute{pattern: testGrantPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				a.serveTestGrant(state, w, r)
+			})})
+		}
+	}
+	if a.testReward != nil {
+		routes = append(routes, a.testRewardRoute(authenticate))
 	}
 	return routes
 }
