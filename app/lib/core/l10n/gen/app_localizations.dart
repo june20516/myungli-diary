@@ -1423,7 +1423,7 @@ abstract class AppLocalizations {
   /// share-preview.image.tagline: 공유 이미지 태그라인
   ///
   /// In ko, this message translates to:
-  /// **'내 사주로 푼 오늘, 명리일기'**
+  /// **'오늘 일진을 내 사주에 맞춰 풀어 주는 일기'**
   String get sharePreviewImageTagline;
 
   /// share-preview.ratio.label: 공유 이미지 비율 이름(스토리 9:16·피드 4:5·정사각 1:1)
@@ -1444,13 +1444,13 @@ abstract class AppLocalizations {
   /// **'정사각'**
   String get sharePreviewRatioLabelSquare;
 
-  /// 임시. share-image 접근성 라벨(슬롯 아님)
+  /// 공유 미리보기 화면(share-preview): 이미지 미리보기와 비율 선택 묶음의 스크린리더 이름
   ///
   /// In ko, this message translates to:
   /// **'오늘 문장 이미지 미리보기'**
   String get shareImageSemantics;
 
-  /// 임시. share-preview 비율 선택의 스크린리더 그룹 라벨(슬롯 아님)
+  /// 공유 미리보기 화면(share-preview): 이미지 미리보기와 비율 선택 묶음의 스크린리더 이름
   ///
   /// In ko, this message translates to:
   /// **'공유 이미지 비율'**
@@ -1534,25 +1534,25 @@ abstract class AppLocalizations {
   /// **'근거 보기'**
   String get depthLinkEvidence;
 
-  /// 임시. 행운 색 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
   ///
   /// In ko, this message translates to:
   /// **'행운 색'**
   String get todayLuckyColorName;
 
-  /// 임시. 행운 방향 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
   ///
   /// In ko, this message translates to:
   /// **'행운 방향'**
   String get todayLuckyDirectionName;
 
-  /// 임시. 행운 숫자 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
   ///
   /// In ko, this message translates to:
   /// **'행운 숫자'**
   String get todayLuckyNumberName;
 
-  /// 임시. 집중하기 좋은 시간 칩의 접근성 항목 이름(lucky-card a11y 항목 이름 + 값)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
   ///
   /// In ko, this message translates to:
   /// **'집중하기 좋은 시간'**
@@ -1561,7 +1561,7 @@ abstract class AppLocalizations {
   /// 근거 시트(sheet) 제목(#153)
   ///
   /// In ko, this message translates to:
-  /// **'오늘 풀이의 근거'**
+  /// **'풀이의 근거'**
   String get evidenceSheetTitle;
 
   /// 달력 날짜 칸(day-cell): 스크린리더 조각
@@ -2046,163 +2046,163 @@ abstract class AppLocalizations {
   /// **'시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.'**
   String get errorTimezoneInvalid;
 
-  /// 임시. settings 줄 이름: 아침 알림 시각(A59)
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'알림 시각'**
   String get settingsNotifyLabel;
 
-  /// 임시. settings 알림 시각 줄의 값: 알림을 끔
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'꺼짐'**
   String get settingsNotifyOff;
 
-  /// 임시. settings 줄 이름: 앱 언어(A60)
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'언어'**
   String get settingsLanguageLabel;
 
-  /// 임시. settings 줄 이름: 로그아웃(destructive, A63)
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'로그아웃'**
   String get settingsLogoutLabel;
 
-  /// 임시. profile-edit 출생지 줄의 값: 출생지를 묻지 않았거나 건너뛰어 한국 기준으로 계산함(D29)
+  /// 정보 수정 화면(profile-edit): 출생지를 묻지 않았거나 건너뛰었을 때 출생지 줄의 값
   ///
   /// In ko, this message translates to:
-  /// **'한국'**
+  /// **'한국 기준'**
   String get profileEditBirthplaceKorea;
 
-  /// 임시. saju-chart 탭 이름: 원국표·오행 분포·용신 판정 근거(A57)
+  /// 사주 표 화면(saju-chart): 위쪽 segmented 두 칸(원국표, 오행 분포, 용신 판정 근거 / 만세력 표, 대운, 세운)
   ///
   /// In ko, this message translates to:
   /// **'원국'**
   String get sajuChartTabNatal;
 
-  /// 임시. saju-chart 탭 이름: 만세력 표·대운·세운(A57)
+  /// 사주 표 화면(saju-chart): 위쪽 segmented 두 칸(원국표, 오행 분포, 용신 판정 근거 / 만세력 표, 대운, 세운)
   ///
   /// In ko, this message translates to:
   /// **'만세력과 대운'**
   String get sajuChartTabLuck;
 
-  /// 임시. saju-pillars·manse-table 열 머리: 시주
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'시주'**
   String get sajuPillarHour;
 
-  /// 임시. saju-pillars·manse-table 열 머리: 일주
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'일주'**
   String get sajuPillarDay;
 
-  /// 임시. saju-pillars·manse-table 열 머리: 월주
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'월주'**
   String get sajuPillarMonth;
 
-  /// 임시. saju-pillars·manse-table 열 머리: 연주
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'연주'**
   String get sajuPillarYear;
 
-  /// 임시. manse-table 행 머리: 지장간
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'지장간'**
   String get manseRowHiddenStems;
 
-  /// 임시. manse-table 행 머리: 12운성
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'12운성'**
   String get manseRowTwelveStages;
 
-  /// 임시. manse-table 행 머리: 신살
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'신살'**
   String get manseRowShinsal;
 
-  /// 임시. saju-pillars 일간 칸의 '나' 꼬리표(tag.me)
+  /// saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)
   ///
   /// In ko, this message translates to:
   /// **'나'**
   String get sajuTagMe;
 
-  /// 임시. daeun-table 지금 대운 꼬리표(tag.status)
+  /// saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)
   ///
   /// In ko, this message translates to:
   /// **'지금'**
   String get daeunTagNow;
 
-  /// 임시. daeun-table 올해 세운 꼬리표(tag.status)
+  /// saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)
   ///
   /// In ko, this message translates to:
   /// **'올해'**
   String get seunTagThisYear;
 
-  /// 임시. daeun-table 스크린리더 표 이름. age는 첫 대운의 한국식 나이
+  /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
   ///
   /// In ko, this message translates to:
   /// **'대운 {age}세부터'**
   String daeunTableLabel(int age);
 
-  /// 임시. ohaeng-bar 스크린리더 항목(오행 이름 + 개수). 항목은 a11yListSeparator로 잇습니다
+  /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
   ///
   /// In ko, this message translates to:
-  /// **'{element} {count}'**
-  String ohaengBarItem(String element, String count);
+  /// **'{element} {weight}'**
+  String ohaengBarItem(String element, String weight);
 
-  /// 임시. saju-pillars 일주 천간 위 라벨(term-token, 일간). 누르면 일간 풀이
+  /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///
   /// In ko, this message translates to:
   /// **'일간'**
   String get sajuPillarDayMaster;
 
-  /// 임시. saju-pillars 스크린리더 표 이름(saju.json a11y.label)
+  /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
   ///
   /// In ko, this message translates to:
   /// **'원국표'**
   String get sajuPillarsTableLabel;
 
-  /// 임시. manse-table 스크린리더 표 이름(saju.json a11y.label)
+  /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
   ///
   /// In ko, this message translates to:
   /// **'만세력 표'**
   String get manseTableLabel;
 
-  /// 임시. evidence-sheet 표 칸 용어에서 열었는데 그 자리의 원국 개인 해석(personal.body)이 없을 때 구역 제목 아래 안내
+  /// 근거 시트(evidence-sheet): 사주 표 칸에서 열었는데 그 자리의 원국 개인 해석(personal.*)이 없을 때
   ///
   /// In ko, this message translates to:
-  /// **'이 자리의 해석은 아직 준비 중이에요.'**
+  /// **'이 자리는 따로 풀이한 내용이 없어요.'**
   String get evidenceSheetPersonalEmpty;
 
-  /// 임시. daeun-table 대운 시작 연도와 세운 칸의 스크린리더 글(연도)
+  /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
   ///
   /// In ko, this message translates to:
   /// **'{year}년'**
   String luckYearLabel(int year);
 
-  /// 임시. legal 줄 이름: 이용약관(A61)
+  /// 약관과 정책 화면(legal): 문서 줄 이름
   ///
   /// In ko, this message translates to:
   /// **'이용약관'**
   String get legalTermsLabel;
 
-  /// 임시. legal 줄 이름: 개인정보 처리방침(A61)
+  /// 약관과 정책 화면(legal): 문서 줄 이름
   ///
   /// In ko, this message translates to:
   /// **'개인정보 처리방침'**
   String get legalPrivacyLabel;
 
-  /// 임시. legal 줄 이름: 오픈소스 라이선스(A61, GeoNames 고지 포함)
+  /// 약관과 정책 화면(legal): 문서 줄 이름
   ///
   /// In ko, this message translates to:
   /// **'오픈소스 라이선스'**
@@ -2651,6 +2651,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{calendar} 윤달 {date} 시각 모름'**
   String accountChoiceSajuNoTimeLeap(String date, String calendar);
+
+  /// iOS 앱 추적 투명성(ATT) 시스템 창의 본문. 제목과 버튼은 iOS가 정하고, UMP IDFA 안내 다음에 나옵니다
+  ///
+  /// In ko, this message translates to:
+  /// **'허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.'**
+  String get iosTrackingUsageDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -45,41 +45,8 @@ const Map<String, String> _barTitleKeys = {
 };
 
 /// ARB에 "임시" 표시가 남아도 되는 키(슬롯이 없는 접근성 라벨·writing 원고 대기 문구).
-const Set<String> _allowedTemporaryKeys = {
-  'settingsNotifyLabel',
-  'settingsNotifyOff',
-  'settingsLanguageLabel',
-  'settingsLogoutLabel',
-  'profileEditBirthplaceKorea',
-  'sajuChartTabNatal',
-  'sajuChartTabLuck',
-  'sajuPillarHour',
-  'sajuPillarDay',
-  'sajuPillarMonth',
-  'sajuPillarYear',
-  'manseRowHiddenStems',
-  'manseRowTwelveStages',
-  'manseRowShinsal',
-  'sajuTagMe',
-  'daeunTagNow',
-  'seunTagThisYear',
-  'daeunTableLabel',
-  'ohaengBarItem',
-  'sajuPillarDayMaster',
-  'sajuPillarsTableLabel',
-  'manseTableLabel',
-  'luckYearLabel',
-  'evidenceSheetPersonalEmpty',
-  'legalTermsLabel',
-  'legalPrivacyLabel',
-  'legalLicensesLabel',
-  'shareImageSemantics',
-  'sharePreviewRatioGroup',
-  'todayLuckyColorName',
-  'todayLuckyDirectionName',
-  'todayLuckyNumberName',
-  'todayLuckyTimeName',
-};
+/// writing R26(PR #709, #331)으로 임시 키가 모두 원고가 되어 지금은 없습니다.
+const Set<String> _allowedTemporaryKeys = {};
 
 Map<String, Object?> _readJson(String path) =>
     jsonDecode(File(path).readAsStringSync())! as Map<String, Object?>;
