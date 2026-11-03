@@ -396,7 +396,7 @@
 - {slot: ui.saju.a11y, key: manseTableLabel, text: "만세력 표"}
 - {slot: ui.saju.a11y, key: daeunTableLabel, text: "대운 {age}세부터"}
 - {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}년"}
-- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {count}개"}
+- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {weight}"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "이 자리는 따로 풀이한 내용이 없어요."}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "행운 색"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "행운 방향"}

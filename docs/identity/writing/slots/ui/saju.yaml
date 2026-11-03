@@ -140,7 +140,7 @@
   where: "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목"
   purpose: info
   user_state: "스크린리더로 사주 표를 듣습니다."
-  structure: "표 이름이나 항목 하나. 연도와 나이는 숫자 그대로 넣습니다."
+  structure: "표 이름이나 항목 하나. 연도와 나이는 숫자 그대로 넣습니다. 오행 항목의 `weight`는 개수가 아니라 가중치(소수 한 자리)라 단위를 붙이지 않고 범례와 같게 읽습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [saju-pillars, manse-table, daeun-table, ohaeng-bar]
@@ -149,12 +149,13 @@
     - manseTableLabel
     - {params: {age: number}, keys: [daeunTableLabel]}
     - {params: {year: number}, keys: [luckYearLabel]}
-    - {params: {element: text, count: text}, keys: [ohaengBarItem]}
+    - {params: {element: text, weight: text}, keys: [ohaengBarItem]}
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: ohaengBarItem, text: "{element} {count}개", why: "개수라는 것이 들리게 씀", source: writing}
-    bad: []
+      - {lang: ko, key: ohaengBarItem, text: "{element} {weight}", why: "범례와 같은 값을 그대로 읽음(#715)", source: writing}
+    bad:
+      - {lang: ko, text: "{element} {weight}개", why: "가중치는 소수라 \"0.6개\"로 들림(#715)", source: writing}
   endings: []
   a11y:
     truncation: "화면에 보이지 않습니다."

@@ -1,5 +1,5 @@
 {
-  "version": "2abbf2c0a5d45bda",
+  "version": "ef84b74bc3d7bf39",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -11000,6 +11000,258 @@
       "variant": "single",
       "lang": "ko",
       "body": "식상"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.byeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Byeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.byeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "病"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.byeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "병"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.geonrok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Geonrok"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.geonrok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "建禄"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.geonrok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "건록"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.gwandae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gwandae"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.gwandae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "冠帯"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.gwandae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "관대"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jangsaeng",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jangsaeng"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jangsaeng",
+      "variant": "single",
+      "lang": "ja",
+      "body": "長生"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jangsaeng",
+      "variant": "single",
+      "lang": "ko",
+      "body": "장생"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jeol",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeol"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jeol",
+      "variant": "single",
+      "lang": "ja",
+      "body": "絶"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jeol",
+      "variant": "single",
+      "lang": "ko",
+      "body": "절"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jewang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jewang"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jewang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "帝旺"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.jewang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "제왕"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.mokyok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Mogyok"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.mokyok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "沐浴"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.mokyok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "목욕"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.myo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Myo"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.myo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "墓"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.myo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "묘"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.sa",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sa"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.sa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "死"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.sa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "사"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.soe",
+      "variant": "single",
+      "lang": "en",
+      "body": "Soe"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.soe",
+      "variant": "single",
+      "lang": "ja",
+      "body": "衰"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.soe",
+      "variant": "single",
+      "lang": "ko",
+      "body": "쇠"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.tae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Tae"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.tae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "胎"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.tae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "태"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.yang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yang"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.yang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "養"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "twelve_stage.yang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양"
     },
     {
       "slot": "personal.day_master",

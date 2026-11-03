@@ -42,3 +42,14 @@ ON CONFLICT (account_id) DO UPDATE SET
     notify_time        = EXCLUDED.notify_time,
     birth_hash         = EXCLUDED.birth_hash
 RETURNING *;
+
+-- name: ListActiveProfiles :many
+-- job precompute의 대상 후보입니다(P8-3). 활동 계정의 프로필을 계정 id 순으로 페이지를 나눠 읽습니다.
+SELECT sqlc.embed(p)
+FROM profiles p
+JOIN accounts a ON a.id = p.account_id
+WHERE a.status = 'active'
+  AND a.last_active_at >= @active_since
+  AND p.account_id > @after
+ORDER BY p.account_id
+LIMIT @page_size;
