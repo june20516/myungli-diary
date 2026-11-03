@@ -380,7 +380,7 @@
 - {slot: ui.legal.row, key: legalLicensesLabel, text: "Open source licenses"}
 - {slot: ui.profile-edit.birthplace, key: profileEditBirthplaceKorea, text: "Korea (default)"}
 - {slot: ui.saju-chart.tab, key: sajuChartTabNatal, text: "Natal chart"}
-- {slot: ui.saju-chart.tab, key: sajuChartTabLuck, text: "Calendar and luck cycles"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabLuck, text: "Calendar and cycles"}
 - {slot: ui.saju.header, key: sajuPillarHour, text: "Hour"}
 - {slot: ui.saju.header, key: sajuPillarDay, text: "Day"}
 - {slot: ui.saju.header, key: sajuPillarMonth, text: "Month"}

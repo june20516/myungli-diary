@@ -444,5 +444,21 @@
     ],
     "status": "chosen",
     "note": "원국 / 만세력과 대운, 풀이의 근거 하나로, 없는 해석은 없다고, ATT는 재촉하지 않음"
+  },
+  {
+    "id": "round-R27",
+    "title": "라운드 R27: 사주 표 en 탭 이름 줄이기 (W52)",
+    "kind": "copy-sample",
+    "file": "2026-11-03-round-R27.md",
+    "date": "2026-11-03",
+    "milestone": "W1",
+    "screens": [
+      "saju-chart"
+    ],
+    "decisions": [
+      "W52"
+    ],
+    "status": "chosen",
+    "note": "Calendar and cycles, design #723 상한 반영"
   }
 ]
