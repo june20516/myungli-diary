@@ -1,6 +1,7 @@
 package precompute_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -156,7 +157,7 @@ func TestRun_SelectsUsersInLocalWindow(t *testing.T) {
 		{Date: date(2026, 11, 4), Timezone: "Asia/Tokyo"},
 	}, f.fortune.dailies)
 	assert.Empty(t, f.fortune.months)
-	assert.Equal(t, precompute.Result{Targets: 2, Succeeded: 2}, result)
+	assert.Equal(t, precompute.Result{Candidates: 4, Targets: 2, Succeeded: 2}, result)
 }
 
 func TestRun_WindowBoundaries(t *testing.T) {
@@ -179,7 +180,7 @@ func TestRun_WindowBoundaries(t *testing.T) {
 				assert.Equal(t, 1, result.Targets)
 			} else {
 				assert.Empty(t, f.fortune.dailies)
-				assert.Equal(t, precompute.Result{}, result)
+				assert.Equal(t, precompute.Result{Candidates: 1}, result)
 			}
 		})
 	}
@@ -203,12 +204,40 @@ func TestRun_DSTNextDate(t *testing.T) {
 	assert.Equal(t, []dailyCall{{Date: date(2027, 3, 14), Timezone: "America/New_York"}}, f.fortune.dailies)
 }
 
-func TestRun_InvalidTimezoneCountsFailed(t *testing.T) {
+func TestRun_DSTSameDayEvening(t *testing.T) {
+	// America/New_York 2027-03-14 22:10 EDT(전환 당일 저녁, UTC-4).
+	f, _, err := run(t, time.Date(2027, 3, 15, 2, 10, 0, 0, time.UTC), user("America/New_York", "a"))
+	require.NoError(t, err)
+	assert.Equal(t, []dailyCall{{Date: date(2027, 3, 15), Timezone: "America/New_York"}}, f.fortune.dailies)
+}
+
+func TestRun_CanceledContextLogsCountsAndFails(t *testing.T) {
+	var logs bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, err := precompute.Run(ctx, precompute.Deps{
+		Profiles: (&lister{items: []profile.ActiveProfile{user("Asia/Seoul", "a")}}).list,
+		Fortune:  &fakeFortune{},
+		Clock:    clocktest.New(time.Date(2026, 11, 3, 13, 15, 0, 0, time.UTC)),
+		Logger:   slog.New(slog.NewTextHandler(&logs, nil)),
+	})
+	require.ErrorIs(t, err, context.Canceled)
+	assert.Contains(t, logs.String(), "candidates=")
+}
+
+func TestRun_InvalidTimezoneCountedSeparately(t *testing.T) {
 	now := time.Date(2026, 11, 3, 13, 15, 0, 0, time.UTC)
 	f, result, err := run(t, now, user("Nowhere/Invalid", "a"), user("Asia/Seoul", "b"))
 	require.NoError(t, err)
 	assert.Equal(t, []dailyCall{{Date: date(2026, 11, 4), Timezone: "Asia/Seoul"}}, f.fortune.dailies)
-	assert.Equal(t, precompute.Result{Targets: 2, Succeeded: 1, Failed: 1}, result)
+	assert.Equal(t, precompute.Result{Candidates: 2, Targets: 1, Succeeded: 1, InvalidTimezone: 1}, result)
+}
+
+// 시간대를 못 읽는 프로필만 있고 대상이 없는 실행은 Job 실패가 아닙니다(실행마다 경보가 나지 않게).
+func TestRun_InvalidTimezoneAloneIsNotError(t *testing.T) {
+	_, result, err := run(t, time.Date(2026, 11, 3, 3, 0, 0, 0, time.UTC), user("Nowhere/Invalid", "a"))
+	require.NoError(t, err)
+	assert.Equal(t, precompute.Result{Candidates: 1, InvalidTimezone: 1}, result)
 }
 
 func TestRun_PartialFailureSucceeds(t *testing.T) {
@@ -220,7 +249,7 @@ func TestRun_PartialFailureSucceeds(t *testing.T) {
 
 	result, err := runWith(t, f, now)
 	require.NoError(t, err)
-	assert.Equal(t, precompute.Result{Targets: 3, Succeeded: 2, Failed: 1}, result)
+	assert.Equal(t, precompute.Result{Candidates: 3, Targets: 3, Succeeded: 2, Failed: 1}, result)
 	// Daily가 실패한 도쿄는 Month를 부르지 않습니다.
 	assert.Len(t, f.fortune.months, 2)
 	for _, call := range f.fortune.months {
@@ -235,7 +264,7 @@ func TestRun_AllFailedIsError(t *testing.T) {
 
 	result, err := runWith(t, f, now)
 	require.ErrorIs(t, err, precompute.ErrAllFailed)
-	assert.Equal(t, precompute.Result{Targets: 2, Failed: 2}, result)
+	assert.Equal(t, precompute.Result{Candidates: 2, Targets: 2, Failed: 2}, result)
 
 	_, result, err = run(t, now)
 	require.NoError(t, err)

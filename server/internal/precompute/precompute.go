@@ -52,11 +52,17 @@ type Deps struct {
 
 // Result는 한 번 실행의 수입니다.
 type Result struct {
+	// Candidates는 읽은 활동 프로필 수(창 밖 포함)입니다.
+	Candidates int
+	// Targets는 현지 시각이 창 안인 수이고 Succeeded + Failed와 같습니다.
 	Targets, Succeeded, Failed int
+	// InvalidTimezone은 현재 시간대를 읽지 못한 프로필 수입니다. 대상인지 알 수 없어 Targets와 실패 판정에서 뺍니다(S128).
+	InvalidTimezone int
 }
 
 // Run은 대상 사용자의 다음 날 결과를 계산합니다. 실행 시각은 시작할 때 한 번 읽습니다.
-// 사용자 하나의 실패는 건너뛰고 셉니다. 조회 실패와 대상 전원 실패만 오류입니다.
+// 사용자 하나의 실패는 건너뛰고 셉니다. 조회 실패, ctx 취소, 대상 전원 실패만 오류이고, 어느 경우든 수를 로그에 남깁니다.
+// 성공은 엔진 결과를 받았다는 뜻입니다. fortune.Service는 캐시 쓰기 실패를 Warn으로만 남기므로 캐시 저장까지는 보장하지 않습니다.
 func Run(ctx context.Context, deps Deps) (Result, error) {
 	now := deps.Clock.Now()
 	var (
@@ -77,12 +83,15 @@ func Run(ctx context.Context, deps Deps) (Result, error) {
 
 	var group errgroup.Group
 	group.SetLimit(engineConcurrency)
-	listErr := forEachActive(ctx, deps.Profiles, now.Add(-activeWindow), func(item profile.ActiveProfile) {
+	runErr := forEachActive(ctx, deps.Profiles, now.Add(-activeWindow), func(item profile.ActiveProfile) {
 		nextDay, isTarget, err := targetDate(now, item.Profile.CurrentTimezone)
+		mu.Lock()
+		result.Candidates++
 		if err != nil {
-			// 시간대를 못 읽으면 대상인지 알 수 없으므로 대상이자 실패로 셉니다(S128).
-			record(false)
-			deps.Logger.WarnContext(ctx, "precompute 시간대를 읽지 못함", "error", err)
+			result.InvalidTimezone++
+		}
+		mu.Unlock()
+		if err != nil {
 			return
 		}
 		if !isTarget {
@@ -94,22 +103,29 @@ func Run(ctx context.Context, deps Deps) (Result, error) {
 		})
 	})
 	_ = group.Wait() // goroutine은 오류를 돌려주지 않습니다.
-	if listErr != nil {
-		return result, listErr
+	if runErr == nil && ctx.Err() != nil {
+		runErr = fmt.Errorf("precompute 중단: %w", ctx.Err())
 	}
 
-	deps.Logger.InfoContext(ctx, "precompute 완료",
-		"targets", result.Targets, "succeeded", result.Succeeded, "failed", result.Failed)
+	deps.Logger.InfoContext(context.WithoutCancel(ctx), "precompute 완료",
+		"candidates", result.Candidates, "targets", result.Targets, "succeeded", result.Succeeded,
+		"failed", result.Failed, "invalid_timezone", result.InvalidTimezone)
+	if runErr != nil {
+		return result, runErr
+	}
 	if result.Targets > 0 && result.Succeeded == 0 {
 		return result, ErrAllFailed
 	}
 	return result, nil
 }
 
-// forEachActive는 활동 프로필을 페이지마다 읽어 visit에 넘깁니다.
+// forEachActive는 활동 프로필을 페이지마다 읽어 visit에 넘깁니다. ctx가 끝나면 남은 페이지를 읽지 않습니다.
 func forEachActive(ctx context.Context, list ProfileLister, activeSince time.Time, visit func(profile.ActiveProfile)) error {
 	after := uuid.Nil
 	for {
+		if err := ctx.Err(); err != nil {
+			return fmt.Errorf("precompute 중단: %w", err)
+		}
 		page, err := list(ctx, activeSince, after, pageSize)
 		if err != nil {
 			return fmt.Errorf("precompute 대상 조회: %w", err)

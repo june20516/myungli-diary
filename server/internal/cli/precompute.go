@@ -19,6 +19,10 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
+// precomputeDeadline은 한 번 실행의 상한입니다. Cloud Run Job timeout(900s, jobs.tf)보다 짧게 두어
+// 시간이 모자라도 Job이 죽기 전에 멈추고 수를 로그에 남깁니다.
+const precomputeDeadline = 840 * time.Second
+
 // precomputeDeps는 precomputeJob이 쓰는 것입니다. 테스트는 엔진 대역과 고정 시계를 넣습니다.
 type precomputeDeps struct {
 	Pool   *pgxpool.Pool
@@ -58,7 +62,9 @@ func runPrecompute(ctx context.Context, getenv func(string) string, stderr io.Wr
 	defer func() { _ = engineClient.Close() }()
 
 	deps := precomputeDeps{Pool: pool, Engine: engineClient, Clock: clock.System{}, Logger: logger}
-	if err := precomputeJob(ctx, deps); err != nil {
+	jobCtx, cancel := context.WithTimeout(ctx, precomputeDeadline)
+	defer cancel()
+	if err := precomputeJob(jobCtx, deps); err != nil {
 		logger.ErrorContext(ctx, "precompute 실패", "error", err)
 		return &loggedError{err: err}
 	}
