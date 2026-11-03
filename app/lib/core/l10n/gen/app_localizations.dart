@@ -2157,8 +2157,8 @@ abstract class AppLocalizations {
   /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
   ///
   /// In ko, this message translates to:
-  /// **'{element} {count}개'**
-  String ohaengBarItem(String element, String count);
+  /// **'{element} {weight}'**
+  String ohaengBarItem(String element, String weight);
 
   /// saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨
   ///

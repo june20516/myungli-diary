@@ -1250,8 +1250,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String ohaengBarItem(String element, String count) {
-    return '$element $count';
+  String ohaengBarItem(String element, String weight) {
+    return '$element $weight';
   }
 
   @override

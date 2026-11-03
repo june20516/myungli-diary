@@ -341,7 +341,7 @@
   "daeunTagNow": "Now",
   "seunTagThisYear": "This year",
   "daeunTableLabel": "10-year luck cycles from age {age}",
-  "ohaengBarItem": "{element} {count}",
+  "ohaengBarItem": "{element} {weight}",
   "sajuPillarDayMaster": "Day master",
   "sajuPillarsTableLabel": "Natal chart",
   "manseTableLabel": "Calendar table",

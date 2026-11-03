@@ -341,7 +341,7 @@
   "daeunTagNow": "今",
   "seunTagThisYear": "今年",
   "daeunTableLabel": "{age}歳からの大運",
-  "ohaengBarItem": "{element} {count}つ",
+  "ohaengBarItem": "{element} {weight}",
   "sajuPillarDayMaster": "日干",
   "sajuPillarsTableLabel": "命式表",
   "manseTableLabel": "万年暦の表",
