@@ -64,6 +64,9 @@ ISSUE_480 = {
 # #548·#564: IA ad-free 구매 버튼과 기간 고지
 ISSUE_564 = {"ad-free.buy.cta", "ad-free.offer.period"}
 ISSUE_354 = {"profile-edit.recalc.notice"}  # settings-row groupNote (V50)
+# writing W51 IA 밖 ui 슬롯 7개 (#710)
+ISSUE_710 = {"ui.settings.row", "ui.legal.row", "ui.profile-edit.birthplace", "ui.saju-chart.tab", "ui.saju.header",
+             "ui.saju.tag", "ui.evidence.personal-empty"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -186,13 +189,15 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354
+    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
         "term.meaning", "ui.app.bootstrap", "system.apple_return", "ui.guide.a11y", "login.discard.notice",
         "ui.depth.explain", "login-methods.error.body", "ui.account-merge.error", "ui.day-cell.lunar",
         "login-methods.in-use.body", "account-merge.not-other.body", "ui.purchase.product",
+        # W51 스크린리더 전용 셋과 iOS 시스템 창 (#710)
+        "ui.saju.a11y", "ui.lucky-card.a11y", "ui.share.a11y", "ui.system.tracking",
     }
     assert not set(lengths.NO_LIMIT) & slots
 
@@ -308,3 +313,33 @@ def test_offer_card_slots_are_measured_inside_card():
     assert places["ad-free.offer.period"].width == lengths.CONTENT_WIDTH - 2 * 20
     assert "ad-free.history.cta" not in next(t for t in lengths.TARGETS if "welcome.cta.start" in t.slots).slots
     assert "가져올 계정" in places["ui.account-merge.choice"].where
+
+
+def test_w51_slots_are_measured_at_their_narrowest_place():
+    places = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    # 행 머리 52에서 term-token label 좌우 4, 두 줄 (결정 V53)
+    header = places["ui.saju.header"]
+    assert header.width == 52 - 2 * 4 and header.lines == 2
+    # 대운 꼬리표: 기둥 둘과 간격(52 × 2 + 4)에서 tag.status 좌우 8 (결정 V53)
+    assert places["ui.saju.tag"].width == 52 * 2 + 4 - 2 * 8
+    # 설정 줄 이름과 값은 화살표를 뺀 줄을 사이 8을 두고 나눔
+    assert places["ui.settings.row"] is places["ui.profile-edit.birthplace"]
+    assert places["ui.settings.row"].width == (lengths.CONTENT_WIDTH - 2 * 16 - 16 - 8) / 2
+    assert places["ui.legal.row"].width == lengths.CONTENT_WIDTH - 2 * 16 - 16
+    assert places["ui.saju-chart.tab"] is places["ui.birth.option"]
+    assert places["ui.evidence.personal-empty"].lines == 2 and places["ui.evidence.personal-empty"].sentence
+    assert ("ui.saju.tag", "sajuTagMe") in lengths.KEY_TARGETS
+
+
+def test_hidden_stems_takes_measured_limit(capsys, font_dir):
+    # en "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 행 머리 44px 한 줄에 들어가 두 줄 안 (#710, 결정 V53)
+    (limit, reason), = [value for key, value in lengths.KEY_MEASURED_LIMITS.items()
+                        if key == ("ui.saju.header", "manseRowHiddenStems", "en")]
+    assert limit == len("Hidden stems")
+    target = next(t for t in lengths.TARGETS if "ui.saju.header" in t.slots)
+    advances = lengths.Fonts(font_dir).ko(target.font)
+    assert all(lengths.text_width(word, advances, target.size, target.tracking) <= target.width
+               for word in "Hidden stems".split())
+    lengths.main(["--font-dir", str(font_dir)])
+    table = capsys.readouterr().out
+    assert f"| en | `ui.saju.header` | `manseRowHiddenStems` | **{limit}** | 실측: {reason} |" in table

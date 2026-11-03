@@ -127,7 +127,8 @@ TARGETS = (
            "toast (좌우 16, 앞 아이콘 16 + 간격 16)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - 16, 2, True, None),
     Target(("ui.nav.tab",), "tab-bar 탭 라벨 (화면 폭 4등분)", "ui-500", 11, -0.22, SCREEN_WIDTH / 4, 1, False, None),
-    Target(("ui.birth.option",), "segmented 두 칸 중 한 칸 (check-row inline 글자 포함)",
+    # W51 사주 표 탭도 segmented 두 칸 (#710)
+    Target(("ui.birth.option", "ui.saju-chart.tab"), "segmented 두 칸 중 한 칸 (check-row inline 글자 포함)",
            "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * 3) / 2, 1, False, None),
     Target(("share-preview.ratio.label",), "segmented 세 칸 중 한 칸",
            "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * 3) / 3, 1, False, None),
@@ -199,18 +200,41 @@ TARGETS = (
     # 묶음 카드 위 안내 문장 (#354 ③, 결정 V50)
     Target(("profile-edit.recalc.notice",), "settings-row groupNote (묶음 카드 위, 좌우 16)",
            "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 16, 2, True, None),
+    # writing W51 IA 밖 ui 슬롯 (#710, 결정 V53·V54)
+    Target(("ui.settings.row", "ui.profile-edit.birthplace"),
+           "settings-row 이름과 값 (좌우 16, 화살표 16, 사이 space.8, 둘이 나눔)",
+           "ui-400", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 16 - 8) / 2, 1, False, None),
+    Target(("ui.legal.row",), "settings-row 이름 (좌우 16, 화살표 16)", "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
+    # 가장 좁은 자리: manse-table 행 머리 52에서 term-token label 좌우 4. 낱말 단위 두 줄 (V53)
+    Target(("ui.saju.header",), "manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음)",
+           "ui-500", 12, -0.24, 52 - 2 * 4, 2, False, None),
+    # 대운 꼬리표: 기둥 둘과 간격까지 넘침(V53). 세운 칸(약 126)보다 좁음
+    Target(("ui.saju.tag",), "daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8)",
+           "ui-500", 13, -0.26, 52 * 2 + 4 - 2 * 8, 1, False, None),
+    Target(("ui.evidence.personal-empty",), "evidence-sheet 빈 해석 안내 (sheet 안쪽 space.20, 두 줄)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH, 2, True, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
 KEY_TARGETS = {
     ("ui.login.provider", "loginLineLabel"): Target(
         ("ui.login.provider",), "LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46)", "ui-600", 14, -0.28, 198, 1, False, None),
+    # '나' 꼬리표 tag.me: 10px 굵게, 원국표 기둥 폭((320 − 6 × 3) / 4)에서 좌우 6까지 한 줄 (#710, V53)
+    ("ui.saju.tag", "sajuTagMe"): Target(
+        ("ui.saju.tag",), "saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게)", "ui-700", 10, 0,
+        (CONTENT_WIDTH - 6 * 3) / 4 - 2 * 6, 1, False, None),
 }
 
 # 행 값과 다른 상한을 받는 키: (슬롯, 키, 언어) → (값을 빌려 올 언어, 이유) (#446)
 KEY_LIMITS = {
     ("ui.login.provider", "loginKakaoLabel", "ja"): (
         "en", "ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감"),
+}
+
+# 이름 자리 추정보다 긴데 실제 폭으로 재면 들어가는 키: (슬롯, 키, 언어) → (상한, 실측 근거). 상한은 지금 원고 글자 수 (#710)
+KEY_MEASURED_LIMITS = {
+    ("ui.saju.header", "manseRowHiddenStems", "en"): (
+        12, "낱말마다 행 머리 44px 한 줄(Hidden 37.8px, stems 32.1px)이라 두 줄 안, 결정 V53"),
 }
 
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
@@ -251,6 +275,11 @@ NO_LIMIT = {
     "ui.purchase.product": "purchase-row 상품 이름(말줄임 없이 줄바꿈, 스토어 이름 대체)",
     # 숫자가 섞인 고정 형식이라 글자 수가 폭을 대신하지 못함. 폭 44px로 확인: ko 윤12.1 26.4px (#260)
     "ui.day-cell.lunar": "day-cell 윤달 표지(형식 고정, 글자 수 대신 칸 폭 44px로 확인)",
+    # writing W51 (#710)
+    "ui.saju.a11y": SCREEN_READER_ONLY,
+    "ui.lucky-card.a11y": SCREEN_READER_ONLY,
+    "ui.share.a11y": SCREEN_READER_ONLY,
+    "ui.system.tracking": "iOS 시스템 창(ATT 본문, 앱이 그리지 않음)",
 }
 
 
@@ -457,6 +486,8 @@ def render_table(results: list[Result], key_results: list[tuple[tuple[str, str],
         limit = finals.get((slot, source), "-")
         # 언어 칸을 앞에 둠: writing 파서가 "| `"로 시작하는 줄을 슬롯 행으로 읽기 때문
         lines.append(f"| {language} | `{slot}` | `{key}` | **{limit}** | {source} 상한을 씀: {reason} |")
+    for (slot, key, language), (limit, reason) in KEY_MEASURED_LIMITS.items():
+        lines.append(f"| {language} | `{slot}` | `{key}` | **{limit}** | 실측: {reason} |")
     for (slot, key), result in key_results:
         for language in LANGUAGES:
             lines.append(f"| {language} | `{slot}` | `{key}` | **{result.final(language)}** | 따로 잼: {result.target.where} |")

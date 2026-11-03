@@ -439,7 +439,7 @@ def test_actions_are_rounded_rectangles():
 
 
 def test_contract_version_is_3_0():
-    assert VERSION == "3.2.0"
+    assert VERSION == "3.3.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -511,6 +511,8 @@ SLOTS_OUTSIDE_IA = {"user-honorific", "image.footer"}  # 호칭 자리, 공유 �
 SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.login-methods.row", "ui.day-cell.lunar"}
 # D88 구매 줄 낱말 (#494). 가져올 기록 상자(ui.account-merge.summary)는 컴포넌트가 아닌 화면 배치라 input.md에만 있음
 SLOTS_OUTSIDE_IA |= {"ui.purchase.meta", "ui.purchase.product", "ui.purchase.status"}
+# W51 사주 표 낱말과 근거 시트 빈 안내 (#710)
+SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empty"}
 
 
 def _slot_values(node):
@@ -646,9 +648,22 @@ def test_app_bar_hides_back_on_flow_first_screens():
 
 
 def test_lucky_time_value_format():
+    # 범위 표기는 언어별(writing W44), 구간마다 칩 하나라 구간을 잇는 글자가 없음 (#546, 결정 V52)
     time = next(v for v in component("today", "lucky-card")["variants"] if v["id"] == "time")
-    assert time["parts"]["value"] == {"format": "HH:mm–HH:mm", "clock": "24h", "timeZone": "profile",
-                                      "join": " · ", "fontFeatures": ["tnum"]}
+    assert time["parts"]["value"] == {
+        "format": {"ko": "HH:mm~HH:mm", "ja": "HH:mm〜HH:mm", "en": "HH:mm to HH:mm"},
+        "clock": "24h", "timeZone": "profile", "fontFeatures": ["tnum"],
+    }
+    assert time["repeat"] == {"each": "FocusTimeCard.picks", "max": 2}
+
+
+def test_lucky_card_has_no_banned_punctuation():
+    # 화면에 보이는 형식에 범위 대시와 가운뎃점을 쓰지 않음 (D93)
+    time = next(v for v in component("today", "lucky-card")["variants"] if v["id"] == "time")
+    text = json.dumps(time, ensure_ascii=False)
+    assert "–" not in text and "·" not in text and "—" not in text
+    rules = " ".join(component("today", "lucky-card")["rules"])
+    assert "최대 7개" in rules and "첫 구간" in rules
 
 
 def test_element_values_from_app_feedback():
@@ -1117,3 +1132,31 @@ def test_account_choice_saju_has_leap_month_place():
     saju = components_by_id(("input",))["account-choice"]["parts"]["saju"]
     assert saju["leapMonth"]["source"] == "MergeProfileSummary.birth.isLeapMonth"
     assert saju["slot"] == "ui.account-merge.saju"
+
+
+def test_saju_labels_fit_table_cells():
+    # #710(결정 V53): 행 머리는 칸 폭 안 두 줄, 꼬리표는 줄에 하나라 이웃 기둥 위로 넓힘
+    by_id = components_by_id(("saju",))
+    row_header = by_id["manse-table"]["parts"]["rowHeader"]
+    assert row_header["slot"] == "ui.saju.header"
+    assert row_header["maxLines"] == 2 and "type.caption.sm" in row_header["overflow"]
+    assert by_id["saju-pillars"]["parts"]["header"]["slot"] == "ui.saju.header"
+    current = by_id["daeun-table"]["parts"]["currentLabel"]
+    assert current["element"] == "tag.status" and current["slot"] == "ui.saju.tag"
+    assert current["maxWidth"] == "기둥 둘과 그 사이 간격" and current["maxLines"] == 1
+    me = by_id["saju-pillars"]["parts"]["dayMaster"]["tag"]
+    assert me["slot"] == "ui.saju.tag" and me["maxWidth"] == "기둥 폭"
+
+
+def test_settings_row_value_gap():
+    value = components_by_id(("action",))["settings-row"]["parts"]["value"]
+    assert value["marginStart"] == "{space.8}"
+
+
+def test_evidence_sheet_personal_empty_notice():
+    # #710(결정 V54): 표 칸에서 연 근거 시트에 해석이 없으면 빈 구역을 지우지 않고 안내 문장
+    sheet = components_by_id(BRAND_GROUPS)["depth-link"]["parts"]["evidenceSheet"]
+    empty = sheet["personalEmpty"]
+    assert empty["slot"] == "ui.evidence.personal-empty"
+    assert empty["type"] == "{type.body.ui}" and empty["fg"] == "{color.text.secondary}"
+    assert empty["when"] == sheet["personal"]["when"] + ", 열렸는데 그 자리 해석이 없을 때"

@@ -30,7 +30,13 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-10-28, design 세션 작성)
+## 현재 상태 (2026-11-03, design 세션 작성)
+* **W51 슬롯 상한·집중 시간 칩 #710·#546** (브랜치 `design/lengths-710`, 결정 V52~V54).
+  * #546(V52): `lucky-card` `time`은 구간마다 칩 하나(최대 2), 범위 표기는 W44 언어별(ko `~`, ja `〜`, en " to "), `join` 삭제, 칩 줄 최대 7, 공유 이미지는 첫 구간 칩만.
+  * #710: 7개 슬롯을 `lengths.md`에 잼. 설정 줄 이름과 값은 반씩(132px, `settings-row` 값 앞 `space.8`), 사주 표 탭은 segmented 두 칸, `ui.saju.header`는 만세력 행 머리 44px 두 줄, `ui.saju.tag`는 대운 꼬리표 92px, '나' 꼬리표 `sajuTagMe`는 키별, en "Hidden stems"는 실측 키별 상한 12(`KEY_MEASURED_LIMITS`). 스크린리더 셋과 ATT는 상한 없음.
+  * V53: 만세력 행 머리는 대운 라벨처럼 두 줄, 대운·세운 꼬리표는 이웃 위로 넘쳐 기둥 둘 폭까지, `tag.me`는 기둥 폭까지. V54: 표 칸 근거 시트의 빈 해석 안내 `personalEmpty`(app 구현을 명세로).
+  * R26 원고 중 en `sajuChartTabLuck`(24자)이 상한 22를 넘어 writing에 줄이기 요청.
+  * 근거: [spec](specs/2026-11-03-w51-lengths-time-chip-design.md).
 * **사주 표 십성 라벨·피드백 표시·윤달 사주 줄 #353·#354·#587** (브랜치 `design/feedback-saju-353-354-587`, 결정 V48~V51).
   * #353(V49): `daeun-table` 대운 기둥에 천간·지지 십성과 12운성(`term-token` `label`, 줄 순서 `order`), 세운은 천간 십성 하나. 라벨은 칸 폭 안 두 줄 줄바꿈, 넘치면 `type.caption.sm`까지 줄임, 줄마다 높이 맞춤. `manse-table` 지장간은 "한자와 독음 / 십성" 두 줄 묶음을 늘 쓰고, 12운성·신살 값은 `term-token` `inline`. 십성 라벨 상한 행은 두지 않음(`glossary.value_name`이 다른 자리와 같은 슬롯).
   * #354(V50·V51): `notice-banner` `error`(`cloud-warning`, 버튼 없음, 다시 시도는 화면 저장 버튼), `stateMap.error`에 배너 추가, `settings-row` `groupNote`(묶음 카드 위 안내, `profile-edit.recalc.notice`, 상한 62·46·104), toast는 아래 고정 버튼 위 16px.
@@ -111,11 +117,9 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#546 design 몫(D93·W44):** `today.json`·`today.md` `lucky-card` 시간 칸 형식 `HH:mm–HH:mm`과 ` · ` 잇기. app은 `HH:mm~HH:mm`과 쉼표 잇기로 바꿨지만, W44(한 줄에 값을 구분 글자로 잇지 않음)와 겹쳐 여러 구간을 줄로 나눌지 사용자 확인이 필요합니다.
-2. **#353·#354·#587 마무리:** PR 병합 뒤 app·writing 확인을 받아 닫습니다. #587은 writing이 윤달 틀을 주면 닫힙니다.
+1. **#710·#546 마무리:** PR 병합 뒤 writing이 7개 슬롯 상한과 키별 상한을 넣고 en `sajuChartTabLuck`을 줄이면 #710이 닫힙니다. app은 3.3.0 drift로 시간 칩 둘, 언어별 범위 표기, 꼬리표 폭, 행 머리 두 줄, `personalEmpty` 간격을 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-3. **V31 목표 모양 #292:** app이 바꾸거나 유지할 이유(연도 단위 윤달 조회 필요 등)를 알리면 확인합니다.
-4. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-5. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-6. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+3. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+4. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

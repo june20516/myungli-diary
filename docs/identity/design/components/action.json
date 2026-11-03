@@ -1,5 +1,5 @@
 {
-  "version": "3.2.0",
+  "version": "3.3.0",
   "group": "action",
   "components": [
     {
@@ -110,7 +110,7 @@
         "row": { "minHeight": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
         "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" }, "insetStart": "{space.16}" },
         "label": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
-        "value": { "type": "{type.body.ui}", "fg": "{color.text.secondary}" },
+        "value": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginStart": "{space.8}", "note": "이름과 값 사이 최소 간격" },
         "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
         "toggle": { "trackOn": "{color.action.primary}", "trackOff": "{color.line}", "thumb": "{color.bg.sheet}" },
         "groupTitle": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}" },
