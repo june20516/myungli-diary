@@ -723,7 +723,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sharePreviewImageFooter => '命理日記';
 
   @override
-  String get sharePreviewImageTagline => '自分の命式で読む今日、命理日記';
+  String get sharePreviewImageTagline => '今日の干支を、あなたの命式に合わせて読み解く日記';
 
   @override
   String get sharePreviewRatioLabelStory => 'ストーリー';
@@ -794,7 +794,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayLuckyTimeName => '集中しやすい時間';
 
   @override
-  String get evidenceSheetTitle => '今日の読み解きの根拠';
+  String get evidenceSheetTitle => '読み解きの根拠';
 
   @override
   String get a11yListSeparator => '、';
@@ -925,17 +925,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String calcBasisLongitudeBodySubtract(String longitude, int minutes) {
-    return '出生時刻は$longitudeを基準に$minutes分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+    return '出生時刻は$longitudeを基準に$minutes分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。';
   }
 
   @override
   String calcBasisLongitudeBodyAdd(String longitude, int minutes) {
-    return '出生時刻は$longitudeを基準に$minutes分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+    return '出生時刻は$longitudeを基準に$minutes分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。';
   }
 
   @override
   String calcBasisLongitudeBodyNone(String longitude) {
-    return '出生時刻は$longitudeを基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+    return '出生時刻は$longitudeを基準に、補正せずに計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。';
   }
 
   @override
@@ -970,7 +970,7 @@ class AppLocalizationsJa extends AppLocalizations {
     int minutes,
     int dstMinutes,
   ) {
-    return '出生時刻は、サマータイムの$dstMinutes分を先に引き、$longitudeを基準にさらに$minutes分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+    return '出生時刻は、サマータイムの$dstMinutes分を先に引き、$longitudeを基準にさらに$minutes分を引いて計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。';
   }
 
   @override
@@ -979,12 +979,12 @@ class AppLocalizationsJa extends AppLocalizations {
     int minutes,
     int dstMinutes,
   ) {
-    return '出生時刻は、サマータイムの$dstMinutes分を先に引き、$longitudeを基準に$minutes分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+    return '出生時刻は、サマータイムの$dstMinutes分を先に引き、$longitudeを基準に$minutes分を足して計算します。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。';
   }
 
   @override
   String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes) {
-    return '出生時刻は、サマータイムの$dstMinutes分だけを引いて計算します。$longitudeが基準のため、経度の補正はしません。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万歳暦アプリと時柱が異なることがあります。';
+    return '出生時刻は、サマータイムの$dstMinutes分だけを引いて計算します。$longitudeが基準のため、経度の補正はしません。真太陽時は使いません。そのため、時の境目の数分以内に生まれた場合は、ほかの万年暦アプリと時柱が異なることがあります。';
   }
 
   @override
@@ -1109,13 +1109,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsLogoutLabel => 'ログアウト';
 
   @override
-  String get profileEditBirthplaceKorea => '韓国';
+  String get profileEditBirthplaceKorea => '韓国の基準';
 
   @override
   String get sajuChartTabNatal => '命式';
 
   @override
-  String get sajuChartTabLuck => '万年暦・大運';
+  String get sajuChartTabLuck => '万年暦と大運';
 
   @override
   String get sajuPillarHour => '時柱';
@@ -1139,7 +1139,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get manseRowShinsal => '神殺';
 
   @override
-  String get sajuTagMe => '私';
+  String get sajuTagMe => 'わたし';
 
   @override
   String get daeunTagNow => '今';
@@ -1154,20 +1154,20 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String ohaengBarItem(String element, String count) {
-    return '$element $count';
+    return '$element $countつ';
   }
 
   @override
   String get sajuPillarDayMaster => '日干';
 
   @override
-  String get sajuPillarsTableLabel => '命式';
+  String get sajuPillarsTableLabel => '命式表';
 
   @override
-  String get manseTableLabel => '万歳暦表';
+  String get manseTableLabel => '万年暦の表';
 
   @override
-  String get evidenceSheetPersonalEmpty => 'この位置の解釈はまだ準備中です。';
+  String get evidenceSheetPersonalEmpty => 'この位置には個別の読み解きがありません。';
 
   @override
   String luckYearLabel(int year) {
@@ -1443,4 +1443,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String accountChoiceSajuNoTimeLeap(String date, String calendar) {
     return '$calendar 閏月 $date 時刻不明';
   }
+
+  @override
+  String get iosTrackingUsageDescription =>
+      '許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。';
 }

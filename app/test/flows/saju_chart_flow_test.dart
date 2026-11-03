@@ -267,7 +267,7 @@ void main() {
     expect(counts[FiveElement.wood], '0.6');
     expect(counts[FiveElement.fire], '3.3');
     expect(counts[FiveElement.metal], '2.9');
-    expect(bar.semanticLabel, startsWith('목 0.6, 화 3.3'));
+    expect(bar.semanticLabel, startsWith('목 0.6개, 화 3.3개'));
 
     // 잠긴 용신 판정 근거: 이름 + 흐린 한 줄 + "열기".
     expect(_inChart(find.text(_ko.sajuChartYongsinTitle)), findsOneWidget);

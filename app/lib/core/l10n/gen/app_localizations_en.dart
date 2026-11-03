@@ -786,7 +786,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharePreviewImageTagline =>
-      'Myungli Diary: today, read for your chart';
+      'A diary that reads today for your own chart';
 
   @override
   String get sharePreviewRatioLabelStory => 'Story';
@@ -857,7 +857,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayLuckyTimeName => 'Best time to focus';
 
   @override
-  String get evidenceSheetTitle => 'The basis for today\'s reading';
+  String get evidenceSheetTitle => 'The basis for this reading';
 
   @override
   String get a11yListSeparator => ', ';
@@ -1194,7 +1194,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t read the time zone. Please check your device\'s time zone setting.';
 
   @override
-  String get settingsNotifyLabel => 'Reading time';
+  String get settingsNotifyLabel => 'Alert time';
 
   @override
   String get settingsNotifyOff => 'Off';
@@ -1203,16 +1203,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageLabel => 'Language';
 
   @override
-  String get settingsLogoutLabel => 'Log out';
+  String get settingsLogoutLabel => 'Sign out';
 
   @override
-  String get profileEditBirthplaceKorea => 'South Korea';
+  String get profileEditBirthplaceKorea => 'Korea (default)';
 
   @override
   String get sajuChartTabNatal => 'Natal chart';
 
   @override
-  String get sajuChartTabLuck => 'Pillars & cycles';
+  String get sajuChartTabLuck => 'Calendar and luck cycles';
 
   @override
   String get sajuPillarHour => 'Hour';
@@ -1233,7 +1233,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manseRowTwelveStages => '12 stages';
 
   @override
-  String get manseRowShinsal => 'Spirit stars';
+  String get manseRowShinsal => 'Shinsal';
 
   @override
   String get sajuTagMe => 'Me';
@@ -1246,7 +1246,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String daeunTableLabel(int age) {
-    return 'Luck cycles from age $age';
+    return '10-year luck cycles from age $age';
   }
 
   @override
@@ -1258,14 +1258,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sajuPillarDayMaster => 'Day master';
 
   @override
-  String get sajuPillarsTableLabel => 'Birth chart';
+  String get sajuPillarsTableLabel => 'Natal chart';
 
   @override
-  String get manseTableLabel => 'Manseryeok table';
+  String get manseTableLabel => 'Calendar table';
 
   @override
   String get evidenceSheetPersonalEmpty =>
-      'The reading for this spot isn\'t ready yet.';
+      'There\'s no separate reading for this spot.';
 
   @override
   String luckYearLabel(int year) {
@@ -1562,4 +1562,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String accountChoiceSajuNoTimeLeap(String date, String calendar) {
     return '$calendar leap month $date, time unknown';
   }
+
+  @override
+  String get iosTrackingUsageDescription =>
+      'If you allow this, ads are matched to your interests. If you don\'t, you can still use the app the same way.';
 }
