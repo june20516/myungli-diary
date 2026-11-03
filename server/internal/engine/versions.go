@@ -3,9 +3,12 @@ package engine
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"sync/atomic"
 	"time"
+
+	"golang.org/x/sync/singleflight"
 )
 
 // ErrVersionUnknown은 엔진 ruleset_version을 아직 한 번도 받지 못했을 때의 오류입니다.
@@ -17,6 +20,8 @@ type Versions struct {
 	engine  Engine
 	logger  *slog.Logger
 	current atomic.Pointer[string]
+	// ensure는 값을 모를 때 동시에 온 Ensure가 Refresh 하나를 함께 기다리게 합니다.
+	ensure singleflight.Group
 
 	initialBackoff time.Duration // 값을 모르는 동안의 첫 재시도 간격입니다. 테스트에서 줄입니다.
 }
@@ -52,6 +57,28 @@ func (v *Versions) Current() (string, error) {
 		return "", ErrVersionUnknown
 	}
 	return *rulesetVersion, nil
+}
+
+// Ensure는 값을 알면 그 값을, 모르면 Refresh를 한 번 불러(동시에 온 호출은 하나를 함께 기다림) 받은 값을 돌려줍니다.
+// 엔진과 server가 함께 cold start한 직후에도 첫 요청이 503이 되지 않고 엔진이 뜰 때까지 기다리게 하려는 것입니다(S132).
+// Refresh는 첫 호출자의 ctx와 떨어져 돌므로 한 요청이 취소돼도 다른 요청의 기다림이 끊기지 않습니다.
+// 기다림은 호출자 ctx가 끝나면 멈추고, Refresh가 실패하면 그 오류를 ErrVersionUnknown과 함께 돌려줍니다.
+func (v *Versions) Ensure(ctx context.Context) (string, error) {
+	if rulesetVersion, err := v.Current(); err == nil {
+		return rulesetVersion, nil
+	}
+	result := v.ensure.DoChan("refresh", func() (any, error) {
+		return nil, v.Refresh(context.WithoutCancel(ctx))
+	})
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case r := <-result:
+		if r.Err != nil {
+			return "", fmt.Errorf("%w: %w", ErrVersionUnknown, r.Err)
+		}
+		return v.Current()
+	}
 }
 
 // Run은 바로 한 번 Refresh한 뒤 interval마다 되풀이하고, ctx가 취소되면 반환합니다.

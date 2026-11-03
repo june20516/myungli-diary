@@ -82,6 +82,43 @@ func TestServe_AssemblesTestGrant(t *testing.T) {
 	assert.Equal(t, true, adFree["active"])
 }
 
+// staging 보상형 광고 보상(S131)은 실제 BearerAuth로 조립됩니다: 토큰이 없으면 401, 있으면 그 계정에 근거 열람을 줍니다.
+func TestServe_AssemblesTestReward(t *testing.T) {
+	const secret = "staging-test-login-secret-0123456789" //nolint:gosec // 테스트 값이며 실제 자격 증명이 아닙니다
+	env := newFlowEnvWith(t, func(deps *serverDeps) {
+		deps.TestLogin = testLoginSettings{secret: secret}
+	})
+	// flow 시계(2026-10-13 09:00 UTC)의 Unix 밀리초입니다.
+	reward := map[string]any{"transactionId": "staging-tx-1", "adUnit": "unit", "rewardItem": "insight", "timestamp": 1791882000000}
+
+	anonymous := env.do(http.MethodPost, "/test/v1/billing/rewarded-ad", "", reward)
+	assert.Equal(t, http.StatusUnauthorized, anonymous.status, "토큰 없음: %v", anonymous.body)
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, env.url+"/test/v1/auth/login", strings.NewReader(`{"label":"reward01"}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Test-Login-Secret", secret)
+	login := env.send(req)
+	require.Equal(t, http.StatusOK, login.status, "로그인 본문: %v", login.body)
+	access, _ := login.tokens(t)
+
+	beforeConsent := env.do(http.MethodPost, "/test/v1/billing/rewarded-ad", access, reward)
+	assert.Equal(t, http.StatusForbidden, beforeConsent.status, "동의 전: %v", beforeConsent.body)
+	consent := env.do(http.MethodPost, "/v1/me/consents", access, currentConsents())
+	require.Equal(t, http.StatusNoContent, consent.status, "동의 본문: %v", consent.body)
+
+	granted := env.do(http.MethodPost, "/test/v1/billing/rewarded-ad", access, reward)
+	require.Equal(t, http.StatusOK, granted.status, "보상 본문: %v", granted.body)
+	insight, _ := granted.body["insight"].(map[string]any)
+	assert.Equal(t, true, insight["active"])
+	assert.Equal(t, "rewarded_ad", insight["source"])
+
+	entitlements := env.do(http.MethodGet, "/v1/me/entitlements", access, nil)
+	require.Equal(t, http.StatusOK, entitlements.status, "권한 본문: %v", entitlements.body)
+	stored, _ := entitlements.body["insight"].(map[string]any)
+	assert.Equal(t, true, stored["active"])
+}
+
 // staging 빌드는 APP_ENV가 prod면 시작하지 않습니다. 테스트 로그인이 든 바이너리가 prod에 배포되는 것을 막습니다.
 func TestServe_StagingBuildRefusesProdEnv(t *testing.T) {
 	env := testAuthEnv(t)

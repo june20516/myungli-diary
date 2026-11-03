@@ -228,3 +228,90 @@ func TestVersions_RunRetriesWithBackoffWhileVersionUnknown(t *testing.T) {
 	cancel()
 	<-done
 }
+
+// 값을 알면 Ensure는 엔진을 부르지 않습니다.
+func TestVersions_EnsureReturnsKnownValueWithoutEngine(t *testing.T) {
+	var calls atomic.Int64
+	fake := &enginetest.Fake{Info: func() (*enginev1.InfoResponse, error) {
+		calls.Add(1)
+		return &enginev1.InfoResponse{RulesetVersion: "rs-1"}, nil
+	}}
+	v := newTestVersions(fake)
+	require.NoError(t, v.Refresh(context.Background()))
+
+	got, err := v.Ensure(context.Background())
+
+	require.NoError(t, err)
+	require.Equal(t, "rs-1", got)
+	require.EqualValues(t, 1, calls.Load(), "Refresh 한 번만")
+}
+
+// 값을 모르면 동시에 온 Ensure가 GetInfo 하나를 함께 기다리고 같은 값을 받습니다(S132, cold start 직후 첫 요청들).
+func TestVersions_EnsureWaitsForOneSharedRefresh(t *testing.T) {
+	release := make(chan struct{})
+	var calls atomic.Int64
+	fake := &enginetest.Fake{Info: func() (*enginev1.InfoResponse, error) {
+		calls.Add(1)
+		<-release
+		return &enginev1.InfoResponse{RulesetVersion: "rs-1"}, nil
+	}}
+	v := newTestVersions(fake)
+
+	const callers = 5
+	var wg sync.WaitGroup
+	results := make(chan string, callers)
+	for range callers {
+		wg.Go(func() {
+			got, err := v.Ensure(context.Background())
+			require.NoError(t, err)
+			results <- got
+		})
+	}
+	// 모든 호출자가 같은 Refresh를 기다리기 시작할 시간을 줍니다.
+	require.Eventually(t, func() bool { return calls.Load() == 1 }, time.Second, time.Millisecond)
+	time.Sleep(20 * time.Millisecond)
+	close(release)
+	wg.Wait()
+	close(results)
+
+	for got := range results {
+		require.Equal(t, "rs-1", got)
+	}
+	require.EqualValues(t, 1, calls.Load())
+}
+
+// Refresh가 실패하면 ErrVersionUnknown과 엔진 오류를 함께 돌려주고, 다음 Ensure가 다시 시도합니다.
+func TestVersions_EnsureFailureIsVersionUnknownAndRetriesNextTime(t *testing.T) {
+	fake := &enginetest.Fake{Info: func() (*enginev1.InfoResponse, error) { return nil, engine.ErrTimeout }}
+	v := newTestVersions(fake)
+
+	_, err := v.Ensure(context.Background())
+	require.ErrorIs(t, err, engine.ErrVersionUnknown)
+	require.ErrorIs(t, err, engine.ErrTimeout)
+
+	fake.Info = infoWith("rs-1")
+	got, err := v.Ensure(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, "rs-1", got)
+}
+
+// 호출자 ctx가 끝나면 기다림을 멈추고 ctx 오류를 돌려주며, 진행 중인 Refresh는 끝까지 돌아 값을 채웁니다.
+func TestVersions_EnsureStopsWaitingOnCallerCancel(t *testing.T) {
+	release := make(chan struct{})
+	fake := &enginetest.Fake{Info: func() (*enginev1.InfoResponse, error) {
+		<-release
+		return &enginev1.InfoResponse{RulesetVersion: "rs-1"}, nil
+	}}
+	v := newTestVersions(fake)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := v.Ensure(ctx)
+	require.ErrorIs(t, err, context.Canceled)
+
+	close(release)
+	require.Eventually(t, func() bool {
+		got, err := v.Current()
+		return err == nil && got == "rs-1"
+	}, time.Second, time.Millisecond)
+}
