@@ -52,6 +52,7 @@ func deleteSteps(q *accountdb.Queries) []deleteStep {
 		{"날짜 기록", q.DeleteDiaryDaysByAccount},
 		{"일정", q.DeleteSchedulesByAccount},
 		{"알림 기기", q.DeleteDevicesByAccount},
+		{"알림 기록", q.DeleteNotificationLogByAccount},
 		{"멱등 키", q.DeleteIdempotencyKeysByAccount},
 		{"합치기 토큰", q.DeleteMergeTicketsByAccount},
 		{"합치기 영수증", q.DeleteMergeReceiptsByAccount},

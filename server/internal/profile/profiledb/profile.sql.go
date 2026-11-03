@@ -111,6 +111,70 @@ func (q *Queries) ListActiveProfiles(ctx context.Context, arg ListActiveProfiles
 	return items, nil
 }
 
+const listNotifyProfiles = `-- name: ListNotifyProfiles :many
+SELECT p.account_id, p.honorific, p.language, p.current_timezone, p.calendar, p.is_leap_month, p.birth_year, p.birth_month, p.birth_day, p.birth_time_status, p.birth_time, p.gender, p.birth_timezone, p.birth_place_status, p.birth_city_id, p.longitude, p.notify_status, p.notify_time, p.birth_hash, p.created_at, p.updated_at
+FROM profiles p
+JOIN accounts a ON a.id = p.account_id
+WHERE a.status = 'active'
+  AND p.notify_status = 'enabled'
+  AND EXISTS (SELECT 1 FROM devices d WHERE d.account_id = p.account_id AND d.active)
+  AND p.account_id > $1
+ORDER BY p.account_id
+LIMIT $2
+`
+
+type ListNotifyProfilesParams struct {
+	After    uuid.UUID
+	PageSize int32
+}
+
+type ListNotifyProfilesRow struct {
+	Profile Profile
+}
+
+// job notify의 대상 후보입니다(P8-4). 알림을 켰고 활성 기기가 있는 활동 계정의 프로필을 계정 id 순으로 읽습니다.
+func (q *Queries) ListNotifyProfiles(ctx context.Context, arg ListNotifyProfilesParams) ([]ListNotifyProfilesRow, error) {
+	rows, err := q.db.Query(ctx, listNotifyProfiles, arg.After, arg.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListNotifyProfilesRow
+	for rows.Next() {
+		var i ListNotifyProfilesRow
+		if err := rows.Scan(
+			&i.Profile.AccountID,
+			&i.Profile.Honorific,
+			&i.Profile.Language,
+			&i.Profile.CurrentTimezone,
+			&i.Profile.Calendar,
+			&i.Profile.IsLeapMonth,
+			&i.Profile.BirthYear,
+			&i.Profile.BirthMonth,
+			&i.Profile.BirthDay,
+			&i.Profile.BirthTimeStatus,
+			&i.Profile.BirthTime,
+			&i.Profile.Gender,
+			&i.Profile.BirthTimezone,
+			&i.Profile.BirthPlaceStatus,
+			&i.Profile.BirthCityID,
+			&i.Profile.Longitude,
+			&i.Profile.NotifyStatus,
+			&i.Profile.NotifyTime,
+			&i.Profile.BirthHash,
+			&i.Profile.CreatedAt,
+			&i.Profile.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const profileExists = `-- name: ProfileExists :one
 SELECT EXISTS (SELECT 1 FROM profiles WHERE account_id = $1)
 `

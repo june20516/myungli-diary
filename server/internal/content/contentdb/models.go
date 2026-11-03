@@ -197,6 +197,14 @@ type MonthCache struct {
 	CreatedAt       time.Time
 }
 
+type NotificationLog struct {
+	AccountID uuid.UUID
+	LocalDate pgtype.Date
+	Result    string
+	ClaimedAt time.Time
+	SentAt    *time.Time
+}
+
 type PreviewUsage struct {
 	DeviceHash []byte
 	UsedAt     time.Time

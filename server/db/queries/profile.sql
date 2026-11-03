@@ -53,3 +53,15 @@ WHERE a.status = 'active'
   AND p.account_id > @after
 ORDER BY p.account_id
 LIMIT @page_size;
+
+-- name: ListNotifyProfiles :many
+-- job notify의 대상 후보입니다(P8-4). 알림을 켰고 활성 기기가 있는 활동 계정의 프로필을 계정 id 순으로 읽습니다.
+SELECT sqlc.embed(p)
+FROM profiles p
+JOIN accounts a ON a.id = p.account_id
+WHERE a.status = 'active'
+  AND p.notify_status = 'enabled'
+  AND EXISTS (SELECT 1 FROM devices d WHERE d.account_id = p.account_id AND d.active)
+  AND p.account_id > @after
+ORDER BY p.account_id
+LIMIT @page_size;

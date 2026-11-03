@@ -39,6 +39,7 @@ var deletedTables = map[string]string{ //nolint:gosec // 표 이름(refresh_toke
 		WHERE account_id = $1 OR other_account_id = $1`,
 	"account_merge_receipts": `SELECT count(*) FROM account_merge_receipts WHERE account_id = $1`,
 	"devices":                `SELECT count(*) FROM devices WHERE account_id = $1`,
+	"notification_log":       `SELECT count(*) FROM notification_log WHERE account_id = $1`,
 	// 그 계정 Apple 인증 계정의 웹 로그인 기록입니다. seedAccount가 Apple subject를 'apple-<계정 id>'로 둡니다.
 	"apple_web_logins": `SELECT count(*) FROM apple_web_logins WHERE subject = 'apple-' || $1::text`,
 }
@@ -97,6 +98,7 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 		uuid.Must(uuid.NewV7()), id)
 	exec(`INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at)
 		VALUES ($1, $2, $3, sha256(convert_to($3, 'UTF8')), 'android', true, now())`, uuid.Must(uuid.NewV7()), id, "fcm-"+id.String())
+	exec(`INSERT INTO notification_log (account_id, local_date, result, claimed_at) VALUES ($1, '2026-10-12', 'sent', now())`, id)
 	var selectionID int64
 	require.NoError(t, pool.QueryRow(ctx, `INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)
 		VALUES ($1, '2026-10-12', 'overall', $2, 'msg.a', 'v1', 'seed-v1') RETURNING id`, id, hash).Scan(&selectionID))
@@ -437,6 +439,8 @@ func TestDeletedAccount_RejectsPersonalWrites(t *testing.T) {
 			[]any{target.id, bytes.Repeat([]byte{1}, 32)}},
 		"devices insert": {`INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at) VALUES ($1, $2, 'fcm-new', sha256('fcm-new'), 'ios', true, now())`,
 			[]any{uuid.Must(uuid.NewV7()), target.id}},
+		"notification_log insert": {`INSERT INTO notification_log (account_id, local_date, result, claimed_at) VALUES ($1, '2026-10-20', 'pending', now())`,
+			[]any{target.id}},
 		// 나중 합치기처럼 account_id를 바꾸는 UPDATE도 지운 계정으로는 옮기지 못합니다.
 		"diaries account_id update": {`UPDATE diaries SET account_id = $1 WHERE account_id = $2`, []any{target.id, other.id}},
 		"auth_identities account_id update": {`UPDATE auth_identities SET account_id = $1 WHERE account_id = $2`,

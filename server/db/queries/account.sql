@@ -84,6 +84,9 @@ DELETE FROM schedules WHERE account_id = @account_id;
 -- name: DeleteDevicesByAccount :exec
 DELETE FROM devices WHERE account_id = @account_id;
 
+-- name: DeleteNotificationLogByAccount :exec
+DELETE FROM notification_log WHERE account_id = @account_id;
+
 -- name: DeleteIdempotencyKeysByAccount :exec
 DELETE FROM idempotency_keys WHERE account_id = @account_id;
 

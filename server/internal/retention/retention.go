@@ -27,6 +27,8 @@ const (
 	ExpiredGrace = 24 * time.Hour
 	// InactiveDeviceTTL은 비활성 알림 기기를 마지막으로 본 뒤 남겨 두는 기간입니다(S119).
 	InactiveDeviceTTL = 30 * 24 * time.Hour
+	// NotificationLogTTL은 아침 알림 기록을 남겨 두는 기간입니다(S129).
+	NotificationLogTTL = 30 * 24 * time.Hour
 	// SoftDeleteTTL은 사용자가 지운 일기·일정을 복구할 수 있는 기간입니다. 지나면 내용을 비웁니다(S6).
 	SoftDeleteTTL = 30 * 24 * time.Hour
 )
@@ -74,6 +76,7 @@ func (s *Store) Steps() []Step {
 		{Name: "합치기 토큰", Run: s.before(ExpiredGrace, s.q.DeleteMergeTicketsExpiredBefore)},
 		{Name: "Apple 웹 로그인", Run: s.deleteExpiredAppleWebLogins},
 		{Name: "알림 기기", Run: s.before(InactiveDeviceTTL, s.q.DeleteInactiveDevicesSeenBefore)},
+		{Name: "알림 기록", Run: s.before(NotificationLogTTL, s.q.DeleteNotificationLogClaimedBefore)},
 		{Name: "미리보기 설치 해시", Run: s.yearsBefore(PreviewUsageYears, s.q.DeletePreviewUsageBefore)},
 		{Name: "보상 기록", Run: s.deleteRewardRecords},
 		{Name: "테스트 광고 제거 기간", Run: s.yearsBefore(TestGrantYears, s.q.DeleteTestGrantsEndedBefore)},

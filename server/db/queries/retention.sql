@@ -100,3 +100,7 @@ WHERE w.expires_at < @cutoff::timestamptz
 
 -- name: DeleteAppleWebLoginsExpiredBefore :execrows
 DELETE FROM apple_web_logins WHERE expires_at < @cutoff;
+
+-- name: DeleteNotificationLogClaimedBefore :execrows
+-- 알림 기록은 하루 한 번 판정에만 쓰므로 30일 뒤 지웁니다(S129).
+DELETE FROM notification_log WHERE claimed_at < @cutoff;
