@@ -276,7 +276,7 @@ jobs:
           working-directory: app
           # sh 한 줄이라 pipefail 없이 로그를 파일로 받고, 실패하면 로그를 보여 주고 기기 전체 logcat을 남긴다.
           # Patrol 포트는 기본값(8081·8082) 대신 덜 쓰이는 47281·47282로 고정한다(로컬 Metro 등과 충돌 방지, app/CLAUDE.md와 같은 값).
-          script: mkdir -p build && patrol test -t patrol_test --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; adb logcat -d > build/logcat-full.txt; exit 1; }
+          script: mkdir -p build && patrol test -t patrol_test --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; echo "--- instrumentation 결과, Patrol 요약에서 빠지는 프로세스 크래시 포함 ---"; tail -n 8 build/app/outputs/androidTest-results/connected/debug/*/testlog/test-results.log || true; adb logcat -d > build/logcat-full.txt; exit 1; }; n=$(adb logcat -d | grep -c "Destroy timeout of remove-task" || true); echo "remove-task destroy timeout=$n"; if [ "$n" != 0 ]; then echo "::warning title=e2e A100::테스트 뒤 Activity가 닫히지 않은 채 끝난 task가 $n개 있습니다. app/README.md 기기 E2E 실패 읽기"; fi
         env:
           PATROL_ANALYTICS_ENABLED: "false"
       # 빌드가 캐시 키 밖의 NDK·CMake를 설치했으면 키가 낡은 것이다(README "NDK·CMake 캐시").

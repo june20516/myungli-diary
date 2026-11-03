@@ -54,7 +54,12 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-10-30, app 세션 갱신)
+## 현재 상태 (2026-11-03, app 세션 갱신)
+* **야간 e2e-android 간헐 실패(#700)**, 브랜치 `app/e2e-gradle-flake`. 결정 A100. "8개 모두 통과인데 Gradle code 1"은 9번째 테스트가 "Test instrumentation process crashed"로 빠진 것이었습니다(Patrol 요약과 XML에 없음). API 34 에뮬레이터가 Activity째 끝난 instrumentation의 task 제거를 약 1.4초 뒤 destroy timeout으로 처리하며 같은 이름의 프로세스를 죽이는데, orchestrator가 그 사이 다음 테스트를 띄우면 그 프로세스가 죽습니다. `MainActivityTest` `@After`가 Activity를 닫고 destroy까지 기다립니다. app.yml은 실패 때 `test-results.log` 끝을 찍습니다. API 36 로컬 에뮬레이터에서는 이 timeout이 나지 않아 CI(API 34)로 확인합니다.
+* **A2 adapter 병합 완료:** 로그인 값과 환경 파일 PR #693(A97), RevenueCat PR #695(A98), AdMob과 UMP PR #698(A99). 남은 A2는 실제 로그인 확인 #311·#463입니다.
+  * RevenueCat Test Store 상품(#632, 2026-11-03): 스토어 상품 id `ad_free_1m`(app `AD_FREE_PRODUCT_IDS`에 넣는 값), RevenueCat id `prod0bc032dedf`는 server 값입니다. 결제 끝까지 시험은 server #683(staging 결제를 Test Store로) 뒤입니다.
+  * AdMob SSV(#539): app은 이미 `userId`를 싣습니다. server 서명 검증 수정(#703)은 PR #704(REST 1.2.1)로 병합됐고, drift #707로 REST 1.3.0(#704 SSV 설명, #706 `checkHealth`)까지 생성 클라이언트를 따라잡았습니다(app은 두 operation 모두 부르지 않음).
+* 아래는 2026-10-30까지의 상태입니다.
 * **staging 배포 준비**, 브랜치 `app/staging-ready`. 계획 [`docs/plans/2026-10-28-staging-ready.md`](docs/plans/2026-10-28-staging-ready.md)("확인한 사실" 표에 외부 상태와 출처), 결정 A94~A96.
   * Android release는 보관 폴더(D98 K1)의 업로드 키로 서명, 없으면 debug 키와 경고(A94). 키는 사용자가 만들었고 첫 staging AAB(1.0.0+1)를 그 키로 서명했습니다(#677). Play 업로드는 사용자 몫입니다.
   * App Check: debug 빌드이고 staging일 때만 debug provider(고정 토큰 `APP_CHECK_DEBUG_TOKEN`, K4), 그 밖은 Play Integrity, iOS DeviceCheck. 토큰을 3초 안에 못 받으면 헤더 없이 보냄(A95, #657, #659).

@@ -65,7 +65,7 @@ class DefaultApi {
   const DefaultApi(this._dio);
 
   /// AdMob 보상형 광고 SSV 콜백
-  /// AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다. 서명은 핸들러가 원본 쿼리 문자열(&#x60;signature&#x60; 앞까지)로 AdMob 공개 키(&#x60;key_id&#x60;로 고름)를 써 ECDSA 검증합니다. &#x60;user_id&#x60;는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 &#x60;transaction_id&#x60;는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다. 서명이 맞아도 &#x60;user_id&#x60;가 없거나 없는 계정이면 기록만 하고 200입니다(재시도를 막음). 검증되면 근거 열람 권한(&#x60;insight&#x60;)을 출처 &#x60;rewarded_ad&#x60;로 그 계정 현재 시간대의 다음 자정까지 부여합니다. 서명 검증 실패는 401 &#x60;reward.invalid_signature&#x60;, 현재와 1시간 넘게 어긋난(오래됐거나 미래) &#x60;timestamp&#x60;는 401 &#x60;reward.expired&#x60;입니다. 검증 키 목록을 받지 못하면 503입니다.
+  /// AdMob이 보상형 광고 시청 뒤 부르는 서버 측 확인(SSV) 주소입니다. app은 부르지 않습니다. 서명은 핸들러가 AdMob 공개 키(&#x60;key_id&#x60;로 고름)로 ECDSA 검증합니다. 서명 대상은 쿼리에서 &#x60;signature&#x60;, &#x60;key_id&#x60;를 뺀 나머지 쌍을 받은 순서대로 &#x60;&amp;&#x60;로 이어 URL 디코딩(&#x60;+&#x60;는 공백)한 문자열입니다. 실제 광고 콜백은 &#x60;signature&#x60;, &#x60;key_id&#x60;가 맨 뒤에 오지만 콘솔의 콜백 URL 확인 요청은 쿼리가 알파벳 순이라 &#x60;key_id&#x60;가 &#x60;signature&#x60; 앞에 옵니다. 둘 다 받습니다. &#x60;signature&#x60;나 &#x60;key_id&#x60;가 없거나 둘 이상이면, 또는 디코딩한 이름에 &#x60;&amp;&#x60;, &#x60;&#x3D;&#x60;가 있거나 값에 &#x60;&amp;&#x60;가 있으면 서명 검증 실패입니다. &#x60;user_id&#x60;는 계정 id이며, app이 SSV 옵션에 넣습니다. 같은 &#x60;transaction_id&#x60;는 한 번만 처리하고, 다시 오면 아무것도 하지 않고 200입니다. 서명이 맞아도 &#x60;user_id&#x60;가 없거나 없는 계정이면 기록만 하고 200입니다(재시도를 막음). 검증되면 근거 열람 권한(&#x60;insight&#x60;)을 출처 &#x60;rewarded_ad&#x60;로 그 계정 현재 시간대의 다음 자정까지 부여합니다. 서명 검증 실패는 401 &#x60;reward.invalid_signature&#x60;, 현재와 1시간 넘게 어긋난(오래됐거나 미래) &#x60;timestamp&#x60;는 401 &#x60;reward.expired&#x60;입니다. 검증 키 목록을 받지 못하면 503입니다.
   ///
   /// Parameters:
   /// * [keyId]
@@ -286,6 +286,72 @@ class DefaultApi {
     }
 
     return Response<Problem>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// 헬스 체크
+  /// 정상(DB 연결 확인)이면 200, 비정상이면 503입니다. 외부 uptime check는 이 경로를 씁니다. Cloud Run 앞단이 &#x60;z&#x60;로 끝나는 일부 경로를 가로채므로 &#x60;/healthz&#x60;(&#x60;getHealth&#x60;) 대신 이 경로를 씁니다(1.3.0에서 더함).
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [Health] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<Health>> checkHealth({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/health';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    Health? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Health, Health>(rawData, 'Health', growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<Health>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -1763,8 +1829,8 @@ class DefaultApi {
     );
   }
 
-  /// 헬스 체크
-  /// 정상이면 200, 비정상이면 503입니다.
+  /// 헬스 체크 (deprecated)
+  /// &#x60;checkHealth&#x60;(&#x60;/health&#x60;)와 같은 동작입니다. Cloud Run에 배포한 server에서는 앞단이 이 경로를 가로채 server에 닿지 않으므로 &#x60;checkHealth&#x60;를 씁니다. v1에서는 지우지 않습니다(S93).
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -1776,6 +1842,7 @@ class DefaultApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Health] as data
   /// Throws [DioException] if API call or serialization fails
+  @Deprecated('This operation has been deprecated')
   Future<Response<Health>> getHealth({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
