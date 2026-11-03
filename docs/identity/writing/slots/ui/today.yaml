@@ -326,3 +326,48 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "제목, 본문, 버튼 순서로 읽습니다."
+
+# IA 밖 접근성 이름(app 계획 4 임시 키, 허용 목록 A38). 키 이름은 app ARB 이름 그대로입니다(W22).
+- id: ui.lucky-card.a11y
+  where: "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+  purpose: info
+  user_state: "스크린리더로 오늘의 행운 칩을 듣습니다."
+  structure: "항목 이름 하나. 설명 한 줄(today.lucky-*.body)이 부르는 이름과 같게 씁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [lucky-card]
+  keys:
+    - todayLuckyColorName
+    - todayLuckyDirectionName
+    - todayLuckyNumberName
+    - todayLuckyTimeName
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeName, text: "집중하기 좋은 시간", why: "IA today.lucky-time.body와 같은 이름", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "이름 다음에 칩 값을 읽습니다."
+
+- id: ui.share.a11y
+  where: "공유 미리보기 화면(share-preview): 이미지 미리보기와 비율 선택 묶음의 스크린리더 이름"
+  purpose: info
+  user_state: "스크린리더로 공유 미리보기를 듣습니다."
+  structure: "이름 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [share-image, segmented]
+  keys:
+    - shareImageSemantics
+    - sharePreviewRatioGroup
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sharePreviewRatioGroup, text: "공유 이미지 비율", why: "무엇을 고르는 묶음인지", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "화면에 보이지 않습니다."
+    screen_reader: "스크린리더만 읽습니다."

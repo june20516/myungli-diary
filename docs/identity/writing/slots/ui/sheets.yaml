@@ -235,3 +235,26 @@
   a11y:
     truncation: "화면에 보이지 않습니다."
     screen_reader: "스크린리더만 읽습니다."
+
+# IA 밖 근거 시트 문구(#331 코멘트, PR #345). 키 이름은 app ARB 이름 그대로입니다(W22).
+- id: ui.evidence.personal-empty
+  where: "근거 시트(evidence-sheet): 사주 표 칸에서 열었는데 그 자리의 원국 개인 해석(personal.*)이 없을 때"
+  purpose: info
+  user_state: "사주 표 칸을 눌러 근거 시트를 열었는데 개인 해석 칸이 비어 있습니다."
+  structure: "한 문장. 그 자리에 따로 풀이한 문장이 없다는 사실만 씁니다. 나중에 생긴다고 약속하지 않습니다."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [sheet]
+  keys:
+    - evidenceSheetPersonalEmpty
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: evidenceSheetPersonalEmpty, text: "이 자리는 따로 풀이한 내용이 없어요.", why: "라운드 R26-3(두 번 같은 선택)", source: writing}
+    bad:
+      - {lang: ko, text: "아직 이 자리의 이야기는 쓰이지 않았어요. 곧 만나요!", why: "없는 내용을 약속하고 들뜬 맺음(R26-3 대조군)", source: writing}
+      - {lang: ko, text: "이 자리의 해석은 아직 준비 중이에요.", why: "준비하지 않는 내용을 준비 중이라고 함(R26-3)", source: writing}
+  endings: ["~어요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."

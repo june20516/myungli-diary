@@ -1517,7 +1517,11 @@
       }
     }
   },
-  "evidenceSheetTitle": "오늘 풀이의 근거",
+  "evidenceSheetPersonalEmpty": "이 자리는 따로 풀이한 내용이 없어요.",
+  "@evidenceSheetPersonalEmpty": {
+    "description": "근거 시트(evidence-sheet): 사주 표 칸에서 열었는데 그 자리의 원국 개인 해석(personal.*)이 없을 때"
+  },
+  "evidenceSheetTitle": "풀이의 근거",
   "@evidenceSheetTitle": {
     "description": "근거 시트(sheet) 제목(#153)"
   },
@@ -1532,6 +1536,18 @@
   "todayGuideEyebrow": "오늘의 질문",
   "@todayGuideEyebrow": {
     "description": "가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)"
+  },
+  "legalTermsLabel": "이용약관",
+  "@legalTermsLabel": {
+    "description": "약관과 정책 화면(legal): 문서 줄 이름"
+  },
+  "legalPrivacyLabel": "개인정보 처리방침",
+  "@legalPrivacyLabel": {
+    "description": "약관과 정책 화면(legal): 문서 줄 이름"
+  },
+  "legalLicensesLabel": "오픈소스 라이선스",
+  "@legalLicensesLabel": {
+    "description": "약관과 정책 화면(legal): 문서 줄 이름"
   },
   "loginProviderKakao": "카카오",
   "@loginProviderKakao": {
@@ -1588,6 +1604,22 @@
   "loginGoogleLabel": "Google 계정으로 로그인",
   "@loginGoogleLabel": {
     "description": "소셜 로그인 버튼 글자. 제공자 가이드 문구를 그대로 씁니다(카카오 로그인 디자인 가이드, Sign in with Apple HIG, LINE Login button design guidelines, Sign in with Google branding guidelines)"
+  },
+  "todayLuckyColorName": "행운 색",
+  "@todayLuckyColorName": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+  },
+  "todayLuckyDirectionName": "행운 방향",
+  "@todayLuckyDirectionName": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+  },
+  "todayLuckyNumberName": "행운 숫자",
+  "@todayLuckyNumberName": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+  },
+  "todayLuckyTimeName": "집중하기 좋은 시간",
+  "@todayLuckyTimeName": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
   },
   "appBarBack": "뒤로",
   "@appBarBack": {
@@ -1699,6 +1731,10 @@
   "@timePickerMinuteLabel": {
     "description": "날짜·시간 휠의 스크린리더 이름"
   },
+  "profileEditBirthplaceKorea": "한국 기준",
+  "@profileEditBirthplaceKorea": {
+    "description": "정보 수정 화면(profile-edit): 출생지를 묻지 않았거나 건너뛰었을 때 출생지 줄의 값"
+  },
   "purchaseMetaPurchased": "{date} 구매",
   "@purchaseMetaPurchased": {
     "description": "구매 내역 화면(purchase-history) purchase-row: 구매일과 사용 기간 줄",
@@ -1740,9 +1776,127 @@
   "@purchaseStatusRefunded": {
     "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)"
   },
+  "sajuChartTabNatal": "원국",
+  "@sajuChartTabNatal": {
+    "description": "사주 표 화면(saju-chart): 위쪽 segmented 두 칸(원국표, 오행 분포, 용신 판정 근거 / 만세력 표, 대운, 세운)"
+  },
+  "sajuChartTabLuck": "만세력과 대운",
+  "@sajuChartTabLuck": {
+    "description": "사주 표 화면(saju-chart): 위쪽 segmented 두 칸(원국표, 오행 분포, 용신 판정 근거 / 만세력 표, 대운, 세운)"
+  },
+  "sajuPillarsTableLabel": "원국표",
+  "@sajuPillarsTableLabel": {
+    "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목"
+  },
+  "manseTableLabel": "만세력 표",
+  "@manseTableLabel": {
+    "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목"
+  },
+  "daeunTableLabel": "대운 {age}세부터",
+  "@daeunTableLabel": {
+    "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "luckYearLabel": "{year}년",
+  "@luckYearLabel": {
+    "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "ohaengBarItem": "{element} {count}개",
+  "@ohaengBarItem": {
+    "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목",
+    "placeholders": {
+      "element": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sajuPillarHour": "시주",
+  "@sajuPillarHour": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "sajuPillarDay": "일주",
+  "@sajuPillarDay": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "sajuPillarMonth": "월주",
+  "@sajuPillarMonth": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "sajuPillarYear": "연주",
+  "@sajuPillarYear": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "sajuPillarDayMaster": "일간",
+  "@sajuPillarDayMaster": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "manseRowHiddenStems": "지장간",
+  "@manseRowHiddenStems": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "manseRowTwelveStages": "12운성",
+  "@manseRowTwelveStages": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "manseRowShinsal": "신살",
+  "@manseRowShinsal": {
+    "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "sajuTagMe": "나",
+  "@sajuTagMe": {
+    "description": "saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)"
+  },
+  "daeunTagNow": "지금",
+  "@daeunTagNow": {
+    "description": "saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)"
+  },
+  "seunTagThisYear": "올해",
+  "@seunTagThisYear": {
+    "description": "saju-pillars, daeun-table: 칸 꼬리표(일간 칸의 나, 지금 대운, 올해 세운)"
+  },
   "settingsLoginMethodsLabel": "로그인 수단",
   "@settingsLoginMethodsLabel": {
     "description": "설정 화면(settings) settings-row: 로그인 수단 화면으로 가는 줄 이름"
+  },
+  "settingsNotifyLabel": "알림 시각",
+  "@settingsNotifyLabel": {
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+  },
+  "settingsNotifyOff": "꺼짐",
+  "@settingsNotifyOff": {
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+  },
+  "settingsLanguageLabel": "언어",
+  "@settingsLanguageLabel": {
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+  },
+  "settingsLogoutLabel": "로그아웃",
+  "@settingsLogoutLabel": {
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+  },
+  "shareImageSemantics": "오늘 문장 이미지 미리보기",
+  "@shareImageSemantics": {
+    "description": "공유 미리보기 화면(share-preview): 이미지 미리보기와 비율 선택 묶음의 스크린리더 이름"
+  },
+  "sharePreviewRatioGroup": "공유 이미지 비율",
+  "@sharePreviewRatioGroup": {
+    "description": "공유 미리보기 화면(share-preview): 이미지 미리보기와 비율 선택 묶음의 스크린리더 이름"
+  },
+  "iosTrackingUsageDescription": "허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.",
+  "@iosTrackingUsageDescription": {
+    "description": "iOS 앱 추적 투명성(ATT) 시스템 창의 본문. 제목과 버튼은 iOS가 정하고, UMP IDFA 안내 다음에 나옵니다"
   },
   "tagChipLabel": "#{tag}",
   "@tagChipLabel": {

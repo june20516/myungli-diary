@@ -11,6 +11,7 @@
 # color는 element와 같은 값 집합입니다(`{element:color}`). ten_god_group은 proto enum이 아니라 여기서 정합니다.
 # place는 원국 자리 8개와 지지 자리의 지장간 4개(`_hidden`)입니다. role·luck·part는 proto enum이 아니라
 # core 개인 해석 매개변수에서 옮겨 여기서 정합니다(W16).
+# twelve_stage는 사주 표 12운성 칸의 이름이고(#331, app A65), 개인 해석 문장(personal.twelve_stage.*)과 같은 표기입니다.
 
 - id: glossary.value_name
   where: 문장 매개변수로 들어가는 값의 언어별 이름
@@ -86,6 +87,18 @@
     - shinsal.hwagae
     - shinsal.yangin
     - shinsal.gongmang
+    - twelve_stage.jangsaeng
+    - twelve_stage.mokyok
+    - twelve_stage.gwandae
+    - twelve_stage.geonrok
+    - twelve_stage.jewang
+    - twelve_stage.soe
+    - twelve_stage.byeong
+    - twelve_stage.sa
+    - twelve_stage.myo
+    - twelve_stage.jeol
+    - twelve_stage.tae
+    - twelve_stage.yang
     - day_kind.gwiin_day
     - day_kind.yongsin_day
     - day_kind.gisin_day

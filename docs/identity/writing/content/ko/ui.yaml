@@ -274,7 +274,7 @@
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Apple 로그인을 취소했어요."}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "Apple로 로그인하지 못했어요. 다시 시도해 주세요."}
 - {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "근거 보기"}
-- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "오늘 풀이의 근거"}
+- {slot: ui.evidence.title, key: evidenceSheetTitle, text: "풀이의 근거"}
 - {slot: ui.guide.card, key: todayGuideEyebrow, text: "오늘의 질문"}
 - {slot: ui.guide.a11y, key: todayGuideLabel, text: "일기 질문"}
 - {slot: ui.guide.a11y, key: todayGuideWritten, text: "오늘 일기를 썼어요"}
@@ -370,3 +370,38 @@
 - {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, other{{count}편}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryEventCount, text: "{count, plural, other{{count}개}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryAdFreeDays, text: "{days, plural, other{{days}일}}"}
+# IA 밖 app 임시 문구(#331, 라운드 R26)와 ATT 본문(#697).
+- {slot: ui.settings.row, key: settingsNotifyLabel, text: "알림 시각"}
+- {slot: ui.settings.row, key: settingsNotifyOff, text: "꺼짐"}
+- {slot: ui.settings.row, key: settingsLanguageLabel, text: "언어"}
+- {slot: ui.settings.row, key: settingsLogoutLabel, text: "로그아웃"}
+- {slot: ui.legal.row, key: legalTermsLabel, text: "이용약관"}
+- {slot: ui.legal.row, key: legalPrivacyLabel, text: "개인정보 처리방침"}
+- {slot: ui.legal.row, key: legalLicensesLabel, text: "오픈소스 라이선스"}
+- {slot: ui.profile-edit.birthplace, key: profileEditBirthplaceKorea, text: "한국 기준"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabNatal, text: "원국"}
+- {slot: ui.saju-chart.tab, key: sajuChartTabLuck, text: "만세력과 대운"}
+- {slot: ui.saju.header, key: sajuPillarHour, text: "시주"}
+- {slot: ui.saju.header, key: sajuPillarDay, text: "일주"}
+- {slot: ui.saju.header, key: sajuPillarMonth, text: "월주"}
+- {slot: ui.saju.header, key: sajuPillarYear, text: "연주"}
+- {slot: ui.saju.header, key: sajuPillarDayMaster, text: "일간"}
+- {slot: ui.saju.header, key: manseRowHiddenStems, text: "지장간"}
+- {slot: ui.saju.header, key: manseRowTwelveStages, text: "12운성"}
+- {slot: ui.saju.header, key: manseRowShinsal, text: "신살"}
+- {slot: ui.saju.tag, key: sajuTagMe, text: "나"}
+- {slot: ui.saju.tag, key: daeunTagNow, text: "지금"}
+- {slot: ui.saju.tag, key: seunTagThisYear, text: "올해"}
+- {slot: ui.saju.a11y, key: sajuPillarsTableLabel, text: "원국표"}
+- {slot: ui.saju.a11y, key: manseTableLabel, text: "만세력 표"}
+- {slot: ui.saju.a11y, key: daeunTableLabel, text: "대운 {age}세부터"}
+- {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}년"}
+- {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {count}개"}
+- {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "이 자리는 따로 풀이한 내용이 없어요."}
+- {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "행운 색"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "행운 방향"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "행운 숫자"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "집중하기 좋은 시간"}
+- {slot: ui.share.a11y, key: shareImageSemantics, text: "오늘 문장 이미지 미리보기"}
+- {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "공유 이미지 비율"}
+- {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요."}

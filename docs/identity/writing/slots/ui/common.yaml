@@ -840,3 +840,25 @@
   a11y:
     truncation: "휠 아래 한 줄 안에 들어갑니다. 상한은 design이 정합니다."
     screen_reader: "줄 그대로 읽습니다."
+
+# iOS 추적 권한 창 본문(#697, D53 ④). app이 ARB 값을 `InfoPlist.strings`의 NSUserTrackingUsageDescription에 옮깁니다.
+- id: ui.system.tracking
+  where: "iOS 앱 추적 투명성(ATT) 시스템 창의 본문. 제목과 버튼은 iOS가 정하고, UMP IDFA 안내 다음에 나옵니다"
+  purpose: info
+  user_state: "광고를 맞춤으로 보이려고 기기 광고 식별자(IDFA)를 써도 되는지 질문받습니다."
+  structure: "두 문장. 허용하면 무엇이 달라지는지, 허용하지 않아도 앱을 그대로 쓸 수 있다는 것. 허용을 재촉하거나 혜택을 내세우지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 5, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [dialog]
+  keys:
+    - iosTrackingUsageDescription
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: iosTrackingUsageDescription, text: "허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.", why: "라운드 R26-6", source: writing}
+    bad:
+      - {lang: ko, text: "더 나은 경험을 위해 추적을 허용해 주세요! 나에게 꼭 맞는 혜택을 드릴게요.", why: "허용을 재촉하고 혜택을 약속함(R26-6 대조군)", source: writing}
+  endings: ["~어요"]
+  a11y:
+    truncation: "iOS 창이 줄을 바꿉니다. 두 문장 안에 씁니다."
+    screen_reader: "iOS가 제목, 본문, 버튼 순서로 읽습니다."
