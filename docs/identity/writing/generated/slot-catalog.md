@@ -202,11 +202,11 @@
 | ui.event-edit.save | event-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.event-edit.save-failed | event-edit.save.failed<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.event-row.label | 컴포넌트 event-row | info | - | 1 | 3 | `count`: number<br>`status`: text<br>`time`: text<br>`title`: text | ko -, en -, ja -<br>`eventRowLabel` ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 60, en 100, ja 42 |
 | ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 33, ja 15 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
-| ui.legal.row | 컴포넌트 settings-row | info | - | 1 | 3 | - | ko -, en -, ja - |
+| ui.legal.row | 컴포넌트 settings-row | info | - | 1 | 3 | - | ko 23, en 42, ja 18 |
 | ui.login-methods.row | 컴포넌트 social-login-button | guide | - | 1 | 6 | - | ko 10, en 16, ja 7 |
 | ui.login.error | login.error.body<br>컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko 48, en 78, ja 34 |
 | ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 4 | - | ko 19, en 34, ja 15<br>`loginKakaoLabel` ko 19, en 34, ja 34<br>`loginLineLabel` ko 16, en 28, ja 13 |
@@ -215,18 +215,18 @@
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.profile-edit.birthplace | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.profile-edit.birthplace | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 11, en 19, ja 8 |
 | ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 2 | `date`: text<br>`start`: text<br>`end`: text | ko 26, en 48, ja 21 |
 | ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 6, en 9, ja 4 |
-| ui.saju-chart.tab | 컴포넌트 segmented | info | - | 1 | 2 | - | ko -, en -, ja - |
+| ui.saju-chart.tab | 컴포넌트 segmented | info | - | 1 | 2 | - | ko 13, en 22, ja 10 |
 | ui.saju.a11y | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 5 | `age`: number<br>`year`: number<br>`element`: text<br>`weight`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.saju.header | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 term-token | info | - | 1 | 8 | - | ko -, en -, ja - |
-| ui.saju.tag | 컴포넌트 saju-pillars<br>컴포넌트 daeun-table | info | - | 1 | 3 | - | ko -, en -, ja - |
+| ui.saju.header | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 term-token | info | - | 1 | 8 | - | ko 8, en 10, ja 4<br>`manseRowHiddenStems` en 12 |
+| ui.saju.tag | 컴포넌트 saju-pillars<br>컴포넌트 daeun-table | info | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`sajuTagMe` ko 7, en 10, ja 5 |
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |
-| ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 4 | - | ko -, en -, ja - |
+| ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 4 | - | ko 11, en 19, ja 8 |
 | ui.share.a11y | 컴포넌트 share-image<br>컴포넌트 segmented | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko -, en -, ja - |
+| ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |

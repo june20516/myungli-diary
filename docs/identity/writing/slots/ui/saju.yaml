@@ -70,7 +70,7 @@
   user_state: "사주 표 화면에서 볼 내용을 고릅니다."
   structure: "탭 이름 하나. 명리 용어 그대로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 13, en: 22, ja: 10}
   components: [segmented]
   keys:
     - sajuChartTabNatal
@@ -93,7 +93,9 @@
   user_state: "사주 표의 칸이 무엇인지 봅니다."
   structure: "명리 용어 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 8, en: 10, ja: 4}
+  key_max_length:
+    manseRowHiddenStems: {en: 12}
   components: [saju-pillars, manse-table, term-token]
   keys:
     - sajuPillarHour
@@ -120,7 +122,9 @@
   user_state: "표에서 내 자리와 지금 시기를 찾습니다."
   structure: "낱말 하나."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 8, en: 13, ja: 6}
+  key_max_length:
+    sajuTagMe: {ko: 7, en: 10, ja: 5}
   components: [saju-pillars, daeun-table]
   keys:
     - sajuTagMe

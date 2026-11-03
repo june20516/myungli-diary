@@ -848,7 +848,7 @@
   user_state: "광고를 맞춤으로 보이려고 기기 광고 식별자(IDFA)를 써도 되는지 질문받습니다."
   structure: "두 문장. 허용하면 무엇이 달라지는지, 허용하지 않아도 앱을 그대로 쓸 수 있다는 것. 허용을 재촉하거나 혜택을 내세우지 않습니다."
   tone: {진지: 3, 격식: 3, 존중: 5, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [dialog]
   keys:
     - iosTrackingUsageDescription

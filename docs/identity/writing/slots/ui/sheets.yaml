@@ -243,7 +243,7 @@
   user_state: "사주 표 칸을 눌러 근거 시트를 열었는데 개인 해석 칸이 비어 있습니다."
   structure: "한 문장. 그 자리에 따로 풀이한 문장이 없다는 사실만 씁니다. 나중에 생긴다고 약속하지 않습니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 60, en: 100, ja: 42}
   components: [sheet]
   keys:
     - evidenceSheetPersonalEmpty

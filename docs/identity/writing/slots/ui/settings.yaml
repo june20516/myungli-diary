@@ -325,7 +325,7 @@
   user_state: "설정에서 바꿀 수 있는 항목을 훑어봅니다."
   structure: "줄 이름 하나. 알림 시각 줄은 오른쪽에 시각이나 꺼짐(`Off`)이 붙습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 11, en: 19, ja: 8}
   components: [settings-row]
   keys:
     - settingsNotifyLabel
@@ -349,7 +349,7 @@
   user_state: "약관이나 정책 문서를 찾습니다."
   structure: "문서 이름 하나. 동의 화면과 구매 안내에서 쓰는 문서 이름과 같게 씁니다."
   tone: {진지: 3, 격식: 4, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 18}
   components: [settings-row]
   keys:
     - legalTermsLabel
@@ -371,7 +371,7 @@
   user_state: "출생지 없이 한국 기준으로 계산되고 있습니다(D29)."
   structure: "값 하나. 나라 이름이 아니라 계산 기준이라는 것이 보이게 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 11, en: 19, ja: 8}
   components: [settings-row]
   keys:
     - profileEditBirthplaceKorea
