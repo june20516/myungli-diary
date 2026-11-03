@@ -55,6 +55,7 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-11-03, app 세션 갱신)
+* **스토어 빌드 1.0.0+3(2026-11-03, #719 병합 기준):** AAB는 업로드 키(K1) 지문 일치와 versionCode 3을 확인했고 Play 업로드는 사용자 몫입니다. iOS 1.0.0 (3)은 IPA 검사(배포 서명, `aps-environment` production) 뒤 TestFlight에 올렸습니다. iOS (2)는 #719 전 브랜치 빌드라 같은 번호를 다시 올릴 수 없어 둘 다 +3으로 맞췄습니다.
 * **실기기 배포 빌드(#714)**, 브랜치 `app/store-builds`(PR #718 위). 결정 A101~A103.
   * OS 문구(A101): 홈 화면 앱 이름(`appTitle`)과 iOS ATT 문구(`iosTrackingUsageDescription`)를 `tool/gen_native_strings.dart`가 iOS `InfoPlist.strings`(en, ko, ja)와 Android `strings.xml`로 만듭니다(기본 en, CI가 차이 검사). ATT 창은 UMP 동의 창이 IDFA 안내 다음에 띄우고, 동의 결과는 iOS에서 ATT 허용일 때만 맞춤입니다(`TrackingAuthorization`, AppDelegate 채널).
   * 앱 아이콘(A102): design V7 SVG에서 `tool/gen_app_icons.dart`(resvg, ImageMagick).
