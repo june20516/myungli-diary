@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -237,6 +238,8 @@ class _DaeunTableState extends State<DaeunTable> {
                           current: index == widget.currentIndex,
                           currentLabel: widget.nowLabel,
                           semanticLabel: pillar.semanticLabel,
+                          tagMaxWidth: width * 2 + DaeunTable.pillarGap,
+                          tagEdge: _TagEdge.of(index, widget.daeun.length),
                         ),
                       ],
                     ],
@@ -331,6 +334,8 @@ class _SeunGrid extends StatelessWidget {
                           current: slice[i].year == thisYear,
                           currentLabel: thisYearLabel,
                           semanticLabel: slice[i].semanticLabel,
+                          tagMaxWidth: cellWidth * 2 + DaeunTable.pillarGap,
+                          tagEdge: _TagEdge.of(i, _columns),
                         )
                       : const SizedBox.shrink(),
                 ),
@@ -365,6 +370,8 @@ class _Pillar extends StatelessWidget {
     required this.current,
     required this.currentLabel,
     required this.semanticLabel,
+    required this.tagMaxWidth,
+    this.tagEdge = _TagEdge.none,
     this.bottom,
     this.bottomSemanticLabel,
     this.aboveLabel,
@@ -387,6 +394,12 @@ class _Pillar extends StatelessWidget {
   final bool current;
   final String currentLabel;
   final String semanticLabel;
+
+  /// 꼬리표 최대 폭(기둥 둘과 그 사이 간격, V53).
+  final double tagMaxWidth;
+
+  /// 이 기둥이 표 어느 끝인지. 넘친 꼬리표를 표 밖으로 내지 않게 맞춥니다.
+  final _TagEdge tagEdge;
 
   /// 라벨 줄 하나. [height]가 0이면(그 줄에 라벨이 하나도 없음) 두지 않습니다.
   List<Widget> _labelRow({
@@ -434,11 +447,16 @@ class _Pillar extends StatelessWidget {
         width: width,
         child: Column(
           children: [
-            // 꼬리표 자리는 모든 기둥이 같은 높이로 둡니다(줄이 흔들리지 않게).
+            // 꼬리표 자리는 모든 기둥이 같은 높이로 둡니다(줄이 흔들리지 않게). 꼬리표는 한 줄이고
+            // 기둥보다 넓으면 이웃 위 빈 자리로 넘칩니다(V53).
             ExcludeSemantics(
-              child: Visibility.maintain(
-                visible: current,
-                child: StatusTag(currentLabel),
+              child: _TagSlot(
+                maxWidth: tagMaxWidth,
+                edge: tagEdge,
+                child: Visibility.maintain(
+                  visible: current,
+                  child: StatusTag(currentLabel),
+                ),
               ),
             ),
             const SizedBox(height: Space.s4),
@@ -504,5 +522,113 @@ class _Pillar extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// 꼬리표가 놓인 기둥이 표의 어느 끝인지(`daeun-table` `currentLabel`, V53).
+enum _TagEdge {
+  /// 표 가운데 기둥. 넘친 꼬리표는 양쪽으로 고르게 넘칩니다.
+  none,
+
+  /// 표 시작 쪽 끝 기둥. 넘친 꼬리표를 시작 쪽 끝에 맞춥니다.
+  start,
+
+  /// 표 끝 쪽 끝 기둥. 넘친 꼬리표를 끝 쪽 끝에 맞춥니다.
+  end;
+
+  /// [count]개 줄에서 [index]번째 기둥의 끝. 기둥이 하나면 시작 쪽에 맞춥니다.
+  static _TagEdge of(int index, int count) {
+    if (index == 0) return start;
+    if (index == count - 1) return end;
+    return none;
+  }
+}
+
+/// 기둥 위 꼬리표 자리(`daeun-table` `currentLabel`, V53).
+///
+/// 자기 폭은 기둥 폭이고 높이는 꼬리표 높이입니다. 꼬리표는 [maxWidth]까지 한 줄로 넓어질 수
+/// 있고, 기둥보다 좁으면 가운데, 넓으면 이웃 위 빈 꼬리표 자리로 넘칩니다. 표 끝 기둥([edge])
+/// 에서는 표 밖으로 나가지 않게 그 끝에 맞춥니다. 꼬리표는 줄에 하나뿐이라 넘쳐도 겹칠 것이
+/// 없습니다.
+class _TagSlot extends SingleChildRenderObjectWidget {
+  /// 꼬리표 자리를 만듭니다.
+  const new({required this.maxWidth, required this.edge, required super.child});
+
+  /// 꼬리표 최대 폭.
+  final double maxWidth;
+
+  /// 표 끝 맞춤.
+  final _TagEdge edge;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderTagSlot(maxWidth, edge, Directionality.of(context));
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderTagSlot)
+      ..maxWidth = maxWidth
+      ..edge = edge
+      ..textDirection = Directionality.of(context);
+  }
+}
+
+class _RenderTagSlot extends RenderShiftedBox {
+  new(this._maxWidth, this._edge, this._textDirection) : super(null);
+
+  double _maxWidth;
+
+  double get maxWidth => _maxWidth;
+
+  set maxWidth(double value) {
+    if (_maxWidth == value) return;
+    _maxWidth = value;
+    markNeedsLayout();
+  }
+
+  _TagEdge _edge;
+
+  _TagEdge get edge => _edge;
+
+  set edge(_TagEdge value) {
+    if (_edge == value) return;
+    _edge = value;
+    markNeedsLayout();
+  }
+
+  TextDirection _textDirection;
+
+  TextDirection get textDirection => _textDirection;
+
+  set textDirection(TextDirection value) {
+    if (_textDirection == value) return;
+    _textDirection = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    final width = constraints.maxWidth;
+    if (child == null) {
+      size = constraints.constrain(Size(width, 0));
+      return;
+    }
+    child.layout(BoxConstraints(maxWidth: _maxWidth), parentUsesSize: true);
+    size = constraints.constrain(Size(width, child.size.height));
+    final centered = (size.width - child.size.width) / 2;
+    final overflows = child.size.width > size.width;
+    // 시작 쪽 끝이면 왼쪽(LTR)에, 끝 쪽 끝이면 오른쪽(LTR)에 맞춥니다. RTL이면 반대입니다.
+    final alignLeft = switch (_edge) {
+      _TagEdge.none => null,
+      _TagEdge.start => _textDirection == TextDirection.ltr,
+      _TagEdge.end => _textDirection == TextDirection.rtl,
+    };
+    final dx = !overflows || alignLeft == null
+        ? centered
+        : alignLeft
+        ? 0.0
+        : size.width - child.size.width;
+    (child.parentData! as BoxParentData).offset = Offset(dx, 0);
   }
 }

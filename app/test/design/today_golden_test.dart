@@ -53,7 +53,7 @@ Widget _dayCharacters() => Builder(
   },
 );
 
-/// lucky-card golden의 네 변형 항목. 언어별로 값을 줍니다.
+/// lucky-card golden의 네 변형 항목(집중 시간은 구간 둘, V52). 언어별로 값을 줍니다.
 List<LuckyItem> _goldenLuckyItems({required bool ja}) {
   RenderedText text(String ko, String jp) =>
       RenderedText(segments: [Segment(text: ja ? jp : ko)]);
@@ -80,8 +80,15 @@ List<LuckyItem> _goldenLuckyItems({required bool ja}) {
     LuckyItem(
       variant: LuckyCardVariant.time,
       name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-      value: '09:30~11:30, 13:30~15:30',
+      value: ja ? '09:30〜11:30' : '09:30~11:30',
       explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+    ),
+    LuckyItem(
+      variant: LuckyCardVariant.time,
+      name: ja ? '集中できる時間' : '집중하기 좋은 시간',
+      value: ja ? '13:30〜15:30' : '13:30~15:30',
+      explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+      ordinal: 1,
     ),
   ];
 }
@@ -190,8 +197,15 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
           LuckyItem(
             variant: LuckyCardVariant.time,
             name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-            value: '09:30~11:30, 13:30~15:30',
+            value: ja ? '09:30〜11:30' : '09:30~11:30',
             explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+          ),
+          LuckyItem(
+            variant: LuckyCardVariant.time,
+            name: ja ? '集中できる時間' : '집중하기 좋은 시간',
+            value: ja ? '13:30〜15:30' : '13:30~15:30',
+            explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+            ordinal: 1,
           ),
         ],
         footer: ja ? '命理日記' : '명리일기',

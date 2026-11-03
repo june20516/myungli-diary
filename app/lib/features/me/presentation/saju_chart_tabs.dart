@@ -422,9 +422,9 @@ class SajuChartLuckTab extends ConsumerWidget {
           day: _manseColumn(text, _Column.day),
           month: _manseColumn(text, _Column.month),
           year: _manseColumn(text, _Column.year),
-          hiddenStemsHeader: text.plainLabel(l10n.manseRowHiddenStems),
-          twelveStageHeader: text.plainLabel(l10n.manseRowTwelveStages),
-          shinsalHeader: text.plainLabel(l10n.manseRowShinsal),
+          hiddenStemsHeader: LuckLabel(l10n.manseRowHiddenStems),
+          twelveStageHeader: LuckLabel(l10n.manseRowTwelveStages),
+          shinsalHeader: LuckLabel(l10n.manseRowShinsal),
           tableLabel: l10n.manseTableLabel,
         ),
         if (periods.isNotEmpty) ...[

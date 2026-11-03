@@ -22,6 +22,9 @@ Widget _table({
   bool knownYears = true,
   void Function(String term)? onTerm,
   LuckLabel? Function(int index)? stage,
+  int thisYear = 2026,
+  String nowLabel = '지금',
+  String thisYearLabel = '올해',
 }) => SizedBox(
   width: width,
   child: DaeunTable(
@@ -52,9 +55,9 @@ Widget _table({
         ),
     ],
     currentIndex: current,
-    thisYear: 2026,
-    nowLabel: '지금',
-    thisYearLabel: '올해',
+    thisYear: thisYear,
+    nowLabel: nowLabel,
+    thisYearLabel: thisYearLabel,
     tableLabel: '대운 4세부터',
   ),
 );
@@ -132,6 +135,75 @@ void main() {
     expect(_tagVisible(tester, DaeunTable.seunKey(2026)), isTrue);
     expect(_tagVisible(tester, DaeunTable.seunKey(2025)), isFalse);
     expect(find.byType(StatusTag), findsNWidgets(9 + 10));
+  });
+
+  group('꼬리표 폭(V53)', () {
+    Rect tagOf(WidgetTester tester, Key pillar) => tester.getRect(
+      find.descendant(of: find.byKey(pillar), matching: find.byType(StatusTag)),
+    );
+
+    testWidgets('기둥보다 넓은 꼬리표는 한 줄로 이웃 위에 넘치고 기둥 가운데에 놓입니다', (tester) async {
+      await tester.pumpWidget(inputApp(_table()));
+      final narrowHeight = tagOf(tester, DaeunTable.daeunKey(3)).height;
+      await tester.pumpWidget(inputApp(_table(nowLabel: 'Current')));
+      final pillar = tester.getRect(find.byKey(DaeunTable.daeunKey(3)));
+      final tag = tagOf(tester, DaeunTable.daeunKey(3));
+      expect(tag.width, greaterThan(DaeunTable.pillarWidth));
+      expect(
+        tag.width,
+        lessThanOrEqualTo(DaeunTable.pillarWidth * 2 + DaeunTable.pillarGap),
+      );
+      expect(tag.height, narrowHeight);
+      expect(tag.center.dx, moreOrLessEquals(pillar.center.dx));
+    });
+
+    testWidgets('첫 기둥과 끝 기둥에서는 표 밖으로 나가지 않게 그 끝에 맞춥니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(_table(current: 0, nowLabel: 'Current')),
+      );
+      final first = tester.getRect(find.byKey(DaeunTable.daeunKey(0)));
+      expect(tagOf(tester, DaeunTable.daeunKey(0)).left, first.left);
+
+      await tester.pumpWidget(
+        inputApp(_table(current: 8, nowLabel: 'Current')),
+      );
+      await tester.pumpAndSettle();
+      final last = tester.getRect(find.byKey(DaeunTable.daeunKey(8)));
+      expect(tagOf(tester, DaeunTable.daeunKey(8)).right, last.right);
+    });
+
+    testWidgets('기둥보다 좁은 꼬리표는 끝 기둥에서도 가운데입니다', (tester) async {
+      await tester.pumpWidget(inputApp(_table(current: 0)));
+      final first = tester.getRect(find.byKey(DaeunTable.daeunKey(0)));
+      final tag = tagOf(tester, DaeunTable.daeunKey(0));
+      expect(tag.width, lessThan(DaeunTable.pillarWidth));
+      expect(tag.center.dx, moreOrLessEquals(first.center.dx));
+    });
+
+    testWidgets('세운 칸도 칸 둘과 간격까지 넘치고, 줄 첫 칸과 끝 칸은 그 끝에 맞춥니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(_table(thisYear: 2023, thisYearLabel: 'This year')),
+      );
+      final firstCell = tester.getRect(find.byKey(DaeunTable.seunKey(2023)));
+      final first = tagOf(tester, DaeunTable.seunKey(2023));
+      expect(first.width, greaterThan(firstCell.width));
+      expect(first.left, firstCell.left);
+
+      await tester.pumpWidget(
+        inputApp(_table(thisYear: 2025, thisYearLabel: 'This year')),
+      );
+      final middleCell = tester.getRect(find.byKey(DaeunTable.seunKey(2025)));
+      expect(
+        tagOf(tester, DaeunTable.seunKey(2025)).center.dx,
+        moreOrLessEquals(middleCell.center.dx),
+      );
+
+      await tester.pumpWidget(
+        inputApp(_table(thisYear: 2027, thisYearLabel: 'This year')),
+      );
+      final lastCell = tester.getRect(find.byKey(DaeunTable.seunKey(2027)));
+      expect(tagOf(tester, DaeunTable.seunKey(2027)).right, lastCell.right);
+    });
   });
 
   testWidgets('십성 라벨: 대운은 천간 위·지지 아래, 세운은 천간 위이고 누르면 그 용어', (tester) async {

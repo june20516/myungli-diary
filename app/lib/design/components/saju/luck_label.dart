@@ -3,7 +3,8 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
-/// 대운·세운 표의 십성·12운성 라벨 하나(`term-token` `label`, V49).
+/// 대운·세운 표의 십성·12운성 라벨 하나(`term-token` `label`, V49). 같은 규칙인 만세력 줄 머리
+/// (`manse-table` `rowHeader`, V53)도 씁니다.
 @immutable
 final class LuckLabel {
   /// [text](사전 이름, 없으면 한자)를 보이는 라벨. [onTap]이 없으면 누를 수 없는 글자입니다.

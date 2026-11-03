@@ -183,32 +183,38 @@ class _DayMaster extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    clipBehavior: Clip.none,
-    children: [
-      child,
-      Positioned.fill(
-        child: IgnorePointer(
-          child: DecoratedBox(
-            key: SajuPillars.dayMasterKey,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: context.tokens.colors.actionPrimary,
-                width: 2,
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              key: SajuPillars.dayMasterKey,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: context.tokens.colors.actionPrimary,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(Radii.sm),
               ),
-              borderRadius: BorderRadius.circular(Radii.sm),
             ),
           ),
         ),
-      ),
-      PositionedDirectional(
-        top: -8,
-        end: -6,
-        child: ExcludeSemantics(
-          child: TagMe(meLabel, key: SajuPillars.meTagKey),
+        // 꼬리표는 오른쪽 위 모서리에 붙어 왼쪽으로 늘어나고, 기둥 폭까지 한 줄입니다(V53).
+        PositionedDirectional(
+          top: -8,
+          end: -6,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+            child: ExcludeSemantics(
+              child: TagMe(meLabel, key: SajuPillars.meTagKey),
+            ),
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
