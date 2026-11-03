@@ -18,7 +18,7 @@
 * **세션을 열면:** `git fetch origin && git merge origin/main` 뒤 `gh issue list --label to:<단위>`를 봅니다. 그중 `drift` Issue(계약 변경 따라잡기)가 있으면 다른 일보다 먼저, 다음 PR에서 맞춥니다(`docs/workflow.md` §6.1).
 * **사용자에게 답할 때 결정 번호(D·C·S·A·W·V)와 Issue·PR 번호(`#n`)에는 맥락에 맞는 짧은 요약을 붙입니다.** 예: "D90 ①(일기 보기의 그날 성격은 쓸 때 기록한 값)", "#564(구매 줄 구분자 삭제와 새 슬롯 상한)". 사용자가 번호를 따로 찾아보지 않아도 대화만으로 알 수 있게 합니다. 같은 답에서 다시 나오면 번호만 써도 됩니다. Issue, PR, commit, 문서처럼 링크로 따라갈 수 있는 글에는 붙이지 않아도 됩니다.
 * **계약 버전과 상태의 기준은 `docs/contracts/README.md` 하나입니다.** 단위 `CLAUDE.md`에는 버전을 적지 않습니다. 주는 쪽은 계약을 바꾸는 PR에서 그 표의 자기 행을 직접 고칩니다.
-* **병합:** 단위 PR은 사용자가 병합합니다. 지휘가 올린 `root/` PR은 `ci-gate` 통과 뒤 지휘가 병합합니다.
+* **병합:** 단위 PR은 사용자가 병합합니다. 지휘가 올린 `root/` PR은 `ci-gate` 통과 뒤 지휘가 병합합니다. 저장소 auto-merge가 켜져 있어, 사용자는 PR에 auto-merge를 걸어 두고 기다리지 않아도 되고 지휘는 `root/` PR에 `gh pr merge --auto --merge`를 겁니다(D100 ②). 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①).
 
 ## 지휘 세션
 * 맡는 일: 통합 로드맵([`docs/roadmap.md`](docs/roadmap.md)), 계약 목록 관리, 요청함(Issues) 분류(`accepted`/`rejected` 라벨), 둘 이상에 걸친 결정 기록, 서브 프로젝트 착수 안내(각 `CLAUDE.md`의 "현재 상태"와 "다음 할 일" 초안), 통합 시점 판단.
