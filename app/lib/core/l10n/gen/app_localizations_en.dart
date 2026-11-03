@@ -1212,7 +1212,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sajuChartTabNatal => 'Natal chart';
 
   @override
-  String get sajuChartTabLuck => 'Calendar and luck cycles';
+  String get sajuChartTabLuck => 'Calendar and cycles';
 
   @override
   String get sajuPillarHour => 'Hour';
