@@ -55,6 +55,12 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-11-03, app 세션 갱신)
+* **실기기 배포 빌드(#714)**, 브랜치 `app/store-builds`(PR #718 위). 결정 A101~A103.
+  * OS 문구(A101): 홈 화면 앱 이름(`appTitle`)과 iOS ATT 문구(`iosTrackingUsageDescription`)를 `tool/gen_native_strings.dart`가 iOS `InfoPlist.strings`(en, ko, ja)와 Android `strings.xml`로 만듭니다(기본 en, CI가 차이 검사). ATT 창은 UMP 동의 창이 IDFA 안내 다음에 띄우고, 동의 결과는 iOS에서 ATT 허용일 때만 맞춤입니다(`TrackingAuthorization`, AppDelegate 채널).
+  * 앱 아이콘(A102): design V7 SVG에서 `tool/gen_app_icons.dart`(resvg, ImageMagick).
+  * App Store 주소 `https://apps.apple.com/app/id6829967838`. Xcode 팀 `7JGP3D7B3Z`, `ITSAppUsesNonExemptEncryption` false, `CFBundleLocalizations`.
+  * Android AAB `1.0.0+2`: 업로드 키(K1) 지문 일치, 아이콘과 세 언어 앱 이름 포함을 확인했습니다. Play 업로드는 사용자 몫입니다.
+  * iOS 1.0.0 (2): Apple Distribution 서명, `aps-environment` production, 세 언어 앱 이름과 ATT 문구를 IPA에서 확인하고 TestFlight에 올렸습니다(2026-11-03, A103). 내부 테스터 추가와 사용권 계약 동의는 사용자 몫입니다.
 * **drift #707 writing R26 따라잡기(PR #709, W51)**, 브랜치 `app/drift-707`. 임시 키 33개가 모두 원고가 되어 `_allowedTemporaryKeys`가 비었습니다(#331 닫힘). `ohaengBarItem`은 R26에서 `{count}개`였으나 값이 가중치 소수(A57)라 #715로 요청했고, writing PR #716으로 `{element} {weight}`(단위 없음, 범례와 같은 값)가 되어 함께 가져왔습니다. ATT 문구 `iosTrackingUsageDescription`(#697)은 ARB에 들어왔고, `InfoPlist.strings` 배선과 ATT 요청은 다음 할 일입니다(A99 남은 것). 12운성 이름(glossary `twelve_stage.*`)은 server 시드(#711)가 사전에 넣으면 A65 한자 대체가 이름으로 바뀌며 app 변경은 없습니다.
 * **야간 e2e-android 간헐 실패(#700)**, PR #708로 병합(2026-11-03). 결정 A100. "8개 모두 통과인데 Gradle code 1"은 9번째 테스트가 "Test instrumentation process crashed"로 빠진 것이었습니다(Patrol 요약과 XML에 없음). API 34 에뮬레이터가 Activity째 끝난 instrumentation의 task 제거를 약 1.4초 뒤 destroy timeout으로 처리하며 같은 이름의 프로세스를 죽이는데, orchestrator가 그 사이 다음 테스트를 띄우면 그 프로세스가 죽습니다. `MainActivityTest` `@After`가 Activity를 닫고 destroy까지 기다립니다. app.yml은 실패 때 `test-results.log` 끝을 찍습니다. API 36 로컬 에뮬레이터에서는 이 timeout이 나지 않아 CI(API 34)로 확인합니다.
 * **A2 adapter 병합 완료:** 로그인 값과 환경 파일 PR #693(A97), RevenueCat PR #695(A98), AdMob과 UMP PR #698(A99). 남은 A2는 실제 로그인 확인 #311·#463입니다.
@@ -166,7 +172,7 @@
    * **제공자 값(2026-10-30, A97):** `config/auth.json`에 카카오, LINE, Google 두 client, Apple Services ID를 모두 채웠고, 환경마다 다른 값(API 주소, Firebase 환경, App Link 호스트, Apple 복귀 주소)은 `config/env/<staging|prod>.json`입니다. 남은 것은 실기기 확인뿐입니다: LINE(채널이 Developing이라 Admin, Tester 계정만), Google(debug SHA-1 Android client), Android Apple 웹(staging server 배포 #654와 `assetlinks.json` 검증 뒤), iOS(Apple 멤버십 활성화와 서명 `DEVELOPMENT_TEAM` 7JGP3D7B3Z 뒤).
    * **A2 마무리:** `flutter test test/app test/features/auth`, 전체 검사에 `dart run tool/gen_native_config.dart --check`와 `flutter build apk --debug --dart-define-from-file=config/auth.json`, `tool/patrol_local.sh patrol_test/login_test.dart` 회귀 0. Android App Link(#311 ③ release 지문은 Play 계정 뒤), `local` server REST 연동. 외부 준비물은 `docs/external-prep.md`. Google nonce 재사용은 #555 답으로 허용(같은 프로세스 nonce)입니다.
    * **실기기 확인 목록(spec §12, 외부 준비물 뒤):** 카카오톡 로그인·계정 로그인·각 취소, LINE 앱·웹 로그인(LINE 앱 없음)·취소, Google 계정 선택·취소와 두 번째 로그인에서 계정 선택이 다시 뜨는지, iOS Apple 로그인·취소, Android Auth Tab이 server 303을 받는지·안내 페이지 intent 복귀·앱이 내려간 뒤 복귀, `assetlinks.json` 검증(`adb shell pm get-app-links app.myungli.diary`), 붙이기·떼기·합치기(LINE·Google 허가는 제공자 쪽 연결 앱 목록에 남는 것이 맞음, D95). Auth Tab이 303을 받지 못하면 안내 페이지 intent 경로를 기본으로 할지 다시 판단하고 server와 문구는 Issue로 올립니다.
-   * **광고(A99, #686):** AdMob adapter와 UMP 동의는 끝났습니다. 남은 것: 실기기에서 배너와 보상형 테스트 광고 확인(로그인 뒤 탭 루트, 근거 열람), SSV 끝까지 확인(staging server와 AdMob 콘솔 SSV 콜백 URL 등록 뒤), iOS ATT(원고 `iosTrackingUsageDescription`이 R26으로 도착, 언어별 `InfoPlist.strings`의 `NSUserTrackingUsageDescription` 배선과 UMP 다음 요청), UMP 동의 메시지(E16 뒤 콘솔 게시).
+   * **광고(A99, #686):** AdMob adapter와 UMP 동의는 끝났습니다. 남은 것: 실기기에서 배너와 보상형 테스트 광고 확인(로그인 뒤 탭 루트, 근거 열람), SSV 끝까지 확인(staging server와 AdMob 콘솔 SSV 콜백 URL 등록 뒤), iOS ATT 실기기 확인(배선은 A101로 끝남: UMP 동의 창이 IDFA 안내 다음에 ATT를 물음), UMP 동의 메시지(E16 뒤 콘솔 게시).
    * **수익 쪽(spec §14, A2):** RevenueCat adapter는 끝났습니다(A98, #684). 남은 것: debug + staging으로 결제 흐름 끝까지 시험(server staging 결제와 Test Store 상품 뒤, README "결제 시험"), iOS sandbox에서 `syncPurchasesForResult`가 Apple ID 로그인 창을 띄우는지(뜨면 지휘에 알림, #493). 아래는 처음 적은 과제입니다. RevenueCat adapter에서 `Purchases.sync()`를 `syncPurchases`로 구현하고 iOS sandbox에서 Apple ID 로그인 창이 뜨는지 확인(뜨면 지휘에 알림, #493), `Purchases.products()` 시간 한계(구매 내역 `loading` 길이도 같은 기준), 출시 빌드에 `--dart-define=AD_FREE_PRODUCT_IDS` 배선(상품 id는 저장소에 두지 않음, S89·D74), 보상형 광고 실제 adapter(AdMob, E13 뒤 `NoAds`·`NonPersonalizedAdConsent` 교체). 공유는 `OsShareSheet`로 끝났습니다.
    * **#347 ② 알림 기기 호출 시점(S92):** `app/staging-ready`에서 끝났습니다(PR의 `Closes #347`). 강제 로그아웃(refresh 거부, 401)은 해제 요청을 보낼 수 없어 server에 기기가 남고, 다음 계정이 같은 토큰을 등록하면 server가 옮깁니다(알려진 한계).
    * **답을 기다리는 것:** writing 대기는 없습니다(#331은 R26, #715는 PR #716으로 끝남, 임시 키 없음). 12운성·신살 이름은 server 사전 시드(#711) 뒤 칸이 누를 수 있게 되고, en 십성 이름으로 대운 라벨 두 줄 규칙을 실제 글자로 확인합니다.
@@ -184,7 +190,6 @@
      * 근거 시트의 보상형 광고(`Ads.loadRewarded`, `RewardedAdHandle.show`)와 공유(`ShareSheet.sharePng`)는 실제 AdMob, OS 공유 adapter로 바꿨습니다(A99). 화면과 잠금 해제 흐름(A26)은 그대로입니다.
      * 실제 로그인 adapter는 SDK 취소를 `SocialSignInCancelled`로 바꿔 던집니다(login 화면이 취소 안내를 정합니다).
      * 로그아웃 때 기기 해제와 `push.deviceId` 삭제는 `app/staging-ready`에서 연결했습니다(`DeviceRegistrar.releaseForSignOut`, `SignOutCleaner`).
-     * 스토어 앱 id(iOS App Store id, Android 스토어 URL)를 `force-update`의 스토어 열기에 연결합니다.
      * `social-login-button` 공식 자산 확인: Apple 로고 라이선스 검토, 카카오 심볼 색은 design V46으로 `#191919`, 카카오 버튼 ja 문구는 writing W22 원고("Login with Kakao")로 정해졌습니다.
 7. **출시 전(I4) 확인:** 실기기에서 iOS 백업 제외(설정 > iCloud > 저장 공간에 DB가 잡히지 않는지)와 기기 이전 뒤 로그아웃 상태로 시작하는지 확인합니다(기반은 빌드·단위 테스트까지만 확인).
    * 글꼴 31M를 release 빌드 다운로드 크기로 보고 subset 여부 재판단. Pretendard 업스트림 저작권 고지(Inter·Source Han Sans·M PLUS 1p `NOTICE.txt`)가 법적으로 충분한지 라이선스 검토. Apple 로고 라이선스 검토도 출시 전에 마칩니다.

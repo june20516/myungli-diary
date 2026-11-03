@@ -47,6 +47,10 @@ void main() {
     );
     await launcher.openStore();
     expect(tried, [UrlStoreLauncher.iosUri]);
+    expect(
+      UrlStoreLauncher.iosUri.toString(),
+      'https://apps.apple.com/app/id6829967838',
+    );
   });
 
   test('Android에서 두 주소 모두 열지 못하면 StoreUnavailable입니다', () async {

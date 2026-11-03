@@ -47,6 +47,20 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. Play에 올릴 때마다 `pubspec.yaml`의 빌드 번호(`+N`)를 올립니다. 앱 서명 키는 Play가 보관합니다(E8).
+* **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 이 Mac의 Xcode > Settings > Accounts에 팀 Apple ID가 로그인되어 있어야 합니다. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`).
+  ```
+  flutter build ipa --release --dart-define-from-file=config/auth.json \
+    --dart-define-from-file=config/env/staging.json --export-options-plist=ios/ExportOptions.plist
+  # 올리기 전 확인: build/ios/ipa/*.ipa를 풀어 codesign -d --entitlements :- Payload/*.app
+  #   (aps-environment production, applesignin), Info.plist의 CFBundleVersion
+  cp ios/ExportOptions.plist /tmp/ExportOptionsUpload.plist
+  plutil -replace destination -string upload /tmp/ExportOptionsUpload.plist
+  xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive \
+    -exportOptionsPlist /tmp/ExportOptionsUpload.plist -exportPath /tmp/upload -allowProvisioningUpdates
+  ```
+  * `ios/ExportOptions.plist`는 IPA만 만들고(`destination=export`), 확인한 같은 archive를 `upload`로 다시 export해 올립니다. 빌드 번호는 Android와 같은 `pubspec.yaml`의 `+N`이고, 올릴 때마다 올립니다.
+  * entitlements 파일의 `aps-environment`는 `development` 그대로 둡니다. 자동 서명이 배포 profile의 값(production)으로 바꿔 넣습니다(1.0.0 (2)에서 확인).
+  * 처음 서명할 때 키체인 창이 framework마다 반복해서 뜨면 `security set-key-partition-list -S apple-tool:,apple:,codesign: -s ~/Library/Keychains/login.keychain-db`(로그인 키체인 암호를 물음)로 codesign 허용을 한 번에 등록합니다. 요청한 빌드가 끝났는데 창이 남으면 `SecurityAgent`를 종료하면 닫힙니다.
 * **빌드 모드와 환경 값(D99 ①):** 둘은 따로입니다. 빌드 모드는 `flutter run`(debug)과 `flutter build --release`(release), 환경 값은 붙이는 환경 파일(`config/env/<staging|prod>.json`, A97)입니다. staging은 빌드 모드가 아니라 환경 값이라 debug와 release 모두 staging server에 붙을 수 있습니다.
 
   | 빌드 모드 \ 환경 | 환경 파일 없음(로컬 server) | staging | prod |
@@ -137,12 +151,26 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 | `../server/api/openapi.yaml` | `tool/gen_api.sh` (Docker) | `lib/core/api/gen/`, route 표. 끝에 `build_runner`를 돌립니다 |
 | `config/auth.json` | `dart run tool/gen_native_config.dart` | `ios/Flutter/Auth.xcconfig` (카카오 키, Google reversed client id). CI는 `--check`. Android는 `build.gradle.kts`가 같은 파일을 바로 읽습니다 |
 | drift·json 직렬화 | `dart run build_runner build --delete-conflicting-outputs` | `*.g.dart` |
+| `lib/core/l10n/arb/*.arb`의 `appTitle`, `iosTrackingUsageDescription` | `dart run tool/gen_native_strings.dart` | iOS `ios/Runner/<en\|ko\|ja>.lproj/InfoPlist.strings`(홈 화면 앱 이름 `CFBundleDisplayName`, ATT 권한 창 문구)와 Info.plist 기본값, Android `res/values(-ko, -ja)/strings.xml`(`app_name`). 기본 언어는 앱 화면과 같은 en입니다(A101). CI는 다시 만들어 차이를 봅니다 |
+| `../docs/identity/design/logo/icon-*.svg`(design V7) | `dart run tool/gen_app_icons.dart` | iOS `AppIcon.appiconset`, Android `mipmap-*/ic_launcher*.png`, `mipmap-anydpi-v26/ic_launcher.xml`. 아래 "앱 아이콘" |
 
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
 * 계약의 열린 enum(`info.description` "호환과 버전" 절)만 모르는 값을 `unknownDefaultOpenApi`로 읽습니다(`isKnown`으로 거름). `gen_api.sh`가 계약 사본에 표시를 달고(`tool/mark_open_enums.dart`) 생성기 기본 템플릿에 `tool/openapi-templates/open_enum.patch`를 적용해 만듭니다. 생성기 버전을 올려 patch가 맞지 않으면 새 기본 템플릿에서 같은 변경으로 patch를 다시 만듭니다. 대조는 `test/contract/open_enums_contract_test.dart`입니다(결정 A66).
   * **생성기를 올릴 때 patch 다시 만들기:** `gen_api.sh`의 이미지(버전·digest)를 바꾸면 `git apply` 단계에서 멈춥니다. 새 이미지로 `docker run --rm -v "$PWD/build/tpl:/work" <이미지> author template -g dart-dio --library dio -o /work`로 기본 템플릿을 꺼내 그 디렉터리를 git 저장소로 commit하고, 이전 patch의 변경(`{{! myungli: … }}` 표시가 붙은 줄)을 같은 자리에 옮긴 뒤 `git diff`로 `tool/openapi-templates/open_enum.patch`를 새로 씁니다. 머리말(첫 `--- a/` 줄 앞 글)의 생성기 버전도 고칩니다. 그 뒤 `tool/gen_api.sh`를 돌리고 열린 enum 대조 테스트로 확인합니다.
 * Riverpod provider는 코드 생성 없이 직접 선언합니다(결정 A15).
 * CI의 `checks` job이 위 명령을 모두 다시 돌린 뒤 `git status`가 깨끗하지 않으면 실패합니다. 원본을 고치고 생성물을 commit하지 않으면 CI가 잡습니다.
+
+### 앱 아이콘 (A102)
+원본은 design 로고(`docs/identity/design/logo/`, 결정 V7)이고, 크기별 PNG는 app이 만들어 commit합니다. 원본이 바뀌면 다시 만듭니다.
+
+```sh
+brew install resvg imagemagick   # 한 번만. resvg는 SVG 렌더링, magick은 알파 제거와 메타데이터 정리
+dart run tool/gen_app_icons.dart
+```
+
+* 픽셀 60 이상은 큰 원형(`icon-large.svg`), 그보다 작으면 작은 원형(`icon-small.svg`)입니다. iOS는 `AppIcon.appiconset/Contents.json`의 자리마다 그리고 모두 알파 없이 씁니다(App Store 1024는 알파 채널이 있으면 거부됨). 모서리는 OS가 깎습니다.
+* Android는 이전 기기용 `ic_launcher.png`(48dp)와 Android 8 이상 adaptive 아이콘(전경 `icon-android-foreground.svg`, 배경 `icon-android-background.svg`, 108dp)입니다. 테마 아이콘(monochrome)과 스플래시는 아직 없습니다.
+* 같은 원본과 도구 버전이면 결과 파일이 같습니다(PNG 시각 정보를 넣지 않음). ImageMagick 내장 SVG 렌더러는 그라데이션과 상대 곡선을 틀리게 그려 쓰지 않습니다.
 
 ## ui 원고 가져오기
 화면 문구 원고는 writing이 만든 ARB(`../docs/identity/writing/generated/arb/app_{ko,en,ja}.arb`, #128)입니다. 원고가 바뀌면 `app/`에서 다시 가져옵니다. 같은 원고로 다시 돌려도 결과가 같습니다.

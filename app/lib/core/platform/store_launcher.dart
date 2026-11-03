@@ -31,9 +31,9 @@ final class UrlStoreLauncher implements StoreLauncher {
     'https://play.google.com/store/apps/details?id=app.myungli.diary',
   );
 
-  /// iOS 스토어 주소. 앱 id가 생기기 전까지는 검색 페이지입니다.
+  /// iOS App Store 주소(App Store Connect Apple ID 6829967838, #714).
   static final Uri iosUri = Uri.parse(
-    'https://apps.apple.com/kr/search?term=myungli',
+    'https://apps.apple.com/app/id6829967838',
   );
 
   /// 주소를 여는 함수. 열렸으면 true.
