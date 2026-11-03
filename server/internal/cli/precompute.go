@@ -47,12 +47,15 @@ func runPrecompute(ctx context.Context, getenv func(string) string, stderr io.Wr
 	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 
+	systemClock := clock.System{}
+	connectStarted := systemClock.Now()
 	pool, closeDB, err := openDatabase(ctx, cfg)
 	if err != nil {
 		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
 		return &loggedError{err: err}
 	}
 	defer closeDB()
+	logger.InfoContext(ctx, "precompute DB 연결", "connect_ms", systemClock.Now().Sub(connectStarted).Milliseconds())
 
 	engineClient, err := engine.NewClient(engine.ClientConfig{Addr: engineCfg.Addr, Audience: engineCfg.Audience})
 	if err != nil {
@@ -61,7 +64,7 @@ func runPrecompute(ctx context.Context, getenv func(string) string, stderr io.Wr
 	}
 	defer func() { _ = engineClient.Close() }()
 
-	deps := precomputeDeps{Pool: pool, Engine: engineClient, Clock: clock.System{}, Logger: logger}
+	deps := precomputeDeps{Pool: pool, Engine: engineClient, Clock: systemClock, Logger: logger}
 	jobCtx, cancel := context.WithTimeout(ctx, precomputeDeadline)
 	defer cancel()
 	if err := precomputeJob(jobCtx, deps); err != nil {
@@ -71,16 +74,20 @@ func runPrecompute(ctx context.Context, getenv func(string) string, stderr io.Wr
 	return nil
 }
 
-// precomputeJob은 엔진의 현재 ruleset_version을 받은 뒤 대상 사용자의 다음 날 결과로 캐시를 채웁니다.
+// precomputeJob은 대상 사용자의 다음 날 결과로 캐시를 채웁니다. 엔진의 현재 ruleset_version은
+// 대상이 있을 때만 받습니다(대상 없는 실행이 엔진을 깨우지 않게).
 func precomputeJob(ctx context.Context, deps precomputeDeps) error {
 	versions := engine.NewVersions(deps.Engine, deps.Logger)
-	if err := versions.Refresh(ctx); err != nil {
-		return fmt.Errorf("엔진 버전 조회: %w", err)
-	}
 	service := fortune.NewService(deps.Engine, versions, fortune.NewPostgresCache(deps.Pool), deps.Logger)
 	_, err := precompute.Run(ctx, precompute.Deps{
 		Profiles: func(ctx context.Context, activeSince time.Time, after uuid.UUID, limit int32) ([]profile.ActiveProfile, error) {
 			return profile.ListActiveProfiles(ctx, deps.Pool, activeSince, after, limit)
+		},
+		Prepare: func(ctx context.Context) error {
+			if err := versions.Refresh(ctx); err != nil {
+				return fmt.Errorf("엔진 버전 조회: %w", err)
+			}
+			return nil
 		},
 		Fortune: service,
 		Clock:   deps.Clock,

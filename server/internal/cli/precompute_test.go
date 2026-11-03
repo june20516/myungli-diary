@@ -105,3 +105,16 @@ func TestRun_PrecomputeMissingEngineAddr_Exits1(t *testing.T) {
 	assert.Equal(t, 1, code)
 	assert.Contains(t, stderr, "ENGINE_ADDR")
 }
+
+// 대상이 없는 실행은 엔진을 부르지 않는다(버전 조회 포함).
+func TestJobPrecompute_NoTargetsSkipsEngine(t *testing.T) {
+	pool := dbtest.New(t)
+	now := time.Date(2026, 11, 3, 3, 0, 0, 0, time.UTC) // 서울 12:00
+	createPrecomputeTarget(t, pool, now)
+	fake := rulesetEngine()
+
+	require.NoError(t, precomputeJob(t.Context(), precomputeDeps{Pool: pool, Engine: fake, Clock: clocktest.New(now), Logger: slog.New(slog.DiscardHandler)}))
+
+	assert.Zero(t, fake.InfoCalls.Load())
+	assert.Zero(t, fake.DailyCalls.Load())
+}
