@@ -172,7 +172,7 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | 테이블 | 주요 열 | 비고 |
 | --- | --- | --- |
 | `devices` | account_id, fcm_token(unique, nullable), platform, active, last_seen_at | 무효 토큰이면 active=false. 익명화 때 토큰을 지움. **S119로 개정:** fcm_token은 NOT NULL이고 unique는 SHA-256 `token_hash`에 걸며, 해제·상한 초과는 비활성 행으로 남기고, 계정 삭제와 합치기의 B 삭제가 행을 지움 |
-| `notification_log` | account_id, local_date, sent_at, result | unique(account_id, local_date) |
+| `notification_log` | account_id, local_date, result(`pending`·`sent`·`failed`), claimed_at, sent_at | PK(account_id, local_date), 30일 보관(S129) |
 | `entitlement_grants` | account_id, entitlement(`ad_free`·`insight`), source(`ad_free_pass`·`rewarded_ad`·`subscription`, staging만 `test_grant`(S125)), source_ref(구매 id·`transaction_id`), starts_at, expires_at, revoked_at | 권한 부여 한 건이 한 행입니다. 판정은 같은 entitlement의 유효한 행(`revoked_at`이 없고 `starts_at ≤ now < expires_at`)이 하나라도 있는지입니다. 출처를 기록하라는 D60④를 이 구조가 만족하고, 구독도 같은 모양으로 담습니다 (D53·D60) |
 | `reward_events` | transaction_id(unique), account_id, ad_unit, reward_item, raw_query, received_at | AdMob SSV 원본. 같은 `transaction_id`는 한 번만 처리 (D60④) |
 | `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
@@ -376,6 +376,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
   * `UNREGISTERED`, 토큰 관련 `INVALID_ARGUMENT`는 기기를 비활성으로 바꿉니다.
   * `QUOTA_EXCEEDED`, `UNAVAILABLE`, `INTERNAL`은 지수 backoff로 3번까지 재시도합니다.
 * 한 번 실행에서 실패율이 5%를 넘으면 Job을 실패로 끝내 경보를 받습니다.
+* 하루 한 번은 보내기 전에 `notification_log`에 `pending` 행을 넣어(claim) 지킵니다. 메시지 형식, 실패율 정의, 보관 기간은 S129입니다.
 * **큐 도입 기준:** 한 번 실행이 5분 안에 끝나지 않거나 한 창의 대상이 5만 명을 넘으면, 대상 선정과 발송을 나눠 Cloud Tasks로 발송합니다.
 
 ### 8.3 `job retention` (하루 1번)
