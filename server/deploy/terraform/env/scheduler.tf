@@ -28,3 +28,34 @@ resource "google_cloud_scheduler_job" "retention" {
     ignore_changes = [paused]
   }
 }
+
+resource "google_cloud_run_v2_job_iam_member" "scheduler_precompute" {
+  name     = google_cloud_run_v2_job.server["server-precompute"].name
+  location = var.region
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.scheduler.email}"
+}
+
+# 30분마다 현지 22:00~22:29 사용자의 다음 날 결과를 미리 계산합니다(spec §8.1, S128).
+# UTC 매시 0분, 30분이라 30분 단위가 아닌 시간대(예: +05:45)도 하루 한 번은 창에 듭니다. 멈춘 채 만드는 이유는 retention과 같습니다.
+resource "google_cloud_scheduler_job" "precompute" {
+  name      = "precompute-half-hourly"
+  region    = var.region
+  schedule  = "0,30 * * * *"
+  time_zone = "Etc/UTC"
+  paused    = true
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://run.googleapis.com/v2/projects/${var.project_id}/locations/${var.region}/jobs/${google_cloud_run_v2_job.server["server-precompute"].name}:run"
+
+    oauth_token {
+      service_account_email = google_service_account.scheduler.email
+      scope                 = "https://www.googleapis.com/auth/cloud-platform"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [paused]
+  }
+}
