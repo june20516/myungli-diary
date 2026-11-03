@@ -32,6 +32,7 @@ type Querier interface {
 	// DeleteMergeTicketsByAccount는 이 계정이 A(account_id)이거나 B(other_account_id)인 합치기 토큰을 지웁니다.
 	DeleteMergeTicketsByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteMonthCacheByAccount(ctx context.Context, accountID uuid.UUID) error
+	DeleteNotificationLogByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteProfileByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteReactionsByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteRefreshTokensByAccount(ctx context.Context, accountID uuid.UUID) error

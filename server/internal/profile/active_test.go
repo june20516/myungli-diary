@@ -91,3 +91,64 @@ func TestListActiveProfiles_ConvertsProfile(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, want, got[0].Profile)
 }
+
+// insertDevice는 계정에 기기 행 하나를 넣습니다.
+func insertDevice(t *testing.T, f *serviceFixture, accountID uuid.UUID, active bool) {
+	t.Helper()
+	id := uuid.New()
+	_, err := f.pool.Exec(context.Background(), `INSERT INTO devices (id, account_id, fcm_token, token_hash, platform, active, last_seen_at)
+		VALUES ($1, $2, $3, sha256(convert_to($3, 'UTF8')), 'android', $4, now())`, id, accountID, "fcm-"+id.String(), active)
+	require.NoError(t, err)
+}
+
+// createNotifyProfile은 알림 상태가 status인 프로필 계정을 만듭니다.
+func createNotifyProfile(t *testing.T, f *serviceFixture, status NotifyStatus) uuid.UUID {
+	t.Helper()
+	ctx := context.Background()
+	id := uuid.New()
+	require.NoError(t, authdb.New(f.pool).CreateAccount(ctx, authdb.CreateAccountParams{ID: id, LastActiveAt: f.clock.Now()}))
+	p := validProfile()
+	p.Notification = Notification{Status: status}
+	if status == NotifyEnabled {
+		p.Notification.Time = &LocalTime{Hour: 7, Minute: 0}
+	}
+	_, err := f.svc.Put(ctx, id, p)
+	require.NoError(t, err)
+	return id
+}
+
+func TestListNotifyProfiles_Filters(t *testing.T) {
+	f := newServiceFixture(t)
+	ctx := context.Background()
+
+	target := createNotifyProfile(t, f, NotifyEnabled)
+	insertDevice(t, f, target, true)
+	insertDevice(t, f, target, false)
+	inactiveOnly := createNotifyProfile(t, f, NotifyEnabled)
+	insertDevice(t, f, inactiveOnly, false)
+	disabled := createNotifyProfile(t, f, NotifyDisabled)
+	insertDevice(t, f, disabled, true)
+	deleted := createNotifyProfile(t, f, NotifyEnabled)
+	insertDevice(t, f, deleted, true)
+	_, err := f.pool.Exec(ctx, `UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1`, deleted)
+	require.NoError(t, err)
+
+	got, err := ListNotifyProfiles(ctx, f.pool, uuid.Nil, 100)
+	require.NoError(t, err)
+	require.Equal(t, []uuid.UUID{target}, activeIDs(got))
+	assert.Equal(t, &LocalTime{Hour: 7, Minute: 0}, got[0].Profile.Notification.Time)
+}
+
+func TestListNotifyProfiles_Pages(t *testing.T) {
+	f := newServiceFixture(t)
+	ctx := context.Background()
+	for range 3 {
+		insertDevice(t, f, createNotifyProfile(t, f, NotifyEnabled), true)
+	}
+	first, err := ListNotifyProfiles(ctx, f.pool, uuid.Nil, 2)
+	require.NoError(t, err)
+	require.Len(t, first, 2)
+	second, err := ListNotifyProfiles(ctx, f.pool, first[1].AccountID, 2)
+	require.NoError(t, err)
+	assert.Len(t, second, 1)
+}

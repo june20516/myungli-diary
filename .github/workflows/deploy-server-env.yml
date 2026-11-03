@@ -157,6 +157,10 @@ jobs:
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
           gcloud scheduler jobs resume precompute-half-hourly --location "$REGION" --project "$PROJECT"
+          gcloud run jobs update server-notify --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+          gcloud scheduler jobs resume notify-every-5m --location "$REGION" --project "$PROJECT"
 
       - name: Firebase Hosting
         if: steps.ready.outputs.ready == 'true'

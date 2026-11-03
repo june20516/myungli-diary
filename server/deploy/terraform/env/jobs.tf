@@ -1,12 +1,12 @@
 # server 이미지의 하위 명령을 실행하는 Job입니다(S1). VPC는 server 서비스와 같고, env·Secret은 server 서비스처럼
 # 배포 workflow가 붙입니다(run.tf의 설명).
-# notify는 P8-4에서 더합니다.
 locals {
   server_jobs = {
     "server-migrate"    = ["migrate", "up"]
     "server-seed"       = ["seed"]
     "server-retention"  = ["job", "retention"]
     "server-precompute" = ["job", "precompute"]
+    "server-notify"     = ["job", "notify"]
   }
 }
 

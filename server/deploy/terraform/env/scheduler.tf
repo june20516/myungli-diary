@@ -59,3 +59,34 @@ resource "google_cloud_scheduler_job" "precompute" {
     ignore_changes = [paused]
   }
 }
+
+resource "google_cloud_run_v2_job_iam_member" "scheduler_notify" {
+  name     = google_cloud_run_v2_job.server["server-notify"].name
+  location = var.region
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.scheduler.email}"
+}
+
+# 5분마다 현지 알림 시각 뒤 60분 안의 사용자에게 아침 알림을 보냅니다(spec §8.2, S13, S129).
+# 실행이 겹쳐도 notification_log claim이 두 번 발송을 막습니다. 멈춘 채 만드는 이유는 retention과 같습니다.
+resource "google_cloud_scheduler_job" "notify" {
+  name      = "notify-every-5m"
+  region    = var.region
+  schedule  = "*/5 * * * *"
+  time_zone = "Etc/UTC"
+  paused    = true
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://run.googleapis.com/v2/projects/${var.project_id}/locations/${var.region}/jobs/${google_cloud_run_v2_job.server["server-notify"].name}:run"
+
+    oauth_token {
+      service_account_email = google_service_account.scheduler.email
+      scope                 = "https://www.googleapis.com/auth/cloud-platform"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [paused]
+  }
+}

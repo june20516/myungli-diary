@@ -154,6 +154,15 @@ func (q *Queries) DeleteMonthCacheByAccount(ctx context.Context, accountID uuid.
 	return err
 }
 
+const deleteNotificationLogByAccount = `-- name: DeleteNotificationLogByAccount :exec
+DELETE FROM notification_log WHERE account_id = $1
+`
+
+func (q *Queries) DeleteNotificationLogByAccount(ctx context.Context, accountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteNotificationLogByAccount, accountID)
+	return err
+}
+
 const deleteProfileByAccount = `-- name: DeleteProfileByAccount :exec
 DELETE FROM profiles WHERE account_id = $1
 `

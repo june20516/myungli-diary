@@ -177,6 +177,19 @@ func (q *Queries) DeleteMonthCacheOtherVersions(ctx context.Context, current str
 	return result.RowsAffected(), nil
 }
 
+const deleteNotificationLogClaimedBefore = `-- name: DeleteNotificationLogClaimedBefore :execrows
+DELETE FROM notification_log WHERE claimed_at < $1
+`
+
+// 알림 기록은 하루 한 번 판정에만 쓰므로 30일 뒤 지웁니다(S129).
+func (q *Queries) DeleteNotificationLogClaimedBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteNotificationLogClaimedBefore, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deletePaidGrantsEndedBefore = `-- name: DeletePaidGrantsEndedBefore :execrows
 DELETE FROM entitlement_grants WHERE source IN ('ad_free_pass', 'subscription') AND expires_at < $1
 `

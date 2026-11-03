@@ -234,6 +234,19 @@ func TestSteps_DeletesInactiveDevicesAfter30Days(t *testing.T) {
 	assert.Equal(t, 1, f.count("SELECT count(*) FROM devices WHERE id = $1", active))
 }
 
+func TestSteps_DeletesNotificationLogAfter30Days(t *testing.T) {
+	f := newFixture(t)
+	account := f.account()
+	insert := `INSERT INTO notification_log (account_id, local_date, result, claimed_at) VALUES ($1, $2, 'sent', $3)`
+	f.exec(insert, account, now.AddDate(0, 0, -31), now.Add(-31*24*time.Hour))
+	f.exec(insert, account, now.AddDate(0, 0, -29), now.Add(-29*24*time.Hour))
+
+	f.runSteps()
+
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM notification_log WHERE account_id = $1", account))
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM notification_log WHERE claimed_at > $1", now.Add(-30*24*time.Hour)))
+}
+
 func TestSteps_DeletesPreviewUsageAfterOneYear(t *testing.T) {
 	f := newFixture(t)
 	insert := `INSERT INTO preview_usage (device_hash, used_at) VALUES ($1, $2)`

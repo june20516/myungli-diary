@@ -62,16 +62,6 @@ func TestRun_UnknownJob_Exits2(t *testing.T) {
 	}
 }
 
-func TestRun_NotImplementedJob_Exits1(t *testing.T) {
-	code, stderr := runCLI(t, "job", "notify")
-	if code != 1 {
-		t.Errorf("종료 코드 = %d, want 1", code)
-	}
-	if !strings.Contains(stderr, "not implemented") {
-		t.Errorf("stderr에 not implemented 없음: %q", stderr)
-	}
-}
-
 func TestRun_MigrateWithoutDirection_Exits2(t *testing.T) {
 	if code, _ := runCLI(t, "migrate"); code != 2 {
 		t.Errorf("종료 코드 = %d, want 2", code)
@@ -110,7 +100,7 @@ func TestRun_MigrateUnreachableDatabase_FailsFastWithCauseWithoutPassword(t *tes
 }
 
 // migrationFileCount는 migration 디렉터리의 파일 수입니다. migration을 더하면 함께 올립니다.
-const migrationFileCount = 22
+const migrationFileCount = 23
 
 func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	ctx := context.Background()

@@ -313,3 +313,75 @@ func TestRun_UsesActiveSince(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, now.Add(-336*time.Hour), f.lister.activeSince)
 }
+
+// prepareCounter는 Prepare 호출 수와, 호출 시점에 이미 Fortune이 불렸는지를 기록합니다.
+type prepareCounter struct {
+	calls          int
+	fortune        *fakeFortune
+	calledAfterUse bool
+	err            error
+}
+
+func (p *prepareCounter) prepare(context.Context) error {
+	p.calls++
+	p.fortune.mu.Lock()
+	p.calledAfterUse = len(p.fortune.dailies) > 0
+	p.fortune.mu.Unlock()
+	return p.err
+}
+
+func runPrepared(t *testing.T, now time.Time, prepareErr error, users ...profile.ActiveProfile) (*fakeFortune, *prepareCounter, *bytes.Buffer, precompute.Result, error) {
+	t.Helper()
+	fortune := &fakeFortune{}
+	counter := &prepareCounter{fortune: fortune, err: prepareErr}
+	var logs bytes.Buffer
+	result, err := precompute.Run(context.Background(), precompute.Deps{
+		Profiles: (&lister{items: users}).list,
+		Prepare:  counter.prepare,
+		Fortune:  fortune,
+		Clock:    clocktest.New(now),
+		Logger:   slog.New(slog.NewTextHandler(&logs, nil)),
+	})
+	return fortune, counter, &logs, result, err
+}
+
+// 대상이 없으면 엔진 준비(버전 조회)를 하지 않습니다. 하루 48번 중 대부분의 실행이 여기에 해당합니다.
+func TestRun_NoTargetsSkipsPrepare(t *testing.T) {
+	_, counter, _, result, err := runPrepared(t, time.Date(2026, 11, 3, 3, 0, 0, 0, time.UTC), nil, user("Asia/Seoul", "a"))
+	require.NoError(t, err)
+	assert.Zero(t, counter.calls)
+	assert.Equal(t, precompute.Result{Candidates: 1}, result)
+}
+
+func TestRun_PrepareOnceBeforeCompute(t *testing.T) {
+	fortune, counter, _, _, err := runPrepared(t, time.Date(2026, 11, 3, 13, 15, 0, 0, time.UTC), nil,
+		user("Asia/Seoul", "a"), user("Asia/Tokyo", "b"))
+	require.NoError(t, err)
+	assert.Equal(t, 1, counter.calls)
+	assert.False(t, counter.calledAfterUse, "Prepare는 첫 계산 전에 불립니다")
+	assert.Len(t, fortune.dailies, 2)
+}
+
+func TestRun_PrepareErrorIsErrorWithoutCompute(t *testing.T) {
+	prepareErr := errors.New("엔진 버전 없음")
+	fortune, _, logs, result, err := runPrepared(t, time.Date(2026, 11, 3, 13, 15, 0, 0, time.UTC), prepareErr, user("Asia/Seoul", "a"))
+	require.ErrorIs(t, err, prepareErr)
+	assert.Empty(t, fortune.dailies)
+	assert.Equal(t, precompute.Result{Candidates: 1, Targets: 1}, result, "고른 대상은 계산하지 못해도 셉니다")
+	assert.Contains(t, logs.String(), "precompute 완료")
+}
+
+func TestRun_LogsPhaseDurations(t *testing.T) {
+	_, _, logs, _, err := runPrepared(t, time.Date(2026, 11, 3, 13, 15, 0, 0, time.UTC), nil, user("Asia/Seoul", "a"))
+	require.NoError(t, err)
+	for _, key := range []string{"list_ms=", "prepare_ms=", "compute_ms="} {
+		assert.Contains(t, logs.String(), key)
+	}
+}
+
+// America/Santiago 2026-09-06은 00:00이 없습니다. 9-05 22:10의 다음 날은 9-06입니다.
+func TestRun_NextDateWhenMidnightMissing(t *testing.T) {
+	f, _, err := run(t, time.Date(2026, 9, 6, 2, 10, 0, 0, time.UTC), user("America/Santiago", "a"))
+	require.NoError(t, err)
+	assert.Equal(t, []dailyCall{{Date: date(2026, 9, 6), Timezone: "America/Santiago"}}, f.fortune.dailies)
+}
