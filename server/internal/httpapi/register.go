@@ -67,7 +67,7 @@ func RegisterAPI(mux *http.ServeMux, impl gen.StrictServerInterface, deps Deps, 
 		ErrorHandlerFunc: writeParameterError,
 	})
 	if router, ok := impl.(staticRouter); ok {
-		for _, route := range router.staticRoutes() {
+		for _, route := range router.staticRoutes(routes.Authenticate) {
 			mux.Handle(route.pattern, route.handler)
 		}
 	}

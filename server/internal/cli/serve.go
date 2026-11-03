@@ -604,7 +604,7 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	api.Webhooks = deps.Billing.Webhooks
 	api.RewardVerifier = deps.Billing.RewardVerifier
 	api.Rewards = deps.Billing.Rewards
-	deps.TestLogin.enable(api, authService, deps.Pool, deps.Clock)
+	deps.TestLogin.enable(api, authService, deps.Pool, deps.Clock, deps.Logger)
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)
 	}), nil
