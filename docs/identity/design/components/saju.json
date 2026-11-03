@@ -1,5 +1,5 @@
 {
-  "version": "3.2.0",
+  "version": "3.3.0",
   "group": "saju",
   "components": [
     {
@@ -8,14 +8,14 @@
       "uses": ["ohaeng.cell", "tag.me", "term"],
       "parts": {
         "columns": { "order": ["hour", "day", "month", "year"], "gap": { "value": 6, "unit": "px" } },
-        "header": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "center" },
+        "header": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "center", "slot": "ui.saju.header" },
         "stemTenGod": { "component": "term-token", "variant": "label", "position": "above-stem" },
         "stem": { "element": "ohaeng.cell", "size": "pillar" },
         "branch": { "element": "ohaeng.cell", "size": "pillar", "marginTop": { "value": 4, "unit": "px" } },
         "branchTenGod": { "component": "term-token", "variant": "label", "position": "below-branch", "basis": "정기" },
         "dayMaster": {
           "border": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" }, "inset": true },
-          "tag": { "element": "tag.me" },
+          "tag": { "element": "tag.me", "slot": "ui.saju.tag", "maxWidth": "기둥 폭", "maxLines": 1, "note": "오른쪽 위 모서리에 붙여 왼쪽으로 늘어남" },
           "tenGodLabel": { "component": "term-token", "variant": "label", "term": "일간" }
         }
       },
@@ -55,7 +55,7 @@
       "uses": ["ohaeng.cell", "term"],
       "parts": {
         "grid": { "columns": ["hour", "day", "month", "year"], "rowHeaderWidth": { "value": 52, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
-        "rowHeader": { "component": "term-token", "variant": "label", "rows": ["지장간", "12운성", "신살"] },
+        "rowHeader": { "component": "term-token", "variant": "label", "rows": ["지장간", "12운성", "신살"], "slot": "ui.saju.header", "align": "center", "maxWidth": "행 머리 폭 52", "maxLines": 2, "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 글자를 type.caption.sm 크기까지 줄임. 말줄임 없음(daeun-table label과 같은 규칙, 결정 V53)" },
         "top": { "stem": { "element": "ohaeng.cell", "size": "mini" }, "branch": { "element": "ohaeng.cell", "size": "mini" } },
         "value": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "align": "center" },
         "hiddenStems": {
@@ -103,7 +103,7 @@
           "year": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}" }
         },
         "label": { "maxWidth": "기둥·칸 폭", "maxLines": 2, "align": "center", "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 글자를 type.caption.sm 크기까지 줄임. 말줄임 없음", "fallback": "사전 이름이 없으면 한자, 한자도 없으면 칩 없이 자리만 남김" },
-        "currentLabel": { "element": "tag.status" }
+        "currentLabel": { "element": "tag.status", "slot": "ui.saju.tag", "position": "기둥, 칸 위 꼬리표 줄 가운데", "maxWidth": "기둥 둘과 그 사이 간격", "maxLines": 1, "overflow": "기둥, 칸보다 넓으면 이웃 위 빈 꼬리표 자리로 넘침. 표 양 끝 밖으로는 나가지 않게 그 끝에 맞춤(결정 V53)" }
       },
       "states": {
         "current": { "parts": { "daeun": { "pillar": { "element": "highlight.current", "bg": "{color.status.bg}" }, "age": { "fg": "{color.action.primary}", "fontWeight": 700 } }, "currentLabel": { "visible": true } }, "note": "지금 대운 기둥 + '지금'" },

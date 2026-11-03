@@ -25,7 +25,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ui.login.provider` | social-login-button 글자 (가운데 정렬, 양쪽 16 + 로고 20 + 간격 8) | 232px | 1 | - | 19 | **19** | **15** | **34** |
 | `ui.error.client`<br>`ui.error.code`<br>`ui.login.error`<br>`ui.app.trace`<br>`evidence-sheet.unlock.failed`<br>`diary-edit.saved.tags`<br>`ui.event-edit.save-failed`<br>`ui.diary-view.deleted` | toast (좌우 16, 앞 아이콘 16 + 간격 16) | 256px | 2 | - | 48 | **48** | **34** | **78** |
 | `ui.nav.tab` | tab-bar 탭 라벨 (화면 폭 4등분) | 90px | 1 | - | 9 | **9** | **7** | **15** |
-| `ui.birth.option` | segmented 두 칸 중 한 칸 (check-row inline 글자 포함) | 156px | 1 | - | 13 | **13** | **10** | **22** |
+| `ui.birth.option`<br>`ui.saju-chart.tab` | segmented 두 칸 중 한 칸 (check-row inline 글자 포함) | 156px | 1 | - | 13 | **13** | **10** | **22** |
 | `share-preview.ratio.label` | segmented 세 칸 중 한 칸 | 104px | 1 | - | 8 | **8** | **6** | **13** |
 | `consent.required.label` | check-row card 동의 항목 (좌우 16, 상자 24 + 간격 12, 보기 40) | 212px | 2 | - | 34 | **34** | **28** | **64** |
 | `onboard-call.input.hint`<br>`event-edit.title.hint`<br>`event-edit.memo.hint` | text-field 안내 (좌우 16, 지우기 20 + 간격 8) | 260px | 1 | - | 17 | **17** | **14** | **31** |
@@ -61,6 +61,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ad-free.buy.cta`<br>`ad-free.history.cta` | offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20) | 240px | 1 | - | 20 | **20** | **16** | **35** |
 | `ad-free.offer.period` | offer-card 기간 고지 (카드 안쪽 20) | 280px | 1 | - | 25 | **25** | **20** | **47** |
 | `profile-edit.recalc.notice` | settings-row groupNote (묶음 카드 위, 좌우 16) | 288px | 2 | - | 62 | **62** | **46** | **104** |
+| `ui.settings.row`<br>`ui.profile-edit.birthplace` | settings-row 이름과 값 (좌우 16, 화살표 16, 사이 space.8, 둘이 나눔) | 132px | 1 | - | 11 | **11** | **8** | **19** |
+| `ui.legal.row` | settings-row 이름 (좌우 16, 화살표 16) | 272px | 1 | - | 23 | **23** | **18** | **42** |
+| `ui.saju.header` | manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
+| `ui.saju.tag` | daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8) | 92px | 1 | - | 8 | **8** | **6** | **13** |
+| `ui.evidence.personal-empty` | evidence-sheet 빈 해석 안내 (sheet 안쪽 space.20, 두 줄) | 320px | 2 | - | 60 | **60** | **42** | **100** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
 | `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
 
@@ -69,9 +74,13 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | 언어 | 슬롯 | 키 | 상한 | 이유 |
 | --- | --- | --- | --- | --- |
 | ja | `ui.login.provider` | `loginKakaoLabel` | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
+| en | `ui.saju.header` | `manseRowHiddenStems` | **12** | 실측: 낱말마다 행 머리 44px 한 줄(Hidden 37.8px, stems 32.1px)이라 두 줄 안, 결정 V53 |
 | ko | `ui.login.provider` | `loginLineLabel` | **16** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | ja | `ui.login.provider` | `loginLineLabel` | **13** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | en | `ui.login.provider` | `loginLineLabel` | **28** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
+| ko | `ui.saju.tag` | `sajuTagMe` | **7** | 따로 잼: saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게) |
+| ja | `ui.saju.tag` | `sajuTagMe` | **5** | 따로 잼: saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게) |
+| en | `ui.saju.tag` | `sajuTagMe` | **10** | 따로 잼: saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게) |
 
 상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):
 
@@ -98,6 +107,10 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `account-merge.not-other.body` | 확인 창 본문(창이 늘어남) |
 | `ui.purchase.product` | purchase-row 상품 이름(말줄임 없이 줄바꿈, 스토어 이름 대체) |
 | `ui.day-cell.lunar` | day-cell 윤달 표지(형식 고정, 글자 수 대신 칸 폭 44px로 확인) |
+| `ui.saju.a11y` | 스크린리더 전용(화면에 보이지 않음) |
+| `ui.lucky-card.a11y` | 스크린리더 전용(화면에 보이지 않음) |
+| `ui.share.a11y` | 스크린리더 전용(화면에 보이지 않음) |
+| `ui.system.tracking` | iOS 시스템 창(ATT 본문, 앱이 그리지 않음) |
 
 * **ko 계산**: 레이아웃에 들어가는 글자 수입니다. 확정값은 writing 초안과 이 값 중 작은 값입니다(ja 초안 = ko, en 초안 = ko × 1.8). 초안이 `-`인 칸(#131에서 더한 칸)은 계산값이 곧 확정값입니다.
 * **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `today.evidence.link` = `ui.depth.evidence_link`, `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21). 기본 깊이 설정(segmented 세 칸, settings-row 값)은 D79로 빠져 `ui.depth.surface`·`evidence`·`default_label` 행을 지웠고, `ui.depth.explain`은 풀이 시트의 접근성 라벨로만 남아 상한이 없습니다(#318).
@@ -109,6 +122,14 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * **3.0.0(#480·#483·#494·#475):** 로그인 수단 합치기 입구·구매 내역 버튼을 `primary-button` 행에 더하고 `ad-free.restore.cta`를 뺐습니다. 계정 합치기 인증 안내·가져올 기록·구매 상자 줄 이름·구매 내역 문의 안내·구매 줄 상태 낱말(`ui.purchase.status`)·구매일과 사용 기간 줄(`ui.purchase.meta`) 5행을 더했습니다. 상태 낱말과 구매일 줄은 상한이 달라 슬롯을 나눴습니다(writing 상한은 슬롯 단위). 두 확인 창 본문(`login-methods.in-use.body`·`account-merge.not-other.body`)과 상품 이름(`ui.purchase.product`, 줄바꿈하고 스토어 이름으로 대체될 수 있음)은 상한 없음입니다. LINE 라벨 키 `loginLineLabel`은 공식 자산 구분선 비율을 따른 198px로 따로 재 "키별 상한" 표에 냅니다(결정 V46). `account-merge.cta.cancel`은 IA에서 빠져(PR #511, 결정 V44) `primary-button` 행에서 뺐습니다.
 * **3.1.0(#564·#548):** 구매 줄은 구매일 줄과 사용 기간 줄로 나뉘어(W44, 결정 V47) `ui.purchase.meta`는 키마다 한 줄 288px로 잽니다(값 그대로). `offer-card` 안 버튼 `ad-free.buy.cta`·`ad-free.history.cta`는 카드 안쪽 20 안이라 240px 행으로 따로 잽니다. `ad-free.history.cta`는 화면 폭 버튼 행(23·19·42)에서 옮겨 20·16·35가 됐습니다(원고 "구매 내역" 5자, en 16자로 들어감). 기간 고지 `ad-free.offer.period`는 카드 안 280px 한 줄입니다. 같은 때 상한 없음 표에 네 번 겹쳐 있던 `ui.day-cell.lunar` 행을 하나로 정리했습니다.
 * **3.2.0(#354·#587):** 다시 계산 안내 `profile-edit.recalc.notice`는 `settings-row` `groupNote`(묶음 카드 위, `type.caption.md`, 두 줄, 288px)로 잽니다(결정 V50, 지금 원고 ko 32자로 들어감). `account-choice` 사주 줄은 윤달 낱말이 더해져도 256px 한 줄 안이라 `ui.account-merge.saju`는 그대로입니다(en 시각 모름 248.8px, V48). 대운·세운 십성 라벨은 `glossary.value_name`이 다른 자리와 같은 슬롯이라 상한 행을 두지 않고 두 줄 줄바꿈으로 받습니다(V49).
+* **3.3.0(#710, writing W51):** IA 밖 새 `ui.*` 슬롯 7개를 쟀습니다. 기존 확정값은 그대로입니다.
+  * `ui.settings.row`(설정 줄 이름과 알림 꺼짐 값)와 `ui.profile-edit.birthplace`(출생지 값)는 이름과 값이 한 줄을 나누므로, 화살표를 뺀 줄(272)에서 사이 `space.8`을 두고 반씩(132px) 잽니다. `ui.legal.row`(문서 이름, 값 없음)는 `settings.ad-free.label`과 같은 272px입니다.
+  * `ui.saju-chart.tab`은 `ui.birth.option`과 같은 segmented 두 칸입니다.
+  * `ui.saju.header`는 가장 좁은 만세력 행 머리(52px, term-token `label` 좌우 4)에서 두 줄로 잽니다. 행 머리는 대운 라벨처럼 낱말 단위 두 줄을 허용합니다(결정 V53). en `manseRowHiddenStems` "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 44px 한 줄에 들어가 실측 상한 12를 "키별 상한" 표에 냅니다.
+  * `ui.saju.tag`는 대운 꼬리표 `tag.status`로 잽니다. 꼬리표는 줄에 하나라 이웃 기둥 위로 넘쳐 기둥 둘과 간격(108px)까지 쓰고(결정 V53), 좌우 8을 뺀 92px입니다. '나' 꼬리표 `sajuTagMe`(`tag.me`, 10px 굵게, 원국표 기둥 폭)는 "키별 상한" 표에 따로 냅니다.
+  * `ui.evidence.personal-empty`는 표 칸에서 연 근거 시트의 빈 해석 안내(결정 V54, sheet 본문 폭 두 줄)입니다.
+  * 스크린리더 전용 `ui.saju.a11y`, `ui.lucky-card.a11y`, `ui.share.a11y`와 iOS 시스템 창 `ui.system.tracking`은 상한 없음 표에 넣었습니다.
+  * 원고와 견준 결과(writing R26): en `sajuChartTabLuck` "Calendar and luck cycles"(24자)가 상한 22를 넘습니다(실측 155.1px로 칸 156px에 여유가 없음). segmented는 글자를 줄이지 않으므로 writing에 줄이기를 요청했습니다. 나머지 원고는 모두 들어갑니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).

@@ -1,5 +1,5 @@
 {
-  "version": "3.2.0",
+  "version": "3.3.0",
   "group": "sentence",
   "components": [
     {
@@ -103,7 +103,8 @@
           "personalTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.personal", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
           "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body", "repeat": { "each": "paragraph", "gap": "{space.12}", "skipEmpty": true } },
           "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "fontFallback": "{font.family.hanja}", "repeat": { "each": "box", "gap": "{space.12}", "skipEmpty": true }, "bg": "{color.bg.base}", "radius": "{radius.md}", "padding": "{space.12}" },
-          "personal": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.personal.body", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" }
+          "personal": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.personal.body", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
+          "personalEmpty": { "slot": "ui.evidence.personal-empty", "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "maxLines": 2, "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만, 열렸는데 그 자리 해석이 없을 때", "note": "제목(personalTitle) 아래 personal 자리에 놓임. 빈 구역 생략 규칙의 예외(결정 V54)" }
         }
       },
       "states": {
