@@ -16,7 +16,7 @@
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, P2a Apple 웹 로그인 복귀 PR #113, P3 프로필·엔진·캐시 PR #163·#171(REST draft.3), draft.4 PR #225(근거 문장·도시 경도)·draft.5 PR #233(일정 범위·달력 캐시), P4 콘텐츠 모듈 PR #238(시드·렌더러·운세 operation·용어 사전·반응), P4 후속 PR #262(notice 렌더·`birthCity`, draft.6), P5 일기·일정·`Idempotency-Key` PR #270(draft.7), P6 비로그인·참조와 D66·D60·D75 정리 PR #305(draft.8), P7 결제와 권한(RevenueCat·AdMob SSV·권한 판정)과 S77 필드 제거 PR #338(draft.9), 나의 사주 문장 필드·법적 문서 정적 페이지 PR #342(draft.10, D80), S3 freeze 준비 PR #346(draft.11, 열린 enum·알림 기기 S92·S93). S3 freeze PR #528(1.0.0), 그 뒤 하위 호환 추가 1.1.0 PR #571, 1.2.0 PR #584. 남은 것: P8 Job(precompute, notify, retention)과 알림 기기 API `registerDevice`·`deleteDevice`. staging 배포 P9는 T1에서) |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | **완료** (PR #528 `1.0.0`, S114. IA 화면 40개와 계약 대조, 남은 빈틈은 freeze 뒤 minor. 제품 판단 #527은 D90) |
 | A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **완료** (IA 화면 40개를 대역 데이터로 모두 구현, 마지막 화면 `login-methods`·`account-merge`는 PR #588(2026-10-28). 후속 맞춤 #587·#353·#354·#331은 A2와 나란히. 아키텍처 spec·결정 A1~A15 PR #95, 기반 구현 PR #117: 앱 셸·통신·캐시·디자인 시스템·플랫폼 대역·E2E 뼈대, 결정 A16. 계획 2 온보딩·로그인 PR #149: 화면 13개, 결정 A17~A21, IA v2 반영. 계획 3 오늘·깊이 시트 PR #196: today·풀이·근거·공유 시트, 결정 A22~A27, 컴포넌트 2.3.0 반영. IA v3 화면 PR #215(birthplace 한국 표준 소개·calc-basis, 결정 A28~A31). 계획 4 달력·일정 PR #253(결정 A32~A43, 오늘 대표 태그 D76), 컴포넌트 2.6.0·draft.6 따라잡기 PR #269(A44), 계획 5 일기 1부(컴포넌트·데이터, A45~A53) PR #303, 계획 5 화면 4개·흐름·E2E와 생일 음력 V31 모양 PR #310(A54, 규칙 정합성 #282 마무리), 계획 6 나·설정 PR #345(A55~A66: `my-saju`·`saju-chart`·`settings`·`profile-edit`·`account-delete`·`legal`, drift draft.9~11·IA v4 따라잡기, 열린 enum #347 ①, 화면 스크린샷 도구 #336). 남은 것: 따라잡기 #504·#518·#484·#493과 화면 일 #387(로그인 수단·계정 합치기 화면)·#418·#453. 실제 SDK adapter(계획 7)는 A2로 옮김(D91 ①)) |
-| A2 | app의 실제 API 연동: `local` server로 REST 연동, 실제 SDK adapter(카카오·Apple·LINE·Google 로그인 #311, App Link, FCM #347 ②, RevenueCat·AdMob, D91 ①) | app | S3 (A1과 나란히) | I2 | **진행 중** (staging 준비 PR #675(release 서명, Firebase), 로그인 값과 환경 파일 PR #693(A97), RevenueCat PR #695(A98), AdMob과 UMP PR #698(A99). 남은 것: 실제 로그인 adapter #311·#463. iOS ATT는 문구 #697 뒤) |
+| A2 | app의 실제 API 연동: `local` server로 REST 연동, 실제 SDK adapter(카카오·Apple·LINE·Google 로그인 #311, App Link, FCM #347 ②, RevenueCat·AdMob, D91 ①) | app | S3 (A1과 나란히) | I2 | **거의 완료** (실제 SDK adapter와 실기기 확인 끝: Android 1.0.0+4, iOS 1.0.0 (3), 로그인 다섯, App Link, 계정 연결과 합치기, 2026-11-03. 남은 것: #736 컴포넌트 3.3.0 반영, drift #727, #735 빌드 번호 규칙을 한 PR로) |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | **완료** (D47~D51, `docs/ia/screens.json` v1). v2: 선택 동의 제거(D67)와 계획 2 차이(D68), PR #133. v3: 출생지 화면의 한국 기준 소개·계산 기준 로그인 전 열람(D71), PR #157 |
 | M0 | 수익화 결정 체계 수립과 첫 사이클, MVP 범위 재검증 | 지휘 | IA | S1·A1 착수 | **완료** (D53, 비공개 기록 `business/`) |
@@ -25,7 +25,7 @@
 | V1 | **디자인 토큰 freeze** | design | V0 | V2, A1 | **완료** (PR #18 `d049e08`, 계약 1.0.0, 결정 V8~V12) |
 | V2 | 컴포넌트 명세 | design | V1, IA | A1 UI 구현 | **완료** (PR #43 `47a1867`, 컴포넌트 계약 1.0.0, 토큰 1.1.0, 결정 V13~V24). 후속 PR #66 `b1317e4`: 컴포넌트 2.0.0(근거 잠금, D60), 결정 V25~V27. PR #83: 2.1.0(문장 조각 `term` 표시, 근거 잠금 슬롯), 결정 V28. PR #110: 2.2.0(용신 근거 줄 이름 슬롯). PR #189: 2.3.0(app 구현 대응, `depth-link` 화면 이동, 글자 수 상한). PR #221: 2.4.0(`city-search` 처리 중·`skeleton`). PR #245: 2.5.0(`lucky-card` 변형 `tag`, D76). PR #261: 2.6.0(app 계획 4 확인, V36~V38). PR #293: 2.6.1(규칙 정합성, D77 슬롯 상한) |
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | **완료** (W1-3 용어·근거와 스토어 태그라인 PR #627(W47~W49)로 3개 언어 원고가 모두 참, 원고 검사 `--partial` 제거. 원어민 검수는 완료 조건이 아닌 보강 단계(D70). W1 spec `docs/identity/writing/specs/2026-10-16-w1-content-design.md`. W1-1 오늘 화면·엔진 안내 PR #249, W1-2 사주·개인 해석 PR #254, D77 IA ui 슬롯·남은 ui 원고 PR #279·#297(W33), 기본 깊이 원고 삭제 PR #326(D79), 생일 음력 문구 PR #328(W34). 다음 W1-3 용어·근거. 원어민 검수는 사용자 준비물) |
-| I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3, T1 | - |
+| I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3, T1 | **완료** (2026-11-03 staging 확인: 엔진이 오늘 요청 71건에 200, server의 daily, chart, calendar 응답 200. 엔진 실행 조건 #79) |
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3, T1 | - |
 | H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 준비 메모 [`docs/specs/2026-10-30-context-slimming-design.md`](specs/2026-10-30-context-slimming-design.md) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | 시작 전 |
 | Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
@@ -39,23 +39,22 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-11-03 오후 기준)
+## 현재 진행 순서 (2026-11-03 저녁 기준)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 없습니다(#707, #711 끝남). 받는 단위가 main에서 검사를 통과하면 `drift-close`가 닫습니다. 맞춘 PR 본문에는 `참고 #<drift>`를 적습니다. T1을 막지 않는 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①).
-* **동시에 도는 단위 세션은 둘까지입니다**(D78). 가장 긴 경로에 있는 단위부터 엽니다. 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②).
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** 실기기 배포 빌드(#714, PR #719) → 실기기 로그인 확인(#311·#463) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. O1(관측)은 T1 전까지, L1(부하 테스트)은 T1과 나란히. 이와 나란히 Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1을 막으므로 테스터 모집을 지금 진행합니다.
-* **staging 상태:** server와 엔진이 떠 있고, Test Store 결제(PR #705, D99), AdMob SSV 서명 검증(PR #704, S126), health 경로 `GET /health`(PR #706, S127), 다음 날 운세 미리 계산(PR #712, S128)까지 배포됐습니다. AdMob 보상형 SSV 콜백은 T1 동안 staging 주소입니다(E13, I4 전에 prod로).
-* **스토어 준비:** Android는 Play 내부 테스트에 첫 AAB(1.0.0+1)가 있고 #714로 새 AAB를 올립니다. iOS는 App Store Connect 앱 레코드(Apple ID 6829967838)와 개발용 서명(K13)이 생겼고 #714로 첫 TestFlight 빌드를 올립니다. 앱 아이콘은 design V7 원본, 앱 이름은 writing W17(ko, en, ja)입니다.
-* **I1 판단:** 엔진 실행 조건(#79)과 server의 엔진 호출 설정이 staging에 올라가 있습니다. 실제 호출 성공은 staging 로그나 I2 E2E에서 확인한 뒤 완료로 적습니다.
-* **야간 E2E:** #700(Gradle code 1 간헐 실패)은 PR #708(A100)로 고쳤습니다. 며칠 동안 야간 결과로 효과를 확인합니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 app #727(writing en 원고) 하나입니다. T1을 막지 않는 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①). 통합 마일스톤(I2~)은 열린 drift가 0이어야 시작합니다.
+* **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②).
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** A2 마무리(#736, #727, #735) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. O1(관측)은 T1 전까지, L1(부하 테스트)은 T1과 나란히. Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1 뒤 출시를 막으므로 테스터 이메일 12개를 지금 모읍니다.
+* **실기기:** Android는 Play 내부 테스트 1.0.0+4(R8 keep 규칙 PR #730), iOS는 TestFlight 1.0.0 (3)입니다. 빌드 번호는 `+N` 하나를 함께 쓰고 바뀐 플랫폼만 올립니다(#735). 로그인 다섯, App Link, 계정 연결과 합치기를 실기기에서 확인했습니다(2026-11-03). LINE은 Developing 채널이라 Tester 역할 계정만 로그인됩니다(E10, T1 직전 Published).
+* **staging 상태:** server, 엔진, Test Store 결제(D99), AdMob SSV(S126), health `GET /health`(S127), 미리 계산(S128), 아침 알림 발송(S129)까지 배포됐습니다. I1 완료(엔진 호출 확인). 공개 주소의 `/.well-known/`은 Firebase Hosting이 직접 답해 server 지문이 반영되지 않습니다(#729, prod도 같은 구조).
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | PR #719(#714 실기기 배포 빌드, 앱 아이콘, 앱 이름 현지화, iOS ATT) → 실기기 로그인 확인 #311·#463(Play 내부 테스트와 TestFlight 빌드로). (#700 PR #708, drift #707 PR #708·#718, writing 원고와 오행 분포 라벨 PR #718은 완료) | I2, T1 |
-| 지금 | server | P8-4 아침 알림 발송(S129). (#703 SSV PR #704, #683 Test Store PR #705, #699 health PR #706, P8-3 PR #712, drift #711 PR #713은 완료) | T1 |
-| 지금 | 지휘 | #720(수집 대장 알림 발송 기록) 반영 → 실기기 빌드가 나오면 사용자 업로드 안내 → I1 확인(staging에서 server의 엔진 호출) → O1 착수(범위 사용자 확인) → I2 시점 판단. T1 피드백 회차 때 design에 앱 아이콘 다듬기 요청 | T1 |
-| 필요할 때 | design | #710(IA 밖 새 ui 슬롯 7개 상한). T1 피드백 뒤 앱 아이콘 다듬기 | - |
+| 지금 | app | #736(V52 집중 시간 칩, V53, V54) + drift #727 + #735 빌드 번호 규칙을 한 PR로 → A2 완료 → I2 준비(기존 E2E를 staging http 모드로, #87) | I2, T1 |
+| 지금 | server | #729(Hosting의 `/.well-known/`) → O1 server 몫(알림 정책, uptime check `GET /health`, 예산 알림), 범위는 지휘가 사용자와 정함 | O1, T1 |
+| 지금 | 지휘 | O1 범위 사용자 확인 → I2 착수 판단(A2 완료, drift 0) → 검수 피드백 회차 받기(사용자 실기기 사용) | T1 |
+| 지금 | 사용자 | 실기기로 써 보며 검수 피드백, 테스터 이메일 12개 모으기(#535), TestFlight 내부 테스터 | T1 |
+| 필요할 때 | design | 요청이 오면. T1 피드백 뒤 앱 아이콘 다듬기 | - |
 | 필요할 때 | writing | 요청이 오면. 구매 상태 `owned` 키 #531(MVP 밖). core #625 답이 오면 반영 | I3 |
 | 필요할 때 | core | #625(writing 요청, 조후표 칸), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | I3 |
 
