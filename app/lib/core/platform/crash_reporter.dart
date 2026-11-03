@@ -21,6 +21,21 @@ final class MissingDictionaryEntry implements Exception {
   final String termId;
 }
 
+/// Crashlytics 보고 경로 시험용 비치명 오류(#739, 결정 A105).
+///
+/// `CRASHLYTICS_SELF_TEST` dart-define을 켠 빌드에서만 부팅이 한 번 기록합니다
+/// ([crashlyticsSelfTestBuild]). 사용자 데이터를 싣지 않습니다.
+final class CrashlyticsSelfTest implements Exception {
+  /// 시험 오류를 만듭니다.
+  const new();
+}
+
+/// 이 빌드가 `--dart-define=CRASHLYTICS_SELF_TEST=true`로 만들어졌는지. 평소 빌드에서는 false라
+/// 시험 기록 코드가 상수 접힘으로 빠집니다.
+const bool crashlyticsSelfTestBuild = bool.fromEnvironment(
+  'CRASHLYTICS_SELF_TEST',
+);
+
 /// 보고해도 되는 오류 요약. 원본 오류는 넘기지 않습니다(D64 ②).
 ///
 /// `toString()`·`UnexpectedError.cause`·`DioException`의 요청·응답 본문은

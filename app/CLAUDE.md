@@ -54,7 +54,8 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-03, app 세션 갱신)
+## 현재 상태 (2026-11-04, app 세션 갱신)
+* **O1 Crashlytics(#739)**, 브랜치 `app/o1-crashlytics`. 결정 A105. 1.0.0 (4)까지의 Android release는 build ID(mapping file id)가 없어 Crashlytics가 시작하지 않았습니다. release 빌드마다 Gradle이 새 id를 넣고, `tool/upload_crashlytics_symbols.sh <env> <android|ios>`가 R8 mapping과 iOS dSYM을 올립니다(README "Crashlytics 심볼"). 에뮬레이터 staging release에서 시작, 치명(`am crash`)과 비치명(`CRASHLYTICS_SELF_TEST`) 전송, mapping 업로드를 확인했고, TestFlight 1.0.0 (3)의 dSYM도 staging에 올렸습니다. 남은 것: 콘솔(staging)에서 두 보고와 스택 확인, Crashlytics 알림 메일 켜기(사용자, 콘솔 Alerts 탭), Crashlytics가 켜진 Android 1.0.0 (5) 빌드와 업로드(iOS는 5를 건너뜀, A104).
 * **스토어 빌드 1.0.0+4(2026-11-03, #728):** Android +3은 실기기(Galaxy S20, Android 13)에서 시작하자마자 종료했습니다. 광고 SDK가 들여오는 room-runtime 2.2.5의 keep 규칙이 R8 full mode에서 `WorkDatabase_Impl` 기본 생성자를 지키지 못해, WorkManager 초기화(androidx.startup)가 실패했습니다. `android/app/proguard-rules.pro`(Flutter가 release에 자동으로 더함)에 `RoomDatabase` 하위 클래스의 `<init>()` keep을 넣었고, 같은 기기에 +4 AAB의 universal APK를 설치해 첫 화면이 뜨는 것을 확인했습니다. Play 업로드는 사용자 몫입니다. 이 수정은 Android R8 설정이라 iOS는 TestFlight의 1.0.0 (3)을 그대로 쓰고, 실기기 실행 확인이 남았습니다. release에서만 나는 문제는 debug와 Patrol로 잡히지 않으니, 스토어에 올리기 전에 release 빌드를 기기에서 한 번 실행합니다.
 * **실기기 배포 빌드(#714)**, 브랜치 `app/store-builds`(PR #718 위). 결정 A101~A103.
   * OS 문구(A101): 홈 화면 앱 이름(`appTitle`)과 iOS ATT 문구(`iosTrackingUsageDescription`)를 `tool/gen_native_strings.dart`가 iOS `InfoPlist.strings`(en, ko, ja)와 Android `strings.xml`로 만듭니다(기본 en, CI가 차이 검사). ATT 창은 UMP 동의 창이 IDFA 안내 다음에 띄우고, 동의 결과는 iOS에서 ATT 허용일 때만 맞춤입니다(`TrackingAuthorization`, AppDelegate 채널).
