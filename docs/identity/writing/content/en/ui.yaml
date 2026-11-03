@@ -146,7 +146,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "No purchases yet."}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "If something you paid for isn't listed, please contact us."}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "If something you paid for isn't listed, tell us through Contact us in Settings."}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "Active"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "Upcoming"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "Expired"}
@@ -374,6 +374,7 @@
 - {slot: ui.settings.row, key: settingsNotifyLabel, text: "Alert time"}
 - {slot: ui.settings.row, key: settingsNotifyOff, text: "Off"}
 - {slot: ui.settings.row, key: settingsLanguageLabel, text: "Language"}
+- {slot: ui.settings.row, key: settingsContactLabel, text: "Contact us"}
 - {slot: ui.settings.row, key: settingsLogoutLabel, text: "Sign out"}
 - {slot: ui.legal.row, key: legalTermsLabel, text: "Terms of Service"}
 - {slot: ui.legal.row, key: legalPrivacyLabel, text: "Privacy Policy"}

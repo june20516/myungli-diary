@@ -460,5 +460,22 @@
     ],
     "status": "chosen",
     "note": "Calendar and cycles, design #723 상한 반영"
+  },
+  {
+    "id": "round-R28",
+    "title": "라운드 R28: 문의하기 원고 (W53)",
+    "kind": "copy-sample",
+    "file": "2026-11-04-round-R28.md",
+    "date": "2026-11-04",
+    "milestone": "A2",
+    "screens": [
+      "settings",
+      "purchase-history"
+    ],
+    "decisions": [
+      "W53"
+    ],
+    "status": "chosen",
+    "note": "문의하기 줄, 구매 내역은 갈 곳을 가리킴, 메일 틀과 안내 창은 #750 결정 대기"
   }
 ]

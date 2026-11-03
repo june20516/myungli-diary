@@ -224,7 +224,7 @@
 | ui.saju.header | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 term-token | info | - | 1 | 8 | - | ko 8, en 10, ja 4<br>`manseRowHiddenStems` en 12 |
 | ui.saju.tag | 컴포넌트 saju-pillars<br>컴포넌트 daeun-table | info | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`sajuTagMe` ko 7, en 10, ja 5 |
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |
-| ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 4 | - | ko 11, en 19, ja 8 |
+| ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 5 | - | ko 11, en 19, ja 8 |
 | ui.share.a11y | 컴포넌트 share-image<br>컴포넌트 segmented | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |

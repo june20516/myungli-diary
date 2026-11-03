@@ -51,6 +51,7 @@
 ## 현재 상태 (2026-11-03, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **문의하기 원고**(#745, 라운드 R28 `artifacts/2026-11-04-round-R28.md`, W53): 설정 줄 "문의하기"와 구매 내역 안내 "결제한 상품이 보이지 않으면 설정의 문의하기로 알려 주세요."를 냈습니다. 미리 채운 메일 틀과 메일 앱이 없을 때 안내 창은 멈췄습니다. 계정 id 같은 정보를 사용자가 지울 수 있는 자리에 두지 않으려고 앱 안 문의 화면으로 바꾸자고 지휘에 올렸습니다(#750).
 * **app 임시 문구와 ATT 본문**(#331·#697, 라운드 R26 `artifacts/2026-11-03-round-R26.md`, W51, 검사기 v0.13.0): app 임시 키 33개를 IA 밖 `ui.*` 슬롯 10개로 옮겼습니다(설정 줄 "알림 시각", 약관 줄, 출생지 기본값 "한국 기준", 사주 탭 "원국"·"만세력과 대운", 표 머리, 꼬리표, 스크린리더 이름, 행운 칩과 공유 이미지 이름). 근거 시트 제목은 두 화면이 같이 쓰는 "풀이의 근거", 개인 해석이 없는 자리는 "이 자리는 따로 풀이한 내용이 없어요.". glossary `twelve_stage` 12개(개인 해석 문장과 같은 표기). ATT 본문 `iosTrackingUsageDescription`(`ui.system.tracking`, app이 `InfoPlist.strings`에 옮김). ja 만세력을 「万年暦」로 고쳤습니다(W24). 새 슬롯 상한은 design #723 값으로 채웠고(W52, 라운드 R27), en 탭 이름은 상한에 맞춰 "Calendar and cycles"로 줄였습니다.
 * **W1-3 용어·근거 완료**(계획 `plans/2026-10-28-w1-3-terms-evidence.md`, 라운드 R23~R25, W47~W49, 검사기 v0.12.0): 용어 뜻 62개, glossary 값 이름 35개(천간 갑목~계수, 십성, 십성 묶음, 신살, 천간합·지지합·충·형), 근거 문장 `evidence.basis` 24개(매개변수 종류를 glossary 범주·`text`·`number`로), 원전 출처 `evidence.source` 124개(궁통보감 「대목」 + core `quote` + 원문이 말한 것만 옮긴 뜻)를 3개 언어로 채웠습니다. 세 언어 `mlw judge` 의심은 ko 용어 뜻 2건(R23에서 정함)뿐입니다. 비워 둔 원고는 슬롯 `pending`(warn)으로 적고 CI `mlw check`에서 `--partial`을 뺐습니다(ja glossary 3개만, W24). 조후표와 원문이 어긋나는 칸은 core #625. 태그라인은 "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"(`guide/store-copy.md`, 공유 이미지와 같음).
 * **알림 채널 이름과 윤달 사주 줄**(#614·#587, drift #574, 라운드 R22 `artifacts/2026-10-28-round-R22.md`, W46): IA 새 슬롯 `system-push.channel.morning` "오늘 풀이 알림", 계정 합치기 사주 줄 윤달 키 `accountChoiceSajuLeap`·`accountChoiceSajuNoTimeLeap`(design V48), design 3.2.0 상한 `profile-edit.recalc.notice`.
@@ -114,13 +115,14 @@
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
-3. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
-4. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
-5. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. app은 오류 문구 3건을 씁니다(#237).
-6. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-7. **W1-3 후속**: core #625(조후표와 원문이 어긋나는 칸) 답이 오면 해당 `source.*` 뜻 문장을 다시 씁니다. server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준) 재출제는 그대로 남습니다.
-8. **보낸 요청의 응답을 기다립니다.**
+2. **#745 후속**: 지휘가 #750(앱 안 문의 화면으로 바꿀지)을 정하면 남은 원고를 씁니다. 메일 방식이 남으면 라운드 R28에서 골라 둔 안내 창 "메일 앱을 열 수 없어요 / 아래 주소로 메일을 보내 주세요."와 제목 "[명리일기] 문의"를 쓰고, 앱 안 화면이면 IA 슬롯에 맞춰 새로 씁니다. 다 쓰면 #745를 닫습니다.
+3. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
+4. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
+5. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
+6. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. app은 오류 문구 3건을 씁니다(#237).
+7. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
+8. **W1-3 후속**: core #625(조후표와 원문이 어긋나는 칸) 답이 오면 해당 `source.*` 뜻 문장을 다시 씁니다. server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준) 재출제는 그대로 남습니다.
+9. **보낸 요청의 응답을 기다립니다.**
    - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
    - 지휘 #158 코멘트: 용어집의 忌神 읽기 통일(きじん). 閑神·極身弱·極身強은 D97로 채움(W50, #639)
-9. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
+10. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.

@@ -710,7 +710,7 @@
   "@purchaseHistoryEmptyBody": {
     "description": "purchase-history.empty.body: 구매가 없을 때의 안내"
   },
-  "purchaseHistoryMissingNotice": "결제한 상품이 보이지 않으면 문의해 주세요.",
+  "purchaseHistoryMissingNotice": "결제한 상품이 보이지 않으면 설정의 문의하기로 알려 주세요.",
   "@purchaseHistoryMissingNotice": {
     "description": "purchase-history.missing.notice: 결제했는데 목록에 없으면 문의하라는 안내"
   },
@@ -1872,19 +1872,23 @@
   },
   "settingsNotifyLabel": "알림 시각",
   "@settingsNotifyLabel": {
-    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값"
   },
   "settingsNotifyOff": "꺼짐",
   "@settingsNotifyOff": {
-    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값"
   },
   "settingsLanguageLabel": "언어",
   "@settingsLanguageLabel": {
-    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값"
+  },
+  "settingsContactLabel": "문의하기",
+  "@settingsContactLabel": {
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값"
   },
   "settingsLogoutLabel": "로그아웃",
   "@settingsLogoutLabel": {
-    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값"
+    "description": "설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값"
   },
   "shareImageSemantics": "오늘 문장 이미지 미리보기",
   "@shareImageSemantics": {

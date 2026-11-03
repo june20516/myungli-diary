@@ -146,7 +146,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "구매 내역"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "구매 내역이 없어요."}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 문의해 주세요."}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 설정의 문의하기로 알려 주세요."}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "사용 중"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "사용 전"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "만료"}
@@ -374,6 +374,7 @@
 - {slot: ui.settings.row, key: settingsNotifyLabel, text: "알림 시각"}
 - {slot: ui.settings.row, key: settingsNotifyOff, text: "꺼짐"}
 - {slot: ui.settings.row, key: settingsLanguageLabel, text: "언어"}
+- {slot: ui.settings.row, key: settingsContactLabel, text: "문의하기"}
 - {slot: ui.settings.row, key: settingsLogoutLabel, text: "로그아웃"}
 - {slot: ui.legal.row, key: legalTermsLabel, text: "이용약관"}
 - {slot: ui.legal.row, key: legalPrivacyLabel, text: "개인정보 처리방침"}

@@ -146,7 +146,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "購入履歴"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入前に利用規約とプライバシーポリシーをご確認ください。"}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "購入履歴はありません。"}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、お問い合わせください。"}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、設定の「お問い合わせ」からお知らせください。"}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "利用中"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "利用前"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "期限切れ"}
@@ -374,6 +374,7 @@
 - {slot: ui.settings.row, key: settingsNotifyLabel, text: "通知時刻"}
 - {slot: ui.settings.row, key: settingsNotifyOff, text: "オフ"}
 - {slot: ui.settings.row, key: settingsLanguageLabel, text: "言語"}
+- {slot: ui.settings.row, key: settingsContactLabel, text: "お問い合わせ"}
 - {slot: ui.settings.row, key: settingsLogoutLabel, text: "ログアウト"}
 - {slot: ui.legal.row, key: legalTermsLabel, text: "利用規約"}
 - {slot: ui.legal.row, key: legalPrivacyLabel, text: "プライバシーポリシー"}
