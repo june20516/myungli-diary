@@ -26,6 +26,8 @@ type memLedger struct {
 	devices     map[uuid.UUID][]notify.Device
 	claims      map[string]string // "계정|날짜" → result
 	deactivated []uuid.UUID
+	claimErr    error
+	finishErr   error
 }
 
 func newLedger() *memLedger {
@@ -51,6 +53,9 @@ func (l *memLedger) ListCandidates(_ context.Context, after uuid.UUID, limit int
 func (l *memLedger) Claim(_ context.Context, id uuid.UUID, d profile.LocalDate, _ time.Time) (bool, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if l.claimErr != nil {
+		return false, l.claimErr
+	}
 	key := claimKey(id, d)
 	if _, ok := l.claims[key]; ok {
 		return false, nil
@@ -62,7 +67,17 @@ func (l *memLedger) Claim(_ context.Context, id uuid.UUID, d profile.LocalDate, 
 func (l *memLedger) Finish(_ context.Context, id uuid.UUID, d profile.LocalDate, result string, _ time.Time) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if l.finishErr != nil {
+		return l.finishErr
+	}
 	l.claims[claimKey(id, d)] = result
+	return nil
+}
+
+func (l *memLedger) Release(_ context.Context, id uuid.UUID, d profile.LocalDate) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	delete(l.claims, claimKey(id, d))
 	return nil
 }
 
@@ -265,7 +280,8 @@ func TestRun_TokenInvalidDeactivatesAndNotFailure(t *testing.T) {
 	assert.Equal(t, notify.Result{Candidates: 1, Targets: 1, Messages: 3, Sent: 2, TokenInvalid: 1}, result)
 }
 
-func TestRun_AllDevicesFailMarksFailed(t *testing.T) {
+// 한 기기에도 보내지 못한 사용자는 기록을 지워(release) 창 안의 다음 실행이 다시 보냅니다.
+func TestRun_AllDevicesFailReleasesForNextRun(t *testing.T) {
 	r := newNotifyRun()
 	for range 30 {
 		r.ledger.addUser("Asia/Seoul", seven, 1)
@@ -282,9 +298,86 @@ func TestRun_AllDevicesFailMarksFailed(t *testing.T) {
 	result, err := r.run(t)
 
 	require.NoError(t, err, "30명 중 1명은 5% 이하입니다")
-	assert.Equal(t, notify.ResultFailed, r.ledger.result(failing, notifyToday))
-	assert.Equal(t, 1, result.Failed)
-	assert.Equal(t, 29, result.Sent)
+	assert.Empty(t, r.ledger.result(failing, notifyToday), "기록을 지웁니다")
+	assert.Equal(t, notify.Result{Candidates: 30, Targets: 30, Messages: 30, Sent: 29, Failed: 1, Released: 1}, result)
+
+	r.sender.fail = nil
+	second, err := r.run(t)
+	require.NoError(t, err)
+	assert.Equal(t, 1, second.Sent, "다음 실행은 그 사용자만 다시 보냅니다")
+	assert.Equal(t, notify.ResultSent, r.ledger.result(failing, notifyToday))
+}
+
+// 모든 기기의 토큰이 무효면 다시 보낼 곳이 없으므로 failed로 남깁니다.
+func TestRun_AllTokensInvalidMarksFailed(t *testing.T) {
+	r := newNotifyRun()
+	id := r.ledger.addUser("Asia/Seoul", seven, 2)
+	r.sender.fail = func(string) error { return fmt.Errorf("x: %w", notify.ErrTokenInvalid) }
+
+	result, err := r.run(t)
+
+	require.NoError(t, err, "토큰 무효는 실패율에 넣지 않습니다")
+	assert.Equal(t, notify.ResultFailed, r.ledger.result(id, notifyToday))
+	assert.Equal(t, notify.Result{Candidates: 1, Targets: 1, Messages: 2, TokenInvalid: 2}, result)
+}
+
+func TestRun_DeletedAccountClaimIsSkipped(t *testing.T) {
+	r := newNotifyRun()
+	r.ledger.addUser("Asia/Seoul", seven, 1)
+	r.ledger.claimErr = fmt.Errorf("claim: %w", notify.ErrAccountDeleted)
+
+	result, err := r.run(t)
+
+	require.NoError(t, err)
+	assert.Equal(t, notify.Result{Candidates: 1, Targets: 1, Skipped: 1}, result)
+}
+
+func TestRun_RecordErrorFailsJob(t *testing.T) {
+	r := newNotifyRun()
+	r.ledger.addUser("Asia/Seoul", seven, 1)
+	r.ledger.finishErr = errors.New("DB 실패")
+
+	result, err := r.run(t)
+
+	require.ErrorIs(t, err, notify.ErrRecord)
+	assert.Equal(t, 1, result.RecordErrors)
+	assert.Equal(t, 1, result.Sent)
+}
+
+// 본문 만들기(엔진 호출)는 엔진 동시 호출 상한(8, spec §8.1과 같음) 안에서 합니다.
+func TestRun_LimitsComposeConcurrency(t *testing.T) {
+	r := newNotifyRun()
+	for range 40 {
+		r.ledger.addUser("Asia/Seoul", seven, 1)
+	}
+	composer := &slowComposer{hold: 10 * time.Millisecond}
+	r.composer = composer
+
+	_, err := r.run(t)
+
+	require.NoError(t, err)
+	assert.LessOrEqual(t, composer.maxRunning, 8)
+	assert.Greater(t, composer.maxRunning, 1)
+}
+
+// slowComposer는 잠깐 막히며 동시 실행 수 최대값을 잽니다.
+type slowComposer struct {
+	mu         sync.Mutex
+	hold       time.Duration
+	running    int
+	maxRunning int
+}
+
+func (c *slowComposer) Body(context.Context, uuid.UUID, profile.Profile, profile.LocalDate) (string, error) {
+	c.mu.Lock()
+	c.running++
+	c.maxRunning = max(c.maxRunning, c.running)
+	c.mu.Unlock()
+	time.Sleep(c.hold)
+	c.mu.Lock()
+	c.running--
+	c.mu.Unlock()
+	return testBody, nil
 }
 
 func TestRun_ComposeFailureCountsOneFailedMessage(t *testing.T) {
@@ -296,8 +389,8 @@ func TestRun_ComposeFailureCountsOneFailedMessage(t *testing.T) {
 
 	require.ErrorIs(t, err, notify.ErrFailureRate)
 	assert.Zero(t, r.sender.count())
-	assert.Equal(t, notify.ResultFailed, r.ledger.result(id, notifyToday))
-	assert.Equal(t, notify.Result{Candidates: 1, Targets: 1, Messages: 1, Failed: 1}, result)
+	assert.Empty(t, r.ledger.result(id, notifyToday), "보내지 못했으므로 기록을 지워 다음 실행이 다시 시도합니다")
+	assert.Equal(t, notify.Result{Candidates: 1, Targets: 1, Messages: 1, Failed: 1, Released: 1}, result)
 }
 
 func TestRun_FailureRateAboveFivePercentIsError(t *testing.T) {

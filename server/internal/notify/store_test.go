@@ -95,3 +95,58 @@ func TestStore_ActiveDevicesAndDeactivate(t *testing.T) {
 	require.Len(t, devices, 1)
 	assert.Equal(t, android, devices[0].ID)
 }
+
+func TestStore_ReleaseLetsNextClaim(t *testing.T) {
+	pool := dbtest.New(t)
+	store := notify.NewStore(pool)
+	ctx := context.Background()
+	account := newAccount(t, pool)
+	day := profile.LocalDate{Year: 2026, Month: 11, Day: 4}
+	_, err := store.Claim(ctx, account, day, storeNow)
+	require.NoError(t, err)
+
+	require.NoError(t, store.Release(ctx, account, day))
+
+	again, err := store.Claim(ctx, account, day, storeNow.Add(5*time.Minute))
+	require.NoError(t, err)
+	assert.True(t, again)
+}
+
+// Job이 죽어 pending으로 남은 행은 10분 뒤 다시 claim할 수 있습니다. sent·failed 행은 다시 claim하지 않습니다.
+func TestStore_ReclaimsStalePending(t *testing.T) {
+	pool := dbtest.New(t)
+	store := notify.NewStore(pool)
+	ctx := context.Background()
+	day := profile.LocalDate{Year: 2026, Month: 11, Day: 4}
+
+	stuck := newAccount(t, pool)
+	_, err := store.Claim(ctx, stuck, day, storeNow)
+	require.NoError(t, err)
+	early, err := store.Claim(ctx, stuck, day, storeNow.Add(9*time.Minute))
+	require.NoError(t, err)
+	late, err := store.Claim(ctx, stuck, day, storeNow.Add(11*time.Minute))
+	require.NoError(t, err)
+	assert.False(t, early)
+	assert.True(t, late)
+
+	done := newAccount(t, pool)
+	_, err = store.Claim(ctx, done, day, storeNow)
+	require.NoError(t, err)
+	require.NoError(t, store.Finish(ctx, done, day, notify.ResultSent, storeNow))
+	reclaimed, err := store.Claim(ctx, done, day, storeNow.Add(time.Hour))
+	require.NoError(t, err)
+	assert.False(t, reclaimed)
+}
+
+func TestStore_ClaimDeletedAccount(t *testing.T) {
+	pool := dbtest.New(t)
+	store := notify.NewStore(pool)
+	ctx := context.Background()
+	account := newAccount(t, pool)
+	_, err := pool.Exec(ctx, `UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1`, account)
+	require.NoError(t, err)
+
+	_, err = store.Claim(ctx, account, profile.LocalDate{Year: 2026, Month: 11, Day: 4}, storeNow)
+
+	require.ErrorIs(t, err, notify.ErrAccountDeleted)
+}

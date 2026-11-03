@@ -4,12 +4,14 @@ package notify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/june20516/myungli-diary/server/internal/account"
 	"github.com/june20516/myungli-diary/server/internal/notify/notifydb"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
@@ -19,6 +21,12 @@ const (
 	ResultSent   = "sent"
 	ResultFailed = "failed"
 )
+
+// staleClaim보다 오래 pending으로 남은 기록은 Job이 죽은 것으로 보고 다시 claim합니다(실행 상한 270초보다 넉넉히 김).
+const staleClaim = 10 * time.Minute
+
+// ErrAccountDeleted는 대상을 고른 뒤 계정이 지워져 기록을 넣지 못했다는 뜻입니다(DB trigger MD001).
+var ErrAccountDeleted = errors.New("지운 계정입니다")
 
 // Candidate는 알림 대상 후보 한 명입니다.
 type Candidate struct {
@@ -57,15 +65,29 @@ func (s *Store) ListCandidates(ctx context.Context, after uuid.UUID, limit int32
 	return candidates, nil
 }
 
-// Claim은 (계정, 현지 날짜)의 발송 기록을 pending으로 넣습니다. 새로 넣었으면 true이고, 이미 있으면 false입니다.
+// Claim은 (계정, 현지 날짜)의 발송 기록을 pending으로 넣습니다. 새로 넣었거나 10분 넘게 pending으로 남은 기록을
+// 다시 가져왔으면 true이고, 그 밖에 기록이 있으면 false입니다. 지운 계정이면 ErrAccountDeleted입니다.
 func (s *Store) Claim(ctx context.Context, accountID uuid.UUID, localDate profile.LocalDate, now time.Time) (bool, error) {
 	rows, err := s.q.ClaimNotification(ctx, notifydb.ClaimNotificationParams{
-		AccountID: accountID, LocalDate: profile.PgDate(localDate), ClaimedAt: now,
+		AccountID: accountID, LocalDate: profile.PgDate(localDate), ClaimedAt: now, StaleBefore: now.Add(-staleClaim),
 	})
+	if account.IsAccountDeletedError(err) {
+		return false, fmt.Errorf("알림 기록 claim: %w", ErrAccountDeleted)
+	}
 	if err != nil {
 		return false, fmt.Errorf("알림 기록 claim: %w", err)
 	}
 	return rows == 1, nil
+}
+
+// Release는 보내지 못한 pending 기록을 지워 창 안의 다음 실행이 다시 보내게 합니다.
+func (s *Store) Release(ctx context.Context, accountID uuid.UUID, localDate profile.LocalDate) error {
+	if err := s.q.ReleaseNotification(ctx, notifydb.ReleaseNotificationParams{
+		AccountID: accountID, LocalDate: profile.PgDate(localDate),
+	}); err != nil {
+		return fmt.Errorf("알림 기록 release: %w", err)
+	}
+	return nil
 }
 
 // Finish는 발송 기록의 결과를 result(ResultSent·ResultFailed)로 바꿉니다. sent면 sent_at에 now를 넣습니다.

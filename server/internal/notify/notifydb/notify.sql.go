@@ -16,18 +16,26 @@ import (
 const claimNotification = `-- name: ClaimNotification :execrows
 INSERT INTO notification_log (account_id, local_date, result, claimed_at)
 VALUES ($1, $2, 'pending', $3)
-ON CONFLICT (account_id, local_date) DO NOTHING
+ON CONFLICT (account_id, local_date) DO UPDATE SET claimed_at = EXCLUDED.claimed_at
+WHERE notification_log.result = 'pending' AND notification_log.claimed_at < $4::timestamptz
 `
 
 type ClaimNotificationParams struct {
-	AccountID uuid.UUID
-	LocalDate pgtype.Date
-	ClaimedAt time.Time
+	AccountID   uuid.UUID
+	LocalDate   pgtype.Date
+	ClaimedAt   time.Time
+	StaleBefore time.Time
 }
 
-// 그 (계정, 현지 날짜)에 처음이면 pending 행을 넣습니다. 이미 있으면 0행입니다.
+// 그 (계정, 현지 날짜)에 처음이면 pending 행을 넣습니다. stale_before 전에 claim된 채 pending으로 남은 행
+// (Job이 죽음)은 다시 가져옵니다. 그 밖에 행이 있으면 0행입니다(S129).
 func (q *Queries) ClaimNotification(ctx context.Context, arg ClaimNotificationParams) (int64, error) {
-	result, err := q.db.Exec(ctx, claimNotification, arg.AccountID, arg.LocalDate, arg.ClaimedAt)
+	result, err := q.db.Exec(ctx, claimNotification,
+		arg.AccountID,
+		arg.LocalDate,
+		arg.ClaimedAt,
+		arg.StaleBefore,
+	)
 	if err != nil {
 		return 0, err
 	}
@@ -97,4 +105,20 @@ func (q *Queries) ListActiveDevices(ctx context.Context, accountID uuid.UUID) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const releaseNotification = `-- name: ReleaseNotification :exec
+DELETE FROM notification_log
+WHERE account_id = $1 AND local_date = $2 AND result = 'pending'
+`
+
+type ReleaseNotificationParams struct {
+	AccountID uuid.UUID
+	LocalDate pgtype.Date
+}
+
+// 보내지 못한 pending 행을 지워 창 안의 다음 실행이 다시 보내게 합니다(S129).
+func (q *Queries) ReleaseNotification(ctx context.Context, arg ReleaseNotificationParams) error {
+	_, err := q.db.Exec(ctx, releaseNotification, arg.AccountID, arg.LocalDate)
+	return err
 }

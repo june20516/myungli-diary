@@ -11,12 +11,15 @@ import (
 )
 
 type Querier interface {
-	// 그 (계정, 현지 날짜)에 처음이면 pending 행을 넣습니다. 이미 있으면 0행입니다.
+	// 그 (계정, 현지 날짜)에 처음이면 pending 행을 넣습니다. stale_before 전에 claim된 채 pending으로 남은 행
+	// (Job이 죽음)은 다시 가져옵니다. 그 밖에 행이 있으면 0행입니다(S129).
 	ClaimNotification(ctx context.Context, arg ClaimNotificationParams) (int64, error)
 	// FCM이 토큰이 무효라고 답한 기기를 비활성으로 바꿉니다(S92).
 	DeactivateDeviceByID(ctx context.Context, id uuid.UUID) error
 	FinishNotification(ctx context.Context, arg FinishNotificationParams) error
 	ListActiveDevices(ctx context.Context, accountID uuid.UUID) ([]ListActiveDevicesRow, error)
+	// 보내지 못한 pending 행을 지워 창 안의 다음 실행이 다시 보내게 합니다(S129).
+	ReleaseNotification(ctx context.Context, arg ReleaseNotificationParams) error
 }
 
 var _ Querier = (*Queries)(nil)

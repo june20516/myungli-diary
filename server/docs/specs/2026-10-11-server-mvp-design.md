@@ -376,7 +376,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
   * `UNREGISTERED`, 토큰 관련 `INVALID_ARGUMENT`는 기기를 비활성으로 바꿉니다.
   * `QUOTA_EXCEEDED`, `UNAVAILABLE`, `INTERNAL`은 지수 backoff로 3번까지 재시도합니다.
 * 한 번 실행에서 실패율이 5%를 넘으면 Job을 실패로 끝내 경보를 받습니다.
-* 하루 한 번은 보내기 전에 `notification_log`에 `pending` 행을 넣어(claim) 지킵니다. 메시지 형식, 실패율 정의, 보관 기간은 S129입니다.
+* 하루 한 번은 보내기 전에 `notification_log`에 `pending` 행을 넣어(claim) 지킵니다. 보내지 못한 사용자는 행을 지워 창 안의 다음 실행이 다시 보내고, 10분 넘게 남은 `pending`은 다시 claim합니다(교체 키로 중복이 하나로 보임). `QUOTA_EXCEEDED`는 실행 안에서 다시 보내지 않습니다. 메시지 형식, 실패율 정의, 보관 기간은 S129입니다.
 * **큐 도입 기준:** 한 번 실행이 5분 안에 끝나지 않거나 한 창의 대상이 5만 명을 넘으면, 대상 선정과 발송을 나눠 Cloud Tasks로 발송합니다.
 
 ### 8.3 `job retention` (하루 1번)
