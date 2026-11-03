@@ -101,7 +101,7 @@ void main() {
               item: LuckyItem(
                 variant: LuckyCardVariant.time,
                 name: '집중 시간',
-                value: '09:30~11:30, 13:30~15:30',
+                value: '09:30~11:30',
                 explain: _text('오전에 집중이 잘 돼요.'),
               ),
               open: false,
@@ -110,7 +110,7 @@ void main() {
           ),
         ),
       );
-      final time = tester.widget<Text>(find.text('09:30~11:30, 13:30~15:30'));
+      final time = tester.widget<Text>(find.text('09:30~11:30'));
       expect(time.style!.fontFeatures, LuckyChip.timeValueFeatures);
       expect(
         LuckyChip.timeValueFeatures,
@@ -472,6 +472,84 @@ void main() {
 
       await _tap(tester, LuckyCardVariant.number);
       expect(borderOf(LuckyCardVariant.number), isNull);
+    });
+
+    testWidgets('시간 칩이 둘이면 둘 다 같은 설명을 열고 테두리는 누른 칩에만 생깁니다(V52)', (
+      tester,
+    ) async {
+      final explain = _text('오전과 오후에 집중이 잘 돼요.');
+      final items = [
+        ..._items().where((item) => item.variant != LuckyCardVariant.time),
+        LuckyItem(
+          variant: LuckyCardVariant.time,
+          name: '집중 시간',
+          value: '09:30~11:30',
+          explain: explain,
+        ),
+        LuckyItem(
+          variant: LuckyCardVariant.time,
+          name: '집중 시간',
+          value: '13:30~15:30',
+          explain: explain,
+          ordinal: 1,
+        ),
+      ];
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: SizedBox(
+              width: 360,
+              child: LuckyCardRow(items: items, slotIds: _slotIds),
+            ),
+          ),
+        ),
+      );
+      final first = find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.time));
+      final second = find.byKey(
+        LuckyCardRow.chipKey(LuckyCardVariant.time, ordinal: 1),
+      );
+      bool isOpen(Finder chip) {
+        final surface = find.descendant(
+          of: chip,
+          matching: find.byKey(LuckyChip.surfaceKey),
+        );
+        return tester.widget<Container>(surface).foregroundDecoration != null;
+      }
+
+      // 두 칩은 계약 순서로 놓이고(같은 줄이면 오른쪽, 넘치면 아래 줄), 글자로 잇지 않습니다.
+      final firstAt = tester.getTopLeft(first);
+      final secondAt = tester.getTopLeft(second);
+      expect(
+        secondAt.dy > firstAt.dy ||
+            (secondAt.dy == firstAt.dy && secondAt.dx > firstAt.dx),
+        isTrue,
+      );
+      expect(find.textContaining(', 13:30'), findsNothing);
+      // 스크린리더 라벨은 칩마다 항목 이름 + 그 구간입니다.
+      final handle = tester.ensureSemantics();
+      expect(find.bySemanticsLabel('집중 시간, 13:30~15:30'), findsOneWidget);
+      handle.dispose();
+
+      await tester.tap(second);
+      await tester.pumpAndSettle();
+      expect(isOpen(second), isTrue);
+      expect(isOpen(first), isFalse);
+      expect(_explain(LuckyCardVariant.time), findsOneWidget);
+      expect(
+        find.text('오전과 오후에 집중이 잘 돼요.', findRichText: true),
+        findsOneWidget,
+      );
+
+      // 다른 시간 칩을 누르면 같은 설명이 그대로 열려 있고 테두리만 옮겨 갑니다.
+      await tester.tap(first);
+      await tester.pumpAndSettle();
+      expect(isOpen(first), isTrue);
+      expect(isOpen(second), isFalse);
+      expect(_explain(LuckyCardVariant.time), findsOneWidget);
+
+      await tester.tap(first);
+      await tester.pumpAndSettle();
+      expect(_explain(LuckyCardVariant.time), findsNothing);
     });
 
     testWidgets('설명 상자: chip.bg·radius.md·안쪽 12·caption.lg·text.secondary', (

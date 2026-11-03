@@ -26,14 +26,15 @@ SajuPillarColumn _column(
   branchLabel: Text('$header-아래'),
 );
 
-Widget _pillars({bool hourUnknown = false}) => SajuPillars(
-  hour: _column('시주', empty: hourUnknown),
-  day: _column('일주'),
-  month: _column('월주'),
-  year: _column('연주'),
-  meLabel: '나',
-  tableLabel: '원국표',
-);
+Widget _pillars({bool hourUnknown = false, String meLabel = '나'}) =>
+    SajuPillars(
+      hour: _column('시주', empty: hourUnknown),
+      day: _column('일주'),
+      month: _column('월주'),
+      year: _column('연주'),
+      meLabel: meLabel,
+      tableLabel: '원국표',
+    );
 
 Widget _scaled(Widget child, double scale) => MediaQuery(
   data: MediaQueryData(textScaler: TextScaler.linear(scale)),
@@ -156,6 +157,37 @@ void main() {
         tester.getCenter(find.byKey(SajuPillars.dayMasterKey)).dx,
         greaterThan(tester.getCenter(find.text('시주')).dx),
       );
+    });
+
+    testWidgets('나 꼬리표는 오른쪽 위 모서리에 붙어 왼쪽으로 늘어나고 기둥 폭까지 한 줄입니다(V53)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(SizedBox(width: 360, child: _pillars())),
+      );
+      final short = tester.getRect(find.byKey(SajuPillars.meTagKey));
+      final cell = tester.getRect(find.byKey(SajuPillars.dayMasterKey));
+      // 칸 오른쪽 모서리에서 6 밖으로 붙습니다.
+      expect(short.right, moreOrLessEquals(cell.right + 6));
+
+      // en "Me"보다 긴 원고(ja "わたし" 등)도 오른쪽 끝은 그대로이고 왼쪽으로 늘어나 한 줄입니다.
+      await tester.pumpWidget(
+        inputApp(SizedBox(width: 360, child: _pillars(meLabel: 'わたし'))),
+      );
+      final long = tester.getRect(find.byKey(SajuPillars.meTagKey));
+      expect(long.right, moreOrLessEquals(short.right));
+      expect(long.left, lessThan(short.left));
+      expect(long.height, moreOrLessEquals(short.height));
+
+      // 아주 긴 글자여도 기둥 폭을 넘지 않고 줄을 바꾸지 않습니다.
+      await tester.pumpWidget(
+        inputApp(
+          SizedBox(width: 360, child: _pillars(meLabel: 'わたしわたしわたしわたし')),
+        ),
+      );
+      final capped = tester.getRect(find.byKey(SajuPillars.meTagKey));
+      expect(capped.width, lessThanOrEqualTo(cell.width));
+      expect(capped.height, moreOrLessEquals(short.height));
     });
 
     testWidgets('time-unknown: 시주는 점선 빈 칸 둘', (tester) async {

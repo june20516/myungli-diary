@@ -46,7 +46,8 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     --dart-define-from-file=config/env/staging.json
   # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
-  `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. Play에 올릴 때마다 `pubspec.yaml`의 빌드 번호(`+N`)를 올립니다. 앱 서명 키는 Play가 보관합니다(E8).
+  `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. 빌드 번호는 아래 "스토어 빌드 번호"를 따릅니다. 앱 서명 키는 Play가 보관합니다(E8).
+* **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 `CLAUDE.md` 현재 상태의 스토어 빌드 줄에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 이 Mac의 Xcode > Settings > Accounts에 팀 Apple ID가 로그인되어 있어야 합니다. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`).
   ```
   flutter build ipa --release --dart-define-from-file=config/auth.json \
