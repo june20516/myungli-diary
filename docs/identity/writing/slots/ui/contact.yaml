@@ -1,4 +1,4 @@
-# ui 슬롯: 문의 화면(contact, D102, #752). 키 없는 틀이고 원고는 #745와 함께 씁니다.
+# ui 슬롯: 문의 화면(contact, D102, #752, #745). 원고는 라운드 R29(W54).
 
 - id: contact.intro.body
   where: "문의 화면(contact, D102): 화면 위 안내"
@@ -7,12 +7,15 @@
   structure: "무엇을 쓰면 되는지와 답은 메일로 온다는 안내(D102 ③)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactIntroBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
-    bad: []
-  endings: []
+    good:
+      - {lang: ko, key: contactIntroBody, text: "궁금한 점이나 불편한 점을 적어 주세요. 답은 적어 주신 메일로 보내 드려요.", why: "라운드 R29-1", source: writing}
+    bad:
+      - {lang: ko, text: "어떤 이야기든 소중히 듣고 있어요! 편하게 마음을 들려주세요.", why: "무엇을 쓰는지 말하지 않고 반김을 얹음(R29-1 대조군)", source: writing}
+  endings: ["~해 주세요", "~어요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -24,11 +27,16 @@
   structure: "칸 이름과 칸 안 안내."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactMessageFieldLabel
+    - contactMessageFieldHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
-    bad: []
+    good:
+      - {lang: ko, key: contactMessageFieldLabel, text: "문의 내용", why: "라운드 R29-5", source: writing}
+      - {lang: ko, key: contactMessageFieldHint, text: "언제, 어느 화면에서 있었던 일인지 함께 적어 주세요", why: "라운드 R29-5, 답하는 데 필요한 것", source: writing}
+    bad:
+      - {lang: ko, text: "무엇이든 편하게 남겨 주세요 :)", why: "이모티콘과 가벼운 부름(R29-5 대조군)", source: writing}
   endings: []
   a11y:
     truncation: "칸 이름은 한 줄 안에 씁니다."
@@ -41,11 +49,16 @@
   structure: "칸 이름과 칸 안 안내. 필수 칸입니다(D102 ①)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactEmailFieldLabel
+    - contactEmailFieldHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
-    bad: []
+    good:
+      - {lang: ko, key: contactEmailFieldLabel, text: "답장 받을 메일", why: "라운드 R29-6", source: writing}
+      - {lang: ko, key: contactEmailFieldHint, text: "name@example.com", why: "라운드 R29-6, 주소 형식만 보임", source: writing}
+    bad:
+      - {lang: ko, text: "정확히 적어 주셔야 답장이 제대로 갈 수 있어요!", why: "주의를 감탄으로 강조(R29-6 대조군)", source: writing}
   endings: []
   a11y:
     truncation: "칸 이름은 한 줄 안에 씁니다."
@@ -58,12 +71,15 @@
   structure: "계정 id, 앱 버전, 기기 정보(OS, 기종)를 함께 보내고, 사용자가 고칠 수 없으며 문의 처리에만 쓴다는 고지(D102 ①)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactAttachedNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
-    bad: []
-  endings: []
+    good:
+      - {lang: ko, key: contactAttachedNotice, text: "계정 id, 앱 버전, 기기 정보(OS, 기종)를 함께 보냅니다. 문의 처리에만 활용됩니다.", why: "라운드 R29-2, 수집 고지라 합니다체(W43)", source: writing}
+    bad:
+      - {lang: ko, text: "고객님의 소중한 정보는 안전하게 보호되며, 더 나은 서비스를 위해서만 활용됩니다.", why: "무엇을 보내는지 말하지 않고 보호를 약속(R29-2 대조군)", source: writing}
+  endings: ["~ㅂ니다"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
@@ -75,10 +91,12 @@
   structure: "동작 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactSendCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
+    good:
+      - {lang: ko, key: contactSendCta, text: "보내기", why: "동작 이름(저장 버튼과 같은 틀)", source: writing}
     bad: []
   endings: []
   a11y:
@@ -92,12 +110,15 @@
   structure: "보냈다는 결과와 답이 메일로 온다는 것."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactSentToast
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
-    bad: []
-  endings: []
+    good:
+      - {lang: ko, key: contactSentToast, text: "문의를 보냈어요.", why: "라운드 R29-3, 결과만", source: writing}
+    bad:
+      - {lang: ko, text: "소중한 문의 감사해요! 최대한 빨리 답해 드릴게요.", why: "감사와 빠른 답 약속(R29-3 대조군)", source: writing}
+  endings: ["~어요"]
   a11y:
     truncation: "toast 두 줄 안에 씁니다."
     screen_reader: "알림으로 읽습니다."
@@ -106,15 +127,40 @@
   where: "문의 화면(contact, D102): 메일로 직접 보낼 수 있는 주소 안내(보내기를 못 쓸 때, E14)"
   purpose: guide
   user_state: "보내기가 안 될 때 다른 길을 찾습니다."
-  structure: "주소 support@myungli-diary.app로 직접 보낼 수 있다는 안내. 주소는 매개변수로 받을지 원고에서 정합니다."
+  structure: "안내 한 문장 다음 줄에 주소 `{email}`(E14 `support@myungli-diary.app`, app이 채움)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - params: {email: text}
+      keys: [contactAddressNote]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
+    good:
+      - {lang: ko, key: contactAddressNote, text: "보내기가 안 되면 이 주소로 메일을 보내 주세요.\n{email}", why: "주소는 app이 E14 값으로 채우고 다음 줄에 둠(조사를 붙이지 않음), R28-2와 같은 말", source: writing}
     bad: []
-  endings: []
+  endings: ["~해 주세요"]
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
+- id: ui.contact.error
+  where: "문의 화면(contact): 보내기 실패(error 상태)와 메일 주소 형식 오류(IA 밖, #752)"
+  purpose: guide
+  user_state: "문의를 보내지 못했거나 메일 주소를 잘못 적었습니다."
+  structure: "무엇이 안 됐는지와 할 일. 보내기 실패(`SendFailed`)와 주소 형식(`EmailInvalid`)을 나눕니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [toast, text-field]
+  keys:
+    - contactSendFailed
+    - contactEmailInvalid
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: contactSendFailed, text: "문의를 보내지 못했어요. 잠시 뒤 다시 보내 주세요.", why: "로그인 오류 문구(ui.login.error)와 같은 틀", source: writing}
+      - {lang: ko, key: contactEmailInvalid, text: "메일 주소를 다시 확인해 주세요.", why: "할 일만", source: writing}
+    bad: []
+  endings: ["~어요", "~해 주세요"]
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."

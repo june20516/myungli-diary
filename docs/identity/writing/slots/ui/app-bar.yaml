@@ -526,10 +526,12 @@
   structure: "화면 이름 하나. 설정 줄 이름(문의하기)과 같은 말."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
-  keys: []
+  keys:
+    - contactBarTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
+    good:
+      - {lang: ko, key: contactBarTitle, text: "문의하기", why: "설정 줄 이름과 같은 말(D102)", source: writing}
     bad: []
   endings: []
   a11y:
