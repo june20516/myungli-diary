@@ -70,6 +70,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   * iOS: archive의 dSYM을 Crashlytics SDK의 `upload-symbols`로 올립니다.
   * Dart는 난독화하지 않아(`--obfuscate` 없음) Dart 스택은 그대로 읽힙니다.
   * **보고 경로 시험:** `--dart-define=CRASHLYTICS_SELF_TEST=true`를 더한 release 빌드는 실행할 때마다 시험용 비치명 오류(`CrashlyticsSelfTest`)를 기록합니다. Android 치명 충돌은 `adb shell am crash app.myungli.diary`로 냅니다. Crashlytics는 다음 실행 때 보고를 보냅니다(`adb shell setprop log.tag.FirebaseCrashlytics DEBUG`로 logcat에서 확인). 시험 빌드는 스토어에 올리지 않습니다.
+  * **알림 메일:** Firebase 콘솔 **프로젝트 설정 → Alerts**(`console.firebase.google.com/project/<프로젝트 id>/settings/alerts`)에서 계정마다 켭니다. 새 치명, 새 비치명, ANR, 급증 알림은 기본으로 꺼져 있습니다. staging은 켰고 prod는 출시 전에 켭니다.
   * Firebase 초기화(Dart) 전에 나는 native 충돌(예 #728의 `androidx.startup` 단계)은 Crashlytics가 아직 없어 잡히지 않습니다. 그런 충돌은 Play Console의 Android vitals와 `adb logcat -b crash`로 봅니다.
   * 처음 서명할 때 키체인 창이 framework마다 반복해서 뜨면 `security set-key-partition-list -S apple-tool:,apple:,codesign: -s ~/Library/Keychains/login.keychain-db`(로그인 키체인 암호를 물음)로 codesign 허용을 한 번에 등록합니다. 요청한 빌드가 끝났는데 창이 남으면 `SecurityAgent`를 종료하면 닫힙니다.
 * **빌드 모드와 환경 값(D99 ①):** 둘은 따로입니다. 빌드 모드는 `flutter run`(debug)과 `flutter build --release`(release), 환경 값은 붙이는 환경 파일(`config/env/<staging|prod>.json`, A97)입니다. staging은 빌드 모드가 아니라 환경 값이라 debug와 release 모두 staging server에 붙을 수 있습니다.
