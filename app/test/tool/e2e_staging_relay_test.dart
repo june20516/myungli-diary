@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -298,6 +299,155 @@ void main() {
     expect(session.status, 422);
     expect(session.body, problem);
     expect(session.contentType, 'application/problem+json');
+  });
+
+  test('server 오류 본문은 charset이 없어도 바이트 그대로 돌려줍니다', () async {
+    const problem = '{"code":"birth.invalid","title":"생년월일이 올바르지 않습니다"}';
+    final relay = StagingRelay(
+      apiBase: apiBase,
+      secret: secret,
+      client: MockClient(
+        (_) async => http.Response.bytes(
+          utf8.encode(problem),
+          422,
+          headers: {'content-type': 'application/problem+json'},
+        ),
+      ),
+    );
+
+    final response = await relay.handle('POST', '/login', {'label': 'e2eKo'});
+
+    expect(response.status, 422);
+    expect(response.bytes, utf8.encode(problem));
+    expect(response.contentType, 'application/problem+json');
+  });
+
+  test('2xx인데 모양이 다른 응답은 502이고, cleanup은 실패 label로 남깁니다', () async {
+    final requests = <http.Request>[];
+    final relay = StagingRelay(
+      apiBase: apiBase,
+      secret: secret,
+      client: stagingServer(
+        requests,
+        override: (request) => request.url.path == '/test/v1/auth/login'
+            ? http.Response('{"isNewAccount":true}', 200)
+            : null,
+      ),
+    );
+
+    final session = await relay.handle('POST', '/session', {'label': 'e2eOdd'});
+    final cleanup = await relay.handle('POST', '/cleanup', null);
+
+    expect(session.status, 502);
+    expect(jsonDecode(cleanup.body), {
+      'deleted': 0,
+      'failed': ['e2eOdd'],
+    });
+    expect(relay.labels, {'e2eOdd'});
+  });
+
+  test('cleanup은 한 label의 모양이 다른 응답 뒤에도 남은 label을 지웁니다', () async {
+    final requests = <http.Request>[];
+    final relay = StagingRelay(
+      apiBase: apiBase,
+      secret: secret,
+      client: stagingServer(
+        requests,
+        override: (request) =>
+            request.url.path == '/test/v1/auth/login' &&
+                request.body.contains('e2eOdd')
+            ? http.Response('{"tokens":{}}', 200)
+            : null,
+      ),
+    );
+    await relay.handle('POST', '/login', {'label': 'e2eOdd'});
+    await relay.handle('POST', '/login', {'label': 'e2eGood'});
+
+    final cleanup = await relay.handle('POST', '/cleanup', null);
+
+    expect(jsonDecode(cleanup.body), {
+      'deleted': 1,
+      'failed': ['e2eOdd'],
+    });
+  });
+
+  test(
+    'session은 consentRequired인데 requiredConsents가 비면 동의 요청 없이 이어 갑니다',
+    () async {
+      final requests = <http.Request>[];
+      final relay = StagingRelay(
+        apiBase: apiBase,
+        secret: secret,
+        client: stagingServer(
+          requests,
+          override: (request) => request.url.path == '/v1/me'
+              ? http.Response(
+                  '{"accountId":"a","consentRequired":true,'
+                  '"requiredConsents":[]}',
+                  200,
+                )
+              : null,
+        ),
+      );
+
+      final response = await relay.handle('POST', '/session', {
+        'label': 'e2eNone',
+        'profile': true,
+      });
+
+      expect(response.status, 200);
+      expect(requests.map((r) => '${r.method} ${r.url.path}'), [
+        'POST /test/v1/auth/login',
+        'GET /v1/me',
+        'PUT /v1/me/profile',
+      ]);
+    },
+  );
+
+  test('session은 consentRequired인데 requiredConsents가 없으면 502입니다', () async {
+    final requests = <http.Request>[];
+    final relay = StagingRelay(
+      apiBase: apiBase,
+      secret: secret,
+      client: stagingServer(
+        requests,
+        override: (request) => request.url.path == '/v1/me'
+            ? http.Response('{"accountId":"a","consentRequired":true}', 200)
+            : null,
+      ),
+    );
+
+    final response = await relay.handle('POST', '/session', {
+      'label': 'e2eMiss',
+    });
+
+    expect(response.status, 502);
+    expect(requests.map((r) => '${r.method} ${r.url.path}'), [
+      'POST /test/v1/auth/login',
+      'GET /v1/me',
+    ]);
+  });
+
+  test('staging이 답하지 않으면 timeout 뒤 502이고, cleanup은 실패 label로 남깁니다', () async {
+    final relay = StagingRelay(
+      apiBase: apiBase,
+      secret: secret,
+      client: MockClient((_) => Completer<http.Response>().future),
+      timeout: const Duration(milliseconds: 20),
+    );
+
+    final login = await relay.handle('POST', '/login', {'label': 'e2eSlow'});
+    final cleanup = await relay.handle('POST', '/cleanup', null);
+
+    expect(login.status, 502);
+    expect(jsonDecode(cleanup.body), {
+      'deleted': 0,
+      'failed': ['e2eSlow'],
+    });
+  });
+
+  test('staging 요청의 기본 timeout은 20초입니다', () {
+    expect(stagingRequestTimeout, const Duration(seconds: 20));
   });
 
   test('staging에 닿지 못하면 502이고 예외 내용을 싣지 않습니다', () async {

@@ -8,6 +8,7 @@
 /// 남기지 않습니다.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -21,10 +22,17 @@ bool _isLabelValue(Object? value) => value is String && isRelayLabel(value);
 
 final _relayLabelPattern = RegExp(r'^e2e[A-Za-z0-9]{0,29}$');
 
-/// relay 한 요청의 응답입니다. [body]는 staging 응답을 그대로 옮길 수 있게 문자열입니다.
+/// staging 요청 하나를 기다리는 기본 시간입니다. 넘으면 502(정리에서는 실패 label)입니다.
+const stagingRequestTimeout = Duration(seconds: 20);
+
+/// relay 한 요청의 응답입니다. staging 응답을 charset과 상관없이 그대로 옮기려고 본문을 바이트로 둡니다.
 final class RelayResponse {
-  /// [status]와 [body], [contentType]으로 만듭니다.
-  const new(this.status, this.body, {this.contentType = _jsonType});
+  /// [status]와 문자열 `body`(UTF-8로 담음), [contentType]으로 만듭니다.
+  new(this.status, String body, {this.contentType = _jsonType})
+    : bytes = utf8.encode(body);
+
+  /// [status]와 본문 [bytes], [contentType]으로 만듭니다.
+  const new bytes(this.status, this.bytes, {required this.contentType});
 
   /// [value]를 JSON으로 담은 응답입니다.
   new json(int status, Object value) : this(status, jsonEncode(value));
@@ -32,11 +40,14 @@ final class RelayResponse {
   /// HTTP 상태 코드입니다.
   final int status;
 
-  /// 응답 본문입니다.
-  final String body;
+  /// 응답 본문 바이트입니다.
+  final List<int> bytes;
 
   /// `Content-Type` 헤더 값입니다.
   final String contentType;
+
+  /// 본문을 UTF-8로 읽은 문자열입니다(relay가 만든 JSON 응답을 읽을 때 씁니다).
+  String get body => utf8.decode(bytes, allowMalformed: true);
 }
 
 const _jsonType = 'application/json';
@@ -68,17 +79,20 @@ const fixedProfile = <String, Object>{
 /// * `POST /cleanup` → 기억한 label마다 로그인 뒤 `DELETE /v1/me`, 200 `{deleted, failed}`
 final class StagingRelay {
   /// `apiBase`의 staging server를 `client`로 부르고, 비밀 경로에는 `secret`을 헤더로 붙입니다.
+  /// staging 요청마다 `timeout`(기본 [stagingRequestTimeout])까지 기다립니다.
   /// [log]는 요청마다 `METHOD path → status` 한 줄을 받습니다.
   new({
     required this._apiBase,
     required this._secret,
     required this._client,
+    this._timeout = stagingRequestTimeout,
     void Function(String line)? log,
   }) : _log = log ?? _ignoreLog;
 
   final Uri _apiBase;
   final String _secret;
   final http.Client _client;
+  final Duration _timeout;
   final void Function(String line) _log;
   final Set<String> _labels = {};
 
@@ -99,7 +113,8 @@ final class StagingRelay {
     return outcome.response;
   }
 
-  /// [_route]를 부르고, staging에 닿지 못했거나 응답이 JSON이 아니면 내용 없는 502로 바꿉니다.
+  /// [_route]를 부르고, staging에 닿지 못했거나 답이 늦거나 성공 응답의 모양이 계약과 다르면
+  /// 내용 없는 502로 바꿉니다.
   Future<_Outcome> _routeSafely(
     String method,
     String path,
@@ -108,9 +123,11 @@ final class StagingRelay {
     try {
       return await _route(method, path, body);
     } on http.ClientException {
-      return const _Outcome(_unreachable);
+      return _Outcome(_unreachable());
+    } on TimeoutException {
+      return _Outcome(_timedOut());
     } on FormatException {
-      return const _Outcome(_unexpected);
+      return _Outcome(_unexpected());
     }
   }
 
@@ -130,55 +147,63 @@ final class StagingRelay {
 
   Future<_Outcome> _login(Object? body) async {
     final label = body is Map ? body['label'] : null;
-    if (!_isLabelValue(label)) return const _Outcome(_badRequest);
+    if (!_isLabelValue(label)) return _Outcome(_badRequest());
     final response = await _testLogin(label as String);
     return _Outcome(_passThrough(response));
   }
 
   Future<_Outcome> _session(Object? body) async {
     final request = _SessionRequest.parse(body);
-    if (request == null) return const _Outcome(_badRequest);
+    if (request == null) return _Outcome(_badRequest());
 
-    final login = await _testLogin(request.label);
-    if (!_ok(login)) return _Outcome(_passThrough(login));
-    final loginBody = jsonDecode(login.body) as Map<String, Object?>;
-    final tokens = loginBody['tokens']! as Map<String, Object?>;
-    final bearer = {'Authorization': 'Bearer ${tokens['accessToken']}'};
-    final consentRequired = loginBody['consentRequired'] == true;
+    final loginResponse = await _testLogin(request.label);
+    if (!_ok(loginResponse)) return _Outcome(_passThrough(loginResponse));
+    final login = _Login.parse(loginResponse.bodyBytes);
+    final bearer = {'Authorization': 'Bearer ${login.accessToken}'};
 
-    Map<String, Object?>? me;
-    if (consentRequired || request.adFreeDays > 0) {
-      final response = await _client.get(_url('/v1/me'), headers: bearer);
+    _Me? me;
+    if (login.consentRequired || request.adFreeDays > 0) {
+      final response = await _send(
+        _client.get(_url('/v1/me'), headers: bearer),
+      );
       if (!_ok(response)) return _failed(response, 'GET /v1/me');
-      me = jsonDecode(response.body) as Map<String, Object?>;
+      me = _Me.parse(response.bodyBytes);
     }
 
-    if (consentRequired) {
-      final response = await _client.post(
-        _url('/v1/me/consents'),
-        headers: {...bearer, ..._jsonHeaders},
-        body: jsonEncode({'documents': me!['requiredConsents']}),
+    // 동의할 문서가 없으면 보내지 않습니다. ConsentRequest는 minItems 1이라 빈 요청은 늘 400이고,
+    // 정말 동의가 필요하면 다음 요청이 server의 403 consent.required로 그대로 드러납니다.
+    if (login.consentRequired && me!.requiredConsents.isNotEmpty) {
+      final response = await _send(
+        _client.post(
+          _url('/v1/me/consents'),
+          headers: {...bearer, ..._jsonHeaders},
+          body: jsonEncode({'documents': me.requiredConsents}),
+        ),
       );
       if (!_ok(response)) return _failed(response, 'POST /v1/me/consents');
     }
 
     if (request.profile) {
-      final response = await _client.put(
-        _url('/v1/me/profile'),
-        headers: {...bearer, ..._jsonHeaders},
-        body: jsonEncode(fixedProfile),
+      final response = await _send(
+        _client.put(
+          _url('/v1/me/profile'),
+          headers: {...bearer, ..._jsonHeaders},
+          body: jsonEncode(fixedProfile),
+        ),
       );
       if (!_ok(response)) return _failed(response, 'PUT /v1/me/profile');
     }
 
     if (request.adFreeDays > 0) {
-      final response = await _client.post(
-        _url('/test/v1/billing/ad-free'),
-        headers: {..._secretHeaders, ..._jsonHeaders},
-        body: jsonEncode({
-          'accountId': me!['accountId'],
-          'days': request.adFreeDays,
-        }),
+      final response = await _send(
+        _client.post(
+          _url('/test/v1/billing/ad-free'),
+          headers: {..._secretHeaders, ..._jsonHeaders},
+          body: jsonEncode({
+            'accountId': me!.accountId,
+            'days': request.adFreeDays,
+          }),
+        ),
       );
       if (!_ok(response)) {
         return _failed(response, 'POST /test/v1/billing/ad-free');
@@ -186,7 +211,7 @@ final class StagingRelay {
     }
 
     return _Outcome(
-      RelayResponse.json(200, {'refreshToken': tokens['refreshToken']}),
+      RelayResponse.json(200, {'refreshToken': login.refreshToken}),
     );
   }
 
@@ -213,19 +238,23 @@ final class StagingRelay {
     return RelayResponse.json(200, {'deleted': deleted, 'failed': failed});
   }
 
+  /// [label]의 계정을 지웁니다. 닿지 못함, 시간 초과, 계약과 다른 응답은 모두 실패(false)라
+  /// 정리가 멈추지 않고 다음 label로 넘어갑니다.
   Future<bool> _deleteAccount(String label) async {
     try {
-      final login = await _testLogin(label);
-      if (!_ok(login)) return false;
-      final tokens =
-          (jsonDecode(login.body) as Map<String, Object?>)['tokens']!
-              as Map<String, Object?>;
-      final response = await _client.delete(
-        _url('/v1/me'),
-        headers: {'Authorization': 'Bearer ${tokens['accessToken']}'},
+      final loginResponse = await _testLogin(label);
+      if (!_ok(loginResponse)) return false;
+      final login = _Login.parse(loginResponse.bodyBytes);
+      final response = await _send(
+        _client.delete(
+          _url('/v1/me'),
+          headers: {'Authorization': 'Bearer ${login.accessToken}'},
+        ),
       );
       return _ok(response);
     } on http.ClientException {
+      return false;
+    } on TimeoutException {
       return false;
     } on FormatException {
       return false;
@@ -235,12 +264,18 @@ final class StagingRelay {
   /// 테스트 로그인을 부릅니다. 부르기 전에 label을 기억해, 응답을 못 받아도 정리 대상이 됩니다.
   Future<http.Response> _testLogin(String label) {
     _labels.add(label);
-    return _client.post(
-      _url('/test/v1/auth/login'),
-      headers: {..._secretHeaders, ..._jsonHeaders},
-      body: jsonEncode({'label': label}),
+    return _send(
+      _client.post(
+        _url('/test/v1/auth/login'),
+        headers: {..._secretHeaders, ..._jsonHeaders},
+        body: jsonEncode({'label': label}),
+      ),
     );
   }
+
+  /// staging 요청에 [_timeout]을 겁니다. 넘으면 [TimeoutException]입니다.
+  Future<http.Response> _send(Future<http.Response> request) =>
+      request.timeout(_timeout);
 
   Uri _url(String path) => _apiBase.resolve(path);
 
@@ -251,11 +286,13 @@ final class StagingRelay {
   static bool _ok(http.Response response) =>
       response.statusCode >= 200 && response.statusCode < 300;
 
-  static RelayResponse _passThrough(http.Response response) => RelayResponse(
-    response.statusCode,
-    response.body,
-    contentType: response.headers['content-type'] ?? _jsonType,
-  );
+  /// staging 응답을 바이트 그대로 옮깁니다(charset 없는 problem+json을 다시 인코딩하지 않음).
+  static RelayResponse _passThrough(http.Response response) =>
+      RelayResponse.bytes(
+        response.statusCode,
+        response.bodyBytes,
+        contentType: response.headers['content-type'] ?? _jsonType,
+      );
 
   static _Outcome _failed(http.Response response, String step) =>
       _Outcome(_passThrough(response), failedStep: step);
@@ -264,10 +301,20 @@ final class StagingRelay {
 }
 
 /// 형식이 틀린 요청 응답입니다. staging을 부르지 않습니다.
-const _badRequest = RelayResponse(400, '{"error":"invalid request"}');
+RelayResponse _badRequest() =>
+    RelayResponse.json(400, {'error': 'invalid request'});
 
 /// staging에 닿지 못했을 때의 응답입니다. 예외 내용은 싣지 않습니다.
-const _unreachable = RelayResponse(502, '{"error":"staging unreachable"}');
+RelayResponse _unreachable() =>
+    RelayResponse.json(502, {'error': 'staging unreachable'});
+
+/// staging이 [stagingRequestTimeout] 안에 답하지 않았을 때의 응답입니다.
+RelayResponse _timedOut() =>
+    RelayResponse.json(502, {'error': 'staging timeout'});
+
+/// staging 성공 응답이 JSON이 아니거나 계약과 모양이 다를 때의 응답입니다. 본문은 싣지 않습니다.
+RelayResponse _unexpected() =>
+    RelayResponse.json(502, {'error': 'unexpected staging response'});
 
 /// relay 응답과, staging 단계가 실패했으면 그 단계(`METHOD path`)입니다.
 final class _Outcome {
@@ -277,11 +324,60 @@ final class _Outcome {
   final String? failedStep;
 }
 
-/// staging 성공 응답 본문이 JSON이 아닐 때의 응답입니다. 본문은 싣지 않습니다.
-const _unexpected = RelayResponse(
-  502,
-  '{"error":"unexpected staging response"}',
-);
+/// [bytes]를 UTF-8 JSON으로 읽습니다. 응답의 charset과 상관없이 UTF-8입니다(계약의 JSON).
+Object? _decodeJson(List<int> bytes) => jsonDecode(utf8.decode(bytes));
+
+/// 테스트 로그인 응답(`LoginResponse`)에서 relay가 쓰는 값입니다.
+final class _Login {
+  const new(
+    this.accessToken,
+    this.refreshToken, {
+    required this.consentRequired,
+  });
+
+  final String accessToken;
+  final String refreshToken;
+  final bool consentRequired;
+
+  /// [bytes]를 UTF-8 JSON으로 읽습니다. 아니거나 모양이 계약과 다르면 [FormatException]입니다.
+  static _Login parse(List<int> bytes) {
+    if (_decodeJson(bytes) case {
+      'tokens': {
+        'accessToken': final String accessToken,
+        'refreshToken': final String refreshToken,
+      },
+      'consentRequired': final bool consentRequired,
+    }) {
+      return _Login(
+        accessToken,
+        refreshToken,
+        consentRequired: consentRequired,
+      );
+    }
+    throw const FormatException('unexpected LoginResponse');
+  }
+}
+
+/// `GET /v1/me` 응답(`Me`)에서 relay가 쓰는 값입니다.
+final class _Me {
+  const new(this.accountId, this.requiredConsents);
+
+  final String accountId;
+
+  /// 동의할 문서와 버전(`ConsentDocument`)입니다. 해석하지 않고 그대로 돌려보냅니다.
+  final List<Object?> requiredConsents;
+
+  /// [bytes]를 UTF-8 JSON으로 읽습니다. 아니거나 모양이 계약과 다르면 [FormatException]입니다.
+  static _Me parse(List<int> bytes) {
+    if (_decodeJson(bytes) case {
+      'accountId': final String accountId,
+      'requiredConsents': final List<Object?> requiredConsents,
+    }) {
+      return _Me(accountId, requiredConsents);
+    }
+    throw const FormatException('unexpected Me');
+  }
+}
 
 /// `/session` 요청 본문입니다. `profile`은 기본 false, `adFreeDays`는 기본 0입니다.
 final class _SessionRequest {

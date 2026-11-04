@@ -76,7 +76,7 @@ Future<void> _serve(StagingRelay relay, HttpRequest request) async {
   try {
     final text = await utf8.decodeStream(request);
     Object? body;
-    var result = const RelayResponse(400, '{"error":"invalid json"}');
+    var result = RelayResponse.json(400, {'error': 'invalid json'});
     var parsed = true;
     if (text.isNotEmpty) {
       try {
@@ -94,7 +94,7 @@ Future<void> _serve(StagingRelay relay, HttpRequest request) async {
       ..statusCode = result.status
       ..headers.contentType = ContentType.parse(result.contentType)
       ..headers.set(HttpHeaders.cacheControlHeader, 'no-store')
-      ..add(utf8.encode(result.body));
+      ..add(result.bytes);
   } on Object catch (error) {
     // 예외 내용에 요청 값이 섞일 수 있어 종류만 남깁니다.
     _say('${request.method} ${request.uri.path} → 500 (${error.runtimeType})');

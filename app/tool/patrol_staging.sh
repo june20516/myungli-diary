@@ -116,7 +116,7 @@ relay_pid=$!
 
 # 0.25초마다 확인합니다. relay가 죽으면 기다리지 않고 바로 끝냅니다.
 ticks=0
-until curl -s -o /dev/null --max-time 1 "$relay_url/ready"; do
+until curl -sf -o /dev/null --max-time 1 "$relay_url/ready"; do
   if ! kill -0 "$relay_pid" 2>/dev/null || ((ticks >= relay_ready_timeout * 4)); then
     say "relay 준비 안 됨(로그 $relay_log)"
     tail -5 "$relay_log" | sed 's/^/  /'
