@@ -13,7 +13,8 @@ test_login_enabled   = false
 billing_enabled      = true # AD_FREE_PRODUCT_IDS는 App Store, Play 상품의 RevenueCat 상품 id(prod…)입니다(S124).
 
 # 공개 값만 둡니다(spec §5). 빈 값은 아직 오지 않은 값이고, 필수 값이 비어 있으면 server 배포를 건너뜁니다.
-# TRUSTED_PROXY_HOPS는 Firebase Hosting 앞단의 X-Forwarded-For 위치를 staging에서 확인해 정합니다(S117).
+# TRUSTED_PROXY_HOPS=2: 공개 주소(Firebase Hosting)로 온 요청의 X-Forwarded-For가 [보낸 사람, Hosting]이라 오른쪽 두 번째가
+# 보낸 사람입니다. Hosting은 보낸 사람이 붙인 값을 버리고 새로 씁니다. 직접 주소(run.app)에 남는 위험은 S135에 있습니다.
 # 문의 메일(S134): Secret RESEND_API_KEY에 값을 넣은 뒤 true로 바꿉니다. 그 전에는 createInquiry가 503입니다.
 support_mail_enabled = false
 
@@ -39,5 +40,5 @@ server_settings = {
   SUPPORT_MAIL_FROM       = "명리일기 <noreply@myungli-diary.app>"
   SUPPORT_MAIL_TO         = "support@myungli-diary.app"
   TOKEN_ENCRYPTION_KEY_ID = "tok-2026-1"
-  TRUSTED_PROXY_HOPS      = ""
+  TRUSTED_PROXY_HOPS      = "2"
 }
