@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:flutter_riverpod/misc.dart' show Override, ProviderBase;
 import 'package:myungli_diary/app/auth_sdk_setup.dart';
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
@@ -66,6 +66,8 @@ var _licensesRegistered = false;
 /// 시계와 프로필 시간대는 시나리오 `today`의 현지 정오와 시나리오 timezone으로 바꿉니다.
 /// 테스트는 [installErrorHandlers]를 꺼 테스트 틀의 오류 처리를 지킵니다.
 /// [deviceLocale]을 주면 시나리오의 `locale`보다 먼저 쓰입니다.
+/// [skipRealPlatform]에 든 provider는 http 모드의 실제 adapter override를 넣지 않으며,
+/// 건너뛴 provider는 [overrides]로 채웁니다.
 /// [crashlyticsSelfTest]면(`CRASHLYTICS_SELF_TEST` 빌드) 보고 준비가 끝난 뒤 시험용 비치명 오류
 /// [CrashlyticsSelfTest]를 한 번 기록합니다(#739).
 ///
@@ -77,6 +79,7 @@ Future<ProviderContainer> bootstrap({
   bool installErrorHandlers = true,
   Locale? deviceLocale,
   bool crashlyticsSelfTest = crashlyticsSelfTestBuild,
+  Set<ProviderBase<Object?>> skipRealPlatform = const {},
 }) async {
   final resolvedMode = mode ?? apiModeFromEnvironment();
   if (kReleaseMode && resolvedMode == ApiMode.fake) {
@@ -104,7 +107,7 @@ Future<ProviderContainer> bootstrap({
       ...profileLanguageOverrides,
       ...depthSheetBodyOverrides,
       ...daySheetBodyOverrides,
-      ...realPlatformOverrides(resolvedMode),
+      ...realPlatformOverrides(resolvedMode, skip: skipRealPlatform),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),
         scenarioProvider.overrideWithValue(scenario),
@@ -216,61 +219,88 @@ void reportAdLoadFailure(
 /// 로그인 adapter 다섯은 `config/auth.json`(A81) 값이 비면 로그인할 때
 /// `ProviderNotConfigured`를 던집니다. http 모드에서 로그인 대역을 쓰지 않는 것은 가짜
 /// 토큰을 실제 server에 보내지 않기 위해서입니다.
+///
+/// [skip]에 든 provider는 실제 adapter override를 넣지 않습니다. 건너뛴 provider는 부르는
+/// 쪽이 `overrides`로 채웁니다(같은 provider를 한 container에서 두 번 override하면
+/// Riverpod이 AssertionError를 냅니다).
 @visibleForTesting
-List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
+List<Override> realPlatformOverrides(
+  ApiMode mode, {
+  Set<ProviderBase<Object?>> skip = const {},
+}) => switch (mode) {
   ApiMode.fake => const [],
   ApiMode.http => [
-    appCheckProvider.overrideWithValue(const FirebaseAppCheckAdapter()),
-    crashReporterProvider.overrideWithValue(const FirebaseCrashReporter()),
-    pushMessagingProvider.overrideWithValue(const FirebasePushMessaging()),
-    purchasesProvider.overrideWith(
-      (ref) => RevenueCatPurchases(
-        apiKey: revenueCatApiKey(platform: ref.watch(targetPlatformProvider)),
-        productIds: ref.watch(adFreeProductIdsProvider),
-      ),
-    ),
-    adConsentProvider.overrideWith(
-      (ref) => UmpAdConsent(
-        isIOS: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
-      ),
-    ),
-    adsProvider.overrideWith(realAds),
-    deviceInfoReaderProvider.overrideWith(
-      (ref) =>
-          PlatformDeviceInfoReader(platform: ref.watch(targetPlatformProvider)),
-    ),
-    shareSheetProvider.overrideWithValue(const OsShareSheet()),
-    notificationChannelsProvider.overrideWith(
-      (ref) => LocalNotificationChannels(
-        isAndroid: ref.watch(targetPlatformProvider) == TargetPlatform.android,
-      ),
-    ),
-    deviceTimezoneProvider.overrideWithValue(const FlutterDeviceTimezone()),
-    storeLauncherProvider.overrideWithValue(const UrlStoreLauncher()),
-    externalBrowserProvider.overrideWithValue(const UrlExternalBrowser()),
-    kakaoAuthProvider.overrideWith(
-      (ref) => KakaoSdkAuth(config: ref.watch(authConfigProvider)),
-    ),
-    lineAuthProvider.overrideWith(
-      (ref) => LineSdkAuth(config: ref.watch(authConfigProvider)),
-    ),
-    googleAuthProvider.overrideWith(
-      (ref) => GoogleSdkAuth(
-        config: ref.watch(authConfigProvider),
-        isIos: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
-        nonces: ref.watch(nonceGeneratorProvider),
-      ),
-    ),
-    appleNativeAuthProvider.overrideWithValue(
-      const SignInWithAppleNativeAuth(),
-    ),
-    appleWebAuthProvider.overrideWith(
-      (ref) => WebAuthAppleWebAuth(
-        config: ref.watch(authConfigProvider),
-        nonces: ref.watch(nonceGeneratorProvider),
-      ),
-    ),
+    for (final entry in _httpPlatformOverrides().entries)
+      if (!skip.contains(entry.key)) entry.value,
   ],
+};
+
+/// http 모드의 실제 adapter override를 provider별로 모아 둡니다.
+Map<ProviderBase<Object?>, Override> _httpPlatformOverrides() => {
+  appCheckProvider: appCheckProvider.overrideWithValue(
+    const FirebaseAppCheckAdapter(),
+  ),
+  crashReporterProvider: crashReporterProvider.overrideWithValue(
+    const FirebaseCrashReporter(),
+  ),
+  pushMessagingProvider: pushMessagingProvider.overrideWithValue(
+    const FirebasePushMessaging(),
+  ),
+  purchasesProvider: purchasesProvider.overrideWith(
+    (ref) => RevenueCatPurchases(
+      apiKey: revenueCatApiKey(platform: ref.watch(targetPlatformProvider)),
+      productIds: ref.watch(adFreeProductIdsProvider),
+    ),
+  ),
+  adConsentProvider: adConsentProvider.overrideWith(
+    (ref) => UmpAdConsent(
+      isIOS: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
+    ),
+  ),
+  adsProvider: adsProvider.overrideWith(realAds),
+  deviceInfoReaderProvider: deviceInfoReaderProvider.overrideWith(
+    (ref) =>
+        PlatformDeviceInfoReader(platform: ref.watch(targetPlatformProvider)),
+  ),
+  shareSheetProvider: shareSheetProvider.overrideWithValue(
+    const OsShareSheet(),
+  ),
+  notificationChannelsProvider: notificationChannelsProvider.overrideWith(
+    (ref) => LocalNotificationChannels(
+      isAndroid: ref.watch(targetPlatformProvider) == TargetPlatform.android,
+    ),
+  ),
+  deviceTimezoneProvider: deviceTimezoneProvider.overrideWithValue(
+    const FlutterDeviceTimezone(),
+  ),
+  storeLauncherProvider: storeLauncherProvider.overrideWithValue(
+    const UrlStoreLauncher(),
+  ),
+  externalBrowserProvider: externalBrowserProvider.overrideWithValue(
+    const UrlExternalBrowser(),
+  ),
+  kakaoAuthProvider: kakaoAuthProvider.overrideWith(
+    (ref) => KakaoSdkAuth(config: ref.watch(authConfigProvider)),
+  ),
+  lineAuthProvider: lineAuthProvider.overrideWith(
+    (ref) => LineSdkAuth(config: ref.watch(authConfigProvider)),
+  ),
+  googleAuthProvider: googleAuthProvider.overrideWith(
+    (ref) => GoogleSdkAuth(
+      config: ref.watch(authConfigProvider),
+      isIos: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
+      nonces: ref.watch(nonceGeneratorProvider),
+    ),
+  ),
+  appleNativeAuthProvider: appleNativeAuthProvider.overrideWithValue(
+    const SignInWithAppleNativeAuth(),
+  ),
+  appleWebAuthProvider: appleWebAuthProvider.overrideWith(
+    (ref) => WebAuthAppleWebAuth(
+      config: ref.watch(authConfigProvider),
+      nonces: ref.watch(nonceGeneratorProvider),
+    ),
+  ),
 };
 
 Future<Scenario> _pickScenario(String? requestedId) async {
