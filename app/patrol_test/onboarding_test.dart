@@ -132,9 +132,22 @@ void main() {
 
     // 돌아온 출생지에서 도시를 찾아 고르면 미리보기로 갑니다.
     await expectScreen($, ScreenIds.birthplace, state: 'returned');
-    await $(EditableText).enterText('new');
-    await $('New York City').waitUntilVisible();
-    await $('New York City').tap();
+    // fake는 고정 목록, staging은 실제 검색이라 이름(New York City, New York)이 다릅니다.
+    // 두 모드 모두 첫 결과 행을 key 접두사로 눌러 같은 도시를 고릅니다.
+    await $(EditableText).enterText('new york');
+    final cityRows = find.byWidgetPredicate(
+      (widget) =>
+          widget.key is ValueKey<String> &&
+          (widget.key! as ValueKey<String>).value.startsWith(
+            'city-search-row-',
+          ),
+    );
+    // 결과가 올 때까지 기다린 뒤 첫 행을 누릅니다(빈 finder의 first는 오류).
+    await $(cityRows).waitUntilExists();
+    // 행 자체의 가운데는 빈 공간일 수 있어, 행 안의 첫 글자(도시 이름)를 누릅니다.
+    await $(
+      find.descendant(of: cityRows.first, matching: find.byType(Text)).first,
+    ).tap();
     await expectScreen($, ScreenIds.preview);
   });
 }
