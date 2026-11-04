@@ -11,7 +11,7 @@ locals {
 
   # 비밀은 Secret Manager에 두고 환경 변수 이름을 Secret id로 씁니다(spec §5).
   secret_ids = concat(
-    ["JWT_SIGNING_KEY", "TOKEN_ENCRYPTION_KEY", "KAKAO_ADMIN_KEY", "APPLE_PRIVATE_KEY", "REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH"],
+    ["JWT_SIGNING_KEY", "TOKEN_ENCRYPTION_KEY", "KAKAO_ADMIN_KEY", "APPLE_PRIVATE_KEY", "REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH", "RESEND_API_KEY"],
     var.test_login_enabled ? ["TEST_LOGIN_SECRET"] : [],
     var.jwt_previous_key_id != "" ? ["JWT_PREVIOUS_KEY"] : [],
     var.token_previous_key_id != "" ? ["TOKEN_PREVIOUS_KEY"] : [],
@@ -31,8 +31,13 @@ locals {
     "TOKEN_ENCRYPTION_KEY_ID",
   ], var.billing_enabled ? local.billing_settings : [])
 
-  # 값(버전)이 있어야 하고 server에 붙이는 Secret입니다. Secret 틀은 결제가 꺼져 있어도 secret_ids 전부를 만듭니다.
-  server_secret_ids = [for id in local.secret_ids : id if var.billing_enabled || !contains(local.billing_secrets, id)]
+  # 문의 메일(Resend, S134)입니다. support_mail_enabled가 false면 키를 붙이지 않고, server는 문의 접수만 503으로 둡니다.
+  support_secrets = ["RESEND_API_KEY"]
+  # 값(버전)이 있어야 하고 server에 붙이는 Secret입니다. Secret 틀은 결제나 문의 메일이 꺼져 있어도 secret_ids 전부를 만듭니다.
+  server_secret_ids = [
+    for id in local.secret_ids : id
+    if(var.billing_enabled || !contains(local.billing_secrets, id)) && (var.support_mail_enabled || !contains(local.support_secrets, id))
+  ]
 
   server_env = merge(
     { for name, value in var.server_settings : name => value if value != "" && (var.billing_enabled || !contains(local.billing_settings, name)) },

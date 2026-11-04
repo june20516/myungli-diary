@@ -215,6 +215,8 @@ type API struct {
 	Schedules ScheduleService
 	// Devices는 알림 기기 저장소입니다. 비어 있으면 registerDevice·deleteDevice는 503 service.unavailable입니다.
 	Devices DeviceService
+	// Inquiries는 앱 안 문의(D102, S134)를 운영 메일함으로 보냅니다. nil이면 createInquiry가 503입니다.
+	Inquiries InquirySubmitter
 	// DB는 헬스 체크의 ping에 씁니다.
 	DB *pgxpool.Pool
 	// Logger는 오류를 응답 대신 redirect로 알리는 핸들러(Apple 웹 콜백)와 결제 핸들러(webhook·구매 복원)가 원인을 남길 때 씁니다.

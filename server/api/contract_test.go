@@ -26,7 +26,8 @@ var expectedOperationIDs = []string{
 	"getGlossary", "createPreview", "getBirthHour", "convertLunarDate",
 	"listDiaries", "createDiary", "getDiary", "updateDiary", "deleteDiary", "restoreDiary",
 	"listSchedules", "createSchedule", "updateSchedule", "deleteSchedule", "restoreSchedule",
-	"registerDevice", "deleteDevice",
+	"registerDevice",
+	"createInquiry", "deleteDevice",
 	"getEntitlements", "restorePurchases", "revenuecatWebhook", "admobRewardCallback",
 	"listCities", "getAppConfig", "checkHealth", "getHealth",
 	"loginLine", "loginGoogle", "listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts", "listPurchases",
@@ -210,7 +211,7 @@ func TestContract_CreatePostsAcceptIdempotencyKey(t *testing.T) {
 		operations[operationID] = op
 	})
 
-	for _, operationID := range []string{"createSchedule", "registerDevice", "createDiary", "mergeAccounts"} {
+	for _, operationID := range []string{"createSchedule", "registerDevice", "createDiary", "mergeAccounts", "createInquiry"} {
 		op := operations[operationID]
 		if op == nil {
 			t.Errorf("%s: operation이 없음", operationID)
@@ -689,8 +690,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // TestContract_VersionIsFrozen은 v1의 현재 버전을 고정합니다. freeze(1.0.0) 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114~S116, S126)
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.3.0" {
-		t.Errorf("info.version = %q, want 1.3.0", doc.Info.Version)
+	if doc.Info.Version != "1.4.0" {
+		t.Errorf("info.version = %q, want 1.4.0", doc.Info.Version)
 	}
 }
 

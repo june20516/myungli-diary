@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/mail"
 	"net/url"
 	"regexp"
 	"slices"
@@ -439,4 +440,45 @@ func splitList(raw string) []string {
 		}
 	}
 	return items
+}
+
+// defaultSupportMailTo는 문의를 받는 운영 메일함입니다(E14).
+const defaultSupportMailTo = "support@myungli-diary.app"
+
+// SupportConfig는 앱 안 문의 메일 설정입니다(D102, S134).
+type SupportConfig struct {
+	// ResendAPIKey는 Resend API 키(Secret RESEND_API_KEY)입니다. 비어 있으면 문의 발송을 끈 채 시작합니다.
+	ResendAPIKey string
+	// From은 보내는 주소(인증한 도메인, 표시 이름 포함 가능)입니다.
+	From string
+	// To는 받는 운영 메일함입니다.
+	To string
+}
+
+// Configured는 문의 메일을 보낼 수 있는지 알려 줍니다.
+func (c SupportConfig) Configured() bool { return c.ResendAPIKey != "" }
+
+// LoadSupport는 RESEND_API_KEY, SUPPORT_MAIL_FROM, SUPPORT_MAIL_TO를 읽습니다. 키가 없으면 어느 환경에서든 시작은 하고
+// createInquiry만 503입니다(키를 넣기 전에도 배포가 멈추지 않게). 키가 있으면 보내는 주소가 필요하고,
+// 두 주소는 메일 주소로 읽혀야 합니다(받는 주소는 표시 이름 없이). 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadSupport(getenv func(string) string) (SupportConfig, error) {
+	getenv = trimmedEnv(getenv)
+	cfg := SupportConfig{
+		ResendAPIKey: getenv("RESEND_API_KEY"),
+		From:         getenv("SUPPORT_MAIL_FROM"),
+		To:           orDefault(getenv("SUPPORT_MAIL_TO"), defaultSupportMailTo),
+	}
+	if to, err := mail.ParseAddress(cfg.To); err != nil || to.Name != "" || to.Address != cfg.To {
+		return SupportConfig{}, errors.New("SUPPORT_MAIL_TO는 표시 이름 없는 메일 주소 하나여야 합니다")
+	}
+	if !cfg.Configured() {
+		return cfg, nil
+	}
+	if cfg.From == "" {
+		return SupportConfig{}, errors.New("RESEND_API_KEY가 있으면 SUPPORT_MAIL_FROM이 필요합니다")
+	}
+	if _, err := mail.ParseAddress(cfg.From); err != nil {
+		return SupportConfig{}, errors.New("SUPPORT_MAIL_FROM은 메일 주소여야 합니다(표시 이름 포함 가능)")
+	}
+	return cfg, nil
 }
