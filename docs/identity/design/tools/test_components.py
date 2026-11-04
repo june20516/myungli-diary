@@ -439,7 +439,7 @@ def test_actions_are_rounded_rectangles():
 
 
 def test_contract_version_is_3_0():
-    assert VERSION == "3.3.0"
+    assert VERSION == "3.4.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -732,8 +732,26 @@ def test_date_picker_solar_has_no_lunar_parts():
 def test_text_field_multiline_grows_to_six_lines():
     field = component("input", "text-field")
     multiline = next(v for v in field["variants"] if v["id"] == "multiline")
-    assert multiline["parts"]["container"] == {"maxLines": 6, "overflow": "scroll"}
+    assert multiline["parts"]["container"] == {"minLines": 1, "maxLines": 6, "overflow": "scroll"}
     assert multiline["parts"]["keyboard"] == {"type": "multiline", "action": "newline"}
+
+
+def test_text_field_label_error_line_and_email_for_contact():
+    # D102 문의 화면: 칸이 둘이라 칸 위 이름, input-step 밖 오류 줄, 메일 키보드 (#763, 결정 V55)
+    field = component("input", "text-field")
+    label, error_line = field["parts"]["label"], field["parts"]["errorLine"]
+    assert (label["type"], label["marginBottom"], label["optional"]) == ("{type.label.md}", "{space.8}", True)
+    input_step_error = component("input", "input-step")["parts"]["errorLine"]
+    assert {k: error_line[k] for k in input_step_error} == input_step_error
+    email = next(v for v in field["variants"] if v["id"] == "email")
+    assert email["parts"]["keyboard"]["type"] == "email" and email["parts"]["keyboard"]["autocorrect"] is False
+    assert any("minLines 4" in rule for rule in field["rules"])
+    layout = (COMPONENTS_DIR / "input.md").read_text(encoding="utf-8").split("### contact 화면 배치", 1)[1]
+    ia = json.loads((DESIGN_DIR.parents[2] / "docs" / "ia" / "screens.json").read_text(encoding="utf-8"))
+    contact = next(screen for screen in ia["screens"] if screen["id"] == "contact")
+    # IA 슬롯이 배치에 모두 나옴
+    assert all(f"`{slot['id']}`" in layout for slot in contact["slots"])
+    assert "contactEmailInvalid" in layout and "contactSendFailed" in layout
 
 
 def test_event_row_has_no_duration_and_reads_more():

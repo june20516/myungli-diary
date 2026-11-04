@@ -1,6 +1,6 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 3.3.0 · 토큰 계약 1.2.0 이상을 기대합니다.
+컴포넌트 계약 3.4.0 · 토큰 계약 1.2.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), [로그인 수단·계정 합치기 spec](../specs/2026-10-22-login-methods-account-merge-design.md), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md), [계정 합치기·구매 내역 spec](../specs/2026-10-23-account-merge-purchase-design.md), 결정 V13~V46([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v4([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
@@ -89,6 +89,7 @@ IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 3.1.0 | 2026-10-27 | W44·#564: `purchase-row` `meta`는 구매일 줄과 사용 기간 줄 두 줄(사이 `space.2`)이고 구분자 `join`(`purchaseMetaSeparator`)을 지움(V47). #548: `offer-card` `buy`·`period`에 IA 슬롯 `ad-free.buy.cta`·`ad-free.offer.period`. 하위 필드 삭제와 슬롯 추가(app은 #569로 이미 구분자를 지움) |
 | 3.2.0 | 2026-10-28 | #353: `daeun-table` 대운 기둥 천간·지지 십성과 12운성, 세운 천간 십성 `term-token` `label`, 라벨 두 줄 줄바꿈과 높이 맞춤, `manse-table` 지장간 십성 두 줄 묶음과 12운성·신살 값 칸(V49). #354: `notice-banner` `error`(`cloud-warning`, 버튼 없음), `stateMap.error`에 `notice-banner`, `settings-row` `groupNote`(V50), toast는 아래 고정 버튼 위(V51). #587: `account-choice` 사주 줄 윤달 자리(V48). 추가와 값 변경 |
 | 3.3.0 | 2026-11-03 | #546: `lucky-card` `time`은 구간마다 칩 하나(`repeat`, 최대 2), 언어별 범위 표기 `format`, `join` 삭제, 칩 줄 최대 7, 공유 이미지는 첫 구간(V52). #710: `manse-table` 행 머리 두 줄 규칙과 슬롯, `daeun-table` 꼬리표 폭과 슬롯, `tag.me` 최대 폭, `saju-pillars` 열 머리 슬롯(V53), `settings-row` 값 앞 `space.8`, 근거 시트 `personalEmpty`(V54). 하위 필드 삭제와 추가 |
+| 3.4.0 | 2026-11-04 | D102 문의 화면(#758·#763): `text-field`에 칸 위 이름 `label`과 칸 오류 줄 `errorLine`(선택 부품), 메일 주소 변형 `email`, `multiline`의 `minLines`와 안내 두 줄, `contact` 화면 배치(V55). 쓰는 화면에 contact. 추가만 |
 
 ## 검사 (design)
 

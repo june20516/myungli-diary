@@ -77,6 +77,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **O1 관측(브랜치 `server/o1-observability`, #738):** bootstrap에 메일 channel과 월 예산(로컬 값 K14), env에 알림 정책 7종(5xx, 지연, 인스턴스, Cloud SQL CPU와 연결 수, Job 실패, uptime)과 staging uptime check, staging 시험 오류 경로 `GET /test/v1/server-error`, 대응 절차 [`docs/runbook/alerts.md`](docs/runbook/alerts.md). 결정 S133.
 * **앱 안 문의(브랜치 `server/d102-contact`, #754):** 계약 1.4.0 `createInquiry`(`POST /v1/support/inquiries`)가 문의를 Resend로 `support@myungli-diary.app`에 보냅니다(Reply-To 사용자, 계정당 1시간 5번, 내용 저장 없음). 키는 Secret `RESEND_API_KEY`와 tfvars `support_mail_enabled`. 결정 S134.
 * **`TRUSTED_PROXY_HOPS` 측정(브랜치 `server/trusted-proxy-hops`):** 공개 주소로 온 요청이 Hosting 주소로 보여 IP별 한도를 모두 함께 쓰는 문제를 확인했습니다. staging 확인 경로 `GET /test/v1/client-ip`로 홉 수를 재고 tfvars에 넣습니다. 결정 S135.
+* **로그 제외(브랜치 `server/log-exclusion-apple`):** Cloud Run 요청 로그에서 `GET /auth/apple?…`(일회용 교환 코드)를 받지 않는 프로젝트 로그 제외를 bootstrap에 둡니다. 결정 S136.
 * **DB 계정 분리(브랜치 `server/migrator-split`):** migration과 seed는 `server-migrator`(DDL), 런타임은 `myungli_app` 구성원(읽기와 쓰기만). migration 00024, `migrate up`의 `DB_RUNTIME_USER` 지정과 `cloudsqlsuperuser` 소속 확인. staging은 DB를 다시 만듭니다. 결정 S137.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
@@ -88,5 +89,5 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 2. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
-5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 그때 정합니다. 남은 P9: OpenTelemetry, 로그 제외 필터(`/auth/apple` query), 알림 발송 Job(P8-4). migration 전용 계정 분리는 S137로 끝났습니다.
+5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 그때 정합니다. 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
 6. app 질문이 오면 답합니다.
