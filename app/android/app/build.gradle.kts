@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurper
 import java.util.Base64
 import java.util.Properties
+import java.util.UUID
 
 plugins {
     id("com.android.application")
@@ -126,4 +127,47 @@ configurations.configureEach {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     androidTestUtil("androidx.test:orchestrator:1.5.1")
+}
+
+// Crashlytics mapping file id(#739, 결정 A105). Android Crashlytics는 이 리소스(build ID)가 없으면
+// 시작하지 않고(com.google.firebase.crashlytics.RequireBuildId 기본값), 같은 id로 올린 R8 mapping으로
+// 스택을 풉니다. 앱은 google-services 없이 Dart로 Firebase를 초기화하므로(A93) Crashlytics Gradle
+// 플러그인 대신 release 빌드마다 새 id를 만들어 넣고, mapping은 tool/upload_crashlytics_symbols.sh가
+// Firebase CLI(crashlytics:mappingfile:upload)로 이 파일과 함께 올립니다.
+abstract class CrashlyticsMappingIdTask : DefaultTask() {
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
+
+    @TaskAction
+    fun write() {
+        val values = outputDirectory.get().dir("values").asFile
+        values.mkdirs()
+        // 빌드마다 새 값입니다. 같은 id가 다른 mapping을 가리키지 않게 합니다.
+        val id = UUID.randomUUID().toString().replace("-", "")
+        values.resolve(MAPPING_ID_FILE).writeText(
+            """
+            |<?xml version="1.0" encoding="utf-8"?>
+            |<!-- build.gradle.kts가 release 빌드마다 만듭니다(#739). commit하지 않습니다. -->
+            |<resources xmlns:tools="http://schemas.android.com/tools">
+            |    <string name="com.google.firebase.crashlytics.mapping_file_id" tools:ignore="UnusedResources" translatable="false">$id</string>
+            |</resources>
+            |
+            """.trimMargin(),
+        )
+    }
+
+    companion object {
+        const val MAPPING_ID_FILE = "crashlytics_mapping_file_id.xml"
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        val name = variant.name.replaceFirstChar { it.uppercase() }
+        val task =
+            tasks.register<CrashlyticsMappingIdTask>("generate${name}CrashlyticsMappingId") {
+                outputs.upToDateWhen { false }
+            }
+        variant.sources.res?.addGeneratedSourceDirectory(task, CrashlyticsMappingIdTask::outputDirectory)
+    }
 }

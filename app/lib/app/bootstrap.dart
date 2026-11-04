@@ -65,6 +65,8 @@ var _licensesRegistered = false;
 /// 시계와 프로필 시간대는 시나리오 `today`의 현지 정오와 시나리오 timezone으로 바꿉니다.
 /// 테스트는 [installErrorHandlers]를 꺼 테스트 틀의 오류 처리를 지킵니다.
 /// [deviceLocale]을 주면 시나리오의 `locale`보다 먼저 쓰입니다.
+/// [crashlyticsSelfTest]면(`CRASHLYTICS_SELF_TEST` 빌드) 보고 준비가 끝난 뒤 시험용 비치명 오류
+/// [CrashlyticsSelfTest]를 한 번 기록합니다(#739).
 ///
 /// 컨테이너를 만든 뒤의 준비가 실패하면 오류 요약을 보고하고 컨테이너를 닫은 뒤 다시 던집니다.
 Future<ProviderContainer> bootstrap({
@@ -73,6 +75,7 @@ Future<ProviderContainer> bootstrap({
   List<Override> overrides = const [],
   bool installErrorHandlers = true,
   Locale? deviceLocale,
+  bool crashlyticsSelfTest = crashlyticsSelfTestBuild,
 }) async {
   final resolvedMode = mode ?? apiModeFromEnvironment();
   if (kReleaseMode && resolvedMode == ApiMode.fake) {
@@ -147,6 +150,13 @@ Future<ProviderContainer> bootstrap({
     for (final failure in failures) {
       reporter.record(CrashSummary.from(failure.error), failure.stack);
     }
+  }
+  if (crashlyticsSelfTest) {
+    // 보고 경로 확인용입니다. Firebase 초기화 뒤라 Crashlytics에 비치명 오류로 올라갑니다.
+    reporter.record(
+      CrashSummary.from(const CrashlyticsSelfTest()),
+      StackTrace.current,
+    );
   }
   try {
     if (scenario != null) {

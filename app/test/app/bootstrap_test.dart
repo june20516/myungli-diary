@@ -91,6 +91,36 @@ void main() {
     });
   });
 
+  group('Crashlytics 보고 경로 시험(#739)', () {
+    Future<FakeCrashReporter> boot({required bool selfTest}) async {
+      final reporter = FakeCrashReporter();
+      await AssetManifest.loadFromAssetBundle(rootBundle);
+      final container = await bootstrap(
+        mode: ApiMode.fake,
+        scenarioId: 'new-user',
+        installErrorHandlers: false,
+        crashlyticsSelfTest: selfTest,
+        overrides: [
+          ...testOverrides(),
+          crashReporterProvider.overrideWithValue(reporter),
+        ],
+      );
+      addTearDown(container.dispose);
+      return reporter;
+    }
+
+    test('시험 빌드면 부팅이 시험용 비치명 오류를 한 번 기록합니다', () async {
+      final reporter = await boot(selfTest: true);
+      expect(reporter.errors.map((e) => e.errorType), ['CrashlyticsSelfTest']);
+    });
+
+    test('평소 빌드(기본값)는 기록하지 않습니다', () async {
+      expect(crashlyticsSelfTestBuild, isFalse);
+      final reporter = await boot(selfTest: crashlyticsSelfTestBuild);
+      expect(reporter.errors, isEmpty);
+    });
+  });
+
   test('fake 모드는 시나리오 today의 현지 정오 시계와 시나리오 시간대를 씁니다', () async {
     final container = await bootstrapForTest('member');
     addTearDown(container.dispose);
