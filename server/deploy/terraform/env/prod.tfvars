@@ -5,8 +5,12 @@ project_number      = "21526308173"
 environment         = "prod"
 sql_tier            = "db-custom-1-3840"
 deletion_protection = true
-test_login_enabled  = false
-billing_enabled     = true # AD_FREE_PRODUCT_IDS는 App Store, Play 상품의 RevenueCat 상품 id(prod…)입니다(S124).
+# db-custom-1-3840(3.75GB)은 Cloud SQL max_connections 표의 3.75~6GB 행 100입니다(S133).
+sql_max_connections = 100
+# 공개 주소가 아직 server에 연결되지 않아(GET /health 404, 2026-11-04) uptime check는 출시 연결 때 켭니다(S133).
+uptime_check_enabled = false
+test_login_enabled   = false
+billing_enabled      = true # AD_FREE_PRODUCT_IDS는 App Store, Play 상품의 RevenueCat 상품 id(prod…)입니다(S124).
 
 # 공개 값만 둡니다(spec §5). 빈 값은 아직 오지 않은 값이고, 필수 값이 비어 있으면 server 배포를 건너뜁니다.
 # TRUSTED_PROXY_HOPS는 Firebase Hosting 앞단의 X-Forwarded-For 위치를 staging에서 확인해 정합니다(S117).

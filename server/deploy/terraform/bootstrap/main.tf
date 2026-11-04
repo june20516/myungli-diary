@@ -4,6 +4,7 @@
 locals {
   services = [
     "artifactregistry.googleapis.com",
+    "billingbudgets.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "cloudscheduler.googleapis.com",
     "compute.googleapis.com",
@@ -12,6 +13,7 @@ locals {
     "fcm.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
+    "monitoring.googleapis.com",
     "run.googleapis.com",
     "secretmanager.googleapis.com",
     "sqladmin.googleapis.com",
@@ -28,6 +30,10 @@ locals {
     "roles/firebasehosting.admin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
+    # 알림 정책과 uptime check는 env가 만들고, 받는 곳(channel)은 bootstrap이 만든 것을 읽기만 합니다(S133).
+    "roles/monitoring.alertPolicyEditor",
+    "roles/monitoring.notificationChannelViewer",
+    "roles/monitoring.uptimeCheckConfigEditor",
     "roles/resourcemanager.projectIamAdmin",
     "roles/run.admin",
     "roles/secretmanager.admin",
@@ -43,6 +49,9 @@ locals {
     "roles/dns.reader",
     "roles/iam.securityReviewer",
     "roles/iam.serviceAccountViewer",
+    "roles/monitoring.alertPolicyViewer",
+    "roles/monitoring.notificationChannelViewer",
+    "roles/monitoring.uptimeCheckConfigViewer",
     "roles/run.viewer",
     "roles/secretmanager.viewer",
   ]
