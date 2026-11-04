@@ -17,3 +17,8 @@ output "state_bucket" {
   description = "env module의 backend bucket"
   value       = google_storage_bucket.tfstate.name
 }
+
+output "alert_channel_name" {
+  description = "env 알림 정책이 찾는 알림 받는 곳(channel)의 display_name(S133)"
+  value       = local.alert_channel_name
+}

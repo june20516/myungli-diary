@@ -4,8 +4,8 @@
 
 | 디렉터리 | 누가 apply | 내용 |
 | --- | --- | --- |
-| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번 | API, state bucket, Artifact Registry, WIF, `deployer`·`planner` |
-| `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진·server, Job, Scheduler |
+| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번 | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133) |
+| `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진·server, Job, Scheduler, 알림 정책과 uptime check(S133) |
 
 ## 처음 한 번 (프로젝트마다)
 
@@ -21,7 +21,11 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
    ```
 
    state bucket이 아직 없는 새 프로젝트는 아래 "새 프로젝트"를 먼저 합니다.
-4. `terraform apply -var-file="$env.tfvars"` (`staging.tfvars`, `prod.tfvars`에 프로젝트와 environment가 짝으로 있습니다. deployer는 그 environment의 main job만 씁니다)
+4. 로컬 값 파일을 준비하고(아래 "알림과 예산 값") apply합니다. `staging.tfvars`, `prod.tfvars`에 프로젝트와 environment가 짝으로 있습니다. deployer는 그 environment의 main job만 씁니다.
+
+   ```sh
+   terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"
+   ```
 5. 출력값을 GitHub 저장소 변수로 넣습니다.
 
 | 변수 | 값 |
@@ -40,6 +44,21 @@ printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프
 
 Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, staging만 `TEST_LOGIN_SECRET`. 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
 
+### 알림과 예산 값
+
+알림 받는 메일 주소, 결제 계정 id, 월 예산은 공개 저장소에 적지 않습니다(D74, D98 L3, `docs/local-values.md` K14). 환경마다 `$MYUNGLI_LOCAL_DIR/server/<환경>/observability.tfvars`(폴더 700, 파일 600)에 둡니다.
+
+```hcl
+alert_email        = "<알림 받을 메일>"
+billing_account_id = "<XXXXXX-XXXXXX-XXXXXX>"   # gcloud billing projects describe <프로젝트> 의 billingAccountName 뒷부분
+budget_amount      = <정수>                      # 결제 계정 통화 기준 월 예산
+budget_currency    = "<KRW 또는 USD 등>"          # 결제 계정 통화와 같아야 합니다
+```
+
+* apply하는 사용자에게 결제 계정의 Billing Account Costs Manager 이상 역할이 있어야 예산을 만들 수 있습니다.
+* 알림이 그 주소로 정말 오는지는 S133의 staging 시험 오류(`GET /test/v1/server-error`)로 확인합니다(`server/docs/runbook/alerts.md` 1절).
+* env의 알림 정책은 이 channel을 이름(`myungli-alerts`)으로 찾으므로, **알림 정책이 든 env를 처음 배포하기 전에 두 프로젝트 bootstrap을 이 파일로 다시 apply해야 합니다.** 그 전에는 PR의 plan이 channel을 찾지 못해 실패합니다.
+
 ### 새 프로젝트
 
 state bucket은 bootstrap이 만들지만 backend가 그 bucket을 쓰므로, 처음에는 bucket만 손으로 만들고 Terraform으로 가져옵니다.
@@ -49,8 +68,8 @@ gcloud storage buckets create "gs://${project}-tfstate" --project "$project" --l
   --uniform-bucket-level-access --public-access-prevention
 gcloud storage buckets update "gs://${project}-tfstate" --versioning
 terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
-terraform import -var-file="$env.tfvars" google_storage_bucket.tfstate "${project}-tfstate"
-terraform apply -var-file="$env.tfvars"
+terraform import -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars" google_storage_bucket.tfstate "${project}-tfstate"
+terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"
 ```
 
 ## 첫 배포 순서
