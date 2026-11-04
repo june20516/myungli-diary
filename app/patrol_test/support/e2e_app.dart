@@ -93,3 +93,19 @@ Future<void> closeSheets(PatrolIntegrationTester $) async {
   }
   expect(scrim, findsNothing, reason: '열린 시트가 모두 닫혀야 합니다');
 }
+
+/// [done]이 참이 될 때까지 프레임을 돌립니다(서버 응답, 화면 움직임, 광고처럼 실제 시간이 드는 일을
+/// 기다림). [timeout] 안에 참이 되지 않으면 [StateError]입니다.
+Future<void> waitUntil(
+  PatrolIntegrationTester $,
+  bool Function() done, {
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final deadline = DateTime.now().add(timeout);
+  while (!done()) {
+    if (DateTime.now().isAfter(deadline)) {
+      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
+    }
+    await $.pump(const Duration(milliseconds: 100));
+  }
+}

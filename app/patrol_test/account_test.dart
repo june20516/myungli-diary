@@ -23,21 +23,6 @@ Finder _button(SocialProvider provider) => find.byWidgetPredicate(
 bool _connected(PatrolIntegrationTester $, SocialProvider provider) =>
     $.tester.widget<SocialLoginButton>(_button(provider)).connected;
 
-/// [done]이 참이 될 때까지 프레임을 돌립니다(대역 서버 응답을 기다림).
-Future<void> _waitUntil(
-  PatrolIntegrationTester $,
-  bool Function() done, {
-  Duration timeout = const Duration(seconds: 20),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!done()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
-    }
-    await $.pump(const Duration(milliseconds: 100));
-  }
-}
-
 void main() {
   patrolTest(
     '설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기',
@@ -67,7 +52,7 @@ void main() {
       await $(find.byKey(SettingsScreen.loginMethodsRowKey)).scrollTo().tap();
 
       await expectScreen($, ScreenIds.loginMethods);
-      await _waitUntil(
+      await waitUntil(
         $,
         () => _button(SocialProvider.kakao).evaluate().isNotEmpty,
       );
@@ -75,7 +60,7 @@ void main() {
 
       // LINE 붙이기: 목록에 LINE이 생깁니다.
       await $(_button(SocialProvider.line)).tap();
-      await _waitUntil($, () => _connected($, SocialProvider.line));
+      await waitUntil($, () => _connected($, SocialProvider.line));
 
       // Google 붙이기: 다른 계정이 쓰는 인증 수단이라 안내만 뜨고 화면에 남습니다.
       await $(_button(SocialProvider.google)).tap();
@@ -94,7 +79,7 @@ void main() {
       await $(find.byKey(AccountChoice.cardKey(1))).tap();
       await $(find.byKey(AccountMergeScreen.mergeCtaKey)).scrollTo().tap();
       await $.tap(find.text('합치기').last);
-      await _waitUntil(
+      await waitUntil(
         $,
         () => find
             .byKey(const ValueKey(ScreenIds.accountMerge))

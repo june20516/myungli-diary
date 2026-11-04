@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/screen_breadcrumbs.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -20,6 +19,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/diary/model/diary_pick_date_label.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -198,8 +198,7 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
     final locale = Localizations.localeOf(context).toString();
     final marked =
         ref.watch(diaryDatesProvider(_month)).value ?? const <CalendarDate>{};
-    final dateLabel = DateFormat.MMMd(locale)
-        .format(DateTime(_selected.year, _selected.month, _selected.day));
+    final dateLabel = diaryPickDateLabel(_selected, locale);
     final count = ref.watch(diariesOnProvider(_selected)).value?.length ?? 0;
     final full = diaryWriteEntryOf(count) == DiaryWriteEntry.full;
     return SingleChildScrollView(

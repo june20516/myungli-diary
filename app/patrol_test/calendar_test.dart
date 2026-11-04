@@ -49,21 +49,6 @@ bool _hasEventDot(CalendarDate date) => find
     .evaluate()
     .isNotEmpty;
 
-/// [done]이 참이 될 때까지 프레임을 돌립니다(대역 서버 응답·시트 움직임을 기다림).
-Future<void> _waitUntil(
-  PatrolIntegrationTester $,
-  bool Function() done, {
-  Duration timeout = const Duration(seconds: 20),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!done()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
-    }
-    await $.pump(const Duration(milliseconds: 100));
-  }
-}
-
 void main() {
   patrolTest('member: 오늘 일정 줄 → 그날 시트, 달력 다음 달 날짜에 일정을 넣고 점을 본 뒤 지웁니다', (
     $,
@@ -106,7 +91,7 @@ void main() {
         await $(summary).scrollTo();
         await $(summary).tap();
         await expectScreen($, ScreenIds.daySheet);
-        await _waitUntil($, () => _sheetTitles($).length == 3);
+        await waitUntil($, () => _sheetTitles($).length == 3);
         expect(_sheetTitles($), ['엄마 생신', '팀 주간 회의', '요가 수업']);
         await closeSheets($);
         expect(_daySheet, findsNothing);
@@ -115,19 +100,19 @@ void main() {
       // 달력 탭: 오늘이 든 달, 오늘 칸이 오늘 윤곽(fake는 거기에 일정 점도 있음).
       await $(find.byKey(const ValueKey('tab-bar.tab.1'))).tap();
       await expectScreen($, ScreenIds.calendar);
-      await _waitUntil(
+      await waitUntil(
         $,
         () =>
             find.byKey(CalendarMonthView.cellKey(today)).evaluate().isNotEmpty,
       );
       if (e2eMode == E2eMode.fake) {
-        await _waitUntil($, () => _hasEventDot(today));
+        await waitUntil($, () => _hasEventDot(today));
       }
       expect(_cell($, today).isToday, isTrue);
 
       // 다음 달 → 고른 날의 그날 시트(일정 없음).
       await $(find.byKey(CalendarMonthView.nextKey)).tap();
-      await _waitUntil(
+      await waitUntil(
         $,
         () =>
             $.tester
@@ -140,7 +125,7 @@ void main() {
       await $(find.byKey(CalendarMonthView.cellKey(target))).tap();
       await waitForScreen($, ScreenIds.daySheet);
       final empty = find.bySemanticsIdentifier(SlotIds.daySheetEventEmpty);
-      await _waitUntil($, () => empty.evaluate().isNotEmpty);
+      await waitUntil($, () => empty.evaluate().isNotEmpty);
 
       // 일정 추가 → 새 일정 화면에서 제목을 적고 저장하면 시트로 돌아옵니다.
       await $(_inDaySheet(find.bySemanticsIdentifier(SlotIds.daySheetEventAdd)))
@@ -154,16 +139,16 @@ void main() {
       ).enterText(_title);
       await $(find.byKey(EventEditScreen.saveKey)).scrollTo();
       await $(find.byKey(EventEditScreen.saveKey)).tap();
-      await _waitUntil(
+      await waitUntil(
         $,
         () =>
             find.byKey(const ValueKey(ScreenIds.eventEdit)).evaluate().isEmpty,
       );
 
       // 시트에 새 일정 한 줄, 달 격자의 그 칸에 점.
-      await _waitUntil($, () => _sheetTitles($).contains(_title));
+      await waitUntil($, () => _sheetTitles($).contains(_title));
       expect(_sheetTitles($), [_title]);
-      await _waitUntil($, () => _hasEventDot(target));
+      await waitUntil($, () => _hasEventDot(target));
       expect(_cell($, target).data.eventCount, 1);
 
       // 일정을 눌러 고치기 화면 → 지우기 → 확인 창에서 지우기.
@@ -180,15 +165,15 @@ void main() {
           matching: find.text(l10n.eventEditDeleteConfirmDelete),
         ),
       ).tap();
-      await _waitUntil(
+      await waitUntil(
         $,
         () =>
             find.byKey(const ValueKey(ScreenIds.eventEdit)).evaluate().isEmpty,
       );
 
       // 시트는 다시 비고, 칸의 점이 사라집니다.
-      await _waitUntil($, () => empty.evaluate().isNotEmpty);
-      await _waitUntil($, () => !_hasEventDot(target));
+      await waitUntil($, () => empty.evaluate().isNotEmpty);
+      await waitUntil($, () => !_hasEventDot(target));
       expect(_cell($, target).data.eventCount, 0);
       await closeSheets($);
       expect(find.byKey(const ValueKey(ScreenIds.calendar)), findsOneWidget);

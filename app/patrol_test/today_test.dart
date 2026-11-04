@@ -16,20 +16,8 @@ import 'package:patrol/patrol.dart';
 
 import 'support/e2e_app.dart';
 
-/// [done]이 참이 될 때까지 프레임을 돌립니다. 광고 확인처럼 실제 시간이 드는 일을 기다립니다.
-Future<void> _waitUntil(
-  PatrolIntegrationTester $,
-  bool Function() done, {
-  Duration timeout = const Duration(seconds: 40),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!done()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
-    }
-    await $.pump(const Duration(milliseconds: 100));
-  }
-}
+/// 광고 확인처럼 실제 시간이 드는 일을 기다리는 시간입니다.
+const _timeout = Duration(seconds: 40);
 
 void main() {
   patrolTest(
@@ -75,8 +63,9 @@ void main() {
       final unlock = evidenceUnlockControllerProvider(
         const DailyEvidenceSubject(),
       );
-      await _waitUntil(
+      await waitUntil(
         $,
+        timeout: _timeout,
         () => container.exists(unlock) && container.read(unlock).adReady,
       );
 
@@ -87,8 +76,9 @@ void main() {
           matching: find.byKey(EvidenceLockPanel.ctaKey),
         ),
       ).tap();
-      await _waitUntil(
+      await waitUntil(
         $,
+        timeout: _timeout,
         () =>
             container
                     .read(dailyControllerProvider)
@@ -110,8 +100,9 @@ void main() {
 
       // 총운 첫 문장에 좋아요를 켭니다.
       await $(find.byKey(ReactionButton.targetKey)).tap();
-      await _waitUntil(
+      await waitUntil(
         $,
+        timeout: _timeout,
         () => $.tester.widget<ReactionButton>(find.byType(ReactionButton)).on,
       );
       await expectScreen($, ScreenIds.today, state: 'liked');

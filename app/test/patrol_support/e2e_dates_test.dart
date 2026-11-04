@@ -1,12 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
 import '../../patrol_test/support/e2e_dates.dart';
 
 void main() {
-  setUpAll(() => initializeDateFormatting('ko_KR'));
-
   group('dayOfNextMonth', () {
     test('달 중간, 말일, 1일, 연말 모두 다음 달 15일입니다', () {
       expect(
@@ -68,9 +65,5 @@ void main() {
         throwsArgumentError,
       );
     });
-  });
-
-  test('pickDateLabel은 앱의 확인 버튼 문구와 같은 형식입니다', () {
-    expect(pickDateLabel(CalendarDate(2026, 10, 10), 'ko_KR'), '10월 10일');
   });
 }

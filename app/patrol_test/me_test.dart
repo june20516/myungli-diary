@@ -35,21 +35,6 @@ Finder _depthLink(String id) => _inScreen(
   ),
 );
 
-/// [done]이 참이 될 때까지 프레임을 돌립니다(대역 서버 응답·화면 움직임을 기다림).
-Future<void> _waitUntil(
-  PatrolIntegrationTester $,
-  bool Function() done, {
-  Duration timeout = const Duration(seconds: 20),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!done()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
-    }
-    await $.pump(const Duration(milliseconds: 100));
-  }
-}
-
 /// 맨 위 화면의 뒤로 가기를 누릅니다.
 Future<void> _back(PatrolIntegrationTester $) async {
   await $(find.byKey(const ValueKey('app-bar.back')).last).tap();
@@ -95,7 +80,7 @@ void main() {
     await $(_depthLink(ScreenIds.mySaju)).scrollTo();
     await $(_depthLink(ScreenIds.mySaju)).tap();
     await expectScreen($, ScreenIds.sajuChart);
-    await _waitUntil(
+    await waitUntil(
       $,
       () => _inScreen(
         ScreenIds.sajuChart,
@@ -161,7 +146,7 @@ void main() {
     await $(find.byKey(ProfileEditScreen.saveKey)).tap();
     await $(find.text(l10n.profileEditRecalcConfirmTitle)).waitUntilVisible();
     await $(find.text(l10n.profileEditRecalcConfirmSave)).tap();
-    await _waitUntil(
+    await waitUntil(
       $,
       () =>
           _screen(ScreenIds.mySaju).evaluate().isNotEmpty &&
@@ -180,7 +165,7 @@ void main() {
     await waitForScreen($, ScreenIds.adFree);
     await $(find.byKey(OfferCard.historyKey)).tap();
     await waitForScreen($, ScreenIds.purchaseHistory);
-    await _waitUntil(
+    await waitUntil(
       $,
       () => find.text(l10n.purchaseHistoryEmptyBody).evaluate().isNotEmpty,
     );

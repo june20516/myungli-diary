@@ -5,7 +5,6 @@
 /// `package:patrol`을 import하지 않습니다.
 library;
 
-import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 
 /// [today]의 다음 달 [day]일입니다. 달력 흐름이 일정을 넣었다가 지울 날로 씁니다.
@@ -34,10 +33,3 @@ int previousMonthTaps(CalendarDate today, CalendarDate target) {
   }
   return taps;
 }
-
-/// 일기 목록 날짜 고르기의 확인 버튼 문구에 들어가는 날짜입니다.
-///
-/// 앱(`PickDateSheet`)이 `DateFormat.MMMd(locale)`로 만드는 것과 같은 형식입니다. [locale]은
-/// `Localizations.localeOf(context).toString()` 값(예 `ko_KR`)입니다.
-String pickDateLabel(CalendarDate date, String locale) =>
-    DateFormat.MMMd(locale).format(DateTime(date.year, date.month, date.day));
