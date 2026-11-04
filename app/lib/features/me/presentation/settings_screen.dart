@@ -24,6 +24,7 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/contact/application/contact_controller.dart';
 import 'package:myungli_diary/features/me/application/settings_controller.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
@@ -206,9 +207,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   void _open(String screenId) =>
       guardOpen(() => context.push<void>(pathOf(screenId)));
 
+  /// 문의를 보내고 돌아왔으면 이 화면에서 `contact.sent.toast`를 보입니다(design V55).
+  void _showContactSentToast() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !ref.read(contactSentNoticeProvider.notifier).consume()) {
+        return;
+      }
+      showMyungliToast(
+        context,
+        AppLocalizations.of(context).contactSentToast,
+        identifier: SlotIds.contactSentToast,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (ref.watch(contactSentNoticeProvider)) _showContactSentToast();
     final saving = ref.watch(settingsControllerProvider);
     final profileState = ref.watch(profileProvider);
     final profile = profileState.value;

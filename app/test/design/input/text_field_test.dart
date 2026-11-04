@@ -18,6 +18,89 @@ Finder _ring() => find.byWidgetPredicate(
 );
 
 void main() {
+  group('text-field 3.4.0(label, errorLine, email, minLines)', () {
+    testWidgets('showLabel이면 칸 위에 이름을 label.md text.primary로 보이고 사이는 8입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: MyungliTextField(label: '문의 내용', showLabel: true),
+          ),
+        ),
+      );
+      final label = tester.widget<Text>(find.text('문의 내용'));
+      final tokens = tester.element(find.text('문의 내용')).tokens;
+      expect(label.style!.fontSize, tokens.typography.labelMd.fontSize);
+      expect(label.style!.color, tokens.colors.textPrimary);
+      expect(label.maxLines, 1);
+      final gap =
+          tester.getTopLeft(find.byKey(MyungliTextField.containerKey)).dy -
+          tester.getBottomLeft(find.text('문의 내용')).dy;
+      expect(gap, moreOrLessEquals(8, epsilon: 0.5));
+    });
+
+    testWidgets('errorText면 error 테두리와 칸 아래 오류 줄을 보이고 상태 알림으로 읽힙니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: MyungliTextField(
+              label: '메일',
+              errorText: '메일 주소를 다시 확인해 주세요.',
+            ),
+          ),
+        ),
+      );
+      expect(find.byKey(MyungliTextField.errorLineKey), findsOneWidget);
+      final gap =
+          tester.getTopLeft(find.byKey(MyungliTextField.errorLineKey)).dy -
+          tester.getBottomLeft(find.byKey(MyungliTextField.containerKey)).dy;
+      expect(gap, moreOrLessEquals(8, epsilon: 0.5));
+      final handle = tester.ensureSemantics();
+      expect(find.bySemanticsLabel('메일 주소를 다시 확인해 주세요.'), findsWidgets);
+      handle.dispose();
+    });
+
+    testWidgets('email은 메일 키보드, 완료, 자동 고침과 제안 끔, 자동 채우기 메일입니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(child: MyungliTextField(label: '메일', email: true)),
+        ),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.keyboardType, TextInputType.emailAddress);
+      expect(field.textInputAction, TextInputAction.done);
+      expect(field.autocorrect, isFalse);
+      expect(field.enableSuggestions, isFalse);
+      expect(field.autofillHints, [AutofillHints.email]);
+      expect(MyungliTextField.spec.variants, contains('email'));
+    });
+
+    testWidgets('minLines 4면 처음부터 4줄 높이이고 안내는 두 줄까지 감습니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: MyungliTextField(
+              label: '문의 내용',
+              hint: '안내',
+              minLines: 4,
+              maxLines: MyungliTextField.maxLinesLimit,
+            ),
+          ),
+        ),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.minLines, 4);
+      expect(field.decoration!.hintMaxLines, 2);
+      expect(
+        tester.getSize(find.byKey(MyungliTextField.containerKey)).height,
+        greaterThan(52 * 1.5),
+      );
+    });
+  });
+
   group('text-field', () {
     testWidgets('leadingIcon이 있으면 칸 앞에 아이콘이 보이고 스크린리더는 읽지 않습니다', (
       tester,

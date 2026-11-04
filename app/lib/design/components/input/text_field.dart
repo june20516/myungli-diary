@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
+import 'package:myungli_diary/design/components/input/field_error_line.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
@@ -44,18 +47,27 @@ class MyungliTextField extends StatefulWidget {
     this.onSubmitted,
     this.identifier,
     this.maxLines = 1,
-    this.keyboardType,
-    this.autofillHints,
+    this.minLines = 1,
+    this.email = false,
+    this.showLabel = false,
+    this.errorText,
+    this.errorIdentifier,
+    this.focusNode,
     super.key,
   }) : assert(
          maxLines >= 1 && maxLines <= maxLinesLimit,
          'maxLines는 1~$maxLinesLimit이어야 합니다.',
-       );
+       ),
+       assert(
+         minLines >= 1 && minLines <= maxLines,
+         'minLines는 1~maxLines이어야 합니다.',
+       ),
+       assert(!(email && maxLines > 1), 'email은 한 줄 칸입니다.');
 
   /// 명세 대조용 요약. 변형 `multiline`은 [maxLines]가 1보다 큰 칸입니다.
   static const ComponentSpec spec = ComponentSpec(
     'text-field',
-    {'multiline'},
+    {'multiline', 'email'},
     {'focused', 'disabled', 'error'},
   );
 
@@ -64,6 +76,9 @@ class MyungliTextField extends StatefulWidget {
 
   /// 지우기 버튼을 찾는 테스트용 키.
   static const Key clearKey = ValueKey('text-field-clear');
+
+  /// 칸 오류 줄을 찾는 테스트용 키.
+  static const Key errorLineKey = ValueKey('text-field-error-line');
 
   /// 여러 줄 칸이 늘어나는 줄 수 상한.
   static const int maxLinesLimit = 6;
@@ -111,12 +126,31 @@ class MyungliTextField extends StatefulWidget {
   /// 않습니다(event-edit 메모 2000자).
   final int maxLines;
 
-  /// 키보드 종류(예 메일 주소는 [TextInputType.emailAddress]). 없으면 여러 줄 칸은 여러 줄
-  /// 입력, 한 줄 칸은 기본 키보드입니다.
-  final TextInputType? keyboardType;
+  /// 처음 높이의 줄 수(1~[maxLines]). `contact` 문의 내용처럼 긴 글을 받는 칸은 4줄로 엽니다
+  /// (3.4.0). 1보다 크면 칸 안 안내도 두 줄까지 감습니다.
+  final int minLines;
 
-  /// 자동 채우기 힌트(예 [AutofillHints.email]).
-  final Iterable<String>? autofillHints;
+  /// `email` 변형(3.4.0): 메일 주소 키보드, 키보드 동작 완료, 자동 고침과 첫 글자 대문자 끔,
+  /// 자동 채우기 메일.
+  final bool email;
+
+  /// 칸 위에 이름([label])을 늘 보입니다(`label` 부품, 3.4.0). `input-step` 밖에서 칸이 둘
+  /// 이상인 화면이 씁니다. `type.label.md` `text.primary`, 칸과 사이 `space.8`, 한 줄입니다.
+  final bool showLabel;
+
+  /// 칸 오류 줄(`errorLine` 부품, 3.4.0). 있으면 칸은 [error] 상태이고 칸 아래 `space.8`에
+  /// `input-step` 오류 줄과 같은 모양으로 그리며, 나타날 때 스크린리더가 polite로 읽습니다.
+  /// `input-step` 안에서는 쓰지 않습니다(그 오류 줄을 씀).
+  final String? errorText;
+
+  /// 오류 줄의 IA 슬롯 id.
+  final String? errorIdentifier;
+
+  /// 바깥에서 초점을 옮길 때 쓰는 노드(예 오류 칸으로 초점 옮기기). 없으면 칸이 만듭니다.
+  final FocusNode? focusNode;
+
+  /// 오류 상태인지([error] 또는 [errorText]).
+  bool get _hasError => error || errorText != null;
 
   bool get _multiline => maxLines > 1;
 
@@ -126,7 +160,9 @@ class MyungliTextField extends StatefulWidget {
 
 class _MyungliTextFieldState extends State<MyungliTextField>
     with SingleTickerProviderStateMixin {
-  final FocusNode _focus = FocusNode();
+  FocusNode? _ownFocus;
+
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
   late final AnimationController _ring = AnimationController(
     vsync: this,
     duration: InteractionPattern.focusRing.duration,
@@ -158,13 +194,21 @@ class _MyungliTextFieldState extends State<MyungliTextField>
       _ownController!.dispose();
       _ownController = null;
     }
+    final oldFocus = oldWidget.focusNode ?? _ownFocus;
+    if (widget.focusNode != oldWidget.focusNode) {
+      oldFocus?.removeListener(_onFocusChanged);
+      if (widget.focusNode != null) {
+        _ownFocus?.dispose();
+        _ownFocus = null;
+      }
+      _focus.addListener(_onFocusChanged);
+    }
   }
 
   @override
   void dispose() {
-    _focus
-      ..removeListener(_onFocusChanged)
-      ..dispose();
+    _focus.removeListener(_onFocusChanged);
+    _ownFocus?.dispose();
     _ring.dispose();
     _ownController?.dispose();
     super.dispose();
@@ -259,12 +303,16 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                     }) => null,
                     style: textStyle,
                     cursorColor: colors.actionPrimary,
-                    minLines: 1,
+                    minLines: widget.minLines,
                     maxLines: widget.maxLines,
-                    keyboardType:
-                        widget.keyboardType ??
-                        (multiline ? TextInputType.multiline : null),
-                    autofillHints: widget.autofillHints,
+                    keyboardType: widget.email
+                        ? TextInputType.emailAddress
+                        : (multiline ? TextInputType.multiline : null),
+                    autocorrect: !widget.email,
+                    enableSuggestions: !widget.email,
+                    autofillHints: widget.email
+                        ? const [AutofillHints.email]
+                        : null,
                     textInputAction: multiline
                         ? TextInputAction.newline
                         : TextInputAction.done,
@@ -272,6 +320,7 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                     onSubmitted: widget.onSubmitted,
                     decoration: InputDecoration.collapsed(
                       hintText: widget.hint,
+                      hintMaxLines: multiline ? 2 : 1,
                       hintStyle: textStyle.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -326,7 +375,7 @@ class _MyungliTextFieldState extends State<MyungliTextField>
         : container;
 
     final Widget bordered;
-    if (widget.error) {
+    if (widget._hasError) {
       bordered = DecoratedBox(
         position: DecorationPosition.foreground,
         decoration: BoxDecoration(
@@ -355,11 +404,40 @@ class _MyungliTextFieldState extends State<MyungliTextField>
     }
 
     final maxLength = widget.maxLength;
+    final errorText = widget.errorText;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (widget.showLabel)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Space.s8),
+            // 스크린리더는 칸 라벨로 읽으므로 이 글자는 따로 읽지 않습니다.
+            child: ExcludeSemantics(
+              child: Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: tokens.typography.labelMd.copyWith(
+                  color: colors.textPrimary,
+                ),
+              ),
+            ),
+          ),
         bordered,
+        if (errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: Space.s8),
+            child: LiveAnnouncement(
+              label: errorText,
+              role: SemanticsRole.status,
+              identifier: widget.errorIdentifier,
+              child: FieldErrorLine(
+                key: MyungliTextField.errorLineKey,
+                text: errorText,
+              ),
+            ),
+          ),
         if (maxLength != null)
           Padding(
             padding: const EdgeInsets.only(top: Space.s4),

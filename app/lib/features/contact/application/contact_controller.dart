@@ -79,3 +79,27 @@ final NotifierProvider<ContactController, bool> contactControllerProvider =
     NotifierProvider.autoDispose<ContactController, bool>(
       ContactController.new,
     );
+
+/// 보낸 뒤 설정 화면이 띄울 toast가 남아 있는지(design V55: 설정으로 돌아간 뒤 그 화면에서
+/// `contact.sent.toast`).
+///
+/// 문의 화면이 보낸 뒤 [show]로 남기고 설정으로 이동하면, 설정 화면이 이 값을 보고 [consume]한
+/// 뒤 자기 자리에서 toast를 띄웁니다. 어느 길(설정, 구매 내역)로 들어왔든 같습니다.
+class ContactSentNotice extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  /// 알림을 남깁니다.
+  void show() => state = true;
+
+  /// 남은 알림을 가져가고 지웁니다. 남아 있었으면 true입니다.
+  bool consume() {
+    final pending = state;
+    state = false;
+    return pending;
+  }
+}
+
+/// 보낸 뒤 설정 화면이 띄울 toast.
+final NotifierProvider<ContactSentNotice, bool> contactSentNoticeProvider =
+    NotifierProvider<ContactSentNotice, bool>(ContactSentNotice.new);

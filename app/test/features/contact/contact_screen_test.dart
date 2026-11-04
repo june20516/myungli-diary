@@ -12,6 +12,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/device_info.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/features/contact/presentation/contact_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -187,13 +188,21 @@ void main() {
       await _fill(tester, email: 'not-an-email');
       expect(_sendEnabled(tester), isTrue);
       await _tapSend(tester);
-      expect(find.byKey(ContactScreen.emailErrorKey), findsOneWidget);
+      expect(find.byKey(MyungliTextField.errorLineKey), findsOneWidget);
       expect(find.text(_ko.contactEmailInvalid), findsOneWidget);
       expect(_fake(container).callCountOf('createInquiry'), 0);
+      // 초점이 메일 칸으로 옮겨집니다(design V55).
+      final emailEditable = tester.widget<EditableText>(
+        find.descendant(
+          of: find.byKey(const ValueKey(SlotIds.contactEmailField)),
+          matching: find.byType(EditableText),
+        ),
+      );
+      expect(emailEditable.focusNode.hasFocus, isTrue);
 
       // 주소를 고치면 오류 줄이 사라집니다.
       await _fill(tester, email: 'me@example.com');
-      expect(find.byKey(ContactScreen.emailErrorKey), findsNothing);
+      expect(find.byKey(MyungliTextField.errorLineKey), findsNothing);
     });
 
     testWidgets('보내면 기기 정보와 Idempotency-Key를 붙여 보내고 toast 뒤 닫힙니다', (
@@ -221,8 +230,11 @@ void main() {
         fake.requestHeadersOf('createInquiry').single['idempotency-key'],
         isNotEmpty,
       );
-      expect(find.text(_ko.contactSentToast), findsOneWidget);
+      // 설정 화면으로 돌아가 그 화면에서 toast를 보입니다(design V55).
+      await pumpUntilScreen(tester, ScreenIds.settings);
+      await tester.pump();
       expect(find.byKey(const ValueKey(ScreenIds.contact)), findsNothing);
+      expect(find.text(_ko.contactSentToast), findsOneWidget);
       await _dismissToast(tester);
     });
 
@@ -262,7 +274,7 @@ void main() {
       await _openContact(tester, network: _RejectEmailOnce());
       await _fill(tester);
       await _tapSend(tester);
-      expect(find.byKey(ContactScreen.emailErrorKey), findsOneWidget);
+      expect(find.byKey(MyungliTextField.errorLineKey), findsOneWidget);
       expect(find.byKey(const ValueKey(ScreenIds.contact)), findsOneWidget);
     });
 

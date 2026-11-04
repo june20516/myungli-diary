@@ -262,6 +262,7 @@ void main() {
       _ko.profileEditBarTitle,
       _ko.calcBasisBarTitle,
       _ko.legalBarTitle,
+      _ko.settingsContactLabel,
       _ko.settingsLogoutLabel,
       _ko.accountDeleteBarTitle,
     ]);
