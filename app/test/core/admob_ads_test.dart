@@ -170,6 +170,23 @@ void main() {
       );
     });
 
+    test('불러오기 실패는 광고 없음까지 onLoadFailure로 알립니다(#741)', () async {
+      final failures = <AdMobLoadFailure>[];
+      final adapter = AdMobAds(
+        platform: TargetPlatform.android,
+        api: api,
+        onLoadFailure: failures.add,
+      );
+      api.failWith = const AdMobLoadFailure(
+        3,
+        'no fill',
+        domain: 'com.google.android.gms.ads',
+      );
+      await adapter.loadBanner(width: 360);
+      expect(failures.single.code, 3);
+      expect(failures.single.domain, 'com.google.android.gms.ads');
+    });
+
     test('지원하지 않는 플랫폼은 SDK를 부르지 않고 null', () async {
       final adapter = ads(platform: TargetPlatform.macOS);
       expect(await adapter.loadBanner(width: 360), isNull);
@@ -182,6 +199,15 @@ void main() {
     test('보상을 받고 닫으면 RewardEarned, 받기 전 닫으면 RewardDismissed', () {
       expect(rewardedResultOf(earned: true), isA<RewardEarned>());
       expect(rewardedResultOf(earned: false), isA<RewardDismissed>());
+    });
+
+    test('보상을 받으면 광고 단위와 보상 항목을 담습니다(staging 보상 전달, D101 ④)', () {
+      expect(
+        rewardedResultOf(earned: true, adUnit: 'unit', rewardItem: 'insight'),
+        isA<RewardEarned>()
+            .having((r) => r.adUnit, 'adUnit', 'unit')
+            .having((r) => r.rewardItem, 'rewardItem', 'insight'),
+      );
     });
 
     test('보이지 못하면 RewardFailed(UnexpectedError)', () {

@@ -8,9 +8,21 @@ sealed class RewardedResult {
 }
 
 /// 끝까지 봐서 보상을 받았습니다.
+///
+/// [adUnit]과 [rewardItem]은 staging 보상 전달(D101 ④)이 SSV와 같은 값으로 보냅니다. 모르면
+/// null입니다(대역 광고).
 final class RewardEarned extends RewardedResult {
   /// 보상 받음.
-  const new();
+  const new({this.adUnit, this.rewardItem});
+
+  /// 광고 단위 id. 모의 광고는 [mockAdUnit]입니다.
+  final String? adUnit;
+
+  /// 보상 항목 이름(AdMob `RewardItem.type`).
+  final String? rewardItem;
+
+  /// staging 모의 광고의 광고 단위 자리 값(D101 ③).
+  static const String mockAdUnit = 'staging-mock';
 }
 
 /// 보상 전에 닫았습니다.

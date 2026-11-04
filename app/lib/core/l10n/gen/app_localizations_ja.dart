@@ -1347,7 +1347,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get purchaseHistoryEmptyBody => '購入履歴はありません。';
 
   @override
-  String get purchaseHistoryMissingNotice => '支払った商品が表示されない場合は、お問い合わせください。';
+  String get purchaseHistoryMissingNotice =>
+      '支払った商品が表示されない場合は、「お問い合わせ」からお知らせください。';
 
   @override
   String get accountChoiceOther => '取り込むアカウント';
@@ -1447,4 +1448,47 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get iosTrackingUsageDescription =>
       '許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。';
+
+  @override
+  String contactAddressNote(String email) {
+    return '送信できない場合は、このアドレスにメールをお送りください。\n$email';
+  }
+
+  @override
+  String get contactAttachedNotice =>
+      'アカウントID、アプリのバージョン、端末情報（OS、機種）も一緒に送信します。お問い合わせの対応にのみ使用します。';
+
+  @override
+  String get contactBarTitle => 'お問い合わせ';
+
+  @override
+  String get contactEmailFieldLabel => '返信先メールアドレス';
+
+  @override
+  String get contactEmailFieldHint => 'name@example.com';
+
+  @override
+  String get contactIntroBody =>
+      '気になることや困っていることを書いてください。返信は入力したメールアドレスにお送りします。';
+
+  @override
+  String get contactMessageFieldLabel => 'お問い合わせ内容';
+
+  @override
+  String get contactMessageFieldHint => 'いつ、どの画面で起きたことかも書いてください';
+
+  @override
+  String get contactSendCta => '送信';
+
+  @override
+  String get contactSentToast => 'お問い合わせを送信しました。';
+
+  @override
+  String get contactSendFailed => '送信できませんでした。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get contactEmailInvalid => 'メールアドレスをご確認ください。';
+
+  @override
+  String get settingsContactLabel => 'お問い合わせ';
 }

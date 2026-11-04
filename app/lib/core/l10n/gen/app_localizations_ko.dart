@@ -1349,7 +1349,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get purchaseHistoryEmptyBody => '구매 내역이 없어요.';
 
   @override
-  String get purchaseHistoryMissingNotice => '결제한 상품이 보이지 않으면 문의해 주세요.';
+  String get purchaseHistoryMissingNotice => '결제한 상품이 보이지 않으면 문의하기로 알려 주세요.';
 
   @override
   String get accountChoiceOther => '가져올 계정';
@@ -1450,4 +1450,46 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get iosTrackingUsageDescription =>
       '허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.';
+
+  @override
+  String contactAddressNote(String email) {
+    return '보내기가 안 되면 이 주소로 메일을 보내 주세요.\n$email';
+  }
+
+  @override
+  String get contactAttachedNotice =>
+      '계정 id, 앱 버전, 기기 정보(OS, 기종)를 함께 보냅니다. 문의 처리에만 활용됩니다.';
+
+  @override
+  String get contactBarTitle => '문의하기';
+
+  @override
+  String get contactEmailFieldLabel => '답장 받을 메일';
+
+  @override
+  String get contactEmailFieldHint => 'name@example.com';
+
+  @override
+  String get contactIntroBody => '궁금한 점이나 불편한 점을 적어 주세요. 답은 적어 주신 메일로 보내 드려요.';
+
+  @override
+  String get contactMessageFieldLabel => '문의 내용';
+
+  @override
+  String get contactMessageFieldHint => '언제, 어느 화면에서 있었던 일인지 함께 적어 주세요';
+
+  @override
+  String get contactSendCta => '보내기';
+
+  @override
+  String get contactSentToast => '문의를 보냈어요.';
+
+  @override
+  String get contactSendFailed => '문의를 보내지 못했어요. 잠시 뒤 다시 보내 주세요.';
+
+  @override
+  String get contactEmailInvalid => '메일 주소를 다시 확인해 주세요.';
+
+  @override
+  String get settingsContactLabel => '문의하기';
 }
