@@ -27,3 +27,6 @@
 * 계약 목록: [`docs/contracts/README.md`](docs/contracts/README.md)
 * 요청함: GitHub Issues (규칙 `docs/workflow.md` §5.2, 이관 전 문서 보관 [`docs/coordination/`](docs/coordination/README.md))
 * 엔진 위키·spec·계획·원전 근거: [`core/docs/`](core/docs/)
+
+## 라이선스
+모든 권리는 저작권자에게 있습니다(All rights reserved). 이 저장소는 참고용으로 공개되어 있으며, 저작권자의 서면 허락 없이 코드, 문서, 디자인, 문안을 사용, 복제, 수정, 배포하거나 서비스로 운영할 수 없습니다. 함께 들어 있는 제3자 자료(예: `app/assets/fonts/`의 폰트)는 각자의 라이선스를 따릅니다. 자세한 내용은 [`LICENSE`](LICENSE)를 봅니다.
