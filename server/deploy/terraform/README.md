@@ -100,7 +100,7 @@ staging은 이 구조로 바꿀 때 데이터베이스 `myungli`와 런타임 DB
    gcloud projects create "$project" --name "myungli-diary-load"
    gcloud billing projects link "$project" --billing-account <결제 계정 id>
    ```
-2. Firebase 콘솔에서 "프로젝트 추가 → 기존 Google Cloud 프로젝트"로 `myungli-diary-load`를 고릅니다. Hosting 기본 사이트 `myungli-diary-load.web.app`이 생깁니다. 앱 등록과 Analytics는 필요 없습니다. 프로젝트 설정의 **Project number**를 server 세션에 알려 주시면 `env/load.tfvars`의 `project_number`를 채웁니다(첫 배포 전 PR).
+2. Firebase 콘솔에서 "프로젝트 추가 → 기존 Google Cloud 프로젝트"로 `myungli-diary-load`를 고릅니다. Hosting 기본 사이트 `myungli-diary-load.web.app`이 생깁니다. 앱 등록과 Analytics는 필요 없습니다. 프로젝트 설정의 **Project number**는 `env/load.tfvars`의 `project_number`에 있습니다(2026-11-04 채움).
 3. 알림과 예산 값 `$MYUNGLI_LOCAL_DIR/server/load/observability.tfvars`를 위 "알림과 예산 값"과 같은 형식으로 만듭니다(K14). 예산은 부하 회차 비용에 맞춰 정합니다.
 4. bootstrap을 "새 프로젝트" 순서로 apply합니다(`env=load; project=myungli-diary-load`). bootstrap 코드 변경이 아니라 새 프로젝트에 처음 apply하는 것이라 D103 묶음과 상관없습니다.
 5. GitHub 저장소 변수 `GCP_WIF_PROVIDER_LOAD`, `GCP_DEPLOYER_LOAD`에 bootstrap 출력 `workload_identity_provider`, `deployer_email`을 넣습니다. GitHub environment `load`를 만들고 "Deployment branches"를 `main`으로 제한합니다. 필수 승인자는 두지 않아도 됩니다.
