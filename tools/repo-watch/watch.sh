@@ -6,13 +6,18 @@ REPO=june20516/myungli-diary
 STATE_DIR=${1:?state dir}
 mkdir -p "$STATE_DIR"
 
+# gh 호출 하나에 시간 제한을 둡니다. 화면 잠금 중 키체인 읽기처럼 gh가 멈추면 실패로 세지 못해
+# "감시 오류" 알림도 나지 않았습니다(2026-11-05 06:29~07:48). macOS에는 timeout이 없어 perl alarm을 씁니다.
+GH_TIMEOUT=90
+gh_t() { perl -e 'alarm shift @ARGV; exec @ARGV' "$GH_TIMEOUT" gh "$@"; }
+
 snapshot() {
   # 각 줄: 종류 번호 상태 제목. 실패하면 빈 출력으로 두고 이번 비교를 건너뜁니다.
   local out
   out=$({
-    gh pr list -R "$REPO" --state all --limit 30 \
+    gh_t pr list -R "$REPO" --state all --limit 30 \
       --json number,state,title --jq '.[] | "PR #\(.number) \(.state) \(.title)"' &&
-    gh issue list -R "$REPO" --state all --limit 40 \
+    gh_t issue list -R "$REPO" --state all --limit 40 \
       --json number,state,title --jq '.[] | "Issue #\(.number) \(.state) \(.title)"' &&
     main_ci
   } 2>/dev/null) || return 1
@@ -24,7 +29,7 @@ main_ci() {
   # 실행 전체 결론이 아니라 ci-gate job 판정을 씁니다. drift 단위의 실패는 실행을 failure로 만들지만 판정에서는 빠지기 때문입니다(docs/workflow.md §6.1).
   # 끝난 실행의 판정은 바뀌지 않으므로 실행 번호·시도 횟수별로 STATE_DIR에 캐시해 매분 job을 다시 조회하지 않습니다.
   local runs id attempt sha cache verdict
-  runs=$(gh run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 5 \
+  runs=$(gh_t run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 5 \
     --json databaseId,attempt,headSha,status \
     --jq '.[] | select(.status == "completed") | "\(.databaseId) \(.attempt) \(.headSha[0:7])"') || return 1
   while read -r id attempt sha; do
@@ -35,7 +40,7 @@ main_ci() {
       # 실행이 completed여도 ci-gate job은 아직 queued일 수 있습니다(2026-10-23 main 2672494).
       # 끝난 job의 판정만 캐시합니다. 아직이면 이번 줄을 건너뛰고 다음 조회에서 다시 봅니다.
       # ci-gate job이 없으면(changes 단계에서 실행이 멈춤 등) 판정 없음으로 둡니다.
-      verdict=$(gh api "repos/$REPO/actions/runs/$id/attempts/$attempt/jobs" \
+      verdict=$(gh_t api "repos/$REPO/actions/runs/$id/attempts/$attempt/jobs" \
         --jq '[.jobs[] | select(.name == "ci-gate")] | if length == 0 then "no-verdict" elif .[0].status == "completed" then .[0].conclusion else "" end') || return 1
       [ -n "$verdict" ] || continue
       echo "$verdict" > "$cache"
@@ -46,7 +51,7 @@ main_ci() {
 }
 
 [ -f "$STATE_DIR/prev" ] || snapshot > "$STATE_DIR/prev"
-# 조회가 연달아 실패하면(화면 잠금으로 gh가 토큰을 못 읽음, 네트워크 끊김 등) 알림이 없어도 변화가 없는 것이 아닙니다.
+# 조회가 연달아 실패하거나 시간 제한(GH_TIMEOUT)에 걸리면(화면 잠금으로 gh가 토큰을 못 읽음, 네트워크 끊김 등) 알림이 없어도 변화가 없는 것이 아닙니다.
 # FAIL_LIMIT번 연달아 실패하면 한 번 알리고, 다시 성공하면 복구를 알립니다.
 FAIL_LIMIT=5
 fails=0
