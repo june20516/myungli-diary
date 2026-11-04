@@ -26,6 +26,8 @@ const environmentKeys = {
   'FIREBASE_ENV',
   'APP_LINK_HOST',
   'APPLE_REDIRECT_URI',
+  // staging 광고(모의 광고 대체와 staging 보상 경로, D101). staging만 "true"입니다.
+  'STAGING_ADS',
 };
 
 /// 생성하는 iOS 빌드 설정 파일(app 기준 경로).

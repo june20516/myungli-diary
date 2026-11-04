@@ -401,7 +401,7 @@
   "previewRestartNotice": "To see a reading with your new details, try signing in.",
   "purchaseHistoryBarTitle": "Purchase history",
   "purchaseHistoryEmptyBody": "No purchases yet.",
-  "purchaseHistoryMissingNotice": "If something you paid for isn't listed, please contact us.",
+  "purchaseHistoryMissingNotice": "If something you paid for isn't listed, let us know through Contact us.",
   "accountChoiceOther": "Account to bring in",
   "accountMergeSummaryHead": "Records to bring in",
   "accountMergeSummaryDiary": "Diary",
@@ -424,5 +424,18 @@
   "systemPushChannelMorning": "Today's reading alerts",
   "accountChoiceSajuLeap": "{calendar} leap month {date} {time}",
   "accountChoiceSajuNoTimeLeap": "{calendar} leap month {date}, time unknown",
-  "iosTrackingUsageDescription": "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way."
+  "iosTrackingUsageDescription": "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way.",
+  "contactAddressNote": "If sending doesn't work, email us at this address.\n{email}",
+  "contactAttachedNotice": "Your account ID, app version, and device info (OS, model) are sent along. They are used only to handle your inquiry.",
+  "contactBarTitle": "Contact us",
+  "contactEmailFieldLabel": "Email for our reply",
+  "contactEmailFieldHint": "name@example.com",
+  "contactIntroBody": "Tell us what you'd like to ask or what isn't working. We'll reply to the email you enter.",
+  "contactMessageFieldLabel": "Message",
+  "contactMessageFieldHint": "Include when it happened and on which screen",
+  "contactSendCta": "Send",
+  "contactSentToast": "Your message has been sent.",
+  "contactSendFailed": "We couldn't send your message. Please try again in a moment.",
+  "contactEmailInvalid": "Please check the email address.",
+  "settingsContactLabel": "Contact us"
 }

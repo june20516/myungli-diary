@@ -12,6 +12,7 @@ import 'package:myungli_diary/app/firebase_setup.dart';
 import 'package:myungli_diary/app/licenses.dart';
 import 'package:myungli_diary/app/profile_language.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
@@ -19,6 +20,7 @@ import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/firebase/firebase_env.dart';
 import 'package:myungli_diary/core/platform/admob_ads.dart';
+import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/apple_native_auth.dart';
 import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -35,6 +37,7 @@ import 'package:myungli_diary/core/platform/os_share.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push_channel.dart';
 import 'package:myungli_diary/core/platform/revenuecat_purchases.dart';
+import 'package:myungli_diary/core/platform/staging_ads.dart';
 import 'package:myungli_diary/core/platform/store_launcher.dart';
 import 'package:myungli_diary/core/platform/ump_ad_consent.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
@@ -172,6 +175,41 @@ Future<ProviderContainer> bootstrap({
   return container;
 }
 
+/// 실제 광고(A99). staging 환경이면 받지 못한 광고를 모의 광고로 대신합니다(D101 ③).
+@visibleForTesting
+Ads realAds(Ref ref) {
+  final reporter = ref.watch(crashReporterProvider);
+  final adMob = AdMobAds(
+    platform: ref.watch(targetPlatformProvider),
+    onLoadFailure: (failure) => reportAdLoadFailure(reporter, failure),
+  );
+  if (!stagingAdsBuild) return adMob;
+  return StagingAds(
+    real: adMob,
+    navigator: () =>
+        ref.read(routerProvider).routerDelegate.navigatorKey.currentState,
+    bannerSize: adMobAdaptiveBannerSize,
+  );
+}
+
+/// 광고 불러오기 실패를 원인(도메인, 코드)을 가릴 수 있게 남깁니다(#741). debug는 콘솔에,
+/// staging([staging])은 비치명 오류 요약으로 남깁니다. prod는 "광고 없음"이 흔해 기록하지 않습니다.
+@visibleForTesting
+void reportAdLoadFailure(
+  CrashReporter reporter,
+  AdMobLoadFailure failure, {
+  bool staging = stagingAdsBuild,
+}) {
+  if (kDebugMode) {
+    debugPrint(
+      'AdMob 불러오기 실패 ${failure.domain} ${failure.code}: ${failure.message}',
+    );
+  }
+  if (staging) {
+    reporter.record(CrashSummary.from(failure), StackTrace.current);
+  }
+}
+
 /// 실제 platform adapter를 끼우는 override. fake 모드는 대역을 그대로 씁니다.
 ///
 /// 로그인 adapter 다섯은 `config/auth.json`(A81) 값이 비면 로그인할 때
@@ -195,9 +233,7 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
         isIOS: ref.watch(targetPlatformProvider) == TargetPlatform.iOS,
       ),
     ),
-    adsProvider.overrideWith(
-      (ref) => AdMobAds(platform: ref.watch(targetPlatformProvider)),
-    ),
+    adsProvider.overrideWith(realAds),
     shareSheetProvider.overrideWithValue(const OsShareSheet()),
     notificationChannelsProvider.overrideWith(
       (ref) => LocalNotificationChannels(

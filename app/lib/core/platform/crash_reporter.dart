@@ -1,4 +1,5 @@
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/platform/admob_ads.dart';
 
 final RegExp _uuidPattern = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
@@ -55,6 +56,13 @@ final class CrashSummary {
       errorType: 'MissingDictionaryEntry',
       // 계약 값 형식(소문자·숫자·`_`·`.`)이 아니면 사용자 데이터일 수 있어 버립니다.
       code: _problemCodePattern.hasMatch(termId) ? termId : null,
+    ),
+    AdMobLoadFailure(:final code, :final domain) => CrashSummary._(
+      errorType: 'AdMobLoadFailure',
+      // SDK 메시지는 싣지 않고 도메인과 코드만 둡니다(형식이 이상하면 코드만).
+      code: _problemCodePattern.hasMatch('${domain ?? 'admob'}.$code')
+          ? '${domain ?? 'admob'}.$code'
+          : 'admob.$code',
     ),
     _ => CrashSummary._(errorType: error.runtimeType.toString()),
   };

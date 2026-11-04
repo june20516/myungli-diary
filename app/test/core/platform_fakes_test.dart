@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_ids.dart';
 import 'package:myungli_diary/core/platform/ad_consent.dart';
+import 'package:myungli_diary/core/platform/admob_ads.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/app_check.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -329,6 +330,25 @@ void main() {
       );
       expect(odd.errorType, 'MissingDictionaryEntry');
       expect(odd.code, isNull);
+    });
+
+    test('AdMobLoadFailure는 메시지 없이 도메인과 코드만 담는다(#741)', () {
+      final summary = CrashSummary.from(
+        const AdMobLoadFailure(
+          3,
+          'No fill 홍길동',
+          domain: 'com.google.android.gms.ads',
+        ),
+      );
+      expect(summary.errorType, 'AdMobLoadFailure');
+      expect(summary.code, 'com.google.android.gms.ads.3');
+      expect(summary.toString(), isNot(contains('홍길동')));
+      expect(CrashSummary.from(const AdMobLoadFailure(1, 'x')).code, 'admob.1');
+      expect(
+        CrashSummary.from(const AdMobLoadFailure(0, 'x', domain: 'Odd Domain'))
+            .code,
+        'admob.0',
+      );
     });
 
     test('형식이 이상한 problem code는 버린다', () {

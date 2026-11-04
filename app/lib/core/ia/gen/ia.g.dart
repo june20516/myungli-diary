@@ -34,6 +34,7 @@ abstract final class ScreenIds {
   static const String mySaju = 'my-saju';
   static const String sajuChart = 'saju-chart';
   static const String settings = 'settings';
+  static const String contact = 'contact';
   static const String adFree = 'ad-free';
   static const String systemPurchase = 'system-purchase';
   static const String purchaseHistory = 'purchase-history';
@@ -206,6 +207,14 @@ abstract final class SlotIds {
       'settings.language.birthplace-notice';
   static const String settingsLogoutConfirm = 'settings.logout.confirm';
   static const String settingsAdFreeLabel = 'settings.ad-free.label';
+  static const String contactBarTitle = 'contact.bar.title';
+  static const String contactIntroBody = 'contact.intro.body';
+  static const String contactMessageField = 'contact.message.field';
+  static const String contactEmailField = 'contact.email.field';
+  static const String contactAttachedNotice = 'contact.attached.notice';
+  static const String contactSendCta = 'contact.send.cta';
+  static const String contactSentToast = 'contact.sent.toast';
+  static const String contactAddressNote = 'contact.address.note';
   static const String adFreeBarTitle = 'ad-free.bar.title';
   static const String adFreeOfferHead = 'ad-free.offer.head';
   static const String adFreeOfferPrice = 'ad-free.offer.price';
@@ -727,9 +736,19 @@ const List<IaScreen> iaScreens = [
       IaExit(to: 'login-methods', trigger: '로그인 수단'),
       IaExit(to: 'account-delete', trigger: '계정 삭제'),
       IaExit(to: 'legal', trigger: '약관·정책'),
+      IaExit(to: 'contact', trigger: '문의하기'),
       IaExit(to: 'welcome', trigger: '로그아웃 확인'),
     ],
     components: ['app-bar', 'settings-row', 'time-picker', 'sheet', 'dialog'],
+  ),
+  IaScreen(
+    id: 'contact',
+    tab: 'me',
+    presentation: IaPresentation.page,
+    auth: IaAuth.member,
+    states: ['error'],
+    exits: [IaExit(to: 'settings', trigger: '보낸 뒤')],
+    components: ['app-bar', 'text-field', 'primary-button', 'toast'],
   ),
   IaScreen(
     id: 'ad-free',
@@ -759,7 +778,7 @@ const List<IaScreen> iaScreens = [
     presentation: IaPresentation.page,
     auth: IaAuth.member,
     states: ['loading', 'empty', 'error', 'offline'],
-    exits: [],
+    exits: [IaExit(to: 'contact', trigger: '문의해 주세요 안내')],
     components: ['app-bar', 'purchase-row'],
   ),
   IaScreen(

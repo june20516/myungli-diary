@@ -7,6 +7,7 @@ import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/platform/admob_ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -67,6 +68,26 @@ void main() {
           .join();
       expect(recorded, isNot(contains('1990')));
       expect(recorded, isNot(contains('민수')));
+    });
+  });
+
+  group('광고 불러오기 실패 기록(#741)', () {
+    const failure = AdMobLoadFailure(
+      1,
+      'No ad to show',
+      domain: 'com.google.admob',
+    );
+
+    test('staging은 비치명 오류 요약으로 남깁니다', () {
+      final reporter = FakeCrashReporter();
+      reportAdLoadFailure(reporter, failure, staging: true);
+      expect(reporter.errors.single.code, 'com.google.admob.1');
+    });
+
+    test('prod(기본값)는 남기지 않습니다', () {
+      final reporter = FakeCrashReporter();
+      reportAdLoadFailure(reporter, failure);
+      expect(reporter.errors, isEmpty);
     });
   });
 
