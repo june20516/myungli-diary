@@ -7,6 +7,10 @@ import 'package:myungli_diary/app/myungli_app.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
 import 'package:patrol/patrol.dart';
 
+import 'staging_session.dart';
+
+export 'staging_session.dart' show E2eMode, e2eMode, e2eToday;
+
 /// 지금 도는 테스트의 흐름 이름입니다. 스크린샷 이름에 붙여, 여러 테스트가 같은 화면·상태를
 /// 찍어도 이름이 겹치지 않게 합니다(`launchApp`이 정합니다).
 String _flow = '';
@@ -14,7 +18,10 @@ String _flow = '';
 /// 흐름 이름 형식(소문자·숫자·-, 비어 있지 않음).
 final _flowPattern = RegExp(r'^[a-z0-9-]+$');
 
-/// fake 모드의 [scenario]로 앱을 띄웁니다. 모드 전환(http)은 후속 계획(A2)에서 더합니다.
+/// [scenario]로 앱을 띄웁니다.
+///
+/// fake 모드(기본)는 대역 server와 그 시나리오로 띄웁니다. staging 모드(`E2E_MODE=staging`)는
+/// 시나리오에 맞는 계정을 relay로 준비하고 staging server에 붙습니다([bootstrapStaging]).
 ///
 /// [flow]는 스크린샷 이름 충돌을 막는 테스트 흐름 이름(소문자·숫자·-)입니다.
 /// [deviceLocale]을 주면 기기 언어·지역을 그 값으로 고정합니다. 에뮬레이터 설정에 따라
@@ -27,13 +34,20 @@ Future<ProviderContainer> launchApp(
 }) async {
   assert(_flowPattern.hasMatch(flow), '흐름 이름은 소문자·숫자·-입니다: "$flow"');
   _flow = flow;
-  final container = await bootstrap(
-    mode: ApiMode.fake,
-    scenarioId: scenario,
-    deviceLocale: deviceLocale,
-    // Patrol의 오류 처리를 지킵니다.
-    installErrorHandlers: false,
-  );
+  checkE2eModeName();
+  final container = switch (e2eMode) {
+    E2eMode.fake => await bootstrap(
+      mode: ApiMode.fake,
+      scenarioId: scenario,
+      deviceLocale: deviceLocale,
+      // Patrol의 오류 처리를 지킵니다.
+      installErrorHandlers: false,
+    ),
+    E2eMode.staging => await bootstrapStaging(
+      scenario: scenario,
+      deviceLocale: deviceLocale,
+    ),
+  };
   await $.pumpWidget(
     UncontrolledProviderScope(container: container, child: const MyungliApp()),
   );
