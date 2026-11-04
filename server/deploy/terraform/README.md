@@ -82,7 +82,7 @@ terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.c
 `migrate up`은 `DB_RUNTIME_USER`를 `myungli_app` 구성원으로 두고, 그 사용자가 `cloudsqlsuperuser`에 속하면 실패합니다. 실패하면 런타임 DB 사용자를 지우고 다시 배포해 Terraform이 역할 없이 다시 만들게 합니다(`database_roles`는 provider가 다시 읽지 않아 목록 수정만으로는 거둬지지 않음).
 
 ```sh
-gcloud sql users delete "server-runtime@${project}.iam" --instance myungli-pg --type cloud_iam_service_account --project "$project"
+gcloud sql users delete "server-runtime@${project}.iam" --instance myungli-pg --project "$project"
 ```
 
 staging은 이 구조로 바꿀 때 데이터베이스 `myungli`와 런타임 DB 사용자를 지우고 배포가 다시 만들게 했습니다(2026-11-04). 다시 할 일은 아닙니다.
