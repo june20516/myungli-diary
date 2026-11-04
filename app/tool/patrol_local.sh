@@ -24,6 +24,8 @@
 #   PATROL_RUN_TIMEOUT    한 번 실행의 최대 초(기본 1800).
 #   PATROL_OFFLINE_GRACE  실행 중 기기가 빠져 있어도 기다리는 초(기본 60).
 #   PATROL_RETRIES        기기 문제일 때 다시 돌리는 횟수(기본 1).
+#   PATROL_API_MODE       앱의 API_MODE(fake|http, 기본 fake). staging E2E는 tool/patrol_staging.sh가 http로 부릅니다.
+#   PATROL_EXTRA_DEFINES  config/auth.json 다음에 더할 --dart-define-from-file 경로들(공백으로 구분, 기본 없음).
 #
 # 종료 코드: 0 통과, 1 테스트 실패, 2 기기 문제(다시 돌려도 안 됨), 3 환경 문제(잠금·기기 없음·도구 없음),
 #           4 시간 초과.
@@ -44,6 +46,16 @@ boot_timeout="${PATROL_BOOT_TIMEOUT:-180}"
 run_timeout="${PATROL_RUN_TIMEOUT:-1800}"
 offline_grace="${PATROL_OFFLINE_GRACE:-60}"
 retries="${PATROL_RETRIES:-1}"
+api_mode="${PATROL_API_MODE:-fake}"
+
+# 앱 빌드에 넘기는 dart-define. 기본값이면 config/auth.json과 API_MODE=fake 둘뿐입니다.
+define_args=(--dart-define-from-file=config/auth.json)
+read -r -a extra_define_files <<<"${PATROL_EXTRA_DEFINES:-}"
+for define_file in "${extra_define_files[@]+"${extra_define_files[@]}"}"; do
+  define_args+=("--dart-define-from-file=$define_file")
+done
+define_args+=("--dart-define=API_MODE=$api_mode")
+
 poll=10
 
 log_dir="build/patrol-local"
@@ -151,6 +163,20 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 130' INT TERM
 
+case "$api_mode" in
+  fake | http) ;;
+  *)
+    say "PATROL_API_MODE는 fake 또는 http여야 합니다: $api_mode"
+    exit 3
+    ;;
+esac
+for define_file in "${extra_define_files[@]+"${extra_define_files[@]}"}"; do
+  if [[ ! -f "$define_file" ]]; then
+    say "dart-define 파일이 없습니다: $define_file"
+    exit 3
+  fi
+done
+
 if [[ ! -x "$patrol" ]]; then
   say "patrol CLI가 없습니다(dart pub global activate patrol_cli)"
   exit 3
@@ -163,7 +189,7 @@ say "기기 $serial"
 run_once() {
   local log="$1"
   "$patrol" test -d "$serial" -t "$target" \
-    --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 \
+    "${define_args[@]}" --test-server-port 47281 --app-server-port 47282 \
     "${extra_args[@]+"${extra_args[@]}"}" </dev/null >"$log" 2>&1 &
   run_pid=$!
   local elapsed=0 offline=0 verdict=""
