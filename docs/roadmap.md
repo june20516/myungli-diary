@@ -16,7 +16,7 @@
 | S2 | server 구현: 인증·프로필·일기·콘텐츠 모듈·엔진 클라이언트 | server | S1, C2 | S3, I1 | **진행 중** (P1 기반·REST 초안 PR #62, P2 인증·계정·약관 PR #99, P2a Apple 웹 로그인 복귀 PR #113, P3 프로필·엔진·캐시 PR #163·#171(REST draft.3), draft.4 PR #225(근거 문장·도시 경도)·draft.5 PR #233(일정 범위·달력 캐시), P4 콘텐츠 모듈 PR #238(시드·렌더러·운세 operation·용어 사전·반응), P4 후속 PR #262(notice 렌더·`birthCity`, draft.6), P5 일기·일정·`Idempotency-Key` PR #270(draft.7), P6 비로그인·참조와 D66·D60·D75 정리 PR #305(draft.8), P7 결제와 권한(RevenueCat·AdMob SSV·권한 판정)과 S77 필드 제거 PR #338(draft.9), 나의 사주 문장 필드·법적 문서 정적 페이지 PR #342(draft.10, D80), S3 freeze 준비 PR #346(draft.11, 열린 enum·알림 기기 S92·S93). S3 freeze PR #528(1.0.0), 그 뒤 하위 호환 추가 1.1.0 PR #571, 1.2.0 PR #584. 남은 것: P8 Job(precompute, notify, retention)과 알림 기기 API `registerDevice`·`deleteDevice`. staging 배포 P9는 T1에서) |
 | S3 | **REST API v1 freeze** | server | S2 | A2, I2 | **완료** (PR #528 `1.0.0`, S114. IA 화면 40개와 계약 대조, 남은 빈틈은 freeze 뒤 minor. 제품 판단 #527은 D90) |
 | A1 | app 설계 (spec·계획), 대역 데이터로 화면 구현 | app | R0, IA, M0, V2 | A2 | **완료** (IA 화면 40개를 대역 데이터로 모두 구현, 마지막 화면 `login-methods`·`account-merge`는 PR #588(2026-10-28). 후속 맞춤 #587·#353·#354·#331은 A2와 나란히. 아키텍처 spec·결정 A1~A15 PR #95, 기반 구현 PR #117: 앱 셸·통신·캐시·디자인 시스템·플랫폼 대역·E2E 뼈대, 결정 A16. 계획 2 온보딩·로그인 PR #149: 화면 13개, 결정 A17~A21, IA v2 반영. 계획 3 오늘·깊이 시트 PR #196: today·풀이·근거·공유 시트, 결정 A22~A27, 컴포넌트 2.3.0 반영. IA v3 화면 PR #215(birthplace 한국 표준 소개·calc-basis, 결정 A28~A31). 계획 4 달력·일정 PR #253(결정 A32~A43, 오늘 대표 태그 D76), 컴포넌트 2.6.0·draft.6 따라잡기 PR #269(A44), 계획 5 일기 1부(컴포넌트·데이터, A45~A53) PR #303, 계획 5 화면 4개·흐름·E2E와 생일 음력 V31 모양 PR #310(A54, 규칙 정합성 #282 마무리), 계획 6 나·설정 PR #345(A55~A66: `my-saju`·`saju-chart`·`settings`·`profile-edit`·`account-delete`·`legal`, drift draft.9~11·IA v4 따라잡기, 열린 enum #347 ①, 화면 스크린샷 도구 #336). 남은 것: 따라잡기 #504·#518·#484·#493과 화면 일 #387(로그인 수단·계정 합치기 화면)·#418·#453. 실제 SDK adapter(계획 7)는 A2로 옮김(D91 ①)) |
-| A2 | app의 실제 API 연동: `local` server로 REST 연동, 실제 SDK adapter(카카오·Apple·LINE·Google 로그인 #311, App Link, FCM #347 ②, RevenueCat·AdMob, D91 ①) | app | S3 (A1과 나란히) | I2 | **거의 완료** (실제 SDK adapter와 실기기 확인 끝: Android 1.0.0+4, iOS 1.0.0 (3), 로그인 다섯, App Link, 계정 연결과 합치기, 2026-11-03. 남은 것: #736 컴포넌트 3.3.0 반영, drift #727, #735 빌드 번호 규칙을 한 PR로) |
+| A2 | app의 실제 API 연동: `local` server로 REST 연동, 실제 SDK adapter(카카오·Apple·LINE·Google 로그인 #311, App Link, FCM #347 ②, RevenueCat·AdMob, D91 ①) | app | S3 (A1과 나란히) | I2 | **완료** (실제 SDK adapter와 실기기 확인: Android 1.0.0+4, iOS 1.0.0 (3), 로그인 다섯, App Link, 계정 연결과 합치기, 2026-11-03. 컴포넌트 3.3.0과 빌드 번호 규칙 A104 PR #748, D101 모의 광고 PR #762, D102 문의 화면 PR #779) |
 | B0 | 브랜드 기반 확정 (`docs/identity/README.md`) | 지휘 | 브랜드 기반 spec 승인 | W0, V0, IA | **완료** |
 | IA | MVP 화면 목록: 화면, 목적, 화면마다 들어갈 문장 슬롯과 컴포넌트 (계약, D39) | 지휘 | B0 | W0 슬롯 목록, V2, A1 | **완료** (D47~D51, `docs/ia/screens.json` v1). v2: 선택 동의 제거(D67)와 계획 2 차이(D68), PR #133. v3: 출생지 화면의 한국 기준 소개·계산 기준 로그인 전 열람(D71), PR #157 |
 | M0 | 수익화 결정 체계 수립과 첫 사이클, MVP 범위 재검증 | 지휘 | IA | S1·A1 착수 | **완료** (D53, 비공개 기록 `business/`) |
@@ -29,7 +29,7 @@
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3, T1 | - |
 | H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 준비 메모 [`docs/specs/2026-10-30-context-slimming-design.md`](specs/2026-10-30-context-slimming-design.md) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | 시작 전 |
 | Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
-| O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | 시작 전 |
+| O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | **완료** (server 알림 정책, uptime check, 예산 알림, 대응 절차 PR #764 S133. app Crashlytics 보고와 Android 심볼 업로드 PR #760) |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
 | L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | 시작 전 (T1과 나란히) |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
@@ -39,23 +39,23 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-11-04 아침 기준)
+## 현재 진행 순서 (2026-11-04 오후 기준)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 app #727(writing en 원고) 하나입니다. T1을 막지 않는 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①). 통합 마일스톤(I2~)은 열린 drift가 0이어야 시작합니다.
-* **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②).
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** A2 마무리(#736, #727, #735) → I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → Q1(보안 점검) → T1. O1(관측)은 T1 전까지, L1(부하 테스트)은 T1과 나란히. Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1 뒤 출시를 막으므로 테스터 이메일 12개를 지금 모읍니다.
-* **실기기:** Android는 Play 내부 테스트 1.0.0+4(R8 keep 규칙 PR #730), iOS는 TestFlight 1.0.0 (3)입니다. 빌드 번호는 `+N` 하나를 함께 쓰고 바뀐 플랫폼만 올립니다(#735). 로그인 다섯, App Link, 계정 연결과 합치기를 실기기에서 확인했습니다(2026-11-03). LINE은 Developing 채널이라 Tester 역할 계정만 로그인됩니다(E10, T1 직전 Published).
-* **staging 상태:** server, 엔진, Test Store 결제(D99), AdMob SSV(S126), health `GET /health`(S127), 미리 계산(S128), 아침 알림 발송(S129)까지 배포됐습니다. I1 완료(엔진 호출 확인). 공개 주소의 `/.well-known/`은 Hosting `appAssociation: NONE`으로 server가 답합니다(PR #740, S130, 지문 2개 확인).
-* **광고:** AdMob 두 앱이 "검토 필요"(스토어 출시와 연결 전)라 테스트 기기가 아닌 기기에는 실제 광고가 나오지 않고, 테스트 광고에는 SSV 콜백이 오지 않습니다(#741). staging에서 광고와 보상을 어떻게 거칠지는 D101(안, 사용자 결정 대기): 표시는 AdMob 먼저 안 되면 모의 광고, 보상은 staging 전용 경로로 같은 보상 처리 함수.
-* **야간 E2E:** #700 수정(PR #708) 뒤 11-03 실행 성공. 며칠 더 지켜봅니다.
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift는 app #756(D102 문의 화면) 하나이며, PR #779로 맞춰 main 검사가 통과하면 자동으로 닫힙니다. 통합 마일스톤(I2~)은 열린 drift가 0이어야 시작합니다.
+* **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②). CI는 `gh run watch` 없이 60초 이상 간격으로 확인합니다.
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** I2(staging에서 app E2E) → 검수 피드백 회차 → H1(기준 문서 정리) → bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. A2와 O1은 끝났습니다. L1(부하 테스트)은 T1과 나란히. Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1 뒤 출시를 막으므로 테스터 이메일 12개를 지금 모읍니다.
+* **실기기:** Android는 Play 내부 테스트 1.0.0+4, iOS는 TestFlight 1.0.0 (3)입니다. 다음 빌드(Android +6, iOS는 바뀌었으면 같은 번호, A104)로 모의 광고와 근거 보기, 문의 화면을 확인합니다. staging DB를 #778 복구 때 비웠으므로 로그인과 온보딩을 다시 합니다. LINE은 Developing 채널이라 Tester 역할 계정만 로그인됩니다(E10, T1 직전 Published).
+* **staging 상태:** server, 엔진, Test Store 결제(D99), AdMob SSV(S126), health(S127), 미리 계산(S128), 아침 알림(S129), O1 알림(S133), 문의 메일 전달(S134, Resend), 런타임 DB 권한 분리(S137)까지 배포됐습니다. 광고는 staging에서 모의 광고와 staging 보상 경로(D101, S131)로 같은 보상 처리를 거칩니다.
+* **T1 전에 남은 server 일:** 클라이언트 IP 측정 결과로 `TRUSTED_PROXY_HOPS` 설정(S135, 테스터가 같은 IP 한도를 나눠 쓰지 않게). bootstrap 변경(S136 로그 제외 등)은 Q1 전에 한 번에 apply(D103).
+* **I4 전에 남은 일:** prod `RESEND_API_KEY`, SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 스토어 지원 연락처 `support@`, 법적 문서 원문(E16).
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | app | #736(V52~V54) + #735 빌드 번호 규칙 PR(진행 중, 브랜치 `app/components-3.3`) → A2 완료 → #741(보상 기다림 시간 제한, D101 모의 광고) → #739 O1(Crashlytics 보고, 심볼 업로드) → I2 준비 | I2, T1 |
-| 지금 | server | #738 O1(알림 정책, uptime check `GET /health`, 예산 알림, 대응 절차, Terraform). D101이 정해지면 staging 전용 보상 경로. (#729 PR #740 S130 완료) | O1, T1 |
-| 지금 | 지휘 | D101(staging 모의 광고) 사용자 결정 받아 기록, server와 app에 요청 → I2 착수 판단(A2 완료, drift 0) → 검수 피드백 회차 받기 | T1 |
-| 지금 | 사용자 | 실기기로 써 보며 검수 피드백, 테스터 이메일 12개 모으기(#535), TestFlight 내부 테스터 | T1 |
+| 지금 | app | drift #756 닫힘 확인 → I2(app E2E를 staging http 모드로, 지휘 요청) | I2, T1 |
+| 지금 | server | `TRUSTED_PROXY_HOPS` 측정과 설정(S135), bootstrap 묶음 목록 유지(D103) | T1 |
+| 지금 | 지휘 | drift 0 확인 뒤 I2 요청 → 검수 피드백 회차 받기 → H1 착수 | T1 |
+| 지금 | 사용자 | 다음 실기기 빌드로 써 보며 검수 피드백, 테스터 이메일 12개 모으기(#535), TestFlight 내부 테스터 | T1 |
 | 필요할 때 | design | 요청이 오면. T1 피드백 뒤 앱 아이콘 다듬기 | - |
 | 필요할 때 | writing | 요청이 오면. 구매 상태 `owned` 키 #531(MVP 밖). core #625 답이 오면 반영 | I3 |
 | 필요할 때 | core | #625(writing 요청, 조후표 칸), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | I3 |
