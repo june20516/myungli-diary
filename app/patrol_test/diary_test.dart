@@ -13,9 +13,11 @@ import 'package:myungli_diary/testing/covers.dart';
 import 'package:patrol/patrol.dart';
 
 import 'support/e2e_app.dart';
+import 'support/e2e_dates.dart';
 
-/// 시나리오 member에서 일기가 없던 날입니다. 이 흐름에서 쓰고 지웁니다.
-final _day = CalendarDate(2026, 10, 10);
+/// 쓸 날이 오늘보다 며칠 앞인지입니다. fake의 member는 이날에 일기가 없고(2026-10-10), staging 계정은
+/// 일기가 하나도 없습니다. 이 흐름에서 쓰고 지웁니다.
+const _daysBeforeToday = 3;
 
 /// 새 일기 본문입니다.
 const _body = '비가 그친 오후에 산책을 했다.';
@@ -53,7 +55,7 @@ void main() {
         decisions: ['D49'],
       ),
     );
-    await launchApp(
+    final container = await launchApp(
       $,
       flow: 'diary',
       scenario: 'member',
@@ -61,19 +63,33 @@ void main() {
     );
     await waitForScreen($, ScreenIds.today);
 
-    // 일기 탭: 쓴 일기 넷, 고를 날은 아직 없음.
+    // 쓸 날은 앱이 쓰는 오늘의 3일 전입니다(fake는 10월 10일, staging은 기기의 실제 오늘 기준).
+    final today = e2eToday(container);
+    final day = daysBefore(today, _daysBeforeToday);
+
+    // 일기 탭: 고를 날은 아직 없음. fake의 member는 쓴 일기가 넷입니다(staging 계정은 없음).
     await $(find.byKey(const ValueKey('tab-bar.tab.2'))).tap();
     await expectScreen($, ScreenIds.diaryList);
-    await _waitUntil($, () => find.byType(DiaryRow).evaluate().length == 4);
-    expect(_rowOf(_day), findsNothing);
-    final l10n = AppLocalizations.of(
-      $.tester.element(find.byKey(const ValueKey(ScreenIds.diaryList))),
+    if (e2eMode == E2eMode.fake) {
+      await _waitUntil($, () => find.byType(DiaryRow).evaluate().length == 4);
+    }
+    expect(_rowOf(day), findsNothing);
+    final listElement = $.tester.element(
+      find.byKey(const ValueKey(ScreenIds.diaryList)),
     );
+    final l10n = AppLocalizations.of(listElement);
+    final locale = Localizations.localeOf(listElement).toString();
 
-    // 날짜 골라 쓰기 → 그날 쓰기 화면.
+    // 날짜 골라 쓰기 → 그날 쓰기 화면. 3일 전이 지난 달이면 날짜 고르기에서 이전 달로 넘깁니다.
     await $(find.byKey(DiaryListScreen.pickDateKey)).tap();
-    await $(find.byKey(CalendarMonthView.cellKey(_day))).tap();
-    final confirm = find.text(l10n.diaryListPickDateConfirm('10월 10일'));
+    for (var i = 0; i < previousMonthTaps(today, day); i++) {
+      await $(find.byKey(CalendarMonthView.prevKey)).tap();
+      await $.pumpAndTrySettle();
+    }
+    await $(find.byKey(CalendarMonthView.cellKey(day))).tap();
+    final confirm = find.text(
+      l10n.diaryListPickDateConfirm(pickDateLabel(day, locale)),
+    );
     await $(confirm).scrollTo();
     await $(confirm).tap();
     await expectScreen($, ScreenIds.diaryEdit);
@@ -99,10 +115,10 @@ void main() {
           .first,
     ).tap();
     await expectScreen($, ScreenIds.tagDiary);
-    await _waitUntil($, () => _rowOf(_day).evaluate().isNotEmpty);
+    await _waitUntil($, () => _rowOf(day).evaluate().isNotEmpty);
 
     // 그 줄 → 보기 → 지우기 → 확인 창에서 지우기.
-    await $(_rowOf(_day)).tap();
+    await $(_rowOf(day)).tap();
     await waitForScreen($, ScreenIds.diaryView);
     await _waitUntil(
       $,
@@ -119,7 +135,7 @@ void main() {
     ).tap();
 
     // 태그 모아보기로 돌아오고, 지운 날이 빠집니다.
-    await _waitUntil($, () => _rowOf(_day).evaluate().isEmpty);
+    await _waitUntil($, () => _rowOf(day).evaluate().isEmpty);
     expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsOneWidget);
   });
 }

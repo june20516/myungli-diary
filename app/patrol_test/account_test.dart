@@ -39,63 +39,71 @@ Future<void> _waitUntil(
 }
 
 void main() {
-  patrolTest('설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기', ($) async {
-    covers(
-      const Covers(
-        exits: [
-          'settings>login-methods',
-          'login-methods>account-merge',
-          'account-merge>login-methods',
-        ],
-        states: ['login-methods:error'],
-        decisions: ['D82', 'D85'],
-      ),
-    );
-    final container = await launchApp($, flow: 'account', scenario: 'member');
+  patrolTest(
+    '설정 > 로그인 수단: LINE 붙이기, 이미 쓰는 Google 안내, 계정 합치기',
+    // LINE, Google 붙이기와 합치기는 server가 제공자 id_token을 검증하므로 staging에서는 테스트
+    // 로그인으로 대신할 수 없습니다. fake 모드에서만 돕니다.
+    skip: e2eMode == E2eMode.staging,
+    ($) async {
+      covers(
+        const Covers(
+          exits: [
+            'settings>login-methods',
+            'login-methods>account-merge',
+            'account-merge>login-methods',
+          ],
+          states: ['login-methods:error'],
+          decisions: ['D82', 'D85'],
+        ),
+      );
+      final container = await launchApp($, flow: 'account', scenario: 'member');
 
-    // today에서 설정까지의 길은 me 흐름이 덮으므로 경로로 바로 들어갑니다.
-    await waitForScreen($, ScreenIds.today);
-    unawaited(
-      container.read(routerProvider).push<void>(pathOf(ScreenIds.settings)),
-    );
-    await waitForScreen($, ScreenIds.settings);
-    await $(find.byKey(SettingsScreen.loginMethodsRowKey)).scrollTo().tap();
+      // today에서 설정까지의 길은 me 흐름이 덮으므로 경로로 바로 들어갑니다.
+      await waitForScreen($, ScreenIds.today);
+      unawaited(
+        container.read(routerProvider).push<void>(pathOf(ScreenIds.settings)),
+      );
+      await waitForScreen($, ScreenIds.settings);
+      await $(find.byKey(SettingsScreen.loginMethodsRowKey)).scrollTo().tap();
 
-    await expectScreen($, ScreenIds.loginMethods);
-    await _waitUntil(
-      $,
-      () => _button(SocialProvider.kakao).evaluate().isNotEmpty,
-    );
-    expect(_connected($, SocialProvider.line), false);
+      await expectScreen($, ScreenIds.loginMethods);
+      await _waitUntil(
+        $,
+        () => _button(SocialProvider.kakao).evaluate().isNotEmpty,
+      );
+      expect(_connected($, SocialProvider.line), false);
 
-    // LINE 붙이기: 목록에 LINE이 생깁니다.
-    await $(_button(SocialProvider.line)).tap();
-    await _waitUntil($, () => _connected($, SocialProvider.line));
+      // LINE 붙이기: 목록에 LINE이 생깁니다.
+      await $(_button(SocialProvider.line)).tap();
+      await _waitUntil($, () => _connected($, SocialProvider.line));
 
-    // Google 붙이기: 다른 계정이 쓰는 인증 수단이라 안내만 뜨고 화면에 남습니다.
-    await $(_button(SocialProvider.google)).tap();
-    await $(find.byKey(const ValueKey(SlotIds.loginMethodsInUseBody)))
-        .waitUntilVisible();
-    await $.tap(find.text('확인'));
-    expect(_connected($, SocialProvider.google), false);
+      // Google 붙이기: 다른 계정이 쓰는 인증 수단이라 안내만 뜨고 화면에 남습니다.
+      await $(_button(SocialProvider.google)).tap();
+      await $(find.byKey(const ValueKey(SlotIds.loginMethodsInUseBody)))
+          .waitUntilVisible();
+      await $.tap(find.text('확인'));
+      expect(_connected($, SocialProvider.google), false);
 
-    // 합치기 입구 > 인증(연결하지 않은 Google) > 요약
-    await $(find.byKey(LoginMethodsScreen.mergeCtaKey)).scrollTo().tap();
-    await expectScreen($, ScreenIds.accountMerge);
-    await $(_button(SocialProvider.google)).tap();
-    await $(find.byKey(AccountChoice.cardKey(1))).waitUntilVisible();
+      // 합치기 입구 > 인증(연결하지 않은 Google) > 요약
+      await $(find.byKey(LoginMethodsScreen.mergeCtaKey)).scrollTo().tap();
+      await expectScreen($, ScreenIds.accountMerge);
+      await $(_button(SocialProvider.google)).tap();
+      await $(find.byKey(AccountChoice.cardKey(1))).waitUntilVisible();
 
-    // 다른 계정 프로필을 고르고 확인하면 login-methods로 돌아갑니다.
-    await $(find.byKey(AccountChoice.cardKey(1))).tap();
-    await $(find.byKey(AccountMergeScreen.mergeCtaKey)).scrollTo().tap();
-    await $.tap(find.text('합치기').last);
-    await _waitUntil(
-      $,
-      () =>
-          find.byKey(const ValueKey(ScreenIds.accountMerge)).evaluate().isEmpty,
-    );
-    await waitForScreen($, ScreenIds.loginMethods);
-    expect(find.byKey(const ValueKey(ScreenIds.accountMerge)), findsNothing);
-    expect(_connected($, SocialProvider.line), true);
-  });
+      // 다른 계정 프로필을 고르고 확인하면 login-methods로 돌아갑니다.
+      await $(find.byKey(AccountChoice.cardKey(1))).tap();
+      await $(find.byKey(AccountMergeScreen.mergeCtaKey)).scrollTo().tap();
+      await $.tap(find.text('합치기').last);
+      await _waitUntil(
+        $,
+        () => find
+            .byKey(const ValueKey(ScreenIds.accountMerge))
+            .evaluate()
+            .isEmpty,
+      );
+      await waitForScreen($, ScreenIds.loginMethods);
+      expect(find.byKey(const ValueKey(ScreenIds.accountMerge)), findsNothing);
+      expect(_connected($, SocialProvider.line), true);
+    },
+  );
 }
