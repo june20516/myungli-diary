@@ -8,6 +8,7 @@
 /// 단위 테스트(`test/patrol_support/`)가 읽을 수 있게 `package:patrol`을 import하지 않습니다.
 library;
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -18,6 +19,8 @@ import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/api/interceptors/auth.dart'
+    show skipAuthExtra;
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/admob_ads.dart';
@@ -123,6 +126,9 @@ StagingSetup stagingSetupFor(String scenario) => switch (scenario) {
 ///
 /// 기기에는 실제 제공자 토큰이 없으므로, relay가 staging 테스트 로그인(S24)을 [label]로 대신 부르고
 /// 응답(LoginResponse)을 그대로 돌려줍니다. 토큰 갱신, 로그아웃, Apple 웹 흐름은 바꾸지 않습니다.
+///
+/// 돌린 요청에는 [skipAuthExtra]를 붙입니다. `/login`은 계약에 없는 경로라 인증 interceptor가
+/// bearer가 필요한 요청으로 보고 refresh를 끼우거나 401을 세션 오류로 처리하지 않게 합니다.
 final class RelayLoginInterceptor extends Interceptor {
   /// 로그인마다 [label]의 테스트 계정을 쓰는 interceptor를 만듭니다.
   new(this.label);
@@ -145,6 +151,7 @@ final class RelayLoginInterceptor extends Interceptor {
         ..path = '/login'
         ..queryParameters = {}
         ..data = {'label': label}
+        ..extra[skipAuthExtra] = true
         // 제공자 토큰과 App Check 헤더를 relay에 넘기지 않습니다.
         ..headers = {Headers.contentTypeHeader: Headers.jsonContentType};
     }
@@ -191,6 +198,28 @@ final List<Override> stagingReplacements = [
   ),
 ];
 
+/// `dioProvider`를 감싸 [RelayLoginInterceptor]를 Dio 맨 앞에 둔 override입니다.
+///
+/// `dioProvider`가 지켜보는 provider(토큰 보관소, App Check, base URL 등)가 바뀌어 Dio가 다시
+/// 만들어져도 새 Dio마다 interceptor가 들어가도록 Dio를 만드는 자리에서 끼웁니다. 만드는 법은
+/// `lib/core/api/api_providers.dart`의 `dioProvider`와 같아야 하고, 단위 테스트가 interceptor 구성을
+/// 원래 Dio와 대조해 어긋남을 잡습니다(lib/를 고치지 않으려고 본문을 옮겨 둠).
+/// 맨 앞에 두어 뒤의 공통 헤더 interceptor가 relay 경로(`/login`)를 보고 App Check를
+/// 붙이지 않게 합니다.
+Override relayDioOverride(String label) => dioProvider.overrideWith((ref) {
+  final dio = buildDio(
+    mode: ref.watch(apiModeProvider),
+    baseUrl: ref.watch(baseUrlProvider),
+    tokens: ref.watch(tokenStoreProvider),
+    appCheck: ref.watch(appCheckProvider),
+    locale: () => ref.read(localeProvider),
+    fakeServer: ref.watch(fakeServerProvider),
+  );
+  ref.onDispose(dio.close);
+  dio.interceptors.insert(0, RelayLoginInterceptor(label));
+  return dio;
+});
+
 /// 앱이 "오늘"로 쓰는 날짜입니다(`todayProvider`: `clockProvider`와 프로필 시간대 기준).
 ///
 /// fake 모드는 시나리오 `today`, staging 모드는 staging을 도는 기기의 실제 오늘입니다. 흐름 테스트는
@@ -200,57 +229,65 @@ CalendarDate e2eToday(ProviderContainer container) =>
 
 /// [scenario]에 맞춰 staging 계정을 준비하고 http 모드로 앱 루트 container를 만듭니다.
 ///
-/// relay가 없으면 기다리지 않고 [StateError]('relay 준비 안 됨: ...')로 끝납니다.
-/// 로그인 요청은 이 실행의 새 label로 relay에 갑니다([RelayLoginInterceptor]).
+/// relay를 먼저 확인하므로, relay가 없으면 앱 준비(Firebase, SDK 초기화)를 기다리지 않고
+/// [StateError]('relay 준비 안 됨: ...')로 끝납니다. 로그인 요청은 이 실행의 새 label로 relay에
+/// 갑니다([relayDioOverride]).
 Future<ProviderContainer> bootstrapStaging({
   required String scenario,
   Locale? deviceLocale,
 }) async {
   final setup = stagingSetupFor(scenario);
   final label = newRelayLabel();
-  final container = await bootstrap(
-    mode: ApiMode.http,
-    deviceLocale: deviceLocale,
-    // Patrol의 오류 처리를 지킵니다.
-    installErrorHandlers: false,
-    skipRealPlatform: stagingReplacedProviders,
-    overrides: stagingReplacements,
-  );
   final relay = Dio(BaseOptions(baseUrl: relayBaseUrl));
   try {
-    await _expectRelayReady(relay);
-    await _prepareAccount(container, relay, label: label, setup: setup);
-  } on Object {
-    container.dispose();
-    rethrow;
+    await expectRelayReady(relay);
+    final container = await bootstrap(
+      mode: ApiMode.http,
+      deviceLocale: deviceLocale,
+      // Patrol의 오류 처리를 지킵니다.
+      installErrorHandlers: false,
+      skipRealPlatform: stagingReplacedProviders,
+      overrides: [...stagingReplacements, relayDioOverride(label)],
+    );
+    try {
+      await _prepareAccount(container, relay, label: label, setup: setup);
+    } on Object {
+      container.dispose();
+      rethrow;
+    }
+    return container;
   } finally {
     relay.close();
   }
-  // 맨 앞에 두어 뒤의 공통 헤더(App Check)와 인증 interceptor가 relay 경로를 보게 합니다.
-  container
-      .read(dioProvider)
-      .interceptors
-      .insert(0, RelayLoginInterceptor(label));
-  return container;
 }
 
 /// relay `GET /ready`가 200인지 봅니다. 아니면 [StateError]입니다.
-Future<void> _expectRelayReady(Dio relay) async {
+///
+/// 메시지 끝에 원인을 붙입니다: 상태 코드(relay는 떠 있으나 응답이 200이 아님), `timeout`,
+/// 또는 [DioExceptionType] 이름(`connectionError`면 relay나 `adb reverse`가 없음).
+/// 비밀은 담지 않습니다.
+@visibleForTesting
+Future<void> expectRelayReady(
+  Dio relay, {
+  Duration timeout = _relayReadyTimeout,
+}) async {
+  String cause;
   try {
     final response = await relay
         .get<Object?>(
           '/ready',
-          options: Options(
-            sendTimeout: _relayReadyTimeout,
-            receiveTimeout: _relayReadyTimeout,
-          ),
+          options: Options(sendTimeout: timeout, receiveTimeout: timeout),
         )
-        .timeout(_relayReadyTimeout);
+        .timeout(timeout);
     if (response.statusCode == 200) return;
-  } on Object {
-    // 아래에서 같은 오류로 끝냅니다.
+    cause = 'status ${response.statusCode}';
+  } on DioException catch (error) {
+    final status = error.response?.statusCode;
+    cause = status == null ? error.type.name : 'status $status';
+  } on TimeoutException {
+    cause = 'timeout';
   }
-  throw StateError('relay 준비 안 됨: tool/patrol_staging.sh로 실행');
+  throw StateError('relay 준비 안 됨: tool/patrol_staging.sh로 실행 ($cause)');
 }
 
 /// [setup]대로 계정을 만들고, 로그인한 채로 띄울 때는 refresh token을 심습니다.

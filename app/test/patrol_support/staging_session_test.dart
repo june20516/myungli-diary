@@ -1,8 +1,14 @@
+import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/api/interceptors/auth.dart'
+    show skipAuthExtra;
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 
@@ -27,6 +33,28 @@ final class _CapturingHandler extends RequestInterceptorHandler {
   @override
   void next(RequestOptions requestOptions) => passed = requestOptions;
 }
+
+/// 요청마다 [respond]의 결과를 돌려주는 relay 대역 adapter입니다.
+final class _RelayAdapter implements HttpClientAdapter {
+  new(this.respond);
+
+  final Future<ResponseBody> Function(RequestOptions options) respond;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) => respond(options);
+
+  @override
+  void close({bool force = false}) {}
+}
+
+/// [respond]로 답하는 relay Dio입니다.
+Dio _relayDio(Future<ResponseBody> Function(RequestOptions) respond) =>
+    Dio(BaseOptions(baseUrl: relayBaseUrl))
+      ..httpClientAdapter = _RelayAdapter(respond);
 
 void main() {
   test('label은 e2e로 시작하는 영숫자 32자 이하입니다', () {
@@ -93,6 +121,7 @@ void main() {
           'content-type',
         ], reason: provider);
         expect(passed.contentType, Headers.jsonContentType, reason: provider);
+        expect(passed.extra[skipAuthExtra], isTrue, reason: provider);
       }
     });
 
@@ -118,6 +147,7 @@ void main() {
         expect(passed.baseUrl, 'https://staging.example', reason: path);
         expect(passed.path, path, reason: path);
         expect(passed.data, {'refreshToken': 'r'}, reason: path);
+        expect(passed.extra.containsKey(skipAuthExtra), isFalse, reason: path);
       }
     });
   });
@@ -142,5 +172,101 @@ void main() {
     );
     addTearDown(container.dispose);
     expect(e2eToday(container), CalendarDate(2026, 11, 1));
+  });
+
+  group('relayDioOverride', () {
+    List<Type> interceptorTypesOf(Dio dio) =>
+        dio.interceptors.map((i) => i.runtimeType).toList();
+
+    test('원래 dioProvider 구성 맨 앞에 relay interceptor를 더합니다', () {
+      final original = ProviderContainer(
+        overrides: [apiModeProvider.overrideWithValue(ApiMode.http)],
+      );
+      addTearDown(original.dispose);
+      final relayed = ProviderContainer(
+        overrides: [
+          apiModeProvider.overrideWithValue(ApiMode.http),
+          relayDioOverride('e2e1abcd'),
+        ],
+      );
+      addTearDown(relayed.dispose);
+
+      final originalDio = original.read(dioProvider);
+      final relayedDio = relayed.read(dioProvider);
+      expect(interceptorTypesOf(relayedDio), [
+        RelayLoginInterceptor,
+        ...interceptorTypesOf(originalDio),
+      ]);
+      expect(relayedDio.options.baseUrl, originalDio.options.baseUrl);
+      expect(
+        relayedDio.options.receiveTimeout,
+        originalDio.options.receiveTimeout,
+      );
+    });
+
+    test('Dio가 다시 만들어져도 새 Dio에 relay interceptor가 있습니다', () {
+      final container = ProviderContainer(
+        overrides: [
+          apiModeProvider.overrideWithValue(ApiMode.http),
+          relayDioOverride('e2e1abcd'),
+        ],
+      );
+      addTearDown(container.dispose);
+      final first = container.read(dioProvider);
+
+      container.invalidate(tokenStoreProvider);
+      final rebuilt = container.read(dioProvider);
+
+      expect(rebuilt, isNot(same(first)));
+      expect(rebuilt.interceptors.first, isA<RelayLoginInterceptor>());
+    });
+  });
+
+  group('expectRelayReady', () {
+    Future<ResponseBody> answer(int status) async =>
+        ResponseBody.fromString('{}', status);
+
+    test('200이면 통과합니다', () async {
+      await expectRelayReady(_relayDio((_) => answer(200)));
+    });
+
+    Matcher notReady(String cause) => throwsA(
+      isA<StateError>().having(
+        (e) => e.message,
+        'message',
+        'relay 준비 안 됨: tool/patrol_staging.sh로 실행 ($cause)',
+      ),
+    );
+
+    test('relay가 200이 아닌 상태로 답하면 상태 코드를 붙입니다', () {
+      expect(
+        expectRelayReady(_relayDio((_) => answer(503))),
+        notReady('status 503'),
+      );
+    });
+
+    test('relay에 닿지 못하면 DioExceptionType 이름을 붙입니다', () {
+      expect(
+        expectRelayReady(
+          _relayDio(
+            (options) => throw DioException.connectionError(
+              requestOptions: options,
+              reason: 'refused',
+            ),
+          ),
+        ),
+        notReady('connectionError'),
+      );
+    });
+
+    test('답이 없으면 timeout을 붙입니다', () {
+      expect(
+        expectRelayReady(
+          _relayDio((_) => Completer<ResponseBody>().future),
+          timeout: const Duration(milliseconds: 50),
+        ),
+        notReady('timeout'),
+      );
+    });
   });
 }
