@@ -51,13 +51,16 @@ void main() {
     );
     await $.pumpAndTrySettle();
 
-    // 보내면 설정으로 돌아와 그 화면에서 toast를 보입니다.
-    await $(find.byKey(ContactScreen.sendKey)).tap();
-    await waitForScreen($, ScreenIds.settings);
-    // toast는 누름을 통과시키므로(IgnorePointer) hit test 대신 존재로 기다립니다.
+    // 보내면 설정으로 돌아와 그 화면에서 toast를 보입니다. toast는 2.5초 뒤 사라지므로
+    // 누른 뒤 settle로 기다리지 않고 바로 존재를 기다립니다. toast는 누름을 통과시키므로
+    // (IgnorePointer) hit test 대신 존재로 봅니다.
+    await $(find.byKey(ContactScreen.sendKey))
+        .tap(settlePolicy: SettlePolicy.noSettle);
     await waitUntil(
       $,
       () => find.text(l10n.contactSentToast).evaluate().isNotEmpty,
     );
+    // toast는 설정 화면이 띄우므로 보이면 설정 위에 있다는 확인도 겸합니다.
+    await waitForScreen($, ScreenIds.settings);
   });
 }
