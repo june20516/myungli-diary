@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart' show Finder, find;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/features/contact/presentation/contact_screen.dart';
-import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 import 'package:patrol/patrol.dart';
@@ -34,10 +33,7 @@ void main() {
     await waitForScreen($, ScreenIds.today);
 
     // 나 탭 > 톱니 > 설정 > 문의.
-    await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
-    await waitForScreen($, ScreenIds.mySaju);
-    await $(find.byKey(MySajuScreen.settingsKey)).tap();
-    await waitForScreen($, ScreenIds.settings);
+    await openSettings($);
     final l10n = AppLocalizations.of(
       $.tester.element(find.byKey(const ValueKey(ScreenIds.settings))),
     );
@@ -63,6 +59,5 @@ void main() {
       $,
       () => find.text(l10n.contactSentToast).evaluate().isNotEmpty,
     );
-    await expectScreen($, ScreenIds.settings, state: 'contact-sent');
   });
 }

@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart'
 import 'package:myungli_diary/app/bootstrap.dart';
 import 'package:myungli_diary/app/myungli_app.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:patrol/patrol.dart';
 
 import 'staging_session.dart';
@@ -74,6 +76,14 @@ Future<void> expectScreen(
 /// 한 흐름에서 같은 화면·상태를 두 번 지날 때처럼 스크린샷 이름이 겹치는 자리에 씁니다.
 Future<void> waitForScreen(PatrolIntegrationTester $, String screenId) =>
     $(find.byKey(ValueKey(screenId))).waitUntilVisible();
+
+/// 오늘 화면에서 나 탭 > 톱니로 `settings`까지 갑니다(스크린샷 없음).
+Future<void> openSettings(PatrolIntegrationTester $) async {
+  await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
+  await waitForScreen($, ScreenIds.mySaju);
+  await $(find.byKey(MySajuScreen.settingsKey)).tap();
+  await waitForScreen($, ScreenIds.settings);
+}
 
 /// 시트 덮개(`sheet.scrim`)의 왼쪽 위 모서리 안쪽을 눌러 열린 시트를 모두 닫습니다.
 ///

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart' show find;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -27,10 +26,7 @@ void main() {
     await waitForScreen($, ScreenIds.today);
 
     // 나 탭 > 톱니 > 설정 > 계정 삭제.
-    await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
-    await waitForScreen($, ScreenIds.mySaju);
-    await $(find.byKey(MySajuScreen.settingsKey)).tap();
-    await waitForScreen($, ScreenIds.settings);
+    await openSettings($);
     final l10n = AppLocalizations.of(
       $.tester.element(find.byKey(const ValueKey(ScreenIds.settings))),
     );
@@ -39,8 +35,16 @@ void main() {
 
     // 삭제 > 확인 창 > 삭제 > welcome.
     await $(find.byKey(AccountDeleteScreen.deleteKey)).scrollTo().tap();
-    await $(find.text(l10n.accountDeleteDeleteConfirm)).waitUntilVisible();
-    await $(find.text(l10n.accountDeleteDeleteConfirmDelete).last).tap();
+    final dialog = find.byKey(
+      const ValueKey(SlotIds.accountDeleteDeleteConfirm),
+    );
+    await $(dialog).waitUntilVisible();
+    await $(
+      find.descendant(
+        of: dialog,
+        matching: find.text(l10n.accountDeleteDeleteConfirmDelete),
+      ),
+    ).tap();
     await expectScreen($, ScreenIds.welcome);
   });
 }
