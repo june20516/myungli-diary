@@ -17,21 +17,23 @@ k6는 컨테이너(`grafana/k6:2.3.0`)로 돌립니다. 아래는 `server/`에�
 
 ```sh
 export TEST_LOGIN_SECRET="$(gcloud secrets versions access latest --secret TEST_LOGIN_SECRET --project myungli-diary-load)"
-k6() { docker run --rm -v "$PWD/load":/load -v "$PWD/.local/load/$RUN":/results -w /load -e TEST_LOGIN_SECRET "$@" grafana/k6:2.3.0; }
+k6() { docker run --rm -v "$PWD/load":/load -v "$PWD/.local/load/$RUN":/results -w /load -e TEST_LOGIN_SECRET grafana/k6:2.3.0 "$@"; }
 ```
 
+스크립트 설정은 k6 flag `-e`로 넘깁니다(`k6 run -e 이름=값`). 비밀만 docker `-e`로 넘기는데, `k6 run`은 시스템 환경 변수를 읽지만 `k6 inspect`는 읽지 않습니다.
+
 ### 계정 만들기
-회차마다 Cloud SQL을 새로 만들므로 측정 전에 한 번 돌립니다. 계정 수는 측정의 VU 수(단계별 `도착률 × SESSION_SECONDS` 합, 기본 STAGES로 785) 이상이어야 합니다.
+회차마다 Cloud SQL을 새로 만들므로 측정 전에 한 번 돌립니다. 계정 수는 측정의 VU 수(단계별 `도착률 × SESSION_SECONDS`의 모든 단계 합, 기본 STAGES로 3,185) 이상이어야 합니다. VU는 단계마다 따로이고 갱신 토큰을 VU끼리 넘길 수 없어, 가장 큰 단계만큼이 아니라 합만큼 필요합니다.
 
 ```sh
 RUN=accounts; mkdir -p ".local/load/$RUN"
-k6 -e ACCOUNTS=1500 run --quiet accounts.js
+k6 run -e ACCOUNTS=3200 --quiet accounts.js
 ```
 
 ### 측정
 ```sh
 RUN=2026-11-05-limit-1; mkdir -p ".local/load/$RUN"
-k6 -e ACCOUNTS=1500 -e STAGES=2,5,10,20,40,80 run --out csv=/results/raw.csv scenarios/ramp.js
+k6 run -e ACCOUNTS=3200 -e STAGES=2,5,10,20,40,80,160,320 --out csv=/results/raw.csv scenarios/ramp.js
 ```
 
 * **smoke:** `-e STAGES=1 -e STAGE_DURATION=1m`(계정 20개면 충분)
@@ -41,8 +43,8 @@ k6 -e ACCOUNTS=1500 -e STAGES=2,5,10,20,40,80 run --out csv=/results/raw.csv sce
 | 환경 변수 | 기본값 | 뜻 |
 | --- | --- | --- |
 | `BASE_URL` | `https://myungli-diary-load.web.app` | 공개 주소(Hosting). 직접 주소로 보내지 않음 |
-| `ACCOUNTS` | 1500 | 준비한 계정 수. VU 하나가 계정 하나를 맡음 |
-| `STAGES` | `2,5,10,20,40,80` | 단계별 도착률(세션/초). 세션 하나는 요청 9~10개쯤(smoke 기준) |
+| `ACCOUNTS` | 3200 | 준비한 계정 수. VU 하나가 계정 하나를 맡음 |
+| `STAGES` | `2,5,10,20,40,80,160,320` | 단계별 도착률(세션/초). 세션 하나는 요청 9~10개쯤(smoke 기준). 상한은 #782 목표(L 180, L-1월 270)보다 높게 둡니다 |
 | `STAGE_DURATION`, `STAGE_GAP` | `3m`, `30s` | 단계 길이와 단계 사이 쉬는 시간 |
 | `SESSION_SECONDS` | 5 | 세션 하나에 걸리는 시간 짐작. VU 수 = 도착률 × 이 값 |
 | `REACTION_PERCENT`, `DIARY_PERCENT`, `CALENDAR_PERCENT` | 10, 25, 20 | 세션마다 반응, 일기 쓰기, 캘린더를 할 확률(%) |

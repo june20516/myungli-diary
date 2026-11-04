@@ -10,7 +10,7 @@ export const TEST_LOGIN_SECRET = __ENV.TEST_LOGIN_SECRET || '';
 export const LABEL_PREFIX = __ENV.LABEL_PREFIX || 'lt';
 
 // ACCOUNTS는 미리 만들어 둔 테스트 계정 수입니다(accounts.js와 같은 값). VU 하나가 계정 하나를 맡습니다.
-export const ACCOUNTS = intEnv('ACCOUNTS', 1500);
+export const ACCOUNTS = intEnv('ACCOUNTS', 3200);
 
 // TIMEZONE은 테스트 계정의 현재 시간대이자 "오늘"을 정하는 기준입니다.
 export const TIMEZONE = 'Asia/Seoul';

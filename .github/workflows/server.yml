@@ -138,12 +138,13 @@ jobs:
             exit 1
           fi
       # 부하 스크립트(L1, server/load)의 문법과 options 검사입니다. 부하 실행은 CI에서 하지 않습니다(README "실행").
-      # ramp.js는 VU 수가 계정 수 안인지 import 때 검사하므로 기본 STAGES와 같은 계정 수를 넘깁니다.
+      # ramp.js는 VU 수가 계정 수 안인지 import 때 검사합니다. 설정을 넘기지 않아 기본 STAGES와 기본 ACCOUNTS가 맞는지도 봅니다
+      # (k6 inspect는 시스템 환경 변수를 읽지 않으므로 docker -e는 효과가 없습니다).
       - name: 부하 스크립트 검사 (k6 inspect)
         if: env.OWN == 'true'
         run: |
           for script in accounts.js scenarios/ramp.js; do
-            docker run --rm -v "$PWD/load":/load -w /load -e ACCOUNTS=1500 grafana/k6:2.3.0 inspect "$script" > /dev/null
+            docker run --rm -v "$PWD/load":/load -w /load grafana/k6:2.3.0 inspect "$script" > /dev/null
           done
       - name: 이미지 빌드
         if: env.OWN == 'true'
