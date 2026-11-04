@@ -25,3 +25,8 @@ output "server_env" {
   description = "배포 workflow가 server 서비스와 Job에 붙이는 비밀이 아닌 환경 변수"
   value       = local.server_env
 }
+
+output "migrator_env" {
+  description = "migrate와 seed Job의 env(S137). server_env에서 DB 사용자만 migrator로 바꾸고 DB_RUNTIME_USER를 더함"
+  value       = local.migrator_env
+}

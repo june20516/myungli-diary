@@ -21,4 +21,5 @@ type testLoginSettings struct{}
 func loadTestLogin(func(string) string) (testLoginSettings, error) { return testLoginSettings{}, nil }
 
 // enable은 prod 빌드에서 아무것도 하지 않습니다.
-func (testLoginSettings) enable(*httpapi.API, *auth.Service, *pgxpool.Pool, clock.Clock, *slog.Logger) {}
+func (testLoginSettings) enable(*httpapi.API, *auth.Service, *pgxpool.Pool, clock.Clock, *slog.Logger) {
+}

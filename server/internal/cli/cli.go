@@ -133,6 +133,20 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 		return &loggedError{err: err}
 	}
 	logger.InfoContext(ctx, "migration 완료", "direction", direction)
+	// 배포 환경은 migration을 server-migrator로 적용하고, 런타임 DB 사용자(DB_RUNTIME_USER)를 읽기와 쓰기 권한 묶음의
+	// 구성원으로 둡니다(S137). 환경마다 사용자 이름이 달라 migration 파일이 아니라 여기서 합니다. local과 테스트는 비워 둡니다.
+	if runtimeUser := strings.TrimSpace(getenv("DB_RUNTIME_USER")); direction == "up" && runtimeUser != "" {
+		if err := postgres.GrantAppRole(ctx, pool, runtimeUser); err != nil {
+			logger.ErrorContext(ctx, "런타임 DB 사용자 권한 지정 실패", "error", err)
+			return &loggedError{err: err}
+		}
+		// 런타임이 DDL 권한을 다시 갖지 않았는지 배포마다 확인합니다. 속해 있으면 배포를 멈춥니다(README의 staging 절차).
+		if err := postgres.CheckRuntimeNotSuperuser(ctx, pool, runtimeUser); err != nil {
+			logger.ErrorContext(ctx, "런타임 DB 사용자 권한 확인 실패", "error", err)
+			return &loggedError{err: err}
+		}
+		logger.InfoContext(ctx, "런타임 DB 사용자를 권한 묶음 구성원으로 두었습니다", "role", postgres.AppRole)
+	}
 	return nil
 }
 

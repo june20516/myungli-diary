@@ -8,6 +8,8 @@ locals {
   placeholder_image = "us-docker.pkg.dev/cloudrun/container/hello"
 
   db_user = trimsuffix(google_service_account.server.email, ".gserviceaccount.com")
+  # migration과 seed를 적용하는 DB 사용자입니다(S137). 표의 주인이고 런타임 db_user는 읽기와 쓰기만 합니다.
+  migrator_db_user = trimsuffix(google_service_account.migrator.email, ".gserviceaccount.com")
 
   # 비밀은 Secret Manager에 두고 환경 변수 이름을 Secret id로 씁니다(spec §5).
   secret_ids = concat(
@@ -53,11 +55,21 @@ locals {
     var.jwt_previous_key_id != "" ? { JWT_PREVIOUS_KEY_ID = var.jwt_previous_key_id } : {},
     var.token_previous_key_id != "" ? { TOKEN_PREVIOUS_KEY_ID = var.token_previous_key_id } : {},
   )
+  # migrate와 seed Job의 env입니다. DB 사용자만 migrator로 바꾸고, migrate가 런타임 사용자를 권한 묶음 구성원으로 둡니다(S137).
+  migrator_env = merge(local.server_env, {
+    DATABASE_URL    = "user=${local.migrator_db_user} dbname=${google_sql_database.main.name} sslmode=disable"
+    DB_RUNTIME_USER = local.db_user
+  })
 }
 
 resource "google_service_account" "server" {
   account_id   = "server-runtime"
   display_name = "server 실행 (serve, Job)"
+}
+
+resource "google_service_account" "migrator" {
+  account_id   = "server-migrator"
+  display_name = "server migration과 seed (DDL, Secret 없음)"
 }
 
 resource "google_service_account" "engine" {
@@ -68,6 +80,16 @@ resource "google_service_account" "engine" {
 resource "google_service_account" "scheduler" {
   account_id   = "scheduler-invoker"
   display_name = "Cloud Scheduler의 Job 실행"
+}
+
+resource "google_project_iam_member" "migrator" {
+  for_each = toset([
+    "roles/cloudsql.client",
+    "roles/cloudsql.instanceUser",
+  ])
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.migrator.email}"
 }
 
 resource "google_project_iam_member" "server" {

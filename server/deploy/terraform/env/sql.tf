@@ -39,8 +39,18 @@ resource "google_sql_database" "main" {
 }
 
 # server-runtime이 migration(DDL)도 돌리므로 cloudsqlsuperuser 역할을 줍니다. Cloud SQL의 이 역할은 PostgreSQL superuser가 아닙니다.
+# 런타임(serve, retention, precompute, notify) DB 사용자입니다. cloudsqlsuperuser가 없고, migrate가 읽기와 쓰기
+# 권한 묶음 myungli_app의 구성원으로 둡니다(S137). database_roles는 provider가 다시 읽지 않는 쓰기 전용 값이라
+# 예전에 준 cloudsqlsuperuser는 목록에서 빼는 것만으로 거둬진다고 보지 않습니다. 사용자를 지우고 다시 만들어 없앱니다(README).
 resource "google_sql_user" "server" {
-  name           = local.db_user
+  name     = local.db_user
+  instance = google_sql_database_instance.main.name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+}
+
+# migration과 seed를 적용하는 DB 사용자입니다. 표의 주인이라 DDL 권한(cloudsqlsuperuser)을 갖습니다.
+resource "google_sql_user" "migrator" {
+  name           = local.migrator_db_user
   instance       = google_sql_database_instance.main.name
   type           = "CLOUD_IAM_SERVICE_ACCOUNT"
   database_roles = ["cloudsqlsuperuser"]

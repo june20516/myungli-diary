@@ -8,6 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
@@ -100,7 +103,7 @@ func TestRun_MigrateUnreachableDatabase_FailsFastWithCauseWithoutPassword(t *tes
 }
 
 // migrationFileCount는 migration 디렉터리의 파일 수입니다. migration을 더하면 함께 올립니다.
-const migrationFileCount = 23
+const migrationFileCount = 24
 
 func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	ctx := context.Background()
@@ -125,6 +128,35 @@ func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 			t.Errorf("migrate up 뒤 status = %+v, want 모두 applied", statuses)
 			break
 		}
+	}
+}
+
+// DB_RUNTIME_USER가 있으면 migrate up 뒤 그 사용자를 읽기와 쓰기 권한 묶음(myungli_app)의 구성원으로 둡니다(S137).
+// 없는 사용자면 실패해 배포의 migrate 단계가 멈춥니다.
+func TestRun_MigrateUp_GrantsAppRoleToRuntimeUser(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	runtimeUser := "runtime_cli_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
+	if _, err := pool.Exec(ctx, "CREATE ROLE "+pgx.Identifier{runtimeUser}.Sanitize()+" LOGIN"); err != nil {
+		t.Fatalf("역할 만들기: %v", err)
+	}
+	t.Cleanup(func() {
+		_, _ = pool.Exec(context.Background(), "DROP ROLE IF EXISTS "+pgx.Identifier{runtimeUser}.Sanitize())
+	})
+	env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "DB_RUNTIME_USER": runtimeUser}
+
+	if code, _, stderr := runCLIWithEnv(t, env, "migrate", "up"); code != 0 {
+		t.Fatalf("migrate up 종료 코드 = %d, stderr = %q", code, stderr)
+	}
+	var member bool
+	err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'MEMBER')`, runtimeUser, postgres.AppRole).Scan(&member)
+	if err != nil || !member {
+		t.Fatalf("%s가 %s 구성원이 아닙니다(err %v)", runtimeUser, postgres.AppRole, err)
+	}
+
+	env["DB_RUNTIME_USER"] = "no_such_user_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
+	if code, _, _ := runCLIWithEnv(t, env, "migrate", "up"); code == 0 {
+		t.Error("없는 런타임 사용자에 migrate up이 성공했습니다")
 	}
 }
 

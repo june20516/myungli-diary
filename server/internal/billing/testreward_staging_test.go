@@ -69,7 +69,7 @@ func TestTestReward_RejectsTimestampOutsideTolerance(t *testing.T) {
 	accountID := newAccount(t, f.pool)
 
 	for name, at := range map[string]time.Time{
-		"1시간 넘게 지남":  now.Add(-time.Hour - time.Second),
+		"1시간 넘게 지남": now.Add(-time.Hour - time.Second),
 		"1시간 넘게 미래": now.Add(time.Hour + time.Second),
 	} {
 		cb := callback("test-tx-"+name, "")

@@ -120,7 +120,7 @@ Secret id는 환경 변수 이름 그대로입니다. Cloud Run은 Secret을 `la
 
 ## 12. 남긴 위험
 
-* `server-runtime` 하나가 serve와 migration을 함께 맡아 `cloudsqlsuperuser`를 가집니다. 인터넷에 열린 serve가 DDL 권한을 갖는 셈이라, 출시 전에 migration 전용 `server-migrator`(migrate·seed Job)와 DML 권한만 가진 실행 역할로 나눕니다. 테이블 주인이 굳기 전, staging 첫 배포 뒤 바로 하는 것이 쌉니다.
+* (S137로 해소, 2026-11-04) `server-runtime` 하나가 serve와 migration을 함께 맡아 `cloudsqlsuperuser`를 가집니다. 인터넷에 열린 serve가 DDL 권한을 갖는 셈이라, 출시 전에 migration 전용 `server-migrator`(migrate·seed Job)와 DML 권한만 가진 실행 역할로 나눕니다. 테이블 주인이 굳기 전, staging 첫 배포 뒤 바로 하는 것이 쌉니다.
 
 ## 11. 결정
 

@@ -101,6 +101,8 @@ jobs:
           fi
           # 쉼표가 든 값(ANDROID_CERT_SHA256 등)이 있어 env는 YAML 파일로 넘깁니다.
           terraform output -json server_env | jq -r 'to_entries[] | "\(.key): \(.value | @json)"' > "$RUNNER_TEMP/server-env.yaml"
+          # migrate와 seed는 DB 사용자만 migrator로 바꾼 env를 쓰고 Secret을 붙이지 않습니다(S137).
+          terraform output -json migrator_env | jq -r 'to_entries[] | "\(.key): \(.value | @json)"' > "$RUNNER_TEMP/migrator-env.yaml"
           {
             echo "ready=true"
             echo "secrets=$secrets"
@@ -123,12 +125,13 @@ jobs:
           echo "image=$image" >> "$GITHUB_OUTPUT"
 
       # migrate가 실패하면 --wait가 실패로 끝나 이후 단계(seed, server)가 돌지 않고 이전 리비전이 남습니다.
+      # migrate와 seed는 server-migrator로 돌고 Secret이 필요 없어 붙이지 않습니다. 예전에 붙인 것은 --clear-secrets로 지웁니다(S137).
       - name: migrate
         if: steps.ready.outputs.ready == 'true'
         run: |
           gcloud run jobs update server-migrate --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
-            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+            --env-vars-file "$RUNNER_TEMP/migrator-env.yaml" --clear-secrets
           gcloud run jobs execute server-migrate --wait --region "$REGION" --project "$PROJECT"
 
       - name: seed
@@ -136,7 +139,7 @@ jobs:
         run: |
           gcloud run jobs update server-seed --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
-            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
+            --env-vars-file "$RUNNER_TEMP/migrator-env.yaml" --clear-secrets
           gcloud run jobs execute server-seed --wait --region "$REGION" --project "$PROJECT"
 
       - name: server 배포
