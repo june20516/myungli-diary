@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0",
+  "version": "3.4.0",
   "group": "input",
   "components": [
     {
@@ -37,26 +37,32 @@
       "summary": "글자 입력",
       "uses": ["focus.ring"],
       "variants": [
-        { "id": "multiline", "when": "여러 줄 메모(event-edit 메모)", "parts": { "container": { "maxLines": 6, "overflow": "scroll" }, "keyboard": { "type": "multiline", "action": "newline" }, "clear": { "align": "first-line" } } }
+        { "id": "multiline", "when": "여러 줄 글(event-edit 메모, contact 문의 내용)", "parts": { "container": { "minLines": 1, "maxLines": 6, "overflow": "scroll" }, "keyboard": { "type": "multiline", "action": "newline" }, "clear": { "align": "first-line" }, "placeholder": { "maxLines": 2 } } },
+        { "id": "email", "when": "메일 주소(contact 답장 받을 메일)", "parts": { "keyboard": { "type": "email", "action": "done", "autocorrect": false, "autocapitalize": "none" } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
         "text": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 17, "unit": "px" }, "fontWeight": 400, "fg": "{color.text.primary}" },
         "placeholder": { "fg": "{color.text.secondary}" },
         "counter": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "optional": true },
-        "clear": { "icon": "x-circle", "weight": "light", "size": { "value": 20, "unit": "px" }, "color": "{color.text.secondary}" }
+        "clear": { "icon": "x-circle", "weight": "light", "size": { "value": 20, "unit": "px" }, "color": "{color.text.secondary}" },
+        "label": { "type": "{type.label.md}", "fg": "{color.text.primary}", "marginBottom": "{space.8}", "maxLines": 1, "optional": true, "when": "칸 위 이름(input-step 밖, 질문이 칸 이름을 대신하지 않는 화면)" },
+        "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}", "maxLines": 2, "optional": true, "when": "input-step 밖의 칸 오류. input-step 안에서는 input-step errorLine이 그린다" }
       },
       "states": {
         "focused": { "pattern": "focus.ring" },
         "disabled": { "parts": { "container": { "bg": "{color.disabled.bg}" }, "text": { "fg": "{color.disabled.fg}" } } },
-        "error": { "parts": { "container": { "border": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" } } } }, "note": "오류 줄은 input-step이 그린다" }
+        "error": { "parts": { "container": { "border": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" } } } }, "note": "오류 줄은 input-step 안에서는 input-step이, 밖에서는 칸의 errorLine이 그린다" }
       },
       "haptic": [],
-      "a11y": { "role": "textbox", "label": "질문 또는 칸 이름", "minTarget": 48 },
+      "a11y": { "role": "textbox", "label": "질문 또는 칸 이름(label)", "hint": "칸 안 안내(placeholder)", "errorAnnouncement": "errorLine이 나타나면 polite로 읽는다", "minTarget": 48 },
       "rules": [
         "포커스에 바탕색을 바꾸지 않는다. 테두리만 2px action.primary.",
         "지우기 아이콘은 글자가 있고 포커스가 있을 때만 보인다.",
-        "multiline은 최소 높이 52에서 글이 길어지면 6줄까지 늘고, 그 뒤로는 칸 안에서 스크롤한다. 첫 줄은 한 줄 칸의 글자와 같은 자리다. 바탕·테두리·포커스·글자 수·지우기 규칙은 한 줄 칸과 같다."
+        "multiline은 최소 높이 52에서 글이 길어지면 6줄까지 늘고, 그 뒤로는 칸 안에서 스크롤한다. 첫 줄은 한 줄 칸의 글자와 같은 자리다. 바탕·테두리·포커스·글자 수·지우기 규칙은 한 줄 칸과 같다.",
+        "contact 문의 내용 칸은 multiline을 처음부터 4줄 높이(minLines 4)로 연다. 칸 안 안내는 두 줄까지 감는다.",
+        "label은 칸 위에 늘 보이고, 칸 안 안내(placeholder)는 글을 쓰면 사라진다. 둘은 다른 문구다.",
+        "errorLine이 있으면 칸은 error 상태다. 사용자가 그 칸을 고치기 시작하면 errorLine과 error 상태가 함께 사라진다."
       ]
     },
     {

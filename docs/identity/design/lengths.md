@@ -19,11 +19,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |
 | `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |
 | `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |
-| `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`evidence-sheet.lock.cta`<br>`diary-list.pick-date.cta`<br>`day-sheet.event.add`<br>`day-sheet.diary.write-cta`<br>`share-preview.cta.share`<br>`ui.event-edit.save`<br>`ui.event-edit.delete`<br>`ui.diary-edit.save`<br>`account-merge.cta.merge`<br>`login-methods.merge.cta` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
+| `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`evidence-sheet.lock.cta`<br>`diary-list.pick-date.cta`<br>`day-sheet.event.add`<br>`day-sheet.diary.write-cta`<br>`share-preview.cta.share`<br>`ui.event-edit.save`<br>`ui.event-edit.delete`<br>`ui.diary-edit.save`<br>`account-merge.cta.merge`<br>`login-methods.merge.cta`<br>`contact.send.cta` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
 | `diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm`<br>`login-methods.unlink.confirm`<br>`account-merge.merge.confirm` | dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15) | 241px | 2 | - | 34 | **34** | **28** | **60** |
 | `ui.action.button`<br>`diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm`<br>`login-methods.unlink.confirm`<br>`account-merge.merge.confirm` | dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 버튼 사이 8) | 124px | 1 | - | 10 | **10** | **7** | **16** |
 | `ui.login.provider` | social-login-button 글자 (가운데 정렬, 양쪽 16 + 로고 20 + 간격 8) | 232px | 1 | - | 19 | **19** | **15** | **34** |
-| `ui.error.client`<br>`ui.error.code`<br>`ui.login.error`<br>`ui.app.trace`<br>`evidence-sheet.unlock.failed`<br>`diary-edit.saved.tags`<br>`ui.event-edit.save-failed`<br>`ui.diary-view.deleted` | toast (좌우 16, 앞 아이콘 16 + 간격 16) | 256px | 2 | - | 48 | **48** | **34** | **78** |
+| `ui.error.client`<br>`ui.error.code`<br>`ui.login.error`<br>`ui.app.trace`<br>`evidence-sheet.unlock.failed`<br>`diary-edit.saved.tags`<br>`ui.event-edit.save-failed`<br>`ui.diary-view.deleted`<br>`contact.sent.toast`<br>`ui.contact.error` | toast (좌우 16, 앞 아이콘 16 + 간격 16) | 256px | 2 | - | 48 | **48** | **34** | **78** |
 | `ui.nav.tab` | tab-bar 탭 라벨 (화면 폭 4등분) | 90px | 1 | - | 9 | **9** | **7** | **15** |
 | `ui.birth.option`<br>`ui.saju-chart.tab` | segmented 두 칸 중 한 칸 (check-row inline 글자 포함) | 156px | 1 | - | 13 | **13** | **10** | **22** |
 | `share-preview.ratio.label` | segmented 세 칸 중 한 칸 | 104px | 1 | - | 8 | **8** | **6** | **13** |
@@ -36,7 +36,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `evidence-sheet.section.basis`<br>`evidence-sheet.section.source`<br>`evidence-sheet.section.personal`<br>`saju-chart.yongsin.title` | lock.veil 제목 (잠기면 앞에 자물쇠 14 + 간격 4) | 302px | 1 | - | 27 | **27** | **22** | **50** |
 | `ui.depth.evidence_link`<br>`birthplace.standard.link`<br>`day-sheet.diary.open` | depth-link 이름 (화살표 14 + 간격 2) | 304px | 1 | - | 25 | **25** | **20** | **45** |
 | `saju-chart.yongsin.open` | sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 14 + 간격 2) | 144px | 1 | - | 12 | **12** | **9** | **20** |
-| `ui.app.name` | app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2) | 196px | 1 | - | 14 | **14** | **11** | **24** |
+| `ui.app.name`<br>`contact.bar.title` | app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2) | 196px | 1 | - | 14 | **14** | **11** | **24** |
 | `onboard-time.hour.confirm` | time-picker 시진 확인 줄 | 320px | 1 | - | 29 | **29** | **23** | **54** |
 | `character.reason` | day-character 이유 줄 (마지막 줄 끝 depth-link inline-end `ui.depth.evidence_link` 원고 폭을 뺌) | 320px | 2 | - | 57 | **57** | **39** | **90** |
 | `ui.guide.card` | guide-question-card 머리글 (안쪽 space.20) | 280px | 1 | - | 27 | **27** | **22** | **50** |
@@ -66,6 +66,10 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ui.saju.header` | manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
 | `ui.saju.tag` | daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8) | 92px | 1 | - | 8 | **8** | **6** | **13** |
 | `ui.evidence.personal-empty` | evidence-sheet 빈 해석 안내 (sheet 안쪽 space.20, 두 줄) | 320px | 2 | - | 60 | **60** | **42** | **100** |
+| `contact.intro.body` | contact 첫머리 (본문 폭, 세 줄) | 320px | 3 | - | 90 | **90** | **63** | **150** |
+| `contact.message.field`<br>`contact.email.field` | text-field label 칸 이름 (본문 폭, 한 줄) | 320px | 1 | - | 29 | **29** | **23** | **53** |
+| `contact.attached.notice` | contact 함께 보내는 정보 고지 (본문 폭, 세 줄) | 320px | 3 | - | 96 | **96** | **69** | **162** |
+| `contact.address.note` | contact 주소 안내 문장 (본문 폭, 두 줄. 다음 줄 주소 {email}은 E14 고정값이라 뺌) | 320px | 2 | - | 64 | **64** | **46** | **108** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
 | `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
 
@@ -75,12 +79,21 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | --- | --- | --- | --- | --- |
 | ja | `ui.login.provider` | `loginKakaoLabel` | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
 | en | `ui.saju.header` | `manseRowHiddenStems` | **12** | 실측: 낱말마다 행 머리 44px 한 줄(Hidden 37.8px, stems 32.1px)이라 두 줄 안, 결정 V53 |
+| ja | `contact.email.field` | `contactEmailFieldHint` | **16** | 실측: ja 원고도 라틴 주소 예시 name@example.com. 실측 158.6px로 칸 260px 한 줄 안, 결정 V55 |
 | ko | `ui.login.provider` | `loginLineLabel` | **16** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | ja | `ui.login.provider` | `loginLineLabel` | **13** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | en | `ui.login.provider` | `loginLineLabel` | **28** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | ko | `ui.saju.tag` | `sajuTagMe` | **7** | 따로 잼: saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게) |
 | ja | `ui.saju.tag` | `sajuTagMe` | **5** | 따로 잼: saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게) |
 | en | `ui.saju.tag` | `sajuTagMe` | **10** | 따로 잼: saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게) |
+| ko | `contact.message.field` | `contactMessageFieldHint` | **34** | 따로 잼: text-field multiline 칸 안 안내 (좌우 16, 지우기 20 + 간격 8, 두 줄) |
+| ja | `contact.message.field` | `contactMessageFieldHint` | **28** | 따로 잼: text-field multiline 칸 안 안내 (좌우 16, 지우기 20 + 간격 8, 두 줄) |
+| en | `contact.message.field` | `contactMessageFieldHint` | **62** | 따로 잼: text-field multiline 칸 안 안내 (좌우 16, 지우기 20 + 간격 8, 두 줄) |
+| ko | `contact.email.field` | `contactEmailFieldHint` | **17** | 따로 잼: text-field 칸 안 안내 (좌우 16, 지우기 20 + 간격 8) |
+| en | `contact.email.field` | `contactEmailFieldHint` | **31** | 따로 잼: text-field 칸 안 안내 (좌우 16, 지우기 20 + 간격 8) |
+| ko | `ui.contact.error` | `contactEmailInvalid` | **60** | 따로 잼: text-field errorLine (본문 폭, 앞 mark.caution 15, 두 줄) |
+| ja | `ui.contact.error` | `contactEmailInvalid` | **44** | 따로 잼: text-field errorLine (본문 폭, 앞 mark.caution 15, 두 줄) |
+| en | `ui.contact.error` | `contactEmailInvalid` | **102** | 따로 잼: text-field errorLine (본문 폭, 앞 mark.caution 15, 두 줄) |
 
 상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):
 
@@ -130,6 +143,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * `ui.evidence.personal-empty`는 표 칸에서 연 근거 시트의 빈 해석 안내(결정 V54, sheet 본문 폭 두 줄)입니다.
   * 스크린리더 전용 `ui.saju.a11y`, `ui.lucky-card.a11y`, `ui.share.a11y`와 iOS 시스템 창 `ui.system.tracking`은 상한 없음 표에 넣었습니다.
   * 원고와 견준 결과(writing R26): en `sajuChartTabLuck` "Calendar and luck cycles"(24자)가 상한 22를 넘습니다(실측 155.1px로 칸 156px에 여유가 없음). segmented는 글자를 줄이지 않으므로 writing에 줄이기를 요청했습니다. 나머지 원고는 모두 들어갑니다.
+* **3.4.0(#763, D102 문의 화면 `contact`, 결정 V55):** IA 슬롯 8개와 IA 밖 `ui.contact.error`를 쟀습니다. 기존 확정값은 그대로입니다.
+  * 제목 `contact.bar.title`은 `ui.app.name` 행, 보내기 버튼 `contact.send.cta`는 `primary-button` 행, 보낸 결과 `contact.sent.toast`와 보내기 실패 `ui.contact.error`는 toast 행에 더했습니다.
+  * 첫머리 `contact.intro.body`(본문 폭 세 줄, `type.body.ui`), 함께 보내는 정보 고지 `contact.attached.notice`(세 줄), 주소 안내 `contact.address.note`(두 줄, `type.caption.lg`)를 새 행으로 잽니다. 주소 안내의 다음 줄 주소 `{email}`은 E14 고정값이라 문장만 잽니다.
+  * 칸 이름 `contact.message.field`·`contact.email.field`의 행 값은 `text-field` `label`(본문 폭 한 줄) 기준입니다. 칸 안 안내 키 `contactMessageFieldHint`(multiline 두 줄)와 `contactEmailFieldHint`(한 줄), 메일 칸 오류 `contactEmailInvalid`(`errorLine`, 앞 `mark.caution` 15)는 "키별 상한" 표에 냅니다. ja `contactEmailFieldHint`는 라틴 주소 예시라 전각 추정(14) 대신 실측 상한 16입니다(158.6px, 칸 260px).
+  * 원고와 견준 결과(writing R29): 모든 원고가 상한 안입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).

@@ -30,7 +30,12 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-11-03, design 세션 작성)
+## 현재 상태 (2026-11-04, design 세션 작성)
+* **문의 화면 #763·drift #758** (브랜치 `design/contact-758-763`, D102, 결정 V55).
+  * `text-field`에 칸 위 이름 `label`, 칸 오류 줄 `errorLine`(`input-step` 오류 줄과 같은 모양), 변형 `email`, `multiline` `minLines`(문의 내용 4)와 안내 두 줄. 배치는 `input.md` "contact 화면 배치": 보내기 실패는 toast(쓴 글 유지), 주소는 길게 눌러 복사하는 글자, 보낸 뒤 설정으로 돌아가 toast, 뒤로 가기는 확인 창 없음.
+  * `lengths.md`: 슬롯 9개(IA 8 + `ui.contact.error`)와 키별 상한 셋(칸 안 안내 둘, 메일 칸 오류). ja `contactEmailFieldHint`는 라틴 주소라 실측 16. R29 원고는 모두 상한 안.
+  * drift #758: `text-field`, `primary-button`, `toast` 쓰는 화면에 contact.
+  * 근거: [spec](specs/2026-11-04-contact-screen-design.md).
 * **W51 슬롯 상한·집중 시간 칩 #710·#546** (브랜치 `design/lengths-710`, 결정 V52~V54).
   * #546(V52): `lucky-card` `time`은 구간마다 칩 하나(최대 2), 범위 표기는 W44 언어별(ko `~`, ja `〜`, en " to "), `join` 삭제, 칩 줄 최대 7, 공유 이미지는 첫 구간 칩만.
   * #710: 7개 슬롯을 `lengths.md`에 잼. 설정 줄 이름과 값은 반씩(132px, `settings-row` 값 앞 `space.8`), 사주 표 탭은 segmented 두 칸, `ui.saju.header`는 만세력 행 머리 44px 두 줄, `ui.saju.tag`는 대운 꼬리표 92px, '나' 꼬리표 `sajuTagMe`는 키별, en "Hidden stems"는 실측 키별 상한 12(`KEY_MEASURED_LIMITS`). 스크린리더 셋과 ATT는 상한 없음.
@@ -117,7 +122,7 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#710·#546 마무리:** PR 병합 뒤 writing이 7개 슬롯 상한과 키별 상한을 넣고 en `sajuChartTabLuck`을 줄이면 #710이 닫힙니다. app은 3.3.0 drift로 시간 칩 둘, 언어별 범위 표기, 꼬리표 폭, 행 머리 두 줄, `personalEmpty` 간격을 맞춥니다.
+1. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
