@@ -530,4 +530,65 @@ void main() {
       expect(joined, isNot(contains(leak)), reason: leak);
     }
   });
+
+  test('session 로그에 실패한 단계의 METHOD와 경로만 남깁니다', () async {
+    const longSecret = 'secret-value-123';
+    final failures = <String, http.Response>{
+      '/test/v1/auth/login': http.Response('{"code":"login.down"}', 503),
+      '/v1/me': http.Response('{"code":"me.down"}', 500),
+      '/v1/me/consents': http.Response('{"code":"consent.down"}', 409),
+      '/v1/me/profile': http.Response('{"code":"profile.down"}', 422),
+      '/test/v1/billing/ad-free': http.Response('{"code":"ad.down"}', 404),
+    };
+    final expected = {
+      '/test/v1/auth/login': 'POST /session → 503 (POST /test/v1/auth/login)',
+      '/v1/me': 'POST /session → 500 (GET /v1/me)',
+      '/v1/me/consents': 'POST /session → 409 (POST /v1/me/consents)',
+      '/v1/me/profile': 'POST /session → 422 (PUT /v1/me/profile)',
+      '/test/v1/billing/ad-free':
+          'POST /session → 404 (POST /test/v1/billing/ad-free)',
+    };
+    for (final MapEntry(key: path, value: failure) in failures.entries) {
+      final lines = <String>[];
+      final relay = StagingRelay(
+        apiBase: apiBase,
+        secret: longSecret,
+        client: stagingServer(
+          [],
+          override: (request) => request.url.path == path ? failure : null,
+        ),
+        log: lines.add,
+      );
+
+      await relay.handle('POST', '/session', {
+        'label': 'e2eStep',
+        'profile': true,
+        'adFreeDays': 3,
+      });
+
+      expect(lines, [expected[path]], reason: path);
+      for (final leak in [longSecret, 'access-e2eStep', '.down', 'e2eStep']) {
+        expect(lines.join(), isNot(contains(leak)), reason: '$path $leak');
+      }
+    }
+  });
+
+  test('session이 중간에 닿지 못하면 502 로그에도 단계 경로가 남습니다', () async {
+    final lines = <String>[];
+    final relay = StagingRelay(
+      apiBase: apiBase,
+      secret: 's',
+      client: MockClient((request) async {
+        if (request.url.path == '/v1/me') {
+          throw http.ClientException('socket detail');
+        }
+        return http.Response(loginBody('e2eNet'), 200);
+      }),
+      log: lines.add,
+    );
+
+    await relay.handle('POST', '/session', {'label': 'e2eNet'});
+
+    expect(lines, ['POST /session → 502 (GET /v1/me)']);
+  });
 }

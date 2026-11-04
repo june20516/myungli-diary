@@ -156,13 +156,29 @@ final class StagingRelay {
     final request = _SessionRequest.parse(body);
     if (request == null) return _Outcome(_badRequest());
 
+    // 닿지 못함, 시간 초과, 계약과 다른 응답으로 중간에 끊겨도 로그에 어느 단계였는지 남깁니다.
+    final step = _Step('POST $_loginPath');
+    try {
+      return await _sessionSteps(request, step);
+    } on http.ClientException {
+      return _Outcome(_unreachable(), failedStep: step.value);
+    } on TimeoutException {
+      return _Outcome(_timedOut(), failedStep: step.value);
+    } on FormatException {
+      return _Outcome(_unexpected(), failedStep: step.value);
+    }
+  }
+
+  /// `/session`의 staging 호출을 차례로 돕니다. 부르기 직전에 [step]을 지금 단계로 바꿉니다.
+  Future<_Outcome> _sessionSteps(_SessionRequest request, _Step step) async {
     final loginResponse = await _testLogin(request.label);
-    if (!_ok(loginResponse)) return _Outcome(_passThrough(loginResponse));
+    if (!_ok(loginResponse)) return _failed(loginResponse, step.value);
     final login = _Login.parse(loginResponse.bodyBytes);
     final bearer = {'Authorization': 'Bearer ${login.accessToken}'};
 
     _Me? me;
     if (login.consentRequired || request.adFreeDays > 0) {
+      step.value = 'GET /v1/me';
       final response = await _send(
         _client.get(_url('/v1/me'), headers: bearer),
       );
@@ -173,6 +189,7 @@ final class StagingRelay {
     // 동의할 문서가 없으면 보내지 않습니다. ConsentRequest는 minItems 1이라 빈 요청은 늘 400이고,
     // 정말 동의가 필요하면 다음 요청이 server의 403 consent.required로 그대로 드러납니다.
     if (login.consentRequired && me!.requiredConsents.isNotEmpty) {
+      step.value = 'POST /v1/me/consents';
       final response = await _send(
         _client.post(
           _url('/v1/me/consents'),
@@ -184,6 +201,7 @@ final class StagingRelay {
     }
 
     if (request.profile) {
+      step.value = 'PUT /v1/me/profile';
       final response = await _send(
         _client.put(
           _url('/v1/me/profile'),
@@ -195,6 +213,7 @@ final class StagingRelay {
     }
 
     if (request.adFreeDays > 0) {
+      step.value = 'POST /test/v1/billing/ad-free';
       final response = await _send(
         _client.post(
           _url('/test/v1/billing/ad-free'),
@@ -266,7 +285,7 @@ final class StagingRelay {
     _labels.add(label);
     return _send(
       _client.post(
-        _url('/test/v1/auth/login'),
+        _url(_loginPath),
         headers: {..._secretHeaders, ..._jsonHeaders},
         body: jsonEncode({'label': label}),
       ),
@@ -315,6 +334,16 @@ RelayResponse _timedOut() =>
 /// staging 성공 응답이 JSON이 아니거나 계약과 모양이 다를 때의 응답입니다. 본문은 싣지 않습니다.
 RelayResponse _unexpected() =>
     RelayResponse.json(502, {'error': 'unexpected staging response'});
+
+/// `/session`이 지금 부르고 있는 staging 단계(`METHOD path`)입니다. 로그에 경로만 남기려고 씁니다.
+final class _Step {
+  new(this.value);
+
+  String value;
+}
+
+/// staging 테스트 로그인 경로입니다.
+const String _loginPath = '/test/v1/auth/login';
 
 /// relay 응답과, staging 단계가 실패했으면 그 단계(`METHOD path`)입니다.
 final class _Outcome {
