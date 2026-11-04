@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -47,14 +49,16 @@ Widget _table({
   bool hourUnknown = false,
   VoidCallback? onHeader,
   VoidCallback? onHiddenTenGod,
+  String hiddenStemsHeader = '지장간',
+  String shinsalHeader = '신살',
 }) => ManseTable(
   hour: _column('시주', empty: hourUnknown),
   day: _column('일주', onHiddenTenGod: onHiddenTenGod),
   month: _column('월주'),
   year: _column('연주'),
-  hiddenStemsHeader: GestureDetector(onTap: onHeader, child: const Text('지장간')),
-  twelveStageHeader: const Text('12운성'),
-  shinsalHeader: const Text('신살'),
+  hiddenStemsHeader: LuckLabel(hiddenStemsHeader, onTap: onHeader),
+  twelveStageHeader: const LuckLabel('12운성'),
+  shinsalHeader: LuckLabel(shinsalHeader),
   tableLabel: '만세력 표',
 );
 
@@ -72,6 +76,55 @@ void main() {
       lessThanOrEqualTo(ManseTable.rowHeaderWidth),
     );
     expect(xs.first - tableLeft, greaterThan(ManseTable.rowHeaderWidth));
+  });
+
+  testWidgets('줄 머리는 52 칸 가운데, 낱말 단위 두 줄, 넓은 낱말은 caption.sm(V53)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      inputApp(
+        SizedBox(
+          width: 360,
+          child: _table(
+            hiddenStemsHeader: 'Hidden stems',
+            shinsalHeader: 'Spiritstars',
+          ),
+        ),
+      ),
+    );
+    final tableLeft = tester.getTopLeft(find.byType(Table)).dx;
+    final columnCenter = tableLeft + ManseTable.rowHeaderWidth / 2;
+    final hidden = find.text('Hidden stems', findRichText: true);
+    // 두 낱말이 44px 글자 폭에 한 줄로 들어가지 않아 두 줄이고, 가운데에 놓입니다.
+    final hiddenBox = tester.getRect(hidden);
+    expect(hiddenBox.center.dx, moreOrLessEquals(columnCenter, epsilon: 0.5));
+    final lineHeight = tester
+        .renderObject<RenderParagraph>(hidden)
+        .getFullHeightForCaret(const TextPosition(offset: 0));
+    expect(hiddenBox.height, greaterThan(lineHeight * 1.5));
+    expect(hiddenBox.width, lessThanOrEqualTo(ManseTable.rowHeaderWidth));
+    // 낱말 하나가 넓으면 글자를 caption.sm으로 줄이고 말줄임은 없습니다.
+    final shinsal = tester.widget<RichText>(
+      find.text('Spiritstars', findRichText: true),
+    );
+    final context = tester.element(find.byType(ManseTable));
+    expect(
+      shinsal.text.style!.fontSize,
+      context.tokens.typography.captionSm.fontSize,
+    );
+    expect(shinsal.overflow, isNot(TextOverflow.ellipsis));
+    // 폭에 들어가는 머리는 caption.md 그대로입니다.
+    await tester.pumpWidget(inputApp(SizedBox(width: 360, child: _table())));
+    final short = tester.widget<RichText>(find.text('신살', findRichText: true));
+    expect(
+      short.text.style!.fontSize,
+      tester
+          .element(find.byType(ManseTable))
+          .tokens
+          .typography
+          .captionMd
+          .fontSize,
+    );
   });
 
   testWidgets('지장간은 한자 글꼴과 독음(text.secondary), 신살은 여러 줄', (tester) async {

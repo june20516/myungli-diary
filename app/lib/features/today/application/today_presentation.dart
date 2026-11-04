@@ -82,18 +82,37 @@ String _hourMinute(DateTime instant, String timezone) {
   return '${_twoDigits(local.hour)}:${_twoDigits(local.minute)}';
 }
 
-/// 집중 시간 칸을 [timezone](프로필 시간대) 현지 `HH:mm~HH:mm`으로 쓰고, 둘이면 `, `로 잇습니다.
+/// 집중 시간 구간 상한(계약 `FocusTimeCard.picks` maxItems,
+/// `lucky-card` `time.repeat.max`).
+const int maxFocusTimePicks = 2;
+
+/// 언어별 시간 범위의 시작과 끝 사이 글자(`lucky-card` `time.parts.value.format`, 결정 V52,
+/// writing W44). 앱 언어는 ko, en, ja이고 그 밖의 언어는 앱이 en으로 보이므로 en을 씁니다.
+String _rangeJoinOf(String languageCode) => switch (languageCode) {
+  'ko' => '~',
+  'ja' => '〜',
+  _ => ' to ',
+};
+
+/// [l10n]의 언어 코드(`ko_KR`이면 `ko`).
+String _languageCodeOf(AppLocalizations l10n) =>
+    l10n.localeName.split(RegExp('[_-]')).first;
+
+/// 집중 시간 구간 하나를 [timezone](프로필 시간대) 현지 24시간 `HH:mm`으로 쓰고, 시작과 끝을
+/// [languageCode]의 범위 표기로 잇습니다(ko `09:30~11:30`, ja `09:30〜11:30`,
+/// en `09:30 to 11:30`).
 ///
 /// 응답 시각은 오프셋이 붙어 오지만 같은 순간이면 UTC로 바뀌어도 같은 값입니다(결정 A27).
-String formatFocusRange(List<FocusSlot> picks, String timezone) => [
-  for (final pick in picks)
-    '${_hourMinute(pick.start, timezone)}~${_hourMinute(pick.end, timezone)}',
-].join(', ');
+String formatFocusRange(FocusSlot pick, String timezone, String languageCode) =>
+    '${_hourMinute(pick.start, timezone)}'
+    '${_rangeJoinOf(languageCode)}'
+    '${_hourMinute(pick.end, timezone)}';
 
-/// [daily]의 행운 항목 4개(색·방향·숫자·시간, 결정 A27).
+/// [daily]의 행운 항목(색, 방향, 숫자, 그리고 집중 시간 구간마다 시간 하나, 결정 A27·V52).
 ///
 /// 색 이름은 glossary `color.<오행>`(없으면 값 id 그대로), 방향은 임시 ARB, 숫자는 그대로,
-/// 시간은 [formatFocusRange]입니다. 색 칩의 견본 색은 칩이 테마에서 고릅니다.
+/// 시간은 구간마다 [formatFocusRange]이고 계약 순서로 앞 [maxFocusTimePicks]개입니다. 두 시간
+/// 칩은 같은 설명을 열고 [LuckyItem.ordinal]로 나뉩니다. 색 칩의 견본 색은 칩이 테마에서 고릅니다.
 List<LuckyItem> luckyItemsOf(
   Daily daily,
   GlossaryNames names,
@@ -122,12 +141,15 @@ List<LuckyItem> luckyItemsOf(
       value: '${cards.number.number}',
       explain: cards.number.text.text,
     ),
-    LuckyItem(
-      variant: LuckyCardVariant.time,
-      name: l10n.todayLuckyTimeName,
-      value: formatFocusRange(cards.focusTime.picks, timezone),
-      explain: cards.focusTime.text.text,
-    ),
+    for (final (index, pick)
+        in cards.focusTime.picks.take(maxFocusTimePicks).indexed)
+      LuckyItem(
+        variant: LuckyCardVariant.time,
+        name: l10n.todayLuckyTimeName,
+        value: formatFocusRange(pick, timezone, _languageCodeOf(l10n)),
+        explain: cards.focusTime.text.text,
+        ordinal: index,
+      ),
   ];
 }
 
@@ -307,6 +329,7 @@ Object? _canonical(Object? value) => switch (value) {
     value.explain?.toJson(),
     value.element?.name,
     value.tagKey,
+    value.ordinal,
   ],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
   _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),

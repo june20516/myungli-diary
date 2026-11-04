@@ -155,13 +155,14 @@ type staticRoute struct {
 }
 
 // staticRouter는 계약 밖 정적 경로를 내주는 구현입니다. *API가 만족하며, RegisterAPI가 직접 등록합니다.
+// authenticate는 Routes.Authenticate이며, Bearer 인증이 필요한 staging 경로(S131)만 씁니다.
 type staticRouter interface {
-	staticRoutes() []staticRoute
+	staticRoutes(authenticate func(Operation, http.Handler) http.Handler) []staticRoute
 }
 
 // staticRoutes는 App Link 안내 페이지와 assetlinks.json 경로, 법적 문서 경로, staging 빌드의 테스트 로그인 경로입니다. 인증·계약 검증 없이 등록됩니다.
 // AppLink 설정이 비어 있으면 시작 시점의 조립 버그이므로 panic합니다.
-func (a *API) staticRoutes() []staticRoute {
+func (a *API) staticRoutes(authenticate func(Operation, http.Handler) http.Handler) []staticRoute {
 	c := a.AppLink
 	if c.Base == nil || c.Base.Host == "" || c.Package == "" || len(c.CertSHA256) == 0 || c.StoreURL == "" {
 		panic("httpapi.API: AppLink의 Base·Package·CertSHA256·StoreURL이 모두 있어야 합니다")
@@ -189,8 +190,8 @@ func (a *API) staticRoutes() []staticRoute {
 		})},
 	}
 	routes = append(routes, a.legalRoutes()...)
-	// staging 빌드에서 테스트 로그인을 켰으면 그 경로도 더합니다(prod 빌드에서는 늘 없음, S24).
-	return append(routes, a.testLoginRoutes()...)
+	// staging 빌드에서 켠 테스트 경로도 더합니다(prod 빌드에서는 늘 없음, S24, S125, S131).
+	return append(routes, a.testLoginRoutes(authenticate)...)
 }
 
 // appLinkErrors는 Apple 웹 콜백이 Location에 담는 error 값입니다(계약 appleCallback 303 설명).

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -59,8 +60,10 @@ final class ManseColumn {
 /// 만세력 기본 표(`manse-table`): 기둥 네 열 × 지장간·12운성·신살.
 ///
 /// 열 순서는 원국표와 같은 시·일·월·연입니다. 맨 위 줄은 기둥 이름과 천간·지지 `ohaeng.cell`
-/// `mini`, 아래 줄 머리는 너비 52의 `term-token` `label`([hiddenStemsHeader] 등, 누르면 풀이)
-/// 입니다. 값은 `type.body.ui` `text.primary` 가운데입니다(값 칸 위젯에 [DefaultTextStyle]로
+/// `mini`, 아래 줄 머리는 너비 52 가운데의 라벨([hiddenStemsHeader] 등, `ui.saju.header`)입니다.
+/// 줄 머리는 대운 라벨과 같은 규칙으로 낱말 단위 두 줄까지 줄을 바꾸고, 낱말 하나가 넓으면
+/// `type.caption.sm`까지 줄이며 말줄임은 쓰지 않습니다([LuckLabelView], 결정 V53).
+/// 값은 `type.body.ui` `text.primary` 가운데입니다(값 칸 위젯에 [DefaultTextStyle]로
 /// 주고, 용어 토큰 `inline`은 이 글자를 씀). 지장간 하나는 늘 두 줄 묶음입니다(V49):
 /// 위 줄 한자(`font.family.hanja`)와 독음(`type.caption.sm` `text.secondary`), 2px 아래
 /// 십성 라벨. 묶음은 계약 순서로 `space.4` 간격을 두고 쌓고, 신살도 하나씩 `space.4`
@@ -104,13 +107,13 @@ class ManseTable extends StatelessWidget {
   final ManseColumn year;
 
   /// 지장간 줄 머리.
-  final Widget hiddenStemsHeader;
+  final LuckLabel hiddenStemsHeader;
 
   /// 12운성 줄 머리.
-  final Widget twelveStageHeader;
+  final LuckLabel twelveStageHeader;
 
   /// 신살 줄 머리.
-  final Widget shinsalHeader;
+  final LuckLabel shinsalHeader;
 
   /// 표 이름(스크린리더).
   final String tableLabel;
@@ -139,9 +142,12 @@ class ManseTable extends StatelessWidget {
       ),
     );
 
-    Widget header(Widget child) => Padding(
+    Widget header(LuckLabel label) => Padding(
       padding: const EdgeInsets.symmetric(vertical: Space.s8),
-      child: Align(alignment: AlignmentDirectional.topStart, child: child),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: LuckLabelView(label: label, width: rowHeaderWidth),
+      ),
     );
 
     Widget hidden(ManseColumn column) => Column(

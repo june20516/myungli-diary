@@ -63,6 +63,7 @@ const AppGlyph _tag = AppGlyph(
 @immutable
 final class LuckyItem {
   /// 행운 항목을 만듭니다. [element]는 [LuckyCardVariant.color]에서만 씁니다.
+  /// [ordinal]은 [LuckyCardVariant.time]에서만 0이 아닐 수 있습니다(구간마다 칩 하나, V52).
   /// 대표 태그는 [LuckyItem.tag]로 만듭니다.
   const new({
     required this.variant,
@@ -70,11 +71,16 @@ final class LuckyItem {
     required this.value,
     required RenderedText this.explain,
     this.element,
+    this.ordinal = 0,
   }) : tagKey = null,
        assert(variant != LuckyCardVariant.tag, 'tag 변형은 LuckyItem.tag로 만듭니다.'),
        assert(
          (variant == LuckyCardVariant.color) == (element != null),
          'color 변형은 element가 필수이고, 다른 변형은 element를 줄 수 없습니다.',
+       ),
+       assert(
+         ordinal >= 0 && (ordinal == 0 || variant == LuckyCardVariant.time),
+         '순번은 0 이상이고, 칩이 여럿일 수 있는 time 변형만 0이 아닐 수 있습니다.',
        );
 
   /// 대표 태그 하나(D76, 계약 `Daily.tags.featured`). 이름과 값이 같은 태그 이름입니다.
@@ -87,7 +93,8 @@ final class LuckyItem {
   }) : variant = LuckyCardVariant.tag,
        value = name,
        explain = meaning,
-       element = null;
+       element = null,
+       ordinal = 0;
 
   /// 변형.
   final LuckyCardVariant variant;
@@ -107,6 +114,10 @@ final class LuckyItem {
 
   /// 태그 변형의 태그 키(glossary `tag` 범주의 키, 예 `cheoneul_gwiin`). 다른 변형은 null.
   final String? tagKey;
+
+  /// 같은 변형 안의 순번(0부터). 집중 시간 구간이 둘이면 시간 칩이 0, 1입니다(계약 순서, V52).
+  /// 다른 변형은 0입니다.
+  final int ordinal;
 }
 
 /// 행운 칩 하나(`lucky-card` `chip`).
@@ -186,7 +197,7 @@ class LuckyChip extends StatelessWidget {
     return _ChipFrame(
       lead: lead,
       value: item.value,
-      // 시간 값(`09:30–11:30`)은 숫자 폭을 고르게 둡니다(`time.parts.value` tnum).
+      // 시간 값(`09:30~11:30`)은 숫자 폭을 고르게 둡니다(`time.parts.value` tnum).
       valueFeatures: item.variant == LuckyCardVariant.time
           ? timeValueFeatures
           : null,
@@ -289,9 +300,9 @@ class _ChipFrame extends StatelessWidget {
 /// `haptic` 비어 있음). 열린 설명은 스크린리더에 상태 알림으로 읽힙니다.
 ///
 /// 대표 태그([LuckyCardVariant.tag], D76)는 [items] 맨 앞에 두면 됩니다(칩 줄 맨 앞, 행운 4종
-/// 앞). 같은 눌림·열림 규칙을 따르고, 칩을 통틀어 하나만 열립니다. 칩 수 상한(태그 2 + 행운 4)은
-/// 값을 만드는 쪽이 지키고 줄은 따로 자르지 않으며, 폭이 모자라면 칩 하나를 끊지 않고 다음 줄로
-/// 넘깁니다.
+/// 앞). 같은 눌림·열림 규칙을 따르고, 칩을 통틀어 하나만 열립니다. 칩 수 상한(태그 2 + 색, 방향,
+/// 숫자 3 + 시간 2, V52)은 값을 만드는 쪽이 지키고 줄은 따로 자르지 않으며, 폭이 모자라면 칩
+/// 하나를 끊지 않고 다음 줄로 넘깁니다.
 ///
 /// [interactive]가 false면(공유 이미지) 눌러도 열리지 않고 칩이 버튼으로 읽히지 않습니다.
 /// [slotIds]는 변형 → 설명 슬롯 id(`today.lucky-color.body`, 태그는
@@ -315,19 +326,25 @@ class LuckyCardRow extends StatefulWidget {
   /// 설명 상자를 찾는 테스트용 키.
   static const Key explainKey = ValueKey('lucky-card-explain');
 
-  /// 행운 4종 [variant]의 칩을 찾는 테스트용 키. 태그 칩은 여럿일 수 있어 키가 칩마다
-  /// 다르므로 [tagChipKey]를 씁니다([LuckyCardVariant.tag]를 주면 assert로 막습니다).
-  static Key chipKey(LuckyCardVariant variant) {
+  /// 행운 4종 [variant]의 칩을 찾는 테스트용 키. 시간 칩은 구간마다 하나라 [ordinal]
+  /// (0이면 첫 구간)로 나눕니다. 태그 칩은 여럿일 수 있어 키가 칩마다 다르므로 [tagChipKey]를
+  /// 씁니다([LuckyCardVariant.tag]를 주면 assert로 막습니다).
+  static Key chipKey(LuckyCardVariant variant, {int ordinal = 0}) {
     assert(variant != LuckyCardVariant.tag, '태그 칩 키는 tagChipKey(태그 키)입니다.');
-    return ValueKey('lucky-card-chip-${variant.name}');
+    return ValueKey(
+      ordinal == 0
+          ? 'lucky-card-chip-${variant.name}'
+          : 'lucky-card-chip-${variant.name}-$ordinal',
+    );
   }
 
   /// 태그 키가 [tagKey]인 대표 태그 칩을 찾는 테스트용 키.
   static Key tagChipKey(String tagKey) =>
       ValueKey('lucky-card-chip-tag-$tagKey');
 
-  static Key _keyOf(LuckyItem item) =>
-      item.tagKey == null ? chipKey(item.variant) : tagChipKey(item.tagKey!);
+  static Key _keyOf(LuckyItem item) => item.tagKey == null
+      ? chipKey(item.variant, ordinal: item.ordinal)
+      : tagChipKey(item.tagKey!);
 
   static const double _rowGap = Space.s8;
 
@@ -337,8 +354,9 @@ class LuckyCardRow extends StatefulWidget {
   /// 생기므로 쓰는 화면이 위 간격에서 그만큼 뺍니다.
   static const double hitInset = (sentenceMinTarget - LuckyChip._height) / 2;
 
-  /// 보여 줄 칩 항목(앞에서부터 그립니다). 같은 변형이 둘 이상이면 앞의 것만 설명을 엽니다
-  /// (태그는 태그 키마다 다른 칩입니다).
+  /// 보여 줄 칩 항목(앞에서부터 그립니다). 칩은 변형과 순번([LuckyItem.ordinal])으로, 태그는
+  /// 태그 키로 나뉘어 따로 열립니다. 둘이 모두 같은 항목이 둘 이상이면 앞의 것만 설명을 엽니다.
+  /// 시간 칩 둘은 같은 설명을 열지만 열림 테두리는 누른 칩에만 생깁니다(V52).
   final List<LuckyItem> items;
 
   /// false면 표시 전용입니다.
@@ -356,7 +374,7 @@ class LuckyCardRow extends StatefulWidget {
 final class _Openable {
   const new({required this.id, required this.text, required this.slotId});
 
-  /// 칩 줄 안에서 이 칩을 가리키는 id(`variant:<변형>`, 태그는 `tag:<키>`).
+  /// 칩 줄 안에서 이 칩을 가리키는 id(`variant:<변형>:<순번>`, 태그는 `tag:<키>`).
   final String id;
 
   /// 열리는 설명 문장.
@@ -376,7 +394,7 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
   int _swap = 0;
 
   static String _itemId(LuckyItem item) => item.tagKey == null
-      ? 'variant:${item.variant.name}'
+      ? 'variant:${item.variant.name}:${item.ordinal}'
       : 'tag:${item.tagKey}';
 
   /// 설명 문장이 없는 항목(뜻이 없는 태그)은 열 것이 없어 null입니다.

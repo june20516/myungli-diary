@@ -72,7 +72,7 @@ func (a *API) serveTestGrant(state *testLoginState, w http.ResponseWriter, r *ht
 	}
 
 	if errors.Is(err, billing.ErrTestGrantAccount) {
-		writeTestGrantInvalid(w, r, "/accountId", "not_found")
+		writeStagingFieldInvalid(w, r, "/accountId", "not_found")
 		return
 	}
 	logger := a.logger()
@@ -99,12 +99,12 @@ func decodeTestGrant(w http.ResponseWriter, r *http.Request) (accountID uuid.UUI
 	}
 	accountID, code := testGrantAccountID(body.AccountID)
 	if code != "" {
-		writeTestGrantInvalid(w, r, "/accountId", code)
+		writeStagingFieldInvalid(w, r, "/accountId", code)
 		return uuid.Nil, 0, false
 	}
 	days, code = testGrantDays(body.Days)
 	if code != "" {
-		writeTestGrantInvalid(w, r, "/days", code)
+		writeStagingFieldInvalid(w, r, "/days", code)
 		return uuid.Nil, 0, false
 	}
 	return accountID, days, true
@@ -114,12 +114,12 @@ func decodeTestGrant(w http.ResponseWriter, r *http.Request) (accountID uuid.UUI
 func testGrantQueryAccountID(w http.ResponseWriter, r *http.Request) (accountID uuid.UUID, ok bool) {
 	text := r.URL.Query().Get("accountId")
 	if text == "" {
-		writeTestGrantInvalid(w, r, "/accountId", "required")
+		writeStagingFieldInvalid(w, r, "/accountId", "required")
 		return uuid.Nil, false
 	}
 	accountID, err := uuid.Parse(text)
 	if err != nil {
-		writeTestGrantInvalid(w, r, "/accountId", "format")
+		writeStagingFieldInvalid(w, r, "/accountId", "format")
 		return uuid.Nil, false
 	}
 	return accountID, true
@@ -158,8 +158,8 @@ func testGrantDays(raw json.RawMessage) (days int, code string) {
 	return days, ""
 }
 
-// writeTestGrantInvalid는 필드 하나의 400 request.invalid를 씁니다.
-func writeTestGrantInvalid(w http.ResponseWriter, r *http.Request, field, code string) {
+// writeStagingFieldInvalid는 staging 경로(S125, S131)의 필드 하나 400 request.invalid를 씁니다.
+func writeStagingFieldInvalid(w http.ResponseWriter, r *http.Request, field, code string) {
 	p := problem.RequestInvalid.Problem("Request does not match the contract")
 	p.Errors = []problem.FieldError{{Field: field, Code: code}}
 	problem.Write(w, r, p)

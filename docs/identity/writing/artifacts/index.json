@@ -460,5 +460,39 @@
     ],
     "status": "chosen",
     "note": "Calendar and cycles, design #723 상한 반영"
+  },
+  {
+    "id": "round-R28",
+    "title": "라운드 R28: 문의하기 원고 (W53)",
+    "kind": "copy-sample",
+    "file": "2026-11-04-round-R28.md",
+    "date": "2026-11-04",
+    "milestone": "A2",
+    "screens": [
+      "settings",
+      "purchase-history"
+    ],
+    "decisions": [
+      "W53"
+    ],
+    "status": "chosen",
+    "note": "문의하기 줄, 메일 방식은 D102(앱 안 문의 화면)로 바뀌어 R29로 이어짐"
+  },
+  {
+    "id": "round-R29",
+    "title": "라운드 R29: 문의 화면 원고 (W54)",
+    "kind": "copy-sample",
+    "file": "2026-11-04-round-R29.md",
+    "date": "2026-11-04",
+    "milestone": "A2",
+    "screens": [
+      "contact",
+      "purchase-history"
+    ],
+    "decisions": [
+      "W54"
+    ],
+    "status": "chosen",
+    "note": "수집 고지는 합니다체, 누르면 바로 가는 안내는 문의하기로"
   }
 ]

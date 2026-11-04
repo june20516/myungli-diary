@@ -17,8 +17,13 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 )
 
-// callTimeout은 엔진 호출 한 번(시도마다)의 deadline입니다(D41).
+// callTimeout은 엔진 호출 첫 시도의 deadline입니다. 떠 있는 엔진에는 충분한 시간입니다(S27).
 const callTimeout = 3 * time.Second
+
+// coldStartTimeout은 첫 시도가 timeout이나 UNAVAILABLE로 끝났을 때 다시 부르는 시도의 deadline입니다(S132).
+// 엔진은 0개까지 줄어들 수 있어 cold start(staging 실측 약 5.5초)가 늘 일어나고, 첫 시도가 깨운 인스턴스가
+// 뜨는 동안 기다릴 수 있어야 합니다.
+const coldStartTimeout = 10 * time.Second
 
 // ClientConfig는 엔진 연결 설정입니다.
 type ClientConfig struct {
@@ -85,17 +90,18 @@ func (c *Client) ConvertLunarDate(ctx context.Context, req *enginev1.LunarDateRe
 	return call(ctx, "ConvertLunarDate", c.engine.ConvertLunarDate, req)
 }
 
-// call은 RPC 한 번에 3초 deadline을 걸고, UNAVAILABLE이면 한 번 더(새 3초) 부릅니다.
-// 호출자 ctx가 이미 끝났으면 다시 부르지 않습니다. 실패는 sentinel로 분류해 돌려줍니다.
+// call은 RPC를 callTimeout으로 부르고, UNAVAILABLE이나 DEADLINE_EXCEEDED면 coldStartTimeout으로 한 번 더 부릅니다.
+// 엔진 RPC는 계산만 하므로 다시 불러도 결과가 같습니다(S132). 호출자 ctx가 이미 끝났으면 다시 부르지 않습니다.
+// 실패는 sentinel로 분류해 돌려줍니다.
 func call[Req, Resp any](
 	ctx context.Context,
 	name string,
 	rpc func(context.Context, *Req, ...grpc.CallOption) (*Resp, error),
 	req *Req,
 ) (*Resp, error) {
-	resp, err := attempt(ctx, rpc, req)
-	if status.Code(err) == codes.Unavailable && callerContextError(ctx) == nil {
-		resp, err = attempt(ctx, rpc, req)
+	resp, err := attempt(ctx, callTimeout, rpc, req)
+	if retryable(err) && callerContextError(ctx) == nil {
+		resp, err = attempt(ctx, coldStartTimeout, rpc, req)
 	}
 	if err != nil {
 		return nil, classify(ctx, name, err)
@@ -103,13 +109,24 @@ func call[Req, Resp any](
 	return resp, nil
 }
 
-// attempt는 deadline을 걸어 RPC를 한 번 부릅니다. 호출자 ctx에 더 짧은 deadline이 있으면 그것이 우선합니다.
+// retryable은 다시 불러 볼 만한 실패인지입니다. 엔진이 뜨는 중이거나(UNAVAILABLE) 첫 시도 deadline이 지난 경우입니다.
+func retryable(err error) bool {
+	switch status.Code(err) {
+	case codes.Unavailable, codes.DeadlineExceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// attempt는 timeout deadline을 걸어 RPC를 한 번 부릅니다. 호출자 ctx에 더 짧은 deadline이 있으면 그것이 우선합니다.
 func attempt[Req, Resp any](
 	ctx context.Context,
+	timeout time.Duration,
 	rpc func(context.Context, *Req, ...grpc.CallOption) (*Resp, error),
 	req *Req,
 ) (*Resp, error) {
-	ctx, cancel := context.WithTimeout(ctx, callTimeout)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	return rpc(ctx, req)
 }

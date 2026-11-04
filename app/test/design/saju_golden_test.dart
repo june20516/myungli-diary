@@ -169,9 +169,10 @@ Widget _manse(BuildContext context, {bool hourUnknown = false}) {
       // 사전에 이름이 없으면(A65) 화면은 누를 수 없는 글자를 넘깁니다.
       twelveStage: Text(ja ? '沐浴' : '목욕'),
     ),
-    hiddenStemsHeader: _label(ja ? '蔵干' : '지장간'),
-    twelveStageHeader: _label(ja ? '十二運' : '12운성'),
-    shinsalHeader: _label(ja ? '神殺' : '신살'),
+    // 줄 머리는 앱처럼 누를 수 없는 라벨입니다(V53).
+    hiddenStemsHeader: LuckLabel(ja ? '蔵干' : '지장간'),
+    twelveStageHeader: LuckLabel(ja ? '十二運' : '12운성'),
+    shinsalHeader: LuckLabel(ja ? '神殺' : '신살'),
     tableLabel: ja ? '万年暦' : '만세력 표',
   );
 }

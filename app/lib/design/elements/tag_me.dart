@@ -24,8 +24,11 @@ class TagMe extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        // 한 줄입니다(V53). 폭은 쓰는 쪽이 정하고(원국표는 기둥 폭), 원고 상한이 그 안에 맞춥니다.
         child: Text(
           label,
+          maxLines: 1,
+          softWrap: false,
           style: tokens.typography.labelMd.copyWith(
             color: tokens.colors.actionOnPrimary,
             fontSize: 10,

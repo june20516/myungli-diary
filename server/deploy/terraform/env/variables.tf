@@ -67,3 +67,14 @@ variable "token_previous_key_id" {
   type        = string
   default     = ""
 }
+
+variable "sql_max_connections" {
+  description = "Cloud SQL PostgreSQL max_connections(tier 메모리의 기본값, S133). 연결 수 알림은 이 값의 80%입니다"
+  type        = number
+}
+
+variable "uptime_check_enabled" {
+  description = "공개 주소 GET /health uptime check와 그 알림을 둘지(S133). 공개 주소가 server에 연결된 환경만 true"
+  type        = bool
+  default     = false
+}

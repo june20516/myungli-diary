@@ -17,3 +17,13 @@ provider "google" {
   project = var.project_id
   region  = var.region
 }
+
+# Billing Budgets API는 사용자 ADC로 부를 때 quota project가 있어야 합니다(없으면 403, provider google_billing_budget 문서).
+# 다른 자원에는 quota project 헤더를 붙이지 않도록 예산만 이 alias를 씁니다.
+provider "google" {
+  alias                 = "billing"
+  project               = var.project_id
+  region                = var.region
+  billing_project       = var.project_id
+  user_project_override = true
+}

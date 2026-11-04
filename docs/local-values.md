@@ -52,6 +52,7 @@
 | K11 | Android debug keystore | L2 | `~/.android/debug.keystore`(도구 기본 경로, §3 예외) | - | app | 새로 생기지만 지문이 바뀌어, 카카오 키 해시, Google OAuth client, LINE Package signatures(SHA-1, E10), server `assetlinks.json`의 debug 지문을 다시 등록해야 합니다. 백업을 권장합니다 | E8, #311 | 사용 중 |
 | K12 | Terraform bootstrap state(staging, prod) | 클라우드 원본 | 로컬에 두지 않음 | 각 프로젝트의 state bucket `<프로젝트>-tfstate`의 `bootstrap/default.tfstate`(버전 관리, backend `gcs`) | server | bucket의 이전 버전으로 되살립니다. bucket까지 잃으면 bootstrap이 만든 자원을 import로 되살려야 합니다(`server/deploy/terraform/README.md`) | E17, #636, #662 | 사용 중 |
 | K13 | Apple 서명 인증서(Apple Development, 앞으로 Apple Distribution)의 개인 키 | L2 | 이 Mac의 로그인 키체인(Xcode 자동 서명이 만듦, 저장소 밖) | Apple 개발자 계정(인증서, provisioning profile) | app | 다른 Mac에서 Xcode에 로그인하면 개발용은 새로 만들어집니다. 배포용은 개발자 사이트에서 옛것을 폐기하고 새로 만들며, 이미 출시된 앱에는 영향이 없습니다. 따로 백업하지 않습니다 | E2, #714 | 사용 중(개발용, 2026-11-03) |
+| K14 | 알림과 예산 값(알림 받는 메일 주소, 결제 계정 id, 월 예산 금액과 통화) | L3 | `server/staging/observability.tfvars`, `server/prod/observability.tfvars` | Terraform bootstrap이 만드는 Cloud Monitoring 메일 channel(`myungli-alerts`)과 결제 예산(각 프로젝트) | server | 사용자가 다시 적고 bootstrap을 다시 apply합니다(값은 콘솔과 결제 계정에서 다시 알 수 있음) | #738, S133, D74 | 만들기 전 |
 
 ## 6. 새 기기로 옮기기, 값을 잃었을 때
 * **새 기기:** 옛 기기의 보관 폴더를 통째로 옮기거나(암호화된 매체로), L1은 기기 밖 백업에서 되살립니다. 권한을 700/600으로 맞춘 뒤, §5의 행마다 보관 경로에 파일이 있는지 `test -f`로 확인합니다. L2, L3 중 없는 것은 "잃었을 때" 칸대로 다시 만듭니다.

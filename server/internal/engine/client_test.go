@@ -97,7 +97,7 @@ func TestClient_MapsStatusToSentinel(t *testing.T) {
 		{"InvalidArgument", codes.InvalidArgument, engine.ErrInvalidArgument, 1},
 		{"OutOfRange", codes.OutOfRange, engine.ErrOutOfRange, 1},
 		{"Internal", codes.Internal, engine.ErrInternal, 1},
-		{"DeadlineExceeded", codes.DeadlineExceeded, engine.ErrTimeout, 1},
+		{"DeadlineExceeded", codes.DeadlineExceeded, engine.ErrTimeout, 2},
 		{"Unavailable", codes.Unavailable, engine.ErrUnavailable, 2},
 		{"Unknown", codes.Unknown, engine.ErrInternal, 1},
 	}
@@ -166,6 +166,47 @@ func TestClient_ConvertLunarDatePassesRequestAndRetries(t *testing.T) {
 	assert.EqualValues(t, 1, resp.GetSolar().GetDay())
 	assert.True(t, resp.GetMonthHasLeap())
 	assert.EqualValues(t, 2, srv.calls.Load())
+}
+
+// 첫 시도가 timeout이면(엔진 cold start) 더 긴 deadline으로 한 번 더 불러 성공합니다(S132).
+func TestClient_RetriesDeadlineExceededWithColdStartDeadline(t *testing.T) {
+	srv := &scriptedServer{respond: func(n int64) error {
+		if n == 1 {
+			return status.Error(codes.DeadlineExceeded, "")
+		}
+		return nil
+	}}
+	client := newTestClient(t, srv)
+
+	resp, err := client.GetChart(context.Background(), &enginev1.ChartRequest{})
+
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+	remaining := srv.receivedRemaining()
+	require.Len(t, remaining, 2)
+	assert.LessOrEqual(t, remaining[0], 3*time.Second, "첫 시도는 3초")
+	assert.Greater(t, remaining[1], 3*time.Second, "다시 부르는 시도는 cold start를 기다릴 수 있게 더 김")
+	assert.LessOrEqual(t, remaining[1], 10*time.Second)
+}
+
+// 호출자 deadline이 더 짧으면 다시 부르는 시도에도 그것이 우선합니다.
+func TestClient_RetryKeepsCallerShorterDeadline(t *testing.T) {
+	srv := &scriptedServer{respond: func(n int64) error {
+		if n == 1 {
+			return status.Error(codes.Unavailable, "")
+		}
+		return nil
+	}}
+	client := newTestClient(t, srv)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	_, err := client.GetChart(ctx, &enginev1.ChartRequest{})
+
+	require.NoError(t, err)
+	remaining := srv.receivedRemaining()
+	require.Len(t, remaining, 2)
+	assert.LessOrEqual(t, remaining[1], time.Second)
 }
 
 func TestClient_DoesNotRetryOtherCodes(t *testing.T) {
