@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart'
-    show RenderBox, SingleChildScrollView, TextDirection, ValueKey;
+    show RenderBox, Scrollable, SingleChildScrollView, TextDirection, ValueKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/features/purchase/presentation/purchase_history_screen.dart';
+import 'package:myungli_diary/testing/covers.dart';
 
 import '../../support/app_bar_title.dart';
 import '../../support/app_harness.dart';
@@ -158,6 +159,29 @@ void main() {
     );
     _expectMeta(_meta('2026. 7. 1.'));
     expect(_notice, findsOneWidget);
+  });
+
+  testWidgets('missing.notice 아래 문의하기 버튼으로 contact에 갑니다(D89 ④, D102)', (
+    tester,
+  ) async {
+    covers(const Covers(exits: ['purchase-history>contact']));
+    await _open(tester);
+    final contact = find.byKey(PurchaseHistoryScreen.contactKey);
+    await tester.scrollUntilVisible(
+      contact,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(
+      find.descendant(
+        of: contact,
+        matching: find.text(_ko.settingsContactLabel),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(contact);
+    await pumpUntilScreen(tester, ScreenIds.contact);
+    expect(find.byKey(const ValueKey(ScreenIds.contact)), findsOneWidget);
   });
 
   testWidgets('빈 목록이면 empty-state(receipt)와 그 아래 missing.notice', (

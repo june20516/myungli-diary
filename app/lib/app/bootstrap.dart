@@ -24,6 +24,7 @@ import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/apple_native_auth.dart';
 import 'package:myungli_diary/core/platform/apple_web_auth.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
+import 'package:myungli_diary/core/platform/device_info.dart';
 import 'package:myungli_diary/core/platform/device_timezone.dart';
 import 'package:myungli_diary/core/platform/external_browser.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -234,6 +235,10 @@ List<Override> realPlatformOverrides(ApiMode mode) => switch (mode) {
       ),
     ),
     adsProvider.overrideWith(realAds),
+    deviceInfoReaderProvider.overrideWith(
+      (ref) =>
+          PlatformDeviceInfoReader(platform: ref.watch(targetPlatformProvider)),
+    ),
     shareSheetProvider.overrideWithValue(const OsShareSheet()),
     notificationChannelsProvider.overrideWith(
       (ref) => LocalNotificationChannels(

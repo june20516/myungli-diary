@@ -38,6 +38,7 @@ const Map<String, String> _barTitleKeys = {
   'profile-edit': 'profileEditBarTitle',
   'account-delete': 'accountDeleteBarTitle',
   'legal': 'legalBarTitle',
+  'contact': 'contactBarTitle',
   'ad-free': 'adFreeBarTitle',
   'purchase-history': 'purchaseHistoryBarTitle',
   'login-methods': 'loginMethodsBarTitle',

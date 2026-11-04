@@ -11,6 +11,7 @@ import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/auth/presentation/login_screen.dart';
 import 'package:myungli_diary/features/calc_basis/presentation/calc_basis_screen.dart';
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
+import 'package:myungli_diary/features/contact/presentation/contact_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_edit_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
@@ -222,6 +223,13 @@ final Map<String, ScreenSpec> _implementedScreens = {
     ScreenIds.purchaseHistory,
     _buildPurchaseHistory,
     handledStates: purchaseHistoryHandledStates,
+    exits: purchaseHistoryExits,
+  ),
+  ScreenIds.contact: const ScreenSpec(
+    ScreenIds.contact,
+    _buildContact,
+    handledStates: contactHandledStates,
+    exits: contactExits,
   ),
   ScreenIds.legal: const ScreenSpec(ScreenIds.legal, _buildLegal),
   ScreenIds.eventEdit: const ScreenSpec(
@@ -280,6 +288,8 @@ Widget _buildToday(BuildContext context) => const TodayScreen();
 Widget _buildCalcBasis(BuildContext context) => const CalcBasisScreen();
 
 Widget _buildEventEdit(BuildContext context) => const EventEditScreen();
+
+Widget _buildContact(BuildContext context) => const ContactScreen();
 
 Widget _buildDiaryList(BuildContext context) => const DiaryListScreen();
 

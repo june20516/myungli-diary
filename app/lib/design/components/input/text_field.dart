@@ -44,6 +44,8 @@ class MyungliTextField extends StatefulWidget {
     this.onSubmitted,
     this.identifier,
     this.maxLines = 1,
+    this.keyboardType,
+    this.autofillHints,
     super.key,
   }) : assert(
          maxLines >= 1 && maxLines <= maxLinesLimit,
@@ -108,6 +110,13 @@ class MyungliTextField extends StatefulWidget {
   /// 높이입니다. 키보드는 여러 줄 입력이고 키보드 동작은 줄바꿈이라 [onSubmitted]는 불리지
   /// 않습니다(event-edit 메모 2000자).
   final int maxLines;
+
+  /// 키보드 종류(예 메일 주소는 [TextInputType.emailAddress]). 없으면 여러 줄 칸은 여러 줄
+  /// 입력, 한 줄 칸은 기본 키보드입니다.
+  final TextInputType? keyboardType;
+
+  /// 자동 채우기 힌트(예 [AutofillHints.email]).
+  final Iterable<String>? autofillHints;
 
   bool get _multiline => maxLines > 1;
 
@@ -252,7 +261,10 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                     cursorColor: colors.actionPrimary,
                     minLines: 1,
                     maxLines: widget.maxLines,
-                    keyboardType: multiline ? TextInputType.multiline : null,
+                    keyboardType:
+                        widget.keyboardType ??
+                        (multiline ? TextInputType.multiline : null),
+                    autofillHints: widget.autofillHints,
                     textInputAction: multiline
                         ? TextInputAction.newline
                         : TextInputAction.done,

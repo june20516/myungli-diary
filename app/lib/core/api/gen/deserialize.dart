@@ -43,6 +43,7 @@ import 'package:myungli_diary/core/api/gen/model/hidden_stem.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
 import 'package:myungli_diary/core/api/gen/model/identity.dart';
 import 'package:myungli_diary/core/api/gen/model/identity_list.dart';
+import 'package:myungli_diary/core/api/gen/model/inquiry_input.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/legal_links.dart';
@@ -227,6 +228,8 @@ ReturnType deserialize<ReturnType, BaseType>(
       return Identity.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'IdentityList':
       return IdentityList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'InquiryInput':
+      return InquiryInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Insight':
       return Insight.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'KakaoLoginRequest':
