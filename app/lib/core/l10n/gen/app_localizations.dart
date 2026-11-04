@@ -2046,25 +2046,25 @@ abstract class AppLocalizations {
   /// **'시간대를 확인하지 못했어요. 기기의 시간대 설정을 확인해 주세요.'**
   String get errorTimezoneInvalid;
 
-  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'알림 시각'**
   String get settingsNotifyLabel;
 
-  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'꺼짐'**
   String get settingsNotifyOff;
 
-  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'언어'**
   String get settingsLanguageLabel;
 
-  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 로그아웃)과 알림을 끈 값
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값
   ///
   /// In ko, this message translates to:
   /// **'로그아웃'**
@@ -2517,7 +2517,7 @@ abstract class AppLocalizations {
   /// purchase-history.missing.notice: 결제했는데 목록에 없으면 문의하라는 안내
   ///
   /// In ko, this message translates to:
-  /// **'결제한 상품이 보이지 않으면 문의해 주세요.'**
+  /// **'결제한 상품이 보이지 않으면 문의하기로 알려 주세요.'**
   String get purchaseHistoryMissingNotice;
 
   /// 계정 합치기 화면(account-merge) account-choice: 카드 알약(지금 계정 `Current`, 가져올 계정 `Other`)
@@ -2657,6 +2657,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.'**
   String get iosTrackingUsageDescription;
+
+  /// contact.address.note: 메일로 직접 보낼 수 있는 주소 안내(보내기를 못 쓸 때, E14)
+  ///
+  /// In ko, this message translates to:
+  /// **'보내기가 안 되면 이 주소로 메일을 보내 주세요.\n{email}'**
+  String contactAddressNote(String email);
+
+  /// contact.attached.notice: 함께 보내는 정보 고지(계정 id, 앱 버전, 기기 정보, 사용자가 고칠 수 없고 문의 처리에만 씀)
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 id, 앱 버전, 기기 정보(OS, 기종)를 함께 보냅니다. 문의 처리에만 활용됩니다.'**
+  String get contactAttachedNotice;
+
+  /// contact.bar.title: app-bar 제목(화면 이름 "문의하기")
+  ///
+  /// In ko, this message translates to:
+  /// **'문의하기'**
+  String get contactBarTitle;
+
+  /// contact.email.field: 답장 받을 메일 주소 입력 칸 이름과 안내(필수)
+  ///
+  /// In ko, this message translates to:
+  /// **'답장 받을 메일'**
+  String get contactEmailFieldLabel;
+
+  /// contact.email.field: 답장 받을 메일 주소 입력 칸 이름과 안내(필수)
+  ///
+  /// In ko, this message translates to:
+  /// **'name@example.com'**
+  String get contactEmailFieldHint;
+
+  /// contact.intro.body: 무엇을 쓰면 되는지와 답은 메일로 온다는 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'궁금한 점이나 불편한 점을 적어 주세요. 답은 적어 주신 메일로 보내 드려요.'**
+  String get contactIntroBody;
+
+  /// contact.message.field: 문의 내용 입력 칸 이름과 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'문의 내용'**
+  String get contactMessageFieldLabel;
+
+  /// contact.message.field: 문의 내용 입력 칸 이름과 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'언제, 어느 화면에서 있었던 일인지 함께 적어 주세요'**
+  String get contactMessageFieldHint;
+
+  /// contact.send.cta: 보내기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'보내기'**
+  String get contactSendCta;
+
+  /// contact.sent.toast: 보낸 뒤 결과
+  ///
+  /// In ko, this message translates to:
+  /// **'문의를 보냈어요.'**
+  String get contactSentToast;
+
+  /// 문의 화면(contact): 보내기 실패(error 상태)와 메일 주소 형식 오류(IA 밖, #752)
+  ///
+  /// In ko, this message translates to:
+  /// **'문의를 보내지 못했어요. 잠시 뒤 다시 보내 주세요.'**
+  String get contactSendFailed;
+
+  /// 문의 화면(contact): 보내기 실패(error 상태)와 메일 주소 형식 오류(IA 밖, #752)
+  ///
+  /// In ko, this message translates to:
+  /// **'메일 주소를 다시 확인해 주세요.'**
+  String get contactEmailInvalid;
+
+  /// 설정 화면(settings): settings-row 줄 이름(알림 시각, 언어, 문의하기, 로그아웃)과 알림을 끈 값
+  ///
+  /// In ko, this message translates to:
+  /// **'문의하기'**
+  String get settingsContactLabel;
 }
 
 class _AppLocalizationsDelegate

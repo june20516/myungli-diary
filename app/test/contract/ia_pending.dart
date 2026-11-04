@@ -5,7 +5,10 @@
 /// 빈 집합이 목표입니다. IA `exits`가 빈 화면은 넣지 않습니다(넣으면 ratchet
 /// 테스트가 즉시 실패합니다). 시트 화면은 registry에 없으므로 시트를 만드는 계획이
 /// registry에 등록하면서 지웁니다.
-const Set<String> pendingStateScreens = {};
+const Set<String> pendingStateScreens = {
+  // 문의 화면(D102). #746에서 화면을 만들 때 지웁니다(drift #756).
+  'contact',
+};
 
 /// 아직 IA `exits`를 구현하지 않은 page 화면 id(출구가 없는 화면은 제외).
 ///
@@ -13,4 +16,10 @@ const Set<String> pendingStateScreens = {};
 /// 지웁니다. 끝난 화면이 남아 있으면 IA 계약 테스트가 실패하고(ratchet),
 /// 빈 집합이 목표입니다. IA `exits`가 빈 화면은 넣지 않습니다(넣으면 ratchet
 /// 테스트가 즉시 실패합니다).
-const Set<String> pendingExitScreens = {};
+const Set<String> pendingExitScreens = {
+  // 문의 화면(D102)과 그리로 가는 설정, 구매 내역 안내(D89 ④).
+  // #746에서 화면과 출구를 만들 때 지웁니다(drift #756).
+  'contact',
+  'purchase-history',
+  'settings',
+};

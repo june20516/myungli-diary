@@ -56,6 +56,7 @@
 
 ## 현재 상태 (2026-11-04, app 세션 갱신)
 * **staging 광고(#741, D101)**, 브랜치 `app/staging-ads`. 결정 A106. staging 환경(`STAGING_ADS`)은 AdMob을 못 받으면 모의 배너와 전체 화면 모의 보상형 광고로 대신하고, 보상형을 끝까지 보면 server S131 staging 경로로 보상을 보낸 뒤 실제 REST로 권한을 다시 읽습니다. 광고 불러오기 실패는 staging에서 `AdMobLoadFailure` 비치명 오류로 남습니다. 기다림 시간 제한(30초)과 실패 toast는 A26으로 이미 있습니다. 남은 것: staging release 실기기에서 모의 광고와 보상 열림 확인(새 Android 빌드 뒤), iPhone 광고 실패 코드 확인.
+  * drift #756(IA `contact`, writing R28·R29)도 이 PR에서 맞췄습니다. IA 재생성, 원고 가져오기, `contact` 상태와 `contact`·`settings`·`purchase-history` 출구는 #746 구현 전까지 `test/contract/ia_pending.dart`에 둡니다.
 * **스토어 빌드(A104, 플랫폼별 N):** Android 1.0.0 (4) Play 내부 테스트, iOS 1.0.0 (3) TestFlight. 두 빌드 모두 실기기에서 실행과 로그인을 확인했습니다(2026-11-03, 사용자 확인). Android는 카카오, LINE, Google, Apple 웹이 모두 성공했고, LINE은 채널 Package signatures 등록(#731)과 Tester 역할 수락(채널 Developing, #733) 뒤 됐습니다.
   * (4)는 Android만 고친 빌드입니다(#728, PR #730). +3은 시작하자마자 종료했습니다. 광고 SDK가 들여오는 room-runtime 2.2.5의 keep 규칙이 R8 full mode에서 `WorkDatabase_Impl` 기본 생성자를 지키지 못해 WorkManager 초기화(androidx.startup)가 실패했고, `android/app/proguard-rules.pro`(Flutter가 release에 자동으로 더함)에 `RoomDatabase` 하위 클래스의 `<init>()` keep을 넣었습니다. iOS는 번호 4를 건너뜁니다.
 * **컴포넌트 계약 3.3.0 반영(#736)**, 브랜치 `app/components-3.3`.
