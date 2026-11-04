@@ -2,8 +2,8 @@
 # APP_ENV는 staging입니다(environment 변수는 APP_ENV 값이고, GitHub environment 이름 load와 다름).
 # 측정 회차가 끝나면 deploy-server의 load-teardown이 Cloud SQL만 지웁니다. Secret 틀과 값, 나머지 자원은 남깁니다.
 project_id = "myungli-diary-load"
-# project_number는 프로젝트를 만든 뒤 Firebase 콘솔의 Project number로 채웁니다(FIREBASE_PROJECT_NUMBER, 첫 배포 전 PR).
-project_number      = ""
+# project_number는 Firebase 콘솔의 Project number이고 FIREBASE_PROJECT_NUMBER가 됩니다(2026-11-04 gcloud projects describe로 대조).
+project_number      = "244522770563"
 environment         = "staging"
 sql_tier            = "db-custom-1-3840"
 deletion_protection = false
