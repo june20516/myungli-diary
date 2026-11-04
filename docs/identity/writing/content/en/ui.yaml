@@ -146,7 +146,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "No purchases yet."}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "If something you paid for isn't listed, tell us through Contact us in Settings."}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "If something you paid for isn't listed, let us know through Contact us."}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "Active"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "Upcoming"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "Expired"}
@@ -406,3 +406,17 @@
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "Preview of today's sentence image"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "Share image ratio"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way."}
+
+# 문의 화면(slots/ui/contact.yaml, D102, 라운드 R29)
+- {slot: contact.bar.title, key: contactBarTitle, text: "Contact us"}
+- {slot: contact.intro.body, key: contactIntroBody, text: "Tell us what you'd like to ask or what isn't working. We'll reply to the email you enter."}
+- {slot: contact.message.field, key: contactMessageFieldLabel, text: "Message"}
+- {slot: contact.message.field, key: contactMessageFieldHint, text: "Include when it happened and on which screen"}
+- {slot: contact.email.field, key: contactEmailFieldLabel, text: "Email for our reply"}
+- {slot: contact.email.field, key: contactEmailFieldHint, text: "name@example.com"}
+- {slot: contact.attached.notice, key: contactAttachedNotice, text: "Your account ID, app version, and device info (OS, model) are sent along. They are used only to handle your inquiry."}
+- {slot: contact.send.cta, key: contactSendCta, text: "Send"}
+- {slot: contact.sent.toast, key: contactSentToast, text: "Your message has been sent."}
+- {slot: contact.address.note, key: contactAddressNote, text: "If sending doesn't work, email us at this address.\n{email}"}
+- {slot: ui.contact.error, key: contactSendFailed, text: "We couldn't send your message. Please try again in a moment."}
+- {slot: ui.contact.error, key: contactEmailInvalid, text: "Please check the email address."}

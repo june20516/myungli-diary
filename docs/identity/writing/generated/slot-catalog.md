@@ -55,14 +55,14 @@
 | consent.cta.agree | consent.cta.agree | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | consent.required.label | consent.required.label | info | - | 1 | 2 | - | ko 34, en 64, ja 28 |
 | consent.title.head | consent.title.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| contact.address.note | contact.address.note | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.attached.notice | contact.attached.notice | info | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.bar.title | contact.bar.title | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.email.field | contact.email.field | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.intro.body | contact.intro.body | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.message.field | contact.message.field | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.send.cta | contact.send.cta | guide | - | 1 | 0 | - | ko -, en -, ja - |
-| contact.sent.toast | contact.sent.toast | info | - | 1 | 0 | - | ko -, en -, ja - |
+| contact.address.note | contact.address.note | guide | - | 1 | 1 | `email`: text | ko -, en -, ja - |
+| contact.attached.notice | contact.attached.notice | info | - | 1 | 1 | - | ko -, en -, ja - |
+| contact.bar.title | contact.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| contact.email.field | contact.email.field | guide | - | 1 | 2 | - | ko -, en -, ja - |
+| contact.intro.body | contact.intro.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| contact.message.field | contact.message.field | guide | - | 1 | 2 | - | ko -, en -, ja - |
+| contact.send.cta | contact.send.cta | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| contact.sent.toast | contact.sent.toast | info | - | 1 | 1 | - | ko -, en -, ja - |
 | daily.color | today.lucky-color.body | info | - | 1 | 4 | `element`: element, color<br>`role`: none | ko 36, en 64, ja 36 |
 | daily.direction | today.lucky-direction.body | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none | ko 36, en 64, ja 36 |
 | daily.focus_reason | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 10, en 18, ja 10 |
@@ -193,6 +193,7 @@
 | ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
 | ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 22, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.contact.error | 컴포넌트 toast<br>컴포넌트 text-field | guide | - | 1 | 2 | - | ko -, en -, ja - |
 | ui.date-picker.solar-confirm | 컴포넌트 date-picker | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |

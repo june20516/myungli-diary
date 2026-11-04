@@ -168,7 +168,7 @@
   where: "구매 내역 화면(purchase-history): 결제했는데 목록에 없을 때의 안내"
   purpose: guide
   user_state: "결제한 상품이 목록에 없는지 확인합니다."
-  structure: "한 문장. 설정의 문의하기로 알려 달라는 안내(문의 경로는 D89, #745)."
+  structure: "한 문장. 문의하기로 알려 달라는 안내. 누르면 문의 화면(contact)으로 갑니다(D89 ④, D102)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 62, en: 106, ja: 46}
   keys:
@@ -176,7 +176,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 설정의 문의하기로 알려 주세요.", why: "라운드 R28-3, 갈 곳을 가리킴(D89 ④)", source: writing}
+      - {lang: ko, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 문의하기로 알려 주세요.", why: "라운드 R29-4, 누르면 바로 가서 설정을 거치지 않음(R28-3 개정)", source: writing}
     bad:
       - {lang: ko, text: "혹시 결제한 상품이 안 보여도 너무 걱정 마세요! 문의하기로 말씀해 주시면 도와드릴게요.", why: "안심시키는 감탄과 약속을 얹음(R28-3 대조군)", source: writing}
   endings: ["~해 주세요"]

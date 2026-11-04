@@ -146,7 +146,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "구매 내역"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "구매 내역이 없어요."}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 설정의 문의하기로 알려 주세요."}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "결제한 상품이 보이지 않으면 문의하기로 알려 주세요."}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "사용 중"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "사용 전"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "만료"}
@@ -406,3 +406,17 @@
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "오늘 문장 이미지 미리보기"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "공유 이미지 비율"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요."}
+
+# 문의 화면(slots/ui/contact.yaml, D102, 라운드 R29)
+- {slot: contact.bar.title, key: contactBarTitle, text: "문의하기"}
+- {slot: contact.intro.body, key: contactIntroBody, text: "궁금한 점이나 불편한 점을 적어 주세요. 답은 적어 주신 메일로 보내 드려요."}
+- {slot: contact.message.field, key: contactMessageFieldLabel, text: "문의 내용"}
+- {slot: contact.message.field, key: contactMessageFieldHint, text: "언제, 어느 화면에서 있었던 일인지 함께 적어 주세요"}
+- {slot: contact.email.field, key: contactEmailFieldLabel, text: "답장 받을 메일"}
+- {slot: contact.email.field, key: contactEmailFieldHint, text: "name@example.com"}
+- {slot: contact.attached.notice, key: contactAttachedNotice, text: "계정 id, 앱 버전, 기기 정보(OS, 기종)를 함께 보냅니다. 문의 처리에만 활용됩니다."}
+- {slot: contact.send.cta, key: contactSendCta, text: "보내기"}
+- {slot: contact.sent.toast, key: contactSentToast, text: "문의를 보냈어요."}
+- {slot: contact.address.note, key: contactAddressNote, text: "보내기가 안 되면 이 주소로 메일을 보내 주세요.\n{email}"}
+- {slot: ui.contact.error, key: contactSendFailed, text: "문의를 보내지 못했어요. 잠시 뒤 다시 보내 주세요."}
+- {slot: ui.contact.error, key: contactEmailInvalid, text: "메일 주소를 다시 확인해 주세요."}
