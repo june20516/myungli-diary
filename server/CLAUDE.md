@@ -79,6 +79,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **`TRUSTED_PROXY_HOPS` 측정(브랜치 `server/trusted-proxy-hops`):** 공개 주소로 온 요청이 Hosting 주소로 보여 IP별 한도를 모두 함께 쓰는 문제를 확인했습니다. staging 확인 경로 `GET /test/v1/client-ip`로 홉 수를 재고 tfvars에 넣습니다. 결정 S135.
 * **로그 제외(브랜치 `server/log-exclusion-apple`):** Cloud Run 요청 로그에서 `GET /auth/apple?…`(일회용 교환 코드)를 받지 않는 프로젝트 로그 제외를 bootstrap에 둡니다. 결정 S136.
 * **DB 계정 분리(브랜치 `server/migrator-split`):** migration과 seed는 `server-migrator`(DDL), 런타임은 `myungli_app` 구성원(읽기와 쓰기만). migration 00024, `migrate up`의 `DB_RUNTIME_USER` 지정과 `cloudsqlsuperuser` 소속 확인. staging은 DB를 다시 만듭니다. 결정 S137.
+* **L1 부하 테스트 계획(브랜치 `server/l1-plan`, #782):** k6 도착률 고정 단계 부하, 부하 전용 프로젝트(prod와 같은 SQL tier, 끝나면 env destroy), 하루 흐름 요청 순서, 한계 응답 기록. 계획은 [`docs/plans/2026-11-04-l1-load-test.md`](docs/plans/2026-11-04-l1-load-test.md)입니다.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
@@ -90,4 +91,5 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 그때 정합니다. 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
-6. app 질문이 오면 답합니다.
+6. L1(#782): plan의 L1-2(k6 스크립트와 계정 준비)부터 진행합니다. 환경 안 A는 사용자 승인 뒤 L1-3.
+7. app 질문이 오면 답합니다.
