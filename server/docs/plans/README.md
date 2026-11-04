@@ -16,6 +16,7 @@ spec이 서브시스템 9개를 다루므로 계획을 나눕니다. 각 계획�
 | P7 | [결제와 권한](2026-10-20-p7-billing.md): RevenueCat webhook·동기화(REST v2), entitlement 부여 기록, 복원, AdMob SSV 검증과 근거 열람 권한(D60), 계약 draft.9, S79~S89 | §10 | **완료** |
 | P8 | Job: precompute, notify(FCM), retention(허가 취소 재시도 S106, 보관 기간 정리 S113·S120은 구현됨). 익명화는 없어짐(S105) | §8 | 대기 |
 | P9 | 배포: staging·prod, Cloud Run service·Jobs·Scheduler, Cloud SQL 연결, OpenTelemetry, 외부 준비 안내 | §13 | 대기 |
+| L1 | 부하 테스트와 한계점 측정(#782): k6, 부하 전용 프로젝트, 하루 흐름 요청 순서. [`2026-11-04-l1-load-test.md`](2026-11-04-l1-load-test.md) | 준비 메모 §4 | 계획 |
 
 P2~P8의 순서는 의존 순서입니다. P2·P3 다음부터는 P5·P6·P7이 서로 기다리지 않습니다.
 
