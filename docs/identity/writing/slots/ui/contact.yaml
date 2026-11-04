@@ -6,7 +6,7 @@
   user_state: "문의를 쓰려고 화면에 들어왔습니다."
   structure: "무엇을 쓰면 되는지와 답은 메일로 온다는 안내(D102 ③)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 90, en: 150, ja: 63}
   keys:
     - contactIntroBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -26,7 +26,9 @@
   user_state: "문의 내용을 씁니다."
   structure: "칸 이름과 칸 안 안내."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 29, en: 53, ja: 23}
+  key_max_length:
+    contactMessageFieldHint: {ko: 34, en: 62, ja: 28}
   keys:
     - contactMessageFieldLabel
     - contactMessageFieldHint
@@ -48,7 +50,9 @@
   user_state: "답을 받을 메일 주소를 씁니다."
   structure: "칸 이름과 칸 안 안내. 필수 칸입니다(D102 ①)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 29, en: 53, ja: 23}
+  key_max_length:
+    contactEmailFieldHint: {ko: 17, en: 31, ja: 16}
   keys:
     - contactEmailFieldLabel
     - contactEmailFieldHint
@@ -70,7 +74,7 @@
   user_state: "무엇이 함께 보내지는지 봅니다."
   structure: "계정 id, 앱 버전, 기기 정보(OS, 기종)를 함께 보내고, 사용자가 고칠 수 없으며 문의 처리에만 쓴다는 고지(D102 ①)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 96, en: 162, ja: 69}
   keys:
     - contactAttachedNotice
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -90,7 +94,7 @@
   user_state: "문의를 보냅니다."
   structure: "동작 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 42, ja: 19}
   keys:
     - contactSendCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -109,7 +113,7 @@
   user_state: "문의를 보냈는지 확인합니다."
   structure: "보냈다는 결과와 답이 메일로 온다는 것."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
   keys:
     - contactSentToast
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -129,7 +133,7 @@
   user_state: "보내기가 안 될 때 다른 길을 찾습니다."
   structure: "안내 한 문장 다음 줄에 주소 `{email}`(E14 `support@myungli-diary.app`, app이 채움)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 64, en: 108, ja: 46}
   keys:
     - params: {email: text}
       keys: [contactAddressNote]
@@ -149,7 +153,9 @@
   user_state: "문의를 보내지 못했거나 메일 주소를 잘못 적었습니다."
   structure: "무엇이 안 됐는지와 할 일. 보내기 실패(`SendFailed`)와 주소 형식(`EmailInvalid`)을 나눕니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 48, en: 78, ja: 34}
+  key_max_length:
+    contactEmailInvalid: {ko: 60, en: 102, ja: 44}
   components: [toast, text-field]
   keys:
     - contactSendFailed

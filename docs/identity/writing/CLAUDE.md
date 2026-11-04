@@ -115,7 +115,7 @@
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **문의 화면 후속**: design에 새 슬롯 상한을 요청했습니다(#763). 답이 오면 넣습니다. app이 새 키(#746 구현)를 가져가는지 봅니다.
+2. **문의 화면 후속**: design 3.4.0 상한을 넣었습니다(#763, drift #773). app이 새 키(#746 구현)를 가져가는지 봅니다.
 3. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
 4. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
 5. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
