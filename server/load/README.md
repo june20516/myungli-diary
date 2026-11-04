@@ -1,0 +1,119 @@
+# 부하 테스트 (L1)
+
+계획은 [`server/docs/plans/2026-11-04-l1-load-test.md`](../docs/plans/2026-11-04-l1-load-test.md), 환경은 D104(부하 전용 프로젝트 `myungli-diary-load`)입니다. 환경을 띄우고 지우는 절차는 [`deploy/terraform/README.md`](../deploy/terraform/README.md) "부하 환경"에 있습니다.
+
+| 파일 | 내용 |
+| --- | --- |
+| `lib/flows.js` | 하루 사용 흐름(앱 열기, today 화면, 반응, 일기 쓰기, 캘린더). app 코드의 호출 순서를 근거로 둡니다 |
+| `lib/api.js` | REST 계약 형식 요청. 요청마다 tag `operation`(operationId) |
+| `lib/profiles.js` | 테스트 계정 프로필. 출생 정보를 계정 번호로 고루 나눔 |
+| `accounts.js` | 테스트 계정 준비(로그인, 동의, 프로필) |
+| `scenarios/ramp.js` | 단계별 한계점 측정. 단계마다 도착률 고정 scenario `stage_<세션/초>` |
+| `report/` | 결과 파일 집계 도구(Go) |
+
+## 실행
+
+k6는 컨테이너(`grafana/k6:2.3.0`)로 돌립니다. 아래는 `server/`에서 실행합니다. 테스트 로그인 비밀은 Secret Manager에서 바로 환경 변수로 넘기고, 화면이나 파일에 남기지 않습니다.
+
+```sh
+export TEST_LOGIN_SECRET="$(gcloud secrets versions access latest --secret TEST_LOGIN_SECRET --project myungli-diary-load)"
+k6() { docker run --rm -v "$PWD/load":/load -v "$PWD/.local/load/$RUN":/results -w /load -e TEST_LOGIN_SECRET "$@" grafana/k6:2.3.0; }
+```
+
+### 계정 만들기
+회차마다 Cloud SQL을 새로 만들므로 측정 전에 한 번 돌립니다. 계정 수는 측정의 VU 수(단계별 `도착률 × SESSION_SECONDS` 합, 기본 STAGES로 785) 이상이어야 합니다.
+
+```sh
+RUN=accounts; mkdir -p ".local/load/$RUN"
+k6 -e ACCOUNTS=1500 run --quiet accounts.js
+```
+
+### 측정
+```sh
+RUN=2026-11-05-limit-1; mkdir -p ".local/load/$RUN"
+k6 -e ACCOUNTS=1500 -e STAGES=2,5,10,20,40,80 run --out csv=/results/raw.csv scenarios/ramp.js
+```
+
+* **smoke:** `-e STAGES=1 -e STAGE_DURATION=1m`(계정 20개면 충분)
+* **warm 회차:** `job precompute`를 먼저 돌려 오늘 데일리를 채운 뒤 `DAILY_OFFSET_DAYS=0`
+* **cold 회차:** 아직 계산하지 않은 날짜로 옮깁니다. 예: `-e DAILY_OFFSET_DAYS=30`. 회차마다 다른 값을 씁니다.
+
+| 환경 변수 | 기본값 | 뜻 |
+| --- | --- | --- |
+| `BASE_URL` | `https://myungli-diary-load.web.app` | 공개 주소(Hosting). 직접 주소로 보내지 않음 |
+| `ACCOUNTS` | 1500 | 준비한 계정 수. VU 하나가 계정 하나를 맡음 |
+| `STAGES` | `2,5,10,20,40,80` | 단계별 도착률(세션/초). 세션 하나는 요청 9~10개쯤(smoke 기준) |
+| `STAGE_DURATION`, `STAGE_GAP` | `3m`, `30s` | 단계 길이와 단계 사이 쉬는 시간 |
+| `SESSION_SECONDS` | 5 | 세션 하나에 걸리는 시간 짐작. VU 수 = 도착률 × 이 값 |
+| `REACTION_PERCENT`, `DIARY_PERCENT`, `CALENDAR_PERCENT` | 10, 25, 20 | 세션마다 반응, 일기 쓰기, 캘린더를 할 확률(%) |
+| `DAILY_OFFSET_DAYS` | 0 | today 화면이 여는 날짜 옮기기(cold 회차) |
+| `DIARY_SPREAD_DAYS` | 7 | 일기 날짜를 오늘부터 며칠 전까지 나눔(하루 10편 상한 피함) |
+| `REQUEST_TIMEOUT` | `30s` | 요청 하나의 시간 초과 |
+
+**멈춤 조건(단계마다):** 오류율(4xx, 5xx, 시간 초과) 1% 넘음, `getDaily` p95 2초 넘음. 닿으면 k6가 그 단계에서 끝내고 종료 코드가 0이 아닙니다(정상적인 한계 도달). 멈춘 단계 바로 아래가 그 설정의 한계점입니다.
+
+### 결과 파일 만들기
+Monitoring 지표는 몇 분 늦게 들어오므로 측정이 끝나고 5분쯤 뒤에 돌립니다. ADC(`gcloud auth application-default login`)가 필요합니다.
+
+```sh
+mkdir -p "docs/load/$RUN" && cp ".local/load/$RUN/k6-summary.json" "docs/load/$RUN/"
+go run ./load/report -raw ".local/load/$RUN/raw.csv" -summary "docs/load/$RUN/k6-summary.json" -out "docs/load/$RUN"
+```
+
+원자료 `raw.csv`는 크므로 `.local/`(git ignore)에만 둡니다. `docs/load/<회차>/`에는 아래 파일과 사람이 읽는 `README.md`를 둡니다.
+
+## 결과 파일 (D104 ②)
+
+금액은 어느 파일에도 넣지 않습니다(D74). 시각은 모두 UTC, RFC 3339입니다.
+
+### `k6-summary.json`
+k6 `handleSummary` 그대로입니다. 갱신 토큰이 든 `setup_data`는 뺍니다. 멈춤 조건 결과는 `metrics["http_req_failed{scenario:stage_N}"].thresholds`에 있습니다.
+
+### `stages.csv`
+단계마다 `operation=all`(단계 전체) 한 줄과 operation별 한 줄입니다. setup 요청(테스트 로그인)은 빠집니다.
+
+| 열 | 단위 | 뜻 |
+| --- | --- | --- |
+| `stage_rate` | 세션/초 | 단계의 목표 도착률 |
+| `stage_start_utc`, `stage_end_utc` | 시각 | 그 단계 첫 요청과 마지막 요청(끝은 +1초) |
+| `operation` | | operationId 또는 `all` |
+| `requests` | 건 | 요청 수 |
+| `actual_rps` | 건/초 | `requests ÷ 단계 길이`. 단계 길이는 operation과 상관없이 단계 전체 창 |
+| `p50_ms`, `p95_ms`, `p99_ms` | ms | `http_req_duration` 백분위(선형 보간). 값이 없으면 빈 칸 |
+| `status_2xx` | 건 | 2xx |
+| `status_304` | 건 | 304(`getGlossary`의 If-None-Match) |
+| `status_429` | 건 | 429(Cloud Run 인스턴스 상한이나 server 요청 한도) |
+| `status_5xx` | 건 | 5xx |
+| `status_other` | 건 | 그 밖(4xx, 연결 실패 status 0) |
+| `timeouts` | 건 | 요청 시간 초과(k6 error_code 1050) |
+| `blocked` | true/false | 그 단계에서 멈춤 조건에 닿았는지 |
+
+### `monitoring.csv`
+측정 창(첫 단계 1분 전 ~ 마지막 단계 2분 뒤)의 1분 간격 시계열입니다. 한 줄이 (시각, 지표, resource) 하나입니다.
+
+| 열 | 뜻 |
+| --- | --- |
+| `time_utc` | 1분 구간의 끝 시각 |
+| `metric` | 아래 지표 이름 |
+| `resource` | `server`, `engine`(Cloud Run 서비스), `sql`(Cloud SQL) |
+| `value`, `unit` | 값과 단위 |
+
+| `metric` | `unit` | 원 지표, 정렬과 축약 |
+| --- | --- | --- |
+| `instance_count` | count | `run.googleapis.com/container/instance_count`, 1분 최대, 서비스 합 |
+| `request_count` | requests_per_min | `run.googleapis.com/request_count`, 1분 합 |
+| `request_latency_p95` | ms | `run.googleapis.com/request_latencies`, 1분 분포의 p95 |
+| `cpu_utilization_mean` | ratio(0~1) | `run.googleapis.com/container/cpu/utilizations`, 1분 분포의 평균 |
+| `billable_instance_time` | seconds_per_min | `run.googleapis.com/container/billable_instance_time`, 1분 합 |
+| `sql_connections` | count | `cloudsql.googleapis.com/database/postgresql/num_backends`, 1분 최대, DB 합 |
+| `sql_cpu_utilization` | ratio(0~1) | `cloudsql.googleapis.com/database/cpu/utilization`, 1분 평균 |
+
+### `usage.csv`
+측정 창의 자원 사용량 합계입니다.
+
+| 열 | 뜻 |
+| --- | --- |
+| `resource` | `server`, `engine`, `sql` |
+| `instance_seconds` | `billable_instance_time` 합(초) |
+| `vcpu_seconds`, `memory_gib_seconds` | `instance_seconds × vCPU(1)`, `× 메모리(0.5GiB)`. 크기는 `deploy/terraform/env/run.tf` |
+| `sql_hours` | `sql` 행만. 측정 창 길이(시간). 인스턴스는 창 내내 켜져 있음 |
