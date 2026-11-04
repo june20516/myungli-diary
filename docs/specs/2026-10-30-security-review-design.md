@@ -24,7 +24,7 @@ T1부터는 테스터의 실제 계정, 생년월일, 일기 본문이 staging�
 | 네트워크와 데이터 | Cloud Run ingress와 인증(엔진은 내부 전용), Cloud SQL 공개 IP와 TLS, bucket 공개 여부(tfstate 포함), 감사 로그, 예산 알림 |
 | 비밀 값 | Secret Manager 접근 주체, Terraform 관리 범위, 로컬 값 대장(D98, `docs/local-values.md`)과 실물 대조, 미룬 교체(staging App Check debug token) |
 | server 인증 | JWT 서명, 만료, 폐기, 소셜 id_token 검증(aud, iss, nonce, azp), Apple 웹 복귀, staging 테스트 로그인이 prod에서 꺼지는지, App Check 검증 |
-| server 인가와 입력 | 다른 사용자 자원 접근(IDOR), 입력 검증, rate limit, 로그의 개인 정보, 토큰 암호화(`TOKEN_ENCRYPTION_KEY`), 계정 삭제가 남기는 것 |
+| server 인가와 입력 | 다른 사용자 자원 접근(IDOR), 입력 검증, rate limit(클라이언트 IP를 읽는 방식과 server 직접 주소, S135, PR #783에서 넘김), 로그의 개인 정보, 토큰 암호화(`TOKEN_ENCRYPTION_KEY`), 계정 삭제가 남기는 것 |
 | 외부 콜백 | RevenueCat webhook 인증과 sandbox 분리(D99), AdMob SSV 서명 검증 |
 | 엔진(core) | 외부에서 닿지 않는지, 입력 범위 |
 | app | 저장소와 빌드 산출물에 비밀 없음, 토큰 저장 위치, release에서 debug provider와 Test Store 키가 쓰일 수 없는지, App Link 검증, 로그, TLS |
