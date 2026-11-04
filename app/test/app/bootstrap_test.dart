@@ -153,4 +153,24 @@ void main() {
       throwsStateError,
     );
   });
+
+  group('실제 플랫폼 override 건너뛰기(#781)', () {
+    test('skip에 든 provider는 실제 adapter override를 넣지 않습니다', () {
+      final all = realPlatformOverrides(ApiMode.http);
+      final skipped = realPlatformOverrides(
+        ApiMode.http,
+        skip: {kakaoAuthProvider, adsProvider},
+      );
+      expect(skipped, hasLength(all.length - 2));
+      expect(skipped.map((o) => o.origin), isNot(contains(kakaoAuthProvider)));
+      expect(skipped.map((o) => o.origin), isNot(contains(adsProvider)));
+    });
+
+    test('fake 모드는 skip과 관계없이 비어 있습니다', () {
+      expect(
+        realPlatformOverrides(ApiMode.fake, skip: {kakaoAuthProvider}),
+        isEmpty,
+      );
+    });
+  });
 }

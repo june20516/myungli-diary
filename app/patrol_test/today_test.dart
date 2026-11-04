@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart' show expect, find, findsNothing;
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/platform/staging_ads.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -16,20 +17,11 @@ import 'package:patrol/patrol.dart';
 
 import 'support/e2e_app.dart';
 
-/// [done]이 참이 될 때까지 프레임을 돌립니다. 광고 확인처럼 실제 시간이 드는 일을 기다립니다.
-Future<void> _waitUntil(
-  PatrolIntegrationTester $,
-  bool Function() done, {
-  Duration timeout = const Duration(seconds: 40),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!done()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
-    }
-    await $.pump(const Duration(milliseconds: 100));
-  }
-}
+/// 광고 확인처럼 실제 시간이 드는 일을 기다리는 시간입니다.
+const _timeout = Duration(seconds: 40);
+
+/// staging 모의 보상형 광고가 끝나길 기다리는 시간입니다(광고 길이의 두 배 넉넉히).
+final Duration _adTimeout = mockRewardedLength * 2;
 
 void main() {
   patrolTest(
@@ -75,8 +67,9 @@ void main() {
       final unlock = evidenceUnlockControllerProvider(
         const DailyEvidenceSubject(),
       );
-      await _waitUntil(
+      await waitUntil(
         $,
+        timeout: _timeout,
         () => container.exists(unlock) && container.read(unlock).adReady,
       );
 
@@ -87,8 +80,21 @@ void main() {
           matching: find.byKey(EvidenceLockPanel.ctaKey),
         ),
       ).tap();
-      await _waitUntil(
+      if (e2eMode == E2eMode.staging) {
+        // staging의 모의 보상형 광고는 전체 화면이고 사용자가 닫아야 끝납니다.
+        await waitUntil(
+          $,
+          timeout: _adTimeout,
+          () => find
+              .byKey(MockRewardedAdPage.remainingKey)
+              .evaluate()
+              .any((element) => (element.widget as Text).data == '✓'),
+        );
+        await $(find.byKey(MockRewardedAdPage.closeKey)).tap();
+      }
+      await waitUntil(
         $,
+        timeout: _timeout,
         () =>
             container
                     .read(dailyControllerProvider)
@@ -110,8 +116,9 @@ void main() {
 
       // 총운 첫 문장에 좋아요를 켭니다.
       await $(find.byKey(ReactionButton.targetKey)).tap();
-      await _waitUntil(
+      await waitUntil(
         $,
+        timeout: _timeout,
         () => $.tester.widget<ReactionButton>(find.byType(ReactionButton)).on,
       );
       await expectScreen($, ScreenIds.today, state: 'liked');

@@ -88,8 +88,11 @@ class CitySearch extends StatefulWidget {
   /// 결과 카드를 찾는 테스트용 키.
   static const Key resultsKey = ValueKey('city-search-results');
 
+  /// 결과 줄 키의 공통 접두사. 도시 id를 모르는 테스트가 첫 결과 줄을 찾을 때 씁니다.
+  static const String rowKeyPrefix = 'city-search-row-';
+
   /// 도시 [cityId]의 결과 줄을 찾는 테스트용 키.
-  static Key rowKey(String cityId) => ValueKey('city-search-row-$cityId');
+  static Key rowKey(String cityId) => ValueKey('$rowKeyPrefix$cityId');
 
   static const double _rowMinHeight = 56;
   static const int _skeletonRows = 3;

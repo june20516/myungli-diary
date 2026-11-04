@@ -35,21 +35,6 @@ Finder _depthLink(String id) => _inScreen(
   ),
 );
 
-/// [done]이 참이 될 때까지 프레임을 돌립니다(대역 서버 응답·화면 움직임을 기다림).
-Future<void> _waitUntil(
-  PatrolIntegrationTester $,
-  bool Function() done, {
-  Duration timeout = const Duration(seconds: 20),
-}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!done()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('$timeout 안에 조건을 만족하지 못했습니다');
-    }
-    await $.pump(const Duration(milliseconds: 100));
-  }
-}
-
 /// 맨 위 화면의 뒤로 가기를 누릅니다.
 Future<void> _back(PatrolIntegrationTester $) async {
   await $(find.byKey(const ValueKey('app-bar.back')).last).tap();
@@ -95,7 +80,7 @@ void main() {
     await $(_depthLink(ScreenIds.mySaju)).scrollTo();
     await $(_depthLink(ScreenIds.mySaju)).tap();
     await expectScreen($, ScreenIds.sajuChart);
-    await _waitUntil(
+    await waitUntil(
       $,
       () => _inScreen(
         ScreenIds.sajuChart,
@@ -117,17 +102,15 @@ void main() {
     await $(_inScreen(ScreenIds.sajuChart, find.text(l10n.sajuChartTabNatal)))
         .tap();
     // 원국표(SajuPillars)는 가운데 점이 열 사이 간격에 떨어져 hit-testable하지 않으므로,
-    // 원국 탭으로 돌아온 것은 표 안의 누를 수 있는 십성 용어가 보이는지로 확인합니다.
-    final bigyeon = $(
-      _inScreen(
-        ScreenIds.sajuChart,
-        find.widgetWithText(TermToken, '비견'),
-      ).first,
+    // 원국 탭으로 돌아온 것은 표 안의 누를 수 있는 용어가 보이는지로 확인합니다. 용어 이름은
+    // 프로필(fake 시나리오, staging 계정)마다 달라 글자가 아니라 위젯 종류로 찾습니다.
+    final term = $(
+      _inScreen(ScreenIds.sajuChart, find.byType(TermToken)).first,
     );
-    await bigyeon.waitUntilVisible();
+    await term.waitUntilVisible();
 
-    // 원국표의 십성 용어 → 풀이 시트 → 근거 보기 → 근거 시트의 "내 사주에서는".
-    await bigyeon.tap();
+    // 원국표의 용어 → 풀이 시트 → 근거 보기 → 근거 시트의 "내 사주에서는".
+    await term.tap();
     await expectScreen($, ScreenIds.explainSheet);
     await $(_depthLink(ScreenIds.explainSheet)).tap();
     await expectScreen($, ScreenIds.evidenceSheet, state: 'unlocked');
@@ -163,7 +146,7 @@ void main() {
     await $(find.byKey(ProfileEditScreen.saveKey)).tap();
     await $(find.text(l10n.profileEditRecalcConfirmTitle)).waitUntilVisible();
     await $(find.text(l10n.profileEditRecalcConfirmSave)).tap();
-    await _waitUntil(
+    await waitUntil(
       $,
       () =>
           _screen(ScreenIds.mySaju).evaluate().isNotEmpty &&
@@ -182,7 +165,7 @@ void main() {
     await waitForScreen($, ScreenIds.adFree);
     await $(find.byKey(OfferCard.historyKey)).tap();
     await waitForScreen($, ScreenIds.purchaseHistory);
-    await _waitUntil(
+    await waitUntil(
       $,
       () => find.text(l10n.purchaseHistoryEmptyBody).evaluate().isNotEmpty,
     );
