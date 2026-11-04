@@ -293,11 +293,11 @@ tool/patrol_staging.sh                               # patrol_test 전체
 tool/patrol_staging.sh patrol_test/diary_test.dart   # 흐름 하나
 ```
 
-* **준비물:** `gcloud auth login`, staging 프로젝트의 `TEST_LOGIN_SECRET` 읽기 권한, `$MYUNGLI_LOCAL_DIR/app/staging/dart-defines.json`(K4, `docs/local-values.md`). 프로젝트가 다르면 `MYUNGLI_STAGING_PROJECT`를 줍니다(기본 `myungli-diary-staging`).
+* **준비물:** `gcloud auth login`, staging 프로젝트의 `TEST_LOGIN_SECRET` 읽기 권한, `$MYUNGLI_LOCAL_DIR/app/staging/dart-defines.json`(K4, `docs/local-values.md`). `MYUNGLI_LOCAL_DIR`를 바꿨다면 공백 없는 경로만 쓸 수 있습니다(공백이 있으면 종료 코드 3). 프로젝트가 다르면 `MYUNGLI_STAGING_PROJECT`를 줍니다(기본 `myungli-diary-staging`).
 * **대체한 것:** 로그인 SDK, 결제, 푸시는 대역이고 광고는 staging 모의 광고입니다(결정 A106). 비밀은 relay 메모리에만 있고 relay는 `127.0.0.1:47283`에서 받으며 기기에는 `adb reverse`로 닿습니다. 계정 연결과 합치기(`account_test`)는 server가 제공자 토큰을 검증하므로 staging에서는 건너뜁니다.
 * **문의 흐름:** 실행마다 support@로 실제 메일이 한 통 갑니다. 내용 첫머리가 `[E2E]`라 메일함에서 가려 볼 수 있습니다.
-* **정리 출력 읽기:** 끝에 `[patrol_staging] 테스트 계정 정리: {"deleted":N,"failed":[]}`가 나옵니다. `failed`가 비어 있으면 이 실행의 계정이 모두 지워진 것입니다. 비어 있지 않거나 "relay가 먼저 끝났습니다"가 나오면 relay 로그의 `정리 결과`를 확인합니다. 중단(Ctrl-C)해도 wrapper의 `trap`이 같은 정리를 합니다.
-* **relay 로그:** `build/patrol-local/relay-<시각>.log`. METHOD, 경로, 상태만 남고 본문, 토큰, 비밀, label은 남기지 않습니다. 실패한 단계는 `POST /session → 503 (POST /test/v1/auth/login)`처럼 적힙니다.
+* **정리 출력 읽기:** 끝에 `[patrol_staging] 테스트 계정 정리: {"deleted":N,"failed":[]}`가 나옵니다. `failed`가 비어 있으면 이 실행의 계정이 모두 지워진 것입니다. 비어 있지 않거나 "relay가 먼저 끝났습니다"가 나오면 relay 로그의 `정리 결과`에서 지우지 못한 label을 확인합니다. 중단(Ctrl-C)해도 wrapper의 `trap`이 같은 정리를 합니다.
+* **relay 로그:** `build/patrol-local/relay-<시각>.log`. 요청 줄에는 METHOD, 경로, 상태만 남고 본문, 토큰, 비밀, label은 남기지 않습니다. 지우지 못한 label은 `정리 결과` 줄의 `failed` 목록에만 나오며, 그 label로 남은 계정을 확인해 손으로 지웁니다. 실패한 단계는 `POST /session → 503 (POST /test/v1/auth/login)`처럼 적힙니다.
 * **종료 코드:** `patrol_local.sh`와 같습니다(0 통과, 1 테스트 실패, 2 기기 문제, 3 환경 문제, 4 시간 초과). gcloud 로그인 없음, dart-define 파일 없음, relay 준비 안 됨은 3입니다.
 
 ## CI (`.github/workflows/app.yml`)

@@ -26,6 +26,7 @@
 #   PATROL_RETRIES        기기 문제일 때 다시 돌리는 횟수(기본 1).
 #   PATROL_API_MODE       앱의 API_MODE(fake|http, 기본 fake). staging E2E는 tool/patrol_staging.sh가 http로 부릅니다.
 #   PATROL_EXTRA_DEFINES  config/auth.json 다음에 더할 --dart-define-from-file 경로들(공백으로 구분, 기본 없음).
+#                        공백 없는 경로만 쓸 수 있습니다.
 #
 # 종료 코드: 0 통과, 1 테스트 실패, 2 기기 문제(다시 돌려도 안 됨), 3 환경 문제(잠금·기기 없음·도구 없음),
 #           4 시간 초과.

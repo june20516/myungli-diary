@@ -42,6 +42,12 @@ relay_log="$log_dir/relay-$(date +%Y%m%d-%H%M%S).log"
 
 say() { echo "[patrol_staging] $*"; }
 
+# patrol_local.sh의 PATROL_EXTRA_DEFINES는 공백으로 나누므로 공백 든 경로는 쓸 수 없습니다.
+if [[ "$env_file" == *[[:space:]]* || "$staging_defines" == *[[:space:]]* ]]; then
+  say "dart-define 파일 경로에 공백이 있습니다. 공백 없는 경로만 쓸 수 있습니다(MYUNGLI_LOCAL_DIR 확인)"
+  exit 3
+fi
+
 if ! command -v gcloud >/dev/null 2>&1; then
   say "gcloud가 없습니다"
   exit 3
