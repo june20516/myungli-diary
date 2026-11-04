@@ -111,7 +111,9 @@ TARGETS = (
             # D82 account-merge 아래 버튼 (#389)
             "account-merge.cta.merge",
             # D85 계정 합치기 입구 (#480). 합치지 않기 버튼은 IA에서 빠짐(PR #511)
-            "login-methods.merge.cta"),
+            "login-methods.merge.cta",
+            # D102 문의 화면 아래 고정 버튼 (#763)
+            "contact.send.cta"),
            "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
     # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15
     Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15)",
@@ -123,7 +125,9 @@ TARGETS = (
            "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * (16 + 20 + 8), 1, False, None),
     # D77 IA 자리 login.error.body = ui.login.error, event-edit.save.failed·diary-view.deleted.toast (W33)
     Target(("ui.error.client", "ui.error.code", "ui.login.error", "ui.app.trace", "evidence-sheet.unlock.failed",
-            "diary-edit.saved.tags", "ui.event-edit.save-failed", "ui.diary-view.deleted"),
+            "diary-edit.saved.tags", "ui.event-edit.save-failed", "ui.diary-view.deleted",
+            # D102 문의 결과와 보내기 실패 (#763). ui.contact.error의 메일 칸 오류 키는 키별 상한
+            "contact.sent.toast", "ui.contact.error"),
            "toast (좌우 16, 앞 아이콘 16 + 간격 16)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - 16, 2, True, None),
     Target(("ui.nav.tab",), "tab-bar 탭 라벨 (화면 폭 4등분)", "ui-500", 11, -0.22, SCREEN_WIDTH / 4, 1, False, None),
@@ -154,7 +158,7 @@ TARGETS = (
            "ui-600", 14, -0.28, CONTENT_WIDTH - 14 - 2, 1, False, None),
     Target(("saju-chart.yongsin.open",), "sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 14 + 간격 2)",
            "ui-600", 14, -0.28, CONTENT_WIDTH / 2 - 14 - 2, 1, False, None),
-    Target(("ui.app.name",), "app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2)",
+    Target(("ui.app.name", "contact.bar.title"), "app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2)",
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 16 - 44 - 2 * 44, 1, False, None),
     Target(("onboard-time.hour.confirm",), "time-picker 시진 확인 줄", "ui-400", 13, -0.26, CONTENT_WIDTH, 1, False, None),
     Target(("character.reason",), "day-character 이유 줄 (마지막 줄 끝 depth-link inline-end `ui.depth.evidence_link` 원고 폭을 뺌)",
@@ -213,6 +217,14 @@ TARGETS = (
            "ui-500", 13, -0.26, 52 * 2 + 4 - 2 * 8, 1, False, None),
     Target(("ui.evidence.personal-empty",), "evidence-sheet 빈 해석 안내 (sheet 안쪽 space.20, 두 줄)",
            "ui-400", 14, -0.28, CONTENT_WIDTH, 2, True, None),
+    # D102 문의 화면 contact (#763, 결정 V55). 칸 안 안내와 메일 칸 오류는 키별 상한
+    Target(("contact.intro.body",), "contact 첫머리 (본문 폭, 세 줄)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
+    Target(("contact.message.field", "contact.email.field"), "text-field label 칸 이름 (본문 폭, 한 줄)",
+           "ui-500", 13, -0.26, CONTENT_WIDTH, 1, False, None),
+    Target(("contact.attached.notice",), "contact 함께 보내는 정보 고지 (본문 폭, 세 줄)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH, 3, True, None),
+    Target(("contact.address.note",), "contact 주소 안내 문장 (본문 폭, 두 줄. 다음 줄 주소 {email}은 E14 고정값이라 뺌)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
@@ -223,6 +235,17 @@ KEY_TARGETS = {
     ("ui.saju.tag", "sajuTagMe"): Target(
         ("ui.saju.tag",), "saju-pillars tag.me (기둥 75.5, 좌우 6, 10px 굵게)", "ui-700", 10, 0,
         (CONTENT_WIDTH - 6 * 3) / 4 - 2 * 6, 1, False, None),
+    # D102 문의 화면 칸 안 안내: text-field 좌우 16, 지우기 20 + 간격 8. 문의 내용 칸은 multiline이라 두 줄 (#763, 결정 V55)
+    ("contact.message.field", "contactMessageFieldHint"): Target(
+        ("contact.message.field",), "text-field multiline 칸 안 안내 (좌우 16, 지우기 20 + 간격 8, 두 줄)",
+        "ui-400", 17, 0, CONTENT_WIDTH - 2 * 16 - 20 - 8, 2, True, None),
+    ("contact.email.field", "contactEmailFieldHint"): Target(
+        ("contact.email.field",), "text-field 칸 안 안내 (좌우 16, 지우기 20 + 간격 8)",
+        "ui-400", 17, 0, CONTENT_WIDTH - 2 * 16 - 20 - 8, 1, False, None),
+    # 칸 오류 줄: 앞 mark.caution 15(dialog 제목과 같은 값), 두 줄
+    ("ui.contact.error", "contactEmailInvalid"): Target(
+        ("ui.contact.error",), "text-field errorLine (본문 폭, 앞 mark.caution 15, 두 줄)",
+        "ui-400", 13, -0.26, CONTENT_WIDTH - 15, 2, True, None),
 }
 
 # 행 값과 다른 상한을 받는 키: (슬롯, 키, 언어) → (값을 빌려 올 언어, 이유) (#446)
@@ -235,6 +258,9 @@ KEY_LIMITS = {
 KEY_MEASURED_LIMITS = {
     ("ui.saju.header", "manseRowHiddenStems", "en"): (
         12, "낱말마다 행 머리 44px 한 줄(Hidden 37.8px, stems 32.1px)이라 두 줄 안, 결정 V53"),
+    # ja도 라틴 주소 예시라 전각 1em 추정(14)이 맞지 않음 (#763)
+    ("contact.email.field", "contactEmailFieldHint", "ja"): (
+        16, "ja 원고도 라틴 주소 예시 name@example.com. 실측 158.6px로 칸 260px 한 줄 안, 결정 V55"),
 }
 
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
@@ -490,6 +516,8 @@ def render_table(results: list[Result], key_results: list[tuple[tuple[str, str],
         lines.append(f"| {language} | `{slot}` | `{key}` | **{limit}** | 실측: {reason} |")
     for (slot, key), result in key_results:
         for language in LANGUAGES:
+            if (slot, key, language) in KEY_MEASURED_LIMITS:
+                continue  # 실측 행이 이 언어 값을 대신함
             lines.append(f"| {language} | `{slot}` | `{key}` | **{result.final(language)}** | 따로 잼: {result.target.where} |")
     lines += ["", "상한을 두지 않는 슬롯 (레이아웃이 길이를 막지 않음):", "", "| 슬롯 | 상한 없음 이유 |", "| --- | --- |"]
     lines += [f"| `{slot}` | {reason} |" for slot, reason in NO_LIMIT.items()]
