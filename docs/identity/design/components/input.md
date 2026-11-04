@@ -13,11 +13,33 @@
 
 ## text-field
 
-* 쓰는 화면: onboard-call, event-edit
+* 쓰는 화면: onboard-call, event-edit, contact
 * `bg.sheet`, 1px `line`, `radius.md`, 높이 52px, 글자 17px(ui 글꼴 400).
 * 포커스는 `focus.ring`(1px `line` → 2px `action.primary`). 바탕은 바뀌지 않습니다. 다크 모드에서도 같은 규칙입니다.
 * Material 힌트: `InputDecoration`의 `filled: true`, `fillColor: bg.sheet`, `OutlineInputBorder` 두 벌(평소·포커스).
 * **여러 줄(`multiline`, #218):** event-edit 메모(2000자)처럼 줄바꿈이 필요한 칸입니다. 최소 높이 52를 지키며 글이 길어지면 6줄까지 늘고, 그 뒤로는 칸 안에서 스크롤합니다. 첫 줄은 한 줄 칸의 글자와 같은 자리이고, 지우기 아이콘은 첫 줄 높이에 둡니다. 키보드는 여러 줄 입력, 키보드 동작은 줄바꿈(완료가 아님)입니다. 바탕·테두리·포커스·글자 수·지우기 규칙은 한 줄 칸과 같습니다.
+  * 최소 줄 수(`minLines`)는 기본 1입니다. 문의 내용처럼 긴 글을 받는 칸은 처음부터 4줄 높이로 열어 길게 써도 된다는 것을 모양으로 알립니다. 칸 안 안내(placeholder)는 두 줄까지 감습니다.
+* **칸 이름(`label`, 3.4.0):** 질문이 칸 이름을 대신하는 `input-step` 밖에서, 칸이 둘 이상인 화면(지금은 `contact`)은 칸 위에 이름을 늘 보입니다. `type.label.md`, `text.primary`, 칸과 사이 `space.8`, 한 줄. 칸 안 안내(placeholder)는 글을 쓰면 사라지므로 이름을 대신하지 않습니다. 스크린리더는 이름을 칸 라벨로, 안내를 힌트로 읽습니다.
+* **칸 오류 줄(`errorLine`, 3.4.0):** `input-step` 밖의 칸 오류는 칸 아래 `space.8`에 `input-step` 오류 줄과 같은 모양(`mark.caution` + `type.caption.lg` `text.primary`, 두 줄까지)으로 그리고, 칸은 `error` 상태(2px `text.primary` 테두리)가 됩니다. 빨간색은 쓰지 않습니다. 사용자가 그 칸을 고치기 시작하면 오류 줄과 `error` 상태가 함께 사라집니다. 오류 줄이 나타나면 스크린리더가 polite로 읽습니다.
+* **메일 주소(`email`, 3.4.0):** 메일 주소 키보드, 키보드 동작은 완료, 자동 고침과 첫 글자 대문자는 끕니다.
+
+### contact 화면 배치
+
+문의하기(D102). 스크롤 본문 위에 아래 고정 버튼이 있는 화면입니다(결정 V55).
+
+1. app-bar(`contact.bar.title`)
+2. `contact.intro.body`: 위 `space.12`, `type.body.ui`, `text.secondary`
+3. 문의 내용(`contact.message.field`): 위 `space.24`에 `label`(`contactMessageFieldLabel`), 그 아래 `text-field` `multiline`(`minLines` 4, 칸 안 안내 `contactMessageFieldHint`)
+4. 답장 받을 메일(`contact.email.field`): 위 `space.20`에 `label`(`contactEmailFieldLabel`), 그 아래 `text-field` `email`(칸 안 안내 `contactEmailFieldHint`). 형식이 틀리면 `errorLine`(`ui.contact.error` `contactEmailInvalid`)
+5. `contact.attached.notice`: 위 `space.24`, `type.caption.lg`, `text.secondary`. 함께 보내는 정보 고지라 늘 보입니다(D102 ①)
+6. `contact.address.note`: 위 `space.12`, `type.caption.lg`, `text.secondary`. 다음 줄의 주소(`{email}`, E14)는 `text.primary`이고 길게 눌러 복사할 수 있는 글자입니다. 링크로 만들지 않습니다(D102 ④ "주소를 글자로")
+7. 아래 고정 `primary-button` `filled`(`contact.send.cta`): `input-step` 주 버튼과 같은 자리(좌우 `space.20`, 아래 `space.16`, 키보드 위에 붙음). 본문은 버튼 높이만큼 아래 여백을 두어 마지막 줄이 버튼에 가리지 않습니다
+
+* **버튼 상태:** 문의 내용(앞뒤 공백 제외)과 메일 칸이 둘 다 비어 있지 않으면 누를 수 있고, 아니면 `disabled`입니다. 누르면 먼저 메일 형식을 보고, 틀리면 보내지 않고 메일 칸에 `errorLine`을 띄우고 초점을 그 칸으로 옮깁니다.
+* **보내는 중:** 버튼 `loading`, 두 칸은 `disabled`입니다. 뒤로 가기는 막지 않습니다.
+* **보낸 뒤:** 설정 화면으로 돌아가고, 그 화면에서 `toast`(`contact.sent.toast`)를 보입니다. 햅틱 light.
+* **보내기 실패(IA `error`):** `error-state`로 화면을 바꾸지 않습니다. 쓴 글을 그대로 두고 `toast`(`ui.contact.error` `contactSendFailed`)를 버튼 위에 띄웁니다. 너무 자주 보냄(429)과 발송 불가(503)도 같은 문구입니다. 주소 안내가 늘 보이므로 다른 길은 화면에 이미 있습니다.
+* **뒤로 가기:** 쓴 글은 버리고 확인 창을 띄우지 않습니다. 문의 글은 짧은 편이고, 보내기 전까지 server에 남는 것이 없습니다.
 
 ## date-picker
 

@@ -64,6 +64,11 @@ ISSUE_480 = {
 # #548·#564: IA ad-free 구매 버튼과 기간 고지
 ISSUE_564 = {"ad-free.buy.cta", "ad-free.offer.period"}
 ISSUE_354 = {"profile-edit.recalc.notice"}  # settings-row groupNote (V50)
+# D102 문의 화면 contact (#763)
+ISSUE_763 = {
+    "contact.bar.title", "contact.intro.body", "contact.message.field", "contact.email.field",
+    "contact.attached.notice", "contact.send.cta", "contact.sent.toast", "contact.address.note", "ui.contact.error",
+}
 # writing W51 IA 밖 ui 슬롯 7개 (#710)
 ISSUE_710 = {"ui.settings.row", "ui.legal.row", "ui.profile-edit.birthplace", "ui.saju-chart.tab", "ui.saju.header",
              "ui.saju.tag", "ui.evidence.personal-empty"}
@@ -189,7 +194,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
+    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710 | ISSUE_763
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
@@ -343,3 +348,26 @@ def test_hidden_stems_takes_measured_limit(capsys, font_dir):
     lengths.main(["--font-dir", str(font_dir)])
     table = capsys.readouterr().out
     assert f"| en | `ui.saju.header` | `manseRowHiddenStems` | **{limit}** | 실측: {reason} |" in table
+
+
+def test_contact_slots_are_measured(capsys, font_dir):
+    # D102 문의 화면: IA 슬롯과 IA 밖 오류 슬롯을 모두 잼. 칸 안 안내와 메일 칸 오류는 키별 (#763, 결정 V55)
+    ia = json.loads((REPO_ROOT / "docs" / "ia" / "screens.json").read_text(encoding="utf-8"))
+    contact = next(screen for screen in ia["screens"] if screen["id"] == "contact")
+    measured = {slot for target in lengths.TARGETS for slot in target.slots}
+    assert {slot["id"] for slot in contact["slots"]} | {"ui.contact.error"} <= measured
+    places = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    assert places["contact.send.cta"].where.startswith("primary-button")
+    assert places["contact.sent.toast"] is places["ui.contact.error"] and places["ui.contact.error"].where.startswith("toast")
+    assert places["contact.bar.title"] is places["ui.app.name"]
+    hint = lengths.KEY_TARGETS[("contact.message.field", "contactMessageFieldHint")]
+    assert (hint.size, hint.width, hint.lines) == (17, lengths.CONTENT_WIDTH - 2 * 16 - 20 - 8, 2)
+    error_line = lengths.KEY_TARGETS[("ui.contact.error", "contactEmailInvalid")]
+    assert error_line.width == lengths.CONTENT_WIDTH - 15
+    # ja 메일 칸 안내는 라틴 주소 예시라 실측 상한 하나만 나옴
+    advances = lengths.Fonts(font_dir).ko("ui-400")
+    assert lengths.text_width("name@example.com", advances, 17, 0) <= hint.width
+    lengths.main(["--font-dir", str(font_dir)])
+    table = capsys.readouterr().out
+    ja_rows = [line for line in table.splitlines() if line.startswith("| ja | `contact.email.field` | `contactEmailFieldHint`")]
+    assert len(ja_rows) == 1 and "**16**" in ja_rows[0]

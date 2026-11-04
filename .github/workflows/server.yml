@@ -96,8 +96,8 @@ jobs:
           go test -race -count=1 -run 'TestRegisterAPI_|TestProblemCodes_|TestLegalPage_|TestAppCheck_' ./internal/httpapi/
       - name: staging 테스트 로그인, 테스트 광고 제거 기간, 보상형 광고 보상
         if: env.OWN == 'true'
-        # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24, S125, S131, S133).
-        run: go test -race -count=1 -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/billing/ ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv|TestTestGrant|TestServe_AssemblesTestGrant|TestTestReward|TestServe_AssemblesTestReward|TestTestError'
+        # prod 빌드에 라우트가 없음은 위 go test(!staging)가, staging 빌드의 동작은 이 단계가 확인합니다(S24, S125, S131, S133, S135).
+        run: go test -race -count=1 -tags staging ./internal/httpapi/ ./internal/auth/... ./internal/billing/ ./internal/platform/config/ ./internal/cli/ -run 'TestLogin|TestLoadTestLogin|TestValidTestLabel|TestServe_RequiresTestLogin|TestServe_AssemblesTestLogin|TestServe_StagingBuildRefusesProdEnv|TestTestGrant|TestServe_AssemblesTestGrant|TestTestReward|TestServe_AssemblesTestReward|TestTestError|TestTestClientIP'
       - name: prod 바이너리에 테스트 로그인이 없는지 확인
         if: env.OWN == 'true'
         # prod 빌드(tag 없음)에는 없고 staging 빌드에는 있어야 합니다. staging 쪽도 확인해 검사가 헛돌지 않게 합니다(S24, S125, S131).
@@ -115,11 +115,12 @@ jobs:
             reward=$(go tool nm "$out/$1" | grep -c 'billing.(\*TestRewards).GrantTestReward' || true)
             reward_route=$(grep -c -a '/test/v1/billing/rewarded-ad' "$out/$1" || true)
             error_route=$(grep -c -a '/test/v1/server-error' "$out/$1" || true)
-            echo "$1: LoginTest=$symbol X-Test-Login-Secret=$header /test/v1/auth/login=$route GrantTest=$grant /test/v1/billing/ad-free=$grant_route GrantTestReward=$reward /test/v1/billing/rewarded-ad=$reward_route /test/v1/server-error=$error_route"
+            clientip_route=$(grep -c -a '/test/v1/client-ip' "$out/$1" || true)
+            echo "$1: LoginTest=$symbol X-Test-Login-Secret=$header /test/v1/auth/login=$route GrantTest=$grant /test/v1/billing/ad-free=$grant_route GrantTestReward=$reward /test/v1/billing/rewarded-ad=$reward_route /test/v1/server-error=$error_route /test/v1/client-ip=$clientip_route"
             if [ "$2" = absent ]; then
-              [ "$symbol" -eq 0 ] && [ "$header" -eq 0 ] && [ "$route" -eq 0 ] && [ "$grant" -eq 0 ] && [ "$grant_route" -eq 0 ] && [ "$reward" -eq 0 ] && [ "$reward_route" -eq 0 ] && [ "$error_route" -eq 0 ]
+              [ "$symbol" -eq 0 ] && [ "$header" -eq 0 ] && [ "$route" -eq 0 ] && [ "$grant" -eq 0 ] && [ "$grant_route" -eq 0 ] && [ "$reward" -eq 0 ] && [ "$reward_route" -eq 0 ] && [ "$error_route" -eq 0 ] && [ "$clientip_route" -eq 0 ]
             else
-              [ "$symbol" -gt 0 ] && [ "$header" -gt 0 ] && [ "$route" -gt 0 ] && [ "$grant" -gt 0 ] && [ "$grant_route" -gt 0 ] && [ "$reward" -gt 0 ] && [ "$reward_route" -gt 0 ] && [ "$error_route" -gt 0 ]
+              [ "$symbol" -gt 0 ] && [ "$header" -gt 0 ] && [ "$route" -gt 0 ] && [ "$grant" -gt 0 ] && [ "$grant_route" -gt 0 ] && [ "$reward" -gt 0 ] && [ "$reward_route" -gt 0 ] && [ "$error_route" -gt 0 ] && [ "$clientip_route" -gt 0 ]
             fi
           }
           check prod absent

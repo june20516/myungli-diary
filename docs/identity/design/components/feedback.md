@@ -28,7 +28,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 ## toast
 
-* 쓰는 화면: evidence-sheet(해제 실패), event-edit(저장 실패), diary-edit(저장 완료), diary-view(지운 뒤)
+* 쓰는 화면: evidence-sheet(해제 실패), event-edit(저장 실패), diary-edit(저장 완료), diary-view(지운 뒤), contact(보내기 실패. 보낸 결과는 설정 화면으로 돌아간 뒤 보임)
 * 반전색 알약(`inverse.bg`/`inverse.fg`). 화면 아래에 붙은 것 중 가장 위의 것에서 16px 위에 뜹니다: 아래 고정 버튼(`primary-button`, `input-step` 주 버튼, 키보드 위 버튼) → 광고 배너 → 탭 바 → 아래 안전 영역 순서로 먼저 있는 것이 기준입니다. 버튼을 덮지 않고, 키보드가 올라오면 함께 올라갑니다(V51, #354 ④). `appear.seep`으로 나타나 `toast-hold`(2.5초) 뒤 `disappear.seep`.
 * 한 번에 하나만 보입니다. 누르는 동작을 담지 않습니다.
 
