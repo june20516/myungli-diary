@@ -149,6 +149,14 @@
 | settings.language.birthplace-notice | ui | settings.language.birthplace-notice |
 | settings.logout.confirm | ui | settings.logout.confirm |
 | settings.ad-free.label | ui | settings.ad-free.label |
+| contact.bar.title | ui | contact.bar.title |
+| contact.intro.body | ui | contact.intro.body |
+| contact.message.field | ui | contact.message.field |
+| contact.email.field | ui | contact.email.field |
+| contact.attached.notice | ui | contact.attached.notice |
+| contact.send.cta | ui | contact.send.cta |
+| contact.sent.toast | ui | contact.sent.toast |
+| contact.address.note | ui | contact.address.note |
 | ad-free.bar.title | ui | ad-free.bar.title |
 | ad-free.offer.head | ui | ad-free.offer.head |
 | ad-free.offer.price | ui | ad-free.offer.price |

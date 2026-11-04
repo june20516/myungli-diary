@@ -140,8 +140,9 @@ func TestService_ConcurrentSameKeyCallsEngineOnce(t *testing.T) {
 	assert.EqualValues(t, 1, fake.DailyCalls.Load())
 }
 
+// 버전을 모르고 엔진도 답하지 않으면 엔진을 쓸 수 없는 것으로 봅니다(GetChart를 부르지 않음).
 func TestService_UnknownVersionIsUnavailable(t *testing.T) {
-	fake := &enginetest.Fake{}
+	fake := &enginetest.Fake{Info: func() (*enginev1.InfoResponse, error) { return nil, engine.ErrTimeout }}
 	versions := engine.NewVersions(fake, discardLogger()) // Refresh 전
 	service := fortune.NewService(fake, versions, fortune.NewPostgresCache(dbtest.New(t)), discardLogger())
 
@@ -150,6 +151,19 @@ func TestService_UnknownVersionIsUnavailable(t *testing.T) {
 	require.Error(t, err)
 	assert.ErrorIs(t, err, engine.ErrUnavailable)
 	assert.EqualValues(t, 0, fake.ChartCalls.Load())
+}
+
+// 버전을 모르는 채로 요청이 오면(server와 엔진이 함께 cold start한 직후) 버전을 물어 기다린 뒤 처리합니다(S132).
+func TestService_UnknownVersionWaitsForEngine(t *testing.T) {
+	fake := &enginetest.Fake{}
+	versions := engine.NewVersions(fake, discardLogger()) // Refresh 전
+	service := fortune.NewService(fake, versions, fortune.NewPostgresCache(dbtest.New(t)), discardLogger())
+
+	_, err := service.Chart(context.Background(), testBirth(), profile.LocalDate{Year: 2026, Month: 1, Day: 1})
+
+	require.NoError(t, err)
+	assert.EqualValues(t, 1, fake.InfoCalls.Load())
+	assert.EqualValues(t, 1, fake.ChartCalls.Load())
 }
 
 func TestService_CacheFailureFallsBackToEngine(t *testing.T) {

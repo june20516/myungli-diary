@@ -5,7 +5,11 @@ project_number      = "1056563158649"
 environment         = "staging"
 sql_tier            = "db-f1-micro"
 deletion_protection = false
-test_login_enabled  = true
+# db-f1-micro(공유 코어, 약 0.6GB)는 Cloud SQL max_connections 표의 tiny 행 25로 봅니다(S133, L1에서 SHOW max_connections로 확인).
+sql_max_connections = 25
+# 공개 주소 api-staging이 server에 연결돼 있어 uptime check를 둡니다(S133).
+uptime_check_enabled = true
+test_login_enabled   = true
 
 # staging 결제는 RevenueCat Test Store(sandbox) 구매로 켭니다(D99, #683). APP_ENV가 prod가 아니라 sandbox 구매도 장부에 적습니다.
 # AD_FREE_PRODUCT_IDS는 Test Store 상품(식별자 ad_free_1m, consumable)의 RevenueCat 상품 id입니다(S124).

@@ -146,7 +146,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "購入履歴"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入前に利用規約とプライバシーポリシーをご確認ください。"}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "購入履歴はありません。"}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、お問い合わせください。"}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、「お問い合わせ」からお知らせください。"}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "利用中"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "利用前"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "期限切れ"}
@@ -374,6 +374,7 @@
 - {slot: ui.settings.row, key: settingsNotifyLabel, text: "通知時刻"}
 - {slot: ui.settings.row, key: settingsNotifyOff, text: "オフ"}
 - {slot: ui.settings.row, key: settingsLanguageLabel, text: "言語"}
+- {slot: ui.settings.row, key: settingsContactLabel, text: "お問い合わせ"}
 - {slot: ui.settings.row, key: settingsLogoutLabel, text: "ログアウト"}
 - {slot: ui.legal.row, key: legalTermsLabel, text: "利用規約"}
 - {slot: ui.legal.row, key: legalPrivacyLabel, text: "プライバシーポリシー"}
@@ -405,3 +406,17 @@
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "今日の一文の画像プレビュー"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "共有画像の比率"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。"}
+
+# 문의 화면(slots/ui/contact.yaml, D102, 라운드 R29)
+- {slot: contact.bar.title, key: contactBarTitle, text: "お問い合わせ"}
+- {slot: contact.intro.body, key: contactIntroBody, text: "気になることや困っていることを書いてください。返信は入力したメールアドレスにお送りします。"}
+- {slot: contact.message.field, key: contactMessageFieldLabel, text: "お問い合わせ内容"}
+- {slot: contact.message.field, key: contactMessageFieldHint, text: "いつ、どの画面で起きたことかも書いてください"}
+- {slot: contact.email.field, key: contactEmailFieldLabel, text: "返信先メールアドレス"}
+- {slot: contact.email.field, key: contactEmailFieldHint, text: "name@example.com"}
+- {slot: contact.attached.notice, key: contactAttachedNotice, text: "アカウントID、アプリのバージョン、端末情報（OS、機種）も一緒に送信します。お問い合わせの対応にのみ使用します。"}
+- {slot: contact.send.cta, key: contactSendCta, text: "送信"}
+- {slot: contact.sent.toast, key: contactSentToast, text: "お問い合わせを送信しました。"}
+- {slot: contact.address.note, key: contactAddressNote, text: "送信できない場合は、このアドレスにメールをお送りください。\n{email}"}
+- {slot: ui.contact.error, key: contactSendFailed, text: "送信できませんでした。しばらくしてからもう一度お試しください。"}
+- {slot: ui.contact.error, key: contactEmailInvalid, text: "メールアドレスをご確認ください。"}

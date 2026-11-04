@@ -31,10 +31,12 @@ BAD_CONTENT = """\
 
 
 def test_cli_check_example_content_is_clean(capsys: pytest.CaptureFixture[str]) -> None:
-    # W1 원고가 다 차서 --partial 없이 통과합니다. 남는 것은 일부러 비워 둔 원고(pending) 경고뿐입니다.
+    # W1 원고가 다 차서 --partial 없이 통과합니다. 남는 것은 일부러 비워 둔 원고(pending)와
+    # IA 병합 직후 넣는 키 없는 슬롯 틀(empty_keys, docs/ia/README.md "슬롯을 더할 때의 순서") 경고뿐입니다.
     assert main(["check", str(CONTENT_DIR)]) == 0
     lines = capsys.readouterr().out.splitlines()
-    assert all(" complete.pending warn " in line for line in lines)
+    allowed = (" complete.pending warn ", " slot.empty_keys warn ")
+    assert all(any(mark in line for mark in allowed) for line in lines)
 
 
 def test_cli_check_exit_codes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
