@@ -401,7 +401,7 @@
   "previewRestartNotice": "入力し直した情報で見るには、ログインしてみてください。",
   "purchaseHistoryBarTitle": "購入履歴",
   "purchaseHistoryEmptyBody": "購入履歴はありません。",
-  "purchaseHistoryMissingNotice": "支払った商品が表示されない場合は、お問い合わせください。",
+  "purchaseHistoryMissingNotice": "支払った商品が表示されない場合は、「お問い合わせ」からお知らせください。",
   "accountChoiceOther": "取り込むアカウント",
   "accountMergeSummaryHead": "取り込む記録",
   "accountMergeSummaryDiary": "日記",
@@ -424,5 +424,18 @@
   "systemPushChannelMorning": "今日の読み解きの通知",
   "accountChoiceSajuLeap": "{calendar} 閏月 {date} {time}",
   "accountChoiceSajuNoTimeLeap": "{calendar} 閏月 {date} 時刻不明",
-  "iosTrackingUsageDescription": "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。"
+  "iosTrackingUsageDescription": "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。",
+  "contactAddressNote": "送信できない場合は、このアドレスにメールをお送りください。\n{email}",
+  "contactAttachedNotice": "アカウントID、アプリのバージョン、端末情報（OS、機種）も一緒に送信します。お問い合わせの対応にのみ使用します。",
+  "contactBarTitle": "お問い合わせ",
+  "contactEmailFieldLabel": "返信先メールアドレス",
+  "contactEmailFieldHint": "name@example.com",
+  "contactIntroBody": "気になることや困っていることを書いてください。返信は入力したメールアドレスにお送りします。",
+  "contactMessageFieldLabel": "お問い合わせ内容",
+  "contactMessageFieldHint": "いつ、どの画面で起きたことかも書いてください",
+  "contactSendCta": "送信",
+  "contactSentToast": "お問い合わせを送信しました。",
+  "contactSendFailed": "送信できませんでした。しばらくしてからもう一度お試しください。",
+  "contactEmailInvalid": "メールアドレスをご確認ください。",
+  "settingsContactLabel": "お問い合わせ"
 }

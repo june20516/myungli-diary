@@ -1461,7 +1461,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseHistoryMissingNotice =>
-      'If something you paid for isn\'t listed, please contact us.';
+      'If something you paid for isn\'t listed, let us know through Contact us.';
 
   @override
   String get accountChoiceOther => 'Account to bring in';
@@ -1566,4 +1566,49 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get iosTrackingUsageDescription =>
       'If you allow this, ads are matched to your interests. If you don\'t, you can still use the app the same way.';
+
+  @override
+  String contactAddressNote(String email) {
+    return 'If sending doesn\'t work, email us at this address.\n$email';
+  }
+
+  @override
+  String get contactAttachedNotice =>
+      'Your account ID, app version, and device info (OS, model) are sent along. They are used only to handle your inquiry.';
+
+  @override
+  String get contactBarTitle => 'Contact us';
+
+  @override
+  String get contactEmailFieldLabel => 'Email for our reply';
+
+  @override
+  String get contactEmailFieldHint => 'name@example.com';
+
+  @override
+  String get contactIntroBody =>
+      'Tell us what you\'d like to ask or what isn\'t working. We\'ll reply to the email you enter.';
+
+  @override
+  String get contactMessageFieldLabel => 'Message';
+
+  @override
+  String get contactMessageFieldHint =>
+      'Include when it happened and on which screen';
+
+  @override
+  String get contactSendCta => 'Send';
+
+  @override
+  String get contactSentToast => 'Your message has been sent.';
+
+  @override
+  String get contactSendFailed =>
+      'We couldn\'t send your message. Please try again in a moment.';
+
+  @override
+  String get contactEmailInvalid => 'Please check the email address.';
+
+  @override
+  String get settingsContactLabel => 'Contact us';
 }

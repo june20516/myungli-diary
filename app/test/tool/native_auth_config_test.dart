@@ -38,6 +38,8 @@ void main() {
         config['APPLE_REDIRECT_URI'],
         'https://$host/v1/auth/apple/callback',
       );
+      // staging만 모의 광고와 staging 보상 경로를 켭니다(D101). prod는 상수 접힘으로 빠집니다.
+      expect(config['STAGING_ADS'], env == 'staging' ? 'true' : 'false');
     });
   }
 
