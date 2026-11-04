@@ -489,6 +489,7 @@ var minimalRequests = map[string]operationRequest{
 	"restoreSchedule":   {http.MethodPost, "/v1/schedules/" + scheduleID + "/restore", "", ""},
 	"registerDevice":    {http.MethodPost, "/v1/devices", contentTypeJSON, `{"fcmToken":"f","platform":"ios"}`},
 	"deleteDevice":      {http.MethodDelete, "/v1/devices/" + scheduleID, "", ""},
+	"createInquiry":     {http.MethodPost, "/v1/support/inquiries", contentTypeJSON, `{"message":"m","replyEmail":"a@example.com","appVersion":"1.0.0+1","os":"iOS 18","deviceModel":"iPhone15,2"}`},
 	"getEntitlements":   {http.MethodGet, "/v1/me/entitlements", "", ""},
 	"restorePurchases":  {http.MethodPost, "/v1/billing/restore", "", ""},
 	"listPurchases":     {http.MethodGet, "/v1/me/purchases", "", ""},

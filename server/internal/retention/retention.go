@@ -21,8 +21,9 @@ const (
 	CacheTTL = 30 * 24 * time.Hour
 	// IdempotencyTTL은 Idempotency-Key 기록을 남겨 두는 기간입니다(spec §8.3).
 	IdempotencyTTL = 24 * time.Hour
-	// RateLimitWindow는 요청 한도의 고정 창 길이입니다(S68). 끝난 창은 지웁니다.
-	RateLimitWindow = time.Minute
+	// RateLimitWindow는 요청 한도 고정 창 가운데 가장 긴 길이입니다. 시작한 지 이만큼 지난 창은 어느 한도든 끝났으므로 지웁니다.
+	// 미리보기, 시진 확인, 음력 변환은 1분(S68), 문의 접수는 1시간(S134)입니다. 더 긴 창을 쓰는 한도가 생기면 함께 늘립니다.
+	RateLimitWindow = time.Hour
 	// ExpiredGrace는 일회용 토큰 행(합치기 토큰, Apple 웹 로그인 교환 코드)을 만료 뒤 남겨 두는 기간입니다.
 	ExpiredGrace = 24 * time.Hour
 	// InactiveDeviceTTL은 비활성 알림 기기를 마지막으로 본 뒤 남겨 두는 기간입니다(S119).

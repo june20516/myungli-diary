@@ -13,7 +13,7 @@
 4. 알림이 끝나면(정책이 회복되면) 회복 메일도 옵니다. 원인과 조치를 해당 Issue나 새 Issue(`to:server`)에 남깁니다.
 
 ## 1. 5xx
-server나 엔진이 5분 동안 5xx를 5건 넘게 냈습니다.
+server나 엔진이 5분 동안 5xx를 5건 이상 냈습니다.
 * 어느 경로인지: 요청 로그에서 5xx만 봅니다.
   ```sh
   gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="server" AND jsonPayload.status>=500' \
@@ -33,7 +33,7 @@ server나 엔진이 5분 동안 5xx를 5건 넘게 냈습니다.
     gcloud run services update-traffic server --to-revisions <직전 revision>=100 --project $P --region $R
     ```
     되돌린 뒤 main에 고치는 PR을 올리고, 배포가 끝나면 `--to-latest`로 돌려 둡니다.
-* staging에서 이 알림을 일부러 내는 방법(알림 확인용): `GET /test/v1/server-error`에 테스트 로그인 비밀 헤더를 붙여 5분 안에 6번 부릅니다(S133).
+* staging에서 이 알림을 일부러 내는 방법(알림 확인용): `GET /test/v1/server-error`에 테스트 로그인 비밀 헤더를 붙여 5분 안에 5번 이상 부릅니다(S133).
 
 ## 2. 지연
 지연 p95가 15분 동안 기준(server 3초, 엔진 2초)을 넘었습니다. cold start 한 번으로는 울리지 않게 잡았으므로(S132) 계속 느린 상태입니다.

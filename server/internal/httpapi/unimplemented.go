@@ -97,6 +97,10 @@ func (Unimplemented) PutReaction(context.Context, gen.PutReactionRequestObject) 
 	return nil, ErrNotImplemented
 }
 
+func (Unimplemented) CreateInquiry(context.Context, gen.CreateInquiryRequestObject) (gen.CreateInquiryResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
 func (Unimplemented) RegisterDevice(context.Context, gen.RegisterDeviceRequestObject) (gen.RegisterDeviceResponseObject, error) {
 	return nil, ErrNotImplemented
 }

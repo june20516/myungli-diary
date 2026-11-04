@@ -119,13 +119,16 @@ func TestSteps_DeletesOldIdempotencyKeys(t *testing.T) {
 func TestSteps_DeletesEndedRateLimitWindows(t *testing.T) {
 	f := newFixture(t)
 	insert := `INSERT INTO rate_limits (key, window_start, count) VALUES ($1, $2, 1)`
-	f.exec(insert, "ended", now.Add(-2*time.Minute))
+	f.exec(insert, "ended", now.Add(-2*time.Hour))
 	f.exec(insert, "current", now.Truncate(time.Minute))
+	// 문의 접수의 1시간 창(S134)은 시작한 지 1분이 지나도 아직 진행 중이라 남겨야 합니다.
+	f.exec(insert, "createInquiry:hour", now.Add(-30*time.Minute))
 
 	f.runSteps()
 
 	assert.Zero(t, f.count("SELECT count(*) FROM rate_limits WHERE key = 'ended'"))
 	assert.Equal(t, 1, f.count("SELECT count(*) FROM rate_limits WHERE key = 'current'"))
+	assert.Equal(t, 1, f.count("SELECT count(*) FROM rate_limits WHERE key = 'createInquiry:hour'"))
 }
 
 // insertRefreshToken은 refresh token 행을 넣습니다. replacedBy가 있으면 이미 쓴 토큰입니다.

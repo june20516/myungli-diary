@@ -78,3 +78,9 @@ variable "uptime_check_enabled" {
   type        = bool
   default     = false
 }
+
+variable "support_mail_enabled" {
+  description = "문의 메일(Resend) 키를 server에 붙일지(S134). Secret RESEND_API_KEY에 값을 넣은 뒤 true로 바꿉니다. false면 createInquiry가 503입니다"
+  type        = bool
+  default     = false
+}

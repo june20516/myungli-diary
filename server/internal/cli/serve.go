@@ -39,6 +39,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile"
 	"github.com/june20516/myungli-diary/server/internal/ratelimit"
 	"github.com/june20516/myungli-diary/server/internal/schedule"
+	"github.com/june20516/myungli-diary/server/internal/support"
 	"github.com/june20516/myungli-diary/server/legal"
 )
 
@@ -108,6 +109,10 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	supportCfg, err := config.LoadSupport(getenv)
+	if err != nil {
+		return err
+	}
 	logger := logging.New(stderr, cfg.LogLevel, cfg.GCPProjectID)
 	if !billingCfg.Configured() {
 		// local과 결제 값이 아직 없는 staging(#654)입니다. 구매 복원은 503 billing.provider_unavailable, webhook은 500으로 답합니다.
@@ -165,6 +170,15 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	}
 
 	billingParts := newBillingParts(billingCfg, pool, providerHTTP, billingURLs{}, clock.System{}, logger)
+	supportMail, err := newSupportMail(supportCfg, providerHTTP)
+	if err != nil {
+		logger.ErrorContext(ctx, "문의 메일 발송 준비 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	if supportMail.Mailer == nil {
+		// 키를 넣기 전의 staging과 local입니다. createInquiry는 503 service.unavailable로 답합니다(S134).
+		logger.WarnContext(ctx, "문의 메일 설정이 없어 문의 접수를 끈 채 시작합니다", "env", cfg.Env)
+	}
 
 	handler, err := newServer(settings, serverDeps{
 		Pool:         pool,
@@ -178,6 +192,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Entitlements: entitlements,
 		Ledger:       entitlements,
 		Billing:      billingParts,
+		Support:      supportMail,
 		Logger:       logger,
 		Clock:        clock.System{},
 		HTTP:         providerHTTP,
@@ -398,6 +413,28 @@ type serverDeps struct {
 	Providers providerURLs
 	// TestLogin은 staging 테스트 로그인 설정입니다(S24). prod 빌드에서는 빈 타입이고, 비어 있으면 켜지 않습니다.
 	TestLogin testLoginSettings
+	// Support는 문의 메일(S134)의 받는 곳과 발송 서비스입니다. To가 비면 문의 접수를 조립하지 않아 503입니다.
+	Support supportMail
+}
+
+// supportMail은 문의 메일의 받는 곳과 발송 서비스입니다. Mailer가 nil이면 발송 설정이 없는 것입니다.
+type supportMail struct {
+	To     string
+	Mailer support.Mailer
+}
+
+// newSupportMail은 문의 메일 설정으로 Resend Mailer를 만듭니다. 설정이 없으면 Mailer 없이 받는 곳만 돌려줍니다.
+func newSupportMail(cfg config.SupportConfig, httpClient *http.Client) (supportMail, error) {
+	out := supportMail{To: cfg.To}
+	if !cfg.Configured() {
+		return out, nil
+	}
+	mailer, err := support.NewResend(support.ResendConfig{APIKey: cfg.ResendAPIKey, From: cfg.From, HTTPClient: httpClient})
+	if err != nil {
+		return supportMail{}, err
+	}
+	out.Mailer = mailer
+	return out, nil
 }
 
 // billingURLs는 결제 외부 서비스의 주소입니다. 빈 값은 실제 주소를 씁니다. 테스트는 httptest 대역 주소를 넣습니다.
@@ -562,9 +599,9 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 		Spec:         spec,
 		Validate:     httpapi.ValidateRequests(spec, deps.Logger),
 		Authenticate: httpapi.BearerAuth(access, accountService, deps.Logger),
-		// Idempotency-Key는 일정 만들기, 일기 만들기, 계정 합치기, 알림 기기 등록에 적용합니다.
+		// Idempotency-Key는 일정 만들기, 일기 만들기, 계정 합치기, 알림 기기 등록, 문의 접수에 적용합니다.
 		// 계정 합치기는 토큰이 일회용이라 같은 키의 재전송에 저장한 첫 응답(A의 Me)을 돌려줍니다(S111).
-		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule", "createDiary", "mergeAccounts", "registerDevice"),
+		Idempotency: httpapi.Idempotency(httpapi.NewPgIdempotencyStore(deps.Pool), deps.Clock, deps.Logger, "createSchedule", "createDiary", "mergeAccounts", "registerDevice", "createInquiry"),
 		// 미리보기·시진 확인·음력 변환은 클라이언트 IP별 분당 30회입니다(P6-1). 키는 operation + IP입니다.
 		RateLimit: httpapi.RateLimit(ratelimit.New(deps.Pool, deps.Clock), deps.ProxyHops, publicRateLimit, time.Minute, "createPreview", "getBirthHour", "convertLunarDate"),
 	}
@@ -604,6 +641,12 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	api.Webhooks = deps.Billing.Webhooks
 	api.RewardVerifier = deps.Billing.RewardVerifier
 	api.Rewards = deps.Billing.Rewards
+	if deps.Support.To != "" {
+		// 문의 한도(계정당 1시간 5번)는 미리보기 한도와 같은 rate_limits 표를 씁니다. 키는 계정 id입니다.
+		api.Inquiries = support.NewService(support.Config{
+			To: deps.Support.To, Mailer: deps.Support.Mailer, Limiter: ratelimit.New(deps.Pool, deps.Clock), Clock: deps.Clock,
+		})
+	}
 	deps.TestLogin.enable(api, authService, deps.Pool, deps.Clock, deps.Logger)
 	return httpapi.NewHandler(httpDeps, func(mux *http.ServeMux) {
 		httpapi.RegisterAPI(mux, api, httpDeps, routes)

@@ -53,7 +53,7 @@ resource "google_monitoring_alert_policy" "service_5xx" {
   }
 
   documentation {
-    content   = "${each.key} 서비스가 5분 동안 5xx를 5건 넘게 냈습니다. ${local.runbook} (5xx)"
+    content   = "${each.key} 서비스가 5분 동안 5xx를 5건 이상 냈습니다. ${local.runbook} (5xx)"
     mime_type = "text/markdown"
   }
 }

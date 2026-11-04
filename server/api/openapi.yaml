@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.3.0
+  version: 1.4.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -1882,6 +1882,52 @@ paths:
           $ref: '#/components/responses/NotModified'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/support/inquiries:
+    post:
+      operationId: createInquiry
+      summary: 문의 접수
+      description: |
+        앱 안 문의 화면(`contact`, D102)의 문의를 받아 운영 메일함(`support@myungli-diary.app`)으로 보냅니다. 1.4.0에서 더했습니다.
+        * 답은 `replyEmail`로 메일로만 갑니다(받은 메일의 Reply-To가 이 주소). 계정 id는 토큰의 계정이고 본문으로 받지 않습니다.
+        * 메일에는 계정 id, 앱 버전, 기기 정보, 요청 언어(`Accept-Language`로 고른 언어), 접수 시각이 함께 담깁니다.
+        * server는 문의 내용을 저장하지 않습니다. 메일 발송 서비스가 메일을 받았으면 204입니다.
+        * 한 계정은 1시간에 5번까지 보낼 수 있습니다. 넘으면 429 `rate_limited`이고 `Retry-After`를 따릅니다.
+        * 메일을 보낼 수 없으면(발송 서비스 설정이 없거나 응답하지 않음) 503 `service.unavailable`입니다. app은 화면의 주소 안내(`contact.address.note`)로 이어 줍니다.
+        * `Idempotency-Key`를 보내면 24시간 안의 같은 키에는 처음 응답을 그대로 돌려주고 메일을 다시 보내지 않습니다. 보내기 버튼을 두 번 누르거나 응답을 못 받아 다시 보낼 때 씁니다.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InquiryInput'
+      responses:
+        '204':
+          description: 접수됨(메일 발송 서비스가 받음)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/InternalError'
         '503':
@@ -3832,6 +3878,40 @@ components:
           format: uuid
         platform:
           $ref: '#/components/schemas/DevicePlatform'
+    InquiryInput:
+      type: object
+      description: 문의 한 건(D102). 사용자는 `message`, `replyEmail`만 쓰고 나머지는 app이 붙입니다.
+      required: [message, replyEmail, appVersion, os, deviceModel]
+      properties:
+        message:
+          type: string
+          description: 문의 내용. 공백이 아닌 글자가 하나 이상 있어야 합니다.
+          minLength: 1
+          maxLength: 2000
+          pattern: '\S'
+        replyEmail:
+          type: string
+          description: 답장 받을 메일 주소(받은 메일의 Reply-To)
+          format: email
+          maxLength: 254
+        appVersion:
+          type: string
+          description: 앱 버전과 빌드 번호(예 `1.0.0+4`)
+          minLength: 1
+          maxLength: 64
+          pattern: '^[0-9A-Za-z.+_-]+$'
+        os:
+          type: string
+          description: OS 이름과 버전(예 `Android 15`, `iOS 18.1`)
+          minLength: 1
+          maxLength: 64
+          pattern: '^[^\x00-\x1F\x7F]+$'
+        deviceModel:
+          type: string
+          description: 기종(예 `Pixel 8`, `iPhone15,2`)
+          minLength: 1
+          maxLength: 128
+          pattern: '^[^\x00-\x1F\x7F]+$'
     AdFree:
       type: object
       description: 광고 제거권. `active`가 true일 때만 `expiresAt`이 있고, 이어 붙인 대기 구간까지 포함한 끝입니다.

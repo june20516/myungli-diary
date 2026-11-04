@@ -624,3 +624,40 @@ func TestLoad_ReadsCloudSQLInstance(t *testing.T) {
 		t.Errorf("CloudSQLInstance = %q", cfg.CloudSQLInstance)
 	}
 }
+
+// 문의 메일 키가 없으면 끈 채 읽고, 받는 주소는 기본값입니다(S134).
+func TestLoadSupport_DisabledWithoutKey(t *testing.T) {
+	cfg, err := LoadSupport(fakeEnv(map[string]string{"APP_ENV": "prod"}))
+	if err != nil {
+		t.Fatalf("LoadSupport() error = %v, want nil", err)
+	}
+	if cfg.Configured() {
+		t.Error("Configured() = true, want false")
+	}
+	if cfg.To != "support@myungli-diary.app" {
+		t.Errorf("To = %q, want support@myungli-diary.app", cfg.To)
+	}
+}
+
+// 키가 있으면 보내는 주소가 필요하고 두 주소를 검사합니다. 오류에 키 값을 담지 않습니다.
+func TestLoadSupport_ValidatesAddresses(t *testing.T) {
+	ok, err := LoadSupport(fakeEnv(map[string]string{"RESEND_API_KEY": "re_x", "SUPPORT_MAIL_FROM": "명리일기 <noreply@myungli-diary.app>"}))
+	if err != nil || !ok.Configured() || ok.From != "명리일기 <noreply@myungli-diary.app>" {
+		t.Fatalf("LoadSupport() = %+v, %v", ok.From, err)
+	}
+	for name, env := range map[string]map[string]string{
+		"보내는 주소 없음":   {"RESEND_API_KEY": "re_x"},
+		"보내는 주소 형식":   {"RESEND_API_KEY": "re_x", "SUPPORT_MAIL_FROM": "noreply"},
+		"받는 주소 표시 이름": {"SUPPORT_MAIL_TO": "Support <support@myungli-diary.app>"},
+		"받는 주소 형식":    {"SUPPORT_MAIL_TO": "support"},
+	} {
+		_, err := LoadSupport(fakeEnv(env))
+		if err == nil {
+			t.Errorf("%s: error = nil, want error", name)
+			continue
+		}
+		if strings.Contains(err.Error(), "re_x") {
+			t.Errorf("%s: 오류에 키 값이 있음: %v", name, err)
+		}
+	}
+}
