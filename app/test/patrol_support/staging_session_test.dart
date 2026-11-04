@@ -51,6 +51,17 @@ final class _RelayAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+/// 요청을 보내면 Dio가 감싸지 않은 예외([StateError])를 던지는 Dio입니다.
+final class _BrokenDio extends DioMixin {
+  new() {
+    options = BaseOptions(baseUrl: relayBaseUrl);
+  }
+
+  @override
+  Future<Response<T>> fetch<T>(RequestOptions requestOptions) =>
+      throw StateError('broken');
+}
+
 /// [respond]로 답하는 relay Dio입니다.
 Dio _relayDio(Future<ResponseBody> Function(RequestOptions) respond) =>
     Dio(BaseOptions(baseUrl: relayBaseUrl))
@@ -175,35 +186,6 @@ void main() {
   });
 
   group('relayDioOverride', () {
-    List<Type> interceptorTypesOf(Dio dio) =>
-        dio.interceptors.map((i) => i.runtimeType).toList();
-
-    test('원래 dioProvider 구성 맨 앞에 relay interceptor를 더합니다', () {
-      final original = ProviderContainer(
-        overrides: [apiModeProvider.overrideWithValue(ApiMode.http)],
-      );
-      addTearDown(original.dispose);
-      final relayed = ProviderContainer(
-        overrides: [
-          apiModeProvider.overrideWithValue(ApiMode.http),
-          relayDioOverride('e2e1abcd'),
-        ],
-      );
-      addTearDown(relayed.dispose);
-
-      final originalDio = original.read(dioProvider);
-      final relayedDio = relayed.read(dioProvider);
-      expect(interceptorTypesOf(relayedDio), [
-        RelayLoginInterceptor,
-        ...interceptorTypesOf(originalDio),
-      ]);
-      expect(relayedDio.options.baseUrl, originalDio.options.baseUrl);
-      expect(
-        relayedDio.options.receiveTimeout,
-        originalDio.options.receiveTimeout,
-      );
-    });
-
     test('Dio가 다시 만들어져도 새 Dio에 relay interceptor가 있습니다', () {
       final container = ProviderContainer(
         overrides: [
@@ -267,6 +249,10 @@ void main() {
         ),
         notReady('timeout'),
       );
+    });
+
+    test('그 밖의 예외도 형식 이름을 붙여 같은 오류로 끝냅니다', () {
+      expect(expectRelayReady(_BrokenDio()), notReady('StateError'));
     });
   });
 }

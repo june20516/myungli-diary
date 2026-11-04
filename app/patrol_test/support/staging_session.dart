@@ -200,25 +200,13 @@ final List<Override> stagingReplacements = [
 
 /// `dioProvider`를 감싸 [RelayLoginInterceptor]를 Dio 맨 앞에 둔 override입니다.
 ///
-/// `dioProvider`가 지켜보는 provider(토큰 보관소, App Check, base URL 등)가 바뀌어 Dio가 다시
-/// 만들어져도 새 Dio마다 interceptor가 들어가도록 Dio를 만드는 자리에서 끼웁니다. 만드는 법은
-/// `lib/core/api/api_providers.dart`의 `dioProvider`와 같아야 하고, 단위 테스트가 interceptor 구성을
-/// 원래 Dio와 대조해 어긋남을 잡습니다(lib/를 고치지 않으려고 본문을 옮겨 둠).
-/// 맨 앞에 두어 뒤의 공통 헤더 interceptor가 relay 경로(`/login`)를 보고 App Check를
-/// 붙이지 않게 합니다.
-Override relayDioOverride(String label) => dioProvider.overrideWith((ref) {
-  final dio = buildDio(
-    mode: ref.watch(apiModeProvider),
-    baseUrl: ref.watch(baseUrlProvider),
-    tokens: ref.watch(tokenStoreProvider),
-    appCheck: ref.watch(appCheckProvider),
-    locale: () => ref.read(localeProvider),
-    fakeServer: ref.watch(fakeServerProvider),
-  );
-  ref.onDispose(dio.close);
-  dio.interceptors.insert(0, RelayLoginInterceptor(label));
-  return dio;
-});
+/// 앱과 같은 [createApiDio]로 Dio를 만들고 interceptor만 더하므로, 지켜보는 provider가 바뀌어 Dio가
+/// 다시 만들어져도 새 Dio마다 interceptor가 들어갑니다. 맨 앞에 두어 뒤의 공통 헤더 interceptor가
+/// relay 경로(`/login`)를 보고 App Check를 붙이지 않게 합니다.
+Override relayDioOverride(String label) => dioProvider.overrideWith(
+  (ref) =>
+      createApiDio(ref)..interceptors.insert(0, RelayLoginInterceptor(label)),
+);
 
 /// 앱이 "오늘"로 쓰는 날짜입니다(`todayProvider`: `clockProvider`와 프로필 시간대 기준).
 ///
@@ -286,6 +274,9 @@ Future<void> expectRelayReady(
     cause = status == null ? error.type.name : 'status $status';
   } on TimeoutException {
     cause = 'timeout';
+  } on Object catch (error) {
+    // 예상하지 못한 예외도 같은 메시지로 끝냅니다. 내용 대신 형식 이름만 남깁니다.
+    cause = error.runtimeType.toString();
   }
   throw StateError('relay 준비 안 됨: tool/patrol_staging.sh로 실행 ($cause)');
 }

@@ -60,8 +60,15 @@ final appCheckProvider = Provider<AppCheck>((ref) => const FakeAppCheck());
 /// 대역 서버 interceptor. fake 모드에서만 쓰며 대역 서버 task가 override합니다.
 final fakeServerProvider = Provider<Interceptor?>((ref) => null);
 
-/// 모든 요청이 거치는 Dio.
-final dioProvider = Provider<Dio>((ref) {
+/// 모든 요청이 거치는 Dio. 만드는 법은 [createApiDio]입니다.
+final dioProvider = Provider<Dio>(createApiDio);
+
+/// [dioProvider]의 Dio를 만듭니다. 통신 방식, base URL, 토큰 보관소, App Check, 대역 서버를
+/// 지켜보므로 그중 하나가 바뀌면 Dio를 새로 만들고, provider가 버려지면 Dio를 닫습니다.
+///
+/// [dioProvider]를 감싸는 override(Patrol staging의 relay 로그인)가 같은 구성 위에
+/// interceptor를 더할 때 씁니다.
+Dio createApiDio(Ref ref) {
   final dio = buildDio(
     mode: ref.watch(apiModeProvider),
     baseUrl: ref.watch(baseUrlProvider),
@@ -72,7 +79,7 @@ final dioProvider = Provider<Dio>((ref) {
   );
   ref.onDispose(dio.close);
   return dio;
-});
+}
 
 /// 생성 REST 클라이언트.
 final restClientProvider = Provider<DefaultApi>(
