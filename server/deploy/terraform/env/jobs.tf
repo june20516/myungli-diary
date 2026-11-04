@@ -8,6 +8,8 @@ locals {
     "server-precompute" = ["job", "precompute"]
     "server-notify"     = ["job", "notify"]
   }
+  # migrate와 seed만 migrator 계정으로 돕니다(S137). 나머지 Job은 serve와 같은 런타임 계정입니다.
+  migrator_jobs = ["server-migrate", "server-seed"]
 }
 
 resource "google_cloud_run_v2_job" "server" {
@@ -19,7 +21,7 @@ resource "google_cloud_run_v2_job" "server" {
 
   template {
     template {
-      service_account = google_service_account.server.email
+      service_account = contains(local.migrator_jobs, each.key) ? google_service_account.migrator.email : google_service_account.server.email
       max_retries     = 0
       timeout         = "900s"
 
