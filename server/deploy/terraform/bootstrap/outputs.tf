@@ -22,3 +22,8 @@ output "alert_channel_name" {
   description = "env 알림 정책이 찾는 알림 받는 곳(channel)의 display_name(S133)"
   value       = local.alert_channel_name
 }
+
+output "load_results_bucket" {
+  description = "부하 측정 결과 bucket(L1-2b). 부하 프로젝트에만 있고 다른 환경은 빈 값"
+  value       = one(google_storage_bucket.load_results[*].name)
+}

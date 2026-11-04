@@ -4,7 +4,7 @@
 
 | 디렉터리 | 누가 apply | 내용 |
 | --- | --- | --- |
-| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136) |
+| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136), 부하 프로젝트만 결과 bucket(L1-2b) |
 | `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진·server, Job, Scheduler, 알림 정책과 uptime check(S133) |
 
 ## 처음 한 번 (프로젝트마다)
@@ -121,10 +121,24 @@ staging은 이 구조로 바꿀 때 데이터베이스 `myungli`와 런타임 DB
    `TEST_LOGIN_SECRET`은 부하 스크립트가 Secret Manager에서 바로 읽으므로 따로 적어 두지 않습니다.
 9. `deploy-server`를 target `load`로 다시 돌립니다. 이번에는 server가 배포되고 Hosting이 연결됩니다.
 
+### 생성기 Job 준비 (사용자, 한 번, L1-2b)
+
+부하 생성기 Job `load-k6`(env `load.tf`)는 결과를 bucket `myungli-diary-load-load-results`에 씁니다. deployer는 bucket을 만들 권한이 없으므로 bootstrap이 만들고, deployer에게 그 bucket 하나의 관리 권한을 줍니다. env apply가 이 bucket에 기대므로 D103 ②의 **지금 apply 필요**입니다. apply할 곳은 부하 프로젝트뿐입니다. staging과 prod는 `environment`가 `load`가 아니라 바뀌는 것이 없어 묶음에도 넣지 않습니다.
+
+```sh
+cd server/deploy/terraform/bootstrap
+env=load; project=myungli-diary-load
+terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
+terraform plan -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"   # 2 to add만 있어야 합니다
+terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"
+```
+
+그다음 `deploy-server` target `load`를 돌리면 env apply가 Job과 계정을 만들고, workflow가 스크립트 이미지(`server/load/Dockerfile`)와 `TEST_LOGIN_SECRET`을 붙입니다. 실행은 `server/load/README.md` "생성기 Job"입니다.
+
 ### 회차마다
 
 1. `deploy-server` target `load`: 지워 둔 Cloud SQL을 다시 만들고 migrate, seed, server를 배포합니다.
-2. 부하 스크립트로 계정을 만들고 측정합니다(`server/load/README.md`).
+2. 생성기 Job으로 계정을 만들고 측정합니다(`server/load/README.md` "생성기 Job").
 3. `deploy-server` target `load-teardown`: Cloud SQL 인스턴스와 그에 기대는 자원(DB, DB 사용자, SQL 알림 정책)만 지웁니다. 지운 인스턴스 이름은 바로 다시 쓸 수 있습니다(Cloud SQL 문서 "Delete instances"). Secret, Cloud Run(요청이 없으면 인스턴스 0), 네트워크는 남기므로 다음 회차는 1부터 다시 하면 됩니다. 계정과 데이터는 회차마다 새로 만듭니다.
 
 L1이 모두 끝나면 프로젝트를 지울지 지휘와 정합니다.

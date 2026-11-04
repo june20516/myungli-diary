@@ -12,7 +12,7 @@ import { ACCOUNTS, accountLabel, intEnv, requireSecret } from '../lib/config.js'
 import * as api from '../lib/api.js';
 import { session } from '../lib/flows.js';
 
-const STAGES = (__ENV.STAGES || '2,5,10,20,40,80').split(',').map((v) => {
+const STAGES = (__ENV.STAGES || '2,5,10,20,40,80,160,320').split(',').map((v) => {
   const rate = Number.parseInt(v.trim(), 10);
   if (!Number.isInteger(rate) || rate <= 0) {
     throw new Error(`STAGES 값이 양의 정수가 아닙니다: ${v}`);
@@ -63,6 +63,8 @@ function buildScenarios() {
 
 const built = buildScenarios();
 // VU 하나가 계정 하나를 맡아, 같은 갱신 토큰을 두 VU가 함께 쓰지 않게 합니다(refresh rotation).
+// VU는 단계(scenario)마다 따로라 계정 수는 가장 큰 단계가 아니라 모든 단계의 합입니다. 단계끼리 계정을 나눠 쓰면
+// 앞 단계가 바꾼 갱신 토큰을 다음 VU가 몰라 테스트 로그인으로 대신하고, 그 요청이 측정에 섞입니다.
 if (built.totalVUs > ACCOUNTS) {
   throw new Error(`VU ${built.totalVUs}개에 계정 ${ACCOUNTS}개가 모자랍니다. ACCOUNTS를 늘리고 accounts.js를 다시 돌리세요`);
 }

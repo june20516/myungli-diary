@@ -1,0 +1,5 @@
+# 이미지에는 k6 스크립트(lib, scenarios, accounts.js)와 run.sh만 넣습니다.
+Dockerfile
+.dockerignore
+README.md
+report

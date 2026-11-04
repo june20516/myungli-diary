@@ -1,5 +1,5 @@
 # 환경 하나에 server를 배포합니다(deploy-server.yml이 부름, spec §7.1).
-# 순서: 엔진 이미지 확인 → Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job → Scheduler → Firebase Hosting.
+# 순서: 엔진 이미지 확인 → Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job → Scheduler → 부하 생성기(부하 환경만) → Firebase Hosting.
 # env와 Secret 연결은 Terraform이 두지 않고, 준비를 확인한 뒤 이미지와 함께 여기서 붙입니다(S121).
 name: deploy-server-env
 
@@ -171,6 +171,20 @@ jobs:
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
           resume notify-every-5m
+
+      # 부하 생성기 Job(load-k6, L1-2b)은 load_generator_enabled(Terraform 출력)가 true인 부하 환경에만 있습니다.
+      # 스크립트 이미지를 빌드해 붙이고, 테스트 로그인 비밀만 연결합니다(server Secret 전부를 붙이지 않음).
+      - name: 부하 생성기 Job
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          if [ "$(terraform -chdir=server/deploy/terraform/env output -raw load_generator_enabled)" != "true" ]; then
+            exit 0
+          fi
+          image="${REGION}-docker.pkg.dev/${PROJECT}/myungli/load-k6:${GITHUB_SHA}"
+          docker build -t "$image" server/load
+          docker push "$image"
+          gcloud run jobs update load-k6 --region "$REGION" --project "$PROJECT" \
+            --image "$image" --set-secrets "TEST_LOGIN_SECRET=TEST_LOGIN_SECRET:latest"
 
       - name: Firebase Hosting
         if: steps.ready.outputs.ready == 'true'

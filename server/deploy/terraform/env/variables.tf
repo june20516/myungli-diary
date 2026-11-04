@@ -90,3 +90,14 @@ variable "scheduler_enabled" {
   type        = bool
   default     = true
 }
+
+variable "load_generator_enabled" {
+  description = "부하 생성기 Job load-k6를 둡니다(L1-2b, D104). 부하 프로젝트만 true이고, bootstrap이 만든 결과 bucket을 씁니다"
+  type        = bool
+  default     = false
+
+  validation {
+    condition     = !var.load_generator_enabled || var.test_login_enabled
+    error_message = "load_generator_enabled는 test_login_enabled가 true일 때만 켭니다(k6가 테스트 로그인으로 계정을 씀)."
+  }
+}

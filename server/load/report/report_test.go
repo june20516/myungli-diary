@@ -2,11 +2,14 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/csv"
 	"math"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -211,5 +214,31 @@ func TestMonitoringFetch_APIError(t *testing.T) {
 	_, err := Monitoring{Client: server.Client(), Base: server.URL, Project: "p1"}.Fetch(context.Background(), time.Now(), time.Now())
 	if err == nil || !strings.Contains(err.Error(), "403") {
 		t.Fatalf("403 오류여야 함: %v", err)
+	}
+}
+
+func TestReadStages_Gzip(t *testing.T) {
+	raw := rawHeader + rawLine("http_reqs", 1000, "1", "", "stage_2", "200", "getDaily")
+	dir := t.TempDir()
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	if _, err := gz.Write([]byte(raw)); err != nil {
+		t.Fatal(err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	for name, content := range map[string][]byte{"raw.csv.gz": buf.Bytes(), "raw.csv": []byte(raw)} {
+		path := filepath.Join(dir, name)
+		if err := os.WriteFile(path, content, 0o600); err != nil {
+			t.Fatal(err)
+		}
+		rows, err := readStages(path, nil)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if len(rows) != 2 || rows[0].Requests != 1 {
+			t.Errorf("%s: rows = %+v", name, rows)
+		}
 	}
 }
