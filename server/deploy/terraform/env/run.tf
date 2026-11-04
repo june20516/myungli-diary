@@ -62,9 +62,7 @@ resource "google_cloud_run_v2_service" "server" {
   ingress             = "INGRESS_TRAFFIC_ALL"
   deletion_protection = var.deletion_protection
 
-  # 직접 주소(run.app)를 끕니다. 그 주소는 보낸 사람이 붙인 X-Forwarded-For를 그대로 넘겨, TRUSTED_PROXY_HOPS=2에서
-  # IP별 요청 한도(S68)를 위조 값으로 우회할 수 있기 때문입니다. 요청은 공개 주소(Firebase Hosting)로만 받습니다(S135).
-  default_uri_disabled = true
+  # 직접 주소(run.app)는 끄지 않습니다. Firebase Hosting rewrite가 이 주소로 보내므로 끄면 공개 주소도 404가 됩니다(S135).
 
   template {
     service_account = google_service_account.server.email

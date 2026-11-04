@@ -76,7 +76,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **엔진 cold start 대응(브랜치 `server/engine-cold-start`):** 엔진 호출의 timeout 재시도(두 번째 시도 10초), 버전을 모를 때 요청이 `GetInfo`를 기다림, 엔진과 server의 startup CPU boost. staging에서 `job retention`이 매일 실패하던 원인입니다. 결정 S132.
 * **O1 관측(브랜치 `server/o1-observability`, #738):** bootstrap에 메일 channel과 월 예산(로컬 값 K14), env에 알림 정책 7종(5xx, 지연, 인스턴스, Cloud SQL CPU와 연결 수, Job 실패, uptime)과 staging uptime check, staging 시험 오류 경로 `GET /test/v1/server-error`, 대응 절차 [`docs/runbook/alerts.md`](docs/runbook/alerts.md). 결정 S133.
 * **앱 안 문의(브랜치 `server/d102-contact`, #754):** 계약 1.4.0 `createInquiry`(`POST /v1/support/inquiries`)가 문의를 Resend로 `support@myungli-diary.app`에 보냅니다(Reply-To 사용자, 계정당 1시간 5번, 내용 저장 없음). 키는 Secret `RESEND_API_KEY`와 tfvars `support_mail_enabled`. 결정 S134.
-* **`TRUSTED_PROXY_HOPS`=2(브랜치 `server/proxy-hops-value`):** 공개 주소의 `X-Forwarded-For`가 `[보낸 사람, Hosting]`이라 2로 정하고, 위조 값을 넘기는 server 직접 주소(run.app)를 끕니다. 결정 S135.
+* **`TRUSTED_PROXY_HOPS`=2(브랜치 `server/proxy-hops-value`):** 공개 주소의 `X-Forwarded-For`가 `[보낸 사람, Hosting]`이라 2로 정했습니다. 직접 주소는 Hosting rewrite가 쓰므로 끌 수 없고, 직접 주소의 위조 IP 위험은 Q1으로 넘깁니다. 결정 S135.
 * **로그 제외(브랜치 `server/log-exclusion-apple`):** Cloud Run 요청 로그에서 `GET /auth/apple?…`(일회용 교환 코드)를 받지 않는 프로젝트 로그 제외를 bootstrap에 둡니다. 결정 S136.
 * **DB 계정 분리(브랜치 `server/migrator-split`):** migration과 seed는 `server-migrator`(DDL), 런타임은 `myungli_app` 구성원(읽기와 쓰기만). migration 00024, `migrate up`의 `DB_RUNTIME_USER` 지정과 `cloudsqlsuperuser` 소속 확인. staging은 DB를 다시 만듭니다. 결정 S137.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
