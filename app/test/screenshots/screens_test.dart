@@ -602,6 +602,7 @@ final List<_Shot> _shots = [
     ),
   ),
   _Shot('legal', 'default', 'member', _pushWith(ScreenIds.legal)),
+  _Shot('contact', 'default', 'member', _pushWith(ScreenIds.contact)),
   // 계획 7: 로그인 수단·계정 합치기
   _Shot(
     'login-methods',

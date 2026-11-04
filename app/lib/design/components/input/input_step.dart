@@ -8,7 +8,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
-import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/components/input/field_error_line.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -274,7 +274,7 @@ class _InputStepState extends State<InputStep> {
             label: _shownError,
             role: SemanticsRole.alert,
             identifier: widget.errorIdentifier,
-            child: _ErrorLine(text: _shownError),
+            child: FieldErrorLine(text: _shownError),
           ),
         ),
       ),
@@ -394,38 +394,6 @@ class _ProgressBar extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// 오류 줄. 빨간색 없이 경고 표시(`mark.caution`) + 본문색 글자입니다.
-class _ErrorLine extends StatelessWidget {
-  const new({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = context.tokens.typography.captionLg.copyWith(
-      color: context.tokens.colors.textPrimary,
-    );
-    // 경고 표시는 주변 글자 크기와 색(DefaultTextStyle)을 따르고, 첫 줄 높이에 맞춰 놓습니다.
-    final lineHeight =
-        MediaQuery.textScalerOf(context).scale(style.fontSize!) *
-        (style.height ?? 1);
-    return DefaultTextStyle(
-      style: style,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: lineHeight,
-            child: const Center(child: AppIcon.caution()),
-          ),
-          const SizedBox(width: Space.s8),
-          Expanded(child: Text(text)),
-        ],
       ),
     );
   }

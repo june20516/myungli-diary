@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/purchase.dart';
 import 'package:myungli_diary/core/api/gen/model/purchase_status.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -8,6 +12,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/purchases.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
@@ -20,7 +25,10 @@ import 'package:myungli_diary/features/purchase/application/purchase_providers.d
 import 'package:myungli_diary/features/purchase/model/purchase_labels.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
-/// IA `purchase-history`에서 이 화면이 처리하는 상태. 출구는 없습니다.
+/// IA `purchase-history`의 출구: 결제 누락 안내에서 문의하기로 갑니다(D89 ④, D102).
+const Set<String> purchaseHistoryExits = {ScreenIds.contact};
+
+/// IA `purchase-history`에서 이 화면이 처리하는 상태.
 const Set<String> purchaseHistoryHandledStates = {
   'loading',
   'empty',
@@ -64,6 +72,9 @@ PurchaseMeta purchaseMeta(
 class PurchaseHistoryScreen extends ConsumerWidget {
   /// 구매 내역 화면을 만듭니다.
   const new({super.key});
+
+  /// 결제 누락 안내 아래 문의하기 버튼을 찾는 테스트용 키.
+  static const Key contactKey = ValueKey('purchase-history.contact');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -231,9 +242,10 @@ class _PurchaseList extends ConsumerWidget {
   }
 }
 
-/// 결제한 상품이 안 보일 때의 안내(`purchase-history.missing.notice`).
+/// 결제한 상품이 안 보일 때의 안내(`purchase-history.missing.notice`)와 문의하기 버튼.
 ///
-/// 목록이든 빈 목록이든 바로 위 묶음과 [gap]만큼 떨어집니다.
+/// 목록이든 빈 목록이든 바로 위 묶음과 [gap]만큼 떨어집니다. 안내가 가리키는 문의하기(D89 ④)로
+/// 가는 길은 `primary-button` `quiet`입니다(안내 글자는 누를 수 없는 글자 그대로).
 class _MissingNotice extends StatelessWidget {
   const new();
 
@@ -243,16 +255,30 @@ class _MissingNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: gap),
-      child: Semantics(
-        identifier: SlotIds.purchaseHistoryMissingNotice,
-        child: Text(
-          AppLocalizations.of(context).purchaseHistoryMissingNotice,
-          style: tokens.typography.captionMd.copyWith(
-            color: tokens.colors.textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            identifier: SlotIds.purchaseHistoryMissingNotice,
+            child: Text(
+              l10n.purchaseHistoryMissingNotice,
+              style: tokens.typography.captionMd.copyWith(
+                color: tokens.colors.textSecondary,
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: Space.s8),
+          PrimaryButton(
+            key: PurchaseHistoryScreen.contactKey,
+            variant: PrimaryButtonVariant.quiet,
+            label: l10n.settingsContactLabel,
+            onPressed: () =>
+                unawaited(context.push<void>(pathOf(ScreenIds.contact))),
+          ),
+        ],
       ),
     );
   }

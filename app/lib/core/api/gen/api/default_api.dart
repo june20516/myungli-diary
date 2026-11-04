@@ -31,6 +31,7 @@ import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/health.dart';
 import 'package:myungli_diary/core/api/gen/model/identity_list.dart';
+import 'package:myungli_diary/core/api/gen/model/inquiry_input.dart';
 import 'package:myungli_diary/core/api/gen/model/kakao_login_request.dart';
 import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/api/gen/model/line_login_request.dart';
@@ -638,6 +639,73 @@ class DefaultApi {
       statusMessage: _response.statusMessage,
       extra: _response.extra,
     );
+  }
+
+  /// 문의 접수
+  /// 앱 안 문의 화면(&#x60;contact&#x60;, D102)의 문의를 받아 운영 메일함(&#x60;support@myungli-diary.app&#x60;)으로 보냅니다. 1.4.0에서 더했습니다. * 답은 &#x60;replyEmail&#x60;로 메일로만 갑니다(받은 메일의 Reply-To가 이 주소). 계정 id는 토큰의 계정이고 본문으로 받지 않습니다. * 메일에는 계정 id, 앱 버전, 기기 정보, 요청 언어(&#x60;Accept-Language&#x60;로 고른 언어), 접수 시각이 함께 담깁니다. * server는 문의 내용을 저장하지 않습니다. 메일 발송 서비스가 메일을 받았으면 204입니다. * 한 계정은 1시간에 5번까지 보낼 수 있습니다. 넘으면 429 &#x60;rate_limited&#x60;이고 &#x60;Retry-After&#x60;를 따릅니다. * 메일을 보낼 수 없으면(발송 서비스 설정이 없거나 응답하지 않음) 503 &#x60;service.unavailable&#x60;입니다. app은 화면의 주소 안내(&#x60;contact.address.note&#x60;)로 이어 줍니다. * &#x60;Idempotency-Key&#x60;를 보내면 24시간 안의 같은 키에는 처음 응답을 그대로 돌려주고 메일을 다시 보내지 않습니다. 보내기 버튼을 두 번 누르거나 응답을 못 받아 다시 보낼 때 씁니다.
+  ///
+  /// Parameters:
+  /// * [inquiryInput]
+  /// * [idempotencyKey] - 같은 키로 다시 보내면 24시간 동안 같은 응답을 돌려줍니다(IETF draft-ietf-httpapi-idempotency-key-header).
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future]
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<void>> createInquiry({
+    required InquiryInput inquiryInput,
+    String? idempotencyKey,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/support/inquiries';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        if (idempotencyKey != null) r'Idempotency-Key': idempotencyKey,
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(inquiryInput);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(_dio.options, _path),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    return _response;
   }
 
   /// 비로그인 미리보기

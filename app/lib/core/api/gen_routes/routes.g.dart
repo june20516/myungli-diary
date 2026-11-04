@@ -93,6 +93,7 @@ const List<ApiRoute> apiRoutes = [
     requiresBearer: false,
   ),
   ApiRoute('GET', '/v1/cities', 'listCities', requiresBearer: false),
+  ApiRoute('POST', '/v1/support/inquiries', 'createInquiry'),
   ApiRoute('GET', '/v1/app-config', 'getAppConfig', requiresBearer: false),
   ApiRoute('GET', '/health', 'checkHealth', requiresBearer: false),
   ApiRoute('GET', '/healthz', 'getHealth', requiresBearer: false),
