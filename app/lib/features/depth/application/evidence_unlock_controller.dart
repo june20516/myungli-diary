@@ -19,6 +19,7 @@ import 'package:myungli_diary/features/calendar/application/calendar_providers.d
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
+import 'package:myungli_diary/features/monetization/application/staging_reward_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -249,7 +250,8 @@ typedef _InsightAnswer = ({bool active, UnexpectedError? failure});
 ///   [DepthLinkState.lockedNoAd]), 이용권을 한 번 물어 이미 권한이 있으면(확인 중에 시트를
 ///   닫았던 경우, 광고 제거권을 산 경우) 바로 다시 받습니다. 이 열 때 확인은 조용합니다.
 ///   다시 받은 응답이 아직 잠겨 있으면 toast 없이 `locked`입니다.
-/// * [watchAd]: 끝까지 보면 [DepthLinkState.unlocking]에서 이용권을
+/// * [watchAd]: 끝까지 보면 staging에서는 먼저 보상을 staging 전용 경로로 보내고(D101 ④,
+///   [stagingRewardDeliveryProvider]), [DepthLinkState.unlocking]에서 이용권을
 ///   [rewardPollTimingProvider] 간격으로 마감 시각(시작 + timeout)까지 묻습니다. 마감은
 ///   Timer로 재므로 요청이 늦어도 마감 시각에 끝나고, 마감에 걸린 요청의 결과는 버립니다.
 ///   권한이 생기면 `refreshing`(skeleton)으로 응답을 다시 받아 [DepthLinkState.unlocked]이고,
@@ -340,6 +342,10 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     }
     switch (result) {
       case RewardEarned():
+        await _deliverStagingReward(result);
+        if (!flow.mounted || state.link == DepthLinkState.unlocked) {
+          return;
+        }
         await _awaitGrant(flow);
       case RewardDismissed():
         await _loadAd(flow);
@@ -434,6 +440,19 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     state = _ad == null
         ? const EvidenceUnlockState(link: DepthLinkState.lockedNoAd)
         : const EvidenceUnlockState(link: DepthLinkState.locked, adReady: true);
+  }
+
+  /// staging이면 보상을 staging 전용 경로로 보냅니다(D101 ④). prod와 fake 모드는 할 일이
+  /// 없습니다(SSV 콜백, 대역). 보내지 못하면 요약을 보고하고 그대로 권한을 묻습니다. 권한이 오지
+  /// 않으면 마감에 [UnlockTimedOut]으로 끝납니다.
+  Future<void> _deliverStagingReward(RewardEarned reward) async {
+    final delivery = ref.read(stagingRewardDeliveryProvider);
+    if (delivery == null) return;
+    try {
+      await delivery.deliver(reward);
+    } on Object catch (error, stack) {
+      ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
+    }
   }
 
   /// 끝까지 본 뒤 마감 시각까지 권한을 묻습니다.

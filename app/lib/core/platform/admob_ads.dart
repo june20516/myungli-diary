@@ -55,21 +55,33 @@ AppError? adMobLoadError(int code, {required TargetPlatform platform}) {
 }
 
 /// 보상형 광고를 닫은 뒤의 결과. [showError]가 있으면 보이지 못한 것입니다.
-RewardedResult rewardedResultOf({required bool earned, Object? showError}) {
+///
+/// 보상을 받았으면 [adUnit]과 [rewardItem]을 결과에 담습니다(staging 보상 전달, D101 ④).
+RewardedResult rewardedResultOf({
+  required bool earned,
+  Object? showError,
+  String? adUnit,
+  String? rewardItem,
+}) {
   if (showError != null) return RewardFailed(UnexpectedError(showError));
-  return earned ? const RewardEarned() : const RewardDismissed();
+  return earned
+      ? RewardEarned(adUnit: adUnit, rewardItem: rewardItem)
+      : const RewardDismissed();
 }
 
 /// SDK 경계가 던지는 불러오기 실패.
 final class AdMobLoadFailure implements Exception {
   /// 실패를 담습니다.
-  const new(this.code, this.message);
+  const new(this.code, this.message, {this.domain});
 
   /// SDK 오류 코드([adMobLoadError]).
   final int code;
 
   /// SDK 오류 메시지.
   final String message;
+
+  /// SDK 오류 도메인(예 `com.google.android.gms.ads`). 없으면 null입니다.
+  final String? domain;
 }
 
 /// AdMob SDK 경계. SDK 호출을 옮기기만 하고 분기는 [AdMobAds]에 둡니다.
@@ -94,6 +106,20 @@ abstract interface class AdMobApi {
   });
 }
 
+/// [width] 너비 적응형 배너(`getLargeAnchoredAdaptiveBannerAdSize`)의 크기.
+/// 정하지 못하면 null입니다.
+///
+/// staging 모의 배너(D101 ③)가 실제 광고와 같은 크기를 쓰려고 함께 씁니다.
+Future<Size?> adMobAdaptiveBannerSize(int width) async {
+  final size = await _adaptiveSize(width);
+  return size == null
+      ? null
+      : Size(size.width.toDouble(), size.height.toDouble());
+}
+
+Future<gma.AdSize?> _adaptiveSize(int width) =>
+    gma.AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
+
 /// 실제 AdMob SDK를 부르는 경계(기본값).
 final class SdkAdMobApi implements AdMobApi {
   /// 경계를 만듭니다.
@@ -111,7 +137,7 @@ final class SdkAdMobApi implements AdMobApi {
     required String unitId,
     required int width,
   }) async {
-    final size = await gma.AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
+    final size = await _adaptiveSize(width);
     if (size == null) return null;
     final loaded = Completer<BannerAdHandle>();
     await gma.BannerAd(
@@ -122,7 +148,9 @@ final class SdkAdMobApi implements AdMobApi {
         onAdLoaded: (ad) => loaded.complete(_SdkBanner(ad as gma.BannerAd)),
         onAdFailedToLoad: (ad, error) {
           unawaited(ad.dispose());
-          loaded.completeError(AdMobLoadFailure(error.code, error.message));
+          loaded.completeError(
+            AdMobLoadFailure(error.code, error.message, domain: error.domain),
+          );
         },
       ),
     ).load();
@@ -146,10 +174,11 @@ final class SdkAdMobApi implements AdMobApi {
                 gma.ServerSideVerificationOptions(userId: userId),
               ),
             );
-            loaded.complete(_SdkRewarded(ad));
+            loaded.complete(_SdkRewarded(ad, unitId));
           },
-          onAdFailedToLoad: (error) =>
-              loaded.completeError(AdMobLoadFailure(error.code, error.message)),
+          onAdFailedToLoad: (error) => loaded.completeError(
+            AdMobLoadFailure(error.code, error.message, domain: error.domain),
+          ),
         ),
       ),
     );
@@ -178,19 +207,27 @@ final class _SdkBanner implements BannerAdHandle {
 }
 
 final class _SdkRewarded implements RewardedAdHandle {
-  new(this._ad);
+  new(this._ad, this._unitId);
 
   final gma.RewardedAd _ad;
+  final String _unitId;
 
   @override
   Future<RewardedResult> show() {
     final result = Completer<RewardedResult>();
     var earned = false;
+    String? rewardItem;
     _ad.fullScreenContentCallback = gma.FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         unawaited(ad.dispose());
         if (!result.isCompleted) {
-          result.complete(rewardedResultOf(earned: earned));
+          result.complete(
+            rewardedResultOf(
+              earned: earned,
+              adUnit: _unitId,
+              rewardItem: rewardItem,
+            ),
+          );
         }
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
@@ -202,7 +239,14 @@ final class _SdkRewarded implements RewardedAdHandle {
         }
       },
     );
-    unawaited(_ad.show(onUserEarnedReward: (_, _) => earned = true));
+    unawaited(
+      _ad.show(
+        onUserEarnedReward: (_, reward) {
+          earned = true;
+          rewardItem = reward.type;
+        },
+      ),
+    );
     return result.future;
   }
 }
@@ -218,6 +262,7 @@ final class AdMobAds implements Ads {
     required this.platform,
     this.useTestAds = kDebugMode,
     this.api = const SdkAdMobApi(),
+    this.onLoadFailure,
   });
 
   /// 실행 플랫폼.
@@ -228,6 +273,9 @@ final class AdMobAds implements Ads {
 
   /// SDK 경계.
   final AdMobApi api;
+
+  /// 불러오기 실패(채울 광고 없음 포함)를 알립니다. 원인(코드, 도메인)을 가리는 기록용입니다.
+  final void Function(AdMobLoadFailure failure)? onLoadFailure;
 
   Future<void>? _initialized;
 
@@ -263,6 +311,7 @@ final class AdMobAds implements Ads {
     try {
       return await load(unitId);
     } on AdMobLoadFailure catch (failure) {
+      onLoadFailure?.call(failure);
       final error = adMobLoadError(failure.code, platform: platform);
       if (error == null) return null;
       throw error;

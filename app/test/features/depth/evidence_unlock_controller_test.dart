@@ -26,7 +26,9 @@ import 'package:myungli_diary/features/calendar/application/calendar_providers.d
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
+import 'package:myungli_diary/features/monetization/application/staging_reward_providers.dart';
 import 'package:myungli_diary/features/monetization/data/entitlements_repository.dart';
+import 'package:myungli_diary/features/monetization/data/staging_reward_delivery.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
@@ -515,6 +517,58 @@ void main() {
       expect(opened.events, isEmpty);
     });
 
+    testWidgets('staging이면 끝까지 본 뒤 보상을 한 번 보내고 실제와 같은 REST로 열립니다(D101 ④)', (
+      tester,
+    ) async {
+      final sender = _RecordingRewardSender();
+      final container = await _boot(
+        tester,
+        scenario: 'reward-unlock',
+        overrides: [stagingRewardDeliveryProvider.overrideWithValue(sender)],
+      );
+      _open(container);
+      await _prepared(tester, container);
+      final asked = _entitlementCalls(container);
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await _until(
+        tester,
+        () => _state(container).link == DepthLinkState.unlocked,
+      );
+
+      expect(sender.delivered, hasLength(1));
+      expect(_entitlementCalls(container), greaterThan(asked));
+    });
+
+    testWidgets('staging 보상을 보내지 못하면 요약을 보고하고 그대로 권한을 묻습니다', (tester) async {
+      final reporter = FakeCrashReporter();
+      final container = await _boot(
+        tester,
+        scenario: 'reward-unlock',
+        overrides: [
+          stagingRewardDeliveryProvider.overrideWithValue(
+            _RecordingRewardSender(failure: StateError('staging 경로 없음')),
+          ),
+          crashReporterProvider.overrideWithValue(reporter),
+        ],
+      );
+      _open(container);
+      await _prepared(tester, container);
+
+      unawaited(container.read(_provider.notifier).watchAd());
+      await _until(
+        tester,
+        () => _state(container).link == DepthLinkState.unlocked,
+      );
+
+      expect(reporter.errors.map((e) => e.errorType), ['StateError']);
+    });
+
+    testWidgets('staging이 아니면(기본) 보상 전달 경계가 없습니다', (tester) async {
+      final container = await _boot(tester);
+      expect(container.read(stagingRewardDeliveryProvider), isNull);
+    });
+
     testWidgets('잠금 해제에 성공하면 locked로 받은 달력 캐시를 버린다(A32)', (tester) async {
       final container = await _boot(tester, scenario: 'reward-unlock');
       final cache = container.read(cacheStoreProvider);
@@ -974,4 +1028,19 @@ void main() {
       expect(events, isEmpty);
     });
   });
+}
+
+/// 보낸 보상을 남기는 staging 보상 전달 대역. [failure]가 있으면 그것을 던집니다.
+final class _RecordingRewardSender implements StagingRewardSender {
+  new({this.failure});
+
+  final Error? failure;
+  final delivered = <RewardEarned>[];
+
+  @override
+  Future<void> deliver(RewardEarned reward) async {
+    delivered.add(reward);
+    final error = failure;
+    if (error != null) throw error;
+  }
 }

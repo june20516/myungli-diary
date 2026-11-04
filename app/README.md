@@ -76,6 +76,11 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     --dart-define-from-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/staging/dart-defines.json" \
     --dart-define=AD_FREE_PRODUCT_IDS=<스토어 상품 id>
   ```
+* **광고 시험(staging, D101, A106):** 광고 단위는 빌드 모드로(debug는 Google 테스트 단위, release는 실제 단위, A99), 모의 광고와 보상 경로는 환경 파일의 `STAGING_ADS`(staging `"true"`, prod `"false"`)로 고릅니다.
+  * staging: AdMob을 먼저 불러오고, 광고를 받지 못하면(채울 광고 없음, 앱 검토 전) 같은 자리, 같은 크기의 모의 광고("모의 광고" 배너, 15초 전체 화면 보상형)를 보입니다. 보상형을 끝까지 보면 광고 출처와 상관없이 staging 전용 경로(`POST /test/v1/billing/rewarded-ad`, server S131)로 SSV와 같은 값을 보내고, 실제와 같은 `getEntitlements`로 권한을 다시 읽습니다. 테스트 광고와 검토 전 앱에는 SSV 콜백이 오지 않기 때문입니다(#741).
+  * prod: AdMob만, 보상은 SSV 콜백만입니다. `STAGING_ADS`가 상수 false라 staging 분기는 prod 바이너리에서 빠집니다.
+  * 광고 불러오기 실패는 debug 콘솔에 `AdMob 불러오기 실패 <domain> <code>`로, staging에서는 Crashlytics 비치명 오류(`AdMobLoadFailure`, code `<domain>.<code>`)로 남습니다. Android 광고 없음은 3, iOS 광고 없음은 1입니다.
+  * **테스트 기기:** 실제 단위(release)로 실기기에서 광고를 누르면 계정 정지 사유가 되니 시험 기기는 AdMob에 등록합니다. AdMob 콘솔 **설정 → 테스트 기기 → 테스트 기기 추가**에서 플랫폼과 광고 식별자를 넣습니다(반영까지 보통 1시간, 길면 24시간). Android는 휴대폰 **설정 → Google → 광고**의 광고 ID, iOS는 IDFA입니다. iOS는 IDFA를 기본으로 보여 주지 않아 IDFA를 보여 주는 앱(App Store)이 필요하고, 앱 추적을 허용하지 않은 기기에서는 IDFA가 0으로 나올 수 있으니 그 앱의 추적을 허용합니다. iOS 시뮬레이터는 자동으로 테스트 기기입니다. 등록되면 광고에 "Test mode"(또는 "Test Ad") 표시가 붙습니다.
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |
