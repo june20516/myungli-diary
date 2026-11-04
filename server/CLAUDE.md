@@ -80,6 +80,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **로그 제외(브랜치 `server/log-exclusion-apple`):** Cloud Run 요청 로그에서 `GET /auth/apple?…`(일회용 교환 코드)를 받지 않는 프로젝트 로그 제외를 bootstrap에 둡니다. 결정 S136.
 * **DB 계정 분리(브랜치 `server/migrator-split`):** migration과 seed는 `server-migrator`(DDL), 런타임은 `myungli_app` 구성원(읽기와 쓰기만). migration 00024, `migrate up`의 `DB_RUNTIME_USER` 지정과 `cloudsqlsuperuser` 소속 확인. staging은 DB를 다시 만듭니다. 결정 S137.
 * **L1 부하 테스트 계획(브랜치 `server/l1-plan`, #782):** k6 도착률 고정 단계 부하, 부하 전용 프로젝트(prod와 같은 SQL tier, 끝나면 env destroy), 하루 흐름 요청 순서, 한계 응답 기록. 계획은 [`docs/plans/2026-11-04-l1-load-test.md`](docs/plans/2026-11-04-l1-load-test.md)입니다.
+* **L1 부하 환경(브랜치 `server/l1-load-env`, #782):** `env/load.tfvars`(staging 빌드, prod와 같은 SQL, Scheduler 끔), bootstrap environment `load`, 배포 workflow의 dispatch target `load`와 `load-teardown`(Cloud SQL만 지움), Terraform README "부하 환경"(E21 사용자 절차). 결정 D104.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.

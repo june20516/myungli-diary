@@ -149,21 +149,28 @@ jobs:
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
 
+      # Scheduler는 scheduler_enabled(Terraform 출력)가 true일 때만 켭니다. 부하 환경은 false라 Job 이미지만 바꿉니다(D104).
       - name: 배치 Job과 Scheduler
         if: steps.ready.outputs.ready == 'true'
         run: |
+          scheduler_enabled="$(terraform -chdir=server/deploy/terraform/env output -raw scheduler_enabled)"
+          resume() {
+            if [ "$scheduler_enabled" = "true" ]; then
+              gcloud scheduler jobs resume "$1" --location "$REGION" --project "$PROJECT"
+            fi
+          }
           gcloud run jobs update server-retention --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
-          gcloud scheduler jobs resume retention-daily --location "$REGION" --project "$PROJECT"
+          resume retention-daily
           gcloud run jobs update server-precompute --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
-          gcloud scheduler jobs resume precompute-half-hourly --location "$REGION" --project "$PROJECT"
+          resume precompute-half-hourly
           gcloud run jobs update server-notify --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
-          gcloud scheduler jobs resume notify-every-5m --location "$REGION" --project "$PROJECT"
+          resume notify-every-5m
 
       - name: Firebase Hosting
         if: steps.ready.outputs.ready == 'true'

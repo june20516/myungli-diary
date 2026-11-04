@@ -14,6 +14,12 @@ on:
       - "server/**"
       - ".github/workflows/deploy-*.yml"
   workflow_dispatch:
+    inputs:
+      target:
+        description: "staging-prod: staging 뒤 prod. load: 부하 전용 프로젝트에 배포. load-teardown: 부하 전용 프로젝트의 Cloud SQL만 지움(L1, D104)"
+        type: choice
+        options: [staging-prod, load, load-teardown]
+        default: staging-prod
 
 permissions:
   contents: read
@@ -101,7 +107,8 @@ jobs:
 
   staging:
     needs: checks
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    # push(main)와 workflow_dispatch(staging-prod)에서 돕니다. push에서는 inputs.target이 비어 있습니다.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load' && inputs.target != 'load-teardown'
     permissions:
       contents: read
       id-token: write
@@ -125,3 +132,47 @@ jobs:
       go_tags: ""
       wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
       service_account: ${{ vars.GCP_DEPLOYER_PROD }}
+
+  # 부하 전용 프로젝트(L1, D104). workflow_dispatch로만 돌고 staging과 prod에는 손대지 않습니다.
+  load:
+    needs: checks
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-server-env.yml
+    with:
+      environment: load
+      project_id: myungli-diary-load
+      go_tags: staging
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_LOAD }}
+      service_account: ${{ vars.GCP_DEPLOYER_LOAD }}
+
+  # 측정 회차가 끝나면 비용이 큰 Cloud SQL만 지웁니다. 그 인스턴스에 기대는 자원(DB, DB 사용자, SQL 알림 정책)도 함께 지워지고,
+  # 다음 load 배포의 apply가 다시 만듭니다. Secret 틀과 값, Cloud Run(요청이 없으면 0으로 줄어듦), 네트워크는 남깁니다.
+  load-teardown:
+    needs: checks
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load-teardown' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: load
+    concurrency:
+      group: deploy-server-load
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER_LOAD }}
+          service_account: ${{ vars.GCP_DEPLOYER_LOAD }}
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - name: Cloud SQL 지우기
+        working-directory: server/deploy/terraform/env
+        run: |
+          terraform init -input=false -backend-config="bucket=myungli-diary-load-tfstate"
+          terraform destroy -input=false -auto-approve -var-file=load.tfvars -target=google_sql_database_instance.main
