@@ -13,6 +13,8 @@ sql_max_connections = 100
 scheduler_enabled    = false
 uptime_check_enabled = false
 test_login_enabled   = true
+# 같은 region에서 k6를 돌리는 생성기 Job입니다(L1-2b). 결과 bucket은 bootstrap이 만듭니다.
+load_generator_enabled = true
 # 결제와 문의 메일은 측정 흐름에 없어 끕니다. REVENUECAT_*, RESEND_API_KEY 값이 없어도 배포합니다.
 billing_enabled      = false
 support_mail_enabled = false

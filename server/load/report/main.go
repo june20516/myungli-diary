@@ -7,12 +7,15 @@
 package main
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2/google"
@@ -26,7 +29,7 @@ type options struct {
 
 func main() {
 	var opts options
-	flag.StringVar(&opts.raw, "raw", "", "k6 --out csv 원자료 경로(필수)")
+	flag.StringVar(&opts.raw, "raw", "", "k6 --out csv 원자료 경로(필수, .gz면 압축을 풀며 읽음)")
 	flag.StringVar(&opts.summary, "summary", "", "k6 handleSummary JSON 경로(필수, 멈춤 조건 판정)")
 	flag.StringVar(&opts.out, "out", "", "결과 폴더(필수, server/docs/load/<날짜>-<회차>)")
 	flag.StringVar(&opts.project, "project", "myungli-diary-load", "Cloud Monitoring을 읽을 GCP 프로젝트")
@@ -122,7 +125,23 @@ func readStages(path string, blocked map[string]bool) ([]StageRow, error) {
 		return nil, err
 	}
 	defer func() { _ = f.Close() }() // 읽기만 한 파일이라 닫기 오류는 결과에 영향이 없습니다
-	return AggregateStages(f, blocked)
+	raw, err := rawReader(path, f)
+	if err != nil {
+		return nil, err
+	}
+	return AggregateStages(raw, blocked)
+}
+
+// rawReader는 원자료를 읽는 reader입니다. k6는 파일 이름이 .gz로 끝나면 gzip으로 쓰므로(생성기 Job 기본) 그때 압축을 풉니다.
+func rawReader(path string, f io.Reader) (io.Reader, error) {
+	if !strings.HasSuffix(path, ".gz") {
+		return f, nil
+	}
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+	return gz, nil
 }
 
 func writeFile(path string, write func(*os.File) error) error {

@@ -146,6 +146,9 @@ jobs:
           for script in accounts.js scenarios/ramp.js; do
             docker run --rm -v "$PWD/load":/load -w /load grafana/k6:2.3.0 inspect "$script" > /dev/null
           done
+          # 생성기 Job 이미지(L1-2b)의 진입점과 빌드입니다.
+          sh -n load/run.sh
+          docker build -q -t load-k6-check load > /dev/null
       - name: 이미지 빌드
         if: env.OWN == 'true'
         run: docker build --build-arg GO_VERSION="$(go list -m -f '{{.GoVersion}}')" .

@@ -177,3 +177,31 @@ resource "google_service_account_iam_member" "planner_wif" {
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.event_name/pull_request"
 }
+
+# 부하 측정 결과입니다(L1-2b, D104). 부하 프로젝트에만 두고, 생성기 Job(env의 load-k6)이 GCS volume으로 씁니다.
+# deployer는 프로젝트 storage 권한이 없으므로 여기서 만들고, 이 bucket 하나의 관리 권한만 줘 env가 Job 계정에 쓰기 권한을 붙입니다.
+resource "google_storage_bucket" "load_results" {
+  count = var.environment == "load" ? 1 : 0
+
+  name                        = "${var.project_id}-load-results"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+  # 회차의 결과 파일은 server/docs/load/로 옮기고 원자료는 다시 쓸 일이 드물어 30일 뒤 지웁니다.
+  lifecycle_rule {
+    condition {
+      age = 30
+    }
+    action {
+      type = "Delete"
+    }
+  }
+}
+
+resource "google_storage_bucket_iam_member" "deployer_load_results" {
+  count = length(google_storage_bucket.load_results)
+
+  bucket = google_storage_bucket.load_results[0].name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.deployer.email}"
+}

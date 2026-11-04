@@ -35,3 +35,8 @@ output "scheduler_enabled" {
   description = "true면 배포 workflow가 server 배포 뒤 Scheduler를 켭니다"
   value       = var.scheduler_enabled
 }
+
+output "load_generator_enabled" {
+  description = "true면 배포 workflow가 생성기 이미지(server/load)를 빌드해 load-k6 Job에 붙입니다(L1-2b)"
+  value       = var.load_generator_enabled
+}
