@@ -61,6 +61,17 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   ```
   * `ios/ExportOptions.plist`는 IPA만 만들고(`destination=export`), 확인한 같은 archive를 `upload`로 다시 export해 올립니다. 빌드 번호는 Android와 같은 `pubspec.yaml`의 `+N`이고, 올릴 때마다 올립니다.
   * entitlements 파일의 `aps-environment`는 `development` 그대로 둡니다. 자동 서명이 배포 profile의 값(production)으로 바꿔 넣습니다(1.0.0 (2)에서 확인).
+* **Crashlytics 심볼(A105, #739):** 스토어에 올린 빌드마다, 다시 빌드하기 전에 그 빌드의 심볼을 올려야 스택이 읽힙니다. Firebase CLI 로그인(`firebase login`)이 필요하고, 빌드에 준 환경과 같은 환경을 줍니다.
+  ```
+  tool/upload_crashlytics_symbols.sh staging android   # flutter build appbundle 직후
+  tool/upload_crashlytics_symbols.sh staging ios       # flutter build ipa 직후
+  ```
+  * Android: release 빌드마다 Gradle이 새 mapping file id 리소스(`com.google.firebase.crashlytics.mapping_file_id`)를 넣고(`android/app/build.gradle.kts`), 스크립트가 그 id와 R8 `mapping.txt`를 함께 올립니다. Android Crashlytics는 이 id(build ID)가 없으면 시작하지 않습니다. google-services와 Crashlytics Gradle 플러그인은 쓰지 않습니다(A93).
+  * iOS: archive의 dSYM을 Crashlytics SDK의 `upload-symbols`로 올립니다.
+  * Dart는 난독화하지 않아(`--obfuscate` 없음) Dart 스택은 그대로 읽힙니다.
+  * **보고 경로 시험:** `--dart-define=CRASHLYTICS_SELF_TEST=true`를 더한 release 빌드는 실행할 때마다 시험용 비치명 오류(`CrashlyticsSelfTest`)를 기록합니다. Android 치명 충돌은 `adb shell am crash app.myungli.diary`로 냅니다. Crashlytics는 다음 실행 때 보고를 보냅니다(`adb shell setprop log.tag.FirebaseCrashlytics DEBUG`로 logcat에서 확인). 시험 빌드는 스토어에 올리지 않습니다.
+  * **알림 메일:** Firebase 콘솔 **프로젝트 설정 → Alerts**(`console.firebase.google.com/project/<프로젝트 id>/settings/alerts`)에서 계정마다 켭니다. 새 치명, 새 비치명, ANR, 급증 알림은 기본으로 꺼져 있습니다. staging은 켰고 prod는 출시 전에 켭니다.
+  * Firebase 초기화(Dart) 전에 나는 native 충돌(예 #728의 `androidx.startup` 단계)은 Crashlytics가 아직 없어 잡히지 않습니다. 그런 충돌은 Play Console의 Android vitals와 `adb logcat -b crash`로 봅니다.
   * 처음 서명할 때 키체인 창이 framework마다 반복해서 뜨면 `security set-key-partition-list -S apple-tool:,apple:,codesign: -s ~/Library/Keychains/login.keychain-db`(로그인 키체인 암호를 물음)로 codesign 허용을 한 번에 등록합니다. 요청한 빌드가 끝났는데 창이 남으면 `SecurityAgent`를 종료하면 닫힙니다.
 * **빌드 모드와 환경 값(D99 ①):** 둘은 따로입니다. 빌드 모드는 `flutter run`(debug)과 `flutter build --release`(release), 환경 값은 붙이는 환경 파일(`config/env/<staging|prod>.json`, A97)입니다. staging은 빌드 모드가 아니라 환경 값이라 debug와 release 모두 staging server에 붙을 수 있습니다.
 

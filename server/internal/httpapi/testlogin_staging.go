@@ -54,7 +54,7 @@ func (a *API) EnableTestLogin(secret string, service TestLoginService) {
 	a.testLogin = &testLoginState{secretHash: sha256.Sum256([]byte(secret)), service: service}
 }
 
-// testLoginRoutes는 켜진 staging 경로를 돌려줍니다: 테스트 로그인, 시험 오류(S133), 테스트 광고 제거 기간(테스트 로그인의 비밀),
+// testLoginRoutes는 켜진 staging 경로를 돌려줍니다: 테스트 로그인, 시험 오류(S133), 클라이언트 IP 확인(S135), 테스트 광고 제거 기간(테스트 로그인의 비밀),
 // 보상형 광고 보상(authenticate로 Bearer 인증). 비밀을 쓰는 경로는 메서드 없이 등록해, 비밀이 틀린 요청은
 // 메서드와 관계없이 404를 받습니다(405로 경로의 존재를 드러내지 않음).
 func (a *API) testLoginRoutes(authenticate func(Operation, http.Handler) http.Handler) []staticRoute {
@@ -65,6 +65,9 @@ func (a *API) testLoginRoutes(authenticate func(Operation, http.Handler) http.Ha
 		})})
 		routes = append(routes, staticRoute{pattern: testErrorPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			a.serveTestError(state, w, r)
+		})})
+		routes = append(routes, staticRoute{pattern: testClientIPPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			a.serveTestClientIP(state, w, r)
 		})})
 		if a.testGrant != nil {
 			routes = append(routes, staticRoute{pattern: testGrantPath, handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
