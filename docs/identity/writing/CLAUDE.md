@@ -88,7 +88,7 @@
 * **IA v3·D70~D72**(PR #185, W24): IA v3 ui 슬롯 3개, 출생 시간대별 경도 키, glossary ja 근거 표기(91개, 閑神·極身弱·極身強은 비움), D72 규칙 `style.S7`.
 * **공용 ui 문구·ICU plural**(PR #155, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22): 공용 ui 슬롯(`slots/ui/common.yaml`), glossary 지지·날의 성격·방향 이름(`content/<lang>/glossary.yaml`, ARB로도 나감), ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`). `writing.yml`은 ci-gate만 부릅니다(#148).
 * **IA 슬롯 정렬**(spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 152개입니다(#614로 알림 채널 이름 더함, #548로 구매 버튼과 기간 고지 더함, IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298, D82 13개, D85·D86·D88 10개 포함, D79로 기본 깊이 설명, D88로 구매 복원 버튼, #511로 합치지 않기 버튼 빠짐).
+  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 160개입니다(D102로 문의 화면 8개 더함, #614로 알림 채널 이름 더함, #548로 구매 버튼과 기간 고지 더함, IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298, D82 13개, D85·D86·D88 10개 포함, D79로 기본 깊이 설명, D88로 구매 복원 버튼, #511로 합치지 않기 버튼 빠짐).
   * 슬롯 명세 필드 `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
   * 호칭·조사 규칙: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
