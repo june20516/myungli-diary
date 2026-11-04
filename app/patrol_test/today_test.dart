@@ -21,7 +21,7 @@ import 'support/e2e_app.dart';
 const _timeout = Duration(seconds: 40);
 
 /// staging 모의 보상형 광고가 끝나길 기다리는 시간입니다(광고 길이의 두 배 넉넉히).
-final _adTimeout = mockRewardedLength * 2;
+final Duration _adTimeout = mockRewardedLength * 2;
 
 void main() {
   patrolTest(
