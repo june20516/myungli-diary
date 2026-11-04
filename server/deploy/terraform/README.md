@@ -4,7 +4,7 @@
 
 | 디렉터리 | 누가 apply | 내용 |
 | --- | --- | --- |
-| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번 | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136) |
+| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136) |
 | `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진·server, Job, Scheduler, 알림 정책과 uptime check(S133) |
 
 ## 처음 한 번 (프로젝트마다)
@@ -86,6 +86,48 @@ gcloud sql users delete "server-runtime@${project}.iam" --instance myungli-pg --
 ```
 
 staging은 이 구조로 바꿀 때 데이터베이스 `myungli`와 런타임 DB 사용자를 지우고 배포가 다시 만들게 했습니다(2026-11-04). 다시 할 일은 아닙니다.
+
+## 부하 환경 (L1, D104)
+
+부하 테스트는 부하 전용 프로젝트 `myungli-diary-load`에서 돌립니다(L1 plan `server/docs/plans/2026-11-04-l1-load-test.md`, 외부 준비물 E21). 같은 env Terraform을 `env/load.tfvars`로 띄웁니다. staging 빌드(테스트 로그인)이고, SQL 크기는 prod와 같으며, Scheduler는 켜지 않습니다. GitHub environment 이름은 `load`이고 `APP_ENV`는 `staging`입니다.
+
+### 처음 한 번 (사용자, E21)
+
+1. 프로젝트를 만들고 결제 계정을 연결합니다.
+
+   ```sh
+   project=myungli-diary-load
+   gcloud projects create "$project" --name "myungli-diary-load"
+   gcloud billing projects link "$project" --billing-account <결제 계정 id>
+   ```
+2. Firebase 콘솔에서 "프로젝트 추가 → 기존 Google Cloud 프로젝트"로 `myungli-diary-load`를 고릅니다. Hosting 기본 사이트 `myungli-diary-load.web.app`이 생깁니다. 앱 등록과 Analytics는 필요 없습니다. 프로젝트 설정의 **Project number**는 `env/load.tfvars`의 `project_number`에 있습니다(2026-11-04 채움).
+3. 알림과 예산 값 `$MYUNGLI_LOCAL_DIR/server/load/observability.tfvars`를 위 "알림과 예산 값"과 같은 형식으로 만듭니다(K14). 예산은 부하 회차 비용에 맞춰 정합니다.
+4. bootstrap을 "새 프로젝트" 순서로 apply합니다(`env=load; project=myungli-diary-load`). bootstrap 코드 변경이 아니라 새 프로젝트에 처음 apply하는 것이라 D103 묶음과 상관없습니다.
+5. GitHub 저장소 변수 `GCP_WIF_PROVIDER_LOAD`, `GCP_DEPLOYER_LOAD`에 bootstrap 출력 `workload_identity_provider`, `deployer_email`을 넣습니다. GitHub environment `load`를 만들고 "Deployment branches"를 `main`으로 제한합니다. 필수 승인자는 두지 않아도 됩니다.
+6. `deploy-engine`을 `workflow_dispatch`, target `load`로 돌려 `engine:current`를 push합니다.
+7. `deploy-server`를 target `load`로 한 번 돌립니다. env apply가 Secret 틀을 만들고, 값이 없어 server 배포는 건너뜁니다.
+8. Secret 값을 **새로** 만들어 넣습니다. staging 값을 복사하지 않습니다. 같은 JWT 서명 키를 쓰면 부하 환경에서 받은 토큰이 staging에서도 통하기 때문입니다. 테스트 로그인만 쓰므로 Kakao와 Apple 키는 실제로 불리지 않아, 형식만 맞는 새 값을 넣습니다. 값은 화면에 나오지 않고 바로 Secret으로 들어갑니다.
+
+   ```sh
+   project=myungli-diary-load
+   add() { gcloud secrets versions add "$1" --project "$project" --data-file=-; }
+   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 | add JWT_SIGNING_KEY   # ES256 PKCS8 PEM
+   openssl rand -base64 32 | tr -d '\n' | add TOKEN_ENCRYPTION_KEY                       # AES-256 base64
+   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 | add APPLE_PRIVATE_KEY # 쓰이지 않는 자리값
+   openssl rand -hex 16 | tr -d '\n' | add KAKAO_ADMIN_KEY                               # 쓰이지 않는 자리값
+   openssl rand -base64 32 | tr -d '\n' | add TEST_LOGIN_SECRET
+   ```
+
+   `TEST_LOGIN_SECRET`은 부하 스크립트가 Secret Manager에서 바로 읽으므로 따로 적어 두지 않습니다.
+9. `deploy-server`를 target `load`로 다시 돌립니다. 이번에는 server가 배포되고 Hosting이 연결됩니다.
+
+### 회차마다
+
+1. `deploy-server` target `load`: 지워 둔 Cloud SQL을 다시 만들고 migrate, seed, server를 배포합니다.
+2. 부하 스크립트로 계정을 만들고 측정합니다(`server/load/README.md`).
+3. `deploy-server` target `load-teardown`: Cloud SQL 인스턴스와 그에 기대는 자원(DB, DB 사용자, SQL 알림 정책)만 지웁니다. 지운 인스턴스 이름은 바로 다시 쓸 수 있습니다(Cloud SQL 문서 "Delete instances"). Secret, Cloud Run(요청이 없으면 인스턴스 0), 네트워크는 남기므로 다음 회차는 1부터 다시 하면 됩니다. 계정과 데이터는 회차마다 새로 만듭니다.
+
+L1이 모두 끝나면 프로젝트를 지울지 지휘와 정합니다.
 
 ## 첫 배포 순서
 

@@ -8,8 +8,8 @@ variable "environment" {
   type        = string
 
   validation {
-    condition     = contains(["staging", "prod"], var.environment)
-    error_message = "environment는 staging 또는 prod입니다."
+    condition     = contains(["staging", "prod", "load"], var.environment)
+    error_message = "environment는 staging, prod, load(부하 전용 프로젝트, D104) 중 하나입니다."
   }
 }
 

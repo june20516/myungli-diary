@@ -62,6 +62,8 @@ resource "google_cloud_run_v2_service" "server" {
   ingress             = "INGRESS_TRAFFIC_ALL"
   deletion_protection = var.deletion_protection
 
+  # 직접 주소(run.app)는 끄지 않습니다. Firebase Hosting rewrite가 이 주소로 보내므로 끄면 공개 주소도 404가 됩니다(S135).
+
   template {
     service_account = google_service_account.server.email
 

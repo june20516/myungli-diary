@@ -10,13 +10,19 @@ on:
       - "core/**"
       - ".github/workflows/deploy-engine*.yml"
   workflow_dispatch:
+    inputs:
+      target:
+        description: "staging-prod: staging 뒤 prod. load: 부하 전용 프로젝트에만(L1, D104)"
+        type: choice
+        options: [staging-prod, load]
+        default: staging-prod
 
 permissions:
   contents: read
 
 jobs:
   staging:
-    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load'
     permissions:
       contents: read
       id-token: write
@@ -38,3 +44,16 @@ jobs:
       project_id: myungli-diary
       wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
       service_account: ${{ vars.GCP_DEPLOYER_PROD }}
+
+  # 부하 전용 프로젝트(L1, D104). workflow_dispatch로만 돕니다.
+  load:
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-engine-env.yml
+    with:
+      environment: load
+      project_id: myungli-diary-load
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_LOAD }}
+      service_account: ${{ vars.GCP_DEPLOYER_LOAD }}
