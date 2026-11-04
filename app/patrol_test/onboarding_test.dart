@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
+import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -139,15 +140,21 @@ void main() {
       (widget) =>
           widget.key is ValueKey<String> &&
           (widget.key! as ValueKey<String>).value.startsWith(
-            'city-search-row-',
+            CitySearch.rowKeyPrefix,
           ),
     );
     // 결과가 올 때까지 기다린 뒤 첫 행을 누릅니다(빈 finder의 first는 오류).
     await $(cityRows).waitUntilExists();
-    // 행 자체의 가운데는 빈 공간일 수 있어, 행 안의 첫 글자(도시 이름)를 누릅니다.
-    await $(
-      find.descendant(of: cityRows.first, matching: find.byType(Text)).first,
-    ).tap();
+    // 행 자체의 가운데는 빈 공간일 수 있어, 행 안의 도시 이름 Text를 누릅니다.
+    // 이름은 검색어 강조 때문에 Text.rich(data 없음)이고 지역 줄은 평문 Text라,
+    // 행 구성 순서가 바뀌어도 이름만 골라집니다.
+    final cityName = find.descendant(
+      of: cityRows.first,
+      matching: find.byWidgetPredicate(
+        (widget) => widget is Text && widget.data == null,
+      ),
+    );
+    await $(cityName).tap();
     await expectScreen($, ScreenIds.preview);
   });
 }
