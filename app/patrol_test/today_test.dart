@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart' show expect, find, findsNothing;
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/platform/staging_ads.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -18,6 +19,9 @@ import 'support/e2e_app.dart';
 
 /// 광고 확인처럼 실제 시간이 드는 일을 기다리는 시간입니다.
 const _timeout = Duration(seconds: 40);
+
+/// staging 모의 보상형 광고(`mockRewardedLength` 15초)가 끝나길 기다리는 시간입니다.
+const _adTimeout = Duration(seconds: 40);
 
 void main() {
   patrolTest(
@@ -76,6 +80,18 @@ void main() {
           matching: find.byKey(EvidenceLockPanel.ctaKey),
         ),
       ).tap();
+      if (e2eMode == E2eMode.staging) {
+        // staging의 모의 보상형 광고는 전체 화면이고 사용자가 닫아야 끝납니다.
+        await waitUntil(
+          $,
+          timeout: _adTimeout,
+          () => find
+              .byKey(MockRewardedAdPage.remainingKey)
+              .evaluate()
+              .any((element) => (element.widget as Text).data == '✓'),
+        );
+        await $(find.byKey(MockRewardedAdPage.closeKey)).tap();
+      }
       await waitUntil(
         $,
         timeout: _timeout,
