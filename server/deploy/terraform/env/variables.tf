@@ -84,3 +84,9 @@ variable "support_mail_enabled" {
   type        = bool
   default     = false
 }
+
+variable "scheduler_enabled" {
+  description = "배포 workflow가 server 배포 뒤 Scheduler(retention, precompute, notify)를 켤지. 부하 환경은 측정 중 배치가 끼지 않게 false입니다(D104)"
+  type        = bool
+  default     = true
+}

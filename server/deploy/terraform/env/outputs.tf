@@ -30,3 +30,8 @@ output "migrator_env" {
   description = "migrate와 seed Job의 env(S137). server_env에서 DB 사용자만 migrator로 바꾸고 DB_RUNTIME_USER를 더함"
   value       = local.migrator_env
 }
+
+output "scheduler_enabled" {
+  description = "true면 배포 workflow가 server 배포 뒤 Scheduler를 켭니다"
+  value       = var.scheduler_enabled
+}
