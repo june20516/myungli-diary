@@ -723,8 +723,43 @@
     "date": "2026-11-05",
     "milestone": "DS1",
     "screens": [],
-    "decisions": ["V56", "V57", "V58", "V59", "V60", "V61", "V62", "V63", "V64", "V65", "V66", "V67", "V68"],
+    "decisions": [
+      "V56",
+      "V57",
+      "V58",
+      "V59",
+      "V60",
+      "V61",
+      "V62",
+      "V63",
+      "V64",
+      "V65",
+      "V66",
+      "V67",
+      "V68"
+    ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 고른 안(2026-11-05, #801): Q1 ① 먹 번짐(진한 영역이 가장 먼 모서리까지), Q2 ① 세로 quiet 52, Q3 ② 굵은 라벨과 설명 줄, Q4 ② 하프 시트, Q5 ① book-open-text, Q6 ① 24px 밀림과 페이드. 정한 값 A~G 확인, C 구분선은 좌우 같은 들임으로 아이콘 아래까지, F는 요소별 skeleton을 화면 배치대로"
+  },
+  {
+    "id": "design-ds1-questions",
+    "title": "DS1 2단계 질문 비교: origin 이미지와 1단계 규칙이 부딪히는 Q1~Q8(섹션 제목, 범례 입구, 잠김 열기, 한자 태그 색과 머리 강조, 행운 칩, 달력 오늘, 일기 목록 줄, 키보드 내리기)",
+    "kind": "concept",
+    "file": "2026-11-05-ds1-questions.html",
+    "source": "2026-11-05-ds1-questions.html",
+    "date": "2026-11-05",
+    "milestone": "DS1",
+    "screens": [
+      "my-saju",
+      "saju-chart",
+      "today",
+      "calendar",
+      "day-sheet",
+      "diary-list",
+      "diary-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 아주 잘 풀리는 날 색은 토큰 1.4.0 전 자리값. 사용자 선택 대기(#801)"
   }
 ]
