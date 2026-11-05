@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Final
 
 from myungli_engine.calendar_core.lunar_adapter import hidden_stems
@@ -13,6 +14,7 @@ from myungli_engine.constants.message_keys import require
 from myungli_engine.domain.enums import DayKind, Shinsal, TenGodGroup
 from myungli_engine.domain.models import Evidence, FourPillars, Pillar
 from myungli_engine.domain.ten_gods import ten_god
+from myungli_engine.references.loader import TAG_SOURCE_REF
 from myungli_engine.rules.group_count import natal_group_count
 from myungli_engine.rules.relations import Relation, RelationKind, active
 
@@ -55,9 +57,16 @@ def tag_name(tag_key: str) -> str:
     return name.split(".")[0]
 
 
+_HAP_SOURCE_KEYS: Final[dict[RelationKind, str]] = {
+    RelationKind.STEM_HAP: "stem_hap",
+    RelationKind.BRANCH_HAP: "branch_hap",
+}
+
+
 def tag_source_ref(name: str, hap_kind: RelationKind | None = None) -> str:
-    """태그 이름(과 합 종류)의 원전 source_ref. 원전이 없으면 NO_SOURCE."""
-    return NO_SOURCE
+    """태그 이름(합은 합 종류까지)의 원전 source_ref. 원전이 없으면 NO_SOURCE."""
+    key = _HAP_SOURCE_KEYS[hap_kind] if hap_kind is not None else name
+    return TAG_SOURCE_REF.get(key, NO_SOURCE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,6 +74,8 @@ class TagResult:
     all_keys: tuple[str, ...]
     featured: tuple[str, ...]
     evidence: tuple[Evidence, ...]
+    # 태그 키 → 그 태그 첫 근거의 source_ref. 총운 보조 문장과 가이드 질문이 근거로 쓴다
+    source_refs: Mapping[str, str]
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,7 +106,8 @@ def select_tags(
         "tags/select", NO_SOURCE, {"all": ",".join(all_keys), "featured": ",".join(featured), "day_kind": kind.name}
     )
     per_tag = tuple(evidence for tag in tags for evidence in tag.evidence)
-    return TagResult(all_keys=all_keys, featured=featured, evidence=(selection, *per_tag))
+    source_refs = MappingProxyType({tag.key: tag.evidence[0].source_ref for tag in tags})
+    return TagResult(all_keys=all_keys, featured=featured, evidence=(selection, *per_tag), source_refs=source_refs)
 
 
 def _evidence(rule_id: str, source_ref: str, detail: Mapping[str, str]) -> Evidence:

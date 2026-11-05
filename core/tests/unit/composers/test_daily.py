@@ -42,7 +42,7 @@ def test_every_judgment_has_resolvable_evidence(
     for judgment in judgments:
         assert judgment.message_key in ALL_KEYS
         assert judgment.evidence, judgment.message_key
-        loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+        loader.validate_evidence_refs(judgment.evidence)
 
 
 def test_daily_not_determined_by_day_alone(spring_birth: BirthInput, winter_birth: BirthInput) -> None:

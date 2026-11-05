@@ -71,7 +71,7 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
     for judgment in _judgments(compose_daily(birth, target, SEOUL)):
         assert judgment.message_key in ALL_KEYS
         assert judgment.evidence, judgment.message_key
-        loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+        loader.validate_evidence_refs(judgment.evidence)
 
 
 @given(birth=birth_inputs, as_of=daily_dates)

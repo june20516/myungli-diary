@@ -62,6 +62,13 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
 }
 
 
+# source_ref가 빈 문자열(원전 없음)일 수 있는 규칙 (C28). 그 밖의 규칙은 늘 근거 원전 목록에 있는 source_ref를 낸다.
+# 태그 선택 순서와 십성 몰림은 명리일기가 정한 규칙이고, 총운 보조 문장과 가이드 질문은 근거로 삼은 태그를 따른다.
+RULES_WITHOUT_SOURCE: Final[frozenset[str]] = frozenset(
+    {"tags/select", "tags/ten_god_rush", "fortune/tag", "guide/question"}
+)
+
+
 def require_rule(rule_id: str, detail: Mapping[str, str]) -> str:
     """등록된 rule_id만 통과시킨다. detail에 선언되지 않은 키가 있으면 KeyError."""
     if rule_id not in RULE_DETAIL_KEYS:

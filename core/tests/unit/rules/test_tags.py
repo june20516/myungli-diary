@@ -168,6 +168,8 @@ def test_auxiliary_only_when_empty(pillar_of: PillarOf) -> None:
     assert empty.all_keys == empty.featured == ("tag.yongsin_day",)
     gwiin = select_tags(natal, day, (), (), DayKind.GWIIN_DAY, yongsin_ref=YONGSIN_REF)
     assert gwiin.featured == ("tag.gwiin_day",)
+    assert gwiin.evidence[-1].rule_id == "tags/gwiin_day"
+    assert gwiin.evidence[-1].source_ref == "sammyeong-tonghoe/tags#cheoneul_gwiin"
     with_tag = select_tags(natal, day, (), (Shinsal.DOHWA,), DayKind.YONGSIN_DAY, yongsin_ref=YONGSIN_REF)
     assert with_tag.all_keys == ("tag.dohwa",)
     plain = select_tags(natal, day, (), (), DayKind.ORDINARY_DAY, yongsin_ref=YONGSIN_REF)
@@ -189,3 +191,17 @@ def test_suppressed_hap_not_harmony(pillar_of: PillarOf) -> None:
     rels = (Relation(RelationKind.BRANCH_HAP, Position.YEAR_BRANCH, RelationKind.CHUNG),)
     result = select_tags(natal, pillar_of("丙子"), rels, (), DayKind.ORDINARY_DAY, yongsin_ref=YONGSIN_REF)
     assert "tag.harmony" not in result.all_keys
+
+
+def test_source_refs_map_each_tag_to_its_first_source(pillar_of: PillarOf) -> None:
+    natal = _natal(pillar_of, "壬申", "乙巳", "己午")
+    day = pillar_of("丙子")
+    rels = (
+        Relation(RelationKind.STEM_HAP, Position.YEAR_STEM, None),
+        Relation(RelationKind.BRANCH_HAP, Position.YEAR_BRANCH, None),
+    )
+    result = _select(natal, day, rels, (Shinsal.CHEONEUL_GWIIN,))
+    assert result.source_refs == {
+        "tag.harmony": "sammyeong-tonghoe/tags#stem_hap",
+        "tag.cheoneul_gwiin": "sammyeong-tonghoe/tags#cheoneul_gwiin",
+    }

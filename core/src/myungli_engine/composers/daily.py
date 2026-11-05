@@ -78,8 +78,10 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         focus=(focus, _focus_judgment(focus)),
         relations=relations,
         tags=tags,
-        fortune=messages.fortune(kind, day, natal_pillars.day.stem, tags.featured, yongsin),
-        guide=messages.guide_question(day, natal_pillars.day.stem, tags.featured),
+        fortune=messages.fortune(
+            kind, day, natal_pillars.day.stem, tags.featured, yongsin, tag_sources=tags.source_refs
+        ),
+        guide=messages.guide_question(day, natal_pillars.day.stem, tags.featured, tag_sources=tags.source_refs),
         notices=merge_notices(natal.chart.notices, fallback_notices),
     )
 

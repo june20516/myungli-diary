@@ -13,7 +13,7 @@ CORE_DIR = Path(__file__).resolve().parents[3]
 def test_catalog_covers_every_engine_ref() -> None:
     catalog = sources.source_catalog()
     assert set(catalog) == set(loader.all_refs())
-    assert len(catalog) == 124  # 조후 120칸 + 오행 근거 4개
+    assert len(catalog) == 134  # 조후 120칸 + 오행 근거 4개 + 태그 원전 10개
 
 
 def test_johu_entry_has_heading_key_sentence_and_paragraphs() -> None:

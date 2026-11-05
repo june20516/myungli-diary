@@ -9,17 +9,18 @@ from snapshot_samples import SAMPLE_BIRTHS, SEOUL
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.composers.daily import compose_daily
 from myungli_engine.composers.month import compose_month
-from myungli_engine.constants.evidence_rules import RULE_DETAIL_KEYS
+from myungli_engine.constants.evidence_rules import RULE_DETAIL_KEYS, RULES_WITHOUT_SOURCE
 from myungli_engine.domain.models import Evidence
 from myungli_engine.references.sources import source_catalog
 
 pytestmark = pytest.mark.contract
 
-# 모든 후보가 원국과 충일 때만 나와 샘플에 없다. tests/unit/rules/test_focus_time.py가 다룬다.
-RULES_NOT_IN_SAMPLES = frozenset({"focus_time/fallback"})
+# focus_time/fallback: 모든 후보가 원국과 충일 때만 나와 샘플에 없다. tests/unit/rules/test_focus_time.py가 다룬다.
+# tags/gwiin_day: 귀인의 날은 천을귀인 신살 태그가 늘 함께 붙어 보조 태그가 나오지 않는다. tests/unit/rules/test_tags.py가 다룬다.
+RULES_NOT_IN_SAMPLES = frozenset({"focus_time/fallback", "tags/gwiin_day"})
 AS_OF = date(2026, 10, 10)
 DAILY_START = date(2026, 1, 1)
-DAILY_DAYS = 10  # 데일리 규칙은 4일 안에 모두 나온다(2026-10-16 측정). 여유를 둔다
+DAILY_DAYS = 20  # 데일리 규칙은 15일 안에 모두 나온다(tags/ten_god_rush가 마지막, 2026-11-05 측정). 여유를 둔다
 MONTH = (2026, 10)  # 월간 근거는 calendar/score 하나라 한 달로 충분하다
 
 
@@ -50,7 +51,10 @@ def test_sample_evidence_matches_declared_rules_and_sources() -> None:
     detail_keys: dict[str, set[str]] = defaultdict(set)
     catalog = source_catalog()
     for evidence in _sample_evidence():
-        assert evidence.source_ref in catalog
+        if evidence.source_ref:
+            assert evidence.source_ref in catalog, evidence.rule_id
+        else:
+            assert evidence.rule_id in RULES_WITHOUT_SOURCE, evidence.rule_id
         detail_keys[evidence.rule_id].update(evidence.detail)
 
     assert set(detail_keys) == set(RULE_DETAIL_KEYS) - RULES_NOT_IN_SAMPLES

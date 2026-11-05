@@ -8,10 +8,16 @@ from functools import cache
 from importlib import resources
 from typing import Final
 
+from myungli_engine.constants.evidence_rules import RULES_WITHOUT_SOURCE
 from myungli_engine.domain.enums import Branch, Stem
+from myungli_engine.domain.models import Evidence
 
 # source_ref 접두어(자료 디렉터리 이름) → 패키지 데이터 디렉터리 이름
-_DATA_PACKAGES: Final[Mapping[str, str]] = {"gungtong-bogam": "gungtong_bogam"}
+_DATA_PACKAGES: Final[Mapping[str, str]] = {
+    "gungtong-bogam": "gungtong_bogam",
+    "sammyeong-tonghoe": "sammyeong_tonghoe",
+    "jeokcheonsu": "jeokcheonsu",
+}
 # 파일 이름 → JSON 안에서 키 경로가 시작되는 위치
 _ROOT_KEYS: Final[Mapping[str, str]] = {"johu_evidence": "cells"}
 
@@ -20,14 +26,36 @@ FIVE_ELEMENTS_REF: Final[Mapping[str, str]] = {
 }
 
 
+# 태그 판정 원전 (#804, C28). 키는 원전 항목 이름이고, 원전이 없는 태그는 여기 없다.
+# 원문 대조 기록: core/docs/references/tag-sources-survey.md
+TAG_SOURCE_REF: Final[Mapping[str, str]] = {
+    **{
+        key: f"sammyeong-tonghoe/tags#{key}"
+        for key in (
+            "stem_hap",
+            "branch_hap",
+            "clash",
+            "clash_day_branch",
+            "cheoneul_gwiin",
+            "dohwa",
+            "yeokma",
+            "hwagae",
+            "gongmang",
+        )
+    },
+    "clash_month_branch": "jeokcheonsu/tags#clash_month_branch",
+}
+
+
 def johu_ref(stem: Stem, branch: Branch) -> str:
     return f"gungtong-bogam/johu_evidence#{stem.hanja}.{branch.hanja}"
 
 
 def all_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸과 오행 근거 전부."""
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 태그 원전 전부."""
     yield from (johu_ref(stem, branch) for stem in Stem for branch in Branch)
     yield from FIVE_ELEMENTS_REF.values()
+    yield from TAG_SOURCE_REF.values()
 
 
 @cache
@@ -57,6 +85,15 @@ def resolve(source_ref: str) -> object:
             raise KeyError(f"source_ref를 찾을 수 없습니다: {source_ref}")
         node = node[key]
     return node
+
+
+def validate_evidence_refs(evidence: Iterable[Evidence]) -> None:
+    """근거의 source_ref를 확인한다. 빈 값(원전 없음)은 그럴 수 있는 규칙(C28)에서만 받는다. 어기면 KeyError."""
+    for item in evidence:
+        if item.source_ref:
+            resolve(item.source_ref)
+        elif item.rule_id not in RULES_WITHOUT_SOURCE:
+            raise KeyError(f"원전이 있어야 하는 규칙의 source_ref가 비었습니다: {item.rule_id}")
 
 
 def validate_refs(refs: Iterable[str]) -> None:

@@ -2,10 +2,11 @@ import random
 from collections.abc import Callable
 
 from myungli_engine.chart.shinsal import activated, shinsal_branches
+from myungli_engine.constants.evidence_rules import RULES_WITHOUT_SOURCE
 from myungli_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
 from myungli_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
 from myungli_engine.domain.models import FourPillars, Judgment, Pillar
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF, TAG_SOURCE_REF
 from myungli_engine.rules.messages import fortune, guide_question
 from myungli_engine.rules.relations import find_relations
 from myungli_engine.rules.tags import select_tags
@@ -13,9 +14,16 @@ from myungli_engine.rules.yongsin import YongsinResult
 
 PillarOf = Callable[[str], Pillar]
 
+TAG_SOURCES = {
+    "tag.clash": TAG_SOURCE_REF["clash"],
+    "tag.clash_day_branch": TAG_SOURCE_REF["clash_day_branch"],
+    "tag.dohwa": TAG_SOURCE_REF["dohwa"],
+    "tag.ten_god_rush.jaeseong": "",
+}
+
 
 def test_fortune_key(pillar_of: PillarOf, winter_gap: YongsinResult) -> None:
-    judgments = fortune(DayKind.YONGSIN_DAY, pillar_of("癸卯"), Stem.GAP, (), winter_gap)
+    judgments = fortune(DayKind.YONGSIN_DAY, pillar_of("癸卯"), Stem.GAP, (), winter_gap, tag_sources=TAG_SOURCES)
     assert len(judgments) == 1
     head = judgments[0]
     assert head.message_key == "fortune.yongsin_day.inseong"
@@ -27,32 +35,34 @@ def test_fortune_key(pillar_of: PillarOf, winter_gap: YongsinResult) -> None:
 
 def test_fortune_adds_tag_sentence(pillar_of: PillarOf, winter_gap: YongsinResult) -> None:
     judgments = fortune(
-        DayKind.ORDINARY_DAY, pillar_of("癸卯"), Stem.GAP, ("tag.clash", "tag.dohwa"), winter_gap
+        DayKind.ORDINARY_DAY, pillar_of("癸卯"), Stem.GAP, ("tag.clash", "tag.dohwa"), winter_gap, tag_sources=TAG_SOURCES
     )
     assert [j.message_key for j in judgments] == ["fortune.ordinary_day.inseong", "fortune.tag.clash"]
     assert judgments[0].params["emphasis"] == "NONE"
 
 
 def test_guide_key_uses_featured_tag(pillar_of: PillarOf) -> None:
-    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, ("tag.clash_day_branch", "tag.clash"))
+    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, ("tag.clash_day_branch", "tag.clash"), tag_sources=TAG_SOURCES)
     assert judgment.message_key == "guide.clash_day_branch"
 
 
 def test_guide_key_fallback(pillar_of: PillarOf) -> None:
-    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, ())
+    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, (), tag_sources=TAG_SOURCES)
     assert judgment.message_key == "guide.ten_god.inseong"
     assert judgment.params["ten_god"] == "JEONGIN"
 
 
 def test_guide_rush_tag_key(pillar_of: PillarOf) -> None:
-    judgment = guide_question(pillar_of("戊辰"), Stem.GAP, ("tag.ten_god_rush.jaeseong",))
+    judgment = guide_question(pillar_of("戊辰"), Stem.GAP, ("tag.ten_god_rush.jaeseong",), tag_sources=TAG_SOURCES)
     assert judgment.message_key == "guide.ten_god_rush.jaeseong"
 
 
 def _assert_has_evidence(judgments: tuple[Judgment, ...]) -> None:
     for judgment in judgments:
         assert judgment.evidence
-        assert all(item.source_ref and item.rule_id for item in judgment.evidence)
+        for item in judgment.evidence:
+            assert item.rule_id
+            assert item.source_ref or item.rule_id in RULES_WITHOUT_SOURCE
 
 
 def test_all_emitted_keys_registered(winter_gap: YongsinResult) -> None:
@@ -73,8 +83,8 @@ def test_all_emitted_keys_registered(winter_gap: YongsinResult) -> None:
             natal, day, find_relations(natal, day), hits, kind, yongsin_ref=FIVE_ELEMENTS_REF["balance_principle"]
         )
         judgments = (
-            *fortune(kind, day, natal.day.stem, tags.featured, winter_gap),
-            guide_question(day, natal.day.stem, tags.featured),
+            *fortune(kind, day, natal.day.stem, tags.featured, winter_gap, tag_sources=tags.source_refs),
+            guide_question(day, natal.day.stem, tags.featured, tag_sources=tags.source_refs),
         )
         _assert_has_evidence(judgments)
         emitted.update(tags.all_keys)
@@ -96,3 +106,27 @@ def test_all_tag_derived_keys_registered() -> None:
         assert f"guide.{suffix}" in ALL_KEYS
     for group in TenGodGroup:
         assert f"guide.ten_god.{group.name.lower()}" in ALL_KEYS
+
+
+def test_fortune_tag_sentence_uses_tag_source(pillar_of: PillarOf, winter_gap: YongsinResult) -> None:
+    head, tag_sentence = fortune(
+        DayKind.ORDINARY_DAY, pillar_of("癸卯"), Stem.GAP, ("tag.clash", "tag.dohwa"), winter_gap, tag_sources=TAG_SOURCES
+    )
+    assert tag_sentence.evidence[0].rule_id == "fortune/tag"
+    assert tag_sentence.evidence[0].source_ref == TAG_SOURCE_REF["clash"]
+    assert head.evidence[0].source_ref == FIVE_ELEMENTS_REF["balance_principle"]
+
+
+def test_guide_on_rush_tag_has_no_source(pillar_of: PillarOf) -> None:
+    judgment = guide_question(pillar_of("戊辰"), Stem.GAP, ("tag.ten_god_rush.jaeseong",), tag_sources=TAG_SOURCES)
+    assert judgment.evidence[0].source_ref == ""
+
+
+def test_guide_on_tag_uses_tag_source(pillar_of: PillarOf) -> None:
+    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, ("tag.dohwa",), tag_sources=TAG_SOURCES)
+    assert judgment.evidence[0].source_ref == TAG_SOURCE_REF["dohwa"]
+
+
+def test_guide_on_ten_god_group_keeps_common_source(pillar_of: PillarOf) -> None:
+    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, (), tag_sources=TAG_SOURCES)
+    assert judgment.evidence[0].source_ref == FIVE_ELEMENTS_REF["balance_principle"]
