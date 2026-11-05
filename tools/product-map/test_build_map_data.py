@@ -179,6 +179,34 @@ class RepoTests(unittest.TestCase):
         self.assertTrue((out / "images" / "docs/identity/design/artifacts/b.png").exists())
 
 
+    def test_internal_artifacts_get_internal_unit_prefix_and_url(self) -> None:
+        internal = self.root / "internal-repo"
+        write(internal, "ia-final/A.png", "png")
+        write(internal, "artifacts/index.json", json.dumps([
+            {"id": "shot", "file": "../ia-final/A.png", "status": "chosen"},
+            {"id": "page", "url": "https://claude.ai/artifact/x", "status": "draft"},
+            {"id": "escape", "file": "../../secret.png"},
+            {"id": "script", "url": "javascript:alert(1)"},
+        ]))
+        by_id = {a["id"]: a for a in build_map_data.collect_artifacts(internal, private=True)}
+        self.assertEqual(set(by_id), {"shot", "page"})
+        self.assertEqual(by_id["shot"]["unit"], "internal")
+        self.assertEqual(by_id["shot"]["path"], "internal/ia-final/A.png")
+        self.assertEqual(by_id["page"]["path"], "")
+        self.assertEqual(by_id["page"]["url"], "https://claude.ai/artifact/x")
+
+    def test_cli_copies_internal_images(self) -> None:
+        internal = self.root / "internal-repo"
+        write(internal, "ideas.md", "# 아이디어 함\n")
+        write(internal, "ia-final/A.png", "png")
+        write(internal, "artifacts/index.json", json.dumps([{"id": "shot", "file": "../ia-final/A.png"}]))
+        out = self.root / "out"
+        with mock.patch.object(build_map_data, "collect_issues", return_value=[]):
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = build_map_data.main(["build", str(self.root), str(out), str(internal)])
+        self.assertEqual(code, 0)
+        self.assertTrue((out / "images" / "internal/ia-final/A.png").exists())
+
 IDEAS_HEADER = "| id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모 |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n"
 CYCLE = "docs/business/cycles/c.md"
 
