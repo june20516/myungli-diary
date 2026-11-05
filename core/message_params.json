@@ -8,6 +8,9 @@
   "calendar.neutral": [
     "score"
   ],
+  "calendar.very_good": [
+    "score"
+  ],
   "color.gisin_day": [
     "element",
     "role"

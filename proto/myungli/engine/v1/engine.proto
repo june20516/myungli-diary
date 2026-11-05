@@ -195,12 +195,14 @@ enum YongsinMethod {
   YONGSIN_METHOD_EOKBU = 3;
 }
 
-// 월간 캘린더 길흉 수준 (spec §8).
+// 월간 캘린더 길흉 수준 (spec §8). 점수 3 이상 VERY_GOOD, 2 GOOD, -2 이하 CAUTION, 그 밖 NEUTRAL.
+// VERY_GOOD(아주 잘 풀리는 날)은 #804에서 더함. 번호는 추가 순서라 수준 순서와 다르다.
 enum LuckLevel {
   LUCK_LEVEL_UNSPECIFIED = 0;
   LUCK_LEVEL_GOOD = 1;
   LUCK_LEVEL_NEUTRAL = 2;
   LUCK_LEVEL_CAUTION = 3;
+  LUCK_LEVEL_VERY_GOOD = 4;
 }
 
 // 계산은 되지만 민감한 상황 (spec §9.1).
@@ -567,7 +569,7 @@ message MonthDay {
   int32 score = 9;
   repeated ScoreItem score_items = 10; // 점수 구성 원본 값
   optional string featured_tag = 11; // 대표 태그 키
-  // 길흉 수준 판정. message_key는 calendar.<good|neutral|caution>, evidence에 점수 구성 근거
+  // 길흉 수준 판정. message_key는 calendar.<very_good|good|neutral|caution>, evidence에 점수 구성 근거
   // (Pro 화면의 "왜 좋은 날인가")가 담깁니다.
   Judgment judgment = 12;
 }

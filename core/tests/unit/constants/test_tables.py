@@ -142,7 +142,7 @@ def test_exported_param_keys_match_key_list():
 def test_personal_keys_registered():
     personal = [key for key in message_keys.ALL_KEYS if key.startswith("personal.")]
     assert len(personal) == 60
-    assert len(message_keys.ALL_KEYS) == 156
+    assert len(message_keys.ALL_KEYS) == 157
     assert message_keys.KEY_PARAMS["personal.ten_god.siksin"] == (
         "place",
         "element",

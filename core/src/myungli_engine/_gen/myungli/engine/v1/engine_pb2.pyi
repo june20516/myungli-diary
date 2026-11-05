@@ -155,6 +155,7 @@ class LuckLevel(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     LUCK_LEVEL_GOOD: _ClassVar[LuckLevel]
     LUCK_LEVEL_NEUTRAL: _ClassVar[LuckLevel]
     LUCK_LEVEL_CAUTION: _ClassVar[LuckLevel]
+    LUCK_LEVEL_VERY_GOOD: _ClassVar[LuckLevel]
 
 class NoticeCode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -325,6 +326,7 @@ LUCK_LEVEL_UNSPECIFIED: LuckLevel
 LUCK_LEVEL_GOOD: LuckLevel
 LUCK_LEVEL_NEUTRAL: LuckLevel
 LUCK_LEVEL_CAUTION: LuckLevel
+LUCK_LEVEL_VERY_GOOD: LuckLevel
 NOTICE_CODE_UNSPECIFIED: NoticeCode
 NOTICE_CODE_AMBIGUOUS_LOCAL_TIME: NoticeCode
 NOTICE_CODE_NONEXISTENT_LOCAL_TIME: NoticeCode
