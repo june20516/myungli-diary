@@ -68,19 +68,33 @@ def fortune(
 def guide_question(
     day: Pillar, natal_day_stem: Stem, featured: Sequence[str], *, tag_sources: Mapping[str, str]
 ) -> Judgment:
-    """대표 태그 1순위의 질문, 없으면 일진 십성 묶음의 질문. 태그 질문의 근거는 그 태그의 원전이다."""
+    """오늘의 기본 질문: 대표 태그 1순위의 질문, 없으면 일진 십성 묶음의 질문."""
+    return guide_candidates(day, natal_day_stem, featured, tag_sources=tag_sources)[0]
+
+
+def guide_candidates(
+    day: Pillar, natal_day_stem: Stem, featured: Sequence[str], *, tag_sources: Mapping[str, str]
+) -> tuple[Judgment, ...]:
+    """그날 근거가 있는 질문 후보(C30). 순서는 대표 태그 1순위, 2순위, 일진 십성 묶음이고 키는 겹치지 않는다.
+
+    첫 항목이 기본 질문이다. 같은 키의 원고 변주는 콘텐츠 쪽이 펼친다.
+    태그 질문의 근거는 그 태그의 원전, 십성 묶음 질문은 공통 근거(C8)다.
+    """
     god = ten_god(natal_day_stem, day.stem)
-    if featured:
-        key = f"guide.{_tag_suffix(featured[0])}"
-        basis = featured[0]
-        source_ref = tag_sources[featured[0]]
-    else:
-        key = f"guide.ten_god.{god.group.name.lower()}"
-        basis = god.group.name
-        source_ref = COMMON_REF
     params = {"ten_god": god.name, "element": day.stem.element.name}
-    return Judgment(
-        message_key=require(key, params),
-        params=params,
-        evidence=(_evidence("guide/question", {"basis": basis, "ten_god": god.name}, source_ref),),
-    )
+    bases = [(f"guide.{_tag_suffix(tag)}", tag, tag_sources[tag]) for tag in featured]
+    bases.append((f"guide.ten_god.{god.group.name.lower()}", god.group.name, COMMON_REF))
+    candidates: list[Judgment] = []
+    seen: set[str] = set()
+    for key, basis, source_ref in bases:
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(
+            Judgment(
+                message_key=require(key, params),
+                params=params,
+                evidence=(_evidence("guide/question", {"basis": basis, "ten_god": god.name}, source_ref),),
+            )
+        )
+    return tuple(candidates)

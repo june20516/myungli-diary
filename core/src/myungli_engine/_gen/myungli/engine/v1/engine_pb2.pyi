@@ -75,6 +75,15 @@ class TenGod(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     TEN_GOD_PYEONIN: _ClassVar[TenGod]
     TEN_GOD_JEONGIN: _ClassVar[TenGod]
 
+class TenGodGroup(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    TEN_GOD_GROUP_UNSPECIFIED: _ClassVar[TenGodGroup]
+    TEN_GOD_GROUP_BIGYEOP: _ClassVar[TenGodGroup]
+    TEN_GOD_GROUP_SIKSANG: _ClassVar[TenGodGroup]
+    TEN_GOD_GROUP_JAESEONG: _ClassVar[TenGodGroup]
+    TEN_GOD_GROUP_GWANSEONG: _ClassVar[TenGodGroup]
+    TEN_GOD_GROUP_INSEONG: _ClassVar[TenGodGroup]
+
 class TwelveStage(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     TWELVE_STAGE_UNSPECIFIED: _ClassVar[TwelveStage]
@@ -269,6 +278,12 @@ TEN_GOD_PYEONGWAN: TenGod
 TEN_GOD_JEONGGWAN: TenGod
 TEN_GOD_PYEONIN: TenGod
 TEN_GOD_JEONGIN: TenGod
+TEN_GOD_GROUP_UNSPECIFIED: TenGodGroup
+TEN_GOD_GROUP_BIGYEOP: TenGodGroup
+TEN_GOD_GROUP_SIKSANG: TenGodGroup
+TEN_GOD_GROUP_JAESEONG: TenGodGroup
+TEN_GOD_GROUP_GWANSEONG: TenGodGroup
+TEN_GOD_GROUP_INSEONG: TenGodGroup
 TWELVE_STAGE_UNSPECIFIED: TwelveStage
 TWELVE_STAGE_JANGSAENG: TwelveStage
 TWELVE_STAGE_MOKYOK: TwelveStage
@@ -697,7 +712,7 @@ class YearLuck(_message.Message):
     def __init__(self, year: _Optional[int] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., ten_god: _Optional[_Union[TenGod, str]] = ..., relations_with_natal: _Optional[_Iterable[_Union[RelationKind, str]]] = ...) -> None: ...
 
 class DailyResponse(_message.Message):
-    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta")
+    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates")
     DAY_FIELD_NUMBER: _ClassVar[int]
     KIND_FIELD_NUMBER: _ClassVar[int]
     COLOR_FIELD_NUMBER: _ClassVar[int]
@@ -711,6 +726,9 @@ class DailyResponse(_message.Message):
     FORTUNE_FIELD_NUMBER: _ClassVar[int]
     GUIDE_FIELD_NUMBER: _ClassVar[int]
     META_FIELD_NUMBER: _ClassVar[int]
+    DAY_STEM_TEN_GOD_FIELD_NUMBER: _ClassVar[int]
+    DAY_STEM_TEN_GOD_GROUP_FIELD_NUMBER: _ClassVar[int]
+    GUIDE_CANDIDATES_FIELD_NUMBER: _ClassVar[int]
     day: Pillar
     kind: DayKind
     color: ColorCard
@@ -724,7 +742,10 @@ class DailyResponse(_message.Message):
     fortune: _containers.RepeatedCompositeFieldContainer[Judgment]
     guide: Judgment
     meta: ResponseMeta
-    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...
+    day_stem_ten_god: TenGod
+    day_stem_ten_god_group: TenGodGroup
+    guide_candidates: _containers.RepeatedCompositeFieldContainer[Judgment]
+    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ...) -> None: ...
 
 class ColorCard(_message.Message):
     __slots__ = ("judgment", "element", "role")

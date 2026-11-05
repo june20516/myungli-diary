@@ -11,8 +11,9 @@ from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
 from myungli_engine.composers.chart import merge_notices, prepare_natal
 from myungli_engine.constants.message_keys import require
-from myungli_engine.domain.enums import DayKind, NoticeCode
+from myungli_engine.domain.enums import DayKind, NoticeCode, TenGod
 from myungli_engine.domain.models import Evidence, Judgment, Notice, Pillar
+from myungli_engine.domain.ten_gods import ten_god
 from myungli_engine.references.loader import FIVE_ELEMENTS_REF
 from myungli_engine.rules import messages
 from myungli_engine.rules.color import ElementPick, lucky_element
@@ -40,6 +41,8 @@ class DailyView:
     fortune: tuple[Judgment, ...]
     guide: Judgment
     notices: tuple[Notice, ...]
+    day_stem_ten_god: TenGod
+    guide_candidates: tuple[Judgment, ...]
 
 
 def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> DailyView:
@@ -68,6 +71,7 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
     )
 
     fallback_notices = (Notice(NoticeCode.FOCUS_TIME_FALLBACK),) if focus.fallback else ()
+    guides = messages.guide_candidates(day, natal_pillars.day.stem, tags.featured, tag_sources=tags.source_refs)
     return DailyView(
         date=target,
         day=day,
@@ -81,8 +85,10 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         fortune=messages.fortune(
             kind, day, natal_pillars.day.stem, tags.featured, yongsin, tag_sources=tags.source_refs
         ),
-        guide=messages.guide_question(day, natal_pillars.day.stem, tags.featured, tag_sources=tags.source_refs),
+        guide=guides[0],
         notices=merge_notices(natal.chart.notices, fallback_notices),
+        day_stem_ten_god=ten_god(natal_pillars.day.stem, day.stem),
+        guide_candidates=guides,
     )
 
 

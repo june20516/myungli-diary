@@ -113,6 +113,24 @@ def test_chart_personal_readings(stub: pb_grpc.MyungliEngineStub) -> None:
     assert hidden[0].index == 0
 
 
+def test_get_daily_has_day_stem_ten_god_and_guide_candidates(stub: pb_grpc.MyungliEngineStub) -> None:
+    response = stub.GetDaily(
+        pb.DailyRequest(
+            birth=solar_birth(1985, 3, 10),
+            date=pb.LocalDate(year=2026, month=10, day=10),
+            current_timezone=SEOUL,
+        )
+    )
+    head = response.fortune[0]
+    detail = head.evidence[0].detail
+    assert pb.TenGod.Name(response.day_stem_ten_god) == f"TEN_GOD_{detail['ten_god']}"
+    assert pb.TenGodGroup.Name(response.day_stem_ten_god_group) == f"TEN_GOD_GROUP_{detail['group']}"
+    assert response.guide_candidates
+    assert response.guide_candidates[0] == response.guide
+    keys = [candidate.message_key for candidate in response.guide_candidates]
+    assert len(keys) == len(set(keys))
+
+
 def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetDaily(
         pb.DailyRequest(

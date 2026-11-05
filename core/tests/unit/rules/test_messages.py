@@ -7,7 +7,7 @@ from myungli_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
 from myungli_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
 from myungli_engine.domain.models import FourPillars, Judgment, Pillar
 from myungli_engine.references.loader import FIVE_ELEMENTS_REF, TAG_SOURCE_REF
-from myungli_engine.rules.messages import fortune, guide_question
+from myungli_engine.rules.messages import fortune, guide_candidates, guide_question
 from myungli_engine.rules.relations import find_relations
 from myungli_engine.rules.tags import select_tags
 from myungli_engine.rules.yongsin import YongsinResult
@@ -130,3 +130,39 @@ def test_guide_on_tag_uses_tag_source(pillar_of: PillarOf) -> None:
 def test_guide_on_ten_god_group_keeps_common_source(pillar_of: PillarOf) -> None:
     judgment = guide_question(pillar_of("癸卯"), Stem.GAP, (), tag_sources=TAG_SOURCES)
     assert judgment.evidence[0].source_ref == FIVE_ELEMENTS_REF["balance_principle"]
+
+
+def _keys(judgments: tuple[Judgment, ...]) -> list[str]:
+    return [judgment.message_key for judgment in judgments]
+
+
+def test_candidates_order_tag1_tag2_group(pillar_of: PillarOf) -> None:
+    candidates = guide_candidates(pillar_of("癸卯"), Stem.GAP, ("tag.clash", "tag.dohwa"), tag_sources=TAG_SOURCES)
+    assert _keys(candidates) == ["guide.clash", "guide.dohwa", "guide.ten_god.inseong"]
+    assert [c.evidence[0].source_ref for c in candidates] == [
+        TAG_SOURCE_REF["clash"],
+        TAG_SOURCE_REF["dohwa"],
+        FIVE_ELEMENTS_REF["balance_principle"],
+    ]
+
+
+def test_candidates_without_featured_is_group_only(pillar_of: PillarOf) -> None:
+    candidates = guide_candidates(pillar_of("癸卯"), Stem.GAP, (), tag_sources=TAG_SOURCES)
+    assert _keys(candidates) == ["guide.ten_god.inseong"]
+
+
+def test_candidates_with_one_featured_has_two(pillar_of: PillarOf) -> None:
+    candidates = guide_candidates(pillar_of("戊辰"), Stem.GAP, ("tag.ten_god_rush.jaeseong",), tag_sources=TAG_SOURCES)
+    assert _keys(candidates) == ["guide.ten_god_rush.jaeseong", "guide.ten_god.jaeseong"]
+
+
+def test_candidates_have_distinct_keys(pillar_of: PillarOf) -> None:
+    candidates = guide_candidates(pillar_of("癸卯"), Stem.GAP, ("tag.clash", "tag.clash"), tag_sources=TAG_SOURCES)
+    assert _keys(candidates) == ["guide.clash", "guide.ten_god.inseong"]
+
+
+def test_first_candidate_equals_guide(pillar_of: PillarOf) -> None:
+    for featured in ((), ("tag.dohwa",), ("tag.clash", "tag.dohwa")):
+        day = pillar_of("癸卯")
+        first = guide_candidates(day, Stem.GAP, featured, tag_sources=TAG_SOURCES)[0]
+        assert first == guide_question(day, Stem.GAP, featured, tag_sources=TAG_SOURCES)
