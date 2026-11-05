@@ -28,15 +28,16 @@
 ## 문서
 | 문서 | 위치 |
 | --- | --- |
-| 엔진 위키 (v1.7) | `core/docs/engine-logic-wiki.md` |
+| 엔진 위키 (v1.8) | `core/docs/engine-logic-wiki.md` |
 | 엔진 spec (승인됨, D34) | `core/docs/specs/2026-10-10-myungli-engine-design.md` |
 | 구현 계획 (20 task) | `core/docs/plans/2026-10-10-myungli-engine.md` |
 | 원국 개인 해석·출생 시진·엔진 정보 spec | `core/docs/specs/2026-10-11-personal-reading-design.md` |
 | 원국 개인 해석 구현 계획 | `core/docs/plans/2026-10-11-personal-reading.md` |
+| 태그 근거 다시 세우기 계획 (#804) | `core/docs/plans/2026-11-05-tag-evidence.md` |
 | 원전 근거 자료 | `core/docs/references/` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C27, 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C30, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
-| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78 |
+| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108 |
 
 ## 현재 상태 (엔진 MVP 완료, 원국 개인 해석·음력 변환·근거 목록 추가, 2026-10-21)
 * **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), 음력 변환 RPC(`ConvertLunarDate`, #164), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).
@@ -54,13 +55,14 @@
   * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
   * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5).
   * 1900년 1월 월간 요청은 `OUT_OF_RANGE`입니다(지원 범위가 1900-01-31부터).
-  * 전용 근거 자료가 없는 판정(집중 시간·태그·총운·월간)과 원국 개인 해석은 `five_elements#balance_principle`을 근거로 씁니다(C8). 개인 해석은 궁위 원전이 없어 `balance_principle`을 공통 근거로 쓴다(spec §2.4).
+  * 전용 근거 자료가 없는 판정(집중 시간·총운 헤드라인·십성 묶음 가이드 질문·월간)과 원국 개인 해석은 `five_elements#balance_principle`을 근거로 씁니다(C8). 개인 해석은 궁위 원전이 없어 `balance_principle`을 공통 근거로 쓴다(spec §2.4). 태그는 태그 전용 원전을 쓰고, 원전이 없는 태그(십성 쏠림)는 `source_ref`가 빈 값입니다(C28).
+  * `tag.gwiin_day` 보조 태그는 실제로 나오지 않습니다. 귀인의 날은 늘 천을귀인 신살 태그가 함께 붙기 때문입니다(2026-11-05 확인, 기존 동작).
   * Phase 2로 미룬 것: spec §15(합화, 통관·병약·격국 용신, 목적별 택일, 야자시 옵션, 대운 시각화 데이터, 일기 감성 코멘트).
 
 ## 다음 할 일
 1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
 2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-21 기준:
-   * **#59-2:** 회귀 스냅샷 분할 검토는 다음 규칙 변경 때 봅니다.
+   * **#59-2:** 회귀 스냅샷 분할은 #804에서도 하지 않았습니다(2026-11-05 사용자 결정). 하게 되면 값 변경 없는 이동만 담은 단독 PR로 하고, 규칙 변경 PR은 스냅샷 변경을 필드 경로별 개수로 요약합니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.
