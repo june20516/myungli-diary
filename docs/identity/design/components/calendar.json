@@ -78,7 +78,7 @@
     {
       "id": "event-row",
       "summary": "일정 한 줄 (오늘 요약 / 그날 목록)",
-      "uses": ["tag.status", "press.ink", "icon"],
+      "uses": ["tag.status", "press.ink", "icon", "list.divider"],
       "variants": [
         {
           "id": "summary",
@@ -100,7 +100,7 @@
             "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "format": "HH:mm", "hourCycle": "h23", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
             "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
-            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
+            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "element": "list.divider" } },
             "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } },
             "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add", "position": "below-list", "when": "일정이 있을 때" },
             "failed": { "when": "일정 목록만 받지 못함(날의 성격은 받음)", "message": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "text": "오류 종류별 기존 문구 한 줄" }, "retry": { "component": "primary-button", "variant": "quiet" }, "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } }

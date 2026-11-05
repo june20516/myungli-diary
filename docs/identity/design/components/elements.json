@@ -140,6 +140,26 @@
       "fontWeight": "inherit",
       "padding": { "x": "{space.4}" }
     },
+    "list.divider": {
+      "summary": "목록 구분선: 같은 묶음 안 줄 사이 (결정 V58)",
+      "color": "{color.line}",
+      "width": "{border.width.hairline}",
+      "insetX": "{space.16}",
+      "insetRule": "묶음 좌우에서 같은 거리. 줄 안쪽 여백(paddingX)과 같음",
+      "underLeading": true,
+      "between": "rows-only",
+      "note": "첫 줄 위와 끝 줄 아래에는 없음. 묶음과 묶음은 선 없이 간격으로 나눔"
+    },
+    "section.header": {
+      "summary": "섹션 제목: 굵은 라벨과 선택 설명 줄 (결정 V59, Q3 ②)",
+      "title": { "type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": true },
+      "description": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "optional": true },
+      "contentGap": "{space.12}",
+      "sectionGap": "{space.32}",
+      "grouping": { "default": "spacing", "card": { "when": "목록 줄이 이어지는 묶음", "bg": "{color.bg.sheet}", "radius": "{radius.lg}" } },
+      "a11y": { "role": "header" },
+      "note": "어느 화면에 둘지와 문구 슬롯은 2단계 IA가 정함(#801)"
+    },
     "skeleton.bone": {
       "summary": "skeleton 자리: 실제 요소와 같은 크기·반경",
       "color": "{color.skeleton.bone}",

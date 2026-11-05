@@ -95,8 +95,9 @@
 * 모든 구분선 부품은 `list.divider`를 `uses`합니다. 예외: 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)은 흐름 줄과 짝인 별도 표시라 그대로 둡니다.
 * 꺾쇠는 누르면 다른 화면이나 시트로 들어가는 줄에만 둡니다. 값 줄(`settings-row` 값이 있는 줄)도 시트나 화면을 열면 꺾쇠가 있습니다.
 * 고르면 바로 값이 바뀌는 줄(언어 고르기 같은 하나 고르기)은 꺾쇠 없이 고른 줄 끝에 체크 표시(`check`, Regular 20, `color.action.primary`)를 둡니다. 줄 전체를 누릅니다.
-* `settings-row`에 선택 부품 `leading`(아이콘 20 Light, `color.text.primary`, 글자와 사이 `space.12`)을 더합니다. 설정 메뉴 아이콘(`bell`, `prohibit`, `translate`, `user-circle`, `globe-hemisphere-east`, `key`, `file-text`, `chat-circle-text`, `sign-out`, `trash`)은 견본 C 표가 기준이고, 메뉴 순서와 묶음은 IA를 따릅니다. 로그아웃과 계정 삭제는 자기 아이콘(Regular)과 600 글자로 구분합니다.
-* 앞 아이콘만큼 이름 자리가 줄어 `lengths.py` `settings-row` 이름 폭을 다시 잽니다(132 − 20 − 12 = 100). 원고가 넘으면 writing에 요청합니다(§9).
+* `settings-row`에 선택 부품 `leading`(아이콘 20 Light, `color.text.primary`, 글자와 사이 `space.12`)을 더합니다. 설정 메뉴 아이콘(`bell`, `prohibit`, `translate`, `user-circle`, `globe-hemisphere-east`, `key`, `file-text`, `chat-circle-text`, `sign-out`, `trash`)은 견본 C 표가 기준이고, 메뉴 순서와 묶음은 IA를 따릅니다. 로그아웃과 계정 삭제는 자기 아이콘(Regular)과 600 글자로 구분합니다. 아이콘 표는 `settings-row` `parts.leading.icons`(줄 이름 ARB 키 → 이름)입니다.
+* 고르기 줄은 `settings-row`의 새 변형 `select`입니다. 언어 고르기 시트가 `settings-row`로 그려지기 때문입니다(IA `settings`의 컴포넌트).
+* 앞 아이콘만큼 이름 자리가 줄어 `lengths.py` `settings-row` 이름 폭을 다시 잽니다. 이름만 있는 줄은 272 − 32 = 240, 이름과 값이 나누는 줄은 아이콘을 뺀 나머지를 반씩 (272 − 8 − 32) ÷ 2 = 116입니다. 지금 원고는 모두 새 상한 안입니다(writing에는 상한 변경을 알림, §8).
 
 ## 4. 섹션 제목과 묶음 (F-005, Q3 ②) → V59
 

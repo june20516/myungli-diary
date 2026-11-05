@@ -231,7 +231,8 @@ def test_common_files_define_spec_ids():
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "link.inline-nowrap", "surface.paper", "rail.timeline", "term",
-        "skeleton.bone", "icon", "lock.veil"}
+        "skeleton.bone", "icon", "lock.veil",
+        "list.divider", "section.header"}  # DS1 V58·V59
 
 
 def test_seal_element_matches_logo():
@@ -1056,7 +1057,7 @@ def test_purchase_row():
     assert status["other"]["type"] == "{type.label.md}" and status["other"]["fg"] == "{color.text.secondary}"
     assert parts["meta"]["type"] == "{type.caption.lg}" and parts["meta"]["fontFeatures"] == ["tnum"]
     assert "기간" in parts["meta"]["periodOnlyWhen"]
-    assert parts["row"]["divider"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}, "between": "rows-only"}
+    assert parts["row"]["divider"] == {"element": "list.divider", "between": "rows-only"}  # V58
     assert parts["group"]["bg"] == "{color.bg.sheet}" and parts["group"]["radius"] == "{radius.lg}"
     assert "pressed" not in row["states"] and row["states"]["loading"]["component"] == "skeleton"
     assert any("server" in rule and "순서" in rule for rule in row["rules"])
@@ -1198,6 +1199,9 @@ def icon_parts(node, path=""):
             yield path, icon.get("name"), icon.get("size")
         elif "iconSize" in node:
             yield path, None, node["iconSize"]
+        if isinstance(node.get("icons"), dict):
+            for key, name in node["icons"].items():
+                yield f"{path}.icons.{key}", name, node.get("size")
         for key, value in node.items():
             yield from icon_parts(value, f"{path}.{key}")
     elif isinstance(node, list):
@@ -1242,3 +1246,69 @@ def test_no_custom_icons():
     assert unknown == []
     markdown = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md"))
     assert "격자와 획 규칙" not in markdown
+
+
+# DS1 spec §3·§4, 결정 V58·V59
+NAVIGATING_CHEVRON_VARIANTS = {("settings-row", "navigate"), ("settings-row", "value")}
+# list.divider를 쓰지 않는 구분선: 같은 날 일기 점선(V42)과 표 격자선
+DIVIDER_EXCEPTIONS = {"diary-row parts.entry.divider", "manse-table parts.grid.divider"}
+
+
+def all_components():
+    for document in load_documents(COMPONENTS_DIR).values():
+        yield from document.get("components", [])
+
+
+def divider_parts(node, path):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "divider" and isinstance(value, dict):
+                yield f"{path}.{key}", value
+            yield from divider_parts(value, f"{path}.{key}")
+
+
+def test_chevron_only_on_navigate():
+    settings_row = next(c for c in all_components() if c["id"] == "settings-row")
+    shown = {("settings-row", variant["id"]) for variant in settings_row["variants"]
+             if variant.get("parts", {}).get("chevron", {}).get("visible") is True}
+    assert shown == NAVIGATING_CHEVRON_VARIANTS
+    select = next(v for v in settings_row["variants"] if v["id"] == "select")
+    assert select["parts"]["chevron"] == {"visible": False}
+    assert select["parts"]["check"] == {"icon": "check", "weight": "regular", "size": "{size.icon.20}",
+                                        "color": "{color.action.primary}", "when": "고른 줄만"}
+    leading = settings_row["parts"]["leading"]
+    assert leading["icons"] == {
+        "settingsNotifyLabel": "bell", "settingsAdFreeLabel": "prohibit", "settingsLanguageLabel": "translate",
+        "profileEditBarTitle": "user-circle", "calcBasisBarTitle": "globe-hemisphere-east", "settingsLoginMethodsLabel": "key",
+        "legalBarTitle": "file-text", "settingsContactLabel": "chat-circle-text", "settingsLogoutLabel": "sign-out",
+        "accountDeleteBarTitle": "trash"}
+    assert (leading["weight"], leading["size"], leading["color"], leading["marginEnd"]) == (
+        "light", "{size.icon.20}", "{color.text.primary}", "{space.12}")
+    assert leading["screens"] == ["settings"]
+    destructive = next(v for v in settings_row["variants"] if v["id"] == "destructive")
+    assert destructive["parts"]["leading"]["weight"] == "regular"
+    assert "mark.caution" not in json.dumps(destructive, ensure_ascii=False)
+
+
+def test_dividers_use_list_divider():
+    element = load_documents(COMPONENTS_DIR)["elements"]["elements"]["list.divider"]
+    assert element["width"] == "{border.width.hairline}" and element["color"] == "{color.line}"
+    assert element["insetX"] == "{space.16}" and element["underLeading"] is True
+    assert element["between"] == "rows-only"
+    wrong = []
+    for component in all_components():
+        for path, divider in divider_parts(component.get("parts", {}), f"{component['id']} parts"):
+            if path in DIVIDER_EXCEPTIONS:
+                continue
+            if divider.get("element") != "list.divider" or "list.divider" not in component.get("uses", []):
+                wrong.append(path)
+    assert wrong == []
+
+
+def test_section_header_element():
+    header = load_documents(COMPONENTS_DIR)["elements"]["elements"]["section.header"]
+    assert header["title"] == {"type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": True}
+    assert header["description"] == {"type": "{type.caption.md}", "fg": "{color.text.secondary}",
+                                      "marginTop": "{space.2}", "optional": True}
+    assert "trailing" not in header
+    assert header["contentGap"] == "{space.12}" and header["sectionGap"] == "{space.32}"

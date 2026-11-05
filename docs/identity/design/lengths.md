@@ -40,13 +40,13 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `onboard-time.hour.confirm` | time-picker 시진 확인 줄 | 320px | 1 | - | 29 | **29** | **23** | **54** |
 | `character.reason` | day-character 이유 줄 (마지막 줄 끝 depth-link inline-end `ui.depth.evidence_link` 원고 폭을 뺌) | 320px | 2 | - | 57 | **57** | **39** | **90** |
 | `ui.guide.card` | guide-question-card 머리글 (안쪽 space.20) | 280px | 1 | - | 27 | **27** | **22** | **50** |
-| `settings.ad-free.label` | settings-row 이름 (좌우 16, 화살표 16, 남은 기간을 담은 키 포함) | 272px | 1 | - | 23 | **23** | **18** | **42** |
+| `settings.ad-free.label` | settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함) | 240px | 1 | - | 20 | **20** | **16** | **37** |
 | `ui.evidence.title` | evidence-sheet 제목 (sheet 안쪽 space.20) | 320px | 1 | - | 18 | **18** | **15** | **33** |
 | `chart.ilgan_head` | my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸) | 320px | 2 | - | 42 | **42** | **34** | **82** |
 | `login-methods.intro.body` | login-methods 첫머리 (본문 폭) | 320px | 3 | - | 90 | **90** | **63** | **150** |
 | `login-methods.last.notice` | login-methods 마지막 수단 안내 (본문 폭) | 320px | 2 | - | 64 | **64** | **46** | **108** |
 | `ui.login-methods.row` | social-login-button connected 이름·연결됨 (좌우 16, 로고 20 + 간격 8, check 14 + 간격 4, 둘이 나눔) | 121px | 1 | - | 10 | **10** | **7** | **16** |
-| `ui.settings.login-methods` | settings-row 이름 (좌우 16, 화살표 16) | 272px | 1 | - | 23 | **23** | **18** | **42** |
+| `ui.settings.login-methods` | settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16) | 240px | 1 | - | 20 | **20** | **16** | **37** |
 | `account-merge.title.head` | account-merge 제목 (본문 폭) | 320px | 2 | - | 36 | **36** | **30** | **66** |
 | `account-merge.title.body` | account-merge 설명 (본문 폭) | 320px | 4 | - | 120 | **120** | **84** | **200** |
 | `account-merge.choice.label` | account-choice 묶음 이름 (본문 폭) | 320px | 1 | - | 31 | **31** | **25** | **58** |
@@ -61,7 +61,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ad-free.buy.cta`<br>`ad-free.history.cta` | offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20) | 240px | 1 | - | 20 | **20** | **16** | **35** |
 | `ad-free.offer.period` | offer-card 기간 고지 (카드 안쪽 20) | 280px | 1 | - | 25 | **25** | **20** | **47** |
 | `profile-edit.recalc.notice` | settings-row groupNote (묶음 카드 위, 좌우 16) | 288px | 2 | - | 62 | **62** | **46** | **104** |
-| `ui.settings.row`<br>`ui.profile-edit.birthplace` | settings-row 이름과 값 (좌우 16, 화살표 16, 사이 space.8, 둘이 나눔) | 132px | 1 | - | 11 | **11** | **8** | **19** |
+| `ui.settings.row`<br>`ui.profile-edit.birthplace` | settings-row 이름과 값 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 사이 space.8, 둘이 나눔) | 116px | 1 | - | 9 | **9** | **7** | **16** |
 | `ui.legal.row` | settings-row 이름 (좌우 16, 화살표 16) | 272px | 1 | - | 23 | **23** | **18** | **42** |
 | `ui.saju.header` | manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
 | `ui.saju.tag` | daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8) | 92px | 1 | - | 8 | **8** | **6** | **13** |
@@ -136,7 +136,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * **3.1.0(#564·#548):** 구매 줄은 구매일 줄과 사용 기간 줄로 나뉘어(W44, 결정 V47) `ui.purchase.meta`는 키마다 한 줄 288px로 잽니다(값 그대로). `offer-card` 안 버튼 `ad-free.buy.cta`·`ad-free.history.cta`는 카드 안쪽 20 안이라 240px 행으로 따로 잽니다. `ad-free.history.cta`는 화면 폭 버튼 행(23·19·42)에서 옮겨 20·16·35가 됐습니다(원고 "구매 내역" 5자, en 16자로 들어감). 기간 고지 `ad-free.offer.period`는 카드 안 280px 한 줄입니다. 같은 때 상한 없음 표에 네 번 겹쳐 있던 `ui.day-cell.lunar` 행을 하나로 정리했습니다.
 * **3.2.0(#354·#587):** 다시 계산 안내 `profile-edit.recalc.notice`는 `settings-row` `groupNote`(묶음 카드 위, `type.caption.md`, 두 줄, 288px)로 잽니다(결정 V50, 지금 원고 ko 32자로 들어감). `account-choice` 사주 줄은 윤달 낱말이 더해져도 256px 한 줄 안이라 `ui.account-merge.saju`는 그대로입니다(en 시각 모름 248.8px, V48). 대운·세운 십성 라벨은 `glossary.value_name`이 다른 자리와 같은 슬롯이라 상한 행을 두지 않고 두 줄 줄바꿈으로 받습니다(V49).
 * **3.3.0(#710, writing W51):** IA 밖 새 `ui.*` 슬롯 7개를 쟀습니다. 기존 확정값은 그대로입니다.
-  * `ui.settings.row`(설정 줄 이름과 알림 꺼짐 값)와 `ui.profile-edit.birthplace`(출생지 값)는 이름과 값이 한 줄을 나누므로, 화살표를 뺀 줄(272)에서 사이 `space.8`을 두고 반씩(132px) 잽니다. `ui.legal.row`(문서 이름, 값 없음)는 `settings.ad-free.label`과 같은 272px입니다.
+  * `ui.settings.row`(설정 줄 이름과 알림 꺼짐 값)와 `ui.profile-edit.birthplace`(출생지 값)는 이름과 값이 한 줄을 나누므로, 화살표와 앞 아이콘(20 + 간격 12)을 뺀 줄(240)에서 사이 `space.8`을 두고 반씩(116px) 잽니다(4.0.0). `ui.legal.row`(문서 이름, 값 없음)는 `settings.ad-free.label`과 같은 272px입니다.
   * `ui.saju-chart.tab`은 `ui.birth.option`과 같은 segmented 두 칸입니다.
   * `ui.saju.header`는 가장 좁은 만세력 행 머리(52px, term-token `label` 좌우 4)에서 두 줄로 잽니다. 행 머리는 대운 라벨처럼 낱말 단위 두 줄을 허용합니다(결정 V53). en `manseRowHiddenStems` "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 44px 한 줄에 들어가 실측 상한 12를 "키별 상한" 표에 냅니다.
   * `ui.saju.tag`는 대운 꼬리표 `tag.status`로 잽니다. 꼬리표는 줄에 하나라 이웃 기둥 위로 넘쳐 기둥 둘과 간격(108px)까지 쓰고(결정 V53), 좌우 8을 뺀 92px입니다. '나' 꼬리표 `sajuTagMe`(`tag.me`, 10px 굵게, 원국표 기둥 폭)는 "키별 상한" 표에 따로 냅니다.
@@ -148,6 +148,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * 첫머리 `contact.intro.body`(본문 폭 세 줄, `type.body.ui`), 함께 보내는 정보 고지 `contact.attached.notice`(세 줄), 주소 안내 `contact.address.note`(두 줄, `type.caption.lg`)를 새 행으로 잽니다. 주소 안내의 다음 줄 주소 `{email}`은 E14 고정값이라 문장만 잽니다.
   * 칸 이름 `contact.message.field`·`contact.email.field`의 행 값은 `text-field` `label`(본문 폭 한 줄) 기준입니다. 칸 안 안내 키 `contactMessageFieldHint`(multiline 두 줄)와 `contactEmailFieldHint`(한 줄), 메일 칸 오류 `contactEmailInvalid`(`errorLine`, 앞 `mark.caution` 15)는 "키별 상한" 표에 냅니다. ja `contactEmailFieldHint`는 라틴 주소 예시라 전각 추정(14) 대신 실측 상한 16입니다(158.6px, 칸 260px).
   * 원고와 견준 결과(writing R29): 모든 원고가 상한 안입니다.
+* **4.0.0(DS1 #801, 결정 V58):** 설정 화면 메뉴 줄에 앞 아이콘(20 + 간격 12)이 생겨 `settings-row` 이름 자리를 다시 잽니다. `settings.ad-free.label`·`ui.settings.login-methods`는 240px(ko 23 → 20, ja 18 → 16, en 42 → 37), 이름과 값이 나누는 `ui.settings.row`·`ui.profile-edit.birthplace`는 아이콘을 뺀 나머지를 반씩 116px(ko 11 → 9, ja 8 → 7, en 19 → 16)입니다. `ui.profile-edit.birthplace`는 앞 아이콘이 없는 줄이지만 같은 행이라 더 좁은 설정 줄 값을 따릅니다. `ui.legal.row`(약관 목록, 앞 아이콘 없음)는 272px 그대로입니다.
+  * 원고와 견준 결과(writing R29): 모든 원고가 새 상한 안입니다. 가장 빠듯한 것은 en `profileEditBirthplaceKorea`(15/16)입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).

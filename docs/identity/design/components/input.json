@@ -175,10 +175,10 @@
     {
       "id": "city-search",
       "summary": "도시 검색과 결과 목록",
-      "uses": ["focus.ring", "press.ink", "icon", "loading.breathe"],
+      "uses": ["focus.ring", "press.ink", "icon", "loading.breathe", "list.divider"],
       "parts": {
         "field": { "component": "text-field", "leadingIcon": "magnifying-glass" },
-        "results": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "marginTop": "{space.12}" },
+        "results": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "divider": { "element": "list.divider" }, "marginTop": "{space.12}" },
         "row": { "minHeight": { "value": 56, "unit": "px" }, "paddingX": "{space.16}" },
         "city": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
         "region": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "content": "행정 구역, 나라 이름", "join": { "ko": ", ", "en": ", ", "ja": "、" }, "whenMissing": "hidden" },

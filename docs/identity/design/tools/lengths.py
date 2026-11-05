@@ -39,6 +39,7 @@ LANGUAGES = ("ko", "ja", "en")
 SCREEN_WIDTH = 360
 SCREEN_GUTTER = 20
 CONTENT_WIDTH = SCREEN_WIDTH - 2 * SCREEN_GUTTER
+SETTINGS_LEADING = 20 + 12  # 설정 화면 메뉴 줄 앞 아이콘과 간격 (결정 V58)
 
 KO_LINE_PERCENTILE = 0.10
 
@@ -164,8 +165,8 @@ TARGETS = (
     Target(("character.reason",), "day-character 이유 줄 (마지막 줄 끝 depth-link inline-end `ui.depth.evidence_link` 원고 폭을 뺌)",
            "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None, trailing_link="ui.depth.evidence_link"),
     Target(("ui.guide.card",), "guide-question-card 머리글 (안쪽 space.20)", "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 20, 1, False, None),
-    Target(("settings.ad-free.label",), "settings-row 이름 (좌우 16, 화살표 16, 남은 기간을 담은 키 포함)",
-           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
+    Target(("settings.ad-free.label",), "settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - SETTINGS_LEADING, 1, False, None),
     # D77 IA 자리 evidence-sheet.sheet.title = ui.evidence.title (W33)
     Target(("ui.evidence.title",), "evidence-sheet 제목 (sheet 안쪽 space.20)", "ui-600", 20, -0.4, CONTENT_WIDTH, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
@@ -175,7 +176,8 @@ TARGETS = (
     Target(("login-methods.last.notice",), "login-methods 마지막 수단 안내 (본문 폭)", "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None),
     Target(("ui.login-methods.row",), "social-login-button connected 이름·연결됨 (좌우 16, 로고 20 + 간격 8, check 14 + 간격 4, 둘이 나눔)",
            "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 20 - 8 - 14 - 4) / 2, 1, False, None),
-    Target(("ui.settings.login-methods",), "settings-row 이름 (좌우 16, 화살표 16)", "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
+    Target(("ui.settings.login-methods",), "settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16)", "ui-400", 14, -0.28,
+           CONTENT_WIDTH - 2 * 16 - 16 - SETTINGS_LEADING, 1, False, None),
     Target(("account-merge.title.head",), "account-merge 제목 (본문 폭)", "ui-600", 20, -0.4, CONTENT_WIDTH, 2, False, None),
     Target(("account-merge.title.body",), "account-merge 설명 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 4, True, None),
     Target(("account-merge.choice.label",), "account-choice 묶음 이름 (본문 폭)", "ui-500", 12, -0.24, CONTENT_WIDTH, 1, False, None),
@@ -206,8 +208,8 @@ TARGETS = (
            "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 16, 2, True, None),
     # writing W51 IA 밖 ui 슬롯 (#710, 결정 V53·V54)
     Target(("ui.settings.row", "ui.profile-edit.birthplace"),
-           "settings-row 이름과 값 (좌우 16, 화살표 16, 사이 space.8, 둘이 나눔)",
-           "ui-400", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 16 - 8) / 2, 1, False, None),
+           "settings-row 이름과 값 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 사이 space.8, 둘이 나눔)",
+           "ui-400", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 16 - 8 - SETTINGS_LEADING) / 2, 1, False, None),
     Target(("ui.legal.row",), "settings-row 이름 (좌우 16, 화살표 16)", "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
     # 가장 좁은 자리: manse-table 행 머리 52에서 term-token label 좌우 4. 낱말 단위 두 줄 (V53)
     Target(("ui.saju.header",), "manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음)",

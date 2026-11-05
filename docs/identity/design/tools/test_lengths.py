@@ -329,7 +329,7 @@ def test_w51_slots_are_measured_at_their_narrowest_place():
     assert places["ui.saju.tag"].width == 52 * 2 + 4 - 2 * 8
     # 설정 줄 이름과 값은 화살표를 뺀 줄을 사이 8을 두고 나눔
     assert places["ui.settings.row"] is places["ui.profile-edit.birthplace"]
-    assert places["ui.settings.row"].width == (lengths.CONTENT_WIDTH - 2 * 16 - 16 - 8) / 2
+    assert places["ui.settings.row"].width == (lengths.CONTENT_WIDTH - 2 * 16 - 16 - 8 - lengths.SETTINGS_LEADING) / 2  # V58
     assert places["ui.legal.row"].width == lengths.CONTENT_WIDTH - 2 * 16 - 16
     assert places["ui.saju-chart.tab"] is places["ui.birth.option"]
     assert places["ui.evidence.personal-empty"].lines == 2 and places["ui.evidence.personal-empty"].sentence
@@ -371,3 +371,13 @@ def test_contact_slots_are_measured(capsys, font_dir):
     table = capsys.readouterr().out
     ja_rows = [line for line in table.splitlines() if line.startswith("| ja | `contact.email.field` | `contactEmailFieldHint`")]
     assert len(ja_rows) == 1 and "**16**" in ja_rows[0]
+
+
+def test_settings_label_width_after_icon():
+    # DS1(결정 V58): 설정 화면 메뉴 줄은 앞 아이콘 20 + 간격 12만큼 이름 자리가 줄어듦. 이름과 값은 나머지를 반씩
+    by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    leading = 20 + 12
+    assert by_slot["settings.ad-free.label"].width == CONTENT_WIDTH - 2 * 16 - 16 - leading == 240
+    assert by_slot["ui.settings.login-methods"].width == 240
+    assert by_slot["ui.settings.row"].width == (CONTENT_WIDTH - 2 * 16 - 16 - 8 - leading) / 2 == 116
+    assert by_slot["ui.legal.row"].width == CONTENT_WIDTH - 2 * 16 - 16  # 약관 목록 줄은 앞 아이콘 없음

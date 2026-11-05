@@ -18,6 +18,8 @@
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
+| `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
+| `section.header` 섹션 제목 | `type.label.lg` 600 제목 + 선택 설명 `type.caption.md`(사이 `space.2`), 내용과 `space.12`, 섹션 사이 `space.32` | 2단계 IA가 화면에 둠 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
 | `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5) | 근거 시트 세 구역, 잠긴 용신 근거 |
@@ -88,3 +90,13 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
   * 기기 글자가 커지면 아이콘도 같은 배율로 커집니다(V30과 같은 원리).
 * 직접 그린 아이콘은 쓰지 않습니다. 세트에 없는 뜻은 글자로 씁니다. 명세에 적는 이름은 `tools/phosphor_names.txt`(`phosphor_glyphs` 2.1.2+1에서 뽑은 1512개)에 있어야 하고, 테스트가 대조합니다.
 * 소셜 로그인 로고는 아이콘 세트에서 가져오지 않습니다(각 사 공식 자산).
+
+## 목록 구분선 `list.divider`
+
+같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표 격자선(`manse-table` `grid.divider`)은 이 요소가 아닙니다.
+
+## 섹션 제목 `section.header`
+
+내용 묶음의 이름입니다(결정 V59). 제목은 `type.label.lg` 600 본문색, 설명 줄은 선택이고 `type.caption.md` `text.secondary`, 제목 아래 `space.2`입니다. 제목과 내용 사이 `space.12`, 섹션과 섹션 사이 `space.32`입니다. 오른쪽 더 보기 자리는 두지 않습니다. 스크린리더는 머리글로 읽습니다.
+
+묶음의 기본은 간격(가까운 것끼리 묶여 보임)이고, 목록 줄이 이어지는 묶음은 카드(`bg.sheet`, `radius.lg`)로 묶을 수 있습니다. 어느 화면에 섹션 제목을 두고 어떤 문구 슬롯을 쓸지는 2단계 IA가 정합니다(#801).
