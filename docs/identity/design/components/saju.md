@@ -54,14 +54,14 @@
 
 * 쓰는 화면: my-saju(`compact`), saju-chart(`column`)
 * 근거: [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §4, 결정 V77. 시안 `design-ds1-screen-b`
-* 대운, 세운 기둥 한 칸입니다. 위에서부터 나이 또는 연도(`type.numeric.table` `text.secondary`, 대운은 한국식 나이 core C22, 세운은 연도) → 천간 십성 → 천간 칸 → 지지 칸 → 지지 십성(정기) → 꼬리표 자리. 칸은 `ohaeng.cell` `small`(40×40, 한자 `font.family.hanja` 18 700), 부품 사이 `space.4`. 기둥 폭 52, 안쪽 `space.4`, 반경 `radius.md`.
+* 대운, 세운 기둥 한 칸입니다. 위에서부터 나이 또는 연도(`type.numeric.table` `text.secondary`, 대운은 한국식 나이 core C22, 세운은 연도) → 천간 십성 → 천간 칸 → 지지 칸 → 지지 십성(정기) → 12운성(`term-token` `label`, 위 `space.2`) → 시작 연도(`type.numeric.table` `text.secondary`) → 꼬리표 자리. 12운성과 시작 연도는 `daeun-table` 대운 기둥에서 옮긴 부품이고 세운에는 그리지 않습니다. 칸은 `ohaeng.cell` `small`(40×40, 한자 `font.family.hanja` 18 700), 부품 사이 `space.4`. 기둥 폭 52, 안쪽 `space.4`, 반경 `radius.md`.
 * 십성 칩은 `term-token` `label`이고 누르면 뜻 시트입니다. 세운은 계약에 천간 십성만 있어(`SeunYear.tenGod`) 지지 십성 자리를 비워 줄 높이를 맞춥니다.
 * **지금 대운(`current`), 올해 세운(`thisYear`):** 기둥 바탕 `highlight.current`(`status.bg`), 위 글자 `action.primary` 700, 아래 `tag.status` 꼬리표 "지금", "올해"(`ui.saju.tag`). 낙관 윤곽은 쓰지 않습니다(칸 하나 단위인 달력 오늘에만).
-* **`compact`(나 탭 올해와 지금):** 두 줄(지금 대운, 올해 세운), 줄 사이 `space.16`. 줄마다 왼쪽에 천간 칸과 지지 칸을 세로로(사이 `space.4`), 오른쪽 `space.12`에 정보 묶음입니다.
+* **`compact`(나 탭 올해와 지금):** 두 줄(지금 대운, 올해 세운), 줄 사이 `space.16`. 줄마다 왼쪽에 천간 칸과 지지 칸을 세로로(사이 `space.4`), 오른쪽 `space.12`에 정보 묶음입니다. 두 줄 모두 지금 대운, 올해 세운이라 줄 전체(칸과 정보 묶음)에 `highlight.current` 바탕(`status.bg`, 안쪽 `space.8`, `radius.md`)을 칠합니다(spec §4).
   * 머리: `tag.status` "지금", "올해" + 용어 칩(`term-token` `label`) "대운", "세운"(사이 `space.4`).
   * 기간: `type.caption.lg` `text.secondary` 고정폭, 위 `space.4`. 대운은 나이 범위와 연도 범위, 세운은 연도와 그해 나이. 문구 틀은 IA 슬롯이 없습니다(writing 새 슬롯).
   * 십성: 천간, 지지 순 `term-token` `label`(세운은 하나), 사이 `space.4`, 위 `space.4`.
-  * 두 줄 모두 지금이라 바탕 강조로 가를 것이 없어 바탕을 칠하지 않고, 꼬리표는 기둥 아래 대신 머리에 둡니다. 위 글자와 기둥 위아래 십성은 그리지 않습니다.
+  * 꼬리표는 기둥 아래 대신 머리에 둡니다. 위 글자, 기둥 위아래 십성, 12운성, 시작 연도는 그리지 않습니다.
 * 불러오는 중: 칸 두 개 모양과 십성 칩(36). 꼬리표와 위 글자는 그리지 않습니다.
 * 접근성: 그룹 "나이 또는 연도, 천간 십성, 천간 지지 한자와 독음, 지지 십성", 지금과 올해는 그 낱말을 함께 읽습니다. 글자 배율 상한 1.3배.
 * `daeun-table`의 대운 기둥, 세운 칸을 이 컴포넌트로 옮기는 일은 사주 표 묶음(E)에서 합니다.

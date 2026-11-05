@@ -79,6 +79,25 @@ def test_specimen_seal_uses_logo_path():
 
 
 DS1_RULES_PAGE = DESIGN_DIR / "artifacts" / "2026-11-05-ds1-rules.html"
+# 색이 들어갈 수 있는 자리: <style> 블록, style 속성, 색 속성. 본문의 Issue 번호(#796)는 보지 않음
+COLOR_PLACES = re.compile(
+    r"""<style[^>]*>(.*?)</style>|\sstyle=["']([^"']*)["']|\s(?:fill|stroke|stop-color|color|bgcolor)=["']([^"']*)["']""",
+    re.S | re.I)
+# 그 자리 안의 문서 참조(url(#…))는 색이 아님. 남은 #hex는 값 중간(테두리, 그림자)에 있어도 직접 쓴 색
+IN_DOCUMENT_REFERENCE = re.compile(r"url\(#[^)]*\)")
+RAW_HEX = re.compile(r"(?<![\w&])#[0-9a-fA-F]{3,8}\b")
+
+
+def raw_hex_colors(html: str) -> list[str]:
+    places = " ".join(part for match in COLOR_PLACES.finditer(html) for part in match.groups() if part)
+    return RAW_HEX.findall(IN_DOCUMENT_REFERENCE.sub("", places))
+
+
+def test_raw_hex_pattern_catches_colors_inside_values():
+    css = "<style>.a { border: 1px solid #ccc; box-shadow: 0 0 0 1px #000; color:#a1b2c3 }</style>"
+    assert raw_hex_colors(css) == ["#ccc", "#000", "#a1b2c3"]
+    assert raw_hex_colors('<div style="background: linear-gradient(#fff, #123)"></div><path fill="#abc"/>') == ["#fff", "#123", "#abc"]
+    assert raw_hex_colors('<use href="#ic-caret-right-light"/><a href="#fade">app #796</a><style>.b { fill: url(#bead) }</style>') == []
 
 
 def test_ds1_rules_page_uses_only_token_variables():
@@ -86,7 +105,7 @@ def test_ds1_rules_page_uses_only_token_variables():
     html = DS1_RULES_PAGE.read_text(encoding="utf-8")
 
     assert 'href="ds1/tokens.css"' in html
-    assert re.findall(r"""(?:[:=]\s*["']?|,\s*)#[0-9a-fA-F]{3,8}\b""", html) == []
+    assert raw_hex_colors(html) == []
     assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html
     assert "var(--color-" in html
 
@@ -98,7 +117,7 @@ def test_ds1_rules_page_has_no_forbidden_dashes():
     assert [char for char in ("—", "–", "·") if char in html] == []
 
 
-SCREEN_SAMPLES = sorted((DESIGN_DIR / "artifacts").glob("2026-11-05-ds1-screen-*.html"))
+SCREEN_SAMPLES = sorted((DESIGN_DIR / "artifacts").glob("*-ds1-screen-*.html"))
 
 
 def test_screen_samples_use_tokens():
@@ -107,7 +126,7 @@ def test_screen_samples_use_tokens():
     for page in SCREEN_SAMPLES:
         html = page.read_text(encoding="utf-8")
         assert 'href="ds1/tokens.css"' in html, page.name
-        assert re.findall(r"""(?:[:=]\s*["']?|,\s*)#[0-9a-fA-F]{3,8}\b""", html) == [], page.name
+        assert raw_hex_colors(html) == [], page.name
         assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html, page.name
         assert "var(--color-" in html, page.name
         assert [char for char in ("—", "–", "·") if char in html] == [], page.name

@@ -139,18 +139,22 @@
             "stemTenGod": { "visible": false },
             "branchTenGod": { "visible": false },
             "currentTag": { "visible": false },
-            "highlight": "none"
+            "twelveStage": { "visible": false },
+            "startYear": { "visible": false },
+            "highlight": { "element": "highlight.current", "bg": "{color.status.bg}", "scope": "줄 전체(칸과 정보 묶음)", "padding": "{space.8}", "radius": "{radius.md}", "note": "spec §4: 지금 대운과 올해 세운 줄은 늘 강조. 꼬리표는 머리의 tag.status" }
           }
         }
       ],
       "parts": {
-        "order": ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "currentTag"],
+        "order": ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "twelveStage", "startYear", "currentTag"],
         "container": { "width": { "value": 52, "unit": "px" }, "radius": "{radius.md}", "padding": "{space.4}", "align": "center" },
         "topLabel": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "source": "대운은 시작 나이(한국식 나이, core C22), 세운은 연도" },
         "stemTenGod": { "component": "term-token", "variant": "label", "marginTop": "{space.4}", "source": "DaeunPeriod.stemTenGod, SeunYear.tenGod" },
         "stem": { "element": "ohaeng.cell", "size": "small", "marginTop": "{space.4}" },
         "branch": { "element": "ohaeng.cell", "size": "small", "marginTop": "{space.4}" },
         "branchTenGod": { "component": "term-token", "variant": "label", "marginTop": "{space.4}", "basis": "정기", "source": "DaeunPeriod.branchTenGod", "seun": "계약에 없어 자리만 남겨 줄 높이를 맞춤" },
+        "twelveStage": { "component": "term-token", "variant": "label", "marginTop": "{space.2}", "source": "DaeunPeriod.twelveStage", "seun": "그리지 않음(계약에 없음)", "note": "daeun-table 대운 기둥에서 옮김" },
+        "startYear": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "marginTop": "{space.4}", "source": "DaeunPeriod.startYear", "seun": "그리지 않음(위 글자가 연도)", "note": "daeun-table 대운 기둥에서 옮김" },
         "currentTag": { "element": "tag.status", "slot": "ui.saju.tag", "position": "기둥 아래 가운데", "marginTop": "{space.4}", "visible": false }
       },
       "states": {
@@ -163,7 +167,7 @@
       "rules": [
         "지금, 올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
         "십성 칩은 term-token label이고 누르면 뜻 시트(explain-sheet)다.",
-        "compact는 두 줄 모두 지금이라 바탕 강조 대신 줄 머리에 tag.status 꼬리표(지금, 올해)와 용어 칩(대운, 세운)을 둔다.",
+        "compact는 두 줄(지금 대운, 올해 세운) 모두 highlight.current 바탕을 칠하고, 꼬리표(지금, 올해)는 기둥 아래 대신 줄 머리에 용어 칩(대운, 세운)과 함께 둔다.",
         "기둥 칸은 기둥 사이에 같은 줄 높이를 맞춘다(daeun-table 높이 맞춤과 같음)."
       ]
     }

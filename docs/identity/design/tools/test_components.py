@@ -1802,7 +1802,11 @@ def test_diary_summary():
 def test_luck_pillar():
     pillar = component("saju", "luck-pillar")
     parts = pillar["parts"]
-    assert parts["order"] == ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "currentTag"]
+    assert parts["order"] == ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "twelveStage", "startYear", "currentTag"]
+    # 묶음 E가 대운 줄을 이 컴포넌트로 그리도록 daeun-table 기둥의 12운성과 시작 연도를 옮김 (리뷰 Minor 4)
+    assert (parts["twelveStage"]["component"], parts["twelveStage"]["variant"]) == ("term-token", "label")
+    assert parts["twelveStage"]["source"] == "DaeunPeriod.twelveStage" and parts["twelveStage"]["marginTop"] == "{space.2}"
+    assert parts["startYear"]["type"] == "{type.numeric.table}" and parts["startYear"]["source"] == "DaeunPeriod.startYear"
     assert parts["stem"]["element"] == "ohaeng.cell" and parts["stem"]["size"] == "small"
     assert parts["branch"]["size"] == "small"
     cell = load_documents(COMPONENTS_DIR)["elements"]["elements"]["ohaeng.cell"]["sizes"]["small"]
@@ -1826,8 +1830,10 @@ def test_luck_pillar():
     assert compact["head"]["tag"] == {"element": "tag.status", "slot": "ui.saju.tag"}
     assert compact["head"]["kind"]["component"] == "term-token"
     assert compact["tenGods"]["component"] == "term-token" and compact["tenGods"]["variant"] == "label"
-    for hidden in ("topLabel", "stemTenGod", "branchTenGod", "currentTag"):
+    for hidden in ("topLabel", "stemTenGod", "branchTenGod", "currentTag", "twelveStage", "startYear"):
         assert compact[hidden] == {"visible": False}, hidden
-    assert compact["highlight"] == "none"  # 두 줄 모두 지금이라 바탕 강조로 가를 것이 없음
+    highlight = compact["highlight"]  # spec §4: 지금 대운, 올해 세운 줄은 compact에서도 status.bg 바탕 (리뷰 Important 2)
+    assert (highlight["element"], highlight["bg"]) == ("highlight.current", "{color.status.bg}")
+    assert highlight["padding"] == "{space.8}" and highlight["radius"] == "{radius.md}"
     assert pillar["a11y"]["textScaleMax"] == 1.3
     assert any("낙관 윤곽" in rule for rule in pillar["rules"])
