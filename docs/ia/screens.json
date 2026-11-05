@@ -1,5 +1,5 @@
 {
- "version": 4,
+ "version": 5,
  "tabs": [
   {
    "id": "today",
@@ -161,7 +161,7 @@
   },
   {
    "id": "tag-chip",
-   "role": "해시태그 칩(누르면 태그 모아보기)"
+   "role": "일기에 붙은 태그 칩(누르면 태그 모아보기). 사주 용어 태그는 한자 아이콘 태그(hanja-tag) 모양(D108 ②)"
   },
   {
    "id": "saju-pillars",
@@ -173,11 +173,11 @@
   },
   {
    "id": "manse-table",
-   "role": "만세력 기본 표(십성·지장간·12운성·신살)"
+   "role": "만세력 표(지장간, 12운성, 신살 띠). 네 열 속성 띠 표(band-table)로 그리고, 지장간 천간은 오행 글자색과 바탕색에 십성"
   },
   {
    "id": "daeun-table",
-   "role": "대운·세운 표"
+   "role": "대운, 세운 줄. 칸은 luck-pillar이고 가로로 넘기며 scroll-hint를 둠"
   },
   {
    "id": "settings-row",
@@ -194,6 +194,66 @@
   {
    "id": "purchase-row",
    "role": "구매 한 건: 상품 이름, 구매일, 상태, 기간이 있는 상품은 사용 기간"
+  },
+  {
+   "id": "hanja-tag",
+   "role": "한자 아이콘 태그(D108 ②): 원형 한자 아이콘과 이름. 사주 용어(날의 성격, 십성 묶음, 합충, 신살)는 어디서나 이 모양이고, 선택 표시는 둘레 테두리. 누르면 풀이 시트(용어 뜻)나 사주 기운 시트가 열림"
+  },
+  {
+   "id": "section-header",
+   "role": "섹션 제목(design 요소 section.header): 내용 묶음의 이름과 선택 설명 한 줄. 문구는 화면마다 IA 슬롯"
+  },
+  {
+   "id": "explain-sheet",
+   "role": "짧은 설명 시트(design 요소 explain.sheet): 칩, 배지, 용어를 누르면 여는 내용 높이 half 시트(제목과 본문). 화면 배치 안에 끼우지 않아 아래 내용이 밀리지 않음(F-008). 풀이 시트 화면 explain-sheet도 이 틀"
+  },
+  {
+   "id": "date-header",
+   "role": "날짜 머리: 날짜와 요일, 음력, 일진. 오늘 화면은 셋 다, 그날 시트는 날짜와 음력"
+  },
+  {
+   "id": "date-block",
+   "role": "큰 날짜 블록: 일 숫자를 크게, 옆에 월과 요일, 그 아래 일진(일기 쓰기)"
+  },
+  {
+   "id": "tag-sentence-list",
+   "role": "\"이 기운에서 나온 오늘 문장\" 목록: 그 사주 기운 태그로 정해진 오늘 문장(보조 문장, 오늘의 질문)을 모음. 없으면 안내 한 줄(사주 기운 시트)"
+  },
+  {
+   "id": "fortune-verdict",
+   "role": "길흉판정: 조심할 날, 무난한 날, 잘 풀리는 날 위의 위치 막대와 그 아래 내역(score-row 여러 줄). 한 줄 요약 문장 없음"
+  },
+  {
+   "id": "score-row",
+   "role": "점수 항목 한 줄: 한자 아이콘 태그, 짧은 뜻, 점(숫자 대신)과 더함 또는 뺌. 길흉판정 내역과 색 규칙 시트의 점수 항목 표가 함께 씀"
+  },
+  {
+   "id": "score-scale",
+   "role": "합한 점과 색의 관계 그림: 네 칸(조심할 날, 무난한 날, 잘 풀리는 날, 아주 잘 풀리는 날)마다 점 범위"
+  },
+  {
+   "id": "diary-summary",
+   "role": "기록 요약(나 탭 명리일기 회고): 쓴 편수, 날의 성격별 쓴 날, 자주 붙은 태그. 기록이 적을 때 안내"
+  },
+  {
+   "id": "luck-pillar",
+   "role": "대운, 세운 기둥 한 칸: 천간, 지지, 십성 칩(누르면 용어 풀이). 지금 대운과 올해 세운은 강조. 나 탭 올해와 지금, 사주 표 대운과 세운 줄이 함께 씀"
+  },
+  {
+   "id": "birth-info-row",
+   "role": "출생 정보 줄: 쉼표 없이 칸으로 나눔(달력 종류 꼬리표와 날짜, 시진 한자 태그와 시간, 성별 알약, 칸 사이 세로 구분선). 시간 모름이면 시간 칸 대신 모름 표시"
+  },
+  {
+   "id": "band-table",
+   "role": "네 열 속성 띠 표: 시주, 일주(나), 월주, 연주 네 열을 끝까지 유지하고 열 구분선이 모든 띠를 관통, 일주 열은 옅은 바탕. 띠 머리줄은 네 열에 걸친 가운데 줄이고 띠 이름은 용어 칩(누르면 설명 시트)"
+  },
+  {
+   "id": "stage-strip",
+   "role": "12단계 선형 띠와 자리 표시: 12운성 열두 단계를 한 줄로 늘어놓고 내 네 자리(시, 일, 월, 연)를 표시(12운성 설명 시트 안)"
+  },
+  {
+   "id": "scroll-hint",
+   "role": "가로 스크롤 알림: 데이터가 더 있는 쪽 끝만 흐림과 아래 좌우 화살표. 글자 안내 없음"
   }
  ],
  "screens": [
@@ -773,7 +833,7 @@
    "tab": null,
    "presentation": "page",
    "auth": "guest",
-   "purpose": "소셜 로그인(카카오·LINE·Google·Apple, D82)으로 계정을 만들거나 엽니다. 언어마다 맨 위 제공자만 다릅니다",
+   "purpose": "소셜 로그인(카카오·LINE·Google·Apple, D82)으로 계정을 만들거나 엽니다. 언어마다 맨 위 제공자만 다릅니다. 들어온 경로(첫 풀이를 거침, 거치지 않음)에 따라 설명 문구가 나뉩니다",
    "depths": [],
    "states": [
     {
@@ -795,7 +855,7 @@
     {
      "id": "login.title.body",
      "source": "ui",
-     "role": "저장하려면 로그인한다는 설명"
+     "role": "로그인 설명. 들어온 경로에 따라 나뉨: 첫 풀이(preview)를 거쳐 오면 저장하려면 로그인한다는 설득 문구, 거치지 않고 오면(이미 계정이 있어요 등) 설득 문구를 보이지 않음(검수 F-029, 문구 writing)"
     },
     {
      "id": "login.discard.notice",
@@ -1062,7 +1122,7 @@
    "tab": "today",
    "presentation": "page",
    "auth": "member",
-   "purpose": "오늘 일진을 내 원국에 맞춰 풀어 보여주고 일기로 이어줍니다",
+   "purpose": "오늘 일진을 내 원국에 맞춰 풀어 보여주고 일기로 이어줍니다. 위에서부터 날짜 머리(날짜, 음력, 일진) → 총운(섹션 제목 줄 오른쪽 좋아요, 총운을 결정한 태그 묶음, 헤드라인과 근거 진입점, 선, 보조 문장을 정한 사주 기운 태그, 보조 문장과 근거 진입점) → 사주 기운(대표 태그 최대 둘) → 행운(색, 방향, 숫자, 시간) → 오늘 일정(있는 날만) → 오늘의 질문, 일기 쓰기, 오늘 쓴 일기 → 배너 광고(D108)",
    "depths": [
     "surface",
     "explain",
@@ -1093,54 +1153,84 @@
      "role": "app-bar 제목(화면 이름 \"오늘\")"
     },
     {
-     "id": "today.character.label",
-     "source": "content",
-     "role": "날의 성격 이름(귀인·용신·기신·평범)"
+     "id": "today.date.solar",
+     "source": "ui",
+     "role": "날짜 머리의 날짜와 요일 틀(매개변수 date, 예: 11월 5일 목요일)"
     },
     {
-     "id": "today.character.reason",
+     "id": "today.date.lunar",
+     "source": "ui",
+     "role": "날짜 머리의 음력 날짜 틀(매개변수 lunarDate). 음력은 server 계약 추가"
+    },
+    {
+     "id": "today.date.iljin",
+     "source": "ui",
+     "role": "날짜 머리의 일진 틀(매개변수 pillar, 예: 癸未(계미)일)"
+    },
+    {
+     "id": "today.fortune.title",
+     "source": "ui",
+     "role": "섹션 제목 \"총운\"(확정). 제목 줄 오른쪽에 좋아요"
+    },
+    {
+     "id": "today.character.label",
      "source": "content",
-     "role": "날의 성격 이유 한 줄"
+     "role": "날의 성격 이름(귀인, 용신, 기신, 평범). 총운을 결정한 태그 묶음의 첫 한자 아이콘 태그(貴 用 忌 平, D108 ①)이고 누르면 풀이 시트(뜻). 이유 한 줄은 화면에 두지 않음 누르면 날의 성격 용어 풀이(기존 term.day_kind 뜻)를 엶. 지운 이유 문장(character.reason)은 쓰지 않음(D108)."
+    },
+    {
+     "id": "today.ten-god.label",
+     "source": "content",
+     "role": "일진 천간의 십성 묶음 이름(비겁, 식상, 재성, 관성, 인성). 총운을 결정한 태그 묶음의 둘째 한자 아이콘 태그(比 食 財 官 印, D108 ①)이고 누르면 풀이 시트(뜻). 값은 core #804 → server 계약 추가"
     },
     {
      "id": "today.fortune.head",
      "source": "content",
-     "role": "총운 첫 문장, 호칭 자리"
+     "role": "총운 헤드라인(화면에서 가장 큰 문장), 호칭 자리. 끝에 근거 진입점 아이콘"
     },
     {
      "id": "today.fortune.body",
      "source": "content",
-     "role": "총운 이어지는 문장"
+     "role": "총운 보조 문장. 앞에 선을 두고, 위에 이 문장을 정한 사주 기운 태그(대표 태그 1순위, 누르면 사주 기운 시트, D108 ①)를 둠. 끝에 근거 진입점 아이콘"
+    },
+    {
+     "id": "today.featured.title",
+     "source": "ui",
+     "role": "섹션 제목 \"사주 기운\"(가안, 문구 writing). 아래에 대표 태그(최대 둘)를 한자 아이콘 태그로 두고, 누르면 사주 기운 시트"
+    },
+    {
+     "id": "today.lucky.title",
+     "source": "ui",
+     "role": "섹션 제목 \"행운\"(가안, 문구 writing). 아래에 색(색 견본), 방향(나침반), 숫자(#), 시간(시계) 칩"
     },
     {
      "id": "today.lucky-color.body",
      "source": "content",
-     "role": "행운 색 설명 한 줄"
+     "role": "행운 색 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
     },
     {
      "id": "today.lucky-direction.body",
      "source": "content",
-     "role": "행운 방향 설명 한 줄"
+     "role": "행운 방향 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
     },
     {
      "id": "today.lucky-number.body",
      "source": "content",
-     "role": "행운 숫자 설명 한 줄"
+     "role": "행운 숫자 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
     },
     {
      "id": "today.lucky-time.body",
      "source": "content",
-     "role": "집중하기 좋은 시간 설명 한 줄"
+     "role": "집중하기 좋은 시간 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
     },
     {
-     "id": "today.lucky-tag.body",
-     "source": "content",
-     "role": "대표 태그 뜻 한 줄. 대표 태그(0~2개, 계약 Daily.tags.featured)는 행운 칩 줄에 lucky-card 칩으로 함께 놓이고, 누르면 이 한 줄이 스밉니다. 칩 이름은 glossary tag 범주, 뜻은 tag-diary.tag.meaning과 같은 원고입니다(D76)"
+     "id": "today.guide.title",
+     "source": "ui",
+     "role": "섹션 제목 \"오늘의 질문\"(가안, 문구 writing). 아래에 오늘의 질문, 일기 쓰기, 오늘 쓴 일기"
     },
     {
      "id": "today.guide.question",
      "source": "content",
-     "role": "그날 일진에 맞춘 가이드 질문"
+     "role": "그날 일진에 맞춘 가이드 질문(오늘의 질문). 대표 태그 1순위가 있으면 그 태그에서 나옴"
     },
     {
      "id": "today.guide.cta",
@@ -1155,33 +1245,31 @@
     {
      "id": "today.reaction.label",
      "source": "ui",
-     "role": "좋아요 반응 접근성 라벨"
-    },
-    {
-     "id": "today.evidence.link",
-     "source": "ui",
-     "role": "근거 시트로 가는 링크 이름(출구 \"근거 보기\")"
+     "role": "총운 섹션 제목 줄 오른쪽 좋아요 반응의 접근성 라벨"
     }
    ],
    "components": [
     "app-bar",
     "tab-bar",
-    "day-character",
+    "date-header",
+    "section-header",
+    "hanja-tag",
     "sentence-block",
     "term-token",
     "reaction-button",
+    "depth-link",
     "lucky-card",
+    "explain-sheet",
+    "event-row",
     "guide-question-card",
     "diary-row",
-    "event-row",
     "share-button",
-    "depth-link",
     "ad-banner"
    ],
    "exits": [
     {
      "to": "diary-edit",
-     "trigger": "가이드 질문 카드(새 일기)"
+     "trigger": "가이드 질문 카드의 일기 쓰기(새 일기)"
     },
     {
      "to": "diary-view",
@@ -1189,11 +1277,15 @@
     },
     {
      "to": "explain-sheet",
-     "trigger": "용어 토큰"
+     "trigger": "총운을 결정한 태그(날의 성격, 십성 묶음) 또는 문장 안 용어 토큰"
+    },
+    {
+     "to": "tag-sheet",
+     "trigger": "사주 기운 태그(사주 기운 섹션, 보조 문장 위 태그)"
     },
     {
      "to": "evidence-sheet",
-     "trigger": "근거 보기"
+     "trigger": "근거 진입점 아이콘(헤드라인, 보조 문장)(스크린리더 이름은 design 공통 ui.depth.evidence_link)"
     },
     {
      "to": "share-preview",
@@ -1216,7 +1308,9 @@
     "D48",
     "D39",
     "D53",
-    "D83"
+    "D83",
+    "D105",
+    "D108"
    ]
   },
   {
@@ -1225,7 +1319,7 @@
    "tab": "today",
    "presentation": "half-sheet",
    "auth": "member",
-   "purpose": "explain 깊이로 용어 뜻과 오늘 그런 이유를 보여줍니다. 모든 화면이 함께 씁니다",
+   "purpose": "explain 깊이로 용어 뜻과 오늘 그런 이유를 보여줍니다. 모든 화면이 함께 씁니다. 머리는 한자 아이콘 태그(D108). 12운성 풀이에는 12단계 선형 띠와 내 네 자리를 둠",
    "depths": [
     "explain"
    ],
@@ -1254,7 +1348,9 @@
    "components": [
     "sheet",
     "sentence-block",
-    "depth-link"
+    "depth-link",
+    "hanja-tag",
+    "stage-strip"
    ],
    "exits": [
     {
@@ -1264,7 +1360,68 @@
    ],
    "decisions": [
     "D37",
-    "D39"
+    "D39",
+    "D108"
+   ]
+  },
+  {
+   "id": "tag-sheet",
+   "title": "사주 기운 시트",
+   "tab": "today",
+   "presentation": "half-sheet",
+   "auth": "member",
+   "purpose": "오늘 화면의 사주 기운 태그를 누르면 화면이 밀리지 않게 아래에서 엽니다(F-008). 위에서부터 머리(한자 아이콘 태그와 근거 진입점) → 뜻 → \"이 기운에서 나온 오늘 문장\"(대표 태그 1순위면 보조 문장과 오늘의 질문, 2순위면 없다는 안내) → 그 태그가 붙은 내 일기 보기(D108)",
+   "depths": [
+    "explain"
+   ],
+   "states": [
+    {
+     "id": "empty",
+     "note": "이 기운으로 정해진 오늘 문장이 없음(대표 태그 2순위)"
+    }
+   ],
+   "slots": [
+    {
+     "id": "tag-sheet.tag.meaning",
+     "source": "content",
+     "role": "태그 뜻(기존 용어 풀이 원고 term.tag.*)"
+    },
+    {
+     "id": "tag-sheet.sentences.title",
+     "source": "ui",
+     "role": "구역 제목 \"이 기운에서 나온 오늘 문장\". 아래 목록은 오늘 화면의 보조 문장(today.fortune.body), 오늘의 질문(today.guide.question)과 같은 문장"
+    },
+    {
+     "id": "tag-sheet.sentences.empty",
+     "source": "ui",
+     "role": "이 기운으로 정해진 오늘 문장이 없을 때 안내(가안 \"오늘은 이 기운으로 정해진 문장이 없어요\", 문구 writing)"
+    },
+    {
+     "id": "tag-sheet.diary.cta",
+     "source": "ui",
+     "role": "그 태그가 붙은 내 일기 보기 틀(매개변수 tag, count, 가안 \"<태그>이 붙은 내 일기 n편 보기\"). 누르면 태그 모아보기 이 태그가 붙은 일기가 0편이면 이 줄을 숨김."
+    }
+   ],
+   "components": [
+    "sheet",
+    "hanja-tag",
+    "depth-link",
+    "sentence-block",
+    "tag-sentence-list"
+   ],
+   "exits": [
+    {
+     "to": "tag-diary",
+     "trigger": "그 태그가 붙은 내 일기 보기"
+    },
+    {
+     "to": "evidence-sheet",
+     "trigger": "머리의 근거 진입점 아이콘"
+    }
+   ],
+   "decisions": [
+    "D105",
+    "D108"
    ]
   },
   {
@@ -1273,7 +1430,7 @@
    "tab": "today",
    "presentation": "full-sheet",
    "auth": "member",
-   "purpose": "evidence 깊이로 판정 근거·원전과 원국 개인 해석(\"내 사주에서는\")을 보여줍니다. 근거·해석 열람 권한이 없으면 잠금 안내를 보입니다(D60). 모든 화면이 함께 씁니다",
+   "purpose": "evidence 깊이로 판정 근거, 원전, 원국 개인 해석(\"내 사주에서는\")을 보여줍니다. 시트 위에는 그 문장을 정한 태그와 대상 문장을 둡니다. 근거와 해석 열람 권한이 없으면 잠금 안내를 보이고, 잠긴 문장은 앞 2~3 단어만 또렷하게, 그 뒤는 app이 준비한 자리값 글자를 흐리게 칠합니다(D60, D106). 모든 화면이 함께 씁니다",
    "depths": [
     "evidence"
    ],
@@ -1289,19 +1446,24 @@
    ],
    "slots": [
     {
+     "id": "evidence-sheet.target.body",
+     "source": "content",
+     "role": "시트 위 대상 문장(예: 총운 헤드라인). 그 문장을 정한 한자 아이콘 태그와 함께 둠. 연 화면의 그 문장과 같은 문장"
+    },
+    {
      "id": "evidence-sheet.basis.body",
      "source": "content",
-     "role": "판정 근거"
+     "role": "판정 근거. 잠겼을 때는 server가 준 앞부분(2~3 단어, #797)만 또렷하게, 뒤는 흐린 자리값 3줄 분량(D106)"
     },
     {
      "id": "evidence-sheet.source.quote",
      "source": "content",
-     "role": "원전 인용"
+     "role": "원전 인용. 잠겼을 때는 앞부분만 또렷하게, 뒤는 흐린 자리값 2줄 분량(D106)"
     },
     {
      "id": "evidence-sheet.personal.body",
      "source": "content",
-     "role": "원국 개인 해석(\"내 사주에서는\"). 사주 표·만세력·대운 표의 용어에서 열었을 때"
+     "role": "원국 개인 해석(\"내 사주에서는\"). 사주 표, 만세력, 대운 표의 용어에서 열었을 때. 잠겼을 때는 앞부분만 또렷하게, 뒤는 흐린 자리값(D106) 잠김 미리보기의 흐린 자리값은 판정 근거와 같은 3줄 분량."
     },
     {
      "id": "evidence-sheet.lock.head",
@@ -1371,6 +1533,7 @@
    ],
    "components": [
     "sheet",
+    "hanja-tag",
     "sentence-block",
     "saju-pillars",
     "primary-button",
@@ -1389,7 +1552,10 @@
    "decisions": [
     "D37",
     "D39",
-    "D60"
+    "D60",
+    "D105",
+    "D106",
+    "D108"
    ]
   },
   {
@@ -1464,7 +1630,7 @@
    "tab": "calendar",
    "presentation": "page",
    "auth": "member",
-   "purpose": "한 달 단위로 길흉(날짜 칸 채우기), 음력 날짜·절기, 일정 표시를 보여줍니다",
+   "purpose": "한 달 단위로 길흉(날짜 칸 채우기, 색 4단계), 음력 날짜와 절기, 일정 표시를 보여줍니다. 범례 끝에서 색 규칙 시트를 엽니다",
    "depths": [],
    "states": [
     {
@@ -1489,7 +1655,12 @@
     {
      "id": "calendar.legend.body",
      "source": "ui",
-     "role": "점 색의 뜻"
+     "role": "색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
+    },
+    {
+     "id": "calendar.legend.rule-link",
+     "source": "ui",
+     "role": "범례 끝 입구 \"색은 어떻게 정해지나요\". 누르면 색 규칙 시트"
     }
    ],
    "components": [
@@ -1507,6 +1678,10 @@
     {
      "to": "event-edit",
      "trigger": "일정 추가"
+    },
+    {
+     "to": "color-rule-sheet",
+     "trigger": "범례 끝 \"색은 어떻게 정해지나요\""
     }
    ],
    "decisions": [
@@ -1514,16 +1689,17 @@
     "D47",
     "D48",
     "D39",
-    "D53"
+    "D53",
+    "D105"
    ]
   },
   {
    "id": "day-sheet",
    "title": "그날 시트",
    "tab": "calendar",
-   "presentation": "half-sheet",
+   "presentation": "full-sheet",
    "auth": "member",
-   "purpose": "그날 성격 한 줄과 일정, 그날 쓴 일기 줄과 일기 쓰기 입구를 보여줍니다",
+   "purpose": "펼침, 접힘 없이 처음부터 큰 시트로 그날을 보여줍니다. 위에서부터 날짜와 음력 → 날의 성격 한자 아이콘 태그 → 길흉판정(위치 막대와 내역) → 일정(+로 추가) → 그날 쓴 일기 줄과 일기 쓰기 입구(D108)",
    "depths": [
     "surface",
     "explain"
@@ -1544,14 +1720,29 @@
    ],
    "slots": [
     {
-     "id": "day-sheet.character.label",
-     "source": "content",
-     "role": "날의 성격 이름"
+     "id": "day-sheet.date.solar",
+     "source": "ui",
+     "role": "머리의 날짜와 요일 틀(매개변수 date, 예: 11월 9일 월요일)"
     },
     {
-     "id": "day-sheet.character.reason",
+     "id": "day-sheet.date.lunar",
+     "source": "ui",
+     "role": "머리의 음력 날짜 틀(매개변수 lunarDate, 예: 음력 10월 1일)"
+    },
+    {
+     "id": "day-sheet.character.label",
      "source": "content",
-     "role": "날의 성격 이유 한 줄"
+     "role": "날의 성격 이름. 한자 아이콘 태그(D108)이고 누르면 풀이 시트(뜻). 이유 한 줄은 두지 않음"
+    },
+    {
+     "id": "day-sheet.verdict.title",
+     "source": "ui",
+     "role": "섹션 제목 \"길흉판정\"(확정). 아래에 조심할 날, 무난한 날, 잘 풀리는 날 위의 위치 막대와 내역"
+    },
+    {
+     "id": "day-sheet.verdict.item",
+     "source": "ui",
+     "role": "내역 한 줄 틀: 한자 아이콘 태그, 짧은 뜻, 점과 더함 또는 뺌(예: 用 용신의 날, 점 둘, 더함). 숫자 대신 점, 한 줄 요약 문장 없음"
     },
     {
      "id": "day-sheet.event.empty",
@@ -1571,15 +1762,18 @@
     {
      "id": "day-sheet.diary.write-cta",
      "source": "ui",
-     "role": "이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+     "role": "일기 쓰기 버튼 \"<날짜> 일기 쓰기\" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)"
     }
    ],
    "components": [
     "sheet",
-    "day-character",
+    "date-header",
+    "hanja-tag",
+    "section-header",
+    "fortune-verdict",
+    "score-row",
     "event-row",
     "diary-row",
-    "term-token",
     "primary-button"
    ],
    "exits": [
@@ -1593,11 +1787,11 @@
     },
     {
      "to": "diary-edit",
-     "trigger": "이날 일기 쓰기(새 일기)"
+     "trigger": "<날짜> 일기 쓰기(새 일기)"
     },
     {
      "to": "explain-sheet",
-     "trigger": "용어 토큰"
+     "trigger": "한자 아이콘 태그(날의 성격, 길흉판정 내역)"
     }
    ],
    "decisions": [
@@ -1605,7 +1799,44 @@
     "D47",
     "D49",
     "D39",
-    "D83"
+    "D83",
+    "D105",
+    "D108"
+   ]
+  },
+  {
+   "id": "color-rule-sheet",
+   "title": "색 규칙 시트",
+   "tab": "calendar",
+   "presentation": "half-sheet",
+   "auth": "member",
+   "purpose": "달력 색이 어떻게 정해지는지 알려줍니다. 위에서부터 제목 → 설명 문장 → 점수 항목 표(더함은 用 용신의 날, 貴 귀인의 날, 合 합, 뺌은 忌 기신의 날, 沖 일지 충과 월지 충, 沖 충, 刑 형. 숫자 대신 점) → 합한 점과 색의 관계 그림(네 칸: 조심할 날은 뺀 점 둘 이상, 무난한 날은 뺀 점 하나에서 더한 점 하나까지, 잘 풀리는 날은 더한 점 둘, 아주 잘 풀리는 날은 더한 점 셋 이상)",
+   "depths": [
+    "explain"
+   ],
+   "states": [],
+   "slots": [
+    {
+     "id": "color-rule-sheet.sheet.title",
+     "source": "ui",
+     "role": "시트 제목(문구 writing)"
+    },
+    {
+     "id": "color-rule-sheet.rule.body",
+     "source": "ui",
+     "role": "설명 문장(사용자 문구 바탕, writing 확정): 그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요"
+    }
+   ],
+   "components": [
+    "sheet",
+    "hanja-tag",
+    "score-row",
+    "score-scale"
+   ],
+   "exits": [],
+   "decisions": [
+    "D105",
+    "D108"
    ]
   },
   {
@@ -1699,7 +1930,7 @@
    "tab": "diary",
    "presentation": "page",
    "auth": "member",
-   "purpose": "일기를 시간순으로 모아 보고(같은 날 여러 편은 날짜 아래 작성 순) 날짜를 골라 새 일기를 씁니다(미래 날짜는 고를 수 없음)",
+   "purpose": "일기를 시간순으로 모아 보고(같은 날 여러 편은 날짜 아래 작성 순) 날짜를 골라 새 일기를 씁니다(미래 날짜는 고를 수 없음). 쓰기 입구는 아래 고정 버튼 하나이고 app-bar 오른쪽 아이콘은 없습니다",
    "depths": [],
    "states": [
     {
@@ -1728,12 +1959,12 @@
     {
      "id": "diary-list.empty.body",
      "source": "ui",
-     "role": "쓴 일기가 없을 때 안내"
+     "role": "쓴 일기가 없을 때 안내. 아래에 같은 일기 쓰기 버튼을 가운데 둠"
     },
     {
      "id": "diary-list.pick-date.cta",
      "source": "ui",
-     "role": "날짜 골라 쓰기 버튼"
+     "role": "일기 쓰기 버튼(가안 \"일기 쓰기\", 문구 writing). 쓰기 입구는 이것 하나이고 목록이 있으면 아래 고정, 빈 상태에서는 안내 아래 가운데. 누르면 날짜 고르기 시트(기본값 오늘)"
     },
     {
      "id": "diary-list.pick-date.confirm",
@@ -1746,7 +1977,9 @@
     "tab-bar",
     "diary-row",
     "tag-chip",
+    "hanja-tag",
     "date-picker",
+    "primary-button",
     "empty-state",
     "ad-banner"
    ],
@@ -1757,11 +1990,11 @@
     },
     {
      "to": "diary-edit",
-     "trigger": "날짜 골라 쓰기(새 일기)"
+     "trigger": "일기 쓰기 → 날짜 고르기(기본값 오늘) → 고른 날의 새 일기"
     },
     {
      "to": "tag-diary",
-     "trigger": "태그 칩"
+     "trigger": "일기 줄의 태그"
     }
    ],
    "decisions": [
@@ -1770,7 +2003,9 @@
     "D49",
     "D39",
     "D53",
-    "D83"
+    "D83",
+    "D105",
+    "D108"
    ]
   },
   {
@@ -1779,7 +2014,7 @@
    "tab": "diary",
    "presentation": "page",
    "auth": "member",
-   "purpose": "그날 가이드 질문을 보며 일기 한 편을 쓰고 고칩니다. 같은 날 여러 편을 쓸 수 있습니다. 작성 중인 글은 기기에 초안으로 남습니다",
+   "purpose": "그날 가이드 질문을 보며 일기 한 편을 쓰고 고칩니다. 같은 날 여러 편을 쓸 수 있습니다. 작성 중인 글은 기기에 초안으로 남습니다. 위에서부터 큰 날짜 블록 → 오늘의 질문(인용형)과 질문 바꾸기 → 본문. 저장은 상단 바 오른쪽 글자 버튼이고 아래 고정 버튼은 없습니다",
    "depths": [],
    "states": [
     {
@@ -1806,9 +2041,24 @@
      "role": "app-bar 제목(화면 이름 \"일기 쓰기\")"
     },
     {
+     "id": "diary-edit.date.day",
+     "source": "ui",
+     "role": "큰 날짜 블록의 일 숫자 틀(매개변수 date)"
+    },
+    {
+     "id": "diary-edit.date.month",
+     "source": "ui",
+     "role": "큰 날짜 블록의 월과 요일 틀(매개변수 date), 일 숫자 옆"
+    },
+    {
+     "id": "diary-edit.date.iljin",
+     "source": "ui",
+     "role": "큰 날짜 블록의 일진 틀(매개변수 pillar), 일 숫자 아래"
+    },
+    {
      "id": "diary-edit.guide.question",
      "source": "content",
-     "role": "그날 일진에 맞춘 가이드 질문"
+     "role": "그날 일진에 맞춘 가이드 질문(왼쪽 세로선 인용형, 본문보다 작음). 옆 질문 바꾸기 아이콘으로 그날 근거가 있는 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음) 안에서 바꿈(core #804, server #806)"
     },
     {
      "id": "diary-edit.body.placeholder",
@@ -1818,7 +2068,12 @@
     {
      "id": "diary-edit.draft.status",
      "source": "ui",
-     "role": "초안 저장 상태"
+     "role": "임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
+    },
+    {
+     "id": "diary-edit.length.count",
+     "source": "ui",
+     "role": "글자 수 틀(매개변수 count). 임시 저장 상태와 함께 상단 바 가운데에 작게, 쓰는 중에만"
     },
     {
      "id": "diary-edit.offline.notice",
@@ -1833,23 +2088,23 @@
     {
      "id": "diary-edit.save.cta",
      "source": "ui",
-     "role": "저장 버튼. 누르면 diary-view로 갑니다"
+     "role": "저장. 상단 바 오른쪽 글자 버튼이고 쓴 것이 없으면 누를 수 없음. 누르면 diary-view로 갑니다"
     }
    ],
    "components": [
     "app-bar",
+    "date-block",
     "sentence-block",
     "diary-editor",
     "draft-indicator",
     "notice-banner",
     "tag-chip",
-    "toast",
-    "primary-button"
+    "toast"
    ],
    "exits": [
     {
      "to": "diary-view",
-     "trigger": "저장"
+     "trigger": "상단 바 저장"
     }
    ],
    "decisions": [
@@ -1857,7 +2112,8 @@
     "D47",
     "D49",
     "D39",
-    "D83"
+    "D83",
+    "D105"
    ]
   },
   {
@@ -1890,7 +2146,7 @@
     {
      "id": "diary-view.character.label",
      "source": "content",
-     "role": "그날 성격 이름. 일기를 쓸 때 기록한 값이고, 사주 정보를 고쳐도 바뀌지 않음(D90 ①)"
+     "role": "그날 성격 이름. 한자 아이콘 태그만 두고 이유 문장은 두지 않으며, 누르면 풀이 시트(뜻, D108). 일기를 쓸 때 기록한 값이고, 사주 정보를 고쳐도 바뀌지 않음(D90 ①)"
     },
     {
      "id": "diary-view.delete.confirm",
@@ -1906,7 +2162,7 @@
    "components": [
     "app-bar",
     "diary-editor",
-    "day-character",
+    "hanja-tag",
     "sentence-block",
     "tag-chip",
     "dialog",
@@ -1923,13 +2179,14 @@
     },
     {
      "to": "explain-sheet",
-     "trigger": "날의 성격 누름"
+     "trigger": "날의 성격 태그 누름"
     }
    ],
    "decisions": [
     "D49",
     "D39",
-    "D83"
+    "D83",
+    "D108"
    ]
   },
   {
@@ -2002,7 +2259,7 @@
    "tab": "me",
    "presentation": "page",
    "auth": "member",
-   "purpose": "일간 소개와 용신·행운 색으로 내 원국을 보여줍니다",
+   "purpose": "내 원국을 다섯 섹션으로 보여줍니다. 위에서부터 사주 원국(네 기둥, 십성, 오행 분포, 사주 표 입구) → 사주 성향 풀이(일간 문장 둘) → 나를 돕는 기운(용신, 행운 색, 용신 문장) → 올해와 지금(지금 대운, 올해 세운 칩, 대운 전체 입구) → 명리일기 회고(기록 요약)",
    "depths": [
     "surface",
     "explain",
@@ -2029,6 +2286,21 @@
      "role": "app-bar 제목(화면 이름 \"나의 사주\")"
     },
     {
+     "id": "my-saju.chart.title",
+     "source": "ui",
+     "role": "섹션 제목 \"사주 원국\"(사용자가 정한 문구). 아래에 네 기둥(천간, 지지, 위아래 십성, 일간 표시)과 오행 분포"
+    },
+    {
+     "id": "my-saju.chart.link",
+     "source": "ui",
+     "role": "사주 원국 섹션의 \"사주 표\" 이동(오른쪽 꺾쇠). 누르면 사주 표"
+    },
+    {
+     "id": "my-saju.ilgan.title",
+     "source": "ui",
+     "role": "섹션 제목 \"사주 성향 풀이\"(사용자가 정한 문구)"
+    },
+    {
      "id": "my-saju.ilgan.head",
      "source": "content",
      "role": "일간 소개 첫 문장, 호칭 자리"
@@ -2039,28 +2311,63 @@
      "role": "일간 소개 이어지는 문장"
     },
     {
+     "id": "my-saju.yongsin.title",
+     "source": "ui",
+     "role": "섹션 제목 \"나를 돕는 기운\"(사용자가 정한 문구). 아래에 용신, 행운 색, 용신 문장"
+    },
+    {
      "id": "my-saju.yongsin.body",
      "source": "content",
-     "role": "용신과 행운 색 설명"
+     "role": "용신 문장(용신과 행운 색 설명)"
+    },
+    {
+     "id": "my-saju.flow.title",
+     "source": "ui",
+     "role": "섹션 제목 \"올해와 지금\"(사용자가 정한 문구). 아래에 지금 대운과 올해 세운의 기둥과 십성 칩(누르면 용어 풀이). 흐름 설명 문장은 T1 뒤"
+    },
+    {
+     "id": "my-saju.flow.link",
+     "source": "ui",
+     "role": "올해와 지금 섹션의 \"대운 전체\" 이동(오른쪽 꺾쇠). 누르면 사주 표의 만세력과 대운 탭"
+    },
+    {
+     "id": "my-saju.record.title",
+     "source": "ui",
+     "role": "섹션 제목 \"명리일기 회고\"(사용자가 정한 문구). 아래에 기록 요약(쓴 편수, 날의 성격별 쓴 날, 자주 붙은 태그, server 집계 경로 새로 필요)"
+    },
+    {
+     "id": "my-saju.record.few",
+     "source": "ui",
+     "role": "기록이 적을 때 명리일기 회고 자리의 안내"
     }
    ],
    "components": [
     "app-bar",
     "tab-bar",
+    "section-header",
+    "saju-pillars",
+    "ohaeng-bar",
     "sentence-block",
     "term-token",
     "lucky-card",
+    "luck-pillar",
+    "hanja-tag",
+    "diary-summary",
     "depth-link",
     "ad-banner"
    ],
    "exits": [
     {
      "to": "saju-chart",
-     "trigger": "근거 보기"
+     "trigger": "사주 원국 섹션의 \"사주 표\"(오른쪽 꺾쇠)"
+    },
+    {
+     "to": "saju-chart",
+     "trigger": "올해와 지금 섹션의 \"대운 전체\"(오른쪽 꺾쇠, 만세력과 대운 탭)"
     },
     {
      "to": "explain-sheet",
-     "trigger": "용어 토큰"
+     "trigger": "용어 토큰, 십성 칩"
     },
     {
      "to": "settings",
@@ -2072,7 +2379,9 @@
     "D16",
     "D48",
     "D39",
-    "D53"
+    "D53",
+    "D105",
+    "D108"
    ]
   },
   {
@@ -2081,7 +2390,7 @@
    "tab": "me",
    "presentation": "page",
    "auth": "member",
-   "purpose": "evidence 깊이로 원국표·오행 분포·용신 판정 근거와 만세력 기본 표·대운·세운 표를 두 탭으로 보여줍니다",
+   "purpose": "evidence 깊이로 내 사주를 두 탭(원국, 만세력과 대운)으로 보여줍니다. 두 탭 공통 머리는 \"<호칭>님의 사주\"와 출생 정보 줄. 원국 탭은 사주 → 오행 분포 → 용신 판정 근거(잠기면 앞 몇 단어만, D106) 순이고 섹션 제목 아래 한 줄 설명을 늘 보입니다. 만세력과 대운 탭은 \"내 일간 기준\" 표시, 네 열 속성 띠 표(지장간 → 12운성 → 신살, 띠 이름 용어 칩을 누르면 설명 시트, 12운성 설명 시트에는 12단계 선형 띠), 대운과 세운(섹션 제목 아래 한 줄 설명, 가로로 넘기는 줄)입니다",
    "depths": [
     "evidence"
    ],
@@ -2106,9 +2415,34 @@
      "role": "app-bar 제목(화면 이름 \"사주 표\")"
     },
     {
+     "id": "saju-chart.head.title",
+     "source": "ui",
+     "role": "두 탭 공통 머리 \"<호칭>님의 사주\" 틀, 호칭 자리. 아래에 출생 정보 줄(달력 종류 꼬리표와 날짜, 시진 한자 태그와 시간, 성별 알약)"
+    },
+    {
+     "id": "saju-chart.pillars.title",
+     "source": "ui",
+     "role": "원국 탭 섹션 제목 \"사주\"(\"네 기둥\" 아님)"
+    },
+    {
+     "id": "saju-chart.pillars.desc",
+     "source": "ui",
+     "role": "사주 섹션 제목 아래 한 줄 설명(늘 보임)"
+    },
+    {
+     "id": "saju-chart.ohaeng.title",
+     "source": "ui",
+     "role": "원국 탭 섹션 제목 \"오행 분포\""
+    },
+    {
+     "id": "saju-chart.ohaeng.desc",
+     "source": "ui",
+     "role": "오행 분포 섹션 제목 아래 한 줄 설명(늘 보임)"
+    },
+    {
      "id": "saju-chart.yongsin.basis",
      "source": "content",
-     "role": "용신 판정 근거. 근거·해석 열람 권한이 없으면 잠김 표시(D60)"
+     "role": "용신 판정 근거. 근거와 해석 열람 권한이 없으면 앞 2~3 단어만 또렷하게, 뒤는 흐린 자리값(D60, D106)"
     },
     {
      "id": "saju-chart.time-unknown.notice",
@@ -2123,24 +2457,72 @@
     {
      "id": "saju-chart.yongsin.title",
      "source": "ui",
-     "role": "용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
+     "role": "원국 탭 섹션 제목(용신 판정 근거). 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
+    },
+    {
+     "id": "saju-chart.manse.basis",
+     "source": "ui",
+     "role": "만세력과 대운 탭 위 \"내 일간 <간>(<이름>) 기준\" 틀(매개변수 stem)"
+    },
+    {
+     "id": "saju-chart.jijanggan.desc",
+     "source": "ui",
+     "role": "지장간 한 줄 설명. 띠 안에 두지 않고 띠 이름 용어 칩을 누르면 여는 설명 시트의 본문"
+    },
+    {
+     "id": "saju-chart.unseong.desc",
+     "source": "ui",
+     "role": "12운성 한 줄 설명. 띠 이름 용어 칩을 누르면 여는 설명 시트의 본문이고, 시트 안에 12단계 선형 띠와 내 네 자리(시, 일, 월, 연)"
+    },
+    {
+     "id": "saju-chart.sinsal.desc",
+     "source": "ui",
+     "role": "신살 한 줄 설명. 띠 이름 용어 칩을 누르면 여는 설명 시트의 본문. 신살이 없는 자리는 비움 표시"
+    },
+    {
+     "id": "saju-chart.daeun.title",
+     "source": "ui",
+     "role": "만세력과 대운 탭 섹션 제목 \"대운\""
+    },
+    {
+     "id": "saju-chart.daeun.desc",
+     "source": "ui",
+     "role": "대운 섹션 제목 아래 한 줄 설명(늘 보임)"
+    },
+    {
+     "id": "saju-chart.seun.title",
+     "source": "ui",
+     "role": "만세력과 대운 탭 섹션 제목 \"세운\""
+    },
+    {
+     "id": "saju-chart.seun.desc",
+     "source": "ui",
+     "role": "세운 섹션 제목 아래 한 줄 설명(늘 보임)"
     }
    ],
    "components": [
     "app-bar",
+    "segmented",
+    "birth-info-row",
+    "hanja-tag",
+    "section-header",
     "saju-pillars",
     "ohaeng-bar",
+    "sentence-block",
+    "band-table",
     "manse-table",
+    "explain-sheet",
+    "stage-strip",
     "daeun-table",
+    "luck-pillar",
+    "scroll-hint",
     "term-token",
-    "notice-banner",
-    "segmented",
-    "sentence-block"
+    "notice-banner"
    ],
    "exits": [
     {
      "to": "explain-sheet",
-     "trigger": "용어 토큰"
+     "trigger": "용어 토큰(표 칸의 십성 등)"
     },
     {
      "to": "evidence-sheet",
@@ -2151,7 +2533,10 @@
     "D16",
     "D18",
     "D39",
-    "D60"
+    "D60",
+    "D105",
+    "D106",
+    "D108"
    ]
   },
   {

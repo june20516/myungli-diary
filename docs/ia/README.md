@@ -46,8 +46,8 @@ flowchart LR
 ```mermaid
 flowchart LR
   today -->|가이드 질문 카드| diary-edit
-  diary-list -->|날짜 골라 쓰기| diary-edit
-  day-sheet -->|이날 일기 쓰기| diary-edit
+  diary-list -->|일기 쓰기, 날짜 고르기| diary-edit
+  day-sheet -->|날짜 일기 쓰기| diary-edit
   today -.->|오늘 쓴 일기 줄| diary-view
   day-sheet -.->|그날 일기 줄| diary-view
   diary-list -.->|일기 누름| diary-view
