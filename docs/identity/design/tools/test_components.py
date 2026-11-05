@@ -1132,7 +1132,14 @@ def test_purchase_row_slots_are_split_by_limit():
 def test_readme_index_lists_3_0_components():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert "check-row, account-choice |" in readme and "offer-card, purchase-row |" in readme
-    assert "IA 컴포넌트 42개" not in readme and readme.count("IA 컴포넌트 43개") == 2
+    # 숫자는 지금 사실과 대조 (리뷰 M5: 옛 43개를 고정하지 않음)
+    documents = load_documents(COMPONENTS_DIR)
+    specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
+    total = len(json.loads(IA_PATH.read_text(encoding="utf-8"))["components"])
+    pending = len(components.IA_PENDING_COMPONENTS)
+    assert f"IA v5 컴포넌트 {total}개 가운데 명세를 쓴 {specified}개" in readme
+    assert f"아직 명세가 없는 {pending}개" in readme and f"지금 {specified}개이고, 대기 목록 {pending}개" in readme
+    assert "IA 컴포넌트 43개" not in readme
 
 
 def test_account_merge_failure_and_back_rules():
@@ -1619,7 +1626,7 @@ def test_hanja_tag_component():
     assert tone["verdictTone"] == {"good": good, "bad": bad}
     assert tone["toneAllowedIn"] == ["fortune-verdict", "score-row"]
     variants = {variant["id"]: variant for variant in tag["variants"]}
-    assert set(variants) == {"default", "emphasis", "selected"}
+    assert set(variants) == {"default", "emphasis", "selected", "ganji"}
     emphasis = variants["emphasis"]["parts"]["tone"]["dayKind"]  # Q4-2 ①: V8 배지 매핑 그대로
     assert emphasis == {
         "YONGSIN_DAY": {"bg": "{color.badge.good.bg}", "fg": "{color.badge.good.fg}"},
@@ -1627,8 +1634,17 @@ def test_hanja_tag_component():
         "GISIN_DAY": {"bg": "{color.badge.gisin.bg}", "fg": "{color.badge.gisin.fg}"},
         "ORDINARY_DAY": {"bg": "transparent", "border": {"color": "{color.badge.ordinary.border}",
                                                          "width": {"value": 1, "unit": "px"}}, "fg": "{color.badge.ordinary.fg}"}}
-    assert variants["selected"]["parts"]["pill"]["border"] == {"color": "{color.action.primary}",
-                                                               "width": {"value": 1.5, "unit": "px"}}
+    selected = variants["selected"]["parts"]["pill"]
+    assert selected["border"] == {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"},
+                                  "placement": "inside"}
+    assert "톤 테두리" in selected["note"]
+    # 간지 글자는 사주 용어 16자 규칙 밖의 변형: 원 대신 stem.chip (리뷰 I1)
+    ganji = variants["ganji"]["parts"]
+    assert ganji["glyph"] == {"visible": False}
+    assert ganji["ganjiGlyph"]["element"] == "stem.chip"
+    assert ganji["ganjiGlyphs"] == {"stems": list("甲乙丙丁戊己庚辛壬癸"), "branches": list("子丑寅卯辰巳午未申酉戌亥")}
+    assert "stemGlyph" not in parts
+    assert any("16자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
     assert set(tag["parts"]["opens"]["targets"]) == {"explain-sheet", "tag-sheet"}
     assert tag["a11y"]["role"] == "button" and tag["a11y"]["label"] == "이름 글자(한자는 읽지 않음)"
     assert tag["a11y"]["minTarget"] == 44 and "stem.chip" in tag["uses"]
@@ -1642,15 +1658,29 @@ def test_stem_chip_element():
 
 
 # 자세히 보기 표시는 넷뿐: 용어 칩(뜻 시트), 근거 아이콘(근거 시트), 꺾쇠(화면 이동), 자물쇠 + 열기(잠긴 것 열기)
-def test_detail_affordances_are_three():
+def test_detail_affordances_are_four():
     documents = load_documents(COMPONENTS_DIR)
     icons = [(f"{name}{path}", icon) for name, document in documents.items()
              for path, icon, _ in icon_parts(document, "") if icon]
     assert not [place for place, icon in icons if icon.startswith("info")]  # ⓘ 없음(Q2 ②)
     text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
-    assert '"textDecoration"' not in text and '"underline"' not in text  # 밑줄 링크 없음
-    # 꺾쇠는 잠긴 것을 여는 자리에 없고, 자물쇠는 잠긴 것에만
-    assert not [place for place, icon in icons if icon == "caret-right" and "locked" in place and "pass" not in place]
+    assert '"textDecoration"' not in text  # 밑줄 링크 없음
+    underlines = [(place, key, value) for name, document in documents.items() if name != "elements"
+                  for place, key, value in components._walk(document, name)
+                  if (isinstance(key, str) and key.lower().startswith("underline"))
+                  or (isinstance(value, str) and value.startswith("underline"))]
+    assert underlines == []  # 달력 선택 표시 mark.underline-grow(요소, 키 selectedUnderline)는 밑줄 링크가 아님
+    # "더 보기" 글자 버튼 없음: 누를 수 있는 more 부품(target·pattern·component)이나 label 글자 값의 더 보기/more.
+    # event-row의 more는 '외 N개' 개수 글자라 누를 수 없음
+    pressable = ("target", "pattern", "component", "minTarget")
+    more = [place for name, document in documents.items() for place, key, value in components._walk(document, name)
+            if (isinstance(key, str) and key.lower().startswith(("more", "showmore", "seemore"))
+                and isinstance(value, dict) and any(field in value for field in pressable))
+            or (key in ("label", "text") and isinstance(value, str) and re.search(r"더 보기|\bmore\b", value, re.I))]
+    assert more == []
+    # 꺾쇠는 잠긴 것을 여는 자리(경로에 lock)에 없고(잠금 안내 pass는 화면 이동이라 제외), 자물쇠는 잠긴 것에만
+    assert not [place for place, icon in icons
+                if icon == "caret-right" and "lock" in place.lower() and ".pass" not in place]
     assert all("lock" in place for place, icon in icons if icon == "lock-simple")
     assert component("sentence", "depth-link")["parts"]["icon"]["icon"] == "book-open-text"
     assert component("sentence", "term-token")["parts"]["chip"]["bg"] == "{color.term.bg}"
@@ -1666,7 +1696,7 @@ LOCK_OPEN = {"icon": "lock-simple", "weight": "regular", "size": "adjacent-text"
 
 def test_locked_entries_use_lock():
     block_open = component("sentence", "sentence-block")["states"]["locked"]["parts"]["open"]
-    assert block_open["lock"] == LOCK_OPEN and "chevron" not in block_open
+    assert block_open["lock"] == {"element": "lock.veil", "part": "open"} and "chevron" not in block_open  # 원본은 요소
     assert block_open["label"] == {"type": "{type.label.lg}", "fg": "{color.action.primary}"}
     locked = component("sentence", "depth-link")["states"]["locked"]["parts"]["evidenceSheet"]
     head = locked["lockPanel"]["head"]
@@ -1695,7 +1725,9 @@ def _values(node):
 # spec §2 1단계 버그: chip.bg(반투명 흰색)는 흰 표면(bg.sheet) 위에서 보이지 않음 (결정 V74)
 def test_no_translucent_chip_on_sheet():
     documents = load_documents(COMPONENTS_DIR)
-    users = [name for name, document in documents.items() if "{color.chip.bg}" in _values(document)]
+    # 값 하나인 참조와 문자열 안에 끼워 쓴 참조를 모두 잡음 (리뷰 M4)
+    users = [name for name, document in documents.items() for value in _values(document)
+             if isinstance(value, str) and "{color.chip.bg}" in components.EMBEDDED_REFERENCE.findall(value)]
     assert users == []
     dialog = component("feedback", "dialog")
     assert dialog["parts"]["container"]["bg"] == "{color.bg.sheet}"
