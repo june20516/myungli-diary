@@ -178,7 +178,7 @@ TARGETS = (
     Target(("ui.app.name", "contact.bar.title"), "app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2)",
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 16 - 44 - 2 * 44, 1, False, None),
     Target(("onboard-time.hour.confirm",), "time-picker 시진 확인 줄", "ui-400", 13, -0.26, CONTENT_WIDTH, 1, False, None),
-    Target(("character.reason",), "day-character 이유 줄 (day-sheet 안이 가장 좁음, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌)",
+    Target(("character.reason",), "day-character 이유 줄 (IA v4 기준 day-sheet 폭으로 잰 확정값, IA v5에서 day-sheet 자리는 빠졌지만 값 유지, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌)",
            "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH, 2, True, None, trailing_icon=20),
     Target(("ui.guide.card",), "guide-question-card 머리글 (안쪽 space.20)", "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 20, 1, False, None),
     Target(("settings.ad-free.label",), "settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함)",

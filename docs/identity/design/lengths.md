@@ -39,7 +39,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `saju-chart.yongsin.open` | sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 16 + 간격 2) | 142px | 1 | - | 12 | **12** | **9** | **19** |
 | `ui.app.name`<br>`contact.bar.title` | app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2) | 196px | 1 | - | 14 | **14** | **11** | **24** |
 | `onboard-time.hour.confirm` | time-picker 시진 확인 줄 | 320px | 1 | - | 29 | **29** | **23** | **54** |
-| `character.reason` | day-character 이유 줄 (day-sheet 안이 가장 좁음, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌) | 312px | 2 | - | 59 | **59** | **44** | **102** |
+| `character.reason` | day-character 이유 줄 (IA v4 기준 day-sheet 폭으로 잰 확정값, IA v5에서 day-sheet 자리는 빠졌지만 값 유지, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌) | 312px | 2 | - | 59 | **59** | **44** | **102** |
 | `ui.guide.card` | guide-question-card 머리글 (안쪽 space.20) | 280px | 1 | - | 27 | **27** | **22** | **50** |
 | `settings.ad-free.label` | settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함) | 240px | 1 | - | 20 | **20** | **16** | **37** |
 | `ui.evidence.title` | evidence-sheet 제목 (sheet 안쪽 24) | 312px | 1 | - | 18 | **18** | **14** | **32** |
