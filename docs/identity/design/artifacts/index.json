@@ -713,5 +713,18 @@
     ],
     "status": "chosen",
     "note": "한 화면 두 단계, 가져올 기록 상자는 고르기 밖, 합치지 않기 버튼 없이 뒤로 가기. 구매 줄은 상품 이름이 먼저(#502), 사용 중만 꼬리표"
+  },
+  {
+    "id": "design-ds1-rules",
+    "title": "DS1 규칙 견본: 고르는 질문 Q1~Q6(눌림, 두 버튼, 섹션 제목, 설명 열기, 근거 아이콘, 화면 전환)과 정한 값 A~G",
+    "kind": "rule-sheet",
+    "file": "2026-11-05-ds1-rules.png",
+    "source": "2026-11-05-ds1-rules.html",
+    "date": "2026-11-05",
+    "milestone": "DS1",
+    "screens": [],
+    "decisions": [],
+    "status": "proposed",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 사용자 선택 대기(#801)"
   }
 ]

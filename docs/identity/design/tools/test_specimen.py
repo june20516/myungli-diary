@@ -76,3 +76,23 @@ def test_specimen_has_motion_samples():
 def test_specimen_seal_uses_logo_path():
     html = SPECIMEN.read_text(encoding="utf-8")
     assert "M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z" in html
+
+
+DS1_RULES_PAGE = DESIGN_DIR / "artifacts" / "2026-11-05-ds1-rules.html"
+
+
+def test_ds1_rules_page_uses_only_token_variables():
+    """DS1 규칙 견본은 색을 직접 쓰지 않고 토큰 CSS 변수만 씁니다(D105 ④)."""
+    html = DS1_RULES_PAGE.read_text(encoding="utf-8")
+
+    assert 'href="ds1/tokens.css"' in html
+    assert re.findall(r"""(?:[:=]\s*["']?|,\s*)#[0-9a-fA-F]{3,8}\b""", html) == []
+    assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html
+    assert "var(--color-" in html
+
+
+def test_ds1_rules_page_has_no_forbidden_dashes():
+    """사용자에게 보이는 견본 글에 긴 대시, 범위 대시, 가운뎃점을 쓰지 않습니다(D93)."""
+    html = DS1_RULES_PAGE.read_text(encoding="utf-8")
+
+    assert [char for char in ("—", "–", "·") if char in html] == []

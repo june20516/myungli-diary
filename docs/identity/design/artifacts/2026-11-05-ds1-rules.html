@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS1 규칙 견본</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 모든 색, 간격, 반경, 시간은 ds1/tokens.css의 토큰 변수입니다. 견본 틀(페이지 바탕, 설명 글)만 같은 토큰으로 꾸밉니다. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--color-bg-base); color: var(--color-text-primary);
+    font-family: var(--type-body-ui-family); font-size: var(--type-body-ui-size); line-height: var(--type-body-ui-line-height);
+    letter-spacing: var(--type-body-ui-letter-spacing);
+  }
+  .page { max-width: 1240px; margin: 0 auto; padding: var(--space-32) var(--space-20) var(--space-48); }
+  h1 { font-size: var(--type-display-size); font-weight: var(--type-display-weight); line-height: var(--type-display-line-height); margin: 0 0 var(--space-8); }
+  h2 { font-size: var(--type-title-size); font-weight: var(--type-title-weight); margin: var(--space-48) 0 var(--space-8); }
+  h3 { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); margin: 0 0 var(--space-8); }
+  .lead, .note { color: var(--color-text-secondary); margin: 0 0 var(--space-16); max-width: 760px; }
+  .note { font-size: var(--type-caption-lg-size); }
+  .toolbar { display: flex; gap: var(--space-8); margin: var(--space-16) 0; }
+  .toolbar button, .replay {
+    font: inherit; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+    border: 1px solid var(--color-line); background: var(--color-bg-sheet); color: var(--color-text-primary);
+    border-radius: var(--radius-full); padding: var(--space-4) var(--space-12); cursor: pointer;
+  }
+  .options { display: flex; flex-wrap: wrap; gap: var(--space-24); align-items: flex-start; }
+  .option { width: 360px; }
+  .option > .tag { display: inline-block; font-size: var(--type-label-md-size); font-weight: 600; color: var(--color-action-primary); margin-bottom: var(--space-4); }
+  .option > p { margin: 0 0 var(--space-8); color: var(--color-text-secondary); font-size: var(--type-caption-lg-size); min-height: 3.2em; }
+
+  /* 휴대폰 화면 틀: 앱의 화면 바탕과 화면 좌우 여백 space.20 */
+  .phone {
+    position: relative; overflow: hidden; width: 360px; min-height: 300px;
+    background: var(--color-bg-base); border: 1px solid var(--color-line); border-radius: var(--radius-xl);
+    padding: var(--space-16) var(--space-20) var(--space-24);
+  }
+  .phone.tall { min-height: 520px; }
+  .phone.flush { padding: 0; }
+  .ic { width: var(--icon, 16px); height: var(--icon, 16px); flex: none; display: inline-block; vertical-align: middle; fill: currentColor; }
+
+  /* 글자 스타일 */
+  .t-sentence-card { font-family: var(--type-sentence-card-family); font-size: var(--type-sentence-card-size); line-height: var(--type-sentence-card-line-height); }
+  .t-sentence-body { font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); }
+  .t-caption-lg { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .t-label-lg { font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
+  .t-subtitle { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+
+  /* 버튼: 동작은 둥근 사각 radius.md (V26) */
+  .btn {
+    position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%;
+    height: 52px; border: 0; border-radius: var(--radius-md); font: inherit;
+    font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; user-select: none;
+  }
+  .btn.filled { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+  .btn.quiet { background: transparent; color: var(--color-action-primary); }
+  .btn.soft { background: var(--color-chip-bg); color: var(--color-text-primary); }
+  .btn.dark { background: var(--color-text-primary); color: var(--color-bg-sheet); }
+  .btn.h44 { height: 44px; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-8); }
+  .pair { display: flex; gap: var(--space-8); }
+  .pair .btn:first-child { flex: 3; } .pair .btn:last-child { flex: 7; }
+  .pair.even .btn { flex: 1; }
+
+  /* 칩과 배지: 값 표시는 알약 radius.full */
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+  .chip {
+    position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: var(--space-4);
+    height: 34px; padding: 0 var(--space-12); border-radius: var(--radius-full); background: var(--color-chip-bg);
+    color: var(--color-text-primary); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+    border: 0; font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .chip .ic { color: var(--color-text-secondary); }
+  .chip.open { box-shadow: inset 0 0 0 1px var(--color-action-primary); }
+  .swatch { width: 14px; height: 14px; border-radius: var(--radius-full); background: var(--color-ohaeng-water-swatch); }
+  .badge {
+    display: inline-flex; align-items: center; height: 26px; padding: 0 var(--space-12); border-radius: var(--radius-full);
+    background: var(--color-badge-gisin-bg); color: var(--color-badge-gisin-fg);
+    font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+  }
+
+  /* 목록 줄과 구분선 */
+  .group { background: var(--color-bg-sheet); border-radius: var(--radius-md); overflow: hidden; }
+  .row {
+    position: relative; overflow: hidden; display: flex; align-items: center; gap: var(--space-12);
+    min-height: 52px; padding: 0 var(--space-16); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none;
+  }
+  .row .label { flex: 1; }
+  .row .value { color: var(--color-text-secondary); margin-left: var(--space-8); }
+  .row .lead { --icon: 20px; color: var(--color-text-primary); }
+  .row .chev { --icon: 16px; color: var(--color-text-secondary); }
+  .row .checkmark { --icon: 20px; color: var(--color-action-primary); }
+  .row + .row::before {
+    content: ""; position: absolute; top: 0; left: var(--inset-start, var(--space-16)); right: var(--space-16);
+    height: var(--hairline, 0.5px); background: var(--color-line);
+  }
+  .group.with-icons .row + .row::before { --inset-start: calc(var(--space-16) + 20px + var(--space-12)); }
+  .old-divider .row + .row::before { left: var(--space-16); right: 0; height: 1px; }
+  .row.destructive .label { font-weight: 600; }
+
+  /* 눌림 안 (Q1) */
+  .ink { position: absolute; border-radius: 50%; pointer-events: none; background: currentColor; opacity: 0.12; filter: blur(6px);
+         transform: scale(0); transition: transform var(--motion-duration-stamp) var(--motion-easing-seep), opacity var(--motion-duration-long) var(--motion-easing-seep); }
+  .press-fill { position: absolute; inset: 0; pointer-events: none; background: currentColor; opacity: 0;
+                transition: opacity var(--motion-duration-short) var(--motion-easing-standard); }
+  .is-pressed > .press-fill { opacity: 0.1; }
+  .press-scale { transition: transform var(--motion-duration-short) var(--motion-easing-standard); }
+  .press-scale.is-pressed { transform: scale(0.98); }
+  .card { position: relative; overflow: hidden; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-16); cursor: pointer; user-select: none; }
+
+  /* 섹션 제목 안 (Q3) */
+  .section + .section { margin-top: var(--space-32); }
+  .sh { display: flex; align-items: baseline; gap: var(--space-8); margin-bottom: var(--space-12); }
+  .sh .title { flex: 1; }
+  .sh-a .title { font-size: var(--type-caption-md-size); font-weight: var(--type-caption-md-weight); color: var(--color-text-secondary); }
+  .sh-b .title, .sh-c .title { font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); color: var(--color-text-primary); }
+  .sh .desc { display: block; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); margin-top: var(--space-2); font-weight: 400; }
+  .sh .more { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-label-md-size); color: var(--color-text-secondary); }
+  .sh .more .ic { --icon: 16px; }
+
+  /* 설명 열기 안 (Q4) */
+  .popover {
+    position: absolute; z-index: 3; max-width: 280px; padding: var(--space-12) var(--space-16);
+    background: var(--color-text-primary); color: var(--color-bg-sheet); border-radius: var(--radius-md);
+    font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height);
+    box-shadow: var(--shadow-raised); opacity: 0; transform: translateY(4px); pointer-events: none;
+    transition: opacity var(--motion-duration-short) var(--motion-easing-standard), transform var(--motion-duration-short) var(--motion-easing-standard);
+  }
+  .popover.show { opacity: 1; transform: none; pointer-events: auto; }
+  .popover::after { content: ""; position: absolute; left: var(--arrow-x, 24px); bottom: -6px; width: 12px; height: 12px; background: inherit; transform: rotate(45deg); border-radius: 2px; }
+  .reserved { margin-top: var(--space-8); min-height: calc(var(--type-caption-lg-size) * var(--type-caption-lg-line-height) * 2 + var(--space-12) * 2);
+              background: var(--color-chip-bg); border-radius: var(--radius-md); padding: var(--space-12); font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .placeholder-block { margin-top: var(--space-24); height: 96px; border-radius: var(--radius-lg); background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: var(--type-caption-md-size); }
+
+  /* 시트 */
+  .scrim { position: absolute; inset: 0; background: var(--color-scrim); opacity: 0; pointer-events: none; transition: opacity var(--motion-duration-fade) linear; }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; background: var(--color-bg-sheet);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 0 var(--space-24) var(--space-24);
+    transform: translateY(105%); transition: transform var(--motion-duration-long) var(--motion-easing-enter);
+  }
+  .sheet.show { transform: none; }
+  .sheet.static { position: relative; transform: none; border-radius: var(--radius-xl); }
+  .handle-zone { height: 24px; display: flex; align-items: center; justify-content: center; margin: 0 calc(var(--space-24) * -1); cursor: grab; }
+  .handle { width: 36px; height: 4px; border-radius: var(--radius-full); background: var(--color-line); }
+  .sheet .t-subtitle { margin: var(--space-8) 0 var(--space-12); }
+  .measure { outline: 1px dashed var(--color-action-primary); outline-offset: -1px; }
+
+  /* 확인 창 */
+  .dialog { width: calc(100% - var(--space-24) * 2); margin: var(--space-48) auto; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-24); }
+  .dialog .head { display: flex; align-items: center; gap: var(--space-8); }
+  .dialog .head .ic { --icon: 20px; }
+  .dialog .body { margin-top: var(--space-8); color: var(--color-text-secondary); }
+  .dialog .pair { margin-top: var(--space-24); }
+
+  /* skeleton */
+  .bone { background: var(--color-skeleton-bone); animation: breathe var(--motion-duration-breathe) var(--motion-easing-standard) infinite alternate; }
+  .bone.line { height: calc(var(--type-body-ui-size) * var(--type-body-ui-line-height) * 0.6); border-radius: var(--radius-xs); margin: calc(var(--type-body-ui-size) * var(--type-body-ui-line-height) * 0.2) 0; }
+  .bone.d1 { animation-delay: 150ms; } .bone.d2 { animation-delay: 300ms; } .bone.d3 { animation-delay: 450ms; }
+  @keyframes breathe { from { opacity: 0.55; } to { opacity: 1; } }
+  .bad-skeleton .bone.line { margin: var(--space-4) 0; }
+
+  /* 화면 전환 (Q6) */
+  .stage { position: relative; height: 300px; overflow: hidden; }
+  .screen { position: absolute; inset: 0; background: var(--color-bg-base); padding: var(--space-16) var(--space-20); }
+  .appbar { display: flex; align-items: center; gap: var(--space-8); height: 44px; margin-bottom: var(--space-8); }
+  .appbar .ic { --icon: 24px; }
+
+  /* 키보드 내리기 */
+  .field { height: 52px; border: 2px solid var(--color-action-primary); border-radius: var(--radius-md); background: var(--color-bg-sheet); display: flex; align-items: center; padding: 0 var(--space-16); }
+  .keyboard { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; background: var(--color-chip-bg); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: var(--type-caption-md-size); }
+  .kb-dismiss { position: absolute; right: var(--space-12); bottom: calc(200px + var(--space-12)); width: 44px; height: 44px; border-radius: var(--radius-full); background: var(--color-bg-sheet); box-shadow: var(--shadow-raised); display: flex; align-items: center; justify-content: center; color: var(--color-text-primary); }
+  .kb-dismiss .ic { --icon: 20px; }
+
+  table { border-collapse: collapse; width: 100%; max-width: 900px; font-size: var(--type-body-ui-size); }
+  th, td { text-align: left; padding: var(--space-8) var(--space-12); border-bottom: 0.5px solid var(--color-line); vertical-align: middle; }
+  th { color: var(--color-text-secondary); font-weight: 500; font-size: var(--type-caption-md-size); }
+  .bar { height: 12px; background: var(--color-action-primary); border-radius: var(--radius-xs); opacity: 0.6; }
+  .icon-sample { display: flex; align-items: center; gap: var(--space-4); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .press-scale.is-pressed { transform: none; }
+  }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true"><symbol id="ic-bell-light" viewBox="0 0 256 256"><path d="M220.07,176.94C214.41,167.2,206,139.73,206,104a78,78,0,1,0-156,0c0,35.74-8.42,63.2-14.08,72.94A14,14,0,0,0,48,198H90.48a38,38,0,0,0,75,0H208a14,14,0,0,0,12.06-21.06ZM128,218a26,26,0,0,1-25.29-20h50.58A26,26,0,0,1,128,218Zm81.71-33a1.9,1.9,0,0,1-1.7,1H48a1.9,1.9,0,0,1-1.7-1,2,2,0,0,1,0-2C53.87,170,62,139.69,62,104a66,66,0,1,1,132,0c0,35.68,8.14,65.95,15.71,79A2,2,0,0,1,209.71,185Z"/></symbol><symbol id="ic-book-open-text-regular" viewBox="0 0 256 256"><path d="M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64ZM160,88h40a8,8,0,0,1,0,16H160a8,8,0,0,1,0-16Zm48,40a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,128Zm0,32a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,160Z"/></symbol><symbol id="ic-caret-down-light" viewBox="0 0 256 256"><path d="M212.24,100.24l-80,80a6,6,0,0,1-8.48,0l-80-80a6,6,0,0,1,8.48-8.48L128,167.51l75.76-75.75a6,6,0,0,1,8.48,8.48Z"/></symbol><symbol id="ic-caret-left-light" viewBox="0 0 256 256"><path d="M164.24,203.76a6,6,0,1,1-8.48,8.48l-80-80a6,6,0,0,1,0-8.48l80-80a6,6,0,0,1,8.48,8.48L88.49,128Z"/></symbol><symbol id="ic-caret-left-regular" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></symbol><symbol id="ic-caret-right-light" viewBox="0 0 256 256"><path d="M180.24,132.24l-80,80a6,6,0,0,1-8.48-8.48L167.51,128,91.76,52.24a6,6,0,0,1,8.48-8.48l80,80A6,6,0,0,1,180.24,132.24Z"/></symbol><symbol id="ic-chat-circle-text-light" viewBox="0 0 256 256"><path d="M166,112a6,6,0,0,1-6,6H96a6,6,0,0,1,0-12h64A6,6,0,0,1,166,112Zm-6,26H96a6,6,0,0,0,0,12h64a6,6,0,0,0,0-12Zm70-10A102,102,0,0,1,79.31,217.65L44.44,229.27a14,14,0,0,1-17.71-17.71l11.62-34.87A102,102,0,1,1,230,128Zm-12,0A90,90,0,1,0,50.08,173.06a6,6,0,0,1,.5,4.91L38.12,215.35a2,2,0,0,0,2.53,2.53L78,205.42a6.2,6.2,0,0,1,1.9-.31,6.09,6.09,0,0,1,3,.81A90,90,0,0,0,218,128Z"/></symbol><symbol id="ic-check-regular" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol><symbol id="ic-clock-light" viewBox="0 0 256 256"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm0,192a90,90,0,1,1,90-90A90.1,90.1,0,0,1,128,218Zm62-90a6,6,0,0,1-6,6H128a6,6,0,0,1-6-6V72a6,6,0,0,1,12,0v50h50A6,6,0,0,1,190,128Z"/></symbol><symbol id="ic-compass-regular" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM172.42,72.84l-64,32a8.05,8.05,0,0,0-3.58,3.58l-32,64A8,8,0,0,0,80,184a8.1,8.1,0,0,0,3.58-.84l64-32a8.05,8.05,0,0,0,3.58-3.58l32-64a8,8,0,0,0-10.74-10.74ZM138,138,97.89,158.11,118,118l40.15-20.07Z"/></symbol><symbol id="ic-file-text-light" viewBox="0 0 256 256"><path d="M212.24,83.76l-56-56A6,6,0,0,0,152,26H56A14,14,0,0,0,42,40V216a14,14,0,0,0,14,14H200a14,14,0,0,0,14-14V88A6,6,0,0,0,212.24,83.76ZM158,46.48,193.52,82H158ZM200,218H56a2,2,0,0,1-2-2V40a2,2,0,0,1,2-2h90V88a6,6,0,0,0,6,6h50V216A2,2,0,0,1,200,218Zm-34-82a6,6,0,0,1-6,6H96a6,6,0,0,1,0-12h64A6,6,0,0,1,166,136Zm0,32a6,6,0,0,1-6,6H96a6,6,0,0,1,0-12h64A6,6,0,0,1,166,168Z"/></symbol><symbol id="ic-globe-hemisphere-east-light" viewBox="0 0 256 256"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm0,12a89.53,89.53,0,0,1,50,15.2V74a2,2,0,0,1-.48,1.31L155.35,101a2,2,0,0,1-1.25.68L122.63,106a2,2,0,0,1-1.44-.36l-.24-.16-19.7-12.89a14,14,0,0,0-19.71,3.64l-21,31.3a13.94,13.94,0,0,0-2.36,7.71L58,171.45a2,2,0,0,1-.9,1.66l-5,3.27A90,90,0,0,1,128,38ZM59.28,186.05l4.43-2.9A14,14,0,0,0,70,171.52l.21-36.23a2.05,2.05,0,0,1,.33-1.1l21-31.3a2,2,0,0,1,1.31-.86,2,2,0,0,1,1.52.35l.24.16,19.7,12.89a13.93,13.93,0,0,0,10,2.44l31.47-4.26a14,14,0,0,0,8.73-4.74l22.17-25.76A14,14,0,0,0,190,74V62.82a89.91,89.91,0,0,1,22.68,95.67l-18.4-16.82a14,14,0,0,0-14.82-2.6L149,151.73a14.11,14.11,0,0,0-8.48,10.89l-2.38,16.19a14,14,0,0,0,10.3,15.58L169.9,200a2.09,2.09,0,0,1,.91.53l4.18,4.18A89.86,89.86,0,0,1,59.28,186.05ZM184.9,197.68l-5.59-5.61a14,14,0,0,0-6.36-3.65l-21.46-5.63a2,2,0,0,1-1.47-2.23l2.39-16.19a2,2,0,0,1,1.21-1.56l30.45-12.66a2,2,0,0,1,2.12.37l21.36,19.54A90.79,90.79,0,0,1,184.9,197.68Z"/></symbol><symbol id="ic-info-regular" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></symbol><symbol id="ic-key-light" viewBox="0 0 256 256"><path d="M215.15,40.85A78,78,0,0,0,86.2,121.31l-56.1,56.1a13.94,13.94,0,0,0-4.1,9.9V216a14,14,0,0,0,14,14H72a6,6,0,0,0,6-6V206H96a6,6,0,0,0,6-6V182h18a6,6,0,0,0,4.24-1.76l10.45-10.44A77.59,77.59,0,0,0,160,174h.1A78,78,0,0,0,215.15,40.85ZM226,98.16c-1.12,35.16-30.67,63.8-65.88,63.84a65.93,65.93,0,0,1-24.51-4.67,6,6,0,0,0-6.64,1.26L117.51,170H96a6,6,0,0,0-6,6v18H72a6,6,0,0,0-6,6v18H40a2,2,0,0,1-2-2V187.31a2,2,0,0,1,.58-1.41l58.83-58.83a6,6,0,0,0,1.26-6.64A65.61,65.61,0,0,1,94,95.92C94,60.71,122.68,31.16,157.83,30A66,66,0,0,1,226,98.16ZM190,76a10,10,0,1,1-10-10A10,10,0,0,1,190,76Z"/></symbol><symbol id="ic-lock-simple-regular" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></symbol><symbol id="ic-magnifying-glass-plus-regular" viewBox="0 0 256 256"><path d="M152,112a8,8,0,0,1-8,8H120v24a8,8,0,0,1-16,0V120H80a8,8,0,0,1,0-16h24V80a8,8,0,0,1,16,0v24h24A8,8,0,0,1,152,112Zm77.66,117.66a8,8,0,0,1-11.32,0l-50.06-50.07a88.11,88.11,0,1,1,11.31-11.31l50.07,50.06A8,8,0,0,1,229.66,229.66ZM112,184a72,72,0,1,0-72-72A72.08,72.08,0,0,0,112,184Z"/></symbol><symbol id="ic-prohibit-light" viewBox="0 0 256 256"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm90,102a89.6,89.6,0,0,1-22.29,59.22L68.78,60.29A89.95,89.95,0,0,1,218,128ZM38,128A89.6,89.6,0,0,1,60.29,68.78L187.22,195.71A89.95,89.95,0,0,1,38,128Z"/></symbol><symbol id="ic-scroll-regular" viewBox="0 0 256 256"><path d="M96,104a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,104Zm8,40h64a8,8,0,0,0,0-16H104a8,8,0,0,0,0,16Zm128,48a32,32,0,0,1-32,32H88a32,32,0,0,1-32-32V64a16,16,0,0,0-32,0c0,5.74,4.83,9.62,4.88,9.66h0A8,8,0,0,1,24,88a7.89,7.89,0,0,1-4.79-1.61h0C18.05,85.54,8,77.61,8,64A32,32,0,0,1,40,32H176a32,32,0,0,1,32,32V168h8a8,8,0,0,1,4.8,1.6C222,170.46,232,178.39,232,192ZM96.26,173.48A8.07,8.07,0,0,1,104,168h88V64a16,16,0,0,0-16-16H67.69A31.71,31.71,0,0,1,72,64V192a16,16,0,0,0,32,0c0-5.74-4.83-9.62-4.88-9.66A7.82,7.82,0,0,1,96.26,173.48ZM216,192a12.58,12.58,0,0,0-3.23-8h-94a26.92,26.92,0,0,1,1.21,8,31.82,31.82,0,0,1-4.29,16H200A16,16,0,0,0,216,192Z"/></symbol><symbol id="ic-sign-out-regular" viewBox="0 0 256 256"><path d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"/></symbol><symbol id="ic-tag-light" viewBox="0 0 256 256"><path d="M241.91,137.42,142.59,38.1a13.94,13.94,0,0,0-9.9-4.1H40a6,6,0,0,0-6,6v92.69a13.94,13.94,0,0,0,4.1,9.9l99.32,99.32a14,14,0,0,0,19.8,0l84.69-84.69A14,14,0,0,0,241.91,137.42Zm-8.49,11.31-84.69,84.69a2,2,0,0,1-2.83,0L46.59,134.1a2,2,0,0,1-.59-1.41V46h86.69a2,2,0,0,1,1.41.59l99.32,99.31A2,2,0,0,1,233.42,148.73ZM94,84A10,10,0,1,1,84,74,10,10,0,0,1,94,84Z"/></symbol><symbol id="ic-tag-regular" viewBox="0 0 256 256"><path d="M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63Zm-96,96L48,132.69V48h84.69L232,147.31ZM96,84A12,12,0,1,1,84,72,12,12,0,0,1,96,84Z"/></symbol><symbol id="ic-translate-light" viewBox="0 0 256 256"><path d="M245.37,213.32l-56-112a6,6,0,0,0-10.74,0l-22.3,44.6A90,90,0,0,1,105,127.19,101.73,101.73,0,0,0,133.82,62H160a6,6,0,0,0,0-12H102V32a6,6,0,0,0-12,0V50H32a6,6,0,0,0,0,12h89.79A89.71,89.71,0,0,1,96,119.23,89.81,89.81,0,0,1,75.11,86,6,6,0,1,0,63.8,90,101.66,101.66,0,0,0,87,127.2,89.56,89.56,0,0,1,32,146a6,6,0,0,0,0,12,101.55,101.55,0,0,0,64-22.63,102.11,102.11,0,0,0,54.53,22.17l-27.89,55.78a6,6,0,0,0,10.74,5.36L147.71,190h72.58l14.34,28.68A6,6,0,0,0,240,222a5.87,5.87,0,0,0,2.68-.64A6,6,0,0,0,245.37,213.32ZM153.71,178,184,117.42,214.29,178Z"/></symbol><symbol id="ic-trash-regular" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></symbol><symbol id="ic-user-circle-light" viewBox="0 0 256 256"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26ZM71.44,198a66,66,0,0,1,113.12,0,89.8,89.8,0,0,1-113.12,0ZM94,120a34,34,0,1,1,34,34A34,34,0,0,1,94,120Zm99.51,69.64a77.53,77.53,0,0,0-40-31.38,46,46,0,1,0-51,0,77.53,77.53,0,0,0-40,31.38,90,90,0,1,1,131,0Z"/></symbol><symbol id="ic-warning-circle-fill" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm-8,56a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm8,104a12,12,0,1,1,12-12A12,12,0,0,1,128,184Z"/></symbol></svg>
+<div class="page">
+  <h1>DS1 규칙 견본</h1>
+  <p class="lead">검수 회차1의 F-001~F-012를 규칙으로 정리한 견본입니다. 색, 글꼴, 간격, 모양, 시간은 앱과 같은 토큰(ds1/tokens.css)을 그대로 읽습니다. 글자 렌더링과 세부 동작은 실기기와 조금 다를 수 있습니다.</p>
+  <p class="lead"><strong>고르는 질문</strong> Q1~Q6은 안을 하나씩 골라 주세요. <strong>정한 값</strong>은 design이 정한 규칙이라 확인만 해 주시면 되고, 이견이 있으면 알려 주세요. 문구는 원고(app_ko.arb)와 회차1 스크린샷의 실제 문장입니다. 섹션 제목 자리의 글은 예시이고, 실제 문구는 2단계에서 정합니다.</p>
+  <div class="toolbar"><button type="button" id="theme">다크로 보기</button></div>
+
+  <!-- Q1 -->
+  <h2>Q1 눌림 모양 (F-006, F-007)</h2>
+  <p class="note">버튼, 목록 줄, 칩, 카드를 직접 눌러 보세요. 셋 다 눌림 표시는 그 요소의 경계 안에서만 보이고 밖으로 번지지 않습니다(F-007).</p>
+  <div class="options">
+    <div class="option"><span class="tag">안 ①</span><p>지금 규칙(V14). 누른 자리에서 먹이 번지고, 떼면 퍼지며 사라집니다.</p>
+      <div class="phone" data-press="ink">
+        <button class="btn filled pressable">저장</button>
+        <div class="group" style="margin-top: var(--space-16)"><div class="row pressable"><span class="label">알림 시각</span><span class="value">꺼짐</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row pressable"><span class="label">언어</span><span class="value">한국어</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div></div>
+        <div class="chips" style="margin-top: var(--space-16)"><button class="chip pressable"><span class="swatch"></span>남색</button><button class="chip pressable"><svg class="ic"><use href="#ic-compass-regular"/></svg>서</button></div>
+        <div class="card pressable" style="margin-top: var(--space-16)">카드 묶음 하나</div>
+      </div></div>
+    <div class="option"><span class="tag">안 ②</span><p>요소 전체가 옅게 어두워지는 표면 색 변화입니다. 경계까지 채웁니다(원문 #13).</p>
+      <div class="phone" data-press="fill">
+        <button class="btn filled pressable">저장</button>
+        <div class="group" style="margin-top: var(--space-16)"><div class="row pressable"><span class="label">알림 시각</span><span class="value">꺼짐</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row pressable"><span class="label">언어</span><span class="value">한국어</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div></div>
+        <div class="chips" style="margin-top: var(--space-16)"><button class="chip pressable"><span class="swatch"></span>남색</button><button class="chip pressable"><svg class="ic"><use href="#ic-compass-regular"/></svg>서</button></div>
+        <div class="card pressable" style="margin-top: var(--space-16)">카드 묶음 하나</div>
+      </div></div>
+    <div class="option"><span class="tag">안 ③</span><p>안 ②에 더해, 버튼과 카드처럼 큰 요소만 0.98배로 살짝 줄어듭니다. 동작 줄이기 설정에서는 줄지 않습니다.</p>
+      <div class="phone" data-press="fill-scale">
+        <button class="btn filled pressable scalable">저장</button>
+        <div class="group" style="margin-top: var(--space-16)"><div class="row pressable"><span class="label">알림 시각</span><span class="value">꺼짐</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row pressable"><span class="label">언어</span><span class="value">한국어</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div></div>
+        <div class="chips" style="margin-top: var(--space-16)"><button class="chip pressable"><span class="swatch"></span>남색</button><button class="chip pressable"><svg class="ic"><use href="#ic-compass-regular"/></svg>서</button></div>
+        <div class="card pressable scalable" style="margin-top: var(--space-16)">카드 묶음 하나</div>
+      </div></div>
+  </div>
+
+  <!-- Q2 -->
+  <h2>Q2 두 버튼 조합 (F-006)</h2>
+  <p class="note">일정 편집 화면 아래 버튼입니다. 세 안 모두 두 버튼의 높이가 52로 같고, 사이는 8입니다. 주 동작 버튼은 화면에 하나뿐입니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">안 ①</span><p>세로로 쌓고 주 동작이 위. 보조 버튼은 바탕 없는 글자 버튼(quiet)이고 높이만 52로 맞춥니다.</p>
+      <div class="phone" data-press="fill"><div style="height: 120px"></div><div class="stack"><button class="btn filled pressable">저장</button><button class="btn quiet pressable">일정 지우기</button></div></div></div>
+    <div class="option"><span class="tag">안 ②</span><p>세로로 쌓고 주 동작이 위. 보조 버튼에 옅은 바탕(soft)을 깔아 경계가 보입니다.</p>
+      <div class="phone" data-press="fill"><div style="height: 120px"></div><div class="stack"><button class="btn filled pressable">저장</button><button class="btn soft pressable">일정 지우기</button></div></div></div>
+    <div class="option"><span class="tag">안 ③</span><p>가로 3:7, 보조(soft)가 왼쪽. 어느 한 버튼이라도 글이 한 줄에 안 들어가면 안 ②처럼 세로로 바뀝니다(아래 좁은 폭 예).</p>
+      <div class="phone" data-press="fill"><div style="height: 120px"></div><div class="pair"><button class="btn soft pressable">일정 지우기</button><button class="btn filled pressable">저장</button></div>
+        <div style="margin-top: var(--space-16); width: 220px" class="stack"><button class="btn filled pressable">Save</button><button class="btn soft pressable">Delete event</button></div>
+        <p class="t-caption-lg" style="margin: var(--space-4) 0 0">좁은 폭에서 자동으로 세로</p></div></div>
+  </div>
+
+  <!-- Q3 -->
+  <h2>Q3 섹션 제목 (F-005)</h2>
+  <p class="note">내용 묶음 위의 작은 머리글입니다. 위는 간격으로만 묶은 내용, 아래는 카드로 묶은 내용입니다. 카드 묶음은 화면마다 고르는 선택지이고, 어느 화면에 둘지는 2단계에서 정합니다. 섹션 사이 32, 제목과 내용 사이 12입니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">안 ①</span><p>작은 회색 머리글(caption.md, 보조 글자색). 내용을 가리키는 꼬리표처럼 조용합니다.</p>
+      <div class="phone tall">
+        <div class="section"><div class="sh sh-a"><span class="title">총운</span></div><div class="t-sentence-card">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.</div></div>
+        <div class="section"><div class="sh sh-a"><span class="title">행운</span></div><div class="chips"><span class="chip"><span class="swatch"></span>남색</span><span class="chip"><svg class="ic"><use href="#ic-compass-regular"/></svg>서</span></div></div>
+        <div class="section"><div class="sh sh-a"><span class="title">계정</span></div><div class="group"><div class="row"><span class="label">로그인 수단</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row"><span class="label">로그아웃</span></div></div></div>
+      </div></div>
+    <div class="option"><span class="tag">안 ②</span><p>굵은 라벨(label.lg 600, 본문 글자색)과 선택 설명 한 줄. 무엇인지 분명히 읽힙니다.</p>
+      <div class="phone tall">
+        <div class="section"><div class="sh sh-b"><span class="title">총운<span class="desc">오늘 하루의 큰 흐름</span></span></div><div class="t-sentence-card">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.</div></div>
+        <div class="section"><div class="sh sh-b"><span class="title">행운</span></div><div class="chips"><span class="chip"><span class="swatch"></span>남색</span><span class="chip"><svg class="ic"><use href="#ic-compass-regular"/></svg>서</span></div></div>
+        <div class="section"><div class="sh sh-b"><span class="title">계정</span></div><div class="group"><div class="row"><span class="label">로그인 수단</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row"><span class="label">로그아웃</span></div></div></div>
+      </div></div>
+    <div class="option"><span class="tag">안 ③</span><p>안 ②에 오른쪽 더 보기 자리(글자와 꺾쇠). 더 볼 곳이 있는 섹션에만 씁니다.</p>
+      <div class="phone tall">
+        <div class="section"><div class="sh sh-c"><span class="title">총운<span class="desc">오늘 하루의 큰 흐름</span></span></div><div class="t-sentence-card">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.</div></div>
+        <div class="section"><div class="sh sh-c"><span class="title">행운</span><span class="more">더 보기<svg class="ic"><use href="#ic-caret-right-light"/></svg></span></div><div class="chips"><span class="chip"><span class="swatch"></span>남색</span><span class="chip"><svg class="ic"><use href="#ic-compass-regular"/></svg>서</span></div></div>
+        <div class="section"><div class="sh sh-c"><span class="title">계정</span></div><div class="group"><div class="row"><span class="label">로그인 수단</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row"><span class="label">로그아웃</span></div></div></div>
+      </div></div>
+  </div>
+  <p class="note">"오늘 하루의 큰 흐름", "행운", "계정"은 모양을 보이기 위한 예시 글입니다.</p>
+
+  <!-- Q4 -->
+  <h2>Q4 설명 열기 (F-008)</h2>
+  <p class="note">"서" 칩을 눌러 보세요. 셋 다 "아래 내용" 상자가 움직이지 않습니다. 설명 문장은 회차1 스크린샷의 실제 문장입니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">안 ①</span><p>칩 위에 말풍선. 바깥을 누르거나 다른 칩을 누르면 닫힙니다. 화면 끝에서는 안쪽으로 밀려 잘리지 않습니다.</p>
+      <div class="phone" data-explain="popover"><div style="height: 56px"></div>
+        <div class="chips"><button class="chip"><span class="swatch"></span>남색</button><button class="chip explainable" data-text="오늘 움직일 일이 있다면 서쪽이 좋아요."><svg class="ic"><use href="#ic-compass-regular"/></svg>서</button><button class="chip"><svg class="ic"><use href="#ic-tag-regular"/></svg>합</button></div>
+        <div class="popover" role="tooltip"></div>
+        <div class="placeholder-block">아래 내용</div></div></div>
+    <div class="option"><span class="tag">안 ②</span><p>작은 하프 시트. 칩 이름을 제목으로, 설명을 본문으로 보입니다. 설명 뒤에 더 볼 것을 붙이기 쉽습니다.</p>
+      <div class="phone" data-explain="sheet"><div style="height: 56px"></div>
+        <div class="chips"><button class="chip"><span class="swatch"></span>남색</button><button class="chip explainable" data-title="행운 방향" data-text="오늘 움직일 일이 있다면 서쪽이 좋아요."><svg class="ic"><use href="#ic-compass-regular"/></svg>서</button><button class="chip"><svg class="ic"><use href="#ic-tag-regular"/></svg>합</button></div>
+        <div class="placeholder-block">아래 내용</div>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog"><div class="handle-zone"><div class="handle"></div></div><div class="t-subtitle"></div><div class="t-sentence-body"></div></div></div></div>
+    <div class="option"><span class="tag">안 ③</span><p>칩 줄 아래에 설명 자리를 늘 잡아 둡니다. 처음에는 고른 칩이 없다는 안내가 있고, 누르면 글만 바뀝니다.</p>
+      <div class="phone" data-explain="reserved"><div style="height: 56px"></div>
+        <div class="chips"><button class="chip"><span class="swatch"></span>남색</button><button class="chip explainable" data-text="오늘 움직일 일이 있다면 서쪽이 좋아요."><svg class="ic"><use href="#ic-compass-regular"/></svg>서</button><button class="chip"><svg class="ic"><use href="#ic-tag-regular"/></svg>합</button></div>
+        <div class="reserved">칩을 누르면 뜻을 볼 수 있어요.</div>
+        <div class="placeholder-block">아래 내용</div></div>
+      <p class="note">안 ③의 첫 안내 글은 예시이고, 고르면 writing 슬롯이 하나 늘어납니다.</p></div>
+  </div>
+
+  <!-- Q5 -->
+  <h2>Q5 근거 진입점 아이콘 (F-003)</h2>
+  <p class="note">"근거 보기 &gt;" 글자를 모든 곳에서 primary 색 아이콘 하나로 바꿉니다. 문장 끝에 붙고, 글자 크기 규칙(아래 정한 값 B)에 따라 15px 문장 옆은 20입니다. 터치 영역은 48입니다. 스크린리더는 "근거 보기"를 읽습니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">안 ①</span><p><code>book-open-text</code> 펼친 책. 원전과 판정 근거를 읽으러 간다는 뜻에 가깝습니다.</p>
+      <div class="phone"><span class="badge">기신의 날</span><p class="t-sentence-body" style="margin: var(--space-8) 0 0">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.&nbsp;<svg class="ic" style="--icon: 20px; color: var(--color-action-primary); vertical-align: -4px"><use href="#ic-book-open-text-regular"/></svg></p></div></div>
+    <div class="option"><span class="tag">안 ②</span><p><code>info</code> 동그라미 i. 가장 흔한 "더 알아보기" 표시라 바로 읽히지만 근거라는 뜻은 약합니다.</p>
+      <div class="phone"><span class="badge">기신의 날</span><p class="t-sentence-body" style="margin: var(--space-8) 0 0">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.&nbsp;<svg class="ic" style="--icon: 20px; color: var(--color-action-primary); vertical-align: -4px"><use href="#ic-info-regular"/></svg></p></div></div>
+    <div class="option"><span class="tag">안 ③</span><p><code>magnifying-glass-plus</code> 돋보기. "자세히 들여다보기"라는 뜻입니다.</p>
+      <div class="phone"><span class="badge">기신의 날</span><p class="t-sentence-body" style="margin: var(--space-8) 0 0">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.&nbsp;<svg class="ic" style="--icon: 20px; color: var(--color-action-primary); vertical-align: -4px"><use href="#ic-magnifying-glass-plus-regular"/></svg></p></div></div>
+    <div class="option"><span class="tag">안 ④</span><p><code>scroll</code> 두루마리. 명리 원전 느낌이 가장 강하지만 처음 보면 누르는 것인지 덜 분명합니다.</p>
+      <div class="phone"><span class="badge">기신의 날</span><p class="t-sentence-body" style="margin: var(--space-8) 0 0">기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.&nbsp;<svg class="ic" style="--icon: 20px; color: var(--color-action-primary); vertical-align: -4px"><use href="#ic-scroll-regular"/></svg></p></div></div>
+  </div>
+
+  <!-- Q6 -->
+  <h2>Q6 화면 전환 (F-012)</h2>
+  <p class="note">"계산 기준"을 눌러 다음 화면으로 들어가고, 왼쪽 위 꺾쇠로 돌아와 보세요. 시트는 지금처럼 아래에서 올라옵니다. 동작 줄이기 설정에서는 밀림 없이 나타나기만 합니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">안 ①</span><p>오른쪽에서 24px 밀려 들어오며 나타남(320ms). 차분하고 짧습니다.</p>
+      <div class="phone flush"><div class="stage" data-push="short"></div></div></div>
+    <div class="option"><span class="tag">안 ②</span><p>화면 폭만큼 오른쪽에서 밀어 들어오고, 이전 화면은 왼쪽으로 조금 물러남(320ms). 플랫폼 기본에 가깝습니다.</p>
+      <div class="phone flush"><div class="stage" data-push="full"></div></div></div>
+  </div>
+
+  <!-- 정한 값 -->
+  <h2>정한 값 A 간격 쓰임표 (F-002)</h2>
+  <p class="note">간격은 지금 토큰 단계(2, 4, 8, 12, 16, 20, 24, 32, 48)만 씁니다. 명세에 직접 쓴 6, 10, 3, 28 같은 값 25곳은 가장 가까운 단계로 옮깁니다. 묶음 안 간격은 묶음 사이 간격보다 두 단계 이상 작게 둡니다(가까운 것끼리 묶여 보이게). 화면 좌우 여백은 20을 그대로 둡니다. 긴 문장을 읽는 화면이라 16보다 넉넉한 20이 맞고(레퍼런스는 16, M3는 넉넉한 배치가 차분하다고 함), 시트는 둥근 모서리(28) 때문에 24로 넓힙니다.</p>
+  <table>
+    <tr><th>토큰</th><th>보기</th><th>쓰는 곳</th></tr>
+    <tr><td>space.2</td><td><div class="bar" style="width: var(--space-2)"></div></td><td>한 덩어리 안의 두 줄 사이(사주 표 두 줄 묶음, 섹션 제목과 설명), 글자와 붙은 꺾쇠</td></tr>
+    <tr><td>space.4</td><td><div class="bar" style="width: var(--space-4)"></div></td><td>칩, 배지 안 아이콘과 글자 사이, 표 칸 안 줄 사이</td></tr>
+    <tr><td>space.8</td><td><div class="bar" style="width: var(--space-8)"></div></td><td>같은 묶음 안 요소 사이(칩 줄, 두 버튼, 제목과 본문), 이름과 값 사이</td></tr>
+    <tr><td>space.12</td><td><div class="bar" style="width: var(--space-12)"></div></td><td>섹션 제목과 내용 사이, 칩 좌우 안쪽, 줄 앞 아이콘과 글자 사이, 같은 섹션 안 카드 사이</td></tr>
+    <tr><td>space.16</td><td><div class="bar" style="width: var(--space-16)"></div></td><td>카드와 목록 줄의 좌우 안쪽</td></tr>
+    <tr><td>space.20</td><td><div class="bar" style="width: var(--space-20)"></div></td><td>화면 좌우 여백</td></tr>
+    <tr><td>space.24</td><td><div class="bar" style="width: var(--space-24)"></div></td><td>시트 좌우와 아래, 확인 창 안쪽(사방 같음), 본문과 아래 버튼 사이</td></tr>
+    <tr><td>space.32</td><td><div class="bar" style="width: var(--space-32)"></div></td><td>섹션 사이</td></tr>
+    <tr><td>space.48</td><td><div class="bar" style="width: var(--space-48)"></div></td><td>화면 맨 아래 스크롤 여유, 빈 화면 위아래</td></tr>
+  </table>
+
+  <h2>정한 값 B 아이콘 크기와 굵기 (F-003)</h2>
+  <p class="note">아이콘은 Phosphor만 씁니다. 직접 그린 아이콘은 쓰지 않습니다. 크기는 16, 20, 24, 28 네 단계이고, 옆 글자에 맞춰 고릅니다. Phosphor 그림은 상자의 약 0.81을 차지하고, Pretendard 한글은 글자 크기의 0.86~0.88 높이입니다(실측). 그래서 <strong>그림 높이가 한글 높이 이상이 되는 가장 작은 단계</strong>를 씁니다: 14px 이하 글자 옆 16, 15~17px 옆 20, 20px 옆 24, 24px 옆 28. 글자가 커지면(기기 설정) 아이콘도 같은 비율로 커집니다. 굵기는 글자 굵기와 짝입니다: 400~500 글자 옆 Light, 600 이상 옆 Regular. 경고 표시도 이 규칙을 따라 지금(글자의 0.707)보다 커집니다.</p>
+  <table>
+    <tr><th>글자</th><th>보기</th><th>아이콘</th></tr>
+    <tr><td>caption.md 12</td><td><span class="icon-sample" style="font-size: 12px"><svg class="ic" style="--icon: 16px"><use href="#ic-clock-light"/></svg>집중하기 좋은 시간</span></td><td>16 Light</td></tr>
+    <tr><td>body.ui 14</td><td><span class="icon-sample" style="font-size: 14px"><svg class="ic" style="--icon: 16px"><use href="#ic-warning-circle-fill"/></svg>이 일정을 지울까요?</span></td><td>16 (경고 표시 Fill)</td></tr>
+    <tr><td>label.lg 14 (600)</td><td><span class="icon-sample t-label-lg"><svg class="ic" style="--icon: 16px"><use href="#ic-lock-simple-regular"/></svg>광고 제거 보기</span></td><td>16 Regular</td></tr>
+    <tr><td>sentence.body 15</td><td><span class="icon-sample t-sentence-body"><svg class="ic" style="--icon: 20px"><use href="#ic-tag-light"/></svg>합</span></td><td>20 Light</td></tr>
+    <tr><td>subtitle 16 (600)</td><td><span class="icon-sample t-subtitle"><svg class="ic" style="--icon: 20px"><use href="#ic-warning-circle-fill"/></svg>이 일정을 지울까요?</span></td><td>20 (경고 표시 Fill)</td></tr>
+    <tr><td>title 20 (600)</td><td><span class="icon-sample" style="font-size: var(--type-title-size); font-weight: 600"><svg class="ic" style="--icon: 24px"><use href="#ic-caret-left-regular"/></svg>계산 기준</span></td><td>24 Regular</td></tr>
+  </table>
+  <p class="note">목록 줄 앞 아이콘, 탭 바, 위 막대의 동작 아이콘처럼 글자와 한 줄에 있지 않은 아이콘은 터치 영역과 줄 높이에 맞춰 20(목록 줄)과 24(탭 바, 위 막대)를 씁니다.</p>
+
+  <h2>정한 값 C 목록 줄과 구분선 (F-004)</h2>
+  <p class="note">구분선은 0.5px(새 토큰 border.width.hairline)이고, 줄 글이 시작하는 곳에서 시작해 오른쪽도 같은 거리(16)만큼 들입니다. 같은 묶음 안 줄 사이에만 두고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 꺾쇠는 누르면 다른 화면이나 시트로 들어가는 줄에만 둡니다. 고르면 바로 값이 바뀌는 줄(언어 고르기)은 꺾쇠 없이, 고른 줄 끝에 체크 표시를 둡니다. 로그아웃과 계정 삭제는 작은 느낌표 대신 자기 아이콘과 굵은 글자로 구분합니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">지금</span><p>왼쪽만 들인 1px 선, 메뉴 아이콘 없음.</p>
+      <div class="phone"><div class="group old-divider"><div class="row"><span class="label">알림 시각</span><span class="value">꺼짐</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row"><span class="label">광고 제거</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div><div class="row"><span class="label">언어</span><span class="value">한국어</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div></div></div></div>
+    <div class="option"><span class="tag">정한 값</span><p>메뉴마다 아이콘 20 Light, 글 시작점부터 양쪽 들인 0.5px 선.</p>
+      <div class="phone" data-press="fill">
+        <div class="group with-icons">
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-bell-light"/></svg><span class="label">알림 시각</span><span class="value">꺼짐</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-prohibit-light"/></svg><span class="label">광고 제거</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-translate-light"/></svg><span class="label">언어</span><span class="value">한국어</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-user-circle-light"/></svg><span class="label">정보 수정</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-globe-hemisphere-east-light"/></svg><span class="label">계산 기준</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+        </div>
+        <div class="group with-icons" style="margin-top: var(--space-24)">
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-key-light"/></svg><span class="label">로그인 수단</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-file-text-light"/></svg><span class="label">약관과 정책</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+          <div class="row pressable"><svg class="ic lead"><use href="#ic-chat-circle-text-light"/></svg><span class="label">문의하기</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+        </div>
+        <div class="group with-icons" style="margin-top: var(--space-24)">
+          <div class="row pressable destructive"><svg class="ic lead"><use href="#ic-sign-out-regular"/></svg><span class="label">로그아웃</span></div>
+          <div class="row pressable destructive"><svg class="ic lead"><use href="#ic-trash-regular"/></svg><span class="label">계정 삭제</span></div>
+        </div>
+      </div></div>
+    <div class="option"><span class="tag">정한 값</span><p>고르기 목록(언어 시트). 꺾쇠 없음, 고른 줄 끝에 체크 20 Regular, 줄 전체를 누름.</p>
+      <div class="phone"><div class="sheet static" style="padding-bottom: var(--space-24)"><div class="handle-zone"><div class="handle"></div></div><div class="t-subtitle">언어</div>
+        <div class="group" data-select style="background: transparent; margin: 0 calc(var(--space-16) * -1)">
+          <div class="row" data-press-row><span class="label">한국어</span><svg class="ic checkmark"><use href="#ic-check-regular"/></svg></div>
+          <div class="row" data-press-row><span class="label">English</span></div>
+          <div class="row" data-press-row><span class="label">日本語</span></div>
+        </div></div></div></div>
+  </div>
+  <p class="note">줄 이름은 원고의 설정 메뉴 이름과 화면 제목입니다. 어느 메뉴에 어느 아이콘을 둘지는 이 표가 기준이고, 메뉴 순서와 묶음은 IA를 따릅니다.</p>
+
+  <h2>정한 값 D 바텀시트 (F-009)</h2>
+  <p class="note">좌우와 아래 안쪽 24(지금 20). 맨 위에 높이 24의 핸들 자리를 두고 그 가운데 36×4 핸들, 핸들 자리 전체가 끌기 영역(터치 높이 44)입니다. 제목은 핸들 자리 아래 8. 핸들이나 맨 위까지 스크롤된 내용을 끌어 내리면 손가락을 따라 내려가고, 높이의 25% 넘게 내리거나 빠르게 튕기면 닫히며, 아니면 제자리로 돌아옵니다. 입력이 있는 시트는 끌어 닫기 전에 쓴 내용을 잃지 않게 확인합니다. 점선은 여백 자리를 보이기 위한 표시입니다.</p>
+  <div class="options"><div class="option"><div class="phone tall flush" style="background: var(--color-scrim)">
+    <div class="sheet show" style="transition: none"><div class="handle-zone measure"><div class="handle"></div></div><div class="t-subtitle">행운 방향</div><p class="t-sentence-body" style="margin: 0">오늘 움직일 일이 있다면 서쪽이 좋아요.</p><div style="height: var(--space-24)"></div><button class="btn filled">확인</button></div>
+  </div></div></div>
+
+  <h2>정한 값 E 확인 창 (F-010)</h2>
+  <p class="note">안쪽 여백은 사방 24로 같고, 버튼도 그 안에 들어가 위와 아래가 같아 보입니다. 버튼은 같은 폭 두 개(soft 취소, filled 실행), 높이 44, 사이 8. 되돌릴 수 없는 동작은 실행 버튼을 본문 글자색 바탕으로, 제목 앞에 경고 표시(아이콘 규칙대로 20)를 둡니다. 화면 좌우와는 24 띄웁니다.</p>
+  <div class="options">
+    <div class="option"><div class="phone tall flush" style="background: var(--color-scrim)"><div class="dialog"><div class="head t-subtitle"><svg class="ic"><use href="#ic-warning-circle-fill"/></svg>이 일정을 지울까요?</div><div class="pair even"><button class="btn soft h44">취소</button><button class="btn dark h44">지우기</button></div></div></div></div>
+    <div class="option"><div class="phone tall flush" style="background: var(--color-scrim)"><div class="dialog"><div class="head t-subtitle">로그아웃할까요?</div><div class="pair even"><button class="btn soft h44">취소</button><button class="btn filled h44">로그아웃</button></div></div></div></div>
+  </div>
+
+  <h2>정한 값 F 로딩 모양 (F-011)</h2>
+  <p class="note">불러오는 동안의 skeleton은 그 화면의 실제 묶음 모양을 따라 그립니다: 화면 좌우 여백 안에서, 섹션 제목 자리, 카드 자리(카드 반경), 글줄 자리(글줄 높이의 60%, 마지막 줄 60% 폭). 글줄만 쌓은 skeleton은 쓰지 않습니다. 300ms 안에 끝나는 불러오기에는 보이지 않습니다.</p>
+  <div class="options">
+    <div class="option"><span class="tag">쓰지 않음</span><p>여백 없이 글줄 4개만 쌓은 모양(회차1 #1).</p>
+      <div class="phone tall flush bad-skeleton" style="padding: var(--space-8) var(--space-4)"><div class="bone line" style="width: 100%"></div><div class="bone line d1" style="width: 100%"></div><div class="bone line d2" style="width: 100%"></div><div class="bone line d3" style="width: 60%"></div></div></div>
+    <div class="option"><span class="tag">정한 값</span><p>화면 묶음을 따라 그린 모양.</p>
+      <div class="phone tall">
+        <div class="bone" style="width: 40%; height: 20px; border-radius: var(--radius-xs)"></div>
+        <div style="margin-top: var(--space-32)"><div class="bone d1" style="width: 20%; height: 12px; border-radius: var(--radius-xs); margin-bottom: var(--space-12)"></div><div class="bone line d1" style="width: 100%"></div><div class="bone line d2" style="width: 60%"></div></div>
+        <div style="margin-top: var(--space-32)"><div class="bone d2" style="width: 20%; height: 12px; border-radius: var(--radius-xs); margin-bottom: var(--space-12)"></div><div style="display: flex; gap: var(--space-8)"><div class="bone d2" style="width: 72px; height: 34px; border-radius: var(--radius-full)"></div><div class="bone d3" style="width: 56px; height: 34px; border-radius: var(--radius-full)"></div><div class="bone d3" style="width: 64px; height: 34px; border-radius: var(--radius-full)"></div></div></div>
+        <div class="bone d3" style="margin-top: var(--space-32); height: 120px; border-radius: var(--radius-lg)"></div>
+      </div></div>
+  </div>
+
+  <h2>정한 값 G 키보드 내리기 표시</h2>
+  <p class="note">입력 칸에 초점이 있는 동안 키보드 바로 위 오른쪽에 44 원형 버튼(아래 꺾쇠 20)을 띄웁니다. 두 플랫폼에서 같은 모양입니다. 입력 칸 밖을 누르거나 내용을 아래로 끌어도 키보드가 내려갑니다(동작은 app #796). 스크린리더 이름은 새 writing 슬롯입니다.</p>
+  <div class="options"><div class="option"><div class="phone tall"><div class="field">출생지</div><div class="kb-dismiss"><svg class="ic"><use href="#ic-caret-down-light"/></svg></div><div class="keyboard">기기 키보드</div></div></div></div>
+
+  <p class="note" style="margin-top: var(--space-48)">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Gowun Dodum.</p>
+</div>
+
+<script>
+  // 테마 전환
+  const themeButton = document.getElementById('theme');
+  themeButton.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = dark ? '' : 'dark';
+    themeButton.textContent = dark ? '다크로 보기' : '라이트로 보기';
+  });
+
+  // Q1 눌림: 안마다 phone의 data-press 값으로 정함
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('[data-press]').forEach((phone) => {
+    const mode = phone.dataset.press;
+    phone.querySelectorAll('.pressable').forEach((element) => {
+      if (mode !== 'ink') element.insertAdjacentHTML('afterbegin', '<span class="press-fill"></span>');
+      if (mode === 'fill-scale' && element.classList.contains('scalable')) element.classList.add('press-scale');
+      element.addEventListener('pointerdown', (event) => {
+        if (mode === 'ink') {
+          const box = element.getBoundingClientRect();
+          const size = Math.max(box.width, box.height) * 2;
+          const ink = document.createElement('span');
+          ink.className = 'ink';
+          Object.assign(ink.style, { width: size + 'px', height: size + 'px', left: (event.clientX - box.left - size / 2) + 'px', top: (event.clientY - box.top - size / 2) + 'px' });
+          element.appendChild(ink);
+          requestAnimationFrame(() => { ink.style.transform = 'scale(1)'; });
+          const release = () => { ink.style.transform = 'scale(1.15)'; ink.style.opacity = '0'; setTimeout(() => ink.remove(), 420); };
+          element.addEventListener('pointerup', release, { once: true });
+          element.addEventListener('pointerleave', release, { once: true });
+        } else {
+          element.classList.add('is-pressed');
+          const release = () => element.classList.remove('is-pressed');
+          element.addEventListener('pointerup', release, { once: true });
+          element.addEventListener('pointerleave', release, { once: true });
+        }
+      });
+    });
+  });
+
+  // 언어 고르기: 줄 전체를 누르면 체크가 옮겨감
+  document.querySelectorAll('[data-select]').forEach((group) => {
+    group.addEventListener('click', (event) => {
+      const row = event.target.closest('.row');
+      if (!row) return;
+      group.querySelectorAll('.checkmark').forEach((mark) => mark.remove());
+      row.insertAdjacentHTML('beforeend', '<svg class="ic checkmark"><use href="#ic-check-regular"/></svg>');
+    });
+  });
+
+  // Q4 설명 열기
+  document.querySelectorAll('[data-explain]').forEach((phone) => {
+    const mode = phone.dataset.explain;
+    const chip = phone.querySelector('.explainable');
+    if (mode === 'popover') {
+      const popover = phone.querySelector('.popover');
+      chip.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const open = popover.classList.toggle('show');
+        chip.classList.toggle('open', open);
+        popover.textContent = chip.dataset.text;
+        const phoneBox = phone.getBoundingClientRect();
+        const chipBox = chip.getBoundingClientRect();
+        const left = Math.min(Math.max(chipBox.left - phoneBox.left - 12, 20), phoneBox.width - 20 - popover.offsetWidth);
+        popover.style.left = left + 'px';
+        popover.style.top = (chipBox.top - phoneBox.top - popover.offsetHeight - 10) + 'px';
+        popover.style.setProperty('--arrow-x', (chipBox.left - phoneBox.left - left + chipBox.width / 2 - 6) + 'px');
+      });
+      phone.addEventListener('click', () => { popover.classList.remove('show'); chip.classList.remove('open'); });
+    } else if (mode === 'sheet') {
+      const sheet = phone.querySelector('.sheet');
+      const scrim = phone.querySelector('.scrim');
+      chip.addEventListener('click', () => {
+        sheet.querySelector('.t-subtitle').textContent = chip.dataset.title;
+        sheet.querySelector('.t-sentence-body').textContent = chip.dataset.text;
+        sheet.classList.add('show'); scrim.classList.add('show');
+      });
+      scrim.addEventListener('click', () => { sheet.classList.remove('show'); scrim.classList.remove('show'); });
+    } else {
+      const slot = phone.querySelector('.reserved');
+      const initial = slot.textContent;
+      chip.addEventListener('click', () => {
+        const open = !chip.classList.contains('open');
+        chip.classList.toggle('open', open);
+        slot.textContent = open ? chip.dataset.text : initial;
+        slot.style.color = open ? 'var(--color-text-primary)' : '';
+      });
+    }
+  });
+
+  // Q6 화면 전환
+  const settingsScreen = `<div class="appbar t-subtitle">설정</div><div class="group with-icons">
+    <div class="row"><svg class="ic lead"><use href="#ic-translate-light"/></svg><span class="label">언어</span><span class="value">한국어</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div>
+    <div class="row" data-go><svg class="ic lead"><use href="#ic-globe-hemisphere-east-light"/></svg><span class="label">계산 기준</span><svg class="ic chev"><use href="#ic-caret-right-light"/></svg></div></div>`;
+  const innerScreen = `<div class="appbar t-subtitle"><svg class="ic" data-back style="cursor: pointer"><use href="#ic-caret-left-light"/></svg>계산 기준</div>
+    <div class="bone line" style="width: 100%; animation: none"></div><div class="bone line" style="width: 80%; animation: none"></div><div class="bone line" style="width: 60%; animation: none"></div>`;
+  document.querySelectorAll('[data-push]').forEach((stage) => {
+    const full = stage.dataset.push === 'full';
+    stage.innerHTML = `<div class="screen base">${settingsScreen}</div><div class="screen top" style="display: none">${innerScreen}</div>`;
+    const base = stage.querySelector('.base');
+    const top = stage.querySelector('.top');
+    const duration = 'var(--motion-duration-medium)';
+    const easing = 'var(--motion-easing-enter)';
+    const set = (element, transform, opacity, animate) => {
+      element.style.transition = animate ? `transform ${duration} ${easing}, opacity ${duration} ${easing}` : 'none';
+      element.style.transform = transform; element.style.opacity = opacity;
+    };
+    const offset = full ? '100%' : '24px';
+    stage.querySelector('[data-go]').addEventListener('click', () => {
+      top.style.display = 'block';
+      set(top, reduceMotion ? 'none' : `translateX(${offset})`, full ? 1 : 0, false);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        set(top, 'none', 1, true);
+        if (full && !reduceMotion) set(base, 'translateX(-30%)', 1, true);
+      }));
+    });
+    stage.querySelector('[data-back]').addEventListener('click', () => {
+      set(top, reduceMotion ? 'none' : `translateX(${offset})`, full ? 1 : 0, true);
+      set(base, 'none', 1, true);
+      setTimeout(() => { top.style.display = 'none'; }, 340);
+    });
+  });
+</script>
+</body>
+</html>
