@@ -30,8 +30,8 @@
 - {slot: preview.share.login-notice, key: previewShareLoginNotice, text: "Sign in to share today's reading."}
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeConfirm, text: "Sign in"}
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "Close"}
-- {slot: login.title.head, key: loginTitleHead, text: "Sign in to save your reading"}
-- {slot: login.title.body, key: loginTitleBody, text: "Once you sign in, your chart and diary are available on any device."}
+- {slot: login.title.head, key: loginTitleHead, text: "Myungli Diary"}
+- {slot: login.title.body, key: loginTitleBody, text: "Sign in and we'll give you a daily reading matched to your chart."}
 - {slot: login.discard.notice, key: loginDiscardNotice, text: "If this account already has a saved chart, we'll use it instead of what you just entered."}
 - {slot: consent.title.head, key: consentTitleHead, text: "Please review and agree"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(Required) Terms of Service"}
@@ -62,8 +62,8 @@
 - {slot: day-sheet.event.empty, key: daySheetEventEmpty, text: "No events on this day."}
 - {slot: day-sheet.event.add, key: daySheetEventAdd, text: "Add event"}
 - {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "{count, plural, one{{count} entry this day} other{{count} entries this day}}"}
-- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "Write about this day"}
-- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "Write a new entry for this day"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "Write about {date}"}
+- {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "Write a new entry for {date}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaFull, text: "You've written enough for this day"}
 - {slot: event-edit.title.hint, key: eventEditTitleHint, text: "Event title"}
 - {slot: event-edit.memo.hint, key: eventEditMemoHint, text: "Notes"}
@@ -84,7 +84,7 @@
 - {slot: evidence-sheet.a11y.checking, key: evidenceSheetA11yChecking, text: "Checking"}
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "The basis and interpretation are unlocked"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "No diary entries yet. Why not start with today?"}
-- {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Pick a date to write"}
+- {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Write in diary"}
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "Write a {date} entry"}
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirmFull, text: "You've written enough for this day"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
@@ -421,3 +421,53 @@
 - {slot: ui.contact.error, key: contactSendFailed, text: "We couldn't send your message. Please try again in a moment."}
 - {slot: ui.contact.error, key: contactEmailInvalid, text: "Please check the email address."}
 - {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "Hide keyboard"}
+- {slot: today.featured.title, key: todayFeaturedTitle, text: "Chart energies"}
+- {slot: today.lucky.title, key: todayLuckyTitle, text: "Luck"}
+- {slot: today.guide.title, key: todayGuideTitle, text: "Today's question"}
+- {slot: today.fortune.title, key: todayFortuneTitle, text: "Main reading"}
+- {slot: today.date.solar, key: todayDateSolar, text: "{date}"}
+- {slot: today.date.lunar, key: todayDateLunar, text: "Lunar month {month}, day {day}"}
+- {slot: today.date.lunar, key: todayDateLunarLeap, text: "Lunar leap month {month}, day {day}"}
+- {slot: today.date.iljin, key: todayDateIljin, text: "{pillar} day"}
+- {slot: day-sheet.date.solar, key: daySheetDateSolar, text: "{date}"}
+- {slot: day-sheet.date.lunar, key: daySheetDateLunar, text: "Lunar month {month}, day {day}"}
+- {slot: day-sheet.date.lunar, key: daySheetDateLunarLeap, text: "Lunar leap month {month}, day {day}"}
+- {slot: day-sheet.verdict.title, key: daySheetVerdictTitle, text: "Luck verdict"}
+- {slot: day-sheet.verdict.item, key: daySheetVerdictItemPlus, text: "{count} toward good"}
+- {slot: day-sheet.verdict.item, key: daySheetVerdictItemMinus, text: "{count} toward caution"}
+- {slot: calendar.legend.body, key: calendarLegendBodyVeryGood, text: "Very smooth day"}
+- {slot: calendar.legend.body, key: calendarLegendBodyNeutral, text: "Steady day"}
+- {slot: calendar.legend.rule-link, key: calendarLegendRuleLink, text: "How is luck decided?"}
+- {slot: color-rule-sheet.sheet.title, key: colorRuleSheetSheetTitle, text: "How luck is decided"}
+- {slot: color-rule-sheet.rule.body, key: colorRuleSheetRuleBody, text: "We add up the energies coming in that day. For example, even a day in your favor can become a steady day if a clashing energy comes in too."}
+- {slot: tag-sheet.sentences.title, key: tagSheetSentencesTitle, text: "Today's lines from this energy"}
+- {slot: tag-sheet.sentences.empty, key: tagSheetSentencesEmpty, text: "No lines came from this energy today."}
+- {slot: tag-sheet.diary.cta, key: tagSheetDiaryCta, text: "View {count, plural, one{{count} entry} other{{count} entries}} tagged {tag}"}
+- {slot: diary-edit.date.day, key: diaryEditDateDay, text: "{date}"}
+- {slot: diary-edit.date.month, key: diaryEditDateMonth, text: "{date}"}
+- {slot: diary-edit.date.iljin, key: diaryEditDateIljin, text: "{pillar} day"}
+- {slot: diary-edit.length.count, key: diaryEditLengthCount, text: "{count, plural, one{{count} character} other{{count} characters}}"}
+- {slot: my-saju.chart.title, key: mySajuChartTitle, text: "Natal chart"}
+- {slot: my-saju.chart.link, key: mySajuChartLink, text: "Saju chart"}
+- {slot: my-saju.ilgan.title, key: mySajuIlganTitle, text: "Your nature"}
+- {slot: my-saju.yongsin.title, key: mySajuYongsinTitle, text: "Energy that helps you"}
+- {slot: my-saju.flow.title, key: mySajuFlowTitle, text: "This year and now"}
+- {slot: my-saju.flow.link, key: mySajuFlowLink, text: "All 10-year cycles"}
+- {slot: my-saju.record.title, key: mySajuRecordTitle, text: "Looking back on your diary"}
+- {slot: my-saju.record.few, key: mySajuRecordFew, text: "Once a few more entries build up, you can look back on your record here."}
+- {slot: saju-chart.head.title, key: sajuChartHeadTitle, text: "{nickname}'s chart"}
+- {slot: saju-chart.pillars.title, key: sajuChartPillarsTitle, text: "Saju"}
+- {slot: saju-chart.pillars.desc, key: sajuChartPillarsDesc, text: "Your birth year, month, day, and hour, each written as a pair of a heavenly stem and an earthly branch. The day master is you."}
+- {slot: saju-chart.ohaeng.title, key: sajuChartOhaengTitle, text: "Five elements"}
+- {slot: saju-chart.ohaeng.desc, key: sajuChartOhaengDesc, text: "Shows how much wood, fire, earth, metal, and water your chart holds."}
+- {slot: saju-chart.manse.basis, key: sajuChartManseBasis, text: "Based on your day master {stem}"}
+- {slot: saju-chart.jijanggan.desc, key: sajuChartJijangganDesc, text: "Heavenly stems hidden inside an earthly branch. Even unseen, they make up the energy of that seat."}
+- {slot: saju-chart.unseong.desc, key: sajuChartUnseongDesc, text: "Shows in twelve stages how much strength your day master has in that seat."}
+- {slot: saju-chart.sinsal.desc, key: sajuChartSinsalDesc, text: "A distinct trait formed by certain combinations of characters. Some charts have none."}
+- {slot: saju-chart.daeun.title, key: sajuChartDaeunTitle, text: "10-year cycles"}
+- {slot: saju-chart.daeun.desc, key: sajuChartDaeunDesc, text: "The big flow that changes every 10 years."}
+- {slot: saju-chart.seun.title, key: sajuChartSeunTitle, text: "Yearly cycles"}
+- {slot: saju-chart.seun.desc, key: sajuChartSeunDesc, text: "The energy that comes in each year."}
+- {slot: notify-ask.time.note, key: notifyAskTimeNote, text: "Depending on conditions, notifications may arrive up to 10 minutes late."}
+- {slot: settings.notify-time.note, key: settingsNotifyTimeNote, text: "Depending on conditions, notifications may arrive up to 10 minutes late."}
+- {slot: ui.birth-info.row, key: birthInfoHour, text: "{branch} hour"}

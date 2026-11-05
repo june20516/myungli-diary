@@ -177,8 +177,6 @@
   keys:
     - mySajuChartTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuChartTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: mySajuChartTitle, text: "사주 원국", why: "사용자 확정 문구(#813)", source: writing}
@@ -198,8 +196,6 @@
   keys:
     - mySajuChartLink
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuChartLink: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -218,8 +214,6 @@
   keys:
     - mySajuIlganTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuIlganTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: mySajuIlganTitle, text: "사주 성향 풀이", why: "사용자 확정 문구(#813)", source: writing}
@@ -239,8 +233,6 @@
   keys:
     - mySajuYongsinTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuYongsinTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: mySajuYongsinTitle, text: "나를 돕는 기운", why: "사용자 확정 문구(#813)", source: writing}
@@ -260,8 +252,6 @@
   keys:
     - mySajuFlowTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuFlowTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: mySajuFlowTitle, text: "올해와 지금", why: "사용자 확정 문구(#813)", source: writing}
@@ -281,8 +271,6 @@
   keys:
     - mySajuFlowLink
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuFlowLink: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -301,8 +289,6 @@
   keys:
     - mySajuRecordTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuRecordTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: mySajuRecordTitle, text: "명리일기 회고", why: "사용자 확정 문구(#813)", source: writing}
@@ -322,8 +308,6 @@
   keys:
     - mySajuRecordFew
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    mySajuRecordFew: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -343,8 +327,6 @@
     - params: {nickname: text}
       keys: [sajuChartHeadTitle]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartHeadTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -363,8 +345,6 @@
   keys:
     - sajuChartPillarsTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartPillarsTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: sajuChartPillarsTitle, text: "사주", why: "사용자 확정 문구(#813)", source: writing}
@@ -384,8 +364,6 @@
   keys:
     - sajuChartPillarsDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartPillarsDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -404,8 +382,6 @@
   keys:
     - sajuChartOhaengTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartOhaengTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: sajuChartOhaengTitle, text: "오행 분포", why: "사용자 확정 문구(#813)", source: writing}
@@ -425,8 +401,6 @@
   keys:
     - sajuChartOhaengDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartOhaengDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -446,8 +420,6 @@
     - params: {stem: text}
       keys: [sajuChartManseBasis]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartManseBasis: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -466,8 +438,6 @@
   keys:
     - sajuChartJijangganDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartJijangganDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -486,8 +456,6 @@
   keys:
     - sajuChartUnseongDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartUnseongDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -506,8 +474,6 @@
   keys:
     - sajuChartSinsalDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartSinsalDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -526,8 +492,6 @@
   keys:
     - sajuChartDaeunTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartDaeunTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: sajuChartDaeunTitle, text: "대운", why: "사용자 확정 문구(#813)", source: writing}
@@ -547,8 +511,6 @@
   keys:
     - sajuChartDaeunDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartDaeunDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -567,8 +529,6 @@
   keys:
     - sajuChartSeunTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartSeunTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: sajuChartSeunTitle, text: "세운", why: "사용자 확정 문구(#813)", source: writing}
@@ -588,12 +548,31 @@
   keys:
     - sajuChartSeunDesc
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartSeunDesc: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
   endings: []
   a11y:
     truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: ui.birth-info.row
+  where: "사주 표 머리 아래 출생 정보 줄(birth-info-row)의 시진 칸. 달력 종류는 `calendarSolar`·`calendarLunar`, 성별은 `genderMale`·`genderFemale`, 시간 모름은 `timeUnknownLabel`을 함께 씁니다(R30-13)"
+  purpose: info
+  user_state: "사주 표를 열고 내 출생 정보를 확인합니다."
+  structure: "시진 이름 하나. 지지 이름 `branch`는 app이 glossary 지지 이름으로 채웁니다(예: 미시)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [birth-info-row]
+  keys:
+    - params: {branch: text}
+      keys: [birthInfoHour]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: birthInfoHour, text: "{branch}시", why: "기준 이미지(E-chart-wonguk) 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "칸 안에서 잘리지 않게 짧게 씁니다."
     screen_reader: "보이는 글자 그대로 읽습니다."

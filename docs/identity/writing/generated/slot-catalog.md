@@ -43,7 +43,7 @@
 | calc-basis.schools.body | calc-basis.schools.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | calendar.bar.title | calendar.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | calendar.day_level | 컴포넌트 day-character<br>컴포넌트 day-cell | info | - | 1 | 4 | `score`: number | ko 10, en 18, ja 10 |
-| calendar.legend.body | calendar.legend.body | info | - | 1 | 2 | - | ko -, en -, ja - |
+| calendar.legend.body | calendar.legend.body | info | - | 1 | 4 | - | ko -, en -, ja - |
 | calendar.legend.rule-link | calendar.legend.rule-link | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | calendar.score_item | 컴포넌트 term-token | info | - | 1 | 7 | - | ko 10, en 18, ja 10 |
 | calendar.solar_term | 컴포넌트 day-cell | info | - | 1 | 24 | - | ko 4, en 6, ja 3 |
@@ -75,13 +75,13 @@
 | daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 21 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
 | daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko 36, en 64, ja 36 |
 | daily.tag_label | 컴포넌트 tag-chip<br>컴포넌트 lucky-card | info | - | 1 | 16 | - | ko 10, en 18, ja 10 |
-| day-sheet.date.lunar | day-sheet.date.lunar | info | - | 1 | 1 | `lunarDate`: text | ko -, en -, ja - |
+| day-sheet.date.lunar | day-sheet.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | day-sheet.date.solar | day-sheet.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | `count`: number | ko 24, en 44, ja 20 |
-| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | - | ko 23, en 40, ja 18 |
+| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | `date`: text | ko 23, en 40, ja 18 |
 | day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 40, ja 18 |
 | day-sheet.event.empty | day-sheet.event.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
-| day-sheet.verdict.item | day-sheet.verdict.item | info | - | 1 | 2 | - | ko -, en -, ja - |
+| day-sheet.verdict.item | day-sheet.verdict.item | info | - | 1 | 2 | `count`: number | ko -, en -, ja - |
 | day-sheet.verdict.title | day-sheet.verdict.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.bar.title | diary-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.body.placeholder | diary-edit.body.placeholder | guide | - | 1 | 1 | - | ko 42, en 82, ja 36 |
@@ -216,7 +216,7 @@
 | term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 78 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
-| today.date.lunar | today.date.lunar | info | - | 1 | 1 | `lunarDate`: text | ko -, en -, ja - |
+| today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
 | today.featured.title | today.featured.title | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -235,6 +235,7 @@
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
 | ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko 52, en 90, ja 38 |
 | ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
+| ui.birth-info.row | 컴포넌트 birth-info-row | info | - | 1 | 1 | `branch`: text | ko -, en -, ja - |
 | ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 21, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.contact.error | 컴포넌트 toast<br>컴포넌트 text-field | guide | - | 1 | 2 | - | ko 48, en 78, ja 34<br>`contactEmailInvalid` ko 60, en 100, ja 44 |

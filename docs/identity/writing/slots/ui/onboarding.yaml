@@ -577,7 +577,7 @@
   where: "로그인 화면(login): 로그인 제목"
   purpose: info
   user_state: "미리보기 뒤 로그인 화면에 왔습니다."
-  structure: "짧은 한 문장. 로그인하는 이유(저장)."
+  structure: "첫 화면 문구. 앱 이름만 둡니다. 두 경로(첫 풀이를 거쳐 옴, 이미 계정이 있어요) 모두 같습니다(R30-12, F-029)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -585,7 +585,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: loginTitleHead, text: "로그인하고 풀이를 저장해요", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: loginTitleHead, text: "명리일기", why: "라운드 R30-12 선택(맞이말을 첫 화면 문구로)", source: writing}
     bad: []
   endings: ["~해요", "~어요"]
   a11y:
@@ -596,7 +596,7 @@
   where: "로그인 화면(login): 저장하려면 로그인한다는 설명"
   purpose: info
   user_state: "로그인하면 무엇이 좋은지 봅니다."
-  structure: "한 문장."
+  structure: "한 문장. 로그인하면 받는 것. 두 경로 모두 같은 문장을 보입니다(R30-12, F-029)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -604,7 +604,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: loginTitleBody, text: "로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: loginTitleBody, text: "로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요.", why: "라운드 R30-12 사용자 문장", source: writing}
     bad: []
   endings: ["~해요", "~어요"]
   a11y:
@@ -797,8 +797,6 @@
   keys:
     - notifyAskTimeNote
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    notifyAskTimeNote: {ko: "D109 안내 원고 대기(#813)", en: "D109 안내 원고 대기(#813)", ja: "D109 안내 원고 대기(#813)"}
   examples:
     good: []
     bad: []

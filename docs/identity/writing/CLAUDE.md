@@ -51,6 +51,7 @@
 ## 현재 상태 (2026-11-05, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **IA v5 원고**(#813, 라운드 R30 `artifacts/2026-11-05-round-R30.md`, W56): IA v5 새 ui 슬롯 44개의 3개 언어 원고(오늘 섹션 제목, 날짜 틀, 사주 표 한 줄 설명 일곱, 태그 시트, 범례와 길흉 규칙 시트, 일기 버튼, 알림 시각 안내, 회고 안내). 로그인 화면은 경로로 나누지 않고 제목 "명리일기", 설명 "로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요."(F-029). 그날 시트 일기 버튼 "{date} 일기 쓰기", 출생 정보 줄 시진 칸 `ui.birth-info.row`. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
 * **IA v5, core 2026.11.0, DS1 따라잡기**(drift #811, #813 틀, #807, #821, W55): IA v5 새 ui 슬롯 44개의 키와 틀(원고는 `pending`, 사용자 확정 ko 문구 12개만 채움), 새 content 자리는 기존 슬롯 `ia`로, IA에서 빠진 4자리는 `ia`에서만 뗌. `*.big_change` 원고 삭제, 일지 충과 월지 충, `calendar.very_good`, `basis.tags/*` 12개, 새 `source.*` 10개는 `pending`. 근거 아이콘 스크린리더 이름 `depthLinkEvidence`("{subject} 근거 보기"), 새 `ui.keyboard.dismiss`, design 4.0.0 상한. 주간 고정 자료는 엔진 2026.11.0으로 다시 만들었습니다.
 * **문의하기와 문의 화면 원고**(#745·#752, D102, 라운드 R28 `artifacts/2026-11-04-round-R28.md`·R29 `artifacts/2026-11-04-round-R29.md`, W53·W54): 설정 줄 "문의하기", IA 문의 화면 `contact` 8개 슬롯(`slots/ui/contact.yaml`, 제목은 `app-bar.yaml`)과 IA 밖 `ui.contact.error`, 구매 내역 안내 "결제한 상품이 보이지 않으면 문의하기로 알려 주세요.". 기기 메일 앱 방식은 계정 id를 사용자가 지울 수 있어 앱 안 화면으로 바뀌었습니다(#750 → D102). 함께 보내는 정보 고지는 합니다체입니다. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
 * **app 임시 문구와 ATT 본문**(#331·#697, 라운드 R26 `artifacts/2026-11-03-round-R26.md`, W51, 검사기 v0.13.0): app 임시 키 33개를 IA 밖 `ui.*` 슬롯 10개로 옮겼습니다(설정 줄 "알림 시각", 약관 줄, 출생지 기본값 "한국 기준", 사주 탭 "원국"·"만세력과 대운", 표 머리, 꼬리표, 스크린리더 이름, 행운 칩과 공유 이미지 이름). 근거 시트 제목은 두 화면이 같이 쓰는 "풀이의 근거", 개인 해석이 없는 자리는 "이 자리는 따로 풀이한 내용이 없어요.". glossary `twelve_stage` 12개(개인 해석 문장과 같은 표기). ATT 본문 `iosTrackingUsageDescription`(`ui.system.tracking`, app이 `InfoPlist.strings`에 옮김). ja 만세력을 「万年暦」로 고쳤습니다(W24). 새 슬롯 상한은 design #723 값으로 채웠고(W52, 라운드 R27), en 탭 이름은 상한에 맞춰 "Calendar and cycles"로 줄였습니다.
@@ -111,12 +112,12 @@
     * 검사기 코드를 고쳤을 때: `docs/identity/writing/tools`에서 `uv run pytest -q tests/test_<모듈>.py`, PR 전에 `uv run pytest -q`(전체 약 15초)와 `uv run ruff check .`·`uv run mypy src`
     * 계약(IA·core JSON·proto·design `lengths.md`)이 바뀌었을 때: `uv run pytest -q -m contract`와 위 원고 검사. CI `drift`·`gate`도 이 범위만 돕니다(`writing.yml`)
     * 테스트는 한 실행 안에서 같은 원고 읽기와 묶음 검사 결과를 다시 씁니다(`tests/session_cache.py`, 키는 파일 내용 해시). 공유 원고를 고치는 테스트는 `tmp_path` 사본을 쓰고, 고치면 세션 끝 확인이 실패합니다
-* 결정은 W1~W55입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
+* 결정은 W1~W56입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **#813 원고(blocking 해제 뒤)**: IA v5 새 슬롯 원고(섹션 제목 가안, 사주 표 한 줄 설명 7개, 날짜 머리와 블록 틀, 사주 표 머리와 출생 정보 줄 칸 라벨, 태그 시트 세 줄, 달력 범례 네 칸과 규칙 시트, 일기 목록 버튼과 글자 수, 경로별 로그인 문구, 회고 안내, D109 알림 안내 둘)와 "core #804 결과 뒤" 몫(일지 충과 월지 충 이름과 문장, 태그 원전 뜻, 원전 없는 태그의 해석 문장, `calendar.very_good`)을 라운드로 씁니다. 그날 시트 일기 버튼 `{date} 일기 쓰기`도 여기서 바꿉니다. design 상한이 나오면 `null`을 채웁니다.
+2. **R31(#813 "core #804 결과 뒤" 몫, #821)**: 일지 충과 월지 충 태그 이름, 보조 문장, 질문, 뜻, `calendar.very_good`, `basis.tags/*` 12개, 새 `source.*` 10개의 원전 뜻, 원전 없는 태그(십성 몰림)의 해석 문장(D108 ④)을 라운드로 씁니다. design 상한이 나오면 IA v5 새 슬롯의 `null`을 채웁니다. 지휘에는 로그인 설명을 경로로 나누지 않았다고 알립니다(IA `login.title.body` 역할 고침).
 3. **문의 화면 후속**: design 3.4.0 상한을 넣었습니다(#763, drift #773). app이 새 키(#746 구현)를 가져가는지 봅니다.
 4. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
 5. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).

@@ -180,8 +180,6 @@
     - params: {date: text}
       keys: [diaryEditDateDay]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    diaryEditDateDay: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -201,8 +199,6 @@
     - params: {date: text}
       keys: [diaryEditDateMonth]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    diaryEditDateMonth: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -222,8 +218,6 @@
     - params: {pillar: text}
       keys: [diaryEditDateIljin]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    diaryEditDateIljin: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -243,8 +237,6 @@
     - params: {count: number}
       keys: [diaryEditLengthCount]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    diaryEditLengthCount: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []

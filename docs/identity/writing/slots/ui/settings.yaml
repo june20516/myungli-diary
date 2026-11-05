@@ -400,8 +400,6 @@
   keys:
     - settingsNotifyTimeNote
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    settingsNotifyTimeNote: {ko: "D109 안내 원고 대기(#813)", en: "D109 안내 원고 대기(#813)", ja: "D109 안내 원고 대기(#813)"}
   examples:
     good: []
     bad: []

@@ -165,12 +165,14 @@
   where: "달력 화면(calendar): 점 색의 뜻"
   purpose: info
   user_state: "달력 칸 색의 뜻을 봅니다(V10: 좋은 날·조심할 날만 칸을 채움)."
-  structure: "색 견본 옆 이름 둘: `Good`, `Caution`. calendar.day_level 이름과 같은 말을 씁니다."
+  structure: "색 견본 옆 이름 넷: `VeryGood`, `Good`, `Neutral`, `Caution`(IA v5). calendar.day_level 이름과 같은 말을 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - calendarLegendBodyGood
     - calendarLegendBodyCaution
+    - calendarLegendBodyVeryGood
+    - calendarLegendBodyNeutral
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -249,14 +251,14 @@
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 23, en: 40, ja: 18}
   keys:
-    - daySheetDiaryWriteCta
-    - daySheetDiaryWriteCtaWritten
+    - params: {date: text}
+      keys: [daySheetDiaryWriteCta, daySheetDiaryWriteCtaWritten]
     - daySheetDiaryWriteCtaFull
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: daySheetDiaryWriteCta, text: "이날 일기 쓰기", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-      - {lang: ko, key: daySheetDiaryWriteCtaWritten, text: "이날 새 일기 쓰기", why: "라운드 R12 선택", source: writing}
+      - {lang: ko, key: daySheetDiaryWriteCta, text: "{date} 일기 쓰기", why: "IA v5 사용자 확정(#813, 날짜는 app이 채움)", source: writing}
+      - {lang: ko, key: daySheetDiaryWriteCtaWritten, text: "{date} 새 일기 쓰기", why: "R12 선택을 날짜 틀로(#813)", source: writing}
       - {lang: ko, key: daySheetDiaryWriteCtaFull, text: "이날은 충분히 썼어요", why: "라운드 R12 선택, 오늘·지난 날 모두 맞는 말", source: writing}
     bad: []
   endings: []
@@ -385,8 +387,6 @@
     - params: {date: text}
       keys: [todayDateSolar]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayDateSolar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -403,11 +403,9 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: {lunarDate: text}
-      keys: [todayDateLunar]
+    - params: {month: number, day: number}
+      keys: [todayDateLunar, todayDateLunarLeap]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayDateLunar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -427,8 +425,6 @@
     - params: {pillar: text}
       keys: [todayDateIljin]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayDateIljin: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -447,8 +443,6 @@
   keys:
     - todayFortuneTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayFortuneTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: todayFortuneTitle, text: "총운", why: "사용자 확정 문구(#813)", source: writing}
@@ -468,8 +462,6 @@
   keys:
     - todayFeaturedTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayFeaturedTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -488,8 +480,6 @@
   keys:
     - todayLuckyTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayLuckyTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -508,8 +498,6 @@
   keys:
     - todayGuideTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayGuideTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -528,8 +516,6 @@
   keys:
     - calendarLegendRuleLink
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    calendarLegendRuleLink: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -549,8 +535,6 @@
     - params: {date: text}
       keys: [daySheetDateSolar]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    daySheetDateSolar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -567,11 +551,9 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: {lunarDate: text}
-      keys: [daySheetDateLunar]
+    - params: {month: number, day: number}
+      keys: [daySheetDateLunar, daySheetDateLunarLeap]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    daySheetDateLunar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -590,8 +572,6 @@
   keys:
     - daySheetVerdictTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    daySheetVerdictTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: daySheetVerdictTitle, text: "길흉판정", why: "사용자 확정 문구(#813)", source: writing}
@@ -605,16 +585,13 @@
   where: "그날 시트 길흉판정 내역 한 줄(한자 아이콘 태그, 짧은 뜻, 점, 더함 또는 뺌)"
   purpose: info
   user_state: "그날 색이 어떤 기운의 합으로 정해졌는지 봅니다."
-  structure: "점수 숫자 대신 점으로 보이고, 스크린리더는 더함과 뺌을 읽습니다. 짧은 뜻은 calendar.score_item 원고. 키는 더함(`Plus`), 뺌(`Minus`)."
+  structure: "점수 숫자 대신 점으로 보이고, 스크린리더는 더함(`Plus`)과 뺌(`Minus`)을 점 개수 `count`와 함께 읽습니다. 짧은 뜻은 calendar.score_item 원고(R30-6)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - daySheetVerdictItemPlus
-    - daySheetVerdictItemMinus
+    - params: {count: number}
+      keys: [daySheetVerdictItemPlus, daySheetVerdictItemMinus]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    daySheetVerdictItemPlus: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
-    daySheetVerdictItemMinus: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []

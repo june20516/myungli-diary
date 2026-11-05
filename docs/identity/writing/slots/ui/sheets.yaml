@@ -271,8 +271,6 @@
   keys:
     - tagSheetSentencesTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    tagSheetSentencesTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -291,8 +289,6 @@
   keys:
     - tagSheetSentencesEmpty
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    tagSheetSentencesEmpty: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -312,8 +308,6 @@
     - params: {tag: text, count: number}
       keys: [tagSheetDiaryCta]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    tagSheetDiaryCta: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -332,8 +326,6 @@
   keys:
     - colorRuleSheetSheetTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    colorRuleSheetSheetTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
   examples:
     good: []
     bad: []
@@ -352,8 +344,6 @@
   keys:
     - colorRuleSheetRuleBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    colorRuleSheetRuleBody: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
   examples:
     good:
       - {lang: ko, key: colorRuleSheetRuleBody, text: "그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.", why: "사용자 확정 문구(#813)", source: writing}
