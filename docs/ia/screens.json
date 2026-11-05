@@ -990,6 +990,11 @@
      "role": "아침 알림이 주는 것"
     },
     {
+     "id": "notify-ask.time.note",
+     "source": "ui",
+     "role": "시각 고르기 아래 안내: 고른 시각부터 10분 안에 도착(D109, 문구 writing)"
+    },
+    {
      "id": "notify-ask.cta.allow",
      "source": "ui",
      "role": "알림 허락 버튼"
@@ -1015,7 +1020,8 @@
    "decisions": [
     "D18",
     "D39",
-    "D68"
+    "D68",
+    "D109"
    ]
   },
   {
@@ -2568,6 +2574,11 @@
      "id": "settings.ad-free.label",
      "source": "ui",
      "role": "광고 제거 메뉴와 남은 기간 표시"
+    },
+    {
+     "id": "settings.notify-time.note",
+     "source": "ui",
+     "role": "알림 시각 고르기(시트) 안의 안내: 고른 시각부터 10분 안에 도착(D109, 문구 writing)"
     }
    ],
    "components": [
@@ -2625,7 +2636,8 @@
     "D79",
     "D82",
     "D89",
-    "D102"
+    "D102",
+    "D109"
    ]
   },
   {
