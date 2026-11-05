@@ -1602,6 +1602,14 @@ HANJA_GLYPHS = {
 }
 
 
+GANJI_ELEMENTS = {
+    "stems": {"甲": "wood", "乙": "wood", "丙": "fire", "丁": "fire", "戊": "earth", "己": "earth",
+              "庚": "metal", "辛": "metal", "壬": "water", "癸": "water"},
+    "branches": {"寅": "wood", "卯": "wood", "巳": "fire", "午": "fire", "辰": "earth", "戌": "earth",
+                 "丑": "earth", "未": "earth", "申": "metal", "酉": "metal", "亥": "water", "子": "water"},
+}
+
+
 def test_hanja_tag_component():
     tag = component("sentence", "hanja-tag")
     parts = tag["parts"]
@@ -1638,23 +1646,32 @@ def test_hanja_tag_component():
     assert selected["border"] == {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"},
                                   "placement": "inside"}
     assert "톤 테두리" in selected["note"]
-    # 간지 글자는 사주 용어 16자 규칙 밖의 변형: 원 대신 stem.chip (리뷰 I1)
+    # 간지 글자는 사주 용어 16자 규칙 밖의 변형: 알약과 이름은 그 오행 색, 원은 흰 바탕에 오행 글자색 (리뷰 라운드 2)
     ganji = variants["ganji"]["parts"]
-    assert ganji["glyph"] == {"visible": False}
-    assert ganji["ganjiGlyph"]["element"] == "stem.chip"
-    assert ganji["ganjiGlyphs"] == {"stems": list("甲乙丙丁戊己庚辛壬癸"), "branches": list("子丑寅卯辰巳午未申酉戌亥")}
-    assert "stemGlyph" not in parts
+    assert ganji["glyph"] == {"bg": "{color.bg.sheet}", "fg": "same-as-name", "decorative": True}
+    assert ganji["tone"]["byElement"] == {
+        element: {"bg": f"{{color.ohaeng.{element}.bg}}", "fg": f"{{color.ohaeng.{element}.fg}}"}
+        for element in ("wood", "fire", "earth", "metal", "water")}
+    assert ganji["ganjiGlyphs"] == GANJI_ELEMENTS and len(GANJI_ELEMENTS["stems"]) + len(GANJI_ELEMENTS["branches"]) == 22
+    assert "stemGlyph" not in parts and "ganjiGlyph" not in ganji and "stem.chip" not in tag["uses"]
     assert any("16자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
     assert set(tag["parts"]["opens"]["targets"]) == {"explain-sheet", "tag-sheet"}
     assert tag["a11y"]["role"] == "button" and tag["a11y"]["label"] == "이름 글자(한자는 읽지 않음)"
-    assert tag["a11y"]["minTarget"] == 44 and "stem.chip" in tag["uses"]
+    assert tag["a11y"]["minTarget"] == 44
     assert tag["states"]["pressed"]["pattern"] == "press.ink"
 
 
 def test_stem_chip_element():
     chip = load_documents(COMPONENTS_DIR)["elements"]["elements"]["stem.chip"]
     assert chip["size"] == {"value": 22, "unit": "px"} and chip["colors"] == "ohaeng.cell"
+    assert chip["where"] == ["band-table 지장간 칸"]  # 리뷰 라운드 2: hanja-tag ganji는 이 칩을 쓰지 않음
     assert chip["hanja"] == {"fontFamily": "{font.family.hanja}", "fontSize": {"value": 13, "unit": "px"}, "fontWeight": 700}
+
+
+# 잠김을 뜻하는 경로(states.locked, 요소 lock.veil, lockPanel). block 같은 낱말에는 걸리지 않음
+LOCK_PATH = re.compile(r"locked|lock\.|lockPanel")
+# 밑줄 모양이지만 누르는 표시가 아닌 것: 달력 선택 날짜의 펼침 밑줄(요소와 패턴)
+UNDERLINE_NOT_LINKS = ("mark.underline-grow",)
 
 
 # 자세히 보기 표시는 넷뿐: 용어 칩(뜻 시트), 근거 아이콘(근거 시트), 꺾쇠(화면 이동), 자물쇠 + 열기(잠긴 것 열기)
@@ -1665,11 +1682,12 @@ def test_detail_affordances_are_four():
     assert not [place for place, icon in icons if icon.startswith("info")]  # ⓘ 없음(Q2 ②)
     text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
     assert '"textDecoration"' not in text  # 밑줄 링크 없음
-    underlines = [(place, key, value) for name, document in documents.items() if name != "elements"
+    underlines = [place for name, document in documents.items()
                   for place, key, value in components._walk(document, name)
-                  if (isinstance(key, str) and key.lower().startswith("underline"))
-                  or (isinstance(value, str) and value.startswith("underline"))]
-    assert underlines == []  # 달력 선택 표시 mark.underline-grow(요소, 키 selectedUnderline)는 밑줄 링크가 아님
+                  if ((isinstance(key, str) and key.lower().startswith("underline"))
+                      or (isinstance(value, str) and value.startswith("underline")))
+                  and not any(allowed in place for allowed in UNDERLINE_NOT_LINKS)]
+    assert underlines == []
     # "더 보기" 글자 버튼 없음: 누를 수 있는 more 부품(target·pattern·component)이나 label 글자 값의 더 보기/more.
     # event-row의 more는 '외 N개' 개수 글자라 누를 수 없음
     pressable = ("target", "pattern", "component", "minTarget")
@@ -1680,8 +1698,8 @@ def test_detail_affordances_are_four():
     assert more == []
     # 꺾쇠는 잠긴 것을 여는 자리(경로에 lock)에 없고(잠금 안내 pass는 화면 이동이라 제외), 자물쇠는 잠긴 것에만
     assert not [place for place, icon in icons
-                if icon == "caret-right" and "lock" in place.lower() and ".pass" not in place]
-    assert all("lock" in place for place, icon in icons if icon == "lock-simple")
+                if icon == "caret-right" and LOCK_PATH.search(place) and ".pass" not in place]
+    assert all(LOCK_PATH.search(place) for place, icon in icons if icon == "lock-simple")
     assert component("sentence", "depth-link")["parts"]["icon"]["icon"] == "book-open-text"
     assert component("sentence", "term-token")["parts"]["chip"]["bg"] == "{color.term.bg}"
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")

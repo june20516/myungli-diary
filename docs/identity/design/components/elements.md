@@ -19,7 +19,7 @@
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
-| `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | hanja-tag `ganji`, band-table 지장간 칸, 원국 칸 |
+| `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
 | `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5), 여는 입구 `open`(자물쇠 + 열기) | 근거 시트 세 구역, 잠긴 용신 근거 |
@@ -98,6 +98,6 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 ## 간지 칩 `stem.chip`
 
-천간이나 지지 한 글자를 오행 색으로 보이는 정사각 칸입니다(DS1 2단계, 결정 V72). 크기 22, 반경 `radius.sm`, 바탕색과 글자색은 `ohaeng.cell`의 그 오행 값, 한자는 `font.family.hanja` 13 700입니다. `hanja-tag` `ganji` 변형이 한자 원 대신 쓰고, `band-table` 지장간 칸과 원국 칸이 함께 씁니다. 칸이 고정이라 글자 배율 상한은 1.3배입니다(`ohaeng.cell`과 같음).
+`band-table` 지장간 칸의 천간 한 글자를 오행 색으로 보이는 정사각 칸입니다(DS1 2단계, 결정 V72). 크기 22, 반경 `radius.sm`, 바탕색과 글자색은 `ohaeng.cell`의 그 오행 값, 한자는 `font.family.hanja` 13 700입니다. 지장간 칸 전용입니다. `hanja-tag` `ganji`는 이 칩을 쓰지 않고 알약 전체를 오행 색으로 칠합니다(`sentence.md`). 칸이 고정이라 글자 배율 상한은 1.3배입니다(`ohaeng.cell`과 같음).
 
 1단계 요소 `section.header`와 `explain.sheet`는 IA v5의 컴포넌트 `section-header`, `explain-sheet`로 옮겼습니다(`frame.md`, 결정 V69, V71).
