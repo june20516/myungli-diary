@@ -761,5 +761,23 @@
     "decisions": [],
     "status": "draft",
     "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 아주 잘 풀리는 날 색은 토큰 1.4.0 전 자리값. 사용자 선택 대기(#801)"
+  },
+  {
+    "id": "design-ds1-screen-b",
+    "title": "DS1 화면 묶음 B: 나 탭(사주 원국, 사주 성향 풀이, 나를 돕는 기운, 올해와 지금, 명리일기 회고)과 상태 셋(기록이 적을 때, 시간 모름, 불러오는 중)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-b.html",
+    "source": "2026-11-05-ds1-screen-b.html",
+    "date": "2026-11-05",
+    "milestone": "DS1",
+    "screens": [
+      "my-saju"
+    ],
+    "decisions": [
+      "V76",
+      "V77"
+    ],
+    "status": "draft",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 luck-pillar compact, diary-summary. 가상 사용자 하늘님, 원고에 없는 문구 자리는 예시 표시. 사용자 확인 대기(#801)"
   }
 ]

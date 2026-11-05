@@ -37,7 +37,7 @@ EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 # 다른 검사는 그대로 돕니다. 명세를 쓰는 task가 그 컴포넌트를 이 목록에서 뺍니다.
 IA_PENDING_COMPONENTS = frozenset({
     "date-header", "tag-sentence-list", "fortune-verdict", "score-row", "score-scale", "date-block",
-    "diary-summary", "luck-pillar", "birth-info-row", "band-table", "stage-strip", "scroll-hint",
+    "birth-info-row", "band-table", "stage-strip", "scroll-hint",
 })
 
 # 테마 조합 이름 → (색 모드 파일, 글자 언어 파일). primitive는 모든 조합에 들어갑니다.

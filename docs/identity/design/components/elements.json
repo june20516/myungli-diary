@@ -33,7 +33,7 @@
       },
       "sizes": {
         "pillar": { "height": { "value": 66, "unit": "px" }, "hanja": "{type.hanja.pillar}", "reading": "{type.caption.sm}" },
-        "mini": { "width": { "value": 30, "unit": "px" }, "height": { "value": 30, "unit": "px" }, "hanjaSize": { "value": 15, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}" }
+        "mini": { "width": { "value": 30, "unit": "px" }, "height": { "value": 30, "unit": "px" }, "hanjaSize": { "value": 15, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}" }, "small": { "width": { "value": 40, "unit": "px" }, "height": { "value": 40, "unit": "px" }, "hanjaSize": { "value": 18, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}", "where": "luck-pillar" }
       },
       "textScaleMax": 1.3
     },

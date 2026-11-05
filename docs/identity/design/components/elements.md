@@ -6,7 +6,7 @@
 | 요소 | 정의 | 쓰는 곳 |
 | --- | --- | --- |
 | `seal` 낙관 도장 | 로고 낙관 경로(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
-| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `mini`(30×30) | 원국표, 만세력 표, 대운·세운 |
+| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `mini`(30×30), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 만세력 표, 대운·세운 |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
 | `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, tag-chip, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |

@@ -96,3 +96,18 @@ def test_ds1_rules_page_has_no_forbidden_dashes():
     html = DS1_RULES_PAGE.read_text(encoding="utf-8")
 
     assert [char for char in ("—", "–", "·") if char in html] == []
+
+
+SCREEN_SAMPLES = sorted((DESIGN_DIR / "artifacts").glob("2026-11-05-ds1-screen-*.html"))
+
+
+def test_screen_samples_use_tokens():
+    """DS1 2단계 화면 시안은 토큰 CSS를 읽고 색은 변수만 쓰며 D93 글자가 없습니다."""
+    assert SCREEN_SAMPLES, "화면 시안이 없음"
+    for page in SCREEN_SAMPLES:
+        html = page.read_text(encoding="utf-8")
+        assert 'href="ds1/tokens.css"' in html, page.name
+        assert re.findall(r"""(?:[:=]\s*["']?|,\s*)#[0-9a-fA-F]{3,8}\b""", html) == [], page.name
+        assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html, page.name
+        assert "var(--color-" in html, page.name
+        assert [char for char in ("—", "–", "·") if char in html] == [], page.name

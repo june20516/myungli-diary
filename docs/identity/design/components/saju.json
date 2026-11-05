@@ -118,6 +118,54 @@
         "대운 기둥은 부품 줄(order)마다 높이를 맞춘다. 한 기둥의 라벨이 두 줄이면 같은 줄의 모든 기둥이 그 높이를 따라 간지 칸이 가로로 나란하다. 세운도 같은 행 다섯 칸의 십성 줄 높이를 맞춘다.",
         "세운은 계약에 천간 십성만 있어 천간 위 한 칩이다."
       ]
+    },
+    {
+      "id": "luck-pillar",
+      "summary": "대운, 세운 기둥 한 칸: 위 나이 또는 연도, 천간 십성, 천간과 지지 칸, 지지 십성. 지금 대운과 올해 세운은 강조",
+      "uses": ["ohaeng.cell", "highlight.current", "tag.status", "term"],
+      "variants": [
+        { "id": "column", "when": "사주 표 대운과 세운 줄(saju-chart). 가로로 넘기는 줄의 기둥 하나" },
+        {
+          "id": "compact",
+          "when": "나 탭 올해와 지금(my-saju). 지금 대운과 올해 세운 두 줄 요약",
+          "parts": {
+            "layout": { "direction": "horizontal", "rows": ["daeun", "seun"], "rowGap": "{space.16}" },
+            "cells": { "direction": "vertical", "gap": "{space.4}" },
+            "info": { "marginStart": "{space.12}", "order": ["head", "period", "tenGods"], "align": "top" },
+            "head": { "tag": { "element": "tag.status", "slot": "ui.saju.tag" }, "kind": { "component": "term-token", "variant": "label", "terms": ["대운", "세운"], "note": "사주 용어라 용어 칩(누르면 뜻 시트)" }, "gap": "{space.4}" },
+            "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginTop": "{space.4}", "source": "대운은 나이 범위(한국식 나이, core C22)와 연도 범위, 세운은 연도와 그해 나이", "copy": "문구 틀은 IA 슬롯 없음(writing 새 슬롯)" },
+            "tenGods": { "component": "term-token", "variant": "label", "order": ["stem", "branch"], "gap": "{space.4}", "marginTop": "{space.4}", "note": "세운은 천간 십성 하나(계약 SeunYear.tenGod)" },
+            "topLabel": { "visible": false },
+            "stemTenGod": { "visible": false },
+            "branchTenGod": { "visible": false },
+            "currentTag": { "visible": false },
+            "highlight": "none"
+          }
+        }
+      ],
+      "parts": {
+        "order": ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "currentTag"],
+        "container": { "width": { "value": 52, "unit": "px" }, "radius": "{radius.md}", "padding": "{space.4}", "align": "center" },
+        "topLabel": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "source": "대운은 시작 나이(한국식 나이, core C22), 세운은 연도" },
+        "stemTenGod": { "component": "term-token", "variant": "label", "marginTop": "{space.4}", "source": "DaeunPeriod.stemTenGod, SeunYear.tenGod" },
+        "stem": { "element": "ohaeng.cell", "size": "small", "marginTop": "{space.4}" },
+        "branch": { "element": "ohaeng.cell", "size": "small", "marginTop": "{space.4}" },
+        "branchTenGod": { "component": "term-token", "variant": "label", "marginTop": "{space.4}", "basis": "정기", "source": "DaeunPeriod.branchTenGod", "seun": "계약에 없어 자리만 남겨 줄 높이를 맞춤" },
+        "currentTag": { "element": "tag.status", "slot": "ui.saju.tag", "position": "기둥 아래 가운데", "marginTop": "{space.4}", "visible": false }
+      },
+      "states": {
+        "current": { "when": "지금 대운", "parts": { "container": { "element": "highlight.current", "bg": "{color.status.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "지금" } } },
+        "thisYear": { "when": "올해 세운", "parts": { "container": { "element": "highlight.current", "bg": "{color.status.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "올해" } } },
+        "loading": { "skeleton": [{ "bone": "cells", "shape": "ohaeng.cell 칸", "count": 2 }, { "bone": "tenGods", "shape": "chip", "width": "36px" }], "note": "꼬리표와 위 글자는 그리지 않음" }
+      },
+      "haptic": [],
+      "a11y": { "role": "group", "label": "나이 또는 연도, 천간 십성, 천간 지지 한자와 독음, 지지 십성", "currentAnnounced": "지금, 올해", "textScaleMax": 1.3 },
+      "rules": [
+        "지금, 올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
+        "십성 칩은 term-token label이고 누르면 뜻 시트(explain-sheet)다.",
+        "compact는 두 줄 모두 지금이라 바탕 강조 대신 줄 머리에 tag.status 꼬리표(지금, 올해)와 용어 칩(대운, 세운)을 둔다.",
+        "기둥 칸은 기둥 사이에 같은 줄 높이를 맞춘다(daeun-table 높이 맞춤과 같음)."
+      ]
     }
   ]
 }

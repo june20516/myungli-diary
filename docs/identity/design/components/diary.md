@@ -78,3 +78,25 @@
 | `neutral` | 없음, 1px `tag.neutral.border` | `tag.neutral.fg` |
 
 * 누르면 태그 모아보기(tag-diary). 목록·보기·저장 순간 모두 같은 컴포넌트입니다.
+
+## diary-summary
+
+* 쓰는 화면: my-saju
+* 근거: [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §4, 결정 V76. 시안 `design-ds1-screen-b`
+* 나 탭 명리일기 회고 섹션의 카드입니다(`bg.sheet`, `radius.lg`, 안쪽 `space.16`). 섹션 제목(`my-saju.record.title`)은 `section-header` 몫입니다.
+* 위에서부터 편수, "어떤 날에 썼나" 막대 넷, "자주 붙은 태그"입니다. 머리 글자는 `type.label.md` `text.secondary`, 위 `space.16`, 아래 `space.8`(아래 내용의 이름이라 붙임, V56).
+
+| 부품 | 값 |
+| --- | --- |
+| 편수 | 숫자 28 700 고정폭 `text.primary` + 단위 글자 `type.label.lg`(숫자 기준선에 맞춤, 사이 `space.4`) |
+| 막대 줄 | 이름 칸 72(`type.label.md`, 날의 성격 이름 writing `dayKind` 네 키) + 막대 + 수(`type.numeric.table`, 고정폭, 폭 28 오른쪽 맞춤, 막대와 사이 `space.12`). 줄 사이 `space.8`, 최소 높이 24 |
+| 막대 | 높이 8 `radius.full`, 트랙 `bg.base`. 길이는 그 줄의 수를 네 줄 가운데 가장 큰 수에 견준 비율. 0이면 트랙만 |
+| 줄 순서 | 용신의 날, 귀인의 날, 평범한 날, 기신의 날 |
+| 막대 색 | 날의 성격 톤. V8 배지 매핑의 진한 쪽 색: 용신 `badge.good.bg`, 귀인 `badge.gwiin.fg`, 평범 `badge.ordinary.border`, 기신 `badge.gisin.fg` |
+| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 수 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 뜻 시트. 태그가 없으면 머리와 줄을 그리지 않습니다 |
+
+* 막대 색의 옅은 쪽(귀인 coral-100, 기신 neutral-100)은 트랙과 구분되지 않아 진한 쪽(글자색, 테두리색)을 씁니다. 이름과 수가 늘 함께 보여 색만으로 전하지 않습니다.
+* **기록이 적을 때(`few`):** 쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(`my-saju.record.few`, `type.caption.lg` `text.secondary`, 위 `space.12`)을 둡니다. 편수와 (있으면) 태그는 그대로입니다. 0편도 같습니다.
+* 불러오는 중: 편수 글줄 하나(96), 막대 글줄 넷, 태그 칩 셋(64). 머리 글자는 바로 보입니다.
+* 접근성: 카드는 그룹 "편수, 날의 성격마다 이름과 수, 태그 이름과 수". 막대는 꾸밈이라 읽지 않습니다. 글자 배율 상한 1.3배.
+* **문구 자리:** 단위 글자, 막대 머리, 태그 머리는 IA에 슬롯이 없습니다(writing 새 슬롯, IA 알림 필요). 편수 집계는 server 새 경로입니다(IA `my-saju.record.title` 역할 설명).

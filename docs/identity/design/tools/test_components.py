@@ -342,8 +342,8 @@ def test_brand_groups_contain_spec_components():
         "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image"},
         "calendar": {"calendar-month", "day-cell", "event-row"},
-        "diary": {"diary-row", "diary-editor", "draft-indicator", "tag-chip"},
-        "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table"},
+        "diary": {"diary-row", "diary-editor", "draft-indicator", "tag-chip", "diary-summary"},
+        "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar"},
     }
 
 
@@ -1455,6 +1455,7 @@ CONTENT_COMPONENTS = {
     "diary-row", "diary-editor", "tag-chip", "saju-pillars", "manse-table", "daeun-table", "ohaeng-bar",
     "offer-card", "purchase-row", "account-choice", "city-search",
     "hanja-tag",  # 태그 이름을 받아 그림 (DS1 2단계)
+    "diary-summary", "luck-pillar",  # 기록 집계, 대운과 세운 (DS1 2단계 묶음 B)
 }
 
 
@@ -1762,3 +1763,71 @@ def test_lucky_chip_outline():
     opened = lucky["states"]["open"]["parts"]["chip"]
     assert opened == {"border": {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"}, "placement": "inside"}}
     assert "innerBorder" not in json.dumps(lucky)
+
+
+# DS1 2단계 spec §4 diary-summary (결정 V76)
+DAY_KIND_ORDER = ["YONGSIN_DAY", "GWIIN_DAY", "ORDINARY_DAY", "GISIN_DAY"]
+
+
+def test_diary_summary():
+    summary = component("diary", "diary-summary")
+    parts = summary["parts"]
+    assert parts["container"] == {"bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}"}
+    count = parts["count"]
+    assert (count["fontSize"], count["fontWeight"], count["fontFeatures"]) == ({"value": 28, "unit": "px"}, 700, ["tnum"])
+    assert parts["countUnit"]["marginStart"] == "{space.4}" and parts["countUnit"]["baseline"] == "count"
+    kinds = parts["dayKinds"]
+    assert kinds["order"] == DAY_KIND_ORDER
+    assert kinds["bar"]["height"] == {"value": 8, "unit": "px"} and kinds["bar"]["radius"] == "{radius.full}"
+    assert kinds["bar"]["track"] == "{color.bg.base}"
+    # 날의 성격 톤: V8 배지 매핑의 진한 쪽 색(옅은 바탕은 트랙 위에서 보이지 않음)
+    assert kinds["fill"] == {"YONGSIN_DAY": "{color.badge.good.bg}", "GWIIN_DAY": "{color.badge.gwiin.fg}",
+                             "ORDINARY_DAY": "{color.badge.ordinary.border}", "GISIN_DAY": "{color.badge.gisin.fg}"}
+    assert kinds["count"]["align"] == "end" and kinds["count"]["fontFeatures"] == ["tnum"]
+    tags = parts["tags"]
+    assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순"}
+    assert tags["count"]["position"] == "알약 안 이름 뒤" and tags["count"]["marginStart"] == "{space.4}"
+    notice = parts["notice"]
+    assert notice["slot"] == "my-saju.record.few" and notice["visible"] is False
+    few = summary["states"]["few"]
+    assert few["threshold"] == 5 and few["when"] == "쓴 편수 5편 미만"
+    assert few["parts"] == {"dayKinds": {"visible": False}, "notice": {"visible": True}}
+    bones = [bone["bone"] for bone in summary["states"]["loading"]["skeleton"]]
+    assert bones == ["count", "dayKinds", "tags"]
+    assert summary["a11y"]["role"] == "group" and summary["a11y"]["barsDecorative"] is True
+    assert "my-saju.record.title" not in str(summary)  # 섹션 제목은 section-header 몫
+
+
+# DS1 2단계 spec §4 luck-pillar (결정 V77)
+def test_luck_pillar():
+    pillar = component("saju", "luck-pillar")
+    parts = pillar["parts"]
+    assert parts["order"] == ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "currentTag"]
+    assert parts["stem"]["element"] == "ohaeng.cell" and parts["stem"]["size"] == "small"
+    assert parts["branch"]["size"] == "small"
+    cell = load_documents(COMPONENTS_DIR)["elements"]["elements"]["ohaeng.cell"]["sizes"]["small"]
+    assert cell["width"] == {"value": 40, "unit": "px"} and cell["height"] == {"value": 40, "unit": "px"}
+    for chip in ("stemTenGod", "branchTenGod"):
+        assert (parts[chip]["component"], parts[chip]["variant"]) == ("term-token", "label")
+    assert parts["currentTag"]["element"] == "tag.status" and parts["currentTag"]["slot"] == "ui.saju.tag"
+    assert parts["currentTag"]["visible"] is False
+    states = pillar["states"]
+    for state, word in (("current", "지금"), ("thisYear", "올해")):
+        emphasis = states[state]["parts"]
+        assert emphasis["container"] == {"element": "highlight.current", "bg": "{color.status.bg}"}
+        assert emphasis["topLabel"] == {"fg": "{color.action.primary}", "fontWeight": 700}
+        assert emphasis["currentTag"] == {"visible": True, "label": word}
+    assert "skeleton" in states["loading"]
+    variants = {variant["id"]: variant for variant in pillar["variants"]}
+    assert set(variants) == {"column", "compact"}
+    compact = variants["compact"]["parts"]
+    assert compact["layout"] == {"direction": "horizontal", "rows": ["daeun", "seun"], "rowGap": "{space.16}"}
+    assert compact["cells"] == {"direction": "vertical", "gap": "{space.4}"}
+    assert compact["head"]["tag"] == {"element": "tag.status", "slot": "ui.saju.tag"}
+    assert compact["head"]["kind"]["component"] == "term-token"
+    assert compact["tenGods"]["component"] == "term-token" and compact["tenGods"]["variant"] == "label"
+    for hidden in ("topLabel", "stemTenGod", "branchTenGod", "currentTag"):
+        assert compact[hidden] == {"visible": False}, hidden
+    assert compact["highlight"] == "none"  # 두 줄 모두 지금이라 바탕 강조로 가를 것이 없음
+    assert pillar["a11y"]["textScaleMax"] == 1.3
+    assert any("낙관 윤곽" in rule for rule in pillar["rules"])

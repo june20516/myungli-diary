@@ -167,6 +167,45 @@
         "목록·보기·저장 순간(diary-edit)에 같은 컴포넌트를 쓴다.",
         "톤은 엔진이 준 태그의 길흉 값을 따른다(배지와 같은 V8 규칙)."
       ]
+    },
+    {
+      "id": "diary-summary",
+      "summary": "기록 요약 (나 탭 명리일기 회고): 쓴 편수, 날의 성격마다 쓴 수 막대, 자주 붙은 태그",
+      "uses": ["tone"],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}" },
+        "count": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 28, "unit": "px" }, "fontWeight": 700, "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "source": "쓴 일기 편수(server 집계, 새 경로)" },
+        "countUnit": { "type": "{type.label.lg}", "fg": "{color.text.primary}", "marginStart": "{space.4}", "baseline": "count", "copy": "편수 단위 글자. IA 슬롯 없음(writing 새 슬롯)" },
+        "dayKinds": {
+          "head": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.8}", "copy": "막대 머리. IA 슬롯 없음(writing 새 슬롯)", "note": "머리는 아래 막대의 이름이라 아래에 붙임(V56과 같은 이유)" },
+          "order": ["YONGSIN_DAY", "GWIIN_DAY", "ORDINARY_DAY", "GISIN_DAY"],
+          "name": { "type": "{type.label.md}", "fg": "{color.text.primary}", "width": { "value": 72, "unit": "px" }, "source": "날의 성격 이름(writing dayKind 네 키)" },
+          "bar": { "height": { "value": 8, "unit": "px" }, "radius": "{radius.full}", "track": "{color.bg.base}", "length": "그 줄의 수 / 네 줄 가운데 가장 큰 수", "zero": "채움 없이 트랙만" },
+          "fill": { "YONGSIN_DAY": "{color.badge.good.bg}", "GWIIN_DAY": "{color.badge.gwiin.fg}", "ORDINARY_DAY": "{color.badge.ordinary.border}", "GISIN_DAY": "{color.badge.gisin.fg}" },
+          "count": { "type": "{type.numeric.table}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "align": "end", "width": { "value": 28, "unit": "px" }, "marginStart": "{space.12}" },
+          "row": { "gap": "{space.8}", "minHeight": { "value": 24, "unit": "px" }, "align": "center" }
+        },
+        "tags": {
+          "head": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.8}", "copy": "태그 머리. IA 슬롯 없음(writing 새 슬롯)", "note": "dayKinds 머리와 같음" },
+          "tag": { "component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순" },
+          "count": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginStart": "{space.4}", "position": "알약 안 이름 뒤" },
+          "gap": "{space.8}",
+          "whenEmpty": "머리와 줄을 그리지 않음"
+        },
+        "notice": { "slot": "my-saju.record.few", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.12}", "visible": false }
+      },
+      "states": {
+        "few": { "when": "쓴 편수 5편 미만", "threshold": 5, "parts": { "dayKinds": { "visible": false }, "notice": { "visible": true } }, "note": "편수와 (있으면) 태그는 그대로. 0편도 같음" },
+        "loading": { "skeleton": [{ "bone": "count", "shape": "textLine", "lines": 1, "width": "96px" }, { "bone": "dayKinds", "shape": "textLine", "rows": 4 }, { "bone": "tags", "shape": "chip", "count": 3, "width": "64px" }], "note": "머리 글자는 바로" }
+      },
+      "haptic": [],
+      "a11y": { "role": "group", "label": "편수, 날의 성격마다 이름과 수, 태그 이름과 수", "barsDecorative": true, "textScaleMax": 1.3 },
+      "rules": [
+        "막대는 그 날의 성격으로 쓴 수를 네 줄 가운데 가장 큰 수에 견준 길이다. 수는 막대 오른쪽 끝에 고정폭으로 둔다.",
+        "막대 색은 날의 성격 톤(V8 배지 매핑의 진한 쪽 색)이고, 이름과 수를 늘 함께 보여 색만으로 전하지 않는다.",
+        "자주 붙은 태그는 hanja-tag default(사주 용어 초록) 최대 셋, 수 많은 순. 누르면 뜻 시트(explain-sheet).",
+        "쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(my-saju.record.few)을 둔다."
+      ]
     }
   ]
 }
