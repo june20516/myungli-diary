@@ -19,30 +19,30 @@
         { "id": "confirm", "when": "일반 확인" },
         { "id": "destructive", "when": "되돌릴 수 없는 동작(일기 삭제, 일정 삭제, 계정 삭제, 계정 합치기, 로그인 수단 떼기)", "uses": ["mark.caution"], "a11y": { "dismissOnScrim": false, "backIs": "cancel" },
           "parts": {
-            "title": { "leading": "mark.caution" },
-            "confirm": { "fg": "{color.text.primary}", "fontWeight": 700 },
-            "cancel": { "fg": "{color.action.primary}" }
+            "title": { "leading": "mark.caution", "leadingSize": "{size.icon.20}", "leadingGap": "{space.8}" },
+            "confirm": { "variant": "destructive", "leading": null }
           } },
-        { "id": "notice", "when": "고를 것 없이 읽었다는 확인만 받는 안내(login.discard.notice, login-methods.error.body, login-methods.in-use.body, ui.account-merge.error, account-merge.not-other.body)", "a11y": { "focusOnOpen": "confirm", "dismissOnScrim": true }, "parts": { "cancel": { "visible": false } } }
+        { "id": "notice", "when": "고를 것 없이 읽었다는 확인만 받는 안내(login.discard.notice, login-methods.error.body, login-methods.in-use.body, ui.account-merge.error, account-merge.not-other.body)", "a11y": { "focusOnOpen": "confirm", "dismissOnScrim": true }, "parts": { "cancel": { "visible": false }, "actions": { "count": 1 } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "marginX": "{space.24}", "padding": "{space.24}" },
         "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" },
         "body": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" },
-        "actions": { "align": "end", "gap": "{space.8}", "marginTop": "{space.20}" },
-        "confirm": { "type": "{type.label.lg}", "fg": "{color.action.primary}", "minTarget": 44 },
-        "cancel": { "type": "{type.label.lg}", "fg": "{color.text.secondary}", "minTarget": 44 },
+        "actions": { "layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}", "height": { "value": 44, "unit": "px" }, "overflow": "stack-vertical-confirm-top" },
+        "confirm": { "component": "primary-button", "variant": "filled", "order": "end", "note": "확인 창 안에서는 높이 44(actions.height)" },
+        "cancel": { "bg": "{color.chip.bg}", "fg": "{color.text.primary}", "type": "{type.label.lg}", "radius": "{radius.md}", "order": "start" },
         "scrim": { "color": "{color.scrim}" }
       },
       "states": {
         "opening": { "pattern": "appear.seep" },
         "closing": { "pattern": "disappear.seep" },
-        "pressed": { "pattern": "press.ink", "note": "버튼 글자 둘레에서만" }
+        "pressed": { "pattern": "press.ink", "note": "누른 버튼 안에서만" }
       },
       "haptic": [{ "when": "destructive 변형의 확정 버튼을 누름", "strength": "medium" }],
       "a11y": { "role": "alertdialog", "label": "제목", "description": "본문", "readOrder": "제목 → 본문 → 버튼(플랫폼 기본)", "minTarget": 44 },
       "rules": [
-        "되돌릴 수 없는 동작에 빨간색을 쓰지 않는다. 제목 앞 mark.caution과 굵은 본문색 확정 버튼으로 구분한다.",
+        "되돌릴 수 없는 동작에 빨간색을 쓰지 않는다. 제목 앞 mark.caution(20)과 본문색 바탕 확정 버튼(primary-button destructive)으로 구분한다. 버튼 글자 앞에는 경고 표시를 두지 않는다(결정 V65).",
+        "안쪽 여백은 사방 space.24로 같고 버튼도 그 안에 있다. 버튼은 같은 폭 두 개(취소 왼쪽, 확정 오른쪽), 높이 44, 사이 space.8. 글이 넘쳐 한 줄에 들어가지 않으면 세로로 쌓고 확정이 위(결정 V65).",
         "destructive 변형에서 뒤로 가기는 취소와 같다. 버튼 두 개짜리 확인 창에는 첫 초점 규칙을 두지 않는다(앱, 결정 V41).",
         "바깥을 누르면 취소와 같다. destructive는 바깥 누르기로 닫지 않는다.",
         "notice는 확인 버튼 하나다. 바깥을 누르거나 뒤로 가면 확인과 같다."
@@ -104,13 +104,18 @@
       "uses": ["skeleton.bone", "loading.breathe"],
       "parts": {
         "bone": { "color": "{color.skeleton.bone}", "shape": "same-as-content" },
-        "textLine": { "type": { "default": "{type.body.ui}", "rule": "실제 올 글자 스타일" }, "height": "글자 줄 높이의 60%", "radius": "{radius.xs}", "lastLineWidth": "60%" }
+        "textLine": { "type": { "default": "{type.body.ui}", "rule": "실제 올 글자 스타일" }, "height": "글자 줄 높이의 60%", "radius": "{radius.xs}", "lastLineWidth": "60%" },
+        "card": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "실제 카드와 같음" },
+        "chip": { "radius": "{radius.full}", "height": "실제 칩과 같음" },
+        "screen": { "composition": "그 화면 컴포넌트들의 loading 모양을 화면 배치대로", "gutter": "{space.20}" }
       },
       "states": { "loading": { "pattern": "loading.breathe", "note": "줄마다 150ms 어긋남" } },
       "haptic": [],
       "a11y": { "role": "progressbar", "label": "불러오는 중", "hiddenChildren": true },
       "rules": [
-        "실제로 올 요소와 같은 자리·크기·반경으로 그린다.",
+        "skeleton은 요소마다 만든다. 내용을 받아 그리는 컴포넌트가 각자 states.loading.skeleton(뼈 목록)을 가지고, 실제 요소의 자리, 크기, 반경, 안쪽 여백을 그대로 따른다(결정 V66).",
+        "화면의 skeleton은 그 화면이 쓰는 컴포넌트 skeleton을 그 화면의 실제 배치(화면 좌우 여백, 섹션 제목, 섹션 사이 간격)대로 놓은 것이다. 그래서 화면마다 조합이 다르다.",
+        "여백 없이 글줄만 쌓은 공용 skeleton은 쓰지 않는다(F-011).",
         "내용이 오면 skeleton은 바로 빠지고 내용이 appear.seep으로 나타난다.",
         "300ms 안에 끝나는 불러오기에는 skeleton을 보이지 않는다."
       ]

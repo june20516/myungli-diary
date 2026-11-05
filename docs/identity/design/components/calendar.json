@@ -20,7 +20,7 @@
       },
       "states": {
         "monthChanged": { "pattern": "appear.seep", "note": "격자만 바뀜, 머리는 그대로" },
-        "loading": { "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
+        "loading": { "skeleton": [{ "bone": "cellFill", "shape": "날짜 칸 채우기와 도장 자리", "note": "숫자, 요일 머리, 달 머리는 바로 그림" }], "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
       },
       "haptic": [],
       "a11y": { "role": "grid", "label": "N년 M월", "swipe": "좌우로 달 넘김", "minTarget": 44 },
@@ -108,7 +108,7 @@
         }
       ],
       "parts": {},
-      "states": { "pressed": { "pattern": "press.ink" } },
+      "states": { "loading": { "skeleton": [{ "bone": "summary", "shape": "textLine", "lines": 1, "variant": "summary" }, { "bone": "row", "shape": "시각 칸 + 제목 글줄", "rows": 2, "variant": "list" }] }, "pressed": { "pattern": "press.ink" } },
       "haptic": [],
       "a11y": { "role": "button", "label": "상태 + 시각 + 제목 (+ '외 N개')", "moreJoin": "a11yListSeparator", "minTarget": 48 },
       "rules": [

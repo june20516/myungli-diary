@@ -29,7 +29,7 @@
           }
         }
       },
-      "states": {
+      "states": { "loading": { "skeleton": [{ "bone": "text", "shape": "textLine", "lines": "변형의 줄 수(card 2, body 3, preview 2)" }] },
         "locked": {
           "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
           "parts": {
@@ -86,7 +86,7 @@
     {
       "id": "depth-link",
       "summary": "한 단계 깊이로 가는 근거 진입점(primary 아이콘 하나, 결정 V63), 또는 다른 페이지로 가는 글자 링크(navigate)",
-      "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe"],
+      "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe", "page.push"],
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "parts": { "icon": { "joinBefore": "U+00A0", "wrap": "with-last-word", "note": "문장 마지막 낱말과 줄바꿈 없이 붙음. 아이콘이 다음 줄로 혼자 넘어가지 않음" } } },
         { "id": "block", "when": "나 탭·풀이 시트처럼 문단 아래 따로 놓임", "parts": { "icon": { "align": "start" }, "container": { "marginTop": "{space.12}" } } },
@@ -94,7 +94,7 @@
           "icon": { "visible": false },
           "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}", "align": "start", "slot": "birthplace.standard.link" },
           "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
-          "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "platform-default" } } }
+          "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "page.push" } } }
       ],
       "parts": {
         "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48 },
@@ -127,7 +127,7 @@
                 "bg": "{color.bg.sheet}",
                 "borderTop": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } },
                 "paddingTop": "{space.24}",
-                "paddingX": "{space.20}",
+                "paddingX": "{space.24}",
                 "paddingBottom": "{space.24}",
                 "head": { "slot": "evidence-sheet.lock.head", "icon": "lock-simple", "iconWeight": "regular", "iconSize": "adjacent-text", "iconColor": "{color.status.fg}", "type": "{type.label.lg}", "fg": "{color.text.primary}", "gap": "{space.8}" },
                 "reward": { "slot": "evidence-sheet.lock.reward", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "order": "광고 버튼보다 먼저(AdMob 보상 고지)" },
@@ -165,7 +165,7 @@
         "근거 진입점(inline-end, block)은 primary 아이콘 book-open-text 하나이고 글자를 쓰지 않는다. 모든 곳이 같은 모양이다(결정 V63).",
         "inline-end 아이콘은 문장 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 붙는다. 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어간다.",
         "inline-end·block은 누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack).",
-        "navigate는 시트를 열지 않고 페이지로 이동한다(플랫폼 기본 전환). sheet.enter·sheet.stack을 쓰지 않는다.",
+        "navigate는 시트를 열지 않고 페이지로 이동한다(page.push, 결정 V67). sheet.enter·sheet.stack을 쓰지 않는다.",
         "navigate의 화살표(chevron)는 원고에 넣지 않고 컴포넌트가 그린다. 아이콘 caret-right, 옆 글자 기준 크기, 스크린리더는 읽지 않음, 링크가 감기면 마지막 줄 끝에 붙는다(결정 V29).",
         "unlocked에서 본문이 없는 구역은 제목까지 그리지 않고 자리도 남기지 않는다. locked의 lock.veil은 그대로 그린다.",
         "근거 시트에서 잠기는 것은 판정 근거·원전·내 사주에서는 세 구역뿐이다. 제목과 원국표는 늘 보인다(D60).",

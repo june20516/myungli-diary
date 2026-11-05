@@ -16,6 +16,7 @@
 | `seal.stamp` 찍고 배어듦 | 도장 찍힘 | ① 0~35%: 크기 1.2→1, 투명도 0→0.55, 흐림 3→1.5px, `stamp-press` ② 35~100%: 투명도 0.55→1, 흐림 1.5→0, `seep` | `stamp`(520) |
 | `seal.erase` | 도장 지워짐 | 흐림 0→5px, 투명도 1→0 | `short`(200) `standard` |
 | `mark.underline-grow` 펼침 밑줄 | 달력 선택 밑줄 | 가로 크기 0→1, 가운데 기준 | `long`(420) `seep` |
+| `page.push` 화면 이동 | 화면 쌓기 이동(앞으로, 뒤로) | 새 화면이 오른쪽에서 24px(`motion.offset.page`) 밀려 들어오며 투명도 0→1. 뒤 화면은 움직이지 않고, 뒤로 가기는 거꾸로. 탭 사이 이동과 시트는 쓰지 않음(결정 V67) | `page`(320) `page`(enter 곡선) |
 | `sheet.enter` | 시트 열림 | 아래에서 올라옴. 바깥 덮개 `fade`(280ms) 투명도 | `long`(420) `enter` |
 | `sheet.exit` | 시트 닫힘 | 아래로 내려감. 바깥 덮개 `fade`(280ms) 투명도 | `medium`(320) `exit` |
 | `sheet.stack` 겹쳐 쌓기 | 시트 깊어짐 | 새 시트가 위에 쌓이고, 아래 화면은 크기 0.92·밝기 0.9, 아래 시트는 위로 30px·크기 0.94·밝기 0.95 | `long`(420) `enter` |
@@ -55,6 +56,7 @@
 * `appear.seep`·`disappear.seep`·`seal.*`: 대상 자신을 `ImageFiltered(ImageFilter.blur)` + `Opacity`(또는 `FadeTransition`)로 감쌉니다. 배경 흐림(`BackdropFilter`)이 아닙니다.
 * `seal.stamp`: `TweenSequence` 두 구간(가중치 35 / 65), 구간마다 `Cubic` 곡선.
 * `select.seep-slide`: 이전·새 표시를 따로 그려, 새 표시는 `SlideTransition`(거리의 15%) + 흐림 + 크기, 이전 표시는 제자리 흐림 + 크기 + 투명도.
+* `page.push`: 앱의 `PageRoute` 전환 하나(`PageTransitionsTheme`에 두 플랫폼 같은 builder)로, 새 화면을 `SlideTransition`(24px) + `FadeTransition`으로 감쌉니다. 이전 화면에는 secondary 애니메이션을 주지 않습니다. iOS 가장자리 밀어 뒤로 가기 제스처는 남깁니다.
 * `sheet.stack`: 새 시트는 새 route. 아래 층은 `Transform.scale`·`Transform.translate`와 덮개 투명도만 바꿉니다(높이를 움직이지 않음).
 * 반투명 탭 바: `BackdropFilter`(탭 바 뒤 흐림)는 이 한 곳에만 씁니다.
 * 동작 줄이기: `MediaQuery.disableAnimations`, 투명도 줄이기: 플랫폼 접근성 설정(iOS `UIAccessibility.isReduceTransparencyEnabled`).

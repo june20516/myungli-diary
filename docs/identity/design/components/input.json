@@ -35,7 +35,7 @@
     {
       "id": "text-field",
       "summary": "글자 입력",
-      "uses": ["focus.ring"],
+      "uses": ["focus.ring", "icon"],
       "variants": [
         { "id": "multiline", "when": "여러 줄 글(event-edit 메모, contact 문의 내용)", "parts": { "container": { "minLines": 1, "maxLines": 6, "overflow": "scroll" }, "keyboard": { "type": "multiline", "action": "newline" }, "clear": { "align": "first-line" }, "placeholder": { "maxLines": 2 } } },
         { "id": "email", "when": "메일 주소(contact 답장 받을 메일)", "parts": { "keyboard": { "type": "email", "action": "done", "autocorrect": false, "autocapitalize": "none" } } }
@@ -50,7 +50,12 @@
         "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}", "maxLines": 2, "optional": true, "when": "input-step 밖의 칸 오류. input-step 안에서는 input-step errorLine이 그린다" }
       },
       "states": {
-        "focused": { "pattern": "focus.ring" },
+        "focused": { "pattern": "focus.ring", "parts": { "keyboardDismiss": {
+          "position": "키보드 바로 위 오른쪽", "inset": "{space.12}",
+          "size": { "value": 44, "unit": "px" }, "radius": "{radius.full}", "bg": "{color.bg.sheet}", "shadow": "{shadow.raised}",
+          "icon": { "icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}" },
+          "action": "키보드를 내림(입력칸 초점 풀기)", "a11y": { "role": "button", "labelSlot": "ui.keyboard.dismiss" },
+          "note": "입력칸에 초점이 있는 동안만. 동작 구현은 app #796 (결정 V68)" } } },
         "disabled": { "parts": { "container": { "bg": "{color.disabled.bg}" }, "text": { "fg": "{color.disabled.fg}" } } },
         "error": { "parts": { "container": { "border": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" } } } }, "note": "오류 줄은 input-step 안에서는 input-step이, 밖에서는 칸의 errorLine이 그린다" }
       },
@@ -186,7 +191,7 @@
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
-        "loading": { "note": "결과 자리에 skeleton 줄 3개" },
+        "loading": { "skeleton": [{ "bone": "result", "shape": "textLine", "rows": 3}], "note": "결과 자리에 skeleton 줄 3개" },
         "empty": { "note": "empty-state" },
         "saving": { "note": "줄을 고른 뒤 저장을 기다림(아래 버튼이 없는 단계). 고른 줄만", "pattern": "loading.breathe", "parts": { "dots": { "visible": true, "position": "row-end", "fg": "{color.text.secondary}" }, "otherRows": { "pressable": false } } }
       },
@@ -241,7 +246,7 @@
           }
         },
         "pressed": { "pattern": "press.ink" },
-        "loading": { "pattern": "loading.breathe", "note": "카드 두 장 크기의 빈 카드가 숨쉼. 글줄 자리는 skeleton과 같은 모양이고 skeleton 컴포넌트를 쓰지 않음(IA account-merge:loading)" },
+        "loading": { "skeleton": [{ "bone": "card", "shape": "card", "count": 2}], "pattern": "loading.breathe", "note": "카드 두 장 크기의 빈 카드가 숨쉼. 글줄 자리는 skeleton과 같은 모양이고 skeleton 컴포넌트를 쓰지 않음(IA account-merge:loading)" },
         "disabled": { "note": "합치는 중(최종 확인 뒤 합치기 버튼 loading). 고름을 잠가 카드를 누를 수 없고 모양은 그대로. 실패하면 풀림" }
       },
       "haptic": [{ "when": "고름이 바뀜", "strength": "selection" }],

@@ -227,7 +227,8 @@ def test_common_files_define_spec_ids():
     docs = load_documents(COMPONENTS_DIR)
     assert set(docs["interaction"]["patterns"]) == {
         "press.ink", "appear.seep", "disappear.seep", "select.seep-slide", "loading.breathe", "seal.stamp",
-        "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring"}
+        "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring",
+        "page.push"}  # DS1 V67
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
@@ -516,6 +517,8 @@ SLOTS_OUTSIDE_IA |= {"ui.purchase.meta", "ui.purchase.product", "ui.purchase.sta
 SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empty"}
 # 근거 아이콘의 스크린리더 이름 (DS1, V63). IA 자리 today.evidence.link를 담은 writing 슬롯(W33)
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
+# 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
+SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
 
 
 def _slot_values(node):
@@ -585,7 +588,7 @@ def test_text_link_chevrons_are_component_drawn_icons():
 def test_depth_link_navigate_goes_to_a_page():
     depth_link = component("sentence", "depth-link")
     navigate = next(v for v in depth_link["variants"] if v["id"] == "navigate")
-    assert navigate["parts"]["target"] == {"presentation": "page", "transition": "platform-default"}
+    assert navigate["parts"]["target"] == {"presentation": "page", "transition": "page.push"}  # V67
     assert navigate["parts"]["label"]["slot"] == "birthplace.standard.link"
     assert any("navigate" in rule and "sheet.enter" in rule for rule in depth_link["rules"])
     assert "birthplace" in (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
@@ -1379,3 +1382,75 @@ def test_no_inline_nowrap_link():
     texts = [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json")]
     texts += [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md")]
     assert not [text for text in texts if "link.inline-nowrap" in text]
+
+
+# DS1 spec §7, 결정 V64~V68
+# 서버에서 받은 내용을 그리는 컴포넌트: 각자 skeleton 모양을 가짐 (V66)
+CONTENT_COMPONENTS = {
+    "day-character", "lucky-card", "sentence-block", "guide-question-card", "event-row", "calendar-month",
+    "diary-row", "diary-editor", "tag-chip", "saju-pillars", "manse-table", "daeun-table", "ohaeng-bar",
+    "offer-card", "purchase-row", "account-choice", "city-search",
+}
+
+
+def test_dialog_padding_symmetric():
+    dialog = next(c for c in all_components() if c["id"] == "dialog")
+    parts = dialog["parts"]
+    assert parts["container"]["padding"] == "{space.24}" and parts["container"]["marginX"] == "{space.24}"
+    assert parts["actions"] == {"layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}",
+                                "height": {"value": 44, "unit": "px"}, "overflow": "stack-vertical-confirm-top"}
+    assert parts["cancel"]["bg"] == "{color.chip.bg}" and parts["cancel"]["fg"] == "{color.text.primary}"
+    assert parts["confirm"]["component"] == "primary-button" and parts["confirm"]["variant"] == "filled"
+    destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
+    assert destructive["parts"]["confirm"] == {"variant": "destructive", "leading": None}
+
+
+def test_dialog_icon_size():
+    dialog = next(c for c in all_components() if c["id"] == "dialog")
+    destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
+    title = destructive["parts"]["title"]
+    assert title["leading"] == "mark.caution" and title["leadingSize"] == "{size.icon.20}"
+    assert title["leadingGap"] == "{space.8}"
+
+
+def test_sheet_handle_area():
+    sheet = next(c for c in all_components() if c["id"] == "sheet")
+    parts = sheet["parts"]
+    assert parts["container"]["paddingX"] == "{space.24}" and parts["container"]["paddingBottom"] == "{space.24}"
+    assert parts["handleArea"] == {"height": {"value": 24, "unit": "px"}, "minTarget": 44, "drag": True}
+    assert parts["handle"] == {"width": {"value": 36, "unit": "px"}, "height": {"value": 4, "unit": "px"},
+                               "radius": "{radius.full}", "color": "{color.line}", "align": "center"}
+    assert parts["title"]["marginTop"] == "{space.8}"
+    assert parts["dragDismiss"] == {"threshold": 0.25, "fling": True, "otherwise": "제자리로 돌아옴",
+                                    "withInput": "닫기 전에 쓴 내용을 잃지 않게 확인"}
+
+
+def test_skeleton_shapes():
+    skeleton = next(c for c in all_components() if c["id"] == "skeleton")
+    parts = skeleton["parts"]
+    assert parts["textLine"]["radius"] == "{radius.xs}" and parts["card"]["radius"] == "{radius.lg}"
+    assert parts["chip"]["radius"] == "{radius.full}"
+    assert parts["screen"] == {"composition": "그 화면 컴포넌트들의 loading 모양을 화면 배치대로", "gutter": "{space.20}"}
+    assert any("글줄만 쌓은" in rule for rule in skeleton["rules"])
+    by_id = {c["id"]: c for c in all_components()}
+    missing = [name for name in sorted(CONTENT_COMPONENTS) if "skeleton" not in by_id[name].get("states", {}).get("loading", {})]
+    assert missing == []
+
+
+def test_page_push_pattern():
+    push = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["page.push"]
+    assert push["duration"] == "{motion.duration.page}" and push["easing"] == "{motion.easing.page}"
+    assert push["enter"] == {"translateX": ["{motion.offset.page}", 0], "opacity": [0, 1]}
+    assert push["below"] == "still" and push["back"] == "reverse"
+    assert push["reduceMotion"] == "opacity-only"
+    navigate = next(v for v in next(c for c in all_components() if c["id"] == "depth-link")["variants"] if v["id"] == "navigate")
+    assert navigate["parts"]["target"]["transition"] == "page.push"
+
+
+def test_keyboard_dismiss_affordance():
+    field = next(c for c in all_components() if c["id"] == "text-field")
+    dismiss = field["states"]["focused"]["parts"]["keyboardDismiss"]
+    assert dismiss["size"] == {"value": 44, "unit": "px"} and dismiss["radius"] == "{radius.full}"
+    assert dismiss["icon"] == {"icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}"}
+    assert dismiss["position"] == "키보드 바로 위 오른쪽" and dismiss["inset"] == "{space.12}"
+    assert dismiss["a11y"]["labelSlot"] == "ui.keyboard.dismiss"

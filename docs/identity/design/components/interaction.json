@@ -110,6 +110,17 @@
       "reduceMotion": "opacity-only",
       "lowEnd": "same"
     },
+    "page.push": {
+      "summary": "화면 이동: 새 화면이 오른쪽에서 조금 밀려 들어오며 나타남 (결정 V67, Q6 ①)",
+      "duration": "{motion.duration.page}",
+      "easing": "{motion.easing.page}",
+      "enter": { "translateX": ["{motion.offset.page}", 0], "opacity": [0, 1] },
+      "below": "still",
+      "back": "reverse",
+      "scope": "화면 쌓기 이동(push, pop). 탭 사이 이동과 시트는 쓰지 않음",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
     "sheet.enter": {
       "summary": "시트가 아래에서 올라옴",
       "duration": "{motion.duration.long}",

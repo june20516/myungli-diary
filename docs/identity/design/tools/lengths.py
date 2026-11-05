@@ -280,6 +280,7 @@ SCROLL_BODY = "스크롤 본문"
 OUTSIDE_APP = "app 밖 화면(server 웹 페이지)"
 NO_LIMIT = {
     "ui.depth.evidence_link": SCREEN_READER_ONLY,  # 근거 아이콘의 스크린리더 이름 (결정 V63)
+    "ui.keyboard.dismiss": SCREEN_READER_ONLY,  # 키보드 내리기 버튼의 스크린리더 이름 (결정 V68, writing 새 슬롯)
     "ui.nav.a11y": SCREEN_READER_ONLY,
     "ui.a11y.label": SCREEN_READER_ONLY,
     "ui.picker.label": SCREEN_READER_ONLY,

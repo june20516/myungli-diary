@@ -16,7 +16,7 @@
         "badge": { "radius": "{radius.full}", "type": "{type.label.md}", "paddingX": "{space.12}", "height": { "value": 26, "unit": "px" } },
         "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "trailing": "depth-link inline-end", "segments": "sentence-block" }
       },
-      "states": {},
+      "states": { "loading": { "skeleton": [{ "bone": "badge", "shape": "chip", "width": "72px" }, { "bone": "reason", "shape": "textLine", "lines": 1, "width": "80%" }] } },
       "haptic": [],
       "a11y": { "role": "text", "label": "배지 글자 + 이유", "colorIndependent": true },
       "rules": ["배지는 글자로 날의 성격을 말한다. 색만으로 전하지 않는다.", "이유 줄 끝에 depth-link inline-end가 붙는다.", "배지는 누를 수 없는 표시다. 배지나 배지를 감싼 줄에 눌림 표시를 두지 않는다(F-007, 결정 V61)."]
@@ -39,7 +39,7 @@
         "row": { "gap": "{space.8}", "wrap": true },
         "explain": { "element": "explain.sheet", "title": { "source": "항목 이름(칩 스크린리더 라벨의 항목 이름과 같은 낱말)" }, "body": { "segments": "sentence-block" } }
       },
-      "states": {
+      "states": { "loading": { "skeleton": [{ "bone": "chip", "shape": "chip", "count": 3, "widths": ["72px", "56px", "64px"], "gap": "{space.8}" }] },
         "pressed": { "pattern": "press.ink" },
         "open": { "pattern": "sheet.enter", "parts": { "chip": { "innerBorder": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" } } }, "explain": { "visible": true } } },
         "closed": { "pattern": "sheet.exit", "parts": { "explain": { "visible": false } } }
@@ -66,7 +66,7 @@
         "question": { "component": "sentence-block", "variant": "card", "marginTop": "{space.8}" },
         "action": { "marginTop": "{space.16}" }
       },
-      "states": {
+      "states": { "loading": { "skeleton": [{ "bone": "container", "shape": "card" }, { "bone": "header", "shape": "textLine", "width": "40%" }, { "bone": "question", "shape": "textLine", "lines": 2}, { "bone": "action", "shape": "button", "height": "52px" }] },
         "before": { "labelKey": "todayGuideCta", "parts": { "action": { "component": "primary-button", "variant": "filled" } } },
         "after": {
           "labelKey": "todayGuideCtaWritten",

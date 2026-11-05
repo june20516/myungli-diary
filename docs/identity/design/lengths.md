@@ -100,6 +100,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | 슬롯 | 상한 없음 이유 |
 | --- | --- |
 | `ui.depth.evidence_link` | 스크린리더 전용(화면에 보이지 않음) |
+| `ui.keyboard.dismiss` | 스크린리더 전용(화면에 보이지 않음) |
 | `ui.nav.a11y` | 스크린리더 전용(화면에 보이지 않음) |
 | `ui.a11y.label` | 스크린리더 전용(화면에 보이지 않음) |
 | `ui.picker.label` | 스크린리더 전용(화면에 보이지 않음) |

@@ -205,6 +205,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         # W51 스크린리더 전용 셋과 iOS 시스템 창 (#710)
         "ui.saju.a11y", "ui.lucky-card.a11y", "ui.share.a11y", "ui.system.tracking",
         "ui.depth.evidence_link",  # DS1 근거 아이콘 스크린리더 이름 (V63)
+        "ui.keyboard.dismiss",  # DS1 키보드 내리기 스크린리더 이름 (V68)
     }
     assert not set(lengths.NO_LIMIT) & slots
 

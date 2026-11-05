@@ -146,6 +146,7 @@
         "legal": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slot": "ad-free.legal.notice", "marginTop": "{space.12}" }
       },
       "states": {
+        "loading": { "skeleton": [{ "bone": "container", "shape": "card" }, { "bone": "icon", "shape": "circle", "size": "{size.icon.28}" }, { "bone": "head", "shape": "textLine", "width": "60%" }, { "bone": "price", "shape": "textLine", "width": "40%" }] },
         "available": { "parts": { "status": { "visible": false }, "remaining": { "visible": false }, "buy": { "visible": true } } },
         "active": { "pattern": "appear.seep", "parts": { "status": { "visible": true }, "remaining": { "visible": true }, "buy": { "visible": false } }, "note": "이용 중: 꼬리표 + 남은 기간·만료일" },
         "purchasing": { "parts": { "buy": { "state": "loading" } } },
@@ -235,7 +236,7 @@
         }
       },
       "states": {
-        "loading": {
+        "loading": { "skeleton": [{ "bone": "product", "shape": "textLine" }, { "bone": "purchased", "shape": "textLine", "width": "60%" }, { "bone": "period", "shape": "textLine", "width": "60%" }],
           "component": "skeleton",
           "note": "bone 세 줄(상품 이름 줄 + 구매일 줄 + 사용 기간 줄)"
         }

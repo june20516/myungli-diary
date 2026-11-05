@@ -67,7 +67,7 @@
       },
       "states": {
         "pressed": { "pattern": "press.ink", "note": "한 편 카드는 카드 안, 묶음 카드와 entries는 누른 entry 줄 안에서만" },
-        "loading": { "note": "day는 날짜 열을 바로, 카드는 skeleton. entries는 줄 두 개 높이 skeleton" }
+        "loading": { "skeleton": [{ "bone": "dateColumn", "shape": "숫자 원 + 요일 글줄", "variant": "day" }, { "bone": "card", "shape": "card", "variant": "day" }, { "bone": "badge", "shape": "chip", "width": "72px" }, { "bone": "preview", "shape": "textLine", "lines": 2}, { "bone": "tag", "shape": "chip", "width": "56px" }, { "bone": "entry", "shape": "textLine", "rows": 2, "variant": "entries" }], "note": "day는 날짜 열을 바로, 카드는 skeleton. entries는 줄 두 개 높이 skeleton" }
       },
       "haptic": [],
       "a11y": {
@@ -103,7 +103,7 @@
         "seal": { "element": "seal", "variant": "fill", "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "size": { "value": 64, "unit": "px" }, "content": "날짜(M.D)", "position": "paper-bottom-end-reserve" },
         "tags": { "component": "tag-chip", "gap": "{space.8}", "marginTop": "{space.16}" }
       },
-      "states": {
+      "states": { "loading": { "skeleton": [{ "bone": "paper", "shape": "card" }, { "bone": "body", "shape": "textLine", "lines": 5}] },
         "saving": { "pattern": "loading.breathe", "note": "저장 버튼 점 숨쉬기" },
         "saved": { "pattern": "seal.stamp", "parts": { "seal": { "visible": true } } }
       },
@@ -157,7 +157,7 @@
         "chip": { "radius": "{radius.full}", "type": "{type.label.md}", "fontSize": { "value": 12, "unit": "px" }, "height": { "value": 26, "unit": "px" }, "paddingX": "{space.12}" },
         "text": { "prefix": "#" }
       },
-      "states": {
+      "states": { "loading": { "skeleton": [{ "bone": "chip", "shape": "chip", "width": "56px" }] },
         "pressed": { "pattern": "press.ink" },
         "appearing": { "pattern": "appear.seep", "note": "저장 순간" }
       },
