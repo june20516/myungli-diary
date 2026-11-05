@@ -724,7 +724,7 @@
     "milestone": "DS1",
     "screens": [],
     "decisions": [],
-    "status": "proposed",
-    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 사용자 선택 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 고른 안(2026-11-05, #801): Q1 ① 먹 번짐(진한 영역이 가장 먼 모서리까지), Q2 ① 세로 quiet 52, Q3 ② 굵은 라벨과 설명 줄, Q4 ② 하프 시트, Q5 ① book-open-text, Q6 ① 24px 밀림과 페이드. 정한 값 A~G 확인, C 구분선은 좌우 같은 들임으로 아이콘 아래까지, F는 요소별 skeleton을 화면 배치대로"
   }
 ]
