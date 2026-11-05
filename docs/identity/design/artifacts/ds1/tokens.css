@@ -53,6 +53,11 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
   --radius-full: 9999px;
+  --border-width-hairline: 0.5px;
+  --size-icon-16: 16px;
+  --size-icon-20: 20px;
+  --size-icon-24: 24px;
+  --size-icon-28: 28px;
   --motion-duration-short: 200ms;
   --motion-duration-fade: 280ms;
   --motion-duration-medium: 320ms;
@@ -61,11 +66,14 @@
   --motion-duration-stamp: 520ms;
   --motion-duration-breathe: 1800ms;
   --motion-duration-toast-hold: 2500ms;
+  --motion-duration-page: 320ms;
   --motion-easing-seep: cubic-bezier(0.2, 0.7, 0.2, 1);
   --motion-easing-enter: cubic-bezier(0.2, 0.8, 0.2, 1);
   --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
   --motion-easing-stamp-press: cubic-bezier(0.5, 0, 0.9, 0.6);
   --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-page: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-offset-page: 24px;
   --shadow-raised: 0px 4px 16px 0px rgba(43, 43, 42, 0.14);
   --color-bg-base: var(--color-neutral-50);
   --color-bg-sheet: var(--color-white);

@@ -128,7 +128,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.2.0" in readme
+    assert "계약 버전: 1.3.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -186,3 +186,27 @@ def test_timeline_entry_role():
     dark = flatten(files["color.dark.tokens.json"])
     assert light["color.timeline.entry"]["$value"] == "{color.neutral.300}"
     assert dark["color.timeline.entry"]["$value"] == "{color.neutral.700}"
+
+
+# DS1 spec(2026-11-05-ds1-rules-design.md) §8: 1.3.0은 추가만
+TOKENS_1_3_0_ADDED = {
+    "border.width.hairline": ("dimension", {"value": 0.5, "unit": "px"}),
+    "size.icon.16": ("dimension", {"value": 16, "unit": "px"}),
+    "size.icon.20": ("dimension", {"value": 20, "unit": "px"}),
+    "size.icon.24": ("dimension", {"value": 24, "unit": "px"}),
+    "size.icon.28": ("dimension", {"value": 28, "unit": "px"}),
+    "motion.duration.page": ("duration", {"value": 320, "unit": "ms"}),
+    "motion.easing.page": ("cubicBezier", [0.2, 0.8, 0.2, 1]),
+    "motion.offset.page": ("dimension", {"value": 24, "unit": "px"}),
+}
+
+
+def test_tokens_1_3_0_additions_only():
+    import json
+    before = flatten(json.loads((TOOLS_DIR / "fixtures" / "primitive-1.2.0.tokens.json").read_text(encoding="utf-8")))
+    after = flatten(build_token_files()["primitive.tokens.json"])
+
+    for name, token in before.items():
+        assert after.get(name) == token, name
+    added = {name: (after[name]["$type"], after[name]["$value"]) for name in after.keys() - before.keys()}
+    assert added == TOKENS_1_3_0_ADDED

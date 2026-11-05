@@ -577,6 +577,54 @@
       }
     }
   },
+  "border": {
+    "width": {
+      "hairline": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.5,
+          "unit": "px"
+        },
+        "$description": "목록 구분선 굵기(결정 V58)"
+      }
+    }
+  },
+  "size": {
+    "icon": {
+      "16": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        },
+        "$description": "아이콘 크기 단계: 그림 높이가 옆 한글 높이 이상인 가장 작은 단계(결정 V57)"
+      },
+      "20": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "아이콘 크기 단계: 그림 높이가 옆 한글 높이 이상인 가장 작은 단계(결정 V57)"
+      },
+      "24": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "아이콘 크기 단계: 그림 높이가 옆 한글 높이 이상인 가장 작은 단계(결정 V57)"
+      },
+      "28": {
+        "$type": "dimension",
+        "$value": {
+          "value": 28,
+          "unit": "px"
+        },
+        "$description": "아이콘 크기 단계: 그림 높이가 옆 한글 높이 이상인 가장 작은 단계(결정 V57)"
+      }
+    }
+  },
   "motion": {
     "duration": {
       "short": {
@@ -634,6 +682,13 @@
           "value": 2500,
           "unit": "ms"
         }
+      },
+      "page": {
+        "$type": "duration",
+        "$value": {
+          "value": 320,
+          "unit": "ms"
+        }
       }
     },
     "easing": {
@@ -681,6 +736,25 @@
           0.2,
           1
         ]
+      },
+      "page": {
+        "$type": "cubicBezier",
+        "$value": [
+          0.2,
+          0.8,
+          0.2,
+          1
+        ]
+      }
+    },
+    "offset": {
+      "page": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "화면 이동 page.push에서 새 화면이 밀려 들어오는 거리(결정 V67)"
       }
     }
   },
