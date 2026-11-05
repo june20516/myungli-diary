@@ -58,7 +58,14 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         lunar_adapter.hour_slots(target, current_timezone), natal_pillars, yongsin, natal.gwiin
     )
     relations = find_relations(natal_pillars, day)
-    tags = select_tags(natal_pillars, day, relations, activated(natal.shinsal_branches, day.branch), kind)
+    tags = select_tags(
+        natal_pillars,
+        day,
+        relations,
+        activated(natal.shinsal_branches, day.branch),
+        kind,
+        yongsin_ref=yongsin.evidence[0].source_ref,
+    )
 
     fallback_notices = (Notice(NoticeCode.FOCUS_TIME_FALLBACK),) if focus.fallback else ()
     return DailyView(

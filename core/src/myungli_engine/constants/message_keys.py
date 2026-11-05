@@ -29,7 +29,8 @@ _SHINSALS = tuple(_lower(kind) for kind in Shinsal)
 
 TAG_KEYS: frozenset[str] = frozenset(
     {
-        "tag.big_change",
+        "tag.clash_day_branch",
+        "tag.clash_month_branch",
         "tag.clash",
         "tag.harmony",
         *(f"tag.ten_god_rush.{group}" for group in _GROUPS),

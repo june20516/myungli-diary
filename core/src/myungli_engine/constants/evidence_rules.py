@@ -13,6 +13,8 @@ from typing import Final
 
 _DIRECTION_DETAIL: Final = ("day_branch", "day_kind", "direction", "element")
 _DIRECTION_DEITY_DETAIL: Final = ("day_branch", "day_kind", "deity", "direction", "element")
+_CLASH_DETAIL: Final = ("day_branch", "natal_positions")
+_SHINSAL_DETAIL: Final = ("day_branch", "shinsal")
 
 RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     # 월간 길흉 점수 (spec 7.9)
@@ -30,6 +32,19 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "focus_time/fallback": ("picks",),
     # 태그·총운·가이드 질문 (spec 7.7~7.8)
     "tags/select": ("all", "day_kind", "featured"),
+    # 태그마다 하나 (C28). 원전이 없는 태그는 source_ref가 빈 문자열이다
+    "tags/clash_day_branch": _CLASH_DETAIL,
+    "tags/clash_month_branch": _CLASH_DETAIL,
+    "tags/clash": _CLASH_DETAIL,
+    "tags/harmony": ("natal_positions", "relation_kind"),
+    "tags/ten_god_rush": ("branch_ten_god", "group", "natal_count", "stem_ten_god"),
+    "tags/gongmang": _SHINSAL_DETAIL,
+    "tags/yeokma": _SHINSAL_DETAIL,
+    "tags/hwagae": _SHINSAL_DETAIL,
+    "tags/dohwa": _SHINSAL_DETAIL,
+    "tags/cheoneul_gwiin": _SHINSAL_DETAIL,
+    "tags/gwiin_day": ("day_kind",),
+    "tags/yongsin_day": ("day_kind",),
     "fortune/day_kind": ("day_kind", "group", "ten_god"),
     "fortune/tag": ("day_kind", "featured", "group", "ten_god"),
     "guide/question": ("basis", "ten_god"),

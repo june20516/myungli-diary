@@ -5,6 +5,7 @@ from myungli_engine.chart.shinsal import activated, shinsal_branches
 from myungli_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
 from myungli_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
 from myungli_engine.domain.models import FourPillars, Judgment, Pillar
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF
 from myungli_engine.rules.messages import fortune, guide_question
 from myungli_engine.rules.relations import find_relations
 from myungli_engine.rules.tags import select_tags
@@ -33,8 +34,8 @@ def test_fortune_adds_tag_sentence(pillar_of: PillarOf, winter_gap: YongsinResul
 
 
 def test_guide_key_uses_featured_tag(pillar_of: PillarOf) -> None:
-    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, ("tag.big_change", "tag.clash"))
-    assert judgment.message_key == "guide.big_change"
+    judgment = guide_question(pillar_of("癸卯"), Stem.GAP, ("tag.clash_day_branch", "tag.clash"))
+    assert judgment.message_key == "guide.clash_day_branch"
 
 
 def test_guide_key_fallback(pillar_of: PillarOf) -> None:
@@ -68,7 +69,9 @@ def test_all_emitted_keys_registered(winter_gap: YongsinResult) -> None:
         day = random_pillar()
         kind = rng.choice(kinds)
         hits = activated(shinsal_branches(natal), day.branch)
-        tags = select_tags(natal, day, find_relations(natal, day), hits, kind)
+        tags = select_tags(
+            natal, day, find_relations(natal, day), hits, kind, yongsin_ref=FIVE_ELEMENTS_REF["balance_principle"]
+        )
         judgments = (
             *fortune(kind, day, natal.day.stem, tags.featured, winter_gap),
             guide_question(day, natal.day.stem, tags.featured),
