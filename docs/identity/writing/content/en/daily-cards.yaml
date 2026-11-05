@@ -1,7 +1,5 @@
 # 오늘 화면 가이드 질문·행운 카드·태그 이름 원고(en). ko 원고(content/ko/daily.yaml, example.yaml)와 같은 정보를 en 화면에 맞게 옮긴 W1-1 초안이며, 원어민 검수 전입니다.
 # 행운 카드는 W7대로 색은 단순형, 방향은 쓰임새형, 숫자는 두 문장형입니다. 가이드 질문 변주 1은 권유형, 변주 2는 질문형입니다(W13).
-- {slot: daily.guide, key: guide.big_change, variant: 1, text: "If anything felt different from usual today, how about noting it down?"}
-- {slot: daily.guide, key: guide.big_change, variant: 2, text: "Was there a moment today that felt unfamiliar?"}
 - {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 1, text: "If you felt grateful to someone today, how about writing down why?"}
 - {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "Was there a moment today you felt grateful for?"}
 - {slot: daily.guide, key: guide.clash, variant: 1, text: "How about writing down one moment today that went unexpectedly?"}
@@ -57,7 +55,6 @@
 - {slot: daily.focus_time, key: focus_time.hap, text: "This is a good time to meet people and talk."}
 - {slot: daily.focus_time, key: focus_time.huisin, text: "This is a good time to pick up tasks you've put off."}
 - {slot: daily.focus_time, key: focus_time.yongsin, text: "Important work tends to go well at this time."}
-- {slot: daily.tag_label, key: tag.big_change, text: "Big change"}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "Noble helper"}
 - {slot: daily.tag_label, key: tag.clash, text: "Clash"}
 - {slot: daily.tag_label, key: tag.dohwa, text: "Peach blossom"}

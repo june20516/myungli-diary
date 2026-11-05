@@ -194,7 +194,7 @@
   user_state: "다음 동작을 고릅니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   components: [primary-button, dialog, share-button, check-row, text-field, input-step]
   keys:
     - actionRetry
@@ -352,7 +352,7 @@
   user_state: "태어난 날의 달력 종류, 시간을 아는지, 성별을 고릅니다."
   structure: "선택지 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 13, en: 22, ja: 10}
+  max_length: {ko: 13, en: 21, ja: 10}
   components: [segmented, check-row]
   keys:
     - calendarSolar
@@ -433,7 +433,7 @@
   user_state: "근거 시트를 열었습니다."
   structure: "제목 하나. 무엇의 근거인지(오늘 풀이)를 말합니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 18, en: 33, ja: 15}
+  max_length: {ko: 18, en: 32, ja: 14}
   ia: [evidence-sheet.sheet.title]
   components: [sheet]
   keys:
@@ -862,3 +862,24 @@
   a11y:
     truncation: "iOS 창이 줄을 바꿉니다. 두 문장 안에 씁니다."
     screen_reader: "iOS가 제목, 본문, 버튼 순서로 읽습니다."
+
+- id: ui.keyboard.dismiss
+  where: "text-field focused의 키보드 위 내리기 원형 버튼(keyboardDismiss, caret-down)의 스크린리더 이름. 입력칸에 초점이 있는 동안만 보입니다(DS1 V68, #807)"
+  purpose: guide
+  user_state: "입력을 마치고 키보드를 내리려 합니다."
+  structure: "동작 이름 하나. 역할은 버튼이라 '버튼'은 넣지 않습니다."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [text-field]
+  keys:
+    - keyboardDismiss
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: keyboardDismiss, text: "키보드 내리기", why: "#807 사용자 선택", source: writing}
+    bad:
+      - {lang: ko, text: "키보드 닫기", why: "#807 탈락", source: writing}
+  endings: []
+  a11y:
+    truncation: "화면에 글자가 없는 스크린리더 전용 이름이라 상한이 없습니다(design lengths.md 4.0.0)."
+    screen_reader: "버튼 이름 그대로 읽습니다."

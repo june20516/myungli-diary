@@ -50,7 +50,7 @@
   user_state: "광고를 보고 열려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 19}
+  max_length: {ko: 23, en: 40, ja: 18}
   keys:
     - evidenceSheetLockCta
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -109,7 +109,7 @@
   user_state: "근거 시트의 구역 제목을 봅니다. 잠겨도 보입니다."
   structure: "구역 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 27, en: 50, ja: 22}
+  max_length: {ko: 26, en: 48, ja: 21}
   keys:
     - evidenceSheetSectionBasis
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -128,7 +128,7 @@
   user_state: "원전 구역 제목을 봅니다."
   structure: "구역 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 27, en: 50, ja: 22}
+  max_length: {ko: 26, en: 48, ja: 21}
   keys:
     - evidenceSheetSectionSource
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -147,7 +147,7 @@
   user_state: "원국 개인 해석 구역 제목을 봅니다."
   structure: "구역 이름 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 27, en: 50, ja: 22}
+  max_length: {ko: 26, en: 48, ja: 21}
   keys:
     - evidenceSheetSectionPersonal
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -243,7 +243,7 @@
   user_state: "사주 표 칸을 눌러 근거 시트를 열었는데 개인 해석 칸이 비어 있습니다."
   structure: "한 문장. 그 자리에 따로 풀이한 문장이 없다는 사실만 씁니다. 나중에 생긴다고 약속하지 않습니다."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 60, en: 100, ja: 42}
+  max_length: {ko: 58, en: 98, ja: 42}
   components: [sheet]
   keys:
     - evidenceSheetPersonalEmpty
@@ -258,3 +258,107 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
+
+# IA v5 새 자리(#813)
+
+- id: tag-sheet.sentences.title
+  where: "사주 기운 시트(tag-sheet) 오늘 문장 구역 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - tagSheetSentencesTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    tagSheetSentencesTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: tag-sheet.sentences.empty
+  where: "사주 기운 시트에 이 기운으로 정해진 오늘 문장이 없을 때(대표 태그 2순위)"
+  purpose: info
+  user_state: "기운을 눌렀는데 오늘 문장 목록이 비었습니다."
+  structure: "한 문장(지휘 가안 \"오늘은 이 기운으로 정해진 문장이 없어요\")."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - tagSheetSentencesEmpty
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    tagSheetSentencesEmpty: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: tag-sheet.diary.cta
+  where: "사주 기운 시트 아래 그 태그가 붙은 내 일기 보기(0편이면 숨김)"
+  purpose: guide
+  user_state: "이 기운이 붙은 날 쓴 일기를 모아 보고 싶습니다."
+  structure: "동작 이름 하나. 태그 이름과 편수(가안 \"<태그>이 붙은 내 일기 n편 보기\"). 태그 뒤 조사는 ui 조사 규칙(W38)으로."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {tag: text, count: number}
+      keys: [tagSheetDiaryCta]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    tagSheetDiaryCta: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: color-rule-sheet.sheet.title
+  where: "달력 색 규칙 시트 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - colorRuleSheetSheetTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    colorRuleSheetSheetTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: color-rule-sheet.rule.body
+  where: "달력 색 규칙 시트 설명"
+  purpose: info
+  user_state: "달력 색이 어떻게 정해지는지 읽습니다."
+  structure: "두 문장. 기운의 합으로 정한다는 것, 용신의 날이라도 무난한 날이 될 수 있는 예(사용자 문구 바탕, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - colorRuleSheetRuleBody
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    colorRuleSheetRuleBody: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
+  examples:
+    good:
+      - {lang: ko, key: colorRuleSheetRuleBody, text: "그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."

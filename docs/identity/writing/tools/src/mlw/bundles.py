@@ -27,9 +27,10 @@ FOCUS_KEYS: tuple[str, ...] = (
 )
 # 날의 성격과 상관없이 대표 태그가 될 수 있는 태그 접미사입니다.
 COMMON_TAGS: tuple[str, ...] = (
-    "big_change",
     "cheoneul_gwiin",
     "clash",
+    "clash_day_branch",
+    "clash_month_branch",
     "dohwa",
     "gongmang",
     "harmony",

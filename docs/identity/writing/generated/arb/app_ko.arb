@@ -266,11 +266,15 @@
   },
   "calendarLegendBodyGood": "잘 풀리는 날",
   "@calendarLegendBodyGood": {
-    "description": "calendar.legend.body: 점 색의 뜻"
+    "description": "calendar.legend.body: 색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
   },
   "calendarLegendBodyCaution": "조심할 날",
   "@calendarLegendBodyCaution": {
-    "description": "calendar.legend.body: 점 색의 뜻"
+    "description": "calendar.legend.body: 색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
+  },
+  "colorRuleSheetRuleBody": "그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.",
+  "@colorRuleSheetRuleBody": {
+    "description": "color-rule-sheet.rule.body: 설명 문장(사용자 문구 바탕, writing 확정): 그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요"
   },
   "consentBarTitle": "약관 동의",
   "@consentBarTitle": {
@@ -348,15 +352,15 @@
   },
   "daySheetDiaryWriteCta": "이날 일기 쓰기",
   "@daySheetDiaryWriteCta": {
-    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+    "description": "day-sheet.diary.write-cta: 일기 쓰기 버튼 \"<날짜> 일기 쓰기\" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)"
   },
   "daySheetDiaryWriteCtaWritten": "이날 새 일기 쓰기",
   "@daySheetDiaryWriteCtaWritten": {
-    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+    "description": "day-sheet.diary.write-cta: 일기 쓰기 버튼 \"<날짜> 일기 쓰기\" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)"
   },
   "daySheetDiaryWriteCtaFull": "이날은 충분히 썼어요",
   "@daySheetDiaryWriteCtaFull": {
-    "description": "day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
+    "description": "day-sheet.diary.write-cta: 일기 쓰기 버튼 \"<날짜> 일기 쓰기\" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)"
   },
   "daySheetEventAdd": "일정 추가",
   "@daySheetEventAdd": {
@@ -365,6 +369,10 @@
   "daySheetEventEmpty": "이날은 일정이 없어요.",
   "@daySheetEventEmpty": {
     "description": "day-sheet.event.empty: 일정이 없을 때 안내"
+  },
+  "daySheetVerdictTitle": "길흉판정",
+  "@daySheetVerdictTitle": {
+    "description": "day-sheet.verdict.title: 섹션 제목 \"길흉판정\"(확정). 아래에 조심할 날, 무난한 날, 잘 풀리는 날 위의 위치 막대와 내역"
   },
   "diaryEditBarTitle": "일기 쓰기",
   "@diaryEditBarTitle": {
@@ -376,15 +384,15 @@
   },
   "diaryEditDraftStatusLocal": "기기에 임시 저장됨",
   "@diaryEditDraftStatusLocal": {
-    "description": "diary-edit.draft.status: 초안 저장 상태"
+    "description": "diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
   },
   "diaryEditDraftStatusSaving": "저장 중",
   "@diaryEditDraftStatusSaving": {
-    "description": "diary-edit.draft.status: 초안 저장 상태"
+    "description": "diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
   },
   "diaryEditDraftStatusSaved": "저장됨",
   "@diaryEditDraftStatusSaved": {
-    "description": "diary-edit.draft.status: 초안 저장 상태"
+    "description": "diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
   },
   "diaryEditOfflineNotice": "인터넷에 연결되면 저장할게요. 쓴 내용은 기기에 남아 있어요.",
   "@diaryEditOfflineNotice": {
@@ -400,11 +408,11 @@
   },
   "diaryListEmptyBody": "아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?",
   "@diaryListEmptyBody": {
-    "description": "diary-list.empty.body: 쓴 일기가 없을 때 안내"
+    "description": "diary-list.empty.body: 쓴 일기가 없을 때 안내. 아래에 같은 일기 쓰기 버튼을 가운데 둠"
   },
   "diaryListPickDateCta": "날짜 골라 쓰기",
   "@diaryListPickDateCta": {
-    "description": "diary-list.pick-date.cta: 날짜 골라 쓰기 버튼"
+    "description": "diary-list.pick-date.cta: 일기 쓰기 버튼(가안 \"일기 쓰기\", 문구 writing). 쓰기 입구는 이것 하나이고 목록이 있으면 아래 고정, 빈 상태에서는 안내 아래 가운데. 누르면 날짜 고르기 시트(기본값 오늘)"
   },
   "diaryViewBarTitle": "{date}의 일기",
   "@diaryViewBarTitle": {
@@ -582,7 +590,7 @@
   },
   "loginTitleBody": "로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.",
   "@loginTitleBody": {
-    "description": "login.title.body: 저장하려면 로그인한다는 설명"
+    "description": "login.title.body: 로그인 설명. 들어온 경로에 따라 나뉨: 첫 풀이(preview)를 거쳐 오면 저장하려면 로그인한다는 설득 문구, 거치지 않고 오면(이미 계정이 있어요 등) 설득 문구를 보이지 않음(검수 F-029, 문구 writing)"
   },
   "loginTitleHead": "로그인하고 풀이를 저장해요",
   "@loginTitleHead": {
@@ -591,6 +599,26 @@
   "mySajuBarTitle": "나의 사주",
   "@mySajuBarTitle": {
     "description": "my-saju.bar.title: app-bar 제목(화면 이름 \"나의 사주\")"
+  },
+  "mySajuChartTitle": "사주 원국",
+  "@mySajuChartTitle": {
+    "description": "my-saju.chart.title: 섹션 제목 \"사주 원국\"(사용자가 정한 문구). 아래에 네 기둥(천간, 지지, 위아래 십성, 일간 표시)과 오행 분포"
+  },
+  "mySajuFlowTitle": "올해와 지금",
+  "@mySajuFlowTitle": {
+    "description": "my-saju.flow.title: 섹션 제목 \"올해와 지금\"(사용자가 정한 문구). 아래에 지금 대운과 올해 세운의 기둥과 십성 칩(누르면 용어 풀이). 흐름 설명 문장은 T1 뒤"
+  },
+  "mySajuIlganTitle": "사주 성향 풀이",
+  "@mySajuIlganTitle": {
+    "description": "my-saju.ilgan.title: 섹션 제목 \"사주 성향 풀이\"(사용자가 정한 문구)"
+  },
+  "mySajuRecordTitle": "명리일기 회고",
+  "@mySajuRecordTitle": {
+    "description": "my-saju.record.title: 섹션 제목 \"명리일기 회고\"(사용자가 정한 문구). 아래에 기록 요약(쓴 편수, 날의 성격별 쓴 날, 자주 붙은 태그, server 집계 경로 새로 필요)"
+  },
+  "mySajuYongsinTitle": "나를 돕는 기운",
+  "@mySajuYongsinTitle": {
+    "description": "my-saju.yongsin.title: 섹션 제목 \"나를 돕는 기운\"(사용자가 정한 문구). 아래에 용신, 행운 색, 용신 문장"
   },
   "notifyAskBarTitle": "알림",
   "@notifyAskBarTitle": {
@@ -763,6 +791,22 @@
   "@sajuChartBarTitle": {
     "description": "saju-chart.bar.title: app-bar 제목(화면 이름 \"사주 표\")"
   },
+  "sajuChartDaeunTitle": "대운",
+  "@sajuChartDaeunTitle": {
+    "description": "saju-chart.daeun.title: 만세력과 대운 탭 섹션 제목 \"대운\""
+  },
+  "sajuChartOhaengTitle": "오행 분포",
+  "@sajuChartOhaengTitle": {
+    "description": "saju-chart.ohaeng.title: 원국 탭 섹션 제목 \"오행 분포\""
+  },
+  "sajuChartPillarsTitle": "사주",
+  "@sajuChartPillarsTitle": {
+    "description": "saju-chart.pillars.title: 원국 탭 섹션 제목 \"사주\"(\"네 기둥\" 아님)"
+  },
+  "sajuChartSeunTitle": "세운",
+  "@sajuChartSeunTitle": {
+    "description": "saju-chart.seun.title: 만세력과 대운 탭 섹션 제목 \"세운\""
+  },
   "sajuChartTimeUnknownNotice": "태어난 시간을 몰라 시주는 빼고 보여 드려요.",
   "@sajuChartTimeUnknownNotice": {
     "description": "saju-chart.time-unknown.notice: 시간 모름으로 시주가 빠졌다는 안내"
@@ -773,7 +817,7 @@
   },
   "sajuChartYongsinTitle": "용신 판정 근거",
   "@sajuChartYongsinTitle": {
-    "description": "saju-chart.yongsin.title: 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
+    "description": "saju-chart.yongsin.title: 원국 탭 섹션 제목(용신 판정 근거). 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
   },
   "settingsAdFreeLabel": "광고 제거",
   "@settingsAdFreeLabel": {
@@ -902,6 +946,10 @@
       }
     }
   },
+  "todayFortuneTitle": "총운",
+  "@todayFortuneTitle": {
+    "description": "today.fortune.title: 섹션 제목 \"총운\"(확정). 제목 줄 오른쪽에 좋아요"
+  },
   "todayGuideCta": "일기 쓰기",
   "@todayGuideCta": {
     "description": "today.guide.cta: 일기 쓰기 버튼(언제나 새 일기. 오늘 이미 썼으면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)"
@@ -916,11 +964,11 @@
   },
   "todayReactionLabel": "좋아요",
   "@todayReactionLabel": {
-    "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
+    "description": "today.reaction.label: 총운 섹션 제목 줄 오른쪽 좋아요 반응의 접근성 라벨"
   },
   "todayReactionLabelSelected": "좋아요 취소",
   "@todayReactionLabelSelected": {
-    "description": "today.reaction.label: 좋아요 반응 접근성 라벨"
+    "description": "today.reaction.label: 총운 섹션 제목 줄 오른쪽 좋아요 반응의 접근성 라벨"
   },
   "actionBusy": "처리 중",
   "@actionBusy": {
@@ -1249,9 +1297,14 @@
       }
     }
   },
-  "depthLinkEvidence": "근거 보기",
+  "depthLinkEvidence": "{subject} 근거 보기",
   "@depthLinkEvidence": {
-    "description": "깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)"
+    "description": "근거 아이콘(book-open-text)의 스크린리더 이름: 오늘 화면 문장 끝에서 근거 시트로 가는 아이콘(#153, DS1 V63, #807)",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
   },
   "depthExplain": "풀이",
   "@depthExplain": {
@@ -1589,6 +1642,10 @@
   "todayGuideEyebrow": "오늘의 질문",
   "@todayGuideEyebrow": {
     "description": "가이드 질문 카드(guide-question-card) 위 작은 머리글(#153)"
+  },
+  "keyboardDismiss": "키보드 내리기",
+  "@keyboardDismiss": {
+    "description": "text-field focused의 키보드 위 내리기 원형 버튼(keyboardDismiss, caret-down)의 스크린리더 이름. 입력칸에 초점이 있는 동안만 보입니다(DS1 V68, #807)"
   },
   "legalTermsLabel": "이용약관",
   "@legalTermsLabel": {

@@ -24,7 +24,7 @@
   endings: ["advice: ~해 보세요", "state: ~날이에요", "care: ~해도 괜찮은 날이에요, ~큰 날이에요 (괜찮아요 반복은 limit.L8)"]
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: 32, en: 57, ja: 32}
-  ia: [today.fortune.head, preview.fortune.head, system-push.morning.body]
+  ia: [today.fortune.head, preview.fortune.head, system-push.morning.body, evidence-sheet.target.body]
   vocative: true
   keys:
     - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
@@ -92,9 +92,10 @@
   keys:
     - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
       keys:
-        - fortune.tag.big_change
         - fortune.tag.cheoneul_gwiin
         - fortune.tag.clash
+        - fortune.tag.clash_day_branch
+        - fortune.tag.clash_month_branch
         - fortune.tag.dohwa
         - fortune.tag.gongmang
         - fortune.tag.gwiin_day
@@ -109,6 +110,9 @@
         - fortune.tag.yongsin_day
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  pending:
+    fortune.tag.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
+    fortune.tag.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: fortune.tag.dohwa, type: advice, text: "발표나 모임처럼 사람들 앞에 서는 일을 해 보세요.", why: "태그가 뜻하는 일을 행동 하나로, 토큰 없음(W28)", source: round-R9-4}
@@ -135,9 +139,10 @@
   keys:
     - params: {ten_god: [ten_god, ten_god_group], element: [element, color]}
       keys:
-        - guide.big_change
         - guide.cheoneul_gwiin
         - guide.clash
+        - guide.clash_day_branch
+        - guide.clash_month_branch
         - guide.dohwa
         - guide.gongmang
         - guide.gwiin_day
@@ -157,6 +162,9 @@
         - guide.yongsin_day
   variants: {count: 2, rotation: "같은 키가 나올 때마다 변주 1, 2 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  pending:
+    guide.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
+    guide.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: guide.dohwa, variant: 1, text: "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?", why: "하나만 고르게 하는 권유형", source: round-R6-1}
@@ -307,9 +315,10 @@
   max_length: {ko: 10, en: 18, ja: 10}
   components: [tag-chip, lucky-card]
   keys:
-    - tag.big_change
     - tag.cheoneul_gwiin
     - tag.clash
+    - tag.clash_day_branch
+    - tag.clash_month_branch
     - tag.dohwa
     - tag.gongmang
     - tag.gwiin_day
@@ -324,10 +333,12 @@
     - tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.focus_reason]
+  pending:
+    tag.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
+    tag.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: tag.dohwa, text: "도화", why: "이름 그대로", source: writing}
-      - {lang: ko, key: tag.big_change, text: "큰 변화", why: "쉬운 일상어 명사구", source: writing}
     bad:
       - {lang: ko, key: tag.dohwa, text: "도화살 발동!", why: "들뜬 강조 slop.P8", source: writing}
   a11y:

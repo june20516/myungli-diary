@@ -9,13 +9,13 @@
 | account-delete.bar.title | account-delete.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | account-delete.cta.delete | account-delete.cta.delete | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | account-delete.data.body | account-delete.data.body | info | - | 1 | 1 | - | ko -, en -, ja - |
-| account-delete.delete.confirm | account-delete.delete.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountDeleteDeleteConfirm` ko 34, en 60, ja 28 |
+| account-delete.delete.confirm | account-delete.delete.confirm | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`accountDeleteDeleteConfirm` ko 34, en 60, ja 26 |
 | account-delete.title.head | account-delete.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | account-merge.auth.body | account-merge.auth.body | guide | - | 1 | 1 | - | ko 90, en 150, ja 63 |
 | account-merge.bar.title | account-merge.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | account-merge.choice.label | account-merge.choice.label | guide | - | 1 | 1 | - | ko 31, en 58, ja 25 |
 | account-merge.cta.merge | account-merge.cta.merge | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
-| account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`accountMergeMergeConfirm` ko 34, en 60, ja 28 |
+| account-merge.merge.confirm | account-merge.merge.confirm | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`accountMergeMergeConfirm` ko 34, en 60, ja 26 |
 | account-merge.not-other.body | account-merge.not-other.body | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | account-merge.overlap.notice | account-merge.overlap.notice | info | - | 1 | 1 | - | ko 58, en 100, ja 42 |
 | account-merge.title.body | account-merge.title.body | info | - | 1 | 1 | - | ko 120, en 200, ja 84 |
@@ -32,7 +32,7 @@
 | birthplace.empty.body | birthplace.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.question.head | birthplace.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.search.hint | birthplace.search.hint | guide | - | 1 | 1 | - | ko 15, en 27, ja 12 |
-| birthplace.standard.link | birthplace.standard.link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
+| birthplace.standard.link | birthplace.standard.link | guide | - | 1 | 1 | - | ko 24, en 44, ja 20 |
 | birthplace.standard.note | birthplace.standard.note | info | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.why.body | birthplace.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | calc-basis.bar.title | calc-basis.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -42,15 +42,18 @@
 | calc-basis.lunar.body | calc-basis.lunar.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | calc-basis.schools.body | calc-basis.schools.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | calendar.bar.title | calendar.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| calendar.day_level | 컴포넌트 day-character<br>컴포넌트 day-cell | info | - | 1 | 3 | `score`: number | ko 10, en 18, ja 10 |
+| calendar.day_level | 컴포넌트 day-character<br>컴포넌트 day-cell | info | - | 1 | 4 | `score`: number | ko 10, en 18, ja 10 |
 | calendar.legend.body | calendar.legend.body | info | - | 1 | 2 | - | ko -, en -, ja - |
+| calendar.legend.rule-link | calendar.legend.rule-link | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | calendar.score_item | 컴포넌트 term-token | info | - | 1 | 7 | - | ko 10, en 18, ja 10 |
 | calendar.solar_term | 컴포넌트 day-cell | info | - | 1 | 24 | - | ko 4, en 6, ja 3 |
-| character.reason | today.character.reason<br>day-sheet.character.reason<br>event-edit.character.hint | info | - | 1 | 4 | - | ko 57, en 90, ja 39 |
+| character.reason | event-edit.character.hint | info | - | 1 | 4 | - | ko 59, en 102, ja 44 |
 | chart.ilgan_body | my-saju.ilgan.body | info | - | 1 | 10 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | chart.ilgan_head | my-saju.ilgan.head | info | - | 1 | 10 | - | ko 42, en 82, ja 34 |
 | chart.yongsin_method | saju-chart.yongsin.basis | info | - | 1 | 3 | `yongsin`: element, color<br>`huisin`: element, color<br>`gisin`: element, color<br>`tonggwan`: element, color | ko 60, en 108, ja 60 |
 | chart.yongsin_summary | my-saju.yongsin.body | info | - | 1 | 1 | `yongsin`: element, color | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| color-rule-sheet.rule.body | color-rule-sheet.rule.body | info | - | 1 | 1 | - | ko -, en -, ja - |
+| color-rule-sheet.sheet.title | color-rule-sheet.sheet.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | consent.bar.title | consent.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | consent.cta.agree | consent.cta.agree | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | consent.required.label | consent.required.label | info | - | 1 | 2 | - | ko 34, en 64, ja 28 |
@@ -67,48 +70,56 @@
 | daily.direction | today.lucky-direction.body | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none | ko 36, en 64, ja 36 |
 | daily.focus_reason | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 10, en 18, ja 10 |
 | daily.focus_time | today.lucky-time.body | info | - | 1 | 5 | `branches`: list:branch<br>`score`: number | ko 36, en 64, ja 36 |
-| daily.fortune.head | today.fortune.head<br>preview.fortune.head<br>system-push.morning.body | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
-| daily.fortune.tag | today.fortune.body<br>preview.fortune.body | info | advice, state, care | 1 | 15 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
-| daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 20 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
+| daily.fortune.head | today.fortune.head<br>preview.fortune.head<br>system-push.morning.body<br>evidence-sheet.target.body | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
+| daily.fortune.tag | today.fortune.body<br>preview.fortune.body | info | advice, state, care | 1 | 16 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
+| daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 21 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
 | daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko 36, en 64, ja 36 |
-| daily.tag_label | 컴포넌트 tag-chip<br>컴포넌트 lucky-card | info | - | 1 | 15 | - | ko 10, en 18, ja 10 |
-| day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | `count`: number | ko 25, en 45, ja 20 |
-| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
-| day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| daily.tag_label | 컴포넌트 tag-chip<br>컴포넌트 lucky-card | info | - | 1 | 16 | - | ko 10, en 18, ja 10 |
+| day-sheet.date.lunar | day-sheet.date.lunar | info | - | 1 | 1 | `lunarDate`: text | ko -, en -, ja - |
+| day-sheet.date.solar | day-sheet.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
+| day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | `count`: number | ko 24, en 44, ja 20 |
+| day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | - | ko 23, en 40, ja 18 |
+| day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 40, ja 18 |
 | day-sheet.event.empty | day-sheet.event.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
+| day-sheet.verdict.item | day-sheet.verdict.item | info | - | 1 | 2 | - | ko -, en -, ja - |
+| day-sheet.verdict.title | day-sheet.verdict.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.bar.title | diary-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.body.placeholder | diary-edit.body.placeholder | guide | - | 1 | 1 | - | ko 42, en 82, ja 36 |
+| diary-edit.date.day | diary-edit.date.day | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
+| diary-edit.date.iljin | diary-edit.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
+| diary-edit.date.month | diary-edit.date.month | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | diary-edit.draft.status | diary-edit.draft.status | info | - | 1 | 3 | - | ko -, en -, ja - |
+| diary-edit.length.count | diary-edit.length.count | info | - | 1 | 1 | `count`: number | ko -, en -, ja - |
 | diary-edit.offline.notice | diary-edit.offline.notice | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
 | diary-edit.saved.tags | diary-edit.saved.tags | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | diary-list.bar.title | diary-list.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-list.empty.body | diary-list.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-list.pick-date.cta | diary-list.pick-date.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | diary-view.bar.title | diary-view.bar.title | guide | - | 1 | 1 | `date`: text | ko -, en -, ja - |
-| diary-view.delete.confirm | diary-view.delete.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`diaryViewDeleteConfirm` ko 34, en 60, ja 28 |
+| diary-view.delete.confirm | diary-view.delete.confirm | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`diaryViewDeleteConfirm` ko 34, en 60, ja 26 |
 | event-edit.bar.title | event-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| event-edit.delete.confirm | event-edit.delete.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`eventEditDeleteConfirm` ko 34, en 60, ja 28 |
+| event-edit.delete.confirm | event-edit.delete.confirm | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`eventEditDeleteConfirm` ko 34, en 60, ja 26 |
 | event-edit.memo.hint | event-edit.memo.hint | guide | - | 1 | 1 | - | ko 17, en 31, ja 14 |
 | event-edit.title.hint | event-edit.title.hint | guide | - | 1 | 1 | - | ko 17, en 31, ja 14 |
 | evidence-sheet.a11y.checking | evidence-sheet.a11y.checking | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | evidence-sheet.a11y.locked | evidence-sheet.a11y.locked | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | evidence-sheet.a11y.unlocked | evidence-sheet.a11y.unlocked | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| evidence-sheet.lock.cta | evidence-sheet.lock.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| evidence-sheet.lock.cta | evidence-sheet.lock.cta | guide | - | 1 | 1 | - | ko 23, en 40, ja 18 |
 | evidence-sheet.lock.head | evidence-sheet.lock.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | evidence-sheet.lock.pass | evidence-sheet.lock.pass | info | - | 1 | 2 | - | ko -, en -, ja - |
 | evidence-sheet.lock.reward | evidence-sheet.lock.reward | info | - | 1 | 1 | - | ko -, en -, ja - |
 | evidence-sheet.lock.unavailable | evidence-sheet.lock.unavailable | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| evidence-sheet.section.basis | evidence-sheet.section.basis | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
-| evidence-sheet.section.personal | evidence-sheet.section.personal | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
-| evidence-sheet.section.source | evidence-sheet.section.source | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
+| evidence-sheet.section.basis | evidence-sheet.section.basis | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
+| evidence-sheet.section.personal | evidence-sheet.section.personal | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
+| evidence-sheet.section.source | evidence-sheet.section.source | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
 | evidence-sheet.unlock.failed | evidence-sheet.unlock.failed | guide | - | 1 | 1 | - | ko 48, en 78, ja 34 |
-| evidence.basis | evidence-sheet.basis.body | info | - | 1 | 24 | `breakdown`: none<br>`score`: number<br>`day_kind`: day_kind<br>`element`: element, color<br>`note`: none<br>`role`: role<br>`day_branch`: text<br>`direction`: direction8<br>`deity`: none<br>`picks`: none<br>`group`: ten_god_group<br>`ten_god`: ten_god, ten_god_group<br>`featured`: none<br>`basis`: none<br>`day_stem`: text<br>`number`: number<br>`parity`: none<br>`gisin`: element, color<br>`strength`: strength<br>`yongsin`: element, color<br>`current`: none<br>`luck`: luck<br>`part`: part<br>`place`: place<br>`group_count`: number<br>`all`: none<br>`strength_level`: strength<br>`strength_score`: none<br>`month_branch`: text<br>`share`: none<br>`threshold`: none | ko -, en -, ja - |
-| evidence.source | evidence-sheet.source.quote | info | - | 1 | 124 | - | ko -, en -, ja - |
+| evidence.basis | evidence-sheet.basis.body | info | - | 1 | 36 | `breakdown`: none<br>`score`: number<br>`day_kind`: day_kind<br>`element`: element, color<br>`note`: none<br>`role`: role<br>`day_branch`: text<br>`direction`: direction8<br>`deity`: none<br>`picks`: none<br>`group`: ten_god_group<br>`ten_god`: ten_god, ten_god_group<br>`featured`: none<br>`basis`: none<br>`day_stem`: text<br>`number`: number<br>`parity`: none<br>`gisin`: element, color<br>`strength`: strength<br>`yongsin`: element, color<br>`current`: none<br>`luck`: luck<br>`part`: part<br>`place`: place<br>`group_count`: number<br>`all`: none<br>`shinsal`: shinsal<br>`natal_positions`: list:place<br>`relation_kind`: relation<br>`branch_ten_god`: ten_god, ten_god_group<br>`natal_count`: number<br>`stem_ten_god`: ten_god, ten_god_group<br>`strength_level`: strength<br>`strength_score`: none<br>`month_branch`: text<br>`share`: none<br>`threshold`: none | ko -, en -, ja - |
+| evidence.source | evidence-sheet.source.quote | info | - | 1 | 134 | - | ko -, en -, ja - |
 | explain.today_reason | explain-sheet.today.reason | info | - | 1 | 13 | - | ko -, en -, ja - |
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 106 | - | ko 10, en 18, ja 10 |
+| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 106 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.error.body | login-methods.error.body | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -116,16 +127,25 @@
 | login-methods.intro.body | login-methods.intro.body | guide | - | 1 | 1 | - | ko 90, en 150, ja 63 |
 | login-methods.last.notice | login-methods.last.notice | guide | - | 1 | 1 | - | ko 64, en 108, ja 46 |
 | login-methods.merge.cta | login-methods.merge.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
-| login-methods.unlink.confirm | login-methods.unlink.confirm | guide | - | 1 | 4 | `provider`: text | ko 10, en 16, ja 7<br>`loginMethodsUnlinkConfirm` ko 34, en 60, ja 28<br>`loginMethodsUnlinkConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| login-methods.unlink.confirm | login-methods.unlink.confirm | guide | - | 1 | 4 | `provider`: text | ko 8, en 13, ja 6<br>`loginMethodsUnlinkConfirm` ko 34, en 60, ja 26<br>`loginMethodsUnlinkConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login.bar.title | login.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login.discard.notice | login.discard.notice | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login.title.body | login.title.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.head | login.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | my-saju.bar.title | my-saju.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.chart.link | my-saju.chart.link | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.chart.title | my-saju.chart.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.flow.link | my-saju.flow.link | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.flow.title | my-saju.flow.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.ilgan.title | my-saju.ilgan.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.record.few | my-saju.record.few | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.record.title | my-saju.record.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| my-saju.yongsin.title | my-saju.yongsin.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.bar.title | notify-ask.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.cta.allow | notify-ask.cta.allow | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | notify-ask.cta.skip | notify-ask.cta.skip | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | notify-ask.question.head | notify-ask.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| notify-ask.time.note | notify-ask.time.note | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | notify-ask.why.body | notify-ask.why.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-birth.bar.title | onboard-birth.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | onboard-birth.basis.note | onboard-birth.basis.note | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -152,22 +172,36 @@
 | preview.cta.restart | preview.cta.restart | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | preview.cta.save | preview.cta.save | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | preview.restart.notice | preview.restart.notice | guide | - | 1 | 1 | - | ko 52, en 90, ja 38 |
-| preview.share.login-notice | preview.share.login-notice | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`previewShareLoginNotice` ko 34, en 60, ja 28 |
+| preview.share.login-notice | preview.share.login-notice | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`previewShareLoginNotice` ko 34, en 60, ja 26 |
 | profile-edit.bar.title | profile-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| profile-edit.recalc.confirm | profile-edit.recalc.confirm | guide | - | 1 | 4 | `before`: text<br>`after`: text | ko 10, en 16, ja 7<br>`profileEditRecalcConfirmTitle` ko 34, en 60, ja 28<br>`profileEditRecalcConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| profile-edit.recalc.confirm | profile-edit.recalc.confirm | guide | - | 1 | 4 | `before`: text<br>`after`: text | ko 8, en 13, ja 6<br>`profileEditRecalcConfirmTitle` ko 34, en 60, ja 26<br>`profileEditRecalcConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | profile-edit.recalc.notice | profile-edit.recalc.notice | info | - | 1 | 1 | - | ko 62, en 104, ja 46 |
 | purchase-history.bar.title | purchase-history.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | purchase-history.empty.body | purchase-history.empty.body | info | - | 1 | 1 | - | ko 64, en 108, ja 46 |
 | purchase-history.missing.notice | purchase-history.missing.notice | guide | - | 1 | 1 | - | ko 62, en 106, ja 46 |
 | saju-chart.bar.title | saju-chart.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.daeun.desc | saju-chart.daeun.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.daeun.title | saju-chart.daeun.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.head.title | saju-chart.head.title | info | - | 1 | 1 | `nickname`: text | ko -, en -, ja - |
+| saju-chart.jijanggan.desc | saju-chart.jijanggan.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.manse.basis | saju-chart.manse.basis | info | - | 1 | 1 | `stem`: text | ko -, en -, ja - |
+| saju-chart.ohaeng.desc | saju-chart.ohaeng.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.ohaeng.title | saju-chart.ohaeng.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.pillars.desc | saju-chart.pillars.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.pillars.title | saju-chart.pillars.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.seun.desc | saju-chart.seun.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.seun.title | saju-chart.seun.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.sinsal.desc | saju-chart.sinsal.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.time-unknown.notice | saju-chart.time-unknown.notice | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
-| saju-chart.yongsin.open | saju-chart.yongsin.open | guide | - | 1 | 1 | - | ko 12, en 20, ja 9 |
-| saju-chart.yongsin.title | saju-chart.yongsin.title | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
-| settings.ad-free.label | settings.ad-free.label | info | - | 1 | 2 | `date`: text | ko 23, en 42, ja 18 |
+| saju-chart.unseong.desc | saju-chart.unseong.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
+| saju-chart.yongsin.open | saju-chart.yongsin.open | guide | - | 1 | 1 | - | ko 12, en 19, ja 9 |
+| saju-chart.yongsin.title | saju-chart.yongsin.title | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
+| settings.ad-free.label | settings.ad-free.label | info | - | 1 | 2 | `date`: text | ko 20, en 37, ja 16 |
 | settings.bar.title | settings.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | settings.language.birthplace-notice | settings.language.birthplace-notice | guide | - | 1 | 2 | - | ko -, en -, ja - |
-| settings.logout.confirm | settings.logout.confirm | guide | - | 1 | 3 | - | ko 10, en 16, ja 7<br>`settingsLogoutConfirm` ko 34, en 60, ja 28 |
-| share-preview.cta.share | share-preview.cta.share | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
+| settings.logout.confirm | settings.logout.confirm | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`settingsLogoutConfirm` ko 34, en 60, ja 26 |
+| settings.notify-time.note | settings.notify-time.note | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| share-preview.cta.share | share-preview.cta.share | guide | - | 1 | 1 | - | ko 23, en 40, ja 18 |
 | share-preview.image.footer | share-preview.image.footer | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.image.tagline | share-preview.image.tagline | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.ratio.label | share-preview.ratio.label | info | - | 1 | 3 | - | ko 8, en 13, ja 6 |
@@ -176,28 +210,38 @@
 | system.notice | 컴포넌트 notice-banner | info | - | 1 | 7 | - | ko 52, en 90, ja 38 |
 | tag-diary.bar.title | tag-diary.bar.title | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
 | tag-diary.empty.body | tag-diary.empty.body | info | - | 1 | 1 | - | ko -, en -, ja - |
-| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>today.lucky-tag.body | info | - | 1 | 77 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| tag-sheet.diary.cta | tag-sheet.diary.cta | guide | - | 1 | 1 | `tag`: text<br>`count`: number | ko -, en -, ja - |
+| tag-sheet.sentences.empty | tag-sheet.sentences.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
+| tag-sheet.sentences.title | tag-sheet.sentences.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 78 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
+| today.date.lunar | today.date.lunar | info | - | 1 | 1 | `lunarDate`: text | ko -, en -, ja - |
+| today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
+| today.featured.title | today.featured.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.fortune.title | today.fortune.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
+| today.guide.title | today.guide.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky.title | today.lucky.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 2 | - | ko 11, en 19, ja 9 |
 | ui.account-merge.error | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 5 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
 | ui.account-merge.summary | account-merge.title.body | info | - | 1 | 7 | `count`: number<br>`days`: number | ko 19, en 35, ja 15 |
-| ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 10, en 16, ja 7 |
+| ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 8, en 13, ja 6 |
 | ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
 | ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko 52, en 90, ja 38 |
 | ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
-| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 22, ja 10 |
+| ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 21, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.contact.error | 컴포넌트 toast<br>컴포넌트 text-field | guide | - | 1 | 2 | - | ko 48, en 78, ja 34<br>`contactEmailInvalid` ko 60, en 102, ja 44 |
+| ui.contact.error | 컴포넌트 toast<br>컴포넌트 text-field | guide | - | 1 | 2 | - | ko 48, en 78, ja 34<br>`contactEmailInvalid` ko 60, en 100, ja 44 |
 | ui.date-picker.solar-confirm | 컴포넌트 date-picker | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | ui.day-cell.a11y | 컴포넌트 day-cell | info | - | 1 | 6 | `month`: number<br>`day`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.day-cell.lunar | 컴포넌트 day-cell | info | - | 1 | 1 | `month`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.depth.evidence_link | today.evidence.link<br>컴포넌트 depth-link | guide | - | 1 | 1 | - | ko 25, en 45, ja 20 |
+| ui.depth.evidence_link | 컴포넌트 depth-link | guide | - | 1 | 1 | `subject`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.depth.explain | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.diary-edit.save | diary-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.diary-list.pick-date-confirm | diary-list.pick-date.confirm<br>컴포넌트 date-picker | guide | - | 1 | 2 | `date`: text | ko 23, en 42, ja 19 |
@@ -211,10 +255,11 @@
 | ui.event-edit.save | event-edit.save.cta<br>컴포넌트 primary-button | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | ui.event-edit.save-failed | event-edit.save.failed<br>컴포넌트 toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | ui.event-row.label | 컴포넌트 event-row | info | - | 1 | 3 | `count`: number<br>`status`: text<br>`time`: text<br>`title`: text | ko -, en -, ja -<br>`eventRowLabel` ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 60, en 100, ja 42 |
-| ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 33, ja 15 |
+| ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
+| ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 32, ja 14 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
+| ui.keyboard.dismiss | 컴포넌트 text-field | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.legal.row | 컴포넌트 settings-row | info | - | 1 | 3 | - | ko 23, en 42, ja 18 |
 | ui.login-methods.row | 컴포넌트 social-login-button | guide | - | 1 | 6 | - | ko 10, en 16, ja 7 |
 | ui.login.error | login.error.body<br>컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko 48, en 78, ja 34 |
@@ -224,16 +269,16 @@
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.profile-edit.birthplace | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 11, en 19, ja 8 |
+| ui.profile-edit.birthplace | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 9, en 16, ja 7 |
 | ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 2 | `date`: text<br>`start`: text<br>`end`: text | ko 26, en 48, ja 21 |
 | ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 6, en 9, ja 4 |
-| ui.saju-chart.tab | 컴포넌트 segmented | info | - | 1 | 2 | - | ko 13, en 22, ja 10 |
+| ui.saju-chart.tab | 컴포넌트 segmented | info | - | 1 | 2 | - | ko 13, en 21, ja 10 |
 | ui.saju.a11y | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 5 | `age`: number<br>`year`: number<br>`element`: text<br>`weight`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.saju.header | 컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 term-token | info | - | 1 | 8 | - | ko 8, en 10, ja 4<br>`manseRowHiddenStems` en 12 |
 | ui.saju.tag | 컴포넌트 saju-pillars<br>컴포넌트 daeun-table | info | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`sajuTagMe` ko 7, en 10, ja 5 |
-| ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 23, en 42, ja 18 |
-| ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 5 | - | ko 11, en 19, ja 8 |
+| ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 20, en 37, ja 16 |
+| ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 5 | - | ko 9, en 16, ja 7 |
 | ui.share.a11y | 컴포넌트 share-image<br>컴포넌트 segmented | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-chip.label | 컴포넌트 tag-chip | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |

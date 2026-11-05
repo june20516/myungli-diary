@@ -60,9 +60,6 @@
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: advice, text: "With [[Inseong|ten_god_group.inseong]] coming in, start that book or course."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: state, text: "With [[Inseong|ten_god_group.inseong]] coming in, it's a good day to learn."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: care, text: "Finding out something new feels rewarding today."}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: advice, text: "If there's a habit you've wanted to change, change one."}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: state, text: "Your usual routine is likely to shift today."}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: care, text: "Feeling a little unsettled today is understandable."}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: advice, text: "If you have a hard favor to ask, ask someone you trust."}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: state, text: "Help may come from somewhere unexpected today."}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: care, text: "You may feel relieved by an unexpected kindness today."}
