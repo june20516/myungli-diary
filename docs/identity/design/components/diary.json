@@ -35,7 +35,7 @@
             "badge": { "visible": false },
             "preview": { "visible": false },
             "tag": { "visible": false },
-            "head": { "screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}" },
+            "head": { "screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}", "note": "머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보임(결정 V56)" },
             "container": {
               "byScreen": {
                 "today": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}", "paddingY": "{space.4}", "marginTop": "{space.12}" },
@@ -50,7 +50,7 @@
         "dateColumn": { "width": { "value": 44, "unit": "px" }, "align": "center" },
         "number": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 18, "unit": "px" }, "fontWeight": 600, "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
         "seal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 34, "unit": "px" }, "position": "behind-number-center" },
-        "weekday": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": { "value": 4, "unit": "px" } },
+        "weekday": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.4}" },
         "rail": { "element": "rail.timeline", "from": "below-weekday", "to": "next-date" },
         "card": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}", "marginStart": "{space.12}", "marginBottom": "{space.12}" },
         "badge": { "component": "day-character", "part": "badge" },
@@ -59,10 +59,10 @@
         "entry": {
           "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "HH:mm", "hourCycle": "h23", "note": "event-row와 같은 24시간제, 앞 0 채움(V46, #475). writing 슬롯 없음" },
           "preview": { "component": "sentence-block", "variant": "preview", "maxLines": 1, "marginStart": "{space.12}", "baseline": "time", "emptyKeepsLineHeight": true },
-          "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "fg": "{color.text.secondary}", "align": "center", "marginStart": "{space.8}" },
+          "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "fg": "{color.text.secondary}", "align": "center", "marginStart": "{space.8}" },
           "paddingY": "{space.12}",
           "minHeight": { "value": 48, "unit": "px" },
-          "divider": { "style": "dashed", "width": { "value": 1, "unit": "px" }, "dash": { "value": 4, "unit": "px" }, "gap": { "value": 3, "unit": "px" }, "color": "{color.timeline.entry}", "between": "entries-only", "span": "row", "inMinHeight": true }
+          "divider": { "style": "dashed", "width": { "value": 1, "unit": "px" }, "dashLength": { "value": 4, "unit": "px" }, "dashGap": { "value": 3, "unit": "px" }, "color": "{color.timeline.entry}", "between": "entries-only", "span": "row", "inMinHeight": true }
         }
       },
       "states": {
@@ -131,8 +131,8 @@
       "summary": "초안 저장 상태 (app-bar 오른쪽)",
       "uses": ["icon", "appear.seep", "loading.breathe"],
       "parts": {
-        "container": { "gap": { "value": 4, "unit": "px" }, "position": "app-bar-end-before-actions" },
-        "icon": { "size": { "value": 16, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "container": { "gap": "{space.4}", "position": "app-bar-end-before-actions" },
+        "icon": { "size": "{size.icon.16}", "weight": "light", "color": "{color.text.secondary}" },
         "label": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" }
       },
       "states": {
@@ -154,7 +154,7 @@
         { "id": "neutral", "when": "중립 태그", "parts": { "chip": { "bg": "transparent", "border": { "color": "{color.tag.neutral.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.tag.neutral.fg}" } } }
       ],
       "parts": {
-        "chip": { "radius": "{radius.full}", "type": "{type.label.md}", "fontSize": { "value": 12, "unit": "px" }, "height": { "value": 26, "unit": "px" }, "paddingX": { "value": 10, "unit": "px" } },
+        "chip": { "radius": "{radius.full}", "type": "{type.label.md}", "fontSize": { "value": 12, "unit": "px" }, "height": { "value": 26, "unit": "px" }, "paddingX": "{space.12}" },
         "text": { "prefix": "#" }
       },
       "states": {

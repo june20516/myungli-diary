@@ -55,3 +55,10 @@ def test_render_markdown_has_tables(tmp_path):
     assert "## 간격 토큰 쓰임" in text
     assert "## 직접 쓴 값" in text
     assert "## 문제" in text
+
+
+def test_collect_measures_reads_named_elements(tmp_path):
+    document = {"version": "0.0.0", "elements": {"mark.x": {"gap": {"value": 2, "unit": "px"}}}}
+    (tmp_path / "elements.json").write_text(json.dumps(document), encoding="utf-8")
+
+    assert Measure("mark.x", "", "gap", "2", False) in collect_measures(tmp_path)

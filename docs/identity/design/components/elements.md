@@ -13,13 +13,13 @@
 | `tag.me` '나' 꼬리표 | sage 채움 작은 알약(10px 700), 칸 오른쪽 위 모서리에 겹침 | 원국표 일간 |
 | `highlight.current` 현재 강조 | 바탕 `status.bg` + 글자 `action.primary` 굵게 | 대운 지금, 세운 올해 |
 | `mark.underline-grow` 펼침 밑줄 | `action.primary` 14×2px 둥근 막대, 숫자 아래 2px | 달력 선택 날짜 |
-| `mark.caution` 경고 표시 | Phosphor `warning-circle` Fill, 글자색, 글자 높이 | 되돌릴 수 없는 동작 |
+| `mark.caution` 경고 표시 | Phosphor `warning-circle` Fill, 글자색, 옆 글자 기준 아이콘 단계 | 되돌릴 수 없는 동작 |
 | `link.inline-nowrap` 끊기지 않는 링크 | 문장 끝 링크 전체를 한 덩어리로 | 근거 보기 |
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
-| `icon` 아이콘 | Phosphor, 평소 Light · 선택 Regular | 전체 |
+| `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
 | `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5) | 근거 시트 세 구역, 잠긴 용신 근거 |
 
 ## 낙관 도장 `seal`
@@ -58,9 +58,9 @@
 
 ## 경고 표시 `mark.caution`
 
-빨간색을 쓰는 대신, 글자 높이에 맞춘 Phosphor `warning-circle` Fill을 문장 앞에 둡니다. 색은 놓인 글자의 색을 따릅니다. 아이콘 세트에서 Fill을 쓰는 곳은 이것뿐입니다.
+빨간색을 쓰는 대신 Phosphor `warning-circle` Fill을 문장 앞에 둡니다. 색은 놓인 글자의 색을 따릅니다. 아이콘 세트에서 Fill을 쓰는 곳은 이것뿐입니다.
 
-크기는 **글자 크기 × 0.707**입니다(Pretendard OS/2 `sCapHeight` 1448 / 2048, Regular·SemiBold 같음). 0.7로 근사해도 같은 결과입니다.
+크기는 다른 글자 옆 아이콘과 같은 단계 규칙(`adjacent-text`, 아래 "아이콘")입니다. 전에는 글자 크기 × 0.707(대문자 높이)이었는데 한글보다 작아 보여 바꿨습니다(결정 V57).
 
 ## 끊기지 않는 링크 `link.inline-nowrap`
 
@@ -81,5 +81,10 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 * Phosphor 2.1.2(MIT), Flutter `phosphor_glyphs` 2.1.2+1. `phosphor_flutter` 2.1.0은 Flutter 3.47에서 컴파일되지 않아 같은 세트·버전을 담은 패키지로 바꿨습니다.
 * 평소·미선택 Light, 선택 Regular. Bold·Thin·Duotone은 쓰지 않고, Fill은 경고 표시만.
-* 세트에 없는 것(오행, 절기, 시간 모름 등)은 Phosphor 24 격자와 획 규칙으로 직접 그립니다.
+* 글자 옆 아이콘의 굵기는 옆 글자와 짝입니다: 400~500 글자 옆 Light, 600 이상 옆 Regular(결정 V57).
+* 크기는 `size.icon.16`·`20`·`24`·`28` 네 단계뿐입니다. 부품의 `size`(또는 `iconSize`)는 이 토큰이거나 `adjacent-text`입니다.
+  * `adjacent-text`: 옆 글자 크기로 고릅니다. 14px 이하 16, 15~17px 20, 20px 24, 24px 28. Phosphor 그림은 상자의 약 0.81(208/256)이고 Pretendard 한글은 글자 크기의 0.861~0.882배라, 그림이 한글 높이 이상이 되는 가장 작은 단계입니다.
+  * 글자와 한 줄에 있지 않은 아이콘: 목록 줄 앞 20, 탭 바와 위 막대 24, 빈 화면과 오류 화면 28.
+  * 기기 글자가 커지면 아이콘도 같은 배율로 커집니다(V30과 같은 원리).
+* 직접 그린 아이콘은 쓰지 않습니다. 세트에 없는 뜻은 글자로 씁니다. 명세에 적는 이름은 `tools/phosphor_names.txt`(`phosphor_glyphs` 2.1.2+1에서 뽑은 1512개)에 있어야 하고, 테스트가 대조합니다.
 * 소셜 로그인 로고는 아이콘 세트에서 가져오지 않습니다(각 사 공식 자산).

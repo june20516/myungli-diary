@@ -34,7 +34,7 @@
           "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
           "parts": {
             "text": { "element": "lock.veil", "lines": 1 },
-            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color", "gap": { "value": 2, "unit": "px" }, "decorative": true }, "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
+            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true }, "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
           }
         }
       },
@@ -56,8 +56,8 @@
       "summary": "명리 용어 표시. 누르면 풀이 시트",
       "uses": ["term", "press.ink", "sheet.enter"],
       "variants": [
-        { "id": "inline", "when": "문장 안", "parts": { "chip": { "type": "inherit", "paddingX": { "value": 3, "unit": "px" } } } },
-        { "id": "label", "when": "표 행 머리, 십성 줄", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": { "value": 4, "unit": "px" } } } }
+        { "id": "inline", "when": "문장 안", "parts": { "chip": { "type": "inherit", "paddingX": "{space.4}" } } },
+        { "id": "label", "when": "표 행 머리, 십성 줄", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": "{space.4}" } } }
       ],
       "parts": {
         "chip": { "bg": "{color.term.bg}", "fg": "{color.term.fg}", "radius": "{radius.xs}", "fontWeight": "inherit" },
@@ -92,7 +92,7 @@
       ],
       "parts": {
         "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
-        "chevron": { "icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color", "gap": { "value": 2, "unit": "px" }, "decorative": true },
+        "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
         "evidenceSheet": {
           "container": { "component": "sheet", "variant": "full" },
           "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
@@ -121,14 +121,14 @@
                 "position": "pinned-bottom",
                 "bg": "{color.bg.sheet}",
                 "borderTop": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } },
-                "paddingTop": "{space.16}",
+                "paddingTop": "{space.24}",
                 "paddingX": "{space.20}",
                 "paddingBottom": "{space.24}",
-                "head": { "slot": "evidence-sheet.lock.head", "icon": "lock-simple", "iconWeight": "regular", "iconSize": { "value": 16, "unit": "px" }, "iconColor": "{color.status.fg}", "type": "{type.label.lg}", "fg": "{color.text.primary}", "gap": { "value": 6, "unit": "px" } },
-                "reward": { "slot": "evidence-sheet.lock.reward", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": { "value": 6, "unit": "px" }, "order": "광고 버튼보다 먼저(AdMob 보상 고지)" },
+                "head": { "slot": "evidence-sheet.lock.head", "icon": "lock-simple", "iconWeight": "regular", "iconSize": "adjacent-text", "iconColor": "{color.status.fg}", "type": "{type.label.lg}", "fg": "{color.text.primary}", "gap": "{space.8}" },
+                "reward": { "slot": "evidence-sheet.lock.reward", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "order": "광고 버튼보다 먼저(AdMob 보상 고지)" },
                 "cta": { "component": "primary-button", "variant": "filled", "slot": "evidence-sheet.lock.cta" },
                 "ctaGap": "{space.12}",
-                "pass": { "slot": "evidence-sheet.lock.pass", "type": "{type.label.md}", "fg": "{color.action.primary}", "align": "center", "marginTop": "{space.12}", "target": "ad-free", "chevron": { "icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color", "gap": { "value": 2, "unit": "px" }, "decorative": true } }
+                "pass": { "slot": "evidence-sheet.lock.pass", "type": "{type.label.md}", "fg": "{color.action.primary}", "align": "center", "marginTop": "{space.12}", "target": "ad-free", "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true } }
               }
             }
           }
@@ -177,7 +177,7 @@
       "uses": ["seal", "seal.stamp", "seal.erase", "icon"],
       "parts": {
         "target": { "size": { "value": 44, "unit": "px" } },
-        "heart": { "icon": "heart", "weight": "light", "size": { "value": 22, "unit": "px" }, "color": "{color.text.secondary}" },
+        "heart": { "icon": "heart", "weight": "light", "size": "{size.icon.24}", "color": "{color.text.secondary}" },
         "seal": { "element": "seal", "variant": "fill", "size": { "value": 34, "unit": "px" }, "visible": false },
         "placement": { "align": "end", "marginTop": "{space.8}" }
       },

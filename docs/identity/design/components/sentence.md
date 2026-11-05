@@ -101,6 +101,6 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 ## reaction-button
 
 * 쓰는 화면: today
-* 하트 Light(`text.secondary`), 터치 44px. 문장 아래 오른쪽에 홀로 둡니다(근거 보기와 다른 줄).
+* 하트 Light 24(`size.icon.24`, `text.secondary`), 터치 44px. 문장 아래 오른쪽에 홀로 둡니다(근거 보기와 다른 줄).
 * 누르면 `seal` fill 34px가 `seal.stamp`로 찍히고 하트가 Regular `action.on-primary`(라이트 흰색, 다크 neutral-950)로 바뀝니다. 햅틱 light.
 * 다시 누르면 `seal.erase`, 햅틱 없음.

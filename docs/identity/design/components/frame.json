@@ -15,7 +15,7 @@
           "topBorder": { "color": "{color.line}", "width": { "value": 0.5, "unit": "px" } }
         },
         "tab": { "count": 4, "minTarget": 48 },
-        "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.secondary}" },
         "icons": { "today": "sun", "calendar": "calendar-blank", "diary": "notebook", "me": "user" },
         "label": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
         "seal": { "element": "seal", "variant": "fill", "size": { "value": 34, "unit": "px" } }
@@ -52,7 +52,7 @@
       "parts": {
         "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" }, "paddingX": "{space.16}" },
         "title": { "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
-        "action": { "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 }
+        "action": { "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 }
       },
       "states": { "pressed": { "pattern": "press.ink", "note": "뒤로·동작 아이콘의 44px 원 안에서만" } },
       "haptic": [],

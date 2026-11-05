@@ -16,7 +16,7 @@
       "parts": {
         "container": { "bg": "{color.action.primary}", "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.20}", "width": "fill" },
         "label": { "fg": "{color.action.on-primary}", "type": "{type.label.lg}", "maxLines": 1 },
-        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": { "value": 6, "unit": "px" }, "color": "label-color" }
+        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": "{space.4}", "color": "label-color" }
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
@@ -57,7 +57,7 @@
             "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
             "logo": { "source": "provider-official-asset", "badge": { "size": { "value": 20, "unit": "px" }, "symbolSize": { "value": 14, "unit": "px" }, "kakao": { "bg": "#FEE500", "symbol": "#191919", "shape": "{radius.xs}" }, "line": { "bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}" }, "google": { "bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}" }, "apple": { "lightMode": { "bg": "#000000", "symbol": "#FFFFFF" }, "darkMode": { "bg": "#FFFFFF", "symbol": "#000000" }, "shape": "{radius.xs}" } }, "note": "중립 바탕(bg.sheet)에서도 보이게 로고는 제공자 색 배지(20px) 안의 심볼 14px. Google G는 흰 원 위" },
             "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}", "align": "start", "slot": "ui.login-methods.row", "key": "loginProvider*" },
-            "state": { "icon": "check", "weight": "regular", "size": { "value": 14, "unit": "px" }, "gap": "{space.4}", "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "slot": "ui.login-methods.row", "key": "loginMethodsRowConnected" }
+            "state": { "icon": "check", "weight": "regular", "size": "{size.icon.16}", "gap": "{space.4}", "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "slot": "ui.login-methods.row", "key": "loginMethodsRowConnected" }
           },
           "onPress": { "component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm" },
           "lastOne": { "pressable": false, "noticeSlot": "login-methods.last.notice", "notice": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.12}", "position": "버튼 묶음 아래, 늘 보임" } },
@@ -81,11 +81,11 @@
       "summary": "공유",
       "uses": ["press.ink", "icon"],
       "variants": [
-        { "id": "icon", "when": "app-bar 동작", "parts": { "icon": { "name": "export", "weight": "light", "size": { "value": 24, "unit": "px" }, "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" } } },
+        { "id": "icon", "when": "app-bar 동작", "parts": { "icon": { "name": "export", "weight": "light", "size": "{size.icon.24}", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" } } },
         { "id": "soft", "when": "본문 안 공유 입구(미리보기 화면)",
           "parts": {
             "container": { "bg": "{color.status.bg}", "radius": "{radius.md}", "height": { "value": 36, "unit": "px" }, "paddingX": "{space.16}", "gap": "{space.8}" },
-            "icon": { "name": "export", "weight": "regular", "size": { "value": 16, "unit": "px" }, "color": "{color.status.fg}" },
+            "icon": { "name": "export", "weight": "regular", "size": "{size.icon.16}", "color": "{color.status.fg}" },
             "label": { "type": "{type.label.md}", "fg": "{color.status.fg}" }
           } }
       ],
@@ -111,7 +111,7 @@
         "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" }, "insetStart": "{space.16}" },
         "label": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
         "value": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginStart": "{space.8}", "note": "이름과 값 사이 최소 간격" },
-        "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
+        "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
         "toggle": { "trackOn": "{color.action.primary}", "trackOff": "{color.line}", "thumb": "{color.bg.sheet}" },
         "groupTitle": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}" },
         "groupNote": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}", "maxLines": 2, "position": "묶음 카드 위(groupTitle 자리)", "slots": ["profile-edit.recalc.notice"], "note": "묶음 전체에 걸리는 안내 문장. 늘 보이고 누르지 않음" }
@@ -131,7 +131,7 @@
       "uses": ["icon", "tag.status", "appear.seep"],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.20}" },
-        "icon": { "name": "sparkle", "weight": "light", "size": { "value": 28, "unit": "px" }, "color": "{color.action.primary}" },
+        "icon": { "name": "sparkle", "weight": "light", "size": "{size.icon.28}", "color": "{color.action.primary}" },
         "head": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "ad-free.offer.head", "marginTop": "{space.12}" },
         "price": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "ad-free.offer.price", "marginTop": "{space.16}", "fontFeatures": ["tnum"] },
         "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "ad-free.offer.period", "note": "기간과 자동 결제 없음 고지(#548)" },

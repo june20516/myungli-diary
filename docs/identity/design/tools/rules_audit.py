@@ -59,7 +59,7 @@ def _walk(node: object, component: str, path: str) -> Iterator[Measure]:
 
 
 def collect_measures(components_dir: pathlib.Path = COMPONENTS_DIR) -> list[Measure]:
-    """명세 JSON마다 최상위 목록의 항목(`id`가 있는 것)을 단위로 값을 모읍니다."""
+    """명세 JSON마다 최상위 목록의 항목(`id`가 있는 것)과 요소 묶음(`elements`의 이름별 항목)을 단위로 값을 모읍니다."""
     measures: list[Measure] = []
     for file in sorted(components_dir.glob("*.json")):
         document = json.loads(file.read_text(encoding="utf-8"))
@@ -69,12 +69,14 @@ def collect_measures(components_dir: pathlib.Path = COMPONENTS_DIR) -> list[Meas
             for item in top_value:
                 if isinstance(item, dict) and "id" in item:
                     measures.extend(_walk(item, item["id"], ""))
+        for name, element in document.get("elements", {}).items():
+            measures.extend(_walk(element, name, ""))
     return measures
 
 
 def _raw_spacing_problems(measures: list[Measure]) -> list[str]:
     return [
-        f"{m.component} {m.path}.{m.key}: 간격에 토큰이 아닌 값 {m.value}"
+        f"{m.component} {m.path + '.' if m.path else ''}{m.key}: 간격에 토큰이 아닌 값 {m.value}"
         for m in measures
         if not m.is_token and SPACING_KEY.match(m.key) and m.value != "0"
     ]

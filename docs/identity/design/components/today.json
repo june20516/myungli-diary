@@ -13,7 +13,7 @@
         { "id": "ordinary", "when": "ORDINARY_DAY", "parts": { "badge": { "bg": "transparent", "border": { "color": "{color.badge.ordinary.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.badge.ordinary.fg}" } } }
       ],
       "parts": {
-        "badge": { "radius": "{radius.full}", "type": "{type.label.md}", "paddingX": { "value": 10, "unit": "px" }, "height": { "value": 26, "unit": "px" } },
+        "badge": { "radius": "{radius.full}", "type": "{type.label.md}", "paddingX": "{space.12}", "height": { "value": 26, "unit": "px" } },
         "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "trailing": "depth-link inline-end", "segments": "sentence-block" }
       },
       "states": {},
@@ -33,8 +33,8 @@
         { "id": "tag", "when": "그날의 대표 태그 (today만, Daily.tags.featured 0~2개, D76)", "parts": { "lead": { "icon": "tag", "iconColor": "{color.text.primary}" }, "value": { "fontWeight": 600 } } }
       ],
       "parts": {
-        "chip": { "bg": "{color.chip.bg}", "radius": "{radius.full}", "height": { "value": 34, "unit": "px" }, "paddingX": "{space.12}", "gap": { "value": 6, "unit": "px" } },
-        "lead": { "iconWeight": "regular", "iconSize": { "value": 16, "unit": "px" }, "iconColor": "{color.text.secondary}" },
+        "chip": { "bg": "{color.chip.bg}", "radius": "{radius.full}", "height": { "value": 34, "unit": "px" }, "paddingX": "{space.12}", "gap": "{space.4}" },
+        "lead": { "iconWeight": "regular", "iconSize": "adjacent-text", "iconColor": "{color.text.secondary}" },
         "value": { "type": "{type.label.md}", "fg": "{color.text.primary}" },
         "row": { "gap": "{space.8}", "wrap": true },
         "explain": { "bg": "{color.chip.bg}", "radius": "{radius.md}", "padding": "{space.12}", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "segments": "sentence-block" }

@@ -566,8 +566,8 @@ def component(group, component_id):
     return next(c for c in load_documents(COMPONENTS_DIR)[group]["components"] if c["id"] == component_id)
 
 
-CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color",
-           "gap": {"value": 2, "unit": "px"}, "decorative": True}
+CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color",
+           "gap": "{space.2}", "decorative": True}  # V57·V56: 크기는 옆 글자 단계, 간격은 토큰
 
 
 def test_text_link_chevrons_are_component_drawn_icons():
@@ -670,8 +670,7 @@ def test_element_values_from_app_feedback():
     elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
     assert elements["icon"]["set"]["flutter"] == "phosphor_glyphs"
     assert elements["icon"]["set"]["flutterVersion"] == "2.1.2+1"
-    assert elements["mark.caution"]["size"] == {"ratio": 0.707, "of": "font-size",
-                                                "basis": "Pretendard OS/2 sCapHeight 1448 / 2048"}
+    assert elements["mark.caution"]["size"] == "adjacent-text"  # V57
     assert elements["lock.veil"]["lines"] == {"default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1}
 
 
@@ -922,7 +921,7 @@ def test_diary_row_same_day_entries():
     assert [variant["id"] for variant in row["variants"]] == ["day", "entries"]
     entry = row["parts"]["entry"]
     assert entry["divider"] == {"style": "dashed", "width": {"value": 1, "unit": "px"},
-                                "dash": {"value": 4, "unit": "px"}, "gap": {"value": 3, "unit": "px"},
+                                "dashLength": {"value": 4, "unit": "px"}, "dashGap": {"value": 3, "unit": "px"},
                                 "color": "{color.timeline.entry}", "between": "entries-only",
                                 "span": "row", "inMinHeight": True}
     assert entry["preview"]["maxLines"] == 1 and entry["preview"]["emptyKeepsLineHeight"] is True
@@ -974,7 +973,8 @@ def test_day_sheet_diary_head_is_not_a_link():
     assert "daySheetSlot" not in navigate["parts"]["label"] and "그날 일기" not in navigate["when"]
     entries = next(v for v in component("diary", "diary-row")["variants"] if v["id"] == "entries")
     assert entries["parts"]["head"] == {"screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}",
-                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}"}
+                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}",
+                                        "note": "머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보임(결정 V56)"}
     for name in ("calendar.md", "sentence.md"):
         text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
         assert "이날 일기 보기" not in text and "둘 중 하나만" not in text, name
@@ -1178,3 +1178,67 @@ def test_evidence_sheet_personal_empty_notice():
     assert empty["slot"] == "ui.evidence.personal-empty"
     assert empty["type"] == "{type.body.ui}" and empty["fg"] == "{color.text.secondary}"
     assert empty["when"] == sheet["personal"]["when"] + ", 열렸는데 그 자리 해석이 없을 때"
+
+
+# DS1 spec(2026-11-05-ds1-rules-design.md) §1·§2, 결정 V56·V57
+ICON_SIZE_TOKEN = re.compile(r"^\{size\.icon\.(16|20|24|28)\}$")
+ADJACENT_TEXT = "adjacent-text"
+
+
+def icon_parts(node, path=""):
+    """아이콘 부품을 (경로, 이름 또는 None, size 값 또는 None)으로 돌려줍니다.
+
+    `"icon": "<이름>"`이면 같은 부품의 `size`(없으면 `iconSize`)를, `"icon": {...}`이면 그 안의 `name`과 `size`를 봅니다.
+    """
+    if isinstance(node, dict):
+        icon = node.get("icon")
+        if isinstance(icon, str):
+            yield path, icon, node.get("size", node.get("iconSize"))
+        elif isinstance(icon, dict) and not path.endswith("elements"):
+            yield path, icon.get("name"), icon.get("size")
+        elif "iconSize" in node:
+            yield path, None, node["iconSize"]
+        for key, value in node.items():
+            yield from icon_parts(value, f"{path}.{key}")
+    elif isinstance(node, list):
+        for index, item in enumerate(node):
+            label = item.get("id", index) if isinstance(item, dict) else index
+            yield from icon_parts(item, f"{path}[{label}]")
+
+
+def test_no_raw_spacing_values():
+    import rules_audit
+    problems = rules_audit.find_problems(rules_audit.collect_measures(COMPONENTS_DIR))
+    assert [problem for problem in problems if "간격에 토큰이 아닌 값" in problem] == []
+    assert [problem for problem in problems if "위아래 여백이 다름" in problem] == []
+
+
+def test_icon_sizes_use_icon_scale():
+    wrong = []
+    for name, document in load_documents(COMPONENTS_DIR).items():
+        for path, _, size in icon_parts(document, name):
+            if size is None:
+                continue
+            if not (size == ADJACENT_TEXT or (isinstance(size, str) and ICON_SIZE_TOKEN.match(size))):
+                wrong.append(f"{path}: {size}")
+    assert wrong == []
+    icon = load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]
+    steps = icon["adjacentText"]
+    assert [step["size"] for step in steps] == ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"]
+    assert [step["maxFontSize"] for step in steps] == [14, 17, 20, 24]
+    assert icon["scale"] == ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"]
+    caution = load_documents(COMPONENTS_DIR)["elements"]["elements"]["mark.caution"]
+    assert caution["size"] == ADJACENT_TEXT
+
+
+def test_no_custom_icons():
+    names = {line.strip() for line in (TOOLS_DIR / "phosphor_names.txt").read_text(encoding="utf-8").splitlines()
+             if line.strip() and not line.startswith("#")}
+    assert len(names) == 1512
+    documents = load_documents(COMPONENTS_DIR)
+    assert "custom" not in documents["elements"]["elements"]["icon"]
+    unknown = [f"{path}: {name}" for document_name, document in documents.items()
+               for path, name, _ in icon_parts(document, document_name) if name and name not in names]
+    assert unknown == []
+    markdown = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md"))
+    assert "격자와 획 규칙" not in markdown

@@ -17,7 +17,7 @@
 
 **지금 규칙.** 간격 토큰 `space.2/4/8/12/16/20/24/32/48`과 화면 좌우 `space.20`(V26). 언제 어느 단계를 쓰는지는 정해 두지 않았습니다.
 
-**지켜지는지.** 직접 쓴 px 간격 25곳, 이유 없이 다른 위아래 여백 2곳(점검 결과 "문제").
+**지켜지는지.** 직접 쓴 px 간격 25곳, 이유 없이 다른 위아래 여백 2곳(Task 1 점검 결과 "문제"). 도구가 요소 묶음(`elements.json`)도 보게 넓히자 3곳(`mark.underline-grow` 간격 2, `lock.veil` 제목 4와 본문 6)이 더 나왔고, `term` 안쪽 3도 같이 고쳤습니다. 고친 뒤 점검 결과 파일은 "없음"이고, 고치기 전 목록은 아래 표입니다.
 
 **새 규칙.**
 * 간격은 토큰 단계만 씁니다. 직접 쓴 px 간격은 0 말고는 없습니다.
@@ -63,6 +63,9 @@
 | `depth-link` `lockPanel.reward.marginTop` | 6 | `space.8` | 같은 묶음 안 요소 |
 | `day-character` `badge.paddingX` | 10 | `space.12` | 칩, 배지 좌우 안쪽 |
 | `lucky-card` `chip.gap` | 6 | `space.4` | 칩 안 아이콘과 글자 |
+| `mark.underline-grow` `gap`, `lock.veil` `title.gap` | 2, 4 | `space.2`, `space.4` | 같은 값 |
+| `lock.veil` `body.marginTop` | 6 | `space.8` | 제목과 본문 |
+| `term` `padding.x` | 3 | `space.4` | `term-token` `inline`과 같게 |
 
 **비대칭 2곳.**
 * `diary-row` `entries.head`(위 16, 아래 4): 머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보입니다. 그대로 두고 `note`로 이유를 적습니다.

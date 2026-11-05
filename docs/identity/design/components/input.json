@@ -45,7 +45,7 @@
         "text": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 17, "unit": "px" }, "fontWeight": 400, "fg": "{color.text.primary}" },
         "placeholder": { "fg": "{color.text.secondary}" },
         "counter": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "optional": true },
-        "clear": { "icon": "x-circle", "weight": "light", "size": { "value": 20, "unit": "px" }, "color": "{color.text.secondary}" },
+        "clear": { "icon": "x-circle", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}" },
         "label": { "type": "{type.label.md}", "fg": "{color.text.primary}", "marginBottom": "{space.8}", "maxLines": 1, "optional": true, "when": "칸 위 이름(input-step 밖, 질문이 칸 이름을 대신하지 않는 화면)" },
         "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}", "maxLines": 2, "optional": true, "when": "input-step 밖의 칸 오류. input-step 안에서는 input-step errorLine이 그린다" }
       },
@@ -158,7 +158,7 @@
       "summary": "몇 개 중 하나 고르기",
       "uses": ["select.seep-slide", "press.ink", "appear.seep"],
       "parts": {
-        "track": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "height": { "value": 40, "unit": "px" }, "padding": { "value": 3, "unit": "px" } },
+        "track": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "height": { "value": 40, "unit": "px" }, "padding": "{space.4}" },
         "indicator": { "bg": "{color.action.primary}", "radius": "{radius.full}" },
         "label": { "type": "{type.label.lg}", "fg": "{color.text.secondary}" }
       },

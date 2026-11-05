@@ -102,14 +102,14 @@
       "width": { "value": 14, "unit": "px" },
       "height": { "value": 2, "unit": "px" },
       "radius": "{radius.full}",
-      "gap": { "value": 2, "unit": "px" },
+      "gap": "{space.2}",
       "uses": ["mark.underline-grow"]
     },
     "mark.caution": {
       "summary": "경고 표시: 되돌릴 수 없는 동작. 빨간색 없음 (결정 V18)",
       "icon": { "set": "phosphor", "name": "warning-circle", "weight": "fill" },
       "color": "inherit-text",
-      "size": { "ratio": 0.707, "of": "font-size", "basis": "Pretendard OS/2 sCapHeight 1448 / 2048" },
+      "size": "adjacent-text",
       "placement": "before-text-inline"
     },
     "link.inline-nowrap": {
@@ -138,7 +138,7 @@
       "fg": "{color.term.fg}",
       "radius": "{radius.xs}",
       "fontWeight": "inherit",
-      "padding": { "x": { "value": 3, "unit": "px" } }
+      "padding": { "x": "{space.4}" }
     },
     "skeleton.bone": {
       "summary": "skeleton 자리: 실제 요소와 같은 크기·반경",
@@ -147,17 +147,27 @@
       "uses": ["loading.breathe"]
     },
     "icon": {
-      "summary": "아이콘: Phosphor (결정 V15)",
-      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_glyphs", "flutterVersion": "2.1.2+1" },
+      "summary": "아이콘: Phosphor (결정 V15, V57)",
+      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_glyphs", "flutterVersion": "2.1.2+1", "names": "tools/phosphor_names.txt" },
       "weights": { "default": "light", "selected": "regular", "caution": "fill" },
-      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)"],
-      "sizes": { "tab": { "value": 24, "unit": "px" }, "bar": { "value": 24, "unit": "px" }, "inline": { "value": 16, "unit": "px" }, "state": { "value": 28, "unit": "px" } },
-      "custom": "세트에 없는 것(오행·절기·시간 모름 등)만 Phosphor 24 격자와 획 규칙으로 직접 그림"
+      "adjacentTextWeight": { "rule": "글자 옆 아이콘은 옆 글자 굵기와 짝", "400-500": "light", "600+": "regular" },
+      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)", "직접 그린 아이콘"],
+      "scale": ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"],
+      "adjacentText": [
+        { "maxFontSize": 14, "size": "{size.icon.16}" },
+        { "maxFontSize": 17, "size": "{size.icon.20}" },
+        { "maxFontSize": 20, "size": "{size.icon.24}" },
+        { "maxFontSize": 24, "size": "{size.icon.28}" }
+      ],
+      "adjacentTextRule": "size가 adjacent-text면 옆 글자 크기가 maxFontSize 이하인 첫 단계. 그림(상자의 0.81)이 옆 한글 높이(글자 크기의 0.861~0.882) 이상인 가장 작은 단계",
+      "standalone": { "list-leading": "{size.icon.20}", "tab": "{size.icon.24}", "bar": "{size.icon.24}", "state": "{size.icon.28}" },
+      "textScale": "기기 글자 배율과 함께 커짐(V30과 같은 원리)",
+      "missing": "세트에 없는 뜻은 아이콘 없이 글자로 씀"
     },
     "lock.veil": {
       "summary": "잠긴 구역 하나: 또렷한 제목 + 흐린 자리 채우기 본문 (D60, 결정 V25)",
-      "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": { "value": 14, "unit": "px" }, "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": { "value": 4, "unit": "px" } },
-      "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": { "value": 6, "unit": "px" } },
+      "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": "adjacent-text", "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": "{space.4}" },
+      "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": "{space.8}" },
       "placeholder": "실제 내용은 내려받지 않음. 자리 채우기 글을 server가 준 길이 힌트만큼, 없으면 두 줄",
       "lines": { "default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1 },
       "a11y": { "label": "구역 제목 + '잠김'", "bodyExcluded": true },

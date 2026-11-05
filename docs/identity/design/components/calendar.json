@@ -7,7 +7,7 @@
       "summary": "한 달 격자",
       "uses": ["appear.seep", "press.ink", "icon"],
       "parts": {
-        "header": { "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" }, "prev": { "icon": "caret-left", "weight": "light", "target": { "value": 44, "unit": "px" } }, "next": { "icon": "caret-right", "weight": "light", "target": { "value": 44, "unit": "px" } } },
+        "header": { "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" }, "prev": { "icon": "caret-left", "weight": "light", "size": "{size.icon.24}", "target": { "value": 44, "unit": "px" } }, "next": { "icon": "caret-right", "weight": "light", "size": "{size.icon.24}", "target": { "value": 44, "unit": "px" } } },
         "weekdays": {
           "type": "{type.caption.md}",
           "fg": "{color.text.secondary}",
@@ -37,7 +37,7 @@
       "parts": {
         "container": { "height": { "value": 62, "unit": "px" }, "radius": "{radius.sm}" },
         "luckFill": { "good": "{color.calendar.good.bg}", "caution": "{color.calendar.caution.bg}", "neutral": "transparent" },
-        "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": { "value": 6, "unit": "px" } },
+        "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": "{space.4}" },
         "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
         "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "leapNewMoon": { "slot": "ui.day-cell.lunar", "key": "dayCellLeapNewMoon", "text": "윤달 표지 + M.1 (예: 윤6.1)" }, "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
         "diarySeal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
@@ -99,7 +99,7 @@
           "parts": {
             "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "format": "HH:mm", "hourCycle": "h23", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
-            "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
+            "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
             "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
             "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } },
             "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add", "position": "below-list", "when": "일정이 있을 때" },
