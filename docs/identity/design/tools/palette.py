@@ -57,6 +57,19 @@ METAL_TEXT_CHROMA = {"tint": 0.006, "ink": 0.02, "tint_dark": 0.01, "ink_dark": 
 GRADIENT_LIGHT = ["#eef4ef", "#fbefee"]
 GRADIENT_DARK_OKLCH = [(0.23, 0.022, 150), (0.23, 0.024, 20)]
 
+# 달력 4단계 (DS1 spec 2026-11-05-ds1-screens-design.md §3, 토큰 1.4.0): 모드 → 단계 → (명도, 채도, hue).
+# 잘 풀리는 날 둘은 명도를 같게 두고 채도로만 가르고, 조심할 날은 회색으로 명도를 낮춰 구분합니다.
+# 값이 아니라 규칙(아래 상수)을 test_tokens.py가 다시 재서 검사합니다.
+CALENDAR_LEVELS = {
+    "light": {"great": (0.88, 0.075, 30), "good": (0.88, 0.026, 30), "caution": (0.85, 0.0015, 110)},
+    "dark": {"great": (0.34, 0.075, 30), "good": (0.34, 0.030, 30), "caution": (0.285, 0.002, 110)},
+}
+MIN_LEVEL_DISTANCE = 0.03  # 이웃한 단계, 바탕, 흰 표면 위 채움의 OKLab 거리 하한
+MAX_GREAT_GOOD_LIGHTNESS_GAP = 0.005
+MAX_CAUTION_CHROMA = 0.003
+# 흰 표면(bg.sheet) 위 옅은 채움: 라이트는 neutral-100, 다크는 neutral-800
+FILL_SOFT_STEP = {"light": 100, "dark": 800}
+
 WHITE = "#ffffff"
 HEX_PATTERN = re.compile(r"#[0-9a-fA-F]{6}")
 
@@ -103,6 +116,35 @@ def oklch_to_hex(lightness: float, chroma: float, hue: float) -> str:
         chroma = max(chroma - 0.001, 0.0)
         rgb = _oklch_to_linear_srgb(lightness, chroma, hue)
     return "#" + "".join(f"{round(_gamma_encode(channel) * 255):02x}" for channel in rgb)
+
+
+def hex_to_oklab(hex_color: str) -> tuple[float, float, float]:
+    """#rrggbb를 OKLab(L, a, b)으로 바꿉니다."""
+    if not isinstance(hex_color, str) or not HEX_PATTERN.fullmatch(hex_color):
+        raise ValueError(f"#rrggbb 형식이 아닌 색입니다: {hex_color!r}")
+
+    def linearize(value: int) -> float:
+        channel = value / 255
+        return channel / 12.92 if channel <= 0.04045 else ((channel + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = (linearize(int(hex_color[index:index + 2], 16)) for index in (1, 3, 5))
+    l_ = (0.4122214708 * red + 0.5363325363 * green + 0.0514459929 * blue) ** (1 / 3)
+    m_ = (0.2119034982 * red + 0.6806995451 * green + 0.1073969566 * blue) ** (1 / 3)
+    s_ = (0.0883024619 * red + 0.2817188376 * green + 0.6299787005 * blue) ** (1 / 3)
+    return (
+        0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+        1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+        0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_,
+    )
+
+
+def oklab_distance(first_hex: str, second_hex: str) -> float:
+    return math.dist(hex_to_oklab(first_hex), hex_to_oklab(second_hex))
+
+
+def oklch_lightness_chroma(hex_color: str) -> tuple[float, float]:
+    lightness, a, b = hex_to_oklab(hex_color)
+    return lightness, math.hypot(a, b)
 
 
 def _relative_luminance(hex_color: str) -> float:
@@ -163,7 +205,7 @@ def _ohaeng_palette() -> dict[str, dict[str, str]]:
 
 def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
     sage, coral, neutral = brand["sage"], brand["coral"], brand["neutral"]
-    return {
+    roles = {
         "light": {
             "bg.base": neutral[50],
             "bg.sheet": WHITE,
@@ -184,6 +226,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "badge.ordinary.fg": neutral[700],
             "calendar.good.bg": coral[100],
             "calendar.caution.bg": neutral[100],
+            "fill.soft": neutral[FILL_SOFT_STEP["light"]],
             "inverse.bg": neutral[900],
             "inverse.fg": neutral[100],
             "disabled.bg": neutral[100],
@@ -218,6 +261,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "badge.ordinary.fg": neutral[400],
             "calendar.good.bg": coral[900],
             "calendar.caution.bg": neutral[900],
+            "fill.soft": neutral[FILL_SOFT_STEP["dark"]],
             "inverse.bg": neutral[100],
             "inverse.fg": neutral[900],
             "disabled.bg": neutral[800],
@@ -233,6 +277,10 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "timeline.entry": neutral[700],
         },
     }
+    for mode, levels in CALENDAR_LEVELS.items():
+        for level, oklch in levels.items():
+            roles[mode][f"calendar.level.{level}"] = oklch_to_hex(*oklch)
+    return roles
 
 
 def build_palette() -> dict:
@@ -274,6 +322,9 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
         for text_role in ("text.primary", "text.secondary"):
             for cell_role in ("calendar.good.bg", "calendar.caution.bg"):
                 pairs.append((f"{mode} {text_role} on {cell_role}", roles[text_role], roles[cell_role]))
+        for level in CALENDAR_LEVELS[mode]:
+            pairs.append((f"{mode} text.primary on calendar.level.{level}", roles["text.primary"],
+                          roles[f"calendar.level.{level}"]))
         ink, tint = ("ink", "tint") if mode == "light" else ("ink_dark", "tint_dark")
         for element, colors in palette["ohaeng"].items():
             pairs.append((f"{mode} ohaeng.{element}", colors[ink], colors[tint]))

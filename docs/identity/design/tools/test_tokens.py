@@ -6,7 +6,9 @@ TOOLS_DIR = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 from dtcg import find_problems, flatten, resolve  # noqa: E402
-from palette import build_palette  # noqa: E402
+from palette import (  # noqa: E402
+    MAX_CAUTION_CHROMA, MAX_GREAT_GOOD_LIGHTNESS_GAP, MIN_LEVEL_DISTANCE, MIN_TEXT_CONTRAST, build_palette,
+    contrast_ratio, oklab_distance, oklch_lightness_chroma)
 from tokens import TOKENS_DIR, build_token_files, color_value, reference_or_value, serialize  # noqa: E402
 
 FILES = ["primitive.tokens.json", "color.light.tokens.json", "color.dark.tokens.json",
@@ -128,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.3.0" in readme
+    assert "계약 버전: 1.4.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -210,3 +212,79 @@ def test_tokens_1_3_0_additions_only():
         assert after.get(name) == token, name
     added = {name: (after[name]["$type"], after[name]["$value"]) for name in after.keys() - before.keys()}
     assert added == TOKENS_1_3_0_ADDED
+
+
+# DS1 spec(2026-11-05-ds1-screens-design.md) §3: 1.4.0은 추가만. 1.3.0 primitive와 색 두 파일을 얼려 둠
+TOKENS_1_4_0_ADDED_COLOR = {
+    "color.calendar.level.great", "color.calendar.level.good", "color.calendar.level.caution",
+    "color.fill.soft", "color.verdict.track",
+}
+
+
+def _frozen(name):
+    import json
+    return flatten(json.loads((TOOLS_DIR / "fixtures" / name).read_text(encoding="utf-8")))
+
+
+def test_tokens_1_4_0_additions_only():
+    files = build_token_files()
+    after_primitive = flatten(files["primitive.tokens.json"])
+    before_primitive = _frozen("primitive-1.3.0.tokens.json")
+    for name, token in before_primitive.items():
+        assert after_primitive.get(name) == token, name
+    assert after_primitive.keys() == before_primitive.keys()  # primitive는 추가 없음
+
+    for mode in ("light", "dark"):
+        before = _frozen(f"color.{mode}-1.3.0.tokens.json")
+        after = flatten(files[f"color.{mode}.tokens.json"])
+        for name, token in before.items():
+            assert after.get(name) == token, (mode, name)
+        assert set(after.keys() - before.keys()) == TOKENS_1_4_0_ADDED_COLOR, mode
+        # 기존 calendar.good.bg, calendar.caution.bg는 그대로(위 반복이 값까지 검사)
+        assert "color.calendar.good.bg" in before and "color.calendar.caution.bg" in before
+
+
+def test_verdict_track_runs_from_caution_to_great():
+    files = build_token_files()
+    for mode in ("light", "dark"):
+        tokens = flatten(files[f"color.{mode}.tokens.json"])
+        track = tokens["color.verdict.track"]
+        assert track["$type"] == "gradient"
+        stops = track["$value"]
+        assert [stop["position"] for stop in stops] == [0, 1]
+        palette_roles = build_palette()["roles"][mode]
+        assert stops[0]["color"]["hex"] == palette_roles["calendar.level.caution"]
+        assert stops[1]["color"]["hex"] == palette_roles["calendar.level.great"]
+
+
+def _level_hexes(mode):
+    roles = build_palette()["roles"][mode]
+    return {
+        "great": roles["calendar.level.great"], "good": roles["calendar.level.good"],
+        "caution": roles["calendar.level.caution"], "ordinary": roles["bg.base"],
+    }
+
+
+def test_calendar_levels_distinguishable():
+    for mode in ("light", "dark"):
+        hexes = _level_hexes(mode)
+        for first, second in (("great", "good"), ("good", "ordinary"), ("good", "caution"), ("caution", "ordinary")):
+            assert oklab_distance(hexes[first], hexes[second]) >= MIN_LEVEL_DISTANCE, (mode, first, second)
+        great_lightness, _ = oklch_lightness_chroma(hexes["great"])
+        good_lightness, _ = oklch_lightness_chroma(hexes["good"])
+        assert abs(great_lightness - good_lightness) <= MAX_GREAT_GOOD_LIGHTNESS_GAP, mode
+        assert oklch_lightness_chroma(hexes["great"])[1] > oklch_lightness_chroma(hexes["good"])[1], mode
+        assert oklch_lightness_chroma(hexes["caution"])[1] <= MAX_CAUTION_CHROMA, mode
+
+
+def test_calendar_number_contrast():
+    for mode in ("light", "dark"):
+        text = build_palette()["roles"][mode]["text.primary"]
+        for level, background in _level_hexes(mode).items():
+            assert contrast_ratio(text, background) >= MIN_TEXT_CONTRAST, (mode, level)
+
+
+def test_fill_soft_visible_on_sheet():
+    for mode in ("light", "dark"):
+        roles = build_palette()["roles"][mode]
+        assert oklab_distance(roles["fill.soft"], roles["bg.sheet"]) >= MIN_LEVEL_DISTANCE, mode
