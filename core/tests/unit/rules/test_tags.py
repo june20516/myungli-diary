@@ -48,9 +48,8 @@ def test_day_and_month_clash_both_tags_day_first(pillar_of: PillarOf) -> None:
     day = pillar_of("丙子")
     result = _select(natal, day, find_relations(natal, day))
     assert result.featured == ("tag.clash_day_branch", "tag.clash_month_branch")
-    rule_ids = [ev.rule_id for ev in result.evidence]
-    assert "tags/clash_day_branch" in rule_ids
-    assert "tags/clash_month_branch" in rule_ids
+    clash_rules = [ev.rule_id for ev in result.evidence if ev.rule_id.startswith("tags/clash")]
+    assert clash_rules == ["tags/clash_day_branch", "tags/clash_month_branch"]
 
 
 def test_each_tag_has_own_evidence(pillar_of: PillarOf) -> None:
@@ -116,6 +115,7 @@ def test_suppressed_chung_not_tagged(pillar_of: PillarOf) -> None:
     assert "tag.clash_day_branch" not in result.all_keys
     assert "tag.clash_month_branch" not in result.all_keys
     assert "tag.clash" not in result.all_keys
+    assert [ev.rule_id for ev in result.evidence] == ["tags/select", "tags/harmony"]
 
 
 def test_ten_god_rush(pillar_of: PillarOf) -> None:

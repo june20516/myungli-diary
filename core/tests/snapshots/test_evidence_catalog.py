@@ -41,6 +41,7 @@ def _sample_evidence() -> Iterator[Evidence]:
                 daily.focus[1],
                 *daily.fortune,
                 daily.guide,
+                *daily.guide_candidates,
             ):
                 yield from judgment.evidence
         for day in compose_month(birth, *MONTH, SEOUL).days:

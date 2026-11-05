@@ -74,7 +74,8 @@ class TagResult:
     all_keys: tuple[str, ...]
     featured: tuple[str, ...]
     evidence: tuple[Evidence, ...]
-    # 태그 키 → 그 태그 첫 근거의 source_ref. 총운 보조 문장과 가이드 질문이 근거로 쓴다
+    # 태그 키 → 그 태그 첫 근거의 source_ref. 총운 보조 문장과 가이드 질문이 근거로 쓴다.
+    # 천간합과 지지합이 함께인 합 태그는 첫 근거(천간합)다. 두 근거는 모두 evidence에 있다(C28)
     source_refs: Mapping[str, str]
 
 
@@ -97,7 +98,7 @@ def select_tags(
 
     근거는 첫째가 선택 결과(`tags/select`), 그 뒤로 태그마다 하나(합은 종류마다 하나)다(C28).
     """
-    tags = (*_relation_tags(natal, day, relations), *_rush_tags(natal, day), *_shinsal_tags(day, activated))
+    tags = (*_relation_tags(day, relations), *_rush_tags(natal, day), *_shinsal_tags(day, activated))
     if not tags and kind in _AUXILIARY_TAGS:
         tags = (_auxiliary_tag(kind, yongsin_ref),)
     all_keys = tuple(require(tag.key) for tag in tags)
@@ -118,7 +119,7 @@ def _positions(relations: Sequence[Relation]) -> str:
     return ",".join(rel.natal_position.name for rel in relations)
 
 
-def _relation_tags(natal: FourPillars, day: Pillar, relations: Sequence[Relation]) -> tuple[_Tag, ...]:
+def _relation_tags(day: Pillar, relations: Sequence[Relation]) -> tuple[_Tag, ...]:
     live = active(relations)
     chungs = [rel for rel in live if rel.kind is RelationKind.CHUNG]
     tags: list[_Tag] = []
