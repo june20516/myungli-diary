@@ -45,7 +45,7 @@
         "closed": { "pattern": "sheet.exit", "parts": { "explain": { "visible": false } } }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "항목 이름 + 값 (tag는 태그 이름만)", "expandedAnnounced": true, "minTarget": 44 },
+      "a11y": { "role": "button", "label": "항목 이름 + 값 (tag는 태그 이름만)", "opensSheet": true, "minTarget": 44 },
       "rules": [
         "설명은 explain.sheet로 열고 칩 줄 아래에 끼워 넣지 않는다. 시트가 열린 동안 연 칩에 테두리가 남는다(결정 V62).",
         "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음).",

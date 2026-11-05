@@ -17,17 +17,17 @@ from lengths import (CONTENT_WIDTH, Result, Target, corpus_sentences, en_line_ch
 REPO_ROOT = TOOLS_DIR.parents[3]
 FONT_FILES = [name for pair in lengths.FONT_FILES.values() for name in pair if name]
 
-EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행 중 남은 11행(D79로 ui.depth 두 행을 뺌). 값이 바뀌면 안 됨 (spec-followups spec §5.6)
+EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행 중 남은 11행(D79로 ui.depth 두 행을 뺌). 값이 바뀌면 안 됨 (spec-followups spec §5.6). 4.0.0(DS1)에서 칸 설명과 폭만 바뀐 행은 새 설명, 굵은 확정값은 그대로
     '| `daily.fortune.head`<br>`daily.fortune.tag` | today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today) | 320px | 2 | 32 | 42 | **32** | **32** | **57** |',
     '| `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |',
-    '| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card explain (안쪽 space.12) | 296px | 2 | 36 | 58 | **36** | **36** | **64** |',
-    '| `daily.focus_reason` | lucky-card explain 안 한 줄 | 296px | 1 | 10 | 26 | **10** | **10** | **18** |',
+    '| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain.sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |',
+    '| `daily.focus_reason` | lucky-card 설명 시트 안 한 줄 | 312px | 1 | 10 | 22 | **10** | **10** | **18** |',
     # daily.tag_label은 2.5.0(#239)에서 더 좁은 오늘 화면 lucky-card tag 칩으로 다시 잼. 확정값(굵은 칸)은 그대로
-    "| `daily.tag_label` | lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 6. diary tag-chip보다 좁음) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |",
-    '| `calendar.day_level` | day-character badge (좌우 10px) | 300px | 1 | 10 | 27 | **10** | **10** | **18** |',
+    "| `daily.tag_label` | lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음) | 276px | 1 | 10 | 25 | **10** | **10** | **18** |",
+    '| `calendar.day_level` | day-character badge (좌우 12px, day-sheet 안이 가장 좁음) | 288px | 1 | 10 | 26 | **10** | **10** | **18** |',
     '| `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |',
     '| `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |',
-    '| `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6) | 274px | 1 | 10 | 24 | **10** | **10** | **18** |',
+    '| `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 4) | 276px | 1 | 10 | 25 | **10** | **10** | **18** |',
     '| `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |',
     # settings.calculation_basis는 W21로 ui 슬롯 calc-basis.longitude.body로 옮겨 감. 값은 그대로 (#284)
     '| `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |',
@@ -367,7 +367,7 @@ def test_contact_slots_are_measured(capsys, font_dir):
     hint = lengths.KEY_TARGETS[("contact.message.field", "contactMessageFieldHint")]
     assert (hint.size, hint.width, hint.lines) == (17, lengths.CONTENT_WIDTH - 2 * 16 - 20 - 8, 2)
     error_line = lengths.KEY_TARGETS[("ui.contact.error", "contactEmailInvalid")]
-    assert error_line.width == lengths.CONTENT_WIDTH - 15
+    assert error_line.width == lengths.CONTENT_WIDTH - lengths.ICON_BESIDE_SMALL_TEXT - 4  # V57: 경고 표시는 아이콘 단계
     # ja 메일 칸 안내는 라틴 주소 예시라 실측 상한 하나만 나옴
     advances = lengths.Fonts(font_dir).ko("ui-400")
     assert lengths.text_width("name@example.com", advances, 17, 0) <= hint.width
@@ -393,3 +393,62 @@ def test_evidence_link_name_is_screen_reader_only():
     assert not [target for target in lengths.TARGETS if "ui.depth.evidence_link" in target.slots]
     reason = next(target for target in lengths.TARGETS if target.slots == ("character.reason",))
     assert reason.trailing_icon == 20 and reason.trailing_link is None
+
+
+def _spec_px(value):
+    """명세 값 `{space.24}`·`{size.icon.20}`이나 `{"value": n, "unit": "px"}`를 px 숫자로."""
+    if isinstance(value, dict):
+        return value["value"]
+    primitive = json.loads((TOOLS_DIR.parent / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
+    node = primitive
+    for key in value.strip("{}").split("."):
+        node = node[key]
+    return node["$value"]["value"]
+
+
+def _component(group, component_id):
+    document = json.loads((TOOLS_DIR.parent / "components" / f"{group}.json").read_text(encoding="utf-8"))
+    return next(c for c in document["components"] if c["id"] == component_id)
+
+
+def test_layout_constants_match_component_spec():
+    # DS1 최종 리뷰: 명세 폭이 바뀌면 글자 수 상한 계산도 같이 바뀌어야 함. 측정 상수를 명세 값과 대조
+    sheet = _component("frame", "sheet")["parts"]["container"]
+    assert lengths.SHEET_PADDING == _spec_px(sheet["paddingX"]) == 24
+    assert lengths.SHEET_CONTENT_WIDTH == lengths.SCREEN_WIDTH - 2 * lengths.SHEET_PADDING == 312
+    dialog = _component("feedback", "dialog")
+    assert lengths.DIALOG_MARGIN == _spec_px(dialog["parts"]["container"]["marginX"])
+    assert lengths.DIALOG_PADDING == _spec_px(dialog["parts"]["container"]["padding"])
+    assert lengths.DIALOG_BUTTON_PADDING == _spec_px(dialog["parts"]["actions"]["buttonPaddingX"])
+    title = next(v for v in dialog["variants"] if v["id"] == "destructive")["parts"]["title"]
+    assert lengths.DIALOG_CAUTION == _spec_px(title["leadingSize"]) + _spec_px(title["leadingGap"])
+    assert lengths.BUTTON_PADDING == _spec_px(_component("action", "primary-button")["parts"]["container"]["paddingX"])
+    assert lengths.CHIP_PADDING == _spec_px(_component("today", "day-character")["parts"]["badge"]["paddingX"])
+    assert lengths.CHIP_PADDING == _spec_px(_component("diary", "tag-chip")["parts"]["chip"]["paddingX"])
+    lucky = _component("today", "lucky-card")["parts"]["chip"]
+    assert lengths.CHIP_PADDING == _spec_px(lucky["paddingX"]) and lengths.LUCKY_CHIP_GAP == _spec_px(lucky["gap"])
+    assert lengths.SEGMENTED_TRACK_PADDING == _spec_px(_component("input", "segmented")["parts"]["track"]["padding"])
+    elements = json.loads((TOOLS_DIR.parent / "components" / "elements.json").read_text(encoding="utf-8"))["elements"]
+    assert lengths.ICON_BESIDE_SMALL_TEXT == _spec_px(elements["icon"]["adjacentText"][0]["size"])
+    leading = _component("action", "settings-row")["parts"]["leading"]
+    assert lengths.SETTINGS_LEADING == _spec_px(leading["size"]) + _spec_px(leading["marginEnd"])
+    reason = next(target for target in lengths.TARGETS if target.slots == ("character.reason",))
+    icon = _component("sentence", "depth-link")["parts"]["icon"]
+    assert reason.trailing_icon == _spec_px(icon["size"]) == _spec_px(icon["layoutWidth"])
+
+
+def test_sheet_slots_are_measured_at_sheet_width():
+    # 시트(explain, evidence, share-preview, day-sheet) 안 자리는 시트 안쪽 폭(312)으로 잼. day-sheet가 day-character를 씀
+    by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    sheet = lengths.SHEET_CONTENT_WIDTH
+    assert by_slot["ui.evidence.title"].width == sheet and by_slot["ui.evidence.personal-empty"].width == sheet
+    assert by_slot["character.reason"].width == sheet
+    assert by_slot["daily.color"].width == sheet and by_slot["daily.focus_reason"].width == sheet
+    assert by_slot["calendar.day_level"].width == sheet - 2 * lengths.CHIP_PADDING
+    assert by_slot["day-sheet.diary.write-cta"].width == sheet - 2 * lengths.BUTTON_PADDING
+    assert by_slot["evidence-sheet.lock.cta"].width == sheet - 2 * lengths.BUTTON_PADDING
+    assert by_slot["welcome.cta.start"].width == CONTENT_WIDTH - 2 * lengths.BUTTON_PADDING
+    assert by_slot["evidence-sheet.section.basis"].width == sheet - lengths.ICON_BESIDE_SMALL_TEXT - 4
+    assert by_slot["day-sheet.diary.open"].width == sheet - lengths.ICON_BESIDE_SMALL_TEXT - 2
+    dialog_inner = lengths.SCREEN_WIDTH - 2 * lengths.DIALOG_MARGIN - 2 * lengths.DIALOG_PADDING
+    assert by_slot["ui.action.button"].width == (dialog_inner - 8) / 2 - 2 * lengths.DIALOG_BUTTON_PADDING == 104

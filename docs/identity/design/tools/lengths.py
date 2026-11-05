@@ -40,6 +40,18 @@ SCREEN_WIDTH = 360
 SCREEN_GUTTER = 20
 CONTENT_WIDTH = SCREEN_WIDTH - 2 * SCREEN_GUTTER
 SETTINGS_LEADING = 20 + 12  # 설정 화면 메뉴 줄 앞 아이콘과 간격 (결정 V58)
+# 명세 폭 (test_layout_constants_match_component_spec이 components/*.json과 대조, DS1)
+SHEET_PADDING = 24  # sheet 좌우 안쪽 (결정 V64)
+SHEET_CONTENT_WIDTH = SCREEN_WIDTH - 2 * SHEET_PADDING
+DIALOG_MARGIN = 24  # dialog 화면 좌우 (결정 V65)
+DIALOG_PADDING = 24  # dialog 안쪽 사방
+DIALOG_BUTTON_PADDING = 12  # dialog 두 버튼 좌우 안쪽
+DIALOG_CAUTION = 20 + 8  # destructive 제목 앞 mark.caution 20 + 간격 8
+BUTTON_PADDING = 20  # primary-button 좌우 안쪽
+CHIP_PADDING = 12  # day-character 배지, tag-chip, lucky-card 칩 좌우 안쪽 (결정 V56)
+LUCKY_CHIP_GAP = 4  # lucky-card 칩 안 아이콘과 글자 사이
+SEGMENTED_TRACK_PADDING = 4  # segmented 트랙 안쪽
+ICON_BESIDE_SMALL_TEXT = 16  # 14px 이하 글자 옆 아이콘 단계 (adjacent-text, 결정 V57)
 
 KO_LINE_PERCENTILE = 0.10
 
@@ -94,20 +106,19 @@ DIALOG_SLOTS = (
 TARGETS = (
     Target(("daily.fortune.head", "daily.fortune.tag"), "today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today)", "sentence", 17, 0, CONTENT_WIDTH, 2, True, 32),
     Target(("daily.guide",), "guide-question-card question (안쪽 space.20)", "sentence", 17, 0, CONTENT_WIDTH - 40, 2, True, 40),
-    Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card explain (안쪽 space.12)",
-           "ui-400", 13, -0.26, CONTENT_WIDTH - 24, 2, True, 36),
-    Target(("daily.focus_reason",), "lucky-card explain 안 한 줄", "ui-400", 13, -0.26, CONTENT_WIDTH - 24, 1, False, 10),
-    Target(("daily.tag_label",), "lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 6. diary tag-chip보다 좁음)",
-           "ui-600", 13, -0.26, CONTENT_WIDTH - 24 - 16 - 6, 1, False, 10),
-    Target(("calendar.day_level",), "day-character badge (좌우 10px)", "ui-500", 13, -0.26, CONTENT_WIDTH - 20, 1, False, 10),
+    Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card 설명 시트 본문 (explain.sheet, sheet 안쪽 24, sentence-block body)",
+           "sentence", 15, 0, SHEET_CONTENT_WIDTH, 2, True, 36),
+    Target(("daily.focus_reason",), "lucky-card 설명 시트 안 한 줄", "sentence", 15, 0, SHEET_CONTENT_WIDTH, 1, False, 10),
+    Target(("daily.tag_label",), "lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음)",
+           "ui-600", 13, -0.26, CONTENT_WIDTH - 2 * CHIP_PADDING - ICON_BESIDE_SMALL_TEXT - LUCKY_CHIP_GAP, 1, False, 10),
+    Target(("calendar.day_level",), "day-character badge (좌우 12px, day-sheet 안이 가장 좁음)", "ui-500", 13, -0.26, SHEET_CONTENT_WIDTH - 2 * CHIP_PADDING, 1, False, 10),
     Target(("calendar.score_item",), "term-token label (좌우 4px)", "ui-500", 12, -0.24, CONTENT_WIDTH - 8, 1, False, 10),
     Target(("calendar.solar_term",), "day-cell lunar 줄 (칸 폭 44px, 굵게)", "ui-700", 10.5, -0.22, (CONTENT_WIDTH - 2 * 6) / 7, 1, False, 10),
-    Target(("glossary.value_name",), "lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 6)", "ui-500", 13, -0.26, CONTENT_WIDTH - 24 - 16 - 6, 1, False, 10),
+    Target(("glossary.value_name",), "lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 4)", "ui-500", 13, -0.26, CONTENT_WIDTH - 2 * CHIP_PADDING - ICON_BESIDE_SMALL_TEXT - LUCKY_CHIP_GAP, 1, False, 10),
     # ui 이름 자리와 새 content 슬롯 (#131, spec-followups spec §5.2). writing 초안이 없어 계산값이 확정값
     Target(("welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
             "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
-            "today.guide.cta", "evidence-sheet.lock.cta", "diary-list.pick-date.cta",
-            "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share",
+            "today.guide.cta", "diary-list.pick-date.cta",
             # D77 IA 자리 event-edit.save.cta·delete.cta·diary-edit.save.cta (writing W33: ui 슬롯에 ia로 담음)
             "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save",
             # D82 account-merge 아래 버튼 (#389)
@@ -116,12 +127,15 @@ TARGETS = (
             "login-methods.merge.cta",
             # D102 문의 화면 아래 고정 버튼 (#763)
             "contact.send.cta"),
-           "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20, 1, False, None),
-    # destructive 제목 앞 mark.caution: 16 × 0.707 = 11.3 + 띄어쓰기 3.5 → 15
-    Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 28·안쪽 24, destructive 앞 mark.caution 15)",
-           "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 28 - 2 * 24 - 15, 2, False, None),
-    Target(("ui.action.button",) + DIALOG_SLOTS, "dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 버튼 사이 8)",
-           "ui-600", 14, -0.28, (SCREEN_WIDTH - 2 * 28 - 2 * 24 - 8) / 2, 1, False, None),
+           "primary-button (좌우 space.20)", "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * BUTTON_PADDING, 1, False, None),
+    # 시트 안 버튼은 시트 안쪽 24라 페이지 버튼보다 좁음 (DS1, 결정 V64)
+    Target(("evidence-sheet.lock.cta", "day-sheet.event.add", "day-sheet.diary.write-cta", "share-preview.cta.share"),
+           "primary-button 시트 안 (sheet 안쪽 24, 좌우 space.20)", "ui-600", 14, -0.28, SHEET_CONTENT_WIDTH - 2 * BUTTON_PADDING, 1, False, None),
+    # destructive 제목 앞 mark.caution 20 + 간격 8 (결정 V57·V65)
+    Target(DIALOG_SLOTS, "dialog title (확인 창 슬롯의 제목 키, 바깥 24·안쪽 24, destructive 앞 mark.caution 20 + 간격 8)",
+           "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * DIALOG_MARGIN - 2 * DIALOG_PADDING - DIALOG_CAUTION, 2, False, None),
+    Target(("ui.action.button",) + DIALOG_SLOTS, "dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 같은 폭 둘 사이 8, 버튼 좌우 12, 가로 둘 기준)",
+           "ui-600", 14, -0.28, (SCREEN_WIDTH - 2 * DIALOG_MARGIN - 2 * DIALOG_PADDING - 8) / 2 - 2 * DIALOG_BUTTON_PADDING, 1, False, None),
     # 2.7.0: 로고는 왼쪽 16에 고정하고 글자는 가운데라 양쪽에 로고 자리(16 + 20 + 8)를 비움 (#389)
     Target(("ui.login.provider",), "social-login-button 글자 (가운데 정렬, 양쪽 16 + 로고 20 + 간격 8)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * (16 + 20 + 8), 1, False, None),
@@ -135,9 +149,9 @@ TARGETS = (
     Target(("ui.nav.tab",), "tab-bar 탭 라벨 (화면 폭 4등분)", "ui-500", 11, -0.22, SCREEN_WIDTH / 4, 1, False, None),
     # W51 사주 표 탭도 segmented 두 칸 (#710)
     Target(("ui.birth.option", "ui.saju-chart.tab"), "segmented 두 칸 중 한 칸 (check-row inline 글자 포함)",
-           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * 3) / 2, 1, False, None),
-    Target(("share-preview.ratio.label",), "segmented 세 칸 중 한 칸",
-           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * 3) / 3, 1, False, None),
+           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * SEGMENTED_TRACK_PADDING) / 2, 1, False, None),
+    Target(("share-preview.ratio.label",), "segmented 세 칸 중 한 칸 (share-preview 시트 안)",
+           "ui-600", 14, -0.28, (SHEET_CONTENT_WIDTH - 2 * 1 - 2 * SEGMENTED_TRACK_PADDING) / 3, 1, False, None),
     Target(("consent.required.label",), "check-row card 동의 항목 (좌우 16, 상자 24 + 간격 12, 보기 40)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 24 - 12 - 40, 2, False, None),
     Target(("onboard-call.input.hint", "event-edit.title.hint", "event-edit.memo.hint"),
@@ -152,32 +166,32 @@ TARGETS = (
     Target(("ui.picker.item",), "date-picker·time-picker 휠 칸 (본문 폭 3등분)",
            "ui-600", 16, -0.32, CONTENT_WIDTH / 3, 1, False, None),
     Target(("evidence-sheet.section.basis", "evidence-sheet.section.source", "evidence-sheet.section.personal",
-            "saju-chart.yongsin.title"), "lock.veil 제목 (잠기면 앞에 자물쇠 14 + 간격 4)",
-           "ui-500", 13, -0.26, CONTENT_WIDTH - 14 - 4, 1, False, None),
+            "saju-chart.yongsin.title"), "lock.veil 제목 (evidence-sheet 안, 잠기면 앞에 자물쇠 16 + 간격 4)",
+           "ui-500", 13, -0.26, SHEET_CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
     # D77 IA 자리 today.evidence.link = ui.depth.evidence_link (W33)
     # 근거 진입점은 아이콘이라 ui.depth.evidence_link는 스크린리더 이름(NO_LIMIT, 결정 V63)
     Target(("birthplace.standard.link", "day-sheet.diary.open"),
-           "depth-link 이름 (화살표 14 + 간격 2)",
-           "ui-600", 14, -0.28, CONTENT_WIDTH - 14 - 2, 1, False, None),
-    Target(("saju-chart.yongsin.open",), "sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 14 + 간격 2)",
-           "ui-600", 14, -0.28, CONTENT_WIDTH / 2 - 14 - 2, 1, False, None),
+           "depth-link navigate 이름 (day-sheet 안이 가장 좁음, 화살표 16 + 간격 2)",
+           "ui-600", 14, -0.28, SHEET_CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - 2, 1, False, None),
+    Target(("saju-chart.yongsin.open",), "sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 16 + 간격 2)",
+           "ui-600", 14, -0.28, CONTENT_WIDTH / 2 - ICON_BESIDE_SMALL_TEXT - 2, 1, False, None),
     Target(("ui.app.name", "contact.bar.title"), "app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2)",
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 16 - 44 - 2 * 44, 1, False, None),
     Target(("onboard-time.hour.confirm",), "time-picker 시진 확인 줄", "ui-400", 13, -0.26, CONTENT_WIDTH, 1, False, None),
-    Target(("character.reason",), "day-character 이유 줄 (마지막 줄 끝 depth-link inline-end 근거 아이콘: U+00A0 + 20을 뺌)",
-           "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None, trailing_icon=20),
+    Target(("character.reason",), "day-character 이유 줄 (day-sheet 안이 가장 좁음, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌)",
+           "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH, 2, True, None, trailing_icon=20),
     Target(("ui.guide.card",), "guide-question-card 머리글 (안쪽 space.20)", "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 20, 1, False, None),
     Target(("settings.ad-free.label",), "settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - SETTINGS_LEADING, 1, False, None),
     # D77 IA 자리 evidence-sheet.sheet.title = ui.evidence.title (W33)
-    Target(("ui.evidence.title",), "evidence-sheet 제목 (sheet 안쪽 space.20)", "ui-600", 20, -0.4, CONTENT_WIDTH, 1, False, None),
+    Target(("ui.evidence.title",), "evidence-sheet 제목 (sheet 안쪽 24)", "ui-600", 20, -0.4, SHEET_CONTENT_WIDTH, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
            "sentence", 17, 0, CONTENT_WIDTH, 2, True, None),
     # D82·D83 로그인 수단·계정 합치기 (#389, spec 2026-10-22 §6)
     Target(("login-methods.intro.body",), "login-methods 첫머리 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
     Target(("login-methods.last.notice",), "login-methods 마지막 수단 안내 (본문 폭)", "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None),
-    Target(("ui.login-methods.row",), "social-login-button connected 이름·연결됨 (좌우 16, 로고 20 + 간격 8, check 14 + 간격 4, 둘이 나눔)",
-           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 20 - 8 - 14 - 4) / 2, 1, False, None),
+    Target(("ui.login-methods.row",), "social-login-button connected 이름·연결됨 (좌우 16, 로고 20 + 간격 8, check 16 + 간격 4, 둘이 나눔)",
+           "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 20 - 8 - ICON_BESIDE_SMALL_TEXT - 4) / 2, 1, False, None),
     Target(("ui.settings.login-methods",), "settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16)", "ui-400", 14, -0.28,
            CONTENT_WIDTH - 2 * 16 - 16 - SETTINGS_LEADING, 1, False, None),
     Target(("account-merge.title.head",), "account-merge 제목 (본문 폭)", "ui-600", 20, -0.4, CONTENT_WIDTH, 2, False, None),
@@ -219,8 +233,8 @@ TARGETS = (
     # 대운 꼬리표: 기둥 둘과 간격까지 넘침(V53). 세운 칸(약 126)보다 좁음
     Target(("ui.saju.tag",), "daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8)",
            "ui-500", 13, -0.26, 52 * 2 + 4 - 2 * 8, 1, False, None),
-    Target(("ui.evidence.personal-empty",), "evidence-sheet 빈 해석 안내 (sheet 안쪽 space.20, 두 줄)",
-           "ui-400", 14, -0.28, CONTENT_WIDTH, 2, True, None),
+    Target(("ui.evidence.personal-empty",), "evidence-sheet 빈 해석 안내 (sheet 안쪽 24, 두 줄)",
+           "ui-400", 14, -0.28, SHEET_CONTENT_WIDTH, 2, True, None),
     # D102 문의 화면 contact (#763, 결정 V55). 칸 안 안내와 메일 칸 오류는 키별 상한
     Target(("contact.intro.body",), "contact 첫머리 (본문 폭, 세 줄)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
     Target(("contact.message.field", "contact.email.field"), "text-field label 칸 이름 (본문 폭, 한 줄)",
@@ -246,10 +260,10 @@ KEY_TARGETS = {
     ("contact.email.field", "contactEmailFieldHint"): Target(
         ("contact.email.field",), "text-field 칸 안 안내 (좌우 16, 지우기 20 + 간격 8)",
         "ui-400", 17, 0, CONTENT_WIDTH - 2 * 16 - 20 - 8, 1, False, None),
-    # 칸 오류 줄: 앞 mark.caution 15(dialog 제목과 같은 값), 두 줄
+    # 칸 오류 줄: 앞 mark.caution 16(13px 글자 옆 단계) + 간격 4, 두 줄 (결정 V57)
     ("ui.contact.error", "contactEmailInvalid"): Target(
-        ("ui.contact.error",), "text-field errorLine (본문 폭, 앞 mark.caution 15, 두 줄)",
-        "ui-400", 13, -0.26, CONTENT_WIDTH - 15, 2, True, None),
+        ("ui.contact.error",), "text-field errorLine (본문 폭, 앞 mark.caution 16 + 간격 4, 두 줄)",
+        "ui-400", 13, -0.26, CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - 4, 2, True, None),
 }
 
 # 행 값과 다른 상한을 받는 키: (슬롯, 키, 언어) → (값을 빌려 올 언어, 이유) (#446)

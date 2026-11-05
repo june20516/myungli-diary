@@ -191,13 +191,16 @@
       "scale": ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"],
       "adjacentText": [
         { "maxFontSize": 14, "size": "{size.icon.16}" },
-        { "maxFontSize": 17, "size": "{size.icon.20}" },
-        { "maxFontSize": 20, "size": "{size.icon.24}" },
-        { "maxFontSize": 24, "size": "{size.icon.28}" }
+        { "maxFontSize": 18, "size": "{size.icon.20}" },
+        { "maxFontSize": 22, "size": "{size.icon.24}" },
+        { "maxFontSize": null, "size": "{size.icon.28}", "note": "그 위 모든 글자" }
       ],
       "adjacentTextRule": "size가 adjacent-text면 옆 글자 크기가 maxFontSize 이하인 첫 단계. 그림(상자의 0.81)이 옆 한글 높이(글자 크기의 0.861~0.882) 이상인 가장 작은 단계",
       "standalone": { "list-leading": "{size.icon.20}", "tab": "{size.icon.24}", "bar": "{size.icon.24}", "state": "{size.icon.28}" },
-      "textScale": "기기 글자 배율과 함께 커짐(V30과 같은 원리)",
+      "textScale": {
+        "adjacent-text": "단계는 기본 글자 크기로 고르고, 그리는 크기에 기기 글자 배율을 곱함(그 칸의 textScaleMax까지)",
+        "standalone": "기기 글자 배율을 따르지 않음(탭 바, 위 막대, 목록 줄 앞, 빈 화면, 키보드 내리기)"
+      },
       "missing": "세트에 없는 뜻은 아이콘 없이 글자로 씀"
     },
     "lock.veil": {

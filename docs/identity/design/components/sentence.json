@@ -65,7 +65,7 @@
           "element": "explain.sheet",
           "note": "explain.sheet에 한자 줄, 오늘 이유, 근거 진입점을 더한 풀이 시트",
           "container": { "component": "sheet", "variant": "half" },
-          "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
+          "title": { "type": "{type.title}", "fg": "{color.text.primary}", "note": "explain.sheet의 type.subtitle을 덮어씀. 용어 풀이는 용어 이름이 시트의 주인공" },
           "hanja": { "type": "{type.caption.md}", "fontFamily": "{font.family.hanja}", "fg": "{color.text.secondary}" },
           "general": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.term.meaning" },
           "todayReason": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.today.reason", "marginTop": "{space.12}", "when": "오늘 화면에서 열었을 때만" },
@@ -97,12 +97,12 @@
           "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "page.push" } } }
       ],
       "parts": {
-        "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48 },
+        "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48, "layoutWidth": "{size.icon.20}", "hitArea": "줄 배치 폭은 그림 20이고, 터치 영역 48은 배치 밖으로 넓힘(이웃 줄과 겹쳐도 됨)" },
         "evidenceSheet": {
           "container": { "component": "sheet", "variant": "full" },
           "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
           "pillars": { "component": "saju-pillars", "marginTop": "{space.12}", "note": "표 데이터라 무료(D60)" },
-          "sectionTitle": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.20}" },
+          "sectionTitle": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.24}" },
           "basisTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.basis" },
           "sourceTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.source" },
           "personalTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.personal", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
@@ -160,7 +160,7 @@
         }
       },
       "haptic": [{ "when": "locked → unlocked 전환(광고 시청 뒤 열림)", "strength": "light" }],
-      "a11y": { "role": "link", "labelSlot": "ui.depth.evidence_link", "label": "근거 진입점은 labelSlot의 이름(무엇의 근거인지는 앞 문장), navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 이름 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
+      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "block": "그 시트 제목(용어 이름) 또는 구역 이름" }, "navigateRole": "link", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 이름 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
       "rules": [
         "근거 진입점(inline-end, block)은 primary 아이콘 book-open-text 하나이고 글자를 쓰지 않는다. 모든 곳이 같은 모양이다(결정 V63).",
         "inline-end 아이콘은 문장 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 붙는다. 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어간다.",

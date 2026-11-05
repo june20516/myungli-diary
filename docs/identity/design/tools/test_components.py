@@ -1204,6 +1204,9 @@ def icon_parts(node, path=""):
             yield path, icon.get("name"), icon.get("size")
         elif "iconSize" in node:
             yield path, None, node["iconSize"]
+        for key, value in node.items():
+            if key.endswith("Icon") and isinstance(value, str):
+                yield f"{path}.{key}", value, None
         if isinstance(node.get("icons"), dict):
             for key, name in node["icons"].items():
                 yield f"{path}.icons.{key}", name, node.get("size")
@@ -1234,7 +1237,7 @@ def test_icon_sizes_use_icon_scale():
     icon = load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]
     steps = icon["adjacentText"]
     assert [step["size"] for step in steps] == ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"]
-    assert [step["maxFontSize"] for step in steps] == [14, 17, 20, 24]
+    assert [step["maxFontSize"] for step in steps] == [14, 18, 22, None]  # 리뷰 M1: 규칙으로 계산한 경계
     assert icon["scale"] == ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"]
     caution = load_documents(COMPONENTS_DIR)["elements"]["elements"]["mark.caution"]
     assert caution["size"] == ADJACENT_TEXT
@@ -1365,8 +1368,10 @@ def test_explain_opens_without_shift():
 # DS1 spec §6, 결정 V63
 def test_evidence_entry_is_icon():
     link = next(c for c in all_components() if c["id"] == "depth-link")
-    assert link["parts"]["icon"] == {"icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}",
-                                     "color": "{color.action.primary}", "minTarget": 48}
+    icon = link["parts"]["icon"]
+    assert {key: icon[key] for key in ("icon", "weight", "size", "color", "minTarget", "layoutWidth")} == {
+        "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}",
+        "minTarget": 48, "layoutWidth": "{size.icon.20}"}  # 줄 배치 폭은 그림 20, 터치 48은 밖으로 (리뷰 I4)
     assert "label" not in link["parts"] and "chevron" not in link["parts"]
     variants = {variant["id"]: variant for variant in link["variants"]}
     for evidence in ("inline-end", "block"):
@@ -1397,12 +1402,14 @@ def test_dialog_padding_symmetric():
     dialog = next(c for c in all_components() if c["id"] == "dialog")
     parts = dialog["parts"]
     assert parts["container"]["padding"] == "{space.24}" and parts["container"]["marginX"] == "{space.24}"
-    assert parts["actions"] == {"layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}",
-                                "height": {"value": 44, "unit": "px"}, "overflow": "stack-vertical-confirm-top"}
+    actions = {key: value for key, value in parts["actions"].items() if key != "note"}
+    assert actions == {"layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}",
+                       "height": {"value": 44, "unit": "px"}, "buttonPaddingX": "{space.12}",
+                       "overflow": "stack-vertical-confirm-top"}
     assert parts["cancel"]["bg"] == "{color.chip.bg}" and parts["cancel"]["fg"] == "{color.text.primary}"
     assert parts["confirm"]["component"] == "primary-button" and parts["confirm"]["variant"] == "filled"
     destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
-    assert destructive["parts"]["confirm"] == {"variant": "destructive", "leading": None}
+    assert destructive["parts"]["confirm"] == {"variant": "destructive", "label": {"leading": None}}  # primary-button과 같은 자리
 
 
 def test_dialog_icon_size():
@@ -1423,6 +1430,25 @@ def test_sheet_handle_area():
     assert parts["title"]["marginTop"] == "{space.8}"
     assert parts["dragDismiss"] == {"threshold": 0.25, "fling": True, "otherwise": "제자리로 돌아옴",
                                     "withInput": "닫기 전에 쓴 내용을 잃지 않게 확인"}
+
+
+# IA loading 화면에 나오지만 불러올 내용이 없는 컴포넌트(틀, 입력, 버튼, 안내, 다른 컴포넌트 안 부품)
+NO_LOADING_CONTENT = {
+    "app-bar", "tab-bar", "sheet", "dialog", "toast", "notice-banner", "empty-state", "skeleton", "ad-banner",
+    "primary-button", "social-login-button", "share-button", "segmented", "text-field", "date-picker", "time-picker",
+    "input-step", "depth-link", "reaction-button", "draft-indicator",
+    "term-token",  # sentence-block 뼈 안
+    "day-cell",  # calendar-month 뼈 안
+}
+
+
+def test_loading_components_are_classified():
+    # 리뷰 M5: IA loading 화면의 컴포넌트는 내용 컴포넌트(skeleton 뼈 필수)이거나 NO_LOADING_CONTENT
+    loading_screens = [screen for screen in ia_screens().values()
+                       if any(state["id"] == "loading" for state in screen.get("states", []))]
+    on_loading = {component for screen in loading_screens for component in screen.get("components", [])}
+    assert on_loading - NO_LOADING_CONTENT <= CONTENT_COMPONENTS
+    assert not CONTENT_COMPONENTS & NO_LOADING_CONTENT
 
 
 def test_skeleton_shapes():
@@ -1454,3 +1480,49 @@ def test_keyboard_dismiss_affordance():
     assert dismiss["icon"] == {"icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}"}
     assert dismiss["position"] == "키보드 바로 위 오른쪽" and dismiss["inset"] == "{space.12}"
     assert dismiss["a11y"]["labelSlot"] == "ui.keyboard.dismiss"
+
+
+
+# DS1 최종 리뷰 I3·M1: 아이콘 단계표와 글자 배율
+def test_icon_text_scale_rule():
+    icon = load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]
+    assert [step["maxFontSize"] for step in icon["adjacentText"]] == [14, 18, 22, None]
+    assert icon["textScale"] == {
+        "adjacent-text": "단계는 기본 글자 크기로 고르고, 그리는 크기에 기기 글자 배율을 곱함(그 칸의 textScaleMax까지)",
+        "standalone": "기기 글자 배율을 따르지 않음(탭 바, 위 막대, 목록 줄 앞, 빈 화면, 키보드 내리기)",
+    }
+    # 규칙 문장(그림 0.81 ≥ 한글 0.882)으로 계산한 경계와 같음
+    for step in icon["adjacentText"][:-1]:
+        size = int(step["size"].strip("{}").split(".")[-1])
+        assert step["maxFontSize"] == int(size * 0.81 / 0.882)
+
+
+# 리뷰 I5: 근거 아이콘의 스크린리더 이름은 무엇의 근거인지 말함
+def test_evidence_entry_names_its_subject():
+    a11y = next(c for c in all_components() if c["id"] == "depth-link")["a11y"]
+    assert a11y["role"] == "button" and a11y["announce"] == "근거 시트가 열림"
+    assert a11y["labelSlot"] == "ui.depth.evidence_link" and "[subject]" in a11y["labelTemplate"]
+    assert set(a11y["subject"]) == {"inline-end", "block"}
+
+
+# 리뷰 I6: space.20은 쓰임표가 허용한 자리만
+SPACE_20_ALLOWED = {
+    ("primary-button", "parts.container", "paddingX"), ("input-step", "parts.bottomAction", "paddingX"),
+    ("skeleton", "parts.screen", "gutter"), ("guide-question-card", "parts.container", "padding"),
+    ("offer-card", "parts.container", "padding"),
+}
+
+
+def test_space_20_only_where_usage_table_allows():
+    import rules_audit
+    used = {(m.component, m.path, m.key) for m in rules_audit.collect_measures(COMPONENTS_DIR) if m.value == "space.20"}
+    assert used == SPACE_20_ALLOWED
+
+
+# 리뷰 M3·M4
+def test_explain_sheet_overrides_are_noted():
+    by_id = {c["id"]: c for c in all_components()}
+    title = by_id["term-token"]["parts"]["explainSheet"]["title"]
+    assert title["type"] == "{type.title}" and "explain.sheet" in title["note"]
+    lucky = by_id["lucky-card"]["a11y"]
+    assert "expandedAnnounced" not in lucky and lucky["opensSheet"] is True

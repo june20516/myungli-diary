@@ -71,7 +71,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 ## settings-row
 
 * 쓰는 화면: settings, profile-edit, legal
-* 묶음 카드(`bg.sheet`, `radius.md`) 안에서 `list.divider`(0.5px, 좌우 같은 16 들임, 앞 아이콘 아래까지)로 나눕니다(결정 V58). 카드 사이 20px, 카드 위 묶음 이름 `type.caption.md`.
+* 묶음 카드(`bg.sheet`, `radius.md`) 안에서 `list.divider`(0.5px, 좌우 같은 16 들임, 앞 아이콘 아래까지)로 나눕니다(결정 V58). 카드 사이 `space.24`, 카드 위 묶음 이름 `type.caption.md`.
 * 변형 `navigate`(화살표) / `value`(오른쪽 값 `text.secondary` + 화살표, 이름과 값 사이 최소 `space.8`) / `toggle`(스위치, 햅틱 selection) / `select`(시트 안 하나 고르기 줄: 화살표 없이 고른 줄 끝에 `check` Regular 20 `action.primary`, 스크린리더는 라디오) / `destructive`(로그아웃·계정 삭제: 본문색 600과 자기 아이콘 Regular, 화살표 없음).
 * **화살표는 다른 화면이나 시트로 들어가는 줄(`navigate`, `value`)에만 둡니다(V58).** 누르면 바로 값이 바뀌는 줄은 `select`입니다.
 * **앞 아이콘 `leading`(V58):** settings 화면 메뉴 줄에만, 20 Light 본문색, 글자와 사이 `space.12`. 스크린리더는 읽지 않습니다. 줄마다 아이콘(줄 이름 ARB 키 기준, `parts.leading.icons`):

@@ -107,7 +107,7 @@
         { "id": "destructive", "when": "로그아웃·계정 삭제. 경고 표시 대신 자기 아이콘(Regular)과 600 글자로 구분 (결정 V58)", "parts": { "label": { "fg": "{color.text.primary}", "fontWeight": 600 }, "leading": { "weight": "regular" }, "chevron": { "visible": false } } }
       ],
       "parts": {
-        "group": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "marginBottom": "{space.20}" },
+        "group": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "marginBottom": "{space.24}" },
         "row": { "minHeight": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
         "divider": { "element": "list.divider" },
         "leading": { "icons": { "settingsNotifyLabel": "bell", "settingsAdFreeLabel": "prohibit", "settingsLanguageLabel": "translate", "profileEditBarTitle": "user-circle", "calcBasisBarTitle": "globe-hemisphere-east", "settingsLoginMethodsLabel": "key", "legalBarTitle": "file-text", "settingsContactLabel": "chat-circle-text", "settingsLogoutLabel": "sign-out", "accountDeleteBarTitle": "trash" }, "iconsBy": "줄 이름 ARB 키", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.primary}", "marginEnd": "{space.12}", "optional": true, "screens": ["settings"] },
@@ -124,7 +124,7 @@
       },
       "haptic": [{ "when": "toggle 변형 켜고 끔", "strength": "selection" }],
       "a11y": { "role": "button", "label": "글자 + 값", "toggleRole": "switch", "selectRole": "radio", "selectedState": "고른 줄은 선택됨", "minTarget": 48, "decorativeLeading": true },
-      "rules": ["묶음 카드 안에서 list.divider로 나눈다. 카드 사이는 20px 띄운다.",
+      "rules": ["묶음 카드 안에서 list.divider로 나눈다. 카드 사이는 space.24 띄운다(결정 V56 쓰임표).",
         "꺾쇠는 다른 화면이나 시트로 들어가는 줄(navigate, value)에만 둔다. 바로 값이 바뀌는 고르기 줄(select)은 꺾쇠 없이 고른 줄 끝에 체크.",
         "앞 아이콘(leading)은 설정 화면 메뉴 줄에만 두고, 어느 줄에 어느 아이콘인지는 leading.icons(줄 이름 ARB 키 → Phosphor 이름)를 따른다. 메뉴 순서와 묶음은 IA를 따른다.",
         "묶음에 걸리는 안내 문장(groupNote)은 카드 위 묶음 이름 자리에 둔다. 배너(notice-banner)는 상태를 알리는 것이라 늘 보이는 안내에 쓰지 않는다(#354 ③)."]
@@ -141,7 +141,7 @@
         "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "ad-free.offer.period", "note": "기간과 자동 결제 없음 고지(#548)" },
         "status": { "element": "tag.status", "slot": "ad-free.status.remaining" },
         "remaining": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
-        "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.20}" },
+        "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.24}" },
         "history": { "component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta" },
         "legal": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slot": "ad-free.legal.notice", "marginTop": "{space.12}" }
       },

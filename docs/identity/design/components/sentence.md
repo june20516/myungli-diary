@@ -48,7 +48,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 * 쓰는 화면: today, explain-sheet, my-saju, birthplace(`navigate`)
 * 근거 시트(evidence-sheet)의 구성도 이 컴포넌트가 정합니다(`parts.evidenceSheet`, 아래).
-* **근거 진입점은 primary 아이콘 하나입니다(결정 V63):** Phosphor `book-open-text` Regular 20, `action.primary`, 터치 48. 글자 "근거 보기"를 화면에 쓰지 않고 모든 곳이 같은 모양입니다. 스크린리더 이름은 `ui.depth.evidence_link`(지금 원고 "근거 보기")이고, 무엇의 근거인지는 바로 앞 문장이 말합니다.
+* **근거 진입점은 primary 아이콘 하나입니다(결정 V63):** Phosphor `book-open-text` Regular 20, `action.primary`, 터치 48. 글자 "근거 보기"를 화면에 쓰지 않고 모든 곳이 같은 모양입니다. 줄 배치 폭은 그림 20이고 터치 영역 48은 배치 밖으로 넓힙니다. 스크린리더는 역할 `button`, 이름은 "항목 이름 + 근거 보기" 틀(`ui.depth.evidence_link`)이라 한 화면에 진입점이 여럿이어도 무엇의 근거인지 구분되고, 누르면 근거 시트가 열린다고 알립니다. 항목 이름은 `inline-end`면 앞 문장이 속한 항목(배지 글자), `block`이면 시트 제목(용어 이름)이나 구역 이름입니다.
 * `inline-end`: 이유 문장 끝에 붙습니다. 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 이어져, 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어갑니다. 아이콘만 혼자 다음 줄에 가지 않습니다.
 * `block`: 문단 아래 따로 놓입니다(나 탭, 풀이 시트).
 * `navigate`: 근거 진입점이 아니라 글자 링크입니다(`type.label.lg` `action.primary` + 화살표). 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크 한 곳입니다. 그날 시트의 일기 입구는 D83 뒤 머리 + `diary-row` 줄로 바뀌어 이 변형을 쓰지 않습니다(결정 V42가 V37을 개정). 출생지 링크의 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
