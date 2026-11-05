@@ -34,7 +34,7 @@
           "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
           "parts": {
             "text": { "element": "lock.veil", "lines": 1 },
-            "open": { "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true }, "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
+            "open": { "lock": { "icon": "lock-simple", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.4}", "placement": "before-label", "decorative": true }, "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "note": "lock.veil open과 같은 입구(결정 V73)", "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
           }
         }
       },
@@ -44,7 +44,7 @@
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
         "문장 끝에 depth-link가 붙을 수 있다(inline-end).",
-        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 '열기' 링크(화살표는 컴포넌트가 그림). 누르면 근거 시트가 locked로 열린다.",
+        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 자물쇠와 '열기' 링크(자물쇠는 컴포넌트가 그림, 꺾쇠 없음, 결정 V73). 누르면 근거 시트가 locked로 열린다.",
         "term 조각은 term-token이 있는 화면(segments.term.screens)에서만 term-token inline으로 그린다. 그 밖의 화면, 공유 이미지, 카드 전체가 버튼인 곳(diary-row) 안에서는 일반 글자다(결정 V28).",
         "콘텐츠 문장을 그리는 다른 구성 요소(day-character reason, lucky-card explain)도 segments 규칙을 따른다.",
         "term-token 라벨은 화면에 보이는 text를 쓴다. term 값은 풀이를 찾는 키라 읽지 않는다.",
@@ -53,8 +53,8 @@
     },
     {
       "id": "term-token",
-      "summary": "명리 용어 표시. 누르면 풀이 시트(explain.sheet 바탕)",
-      "uses": ["term", "press.ink", "sheet.enter", "explain.sheet"],
+      "summary": "명리 용어 표시. 누르면 풀이 시트(explain-sheet 바탕)",
+      "uses": ["term", "press.ink", "sheet.enter"],
       "variants": [
         { "id": "inline", "when": "문장 안", "parts": { "chip": { "type": "inherit", "paddingX": "{space.4}" } } },
         { "id": "label", "when": "표 행 머리, 십성 줄", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": "{space.4}" } } }
@@ -62,10 +62,9 @@
       "parts": {
         "chip": { "bg": "{color.term.bg}", "fg": "{color.term.fg}", "radius": "{radius.xs}", "fontWeight": "inherit" },
         "explainSheet": {
-          "element": "explain.sheet",
-          "note": "explain.sheet에 한자 줄, 오늘 이유, 근거 진입점을 더한 풀이 시트",
-          "container": { "component": "sheet", "variant": "half" },
-          "title": { "type": "{type.title}", "fg": "{color.text.primary}", "note": "explain.sheet의 type.subtitle을 덮어씀. 용어 풀이는 용어 이름이 시트의 주인공" },
+          "component": "explain-sheet",
+          "note": "explain-sheet에 한자 줄, 오늘 이유, 근거 진입점을 더한 풀이 시트",
+          "title": { "type": "{type.title}", "fg": "{color.text.primary}", "note": "explain-sheet의 type.subtitle을 덮어씀. 용어 풀이는 용어 이름이 시트의 주인공" },
           "hanja": { "type": "{type.caption.md}", "fontFamily": "{font.family.hanja}", "fg": "{color.text.secondary}" },
           "general": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.term.meaning" },
           "todayReason": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.today.reason", "marginTop": "{space.12}", "when": "오늘 화면에서 열었을 때만" },
@@ -196,6 +195,58 @@
       "rules": [
         "문장 아래 오른쪽에 홀로 둔다. 근거 보기 링크와 같은 줄에 두지 않는다.",
         "끌 때는 햅틱이 없다."
+      ]
+    },
+    {
+      "id": "hanja-tag",
+      "summary": "한자 아이콘 태그: 원 안 한자 한 글자와 이름 알약. 사주 용어는 어디서나 이 모양 (D108 ②, 결정 V70)",
+      "uses": ["press.ink", "sheet.enter", "tone", "term", "stem.chip"],
+      "variants": [
+        { "id": "default", "when": "어디서나 기본" },
+        { "id": "emphasis", "when": "날의 성격을 강조하는 자리(그날 시트 머리, 오늘 총운 결정 태그, Q4-2). 날의 성격 태그에만", "parts": { "tone": { "dayKind": {
+          "YONGSIN_DAY": { "bg": "{color.badge.good.bg}", "fg": "{color.badge.good.fg}" },
+          "GWIIN_DAY": { "bg": "{color.badge.gwiin.bg}", "fg": "{color.badge.gwiin.fg}" },
+          "GISIN_DAY": { "bg": "{color.badge.gisin.bg}", "fg": "{color.badge.gisin.fg}" },
+          "ORDINARY_DAY": { "bg": "transparent", "border": { "color": "{color.badge.ordinary.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.badge.ordinary.fg}" } } } } },
+        { "id": "selected", "when": "고른 태그(태그 시트에서 연 태그, 설명 시트가 열린 동안)", "parts": { "pill": { "border": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" } } } } }
+      ],
+      "parts": {
+        "pill": { "height": { "value": 30, "unit": "px" }, "radius": "{radius.full}", "paddingStart": "{space.4}", "paddingEnd": "{space.12}", "gap": "{space.4}" },
+        "glyph": { "size": { "value": 22, "unit": "px" }, "shape": "circle", "bg": "{color.bg.sheet}", "fontFamily": "{font.family.hanja}", "fontSize": { "value": 12, "unit": "px" }, "fontWeight": 700, "fg": "same-as-name", "decorative": true },
+        "stemGlyph": { "element": "stem.chip", "when": "천간 한 글자를 보이는 태그(일진 천간, 시진 등). 원 대신 오행 색 칩" },
+        "name": { "type": "{type.label.md}", "maxLines": 1 },
+        "glyphs": {
+          "dayKind": { "貴": "귀인의 날", "用": "용신의 날", "忌": "기신의 날", "平": "평범한 날" },
+          "tenGodGroup": { "比": "비겁", "食": "식상", "財": "재성", "官": "관성", "印": "인성" },
+          "relation": { "合": "합", "沖": "충, 일지 충, 월지 충" },
+          "sinsal": { "天": "천을귀인", "桃": "도화", "驛": "역마", "華": "화개", "空": "공망" }
+        },
+        "tone": {
+          "dayKind": {
+            "GWIIN_DAY": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" },
+            "YONGSIN_DAY": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" },
+            "GISIN_DAY": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" },
+            "ORDINARY_DAY": { "bg": "transparent", "border": { "color": "{color.tag.neutral.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.tag.neutral.fg}" }
+          },
+          "otherTerms": { "bg": "{color.term.bg}", "fg": "{color.term.fg}" },
+          "verdictTone": { "good": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" }, "bad": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } },
+          "toneAllowedIn": ["fortune-verdict", "score-row"]
+        },
+        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어느 시트를 여는지는 IA 출구가 정함" }
+      },
+      "states": {
+        "loading": { "skeleton": [{ "bone": "pill", "shape": "chip", "width": "64px" }] },
+        "pressed": { "pattern": "press.ink" }
+      },
+      "haptic": [],
+      "a11y": { "role": "button", "label": "이름 글자(한자는 읽지 않음)", "toneLabel": "날의 성격과 길흉 톤은 이름 낱말로 전함(색만으로 전하지 않음)", "minTarget": 44, "hitSlop": "높이 30에서 위아래로 넓힘" },
+      "rules": [
+        "날의 성격(貴 用 忌 平)은 길흉 톤(tone.dayKind, V8 배지 매핑)이고, 그 밖의 사주 용어(십성 묶음, 합충, 신살)는 term 초록(otherTerms)이다(Q4 ③).",
+        "날의 성격 밖 용어의 길흉 톤(verdictTone, 좋음 coral, 나쁨 neutral)은 toneAllowedIn 부모(fortune-verdict, score-row) 안에서만 쓴다. 더함과 뺌을 보이는 자리이기 때문이다(Q4 ①).",
+        "emphasis는 날의 성격 태그에만 쓰고, 용신의 날만 진한 채움이다(V8, D20).",
+        "한자 목록은 D108의 16자뿐이다. 같은 글자는 옆 이름으로 구분한다(沖은 충, 일지 충, 월지 충). 목록 밖 글자는 그리지 않고 지휘 확인을 기다린다.",
+        "한자 원은 장식이다. 스크린리더는 이름만 읽는다.",
+        "누르면 explain-sheet나 tag-sheet가 sheet.enter로 열리고, 열린 동안 selected 테두리가 남는다."
       ]
     }
   ]

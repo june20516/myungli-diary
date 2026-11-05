@@ -21,7 +21,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 * 쓰는 화면: preview, login, event-edit, diary-view, settings, profile-edit, account-delete, login-methods, account-merge
 * `bg.sheet`, `radius.lg`, 화면 좌우와 `space.24`. 안쪽 여백은 사방 `space.24`로 같고 버튼도 그 안에 있어 위아래가 같아 보입니다(결정 V65). 제목 `type.subtitle`, 본문 `type.body.ui` `text.secondary`(제목 아래 `space.8`). 나타남 `appear.seep`.
-* 버튼: 본문 아래 `space.24`에 같은 폭 두 개, 높이 44, 사이 `space.8`, 좌우 안쪽 `space.12`(두 버튼 공통). 왼쪽 취소는 옅은 바탕(`chip.bg`, 글자 `text.primary`), 오른쪽 확정은 `primary-button` `filled` 모양입니다. 글이 넘쳐 한 줄에 들어가지 않으면(en, ja) 세로로 쌓고 확정이 위입니다.
+* 버튼: 본문 아래 `space.24`에 같은 폭 두 개, 높이 44, 사이 `space.8`, 좌우 안쪽 `space.12`(두 버튼 공통). 왼쪽 취소는 옅은 바탕(`fill.soft`, 글자 `text.primary`. 반투명 `chip.bg`는 흰 확인 창 위에서 보이지 않아 바꿈, 결정 V74), 오른쪽 확정은 `primary-button` `filled` 모양입니다. 글이 넘쳐 한 줄에 들어가지 않으면(en, ja) 세로로 쌓고 확정이 위입니다.
 * `destructive` 변형(일기 삭제, 일정 삭제, 계정 삭제, 계정 합치기, 로그인 수단 떼기): 제목 앞 `mark.caution` 20(제목 16px 옆 단계, 사이 `space.8`), 확정 버튼은 `primary-button` `destructive` 바탕(본문색)이고 글자 앞 경고 표시는 두지 않습니다. **빨간색을 쓰지 않습니다.** 바깥 누르기로 닫히지 않고 뒤로 가기는 취소와 같음, 확정 시 햅틱 medium.
 * 버튼 두 개짜리 확인 창(`confirm`·`destructive`)에는 첫 초점 규칙을 두지 않습니다. 앱은 웹처럼 키보드 초점으로 기본 버튼을 고르지 않고, 스크린리더는 플랫폼 기본대로 제목 → 본문 → 버튼 순서로 읽습니다(결정 V41). #354 ②의 답: 사주 다시 계산처럼 파괴적이지 않은 무거운 변경은 `confirm`을 쓰고, "첫 초점 취소" 옵션은 두지 않습니다.
 * `notice` 변형: 확인 버튼 하나만 있는 안내입니다. `login.discard.notice`(미리보기 입력을 쓰지 않는다는 안내), 로그인 수단 연결·떼기 실패(`login-methods.error.body`), 다른 유저 계정에 연결된 인증 계정이라 연결하지 않음(`login-methods.in-use.body`), 계정 합치기 실패(`ui.account-merge.error`), 유저 계정 B가 아닌 인증 계정으로 인증함(`account-merge.not-other.body`)처럼 고를 것이 없고 읽었다는 확인만 받는 곳에 씁니다. 확인 버튼은 `confirm`의 확정 버튼과 같은 모양으로 폭 전체에 놓입니다. 바깥을 누르거나 뒤로 가면 확인과 같고, 첫 초점은 확인 버튼입니다. 두 버튼 형식에서 "닫기"가 취소처럼 읽히던 문제가 없어집니다.

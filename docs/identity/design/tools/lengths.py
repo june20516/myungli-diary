@@ -106,7 +106,7 @@ DIALOG_SLOTS = (
 TARGETS = (
     Target(("daily.fortune.head", "daily.fortune.tag"), "today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today)", "sentence", 17, 0, CONTENT_WIDTH, 2, True, 32),
     Target(("daily.guide",), "guide-question-card question (안쪽 space.20)", "sentence", 17, 0, CONTENT_WIDTH - 40, 2, True, 40),
-    Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card 설명 시트 본문 (explain.sheet, sheet 안쪽 24, sentence-block body)",
+    Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body)",
            "sentence", 15, 0, SHEET_CONTENT_WIDTH, 2, True, 36),
     Target(("daily.focus_reason",), "lucky-card 설명 시트 안 한 줄", "sentence", 15, 0, SHEET_CONTENT_WIDTH, 1, False, 10),
     Target(("daily.tag_label",), "lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음)",

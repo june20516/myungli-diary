@@ -233,7 +233,8 @@ def test_common_files_define_spec_ids():
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
         "skeleton.bone", "icon", "lock.veil",
-        "list.divider", "section.header", "button.pair", "explain.sheet"}  # DS1 V58~V60·V62
+        "list.divider", "button.pair",  # DS1 V58·V60. section.header·explain.sheet는 컴포넌트로 옮김(V69·V71)
+        "stem.chip"}  # DS1 2단계 V72
 
 
 def test_seal_element_matches_logo():
@@ -274,7 +275,7 @@ def variant_ids(component):
 def test_generic_groups_contain_spec_components():
     documents = load_documents(COMPONENTS_DIR)
     ids = {group: {c["id"] for c in documents[group]["components"]} for group in ("frame", "feedback", "input", "action")}
-    assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner"}
+    assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner", "section-header", "explain-sheet"}
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
                             "check-row", "account-choice"}
@@ -338,7 +339,7 @@ def test_brand_groups_contain_spec_components():
     documents = load_documents(COMPONENTS_DIR)
     ids = {group: {c["id"] for c in documents[group]["components"]} for group in BRAND_GROUPS}
     assert ids == {
-        "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button"},
+        "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image"},
         "calendar": {"calendar-month", "day-cell", "event-row"},
         "diary": {"diary-row", "diary-editor", "draft-indicator", "tag-chip"},
@@ -609,7 +610,7 @@ def test_text_link_chevrons_are_component_drawn_icons():
     depth_link = component("sentence", "depth-link")
     block = component("sentence", "sentence-block")
     assert next(v for v in depth_link["variants"] if v["id"] == "navigate")["parts"]["chevron"] == CHEVRON  # V63: 글자 링크만
-    assert block["states"]["locked"]["parts"]["open"]["chevron"] == CHEVRON
+    assert "chevron" not in block["states"]["locked"]["parts"]["open"]  # V73: 잠긴 것을 여는 입구는 자물쇠
     assert depth_link["states"]["locked"]["parts"]["evidenceSheet"]["lockPanel"]["pass"]["chevron"] == CHEVRON
     assert any("원고에 넣지 않" in rule for rule in depth_link["rules"])
 
@@ -1342,13 +1343,29 @@ def test_dividers_use_list_divider():
     assert wrong == []
 
 
-def test_section_header_element():
-    header = load_documents(COMPONENTS_DIR)["elements"]["elements"]["section.header"]
-    assert header["title"] == {"type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": True}
-    assert header["description"] == {"type": "{type.caption.md}", "fg": "{color.text.secondary}",
-                                      "marginTop": "{space.2}", "optional": True}
-    assert "trailing" not in header
-    assert header["contentGap"] == "{space.12}" and header["sectionGap"] == "{space.32}"
+# DS1 2단계 spec §2 Q1: 1단계 요소 section.header(V59)를 컴포넌트로 옮기고 오른쪽 자리를 더함(V69)
+def test_section_header_component():
+    assert "section.header" not in load_documents(COMPONENTS_DIR)["elements"]["elements"]
+    header = component("frame", "section-header")
+    parts = header["parts"]
+    assert parts["title"] == {"type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": True}
+    assert parts["description"] == {"type": "{type.caption.md}", "fg": "{color.text.secondary}",
+                                    "marginTop": "{space.2}", "optional": True}
+    assert parts["contentGap"] == "{space.12}" and parts["sectionGap"] == "{space.32}"
+    assert parts["startLine"] == {"align": "card-outer-edge", "screen": "{space.20}", "sheet": "{space.24}"}
+    variants = {variant["id"]: variant["parts"] for variant in header["variants"]}
+    assert set(variants) == {"plain", "link", "action"}  # 오른쪽 자리는 꺾쇠 링크와 아이콘 동작 둘만
+    assert variants["plain"] == {"trailing": {"visible": False}}
+    link = variants["link"]["trailing"]
+    assert link["chevron"] == {**CHEVRON, "weight": "light"}  # 옆 글자 type.label.md 500이라 Light(V57)
+    assert link["label"] == {"type": "{type.label.md}", "fg": "{color.action.primary}"}
+    assert link["target"] == {"presentation": "page", "transition": "page.push"}
+    action = variants["action"]["trailing"]
+    assert action["options"] == [
+        {"component": "reaction-button", "when": "좋아요"},
+        {"icon": "plus", "weight": "light", "size": "{size.icon.24}", "color": "{color.text.primary}", "when": "더하기"}]
+    assert action["minTarget"] == 44 and "chevron" not in action
+    assert header["a11y"]["role"] == "header" and header["states"]["pressed"]["pattern"] == "press.ink"
 
 
 # DS1 spec §5·§6, 결정 V60·V61·V62
@@ -1381,15 +1398,21 @@ def test_quiet_height_matches_filled():
 
 
 def test_explain_opens_without_shift():
-    element = load_documents(COMPONENTS_DIR)["elements"]["elements"]["explain.sheet"]
-    assert element["container"] == {"component": "sheet", "variant": "half", "height": "content"}
-    assert element["layout"] == "overlay"
+    # 1단계 요소 explain.sheet(V62)를 컴포넌트 explain-sheet로 옮김(V71)
+    assert "explain.sheet" not in load_documents(COMPONENTS_DIR)["elements"]["elements"]
+    sheet = component("frame", "explain-sheet")["parts"]
+    assert sheet["container"] == {"component": "sheet", "variant": "half", "height": "content"}
+    assert sheet["layout"] == "overlay"
+    assert sheet["title"] == {"type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "누른 항목의 이름",
+                              "marginBottom": "{space.8}"}
+    assert sheet["body"] == {"component": "sentence-block", "variant": "body"}
+    assert sheet["stageStrip"]["component"] == "stage-strip" and sheet["stageStrip"]["marginTop"] == "{space.12}"
     by_id = {c["id"]: c for c in all_components()}
     lucky = by_id["lucky-card"]
-    assert "explain.sheet" in lucky["uses"] and lucky["parts"]["explain"]["element"] == "explain.sheet"
+    assert "explain.sheet" not in lucky["uses"] and lucky["parts"]["explain"]["component"] == "explain-sheet"
     assert lucky["states"]["open"]["pattern"] == "sheet.enter"
     term = by_id["term-token"]
-    assert "explain.sheet" in term["uses"] and term["parts"]["explainSheet"]["element"] == "explain.sheet"
+    assert "explain.sheet" not in term["uses"] and term["parts"]["explainSheet"]["component"] == "explain-sheet"
     text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
     assert '"insert"' not in text and "칩 줄 아래 전체 폭으로 열린다" not in text
 
@@ -1424,6 +1447,7 @@ CONTENT_COMPONENTS = {
     "day-character", "lucky-card", "sentence-block", "guide-question-card", "event-row", "calendar-month",
     "diary-row", "diary-editor", "tag-chip", "saju-pillars", "manse-table", "daeun-table", "ohaeng-bar",
     "offer-card", "purchase-row", "account-choice", "city-search",
+    "hanja-tag",  # 태그 이름을 받아 그림 (DS1 2단계)
 }
 
 
@@ -1435,7 +1459,7 @@ def test_dialog_padding_symmetric():
     assert actions == {"layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}",
                        "height": {"value": 44, "unit": "px"}, "buttonPaddingX": "{space.12}",
                        "overflow": "stack-vertical-confirm-top"}
-    assert parts["cancel"]["bg"] == "{color.chip.bg}" and parts["cancel"]["fg"] == "{color.text.primary}"
+    assert parts["cancel"]["bg"] == "{color.fill.soft}" and parts["cancel"]["fg"] == "{color.text.primary}"  # V74
     assert parts["confirm"]["component"] == "primary-button" and parts["confirm"]["variant"] == "filled"
     destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
     assert destructive["parts"]["confirm"] == {"variant": "destructive", "label": {"leading": None}}  # primary-button과 같은 자리
@@ -1468,6 +1492,8 @@ NO_LOADING_CONTENT = {
     "input-step", "depth-link", "reaction-button", "draft-indicator",
     "term-token",  # sentence-block 뼈 안
     "day-cell",  # calendar-month 뼈 안
+    "section-header",  # 제목은 UI 슬롯이라 불러오는 중에도 그대로 (DS1 2단계)
+    "explain-sheet",  # 틀. 본문은 sentence-block 뼈
 }
 
 
@@ -1541,6 +1567,7 @@ SPACE_20_ALLOWED = {
     ("primary-button", "parts.container", "paddingX"), ("input-step", "parts.bottomAction", "paddingX"),
     ("skeleton", "parts.screen", "gutter"), ("guide-question-card", "parts.container", "padding"),
     ("offer-card", "parts.container", "padding"),
+    ("section-header", "parts.startLine", "screen"),  # 화면 좌우 여백과 같은 시작선 (V69)
 }
 
 
@@ -1554,6 +1581,134 @@ def test_space_20_only_where_usage_table_allows():
 def test_explain_sheet_overrides_are_noted():
     by_id = {c["id"]: c for c in all_components()}
     title = by_id["term-token"]["parts"]["explainSheet"]["title"]
-    assert title["type"] == "{type.title}" and "explain.sheet" in title["note"]
+    assert title["type"] == "{type.title}" and "explain-sheet" in title["note"]
     lucky = by_id["lucky-card"]["a11y"]
     assert "expandedAnnounced" not in lucky and lucky["opensSheet"] is True
+
+
+# DS1 2단계 spec §4, D108 ②, Q4·Q4-2 (결정 V70)
+HANJA_GLYPHS = {
+    "dayKind": {"貴", "用", "忌", "平"},
+    "tenGodGroup": {"比", "食", "財", "官", "印"},
+    "relation": {"合", "沖"},
+    "sinsal": {"天", "桃", "驛", "華", "空"},
+}
+
+
+def test_hanja_tag_component():
+    tag = component("sentence", "hanja-tag")
+    parts = tag["parts"]
+    assert parts["pill"] == {"height": {"value": 30, "unit": "px"}, "radius": "{radius.full}",
+                             "paddingStart": "{space.4}", "paddingEnd": "{space.12}", "gap": "{space.4}"}
+    glyph = parts["glyph"]
+    assert {key: glyph[key] for key in ("size", "shape", "bg", "fontFamily", "fontSize", "fontWeight")} == {
+        "size": {"value": 22, "unit": "px"}, "shape": "circle", "bg": "{color.bg.sheet}",
+        "fontFamily": "{font.family.hanja}", "fontSize": {"value": 12, "unit": "px"}, "fontWeight": 700}
+    assert parts["name"]["type"] == "{type.label.md}"
+    glyphs = parts["glyphs"]
+    assert {group: set(names) for group, names in glyphs.items()} == HANJA_GLYPHS
+    assert sum(len(names) for names in glyphs.values()) == 16 and "刑" not in json.dumps(glyphs, ensure_ascii=False)
+    # 톤: 날의 성격만 길흉 톤, 그 밖의 용어는 term. 길흉 톤은 더함과 뺌을 보이는 자리에서만(Q4 ③ + ①)
+    tone = parts["tone"]
+    good = {"bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}"}
+    bad = {"bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}"}
+    neutral = {"bg": "transparent", "border": {"color": "{color.tag.neutral.border}", "width": {"value": 1, "unit": "px"}},
+               "fg": "{color.tag.neutral.fg}"}
+    assert tone["dayKind"] == {"GWIIN_DAY": good, "YONGSIN_DAY": good, "GISIN_DAY": bad, "ORDINARY_DAY": neutral}
+    assert tone["otherTerms"] == {"bg": "{color.term.bg}", "fg": "{color.term.fg}"}
+    assert tone["verdictTone"] == {"good": good, "bad": bad}
+    assert tone["toneAllowedIn"] == ["fortune-verdict", "score-row"]
+    variants = {variant["id"]: variant for variant in tag["variants"]}
+    assert set(variants) == {"default", "emphasis", "selected"}
+    emphasis = variants["emphasis"]["parts"]["tone"]["dayKind"]  # Q4-2 ①: V8 배지 매핑 그대로
+    assert emphasis == {
+        "YONGSIN_DAY": {"bg": "{color.badge.good.bg}", "fg": "{color.badge.good.fg}"},
+        "GWIIN_DAY": {"bg": "{color.badge.gwiin.bg}", "fg": "{color.badge.gwiin.fg}"},
+        "GISIN_DAY": {"bg": "{color.badge.gisin.bg}", "fg": "{color.badge.gisin.fg}"},
+        "ORDINARY_DAY": {"bg": "transparent", "border": {"color": "{color.badge.ordinary.border}",
+                                                         "width": {"value": 1, "unit": "px"}}, "fg": "{color.badge.ordinary.fg}"}}
+    assert variants["selected"]["parts"]["pill"]["border"] == {"color": "{color.action.primary}",
+                                                               "width": {"value": 1.5, "unit": "px"}}
+    assert set(tag["parts"]["opens"]["targets"]) == {"explain-sheet", "tag-sheet"}
+    assert tag["a11y"]["role"] == "button" and tag["a11y"]["label"] == "이름 글자(한자는 읽지 않음)"
+    assert tag["a11y"]["minTarget"] == 44 and "stem.chip" in tag["uses"]
+    assert tag["states"]["pressed"]["pattern"] == "press.ink"
+
+
+def test_stem_chip_element():
+    chip = load_documents(COMPONENTS_DIR)["elements"]["elements"]["stem.chip"]
+    assert chip["size"] == {"value": 22, "unit": "px"} and chip["colors"] == "ohaeng.cell"
+    assert chip["hanja"] == {"fontFamily": "{font.family.hanja}", "fontSize": {"value": 13, "unit": "px"}, "fontWeight": 700}
+
+
+# 자세히 보기 표시는 넷뿐: 용어 칩(뜻 시트), 근거 아이콘(근거 시트), 꺾쇠(화면 이동), 자물쇠 + 열기(잠긴 것 열기)
+def test_detail_affordances_are_three():
+    documents = load_documents(COMPONENTS_DIR)
+    icons = [(f"{name}{path}", icon) for name, document in documents.items()
+             for path, icon, _ in icon_parts(document, "") if icon]
+    assert not [place for place, icon in icons if icon.startswith("info")]  # ⓘ 없음(Q2 ②)
+    text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
+    assert '"textDecoration"' not in text and '"underline"' not in text  # 밑줄 링크 없음
+    # 꺾쇠는 잠긴 것을 여는 자리에 없고, 자물쇠는 잠긴 것에만
+    assert not [place for place, icon in icons if icon == "caret-right" and "locked" in place and "pass" not in place]
+    assert all("lock" in place for place, icon in icons if icon == "lock-simple")
+    assert component("sentence", "depth-link")["parts"]["icon"]["icon"] == "book-open-text"
+    assert component("sentence", "term-token")["parts"]["chip"]["bg"] == "{color.term.bg}"
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    rule = next(line for line in readme.splitlines() if line.startswith("* **자세히 보기 표시"))
+    for word in ("용어 칩", "근거 아이콘", "꺾쇠", "자물쇠", "`info`", "밑줄"):
+        assert word in rule, word
+
+
+LOCK_OPEN = {"icon": "lock-simple", "weight": "regular", "size": "adjacent-text", "color": "link-color",
+             "gap": "{space.4}", "placement": "before-label", "decorative": True}  # Q3 ③ (결정 V73)
+
+
+def test_locked_entries_use_lock():
+    block_open = component("sentence", "sentence-block")["states"]["locked"]["parts"]["open"]
+    assert block_open["lock"] == LOCK_OPEN and "chevron" not in block_open
+    assert block_open["label"] == {"type": "{type.label.lg}", "fg": "{color.action.primary}"}
+    locked = component("sentence", "depth-link")["states"]["locked"]["parts"]["evidenceSheet"]
+    head = locked["lockPanel"]["head"]
+    assert head["icon"] == "lock-simple" and head["iconWeight"] == "regular" and "chevron" not in head
+    assert locked["personal"]["element"] == "lock.veil"  # 원국 개인 해석
+    veil = load_documents(COMPONENTS_DIR)["elements"]["elements"]["lock.veil"]
+    assert veil["title"]["icon"] == "lock-simple" and veil["open"] == LOCK_OPEN
+    # 화면 이동(광고 제거 화면)은 꺾쇠 그대로, 광고 보고 열기는 버튼 그대로
+    assert locked["lockPanel"]["pass"]["chevron"] == CHEVRON
+    assert locked["lockPanel"]["cta"]["component"] == "primary-button"
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert any(line.startswith("* **잠김 표시") and "lock-simple" in line for line in readme.splitlines())
+
+
+def _values(node):
+    if isinstance(node, dict):
+        for value in node.values():
+            yield from _values(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _values(value)
+    else:
+        yield node
+
+
+# spec §2 1단계 버그: chip.bg(반투명 흰색)는 흰 표면(bg.sheet) 위에서 보이지 않음 (결정 V74)
+def test_no_translucent_chip_on_sheet():
+    documents = load_documents(COMPONENTS_DIR)
+    users = [name for name, document in documents.items() if "{color.chip.bg}" in _values(document)]
+    assert users == []
+    dialog = component("feedback", "dialog")
+    assert dialog["parts"]["container"]["bg"] == "{color.bg.sheet}"
+    assert dialog["parts"]["cancel"]["bg"] == "{color.fill.soft}"
+
+
+# Q5 ① (결정 V75)
+def test_lucky_chip_outline():
+    lucky = component("today", "lucky-card")
+    chip = lucky["parts"]["chip"]
+    assert chip["bg"] == "{color.bg.sheet}"
+    assert chip["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}, "placement": "inside"}
+    assert chip["height"] == {"value": 34, "unit": "px"} and chip["radius"] == "{radius.full}"
+    opened = lucky["states"]["open"]["parts"]["chip"]
+    assert opened == {"border": {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"}, "placement": "inside"}}
+    assert "innerBorder" not in json.dumps(lucky)

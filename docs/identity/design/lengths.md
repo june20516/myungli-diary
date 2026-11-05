@@ -12,7 +12,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `daily.fortune.head`<br>`daily.fortune.tag` | today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today) | 320px | 2 | 32 | 42 | **32** | **32** | **57** |
 | `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |
-| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain.sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |
+| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |
 | `daily.focus_reason` | lucky-card 설명 시트 안 한 줄 | 312px | 1 | 10 | 22 | **10** | **10** | **18** |
 | `daily.tag_label` | lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음) | 276px | 1 | 10 | 25 | **10** | **10** | **18** |
 | `calendar.day_level` | day-character badge (좌우 12px, day-sheet 안이 가장 좁음) | 288px | 1 | 10 | 26 | **10** | **10** | **18** |

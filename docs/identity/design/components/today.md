@@ -22,8 +22,9 @@
 ## lucky-card
 
 * 쓰는 화면: today, my-saju
-* 칩(`chip.bg` 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`·`tag`.
-* 누르면 칩 안쪽에 1.5px `action.primary` 테두리가 생기고 짧은 설명 시트(`explain.sheet`, 제목은 항목 이름, 본문은 설명 문장)가 열립니다(결정 V62). 설명을 칩 줄 아래에 끼워 넣지 않으므로 아래 내용이 밀리지 않습니다. 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 시트를 닫으면 테두리도 사라집니다.
+* 칩(`bg.sheet` 바탕 + 1px `line` 테두리 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`·`tag`.
+* **바탕과 테두리(Q5 ①, 결정 V75):** 반투명 `chip.bg` 대신 `bg.sheet` 바탕에 1px `line` 테두리를 칩 크기 안쪽에 그립니다. 오늘 카드, 나 탭 카드, 공유 이미지(그라데이션 위), 다크 모드 어디서나 테두리로 칩이 구분됩니다.
+* 누르면 칩 테두리가 1.5px `action.primary`로 바뀌고(크기 그대로) 짧은 설명 시트(`explain-sheet`, 제목은 항목 이름, 본문은 설명 문장)가 열립니다(결정 V62). 설명을 칩 줄 아래에 끼워 넣지 않으므로 아래 내용이 밀리지 않습니다. 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 시트를 닫으면 테두리가 1px `line`으로 돌아갑니다.
 * 칩 줄은 화면 폭에 따라 다음 줄로 넘어갑니다. 줄 수는 제한하지 않고, 칩 하나는 줄 사이에서 끊지 않습니다.
 * **`tag`(대표 태그, D76, 결정 V35):** today에만 있습니다. 그날의 대표 태그(`Daily.tags.featured`, 0~2개)를 칩 줄 맨 앞, 행운 4종(`color`·`direction`·`number`·`time`) 앞에 계약 순서대로 놓고, 0개면 그리지 않습니다. 칩 줄 전체의 칩은 최대 7개(태그 2 + 색, 방향, 숫자 3 + 시간 2)입니다.
   * 칩 바탕·높이·알약 모양·글자색은 행운 칩과 같습니다. 글자 굵기 600(`type.label.md`의 500 대신)과 앞 아이콘 `tag`의 색 `text.primary`(행운 칩은 `text.secondary`)로만 구분합니다. 아이콘 굵기는 `regular` 그대로입니다(`bold` 금지, elements `icon`).

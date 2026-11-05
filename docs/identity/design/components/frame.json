@@ -124,6 +124,68 @@
         "광고 안의 색·글꼴은 네트워크가 그린다. 명세는 틀(바탕·선·위치)만 정한다.",
         "높이가 생기거나 사라질 때 아래 내용 여백이 함께 바뀌며 화면이 튀지 않게 스크롤 위치를 지킨다."
       ]
+    },
+    {
+      "id": "section-header",
+      "summary": "섹션 제목: 굵은 라벨, 선택 설명 줄, 오른쪽 자리 하나 (결정 V59, V69)",
+      "uses": ["icon", "press.ink", "page.push"],
+      "variants": [
+        { "id": "plain", "when": "오른쪽 자리 없음", "parts": { "trailing": { "visible": false } } },
+        { "id": "link", "when": "섹션 내용을 더 보는 다른 화면으로 이동", "parts": { "trailing": {
+          "label": { "type": "{type.label.md}", "fg": "{color.action.primary}" },
+          "chevron": { "icon": "caret-right", "weight": "light", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
+          "target": { "presentation": "page", "transition": "page.push" } } } },
+        { "id": "action", "when": "섹션에 바로 하는 동작 하나(좋아요, 더하기)", "parts": { "trailing": {
+          "options": [
+            { "component": "reaction-button", "when": "좋아요" },
+            { "icon": "plus", "weight": "light", "size": "{size.icon.24}", "color": "{color.text.primary}", "when": "더하기" }
+          ],
+          "minTarget": 44 } } }
+      ],
+      "parts": {
+        "title": { "type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": true },
+        "description": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "optional": true },
+        "trailing": { "align": "end", "verticalAlign": "title-center", "max": 1 },
+        "startLine": { "align": "card-outer-edge", "screen": "{space.20}", "sheet": "{space.24}" },
+        "contentGap": "{space.12}",
+        "sectionGap": "{space.32}",
+        "grouping": { "default": "spacing", "card": { "when": "목록 줄이 이어지는 묶음", "bg": "{color.bg.sheet}", "radius": "{radius.lg}" } }
+      },
+      "states": { "pressed": { "pattern": "press.ink", "note": "오른쪽 자리 안에서만. 제목 줄은 누를 수 없음" } },
+      "haptic": [],
+      "a11y": { "role": "header", "label": "제목 글자", "trailingRole": { "link": "link", "action": "button" }, "trailingLabel": "링크는 글자 그대로, 동작은 그 동작 이름", "separateFocus": true },
+      "rules": [
+        "제목은 어디서나 type.label.lg 600 본문색이다. 화면마다 크기나 색을 바꾸지 않는다(Q1 ③, 결정 V69).",
+        "오른쪽 자리는 꺾쇠 링크(link, 화면 이동)와 아이콘 동작(action) 둘뿐이고 하나만 둔다. 더 보기 글자 버튼, ⓘ, 밑줄 링크를 두지 않는다.",
+        "시작선은 카드 바깥 가장자리다. 화면에서는 화면 좌우 여백(space.20), 시트 안에서는 시트 안쪽(space.24)에서 시작하고 카드 안쪽 여백만큼 들이지 않는다.",
+        "제목과 내용 사이 space.12, 섹션 사이 space.32. 묶음의 기본은 간격이고 목록 줄 묶음은 카드로 묶을 수 있다.",
+        "제목과 설명 문구는 화면마다 IA 슬롯이다. 불러오는 중에도 제목은 그대로 그린다(UI 문구)."
+      ]
+    },
+    {
+      "id": "explain-sheet",
+      "summary": "짧은 설명 시트: 칩, 배지, 용어, 한자 태그를 눌러 여는 설명 (결정 V62, V71)",
+      "uses": ["sheet.enter", "sheet.exit"],
+      "parts": {
+        "container": { "component": "sheet", "variant": "half", "height": "content" },
+        "layout": "overlay",
+        "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "누른 항목의 이름", "marginBottom": "{space.8}" },
+        "body": { "component": "sentence-block", "variant": "body" },
+        "stageStrip": { "component": "stage-strip", "marginTop": "{space.12}", "when": "12운성 용어의 설명일 때만 본문 아래" },
+        "dismiss": ["바깥 누르기", "끌어 내리기", "뒤로 가기"]
+      },
+      "states": {
+        "opening": { "pattern": "sheet.enter" },
+        "closing": { "pattern": "sheet.exit" }
+      },
+      "haptic": [],
+      "a11y": { "role": "dialog", "label": "제목", "modal": true, "focusOnOpen": "first-heading" },
+      "rules": [
+        "설명은 화면 배치 안에 끼워 넣지 않는다. 열려도 아래 내용이 밀리지 않는다(F-008).",
+        "연 항목에는 열린 동안 표시가 남고 닫으면 사라진다(lucky-card 테두리, hanja-tag selected).",
+        "어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정한다.",
+        "다른 컴포넌트가 이 시트에 부품을 더하거나 값을 덮어쓸 때는 그 부품에 note로 적는다(term-token 풀이 시트)."
+      ]
     }
   ]
 }

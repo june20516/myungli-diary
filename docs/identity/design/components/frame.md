@@ -1,6 +1,6 @@
 # frame: 화면 틀 (`frame.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.1, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.7·§2.12·§3, 결정 V15·V17
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.1, [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.7·§2.12·§3, [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §1·§2·§4, 결정 V15·V17·V59·V62·V69·V71
 * 시안: `design-v2-frame`(틀 C), `design-v2-tab-seal`(낙관 도장 탭), `design-v2-sheet`(겹쳐 쌓기·닫기 규칙)
 
 화면 틀은 "스며든 틀"입니다. 위 막대는 바탕을 칠하지 않고, 아래 탭 바는 반투명이라 내용이 비쳐 지나갑니다. 틀이 내용을 가두지 않게 하려는 것입니다.
@@ -89,3 +89,32 @@
 │ 오늘  달력  일기  나 │  ← 탭 바(같은 바탕)
 └────────────────────┘
 ```
+
+## section-header
+
+* 쓰는 화면: today, day-sheet, my-saju, saju-chart
+* 1단계 요소 `section.header`(결정 V59)를 IA v5의 컴포넌트로 옮겼습니다(결정 V69). 내용 묶음의 이름입니다.
+* 제목은 어디서나 `type.label.lg` 600 본문색입니다(Q1 ③). 설명 줄은 선택이고 `type.caption.md` `text.secondary`, 제목 아래 `space.2`입니다.
+* 제목과 내용 사이 `space.12`, 섹션과 섹션 사이 `space.32`입니다. 묶음의 기본은 간격이고, 목록 줄이 이어지는 묶음은 카드(`bg.sheet`, `radius.lg`)로 묶을 수 있습니다.
+* **시작선:** 카드 바깥 가장자리에 맞춥니다. 화면에서는 화면 좌우 여백 `space.20`, 시트 안에서는 시트 안쪽 `space.24`에서 시작하고, 카드 안쪽 여백만큼 들이지 않습니다.
+* **오른쪽 자리(`trailing`)는 둘 중 하나만 둡니다.**
+
+| 변형 | 오른쪽 자리 | 누르면 |
+| --- | --- | --- |
+| `plain` | 없음 | |
+| `link` | 글자(`type.label.md` `action.primary`) + 꺾쇠 `caret-right` Light(옆 글자 500, V57), 사이 `space.2` | 다른 화면으로 `page.push` |
+| `action` | 아이콘 동작 하나: 좋아요(`reaction-button`) 또는 더하기(`plus` Light 24), 터치 44 | 그 동작 |
+
+* 더 보기 글자 버튼, ⓘ, 밑줄 링크는 두지 않습니다(README "자세히 보기 표시").
+* 스크린리더는 제목을 머리글로 읽고, 오른쪽 자리는 따로 초점을 받습니다(링크는 `link`, 동작은 `button`).
+* 제목과 설명 문구는 화면마다 IA 슬롯입니다. UI 문구라 불러오는 중에도 제목은 그대로 그립니다.
+
+## explain-sheet
+
+* 쓰는 화면: today, saju-chart
+* 1단계 요소 `explain.sheet`(결정 V62)를 IA v5의 컴포넌트로 옮겼습니다(결정 V71). 값은 그대로입니다.
+* 칩, 배지, 용어, 한자 태그를 눌러 짧은 설명을 여는 곳입니다. 내용 높이만큼의 `sheet` `half`(핸들 있음)이고, 제목은 누른 항목의 이름(`type.subtitle`, 아래 `space.8`), 본문은 `sentence-block` `body`입니다. 바깥 누르기, 끌어 내리기, 뒤로 가기로 닫힙니다.
+* 12운성 용어의 설명이면 본문 아래 `space.12`에 `stage-strip`을 둡니다.
+* 설명은 화면 배치 안에 끼워 넣지 않습니다. 그래서 열려도 아래 내용이 밀리지 않습니다(F-008). 연 항목에는 열린 동안 표시가 남습니다(`lucky-card` 테두리, `hanja-tag` `selected`).
+* 다른 컴포넌트가 부품을 더하거나 값을 덮어쓰면 그 부품에 `note`로 적습니다. `term-token` 풀이 시트는 제목을 `type.title`로 키우고 한자 줄, 오늘 이유, 근거 진입점을 더합니다.
+* 어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정합니다.

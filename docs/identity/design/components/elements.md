@@ -18,12 +18,11 @@
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
-| `explain.sheet` 짧은 설명 시트 | 내용 높이 half 시트, 제목 `type.subtitle` + 본문, 배치 안에 끼우지 않음 | lucky-card, term-token 풀이 시트 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
-| `section.header` 섹션 제목 | `type.label.lg` 600 제목 + 선택 설명 `type.caption.md`(사이 `space.2`), 내용과 `space.12`, 섹션 사이 `space.32` | 2단계 IA가 화면에 둠 |
+| `stem.chip` 천간 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | hanja-tag 천간 글자, band-table 지장간 칸, 원국 칸 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
-| `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5) | 근거 시트 세 구역, 잠긴 용신 근거 |
+| `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5), 여는 입구 `open`(자물쇠 + 열기) | 근거 시트 세 구역, 잠긴 용신 근거 |
 
 ## 낙관 도장 `seal`
 
@@ -75,6 +74,7 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 * 줄 수는 매개변수 `lines`입니다. 기본은 위와 같고 `sentence-block` `locked`는 1줄입니다. app의 `LockVeil.line`은 새 변형이 아니라 `lines: 1`입니다.
 * 스크린리더는 "판정 근거, 잠김"처럼 제목 + "잠김"만 읽고 흐린 글은 건너뜁니다.
 * 동작 줄이기에서도 흐림은 그대로 둡니다(대상 자신의 효과, 결정 V14).
+* **여는 입구(`open`, 결정 V73):** 잠긴 것을 여는 입구는 어디서나 자물쇠 `lock-simple` Regular(옆 글자 단계, 링크 색, 글자 앞 `space.4`) + "열기" 글자입니다. 꺾쇠를 쓰지 않습니다. `sentence-block` `locked`의 열기가 이 모양이고, 근거 시트 잠금 안내 머리도 자물쇠로 시작합니다. 잠금 안내의 `pass`(광고 제거 화면으로 이동)는 화면 이동이라 꺾쇠, 광고 보고 열기는 `primary-button`입니다.
 
 ## 아이콘 `icon`
 
@@ -92,18 +92,12 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 두 동작을 함께 둘 때의 배치입니다(결정 V60). 세로로 쌓고 주 동작(`primary-button` `filled`)이 위, 보조 동작(`quiet`)이 아래, 사이 `space.8`입니다. 두 버튼은 높이 52, 폭 전체로 같고, 위계는 크기가 아니라 모양으로 구분합니다. 가로로 나란히 두지 않습니다. 확인 창(`dialog`)의 두 버튼만 상자 안 가로 둘입니다(V65).
 
-## 짧은 설명 시트 `explain.sheet`
-
-칩, 배지, 용어를 눌러 짧은 설명을 여는 곳입니다(결정 V62). 내용 높이만큼의 half 시트(`sheet` 규칙, 핸들 있음)이고, 제목은 누른 항목의 이름(`type.subtitle`, 아래 `space.8`), 본문은 `sentence-block` `body`입니다. 바깥 누르기, 끌어 내리기, 뒤로 가기로 닫힙니다.
-
-설명은 화면 배치 안에 끼워 넣지 않습니다. 그래서 열려도 아래 내용이 밀리지 않습니다(F-008). 연 항목에는 열린 동안 표시가 남습니다(`lucky-card` 테두리, V52). 어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정합니다(#801).
-
 ## 목록 구분선 `list.divider`
 
 같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표 격자선(`manse-table` `grid.divider`)은 이 요소가 아닙니다.
 
-## 섹션 제목 `section.header`
+## 천간 칩 `stem.chip`
 
-내용 묶음의 이름입니다(결정 V59). 제목은 `type.label.lg` 600 본문색, 설명 줄은 선택이고 `type.caption.md` `text.secondary`, 제목 아래 `space.2`입니다. 제목과 내용 사이 `space.12`, 섹션과 섹션 사이 `space.32`입니다. 오른쪽 더 보기 자리는 두지 않습니다. 스크린리더는 머리글로 읽습니다.
+천간 한 글자를 오행 색으로 보이는 정사각 칸입니다(DS1 2단계, 결정 V72). 크기 22, 반경 `radius.sm`, 바탕색과 글자색은 `ohaeng.cell`의 그 오행 값, 한자는 `font.family.hanja` 13 700입니다. `hanja-tag`가 천간 글자를 보일 때 한자 원 대신 쓰고, `band-table` 지장간 칸과 원국 칸이 함께 씁니다. 칸이 고정이라 글자 배율 상한은 1.3배입니다(`ohaeng.cell`과 같음).
 
-묶음의 기본은 간격(가까운 것끼리 묶여 보임)이고, 목록 줄이 이어지는 묶음은 카드(`bg.sheet`, `radius.lg`)로 묶을 수 있습니다. 어느 화면에 섹션 제목을 두고 어떤 문구 슬롯을 쓸지는 2단계 IA가 정합니다(#801).
+1단계 요소 `section.header`와 `explain.sheet`는 IA v5의 컴포넌트 `section-header`, `explain-sheet`로 옮겼습니다(`frame.md`, 결정 V69, V71).

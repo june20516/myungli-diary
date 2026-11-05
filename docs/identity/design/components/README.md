@@ -37,12 +37,12 @@
 | 파일 | 담는 것 |
 | --- | --- |
 | `interaction.json` | 공통 상호작용 패턴 13개, 햅틱, 동작 줄이기·투명도 줄이기·저사양 대체 규칙 |
-| `elements.json` | 반복 요소 19개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역, 목록 구분선, 섹션 제목, 두 버튼, 설명 시트 등) |
-| `frame.json` | tab-bar, app-bar, sheet, ad-banner |
+| `elements.json` | 반복 요소 18개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역, 목록 구분선, 두 버튼, 천간 칩 등) |
+| `frame.json` | tab-bar, app-bar, sheet, ad-banner, section-header, explain-sheet |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
 | `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row, account-choice |
 | `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card, purchase-row |
-| `sentence.json` | sentence-block, term-token, depth-link, reaction-button |
+| `sentence.json` | sentence-block, term-token, depth-link, reaction-button, hanja-tag |
 | `today.json` | day-character, lucky-card, guide-question-card, share-image |
 | `calendar.json` | calendar-month, day-cell, event-row |
 | `diary.json` | diary-row, diary-editor, draft-indicator, tag-chip |
@@ -74,6 +74,9 @@ IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
   | `space.24` | 시트 좌우와 아래, 확인 창 안쪽(사방), 본문과 아래 버튼 사이, 목록 묶음 카드 사이, 시트 안 구역 사이 |
   | `space.32` | 섹션 사이 |
   | `space.48` | 화면 맨 아래 스크롤 여유, 빈 화면 위아래 |
+* **자세히 보기 표시(결정 V73):** 무언가를 더 보여 주는 표시는 넷뿐이고 뜻이 하나씩입니다. 용어 칩(`term-token`, `hanja-tag`) = 뜻 시트, 근거 아이콘 하나(`book-open-text`, `depth-link`) = 근거 시트, 오른쪽 꺾쇠(`caret-right`) = 화면 이동, 자물쇠 + "열기" = 잠긴 것 열기. 그 밖의 표시(밑줄 링크, ⓘ `info` 아이콘, "더 보기" 글자 버튼)는 쓰지 않습니다. 테스트 `test_detail_affordances_are_three`가 확인합니다.
+* **잠김 표시(결정 V73):** 잠긴 것을 여는 입구는 어디서나 자물쇠(`lock-simple` Regular, 옆 글자 단계) + "열기" 글자이고 꺾쇠를 쓰지 않습니다(요소 `lock.veil` `open`). `sentence-block` `locked`의 열기, 근거 시트 잠금 안내, 원국 개인 해석("내 사주에서는")이 같습니다. 잠금 안내의 `pass`(광고 제거 화면으로 이동)는 화면 이동이라 꺾쇠, 광고 보고 열기는 `primary-button`입니다.
+* **흰 표면 위 채움(결정 V74):** `bg.sheet` 표면(카드, 시트, 확인 창) 위의 옅은 바탕은 `fill.soft`입니다. 반투명 `chip.bg`는 흰 표면 위에서 보이지 않아 명세 어디에도 쓰지 않습니다.
 * **아이콘(결정 V57):** 크기는 `size.icon.*` 네 단계이거나 옆 글자를 따르는 `adjacent-text`입니다. 규칙은 `elements.md` "아이콘"입니다.
 
 ## 버전
