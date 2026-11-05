@@ -440,8 +440,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_3_0():
-    assert VERSION == "3.4.0"
+def test_contract_version_is_4_0():
+    assert VERSION == "4.0.0"  # DS1(#801): 지운 이름이 있어 주 버전
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1380,7 +1380,7 @@ def test_evidence_entry_is_icon():
 
 def test_no_inline_nowrap_link():
     texts = [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json")]
-    texts += [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md")]
+    texts += [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md") if path.name != "README.md"]  # 판 기록은 지운 이름을 적음
     assert not [text for text in texts if "link.inline-nowrap" in text]
 
 

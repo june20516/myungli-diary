@@ -175,9 +175,9 @@
 * 더함: 요소 `list.divider`, `section.header`, `button.pair`, `explain.sheet`, 패턴 `page.push`, `settings-row` `leading`, 고르기 줄 체크 표시, `text-field` `keyboardDismiss`, 모든 컴포넌트의 `loading` skeleton 모양.
 * 바뀜: 간격 25곳(§1), `quiet` 높이, `sheet` 여백과 핸들, `dialog` 여백과 버튼, `press.ink` 반지름과 범위.
 
-**writing.** 근거 보기 키를 접근성 이름으로(V63), 설정 줄 이름 상한(V58), 키보드 내리기 접근성 이름 새 슬롯(V68). Task 11에서 Issue 하나로 올립니다.
+**writing.** 근거 보기 키를 접근성 이름으로(V63), 설정 줄 이름 상한(V58), 키보드 내리기 접근성 이름 새 슬롯 `ui.keyboard.dismiss`(V68), 이유 줄 상한 늘어남: #807.
 
-**app.** 4.0.0과 토큰 1.3.0 drift. `press.ink`는 진한 영역 반지름과 떼었을 때 끝까지 자라기(V61)를 맞춥니다.
+**app.** 4.0.0과 토큰 1.3.0 따라잡기 요청 #808. `press.ink`는 진한 영역 반지름과 떼었을 때 끝까지 자라기(V61)를 맞춥니다.
 
 ## 9. 결정
 

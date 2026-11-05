@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "4.0.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
