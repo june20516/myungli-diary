@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "4.0.0",
   "group": "frame",
   "components": [
     {
@@ -15,7 +15,7 @@
           "topBorder": { "color": "{color.line}", "width": { "value": 0.5, "unit": "px" } }
         },
         "tab": { "count": 4, "minTarget": 48 },
-        "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.secondary}" },
+        "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.secondary}" },
         "icons": { "today": "sun", "calendar": "calendar-blank", "diary": "notebook", "me": "user" },
         "label": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
         "seal": { "element": "seal", "variant": "fill", "size": { "value": 34, "unit": "px" } }
@@ -52,7 +52,7 @@
       "parts": {
         "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" }, "paddingX": "{space.16}" },
         "title": { "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
-        "action": { "icon": { "size": { "value": 24, "unit": "px" }, "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 }
+        "action": { "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 }
       },
       "states": { "pressed": { "pattern": "press.ink", "note": "뒤로·동작 아이콘의 44px 원 안에서만" } },
       "haptic": [],
@@ -72,8 +72,11 @@
         { "id": "full", "when": "긴 목록·설정 안쪽", "parts": { "container": { "maxHeight": "100% - top-safe-area - 12px" } } }
       ],
       "parts": {
-        "container": { "bg": "{color.bg.sheet}", "radiusTop": "{radius.xl}", "paddingX": "{space.20}", "paddingBottom": "{space.24}" },
-        "handle": { "width": { "value": 36, "unit": "px" }, "height": { "value": 4, "unit": "px" }, "radius": "{radius.full}", "color": "{color.line}", "marginTop": "{space.8}" },
+        "container": { "bg": "{color.bg.sheet}", "radiusTop": "{radius.xl}", "paddingX": "{space.24}", "paddingBottom": "{space.24}", "note": "모서리 radius.xl(28) 때문에 화면 좌우 20보다 넓힘(결정 V64)" },
+        "handleArea": { "height": { "value": 24, "unit": "px" }, "minTarget": 44, "drag": true },
+        "handle": { "width": { "value": 36, "unit": "px" }, "height": { "value": 4, "unit": "px" }, "radius": "{radius.full}", "color": "{color.line}", "align": "center" },
+        "title": { "marginTop": "{space.8}", "note": "핸들 자리 아래" },
+        "dragDismiss": { "threshold": 0.25, "fling": true, "otherwise": "제자리로 돌아옴", "withInput": "닫기 전에 쓴 내용을 잃지 않게 확인" },
         "scrim": { "color": "{color.scrim}" }
       },
       "states": {
@@ -85,6 +88,8 @@
       "a11y": { "role": "dialog", "label": "시트 제목", "modal": true, "dismissLabel": "닫기", "focusOnOpen": "first-heading" },
       "rules": [
         "뒤로 가기와 끌어내리기는 맨 위 시트 하나만 닫는다.",
+        "맨 위 높이 24 핸들 자리 전체가 끌기 영역(터치 44)이다. 핸들이나 맨 위까지 스크롤된 내용을 끌어 내리면 손가락을 따라 내려가고, 시트 높이의 25% 넘게 내리거나 빠르게 튕기면 닫히며 아니면 제자리로 돌아온다(결정 V64).",
+        "입력이 있는 시트는 끌어 닫기 전에 쓴 내용을 잃지 않게 확인한다.",
         "바깥(덮개)을 누르면 쌓인 시트를 모두 닫는다.",
         "깊어짐은 이동·크기만 움직인다. 시트 높이를 움직이지 않는다."
       ]

@@ -1,6 +1,6 @@
 # 명리일기 컴포넌트 명세
 
-컴포넌트 계약 3.4.0 · 토큰 계약 1.2.0 이상을 기대합니다.
+컴포넌트 계약 4.0.0 · 토큰 계약 1.3.0 이상을 기대합니다.
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md), [근거 잠금·글자 수 spec](../specs/2026-10-11-depth-lock-lengths-design.md), [문장 조각·잠금 슬롯 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응·글자 수 spec](../specs/2026-10-15-spec-followups-design.md), [로그인 수단·계정 합치기 spec](../specs/2026-10-22-login-methods-account-merge-design.md), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md), [계정 합치기·구매 내역 spec](../specs/2026-10-23-account-merge-purchase-design.md), 결정 V13~V46([`../decisions.md`](../decisions.md)), 화면 목록 IA 계약 v4([`docs/ia/screens.json`](../../../ia/screens.json)), 토큰 [`../tokens/`](../tokens/README.md)
@@ -36,8 +36,8 @@
 
 | 파일 | 담는 것 |
 | --- | --- |
-| `interaction.json` | 공통 상호작용 패턴 12개, 햅틱, 동작 줄이기·투명도 줄이기·저사양 대체 규칙 |
-| `elements.json` | 반복 요소 16개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역 등) |
+| `interaction.json` | 공통 상호작용 패턴 13개, 햅틱, 동작 줄이기·투명도 줄이기·저사양 대체 규칙 |
+| `elements.json` | 반복 요소 19개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역, 목록 구분선, 섹션 제목, 두 버튼, 설명 시트 등) |
 | `frame.json` | tab-bar, app-bar, sheet, ad-banner |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
 | `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row, account-choice |
@@ -60,7 +60,21 @@ IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 * **고정 높이는 최소 높이(결정 V30):** 명세의 고정 높이(`height`)는 기본 글자 크기에서의 높이입니다. 기기 글자가 커지면 글자가 잘리지 않게 늘어나는 최소 높이로 구현합니다. 대상은 `primary-button`, `text-field`, `segmented`, `social-login-button`, `lucky-card` 칩, `day-character` 배지 등 글자를 담은 칸 전부입니다. 칸이 고정된 표와 달력은 글자 크기에 상한(`a11y.textScaleMax`)을 두고, 칸은 그 상한 글자가 들어가는 데까지만 늘어납니다. 상한 위 설정에서는 더 늘지 않습니다(결정 V36).
 * 길흉은 색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말을 넣습니다.
 * **모양 규칙(결정 V26):** 누르면 무언가를 실행하는 동작(버튼: 저장·로그인·공유·광고 보고 열기 등)은 둥근 사각(`radius.md`), 값·상태를 보여 주거나 고르는 것(배지·칩·꼬리표·segmented·toast)은 알약(`radius.full`)입니다. 가르는 기준은 "누른 결과가 무언가를 실행하는가, 그 값을 더 보여 주는가"입니다. 행운 칩·태그 칩은 눌러도 그 값의 설명이나 모음을 보여 줄 뿐이라 값 표시, 곧 알약입니다. 이 기준에 예외는 없습니다.
-* **화면 좌우 여백(결정 V26):** 페이지 화면의 좌우 여백은 `space.20`입니다(시트 안쪽 여백과 같음). app-bar만 아이콘 터치 영역 때문에 `space.16`입니다.
+* **화면 좌우 여백(결정 V26, V56):** 페이지 화면의 좌우 여백은 `space.20`입니다. 긴 문장을 읽는 화면이 중심이라 레퍼런스의 16보다 넉넉하게 둡니다. app-bar만 아이콘 터치 영역 때문에 `space.16`입니다. 시트 안쪽은 `space.24`입니다(V64).
+* **간격 쓰임표(결정 V56):** 간격은 아래 토큰 단계만 쓰고 직접 쓴 px 간격은 0 말고 없습니다(`tools/rules_audit.py`, 테스트 `test_no_raw_spacing_values`). `space.20`은 표의 자리에서만 씁니다(테스트 `test_space_20_only_where_usage_table_allows`). 묶음 안 간격은 묶음 사이 간격보다 두 단계 이상 작게 둡니다. 위아래 여백은 같게 두고, 다르게 둘 때는 그 부품에 `note`로 이유를 적습니다.
+
+  | 토큰 | 쓰는 곳 |
+  | --- | --- |
+  | `space.2` | 한 덩어리 안 두 줄 사이(표 칸 두 줄 묶음, 섹션 제목과 설명), 글자와 붙은 꺾쇠 |
+  | `space.4` | 칩, 배지 안 아이콘과 글자 사이, 표 칸 안 줄 사이 |
+  | `space.8` | 같은 묶음 안 요소 사이(칩 줄, 두 버튼, 제목과 본문), 이름과 값 사이, 제목 줄의 아이콘과 글자 사이 |
+  | `space.12` | 섹션 제목과 내용 사이, 칩과 배지 좌우 안쪽, 목록 줄 앞 아이콘과 글자 사이, 같은 섹션 안 카드 사이 |
+  | `space.16` | 카드와 목록 줄의 안쪽 |
+  | `space.20` | 화면 좌우 여백, 버튼 좌우 안쪽, 큰 카드(질문 카드, 상품 카드) 안쪽 |
+  | `space.24` | 시트 좌우와 아래, 확인 창 안쪽(사방), 본문과 아래 버튼 사이, 목록 묶음 카드 사이, 시트 안 구역 사이 |
+  | `space.32` | 섹션 사이 |
+  | `space.48` | 화면 맨 아래 스크롤 여유, 빈 화면 위아래 |
+* **아이콘(결정 V57):** 크기는 `size.icon.*` 네 단계이거나 옆 글자를 따르는 `adjacent-text`입니다. 규칙은 `elements.md` "아이콘"입니다.
 
 ## 버전
 
@@ -90,6 +104,7 @@ IA 컴포넌트 43개가 묶음 파일 전체에서 정확히 한 번씩 나옵�
 | 3.2.0 | 2026-10-28 | #353: `daeun-table` 대운 기둥 천간·지지 십성과 12운성, 세운 천간 십성 `term-token` `label`, 라벨 두 줄 줄바꿈과 높이 맞춤, `manse-table` 지장간 십성 두 줄 묶음과 12운성·신살 값 칸(V49). #354: `notice-banner` `error`(`cloud-warning`, 버튼 없음), `stateMap.error`에 `notice-banner`, `settings-row` `groupNote`(V50), toast는 아래 고정 버튼 위(V51). #587: `account-choice` 사주 줄 윤달 자리(V48). 추가와 값 변경 |
 | 3.3.0 | 2026-11-03 | #546: `lucky-card` `time`은 구간마다 칩 하나(`repeat`, 최대 2), 언어별 범위 표기 `format`, `join` 삭제, 칩 줄 최대 7, 공유 이미지는 첫 구간(V52). #710: `manse-table` 행 머리 두 줄 규칙과 슬롯, `daeun-table` 꼬리표 폭과 슬롯, `tag.me` 최대 폭, `saju-pillars` 열 머리 슬롯(V53), `settings-row` 값 앞 `space.8`, 근거 시트 `personalEmpty`(V54). 하위 필드 삭제와 추가 |
 | 3.4.0 | 2026-11-04 | D102 문의 화면(#758·#763): `text-field`에 칸 위 이름 `label`과 칸 오류 줄 `errorLine`(선택 부품), 메일 주소 변형 `email`, `multiline`의 `minLines`와 안내 두 줄, `contact` 화면 배치(V55). 쓰는 화면에 contact. 추가만 |
+| 4.0.0 | 2026-11-05 | DS1 1단계(#801, D107): 검수 F-001~F-012를 규칙으로. **지움**: 요소 `link.inline-nowrap`, `icon.custom`·`icon.sizes`, `mark.caution` 0.707배 크기, `depth-link` 근거 변형의 글자 `label`·`chevron`(바탕 부품에서 `navigate`로), `settings-row` `destructive`의 `mark.caution`, `diary-row` `entry.divider` 키 `dash`·`gap`(→ `dashLength`·`dashGap`), `lucky-card` 칩 아래 설명 상자. **더함**: 요소 `list.divider`·`section.header`·`button.pair`·`explain.sheet`, 패턴 `page.push`, `settings-row` `leading`·`select`, `sheet` `handleArea`·`title`·`dragDismiss`, `text-field` `keyboardDismiss`, 내용 컴포넌트 17개의 `loading.skeleton`. **바뀜**: 간격 토큰만(직접 쓴 px 28곳, V56), 아이콘 크기 `size.icon.*`·`adjacent-text`(V57), 구분선 0.5px(V58), `quiet` 52(V60), `press.ink` 반지름과 범위(V61), 근거 진입점 아이콘(V63), 시트 안쪽 24(V64), 확인 창 사방 24와 같은 폭 두 버튼(V65), `navigate` 전환 `page.push`(V67). 토큰 1.3.0 이상 기대 |
 
 ## 검사 (design)
 

@@ -22,6 +22,10 @@ GRADIENT_ANGLE = 160
 
 SPACES = (2, 4, 8, 12, 16, 20, 24, 32, 48)
 RADII = {"xs": 4, "sm": 8, "md": 12, "lg": 20, "xl": 28, "full": 9999}
+# DS1 spec(2026-11-05-ds1-rules-design.md) §2·§3·§7.4, 토큰 1.3.0
+HAIRLINE_WIDTH = 0.5
+ICON_SIZES = (16, 20, 24, 28)
+PAGE_OFFSET = 24
 
 # 모드별 알파 색 (spec §3.3): (원시 팔레트 이름 또는 white, 단계, 알파)
 CHIP_ALPHA = {"light": 0.70, "dark": 0.08}
@@ -84,13 +88,14 @@ BLACK = "#000000"
 
 # 움직임 (V2 spec §5.1)
 MOTION_DURATIONS = {"short": 200, "fade": 280, "medium": 320, "select": 340, "long": 420, "stamp": 520,
-                    "breathe": 1800, "toast-hold": 2500}
+                    "breathe": 1800, "toast-hold": 2500, "page": 320}
 MOTION_EASINGS = {
     "seep": [0.2, 0.7, 0.2, 1],
     "enter": [0.2, 0.8, 0.2, 1],
     "exit": [0.4, 0, 1, 1],
     "stamp-press": [0.5, 0, 0.9, 0.6],
     "standard": [0.4, 0, 0.2, 1],
+    "page": [0.2, 0.8, 0.2, 1],
 }
 # 그림자: 이름 → (neutral 단계, 알파, offsetX, offsetY, blur, spread, 설명) (V2 spec §5.2)
 SHADOWS = {"raised": (900, 0.14, 0, 4, 16, 0, "공유 미리보기 이미지")}
@@ -201,10 +206,17 @@ def _primitive_document(palette: dict) -> dict:
         _place(document, f"space.{value}", _token("dimension", _px(value)))
     for name, value in RADII.items():
         _place(document, f"radius.{name}", _token("dimension", _px(value)))
+    _place(document, "border.width.hairline", _token(
+        "dimension", _px(HAIRLINE_WIDTH), "목록 구분선 굵기(결정 V58)"))
+    for value in ICON_SIZES:
+        _place(document, f"size.icon.{value}", _token(
+            "dimension", _px(value), "아이콘 크기 단계: 그림 높이가 옆 한글 높이 이상인 가장 작은 단계(결정 V57)"))
     for name, milliseconds in MOTION_DURATIONS.items():
         _place(document, f"motion.duration.{name}", _token("duration", {"value": milliseconds, "unit": "ms"}))
     for name, curve in MOTION_EASINGS.items():
         _place(document, f"motion.easing.{name}", _token("cubicBezier", list(curve)))
+    _place(document, "motion.offset.page", _token(
+        "dimension", _px(PAGE_OFFSET), "화면 이동 page.push에서 새 화면이 밀려 들어오는 거리(결정 V67)"))
     for name, (step, alpha, offset_x, offset_y, blur, spread, description) in SHADOWS.items():
         _place(document, f"shadow.{name}", _token("shadow", {
             "color": color_value(palette["brand"]["neutral"][step], alpha),

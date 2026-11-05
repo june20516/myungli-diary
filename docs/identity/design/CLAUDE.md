@@ -30,7 +30,12 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-11-04, design 세션 작성)
+## 현재 상태 (2026-11-05, design 세션 작성)
+* **DS1 1단계 규칙 #801** (브랜치 `design/ds1-rules`, D107, 토큰 1.3.0, 컴포넌트 계약 4.0.0, 결정 V56~V68).
+  * 검수 F-001~F-012를 규칙으로: 간격 쓰임표와 직접 쓴 px 0개(V56), 아이콘 `size.icon.*`·`adjacent-text`와 직접 그린 아이콘 금지(V57), 0.5px `list.divider`와 꺾쇠는 이동 줄에만, `settings-row` 앞 아이콘·`select`(V58), `section.header`(V59), `button.pair`와 `quiet` 52(V60), `press.ink` 반지름과 범위(V61), `explain.sheet`(V62), 근거 진입점 `book-open-text` 아이콘(V63), 시트 안쪽 24와 핸들 자리(V64), 확인 창 사방 24와 같은 폭 두 버튼(V65), 요소별 skeleton(V66), `page.push`(V67), 키보드 내리기(V68).
+  * 도구: `tools/rules_audit.py`(간격 전수 점검, 결과 `specs/2026-11-05-ds1-audit.md`), `tools/token_css.py`(토큰을 CSS 변수로, `artifacts/ds1/tokens.css`), `tools/phosphor_names.txt`(Phosphor 이름 목록). 규칙마다 `test_components.py`에 검사.
+  * 고른 안은 규칙 견본 `design-ds1-rules`(Q1 ①, Q2 ①, Q3 ②, Q4 ②, Q5 ①, Q6 ①). 근거: [spec](specs/2026-11-05-ds1-rules-design.md), [plan](plans/2026-11-05-ds1-rules.md).
+  * 보낸 요청: writing #807(근거 아이콘 이름, 키보드 내리기 새 슬롯, 설정 줄 상한), app #808(4.0.0, 1.3.0 따라잡기).
 * **문의 화면 #763·drift #758** (브랜치 `design/contact-758-763`, D102, 결정 V55).
   * `text-field`에 칸 위 이름 `label`, 칸 오류 줄 `errorLine`(`input-step` 오류 줄과 같은 모양), 변형 `email`, `multiline` `minLines`(문의 내용 4)와 안내 두 줄. 배치는 `input.md` "contact 화면 배치": 보내기 실패는 toast(쓴 글 유지), 주소는 길게 눌러 복사하는 글자, 보낸 뒤 설정으로 돌아가 toast, 뒤로 가기는 확인 창 없음.
   * `lengths.md`: 슬롯 9개(IA 8 + `ui.contact.error`)와 키별 상한 셋(칸 안 안내 둘, 메일 칸 오류). ja `contactEmailFieldHint`는 라틴 주소라 실측 16. R29 원고는 모두 상한 안.
@@ -122,9 +127,10 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
+1. **#801 2단계(화면 결정 시안):** 지휘가 IA 후보를 질문별 코멘트로 올리면 시작합니다. 순서는 B 나 탭, A 오늘, F 일기 입구, D 그날 시트입니다. 시안은 `tools/token_css.py`의 토큰 CSS를 읽는 웹 페이지로 만들고(D105), 질문 하나나 둘씩 PR로 냅니다. 화면 요소를 더하거나 빼지 않고, IA를 바꿀 이유가 보이면 #801에 코멘트합니다.
+2. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-3. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-4. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+5. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

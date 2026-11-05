@@ -227,11 +227,13 @@ def test_common_files_define_spec_ids():
     docs = load_documents(COMPONENTS_DIR)
     assert set(docs["interaction"]["patterns"]) == {
         "press.ink", "appear.seep", "disappear.seep", "select.seep-slide", "loading.breathe", "seal.stamp",
-        "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring"}
+        "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring",
+        "page.push"}  # DS1 V67
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
-        "mark.underline-grow", "mark.caution", "link.inline-nowrap", "surface.paper", "rail.timeline", "term",
-        "skeleton.bone", "icon", "lock.veil"}
+        "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
+        "skeleton.bone", "icon", "lock.veil",
+        "list.divider", "section.header", "button.pair", "explain.sheet"}  # DS1 V58~V60·V62
 
 
 def test_seal_element_matches_logo():
@@ -356,7 +358,7 @@ def test_brand_spec_values():
     day = json.dumps(c["day-cell"])
     assert "{color.seal.soft}" in day and "outline" in day and "mark.underline-grow" in day
     assert "{color.tag.good.bg}" in json.dumps(c["tag-chip"]) and "tone" in c["tag-chip"]["uses"]
-    assert "link.inline-nowrap" in json.dumps(c["depth-link"])
+    assert c["depth-link"]["parts"]["icon"]["icon"] == "book-open-text"  # V63: 근거 진입점은 아이콘
     assert "tag.me" in c["saju-pillars"]["uses"] and "highlight.current" in c["daeun-table"]["uses"]
     assert "surface.paper" in c["diary-editor"]["uses"] and "rail.timeline" in c["diary-row"]["uses"]
     assert "seal.stamp" in json.dumps(c["reaction-button"]) and "seal.stamp" in json.dumps(c["diary-editor"])
@@ -438,8 +440,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_3_0():
-    assert VERSION == "3.4.0"
+def test_contract_version_is_4_0():
+    assert VERSION == "4.0.0"  # DS1(#801): 지운 이름이 있어 주 버전
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -513,6 +515,10 @@ SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.log
 SLOTS_OUTSIDE_IA |= {"ui.purchase.meta", "ui.purchase.product", "ui.purchase.status"}
 # W51 사주 표 낱말과 근거 시트 빈 안내 (#710)
 SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empty"}
+# 근거 아이콘의 스크린리더 이름 (DS1, V63). IA 자리 today.evidence.link를 담은 writing 슬롯(W33)
+SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
+# 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
+SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
 
 
 def _slot_values(node):
@@ -540,7 +546,7 @@ def test_locked_evidence_sheet_never_veils_titles():
 def test_other_content_text_parts_follow_segments():
     c = components_by_id(BRAND_GROUPS)
     assert c["day-character"]["parts"]["reason"]["segments"] == "sentence-block"
-    assert c["lucky-card"]["parts"]["explain"]["segments"] == "sentence-block"
+    assert c["lucky-card"]["parts"]["explain"]["body"]["segments"] == "sentence-block"  # V62: 설명 시트 본문
 
 
 def test_terms_inside_pressable_containers_are_plain():
@@ -566,14 +572,14 @@ def component(group, component_id):
     return next(c for c in load_documents(COMPONENTS_DIR)[group]["components"] if c["id"] == component_id)
 
 
-CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "link-text-size", "color": "link-color",
-           "gap": {"value": 2, "unit": "px"}, "decorative": True}
+CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color",
+           "gap": "{space.2}", "decorative": True}  # V57·V56: 크기는 옆 글자 단계, 간격은 토큰
 
 
 def test_text_link_chevrons_are_component_drawn_icons():
     depth_link = component("sentence", "depth-link")
     block = component("sentence", "sentence-block")
-    assert depth_link["parts"]["chevron"] == CHEVRON
+    assert next(v for v in depth_link["variants"] if v["id"] == "navigate")["parts"]["chevron"] == CHEVRON  # V63: 글자 링크만
     assert block["states"]["locked"]["parts"]["open"]["chevron"] == CHEVRON
     assert depth_link["states"]["locked"]["parts"]["evidenceSheet"]["lockPanel"]["pass"]["chevron"] == CHEVRON
     assert any("원고에 넣지 않" in rule for rule in depth_link["rules"])
@@ -582,7 +588,7 @@ def test_text_link_chevrons_are_component_drawn_icons():
 def test_depth_link_navigate_goes_to_a_page():
     depth_link = component("sentence", "depth-link")
     navigate = next(v for v in depth_link["variants"] if v["id"] == "navigate")
-    assert navigate["parts"]["target"] == {"presentation": "page", "transition": "platform-default"}
+    assert navigate["parts"]["target"] == {"presentation": "page", "transition": "page.push"}  # V67
     assert navigate["parts"]["label"]["slot"] == "birthplace.standard.link"
     assert any("navigate" in rule and "sheet.enter" in rule for rule in depth_link["rules"])
     assert "birthplace" in (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
@@ -670,8 +676,7 @@ def test_element_values_from_app_feedback():
     elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
     assert elements["icon"]["set"]["flutter"] == "phosphor_glyphs"
     assert elements["icon"]["set"]["flutterVersion"] == "2.1.2+1"
-    assert elements["mark.caution"]["size"] == {"ratio": 0.707, "of": "font-size",
-                                                "basis": "Pretendard OS/2 sCapHeight 1448 / 2048"}
+    assert elements["mark.caution"]["size"] == "adjacent-text"  # V57
     assert elements["lock.veil"]["lines"] == {"default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1}
 
 
@@ -922,7 +927,7 @@ def test_diary_row_same_day_entries():
     assert [variant["id"] for variant in row["variants"]] == ["day", "entries"]
     entry = row["parts"]["entry"]
     assert entry["divider"] == {"style": "dashed", "width": {"value": 1, "unit": "px"},
-                                "dash": {"value": 4, "unit": "px"}, "gap": {"value": 3, "unit": "px"},
+                                "dashLength": {"value": 4, "unit": "px"}, "dashGap": {"value": 3, "unit": "px"},
                                 "color": "{color.timeline.entry}", "between": "entries-only",
                                 "span": "row", "inMinHeight": True}
     assert entry["preview"]["maxLines"] == 1 and entry["preview"]["emptyKeepsLineHeight"] is True
@@ -974,7 +979,8 @@ def test_day_sheet_diary_head_is_not_a_link():
     assert "daySheetSlot" not in navigate["parts"]["label"] and "그날 일기" not in navigate["when"]
     entries = next(v for v in component("diary", "diary-row")["variants"] if v["id"] == "entries")
     assert entries["parts"]["head"] == {"screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}",
-                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}"}
+                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}",
+                                        "note": "머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보임(결정 V56)"}
     for name in ("calendar.md", "sentence.md"):
         text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
         assert "이날 일기 보기" not in text and "둘 중 하나만" not in text, name
@@ -1056,7 +1062,7 @@ def test_purchase_row():
     assert status["other"]["type"] == "{type.label.md}" and status["other"]["fg"] == "{color.text.secondary}"
     assert parts["meta"]["type"] == "{type.caption.lg}" and parts["meta"]["fontFeatures"] == ["tnum"]
     assert "기간" in parts["meta"]["periodOnlyWhen"]
-    assert parts["row"]["divider"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}, "between": "rows-only"}
+    assert parts["row"]["divider"] == {"element": "list.divider", "between": "rows-only"}  # V58
     assert parts["group"]["bg"] == "{color.bg.sheet}" and parts["group"]["radius"] == "{radius.lg}"
     assert "pressed" not in row["states"] and row["states"]["loading"]["component"] == "skeleton"
     assert any("server" in rule and "순서" in rule for rule in row["rules"])
@@ -1178,3 +1184,345 @@ def test_evidence_sheet_personal_empty_notice():
     assert empty["slot"] == "ui.evidence.personal-empty"
     assert empty["type"] == "{type.body.ui}" and empty["fg"] == "{color.text.secondary}"
     assert empty["when"] == sheet["personal"]["when"] + ", 열렸는데 그 자리 해석이 없을 때"
+
+
+# DS1 spec(2026-11-05-ds1-rules-design.md) §1·§2, 결정 V56·V57
+ICON_SIZE_TOKEN = re.compile(r"^\{size\.icon\.(16|20|24|28)\}$")
+ADJACENT_TEXT = "adjacent-text"
+
+
+def icon_parts(node, path=""):
+    """아이콘 부품을 (경로, 이름 또는 None, size 값 또는 None)으로 돌려줍니다.
+
+    `"icon": "<이름>"`이면 같은 부품의 `size`(없으면 `iconSize`)를, `"icon": {...}`이면 그 안의 `name`과 `size`를 봅니다.
+    """
+    if isinstance(node, dict):
+        icon = node.get("icon")
+        if isinstance(icon, str):
+            yield path, icon, node.get("size", node.get("iconSize"))
+        elif isinstance(icon, dict) and not path.endswith("elements"):
+            yield path, icon.get("name"), icon.get("size")
+        elif "iconSize" in node:
+            yield path, None, node["iconSize"]
+        for key, value in node.items():
+            if key.endswith("Icon") and isinstance(value, str):
+                yield f"{path}.{key}", value, None
+        if isinstance(node.get("icons"), dict):
+            for key, name in node["icons"].items():
+                yield f"{path}.icons.{key}", name, node.get("size")
+        for key, value in node.items():
+            yield from icon_parts(value, f"{path}.{key}")
+    elif isinstance(node, list):
+        for index, item in enumerate(node):
+            label = item.get("id", index) if isinstance(item, dict) else index
+            yield from icon_parts(item, f"{path}[{label}]")
+
+
+def test_no_raw_spacing_values():
+    import rules_audit
+    problems = rules_audit.find_problems(rules_audit.collect_measures(COMPONENTS_DIR))
+    assert [problem for problem in problems if "간격에 토큰이 아닌 값" in problem] == []
+    assert [problem for problem in problems if "위아래 여백이 다름" in problem] == []
+
+
+def test_icon_sizes_use_icon_scale():
+    wrong = []
+    for name, document in load_documents(COMPONENTS_DIR).items():
+        for path, _, size in icon_parts(document, name):
+            if size is None:
+                continue
+            if not (size == ADJACENT_TEXT or (isinstance(size, str) and ICON_SIZE_TOKEN.match(size))):
+                wrong.append(f"{path}: {size}")
+    assert wrong == []
+    icon = load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]
+    steps = icon["adjacentText"]
+    assert [step["size"] for step in steps] == ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"]
+    assert [step["maxFontSize"] for step in steps] == [14, 18, 22, None]  # 리뷰 M1: 규칙으로 계산한 경계
+    assert icon["scale"] == ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"]
+    caution = load_documents(COMPONENTS_DIR)["elements"]["elements"]["mark.caution"]
+    assert caution["size"] == ADJACENT_TEXT
+
+
+def test_no_custom_icons():
+    names = {line.strip() for line in (TOOLS_DIR / "phosphor_names.txt").read_text(encoding="utf-8").splitlines()
+             if line.strip() and not line.startswith("#")}
+    assert len(names) == 1512
+    documents = load_documents(COMPONENTS_DIR)
+    assert "custom" not in documents["elements"]["elements"]["icon"]
+    unknown = [f"{path}: {name}" for document_name, document in documents.items()
+               for path, name, _ in icon_parts(document, document_name) if name and name not in names]
+    assert unknown == []
+    markdown = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md"))
+    assert "격자와 획 규칙" not in markdown
+
+
+# DS1 spec §3·§4, 결정 V58·V59
+NAVIGATING_CHEVRON_VARIANTS = {("settings-row", "navigate"), ("settings-row", "value")}
+# list.divider를 쓰지 않는 구분선: 같은 날 일기 점선(V42)과 표 격자선
+DIVIDER_EXCEPTIONS = {"diary-row parts.entry.divider", "manse-table parts.grid.divider"}
+
+
+def all_components():
+    for document in load_documents(COMPONENTS_DIR).values():
+        yield from document.get("components", [])
+
+
+def divider_parts(node, path):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "divider" and isinstance(value, dict):
+                yield f"{path}.{key}", value
+            yield from divider_parts(value, f"{path}.{key}")
+
+
+def test_chevron_only_on_navigate():
+    settings_row = next(c for c in all_components() if c["id"] == "settings-row")
+    shown = {("settings-row", variant["id"]) for variant in settings_row["variants"]
+             if variant.get("parts", {}).get("chevron", {}).get("visible") is True}
+    assert shown == NAVIGATING_CHEVRON_VARIANTS
+    select = next(v for v in settings_row["variants"] if v["id"] == "select")
+    assert select["parts"]["chevron"] == {"visible": False}
+    assert select["parts"]["check"] == {"icon": "check", "weight": "regular", "size": "{size.icon.20}",
+                                        "color": "{color.action.primary}", "when": "고른 줄만"}
+    leading = settings_row["parts"]["leading"]
+    assert leading["icons"] == {
+        "settingsNotifyLabel": "bell", "settingsAdFreeLabel": "prohibit", "settingsLanguageLabel": "translate",
+        "profileEditBarTitle": "user-circle", "calcBasisBarTitle": "globe-hemisphere-east", "settingsLoginMethodsLabel": "key",
+        "legalBarTitle": "file-text", "settingsContactLabel": "chat-circle-text", "settingsLogoutLabel": "sign-out",
+        "accountDeleteBarTitle": "trash"}
+    assert (leading["weight"], leading["size"], leading["color"], leading["marginEnd"]) == (
+        "light", "{size.icon.20}", "{color.text.primary}", "{space.12}")
+    assert leading["screens"] == ["settings"]
+    destructive = next(v for v in settings_row["variants"] if v["id"] == "destructive")
+    assert destructive["parts"]["leading"]["weight"] == "regular"
+    assert "mark.caution" not in json.dumps(destructive, ensure_ascii=False)
+
+
+def test_dividers_use_list_divider():
+    element = load_documents(COMPONENTS_DIR)["elements"]["elements"]["list.divider"]
+    assert element["width"] == "{border.width.hairline}" and element["color"] == "{color.line}"
+    assert element["insetX"] == "{space.16}" and element["underLeading"] is True
+    assert element["between"] == "rows-only"
+    wrong = []
+    for component in all_components():
+        for path, divider in divider_parts(component.get("parts", {}), f"{component['id']} parts"):
+            if path in DIVIDER_EXCEPTIONS:
+                continue
+            if divider.get("element") != "list.divider" or "list.divider" not in component.get("uses", []):
+                wrong.append(path)
+    assert wrong == []
+
+
+def test_section_header_element():
+    header = load_documents(COMPONENTS_DIR)["elements"]["elements"]["section.header"]
+    assert header["title"] == {"type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": True}
+    assert header["description"] == {"type": "{type.caption.md}", "fg": "{color.text.secondary}",
+                                      "marginTop": "{space.2}", "optional": True}
+    assert "trailing" not in header
+    assert header["contentGap"] == "{space.12}" and header["sectionGap"] == "{space.32}"
+
+
+# DS1 spec §5·§6, 결정 V60·V61·V62
+def test_single_press_pattern():
+    patterns = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]
+    assert [name for name in patterns if name.startswith("press.")] == ["press.ink"]
+    ink = patterns["press.ink"]
+    assert ink["scope"] == "own-boundary"
+    assert ink["ink"]["radius"] == "farthest-corner / 0.7"
+    assert ink["ink"]["solidUntil"] == 0.7
+    assert ink["release"]["from"] == "grow-to-full"
+    for component in all_components():
+        pressed = component.get("states", {}).get("pressed")
+        if pressed:
+            assert pressed["pattern"] == "press.ink", component["id"]
+
+
+def test_button_pair_rule():
+    pair = load_documents(COMPONENTS_DIR)["elements"]["elements"]["button.pair"]
+    assert pair["stack"] == {"direction": "vertical", "order": ["filled", "quiet"], "gap": "{space.8}"}
+    assert pair["height"] == "same" and pair["width"] == "fill"
+    assert pair["component"] == "primary-button"
+
+
+def test_quiet_height_matches_filled():
+    button = next(c for c in all_components() if c["id"] == "primary-button")
+    quiet = next(v for v in button["variants"] if v["id"] == "quiet")
+    assert "height" not in quiet["parts"]["container"]
+    assert button["parts"]["container"]["height"] == {"value": 52, "unit": "px"}
+
+
+def test_explain_opens_without_shift():
+    element = load_documents(COMPONENTS_DIR)["elements"]["elements"]["explain.sheet"]
+    assert element["container"] == {"component": "sheet", "variant": "half", "height": "content"}
+    assert element["layout"] == "overlay"
+    by_id = {c["id"]: c for c in all_components()}
+    lucky = by_id["lucky-card"]
+    assert "explain.sheet" in lucky["uses"] and lucky["parts"]["explain"]["element"] == "explain.sheet"
+    assert lucky["states"]["open"]["pattern"] == "sheet.enter"
+    term = by_id["term-token"]
+    assert "explain.sheet" in term["uses"] and term["parts"]["explainSheet"]["element"] == "explain.sheet"
+    text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
+    assert '"insert"' not in text and "칩 줄 아래 전체 폭으로 열린다" not in text
+
+
+# DS1 spec §6, 결정 V63
+def test_evidence_entry_is_icon():
+    link = next(c for c in all_components() if c["id"] == "depth-link")
+    icon = link["parts"]["icon"]
+    assert {key: icon[key] for key in ("icon", "weight", "size", "color", "minTarget", "layoutWidth")} == {
+        "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}",
+        "minTarget": 48, "layoutWidth": "{size.icon.20}"}  # 줄 배치 폭은 그림 20, 터치 48은 밖으로 (리뷰 I4)
+    assert "label" not in link["parts"] and "chevron" not in link["parts"]
+    variants = {variant["id"]: variant for variant in link["variants"]}
+    for evidence in ("inline-end", "block"):
+        assert "label" not in variants[evidence].get("parts", {}), evidence
+    assert variants["inline-end"]["parts"]["icon"]["joinBefore"] == "U+00A0"
+    navigate = variants["navigate"]["parts"]
+    assert navigate["icon"] == {"visible": False}
+    assert navigate["label"]["slot"] == "birthplace.standard.link" and navigate["chevron"]["icon"] == "caret-right"
+    assert link["a11y"]["labelSlot"] == "ui.depth.evidence_link" and link["a11y"]["minTarget"] == 48
+
+
+def test_no_inline_nowrap_link():
+    texts = [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json")]
+    texts += [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md") if path.name != "README.md"]  # 판 기록은 지운 이름을 적음
+    assert not [text for text in texts if "link.inline-nowrap" in text]
+
+
+# DS1 spec §7, 결정 V64~V68
+# 서버에서 받은 내용을 그리는 컴포넌트: 각자 skeleton 모양을 가짐 (V66)
+CONTENT_COMPONENTS = {
+    "day-character", "lucky-card", "sentence-block", "guide-question-card", "event-row", "calendar-month",
+    "diary-row", "diary-editor", "tag-chip", "saju-pillars", "manse-table", "daeun-table", "ohaeng-bar",
+    "offer-card", "purchase-row", "account-choice", "city-search",
+}
+
+
+def test_dialog_padding_symmetric():
+    dialog = next(c for c in all_components() if c["id"] == "dialog")
+    parts = dialog["parts"]
+    assert parts["container"]["padding"] == "{space.24}" and parts["container"]["marginX"] == "{space.24}"
+    actions = {key: value for key, value in parts["actions"].items() if key != "note"}
+    assert actions == {"layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}",
+                       "height": {"value": 44, "unit": "px"}, "buttonPaddingX": "{space.12}",
+                       "overflow": "stack-vertical-confirm-top"}
+    assert parts["cancel"]["bg"] == "{color.chip.bg}" and parts["cancel"]["fg"] == "{color.text.primary}"
+    assert parts["confirm"]["component"] == "primary-button" and parts["confirm"]["variant"] == "filled"
+    destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
+    assert destructive["parts"]["confirm"] == {"variant": "destructive", "label": {"leading": None}}  # primary-button과 같은 자리
+
+
+def test_dialog_icon_size():
+    dialog = next(c for c in all_components() if c["id"] == "dialog")
+    destructive = next(v for v in dialog["variants"] if v["id"] == "destructive")
+    title = destructive["parts"]["title"]
+    assert title["leading"] == "mark.caution" and title["leadingSize"] == "{size.icon.20}"
+    assert title["leadingGap"] == "{space.8}"
+
+
+def test_sheet_handle_area():
+    sheet = next(c for c in all_components() if c["id"] == "sheet")
+    parts = sheet["parts"]
+    assert parts["container"]["paddingX"] == "{space.24}" and parts["container"]["paddingBottom"] == "{space.24}"
+    assert parts["handleArea"] == {"height": {"value": 24, "unit": "px"}, "minTarget": 44, "drag": True}
+    assert parts["handle"] == {"width": {"value": 36, "unit": "px"}, "height": {"value": 4, "unit": "px"},
+                               "radius": "{radius.full}", "color": "{color.line}", "align": "center"}
+    assert parts["title"]["marginTop"] == "{space.8}"
+    assert parts["dragDismiss"] == {"threshold": 0.25, "fling": True, "otherwise": "제자리로 돌아옴",
+                                    "withInput": "닫기 전에 쓴 내용을 잃지 않게 확인"}
+
+
+# IA loading 화면에 나오지만 불러올 내용이 없는 컴포넌트(틀, 입력, 버튼, 안내, 다른 컴포넌트 안 부품)
+NO_LOADING_CONTENT = {
+    "app-bar", "tab-bar", "sheet", "dialog", "toast", "notice-banner", "empty-state", "skeleton", "ad-banner",
+    "primary-button", "social-login-button", "share-button", "segmented", "text-field", "date-picker", "time-picker",
+    "input-step", "depth-link", "reaction-button", "draft-indicator",
+    "term-token",  # sentence-block 뼈 안
+    "day-cell",  # calendar-month 뼈 안
+}
+
+
+def test_loading_components_are_classified():
+    # 리뷰 M5: IA loading 화면의 컴포넌트는 내용 컴포넌트(skeleton 뼈 필수)이거나 NO_LOADING_CONTENT
+    loading_screens = [screen for screen in ia_screens().values()
+                       if any(state["id"] == "loading" for state in screen.get("states", []))]
+    on_loading = {component for screen in loading_screens for component in screen.get("components", [])}
+    assert on_loading - NO_LOADING_CONTENT <= CONTENT_COMPONENTS
+    assert not CONTENT_COMPONENTS & NO_LOADING_CONTENT
+
+
+def test_skeleton_shapes():
+    skeleton = next(c for c in all_components() if c["id"] == "skeleton")
+    parts = skeleton["parts"]
+    assert parts["textLine"]["radius"] == "{radius.xs}" and parts["card"]["radius"] == "{radius.lg}"
+    assert parts["chip"]["radius"] == "{radius.full}"
+    assert parts["screen"] == {"composition": "그 화면 컴포넌트들의 loading 모양을 화면 배치대로", "gutter": "{space.20}"}
+    assert any("글줄만 쌓은" in rule for rule in skeleton["rules"])
+    by_id = {c["id"]: c for c in all_components()}
+    missing = [name for name in sorted(CONTENT_COMPONENTS) if "skeleton" not in by_id[name].get("states", {}).get("loading", {})]
+    assert missing == []
+
+
+def test_page_push_pattern():
+    push = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["page.push"]
+    assert push["duration"] == "{motion.duration.page}" and push["easing"] == "{motion.easing.page}"
+    assert push["enter"] == {"translateX": ["{motion.offset.page}", 0], "opacity": [0, 1]}
+    assert push["below"] == "still" and push["back"] == "reverse"
+    assert push["reduceMotion"] == "opacity-only"
+    navigate = next(v for v in next(c for c in all_components() if c["id"] == "depth-link")["variants"] if v["id"] == "navigate")
+    assert navigate["parts"]["target"]["transition"] == "page.push"
+
+
+def test_keyboard_dismiss_affordance():
+    field = next(c for c in all_components() if c["id"] == "text-field")
+    dismiss = field["states"]["focused"]["parts"]["keyboardDismiss"]
+    assert dismiss["size"] == {"value": 44, "unit": "px"} and dismiss["radius"] == "{radius.full}"
+    assert dismiss["icon"] == {"icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}"}
+    assert dismiss["position"] == "키보드 바로 위 오른쪽" and dismiss["inset"] == "{space.12}"
+    assert dismiss["a11y"]["labelSlot"] == "ui.keyboard.dismiss"
+
+
+
+# DS1 최종 리뷰 I3·M1: 아이콘 단계표와 글자 배율
+def test_icon_text_scale_rule():
+    icon = load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]
+    assert [step["maxFontSize"] for step in icon["adjacentText"]] == [14, 18, 22, None]
+    assert icon["textScale"] == {
+        "adjacent-text": "단계는 기본 글자 크기로 고르고, 그리는 크기에 기기 글자 배율을 곱함(그 칸의 textScaleMax까지)",
+        "standalone": "기기 글자 배율을 따르지 않음(탭 바, 위 막대, 목록 줄 앞, 빈 화면, 키보드 내리기)",
+    }
+    # 규칙 문장(그림 0.81 ≥ 한글 0.882)으로 계산한 경계와 같음
+    for step in icon["adjacentText"][:-1]:
+        size = int(step["size"].strip("{}").split(".")[-1])
+        assert step["maxFontSize"] == int(size * 0.81 / 0.882)
+
+
+# 리뷰 I5: 근거 아이콘의 스크린리더 이름은 무엇의 근거인지 말함
+def test_evidence_entry_names_its_subject():
+    a11y = next(c for c in all_components() if c["id"] == "depth-link")["a11y"]
+    assert a11y["role"] == "button" and a11y["announce"] == "근거 시트가 열림"
+    assert a11y["labelSlot"] == "ui.depth.evidence_link" and "[subject]" in a11y["labelTemplate"]
+    assert set(a11y["subject"]) == {"inline-end", "block"}
+
+
+# 리뷰 I6: space.20은 쓰임표가 허용한 자리만
+SPACE_20_ALLOWED = {
+    ("primary-button", "parts.container", "paddingX"), ("input-step", "parts.bottomAction", "paddingX"),
+    ("skeleton", "parts.screen", "gutter"), ("guide-question-card", "parts.container", "padding"),
+    ("offer-card", "parts.container", "padding"),
+}
+
+
+def test_space_20_only_where_usage_table_allows():
+    import rules_audit
+    used = {(m.component, m.path, m.key) for m in rules_audit.collect_measures(COMPONENTS_DIR) if m.value == "space.20"}
+    assert used == SPACE_20_ALLOWED
+
+
+# 리뷰 M3·M4
+def test_explain_sheet_overrides_are_noted():
+    by_id = {c["id"]: c for c in all_components()}
+    title = by_id["term-token"]["parts"]["explainSheet"]["title"]
+    assert title["type"] == "{type.title}" and "explain.sheet" in title["note"]
+    lucky = by_id["lucky-card"]["a11y"]
+    assert "expandedAnnounced" not in lucky and lucky["opensSheet"] is True

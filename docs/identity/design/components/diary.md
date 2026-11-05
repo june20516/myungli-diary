@@ -31,7 +31,7 @@
 | 미리보기 | `sentence-block` `preview` **1줄** 말줄임, 시각 오른쪽 `space.12`, 첫 줄 기준선을 시각과 맞춤. 본문이 비어도 한 줄 높이를 지킵니다 |
 | 꺾쇠 | `caret-right` 16 Light `text.secondary`, 세로 가운데, 미리보기와 사이 `space.8`(`event-row`와 같음, V46) |
 | 높이 | 위아래 `space.12`, 최소 48 |
-| 사이 | 1px 점선(대시 4·간격 3) `color.timeline.entry`, 줄과 줄 사이에만, 줄 전체 너비 |
+| 사이 | 1px 점선(`dashLength` 4, `dashGap` 3) `color.timeline.entry`, 줄과 줄 사이에만, 줄 전체 너비 |
 
 * 순서는 server 순서(작성 순) 그대로입니다. 같은 분에 쓴 일기도 다시 정렬하지 않습니다.
 * 몇 편이든 모두 보입니다. 접지 않습니다(계정을 합친 날은 상한보다 많을 수 있음, D83 ④).

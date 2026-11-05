@@ -8,7 +8,7 @@
 
 | 패턴 | 쓰임 | 움직임 | 시간 · 곡선 |
 | --- | --- | --- | --- |
-| `press.ink` 먹 번짐 | 모든 눌림 | 누른 자리에서 가장자리가 부드러운 원형 얼룩이 번집니다(그 컴포넌트 글자색, 알파 0.12). 떼면 1.15배로 번지며 사라집니다 | 자람 `stamp`(520) `seep`, 사라짐 `long`(420) `seep` |
+| `press.ink` 먹 번짐 | 모든 눌림(눌림 패턴은 이것 하나, V61) | 누른 자리에서 가장자리가 부드러운 원형 얼룩이 번집니다(그 컴포넌트 글자색, 알파 0.12). 다 자라면 진한 영역이 가장 먼 모서리까지 닿습니다. 떼면 다 자란 크기의 1.15배까지 번지며 사라집니다 | 자람 `stamp`(520) `seep`, 사라짐 `long`(420) `seep` |
 | `appear.seep` 스밈 | 토스트·배너·확인 창·풀이 내용 | 제자리에서 흐림 8px→0, 투명도 0→1 | `medium`(320) `seep` |
 | `disappear.seep` | 위의 사라짐 | 흐림 0→8px, 투명도 1→0 | `short`(200) `standard` |
 | `select.seep-slide` 스밈 이동 | segmented·탭 선택 표시 | 새 표시가 이전 자리 쪽에서 거리의 15%만큼 미끄러져 들어오며 흐림 6px→0, 크기 0.92→1. 이전 표시는 제자리에서 흐림 0→6px·투명도 1→0·크기 1→1.06(`fade` 280ms) | `select`(340) `seep` |
@@ -16,6 +16,7 @@
 | `seal.stamp` 찍고 배어듦 | 도장 찍힘 | ① 0~35%: 크기 1.2→1, 투명도 0→0.55, 흐림 3→1.5px, `stamp-press` ② 35~100%: 투명도 0.55→1, 흐림 1.5→0, `seep` | `stamp`(520) |
 | `seal.erase` | 도장 지워짐 | 흐림 0→5px, 투명도 1→0 | `short`(200) `standard` |
 | `mark.underline-grow` 펼침 밑줄 | 달력 선택 밑줄 | 가로 크기 0→1, 가운데 기준 | `long`(420) `seep` |
+| `page.push` 화면 이동 | 화면 쌓기 이동(앞으로, 뒤로) | 새 화면이 오른쪽에서 24px(`motion.offset.page`) 밀려 들어오며 투명도 0→1. 뒤 화면은 움직이지 않고, 뒤로 가기는 거꾸로. 탭 사이 이동과 시트는 쓰지 않음(결정 V67) | `page`(320) `page`(enter 곡선) |
 | `sheet.enter` | 시트 열림 | 아래에서 올라옴. 바깥 덮개 `fade`(280ms) 투명도 | `long`(420) `enter` |
 | `sheet.exit` | 시트 닫힘 | 아래로 내려감. 바깥 덮개 `fade`(280ms) 투명도 | `medium`(320) `exit` |
 | `sheet.stack` 겹쳐 쌓기 | 시트 깊어짐 | 새 시트가 위에 쌓이고, 아래 화면은 크기 0.92·밝기 0.9, 아래 시트는 위로 30px·크기 0.94·밝기 0.95 | `long`(420) `enter` |
@@ -26,6 +27,9 @@
 * `seal.stamp`의 `keyframes`에서 각 프레임의 `easing`은 **그 프레임에 이르는 구간**의 곡선입니다.
 * `sheet.stack`의 밝기는 아래 층 위에 검은 덮개를 겹쳐 냅니다(필터 아님). 움직이는 것은 이동·크기·덮개 투명도뿐입니다.
 * `press.ink`의 얼룩은 컴포넌트 안쪽 별도 층에서만 잘립니다. 컴포넌트 밖으로 나가는 꼬리표('나' 등)는 자르지 않습니다.
+* **먹 번짐의 크기(결정 V61):** 반지름은 누른 자리에서 가장 먼 모서리까지 거리 ÷ 0.7입니다. 반지름의 0~0.7은 같은 진하기, 0.7~1은 흐려지는 테라서, 다 자라면 진한 영역이 요소 끝까지 닿고 흐린 테는 요소 밖에서 잘립니다. 가장 먼 모서리 거리를 바깥 반지름으로 쓰면 가장자리 30%가 흐려 끝까지 안 퍼져 보입니다.
+* 다 자라기 전(520ms)에 떼도 다 자란 크기까지 이어 자라며 사라집니다. 사라짐의 1.15배는 다 자란 반지름 기준입니다.
+* **눌림 범위(V61):** 눌림 표시는 누른 컴포넌트 자신의 경계 안에서만 보입니다. 줄 안의 배지나 칩을 누르면 그 안에만 번지고 줄 전체로 번지지 않습니다. 줄과 그 안 요소가 둘 다 누를 수 있으면 안쪽 요소가 눌림을 가져갑니다.
 
 ## 햅틱
 
@@ -48,10 +52,11 @@
 
 명세는 위젯 이름에 묶이지 않습니다. 아래는 1차 구현(Material 3 위에 토큰을 입힘)의 힌트입니다.
 
-* `press.ink`: Material `InkWell`의 splash를 끄고(`splashFactory: NoSplash`), 누른 좌표를 받아 `RadialGradient`로 칠한 층을 `ClipRRect` 안에 둡니다. 흐림 필터는 쓰지 않습니다.
+* `press.ink`: Material `InkWell`의 splash를 끄고(`splashFactory: NoSplash`), 누른 좌표를 받아 `RadialGradient`로 칠한 층을 `ClipRRect` 안에 둡니다. 흐림 필터는 쓰지 않습니다. 그라데이션 반지름은 가장 먼 모서리 거리 ÷ 0.7, 색 멈춤은 `[진한 색, 진한 색, 투명]`에 `[0, 0.7, 1]`입니다. 떼는 순간의 자람 값에서 멈추지 않고 다 자란 크기까지 이어 갑니다.
 * `appear.seep`·`disappear.seep`·`seal.*`: 대상 자신을 `ImageFiltered(ImageFilter.blur)` + `Opacity`(또는 `FadeTransition`)로 감쌉니다. 배경 흐림(`BackdropFilter`)이 아닙니다.
 * `seal.stamp`: `TweenSequence` 두 구간(가중치 35 / 65), 구간마다 `Cubic` 곡선.
 * `select.seep-slide`: 이전·새 표시를 따로 그려, 새 표시는 `SlideTransition`(거리의 15%) + 흐림 + 크기, 이전 표시는 제자리 흐림 + 크기 + 투명도.
+* `page.push`: 앱의 `PageRoute` 전환 하나(`PageTransitionsTheme`에 두 플랫폼 같은 builder)로, 새 화면을 `SlideTransition`(24px) + `FadeTransition`으로 감쌉니다. 이전 화면에는 secondary 애니메이션을 주지 않습니다. iOS 가장자리 밀어 뒤로 가기 제스처는 남깁니다.
 * `sheet.stack`: 새 시트는 새 route. 아래 층은 `Transform.scale`·`Transform.translate`와 덮개 투명도만 바꿉니다(높이를 움직이지 않음).
 * 반투명 탭 바: `BackdropFilter`(탭 바 뒤 흐림)는 이 한 곳에만 씁니다.
 * 동작 줄이기: `MediaQuery.disableAnimations`, 투명도 줄이기: 플랫폼 접근성 설정(iOS `UIAccessibility.isReduceTransparencyEnabled`).

@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "4.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -102,21 +102,15 @@
       "width": { "value": 14, "unit": "px" },
       "height": { "value": 2, "unit": "px" },
       "radius": "{radius.full}",
-      "gap": { "value": 2, "unit": "px" },
+      "gap": "{space.2}",
       "uses": ["mark.underline-grow"]
     },
     "mark.caution": {
       "summary": "경고 표시: 되돌릴 수 없는 동작. 빨간색 없음 (결정 V18)",
       "icon": { "set": "phosphor", "name": "warning-circle", "weight": "fill" },
       "color": "inherit-text",
-      "size": { "ratio": 0.707, "of": "font-size", "basis": "Pretendard OS/2 sCapHeight 1448 / 2048" },
+      "size": "adjacent-text",
       "placement": "before-text-inline"
-    },
-    "link.inline-nowrap": {
-      "summary": "끊기지 않는 링크: 문장 끝 링크를 한 덩어리로",
-      "wrap": "whole-unit",
-      "joiners": ["U+00A0", "U+2060"],
-      "a11y": { "separateFocus": true, "role": "link" }
     },
     "surface.paper": {
       "summary": "종이: 일기 쓰기·보기",
@@ -138,7 +132,49 @@
       "fg": "{color.term.fg}",
       "radius": "{radius.xs}",
       "fontWeight": "inherit",
-      "padding": { "x": { "value": 3, "unit": "px" } }
+      "padding": { "x": "{space.4}" }
+    },
+    "button.pair": {
+      "summary": "두 버튼: 세로로 쌓고 주 버튼이 위 (결정 V60, Q2 ①)",
+      "component": "primary-button",
+      "stack": { "direction": "vertical", "order": ["filled", "quiet"], "gap": "{space.8}" },
+      "height": "same",
+      "width": "fill",
+      "note": "가로 배치는 쓰지 않음. 확인 창(dialog)의 두 버튼은 dialog 규칙(V65)"
+    },
+    "explain.sheet": {
+      "summary": "짧은 설명 시트: 칩, 배지, 용어를 눌러 여는 설명 (결정 V62, Q4 ②)",
+      "uses": ["sheet.enter", "sheet.exit"],
+      "container": { "component": "sheet", "variant": "half", "height": "content" },
+      "layout": "overlay",
+      "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "누른 항목의 이름", "marginBottom": "{space.8}" },
+      "body": { "component": "sentence-block", "variant": "body" },
+      "dismiss": ["바깥 누르기", "끌어 내리기", "뒤로 가기"],
+      "rules": [
+        "설명은 화면 배치 안에 끼워 넣지 않는다. 열려도 아래 내용이 밀리지 않는다(F-008).",
+        "연 항목에는 열린 동안 표시가 남고 닫으면 사라진다.",
+        "어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정한다(#801)."
+      ]
+    },
+    "list.divider": {
+      "summary": "목록 구분선: 같은 묶음 안 줄 사이 (결정 V58)",
+      "color": "{color.line}",
+      "width": "{border.width.hairline}",
+      "insetX": "{space.16}",
+      "insetRule": "묶음 좌우에서 같은 거리. 줄 안쪽 여백(paddingX)과 같음",
+      "underLeading": true,
+      "between": "rows-only",
+      "note": "첫 줄 위와 끝 줄 아래에는 없음. 묶음과 묶음은 선 없이 간격으로 나눔"
+    },
+    "section.header": {
+      "summary": "섹션 제목: 굵은 라벨과 선택 설명 줄 (결정 V59, Q3 ②)",
+      "title": { "type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": true },
+      "description": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "optional": true },
+      "contentGap": "{space.12}",
+      "sectionGap": "{space.32}",
+      "grouping": { "default": "spacing", "card": { "when": "목록 줄이 이어지는 묶음", "bg": "{color.bg.sheet}", "radius": "{radius.lg}" } },
+      "a11y": { "role": "header" },
+      "note": "어느 화면에 둘지와 문구 슬롯은 2단계 IA가 정함(#801)"
     },
     "skeleton.bone": {
       "summary": "skeleton 자리: 실제 요소와 같은 크기·반경",
@@ -147,17 +183,30 @@
       "uses": ["loading.breathe"]
     },
     "icon": {
-      "summary": "아이콘: Phosphor (결정 V15)",
-      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_glyphs", "flutterVersion": "2.1.2+1" },
+      "summary": "아이콘: Phosphor (결정 V15, V57)",
+      "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_glyphs", "flutterVersion": "2.1.2+1", "names": "tools/phosphor_names.txt" },
       "weights": { "default": "light", "selected": "regular", "caution": "fill" },
-      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)"],
-      "sizes": { "tab": { "value": 24, "unit": "px" }, "bar": { "value": 24, "unit": "px" }, "inline": { "value": 16, "unit": "px" }, "state": { "value": 28, "unit": "px" } },
-      "custom": "세트에 없는 것(오행·절기·시간 모름 등)만 Phosphor 24 격자와 획 규칙으로 직접 그림"
+      "adjacentTextWeight": { "rule": "글자 옆 아이콘은 옆 글자 굵기와 짝", "400-500": "light", "600+": "regular" },
+      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)", "직접 그린 아이콘"],
+      "scale": ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"],
+      "adjacentText": [
+        { "maxFontSize": 14, "size": "{size.icon.16}" },
+        { "maxFontSize": 18, "size": "{size.icon.20}" },
+        { "maxFontSize": 22, "size": "{size.icon.24}" },
+        { "maxFontSize": null, "size": "{size.icon.28}", "note": "그 위 모든 글자" }
+      ],
+      "adjacentTextRule": "size가 adjacent-text면 옆 글자 크기가 maxFontSize 이하인 첫 단계. 그림(상자의 0.81)이 옆 한글 높이(글자 크기의 0.861~0.882) 이상인 가장 작은 단계",
+      "standalone": { "list-leading": "{size.icon.20}", "tab": "{size.icon.24}", "bar": "{size.icon.24}", "state": "{size.icon.28}" },
+      "textScale": {
+        "adjacent-text": "단계는 기본 글자 크기로 고르고, 그리는 크기에 기기 글자 배율을 곱함(그 칸의 textScaleMax까지)",
+        "standalone": "기기 글자 배율을 따르지 않음(탭 바, 위 막대, 목록 줄 앞, 빈 화면, 키보드 내리기)"
+      },
+      "missing": "세트에 없는 뜻은 아이콘 없이 글자로 씀"
     },
     "lock.veil": {
       "summary": "잠긴 구역 하나: 또렷한 제목 + 흐린 자리 채우기 본문 (D60, 결정 V25)",
-      "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": { "value": 14, "unit": "px" }, "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": { "value": 4, "unit": "px" } },
-      "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": { "value": 6, "unit": "px" } },
+      "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": "adjacent-text", "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": "{space.4}" },
+      "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": "{space.8}" },
       "placeholder": "실제 내용은 내려받지 않음. 자리 채우기 글을 server가 준 길이 힌트만큼, 없으면 두 줄",
       "lines": { "default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1 },
       "a11y": { "label": "구역 제목 + '잠김'", "bodyExcluded": true },

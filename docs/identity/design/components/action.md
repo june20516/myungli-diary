@@ -11,7 +11,7 @@
 | 변형 | 바탕 | 글자 | 쓰임 |
 | --- | --- | --- | --- |
 | `filled` | `action.primary` | `action.on-primary` | 화면의 주 동작 |
-| `quiet` | 없음(높이 44) | `action.primary` | 다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼 |
+| `quiet` | 없음(높이 52, `filled`와 같음, V60) | `action.primary` | 다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼 |
 | `destructive` | `text.primary` | `bg.sheet` + 앞에 `mark.caution` | 되돌릴 수 없는 동작 |
 
 | 상태 | 모습 |
@@ -42,7 +42,7 @@
 | en | Google, 카카오, LINE, Apple |
 
 * `disabled`: 다른 버튼이 처리 중일 때입니다. 제공자 색을 바꿀 수 없으므로 버튼 전체를 `opacity 0.4`로 흐립니다. `line`만 가이드의 비활성 값을 씁니다. 처리 중에는 누른 버튼만 `loading`입니다.
-* `connected`(login-methods에서만): 연결된 수단을 보이는 상태입니다. 로그인 동작이 아니라 연결 상태 줄이라 제공자 색을 쓰지 않습니다. `bg.sheet` 바탕 + `line` 1px 테두리, 로고는 제공자 색 배지 20px 안의 심볼 14px(카카오 `#FEE500` 위 `#191919`(공식 자산, V46), LINE `#06C755` 위 흰색, Apple 라이트 검정 위 흰색·다크 흰색 위 검정, 모서리 `radius.xs`; Google은 흰 원 위 표준 컬러 "G")로 중립 바탕에서도 보이게 하고, 왼쪽에 제공자 이름(`type.label.lg`, `ui.login-methods.row` `loginProvider*`), 끝에 `check` Regular 14 + 간격 `space.4` + "연결됨"(`type.caption.lg`, `action.primary`). 누르면 떼기 확인 `dialog` `destructive`(`login-methods.unlink.confirm`)가 열립니다. 스크린리더 라벨은 "제공자 이름, 연결됨", 힌트는 `loginMethodsRowUnlink`. 떼기 확정 뒤에는 그 줄 전체가 `loading.breathe`로 숨쉬고, 끝나면 연결하지 않은 버튼으로 바뀝니다. 다른 버튼이 처리 중이면 다른 상태와 같이 줄 전체 `opacity 0.4`입니다.
+* `connected`(login-methods에서만): 연결된 수단을 보이는 상태입니다. 로그인 동작이 아니라 연결 상태 줄이라 제공자 색을 쓰지 않습니다. `bg.sheet` 바탕 + `line` 1px 테두리, 로고는 제공자 색 배지 20px 안의 심볼 14px(카카오 `#FEE500` 위 `#191919`(공식 자산, V46), LINE `#06C755` 위 흰색, Apple 라이트 검정 위 흰색·다크 흰색 위 검정, 모서리 `radius.xs`; Google은 흰 원 위 표준 컬러 "G")로 중립 바탕에서도 보이게 하고, 왼쪽에 제공자 이름(`type.label.lg`, `ui.login-methods.row` `loginProvider*`), 끝에 `check` Regular 16(옆 글자 기준 단계, V57) + 간격 `space.4` + "연결됨"(`type.caption.lg`, `action.primary`). 누르면 떼기 확인 `dialog` `destructive`(`login-methods.unlink.confirm`)가 열립니다. 스크린리더 라벨은 "제공자 이름, 연결됨", 힌트는 `loginMethodsRowUnlink`. 떼기 확정 뒤에는 그 줄 전체가 `loading.breathe`로 숨쉬고, 끝나면 연결하지 않은 버튼으로 바뀝니다. 다른 버튼이 처리 중이면 다른 상태와 같이 줄 전체 `opacity 0.4`입니다.
 * 연결된 수단이 하나만 남으면 그 줄은 누를 수 없고(모양은 그대로), 버튼 묶음 아래에 `login-methods.last.notice`(`type.caption.lg`, `text.secondary`, 위 `space.12`)를 늘 보입니다.
 
 ### login-methods 화면 배치
@@ -71,8 +71,25 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 ## settings-row
 
 * 쓰는 화면: settings, profile-edit, legal
-* 묶음 카드(`bg.sheet`, `radius.md`) 안에서 1px `line`으로 나눕니다(왼쪽 16px 들여서). 카드 사이 20px, 카드 위 묶음 이름 `type.caption.md`.
-* 변형 `navigate`(화살표) / `value`(오른쪽 값 `text.secondary` + 화살표, 이름과 값 사이 최소 `space.8`) / `toggle`(스위치, 햅틱 selection) / `destructive`(로그아웃·계정 삭제: 본문색 600, 앞에 `mark.caution`, 화살표 없음).
+* 묶음 카드(`bg.sheet`, `radius.md`) 안에서 `list.divider`(0.5px, 좌우 같은 16 들임, 앞 아이콘 아래까지)로 나눕니다(결정 V58). 카드 사이 `space.24`, 카드 위 묶음 이름 `type.caption.md`.
+* 변형 `navigate`(화살표) / `value`(오른쪽 값 `text.secondary` + 화살표, 이름과 값 사이 최소 `space.8`) / `toggle`(스위치, 햅틱 selection) / `select`(시트 안 하나 고르기 줄: 화살표 없이 고른 줄 끝에 `check` Regular 20 `action.primary`, 스크린리더는 라디오) / `destructive`(로그아웃·계정 삭제: 본문색 600과 자기 아이콘 Regular, 화살표 없음).
+* **화살표는 다른 화면이나 시트로 들어가는 줄(`navigate`, `value`)에만 둡니다(V58).** 누르면 바로 값이 바뀌는 줄은 `select`입니다.
+* **앞 아이콘 `leading`(V58):** settings 화면 메뉴 줄에만, 20 Light 본문색, 글자와 사이 `space.12`. 스크린리더는 읽지 않습니다. 줄마다 아이콘(줄 이름 ARB 키 기준, `parts.leading.icons`):
+
+  | 줄 | 아이콘 |
+  | --- | --- |
+  | 알림 시각 `settingsNotifyLabel` | `bell` |
+  | 광고 제거 `settingsAdFreeLabel` | `prohibit` |
+  | 언어 `settingsLanguageLabel` | `translate` |
+  | 정보 수정 `profileEditBarTitle` | `user-circle` |
+  | 계산 기준 `calcBasisBarTitle` | `globe-hemisphere-east` |
+  | 로그인 수단 `settingsLoginMethodsLabel` | `key` |
+  | 약관과 정책 `legalBarTitle` | `file-text` |
+  | 문의하기 `settingsContactLabel` | `chat-circle-text` |
+  | 로그아웃 `settingsLogoutLabel` | `sign-out` (Regular) |
+  | 계정 삭제 `accountDeleteBarTitle` | `trash` (Regular) |
+
+  메뉴 순서와 묶음은 IA를 따릅니다. 앞 아이콘만큼 이름 자리가 줄어 글자 수 상한을 다시 쟀습니다(`lengths.md` 4.0.0).
 * **묶음 안내 `groupNote`(V50, #354 ③):** 묶음 전체에 걸리는 안내 문장은 카드 위 묶음 이름 자리에 둡니다(`type.caption.md` `text.secondary`, 좌우 16, 아래 8, 두 줄까지). 늘 보이고 누르지 않습니다. `profile-edit`는 생일·태어난 시간·성별·출생지 묶음 위에 `profile-edit.recalc.notice`를 둡니다.
 
 ## offer-card
@@ -95,7 +112,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 
 * 쓰는 화면: purchase-history
 * 산 상품의 구매 한 건입니다(D88 ②, #502, 결정 V45). 누르지 않는 줄입니다.
-* 줄들은 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16`)에 담습니다. 줄은 위아래 `space.16`이고, 줄과 줄 사이에만 1px `line`을 긋습니다.
+* 줄들은 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16`)에 담습니다. 줄은 위아래 `space.16`이고, 줄과 줄 사이에만 `list.divider`를 긋습니다(V58).
 
 | 부품 | 모습 |
 | --- | --- |

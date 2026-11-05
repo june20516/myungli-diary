@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "4.0.0",
   "group": "input",
   "components": [
     {
@@ -35,7 +35,7 @@
     {
       "id": "text-field",
       "summary": "글자 입력",
-      "uses": ["focus.ring"],
+      "uses": ["focus.ring", "icon"],
       "variants": [
         { "id": "multiline", "when": "여러 줄 글(event-edit 메모, contact 문의 내용)", "parts": { "container": { "minLines": 1, "maxLines": 6, "overflow": "scroll" }, "keyboard": { "type": "multiline", "action": "newline" }, "clear": { "align": "first-line" }, "placeholder": { "maxLines": 2 } } },
         { "id": "email", "when": "메일 주소(contact 답장 받을 메일)", "parts": { "keyboard": { "type": "email", "action": "done", "autocorrect": false, "autocapitalize": "none" } } }
@@ -45,12 +45,17 @@
         "text": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 17, "unit": "px" }, "fontWeight": 400, "fg": "{color.text.primary}" },
         "placeholder": { "fg": "{color.text.secondary}" },
         "counter": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "optional": true },
-        "clear": { "icon": "x-circle", "weight": "light", "size": { "value": 20, "unit": "px" }, "color": "{color.text.secondary}" },
+        "clear": { "icon": "x-circle", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}" },
         "label": { "type": "{type.label.md}", "fg": "{color.text.primary}", "marginBottom": "{space.8}", "maxLines": 1, "optional": true, "when": "칸 위 이름(input-step 밖, 질문이 칸 이름을 대신하지 않는 화면)" },
         "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}", "maxLines": 2, "optional": true, "when": "input-step 밖의 칸 오류. input-step 안에서는 input-step errorLine이 그린다" }
       },
       "states": {
-        "focused": { "pattern": "focus.ring" },
+        "focused": { "pattern": "focus.ring", "parts": { "keyboardDismiss": {
+          "position": "키보드 바로 위 오른쪽", "inset": "{space.12}",
+          "size": { "value": 44, "unit": "px" }, "radius": "{radius.full}", "bg": "{color.bg.sheet}", "shadow": "{shadow.raised}",
+          "icon": { "icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}" },
+          "action": "키보드를 내림(입력칸 초점 풀기)", "a11y": { "role": "button", "labelSlot": "ui.keyboard.dismiss" },
+          "note": "입력칸에 초점이 있는 동안만. 동작 구현은 app #796 (결정 V68)" } } },
         "disabled": { "parts": { "container": { "bg": "{color.disabled.bg}" }, "text": { "fg": "{color.disabled.fg}" } } },
         "error": { "parts": { "container": { "border": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" } } } }, "note": "오류 줄은 input-step 안에서는 input-step이, 밖에서는 칸의 errorLine이 그린다" }
       },
@@ -158,7 +163,7 @@
       "summary": "몇 개 중 하나 고르기",
       "uses": ["select.seep-slide", "press.ink", "appear.seep"],
       "parts": {
-        "track": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "height": { "value": 40, "unit": "px" }, "padding": { "value": 3, "unit": "px" } },
+        "track": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "height": { "value": 40, "unit": "px" }, "padding": "{space.4}" },
         "indicator": { "bg": "{color.action.primary}", "radius": "{radius.full}" },
         "label": { "type": "{type.label.lg}", "fg": "{color.text.secondary}" }
       },
@@ -175,10 +180,10 @@
     {
       "id": "city-search",
       "summary": "도시 검색과 결과 목록",
-      "uses": ["focus.ring", "press.ink", "icon", "loading.breathe"],
+      "uses": ["focus.ring", "press.ink", "icon", "loading.breathe", "list.divider"],
       "parts": {
         "field": { "component": "text-field", "leadingIcon": "magnifying-glass" },
-        "results": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "marginTop": "{space.12}" },
+        "results": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "divider": { "element": "list.divider" }, "marginTop": "{space.12}" },
         "row": { "minHeight": { "value": 56, "unit": "px" }, "paddingX": "{space.16}" },
         "city": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
         "region": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "content": "행정 구역, 나라 이름", "join": { "ko": ", ", "en": ", ", "ja": "、" }, "whenMissing": "hidden" },
@@ -186,7 +191,7 @@
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
-        "loading": { "note": "결과 자리에 skeleton 줄 3개" },
+        "loading": { "skeleton": [{ "bone": "result", "shape": "textLine", "rows": 3}], "note": "결과 자리에 skeleton 줄 3개" },
         "empty": { "note": "empty-state" },
         "saving": { "note": "줄을 고른 뒤 저장을 기다림(아래 버튼이 없는 단계). 고른 줄만", "pattern": "loading.breathe", "parts": { "dots": { "visible": true, "position": "row-end", "fg": "{color.text.secondary}" }, "otherRows": { "pressable": false } } }
       },
@@ -241,7 +246,7 @@
           }
         },
         "pressed": { "pattern": "press.ink" },
-        "loading": { "pattern": "loading.breathe", "note": "카드 두 장 크기의 빈 카드가 숨쉼. 글줄 자리는 skeleton과 같은 모양이고 skeleton 컴포넌트를 쓰지 않음(IA account-merge:loading)" },
+        "loading": { "skeleton": [{ "bone": "card", "shape": "card", "count": 2}], "pattern": "loading.breathe", "note": "카드 두 장 크기의 빈 카드가 숨쉼. 글줄 자리는 skeleton과 같은 모양이고 skeleton 컴포넌트를 쓰지 않음(IA account-merge:loading)" },
         "disabled": { "note": "합치는 중(최종 확인 뒤 합치기 버튼 loading). 고름을 잠가 카드를 누를 수 없고 모양은 그대로. 실패하면 풀림" }
       },
       "haptic": [{ "when": "고름이 바뀜", "strength": "selection" }],

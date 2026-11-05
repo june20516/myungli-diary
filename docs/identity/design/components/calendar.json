@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "4.0.0",
   "group": "calendar",
   "components": [
     {
@@ -7,7 +7,7 @@
       "summary": "한 달 격자",
       "uses": ["appear.seep", "press.ink", "icon"],
       "parts": {
-        "header": { "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" }, "prev": { "icon": "caret-left", "weight": "light", "target": { "value": 44, "unit": "px" } }, "next": { "icon": "caret-right", "weight": "light", "target": { "value": 44, "unit": "px" } } },
+        "header": { "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}" }, "prev": { "icon": "caret-left", "weight": "light", "size": "{size.icon.24}", "target": { "value": 44, "unit": "px" } }, "next": { "icon": "caret-right", "weight": "light", "size": "{size.icon.24}", "target": { "value": 44, "unit": "px" } } },
         "weekdays": {
           "type": "{type.caption.md}",
           "fg": "{color.text.secondary}",
@@ -20,7 +20,7 @@
       },
       "states": {
         "monthChanged": { "pattern": "appear.seep", "note": "격자만 바뀜, 머리는 그대로" },
-        "loading": { "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
+        "loading": { "skeleton": [{ "bone": "cellFill", "shape": "날짜 칸 채우기와 도장 자리", "note": "숫자, 요일 머리, 달 머리는 바로 그림" }], "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
       },
       "haptic": [],
       "a11y": { "role": "grid", "label": "N년 M월", "swipe": "좌우로 달 넘김", "minTarget": 44 },
@@ -37,7 +37,7 @@
       "parts": {
         "container": { "height": { "value": 62, "unit": "px" }, "radius": "{radius.sm}" },
         "luckFill": { "good": "{color.calendar.good.bg}", "caution": "{color.calendar.caution.bg}", "neutral": "transparent" },
-        "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": { "value": 6, "unit": "px" } },
+        "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": "{space.4}" },
         "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
         "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "leapNewMoon": { "slot": "ui.day-cell.lunar", "key": "dayCellLeapNewMoon", "text": "윤달 표지 + M.1 (예: 윤6.1)" }, "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
         "diarySeal": { "element": "seal", "variant": "soft", "color": "{color.seal.soft}", "size": { "value": 26, "unit": "px" }, "position": "number-box-center" },
@@ -78,7 +78,7 @@
     {
       "id": "event-row",
       "summary": "일정 한 줄 (오늘 요약 / 그날 목록)",
-      "uses": ["tag.status", "press.ink", "icon"],
+      "uses": ["tag.status", "press.ink", "icon", "list.divider"],
       "variants": [
         {
           "id": "summary",
@@ -99,8 +99,8 @@
           "parts": {
             "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "format": "HH:mm", "hourCycle": "h23", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
-            "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
-            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
+            "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
+            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "element": "list.divider" } },
             "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } },
             "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add", "position": "below-list", "when": "일정이 있을 때" },
             "failed": { "when": "일정 목록만 받지 못함(날의 성격은 받음)", "message": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "text": "오류 종류별 기존 문구 한 줄" }, "retry": { "component": "primary-button", "variant": "quiet" }, "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } }
@@ -108,7 +108,7 @@
         }
       ],
       "parts": {},
-      "states": { "pressed": { "pattern": "press.ink" } },
+      "states": { "loading": { "skeleton": [{ "bone": "summary", "shape": "textLine", "lines": 1, "variant": "summary" }, { "bone": "row", "shape": "시각 칸 + 제목 글줄", "rows": 2, "variant": "list" }] }, "pressed": { "pattern": "press.ink" } },
       "haptic": [],
       "a11y": { "role": "button", "label": "상태 + 시각 + 제목 (+ '외 N개')", "moreJoin": "a11yListSeparator", "minTarget": 48 },
       "rules": [

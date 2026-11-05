@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "4.0.0",
   "group": "action",
   "components": [
     {
@@ -8,15 +8,15 @@
       "uses": ["press.ink", "loading.breathe"],
       "variants": [
         { "id": "filled", "when": "화면의 주 동작" },
-        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼)",
-          "parts": { "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" } }, "label": { "fg": "{color.action.primary}" } } },
+        { "id": "quiet", "when": "보조 동작(다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼). 높이는 filled와 같은 52(결정 V60)",
+          "parts": { "container": { "bg": "transparent" }, "label": { "fg": "{color.action.primary}" } } },
         { "id": "destructive", "when": "되돌릴 수 없는 동작", "uses": ["mark.caution"],
           "parts": { "container": { "bg": "{color.text.primary}" }, "label": { "fg": "{color.bg.sheet}", "leading": "mark.caution" } } }
       ],
       "parts": {
         "container": { "bg": "{color.action.primary}", "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.20}", "width": "fill" },
         "label": { "fg": "{color.action.on-primary}", "type": "{type.label.lg}", "maxLines": 1 },
-        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": { "value": 6, "unit": "px" }, "color": "label-color" }
+        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": "{space.4}", "color": "label-color" }
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
@@ -57,7 +57,7 @@
             "container": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
             "logo": { "source": "provider-official-asset", "badge": { "size": { "value": 20, "unit": "px" }, "symbolSize": { "value": 14, "unit": "px" }, "kakao": { "bg": "#FEE500", "symbol": "#191919", "shape": "{radius.xs}" }, "line": { "bg": "#06C755", "symbol": "#FFFFFF", "shape": "{radius.xs}" }, "google": { "bg": "#FFFFFF", "symbol": "full-color", "shape": "{radius.full}" }, "apple": { "lightMode": { "bg": "#000000", "symbol": "#FFFFFF" }, "darkMode": { "bg": "#FFFFFF", "symbol": "#000000" }, "shape": "{radius.xs}" } }, "note": "중립 바탕(bg.sheet)에서도 보이게 로고는 제공자 색 배지(20px) 안의 심볼 14px. Google G는 흰 원 위" },
             "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}", "align": "start", "slot": "ui.login-methods.row", "key": "loginProvider*" },
-            "state": { "icon": "check", "weight": "regular", "size": { "value": 14, "unit": "px" }, "gap": "{space.4}", "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "slot": "ui.login-methods.row", "key": "loginMethodsRowConnected" }
+            "state": { "icon": "check", "weight": "regular", "size": "{size.icon.16}", "gap": "{space.4}", "type": "{type.caption.lg}", "fg": "{color.action.primary}", "position": "end", "inset": "{space.16}", "slot": "ui.login-methods.row", "key": "loginMethodsRowConnected" }
           },
           "onPress": { "component": "dialog", "variant": "destructive", "slot": "login-methods.unlink.confirm" },
           "lastOne": { "pressable": false, "noticeSlot": "login-methods.last.notice", "notice": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.12}", "position": "버튼 묶음 아래, 늘 보임" } },
@@ -81,11 +81,11 @@
       "summary": "공유",
       "uses": ["press.ink", "icon"],
       "variants": [
-        { "id": "icon", "when": "app-bar 동작", "parts": { "icon": { "name": "export", "weight": "light", "size": { "value": 24, "unit": "px" }, "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" } } },
+        { "id": "icon", "when": "app-bar 동작", "parts": { "icon": { "name": "export", "weight": "light", "size": "{size.icon.24}", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" } } },
         { "id": "soft", "when": "본문 안 공유 입구(미리보기 화면)",
           "parts": {
             "container": { "bg": "{color.status.bg}", "radius": "{radius.md}", "height": { "value": 36, "unit": "px" }, "paddingX": "{space.16}", "gap": "{space.8}" },
-            "icon": { "name": "export", "weight": "regular", "size": { "value": 16, "unit": "px" }, "color": "{color.status.fg}" },
+            "icon": { "name": "export", "weight": "regular", "size": "{size.icon.16}", "color": "{color.status.fg}" },
             "label": { "type": "{type.label.md}", "fg": "{color.status.fg}" }
           } }
       ],
@@ -98,20 +98,22 @@
     {
       "id": "settings-row",
       "summary": "설정 한 줄",
-      "uses": ["press.ink", "icon"],
+      "uses": ["press.ink", "icon", "list.divider"],
       "variants": [
         { "id": "navigate", "when": "다음 화면으로", "parts": { "chevron": { "visible": true } } },
         { "id": "value", "when": "값을 고름(시트)", "parts": { "value": { "visible": true }, "chevron": { "visible": true } } },
         { "id": "toggle", "when": "켜고 끔", "parts": { "toggle": { "visible": true }, "chevron": { "visible": false } } },
-        { "id": "destructive", "when": "로그아웃·계정 삭제", "uses": ["mark.caution"], "parts": { "label": { "fg": "{color.text.primary}", "fontWeight": 600, "leading": "mark.caution" }, "chevron": { "visible": false } } }
+        { "id": "select", "when": "시트 안 하나 고르기 줄(언어 등). 누르면 바로 값이 바뀌고 다른 화면으로 가지 않음 (결정 V58)", "parts": { "chevron": { "visible": false }, "check": { "icon": "check", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "when": "고른 줄만" } } },
+        { "id": "destructive", "when": "로그아웃·계정 삭제. 경고 표시 대신 자기 아이콘(Regular)과 600 글자로 구분 (결정 V58)", "parts": { "label": { "fg": "{color.text.primary}", "fontWeight": 600 }, "leading": { "weight": "regular" }, "chevron": { "visible": false } } }
       ],
       "parts": {
-        "group": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "marginBottom": "{space.20}" },
+        "group": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "marginBottom": "{space.24}" },
         "row": { "minHeight": { "value": 52, "unit": "px" }, "paddingX": "{space.16}" },
-        "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" }, "insetStart": "{space.16}" },
+        "divider": { "element": "list.divider" },
+        "leading": { "icons": { "settingsNotifyLabel": "bell", "settingsAdFreeLabel": "prohibit", "settingsLanguageLabel": "translate", "profileEditBarTitle": "user-circle", "calcBasisBarTitle": "globe-hemisphere-east", "settingsLoginMethodsLabel": "key", "legalBarTitle": "file-text", "settingsContactLabel": "chat-circle-text", "settingsLogoutLabel": "sign-out", "accountDeleteBarTitle": "trash" }, "iconsBy": "줄 이름 ARB 키", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.primary}", "marginEnd": "{space.12}", "optional": true, "screens": ["settings"] },
         "label": { "type": "{type.body.ui}", "fg": "{color.text.primary}" },
         "value": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginStart": "{space.8}", "note": "이름과 값 사이 최소 간격" },
-        "chevron": { "icon": "caret-right", "weight": "light", "size": { "value": 16, "unit": "px" }, "color": "{color.text.secondary}" },
+        "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
         "toggle": { "trackOn": "{color.action.primary}", "trackOff": "{color.line}", "thumb": "{color.bg.sheet}" },
         "groupTitle": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}" },
         "groupNote": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingX": "{space.16}", "marginBottom": "{space.8}", "maxLines": 2, "position": "묶음 카드 위(groupTitle 자리)", "slots": ["profile-edit.recalc.notice"], "note": "묶음 전체에 걸리는 안내 문장. 늘 보이고 누르지 않음" }
@@ -121,8 +123,10 @@
         "disabled": { "parts": { "label": { "fg": "{color.disabled.fg}" } } }
       },
       "haptic": [{ "when": "toggle 변형 켜고 끔", "strength": "selection" }],
-      "a11y": { "role": "button", "label": "글자 + 값", "toggleRole": "switch", "minTarget": 48 },
-      "rules": ["묶음 카드 안에서 1px 선으로 나눈다. 카드 사이는 20px 띄운다.",
+      "a11y": { "role": "button", "label": "글자 + 값", "toggleRole": "switch", "selectRole": "radio", "selectedState": "고른 줄은 선택됨", "minTarget": 48, "decorativeLeading": true },
+      "rules": ["묶음 카드 안에서 list.divider로 나눈다. 카드 사이는 space.24 띄운다(결정 V56 쓰임표).",
+        "꺾쇠는 다른 화면이나 시트로 들어가는 줄(navigate, value)에만 둔다. 바로 값이 바뀌는 고르기 줄(select)은 꺾쇠 없이 고른 줄 끝에 체크.",
+        "앞 아이콘(leading)은 설정 화면 메뉴 줄에만 두고, 어느 줄에 어느 아이콘인지는 leading.icons(줄 이름 ARB 키 → Phosphor 이름)를 따른다. 메뉴 순서와 묶음은 IA를 따른다.",
         "묶음에 걸리는 안내 문장(groupNote)은 카드 위 묶음 이름 자리에 둔다. 배너(notice-banner)는 상태를 알리는 것이라 늘 보이는 안내에 쓰지 않는다(#354 ③)."]
     },
     {
@@ -131,17 +135,18 @@
       "uses": ["icon", "tag.status", "appear.seep"],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.20}" },
-        "icon": { "name": "sparkle", "weight": "light", "size": { "value": 28, "unit": "px" }, "color": "{color.action.primary}" },
+        "icon": { "name": "sparkle", "weight": "light", "size": "{size.icon.28}", "color": "{color.action.primary}" },
         "head": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "ad-free.offer.head", "marginTop": "{space.12}" },
         "price": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "ad-free.offer.price", "marginTop": "{space.16}", "fontFeatures": ["tnum"] },
         "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "ad-free.offer.period", "note": "기간과 자동 결제 없음 고지(#548)" },
         "status": { "element": "tag.status", "slot": "ad-free.status.remaining" },
         "remaining": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
-        "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.20}" },
+        "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.24}" },
         "history": { "component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta" },
         "legal": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slot": "ad-free.legal.notice", "marginTop": "{space.12}" }
       },
       "states": {
+        "loading": { "skeleton": [{ "bone": "container", "shape": "card" }, { "bone": "icon", "shape": "circle", "size": "{size.icon.28}" }, { "bone": "head", "shape": "textLine", "width": "60%" }, { "bone": "price", "shape": "textLine", "width": "40%" }] },
         "available": { "parts": { "status": { "visible": false }, "remaining": { "visible": false }, "buy": { "visible": true } } },
         "active": { "pattern": "appear.seep", "parts": { "status": { "visible": true }, "remaining": { "visible": true }, "buy": { "visible": false } }, "note": "이용 중: 꼬리표 + 남은 기간·만료일" },
         "purchasing": { "parts": { "buy": { "state": "loading" } } },
@@ -161,7 +166,8 @@
       "summary": "산 상품의 구매 한 건 (D88 ②, 결정 V45)",
       "uses": [
         "tag.status",
-        "skeleton.bone"
+        "skeleton.bone",
+        "list.divider"
       ],
       "parts": {
         "group": {
@@ -174,11 +180,7 @@
           "paddingY": "{space.16}",
           "pressable": false,
           "divider": {
-            "color": "{color.line}",
-            "width": {
-              "value": 1,
-              "unit": "px"
-            },
+            "element": "list.divider",
             "between": "rows-only"
           }
         },
@@ -234,7 +236,7 @@
         }
       },
       "states": {
-        "loading": {
+        "loading": { "skeleton": [{ "bone": "product", "shape": "textLine" }, { "bone": "purchased", "shape": "textLine", "width": "60%" }, { "bone": "period", "shape": "textLine", "width": "60%" }],
           "component": "skeleton",
           "note": "bone 세 줄(상품 이름 줄 + 구매일 줄 + 사용 기간 줄)"
         }
