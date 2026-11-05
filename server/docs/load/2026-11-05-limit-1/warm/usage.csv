@@ -1,0 +1,4 @@
+resource,instance_seconds,vcpu_seconds,memory_gib_seconds,sql_hours
+engine,2358.13,2358.13,1179.07,0.00
+server,2532.73,2532.73,1266.36,0.00
+sql,0.00,0.00,0.00,0.23
