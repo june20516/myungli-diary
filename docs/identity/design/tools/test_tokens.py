@@ -7,7 +7,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 
 from dtcg import find_problems, flatten, resolve  # noqa: E402
 from palette import (  # noqa: E402
-    MAX_CAUTION_CHROMA, MAX_GREAT_GOOD_LIGHTNESS_GAP, MIN_LEVEL_DISTANCE, MIN_TEXT_CONTRAST, build_palette,
+    MAX_CAUTION_CHROMA, MAX_GREAT_GOOD_LIGHTNESS_GAP, MIN_GREAT_GOOD_CHROMA_GAP, MIN_LEVEL_DISTANCE, MIN_TEXT_CONTRAST, build_palette,
     contrast_ratio, oklab_distance, oklch_lightness_chroma)
 from tokens import TOKENS_DIR, build_token_files, color_value, reference_or_value, serialize  # noqa: E402
 
@@ -245,6 +245,7 @@ def test_tokens_1_4_0_additions_only():
 
 
 def test_verdict_track_runs_from_caution_to_great():
+    # 기대값은 build_palette()에서 오고, 커밋 파일과의 일치는 test_committed_files_match_generator가 보장
     files = build_token_files()
     for mode in ("light", "dark"):
         tokens = flatten(files[f"color.{mode}.tokens.json"])
@@ -273,7 +274,8 @@ def test_calendar_levels_distinguishable():
         great_lightness, _ = oklch_lightness_chroma(hexes["great"])
         good_lightness, _ = oklch_lightness_chroma(hexes["good"])
         assert abs(great_lightness - good_lightness) <= MAX_GREAT_GOOD_LIGHTNESS_GAP, mode
-        assert oklch_lightness_chroma(hexes["great"])[1] > oklch_lightness_chroma(hexes["good"])[1], mode
+        chroma_gap = oklch_lightness_chroma(hexes["great"])[1] - oklch_lightness_chroma(hexes["good"])[1]
+        assert chroma_gap >= MIN_GREAT_GOOD_CHROMA_GAP, (mode, chroma_gap)
         assert oklch_lightness_chroma(hexes["caution"])[1] <= MAX_CAUTION_CHROMA, mode
 
 

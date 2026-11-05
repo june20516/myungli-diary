@@ -67,6 +67,8 @@ CALENDAR_LEVELS = {
 MIN_LEVEL_DISTANCE = 0.03  # 이웃한 단계, 바탕, 흰 표면 위 채움의 OKLab 거리 하한
 MAX_GREAT_GOOD_LIGHTNESS_GAP = 0.005
 MAX_CAUTION_CHROMA = 0.003
+# 아주 잘 풀리는 날과 잘 풀리는 날은 명도가 같고 채도로만 구분: great가 good보다 이만큼 이상 진해야 함
+MIN_GREAT_GOOD_CHROMA_GAP = 0.02
 # 흰 표면(bg.sheet) 위 옅은 채움: 라이트는 neutral-100, 다크는 neutral-800
 FILL_SOFT_STEP = {"light": 100, "dark": 800}
 
@@ -118,16 +120,18 @@ def oklch_to_hex(lightness: float, chroma: float, hue: float) -> str:
     return "#" + "".join(f"{round(_gamma_encode(channel) * 255):02x}" for channel in rgb)
 
 
+def _linearize(value: int) -> float:
+    """0~255 sRGB 채널 값을 선형 값으로 바꿉니다."""
+    channel = value / 255
+    return channel / 12.92 if channel <= 0.04045 else ((channel + 0.055) / 1.055) ** 2.4
+
+
 def hex_to_oklab(hex_color: str) -> tuple[float, float, float]:
     """#rrggbb를 OKLab(L, a, b)으로 바꿉니다."""
     if not isinstance(hex_color, str) or not HEX_PATTERN.fullmatch(hex_color):
         raise ValueError(f"#rrggbb 형식이 아닌 색입니다: {hex_color!r}")
 
-    def linearize(value: int) -> float:
-        channel = value / 255
-        return channel / 12.92 if channel <= 0.04045 else ((channel + 0.055) / 1.055) ** 2.4
-
-    red, green, blue = (linearize(int(hex_color[index:index + 2], 16)) for index in (1, 3, 5))
+    red, green, blue = (_linearize(int(hex_color[index:index + 2], 16)) for index in (1, 3, 5))
     l_ = (0.4122214708 * red + 0.5363325363 * green + 0.0514459929 * blue) ** (1 / 3)
     m_ = (0.2119034982 * red + 0.6806995451 * green + 0.1073969566 * blue) ** (1 / 3)
     s_ = (0.0883024619 * red + 0.2817188376 * green + 0.6299787005 * blue) ** (1 / 3)
@@ -151,12 +155,8 @@ def _relative_luminance(hex_color: str) -> float:
     if not isinstance(hex_color, str) or not HEX_PATTERN.fullmatch(hex_color):
         raise ValueError(f"#rrggbb 형식이 아닌 색입니다: {hex_color!r}")
 
-    def linearize(value: int) -> float:
-        channel = value / 255
-        return channel / 12.92 if channel <= 0.04045 else ((channel + 0.055) / 1.055) ** 2.4
-
     red, green, blue = (int(hex_color[index:index + 2], 16) for index in (1, 3, 5))
-    return 0.2126 * linearize(red) + 0.7152 * linearize(green) + 0.0722 * linearize(blue)
+    return 0.2126 * _linearize(red) + 0.7152 * _linearize(green) + 0.0722 * _linearize(blue)
 
 
 def _unrounded_contrast(foreground: str, background: str) -> float:
