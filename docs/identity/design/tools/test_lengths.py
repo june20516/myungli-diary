@@ -194,7 +194,8 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    assert slots == issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710 | ISSUE_763
+    requested = issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710 | ISSUE_763
+    assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
         "evidence-sheet.a11y.unlocked", "today.reaction.label", "chart.ilgan_body", "chart.yongsin_summary",
@@ -203,6 +204,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "login-methods.in-use.body", "account-merge.not-other.body", "ui.purchase.product",
         # W51 스크린리더 전용 셋과 iOS 시스템 창 (#710)
         "ui.saju.a11y", "ui.lucky-card.a11y", "ui.share.a11y", "ui.system.tracking",
+        "ui.depth.evidence_link",  # DS1 근거 아이콘 스크린리더 이름 (V63)
     }
     assert not set(lengths.NO_LIMIT) & slots
 
@@ -252,7 +254,8 @@ def test_d77_ia_slots_are_measured():
     ia_slots = {slot["id"] for screen in ia["screens"] for slot in screen.get("slots", [])}
     assert set(D77_SLOTS) <= ia_slots
     measured = {slot for target in lengths.TARGETS for slot in target.slots}
-    assert set(D77_SLOTS.values()) <= measured
+    assert set(D77_SLOTS.values()) - set(lengths.NO_LIMIT) <= measured
+    assert D77_SLOTS["today.evidence.link"] in lengths.NO_LIMIT  # V63
     places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
     assert {places[D77_SLOTS[ia_id]].split(" ")[0] for ia_id in ("event-edit.save.cta", "diary-edit.save.cta")} == {"primary-button"}
     assert places["ui.event-edit.offline"].startswith("notice-banner")
@@ -381,3 +384,11 @@ def test_settings_label_width_after_icon():
     assert by_slot["ui.settings.login-methods"].width == 240
     assert by_slot["ui.settings.row"].width == (CONTENT_WIDTH - 2 * 16 - 16 - 8 - leading) / 2 == 116
     assert by_slot["ui.legal.row"].width == CONTENT_WIDTH - 2 * 16 - 16  # 약관 목록 줄은 앞 아이콘 없음
+
+
+def test_evidence_link_name_is_screen_reader_only():
+    # DS1(결정 V63): 근거 진입점은 아이콘이라 "근거 보기"는 스크린리더 이름. 이유 줄 끝에서는 아이콘 폭(공백 + 20)만 뺌
+    assert lengths.NO_LIMIT["ui.depth.evidence_link"] == lengths.SCREEN_READER_ONLY
+    assert not [target for target in lengths.TARGETS if "ui.depth.evidence_link" in target.slots]
+    reason = next(target for target in lengths.TARGETS if target.slots == ("character.reason",))
+    assert reason.trailing_icon == 20 and reason.trailing_link is None

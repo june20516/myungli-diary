@@ -34,11 +34,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ui.app.notice`<br>`saju-chart.time-unknown.notice`<br>`diary-edit.offline.notice`<br>`ui.event-edit.offline` | notice-banner (좌우 12, 아이콘 16 + 간격 8) | 272px | 2 | - | 52 | **52** | **38** | **90** |
 | `ui.picker.item` | date-picker·time-picker 휠 칸 (본문 폭 3등분) | 106.7px | 1 | - | 7 | **7** | **5** | **12** |
 | `evidence-sheet.section.basis`<br>`evidence-sheet.section.source`<br>`evidence-sheet.section.personal`<br>`saju-chart.yongsin.title` | lock.veil 제목 (잠기면 앞에 자물쇠 14 + 간격 4) | 302px | 1 | - | 27 | **27** | **22** | **50** |
-| `ui.depth.evidence_link`<br>`birthplace.standard.link`<br>`day-sheet.diary.open` | depth-link 이름 (화살표 14 + 간격 2) | 304px | 1 | - | 25 | **25** | **20** | **45** |
+| `birthplace.standard.link`<br>`day-sheet.diary.open` | depth-link 이름 (화살표 14 + 간격 2) | 304px | 1 | - | 25 | **25** | **20** | **45** |
 | `saju-chart.yongsin.open` | sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 14 + 간격 2) | 144px | 1 | - | 12 | **12** | **9** | **20** |
 | `ui.app.name`<br>`contact.bar.title` | app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2) | 196px | 1 | - | 14 | **14** | **11** | **24** |
 | `onboard-time.hour.confirm` | time-picker 시진 확인 줄 | 320px | 1 | - | 29 | **29** | **23** | **54** |
-| `character.reason` | day-character 이유 줄 (마지막 줄 끝 depth-link inline-end `ui.depth.evidence_link` 원고 폭을 뺌) | 320px | 2 | - | 57 | **57** | **39** | **90** |
+| `character.reason` | day-character 이유 줄 (마지막 줄 끝 depth-link inline-end 근거 아이콘: U+00A0 + 20을 뺌) | 320px | 2 | - | 61 | **61** | **44** | **104** |
 | `ui.guide.card` | guide-question-card 머리글 (안쪽 space.20) | 280px | 1 | - | 27 | **27** | **22** | **50** |
 | `settings.ad-free.label` | settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함) | 240px | 1 | - | 20 | **20** | **16** | **37** |
 | `ui.evidence.title` | evidence-sheet 제목 (sheet 안쪽 space.20) | 320px | 1 | - | 18 | **18** | **15** | **33** |
@@ -99,6 +99,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 
 | 슬롯 | 상한 없음 이유 |
 | --- | --- |
+| `ui.depth.evidence_link` | 스크린리더 전용(화면에 보이지 않음) |
 | `ui.nav.a11y` | 스크린리더 전용(화면에 보이지 않음) |
 | `ui.a11y.label` | 스크린리더 전용(화면에 보이지 않음) |
 | `ui.picker.label` | 스크린리더 전용(화면에 보이지 않음) |
@@ -129,7 +130,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `today.evidence.link` = `ui.depth.evidence_link`, `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21). 기본 깊이 설정(segmented 세 칸, settings-row 값)은 D79로 빠져 `ui.depth.surface`·`evidence`·`default_label` 행을 지웠고, `ui.depth.explain`은 풀이 시트의 접근성 라벨로만 남아 상한이 없습니다(#318).
 * **여러 자리에 쓰는 슬롯은 가장 좁은 자리의 값**을 받습니다. 예를 들어 `ui.action.button`은 `primary-button`과 `dialog` 버튼에 쓰이므로 dialog 버튼 폭(124px)으로 잽니다.
 * **확인 창 슬롯**(`diary-view.delete.confirm` 등 8개)은 한 슬롯에 제목·본문·버튼 키가 함께 있어 두 칸에 나옵니다. 제목 키는 "dialog title" 행, 버튼 키는 "dialog 버튼" 행의 값이고, 본문 키는 창이 늘어나므로 상한이 없습니다. writing은 슬롯을 나누지 않고 제목 키 상한을 `key_max_length`로 담았습니다(W26, #191).
-* `character.reason`은 마지막 줄 끝에 `depth-link` `inline-end`(앞 U+00A0 + `ui.depth.evidence_link` 원고 + 화살표 16)가 붙으므로, 마지막 줄에서 그 폭에 해당하는 글자 수를 한 번 뺐습니다. 링크 폭은 언어별 원고(ko "근거 보기", ja "根拠を見る", en "See the basis")로 재므로 링크 문구가 바뀌면 이 값도 다시 계산합니다.
+* `character.reason`은 마지막 줄 끝에 `depth-link` `inline-end` 근거 아이콘(앞 U+00A0 + 20)이 붙으므로, 마지막 줄에서 그 폭에 해당하는 글자 수를 한 번 뺍니다(4.0.0, V63). 3.4.0까지는 링크 원고("근거 보기" + 화살표 16) 폭을 뺐습니다.
 * 칸 앞에 아이콘이 붙는 상태가 있으면 그 폭을 뺐습니다: 잠긴 구역 제목(자물쇠 14 + 간격 4), destructive 확인 창 제목(`mark.caution` 11.3 + 띄어쓰기 3.5 → 15), toast(아이콘 16 + 간격 16).
 * **2.7.0(#389·#260):** 로그인 수단·계정 합치기 11행을 더하고 윤달 표지는 상한 없음 표에 넣었습니다. 기존 확정값은 그대로입니다. `login-methods.error.body`·`ui.account-merge.error`는 `dialog` `notice`의 본문이라 상한이 없습니다. `ui.account-merge.choice`는 가장 좁은 "현재 계정" 알약(110px)으로, 사주 요약은 따로 나눈 `ui.account-merge.saju`(256px)로 잽니다. `ui.day-cell.lunar`(윤달 표지 "윤{month}.1")는 숫자가 섞인 고정 형식이라 한글로 채운 글자 수가 폭을 대신하지 못해 상한 없음으로 두고 칸 폭 44px로 확인합니다(ko "윤12.1" 26.4px). `ui.login.provider`는 로고를 왼쪽에 고정하고 글자를 가운데 두므로 양쪽에 로고 자리를 비운 232px로 다시 쟀습니다(지금 원고는 모두 들어감).
 * **3.0.0(#480·#483·#494·#475):** 로그인 수단 합치기 입구·구매 내역 버튼을 `primary-button` 행에 더하고 `ad-free.restore.cta`를 뺐습니다. 계정 합치기 인증 안내·가져올 기록·구매 상자 줄 이름·구매 내역 문의 안내·구매 줄 상태 낱말(`ui.purchase.status`)·구매일과 사용 기간 줄(`ui.purchase.meta`) 5행을 더했습니다. 상태 낱말과 구매일 줄은 상한이 달라 슬롯을 나눴습니다(writing 상한은 슬롯 단위). 두 확인 창 본문(`login-methods.in-use.body`·`account-merge.not-other.body`)과 상품 이름(`ui.purchase.product`, 줄바꿈하고 스토어 이름으로 대체될 수 있음)은 상한 없음입니다. LINE 라벨 키 `loginLineLabel`은 공식 자산 구분선 비율을 따른 198px로 따로 재 "키별 상한" 표에 냅니다(결정 V46). `account-merge.cta.cancel`은 IA에서 빠져(PR #511, 결정 V44) `primary-button` 행에서 뺐습니다.
@@ -150,6 +151,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * 원고와 견준 결과(writing R29): 모든 원고가 상한 안입니다.
 * **4.0.0(DS1 #801, 결정 V58):** 설정 화면 메뉴 줄에 앞 아이콘(20 + 간격 12)이 생겨 `settings-row` 이름 자리를 다시 잽니다. `settings.ad-free.label`·`ui.settings.login-methods`는 240px(ko 23 → 20, ja 18 → 16, en 42 → 37), 이름과 값이 나누는 `ui.settings.row`·`ui.profile-edit.birthplace`는 아이콘을 뺀 나머지를 반씩 116px(ko 11 → 9, ja 8 → 7, en 19 → 16)입니다. `ui.profile-edit.birthplace`는 앞 아이콘이 없는 줄이지만 같은 행이라 더 좁은 설정 줄 값을 따릅니다. `ui.legal.row`(약관 목록, 앞 아이콘 없음)는 272px 그대로입니다.
   * 원고와 견준 결과(writing R29): 모든 원고가 새 상한 안입니다. 가장 빠듯한 것은 en `profileEditBirthplaceKorea`(15/16)입니다.
+* **4.0.0 근거 진입점(DS1 #801, 결정 V63):** "근거 보기" 글자 링크가 primary 아이콘(`book-open-text` 20)이 되어 `ui.depth.evidence_link`는 스크린리더 이름(상한 없음)으로 옮겼습니다. `character.reason` 마지막 줄에서는 링크 원고 폭 대신 U+00A0 + 아이콘 20만 빼므로 상한이 늘었습니다(ko 57 → 61, ja 39 → 44, en 90 → 104). 지금 원고는 모두 들어갑니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).

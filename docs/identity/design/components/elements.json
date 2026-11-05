@@ -112,12 +112,6 @@
       "size": "adjacent-text",
       "placement": "before-text-inline"
     },
-    "link.inline-nowrap": {
-      "summary": "끊기지 않는 링크: 문장 끝 링크를 한 덩어리로",
-      "wrap": "whole-unit",
-      "joiners": ["U+00A0", "U+2060"],
-      "a11y": { "separateFocus": true, "role": "link" }
-    },
     "surface.paper": {
       "summary": "종이: 일기 쓰기·보기",
       "bg": "{color.bg.sheet}",

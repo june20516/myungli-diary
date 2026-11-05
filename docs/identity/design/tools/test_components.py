@@ -230,7 +230,7 @@ def test_common_files_define_spec_ids():
         "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring"}
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
-        "mark.underline-grow", "mark.caution", "link.inline-nowrap", "surface.paper", "rail.timeline", "term",
+        "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
         "skeleton.bone", "icon", "lock.veil",
         "list.divider", "section.header", "button.pair", "explain.sheet"}  # DS1 V58~V60·V62
 
@@ -357,7 +357,7 @@ def test_brand_spec_values():
     day = json.dumps(c["day-cell"])
     assert "{color.seal.soft}" in day and "outline" in day and "mark.underline-grow" in day
     assert "{color.tag.good.bg}" in json.dumps(c["tag-chip"]) and "tone" in c["tag-chip"]["uses"]
-    assert "link.inline-nowrap" in json.dumps(c["depth-link"])
+    assert c["depth-link"]["parts"]["icon"]["icon"] == "book-open-text"  # V63: 근거 진입점은 아이콘
     assert "tag.me" in c["saju-pillars"]["uses"] and "highlight.current" in c["daeun-table"]["uses"]
     assert "surface.paper" in c["diary-editor"]["uses"] and "rail.timeline" in c["diary-row"]["uses"]
     assert "seal.stamp" in json.dumps(c["reaction-button"]) and "seal.stamp" in json.dumps(c["diary-editor"])
@@ -514,6 +514,8 @@ SLOTS_OUTSIDE_IA |= {"ui.account-merge.choice", "ui.account-merge.saju", "ui.log
 SLOTS_OUTSIDE_IA |= {"ui.purchase.meta", "ui.purchase.product", "ui.purchase.status"}
 # W51 사주 표 낱말과 근거 시트 빈 안내 (#710)
 SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empty"}
+# 근거 아이콘의 스크린리더 이름 (DS1, V63). IA 자리 today.evidence.link를 담은 writing 슬롯(W33)
+SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 
 
 def _slot_values(node):
@@ -574,7 +576,7 @@ CHEVRON = {"icon": "caret-right", "weight": "regular", "size": "adjacent-text", 
 def test_text_link_chevrons_are_component_drawn_icons():
     depth_link = component("sentence", "depth-link")
     block = component("sentence", "sentence-block")
-    assert depth_link["parts"]["chevron"] == CHEVRON
+    assert next(v for v in depth_link["variants"] if v["id"] == "navigate")["parts"]["chevron"] == CHEVRON  # V63: 글자 링크만
     assert block["states"]["locked"]["parts"]["open"]["chevron"] == CHEVRON
     assert depth_link["states"]["locked"]["parts"]["evidenceSheet"]["lockPanel"]["pass"]["chevron"] == CHEVRON
     assert any("원고에 넣지 않" in rule for rule in depth_link["rules"])
@@ -1355,3 +1357,25 @@ def test_explain_opens_without_shift():
     assert "explain.sheet" in term["uses"] and term["parts"]["explainSheet"]["element"] == "explain.sheet"
     text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
     assert '"insert"' not in text and "칩 줄 아래 전체 폭으로 열린다" not in text
+
+
+# DS1 spec §6, 결정 V63
+def test_evidence_entry_is_icon():
+    link = next(c for c in all_components() if c["id"] == "depth-link")
+    assert link["parts"]["icon"] == {"icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}",
+                                     "color": "{color.action.primary}", "minTarget": 48}
+    assert "label" not in link["parts"] and "chevron" not in link["parts"]
+    variants = {variant["id"]: variant for variant in link["variants"]}
+    for evidence in ("inline-end", "block"):
+        assert "label" not in variants[evidence].get("parts", {}), evidence
+    assert variants["inline-end"]["parts"]["icon"]["joinBefore"] == "U+00A0"
+    navigate = variants["navigate"]["parts"]
+    assert navigate["icon"] == {"visible": False}
+    assert navigate["label"]["slot"] == "birthplace.standard.link" and navigate["chevron"]["icon"] == "caret-right"
+    assert link["a11y"]["labelSlot"] == "ui.depth.evidence_link" and link["a11y"]["minTarget"] == 48
+
+
+def test_no_inline_nowrap_link():
+    texts = [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json")]
+    texts += [path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.md")]
+    assert not [text for text in texts if "link.inline-nowrap" in text]

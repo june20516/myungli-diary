@@ -80,6 +80,7 @@ class Target:
     prefix: str = ""  # 이름 앞에 늘 붙는 글자(예: 태그 칩의 '#'). 실제 폭만큼 칸에서 뺌
     reserve_slot: str | None = None  # 같은 줄 오른쪽 값 자리. 그 슬롯의 ko 확정 글자 수만큼 폭을 뺌
     trailing_link: str | None = None  # 문장 끝에 붙는 링크 슬롯. 그 원고 폭만큼 마지막 줄에서 뺌(언어별)
+    trailing_icon: float = 0  # 문장 끝에 붙는 아이콘 폭(px). 앞 U+00A0과 함께 마지막 줄에서 뺌 (결정 V63)
 
 
 # 한 슬롯에 제목·본문·버튼 키가 함께 있는 확인 창. 제목 키와 버튼 키에만 상한을 둡니다(본문은 창이 늘어남).
@@ -154,7 +155,8 @@ TARGETS = (
             "saju-chart.yongsin.title"), "lock.veil 제목 (잠기면 앞에 자물쇠 14 + 간격 4)",
            "ui-500", 13, -0.26, CONTENT_WIDTH - 14 - 4, 1, False, None),
     # D77 IA 자리 today.evidence.link = ui.depth.evidence_link (W33)
-    Target(("ui.depth.evidence_link", "birthplace.standard.link", "day-sheet.diary.open"),
+    # 근거 진입점은 아이콘이라 ui.depth.evidence_link는 스크린리더 이름(NO_LIMIT, 결정 V63)
+    Target(("birthplace.standard.link", "day-sheet.diary.open"),
            "depth-link 이름 (화살표 14 + 간격 2)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 14 - 2, 1, False, None),
     Target(("saju-chart.yongsin.open",), "sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 14 + 간격 2)",
@@ -162,8 +164,8 @@ TARGETS = (
     Target(("ui.app.name", "contact.bar.title"), "app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2)",
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 16 - 44 - 2 * 44, 1, False, None),
     Target(("onboard-time.hour.confirm",), "time-picker 시진 확인 줄", "ui-400", 13, -0.26, CONTENT_WIDTH, 1, False, None),
-    Target(("character.reason",), "day-character 이유 줄 (마지막 줄 끝 depth-link inline-end `ui.depth.evidence_link` 원고 폭을 뺌)",
-           "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None, trailing_link="ui.depth.evidence_link"),
+    Target(("character.reason",), "day-character 이유 줄 (마지막 줄 끝 depth-link inline-end 근거 아이콘: U+00A0 + 20을 뺌)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None, trailing_icon=20),
     Target(("ui.guide.card",), "guide-question-card 머리글 (안쪽 space.20)", "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 20, 1, False, None),
     Target(("settings.ad-free.label",), "settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - SETTINGS_LEADING, 1, False, None),
@@ -277,6 +279,7 @@ SCREEN_READER_ONLY = "스크린리더 전용(화면에 보이지 않음)"
 SCROLL_BODY = "스크롤 본문"
 OUTSIDE_APP = "app 밖 화면(server 웹 페이지)"
 NO_LIMIT = {
+    "ui.depth.evidence_link": SCREEN_READER_ONLY,  # 근거 아이콘의 스크린리더 이름 (결정 V63)
     "ui.nav.a11y": SCREEN_READER_ONLY,
     "ui.a11y.label": SCREEN_READER_ONLY,
     "ui.picker.label": SCREEN_READER_ONLY,
@@ -483,6 +486,10 @@ def measure(fonts: Fonts, words: list[str], targets: tuple[Target, ...] = TARGET
             texts = links[target.trailing_link]
             for language in LANGUAGES:
                 width_px = link_width(texts[language], language, link_advances)
+                counts[language] -= trailing_chars(width_px, lines[language], target.width)
+        if target.trailing_icon:
+            for language in LANGUAGES:
+                width_px = text_width("\u00a0", ko_advances, target.size, target.tracking) + target.trailing_icon
                 counts[language] -= trailing_chars(width_px, lines[language], target.width)
         result = Result(target, counts["ko"], counts["ja"], counts["en"])
         finals.update({slot: result.final("ko") for slot in target.slots})

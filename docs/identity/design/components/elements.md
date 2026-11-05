@@ -14,7 +14,6 @@
 | `highlight.current` 현재 강조 | 바탕 `status.bg` + 글자 `action.primary` 굵게 | 대운 지금, 세운 올해 |
 | `mark.underline-grow` 펼침 밑줄 | `action.primary` 14×2px 둥근 막대, 숫자 아래 2px | 달력 선택 날짜 |
 | `mark.caution` 경고 표시 | Phosphor `warning-circle` Fill, 글자색, 옆 글자 기준 아이콘 단계 | 되돌릴 수 없는 동작 |
-| `link.inline-nowrap` 끊기지 않는 링크 | 문장 끝 링크 전체를 한 덩어리로 | 근거 보기 |
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
@@ -65,10 +64,6 @@
 빨간색을 쓰는 대신 Phosphor `warning-circle` Fill을 문장 앞에 둡니다. 색은 놓인 글자의 색을 따릅니다. 아이콘 세트에서 Fill을 쓰는 곳은 이것뿐입니다.
 
 크기는 다른 글자 옆 아이콘과 같은 단계 규칙(`adjacent-text`, 아래 "아이콘")입니다. 전에는 글자 크기 × 0.707(대문자 높이)이었는데 한글보다 작아 보여 바꿨습니다(결정 V57).
-
-## 끊기지 않는 링크 `link.inline-nowrap`
-
-이유 문장 끝에 붙는 "근거 보기" + 화살표가 줄 끝에서 둘로 갈라지지 않게 합니다. 링크 낱말 사이에 U+00A0(줄바꿈 없는 공백), 글자 사이에 U+2060(단어 결합자)을 넣어 한 덩어리로 만들고, 줄 끝에 안 들어가면 통째로 다음 줄로 넘깁니다. Flutter는 링크 이름과 화살표 아이콘(`caret-right`)을 문장 끝 `WidgetSpan` 하나에 담습니다(아이콘은 `TextSpan`에 담을 수 없음). 스크린리더 초점은 링크에 따로 줍니다.
 
 ## 잠긴 구역 `lock.veil`
 
