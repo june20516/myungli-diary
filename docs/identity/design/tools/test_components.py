@@ -232,7 +232,7 @@ def test_common_files_define_spec_ids():
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "link.inline-nowrap", "surface.paper", "rail.timeline", "term",
         "skeleton.bone", "icon", "lock.veil",
-        "list.divider", "section.header"}  # DS1 V58·V59
+        "list.divider", "section.header", "button.pair", "explain.sheet"}  # DS1 V58~V60·V62
 
 
 def test_seal_element_matches_logo():
@@ -541,7 +541,7 @@ def test_locked_evidence_sheet_never_veils_titles():
 def test_other_content_text_parts_follow_segments():
     c = components_by_id(BRAND_GROUPS)
     assert c["day-character"]["parts"]["reason"]["segments"] == "sentence-block"
-    assert c["lucky-card"]["parts"]["explain"]["segments"] == "sentence-block"
+    assert c["lucky-card"]["parts"]["explain"]["body"]["segments"] == "sentence-block"  # V62: 설명 시트 본문
 
 
 def test_terms_inside_pressable_containers_are_plain():
@@ -1312,3 +1312,46 @@ def test_section_header_element():
                                       "marginTop": "{space.2}", "optional": True}
     assert "trailing" not in header
     assert header["contentGap"] == "{space.12}" and header["sectionGap"] == "{space.32}"
+
+
+# DS1 spec §5·§6, 결정 V60·V61·V62
+def test_single_press_pattern():
+    patterns = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]
+    assert [name for name in patterns if name.startswith("press.")] == ["press.ink"]
+    ink = patterns["press.ink"]
+    assert ink["scope"] == "own-boundary"
+    assert ink["ink"]["radius"] == "farthest-corner / 0.7"
+    assert ink["ink"]["solidUntil"] == 0.7
+    assert ink["release"]["from"] == "grow-to-full"
+    for component in all_components():
+        pressed = component.get("states", {}).get("pressed")
+        if pressed:
+            assert pressed["pattern"] == "press.ink", component["id"]
+
+
+def test_button_pair_rule():
+    pair = load_documents(COMPONENTS_DIR)["elements"]["elements"]["button.pair"]
+    assert pair["stack"] == {"direction": "vertical", "order": ["filled", "quiet"], "gap": "{space.8}"}
+    assert pair["height"] == "same" and pair["width"] == "fill"
+    assert pair["component"] == "primary-button"
+
+
+def test_quiet_height_matches_filled():
+    button = next(c for c in all_components() if c["id"] == "primary-button")
+    quiet = next(v for v in button["variants"] if v["id"] == "quiet")
+    assert "height" not in quiet["parts"]["container"]
+    assert button["parts"]["container"]["height"] == {"value": 52, "unit": "px"}
+
+
+def test_explain_opens_without_shift():
+    element = load_documents(COMPONENTS_DIR)["elements"]["elements"]["explain.sheet"]
+    assert element["container"] == {"component": "sheet", "variant": "half", "height": "content"}
+    assert element["layout"] == "overlay"
+    by_id = {c["id"]: c for c in all_components()}
+    lucky = by_id["lucky-card"]
+    assert "explain.sheet" in lucky["uses"] and lucky["parts"]["explain"]["element"] == "explain.sheet"
+    assert lucky["states"]["open"]["pattern"] == "sheet.enter"
+    term = by_id["term-token"]
+    assert "explain.sheet" in term["uses"] and term["parts"]["explainSheet"]["element"] == "explain.sheet"
+    text = "\n".join(path.read_text(encoding="utf-8") for path in COMPONENTS_DIR.glob("*.json"))
+    assert '"insert"' not in text and "칩 줄 아래 전체 폭으로 열린다" not in text

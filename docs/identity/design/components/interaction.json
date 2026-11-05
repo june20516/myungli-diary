@@ -2,7 +2,7 @@
   "version": "3.4.0",
   "patterns": {
     "press.ink": {
-      "summary": "먹 번짐: 모든 눌림",
+      "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
       "duration": "{motion.duration.stamp}",
       "easing": "{motion.easing.seep}",
       "ink": {
@@ -11,15 +11,21 @@
         "edge": "soft",
         "color": "component-foreground",
         "alpha": 0.12,
-        "radius": "farthest-corner"
+        "radius": "farthest-corner / 0.7",
+        "solidUntil": 0.7,
+        "note": "다 자라면 진한 영역(반지름의 0~0.7)이 누른 자리에서 가장 먼 모서리까지 닿고, 흐린 테(0.7~1)는 요소 밖이라 잘림"
       },
       "release": {
+        "from": "grow-to-full",
         "duration": "{motion.duration.long}",
         "easing": "{motion.easing.seep}",
         "scale": [1, 1.15],
-        "opacity": [1, 0]
+        "opacity": [1, 0],
+        "note": "다 자라기 전에 떼도 다 자란 크기까지 이어 자라며 사라짐. scale은 다 자란 반지름 기준"
       },
       "clip": "inner-layer",
+      "scope": "own-boundary",
+      "scopeNote": "누른 컴포넌트 자신의 경계 안에서만. 줄 안의 배지, 칩을 누르면 그 안에만 번지고, 줄과 안쪽 요소가 둘 다 누를 수 있으면 안쪽 요소가 눌림을 가져감",
       "reduceMotion": "opacity-only",
       "lowEnd": "same"
     },

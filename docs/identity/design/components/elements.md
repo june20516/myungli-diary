@@ -18,6 +18,8 @@
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
+| `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
+| `explain.sheet` 짧은 설명 시트 | 내용 높이 half 시트, 제목 `type.subtitle` + 본문, 배치 안에 끼우지 않음 | lucky-card, term-token 풀이 시트 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
 | `section.header` 섹션 제목 | `type.label.lg` 600 제목 + 선택 설명 `type.caption.md`(사이 `space.2`), 내용과 `space.12`, 섹션 사이 `space.32` | 2단계 IA가 화면에 둠 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
@@ -90,6 +92,16 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
   * 기기 글자가 커지면 아이콘도 같은 배율로 커집니다(V30과 같은 원리).
 * 직접 그린 아이콘은 쓰지 않습니다. 세트에 없는 뜻은 글자로 씁니다. 명세에 적는 이름은 `tools/phosphor_names.txt`(`phosphor_glyphs` 2.1.2+1에서 뽑은 1512개)에 있어야 하고, 테스트가 대조합니다.
 * 소셜 로그인 로고는 아이콘 세트에서 가져오지 않습니다(각 사 공식 자산).
+
+## 두 버튼 `button.pair`
+
+두 동작을 함께 둘 때의 배치입니다(결정 V60). 세로로 쌓고 주 동작(`primary-button` `filled`)이 위, 보조 동작(`quiet`)이 아래, 사이 `space.8`입니다. 두 버튼은 높이 52, 폭 전체로 같고, 위계는 크기가 아니라 모양으로 구분합니다. 가로로 나란히 두지 않습니다. 확인 창(`dialog`)의 두 버튼만 상자 안 가로 둘입니다(V65).
+
+## 짧은 설명 시트 `explain.sheet`
+
+칩, 배지, 용어를 눌러 짧은 설명을 여는 곳입니다(결정 V62). 내용 높이만큼의 half 시트(`sheet` 규칙, 핸들 있음)이고, 제목은 누른 항목의 이름(`type.subtitle`, 아래 `space.8`), 본문은 `sentence-block` `body`입니다. 바깥 누르기, 끌어 내리기, 뒤로 가기로 닫힙니다.
+
+설명은 화면 배치 안에 끼워 넣지 않습니다. 그래서 열려도 아래 내용이 밀리지 않습니다(F-008). 연 항목에는 열린 동안 표시가 남습니다(`lucky-card` 테두리, V52). 어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정합니다(#801).
 
 ## 목록 구분선 `list.divider`
 

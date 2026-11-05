@@ -140,6 +140,28 @@
       "fontWeight": "inherit",
       "padding": { "x": "{space.4}" }
     },
+    "button.pair": {
+      "summary": "두 버튼: 세로로 쌓고 주 버튼이 위 (결정 V60, Q2 ①)",
+      "component": "primary-button",
+      "stack": { "direction": "vertical", "order": ["filled", "quiet"], "gap": "{space.8}" },
+      "height": "same",
+      "width": "fill",
+      "note": "가로 배치는 쓰지 않음. 확인 창(dialog)의 두 버튼은 dialog 규칙(V65)"
+    },
+    "explain.sheet": {
+      "summary": "짧은 설명 시트: 칩, 배지, 용어를 눌러 여는 설명 (결정 V62, Q4 ②)",
+      "uses": ["sheet.enter", "sheet.exit"],
+      "container": { "component": "sheet", "variant": "half", "height": "content" },
+      "layout": "overlay",
+      "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "누른 항목의 이름", "marginBottom": "{space.8}" },
+      "body": { "component": "sentence-block", "variant": "body" },
+      "dismiss": ["바깥 누르기", "끌어 내리기", "뒤로 가기"],
+      "rules": [
+        "설명은 화면 배치 안에 끼워 넣지 않는다. 열려도 아래 내용이 밀리지 않는다(F-008).",
+        "연 항목에는 열린 동안 표시가 남고 닫으면 사라진다.",
+        "어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정한다(#801)."
+      ]
+    },
     "list.divider": {
       "summary": "목록 구분선: 같은 묶음 안 줄 사이 (결정 V58)",
       "color": "{color.line}",

@@ -11,7 +11,7 @@
 | 변형 | 바탕 | 글자 | 쓰임 |
 | --- | --- | --- | --- |
 | `filled` | `action.primary` | `action.on-primary` | 화면의 주 동작 |
-| `quiet` | 없음(높이 44) | `action.primary` | 다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼 |
+| `quiet` | 없음(높이 52, `filled`와 같음, V60) | `action.primary` | 다시 입력, 건너뛰기, 다시 시도, 오늘 질문 카드의 쓴 뒤 버튼 |
 | `destructive` | `text.primary` | `bg.sheet` + 앞에 `mark.caution` | 되돌릴 수 없는 동작 |
 
 | 상태 | 모습 |

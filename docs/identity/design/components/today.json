@@ -19,12 +19,12 @@
       "states": {},
       "haptic": [],
       "a11y": { "role": "text", "label": "배지 글자 + 이유", "colorIndependent": true },
-      "rules": ["배지는 글자로 날의 성격을 말한다. 색만으로 전하지 않는다.", "이유 줄 끝에 depth-link inline-end가 붙는다."]
+      "rules": ["배지는 글자로 날의 성격을 말한다. 색만으로 전하지 않는다.", "이유 줄 끝에 depth-link inline-end가 붙는다.", "배지는 누를 수 없는 표시다. 배지나 배지를 감싼 줄에 눌림 표시를 두지 않는다(F-007, 결정 V61)."]
     },
     {
       "id": "lucky-card",
-      "summary": "행운 항목 칩. 누르면 설명 한 줄이 스밈",
-      "uses": ["press.ink", "appear.seep", "disappear.seep", "icon"],
+      "summary": "행운 항목 칩. 누르면 짧은 설명 시트(explain.sheet)가 열림",
+      "uses": ["press.ink", "icon", "explain.sheet", "sheet.enter", "sheet.exit"],
       "variants": [
         { "id": "color", "when": "행운 색", "uses": ["ohaeng.swatch"], "parts": { "lead": { "swatch": { "size": { "value": 14, "unit": "px" }, "radius": "{radius.full}" } } } },
         { "id": "direction", "when": "행운 방향", "parts": { "lead": { "icon": "compass" } } },
@@ -37,23 +37,23 @@
         "lead": { "iconWeight": "regular", "iconSize": "adjacent-text", "iconColor": "{color.text.secondary}" },
         "value": { "type": "{type.label.md}", "fg": "{color.text.primary}" },
         "row": { "gap": "{space.8}", "wrap": true },
-        "explain": { "bg": "{color.chip.bg}", "radius": "{radius.md}", "padding": "{space.12}", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "segments": "sentence-block" }
+        "explain": { "element": "explain.sheet", "title": { "source": "항목 이름(칩 스크린리더 라벨의 항목 이름과 같은 낱말)" }, "body": { "segments": "sentence-block" } }
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
-        "open": { "pattern": "appear.seep", "parts": { "chip": { "innerBorder": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" } } }, "explain": { "visible": true } } },
-        "closed": { "pattern": "disappear.seep", "parts": { "explain": { "visible": false } } }
+        "open": { "pattern": "sheet.enter", "parts": { "chip": { "innerBorder": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" } } }, "explain": { "visible": true } } },
+        "closed": { "pattern": "sheet.exit", "parts": { "explain": { "visible": false } } }
       },
       "haptic": [],
       "a11y": { "role": "button", "label": "항목 이름 + 값 (tag는 태그 이름만)", "expandedAnnounced": true, "minTarget": 44 },
       "rules": [
-        "한 번에 하나만 열린다. 다른 칩을 누르면 열린 설명이 바뀐다.",
-        "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음). 설명 상자는 칩 줄 아래 전체 폭으로 열린다.",
+        "설명은 explain.sheet로 열고 칩 줄 아래에 끼워 넣지 않는다. 시트가 열린 동안 연 칩에 테두리가 남는다(결정 V62).",
+        "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음).",
         "tag 칩은 칩 줄 맨 앞, 행운 4종(color·direction·number·time) 앞에 Daily.tags.featured 순서로 놓는다. 0개면 그리지 않는다. 칩 줄 전체 최대 7개(태그 2 + 색, 방향, 숫자 3 + 시간 2).",
         "tag 칩은 길흉(Tag.polarity)과 상관없이 같은 모양이다. 바탕·테두리·글자색은 행운 칩 그대로이고 글자 굵기 600과 앞 아이콘 색(text.primary)으로만 구분한다. 부정 신호 태그(충·공망)도 같고 잠금·구매 안내와 잇지 않는다(D72, 결정 V35).",
-        "tag 칩을 누르면 다른 칩처럼 설명 상자에 today.lucky-tag.body가 스민다. 칩 이름은 glossary tag 범주(슬롯 daily.tag_label).",
+        "tag 칩을 누르면 다른 칩처럼 설명 시트가 열리고 본문은 today.lucky-tag.body다. 칩 이름은 glossary tag 범주(슬롯 daily.tag_label).",
         "share-image의 칩 줄에는 tag 칩을 넣지 않는다(행운 4종만). time 칩은 첫 구간 하나만 넣는다(칩 수 표 그대로).",
-        "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간이 둘이면 구간마다 time 칩 하나를 계약 순서대로 나란히 두고, 구간을 글자로 잇지 않는다(D93, 결정 V52).", "time 칩이 둘이면 어느 쪽을 눌러도 같은 설명(daily.focus_time)이 스미고, 열림 테두리는 누른 칩에만 생긴다. 스크린리더 라벨은 칩마다 항목 이름 + 그 구간."
+        "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간이 둘이면 구간마다 time 칩 하나를 계약 순서대로 나란히 두고, 구간을 글자로 잇지 않는다(D93, 결정 V52).", "time 칩이 둘이면 어느 쪽을 눌러도 같은 설명(daily.focus_time) 시트가 열리고, 열림 테두리는 누른 칩에만 생긴다. 스크린리더 라벨은 칩마다 항목 이름 + 그 구간."
       ]
     },
     {

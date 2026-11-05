@@ -53,8 +53,8 @@
     },
     {
       "id": "term-token",
-      "summary": "명리 용어 표시. 누르면 풀이 시트",
-      "uses": ["term", "press.ink", "sheet.enter"],
+      "summary": "명리 용어 표시. 누르면 풀이 시트(explain.sheet 바탕)",
+      "uses": ["term", "press.ink", "sheet.enter", "explain.sheet"],
       "variants": [
         { "id": "inline", "when": "문장 안", "parts": { "chip": { "type": "inherit", "paddingX": "{space.4}" } } },
         { "id": "label", "when": "표 행 머리, 십성 줄", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": "{space.4}" } } }
@@ -62,6 +62,8 @@
       "parts": {
         "chip": { "bg": "{color.term.bg}", "fg": "{color.term.fg}", "radius": "{radius.xs}", "fontWeight": "inherit" },
         "explainSheet": {
+          "element": "explain.sheet",
+          "note": "explain.sheet에 한자 줄, 오늘 이유, 근거 진입점을 더한 풀이 시트",
           "container": { "component": "sheet", "variant": "half" },
           "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
           "hanja": { "type": "{type.caption.md}", "fontFamily": "{font.family.hanja}", "fg": "{color.text.secondary}" },
