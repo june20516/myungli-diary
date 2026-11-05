@@ -139,7 +139,7 @@ terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.c
 
 1. `deploy-server` target `load`: 지워 둔 Cloud SQL을 다시 만들고 migrate, seed, server를 배포합니다.
 2. 생성기 Job으로 계정을 만들고 측정합니다(`server/load/README.md` "생성기 Job").
-3. `deploy-server` target `load-teardown`: Cloud SQL 인스턴스와 그에 기대는 자원(DB, DB 사용자, SQL 알림 정책)만 지웁니다. 지운 인스턴스 이름은 바로 다시 쓸 수 있습니다(Cloud SQL 문서 "Delete instances"). Secret, Cloud Run(요청이 없으면 인스턴스 0), 네트워크는 남기므로 다음 회차는 1부터 다시 하면 됩니다. 계정과 데이터는 회차마다 새로 만듭니다.
+3. `deploy-server` target `load-teardown`: Cloud SQL 인스턴스와 그에 기대는 자원(DB, DB 사용자, SQL 알림 정책)만 지웁니다. DB와 DB 사용자는 인스턴스와 함께 사라지므로 state에서만 빼고 인스턴스를 지웁니다(따로 지우면 연결이 남은 DB와 표를 가진 migrator 사용자에서 막힘). 지운 인스턴스 이름은 바로 다시 쓸 수 있습니다(Cloud SQL 문서 "Delete instances"). Secret, Cloud Run(요청이 없으면 인스턴스 0), 네트워크는 남기므로 다음 회차는 1부터 다시 하면 됩니다. 계정과 데이터는 회차마다 새로 만듭니다.
 
 L1이 모두 끝나면 프로젝트를 지울지 지휘와 정합니다.
 
