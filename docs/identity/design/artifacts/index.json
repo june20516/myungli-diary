@@ -717,13 +717,13 @@
   {
     "id": "design-ds1-rules",
     "title": "DS1 규칙 견본: 고르는 질문 Q1~Q6(눌림, 두 버튼, 섹션 제목, 설명 열기, 근거 아이콘, 화면 전환)과 정한 값 A~G",
-    "kind": "rule-sheet",
+    "kind": "component",
     "file": "2026-11-05-ds1-rules.png",
     "source": "2026-11-05-ds1-rules.html",
     "date": "2026-11-05",
     "milestone": "DS1",
     "screens": [],
-    "decisions": [],
+    "decisions": ["V56", "V57", "V58", "V59", "V60", "V61", "V62", "V63", "V64", "V65", "V66", "V67", "V68"],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 고른 안(2026-11-05, #801): Q1 ① 먹 번짐(진한 영역이 가장 먼 모서리까지), Q2 ① 세로 quiet 52, Q3 ② 굵은 라벨과 설명 줄, Q4 ② 하프 시트, Q5 ① book-open-text, Q6 ① 24px 밀림과 페이드. 정한 값 A~G 확인, C 구분선은 좌우 같은 들임으로 아이콘 아래까지, F는 요소별 skeleton을 화면 배치대로"
   }
