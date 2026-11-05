@@ -466,6 +466,35 @@ def ia_slot_ids(screen_id):
     return {slot["id"] for slot in ia_screens()[screen_id]["slots"]}
 
 
+# DS1 2단계 spec §1 표: IA v5가 더한 컴포넌트 15개. 명세를 쓸 때마다 IA_PENDING_COMPONENTS에서 뺍니다.
+IA_V5_NEW_COMPONENTS = {
+    "section-header", "hanja-tag", "explain-sheet", "date-header", "tag-sentence-list", "fortune-verdict",
+    "score-row", "score-scale", "date-block", "diary-summary", "luck-pillar", "birth-info-row", "band-table",
+    "stage-strip", "scroll-hint",
+}
+
+
+def test_pending_ia_components_are_known():
+    ia_ids = {component["id"] for component in json.loads(IA_PATH.read_text(encoding="utf-8"))["components"]}
+    specified = {component["id"] for name in components.GROUPS for component in load_documents(COMPONENTS_DIR)[name]["components"]}
+    assert components.IA_PENDING_COMPONENTS <= IA_V5_NEW_COMPONENTS  # 목록은 새 15개 안에서만 줄어듦
+    assert components.IA_PENDING_COMPONENTS == ia_ids - specified  # 명세가 생기면 목록에서 빼야 통과
+    assert not components.IA_PENDING_COMPONENTS & specified
+
+
+def test_pending_exempts_only_missing_spec_problem():
+    docs = valid_docs()
+    docs["frame"]["components"].pop()
+    ia = {**IA, "components": IA["components"]}
+    assert has(find_problems(docs, ia, TOKENS), "b", "명세가 없음")
+    pending = components.IA_PENDING_COMPONENTS
+    components.IA_PENDING_COMPONENTS = frozenset({"b"})
+    try:
+        assert not has(find_problems(docs, ia, TOKENS), "명세가 없음")
+    finally:
+        components.IA_PENDING_COMPONENTS = pending
+
+
 # 문장 조각과 잠금 슬롯 (term-segments spec §2·§3)
 def test_term_segments_draw_chip_only_where_term_token_is():
     block = components_by_id(BRAND_GROUPS)["sentence-block"]
@@ -1447,7 +1476,8 @@ def test_loading_components_are_classified():
     loading_screens = [screen for screen in ia_screens().values()
                        if any(state["id"] == "loading" for state in screen.get("states", []))]
     on_loading = {component for screen in loading_screens for component in screen.get("components", [])}
-    assert on_loading - NO_LOADING_CONTENT <= CONTENT_COMPONENTS
+    # 명세 대기 컴포넌트는 명세를 쓰는 task가 분류합니다(IA_PENDING_COMPONENTS에서 뺄 때)
+    assert on_loading - NO_LOADING_CONTENT - components.IA_PENDING_COMPONENTS <= CONTENT_COMPONENTS
     assert not CONTENT_COMPONENTS & NO_LOADING_CONTENT
 
 

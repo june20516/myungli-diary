@@ -33,6 +33,14 @@ HAPTIC_STRENGTHS = ("selection", "light", "medium")
 TIMING_KEY = re.compile(r"^(duration|easing)$|(Duration|Easing)$")
 EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 
+# IA v5(#812)가 더했지만 명세를 아직 쓰지 않은 컴포넌트(DS1 2단계 spec §1). "명세가 없음" 문제에서만 빠지고
+# 다른 검사는 그대로 돕니다. 명세를 쓰는 task가 그 컴포넌트를 이 목록에서 뺍니다.
+IA_PENDING_COMPONENTS = frozenset({
+    "section-header", "hanja-tag", "explain-sheet", "date-header", "tag-sentence-list", "fortune-verdict",
+    "score-row", "score-scale", "date-block", "diary-summary", "luck-pillar", "birth-info-row", "band-table",
+    "stage-strip", "scroll-hint",
+})
+
 # 테마 조합 이름 → (색 모드 파일, 글자 언어 파일). primitive는 모든 조합에 들어갑니다.
 THEMES = {
     "light-ko": ("color.light.tokens.json", "typography.tokens.json"),
@@ -117,7 +125,7 @@ def _ia_problems(documents: dict[str, dict], ia: dict) -> list[str]:
         for component in _component_list(documents.get(name, {})):
             if "id" in component:
                 owners.setdefault(component["id"], []).append(name)
-    problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners))]
+    problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners) - IA_PENDING_COMPONENTS)]
     for component_id, groups in sorted(owners.items()):
         if component_id not in expected:
             problems.append(f"{component_id}: IA에 없는 컴포넌트 ({', '.join(groups)}.json)")

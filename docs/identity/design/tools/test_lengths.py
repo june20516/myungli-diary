@@ -35,7 +35,6 @@ EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행 중 남은 11행(D7
 
 # D77로 IA에 더한 ui 자리 → 그 자리를 담은 writing 슬롯 (writing W33, 슬롯 id를 두고 ia 필드로 자리를 적음)
 D77_SLOTS = {
-    "today.evidence.link": "ui.depth.evidence_link",
     "evidence-sheet.sheet.title": "ui.evidence.title",
     "login.error.body": "ui.login.error",
     "event-edit.save.cta": "ui.event-edit.save",
@@ -256,7 +255,8 @@ def test_d77_ia_slots_are_measured():
     assert set(D77_SLOTS) <= ia_slots
     measured = {slot for target in lengths.TARGETS for slot in target.slots}
     assert set(D77_SLOTS.values()) - set(lengths.NO_LIMIT) <= measured
-    assert D77_SLOTS["today.evidence.link"] in lengths.NO_LIMIT  # V63
+    # today.evidence.link는 IA v5(#812)에서 지워졌습니다. writing 슬롯은 스크린리더 이름이라 상한이 없습니다(V63).
+    assert "ui.depth.evidence_link" in lengths.NO_LIMIT
     places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
     assert {places[D77_SLOTS[ia_id]].split(" ")[0] for ia_id in ("event-edit.save.cta", "diary-edit.save.cta")} == {"primary-button"}
     assert places["ui.event-edit.offline"].startswith("notice-banner")

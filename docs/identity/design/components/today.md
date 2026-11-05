@@ -5,8 +5,8 @@
 
 ## day-character
 
-* 쓰는 화면: preview, today, day-sheet, diary-view
-* 배지(`radius.full`, `type.label.md`, 높이 26) + 이유 한 줄(`type.caption.lg` `text.secondary`) + 끝에 depth-link `inline-end`. 이유 줄의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다(today·day-sheet에서 칩).
+* 쓰는 화면: preview (IA v5, #812로 나머지 화면에서 빠짐. 날의 성격 표시는 `hanja-tag`)
+* 배지(`radius.full`, `type.label.md`, 높이 26) + 이유 한 줄(`type.caption.lg` `text.secondary`) + 끝에 depth-link `inline-end`. 이유 줄의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다(`preview`에서는 일반 글자).
 
 | 변형 | 엔진 `DayKind` | 배지 |
 | --- | --- | --- |

@@ -21,7 +21,7 @@
           "term": {
             "component": "term-token",
             "variant": "inline",
-            "screens": ["today", "day-sheet", "tag-diary", "my-saju", "saju-chart"],
+            "screens": ["today", "tag-diary", "my-saju", "saju-chart"],
             "elsewhere": "plain",
             "insidePressable": { "containers": ["diary-row"], "draw": "plain", "note": "카드 전체가 버튼인 곳 안에서는 일반 글자. 누를 것 안에 누를 것을 두지 않고, preview 말줄임이 칩을 자르지 않게" },
             "textColorChange": "문장 글자색이 상태로 바뀌어도(예: guide-question-card after) 칩은 term.bg·term.fg 그대로",

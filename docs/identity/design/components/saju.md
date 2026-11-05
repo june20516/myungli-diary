@@ -15,7 +15,7 @@
 
 ## saju-pillars
 
-* 쓰는 화면: evidence-sheet, saju-chart
+* 쓰는 화면: evidence-sheet, my-saju, saju-chart
 * 왼쪽부터 시·일·월·연. 칸은 `ohaeng.cell` `pillar`(66px 높이, 한자 `type.hanja.pillar` + 한글 독음 `type.caption.sm`).
 * 위 천간 십성, 아래 지지 십성(정기). 모두 term-token `label`.
 * **일간(나):** 칸 안쪽 2px `action.primary` 테두리 + 오른쪽 위 모서리에 `tag.me` "나" 꼬리표(칸이 자르지 않게 칸 밖 층). 십성 줄의 "일간"도 term-token.
@@ -25,7 +25,7 @@
 
 ## ohaeng-bar
 
-* 쓰는 화면: saju-chart
+* 쓰는 화면: my-saju, saju-chart
 * 견본색 비례 막대(10px, 칸 사이 2px, 목·화·토·금·수 순) + 아래 다섯 오행 견본·이름·개수.
 * 0개는 막대에 칸이 없고, 범례 견본 투명도 0.35·숫자 `text.secondary`.
 

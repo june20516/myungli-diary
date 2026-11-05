@@ -168,7 +168,7 @@ TARGETS = (
     Target(("evidence-sheet.section.basis", "evidence-sheet.section.source", "evidence-sheet.section.personal",
             "saju-chart.yongsin.title"), "lock.veil 제목 (evidence-sheet 안, 잠기면 앞에 자물쇠 16 + 간격 4)",
            "ui-500", 13, -0.26, SHEET_CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
-    # D77 IA 자리 today.evidence.link = ui.depth.evidence_link (W33)
+    # IA 자리 today.evidence.link는 IA v5(#812)에서 지워짐. writing 슬롯 ui.depth.evidence_link는 남아 있고
     # 근거 진입점은 아이콘이라 ui.depth.evidence_link는 스크린리더 이름(NO_LIMIT, 결정 V63)
     Target(("birthplace.standard.link", "day-sheet.diary.open"),
            "depth-link navigate 이름 (day-sheet 안이 가장 좁음, 화살표 16 + 간격 2)",
