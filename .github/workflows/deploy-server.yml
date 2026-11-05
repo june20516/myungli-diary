@@ -173,6 +173,14 @@ jobs:
           terraform_wrapper: false
       - name: Cloud SQL 지우기
         working-directory: server/deploy/terraform/env
+        # database와 DB 사용자는 인스턴스와 함께 사라지므로 state에서만 뺍니다. 그대로 두면 -target destroy가
+        # 이들을 먼저 지우려다, server 연결이 남은 database와 표를 가진 migrator 사용자에서 막힙니다(2026-11-05).
+        # 다음 load 배포가 셋을 다시 만듭니다.
         run: |
           terraform init -input=false -backend-config="bucket=myungli-diary-load-tfstate"
+          for address in google_sql_database.main google_sql_user.server google_sql_user.migrator; do
+            if terraform state list "$address" | grep -q .; then
+              terraform state rm "$address"
+            fi
+          done
           terraform destroy -input=false -auto-approve -var-file=load.tfvars -target=google_sql_database_instance.main
