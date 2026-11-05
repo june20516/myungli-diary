@@ -9,6 +9,7 @@ from myungli_engine.chart.positions import Position
 from myungli_engine.domain.enums import DayKind, LuckLevel
 from myungli_engine.rules.relations import Relation, RelationKind, active
 
+VERY_GOOD_THRESHOLD = 3  # 아주 잘 풀리는 날(#804). 지금 최고점(귀인·용신의 날 2 + 합 1)
 GOOD_THRESHOLD = 2
 CAUTION_THRESHOLD = -2
 
@@ -53,6 +54,8 @@ def score_day(kind: DayKind, relations: Sequence[Relation]) -> LuckScore:
 
 
 def _level_of(total: int) -> LuckLevel:
+    if total >= VERY_GOOD_THRESHOLD:
+        return LuckLevel.VERY_GOOD
     if total >= GOOD_THRESHOLD:
         return LuckLevel.GOOD
     if total <= CAUTION_THRESHOLD:

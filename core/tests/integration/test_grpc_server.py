@@ -56,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.10.2"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.0"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -111,6 +111,24 @@ def test_chart_personal_readings(stub: pb_grpc.MyungliEngineStub) -> None:
     assert [reading.index for reading in daeun_stem] == list(range(10))
     hidden = [reading for reading in readings if reading.kind == pb.PERSONAL_TERM_KIND_HIDDEN_TEN_GOD]
     assert hidden[0].index == 0
+
+
+def test_get_daily_has_day_stem_ten_god_and_guide_candidates(stub: pb_grpc.MyungliEngineStub) -> None:
+    response = stub.GetDaily(
+        pb.DailyRequest(
+            birth=solar_birth(1985, 3, 10),
+            date=pb.LocalDate(year=2026, month=10, day=10),
+            current_timezone=SEOUL,
+        )
+    )
+    head = response.fortune[0]
+    detail = head.evidence[0].detail
+    assert pb.TenGod.Name(response.day_stem_ten_god) == f"TEN_GOD_{detail['ten_god']}"
+    assert pb.TenGodGroup.Name(response.day_stem_ten_god_group) == f"TEN_GOD_GROUP_{detail['group']}"
+    assert response.guide_candidates
+    assert response.guide_candidates[0] == response.guide
+    keys = [candidate.message_key for candidate in response.guide_candidates]
+    assert len(keys) == len(set(keys))
 
 
 def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> None:

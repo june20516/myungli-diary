@@ -36,6 +36,7 @@ _PREFIX_ELEMENT = "ELEMENT"
 _PREFIX_STEM = "STEM"
 _PREFIX_BRANCH = "BRANCH"
 _PREFIX_TEN_GOD = "TEN_GOD"
+_PREFIX_TEN_GOD_GROUP = "TEN_GOD_GROUP"
 _PREFIX_TWELVE_STAGE = "TWELVE_STAGE"
 _PREFIX_SHINSAL = "SHINSAL"
 _PREFIX_POSITION = "POSITION"
@@ -235,6 +236,9 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
         fortune=[_judgment(judgment) for judgment in view.fortune],
         guide=_judgment(view.guide),
         meta=_meta(view.notices),
+        day_stem_ten_god=_name(_PREFIX_TEN_GOD, view.day_stem_ten_god),
+        day_stem_ten_god_group=_name(_PREFIX_TEN_GOD_GROUP, view.day_stem_ten_god.group),
+        guide_candidates=[_judgment(judgment) for judgment in view.guide_candidates],
     )
 
 

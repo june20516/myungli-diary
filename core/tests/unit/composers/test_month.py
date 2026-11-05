@@ -3,9 +3,11 @@ import pytest
 from myungli_engine.calendar_core.birth import BirthInput, BirthMoment
 from myungli_engine.chart import pillars
 from myungli_engine.composers import chart as chart_composer
-from myungli_engine.composers.month import compose_month
-from myungli_engine.domain.enums import NoticeCode
+from myungli_engine.composers.month import _luck_judgment, compose_month
+from myungli_engine.domain.enums import LuckLevel, NoticeCode
 from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
+from myungli_engine.grpc_api import mapping
+from myungli_engine.rules.calendar_luck import LuckScore
 
 SEOUL = "Asia/Seoul"
 
@@ -61,3 +63,9 @@ def test_month_invalid_inputs(spring_birth: BirthInput) -> None:
         compose_month(spring_birth, 2026, 13, SEOUL)
     with pytest.raises(InvalidInputError):
         compose_month(spring_birth, 2026, 10, "Mars/Olympus")
+
+
+def test_very_good_day_uses_calendar_very_good_key() -> None:
+    judgment = _luck_judgment(LuckScore(3, LuckLevel.VERY_GOOD, (("gwiin_day", 2), ("hap", 1))))
+    assert judgment.message_key == "calendar.very_good"
+    assert mapping.pb.LuckLevel.Value(mapping._name(mapping._PREFIX_LUCK_LEVEL, LuckLevel.VERY_GOOD)) == 4

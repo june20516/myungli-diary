@@ -33,3 +33,21 @@ python3 -I core/docs/references/gungtong-bogam/tools/build_evidence.py
 * **숫자 근거:** 「五行總論」의 수는 水1·火2·木3·金4·土5입니다(生數). 행운의 숫자를 이 체계로 정할지는 아직 결정하지 않았습니다.
 * **근거 수준:** `evidence_level: "season"`인 11칸은 원문에 해당 월 항목이 없어 계절 총론을 근거로 썼습니다. 문구에서는 "○월"이 아니라 "○○(계절)에 태어난"으로 표현합니다.
 * **언어:** 원문은 위키문헌 수집본의 간체 전사이고, `於`처럼 번체 글자가 일부 섞여 있습니다. 수집본 머리(`{{header}}`)에 판본(底本) 정보가 없고, core가 대조할 번체 판본도 없습니다. 간체를 번체로 기계 변환하지 않습니다(后/後·余/餘처럼 대응이 갈려 근거와 어긋남). 앱에 원문을 낼 때는 `quote`·`passage`를 글자 그대로 씁니다(#258). 번체 판본을 들이려면 판본을 정하고 120칸 대조(`verification-report.md`)를 다시 해야 하므로 별도 작업으로 합니다. 한국어 번역·해설은 따로 필요합니다(미작성).
+
+## 태그 판정 원전: 『三命通會』 `sammyeong-tonghoe/`, 『滴天髓』 `jeokcheonsu/` (#804)
+
+태그(합, 충, 일지 충, 월지 충, 신살 5종)의 근거입니다. 위키문헌 원문을 글자 그대로 저장했고, 출처와 revision은 각 디렉터리의 `PROVENANCE.md`에 있습니다. 태그별 대조 결과와 쓰지 않은 후보는 [`tag-sources-survey.md`](tag-sources-survey.md)에 있습니다.
+
+| 파일 | 내용 |
+| --- | --- |
+| `sammyeong-tonghoe/vol2.wikitext`, `vol3.wikitext` | 『三命通會』 卷二, 卷三 원문 (수집 원본, 수정 금지, 간체) |
+| `jeokcheonsu/ch03.wikitext`, `ch17.wikitext` | 『滴天髓』 「地支論」, 「月令論」 원문 (수집 원본, 수정 금지, 번체) |
+| `tools/build_tag_sources.py` | 조목 문단을 뽑아 `core/src/myungli_engine/references/data/<자료>/tags.json`을 만드는 생성기. 인용이 원문 문단에 없으면 멈춤 |
+
+다시 생성하려면 저장소 루트에서 다음을 실행합니다.
+```bash
+python3 -I core/docs/references/tools/build_tag_sources.py
+```
+
+* **문단:** 『三命通會』 수집본은 문장 중간에서 줄을 바꿔 두었으므로 빈 줄로 나뉜 덩어리를 한 문단으로 보고 줄을 구분자 없이 잇습니다. 『滴天髓』은 본문 줄과 주석 줄이 각각 한 문단입니다. 글자는 바꾸지 않습니다(수집본의 已·化盖 같은 표기도 그대로, `note`에 밝힘).
+* **원전 없음:** 십성 쏠림 태그는 명리일기가 정한 규칙이라 원전이 없습니다. 근거의 `source_ref`가 빈 문자열입니다(core C28).

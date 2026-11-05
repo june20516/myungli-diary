@@ -72,6 +72,7 @@ def _month_day(info: DayInfo, natal: NatalContext) -> MonthDay:
         relations,
         activated(natal.shinsal_branches, info.pillar.branch),
         kind,
+        yongsin_ref=natal.yongsin.evidence[0].source_ref,
     )
     return MonthDay(
         info=info,

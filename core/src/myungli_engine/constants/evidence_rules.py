@@ -13,6 +13,8 @@ from typing import Final
 
 _DIRECTION_DETAIL: Final = ("day_branch", "day_kind", "direction", "element")
 _DIRECTION_DEITY_DETAIL: Final = ("day_branch", "day_kind", "deity", "direction", "element")
+_CLASH_DETAIL: Final = ("day_branch", "natal_positions")
+_SHINSAL_DETAIL: Final = ("day_branch", "shinsal")
 
 RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     # 월간 길흉 점수 (spec 7.9)
@@ -30,6 +32,19 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "focus_time/fallback": ("picks",),
     # 태그·총운·가이드 질문 (spec 7.7~7.8)
     "tags/select": ("all", "day_kind", "featured"),
+    # 태그마다 하나 (C28). 원전이 없는 태그는 source_ref가 빈 문자열이다
+    "tags/clash_day_branch": _CLASH_DETAIL,
+    "tags/clash_month_branch": _CLASH_DETAIL,
+    "tags/clash": _CLASH_DETAIL,
+    "tags/harmony": ("natal_positions", "relation_kind"),
+    "tags/ten_god_rush": ("branch_ten_god", "group", "natal_count", "stem_ten_god"),
+    "tags/gongmang": _SHINSAL_DETAIL,
+    "tags/yeokma": _SHINSAL_DETAIL,
+    "tags/hwagae": _SHINSAL_DETAIL,
+    "tags/dohwa": _SHINSAL_DETAIL,
+    "tags/cheoneul_gwiin": _SHINSAL_DETAIL,
+    "tags/gwiin_day": ("day_kind",),
+    "tags/yongsin_day": ("day_kind",),
     "fortune/day_kind": ("day_kind", "group", "ten_god"),
     "fortune/tag": ("day_kind", "featured", "group", "ten_god"),
     "guide/question": ("basis", "ten_god"),
@@ -45,6 +60,13 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "yongsin/johu_neutral": ("strength_level",),
     "yongsin/eokbu": ("strength_level", "strength_score"),
 }
+
+
+# source_ref가 빈 문자열(원전 없음)일 수 있는 규칙 (C28). 그 밖의 규칙은 늘 근거 원전 목록에 있는 source_ref를 낸다.
+# 태그 선택 순서와 십성 몰림은 명리일기가 정한 규칙이고, 총운 보조 문장과 가이드 질문은 근거로 삼은 태그를 따른다.
+RULES_WITHOUT_SOURCE: Final[frozenset[str]] = frozenset(
+    {"tags/select", "tags/ten_god_rush", "fortune/tag", "guide/question"}
+)
 
 
 def require_rule(rule_id: str, detail: Mapping[str, str]) -> str:

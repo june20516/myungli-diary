@@ -15,6 +15,7 @@ from myungli_engine.constants.message_keys import ALL_KEYS, require
 from myungli_engine.domain.enums import Branch, CalendarType, Gender
 from myungli_engine.domain.models import Judgment, Pillar
 from myungli_engine.references import loader
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF
 
 SEOUL = "Asia/Seoul"
 CYCLE_LENGTH = 60
@@ -51,7 +52,15 @@ def _cycle_index(pillar: Pillar) -> int:
 
 
 def _judgments(view: DailyView) -> list[Judgment]:
-    return [view.color[1], view.direction[1], view.number[1], view.focus[1], *view.fortune, view.guide]
+    return [
+        view.color[1],
+        view.direction[1],
+        view.number[1],
+        view.focus[1],
+        *view.fortune,
+        view.guide,
+        *view.guide_candidates,
+    ]
 
 
 @given(d=daily_dates)
@@ -71,7 +80,20 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
     for judgment in _judgments(compose_daily(birth, target, SEOUL)):
         assert judgment.message_key in ALL_KEYS
         assert judgment.evidence, judgment.message_key
-        loader.validate_refs(evidence.source_ref for evidence in judgment.evidence)
+        loader.validate_evidence_refs(judgment.evidence)
+
+
+@given(birth=birth_inputs, target=daily_dates)
+def test_tag_based_judgments_cite_their_tag_source(birth: BirthInput, target: date) -> None:
+    """총운 보조 문장과 태그 질문은 그 태그의 근거를, 십성 묶음 질문은 공통 근거를 쓴다(C8, C28)."""
+    view = compose_daily(birth, target, SEOUL)
+    for sentence in view.fortune[1:]:
+        evidence = sentence.evidence[0]
+        assert evidence.source_ref == view.tags.source_refs[evidence.detail["featured"]]
+    for candidate in view.guide_candidates:
+        evidence = candidate.evidence[0]
+        expected = view.tags.source_refs.get(evidence.detail["basis"], FIVE_ELEMENTS_REF["balance_principle"])
+        assert evidence.source_ref == expected
 
 
 @given(birth=birth_inputs, as_of=daily_dates)

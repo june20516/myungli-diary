@@ -4,6 +4,7 @@ import pytest
 
 from myungli_engine.domain.enums import Branch as B
 from myungli_engine.domain.enums import Stem as S
+from myungli_engine.domain.models import Evidence
 from myungli_engine.references import loader
 
 
@@ -40,3 +41,12 @@ def test_missing_ref_raises() -> None:
 def test_malformed_or_unknown_ref_raises(ref: str) -> None:
     with pytest.raises(KeyError):
         loader.resolve(ref)
+
+
+def test_validate_evidence_refs_allows_empty_only_for_rules_without_source() -> None:
+    loader.validate_evidence_refs([Evidence("tags/ten_god_rush", "", {})])
+    loader.validate_evidence_refs([Evidence("tags/clash", "sammyeong-tonghoe/tags#clash", {})])
+    with pytest.raises(KeyError):
+        loader.validate_evidence_refs([Evidence("tags/clash", "", {})])
+    with pytest.raises(KeyError):
+        loader.validate_evidence_refs([Evidence("tags/clash", "sammyeong-tonghoe/tags#nothing", {})])

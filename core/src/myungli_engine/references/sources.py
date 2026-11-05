@@ -2,8 +2,8 @@
 
 `python -m myungli_engine.references.sources`는 source_ref별 항목 JSON을 낸다.
 * work: 원전 이름(한자)
-* section: 대목 이름. 조후는 원문 항목 제목(예: 正月甲), 오행 근거는 五行總論
-* quote: 인용할 대표 문장(조후는 첫 문장 key_sentence, 오행 근거는 인용문 전체)
+* section: 대목 이름. 조후는 원문 항목 제목(예: 正月甲), 오행 근거는 五行總論, 태그 원전은 조목 제목(예: 论冲击)
+* quote: 인용할 대표 문장(조후는 첫 문장 key_sentence, 오행 근거는 인용문 전체, 태그 원전은 조목에서 고른 문장)
 * passage: 대목 원문 문단 목록
 * evidence_level: 조후만. month(그 달 항목) 또는 season(계절 총론으로 대신함)
 * note: 원문 근거가 아닌 점 같은 주의 사항(한국어). 없으면 null
@@ -31,6 +31,8 @@ def source_catalog() -> dict[str, SourceEntry]:
             catalog[ref] = _johu_entry(_as_dict(loader.resolve(ref)))
     for ref in loader.FIVE_ELEMENTS_REF.values():
         catalog[ref] = _five_elements_entry(_as_dict(loader.resolve(ref)))
+    for ref in loader.TAG_SOURCE_REF.values():
+        catalog[ref] = _tag_entry(_as_dict(loader.resolve(ref)))
     return catalog
 
 
@@ -53,6 +55,18 @@ def _five_elements_entry(item: dict[str, object]) -> SourceEntry:
         "section": SECTION_FIVE_ELEMENTS,
         "quote": quote,
         "passage": [quote],
+        "evidence_level": None,
+        "note": None if note is None else str(note),
+    }
+
+
+def _tag_entry(item: dict[str, object]) -> SourceEntry:
+    note = item.get("note")
+    return {
+        "work": str(item["work"]),
+        "section": str(item["section"]),
+        "quote": str(item["quote"]),
+        "passage": [str(paragraph) for paragraph in _as_list(item["passage"])],
         "evidence_level": None,
         "note": None if note is None else str(note),
     }

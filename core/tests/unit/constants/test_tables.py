@@ -85,7 +85,7 @@ def test_representative_longitude():
 def test_message_keys_registry():
     params = {"day_kind": "GWIIN_DAY", "ten_god": "SIKSIN", "element": "WOOD", "emphasis": "NONE"}
     assert message_keys.require("fortune.gwiin_day.siksang", params) == "fortune.gwiin_day.siksang"
-    assert "fortune.tag.big_change" in message_keys.ALL_KEYS
+    assert "fortune.tag.clash_day_branch" in message_keys.ALL_KEYS
     assert "guide.ten_god_rush.jaeseong" in message_keys.ALL_KEYS
     assert "tag.ten_god_rush.inseong" in message_keys.ALL_KEYS
     assert (
@@ -142,7 +142,7 @@ def test_exported_param_keys_match_key_list():
 def test_personal_keys_registered():
     personal = [key for key in message_keys.ALL_KEYS if key.startswith("personal.")]
     assert len(personal) == 60
-    assert len(message_keys.ALL_KEYS) == 153
+    assert len(message_keys.ALL_KEYS) == 157
     assert message_keys.KEY_PARAMS["personal.ten_god.siksin"] == (
         "place",
         "element",
