@@ -51,13 +51,14 @@ k6 run -e ACCOUNTS=3200 -e STAGES=2,5,10,20,40,80,160,320 --out csv=/results/raw
 | `ACCOUNTS` | 3200 | 준비한 계정 수. VU 하나가 계정 하나를 맡음 |
 | `STAGES` | `2,5,10,20,40,80,160,320` | 단계별 도착률(세션/초). 세션 하나는 요청 9~10개쯤(smoke 기준). 상한은 #782 목표(L 180, L-1월 270)보다 높게 둡니다 |
 | `STAGE_DURATION`, `STAGE_GAP` | `3m`, `30s` | 단계 길이와 단계 사이 쉬는 시간 |
+| `STAGE_WARMUP` | `30s` | 단계마다 처음 이만큼은 tag `phase=warmup`, 그 뒤는 `phase=steady`. 멈춤 판정은 steady에만 |
 | `SESSION_SECONDS` | 5 | 세션 하나에 걸리는 시간 짐작. VU 수 = 도착률 × 이 값 |
 | `REACTION_PERCENT`, `DIARY_PERCENT`, `CALENDAR_PERCENT` | 10, 25, 20 | 세션마다 반응, 일기 쓰기, 캘린더를 할 확률(%) |
 | `DAILY_OFFSET_DAYS` | 0 | today 화면이 여는 날짜 옮기기(cold 회차) |
 | `DIARY_SPREAD_DAYS` | 7 | 일기 날짜를 오늘부터 며칠 전까지 나눔(하루 10편 상한 피함) |
 | `REQUEST_TIMEOUT` | `30s` | 요청 하나의 시간 초과 |
 
-**멈춤 조건(단계마다):** 오류율(4xx, 5xx, 시간 초과) 1% 넘음, `getDaily` p95 2초 넘음. 닿으면 k6가 그 단계에서 끝내고 종료 코드가 0이 아닙니다(정상적인 한계 도달). 멈춘 단계 바로 아래가 그 설정의 한계점입니다.
+**멈춤 조건(단계마다, steady 구간):** 오류율(4xx, 5xx, 시간 초과) 1% 넘음, `getDaily` p95 2초 넘음. 단계가 바뀌면 Cloud Run이 인스턴스를 늘리는 동안 응답이 잠깐 느려지므로 단계 처음(`STAGE_WARMUP`)은 판정에서 뺍니다. 2026-11-05 cold 회차에서 `stage_40` 시작 7초의 표본만으로 멈췄습니다. k6 `delayAbortEval`은 회차 시작부터 세어 이 일을 못 합니다. warmup 응답도 사용자가 겪는 값이라 `stages.csv`에 따로 남습니다. 닿으면 k6가 그 단계에서 끝내고 종료 코드가 0이 아닙니다(정상적인 한계 도달). 멈춘 단계 바로 아래가 그 설정의 한계점입니다.
 
 ### 생성기 Job
 
@@ -93,18 +94,19 @@ go run ./load/report -raw ".local/load/$RUN/raw.csv.gz" -summary "docs/load/$RUN
 금액은 어느 파일에도 넣지 않습니다(D74). 시각은 모두 UTC, RFC 3339입니다.
 
 ### `k6-summary.json`
-k6 `handleSummary` 그대로입니다. 갱신 토큰이 든 `setup_data`는 뺍니다. 멈춤 조건 결과는 `metrics["http_req_failed{scenario:stage_N}"].thresholds`에 있습니다.
+k6 `handleSummary` 그대로입니다. 갱신 토큰이 든 `setup_data`는 뺍니다. 멈춤 조건 결과는 `metrics["http_req_failed{scenario:stage_N,phase:steady}"].thresholds`에 있습니다.
 
 ### `stages.csv`
-단계마다 `operation=all`(단계 전체) 한 줄과 operation별 한 줄입니다. setup 요청(테스트 로그인)은 빠집니다.
+단계마다 phase(`all`, `warmup`, `steady`)별로 `operation=all` 한 줄과 operation별 한 줄입니다. setup 요청(테스트 로그인)은 빠집니다. phase tag가 없는 원자료(2026-11-05 cold 회차)는 `all` 행만 나옵니다.
 
 | 열 | 단위 | 뜻 |
 | --- | --- | --- |
 | `stage_rate` | 세션/초 | 단계의 목표 도착률 |
-| `stage_start_utc`, `stage_end_utc` | 시각 | 그 단계 첫 요청과 마지막 요청(끝은 +1초) |
+| `stage_start_utc`, `stage_end_utc` | 시각 | 그 단계와 phase의 첫 요청과 마지막 요청(끝은 +1초) |
+| `phase` | | `all`(단계 전체), `warmup`(단계 처음 `STAGE_WARMUP`), `steady`(그 뒤, 멈춤 판정 구간) |
 | `operation` | | operationId 또는 `all` |
 | `requests` | 건 | 요청 수 |
-| `actual_rps` | 건/초 | `requests ÷ 단계 길이`. 단계 길이는 operation과 상관없이 단계 전체 창 |
+| `actual_rps` | 건/초 | `requests ÷ 창 길이`. 창은 operation과 상관없이 그 단계와 phase 전체 |
 | `p50_ms`, `p95_ms`, `p99_ms` | ms | `http_req_duration` 백분위(선형 보간). 값이 없으면 빈 칸 |
 | `status_2xx` | 건 | 2xx |
 | `status_304` | 건 | 304(`getGlossary`의 If-None-Match) |
@@ -112,7 +114,7 @@ k6 `handleSummary` 그대로입니다. 갱신 토큰이 든 `setup_data`는 뺍�
 | `status_5xx` | 건 | 5xx |
 | `status_other` | 건 | 그 밖(4xx, 연결 실패 status 0) |
 | `timeouts` | 건 | 요청 시간 초과(k6 error_code 1050) |
-| `blocked` | true/false | 그 단계에서 멈춤 조건에 닿았는지 |
+| `blocked` | true/false | 그 단계에서 멈춤 조건에 닿았는지(phase와 상관없이 단계 값) |
 
 ### `monitoring.csv`
 측정 창(첫 단계 1분 전 ~ 마지막 단계 2분 뒤)의 1분 간격 시계열입니다. 한 줄이 (시각, 지표, resource) 하나입니다.

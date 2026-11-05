@@ -14,21 +14,28 @@ import (
 	"time"
 )
 
-// 단계 집계(L1 plan §5 stages.csv)입니다. k6 --out csv 원자료에서 scenario(stage_<세션/초>)와 operation tag로 나눕니다.
+// 단계 집계(L1 plan §5 stages.csv)입니다. k6 --out csv 원자료에서 scenario(stage_<세션/초>), phase, operation tag로 나눕니다.
+// phase는 단계 처음의 warmup과 그 뒤 steady입니다(scenarios/ramp.js). phase가 all인 행은 단계 전체입니다.
 // setup 요청(scenario 없음)과 operation tag가 없는 행은 셈에서 뺍니다.
 
 const (
 	stagePrefix = "stage_"
-	// allOperations는 단계 전체 행의 operation 값입니다.
+	// allOperations는 operation 전체 행의 operation 값입니다.
 	allOperations = "all"
+	// allPhases는 단계 전체 행의 phase 값입니다. phase tag가 없는 원자료(2026-11-05 cold 회차 이전)는 이 행에만 들어갑니다.
+	allPhases = "all"
 	// k6가 요청 시간 초과에 붙이는 error_code입니다(k6 문서 "Error codes").
 	timeoutErrorCode = "1050"
 )
 
 type stageKey struct {
 	Stage     string
+	Phase     string
 	Operation string
 }
+
+// phaseOrder는 단계 안에서 phase 행의 순서입니다.
+var phaseOrder = map[string]int{allPhases: 0, "warmup": 1, "steady": 2}
 
 type stageAgg struct {
 	Durations []float64
@@ -48,6 +55,7 @@ type StageRow struct {
 	StageRate  int
 	Stage      string
 	Start, End time.Time
+	Phase      string
 	Operation  string
 	Requests   int
 	ActualRPS  float64
@@ -92,31 +100,42 @@ func AggregateStages(raw io.Reader, blocked map[string]bool) ([]StageRow, error)
 		if !strings.HasPrefix(stage, stagePrefix) || (metric != "http_reqs" && metric != "http_req_duration") {
 			continue
 		}
-		operation := extraTag(record[index["extra_tags"]], "operation")
+		extra := record[index["extra_tags"]]
+		operation := extraTag(extra, "operation")
 		if operation == "" {
 			continue
+		}
+		phases := []string{allPhases}
+		if phase := extraTag(extra, "phase"); phase != "" {
+			phases = append(phases, phase)
 		}
 		timestamp, err := strconv.ParseInt(record[index["timestamp"]], 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf("timestamp %q: %w", record[index["timestamp"]], err)
 		}
-		for _, op := range []string{operation, allOperations} {
-			agg := aggs[stageKey{stage, op}]
-			if agg == nil {
-				agg = &stageAgg{First: timestamp, Last: timestamp}
-				aggs[stageKey{stage, op}] = agg
+		var duration float64
+		if metric == "http_req_duration" {
+			duration, err = strconv.ParseFloat(record[index["metric_value"]], 64)
+			if err != nil {
+				return nil, fmt.Errorf("metric_value %q: %w", record[index["metric_value"]], err)
 			}
-			agg.First = min(agg.First, timestamp)
-			agg.Last = max(agg.Last, timestamp)
-			switch metric {
-			case "http_req_duration":
-				value, err := strconv.ParseFloat(record[index["metric_value"]], 64)
-				if err != nil {
-					return nil, fmt.Errorf("metric_value %q: %w", record[index["metric_value"]], err)
+		}
+		for _, phase := range phases {
+			for _, op := range []string{operation, allOperations} {
+				key := stageKey{stage, phase, op}
+				agg := aggs[key]
+				if agg == nil {
+					agg = &stageAgg{First: timestamp, Last: timestamp}
+					aggs[key] = agg
 				}
-				agg.Durations = append(agg.Durations, value)
-			case "http_reqs":
-				agg.count(record[index["status"]], record[index["error_code"]])
+				agg.First = min(agg.First, timestamp)
+				agg.Last = max(agg.Last, timestamp)
+				switch metric {
+				case "http_req_duration":
+					agg.Durations = append(agg.Durations, duration)
+				case "http_reqs":
+					agg.count(record[index["status"]], record[index["error_code"]])
+				}
 			}
 		}
 	}
@@ -143,14 +162,14 @@ func (a *stageAgg) count(status, errorCode string) {
 }
 
 func stageRows(aggs map[stageKey]*stageAgg, blocked map[string]bool) ([]StageRow, error) {
-	// 단계의 시간 창은 operation과 상관없이 그 단계 전체(all)의 첫 요청과 마지막 요청입니다.
+	// 시간 창은 operation과 상관없이 그 단계와 phase의 전체(operation all) 첫 요청과 마지막 요청입니다.
 	rows := make([]StageRow, 0, len(aggs))
 	for key, agg := range aggs {
 		rate, err := strconv.Atoi(strings.TrimPrefix(key.Stage, stagePrefix))
 		if err != nil {
 			return nil, fmt.Errorf("단계 이름 %q는 stage_<정수>가 아닙니다", key.Stage)
 		}
-		window := aggs[stageKey{key.Stage, allOperations}]
+		window := aggs[stageKey{key.Stage, key.Phase, allOperations}]
 		seconds := float64(window.Last - window.First + 1)
 		sort.Float64s(agg.Durations)
 		rows = append(rows, StageRow{
@@ -158,6 +177,7 @@ func stageRows(aggs map[stageKey]*stageAgg, blocked map[string]bool) ([]StageRow
 			Stage:     key.Stage,
 			Start:     time.Unix(window.First, 0).UTC(),
 			End:       time.Unix(window.Last+1, 0).UTC(),
+			Phase:     key.Phase,
 			Operation: key.Operation,
 			Requests:  agg.Requests,
 			ActualRPS: float64(agg.Requests) / seconds,
@@ -177,13 +197,27 @@ func stageRows(aggs map[stageKey]*stageAgg, blocked map[string]bool) ([]StageRow
 		if rows[i].StageRate != rows[j].StageRate {
 			return rows[i].StageRate < rows[j].StageRate
 		}
-		// 단계마다 all을 맨 앞에 둡니다.
+		if rows[i].Phase != rows[j].Phase {
+			if ri, rj := phaseRank(rows[i].Phase), phaseRank(rows[j].Phase); ri != rj {
+				return ri < rj
+			}
+			return rows[i].Phase < rows[j].Phase
+		}
+		// phase마다 all을 맨 앞에 둡니다.
 		if (rows[i].Operation == allOperations) != (rows[j].Operation == allOperations) {
 			return rows[i].Operation == allOperations
 		}
 		return rows[i].Operation < rows[j].Operation
 	})
 	return rows, nil
+}
+
+// phaseRank는 phase 행의 순서입니다. 모르는 phase는 뒤에 이름순으로 둡니다.
+func phaseRank(phase string) int {
+	if rank, ok := phaseOrder[phase]; ok {
+		return rank
+	}
+	return len(phaseOrder)
 }
 
 // percentile은 정렬된 값의 p 백분위입니다. 두 순위 사이는 선형 보간합니다(k6 요약과 같은 방식).
@@ -221,7 +255,7 @@ func columnIndex(header, wanted []string) (map[string]int, error) {
 }
 
 // BlockedStages는 k6 요약(handleSummary JSON)에서 멈춤 조건이 실패한 단계 이름을 찾습니다.
-// threshold 지표 이름은 http_req_failed{scenario:stage_40}처럼 scenario를 담습니다(scenarios/ramp.js).
+// threshold 지표 이름은 http_req_failed{scenario:stage_40,phase:steady}처럼 scenario를 담습니다(scenarios/ramp.js).
 func BlockedStages(summary io.Reader) (map[string]bool, error) {
 	var parsed struct {
 		Metrics map[string]struct {
@@ -263,7 +297,7 @@ func scenarioTag(metricName string) string {
 }
 
 var stageHeader = []string{
-	"stage_rate", "stage_start_utc", "stage_end_utc", "operation", "requests", "actual_rps",
+	"stage_rate", "stage_start_utc", "stage_end_utc", "phase", "operation", "requests", "actual_rps",
 	"p50_ms", "p95_ms", "p99_ms", "status_2xx", "status_304", "status_429", "status_5xx", "status_other", "timeouts", "blocked",
 }
 
@@ -275,7 +309,7 @@ func WriteStages(w io.Writer, rows []StageRow) error {
 	}
 	for _, row := range rows {
 		record := []string{
-			strconv.Itoa(row.StageRate), row.Start.Format(time.RFC3339), row.End.Format(time.RFC3339), row.Operation,
+			strconv.Itoa(row.StageRate), row.Start.Format(time.RFC3339), row.End.Format(time.RFC3339), row.Phase, row.Operation,
 			strconv.Itoa(row.Requests), formatFloat(row.ActualRPS), formatFloat(row.P50), formatFloat(row.P95), formatFloat(row.P99),
 			strconv.Itoa(row.Status2xx), strconv.Itoa(row.Status304), strconv.Itoa(row.Status429), strconv.Itoa(row.Status5xx),
 			strconv.Itoa(row.Other), strconv.Itoa(row.Timeouts), strconv.FormatBool(row.Blocked),

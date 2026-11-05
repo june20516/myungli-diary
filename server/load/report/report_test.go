@@ -19,9 +19,17 @@ import (
 const rawHeader = "metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status,subproto,tls_version,url,extra_tags,metadata\n"
 
 func rawLine(metric string, ts int64, value, errorCode, scenario, status, operation string) string {
+	return rawPhaseLine(metric, ts, value, errorCode, scenario, status, operation, "")
+}
+
+// rawPhaseLine은 extra_tags에 phase도 담은 원자료 행입니다(scenarios/ramp.js의 VU tag).
+func rawPhaseLine(metric string, ts int64, value, errorCode, scenario, status, operation, phase string) string {
 	extra := ""
 	if operation != "" {
 		extra = "operation=" + operation
+	}
+	if phase != "" {
+		extra += "&phase=" + phase
 	}
 	return strings.Join([]string{metric, strconv.FormatInt(ts, 10), value, "", "", errorCode, "true", "", "GET", operation, "HTTP/2.0", scenario, "", status, "", "", operation, extra, ""}, ",") + "\n"
 }
@@ -49,6 +57,9 @@ func TestAggregateStages_SplitsByScenarioAndOperation(t *testing.T) {
 	}
 	got := map[string]StageRow{}
 	for _, row := range rows {
+		if row.Phase != allPhases {
+			t.Errorf("phase tag가 없는 원자료는 all 행만 나와야 함: %+v", row)
+		}
 		got[row.Stage+"/"+row.Operation] = row
 	}
 	if len(rows) != 5 {
@@ -84,6 +95,46 @@ func TestAggregateStages_SplitsByScenarioAndOperation(t *testing.T) {
 	}
 }
 
+func TestAggregateStages_SplitsByPhase(t *testing.T) {
+	raw := rawHeader +
+		rawPhaseLine("http_reqs", 1000, "1", "", "stage_40", "200", "getDaily", "warmup") +
+		rawPhaseLine("http_req_duration", 1000, "2500", "", "stage_40", "200", "getDaily", "warmup") +
+		rawPhaseLine("http_reqs", 1001, "1", "", "stage_40", "200", "getAppConfig", "warmup") +
+		rawPhaseLine("http_req_duration", 1001, "120", "", "stage_40", "200", "getAppConfig", "warmup") +
+		rawPhaseLine("http_reqs", 1030, "1", "", "stage_40", "200", "getDaily", "steady") +
+		rawPhaseLine("http_req_duration", 1030, "300", "", "stage_40", "200", "getDaily", "steady") +
+		rawPhaseLine("http_reqs", 1031, "1", "", "stage_40", "503", "getDaily", "steady")
+
+	rows, err := AggregateStages(strings.NewReader(raw), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]StageRow{}
+	order := make([]string, 0, len(rows))
+	for _, row := range rows {
+		key := row.Phase + "/" + row.Operation
+		got[key] = row
+		order = append(order, key)
+	}
+	wantOrder := "all/all,all/getAppConfig,all/getDaily,warmup/all,warmup/getAppConfig,warmup/getDaily,steady/all,steady/getDaily"
+	if strings.Join(order, ",") != wantOrder {
+		t.Fatalf("행 순서 = %v, want %s", order, wantOrder)
+	}
+
+	if all := got["all/getDaily"]; all.Requests != 3 || all.Status5xx != 1 || all.P50 != 1400 {
+		t.Errorf("all/getDaily = %+v", all)
+	}
+	warmup := got["warmup/getDaily"]
+	// warmup 창은 1000~1001초(2초)입니다.
+	if warmup.Requests != 1 || warmup.P95 != 2500 || warmup.ActualRPS != 0.5 || !warmup.End.Equal(time.Unix(1002, 0)) {
+		t.Errorf("warmup/getDaily = %+v", warmup)
+	}
+	steady := got["steady/getDaily"]
+	if steady.Requests != 2 || steady.Status5xx != 1 || steady.P95 != 300 || !steady.Start.Equal(time.Unix(1030, 0)) {
+		t.Errorf("steady/getDaily = %+v", steady)
+	}
+}
+
 func TestAggregateStages_MissingColumn(t *testing.T) {
 	_, err := AggregateStages(strings.NewReader("metric_name,timestamp\n"), nil)
 	if err == nil || !strings.Contains(err.Error(), "metric_value") {
@@ -106,9 +157,9 @@ func TestPercentile(t *testing.T) {
 
 func TestBlockedStages(t *testing.T) {
 	summary := `{"metrics":{
-	  "http_req_failed{scenario:stage_40}":{"thresholds":{"rate<0.01":{"ok":false}}},
+	  "http_req_failed{scenario:stage_40,phase:steady}":{"thresholds":{"rate<0.01":{"ok":false}}},
 	  "http_req_duration{scenario:stage_20,operation:getDaily}":{"thresholds":{"p(95)<2000":{"ok":true}}},
-	  "http_req_duration{operation:getDaily,scenario:stage_80}":{"thresholds":{"p(95)<2000":{"ok":false}}},
+	  "http_req_duration{phase:steady,operation:getDaily,scenario:stage_80}":{"thresholds":{"p(95)<2000":{"ok":false}}},
 	  "checks":{"thresholds":{"rate==1":{"ok":false}}}
 	}}`
 	blocked, err := BlockedStages(strings.NewReader(summary))
@@ -122,7 +173,7 @@ func TestBlockedStages(t *testing.T) {
 
 func TestWriteStages_HeaderAndEmptyPercentile(t *testing.T) {
 	var buf bytes.Buffer
-	row := StageRow{StageRate: 5, Stage: "stage_5", Start: time.Unix(0, 0).UTC(), End: time.Unix(60, 0).UTC(), Operation: "getDaily",
+	row := StageRow{StageRate: 5, Stage: "stage_5", Start: time.Unix(0, 0).UTC(), End: time.Unix(60, 0).UTC(), Phase: "steady", Operation: "getDaily",
 		Requests: 1, ActualRPS: 1.0 / 60, P50: math.NaN(), P95: math.NaN(), P99: math.NaN(), Timeouts: 1, Blocked: true}
 	if err := WriteStages(&buf, []StageRow{row}); err != nil {
 		t.Fatal(err)
@@ -134,7 +185,7 @@ func TestWriteStages_HeaderAndEmptyPercentile(t *testing.T) {
 	if strings.Join(records[0], ",") != strings.Join(stageHeader, ",") {
 		t.Errorf("머리줄 = %v", records[0])
 	}
-	want := []string{"5", "1970-01-01T00:00:00Z", "1970-01-01T00:01:00Z", "getDaily", "1", "0.02", "", "", "", "0", "0", "0", "0", "0", "1", "true"}
+	want := []string{"5", "1970-01-01T00:00:00Z", "1970-01-01T00:01:00Z", "steady", "getDaily", "1", "0.02", "", "", "", "0", "0", "0", "0", "0", "1", "true"}
 	if strings.Join(records[1], ",") != strings.Join(want, ",") {
 		t.Errorf("행 = %v, want %v", records[1], want)
 	}

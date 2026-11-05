@@ -83,6 +83,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **L1 부하 환경(브랜치 `server/l1-load-env`, #782):** `env/load.tfvars`(staging 빌드, prod와 같은 SQL, Scheduler 끔), bootstrap environment `load`, 배포 workflow의 dispatch target `load`와 `load-teardown`(Cloud SQL만 지움), Terraform README "부하 환경"(E21 사용자 절차). 결정 D104.
 * **L1 부하 스크립트(브랜치 `server/l1-k6`, #782):** `server/load/`에 k6 흐름(app 코드의 실제 호출 순서), 계정 준비, 단계별 측정(`stage_<세션/초>` scenario와 멈춤 조건), 결과 집계 도구 `load/report`(stages, monitoring, usage CSV). 부하 환경에서 smoke 확인.
 * **L1 생성기 Job(브랜치 `server/l1-generator`, #782):** 같은 region의 Cloud Run Job `load-k6`(env `load.tf`, 이미지 `server/load/Dockerfile`), 결과 bucket(bootstrap, 부하 프로젝트만), 원자료 gzip. 기본 STAGES 2~320세션/초, `ACCOUNTS` 3200. 다음은 1회차 측정(L1-4).
+* **L1 warmup 판정(브랜치 `server/l1-warmup-phase`, #782):** cold 1회차(2026-11-05)가 `stage_40` 시작 7초의 증설 구간 표본으로 멈춰, 단계마다 처음 30초를 tag `phase=warmup`으로 나누고 멈춤 조건은 `phase=steady`에만 겁니다. `stages.csv`에 `phase` 열.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
@@ -94,5 +95,5 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 2로 정했습니다(S135). 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
-6. L1(#782): 사용자가 부하 프로젝트 bootstrap을 apply하고 `deploy-server` target `load`를 돌리면 한계점 측정 1회차(L1-4). 환경, 스크립트, 생성기 Job은 준비됨(D104).
+6. L1(#782): warmup 판정 PR 병합 뒤 `deploy-server` target `load`로 Job 이미지를 바꾸고 cold 회차를 다시 잽니다(계정은 이미 있음). 그다음 precompute 뒤 warm 회차, 결과 `docs/load/`, `load-teardown`. bootstrap(결과 bucket)과 계정 준비는 끝남(D104).
 7. app 질문이 오면 답합니다.

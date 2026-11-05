@@ -3,6 +3,10 @@
 // 단계 경계는 tag scenario(stage_<세션/초>)로 남아 집계 도구가 그대로 나눕니다.
 //
 // 멈춤 조건(단계마다): 오류(4xx, 5xx, 시간 초과) 1% 넘음, getDaily p95 2초 넘음. 닿으면 k6가 그 단계에서 실행을 멈춥니다.
+// 단계마다 처음 STAGE_WARMUP 동안은 tag phase=warmup, 그 뒤는 phase=steady입니다. 멈춤 조건은 steady에만 겁니다.
+// 단계가 바뀌면 Cloud Run이 인스턴스를 늘리는 동안 응답이 잠깐 느려지는데(2026-11-05 cold 회차, stage_40 처음 7초),
+// 그 표본만으로 단계를 멈추지 않게 합니다. warmup 응답도 사용자가 겪는 값이라 stages.csv에 따로 남깁니다.
+// k6 delayAbortEval은 단계가 아니라 회차 시작부터 세므로 이 일을 하지 못합니다.
 // 짧은 확인(smoke)은 STAGES=1 STAGE_DURATION=1m입니다.
 //
 // 실행: README "측정"
@@ -22,6 +26,8 @@ const STAGES = (__ENV.STAGES || '2,5,10,20,40,80,160,320').split(',').map((v) =>
 const STAGE_DURATION = __ENV.STAGE_DURATION || '3m';
 // STAGE_GAP은 단계 사이 쉬는 시간입니다. 앞 단계의 늦은 응답이 다음 단계 지표에 섞이지 않게 합니다.
 const STAGE_GAP = __ENV.STAGE_GAP || '30s';
+// STAGE_WARMUP은 단계 시작부터 멈춤 판정에서 빼는 시간입니다(위 주석).
+const STAGE_WARMUP = __ENV.STAGE_WARMUP || '30s';
 // 세션 하나에 걸리는 시간(초)의 넉넉한 짐작입니다. VU 수 = 도착률 × 이 값. 모자라면 dropped_iterations로 드러납니다.
 const SESSION_SECONDS = intEnv('SESSION_SECONDS', 5);
 // RESULT_DIR은 handleSummary가 k6-summary.json을 쓰는 곳입니다(README의 실행 명령이 마운트).
@@ -33,6 +39,11 @@ function seconds(duration) {
     throw new Error(`기간은 30s, 3m 형식입니다: ${duration}`);
   }
   return Number(match[1]) * (match[2] === 'm' ? 60 : 1);
+}
+
+const WARMUP_MS = seconds(STAGE_WARMUP) * 1000;
+if (WARMUP_MS >= seconds(STAGE_DURATION) * 1000) {
+  throw new Error(`STAGE_WARMUP(${STAGE_WARMUP})이 STAGE_DURATION(${STAGE_DURATION})보다 짧아야 합니다`);
 }
 
 function buildScenarios() {
@@ -54,8 +65,8 @@ function buildScenarios() {
       maxVUs,
       gracefulStop: '30s',
     };
-    thresholds[`http_req_failed{scenario:${name}}`] = [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }];
-    thresholds[`http_req_duration{scenario:${name},operation:getDaily}`] = [{ threshold: 'p(95)<2000', abortOnFail: true, delayAbortEval: '30s' }];
+    thresholds[`http_req_failed{scenario:${name},phase:steady}`] = [{ threshold: 'rate<0.01', abortOnFail: true }];
+    thresholds[`http_req_duration{scenario:${name},phase:steady,operation:getDaily}`] = [{ threshold: 'p(95)<2000', abortOnFail: true }];
     start += seconds(STAGE_DURATION) + seconds(STAGE_GAP);
   }
   return { scenarios, thresholds, totalVUs };
@@ -102,6 +113,8 @@ export function setup() {
 let account = null;
 
 export default function (data) {
+  // phase는 세션(iteration) 시작 시각으로 정합니다. 세션 하나의 요청은 모두 같은 phase입니다.
+  exec.vu.metrics.tags.phase = Date.now() - exec.scenario.startTime < WARMUP_MS ? 'warmup' : 'steady';
   if (account === null) {
     const index = exec.vu.idInTest - 1;
     account = { label: accountLabel(index), refresh: data.refresh[index], glossaryEtag: '' };
