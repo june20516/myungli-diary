@@ -95,7 +95,7 @@ def test_enumerate_days_respects_engine_rules() -> None:
 
 def test_enumerate_days_counts() -> None:
     days = list(enumerate_days())
-    assert len(days) == (11 + 11 + 10 + 10) * 5 * 5
+    assert len(days) == (12 + 12 + 11 + 11) * 5 * 5
     assert {day.focus for day in days} == {
         "focus_time.fallback",
         "focus_time.gwiin",

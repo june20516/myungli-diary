@@ -129,9 +129,9 @@
   user_state: "일기를 지우려 합니다."
   structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    diaryViewDeleteConfirm: {ko: 34, en: 60, ja: 28}
+    diaryViewDeleteConfirm: {ko: 34, en: 60, ja: 26}
   keys:
     - diaryViewDeleteConfirm
     - diaryViewDeleteConfirmDelete
@@ -166,3 +166,89 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
+
+# IA v5 새 자리(#813)
+
+- id: diary-edit.date.day
+  where: "일기 쓰기 큰 날짜 블록의 일 숫자"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {date: text}
+      keys: [diaryEditDateDay]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    diaryEditDateDay: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: diary-edit.date.month
+  where: "일기 쓰기 큰 날짜 블록의 월과 요일(일 숫자 옆)"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {date: text}
+      keys: [diaryEditDateMonth]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    diaryEditDateMonth: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: diary-edit.date.iljin
+  where: "일기 쓰기 큰 날짜 블록의 일진(일 숫자 아래)"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {pillar: text}
+      keys: [diaryEditDateIljin]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    diaryEditDateIljin: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: diary-edit.length.count
+  where: "일기 쓰기 상단 바 가운데 글자 수(쓰는 중에만)"
+  purpose: info
+  user_state: "일기를 쓰는 중에 얼마나 썼는지 흘끗 봅니다."
+  structure: "숫자와 단위만. 작게 보입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {count: number}
+      keys: [diaryEditLengthCount]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    diaryEditLengthCount: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."

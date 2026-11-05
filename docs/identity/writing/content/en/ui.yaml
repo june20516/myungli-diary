@@ -273,7 +273,7 @@
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "We couldn't confirm your sign-in. Please start again."}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Sign in with Apple was cancelled."}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "We couldn't sign you in with Apple. Please try again."}
-- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "See the basis"}
+- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "See the basis for {subject}"}
 - {slot: ui.evidence.title, key: evidenceSheetTitle, text: "The basis for this reading"}
 - {slot: ui.guide.card, key: todayGuideEyebrow, text: "Today's question"}
 - {slot: ui.guide.a11y, key: todayGuideLabel, text: "Diary question"}
@@ -420,3 +420,4 @@
 - {slot: contact.address.note, key: contactAddressNote, text: "If sending doesn't work, email us at this address.\n{email}"}
 - {slot: ui.contact.error, key: contactSendFailed, text: "We couldn't send your message. Please try again in a moment."}
 - {slot: ui.contact.error, key: contactEmailInvalid, text: "Please check the email address."}
+- {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "Hide keyboard"}

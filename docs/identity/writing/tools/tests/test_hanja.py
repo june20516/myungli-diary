@@ -19,8 +19,9 @@ from mlw.paths import CONTENT_DIR, MESSAGE_KEYS_FILE
 
 TERM_IDS = ("stem.gap", "ten_god.siksin", "tag.dohwa")
 NO_HANJA_TAGS = {
-    "tag.big_change",
     "tag.clash",
+    "tag.clash_day_branch",
+    "tag.clash_month_branch",
     "tag.gwiin_day",
     "tag.harmony",
     "tag.ten_god_rush.bigyeop",

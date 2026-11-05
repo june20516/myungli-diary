@@ -94,6 +94,30 @@
       keys: ["basis.personal/twelve_stage"]
     - params: {all: none, day_kind: [day_kind], featured: none}
       keys: ["basis.tags/select"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/cheoneul_gwiin"]
+    - params: {day_branch: text, natal_positions: list:place}
+      keys: ["basis.tags/clash"]
+    - params: {day_branch: text, natal_positions: list:place}
+      keys: ["basis.tags/clash_day_branch"]
+    - params: {day_branch: text, natal_positions: list:place}
+      keys: ["basis.tags/clash_month_branch"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/dohwa"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/gongmang"]
+    - params: {day_kind: [day_kind]}
+      keys: ["basis.tags/gwiin_day"]
+    - params: {natal_positions: list:place, relation_kind: [relation]}
+      keys: ["basis.tags/harmony"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/hwagae"]
+    - params: {branch_ten_god: [ten_god, ten_god_group], group: [ten_god_group], natal_count: number, stem_ten_god: [ten_god, ten_god_group]}
+      keys: ["basis.tags/ten_god_rush"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/yeokma"]
+    - params: {day_kind: [day_kind]}
+      keys: ["basis.tags/yongsin_day"]
     - params: {strength_level: [strength], strength_score: none}
       keys: ["basis.yongsin/eokbu"]
     - params: {month_branch: text, share: none, threshold: none}
@@ -101,6 +125,19 @@
     - params: {strength_level: [strength]}
       keys: ["basis.yongsin/johu_neutral"]
   variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    "basis.tags/cheoneul_gwiin": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/clash": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/clash_day_branch": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/clash_month_branch": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/dohwa": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/gongmang": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/gwiin_day": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/harmony": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/hwagae": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/ten_god_rush": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/yeokma": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
+    "basis.tags/yongsin_day": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, text: "일간을 돕는 오행이 부족해 그 오행을 [[용신]]으로 봤어요.", why: "규칙과 적용 값을 함께", source: writing}
@@ -244,7 +281,28 @@
     - "source.gungtong-bogam/johu_evidence#辛.申"
     - "source.gungtong-bogam/johu_evidence#辛.辰"
     - "source.gungtong-bogam/johu_evidence#辛.酉"
+    - "source.jeokcheonsu/tags#clash_month_branch"
+    - "source.sammyeong-tonghoe/tags#branch_hap"
+    - "source.sammyeong-tonghoe/tags#cheoneul_gwiin"
+    - "source.sammyeong-tonghoe/tags#clash"
+    - "source.sammyeong-tonghoe/tags#clash_day_branch"
+    - "source.sammyeong-tonghoe/tags#dohwa"
+    - "source.sammyeong-tonghoe/tags#gongmang"
+    - "source.sammyeong-tonghoe/tags#hwagae"
+    - "source.sammyeong-tonghoe/tags#stem_hap"
+    - "source.sammyeong-tonghoe/tags#yeokma"
   variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    "source.jeokcheonsu/tags#clash_month_branch": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#branch_hap": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#cheoneul_gwiin": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#clash": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#clash_day_branch": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#dohwa": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#gongmang": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#hwagae": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#stem_hap": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
+    "source.sammyeong-tonghoe/tags#yeokma": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
   examples: {good: [], bad: []}
   a11y:
     truncation: 잘리지 않게 씁니다.

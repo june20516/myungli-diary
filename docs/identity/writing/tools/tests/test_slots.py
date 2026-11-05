@@ -71,7 +71,7 @@ def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
         if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name != "ui"
         for key in slot.keys
     }
-    assert len(message_keys) == 153
+    assert len(message_keys) == 157
     assert covered == message_keys
 
 
@@ -99,8 +99,8 @@ def test_glossary_covers_enums(rules: RuleSet) -> None:
 def test_slot_counts_match_spec(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     assert len(slots["daily.fortune.head"].keys) == 20
-    assert len(slots["daily.fortune.tag"].keys) == 15
-    assert len(slots["daily.guide"].keys) == 20
+    assert len(slots["daily.fortune.tag"].keys) == 16
+    assert len(slots["daily.guide"].keys) == 21
     assert slots["daily.guide"].variants == 2
     assert len(slots["calendar.score_item"].keys) == 7
     assert len(slots["calendar.solar_term"].keys) == 24

@@ -148,7 +148,7 @@
   user_state: "미리보기를 보고 공유하려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 19}
+  max_length: {ko: 23, en: 40, ja: 18}
   keys:
     - sharePreviewCtaShare
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -207,7 +207,7 @@
   user_state: "그날에 일정을 더하려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 19}
+  max_length: {ko: 23, en: 40, ja: 18}
   keys:
     - daySheetEventAdd
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -226,7 +226,7 @@
   user_state: "그날 쓴 일기를 봅니다."
   structure: "그날 일기와 편수(ICU plural). 동작 말은 넣지 않습니다(일기는 아래 diary-row에서 엶)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 25, en: 45, ja: 20}
+  max_length: {ko: 24, en: 44, ja: 20}
   keys:
     - params: {count: number}
       keys: [daySheetDiaryOpen]
@@ -247,7 +247,7 @@
   user_state: "지난 날이나 오늘의 일기를 쓰려 합니다. 이미 쓴 날일 수도 있습니다."
   structure: "동작 이름 하나. 기본은 쓰기, `Written`은 이미 쓴 날(새 일기 쓰기, W37), `Full`은 상한을 채운 날(누를 수 없음, 상한 수치는 쓰지 않음, W37). `Full` 말고는 새 일기를 엽니다(D83 ②③)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 19}
+  max_length: {ko: 23, en: 40, ja: 18}
   keys:
     - daySheetDiaryWriteCta
     - daySheetDiaryWriteCtaWritten
@@ -308,9 +308,9 @@
   user_state: "일정을 지우려 합니다."
   structure: "확인 창: 질문 한 문장과 버튼 둘(`Delete`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    eventEditDeleteConfirm: {ko: 34, en: 60, ja: 28}
+    eventEditDeleteConfirm: {ko: 34, en: 60, ja: 26}
   keys:
     - eventEditDeleteConfirm
     - eventEditDeleteConfirmDelete
@@ -371,3 +371,254 @@
   a11y:
     truncation: "화면에 보이지 않습니다."
     screen_reader: "스크린리더만 읽습니다."
+
+# IA v5 새 자리(#813)
+
+- id: today.date.solar
+  where: "오늘 화면 날짜 머리의 날짜와 요일"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {date: text}
+      keys: [todayDateSolar]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayDateSolar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.date.lunar
+  where: "오늘 화면 날짜 머리의 음력 날짜"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {lunarDate: text}
+      keys: [todayDateLunar]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayDateLunar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.date.iljin
+  where: "오늘 화면 날짜 머리의 일진(예: 癸未(계미)일)"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {pillar: text}
+      keys: [todayDateIljin]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayDateIljin: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.fortune.title
+  where: "오늘 화면 총운 섹션 제목(오른쪽에 좋아요)"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayFortuneTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayFortuneTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
+  examples:
+    good:
+      - {lang: ko, key: todayFortuneTitle, text: "총운", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.featured.title
+  where: "오늘 화면 대표 태그 섹션 제목(지휘 가안 \"사주 기운\")"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayFeaturedTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayFeaturedTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.lucky.title
+  where: "오늘 화면 행운 칩 섹션 제목(지휘 가안 \"행운\")"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayLuckyTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.guide.title
+  where: "오늘 화면 질문 섹션 제목(지휘 가안 \"오늘의 질문\")"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayGuideTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    todayGuideTitle: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: calendar.legend.rule-link
+  where: "달력 범례 끝 색 규칙 시트 입구"
+  purpose: guide
+  user_state: "달력 색이 무엇으로 정해지는지 궁금합니다."
+  structure: "질문형 입구 하나(가안 \"색은 어떻게 정해지나요\")."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - calendarLegendRuleLink
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    calendarLegendRuleLink: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: day-sheet.date.solar
+  where: "그날 시트 머리의 날짜와 요일"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {date: text}
+      keys: [daySheetDateSolar]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    daySheetDateSolar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: day-sheet.date.lunar
+  where: "그날 시트 머리의 음력 날짜"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 언제인지 봅니다."
+  structure: "틀 하나. 날짜, 음력, 일진을 한 줄에 쉼표로 잇지 않고 칸마다 따로 둡니다(레이아웃과 글꼴로 나눔, #813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {lunarDate: text}
+      keys: [daySheetDateLunar]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    daySheetDateLunar: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: day-sheet.verdict.title
+  where: "그날 시트 길흉판정 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - daySheetVerdictTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    daySheetVerdictTitle: {en: "사용자 확정 문구(#813), en·ja 원고 대기", ja: "사용자 확정 문구(#813), en·ja 원고 대기"}
+  examples:
+    good:
+      - {lang: ko, key: daySheetVerdictTitle, text: "길흉판정", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: day-sheet.verdict.item
+  where: "그날 시트 길흉판정 내역 한 줄(한자 아이콘 태그, 짧은 뜻, 점, 더함 또는 뺌)"
+  purpose: info
+  user_state: "그날 색이 어떤 기운의 합으로 정해졌는지 봅니다."
+  structure: "점수 숫자 대신 점으로 보이고, 스크린리더는 더함과 뺌을 읽습니다. 짧은 뜻은 calendar.score_item 원고. 키는 더함(`Plus`), 뺌(`Minus`)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - daySheetVerdictItemPlus
+    - daySheetVerdictItemMinus
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    daySheetVerdictItemPlus: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+    daySheetVerdictItemMinus: {ko: "IA v5 원고 대기(#813)", en: "IA v5 원고 대기(#813)", ja: "IA v5 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."

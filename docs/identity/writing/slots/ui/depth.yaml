@@ -27,23 +27,25 @@
     screen_reader: 시트 이름으로 읽습니다.
 
 - id: ui.depth.evidence_link
-  where: "깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)"
+  where: "근거 아이콘(book-open-text)의 스크린리더 이름: 오늘 화면 문장 끝에서 근거 시트로 가는 아이콘(#153, DS1 V63, #807)"
   purpose: guide
-  user_state: "오늘 풀이가 왜 그런지 더 보고 싶습니다."
-  structure: "동작 이름 하나. 무엇을 보는지(근거)를 넣습니다."
+  user_state: "스크린리더로 오늘 풀이를 듣다가 왜 그런지 더 보고 싶습니다."
+  structure: "항목 이름과 동작 이름. 항목 이름 `subject`는 앞 문장이 속한 항목(날의 성격 배지 글자)이나 시트 제목(용어 이름)이고 app이 채웁니다. 한 화면에 아이콘이 여럿이어도 무엇의 근거인지 구분합니다. 역할은 버튼이라 '버튼'은 넣지 않습니다(#807)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
-  max_length: {ko: 25, en: 45, ja: 20}
-  ia: [today.evidence.link]
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
   components: [depth-link]
   keys:
-    - depthLinkEvidence
+    - params: {subject: text}
+      keys: [depthLinkEvidence]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: depthLinkEvidence, text: "근거 보기", why: "#153 공용 문구 원고", source: writing}
+      - {lang: ko, key: depthLinkEvidence, text: "{subject} 근거 보기", why: "#807 사용자 선택(항목 이름 + 근거 보기)", source: writing}
     bad:
+      - {lang: ko, text: "{subject}의 근거 보기", why: "귀인의 날의 근거 보기처럼 의가 겹침(#807 탈락)", source: writing}
       - {lang: ko, text: "더 알아보기", why: "무엇을 보는지 말하지 않음(W17)", source: writing}
   endings: []
   a11y:
-    truncation: "링크 한 줄 안에 들어가게 짧게 씁니다."
-    screen_reader: "링크 이름 그대로 읽습니다."
+    truncation: "화면에 글자가 없는 스크린리더 전용 이름이라 상한이 없습니다(design lengths.md 4.0.0, V63)."
+    screen_reader: "항목 이름 다음에 동작 이름을 읽습니다."
+

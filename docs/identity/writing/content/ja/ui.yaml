@@ -135,7 +135,7 @@
 - {slot: account-delete.title.head, key: accountDeleteTitleHead, text: "アカウント削除"}
 - {slot: account-delete.data.body, key: accountDeleteDataBody, text: "アカウントを削除すると、命式の情報・日記・タグ・予定・購入した商品の残り期間がすべて消え、元に戻せません。法令や不正利用防止のために必要な情報のみ、定められた期間、別途保管します。"}
 - {slot: account-delete.cta.delete, key: accountDeleteCtaDelete, text: "アカウントを削除する"}
-- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "本当に削除しますか?削除したアカウントは元に戻せません。"}
+- {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirm, text: "本当に削除しますか?削除後は元に戻せません。"}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmDelete, text: "削除"}
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "キャンセル"}
 - {slot: ad-free.offer.head, key: adFreeOfferHead, text: "1か月間、広告なしで、根拠と解釈まですべて開いて見られます。"}
@@ -273,7 +273,7 @@
 - {slot: ui.login.error, key: appleWebErrorStateMismatch, text: "ログインを確認できませんでした。最初からやり直してください。"}
 - {slot: ui.login.error, key: appleWebErrorCancelled, text: "Appleでのサインインをキャンセルしました。"}
 - {slot: ui.login.error, key: appleWebErrorOther, text: "Appleでサインインできませんでした。もう一度お試しください。"}
-- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "根拠を見る"}
+- {slot: ui.depth.evidence_link, key: depthLinkEvidence, text: "{subject}の根拠を見る"}
 - {slot: ui.evidence.title, key: evidenceSheetTitle, text: "読み解きの根拠"}
 - {slot: ui.guide.card, key: todayGuideEyebrow, text: "今日の質問"}
 - {slot: ui.guide.a11y, key: todayGuideLabel, text: "日記の質問"}
@@ -420,3 +420,4 @@
 - {slot: contact.address.note, key: contactAddressNote, text: "送信できない場合は、このアドレスにメールをお送りください。\n{email}"}
 - {slot: ui.contact.error, key: contactSendFailed, text: "送信できませんでした。しばらくしてからもう一度お試しください。"}
 - {slot: ui.contact.error, key: contactEmailInvalid, text: "メールアドレスをご確認ください。"}
+- {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "キーボードを閉じる"}

@@ -60,9 +60,6 @@
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: advice, text: "[[印星|ten_god_group.inseong]]が入るので、積んでいた本や講座を開いてみてください。"}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: state, text: "{name}さん、[[印星|ten_god_group.inseong]]が入り学びやすい日です。"}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: care, text: "知らなかったことを知る喜びが大きい日です。"}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: advice, text: "変えたかった生活習慣があれば、ひとつ変えてみてください。"}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: state, text: "慣れた毎日に変化が起きやすい日です。"}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: care, text: "気持ちが揺れても、おかしくない日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: advice, text: "難しいお願いがあれば、信頼できる人にしてみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: state, text: "思わぬところから助けが来る日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: care, text: "思いがけない親切に、ほっとできる日です。"}

@@ -440,7 +440,7 @@
   user_state: "계산 기준을 더 알고 싶습니다(D71)."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 25, en: 45, ja: 20}
+  max_length: {ko: 24, en: 44, ja: 20}
   keys:
     - birthplaceStandardLink
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -554,9 +554,9 @@
   user_state: "로그인 전에 공유를 눌렀습니다."
   structure: "안내 창: 본문 한 문장과 버튼 둘(로그인, 닫기)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    previewShareLoginNotice: {ko: 34, en: 60, ja: 28}
+    previewShareLoginNotice: {ko: 34, en: 60, ja: 26}
   keys:
     - previewShareLoginNotice
     - previewShareLoginNoticeConfirm
@@ -785,3 +785,24 @@
     truncation: "기기 설정 목록 한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "이름 그대로 읽습니다."
 
+# IA v5 새 자리(#813)
+
+- id: notify-ask.time.note
+  where: "온보딩 알림 시각 고르기(notify-ask) 아래 안내"
+  purpose: guide
+  user_state: "아침 알림 시각을 고릅니다."
+  structure: "한 문장. 고른 시각부터 10분 안에 도착하고 일찍 오지 않는다는 것(D109). 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - notifyAskTimeNote
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    notifyAskTimeNote: {ko: "D109 안내 원고 대기(#813)", en: "D109 안내 원고 대기(#813)", ja: "D109 안내 원고 대기(#813)"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."

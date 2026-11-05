@@ -1,5 +1,4 @@
 # 용어 뜻(term) 원고(ko). 태그 15개는 W1-1(#240, 오늘 화면 대표 태그 칩), 나머지는 W1-3.
-- {slot: term.meaning, key: term.tag.big_change, text: "내 사주의 날이나 달 자리와 크게 부딪히는 것으로, 익숙한 생활에 변화가 생기기 쉬워요."}
 - {slot: term.meaning, key: term.tag.cheoneul_gwiin, text: "가장 귀한 도움을 뜻하는 신살로, 뜻밖의 사람이 손을 내밀어 주기 쉬워요."}
 - {slot: term.meaning, key: term.tag.clash, text: "서로 반대되는 기운이 맞부딪히는 것으로, 계획이 바뀌거나 의견이 갈리기 쉬워요."}
 - {slot: term.meaning, key: term.tag.dohwa, text: "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."}
