@@ -5,6 +5,7 @@
 """
 
 import json
+import posixpath
 import re
 import shutil
 import subprocess
@@ -12,6 +13,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+INTERNAL_PREFIX = "internal/"
 SKIPPED_DIRS = {".git", ".suberpowers", ".venv", "node_modules"}
 DECISION_LOGS = (
     "docs/decisions.md",
@@ -123,7 +125,19 @@ def _unit_of(relative: str) -> str:
     return next((unit for prefix, unit in ARTIFACT_UNITS if relative.startswith(prefix)), "root")
 
 
-def collect_artifacts(root: Path) -> list[dict[str, object]]:
+def _artifact_path(directory: str, file: object) -> str | None:
+    """index.json 기준 상대 경로를 저장소 루트 기준으로 바꿉니다. 저장소 밖을 가리키면 None입니다."""
+    if not isinstance(file, str) or not file:
+        return None
+    path = posixpath.normpath(f"{directory}/{file}")
+    return None if path == ".." or path.startswith("../") or path.startswith("/") else path
+
+
+def collect_artifacts(root: Path, private: bool = False) -> list[dict[str, object]]:
+    """artifacts/index.json을 모읍니다. 항목은 file(그림, 원고)과 url(비공개 페이지) 중 하나 이상을 가져야 합니다.
+
+    private=True는 비공개 내부 저장소(D74)이고, 단위는 internal, 경로는 INTERNAL_PREFIX로 시작합니다.
+    """
     artifacts = []
     for index in sorted(root.rglob("artifacts/index.json")):
         if SKIPPED_DIRS.intersection(index.relative_to(root).parts):
@@ -135,14 +149,29 @@ def collect_artifacts(root: Path) -> list[dict[str, object]]:
             print(f"건너뜀: {directory}/index.json JSON 형식 오류", file=sys.stderr)
             continue
         for entry in entries if isinstance(entries, list) else []:
-            if not isinstance(entry, dict) or not isinstance(entry.get("file"), str):
-                print(f"건너뜀: {directory}/index.json의 file 없는 항목", file=sys.stderr)
+            if not isinstance(entry, dict):
+                continue
+            path = _artifact_path(directory, entry.get("file"))
+            url = entry.get("url")
+            url = url if isinstance(url, str) and url.startswith("https://") else ""
+            if path is None and not url:
+                print(f"건너뜀: {directory}/index.json의 file, url 없는 항목", file=sys.stderr)
                 continue
             item = dict(entry)
-            item["unit"] = _unit_of(directory + "/")
-            item["path"] = f"{directory}/{entry['file']}"
+            item["url"] = url
+            item["unit"] = "internal" if private else _unit_of(directory + "/")
+            item["path"] = "" if path is None else (INTERNAL_PREFIX + path if private else path)
             artifacts.append(item)
     return artifacts
+
+
+def artifact_source(root: Path, internal: Path | None, path: str) -> Path | None:
+    """data.json의 산출물 경로를 실제 파일 위치로 바꿉니다."""
+    if not path:
+        return None
+    if path.startswith(INTERNAL_PREFIX):
+        return internal / path[len(INTERNAL_PREFIX):] if internal else None
+    return root / path
 
 
 def collect_e2e(root: Path) -> dict[str, object] | None:
@@ -314,7 +343,7 @@ def build(root: Path, internal: Path | None = None) -> dict[str, object]:
         "screen_tabs": collect_screen_tabs(root),
         "ideas": ideas,
         "idea_reviews": idea_reviews,
-        "artifacts": collect_artifacts(root),
+        "artifacts": collect_artifacts(root) + (collect_artifacts(internal, private=True) if internal else []),
         "e2e": collect_e2e(root),
         "decisions": decisions,
         "issues": issues or [],
@@ -327,12 +356,13 @@ def main(argv: list[str]) -> int:
         print("사용법: build_map_data.py <저장소 루트> <출력 디렉터리> [내부 저장소 루트]")
         return 2
     root, out = Path(argv[1]), Path(argv[2])
-    data = build(root, Path(argv[3]) if len(argv) == 4 else None)
+    internal = Path(argv[3]) if len(argv) == 4 else None
+    data = build(root, internal)
     out.mkdir(parents=True, exist_ok=True)
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     for artifact in data["artifacts"]:
-        source = root / str(artifact["path"])
-        if source.exists():
+        source = artifact_source(root, internal, str(artifact["path"]))
+        if source is not None and source.is_file():
             target = out / "images" / str(artifact["path"])
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
