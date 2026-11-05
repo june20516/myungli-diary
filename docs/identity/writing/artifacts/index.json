@@ -494,5 +494,32 @@
     ],
     "status": "chosen",
     "note": "수집 고지는 합니다체, 누르면 바로 가는 안내는 문의하기로"
+  },
+  {
+    "id": "round-R30",
+    "title": "라운드 R30: IA v5 원고 (W56)",
+    "kind": "copy-sample",
+    "file": "2026-11-05-round-R30.md",
+    "date": "2026-11-05",
+    "milestone": "A2",
+    "screens": [
+      "today",
+      "tag-sheet",
+      "calendar",
+      "color-rule-sheet",
+      "day-sheet",
+      "diary-edit",
+      "diary-list",
+      "my-saju",
+      "saju-chart",
+      "notify-ask",
+      "settings",
+      "login"
+    ],
+    "decisions": [
+      "W56"
+    ],
+    "status": "chosen",
+    "note": "로그인 화면은 경로로 나누지 않고 첫 화면 문구로, 달력 단계 이름은 무난한 날"
   }
 ]
