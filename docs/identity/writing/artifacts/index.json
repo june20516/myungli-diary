@@ -541,5 +541,21 @@
     ],
     "status": "chosen",
     "note": "원전 없는 근거는 십성 몰림 태그에만 해석 문장, 나머지는 원전 구역을 그리지 않음"
+  },
+  {
+    "id": "round-R32",
+    "title": "라운드 R32: 로그인 덧붙임 한 줄 (W58)",
+    "kind": "copy-sample",
+    "file": "2026-11-06-round-R32.md",
+    "date": "2026-11-06",
+    "milestone": "A2",
+    "screens": [
+      "login"
+    ],
+    "decisions": [
+      "W58"
+    ],
+    "status": "chosen",
+    "note": "첫 풀이는 오늘 풀이의 일부라 이어서 볼 것이 있다는 사실로 씀"
   }
 ]

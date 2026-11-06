@@ -32,6 +32,7 @@
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "닫기"}
 - {slot: login.title.head, key: loginTitleHead, text: "명리일기"}
 - {slot: login.title.body, key: loginTitleBody, text: "로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요."}
+- {slot: login.save.note, key: loginSaveNote, text: "로그인하시면 방금 본 풀이를 이어서 볼 수 있어요."}
 - {slot: login.discard.notice, key: loginDiscardNotice, text: "이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요."}
 - {slot: consent.title.head, key: consentTitleHead, text: "약관에 동의해 주세요"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(필수) 이용약관"}

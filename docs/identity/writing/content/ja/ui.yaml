@@ -32,6 +32,7 @@
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "閉じる"}
 - {slot: login.title.head, key: loginTitleHead, text: "命理日記"}
 - {slot: login.title.body, key: loginTitleBody, text: "ログインすると、毎日あなたの命式に合わせた読み解きをお届けします。"}
+- {slot: login.save.note, key: loginSaveNote, text: "ログインすると、いま見た読み解きの続きを見られます。"}
 - {slot: login.discard.notice, key: loginDiscardNotice, text: "すでに命式を保存したアカウントなら、いま入力した情報ではなく保存済みの情報を使います。"}
 - {slot: consent.title.head, key: consentTitleHead, text: "規約に同意してください"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(必須)利用規約"}
