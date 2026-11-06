@@ -17,10 +17,12 @@ const (
 	basisSlot = "evidence.basis"
 	// sourceSlot은 원전 인용 슬롯입니다. 키는 source.<source_ref>입니다.
 	sourceSlot = "evidence.source"
+	// noSourceSlot은 원전이 없는 규칙(source_ref가 빈 값, core C28)의 원전 칸 문장 슬롯입니다. 키는 no_source.<rule_id>입니다(W57, #827).
+	noSourceSlot = "evidence.no_source"
 )
 
 // evidenceSlots는 판정에 덧붙이는 근거 문장 슬롯입니다. 슬롯 명세에 없으면 Store가 Error 로그로 알립니다.
-var evidenceSlots = []string{todayReasonSlot, basisSlot, sourceSlot}
+var evidenceSlots = []string{todayReasonSlot, basisSlot, sourceSlot, noSourceSlot}
 
 // 반응(좋아요)을 남길 수 있는 총운 슬롯입니다(P4-4, D57). 슬롯 id는 writing 슬롯 명세가 원본입니다.
 const (
@@ -192,12 +194,34 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 				item.Basis, _ = r.render(ctx, tpl, def, "basis."+e.GetRuleId(), seed.VariantSingle, params, "")
 			}
 		}
-		if def, ok := tpl.Slot(sourceSlot); ok && e.GetSourceRef() != "" {
-			item.Source, _ = r.render(ctx, tpl, def, "source."+e.GetSourceRef(), seed.VariantSingle, nil, "")
-		}
+		item.Source = r.source(ctx, tpl, e)
 		out = append(out, item)
 	}
 	return out
+}
+
+// source는 근거 하나의 원전 칸 문장입니다. 원전이 있으면 source.<source_ref>의 인용입니다.
+// 원전이 없으면(source_ref 빈 값) no_source.<rule_id> 원고가 있는 규칙만 그 문장을 내고, 원고가 없는 규칙은 원전 칸이 없는 것이 정상이라
+// 로그 없이 nil입니다(W57, app은 원전 구역을 그리지 않음). 렌더가 실패하면 다른 슬롯처럼 로그를 남깁니다.
+func (r *Renderer) source(ctx context.Context, tpl Templates, e *enginev1.Evidence) []render.Segment {
+	if e.GetSourceRef() != "" {
+		def, ok := tpl.Slot(sourceSlot)
+		if !ok {
+			return nil
+		}
+		segments, _ := r.render(ctx, tpl, def, "source."+e.GetSourceRef(), seed.VariantSingle, nil, "")
+		return segments
+	}
+	def, ok := tpl.Slot(noSourceSlot)
+	if !ok {
+		return nil
+	}
+	key := "no_source." + e.GetRuleId()
+	if _, found := tpl.Body(noSourceSlot, key, seed.VariantSingle); !found {
+		return nil
+	}
+	segments, _ := r.render(ctx, tpl, def, key, seed.VariantSingle, nil, "")
+	return segments
 }
 
 // logFailure는 문장을 만들지 못한 이유를 Error 로그 하나로 남깁니다.

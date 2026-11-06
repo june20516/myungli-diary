@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 )
 
@@ -27,6 +28,12 @@ func (Unimplemented) CheckHealth(context.Context, gen.CheckHealthRequestObject) 
 // 의존성 점검(503)은 의존성이 생기는 계획에서 덮어씁니다.
 func (Unimplemented) GetHealth(context.Context, gen.GetHealthRequestObject) (gen.GetHealthResponseObject, error) {
 	return gen.GetHealth200JSONResponse{Status: gen.Ok}, nil
+}
+
+// GetServerVersion은 이 빌드가 다루는 엔진 규칙 버전입니다(D110). DB와 엔진에 기대지 않아 늘 200입니다.
+// 엔진 배포 workflow(deploy-engine-env.yml)의 관문이 읽습니다.
+func (Unimplemented) GetServerVersion(context.Context, gen.GetServerVersionRequestObject) (gen.GetServerVersionResponseObject, error) {
+	return gen.GetServerVersion200JSONResponse{SupportedRulesetVersion: engine.SupportedRulesetVersion}, nil
 }
 
 func (Unimplemented) GetAppConfig(context.Context, gen.GetAppConfigRequestObject) (gen.GetAppConfigResponseObject, error) {

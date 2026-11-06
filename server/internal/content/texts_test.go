@@ -56,7 +56,8 @@ var textSlots = map[string]seed.Slot{
 		"strength_score": {Kind: seed.KindNumber},
 		"unused":         {Kind: seed.KindNone},
 	}},
-	"evidence.source": {ID: "evidence.source"},
+	"evidence.source":    {ID: "evidence.source"},
+	"evidence.no_source": {ID: "evidence.no_source"},
 }
 
 func newTestTemplates() fakeTemplates {
@@ -69,6 +70,7 @@ func newTestTemplates() fakeTemplates {
 			{"explain.today_reason", "reason.color/lucky_element", "single"}:           "[[용신|tag.yongsin]]이 들어와서 그래요.",
 			{"evidence.basis", "basis.color/lucky_element", "single"}:                  "{element} 오행이 {strength_score}점이라 행운 오행으로 봤어요.",
 			{"evidence.source", "source.gungtong-bogam/five_elements#color", "single"}: "궁통보감 오행 편",
+			{"evidence.no_source", "no_source.tags/ten_god_rush", "single"}:            "원전에 나오는 규칙은 아니지만 이렇게 해석했어요.",
 		},
 		names: map[string]string{"element.wood": "초록"},
 		slots: textSlots,
@@ -241,6 +243,34 @@ func TestSlot_EvidenceSource(t *testing.T) {
 	require.Len(t, got.Evidence, 1)
 	assert.Equal(t, ref, got.Evidence[0].SourceRef)
 	assert.Equal(t, "궁통보감 오행 편", joinSegments(got.Evidence[0].Source))
+}
+
+// 원전이 없는 근거(source_ref 빈 값)는 no_source.<rule_id> 원고가 있으면 그 문장을 원전 칸에 넣습니다(#827).
+func TestSlot_EvidenceNoSourceUsesRuleTemplate(t *testing.T) {
+	r, logs := newTestRenderer()
+	j := newTestJudgment()
+	j.Evidence = []*enginev1.Evidence{{RuleId: "tags/ten_god_rush"}}
+
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
+	require.True(t, ok)
+	require.Len(t, got.Evidence, 1)
+	assert.Empty(t, got.Evidence[0].SourceRef)
+	assert.Equal(t, "원전에 나오는 규칙은 아니지만 이렇게 해석했어요.", joinSegments(got.Evidence[0].Source))
+	assert.NotContains(t, logs.String(), "evidence.no_source")
+}
+
+// no_source 원고가 없는 규칙(tags/select 등)은 원전 칸이 없는 것이 정상이라 로그 없이 생략합니다.
+func TestSlot_EvidenceNoSourceWithoutTemplateIsOmittedSilently(t *testing.T) {
+	r, logs := newTestRenderer()
+	j := newTestJudgment()
+	j.Evidence = []*enginev1.Evidence{{RuleId: "tags/select"}}
+
+	got, ok := r.Slot(context.Background(), newTestTemplates(), "daily.color", seed.VariantSingle, j, "", true)
+	require.True(t, ok)
+	require.Len(t, got.Evidence, 1)
+	assert.Nil(t, got.Evidence[0].Source)
+	assert.NotContains(t, logs.String(), "evidence.source")
+	assert.NotContains(t, logs.String(), "evidence.no_source")
 }
 
 func TestSlot_MissingEvidenceTextIsOmittedAndLogs(t *testing.T) {

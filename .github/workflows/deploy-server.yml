@@ -179,7 +179,8 @@ jobs:
         run: |
           terraform init -input=false -backend-config="bucket=myungli-diary-load-tfstate"
           for address in google_sql_database.main google_sql_user.server google_sql_user.migrator; do
-            if terraform state list "$address" | grep -q .; then
+            # 이미 지워진 자원은 state list가 "Unknown resource" 오류를 내므로 stderr를 버리고 출력이 있는지만 봅니다.
+            if terraform state list "$address" 2>/dev/null | grep -q .; then
               terraform state rm "$address"
             fi
           done

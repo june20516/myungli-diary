@@ -55,6 +55,7 @@ var viewSlots = map[string]seed.Slot{
 	"explain.today_reason": {ID: "explain.today_reason", Rotation: seed.RotationNone},
 	"evidence.basis":       {ID: "evidence.basis", Rotation: seed.RotationNone},
 	"evidence.source":      {ID: "evidence.source", Rotation: seed.RotationNone},
+	"evidence.no_source":   {ID: "evidence.no_source", Rotation: seed.RotationNone},
 }
 
 // tpl은 시드 문장 틀 하나를 만듭니다.
