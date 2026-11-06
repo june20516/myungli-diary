@@ -221,6 +221,7 @@
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
+| today.featured.empty | today.featured.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.featured.title | today.featured.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.fortune.title | today.fortune.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |

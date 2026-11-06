@@ -1193,7 +1193,7 @@
   },
   "todayFeaturedTitle": "사주 기운",
   "@todayFeaturedTitle": {
-    "description": "today.featured.title: 섹션 제목 \"사주 기운\"(가안, 문구 writing). 아래에 대표 태그(최대 둘)를 한자 아이콘 태그로 두고, 누르면 사주 기운 시트"
+    "description": "today.featured.title: 섹션 제목 \"사주 기운\"(가안, 문구 writing). 아래에 대표 태그(최대 둘)를 한자 아이콘 태그로 두고, 누르면 사주 기운 시트. 대표 태그가 없는 날도 제목은 두고 아래에 `today.featured.empty` 한 줄(D112)"
   },
   "todayFortuneTitle": "총운",
   "@todayFortuneTitle": {
