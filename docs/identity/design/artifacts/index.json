@@ -798,7 +798,7 @@
       "V79",
       "V80"
     ],
-    "status": "draft",
-    "note": "사용자 확인 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 date-header, tag-sentence-list, lock.veil G1과 근거 시트 머리. 앱 fixture 하늘님 2026-10-13 값, fixture에 없는 값은 예시. 사용자 확인(2026-11-06, #801): 이름 칸 52 두 줄 허용, 총운 안 선 유지, 근거 시트 원국표 유지"
   }
 ]

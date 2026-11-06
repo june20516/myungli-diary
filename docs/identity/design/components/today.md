@@ -58,7 +58,7 @@
 * 쓰는 화면: tag-sheet
 * 사주 기운 시트의 "이 기운에서 나온 오늘 문장" 목록과 그 아래 출구입니다(D108).
 * 머리: `type.label.md` `text.secondary`(슬롯 `tag-sheet.sentences.title`), 아래 `space.8`.
-* 줄: 왼쪽 이름 칸 52(`type.caption.md` `text.secondary`, 첫 줄 기준선에 맞춤) + `space.8` + 문장(`sentence-block` `body`). 줄 위아래 `space.12`, 줄 사이 `list.divider`. 시트 안이라 문장 속 용어는 일반 글자입니다.
+* 줄: 왼쪽 이름 칸 52(`type.caption.md` `text.secondary`, 첫 줄 기준선에 맞춤, 폭 고정이고 넘치면 칸 안에서 줄바꿈. ko "오늘의 질문"은 두 줄이고 ja, en도 같으며 문장 칸 폭은 줄이지 않음) + `space.8` + 문장(`sentence-block` `body`). 줄 위아래 `space.12`, 줄 사이 `list.divider`. 시트 안이라 문장 속 용어는 일반 글자입니다.
   * 줄은 오늘 화면의 같은 문장입니다: 보조 문장(`today.fortune.body`), 오늘의 질문(`today.guide.question`). 그 태그로 정해진 문장만 오늘 화면 순서대로 놓습니다. 대표 태그 1순위면 둘 다 있습니다.
   * 이름 칸 글자("보조 문장", "오늘의 질문")는 IA 슬롯이 없어 writing 새 슬롯을 요청합니다(#801).
   * 문장 줄은 누를 수 없습니다.

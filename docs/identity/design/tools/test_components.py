@@ -1883,6 +1883,9 @@ def test_tag_sentence_list():
     assert row["label"]["width"] == {"value": 52, "unit": "px"}
     assert (row["label"]["type"], row["label"]["fg"]) == ("{type.caption.md}", "{color.text.secondary}")
     assert "IA 슬롯 없음" in row["label"]["copy"]  # 이름 칸 글자는 writing 새 슬롯 요청
+    # 관문 답(사용자 2026-11-06): 이름 칸 52 고정, 넘치면 칸 안에서 줄바꿈(ko "오늘의 질문" 두 줄), 문장 칸 폭은 줄이지 않음
+    assert row["label"]["wrap"] == {"within": "label", "maxLines": "none", "widthFixed": True, "sentenceWidthKept": True}
+    assert any("52" in rule and "줄바꿈" in rule and "문장 칸 폭" in rule for rule in sentences["rules"])
     assert (row["sentence"]["component"], row["sentence"]["variant"]) == ("sentence-block", "body")
     assert row["sentence"]["marginStart"] == "{space.8}"
     assert (row["paddingTop"], row["paddingBottom"]) == ("{space.12}", "{space.12}")
