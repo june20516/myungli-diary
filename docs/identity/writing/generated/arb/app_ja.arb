@@ -237,6 +237,7 @@
   "todayEventSummaryDone": "今日の予定はすべて終わりました",
   "todayEventSummaryNextAt": "次は{time} {title}",
   "todayEventSummaryAllPast": "今日の予定{count, plural, other{{count}件}}はすべて終わりました",
+  "todayFeaturedEmpty": "今日は目立った命式の気はありません。",
   "todayFeaturedTitle": "命式の気",
   "todayFortuneTitle": "総運",
   "todayGuideCta": "日記を書く",

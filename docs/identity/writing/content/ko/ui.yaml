@@ -435,6 +435,7 @@
 - {slot: saju-chart.seun.title, key: sajuChartSeunTitle, text: "세운"}
 - {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "키보드 내리기"}
 - {slot: today.featured.title, key: todayFeaturedTitle, text: "사주 기운"}
+- {slot: today.featured.empty, key: todayFeaturedEmpty, text: "오늘은 두드러진 사주 기운이 없어요."}
 - {slot: today.lucky.title, key: todayLuckyTitle, text: "행운"}
 - {slot: today.guide.title, key: todayGuideTitle, text: "오늘의 질문"}
 - {slot: today.date.solar, key: todayDateSolar, text: "{date}"}

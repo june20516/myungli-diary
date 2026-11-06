@@ -480,14 +480,12 @@
   keys:
     - todayFeaturedEmpty
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    todayFeaturedEmpty:
-      ko: "라운드 R33에서 정합니다(#840)."
-      en: "라운드 R33에서 정합니다(#840)."
-      ja: "라운드 R33에서 정합니다(#840)."
   examples:
-    good: []
-    bad: []
+    good:
+      - {lang: ko, key: todayFeaturedEmpty, text: "오늘은 두드러진 사주 기운이 없어요.", why: "섹션 제목과 같은 말로 없다는 사실만, 날을 판정하지 않음", source: round-R33-1}
+    bad:
+      - {lang: ko, key: todayFeaturedEmpty, text: "오늘은 운명의 파도가 잠시 쉬어 가는, 고요한 쉼표 같은 하루예요.", why: "꾸민 비유 slop.P1, 날을 평온하다고 판정", source: round-R33-1}
+      - {lang: ko, key: todayFeaturedEmpty, text: "오늘은 사주에 크게 걸리는 기운 없이 잔잔한 날이에요.", why: "잔잔하다는 판정이 기신의 날 헤드라인과 어긋남", source: round-R33-1}
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "섹션 제목 다음에 이어 읽습니다."

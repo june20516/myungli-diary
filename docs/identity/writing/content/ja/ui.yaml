@@ -423,6 +423,7 @@
 - {slot: ui.contact.error, key: contactEmailInvalid, text: "メールアドレスをご確認ください。"}
 - {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "キーボードを閉じる"}
 - {slot: today.featured.title, key: todayFeaturedTitle, text: "命式の気"}
+- {slot: today.featured.empty, key: todayFeaturedEmpty, text: "今日は目立った命式の気はありません。"}
 - {slot: today.lucky.title, key: todayLuckyTitle, text: "ラッキー"}
 - {slot: today.guide.title, key: todayGuideTitle, text: "今日の質問"}
 - {slot: today.fortune.title, key: todayFortuneTitle, text: "総運"}
