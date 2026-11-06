@@ -5,6 +5,7 @@ project_number      = "21526308173"
 environment         = "prod"
 sql_tier            = "db-custom-1-3840"
 deletion_protection = true
+min_instances       = 1
 # db-custom-1-3840(3.75GB)은 Cloud SQL max_connections 표의 3.75~6GB 행 100입니다(S133).
 sql_max_connections = 100
 # 공개 주소가 아직 server에 연결되지 않아(GET /health 404, 2026-11-04) uptime check는 출시 연결 때 켭니다(S133).

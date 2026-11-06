@@ -7,6 +7,16 @@ resource "google_cloud_run_v2_service" "engine" {
   template {
     service_account = google_service_account.engine.email
 
+    # 엔진은 동기 gRPC 서버라 한 인스턴스가 한 번에 MAX_WORKERS개만 처리합니다(core grpc_api/server.py).
+    # 기본 80을 두면 나머지 요청이 엔진 안에서 줄을 서고, 증설 기준(동시 요청 수의 60%)에도 늦게 닿습니다(L1 1회차, #817 ②).
+    # 값은 MAX_WORKERS와 같아야 하며 internal/engine의 TestEngineConcurrency_MatchesCoreWorkers가 대조합니다.
+    max_instance_request_concurrency = 8
+
+    # 아침 몰림의 첫 증설 지연을 줄이려고 prod만 하나를 늘 띄워 둡니다(#817 ④).
+    scaling {
+      min_instance_count = var.min_instances
+    }
+
     containers {
       image = local.engine_image
 
@@ -66,6 +76,11 @@ resource "google_cloud_run_v2_service" "server" {
 
   template {
     service_account = google_service_account.server.email
+
+    # 아침 몰림의 첫 증설 지연을 줄이려고 prod만 하나를 늘 띄워 둡니다(#817 ④).
+    scaling {
+      min_instance_count = var.min_instances
+    }
 
     vpc_access {
       egress = "PRIVATE_RANGES_ONLY"
