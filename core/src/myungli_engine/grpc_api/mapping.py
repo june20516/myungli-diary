@@ -239,6 +239,9 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
         day_stem_ten_god=_name(_PREFIX_TEN_GOD, view.day_stem_ten_god),
         day_stem_ten_god_group=_name(_PREFIX_TEN_GOD_GROUP, view.day_stem_ten_god.group),
         guide_candidates=[_judgment(judgment) for judgment in view.guide_candidates],
+        lunar_month=view.lunar.month,
+        lunar_day=view.lunar.day,
+        is_leap_month=view.lunar.is_leap_month,
     )
 
 
