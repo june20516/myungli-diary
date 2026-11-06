@@ -72,8 +72,8 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 * `score-row`: `hanja-tag`(길흉 톤 허용) + 뜻(`type.caption.lg`, 두 줄까지) + 점(지름 8, 사이 3, 더함은 `badge.good.bg`, 뺌은 `text.secondary`) 앞에 + 또는 −. 점 개수는 점수 절댓값(최대 3, 그 이상은 3과 +). 스크린리더 "이름, 뜻, 더함 둘".
 * `score-scale`: 네 칸(조심할 날, 무난한 날, 잘 풀리는 날, 아주 잘 풀리는 날), 칸마다 `level` 바탕과 점 범위 표기(−●● 이하, −●~+●, +●●, +●●● 이상).
 * `date-block`: 일 숫자 44 700, 옆 `space.12`에 월과 요일(`type.label.lg`), 그 아래 일진(`type.caption.md`).
-* `diary-summary`: 큰 편수(28 700) + 단위 글자, "어떤 날에 썼나" 막대(날의 성격 넷, 막대 높이 8 `radius.full`, 색은 날의 성격 톤, 오른쪽 수), "자주 붙은 태그"(`hanja-tag` + 수, 최대 3). 기록이 적을 때(5편 미만) 안내 한 줄과 막대 숨김.
-* `luck-pillar`: 천간, 지지 칸(`ohaeng.cell` 작은 크기 40), 위 나이 또는 연도, 십성 칩(`term-token` `label`). 지금 대운, 올해 세운은 `status.bg` 바탕 + 아래 "지금", "올해" 꼬리표. 나 탭은 세로 두 줄(대운, 세운) 요약 모양 변형 `compact`.
+* `diary-summary`: 큰 편수(28 700) + 단위 글자, "어떤 날에 썼나" 막대(날의 성격 넷, 막대 높이 8 `radius.full`, 색은 날의 성격 톤, 오른쪽 수), "자주 붙은 태그"(`hanja-tag` + 수, 최대 3). 태그를 누르면 그 태그의 일기 모아보기(`tag-diary`, 사용자 결정 2026-11-06, IA 출구는 #801에 요청). 기록이 적을 때(5편 미만) 안내 한 줄과 막대 숨김.
+* `luck-pillar`: 천간, 지지 칸(`ohaeng.cell` 작은 크기 40), 위 나이 또는 연도, 십성 칩(`term-token` `label`). 사주 표 대운, 세운 줄에서 지금 대운, 올해 세운 칸은 `status.bg` 바탕 + 아래 "지금", "올해" 꼬리표(여러 칸 중 지금을 가림). 나 탭은 세로 두 줄(대운, 세운) 요약 모양 변형 `compact`이고, 두 줄이 모두 지금이라 강조 바탕이 없음(origin, 사용자 확인 2026-11-06).
 * `birth-info-row`: 칸 넷(달력 종류 꼬리표 + 날짜, 시진 `hanja-tag` + 시간, 성별 알약), 칸 사이 세로 구분선(1px 높이 16 `color.line`, 좌우 `space.12`), 쉼표 없음. 넘치면 칸 단위로 다음 줄. 시간 모름이면 시진 칸에 "시간 모름" 알약.
 * `band-table`: 열 머리(시주, 일주(나), 월주, 연주), 열 구분선이 모든 띠를 관통(0.5px `color.line`), 일주 열 `status.bg` 옅은 바탕, 띠 머리줄(`bandHeader`: 네 열에 걸친 가운데 줄, 흰 바탕 + 위아래 0.5px 선 + 가운데 용어 칩). 띠: 지장간(`stem.chip` + 십성), 12운성(`term-token`), 신살(`term-token`, 없는 칸은 비움 표시 "-" 글자 대신 짧은 가로선 12×1 `text.secondary`).
 * `stage-strip`: 12칸 막대(칸 높이 6, 사이 2, 내 자리 칸은 `action.primary`, 나머지 `color.line`), 위에 자리 꼬리표(시, 일, 월, 연, 원형 `action.primary`), 아래 단계 이름(`type.caption.sm`). 스크린리더 "장생, 월주와 연주 ...".
