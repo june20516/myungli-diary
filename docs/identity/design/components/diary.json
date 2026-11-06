@@ -58,10 +58,9 @@
           "component": "hanja-tag", "variant": "default", "tone": "dayKind", "position": "card-top",
           "source": "DiarySummary.dayKind (D96)", "whenMissing": "hide",
           "opens": { "sheet": "explain-sheet", "diaryLink": false },
-          "hiddenIn": ["tag-diary"],
-          "note": "그날 날의 성격(貴 用 忌 平, 길흉 톤 V8 매핑). 쓸 때 기록한 값(D90 ①). 누르면 뜻만 있는 뜻 시트(다른 자리의 날의 성격 시트와 같음). 한 편 카드는 아래 미리보기와 사이 space.8(preview marginTop)"
+          "note": "그날 날의 성격(貴 用 忌 平, 길흉 톤 V8 매핑). 쓸 때 기록한 값(D90 ①). 누르면 뜻만 있는 뜻 시트(다른 자리의 날의 성격 시트와 같음). 줄마다 달라 tag-diary 안에서도 보임. 한 편 카드는 있을 때만 아래 미리보기와 사이 space.8(preview marginTopWhen)"
         },
-        "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}" },
+        "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}", "marginTopWhen": "날의 성격이 있을 때만 그 아래 space.8. 없으면 카드 안쪽 위에서 바로 시작" },
         "tag": {
           "component": "hanja-tag", "variant": "default", "count": 1, "marginTop": "{space.12}", "whenMissing": "hide",
           "opens": { "sheet": "explain-sheet", "diaryLink": true },
@@ -99,7 +98,7 @@
         "묶음 카드에서도 흐름 줄은 카드 높이만큼 이어져 다음 날짜까지 간다.",
         "카드 맨 위에 날의 성격 hanja-tag(길흉 톤, DiarySummary.dayKind)를, 맨 아래에 그날 대표 태그 하나를 hanja-tag default(term 초록)로 둔다. 값이 없으면 그 태그만 그리지 않는다(V81).",
         "두 태그 모두 누르면 뜻 시트(explain-sheet)다. 대표 태그 시트에만 그 태그의 모아보기(tag-diary) 꺾쇠 링크가 있다. 줄에서 바로 화면 이동하지 않는다(V73).",
-        "tag-diary 안의 줄은 두 태그를 모두 그리지 않는다. 모아보기는 태그로 모은 목록이고 화면 위에 그 태그 이름과 뜻이 있다(관문 답 2026-11-06 Q2 ①)."
+        "tag-diary 안의 줄은 대표 태그를 그리지 않는다. 모든 줄이 같은 태그이고 화면 위에 그 태그 이름과 뜻이 있다(관문 답 2026-11-06 Q2 ①). 날의 성격은 줄마다 달라 그대로 보인다."
       ]
     },
     {

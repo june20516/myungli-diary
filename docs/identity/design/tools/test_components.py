@@ -976,7 +976,8 @@ def test_diary_row_same_day_entries():
 def test_diary_row_single_entry_day_is_unchanged():
     row = component("diary", "diary-row")
     assert row["parts"]["card"]["padding"] == "{space.16}"
-    assert row["parts"]["preview"] == {"component": "sentence-block", "variant": "preview", "marginTop": "{space.8}"}
+    preview = row["parts"]["preview"]
+    assert (preview["component"], preview["variant"], preview["marginTop"]) == ("sentence-block", "preview", "{space.8}")
     assert row["a11y"]["label"] == "날짜 요일, 날의 성격, 미리보기 첫 줄, 대표 태그"  # V81 개정
 
 
@@ -2051,8 +2052,10 @@ def test_diary_row_hanja_tag():
     assert (tag["component"], tag["variant"], tag["count"]) == ("hanja-tag", "default", 1)
     assert tag["marginTop"] == "{space.12}" and tag["whenMissing"] == "hide"
     assert tag["opens"] == {"sheet": "explain-sheet", "diaryLink": True}  # Q3 안 A: 시트, 모아보기는 시트 안 링크
-    # Q2 ①: 모아보기 안 줄은 두 태그를 모두 그리지 않음
-    assert kind["hiddenIn"] == ["tag-diary"] and tag["hiddenIn"] == ["tag-diary"]
+    # Q2 ①: 모아보기 안 줄은 대표 태그만 숨김. 날의 성격은 줄마다 달라 보임 (controller Ruling)
+    assert "hiddenIn" not in kind and tag["hiddenIn"] == ["tag-diary"]
+    # 한 편 카드: 날의 성격이 있을 때만 그 아래 space.8 (리뷰 Minor 4)
+    assert parts["preview"]["marginTop"] == "{space.8}" and "날의 성격이 있을 때만" in parts["preview"]["marginTopWhen"]
     assert "badge" not in parts and "tag-chip" not in json.dumps(row, ensure_ascii=False)
     assert "tag-diary" not in json.dumps(tag["opens"]) and "page.push" not in row["uses"]
     variants = {variant["id"]: variant["parts"] for variant in row["variants"]}
@@ -2078,6 +2081,7 @@ def test_hanja_tag_opens_sheet_everywhere():
     assert "날의 성격" in link["notFor"] and "대표 태그" in link["when"]
     assert "<태그>이 붙은 내 일기 보기" in link["copy"] and "josa" in link["josa"]
     assert "page.push" in sheet["uses"]
+    assert sheet["a11y"]["linkRole"] == "link" and "꺾쇠는 읽지 않음" in sheet["a11y"]["linkLabel"]  # 리뷰 Minor 3
     chip = component("diary", "tag-chip")
     assert chip["parts"]["opens"] == {"sheet": "explain-sheet", "diaryLink": True}
     assert chip["a11y"]["role"] == "button" and "tag-diary" not in json.dumps(chip["rules"], ensure_ascii=False)

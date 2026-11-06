@@ -44,7 +44,7 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 | Q4-2 | ① | 날의 성격 강조 변형 `emphasis`는 데이터로: 용신의 날만 진한 채움(`badge.good`), 귀인의 날 옅은 coral, 기신의 날 옅은 회색, 평범한 날 테두리(V8, D20 그대로). 쓰는 자리: 그날 시트 머리와 오늘 총운 결정 태그 |
 | Q5 | ① | `lucky-card` 칩은 `bg.sheet` 바탕 + 1px `color.line` 테두리. 연 칩은 테두리가 1.5px `action.primary`로 바뀜. 오늘 카드, 나 탭 카드, 공유 이미지(그라데이션 위), 다크 모드에서 테두리로 구분됨 |
 | Q6 | ② | 달력 오늘은 낙관 도장 윤곽 26px 그대로(V19) |
-| Q7 | ② | 일기 목록 줄은 V42 그대로. 태그만 `hanja-tag`(초록) |
+| Q7 | ② | 일기 목록 줄은 V42 그대로. 태그만 `hanja-tag`(초록). **관문 답(사용자 결정 2026-11-06):** 카드 맨 위에 날의 성격 `hanja-tag`(길흉 톤, `DiarySummary.dayKind` D96, 없으면 숨김, 있을 때만 아래 `space.8`), 맨 아래에 그날의 대표 태그(`default` 초록, 엔진이 일진으로 정함 D108 ①). tag-diary 안 줄은 대표 태그만 숨기고 날의 성격은 보임 |
 | Q8 | V68 유지 | 일기 쓰기도 키보드 내리기 버튼. 키보드 높이(OS 자동완성과 추천 줄 포함, 플랫폼 키보드 inset) 위로 `space.12`. 붙여넣기 막대와 겹치는지는 QA에서 확인 |
 | 刑 | 지휘 확인 | `color-rule-sheet` 점수 항목의 刑(형)은 D108 한자 목록에 없음. #801에 묻고, 답 전에는 `hanja-tag` 글자 목록에 넣지 않고 표에 "자리값"으로 둠 |
 
@@ -65,21 +65,21 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 ## 4. 컴포넌트별 정할 것 (task가 테스트로 고정)
 
 * `date-header`: 날짜와 요일(`type.subtitle`), 그 아래 `space.2` 음력과 일진 줄(`type.caption.lg` `text.secondary`). 그날 시트는 일진 없이. 음력이 계약에 없으면 그 줄을 빼지 않고 일진만(server #806 전).
-* `hanja-tag`: 높이 30, 왼쪽 안쪽 4, 오른쪽 `space.12`, 한자 원 22(`bg.sheet` 바탕, 한자 `font.family.hanja` 12 700), 원과 이름 사이 `space.4`, 이름 `type.label.md`. 변형 `default`, `emphasis`(Q4-2), `selected`(둘레 1.5px `action.primary`). 누르면 `explain-sheet`나 `tag-sheet`(IA 출구). 스크린리더 이름은 이름 글자(한자는 읽지 않음).
+* `hanja-tag`: 높이 30, 왼쪽 안쪽 4, 오른쪽 `space.12`, 한자 원 22(`bg.sheet` 바탕, 한자 `font.family.hanja` 12 700), 원과 이름 사이 `space.4`, 이름 `type.label.md`. 변형 `default`, `emphasis`(Q4-2), `selected`(둘레 1.5px `action.primary`). 누르면 `explain-sheet`나 `tag-sheet`(IA 출구). 스크린리더 이름은 이름 글자(한자는 읽지 않음). **사용자 결정 2026-11-06:** 누르면 어디서나 시트이고 화면 이동 예외가 없음(일기 줄, 일기 보기 태그 칩, 나 탭 회고 포함, V73). 대표 태그의 뜻 시트에만 본문 아래 꺾쇠 링크 `diaryLink`("<태그>이 붙은 내 일기 보기", 편수 없음, → `tag-diary` `page.push`), 날의 성격 시트는 뜻만.
 * `explain-sheet`: 요소 `explain.sheet` 값을 그대로 옮김(내용 높이 half, 제목 `type.subtitle`, 본문 `sentence-block` `body`, 배치 안에 끼우지 않음). 12운성은 본문 아래 `stage-strip`.
-* `tag-sentence-list`: 머리 `type.label.md` `text.secondary`, 줄마다 왼쪽 이름 칸(보조 문장, 오늘의 질문) 52 + 문장, 줄 사이 `list.divider`. 없으면 안내 한 줄(writing 슬롯). 아래 출구는 꺾쇠 링크(`tag-diary`, "<태그>이 붙은 내 일기 n편 보기", 조사는 writing `josa`).
+* `tag-sentence-list`: 머리 `type.label.md` `text.secondary`, 줄마다 왼쪽 이름 칸(보조 문장, 오늘의 질문) 52 + 문장, 줄 사이 `list.divider`. 없으면 안내 한 줄(writing 슬롯). 아래 출구는 꺾쇠 링크(`tag-diary`, "<태그>이 붙은 내 일기 보기", 조사는 writing `josa`). 편수를 보이지 않고 늘 보임, 일기가 없으면 tag-diary 빈 상태(사용자 결정 2026-11-06, "편수는 매력 없는 정보에 기술 부담만").
 * `fortune-verdict`: 위치 막대(트랙 높이 4, 왼쪽 조심할 날 `level.caution`에서 오른쪽 잘 풀리는 날 `level.great`로 그라데이션 새 역할, 위치 표시 원 18 흰 바탕 + 2px `action.primary`), 아래 세 이름(조심할 날, 무난한 날, 잘 풀리는 날), 그 아래 `score-row` 줄들(`list.divider`). 카드 `bg.base` 바탕(시트 안). 동작 줄이기에서 위치 표시는 움직이지 않음.
 * `score-row`: `hanja-tag`(길흉 톤 허용) + 뜻(`type.caption.lg`, 두 줄까지) + 점(지름 8, 사이 3, 더함은 `badge.good.bg`, 뺌은 `text.secondary`) 앞에 + 또는 −. 점 개수는 점수 절댓값(최대 3, 그 이상은 3과 +). 스크린리더 "이름, 뜻, 더함 둘".
 * `score-scale`: 네 칸(조심할 날, 무난한 날, 잘 풀리는 날, 아주 잘 풀리는 날), 칸마다 `level` 바탕과 점 범위 표기(−●● 이하, −●~+●, +●●, +●●● 이상).
 * `date-block`: 일 숫자 44 700, 옆 `space.12`에 월과 요일(`type.label.lg`), 그 아래 일진(`type.caption.md`).
-* `diary-summary`: 큰 편수(28 700) + 단위 글자, "어떤 날에 썼나" 막대(날의 성격 넷, 막대 높이 8 `radius.full`, 색은 날의 성격 톤, 오른쪽 수), "자주 붙은 태그"(`hanja-tag` + 수, 최대 3). 태그를 누르면 그 태그의 일기 모아보기(`tag-diary`, 사용자 결정 2026-11-06, IA 출구는 #801에 요청). 기록이 적을 때(5편 미만) 안내 한 줄과 막대 숨김.
+* `diary-summary`: 큰 편수(28 700) + 단위 글자, "어떤 날에 썼나" 막대(날의 성격 넷, 막대 높이 8 `radius.full`, 색은 날의 성격 톤, 오른쪽 수), "자주 붙은 태그"(`hanja-tag` + 수, 최대 3). 태그를 누르면 뜻 시트이고, 시트 아래 꺾쇠 링크로 그 태그의 일기 모아보기(`tag-diary`). 사용자 결정 2026-11-06(처음 tag-diary 직행에서 같은 날 뜻 시트 경유로 바뀜). 기록이 적을 때(5편 미만) 안내 한 줄과 막대 숨김.
 * `luck-pillar`: 천간, 지지 칸(`ohaeng.cell` 작은 크기 40), 위 나이 또는 연도, 십성 칩(`term-token` `label`). 사주 표 대운, 세운 줄에서 지금 대운, 올해 세운 칸은 `status.bg` 바탕 + 아래 "지금", "올해" 꼬리표(여러 칸 중 지금을 가림). 나 탭은 세로 두 줄(대운, 세운) 요약 모양 변형 `compact`이고, 두 줄이 모두 지금이라 강조 바탕이 없음(origin, 사용자 확인 2026-11-06).
 * `birth-info-row`: 칸 넷(달력 종류 꼬리표 + 날짜, 시진 `hanja-tag` + 시간, 성별 알약), 칸 사이 세로 구분선(1px 높이 16 `color.line`, 좌우 `space.12`), 쉼표 없음. 넘치면 칸 단위로 다음 줄. 시간 모름이면 시진 칸에 "시간 모름" 알약.
 * `band-table`: 열 머리(시주, 일주(나), 월주, 연주), 열 구분선이 모든 띠를 관통(0.5px `color.line`), 일주 열 `status.bg` 옅은 바탕, 띠 머리줄(`bandHeader`: 네 열에 걸친 가운데 줄, 흰 바탕 + 위아래 0.5px 선 + 가운데 용어 칩). 띠: 지장간(`stem.chip` + 십성), 12운성(`term-token`), 신살(`term-token`, 없는 칸은 비움 표시 "-" 글자 대신 짧은 가로선 12×1 `text.secondary`).
 * `stage-strip`: 12칸 막대(칸 높이 6, 사이 2, 내 자리 칸은 `action.primary`, 나머지 `color.line`), 위에 자리 꼬리표(시, 일, 월, 연, 원형 `action.primary`), 아래 단계 이름(`type.caption.sm`). 스크린리더 "장생, 월주와 연주 ...".
 * `scroll-hint`: 데이터가 더 있는 쪽 끝만 흐림(끝 24 그라데이션 `bg.sheet`로), 아래 줄 좌우 «  » 아이콘(`caret-double-left/right` Light 16, 더 없는 쪽은 숨김). 글자 없음, 스크린리더는 목록 role.
 * `stem.chip`(요소): 한자 칸 22, `ohaeng.cell` 글자색과 바탕색, 한자 `font.family.hanja` 13 700.
-* 그 밖의 바뀜: `lucky-card` Q5, `dialog` 취소 `color.fill.soft`, `day-cell` `luckFill` 4단계 새 토큰, 달력 범례(`calendar-month` 부품 `legend`와 `ruleEntry`), `sheet` `day-sheet`는 처음부터 `full` 높이, `primary-button` `leadingIcon`(아이콘 `adjacent-text`, 사이 `space.8`), 일기 목록 아래 고정 버튼(목록이 있을 때 떠 있음, 빈 상태는 가운데), `app-bar` 가운데 상태 글자(`draft-indicator`를 상단 바 가운데, 글자 수 포함)와 오른쪽 글자 버튼(저장), `diary-editor` 인용 질문(왼쪽 3px `term.bg` 선, `type.sentence.body` `text.secondary`) + 질문 바꾸기 아이콘(`arrows-clockwise` Light 20, 터치 44), `lock.veil` G1(앞 단어 또렷, 자리값 줄 수 판정 근거 3, 원전 2), 근거 시트 머리(정한 태그 + 대상 문장 `type.caption.lg`).
+* 그 밖의 바뀜: `lucky-card` Q5, `dialog` 취소 `color.fill.soft`, `day-cell` `luckFill` 4단계 새 토큰, 달력 범례(`calendar-month` 부품 `legend`와 `ruleEntry`), `sheet` `day-sheet`는 처음부터 `full` 높이, `primary-button` `leadingIcon`(아이콘 `adjacent-text`, 사이 `space.8`), 일기 목록 아래 고정 버튼(목록이 있을 때 떠 있음, 빈 상태는 가운데), `app-bar` 가운데 상태 글자(`draft-indicator`를 상단 바 가운데, 글자 수 포함)와 오른쪽 글자 버튼(저장), `diary-editor` 인용 질문(왼쪽 3px `term.bg` 선, `type.sentence.body` `text.secondary`, 사용자 결정 2026-11-06으로 글자 14: 문장 글꼴 14 토큰이 없어 크기만 덮어씀, 본문 15 그대로) + 질문 바꾸기 아이콘(`arrows-clockwise` Light 20, 터치 44), 일기 보기는 저장된 질문(getDiary `guideQuestion`)을 같은 인용 모양으로 바꾸기 없이(사용자 결정 2026-11-06), 일기 목록 쓰기 버튼 문구는 "일기 쓰기"(origin, IA 가안, 사용자 의견 2026-11-06, writing 원고 변경 요청), `lock.veil` G1(앞 단어 또렷, 자리값 줄 수 판정 근거 3, 원전 2), 근거 시트 머리(정한 태그 + 대상 문장 `type.caption.lg`).
 
 ## 5. 진행
 

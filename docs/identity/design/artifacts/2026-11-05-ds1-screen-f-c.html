@@ -107,7 +107,6 @@
   .htag.neutral { background: transparent; box-shadow: inset 0 0 0 1px var(--color-tag-neutral-border); color: var(--color-tag-neutral-fg); }
   .dcard .toptag { margin-bottom: var(--space-8); }
   .dcard.group .toptag { margin: var(--space-12) 0 var(--space-4); }
-  .quote p { font-size: 14px; }
 
   /* primary-button filled + leadingIcon(옆 글자 단계, 사이 space.8) */
   .pbtn {
@@ -147,13 +146,13 @@
   .quote { display: flex; align-items: flex-start; margin-bottom: var(--space-16); }
   .quote p {
     position: relative; flex: 1; margin: 0; padding-left: var(--space-12);
-    color: var(--color-text-secondary); font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all;
+    color: var(--color-text-secondary); font-family: var(--type-sentence-body-family); font-size: 14px; line-height: var(--type-sentence-body-line-height); word-break: keep-all;
   }
   /* quoteLine: 폭 3, term.bg, radius.full */
   .quote p::before, .quote .qbone::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: var(--radius-full); background: var(--color-term-bg); }
   .quote .qbone { position: relative; flex: 1; padding-left: var(--space-12); }
   /* 질문 바꾸기: arrows-clockwise Light 20, 터치 44를 첫 줄 높이에 맞춤, 사이 space.8 */
-  .swap { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; margin: calc((25.5px - 44px) / 2) calc(var(--space-12) * -1) 0 var(--space-8); color: var(--color-text-secondary); --icon: var(--size-icon-20); }
+  .swap { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; margin: calc((23.8px - 44px) / 2) calc(var(--space-12) * -1) 0 var(--space-8); color: var(--color-text-secondary); --icon: var(--size-icon-20); }
   .body { margin: 0; min-height: calc(var(--type-sentence-body-size) * 1.6 * 8); font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; }
   .body.placeholder { color: var(--color-text-secondary); }
   .body .caret { display: inline-block; width: 1.5px; height: 1.1em; vertical-align: -0.15em; background: var(--color-action-primary); margin-left: 1px; animation: blink 1s steps(1) infinite; }

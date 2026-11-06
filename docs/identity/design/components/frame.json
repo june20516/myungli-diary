@@ -211,7 +211,7 @@
         "closing": { "pattern": "sheet.exit" }
       },
       "haptic": [],
-      "a11y": { "role": "dialog", "label": "제목", "modal": true, "focusOnOpen": "first-heading" },
+      "a11y": { "role": "dialog", "label": "제목", "modal": true, "focusOnOpen": "first-heading", "linkRole": "link", "linkLabel": "diaryLink 글자 그대로(꺾쇠는 읽지 않음)" },
       "rules": [
         "설명은 화면 배치 안에 끼워 넣지 않는다. 열려도 아래 내용이 밀리지 않는다(F-008).",
         "연 항목에는 열린 동안 표시가 남고 닫으면 사라진다(lucky-card 테두리, hanja-tag selected).",
