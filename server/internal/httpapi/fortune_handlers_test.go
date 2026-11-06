@@ -730,6 +730,66 @@ func TestGetChart_UnlockedIncludesYongsinBasis(t *testing.T) {
 	assert.NotContains(t, rec.Body.String(), rawEvidenceRule)
 }
 
+// 잠긴 응답에는 View가 자른 앞부분만 나가고(D106, S141), 열린 응답에는 미리보기 필드가 섞여 있어도 나가지 않습니다(방어).
+func TestGetChart_PreviewsOnlyWhenLocked(t *testing.T) {
+	response := chartResponse()
+	prefix := []render.Segment{{Text: "조후로 보면"}}
+	reading := fortune.PersonalReadingText{
+		Reading: response.PersonalReadings[0],
+		Text:    content.SlotText{Slot: "personal.day_master", MessageKey: "personal.day_master.gap", Variant: "single", Text: []render.Segment{{Text: "내 일간은"}}},
+	}
+	for _, unlocked := range []bool{false, true} {
+		view := fortune.ChartView{
+			Response: response, Unlocked: unlocked, Notices: []content.Notice{},
+			YongsinBasisPreview: prefix, PersonalReadingPreviews: []fortune.PersonalReadingText{reading},
+		}
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{chart: view}}
+
+		req, rec, _ := getFortune(t, api, "/v1/chart")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		var got gen.Chart
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+		if unlocked {
+			assert.Nil(t, got.Yongsin.BasisPreview)
+			assert.Nil(t, got.PersonalReadingPreviews)
+			continue
+		}
+		require.NotNil(t, got.Yongsin.BasisPreview)
+		assert.Equal(t, "조후로 보면", got.Yongsin.BasisPreview.Segments[0].Text)
+		assert.Nil(t, got.Yongsin.Basis)
+		assert.Nil(t, got.PersonalReadings)
+		require.NotNil(t, got.PersonalReadingPreviews)
+		require.Len(t, *got.PersonalReadingPreviews, 1)
+		assert.Equal(t, "내 일간은", (*got.PersonalReadingPreviews)[0].Text.Segments[0].Text)
+	}
+}
+
+// 잠긴 오늘 화면은 근거 앞부분만 evidencePreview로 나가고 evidence는 없습니다. 열리면 evidencePreview가 섞여 있어도 나가지 않습니다.
+func TestGetDaily_EvidencePreviewOnlyWhenLocked(t *testing.T) {
+	for _, unlocked := range []bool{false, true} {
+		view := dailyView()
+		view.Unlocked = unlocked
+		head := view.Texts[fortune.SlotFortuneHead]
+		head.EvidencePreview = []content.EvidencePreview{{Basis: []render.Segment{{Text: "용신이 들어오는"}}}}
+		view.Texts[fortune.SlotFortuneHead] = head
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		body := rec.Body.String()
+		if unlocked {
+			assert.NotContains(t, body, "evidencePreview")
+			continue
+		}
+		assert.Contains(t, body, `"evidencePreview":[{"basis":{"segments":[{"text":"용신이 들어오는"}]}}]`)
+		assert.NotContains(t, body, `"evidence":`)
+	}
+}
+
 func TestGetChart_UnknownPersonalReadingKindIs500(t *testing.T) {
 	view := fortune.ChartView{
 		Response: chartResponse(), Unlocked: true, Notices: []content.Notice{},

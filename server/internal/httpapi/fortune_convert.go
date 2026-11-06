@@ -21,6 +21,7 @@ import (
 // 이 파일은 운세 화면 묶음(fortune.DailyView·CalendarView·ChartView)을 계약 타입으로 옮깁니다.
 //
 // 잠금(D60): 문장의 근거는 View가 권한에 따라 이미 비웠고, 여기서는 View의 문장만 옮깁니다.
+// 잠겼을 때의 앞부분(D106, S141)도 View가 잘라 두었고, 여기서는 잠긴 응답에만 옮깁니다(방어로 권한을 한 번 더 봄).
 // 엔진 응답의 판정 근거(Judgment.evidence, DailyResponse.tag_evidence)는 계약에 자리가 없어 옮기지 않습니다.
 // 원국 개인 해석(ChartResponse.personal_readings)은 View가 렌더한 문장만 Chart.personalReadings로 옮깁니다.
 // 엔진 값이 계약 enum에 없으면(UNSPECIFIED, 모르는 번호) 엔진 계약 위반이라 오류(500)입니다.
@@ -184,6 +185,12 @@ func (c *converter) slotText(t content.SlotText) gen.SlotText {
 	if c.unlocked && len(t.Evidence) > 0 {
 		evidence := convertAll(t.Evidence, evidenceOf)
 		out.Evidence = &evidence
+	}
+	if !c.unlocked && len(t.EvidencePreview) > 0 {
+		previews := convertAll(t.EvidencePreview, func(p content.EvidencePreview) gen.EvidencePreview {
+			return gen.EvidencePreview{Basis: optionalText(p.Basis), Source: optionalText(p.Source)}
+		})
+		out.EvidencePreview = &previews
 	}
 	if reaction, ok := c.reactions[t.Slot]; ok && t.Reactable {
 		value := contractValue[gen.SlotTextReaction](c, "SlotText.reaction", reaction)
@@ -428,7 +435,7 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 			Score: float32(r.GetStrength().GetScore()),
 			Level: enumValue[gen.StrengthLevel](c, r.GetStrength().GetLevel()),
 		},
-		Yongsin:        c.yongsin(r.GetYongsin(), view.YongsinBasis),
+		Yongsin:        c.yongsin(r.GetYongsin(), view.YongsinBasis, view.YongsinBasisPreview),
 		Daeun:          c.daeun(r.GetDaeun()),
 		Seun:           convertAll(r.GetSeun(), c.seunYear),
 		Notices:        c.notices(view.Notices),
@@ -439,6 +446,9 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 	if view.Unlocked {
 		readings := convertAll(view.PersonalReadings, c.personalReading)
 		out.PersonalReadings = &readings
+	} else if len(view.PersonalReadingPreviews) > 0 {
+		previews := convertAll(view.PersonalReadingPreviews, c.personalReading)
+		out.PersonalReadingPreviews = &previews
 	}
 	return out, c.err
 }
@@ -497,8 +507,8 @@ func (c *converter) chartPillars(p *enginev1.FourPillars) gen.ChartPillars {
 	return out
 }
 
-// yongsin은 용신 정보를 옮깁니다. 조후 천간은 있을 때만, 용신 근거 문장은 권한이 있을 때만 담습니다.
-func (c *converter) yongsin(y *enginev1.YongsinInfo, basis *content.SlotText) gen.Yongsin {
+// yongsin은 용신 정보를 옮깁니다. 조후 천간은 있을 때만, 용신 근거 문장은 권한이 있을 때만, 그 앞부분은 잠겼을 때만 담습니다.
+func (c *converter) yongsin(y *enginev1.YongsinInfo, basis *content.SlotText, basisPreview []render.Segment) gen.Yongsin {
 	out := gen.Yongsin{
 		Yongsin:  enumValue[gen.FiveElement](c, y.GetYongsin()),
 		Huisin:   enumValue[gen.FiveElement](c, y.GetHuisin()),
@@ -513,6 +523,9 @@ func (c *converter) yongsin(y *enginev1.YongsinInfo, basis *content.SlotText) ge
 	if c.unlocked && basis != nil {
 		text := c.slotText(*basis)
 		out.Basis = &text
+	}
+	if !c.unlocked {
+		out.BasisPreview = optionalText(basisPreview)
 	}
 	return out
 }
