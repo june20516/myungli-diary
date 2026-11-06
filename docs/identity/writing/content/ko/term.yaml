@@ -1,6 +1,8 @@
 # 용어 뜻(term) 원고(ko). 태그 15개는 W1-1(#240, 오늘 화면 대표 태그 칩), 나머지는 W1-3.
 - {slot: term.meaning, key: term.tag.cheoneul_gwiin, text: "가장 귀한 도움을 뜻하는 신살로, 뜻밖의 사람이 손을 내밀어 주기 쉬워요."}
 - {slot: term.meaning, key: term.tag.clash, text: "서로 반대되는 기운이 맞부딪히는 것으로, 계획이 바뀌거나 의견이 갈리기 쉬워요."}
+- {slot: term.meaning, key: term.tag.clash_day_branch, text: "오늘의 지지가 태어난 날의 지지와 맞부딪히는 관계예요. 나 자신이나 가까운 사이가 흔들리기 쉬워요."}
+- {slot: term.meaning, key: term.tag.clash_month_branch, text: "오늘의 지지가 태어난 달의 지지와 맞부딪히는 관계예요. 일이나 생활 환경에 변화가 생기기 쉬워요."}
 - {slot: term.meaning, key: term.tag.dohwa, text: "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."}
 - {slot: term.meaning, key: term.tag.gongmang, text: "비어 있는 자리를 뜻하는 신살로, 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어요."}
 - {slot: term.meaning, key: term.tag.gwiin_day, text: "나를 돕는 사람이 가까이 오는 날이라, 도움을 청하기 좋아요."}

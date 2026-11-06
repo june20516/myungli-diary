@@ -93,7 +93,7 @@
 | tag-sheet.diary.cta | ui | tag-sheet.diary.cta |
 | evidence-sheet.target.body | content | daily.fortune.head |
 | evidence-sheet.basis.body | content | evidence.basis |
-| evidence-sheet.source.quote | content | evidence.source |
+| evidence-sheet.source.quote | content | evidence.no_source, evidence.source |
 | evidence-sheet.personal.body | content | personal.day_master, personal.luck, personal.shinsal, personal.ten_god, personal.twelve_stage |
 | evidence-sheet.lock.head | ui | evidence-sheet.lock.head |
 | evidence-sheet.lock.reward | ui | evidence-sheet.lock.reward |

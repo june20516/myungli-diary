@@ -123,3 +123,13 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.申", text: "窮通宝鑑「七月辛」\n七月辛金，值庚司令，不旺自旺，且壬水居申，四柱不见戊土，胎元戊藏申内，为壬堤岸，人命得此，为官清正，但不富耳。\n七月の辛は、壬があり、戊が堤となってくれれば清廉な官吏になりますが、金持ちにはならないという意味です。"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.辰", text: "窮通宝鑑「三月辛」\n三月辛金，戊土司令，辛承正气，母旺子相，先壬后甲。\n三月生まれの辛の日干には、まず壬が、次に甲が必要だという意味です。"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.酉", text: "窮通宝鑑「八月辛」\n八月辛金，当权得令，旺之极矣，专用壬水淘洗火，故云：金见水以流通。\n八月生まれの辛の日干には、壬だけを用いるという意味です。"}
+- {slot: evidence.source, key: "source.jeokcheonsu/tags#clash_month_branch", text: "滴天髄「月令論」\n月令提綱，譬之宅也，人元用事之神，宅之向也，不可以不卜。\n月令は家のようなもので、その中で働く気は家の向きのようなものなので、必ず見極めるべきだという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#branch_hap", text: "三命通会「論支元六合」\n夫合者，和也，乃阴阳相和，其气自合。\n合とは和すことで、陰と陽が和すれば気は自然に合わさるという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#cheoneul_gwiin", text: "三命通会「論天乙貴人」\n其神最尊贵，所至之处，一切凶煞隐然而避。\n天乙貴人は最も尊い神で、行く先々であらゆる凶殺が静かに避けていくという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#clash", text: "三命通会「論冲撃」\n相冲者，十二支战击之神，大概为凶。\n冲は十二支が互いにぶつかり合って争うことなので、おおむね凶と見るという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#clash_day_branch", text: "三命通会「論年月日時」\n伤日不利己身，名折腰煞\n日柱の位置が傷つくと自分自身によくなく、これを折腰煞と呼ぶという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#dohwa", text: "三命通会「論咸池」\n寅午戌卯、已酉丑午、申子辰酉、亥卯未子即长生第二位沐浴之宫是也。一名败神，一名桃花煞\n寅午戌は卯、巳酉丑は午、申子辰は酉、亥卯未は子が長生の次の沐浴の位置で、敗神とも桃花煞とも呼ぶという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#gongmang", text: "三命通会「論空亡」\n故以甲旬尽处曰空亡，盖有是位而无禄，曰空；有支而无干，曰亡。\n甲から始まる十日が尽きて残る位置を空亡といい、位置はあっても禄がないのが空、地支はあっても天干がないのが亡だという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#hwagae", text: "三命通会「論将星華蓋」\n故以三合底处得库谓之华盖。\n三合の最後の位置である庫の位置を華蓋と呼ぶという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#stem_hap", text: "三命通会「論十干合」\n唯阴见阳，阳见阴为合，亦如男女相合而成夫妇之道。\n陰が陽に、陽が陰に出会ってはじめて合となり、男女が出会って夫婦となるのと同じだという意味です。"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#yeokma", text: "三命通会「論駅馬」\n所谓驿马者，乃先天三合数也\n駅馬は先天数で数えた三合の数から出るという意味です。"}

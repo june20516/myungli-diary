@@ -20,6 +20,19 @@
 - {slot: evidence.basis, key: "basis.personal/luck_ten_god", text: "{luck}의 {part} 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 맞춰 풀이를 골랐어요."}
 - {slot: evidence.basis, key: "basis.personal/luck_twelve_stage", text: "대운 지지의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 맞춰 12운성 풀이를 골랐어요."}
 - {slot: evidence.basis, key: "basis.tags/select", text: "오늘 일진이 내 사주와 만드는 합과 충, 한 십성 묶음의 쏠림, 신살 순서로 태그를 찾고, 앞의 두 개를 대표 태그로 골랐어요."}
+- {slot: evidence.basis, key: "basis.tags/cheoneul_gwiin", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/clash", text: "오늘 지지 {day_branch}(이)가 {natal_positions}(과)와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/clash_day_branch", text: "오늘 지지 {day_branch}(이)가 태어난 날의 지지와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "오늘 지지 {day_branch}(이)가 태어난 달의 지지와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/dohwa", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/gongmang", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/gwiin_day", text: "오늘이 귀인의 날이라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/harmony", text: "오늘 일진이 {natal_positions}(과)와 {relation_kind}(을)를 이뤄 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/hwagae", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/ten_god_rush", text: "오늘 천간은 {stem_ten_god}, 지지는 {branch_ten_god}(으)로 둘 다 {group}인데, 내 사주에도 {group}(이)가 {natal_count}개 있어 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/yeokma", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/yongsin_day", text: "오늘이 용신의 날이라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.yongsin/eokbu", text: "억부법으로 [[용신|role.yongsin]]을 정했어요. 내 일간의 힘이 {strength_level}이라, 그 힘을 고르게 맞추는 오행을 골랐어요."}
 - {slot: evidence.basis, key: "basis.yongsin/johu", text: "여름이나 겨울에 태어나 더위나 추위가 지나친 사주라, 온도를 맞추는 조후법으로 [[용신|role.yongsin]]을 정했어요. {month_branch}월의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."}
 - {slot: evidence.basis, key: "basis.yongsin/johu_neutral", text: "내 일간의 힘이 고른 편이라 억부법 대신 조후법으로 [[용신|role.yongsin]]을 정했어요. 태어난 달의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."}
+- {slot: evidence.no_source, key: "no_source.tags/ten_god_rush", text: "원전에 나오는 규칙은 아니지만, 같은 십성 묶음이 오늘 천간과 지지에 함께 들고 내 사주에도 많으니 그 기운이 증폭된다고 해석했어요."}

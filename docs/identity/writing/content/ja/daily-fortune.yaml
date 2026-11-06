@@ -66,6 +66,12 @@
 - {slot: daily.fortune.tag, key: fortune.tag.clash, type: advice, text: "約束があれば、時間と場所をもう一度確かめてみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.clash, type: state, text: "予定が変わったり、意見がぶつかったりしやすい日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.clash, type: care, text: "食い違いがあっても、自分のせいだけではない日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_day_branch, type: advice, text: "変えたかった生活習慣があれば、ひとつ変えてみてください。"}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_day_branch, type: state, text: "慣れた毎日に変化が起きやすい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_day_branch, type: care, text: "気持ちが揺れても、おかしくない日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: advice, text: "大きな決断は急がず、一日置いてみてください。"}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: state, text: "慣れた環境に変化が起きやすい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: care, text: "忙しい流れに疲れても、おかしくない日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "発表や集まりなど、人前に立つことをしてみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "人の視線が自分に集まりやすい日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "誰かに好意的に見てもらえる、ときめきがある日です。"}

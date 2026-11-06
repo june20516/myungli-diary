@@ -110,9 +110,6 @@
         - fortune.tag.yongsin_day
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  pending:
-    fortune.tag.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
-    fortune.tag.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: fortune.tag.dohwa, type: advice, text: "발표나 모임처럼 사람들 앞에 서는 일을 해 보세요.", why: "태그가 뜻하는 일을 행동 하나로, 토큰 없음(W28)", source: round-R9-4}
@@ -162,9 +159,6 @@
         - guide.yongsin_day
   variants: {count: 2, rotation: "같은 키가 나올 때마다 변주 1, 2 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
-  pending:
-    guide.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
-    guide.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: guide.dohwa, variant: 1, text: "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?", why: "하나만 고르게 하는 권유형", source: round-R6-1}
@@ -333,9 +327,6 @@
     - tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.focus_reason]
-  pending:
-    tag.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
-    tag.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: tag.dohwa, text: "도화", why: "이름 그대로", source: writing}
