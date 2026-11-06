@@ -13,6 +13,7 @@ from mlw.model import UNBOUNDED, LoadError, ParamKind, RuleSet
 from mlw.paths import MESSAGE_PARAMS_FILE, RULES_DIR, SLOTS_DIR
 
 MESSAGE_KEYS_PATH = Path(__file__).resolve().parents[5] / "core" / "message_keys.json"
+EVIDENCE_RULES_PATH = MESSAGE_KEYS_PATH.with_name("evidence_rules.json")
 # 메시지 키가 아니라 식별자를 키로 갖는 슬롯입니다.
 IDENTIFIER_SLOTS = {
     "daily.focus_reason",
@@ -27,6 +28,7 @@ IDENTIFIER_SLOTS = {
     "explain.today_reason",
     "evidence.basis",
     "evidence.source",
+    "evidence.no_source",
     "system.apple_return",
     "system.notice",
 }
@@ -87,6 +89,16 @@ def test_identifier_slots_do_not_collide_with_message_keys(rules: RuleSet) -> No
     message_keys = set(json.loads(MESSAGE_KEYS_PATH.read_text(encoding="utf-8")))
     for slot_id in IDENTIFIER_SLOTS:
         assert not set(slots[slot_id].keys) & message_keys
+
+
+def test_no_source_keys_name_evidence_rules(rules: RuleSet) -> None:
+    """원전 없음 문장(D108 ④)의 키는 `no_source.<rule_id>`이고 rule_id는 core 근거 규칙 목록에 있습니다."""
+    slot = load_slots(SLOTS_DIR, rules)["evidence.no_source"]
+    rule_ids = set(json.loads(EVIDENCE_RULES_PATH.read_text(encoding="utf-8")))
+    assert slot.keys
+    for key in slot.keys:
+        assert key.startswith("no_source.")
+        assert key.removeprefix("no_source.") in rule_ids
 
 
 def test_glossary_covers_enums(rules: RuleSet) -> None:

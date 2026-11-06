@@ -125,19 +125,6 @@
     - params: {strength_level: [strength]}
       keys: ["basis.yongsin/johu_neutral"]
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    "basis.tags/cheoneul_gwiin": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/clash": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/clash_day_branch": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/clash_month_branch": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/dohwa": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/gongmang": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/gwiin_day": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/harmony": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/hwagae": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/ten_god_rush": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/yeokma": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
-    "basis.tags/yongsin_day": {ko: "태그별 근거 원고 대기(#813, #821)", en: "태그별 근거 원고 대기(#813, #821)", ja: "태그별 근거 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, text: "일간을 돕는 오행이 부족해 그 오행을 [[용신]]으로 봤어요.", why: "규칙과 적용 값을 함께", source: writing}
@@ -292,18 +279,30 @@
     - "source.sammyeong-tonghoe/tags#stem_hap"
     - "source.sammyeong-tonghoe/tags#yeokma"
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    "source.jeokcheonsu/tags#clash_month_branch": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#branch_hap": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#cheoneul_gwiin": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#clash": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#clash_day_branch": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#dohwa": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#gongmang": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#hwagae": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#stem_hap": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
-    "source.sammyeong-tonghoe/tags#yeokma": {ko: "태그 원전 뜻 원고 대기(#813, #821)", en: "태그 원전 뜻 원고 대기(#813, #821)", ja: "태그 원전 뜻 원고 대기(#813, #821)"}
   examples: {good: [], bad: []}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 원전 이름, 대목, 뜻 순서로 읽습니다.
+
+- id: evidence.no_source
+  where: 근거 시트의 원전 인용 상자(원전이 없는 근거)
+  ia: [evidence-sheet.source.quote]
+  select: >-
+    Evidence.source_ref가 빈 문자열이고 rule_id r이 키 목록에 있으면 키 no_source.<r>.
+    목록에 없는 규칙(tags/select, fortune/tag, guide/question)의 빈 원전은 문장을 내지 않아 원전 구역을 그리지 않습니다(D108 ④, 라운드 R31-6).
+  purpose: info
+  user_state: 근거 시트에서 원전을 찾았는데 고전에서 온 규칙이 아닙니다.
+  structure: 한 문장. 원전에 나오는 규칙이 아님을 먼저 밝히고, 명리일기가 어떻게 해석했는지 이어 말합니다(D108 ④).
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - "no_source.tags/ten_god_rush"
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: "no_source.tags/ten_god_rush", text: "원전에 나오는 규칙은 아니지만, 같은 십성 묶음이 오늘 천간과 지지에 함께 들고 내 사주에도 많으니 그 기운이 증폭된다고 해석했어요.", why: "원전 없음을 먼저 밝히고 해석의 근거 조건을 그대로", source: round-R31-5}
+    bad:
+      - {lang: ko, key: "no_source.tags/ten_god_rush", text: "고전을 넘어선 명리일기만의 독자적인 해석 체계로 분석했어요.", why: "권위 부풀리기, 해석 내용이 없음", source: round-R31-5}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.

@@ -23,8 +23,6 @@
         - calendar.neutral
         - calendar.very_good
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    calendar.very_good: {ko: "아주 잘 풀리는 날 원고 대기(#813, #821)", en: "아주 잘 풀리는 날 원고 대기(#813, #821)", ja: "아주 잘 풀리는 날 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: calendar.good, text: "잘 풀리는 날", why: "담백한 명사구", source: writing}

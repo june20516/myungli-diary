@@ -94,9 +94,6 @@
     - term.tag.yeokma
     - term.tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    term.tag.clash_day_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
-    term.tag.clash_month_branch: {ko: "일지 충과 월지 충 원고 대기(#813, #821)", en: "일지 충과 월지 충 원고 대기(#813, #821)", ja: "일지 충과 월지 충 원고 대기(#813, #821)"}
   examples:
     good:
       - {lang: ko, key: term.ten_god.pyeongwan, text: "나를 다그치고 시험하는 기운이에요. 버티는 힘을 길러 주기도 해요.", why: "일상어 풀이와 드러나는 모습", source: writing}

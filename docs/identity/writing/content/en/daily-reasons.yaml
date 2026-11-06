@@ -18,6 +18,7 @@
 - {slot: explain.today_reason, key: "reason.number/hado", text: "Of the numbers that share today's color energy, we chose the one that matches the yin or yang of today's heavenly stem."}
 - {slot: explain.today_reason, key: "reason.tags/select", text: "We gathered the Hap, Chung, Shinsal, and crowded ten gods that form when today's day pillar meets your chart."}
 - {slot: calendar.day_level, key: calendar.caution, text: "Day to take care"}
+- {slot: calendar.day_level, key: calendar.very_good, text: "Very smooth day"}
 - {slot: calendar.day_level, key: calendar.good, text: "Day that goes well"}
 - {slot: calendar.day_level, key: calendar.neutral, text: "Steady day"}
 - {slot: calendar.score_item, key: gwiin_day, text: "Day of helpers"}

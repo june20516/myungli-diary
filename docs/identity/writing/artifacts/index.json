@@ -521,5 +521,25 @@
     ],
     "status": "chosen",
     "note": "로그인 화면은 경로로 나누지 않고 첫 화면 문구로, 달력 단계 이름은 무난한 날"
+  },
+  {
+    "id": "round-R31",
+    "title": "라운드 R31: 일지 충과 월지 충, 태그 근거와 원전 (W57)",
+    "kind": "copy-sample",
+    "file": "2026-11-06-round-R31.md",
+    "date": "2026-11-06",
+    "milestone": "A2",
+    "screens": [
+      "today",
+      "tag-sheet",
+      "evidence-sheet",
+      "calendar",
+      "day-sheet"
+    ],
+    "decisions": [
+      "W57"
+    ],
+    "status": "chosen",
+    "note": "원전 없는 근거는 십성 몰림 태그에만 해석 문장, 나머지는 원전 구역을 그리지 않음"
   }
 ]

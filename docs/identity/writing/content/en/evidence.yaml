@@ -20,6 +20,19 @@
 - {slot: evidence.basis, key: "basis.personal/luck_ten_god", text: "The {part} element of your {luck}, {element}, is {role} in your chart. We chose the reading to fit that role."}
 - {slot: evidence.basis, key: "basis.personal/luck_twelve_stage", text: "The branch element of your 10-year luck cycle, {element}, is {role} in your chart. We chose the Twelve Stages reading to fit that role."}
 - {slot: evidence.basis, key: "basis.tags/select", text: "We looked for tags in this order: the Hap and Chung that today's day pillar forms with your chart, a crowding of one ten god group, then shinsal. We picked the first two as the main tags."}
+- {slot: evidence.basis, key: "basis.tags/cheoneul_gwiin", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/clash", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your {natal_positions}, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/clash_day_branch", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your day branch, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your month branch, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/dohwa", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/gongmang", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/gwiin_day", text: "Today is a Day of helpers, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/harmony", text: "Today's day pillar forms {relation_kind} with your {natal_positions}, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/hwagae", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/ten_god_rush", text: "Today's stem is {stem_ten_god} and its branch is {branch_ten_god}, both {group}, and your chart already has {natal_count} of {group}, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/yeokma", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/yongsin_day", text: "Today is a Day in your favor, so we added this tag."}
 - {slot: evidence.basis, key: "basis.yongsin/eokbu", text: "We set your [[Yongsin|role.yongsin]] by the Eokbu method. Your Day Master is {strength_level}, so we chose the element that evens out its strength."}
 - {slot: evidence.basis, key: "basis.yongsin/johu", text: "You were born in summer or winter and your chart runs too hot or too cold, so we set your [[Yongsin|role.yongsin]] by the Johu method, which evens out temperature. The element that fits your Day Master in the {month_branch} month follows the Johu table of Gungtong Bogam."}
 - {slot: evidence.basis, key: "basis.yongsin/johu_neutral", text: "Your Day Master's strength is fairly even, so we set your [[Yongsin|role.yongsin]] by the Johu method instead of the Eokbu method. The element that fits your Day Master in your birth month follows the Johu table of Gungtong Bogam."}
+- {slot: evidence.no_source, key: "no_source.tags/ten_god_rush", text: "This rule isn't from the classical texts, but since the same ten god group comes in through both today's stem and branch and your chart already has plenty of it, we read that energy as amplified."}

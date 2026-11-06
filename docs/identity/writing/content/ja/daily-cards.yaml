@@ -5,6 +5,10 @@
 - {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "今日ありがたいと感じた瞬間はありましたか？"}
 - {slot: daily.guide, key: guide.clash, variant: 1, text: "今日の予想外だった場面を一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.clash, variant: 2, text: "今日意見が食い違った場面があったら、自分は何と言いましたか？"}
+- {slot: daily.guide, key: guide.clash_day_branch, variant: 1, text: "今日気持ちが揺れた瞬間があれば、一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.clash_day_branch, variant: 2, text: "今日、身近な人とぶつかったことはありましたか？"}
+- {slot: daily.guide, key: guide.clash_month_branch, variant: 1, text: "今日仕事や予定が変わったことがあれば、一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.clash_month_branch, variant: 2, text: "今日取り組んでいたことで、一番変わったのは何でしたか？"}
 - {slot: daily.guide, key: guide.dohwa, variant: 1, text: "今日目を引かれた人や場面を一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.dohwa, variant: 2, text: "今日聞いた言葉で、心に残っているものはありますか？"}
 - {slot: daily.guide, key: guide.gongmang, variant: 1, text: "今日期待と違ったことがあれば、一つ書いてみませんか？"}
@@ -58,6 +62,8 @@
 - {slot: daily.focus_time, key: focus_time.yongsin, text: "この時間は、大事なことに取り組むとうまくいきます。"}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "天乙貴人"}
 - {slot: daily.tag_label, key: tag.clash, text: "冲"}
+- {slot: daily.tag_label, key: tag.clash_day_branch, text: "日支冲"}
+- {slot: daily.tag_label, key: tag.clash_month_branch, text: "月支冲"}
 - {slot: daily.tag_label, key: tag.dohwa, text: "咸池"}
 - {slot: daily.tag_label, key: tag.gongmang, text: "空亡"}
 - {slot: daily.tag_label, key: tag.gwiin_day, text: "貴人の日"}

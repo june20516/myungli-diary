@@ -4,6 +4,10 @@
 - {slot: daily.guide, key: guide.cheoneul_gwiin, variant: 2, text: "Was there a moment today you felt grateful for?"}
 - {slot: daily.guide, key: guide.clash, variant: 1, text: "How about writing down one moment today that went unexpectedly?"}
 - {slot: daily.guide, key: guide.clash, variant: 2, text: "If opinions split today, what did you say?"}
+- {slot: daily.guide, key: guide.clash_day_branch, variant: 1, text: "If something unsettled you today, how about writing down that moment?"}
+- {slot: daily.guide, key: guide.clash_day_branch, variant: 2, text: "Did you clash with someone close to you today?"}
+- {slot: daily.guide, key: guide.clash_month_branch, variant: 1, text: "If your work or plans changed today, how about writing one down?"}
+- {slot: daily.guide, key: guide.clash_month_branch, variant: 2, text: "What changed most in what you were working on today?"}
 - {slot: daily.guide, key: guide.dohwa, variant: 1, text: "How about writing down one person or scene that caught your eye?"}
 - {slot: daily.guide, key: guide.dohwa, variant: 2, text: "Is there anything you heard today that stayed with you?"}
 - {slot: daily.guide, key: guide.gongmang, variant: 1, text: "If something didn't go as hoped today, how about writing it down?"}
@@ -57,6 +61,8 @@
 - {slot: daily.focus_time, key: focus_time.yongsin, text: "Important work tends to go well at this time."}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "Noble helper"}
 - {slot: daily.tag_label, key: tag.clash, text: "Clash"}
+- {slot: daily.tag_label, key: tag.clash_day_branch, text: "Day branch clash"}
+- {slot: daily.tag_label, key: tag.clash_month_branch, text: "Month branch clash"}
 - {slot: daily.tag_label, key: tag.dohwa, text: "Peach blossom"}
 - {slot: daily.tag_label, key: tag.gongmang, text: "Void"}
 - {slot: daily.tag_label, key: tag.gwiin_day, text: "Day of helpers"}
