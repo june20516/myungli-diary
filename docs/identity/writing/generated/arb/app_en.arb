@@ -237,6 +237,7 @@
   "todayEventSummaryDone": "All of today's events are done",
   "todayEventSummaryNextAt": "Next: {time} {title}",
   "todayEventSummaryAllPast": "{count, plural, one{Today's event is done} other{All {count} of today's events are done}}",
+  "todayFeaturedEmpty": "No standout chart energies today.",
   "todayFeaturedTitle": "Chart energies",
   "todayFortuneTitle": "Main reading",
   "todayGuideCta": "Write in diary",

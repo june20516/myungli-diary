@@ -76,6 +76,7 @@
 | today.fortune.head | content | daily.fortune.head |
 | today.fortune.body | content | daily.fortune.tag |
 | today.featured.title | ui | today.featured.title |
+| today.featured.empty | ui | today.featured.empty |
 | today.lucky.title | ui | today.lucky.title |
 | today.lucky-color.body | content | daily.color |
 | today.lucky-direction.body | content | daily.direction |

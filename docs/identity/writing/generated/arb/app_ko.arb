@@ -1191,9 +1191,13 @@
       }
     }
   },
+  "todayFeaturedEmpty": "오늘은 두드러진 사주 기운이 없어요.",
+  "@todayFeaturedEmpty": {
+    "description": "today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, 표본 기준 약 7%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)"
+  },
   "todayFeaturedTitle": "사주 기운",
   "@todayFeaturedTitle": {
-    "description": "today.featured.title: 섹션 제목 \"사주 기운\"(가안, 문구 writing). 아래에 대표 태그(최대 둘)를 한자 아이콘 태그로 두고, 누르면 사주 기운 시트"
+    "description": "today.featured.title: 섹션 제목 \"사주 기운\"(가안, 문구 writing). 아래에 대표 태그(최대 둘)를 한자 아이콘 태그로 두고, 누르면 사주 기운 시트. 대표 태그가 없는 날도 제목은 두고 아래에 `today.featured.empty` 한 줄(D112)"
   },
   "todayFortuneTitle": "총운",
   "@todayFortuneTitle": {

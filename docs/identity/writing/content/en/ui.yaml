@@ -423,6 +423,7 @@
 - {slot: ui.contact.error, key: contactEmailInvalid, text: "Please check the email address."}
 - {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "Hide keyboard"}
 - {slot: today.featured.title, key: todayFeaturedTitle, text: "Chart energies"}
+- {slot: today.featured.empty, key: todayFeaturedEmpty, text: "No standout chart energies today."}
 - {slot: today.lucky.title, key: todayLuckyTitle, text: "Luck"}
 - {slot: today.guide.title, key: todayGuideTitle, text: "Today's question"}
 - {slot: today.fortune.title, key: todayFortuneTitle, text: "Main reading"}

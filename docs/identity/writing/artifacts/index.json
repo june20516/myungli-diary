@@ -557,5 +557,21 @@
     ],
     "status": "chosen",
     "note": "첫 풀이는 오늘 풀이의 일부라 이어서 볼 것이 있다는 사실로 씀"
+  },
+  {
+    "id": "round-R33",
+    "title": "라운드 R33: 대표 태그 없는 날 한 줄 (W59)",
+    "kind": "copy-sample",
+    "file": "2026-11-06-round-R33.md",
+    "date": "2026-11-06",
+    "milestone": "A2",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "W59"
+    ],
+    "status": "chosen",
+    "note": "대표 태그가 없는 날은 날을 판정하지 않고 두드러진 사주 기운이 없다는 사실만 씀"
   }
 ]
