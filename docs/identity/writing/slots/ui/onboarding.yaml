@@ -621,9 +621,11 @@
   keys:
     - loginSaveNote
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    loginSaveNote: {ko: "라운드 R32 원고 대기(#830)", en: "라운드 R32 원고 대기(#830)", ja: "라운드 R32 원고 대기(#830)"}
-  examples: {good: [], bad: []}
+  examples:
+    good:
+      - {lang: ko, key: loginSaveNote, text: "로그인하시면 방금 본 풀이를 이어서 볼 수 있어요.", why: "첫 풀이는 오늘 풀이의 일부라 이어서 볼 것이 있다는 사실 그대로, 맞이 문구와 따로 서는 한 줄", source: round-R32-1}
+    bad:
+      - {lang: ko, key: loginSaveNote, text: "지금 로그인하지 않으면 소중한 풀이가 영영 사라져요!", why: "잃는다는 겁주기와 들뜬 강조 slop.P8", source: round-R32-1}
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "설명 다음에 이어 읽습니다."
