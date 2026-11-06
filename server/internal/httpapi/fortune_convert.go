@@ -258,7 +258,16 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 		out.Fortune.Tag = &text
 	}
 	out.DayStemTenGod, out.DayStemTenGodGroup = c.dayStemTenGod(r)
+	out.Lunar = dailyLunar(r)
 	return out, c.err
+}
+
+// dailyLunar는 그날의 한국 음력 날짜를 옮깁니다(#806 ②). 2026.11.1 전 규칙 버전의 엔진은 음력을 내지 않아(달 0) 생략합니다.
+func dailyLunar(r *enginev1.DailyResponse) *gen.LunarDate {
+	if r.GetLunarMonth() == 0 {
+		return nil
+	}
+	return &gen.LunarDate{Month: int(r.GetLunarMonth()), Day: int(r.GetLunarDay()), IsLeapMonth: r.GetIsLeapMonth()}
 }
 
 // guideCandidates는 오늘의 질문 후보를 옮깁니다. View는 기본 질문을 첫 항목으로 늘 채우므로, 비어 있으면 묶음을 만든 쪽의 잘못이라 오류입니다.
