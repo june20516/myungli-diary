@@ -701,13 +701,17 @@
   "@loginDiscardNotice": {
     "description": "login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"
   },
+  "loginSaveNote": "로그인하시면 방금 본 풀이를 이어서 볼 수 있어요.",
+  "@loginSaveNote": {
+    "description": "login.save.note: 첫 풀이(preview)를 거쳐 온 경우에만 보이는 덧붙임 문구: 지금 본 풀이를 계속 저장하려면 로그인한다는 안내. 거치지 않고 오면(이미 계정이 있어요 등) 보이지 않음(D111, 검수 F-029)"
+  },
   "loginTitleBody": "로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요.",
   "@loginTitleBody": {
-    "description": "login.title.body: 로그인 설명. 들어온 경로에 따라 나뉨: 첫 풀이(preview)를 거쳐 오면 저장하려면 로그인한다는 설득 문구, 거치지 않고 오면(이미 계정이 있어요 등) 설득 문구를 보이지 않음(검수 F-029, 문구 writing)"
+    "description": "login.title.body: 로그인 설명. 첫 화면 맞이 문구로 경로와 상관없이 같음(D111, 검수 F-029, writing W56)"
   },
   "loginTitleHead": "명리일기",
   "@loginTitleHead": {
-    "description": "login.title.head: 로그인 제목"
+    "description": "login.title.head: 로그인 제목. 첫 화면 맞이 문구(경로와 상관없이 같음, D111)"
   },
   "mySajuBarTitle": "나의 사주",
   "@mySajuBarTitle": {

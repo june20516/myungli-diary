@@ -32,6 +32,7 @@
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "Close"}
 - {slot: login.title.head, key: loginTitleHead, text: "Myungli Diary"}
 - {slot: login.title.body, key: loginTitleBody, text: "Sign in and we'll give you a daily reading matched to your chart."}
+- {slot: login.save.note, key: loginSaveNote, text: "Sign in to see the rest of the reading you just saw."}
 - {slot: login.discard.notice, key: loginDiscardNotice, text: "If this account already has a saved chart, we'll use it instead of what you just entered."}
 - {slot: consent.title.head, key: consentTitleHead, text: "Please review and agree"}
 - {slot: consent.required.label, key: consentRequiredLabelTerms, text: "(Required) Terms of Service"}

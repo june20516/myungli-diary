@@ -138,6 +138,7 @@
   "loginMethodsUnlinkConfirmCancel": "キャンセル",
   "loginBarTitle": "ログイン",
   "loginDiscardNotice": "すでに命式を保存したアカウントなら、いま入力した情報ではなく保存済みの情報を使います。",
+  "loginSaveNote": "ログインすると、いま見た読み解きの続きを見られます。",
   "loginTitleBody": "ログインすると、毎日あなたの命式に合わせた読み解きをお届けします。",
   "loginTitleHead": "命理日記",
   "mySajuBarTitle": "私の命式",
