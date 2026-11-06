@@ -777,7 +777,7 @@
       "V76",
       "V77"
     ],
-    "status": "draft",
-    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 luck-pillar compact, diary-summary. 가상 사용자 하늘님, 원고에 없는 문구 자리는 예시 표시. 사용자 확인 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 luck-pillar compact, diary-summary. 앱 fixture 하늘님 값, 기록 요약 수치는 예시. 사용자 확인(2026-11-06, #801): 용신 표시(이름 + 용어 칩) 승인, 대운 요약 바탕 없음, 회고 태그는 tag-diary"
   }
 ]
