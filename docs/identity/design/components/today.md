@@ -63,7 +63,7 @@
   * 이름 칸 글자("보조 문장", "오늘의 질문")는 IA 슬롯이 없어 writing 새 슬롯을 요청합니다(#801).
   * 문장 줄은 누를 수 없습니다.
 * **빈 상태(`empty`, IA tag-sheet `empty`):** 이 기운으로 정해진 오늘 문장이 없을 때(대표 태그 2순위) 줄을 그리지 않고 안내 한 줄(`tag-sheet.sentences.empty`, `type.body.ui` `text.secondary`)을 둡니다.
-* **출구:** 목록 아래 `space.16`에 그 태그가 붙은 내 일기 보기 링크(`tag-sheet.diary.cta`, 매개변수 tag, count, 조사는 writing josa)입니다. `type.label.lg` `action.primary` + 꺾쇠(`caret-right` Regular, 옆 글자 단계, `space.2`, 장식). 누르면 `tag-diary`로 `page.push`. 그 태그의 일기가 0편이면 줄을 숨깁니다. 꺾쇠는 화면 이동 표시입니다(V73).
+* **출구:** 목록 아래 `space.16`에 그 태그가 붙은 내 일기 보기 링크(`tag-sheet.diary.cta`, 매개변수 tag, 조사는 writing josa)입니다. `type.label.lg` `action.primary` + 꺾쇠(`caret-right` Regular, 옆 글자 단계, `space.2`, 장식). 누르면 `tag-diary`로 `page.push`. 편수는 보이지 않고 늘 보입니다. 그 태그의 일기가 없으면 tag-diary 빈 상태가 맡습니다(관문 답 2026-11-06). 꺾쇠는 화면 이동 표시입니다(V73).
 * 스크린리더: 목록(`list`), 줄마다 "이름 칸 + 문장", 출구는 링크.
 
 ## guide-question-card
@@ -128,7 +128,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
 1. 머리: 누른 태그 `hanja-tag` `default`(누를 수 없는 표시) + 오른쪽 끝 `depth-link` `inline-end` 아이콘(누르면 `evidence-sheet`가 `sheet.stack`). 핸들 자리 아래 `space.8`.
 2. 뜻(`tag-sheet.tag.meaning`): 머리 아래 `space.12`, `sentence-block` `body`(용어 풀이 원고 `term.tag.*`).
 3. 이 기운에서 나온 오늘 문장: 뜻 아래 `space.24`, `tag-sentence-list`(머리 `tag-sheet.sentences.title`, 줄은 보조 문장과 오늘의 질문, 없으면 `tag-sheet.sentences.empty`).
-4. 출구: `tag-sentence-list` 아래 꺾쇠 링크(`tag-sheet.diary.cta`, 0편이면 숨김) → `tag-diary`.
+4. 출구: `tag-sentence-list` 아래 꺾쇠 링크(`tag-sheet.diary.cta`, 편수 없이 늘 보임) → `tag-diary`.
 
 * 대표 태그 1순위 시트는 줄 둘(보조 문장, 오늘의 질문), 2순위 시트는 빈 안내 한 줄입니다(IA `empty`).
 * 시트가 열린 동안 오늘 화면의 그 태그는 `selected`입니다.

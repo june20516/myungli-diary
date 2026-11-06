@@ -7,23 +7,25 @@
 
 * 쓰는 화면: diary-list, tag-diary, today, day-sheet
 * 변형 `day`(목록·태그 모아보기)와 `entries`(오늘·그날 시트). 태그는 날짜에 붙어 그날 일기 모두에 같으므로(D83 ①), 같은 날 여러 편을 나타내는 단위는 **시각 + 한 줄 미리보기** 줄(`entry`)입니다.
-* 날의 성격은 목록 줄에 두지 않습니다(배지는 두지 않습니다). 날의 성격은 일기 보기(diary-view)의 `hanja-tag`로 봅니다(결정 V81, origin F와 IA v5 diary-list 구성).
+* 카드 맨 위에 그날 날의 성격(`hanja-tag` 길흉 톤, 데이터 `DiarySummary.dayKind` D96, 쓸 때 기록한 값), 맨 아래에 그날 대표 태그(`hanja-tag` `default` 초록)를 둡니다. 옛 `day-character` 배지는 두지 않습니다(배지는 두지 않습니다). 결정 V81(관문 답 2026-11-06 Q1 ②로 개정).
 
 ### `day`
 
 * 왼쪽 날짜 열(44px): 숫자 18px 600(고정폭) + 뒤에 `seal` soft 34px(숫자가 도장 가운데) + 요일 `type.caption.md`.
 * 날짜 열 가운데로 `rail.timeline`(1.5px)이 요일 아래에서 다음 날짜까지 이어집니다. 마지막 줄 뒤에는 없습니다.
 * 달이 바뀌는 자리에 달 머리(`type.subtitle`).
-* **한 편인 날**: 오른쪽 카드(`bg.sheet`, `radius.lg`) 전체가 버튼. 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임, 카드 전체가 버튼이라 용어도 일반 글자) → 대표 태그 하나(`space.12` 아래).
-* **두 편 이상인 날(묶음 카드)**: 같은 카드 하나에 `entry` 줄들 → 태그(아래, 한 번, 마지막 줄 아래 `space.8`). 카드 전체는 버튼이 아니고, 누를 곳은 `entry` 줄마다와 태그입니다. 흐름 줄은 카드 높이만큼 이어집니다.
-* **태그(Q7 ②):** 그날 대표 태그 하나를 `hanja-tag` `default`로 둡니다. 사주 용어라 톤은 `hanja-tag` 규칙대로 날의 성격 밖 용어는 `term` 초록입니다. 없으면 그리지 않습니다. 누르면 그 태그의 모아보기(`tag-diary`, `page.push`)로 갑니다. tag-diary 안의 줄은 모두 같은 태그라 그리지 않습니다(`hiddenIn`, IA tag-diary에도 `hanja-tag`가 없음). 일기 보기와 저장 순간의 태그 칩(`tag-chip`)과는 다른 자리입니다.
+* **한 편인 날**: 오른쪽 카드(`bg.sheet`, `radius.lg`) 전체가 버튼. 날의 성격 태그 → `space.8` 아래 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임, 카드 전체가 버튼이라 용어도 일반 글자) → 대표 태그 하나(`space.12` 아래).
+* **두 편 이상인 날(묶음 카드)**: 같은 카드 하나에 날의 성격 태그(위, 한 번, 아래 `space.4`) → `entry` 줄들 → 대표 태그(아래, 한 번, 마지막 줄 아래 `space.8`). 카드 전체는 버튼이 아니고, 누를 곳은 `entry` 줄마다와 두 태그입니다. 흐름 줄은 카드 높이만큼 이어집니다.
+* **태그(Q7 ②, Q1 ②):** 대표 태그는 엔진이 일진으로 정한 그날의 태그(D108 ①)이고 날의 성격 밖 용어라 `term` 초록, 날의 성격은 길흉 톤(V8 매핑)입니다. 값이 없으면 그 태그만 그리지 않습니다.
+* **누르면(Q3 안 A):** 두 태그 모두 뜻 시트(`explain-sheet` half)입니다. 대표 태그 시트에만 본문 아래 그 태그의 모아보기 꺾쇠 링크(→ `tag-diary`)가 있고, 날의 성격 시트는 뜻만입니다. 줄에서 바로 화면 이동하지 않습니다(V73).
+* **태그 모아보기 안(Q2 ①):** tag-diary 안의 줄은 두 태그를 모두 그리지 않습니다(`hiddenIn`). 화면 위에 그 태그 이름과 뜻이 있고, 비교 페이지 `design-ds1-f-c-questions` Q2 ①(사용자가 고름)이 두 태그 없는 줄이었습니다.
 
 ### `entries`
 
 * 날짜 열·태그 없이 `entry` 줄만 작성 순으로 놓습니다.
 * `today`: 가이드 질문 카드 아래 `space.12`에 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 `space.16`·위아래 `space.4`). 오늘 쓴 일기가 없으면 그리지 않습니다.
 * `day-sheet`: 머리(`head`, 슬롯 `day-sheet.diary.open`, 편수, `type.label.md` `text.secondary`, 위 `space.16`·아래 `space.4`, 링크 아님) 아래 시트 바탕에 카드 없이. 그날 쓴 일기가 없으면 머리와 줄을 모두 그리지 않습니다.
-* 최상위의 날짜 열·도장·흐름 줄·카드·2줄 미리보기·태그는 모두 `visible: false`로 덮어씁니다.
+* 최상위의 날짜 열·도장·흐름 줄·카드·날의 성격·2줄 미리보기·태그는 모두 `visible: false`로 덮어씁니다.
 
 ### `entry` 줄
 
@@ -37,15 +39,15 @@
 
 * 순서는 server 순서(작성 순) 그대로입니다. 같은 분에 쓴 일기도 다시 정렬하지 않습니다.
 * 몇 편이든 모두 보입니다. 접지 않습니다(계정을 합친 날은 상한보다 많을 수 있음, D83 ④).
-* 접근성: 한 편 카드는 버튼 "날짜 요일, 미리보기 첫 줄, 태그". 묶음 카드는 그룹 "날짜 요일"이고 안의 줄은 각각 버튼 "시각, 미리보기 첫 줄". `entries`의 줄도 같습니다. 본문이 비면 시각만 읽습니다.
+* 접근성: 한 편 카드는 버튼 "날짜 요일, 날의 성격, 미리보기 첫 줄, 대표 태그". 묶음 카드는 그룹 "날짜 요일, 날의 성격"이고 안의 줄은 각각 버튼 "시각, 미리보기 첫 줄". `entries`의 줄도 같습니다. 본문이 비면 시각만 읽습니다.
 
 ## diary-editor
 
 * 쓰는 화면: diary-edit(`edit`), diary-view(`view`)
 * `surface.paper` 위에 날짜, (있으면) 오늘의 질문, 본문(`type.sentence.body`). 종이 아래 여백에 64px 도장 자리를 **쓰는 중에도 늘 비워 둡니다.** 글이 길어도 도장이 글을 덮지 않습니다.
 * 쓰기(`edit`)에서는 날짜를 종이 위 `date-block`이 보이므로 종이 안 날짜를 그리지 않습니다.
-* 보기(`view`)는 질문을 그리지 않습니다. IA diary-view에 질문 슬롯이 없기 때문입니다(인용형 모양과 질문 바꾸기, 슬롯 `diary-edit.guide.question`은 `edit`에만).
-* **인용 질문(결정 V82):** 질문(`diary-edit.guide.question`)은 종이 안 맨 위에 왼쪽 3px `term.bg` 선(`radius.full`) + 안쪽 `space.12`의 인용형이고, 글자는 `type.sentence.body` `text.secondary`입니다. 본문은 질문 아래 `space.16`.
+* 보기(`view`)는 그 일기를 쓸 때의 질문(getDiary `guideQuestion`)을 같은 인용 모양으로 보이고 질문 바꾸기는 없습니다. 질문이 없으면 그리지 않습니다(관문 답 2026-11-06 Q4 ①, IA diary-view 질문 자리는 지휘에 요청). 슬롯 `diary-edit.guide.question`, `diary-edit.body.placeholder`와 질문 바꾸기는 `edit`에만 있습니다.
+* **인용 질문(결정 V82):** 질문(`diary-edit.guide.question`)은 종이 안 맨 위에 왼쪽 3px `term.bg` 선(`radius.full`) + 안쪽 `space.12`의 인용형이고, 글자는 `type.sentence.body`에 크기만 14로 덮어쓴 `text.secondary`입니다(본문 15보다 작게, 문장 글꼴 14 토큰이 없어 `preview` 14.5와 같은 방식, 관문 답 2026-11-06). 본문은 질문 아래 `space.16`.
 * **질문 바꾸기:** 질문 오른쪽 `arrows-clockwise` Light 20 `text.secondary`(터치 44, 질문 첫 줄 높이, 사이 `space.8`). 그날 근거가 있는 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음. 목록과 순서는 server #806, 근거는 core #804)가 둘 이상일 때만 보입니다. 누르면 다음 후보로 `appear.seep` 바꿔 그리고 끝에서 처음으로 돌아갑니다. 본문은 건드리지 않습니다. 스크린리더 이름은 IA 자리가 없어 writing 새 슬롯이 필요하고, 바뀐 질문은 polite로 읽습니다.
 * **키보드(Q8, 결정 V83):** 본문에 초점이 있는 동안 `text-field`와 같은 키보드 내리기 버튼(44 원, `caret-down`)을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 `space.12` 오른쪽에 띄웁니다. 본문 스크롤 아래 여백은 키보드 inset + 버튼 44 + `space.12`라 커서 줄이 버튼에 가리지 않습니다. 붙여넣기 막대와 겹치는지는 QA에서 확인합니다.
 * 해시태그를 쓰는 입력이 없습니다. 태그는 저장할 때 엔진이 붙입니다(엔진 spec §7.7, 제품 결정 D13).
@@ -94,7 +96,7 @@
 | `bad` | `tag.bad.bg` (neutral 채움) | `tag.bad.fg` |
 | `neutral` | 없음, 1px `tag.neutral.border` | `tag.neutral.fg` |
 
-* 누르면 태그 모아보기(tag-diary). 보기·저장 순간에 씁니다. 일기 목록 줄의 태그는 IA v5부터 `hanja-tag`입니다(Q7, V81). IA diary-list 구성에는 아직 `tag-chip`이 남아 있어 지휘에 알립니다.
+* 누르면 뜻 시트(`explain-sheet`)이고, 그 태그의 모아보기(tag-diary)는 시트 아래 꺾쇠 링크입니다(관문 답 2026-11-06, V73). 보기·저장 순간에 씁니다. 일기 목록 줄의 태그는 IA v5부터 `hanja-tag`입니다(Q7, V81). IA diary-list 구성에는 아직 `tag-chip`이 남아 있어 지휘에 알립니다.
 
 ## diary-summary
 
@@ -110,7 +112,7 @@
 | 막대 | 높이 8 `radius.full`, 트랙 `bg.base`. 길이는 그 줄의 수를 네 줄 가운데 가장 큰 수에 견준 비율. 0이면 트랙만 |
 | 줄 순서 | 용신의 날, 귀인의 날, 평범한 날, 기신의 날 |
 | 막대 색 | 날의 성격 톤. V8 배지 매핑의 진한 쪽 색: 용신 `badge.good.bg`, 귀인 `badge.gwiin.fg`, 평범 `badge.ordinary.border`, 기신 `badge.gisin.fg` |
-| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 수 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 그 태그의 일기 모아보기(`tag-diary`, `page.push`)로 갑니다(사용자 결정 2026-11-06, IA 출구는 #801에 요청). 태그가 없으면 머리와 줄을 그리지 않습니다 |
+| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 수 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 뜻 시트(`explain-sheet`)이고, 그 태그의 일기 모아보기(`tag-diary`)는 시트 아래 꺾쇠 링크입니다(V76을 관문 답 2026-11-06으로 개정). 태그가 없으면 머리와 줄을 그리지 않습니다 |
 
 * 막대 색의 옅은 쪽(귀인 coral-100, 기신 neutral-100)은 트랙과 구분되지 않아 진한 쪽(글자색, 테두리색)을 씁니다. 이름과 수가 늘 함께 보여 색만으로 전하지 않습니다.
 * **기록이 적을 때(`few`):** 쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(`my-saju.record.few`, `type.caption.lg` `text.secondary`, 위 `space.12`)을 둡니다. 편수와 (있으면) 태그는 그대로입니다. 0편도 같습니다.
@@ -123,7 +125,7 @@
 ### diary-list 화면 배치
 
 1. `app-bar` `tab-root`: 제목 `diary-list.bar.title`. 오른쪽 동작 아이콘 없음(쓰기 입구는 아래 버튼 하나, IA v5).
-2. 일기 줄 `diary-row` `day`: 달 머리(`type.subtitle`) 아래 날짜마다 한 줄(V42 그대로). 태그는 `hanja-tag` `default`(Q7 ②).
+2. 일기 줄 `diary-row` `day`: 달 머리(`type.subtitle`) 아래 날짜마다 한 줄(V42 그대로). 카드 위 날의 성격 `hanja-tag`(길흉 톤), 아래 대표 태그 `hanja-tag` `default`(Q7 ②, Q1 ②). 두 태그 모두 누르면 `explain-sheet`.
 3. 일기 쓰기 `primary-button` `filled` `floating`(`diary-list.pick-date.cta`, `leadingIcon` `pencil-simple`): 목록이 있을 때 광고 배너 위 `space.16`, 좌우 `space.20`에 떠 있고 목록이 뒤로 지나갑니다. 누르면 날짜 고르기 시트(`date-picker` `calendar`, 기본값 오늘)이고 시트 아래 버튼은 `diary-list.pick-date.confirm`(고른 날이 10편을 채우면 누를 수 없음).
 4. `ad-banner`, `tab-bar`.
 

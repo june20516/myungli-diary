@@ -967,8 +967,8 @@ def test_diary_row_same_day_entries():
     assert entry["minHeight"] == {"value": 48, "unit": "px"}
     variants = {variant["id"]: variant for variant in row["variants"]}
     group = variants["day"]["parts"]["group"]
-    assert group["pressable"] is False and group["order"] == ["entries", "tag"]  # 배지 없음 (V81)
-    for part in ("dateColumn", "tag"):
+    assert group["pressable"] is False and group["order"] == ["dayKind", "entries", "tag"]  # 날의 성격 위, 대표 태그 아래 (V81 개정)
+    for part in ("dateColumn", "dayKind", "tag"):
         assert variants["entries"]["parts"][part]["visible"] is False
     assert any("server 순서" in rule for rule in row["rules"])
 
@@ -977,7 +977,7 @@ def test_diary_row_single_entry_day_is_unchanged():
     row = component("diary", "diary-row")
     assert row["parts"]["card"]["padding"] == "{space.16}"
     assert row["parts"]["preview"] == {"component": "sentence-block", "variant": "preview", "marginTop": "{space.8}"}
-    assert row["a11y"]["label"] == "날짜 요일, 미리보기 첫 줄, 태그"  # 배지 없음 (V81)
+    assert row["a11y"]["label"] == "날짜 요일, 날의 성격, 미리보기 첫 줄, 대표 태그"  # V81 개정
 
 
 # 상한을 채운 날의 쓰는 입구 (2026-10-22-diary-row-multi-design.md §4, 결정 V43)
@@ -1792,10 +1792,9 @@ def test_diary_summary():
     tags = parts["tags"]
     assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순"}
     assert tags["count"]["position"] == "알약 안 이름 뒤" and tags["count"]["marginStart"] == "{space.4}"
-    # 회고 태그를 누르면 그 태그의 일기 모아보기(사용자 결정 2026-11-06)
-    opens = tags["opens"]
-    assert (opens["screen"], opens["presentation"], opens["transition"]) == ("tag-diary", "page", "page.push")
-    assert "page.push" in summary["uses"] and not any("explain-sheet" in rule for rule in summary["rules"])
+    # 회고 태그도 어디서나처럼 뜻 시트, 모아보기는 시트 안 꺾쇠 링크 (관문 답 2026-11-06 Q3 안 A 확장)
+    assert tags["opens"] == {"sheet": "explain-sheet", "diaryLink": True}
+    assert "page.push" not in summary["uses"] and any("explain-sheet" in rule for rule in summary["rules"])
     notice = parts["notice"]
     assert notice["slot"] == "my-saju.record.few" and notice["visible"] is False
     few = summary["states"]["few"]
@@ -1900,11 +1899,12 @@ def test_tag_sentence_list():
     assert "2순위" in state["when"] and state["parts"] == {"row": {"visible": False}, "empty": {"visible": True}}
     # 출구: 그 태그가 붙은 내 일기 보기, 꺾쇠 링크(화면 이동)
     link = parts["diaryLink"]
-    assert link["slot"] == "tag-sheet.diary.cta" and link["params"] == ["tag", "count"]
+    assert link["slot"] == "tag-sheet.diary.cta" and link["params"] == ["tag"]  # 편수 없음 (관문 답 2026-11-06)
     assert link["label"] == {"type": "{type.label.lg}", "fg": "{color.action.primary}"}
     assert link["chevron"] == CHEVRON and link["marginTop"] == "{space.16}"
     assert link["target"] == {"screen": "tag-diary", "presentation": "page", "transition": "page.push"}
-    assert link["hiddenWhen"] == "그 태그의 일기 0편" and "josa" in link["josa"]
+    assert "hiddenWhen" not in link and "josa" in link["josa"]
+    assert "빈 상태" in link["whenNoDiary"] and not any("0편" in rule for rule in sentences["rules"])
     assert "page.push" in sentences["uses"] and "lock-simple" not in json.dumps(sentences)
     assert sentences["a11y"]["role"] == "list" and sentences["a11y"]["linkRole"] == "link"
     assert "tag-sentence-list" not in components.IA_PENDING_COMPONENTS and "tag-sentence-list" in NO_LOADING_CONTENT
@@ -2041,26 +2041,48 @@ def test_date_block():
 
 def test_diary_row_hanja_tag():
     row = component("diary", "diary-row")
-    tag = row["parts"]["tag"]
-    # Q7 ②: 줄은 V42 그대로, 태그만 hanja-tag(사주 용어 초록)
+    parts = row["parts"]
+    # Q1 ②(관문 답 2026-11-06): 카드 맨 위 날의 성격 hanja-tag(길흉 톤), 맨 아래 대표 태그(사주 용어 초록)
+    kind = parts["dayKind"]
+    assert (kind["component"], kind["variant"], kind["tone"]) == ("hanja-tag", "default", "dayKind")
+    assert kind["source"] == "DiarySummary.dayKind (D96)" and kind["whenMissing"] == "hide"
+    assert kind["position"] == "card-top" and kind["opens"] == {"sheet": "explain-sheet", "diaryLink": False}
+    tag = parts["tag"]
     assert (tag["component"], tag["variant"], tag["count"]) == ("hanja-tag", "default", 1)
     assert tag["marginTop"] == "{space.12}" and tag["whenMissing"] == "hide"
-    assert tag["opens"] == {"screen": "tag-diary", "presentation": "page", "transition": "page.push"}
-    assert tag["hiddenIn"] == ["tag-diary"]  # 모아보기 줄은 모두 같은 태그이고 IA tag-diary에 hanja-tag가 없음
-    # 날의 성격 배지는 목록 줄에 없음(origin F, Q7 ② 견본, IA v5 diary-list에 day-character 없음)
-    assert "badge" not in row["parts"]
+    assert tag["opens"] == {"sheet": "explain-sheet", "diaryLink": True}  # Q3 안 A: 시트, 모아보기는 시트 안 링크
+    # Q2 ①: 모아보기 안 줄은 두 태그를 모두 그리지 않음
+    assert kind["hiddenIn"] == ["tag-diary"] and tag["hiddenIn"] == ["tag-diary"]
+    assert "badge" not in parts and "tag-chip" not in json.dumps(row, ensure_ascii=False)
+    assert "tag-diary" not in json.dumps(tag["opens"]) and "page.push" not in row["uses"]
     variants = {variant["id"]: variant["parts"] for variant in row["variants"]}
-    assert variants["day"]["group"]["order"] == ["entries", "tag"] and "badge" not in variants["entries"]
-    assert row["a11y"]["label"] == "날짜 요일, 미리보기 첫 줄, 태그" and row["a11y"]["group"]["label"] == "날짜 요일"
-    assert "badge" not in [bone["bone"] for bone in row["states"]["loading"]["skeleton"]]
-    assert "tag-chip" not in json.dumps(row, ensure_ascii=False)
-    opens = component("sentence", "hanja-tag")["parts"]["opens"]
-    assert {"screen": "diary-list", "part": "diary-row tag", "to": "tag-diary"} in opens["pageIn"]
-    assert {"screen": "my-saju", "part": "diary-summary tags", "to": "tag-diary"} in opens["pageIn"]
+    assert variants["entries"]["dayKind"] == {"visible": False}
+    assert row["a11y"]["group"]["label"] == "날짜 요일, 날의 성격"
+    bones = [bone["bone"] for bone in row["states"]["loading"]["skeleton"]]
+    assert "dayKind" in bones and "badge" not in bones
     text = (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")
-    md = text.split("## diary-row", 1)[1].split("\n## ", 1)[0]  # 하위 절(### day, entries, entry 줄)까지
-    assert "`hanja-tag` `default`" in md and "`tag-diary`" in md
-    assert "배지" not in md.replace("배지는 두지 않습니다", "")
+    md = text.split("## diary-row", 1)[1].split("\n## ", 1)[0]
+    assert "`hanja-tag` `default`" in md and "`DiarySummary.dayKind`" in md and "`explain-sheet`" in md
+
+
+def test_hanja_tag_opens_sheet_everywhere():
+    # 한자 태그는 어디서나 누르면 시트, 화면 이동 예외 없음 (관문 답 2026-11-06 Q3 안 A 확장, V73)
+    opens = component("sentence", "hanja-tag")["parts"]["opens"]
+    assert "pageIn" not in opens and "pageRule" not in opens
+    assert "예외 없음" in opens["rule"]
+    sheet = component("frame", "explain-sheet")
+    link = sheet["parts"]["diaryLink"]
+    assert link["params"] == ["tag"] and "count" not in json.dumps(link)
+    assert link["target"] == {"screen": "tag-diary", "presentation": "page", "transition": "page.push"}
+    assert link["chevron"] == CHEVRON and link["marginTop"] == "{space.16}" and link["minTarget"] == 44
+    assert "날의 성격" in link["notFor"] and "대표 태그" in link["when"]
+    assert "<태그>이 붙은 내 일기 보기" in link["copy"] and "josa" in link["josa"]
+    assert "page.push" in sheet["uses"]
+    chip = component("diary", "tag-chip")
+    assert chip["parts"]["opens"] == {"sheet": "explain-sheet", "diaryLink": True}
+    assert chip["a11y"]["role"] == "button" and "tag-diary" not in json.dumps(chip["rules"], ensure_ascii=False)
+    for name in ("diary.md", "sentence.md"):
+        assert "pageIn" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
 
 
 def test_primary_button_leading_icon():
@@ -2141,8 +2163,11 @@ def test_quoted_question():
     question = {**shape, **variants["edit"]["question"]}
     assert question["slot"] == "diary-edit.guide.question" and question["optional"] is True
     assert (question["type"], question["fg"]) == ("{type.sentence.body}", "{color.text.secondary}")
-    # 보기는 IA diary-view에 질문 슬롯이 없어 질문을 그리지 않음 (리뷰 I1)
-    assert variants["view"]["question"] == {"visible": False}
+    # 질문 14: 문장 글꼴 14 토큰이 없어 sentence.body에 크기만 덮어씀(미리보기 14.5 선례, 관문 답 2026-11-06)
+    assert shape["fontSize"] == {"value": 14, "unit": "px"}
+    # 보기는 저장된 질문을 인용 모양으로 보임, 바꾸기 없음 (관문 답 Q4 ①)
+    view = variants["view"]["question"]
+    assert view == {"source": "getDiary guideQuestion", "whenMissing": "hide"}
     assert "diary-edit." not in json.dumps(variants["view"], ensure_ascii=False)
     assert question["quoteLine"] == {"width": {"value": 3, "unit": "px"}, "color": "{color.term.bg}", "radius": "{radius.full}"}
     assert question["paddingStart"] == "{space.12}"

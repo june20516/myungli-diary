@@ -818,8 +818,8 @@
       "V82",
       "V83"
     ],
-    "status": "draft",
-    "note": "사용자 확인 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 date-block, app-bar edit, primary-button floating. 앱 fixture 하늘님 값, 원고 없는 문구는 예시. 사용자 확인(2026-11-06, #801): 목록 줄에 날의 성격과 대표 태그, 모아보기 안 태그 숨김, 태그는 어디서나 뜻 시트, 일기 보기에 질문, 질문 14, 상태 간격 8, 흰 종이 유지, 쓰기 버튼 일기 쓰기"
   },
   {
     "id": "design-ds1-f-c-questions",
@@ -836,7 +836,7 @@
       "diary-view"
     ],
     "decisions": [],
-    "status": "draft",
-    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 하늘님 값, 원고 없는 문구는 예시. 사용자가 고름(2026-11-06): Q1 ②, Q2 ①, Q4 ①. Q3 다시(목록 줄 두 태그 누름 통일, 안 A 뜻 시트 / 안 B 모아보기) 사용자 선택 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 하늘님 값, 원고 없는 문구는 예시. 사용자 답(2026-11-06, #801): Q1 ② 날의 성격 태그도 함께, Q2 ① 모아보기 안 태그 숨김, Q3 안 A 확장(한자 태그는 어디서나 뜻 시트, 모아보기는 대표 태그 시트 안 꺾쇠 링크, 편수 없음), Q4 ① 일기 보기에 질문"
   }
 ]

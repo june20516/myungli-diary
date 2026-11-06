@@ -101,6 +101,14 @@
   }
   .htag .g { width: 22px; height: 22px; border-radius: var(--radius-full); background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-size: 12px; font-weight: 700; }
 
+  /* 날의 성격 hanja-tag 길흉 톤(V8 매핑). 카드 맨 위, 미리보기와 사이 space.8, 묶음 카드는 entry 줄 위 space.4 */
+  .htag.good { background: var(--color-tag-good-bg); color: var(--color-tag-good-fg); }
+  .htag.bad { background: var(--color-tag-bad-bg); color: var(--color-tag-bad-fg); }
+  .htag.neutral { background: transparent; box-shadow: inset 0 0 0 1px var(--color-tag-neutral-border); color: var(--color-tag-neutral-fg); }
+  .dcard .toptag { margin-bottom: var(--space-8); }
+  .dcard.group .toptag { margin: var(--space-12) 0 var(--space-4); }
+  .quote p { font-size: 14px; }
+
   /* primary-button filled + leadingIcon(옆 글자 단계, 사이 space.8) */
   .pbtn {
     height: 52px; border-radius: var(--radius-md); background: var(--color-action-primary); color: var(--color-action-on-primary);
@@ -178,7 +186,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true"><symbol id="ic-caret-left-light" viewBox="0 0 256 256"><path d="M164.24,203.76a6,6,0,1,1-8.48,8.48l-80-80a6,6,0,0,1,0-8.48l80-80a6,6,0,0,1,8.48,8.48L88.49,128Z"/></symbol><symbol id="ic-caret-right-light" viewBox="0 0 256 256"><path d="M180.24,132.24l-80,80a6,6,0,0,1-8.48-8.48L167.51,128,91.76,52.24a6,6,0,0,1,8.48-8.48l80,80A6,6,0,0,1,180.24,132.24Z"/></symbol><symbol id="ic-caret-down-regular" viewBox="0 0 256 256"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></symbol><symbol id="ic-pencil-simple-regular" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"/></symbol><symbol id="ic-arrows-clockwise-light" viewBox="0 0 256 256"><path d="M222,48V96a6,6,0,0,1-6,6H168a6,6,0,0,1,0-12h33.52L183.47,72a81.51,81.51,0,0,0-57.53-24h-.46A81.5,81.5,0,0,0,68.19,71.28a6,6,0,1,1-8.38-8.58,93.38,93.38,0,0,1,65.67-26.76H126a93.45,93.45,0,0,1,66,27.53l18,18V48a6,6,0,0,1,12,0ZM187.81,184.72a81.5,81.5,0,0,1-57.29,23.34h-.46a81.51,81.51,0,0,1-57.53-24L54.48,166H88a6,6,0,0,0,0-12H40a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V174.48l18,18.05a93.45,93.45,0,0,0,66,27.53h.52a93.38,93.38,0,0,0,65.67-26.76,6,6,0,1,0-8.38-8.58Z"/></symbol><symbol id="ic-cloud-light" viewBox="0 0 256 256"><path d="M160,42A86.11,86.11,0,0,0,82.43,90.88,62,62,0,1,0,72,214h88a86,86,0,0,0,0-172Zm0,160H72a50,50,0,0,1,0-100,50.67,50.67,0,0,1,5.91.35A85.61,85.61,0,0,0,74,128a6,6,0,0,0,12,0,74,74,0,1,1,74,74Z"/></symbol><symbol id="ic-sun-light" viewBox="0 0 256 256"><path d="M122,40V16a6,6,0,0,1,12,0V40a6,6,0,0,1-12,0Zm68,88a62,62,0,1,1-62-62A62.07,62.07,0,0,1,190,128Zm-12,0a50,50,0,1,0-50,50A50.06,50.06,0,0,0,178,128ZM59.76,68.24a6,6,0,1,0,8.48-8.48l-16-16a6,6,0,0,0-8.48,8.48Zm0,119.52-16,16a6,6,0,1,0,8.48,8.48l16-16a6,6,0,1,0-8.48-8.48ZM192,70a6,6,0,0,0,4.24-1.76l16-16a6,6,0,0,0-8.48-8.48l-16,16A6,6,0,0,0,192,70Zm4.24,117.76a6,6,0,0,0-8.48,8.48l16,16a6,6,0,0,0,8.48-8.48ZM46,128a6,6,0,0,0-6-6H16a6,6,0,0,0,0,12H40A6,6,0,0,0,46,128Zm82,82a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V216A6,6,0,0,0,128,210Zm112-88H216a6,6,0,0,0,0,12h24a6,6,0,0,0,0-12Z"/></symbol><symbol id="ic-calendar-blank-light" viewBox="0 0 256 256"><path d="M208,34H182V24a6,6,0,0,0-12,0V34H86V24a6,6,0,0,0-12,0V34H48A14,14,0,0,0,34,48V208a14,14,0,0,0,14,14H208a14,14,0,0,0,14-14V48A14,14,0,0,0,208,34ZM48,46H74V56a6,6,0,0,0,12,0V46h84V56a6,6,0,0,0,12,0V46h26a2,2,0,0,1,2,2V82H46V48A2,2,0,0,1,48,46ZM208,210H48a2,2,0,0,1-2-2V94H210V208A2,2,0,0,1,208,210Z"/></symbol><symbol id="ic-notebook-light" viewBox="0 0 256 256"><path d="M182,112a6,6,0,0,1-6,6H112a6,6,0,0,1,0-12h64A6,6,0,0,1,182,112Zm-6,26H112a6,6,0,0,0,0,12h64a6,6,0,0,0,0-12Zm46-90V208a14,14,0,0,1-14,14H48a14,14,0,0,1-14-14V48A14,14,0,0,1,48,34H208A14,14,0,0,1,222,48ZM48,210H74V46H48a2,2,0,0,0-2,2V208A2,2,0,0,0,48,210ZM210,48a2,2,0,0,0-2-2H86V210H208a2,2,0,0,0,2-2Z"/></symbol><symbol id="ic-notebook-regular" viewBox="0 0 256 256"><path d="M184,112a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16h64A8,8,0,0,1,184,112Zm-8,24H112a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm48-88V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM48,208H72V48H48Zm160,0V48H88V208H208Z"/></symbol><symbol id="ic-user-light" viewBox="0 0 256 256"><path d="M229.19,213c-15.81-27.32-40.63-46.49-69.47-54.62a70,70,0,1,0-63.44,0C67.44,166.5,42.62,185.67,26.81,213a6,6,0,1,0,10.38,6C56.4,185.81,90.34,166,128,166s71.6,19.81,90.81,53a6,6,0,1,0,10.38-6ZM70,96a58,58,0,1,1,58,58A58.07,58.07,0,0,1,70,96Z"/></symbol><symbol id="seal-shape" viewBox="0 0 20 20"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></symbol></svg>
 <div class="page">
   <h1>DS1 화면 묶음 F와 C: 일기 목록, 일기 쓰기</h1>
-  <p class="intro">IA v5 <code>diary-list</code>와 <code>diary-edit</code>입니다. 일기 목록 줄은 V42 그대로이고 태그만 한자 태그(사주 용어 초록, Q7 ②)입니다. 쓰기 입구는 떠 있는 아래 버튼 하나입니다. 일기 쓰기는 큰 날짜 블록(<code>date-block</code>), 인용 질문과 질문 바꾸기, 상단 바 가운데 상태와 저장 글자 버튼, 키보드 내리기(Q8)입니다. 글과 데이터는 app fixture(가상 사용자 하늘님, 庚午 辛巳 庚辰 癸未)이고, 원고가 없는 문구는 "예시"로 표시했습니다.</p>
+  <p class="intro">IA v5 <code>diary-list</code>와 <code>diary-edit</code>입니다. 일기 목록 줄은 V42 그대로이고, 카드 위에 날의 성격 한자 태그(길흉 톤, fixture 달력 값), 아래에 그날의 대표 태그(사주 용어 초록)를 둡니다(관문 답 2026-11-06). 두 태그 모두 누르면 뜻 시트입니다. 쓰기 입구는 떠 있는 아래 버튼 하나입니다. 일기 쓰기는 큰 날짜 블록(<code>date-block</code>), 인용 질문과 질문 바꾸기, 상단 바 가운데 상태와 저장 글자 버튼, 키보드 내리기(Q8)입니다. 글과 데이터는 app fixture(가상 사용자 하늘님, 庚午 辛巳 庚辰 癸未)이고, 원고가 없는 문구는 "예시"로 표시했습니다.</p>
   <div class="toolbar"><button id="theme" type="button">다크로 보기</button></div>
 
   <h2>F 일기 목록</h2>
@@ -192,20 +200,20 @@
             <div class="month">2026년 10월</div>
             <div class="drow">
               <div class="dcol"><span class="num"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>12</b></span><small>월</small><i class="rail"></i></div>
-              <div class="dcard press"><p class="preview">오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.</p>
+              <div class="dcard press"><div class="toptag"><span class="htag good"><span class="g" aria-hidden="true">貴</span>귀인의 날</span></div><p class="preview">오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.</p>
                 <div class="tagline"><span class="htag"><span class="g" aria-hidden="true">天</span>천을귀인</span></div></div>
             </div>
             <div class="drow">
               <div class="dcol"><span class="num"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>8</b></span><small>목</small><i class="rail"></i></div>
-              <div class="dcard press"><p class="preview">아침 공기가 갑자기 차가워졌다. 겉옷을 하나 더 챙겼다.</p></div>
+              <div class="dcard press"><div class="toptag"><span class="htag neutral"><span class="g" aria-hidden="true">平</span>평범한 날</span></div><p class="preview">아침 공기가 갑자기 차가워졌다. 겉옷을 하나 더 챙겼다.</p></div>
             </div>
             <div class="drow">
               <div class="dcol"><span class="num"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>5</b></span><small>월</small><i class="rail"></i></div>
-              <div class="dcard press"><p class="preview">미뤄 둔 정리를 끝냈다. 책상이 넓어지니 마음도 가벼웠다.</p></div>
+              <div class="dcard press"><div class="toptag"><span class="htag good"><span class="g" aria-hidden="true">用</span>용신의 날</span></div><p class="preview">미뤄 둔 정리를 끝냈다. 책상이 넓어지니 마음도 가벼웠다.</p></div>
             </div>
             <div class="drow">
               <div class="dcol"><span class="num"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>2</b></span><small>금</small><i class="rail"></i></div>
-              <div class="dcard press"><p class="preview">회의에서 의견이 엇갈렸다. 한 번 더 생각해 보고 내일 다시 말하기로 했다.</p>
+              <div class="dcard press"><div class="toptag"><span class="htag bad"><span class="g" aria-hidden="true">忌</span>기신의 날</span></div><p class="preview">회의에서 의견이 엇갈렸다. 한 번 더 생각해 보고 내일 다시 말하기로 했다.</p>
                 <div class="tagline"><span class="htag"><span class="g" aria-hidden="true">合</span>합</span><span class="ex">예시: 己酉일 辰酉 합</span></div></div>
             </div>
             <div class="list-pad"></div>
@@ -220,7 +228,7 @@
           <div class="tab"><span class="mark"><svg class="ic"><use href="#ic-user-light"/></svg></span>나</div>
         </div>
       </div>
-      <p class="note" style="width: 360px">버튼 글자 "일기 쓰기"는 예시(writing 원고 변경 요청 중)입니다. 버튼은 광고 배너 위 16, 좌우 20에 떠 있고 목록이 뒤로 지나갑니다. 마지막 줄은 아래 여백으로 버튼 위까지 올라옵니다. 날의 성격 배지는 목록 줄에 두지 않습니다.</p>
+      <p class="note" style="width: 360px">버튼 글자 "일기 쓰기"는 예시(writing 원고 변경 요청 중)입니다. 버튼은 광고 배너 위 16, 좌우 20에 떠 있고 목록이 뒤로 지나갑니다. 마지막 줄은 아래 여백으로 버튼 위까지 올라옵니다. 카드 맨 위는 날의 성격(길흉 톤), 맨 아래는 그날의 대표 태그입니다. 두 태그 모두 누르면 뜻 시트이고, 대표 태그 시트 아래 링크로 모아보기에 갑니다.</p>
     </div>
 
     <div>
@@ -230,6 +238,7 @@
           <div class="drow">
             <div class="dcol"><span class="num"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>13</b></span><small>화</small><i class="rail"></i></div>
             <div class="dcard group">
+              <div class="toptag"><span class="htag good"><span class="g" aria-hidden="true">用</span>용신의 날</span></div>
               <div class="entry"><time>10:00</time><span>아침에 일어나 창문을 열었다. 공기가 맑았다.</span><svg class="ic"><use href="#ic-caret-right-light"/></svg></div>
               <div class="entry"><time>11:00</time><span>출근길에 마신 커피가 유난히 맛있었다.</span><svg class="ic"><use href="#ic-caret-right-light"/></svg></div>
               <div class="entry"><time>12:00</time><span>점심은 간단히 샌드위치로 해결했다.</span><svg class="ic"><use href="#ic-caret-right-light"/></svg></div>
@@ -238,12 +247,12 @@
           </div>
           <div class="drow">
             <div class="dcol"><span class="num"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>12</b></span><small>월</small><i class="rail"></i></div>
-            <div class="dcard press"><p class="preview">오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.</p>
+            <div class="dcard press"><div class="toptag"><span class="htag good"><span class="g" aria-hidden="true">貴</span>귀인의 날</span></div><p class="preview">오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.</p>
               <div class="tagline"><span class="htag"><span class="g" aria-hidden="true">天</span>천을귀인</span></div></div>
           </div>
         </div>
       </div>
-      <p class="note" style="width: 360px">묶음 카드는 entry 줄 아래 태그(있으면, 아래 8)입니다. 이날 fixture에는 대표 태그가 없습니다.</p>
+      <p class="note" style="width: 360px">묶음 카드는 날의 성격이 위에 한 번(아래 4), 대표 태그가 entry 줄 아래 한 번(있으면, 위 8)입니다. 이날 fixture에는 대표 태그가 없습니다.</p>
 
       <div class="caption" style="margin-top: var(--space-24)">불러오는 중</div>
       <div class="phone mini">
@@ -251,7 +260,7 @@
           <div class="month">2026년 10월</div>
           <div class="drow">
             <div class="dcol"><span class="bone" style="width: 34px; height: 34px; border-radius: var(--radius-sm)"></span><span class="bone line d1" style="width: 16px"></span></div>
-            <div class="dcard"><div class="bone line"></div><div class="bone line d1" style="width: 70%"></div><span class="bone chip d2" style="width: 72px; margin-top: var(--space-12)"></span></div>
+            <div class="dcard"><span class="bone chip" style="width: 88px; margin-bottom: var(--space-8)"></span><div class="bone line"></div><div class="bone line d1" style="width: 70%"></div><span class="bone chip d2" style="width: 72px; margin-top: var(--space-12)"></span></div>
           </div>
           <div class="drow">
             <div class="dcol"><span class="bone d1" style="width: 34px; height: 34px; border-radius: var(--radius-sm)"></span><span class="bone line d2" style="width: 16px"></span></div>
@@ -355,7 +364,7 @@
   </div>
 
   <h2>origin과 다른 점</h2>
-  <p class="note">일기 쓰기 버튼 글자는 origin과 IA 가안대로 "일기 쓰기"이고, writing 원고 변경을 요청 중입니다. 일기 목록 미리보기는 V42대로 두 줄 말줄임입니다. 상단 바 가운데의 상태와 글자 수는 쉼표 대신 간격으로 나눴고(V47, V78), 상태 아이콘을 둡니다. 일기 쓰기 본문은 흰 종이(<code>surface.paper</code>) 위이고, 인용 질문은 종이 안 맨 위입니다. 질문 바꾸기 아이콘을 질문 오른쪽에 두었습니다(spec §4). 2일 일기의 태그는 fixture가 충이지만 그날 己酉의 酉는 원국 지지와 충이 없고 일지 辰과 합이라, 명리에 맞게 합으로 그렸습니다(fixture 보정은 app에 요청).</p>
+  <p class="note">일기 쓰기 버튼 글자는 origin과 IA 가안대로 "일기 쓰기"이고, writing 원고 변경을 요청 중입니다. 일기 목록 미리보기는 V42대로 두 줄 말줄임이고, 카드 위에 날의 성격 태그를 더했습니다. 상단 바 가운데의 상태와 글자 수는 쉼표 대신 간격으로 나눴고(V47, V78), 상태 아이콘을 둡니다. 일기 쓰기 본문은 흰 종이(<code>surface.paper</code>) 위이고, 인용 질문은 종이 안 맨 위이고 글자는 본문(15)보다 작은 14입니다. 질문 바꾸기 아이콘을 질문 오른쪽에 두었습니다(spec §4). 2일 일기의 태그는 fixture가 충이지만 그날 己酉의 酉는 원국 지지와 충이 없고 일지 辰과 합이라, 명리에 맞게 합으로 그렸습니다(fixture 보정은 app에 요청).</p>
   <p class="note" style="margin-top: var(--space-48)">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Pretendard JP, Gowun Dodum.</p>
 </div>
 

@@ -101,14 +101,14 @@
         "empty": { "slot": "tag-sheet.sentences.empty", "type": "{type.body.ui}", "fg": "{color.text.secondary}", "visible": false },
         "diaryLink": {
           "slot": "tag-sheet.diary.cta",
-          "params": ["tag", "count"],
+          "params": ["tag"],
           "josa": "태그 이름 뒤 조사는 writing josa 규칙(이/가)",
           "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
           "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
           "marginTop": "{space.16}",
           "minTarget": 44,
           "target": { "screen": "tag-diary", "presentation": "page", "transition": "page.push" },
-          "hiddenWhen": "그 태그의 일기 0편"
+          "whenNoDiary": "늘 보임. 그 태그의 일기가 없으면 tag-diary 빈 상태가 맡음(편수를 세지 않음, 관문 답 2026-11-06)"
         }
       },
       "states": {
@@ -122,7 +122,7 @@
         "이름 칸은 폭 52 고정이다. 이름이 넘치면 칸 안에서 줄바꿈하고(ko '오늘의 질문'은 두 줄, ja, en도 같음) 문장 칸 폭은 줄이지 않는다(사용자 확인 2026-11-06).",
         "문장 줄은 누를 수 없다. 오늘 화면의 같은 문장을 다시 보일 뿐이다.",
         "정해진 문장이 없으면(대표 태그 2순위) 줄을 그리지 않고 안내 한 줄(tag-sheet.sentences.empty)을 둔다.",
-        "아래 출구는 그 태그가 붙은 내 일기 보기 꺾쇠 링크다(화면 이동, page.push). 일기가 0편이면 줄을 숨긴다. 꺾쇠는 원고에 넣지 않고 컴포넌트가 그린다(V29)."
+        "아래 출구는 그 태그가 붙은 내 일기 보기 꺾쇠 링크다(화면 이동, page.push). 편수를 보이지 않고 늘 보인다. 일기가 없으면 tag-diary 빈 상태가 맡는다. 꺾쇠는 원고에 넣지 않고 컴포넌트가 그린다(V29)."
       ]
     },
     {
