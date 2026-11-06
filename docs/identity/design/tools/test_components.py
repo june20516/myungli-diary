@@ -2083,6 +2083,7 @@ def test_diary_list_floating_button():
     assert floating["usedIn"] == [{"screen": "diary-list", "slot": "diary-list.pick-date.cta", "leadingIcon": "pencil-simple"}]
     assert "empty-state" in floating["whenEmpty"] and "가운데" in floating["whenEmpty"]
     assert floating["listPaddingBottom"] == "버튼 높이 52 + space.16 + space.16"
+    assert "다시 시도" in floating["whenError"] and "숨김" in floating["whenError"]  # 리뷰 Minor 7
     layout = _md_section("diary.md", "### diary-list 화면 배치")
     assert all(f"`{slot}`" in layout for slot in ia_slot_ids("diary-list"))
     lines = layout.splitlines()
@@ -2105,10 +2106,20 @@ def test_app_bar_center_status():
     action = bar["parts"]["textAction"]
     assert (action["type"], action["fg"], action["paddingX"]) == ("{type.label.lg}", "{color.action.primary}", "{space.8}")
     assert action["minTarget"] == 44 and action["max"] == 1
-    assert bar["states"]["textActionDisabled"]["parts"]["textAction"]["fg"] == "{color.disabled.fg}"
     saving = bar["states"]["textActionSaving"]
     assert saving["pattern"] == "loading.breathe" and saving["parts"]["textAction"]["label"] == {"visible": False}
     assert not [rule for rule in bar["rules"] if "동작 왼쪽" in rule]
+    # 상태가 가리키는 부품은 textAction에 정의돼 있어야 함 (리뷰 Minor 3)
+    for state in ("textActionDisabled", "textActionSaving"):
+        for key in bar["states"][state]["parts"]["textAction"]:
+            assert key in action, (state, key)
+    assert action["label"] == {"type": "{type.label.lg}", "fg": "{color.action.primary}", "maxLines": 1}
+    assert action["dots"]["count"] == 3
+    assert bar["states"]["textActionDisabled"]["parts"]["textAction"]["label"] == {"fg": "{color.disabled.fg}"}
+    # 이어 쓰기: 초점을 받으면 local, 초점 전에는 제목 (리뷰 Minor 4)
+    layout = _md_section("diary.md", "### diary-edit 화면 배치")
+    draft_line = next(line for line in layout.splitlines() if "(`draft`)" in line)
+    assert "초점을 받으면" in draft_line and "`local`" in draft_line and "제목" in draft_line
     indicator = component("diary", "draft-indicator")
     parts = indicator["parts"]
     assert parts["container"]["position"] == "app-bar-center"
@@ -2124,9 +2135,15 @@ def test_app_bar_center_status():
 
 def test_quoted_question():
     editor = component("diary", "diary-editor")
-    question = editor["parts"]["question"]
+    variants = {variant["id"]: variant["parts"] for variant in editor["variants"]}
+    shape = editor["parts"]["question"]  # 모양만 최상위. 슬롯과 바꾸기는 edit (리뷰 I1)
+    assert "slot" not in shape and "swap" not in shape
+    question = {**shape, **variants["edit"]["question"]}
     assert question["slot"] == "diary-edit.guide.question" and question["optional"] is True
     assert (question["type"], question["fg"]) == ("{type.sentence.body}", "{color.text.secondary}")
+    # 보기는 IA diary-view에 질문 슬롯이 없어 질문을 그리지 않음 (리뷰 I1)
+    assert variants["view"]["question"] == {"visible": False}
+    assert "diary-edit." not in json.dumps(variants["view"], ensure_ascii=False)
     assert question["quoteLine"] == {"width": {"value": 3, "unit": "px"}, "color": "{color.term.bg}", "radius": "{radius.full}"}
     assert question["paddingStart"] == "{space.12}"
     swap = question["swap"]
@@ -2136,7 +2153,6 @@ def test_quoted_question():
     assert swap["visibleWhen"] == "그날 후보가 둘 이상" and swap["transition"] == "appear.seep"
     assert "#806" in swap["candidates"] and "#804" in swap["candidates"]
     assert swap["a11y"]["role"] == "button" and "writing 새 슬롯" in swap["a11y"]["label"]
-    variants = {variant["id"]: variant["parts"] for variant in editor["variants"]}
     assert variants["edit"]["date"] == {"visible": False}  # 날짜는 위 date-block
     assert editor["motion"]["saveSequence"][0] == {"step": "button-breathe", "pattern": "loading.breathe",
                                                    "target": "app-bar textAction"}
@@ -2150,12 +2166,12 @@ def test_quoted_question():
     assert "`primary-button`" not in layout  # 아래 고정 버튼 없음(IA v5)
 
 
-KEYBOARD_INPUTS = (("input", "text-field", "states"), ("diary", "diary-editor", "states"))
+KEYBOARD_INPUTS = (("input", "text-field"), ("diary", "diary-editor"))
 
 
 def test_keyboard_dismiss_everywhere():
     found = []
-    for group, component_id, _ in KEYBOARD_INPUTS:
+    for group, component_id in KEYBOARD_INPUTS:
         dismiss = component(group, component_id)["states"]["focused"]["parts"]["keyboardDismiss"]
         found.append(dismiss)
         assert dismiss["anchor"] == "keyboard-inset"

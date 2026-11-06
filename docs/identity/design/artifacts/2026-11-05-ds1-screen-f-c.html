@@ -138,9 +138,12 @@
   .paper { position: relative; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-16); margin-top: var(--space-24); }
   .quote { display: flex; align-items: flex-start; margin-bottom: var(--space-16); }
   .quote p {
-    flex: 1; margin: 0; padding-left: var(--space-12); border-left: 3px solid var(--color-term-bg); border-radius: 0;
+    position: relative; flex: 1; margin: 0; padding-left: var(--space-12);
     color: var(--color-text-secondary); font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all;
   }
+  /* quoteLine: 폭 3, term.bg, radius.full */
+  .quote p::before, .quote .qbone::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: var(--radius-full); background: var(--color-term-bg); }
+  .quote .qbone { position: relative; flex: 1; padding-left: var(--space-12); }
   /* 질문 바꾸기: arrows-clockwise Light 20, 터치 44를 첫 줄 높이에 맞춤, 사이 space.8 */
   .swap { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; margin: calc((25.5px - 44px) / 2) calc(var(--space-12) * -1) 0 var(--space-8); color: var(--color-text-secondary); --icon: var(--size-icon-20); }
   .body { margin: 0; min-height: calc(var(--type-sentence-body-size) * 1.6 * 8); font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; }
@@ -341,7 +344,7 @@
         <div class="content" style="padding-top: 0">
           <div class="dblock"><b>13</b><div class="side"><div class="m">10월 화요일</div><div class="bone line" style="width: 64px"></div></div></div>
           <div class="paper">
-            <div class="quote"><div style="flex: 1; padding-left: var(--space-12); border-left: 3px solid var(--color-term-bg)"><div class="bone line d1"></div><div class="bone line d2" style="width: 60%"></div></div></div>
+            <div class="quote"><div class="qbone"><div class="bone line d1"></div><div class="bone line d2" style="width: 60%"></div></div></div>
             <p class="body placeholder short">오늘 있었던 일을 적어 보세요</p>
           </div>
         </div>

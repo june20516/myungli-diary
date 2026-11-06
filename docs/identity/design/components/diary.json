@@ -97,29 +97,36 @@
       "summary": "일기 본문 입력과 보기 (종이). 쓰기에서는 인용 질문과 질문 바꾸기",
       "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "icon"],
       "variants": [
-        { "id": "edit", "when": "쓰기·고치기(diary-edit). 날짜는 종이 위 date-block이 보임", "parts": { "body": { "editable": true }, "date": { "visible": false } } },
-        { "id": "view", "when": "보기(diary-view)", "parts": { "body": { "editable": false }, "seal": { "visible": true }, "tags": { "visible": true } } }
+        { "id": "edit", "when": "쓰기·고치기(diary-edit). 날짜는 종이 위 date-block이 보임",
+          "parts": {
+            "body": { "editable": true },
+            "date": { "visible": false },
+            "question": {
+              "slot": "diary-edit.guide.question",
+    "swap": {
+                "icon": "arrows-clockwise", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}",
+                "minTarget": 44, "align": "first-line", "marginStart": "{space.8}",
+                "visibleWhen": "그날 후보가 둘 이상",
+                "candidates": "그날 근거가 있는 질문 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음). 목록과 순서는 server #806, 근거는 core #804",
+                "order": "server 순서대로 다음 후보, 끝에서 처음으로",
+                "transition": "appear.seep",
+                "keepsBody": true,
+                "a11y": { "role": "button", "label": "질문 바꾸기 이름(writing 새 슬롯, IA 자리 없음)", "changedAnnounced": "새 질문을 polite로 읽음" },
+                "note": "질문 글은 아이콘 앞에서 줄바꿈한다. 본문은 건드리지 않는다"
+              }
+            }
+          } },
+        { "id": "view", "when": "보기(diary-view)", "parts": { "body": { "editable": false }, "seal": { "visible": true }, "tags": { "visible": true }, "question": { "visible": false } } }
       ],
       "parts": {
         "paper": { "element": "surface.paper" },
         "date": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
         "question": {
-          "slot": "diary-edit.guide.question", "optional": true,
+          "optional": true,
           "type": "{type.sentence.body}", "fg": "{color.text.secondary}",
           "quoteLine": { "width": { "value": 3, "unit": "px" }, "color": "{color.term.bg}", "radius": "{radius.full}" },
           "paddingStart": "{space.12}", "marginBottom": "{space.16}",
-          "swap": {
-            "icon": "arrows-clockwise", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}",
-            "minTarget": 44, "align": "first-line", "marginStart": "{space.8}",
-            "visibleWhen": "그날 후보가 둘 이상",
-            "candidates": "그날 근거가 있는 질문 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음). 목록과 순서는 server #806, 근거는 core #804",
-            "order": "server 순서대로 다음 후보, 끝에서 처음으로",
-            "transition": "appear.seep",
-            "keepsBody": true,
-            "a11y": { "role": "button", "label": "질문 바꾸기 이름(writing 새 슬롯, IA 자리 없음)", "changedAnnounced": "새 질문을 polite로 읽음" },
-            "note": "질문 글은 아이콘 앞에서 줄바꿈한다. 본문은 건드리지 않는다"
-          },
-          "note": "왼쪽 3px 선의 인용형. 본문보다 작게 보이는 자리라 본문 크기는 관문 질문(V82)"
+          "note": "왼쪽 3px 선의 인용형 모양. 슬롯과 질문 바꾸기는 edit 변형. view는 질문을 그리지 않음(IA diary-view에 질문 슬롯 없음). 본문 크기는 관문 질문(V82)"
         },
         "body": {
           "type": "{type.sentence.body}", "fg": "{color.text.primary}", "minLines": 8, "placeholderFg": "{color.text.secondary}",
@@ -156,6 +163,7 @@
         "종이 아래 여백에 64px 도장 자리를 쓰는 중에도 늘 비워 둔다. 글이 길어도 도장이 글을 덮지 않는다.",
         "해시태그를 쓰는 입력이 없다. 태그는 저장할 때 엔진이 붙인다.",
         "저장 순서: 상단 바 저장 글자 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 대표 태그 칩 스밈 → 토스트.",
+        "보기(view)는 질문을 그리지 않는다. IA diary-view에 질문 슬롯이 없다.",
         "쓰기에서 질문은 종이 안 맨 위의 인용형(왼쪽 3px term.bg 선, type.sentence.body text.secondary)이고, 오른쪽 질문 바꾸기 아이콘은 그날 후보가 둘 이상일 때만 보인다. 바꿔도 본문은 그대로다.",
         "본문에 초점이 있는 동안 text-field와 같은 키보드 내리기 버튼을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 space.12에 띄운다. 본문 스크롤 아래 여백은 그 버튼 자리까지 둔다.",
         "저장 응답이 오기 전에는 도장을 찍지 않는다. 실패하면 버튼이 돌아오고 오류 토스트.",
@@ -190,7 +198,7 @@
       "summary": "초안 저장 상태와 글자 수 (app-bar edit 가운데, 쓰는 중에만)",
       "uses": ["icon", "appear.seep", "loading.breathe"],
       "parts": {
-        "container": { "gap": "{space.4}", "position": "app-bar-center", "maxLines": 1, "overflow": "ellipsis", "visibleWhen": "본문에 초점이 있는 동안(쓰는 중). 그 밖에는 같은 자리에 app-bar 제목" },
+        "container": { "gap": "{space.4}", "position": "app-bar-center", "maxLines": 1, "overflow": "ellipsis", "visibleWhen": "본문에 초점이 있는 동안(쓰는 중). 그 밖에는 같은 자리에 app-bar 제목. 이어 쓰기(draft)도 초점을 받으면 local로 보이고, 초점 전에는 제목" },
         "icon": { "size": "{size.icon.16}", "weight": "light", "color": "{color.text.secondary}" },
         "label": { "slot": "diary-edit.draft.status", "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
         "count": { "slot": "diary-edit.length.count", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginStart": "{space.8}", "separator": "none", "note": "상태 글자 뒤. 쉼표 없이 간격으로만 나눔(V47, V78과 같은 이유)" }

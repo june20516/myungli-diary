@@ -62,13 +62,14 @@
         "action": { "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 },
         "textAction": {
           "type": "{type.label.lg}", "fg": "{color.action.primary}", "paddingX": "{space.8}", "minTarget": 44, "max": 1, "maxLines": 1,
+          "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}", "maxLines": 1 },
           "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": "{space.4}", "color": "label-color" },
           "note": "글자만 있는 오른쪽 버튼(바탕 없음). edit 변형에서 동작 아이콘 대신 하나"
         }
       },
       "states": {
         "pressed": { "pattern": "press.ink", "note": "뒤로·동작 아이콘의 44px 원 안에서만. 글자 버튼은 그 버튼의 터치 영역 안" },
-        "textActionDisabled": { "parts": { "textAction": { "fg": "{color.disabled.fg}" } }, "note": "쓴 것이 없으면 누를 수 없음(diary-edit.save.cta)" },
+        "textActionDisabled": { "parts": { "textAction": { "label": { "fg": "{color.disabled.fg}" } } }, "note": "쓴 것이 없으면 누를 수 없음(diary-edit.save.cta)" },
         "textActionSaving": { "pattern": "loading.breathe", "parts": { "textAction": { "label": { "visible": false }, "dots": { "visible": true } } }, "note": "글자 자리에 점 셋, 폭은 그대로. 처리 중에는 다시 누를 수 없음" }
       },
       "haptic": [],

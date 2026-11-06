@@ -44,6 +44,7 @@
 * 쓰는 화면: diary-edit(`edit`), diary-view(`view`)
 * `surface.paper` 위에 날짜, (있으면) 오늘의 질문, 본문(`type.sentence.body`). 종이 아래 여백에 64px 도장 자리를 **쓰는 중에도 늘 비워 둡니다.** 글이 길어도 도장이 글을 덮지 않습니다.
 * 쓰기(`edit`)에서는 날짜를 종이 위 `date-block`이 보이므로 종이 안 날짜를 그리지 않습니다.
+* 보기(`view`)는 질문을 그리지 않습니다. IA diary-view에 질문 슬롯이 없기 때문입니다(인용형 모양과 질문 바꾸기, 슬롯 `diary-edit.guide.question`은 `edit`에만).
 * **인용 질문(결정 V82):** 질문(`diary-edit.guide.question`)은 종이 안 맨 위에 왼쪽 3px `term.bg` 선(`radius.full`) + 안쪽 `space.12`의 인용형이고, 글자는 `type.sentence.body` `text.secondary`입니다. 본문은 질문 아래 `space.16`.
 * **질문 바꾸기:** 질문 오른쪽 `arrows-clockwise` Light 20 `text.secondary`(터치 44, 질문 첫 줄 높이, 사이 `space.8`). 그날 근거가 있는 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음. 목록과 순서는 server #806, 근거는 core #804)가 둘 이상일 때만 보입니다. 누르면 다음 후보로 `appear.seep` 바꿔 그리고 끝에서 처음으로 돌아갑니다. 본문은 건드리지 않습니다. 스크린리더 이름은 IA 자리가 없어 writing 새 슬롯이 필요하고, 바뀐 질문은 polite로 읽습니다.
 * **키보드(Q8, 결정 V83):** 본문에 초점이 있는 동안 `text-field`와 같은 키보드 내리기 버튼(44 원, `caret-down`)을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 `space.12` 오른쪽에 띄웁니다. 본문 스크롤 아래 여백은 키보드 inset + 버튼 44 + `space.12`라 커서 줄이 버튼에 가리지 않습니다. 붙여넣기 막대와 겹치는지는 QA에서 확인합니다.
@@ -127,7 +128,7 @@
 4. `ad-banner`, `tab-bar`.
 
 * 빈 상태(`empty`): `empty-state`(아이콘 `notebook`, 탭 아이콘과 같음) 안내(`diary-list.empty.body`) 아래 같은 일기 쓰기 버튼을 가운데 둡니다. 떠 있는 버튼은 없습니다.
-* 불러오는 중: `diary-row` 뼈를 화면 배치대로 쌓고 떠 있는 버튼은 숨깁니다. 오류는 `stateMap`(다시 시도), 오프라인은 받아 둔 목록 + `notice-banner`이고 이때 떠 있는 버튼은 그대로입니다.
+* 불러오는 중: `diary-row` 뼈를 화면 배치대로 쌓고 떠 있는 버튼은 숨깁니다. 오류는 `stateMap`(`error-state` 다시 시도)이고 떠 있는 버튼은 숨깁니다. 오프라인은 받아 둔 목록 + `notice-banner`이고 이때 떠 있는 버튼은 그대로입니다.
 
 ### diary-edit 화면 배치
 
@@ -139,4 +140,4 @@
 * 아래 고정 버튼은 없습니다(저장은 상단 바 글자 버튼, IA v5).
 * 오프라인: 종이 위에 `notice-banner`(`diary-edit.offline.notice`), 초안은 기기에 남습니다. 저장 실패(그날 10편 포함)는 오류 `toast`, 저장 뒤 붙은 태그 알림은 `toast`(`diary-edit.saved.tags`).
 * 불러오는 중(가이드 질문): 일진 글줄 뼈와 질문 글줄 뼈 두 줄. 본문 칸은 바로 쓸 수 있습니다.
-* 이어 쓰기(`draft`): 기기에 남은 초안을 본문에 채우고 가운데 상태는 `local`입니다.
+* 이어 쓰기(`draft`): 기기에 남은 초안을 본문에 채웁니다. 초점 전에는 가운데가 제목이고, 본문이 초점을 받으면 가운데 상태가 `local`로 보입니다(`draft-indicator` 표시 조건).
