@@ -36,7 +36,7 @@ EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 # IA v5(#812)가 더했지만 명세를 아직 쓰지 않은 컴포넌트(DS1 2단계 spec §1). "명세가 없음" 문제에서만 빠지고
 # 다른 검사는 그대로 돕니다. 명세를 쓰는 task가 그 컴포넌트를 이 목록에서 뺍니다.
 IA_PENDING_COMPONENTS = frozenset({
-    "fortune-verdict", "score-row", "score-scale", "date-block",
+    "fortune-verdict", "score-row", "score-scale",
     "birth-info-row", "band-table", "stage-strip", "scroll-hint",
 })
 

@@ -800,5 +800,25 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 date-header, tag-sentence-list, lock.veil G1과 근거 시트 머리. 앱 fixture 하늘님 2026-10-13 값, fixture에 없는 값은 예시. 사용자 확인(2026-11-06, #801): 이름 칸 52 두 줄 허용, 총운 안 선 유지, 근거 시트 원국표 유지"
+  },
+  {
+    "id": "design-ds1-screen-f-c",
+    "title": "DS1 화면 묶음 F와 C: 일기 목록(기본, 같은 날 여러 편, 불러오는 중, 빈 상태), 일기 쓰기(쓰는 중, 처음, 저장 글자 버튼 셋, 불러오는 중)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-f-c.html",
+    "source": "2026-11-05-ds1-screen-f-c.html",
+    "date": "2026-11-06",
+    "milestone": "DS1",
+    "screens": [
+      "diary-list",
+      "diary-edit"
+    ],
+    "decisions": [
+      "V81",
+      "V82",
+      "V83"
+    ],
+    "status": "draft",
+    "note": "사용자 확인 대기(#801)"
   }
 ]

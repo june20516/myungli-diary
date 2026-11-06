@@ -45,10 +45,10 @@
 | `sentence.json` | sentence-block, term-token, depth-link, reaction-button, hanja-tag |
 | `today.json` | date-header, day-character, lucky-card, tag-sentence-list, guide-question-card, share-image |
 | `calendar.json` | calendar-month, day-cell, event-row |
-| `diary.json` | diary-row, diary-editor, draft-indicator, tag-chip, diary-summary |
+| `diary.json` | diary-row, diary-editor, date-block, draft-indicator, tag-chip, diary-summary |
 | `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table, luck-pillar |
 
-IA v5 컴포넌트 58개 가운데 명세를 쓴 50개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action). 아직 명세가 없는 8개는 `tools/components.py`의 대기 목록 `IA_PENDING_COMPONENTS`에 따로 두고, DS1 2단계가 끝날 때 비웁니다.
+IA v5 컴포넌트 58개 가운데 명세를 쓴 51개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action). 아직 명세가 없는 7개는 `tools/components.py`의 대기 목록 `IA_PENDING_COMPONENTS`에 따로 두고, DS1 2단계가 끝날 때 비웁니다.
 
 ## 공통 규칙
 
@@ -117,7 +117,7 @@ python3 docs/identity/design/tools/components.py     # 저장소 루트에서
 
 검사하는 것(`tools/test_components.py`가 커밋된 파일에 돌림):
 
-* IA 컴포넌트 id가 정확히 한 번(빠짐·넘침·겹침). 지금 50개이고, 대기 목록 8개는 "명세가 없음" 문제에서만 빠짐
+* IA 컴포넌트 id가 정확히 한 번(빠짐·넘침·겹침). 지금 51개이고, 대기 목록 7개는 "명세가 없음" 문제에서만 빠짐
 * 구성 요소가 가리키는 `component`(IA 컴포넌트)·`element`(요소)가 있음, 변형 id 겹침 없음, 햅틱 세기는 selection·light·medium
 * 문자열 중간에 섞인 `{토큰}` 없음(값 하나에 참조 하나)
 * 모든 `{토큰}` 참조가 테마 조합 4가지 모두에 있음(깊이와 관계없이)

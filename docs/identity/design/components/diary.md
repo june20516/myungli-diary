@@ -1,27 +1,29 @@
 # diary: 일기 (`diary.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.8, 결정 V16·V20, [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md)(V42)
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.8, 결정 V16·V20, [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md)(V42), [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §2 Q7·Q8, §4(V81~V83)
 * 시안: `design-v2-diary-save`(종이 아래 도장 자리), `design-v2-diary-list`(흐름 줄 가), `design-v2-tag-chip`(태그 길흉 B), `design-v2-diary-row-multi`(같은 날 묶음 A + 점선)
 
 ## diary-row
 
 * 쓰는 화면: diary-list, tag-diary, today, day-sheet
-* 변형 `day`(목록·태그 모아보기)와 `entries`(오늘·그날 시트). 날의 성격 배지와 태그는 날짜에 붙어 그날 일기 모두에 같으므로(D83 ①), 같은 날 여러 편을 나타내는 단위는 **시각 + 한 줄 미리보기** 줄(`entry`)입니다.
+* 변형 `day`(목록·태그 모아보기)와 `entries`(오늘·그날 시트). 태그는 날짜에 붙어 그날 일기 모두에 같으므로(D83 ①), 같은 날 여러 편을 나타내는 단위는 **시각 + 한 줄 미리보기** 줄(`entry`)입니다.
+* 날의 성격은 목록 줄에 두지 않습니다(배지는 두지 않습니다). 날의 성격은 일기 보기(diary-view)의 `hanja-tag`로 봅니다(결정 V81, origin F와 IA v5 diary-list 구성).
 
 ### `day`
 
 * 왼쪽 날짜 열(44px): 숫자 18px 600(고정폭) + 뒤에 `seal` soft 34px(숫자가 도장 가운데) + 요일 `type.caption.md`.
 * 날짜 열 가운데로 `rail.timeline`(1.5px)이 요일 아래에서 다음 날짜까지 이어집니다. 마지막 줄 뒤에는 없습니다.
 * 달이 바뀌는 자리에 달 머리(`type.subtitle`).
-* **한 편인 날**: 오른쪽 카드(`bg.sheet`, `radius.lg`) 전체가 버튼. 배지 → 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임, 카드 전체가 버튼이라 용어도 일반 글자) → 대표 태그 칩 하나.
-* **두 편 이상인 날(묶음 카드)**: 같은 카드 하나에 배지(위, 한 번) → `entry` 줄들(배지 아래 `space.4`) → 태그 칩(아래, 한 번, 마지막 줄 아래 `space.8`). 카드 전체는 버튼이 아니고, 누를 곳은 `entry` 줄마다와 태그 칩입니다. 흐름 줄은 카드 높이만큼 이어집니다.
+* **한 편인 날**: 오른쪽 카드(`bg.sheet`, `radius.lg`) 전체가 버튼. 미리보기 두 줄(`sentence-block` `preview`, 14.5px 말줄임, 카드 전체가 버튼이라 용어도 일반 글자) → 대표 태그 하나(`space.12` 아래).
+* **두 편 이상인 날(묶음 카드)**: 같은 카드 하나에 `entry` 줄들 → 태그(아래, 한 번, 마지막 줄 아래 `space.8`). 카드 전체는 버튼이 아니고, 누를 곳은 `entry` 줄마다와 태그입니다. 흐름 줄은 카드 높이만큼 이어집니다.
+* **태그(Q7 ②):** 그날 대표 태그 하나를 `hanja-tag` `default`로 둡니다. 사주 용어라 톤은 `hanja-tag` 규칙대로 날의 성격 밖 용어는 `term` 초록입니다. 없으면 그리지 않습니다. 누르면 그 태그의 모아보기(`tag-diary`, `page.push`)로 갑니다. tag-diary 안의 줄은 모두 같은 태그라 그리지 않습니다(`hiddenIn`, IA tag-diary에도 `hanja-tag`가 없음). 일기 보기와 저장 순간의 태그 칩(`tag-chip`)과는 다른 자리입니다.
 
 ### `entries`
 
-* 날짜 열·배지·태그 없이 `entry` 줄만 작성 순으로 놓습니다.
+* 날짜 열·태그 없이 `entry` 줄만 작성 순으로 놓습니다.
 * `today`: 가이드 질문 카드 아래 `space.12`에 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 `space.16`·위아래 `space.4`). 오늘 쓴 일기가 없으면 그리지 않습니다.
 * `day-sheet`: 머리(`head`, 슬롯 `day-sheet.diary.open`, 편수, `type.label.md` `text.secondary`, 위 `space.16`·아래 `space.4`, 링크 아님) 아래 시트 바탕에 카드 없이. 그날 쓴 일기가 없으면 머리와 줄을 모두 그리지 않습니다.
-* 최상위의 날짜 열·도장·흐름 줄·카드·배지·2줄 미리보기·태그는 모두 `visible: false`로 덮어씁니다.
+* 최상위의 날짜 열·도장·흐름 줄·카드·2줄 미리보기·태그는 모두 `visible: false`로 덮어씁니다.
 
 ### `entry` 줄
 
@@ -35,15 +37,19 @@
 
 * 순서는 server 순서(작성 순) 그대로입니다. 같은 분에 쓴 일기도 다시 정렬하지 않습니다.
 * 몇 편이든 모두 보입니다. 접지 않습니다(계정을 합친 날은 상한보다 많을 수 있음, D83 ④).
-* 접근성: 한 편 카드는 버튼 "날짜 요일, 배지, 미리보기 첫 줄, 태그". 묶음 카드는 그룹 "날짜 요일, 배지"이고 안의 줄은 각각 버튼 "시각, 미리보기 첫 줄". `entries`의 줄도 같습니다. 본문이 비면 시각만 읽습니다.
+* 접근성: 한 편 카드는 버튼 "날짜 요일, 미리보기 첫 줄, 태그". 묶음 카드는 그룹 "날짜 요일"이고 안의 줄은 각각 버튼 "시각, 미리보기 첫 줄". `entries`의 줄도 같습니다. 본문이 비면 시각만 읽습니다.
 
 ## diary-editor
 
 * 쓰는 화면: diary-edit(`edit`), diary-view(`view`)
 * `surface.paper` 위에 날짜, (있으면) 오늘의 질문, 본문(`type.sentence.body`). 종이 아래 여백에 64px 도장 자리를 **쓰는 중에도 늘 비워 둡니다.** 글이 길어도 도장이 글을 덮지 않습니다.
+* 쓰기(`edit`)에서는 날짜를 종이 위 `date-block`이 보이므로 종이 안 날짜를 그리지 않습니다.
+* **인용 질문(결정 V82):** 질문(`diary-edit.guide.question`)은 종이 안 맨 위에 왼쪽 3px `term.bg` 선(`radius.full`) + 안쪽 `space.12`의 인용형이고, 글자는 `type.sentence.body` `text.secondary`입니다. 본문은 질문 아래 `space.16`.
+* **질문 바꾸기:** 질문 오른쪽 `arrows-clockwise` Light 20 `text.secondary`(터치 44, 질문 첫 줄 높이, 사이 `space.8`). 그날 근거가 있는 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음. 목록과 순서는 server #806, 근거는 core #804)가 둘 이상일 때만 보입니다. 누르면 다음 후보로 `appear.seep` 바꿔 그리고 끝에서 처음으로 돌아갑니다. 본문은 건드리지 않습니다. 스크린리더 이름은 IA 자리가 없어 writing 새 슬롯이 필요하고, 바뀐 질문은 polite로 읽습니다.
+* **키보드(Q8, 결정 V83):** 본문에 초점이 있는 동안 `text-field`와 같은 키보드 내리기 버튼(44 원, `caret-down`)을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 `space.12` 오른쪽에 띄웁니다. 본문 스크롤 아래 여백은 키보드 inset + 버튼 44 + `space.12`라 커서 줄이 버튼에 가리지 않습니다. 붙여넣기 막대와 겹치는지는 QA에서 확인합니다.
 * 해시태그를 쓰는 입력이 없습니다. 태그는 저장할 때 엔진이 붙입니다(엔진 spec §7.7, 제품 결정 D13).
 * **저장 순간** (`motion.saveSequence`):
-  1. 저장 버튼 점 숨쉬기(`loading.breathe`)
+  1. 상단 바 저장 글자 버튼 점 숨쉬기(`loading.breathe`, `app-bar` `textActionSaving`)
   2. 응답이 오면 종이 맨 아래로 스크롤(320ms)
   3. 아래 여백에 그날 날짜를 새긴 `seal` fill 64px가 `seal.stamp`, 햅틱 light
   4. 대표 태그 칩 `appear.seep`
@@ -52,10 +58,20 @@
 * 보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그 칩.
 * 도장 안 날짜(M.D)는 `seal.knock` 색으로 가늘게 새기고, 도장 영역 가운데에 둡니다.
 
+## date-block
+
+* 쓰는 화면: diary-edit
+* 근거: [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §1, §4, 결정 V82. 시안 `design-ds1-screen-f-c`
+* 일기 쓰기 맨 위 큰 날짜입니다. 일 숫자 44 700(`font.family.ui`, 고정폭, `text.primary`, `diary-edit.date.day`) 옆 `space.12`에 두 줄 묶음: 월과 요일(`type.label.lg` `text.primary`, `diary-edit.date.month`), 그 아래 `space.2`에 일진(`type.caption.md` `text.secondary`, `diary-edit.date.iljin`, 한자는 `font.family.hanja`). 두 줄 묶음은 숫자와 세로 가운데로 맞춥니다.
+* 날짜와 월, 요일은 고른 날짜(기기 값)라 바로 보이고, 일진은 server 값이라 불러오는 중에는 글줄 뼈 하나(64)입니다. 일진이 없으면 그 줄만 그리지 않습니다.
+* 누를 수 없는 표시입니다. 날짜를 바꾸는 입구는 diary-list 날짜 고르기뿐입니다.
+* 접근성: 머리(`header`) "월 일 요일, 일진 독음". 한자는 읽지 않습니다.
+
 ## draft-indicator
 
 * 쓰는 화면: diary-edit
-* app-bar 오른쪽(동작 왼쪽) 작은 글자 `type.caption.md` + 아이콘 16 Light.
+* `app-bar` `edit` 가운데에 작은 글자 `type.caption.md` `text.secondary` + 아이콘 16 Light, 그 뒤 `space.8`에 글자 수(`diary-edit.length.count`, 고정폭). 쉼표 같은 구분 글자는 없습니다(V47, V78과 같은 이유). 본문에 초점이 있는 동안(쓰는 중)만 보이고, 그 밖에는 같은 자리에 화면 제목이 보입니다(결정 V82).
+* 한 줄이고 넘치면 상태 글자 끝을 말줄임하며 글자 수는 지킵니다. 글자 수는 칠 때마다 바꿔 그리되 읽지 않습니다(초점을 옮기면 상태와 함께 읽음).
 
 | 상태 | 아이콘 | 뜻 |
 | --- | --- | --- |
@@ -77,7 +93,7 @@
 | `bad` | `tag.bad.bg` (neutral 채움) | `tag.bad.fg` |
 | `neutral` | 없음, 1px `tag.neutral.border` | `tag.neutral.fg` |
 
-* 누르면 태그 모아보기(tag-diary). 목록·보기·저장 순간 모두 같은 컴포넌트입니다.
+* 누르면 태그 모아보기(tag-diary). 보기·저장 순간에 씁니다. 일기 목록 줄의 태그는 IA v5부터 `hanja-tag`입니다(Q7, V81). IA diary-list 구성에는 아직 `tag-chip`이 남아 있어 지휘에 알립니다.
 
 ## diary-summary
 
@@ -100,3 +116,27 @@
 * 불러오는 중: 편수 글줄 하나(96), 막대 글줄 넷, 태그 칩 셋(64). 머리 글자는 바로 보입니다.
 * 접근성: 카드는 그룹 "편수, 날의 성격마다 이름과 수, 태그 이름과 수". 막대는 꾸밈이라 읽지 않습니다. 글자 배율 상한 1.3배.
 * **문구 자리:** 단위 글자, 막대 머리, 태그 머리는 IA에 슬롯이 없습니다(writing 새 슬롯, IA 알림 필요). 편수 집계는 server 새 경로입니다(IA `my-saju.record.title` 역할 설명).
+
+## 화면 배치
+
+### diary-list 화면 배치
+
+1. `app-bar` `tab-root`: 제목 `diary-list.bar.title`. 오른쪽 동작 아이콘 없음(쓰기 입구는 아래 버튼 하나, IA v5).
+2. 일기 줄 `diary-row` `day`: 달 머리(`type.subtitle`) 아래 날짜마다 한 줄(V42 그대로). 태그는 `hanja-tag` `default`(Q7 ②).
+3. 일기 쓰기 `primary-button` `filled` `floating`(`diary-list.pick-date.cta`, `leadingIcon` `pencil-simple`): 목록이 있을 때 광고 배너 위 `space.16`, 좌우 `space.20`에 떠 있고 목록이 뒤로 지나갑니다. 누르면 날짜 고르기 시트(`date-picker` `calendar`, 기본값 오늘)이고 시트 아래 버튼은 `diary-list.pick-date.confirm`(고른 날이 10편을 채우면 누를 수 없음).
+4. `ad-banner`, `tab-bar`.
+
+* 빈 상태(`empty`): `empty-state`(아이콘 `notebook`, 탭 아이콘과 같음) 안내(`diary-list.empty.body`) 아래 같은 일기 쓰기 버튼을 가운데 둡니다. 떠 있는 버튼은 없습니다.
+* 불러오는 중: `diary-row` 뼈를 화면 배치대로 쌓고 떠 있는 버튼은 숨깁니다. 오류는 `stateMap`(다시 시도), 오프라인은 받아 둔 목록 + `notice-banner`이고 이때 떠 있는 버튼은 그대로입니다.
+
+### diary-edit 화면 배치
+
+1. `app-bar` `edit`: 뒤로, 가운데 제목 `diary-edit.bar.title`(쓰는 중에는 `draft-indicator`: `diary-edit.draft.status` + `space.8` + `diary-edit.length.count`), 오른쪽 저장 글자 버튼 `diary-edit.save.cta`(쓴 것이 없으면 누를 수 없음, 누르면 저장 순서 뒤 diary-view).
+2. `date-block`(app-bar 아래 `space.16`, 좌우 `space.20`): `diary-edit.date.day`, `diary-edit.date.month`, `diary-edit.date.iljin`.
+3. `diary-editor` `edit`(date-block 아래 `space.24`): 종이 안 맨 위 인용 질문 `diary-edit.guide.question` + 질문 바꾸기, 그 아래 `space.16`에 본문(안내 `diary-edit.body.placeholder`).
+4. 본문에 초점이 있는 동안 키보드 내리기 버튼(키보드 inset 위 `space.12` 오른쪽). 키보드 위 막대는 OS 자동완성과 붙여넣기 막대에 비워 둡니다.
+
+* 아래 고정 버튼은 없습니다(저장은 상단 바 글자 버튼, IA v5).
+* 오프라인: 종이 위에 `notice-banner`(`diary-edit.offline.notice`), 초안은 기기에 남습니다. 저장 실패(그날 10편 포함)는 오류 `toast`, 저장 뒤 붙은 태그 알림은 `toast`(`diary-edit.saved.tags`).
+* 불러오는 중(가이드 질문): 일진 글줄 뼈와 질문 글줄 뼈 두 줄. 본문 칸은 바로 쓸 수 있습니다.
+* 이어 쓰기(`draft`): 기기에 남은 초안을 본문에 채우고 가운데 상태는 `local`입니다.

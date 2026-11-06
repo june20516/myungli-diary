@@ -318,7 +318,7 @@ def test_generic_spec_values():
     c = components_by_id(("frame", "feedback", "input", "action"))
     assert c["primary-button"]["parts"]["container"]["radius"] == "{radius.md}"
     assert variant_ids(c["primary-button"]) == {"filled", "quiet", "destructive"}
-    assert variant_ids(c["app-bar"]) == {"tab-root", "inner"}
+    assert variant_ids(c["app-bar"]) == {"tab-root", "inner", "edit"}  # edit: 일기 쓰기 (V82)
     assert variant_ids(c["sheet"]) == {"half", "full"}
     assert variant_ids(c["date-picker"]) == {"birth", "solar", "calendar"}
     assert variant_ids(c["time-picker"]) == {"birth", "notify"}
@@ -342,7 +342,7 @@ def test_brand_groups_contain_spec_components():
         "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image", "date-header", "tag-sentence-list"},
         "calendar": {"calendar-month", "day-cell", "event-row"},
-        "diary": {"diary-row", "diary-editor", "draft-indicator", "tag-chip", "diary-summary"},
+        "diary": {"diary-row", "diary-editor", "date-block", "draft-indicator", "tag-chip", "diary-summary"},
         "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar"},
     }
 
@@ -967,8 +967,8 @@ def test_diary_row_same_day_entries():
     assert entry["minHeight"] == {"value": 48, "unit": "px"}
     variants = {variant["id"]: variant for variant in row["variants"]}
     group = variants["day"]["parts"]["group"]
-    assert group["pressable"] is False and group["order"] == ["badge", "entries", "tag"]
-    for part in ("dateColumn", "badge", "tag"):
+    assert group["pressable"] is False and group["order"] == ["entries", "tag"]  # 배지 없음 (V81)
+    for part in ("dateColumn", "tag"):
         assert variants["entries"]["parts"][part]["visible"] is False
     assert any("server 순서" in rule for rule in row["rules"])
 
@@ -977,7 +977,7 @@ def test_diary_row_single_entry_day_is_unchanged():
     row = component("diary", "diary-row")
     assert row["parts"]["card"]["padding"] == "{space.16}"
     assert row["parts"]["preview"] == {"component": "sentence-block", "variant": "preview", "marginTop": "{space.8}"}
-    assert row["a11y"]["label"] == "날짜 요일, 배지, 미리보기 첫 줄, 태그"
+    assert row["a11y"]["label"] == "날짜 요일, 미리보기 첫 줄, 태그"  # 배지 없음 (V81)
 
 
 # 상한을 채운 날의 쓰는 입구 (2026-10-22-diary-row-multi-design.md §4, 결정 V43)
@@ -1458,6 +1458,7 @@ CONTENT_COMPONENTS = {
     "hanja-tag",  # 태그 이름을 받아 그림 (DS1 2단계)
     "diary-summary", "luck-pillar",  # 기록 집계, 대운과 세운 (DS1 2단계 묶음 B)
     "date-header",  # 음력과 일진은 server 값 (DS1 2단계 묶음 A)
+    "date-block",  # 일진은 server 값 (DS1 2단계 묶음 C)
 }
 
 
@@ -1579,6 +1580,7 @@ SPACE_20_ALLOWED = {
     ("skeleton", "parts.screen", "gutter"), ("guide-question-card", "parts.container", "padding"),
     ("offer-card", "parts.container", "padding"),
     ("section-header", "parts.startLine", "screen"),  # 화면 좌우 여백과 같은 시작선 (V69)
+    ("primary-button", "parts.floating", "marginX"),  # 떠 있는 버튼도 화면 좌우 여백 (V81)
 }
 
 
@@ -2013,3 +2015,156 @@ def test_today_chip_row_has_no_tag():
     assert "최대 5개(색, 방향, 숫자 3 + 시간 2)" in rules and "태그 2" not in rules
     md = _md_section("today.md", "## lucky-card")
     assert "최대 5개" in md and "최대 7개" not in md
+
+
+# DS1 2단계 묶음 F 일기 목록 + C 일기 쓰기 (spec §1 date-block, §2 Q7·Q8, §4, 결정 V81~V83)
+def test_date_block():
+    block = component("diary", "date-block")
+    parts = block["parts"]
+    assert parts["container"] == {"layout": "row", "gap": "{space.12}", "align": "center"}  # 일 숫자 옆 space.12
+    day = parts["day"]
+    assert day["slot"] == "diary-edit.date.day"
+    assert (day["fontFamily"], day["fontSize"], day["fontWeight"]) == ("{font.family.ui}", {"value": 44, "unit": "px"}, 700)
+    assert day["fg"] == "{color.text.primary}" and day["fontFeatures"] == ["tnum"]
+    assert parts["side"]["order"] == ["month", "iljin"]
+    month, iljin = parts["month"], parts["iljin"]
+    assert (month["slot"], month["type"], month["fg"]) == ("diary-edit.date.month", "{type.label.lg}", "{color.text.primary}")
+    assert (iljin["slot"], iljin["type"], iljin["fg"]) == ("diary-edit.date.iljin", "{type.caption.md}", "{color.text.secondary}")
+    assert iljin["marginTop"] == "{space.2}" and iljin["fontFallback"] == "{font.family.hanja}"
+    assert iljin["whenMissing"] == "hide"
+    assert [bone["bone"] for bone in block["states"]["loading"]["skeleton"]] == ["iljin"]  # 날짜는 기기 값, 일진은 server
+    assert block["a11y"]["role"] == "header" and block["a11y"]["readsHanja"] is False
+    assert "date-block" not in components.IA_PENDING_COMPONENTS and "date-block" in CONTENT_COMPONENTS
+    md = _md_section("diary.md", "## date-block")
+    assert "* 쓰는 화면: diary-edit" in md and "44 700" in md
+
+
+def test_diary_row_hanja_tag():
+    row = component("diary", "diary-row")
+    tag = row["parts"]["tag"]
+    # Q7 ②: 줄은 V42 그대로, 태그만 hanja-tag(사주 용어 초록)
+    assert (tag["component"], tag["variant"], tag["count"]) == ("hanja-tag", "default", 1)
+    assert tag["marginTop"] == "{space.12}" and tag["whenMissing"] == "hide"
+    assert tag["opens"] == {"screen": "tag-diary", "presentation": "page", "transition": "page.push"}
+    assert tag["hiddenIn"] == ["tag-diary"]  # 모아보기 줄은 모두 같은 태그이고 IA tag-diary에 hanja-tag가 없음
+    # 날의 성격 배지는 목록 줄에 없음(origin F, Q7 ② 견본, IA v5 diary-list에 day-character 없음)
+    assert "badge" not in row["parts"]
+    variants = {variant["id"]: variant["parts"] for variant in row["variants"]}
+    assert variants["day"]["group"]["order"] == ["entries", "tag"] and "badge" not in variants["entries"]
+    assert row["a11y"]["label"] == "날짜 요일, 미리보기 첫 줄, 태그" and row["a11y"]["group"]["label"] == "날짜 요일"
+    assert "badge" not in [bone["bone"] for bone in row["states"]["loading"]["skeleton"]]
+    assert "tag-chip" not in json.dumps(row, ensure_ascii=False)
+    opens = component("sentence", "hanja-tag")["parts"]["opens"]
+    assert {"screen": "diary-list", "part": "diary-row tag", "to": "tag-diary"} in opens["pageIn"]
+    assert {"screen": "my-saju", "part": "diary-summary tags", "to": "tag-diary"} in opens["pageIn"]
+    text = (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")
+    md = text.split("## diary-row", 1)[1].split("\n## ", 1)[0]  # 하위 절(### day, entries, entry 줄)까지
+    assert "`hanja-tag` `default`" in md and "`tag-diary`" in md
+    assert "배지" not in md.replace("배지는 두지 않습니다", "")
+
+
+def test_primary_button_leading_icon():
+    button = component("action", "primary-button")
+    icon = button["parts"]["leadingIcon"]
+    assert icon == {"optional": True, "size": "adjacent-text", "weight": "regular", "color": "label-color",
+                    "gap": "{space.8}", "decorative": True,
+                    "note": "글자 앞 아이콘. 아이콘과 글자 묶음을 버튼 가운데에 둔다. 아이콘 이름은 쓰는 자리가 정함"}
+    loading = button["states"]["loading"]["parts"]
+    assert loading["leadingIcon"] == {"visible": False}  # 처리 중에는 점 셋만
+    md = _md_section("action.md", "## primary-button")
+    assert "`leadingIcon`" in md and "`space.8`" in md
+
+
+def test_diary_list_floating_button():
+    floating = component("action", "primary-button")["parts"]["floating"]
+    assert floating["marginX"] == "{space.20}" and floating["marginBottom"] == "{space.16}"
+    assert floating["shadow"] == "{shadow.raised}" and floating["contentBehind"] is True
+    assert floating["above"] == ["ad-banner", "tab-bar", "safe-area"]
+    assert floating["usedIn"] == [{"screen": "diary-list", "slot": "diary-list.pick-date.cta", "leadingIcon": "pencil-simple"}]
+    assert "empty-state" in floating["whenEmpty"] and "가운데" in floating["whenEmpty"]
+    assert floating["listPaddingBottom"] == "버튼 높이 52 + space.16 + space.16"
+    layout = _md_section("diary.md", "### diary-list 화면 배치")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("diary-list"))
+    lines = layout.splitlines()
+    cta = next(line for line in lines if "`diary-list.pick-date.cta`" in line and "floating" in line)
+    assert "`pencil-simple`" in cta and "목록이 있을 때" in cta
+    empty = next(line for line in lines if "`diary-list.empty.body`" in line)
+    assert "`empty-state`" in empty and "가운데" in empty and "떠 있는 버튼은 없" in empty
+    assert ("primary-button", "parts.floating", "marginX") in SPACE_20_ALLOWED
+
+
+def test_app_bar_center_status():
+    bar = component("frame", "app-bar")
+    variants = {variant["id"]: variant for variant in bar["variants"]}
+    edit = variants["edit"]["parts"]
+    assert edit["back"] == {"icon": "caret-left", "visible": True}
+    assert edit["center"] == {"component": "draft-indicator", "when": "본문에 초점이 있는 동안(쓰는 중)",
+                              "replaces": "title", "transition": "appear.seep"}
+    assert edit["title"] == {"slot": "diary-edit.bar.title", "align": "center", "type": "{type.label.lg}"}
+    assert edit["textAction"] == {"slot": "diary-edit.save.cta"}
+    action = bar["parts"]["textAction"]
+    assert (action["type"], action["fg"], action["paddingX"]) == ("{type.label.lg}", "{color.action.primary}", "{space.8}")
+    assert action["minTarget"] == 44 and action["max"] == 1
+    assert bar["states"]["textActionDisabled"]["parts"]["textAction"]["fg"] == "{color.disabled.fg}"
+    saving = bar["states"]["textActionSaving"]
+    assert saving["pattern"] == "loading.breathe" and saving["parts"]["textAction"]["label"] == {"visible": False}
+    assert not [rule for rule in bar["rules"] if "동작 왼쪽" in rule]
+    indicator = component("diary", "draft-indicator")
+    parts = indicator["parts"]
+    assert parts["container"]["position"] == "app-bar-center"
+    assert parts["label"]["slot"] == "diary-edit.draft.status"
+    count = parts["count"]
+    assert (count["slot"], count["type"], count["fg"]) == ("diary-edit.length.count", "{type.caption.md}", "{color.text.secondary}")
+    assert count["fontFeatures"] == ["tnum"] and count["marginStart"] == "{space.8}" and count["separator"] == "none"
+    assert indicator["a11y"]["countAnnounced"] is False
+    assert "app-bar-end" not in json.dumps(indicator, ensure_ascii=False)
+    md = _md_section("frame.md", "## app-bar")
+    assert "`edit`" in md and "`draft-indicator`" in md and "글자 버튼" in md
+
+
+def test_quoted_question():
+    editor = component("diary", "diary-editor")
+    question = editor["parts"]["question"]
+    assert question["slot"] == "diary-edit.guide.question" and question["optional"] is True
+    assert (question["type"], question["fg"]) == ("{type.sentence.body}", "{color.text.secondary}")
+    assert question["quoteLine"] == {"width": {"value": 3, "unit": "px"}, "color": "{color.term.bg}", "radius": "{radius.full}"}
+    assert question["paddingStart"] == "{space.12}"
+    swap = question["swap"]
+    assert (swap["icon"], swap["weight"], swap["size"], swap["color"]) == (
+        "arrows-clockwise", "light", "{size.icon.20}", "{color.text.secondary}")
+    assert swap["minTarget"] == 44 and swap["align"] == "first-line" and swap["marginStart"] == "{space.8}"
+    assert swap["visibleWhen"] == "그날 후보가 둘 이상" and swap["transition"] == "appear.seep"
+    assert "#806" in swap["candidates"] and "#804" in swap["candidates"]
+    assert swap["a11y"]["role"] == "button" and "writing 새 슬롯" in swap["a11y"]["label"]
+    variants = {variant["id"]: variant["parts"] for variant in editor["variants"]}
+    assert variants["edit"]["date"] == {"visible": False}  # 날짜는 위 date-block
+    assert editor["motion"]["saveSequence"][0] == {"step": "button-breathe", "pattern": "loading.breathe",
+                                                   "target": "app-bar textAction"}
+    layout = _md_section("diary.md", "### diary-edit 화면 배치")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("diary-edit"))
+    order = ["diary-edit.bar.title", "diary-edit.draft.status", "diary-edit.length.count", "diary-edit.save.cta",
+             "diary-edit.date.day", "diary-edit.date.month", "diary-edit.date.iljin", "diary-edit.guide.question",
+             "diary-edit.body.placeholder"]
+    positions = [layout.index(f"`{slot}`") for slot in order]
+    assert positions == sorted(positions)
+    assert "`primary-button`" not in layout  # 아래 고정 버튼 없음(IA v5)
+
+
+KEYBOARD_INPUTS = (("input", "text-field", "states"), ("diary", "diary-editor", "states"))
+
+
+def test_keyboard_dismiss_everywhere():
+    found = []
+    for group, component_id, _ in KEYBOARD_INPUTS:
+        dismiss = component(group, component_id)["states"]["focused"]["parts"]["keyboardDismiss"]
+        found.append(dismiss)
+        assert dismiss["anchor"] == "keyboard-inset"
+        assert dismiss["anchorIncludes"] == ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"]
+        assert dismiss["inset"] == "{space.12}"
+        assert "붙여넣기" in dismiss["qa"] and "QA" in dismiss["qa"]
+    assert found[0] == found[1]  # 일기 쓰기도 다른 입력 화면과 같은 버튼(Q8, V68 유지)
+    editor = component("diary", "diary-editor")
+    assert "space.12" in editor["parts"]["body"]["scrollPaddingBottom"]
+    for name in ("input.md", "diary.md"):
+        text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
+        assert "키보드 inset" in text and "붙여넣기" in text, name

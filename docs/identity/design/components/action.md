@@ -23,6 +23,8 @@
 * 스피너는 쓰지 않습니다. 버튼 처리 중의 점 숨쉬기가 유일한 대체입니다.
 * Material 힌트: `FilledButton`의 `overlayColor`·`elevation`·`surfaceTintColor`를 끄고 먹 번짐 층을 얹습니다.
 * 그날 시트(`day-sheet`)의 이날 일기 쓰기(`filled`)는 그날 일기가 상한을 채우면 `disabled` + `daySheetDiaryWriteCtaFull`입니다(결정 V43).
+* **글자 앞 아이콘(`leadingIcon`, 선택 부품):** 글자 앞 `space.8`에 아이콘을 둡니다. 크기는 옆 글자 단계(`adjacent-text`), 굵기 Regular, 색은 글자와 같고, 아이콘과 글자 묶음을 버튼 가운데에 둡니다. 장식이라 읽지 않고, 처리 중에는 아이콘도 숨겨 점 셋만 보입니다. 이름은 쓰는 자리가 정합니다(diary-list 일기 쓰기 `pencil-simple`). 결정 V81.
+* **떠 있는 아래 버튼(`floating`):** 목록 화면의 아래 고정 주 동작입니다(diary-list `diary-list.pick-date.cta`). 아래에 붙은 것(광고 배너, 탭 바, 아래 안전 영역 순서로 먼저 있는 것) 위 `space.16`, 좌우 `space.20`, `shadow.raised`로 목록 위에 떠 있고 목록이 뒤로 지나갑니다. 목록 아래 여백은 버튼 높이 52 + `space.16` + `space.16`이라 마지막 줄이 버튼 위까지 올라옵니다. 빈 상태에서는 떠 있지 않고 같은 버튼이 `empty-state` 안내 아래 가운데에 놓입니다(둘이 함께 보이지 않음). 불러오는 중에는 숨깁니다. toast는 이 버튼 위 16px입니다(V51). 결정 V81.
 
 ## social-login-button
 

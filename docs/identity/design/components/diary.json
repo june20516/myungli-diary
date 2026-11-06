@@ -9,16 +9,16 @@
       "variants": [
         {
           "id": "day",
-          "when": "일기 목록·태그 모아보기. 그날 일기가 한 편이면 지금 모양(카드 전체가 버튼), 두 편 이상이면 묶음 카드",
+          "when": "일기 목록·태그 모아보기. 그날 일기가 한 편이면 지금 모양(카드 전체가 버튼), 두 편 이상이면 묶음 카드. 날의 성격 배지는 두지 않음(V81)",
           "parts": {
             "group": {
               "when": "그날 일기 두 편 이상",
               "pressable": false,
-              "order": ["badge", "entries", "tag"],
+              "order": ["entries", "tag"],
               "entriesMarginTop": "{space.4}",
               "preview": { "visible": false },
               "tag": { "marginTop": "{space.8}" },
-              "note": "카드 바탕·반경·안쪽 여백은 한 편일 때와 같다. 최상위 preview(2줄) 대신 entry 줄을 쓰고, 태그 위 간격만 space.8로 덮어쓴다. 누를 곳은 entry 줄마다와 태그 칩"
+              "note": "카드 바탕·반경·안쪽 여백은 한 편일 때와 같다. 최상위 preview(2줄) 대신 entry 줄을 쓰고, 태그 위 간격만 space.8로 덮어쓴다. 누를 곳은 entry 줄마다와 태그"
             }
           }
         },
@@ -32,7 +32,6 @@
             "weekday": { "visible": false },
             "rail": { "visible": false },
             "card": { "visible": false },
-            "badge": { "visible": false },
             "preview": { "visible": false },
             "tag": { "visible": false },
             "head": { "screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}", "note": "머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보임(결정 V56)" },
@@ -53,9 +52,13 @@
         "weekday": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.4}" },
         "rail": { "element": "rail.timeline", "from": "below-weekday", "to": "next-date" },
         "card": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}", "marginStart": "{space.12}", "marginBottom": "{space.12}" },
-        "badge": { "component": "day-character", "part": "badge" },
         "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}" },
-        "tag": { "component": "tag-chip", "count": 1, "marginTop": "{space.12}" },
+        "tag": {
+          "component": "hanja-tag", "variant": "default", "count": 1, "marginTop": "{space.12}", "whenMissing": "hide",
+          "opens": { "screen": "tag-diary", "presentation": "page", "transition": "page.push" },
+          "hiddenIn": ["tag-diary"],
+          "note": "그날 대표 태그 하나(사주 용어라 hanja-tag, 톤은 hanja-tag 규칙: 날의 성격 밖 용어는 term 초록, Q7 ②). 없으면 그리지 않음. 누르면 그 태그의 모아보기. tag-diary에서는 줄마다 같은 태그라 그리지 않음"
+        },
         "entry": {
           "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "HH:mm", "hourCycle": "h23", "note": "event-row와 같은 24시간제, 앞 0 채움(V46, #475). writing 슬롯 없음" },
           "preview": { "component": "sentence-block", "variant": "preview", "maxLines": 1, "marginStart": "{space.12}", "baseline": "time", "emptyKeepsLineHeight": true },
@@ -67,14 +70,14 @@
       },
       "states": {
         "pressed": { "pattern": "press.ink", "note": "한 편 카드는 카드 안, 묶음 카드와 entries는 누른 entry 줄 안에서만" },
-        "loading": { "skeleton": [{ "bone": "dateColumn", "shape": "숫자 원 + 요일 글줄", "variant": "day" }, { "bone": "card", "shape": "card", "variant": "day" }, { "bone": "badge", "shape": "chip", "width": "72px" }, { "bone": "preview", "shape": "textLine", "lines": 2}, { "bone": "tag", "shape": "chip", "width": "56px" }, { "bone": "entry", "shape": "textLine", "rows": 2, "variant": "entries" }], "note": "day는 날짜 열을 바로, 카드는 skeleton. entries는 줄 두 개 높이 skeleton" }
+        "loading": { "skeleton": [{ "bone": "dateColumn", "shape": "숫자 원 + 요일 글줄", "variant": "day" }, { "bone": "card", "shape": "card", "variant": "day" }, { "bone": "preview", "shape": "textLine", "lines": 2}, { "bone": "tag", "shape": "chip", "width": "72px", "note": "hanja-tag 알약 하나" }, { "bone": "entry", "shape": "textLine", "rows": 2, "variant": "entries" }], "note": "day는 날짜 열을 바로, 카드는 skeleton. entries는 줄 두 개 높이 skeleton" }
       },
       "haptic": [],
       "a11y": {
         "role": "button",
-        "label": "날짜 요일, 배지, 미리보기 첫 줄, 태그",
+        "label": "날짜 요일, 미리보기 첫 줄, 태그",
         "minTarget": 48,
-        "group": { "when": "day에서 그날 일기 두 편 이상(묶음 카드). 카드의 role button을 이것으로 바꾼다", "role": "group", "label": "날짜 요일, 배지" },
+        "group": { "when": "day에서 그날 일기 두 편 이상(묶음 카드). 카드의 role button을 이것으로 바꾼다", "role": "group", "label": "날짜 요일" },
         "entry": { "when": "묶음 카드 안의 줄과 entries의 줄마다", "role": "button", "label": "시각, 미리보기 첫 줄", "emptyPreview": "본문이 비면 시각만 읽음" }
       },
       "rules": [
@@ -84,32 +87,63 @@
         "같은 날 일기는 작성 순(createdAt 오름차순)으로 server 순서 그대로 놓는다. 같은 분에 쓴 일기도 app이 시각 문자열로 다시 정렬하지 않는다.",
         "같은 날 일기는 몇 편이든 모두 보인다. 접거나 더 보기를 두지 않는다(계정을 합친 날은 상한보다 많을 수 있음).",
         "entry 줄 사이에만 점선을 긋는다. 첫 줄 위와 끝 줄 아래에는 없다. 날짜 사이는 흐름 줄(실선), 같은 날 안은 점선이다.",
-        "묶음 카드에서도 흐름 줄은 카드 높이만큼 이어져 다음 날짜까지 간다."
+        "묶음 카드에서도 흐름 줄은 카드 높이만큼 이어져 다음 날짜까지 간다.",
+        "날의 성격 배지는 목록 줄에 두지 않는다. 날의 성격은 일기 보기(diary-view)에서 hanja-tag로 본다(V81, origin F, IA v5 diary-list).",
+        "태그는 그날 대표 태그 하나를 hanja-tag default로 카드 맨 아래에 둔다. 누르면 그 태그의 모아보기(tag-diary)로 화면 이동하고, tag-diary 안의 줄에서는 그리지 않는다."
       ]
     },
     {
       "id": "diary-editor",
-      "summary": "일기 본문 입력과 보기 (종이)",
-      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep"],
+      "summary": "일기 본문 입력과 보기 (종이). 쓰기에서는 인용 질문과 질문 바꾸기",
+      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "icon"],
       "variants": [
-        { "id": "edit", "when": "쓰기·고치기", "parts": { "body": { "editable": true } } },
+        { "id": "edit", "when": "쓰기·고치기(diary-edit). 날짜는 종이 위 date-block이 보임", "parts": { "body": { "editable": true }, "date": { "visible": false } } },
         { "id": "view", "when": "보기(diary-view)", "parts": { "body": { "editable": false }, "seal": { "visible": true }, "tags": { "visible": true } } }
       ],
       "parts": {
         "paper": { "element": "surface.paper" },
         "date": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
-        "question": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "optional": true },
-        "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "minLines": 8, "placeholderFg": "{color.text.secondary}" },
+        "question": {
+          "slot": "diary-edit.guide.question", "optional": true,
+          "type": "{type.sentence.body}", "fg": "{color.text.secondary}",
+          "quoteLine": { "width": { "value": 3, "unit": "px" }, "color": "{color.term.bg}", "radius": "{radius.full}" },
+          "paddingStart": "{space.12}", "marginBottom": "{space.16}",
+          "swap": {
+            "icon": "arrows-clockwise", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}",
+            "minTarget": 44, "align": "first-line", "marginStart": "{space.8}",
+            "visibleWhen": "그날 후보가 둘 이상",
+            "candidates": "그날 근거가 있는 질문 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음). 목록과 순서는 server #806, 근거는 core #804",
+            "order": "server 순서대로 다음 후보, 끝에서 처음으로",
+            "transition": "appear.seep",
+            "keepsBody": true,
+            "a11y": { "role": "button", "label": "질문 바꾸기 이름(writing 새 슬롯, IA 자리 없음)", "changedAnnounced": "새 질문을 polite로 읽음" },
+            "note": "질문 글은 아이콘 앞에서 줄바꿈한다. 본문은 건드리지 않는다"
+          },
+          "note": "왼쪽 3px 선의 인용형. 본문보다 작게 보이는 자리라 본문 크기는 관문 질문(V82)"
+        },
+        "body": {
+          "type": "{type.sentence.body}", "fg": "{color.text.primary}", "minLines": 8, "placeholderFg": "{color.text.secondary}",
+          "slot": "diary-edit.body.placeholder",
+          "scrollPaddingBottom": "키보드 inset + 내리기 버튼 44 + space.12 (커서 줄이 버튼에 가리지 않음)"
+        },
         "seal": { "element": "seal", "variant": "fill", "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "size": { "value": 64, "unit": "px" }, "content": "날짜(M.D)", "position": "paper-bottom-end-reserve" },
         "tags": { "component": "tag-chip", "gap": "{space.8}", "marginTop": "{space.16}" }
       },
-      "states": { "loading": { "skeleton": [{ "bone": "paper", "shape": "card" }, { "bone": "body", "shape": "textLine", "lines": 5}] },
-        "saving": { "pattern": "loading.breathe", "note": "저장 버튼 점 숨쉬기" },
+      "states": { "loading": { "skeleton": [{ "bone": "question", "shape": "textLine", "lines": 2, "variant": "edit" }, { "bone": "paper", "shape": "card" }, { "bone": "body", "shape": "textLine", "lines": 5}], "note": "diary-edit loading은 가이드 질문. 본문 칸은 바로 쓸 수 있음" },
+        "focused": { "parts": { "keyboardDismiss": {
+          "position": "키보드 바로 위 오른쪽", "anchor": "keyboard-inset", "anchorIncludes": ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"], "inset": "{space.12}",
+          "size": { "value": 44, "unit": "px" }, "radius": "{radius.full}", "bg": "{color.bg.sheet}", "shadow": "{shadow.raised}",
+          "icon": { "icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}" },
+          "action": "키보드를 내림(입력칸 초점 풀기)", "a11y": { "role": "button", "labelSlot": "ui.keyboard.dismiss" },
+          "qa": "붙여넣기 막대(iOS 편집 메뉴, Android 클립보드 추천)와 겹치는지 QA에서 확인(Q8)",
+          "note": "입력칸에 초점이 있는 동안만. 키보드 inset은 OS 자동완성과 추천 줄을 포함한 플랫폼 값이고, 버튼은 그 위 space.12. 동작 구현은 app #796 (결정 V68, V83)"
+        } }, "note": "edit에서 본문에 초점이 있는 동안. text-field와 같은 내리기 버튼(Q8)" },
+        "saving": { "pattern": "loading.breathe", "note": "상단 바 저장 글자 버튼 점 숨쉬기(app-bar textActionSaving)" },
         "saved": { "pattern": "seal.stamp", "parts": { "seal": { "visible": true } } }
       },
       "motion": {
         "saveSequence": [
-          { "step": "button-breathe", "pattern": "loading.breathe" },
+          { "step": "button-breathe", "pattern": "loading.breathe", "target": "app-bar textAction" },
           { "step": "scroll-to-paper-bottom", "duration": "{motion.duration.medium}", "easing": "{motion.easing.standard}" },
           { "step": "stamp", "pattern": "seal.stamp" },
           { "step": "tags", "pattern": "appear.seep" },
@@ -121,19 +155,45 @@
       "rules": [
         "종이 아래 여백에 64px 도장 자리를 쓰는 중에도 늘 비워 둔다. 글이 길어도 도장이 글을 덮지 않는다.",
         "해시태그를 쓰는 입력이 없다. 태그는 저장할 때 엔진이 붙인다.",
-        "저장 순서: 버튼 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 대표 태그 칩 스밈 → 토스트.",
+        "저장 순서: 상단 바 저장 글자 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 대표 태그 칩 스밈 → 토스트.",
+        "쓰기에서 질문은 종이 안 맨 위의 인용형(왼쪽 3px term.bg 선, type.sentence.body text.secondary)이고, 오른쪽 질문 바꾸기 아이콘은 그날 후보가 둘 이상일 때만 보인다. 바꿔도 본문은 그대로다.",
+        "본문에 초점이 있는 동안 text-field와 같은 키보드 내리기 버튼을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 space.12에 띄운다. 본문 스크롤 아래 여백은 그 버튼 자리까지 둔다.",
         "저장 응답이 오기 전에는 도장을 찍지 않는다. 실패하면 버튼이 돌아오고 오류 토스트.",
         "보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그 칩."
       ]
     },
     {
+      "id": "date-block",
+      "summary": "큰 날짜 블록(일기 쓰기): 일 숫자를 크게, 옆에 월과 요일, 그 아래 일진",
+      "uses": [],
+      "parts": {
+        "container": { "layout": "row", "gap": "{space.12}", "align": "center" },
+        "day": { "slot": "diary-edit.date.day", "fontFamily": "{font.family.ui}", "fontSize": { "value": 44, "unit": "px" }, "fontWeight": 700, "lineHeight": 1, "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "source": "고른 날짜(기기 값)" },
+        "side": { "order": ["month", "iljin"], "align": "start" },
+        "month": { "slot": "diary-edit.date.month", "type": "{type.label.lg}", "fg": "{color.text.primary}", "source": "고른 날짜(기기 값)" },
+        "iljin": { "slot": "diary-edit.date.iljin", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "fontFallback": "{font.family.hanja}", "source": "server 그날 일진(pillar)", "whenMissing": "hide" }
+      },
+      "states": {
+        "loading": { "skeleton": [{ "bone": "iljin", "shape": "textLine", "lines": 1, "width": "64px" }], "note": "일 숫자, 월과 요일은 기기 값이라 바로 보임" }
+      },
+      "haptic": [],
+      "a11y": { "role": "header", "label": "월 일 요일, 일진 독음", "readsHanja": false },
+      "rules": [
+        "일 숫자 44 700 고정폭 옆 space.12에 월과 요일(type.label.lg), 그 아래 space.2에 일진(type.caption.md text.secondary)을 둔다. 오른쪽 두 줄 묶음은 숫자와 세로 가운데로 맞춘다.",
+        "일진 한자는 font.family.hanja로 그리고, 스크린리더는 한자를 읽지 않고 독음만 읽는다.",
+        "일진이 없으면(불러오지 못함) 그 줄만 그리지 않는다. 숫자와 월, 요일은 늘 보인다.",
+        "누를 수 없는 표시다. 날짜를 바꾸는 입구는 diary-list 날짜 고르기뿐이다."
+      ]
+    },
+    {
       "id": "draft-indicator",
-      "summary": "초안 저장 상태 (app-bar 오른쪽)",
+      "summary": "초안 저장 상태와 글자 수 (app-bar edit 가운데, 쓰는 중에만)",
       "uses": ["icon", "appear.seep", "loading.breathe"],
       "parts": {
-        "container": { "gap": "{space.4}", "position": "app-bar-end-before-actions" },
+        "container": { "gap": "{space.4}", "position": "app-bar-center", "maxLines": 1, "overflow": "ellipsis", "visibleWhen": "본문에 초점이 있는 동안(쓰는 중). 그 밖에는 같은 자리에 app-bar 제목" },
         "icon": { "size": "{size.icon.16}", "weight": "light", "color": "{color.text.secondary}" },
-        "label": { "type": "{type.caption.md}", "fg": "{color.text.secondary}" }
+        "label": { "slot": "diary-edit.draft.status", "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
+        "count": { "slot": "diary-edit.length.count", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginStart": "{space.8}", "separator": "none", "note": "상태 글자 뒤. 쉼표 없이 간격으로만 나눔(V47, V78과 같은 이유)" }
       },
       "states": {
         "local": { "pattern": "appear.seep", "parts": { "icon": { "name": "cloud" } }, "note": "기기에 초안 저장됨" },
@@ -141,8 +201,13 @@
         "saved": { "pattern": "appear.seep", "parts": { "icon": { "name": "check" } }, "note": "서버에 저장됨" }
       },
       "haptic": [],
-      "a11y": { "role": "status", "liveRegion": "polite", "label": "상태 글자" },
-      "rules": ["상태가 바뀔 때만 appear.seep으로 바꿔 그린다. 같은 상태가 반복되면 움직이지 않는다."]
+      "a11y": { "role": "status", "liveRegion": "polite", "label": "상태 글자", "countAnnounced": false, "countNote": "글자 수는 칠 때마다 읽지 않음. 초점을 옮기면 상태 글자와 함께 읽음" },
+      "rules": [
+        "상태가 바뀔 때만 appear.seep으로 바꿔 그린다. 같은 상태가 반복되면 움직이지 않는다.",
+        "app-bar edit 가운데에 둔다. 본문에 초점이 있는 동안만 보이고, 그 밖에는 같은 자리에 화면 제목이 보인다(바뀔 때 appear.seep).",
+        "글자 수는 칠 때마다 바꿔 그리되 고정폭 숫자라 상태 글자가 움직이지 않는다. 쉼표 같은 구분 글자 없이 space.8로 나눈다.",
+        "뒤로와 저장 글자 버튼 사이 폭에 한 줄. 넘치면 상태 글자 끝을 말줄임하고 글자 수는 지킨다."
+      ]
     },
     {
       "id": "tag-chip",
