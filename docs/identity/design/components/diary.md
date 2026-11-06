@@ -93,7 +93,7 @@
 | 막대 | 높이 8 `radius.full`, 트랙 `bg.base`. 길이는 그 줄의 수를 네 줄 가운데 가장 큰 수에 견준 비율. 0이면 트랙만 |
 | 줄 순서 | 용신의 날, 귀인의 날, 평범한 날, 기신의 날 |
 | 막대 색 | 날의 성격 톤. V8 배지 매핑의 진한 쪽 색: 용신 `badge.good.bg`, 귀인 `badge.gwiin.fg`, 평범 `badge.ordinary.border`, 기신 `badge.gisin.fg` |
-| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 수 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 뜻 시트. 태그가 없으면 머리와 줄을 그리지 않습니다 |
+| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 수 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 그 태그의 일기 모아보기(`tag-diary`, `page.push`)로 갑니다(사용자 결정 2026-11-06, IA 출구는 #801에 요청). 태그가 없으면 머리와 줄을 그리지 않습니다 |
 
 * 막대 색의 옅은 쪽(귀인 coral-100, 기신 neutral-100)은 트랙과 구분되지 않아 진한 쪽(글자색, 테두리색)을 씁니다. 이름과 수가 늘 함께 보여 색만으로 전하지 않습니다.
 * **기록이 적을 때(`few`):** 쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(`my-saju.record.few`, `type.caption.lg` `text.secondary`, 위 `space.12`)을 둡니다. 편수와 (있으면) 태그는 그대로입니다. 0편도 같습니다.

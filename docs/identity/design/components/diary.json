@@ -171,7 +171,7 @@
     {
       "id": "diary-summary",
       "summary": "기록 요약 (나 탭 명리일기 회고): 쓴 편수, 날의 성격마다 쓴 수 막대, 자주 붙은 태그",
-      "uses": ["tone"],
+      "uses": ["tone", "page.push"],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}" },
         "count": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 28, "unit": "px" }, "fontWeight": 700, "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "source": "쓴 일기 편수(server 집계, 새 경로)" },
@@ -188,6 +188,7 @@
         "tags": {
           "head": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.8}", "copy": "태그 머리. IA 슬롯 없음(writing 새 슬롯)", "note": "dayKinds 머리와 같음" },
           "tag": { "component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순" },
+          "opens": { "screen": "tag-diary", "presentation": "page", "transition": "page.push", "note": "그 태그의 일기 모아보기(사용자 결정 2026-11-06). hanja-tag 기본 출구(explain-sheet, tag-sheet)를 이 자리에서 덮어씀. IA my-saju 출구는 #801에 요청" },
           "count": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginStart": "{space.4}", "position": "알약 안 이름 뒤" },
           "gap": "{space.8}",
           "whenEmpty": "머리와 줄을 그리지 않음"
@@ -203,7 +204,7 @@
       "rules": [
         "막대는 그 날의 성격으로 쓴 수를 네 줄 가운데 가장 큰 수에 견준 길이다. 수는 막대 오른쪽 끝에 고정폭으로 둔다.",
         "막대 색은 날의 성격 톤(V8 배지 매핑의 진한 쪽 색)이고, 이름과 수를 늘 함께 보여 색만으로 전하지 않는다.",
-        "자주 붙은 태그는 hanja-tag default(사주 용어 초록) 최대 셋, 수 많은 순. 누르면 뜻 시트(explain-sheet).",
+        "자주 붙은 태그는 hanja-tag default(사주 용어 초록) 최대 셋, 수 많은 순. 누르면 그 태그의 일기 모아보기(tag-diary)로 화면 이동.",
         "쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(my-saju.record.few)을 둔다."
       ]
     }

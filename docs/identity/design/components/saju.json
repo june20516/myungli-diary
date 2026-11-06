@@ -141,7 +141,8 @@
             "currentTag": { "visible": false },
             "twelveStage": { "visible": false },
             "startYear": { "visible": false },
-            "highlight": { "element": "highlight.current", "bg": "{color.status.bg}", "scope": "줄 전체(칸과 정보 묶음)", "padding": "{space.8}", "radius": "{radius.md}", "note": "spec §4: 지금 대운과 올해 세운 줄은 늘 강조. 꼬리표는 머리의 tag.status" }
+            "highlight": "none",
+            "onCard": { "bg": "{color.bg.sheet}", "note": "두 줄이 모두 지금이라 강조 바탕을 칠하지 않음(사용자 결정 2026-11-06, origin). 흰 카드 위라 꼬리표(tag.status 알약)와 용어 칩(term, radius.xs)이 바탕과 구분됨" }
           }
         }
       ],
@@ -167,7 +168,7 @@
       "rules": [
         "지금, 올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
         "십성 칩은 term-token label이고 누르면 뜻 시트(explain-sheet)다.",
-        "compact는 두 줄(지금 대운, 올해 세운) 모두 highlight.current 바탕을 칠하고, 꼬리표(지금, 올해)는 기둥 아래 대신 줄 머리에 용어 칩(대운, 세운)과 함께 둔다.",
+        "compact는 두 줄 모두 지금이라 강조 바탕을 칠하지 않는다. 바탕을 칠하면 같은 sage 계열의 꼬리표와 용어 칩이 묻힌다. 꼬리표(지금, 올해)는 기둥 아래 대신 줄 머리에 용어 칩(대운, 세운)과 함께 둔다.",
         "기둥 칸은 기둥 사이에 같은 줄 높이를 맞춘다(daeun-table 높이 맞춤과 같음)."
       ]
     }

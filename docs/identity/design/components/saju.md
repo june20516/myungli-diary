@@ -57,7 +57,7 @@
 * 대운, 세운 기둥 한 칸입니다. 위에서부터 나이 또는 연도(`type.numeric.table` `text.secondary`, 대운은 한국식 나이 core C22, 세운은 연도) → 천간 십성 → 천간 칸 → 지지 칸 → 지지 십성(정기) → 12운성(`term-token` `label`, 위 `space.2`) → 시작 연도(`type.numeric.table` `text.secondary`) → 꼬리표 자리. 12운성과 시작 연도는 `daeun-table` 대운 기둥에서 옮긴 부품이고 세운에는 그리지 않습니다. 칸은 `ohaeng.cell` `small`(40×40, 한자 `font.family.hanja` 18 700), 부품 사이 `space.4`. 기둥 폭 52, 안쪽 `space.4`, 반경 `radius.md`.
 * 십성 칩은 `term-token` `label`이고 누르면 뜻 시트입니다. 세운은 계약에 천간 십성만 있어(`SeunYear.tenGod`) 지지 십성 자리를 비워 줄 높이를 맞춥니다.
 * **지금 대운(`current`), 올해 세운(`thisYear`):** 기둥 바탕 `highlight.current`(`status.bg`), 위 글자 `action.primary` 700, 아래 `tag.status` 꼬리표 "지금", "올해"(`ui.saju.tag`). 낙관 윤곽은 쓰지 않습니다(칸 하나 단위인 달력 오늘에만).
-* **`compact`(나 탭 올해와 지금):** 두 줄(지금 대운, 올해 세운), 줄 사이 `space.16`. 줄마다 왼쪽에 천간 칸과 지지 칸을 세로로(사이 `space.4`), 오른쪽 `space.12`에 정보 묶음입니다. 두 줄 모두 지금 대운, 올해 세운이라 줄 전체(칸과 정보 묶음)에 `highlight.current` 바탕(`status.bg`, 안쪽 `space.8`, `radius.md`)을 칠합니다(spec §4).
+* **`compact`(나 탭 올해와 지금):** 두 줄(지금 대운, 올해 세운), 줄 사이 `space.16`. 줄마다 왼쪽에 천간 칸과 지지 칸을 세로로(사이 `space.4`), 오른쪽 `space.12`에 정보 묶음입니다. 두 줄이 모두 지금이라 강조 바탕을 칠하지 않습니다(사용자 결정 2026-11-06, origin). 바탕을 칠하면 같은 sage 계열의 꼬리표와 용어 칩이 묻히기 때문입니다. 흰 카드(`bg.sheet`) 위에서 꼬리표(알약)와 용어 칩(`radius.xs`)이 구분됩니다. 사주 표 줄(`column`)의 지금 칸 강조는 그대로입니다.
   * 머리: `tag.status` "지금", "올해" + 용어 칩(`term-token` `label`) "대운", "세운"(사이 `space.4`).
   * 기간: `type.caption.lg` `text.secondary` 고정폭, 위 `space.4`. 대운은 나이 범위와 연도 범위, 세운은 연도와 그해 나이. 문구 틀은 IA 슬롯이 없습니다(writing 새 슬롯).
   * 십성: 천간, 지지 순 `term-token` `label`(세운은 하나), 사이 `space.4`, 위 `space.4`.

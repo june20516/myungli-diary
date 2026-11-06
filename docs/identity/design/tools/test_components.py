@@ -1787,6 +1787,10 @@ def test_diary_summary():
     tags = parts["tags"]
     assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순"}
     assert tags["count"]["position"] == "알약 안 이름 뒤" and tags["count"]["marginStart"] == "{space.4}"
+    # 회고 태그를 누르면 그 태그의 일기 모아보기(사용자 결정 2026-11-06)
+    opens = tags["opens"]
+    assert (opens["screen"], opens["presentation"], opens["transition"]) == ("tag-diary", "page", "page.push")
+    assert "page.push" in summary["uses"] and not any("explain-sheet" in rule for rule in summary["rules"])
     notice = parts["notice"]
     assert notice["slot"] == "my-saju.record.few" and notice["visible"] is False
     few = summary["states"]["few"]
@@ -1832,8 +1836,8 @@ def test_luck_pillar():
     assert compact["tenGods"]["component"] == "term-token" and compact["tenGods"]["variant"] == "label"
     for hidden in ("topLabel", "stemTenGod", "branchTenGod", "currentTag", "twelveStage", "startYear"):
         assert compact[hidden] == {"visible": False}, hidden
-    highlight = compact["highlight"]  # spec §4: 지금 대운, 올해 세운 줄은 compact에서도 status.bg 바탕 (리뷰 Important 2)
-    assert (highlight["element"], highlight["bg"]) == ("highlight.current", "{color.status.bg}")
-    assert highlight["padding"] == "{space.8}" and highlight["radius"] == "{radius.md}"
+    # 두 줄이 모두 지금이라 강조 바탕 없음, 흰 카드 위에서 꼬리표와 용어 칩이 구분됨(사용자 결정 2026-11-06, origin)
+    assert compact["highlight"] == "none" and compact["onCard"]["bg"] == "{color.bg.sheet}"
+    assert "status.bg" not in json.dumps(variants["compact"])
     assert pillar["a11y"]["textScaleMax"] == 1.3
     assert any("낙관 윤곽" in rule for rule in pillar["rules"])
