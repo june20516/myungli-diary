@@ -394,6 +394,45 @@ func TestGetDaily_UnknownEngineEnumIs500(t *testing.T) {
 	assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
 }
 
+// 일진 천간의 십성과 묶음(ruleset 2026.11.0, #806 ③)은 엔진이 내면 담고, 옛 규칙 버전처럼 둘 다 없으면 생략합니다.
+func TestGetDaily_DayStemTenGod(t *testing.T) {
+	t.Run("엔진이 내면 담음", func(t *testing.T) {
+		view := dailyView()
+		view.Response.DayStemTenGod = enginev1.TenGod_TEN_GOD_SIKSIN
+		view.Response.DayStemTenGodGroup = enginev1.TenGodGroup_TEN_GOD_GROUP_SIKSANG
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		var got gen.Daily
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+		require.NotNil(t, got.DayStemTenGod)
+		require.NotNil(t, got.DayStemTenGodGroup)
+		assert.Equal(t, gen.Siksin, *got.DayStemTenGod)
+		assert.Equal(t, gen.Siksang, *got.DayStemTenGodGroup)
+	})
+	t.Run("둘 다 없으면 생략", func(t *testing.T) {
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: dailyView()}, Contents: &fakeContents{}}
+
+		_, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		assert.NotContains(t, rec.Body.String(), "dayStemTenGod")
+	})
+	t.Run("하나만 오면 500", func(t *testing.T) {
+		view := dailyView()
+		view.Response.DayStemTenGod = enginev1.TenGod_TEN_GOD_SIKSIN
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		_, rec, logs := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+		assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
+	})
+}
+
 // calendarView는 이틀짜리 달력 묶음입니다. 첫날만 입절일이고 대표 태그가 있습니다.
 func calendarView() fortune.CalendarView {
 	day := func(d int32) *enginev1.MonthDay {

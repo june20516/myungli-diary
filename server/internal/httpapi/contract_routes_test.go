@@ -496,10 +496,11 @@ var minimalRequests = map[string]operationRequest{
 	"revenuecatWebhook": {http.MethodPost, "/webhooks/revenuecat", contentTypeJSON, `{"event":{"type":"TEST"}}`},
 	"admobRewardCallback": {http.MethodGet,
 		"/webhooks/admob-ssv?ad_network=1&key_id=3335741209&signature=MEUCIQ&timestamp=1507770365237823&transaction_id=18fa792de1bca816048293fc71035638", "", ""},
-	"listCities":   {http.MethodGet, "/v1/cities?q=Seoul", "", ""},
-	"getAppConfig": {http.MethodGet, "/v1/app-config", "", ""},
-	"checkHealth":  {http.MethodGet, "/health", "", ""},
-	"getHealth":    {http.MethodGet, "/healthz", "", ""},
+	"listCities":       {http.MethodGet, "/v1/cities?q=Seoul", "", ""},
+	"getAppConfig":     {http.MethodGet, "/v1/app-config", "", ""},
+	"checkHealth":      {http.MethodGet, "/health", "", ""},
+	"getHealth":        {http.MethodGet, "/healthz", "", ""},
+	"getServerVersion": {http.MethodGet, "/version", "", ""},
 }
 
 func TestAPI_EveryOperationIsRouted(t *testing.T) {
@@ -536,7 +537,7 @@ func TestAPI_EveryOperationIsRouted(t *testing.T) {
 			rec := serve(handler, req)
 
 			want := http.StatusNotImplemented
-			if operationID == "checkHealth" || operationID == "getHealth" {
+			if operationID == "checkHealth" || operationID == "getHealth" || operationID == "getServerVersion" {
 				want = http.StatusOK
 			}
 			if rec.Code != want {

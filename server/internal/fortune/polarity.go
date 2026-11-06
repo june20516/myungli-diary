@@ -20,13 +20,18 @@ func TagContractKey(key string) string {
 }
 
 // tagPolarity는 태그 키 → 길흉입니다(P4-6). proto에 길흉이 없어 server가 고정 표로 둡니다.
-// 원본: core/docs/specs/2026-10-10-myungli-engine-design.md §7.7 "해시태그" 표의 길흉 열(15키).
+// 원본: core/docs/specs/2026-10-10-myungli-engine-design.md §7.7 "해시태그" 표의 길흉 열.
 // 길=good, 흉=bad, 중립=neutral입니다.
+//
+// tag.big_change는 ruleset 2026.11.0에서 일지 충과 월지 충으로 나뉘어 엔진이 더 내지 않습니다(#821).
+// 그 전 규칙 버전으로 저장한 일기의 날짜 기록과, server 배포 뒤 새 엔진이 나가기 전까지의 옛 엔진 응답에 남으므로 표에서 지우지 않습니다.
 var tagPolarity = map[string]Polarity{
 	// 1. 합·충
-	"tag.big_change": PolarityBad,
-	"tag.clash":      PolarityBad,
-	"tag.harmony":    PolarityGood,
+	"tag.big_change":         PolarityBad,
+	"tag.clash":              PolarityBad,
+	"tag.clash_day_branch":   PolarityBad,
+	"tag.clash_month_branch": PolarityBad,
+	"tag.harmony":            PolarityGood,
 	// 2. 십성 쏠림: 관성=흉, 재성·인성·식상=길, 비겁=중립
 	"tag.ten_god_rush.bigyeop":   PolarityNeutral,
 	"tag.ten_god_rush.siksang":   PolarityGood,

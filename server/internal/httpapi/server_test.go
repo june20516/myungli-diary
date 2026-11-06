@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/httpapi"
 	"github.com/june20516/myungli-diary/server/internal/httpapi/problem"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
@@ -68,6 +69,21 @@ func TestHandler_Healthz(t *testing.T) {
 	}
 	if got := strings.TrimSpace(rec.Body.String()); got != `{"status":"ok"}` {
 		t.Errorf("body = %q", got)
+	}
+}
+
+// /version은 DB 없이도 이 빌드의 지원 엔진 규칙 버전을 냅니다. 엔진 배포 관문(deploy-engine-env.yml)이 읽습니다(D110).
+func TestHandler_ServerVersion(t *testing.T) {
+	handler, _ := newAPIHandler(t)
+
+	rec := serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/version", nil))
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+	want := `{"supportedRulesetVersion":"` + engine.SupportedRulesetVersion + `"}`
+	if got := strings.TrimSpace(rec.Body.String()); got != want {
+		t.Errorf("body = %q, want %q", got, want)
 	}
 }
 

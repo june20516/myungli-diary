@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.4.0
+  version: 1.5.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -1977,6 +1977,26 @@ paths:
         default:
           $ref: '#/components/responses/UnexpectedError'
 
+  /version:
+    get:
+      operationId: getServerVersion
+      summary: server 빌드가 다루는 엔진 규칙 버전
+      description: |
+        엔진 배포 workflow가 배포 직전에 그 환경의 이 값을 읽고, 배포할 엔진의 `ruleset_version`이 더 높으면 배포하지 않습니다(D110).
+        DB와 엔진에 기대지 않아, Cloud SQL이 없는 부하 환경에서도 200입니다. app은 쓰지 않습니다. 1.5.0에서 더했습니다.
+      security: []
+      responses:
+        '200':
+          description: 이 빌드의 지원 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerVersion'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
   /healthz:
     get:
       operationId: getHealth
@@ -2514,6 +2534,10 @@ components:
     TenGod:
       type: string
       enum: [bigyeon, geopjae, siksin, sanggwan, pyeonjae, jeongjae, pyeongwan, jeonggwan, pyeonin, jeongin]
+    TenGodGroup:
+      type: string
+      description: 십성 묶음입니다. `TenGod` 두 개씩을 묶습니다(비겁 bigyeon·geopjae, 식상 siksin·sanggwan, 재성 pyeonjae·jeongjae, 관성 pyeongwan·jeonggwan, 인성 pyeonin·jeongin).
+      enum: [bigyeop, siksang, jaeseong, gwanseong, inseong]
     TwelveStage:
       type: string
       enum: [jangsaeng, mokyok, gwandae, geonrok, jewang, soe, byeong, sa, myo, jeol, tae, yang]
@@ -2538,7 +2562,10 @@ components:
       enum: [johu, johu_neutral, eokbu]
     LuckLevel:
       type: string
-      enum: [good, neutral, caution]
+      description: |
+        달력 하루의 길흉 수준입니다. 점수 3 이상 `very_good`(아주 잘 풀리는 날), 2 `good`, -2 이하 `caution`, 그 밖 `neutral`입니다.
+        닫힌 enum입니다. `very_good`은 1.5.0에서 더했고, 출시 전이라 v1의 닫힌 enum에 값을 더한 예외입니다(server 결정 S138).
+      enum: [very_good, good, neutral, caution]
     RelationKind:
       type: string
       enum: [stem_hap, branch_hap, chung, hyeong]
@@ -3081,7 +3108,10 @@ components:
     # ---- 하루 운세 ----
     Daily:
       type: object
-      description: "`characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다."
+      description: |
+        `characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다.
+        `dayStemTenGod`은 일진 천간의 십성(원국 일간 기준), `dayStemTenGodGroup`은 그 십성 묶음(예: 식상)이고 오늘 화면 총운의 결정 태그에 씁니다(D108).
+        둘은 함께 담기거나 함께 빠지고, 엔진이 이 값을 내지 않는 규칙 버전(2026.11.0 전)의 응답에는 없습니다. 1.5.0에서 더했습니다.
       required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, characterReason, fortune, guide, cards, tags, relations, notices]
       properties:
         date:
@@ -3093,6 +3123,10 @@ components:
           $ref: '#/components/schemas/EvidenceAccess'
         dayPillar:
           $ref: '#/components/schemas/Pillar'
+        dayStemTenGod:
+          $ref: '#/components/schemas/TenGod'
+        dayStemTenGodGroup:
+          $ref: '#/components/schemas/TenGodGroup'
         dayKind:
           $ref: '#/components/schemas/DayKind'
         characterReason:
@@ -4072,3 +4106,12 @@ components:
         status:
           type: string
           enum: [ok]
+    ServerVersion:
+      type: object
+      required: [supportedRulesetVersion]
+      properties:
+        supportedRulesetVersion:
+          type: string
+          description: |
+            이 server 빌드가 값과 메시지 키를 모두 다루는 엔진 `ruleset_version`의 가장 높은 값입니다(D110).
+          example: 2026.11.0

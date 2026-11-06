@@ -249,7 +249,25 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 		text := c.slotText(tag)
 		out.Fortune.Tag = &text
 	}
+	out.DayStemTenGod, out.DayStemTenGodGroup = c.dayStemTenGod(r)
 	return out, c.err
+}
+
+// dayStemTenGod는 일진 천간의 십성과 그 묶음을 옮깁니다. 2026.11.0 전 규칙 버전의 엔진은 둘 다 내지 않아(UNSPECIFIED) 둘 다 생략합니다.
+// 하나만 오면 엔진 계약 위반이라 오류입니다.
+func (c *converter) dayStemTenGod(r *enginev1.DailyResponse) (*gen.TenGod, *gen.TenGodGroup) {
+	tenGodMissing := r.GetDayStemTenGod() == enginev1.TenGod_TEN_GOD_UNSPECIFIED
+	groupMissing := r.GetDayStemTenGodGroup() == enginev1.TenGodGroup_TEN_GOD_GROUP_UNSPECIFIED
+	if tenGodMissing && groupMissing {
+		return nil, nil
+	}
+	if tenGodMissing != groupMissing {
+		c.fail(errors.New("엔진 응답에 일진 천간의 십성과 묶음 중 하나만 있습니다"))
+		return nil, nil
+	}
+	tenGod := enumValue[gen.TenGod](c, r.GetDayStemTenGod())
+	group := enumValue[gen.TenGodGroup](c, r.GetDayStemTenGodGroup())
+	return &tenGod, &group
 }
 
 // toPreview는 미리보기 묶음을 계약 Preview로 바꿉니다. 근거 열람 권한이 없어 evidenceAccess는 늘 locked입니다.
