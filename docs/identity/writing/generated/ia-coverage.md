@@ -47,6 +47,7 @@
 | login.bar.title | ui | login.bar.title |
 | login.title.head | ui | login.title.head |
 | login.title.body | ui | login.title.body |
+| login.save.note | ui | login.save.note |
 | login.discard.notice | ui | login.discard.notice |
 | login.error.body | ui | ui.login.error |
 | consent.bar.title | ui | consent.bar.title |

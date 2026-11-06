@@ -593,7 +593,7 @@
     screen_reader: "문장 그대로 읽습니다."
 
 - id: login.title.body
-  where: "로그인 화면(login): 저장하려면 로그인한다는 설명"
+  where: "로그인 화면(login): 첫 화면 맞이 문구의 설명 줄(D111)"
   purpose: info
   user_state: "로그인하면 무엇이 좋은지 봅니다."
   structure: "한 문장. 로그인하면 받는 것. 두 경로 모두 같은 문장을 보입니다(R30-12, F-029)."
@@ -610,6 +610,23 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
+
+- id: login.save.note
+  where: "로그인 화면(login): 제목과 설명 아래 덧붙임. 첫 풀이(preview)를 거쳐 왔을 때만 보임(D111, F-029)"
+  purpose: guide
+  user_state: "첫 풀이를 보고 나서 로그인 화면에 왔습니다. 지금 본 풀이가 어떻게 되는지 궁금할 수 있습니다."
+  structure: "한 문장. 지금 본 풀이를 계속 저장하려면 로그인한다는 것. 맞이 문구(설명)와 따로 서는 덧붙임입니다(R30-12)."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - loginSaveNote
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  pending:
+    loginSaveNote: {ko: "라운드 R32 원고 대기(#830)", en: "라운드 R32 원고 대기(#830)", ja: "라운드 R32 원고 대기(#830)"}
+  examples: {good: [], bad: []}
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "설명 다음에 이어 읽습니다."
 
 - id: login.discard.notice
   where: "로그인 화면(login): 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내"

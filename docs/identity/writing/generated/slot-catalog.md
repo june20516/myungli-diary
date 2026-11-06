@@ -131,6 +131,7 @@
 | login-methods.unlink.confirm | login-methods.unlink.confirm | guide | - | 1 | 4 | `provider`: text | ko 8, en 13, ja 6<br>`loginMethodsUnlinkConfirm` ko 34, en 60, ja 26<br>`loginMethodsUnlinkConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | login.bar.title | login.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login.discard.notice | login.discard.notice | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| login.save.note | login.save.note | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.body | login.title.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | login.title.head | login.title.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | my-saju.bar.title | my-saju.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
