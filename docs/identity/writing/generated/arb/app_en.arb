@@ -138,6 +138,7 @@
   "loginMethodsUnlinkConfirmCancel": "Cancel",
   "loginBarTitle": "Sign in",
   "loginDiscardNotice": "If this account already has a saved chart, we'll use it instead of what you just entered.",
+  "loginSaveNote": "Sign in to see the rest of the reading you just saw.",
   "loginTitleBody": "Sign in and we'll give you a daily reading matched to your chart.",
   "loginTitleHead": "Myungli Diary",
   "mySajuBarTitle": "My chart",
