@@ -340,7 +340,7 @@ def test_brand_groups_contain_spec_components():
     ids = {group: {c["id"] for c in documents[group]["components"]} for group in BRAND_GROUPS}
     assert ids == {
         "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
-        "today": {"day-character", "lucky-card", "guide-question-card", "share-image"},
+        "today": {"day-character", "lucky-card", "guide-question-card", "share-image", "date-header", "tag-sentence-list"},
         "calendar": {"calendar-month", "day-cell", "event-row"},
         "diary": {"diary-row", "diary-editor", "draft-indicator", "tag-chip", "diary-summary"},
         "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar"},
@@ -707,7 +707,8 @@ def test_element_values_from_app_feedback():
     assert elements["icon"]["set"]["flutter"] == "phosphor_glyphs"
     assert elements["icon"]["set"]["flutterVersion"] == "2.1.2+1"
     assert elements["mark.caution"]["size"] == "adjacent-text"  # V57
-    assert elements["lock.veil"]["lines"] == {"default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1}
+    # G1(결정 V80)이 server 길이 힌트를 구역별 고정 줄 수로 바꿈. sentence-block locked 1줄은 app LockVeil.line 그대로
+    assert elements["lock.veil"]["lines"]["sentence-block locked"] == 1
 
 
 # app 질문 #195·#211 (계약 2.4.0)
@@ -1456,6 +1457,7 @@ CONTENT_COMPONENTS = {
     "offer-card", "purchase-row", "account-choice", "city-search",
     "hanja-tag",  # 태그 이름을 받아 그림 (DS1 2단계)
     "diary-summary", "luck-pillar",  # 기록 집계, 대운과 세운 (DS1 2단계 묶음 B)
+    "date-header",  # 음력과 일진은 server 값 (DS1 2단계 묶음 A)
 }
 
 
@@ -1502,6 +1504,7 @@ NO_LOADING_CONTENT = {
     "day-cell",  # calendar-month 뼈 안
     "section-header",  # 제목은 UI 슬롯이라 불러오는 중에도 그대로 (DS1 2단계)
     "explain-sheet",  # 틀. 본문은 sentence-block 뼈
+    "tag-sentence-list",  # 오늘 화면에서 이미 받은 문장을 다시 보임. tag-sheet에는 loading이 없음 (DS1 2단계 묶음 A)
 }
 
 
@@ -1841,3 +1844,139 @@ def test_luck_pillar():
     assert "status.bg" not in json.dumps(variants["compact"])
     assert pillar["a11y"]["textScaleMax"] == 1.3
     assert any("낙관 윤곽" in rule for rule in pillar["rules"])
+
+
+# DS1 2단계 spec §4 date-header (묶음 A, 결정 V78)
+def test_date_header():
+    header = component("today", "date-header")
+    parts = header["parts"]
+    solar = parts["solar"]
+    assert (solar["type"], solar["fg"]) == ("{type.subtitle}", "{color.text.primary}")
+    assert (solar["slot"], solar["daySheetSlot"]) == ("today.date.solar", "day-sheet.date.solar")
+    meta = parts["meta"]
+    assert (meta["type"], meta["fg"], meta["marginTop"]) == ("{type.caption.lg}", "{color.text.secondary}", "{space.2}")
+    # 음력과 일진은 한 줄에 놓고 글자로 잇지 않음(구분은 간격, V47·V52와 같은 이유)
+    assert meta["order"] == ["lunar", "iljin"] and meta["gap"] == "{space.8}" and meta["separator"] == "none"
+    lunar, iljin = parts["lunar"], parts["iljin"]
+    assert (lunar["slot"], lunar["daySheetSlot"]) == ("today.date.lunar", "day-sheet.date.lunar")
+    assert lunar["whenMissing"] == "hide" and "#806" in lunar["source"]  # 음력이 계약에 없으면 일진만
+    assert iljin["slot"] == "today.date.iljin" and iljin["fontFallback"] == "{font.family.hanja}"
+    variants = {variant["id"]: variant["parts"] for variant in header["variants"]}
+    assert set(variants) == {"today", "day-sheet"}
+    assert variants["day-sheet"] == {"iljin": {"visible": False}}  # 그날 시트는 일진 없이
+    assert [bone["bone"] for bone in header["states"]["loading"]["skeleton"]] == ["meta"]
+    assert header["a11y"]["role"] == "header" and header["a11y"]["readsHanja"] is False
+    assert "date-header" not in components.IA_PENDING_COMPONENTS and "date-header" in CONTENT_COMPONENTS
+
+
+# DS1 2단계 spec §4 tag-sentence-list, IA tag-sheet (결정 V79)
+def test_tag_sentence_list():
+    sentences = component("today", "tag-sentence-list")
+    parts = sentences["parts"]
+    assert parts["head"] == {"type": "{type.label.md}", "fg": "{color.text.secondary}",
+                             "slot": "tag-sheet.sentences.title", "marginBottom": "{space.8}"}
+    row = parts["row"]
+    assert row["sources"] == ["today.fortune.body", "today.guide.question"]  # 오늘 화면과 같은 문장
+    assert row["label"]["width"] == {"value": 52, "unit": "px"}
+    assert (row["label"]["type"], row["label"]["fg"]) == ("{type.caption.md}", "{color.text.secondary}")
+    assert "IA 슬롯 없음" in row["label"]["copy"]  # 이름 칸 글자는 writing 새 슬롯 요청
+    assert (row["sentence"]["component"], row["sentence"]["variant"]) == ("sentence-block", "body")
+    assert row["sentence"]["marginStart"] == "{space.8}"
+    assert (row["paddingTop"], row["paddingBottom"]) == ("{space.12}", "{space.12}")
+    assert parts["divider"] == {"element": "list.divider"} and "list.divider" in sentences["uses"]
+    # 빈 안내: 대표 태그 2순위처럼 이 기운으로 정해진 문장이 없을 때 한 줄
+    empty = parts["empty"]
+    assert (empty["slot"], empty["type"], empty["fg"], empty["visible"]) == (
+        "tag-sheet.sentences.empty", "{type.body.ui}", "{color.text.secondary}", False)
+    state = sentences["states"]["empty"]
+    assert "2순위" in state["when"] and state["parts"] == {"row": {"visible": False}, "empty": {"visible": True}}
+    # 출구: 그 태그가 붙은 내 일기 보기, 꺾쇠 링크(화면 이동)
+    link = parts["diaryLink"]
+    assert link["slot"] == "tag-sheet.diary.cta" and link["params"] == ["tag", "count"]
+    assert link["label"] == {"type": "{type.label.lg}", "fg": "{color.action.primary}"}
+    assert link["chevron"] == CHEVRON and link["marginTop"] == "{space.16}"
+    assert link["target"] == {"screen": "tag-diary", "presentation": "page", "transition": "page.push"}
+    assert link["hiddenWhen"] == "그 태그의 일기 0편" and "josa" in link["josa"]
+    assert "page.push" in sentences["uses"] and "lock-simple" not in json.dumps(sentences)
+    assert sentences["a11y"]["role"] == "list" and sentences["a11y"]["linkRole"] == "link"
+    assert "tag-sentence-list" not in components.IA_PENDING_COMPONENTS and "tag-sentence-list" in NO_LOADING_CONTENT
+    # tag-sheet 배치: IA 슬롯이 모두 나오고, 머리 태그는 누를 수 없는 default
+    layout = _md_section("today.md", "### tag-sheet 화면 배치")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("tag-sheet"))
+    assert "`tag-sentence-list`" in layout and "`hanja-tag` `default`" in layout and "`depth-link` `inline-end`" in layout
+
+
+# DS1 2단계 spec §4 lock.veil G1, D106 (결정 V80)
+def test_lock_veil_g1():
+    veil = load_documents(COMPONENTS_DIR)["elements"]["elements"]["lock.veil"]
+    lead = veil["lead"]
+    assert lead["fg"] == "{color.text.primary}" and lead["type"] == "{type.sentence.body}"
+    assert "blur" not in lead and "#797" in lead["source"] and lead["words"] == "2~3"  # 앞 단어는 또렷
+    placeholder = veil["placeholder"]
+    assert placeholder["source"] == "app" and placeholder["matchesRealLength"] is False
+    assert placeholder["flow"] == "앞부분 바로 뒤, 같은 줄에서 이어짐"
+    assert veil["lines"] == {"basis": 3, "source": 2, "personal": 3, "sentence-block locked": 1}
+    assert "길이 힌트" not in json.dumps(veil, ensure_ascii=False)  # 실제 길이와 맞추지 않음
+    assert veil["body"]["blur"] == {"value": 6, "unit": "px"} and veil["body"]["opacity"] == 0.5
+    assert "그대로" in veil["reduceMotion"]  # 동작 줄이기에서도 흐림 고정
+    assert veil["a11y"]["bodyExcluded"] is True and veil["a11y"]["leadRead"] is True
+    locked = component("sentence", "depth-link")["states"]["locked"]["parts"]["evidenceSheet"]
+    assert (locked["basis"]["lines"], locked["source"]["lines"], locked["personal"]["lines"]) == (3, 2, 3)
+    assert any("saju-chart.yongsin.basis" in place for place in veil["where"])
+
+
+# DS1 2단계 spec §4 근거 시트 머리, IA evidence-sheet (결정 V80)
+def test_evidence_sheet_head():
+    link = component("sentence", "depth-link")
+    sheet = link["parts"]["evidenceSheet"]
+    assert sheet["order"][:3] == ["title", "target", "pillars"]
+    assert set(sheet["order"]) <= set(sheet)
+    target = sheet["target"]
+    assert target["marginTop"] == "{space.12}"
+    tags = target["tags"]
+    assert (tags["component"], tags["variant"], tags["interactive"], tags["gap"]) == ("hanja-tag", "default", False, "{space.8}")
+    sentence = target["sentence"]
+    assert (sentence["slot"], sentence["type"], sentence["fg"], sentence["marginTop"]) == (
+        "evidence-sheet.target.body", "{type.caption.lg}", "{color.text.secondary}", "{space.8}")
+    assert sentence["segments"] == "plain"
+    locked = link["states"]["locked"]["parts"]["evidenceSheet"]
+    assert "target" not in locked  # 대상 문장과 태그는 잠기지 않음
+    assert "evidence-sheet" in component("sentence", "hanja-tag")["parts"]["opens"]["notInteractiveIn"]
+
+
+# IA v5 today 구성 순서 (D108, 결정 V78)
+TODAY_ORDER = [
+    "today.bar.title", "today.date.solar", "today.date.lunar", "today.date.iljin", "today.fortune.title",
+    "today.character.label", "today.ten-god.label", "today.fortune.head", "today.fortune.body",
+    "today.featured.title", "today.lucky.title", "today.event.summary", "today.guide.title",
+    "today.guide.question", "today.guide.cta",
+]
+
+
+def test_today_section_order():
+    layout = _md_section("today.md", "### today 화면 배치")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("today"))
+    positions = [layout.index(f"`{slot}`") for slot in TODAY_ORDER]
+    assert positions == sorted(positions)
+    lines = layout.splitlines()
+
+    def line_of(slot):
+        return next(line for line in lines if f"`{slot}`" in line)
+
+    fortune = line_of("today.fortune.title")
+    assert "`section-header` `action`" in fortune and "`reaction-button`" in fortune and "`today.reaction.label`" in fortune
+    for slot in ("today.featured.title", "today.lucky.title", "today.guide.title"):
+        assert "`section-header` `plain`" in line_of(slot), slot
+    assert "`hanja-tag` `emphasis`" in line_of("today.character.label")
+    assert "`hanja-tag` `default`" in line_of("today.ten-god.label")
+    assert "`list.divider`" in layout and "`depth-link` `inline-end`" in line_of("today.fortune.head")
+    assert "`date-header` `today`" in line_of("today.date.solar")
+    composition = [line for line in lines if re.match(r"^(\d+\. |   \* )", line)]
+    assert not [line for line in composition if "day-character" in line]  # 맨 위 날의 성격 배지와 이유 줄은 빠짐(D108)
+
+
+# 시안 A에서 찾은 빈틈: 용신의 날 진한 채움은 이름이 흰 글자라, 흰 원 안 한자를 이름색으로 그리면 보이지 않음 (결정 V78)
+def test_hanja_tag_emphasis_glyph_stays_visible():
+    emphasis = next(v for v in component("sentence", "hanja-tag")["variants"] if v["id"] == "emphasis")
+    glyph = emphasis["parts"]["glyph"]
+    assert glyph["fg"] == {"YONGSIN_DAY": "{color.badge.good.bg}", "otherwise": "same-as-name"}

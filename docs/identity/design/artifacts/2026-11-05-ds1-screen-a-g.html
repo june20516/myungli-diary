@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS1 화면 묶음 A와 G: 오늘, 사주 기운 시트, 잠긴 근거 시트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 모든 색, 간격, 반경, 시간은 ds1/tokens.css의 토큰 변수입니다. 명세 값 출처: components/*.json */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--color-bg-base); color: var(--color-text-primary);
+    font-family: var(--type-body-ui-family); font-size: var(--type-body-ui-size); line-height: var(--type-body-ui-line-height);
+    letter-spacing: var(--type-body-ui-letter-spacing);
+  }
+  .page { max-width: 1240px; margin: 0 auto; padding: var(--space-32) var(--space-20) var(--space-48); }
+  h1 { font-size: var(--type-display-size); font-weight: var(--type-display-weight); line-height: var(--type-display-line-height); margin: 0 0 var(--space-8); }
+  h2 { font-size: var(--type-title-size); font-weight: var(--type-title-weight); margin: var(--space-48) 0 var(--space-8); }
+  .intro, .note { color: var(--color-text-secondary); margin: 0 0 var(--space-16); max-width: 760px; }
+  .note { font-size: var(--type-caption-lg-size); }
+  .toolbar { display: flex; gap: var(--space-8); margin: var(--space-16) 0; }
+  .toolbar button {
+    font: inherit; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+    border: 1px solid var(--color-line); background: var(--color-bg-sheet); color: var(--color-text-primary);
+    border-radius: var(--radius-full); padding: var(--space-4) var(--space-12); cursor: pointer;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-24); align-items: flex-start; }
+  .caption { font-size: var(--type-label-md-size); font-weight: 600; color: var(--color-action-primary); margin-bottom: var(--space-4); }
+  .ic { width: var(--icon, 16px); height: var(--icon, 16px); flex: none; display: inline-block; vertical-align: middle; fill: currentColor; }
+
+  /* 휴대폰 틀 360 */
+  .phone {
+    position: relative; overflow: hidden; width: 360px; background: var(--color-bg-base);
+    border: 1px solid var(--color-line); border-radius: var(--radius-xl);
+  }
+  .phone .content { padding: 0 var(--space-20) var(--space-24); }
+  .phone.mini .content { padding-top: var(--space-16); }
+
+  /* app-bar tab-root: 바탕 없음, 높이 44, 좌우 space.16, 제목 type.subtitle */
+  .appbar { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-16); margin-top: var(--space-8); }
+  .appbar .title { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .appbar .action { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-right: calc(var(--space-12) * -1); color: var(--color-text-primary); --icon: var(--size-icon-24); }
+
+  /* section-header: 제목 type.label.lg 600, 내용까지 space.12, 섹션 사이 space.32, 오른쪽 꺾쇠 링크 */
+  .section { margin-top: var(--space-32); }
+  .section:first-child { margin-top: var(--space-16); }
+  .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-12); min-height: 24px; }
+  .sh .t { font-size: var(--type-label-lg-size); font-weight: 600; line-height: var(--type-label-lg-line-height); color: var(--color-text-primary); }
+  .sh .link { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-action-primary); --icon: var(--size-icon-16); }
+
+  .card { position: relative; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-16); }
+  /* 원고에 없는 문구 자리 표시: 글과 겹치지 않게 카드 맨 아래 오른쪽 줄 */
+  .ex-row { display: flex; justify-content: flex-end; margin-top: var(--space-12); }
+  .ex {
+    font-size: var(--type-caption-sm-size); color: var(--color-text-secondary);
+    border: 1px dashed var(--color-line); border-radius: var(--radius-full); padding: 0 var(--space-8);
+  }
+
+  /* term-token: term.bg + term.fg, radius.xs, 좌우 space.4. label은 type.caption.md */
+  .term { background: var(--color-term-bg); color: var(--color-term-fg); border-radius: var(--radius-xs); padding: 0 var(--space-4); }
+  .term.label { display: inline-block; font-size: var(--type-caption-md-size); font-weight: var(--type-caption-md-weight); line-height: 18px; }
+
+  /* saju-pillars */
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: var(--space-8); text-align: center; }
+  .pillars .head { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+  .pillars .term.label { margin: var(--space-4) 0; }
+  .cell {
+    position: relative; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .cell.pillar { height: 66px; }
+  .cell.pillar .h { font-family: var(--type-hanja-pillar-family); font-size: var(--type-hanja-pillar-size); font-weight: var(--type-hanja-pillar-weight); line-height: 1; }
+  .cell.pillar .r { font-size: var(--type-caption-sm-size); margin-top: var(--space-4); }
+  .cell.pillar + .cell.pillar { margin-top: var(--space-4); }
+  .cell.me { box-shadow: inset 0 0 0 2px var(--color-action-primary); }
+  .cell .tag-me {
+    position: absolute; top: calc(var(--space-4) * -1); right: calc(var(--space-4) * -1); background: var(--color-action-primary); color: var(--color-action-on-primary);
+    font-size: 10px; font-weight: 700; border-radius: var(--radius-full); padding: 0 var(--space-4); line-height: 14px;
+  }
+  .cell.empty { border: 1px dashed var(--color-line); background: transparent; }
+  .wood { background: var(--color-ohaeng-wood-bg); color: var(--color-ohaeng-wood-fg); }
+  .fire { background: var(--color-ohaeng-fire-bg); color: var(--color-ohaeng-fire-fg); }
+  .earth { background: var(--color-ohaeng-earth-bg); color: var(--color-ohaeng-earth-fg); }
+  .metal { background: var(--color-ohaeng-metal-bg); color: var(--color-ohaeng-metal-fg); }
+  .water { background: var(--color-ohaeng-water-bg); color: var(--color-ohaeng-water-fg); }
+
+  /* ohaeng-bar: 막대 10, 칸 사이 2, 범례 다섯 칸 위 space.12 */
+  .obar { display: flex; gap: var(--space-2); height: 10px; margin-top: var(--space-16); }
+  .obar span { border-radius: var(--radius-full); }
+  .sw-wood { background: var(--color-ohaeng-wood-swatch); } .sw-fire { background: var(--color-ohaeng-fire-swatch); }
+  .sw-earth { background: var(--color-ohaeng-earth-swatch); } .sw-metal { background: var(--color-ohaeng-metal-swatch); }
+  .sw-water { background: var(--color-ohaeng-water-swatch); }
+  .legend { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: var(--space-12); font-size: var(--type-caption-md-size); }
+  .legend > div { display: flex; align-items: center; gap: var(--space-4); }
+  .legend .sw { width: 12px; height: 12px; border-radius: var(--radius-full); }
+  .legend b { font-weight: var(--type-numeric-table-weight); font-feature-settings: "tnum"; }
+
+  /* sentence-block */
+  .s-card { font-family: var(--type-sentence-card-family); font-size: var(--type-sentence-card-size); line-height: var(--type-sentence-card-line-height); word-break: keep-all; margin: 0; }
+  .s-body { font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; margin: var(--space-12) 0 0; }
+  .evidence { color: var(--color-action-primary); --icon: var(--size-icon-20); }
+
+  /* lucky-card 칩: bg.sheet + 1px line 안쪽 테두리, 높이 34 */
+  .yong { display: flex; align-items: center; gap: var(--space-8); flex-wrap: wrap; }
+  .yong .k { font-size: var(--type-label-lg-size); font-weight: 600; }
+  .lchip {
+    display: inline-flex; align-items: center; gap: var(--space-4); height: 34px; padding: 0 var(--space-12); border-radius: var(--radius-full);
+    background: var(--color-bg-sheet); box-shadow: inset 0 0 0 1px var(--color-line);
+    font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+  }
+  .lchip .dot { width: 14px; height: 14px; border-radius: var(--radius-full); }
+
+  /* luck-pillar compact: 줄 사이 space.16, 칸 세로(사이 space.4), 정보 묶음 space.12 */
+  .lp { display: flex; align-items: flex-start; }
+  .lp + .lp { margin-top: var(--space-16); }
+  .lp .cells { display: flex; flex-direction: column; gap: var(--space-4); }
+  .cell.small { width: 40px; height: 40px; font-family: var(--font-family-hanja); font-size: 18px; font-weight: 700; line-height: 1; }
+  .lp .info { margin-left: var(--space-12); }
+  .lp .head { display: flex; align-items: center; gap: var(--space-4); }
+  .status-tag { background: var(--color-status-bg); color: var(--color-status-fg); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); border-radius: var(--radius-full); padding: var(--space-2) var(--space-8); line-height: 1.3; }
+  .lp .period { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); font-feature-settings: "tnum"; margin-top: var(--space-4); }
+  .lp .gods { display: flex; gap: var(--space-4); margin-top: var(--space-4); }
+
+  /* diary-summary */
+  .count { display: flex; align-items: baseline; gap: var(--space-4); }
+  .count b { font-size: 28px; font-weight: 700; font-feature-settings: "tnum"; line-height: 1.2; }
+  .count span { font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
+  .ds-head { font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-text-secondary); margin: var(--space-16) 0 var(--space-8); }
+  .kinds { display: flex; flex-direction: column; gap: var(--space-8); }
+  .kind { display: flex; align-items: center; min-height: 24px; }
+  .kind .n { width: 72px; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); }
+  .kind .track { flex: 1; height: 8px; border-radius: var(--radius-full); background: var(--color-bg-base); overflow: hidden; }
+  .kind .fill { height: 100%; border-radius: var(--radius-full); }
+  .kind .c { width: 28px; margin-left: var(--space-12); text-align: right; font-size: var(--type-numeric-table-size); font-weight: var(--type-numeric-table-weight); font-feature-settings: "tnum"; }
+  .f-yongsin { background: var(--color-badge-good-bg); } .f-gwiin { background: var(--color-badge-gwiin-fg); }
+  .f-ordinary { background: var(--color-badge-ordinary-border); } .f-gisin { background: var(--color-badge-gisin-fg); }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+  .few { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); margin-top: var(--space-12); }
+
+  /* hanja-tag default: 높이 30, 왼쪽 4, 오른쪽 space.12, 원 22(bg.sheet, 한자 12 700), 사이 space.4, 사주 용어는 term 초록 */
+  .htag {
+    display: inline-flex; align-items: center; gap: var(--space-4); height: 30px; padding: 0 var(--space-12) 0 var(--space-4);
+    border-radius: var(--radius-full); background: var(--color-term-bg); color: var(--color-term-fg);
+    font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+  }
+  .htag .g { width: 22px; height: 22px; border-radius: var(--radius-full); background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-size: 12px; font-weight: 700; }
+  .htag .num { color: var(--color-text-secondary); font-feature-settings: "tnum"; }
+
+  /* notice-banner time-unknown */
+  .banner { display: flex; align-items: center; gap: var(--space-8); background: var(--color-bg-sheet); border-radius: var(--radius-md); padding: var(--space-12); margin-bottom: var(--space-16); font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); --icon: var(--size-icon-16); }
+
+  /* ad-banner + tab-bar */
+  .ad { background: var(--color-bar-bg); border-top: 0.5px solid var(--color-line); padding: var(--space-4) 0; text-align: center; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); }
+  .ad div { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px dashed var(--color-line); margin: 0 var(--space-16); border-radius: var(--radius-sm); }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); height: 72px; background: var(--color-bar-bg); }
+  .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); color: var(--color-text-secondary); font-size: var(--type-caption-sm-size); --icon: var(--size-icon-24); }
+  .tab .mark { position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+  .tab.on { color: var(--color-action-primary); font-weight: 600; }
+  .tab.on .seal { position: absolute; inset: 0; width: 34px; height: 34px; fill: var(--color-seal-fill); }
+  .tab.on .mark .ic { position: relative; color: var(--color-action-on-primary); }
+
+  /* skeleton: 요소마다 자기 모양, 글줄은 글줄 높이의 60% */
+  .bone { background: var(--color-skeleton-bone); animation: breathe var(--motion-duration-breathe) var(--motion-easing-standard) infinite alternate; }
+  .bone.line { height: 9px; border-radius: var(--radius-xs); margin: var(--space-4) 0; }
+  .bone.chip { display: inline-block; height: 30px; border-radius: var(--radius-full); }
+  .bone.cell { border-radius: var(--radius-sm); }
+  .bone.d1 { animation-delay: 150ms; } .bone.d2 { animation-delay: 300ms; }
+  @keyframes breathe { from { opacity: 0.55; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .bone { animation: none; } }
+
+  /* date-header: 날짜 type.subtitle, 아래 space.2에 음력과 일진(type.caption.lg secondary), 두 칸은 간격 space.8만 */
+  .dh { margin-top: var(--space-8); }
+  .dh .solar { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .dh .meta { display: flex; flex-wrap: wrap; column-gap: var(--space-8); margin-top: var(--space-2); font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .iljin, .hanja-fallback { font-family: var(--type-body-ui-family), var(--font-family-hanja); }
+  .react { width: 44px; height: 44px; display: flex; align-items: center; justify-content: flex-end; color: var(--color-text-secondary); --icon: var(--size-icon-24); margin: calc(var(--space-12) * -1) 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+  .card .s-card { margin-top: var(--space-12); }
+  .s-body.tight { margin-top: var(--space-8); }
+  .muted { color: var(--color-text-secondary); }
+  .card .s-card.muted { margin-top: 0; }
+  hr.divider { border: 0; border-top: var(--border-width-hairline) solid var(--color-line); margin: var(--space-16) 0; }
+  hr.divider.flush { margin: 0; }
+  .evidence { display: inline-flex; vertical-align: -3px; }
+  .nowrap { white-space: nowrap; }
+  /* hanja-tag 톤: 날의 성격 default는 tag.*, emphasis 용신의 날만 badge.good 진한 채움, 그 밖 사주 용어는 term 초록 */
+  .htag.good { background: var(--color-tag-good-bg); color: var(--color-tag-good-fg); }
+  .htag.emph-yongsin { background: var(--color-badge-good-bg); color: var(--color-badge-good-fg); }
+  .htag.emph-yongsin .g { color: var(--color-badge-good-bg); }
+  .htag.sel { box-shadow: inset 0 0 0 1.5px var(--color-action-primary); }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+  .lchip { --icon: var(--size-icon-16); }
+  .lchip .ic { color: var(--color-text-secondary); }
+  .tnum { font-feature-settings: "tnum"; }
+  /* event-row summary */
+  .card.event { display: flex; align-items: center; gap: var(--space-8); }
+  .card.event .time { color: var(--color-text-secondary); font-feature-settings: "tnum"; }
+  /* guide-question-card after: 질문 흐림, 가운데 조용한 버튼 + 뒤 층 낙관 soft 52 */
+  .card.guide { padding: var(--space-20); }
+  .quiet { position: relative; height: 52px; margin-top: var(--space-16); display: flex; align-items: center; justify-content: center; }
+  .quiet-seal { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; transform: translate(-50%, -50%) rotate(-8deg); }
+  .quiet-seal .seal { width: 52px; height: 52px; fill: var(--color-seal-soft); }
+  .quiet-label { position: relative; color: var(--color-seal-on-soft); font-size: var(--type-label-lg-size); font-weight: 600; }
+  .bone.btn { height: 52px; border-radius: var(--radius-md); margin-top: var(--space-16); }
+  .bone.chip.tall { height: 34px; }
+  /* diary-row entries */
+  .card.entries { margin-top: var(--space-8); }
+  .entry { display: flex; align-items: baseline; min-height: 24px; }
+  .entry .etime { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); font-feature-settings: "tnum"; }
+  .entry .eprev { flex: 1; margin-left: var(--space-12); font-family: var(--type-sentence-body-family); font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry .chev { --icon: var(--size-icon-16); color: var(--color-text-secondary); align-self: center; }
+
+  /* 시트 보기: 덮개 아래 오늘 화면 머리, 시트는 radius.xl, 안쪽 space.24, 핸들 자리 24 */
+  .phone.sheetview { height: 640px; }
+  .phone.sheetview.tall { height: 900px; }
+  .scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-bg-sheet); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 0 var(--space-24) var(--space-24); max-height: calc(100% - 56px); overflow: hidden; }
+  .sheetview.tall .sheet { top: 56px; padding-bottom: 0; }
+  .handle-area { height: 24px; display: flex; align-items: center; justify-content: center; }
+  .handle { width: 36px; height: 4px; border-radius: var(--radius-full); background: var(--color-line); }
+  .ts-head { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-8); --icon: var(--size-icon-20); }
+  .ts-head + .s-body { margin-top: var(--space-12); }
+  /* tag-sentence-list: 머리 label.md secondary, 줄은 이름 칸 52 + space.8 + 문장, 위아래 space.12, 줄 사이 list.divider */
+  .tsl { margin-top: var(--space-24); }
+  .tsl-head { font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-text-secondary); margin-bottom: var(--space-8); }
+  .tsl-row { display: flex; align-items: baseline; padding: var(--space-12) 0; }
+  .tsl-label { flex: none; width: 52px; word-break: keep-all; font-size: var(--type-caption-md-size); line-height: var(--type-caption-md-line-height); color: var(--color-text-secondary); }
+  .tsl-row .s-body { margin: 0 0 0 var(--space-8); }
+  .tsl-empty { margin: 0; font-size: var(--type-body-ui-size); color: var(--color-text-secondary); }
+  .tsl-link, .lp-link { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-action-primary); --icon: var(--size-icon-16); }
+  .tsl-link { margin-top: var(--space-16); font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
+
+  /* 근거 시트: 제목 type.title, 아래 space.12에 태그 줄과 대상 문장(caption.lg secondary, space.8), 원국표, 구역 */
+  .ev-scroll { padding-bottom: 260px; }
+  .ev-title { margin-top: var(--space-8); font-size: var(--type-title-size); font-weight: var(--type-title-weight); line-height: var(--type-title-line-height); }
+  .ev-target { margin-top: var(--space-12); }
+  .ev-sentence { margin: var(--space-8) 0 0; font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .pillars.mini { margin-top: var(--space-12); }
+  .pillars.mini .cell { margin: 0 auto var(--space-4); }
+  .ev-sec { margin-top: var(--space-24); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-text-secondary); }
+  /* lock.veil G1: 앞 2~3 단어 또렷, 바로 뒤 자리값 흐림 6px 0.5, 줄 수 판정 근거 3, 원전 2. 동작 줄이기에서도 흐림 그대로 */
+  .veil { margin: var(--space-8) 0 0; font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; overflow: hidden; user-select: none; }
+  .veil.l3 { max-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 3); } .veil.l2 { max-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 2); }
+  .veil .ph { filter: blur(6px); opacity: 0.5; }
+  .lock-panel { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-bg-sheet); border-top: 1px solid var(--color-line); padding: var(--space-24); }
+  .lp-head { display: flex; align-items: center; gap: var(--space-8); font-size: var(--type-label-lg-size); font-weight: 600; --icon: var(--size-icon-20); }
+  .lp-head .ic { color: var(--color-status-fg); }
+  .lp-reward { margin: var(--space-8) 0 0; font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .btn-filled { margin-top: var(--space-12); height: 52px; border-radius: var(--radius-md); background: var(--color-action-primary); color: var(--color-action-on-primary); display: flex; align-items: center; justify-content: center; font-size: var(--type-label-lg-size); font-weight: 600; }
+  .lp-pass { margin-top: var(--space-12); text-align: center; font-size: var(--type-label-md-size); color: var(--color-text-secondary); }
+  .lp-link { font-weight: var(--type-label-md-weight); }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true"><symbol id="ic-export-light" viewBox="0 0 256 256"><path d="M214,112v96a14,14,0,0,1-14,14H56a14,14,0,0,1-14-14V112A14,14,0,0,1,56,98H80a6,6,0,0,1,0,12H56a2,2,0,0,0-2,2v96a2,2,0,0,0,2,2H200a2,2,0,0,0,2-2V112a2,2,0,0,0-2-2H176a6,6,0,0,1,0-12h24A14,14,0,0,1,214,112ZM92.24,68.24,122,38.49V136a6,6,0,0,0,12,0V38.49l29.76,29.75a6,6,0,1,0,8.48-8.48l-40-40a6,6,0,0,0-8.48,0l-40,40a6,6,0,1,0,8.48,8.48Z"/></symbol><symbol id="ic-heart-light" viewBox="0 0 256 256"><path d="M178,42c-21,0-39.26,9.47-50,25.34C117.26,51.47,99,42,78,42a60.07,60.07,0,0,0-60,60c0,29.2,18.2,59.59,54.1,90.31a334.68,334.68,0,0,0,53.06,37,6,6,0,0,0,5.68,0,334.68,334.68,0,0,0,53.06-37C219.8,161.59,238,131.2,238,102A60.07,60.07,0,0,0,178,42ZM128,217.11C111.59,207.64,30,157.72,30,102A48.05,48.05,0,0,1,78,54c20.28,0,37.31,10.83,44.45,28.27a6,6,0,0,0,11.1,0C140.69,64.83,157.72,54,178,54a48.05,48.05,0,0,1,48,48C226,157.72,144.41,207.64,128,217.11Z"/></symbol><symbol id="ic-book-open-text-regular" viewBox="0 0 256 256"><path d="M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64ZM160,88h40a8,8,0,0,1,0,16H160a8,8,0,0,1,0-16Zm48,40a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,128Zm0,32a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,160Z"/></symbol><symbol id="ic-compass-regular" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM172.42,72.84l-64,32a8.05,8.05,0,0,0-3.58,3.58l-32,64A8,8,0,0,0,80,184a8.1,8.1,0,0,0,3.58-.84l64-32a8.05,8.05,0,0,0,3.58-3.58l32-64a8,8,0,0,0-10.74-10.74ZM138,138,97.89,158.11,118,118l40.15-20.07Z"/></symbol><symbol id="ic-hash-regular" viewBox="0 0 256 256"><path d="M224,88H175.4l8.47-46.57a8,8,0,0,0-15.74-2.86l-9,49.43H111.4l8.47-46.57a8,8,0,0,0-15.74-2.86L95.14,88H48a8,8,0,0,0,0,16H92.23L83.5,152H32a8,8,0,0,0,0,16H80.6l-8.47,46.57a8,8,0,0,0,6.44,9.3A7.79,7.79,0,0,0,80,224a8,8,0,0,0,7.86-6.57l9-49.43H144.6l-8.47,46.57a8,8,0,0,0,6.44,9.3A7.79,7.79,0,0,0,144,224a8,8,0,0,0,7.86-6.57l9-49.43H208a8,8,0,0,0,0-16H163.77l8.73-48H224a8,8,0,0,0,0-16Zm-76.5,64H99.77l8.73-48h47.73Z"/></symbol><symbol id="ic-clock-regular" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></symbol><symbol id="ic-caret-right-regular" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></symbol><symbol id="ic-caret-right-light" viewBox="0 0 256 256"><path d="M180.24,132.24l-80,80a6,6,0,0,1-8.48-8.48L167.51,128,91.76,52.24a6,6,0,0,1,8.48-8.48l80,80A6,6,0,0,1,180.24,132.24Z"/></symbol><symbol id="ic-lock-simple-regular" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></symbol><symbol id="ic-sun-regular" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol><symbol id="ic-calendar-blank-light" viewBox="0 0 256 256"><path d="M208,34H182V24a6,6,0,0,0-12,0V34H86V24a6,6,0,0,0-12,0V34H48A14,14,0,0,0,34,48V208a14,14,0,0,0,14,14H208a14,14,0,0,0,14-14V48A14,14,0,0,0,208,34ZM48,46H74V56a6,6,0,0,0,12,0V46h84V56a6,6,0,0,0,12,0V46h26a2,2,0,0,1,2,2V82H46V48A2,2,0,0,1,48,46ZM208,210H48a2,2,0,0,1-2-2V94H210V208A2,2,0,0,1,208,210Z"/></symbol><symbol id="ic-notebook-light" viewBox="0 0 256 256"><path d="M182,112a6,6,0,0,1-6,6H112a6,6,0,0,1,0-12h64A6,6,0,0,1,182,112Zm-6,26H112a6,6,0,0,0,0,12h64a6,6,0,0,0,0-12Zm46-90V208a14,14,0,0,1-14,14H48a14,14,0,0,1-14-14V48A14,14,0,0,1,48,34H208A14,14,0,0,1,222,48ZM48,210H74V46H48a2,2,0,0,0-2,2V208A2,2,0,0,0,48,210ZM210,48a2,2,0,0,0-2-2H86V210H208a2,2,0,0,0,2-2Z"/></symbol><symbol id="ic-user-light" viewBox="0 0 256 256"><path d="M229.19,213c-15.81-27.32-40.63-46.49-69.47-54.62a70,70,0,1,0-63.44,0C67.44,166.5,42.62,185.67,26.81,213a6,6,0,1,0,10.38,6C56.4,185.81,90.34,166,128,166s71.6,19.81,90.81,53a6,6,0,1,0,10.38-6ZM70,96a58,58,0,1,1,58,58A58.07,58.07,0,0,1,70,96Z"/></symbol></svg>
+<div class="page">
+  <h1>DS1 화면 묶음 A와 G: 오늘, 사주 기운 시트, 잠긴 근거 시트</h1>
+  <p class="intro">IA v5 <code>today</code>, <code>tag-sheet</code>, <code>evidence-sheet</code>입니다. 오늘은 위에서부터 날짜 머리, 총운(결정 태그, 헤드라인과 근거 아이콘, 선, 보조 문장 태그와 보조 문장), 사주 기운, 행운, 오늘 일정, 오늘의 질문과 오늘 쓴 일기, 배너 광고입니다. 새 컴포넌트는 <code>date-header</code>와 <code>tag-sentence-list</code>이고, 잠긴 문장은 G1(앞 2~3 단어 또렷, 뒤는 흐린 자리값)입니다. 데이터는 앱 fixture의 가상 사용자 하늘님 2026년 10월 13일(용신의 날, 庚申일, 대표 태그 천을귀인, 오늘 일기 한 편)입니다. 음력은 같은 날 달력 fixture 값입니다. 섹션 제목과 날짜 머리 문구는 IA 가안이고 원고 전입니다. fixture에 없는 값과 원고에 없는 문구는 카드 아래 "예시" 표시로 알립니다.</p>
+  <div class="toolbar"><button id="theme" type="button">다크로 보기</button></div>
+
+  <h2>오늘</h2>
+  <div class="row">
+    <div>
+      <div class="caption">기본(오늘 일기 한 편 쓴 뒤)</div>
+      <div class="phone">
+        <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="content">
+          <div class="dh"><div class="solar">10월 13일 화요일</div><div class="meta"><span>음력 9월 3일</span><span class="iljin">庚申(경신)일</span></div></div>
+          <section class="section">
+            <div class="sh"><span class="t">총운</span><span class="react" role="button" aria-label="좋아요"><svg class="ic" aria-hidden="true"><use href="#ic-heart-light"/></svg></span></div>
+            <div class="card">
+              <div class="tags"><span class="htag emph-yongsin"><span class="g" aria-hidden="true">用</span>용신의 날</span><span class="htag term"><span class="g" aria-hidden="true">比</span>비겁</span></div>
+              <p class="s-card">하늘님, <span class="term">목</span>의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 <span class="nowrap">보세요.&nbsp;<span class="evidence" role="button" aria-label="총운 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></span></p>
+              <hr class="divider">
+              <div class="tags"><span class="htag term"><span class="g" aria-hidden="true">天</span>천을귀인</span></div>
+              <p class="s-body tight"><span class="term">천을귀인</span>이 들어 도움을 받기 쉬운 <span class="nowrap">날이에요.&nbsp;<span class="evidence" role="button" aria-label="총운 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></span></p>
+              <div class="ex-row"><span class="ex">십성 묶음 태그 예시(#806)</span></div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">사주 기운</span></div>
+            <div class="card">
+              <div class="tags"><span class="htag term sel"><span class="g" aria-hidden="true">天</span>천을귀인</span><span class="htag term"><span class="g" aria-hidden="true">合</span>합</span></div>
+              <div class="ex-row"><span class="ex">둘째 태그 예시</span></div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">행운</span></div>
+            <div class="card">
+              <div class="chips">
+                <span class="lchip"><span class="dot sw-wood"></span>초록</span>
+                <span class="lchip"><svg class="ic" aria-hidden="true"><use href="#ic-compass-regular"/></svg>동</span>
+                <span class="lchip"><svg class="ic" aria-hidden="true"><use href="#ic-hash-regular"/></svg>3</span>
+                <span class="lchip tnum"><svg class="ic" aria-hidden="true"><use href="#ic-clock-regular"/></svg>09:30~11:30</span>
+              </div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="card event">
+              <span class="status-tag">다음</span><span class="time">19:00</span><span class="etitle">요가 수업</span>
+            </div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">오늘의 질문</span></div>
+            <div class="card guide">
+              <p class="s-card muted">오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?</p>
+              <div class="quiet"><span class="quiet-seal"><svg class="seal" viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg></span><span class="quiet-label">새 일기 쓰기</span></div>
+            </div>
+            <div class="card entries">
+              <div class="entry"><span class="etime">21:10</span><span class="eprev">회의에서 먼저 말을 꺼냈더니 생각보다 반응이 좋았다.</span><svg class="ic chev" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></div>
+            </div>
+          </section>
+        </div>
+        <div class="ad"><div>배너 광고 자리(D53)</div></div>
+        <div class="tabbar">
+          <div class="tab on"><span class="mark"><svg class="seal" viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-sun-regular"/></svg></span>오늘</div>
+          <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-calendar-blank-light"/></svg></span>달력</div>
+          <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-notebook-light"/></svg></span>일기</div>
+          <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-user-light"/></svg></span>나</div>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">사주 기운의 천을귀인은 사주 기운 시트가 열린 동안의 고른 표시(selected)입니다. 오늘 일정은 IA에 제목 슬롯이 없어 제목 없는 카드이고, 시각은 오후 1시 기준입니다.</p>
+    </div>
+    <div>
+      <div class="caption">불러오는 중</div>
+      <div class="phone">
+        <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="content">
+          <div class="dh"><div class="solar">10월 13일 화요일</div><div class="bone line " style="width: 50%"></div></div>
+          <section class="section">
+            <div class="sh"><span class="t">총운</span><span class="react"><svg class="ic" aria-hidden="true"><use href="#ic-heart-light"/></svg></span></div>
+            <div class="card">
+              <div class="tags"><span class="bone chip" style="width: 64px"></span><span class="bone chip d1" style="width: 64px"></span></div>
+              <div style="margin-top: var(--space-12)"><div class="bone line " style="width: 100%"></div><div class="bone line d1" style="width: 70%"></div></div>
+              <hr class="divider">
+              <span class="bone chip" style="width: 64px"></span>
+              <div style="margin-top: var(--space-8)"><div class="bone line " style="width: 100%"></div><div class="bone line d1" style="width: 90%"></div><div class="bone line d2" style="width: 40%"></div></div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">사주 기운</span></div>
+            <div class="card"><div class="tags"><span class="bone chip" style="width: 64px"></span><span class="bone chip d1" style="width: 64px"></span></div></div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">행운</span></div>
+            <div class="card"><div class="chips"><span class="bone chip tall" style="width: 72px"></span><span class="bone chip tall d1" style="width: 56px"></span><span class="bone chip tall d2" style="width: 64px"></span></div></div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">오늘의 질문</span></div>
+            <div class="card guide"><div class="bone line " style="width: 100%"></div><div class="bone line d1" style="width: 60%"></div><div class="bone btn d2"></div></div>
+          </section>
+        </div>
+        <div class="ad"><div>배너 광고 자리(D53)</div></div>
+        <div class="tabbar">
+          <div class="tab on"><span class="mark"><svg class="seal" viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-sun-regular"/></svg></span>오늘</div>
+          <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-calendar-blank-light"/></svg></span>달력</div>
+          <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-notebook-light"/></svg></span>일기</div>
+          <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-user-light"/></svg></span>나</div>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">상단 바, 날짜 줄, 섹션 제목은 바로 그리고, 음력과 일진 줄과 카드 안은 컴포넌트마다 자기 뼈입니다.</p>
+    </div>
+  </div>
+
+  <h2>사주 기운 시트</h2>
+  <div class="row">
+    <div><div class="caption">대표 태그 1순위</div>
+      <div class="phone sheetview ">
+        <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="handle-area"><span class="handle"></span></div>
+          
+          <div class="ts-head"><span class="htag term"><span class="g" aria-hidden="true">天</span>천을귀인</span><span class="evidence" role="button" aria-label="천을귀인 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></div>
+          <p class="s-body">어려울 때 도와주는 사람이 곁에 오는 기운이에요.</p>
+          <div class="tsl">
+            <div class="tsl-head">이 기운에서 나온 오늘 문장</div>
+            <div class="tsl-row"><span class="tsl-label">보조 문장</span><p class="s-body">천을귀인이 들어 도움을 받기 쉬운 날이에요.</p></div>
+            <hr class="divider flush">
+            <div class="tsl-row"><span class="tsl-label">오늘의 질문</span><p class="s-body">오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?</p></div>
+            <div class="tsl-link" role="link">천을귀인이 붙은 내 일기 2편 보기<svg class="ic" aria-hidden="true"><use href="#ic-caret-right-regular"/></svg></div>
+          </div>
+          <div class="ex-row"><span class="ex">구역 머리, 이름 칸, 링크 문구 예시</span></div>
+        </div>
+      </div></div>
+    <div><div class="caption">대표 태그 2순위(정해진 문장 없음)</div>
+      <div class="phone sheetview ">
+        <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="handle-area"><span class="handle"></span></div>
+          
+          <div class="ts-head"><span class="htag term"><span class="g" aria-hidden="true">合</span>합</span><span class="evidence" role="button" aria-label="합 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></div>
+          <p class="s-body">서로 다른 기운이 끌어당겨 하나로 묶이는 기운이에요.</p>
+          <div class="tsl">
+            <div class="tsl-head">이 기운에서 나온 오늘 문장</div>
+            <p class="tsl-empty">오늘은 이 기운으로 정해진 문장이 없어요</p>
+          </div>
+          <div class="ex-row"><span class="ex">뜻, 구역 머리, 빈 안내 문구 예시</span></div>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">이 태그가 붙은 일기가 0편이라 아래 링크 줄을 숨겼습니다.</p>
+    </div>
+  </div>
+
+  <h2>잠긴 근거 시트 (G1)</h2>
+  <div class="row">
+    <div><div class="caption">총운 헤드라인에서 연 근거 시트, 잠김</div>
+      <div class="phone sheetview tall">
+        <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="handle-area"><span class="handle"></span></div>
+          
+          <div class="ev-scroll">
+            <div class="ev-title">풀이의 근거</div>
+            <div class="ev-target">
+              <div class="tags"><span class="htag good"><span class="g" aria-hidden="true">用</span>용신의 날</span><span class="htag term"><span class="g" aria-hidden="true">比</span>비겁</span></div>
+              <p class="ev-sentence">하늘님, 목의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요.</p>
+            </div>
+            <div class="pillars mini">
+              <div><div class="head">시주</div><div class="cell small water">癸</div><div class="cell small earth">未</div></div>
+              <div><div class="head">일주</div><div class="cell small metal me">庚</div><div class="cell small earth">辰</div></div>
+              <div><div class="head">월주</div><div class="cell small metal">辛</div><div class="cell small fire">巳</div></div>
+              <div><div class="head">연주</div><div class="cell small metal">庚</div><div class="cell small fire">午</div></div>
+            </div>
+            <div class="ev-sec">판정 근거</div>
+            <p class="veil l3" aria-label="판정 근거, 일간을 돕는 오행이, 잠김"><span class="lead">일간을 돕는 오행이 </span><span class="ph" aria-hidden="true">명리일기는 그날의 기운을 내 사주에 맞춰 풀어 보여 드려요 근거와 해석은 광고 한 편으로 오늘 하루 열 수 있어요 명리일기는 그날의 기운을 내 사주에 맞춰 풀어 보여 드려요 근거와 해석은 광고 한 편으로 오늘 하루 열 수 있어요 명리일기는 그날의 기운을 내 사주에 맞춰 풀어 보여 드려요 근거와 해석은 광고 한 편으로 오늘 하루 열 수 있어요 </span></p>
+            <div class="ev-sec">원전</div>
+            <p class="veil l2 hanja-fallback" aria-label="원전, 잠김"><span class="lead">金賴土生， </span><span class="ph" aria-hidden="true">명리일기는 그날의 기운을 내 사주에 맞춰 풀어 보여 드려요 근거와 해석은 광고 한 편으로 오늘 하루 열 수 있어요 명리일기는 그날의 기운을 내 사주에 맞춰 풀어 보여 드려요 근거와 해석은 광고 한 편으로 오늘 하루 열 수 있어요 명리일기는 그날의 기운을 내 사주에 맞춰 풀어 보여 드려요 근거와 해석은 광고 한 편으로 오늘 하루 열 수 있어요 </span></p>
+            <div class="ex-row"><span class="ex">원전 앞부분 예시(#797)</span></div>
+          </div>
+          <div class="lock-panel">
+            <div class="lp-head"><svg class="ic" aria-hidden="true"><use href="#ic-lock-simple-regular"/></svg>근거와 해석은 잠겨 있어요</div>
+            <p class="lp-reward">광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.</p>
+            <div class="btn-filled">광고 보고 열기</div>
+            <div class="lp-pass"><span>광고 제거권이 있으면 기간 내내 열려 있어요.</span> <span class="lp-link" role="link">광고 제거 보기<svg class="ic" aria-hidden="true"><use href="#ic-caret-right-regular"/></svg></span></div>
+          </div>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">시트 위에 그 문장을 정한 태그(누를 수 없음)와 대상 문장을 둡니다. 판정 근거는 server가 준 앞부분(fixture 판정 근거의 앞 세 단어)만 또렷하고 뒤는 app 자리값 글자 3줄, 원전은 2줄입니다. 잠금 안내 영역은 지금 모양과 원고 그대로입니다.</p>
+    </div>
+  </div>
+
+  <h2>origin과 다른 점</h2>
+  <p class="note">날짜 머리의 음력과 일진은 쉼표 없이 간격으로만 나눕니다. 근거 시트에는 명세대로 원국표가 대상 문장 아래에 있고, 원전은 출처 줄 없이 본문 자리만입니다. 잠금 안내는 카드가 아니라 시트 아래 고정 영역(위 1px 선)이고, 광고 제거 안내 끝에 화면 이동 꺾쇠 링크가 있습니다. 오늘 쓴 일기 줄은 질문 카드 안이 아니라 아래 따로 카드입니다. 근거 시트 대상 줄의 날의 성격 태그는 default 톤입니다.</p>
+  <p class="note" style="margin-top: var(--space-48)">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Pretendard JP, Gowun Dodum.</p>
+</div>
+
+<script>
+  const themeButton = document.getElementById('theme');
+  themeButton.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = dark ? '' : 'dark';
+    themeButton.textContent = dark ? '다크로 보기' : '라이트로 보기';
+  });
+</script>
+</body>
+</html>

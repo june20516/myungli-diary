@@ -1,6 +1,6 @@
 # sentence: 문장 (`sentence.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.5, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §2, [문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.2·§2.10·§4, [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §2·§4, 결정 V16·V20·V21·V25·V28·V29·V32·V70·V73
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.5, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §2, [문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.2·§2.10·§4, [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §2·§4, 결정 V16·V20·V21·V25·V28·V29·V32·V70·V73·V80
 * 시안: `design-v2-today`(근거 보기 0-나, 하트 아래), `design-v2-tab-seal`(도장 반응), `design-v2-evidence-lock`(근거 시트 잠김 B)
 
 문장은 이 앱의 본체입니다. 문장 컴포넌트는 글꼴·줄바꿈·덧붙는 링크와 반응만 정하고, 문구는 writing(UI 슬롯)과 server(콘텐츠)가 정합니다.
@@ -12,7 +12,7 @@
 * my-saju 일간 소개의 첫 문장(`my-saju.ilgan.head`, 호칭 자리)은 today 총운 첫 문장과 같은 `card`이고, 이어지는 문장은 `body`입니다.
 * 한국어는 어절 단위 줄바꿈(keep-all), 일본어는 글자 단위 + 금칙 처리.
 * 호칭은 문장 안의 자리로만 들어갑니다. 굵게 하거나 색을 바꾸지 않습니다.
-* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 흐린 한 줄(`lock.veil`) + 오른쪽 끝 자물쇠(`lock-simple` Regular, 옆 글자 단계, 사이 `space.4`) + "열기" 링크. 꺾쇠는 쓰지 않습니다(Q3 ③, 결정 V73, 요소 `lock.veil` `open`). 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + "잠김"(`evidence-sheet.a11y.locked`)입니다.
+* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 앞 2~3 단어는 또렷하고 뒤는 흐린 자리값인 한 줄(`lock.veil` G1, 결정 V80) + 오른쪽 끝 자물쇠(`lock-simple` Regular, 옆 글자 단계, 사이 `space.4`) + "열기" 링크. 꺾쇠는 쓰지 않습니다(Q3 ③, 결정 V73, 요소 `lock.veil` `open`). 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + "잠김"(`evidence-sheet.a11y.locked`)입니다.
 
 ### 문장 조각 (`parts.segments`, 결정 V28)
 
@@ -62,11 +62,14 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 | 순서 | 구성 | 잠김 |
 | --- | --- | --- |
-| 1 | 제목(`type.title`) | 무료 |
-| 2 | 원국표(`saju-pillars`) | 무료(표 데이터) |
-| 3 | 판정 근거(제목 `evidence-sheet.section.basis`, 본문 `evidence-sheet.basis.body`) | 본문만 잠김 |
-| 4 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, `bg.base` 상자) | 본문만 잠김 |
-| 5 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
+| 1 | 제목(`type.title`, `evidence-sheet.sheet.title`) | 무료 |
+| 2 | 대상(`target`): 그 문장을 정한 `hanja-tag` 줄 + 대상 문장(`evidence-sheet.target.body`) | 무료 |
+| 3 | 원국표(`saju-pillars`) | 무료(표 데이터) |
+| 4 | 판정 근거(제목 `evidence-sheet.section.basis`, 본문 `evidence-sheet.basis.body`) | 본문만 잠김 |
+| 5 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, `bg.base` 상자) | 본문만 잠김 |
+| 6 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
+
+**시트 위 대상(결정 V80, D108):** 제목 아래 `space.12`에 그 문장을 정한 태그 줄(`hanja-tag` `default`, 사이 `space.8`, 넘치면 다음 줄)을 두고, 그 아래 `space.8`에 대상 문장(`type.caption.lg` `text.secondary`, 일반 글자, 세 줄까지)을 둡니다. 총운 헤드라인에서 열면 날의 성격과 십성 묶음, 보조 문장에서 열면 대표 태그 1순위, 사주 기운 시트에서 열면 그 태그입니다. 시트 안의 태그는 누를 수 없는 표시입니다(시트를 더 쌓지 않음). 태그나 문장이 없는 자리(용어 풀이 시트, 사주 표 계열에서 연 시트)는 그 줄을 그리지 않습니다. 대상은 잠기지 않습니다.
 
 구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다(`sectionTitle` 스타일, 구역마다 `basisTitle`·`sourceTitle`·`personalTitle`). **구역 제목은 잠겨도 또렷하게 보입니다.** `lock.veil`은 본문에만 씌웁니다.
 
@@ -82,7 +85,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 | 상태 | 언제 | 모습 |
 | --- | --- | --- |
-| `locked` | 권한 없음, 광고 준비됨 | 세 구역을 같은 자리에 `lock.veil`로. 시트 아래 고정 안내 영역(위 1px `line`, `bg.sheet`): 자물쇠 + `lock.head` → `lock.reward`(보상 고지, 버튼보다 먼저) → `primary-button` `filled`(`lock.cta`) → `lock.pass` 링크(→ `ad-free`) |
+| `locked` | 권한 없음, 광고 준비됨 | 세 구역을 같은 자리에 `lock.veil`로(앞 2~3 단어 또렷 + 흐린 자리값, 판정 근거 3줄, 원전 2줄, 내 사주에서는 3줄). 시트 아래 고정 안내 영역(위 1px `line`, `bg.sheet`): 자물쇠 + `lock.head` → `lock.reward`(보상 고지, 버튼보다 먼저) → `primary-button` `filled`(`lock.cta`) → `lock.pass` 링크(→ `ad-free`) |
 | `lockedNoAd` | 권한 없음, 광고 준비 안 됨 | 버튼 `disabled` + 아래 `lock.unavailable`. 광고가 준비되면 `locked`(`appear.seep`) |
 | `unlocking` | 광고를 끝까지 보고 돌아와 server 확인(SSV)을 기다림 | 버튼 `loading`(점 숨쉬기). 스크린리더 "확인 중" |
 | `unlocked` | 권한 있음 | 안내 영역 없음, 세 구역 본문 |
@@ -131,7 +134,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 * **변형:**
   * `default`: 위 표.
-  * `emphasis`(Q4-2 ①): 날의 성격을 강조하는 자리(그날 시트 머리, 오늘 총운 결정 태그). V8 배지 매핑 그대로 용신의 날만 진한 채움(`badge.good.*`), 귀인의 날 옅은 coral(`badge.gwiin.*`), 기신의 날 옅은 회색(`badge.gisin.*`), 평범한 날 테두리(`badge.ordinary.*`).
+  * `emphasis`(Q4-2 ①): 날의 성격을 강조하는 자리(그날 시트 머리, 오늘 총운 결정 태그). V8 배지 매핑 그대로 용신의 날만 진한 채움(`badge.good.*`), 귀인의 날 옅은 coral(`badge.gwiin.*`), 기신의 날 옅은 회색(`badge.gisin.*`), 평범한 날 테두리(`badge.ordinary.*`). 용신의 날은 이름이 흰 글자라 흰 원 안 한자를 알약 바탕색(`badge.good.bg`)으로 그립니다(결정 V78).
   * `selected`: 둘레 1.5px `action.primary`(안쪽에 그려 크기 그대로). 이 테두리가 톤 테두리(평범한 날 1px)를 대신합니다. 태그 시트에서 연 태그, 설명 시트가 열린 동안.
   * `ganji`: 간지 한 글자(천간 甲乙丙丁戊己庚辛壬癸 10자, 지지 子丑寅卯辰巳午未申酉戌亥 12자)를 보이는 태그입니다. 사주 용어 16자 규칙 밖입니다. 알약 바탕과 이름 글자는 그 간지 오행의 `ohaeng.<오행>.bg`/`.fg`이고, 한자 원은 다른 태그와 같은 22 `bg.sheet` 원에 한자 글자색 `ohaeng.<오행>.fg`입니다(원은 장식, 스크린리더는 이름만). 쓰는 자리는 IA가 정합니다(예: 사주 표 출생 정보 줄의 시진 태그 "未 미시"는 토의 옅은 바탕, 흰 원, 토 글자색).
 
@@ -142,6 +145,6 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
     | 토 `earth` | 戊 己 | 辰 戌 丑 未 |
     | 금 `metal` | 庚 辛 | 申 酉 |
     | 수 `water` | 壬 癸 | 亥 子 |
-* 누르면 `explain-sheet`(용어 뜻)나 `tag-sheet`(사주 기운 시트)가 열립니다. 어느 쪽인지는 IA 출구가 정합니다.
+* 누르면 `explain-sheet`(용어 뜻)나 `tag-sheet`(사주 기운 시트)가 열립니다. 어느 쪽인지는 IA 출구가 정합니다. 근거 시트 머리와 사주 기운 시트 머리의 태그는 누를 수 없는 표시입니다(`opens.notInteractiveIn`, 시트를 더 쌓지 않음).
 * 스크린리더는 이름 글자만 읽습니다(한자 원은 장식). 길흉은 이름 낱말로 전하고 색만으로 전하지 않습니다. 터치 영역은 위아래로 넓혀 44입니다.
 * 불러오는 중에는 알약 모양 뼈(64px) 하나입니다.

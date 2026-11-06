@@ -44,7 +44,7 @@
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
         "문장 끝에 depth-link가 붙을 수 있다(inline-end).",
-        "locked는 흐린 한 줄(lock.veil) + 오른쪽 끝 자물쇠와 '열기' 링크(자물쇠는 컴포넌트가 그림, 꺾쇠 없음, 결정 V73). 누르면 근거 시트가 locked로 열린다.",
+        "locked는 앞 2~3 단어를 또렷하게 둔 흐린 한 줄(lock.veil, 결정 V80) + 오른쪽 끝 자물쇠와 '열기' 링크(자물쇠는 컴포넌트가 그림, 꺾쇠 없음, 결정 V73). 누르면 근거 시트가 locked로 열린다.",
         "term 조각은 term-token이 있는 화면(segments.term.screens)에서만 term-token inline으로 그린다. 그 밖의 화면, 공유 이미지, 카드 전체가 버튼인 곳(diary-row) 안에서는 일반 글자다(결정 V28).",
         "콘텐츠 문장을 그리는 다른 구성 요소(day-character reason, lucky-card explain)도 segments 규칙을 따른다.",
         "term-token 라벨은 화면에 보이는 text를 쓴다. term 값은 풀이를 찾는 키라 읽지 않는다.",
@@ -99,7 +99,14 @@
         "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48, "layoutWidth": "{size.icon.20}", "hitArea": "줄 배치 폭은 그림 20이고, 터치 영역 48은 배치 밖으로 넓힘(이웃 줄과 겹쳐도 됨)" },
         "evidenceSheet": {
           "container": { "component": "sheet", "variant": "full" },
-          "title": { "type": "{type.title}", "fg": "{color.text.primary}" },
+          "order": ["title", "target", "pillars", "basisTitle", "basis", "sourceTitle", "source", "personalTitle", "personal", "personalEmpty"],
+          "title": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "evidence-sheet.sheet.title" },
+          "target": {
+            "marginTop": "{space.12}",
+            "note": "그 문장을 정한 태그와 대상 문장(D108, 결정 V80). 늘 보이고 잠기지 않음",
+            "tags": { "component": "hanja-tag", "variant": "default", "interactive": false, "gap": "{space.8}", "wrap": true, "source": "근거 진입점이 붙은 문장을 정한 태그. 총운 헤드라인은 날의 성격과 십성 묶음, 보조 문장은 대표 태그 1순위, 사주 기운 시트에서 열면 그 태그", "whenEmpty": "태그가 없는 문장(풀이 시트, 사주 표 계열)은 줄을 그리지 않음" },
+            "sentence": { "slot": "evidence-sheet.target.body", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "segments": "plain", "maxLines": 3, "overflow": "ellipsis", "whenEmpty": "대상 문장이 없으면(용어에서 연 시트) 줄을 그리지 않음" }
+          },
           "pillars": { "component": "saju-pillars", "marginTop": "{space.12}", "note": "표 데이터라 무료(D60)" },
           "sectionTitle": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.24}" },
           "basisTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.basis" },
@@ -117,9 +124,9 @@
           "note": "근거·해석 열람 권한 없음, 보상형 광고 준비됨(D60). 시안 B",
           "parts": {
             "evidenceSheet": {
-              "basis": { "element": "lock.veil" },
-              "source": { "element": "lock.veil", "bg": "transparent", "padding": 0 },
-              "personal": { "element": "lock.veil", "when": "열렸을 때와 같음(사주 표 계열에서 열었을 때만). 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘" },
+              "basis": { "element": "lock.veil", "lines": 3 },
+              "source": { "element": "lock.veil", "lines": 2, "bg": "transparent", "padding": 0 },
+              "personal": { "element": "lock.veil", "lines": 3, "when": "열렸을 때와 같음(사주 표 계열에서 열었을 때만). 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘" },
               "contentPaddingBottom": "lock-panel-height",
               "lockPanel": {
                 "position": "pinned-bottom",
@@ -167,7 +174,8 @@
         "navigate는 시트를 열지 않고 페이지로 이동한다(page.push, 결정 V67). sheet.enter·sheet.stack을 쓰지 않는다.",
         "navigate의 화살표(chevron)는 원고에 넣지 않고 컴포넌트가 그린다. 아이콘 caret-right, 옆 글자 기준 크기, 스크린리더는 읽지 않음, 링크가 감기면 마지막 줄 끝에 붙는다(결정 V29).",
         "unlocked에서 본문이 없는 구역은 제목까지 그리지 않고 자리도 남기지 않는다. locked의 lock.veil은 그대로 그린다.",
-        "근거 시트에서 잠기는 것은 판정 근거·원전·내 사주에서는 세 구역뿐이다. 제목과 원국표는 늘 보인다(D60).",
+        "근거 시트에서 잠기는 것은 판정 근거·원전·내 사주에서는 세 구역뿐이다. 제목, 대상 문장과 그 문장을 정한 태그(target), 원국표는 늘 보인다(D60, 결정 V80).",
+        "잠긴 구역은 server가 준 앞 2~3 단어(#797)를 또렷하게, 그 뒤를 app 자리값 글자로 흐리게 채운다. 줄 수는 판정 근거 3, 원전 2, 내 사주에서는 3이고 실제 길이와 맞추지 않는다(lock.veil, D106, 결정 V80).",
         "구역 제목(basisTitle·sourceTitle·personalTitle)은 잠겨도 흐리지 않는다. lock.veil은 본문에만 씌운다.",
         "잠긴 구역은 열렸을 때와 같은 자리에 lock.veil로 그리고, 잠금 안내는 시트 아래에 고정한다(시안 B).",
         "광고를 중간에 닫고 돌아오면 locked 그대로, 알림 없음.",
@@ -203,7 +211,7 @@
       "uses": ["press.ink", "sheet.enter", "tone", "term"],
       "variants": [
         { "id": "default", "when": "어디서나 기본" },
-        { "id": "emphasis", "when": "날의 성격을 강조하는 자리(그날 시트 머리, 오늘 총운 결정 태그, Q4-2). 날의 성격 태그에만", "parts": { "tone": { "dayKind": {
+        { "id": "emphasis", "when": "날의 성격을 강조하는 자리(그날 시트 머리, 오늘 총운 결정 태그, Q4-2). 날의 성격 태그에만", "parts": { "glyph": { "fg": { "YONGSIN_DAY": "{color.badge.good.bg}", "otherwise": "same-as-name" }, "note": "용신의 날 진한 채움은 이름이 흰 글자라 흰 원(bg.sheet) 안 한자를 알약 바탕색으로 그림(결정 V78)" }, "tone": { "dayKind": {
           "YONGSIN_DAY": { "bg": "{color.badge.good.bg}", "fg": "{color.badge.good.fg}" },
           "GWIIN_DAY": { "bg": "{color.badge.gwiin.bg}", "fg": "{color.badge.gwiin.fg}" },
           "GISIN_DAY": { "bg": "{color.badge.gisin.bg}", "fg": "{color.badge.gisin.fg}" },
@@ -243,7 +251,7 @@
           "verdictTone": { "good": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" }, "bad": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } },
           "toneAllowedIn": ["fortune-verdict", "score-row"]
         },
-        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어느 시트를 여는지는 IA 출구가 정함" }
+        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어느 시트를 여는지는 IA 출구가 정함", "notInteractiveIn": ["evidence-sheet", "tag-sheet 머리"], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음). 눌림 표시와 터치 넓힘 없음" }
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "pill", "shape": "chip", "width": "64px" }] },

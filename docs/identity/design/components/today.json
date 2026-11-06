@@ -3,6 +3,30 @@
   "group": "today",
   "components": [
     {
+      "id": "date-header",
+      "summary": "날짜 머리: 날짜와 요일, 그 아래 음력과 일진 한 줄 (D108, 결정 V78)",
+      "uses": [],
+      "variants": [
+        { "id": "today", "when": "오늘 화면: 날짜, 음력, 일진", "parts": { "iljin": { "visible": true } } },
+        { "id": "day-sheet", "when": "그날 시트 머리: 날짜와 음력", "parts": { "iljin": { "visible": false } } }
+      ],
+      "parts": {
+        "solar": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "today.date.solar", "daySheetSlot": "day-sheet.date.solar", "source": "기기 날짜(프로필 시간대)" },
+        "meta": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "order": ["lunar", "iljin"], "gap": "{space.8}", "separator": "none", "wrap": "칸 단위로 다음 줄(칸 하나는 끊지 않음)" },
+        "lunar": { "slot": "today.date.lunar", "daySheetSlot": "day-sheet.date.lunar", "source": "server 오늘 음력(#806 계약 추가). 달력은 CalendarDay.lunar", "whenMissing": "hide" },
+        "iljin": { "slot": "today.date.iljin", "source": "Daily.dayPillar", "fontFallback": "{font.family.hanja}", "note": "한글은 UI 글꼴, 간지 한자만 font.family.hanja(근거 시트 원전과 같은 방식)" }
+      },
+      "states": { "loading": { "skeleton": [{ "bone": "meta", "shape": "textLine", "lines": 1, "width": "50%" }], "note": "날짜 줄은 기기 날짜라 바로 그리고, server 값인 음력과 일진 줄만 뼈" } },
+      "haptic": [],
+      "a11y": { "role": "header", "label": "날짜, 음력, 일진을 한 덩어리로 읽음", "readsHanja": false, "iljinLabel": "일진은 한글 독음만 읽음(예: 경신일)" },
+      "rules": [
+        "날짜 줄(type.subtitle) 아래 space.2에 음력과 일진을 한 줄로 둔다. 두 칸은 간격(space.8)으로만 나누고 쉼표나 기호로 잇지 않는다(V47, V52와 같은 이유).",
+        "음력이 계약에 없으면(server #806 전) 음력 칸만 빼고 줄은 일진으로 남긴다.",
+        "그날 시트(day-sheet 변형)는 날짜와 음력만이고 일진이 없다.",
+        "누를 수 없는 표시다. 눌림 표시를 두지 않는다."
+      ]
+    },
+    {
       "id": "day-character",
       "summary": "날의 성격 배지와 이유 한 줄",
       "uses": ["tone"],
@@ -55,6 +79,48 @@
         "tag 칩을 누르면 다른 칩처럼 설명 시트가 열리고 본문은 today.lucky-tag.body다. 칩 이름은 glossary tag 범주(슬롯 daily.tag_label).",
         "share-image의 칩 줄에는 tag 칩을 넣지 않는다(행운 4종만). time 칩은 첫 구간 하나만 넣는다(칩 수 표 그대로).",
         "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간이 둘이면 구간마다 time 칩 하나를 계약 순서대로 나란히 두고, 구간을 글자로 잇지 않는다(D93, 결정 V52).", "time 칩이 둘이면 어느 쪽을 눌러도 같은 설명(daily.focus_time) 시트가 열리고, 열림 테두리는 누른 칩에만 생긴다. 스크린리더 라벨은 칩마다 항목 이름 + 그 구간."
+      ]
+    },
+    {
+      "id": "tag-sentence-list",
+      "summary": "\"이 기운에서 나온 오늘 문장\" 목록과 그 태그의 일기 보기 출구 (사주 기운 시트, D108, 결정 V79)",
+      "uses": ["list.divider", "press.ink", "page.push"],
+      "parts": {
+        "head": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "slot": "tag-sheet.sentences.title", "marginBottom": "{space.8}" },
+        "row": {
+          "sources": ["today.fortune.body", "today.guide.question"],
+          "sourceRule": "그 사주 기운 태그로 정해진 오늘 문장만, 오늘 화면 순서대로(보조 문장, 오늘의 질문). 대표 태그 1순위면 둘 다",
+          "layout": "label-column",
+          "paddingTop": "{space.12}",
+          "paddingBottom": "{space.12}",
+          "label": { "width": { "value": 52, "unit": "px" }, "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "first-baseline", "copy": "이름 칸 글자(보조 문장, 오늘의 질문). IA 슬롯 없음(writing 새 슬롯)" },
+          "sentence": { "component": "sentence-block", "variant": "body", "marginStart": "{space.8}", "note": "시트 안이라 term 조각은 일반 글자(segments.term.screens 밖)" }
+        },
+        "divider": { "element": "list.divider" },
+        "empty": { "slot": "tag-sheet.sentences.empty", "type": "{type.body.ui}", "fg": "{color.text.secondary}", "visible": false },
+        "diaryLink": {
+          "slot": "tag-sheet.diary.cta",
+          "params": ["tag", "count"],
+          "josa": "태그 이름 뒤 조사는 writing josa 규칙(이/가)",
+          "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
+          "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
+          "marginTop": "{space.16}",
+          "minTarget": 44,
+          "target": { "screen": "tag-diary", "presentation": "page", "transition": "page.push" },
+          "hiddenWhen": "그 태그의 일기 0편"
+        }
+      },
+      "states": {
+        "empty": { "when": "이 기운으로 정해진 오늘 문장이 없음(대표 태그 2순위, IA tag-sheet empty)", "parts": { "row": { "visible": false }, "empty": { "visible": true } } },
+        "pressed": { "pattern": "press.ink", "note": "diaryLink 글자 둘레에서만. 문장 줄은 누를 수 없음" }
+      },
+      "haptic": [],
+      "a11y": { "role": "list", "label": "머리 글자", "rowLabel": "이름 칸 + 문장", "linkRole": "link", "linkLabel": "글자 그대로(꺾쇠는 읽지 않음)" },
+      "rules": [
+        "줄마다 왼쪽 이름 칸(52) + 문장(sentence-block body)이고, 줄 사이는 list.divider다. 첫 줄 위와 끝 줄 아래에는 선이 없다.",
+        "문장 줄은 누를 수 없다. 오늘 화면의 같은 문장을 다시 보일 뿐이다.",
+        "정해진 문장이 없으면(대표 태그 2순위) 줄을 그리지 않고 안내 한 줄(tag-sheet.sentences.empty)을 둔다.",
+        "아래 출구는 그 태그가 붙은 내 일기 보기 꺾쇠 링크다(화면 이동, page.push). 일기가 0편이면 줄을 숨긴다. 꺾쇠는 원고에 넣지 않고 컴포넌트가 그린다(V29)."
       ]
     },
     {
