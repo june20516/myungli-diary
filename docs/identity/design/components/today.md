@@ -11,7 +11,7 @@
 * 음력과 일진은 간격 `space.8`로만 나눕니다. 쉼표나 기호로 잇지 않습니다(V47, V52와 같은 이유: 칸을 글자로 잇지 않음). 줄이 넘치면 칸 단위로 다음 줄에 놓습니다.
 * 일진 글자의 간지 한자는 `font.family.hanja`로 그립니다(`fontFallback`, 한글은 UI 글꼴 그대로). 스크린리더는 한자를 읽지 않고 독음만 읽습니다(예: 경신일).
 * 변형 `today`는 셋 다, `day-sheet`는 날짜와 음력(슬롯 `day-sheet.date.solar`, `day-sheet.date.lunar`)이고 일진이 없습니다.
-* 음력은 server 계약 추가(#806)입니다. 계약에 없으면 음력 칸만 빼고 줄은 일진으로 남깁니다.
+* 음력은 server 계약 추가(#806)입니다. 계약에 없으면 음력 칸만 빼고 줄은 일진으로 남깁니다. 두 칸이 모두 없으면(그날 시트에서 음력이 없을 때) 그 줄과 위 `space.2` 여백을 그리지 않습니다.
 * 불러오는 중: 날짜 줄은 기기 날짜라 바로 그리고, 음력과 일진 줄만 글줄 뼈(50%) 하나입니다.
 * 누를 수 없는 표시입니다.
 
@@ -38,7 +38,8 @@
 * **바탕과 테두리(Q5 ①, 결정 V75):** 반투명 `chip.bg` 대신 `bg.sheet` 바탕에 1px `line` 테두리를 칩 크기 안쪽에 그립니다. 오늘 카드, 나 탭 카드, 공유 이미지(그라데이션 위), 다크 모드 어디서나 테두리로 칩이 구분됩니다.
 * 누르면 칩 테두리가 1.5px `action.primary`로 바뀌고(크기 그대로) 짧은 설명 시트(`explain-sheet`, 제목은 항목 이름, 본문은 설명 문장)가 열립니다(결정 V62). 설명을 칩 줄 아래에 끼워 넣지 않으므로 아래 내용이 밀리지 않습니다. 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 시트를 닫으면 테두리가 1px `line`으로 돌아갑니다.
 * 칩 줄은 화면 폭에 따라 다음 줄로 넘어갑니다. 줄 수는 제한하지 않고, 칩 하나는 줄 사이에서 끊지 않습니다.
-* **`tag`(대표 태그, D76, 결정 V35):** today에만 있습니다. 그날의 대표 태그(`Daily.tags.featured`, 0~2개)를 칩 줄 맨 앞, 행운 4종(`color`·`direction`·`number`·`time`) 앞에 계약 순서대로 놓고, 0개면 그리지 않습니다. 칩 줄 전체의 칩은 최대 7개(태그 2 + 색, 방향, 숫자 3 + 시간 2)입니다.
+* **칩 줄 개수:** today 칩 줄은 행운 4종(`color`·`direction`·`number`·`time`)뿐이고 최대 5개(색, 방향, 숫자 3 + 시간 2)입니다(결정 V52, V78).
+* **`tag`(대표 태그, D76, 결정 V35): IA v5(D108, 결정 V78)부터 today 칩 줄에 쓰지 않습니다.** 대표 태그는 사주 기운 섹션의 `hanja-tag`입니다(아래 today 화면 배치 4번). 변형 삭제는 계약 5.0.0 정리 때 하고, 그때까지 아래 값은 기록으로 남깁니다.
   * 칩 바탕·높이·알약 모양·글자색은 행운 칩과 같습니다. 글자 굵기 600(`type.label.md`의 500 대신)과 앞 아이콘 `tag`의 색 `text.primary`(행운 칩은 `text.secondary`)로만 구분합니다. 아이콘 굵기는 `regular` 그대로입니다(`bold` 금지, elements `icon`).
   * 길흉(`Tag.polarity`)은 색으로 나누지 않습니다. 부정 신호 태그(충·공망)도 같은 모양이고 잠금·구매 안내와 잇지 않습니다(D72). `#`·`hash`는 `number` 칩 아이콘과 겹쳐 쓰지 않습니다.
   * 누르면 다른 칩처럼 설명 시트가 열리고 본문은 `today.lucky-tag.body`입니다. 열림 테두리도 같습니다. 칩 이름 슬롯은 `daily.tag_label`, 스크린리더 라벨은 태그 이름만입니다.
@@ -103,7 +104,7 @@
 IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목과 내용 사이 `space.12`, 섹션 사이 `space.32`, 시작선은 화면 좌우 `space.20`)이고, 섹션 내용은 흰 카드(`bg.sheet`, `radius.lg`, 안쪽 `space.16`)에 담습니다(결정 V78).
 
 1. `app-bar` 탭 루트(`today.bar.title`), 오른쪽 `share-button`.
-2. `date-header` `today`: 날짜와 요일(`today.date.solar`), 그 아래 음력(`today.date.lunar`)과 일진(`today.date.iljin`). 상단 바 아래 `space.8`.
+2. `date-header` `today`: 날짜와 요일(`today.date.solar`), 그 아래 음력(`today.date.lunar`)과 일진(`today.date.iljin`). 상단 바 아래 `space.8`, 날짜 머리 아래 첫 섹션까지 `space.32`(섹션 사이와 같음).
 3. 총운: `section-header` `action`(`today.fortune.title`), 오른쪽 자리는 `reaction-button`(좋아요, 스크린리더 `today.reaction.label`). 카드 안은 위에서부터:
    * 총운을 결정한 태그 줄(사이 `space.8`): 날의 성격 `hanja-tag` `emphasis`(`today.character.label`, 용신의 날만 진한 채움, 누르면 `explain-sheet` 뜻), 일진 천간의 십성 묶음 `hanja-tag` `default`(`today.ten-god.label`, `term` 초록, 누르면 `explain-sheet` 뜻). 십성 묶음은 server 계약 추가(#806)이고 없으면 날의 성격 태그 하나입니다.
    * 헤드라인(`today.fortune.head`): 태그 줄 아래 `space.12`, `sentence-block` `card`(화면에서 가장 큰 문장, 호칭 자리) + 끝에 `depth-link` `inline-end`(근거 시트).

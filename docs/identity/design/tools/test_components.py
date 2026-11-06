@@ -512,7 +512,7 @@ def test_locked_sentence_open_slot():
     assert block["states"]["locked"]["parts"]["open"]["slot"] == "saju-chart.yongsin.open"
     assert block["a11y"]["lockedLabelSlot"] == "evidence-sheet.a11y.locked"
     assert block["a11y"]["lockedNameSlot"] == "saju-chart.yongsin.title"
-    assert block["a11y"]["lockedLabel"] == "구역 이름 + '잠김', 열기는 따로 초점(link)"
+    assert block["a11y"]["lockedOpenFocus"] == "열기는 따로 초점(link)"
     assert {"saju-chart.yongsin.open", "saju-chart.yongsin.title"} <= ia_slot_ids("saju-chart")
     assert "evidence-sheet.a11y.locked" in ia_slot_ids("evidence-sheet")
 
@@ -531,7 +531,7 @@ def test_evidence_sheet_section_titles_and_slots():
     a11y = link["a11y"]
     assert (a11y["lockedLabelSlot"], a11y["unlockingLabelSlot"], a11y["unlockedAnnouncementSlot"]) == (
         "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking", "evidence-sheet.a11y.unlocked")
-    assert a11y["lockedLabel"] == "구역 이름 + '잠김'" and a11y["unlockingLabel"] == "확인 중"
+    assert a11y["unlockingLabel"] == "확인 중"
     used = set(titles.values()) | {toast["slot"], a11y["lockedLabelSlot"], a11y["unlockingLabelSlot"],
                                    a11y["unlockedAnnouncementSlot"]}
     assert used <= ia_slot_ids("evidence-sheet")
@@ -699,7 +699,7 @@ def test_lucky_card_has_no_banned_punctuation():
     text = json.dumps(time, ensure_ascii=False)
     assert "–" not in text and "·" not in text and "—" not in text
     rules = " ".join(component("today", "lucky-card")["rules"])
-    assert "최대 7개" in rules and "첫 구간" in rules
+    assert "최대 5개" in rules and "첫 구간" in rules  # today 칩 줄은 행운 4종(시간 최대 2), V78
 
 
 def test_element_values_from_app_feedback():
@@ -752,7 +752,7 @@ def test_lucky_tag_chip_emphasises_weight_and_icon_only():
 
 def test_lucky_tag_chip_order_and_polarity_rules():
     rules = component("today", "lucky-card")["rules"]
-    assert any("tag" in rule and "맨 앞" in rule and "행운 4종(color·direction·number·time) 앞" in rule and "Daily.tags.featured" in rule for rule in rules)
+    assert not any("맨 앞" in rule for rule in rules)  # IA v5(V78)부터 today 칩 줄에 tag 칩 없음
     assert any("polarity" in rule and "D72" in rule for rule in rules)
     assert any("today.lucky-tag.body" in rule for rule in rules)
 
@@ -1866,6 +1866,9 @@ def test_date_header():
     assert variants["day-sheet"] == {"iljin": {"visible": False}}  # 그날 시트는 일진 없이
     assert [bone["bone"] for bone in header["states"]["loading"]["skeleton"]] == ["meta"]
     assert header["a11y"]["role"] == "header" and header["a11y"]["readsHanja"] is False
+    # 음력과 일진이 모두 없으면 줄과 위 여백을 그리지 않음 (리뷰 Minor 5)
+    assert meta["whenEmpty"] == "hide-line-and-gap"
+    assert any("meta" in rule and "space.2" in rule and "그리지 않는다" in rule for rule in header["rules"])
     assert "date-header" not in components.IA_PENDING_COMPONENTS and "date-header" in CONTENT_COMPONENTS
 
 
@@ -1941,7 +1944,8 @@ def test_evidence_sheet_head():
     assert sentence["segments"] == "plain"
     locked = link["states"]["locked"]["parts"]["evidenceSheet"]
     assert "target" not in locked  # 대상 문장과 태그는 잠기지 않음
-    assert "evidence-sheet" in component("sentence", "hanja-tag")["parts"]["opens"]["notInteractiveIn"]
+    assert component("sentence", "hanja-tag")["parts"]["opens"]["notInteractiveIn"] == [
+        {"screen": "evidence-sheet", "part": "head"}, {"screen": "tag-sheet", "part": "head"}]
 
 
 # IA v5 today 구성 순서 (D108, 결정 V78)
@@ -1971,6 +1975,7 @@ def test_today_section_order():
     assert "`hanja-tag` `default`" in line_of("today.ten-god.label")
     assert "`list.divider`" in layout and "`depth-link` `inline-end`" in line_of("today.fortune.head")
     assert "`date-header` `today`" in line_of("today.date.solar")
+    assert "첫 섹션까지 `space.32`" in line_of("today.date.solar")  # 날짜 머리와 첫 섹션 사이 (리뷰 Minor 2)
     composition = [line for line in lines if re.match(r"^(\d+\. |   \* )", line)]
     assert not [line for line in composition if "day-character" in line]  # 맨 위 날의 성격 배지와 이유 줄은 빠짐(D108)
 
@@ -1980,3 +1985,28 @@ def test_hanja_tag_emphasis_glyph_stays_visible():
     emphasis = next(v for v in component("sentence", "hanja-tag")["variants"] if v["id"] == "emphasis")
     glyph = emphasis["parts"]["glyph"]
     assert glyph["fg"] == {"YONGSIN_DAY": "{color.badge.good.bg}", "otherwise": "same-as-name"}
+
+
+# 리뷰 I1: 잠김 낭독은 lock.veil G1 정의 하나를 따름. 슬롯은 상태 낱말 "잠김"뿐이고 세 조각을 순서대로 읽음
+def test_locked_labels_follow_lock_veil():
+    veil = load_documents(COMPONENTS_DIR)["elements"]["elements"]["lock.veil"]["a11y"]
+    assert veil["label"] == "구역 제목 + 앞부분 + '잠김'"
+    assert veil["order"] == ["title", "lead", "state"] and veil["stateSlot"] == "evidence-sheet.a11y.locked"
+    block = component("sentence", "sentence-block")["a11y"]
+    link = component("sentence", "depth-link")["a11y"]
+    assert block["lockedLabel"] == veil["label"] and link["lockedLabel"] == veil["label"]
+    assert block["lockedLabelSlot"] == link["lockedLabelSlot"] == veil["stateSlot"]
+    md = (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
+    locked_line = next(line for line in md.splitlines() if line.startswith("* **잠김**(`states.locked`)"))
+    assert "앞부분" in locked_line and "+ \"잠김\"" in locked_line
+
+
+# 리뷰 I2: IA v5(D108, V78)부터 today 칩 줄에 대표 태그 칩이 없음. 변형 삭제는 계약 5.0.0 정리 때
+def test_today_chip_row_has_no_tag():
+    card = component("today", "lucky-card")
+    tag = next(v for v in card["variants"] if v["id"] == "tag")
+    assert "쓰지 않음" in tag["when"] and "hanja-tag" in tag["when"] and "V78" in tag["when"]
+    rules = " ".join(card["rules"])
+    assert "최대 5개(색, 방향, 숫자 3 + 시간 2)" in rules and "태그 2" not in rules
+    md = _md_section("today.md", "## lucky-card")
+    assert "최대 5개" in md and "최대 7개" not in md

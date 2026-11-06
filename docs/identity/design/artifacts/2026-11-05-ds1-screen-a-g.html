@@ -48,7 +48,6 @@
 
   /* section-header: 제목 type.label.lg 600, 내용까지 space.12, 섹션 사이 space.32, 오른쪽 꺾쇠 링크 */
   .section { margin-top: var(--space-32); }
-  .section:first-child { margin-top: var(--space-16); }
   .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-12); min-height: 24px; }
   .sh .t { font-size: var(--type-label-lg-size); font-weight: 600; line-height: var(--type-label-lg-line-height); color: var(--color-text-primary); }
   .sh .link { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-action-primary); --icon: var(--size-icon-16); }
@@ -102,7 +101,8 @@
   /* sentence-block */
   .s-card { font-family: var(--type-sentence-card-family); font-size: var(--type-sentence-card-size); line-height: var(--type-sentence-card-line-height); word-break: keep-all; margin: 0; }
   .s-body { font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; margin: var(--space-12) 0 0; }
-  .evidence { color: var(--color-action-primary); --icon: var(--size-icon-20); }
+  .evidence { display: inline-flex; vertical-align: -3px; color: var(--color-action-primary); --icon: var(--size-icon-20); }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-8); }
 
   /* lucky-card 칩: bg.sheet + 1px line 안쪽 테두리, 높이 34 */
   .yong { display: flex; align-items: center; gap: var(--space-8); flex-wrap: wrap; }
@@ -138,7 +138,6 @@
   .kind .c { width: 28px; margin-left: var(--space-12); text-align: right; font-size: var(--type-numeric-table-size); font-weight: var(--type-numeric-table-weight); font-feature-settings: "tnum"; }
   .f-yongsin { background: var(--color-badge-good-bg); } .f-gwiin { background: var(--color-badge-gwiin-fg); }
   .f-ordinary { background: var(--color-badge-ordinary-border); } .f-gisin { background: var(--color-badge-gisin-fg); }
-  .tags { display: flex; flex-wrap: wrap; gap: var(--space-8); }
   .few { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); margin-top: var(--space-12); }
 
   /* hanja-tag default: 높이 30, 왼쪽 4, 오른쪽 space.12, 원 22(bg.sheet, 한자 12 700), 사이 space.4, 사주 용어는 term 초록 */
@@ -178,14 +177,12 @@
   .dh .meta { display: flex; flex-wrap: wrap; column-gap: var(--space-8); margin-top: var(--space-2); font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
   .iljin, .hanja-fallback { font-family: var(--type-body-ui-family), var(--font-family-hanja); }
   .react { width: 44px; height: 44px; display: flex; align-items: center; justify-content: flex-end; color: var(--color-text-secondary); --icon: var(--size-icon-24); margin: calc(var(--space-12) * -1) 0; }
-  .tags { display: flex; flex-wrap: wrap; gap: var(--space-8); }
   .card .s-card { margin-top: var(--space-12); }
   .s-body.tight { margin-top: var(--space-8); }
   .muted { color: var(--color-text-secondary); }
   .card .s-card.muted { margin-top: 0; }
   hr.divider { border: 0; border-top: var(--border-width-hairline) solid var(--color-line); margin: var(--space-16) 0; }
   hr.divider.flush { margin: 0; }
-  .evidence { display: inline-flex; vertical-align: -3px; }
   .nowrap { white-space: nowrap; }
   /* hanja-tag 톤: 날의 성격 default는 tag.*, emphasis 용신의 날만 badge.good 진한 채움, 그 밖 사주 용어는 term 초록 */
   .htag.good { background: var(--color-tag-good-bg); color: var(--color-tag-good-fg); }
@@ -218,6 +215,7 @@
   .phone.sheetview { height: 640px; }
   .phone.sheetview.tall { height: 900px; }
   .scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+  .content.under .section { margin-top: var(--space-16); }
   .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-bg-sheet); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 0 var(--space-24) var(--space-24); max-height: calc(100% - 56px); overflow: hidden; }
   .sheetview.tall .sheet { top: 56px; padding-bottom: 0; }
   .handle-area { height: 24px; display: flex; align-items: center; justify-content: center; }
@@ -231,7 +229,7 @@
   .tsl-label { flex: none; width: 52px; word-break: keep-all; font-size: var(--type-caption-md-size); line-height: var(--type-caption-md-line-height); color: var(--color-text-secondary); }
   .tsl-row .s-body { margin: 0 0 0 var(--space-8); }
   .tsl-empty { margin: 0; font-size: var(--type-body-ui-size); color: var(--color-text-secondary); }
-  .tsl-link, .lp-link { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-action-primary); --icon: var(--size-icon-16); }
+  .tsl-link, .lock-link { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-action-primary); --icon: var(--size-icon-16); }
   .tsl-link { margin-top: var(--space-16); font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
 
   /* 근거 시트: 제목 type.title, 아래 space.12에 태그 줄과 대상 문장(caption.lg secondary, space.8), 원국표, 구역 */
@@ -247,12 +245,12 @@
   .veil.l3 { max-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 3); } .veil.l2 { max-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 2); }
   .veil .ph { filter: blur(6px); opacity: 0.5; }
   .lock-panel { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-bg-sheet); border-top: 1px solid var(--color-line); padding: var(--space-24); }
-  .lp-head { display: flex; align-items: center; gap: var(--space-8); font-size: var(--type-label-lg-size); font-weight: 600; --icon: var(--size-icon-20); }
-  .lp-head .ic { color: var(--color-status-fg); }
-  .lp-reward { margin: var(--space-8) 0 0; font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .lock-head { display: flex; align-items: center; gap: var(--space-8); font-size: var(--type-label-lg-size); font-weight: 600; --icon: var(--size-icon-20); }
+  .lock-head .ic { color: var(--color-status-fg); }
+  .lock-reward { margin: var(--space-8) 0 0; font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
   .btn-filled { margin-top: var(--space-12); height: 52px; border-radius: var(--radius-md); background: var(--color-action-primary); color: var(--color-action-on-primary); display: flex; align-items: center; justify-content: center; font-size: var(--type-label-lg-size); font-weight: 600; }
-  .lp-pass { margin-top: var(--space-12); text-align: center; font-size: var(--type-label-md-size); color: var(--color-text-secondary); }
-  .lp-link { font-weight: var(--type-label-md-weight); }
+  .lock-pass { margin-top: var(--space-12); text-align: center; font-size: var(--type-label-md-size); color: var(--color-text-secondary); }
+  .lock-link { font-weight: var(--type-label-md-weight); }
 </style>
 </head>
 <body>
@@ -277,14 +275,14 @@
               <p class="s-card">하늘님, <span class="term">목</span>의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 <span class="nowrap">보세요.&nbsp;<span class="evidence" role="button" aria-label="총운 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></span></p>
               <hr class="divider">
               <div class="tags"><span class="htag term"><span class="g" aria-hidden="true">天</span>천을귀인</span></div>
-              <p class="s-body tight"><span class="term">천을귀인</span>이 들어 도움을 받기 쉬운 <span class="nowrap">날이에요.&nbsp;<span class="evidence" role="button" aria-label="총운 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></span></p>
+              <p class="s-body tight"><span class="term">천을귀인</span>이 들어 도움을 받기 쉬운 <span class="nowrap">날이에요.&nbsp;<span class="evidence" role="button" aria-label="천을귀인 근거 보기"><svg class="ic" aria-hidden="true"><use href="#ic-book-open-text-regular"/></svg></span></span></p>
               <div class="ex-row"><span class="ex">십성 묶음 태그 예시(#806)</span></div>
             </div>
           </section>
           <section class="section">
             <div class="sh"><span class="t">사주 기운</span></div>
             <div class="card">
-              <div class="tags"><span class="htag term sel"><span class="g" aria-hidden="true">天</span>천을귀인</span><span class="htag term"><span class="g" aria-hidden="true">合</span>합</span></div>
+              <div class="tags"><span class="htag term"><span class="g" aria-hidden="true">天</span>천을귀인</span><span class="htag term"><span class="g" aria-hidden="true">合</span>합</span></div>
               <div class="ex-row"><span class="ex">둘째 태그 예시</span></div>
             </div>
           </section>
@@ -323,7 +321,7 @@
           <div class="tab"><span class="mark"><svg class="ic" aria-hidden="true"><use href="#ic-user-light"/></svg></span>나</div>
         </div>
       </div>
-      <p class="note" style="width: 360px">사주 기운의 천을귀인은 사주 기운 시트가 열린 동안의 고른 표시(selected)입니다. 오늘 일정은 IA에 제목 슬롯이 없어 제목 없는 카드이고, 시각은 오후 1시 기준입니다.</p>
+      <p class="note" style="width: 360px">오늘 일정은 IA에 제목 슬롯이 없어 제목 없는 카드이고, 시각은 오후 1시 기준입니다.</p>
     </div>
     <div>
       <div class="caption">불러오는 중</div>
@@ -368,9 +366,10 @@
 
   <h2>사주 기운 시트</h2>
   <div class="row">
-    <div><div class="caption">대표 태그 1순위</div>
+    <div><div class="caption">대표 태그 1순위(덮개 아래 오늘의 천을귀인은 열린 동안 selected)</div>
       <div class="phone sheetview ">
         <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="content under"><section class="section"><div class="sh"><span class="t">사주 기운</span></div><div class="card"><div class="tags"><span class="htag term sel"><span class="g" aria-hidden="true">天</span>천을귀인</span><span class="htag term "><span class="g" aria-hidden="true">合</span>합</span></div></div></section></div>
         <div class="scrim"></div>
         <div class="sheet">
           <div class="handle-area"><span class="handle"></span></div>
@@ -390,6 +389,7 @@
     <div><div class="caption">대표 태그 2순위(정해진 문장 없음)</div>
       <div class="phone sheetview ">
         <div class="appbar"><span class="title">오늘</span><span class="action" aria-label="공유"><svg class="ic" aria-hidden="true"><use href="#ic-export-light"/></svg></span></div>
+        <div class="content under"><section class="section"><div class="sh"><span class="t">사주 기운</span></div><div class="card"><div class="tags"><span class="htag term "><span class="g" aria-hidden="true">天</span>천을귀인</span><span class="htag term sel"><span class="g" aria-hidden="true">合</span>합</span></div></div></section></div>
         <div class="scrim"></div>
         <div class="sheet">
           <div class="handle-area"><span class="handle"></span></div>
@@ -435,10 +435,10 @@
             <div class="ex-row"><span class="ex">원전 앞부분 예시(#797)</span></div>
           </div>
           <div class="lock-panel">
-            <div class="lp-head"><svg class="ic" aria-hidden="true"><use href="#ic-lock-simple-regular"/></svg>근거와 해석은 잠겨 있어요</div>
-            <p class="lp-reward">광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.</p>
+            <div class="lock-head"><svg class="ic" aria-hidden="true"><use href="#ic-lock-simple-regular"/></svg>근거와 해석은 잠겨 있어요</div>
+            <p class="lock-reward">광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.</p>
             <div class="btn-filled">광고 보고 열기</div>
-            <div class="lp-pass"><span>광고 제거권이 있으면 기간 내내 열려 있어요.</span> <span class="lp-link" role="link">광고 제거 보기<svg class="ic" aria-hidden="true"><use href="#ic-caret-right-regular"/></svg></span></div>
+            <div class="lock-pass"><span>광고 제거권이 있으면 기간 내내 열려 있어요.</span> <span class="lock-link" role="link">광고 제거 보기<svg class="ic" aria-hidden="true"><use href="#ic-caret-right-regular"/></svg></span></div>
           </div>
         </div>
       </div>

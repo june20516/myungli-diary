@@ -198,7 +198,7 @@
       "placeholder": { "source": "app", "text": "app이 준비한 자리값 글자(언어별 하나). 실제 내용은 내려받지 않음(D60 ④)", "matchesRealLength": false, "flow": "앞부분 바로 뒤, 같은 줄에서 이어짐", "style": "body" },
       "lines": { "basis": 3, "source": 2, "personal": 3, "sentence-block locked": 1 },
       "linesRule": "앞부분과 자리값을 합한 줄 수. 실제 문장 길이와 맞추지 않음(D106)",
-      "a11y": { "label": "구역 제목 + 앞부분 + '잠김'", "leadRead": true, "bodyExcluded": true },
+      "a11y": { "label": "구역 제목 + 앞부분 + '잠김'", "order": ["title", "lead", "state"], "stateSlot": "evidence-sheet.a11y.locked", "stateSlotRule": "슬롯은 상태 낱말('잠김')뿐이고 틀에 앞부분 자리를 두지 않음. 제목, 앞부분, 상태 낱말을 따로 받아 이 순서로 이어 읽음", "leadRead": true, "bodyExcluded": true },
       "reduceMotion": "흐림은 대상 자신의 효과라 그대로 둠(결정 V14)",
       "open": { "icon": "lock-simple", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.4}", "placement": "before-label", "decorative": true },
       "openRule": "잠긴 것을 여는 입구는 어디서나 자물쇠 + '열기' 글자(꺾쇠 없음, 결정 V73). 화면 이동 링크(pass)와 광고 보고 열기 버튼은 이 모양이 아님",

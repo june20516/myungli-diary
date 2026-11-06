@@ -39,7 +39,7 @@
         }
       },
       "haptic": [],
-      "a11y": { "role": "text", "label": "문장 그대로", "terms": "term-token이 있는 화면에서는 용어를 term-token으로 따로 초점", "lockedLabel": "구역 이름 + '잠김', 열기는 따로 초점(link)", "lockedLabelSlot": "evidence-sheet.a11y.locked", "lockedNameSlot": "saju-chart.yongsin.title", "plainTerm": "일반 글자로 그린 term 조각은 따로 초점 없이 문장과 함께 읽음" },
+      "a11y": { "role": "text", "label": "문장 그대로", "terms": "term-token이 있는 화면에서는 용어를 term-token으로 따로 초점", "lockedLabel": "구역 제목 + 앞부분 + '잠김'", "lockedOpenFocus": "열기는 따로 초점(link)", "lockedLabelSlot": "evidence-sheet.a11y.locked", "lockedNameSlot": "saju-chart.yongsin.title", "plainTerm": "일반 글자로 그린 term 조각은 따로 초점 없이 문장과 함께 읽음" },
       "rules": [
         "한국어는 어절 단위로 줄을 바꾼다(keep-all). 일본어는 글자 단위 + 금칙 처리.",
         "호칭은 문장 안 자리로만 들어가고 굵게 하거나 색을 바꾸지 않는다.",
@@ -166,7 +166,7 @@
         }
       },
       "haptic": [{ "when": "locked → unlocked 전환(광고 시청 뒤 열림)", "strength": "light" }],
-      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "block": "그 시트 제목(용어 이름) 또는 구역 이름" }, "navigateRole": "link", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 이름 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
+      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "block": "그 시트 제목(용어 이름) 또는 구역 이름" }, "navigateRole": "link", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 제목 + 앞부분 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
       "rules": [
         "근거 진입점(inline-end, block)은 primary 아이콘 book-open-text 하나이고 글자를 쓰지 않는다. 모든 곳이 같은 모양이다(결정 V63).",
         "inline-end 아이콘은 문장 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 붙는다. 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어간다.",
@@ -251,7 +251,7 @@
           "verdictTone": { "good": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" }, "bad": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } },
           "toneAllowedIn": ["fortune-verdict", "score-row"]
         },
-        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어느 시트를 여는지는 IA 출구가 정함", "notInteractiveIn": ["evidence-sheet", "tag-sheet 머리"], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음). 눌림 표시와 터치 넓힘 없음" }
+        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어느 시트를 여는지는 IA 출구가 정함", "notInteractiveIn": [{ "screen": "evidence-sheet", "part": "head" }, { "screen": "tag-sheet", "part": "head" }], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음). 눌림 표시와 터치 넓힘 없음" }
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "pill", "shape": "chip", "width": "64px" }] },
