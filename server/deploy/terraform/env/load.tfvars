@@ -7,6 +7,8 @@ project_number      = "244522770563"
 environment         = "staging"
 sql_tier            = "db-custom-1-3840"
 deletion_protection = false
+# 용량 값은 prod와 같게 둡니다(2회차 동일 환경, S143). min_instances도 prod와 같은 1입니다.
+min_instances = 1
 # prod와 같은 tier라 max_connections 표의 3.75~6GB 행 100입니다(S133). 첫 회차에 SHOW max_connections로 확인합니다.
 sql_max_connections = 100
 # 측정 중 배치가 끼지 않게 Scheduler를 켜지 않습니다. precompute는 warm 회차 전에 손으로 돌립니다(L1 plan §3).

@@ -12,7 +12,7 @@ resource "google_cloud_run_v2_service" "engine" {
     # 값은 MAX_WORKERS와 같아야 하며 internal/engine의 TestEngineConcurrency_MatchesCoreWorkers가 대조합니다.
     max_instance_request_concurrency = 8
 
-    # 아침 몰림의 첫 증설 지연을 줄이려고 prod만 하나를 늘 띄워 둡니다(#817 ④).
+    # 아침 몰림의 첫 증설 지연을 줄이려고 prod(와 같은 용량으로 재는 load)는 하나를 늘 띄워 둡니다(#817 ④).
     scaling {
       min_instance_count = var.min_instances
     }
@@ -77,7 +77,7 @@ resource "google_cloud_run_v2_service" "server" {
   template {
     service_account = google_service_account.server.email
 
-    # 아침 몰림의 첫 증설 지연을 줄이려고 prod만 하나를 늘 띄워 둡니다(#817 ④).
+    # 아침 몰림의 첫 증설 지연을 줄이려고 prod(와 같은 용량으로 재는 load)는 하나를 늘 띄워 둡니다(#817 ④).
     scaling {
       min_instance_count = var.min_instances
     }
