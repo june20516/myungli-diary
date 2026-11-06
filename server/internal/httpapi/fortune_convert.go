@@ -237,6 +237,7 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 		CharacterReason: c.requiredText(view.Texts, fortune.SlotCharacterReason),
 		Fortune:         gen.Fortune{Head: c.requiredText(view.Texts, fortune.SlotFortuneHead)},
 		Guide:           c.requiredText(view.Texts, fortune.SlotGuide),
+		GuideCandidates: c.guideCandidates(view),
 		Cards:           c.dailyCards(view),
 		Tags: gen.DayTags{
 			Featured: convertAll(r.GetFeaturedTags(), c.tag),
@@ -251,6 +252,15 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 	}
 	out.DayStemTenGod, out.DayStemTenGodGroup = c.dayStemTenGod(r)
 	return out, c.err
+}
+
+// guideCandidates는 오늘의 질문 후보를 옮깁니다. View는 기본 질문을 첫 항목으로 늘 채우므로, 비어 있으면 묶음을 만든 쪽의 잘못이라 오류입니다.
+func (c *converter) guideCandidates(view fortune.DailyView) []gen.SlotText {
+	if len(view.GuideCandidates) == 0 {
+		c.fail(errors.New("오늘 화면 묶음에 오늘의 질문 후보가 없습니다"))
+		return []gen.SlotText{}
+	}
+	return convertAll(view.GuideCandidates, c.slotText)
 }
 
 // dayStemTenGod는 일진 천간의 십성과 그 묶음을 옮깁니다. 2026.11.0 전 규칙 버전의 엔진은 둘 다 내지 않아(UNSPECIFIED) 둘 다 생략합니다.
@@ -374,7 +384,10 @@ func (c *converter) calendarDay(d *enginev1.MonthDay, texts fortune.DayTexts) ge
 		CharacterReason: c.slotText(texts.CharacterReason),
 		LuckLevel:       enumValue[gen.LuckLevel](c, d.GetLuckLevel()),
 		Score:           int(d.GetScore()),
-		Level:           c.slotText(texts.Level),
+		ScoreItems: convertAll(d.GetScoreItems(), func(item *enginev1.ScoreItem) gen.ScoreItem {
+			return gen.ScoreItem{Id: item.GetId(), Score: int(item.GetScore())}
+		}),
+		Level: c.slotText(texts.Level),
 	}
 	if term := d.GetSolarTerm(); term != nil {
 		out.SolarTerm = &gen.SolarTerm{Kind: enumValue[gen.SolarTermKind](c, term.GetKind()), At: c.instant(term.GetAt())}

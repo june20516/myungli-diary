@@ -143,7 +143,8 @@ func dailyView() fortune.DailyView {
 			fortune.SlotFocusTime:       text(fortune.SlotFocusTime, "focus_time.picked", "single", "오전"),
 			fortune.SlotCharacterReason: text(fortune.SlotCharacterReason, "character.reason.yongsin_day", "single", "도움"),
 		},
-		Notices: []content.Notice{{Code: "time_unknown", Text: []render.Segment{}}},
+		GuideCandidates: []content.SlotText{guide},
+		Notices:         []content.Notice{{Code: "time_unknown", Text: []render.Segment{}}},
 	}
 }
 
@@ -447,6 +448,7 @@ func calendarView() fortune.CalendarView {
 		}
 	}
 	first := day(1)
+	first.ScoreItems = []*enginev1.ScoreItem{{Id: "yongsin_day", Score: 2}}
 	first.SolarTerm = &enginev1.SolarTerm{
 		Name: "寒露", Kind: enginev1.SolarTermKind_SOLAR_TERM_KIND_HALLO,
 		At: timestamppb.New(time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)),
@@ -505,9 +507,12 @@ func TestGetCalendar_Returns200(t *testing.T) {
 	body := rec.Body.String()
 	assert.Contains(t, body, `"at":"2026-10-01T12:00:00+09:00"`)
 	assert.Contains(t, body, `"slot":"calendar.day_level","text":{"segments":[]}`)
-	for _, key := range []string{`"notices"`, `"scoreItems"`, `"featuredTag"`} {
+	for _, key := range []string{`"notices"`, `"featuredTag"`} {
 		assert.NotContains(t, body, key, "쓰지 않는 필드(S77)는 응답에 나가지 않습니다")
 	}
+	// 길흉 내역(#806 ①, 1.6.0)은 항목이 없는 날도 빈 배열로 나갑니다.
+	assert.Contains(t, body, `"scoreItems":[{"id":"yongsin_day","score":2}]`)
+	assert.Contains(t, body, `"scoreItems":[]`)
 	assert.NotContains(t, body, `"evidence"`)
 	assert.NotContains(t, body, rawEvidenceRule)
 }

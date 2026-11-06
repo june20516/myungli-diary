@@ -38,6 +38,20 @@ var (
 	variantCycle = []string{"1", "2"}
 )
 
+// RotationVariants는 순환 방식 r의 변주 이름을 순서대로 돌려줍니다. 순환하지 않는 슬롯은 single 하나입니다.
+// 모르는 순환 방식은 nil입니다. 돌려준 slice는 고쳐도 순환 순서에 영향이 없습니다.
+func RotationVariants(r seed.Rotation) []string {
+	switch r {
+	case seed.RotationNone:
+		return []string{seed.VariantSingle}
+	case seed.RotationVariant:
+		return slices.Clone(variantCycle)
+	case seed.RotationType:
+		return slices.Clone(typeCycle)
+	}
+	return nil
+}
+
 // 돌봄 상한(W14)입니다. 같은 사용자에게 care 문장이 이 개수를 넘지 않습니다. 개수는 (날짜, 슬롯)마다 하나로 셉니다.
 const (
 	dailyCareCap  = 2
