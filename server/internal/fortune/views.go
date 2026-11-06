@@ -106,8 +106,13 @@ type ChartView struct {
 	// PersonalReadings는 원국 개인 해석("내 사주에서는")입니다. 엔진 순서를 따릅니다.
 	// evidence 깊이라 잠겨 있으면 nil이고, 원고가 없거나 키가 잘못된 항목은 빠집니다.
 	PersonalReadings []PersonalReadingText
-	Notices          []content.Notice
-	Unlocked         bool
+	// YongsinBasisPreview와 PersonalReadingPreviews는 잠겼을 때만 채우는 앞부분입니다(D106, S141). 열려 있으면 nil이고,
+	// 잠겨 있으면 위의 전체 문장 필드(YongsinBasis, PersonalReadings)가 nil입니다. 미리보기 항목의 Text.Text는 앞부분만 담고,
+	// 너무 짧아 자를 수 없는 항목은 빠집니다.
+	YongsinBasisPreview     []render.Segment
+	PersonalReadingPreviews []PersonalReadingText
+	Notices                 []content.Notice
+	Unlocked                bool
 }
 
 // PersonalReadingText는 개인 해석 한 항목과 그 렌더된 문장입니다. Reading의 식별자(종류·위치·순서·신살)로 앱이 항목을 찾습니다.
@@ -237,7 +242,7 @@ func (v *Views) guideCandidates(ctx context.Context, tpl content.Templates, r *e
 		judgments = []*enginev1.Judgment{r.GetGuide()}
 	}
 	add := func(variant string, j *enginev1.Judgment) {
-		if text, ok := v.renderer.Slot(ctx, tpl, SlotGuide, variant, j, "", unlocked); ok {
+		if text, ok := v.renderer.Slot(ctx, tpl, SlotGuide, variant, j, "", content.EvidenceFor(unlocked)); ok {
 			out = append(out, text)
 		}
 	}
@@ -258,7 +263,7 @@ func (v *Views) renderDaily(ctx context.Context, tpl content.Templates, s dailyS
 	if s.judgment == nil {
 		return v.renderer.Identifier(ctx, tpl, s.id, s.key, nil, "")
 	}
-	return v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name, unlocked)
+	return v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name, content.EvidenceFor(unlocked))
 }
 
 // dailySlots는 데일리 응답에서 문장 슬롯 목록을 만듭니다(P4-3의 8개 슬롯).
@@ -323,7 +328,7 @@ func (v *Views) Calendar(ctx context.Context, accountID uuid.UUID, p profile.Pro
 		if !ok {
 			reason = emptyText(SlotCharacterReason, reasonKey, seed.VariantSingle)
 		}
-		level, ok := v.renderer.Slot(ctx, tpl, SlotDayLevel, seed.VariantSingle, d.GetJudgment(), "", unlocked)
+		level, ok := v.renderer.Slot(ctx, tpl, SlotDayLevel, seed.VariantSingle, d.GetJudgment(), "", content.EvidenceFor(unlocked))
 		if !ok {
 			level = emptyText(SlotDayLevel, d.GetJudgment().GetMessageKey(), seed.VariantSingle)
 		}
@@ -358,15 +363,35 @@ func (v *Views) Chart(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	}
 	view := ChartView{Response: response, Notices: v.renderNotices(ctx, tpl, response.GetMeta()), Unlocked: unlocked}
 	view.IlganHead, view.IlganBody, view.YongsinSummary = v.renderChartTexts(ctx, tpl, response, p.Honorific)
-	if !unlocked {
+	// 계약에서 선택 필드라 원고가 없으면 nil로 둡니다(로그는 Renderer가 남김). 잠겨 있으면 렌더한 문장의 앞부분만 남깁니다(S141).
+	basis, hasBasis := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", content.EvidenceNone)
+	readings := v.renderPersonalReadings(ctx, tpl, response.GetPersonalReadings())
+	if unlocked {
+		if hasBasis {
+			view.YongsinBasis = &basis
+		}
+		view.PersonalReadings = readings
 		return view, nil
 	}
-	// 계약에서 선택 필드라 원고가 없으면 nil로 둡니다(로그는 Renderer가 남김).
-	if basis, ok := v.renderer.Slot(ctx, tpl, SlotYongsinMethod, seed.VariantSingle, response.GetYongsin().GetJudgment(), "", false); ok {
-		view.YongsinBasis = &basis
+	if hasBasis {
+		view.YongsinBasisPreview = render.Preview(tpl.Lang(), basis.Text)
 	}
-	view.PersonalReadings = v.renderPersonalReadings(ctx, tpl, response.GetPersonalReadings())
+	view.PersonalReadingPreviews = previewReadings(tpl.Lang(), readings)
 	return view, nil
+}
+
+// previewReadings는 개인 해석 문장을 앞부분만 남깁니다. 너무 짧아 자를 수 없는 항목은 뺍니다.
+func previewReadings(lang string, readings []PersonalReadingText) []PersonalReadingText {
+	out := make([]PersonalReadingText, 0, len(readings))
+	for _, r := range readings {
+		prefix := render.Preview(lang, r.Text.Text)
+		if prefix == nil {
+			continue
+		}
+		r.Text.Text = prefix
+		out = append(out, r)
+	}
+	return out
 }
 
 // renderChartTexts는 일간 소개 두 문장(키 ilgan.head.<천간>·ilgan.body.<천간>)과 용신 설명(yongsin.summary, 매개변수 yongsin)을 렌더합니다.
@@ -408,7 +433,7 @@ func (v *Views) renderPersonalReadings(ctx context.Context, tpl content.Template
 			v.log.ErrorContext(ctx, "개인 해석 판정 키가 personal.<종류>.…가 아니라 뺍니다", slog.String("message_key", j.GetMessageKey()))
 			continue
 		}
-		text, ok := v.renderer.Slot(ctx, tpl, slot, seed.VariantSingle, j, "", false)
+		text, ok := v.renderer.Slot(ctx, tpl, slot, seed.VariantSingle, j, "", content.EvidenceNone)
 		if !ok {
 			continue
 		}

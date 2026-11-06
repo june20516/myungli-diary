@@ -602,9 +602,8 @@ func TestViews_ChartAsOfIsTodayInCurrentTimezone(t *testing.T) {
 	assert.EqualValues(t, 15, got.GetDay())
 }
 
-// 잠긴 요청은 근거를 렌더하지 않으므로, 근거 원고가 없어도 Error 로그가 남지 않습니다.
-// 열린 요청은 같은 조건에서 로그가 남습니다(대조군).
-func TestViews_LockedSkipsEvidenceRendering(t *testing.T) {
+// 잠긴 요청도 미리보기를 위해 근거 문장을 렌더하므로(S141), 근거 원고가 없으면 열린 요청처럼 Error 로그가 남습니다.
+func TestViews_LockedRendersEvidenceForPreview(t *testing.T) {
 	fake := dailyFake(true)
 	fake.MonthCalendar = func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error) {
 		return &enginev1.MonthResponse{
@@ -636,12 +635,29 @@ func TestViews_LockedSkipsEvidenceRendering(t *testing.T) {
 			f := newViewsFixture(t, fake, viewSeed(t, "", "evidence.basis"), fakeInsight{unlocked: tc.unlocked})
 
 			require.NoError(t, tc.call(f))
-			if tc.unlocked {
-				assert.Contains(t, f.logs.String(), "evidence.basis")
-			} else {
-				assert.Empty(t, f.logs.String())
-			}
+			assert.Contains(t, f.logs.String(), "evidence.basis")
 		})
+	}
+}
+
+// 잠긴 오늘 화면은 근거 문장의 앞부분만 EvidencePreview에 담고 전체 근거(Evidence)는 비웁니다. 열리면 반대입니다(D106, S141).
+func TestViews_DailyEvidencePreviewOnlyWhenLocked(t *testing.T) {
+	for _, unlocked := range []bool{false, true} {
+		f := newViewsFixture(t, dailyFake(false), viewSeed(t, ""), fakeInsight{unlocked: unlocked})
+
+		view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+		require.NoError(t, err)
+
+		head := view.Texts[fortune.SlotFortuneHead]
+		if unlocked {
+			require.Len(t, head.Evidence, 1)
+			assert.Equal(t, "판정 근거예요.", plain(head.Evidence[0].Basis))
+			assert.Nil(t, head.EvidencePreview)
+			continue
+		}
+		assert.Nil(t, head.Evidence)
+		require.Len(t, head.EvidencePreview, 1)
+		assert.Equal(t, "판정", plain(head.EvidencePreview[0].Basis), "두 단어 문장은 한 단어만")
 	}
 }
 
