@@ -434,6 +434,34 @@ func TestGetDaily_DayStemTenGod(t *testing.T) {
 	})
 }
 
+// 그날 음력(ruleset 2026.11.1, #806 ②)은 엔진이 내면 담고, 옛 규칙 버전처럼 달이 0이면 생략합니다.
+func TestGetDaily_Lunar(t *testing.T) {
+	t.Run("엔진이 내면 담음", func(t *testing.T) {
+		view := dailyView()
+		view.Response.LunarMonth = 9
+		view.Response.LunarDay = 2
+		view.Response.IsLeapMonth = true
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		var got gen.Daily
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+		require.NotNil(t, got.Lunar)
+		assert.Equal(t, gen.LunarDate{Month: 9, Day: 2, IsLeapMonth: true}, *got.Lunar)
+	})
+	t.Run("없으면 생략", func(t *testing.T) {
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: dailyView()}, Contents: &fakeContents{}}
+
+		_, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		assert.NotContains(t, rec.Body.String(), `"lunar":`)
+	})
+}
+
 // calendarView는 이틀짜리 달력 묶음입니다. 첫날만 입절일이고 대표 태그가 있습니다.
 func calendarView() fortune.CalendarView {
 	day := func(d int32) *enginev1.MonthDay {

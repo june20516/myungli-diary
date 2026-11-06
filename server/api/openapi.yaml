@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.7.0
+  version: 1.8.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -3139,6 +3139,8 @@ components:
         `guideCandidates`는 오늘의 질문 후보입니다(#806 ⑤, 1.6.0에서 더함). 첫 항목은 `guide`와 같고, 그 뒤로 같은 질문의 다른 변주,
         대표 태그 2순위의 질문, 일진 십성 묶음의 질문 순입니다(`messageKey`가 같은 항목은 변주만 다름). 원고가 없는 후보는 뺍니다.
         일기를 쓸 때 고른 항목의 `messageKey`와 `variant`를 `createDiary`의 `guideQuestion`으로 보냅니다.
+        `lunar`는 그날의 한국 음력 날짜이고 같은 날짜의 `CalendarDay.lunar`와 같습니다(#806 ②, 1.8.0에서 더함).
+        엔진이 이 값을 내지 않는 규칙 버전(2026.11.1 전)의 응답에는 없습니다.
       required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, characterReason, fortune, guide, guideCandidates, cards, tags, relations, notices]
       properties:
         date:
@@ -3150,6 +3152,8 @@ components:
           $ref: '#/components/schemas/EvidenceAccess'
         dayPillar:
           $ref: '#/components/schemas/Pillar'
+        lunar:
+          $ref: '#/components/schemas/LunarDate'
         dayStemTenGod:
           $ref: '#/components/schemas/TenGod'
         dayStemTenGodGroup:

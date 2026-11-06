@@ -3143,8 +3143,12 @@ type DailyResponse struct {
 	// 오늘의 질문 후보. 순서는 대표 태그 1순위, 2순위, 일진 십성 묶음이고 message_key는 겹치지 않습니다.
 	// 첫 항목은 guide와 같습니다. 같은 키의 원고 변주는 콘텐츠 쪽이 펼칩니다(#804).
 	GuideCandidates []*Judgment `protobuf:"bytes,16,rep,name=guide_candidates,json=guideCandidates,proto3" json:"guide_candidates,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// 그날의 한국 음력 날짜. 같은 날짜의 MonthDay.lunar_month, lunar_day, is_leap_month와 같습니다(#834).
+	LunarMonth    int32 `protobuf:"varint,17,opt,name=lunar_month,json=lunarMonth,proto3" json:"lunar_month,omitempty"`
+	LunarDay      int32 `protobuf:"varint,18,opt,name=lunar_day,json=lunarDay,proto3" json:"lunar_day,omitempty"`
+	IsLeapMonth   bool  `protobuf:"varint,19,opt,name=is_leap_month,json=isLeapMonth,proto3" json:"is_leap_month,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DailyResponse) Reset() {
@@ -3287,6 +3291,27 @@ func (x *DailyResponse) GetGuideCandidates() []*Judgment {
 		return x.GuideCandidates
 	}
 	return nil
+}
+
+func (x *DailyResponse) GetLunarMonth() int32 {
+	if x != nil {
+		return x.LunarMonth
+	}
+	return 0
+}
+
+func (x *DailyResponse) GetLunarDay() int32 {
+	if x != nil {
+		return x.LunarDay
+	}
+	return 0
+}
+
+func (x *DailyResponse) GetIsLeapMonth() bool {
+	if x != nil {
+		return x.IsLeapMonth
+	}
+	return false
 }
 
 // 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
@@ -4446,7 +4471,7 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\x04year\x18\x01 \x01(\x05R\x04year\x121\n" +
 	"\x06pillar\x18\x02 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x122\n" +
 	"\aten_god\x18\x03 \x01(\x0e2\x19.myungli.engine.v1.TenGodR\x06tenGod\x12Q\n" +
-	"\x14relations_with_natal\x18\x04 \x03(\x0e2\x1f.myungli.engine.v1.RelationKindR\x12relationsWithNatal\"\x92\a\n" +
+	"\x14relations_with_natal\x18\x04 \x03(\x0e2\x1f.myungli.engine.v1.RelationKindR\x12relationsWithNatal\"\xf4\a\n" +
 	"\rDailyResponse\x12+\n" +
 	"\x03day\x18\x01 \x01(\v2\x19.myungli.engine.v1.PillarR\x03day\x12.\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x1a.myungli.engine.v1.DayKindR\x04kind\x122\n" +
@@ -4465,7 +4490,11 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\x04meta\x18\r \x01(\v2\x1f.myungli.engine.v1.ResponseMetaR\x04meta\x12B\n" +
 	"\x10day_stem_ten_god\x18\x0e \x01(\x0e2\x19.myungli.engine.v1.TenGodR\rdayStemTenGod\x12R\n" +
 	"\x16day_stem_ten_god_group\x18\x0f \x01(\x0e2\x1e.myungli.engine.v1.TenGodGroupR\x12dayStemTenGodGroup\x12F\n" +
-	"\x10guide_candidates\x18\x10 \x03(\v2\x1b.myungli.engine.v1.JudgmentR\x0fguideCandidates\"\xae\x01\n" +
+	"\x10guide_candidates\x18\x10 \x03(\v2\x1b.myungli.engine.v1.JudgmentR\x0fguideCandidates\x12\x1f\n" +
+	"\vlunar_month\x18\x11 \x01(\x05R\n" +
+	"lunarMonth\x12\x1b\n" +
+	"\tlunar_day\x18\x12 \x01(\x05R\blunarDay\x12\"\n" +
+	"\ris_leap_month\x18\x13 \x01(\bR\visLeapMonth\"\xae\x01\n" +
 	"\tColorCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x124\n" +
 	"\aelement\x18\x02 \x01(\x0e2\x1a.myungli.engine.v1.ElementR\aelement\x122\n" +
