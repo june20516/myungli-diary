@@ -712,7 +712,7 @@ class YearLuck(_message.Message):
     def __init__(self, year: _Optional[int] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., ten_god: _Optional[_Union[TenGod, str]] = ..., relations_with_natal: _Optional[_Iterable[_Union[RelationKind, str]]] = ...) -> None: ...
 
 class DailyResponse(_message.Message):
-    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates")
+    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates", "lunar_month", "lunar_day", "is_leap_month")
     DAY_FIELD_NUMBER: _ClassVar[int]
     KIND_FIELD_NUMBER: _ClassVar[int]
     COLOR_FIELD_NUMBER: _ClassVar[int]
@@ -729,6 +729,9 @@ class DailyResponse(_message.Message):
     DAY_STEM_TEN_GOD_FIELD_NUMBER: _ClassVar[int]
     DAY_STEM_TEN_GOD_GROUP_FIELD_NUMBER: _ClassVar[int]
     GUIDE_CANDIDATES_FIELD_NUMBER: _ClassVar[int]
+    LUNAR_MONTH_FIELD_NUMBER: _ClassVar[int]
+    LUNAR_DAY_FIELD_NUMBER: _ClassVar[int]
+    IS_LEAP_MONTH_FIELD_NUMBER: _ClassVar[int]
     day: Pillar
     kind: DayKind
     color: ColorCard
@@ -745,7 +748,10 @@ class DailyResponse(_message.Message):
     day_stem_ten_god: TenGod
     day_stem_ten_god_group: TenGodGroup
     guide_candidates: _containers.RepeatedCompositeFieldContainer[Judgment]
-    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ...) -> None: ...
+    lunar_month: int
+    lunar_day: int
+    is_leap_month: bool
+    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ...) -> None: ...
 
 class ColorCard(_message.Message):
     __slots__ = ("judgment", "element", "role")
