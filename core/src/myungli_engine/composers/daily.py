@@ -5,8 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core import korean_lunar, lunar_adapter
 from myungli_engine.calendar_core.birth import BirthInput, validate_civil_date
+from myungli_engine.calendar_core.korean_lunar import KoreanLunarDate
 from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
 from myungli_engine.composers.chart import merge_notices, prepare_natal
@@ -43,6 +44,7 @@ class DailyView:
     notices: tuple[Notice, ...]
     day_stem_ten_god: TenGod
     guide_candidates: tuple[Judgment, ...]
+    lunar: KoreanLunarDate  # 그날의 한국 음력 날짜(월간 캘린더와 같은 계산)
 
 
 def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> DailyView:
@@ -89,6 +91,7 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         notices=merge_notices(natal.chart.notices, fallback_notices),
         day_stem_ten_god=ten_god(natal_pillars.day.stem, day.stem),
         guide_candidates=guides,
+        lunar=korean_lunar.solar_to_lunar(target),
     )
 
 

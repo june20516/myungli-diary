@@ -277,6 +277,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -612,6 +618,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -972,6 +984,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -1296,6 +1314,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -1622,6 +1646,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -1977,6 +2007,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -2334,6 +2370,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -2710,6 +2752,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -3104,6 +3152,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -3457,6 +3511,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -3807,6 +3867,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -4146,6 +4212,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -4549,6 +4621,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -4932,6 +5010,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -5287,6 +5371,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -5627,6 +5717,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -5968,6 +6064,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -6340,6 +6442,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -6697,6 +6805,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -7044,6 +7158,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -7398,6 +7518,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -7777,6 +7903,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -8144,6 +8276,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -8500,6 +8638,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -8856,6 +9000,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -9192,6 +9342,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -9549,6 +9705,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -9906,6 +10068,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -10264,6 +10432,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -10603,6 +10777,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -10950,6 +11130,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -11300,6 +11486,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -11628,6 +11820,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -11964,6 +12162,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -12285,6 +12489,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -12620,6 +12830,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -13007,6 +13223,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -13358,6 +13580,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -13672,6 +13900,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -14003,6 +14237,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -14348,6 +14588,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -14712,6 +14958,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -15059,6 +15311,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -15408,6 +15666,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -15704,6 +15968,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -15980,6 +16250,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -16305,6 +16581,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -16657,6 +16939,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -17039,6 +17327,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -17374,6 +17668,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -17709,6 +18009,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -18069,6 +18375,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -18415,6 +18727,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -18776,6 +19094,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -19108,6 +19432,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -19441,6 +19771,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -19771,6 +20107,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -20064,6 +20406,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -20367,6 +20715,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -20698,6 +21052,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -21101,6 +21461,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -21452,6 +21818,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -21830,6 +22202,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -22177,6 +22555,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -22516,6 +22900,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -22801,6 +23191,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -23120,6 +23516,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -23503,6 +23905,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -23874,6 +24282,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -24249,6 +24663,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -24637,6 +25057,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -24949,6 +25375,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -25303,6 +25735,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -25686,6 +26124,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -26060,6 +26504,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -26422,6 +26872,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -26712,6 +27168,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -26985,6 +27447,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -27322,6 +27790,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -27705,6 +28179,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -28084,6 +28564,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -28428,6 +28914,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -28812,6 +29304,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -29098,6 +29596,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -29433,6 +29937,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -29800,6 +30310,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -30146,6 +30662,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -30492,6 +31014,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -30833,6 +31361,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -31167,6 +31701,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -31509,6 +32049,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -31846,6 +32392,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -32227,6 +32779,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -32570,6 +33128,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -32896,6 +33460,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -33230,6 +33800,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -33570,6 +34146,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -33918,6 +34500,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -34254,6 +34842,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -34574,6 +35168,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -34902,6 +35502,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -35242,6 +35848,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -35620,6 +36232,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -35960,6 +36578,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -36323,6 +36947,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -36661,6 +37291,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -36970,6 +37606,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -37321,6 +37963,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -37662,6 +38310,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -37988,6 +38642,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -38342,6 +39002,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -38674,6 +39340,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -39022,6 +39694,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -39363,6 +40041,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -39711,6 +40395,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -40063,6 +40753,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -40410,6 +41106,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -40765,6 +41467,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -41030,6 +41738,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -41349,6 +42063,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -41668,6 +42388,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -42001,6 +42727,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -42346,6 +43078,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -42685,6 +43423,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -42996,6 +43740,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -43348,6 +44098,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -43738,6 +44494,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -44145,6 +44907,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -44469,6 +45237,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -44780,6 +45554,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -45134,6 +45914,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -45492,6 +46278,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -45854,6 +46646,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -46189,6 +46987,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -46516,6 +47320,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -46875,6 +47685,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -47218,6 +48034,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -47588,6 +48410,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -47947,6 +48775,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -48289,6 +49123,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -48635,6 +49475,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -48975,6 +49821,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -49329,6 +50181,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -49684,6 +50542,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -49971,6 +50835,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -50304,6 +51174,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -50662,6 +51538,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -51022,6 +51904,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -51333,6 +52221,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -51669,6 +52563,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -52034,6 +52934,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -52383,6 +53289,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -52705,6 +53617,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -53042,6 +53960,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -53408,6 +54332,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -53751,6 +54681,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -54074,6 +55010,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -54401,6 +55343,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -54728,6 +55676,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -55085,6 +56039,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -55430,6 +56390,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -55748,6 +56714,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -56083,6 +57055,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -56473,6 +57451,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -56823,6 +57807,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -57160,6 +58150,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -57512,6 +58508,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -57840,6 +58842,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -58162,6 +59170,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -58502,6 +59516,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -58829,6 +59849,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -59174,6 +60200,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -59524,6 +60556,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -59874,6 +60912,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -60225,6 +61269,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -60584,6 +61634,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -60861,6 +61917,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -61182,6 +62244,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -61533,6 +62601,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -61876,6 +62950,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -62217,6 +63297,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -62593,6 +63679,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -62935,6 +64027,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -63312,6 +64410,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -63700,6 +64804,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -64065,6 +65175,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -64388,6 +65504,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -64736,6 +65858,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -65038,6 +66166,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -65382,6 +66516,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -65757,6 +66897,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -66128,6 +67274,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -66460,6 +67612,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -66847,6 +68005,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -67208,6 +68372,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -67587,6 +68757,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -67941,6 +69117,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -68274,6 +69456,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -68563,6 +69751,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -68900,6 +70094,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -69239,6 +70439,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -69585,6 +70791,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -69932,6 +71144,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -70312,6 +71530,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -70663,6 +71887,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -71050,6 +72280,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -71394,6 +72630,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -71744,6 +72986,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -72110,6 +73358,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -72458,6 +73712,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'NEAR_SOLAR_TERM',
@@ -72780,6 +74040,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -73097,6 +74363,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -73421,6 +74693,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -73777,6 +75055,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -74142,6 +75426,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -74500,6 +75790,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -74855,6 +76151,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -75196,6 +76498,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -75564,6 +76872,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -75917,6 +77231,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -76254,6 +77574,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -76613,6 +77939,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -76950,6 +78282,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -77284,6 +78622,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -77643,6 +78987,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -77997,6 +79347,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -78359,6 +79715,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -78716,6 +80078,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -79073,6 +80441,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -79424,6 +80798,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -79777,6 +81157,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -80126,6 +81512,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -80462,6 +81854,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -80819,6 +82217,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -81176,6 +82580,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -81525,6 +82935,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -81882,6 +83298,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -82237,6 +83659,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -82583,6 +84011,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -82942,6 +84376,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'TIME_UNKNOWN',
@@ -83305,6 +84745,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -83669,6 +85115,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -84034,6 +85486,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -84408,6 +85866,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -84770,6 +86234,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -85090,6 +86560,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -85422,6 +86898,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -85777,6 +87259,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -86159,6 +87647,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -86467,6 +87961,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -86789,6 +88289,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -87139,6 +88645,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -87510,6 +89022,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -87889,6 +89407,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -88270,6 +89794,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -88615,6 +90145,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -88961,6 +90497,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -89251,6 +90793,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -89536,6 +91084,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -89880,6 +91434,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -90234,6 +91794,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -90553,6 +92119,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -90891,6 +92463,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -91256,6 +92834,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -91630,6 +93214,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -91980,6 +93570,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -92345,6 +93941,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -92705,6 +94307,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -93051,6 +94659,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -93342,6 +94956,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
       ]),
       'number': list([
@@ -93682,6 +95302,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 21,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -94056,6 +95682,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 22,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -94425,6 +96057,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 23,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -94781,6 +96419,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 24,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -95125,6 +96769,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 25,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -95468,6 +97118,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 26,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -95810,6 +97466,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 27,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -96158,6 +97820,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 28,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -96526,6 +98194,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 29,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -96872,6 +98546,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 30,
+        'is_leap_month': False,
+        'month': 8,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -97199,6 +98879,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 1,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -97548,6 +99234,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 2,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -97907,6 +99599,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 3,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -98292,6 +99990,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 4,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -98685,6 +100389,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 5,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -99024,6 +100734,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 6,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -99353,6 +101069,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 7,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -99697,6 +101419,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 8,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -100073,6 +101801,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 9,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -100419,6 +102153,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 10,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -100749,6 +102489,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 11,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -101033,6 +102779,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 12,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -101348,6 +103100,12 @@
         }),
       ]),
       'kind': 'ORDINARY_DAY',
+      'lunar': dict({
+        'day': 13,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -101696,6 +103454,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 14,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -102065,6 +103829,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 15,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -102436,6 +104206,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 16,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -102805,6 +104581,12 @@
         }),
       ]),
       'kind': 'GISIN_DAY',
+      'lunar': dict({
+        'day': 17,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -103162,6 +104944,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 18,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -103528,6 +105316,12 @@
         }),
       ]),
       'kind': 'YONGSIN_DAY',
+      'lunar': dict({
+        'day': 19,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
@@ -103887,6 +105681,12 @@
         }),
       ]),
       'kind': 'GWIIN_DAY',
+      'lunar': dict({
+        'day': 20,
+        'is_leap_month': False,
+        'month': 9,
+        'year': 2026,
+      }),
       'notices': list([
         dict({
           'code': 'ZI_HOUR_NEXT_DAY',
