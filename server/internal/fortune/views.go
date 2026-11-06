@@ -69,6 +69,9 @@ type DailyView struct {
 	Notices []content.Notice
 	// Unlocked는 근거 열람 권한입니다. false면 모든 Texts의 Evidence가 nil입니다(근거를 렌더하지 않음).
 	Unlocked bool
+	// GuideCandidates는 오늘의 질문 후보입니다(#806 ⑤, S140). 첫 항목은 Texts[SlotGuide]와 같고, 그 뒤로 같은 키의 다른 변주,
+	// 엔진 후보(guide_candidates)의 나머지 키가 이어집니다. 원고가 없는 후보는 뺍니다.
+	GuideCandidates []content.SlotText
 	// SelectionIDs는 슬롯 id → 그 슬롯 선택 기록(daily_selections)의 ID입니다. 문장 반응을 표시·저장할 때 씁니다.
 	// 선택 기록은 문장 슬롯마다 남으므로, 원고가 없어 Texts에서 빠진 선택 슬롯도 여기에는 있습니다.
 	SelectionIDs map[string]int64
@@ -178,6 +181,7 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	byVersion := map[string]content.Templates{}
 	texts := make(map[string]content.SlotText, len(slots))
 	ids := make(map[string]int64, len(selections))
+	var guideTemplates content.Templates
 	for i, sel := range selections {
 		ids[sel.Slot] = sel.ID
 		tpl, ok := byVersion[sel.SeedVersion]
@@ -187,6 +191,9 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 				return DailyView{}, err
 			}
 			byVersion[sel.SeedVersion] = tpl
+		}
+		if sel.Slot == SlotGuide {
+			guideTemplates = tpl
 		}
 		text, ok := v.renderDaily(ctx, tpl, slots[i], sel.Variant, p.Honorific, unlocked)
 		if !ok {
@@ -203,12 +210,46 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 		return DailyView{}, err
 	}
 	return DailyView{
-		Response:     response,
-		Texts:        texts,
-		Notices:      notices,
-		Unlocked:     unlocked,
-		SelectionIDs: ids,
+		Response:        response,
+		Texts:           texts,
+		GuideCandidates: v.guideCandidates(ctx, guideTemplates, response, texts[SlotGuide], unlocked),
+		Notices:         notices,
+		Unlocked:        unlocked,
+		SelectionIDs:    ids,
 	}, nil
+}
+
+// guideCandidates는 오늘의 질문 후보를 만듭니다(S140). 첫 항목은 이미 렌더한 기본 질문(guide, 선택 기록의 변주)입니다.
+// 이어서 기본 질문 키의 다른 변주를 순환 순서대로, 그 뒤 엔진 후보(guide_candidates)의 나머지 키를 기본 질문과 같은 변주로 렌더합니다.
+// 2026.11.0 전 엔진은 후보를 내지 않아 기본 질문 판정 하나로 봅니다. 후보는 기본 질문과 같은 시드 버전(tpl)으로 렌더하고,
+// 원고가 없는 후보는 뺍니다(로그는 Renderer가 남김).
+func (v *Views) guideCandidates(ctx context.Context, tpl content.Templates, r *enginev1.DailyResponse, guide content.SlotText, unlocked bool) []content.SlotText {
+	out := []content.SlotText{guide}
+	if tpl == nil {
+		return out
+	}
+	def, ok := tpl.Slot(SlotGuide)
+	if !ok {
+		return out
+	}
+	judgments := r.GetGuideCandidates()
+	if len(judgments) == 0 {
+		judgments = []*enginev1.Judgment{r.GetGuide()}
+	}
+	add := func(variant string, j *enginev1.Judgment) {
+		if text, ok := v.renderer.Slot(ctx, tpl, SlotGuide, variant, j, "", unlocked); ok {
+			out = append(out, text)
+		}
+	}
+	for _, variant := range content.RotationVariants(def.Rotation) {
+		if variant != guide.Variant {
+			add(variant, judgments[0])
+		}
+	}
+	for _, j := range judgments[1:] {
+		add(guide.Variant, j)
+	}
+	return out
 }
 
 // renderDaily는 슬롯 하나를 렌더합니다. 호칭은 Renderer가 호칭 슬롯에만 씁니다.

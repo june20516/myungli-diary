@@ -52,7 +52,7 @@ func (q *Queries) DiaryDayExists(ctx context.Context, arg DiaryDayExistsParams) 
 }
 
 const getDiary = `-- name: GetDiary :one
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, COALESCE(d.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.id = $1 AND d.account_id = $2 AND d.deleted_at IS NULL
@@ -131,20 +131,21 @@ func (q *Queries) GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (G
 
 const insertDiary = `-- name: InsertDiary :one
 WITH inserted AS (
-    INSERT INTO diaries (id, account_id, date, body)
-    VALUES ($1, $2, $3, $4)
-    RETURNING id, account_id, date, body, created_at, updated_at
+    INSERT INTO diaries (id, account_id, date, body, guide_question)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id, account_id, date, body, guide_question, created_at, updated_at
 )
-SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
+SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, COALESCE(i.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
 FROM inserted i
 JOIN diary_days dd ON dd.account_id = i.account_id AND dd.date = i.date
 `
 
 type InsertDiaryParams struct {
-	ID        uuid.UUID
-	AccountID uuid.UUID
-	Date      pgtype.Date
-	Body      string
+	ID            uuid.UUID
+	AccountID     uuid.UUID
+	Date          pgtype.Date
+	Body          string
+	GuideQuestion []byte
 }
 
 type InsertDiaryRow struct {
@@ -161,12 +162,14 @@ type InsertDiaryRow struct {
 	UpdatedAt      time.Time
 }
 
+// guide_question은 그 편에서 고른 오늘의 질문이고, 고르지 않았으면 NULL이라 날짜 기록의 질문을 돌려줍니다(S140).
 func (q *Queries) InsertDiary(ctx context.Context, arg InsertDiaryParams) (InsertDiaryRow, error) {
 	row := q.db.QueryRow(ctx, insertDiary,
 		arg.ID,
 		arg.AccountID,
 		arg.Date,
 		arg.Body,
+		arg.GuideQuestion,
 	)
 	var i InsertDiaryRow
 	err := row.Scan(
@@ -216,7 +219,7 @@ func (q *Queries) InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) 
 }
 
 const listDiaries = `-- name: ListDiaries :many
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, COALESCE(d.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.account_id = $1 AND d.deleted_at IS NULL
@@ -356,9 +359,9 @@ const updateDiaryBody = `-- name: UpdateDiaryBody :one
 WITH changed AS (
     UPDATE diaries SET body = $1, updated_at = now()
     WHERE diaries.id = $2 AND diaries.account_id = $3 AND diaries.deleted_at IS NULL
-    RETURNING id, account_id, date, body, created_at, updated_at
+    RETURNING id, account_id, date, body, guide_question, created_at, updated_at
 )
-SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
+SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, COALESCE(u.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
 FROM changed u
 JOIN diary_days dd ON (dd.account_id, dd.date) = (u.account_id, u.date)
 `

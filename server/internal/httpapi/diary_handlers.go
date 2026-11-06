@@ -28,6 +28,7 @@ const (
 // date는 createDiary의 요청 본문 필드라 JSON Pointer이고, cursor는 쿼리 parameter 이름입니다.
 const (
 	fieldDiaryDate   = "/date"
+	fieldDiaryGuide  = "/guideQuestion"
 	fieldDiaryCursor = "cursor"
 )
 
@@ -43,7 +44,7 @@ func (a *API) CreateDiary(ctx context.Context, req gen.CreateDiaryRequestObject)
 	if err != nil {
 		return nil, err
 	}
-	entry, err := a.Diaries.Create(ctx, accountID, p, localDateOf(req.Body.Date), req.Body.Body)
+	entry, err := a.Diaries.Create(ctx, accountID, p, localDateOf(req.Body.Date), req.Body.Body, guideChoiceOf(req.Body.GuideQuestion))
 	if err != nil {
 		return nil, createDiaryError(err)
 	}
@@ -58,7 +59,16 @@ func (a *API) CreateDiary(ctx context.Context, req gen.CreateDiaryRequestObject)
 	}, nil
 }
 
+// guideChoiceOf는 요청의 고른 오늘의 질문을 옮깁니다. 보내지 않았으면 nil입니다.
+func guideChoiceOf(in *gen.GuideChoice) *diary.GuideChoice {
+	if in == nil {
+		return nil
+	}
+	return &diary.GuideChoice{MessageKey: in.MessageKey, Variant: in.Variant}
+}
+
 // createDiaryError는 createDiary의 도메인 오류를 본문 date를 가리키는 422로 바꿉니다.
+// 고른 질문이 그날 후보에 없으면 본문 guideQuestion을 가리키는 422입니다(S140).
 // 같은 sentinel이라도 restoreDiary는 요청에 date가 없어 errors[] 없이 domainErrors 표로 나갑니다.
 func createDiaryError(err error) error {
 	switch {
@@ -66,6 +76,10 @@ func createDiaryError(err error) error {
 		return dateFieldError(problem.DiaryFutureDate, "Diary date in the future")
 	case errors.Is(err, diary.ErrDayFull):
 		return dateFieldError(problem.DiaryDayFull, "Diary day full")
+	case errors.Is(err, diary.ErrGuideChoiceInvalid):
+		e := newError(problem.DiaryGuideInvalid, "Guide question is not a candidate of the day")
+		e.Errors = []problem.FieldError{{Field: fieldDiaryGuide, Code: problem.DiaryGuideInvalid.Value}}
+		return e
 	}
 	return outOfRangeError(err, fieldDiaryDate)
 }

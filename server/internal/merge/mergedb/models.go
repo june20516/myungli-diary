@@ -151,6 +151,7 @@ type Diary struct {
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time
 	ContentPurgedAt *time.Time
+	GuideQuestion   []byte
 }
 
 type DiaryDay struct {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/june20516/myungli-diary/server/internal/content/render"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/profile"
@@ -15,15 +16,26 @@ import (
 // ErrFutureDate는 오늘(프로필 시간대 기준) 이후 날짜에 일기를 쓰려 할 때 돌려줍니다.
 var ErrFutureDate = errors.New("오늘 이후 날짜에는 일기를 쓸 수 없습니다")
 
-// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록을 만듭니다. *fortune.Views가 만족합니다.
+// ErrGuideChoiceInvalid는 고른 오늘의 질문이 그날 후보에 없을 때 돌려줍니다(S140).
+var ErrGuideChoiceInvalid = errors.New("고른 오늘의 질문이 그날 후보에 없습니다")
+
+// GuideChoice는 일기를 쓸 때 고른 오늘의 질문입니다. 오늘 화면 후보(Daily.guideCandidates)의 키와 변주입니다.
+type GuideChoice struct {
+	MessageKey string
+	Variant    string
+}
+
+// Days는 일기를 처음 쓸 때 같이 적는 그날 엔진 결과의 기록과, 고른 오늘의 질문의 문장을 만듭니다. *fortune.Views가 만족합니다.
 type Days interface {
 	DayRecord(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate) (fortune.DayRecord, error)
+	// GuideChoice는 그날 후보 가운데 (messageKey, variant)의 렌더된 문장입니다. 후보에 없으면 fortune.ErrGuideChoiceNotFound입니다.
+	GuideChoice(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, messageKey, variant string) ([]render.Segment, error)
 }
 
 // entryStore는 Create가 쓰는 저장소 동작입니다. *Store가 만족하고, 테스트는 대역으로 바꿉니다.
 type entryStore interface {
 	DayExists(ctx context.Context, accountID uuid.UUID, date profile.LocalDate) (bool, error)
-	CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, record *fortune.DayRecord) (Entry, error)
+	CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, guide []render.Segment, record *fortune.DayRecord) (Entry, error)
 }
 
 // Service는 일기 저장 규칙(미래 날짜 거절, 그날 첫 편에만 그날 기록)을 얹은 일기 서비스입니다.
@@ -48,7 +60,9 @@ func newServiceWith(entries entryStore, store *Store, days Days, clk clock.Clock
 // Create는 date에 일기를 한 편 만듭니다.
 // date가 p.CurrentTimezone 기준 오늘보다 뒤면 ErrFutureDate입니다(D30).
 // 그날 첫 편일 때만 엔진을 불러 날짜 기록을 만들어 함께 저장하고, 둘째 편부터는 부르지 않습니다(D83).
-func (s *Service) Create(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (Entry, error) {
+// choice가 있으면 그날 질문 후보에서 그 질문을 다시 렌더해 이 편의 질문으로 남기고, 후보에 없으면 ErrGuideChoiceInvalid입니다(S140).
+// choice가 없으면 이 편의 질문은 비워 두고, 읽을 때 날짜 기록의 기본 질문을 씁니다.
+func (s *Service) Create(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, choice *GuideChoice) (Entry, error) {
 	today, err := s.today(p.CurrentTimezone)
 	if err != nil {
 		return Entry{}, err
@@ -56,30 +70,46 @@ func (s *Service) Create(ctx context.Context, accountID uuid.UUID, p profile.Pro
 	if date.After(today) {
 		return Entry{}, ErrFutureDate
 	}
+	guide, err := s.guideOf(ctx, accountID, p, date, choice)
+	if err != nil {
+		return Entry{}, err
+	}
 
 	exists, err := s.entries.DayExists(ctx, accountID, date)
 	if err != nil {
 		return Entry{}, err
 	}
 	if !exists {
-		return s.createWithNewRecord(ctx, accountID, p, date, body)
+		return s.createWithNewRecord(ctx, accountID, p, date, body, guide)
 	}
-	entry, err := s.entries.CreateEntry(ctx, accountID, date, body, nil)
+	entry, err := s.entries.CreateEntry(ctx, accountID, date, body, guide, nil)
 	if errors.Is(err, ErrDayRecordMissing) {
 		// 확인과 저장 사이에 날짜 기록이 지워졌습니다(계정 삭제·합치기). 기록을 만들어 한 번만 다시 부릅니다.
-		return s.createWithNewRecord(ctx, accountID, p, date, body)
+		return s.createWithNewRecord(ctx, accountID, p, date, body, guide)
 	}
 	return entry, err
 }
 
+// guideOf는 고른 질문의 렌더된 문장입니다. 고르지 않았으면 nil입니다.
+func (s *Service) guideOf(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, choice *GuideChoice) ([]render.Segment, error) {
+	if choice == nil {
+		return nil, nil
+	}
+	guide, err := s.days.GuideChoice(ctx, accountID, p, date, choice.MessageKey, choice.Variant)
+	if errors.Is(err, fortune.ErrGuideChoiceNotFound) {
+		return nil, ErrGuideChoiceInvalid
+	}
+	return guide, err
+}
+
 // createWithNewRecord는 엔진으로 그날 기록을 만들어 일기와 함께 저장합니다(트랜잭션 밖에서 엔진을 부름).
 // 그 사이 다른 요청이 날짜 기록을 먼저 넣었으면 먼저 넣은 기록이 남아 같은 날짜의 기록은 하나로 모입니다.
-func (s *Service) createWithNewRecord(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (Entry, error) {
+func (s *Service) createWithNewRecord(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, guide []render.Segment) (Entry, error) {
 	record, err := s.days.DayRecord(ctx, accountID, p, date)
 	if err != nil {
 		return Entry{}, err
 	}
-	return s.entries.CreateEntry(ctx, accountID, date, body, &record)
+	return s.entries.CreateEntry(ctx, accountID, date, body, guide, &record)
 }
 
 // today는 timezone 기준 오늘 날짜입니다.

@@ -2,6 +2,7 @@ package fortune
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -74,4 +75,27 @@ func (v *Views) DayRecord(ctx context.Context, accountID uuid.UUID, p profile.Pr
 		GuideQuestion:  guide,
 		DayKind:        dayKind,
 	}, nil
+}
+
+// ErrGuideChoiceNotFound는 고른 오늘의 질문(키, 변주)이 그날 후보(DailyView.GuideCandidates)에 없을 때 돌려줍니다.
+var ErrGuideChoiceNotFound = errors.New("고른 오늘의 질문이 그날 후보에 없습니다")
+
+// GuideChoice는 date의 오늘의 질문 후보 가운데 (messageKey, variant)가 맞는 질문의 렌더된 문장을 돌려줍니다(S140).
+// 후보는 오늘 화면과 같은 묶음(Daily)에서 뽑으므로 app이 받은 후보와 같습니다. 맞는 후보가 없으면 ErrGuideChoiceNotFound,
+// 맞는 후보의 원고가 비어 있으면 nil입니다(기본 질문처럼 기록하지 않음).
+func (v *Views) GuideChoice(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, messageKey, variant string) ([]render.Segment, error) {
+	daily, err := v.Daily(ctx, accountID, p, date)
+	if err != nil {
+		return nil, err
+	}
+	for _, candidate := range daily.GuideCandidates {
+		if candidate.MessageKey != messageKey || candidate.Variant != variant {
+			continue
+		}
+		if len(candidate.Text) == 0 {
+			return nil, nil
+		}
+		return candidate.Text, nil
+	}
+	return nil, ErrGuideChoiceNotFound
 }
