@@ -2656,7 +2656,7 @@ def test_screen_e_sample():
     for key in ("V89", "V90"):
         assert "답 대기" not in rows[key]["근거"] and "V93" in rows[key]["결정"] and "V93" in rows[key]["근거"], key
     assert "Q4 ③" in rows["V93"]["결정"] and "color.highlight.bg" in rows["V93"]["결정"] and "1.4.0" in rows["V93"]["결정"]
-    assert rows["V93"]["근거"].split("사용자 영향: ", 1)[1].startswith("#851")  # Task 10: app 요청 Issue
+    assert rows["V93"]["근거"].endswith("app 반영은 #851(토큰 1.4.0 `color.highlight.bg`). 사용자 영향: 없음")  # D87: app 구현만 바뀜(V92와 같음)
 
 
 # 리뷰 Minor 2: 지운 부품(manse-table 격자선, 행 머리)을 가리키는 문장이 남지 않음
