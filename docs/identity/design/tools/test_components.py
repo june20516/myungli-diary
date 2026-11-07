@@ -2691,6 +2691,9 @@ REMOVED_IN_5_0 = (
     "`section.header`", "`explain.sheet`", "`innerBorder`", "`explainSheet.container`", "`open.chevron`",
     "`score-scale`", "`tag`", "`mini`", "`badge`", "`currentLabel`", "`rowHeader`", "`seun.grid`",
     "`legend.optional`", "`failed.add`", "`lock.veil.lines.default`",
+    # 리뷰 1회차: origin/main 대비 경로 전수 비교로 더 찾은 것
+    "`seun.stemTenGod`", "`seun.year`", "`daeun-table` `a11y.cellLabel`", "`manse-table` `a11y.cellLabel`",
+    "`states.time-unknown.parts.grid`", "`segments.term.screens`의 `day-sheet`", "뼈 `badge`",
 )
 
 
@@ -2708,6 +2711,10 @@ def test_readme_records_5_0_removals_and_renames():
         assert name in removed, name
     assert "`innerBorder` → `border`" in row and "자물쇠" in row
     assert "`keyboard.dismiss`" in row.split("**더함**", 1)[1]
+    changed = row.split("**바뀜**", 1)[1]
+    assert "`manse-table` `a11y.role` `table` → `group`" in changed
+    assert "`daeun-table` `a11y.role` `table` → `list`" in changed
+    assert "`tag-chip` `a11y.role` `link` → `button`" in changed
     for decision in ("V69", "V93"):
         assert decision in row
     assert "토큰 1.4.0 이상" in row and "주 버전" in row
@@ -2777,7 +2784,9 @@ def test_today_featured_empty_day():
     rule = next(line for line in lines if line.startswith("* 대표 태그가 없는 날(D112"))
     for words in ("헤드라인만", "`list.divider`", "보조 문장", "일진 십성 묶음 질문", "제목은 그대로"):
         assert words in rule, words
+    assert "today.fortune.body" in rule and "결정 태그 줄" in rule  # 리뷰 1회차 Ruling: 근거는 IA 보조 문장 role
     row = decision_rows()["V95"]
+    assert "today.fortune.body" in row["결정"] and "결정 태그 줄" in row["결정"]
     assert "D112" in row["결정"] and "today.featured.empty" in row["결정"] and "사용자 영향: #801" in row["근거"]
     assert "`today.featured.empty`" in _readme_row("5.0.0")
     sample = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-a-g.html").read_text(encoding="utf-8")

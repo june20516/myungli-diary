@@ -38,7 +38,7 @@
   * 정리(V94): 요소 `section.header`·`explain.sheet`는 컴포넌트로 옮겨 지움, `lucky-card` `tag`와 `ohaeng.cell` `mini`와 옛 만세력·대운 부품 삭제, 키보드 내리기는 요소 `keyboard.dismiss`, 사주 용어 한자 17자(刑 추가, V70·V87). 지움과 이름 바뀜은 `components/README.md` 판 기록에 있습니다.
   * 글자 수 상한(`lengths.md` DS1 2단계 절): 상단 바 저장 글자, 가운데 초안 상태, 시진 이름, 자리 표시 기둥 글자를 새로 잼. 성별과 시간 모름 알약은 `ui.birth.option`을 함께 씀.
   * 근거: [spec](specs/2026-11-05-ds1-screens-design.md), [plan](plans/2026-11-05-ds1-screens.md), 감사 `specs/2026-11-05-ds1-audit.md`.
-  * 보낼 요청(원고 작성됨, 게시 전): writing(새 슬롯과 상한, 범례 입구, 빈 안내, "일기 쓰기"), app(따라잡기, LockVeil 두 줄, 강조 바탕, fixture 명리 오류), 지휘(IA 출구와 슬롯, `score-scale` 제거, 刑 보고), core(巳 지장간 순서).
+  * 보낼 요청(원고 작성됨, 게시 전): writing(상단 바 저장, 초안 상태, 시진 이름, 대표 태그 없는 날 한 줄의 상한, 초안 상태 원고 줄이기, 새 슬롯: 자리 표시 기둥 글자, 빈 칸 "없음", 질문 바꾸기 이름, 회고 낱말, 대운 기간 틀, 문장 목록 이름 칸, 점수 항목 짧은 뜻, 그날 시트 일기 0편 제목, IA 뒤 모아보기 링크와 편수 삭제), app(따라잡기, LockVeil 두 줄, 강조 바탕, 대표 태그 없는 날, fixture 명리 확인), 지휘(IA 출구와 슬롯, `score-scale` 제거, 刑 보고), core(巳 지장간 순서).
 * **DS1 1단계 규칙 #801** (브랜치 `design/ds1-rules`, D107, 결정 V56~V68).
   * 검수 F-001~F-012를 규칙으로: 간격 쓰임표와 직접 쓴 px 0개(V56), 아이콘 `size.icon.*`·`adjacent-text`와 직접 그린 아이콘 금지(V57), 0.5px `list.divider`와 꺾쇠는 이동 줄에만, `settings-row` 앞 아이콘·`select`(V58), `section.header`(V59), `button.pair`와 `quiet` 52(V60), `press.ink` 반지름과 범위(V61), `explain.sheet`(V62), 근거 진입점 `book-open-text` 아이콘(V63), 시트 안쪽 24와 핸들 자리(V64), 확인 창 사방 24와 같은 폭 두 버튼(V65), 요소별 skeleton(V66), `page.push`(V67), 키보드 내리기(V68).
   * 도구: `tools/rules_audit.py`(간격 전수 점검, 결과 `specs/2026-11-05-ds1-audit.md`), `tools/token_css.py`(토큰을 CSS 변수로, `artifacts/ds1/tokens.css`), `tools/phosphor_names.txt`(Phosphor 이름 목록). 규칙마다 `test_components.py`에 검사.
