@@ -2320,8 +2320,9 @@ def test_color_rule_sheet_has_no_scale():
     assert len(items) == 3 and not any("score-scale" in line or "관계 그림" in line for line in items)  # 제목, 설명, 점수표만
     assert "합한 점으로" not in (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
     assert "IA 제거 요청" in layout and "75%" not in layout
-    height = re.search(r"내용 높이는 휴대폰 높이의 (\d+)%", layout)
-    assert height and ("`sheet` `half`" in layout) == (int(height.group(1)) <= 60)
+    height = re.search(r"내용 높이는 휴대폰 높이의 (\d+(?:\.\d+)?)%", layout)
+    assert height and height.group(1) == "59.6" and ("`sheet` `half`" in layout) == (float(height.group(1)) <= 60.0)
+    assert "ja, en" in layout and "스크롤" in layout  # 넘치는 조건: 작은 화면, 큰 글자, 긴 언어
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert "score-scale" in readme and "IA_REMOVAL_REQUESTED" in readme
 
@@ -2381,6 +2382,8 @@ def test_revised_decisions_are_marked():
             if line.startswith("| V")}
     assert "2026-11-07 개정" in rows["V10"] and "V84" in rows["V10"]
     assert "2026-11-07 개정" in rows["V42"] and "V85" in rows["V42"]
+    assert "2026-11-07 개정" in rows["V84"] and "Q1 ⑤" in rows["V84"]  # 관문 답 리뷰 I1
+    assert "2026-11-07 개정" in rows["V87"] and "score-scale을 뺌" in rows["V87"]
     assert rows["V86"].rstrip(" |").endswith("사용자 영향: #801(길흉판정 막대 세 이름 day-sheet 슬롯 IA 요청)")
 
 
@@ -2388,3 +2391,17 @@ def test_tone_example_words_are_four_levels():
     md = (COMPONENTS_DIR / "elements.md").read_text(encoding="utf-8")
     section = md.split("## 길흉 톤 `tone`", 1)[1].split("\n## ", 1)[0]
     assert "좋은 날" not in section and "아주 잘 풀리는 날" in section and "무난한 날" in section
+
+
+# 관문 답 리뷰: 시안과 비교 페이지에 쓰지 않는 척도 CSS나 인라인 색이 없음
+def test_screen_d_has_no_scale_leftovers():
+    screen = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-d.html").read_text(encoding="utf-8")
+    assert ".rs-head" not in screen and ".scale" not in screen and ".sc " not in screen and "score-scale" not in screen
+    questions = (DESIGN_DIR / "artifacts" / "2026-11-06-ds1-d-questions.html").read_text(encoding="utf-8")
+    picked = questions.split("고름(2026-11-07): 합치지 않음", 1)[1].split("</section>", 1)[0]
+    assert "#" not in re.sub(r"&#\w+;", "", picked.split("<div class=\"options\">", 1)[1]).replace('href="#', "")
+
+
+def test_removal_constant_follows_pending():
+    source = (TOOLS_DIR / "components.py").read_text(encoding="utf-8")
+    assert source.index("IA_PENDING_COMPONENTS = frozenset") < source.index("IA_REMOVAL_REQUESTED = frozenset")

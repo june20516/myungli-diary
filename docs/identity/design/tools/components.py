@@ -35,13 +35,13 @@ EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 
 # IA v5(#812)가 더했지만 명세를 아직 쓰지 않은 컴포넌트(DS1 2단계 spec §1). "명세가 없음" 문제에서만 빠지고
 # 다른 검사는 그대로 돕니다. 명세를 쓰는 task가 그 컴포넌트를 이 목록에서 뺍니다.
-# IA에 있지만 쓰지 않기로 해 IA에서 빼 달라고 요청한 컴포넌트. 명세를 두지 않고 "명세가 없음" 문제에서만 빠집니다.
-# score-scale: 관문 답 2026-11-07 Q4(색 규칙 시트에 척도 그림을 두지 않음, #801)
-IA_REMOVAL_REQUESTED = frozenset({"score-scale"})
-
 IA_PENDING_COMPONENTS = frozenset({
     "birth-info-row", "band-table", "stage-strip", "scroll-hint",
 })
+
+# IA에 있지만 쓰지 않기로 해 IA에서 빼 달라고 요청한 컴포넌트. 명세를 두지 않고 "명세가 없음" 문제에서만 빠집니다.
+# score-scale: 관문 답 2026-11-07 Q4(색 규칙 시트에 척도 그림을 두지 않음, #801)
+IA_REMOVAL_REQUESTED = frozenset({"score-scale"})
 
 # 테마 조합 이름 → (색 모드 파일, 글자 언어 파일). primitive는 모든 조합에 들어갑니다.
 THEMES = {

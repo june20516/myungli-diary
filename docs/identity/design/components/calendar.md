@@ -105,7 +105,7 @@ IA v5 `calendar`. 위에서부터입니다.
 
 ### color-rule-sheet 화면 배치
 
-색 규칙 시트(IA v5 `color-rule-sheet`, 결정 V87). 달력 범례 입구에서 `sheet` `half`(내용 높이)로 엽니다. 명세 값으로 잰 내용 높이는 휴대폰 높이의 60%(511 / 858, 59.6%)라 IA대로 하프 상한 안입니다. 작은 화면이나 큰 글자에서 넘치면 시트 안에서 스크롤합니다.
+색 규칙 시트(IA v5 `color-rule-sheet`, 결정 V87). 달력 범례 입구에서 `sheet` `half`(내용 높이)로 엽니다. 명세 값으로 잰 내용 높이는 휴대폰 높이의 59.6%(511 / 858)라 IA대로 하프 상한 안입니다. 작은 화면, 큰 글자, 문장이 긴 언어(ja, en)에서 넘치면 시트 안에서 스크롤합니다.
 
 1. 제목(`color-rule-sheet.sheet.title`): `type.subtitle`, 핸들 자리 아래 `space.8`.
 2. 설명 문장(`color-rule-sheet.rule.body`): 제목 아래 `space.12`, `sentence-block` `body`.
