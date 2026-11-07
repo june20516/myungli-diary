@@ -35,6 +35,10 @@ EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 
 # IA v5(#812)가 더했지만 명세를 아직 쓰지 않은 컴포넌트(DS1 2단계 spec §1). "명세가 없음" 문제에서만 빠지고
 # 다른 검사는 그대로 돕니다. 명세를 쓰는 task가 그 컴포넌트를 이 목록에서 뺍니다.
+# IA에 있지만 쓰지 않기로 해 IA에서 빼 달라고 요청한 컴포넌트. 명세를 두지 않고 "명세가 없음" 문제에서만 빠집니다.
+# score-scale: 관문 답 2026-11-07 Q4(색 규칙 시트에 척도 그림을 두지 않음, #801)
+IA_REMOVAL_REQUESTED = frozenset({"score-scale"})
+
 IA_PENDING_COMPONENTS = frozenset({
     "birth-info-row", "band-table", "stage-strip", "scroll-hint",
 })
@@ -123,7 +127,7 @@ def _ia_problems(documents: dict[str, dict], ia: dict) -> list[str]:
         for component in _component_list(documents.get(name, {})):
             if "id" in component:
                 owners.setdefault(component["id"], []).append(name)
-    problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners) - IA_PENDING_COMPONENTS)]
+    problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners) - IA_PENDING_COMPONENTS - IA_REMOVAL_REQUESTED)]
     for component_id, groups in sorted(owners.items()):
         if component_id not in expected:
             problems.append(f"{component_id}: IA에 없는 컴포넌트 ({', '.join(groups)}.json)")

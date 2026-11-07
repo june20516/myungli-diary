@@ -7,7 +7,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 
 from dtcg import find_problems, flatten, resolve  # noqa: E402
 from palette import (  # noqa: E402
-    MAX_CAUTION_CHROMA, MAX_GREAT_GOOD_LIGHTNESS_GAP, MIN_GREAT_GOOD_CHROMA_GAP, MIN_LEVEL_DISTANCE, MIN_TEXT_CONTRAST, build_palette,
+    CLEAR_LEVEL_MODES, MAX_CAUTION_CHROMA, MAX_GREAT_GOOD_LIGHTNESS_GAP, MIN_GREAT_GOOD_CHROMA_GAP, MIN_LEVEL_DISTANCE, MIN_TEXT_CONTRAST, build_palette,
     contrast_ratio, oklab_distance, oklch_lightness_chroma)
 from tokens import TOKENS_DIR, build_token_files, color_value, reference_or_value, serialize  # noqa: E402
 
@@ -273,7 +273,14 @@ def test_calendar_levels_distinguishable():
             assert oklab_distance(hexes[first], hexes[second]) >= MIN_LEVEL_DISTANCE, (mode, first, second)
         great_lightness, _ = oklch_lightness_chroma(hexes["great"])
         good_lightness, _ = oklch_lightness_chroma(hexes["good"])
-        assert abs(great_lightness - good_lightness) <= MAX_GREAT_GOOD_LIGHTNESS_GAP, mode
+        if mode in CLEAR_LEVEL_MODES:
+            # 사용자 결정 2026-11-07(#801 관문 Q1 ⑤): 두 단계 모두 맑게(흰색만 섞은 coral, 가장 큰 RGB 채널 255),
+            # 아주 잘 풀리는 날이 더 진하게(명도는 낮고 채도는 높음). 잘 풀리는 날이 탁하면 부정적으로 보임
+            for level in ("great", "good"):
+                assert max(int(hexes[level][i:i + 2], 16) for i in (1, 3, 5)) == 255, (mode, level, hexes[level])
+            assert great_lightness < good_lightness, mode
+        else:
+            assert abs(great_lightness - good_lightness) <= MAX_GREAT_GOOD_LIGHTNESS_GAP, mode
         chroma_gap = oklch_lightness_chroma(hexes["great"])[1] - oklch_lightness_chroma(hexes["good"])[1]
         assert chroma_gap >= MIN_GREAT_GOOD_CHROMA_GAP, (mode, chroma_gap)
         assert oklch_lightness_chroma(hexes["caution"])[1] <= MAX_CAUTION_CHROMA, mode
@@ -290,3 +297,10 @@ def test_fill_soft_visible_on_sheet():
     for mode in ("light", "dark"):
         roles = build_palette()["roles"][mode]
         assert oklab_distance(roles["fill.soft"], roles["bg.sheet"]) >= MIN_LEVEL_DISTANCE, mode
+
+
+def test_calendar_level_values_chosen_by_user():
+    # 관문 답 2026-11-07 Q1 ⑤(라이트만, 다크는 그대로)
+    light, dark = _level_hexes("light"), _level_hexes("dark")
+    assert (light["great"], light["good"], light["caution"]) == ("#ffd2ca", "#ffe4df", "#d4d4d3")
+    assert (dark["great"], dark["good"], dark["caution"]) == ("#582720", "#46322f", "#2a2a29")

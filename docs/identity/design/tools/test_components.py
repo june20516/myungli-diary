@@ -341,7 +341,7 @@ def test_brand_groups_contain_spec_components():
     assert ids == {
         "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image", "date-header", "tag-sentence-list"},
-        "calendar": {"calendar-month", "day-cell", "event-row", "fortune-verdict", "score-row", "score-scale"},
+        "calendar": {"calendar-month", "day-cell", "event-row", "fortune-verdict", "score-row"},
         "diary": {"diary-row", "diary-editor", "date-block", "draft-indicator", "tag-chip", "diary-summary"},
         "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar"},
     }
@@ -481,7 +481,9 @@ def test_pending_ia_components_are_known():
     documents = load_documents(COMPONENTS_DIR)
     specified = {component["id"] for name in components.GROUPS for component in documents[name]["components"]}
     assert components.IA_PENDING_COMPONENTS <= IA_V5_NEW_COMPONENTS  # 목록은 새 15개 안에서만 줄어듦
-    assert components.IA_PENDING_COMPONENTS == ia_ids - specified  # 명세가 생기면 목록에서 빼야 통과
+    assert components.IA_PENDING_COMPONENTS == ia_ids - specified - components.IA_REMOVAL_REQUESTED  # 명세가 생기면 목록에서 빼야 통과
+    # 관문 답 2026-11-07 Q4: 색 규칙 시트에 척도 그림을 두지 않아 score-scale은 명세 없이 IA 제거 요청
+    assert components.IA_REMOVAL_REQUESTED == frozenset({"score-scale"}) and not components.IA_REMOVAL_REQUESTED & specified
     assert not components.IA_PENDING_COMPONENTS & specified
 
 
@@ -1507,7 +1509,6 @@ NO_LOADING_CONTENT = {
     "section-header",  # 제목은 UI 슬롯이라 불러오는 중에도 그대로 (DS1 2단계)
     "explain-sheet",  # 틀. 본문은 sentence-block 뼈
     "tag-sentence-list",  # 오늘 화면에서 이미 받은 문장을 다시 보임. tag-sheet에는 loading이 없음 (DS1 2단계 묶음 A)
-    "score-scale",  # 색 규칙 그림은 UI 고정 내용 (DS1 2단계 묶음 D)
 }
 
 
@@ -2311,19 +2312,18 @@ def test_score_row_dots():
     assert "score-row" not in components.IA_PENDING_COMPONENTS and "score-row" in CONTENT_COMPONENTS
 
 
-def test_score_scale_four_cells():
-    scale = component("calendar", "score-scale")
-    cells = scale["parts"]["cells"]
-    assert [cell["level"] for cell in cells] == ["caution", "neutral", "good", "great"]
-    assert [cell["bg"] for cell in cells] == ["{color.calendar.level.caution}", "transparent",
-                                             "{color.calendar.level.good}", "{color.calendar.level.great}"]
-    assert [cell["range"] for cell in cells] == [
-        {"sign": "minus", "dots": 2, "bound": "이하"}, {"from": {"sign": "minus", "dots": 1}, "to": {"sign": "plus", "dots": 1}},
-        {"sign": "plus", "dots": 2}, {"sign": "plus", "dots": 3, "bound": "이상"}]
-    assert cells[1]["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}}  # 무색 칸도 칸으로 보임
-    assert scale["parts"]["dots"] == "score-row dots와 같음"
-    assert "score-scale" not in components.IA_PENDING_COMPONENTS and "score-scale" in NO_LOADING_CONTENT
-
+def test_color_rule_sheet_has_no_scale():
+    # 관문 답 2026-11-07 Q4: 척도 그림은 합치지 않고, 색 규칙 시트는 설명 문장과 점수표만
+    assert "score-scale" not in {c["id"] for c in all_components()}
+    layout = _md_section("calendar.md", "### color-rule-sheet 화면 배치")
+    items = [line for line in layout.splitlines() if line[:2] in ("1.", "2.", "3.", "4.", "5.")]
+    assert len(items) == 3 and not any("score-scale" in line or "관계 그림" in line for line in items)  # 제목, 설명, 점수표만
+    assert "합한 점으로" not in (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
+    assert "IA 제거 요청" in layout and "75%" not in layout
+    height = re.search(r"내용 높이는 휴대폰 높이의 (\d+)%", layout)
+    assert height and ("`sheet` `half`" in layout) == (int(height.group(1)) <= 60)
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "score-scale" in readme and "IA_REMOVAL_REQUESTED" in readme
 
 def test_day_sheet_opens_full():
     sheet = component("frame", "sheet")
@@ -2354,7 +2354,7 @@ def test_hyeong_glyph():
     layout = _md_section("calendar.md", "### color-rule-sheet 화면 배치")
     assert "刑 형" in layout and "자리값" not in layout and "자리값" not in (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
     assert all(f"`{slot}`" in layout for slot in ia_slot_ids("color-rule-sheet"))
-    assert "`score-row` `rule`" in layout and "`score-scale`" in layout
+    assert "`score-row` `rule`" in layout
 
 
 # Task 8 리뷰 라운드 1

@@ -94,9 +94,9 @@
   --color-badge-ordinary-fg: var(--color-neutral-700);
   --color-calendar-good-bg: var(--color-coral-100);
   --color-calendar-caution-bg: var(--color-neutral-100);
-  --color-calendar-level-great: #fec9bf;
-  --color-calendar-level-good: #e8d2cd;
-  --color-calendar-level-caution: #cececd;
+  --color-calendar-level-great: #ffd2ca;
+  --color-calendar-level-good: #ffe4df;
+  --color-calendar-level-caution: #d4d4d3;
   --color-calendar-weekday-sun: var(--color-ohaeng-fire-fg);
   --color-calendar-weekday-sat: var(--color-ohaeng-earth-fg);
   --color-fill-soft: var(--color-neutral-100);
@@ -133,7 +133,7 @@
   --color-ohaeng-metal-fg: #454e58;
   --color-ohaeng-water-bg: #e0ecfe;
   --color-ohaeng-water-fg: #304d78;
-  --color-verdict-track: #cececd 0%, #fec9bf 100%;
+  --color-verdict-track: #d4d4d3 0%, #ffd2ca 100%;
   --gradient-today: #eef4ef 0%, #fbefee 100%;
   --font-family-sentence: "Gowun Dodum", "Pretendard", sans-serif;
   --font-family-ui: "Pretendard", sans-serif;

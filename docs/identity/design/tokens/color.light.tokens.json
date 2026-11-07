@@ -124,11 +124,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.9961,
-              0.7882,
-              0.749
+              1.0,
+              0.8235,
+              0.7922
             ],
-            "hex": "#fec9bf"
+            "hex": "#ffd2ca"
           },
           "$description": "캘린더 아주 잘 풀리는 날 칸 채우기. good과 명도는 같고 채도가 더 높음(1.4.0)"
         },
@@ -137,11 +137,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.9098,
-              0.8235,
-              0.8039
+              1.0,
+              0.8941,
+              0.8745
             ],
-            "hex": "#e8d2cd"
+            "hex": "#ffe4df"
           },
           "$description": "캘린더 잘 풀리는 날 칸 채우기(1.4.0). calendar.good.bg는 그대로 둠"
         },
@@ -150,11 +150,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.8078,
-              0.8078,
-              0.8039
+              0.8314,
+              0.8314,
+              0.8275
             ],
-            "hex": "#cececd"
+            "hex": "#d4d4d3"
           },
           "$description": "캘린더 조심할 날 칸 채우기. 회색이고 명도를 낮춰 good과 구분(1.4.0)"
         }
@@ -524,11 +524,11 @@
             "color": {
               "colorSpace": "srgb",
               "components": [
-                0.8078,
-                0.8078,
-                0.8039
+                0.8314,
+                0.8314,
+                0.8275
               ],
-              "hex": "#cececd"
+              "hex": "#d4d4d3"
             },
             "position": 0.0
           },
@@ -536,11 +536,11 @@
             "color": {
               "colorSpace": "srgb",
               "components": [
-                0.9961,
-                0.7882,
-                0.749
+                1.0,
+                0.8235,
+                0.7922
               ],
-              "hex": "#fec9bf"
+              "hex": "#ffd2ca"
             },
             "position": 1.0
           }

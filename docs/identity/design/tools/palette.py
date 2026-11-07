@@ -58,16 +58,19 @@ GRADIENT_LIGHT = ["#eef4ef", "#fbefee"]
 GRADIENT_DARK_OKLCH = [(0.23, 0.022, 150), (0.23, 0.024, 20)]
 
 # 달력 4단계 (DS1 spec 2026-11-05-ds1-screens-design.md §3, 토큰 1.4.0): 모드 → 단계 → (명도, 채도, hue).
-# 잘 풀리는 날 둘은 명도를 같게 두고 채도로만 가르고, 조심할 날은 회색으로 명도를 낮춰 구분합니다.
-# 값이 아니라 규칙(아래 상수)을 test_tokens.py가 다시 재서 검사합니다.
+# 라이트(CLEAR_LEVEL_MODES)는 잘 풀리는 날 둘을 모두 맑게 둡니다: 채도를 sRGB 끝까지 올려(oklch_to_hex가 경계로 자름)
+# 흰색만 섞은 coral이 되고, 아주 잘 풀리는 날이 명도는 낮고 채도는 높습니다(사용자 결정 2026-11-07, #801 관문 Q1 ⑤:
+# 잘 풀리는 날이 탁해 보이면 부정적으로 읽힘). 다크는 명도를 같게 두고 채도로만 가릅니다.
+# 조심할 날은 회색으로 명도를 낮춰 구분합니다. 값이 아니라 규칙(아래 상수)을 test_tokens.py가 다시 재서 검사합니다.
 CALENDAR_LEVELS = {
-    "light": {"great": (0.88, 0.075, 30), "good": (0.88, 0.026, 30), "caution": (0.85, 0.0015, 110)},
+    "light": {"great": (0.90, 0.075, 30), "good": (0.94, 0.075, 30), "caution": (0.87, 0.0015, 110)},
     "dark": {"great": (0.34, 0.075, 30), "good": (0.34, 0.030, 30), "caution": (0.285, 0.002, 110)},
 }
 MIN_LEVEL_DISTANCE = 0.03  # 이웃한 단계, 바탕, 흰 표면 위 채움의 OKLab 거리 하한
-MAX_GREAT_GOOD_LIGHTNESS_GAP = 0.005
+CLEAR_LEVEL_MODES = ("light",)  # 잘 풀리는 두 단계가 흰색만 섞은 순색(가장 큰 RGB 채널 255)인 모드
+MAX_GREAT_GOOD_LIGHTNESS_GAP = 0.005  # CLEAR_LEVEL_MODES 밖(다크): 두 단계 명도가 같음
 MAX_CAUTION_CHROMA = 0.003
-# 아주 잘 풀리는 날과 잘 풀리는 날은 명도가 같고 채도로만 구분: great가 good보다 이만큼 이상 진해야 함
+# 아주 잘 풀리는 날이 잘 풀리는 날보다 채도가 이만큼 이상 높아야 함(두 모드 모두)
 MIN_GREAT_GOOD_CHROMA_GAP = 0.02
 # 흰 표면(bg.sheet) 위 옅은 채움: 라이트는 neutral-100, 다크는 neutral-800
 FILL_SOFT_STEP = {"light": 100, "dark": 800}

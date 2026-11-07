@@ -841,7 +841,7 @@
   },
   {
     "id": "design-ds1-screen-d",
-    "title": "DS1 화면 묶음 D: 달력(네 단계, 범례와 규칙 입구), 그날 시트(무난한 날, 아주 잘 풀리는 날, 조심할 날, 불러오는 중), 색 규칙 시트",
+    "title": "DS1 화면 묶음 D: 달력(네 단계, 범례 셋과 규칙 입구), 그날 시트(무난한 날, 아주 잘 풀리는 날, 조심할 날, 불러오는 중), 색 규칙 시트(설명과 점수표)",
     "kind": "mockup",
     "file": "2026-11-05-ds1-screen-d.html",
     "source": "2026-11-05-ds1-screen-d.html",
@@ -858,8 +858,8 @@
       "V86",
       "V87"
     ],
-    "status": "draft",
-    "note": "사용자 확인 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 2026-11 하늘님 값, 원고 없는 문구는 예시. 사용자 확인(2026-11-07, #801): 라이트 칸 색 #ffd2ca, #ffe4df, #d4d4d3(맑은 coral), 범례 셋, 길흉판정 막대 이름 셋, 척도 그림은 합치지 않고 색 규칙 시트는 척도 없이(half, 59.6%), 일기 섹션 제목 늘 보임, 刑 한자"
   },
   {
     "id": "design-ds1-d-questions",
@@ -875,7 +875,7 @@
       "color-rule-sheet"
     ],
     "decisions": [],
-    "status": "draft",
-    "note": "사용자 확인 대기(#801). 토큰 CSS(ds1/tokens.css)를 읽고 Q1 후보 칸만 후보 색을 덮어씀"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 읽고 Q1 후보 칸과 Q4 화면만 색을 덮어씀. 사용자 답(2026-11-07, #801): Q1 ⑤ 맑은 coral, Q2 ① 범례 셋, Q3 ① 막대 이름 셋, Q4 척도 합치지 않음(색 규칙 시트는 척도 그림 없이), Q5 ① 일기 섹션 제목 늘 보임"
   }
 ]

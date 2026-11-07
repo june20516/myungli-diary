@@ -19,7 +19,7 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 | `tag-sentence-list` | today | tag-sheet | A |
 | `fortune-verdict` | calendar | day-sheet | D |
 | `score-row` | calendar | day-sheet, color-rule-sheet | D |
-| `score-scale` | calendar | color-rule-sheet | D |
+| `score-scale` | 쓰지 않음(IA 제거 요청) | color-rule-sheet | D, 관문 답 2026-11-07 Q4 |
 | `date-block` | diary | diary-edit | C |
 | `diary-summary` | diary | my-saju | B |
 | `luck-pillar` | saju | my-saju, saju-chart | B, E |
@@ -54,7 +54,7 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 
 | 토큰 | 규칙 |
 | --- | --- |
-| `color.calendar.level.great` | 아주 잘 풀리는 날. hue 30(coral), `good`과 명도 차 0.005 이하, 채도가 더 높음 |
+| `color.calendar.level.great` | 아주 잘 풀리는 날. hue 30(coral). 라이트는 `good`과 함께 맑게(회색 섞임 없음, 흰색만 섞은 coral)이고 `good`보다 진하게(명도 낮고 채도 높음). 다크는 `good`과 명도 차 0.005 이하에 채도가 더 높음. **사용자 결정 2026-11-07(관문 Q1 ⑤):** 잘 풀리는 날이 탁해 보이면 부정적으로 읽혀 라이트 #ffd2ca, #ffe4df, #d4d4d3 |
 | `color.calendar.level.good` | 잘 풀리는 날. 기존 `color.calendar.good.bg`(coral-100)는 그대로 두고 새 이름이 새 값 |
 | `color.calendar.level.caution` | 조심할 날. 회색(채도 0.003 이하), 명도를 낮춰 `good`과 구분 |
 | `color.fill.soft` | 흰 표면 위 옅은 채움(확인 창 취소 등). 라이트 neutral-100, 다크는 `bg.sheet` 위에서 같은 구분 |
@@ -70,7 +70,8 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 * `tag-sentence-list`: 머리 `type.label.md` `text.secondary`, 줄마다 왼쪽 이름 칸(보조 문장, 오늘의 질문) 52 + 문장, 줄 사이 `list.divider`. 없으면 안내 한 줄(writing 슬롯). 아래 출구는 꺾쇠 링크(`tag-diary`, "<태그>이 붙은 내 일기 보기", 조사는 writing `josa`). 편수를 보이지 않고 늘 보임, 일기가 없으면 tag-diary 빈 상태(사용자 결정 2026-11-06, "편수는 매력 없는 정보에 기술 부담만").
 * `fortune-verdict`: 위치 막대(트랙 높이 4, 왼쪽 조심할 날 `level.caution`에서 오른쪽 잘 풀리는 날 `level.great`로 그라데이션 새 역할, 위치 표시 원 18 흰 바탕 + 2px `action.primary`), 아래 세 이름(조심할 날, 무난한 날, 잘 풀리는 날), 그 아래 `score-row` 줄들(`list.divider`). 카드 `bg.base` 바탕(시트 안). 동작 줄이기에서 위치 표시는 움직이지 않음.
 * `score-row`: `hanja-tag`(길흉 톤 허용) + 뜻(`type.caption.lg`, 두 줄까지) + 점(지름 8, 사이 3, 더함은 `badge.good.bg`, 뺌은 `text.secondary`) 앞에 + 또는 −. 점 개수는 점수 절댓값(최대 3, 그 이상은 3과 +). 스크린리더 "이름, 뜻, 더함 둘".
-* `score-scale`: 네 칸(조심할 날, 무난한 날, 잘 풀리는 날, 아주 잘 풀리는 날), 칸마다 `level` 바탕과 점 범위 표기(−●● 이하, −●~+●, +●●, +●●● 이상).
+* `score-scale`: **쓰지 않음(관문 답 2026-11-07 Q4).** 같은 척도를 그날 시트 막대와 색 규칙 시트 네 칸으로 두 번 그리지 않고, 색 규칙 시트는 설명 문장과 점수표만 둡니다. 명세를 쓰지 않고 IA에 제거를 요청합니다(`tools/components.py` `IA_REMOVAL_REQUESTED`). 색 규칙 시트 내용 높이는 59.6%(511 / 858)라 IA대로 half.
+* **묶음 D 관문 답(사용자 결정 2026-11-07):** 달력 칸 색은 위 §3(라이트 맑은 coral), 범례는 견본 셋(무난한 날 없음), `fortune-verdict` 막대 이름은 셋, 그날 시트 일기 섹션 제목은 쓴 일기가 없어도 보임, 刑(형)은 한자 목록에 더함(§2 刑).
 * `date-block`: 일 숫자 44 700, 옆 `space.12`에 월과 요일(`type.label.lg`), 그 아래 일진(`type.caption.md`).
 * `diary-summary`: 큰 편수(28 700) + 단위 글자, "어떤 날에 썼나" 막대(날의 성격 넷, 막대 높이 8 `radius.full`, 색은 날의 성격 톤, 오른쪽 수), "자주 붙은 태그"(`hanja-tag` + 수, 최대 3). 태그를 누르면 뜻 시트이고, 시트 아래 꺾쇠 링크로 그 태그의 일기 모아보기(`tag-diary`). 사용자 결정 2026-11-06(처음 tag-diary 직행에서 같은 날 뜻 시트 경유로 바뀜). 기록이 적을 때(5편 미만) 안내 한 줄과 막대 숨김.
 * `luck-pillar`: 천간, 지지 칸(`ohaeng.cell` 작은 크기 40), 위 나이 또는 연도, 십성 칩(`term-token` `label`). 사주 표 대운, 세운 줄에서 지금 대운, 올해 세운 칸은 `status.bg` 바탕 + 아래 "지금", "올해" 꼬리표(여러 칸 중 지금을 가림). 나 탭은 세로 두 줄(대운, 세운) 요약 모양 변형 `compact`이고, 두 줄이 모두 지금이라 강조 바탕이 없음(origin, 사용자 확인 2026-11-06).

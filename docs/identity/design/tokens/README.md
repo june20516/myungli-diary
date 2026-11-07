@@ -83,7 +83,7 @@
 | 1.1.0 | 2026-10-11 | 추가: `motion.duration.*`(short·fade·medium·select·long·stamp·breathe·toast-hold)·`motion.easing.*`·`shadow.raised`, V2 역할 색(토스트·비활성·덮개·탭 바·도장·도장 위 글자·상태 꼬리표·태그·요일·skeleton·흐름 줄), 글자 스타일 `type.body.ui`·`type.caption.lg` (마일스톤 V2) |
 | 1.2.0 | 2026-10-22 | 추가: `color.timeline.entry`(같은 날 일기 사이 점선, 결정 V42, #410) |
 | 1.3.0 | 2026-11-05 | 추가: `border.width.hairline`(목록 구분선 0.5px, V58), `size.icon.16`·`20`·`24`·`28`(아이콘 크기 단계, V57), `motion.duration.page`·`motion.easing.page`·`motion.offset.page`(화면 이동 `page.push`, V67) (DS1, #801) |
-| 1.4.0 | 2026-11-05 | 추가(색 두 파일만): `color.calendar.level.great`·`good`·`caution`(달력 4단계, 아주 잘 풀리는 날과 잘 풀리는 날은 명도 같고 채도로 구분, 조심할 날은 회색으로 명도를 낮춤), `color.fill.soft`(흰 표면 위 옅은 채움, 확인 창 취소 등. V65 버그), `color.verdict.track`(길흉판정 위치 막대 그라데이션, 조심할 날에서 잘 풀리는 날로). 기존 `color.calendar.good.bg`·`caution.bg`는 그대로 (DS1, #801) |
+| 1.4.0 | 2026-11-05 | 추가(색 두 파일만): `color.calendar.level.great`·`good`·`caution`(달력 4단계, 라이트는 아주 잘 풀리는 날과 잘 풀리는 날 모두 맑은 coral이고 아주 잘 풀리는 날이 더 진함(관문 답 2026-11-07, #801), 다크는 명도 같고 채도로 구분, 조심할 날은 회색으로 명도를 낮춤), `color.fill.soft`(흰 표면 위 옅은 채움, 확인 창 취소 등. V65 버그), `color.verdict.track`(길흉판정 위치 막대 그라데이션, 조심할 날에서 잘 풀리는 날로). 기존 `color.calendar.good.bg`·`caution.bg`는 그대로 (DS1, #801) |
 
 주 버전 변경은 `docs/workflow.md` §5.1을 따릅니다. 순서는 `kind:notice` Issue로 공지 → 버전 올림 → app 대응 보고 뒤 이전 이름 제거입니다.
 

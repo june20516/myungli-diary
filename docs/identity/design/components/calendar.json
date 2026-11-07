@@ -71,7 +71,7 @@
           "caution": "{color.calendar.level.caution}",
           "neutral": "transparent",
           "source": "server 길흉 수준 넷(아주 잘 풀리는 날 추가는 server #806). 추가 전에는 great가 오지 않아 3단계로 보임",
-          "rule": "합한 점 3 이상 great, 2 good, -1~+1 neutral, -2 이하 caution(엔진 spec §8 점수, score-scale과 같은 구간)"
+          "rule": "합한 점 3 이상 great, 2 good, -1~+1 neutral, -2 이하 caution(엔진 spec §8 점수)"
         },
         "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": "{space.4}" },
         "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
@@ -110,7 +110,7 @@
         "일기 도장과 오늘 윤곽은 같은 크기·자리(숫자 상자 가운데 26px)다.",
         "음력은 초하루만 'M.1', 절기 날은 절기 이름(굵게), 그 밖에는 일(日)만. 윤달 초하루는 윤달 표지를 붙인 'M.1'(leapNewMoon)이다.",
         "길흉은 색만으로 전하지 않는다. 스크린리더 라벨에 길흉 낱말(네 단계 이름, 범례와 같은 낱말)을 넣는다.",
-        "길흉 바탕은 네 단계다: 아주 잘 풀리는 날 calendar.level.great, 잘 풀리는 날 calendar.level.good, 무난한 날 채우지 않음, 조심할 날 calendar.level.caution(결정 V84). 잘 풀리는 두 단계는 명도가 같고 채도로만 나뉜다.",
+        "길흉 바탕은 네 단계다: 아주 잘 풀리는 날 calendar.level.great, 잘 풀리는 날 calendar.level.good, 무난한 날 채우지 않음, 조심할 날 calendar.level.caution(결정 V84). 라이트는 잘 풀리는 두 단계 모두 맑은 coral(회색 섞임 없음)이고 아주 잘 풀리는 날이 더 진하다(다크는 명도가 같고 채도로 나뉨, 사용자 결정 2026-11-07).",
         "시스템 글자 크기는 1.3배까지만 키운다(textScaleMax). 칸 높이 62는 최소 높이이고, 그 글자가 들어가는 만큼만 늘어난다(1.3배에서 약 65). 1.3배 위 설정은 1.3배와 같다(결정 V36)."
       ]
     },
@@ -233,30 +233,6 @@
         "더함은 + 와 coral 점(badge.good.bg), 뺌은 − 와 회색 점(text.secondary)이다. 부호는 색 없이 본문색이라 색만으로 전하지 않는다.",
         "태그는 hanja-tag이고 톤은 부호를 따른다(더함 verdictTone.good, 뺌 verdictTone.bad). 이 톤은 score-row와 fortune-verdict 안에서만 쓴다(Q4 ①).",
         "스크린리더는 '이름, 뜻, 더함 둘'처럼 부호와 개수를 낱말로 읽는다. 점은 읽지 않는다."
-      ]
-    },
-    {
-      "id": "score-scale",
-      "summary": "합한 점과 색의 관계 그림: 네 칸 (결정 V87)",
-      "uses": [],
-      "parts": {
-        "cells": [
-          { "level": "caution", "bg": "{color.calendar.level.caution}", "range": { "sign": "minus", "dots": 2, "bound": "이하" } },
-          { "level": "neutral", "bg": "transparent", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "range": { "from": { "sign": "minus", "dots": 1 }, "to": { "sign": "plus", "dots": 1 } } },
-          { "level": "good", "bg": "{color.calendar.level.good}", "range": { "sign": "plus", "dots": 2 } },
-          { "level": "great", "bg": "{color.calendar.level.great}", "range": { "sign": "plus", "dots": 3, "bound": "이상" } }
-        ],
-        "layout": { "columns": 4, "gap": "{space.4}", "radius": "{radius.sm}", "paddingY": "{space.12}", "paddingX": "{space.4}", "align": "center" },
-        "name": { "type": "{type.caption.md}", "fg": "{color.text.primary}", "copy": "달력 범례와 같은 단계 이름", "maxLines": 2 },
-        "rangeLine": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "marginTop": "{space.4}", "join": "범위는 ~ (D93)", "boundCopy": "이하, 이상 낱말은 writing" },
-        "dots": "score-row dots와 같음"
-      },
-      "haptic": [],
-      "a11y": { "role": "list", "label": "단계 이름, 점 범위 낱말(예: 잘 풀리는 날, 더함 둘)" },
-      "rules": [
-        "네 칸은 왼쪽부터 조심할 날, 무난한 날, 잘 풀리는 날, 아주 잘 풀리는 날이고 바탕은 달력 칸과 같은 level 토큰이다. 무난한 날은 채우지 않고 1px color.line 테두리로 칸을 보인다.",
-        "칸 안 범위는 점으로 쓴다(−●● 이하, −●~+●, +●●, +●●● 이상). 숫자를 쓰지 않는다.",
-        "누를 수 없는 그림이고 불러올 내용이 없다(UI)."
       ]
     }
   ]
