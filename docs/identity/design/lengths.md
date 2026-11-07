@@ -69,7 +69,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ui.saju.header` | 사주 표 열 머리와 band-table 띠 머리 term-token label (상한은 옛 manse-table 행 머리 52, 좌우 4, 두 줄 그대로. V89 뒤 자리가 더 넓음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
 | `ui.saju.tag` | daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8) | 92px | 1 | - | 8 | **8** | **6** | **13** |
 | `ui.evidence.personal-empty` | evidence-sheet 빈 해석 안내 (sheet 안쪽 24, 두 줄) | 312px | 2 | - | 58 | **58** | **42** | **98** |
-| `ui.saju.hour-name` | birth-info-row 시진 hanja-tag 이름 (본문 폭, 앞 4 + 한자 원 22 + 간격 4, 뒤 12, 시간 앞 8 + 시간 자리 56) | 214px | 1 | - | 19 | **19** | **15** | **34** |
+| `ui.birth-info.row` | birth-info-row 시진 hanja-tag 이름 (본문 폭, 앞 4 + 한자 원 22 + 간격 4, 뒤 12, 시간 앞 8 + 시간 자리 56) | 214px | 1 | - | 19 | **19** | **15** | **34** |
 | `contact.intro.body` | contact 첫머리 (본문 폭, 세 줄) | 320px | 3 | - | 90 | **90** | **63** | **150** |
 | `contact.message.field`<br>`contact.email.field` | text-field label 칸 이름 (본문 폭, 한 줄) | 320px | 1 | - | 29 | **29** | **23** | **53** |
 | `contact.attached.notice` | contact 함께 보내는 정보 고지 (본문 폭, 세 줄) | 320px | 3 | - | 96 | **96** | **69** | **162** |
@@ -166,7 +166,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * **5.0.0(DS1 2단계 #801, 결정 V82, V88, V91, V94):** 화면 결정 시안의 새 자리와 바뀐 자리를 잽니다. 기존 확정값은 그대로입니다.
   * `ui.diary-edit.save`는 아래 고정 버튼이 아니라 일기 쓰기 상단 바 오른쪽 글자 버튼(`app-bar` `textAction`)이 되어 `primary-button` 행에서 옮겼습니다. 버튼 최대 폭은 동작 아이콘 둘 자리(44 × 2 = 88)이고 좌우 `space.8`을 뺀 72px입니다(ko 23 → 6, ja 18 → 4, en 40 → 8). 지금 원고 "저장"(2자), "保存", "Save"는 들어갑니다.
   * `diary-edit.draft.status`(가운데 초안 상태)는 뒤로(44)와 저장 버튼 최대 폭(88) 사이(196px)에서 아이콘 16 + 간격 4, 글자 수 앞 `space.8`, 글자 수 자리 64를 뺀 104px 한 줄입니다. 글자 수 자리 64는 가장 넓은 en "9,999 chars"(12px 실측 63.8px)이고, 글자 수 틀 `diary-edit.length.count`는 이 폭 안이어야 합니다. 넘치면 상태 글자 끝을 말줄임하고 글자 수는 지킵니다(`draft-indicator` 규칙).
-  * `ui.saju.hour-name`(사주 표 출생 정보 줄 시진 태그 이름, writing 새 슬롯)은 칸 단위 줄바꿈(V88)이라 시진 칸 하나가 본문 폭 320을 다 쓰는 경우로 잽니다. `hanja-tag` 둘레 42, 시간 앞 `space.8`, 시간 자리 56(가장 넓은 ja "午後11:30")을 뺀 214px입니다. 세 칸이 한 줄에 함께 들어가는지는 화면에서 봅니다(ko "미시" 22px).
+  * `ui.birth-info.row`(사주 표 출생 정보 줄 시진 태그 이름, writing 슬롯 `birthInfoHour` "{branch}시")는 칸 단위 줄바꿈(V88)이라 시진 칸 하나가 본문 폭 320을 다 쓰는 경우로 잽니다. `hanja-tag` 둘레 42, 시간 앞 `space.8`, 시간 자리 56(가장 넓은 ja "午後11:30")을 뺀 214px입니다. 세 칸이 한 줄에 함께 들어가는지는 화면에서 봅니다(ko "미시" 22px).
   * 성별과 시간 모름 알약은 출생 정보 입력과 같은 낱말이라 `ui.birth.option`(`genderMale`·`genderFemale`·`timeUnknownLabel`)을 함께 씁니다. 알약(좌우 8 + 테두리 1)은 칸 단위 줄바꿈이라 segmented 칸(155px)보다 넓어 그 행 값 그대로입니다. 달력 종류 꼬리표(`calendarSolar`·`calendarLunar`)도 같습니다.
   * `ui.saju.stage-marker`(12운성 막대 자리 표시 원 18 안 기둥 한 글자 넷)는 이름 자리 계산이 맞지 않는 한 글자 칸이라 칸 폭으로 확인해 세 언어 모두 1입니다(ko 시 9.3px, ja 時 전각 11px, en 대문자 W 10.8px).
   * `band-table` 빈 칸의 "없음"은 스크린리더만 읽어 상한이 없습니다. 기존 스크린리더 슬롯 `ui.saju.a11y`의 새 키(제안 `bandTableEmptyCell`)로 요청합니다.

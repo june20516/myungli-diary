@@ -73,7 +73,7 @@ ISSUE_710 = {"ui.settings.row", "ui.legal.row", "ui.profile-edit.birthplace", "u
              "ui.saju.tag", "ui.evidence.personal-empty"}
 
 # DS1 2단계(#801) 화면 결정 시안의 새 자리: 시진 이름, 자리 표시 기둥 글자, 가운데 초안 상태 (V82, V88, V91)
-DS1_SCREENS = {"ui.saju.hour-name", "ui.saju.stage-marker", "diary-edit.draft.status"}
+DS1_SCREENS = {"ui.birth-info.row", "ui.saju.stage-marker", "diary-edit.draft.status"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -471,7 +471,7 @@ def test_ds1_screen_slots_are_measured():
     center = lengths.SCREEN_WIDTH - 2 * 16 - 44 - lengths.APP_BAR_TEXT_ACTION_MAX
     assert status.width == center - 16 - 4 - 8 - lengths.DRAFT_COUNT_RESERVE and status.lines == 1
     # 시진 이름: 칸 단위로 줄이 바뀌므로 시진 칸 하나가 본문 폭을 다 쓸 때. hanja-tag 둘레와 시간 자리를 뺌
-    hour = places["ui.saju.hour-name"]
+    hour = places["ui.birth-info.row"]
     assert hour.width == lengths.CONTENT_WIDTH - lengths.HANJA_TAG_CHROME - 8 - lengths.BIRTH_TIME_RESERVE
     assert hour.font == "ui-500" and hour.size == 13
     # 성별과 시간 모름 알약은 ui.birth.option 낱말을 함께 쓰고, segmented 칸이 더 좁아 그 행 값 그대로

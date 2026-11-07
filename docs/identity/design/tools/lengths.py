@@ -254,7 +254,7 @@ TARGETS = (
     Target(("ui.evidence.personal-empty",), "evidence-sheet 빈 해석 안내 (sheet 안쪽 24, 두 줄)",
            "ui-400", 14, -0.28, SHEET_CONTENT_WIDTH, 2, True, None),
     # DS1 2단계(#801) 사주 표 출생 정보 줄 시진 태그 이름(ko 미시). 칸 단위 줄바꿈이라 시진 칸 하나가 본문 폭을 다 쓸 때 (결정 V88)
-    Target(("ui.saju.hour-name",), "birth-info-row 시진 hanja-tag 이름 (본문 폭, 앞 4 + 한자 원 22 + 간격 4, 뒤 12, 시간 앞 8 + 시간 자리 56)",
+    Target(("ui.birth-info.row",), "birth-info-row 시진 hanja-tag 이름 (본문 폭, 앞 4 + 한자 원 22 + 간격 4, 뒤 12, 시간 앞 8 + 시간 자리 56)",
            "ui-500", 13, -0.26, CONTENT_WIDTH - HANJA_TAG_CHROME - 8 - BIRTH_TIME_RESERVE, 1, False, None),
     # D102 문의 화면 contact (#763, 결정 V55). 칸 안 안내와 메일 칸 오류는 키별 상한
     Target(("contact.intro.body",), "contact 첫머리 (본문 폭, 세 줄)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
