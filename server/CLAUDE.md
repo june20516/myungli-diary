@@ -89,6 +89,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **DS1 질문 고르기와 길흉 내역(브랜치 `server/ds1-guide-choice`, `server/engine-2026-11` 위에 쌓음, #806 ①⑤):** 계약 1.6.0. `CalendarDay.scoreItems`(S77에서 뺀 필드 복원), `Daily.guideCandidates`, `createDiary`의 `guideQuestion`과 422 `diary.guide_invalid`, 편마다 고른 질문 `diaries.guide_question`(migration 00025). 결정 S140. 오늘 음력(#806 ②)은 엔진 `DailyResponse`에 음력이 없어 core #834로 요청했습니다.
 * **잠긴 근거 미리보기(브랜치 `server/locked-preview`, `server/ds1-guide-choice` 위에 쌓음, #797):** 계약 1.7.0. `render.Preview`(ko·en 단어 3개, ja 8글자, 늘 일부를 남김), 렌더러의 근거 방식 `EvidenceNone`·`EvidenceLocked`·`EvidenceFull`, `SlotText.evidencePreview`, `Yongsin.basisPreview`, `Chart.personalReadingPreviews`. 결정 S141(S42, S74 개정).
 * **오늘 음력과 엔진 2026.11.1(브랜치 `server/daily-lunar`, #806 ②, core #834):** 계약 1.8.0. `Daily.lunar`(`LunarDate`, 2026.11.1 전 엔진 응답에는 없음), 지원 엔진 버전 2026.11.1. 결정 S142.
+* **엔진 동시 요청과 최소 인스턴스(브랜치 `server/817-scaling`, #817 ②④):** 엔진 서비스 동시 요청 8(core `MAX_WORKERS`와 대조 테스트), `min_instances`(prod와 load 1), Cloud SQL Query Insights(모든 환경). load 용량 값은 prod와 같게 두고, CPU 할당은 prod 56 vCPU에 생성기 몫을 더한 64 vCPU(사용자 콘솔 요청). 결정 S143.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
@@ -101,5 +102,5 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 2로 정했습니다(S135). 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
 6. **엔진 배포 순서(S139):** `server/daily-lunar` 병합 뒤 deploy-server가 staging과 prod(승인)에 나가면 `deploy-engine`을 dispatch로 돌립니다. 관문이 server `/version`(2026.11.1)을 보고 통과시키고, 배포 단계의 `update-traffic --to-latest`가 staging의 리비전 고정도 풉니다. #806은 이 PR로 닫힙니다.
-7. L1(#782, #817): 1회차 결과는 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md)입니다(한계 초당 80세션, 처음 막히는 곳 Cloud SQL CPU, cold는 엔진도). 고칠 것은 #817(알림 10분 분산 D109, 엔진 증설, Query Insights, 증설 지연)이고 DS1 계약 뒤에 합니다. 고친 뒤 2회차를 잽니다(계정은 회차마다 새로).
+7. L1(#782, #817): 1회차 결과는 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md)입니다(한계 초당 80세션, 처음 막히는 곳 Cloud SQL CPU, cold는 엔진도). 고칠 것은 #817이고, 엔진 증설과 최소 인스턴스는 S143으로 했습니다. 남은 것은 알림 10분 분산(D109)과 2회차의 Query Insights입니다. 고친 뒤 2회차를 잽니다(계정은 회차마다 새로).
 8. app 질문이 오면 답합니다.
