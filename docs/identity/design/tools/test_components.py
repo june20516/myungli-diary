@@ -2653,3 +2653,18 @@ def test_removed_saju_parts_not_referenced():
     assert "행 머리·십성" not in (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
     cell_row = next(line for line in elements_md.splitlines() if line.startswith("| `ohaeng.cell`"))
     assert "만세력 표" not in cell_row
+
+
+# Q4 ③(V93) 뒤 결정 본문에 "같은 sage라 묻힘" 근거가 남지 않음. 옛 근거는 개정 괄호에만 (리뷰 Important 1, 2)
+def test_highlight_reasons_are_current():
+    rows = {line.split("|")[1].strip(): line.split(" | ")[3] for line in
+            (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines() if line.startswith("| V")}
+    for key in ("V77", "V89", "V90"):
+        body = rows[key].split(" (2026-11-07 개정:", 1)[0]
+        assert "묻" not in body and "status.bg" not in body, key
+        assert "V93" in rows[key].split(" (2026-11-07 개정:", 1)[1], key
+    assert "V53" in rows["V90"].split(" (2026-11-07 개정:", 1)[0] and "Q1 ①" in rows["V90"]
+    assert "회색이라 sage 용어 칩과 갈림" in rows["V89"]
+    saju_md = (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
+    compact_line = next(line for line in saju_md.splitlines() if line.startswith("* **`compact`"))
+    assert "묻" not in compact_line and "가릴 것이 없어" in compact_line
