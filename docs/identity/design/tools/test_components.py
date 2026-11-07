@@ -1209,12 +1209,20 @@ def test_saju_labels_fit_table_cells():
     assert band["header"]["slot"] == "ui.saju.header" and band["bandHeader"]["label"]["slot"] == "ui.saju.header"
     assert "rowHeader" not in by_id["manse-table"]["parts"]
     assert by_id["saju-pillars"]["parts"]["header"]["slot"] == "ui.saju.header"
-    current = by_id["daeun-table"]["parts"]["currentLabel"]
+    # 꼬리표 규칙의 정본은 luck-pillar currentTag, daeun-table은 참조만 (리뷰 Minor 5)
+    current = by_id["luck-pillar"]["parts"]["currentTag"]
     assert current["element"] == "tag.status" and current["slot"] == "ui.saju.tag"
-    assert current["maxWidth"] == "기둥 둘과 그 사이 간격" and current["maxLines"] == 1
+    assert current["maxWidth"] == "기둥 둘과 그 사이 간격" and current["maxLines"] == 1 and "V53" in current["overflow"]
+    assert by_id["daeun-table"]["parts"]["currentLabel"] == {"component": "luck-pillar", "part": "currentTag"}
     me = by_id["saju-pillars"]["parts"]["dayMaster"]["tag"]
     assert me["slot"] == "ui.saju.tag" and me["maxWidth"] == "기둥 폭"
     assert band["dayColumn"]["me"]["slot"] == "ui.saju.tag"
+    # 일주 열 머리는 나 꼬리표와 한 줄, 글자 실효 폭 약 32. 넘치면 꼬리표를 아래 줄로 (리뷰 Minor 6)
+    day_header = band["dayColumn"]["header"]
+    assert day_header["line"] == "글자와 나 꼬리표 한 줄" and day_header["textWidth"] == {"value": 32, "unit": "px"}
+    assert "아래 줄" in day_header["overflow"]
+    lengths_md = (DESIGN_DIR / "lengths.md").read_text(encoding="utf-8")
+    assert "지금 자리는 모두 더 넓습니다" not in lengths_md and "약 32px" in lengths_md
 
 
 def test_settings_row_value_gap():
@@ -2472,7 +2480,7 @@ def test_band_table():
     assert "모든 띠를 관통" in divider["span"]
     day = parts["dayColumn"]
     assert day["bg"] == "{color.status.bg}" and day["opacity"] == 0.35 and "term.bg" in day["note"]
-    assert day["header"] == {"fg": "{color.action.primary}", "fontWeight": 700} and day["me"]["element"] == "tag.me"
+    assert (day["header"]["fg"], day["header"]["fontWeight"]) == ("{color.action.primary}", 700) and day["me"]["element"] == "tag.me"
     band_header = parts["bandHeader"]
     assert band_header["span"] == "네 열" and band_header["bg"] == "{color.bg.sheet}"
     assert band_header["border"] == {"top": {"width": "{border.width.hairline}", "color": "{color.line}"},
@@ -2488,10 +2496,9 @@ def test_band_table():
     assert bands["hiddenStems"]["item"]["chip"] == {"element": "stem.chip"}
     assert (bands["twelveStages"]["component"], bands["twelveStages"]["variant"]) == ("term-token", "label")
     assert bands["shinsal"]["whenEmpty"] == "empty" and bands["shinsal"]["stack"]["direction"] == "vertical"
-    empty = parts["empty"]  # 신살 빈 칸: "-" 글자 대신 짧은 가로선 12×1
-    assert empty == {"shape": "line", "width": {"value": 12, "unit": "px"}, "height": {"value": 1, "unit": "px"},
-                     "color": "{color.text.secondary}", "a11y": "writing 새 슬롯(없음)",
-                     "note": "글자 '-' 대신 짧은 가로선. 표 안에서 빈 칸임을 보임"}
+    empty = parts["empty"]  # 신살 빈 칸: "-" 글자 대신 짧은 가로선 12×1 (모양 값만 고정, 리뷰 Minor 8)
+    assert (empty["shape"], empty["width"], empty["height"], empty["color"]) == (
+        "line", {"value": 12, "unit": "px"}, {"value": 1, "unit": "px"}, "{color.text.secondary}")
     assert "stem.chip" in table["uses"] and "tag.me" in table["uses"] and "term" in table["uses"]
     assert table["states"]["time-unknown"]["parts"]["columns"]["hour"] == "모든 띠가 empty"
     assert "skeleton" in table["states"]["loading"] and table["a11y"]["role"] == "table"
@@ -2529,7 +2536,15 @@ def test_stage_strip():
     assert "내 자리 칸의 이름만" in names["overflow"]
     assert strip["states"]["time-unknown"]["parts"]["marker"] == {"hour": "그리지 않음"}
     assert "skeleton" in strip["states"]["loading"]
-    assert strip["a11y"]["role"] == "img" and "장생, 월주와 연주" in strip["a11y"]["label"]
+    # 예시는 하늘님 값(월주 장생, 연주 목욕, 시주 관대, 일주 양) (리뷰 Minor 1)
+    example = "장생, 월주 / 목욕, 연주 / 관대, 시주 / 양, 일주"
+    assert strip["a11y"]["role"] == "img" and example in strip["a11y"]["label"] and "월주와 연주" not in strip["a11y"]["label"]
+    assert example in (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
+    v91 = next(line for line in (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines() if line.startswith("| V91 |"))
+    assert example in v91 and "월주와 연주" not in v91
+    spec_line = next(line for line in (DESIGN_DIR / "specs" / "2026-11-05-ds1-screens-design.md").read_text(encoding="utf-8").splitlines()
+                     if line.startswith("* `stage-strip`"))
+    assert "2026-11-07 정정" in spec_line
     sheet = component("frame", "explain-sheet")["parts"]["stageStrip"]
     assert sheet["component"] == "stage-strip" and sheet["marginTop"] == "{space.12}"
     assert "12운성 띠 머리" in sheet["when"]
@@ -2570,6 +2585,7 @@ def test_manse_and_daeun_tables_follow_ia_v5():
     assert parts["row"]["hint"] == {"component": "scroll-hint"} and parts["row"]["scroll"] == "horizontal"
     assert parts["row"]["gap"] == "{space.4}"
     assert "grid" not in parts["seun"] and "5×2" in parts["seun"]["note"]
+    assert "위아래로 맞음" not in parts["seun"]["note"] and "따로 넘김" in parts["seun"]["note"]  # 리뷰 Minor 3
     assert parts["rows"]["header"]["component"] == "section-header"
     slots = {slot for pair in parts["rows"]["header"]["slots"].values() for slot in pair}
     assert slots == {"saju-chart.daeun.title", "saju-chart.daeun.desc", "saju-chart.seun.title", "saju-chart.seun.desc"}
@@ -2594,6 +2610,20 @@ def test_screen_e_sample():
     page = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-e.html").read_text(encoding="utf-8")
     for needed in ("원국", "만세력과 대운", "시간 모름", "12운성", "caret-double-right", "stem-chip", "dark"):
         assert needed in page, needed
+    assert ".arrows button { width: 44px; height: 44px;" in page  # 명세 minTarget 44 (리뷰 Minor 4)
     entries = {entry["id"]: entry for entry in json.loads((DESIGN_DIR / "artifacts" / "index.json").read_text(encoding="utf-8"))}
     assert entries["design-ds1-screen-e"]["status"] == "draft" and "사용자 확인 대기(#801)" in entries["design-ds1-screen-e"]["note"]
     assert entries["design-ds1-e-questions"]["kind"] == "concept" and entries["design-ds1-e-questions"]["status"] == "draft"
+
+
+# 리뷰 Minor 2: 지운 부품(manse-table 격자선, 행 머리)을 가리키는 문장이 남지 않음
+def test_removed_saju_parts_not_referenced():
+    elements_md = (COMPONENTS_DIR / "elements.md").read_text(encoding="utf-8")
+    assert "grid.divider" not in elements_md
+    divider = elements_md.split("## 목록 구분선 `list.divider`", 1)[1].split("\n## ", 1)[0]
+    assert "band-table" in divider and "birth-info-row" in divider
+    for name in ("elements.md", "sentence.md", "sentence.json"):
+        assert "표 행 머리" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+    assert "행 머리·십성" not in (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
+    cell_row = next(line for line in elements_md.splitlines() if line.startswith("| `ohaeng.cell`"))
+    assert "만세력 표" not in cell_row

@@ -6,7 +6,7 @@
 | 요소 | 정의 | 쓰는 곳 |
 | --- | --- | --- |
 | `seal` 낙관 도장 | 로고 낙관 경로(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
-| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `mini`(30×30), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 만세력 표, 대운·세운 |
+| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `mini`(30×30), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
 | `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, tag-chip, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
@@ -16,7 +16,7 @@
 | `mark.caution` 경고 표시 | Phosphor `warning-circle` Fill, 글자색, 옆 글자 기준 아이콘 단계 | 되돌릴 수 없는 동작 |
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
-| `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
+| `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 십성 칩과 띠 머리 칩 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
 | `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
@@ -95,7 +95,7 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 ## 목록 구분선 `list.divider`
 
-같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표 격자선(`manse-table` `grid.divider`)은 이 요소가 아닙니다.
+같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표와 줄의 세로선(`band-table` 열 구분선 `columns.divider`, `birth-info-row` 칸 사이 `divider`)은 이 요소가 아닙니다.
 
 ## 간지 칩 `stem.chip`
 

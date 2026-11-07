@@ -57,7 +57,7 @@
       "uses": ["term", "press.ink", "sheet.enter"],
       "variants": [
         { "id": "inline", "when": "문장 안", "parts": { "chip": { "type": "inherit", "paddingX": "{space.4}" } } },
-        { "id": "label", "when": "표 행 머리, 십성 줄", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": "{space.4}" } } }
+        { "id": "label", "when": "표 칸의 십성, 12운성, 신살 칩과 band-table 띠 머리 칩", "parts": { "chip": { "type": "{type.caption.md}", "paddingX": "{space.4}" } } }
       ],
       "parts": {
         "chip": { "bg": "{color.term.bg}", "fg": "{color.term.fg}", "radius": "{radius.xs}", "fontWeight": "inherit" },
