@@ -130,3 +130,33 @@ def test_screen_samples_use_tokens():
         assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html, page.name
         assert "var(--color-" in html, page.name
         assert [char for char in ("—", "–", "·") if char in html] == [], page.name
+
+
+# 최종 리뷰: sentence body 줄 높이는 로케일마다 달라(1.6, 1.7) 시안에 숫자로 고정하지 않고 토큰 변수를 씀
+SENTENCE_BODY_SIZE = "var(--type-sentence-body-size)"
+
+
+def fixed_sentence_line_heights(html):
+    """sentence body 글자를 쓰는 CSS 규칙에서 숫자로 고정한 줄 높이(line-height: 1.7, size * 1.6)를 찾습니다."""
+    found = []
+    for rule in re.findall(r"[^{}]*\{[^{}]*\}", html):
+        if SENTENCE_BODY_SIZE not in rule:
+            continue
+        if re.search(r"line-height:\s*[\d.]+\s*[;}]", rule) or re.search(r"sentence-body-size\)\s*\*\s*[\d.]", rule):
+            found.append(rule.strip()[:80])
+    return found
+
+
+def test_fixed_sentence_line_height_detector():
+    assert fixed_sentence_line_heights(".a { font-size: var(--type-sentence-body-size); line-height: 1.7; }")
+    assert fixed_sentence_line_heights(".b { min-height: calc(var(--type-sentence-body-size) * 1.6 * 3); }")
+    assert not fixed_sentence_line_heights(
+        ".c { min-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 3); }")
+    assert not fixed_sentence_line_heights(".d { font-size: var(--type-body-ui-size); line-height: 1.6; }")
+
+
+def test_ds1_pages_do_not_fix_sentence_line_height():
+    pages = sorted((DESIGN_DIR / "artifacts").glob("*-ds1-*.html"))
+    assert pages
+    for page in pages:
+        assert fixed_sentence_line_heights(page.read_text(encoding="utf-8")) == [], page.name

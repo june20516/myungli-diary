@@ -147,10 +147,10 @@
   .quote .qbone { position: relative; flex: 1; padding-left: var(--space-12); }
   /* 질문 바꾸기: arrows-clockwise Light 20, 터치 44를 첫 줄 높이에 맞춤, 사이 space.8 */
   .swap { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; margin: calc((25.5px - 44px) / 2) calc(var(--space-12) * -1) 0 var(--space-8); color: var(--color-text-secondary); --icon: var(--size-icon-20); }
-  .body { margin: 0; min-height: calc(var(--type-sentence-body-size) * 1.6 * 8); font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; }
+  .body { margin: 0; min-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 8); font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; }
   .body.placeholder { color: var(--color-text-secondary); }
   .body .caret { display: inline-block; width: 1.5px; height: 1.1em; vertical-align: -0.15em; background: var(--color-action-primary); margin-left: 1px; animation: blink 1s steps(1) infinite; }
-  .body.short { min-height: calc(var(--type-sentence-body-size) * 1.6 * 3); }
+  .body.short { min-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 3); }
   .seal-reserve { height: calc(64px + var(--space-12)); }
   @keyframes blink { 50% { opacity: 0; } }
 
