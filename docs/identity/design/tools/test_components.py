@@ -1974,7 +1974,7 @@ def test_evidence_sheet_head():
 TODAY_ORDER = [
     "today.bar.title", "today.date.solar", "today.date.lunar", "today.date.iljin", "today.fortune.title",
     "today.character.label", "today.ten-god.label", "today.fortune.head", "today.fortune.body",
-    "today.featured.title", "today.lucky.title", "today.event.summary", "today.guide.title",
+    "today.featured.title", "today.featured.empty", "today.lucky.title", "today.event.summary", "today.guide.title",
     "today.guide.question", "today.guide.cta",
 ]
 
@@ -2762,3 +2762,31 @@ def test_keyboard_dismiss_element_is_recorded():
 def test_screen_b_has_no_zero_legend_leftover():
     sample = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-b.html").read_text(encoding="utf-8")
     assert ".zero" not in sample and 'class="zero"' not in sample
+
+
+# D112(#801 지휘 2026-11-06): 대표 태그가 없는 날. 사주 기운 섹션은 제목과 한 줄, 총운은 헤드라인만, 질문은 십성 묶음
+def test_today_featured_empty_day():
+    layout = _md_section("today.md", "### today 화면 배치")
+    lines = layout.splitlines()
+    empty_line = next(line for line in lines if "`today.featured.empty`" in line)
+    # 새 값 없이 사주 기운 시트 빈 안내(tag-sentence-list empty)와 같은 글자 스타일
+    empty = component("today", "tag-sentence-list")["parts"]["empty"]
+    assert (empty["type"], empty["fg"]) == ("{type.body.ui}", "{color.text.secondary}")
+    assert "`type.body.ui` `text.secondary`" in empty_line and "`tag-sentence-list` `empty`" in empty_line
+    assert "섹션 전체를 그리지 않습니다" not in layout
+    rule = next(line for line in lines if line.startswith("* 대표 태그가 없는 날(D112"))
+    for words in ("헤드라인만", "`list.divider`", "보조 문장", "일진 십성 묶음 질문", "제목은 그대로"):
+        assert words in rule, words
+    row = decision_rows()["V95"]
+    assert "D112" in row["결정"] and "today.featured.empty" in row["결정"] and "사용자 영향: #801" in row["근거"]
+    assert "`today.featured.empty`" in _readme_row("5.0.0")
+    sample = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-a-g.html").read_text(encoding="utf-8")
+    assert "대표 태그 없는 날" in sample and '<p class="tsl-empty">오늘은 두드러진 사주 기운이 없어요.</p>' in sample
+
+
+# 우려 4 Ruling: 초안 상태는 상단 바 가운데 정렬이라 양쪽 같은 폭을 비운 가운데 폭으로 잼
+def test_draft_indicator_is_centered():
+    container = component("diary", "draft-indicator")["parts"]["container"]
+    assert container["align"] == "center" and "88" in container["width"]
+    rules = " ".join(component("diary", "draft-indicator")["rules"])
+    assert "가운데 정렬" in rules and "뒤로와 저장 글자 버튼 사이 폭" not in rules

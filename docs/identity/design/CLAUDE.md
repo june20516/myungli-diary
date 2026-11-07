@@ -31,7 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-07, design 세션 작성)
-* **DS1 2단계 화면 결정 시안 #801·drift #815** (브랜치 `design/ds1-screens`, D105·D107·D108, IA v5, 결정 V69~V94, 컴포넌트 계약 주 버전과 토큰 부 버전은 계약 목록).
+* **DS1 2단계 화면 결정 시안 #801·drift #815** (브랜치 `design/ds1-screens`, D105·D107·D108, IA v5, 결정 V69~V95, 컴포넌트 계약 주 버전과 토큰 부 버전은 계약 목록).
   * IA v5 새 컴포넌트 14개를 명세로: `section-header`·`explain-sheet`·`scroll-hint`(frame), `hanja-tag`(sentence), `date-header`·`tag-sentence-list`(today), `fortune-verdict`·`score-row`(calendar), `date-block`·`diary-summary`(diary), `luck-pillar`·`birth-info-row`·`band-table`·`stage-strip`(saju). `score-scale`은 쓰지 않아 IA에 제거를 요청합니다(`tools/components.py` `IA_REMOVAL_REQUESTED`, V87). 대기 목록 `IA_PENDING_COMPONENTS`는 비었습니다.
   * 화면 묶음 B 나 탭(V76, V77), A 오늘과 G 잠긴 문장(V78~V80), F 일기 목록과 C 일기 쓰기(V81~V83), D 달력과 그날 시트, 색 규칙 시트(V84~V87), E 사주 표(V88~V93)를 묶음마다 사용자 관문으로 정했습니다. 시안은 `artifacts/2026-11-05-ds1-screen-*.html`(토큰 CSS), 질문 비교는 `artifacts/2026-11-0*-ds1-*-questions.html`.
   * 토큰: 달력 네 단계 `color.calendar.level.*`(라이트 맑은 coral, V84), `color.fill.soft`(V74), `color.verdict.track`(V86), 현재 강조 바탕 옅은 회색 `color.highlight.bg`(V93). 추가만입니다.

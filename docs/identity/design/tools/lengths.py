@@ -189,10 +189,11 @@ TARGETS = (
     # DS1 2단계(#801): 일기 쓰기 상단 바. 저장은 동작 아이콘 둘 자리까지의 글자 버튼, 가운데는 뒤로와 그 버튼 사이 (결정 V82, V94)
     Target(("ui.diary-edit.save",), "app-bar textAction 저장 글자 (최대 폭 88 = 동작 44 × 2, 좌우 space.8)",
            "ui-600", 14, -0.28, APP_BAR_TEXT_ACTION_MAX - 2 * 8, 1, False, None),
+    # 가운데 정렬이라 뒤로 쪽도 저장 버튼 최대 폭만큼 비움(시안 1fr auto 1fr, 우려 4 Ruling)
     Target(("diary-edit.draft.status",),
-           "draft-indicator 상태 글자 (app-bar 가운데: 좌우 16, 뒤로 44, 저장 최대 88 사이에서 아이콘 16 + 간격 4, 글자 수 앞 8과 글자 수 자리 64)",
+           "draft-indicator 상태 글자 (app-bar 가운데 정렬: 좌우 16, 양쪽 저장 최대 88을 비운 152에서 아이콘 16 + 간격 4, 글자 수 앞 8과 글자 수 자리 64)",
            "ui-500", 12, -0.24,
-           SCREEN_WIDTH - 2 * 16 - 44 - APP_BAR_TEXT_ACTION_MAX - ICON_BESIDE_SMALL_TEXT - 4 - 8 - DRAFT_COUNT_RESERVE,
+           SCREEN_WIDTH - 2 * 16 - 2 * APP_BAR_TEXT_ACTION_MAX - ICON_BESIDE_SMALL_TEXT - 4 - 8 - DRAFT_COUNT_RESERVE,
            1, False, None),
     Target(("onboard-time.hour.confirm",), "time-picker 시진 확인 줄", "ui-400", 13, -0.26, CONTENT_WIDTH, 1, False, None),
     Target(("character.reason",), "day-character 이유 줄 (IA v4 기준 day-sheet 폭으로 잰 확정값, IA v5에서 day-sheet 자리는 빠졌지만 값 유지, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌)",
@@ -202,6 +203,9 @@ TARGETS = (
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - SETTINGS_LEADING, 1, False, None),
     # D77 IA 자리 evidence-sheet.sheet.title = ui.evidence.title (W33)
     Target(("ui.evidence.title",), "evidence-sheet 제목 (sheet 안쪽 24)", "ui-600", 20, -0.4, SHEET_CONTENT_WIDTH, 1, False, None),
+    # D112(#801) 대표 태그가 없는 날 사주 기운 카드 안 한 줄. tag-sentence-list empty와 같은 type.body.ui (결정 V95)
+    Target(("today.featured.empty",), "today 사주 기운 카드 안 한 줄 (카드 안쪽 16, type.body.ui, 한 줄)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
            "sentence", 17, 0, CONTENT_WIDTH, 2, True, None),
     # D82·D83 로그인 수단·계정 합치기 (#389, spec 2026-10-22 §6)

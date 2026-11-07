@@ -104,16 +104,17 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
 3. 총운: `section-header` `action`(`today.fortune.title`), 오른쪽 자리는 `reaction-button`(좋아요, 스크린리더 `today.reaction.label`). 카드 안은 위에서부터:
    * 총운을 결정한 태그 줄(사이 `space.8`): 날의 성격 `hanja-tag` `emphasis`(`today.character.label`, 용신의 날만 진한 채움, 누르면 `explain-sheet` 뜻), 일진 천간의 십성 묶음 `hanja-tag` `default`(`today.ten-god.label`, `term` 초록, 누르면 `explain-sheet` 뜻). 십성 묶음은 server 계약 추가(#806)이고 없으면 날의 성격 태그 하나입니다.
    * 헤드라인(`today.fortune.head`): 태그 줄 아래 `space.12`, `sentence-block` `card`(화면에서 가장 큰 문장, 호칭 자리) + 끝에 `depth-link` `inline-end`(근거 시트).
-   * 선: 헤드라인 아래 `list.divider`(카드 안쪽 여백과 같은 `space.16` 들임, 위아래 `space.16`). 한 카드 안에서 헤드라인과 보조 문장을 나누는 선 하나뿐입니다.
-   * 보조 문장을 정한 사주 기운 태그: 대표 태그 1순위 `hanja-tag` `default`(누르면 `tag-sheet`, 열린 동안 `selected`). 대표 태그가 없으면 태그 줄 없이 문장만입니다.
+   * 선: 헤드라인 아래 `list.divider`(카드 안쪽 여백과 같은 `space.16` 들임, 위아래 `space.16`). 한 카드 안에서 헤드라인과 보조 문장을 나누는 선 하나뿐입니다. 보조 문장이 없으면(대표 태그가 없는 날, D112) 선도 그리지 않습니다.
+   * 보조 문장을 정한 사주 기운 태그: 대표 태그 1순위 `hanja-tag` `default`(누르면 `tag-sheet`, 열린 동안 `selected`). 보조 문장은 대표 태그 1순위에서 나오므로 대표 태그가 없는 날에는 태그와 보조 문장을 모두 그리지 않습니다(D112 ③).
    * 보조 문장(`today.fortune.body`): 태그 아래 `space.8`, `sentence-block` `body` + 끝에 `depth-link` `inline-end`.
-4. 사주 기운: `section-header` `plain`(`today.featured.title`). 카드 안에 대표 태그(`Daily.tags.featured`, 최대 둘) `hanja-tag` `default` 줄(사이 `space.8`). 누르면 `tag-sheet`, 열린 동안 `selected`. 대표 태그가 0개면 섹션 전체를 그리지 않습니다.
+4. 사주 기운: `section-header` `plain`(`today.featured.title`). 카드 안에 대표 태그(`Daily.tags.featured`, 최대 둘) `hanja-tag` `default` 줄(사이 `space.8`). 누르면 `tag-sheet`, 열린 동안 `selected`. 대표 태그가 0개인 날은 섹션 제목을 그대로 두고 카드 안에 한 줄 안내(`today.featured.empty`)를 둡니다. 글자는 사주 기운 시트 빈 안내와 같은 `type.body.ui` `text.secondary`(`tag-sentence-list` `empty`와 같은 값, 새 값 없음)이고 누를 수 없습니다(D112 ②, 결정 V95).
 5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`, `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.body`입니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
 6. 오늘 일정(있는 날만): `event-row` `summary`(`today.event.summary`) 카드. IA에 제목 슬롯이 없어 `section-header` 없이 카드만 두고, 앞 섹션과 `space.32`. 누르면 `day-sheet`.
 7. 오늘의 질문: `section-header` `plain`(`today.guide.title`). `guide-question-card`(`today.guide.question`, 버튼 `today.guide.cta`). 섹션 제목이 같은 말을 하므로 카드의 `eyebrow`는 그리지 않습니다. 오늘 쓴 일기가 있으면 카드 아래 `space.8`에 `diary-row` `entries` 카드.
 8. `ad-banner`(탭 바 위), `tab-bar`.
 
 * 빠진 것(D108): 맨 위 날의 성격 배지와 이유 한 줄(`day-character`). 날의 성격은 3번 태그 줄의 한자 태그입니다.
+* 대표 태그가 없는 날(D112, 결정 V95, 표본 약 7%): 화면 뼈대는 날마다 같습니다. 4번 사주 기운은 제목은 그대로 두고 카드 안에 `today.featured.empty` 한 줄, 3번 총운은 결정 태그 줄과 헤드라인만 두고 선(`list.divider`), 사주 기운 태그, 보조 문장을 그리지 않습니다. 7번 오늘의 질문은 일진 십성 묶음 질문으로 대신합니다(core C30, 질문을 고르는 일은 server, 카드 모양은 그대로). 헤드라인의 근거 아이콘과 그 시트는 같습니다.
 * 불러오는 중(IA `loading`): 상단 바와 섹션 제목은 그대로, 날짜 머리는 음력과 일진 줄만 뼈, 카드마다 그 컴포넌트의 뼈(`hanja-tag` 알약, `sentence-block` 글줄, `lucky-card` 칩, `guide-question-card`)를 배치대로 둡니다(V66).
 * 시간 모름(IA `time-unknown`): 날짜 머리 아래 `notice-banner`(세 기둥으로 계산했다는 안내). 그 밖은 같습니다.
 

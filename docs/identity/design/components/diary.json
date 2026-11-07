@@ -199,7 +199,7 @@
       "summary": "초안 저장 상태와 글자 수 (app-bar edit 가운데, 쓰는 중에만)",
       "uses": ["icon", "appear.seep", "loading.breathe"],
       "parts": {
-        "container": { "gap": "{space.4}", "position": "app-bar-center", "maxLines": 1, "overflow": "ellipsis", "visibleWhen": "본문에 초점이 있는 동안(쓰는 중). 그 밖에는 같은 자리에 app-bar 제목. 이어 쓰기(draft)도 초점을 받으면 local로 보이고, 초점 전에는 제목" },
+        "container": { "gap": "{space.4}", "position": "app-bar-center", "align": "center", "width": "상단 바 가운데 정렬이라 양쪽에 같은 폭(저장 글자 버튼 최대 88)을 비운 가운데 폭(360 기준 152). 시안 design-ds1-screen-f-c의 1fr auto 1fr 배치", "maxLines": 1, "overflow": "ellipsis", "visibleWhen": "본문에 초점이 있는 동안(쓰는 중). 그 밖에는 같은 자리에 app-bar 제목. 이어 쓰기(draft)도 초점을 받으면 local로 보이고, 초점 전에는 제목" },
         "icon": { "size": "{size.icon.16}", "weight": "light", "color": "{color.text.secondary}" },
         "label": { "slot": "diary-edit.draft.status", "type": "{type.caption.md}", "fg": "{color.text.secondary}" },
         "count": { "slot": "diary-edit.length.count", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginStart": "{space.8}", "separator": "none", "note": "상태 글자 뒤. 쉼표 없이 간격으로만 나눔(V47, V78과 같은 이유)" }
@@ -215,7 +215,7 @@
         "상태가 바뀔 때만 appear.seep으로 바꿔 그린다. 같은 상태가 반복되면 움직이지 않는다.",
         "app-bar edit 가운데에 둔다. 본문에 초점이 있는 동안만 보이고, 그 밖에는 같은 자리에 화면 제목이 보인다(바뀔 때 appear.seep).",
         "글자 수는 칠 때마다 바꿔 그리되 고정폭 숫자라 상태 글자가 움직이지 않는다. 쉼표 같은 구분 글자 없이 space.8로 나눈다.",
-        "뒤로와 저장 글자 버튼 사이 폭에 한 줄. 넘치면 상태 글자 끝을 말줄임하고 글자 수는 지킨다."
+        "상단 바 가운데 정렬이고 양쪽에 저장 글자 버튼 최대 폭(88)만큼 비운 가운데 폭에 한 줄. 넘치면 상태 글자 끝을 말줄임하고 글자 수는 지킨다(글자 상한은 이 폭으로 잼, 결정 V94)."
       ]
     },
     {

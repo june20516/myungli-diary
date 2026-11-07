@@ -73,7 +73,8 @@ ISSUE_710 = {"ui.settings.row", "ui.legal.row", "ui.profile-edit.birthplace", "u
              "ui.saju.tag", "ui.evidence.personal-empty"}
 
 # DS1 2단계(#801) 화면 결정 시안의 새 자리: 시진 이름, 자리 표시 기둥 글자, 가운데 초안 상태 (V82, V88, V91)
-DS1_SCREENS = {"ui.birth-info.row", "ui.saju.stage-marker", "diary-edit.draft.status"}
+DS1_SCREENS = {"ui.birth-info.row", "ui.saju.stage-marker", "diary-edit.draft.status",
+               "today.featured.empty"}  # D112 대표 태그 없는 날 한 줄
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -468,8 +469,12 @@ def test_ds1_screen_slots_are_measured():
     assert save.where.startswith("app-bar textAction") and save.width == lengths.APP_BAR_TEXT_ACTION_MAX - 2 * 8 == 72
     # 가운데 초안 상태: 뒤로 44와 저장 버튼 최대 폭 사이에서 아이콘 16 + 간격 4, 글자 수 앞 space.8과 글자 수 자리를 뺌
     status = places["diary-edit.draft.status"]
-    center = lengths.SCREEN_WIDTH - 2 * 16 - 44 - lengths.APP_BAR_TEXT_ACTION_MAX
-    assert status.width == center - 16 - 4 - 8 - lengths.DRAFT_COUNT_RESERVE and status.lines == 1
+    # 가운데 정렬이라 뒤로 쪽도 저장 버튼 최대 폭만큼 비움 (우려 4 Ruling)
+    center = lengths.SCREEN_WIDTH - 2 * 16 - 2 * lengths.APP_BAR_TEXT_ACTION_MAX
+    assert status.width == center - 16 - 4 - 8 - lengths.DRAFT_COUNT_RESERVE == 60 and status.lines == 1
+    # D112: 사주 기운 카드 안 한 줄(카드 안쪽 16, type.body.ui)
+    empty = places["today.featured.empty"]
+    assert empty.width == lengths.CONTENT_WIDTH - 2 * 16 and (empty.font, empty.size, empty.lines) == ("ui-400", 14, 1)
     # 시진 이름: 칸 단위로 줄이 바뀌므로 시진 칸 하나가 본문 폭을 다 쓸 때. hanja-tag 둘레와 시간 자리를 뺌
     hour = places["ui.birth-info.row"]
     assert hour.width == lengths.CONTENT_WIDTH - lengths.HANJA_TAG_CHROME - 8 - lengths.BIRTH_TIME_RESERVE
