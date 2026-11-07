@@ -77,7 +77,7 @@
 | daily.tag_label | 컴포넌트 hanja-tag<br>컴포넌트 lucky-card | info | - | 1 | 16 | - | ko 10, en 18, ja 10 |
 | day-sheet.date.lunar | day-sheet.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | day-sheet.date.solar | day-sheet.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
-| day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | `count`: number | ko 24, en 44, ja 20 |
+| day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | - | ko 24, en 44, ja 20 |
 | day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | `date`: text | ko 23, en 40, ja 18 |
 | day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 40, ja 18 |
 | day-sheet.event.empty | day-sheet.event.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
@@ -195,7 +195,6 @@
 | saju-chart.seun.desc | saju-chart.seun.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.seun.title | saju-chart.seun.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.sinsal.desc | saju-chart.sinsal.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
-| saju-chart.strength.label | saju-chart.strength.label | info | - | 1 | 5 | - | ko -, en -, ja - |
 | saju-chart.time-unknown.notice | saju-chart.time-unknown.notice | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
 | saju-chart.unseong.desc | saju-chart.unseong.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.yongsin.open | saju-chart.yongsin.open | guide | - | 1 | 1 | - | ko 12, en 19, ja 9 |

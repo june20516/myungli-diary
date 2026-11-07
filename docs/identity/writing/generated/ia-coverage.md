@@ -178,7 +178,6 @@
 | saju-chart.head.title | ui | saju-chart.head.title |
 | saju-chart.pillars.title | ui | saju-chart.pillars.title |
 | saju-chart.pillars.desc | ui | saju-chart.pillars.desc |
-| saju-chart.strength.label | ui | saju-chart.strength.label |
 | saju-chart.ohaeng.title | ui | saju-chart.ohaeng.title |
 | saju-chart.ohaeng.desc | ui | saju-chart.ohaeng.desc |
 | saju-chart.yongsin.basis | content | chart.yongsin_method |

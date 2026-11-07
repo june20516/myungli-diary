@@ -455,12 +455,14 @@
 - {slot: color-rule-sheet.rule.body, key: colorRuleSheetRuleBody, text: "We add up the energies coming in that day. For example, even a day in your favor can become a steady day if a clashing energy comes in too."}
 - {slot: tag-sheet.sentences.title, key: tagSheetSentencesTitle, text: "Today's lines from this energy"}
 - {slot: tag-sheet.sentences.empty, key: tagSheetSentencesEmpty, text: "No lines came from this energy today."}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindFortune, text: "Main reading"}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindGuide, text: "Today's question"}
 - {slot: tag-sheet.diary.cta, key: tagSheetDiaryCta, text: "View entries tagged {tag}"}
 - {slot: explain-sheet.tag.diary-link, key: explainSheetTagDiaryLink, text: "View entries tagged {tag}"}
 - {slot: diary-edit.date.day, key: diaryEditDateDay, text: "{date}"}
 - {slot: diary-edit.date.month, key: diaryEditDateMonth, text: "{date}"}
 - {slot: diary-edit.date.iljin, key: diaryEditDateIljin, text: "{pillar} day"}
-- {slot: diary-edit.length.count, key: diaryEditLengthCount, text: "{count, plural, one{{count} character} other{{count} characters}}"}
+- {slot: diary-edit.length.count, key: diaryEditLengthCount, text: "{count, plural, one{{count} char} other{{count} chars}}"}
 - {slot: my-saju.chart.title, key: mySajuChartTitle, text: "Natal chart"}
 - {slot: my-saju.chart.link, key: mySajuChartLink, text: "Saju chart"}
 - {slot: my-saju.ilgan.title, key: mySajuIlganTitle, text: "Your nature"}

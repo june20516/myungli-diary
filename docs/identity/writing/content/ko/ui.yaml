@@ -464,6 +464,8 @@
 - {slot: color-rule-sheet.sheet.title, key: colorRuleSheetSheetTitle, text: "길흉을 정하는 방법"}
 - {slot: tag-sheet.sentences.title, key: tagSheetSentencesTitle, text: "이 기운에서 나온 오늘 문장"}
 - {slot: tag-sheet.sentences.empty, key: tagSheetSentencesEmpty, text: "오늘은 이 기운으로 정해진 문장이 없어요."}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindFortune, text: "총운"}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindGuide, text: "오늘의 질문"}
 - {slot: tag-sheet.diary.cta, key: tagSheetDiaryCta, text: "{tag} 태그가 붙은 내 일기 보기"}
 - {slot: explain-sheet.tag.diary-link, key: explainSheetTagDiaryLink, text: "{tag} 태그가 붙은 내 일기 보기"}
 - {slot: diary-edit.date.day, key: diaryEditDateDay, text: "{date}"}

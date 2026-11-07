@@ -231,7 +231,7 @@
   where: "일기 쓰기 상단 바 가운데 글자 수(쓰는 중에만)"
   purpose: info
   user_state: "일기를 쓰는 중에 얼마나 썼는지 흘끗 봅니다."
-  structure: "숫자와 단위만. 작게 보입니다."
+  structure: "숫자와 단위만. 작게 보입니다. 상태 글자 옆 64px 자리라 단위는 짧게 씁니다(en chars, design 5.0.0)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -243,5 +243,5 @@
     bad: []
   endings: []
   a11y:
-    truncation: "design 상한 측정 전입니다."
+    truncation: "가장 넓은 en \"9,999 chars\"가 64px 자리에 들어갑니다(design 5.0.0)."
     screen_reader: "보이는 글자 그대로 읽습니다."

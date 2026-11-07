@@ -309,18 +309,11 @@
     - tagSheetSentenceKindFortune
     - tagSheetSentenceKindGuide
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    tagSheetSentenceKindFortune:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
-    tagSheetSentenceKindGuide:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
   examples:
-    good: []
-    bad: []
+    good:
+      - {lang: ko, key: tagSheetSentenceKindFortune, text: "총운", why: "오늘 화면에서 그 문장이 놓인 섹션 제목 그대로(R34-4)", source: round-R34-4}
+    bad:
+      - {lang: ko, key: tagSheetSentenceKindFortune, text: "보조 문장", why: "작업 용어라 화면에서 처음 보는 이름(R34-4 탈락)", source: round-R34-4}
   endings: []
   a11y:
     truncation: "칸 안에서 두 줄까지 감깁니다."

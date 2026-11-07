@@ -455,6 +455,8 @@
 - {slot: color-rule-sheet.rule.body, key: colorRuleSheetRuleBody, text: "その日に入ってくる気を合わせて決めます。たとえば用神の日でも、ぶつかる気があれば無難な日になることがあります。"}
 - {slot: tag-sheet.sentences.title, key: tagSheetSentencesTitle, text: "この気から出た今日の文"}
 - {slot: tag-sheet.sentences.empty, key: tagSheetSentencesEmpty, text: "今日はこの気で決まった文がありません。"}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindFortune, text: "総運"}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindGuide, text: "今日の質問"}
 - {slot: tag-sheet.diary.cta, key: tagSheetDiaryCta, text: "{tag}のタグが付いた日記を見る"}
 - {slot: explain-sheet.tag.diary-link, key: explainSheetTagDiaryLink, text: "{tag}のタグが付いた日記を見る"}
 - {slot: diary-edit.date.day, key: diaryEditDateDay, text: "{date}"}

@@ -42,50 +42,6 @@
   a11y:
     truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "버튼 이름 그대로 읽습니다."
-
-- id: saju-chart.strength.label
-  where: "사주 표 원국 탭 사주 섹션의 신강약 알약(Chart.strength.level 다섯). 뜻 원고가 없어 누를 수 없는 표시입니다(출생 정보 줄 시진 태그와 같은 기준, V88, #856)"
-  purpose: info
-  user_state: "내 사주의 힘이 센 편인지 약한 편인지 한눈에 봅니다."
-  structure: "알약 안 짧은 이름 하나. 다섯 단계가 한 줄로 이어지는 이름이어야 합니다."
-  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  keys:
-    - sajuChartStrengthLabelVeryWeak
-    - sajuChartStrengthLabelWeak
-    - sajuChartStrengthLabelNeutral
-    - sajuChartStrengthLabelStrong
-    - sajuChartStrengthLabelVeryStrong
-  variants: {count: 1, rotation: "변주가 하나입니다"}
-  pending:
-    sajuChartStrengthLabelVeryWeak:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
-    sajuChartStrengthLabelWeak:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
-    sajuChartStrengthLabelNeutral:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
-    sajuChartStrengthLabelStrong:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
-    sajuChartStrengthLabelVeryStrong:
-      ko: "라운드 R34에서 정합니다(#850, #857)."
-      en: "라운드 R34에서 정합니다(#850, #857)."
-      ja: "라운드 R34에서 정합니다(#850, #857)."
-  examples:
-    good: []
-    bad: []
-  endings: []
-  a11y:
-    truncation: "design 상한 측정 전입니다."
-    screen_reader: "보이는 글자 그대로 읽습니다."
-
 - id: saju-chart.yongsin.title
   where: "사주 표 화면(saju-chart): 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
   purpose: info
