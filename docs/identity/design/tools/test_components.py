@@ -234,7 +234,8 @@ def test_common_files_define_spec_ids():
         "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
         "skeleton.bone", "icon", "lock.veil",
         "list.divider", "button.pair",  # DS1 V58·V60. section.header·explain.sheet는 컴포넌트로 옮김(V69·V71)
-        "stem.chip"}  # DS1 2단계 V72
+        "stem.chip",  # DS1 2단계 V72
+        "keyboard.dismiss"}  # 5.0.0: text-field와 diary-editor에 겹친 값을 뺌(V68, V83)
 
 
 def test_seal_element_matches_logo():
@@ -353,7 +354,7 @@ def test_brand_spec_values():
     assert variant_ids(c["share-image"]) == {"story", "feed", "square"}
     assert variant_ids(c["term-token"]) >= {"inline", "label"}
     assert variant_ids(c["event-row"]) == {"summary", "list"}
-    assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time", "tag"}
+    assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}  # tag는 5.0.0에서 지움(V78)
     assert variant_ids(c["depth-link"]) == {"inline-end", "block", "navigate"}
     assert set(c["guide-question-card"]["states"]) >= {"before", "after"}
     assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
@@ -442,8 +443,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_4_0():
-    assert VERSION == "4.0.0"  # DS1(#801): 지운 이름이 있어 주 버전
+def test_contract_version_is_5_0():
+    assert VERSION == "5.0.0"  # DS1 2단계(#801): 요소와 부품을 지우고 이름을 바꿔 주 버전
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -744,20 +745,15 @@ def test_frame_md_states_prose_page_body():
     assert "안내 글 본문" in frame and "`space.32`" in frame
 
 
-# 오늘 화면 대표 태그 칩 #239 (D76, 계약 2.5.0)
-def test_lucky_tag_chip_emphasises_weight_and_icon_only():
+# 오늘 화면 대표 태그 칩 #239(D76, 2.5.0)는 IA v5(V78)부터 hanja-tag로 옮겨 5.0.0에서 변형을 지움
+def test_lucky_card_has_no_tag_variant():
     card = component("today", "lucky-card")
-    tag = next(v for v in card["variants"] if v["id"] == "tag")
-    assert tag["parts"] == {"lead": {"icon": "tag", "iconColor": "{color.text.primary}"},
-                            "value": {"fontWeight": 600}}
+    assert "tag" not in {variant["id"] for variant in card["variants"]}
     assert "color.tag" not in json.dumps(card)
-
-
-def test_lucky_tag_chip_order_and_polarity_rules():
-    rules = component("today", "lucky-card")["rules"]
-    assert not any("맨 앞" in rule for rule in rules)  # IA v5(V78)부터 today 칩 줄에 tag 칩 없음
-    assert any("polarity" in rule and "D72" in rule for rule in rules)
-    assert any("today.lucky-tag.body" in rule for rule in rules)
+    rules = " ".join(card["rules"])
+    assert "맨 앞" not in rules and "today.lucky-tag.body" not in rules and "polarity" not in rules
+    md = _md_section("today.md", "## lucky-card")
+    assert "`today.lucky-tag.body`" not in md and "`daily.tag_label`" not in md
 
 
 # app 계획 4 달력·일정 확인 #218 (계약 2.6.0)
@@ -1562,8 +1558,8 @@ def test_page_push_pattern():
 
 
 def test_keyboard_dismiss_affordance():
-    field = next(c for c in all_components() if c["id"] == "text-field")
-    dismiss = field["states"]["focused"]["parts"]["keyboardDismiss"]
+    # 5.0.0: text-field와 diary-editor에 겹쳐 있던 값을 요소 keyboard.dismiss로 뺌
+    dismiss = load_documents(COMPONENTS_DIR)["elements"]["elements"]["keyboard.dismiss"]
     assert dismiss["size"] == {"value": 44, "unit": "px"} and dismiss["radius"] == "{radius.full}"
     assert dismiss["icon"] == {"icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}"}
     assert dismiss["position"] == "키보드 바로 위 오른쪽" and dismiss["inset"] == "{space.12}"
@@ -1671,7 +1667,7 @@ def test_hanja_tag_component():
     assert selected["border"] == {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"},
                                   "placement": "inside"}
     assert "톤 테두리" in selected["note"]
-    # 간지 글자는 사주 용어 16자 규칙 밖의 변형: 알약과 이름은 그 오행 색, 원은 흰 바탕에 오행 글자색 (리뷰 라운드 2)
+    # 간지 글자는 사주 용어 17자 규칙 밖의 변형: 알약과 이름은 그 오행 색, 원은 흰 바탕에 오행 글자색 (리뷰 라운드 2)
     ganji = variants["ganji"]["parts"]
     assert ganji["glyph"] == {"bg": "{color.bg.sheet}", "fg": "same-as-name", "decorative": True}
     assert ganji["tone"]["byElement"] == {
@@ -2027,12 +2023,11 @@ def test_locked_labels_follow_lock_veil():
     assert "앞부분" in locked_line and "+ \"잠김\"" in locked_line
 
 
-# 리뷰 I2: IA v5(D108, V78)부터 today 칩 줄에 대표 태그 칩이 없음. 변형 삭제는 계약 5.0.0 정리 때
+# 리뷰 I2: IA v5(D108, V78)부터 today 칩 줄에 대표 태그 칩이 없음. 변형은 계약 5.0.0에서 지움
 def test_today_chip_row_has_no_tag():
     card = component("today", "lucky-card")
-    tag = next(v for v in card["variants"] if v["id"] == "tag")
-    assert "쓰지 않음" in tag["when"] and "hanja-tag" in tag["when"] and "V78" in tag["when"]
     rules = " ".join(card["rules"])
+    assert "tag 칩을 두지 않는다" in rules and "hanja-tag" in rules
     assert "최대 5개(색, 방향, 숫자 3 + 시간 2)" in rules and "태그 2" not in rules
     md = _md_section("today.md", "## lucky-card")
     assert "최대 5개" in md and "최대 7개" not in md
@@ -2219,15 +2214,16 @@ KEYBOARD_INPUTS = (("input", "text-field"), ("diary", "diary-editor"))
 
 
 def test_keyboard_dismiss_everywhere():
-    found = []
+    dismiss = load_documents(COMPONENTS_DIR)["elements"]["elements"]["keyboard.dismiss"]
+    assert dismiss["anchor"] == "keyboard-inset"
+    assert dismiss["anchorIncludes"] == ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"]
+    assert dismiss["inset"] == "{space.12}"
+    assert "붙여넣기" in dismiss["qa"] and "QA" in dismiss["qa"]
+    # 일기 쓰기도 다른 입력 화면과 같은 버튼(Q8, V68 유지): 두 곳 모두 요소를 가리키기만 함(5.0.0)
     for group, component_id in KEYBOARD_INPUTS:
-        dismiss = component(group, component_id)["states"]["focused"]["parts"]["keyboardDismiss"]
-        found.append(dismiss)
-        assert dismiss["anchor"] == "keyboard-inset"
-        assert dismiss["anchorIncludes"] == ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"]
-        assert dismiss["inset"] == "{space.12}"
-        assert "붙여넣기" in dismiss["qa"] and "QA" in dismiss["qa"]
-    assert found[0] == found[1]  # 일기 쓰기도 다른 입력 화면과 같은 버튼(Q8, V68 유지)
+        spec = component(group, component_id)
+        assert spec["states"]["focused"]["parts"]["keyboardDismiss"] == {"element": "keyboard.dismiss"}, component_id
+        assert "keyboard.dismiss" in spec["uses"], component_id
     editor = component("diary", "diary-editor")
     assert "space.12" in editor["parts"]["body"]["scrollPaddingBottom"]
     for name in ("input.md", "diary.md"):
@@ -2688,3 +2684,81 @@ def test_highlight_reasons_are_current():
     saju_md = (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
     compact_line = next(line for line in saju_md.splitlines() if line.startswith("* **`compact`"))
     assert "묻" not in compact_line and "가릴 것이 없어" in compact_line
+
+
+# DS1 2단계 Task 10: 컴포넌트 계약 5.0.0 판 기록과 정리 (#801)
+REMOVED_IN_5_0 = (
+    "`section.header`", "`explain.sheet`", "`innerBorder`", "`explainSheet.container`", "`open.chevron`",
+    "`score-scale`", "`tag`", "`mini`", "`badge`", "`currentLabel`", "`rowHeader`", "`seun.grid`",
+    "`legend.optional`", "`failed.add`", "`lock.veil.lines.default`",
+)
+
+
+def _readme_row(version):
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    return next(line for line in readme.splitlines() if line.startswith(f"| {version} |"))
+
+
+def test_readme_records_5_0_removals_and_renames():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "컴포넌트 계약 5.0.0 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
+    row = _readme_row("5.0.0")
+    removed = row.split("**지움**", 1)[1].split("**더함**", 1)[0]
+    for name in REMOVED_IN_5_0:
+        assert name in removed, name
+    assert "`innerBorder` → `border`" in row and "자물쇠" in row
+    assert "`keyboard.dismiss`" in row.split("**더함**", 1)[1]
+    for decision in ("V69", "V93"):
+        assert decision in row
+    assert "토큰 1.4.0 이상" in row and "주 버전" in row
+
+
+def test_contract_list_rows_name_5_0_and_1_4():
+    contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
+    component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
+    token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
+    assert "| 5.0.0 |" in component_row and "| 1.4.0 |" in token_row
+    documents = load_documents(COMPONENTS_DIR)
+    specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
+    elements_count = len(documents["elements"]["elements"])
+    patterns = len(documents["interaction"]["patterns"])
+    tail = component_row.split("5.0.0:", 1)[1]
+    assert f"IA 컴포넌트 {specified}개" in tail and f"요소 {elements_count}개" in tail and f"패턴 {patterns}개" in tail
+    assert "IA 컴포넌트 43개" not in tail  # 4.0.0 문장의 옛 숫자를 5.0.0에 옮기지 않음
+    for name in ("color.calendar.level", "color.fill.soft", "color.verdict.track", "color.highlight.bg"):
+        assert name in token_row.split("1.4.0:", 1)[1], name
+
+
+def test_unused_ohaeng_cell_mini_is_removed():
+    cell = load_documents(COMPONENTS_DIR)["elements"]["elements"]["ohaeng.cell"]
+    assert set(cell["sizes"]) == {"pillar", "small"}
+    for name in ("elements.md", "sentence.md"):
+        assert "mini" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+
+
+def test_ganji_rule_names_table_path():
+    tag = component("sentence", "hanja-tag")
+    rule = next(rule for rule in tag["rules"] if "ganjiGlyphs" in rule)
+    assert "변형 ganji의 parts.ganjiGlyphs" in rule
+    ganji = next(v for v in tag["variants"] if v["id"] == "ganji")
+    assert "ganjiGlyphs" in ganji["parts"]
+
+
+def test_v70_body_states_current_glyph_count():
+    row = decision_rows()["V70"]
+    body = row["결정"].split("(2026-11-07 개정:", 1)[0]
+    assert "17자" in body and "刑" in body and "16자" not in body and "넣지 않습니다" not in body
+    assert "16자" in row["결정"].split("(2026-11-07 개정:", 1)[1]  # 옛 값은 개정 괄호에만
+    assert "17자 규칙" in row["근거"] and "16자 규칙" not in row["근거"]
+
+
+def test_keyboard_dismiss_element_is_recorded():
+    elements_md = (COMPONENTS_DIR / "elements.md").read_text(encoding="utf-8")
+    assert "`keyboard.dismiss`" in elements_md
+    for name in ("input.md", "diary.md"):
+        assert "`keyboard.dismiss`" in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+
+
+def test_screen_b_has_no_zero_legend_leftover():
+    sample = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-b.html").read_text(encoding="utf-8")
+    assert ".zero" not in sample and 'class="zero"' not in sample

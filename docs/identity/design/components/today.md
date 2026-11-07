@@ -34,16 +34,12 @@
 ## lucky-card
 
 * 쓰는 화면: today, my-saju
-* 칩(`bg.sheet` 바탕 + 1px `line` 테두리 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`·`tag`.
+* 칩(`bg.sheet` 바탕 + 1px `line` 테두리 알약, 높이 34) = 앞 아이콘 Regular 16(색 변형은 `ohaeng.swatch` 14px 원) + 값(`type.label.md`). 변형 `color`·`direction`·`number`·`time`.
 * **바탕과 테두리(Q5 ①, 결정 V75):** 반투명 `chip.bg` 대신 `bg.sheet` 바탕에 1px `line` 테두리를 칩 크기 안쪽에 그립니다. 오늘 카드, 나 탭 카드, 공유 이미지(그라데이션 위), 다크 모드 어디서나 테두리로 칩이 구분됩니다.
 * 누르면 칩 테두리가 1.5px `action.primary`로 바뀌고(크기 그대로) 짧은 설명 시트(`explain-sheet`, 제목은 항목 이름, 본문은 설명 문장)가 열립니다(결정 V62). 설명을 칩 줄 아래에 끼워 넣지 않으므로 아래 내용이 밀리지 않습니다. 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 시트를 닫으면 테두리가 1px `line`으로 돌아갑니다.
 * 칩 줄은 화면 폭에 따라 다음 줄로 넘어갑니다. 줄 수는 제한하지 않고, 칩 하나는 줄 사이에서 끊지 않습니다.
 * **칩 줄 개수:** today 칩 줄은 행운 4종(`color`·`direction`·`number`·`time`)뿐이고 최대 5개(색, 방향, 숫자 3 + 시간 2)입니다(결정 V52, V78).
-* **`tag`(대표 태그, D76, 결정 V35): IA v5(D108, 결정 V78)부터 today 칩 줄에 쓰지 않습니다.** 대표 태그는 사주 기운 섹션의 `hanja-tag`입니다(아래 today 화면 배치 4번). 변형 삭제는 계약 5.0.0 정리 때 하고, 그때까지 아래 값은 기록으로 남깁니다.
-  * 칩 바탕·높이·알약 모양·글자색은 행운 칩과 같습니다. 글자 굵기 600(`type.label.md`의 500 대신)과 앞 아이콘 `tag`의 색 `text.primary`(행운 칩은 `text.secondary`)로만 구분합니다. 아이콘 굵기는 `regular` 그대로입니다(`bold` 금지, elements `icon`).
-  * 길흉(`Tag.polarity`)은 색으로 나누지 않습니다. 부정 신호 태그(충·공망)도 같은 모양이고 잠금·구매 안내와 잇지 않습니다(D72). `#`·`hash`는 `number` 칩 아이콘과 겹쳐 쓰지 않습니다.
-  * 누르면 다른 칩처럼 설명 시트가 열리고 본문은 `today.lucky-tag.body`입니다. 열림 테두리도 같습니다. 칩 이름 슬롯은 `daily.tag_label`, 스크린리더 라벨은 태그 이름만입니다.
-  * `share-image`의 칩 줄에는 넣지 않습니다(행운 4종만).
+* **대표 태그 칩 없음:** 옛 변형 `tag`(D76, 결정 V35)는 IA v5(D108, 결정 V78)부터 today 칩 줄에 쓰지 않아 계약 5.0.0에서 지웠습니다. 대표 태그는 사주 기운 섹션의 `hanja-tag`입니다(아래 today 화면 배치 4번). `share-image` 칩 줄도 행운 4종만입니다.
 * **`time`(결정 V52, #546):** 값은 프로필 시간대의 24시간이고 숫자는 `tnum`입니다. 범위 표기는 writing W44를 따라 언어별입니다.
   | 언어 | 형식 | 예 |
   | --- | --- | --- |
@@ -112,7 +108,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
    * 보조 문장을 정한 사주 기운 태그: 대표 태그 1순위 `hanja-tag` `default`(누르면 `tag-sheet`, 열린 동안 `selected`). 대표 태그가 없으면 태그 줄 없이 문장만입니다.
    * 보조 문장(`today.fortune.body`): 태그 아래 `space.8`, `sentence-block` `body` + 끝에 `depth-link` `inline-end`.
 4. 사주 기운: `section-header` `plain`(`today.featured.title`). 카드 안에 대표 태그(`Daily.tags.featured`, 최대 둘) `hanja-tag` `default` 줄(사이 `space.8`). 누르면 `tag-sheet`, 열린 동안 `selected`. 대표 태그가 0개면 섹션 전체를 그리지 않습니다.
-5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`, `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.body`입니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 `lucky-card` `tag` 칩을 두지 않습니다.
+5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`, `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.body`입니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
 6. 오늘 일정(있는 날만): `event-row` `summary`(`today.event.summary`) 카드. IA에 제목 슬롯이 없어 `section-header` 없이 카드만 두고, 앞 섹션과 `space.32`. 누르면 `day-sheet`.
 7. 오늘의 질문: `section-header` `plain`(`today.guide.title`). `guide-question-card`(`today.guide.question`, 버튼 `today.guide.cta`). 섹션 제목이 같은 말을 하므로 카드의 `eyebrow`는 그리지 않습니다. 오늘 쓴 일기가 있으면 카드 아래 `space.8`에 `diary-row` `entries` 카드.
 8. `ad-banner`(탭 바 위), `tab-bar`.

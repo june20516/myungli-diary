@@ -3,7 +3,7 @@
 계약 버전: 1.4.0
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), [DS1 규칙 spec](../specs/2026-11-05-ds1-rules-design.md) §8(1.3.0), [DS1 화면 spec](../specs/2026-11-05-ds1-screens-design.md) §3(1.4.0), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
+* 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42·V57·V58·V67·V74·V84·V86·V93([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), [DS1 규칙 spec](../specs/2026-11-05-ds1-rules-design.md) §8(1.3.0), [DS1 화면 spec](../specs/2026-11-05-ds1-screens-design.md) §3(1.4.0), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
 * 컴포넌트 명세(`../components/`)가 이 토큰을 `{이름}`으로 가리킵니다.
 * 형식: [DTCG Format Module 2025.10](https://www.designtokens.org/tr/2025.10/format/)
 * 이 파일들은 생성기가 만듭니다. **손으로 고치지 않습니다.** 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.

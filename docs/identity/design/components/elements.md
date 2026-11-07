@@ -6,7 +6,7 @@
 | 요소 | 정의 | 쓰는 곳 |
 | --- | --- | --- |
 | `seal` 낙관 도장 | 로고 낙관 경로(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
-| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `mini`(30×30), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
+| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
 | `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, tag-chip, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
@@ -17,6 +17,7 @@
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 십성 칩과 띠 머리 칩 |
+| `keyboard.dismiss` 키보드 내리기 | 키보드 inset 위 `space.12` 오른쪽 44 원형 버튼(`bg.sheet`, `shadow.raised`, `caret-down` Regular 20) | `text-field`, `diary-editor` 초점 상태 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
 | `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
@@ -88,6 +89,10 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
   * 기기 글자가 커지면: 글자 옆 아이콘(`adjacent-text`)은 기본 글자 크기로 단계를 고르고 그리는 크기에 기기 배율을 곱합니다(그 칸의 `textScaleMax`까지, V30과 같은 원리). 탭 바, 위 막대, 목록 줄 앞, 빈 화면, 키보드 내리기처럼 글자와 한 줄에 있지 않은 아이콘은 배율을 따르지 않습니다.
 * 직접 그린 아이콘은 쓰지 않습니다. 세트에 없는 뜻은 글자로 씁니다. 명세에 적는 이름은 `tools/phosphor_names.txt`(`phosphor_glyphs` 2.1.2+1에서 뽑은 1512개)에 있어야 하고, 테스트가 대조합니다.
 * 소셜 로그인 로고는 아이콘 세트에서 가져오지 않습니다(각 사 공식 자산).
+
+## 키보드 내리기 `keyboard.dismiss`
+
+입력칸에 초점이 있는 동안 키보드 바로 위 오른쪽에 띄우는 44 원형 버튼입니다(결정 V68, V83). 기준은 플랫폼 키보드 inset(OS 자동완성과 추천 줄 포함)이고 그 위 `space.12`입니다. 누르면 키보드가 내려가고 초점이 풀립니다. 스크린리더 이름은 `ui.keyboard.dismiss`, 동작 구현은 app #796입니다. `text-field`와 `diary-editor`는 `focused` 상태에서 이 요소를 가리키기만 합니다. 4.0.0까지 두 컴포넌트에 같은 값이 겹쳐 있던 것을 5.0.0에서 요소로 뺐습니다.
 
 ## 두 버튼 `button.pair`
 

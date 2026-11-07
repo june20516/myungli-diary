@@ -30,8 +30,16 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-11-05, design 세션 작성)
-* **DS1 1단계 규칙 #801** (브랜치 `design/ds1-rules`, D107, 토큰 1.3.0, 컴포넌트 계약 4.0.0, 결정 V56~V68).
+## 현재 상태 (2026-11-07, design 세션 작성)
+* **DS1 2단계 화면 결정 시안 #801·drift #815** (브랜치 `design/ds1-screens`, D105·D107·D108, IA v5, 결정 V69~V94, 컴포넌트 계약 주 버전과 토큰 부 버전은 계약 목록).
+  * IA v5 새 컴포넌트 14개를 명세로: `section-header`·`explain-sheet`·`scroll-hint`(frame), `hanja-tag`(sentence), `date-header`·`tag-sentence-list`(today), `fortune-verdict`·`score-row`(calendar), `date-block`·`diary-summary`(diary), `luck-pillar`·`birth-info-row`·`band-table`·`stage-strip`(saju). `score-scale`은 쓰지 않아 IA에 제거를 요청합니다(`tools/components.py` `IA_REMOVAL_REQUESTED`, V87). 대기 목록 `IA_PENDING_COMPONENTS`는 비었습니다.
+  * 화면 묶음 B 나 탭(V76, V77), A 오늘과 G 잠긴 문장(V78~V80), F 일기 목록과 C 일기 쓰기(V81~V83), D 달력과 그날 시트, 색 규칙 시트(V84~V87), E 사주 표(V88~V93)를 묶음마다 사용자 관문으로 정했습니다. 시안은 `artifacts/2026-11-05-ds1-screen-*.html`(토큰 CSS), 질문 비교는 `artifacts/2026-11-0*-ds1-*-questions.html`.
+  * 토큰: 달력 네 단계 `color.calendar.level.*`(라이트 맑은 coral, V84), `color.fill.soft`(V74), `color.verdict.track`(V86), 현재 강조 바탕 옅은 회색 `color.highlight.bg`(V93). 추가만입니다.
+  * 정리(V94): 요소 `section.header`·`explain.sheet`는 컴포넌트로 옮겨 지움, `lucky-card` `tag`와 `ohaeng.cell` `mini`와 옛 만세력·대운 부품 삭제, 키보드 내리기는 요소 `keyboard.dismiss`, 사주 용어 한자 17자(刑 추가, V70·V87). 지움과 이름 바뀜은 `components/README.md` 판 기록에 있습니다.
+  * 글자 수 상한(`lengths.md` DS1 2단계 절): 상단 바 저장 글자, 가운데 초안 상태, 시진 이름, 자리 표시 기둥 글자를 새로 잼. 성별과 시간 모름 알약은 `ui.birth.option`을 함께 씀.
+  * 근거: [spec](specs/2026-11-05-ds1-screens-design.md), [plan](plans/2026-11-05-ds1-screens.md), 감사 `specs/2026-11-05-ds1-audit.md`.
+  * 보낼 요청(원고 작성됨, 게시 전): writing(새 슬롯과 상한, 범례 입구, 빈 안내, "일기 쓰기"), app(따라잡기, LockVeil 두 줄, 강조 바탕, fixture 명리 오류), 지휘(IA 출구와 슬롯, `score-scale` 제거, 刑 보고), core(巳 지장간 순서).
+* **DS1 1단계 규칙 #801** (브랜치 `design/ds1-rules`, D107, 결정 V56~V68).
   * 검수 F-001~F-012를 규칙으로: 간격 쓰임표와 직접 쓴 px 0개(V56), 아이콘 `size.icon.*`·`adjacent-text`와 직접 그린 아이콘 금지(V57), 0.5px `list.divider`와 꺾쇠는 이동 줄에만, `settings-row` 앞 아이콘·`select`(V58), `section.header`(V59), `button.pair`와 `quiet` 52(V60), `press.ink` 반지름과 범위(V61), `explain.sheet`(V62), 근거 진입점 `book-open-text` 아이콘(V63), 시트 안쪽 24와 핸들 자리(V64), 확인 창 사방 24와 같은 폭 두 버튼(V65), 요소별 skeleton(V66), `page.push`(V67), 키보드 내리기(V68).
   * 도구: `tools/rules_audit.py`(간격 전수 점검, 결과 `specs/2026-11-05-ds1-audit.md`), `tools/token_css.py`(토큰을 CSS 변수로, `artifacts/ds1/tokens.css`), `tools/phosphor_names.txt`(Phosphor 이름 목록). 규칙마다 `test_components.py`에 검사.
   * 고른 안은 규칙 견본 `design-ds1-rules`(Q1 ①, Q2 ①, Q3 ②, Q4 ②, Q5 ①, Q6 ①). 근거: [spec](specs/2026-11-05-ds1-rules-design.md), [plan](plans/2026-11-05-ds1-rules.md).
@@ -127,10 +135,11 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#801 2단계(화면 결정 시안):** 지휘가 IA 후보를 질문별 코멘트로 올리면 시작합니다. 순서는 B 나 탭, A 오늘, F 일기 입구, D 그날 시트입니다. 시안은 `tools/token_css.py`의 토큰 CSS를 읽는 웹 페이지로 만들고(D105), 질문 하나나 둘씩 PR로 냅니다. 화면 요소를 더하거나 빼지 않고, IA를 바꿀 이유가 보이면 #801에 코멘트합니다.
-2. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
+1. **#801 2단계 마무리:** 최종 리뷰 뒤 PR(`Closes #801`, `참고 #815`)을 냅니다. writing, app, 지휘, core 요청 Issue를 게시하고, 결정 행의 `사용자 영향: #801`을 각 Issue 번호로 바꿉니다.
+2. **2단계 후속:** writing이 새 슬롯을 만들고 상한을 넣는지(lengths drift), app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지, 지휘가 IA(`score-scale` 제거, 출구, 슬롯)를 고치는지 봅니다. IA에서 `score-scale`이 빠지면 `IA_REMOVAL_REQUESTED`를 비웁니다.
+3. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-3. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-4. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-5. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+4. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+5. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+6. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.

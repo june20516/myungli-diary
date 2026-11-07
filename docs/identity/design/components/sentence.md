@@ -40,7 +40,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 * `term` 요소: `term.bg`/`term.fg`, `radius.xs`, 굵게 하지 않음(결정 V0).
 * 변형 `inline`(문장 안, 글자 스타일 그대로) / `label`(표 칸의 십성, 12운성, 신살 칩과 `band-table` 띠 머리 칩, `type.caption.md`).
 * 누르면 풀이 시트(컴포넌트 `explain-sheet` 바탕의 half 시트, V62, V71)가 열립니다: 제목 + 한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때만) → 근거 진입점 아이콘(`depth-link` `block`). **모두 무료이고 잠기지 않습니다**(D60).
-* 제목 옆 한자는 `type.caption.md`·`text.secondary`에 글꼴만 `font.family.hanja`입니다. UI 글꼴(Pretendard)에는 한자 글리프가 없어서이고, 다른 한자 자리(`elements` mini, `saju` 지장간)와 같습니다(#218).
+* 제목 옆 한자는 `type.caption.md`·`text.secondary`에 글꼴만 `font.family.hanja`입니다. UI 글꼴(Pretendard)에는 한자 글리프가 없어서이고, 다른 한자 자리(`elements` `ohaeng.cell`, `stem.chip`)와 같습니다(#218).
 * 2.0.0에서 "내 사주에서는" 상자와 잠김 변형을 뺐습니다. 원국 개인 해석은 근거 시트로 옮겨 처음부터 잠긴 기능으로 둡니다(D60 ②, depth-link 참고).
 * 터치 영역: 글자 높이가 작아도 줄 높이까지 위아래로 넓혀 44px를 맞춥니다.
 

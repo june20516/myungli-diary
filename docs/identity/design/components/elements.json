@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -33,7 +33,6 @@
       },
       "sizes": {
         "pillar": { "height": { "value": 66, "unit": "px" }, "hanja": "{type.hanja.pillar}", "reading": "{type.caption.sm}" },
-        "mini": { "width": { "value": 30, "unit": "px" }, "height": { "value": 30, "unit": "px" }, "hanjaSize": { "value": 15, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}" },
         "small": { "width": { "value": 40, "unit": "px" }, "height": { "value": 40, "unit": "px" }, "hanjaSize": { "value": 18, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}", "where": "luck-pillar" }
       },
       "textScaleMax": 1.3
@@ -146,6 +145,16 @@
       "height": "same",
       "width": "fill",
       "note": "가로 배치는 쓰지 않음. 확인 창(dialog)의 두 버튼은 dialog 규칙(V65)"
+    },
+    "keyboard.dismiss": {
+      "summary": "키보드 내리기 버튼: 입력칸에 초점이 있는 동안 키보드 바로 위 오른쪽 44 원형 버튼 (결정 V68, V83)",
+      "position": "키보드 바로 위 오른쪽", "anchor": "keyboard-inset", "anchorIncludes": ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"], "inset": "{space.12}",
+      "size": { "value": 44, "unit": "px" }, "radius": "{radius.full}", "bg": "{color.bg.sheet}", "shadow": "{shadow.raised}",
+      "icon": { "icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}" },
+      "action": "키보드를 내림(입력칸 초점 풀기)", "a11y": { "role": "button", "labelSlot": "ui.keyboard.dismiss" },
+      "qa": "붙여넣기 막대(iOS 편집 메뉴, Android 클립보드 추천)와 겹치는지 QA에서 확인(Q8)",
+      "where": ["text-field focused", "diary-editor focused(edit 본문)"],
+      "note": "입력칸에 초점이 있는 동안만. 키보드 inset은 OS 자동완성과 추천 줄을 포함한 플랫폼 값이고, 버튼은 그 위 space.12. 동작 구현은 app #796. 5.0.0에서 text-field와 diary-editor에 겹쳐 있던 값을 이 요소로 뺌"
     },
     "list.divider": {
       "summary": "목록 구분선: 같은 묶음 안 줄 사이 (결정 V58)",

@@ -49,7 +49,7 @@
 * 보기(`view`)는 그 일기를 쓸 때의 질문(getDiary `guideQuestion`)을 같은 인용 모양으로 보이고 질문 바꾸기는 없습니다. 질문이 없으면 그리지 않습니다(관문 답 2026-11-06 Q4 ①, IA diary-view 질문 자리는 지휘에 요청). 슬롯 `diary-edit.guide.question`, `diary-edit.body.placeholder`와 질문 바꾸기는 `edit`에만 있습니다.
 * **인용 질문(결정 V82):** 질문(`diary-edit.guide.question`)은 종이 안 맨 위에 왼쪽 3px `term.bg` 선(`radius.full`) + 안쪽 `space.12`의 인용형이고, 글자는 `type.sentence.body`에 크기만 14로 덮어쓴 `text.secondary`입니다(본문 15보다 작게, 문장 글꼴 14 토큰이 없어 `preview` 14.5와 같은 방식, 관문 답 2026-11-06). 본문은 질문 아래 `space.16`.
 * **질문 바꾸기:** 질문 오른쪽 `arrows-clockwise` Light 20 `text.secondary`(터치 44, 질문 첫 줄 높이, 사이 `space.8`). 그날 근거가 있는 후보(같은 키의 다른 변주, 대표 태그 2순위, 일진 십성 묶음. 목록과 순서는 server #806, 근거는 core #804)가 둘 이상일 때만 보입니다. 누르면 다음 후보로 `appear.seep` 바꿔 그리고 끝에서 처음으로 돌아갑니다. 본문은 건드리지 않습니다. 스크린리더 이름은 IA 자리가 없어 writing 새 슬롯이 필요하고, 바뀐 질문은 polite로 읽습니다.
-* **키보드(Q8, 결정 V83):** 본문에 초점이 있는 동안 `text-field`와 같은 키보드 내리기 버튼(44 원, `caret-down`)을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 `space.12` 오른쪽에 띄웁니다. 본문 스크롤 아래 여백은 키보드 inset + 버튼 44 + `space.12`라 커서 줄이 버튼에 가리지 않습니다. 붙여넣기 막대와 겹치는지는 QA에서 확인합니다.
+* **키보드(Q8, 결정 V83):** 본문에 초점이 있는 동안 `text-field`와 같은 키보드 내리기 버튼(요소 `keyboard.dismiss`, 44 원, `caret-down`)을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 `space.12` 오른쪽에 띄웁니다. 본문 스크롤 아래 여백은 키보드 inset + 버튼 44 + `space.12`라 커서 줄이 버튼에 가리지 않습니다. 붙여넣기 막대와 겹치는지는 QA에서 확인합니다.
 * 해시태그를 쓰는 입력이 없습니다. 태그는 저장할 때 엔진이 붙입니다(엔진 spec §7.7, 제품 결정 D13).
 * **저장 순간** (`motion.saveSequence`):
   1. 상단 바 저장 글자 버튼 점 숨쉬기(`loading.breathe`, `app-bar` `textActionSaving`)

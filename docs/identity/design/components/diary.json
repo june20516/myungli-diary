@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "group": "diary",
   "components": [
     {
@@ -104,7 +104,7 @@
     {
       "id": "diary-editor",
       "summary": "일기 본문 입력과 보기 (종이). 쓰기에서는 인용 질문과 질문 바꾸기",
-      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "icon"],
+      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "icon", "keyboard.dismiss"],
       "variants": [
         { "id": "edit", "when": "쓰기·고치기(diary-edit). 날짜는 종이 위 date-block이 보임",
           "parts": {
@@ -145,14 +145,7 @@
         "tags": { "component": "tag-chip", "gap": "{space.8}", "marginTop": "{space.16}" }
       },
       "states": { "loading": { "skeleton": [{ "bone": "question", "shape": "textLine", "lines": 2, "variant": "edit" }, { "bone": "paper", "shape": "card" }, { "bone": "body", "shape": "textLine", "lines": 5}], "note": "diary-edit loading은 가이드 질문. 본문 칸은 바로 쓸 수 있음" },
-        "focused": { "parts": { "keyboardDismiss": {
-          "position": "키보드 바로 위 오른쪽", "anchor": "keyboard-inset", "anchorIncludes": ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"], "inset": "{space.12}",
-          "size": { "value": 44, "unit": "px" }, "radius": "{radius.full}", "bg": "{color.bg.sheet}", "shadow": "{shadow.raised}",
-          "icon": { "icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}" },
-          "action": "키보드를 내림(입력칸 초점 풀기)", "a11y": { "role": "button", "labelSlot": "ui.keyboard.dismiss" },
-          "qa": "붙여넣기 막대(iOS 편집 메뉴, Android 클립보드 추천)와 겹치는지 QA에서 확인(Q8)",
-          "note": "입력칸에 초점이 있는 동안만. 키보드 inset은 OS 자동완성과 추천 줄을 포함한 플랫폼 값이고, 버튼은 그 위 space.12. 동작 구현은 app #796 (결정 V68, V83)"
-        } }, "note": "edit에서 본문에 초점이 있는 동안. text-field와 같은 내리기 버튼(Q8)" },
+        "focused": { "parts": { "keyboardDismiss": { "element": "keyboard.dismiss" } }, "note": "edit에서 본문에 초점이 있는 동안. text-field와 같은 내리기 버튼(Q8)" },
         "saving": { "pattern": "loading.breathe", "note": "상단 바 저장 글자 버튼 점 숨쉬기(app-bar textActionSaving)" },
         "saved": { "pattern": "seal.stamp", "parts": { "seal": { "visible": true } } }
       },
