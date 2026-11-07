@@ -36,7 +36,7 @@
             "card": { "visible": false },
             "preview": { "visible": false },
             "tag": { "visible": false },
-            "head": { "screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}", "note": "머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보임(결정 V56)" },
+            "head": { "visible": false, "note": "그날 시트의 일기 머리는 section-header plain(day-sheet.diary.open)이 맡음(결정 V85, V42 개정)" },
             "container": {
               "byScreen": {
                 "today": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.16}", "paddingY": "{space.4}", "marginTop": "{space.12}" },

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS1 화면 묶음 D: 달력, 그날 시트, 색 규칙 시트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 모든 색, 간격, 반경, 시간은 ds1/tokens.css의 토큰 변수입니다. 명세 값 출처: components/calendar.json, frame.json, sentence.json */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--color-bg-base); color: var(--color-text-primary);
+    font-family: var(--type-body-ui-family); font-size: var(--type-body-ui-size); line-height: var(--type-body-ui-line-height);
+    letter-spacing: var(--type-body-ui-letter-spacing);
+  }
+  .page { max-width: 1560px; margin: 0 auto; padding: var(--space-32) var(--space-20) var(--space-48); }
+  h1 { font-size: var(--type-display-size); font-weight: var(--type-display-weight); line-height: var(--type-display-line-height); margin: 0 0 var(--space-8); }
+  h2 { font-size: var(--type-title-size); font-weight: var(--type-title-weight); margin: var(--space-48) 0 var(--space-8); }
+  .intro, .note { color: var(--color-text-secondary); margin: 0 0 var(--space-16); max-width: 760px; }
+  .note { font-size: var(--type-caption-lg-size); }
+  .toolbar { display: flex; gap: var(--space-8); margin: var(--space-16) 0; }
+  .toolbar button {
+    font: inherit; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+    border: 1px solid var(--color-line); background: var(--color-bg-sheet); color: var(--color-text-primary);
+    border-radius: var(--radius-full); padding: var(--space-4) var(--space-12); cursor: pointer;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-24); align-items: flex-start; }
+  .caption { font-size: var(--type-label-md-size); font-weight: 600; color: var(--color-action-primary); margin-bottom: var(--space-4); }
+  .ic { width: var(--icon, 16px); height: var(--icon, 16px); flex: none; display: inline-block; vertical-align: middle; fill: currentColor; }
+
+  /* 휴대폰 틀 360 */
+  .phone {
+    position: relative; overflow: hidden; width: 360px; background: var(--color-bg-base); color: var(--color-text-primary);
+    border: 1px solid var(--color-line); border-radius: var(--radius-xl); display: flex; flex-direction: column;
+  }
+  .phone.cal { height: 760px; }
+  .phone .content { padding: 0 var(--space-20) var(--space-16); }
+  .spacer { flex: 1; }
+
+  /* app-bar tab-root: 높이 44, 좌우 space.16, 제목 type.subtitle, 오른쪽 일정 추가 + */
+  .appbar { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-16); margin-top: var(--space-8); flex: none; }
+  .appbar .title { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .appbar .action { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-right: calc(var(--space-12) * -1); --icon: var(--size-icon-24); }
+
+  /* calendar-month: 달 머리 type.subtitle + 이전, 다음 44 */
+  .monthhead { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-8); }
+  .monthhead .mt { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .monthhead .nav { display: flex; --icon: var(--size-icon-24); color: var(--color-text-primary); }
+  .monthhead .nav .ic { width: 44px; padding: 0 10px; }
+  .wk { display: grid; grid-template-columns: repeat(7, 1fr); height: 28px; align-items: center; text-align: center; margin-top: var(--space-8);
+        font-size: var(--type-caption-md-size); color: var(--color-text-secondary); }
+  .wk .sun { color: var(--color-calendar-weekday-sun); } .wk .sat { color: var(--color-calendar-weekday-sat); }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-2); }
+
+  /* day-cell: 높이 62, radius.sm, 숫자 상자 32(위 space.4), 음력 10.5 secondary, 길흉 바탕 4단계 */
+  .dc { position: relative; height: 62px; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; }
+  .dc .nb { position: relative; width: 32px; height: 32px; margin-top: var(--space-4); display: flex; align-items: center; justify-content: center; }
+  .dc .nb b { position: relative; font-family: var(--type-numeric-calendar-family); font-size: var(--type-numeric-calendar-size); font-weight: var(--type-numeric-calendar-weight); font-feature-settings: "tnum"; }
+  .dc small { font-size: 10.5px; line-height: 1.3; color: var(--color-text-secondary); }
+  .dc small.term { font-weight: 700; }
+  .lv-great { background: var(--color-calendar-level-great); }
+  .lv-good { background: var(--color-calendar-level-good); }
+  .lv-caution { background: var(--color-calendar-level-caution); }
+  /* 오늘: 낙관 도장 윤곽 26, 1.6px seal.fill, -8도 (원이 아님, V19) */
+  .today-seal { position: absolute; left: 3px; top: 3px; width: 26px; height: 26px; fill: none; stroke: var(--color-seal-fill); stroke-width: 1.23; /* 1.6px를 viewBox 20 → 26 비율로 */ transform: rotate(-8deg); }
+  /* 선택: 숫자 action.primary 700 + 펼친 밑줄 */
+  .dc.sel .nb b { color: var(--color-action-primary); font-weight: 700; }
+  .dc.sel .nb::after { content: ""; position: absolute; left: 9px; right: 9px; bottom: 2px; height: 2px; border-radius: var(--radius-full); background: var(--color-action-primary); }
+
+  /* 범례: 격자 아래 space.16, 견본 10 radius.xs, 견본과 이름 space.4, 항목 사이 space.12 */
+  .legend { display: flex; flex-wrap: wrap; column-gap: var(--space-12); row-gap: var(--space-4); margin-top: var(--space-16);
+            font-size: var(--type-caption-md-size); line-height: var(--type-caption-md-line-height); color: var(--color-text-secondary); }
+  .legend .li { display: inline-flex; align-items: center; gap: var(--space-4); }
+  .legend .sw { width: 10px; height: 10px; border-radius: var(--radius-xs); }
+  /* 규칙 입구: 용어 칩 모양(term.bg, term.fg, radius.xs), type.label.md, 안쪽 8과 4 */
+  .rule-entry { display: inline-block; margin-top: var(--space-12); border: 0; cursor: pointer; font: inherit;
+                font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); line-height: var(--type-label-md-line-height);
+                background: var(--color-term-bg); color: var(--color-term-fg); border-radius: var(--radius-xs); padding: var(--space-4) var(--space-8); }
+
+  .ex-row { display: flex; justify-content: flex-end; margin-top: var(--space-12); }
+  .ex { font-size: var(--type-caption-sm-size); color: var(--color-text-secondary); border: 1px dashed var(--color-line); border-radius: var(--radius-full); padding: 0 var(--space-8); }
+
+  /* ad-banner + tab-bar */
+  .ad { background: var(--color-bar-bg); border-top: 0.5px solid var(--color-line); padding: var(--space-4) 0; text-align: center; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); flex: none; }
+  .ad div { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px dashed var(--color-line); margin: 0 var(--space-16); border-radius: var(--radius-sm); }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); height: 72px; background: var(--color-bar-bg); flex: none; }
+  .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); color: var(--color-text-secondary); font-size: var(--type-caption-sm-size); --icon: var(--size-icon-24); }
+  .tab .mark { position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+  .tab.on { color: var(--color-action-primary); font-weight: 600; }
+  .tab.on .seal { position: absolute; inset: 0; width: 34px; height: 34px; fill: var(--color-seal-fill); }
+  .tab.on .mark .ic { position: relative; color: var(--color-action-on-primary); }
+
+  /* 시트: radius.xl, 안쪽 space.24, 핸들 자리 24. 그날 시트는 처음부터 full(위 안전 영역 + 12) */
+  .phone.sheetview { height: 860px; }
+  .scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-bg-sheet); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 0 var(--space-24) var(--space-24); overflow: hidden; }
+  .sheet.full { top: 56px; }
+  .sheet.half { max-height: 60%; overflow-y: auto; }
+  .handle-area { height: 24px; display: flex; align-items: center; justify-content: center; }
+  .handle { width: 36px; height: 4px; border-radius: var(--radius-full); background: var(--color-line); }
+
+  /* date-header day-sheet: 날짜 type.subtitle, 아래 space.2 음력(일진 없음) */
+  .dh { margin-top: var(--space-8); }
+  .dh .solar { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .dh .meta { margin-top: var(--space-2); font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .kind { margin-top: var(--space-12); }
+
+  /* section-header: 제목 type.label.lg 600, 내용까지 space.12, 섹션 사이 space.32, 오른쪽 + 24(터치 44) */
+  .section { margin-top: var(--space-32); }
+  .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-12); min-height: 24px; }
+  .sh .t { font-size: var(--type-label-lg-size); font-weight: 600; line-height: var(--type-label-lg-line-height); }
+  .sh-action { width: 44px; height: 44px; margin: -10px -10px -10px 0; display: flex; align-items: center; justify-content: center; color: var(--color-text-primary); --icon: var(--size-icon-24); }
+  .empty { margin: 0; font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); }
+  .btn { height: 52px; border-radius: var(--radius-md); background: var(--color-action-primary); color: var(--color-action-on-primary);
+         display: flex; align-items: center; justify-content: center; font-size: var(--type-label-lg-size); font-weight: 600; }
+
+  /* hanja-tag: 높이 30, 왼쪽 4, 오른쪽 space.12, 원 22(bg.sheet, 한자 12 700), 사이 space.4 */
+  .htag {
+    display: inline-flex; align-items: center; gap: var(--space-4); height: 30px; padding: 0 var(--space-12) 0 var(--space-4); flex: none;
+    border-radius: var(--radius-full); background: var(--color-term-bg); color: var(--color-term-fg);
+    font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); white-space: nowrap;
+  }
+  .htag .g { width: 22px; height: 22px; border-radius: var(--radius-full); background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-size: 12px; font-weight: 700; }
+  /* 길흉 톤(score-row, fortune-verdict 안): 더함 tag.good, 뺌 tag.bad */
+  .htag.good { background: var(--color-tag-good-bg); color: var(--color-tag-good-fg); }
+  .htag.bad { background: var(--color-tag-bad-bg); color: var(--color-tag-bad-fg); }
+  /* emphasis: 용신의 날만 진한 채움, 원 안 한자는 알약 바탕색 (V78) */
+  .htag.emph-yongsin { background: var(--color-badge-good-bg); color: var(--color-badge-good-fg); }
+  .htag.emph-yongsin .g { color: var(--color-badge-good-bg); }
+  .htag.emph-gwiin { background: var(--color-badge-gwiin-bg); color: var(--color-badge-gwiin-fg); }
+  .htag.emph-gisin { background: var(--color-badge-gisin-bg); color: var(--color-badge-gisin-fg); }
+
+  /* fortune-verdict: bg.base 카드, 트랙 4(verdict.track), 표시 18(bg.sheet + 2px action.primary) */
+  .verdict { background: var(--color-bg-base); border-radius: var(--radius-lg); padding: var(--space-16); }
+  .trackwrap { position: relative; height: 18px; }
+  .track { position: absolute; left: 9px; right: 9px; top: 7px; height: 4px; border-radius: var(--radius-full); background: linear-gradient(to right, var(--color-verdict-track)); }
+  .marker { position: absolute; top: 0; left: calc(9px + (100% - 18px) * var(--p)); width: 18px; height: 18px; transform: translateX(-50%);
+            border-radius: var(--radius-full); background: var(--color-bg-sheet); box-shadow: inset 0 0 0 2px var(--color-action-primary); }
+  .vnames { display: grid; grid-template-columns: 1fr 1fr 1fr; margin: var(--space-8) 0 var(--space-12); font-size: var(--type-caption-md-size); line-height: var(--type-caption-md-line-height); color: var(--color-text-secondary); }
+  .vnames span:nth-child(2) { text-align: center; } .vnames span:nth-child(3) { text-align: right; }
+
+  /* score-row: 줄 위 list.divider, 위아래 space.12, 최소 48. 뜻 caption.lg 두 줄, 부호 label.lg 700, 점 8 사이 space.4 */
+  .srow { display: flex; align-items: center; min-height: 48px; padding: var(--space-12) 0; border-top: var(--border-width-hairline) solid var(--color-line); }
+  .srow .m { flex: 1; min-width: 0; margin-left: var(--space-12); font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary);
+             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; }
+  .srow .sd { display: inline-flex; align-items: center; margin-left: var(--space-12); flex: none; }
+  .sign { font-size: var(--type-label-lg-size); font-weight: 700; line-height: 1; color: var(--color-text-primary); }
+  .dots { display: inline-flex; gap: var(--space-4); margin-left: var(--space-4); }
+  .dots i { width: 8px; height: 8px; border-radius: var(--radius-full); }
+  .dots.plus i { background: var(--color-badge-good-bg); }
+  .dots.minus i { background: var(--color-text-secondary); }
+  /* rule 변형: 뜻 없이 태그와 점, 위아래 space.8 */
+  .srow.rule { min-height: 0; padding: var(--space-8) 0; justify-content: space-between; }
+
+  /* 색 규칙 시트 */
+  .rs-title { margin-top: var(--space-8); font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .s-body { margin: var(--space-12) 0 0; font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; }
+  .rtable { margin-top: var(--space-24); }
+  .rs-head { margin: var(--space-24) 0 var(--space-8); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-text-secondary); }
+  /* score-scale: 네 칸 사이 space.4, radius.sm, 안쪽 12와 4, 무난한 날은 1px line 테두리 */
+  .scale { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+  .sc { border-radius: var(--radius-sm); padding: var(--space-12) var(--space-4); text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .sc.lv-neutral { box-shadow: inset 0 0 0 1px var(--color-line); }
+  .sc .sn { font-size: var(--type-caption-md-size); line-height: var(--type-caption-md-line-height); word-break: keep-all; }
+  .sc .sr { margin-top: var(--space-4); display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; row-gap: var(--space-2);
+            font-size: var(--type-caption-sm-size); color: var(--color-text-secondary); }
+  .sc .sign { font-size: var(--type-caption-md-size); }
+  .sc .tilde, .sc .bound { margin-left: var(--space-2); }
+
+  /* skeleton: 요소마다 자기 모양 */
+  .bone { display: inline-block; background: var(--color-skeleton-bone); animation: breathe var(--motion-duration-breathe) var(--motion-easing-standard) infinite alternate; }
+  .bone.line { display: block; height: 9px; border-radius: var(--radius-xs); margin: var(--space-4) 0; }
+  .bone.chip { height: 30px; border-radius: var(--radius-full); }
+  .bone.d1 { animation-delay: 150ms; } .bone.d2 { animation-delay: 300ms; }
+  @keyframes breathe { from { opacity: 0.55; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .bone { animation: none; } }
+
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true"><symbol id="ic-caret-left-light" viewBox="0 0 256 256"><path d="M164.24,203.76a6,6,0,1,1-8.48,8.48l-80-80a6,6,0,0,1,0-8.48l80-80a6,6,0,0,1,8.48,8.48L88.49,128Z"/></symbol><symbol id="ic-caret-right-light" viewBox="0 0 256 256"><path d="M180.24,132.24l-80,80a6,6,0,0,1-8.48-8.48L167.51,128,91.76,52.24a6,6,0,0,1,8.48-8.48l80,80A6,6,0,0,1,180.24,132.24Z"/></symbol><symbol id="ic-plus-light" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"/></symbol><symbol id="ic-sun-light" viewBox="0 0 256 256"><path d="M122,40V16a6,6,0,0,1,12,0V40a6,6,0,0,1-12,0Zm68,88a62,62,0,1,1-62-62A62.07,62.07,0,0,1,190,128Zm-12,0a50,50,0,1,0-50,50A50.06,50.06,0,0,0,178,128ZM59.76,68.24a6,6,0,1,0,8.48-8.48l-16-16a6,6,0,0,0-8.48,8.48Zm0,119.52-16,16a6,6,0,1,0,8.48,8.48l16-16a6,6,0,1,0-8.48-8.48ZM192,70a6,6,0,0,0,4.24-1.76l16-16a6,6,0,0,0-8.48-8.48l-16,16A6,6,0,0,0,192,70Zm4.24,117.76a6,6,0,0,0-8.48,8.48l16,16a6,6,0,0,0,8.48-8.48ZM46,128a6,6,0,0,0-6-6H16a6,6,0,0,0,0,12H40A6,6,0,0,0,46,128Zm82,82a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V216A6,6,0,0,0,128,210Zm112-88H216a6,6,0,0,0,0,12h24a6,6,0,0,0,0-12Z"/></symbol><symbol id="ic-calendar-blank-regular" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/></symbol><symbol id="ic-notebook-light" viewBox="0 0 256 256"><path d="M182,112a6,6,0,0,1-6,6H112a6,6,0,0,1,0-12h64A6,6,0,0,1,182,112Zm-6,26H112a6,6,0,0,0,0,12h64a6,6,0,0,0,0-12Zm46-90V208a14,14,0,0,1-14,14H48a14,14,0,0,1-14-14V48A14,14,0,0,1,48,34H208A14,14,0,0,1,222,48ZM48,210H74V46H48a2,2,0,0,0-2,2V208A2,2,0,0,0,48,210ZM210,48a2,2,0,0,0-2-2H86V210H208a2,2,0,0,0,2-2Z"/></symbol><symbol id="ic-user-light" viewBox="0 0 256 256"><path d="M229.19,213c-15.81-27.32-40.63-46.49-69.47-54.62a70,70,0,1,0-63.44,0C67.44,166.5,42.62,185.67,26.81,213a6,6,0,1,0,10.38,6C56.4,185.81,90.34,166,128,166s71.6,19.81,90.81,53a6,6,0,1,0,10.38-6ZM70,96a58,58,0,1,1,58,58A58.07,58.07,0,0,1,70,96Z"/></symbol><symbol id="seal-shape" viewBox="0 0 20 20"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></symbol></svg>
+<div class="page">
+  <h1>DS1 화면 묶음 D: 달력, 그날 시트, 색 규칙 시트</h1>
+  <p class="intro">IA v5 <code>calendar</code>, <code>day-sheet</code>, <code>color-rule-sheet</code>입니다. 달력 칸은 네 단계(토큰 1.4.0 <code>calendar.level.*</code>)이고, 범례 아래 용어 칩 모양 입구에서 색 규칙 시트를 엽니다(Q2 ②). 그날 시트는 처음부터 큰 시트이고 날짜와 음력, 날의 성격 태그, 길흉판정(위치 막대와 내역), 일정, 일기 순서입니다. 데이터는 app fixture 2026년 11월(가상 사용자 하늘님, 庚午 辛巳 庚辰 癸未, 용신 수, 기신 토)이고, 내역은 엔진 spec 점수표로 다시 계산해 fixture 점수와 30일 모두 맞음을 확인했습니다. 오늘은 5일로 그렸고, 원고가 없는 문구는 "예시"로 표시했습니다.</p>
+  <div class="toolbar"><button id="theme" type="button">다크로 보기</button></div>
+
+  <h2>달력</h2>
+  <div class="row">
+    <div>
+      <div class="caption">기본 (오늘 5일, 9일 고름)</div>
+      
+      <div class="phone cal">
+        <div class="appbar"><span class="title">달력</span><span class="action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+        <div class="content">
+          <div class="monthhead"><span class="mt">2026년 11월</span><span class="nav"><svg class="ic" aria-hidden="true"><use href="#ic-caret-left-light"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></span></div>
+          <div class="wk"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
+          <div class="grid "><div class="dc lv-neutral"><span class="nb"><b>1</b></span><small>22</small></div><div class="dc lv-caution"><span class="nb"><b>2</b></span><small>23</small></div><div class="dc lv-neutral"><span class="nb"><b>3</b></span><small>24</small></div><div class="dc lv-good"><span class="nb"><b>4</b></span><small>25</small></div><div class="dc lv-great"><span class="nb"><svg class="today-seal" viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>5</b></span><small>26</small></div><div class="dc lv-neutral"><span class="nb"><b>6</b></span><small>27</small></div><div class="dc lv-neutral"><span class="nb"><b>7</b></span><small class="term">입동</small></div><div class="dc lv-caution"><span class="nb"><b>8</b></span><small>29</small></div><div class="dc lv-neutral sel"><span class="nb"><b>9</b></span><small>10.1</small></div><div class="dc lv-neutral"><span class="nb"><b>10</b></span><small>2</small></div><div class="dc lv-neutral"><span class="nb"><b>11</b></span><small>3</small></div><div class="dc lv-neutral"><span class="nb"><b>12</b></span><small>4</small></div><div class="dc lv-neutral"><span class="nb"><b>13</b></span><small>5</small></div><div class="dc lv-caution"><span class="nb"><b>14</b></span><small>6</small></div><div class="dc lv-good"><span class="nb"><b>15</b></span><small>7</small></div><div class="dc lv-neutral"><span class="nb"><b>16</b></span><small>8</small></div><div class="dc lv-great"><span class="nb"><b>17</b></span><small>9</small></div><div class="dc lv-neutral"><span class="nb"><b>18</b></span><small>10</small></div><div class="dc lv-neutral"><span class="nb"><b>19</b></span><small>11</small></div><div class="dc lv-caution"><span class="nb"><b>20</b></span><small>12</small></div><div class="dc lv-caution"><span class="nb"><b>21</b></span><small>13</small></div><div class="dc lv-neutral"><span class="nb"><b>22</b></span><small class="term">소설</small></div><div class="dc lv-neutral"><span class="nb"><b>23</b></span><small>15</small></div><div class="dc lv-neutral"><span class="nb"><b>24</b></span><small>16</small></div><div class="dc lv-good"><span class="nb"><b>25</b></span><small>17</small></div><div class="dc lv-caution"><span class="nb"><b>26</b></span><small>18</small></div><div class="dc lv-neutral"><span class="nb"><b>27</b></span><small>19</small></div><div class="dc lv-neutral"><span class="nb"><b>28</b></span><small>20</small></div><div class="dc lv-great"><span class="nb"><b>29</b></span><small>21</small></div><div class="dc lv-neutral"><span class="nb"><b>30</b></span><small>22</small></div></div>
+          <div class="legend"><span class="li"><i class="sw lv-great"></i>아주 잘 풀리는 날</span><span class="li"><i class="sw lv-good"></i>잘 풀리는 날</span><span class="li"><i class="sw lv-caution"></i>조심할 날</span></div>
+          <button class="rule-entry" type="button">길흉은 어떻게 정해지나요</button>
+          <div class="ex-row"><span class="ex">예시: 아주 잘 풀리는 날 이름, 입구 문구(writing 가안)</span></div>
+        </div>
+        <div class="spacer"></div>
+        
+        <div class="ad"><div>배너 광고 자리(D53)</div></div>
+        <div class="tabbar">
+          <div class="tab"><svg class="ic" aria-hidden="true"><use href="#ic-sun-light"/></svg>오늘</div>
+          <div class="tab on"><span class="mark"><svg class="seal" viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-calendar-blank-regular"/></svg></span>달력</div>
+          <div class="tab"><svg class="ic" aria-hidden="true"><use href="#ic-notebook-light"/></svg>일기</div>
+          <div class="tab"><svg class="ic" aria-hidden="true"><use href="#ic-user-light"/></svg>나</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>그날 시트</h2>
+  <div class="row">
+    <div><div class="caption">9일 용신의 날, 무난한 날(합 0)</div>
+      <div class="phone sheetview tall">
+        
+        <div class="appbar"><span class="title">달력</span><span class="action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+        <div class="content"><div class="monthhead"><span class="mt">2026년 11월</span><span class="nav"><svg class="ic" aria-hidden="true"><use href="#ic-caret-left-light"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></span></div></div>
+        <div class="scrim"></div>
+        <div class="sheet full">
+          <div class="handle-area"><span class="handle"></span></div>
+          <div class="dh"><div class="solar">11월 9일 월요일</div><div class="meta"><span>음력 10월 1일</span></div></div>
+          <div class="kind"><span class="htag emph-yongsin"><span class="g">用</span>용신의 날</span></div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">길흉판정</span></div>
+            
+            <div class="verdict">
+              <div class="trackwrap"><span class="track"></span><span class="marker" style="--p: 0.5000"></span></div>
+              <div class="vnames"><span>조심할 날</span><span>무난한 날</span><span>잘 풀리는 날</span></div>
+              <div class="srow"><span class="htag good"><span class="g">用</span>용신의 날</span><span class="m">내게 필요한 기운이 들어와요</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i><i></i></span></span></div><div class="srow"><span class="htag bad"><span class="g">沖</span>월지 충</span><span class="m">생활의 바탕 자리와 부딪혀요</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i><i></i></span></span></div>
+            </div>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일정</span><span class="sh-action" aria-label="일정 추가"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+            <p class="empty">이날은 일정이 없어요.</p>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일기</span></div>
+            <div class="btn">11월 9일 일기 쓰기</div>
+          </div>
+          <div class="ex-row"><span class="ex">예시: 음력 틀, 뜻 문장, 쓰기 버튼(IA 틀). 9일 丁亥: 亥는 월지 巳와 충</span></div>
+        </div>
+      </div></div>
+    <div><div class="caption">5일 귀인의 날, 아주 잘 풀리는 날(합 3)</div>
+      <div class="phone sheetview tall">
+        
+        <div class="appbar"><span class="title">달력</span><span class="action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+        <div class="content"><div class="monthhead"><span class="mt">2026년 11월</span><span class="nav"><svg class="ic" aria-hidden="true"><use href="#ic-caret-left-light"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></span></div></div>
+        <div class="scrim"></div>
+        <div class="sheet full">
+          <div class="handle-area"><span class="handle"></span></div>
+          <div class="dh"><div class="solar">11월 5일 목요일</div><div class="meta"><span>음력 9월 26일</span></div></div>
+          <div class="kind"><span class="htag emph-gwiin"><span class="g">貴</span>귀인의 날</span></div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">길흉판정</span></div>
+            
+            <div class="verdict">
+              <div class="trackwrap"><span class="track"></span><span class="marker" style="--p: 1.0000"></span></div>
+              <div class="vnames"><span>조심할 날</span><span>무난한 날</span><span>잘 풀리는 날</span></div>
+              <div class="srow"><span class="htag good"><span class="g">貴</span>귀인의 날</span><span class="m">도움을 받기 쉬운 날이에요</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i><i></i></span></span></div><div class="srow"><span class="htag good"><span class="g">合</span>합</span><span class="m">들어온 기운이 내 자리와 어울려요</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i></span></span></div>
+            </div>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일정</span><span class="sh-action" aria-label="일정 추가"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+            <p class="empty">이날은 일정이 없어요.</p>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일기</span></div>
+            <div class="btn">11월 5일 일기 쓰기</div>
+          </div>
+          <div class="ex-row"><span class="ex">예시: 뜻 문장. 5일 癸未: 未는 천을귀인, 未는 년지 午와 합</span></div>
+        </div>
+      </div></div>
+    <div><div class="caption">8일 기신의 날, 조심할 날(합 −3)</div>
+      <div class="phone sheetview tall">
+        
+        <div class="appbar"><span class="title">달력</span><span class="action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+        <div class="content"><div class="monthhead"><span class="mt">2026년 11월</span><span class="nav"><svg class="ic" aria-hidden="true"><use href="#ic-caret-left-light"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></span></div></div>
+        <div class="scrim"></div>
+        <div class="sheet full">
+          <div class="handle-area"><span class="handle"></span></div>
+          <div class="dh"><div class="solar">11월 8일 일요일</div><div class="meta"><span>음력 9월 29일</span></div></div>
+          <div class="kind"><span class="htag emph-gisin"><span class="g">忌</span>기신의 날</span></div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">길흉판정</span></div>
+            
+            <div class="verdict">
+              <div class="trackwrap"><span class="track"></span><span class="marker" style="--p: 0.0000"></span></div>
+              <div class="vnames"><span>조심할 날</span><span>무난한 날</span><span>잘 풀리는 날</span></div>
+              <div class="srow"><span class="htag good"><span class="g">合</span>합</span><span class="m">들어온 기운이 내 자리와 어울려요</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i></span></span></div><div class="srow"><span class="htag bad"><span class="g">忌</span>기신의 날</span><span class="m">버거운 기운이 들어와요</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i></span></span></div><div class="srow"><span class="htag bad"><span class="g">沖</span>일지 충</span><span class="m">나와 가장 가까운 자리와 부딪혀요</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i><i></i></span></span></div><div class="srow"><span class="htag bad"><span class="g">刑</span>형</span><span class="m">기운이 서로 걸려요</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i></span></span></div>
+            </div>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일정</span><span class="sh-action" aria-label="일정 추가"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+            <p class="empty">이날은 일정이 없어요.</p>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일기</span></div>
+            <div class="btn">11월 8일 일기 쓰기</div>
+          </div>
+          <div class="ex-row"><span class="ex">예시: 뜻 문장. 8일 丙戌: 丙辛 합, 辰戌 충(일지), 丑戌未 형(시지 未)</span></div>
+        </div>
+      </div></div>
+    <div><div class="caption">불러오는 중</div>
+      <div class="phone sheetview tall">
+        
+        <div class="appbar"><span class="title">달력</span><span class="action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+        <div class="content"><div class="monthhead"><span class="mt">2026년 11월</span><span class="nav"><svg class="ic" aria-hidden="true"><use href="#ic-caret-left-light"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></span></div></div>
+        <div class="scrim"></div>
+        <div class="sheet full">
+          <div class="handle-area"><span class="handle"></span></div>
+          <div class="dh"><div class="solar">11월 9일 월요일</div><div class="bone line" style="width: 96px"></div></div>
+          <div class="kind"><span class="bone chip" style="width: 96px"></span></div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">길흉판정</span></div>
+            <div class="verdict">
+              <div class="bone line d1" style="width: 100%"></div>
+              <div class="vnames"><span>조심할 날</span><span>무난한 날</span><span>잘 풀리는 날</span></div>
+              <div class="srow"><span class="bone chip d1" style="width: 96px"></span><span class="m"><span class="bone line d1" style="width: 120px"></span></span><span class="bone line d1" style="width: 32px"></span></div>
+              <div class="srow"><span class="bone chip d2" style="width: 84px"></span><span class="m"><span class="bone line d2" style="width: 100px"></span></span><span class="bone line d2" style="width: 32px"></span></div>
+            </div>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일정</span><span class="sh-action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+            <div class="bone line d2" style="width: 60%"></div>
+          </div>
+          <div class="section in-sheet">
+            <div class="sh"><span class="t">일기</span></div>
+            <div class="btn">11월 9일 일기 쓰기</div>
+          </div>
+        </div>
+      </div></div>
+  </div>
+
+  <h2>색 규칙 시트</h2>
+  <div class="row">
+    <div><div class="caption">범례 입구를 눌렀을 때 (half)</div>
+      <div class="phone sheetview tall">
+        <div class="appbar"><span class="title">달력</span><span class="action"><svg class="ic" aria-hidden="true"><use href="#ic-plus-light"/></svg></span></div>
+        <div class="content">
+          <div class="monthhead"><span class="mt">2026년 11월</span><span class="nav"><svg class="ic" aria-hidden="true"><use href="#ic-caret-left-light"/></svg><svg class="ic" aria-hidden="true"><use href="#ic-caret-right-light"/></svg></span></div>
+          <div class="wk"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
+          <div class="grid "><div class="dc lv-neutral"><span class="nb"><b>1</b></span><small>22</small></div><div class="dc lv-caution"><span class="nb"><b>2</b></span><small>23</small></div><div class="dc lv-neutral"><span class="nb"><b>3</b></span><small>24</small></div><div class="dc lv-good"><span class="nb"><b>4</b></span><small>25</small></div><div class="dc lv-great"><span class="nb"><svg class="today-seal" viewBox="0 0 20 20" aria-hidden="true"><use href="#seal-shape"/></svg><b>5</b></span><small>26</small></div><div class="dc lv-neutral"><span class="nb"><b>6</b></span><small>27</small></div><div class="dc lv-neutral"><span class="nb"><b>7</b></span><small class="term">입동</small></div><div class="dc lv-caution"><span class="nb"><b>8</b></span><small>29</small></div><div class="dc lv-neutral"><span class="nb"><b>9</b></span><small>10.1</small></div><div class="dc lv-neutral"><span class="nb"><b>10</b></span><small>2</small></div><div class="dc lv-neutral"><span class="nb"><b>11</b></span><small>3</small></div><div class="dc lv-neutral"><span class="nb"><b>12</b></span><small>4</small></div><div class="dc lv-neutral"><span class="nb"><b>13</b></span><small>5</small></div><div class="dc lv-caution"><span class="nb"><b>14</b></span><small>6</small></div><div class="dc lv-good"><span class="nb"><b>15</b></span><small>7</small></div><div class="dc lv-neutral"><span class="nb"><b>16</b></span><small>8</small></div><div class="dc lv-great"><span class="nb"><b>17</b></span><small>9</small></div><div class="dc lv-neutral"><span class="nb"><b>18</b></span><small>10</small></div><div class="dc lv-neutral"><span class="nb"><b>19</b></span><small>11</small></div><div class="dc lv-caution"><span class="nb"><b>20</b></span><small>12</small></div><div class="dc lv-caution"><span class="nb"><b>21</b></span><small>13</small></div><div class="dc lv-neutral"><span class="nb"><b>22</b></span><small class="term">소설</small></div><div class="dc lv-neutral"><span class="nb"><b>23</b></span><small>15</small></div><div class="dc lv-neutral"><span class="nb"><b>24</b></span><small>16</small></div><div class="dc lv-good"><span class="nb"><b>25</b></span><small>17</small></div><div class="dc lv-caution"><span class="nb"><b>26</b></span><small>18</small></div><div class="dc lv-neutral"><span class="nb"><b>27</b></span><small>19</small></div><div class="dc lv-neutral"><span class="nb"><b>28</b></span><small>20</small></div><div class="dc lv-great"><span class="nb"><b>29</b></span><small>21</small></div><div class="dc lv-neutral"><span class="nb"><b>30</b></span><small>22</small></div></div>
+          <div class="legend"><span class="li"><i class="sw lv-great"></i>아주 잘 풀리는 날</span><span class="li"><i class="sw lv-good"></i>잘 풀리는 날</span><span class="li"><i class="sw lv-caution"></i>조심할 날</span></div>
+          <button class="rule-entry" type="button">길흉은 어떻게 정해지나요</button>
+          </div>
+        <div class="scrim"></div>
+        <div class="sheet half rule">
+          <div class="handle-area"><span class="handle"></span></div>
+          <div class="rs-title">달력 색은 이렇게 정해져요</div>
+          <p class="s-body">그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.</p>
+          <div class="rtable"><div class="srow rule"><span class="htag good"><span class="g">用</span>용신의 날</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i><i></i></span></span></div><div class="srow rule"><span class="htag good"><span class="g">貴</span>귀인의 날</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i><i></i></span></span></div><div class="srow rule"><span class="htag good"><span class="g">合</span>합</span><span class="sd"><span class="sign">+</span><span class="dots plus"><i></i></span></span></div><div class="srow rule"><span class="htag bad"><span class="g">忌</span>기신의 날</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i></span></span></div><div class="srow rule"><span class="htag bad"><span class="g">沖</span>일지 충, 월지 충</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i><i></i></span></span></div><div class="srow rule"><span class="htag bad"><span class="g">沖</span>충</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i></span></span></div><div class="srow rule"><span class="htag bad"><span class="g">刑</span>형</span><span class="sd"><span class="sign">−</span><span class="dots minus"><i></i></span></span></div></div>
+          <div class="rs-head">합한 점으로 색이 정해져요</div>
+          <div class="scale"><div class="sc lv-caution"><span class="sn">조심할 날</span><span class="sr"><span class="sign">−</span><span class="dots minus"><i></i><i></i></span><span class="bound">이하</span></span></div><div class="sc lv-neutral"><span class="sn">무난한 날</span><span class="sr"><span class="sign">−</span><span class="dots minus"><i></i></span><span class="tilde">~</span><span class="sign">+</span><span class="dots plus"><i></i></span></span></div><div class="sc lv-good"><span class="sn">잘 풀리는 날</span><span class="sr"><span class="sign">+</span><span class="dots plus"><i></i><i></i></span></span></div><div class="sc lv-great"><span class="sn">아주 잘 풀리는 날</span><span class="sr"><span class="sign">+</span><span class="dots plus"><i></i><i></i><i></i></span><span class="bound">이상</span></span></div></div>
+          <div class="ex-row"><span class="ex">예시: 제목, 그림 머리(슬롯 없음)</span></div>
+        </div>
+      </div></div>
+  </div>
+
+  <h2>origin과 다른 점</h2>
+  <p class="note">길흉판정 섹션 제목은 IA 확정 "길흉판정"입니다. origin의 9일 내역은 일지 충이지만, 丁亥의 亥는 일지 辰이 아니라 월지 巳와 충이라 명리대로 월지 충으로 그렸습니다. 점 사이는 간격 토큰 4입니다(spec 3). 일정 추가는 섹션 머리의 + 하나이고, 일기 섹션 제목은 쓴 일기가 없어도 보입니다(origin). 점수 숫자와 한 줄 요약은 없습니다.</p>
+  <p class="note" style="margin-top: var(--space-48)">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Pretendard JP, Gowun Dodum.</p>
+</div>
+
+<script>
+  const themeButton = document.getElementById('theme');
+  themeButton.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = dark ? '' : 'dark';
+    themeButton.textContent = dark ? '다크로 보기' : '라이트로 보기';
+  });
+</script>
+</body>
+</html>

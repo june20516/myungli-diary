@@ -56,7 +56,7 @@
 * **시스템 글자 크기:** 기기의 글자 크기 설정을 따릅니다. 원국표처럼 칸이 고정된 곳만 상한(1.3배)을 둡니다. 상한을 두는 컴포넌트는 [컴포넌트 명세](../components/README.md)의 `a11y.textScaleMax`에 있습니다.
 * **그라데이션:** `gradient.today`는 데일리 카드·온보딩·공유 이미지에만 씁니다. 공유 이미지는 라이트로 고정합니다. 단색으로 바뀌어도 깨지지 않게 씁니다.
 * **캘린더 길흉 (엔진 `LuckLevel`):** 날짜 칸을 채웁니다. 점은 쓰지 않습니다.
-  * `GOOD`은 `color.calendar.good.bg`, `CAUTION`은 `color.calendar.caution.bg`입니다. `NEUTRAL`은 토큰이 없고 칸을 채우지 않습니다.
+  * 네 단계(1.4.0, 컴포넌트 명세 V84): 아주 잘 풀리는 날 `color.calendar.level.great`, 잘 풀리는 날 `color.calendar.level.good`, 조심할 날 `color.calendar.level.caution`입니다. 무난한 날은 토큰이 없고 칸을 채우지 않습니다. 옛 `color.calendar.good.bg`·`caution.bg`는 값 그대로 남아 있지만 달력 칸은 쓰지 않습니다.
   * 채운 칸은 바탕과 대비가 낮아 색만으로는 전달되지 않습니다. 스크린리더 라벨에 길흉 낱말을 넣습니다(컴포넌트 명세 `calendar.json`의 day-cell).
 * **날의 성격 배지 (엔진 `DayKind`):** 아래 토큰을 씁니다. `badge.ordinary`는 바탕 없이 테두리만 씁니다.
 

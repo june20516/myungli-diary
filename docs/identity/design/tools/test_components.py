@@ -341,7 +341,7 @@ def test_brand_groups_contain_spec_components():
     assert ids == {
         "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image", "date-header", "tag-sentence-list"},
-        "calendar": {"calendar-month", "day-cell", "event-row"},
+        "calendar": {"calendar-month", "day-cell", "event-row", "fortune-verdict", "score-row", "score-scale"},
         "diary": {"diary-row", "diary-editor", "date-block", "draft-indicator", "tag-chip", "diary-summary"},
         "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar"},
     }
@@ -797,7 +797,7 @@ def test_event_row_has_no_duration_and_reads_more():
     summary, listed = (next(v for v in row["variants"] if v["id"] == key) for key in ("summary", "list"))
     assert summary["parts"]["twoLines"]["lines"] == [["status", "time"], ["title", "more"]]
     assert listed["parts"]["timeColumn"]["overflow"]["lines"] == [["time"], ["title", "chevron"]]
-    assert listed["parts"]["add"]["slot"] == listed["parts"]["failed"]["add"]["slot"] == "day-sheet.event.add"
+    assert listed["parts"]["add"]["slot"] == "day-sheet.event.add" and "add" not in listed["parts"]["failed"]  # 추가는 섹션 머리 + (V85)
     assert listed["parts"]["failed"]["retry"] == {"component": "primary-button", "variant": "quiet"}
 
 
@@ -1010,9 +1010,8 @@ def test_day_sheet_diary_head_is_not_a_link():
     navigate = next(v for v in component("sentence", "depth-link")["variants"] if v["id"] == "navigate")
     assert "daySheetSlot" not in navigate["parts"]["label"] and "그날 일기" not in navigate["when"]
     entries = next(v for v in component("diary", "diary-row")["variants"] if v["id"] == "entries")
-    assert entries["parts"]["head"] == {"screens": ["day-sheet"], "slot": "day-sheet.diary.open", "type": "{type.label.md}",
-                                        "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.4}",
-                                        "note": "머리는 아래 줄의 이름이라 아래 내용에 붙여야 묶여 보임(결정 V56)"}
+    # V85: 그날 시트의 일기 머리는 section-header(day-sheet.diary.open)로 옮김
+    assert entries["parts"]["head"]["visible"] is False and "day-sheet.diary.open" in entries["parts"]["head"]["note"]
     for name in ("calendar.md", "sentence.md"):
         text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
         assert "이날 일기 보기" not in text and "둘 중 하나만" not in text, name
@@ -1460,6 +1459,7 @@ CONTENT_COMPONENTS = {
     "diary-summary", "luck-pillar",  # 기록 집계, 대운과 세운 (DS1 2단계 묶음 B)
     "date-header",  # 음력과 일진은 server 값 (DS1 2단계 묶음 A)
     "date-block",  # 일진은 server 값 (DS1 2단계 묶음 C)
+    "fortune-verdict", "score-row",  # 길흉 내역은 server 값 (DS1 2단계 묶음 D)
 }
 
 
@@ -1507,6 +1507,7 @@ NO_LOADING_CONTENT = {
     "section-header",  # 제목은 UI 슬롯이라 불러오는 중에도 그대로 (DS1 2단계)
     "explain-sheet",  # 틀. 본문은 sentence-block 뼈
     "tag-sentence-list",  # 오늘 화면에서 이미 받은 문장을 다시 보임. tag-sheet에는 loading이 없음 (DS1 2단계 묶음 A)
+    "score-scale",  # 색 규칙 그림은 UI 고정 내용 (DS1 2단계 묶음 D)
 }
 
 
@@ -1604,7 +1605,7 @@ def test_explain_sheet_overrides_are_noted():
 HANJA_GLYPHS = {
     "dayKind": {"貴", "用", "忌", "平"},
     "tenGodGroup": {"比", "食", "財", "官", "印"},
-    "relation": {"合", "沖"},
+    "relation": {"合", "沖", "刑"},  # 刑: 사용자 결정 2026-11-07(D108 ② 누락 보완)
     "sinsal": {"天", "桃", "驛", "華", "空"},
 }
 
@@ -1629,7 +1630,7 @@ def test_hanja_tag_component():
     assert parts["name"]["type"] == "{type.label.md}"
     glyphs = parts["glyphs"]
     assert {group: set(names) for group, names in glyphs.items()} == HANJA_GLYPHS
-    assert sum(len(names) for names in glyphs.values()) == 16 and "刑" not in json.dumps(glyphs, ensure_ascii=False)
+    assert sum(len(names) for names in glyphs.values()) == 17
     # 톤: 날의 성격만 길흉 톤, 그 밖의 용어는 term. 길흉 톤은 더함과 뺌을 보이는 자리에서만(Q4 ③ + ①)
     tone = parts["tone"]
     good = {"bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}"}
@@ -1661,7 +1662,7 @@ def test_hanja_tag_component():
         for element in ("wood", "fire", "earth", "metal", "water")}
     assert ganji["ganjiGlyphs"] == GANJI_ELEMENTS and len(GANJI_ELEMENTS["stems"]) + len(GANJI_ELEMENTS["branches"]) == 22
     assert "stemGlyph" not in parts and "ganjiGlyph" not in ganji and "stem.chip" not in tag["uses"]
-    assert any("16자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
+    assert any("17자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
     assert set(tag["parts"]["opens"]["targets"]) == {"explain-sheet", "tag-sheet"}
     assert tag["a11y"]["role"] == "button" and tag["a11y"]["label"] == "이름 글자(한자는 읽지 않음)"
     assert tag["a11y"]["minTarget"] == 44
@@ -2213,3 +2214,139 @@ def test_keyboard_dismiss_everywhere():
     for name in ("input.md", "diary.md"):
         text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
         assert "키보드 inset" in text and "붙여넣기" in text, name
+
+
+# DS1 2단계 묶음 D: 달력 4단계, 그날 시트, 색 규칙 시트 (spec §2 Q2·Q4·Q6·刑, §3, §4, 결정 V84~V87)
+LEVEL_FILL = {"great": "{color.calendar.level.great}", "good": "{color.calendar.level.good}",
+              "caution": "{color.calendar.level.caution}"}
+
+
+def test_day_cell_four_levels():
+    cell = component("calendar", "day-cell")
+    fill = cell["parts"]["luckFill"]
+    assert {key: fill[key] for key in ("great", "good", "caution", "neutral")} == {**LEVEL_FILL, "neutral": "transparent"}
+    assert "#806" in fill["source"] and "3 이상" in fill["rule"]  # 아주 잘 풀리는 날은 server 수준 추가 뒤
+    text = json.dumps(cell, ensure_ascii=False)
+    assert "calendar.good.bg" not in text and "calendar.caution.bg" not in text  # 옛 3단계 토큰은 가리키지 않음
+    assert cell["a11y"]["luckLevels"] == 4 and cell["a11y"]["luckWordSlot"] == "calendar.legend.body"
+    # 오늘 표시는 낙관 도장 윤곽 26 그대로 (Q6 ②, V19), 원이 아님
+    today = cell["parts"]["todayOutline"]
+    assert (today["element"], today["variant"], today["size"]) == ("seal", "outline", {"value": 26, "unit": "px"})
+    md = _md_section("calendar.md", "## day-cell")
+    assert "`calendar.level.great`" in md and "아주 잘 풀리는 날" in md
+
+
+def test_calendar_legend_entry_is_term_chip():
+    month = component("calendar", "calendar-month")
+    legend = month["parts"]["legend"]
+    assert legend["slot"] == "calendar.legend.body" and "optional" not in legend
+    assert legend["items"] == ["great", "good", "caution"]  # 무난한 날은 채우지 않아 견본이 없음
+    assert legend["swatch"]["colors"] == LEVEL_FILL
+    assert (legend["swatch"]["size"], legend["swatch"]["radius"]) == ({"value": 10, "unit": "px"}, "{radius.xs}")
+    entry = month["parts"]["ruleEntry"]
+    # Q2 ②: 용어 칩 모양(term-token과 같은 바탕과 글자색), ⓘ 없음
+    assert (entry["bg"], entry["fg"], entry["radius"]) == ("{color.term.bg}", "{color.term.fg}", "{radius.xs}")
+    assert entry["slot"] == "calendar.legend.rule-link" and entry["minTarget"] == 44
+    assert entry["target"] == {"screen": "color-rule-sheet", "presentation": "sheet", "variant": "half",
+                               "transition": "sheet.enter"}
+    assert "icon" not in json.dumps(entry) and "info" not in json.dumps(entry)
+    assert "길흉" in entry["copy"]  # 문구는 '색' 대신 길흉을 가리킴(writing)
+    assert month["a11y"]["ruleEntryRole"] == "button"
+    layout = _md_section("calendar.md", "### calendar 화면 배치")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("calendar"))
+
+
+def test_fortune_verdict():
+    verdict = component("calendar", "fortune-verdict")
+    parts = verdict["parts"]
+    assert (parts["card"]["bg"], parts["card"]["radius"], parts["card"]["padding"]) == (
+        "{color.bg.base}", "{radius.lg}", "{space.16}")
+    track = parts["track"]
+    assert track["height"] == {"value": 4, "unit": "px"} and track["gradient"] == "{color.verdict.track}"
+    assert track["direction"] == "caution-to-great" and track["radius"] == "{radius.full}"
+    marker = parts["marker"]
+    assert marker["size"] == {"value": 18, "unit": "px"} and marker["bg"] == "{color.bg.sheet}"
+    assert marker["border"] == {"color": "{color.action.primary}", "width": {"value": 2, "unit": "px"}}
+    assert marker["position"]["clamp"] == [-3, 3] and marker["position"]["map"] == "(score + 3) / 6"
+    names = parts["names"]
+    assert names["order"] == ["caution", "neutral", "good"] and names["align"] == ["start", "center", "end"]
+    assert (names["type"], names["fg"], names["marginTop"]) == ("{type.caption.md}", "{color.text.secondary}", "{space.8}")
+    rows = parts["rows"]
+    assert (rows["component"], rows["variant"]) == ("score-row", "verdict")
+    assert rows["divider"] == {"element": "list.divider"} and "#806" in rows["source"]
+    assert "요약" in " ".join(verdict["rules"])  # 한 줄 요약 문장 없음
+    assert "움직이지 않" in verdict["motion"]["marker"]
+    assert [bone["bone"] for bone in verdict["states"]["loading"]["skeleton"]] == ["track", "rows"]
+    assert verdict["states"]["noBreakdown"]["parts"] == {"rows": {"visible": False}}
+    assert verdict["a11y"]["role"] == "group" and verdict["a11y"]["readsScore"] is False
+    assert "fortune-verdict" not in components.IA_PENDING_COMPONENTS and "fortune-verdict" in CONTENT_COMPONENTS
+
+
+def test_score_row_dots():
+    row = component("calendar", "score-row")
+    parts = row["parts"]
+    assert (parts["tag"]["component"], parts["tag"]["tone"]) == ("hanja-tag", "verdictTone-by-sign")
+    meaning = parts["meaning"]
+    assert (meaning["type"], meaning["maxLines"], meaning["marginStart"]) == ("{type.caption.lg}", 2, "{space.12}")
+    dots = parts["dots"]
+    assert dots["size"] == {"value": 8, "unit": "px"} and dots["gap"] == "{space.4}"  # spec 3은 토큰이 아니라 4 (V56)
+    assert dots["color"] == {"plus": "{color.badge.good.bg}", "minus": "{color.text.secondary}"}
+    assert dots["count"] == "abs(score)" and dots["max"] == 3 and dots["overflow"] == "plus-mark"
+    sign = parts["sign"]
+    assert sign["glyphs"] == {"plus": "+", "minus": "U+2212"} and sign["fg"] == "{color.text.primary}"
+    assert row["a11y"]["label"] == "이름, 뜻, 더함 둘" and row["a11y"]["countWords"] is True
+    variants = {variant["id"]: variant["parts"] for variant in row["variants"]}
+    assert set(variants) == {"verdict", "rule"}
+    assert variants["rule"]["meaning"] == {"visible": False} and variants["rule"]["tag"]["interactive"] is False
+    assert variants["verdict"]["tag"]["opens"] == "explain-sheet"
+    # Ruling 2: hanja-tag 길흉 톤을 쓰는 부모는 모두 명세가 있음
+    allowed = component("sentence", "hanja-tag")["parts"]["tone"]["toneAllowedIn"]
+    specified = {c["id"] for c in all_components()}
+    assert set(allowed) <= specified
+    assert "score-row" not in components.IA_PENDING_COMPONENTS and "score-row" in CONTENT_COMPONENTS
+
+
+def test_score_scale_four_cells():
+    scale = component("calendar", "score-scale")
+    cells = scale["parts"]["cells"]
+    assert [cell["level"] for cell in cells] == ["caution", "neutral", "good", "great"]
+    assert [cell["bg"] for cell in cells] == ["{color.calendar.level.caution}", "transparent",
+                                             "{color.calendar.level.good}", "{color.calendar.level.great}"]
+    assert [cell["range"] for cell in cells] == [
+        {"sign": "minus", "dots": 2, "bound": "이하"}, {"from": {"sign": "minus", "dots": 1}, "to": {"sign": "plus", "dots": 1}},
+        {"sign": "plus", "dots": 2}, {"sign": "plus", "dots": 3, "bound": "이상"}]
+    assert cells[1]["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}}  # 무색 칸도 칸으로 보임
+    assert scale["parts"]["dots"] == "score-row dots와 같음"
+    assert "score-scale" not in components.IA_PENDING_COMPONENTS and "score-scale" in NO_LOADING_CONTENT
+
+
+def test_day_sheet_opens_full():
+    sheet = component("frame", "sheet")
+    variants = {variant["id"]: variant for variant in sheet["variants"]}
+    assert "그날" not in variants["half"]["when"]
+    assert variants["full"]["screens"] == ["day-sheet"] and "처음부터" in variants["full"]["note"]
+    assert "detent" not in json.dumps(sheet) and "expand" not in json.dumps(sheet)
+    layout = _md_section("calendar.md", "### day-sheet 화면 배치")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("day-sheet"))
+    order = ["`date-header` `day-sheet`", "`hanja-tag` `emphasis`", "`fortune-verdict`", "`event-row` `list`", "`diary-row` `entries`"]
+    assert [layout.index(item) for item in order] == sorted(layout.index(item) for item in order)
+    assert "day-character" not in layout and "요약" in layout
+    event = next(v for v in component("calendar", "event-row")["variants"] if v["id"] == "list")["parts"]
+    assert event["add"] == {"component": "section-header", "variant": "action", "slot": "day-sheet.event.add",
+                            "position": "section-header-trailing"}
+    entries = next(v for v in component("diary", "diary-row")["variants"] if v["id"] == "entries")["parts"]
+    assert entries["head"]["visible"] is False and "section-header" in entries["head"]["note"]
+
+
+def test_hyeong_glyph():
+    # 사용자 결정 2026-11-07: 刑(형)도 한자 아이콘. D108 ② 한자 목록 누락 보완, 사주 용어라 기본 term 톤
+    tag = component("sentence", "hanja-tag")
+    assert tag["parts"]["glyphs"]["relation"]["刑"] == "형"
+    assert any("17자" in rule and "刑" in rule for rule in tag["rules"])
+    row = component("calendar", "score-row")
+    text = json.dumps(row, ensure_ascii=False)
+    assert "pendingGlyphs" not in row["parts"] and "자리값" not in text
+    layout = _md_section("calendar.md", "### color-rule-sheet 화면 배치")
+    assert "刑 형" in layout and "자리값" not in layout and "자리값" not in (COMPONENTS_DIR / "calendar.md").read_text(encoding="utf-8")
+    assert all(f"`{slot}`" in layout for slot in ia_slot_ids("color-rule-sheet"))
+    assert "`score-row` `rule`" in layout and "`score-scale`" in layout

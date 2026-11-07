@@ -48,9 +48,9 @@
 
 | 톤 | 엔진 값 | 태그 칩 | 달력 칸 | 배지 |
 | --- | --- | --- | --- | --- |
-| good | 좋음, `YONGSIN_DAY`, `GWIIN_DAY`, `LuckLevel.GOOD` | `tag.good.*` | `calendar.good.bg` | `badge.good`·`badge.gwiin` |
-| bad | 나쁨, `GISIN_DAY`, `LuckLevel.CAUTION` | `tag.bad.*` | `calendar.caution.bg` | `badge.gisin` |
-| neutral | 중립, `ORDINARY_DAY`, `LuckLevel.NEUTRAL` | `tag.neutral.*` 테두리 | 채우지 않음 | `badge.ordinary` |
+| good | 좋음, `YONGSIN_DAY`, `GWIIN_DAY`, 잘 풀리는 날, 아주 잘 풀리는 날 | `tag.good.*` | `calendar.level.good`, 아주 잘 풀리는 날 `calendar.level.great`(V84) | `badge.good`·`badge.gwiin` |
+| bad | 나쁨, `GISIN_DAY`, 조심할 날 | `tag.bad.*` | `calendar.level.caution` | `badge.gisin` |
+| neutral | 중립, `ORDINARY_DAY`, 무난한 날 | `tag.neutral.*` 테두리 | 채우지 않음 | `badge.ordinary` |
 
 색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말("좋은 날", "조심할 날")을 넣습니다(문구는 writing).
 

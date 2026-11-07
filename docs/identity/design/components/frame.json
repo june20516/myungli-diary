@@ -86,8 +86,8 @@
       "summary": "하프·풀 시트 틀. 깊어지면 위에 겹쳐 쌓임",
       "uses": ["sheet.enter", "sheet.exit", "sheet.stack"],
       "variants": [
-        { "id": "half", "when": "풀이·근거·그날·공유 미리보기처럼 짧은 내용", "parts": { "container": { "maxHeight": "60%" } } },
-        { "id": "full", "when": "긴 목록·설정 안쪽", "parts": { "container": { "maxHeight": "100% - top-safe-area - 12px" } } }
+        { "id": "half", "when": "풀이·근거·색 규칙·공유 미리보기처럼 짧은 내용", "parts": { "container": { "maxHeight": "60%" } } },
+        { "id": "full", "when": "긴 목록·설정 안쪽, 그날 시트", "screens": ["day-sheet"], "note": "그날 시트는 펼침과 접힘 없이 처음부터 full 높이로 열린다(IA day-sheet, 결정 V85)", "parts": { "container": { "maxHeight": "100% - top-safe-area - 12px" } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radiusTop": "{radius.xl}", "paddingX": "{space.24}", "paddingBottom": "{space.24}", "note": "모서리 radius.xl(28) 때문에 화면 좌우 20보다 넓힘(결정 V64)" },

@@ -16,18 +16,46 @@
           "height": { "value": 28, "unit": "px" }
         },
         "grid": { "columns": 7, "rowGap": { "value": 2, "unit": "px" }, "columnGap": { "value": 2, "unit": "px" }, "cell": "day-cell" },
-        "legend": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "swatch": { "size": { "value": 10, "unit": "px" }, "radius": "{radius.xs}" }, "optional": true }
+        "legend": {
+          "slot": "calendar.legend.body",
+          "type": "{type.caption.md}",
+          "fg": "{color.text.secondary}",
+          "marginTop": "{space.16}",
+          "items": ["great", "good", "caution"],
+          "omitted": { "neutral": "무난한 날은 칸을 채우지 않아 견본이 바탕과 같으므로 범례에 두지 않음(origin D)" },
+          "swatch": { "size": { "value": 10, "unit": "px" }, "radius": "{radius.xs}", "colors": { "great": "{color.calendar.level.great}", "good": "{color.calendar.level.good}", "caution": "{color.calendar.level.caution}" } },
+          "swatchGap": "{space.4}",
+          "itemGap": "{space.12}",
+          "wrap": "넘치면 항목 단위로 다음 줄"
+        },
+        "ruleEntry": {
+          "slot": "calendar.legend.rule-link",
+          "shape": "term-chip",
+          "bg": "{color.term.bg}",
+          "fg": "{color.term.fg}",
+          "radius": "{radius.xs}",
+          "type": "{type.label.md}",
+          "paddingX": "{space.8}",
+          "paddingY": "{space.4}",
+          "marginTop": "{space.12}",
+          "align": "start",
+          "minTarget": 44,
+          "target": { "screen": "color-rule-sheet", "presentation": "sheet", "variant": "half", "transition": "sheet.enter" },
+          "copy": "그날의 길흉을 가리키는 물음(writing, 가안 '길흉은 어떻게 정해지나요'). IA 가안의 '색'은 쓰지 않음(Q2 ②)"
+        }
       },
       "states": {
         "monthChanged": { "pattern": "appear.seep", "note": "격자만 바뀜, 머리는 그대로" },
         "loading": { "skeleton": [{ "bone": "cellFill", "shape": "날짜 칸 채우기와 도장 자리", "note": "숫자, 요일 머리, 달 머리는 바로 그림" }], "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
       },
       "haptic": [],
-      "a11y": { "role": "grid", "label": "N년 M월", "swipe": "좌우로 달 넘김", "minTarget": 44 },
+      "a11y": { "role": "grid", "label": "N년 M월", "swipe": "좌우로 달 넘김", "minTarget": 44, "legendRole": "text", "ruleEntryRole": "button", "ruleEntryAnnounce": "시트가 열림" },
       "rules": [
         "요일 머리만 일(화 ink)·토(토 ink) 색을 쓴다. 날짜 숫자에는 요일 색을 넣지 않는다.",
         "좌우로 밀거나 이전·다음을 누르면 달이 넘어간다. 움직임은 appear.seep(가로 이동 없음).",
-        "주 시작은 일요일."
+        "주 시작은 일요일.",
+        "격자 아래 범례는 늘 보인다. 아주 잘 풀리는 날, 잘 풀리는 날, 조심할 날 셋의 견본과 이름이고, 채우지 않는 무난한 날은 견본이 없다(결정 V84).",
+        "범례 아래 입구는 용어 칩 모양(term.bg 바탕, term.fg 글자, radius.xs)이고 누르면 color-rule-sheet가 half로 열린다. ⓘ 아이콘과 꺾쇠를 두지 않는다(Q2 ②)."
       ]
     },
     {
@@ -36,7 +64,14 @@
       "uses": ["tone", "seal", "mark.underline-grow", "press.ink"],
       "parts": {
         "container": { "height": { "value": 62, "unit": "px" }, "radius": "{radius.sm}" },
-        "luckFill": { "good": "{color.calendar.good.bg}", "caution": "{color.calendar.caution.bg}", "neutral": "transparent" },
+        "luckFill": {
+          "great": "{color.calendar.level.great}",
+          "good": "{color.calendar.level.good}",
+          "caution": "{color.calendar.level.caution}",
+          "neutral": "transparent",
+          "source": "server 길흉 수준 넷(아주 잘 풀리는 날 추가는 server #806). 추가 전에는 great가 오지 않아 3단계로 보임",
+          "rule": "합한 점 3 이상 great, 2 good, -1~+1 neutral, -2 이하 caution(엔진 spec §8 점수, score-scale과 같은 구간)"
+        },
         "numberBox": { "size": { "value": 32, "unit": "px" }, "align": "center", "marginTop": "{space.4}" },
         "number": { "type": "{type.numeric.calendar}", "fg": "{color.text.primary}" },
         "lunar": { "type": "{type.caption.sm}", "fontSize": { "value": 10.5, "unit": "px" }, "fg": "{color.text.secondary}", "newMoon": "M.1", "leapNewMoon": { "slot": "ui.day-cell.lunar", "key": "dayCellLeapNewMoon", "text": "윤달 표지 + M.1 (예: 윤6.1)" }, "solarTerm": { "fontWeight": 700, "text": "절기 이름" } },
@@ -62,6 +97,8 @@
         "label": "M월 D일 요일, 음력 M.D 또는 절기, 길흉 낱말, 일기 씀, 일정 N개, 오늘",
         "leapMonth": "윤달의 모든 날은 음력 조각 뒤에 '윤달'(dayCellLeapMonth). 절기 날은 음력 대신 절기를 읽으므로 '윤달'도 읽지 않는다",
         "colorIndependent": true,
+        "luckLevels": 4,
+        "luckWordSlot": "calendar.legend.body",
         "selectedAnnounced": true,
         "textScaleMax": 1.3,
         "minTarget": 44
@@ -71,7 +108,8 @@
         "겹침 순서(아래부터): 길흉 바탕 → 일기 도장 soft → 오늘 윤곽 → 숫자 → 선택 밑줄 → 일정 점.",
         "일기 도장과 오늘 윤곽은 같은 크기·자리(숫자 상자 가운데 26px)다.",
         "음력은 초하루만 'M.1', 절기 날은 절기 이름(굵게), 그 밖에는 일(日)만. 윤달 초하루는 윤달 표지를 붙인 'M.1'(leapNewMoon)이다.",
-        "길흉은 색만으로 전하지 않는다. 스크린리더 라벨에 길흉 낱말을 넣는다.",
+        "길흉은 색만으로 전하지 않는다. 스크린리더 라벨에 길흉 낱말(네 단계 이름, 범례와 같은 낱말)을 넣는다.",
+        "길흉 바탕은 네 단계다: 아주 잘 풀리는 날 calendar.level.great, 잘 풀리는 날 calendar.level.good, 무난한 날 채우지 않음, 조심할 날 calendar.level.caution(결정 V84). 잘 풀리는 두 단계는 명도가 같고 채도로만 나뉜다.",
         "시스템 글자 크기는 1.3배까지만 키운다(textScaleMax). 칸 높이 62는 최소 높이이고, 그 글자가 들어가는 만큼만 늘어난다(1.3배에서 약 65). 1.3배 위 설정은 1.3배와 같다(결정 V36)."
       ]
     },
@@ -101,9 +139,9 @@
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
             "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
             "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "element": "list.divider" } },
-            "empty": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "action": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } },
-            "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add", "position": "below-list", "when": "일정이 있을 때" },
-            "failed": { "when": "일정 목록만 받지 못함(날의 성격은 받음)", "message": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "text": "오류 종류별 기존 문구 한 줄" }, "retry": { "component": "primary-button", "variant": "quiet" }, "add": { "component": "primary-button", "variant": "quiet", "slot": "day-sheet.event.add" } }
+            "empty": { "slot": "day-sheet.event.empty", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "note": "버튼 없이 문장 한 줄. 추가는 섹션 머리 +(결정 V85)" },
+            "add": { "component": "section-header", "variant": "action", "slot": "day-sheet.event.add", "position": "section-header-trailing" },
+            "failed": { "when": "일정 목록만 받지 못함(날의 성격은 받음)", "message": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "text": "오류 종류별 기존 문구 한 줄" }, "retry": { "component": "primary-button", "variant": "quiet" } }
           }
         }
       ],
@@ -120,8 +158,103 @@
         "진행 중·다음 일정 말고도 일정이 더 있으면 '외 N개'를 붙인다.",
         "그날 일정이 모두 지났으면 개수 문장 한 줄만 보인다.",
         "list의 시각 칸에는 하루 종일도 같은 폭으로 들어간다.",
-        "일정이 없으면 빈 문장 + '일정 추가' quiet 버튼. 일정이 있어도 목록 아래에 '일정 추가' quiet 버튼(add)을 둔다.",
-        "일정 목록만 받지 못하면 빈 문장 대신 failed(문구 한 줄 + '다시 시도' + '일정 추가', 가운데 정렬)를 둔다. 없는 일정을 없다고 말하지 않는다. 시트 전체 error는 날의 성격을 받지 못했을 때만이다."
+        "일정 추가는 그날 시트 일정 섹션 머리의 + 하나(section-header action, 스크린리더 이름 day-sheet.event.add)다. 일정이 없으면 빈 문장 한 줄만 둔다(결정 V85).",
+        "일정 목록만 받지 못하면 빈 문장 대신 failed(문구 한 줄 + '다시 시도', 가운데 정렬)를 둔다. 없는 일정을 없다고 말하지 않는다. 시트 전체 error는 날의 성격을 받지 못했을 때만이다."
+      ]
+    },
+    {
+      "id": "fortune-verdict",
+      "summary": "길흉판정: 위치 막대, 세 이름, 그 아래 내역 score-row 줄 (결정 V86)",
+      "uses": ["list.divider"],
+      "parts": {
+        "card": { "bg": "{color.bg.base}", "radius": "{radius.lg}", "padding": "{space.16}", "note": "시트(bg.sheet) 안이라 바탕색 카드로 묶음" },
+        "track": { "height": { "value": 4, "unit": "px" }, "radius": "{radius.full}", "gradient": "{color.verdict.track}", "direction": "caution-to-great", "endInset": "marker-radius", "note": "양끝을 위치 표시 반지름만큼 들여 표시가 카드 밖으로 나가지 않음" },
+        "marker": {
+          "size": { "value": 18, "unit": "px" },
+          "shape": "circle",
+          "bg": "{color.bg.sheet}",
+          "border": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } },
+          "position": { "from": "score", "clamp": [-3, 3], "map": "(score + 3) / 6", "note": "합한 점을 -3~+3으로 자르고 트랙 위 0~1 자리로. 0은 가운데(무난한 날 이름 아래)" },
+          "decorative": true
+        },
+        "names": { "order": ["caution", "neutral", "good"], "align": ["start", "center", "end"], "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "copy": "달력 범례와 같은 단계 이름(calendar.legend.body 낱말). day-sheet에는 이름 슬롯이 없어 IA에 요청" },
+        "rows": { "component": "score-row", "variant": "verdict", "marginTop": "{space.12}", "divider": { "element": "list.divider" }, "dividerBefore": "every-row", "order": "더함 먼저, 뺌 다음(같은 부호 안은 server 순서)", "source": "server #806 길흉 내역(엔진 점수 구성)" }
+      },
+      "states": {
+        "loading": { "skeleton": [{ "bone": "track", "shape": "textLine", "note": "막대 자리 한 줄, 이름 셋은 UI 글자라 바로 그림" }, { "bone": "rows", "shape": "score-row 뼈", "rows": 2 }] },
+        "noBreakdown": { "when": "내역이 계약에 없음(server #806 전)", "parts": { "rows": { "visible": false } }, "note": "막대와 이름만. 합한 점은 달력의 score로 그림" }
+      },
+      "motion": { "marker": "움직이지 않음. 시트가 열릴 때 처음부터 제자리에 그리고, 동작 줄이기와 상관없이 같음" },
+      "haptic": [],
+      "a11y": { "role": "group", "label": "섹션 제목 + 단계 이름(예: 길흉판정, 무난한 날)", "readsScore": false, "rowsFollow": "score-row 줄마다 이어 읽음" },
+      "rules": [
+        "위치 막대 하나와 그 아래 내역뿐이다. 한 줄 요약 문장이나 이유 문장을 두지 않는다(IA day-sheet).",
+        "막대는 왼쪽 조심할 날(level.caution)에서 오른쪽 아주 잘 풀리는 날(level.great)로 이어지는 그라데이션이고, 이름은 셋(조심할 날, 무난한 날, 잘 풀리는 날)이다. 3 이상은 오른쪽 끝이다.",
+        "숫자를 보이지 않는다. 내역의 크기는 score-row 점으로만 보인다.",
+        "위치 표시는 움직이지 않는다(처음부터 제자리, 동작 줄이기에서도 같음)."
+      ]
+    },
+    {
+      "id": "score-row",
+      "summary": "점수 항목 한 줄: 한자 태그, 짧은 뜻, 부호와 점 (결정 V86)",
+      "uses": ["press.ink"],
+      "variants": [
+        { "id": "verdict", "when": "그날 시트 길흉판정 내역", "parts": { "tag": { "interactive": true, "opens": "explain-sheet" } } },
+        { "id": "rule", "when": "색 규칙 시트의 점수 항목 표. 뜻 없이 태그와 점만", "parts": { "meaning": { "visible": false }, "tag": { "interactive": false, "note": "IA color-rule-sheet에 출구가 없어 누를 수 없는 표시" } } }
+      ],
+      "parts": {
+        "row": { "minHeight": { "value": 48, "unit": "px" }, "paddingY": "{space.12}", "align": "center" },
+        "tag": { "component": "hanja-tag", "variant": "default", "tone": "verdictTone-by-sign", "note": "더함은 verdictTone.good, 뺌은 verdictTone.bad(toneAllowedIn). 날의 성격 태그도 같은 규칙" },
+        "meaning": { "slot": "day-sheet.verdict.item", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "maxLines": 2, "marginStart": "{space.12}", "note": "항목마다 짧은 뜻(writing)" },
+        "sign": { "glyphs": { "plus": "+", "minus": "U+2212" }, "type": "{type.label.lg}", "fontWeight": 700, "fg": "{color.text.primary}", "marginStart": "{space.12}" },
+        "dots": {
+          "size": { "value": 8, "unit": "px" },
+          "radius": "{radius.full}",
+          "gap": "{space.4}",
+          "marginStart": "{space.4}",
+          "color": { "plus": "{color.badge.good.bg}", "minus": "{color.text.secondary}" },
+          "count": "abs(score)",
+          "max": 3,
+          "overflow": "plus-mark",
+          "overflowNote": "점수 절댓값이 3을 넘으면 점 셋 뒤에 + 글자(sign과 같은 글자 모양)",
+          "note": "spec의 사이 3은 간격 토큰이 아니라 space.4(V56)"
+        }
+      },
+      "states": {
+        "loading": { "skeleton": [{ "bone": "row", "shape": "알약 뼈 + 글줄 + 점 자리", "note": "rule 변형은 내용이 UI라 뼈 없음" }] },
+        "pressed": { "pattern": "press.ink", "note": "verdict 변형의 태그 안에서만" }
+      },
+      "haptic": [],
+      "a11y": { "role": "group", "label": "이름, 뜻, 더함 둘", "countWords": true, "labelSlot": "day-sheet.verdict.item", "dotsDecorative": true, "tagFocus": "verdict 변형에서 태그는 따로 버튼" },
+      "rules": [
+        "숫자 대신 점이다. 점 개수는 그 항목 점수의 절댓값이고 최대 셋, 넘으면 셋 뒤에 +를 붙인다.",
+        "더함은 + 와 coral 점(badge.good.bg), 뺌은 − 와 회색 점(text.secondary)이다. 부호는 색 없이 본문색이라 색만으로 전하지 않는다.",
+        "태그는 hanja-tag이고 톤은 부호를 따른다(더함 verdictTone.good, 뺌 verdictTone.bad). 이 톤은 score-row와 fortune-verdict 안에서만 쓴다(Q4 ①).",
+        "스크린리더는 '이름, 뜻, 더함 둘'처럼 부호와 개수를 낱말로 읽는다. 점은 읽지 않는다."
+      ]
+    },
+    {
+      "id": "score-scale",
+      "summary": "합한 점과 색의 관계 그림: 네 칸 (결정 V87)",
+      "uses": [],
+      "parts": {
+        "cells": [
+          { "level": "caution", "bg": "{color.calendar.level.caution}", "range": { "sign": "minus", "dots": 2, "bound": "이하" } },
+          { "level": "neutral", "bg": "transparent", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "range": { "from": { "sign": "minus", "dots": 1 }, "to": { "sign": "plus", "dots": 1 } } },
+          { "level": "good", "bg": "{color.calendar.level.good}", "range": { "sign": "plus", "dots": 2 } },
+          { "level": "great", "bg": "{color.calendar.level.great}", "range": { "sign": "plus", "dots": 3, "bound": "이상" } }
+        ],
+        "layout": { "columns": 4, "gap": "{space.4}", "radius": "{radius.sm}", "paddingY": "{space.12}", "paddingX": "{space.4}", "align": "center" },
+        "name": { "type": "{type.caption.md}", "fg": "{color.text.primary}", "copy": "달력 범례와 같은 단계 이름", "maxLines": 2 },
+        "rangeLine": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "marginTop": "{space.4}", "join": "범위는 ~ (D93)", "boundCopy": "이하, 이상 낱말은 writing" },
+        "dots": "score-row dots와 같음"
+      },
+      "haptic": [],
+      "a11y": { "role": "list", "label": "단계 이름, 점 범위 낱말(예: 잘 풀리는 날, 더함 둘)" },
+      "rules": [
+        "네 칸은 왼쪽부터 조심할 날, 무난한 날, 잘 풀리는 날, 아주 잘 풀리는 날이고 바탕은 달력 칸과 같은 level 토큰이다. 무난한 날은 채우지 않고 1px color.line 테두리로 칸을 보인다.",
+        "칸 안 범위는 점으로 쓴다(−●● 이하, −●~+●, +●●, +●●● 이상). 숫자를 쓰지 않는다.",
+        "누를 수 없는 그림이고 불러올 내용이 없다(UI)."
       ]
     }
   ]

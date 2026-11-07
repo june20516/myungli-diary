@@ -50,17 +50,18 @@
       "border": { "color": "{color.swatch.border}", "width": { "value": 1, "unit": "px" } }
     },
     "tone": {
-      "summary": "길흉 톤: 배지·태그 칩·달력 칸이 같은 매핑을 씀 (결정 V8·V10)",
+      "summary": "길흉 톤: 배지·태그 칩·달력 칸이 같은 매핑을 씀 (결정 V8·V10, 달력 네 단계 V84)",
       "good": {
         "meaning": "좋음·귀인 (coral 계열)",
         "tag": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" },
-        "calendarFill": "{color.calendar.good.bg}",
+        "calendarFill": "{color.calendar.level.good}",
+        "calendarFillGreat": "{color.calendar.level.great}",
         "badges": ["{color.badge.good.bg}", "{color.badge.gwiin.bg}"]
       },
       "bad": {
         "meaning": "나쁨 (neutral 채움)",
         "tag": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" },
-        "calendarFill": "{color.calendar.caution.bg}",
+        "calendarFill": "{color.calendar.level.caution}",
         "badges": ["{color.badge.gisin.bg}"]
       },
       "neutral": {

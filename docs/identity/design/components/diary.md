@@ -24,7 +24,7 @@
 
 * 날짜 열·태그 없이 `entry` 줄만 작성 순으로 놓습니다.
 * `today`: 가이드 질문 카드 아래 `space.12`에 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 `space.16`·위아래 `space.4`). 오늘 쓴 일기가 없으면 그리지 않습니다.
-* `day-sheet`: 머리(`head`, 슬롯 `day-sheet.diary.open`, 편수, `type.label.md` `text.secondary`, 위 `space.16`·아래 `space.4`, 링크 아님) 아래 시트 바탕에 카드 없이. 그날 쓴 일기가 없으면 머리와 줄을 모두 그리지 않습니다.
+* `day-sheet`: 일기 섹션 머리 `section-header` `plain`(슬롯 `day-sheet.diary.open`) 아래 시트 바탕에 카드 없이. 컴포넌트 안 머리 `head`는 그리지 않습니다(결정 V85, V42 개정). 그날 쓴 일기가 없으면 줄을 그리지 않고 섹션 머리와 쓰기 버튼만 둡니다.
 * 최상위의 날짜 열·도장·흐름 줄·카드·날의 성격·2줄 미리보기·태그는 모두 `visible: false`로 덮어씁니다.
 
 ### `entry` 줄

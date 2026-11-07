@@ -838,5 +838,44 @@
     "decisions": [],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 하늘님 값, 원고 없는 문구는 예시. 사용자 답(2026-11-06, #801): Q1 ② 날의 성격 태그도 함께, Q2 ① 모아보기 안 태그 숨김, Q3 안 A 확장(한자 태그는 어디서나 뜻 시트, 모아보기는 대표 태그 시트 안 꺾쇠 링크, 편수 없음), Q4 ① 일기 보기에 질문"
+  },
+  {
+    "id": "design-ds1-screen-d",
+    "title": "DS1 화면 묶음 D: 달력(네 단계, 범례와 규칙 입구), 그날 시트(무난한 날, 아주 잘 풀리는 날, 조심할 날, 불러오는 중), 색 규칙 시트",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-d.html",
+    "source": "2026-11-05-ds1-screen-d.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "calendar",
+      "day-sheet",
+      "color-rule-sheet"
+    ],
+    "decisions": [
+      "V84",
+      "V85",
+      "V86",
+      "V87"
+    ],
+    "status": "draft",
+    "note": "사용자 확인 대기(#801)"
+  },
+  {
+    "id": "design-ds1-d-questions",
+    "title": "DS1 달력 화면 관문 질문 비교: 칸 색 네 단계(라이트 두 안, origin 참고, 다크), 범례의 무난한 날, 길흉판정 막대 이름 수, 색 규칙 시트 높이, 그날 시트 일기 섹션 제목",
+    "kind": "concept",
+    "file": "2026-11-06-ds1-d-questions.html",
+    "source": "2026-11-06-ds1-d-questions.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "calendar",
+      "day-sheet",
+      "color-rule-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "사용자 확인 대기(#801). 토큰 CSS(ds1/tokens.css)를 읽고 Q1 후보 칸만 후보 색을 덮어씀"
   }
 ]
