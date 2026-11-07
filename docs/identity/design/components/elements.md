@@ -52,7 +52,7 @@
 | bad | 나쁨, `GISIN_DAY`, 조심할 날 | `tag.bad.*` | `calendar.level.caution` | `badge.gisin` |
 | neutral | 중립, `ORDINARY_DAY`, 무난한 날 | `tag.neutral.*` 테두리 | 채우지 않음 | `badge.ordinary` |
 
-색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말("좋은 날", "조심할 날")을 넣습니다(문구는 writing).
+색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말(달력은 네 단계 이름 "아주 잘 풀리는 날", "잘 풀리는 날", "무난한 날", "조심할 날")을 넣습니다(문구는 writing, V84).
 
 ## 시스템 글자 크기
 

@@ -251,7 +251,7 @@
           "verdictTone": { "good": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" }, "bad": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } },
           "toneAllowedIn": ["fortune-verdict", "score-row"]
         },
-        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어디서나 누르면 시트(뜻 시트 explain-sheet, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 tag-sheet). 화면 이동 예외 없음(V73). 그 태그의 일기 모아보기는 시트 안 꺾쇠 링크(explain-sheet diaryLink, tag-sheet tag-sentence-list diaryLink)", "notInteractiveIn": [{ "screen": "evidence-sheet", "part": "head" }, { "screen": "tag-sheet", "part": "head" }], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음). 눌림 표시와 터치 넓힘 없음" }
+        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어디서나 누르면 시트(뜻 시트 explain-sheet, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 tag-sheet). 화면 이동 예외 없음(V73). 그 태그의 일기 모아보기는 시트 안 꺾쇠 링크(explain-sheet diaryLink, tag-sheet tag-sentence-list diaryLink)", "notInteractiveIn": [{ "screen": "evidence-sheet", "part": "head" }, { "screen": "tag-sheet", "part": "head" }, { "screen": "color-rule-sheet", "part": "score-row rule" }], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음, 색 규칙 시트는 IA 출구 없음). 눌림 표시와 터치 넓힘 없음" }
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "pill", "shape": "chip", "width": "64px" }] },
@@ -260,7 +260,7 @@
       "haptic": [],
       "a11y": { "role": "button", "label": "이름 글자(한자는 읽지 않음)", "toneLabel": "날의 성격과 길흉 톤은 이름 낱말로 전함(색만으로 전하지 않음)", "minTarget": 44, "hitSlop": "높이 30에서 위아래로 넓힘" },
       "rules": [
-        "날의 성격(貴 用 忌 平)은 길흉 톤(tone.dayKind, V8 배지 매핑)이고, 그 밖의 사주 용어(십성 묶음, 합충, 신살)는 term 초록(otherTerms)이다(Q4 ③).",
+        "날의 성격(貴 用 忌 平)은 길흉 톤(tone.dayKind, V8 배지 매핑)이고, 그 밖의 사주 용어(십성 묶음, 합충형, 신살)는 term 초록(otherTerms)이다(Q4 ③).",
         "날의 성격 밖 용어의 길흉 톤(verdictTone, 좋음 coral, 나쁨 neutral)은 toneAllowedIn 부모(fortune-verdict, score-row) 안에서만 쓴다. 더함과 뺌을 보이는 자리이기 때문이다(Q4 ①).",
         "emphasis는 날의 성격 태그에만 쓰고, 용신의 날만 진한 채움이다(V8, D20).",
         "사주 용어 태그(날의 성격, 십성 묶음, 합충형, 신살)의 한자는 17자(glyphs: D108의 16자와 刑, 사용자 결정 2026-11-07)뿐이다. 같은 글자는 옆 이름으로 구분한다(沖은 충, 일지 충, 월지 충). 목록 밖 용어 글자는 그리지 않고 지휘 확인을 기다린다.",

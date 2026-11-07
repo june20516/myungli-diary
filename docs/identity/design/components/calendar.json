@@ -39,7 +39,7 @@
           "paddingY": "{space.4}",
           "marginTop": "{space.12}",
           "align": "start",
-          "minTarget": 44,
+          "minTarget": { "value": 44, "unit": "px" },
           "target": { "screen": "color-rule-sheet", "presentation": "sheet", "variant": "half", "transition": "sheet.enter" },
           "copy": "그날의 길흉을 가리키는 물음(writing, 가안 '길흉은 어떻게 정해지나요'). IA 가안의 '색'은 쓰지 않음(Q2 ②)"
         }
@@ -55,6 +55,7 @@
         "좌우로 밀거나 이전·다음을 누르면 달이 넘어간다. 움직임은 appear.seep(가로 이동 없음).",
         "주 시작은 일요일.",
         "격자 아래 범례는 늘 보인다. 아주 잘 풀리는 날, 잘 풀리는 날, 조심할 날 셋의 견본과 이름이고, 채우지 않는 무난한 날은 견본이 없다(결정 V84).",
+        "server #806 전(아주 잘 풀리는 날이 오지 않는 동안)에도 범례에 아주 잘 풀리는 날 견본을 보인다. 색 규칙 시트의 네 단계와 맞추고, 수준이 더해질 때 범례가 바뀌지 않게 하기 위해서다.",
         "범례 아래 입구는 용어 칩 모양(term.bg 바탕, term.fg 글자, radius.xs)이고 누르면 color-rule-sheet가 half로 열린다. ⓘ 아이콘과 꺾쇠를 두지 않는다(Q2 ②)."
       ]
     },
@@ -182,7 +183,8 @@
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "track", "shape": "textLine", "note": "막대 자리 한 줄, 이름 셋은 UI 글자라 바로 그림" }, { "bone": "rows", "shape": "score-row 뼈", "rows": 2 }] },
-        "noBreakdown": { "when": "내역이 계약에 없음(server #806 전)", "parts": { "rows": { "visible": false } }, "note": "막대와 이름만. 합한 점은 달력의 score로 그림" }
+        "noBreakdown": { "when": "내역이 계약에 없음(server #806 전)", "parts": { "rows": { "visible": false } }, "note": "막대와 이름만. 합한 점은 달력의 score로 그림" },
+        "noItems": { "when": "내역은 받았으나 항목이 0개(더하고 뺄 기운이 없는 날, 합 0)", "parts": { "rows": { "visible": false } }, "note": "noBreakdown과 같은 모양: 막대 가운데 표시와 세 이름만. 빈 안내 문장은 두지 않음" }
       },
       "motion": { "marker": "움직이지 않음. 시트가 열릴 때 처음부터 제자리에 그리고, 동작 줄이기와 상관없이 같음" },
       "haptic": [],
@@ -200,13 +202,13 @@
       "uses": ["press.ink"],
       "variants": [
         { "id": "verdict", "when": "그날 시트 길흉판정 내역", "parts": { "tag": { "interactive": true, "opens": "explain-sheet" } } },
-        { "id": "rule", "when": "색 규칙 시트의 점수 항목 표. 뜻 없이 태그와 점만", "parts": { "meaning": { "visible": false }, "tag": { "interactive": false, "note": "IA color-rule-sheet에 출구가 없어 누를 수 없는 표시" } } }
+        { "id": "rule", "when": "색 규칙 시트의 점수 항목 표. 뜻 없이 태그와 점만", "parts": { "row": { "minHeight": "none", "paddingY": "{space.8}", "note": "누를 수 없는 표 줄이라 터치 48이 필요 없고, 일곱 줄이 시트 높이를 덜 차지함" }, "meaning": { "visible": false }, "tag": { "interactive": false, "note": "IA color-rule-sheet에 출구가 없어 누를 수 없는 표시" } } }
       ],
       "parts": {
         "row": { "minHeight": { "value": 48, "unit": "px" }, "paddingY": "{space.12}", "align": "center" },
         "tag": { "component": "hanja-tag", "variant": "default", "tone": "verdictTone-by-sign", "note": "더함은 verdictTone.good, 뺌은 verdictTone.bad(toneAllowedIn). 날의 성격 태그도 같은 규칙" },
         "meaning": { "slot": "day-sheet.verdict.item", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "maxLines": 2, "marginStart": "{space.12}", "note": "항목마다 짧은 뜻(writing)" },
-        "sign": { "glyphs": { "plus": "+", "minus": "U+2212" }, "type": "{type.label.lg}", "fontWeight": 700, "fg": "{color.text.primary}", "marginStart": "{space.12}" },
+        "sign": { "glyphs": { "plus": "U+002B", "minus": "U+2212" }, "type": "{type.label.lg}", "fontWeight": 700, "fg": "{color.text.primary}", "marginStart": "{space.12}" },
         "dots": {
           "size": { "value": 8, "unit": "px" },
           "radius": "{radius.full}",

@@ -9,7 +9,7 @@
 * 달 제목 `type.subtitle` + 이전·다음(44px). 좌우로 밀어도 달이 넘어갑니다. 넘김은 격자만 `appear.seep`(가로 이동 없음).
 * 요일 머리 `type.caption.md`: **일 = `calendar.weekday.sun`(화 ink), 토 = `calendar.weekday.sat`(토 ink)**, 나머지 `text.secondary`. 날짜 숫자에는 요일 색을 넣지 않습니다(주말은 요일 머리로만 표시).
 * 주 시작은 일요일.
-* **범례(`legend`, 결정 V84):** 격자 아래 `space.16`에 늘 둡니다. 아주 잘 풀리는 날, 잘 풀리는 날, 조심할 날 셋의 견본(10px, `radius.xs`, 칸과 같은 `calendar.level.*`)과 이름(`type.caption.md` `text.secondary`, 견본과 `space.4`, 항목 사이 `space.12`)입니다. 무난한 날은 칸을 채우지 않아 견본이 바탕과 같으므로 두지 않습니다(origin D). 이름은 writing 슬롯 `calendar.legend.body`입니다.
+* **범례(`legend`, 결정 V84):** 격자 아래 `space.16`에 늘 둡니다. 아주 잘 풀리는 날, 잘 풀리는 날, 조심할 날 셋의 견본(10px, `radius.xs`, 칸과 같은 `calendar.level.*`)과 이름(`type.caption.md` `text.secondary`, 견본과 `space.4`, 항목 사이 `space.12`)입니다. 무난한 날은 칸을 채우지 않아 견본이 바탕과 같으므로 두지 않습니다(origin D). 이름은 writing 슬롯 `calendar.legend.body`입니다. server #806 전(아주 잘 풀리는 날이 아직 오지 않는 동안)에도 아주 잘 풀리는 날 견본을 보입니다. 색 규칙 시트의 네 단계와 맞추고, 수준이 더해질 때 범례가 바뀌지 않게 하기 위해서입니다.
 * **규칙 입구(`ruleEntry`, Q2 ②):** 범례 아래 `space.12`, 왼쪽 정렬. 용어 칩 모양(`term-token`과 같은 `term.bg` 바탕, `term.fg` 글자, `radius.xs`, 글자 `type.label.md`, 안쪽 좌우 `space.8` 위아래 `space.4`, 터치 44)이고 누르면 `color-rule-sheet`가 `sheet` `half`로 열립니다. ⓘ 아이콘과 꺾쇠는 두지 않습니다. 문구는 "색" 대신 그날의 길흉을 가리키는 물음입니다(writing, 가안 "길흉은 어떻게 정해지나요").
 
 ## day-cell
@@ -58,7 +58,7 @@
 * **위치 막대:** 트랙 높이 4, `radius.full`, 왼쪽 조심할 날(`level.caution`)에서 오른쪽 아주 잘 풀리는 날(`level.great`)로 이어지는 그라데이션 `color.verdict.track`. 양끝은 위치 표시 반지름만큼 들입니다.
 * **위치 표시:** 지름 18 원, `bg.sheet` 바탕 + 2px `action.primary` 테두리. 자리는 합한 점을 −3~+3으로 자르고 `(score + 3) / 6`입니다. 0은 가운데, 3 이상은 오른쪽 끝입니다. 움직이지 않습니다(시트가 열릴 때 처음부터 제자리, 동작 줄이기와 상관없음).
 * **세 이름:** 막대 아래 `space.8`, 조심할 날(왼쪽), 무난한 날(가운데), 잘 풀리는 날(오른쪽), `type.caption.md` `text.secondary`. 낱말은 달력 범례와 같습니다. 그날 시트에 이름 슬롯이 없어 IA에 요청합니다.
-* **내역:** 이름 아래 `space.12`부터 `score-row` `verdict` 줄들, 줄마다 위에 `list.divider`. 더함 먼저, 뺌 다음입니다. 내역은 server #806(엔진 점수 구성)이고, 계약에 없으면(`noBreakdown`) 막대와 이름만 그립니다.
+* **내역:** 이름 아래 `space.12`부터 `score-row` `verdict` 줄들, 줄마다 위에 `list.divider`. 더함 먼저, 뺌 다음입니다. 내역은 server #806(엔진 점수 구성)이고, 계약에 없으면(`noBreakdown`) 막대와 이름만 그립니다. 내역은 왔지만 항목이 0개인 날(`noItems`, 합 0)도 같은 모양이고 빈 안내 문장은 두지 않습니다.
 * 숫자, 한 줄 요약 문장, 이유 문장을 두지 않습니다(IA day-sheet).
 * 불러오는 중: 막대 자리 글줄 하나와 `score-row` 뼈 두 줄. 세 이름은 UI 글자라 바로 그립니다.
 * 스크린리더: 묶음 하나로 "길흉판정, 무난한 날"처럼 섹션 제목과 단계 이름을 읽고, 점수 숫자는 읽지 않습니다. 이어서 내역 줄을 읽습니다.
@@ -70,7 +70,7 @@
 * **태그:** `hanja-tag` `default`이고 톤은 부호를 따릅니다. 더함은 `verdictTone.good`(coral), 뺌은 `verdictTone.bad`(neutral). 날의 성격 태그(用 貴 忌)도 이 규칙입니다. 이 톤은 `score-row`와 `fortune-verdict` 안에서만 씁니다(Q4 ①).
 * **뜻:** 태그 뒤 `space.12`, `type.caption.lg` `text.secondary`, 두 줄까지(슬롯 `day-sheet.verdict.item`).
 * **부호와 점:** 오른쪽 끝. 부호(+ 또는 −) `type.label.lg` 700 본문색, 뜻과 `space.12`. 점은 지름 8 원, 점 사이와 부호 뒤 `space.4`(spec의 3은 간격 토큰이 아니라 4, V56). 더함 점 `badge.good.bg`, 뺌 점 `text.secondary`. 점 개수는 점수 절댓값이고 최대 셋, 넘으면 셋 뒤에 +를 붙입니다.
-* **변형:** `verdict`(그날 시트, 태그를 누르면 `explain-sheet` 뜻), `rule`(색 규칙 시트, 뜻 없이 태그와 점만, 태그는 누를 수 없는 표시. IA color-rule-sheet에 출구가 없음).
+* **변형:** `verdict`(그날 시트, 태그를 누르면 `explain-sheet` 뜻), `rule`(색 규칙 시트, 뜻 없이 태그와 점만, 태그는 누를 수 없는 표시. IA color-rule-sheet에 출구가 없음). `rule` 줄은 최소 높이 없이 위아래 `space.8`입니다. 누를 수 없는 표 줄이라 터치 48이 필요 없고 일곱 줄이 시트 높이를 덜 차지합니다.
 * **刑(형):** `hanja-tag` 글자 목록에 있는 한자입니다(사용자 결정 2026-11-07, D108 ② 목록 누락 보완). 다른 태그와 같이 그립니다.
 * 스크린리더: "이름, 뜻, 더함 둘"처럼 부호와 개수를 낱말로 읽고 점은 읽지 않습니다. `verdict`의 태그는 따로 버튼입니다.
 
@@ -106,7 +106,7 @@ IA v5 `calendar`. 위에서부터입니다.
 4. 일정: `section-header` `action`(제목 슬롯 없음, IA 요청), 오른쪽 +(`day-sheet.event.add`, → `event-edit`). 아래 `event-row` `list`(줄 사이 `list.divider`), 없으면 빈 문장(`day-sheet.event.empty`).
 5. 일기: `section-header` `plain`(`day-sheet.diary.open`, 그날 쓴 일기 머리. 쓴 일기가 없어도 섹션 제목으로 보임). 아래 `diary-row` `entries`(작성 순, 누르면 `diary-view`, V42), 그 아래 `space.12`에 쓰기 버튼 `primary-button` `filled`(`day-sheet.diary.write-cta`, "<날짜> 일기 쓰기", 상한을 채운 날은 `disabled`, V43).
 
-* 빠진 것(D108): 맨 위 날의 성격 배지와 이유 한 줄, 길흉판정의 한 줄 요약 문장.
+* 빠진 것(D108): 맨 위 날의 성격 배지와 이유 한 줄. 길흉판정에는 한 줄 요약 문장을 두지 않습니다.
 * 그날 시트에서 연 풀이 시트(`explain-sheet`)에는 "근거 보기"가 없습니다(IA 깊이 `surface`, `explain`).
 * 불러오는 중: 날짜와 요일은 바로, 음력 줄, 날의 성격 알약, `fortune-verdict`, 일정 줄, 일기 줄은 각자 뼈입니다(V66). 섹션 제목은 그대로.
 * 오류: 날의 성격을 받지 못하면 시트 전체 `error-state`, 일정만 실패하면 `event-row` `failed`.
