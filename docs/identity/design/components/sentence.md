@@ -12,7 +12,7 @@
 * my-saju 일간 소개의 첫 문장(`my-saju.ilgan.head`, 호칭 자리)은 today 총운 첫 문장과 같은 `card`이고, 이어지는 문장은 `body`입니다.
 * 한국어는 어절 단위 줄바꿈(keep-all), 일본어는 글자 단위 + 금칙 처리.
 * 호칭은 문장 안의 자리로만 들어갑니다. 굵게 하거나 색을 바꾸지 않습니다.
-* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 앞 2~3 단어는 또렷하고 뒤는 흐린 자리값인 한 줄(`lock.veil` G1, 결정 V80) + 오른쪽 끝 자물쇠(`lock-simple` Regular, 옆 글자 단계, 사이 `space.4`) + "열기" 링크. 꺾쇠는 쓰지 않습니다(Q3 ③, 결정 V73, 요소 `lock.veil` `open`). 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + 앞부분 + "잠김"(`evidence-sheet.a11y.locked`)이고, 열기는 따로 초점입니다(`lock.veil` `a11y`, 결정 V80).
+* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 앞 2~3 단어는 또렷하고 뒤는 흐린 자리값이 이어지는 두 줄(`lock.veil` G1, 결정 V80, 2026-11-07 V92로 한 줄에서 두 줄, origin) + 오른쪽 끝 자물쇠(`lock-simple` Regular, 옆 글자 단계, 사이 `space.4`) + "열기" 링크. 꺾쇠는 쓰지 않습니다(Q3 ③, 결정 V73, 요소 `lock.veil` `open`). 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + 앞부분 + "잠김"(`evidence-sheet.a11y.locked`)이고, 열기는 따로 초점입니다(`lock.veil` `a11y`, 결정 V80).
 
 ### 문장 조각 (`parts.segments`, 결정 V28)
 
@@ -145,7 +145,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
     | 토 `earth` | 戊 己 | 辰 戌 丑 未 |
     | 금 `metal` | 庚 辛 | 申 酉 |
     | 수 `water` | 壬 癸 | 亥 子 |
-* 누르면 어디서나 시트입니다: `explain-sheet`(용어 뜻)나, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 `tag-sheet`(사주 기운 시트). 태그에서 바로 화면 이동하는 예외는 없습니다(V73, 관문 답 2026-11-06). 근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그(`score-row` `rule`)는 누를 수 없는 표시입니다(`opens.notInteractiveIn`, 시트를 더 쌓지 않음. 색 규칙 시트는 IA에 출구가 없음).
+* 누르면 어디서나 시트입니다: `explain-sheet`(용어 뜻)나, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 `tag-sheet`(사주 기운 시트). 태그에서 바로 화면 이동하는 예외는 없습니다(V73, 관문 답 2026-11-06). 근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그(`score-row` `rule`), 사주 표 출생 정보 줄의 시진 태그(`birth-info-row` `hour`, `ganji`)는 누를 수 없는 표시입니다(`opens.notInteractiveIn`, 시트를 더 쌓지 않음. 색 규칙 시트는 IA에 출구가 없음. 시진은 뜻 원고가 없음, 결정 V88).
 * 일기 목록 줄, 일기 보기 태그 칩, 나 탭 회고의 태그도 뜻 시트를 엽니다. 그 태그의 일기 모아보기(`tag-diary`)는 대표 태그 시트 아래 꺾쇠 링크(`explain-sheet` `diaryLink`, 편수 없음)이고, 날의 성격 시트는 뜻만입니다(결정 V76, V81 개정).
 * 스크린리더는 이름 글자만 읽습니다(한자 원은 장식). 길흉은 이름 낱말로 전하고 색만으로 전하지 않습니다. 터치 영역은 위아래로 넓혀 44입니다.
 * 불러오는 중에는 알약 모양 뼈(64px) 하나입니다.

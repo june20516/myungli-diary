@@ -28,7 +28,7 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 | `stage-strip` | saju | explain-sheet, saju-chart | E |
 | `scroll-hint` | frame | saju-chart | E |
 
-* 요소로 남는 것: `button.pair`, `list.divider`, `hanja-tag`가 쓰는 천간 오행 색 칩(요소 `stem.chip`, `band-table` 지장간 칸과 원국 칸이 함께 씀), 띠 머리줄(`band-table` 부품 `bandHeader`).
+* 요소로 남는 것: `button.pair`, `list.divider`, `hanja-tag`가 쓰는 천간 오행 색 칩(요소 `stem.chip`, `band-table` 지장간 칸. 2026-11-07 정정: 원국 칸과 대운 칸은 `ohaeng.cell` 자체라 쓰지 않음, V89), 띠 머리줄(`band-table` 부품 `bandHeader`).
 * 요소 `section.header`와 `explain.sheet`는 같은 이름의 컴포넌트로 옮기고 지웁니다(주 버전). 1단계 테스트는 새 위치를 봅니다.
 * IA에 남은 `day-character`는 공유 이미지(`share-image`) 등 남은 자리만 쓰고, 날의 성격 표시는 `hanja-tag`로 갑니다.
 * **IA에 알릴 것:** 없음(대조에서 어긋남이 나오면 #801 코멘트).
@@ -74,13 +74,13 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 * **묶음 D 관문 답(사용자 결정 2026-11-07):** 달력 칸 색은 위 §3(라이트 맑은 coral), 범례는 견본 셋(무난한 날 없음), `fortune-verdict` 막대 이름은 셋, 그날 시트 일기 섹션 제목은 쓴 일기가 없어도 보임, 刑(형)은 한자 목록에 더함(§2 刑).
 * `date-block`: 일 숫자 44 700, 옆 `space.12`에 월과 요일(`type.label.lg`), 그 아래 일진(`type.caption.md`).
 * `diary-summary`: 큰 편수(28 700) + 단위 글자, "어떤 날에 썼나" 막대(날의 성격 넷, 막대 높이 8 `radius.full`, 색은 날의 성격 톤, 오른쪽 수), "자주 붙은 태그"(`hanja-tag` + 수, 최대 3). 태그를 누르면 뜻 시트이고, 시트 아래 꺾쇠 링크로 그 태그의 일기 모아보기(`tag-diary`). 사용자 결정 2026-11-06(처음 tag-diary 직행에서 같은 날 뜻 시트 경유로 바뀜). 기록이 적을 때(5편 미만) 안내 한 줄과 막대 숨김.
-* `luck-pillar`: 천간, 지지 칸(`ohaeng.cell` 작은 크기 40), 위 나이 또는 연도, 십성 칩(`term-token` `label`). 사주 표 대운, 세운 줄에서 지금 대운, 올해 세운 칸은 `status.bg` 바탕 + 아래 "지금", "올해" 꼬리표(여러 칸 중 지금을 가림). 나 탭은 세로 두 줄(대운, 세운) 요약 모양 변형 `compact`이고, 두 줄이 모두 지금이라 강조 바탕이 없음(origin, 사용자 확인 2026-11-06).
-* `birth-info-row`: 칸 넷(달력 종류 꼬리표 + 날짜, 시진 `hanja-tag` + 시간, 성별 알약), 칸 사이 세로 구분선(1px 높이 16 `color.line`, 좌우 `space.12`), 쉼표 없음. 넘치면 칸 단위로 다음 줄. 시간 모름이면 시진 칸에 "시간 모름" 알약.
+* `luck-pillar`: 천간, 지지 칸(`ohaeng.cell` 작은 크기 40), 위 나이 또는 연도, 십성 칩(`term-token` `label`). 사주 표 대운, 세운 줄에서 지금 대운, 올해 세운 칸은 `status.bg` 바탕 + 아래 "지금", "올해" 꼬리표(여러 칸 중 지금을 가림). 나 탭은 세로 두 줄(대운, 세운) 요약 모양 변형 `compact`이고, 두 줄이 모두 지금이라 강조 바탕이 없음(origin, 사용자 확인 2026-11-06). 사주 표 줄의 꼬리표는 강조 바탕 밖 아래(2026-11-07, 관문 질문 Q1 권장, V90).
+* `birth-info-row`: 칸 셋(2026-11-07 정정, origin과 IA 역할 문장, V88)(달력 종류 꼬리표 + 날짜, 시진 `hanja-tag` + 시간, 성별 알약), 칸 사이 세로 구분선(1px 높이 16 `color.line`, 좌우 `space.12`), 쉼표 없음. 넘치면 칸 단위로 다음 줄. 시간 모름이면 시진 칸에 "시간 모름" 알약.
 * `band-table`: 열 머리(시주, 일주(나), 월주, 연주), 열 구분선이 모든 띠를 관통(0.5px `color.line`), 일주 열 `status.bg` 옅은 바탕, 띠 머리줄(`bandHeader`: 네 열에 걸친 가운데 줄, 흰 바탕 + 위아래 0.5px 선 + 가운데 용어 칩). 띠: 지장간(`stem.chip` + 십성), 12운성(`term-token`), 신살(`term-token`, 없는 칸은 비움 표시 "-" 글자 대신 짧은 가로선 12×1 `text.secondary`).
 * `stage-strip`: 12칸 막대(칸 높이 6, 사이 2, 내 자리 칸은 `action.primary`, 나머지 `color.line`), 위에 자리 꼬리표(시, 일, 월, 연, 원형 `action.primary`), 아래 단계 이름(`type.caption.sm`). 스크린리더 "장생, 월주와 연주 ...".
 * `scroll-hint`: 데이터가 더 있는 쪽 끝만 흐림(끝 24 그라데이션 `bg.sheet`로), 아래 줄 좌우 «  » 아이콘(`caret-double-left/right` Light 16, 더 없는 쪽은 숨김). 글자 없음, 스크린리더는 목록 role.
 * `stem.chip`(요소): 한자 칸 22, `ohaeng.cell` 글자색과 바탕색, 한자 `font.family.hanja` 13 700.
-* 그 밖의 바뀜: `lucky-card` Q5, `dialog` 취소 `color.fill.soft`, `day-cell` `luckFill` 4단계 새 토큰, 달력 범례(`calendar-month` 부품 `legend`와 `ruleEntry`), `sheet` `day-sheet`는 처음부터 `full` 높이, `primary-button` `leadingIcon`(아이콘 `adjacent-text`, 사이 `space.8`), 일기 목록 아래 고정 버튼(목록이 있을 때 떠 있음, 빈 상태는 가운데), `app-bar` 가운데 상태 글자(`draft-indicator`를 상단 바 가운데, 글자 수 포함)와 오른쪽 글자 버튼(저장), `diary-editor` 인용 질문(왼쪽 3px `term.bg` 선, `type.sentence.body` `text.secondary`, 사용자 결정 2026-11-06으로 글자 14: 문장 글꼴 14 토큰이 없어 크기만 덮어씀, 본문 15 그대로) + 질문 바꾸기 아이콘(`arrows-clockwise` Light 20, 터치 44), 일기 보기는 저장된 질문(getDiary `guideQuestion`)을 같은 인용 모양으로 바꾸기 없이(사용자 결정 2026-11-06), 일기 목록 쓰기 버튼 문구는 "일기 쓰기"(origin, IA 가안, 사용자 의견 2026-11-06, writing 원고 변경 요청), `lock.veil` G1(앞 단어 또렷, 자리값 줄 수 판정 근거 3, 원전 2), 근거 시트 머리(정한 태그 + 대상 문장 `type.caption.lg`).
+* 그 밖의 바뀜: `lucky-card` Q5, `dialog` 취소 `color.fill.soft`, `day-cell` `luckFill` 4단계 새 토큰, 달력 범례(`calendar-month` 부품 `legend`와 `ruleEntry`), `sheet` `day-sheet`는 처음부터 `full` 높이, `primary-button` `leadingIcon`(아이콘 `adjacent-text`, 사이 `space.8`), 일기 목록 아래 고정 버튼(목록이 있을 때 떠 있음, 빈 상태는 가운데), `app-bar` 가운데 상태 글자(`draft-indicator`를 상단 바 가운데, 글자 수 포함)와 오른쪽 글자 버튼(저장), `diary-editor` 인용 질문(왼쪽 3px `term.bg` 선, `type.sentence.body` `text.secondary`, 사용자 결정 2026-11-06으로 글자 14: 문장 글꼴 14 토큰이 없어 크기만 덮어씀, 본문 15 그대로) + 질문 바꾸기 아이콘(`arrows-clockwise` Light 20, 터치 44), 일기 보기는 저장된 질문(getDiary `guideQuestion`)을 같은 인용 모양으로 바꾸기 없이(사용자 결정 2026-11-06), 일기 목록 쓰기 버튼 문구는 "일기 쓰기"(origin, IA 가안, 사용자 의견 2026-11-06, writing 원고 변경 요청), `lock.veil` G1(앞 단어 또렷, 자리값 줄 수 판정 근거 3, 원전 2, 사주 표 용신 판정 근거 2(2026-11-07, 관문 질문 Q2 권장, V92)), 근거 시트 머리(정한 태그 + 대상 문장 `type.caption.lg`).
 
 ## 5. 진행
 

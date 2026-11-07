@@ -64,7 +64,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `profile-edit.recalc.notice` | settings-row groupNote (묶음 카드 위, 좌우 16) | 288px | 2 | - | 62 | **62** | **46** | **104** |
 | `ui.settings.row`<br>`ui.profile-edit.birthplace` | settings-row 이름과 값 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 사이 space.8, 둘이 나눔) | 116px | 1 | - | 9 | **9** | **7** | **16** |
 | `ui.legal.row` | settings-row 이름 (좌우 16, 화살표 16) | 272px | 1 | - | 23 | **23** | **18** | **42** |
-| `ui.saju.header` | manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
+| `ui.saju.header` | 사주 표 열 머리와 band-table 띠 머리 term-token label (상한은 옛 manse-table 행 머리 52, 좌우 4, 두 줄 그대로. V89 뒤 자리가 더 넓음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
 | `ui.saju.tag` | daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8) | 92px | 1 | - | 8 | **8** | **6** | **13** |
 | `ui.evidence.personal-empty` | evidence-sheet 빈 해석 안내 (sheet 안쪽 24, 두 줄) | 312px | 2 | - | 58 | **58** | **42** | **98** |
 | `contact.intro.body` | contact 첫머리 (본문 폭, 세 줄) | 320px | 3 | - | 90 | **90** | **63** | **150** |
@@ -141,8 +141,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * **3.3.0(#710, writing W51):** IA 밖 새 `ui.*` 슬롯 7개를 쟀습니다. 기존 확정값은 그대로입니다.
   * `ui.settings.row`(설정 줄 이름과 알림 꺼짐 값)와 `ui.profile-edit.birthplace`(출생지 값)는 이름과 값이 한 줄을 나누므로, 화살표와 앞 아이콘(20 + 간격 12)을 뺀 줄(240)에서 사이 `space.8`을 두고 반씩(116px) 잽니다(4.0.0). `ui.legal.row`(문서 이름, 값 없음)는 `settings.ad-free.label`과 같은 272px입니다.
   * `ui.saju-chart.tab`은 `ui.birth.option`과 같은 segmented 두 칸입니다.
-  * `ui.saju.header`는 가장 좁은 만세력 행 머리(52px, term-token `label` 좌우 4)에서 두 줄로 잽니다. 행 머리는 대운 라벨처럼 낱말 단위 두 줄을 허용합니다(결정 V53). en `manseRowHiddenStems` "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 44px 한 줄에 들어가 실측 상한 12를 "키별 상한" 표에 냅니다.
-  * `ui.saju.tag`는 대운 꼬리표 `tag.status`로 잽니다. 꼬리표는 줄에 하나라 이웃 기둥 위로 넘쳐 기둥 둘과 간격(108px)까지 쓰고(결정 V53), 좌우 8을 뺀 92px입니다. '나' 꼬리표 `sajuTagMe`(`tag.me`, 10px 굵게, 원국표 기둥 폭)는 "키별 상한" 표에 따로 냅니다.
+  * `ui.saju.header`는 가장 좁은 만세력 행 머리(52px, term-token `label` 좌우 4)에서 두 줄로 잽니다. 행 머리는 대운 라벨처럼 낱말 단위 두 줄을 허용합니다(결정 V53). en `manseRowHiddenStems` "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 44px 한 줄에 들어가 실측 상한 12를 "키별 상한" 표에 냅니다. (2026-11-07 개정: V89로 만세력 행 머리 열이 없어지고 띠 이름은 `band-table` 띠 머리줄 칩, 열 머리는 네 열 같은 폭이라 지금 자리는 모두 더 넓습니다. 확정 상한은 그대로 두어 원고를 다시 줄일 일이 없습니다.)
+  * `ui.saju.tag`는 대운 꼬리표 `tag.status`로 잽니다. 꼬리표는 줄에 하나라 이웃 기둥 위로 넘쳐 기둥 둘과 간격(108px)까지 쓰고(결정 V53), 좌우 8을 뺀 92px입니다. 2026-11-07부터 꼬리표는 `luck-pillar` 강조 바탕 밖 아래 줄이고(V90) 폭은 그대로입니다. '나' 꼬리표 `sajuTagMe`(`tag.me`, 10px 굵게, 원국표 기둥 폭)는 "키별 상한" 표에 따로 냅니다.
   * `ui.evidence.personal-empty`는 표 칸에서 연 근거 시트의 빈 해석 안내(결정 V54, sheet 본문 폭 두 줄)입니다.
   * 스크린리더 전용 `ui.saju.a11y`, `ui.lucky-card.a11y`, `ui.share.a11y`와 iOS 시스템 창 `ui.system.tracking`은 상한 없음 표에 넣었습니다.
   * 원고와 견준 결과(writing R26): en `sajuChartTabLuck` "Calendar and luck cycles"(24자)가 상한 22를 넘습니다(실측 155.1px로 칸 156px에 여유가 없음). segmented는 글자를 줄이지 않으므로 writing에 줄이기를 요청했습니다. 나머지 원고는 모두 들어갑니다.

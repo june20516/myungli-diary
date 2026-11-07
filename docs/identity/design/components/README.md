@@ -38,7 +38,7 @@
 | --- | --- |
 | `interaction.json` | 공통 상호작용 패턴 13개, 햅틱, 동작 줄이기·투명도 줄이기·저사양 대체 규칙 |
 | `elements.json` | 반복 요소 18개(낙관 도장, 오행 칸, 길흉 톤, 꼬리표, 밑줄, 경고 표시, 잠긴 구역, 목록 구분선, 두 버튼, 천간 칩 등) |
-| `frame.json` | tab-bar, app-bar, sheet, ad-banner, section-header, explain-sheet |
+| `frame.json` | tab-bar, app-bar, sheet, ad-banner, section-header, explain-sheet, scroll-hint |
 | `feedback.json` | dialog, toast, notice-banner, skeleton, empty-state, error-state + 화면 상태 대응표 `stateMap` |
 | `input.json` | input-step, text-field, date-picker, time-picker, segmented, city-search, check-row, account-choice |
 | `action.json` | primary-button, social-login-button, share-button, settings-row, offer-card, purchase-row |
@@ -46,9 +46,9 @@
 | `today.json` | date-header, day-character, lucky-card, tag-sentence-list, guide-question-card, share-image |
 | `calendar.json` | calendar-month, day-cell, event-row, fortune-verdict, score-row |
 | `diary.json` | diary-row, diary-editor, date-block, draft-indicator, tag-chip, diary-summary |
-| `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table, luck-pillar |
+| `saju.json` | saju-pillars, ohaeng-bar, manse-table, daeun-table, luck-pillar, birth-info-row, band-table, stage-strip |
 
-IA v5 컴포넌트 58개 가운데 명세를 쓴 53개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action). 아직 명세가 없는 4개는 `tools/components.py`의 대기 목록 `IA_PENDING_COMPONENTS`에 따로 두고, DS1 2단계가 끝날 때 비웁니다. `score-scale` 1개는 쓰지 않기로 해(관문 답 2026-11-07, 색 규칙 시트에 척도 그림 없음) 명세 없이 `IA_REMOVAL_REQUESTED`에 두고 IA에 제거를 요청합니다.
+IA v5 컴포넌트 58개 가운데 명세를 쓴 57개가 묶음 파일 전체에서 정확히 한 번씩 나옵니다(광고 배너 `ad-banner`는 frame, 광고 제거권 `offer-card`는 action). 묶음마다 줄여 온 대기 목록 `IA_PENDING_COMPONENTS`는 DS1 2단계 묶음 E로 비었습니다. `score-scale` 1개는 쓰지 않기로 해(관문 답 2026-11-07, 색 규칙 시트에 척도 그림 없음) 명세 없이 `IA_REMOVAL_REQUESTED`에 두고 IA에 제거를 요청합니다.
 
 ## 공통 규칙
 
@@ -117,7 +117,7 @@ python3 docs/identity/design/tools/components.py     # 저장소 루트에서
 
 검사하는 것(`tools/test_components.py`가 커밋된 파일에 돌림):
 
-* IA 컴포넌트 id가 정확히 한 번(빠짐·넘침·겹침). 지금 53개이고, 대기 목록 4개와 IA 제거 요청 1개(`score-scale`)는 "명세가 없음" 문제에서만 빠짐
+* IA 컴포넌트 id가 정확히 한 번(빠짐·넘침·겹침). 지금 57개이고, IA 제거 요청 1개(`score-scale`)는 "명세가 없음" 문제에서만 빠짐. 대기 목록 `IA_PENDING_COMPONENTS`는 비어 있고 새 IA 컴포넌트가 오면 다시 씀
 * 구성 요소가 가리키는 `component`(IA 컴포넌트)·`element`(요소)가 있음, 변형 id 겹침 없음, 햅틱 세기는 selection·light·medium
 * 문자열 중간에 섞인 `{토큰}` 없음(값 하나에 참조 하나)
 * 모든 `{토큰}` 참조가 테마 조합 4가지 모두에 있음(깊이와 관계없이)

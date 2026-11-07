@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS1 사주 표 관문 질문 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 모든 색, 간격, 반경, 시간은 ds1/tokens.css의 토큰 변수입니다. 명세 값 출처: components/*.json */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--color-bg-base); color: var(--color-text-primary);
+    font-family: var(--type-body-ui-family); font-size: var(--type-body-ui-size); line-height: var(--type-body-ui-line-height);
+    letter-spacing: var(--type-body-ui-letter-spacing);
+  }
+  .page { max-width: 1240px; margin: 0 auto; padding: var(--space-32) var(--space-20) var(--space-48); }
+  h1 { font-size: var(--type-display-size); font-weight: var(--type-display-weight); line-height: var(--type-display-line-height); margin: 0 0 var(--space-8); }
+  h2 { font-size: var(--type-title-size); font-weight: var(--type-title-weight); margin: var(--space-48) 0 var(--space-8); }
+  .intro, .note { color: var(--color-text-secondary); margin: 0 0 var(--space-16); max-width: 760px; }
+  .note { font-size: var(--type-caption-lg-size); }
+  .toolbar { display: flex; gap: var(--space-8); margin: var(--space-16) 0; }
+  .toolbar button {
+    font: inherit; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+    border: 1px solid var(--color-line); background: var(--color-bg-sheet); color: var(--color-text-primary);
+    border-radius: var(--radius-full); padding: var(--space-4) var(--space-12); cursor: pointer;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-24); align-items: flex-start; }
+  .caption { font-size: var(--type-label-md-size); font-weight: 600; color: var(--color-action-primary); margin-bottom: var(--space-4); }
+  .ic { width: var(--icon, 16px); height: var(--icon, 16px); flex: none; display: inline-block; vertical-align: middle; fill: currentColor; }
+
+  /* 휴대폰 틀 360 */
+  .phone { position: relative; overflow: hidden; width: 360px; background: var(--color-bg-base); border: 1px solid var(--color-line); border-radius: var(--radius-xl); }
+  .phone .content { padding: 0 var(--space-20) var(--space-24); }
+  .phone.sheetview { height: 760px; }
+
+  /* app-bar page: 뒤로(caret-left Light 24, 터치 44) + 제목 type.subtitle */
+  .appbar { height: 44px; display: flex; align-items: center; gap: var(--space-4); padding: 0 var(--space-16); margin-top: var(--space-8); }
+  .appbar .back { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-left: calc(var(--space-12) * -1); --icon: var(--size-icon-24); }
+  .appbar .title { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+
+  /* 머리: 호칭 제목 + birth-info-row */
+  .head-title { font-size: var(--type-title-size); font-weight: var(--type-title-weight); line-height: var(--type-title-line-height); letter-spacing: var(--type-title-letter-spacing); margin-top: var(--space-8); }
+  .birth { display: flex; flex-wrap: wrap; align-items: center; row-gap: var(--space-8); margin-top: var(--space-8); }
+  .birth .cellb { display: inline-flex; align-items: center; white-space: nowrap; }
+  .birth .vline { width: 1px; height: 16px; background: var(--color-line); margin: 0 var(--space-12); }
+  .birth .kind { font-size: var(--type-caption-sm-size); font-weight: var(--type-caption-sm-weight); color: var(--color-text-secondary); border: var(--border-width-hairline) solid var(--color-line); border-radius: var(--radius-xs); padding: 0 var(--space-4); line-height: 16px; }
+  .birth .val { font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); font-feature-settings: "tnum"; }
+  .birth .kind + .val { margin-left: var(--space-4); }
+  .birth .htag + .val { margin-left: var(--space-8); }
+  .pill { display: inline-flex; align-items: center; height: 24px; padding: 0 var(--space-8); border-radius: var(--radius-full); box-shadow: inset 0 0 0 1px var(--color-tag-neutral-border); color: var(--color-tag-neutral-fg); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); }
+
+  /* hanja-tag ganji: 알약과 이름은 그 오행 색, 원은 bg.sheet + 오행 글자색 */
+  .htag { display: inline-flex; align-items: center; gap: var(--space-4); height: 30px; padding: 0 var(--space-12) 0 var(--space-4); border-radius: var(--radius-full); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); }
+  .htag .g { width: 22px; height: 22px; border-radius: var(--radius-full); background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-size: 12px; font-weight: 700; }
+
+  /* segmented: 높이 40, 바탕 bg.sheet + 1px line, 안쪽 space.4, 표시 막대 action.primary */
+  .seg { display: grid; grid-template-columns: 1fr 1fr; height: 40px; padding: var(--space-4); background: var(--color-bg-sheet); box-shadow: inset 0 0 0 1px var(--color-line); border-radius: var(--radius-full); margin-top: var(--space-16); }
+  .seg span { display: flex; align-items: center; justify-content: center; border-radius: var(--radius-full); font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); color: var(--color-text-secondary); }
+  .seg span.on { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+
+  /* section-header: 제목 type.label.lg 600, 설명 type.caption.md text.secondary(space.2), 내용까지 space.12, 섹션 사이 space.32 */
+  .section { margin-top: var(--space-32); }
+  .section.first { margin-top: var(--space-24); }
+  .sh { margin-bottom: var(--space-12); }
+  .sh .t { font-size: var(--type-label-lg-size); font-weight: 600; line-height: var(--type-label-lg-line-height); }
+  .sh .d { font-size: var(--type-caption-md-size); font-weight: var(--type-caption-md-weight); line-height: var(--type-caption-md-line-height); color: var(--color-text-secondary); margin-top: var(--space-2); }
+  .card { position: relative; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-16); }
+  .ex-row { display: flex; justify-content: flex-end; margin-top: var(--space-12); }
+  .ex { font-size: var(--type-caption-sm-size); color: var(--color-text-secondary); border: 1px dashed var(--color-line); border-radius: var(--radius-full); padding: 0 var(--space-8); }
+
+  /* term-token label */
+  .term { background: var(--color-term-bg); color: var(--color-term-fg); border-radius: var(--radius-xs); padding: 0 var(--space-4); }
+  .term.label { display: inline-block; font-size: var(--type-caption-md-size); font-weight: var(--type-caption-md-weight); line-height: 18px; white-space: nowrap; }
+
+  /* saju-pillars */
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: var(--space-8); text-align: center; }
+  .pillars .head { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+  .pillars .term.label { margin: var(--space-4) 0; }
+  .pillars .hide { visibility: hidden; }
+  .cell { position: relative; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .cell.pillar { height: 66px; }
+  .cell.pillar .h { font-family: var(--type-hanja-pillar-family); font-size: var(--type-hanja-pillar-size); font-weight: var(--type-hanja-pillar-weight); line-height: 1; }
+  .cell.pillar .r { font-size: var(--type-caption-sm-size); margin-top: var(--space-4); }
+  .cell.pillar + .cell.pillar { margin-top: var(--space-4); }
+  .cell.me { box-shadow: inset 0 0 0 2px var(--color-action-primary); }
+  .tagme { background: var(--color-action-primary); color: var(--color-action-on-primary); font-size: 10px; font-weight: 700; border-radius: var(--radius-full); padding: 0 var(--space-4); line-height: 14px; }
+  .cell .tagme { position: absolute; top: calc(var(--space-4) * -1); right: calc(var(--space-4) * -1); }
+  .cell.empty { border: 1px dashed var(--color-line); background: transparent; }
+  .wood { background: var(--color-ohaeng-wood-bg); color: var(--color-ohaeng-wood-fg); }
+  .fire { background: var(--color-ohaeng-fire-bg); color: var(--color-ohaeng-fire-fg); }
+  .earth { background: var(--color-ohaeng-earth-bg); color: var(--color-ohaeng-earth-fg); }
+  .metal { background: var(--color-ohaeng-metal-bg); color: var(--color-ohaeng-metal-fg); }
+  .water { background: var(--color-ohaeng-water-bg); color: var(--color-ohaeng-water-fg); }
+  .htag .g.wood, .htag .g.fire, .htag .g.earth, .htag .g.metal, .htag .g.water { background: var(--color-bg-sheet); }
+
+  /* ohaeng-bar */
+  .obar { display: flex; gap: var(--space-2); height: 10px; }
+  .obar span { border-radius: var(--radius-full); }
+  .sw-wood { background: var(--color-ohaeng-wood-swatch); } .sw-fire { background: var(--color-ohaeng-fire-swatch); }
+  .sw-earth { background: var(--color-ohaeng-earth-swatch); } .sw-metal { background: var(--color-ohaeng-metal-swatch); }
+  .sw-water { background: var(--color-ohaeng-water-swatch); }
+  .legend { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: var(--space-12); font-size: var(--type-caption-md-size); }
+  .legend > div { display: flex; align-items: center; gap: var(--space-4); }
+  .legend .sw { width: 12px; height: 12px; border-radius: var(--radius-full); }
+  .legend b { font-weight: var(--type-numeric-table-weight); font-feature-settings: "tnum"; }
+
+  /* sentence-block locked: 앞 2~3 단어 또렷 + 흐린 자리값 두 줄(V92), 오른쪽 자물쇠 + 열기 */
+  .locked { display: flex; align-items: flex-start; gap: var(--space-12); }
+  .lockline { flex: 1; margin: 0; font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; max-height: calc(var(--lines, 2) * var(--type-sentence-body-line-height) * 1em); overflow: hidden; }
+  .lockline .veil { filter: blur(6px); opacity: 0.5; user-select: none; }
+  .open { display: inline-flex; align-items: center; gap: var(--space-4); font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); color: var(--color-action-primary); white-space: nowrap; min-height: 44px; margin-top: calc(var(--space-12) * -1); --icon: var(--size-icon-16); }
+
+  /* manse-table 기준 줄 */
+  .basis { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); margin: var(--space-24) 0 var(--space-12); }
+  .hj { font-family: var(--font-family-hanja); }
+
+  /* band-table: 흰 카드, 네 열, 열 구분선 관통(0.5px line), 일주 열 status.bg 0.35, 띠 머리줄 */
+  .band { position: relative; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-12); overflow: hidden; }
+  .band .layer { position: absolute; top: 0; bottom: 0; left: var(--space-12); right: var(--space-12); pointer-events: none; }
+  .band .daycol { position: absolute; top: 0; bottom: 0; left: 25%; width: 25%; background: var(--color-status-bg); opacity: 0.35; }
+  .band .vl { position: absolute; top: 0; bottom: 0; border-left: var(--border-width-hairline) solid var(--color-line); }
+  .band .grid { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .band .colh { text-align: center; padding: var(--space-8) 0; font-size: var(--type-caption-md-size); font-weight: var(--type-caption-md-weight); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; gap: var(--space-4); }
+  .band .colh.day { color: var(--color-action-primary); font-weight: 700; }
+  .band .bh { grid-column: 1 / -1; background: var(--color-bg-sheet); border-top: var(--border-width-hairline) solid var(--color-line); border-bottom: var(--border-width-hairline) solid var(--color-line); margin-top: var(--space-8); padding: var(--space-8) 0; text-align: center; }
+  .band .bc { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-8) 0 var(--space-12); }
+  .band .hs { display: flex; align-items: center; gap: var(--space-4); }
+  .stem-chip { width: 22px; height: 22px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-size: 13px; font-weight: 700; }
+  .empty-mark { display: block; width: 12px; height: 1px; background: var(--color-text-secondary); margin-top: var(--space-8); }
+
+  /* daeun-table: 흰 카드 줄(위아래 space.12), 안쪽 좌우 space.12, luck-pillar column 사이 space.4, scroll-hint */
+  .lrow { position: relative; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-12) 0; }
+  .scroller { display: flex; gap: var(--space-4); overflow-x: auto; padding: 0 var(--space-12); scrollbar-width: none; align-items: flex-start; }
+  .scroller::-webkit-scrollbar { display: none; }
+  .lp { flex: none; width: 52px; display: flex; flex-direction: column; align-items: center; }
+  .lp .box { width: 52px; border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; align-items: center; }
+  .lp.cur .box { background: var(--color-status-bg); }
+  .lp .top { font-size: var(--type-numeric-table-size); font-weight: var(--type-numeric-table-weight); line-height: var(--type-numeric-table-line-height); color: var(--color-text-secondary); font-feature-settings: "tnum"; }
+  .lp.cur .top { color: var(--color-action-primary); font-weight: 700; }
+  .lp .term.label, .lp .cell.small, .lp .year { margin-top: var(--space-4); }
+  .lp .term.label.stage { margin-top: var(--space-2); }
+  .cell.small { width: 40px; height: 40px; font-family: var(--font-family-hanja); font-size: 18px; font-weight: 700; line-height: 1; }
+  .lp .year { font-size: var(--type-numeric-table-size); color: var(--color-text-secondary); font-feature-settings: "tnum"; }
+  .status-tag { margin-top: var(--space-4); background: var(--color-status-bg); color: var(--color-status-fg); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); border-radius: var(--radius-full); padding: var(--space-2) var(--space-8); line-height: 1.3; white-space: nowrap; }
+  /* Q1 다른 안(비교 페이지): ② 바탕 안 진한 꼬리표, ③ 글자만 */
+  .lp .box .status-tag.solid { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+  .lp .box .cur-text { margin-top: var(--space-4); font-size: var(--type-caption-md-size); font-weight: 700; color: var(--color-action-primary); }
+  .fade { position: absolute; top: var(--space-12); width: 24px; height: var(--fade-h, 200px); pointer-events: none; transition: opacity var(--motion-duration-medium) var(--motion-easing-seep); }
+  .fade.s { left: 0; background: linear-gradient(to right, var(--color-bg-sheet), transparent); }
+  .fade.e { right: 0; background: linear-gradient(to left, var(--color-bg-sheet), transparent); }
+  .arrows { display: flex; justify-content: space-between; margin-top: var(--space-4); padding: 0 var(--space-4); }
+  .arrows button { width: 44px; height: 24px; border: 0; background: transparent; color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; --icon: var(--size-icon-16); padding: 0; }
+  .lrow:not(.more-s) .fade.s, .lrow:not(.more-e) .fade.e { opacity: 0; }
+  .lrow:not(.more-s) .arrows .s, .lrow:not(.more-e) .arrows .e { visibility: hidden; }
+  @media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
+
+  /* notice-banner time-unknown */
+  .banner { display: flex; align-items: center; gap: var(--space-8); background: var(--color-bg-sheet); border-radius: var(--radius-md); padding: var(--space-12); margin-top: var(--space-16); font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); --icon: var(--size-icon-16); }
+
+  /* explain-sheet half: 안쪽 24, 핸들 자리 24, 제목 type.subtitle 아래 space.8, 본문 sentence-block body */
+  .scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-bg-sheet); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 0 var(--space-24) var(--space-24); }
+  .handle-area { height: 24px; display: flex; align-items: center; justify-content: center; }
+  .handle { width: 36px; height: 4px; border-radius: var(--radius-full); background: var(--color-line); }
+  .sheet .st { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); margin-bottom: var(--space-8); }
+  .s-body { font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; margin: 0; }
+  .term.label.selected { box-shadow: inset 0 0 0 1.5px var(--color-action-primary); }
+
+  /* stage-strip: 12칸(높이 6, 사이 space.2), 내 자리 action.primary, 자리 표시 원 18, 이름 type.caption.sm */
+  .strip { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--space-2); margin-top: var(--space-12); }
+  .strip .col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+  .strip .marks { height: 18px; display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+  .strip .mk { width: 18px; height: 18px; border-radius: var(--radius-full); background: var(--color-action-primary); color: var(--color-action-on-primary); font-size: var(--type-caption-sm-size); font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .strip .bar { width: 100%; height: 6px; border-radius: var(--radius-full); background: var(--color-line); }
+  .strip .col.mine .bar { background: var(--color-action-primary); }
+  .strip .nm { margin-top: var(--space-4); font-size: var(--type-caption-sm-size); font-weight: var(--type-caption-sm-weight); color: var(--color-text-secondary); white-space: nowrap; }
+  .strip .col.mine .nm { color: var(--color-text-primary); font-weight: 600; }
+
+  /* skeleton: 요소마다 자기 모양 */
+  .bone { background: var(--color-skeleton-bone); animation: breathe var(--motion-duration-breathe) var(--motion-easing-standard) infinite alternate; }
+  .bone.line { height: 9px; border-radius: var(--radius-xs); margin: var(--space-4) 0; }
+  .bone.chip { display: inline-block; height: 18px; border-radius: var(--radius-full); }
+  .bone.cell { border-radius: var(--radius-sm); }
+  .bone.d1 { animation-delay: 150ms; } .bone.d2 { animation-delay: 300ms; }
+  @keyframes breathe { from { opacity: 0.55; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .bone { animation: none; } }
+
+  section { margin-top: var(--space-48); }
+  .options { display: flex; flex-wrap: wrap; gap: var(--space-24); align-items: flex-start; }
+  .option { width: 360px; }
+  .option > p { font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); min-height: 60px; margin: var(--space-4) 0 var(--space-8); line-height: 1.5; }
+  .otag { font-weight: 600; color: var(--color-action-primary); font-size: var(--type-label-md-size); }
+  .badge-rec { display: inline-block; margin-left: var(--space-8); font-size: var(--type-caption-md-size); font-weight: 600; border-radius: var(--radius-full); padding: 0 var(--space-8); line-height: 20px; background: var(--color-term-bg); color: var(--color-term-fg); }
+  .phone.mini { padding-bottom: var(--space-16); }
+  .phone.mini .content { padding-top: var(--space-16); }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true"><symbol id="ic-caret-left-light" viewBox="0 0 256 256"><path d="M164.24,203.76a6,6,0,1,1-8.48,8.48l-80-80a6,6,0,0,1,0-8.48l80-80a6,6,0,0,1,8.48,8.48L88.49,128Z"/></symbol><symbol id="ic-caret-double-left-light" viewBox="0 0 256 256"><path d="M204.24,203.76a6,6,0,1,1-8.48,8.48l-80-80a6,6,0,0,1,0-8.48l80-80a6,6,0,0,1,8.48,8.48L128.49,128ZM48.49,128l75.75-75.76a6,6,0,0,0-8.48-8.48l-80,80a6,6,0,0,0,0,8.48l80,80a6,6,0,1,0,8.48-8.48Z"/></symbol><symbol id="ic-caret-double-right-light" viewBox="0 0 256 256"><path d="M140.24,132.24l-80,80a6,6,0,0,1-8.48-8.48L127.51,128,51.76,52.24a6,6,0,0,1,8.48-8.48l80,80A6,6,0,0,1,140.24,132.24Zm80-8.48-80-80a6,6,0,0,0-8.48,8.48L207.51,128l-75.75,75.76a6,6,0,1,0,8.48,8.48l80-80A6,6,0,0,0,220.24,123.76Z"/></symbol><symbol id="ic-lock-simple-regular" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></symbol><symbol id="ic-clock-light" viewBox="0 0 256 256"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm0,192a90,90,0,1,1,90-90A90.1,90.1,0,0,1,128,218Zm62-90a6,6,0,0,1-6,6H128a6,6,0,0,1-6-6V72a6,6,0,0,1,12,0v50h50A6,6,0,0,1,190,128Z"/></symbol></svg>
+<div class="page">
+  <h1>DS1 사주 표 관문 질문 비교 (E)</h1>
+  <p class="intro">시안 <code>design-ds1-screen-e</code>의 관문 질문을 화면으로 나란히 둡니다. 색, 글꼴, 간격, 모양은 앱 토큰(ds1/tokens.css)이고 데이터는 app fixture 하늘님입니다. 용어: 꼬리표는 요소 <code>tag.status</code>(지금, 올해 알약, 바탕 <code>status.bg</code>), 강조 바탕은 요소 <code>highlight.current</code>(바탕도 <code>status.bg</code>), 잠긴 문장은 요소 <code>lock.veil</code>(앞부분 + 흐린 자리값), 시진 태그는 <code>hanja-tag</code> 변형 <code>ganji</code>입니다. 시안에는 권장안을 넣었습니다.</p>
+  <div class="toolbar"><button id="theme" type="button">다크로 보기</button></div>
+  <section>
+    <h2>Q1 대운, 세운 줄의 지금, 올해 꼬리표 자리</h2>
+    <p class="note">명세(V77)는 강조 바탕(status.bg) 안 아래에 꼬리표(바탕 status.bg)를 두어 꼬리표가 바탕에 묻힙니다. 세 안 모두 줄을 지금 칸이 가운데 오게 넘겨 둔 모습입니다.</p>
+    <div class="options"><div class="option"><span class="otag">안 ① 바탕 밖 아래 꼬리표</span><span class="badge-rec">권장</span><p>강조 바탕은 나이부터 시작 연도까지. 꼬리표(옅은 sage 알약)는 그 아래 흰 카드 위라 또렷함. 꼬리표가 넓은 언어(en This year)는 V53대로 이웃 아래로 넘침</p><div class="phone mini"><div class="content"><div class="sh"><div class="t">대운</div><div class="d">십 년 단위로 흐르는 큰 운이에요.</div></div><div class="lrow"><div class="scroller" role="list"><div class="lp"><div class="box"><span class="top">4</span><span class="term label">비견</span><span class="cell small metal">庚</span><span class="cell small earth">辰</span><span class="term label">편인</span><span class="term label stage">양</span><span class="year">1993</span></div></div><div class="lp"><div class="box"><span class="top">14</span><span class="term label">정인</span><span class="cell small earth">己</span><span class="cell small wood">卯</span><span class="term label">정재</span><span class="term label stage">태</span><span class="year">2003</span></div></div><div class="lp"><div class="box"><span class="top">24</span><span class="term label">편인</span><span class="cell small earth">戊</span><span class="cell small wood">寅</span><span class="term label">편재</span><span class="term label stage">절</span><span class="year">2013</span></div></div><div class="lp cur"><div class="box"><span class="top">34</span><span class="term label">정관</span><span class="cell small fire">丁</span><span class="cell small earth">丑</span><span class="term label">정인</span><span class="term label stage">묘</span><span class="year">2023</span></div><span class="status-tag">지금</span></div><div class="lp"><div class="box"><span class="top">44</span><span class="term label">편관</span><span class="cell small fire">丙</span><span class="cell small water">子</span><span class="term label">상관</span><span class="term label stage">사</span><span class="year">2033</span></div></div><div class="lp"><div class="box"><span class="top">54</span><span class="term label">정재</span><span class="cell small wood">乙</span><span class="cell small water">亥</span><span class="term label">식신</span><span class="term label stage">병</span><span class="year">2043</span></div></div><div class="lp"><div class="box"><span class="top">64</span><span class="term label">편재</span><span class="cell small wood">甲</span><span class="cell small earth">戌</span><span class="term label">편인</span><span class="term label stage">쇠</span><span class="year">2053</span></div></div><div class="lp"><div class="box"><span class="top">74</span><span class="term label">상관</span><span class="cell small water">癸</span><span class="cell small metal">酉</span><span class="term label">겁재</span><span class="term label stage">제왕</span><span class="year">2063</span></div></div><div class="lp"><div class="box"><span class="top">84</span><span class="term label">식신</span><span class="cell small water">壬</span><span class="cell small metal">申</span><span class="term label">비견</span><span class="term label stage">건록</span><span class="year">2073</span></div></div><div class="lp"><div class="box"><span class="top">94</span><span class="term label">겁재</span><span class="cell small metal">辛</span><span class="cell small earth">未</span><span class="term label">정인</span><span class="term label stage">관대</span><span class="year">2083</span></div></div></div><div class="fade s"></div><div class="fade e"></div><div class="arrows" aria-hidden="true"><button class="s" type="button" tabindex="-1"><svg class="ic"><use href="#ic-caret-double-left-light"/></svg></button><button class="e" type="button" tabindex="-1"><svg class="ic"><use href="#ic-caret-double-right-light"/></svg></button></div></div></div></div></div><div class="option"><span class="otag">안 ② 바탕 안 진한 꼬리표</span><p>꼬리표를 진한 sage(action.primary)로 바꿔 바탕 안에 둠. 꼬리표 요소(tag.status)를 이 자리만 다르게 칠해야 하고, 나 꼬리표(tag.me)와 모양이 겹침</p><div class="phone mini"><div class="content"><div class="sh"><div class="t">대운</div><div class="d">십 년 단위로 흐르는 큰 운이에요.</div></div><div class="lrow"><div class="scroller" role="list"><div class="lp"><div class="box"><span class="top">4</span><span class="term label">비견</span><span class="cell small metal">庚</span><span class="cell small earth">辰</span><span class="term label">편인</span><span class="term label stage">양</span><span class="year">1993</span></div></div><div class="lp"><div class="box"><span class="top">14</span><span class="term label">정인</span><span class="cell small earth">己</span><span class="cell small wood">卯</span><span class="term label">정재</span><span class="term label stage">태</span><span class="year">2003</span></div></div><div class="lp"><div class="box"><span class="top">24</span><span class="term label">편인</span><span class="cell small earth">戊</span><span class="cell small wood">寅</span><span class="term label">편재</span><span class="term label stage">절</span><span class="year">2013</span></div></div><div class="lp cur"><div class="box"><span class="top">34</span><span class="term label">정관</span><span class="cell small fire">丁</span><span class="cell small earth">丑</span><span class="term label">정인</span><span class="term label stage">묘</span><span class="year">2023</span><span class="status-tag solid">지금</span></div></div><div class="lp"><div class="box"><span class="top">44</span><span class="term label">편관</span><span class="cell small fire">丙</span><span class="cell small water">子</span><span class="term label">상관</span><span class="term label stage">사</span><span class="year">2033</span></div></div><div class="lp"><div class="box"><span class="top">54</span><span class="term label">정재</span><span class="cell small wood">乙</span><span class="cell small water">亥</span><span class="term label">식신</span><span class="term label stage">병</span><span class="year">2043</span></div></div><div class="lp"><div class="box"><span class="top">64</span><span class="term label">편재</span><span class="cell small wood">甲</span><span class="cell small earth">戌</span><span class="term label">편인</span><span class="term label stage">쇠</span><span class="year">2053</span></div></div><div class="lp"><div class="box"><span class="top">74</span><span class="term label">상관</span><span class="cell small water">癸</span><span class="cell small metal">酉</span><span class="term label">겁재</span><span class="term label stage">제왕</span><span class="year">2063</span></div></div><div class="lp"><div class="box"><span class="top">84</span><span class="term label">식신</span><span class="cell small water">壬</span><span class="cell small metal">申</span><span class="term label">비견</span><span class="term label stage">건록</span><span class="year">2073</span></div></div><div class="lp"><div class="box"><span class="top">94</span><span class="term label">겁재</span><span class="cell small metal">辛</span><span class="cell small earth">未</span><span class="term label">정인</span><span class="term label stage">관대</span><span class="year">2083</span></div></div></div><div class="fade s"></div><div class="fade e"></div><div class="arrows" aria-hidden="true"><button class="s" type="button" tabindex="-1"><svg class="ic"><use href="#ic-caret-double-left-light"/></svg></button><button class="e" type="button" tabindex="-1"><svg class="ic"><use href="#ic-caret-double-right-light"/></svg></button></div></div></div></div></div><div class="option"><span class="otag">안 ③ 글자만(origin)</span><p>꼬리표 없이 바탕 안 아래에 진한 글자. 나 탭 compact의 꼬리표와 모양이 달라지고, 52 폭 바탕 안이라 en This year가 넘침</p><div class="phone mini"><div class="content"><div class="sh"><div class="t">대운</div><div class="d">십 년 단위로 흐르는 큰 운이에요.</div></div><div class="lrow"><div class="scroller" role="list"><div class="lp"><div class="box"><span class="top">4</span><span class="term label">비견</span><span class="cell small metal">庚</span><span class="cell small earth">辰</span><span class="term label">편인</span><span class="term label stage">양</span><span class="year">1993</span></div></div><div class="lp"><div class="box"><span class="top">14</span><span class="term label">정인</span><span class="cell small earth">己</span><span class="cell small wood">卯</span><span class="term label">정재</span><span class="term label stage">태</span><span class="year">2003</span></div></div><div class="lp"><div class="box"><span class="top">24</span><span class="term label">편인</span><span class="cell small earth">戊</span><span class="cell small wood">寅</span><span class="term label">편재</span><span class="term label stage">절</span><span class="year">2013</span></div></div><div class="lp cur"><div class="box"><span class="top">34</span><span class="term label">정관</span><span class="cell small fire">丁</span><span class="cell small earth">丑</span><span class="term label">정인</span><span class="term label stage">묘</span><span class="year">2023</span><span class="cur-text">지금</span></div></div><div class="lp"><div class="box"><span class="top">44</span><span class="term label">편관</span><span class="cell small fire">丙</span><span class="cell small water">子</span><span class="term label">상관</span><span class="term label stage">사</span><span class="year">2033</span></div></div><div class="lp"><div class="box"><span class="top">54</span><span class="term label">정재</span><span class="cell small wood">乙</span><span class="cell small water">亥</span><span class="term label">식신</span><span class="term label stage">병</span><span class="year">2043</span></div></div><div class="lp"><div class="box"><span class="top">64</span><span class="term label">편재</span><span class="cell small wood">甲</span><span class="cell small earth">戌</span><span class="term label">편인</span><span class="term label stage">쇠</span><span class="year">2053</span></div></div><div class="lp"><div class="box"><span class="top">74</span><span class="term label">상관</span><span class="cell small water">癸</span><span class="cell small metal">酉</span><span class="term label">겁재</span><span class="term label stage">제왕</span><span class="year">2063</span></div></div><div class="lp"><div class="box"><span class="top">84</span><span class="term label">식신</span><span class="cell small water">壬</span><span class="cell small metal">申</span><span class="term label">비견</span><span class="term label stage">건록</span><span class="year">2073</span></div></div><div class="lp"><div class="box"><span class="top">94</span><span class="term label">겁재</span><span class="cell small metal">辛</span><span class="cell small earth">未</span><span class="term label">정인</span><span class="term label stage">관대</span><span class="year">2083</span></div></div></div><div class="fade s"></div><div class="fade e"></div><div class="arrows" aria-hidden="true"><button class="s" type="button" tabindex="-1"><svg class="ic"><use href="#ic-caret-double-left-light"/></svg></button><button class="e" type="button" tabindex="-1"><svg class="ic"><use href="#ic-caret-double-right-light"/></svg></button></div></div></div></div></div></div>
+  </section>
+  <section>
+    <h2>Q2 잠긴 용신 판정 근거의 줄 수</h2>
+    <p class="note">G1(V80)의 구역별 고정 줄 수 가운데 사주 표 용신 근거 자리입니다. 실제 문장 길이와 맞추지 않습니다(D106).</p>
+    <div class="options"><div class="option"><span class="otag">안 ① 한 줄(지금 V80)</span><p>앞부분 뒤에 흐린 글자가 한두 낱말뿐이라 문장이 있다는 느낌이 약함. app LockVeil.line 그대로</p><div class="phone mini"><div class="content"><div class="sh"><div class="t">용신 판정 근거</div><div class="d">나를 돕는 기운을 고른 까닭이에요.</div></div><div class="card"><div class="locked"><p class="lockline" style="--lines: 1"><span class="lead">경금 일간에게 한여름은</span> <span class="veil" aria-hidden="true">자리값 글자가 실제 문장 대신 이 자리를 채우고 다음 줄까지 이어집니다 자리값 글자가 실제 문장 대신 이 자리를 채웁니다</span></p><span class="open"><svg class="ic"><use href="#ic-lock-simple-regular"/></svg>열기</span></div><div class="ex-row"><span class="ex">앞부분 예시</span></div></div></div></div></div><div class="option"><span class="otag">안 ② 두 줄(origin)</span><span class="badge-rec">권장</span><p>앞부분 뒤 자리값이 다음 줄까지 이어져 내용이 있음을 보임. 원전 구역(2줄)과 같은 양</p><div class="phone mini"><div class="content"><div class="sh"><div class="t">용신 판정 근거</div><div class="d">나를 돕는 기운을 고른 까닭이에요.</div></div><div class="card"><div class="locked"><p class="lockline" style="--lines: 2"><span class="lead">경금 일간에게 한여름은</span> <span class="veil" aria-hidden="true">자리값 글자가 실제 문장 대신 이 자리를 채우고 다음 줄까지 이어집니다 자리값 글자가 실제 문장 대신 이 자리를 채웁니다</span></p><span class="open"><svg class="ic"><use href="#ic-lock-simple-regular"/></svg>열기</span></div><div class="ex-row"><span class="ex">앞부분 예시</span></div></div></div></div></div><div class="option"><span class="otag">안 ③ 세 줄(근거 시트 판정 근거와 같음)</span><p>같은 내용이라 근거 시트와 맞음. 원국 탭 끝이 흐림으로 무거워지고 카드가 커짐</p><div class="phone mini"><div class="content"><div class="sh"><div class="t">용신 판정 근거</div><div class="d">나를 돕는 기운을 고른 까닭이에요.</div></div><div class="card"><div class="locked"><p class="lockline" style="--lines: 3"><span class="lead">경금 일간에게 한여름은</span> <span class="veil" aria-hidden="true">자리값 글자가 실제 문장 대신 이 자리를 채우고 다음 줄까지 이어집니다 자리값 글자가 실제 문장 대신 이 자리를 채웁니다</span></p><span class="open"><svg class="ic"><use href="#ic-lock-simple-regular"/></svg>열기</span></div><div class="ex-row"><span class="ex">앞부분 예시</span></div></div></div></div></div></div>
+  </section>
+  <section>
+    <h2>Q3 출생 정보 줄의 시진 태그를 누르면</h2>
+    <p class="note">한자 태그는 누르면 어디서나 시트이고, 누를 수 없는 예외는 notInteractiveIn(근거 시트 머리, 사주 기운 시트 머리, 색 규칙 표)에 적습니다.</p>
+    <div class="options"><div class="option"><span class="otag">안 ① 누를 수 없는 표시</span><span class="badge-rec">권장</span><p>시진 태그는 출생 정보 값을 보이는 표시. 시진 뜻 원고와 IA 출구가 없어 새 원고를 만들지 않음. 근거 시트 머리 태그처럼 눌림 표시 없음</p><div class="phone mini"><div class="appbar"><span class="back" aria-label="뒤로"><svg class="ic"><use href="#ic-caret-left-light"/></svg></span><span class="title">사주 표</span></div><div class="content"><div class="head-title">하늘님의 사주</div><div class="birth"><span class="cellb"><span class="kind">양력</span><span class="val">1990.5.15</span></span><span class="vline"></span><span class="cellb"><span class="htag earth"><span class="g earth">未</span>미시</span><span class="val">14:30</span></span><span class="vline"></span><span class="cellb"><span class="pill">여</span></span></div><div class="seg"><span class="on">원국</span><span class="">만세력과 대운</span></div></div></div></div><div class="option"><span class="otag">안 ② 누르면 시진 뜻 시트</span><p>한자 태그는 어디서나 누르면 시트라는 규칙과 같음. writing 새 원고(시진 열둘 뜻, 세 언어)와 IA explain-sheet 출구가 필요</p><div class="phone mini sheetview" style="height: 420px"><div class="appbar"><span class="back" aria-label="뒤로"><svg class="ic"><use href="#ic-caret-left-light"/></svg></span><span class="title">사주 표</span></div><div class="content"><div class="head-title">하늘님의 사주</div><div class="birth"><span class="cellb"><span class="kind">양력</span><span class="val">1990.5.15</span></span><span class="vline"></span><span class="cellb"><span class="htag earth"><span class="g earth">未</span>미시</span><span class="val">14:30</span></span><span class="vline"></span><span class="cellb"><span class="pill">여</span></span></div><div class="seg"><span class="on">원국</span><span class="">만세력과 대운</span></div></div><div class="scrim"></div><div class="sheet"><div class="handle-area"><div class="handle"></div></div><div class="st">미시</div><p class="s-body">오후 한 시 반부터 세 시 반 무렵, 양의 시간이에요.</p><div class="ex-row"><span class="ex">시트 본문 예시(원고 없음)</span></div></div></div></div></div>
+  </section>
+  <p class="note" style="margin-top: var(--space-48)">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Pretendard JP, Gowun Dodum.</p>
+</div>
+
+<script>
+  const themeButton = document.getElementById('theme');
+  themeButton.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = dark ? '' : 'dark';
+    themeButton.textContent = dark ? '다크로 보기' : '라이트로 보기';
+  });
+  // scroll-hint: 더 있는 쪽만 흐림과 화살표. 처음에는 지금 칸이 가운데 오게 넘겨 둠(움직임 없이)
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.lrow').forEach((row) => {
+    const scroller = row.querySelector('.scroller');
+    const update = () => {
+      row.classList.toggle('more-s', scroller.scrollLeft > 1);
+      row.classList.toggle('more-e', scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 1);
+    };
+    row.style.setProperty('--fade-h', scroller.offsetHeight + 'px');
+    const current = scroller.querySelector('.lp.cur');
+    if (current) scroller.scrollLeft = current.offsetLeft - (scroller.clientWidth - current.offsetWidth) / 2;
+    update();
+    scroller.addEventListener('scroll', update, { passive: true });
+    row.querySelectorAll('.arrows button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const step = Math.floor((scroller.clientWidth - 24) / 56) * 56;
+        scroller.scrollBy({ left: button.classList.contains('s') ? -step : step, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    });
+  });
+</script>
+</body>
+</html>

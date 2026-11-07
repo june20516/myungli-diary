@@ -877,5 +877,43 @@
     "decisions": [],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 읽고 Q1 후보 칸과 Q4 화면만 색을 덮어씀. 사용자 답(2026-11-07, #801): Q1 ⑤ 맑은 coral, Q2 ① 범례 셋, Q3 ① 막대 이름 셋, Q4 척도 합치지 않음(색 규칙 시트는 척도 그림 없이), Q5 ① 일기 섹션 제목 늘 보임"
+  },
+  {
+    "id": "design-ds1-screen-e",
+    "title": "DS1 화면 묶음 E: 사주 표(원국, 만세력과 대운, 12운성 설명 시트, 시간 모름 둘, 불러오는 중)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-e.html",
+    "source": "2026-11-05-ds1-screen-e.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "V88",
+      "V89",
+      "V90",
+      "V91",
+      "V92"
+    ],
+    "status": "draft",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 birth-info-row, band-table, stage-strip, scroll-hint, 대운 세운 줄 luck-pillar column. app fixture 하늘님 값(명리 검산), 원고 없는 문구는 예시. 관문 질문 Q1~Q3는 권장안을 넣음. 사용자 확인 대기(#801)"
+  },
+  {
+    "id": "design-ds1-e-questions",
+    "title": "DS1 사주 표 관문 질문 비교: 지금, 올해 꼬리표 자리, 잠긴 용신 판정 근거 줄 수, 시진 태그 누름",
+    "kind": "concept",
+    "file": "2026-11-07-ds1-e-questions.html",
+    "source": "2026-11-07-ds1-e-questions.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "explain-sheet"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 하늘님 값, 원고 없는 문구는 예시. 권장: Q1 ① 바탕 밖 아래 꼬리표, Q2 ② 두 줄, Q3 ① 누를 수 없는 표시. 사용자 답 대기(#801)"
   }
 ]

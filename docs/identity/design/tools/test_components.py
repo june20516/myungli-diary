@@ -275,7 +275,7 @@ def variant_ids(component):
 def test_generic_groups_contain_spec_components():
     documents = load_documents(COMPONENTS_DIR)
     ids = {group: {c["id"] for c in documents[group]["components"]} for group in ("frame", "feedback", "input", "action")}
-    assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner", "section-header", "explain-sheet"}
+    assert ids["frame"] == {"tab-bar", "app-bar", "sheet", "ad-banner", "section-header", "explain-sheet", "scroll-hint"}
     assert ids["feedback"] == {"dialog", "toast", "notice-banner", "skeleton", "empty-state", "error-state"}
     assert ids["input"] == {"input-step", "text-field", "date-picker", "time-picker", "segmented", "city-search",
                             "check-row", "account-choice"}
@@ -343,7 +343,8 @@ def test_brand_groups_contain_spec_components():
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image", "date-header", "tag-sentence-list"},
         "calendar": {"calendar-month", "day-cell", "event-row", "fortune-verdict", "score-row"},
         "diary": {"diary-row", "diary-editor", "date-block", "draft-indicator", "tag-chip", "diary-summary"},
-        "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar"},
+        "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar", "birth-info-row", "band-table",
+                 "stage-strip"},
     }
 
 
@@ -709,8 +710,8 @@ def test_element_values_from_app_feedback():
     assert elements["icon"]["set"]["flutter"] == "phosphor_glyphs"
     assert elements["icon"]["set"]["flutterVersion"] == "2.1.2+1"
     assert elements["mark.caution"]["size"] == "adjacent-text"  # V57
-    # G1(결정 V80)이 server 길이 힌트를 구역별 고정 줄 수로 바꿈. sentence-block locked 1줄은 app LockVeil.line 그대로
-    assert elements["lock.veil"]["lines"]["sentence-block locked"] == 1
+    # G1(결정 V80)이 server 길이 힌트를 구역별 고정 줄 수로 바꿈. 사주 표 용신 근거는 두 줄(2026-11-07, V92, origin)
+    assert elements["lock.veil"]["lines"]["sentence-block locked"] == 2
 
 
 # app 질문 #195·#211 (계약 2.4.0)
@@ -1139,9 +1140,11 @@ def test_readme_index_lists_3_0_components():
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     total = len(json.loads(IA_PATH.read_text(encoding="utf-8"))["components"])
-    pending = len(components.IA_PENDING_COMPONENTS)
-    assert f"IA v5 컴포넌트 {total}개 가운데 명세를 쓴 {specified}개" in readme
-    assert f"아직 명세가 없는 {pending}개" in readme and f"지금 {specified}개이고, 대기 목록 {pending}개" in readme
+    removal = len(components.IA_REMOVAL_REQUESTED)
+    assert not components.IA_PENDING_COMPONENTS  # DS1 2단계 묶음 E로 대기 목록이 빔
+    assert f"IA v5 컴포넌트 {total}개 가운데 명세를 쓴 {specified}개" in readme and specified + removal == total
+    assert "대기 목록 `IA_PENDING_COMPONENTS`는 DS1 2단계 묶음 E로 비었습니다" in readme
+    assert f"지금 {specified}개이고, IA 제거 요청 {removal}개" in readme
     assert "IA 컴포넌트 43개" not in readme
 
 
@@ -1168,16 +1171,17 @@ def test_purchase_row_meta_has_no_separator():
 
 # 사주 표 십성 라벨·피드백 표시·윤달 사주 줄 (#353·#354·#587, 결정 V48~V51)
 def test_luck_and_manse_tables_have_ten_god_labels():
+    # V49(2026-11-07 개정, V89·V90): 대운, 세운 칸은 luck-pillar, 지장간은 band-table 칩 + 십성 한 줄
     by_id = components_by_id(BRAND_GROUPS)
-    daeun = by_id["daeun-table"]["parts"]
-    pillar = daeun["daeun"]
+    pillar = by_id["luck-pillar"]["parts"]
     for part in ("stemTenGod", "branchTenGod", "twelveStage"):
         assert (pillar[part]["component"], pillar[part]["variant"]) == ("term-token", "label")
-    assert pillar["order"] == ["age", "stemTenGod", "cells", "branchTenGod", "twelveStage", "startYear"]
-    assert daeun["seun"]["stemTenGod"]["source"] == "SeunYear.tenGod"
+    assert pillar["stemTenGod"]["source"] == "DaeunPeriod.stemTenGod, SeunYear.tenGod"
+    daeun = by_id["daeun-table"]["parts"]
+    assert daeun["row"]["pillar"] == {"component": "luck-pillar", "variant": "column"}
     assert daeun["label"]["maxLines"] == 2
-    hidden = by_id["manse-table"]["parts"]["hiddenStems"]
-    assert (hidden["tenGod"]["component"], hidden["tenGod"]["variant"]) == ("term-token", "label")
+    hidden = by_id["band-table"]["parts"]["bands"]["hiddenStems"]
+    assert (hidden["item"]["tenGod"]["component"], hidden["item"]["tenGod"]["variant"]) == ("term-token", "label")
     assert hidden["stack"]["direction"] == "vertical"
 
 
@@ -1199,17 +1203,18 @@ def test_account_choice_saju_has_leap_month_place():
 
 
 def test_saju_labels_fit_table_cells():
-    # #710(결정 V53): 행 머리는 칸 폭 안 두 줄, 꼬리표는 줄에 하나라 이웃 기둥 위로 넓힘
+    # #710(결정 V53, 2026-11-07 개정 V89): 행 머리 열이 없어지고 띠 이름은 네 열에 걸친 띠 머리줄 칩. 꼬리표 넘침은 그대로
     by_id = components_by_id(("saju",))
-    row_header = by_id["manse-table"]["parts"]["rowHeader"]
-    assert row_header["slot"] == "ui.saju.header"
-    assert row_header["maxLines"] == 2 and "type.caption.sm" in row_header["overflow"]
+    band = by_id["band-table"]["parts"]
+    assert band["header"]["slot"] == "ui.saju.header" and band["bandHeader"]["label"]["slot"] == "ui.saju.header"
+    assert "rowHeader" not in by_id["manse-table"]["parts"]
     assert by_id["saju-pillars"]["parts"]["header"]["slot"] == "ui.saju.header"
     current = by_id["daeun-table"]["parts"]["currentLabel"]
     assert current["element"] == "tag.status" and current["slot"] == "ui.saju.tag"
     assert current["maxWidth"] == "기둥 둘과 그 사이 간격" and current["maxLines"] == 1
     me = by_id["saju-pillars"]["parts"]["dayMaster"]["tag"]
     assert me["slot"] == "ui.saju.tag" and me["maxWidth"] == "기둥 폭"
+    assert band["dayColumn"]["me"]["slot"] == "ui.saju.tag"
 
 
 def test_settings_row_value_gap():
@@ -1299,7 +1304,8 @@ def test_no_custom_icons():
 # DS1 spec §3·§4, 결정 V58·V59
 NAVIGATING_CHEVRON_VARIANTS = {("settings-row", "navigate"), ("settings-row", "value")}
 # list.divider를 쓰지 않는 구분선: 같은 날 일기 점선(V42)과 표 격자선
-DIVIDER_EXCEPTIONS = {"diary-row parts.entry.divider", "manse-table parts.grid.divider"}
+# 출생 정보 줄 칸 사이 세로선(V88)과 띠 표 열 구분선(V89)도 목록 구분선이 아님
+DIVIDER_EXCEPTIONS = {"diary-row parts.entry.divider", "birth-info-row parts.divider", "band-table parts.columns.divider"}
 
 
 def all_components():
@@ -1462,6 +1468,7 @@ CONTENT_COMPONENTS = {
     "date-header",  # 음력과 일진은 server 값 (DS1 2단계 묶음 A)
     "date-block",  # 일진은 server 값 (DS1 2단계 묶음 C)
     "fortune-verdict", "score-row",  # 길흉 내역은 server 값 (DS1 2단계 묶음 D)
+    "birth-info-row", "band-table", "stage-strip",  # 프로필과 원국 값 (DS1 2단계 묶음 E)
 }
 
 
@@ -1509,6 +1516,7 @@ NO_LOADING_CONTENT = {
     "section-header",  # 제목은 UI 슬롯이라 불러오는 중에도 그대로 (DS1 2단계)
     "explain-sheet",  # 틀. 본문은 sentence-block 뼈
     "tag-sentence-list",  # 오늘 화면에서 이미 받은 문장을 다시 보임. tag-sheet에는 loading이 없음 (DS1 2단계 묶음 A)
+    "scroll-hint",  # 줄 위에 겹치는 표시. 줄 내용은 luck-pillar 뼈 (DS1 2단계 묶음 E)
 }
 
 
@@ -1926,7 +1934,7 @@ def test_lock_veil_g1():
     placeholder = veil["placeholder"]
     assert placeholder["source"] == "app" and placeholder["matchesRealLength"] is False
     assert placeholder["flow"] == "앞부분 바로 뒤, 같은 줄에서 이어짐"
-    assert veil["lines"] == {"basis": 3, "source": 2, "personal": 3, "sentence-block locked": 1}
+    assert veil["lines"] == {"basis": 3, "source": 2, "personal": 3, "sentence-block locked": 2}  # V92
     assert "길이 힌트" not in json.dumps(veil, ensure_ascii=False)  # 실제 길이와 맞추지 않음
     assert veil["body"]["blur"] == {"value": 6, "unit": "px"} and veil["body"]["opacity"] == 0.5
     assert "그대로" in veil["reduceMotion"]  # 동작 줄이기에서도 흐림 고정
@@ -1954,7 +1962,8 @@ def test_evidence_sheet_head():
     assert "target" not in locked  # 대상 문장과 태그는 잠기지 않음
     assert component("sentence", "hanja-tag")["parts"]["opens"]["notInteractiveIn"] == [
         {"screen": "evidence-sheet", "part": "head"}, {"screen": "tag-sheet", "part": "head"},
-        {"screen": "color-rule-sheet", "part": "score-row rule"}]  # Task 8 리뷰 I1: 색 규칙 표의 태그
+        {"screen": "color-rule-sheet", "part": "score-row rule"},  # Task 8 리뷰 I1: 색 규칙 표의 태그
+        {"screen": "saju-chart", "part": "birth-info-row hour"}]  # V88: 시진 뜻 원고가 없음
 
 
 # IA v5 today 구성 순서 (D108, 결정 V78)
@@ -2385,6 +2394,12 @@ def test_revised_decisions_are_marked():
     assert "2026-11-07 개정" in rows["V84"] and "Q1 ⑤" in rows["V84"]  # 관문 답 리뷰 I1
     assert "2026-11-07 개정" in rows["V87"] and "score-scale을 뺌" in rows["V87"]
     assert rows["V86"].rstrip(" |").endswith("사용자 영향: #801(길흉판정 막대 세 이름 day-sheet 슬롯 IA 요청)")
+    # 묶음 E(사주 표)가 바꾼 앞 결정 (V88~V92)
+    assert "2026-11-07 개정" in rows["V49"] and "V89" in rows["V49"]
+    assert "2026-11-07 개정" in rows["V53"] and "V89" in rows["V53"]
+    assert "2026-11-07 개정" in rows["V72"] and "V89" in rows["V72"]
+    assert "2026-11-07 개정" in rows["V77"] and "V90" in rows["V77"]
+    assert "2026-11-07 개정" in rows["V80"] and "V92" in rows["V80"]
 
 
 def test_tone_example_words_are_four_levels():
@@ -2405,3 +2420,180 @@ def test_screen_d_has_no_scale_leftovers():
 def test_removal_constant_follows_pending():
     source = (TOOLS_DIR / "components.py").read_text(encoding="utf-8")
     assert source.index("IA_PENDING_COMPONENTS = frozenset") < source.index("IA_REMOVAL_REQUESTED = frozenset")
+
+
+# DS1 2단계 묶음 E: 사주 표 (spec §1, §4, 결정 V88~V92)
+def test_pending_list_empty():
+    # 묶음마다 줄여 온 IA 대기 목록이 마지막 묶음 E로 비어야 함 (spec §5)
+    assert components.IA_PENDING_COMPONENTS == frozenset()
+    problems = find_problems(load_documents(COMPONENTS_DIR), json.loads(IA_PATH.read_text(encoding="utf-8")),
+                             token_names_by_theme(TOKENS_DIR))
+    assert [problem for problem in problems if "명세가 없음" in problem] == []
+    assert "IA_PENDING_COMPONENTS = frozenset()" in (TOOLS_DIR / "components.py").read_text(encoding="utf-8")
+
+
+def test_birth_info_row():
+    row = component("saju", "birth-info-row")
+    parts = row["parts"]
+    # origin과 IA 역할 문장대로 칸 셋(달력 종류 + 날짜, 시진 태그 + 시간, 성별). spec의 "칸 넷"은 V88로 정정
+    assert parts["cells"]["order"] == ["date", "hour", "gender"]
+    assert "칸 단위" in parts["cells"]["wrap"] and parts["cells"]["rowGap"] == "{space.8}"
+    divider = parts["divider"]
+    assert divider["width"] == {"value": 1, "unit": "px"} and divider["height"] == {"value": 16, "unit": "px"}
+    assert divider["color"] == "{color.line}" and divider["marginX"] == "{space.12}"
+    assert "줄이 바뀐 칸 앞" in divider["note"]
+    date = parts["date"]
+    assert date["calendarKind"]["type"] == "{type.caption.sm}" and date["calendarKind"]["radius"] == "{radius.xs}"
+    assert "윤달" in date["calendarKind"]["source"]
+    hour = parts["hour"]
+    assert (hour["tag"]["component"], hour["tag"]["variant"]) == ("hanja-tag", "ganji") and hour["tag"]["interactive"] is False
+    pill = parts["pill"]
+    assert pill["bg"] == "transparent" and pill["border"]["color"] == "{color.tag.neutral.border}"
+    assert pill["fg"] == "{color.tag.neutral.fg}" and pill["radius"] == "{radius.full}"
+    assert parts["gender"] == {"use": "pill", "source": "프로필 성별", "copy": "writing 새 슬롯(성별 한 낱말)"}
+    unknown = row["states"]["time-unknown"]["parts"]["hour"]
+    assert unknown["tag"] == {"visible": False} and unknown["value"] == {"visible": False}
+    assert unknown["unknown"]["use"] == "pill" and "시간 모름" in unknown["unknown"]["copy"]
+    assert "skeleton" in row["states"]["loading"]
+    text = json.dumps(row, ensure_ascii=False)
+    assert not {"join", "separator"} & set(parts) and "쉼표" in " ".join(row["rules"])  # 칸 사이는 글자 없이 세로선
+    assert "coral" in " ".join(row["rules"])  # 성별을 톤 색으로 나누지 않음(Q4)
+    assert "·" not in text
+    assert row["a11y"]["dividersDecorative"] is True and row["a11y"]["textScaleMax"] == 1.3
+
+
+def test_band_table():
+    table = component("saju", "band-table")
+    parts = table["parts"]
+    columns = parts["columns"]
+    assert columns["order"] == ["hour", "day", "month", "year"]
+    divider = columns["divider"]
+    assert divider["width"] == "{border.width.hairline}" and divider["color"] == "{color.line}"
+    assert "모든 띠를 관통" in divider["span"]
+    day = parts["dayColumn"]
+    assert day["bg"] == "{color.status.bg}" and day["opacity"] == 0.35 and "term.bg" in day["note"]
+    assert day["header"] == {"fg": "{color.action.primary}", "fontWeight": 700} and day["me"]["element"] == "tag.me"
+    band_header = parts["bandHeader"]
+    assert band_header["span"] == "네 열" and band_header["bg"] == "{color.bg.sheet}"
+    assert band_header["border"] == {"top": {"width": "{border.width.hairline}", "color": "{color.line}"},
+                                     "bottom": {"width": "{border.width.hairline}", "color": "{color.line}"}}
+    assert (band_header["label"]["component"], band_header["label"]["variant"]) == ("term-token", "label")
+    assert band_header["opens"]["sheet"] == "explain-sheet"
+    assert band_header["opens"]["bodySlots"] == {"hiddenStems": "saju-chart.jijanggan.desc",
+                                                 "twelveStages": "saju-chart.unseong.desc", "shinsal": "saju-chart.sinsal.desc"}
+    assert set(band_header["opens"]["bodySlots"].values()) <= ia_slot_ids("saju-chart")
+    assert band_header["opens"]["stageStrip"] == ["twelveStages"]
+    bands = parts["bands"]
+    assert bands["order"] == ["hiddenStems", "twelveStages", "shinsal"]
+    assert bands["hiddenStems"]["item"]["chip"] == {"element": "stem.chip"}
+    assert (bands["twelveStages"]["component"], bands["twelveStages"]["variant"]) == ("term-token", "label")
+    assert bands["shinsal"]["whenEmpty"] == "empty" and bands["shinsal"]["stack"]["direction"] == "vertical"
+    empty = parts["empty"]  # 신살 빈 칸: "-" 글자 대신 짧은 가로선 12×1
+    assert empty == {"shape": "line", "width": {"value": 12, "unit": "px"}, "height": {"value": 1, "unit": "px"},
+                     "color": "{color.text.secondary}", "a11y": "writing 새 슬롯(없음)",
+                     "note": "글자 '-' 대신 짧은 가로선. 표 안에서 빈 칸임을 보임"}
+    assert "stem.chip" in table["uses"] and "tag.me" in table["uses"] and "term" in table["uses"]
+    assert table["states"]["time-unknown"]["parts"]["columns"]["hour"] == "모든 띠가 empty"
+    assert "skeleton" in table["states"]["loading"] and table["a11y"]["role"] == "table"
+
+
+def test_stem_chip_uses_ohaeng_cell_colors():
+    elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
+    chip, cell = elements["stem.chip"], elements["ohaeng.cell"]
+    assert chip["colors"] == "ohaeng.cell" and chip["radius"] == cell["radius"]
+    assert set(cell["byElement"]) == {"wood", "fire", "earth", "metal", "water"}
+    assert all(value == {"bg": f"{{color.ohaeng.{element}.bg}}", "fg": f"{{color.ohaeng.{element}.fg}}"}
+               for element, value in cell["byElement"].items())
+    # 원국 칸(saju-pillars)과 대운 칸(luck-pillar)은 ohaeng.cell 자체라 stem.chip을 쓰지 않음 (결정 V89)
+    assert chip["where"] == ["band-table 지장간 칸"] and "saju-pillars" in chip["notFor"] and "luck-pillar" in chip["notFor"]
+    for component_id in ("saju-pillars", "luck-pillar"):
+        assert "stem.chip" not in json.dumps(component("saju", component_id))
+    stem_chip_users = {c["id"] for c in all_components() if "stem.chip" in c.get("uses", [])}
+    assert stem_chip_users == {"band-table"}
+
+
+def test_stage_strip():
+    strip = component("saju", "stage-strip")
+    parts = strip["parts"]
+    assert parts["stages"]["order"] == ["jangsaeng", "mokyok", "gwandae", "geonrok", "jewang", "soe", "byeong", "sa",
+                                        "myo", "jeol", "tae", "yang"]
+    track = parts["track"]
+    assert track["cellHeight"] == {"value": 6, "unit": "px"} and track["gap"] == "{space.2}"
+    assert track["fill"] == "{color.line}" and track["mine"] == "{color.action.primary}"
+    marker = parts["marker"]
+    assert marker["shape"] == "circle" and marker["bg"] == "{color.action.primary}" and marker["fg"] == "{color.action.on-primary}"
+    assert list(marker["labels"]) == ["hour", "day", "month", "year"]
+    assert marker["sameStage"]["order"] == ["hour", "day", "month", "year"]
+    names = parts["names"]
+    assert names["type"] == "{type.caption.sm}" and names["fg"] == "{color.text.secondary}" and names["maxLines"] == 1
+    assert "내 자리 칸의 이름만" in names["overflow"]
+    assert strip["states"]["time-unknown"]["parts"]["marker"] == {"hour": "그리지 않음"}
+    assert "skeleton" in strip["states"]["loading"]
+    assert strip["a11y"]["role"] == "img" and "장생, 월주와 연주" in strip["a11y"]["label"]
+    sheet = component("frame", "explain-sheet")["parts"]["stageStrip"]
+    assert sheet["component"] == "stage-strip" and sheet["marginTop"] == "{space.12}"
+    assert "12운성 띠 머리" in sheet["when"]
+
+
+def test_scroll_hint():
+    hint = component("frame", "scroll-hint")
+    parts = hint["parts"]
+    fade = parts["fade"]
+    assert fade["width"] == {"value": 24, "unit": "px"} and fade["to"] == "{color.bg.sheet}" and fade["side"] == "더 있는 쪽 끝만"
+    arrows = parts["arrows"]
+    for side, name in (("start", "caret-double-left"), ("end", "caret-double-right")):
+        assert arrows[side] == {"icon": name, "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}"}
+    assert arrows["hiddenWhenNoMore"] is True and arrows["minTarget"] == 44 and arrows["marginTop"] == "{space.4}"
+    assert "label" not in arrows and "copy" not in json.dumps(hint)  # 글자 안내 없음
+    states = hint["states"]
+    assert states["atStart"]["parts"]["arrows"]["start"] == {"visible": False}
+    assert states["atEnd"]["parts"]["arrows"]["end"] == {"visible": False}
+    assert states["pressed"]["pattern"] == "press.ink"
+    # 동작 줄이기: 흐림과 화살표는 바로 바뀌고, 화살표로 넘길 때 움직임 없이 그 자리
+    reduce = hint["motion"]["reduceMotion"]
+    assert "바로" in reduce and "움직임 없이" in reduce
+    assert hint["a11y"]["scrollerRole"] == "list" and hint["a11y"]["arrowsHidden"] is True
+
+
+def test_manse_and_daeun_tables_follow_ia_v5():
+    # IA v5: manse-table은 band-table로 그리는 만세력 표, daeun-table은 luck-pillar 줄 + scroll-hint
+    manse = component("saju", "manse-table")
+    assert manse["parts"]["table"] == {"component": "band-table", "bands": ["hiddenStems", "twelveStages", "shinsal"]}
+    basis = manse["parts"]["basis"]
+    assert basis["slot"] == "saju-chart.manse.basis" and basis["params"] == ["stem"] and "saju-chart.manse.basis" in ia_slot_ids("saju-chart")
+    assert basis["fg"] == "{color.text.secondary}" and "term" not in json.dumps(basis)  # 누르는 용어 칩과 헷갈리지 않게 글자
+    for gone in ("grid", "rowHeader", "top", "hiddenStems"):
+        assert gone not in manse["parts"]
+    daeun = component("saju", "daeun-table")
+    parts = daeun["parts"]
+    assert parts["rows"]["order"] == ["daeun", "seun"]
+    assert parts["row"]["hint"] == {"component": "scroll-hint"} and parts["row"]["scroll"] == "horizontal"
+    assert parts["row"]["gap"] == "{space.4}"
+    assert "grid" not in parts["seun"] and "5×2" in parts["seun"]["note"]
+    assert parts["rows"]["header"]["component"] == "section-header"
+    slots = {slot for pair in parts["rows"]["header"]["slots"].values() for slot in pair}
+    assert slots == {"saju-chart.daeun.title", "saju-chart.daeun.desc", "saju-chart.seun.title", "saju-chart.seun.desc"}
+    assert slots <= ia_slot_ids("saju-chart")
+    assert any("처음 열 때" in rule for rule in daeun["rules"])
+
+
+def test_luck_pillar_current_tag_outside_highlight():
+    # 관문 질문 Q1(권장 ①): 꼬리표(tag.status)와 강조 바탕이 같은 status.bg라 꼬리표는 바탕 밖 아래 줄 (결정 V90)
+    pillar = component("saju", "luck-pillar")
+    tag = pillar["parts"]["currentTag"]
+    assert tag["outsideHighlight"] is True and "바탕 밖" in tag["position"]
+    assert pillar["parts"]["container"]["highlightCovers"] == ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod",
+                                                              "twelveStage", "startYear"]
+    elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
+    assert elements["tag.status"]["bg"] == elements["highlight.current"]["bg"]  # 같은 바탕이라 밖에 둠
+    assert any("묻힌다" in rule and "꼬리표" in rule for rule in pillar["rules"])
+    assert "그리지 않음" in pillar["parts"]["branchTenGod"]["seun"]
+
+
+def test_screen_e_sample():
+    page = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-e.html").read_text(encoding="utf-8")
+    for needed in ("원국", "만세력과 대운", "시간 모름", "12운성", "caret-double-right", "stem-chip", "dark"):
+        assert needed in page, needed
+    entries = {entry["id"]: entry for entry in json.loads((DESIGN_DIR / "artifacts" / "index.json").read_text(encoding="utf-8"))}
+    assert entries["design-ds1-screen-e"]["status"] == "draft" and "사용자 확인 대기(#801)" in entries["design-ds1-screen-e"]["note"]
+    assert entries["design-ds1-e-questions"]["kind"] == "concept" and entries["design-ds1-e-questions"]["status"] == "draft"

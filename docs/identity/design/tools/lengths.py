@@ -227,8 +227,9 @@ TARGETS = (
            "settings-row 이름과 값 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 사이 space.8, 둘이 나눔)",
            "ui-400", 14, -0.28, (CONTENT_WIDTH - 2 * 16 - 16 - 8 - SETTINGS_LEADING) / 2, 1, False, None),
     Target(("ui.legal.row",), "settings-row 이름 (좌우 16, 화살표 16)", "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16, 1, False, None),
-    # 가장 좁은 자리: manse-table 행 머리 52에서 term-token label 좌우 4. 낱말 단위 두 줄 (V53)
-    Target(("ui.saju.header",), "manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음)",
+    # 옛 가장 좁은 자리 manse-table 행 머리 52에서 term-token label 좌우 4, 낱말 단위 두 줄 (V53).
+    # V89(2026-11-07)로 행 머리 열이 없어지고 띠 이름은 band-table 띠 머리줄 칩이라 지금 자리가 더 넓음. 확정 상한은 그대로
+    Target(("ui.saju.header",), "사주 표 열 머리와 band-table 띠 머리 term-token label (상한은 옛 manse-table 행 머리 52, 좌우 4, 두 줄 그대로. V89 뒤 자리가 더 넓음)",
            "ui-500", 12, -0.24, 52 - 2 * 4, 2, False, None),
     # 대운 꼬리표: 기둥 둘과 간격까지 넘침(V53). 세운 칸(약 126)보다 좁음
     Target(("ui.saju.tag",), "daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8)",

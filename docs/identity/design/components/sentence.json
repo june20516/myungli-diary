@@ -33,7 +33,7 @@
         "locked": {
           "note": "근거·해석 열람 권한이 없는 잠긴 콘텐츠 문장(D60). 사주 표 용신 판정 근거(saju-chart.yongsin.basis)",
           "parts": {
-            "text": { "element": "lock.veil", "lines": 1 },
+            "text": { "element": "lock.veil", "lines": 2, "note": "사주 표 용신 판정 근거 카드. 앞 2~3 단어 뒤 자리값이 두 줄을 채움(origin, 관문 질문 Q2, 결정 V92)" },
             "open": { "lock": { "element": "lock.veil", "part": "open" }, "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "note": "자물쇠 값은 요소 lock.veil open이 원본(결정 V73)", "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
           }
         }
@@ -251,7 +251,7 @@
           "verdictTone": { "good": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" }, "bad": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } },
           "toneAllowedIn": ["fortune-verdict", "score-row"]
         },
-        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어디서나 누르면 시트(뜻 시트 explain-sheet, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 tag-sheet). 화면 이동 예외 없음(V73). 그 태그의 일기 모아보기는 시트 안 꺾쇠 링크(explain-sheet diaryLink, tag-sheet tag-sentence-list diaryLink)", "notInteractiveIn": [{ "screen": "evidence-sheet", "part": "head" }, { "screen": "tag-sheet", "part": "head" }, { "screen": "color-rule-sheet", "part": "score-row rule" }], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음, 색 규칙 시트는 IA 출구 없음). 눌림 표시와 터치 넓힘 없음" }
+        "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어디서나 누르면 시트(뜻 시트 explain-sheet, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 tag-sheet). 화면 이동 예외 없음(V73). 그 태그의 일기 모아보기는 시트 안 꺾쇠 링크(explain-sheet diaryLink, tag-sheet tag-sentence-list diaryLink)", "notInteractiveIn": [{ "screen": "evidence-sheet", "part": "head" }, { "screen": "tag-sheet", "part": "head" }, { "screen": "color-rule-sheet", "part": "score-row rule" }, { "screen": "saju-chart", "part": "birth-info-row hour" }], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음, 색 규칙 시트는 IA 출구 없음). 사주 표 출생 정보 줄의 시진 태그(ganji)도 누를 수 없는 표시(시진 뜻 원고가 없음, 결정 V88). 눌림 표시와 터치 넓힘 없음" }
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "pill", "shape": "chip", "width": "64px" }] },
