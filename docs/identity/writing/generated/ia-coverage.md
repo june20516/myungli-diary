@@ -82,6 +82,7 @@
 | today.lucky-direction.body | content | daily.direction |
 | today.lucky-number.body | content | daily.number |
 | today.lucky-time.body | content | daily.focus_time |
+| today.event.title | ui | today.event.title |
 | today.guide.title | ui | today.guide.title |
 | today.guide.question | content | daily.guide |
 | today.guide.cta | ui | today.guide.cta |
@@ -89,6 +90,7 @@
 | today.reaction.label | ui | today.reaction.label |
 | explain-sheet.term.meaning | content | term.meaning |
 | explain-sheet.today.reason | content | explain.today_reason |
+| explain-sheet.tag.diary-link | ui | explain-sheet.tag.diary-link |
 | tag-sheet.tag.meaning | content | term.meaning |
 | tag-sheet.sentences.title | ui | tag-sheet.sentences.title |
 | tag-sheet.sentences.empty | ui | tag-sheet.sentences.empty |
@@ -122,6 +124,7 @@
 | day-sheet.character.label | content | glossary.value_name |
 | day-sheet.verdict.title | ui | day-sheet.verdict.title |
 | day-sheet.verdict.item | ui | day-sheet.verdict.item |
+| day-sheet.event.title | ui | today.event.title |
 | day-sheet.event.empty | ui | day-sheet.event.empty |
 | day-sheet.event.add | ui | day-sheet.event.add |
 | day-sheet.diary.open | ui | day-sheet.diary.open |
@@ -175,6 +178,7 @@
 | saju-chart.head.title | ui | saju-chart.head.title |
 | saju-chart.pillars.title | ui | saju-chart.pillars.title |
 | saju-chart.pillars.desc | ui | saju-chart.pillars.desc |
+| saju-chart.strength.label | ui | saju-chart.strength.label |
 | saju-chart.ohaeng.title | ui | saju-chart.ohaeng.title |
 | saju-chart.ohaeng.desc | ui | saju-chart.ohaeng.desc |
 | saju-chart.yongsin.basis | content | chart.yongsin_method |

@@ -266,23 +266,23 @@
   },
   "calendarLegendBodyGood": "잘 풀리는 날",
   "@calendarLegendBodyGood": {
-    "description": "calendar.legend.body: 색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
+    "description": "calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키"
   },
   "calendarLegendBodyCaution": "조심할 날",
   "@calendarLegendBodyCaution": {
-    "description": "calendar.legend.body: 색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
+    "description": "calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키"
   },
   "calendarLegendBodyVeryGood": "아주 잘 풀리는 날",
   "@calendarLegendBodyVeryGood": {
-    "description": "calendar.legend.body: 색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
+    "description": "calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키"
   },
   "calendarLegendBodyNeutral": "무난한 날",
   "@calendarLegendBodyNeutral": {
-    "description": "calendar.legend.body: 색 4단계의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 무난한 날(무색), 조심할 날"
+    "description": "calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키"
   },
   "calendarLegendRuleLink": "길흉은 어떻게 정해지나요",
   "@calendarLegendRuleLink": {
-    "description": "calendar.legend.rule-link: 범례 끝 입구 \"색은 어떻게 정해지나요\". 누르면 색 규칙 시트"
+    "description": "calendar.legend.rule-link: 범례 끝 입구 \"길흉은 어떻게 정해지나요\". 누르면 색 규칙 시트(DS1 관문 Q2 ②)"
   },
   "colorRuleSheetRuleBody": "그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.",
   "@colorRuleSheetRuleBody": {
@@ -392,7 +392,7 @@
   },
   "daySheetDiaryOpen": "이날 쓴 일기 {count, plural, other{{count}편}}",
   "@daySheetDiaryOpen": {
-    "description": "day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다",
+    "description": "day-sheet.diary.open: 그날 일기 섹션 제목. 쓴 일기가 없어도 보이고, 0편이면 제목 아래 쓰기 버튼만(DS1 관문 Q5 ①). 쓴 일기는 아래에 diary-row로 작성 순",
     "placeholders": {
       "count": {
         "type": "int"
@@ -449,7 +449,7 @@
   },
   "daySheetVerdictTitle": "길흉판정",
   "@daySheetVerdictTitle": {
-    "description": "day-sheet.verdict.title: 섹션 제목 \"길흉판정\"(확정). 아래에 조심할 날, 무난한 날, 잘 풀리는 날 위의 위치 막대와 내역"
+    "description": "day-sheet.verdict.title: 섹션 제목 \"길흉판정\"(확정). 아래에 조심할 날, 무난한 날, 잘 풀리는 날 위의 위치 막대와 내역. 아래 막대의 세 이름(조심할 날, 무난한 날, 잘 풀리는 날)은 `calendar.legend.body`와 같은 키(DS1 관문 Q3)"
   },
   "diaryEditBarTitle": "일기 쓰기",
   "@diaryEditBarTitle": {
@@ -623,6 +623,15 @@
   "evidenceSheetUnlockFailed": "광고 확인이 늦어지고 있어요. 잠시 뒤에 다시 열어 주세요.",
   "@evidenceSheetUnlockFailed": {
     "description": "evidence-sheet.unlock.failed: 광고를 끝까지 봤는데 server 확인(SSV)이 오지 않을 때의 toast"
+  },
+  "explainSheetTagDiaryLink": "{tag} 태그가 붙은 내 일기 보기",
+  "@explainSheetTagDiaryLink": {
+    "description": "explain-sheet.tag.diary-link: 대표 태그 뜻 시트에만 두는 꺾쇠 링크: 그 태그가 붙은 내 일기 보기(매개변수 tag). 누르면 tag-diary, 일기가 없으면 tag-diary 빈 상태(V73, V81, 문구 writing)",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
   },
   "forceUpdateCtaStore": "업데이트하기",
   "@forceUpdateCtaStore": {
@@ -1080,15 +1089,12 @@
   "@tagDiaryEmptyBody": {
     "description": "tag-diary.empty.body: 일기가 없을 때 안내"
   },
-  "tagSheetDiaryCta": "{tag} 태그가 붙은 내 일기 {count, plural, other{{count}편}} 보기",
+  "tagSheetDiaryCta": "{tag} 태그가 붙은 내 일기 보기",
   "@tagSheetDiaryCta": {
-    "description": "tag-sheet.diary.cta: 그 태그가 붙은 내 일기 보기 틀(매개변수 tag, count, 가안 \"<태그>이 붙은 내 일기 n편 보기\"). 누르면 태그 모아보기 이 태그가 붙은 일기가 0편이면 이 줄을 숨김.",
+    "description": "tag-sheet.diary.cta: 그 태그가 붙은 내 일기 보기 링크. 편수 없이 늘 보이고, 일기가 없으면 tag-diary 빈 상태가 맡음(V79, DS1 관문)",
     "placeholders": {
       "tag": {
         "type": "String"
-      },
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -1190,6 +1196,10 @@
         "type": "int"
       }
     }
+  },
+  "todayEventTitle": "일정",
+  "@todayEventTitle": {
+    "description": "today.event.title: 일정 섹션 제목 \"일정\". 일정이 있는 날만 섹션째 보임(그날 시트 `day-sheet.event.title`과 같은 키, 사용자 결정 2026-11-07, 문구 writing)"
   },
   "todayFeaturedEmpty": "오늘은 두드러진 사주 기운이 없어요.",
   "@todayFeaturedEmpty": {
@@ -1478,23 +1488,23 @@
   },
   "calendarSolar": "양력",
   "@calendarSolar": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)"
   },
   "calendarLunar": "음력",
   "@calendarLunar": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)"
   },
   "timeUnknownLabel": "모름",
   "@timeUnknownLabel": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)"
   },
   "genderMale": "남성",
   "@genderMale": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)"
   },
   "genderFemale": "여성",
   "@genderFemale": {
-    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)"
+    "description": "출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)"
   },
   "calendarPrevMonth": "이전 달",
   "@calendarPrevMonth": {
@@ -1582,7 +1592,11 @@
   },
   "diaryEditSave": "저장",
   "@diaryEditSave": {
-    "description": "일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)"
+    "description": "일기 쓰기 화면(diary-edit): 상단 바 오른쪽 저장 글자 버튼(app-bar textAction, DS1 V82, V94). 누르면 diary-view로 갑니다(#275)"
+  },
+  "diaryEditQuestionSwap": "질문 바꾸기",
+  "@diaryEditQuestionSwap": {
+    "description": "일기 쓰기 인용 질문 옆 질문 바꾸기 아이콘 버튼(arrows-clockwise)의 스크린리더 이름. 바꾼 뒤에는 새 질문을 읽습니다(DS1 V82, D77 ② IA 밖)"
   },
   "diaryListPickDateConfirm": "{date} 일기 쓰기",
   "@diaryListPickDateConfirm": {
@@ -2202,6 +2216,10 @@
       }
     }
   },
+  "bandTableEmptyCell": "없음",
+  "@bandTableEmptyCell": {
+    "description": "saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목"
+  },
   "sajuPillarHour": "시주",
   "@sajuPillarHour": {
     "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
@@ -2233,6 +2251,64 @@
   "manseRowShinsal": "신살",
   "@manseRowShinsal": {
     "description": "saju-pillars, manse-table: 열 머리(시주, 일주, 월주, 연주), 행 머리(지장간, 12운성, 신살), 일주 천간 위 일간 라벨"
+  },
+  "luckDaeunAgeRange": "{startAge}~{endAge}세",
+  "@luckDaeunAgeRange": {
+    "description": "나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)",
+    "placeholders": {
+      "startAge": {
+        "type": "int"
+      },
+      "endAge": {
+        "type": "int"
+      }
+    }
+  },
+  "luckDaeunYearRange": "{startYear}~{endYear}년",
+  "@luckDaeunYearRange": {
+    "description": "나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)",
+    "placeholders": {
+      "startYear": {
+        "type": "int"
+      },
+      "endYear": {
+        "type": "int"
+      }
+    }
+  },
+  "luckSeunYear": "{year}년",
+  "@luckSeunYear": {
+    "description": "나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "luckSeunAge": "{age}세",
+  "@luckSeunAge": {
+    "description": "나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)",
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "sajuStageMarkerHour": "시",
+  "@sajuStageMarkerHour": {
+    "description": "12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)"
+  },
+  "sajuStageMarkerDay": "일",
+  "@sajuStageMarkerDay": {
+    "description": "12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)"
+  },
+  "sajuStageMarkerMonth": "월",
+  "@sajuStageMarkerMonth": {
+    "description": "12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)"
+  },
+  "sajuStageMarkerYear": "연",
+  "@sajuStageMarkerYear": {
+    "description": "12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)"
   },
   "sajuTagMe": "나",
   "@sajuTagMe": {
@@ -2284,7 +2360,7 @@
   },
   "tagChipLabel": "#{tag}",
   "@tagChipLabel": {
-    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다",
+    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)",
     "placeholders": {
       "tag": {
         "type": "String"
@@ -2293,15 +2369,15 @@
   },
   "tagChipPolarityGood": "좋은 흐름",
   "@tagChipPolarityGood": {
-    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
+    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
   },
   "tagChipPolarityBad": "조심할 흐름",
   "@tagChipPolarityBad": {
-    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
+    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
   },
   "tagChipPolarityNeutral": "무난한 흐름",
   "@tagChipPolarityNeutral": {
-    "description": "태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다"
+    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
   },
   "welcomeConceptBody": "풀이에 맞춘 질문 하나로 그날 일기를 시작해요.",
   "@welcomeConceptBody": {
