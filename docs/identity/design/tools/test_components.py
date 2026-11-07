@@ -2394,14 +2394,36 @@ def test_glyph_table_has_hyeong():
     assert "합충형" in component("sentence", "hanja-tag")["rules"][0]
 
 
+def decision_rows():
+    """decisions.md 결정 표를 {ID: {열 이름: 칸}}으로. 열은 머리글(| ID | 날짜 | 분류 | 결정 | 근거 |)에서 이름으로 찾습니다.
+
+    칸 안에 표 구분자가 섞여 칸 수가 머리글과 다르면 그 행에서 실패합니다(열을 잘못 읽지 않게).
+    """
+    lines = (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines()
+
+    def cells(line):
+        return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+    header_index = next(index for index, line in enumerate(lines) if line.startswith("|") and cells(line)[0] == "ID")
+    names = cells(lines[header_index])
+    rows = {}
+    for line in lines[header_index + 2:]:
+        if not line.startswith("|"):
+            break
+        values = cells(line)
+        assert len(values) == len(names), f"칸 수가 머리글과 다름: {values[0]}"
+        rows[values[0]] = dict(zip(names, values))
+    return rows
+
+
 def test_revised_decisions_are_marked():
-    rows = {line.split("|")[1].strip(): line for line in (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines()
-            if line.startswith("| V")}
+    rows = {key: row["결정"] for key, row in decision_rows().items()}
+    reasons = {key: row["근거"] for key, row in decision_rows().items()}
     assert "2026-11-07 개정" in rows["V10"] and "V84" in rows["V10"]
     assert "2026-11-07 개정" in rows["V42"] and "V85" in rows["V42"]
     assert "2026-11-07 개정" in rows["V84"] and "Q1 ⑤" in rows["V84"]  # 관문 답 리뷰 I1
     assert "2026-11-07 개정" in rows["V87"] and "score-scale을 뺌" in rows["V87"]
-    assert rows["V86"].rstrip(" |").endswith("사용자 영향: #801(길흉판정 막대 세 이름 day-sheet 슬롯 IA 요청)")
+    assert reasons["V86"].endswith("사용자 영향: #801(길흉판정 막대 세 이름 day-sheet 슬롯 IA 요청)")
     # 묶음 E(사주 표)가 바꾼 앞 결정 (V88~V92)
     assert "2026-11-07 개정" in rows["V49"] and "V89" in rows["V49"]
     assert "2026-11-07 개정" in rows["V53"] and "V89" in rows["V53"]
@@ -2540,7 +2562,7 @@ def test_stage_strip():
     example = "장생, 월주 / 목욕, 연주 / 관대, 시주 / 양, 일주"
     assert strip["a11y"]["role"] == "img" and example in strip["a11y"]["label"] and "월주와 연주" not in strip["a11y"]["label"]
     assert example in (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
-    v91 = next(line for line in (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines() if line.startswith("| V91 |"))
+    v91 = decision_rows()["V91"]["결정"]
     assert example in v91 and "월주와 연주" not in v91
     spec_line = next(line for line in (DESIGN_DIR / "specs" / "2026-11-05-ds1-screens-design.md").read_text(encoding="utf-8").splitlines()
                      if line.startswith("* `stage-strip`"))
@@ -2631,15 +2653,14 @@ def test_screen_e_sample():
     q4_page = (DESIGN_DIR / "artifacts" / "2026-11-07-ds1-e-q4-highlight.html").read_text(encoding="utf-8")
     assert 'href="ds1/tokens.css"' in q4_page and 'data-theme="dark"' in q4_page and "권장" in q4_page
     assert [char for char in ("—", "–", "·") if char in q4_page] == []
-    rows = {line.split("|")[1].strip(): line for line in (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines()
-            if line.startswith("| V")}
+    rows = decision_rows()
     for key in ("V88", "V89", "V90", "V91", "V92"):
-        assert "사용자 확인 대기" not in rows[key] and "관문 답 2026-11-07" in rows[key], key
+        assert "사용자 확인 대기" not in rows[key]["근거"] and "관문 답 2026-11-07" in rows[key]["근거"], key
     assert q4_page.count("고름(2026-11-07)") == 1
     for key in ("V89", "V90"):
-        assert "답 대기" not in rows[key] and "V93" in rows[key], key
-    assert "Q4 ③" in rows["V93"] and "color.highlight.bg" in rows["V93"] and "1.4.0" in rows["V93"]
-    assert rows["V93"].rstrip(" |").split("사용자 영향: ", 1)[1].startswith("#801")
+        assert "답 대기" not in rows[key]["근거"] and "V93" in rows[key]["결정"] and "V93" in rows[key]["근거"], key
+    assert "Q4 ③" in rows["V93"]["결정"] and "color.highlight.bg" in rows["V93"]["결정"] and "1.4.0" in rows["V93"]["결정"]
+    assert rows["V93"]["근거"].split("사용자 영향: ", 1)[1].startswith("#801")
 
 
 # 리뷰 Minor 2: 지운 부품(manse-table 격자선, 행 머리)을 가리키는 문장이 남지 않음
@@ -2657,8 +2678,7 @@ def test_removed_saju_parts_not_referenced():
 
 # Q4 ③(V93) 뒤 결정 본문에 "같은 sage라 묻힘" 근거가 남지 않음. 옛 근거는 개정 괄호에만 (리뷰 Important 1, 2)
 def test_highlight_reasons_are_current():
-    rows = {line.split("|")[1].strip(): line.split(" | ")[3] for line in
-            (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines() if line.startswith("| V")}
+    rows = {key: row["결정"] for key, row in decision_rows().items()}
     for key in ("V77", "V89", "V90"):
         body = rows[key].split(" (2026-11-07 개정:", 1)[0]
         assert "묻" not in body and "status.bg" not in body, key
