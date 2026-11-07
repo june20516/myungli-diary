@@ -22,8 +22,8 @@ EXISTING_ROWS = [  # lengths.md 2.2.0 시점의 확정 13행 중 남은 11행(D7
     '| `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |',
     '| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |',
     '| `daily.focus_reason` | lucky-card 설명 시트 안 한 줄 | 312px | 1 | 10 | 22 | **10** | **10** | **18** |',
-    # daily.tag_label은 2.5.0(#239)에서 더 좁은 오늘 화면 lucky-card tag 칩으로 다시 잼. 확정값(굵은 칸)은 그대로
-    "| `daily.tag_label` | lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음) | 276px | 1 | 10 | 25 | **10** | **10** | **18** |",
+    # daily.tag_label은 2.5.0(#239)에서 lucky-card tag 칩으로, 5.0.0(DS1)에서 그 변형이 지워져 hanja-tag 이름 칸으로 다시 잼. 확정값(굵은 칸)은 그대로
+    "| `daily.tag_label` | hanja-tag 이름 (카드 안 한 줄, 카드 안쪽 16, 앞 4 + 한자 원 22 + 간격 4, 뒤 12. diary-summary, diary-row 카드가 가장 좁음) | 246px | 1 | 10 | 22 | **10** | **10** | **18** |",
     '| `calendar.day_level` | day-character badge (좌우 12px, day-sheet 안이 가장 좁음) | 288px | 1 | 10 | 26 | **10** | **10** | **18** |',
     '| `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |',
     '| `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |',
@@ -71,6 +71,9 @@ ISSUE_763 = {
 # writing W51 IA 밖 ui 슬롯 7개 (#710)
 ISSUE_710 = {"ui.settings.row", "ui.legal.row", "ui.profile-edit.birthplace", "ui.saju-chart.tab", "ui.saju.header",
              "ui.saju.tag", "ui.evidence.personal-empty"}
+
+# DS1 2단계(#801) 화면 결정 시안의 새 자리: 시진 이름, 자리 표시 기둥 글자, 가운데 초안 상태 (V82, V88, V91)
+DS1_SCREENS = {"ui.saju.hour-name", "ui.saju.stage-marker", "diary-edit.draft.status"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -193,7 +196,9 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "ui.depth.evidence_link", "ui.guide.card", "settings.ad-free.label", "ui.evidence.title",
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
-    requested = issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710 | ISSUE_763
+    requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
+                 | ISSUE_763 | DS1_SCREENS)
+    slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
         "ui.nav.a11y", "ui.a11y.label", "ui.picker.label", "evidence-sheet.a11y.locked", "evidence-sheet.a11y.checking",
@@ -258,7 +263,8 @@ def test_d77_ia_slots_are_measured():
     # today.evidence.link는 IA v5(#812)에서 지워졌습니다. writing 슬롯은 스크린리더 이름이라 상한이 없습니다(V63).
     assert "ui.depth.evidence_link" in lengths.NO_LIMIT
     places = {slot: target.where for target in lengths.TARGETS for slot in target.slots}
-    assert {places[D77_SLOTS[ia_id]].split(" ")[0] for ia_id in ("event-edit.save.cta", "diary-edit.save.cta")} == {"primary-button"}
+    assert places[D77_SLOTS["event-edit.save.cta"]].split(" ")[0] == "primary-button"
+    assert places[D77_SLOTS["diary-edit.save.cta"]].startswith("app-bar textAction")  # DS1 V82: 상단 바 글자 버튼
     assert places["ui.event-edit.offline"].startswith("notice-banner")
     assert places["ui.diary-view.deleted"].startswith("toast") and places["ui.event-edit.save-failed"].startswith("toast")
 
@@ -452,3 +458,48 @@ def test_sheet_slots_are_measured_at_sheet_width():
     assert by_slot["day-sheet.diary.open"].width == sheet - lengths.ICON_BESIDE_SMALL_TEXT - 2
     dialog_inner = lengths.SCREEN_WIDTH - 2 * lengths.DIALOG_MARGIN - 2 * lengths.DIALOG_PADDING
     assert by_slot["ui.action.button"].width == (dialog_inner - 8) / 2 - 2 * lengths.DIALOG_BUTTON_PADDING == 104
+
+
+# DS1 2단계(#801) 새 자리와 다시 잰 자리 (결정 V82, V88, V91, V94)
+def test_ds1_screen_slots_are_measured():
+    places = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    # 상단 바 저장 글자 버튼: 동작 아이콘 둘 자리(44 × 2)까지, 좌우 space.8
+    save = places["ui.diary-edit.save"]
+    assert save.where.startswith("app-bar textAction") and save.width == lengths.APP_BAR_TEXT_ACTION_MAX - 2 * 8 == 72
+    # 가운데 초안 상태: 뒤로 44와 저장 버튼 최대 폭 사이에서 아이콘 16 + 간격 4, 글자 수 앞 space.8과 글자 수 자리를 뺌
+    status = places["diary-edit.draft.status"]
+    center = lengths.SCREEN_WIDTH - 2 * 16 - 44 - lengths.APP_BAR_TEXT_ACTION_MAX
+    assert status.width == center - 16 - 4 - 8 - lengths.DRAFT_COUNT_RESERVE and status.lines == 1
+    # 시진 이름: 칸 단위로 줄이 바뀌므로 시진 칸 하나가 본문 폭을 다 쓸 때. hanja-tag 둘레와 시간 자리를 뺌
+    hour = places["ui.saju.hour-name"]
+    assert hour.width == lengths.CONTENT_WIDTH - lengths.HANJA_TAG_CHROME - 8 - lengths.BIRTH_TIME_RESERVE
+    assert hour.font == "ui-500" and hour.size == 13
+    # 성별과 시간 모름 알약은 ui.birth.option 낱말을 함께 쓰고, segmented 칸이 더 좁아 그 행 값 그대로
+    assert "birth-info-row" in places["ui.birth.option"].where
+    assert places["daily.tag_label"].width == lengths.CONTENT_WIDTH - 2 * 16 - lengths.HANJA_TAG_CHROME
+    # 자리 표시 원 18 안 한 글자
+    where, width, limit, _reason = lengths.FIXED_LIMITS["ui.saju.stage-marker"]
+    assert width == 18 and limit == 1 and "stage-strip" in where
+    table = render_table([])
+    assert "| `ui.saju.stage-marker` | " in table and "| 18px | 1 | - | - | **1** | **1** | **1** |" in table
+    md = (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8")
+    assert "* `diary-edit.draft.status`: app-bar 제목과 나눠 쓰는 폭을 명세가 정하지 않았습니다." not in md
+    assert "`bandTableEmptyCell`" in md  # 빈 칸 "없음"은 ui.saju.a11y 키(스크린리더 전용, 상한 없음)
+
+
+def test_ds1_layout_constants_match_component_spec():
+    bar = _component("frame", "app-bar")["parts"]["textAction"]
+    assert lengths.APP_BAR_TEXT_ACTION_MAX == _spec_px(bar["maxWidth"]) == 2 * _spec_px(
+        _component("frame", "app-bar")["parts"]["action"]["target"])
+    assert _spec_px(bar["paddingX"]) == 8
+    pill = _component("sentence", "hanja-tag")["parts"]
+    chrome = (_spec_px(pill["pill"]["paddingStart"]) + _spec_px(pill["glyph"]["size"]) + _spec_px(pill["pill"]["gap"])
+              + _spec_px(pill["pill"]["paddingEnd"]))
+    assert lengths.HANJA_TAG_CHROME == chrome == 42
+    hour = _component("saju", "birth-info-row")["parts"]["hour"]
+    assert _spec_px(hour["value"]["marginStart"]) == 8
+    marker = _component("saju", "stage-strip")["parts"]["marker"]
+    assert _spec_px(marker["size"]) == lengths.FIXED_LIMITS["ui.saju.stage-marker"][1]
+    draft = _component("diary", "draft-indicator")["parts"]
+    assert _spec_px(draft["icon"]["size"]) == 16 and _spec_px(draft["container"]["gap"]) == 4
+    assert _spec_px(draft["count"]["marginStart"]) == 8

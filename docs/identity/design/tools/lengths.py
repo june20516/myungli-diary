@@ -52,6 +52,13 @@ CHIP_PADDING = 12  # day-character 배지, tag-chip, lucky-card 칩 좌우 안�
 LUCKY_CHIP_GAP = 4  # lucky-card 칩 안 아이콘과 글자 사이
 SEGMENTED_TRACK_PADDING = 4  # segmented 트랙 안쪽
 ICON_BESIDE_SMALL_TEXT = 16  # 14px 이하 글자 옆 아이콘 단계 (adjacent-text, 결정 V57)
+# DS1 2단계(#801) 명세 폭 (test_ds1_layout_constants_match_component_spec이 components/*.json과 대조)
+HANJA_TAG_CHROME = 4 + 22 + 4 + 12  # hanja-tag 앞 안쪽 4 + 한자 원 22 + 간격 4 + 뒤 안쪽 12 (결정 V70)
+APP_BAR_TEXT_ACTION_MAX = 2 * 44  # app-bar textAction 최대 폭: 동작 아이콘 둘 자리 (결정 V82, V94)
+# 가운데 초안 상태 옆 글자 수 자리: 가장 넓은 en "9,999 chars"(caption.md 12px 실측 63.8px)를 담는 폭
+DRAFT_COUNT_RESERVE = 64
+# 출생 정보 줄 시진 칸의 시간 자리: 가장 넓은 ja "午後11:30"(label.md 13px, 한자 전각 + 숫자 실측 약 56px)
+BIRTH_TIME_RESERVE = 56
 
 KO_LINE_PERCENTILE = 0.10
 
@@ -109,8 +116,9 @@ TARGETS = (
     Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body)",
            "sentence", 15, 0, SHEET_CONTENT_WIDTH, 2, True, 36),
     Target(("daily.focus_reason",), "lucky-card 설명 시트 안 한 줄", "sentence", 15, 0, SHEET_CONTENT_WIDTH, 1, False, 10),
-    Target(("daily.tag_label",), "lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음)",
-           "ui-600", 13, -0.26, CONTENT_WIDTH - 2 * CHIP_PADDING - ICON_BESIDE_SMALL_TEXT - LUCKY_CHIP_GAP, 1, False, 10),
+    # 5.0.0(DS1): 대표 태그는 lucky-card tag 칩이 아니라 hanja-tag. 카드 안 태그가 가장 좁음 (결정 V70, V78)
+    Target(("daily.tag_label",), "hanja-tag 이름 (카드 안 한 줄, 카드 안쪽 16, 앞 4 + 한자 원 22 + 간격 4, 뒤 12. diary-summary, diary-row 카드가 가장 좁음)",
+           "ui-500", 13, -0.26, CONTENT_WIDTH - 2 * 16 - HANJA_TAG_CHROME, 1, False, 10),
     Target(("calendar.day_level",), "day-character badge (좌우 12px, day-sheet 안이 가장 좁음)", "ui-500", 13, -0.26, SHEET_CONTENT_WIDTH - 2 * CHIP_PADDING, 1, False, 10),
     Target(("calendar.score_item",), "term-token label (좌우 4px)", "ui-500", 12, -0.24, CONTENT_WIDTH - 8, 1, False, 10),
     Target(("calendar.solar_term",), "day-cell lunar 줄 (칸 폭 44px, 굵게)", "ui-700", 10.5, -0.22, (CONTENT_WIDTH - 2 * 6) / 7, 1, False, 10),
@@ -119,8 +127,8 @@ TARGETS = (
     Target(("welcome.cta.start", "welcome.cta.signin", "preview.cta.save", "preview.cta.restart", "consent.cta.agree",
             "notify-ask.cta.allow", "notify-ask.cta.skip", "force-update.cta.store", "account-delete.cta.delete",
             "today.guide.cta", "diary-list.pick-date.cta",
-            # D77 IA 자리 event-edit.save.cta·delete.cta·diary-edit.save.cta (writing W33: ui 슬롯에 ia로 담음)
-            "ui.event-edit.save", "ui.event-edit.delete", "ui.diary-edit.save",
+            # D77 IA 자리 event-edit.save.cta·delete.cta (writing W33: ui 슬롯에 ia로 담음). diary-edit.save.cta는 DS1에서 상단 바로
+            "ui.event-edit.save", "ui.event-edit.delete",
             # D82 account-merge 아래 버튼 (#389)
             "account-merge.cta.merge",
             # D85 계정 합치기 입구 (#480). 합치지 않기 버튼은 IA에서 빠짐(PR #511)
@@ -148,7 +156,8 @@ TARGETS = (
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 16 - 16, 2, True, None),
     Target(("ui.nav.tab",), "tab-bar 탭 라벨 (화면 폭 4등분)", "ui-500", 11, -0.22, SCREEN_WIDTH / 4, 1, False, None),
     # W51 사주 표 탭도 segmented 두 칸 (#710)
-    Target(("ui.birth.option", "ui.saju-chart.tab"), "segmented 두 칸 중 한 칸 (check-row inline 글자 포함)",
+    Target(("ui.birth.option", "ui.saju-chart.tab"),
+           "segmented 두 칸 중 한 칸 (check-row inline 글자 포함. birth-info-row 성별과 시간 모름 알약, 달력 종류 꼬리표는 칸 단위 줄바꿈이라 더 넓음)",
            "ui-600", 14, -0.28, (CONTENT_WIDTH - 2 * 1 - 2 * SEGMENTED_TRACK_PADDING) / 2, 1, False, None),
     Target(("share-preview.ratio.label",), "segmented 세 칸 중 한 칸 (share-preview 시트 안)",
            "ui-600", 14, -0.28, (SHEET_CONTENT_WIDTH - 2 * 1 - 2 * SEGMENTED_TRACK_PADDING) / 3, 1, False, None),
@@ -177,6 +186,14 @@ TARGETS = (
            "ui-600", 14, -0.28, CONTENT_WIDTH / 2 - ICON_BESIDE_SMALL_TEXT - 2, 1, False, None),
     Target(("ui.app.name", "contact.bar.title"), "app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2)",
            "ui-600", 16, -0.32, SCREEN_WIDTH - 2 * 16 - 44 - 2 * 44, 1, False, None),
+    # DS1 2단계(#801): 일기 쓰기 상단 바. 저장은 동작 아이콘 둘 자리까지의 글자 버튼, 가운데는 뒤로와 그 버튼 사이 (결정 V82, V94)
+    Target(("ui.diary-edit.save",), "app-bar textAction 저장 글자 (최대 폭 88 = 동작 44 × 2, 좌우 space.8)",
+           "ui-600", 14, -0.28, APP_BAR_TEXT_ACTION_MAX - 2 * 8, 1, False, None),
+    Target(("diary-edit.draft.status",),
+           "draft-indicator 상태 글자 (app-bar 가운데: 좌우 16, 뒤로 44, 저장 최대 88 사이에서 아이콘 16 + 간격 4, 글자 수 앞 8과 글자 수 자리 64)",
+           "ui-500", 12, -0.24,
+           SCREEN_WIDTH - 2 * 16 - 44 - APP_BAR_TEXT_ACTION_MAX - ICON_BESIDE_SMALL_TEXT - 4 - 8 - DRAFT_COUNT_RESERVE,
+           1, False, None),
     Target(("onboard-time.hour.confirm",), "time-picker 시진 확인 줄", "ui-400", 13, -0.26, CONTENT_WIDTH, 1, False, None),
     Target(("character.reason",), "day-character 이유 줄 (IA v4 기준 day-sheet 폭으로 잰 확정값, IA v5에서 day-sheet 자리는 빠졌지만 값 유지, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌)",
            "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH, 2, True, None, trailing_icon=20),
@@ -236,6 +253,9 @@ TARGETS = (
            "ui-500", 13, -0.26, 52 * 2 + 4 - 2 * 8, 1, False, None),
     Target(("ui.evidence.personal-empty",), "evidence-sheet 빈 해석 안내 (sheet 안쪽 24, 두 줄)",
            "ui-400", 14, -0.28, SHEET_CONTENT_WIDTH, 2, True, None),
+    # DS1 2단계(#801) 사주 표 출생 정보 줄 시진 태그 이름(ko 미시). 칸 단위 줄바꿈이라 시진 칸 하나가 본문 폭을 다 쓸 때 (결정 V88)
+    Target(("ui.saju.hour-name",), "birth-info-row 시진 hanja-tag 이름 (본문 폭, 앞 4 + 한자 원 22 + 간격 4, 뒤 12, 시간 앞 8 + 시간 자리 56)",
+           "ui-500", 13, -0.26, CONTENT_WIDTH - HANJA_TAG_CHROME - 8 - BIRTH_TIME_RESERVE, 1, False, None),
     # D102 문의 화면 contact (#763, 결정 V55). 칸 안 안내와 메일 칸 오류는 키별 상한
     Target(("contact.intro.body",), "contact 첫머리 (본문 폭, 세 줄)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
     Target(("contact.message.field", "contact.email.field"), "text-field label 칸 이름 (본문 폭, 한 줄)",
@@ -280,6 +300,13 @@ KEY_MEASURED_LIMITS = {
     # ja도 라틴 주소 예시라 전각 1em 추정(14)이 맞지 않음 (#763)
     ("contact.email.field", "contactEmailFieldHint", "ja"): (
         16, "ja 원고도 라틴 주소 예시 name@example.com. 실측 158.6px로 칸 260px 한 줄 안, 결정 V55"),
+}
+
+# 글자 수 대신 칸 폭으로 확인한 한 글자 자리: 슬롯 → (놓이는 칸, 칸 폭 px, 세 언어 상한, 실측 근거)
+FIXED_LIMITS = {
+    # DS1 2단계(#801) 12운성 막대 자리 표시 원 18(caption.sm 11px 700) 안의 기둥 한 글자 (결정 V91)
+    "ui.saju.stage-marker": ("stage-strip 자리 표시 원 안 기둥 한 글자 (원 18, caption.sm 700)", 18, 1,
+                             "ko 시 9.3px, ja 時 전각 11px, en 대문자 W 10.8px가 원 18 안. 두 글자는 en Mo 약 16px로 원 끝에 닿음"),
 }
 
 # 레이아웃이 줄 수를 막지 않는 자리(스크롤 본문). writing 초안을 그대로 둡니다.
@@ -526,6 +553,8 @@ def render_table(results: list[Result], key_results: list[tuple[tuple[str, str],
             f"| {slots} | {target.where} | {target.width:g}px | {target.lines} | {draft} | {result.ko} "
             f"| **{result.final('ko')}** | **{result.final('ja')}** | **{result.final('en')}** |"
         )
+    for slot, (where, width, limit, _reason) in FIXED_LIMITS.items():
+        lines.append(f"| `{slot}` | {where} | {width:g}px | 1 | - | - | **{limit}** | **{limit}** | **{limit}** |")
     for slot, (where, draft) in UNBOUNDED.items():
         lines.append(f"| `{slot}` | {where} | 본문 | 제한 없음 | {draft} | - "
                      f"| **{draft}** | **{draft}** | **{math.floor(draft * 1.8)}** |")

@@ -34,7 +34,7 @@
 | `edit` | 뒤로(caret-left) | 화면 제목(`type.label.lg`), 쓰는 중에는 `draft-indicator` | 글자 버튼 하나(저장) |
 
 * **`edit`(일기 쓰기, 결정 V82):** 가운데는 화면 제목(`diary-edit.bar.title`)이고, 본문에 초점이 있는 동안은 같은 자리에 초안 상태(`draft-indicator`: 상태 글자 + 글자 수)가 `appear.seep`으로 바뀌어 보입니다. 가운데 글자는 뒤로와 글자 버튼 사이 폭에 한 줄입니다. 스크린리더 머리 이름은 늘 화면 제목입니다.
-* **글자 버튼(`textAction`):** 바탕 없는 글자만의 오른쪽 버튼(`type.label.lg` `action.primary`, 좌우 `space.8`, 터치 44). `edit`에서 동작 아이콘 대신 하나만 둡니다. 쓴 것이 없으면 글자(`label`)가 `disabled.fg`로 누를 수 없고(`textActionDisabled`), 처리 중은 글자 자리에 점 셋 `loading.breathe`(폭 그대로, `textActionSaving`)입니다.
+* **글자 버튼(`textAction`):** 바탕 없는 글자만의 오른쪽 버튼(`type.label.lg` `action.primary`, 좌우 `space.8`, 터치 44, 최대 폭 88 = 동작 아이콘 둘 자리). `edit`에서 동작 아이콘 대신 하나만 둡니다. 글자 상한은 이 최대 폭으로 잽니다(`lengths.md`, 결정 V94). 쓴 것이 없으면 글자(`label`)가 `disabled.fg`로 누를 수 없고(`textActionDisabled`), 처리 중은 글자 자리에 점 셋 `loading.breathe`(폭 그대로, `textActionSaving`)입니다.
 
 * 갈래의 첫 화면이라 돌아갈 곳이 없는 화면(consent, notify-ask)은 `inner`여도 뒤로 버튼을 숨깁니다. 뒤로 자리를 비워 두지 않으므로 제목의 시작 위치는 바뀌지 않습니다.
 * Material 힌트: `AppBar`의 `scrolledUnderElevation: 0`, `surfaceTintColor: transparent`, `centerTitle: false`.
