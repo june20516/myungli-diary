@@ -2715,6 +2715,10 @@ def test_readme_records_5_0_removals_and_renames():
     assert "`manse-table` `a11y.role` `table` → `group`" in changed
     assert "`daeun-table` `a11y.role` `table` → `list`" in changed
     assert "`tag-chip` `a11y.role` `link` → `button`" in changed
+    # 재리뷰 Minor: 뼈 목록과 잠금 자리값 구조
+    assert "`manse-table` `states.loading.skeleton`" in changed and "`band-table` 뼈" in changed
+    assert "`daeun-table` `states.loading.skeleton`" in changed and "`luck-pillar` 뼈" in changed
+    assert "`lock.veil.placeholder` 문자열 → 객체" in changed
     for decision in ("V69", "V93"):
         assert decision in row
     assert "토큰 1.4.0 이상" in row and "주 버전" in row
