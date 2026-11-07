@@ -100,6 +100,7 @@
   --color-calendar-weekday-sun: var(--color-ohaeng-fire-fg);
   --color-calendar-weekday-sat: var(--color-ohaeng-earth-fg);
   --color-fill-soft: var(--color-neutral-100);
+  --color-highlight-bg: var(--color-neutral-50);
   --color-inverse-bg: var(--color-neutral-900);
   --color-inverse-fg: var(--color-neutral-100);
   --color-disabled-bg: var(--color-neutral-100);
@@ -236,6 +237,7 @@
   --color-calendar-weekday-sun: var(--color-ohaeng-fire-fg);
   --color-calendar-weekday-sat: var(--color-ohaeng-earth-fg);
   --color-fill-soft: var(--color-neutral-800);
+  --color-highlight-bg: var(--color-neutral-950);
   --color-inverse-bg: var(--color-neutral-100);
   --color-inverse-fg: var(--color-neutral-900);
   --color-disabled-bg: var(--color-neutral-800);

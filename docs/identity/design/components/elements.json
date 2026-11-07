@@ -92,8 +92,11 @@
       "clippedByCell": false
     },
     "highlight.current": {
-      "summary": "현재 강조: 기둥·칸 바탕 옅은 sage + 글자 sage 굵게",
-      "bg": "{color.status.bg}",
+      "summary": "현재 강조: 기둥, 칸 바탕 옅은 회색 + 글자 sage 굵게 (결정 V93)",
+      "bg": "{color.highlight.bg}",
+      "onlyOn": "{color.bg.sheet}",
+      "onlyOnRule": "바탕이 화면 바탕(bg.base)과 같은 회색이라 흰 카드(bg.sheet) 위에서만 쓴다. 화면 바탕 위에 두면 보이지 않음",
+      "note": "회색으로 둔 이유: sage 꼬리표(tag.status)와 용어 칩(term)이 강조 바탕 위에서도 갈리게(사용자 의견, 관문 Q4 ③ 2026-11-07)",
       "fg": "{color.action.primary}",
       "fontWeight": 700,
       "outlineSeal": false

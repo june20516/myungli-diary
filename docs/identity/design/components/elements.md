@@ -11,7 +11,7 @@
 | `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, tag-chip, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
 | `tag.me` '나' 꼬리표 | sage 채움 작은 알약(10px 700), 칸 오른쪽 위 모서리에 겹침 | 원국표 일간 |
-| `highlight.current` 현재 강조 | 바탕 `status.bg` + 글자 `action.primary` 굵게 | 대운 지금, 세운 올해 |
+| `highlight.current` 현재 강조 | 바탕 `highlight.bg`(옅은 회색, 카드 `bg.sheet` 위에서만) + 글자 `action.primary` 굵게 (V93) | 대운 지금, 세운 올해, 띠 표 일주 열 |
 | `mark.underline-grow` 펼침 밑줄 | `action.primary` 14×2px 둥근 막대, 숫자 아래 2px | 달력 선택 날짜 |
 | `mark.caution` 경고 표시 | Phosphor `warning-circle` Fill, 글자색, 옆 글자 기준 아이콘 단계 | 되돌릴 수 없는 동작 |
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |

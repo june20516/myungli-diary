@@ -218,6 +218,7 @@ def test_tokens_1_3_0_additions_only():
 TOKENS_1_4_0_ADDED_COLOR = {
     "color.calendar.level.great", "color.calendar.level.good", "color.calendar.level.caution",
     "color.fill.soft", "color.verdict.track",
+    "color.highlight.bg",  # 관문 답 2026-11-07 Q4 ③: 강조 바탕 회색 (V93)
 }
 
 
@@ -304,3 +305,15 @@ def test_calendar_level_values_chosen_by_user():
     light, dark = _level_hexes("light"), _level_hexes("dark")
     assert (light["great"], light["good"], light["caution"]) == ("#ffd2ca", "#ffe4df", "#d4d4d3")
     assert (dark["great"], dark["good"], dark["caution"]) == ("#582720", "#46322f", "#2a2a29")
+
+
+# 관문 답 2026-11-07 Q4 ③(V93): 강조 바탕은 새 primitive 없이 neutral.50(다크 neutral.950). sage 칩, 꼬리표와 갈림
+def test_highlight_bg_is_soft_gray():
+    palette = build_palette()
+    neutral = palette["brand"]["neutral"]
+    for mode, step in (("light", 50), ("dark", 950)):
+        roles = palette["roles"][mode]
+        assert roles["highlight.bg"] == neutral[step], mode
+        assert oklab_distance(roles["highlight.bg"], roles["bg.sheet"]) >= 0.02, mode  # 카드와 화면 바탕 구분만큼
+        assert oklab_distance(roles["highlight.bg"], roles["term.bg"]) >= 0.025, mode  # sage 칩과 꼬리표가 묻히지 않음
+        assert contrast_ratio(roles["action.primary"], roles["highlight.bg"]) >= 4.5, mode

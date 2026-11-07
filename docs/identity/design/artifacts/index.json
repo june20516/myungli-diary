@@ -895,10 +895,11 @@
       "V89",
       "V90",
       "V91",
-      "V92"
+      "V92",
+      "V93"
     ],
-    "status": "draft",
-    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 birth-info-row, band-table, stage-strip, scroll-hint, 대운 세운 줄 luck-pillar column. app fixture 하늘님 값(명리 검산), 원고 없는 문구는 예시. 관문 Q1~Q3는 권장안으로 확정(2026-11-07). 강조 바탕 색 Q4 답 전이라 사용자 확인 대기(#801)"
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 birth-info-row, band-table, stage-strip, scroll-hint, 대운 세운 줄 luck-pillar column. app fixture 하늘님 값(명리 검산), 원고 없는 문구는 예시. 사용자 확인(2026-11-07, #801): 관문 Q1 ① 꼬리표는 강조 바탕 밖 아래, Q2 ② 잠긴 용신 근거 두 줄, Q3 ① 시진 태그는 누를 수 없는 표시, Q4 ③ 강조 바탕과 일주 열은 옅은 회색 color.highlight.bg"
   },
   {
     "id": "design-ds1-e-questions",
@@ -928,8 +929,10 @@
       "saju-chart",
       "my-saju"
     ],
-    "decisions": [],
-    "status": "draft",
-    "note": "토큰 CSS(ds1/tokens.css)를 읽고 강조 바탕만 안마다 primitive로 덮어씀(새 primitive 없음). 사용자 의견 2026-11-07(초록이 많아 태그가 갈리지 않음). 권장 ③ neutral.50(다크 neutral.950): 칩과 거리 0.029(다크 0.162), sage 글자 대비 6.21:1(다크 10.34:1), 일주 열 0.35 옅게 깔기 없앰. 사용자 답 대기(#801)"
+    "decisions": [
+      "V93"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 읽고 안 ①, ②만 강조 바탕을 primitive로 덮어씀(새 primitive 없음). 사용자 의견 2026-11-07(초록이 많아 태그가 갈리지 않음). 사용자 답(2026-11-07, #801): ③ neutral.50(다크 neutral.950) 권장안, 새 토큰 color.highlight.bg로 반영(V93). 칩과 거리 0.029(다크 0.162), sage 글자 대비 6.21:1(다크 10.34:1), 일주 열 0.35 옅게 깔기 없앰"
   }
 ]

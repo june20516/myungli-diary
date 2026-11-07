@@ -1845,7 +1845,7 @@ def test_luck_pillar():
     states = pillar["states"]
     for state, word in (("current", "지금"), ("thisYear", "올해")):
         emphasis = states[state]["parts"]
-        assert emphasis["container"] == {"element": "highlight.current", "bg": "{color.status.bg}"}
+        assert emphasis["container"] == {"element": "highlight.current", "bg": "{color.highlight.bg}"}  # V93
         assert emphasis["topLabel"] == {"fg": "{color.action.primary}", "fontWeight": 700}
         assert emphasis["currentTag"] == {"visible": True, "label": word}
     assert "skeleton" in states["loading"]
@@ -2479,7 +2479,7 @@ def test_band_table():
     assert divider["width"] == "{border.width.hairline}" and divider["color"] == "{color.line}"
     assert "모든 띠를 관통" in divider["span"]
     day = parts["dayColumn"]
-    assert day["bg"] == "{color.status.bg}" and day["opacity"] == 0.35 and "term.bg" in day["note"]
+    assert day["bg"] == "{color.highlight.bg}" and "opacity" not in day  # V93: 회색이라 옅게 깔지 않음
     assert (day["header"]["fg"], day["header"]["fontWeight"]) == ("{color.action.primary}", 700) and day["me"]["element"] == "tag.me"
     band_header = parts["bandHeader"]
     assert band_header["span"] == "네 열" and band_header["bg"] == "{color.bg.sheet}"
@@ -2601,8 +2601,14 @@ def test_luck_pillar_current_tag_outside_highlight():
     assert pillar["parts"]["container"]["highlightCovers"] == ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod",
                                                               "twelveStage", "startYear"]
     elements = load_documents(COMPONENTS_DIR)["elements"]["elements"]
-    assert elements["tag.status"]["bg"] == elements["highlight.current"]["bg"]  # 같은 바탕이라 밖에 둠
-    assert any("묻힌다" in rule and "꼬리표" in rule for rule in pillar["rules"])
+    # Q4 ③(V93): 강조 바탕은 회색이라 sage 꼬리표와 다름. 자리는 Q1 ① 그대로
+    highlight = elements["highlight.current"]
+    assert highlight["bg"] == "{color.highlight.bg}" and elements["tag.status"]["bg"] != highlight["bg"]
+    assert "옅은 sage" not in highlight["summary"] and "회색" in highlight["summary"] and highlight["onlyOn"] == "{color.bg.sheet}"
+    assert any("Q1" in rule and "꼬리표" in rule for rule in pillar["rules"])
+    saju = json.dumps(load_documents(COMPONENTS_DIR)["saju"], ensure_ascii=False)
+    assert "같은 sage" not in saju and "같은 status.bg" not in saju
+    assert "같은 sage" not in (COMPONENTS_DIR / "saju.md").read_text(encoding="utf-8")
     assert "그리지 않음" in pillar["parts"]["branchTenGod"]["seun"]
 
 
@@ -2612,14 +2618,16 @@ def test_screen_e_sample():
         assert needed in page, needed
     assert ".arrows button { width: 44px; height: 44px;" in page  # 명세 minTarget 44 (리뷰 Minor 4)
     entries = {entry["id"]: entry for entry in json.loads((DESIGN_DIR / "artifacts" / "index.json").read_text(encoding="utf-8"))}
-    assert entries["design-ds1-screen-e"]["status"] == "draft" and "사용자 확인 대기(#801)" in entries["design-ds1-screen-e"]["note"]
+    # 관문 모두 끝남(Q1~Q4, 2026-11-07): 다른 확정 시안과 같은 chosen
+    assert entries["design-ds1-screen-e"]["status"] == "chosen" and "사용자 확인 대기" not in entries["design-ds1-screen-e"]["note"]
+    assert "--color-highlight-bg" in page and "opacity: 0.35" not in page
     # 관문 답(2026-11-07): Q1 ①, Q2 ②, Q3 ① 확정. 새 질문 Q4(강조 바탕 회색)는 답 대기
     assert entries["design-ds1-e-questions"]["kind"] == "concept" and entries["design-ds1-e-questions"]["status"] == "chosen"
     assert "Q1 ①" in entries["design-ds1-e-questions"]["note"] and "Q3 ①" in entries["design-ds1-e-questions"]["note"]
     questions = (DESIGN_DIR / "artifacts" / "2026-11-07-ds1-e-questions.html").read_text(encoding="utf-8")
     assert questions.count("고름(2026-11-07)") == 3
     q4 = entries["design-ds1-e-q4-highlight"]
-    assert (q4["kind"], q4["status"], q4["file"]) == ("concept", "draft", "2026-11-07-ds1-e-q4-highlight.html")
+    assert (q4["kind"], q4["status"], q4["file"]) == ("concept", "chosen", "2026-11-07-ds1-e-q4-highlight.html")
     q4_page = (DESIGN_DIR / "artifacts" / "2026-11-07-ds1-e-q4-highlight.html").read_text(encoding="utf-8")
     assert 'href="ds1/tokens.css"' in q4_page and 'data-theme="dark"' in q4_page and "권장" in q4_page
     assert [char for char in ("—", "–", "·") if char in q4_page] == []
@@ -2627,7 +2635,11 @@ def test_screen_e_sample():
             if line.startswith("| V")}
     for key in ("V88", "V89", "V90", "V91", "V92"):
         assert "사용자 확인 대기" not in rows[key] and "관문 답 2026-11-07" in rows[key], key
-    assert "Q4" in rows["V90"] and "Q4" in rows["V89"]  # 강조 바탕 색은 Q4 답 대기
+    assert q4_page.count("고름(2026-11-07)") == 1
+    for key in ("V89", "V90"):
+        assert "답 대기" not in rows[key] and "V93" in rows[key], key
+    assert "Q4 ③" in rows["V93"] and "color.highlight.bg" in rows["V93"] and "1.4.0" in rows["V93"]
+    assert rows["V93"].rstrip(" |").split("사용자 영향: ", 1)[1].startswith("#801")
 
 
 # 리뷰 Minor 2: 지운 부품(manse-table 격자선, 행 머리)을 가리키는 문장이 남지 않음

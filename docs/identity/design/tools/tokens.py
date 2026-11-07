@@ -69,6 +69,7 @@ ROLE_DESCRIPTIONS = {
     "calendar.level.good": "캘린더 잘 풀리는 날 칸 채우기(1.4.0). calendar.good.bg는 그대로 둠",
     "calendar.level.caution": "캘린더 조심할 날 칸 채우기. 회색이고 명도를 낮춰 good과 구분(1.4.0)",
     "fill.soft": "흰 표면(bg.sheet) 위 옅은 채움: 확인 창 취소 버튼 등. chip.bg는 흰 표면 위에서 보이지 않음(1.4.0)",
+    "highlight.bg": "현재 강조 바탕(지금 대운, 올해 세운 칸, 띠 표 일주 열). 옅은 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드(bg.sheet) 위에서만(1.4.0, V93)",
     "timeline.entry": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)",
 }
 

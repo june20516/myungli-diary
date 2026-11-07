@@ -74,6 +74,9 @@ MAX_CAUTION_CHROMA = 0.003
 MIN_GREAT_GOOD_CHROMA_GAP = 0.02
 # 흰 표면(bg.sheet) 위 옅은 채움: 라이트는 neutral-100, 다크는 neutral-800
 FILL_SOFT_STEP = {"light": 100, "dark": 800}
+# 현재 강조 바탕(지금 대운, 올해 세운 칸, 띠 표 일주 열): 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음.
+# 화면 바탕(bg.base)과 같은 단계지만 그 역할을 가리키지 않고 따로 둠. 카드(bg.sheet) 위에서만 씀 (V93, #801 관문 Q4 ③)
+HIGHLIGHT_STEP = {"light": 50, "dark": 950}
 
 WHITE = "#ffffff"
 HEX_PATTERN = re.compile(r"#[0-9a-fA-F]{6}")
@@ -230,6 +233,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "calendar.good.bg": coral[100],
             "calendar.caution.bg": neutral[100],
             "fill.soft": neutral[FILL_SOFT_STEP["light"]],
+            "highlight.bg": neutral[HIGHLIGHT_STEP["light"]],
             "inverse.bg": neutral[900],
             "inverse.fg": neutral[100],
             "disabled.bg": neutral[100],
@@ -265,6 +269,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "calendar.good.bg": coral[900],
             "calendar.caution.bg": neutral[900],
             "fill.soft": neutral[FILL_SOFT_STEP["dark"]],
+            "highlight.bg": neutral[HIGHLIGHT_STEP["dark"]],
             "inverse.bg": neutral[100],
             "inverse.fg": neutral[900],
             "disabled.bg": neutral[800],
@@ -345,6 +350,9 @@ def _v2_pairs(palette: dict, mode: str, roles: dict[str, str], ink: str) -> list
         (f"{mode} inverse", roles["inverse.fg"], roles["inverse.bg"]),
         (f"{mode} disabled", roles["disabled.fg"], roles["disabled.bg"]),
         (f"{mode} status", roles["term.fg"], roles["term.bg"]),
+        # 강조 칸 위 글자(나이, 연도 action.primary 굵게, 칸 글자 text.primary) (V93)
+        (f"{mode} action.primary on highlight.bg", roles["action.primary"], roles["highlight.bg"]),
+        (f"{mode} text.primary on highlight.bg", roles["text.primary"], roles["highlight.bg"]),
         (f"{mode} seal.knock on seal.fill", roles["seal.knock"], roles["action.primary"]),
         (f"{mode} calendar.weekday.sun on bg.base", palette["ohaeng"]["fire"][ink], roles["bg.base"]),
         (f"{mode} calendar.weekday.sat on bg.base", palette["ohaeng"]["earth"][ink], roles["bg.base"]),

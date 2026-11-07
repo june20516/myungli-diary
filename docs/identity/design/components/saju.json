@@ -134,7 +134,7 @@
             "twelveStage": { "visible": false },
             "startYear": { "visible": false },
             "highlight": "none",
-            "onCard": { "bg": "{color.bg.sheet}", "note": "두 줄이 모두 지금이라 강조 바탕을 칠하지 않음(사용자 결정 2026-11-06, origin). 흰 카드 위라 꼬리표(tag.status 알약)와 용어 칩(term, radius.xs)이 바탕과 구분됨" }
+            "onCard": { "bg": "{color.bg.sheet}", "note": "두 줄이 모두 지금이라 여러 칸 가운데 가릴 것이 없어 강조 바탕을 칠하지 않음(사용자 결정 2026-11-06, origin). 흰 카드 위라 꼬리표(tag.status 알약)와 용어 칩(term, radius.xs)이 바탕과 구분됨" }
           }
         }
       ],
@@ -151,8 +151,8 @@
         "currentTag": { "element": "tag.status", "slot": "ui.saju.tag", "position": "기둥 바탕 밖 아래 가운데(꼬리표 줄)", "outsideHighlight": true, "marginTop": "{space.4}", "visible": false, "maxWidth": "기둥 둘과 그 사이 간격", "maxLines": 1, "overflow": "기둥보다 넓으면 이웃 기둥 아래 빈 꼬리표 자리로 넘침. 줄 양 끝 밖으로는 나가지 않게 그 끝에 맞춤(결정 V53). 꼬리표는 줄에 하나뿐이라 이웃 자리가 빔" }
       },
       "states": {
-        "current": { "when": "지금 대운", "parts": { "container": { "element": "highlight.current", "bg": "{color.status.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "지금" } } },
-        "thisYear": { "when": "올해 세운", "parts": { "container": { "element": "highlight.current", "bg": "{color.status.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "올해" } } },
+        "current": { "when": "지금 대운", "parts": { "container": { "element": "highlight.current", "bg": "{color.highlight.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "지금" } } },
+        "thisYear": { "when": "올해 세운", "parts": { "container": { "element": "highlight.current", "bg": "{color.highlight.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "올해" } } },
         "loading": { "skeleton": [{ "bone": "cells", "shape": "ohaeng.cell 칸", "count": 2 }, { "bone": "tenGods", "shape": "chip", "width": "36px" }], "note": "꼬리표와 위 글자는 그리지 않음" }
       },
       "haptic": [],
@@ -160,9 +160,9 @@
       "rules": [
         "지금, 올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
         "십성 칩은 term-token label이고 누르면 뜻 시트(explain-sheet)다.",
-        "compact는 두 줄 모두 지금이라 강조 바탕을 칠하지 않는다. 바탕을 칠하면 같은 sage 계열의 꼬리표와 용어 칩이 묻힌다. 꼬리표(지금, 올해)는 기둥 아래 대신 줄 머리에 용어 칩(대운, 세운)과 함께 둔다.",
+        "compact는 두 줄 모두 지금이라 여러 칸 가운데 가릴 것이 없어 강조 바탕을 칠하지 않는다. 꼬리표(지금, 올해)는 기둥 아래 대신 줄 머리에 용어 칩(대운, 세운)과 함께 둔다.",
         "기둥 칸은 기둥 사이에 같은 줄 높이를 맞춘다(daeun-table 높이 맞춤과 같음).",
-        "column의 꼬리표(지금, 올해)는 강조 바탕 밖 아래에 둔다. 꼬리표 바탕(tag.status)과 강조 바탕(highlight.current)이 같은 status.bg라 바탕 안에 두면 꼬리표가 묻힌다(관문 질문 Q1, 결정 V90)."
+        "column의 꼬리표(지금, 올해)는 강조 바탕 밖 아래에 둔다(관문 Q1 ①, 결정 V90). 줄에 하나뿐인 꼬리표가 이웃 기둥 아래로 넘칠 수 있게(V53) 바탕과 따로 둔다. 강조 바탕은 옅은 회색(V93)이라 sage 꼬리표와 다르다."
       ]
     },
     {
@@ -210,12 +210,11 @@
         },
         "header": { "slot": "ui.saju.header", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "center", "paddingY": "{space.8}" },
         "dayColumn": {
-          "bg": "{color.status.bg}",
-          "opacity": 0.35,
+          "bg": "{color.highlight.bg}",
           "span": "열 머리부터 마지막 띠 끝까지",
           "header": { "fg": "{color.action.primary}", "fontWeight": 700, "line": "글자와 나 꼬리표 한 줄", "textWidth": { "value": 32, "unit": "px" }, "overflow": "글자 실효 폭은 열 74 − 간격 4 − 가장 넓은 꼬리표(ja わたし 36)로 약 32. 넘치면 꼬리표를 열 머리 아래 줄로 내리고 글자는 줄이지 않음" },
           "me": { "element": "tag.me", "slot": "ui.saju.tag", "marginStart": "{space.4}", "note": "열 머리 일주 뒤 나 꼬리표. origin의 일주(나) 글자 대신 원국표와 같은 표시라 새 문구가 없음" },
-          "note": "옅게(0.35, origin) 깐 이유: term 칩 바탕 term.bg와 status.bg가 같은 sage라 그대로 깔면 일주 열의 용어 칩이 묻힘"
+          "note": "강조 바탕(highlight.current)과 같은 옅은 회색을 그대로 칠함. sage 용어 칩과 갈려 옅게 깔 필요가 없음(V93, 0.35 옅게 깔기 삭제)"
         },
         "bandHeader": {
           "span": "네 열",

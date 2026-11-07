@@ -179,6 +179,13 @@
         "$description": "흰 표면(bg.sheet) 위 옅은 채움: 확인 창 취소 버튼 등. chip.bg는 흰 표면 위에서 보이지 않음(1.4.0)"
       }
     },
+    "highlight": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.neutral.950}",
+        "$description": "현재 강조 바탕(지금 대운, 올해 세운 칸, 띠 표 일주 열). 옅은 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드(bg.sheet) 위에서만(1.4.0, V93)"
+      }
+    },
     "inverse": {
       "bg": {
         "$type": "color",
