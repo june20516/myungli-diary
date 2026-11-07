@@ -58,6 +58,8 @@ IA v5는 새 컴포넌트 15개와 새 화면 둘(`tag-sheet`, `color-rule-sheet
 | `color.calendar.level.good` | 잘 풀리는 날. 기존 `color.calendar.good.bg`(coral-100)는 그대로 두고 새 이름이 새 값 |
 | `color.calendar.level.caution` | 조심할 날. 회색(채도 0.003 이하), 명도를 낮춰 `good`과 구분 |
 | `color.fill.soft` | 흰 표면 위 옅은 채움(확인 창 취소 등). 라이트 neutral-100, 다크는 `bg.sheet` 위에서 같은 구분 |
+| `color.verdict.track` | 길흉판정 위치 막대 그라데이션(Ruling 1, V86). 시작(0) `calendar.level.caution`, 끝(1) `calendar.level.great`의 hex 두 점(라이트 #d4d4d3 → #ffd2ca, 다크 #2a2a29 → #582720). 참조가 아니라 값(`gradient.today`와 같은 방식)이고 두 끝은 `test_verdict_track_runs_from_caution_to_great`가 팔레트와 대조 |
+| `color.highlight.bg` | 현재 강조 바탕(V93, 관문 Q4 ③ 2026-11-07). 라이트 `neutral.50`, 다크 `neutral.950`(새 primitive 없음, `bg.base`를 가리키지 않는 독립 역할). 흰 카드(`bg.sheet`) 위에서만 씀(`highlight.current` `onlyOn`). 검사: `bg.sheet`와 OKLab 거리 0.02 이상, `term.bg`와 0.025 이상, `action.primary` 글자 대비 4.5:1 이상(실측 6.21, 다크 10.34) |
 
 * 구분 검사: 라이트, 다크 각각 이웃 쌍(great-good, good-무난(바탕 `bg.base`), good-caution, caution-무난)의 OKLab 거리 0.03 이상. 네 바탕 위 날짜 숫자 대비 4.5:1 이상(V3).
 * 기존 `color.calendar.good.bg`, `color.calendar.caution.bg`는 값 그대로 두고, `day-cell`은 새 이름을 가리킵니다.

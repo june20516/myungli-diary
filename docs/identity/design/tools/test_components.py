@@ -2791,7 +2791,7 @@ def test_today_featured_empty_day():
     assert "today.fortune.body" in rule and "결정 태그 줄" in rule  # 리뷰 1회차 Ruling: 근거는 IA 보조 문장 role
     row = decision_rows()["V95"]
     assert "today.fortune.body" in row["결정"] and "결정 태그 줄" in row["결정"]
-    assert "D112" in row["결정"] and "today.featured.empty" in row["결정"] and "사용자 영향: #850" in row["근거"] and "#851" in row["근거"]
+    assert "D112" in row["결정"] and "today.featured.empty" in row["결정"] and row["근거"].endswith("app 반영은 #851. 사용자 영향: #850(대표 태그 없는 날 한 줄 상한)")
     assert "`today.featured.empty`" in _readme_row("5.0.0")
     sample = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-a-g.html").read_text(encoding="utf-8")
     assert "대표 태그 없는 날" in sample and '<p class="tsl-empty">오늘은 두드러진 사주 기운이 없어요.</p>' in sample
@@ -2803,3 +2803,12 @@ def test_draft_indicator_is_centered():
     assert container["align"] == "center" and "88" in container["width"]
     rules = " ".join(component("diary", "draft-indicator")["rules"])
     assert "가운데 정렬" in rules and "뒤로와 저장 글자 버튼 사이 폭" not in rules
+
+
+# 최종 리뷰 Ruling: D87 사용자 영향은 루트 기록 반영 대상(writing 원고)만. app 반영은 근거 칸에 참고로
+def test_contract_rows_user_impact_is_writing_only():
+    rows = decision_rows()
+    for key in ("V94", "V95"):
+        impact = rows[key]["근거"].split("사용자 영향: ", 1)[1]
+        assert impact.startswith("#850") and "#851" not in impact, key
+        assert "app 반영은 #851" in rows[key]["근거"], key
