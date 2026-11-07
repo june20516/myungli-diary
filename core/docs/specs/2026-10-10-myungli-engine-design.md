@@ -247,8 +247,9 @@ BirthInfo
 
 | 그룹 (우선순위) | 태그 키 | 조건 | 길흉 |
 | --- | --- | --- | --- |
-| 1. 합·충 | `tag.big_change` (#대변화의날) | 오늘 지지가 원국 **일지** 또는 **월지**와 충 (탐합망충 반영 후) | 흉 |
-| | `tag.clash` (#충돌주의) | 오늘 지지가 원국의 다른 지지와 충 | 흉 |
+| 1. 합·충 | `tag.clash_day_branch` (일지 충) | 오늘 지지가 원국 **일지**와 충 (탐합망충 반영 후) | 흉 |
+| | `tag.clash_month_branch` (월지 충) | 오늘 지지가 원국 **월지**와 충 (탐합망충 반영 후) | 흉 |
+| | `tag.clash` (#충돌주의) | 오늘 지지가 원국 연지·시지와 충 | 흉 |
 | | `tag.harmony` (#합의날) | 천간합 또는 지지육합 성립 | 길 |
 | 2. 십성 쏠림 | `tag.ten_god_rush.<그룹>` (#비겁다발·#식상다발·#재성다발·#관성다발·#인성다발) | 오늘 천간과 지지 정기의 십성 그룹이 같고, 그 그룹이 원국에도 2개 이상 있음 | 그룹별 (관성=흉, 재성·인성·식상=길, 비겁=중립) |
 | 3. 신살 | `tag.cheoneul_gwiin`·`tag.dohwa`·`tag.yeokma`·`tag.hwagae`·`tag.gongmang` | §5.4의 신살 지지가 오늘 지지에 해당 (발동) | 귀인·도화=길, 역마·화개=중립, 공망=흉 |
@@ -256,11 +257,15 @@ BirthInfo
 
 * **선택:** 그룹 우선순위로 정렬한 뒤 앞의 1~2개를 고릅니다. 같은 그룹 안의 동점은 07 §4.3의 추길피흉 규칙(흉 우선 → 일간을 극하는 기운 우선 → 재성·도화 우선)을 따릅니다.
 * 보조 태그는 1~3그룹에 해당하는 태그가 없을 때만 씁니다.
+* 충 태그는 자리별로 모두 붙고 순서는 일지, 월지, 그 밖입니다. 2026-11-05 전의 `tag.big_change`(일지·월지 충 하나)를 나눈 것입니다(C29, #804).
+* **근거(C28):** 태그 근거는 첫째 `tags/select`(선택 결과) 뒤에 태그마다 하나(`tags/<태그 이름>`, 합은 활성 합 종류마다)입니다. 원전은 『三命通會』, 『滴天髓』 조목이고(`docs/references/tag-sources-survey.md`), 십성 쏠림과 선택 순서는 원전이 없어 `source_ref`가 빈 문자열입니다. 귀인의 날은 천을귀인 원전, 용신의 날은 용신 근거를 씁니다.
 * 일기에 저장되는 태그는 **이 응답의 태그 키 전체 목록**입니다. 대표 1~2개는 화면 표시용입니다. 회고 기능에서 같은 특성의 날을 넓게 찾을 수 있게 하려는 것입니다.
 
 ### 7.8. 총운·가이드 질문 메시지 (`rules/messages.py`) — D22, D24
 * **총운:** 메시지 키는 `fortune.<날의 성격>.<오늘 천간의 십성 그룹>`입니다(4 × 5 = 20 조합). 대표 태그가 있으면 `fortune.tag.<태그 키>`를 보조 문장으로 붙입니다.
 * **가이드 질문:** 메시지 키는 `guide.<대표 태그 키>`, 대표 태그가 없으면 `guide.ten_god.<오늘 천간의 십성 그룹>`입니다. 키마다 콘텐츠 모듈에 문장을 여러 개 두고, Go 서버가 날짜 기반으로 하나를 고릅니다(엔진은 관여하지 않음).
+* **가이드 질문 후보(C30):** 대표 태그 1순위, 2순위, 오늘 천간의 십성 그룹 질문을 키가 겹치지 않게 차례로 냅니다(`guide_candidates`). 첫 항목이 위 기본 질문입니다.
+* **근거:** 총운 헤드라인과 십성 그룹 질문은 공통 근거(C8), 총운 보조 문장과 태그 질문은 그 태그의 근거(C28)입니다.
 * 매개변수: 오행, 십성, 날의 성격, 강조(`emphasis`)입니다.
 
 ---
@@ -278,7 +283,7 @@ BirthInfo
 | 지지충 (그 밖의 지지와) | -1 |
 | 지지형 | -1 |
 
-* **수준:** +2 이상 `GOOD`, -2 이하 `CAUTION`, 그 밖은 `NEUTRAL`입니다. 앱은 날짜 칸을 옅게 채워 표시합니다(design V10). `GOOD`은 `color.calendar.good.bg`, `CAUTION`은 `color.calendar.caution.bg`이고 `NEUTRAL`은 채우지 않습니다(`docs/identity/design/tokens/README.md` "캘린더 길흉").
+* **수준:** +3 이상 `VERY_GOOD`(아주 잘 풀리는 날, #804, 지금 최고점), +2 `GOOD`, -2 이하 `CAUTION`, 그 밖은 `NEUTRAL`입니다. `VERY_GOOD`의 표시 색은 아직 design 토큰이 없습니다. 앱은 날짜 칸을 옅게 채워 표시합니다(design V10). `GOOD`은 `color.calendar.good.bg`, `CAUTION`은 `color.calendar.caution.bg`이고 `NEUTRAL`은 채우지 않습니다(`docs/identity/design/tokens/README.md` "캘린더 길흉").
 * **함께 반환:** 날짜별 음력 날짜(윤달 여부 포함), 절기 이름과 입절 시각(해당 날짜만), 일진 간지, 날의 성격, 대표 태그 키.
 * 점수 구성은 근거로 함께 반환합니다(`evidence` 깊이에서 "왜 좋은 날인가"를 보여주기 위해).
 
@@ -330,7 +335,7 @@ message ResponseMeta {
 ```
 
 * `ChartResponse`: 네 기둥(시간 모름이면 시주 없음), 십성, 지장간과 지장간 십성, 12운성, 신살, 공망, 오행 분포, 강약 점수와 등급, 용신·희신·기신과 판정 방식(`Judgment`), 대운 표, 세운 표, `ResponseMeta`.
-* `DailyResponse`: 일진, 날의 성격, 컬러·방향·숫자·집중 시간(각각 `Judgment` + 원본 값), 합충형 목록, 태그(대표 + 전체), 총운·가이드 질문 `Judgment`, `ResponseMeta`.
+* `DailyResponse`: 일진, 날의 성격, 컬러·방향·숫자·집중 시간(각각 `Judgment` + 원본 값), 합충형 목록, 태그(대표 + 전체), 총운·가이드 질문 `Judgment`, `ResponseMeta`, 일진 천간의 십성과 십성 묶음, 가이드 질문 후보(C30).
 * `MonthResponse`: 날짜별 항목(§8) 배열, `ResponseMeta`.
 * 천간·지지·오행·십성·12운성·신살·방위·날의 성격은 모두 enum입니다.
 * 오류: 잘못된 입력은 `INVALID_ARGUMENT`, 지원 범위 밖은 `OUT_OF_RANGE`, 그 밖의 예외는 `INTERNAL`입니다. 계산이 되는 민감 상황은 오류가 아니라 `notices`입니다(D32).
@@ -350,6 +355,7 @@ message ResponseMeta {
 ## 11. 근거(`source_ref`) 규칙
 * 형식: `<자료 디렉터리>/<파일 이름(확장자 제외)>#<키 경로>`. 예: `gungtong-bogam/johu_evidence#甲.子`, `gungtong-bogam/five_elements#direction`.
 * 근거 데이터 파일은 엔진 패키지에 함께 넣고, 시작할 때 한 번 읽어 검증합니다. 키가 없으면 엔진이 시작되지 않습니다.
+* **원전 없음(C28):** 원전이 없는 근거는 `source_ref`가 빈 문자열입니다. `constants/evidence_rules.py`의 `RULES_WITHOUT_SOURCE`(`tags/select`, `tags/ten_god_rush`, `fortune/tag`, `guide/question`)만 빈 값을 낼 수 있고, 계산 내역은 `detail`에 있습니다.
 
 ---
 

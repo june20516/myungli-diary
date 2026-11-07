@@ -67,7 +67,8 @@ resource "google_cloud_run_v2_job_iam_member" "scheduler_notify" {
   member   = "serviceAccount:${google_service_account.scheduler.email}"
 }
 
-# 5분마다 현지 알림 시각 뒤 60분 안의 사용자에게 아침 알림을 보냅니다(spec §8.2, S13, S129).
+# 5분마다 보낼 시각(알림 시각 + 계정 오프셋 0~10분, D109)이 지난 60분과 다음 5분 안인 사용자에게 아침 알림을 보냅니다(spec §8.2, S13, S129, S144).
+# 주기를 바꾸면 internal/notify의 lookahead도 같이 바꿉니다.
 # 실행이 겹쳐도 notification_log claim이 두 번 발송을 막습니다. 멈춘 채 만드는 이유는 retention과 같습니다.
 resource "google_cloud_scheduler_job" "notify" {
   name      = "notify-every-5m"

@@ -94,6 +94,30 @@
       keys: ["basis.personal/twelve_stage"]
     - params: {all: none, day_kind: [day_kind], featured: none}
       keys: ["basis.tags/select"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/cheoneul_gwiin"]
+    - params: {day_branch: text, natal_positions: list:place}
+      keys: ["basis.tags/clash"]
+    - params: {day_branch: text, natal_positions: list:place}
+      keys: ["basis.tags/clash_day_branch"]
+    - params: {day_branch: text, natal_positions: list:place}
+      keys: ["basis.tags/clash_month_branch"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/dohwa"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/gongmang"]
+    - params: {day_kind: [day_kind]}
+      keys: ["basis.tags/gwiin_day"]
+    - params: {natal_positions: list:place, relation_kind: [relation]}
+      keys: ["basis.tags/harmony"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/hwagae"]
+    - params: {branch_ten_god: [ten_god, ten_god_group], group: [ten_god_group], natal_count: number, stem_ten_god: [ten_god, ten_god_group]}
+      keys: ["basis.tags/ten_god_rush"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/yeokma"]
+    - params: {day_kind: [day_kind]}
+      keys: ["basis.tags/yongsin_day"]
     - params: {strength_level: [strength], strength_score: none}
       keys: ["basis.yongsin/eokbu"]
     - params: {month_branch: text, share: none, threshold: none}
@@ -244,8 +268,41 @@
     - "source.gungtong-bogam/johu_evidence#辛.申"
     - "source.gungtong-bogam/johu_evidence#辛.辰"
     - "source.gungtong-bogam/johu_evidence#辛.酉"
+    - "source.jeokcheonsu/tags#clash_month_branch"
+    - "source.sammyeong-tonghoe/tags#branch_hap"
+    - "source.sammyeong-tonghoe/tags#cheoneul_gwiin"
+    - "source.sammyeong-tonghoe/tags#clash"
+    - "source.sammyeong-tonghoe/tags#clash_day_branch"
+    - "source.sammyeong-tonghoe/tags#dohwa"
+    - "source.sammyeong-tonghoe/tags#gongmang"
+    - "source.sammyeong-tonghoe/tags#hwagae"
+    - "source.sammyeong-tonghoe/tags#stem_hap"
+    - "source.sammyeong-tonghoe/tags#yeokma"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 원전 이름, 대목, 뜻 순서로 읽습니다.
+
+- id: evidence.no_source
+  where: 근거 시트의 원전 인용 상자(원전이 없는 근거)
+  ia: [evidence-sheet.source.quote]
+  select: >-
+    Evidence.source_ref가 빈 문자열이고 rule_id r이 키 목록에 있으면 키 no_source.<r>.
+    목록에 없는 규칙(tags/select, fortune/tag, guide/question)의 빈 원전은 문장을 내지 않아 원전 구역을 그리지 않습니다(D108 ④, 라운드 R31-6).
+  purpose: info
+  user_state: 근거 시트에서 원전을 찾았는데 고전에서 온 규칙이 아닙니다.
+  structure: 한 문장. 원전에 나오는 규칙이 아님을 먼저 밝히고, 명리일기가 어떻게 해석했는지 이어 말합니다(D108 ④).
+  tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - "no_source.tags/ten_god_rush"
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: "no_source.tags/ten_god_rush", text: "원전에 나오는 규칙은 아니지만, 같은 십성 묶음이 오늘 천간과 지지에 함께 들고 내 사주에도 많으니 그 기운이 증폭된다고 해석했어요.", why: "원전 없음을 먼저 밝히고 해석의 근거 조건을 그대로", source: round-R31-5}
+    bad:
+      - {lang: ko, key: "no_source.tags/ten_god_rush", text: "고전을 넘어선 명리일기만의 독자적인 해석 체계로 분석했어요.", why: "권위 부풀리기, 해석 내용이 없음", source: round-R31-5}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.

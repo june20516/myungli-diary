@@ -26,6 +26,14 @@ resource "google_sql_database_instance" "main" {
       }
     }
 
+    # 쿼리별 CPU와 대기를 보려고 모든 환경에 켭니다(#817 ③, S143). 2회차 부하 측정과 운영이 같은 설정이어야 결과를 옮겨 읽습니다.
+    # 사용자 IP와 application tag는 남기지 않습니다. 쿼리 문자열은 sqlc 쿼리라 매개변수 값이 아닌 자리표시자로 남습니다.
+    insights_config {
+      query_insights_enabled  = true
+      record_client_address   = false
+      record_application_tags = false
+    }
+
     database_flags {
       name  = "cloudsql.iam_authentication"
       value = "on"

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 	"sync"
 	"time"
 
@@ -24,6 +25,9 @@ const (
 	composeConcurrency = 8
 	// maxFailureRate를 넘으면 Job을 실패로 끝내 경보를 받습니다(spec §8.2).
 	maxFailureRate = 0.05
+	// lookahead는 이번 실행이 기다렸다 보내는 앞쪽 폭이고 Scheduler 주기(notify-every-5m)와 같습니다(D109).
+	// 보낼 시각이 [지금, 지금 + lookahead)인 사용자는 다음 실행을 기다리지 않고 이번 실행이 그 시각에 보냅니다.
+	lookahead = 5 * time.Minute
 )
 
 var (
@@ -62,6 +66,37 @@ type Deps struct {
 	Prepare func(ctx context.Context) error
 	Clock   clock.Clock
 	Logger  *slog.Logger
+	// Offset은 계정의 알림을 고른 시각보다 늦추는 몫입니다. nil이면 SpreadOffset입니다(D109).
+	Offset func(accountID uuid.UUID) time.Duration
+	// Wait는 until까지 기다립니다. ctx가 끝나면 그 오류를 돌려줍니다. nil이면 실제 timer로 기다립니다.
+	Wait func(ctx context.Context, until time.Time) error
+}
+
+// offset은 Offset이 없으면 SpreadOffset을 씁니다.
+func (d Deps) offset(accountID uuid.UUID) time.Duration {
+	if d.Offset == nil {
+		return SpreadOffset(accountID)
+	}
+	return d.Offset(accountID)
+}
+
+// wait는 Wait가 없으면 Clock 기준으로 until까지 timer로 기다립니다.
+func (d Deps) wait(ctx context.Context, until time.Time) error {
+	if d.Wait != nil {
+		return d.Wait(ctx, until)
+	}
+	delay := until.Sub(d.Clock.Now())
+	if delay <= 0 {
+		return ctx.Err()
+	}
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 // Result는 한 번 실행의 수입니다.
@@ -85,8 +120,9 @@ type target struct {
 	due       Due
 }
 
-// Run은 지금 알림 시각인 사용자에게 하루 한 번 알림을 보냅니다. 실행 시각은 시작할 때 한 번 읽습니다.
-// 후보를 모두 읽어 대상을 고른 뒤, 대상이 있으면 Prepare를 부르고, 사용자마다 claim → 본문 → 기기별 발송 → 결과 기록 순으로 처리합니다.
+// Run은 보낼 시각(고른 시각 + 계정 오프셋, D109)이 된 사용자에게 하루 한 번 알림을 보냅니다. 대상을 고르는 시각은 시작할 때 한 번 읽습니다.
+// 후보를 모두 읽어 대상을 고른 뒤(보낼 시각이 lookahead 안에 오는 사용자 포함), 대상이 있으면 Prepare를 부르고,
+// 보낼 시각 순으로 그 시각까지 기다렸다가 사용자마다 claim → 본문 → 기기별 발송 → 결과 기록 순으로 처리합니다.
 // 조회 실패, 준비 실패, ctx 취소, 실패율 5% 초과가 오류이고, 어느 경우든 수와 단계별 시간을 로그에 남깁니다.
 func Run(ctx context.Context, deps Deps) (Result, error) {
 	now := deps.Clock.Now()
@@ -102,7 +138,7 @@ func Run(ctx context.Context, deps Deps) (Result, error) {
 	}()
 
 	started := deps.Clock.Now()
-	targets, err := selectTargets(ctx, deps.Ledger, now, &result)
+	targets, err := selectTargets(ctx, deps, now, &result)
 	listTime = deps.Clock.Now().Sub(started)
 	if err != nil {
 		return result, err
@@ -122,7 +158,7 @@ func Run(ctx context.Context, deps Deps) (Result, error) {
 	}
 
 	started = deps.Clock.Now()
-	sendAll(ctx, deps, now, targets, &result)
+	sendAll(ctx, deps, targets, &result)
 	sendTime = deps.Clock.Now().Sub(started)
 	if err := ctx.Err(); err != nil {
 		return result, fmt.Errorf("notify 중단: %w", err)
@@ -137,15 +173,15 @@ func Run(ctx context.Context, deps Deps) (Result, error) {
 	return result, errors.Join(errs...)
 }
 
-// selectTargets는 후보를 모두 읽어 지금 알림 시각인 사용자를 고르고, 후보와 시간대 실패 수를 셉니다.
-func selectTargets(ctx context.Context, ledger Ledger, now time.Time, result *Result) ([]target, error) {
+// selectTargets는 후보를 모두 읽어 보낼 시각이 지났거나 lookahead 안에 오는 사용자를 고르고, 후보와 시간대 실패 수를 셉니다.
+func selectTargets(ctx context.Context, deps Deps, now time.Time, result *Result) ([]target, error) {
 	var targets []target
 	after := uuid.Nil
 	for {
 		if err := ctx.Err(); err != nil {
 			return nil, fmt.Errorf("notify 중단: %w", err)
 		}
-		page, err := ledger.ListCandidates(ctx, after, pageSize)
+		page, err := deps.Ledger.ListCandidates(ctx, after, pageSize)
 		if err != nil {
 			return nil, fmt.Errorf("notify 대상 조회: %w", err)
 		}
@@ -156,7 +192,7 @@ func selectTargets(ctx context.Context, ledger Ledger, now time.Time, result *Re
 				// enabled인데 시각이 없는 행은 DB 제약상 없습니다. 생기면 대상이 아닌 것으로 봅니다.
 				continue
 			}
-			due, isDue, err := DueAt(now, c.Profile.CurrentTimezone, *notifyAt)
+			due, isDue, err := DueAt(now, c.Profile.CurrentTimezone, *notifyAt, deps.offset(c.AccountID), lookahead)
 			if err != nil {
 				result.InvalidTimezone++
 				continue
@@ -172,20 +208,22 @@ func selectTargets(ctx context.Context, ledger Ledger, now time.Time, result *Re
 	}
 }
 
-// sendAll은 대상을 동시 sendConcurrency명까지 처리하고 결과를 셉니다. 본문 만들기는 composeConcurrency로 더 좁힙니다.
-func sendAll(ctx context.Context, deps Deps, now time.Time, targets []target, result *Result) {
+// sendAll은 대상을 보낼 시각 순으로, 그 시각이 되면 처리를 시작합니다. 동시에 sendConcurrency명까지 처리하고 결과를 셉니다.
+// 본문 만들기는 composeConcurrency로 더 좁힙니다. 기다리는 중 ctx가 끝나면 남은 대상은 시작하지 않습니다(다음 실행이 보냄).
+func sendAll(ctx context.Context, deps Deps, targets []target, result *Result) {
 	var (
 		mu    sync.Mutex
 		group errgroup.Group
 	)
 	composeSlots := make(chan struct{}, composeConcurrency)
 	group.SetLimit(sendConcurrency)
+	slices.SortStableFunc(targets, func(a, b target) int { return a.due.SendAt.Compare(b.due.SendAt) })
 	for _, t := range targets {
-		if ctx.Err() != nil {
+		if deps.wait(ctx, t.due.SendAt) != nil {
 			break
 		}
 		group.Go(func() error {
-			out := deliver(ctx, deps, now, t, composeSlots)
+			out := deliver(ctx, deps, deps.Clock.Now(), t, composeSlots)
 			mu.Lock()
 			defer mu.Unlock()
 			result.Skipped += out.skipped

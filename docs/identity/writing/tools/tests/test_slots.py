@@ -13,6 +13,7 @@ from mlw.model import UNBOUNDED, LoadError, ParamKind, RuleSet
 from mlw.paths import MESSAGE_PARAMS_FILE, RULES_DIR, SLOTS_DIR
 
 MESSAGE_KEYS_PATH = Path(__file__).resolve().parents[5] / "core" / "message_keys.json"
+EVIDENCE_RULES_PATH = MESSAGE_KEYS_PATH.with_name("evidence_rules.json")
 # 메시지 키가 아니라 식별자를 키로 갖는 슬롯입니다.
 IDENTIFIER_SLOTS = {
     "daily.focus_reason",
@@ -27,6 +28,7 @@ IDENTIFIER_SLOTS = {
     "explain.today_reason",
     "evidence.basis",
     "evidence.source",
+    "evidence.no_source",
     "system.apple_return",
     "system.notice",
 }
@@ -71,7 +73,7 @@ def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
         if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name != "ui"
         for key in slot.keys
     }
-    assert len(message_keys) == 153
+    assert len(message_keys) == 157
     assert covered == message_keys
 
 
@@ -89,6 +91,16 @@ def test_identifier_slots_do_not_collide_with_message_keys(rules: RuleSet) -> No
         assert not set(slots[slot_id].keys) & message_keys
 
 
+def test_no_source_keys_name_evidence_rules(rules: RuleSet) -> None:
+    """원전 없음 문장(D108 ④)의 키는 `no_source.<rule_id>`이고 rule_id는 core 근거 규칙 목록에 있습니다."""
+    slot = load_slots(SLOTS_DIR, rules)["evidence.no_source"]
+    rule_ids = set(json.loads(EVIDENCE_RULES_PATH.read_text(encoding="utf-8")))
+    assert slot.keys
+    for key in slot.keys:
+        assert key.startswith("no_source.")
+        assert key.removeprefix("no_source.") in rule_ids
+
+
 def test_glossary_covers_enums(rules: RuleSet) -> None:
     slot = load_slots(SLOTS_DIR, rules)["glossary.value_name"]
     expected = {f"{category}.{value}" for category, values in glossary_values().items() for value in values}
@@ -99,8 +111,8 @@ def test_glossary_covers_enums(rules: RuleSet) -> None:
 def test_slot_counts_match_spec(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     assert len(slots["daily.fortune.head"].keys) == 20
-    assert len(slots["daily.fortune.tag"].keys) == 15
-    assert len(slots["daily.guide"].keys) == 20
+    assert len(slots["daily.fortune.tag"].keys) == 16
+    assert len(slots["daily.guide"].keys) == 21
     assert slots["daily.guide"].variants == 2
     assert len(slots["calendar.score_item"].keys) == 7
     assert len(slots["calendar.solar_term"].keys) == 24

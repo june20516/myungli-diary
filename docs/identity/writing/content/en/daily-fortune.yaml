@@ -60,15 +60,18 @@
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: advice, text: "With [[Inseong|ten_god_group.inseong]] coming in, start that book or course."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: state, text: "With [[Inseong|ten_god_group.inseong]] coming in, it's a good day to learn."}
 - {slot: daily.fortune.head, key: fortune.ordinary_day.inseong, type: care, text: "Finding out something new feels rewarding today."}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: advice, text: "If there's a habit you've wanted to change, change one."}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: state, text: "Your usual routine is likely to shift today."}
-- {slot: daily.fortune.tag, key: fortune.tag.big_change, type: care, text: "Feeling a little unsettled today is understandable."}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: advice, text: "If you have a hard favor to ask, ask someone you trust."}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: state, text: "Help may come from somewhere unexpected today."}
 - {slot: daily.fortune.tag, key: fortune.tag.cheoneul_gwiin, type: care, text: "You may feel relieved by an unexpected kindness today."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash, type: advice, text: "If you have plans, double-check the time and place."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash, type: state, text: "Plans may change or opinions may clash today."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash, type: care, text: "If things fall out of step, it isn't all on you."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_day_branch, type: advice, text: "If there's a habit you've wanted to change, change one."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_day_branch, type: state, text: "Your usual routine is likely to shift today."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_day_branch, type: care, text: "Feeling a little unsettled today is understandable."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: advice, text: "Don't rush big decisions. Try giving them a day."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: state, text: "Your familiar surroundings are likely to shift today."}
+- {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: care, text: "Feeling worn out by a busy pace today is understandable."}
 - {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "Take a turn in front of others, at a talk or a gathering."}
 - {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "People's attention tends to turn toward you today."}
 - {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "It's a nice flutter to feel someone sees you kindly."}

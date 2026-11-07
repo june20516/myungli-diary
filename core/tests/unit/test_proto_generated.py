@@ -25,6 +25,7 @@ DOMAIN_TO_PROTO_ENUMS: tuple[tuple[type[Enum], str, str], ...] = (
     (enums.Stem, "Stem", "STEM"),
     (enums.Branch, "Branch", "BRANCH"),
     (enums.TenGod, "TenGod", "TEN_GOD"),
+    (enums.TenGodGroup, "TenGodGroup", "TEN_GOD_GROUP"),
     (enums.Gender, "Gender", "GENDER"),
     (enums.CalendarType, "CalendarType", "CALENDAR_TYPE"),
     (enums.Direction8, "Direction8", "DIRECTION8"),

@@ -17,10 +17,12 @@ const (
 	basisSlot = "evidence.basis"
 	// sourceSlot은 원전 인용 슬롯입니다. 키는 source.<source_ref>입니다.
 	sourceSlot = "evidence.source"
+	// noSourceSlot은 원전이 없는 규칙(source_ref가 빈 값, core C28)의 원전 칸 문장 슬롯입니다. 키는 no_source.<rule_id>입니다(W57, #827).
+	noSourceSlot = "evidence.no_source"
 )
 
 // evidenceSlots는 판정에 덧붙이는 근거 문장 슬롯입니다. 슬롯 명세에 없으면 Store가 Error 로그로 알립니다.
-var evidenceSlots = []string{todayReasonSlot, basisSlot, sourceSlot}
+var evidenceSlots = []string{todayReasonSlot, basisSlot, sourceSlot, noSourceSlot}
 
 // 반응(좋아요)을 남길 수 있는 총운 슬롯입니다(P4-4, D57). 슬롯 id는 writing 슬롯 명세가 원본입니다.
 const (
@@ -39,8 +41,10 @@ type SlotText struct {
 	Text    []render.Segment
 	// TodayReason은 "오늘 그런 이유" 문장입니다. nil이면 응답에서 필드를 뺍니다.
 	TodayReason []render.Segment
-	// Evidence는 판정 근거입니다. 근거 열람 권한이 없으면 호출자가 Renderer.Slot에 withEvidence false를 넘겨 nil입니다(D60).
+	// Evidence는 판정 근거입니다. EvidenceFull로 렌더했을 때만 있습니다(D60).
 	Evidence []Evidence
+	// EvidencePreview는 잠긴 근거 문장의 앞부분입니다. EvidenceLocked로 렌더했을 때만 있고, 그때 Evidence는 nil입니다(D106, S141).
+	EvidencePreview []EvidencePreview
 	// Reactable은 이 슬롯 문장에 반응(좋아요)을 남길 수 있는지입니다.
 	Reactable bool
 }
@@ -54,6 +58,34 @@ type Evidence struct {
 	Basis []render.Segment
 	// Source는 원전 문장입니다. SourceRef가 없거나 원고가 없으면 nil입니다.
 	Source []render.Segment
+}
+
+// EvidencePreview는 잠긴 근거 하나의 문장 앞부분입니다(render.Preview). 규칙 id, 원전 참조, 계산 내역은 담지 않습니다.
+type EvidencePreview struct {
+	// Basis는 판정 근거 문장의 앞부분입니다. 원고가 없거나 너무 짧아 자를 수 없으면 nil입니다.
+	Basis []render.Segment
+	// Source는 원전 문장(원전이 없는 규칙은 그 해석 문장)의 앞부분입니다. 없으면 nil입니다.
+	Source []render.Segment
+}
+
+// EvidenceMode는 문장의 판정 근거를 어떻게 렌더할지입니다(D60, D106).
+type EvidenceMode int
+
+const (
+	// EvidenceNone은 근거를 렌더하지 않습니다. 근거를 보이지 않는 응답(로그인 없는 미리보기, 근거 문장 자체)에 씁니다.
+	EvidenceNone EvidenceMode = iota
+	// EvidenceLocked는 근거 문장을 렌더한 뒤 앞부분만 남깁니다(EvidencePreview). 근거 열람 권한이 없는 요청에 씁니다.
+	EvidenceLocked
+	// EvidenceFull은 근거와 그 문장을 모두 렌더합니다. 근거 열람 권한이 있는 요청에 씁니다.
+	EvidenceFull
+)
+
+// EvidenceFor는 근거 열람 권한에 맞는 렌더 방식입니다. 권한이 있으면 전체, 없으면 앞부분입니다.
+func EvidenceFor(unlocked bool) EvidenceMode {
+	if unlocked {
+		return EvidenceFull
+	}
+	return EvidenceLocked
 }
 
 // Reactable은 슬롯 문장에 반응을 남길 수 있는지 돌려줍니다(P4-4).
@@ -76,13 +108,13 @@ func NewRenderer(log *slog.Logger) *Renderer {
 // Slot은 판정 j를 (slot, variant) 문장 틀로 렌더하고, 판정의 근거 문장을 덧붙여 돌려줍니다.
 // 문장 키는 j.MessageKey입니다. 호칭 name은 호칭 슬롯(seed.Slot.Vocative)에만 넘기고, 나머지 슬롯은 빈 호칭으로 렌더합니다.
 //
-// withEvidence가 false면 근거(Evidence와 그 판정 근거·원전 문장)를 렌더하지 않고 Evidence를 nil로 둡니다.
-// 근거 열람 권한이 없는 요청(D60)에서 쓰지 않을 문장을 렌더하거나 그 원고 누락 로그를 남기지 않으려는 것입니다.
-// TodayReason은 explain 깊이라 잠그지 않으므로 withEvidence와 상관없이 렌더합니다.
+// evidence가 EvidenceFull이면 근거(Evidence와 그 판정 근거·원전 문장)를 모두 렌더하고, EvidenceLocked면 근거 문장을 렌더해
+// 앞부분만 EvidencePreview에 남깁니다(전체 문장은 SlotText에 남기지 않음, D106). EvidenceNone이면 렌더하지 않아 원고 누락 로그도 없습니다.
+// TodayReason은 explain 깊이라 잠그지 않으므로 evidence와 상관없이 렌더합니다.
 //
 // 본문 틀이 없거나 렌더에 실패하면 false를 돌려주고 Error 로그를 하나 남깁니다. 호출자가 그 슬롯을 빼거나 빈 문장으로 채웁니다.
 // 근거 문장(TodayReason, Evidence.Basis, Evidence.Source)은 선택 필드라 실패해도 본문은 살립니다.
-func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string, j *enginev1.Judgment, name string, withEvidence bool) (SlotText, bool) {
+func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string, j *enginev1.Judgment, name string, evidence EvidenceMode) (SlotText, bool) {
 	def, ok := tpl.Slot(slot)
 	if !ok {
 		r.logFailure(ctx, tpl, slot, j.GetMessageKey(), variant)
@@ -108,10 +140,26 @@ func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string
 		TodayReason: r.todayReason(ctx, tpl, j),
 		Reactable:   Reactable(slot),
 	}
-	if withEvidence {
+	switch evidence {
+	case EvidenceFull:
 		out.Evidence = r.evidence(ctx, tpl, j)
+	case EvidenceLocked:
+		out.EvidencePreview = evidencePreviews(tpl.Lang(), r.evidence(ctx, tpl, j))
 	}
 	return out, true
+}
+
+// evidencePreviews는 렌더한 근거 문장을 앞부분만 남깁니다. 두 문장 모두 자를 수 없는 근거는 뺍니다.
+func evidencePreviews(lang string, evidence []Evidence) []EvidencePreview {
+	var out []EvidencePreview
+	for _, e := range evidence {
+		p := EvidencePreview{Basis: render.Preview(lang, e.Basis), Source: render.Preview(lang, e.Source)}
+		if p.Basis == nil && p.Source == nil {
+			continue
+		}
+		out = append(out, p)
+	}
+	return out
 }
 
 // Identifier는 판정이 아니라 식별자 키(예: 캐릭터 이유, 달력 일 수준)로 슬롯 문장을 만듭니다.
@@ -192,12 +240,34 @@ func (r *Renderer) evidence(ctx context.Context, tpl Templates, j *enginev1.Judg
 				item.Basis, _ = r.render(ctx, tpl, def, "basis."+e.GetRuleId(), seed.VariantSingle, params, "")
 			}
 		}
-		if def, ok := tpl.Slot(sourceSlot); ok && e.GetSourceRef() != "" {
-			item.Source, _ = r.render(ctx, tpl, def, "source."+e.GetSourceRef(), seed.VariantSingle, nil, "")
-		}
+		item.Source = r.source(ctx, tpl, e)
 		out = append(out, item)
 	}
 	return out
+}
+
+// source는 근거 하나의 원전 칸 문장입니다. 원전이 있으면 source.<source_ref>의 인용입니다.
+// 원전이 없으면(source_ref 빈 값) no_source.<rule_id> 원고가 있는 규칙만 그 문장을 내고, 원고가 없는 규칙은 원전 칸이 없는 것이 정상이라
+// 로그 없이 nil입니다(W57, app은 원전 구역을 그리지 않음). 렌더가 실패하면 다른 슬롯처럼 로그를 남깁니다.
+func (r *Renderer) source(ctx context.Context, tpl Templates, e *enginev1.Evidence) []render.Segment {
+	if e.GetSourceRef() != "" {
+		def, ok := tpl.Slot(sourceSlot)
+		if !ok {
+			return nil
+		}
+		segments, _ := r.render(ctx, tpl, def, "source."+e.GetSourceRef(), seed.VariantSingle, nil, "")
+		return segments
+	}
+	def, ok := tpl.Slot(noSourceSlot)
+	if !ok {
+		return nil
+	}
+	key := "no_source." + e.GetRuleId()
+	if _, found := tpl.Body(noSourceSlot, key, seed.VariantSingle); !found {
+		return nil
+	}
+	segments, _ := r.render(ctx, tpl, def, key, seed.VariantSingle, nil, "")
+	return segments
 }
 
 // logFailure는 문장을 만들지 못한 이유를 Error 로그 하나로 남깁니다.

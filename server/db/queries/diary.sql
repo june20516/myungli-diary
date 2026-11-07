@@ -24,17 +24,18 @@ SELECT count(*) FROM diaries
 WHERE account_id = @account_id AND date = @date AND deleted_at IS NULL;
 
 -- name: InsertDiary :one
+-- guide_question은 그 편에서 고른 오늘의 질문이고, 고르지 않았으면 NULL이라 날짜 기록의 질문을 돌려줍니다(S140).
 WITH inserted AS (
-    INSERT INTO diaries (id, account_id, date, body)
-    VALUES (@id, @account_id, @date, @body)
-    RETURNING id, account_id, date, body, created_at, updated_at
+    INSERT INTO diaries (id, account_id, date, body, guide_question)
+    VALUES (@id, @account_id, @date, @body, @guide_question)
+    RETURNING id, account_id, date, body, guide_question, created_at, updated_at
 )
-SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
+SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, COALESCE(i.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
 FROM inserted i
 JOIN diary_days dd ON dd.account_id = i.account_id AND dd.date = i.date;
 
 -- name: GetDiary :one
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, COALESCE(d.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.id = @id AND d.account_id = @account_id AND d.deleted_at IS NULL;
@@ -44,9 +45,9 @@ WHERE d.id = @id AND d.account_id = @account_id AND d.deleted_at IS NULL;
 WITH changed AS (
     UPDATE diaries SET body = @body, updated_at = now()
     WHERE diaries.id = @id AND diaries.account_id = @account_id AND diaries.deleted_at IS NULL
-    RETURNING id, account_id, date, body, created_at, updated_at
+    RETURNING id, account_id, date, body, guide_question, created_at, updated_at
 )
-SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
+SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, COALESCE(u.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
 FROM changed u
 JOIN diary_days dd ON (dd.account_id, dd.date) = (u.account_id, u.date);
 
@@ -69,7 +70,7 @@ WHERE id = @id AND account_id = @account_id AND deleted_at IS NOT NULL AND conte
 -- name: ListDiaries :many
 -- 날짜 역순, 같은 날짜 안에서는 작성 순입니다. 범위(from·to, 포함)·태그·keyset(after_*: 그 항목 다음)은 NULL이면 걸지 않습니다.
 -- after_date·after_created_at·after_id는 셋 다 넣거나 셋 다 NULL로 둡니다.
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, dd.guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, COALESCE(d.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.account_id = @account_id AND d.deleted_at IS NULL

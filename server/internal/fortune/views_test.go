@@ -55,6 +55,7 @@ var viewSlots = map[string]seed.Slot{
 	"explain.today_reason": {ID: "explain.today_reason", Rotation: seed.RotationNone},
 	"evidence.basis":       {ID: "evidence.basis", Rotation: seed.RotationNone},
 	"evidence.source":      {ID: "evidence.source", Rotation: seed.RotationNone},
+	"evidence.no_source":   {ID: "evidence.no_source", Rotation: seed.RotationNone},
 }
 
 // tpl은 시드 문장 틀 하나를 만듭니다.
@@ -72,6 +73,10 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl(fortune.SlotFortuneTag, "fortune.tag.dohwa", content.VariantAdvice, "en", "Meet someone."+suffix),
 		tpl(fortune.SlotGuide, "guide.dohwa", "1", "ko", "눈길이 간 사람을 적어 볼까요?"+suffix),
 		tpl(fortune.SlotGuide, "guide.dohwa", "1", "en", "Who caught your eye?"+suffix),
+		tpl(fortune.SlotGuide, "guide.dohwa", "2", "ko", "오늘 마음이 끌린 장면이 있었나요?"+suffix),
+		tpl(fortune.SlotGuide, "guide.dohwa", "2", "en", "Was there a moment that drew you in?"+suffix),
+		tpl(fortune.SlotGuide, "guide.yeokma", "1", "ko", "오늘 움직인 길을 적어 볼까요?"+suffix),
+		tpl(fortune.SlotGuide, "guide.yeokma", "1", "en", "Where did you go today?"+suffix),
 		tpl(fortune.SlotColor, "color.gwiin_day", seed.VariantSingle, "ko", "{element}색이 잘 맞아요."+suffix),
 		tpl(fortune.SlotColor, "color.gwiin_day", seed.VariantSingle, "en", "{element} suits you."+suffix),
 		tpl(fortune.SlotDirection, "direction.gwiin_day", seed.VariantSingle, "ko", "동쪽이 좋아요."+suffix),
@@ -216,6 +221,55 @@ func dailyFake(withTag bool, notices ...enginev1.NoticeCode) *enginetest.Fake {
 	return &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
 		return dailyResponse(withTag, notices...), nil
 	}}
+}
+
+// 오늘의 질문 후보(S140)는 기본 질문, 같은 키의 다른 변주, 엔진 후보의 나머지 키(기본 질문과 같은 변주) 순이고,
+// 원고가 없는 후보는 로그를 남기고 뺍니다. GuideChoice는 그 후보에서 (키, 변주)가 맞는 문장을 찾습니다.
+func TestViews_DailyGuideCandidates(t *testing.T) {
+	ctx := context.Background()
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		r := dailyResponse(false)
+		r.GuideCandidates = []*enginev1.Judgment{
+			judgment("guide.dohwa", nil), judgment("guide.yeokma", nil), judgment("guide.no_template", nil),
+		}
+		return r, nil
+	}}
+	f := newViewsFixture(t, fake, viewSeed(t, ""), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(ctx, f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	got := make([]string, 0, len(view.GuideCandidates))
+	for _, c := range view.GuideCandidates {
+		got = append(got, c.MessageKey+"/"+c.Variant+" "+plain(c.Text))
+	}
+	assert.Equal(t, []string{
+		"guide.dohwa/1 눈길이 간 사람을 적어 볼까요?",
+		"guide.dohwa/2 오늘 마음이 끌린 장면이 있었나요?",
+		"guide.yeokma/1 오늘 움직인 길을 적어 볼까요?",
+	}, got)
+	assert.Equal(t, view.Texts[fortune.SlotGuide], view.GuideCandidates[0], "첫 후보는 기본 질문")
+	assert.Contains(t, f.logs.String(), "key=guide.no_template")
+
+	text, err := f.views.GuideChoice(ctx, f.account, viewProfile("ko"), viewDate, "guide.yeokma", "1")
+	require.NoError(t, err)
+	assert.Equal(t, "오늘 움직인 길을 적어 볼까요?", plain(text))
+	_, err = f.views.GuideChoice(ctx, f.account, viewProfile("ko"), viewDate, "guide.yeokma", "2")
+	assert.ErrorIs(t, err, fortune.ErrGuideChoiceNotFound, "후보에 없는 변주")
+	_, err = f.views.GuideChoice(ctx, f.account, viewProfile("ko"), viewDate, "guide.no_template", "1")
+	assert.ErrorIs(t, err, fortune.ErrGuideChoiceNotFound, "원고가 없어 빠진 후보")
+}
+
+// 2026.11.0 전 엔진은 후보를 내지 않아, 기본 질문과 그 키의 다른 변주만 후보입니다.
+func TestViews_DailyGuideCandidatesWithoutEngineCandidates(t *testing.T) {
+	f := newViewsFixture(t, dailyFake(false), viewSeed(t, ""), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	require.Len(t, view.GuideCandidates, 2)
+	assert.Equal(t, "guide.dohwa", view.GuideCandidates[1].MessageKey)
+	assert.Equal(t, "2", view.GuideCandidates[1].Variant)
 }
 
 func TestViews_DailyFillsAllSlots(t *testing.T) {
@@ -368,11 +422,18 @@ func TestViews_LanguageChangeKeepsSelection(t *testing.T) {
 		}
 		assert.Contains(t, third.SelectionIDs, fortune.SlotFortuneTag, "선택 기록은 그대로 있음")
 
+		// 오늘의 질문은 기본 질문과 다른 변주 후보(S140)가 각각 원고가 없어 로그가 둘입니다. 후보는 기본 질문만 남습니다.
 		logs := f.logs.String()
-		assert.Equal(t, len(required)+1, strings.Count(logs, "level=ERROR"), logs)
+		assert.Equal(t, len(required)+2, strings.Count(logs, "level=ERROR"), logs)
 		for _, slot := range append(required, fortune.SlotFortuneTag) {
-			assert.Equal(t, 1, strings.Count(logs, "slot="+slot+" "), slot)
+			want := 1
+			if slot == fortune.SlotGuide {
+				want = 2
+			}
+			assert.Equal(t, want, strings.Count(logs, "slot="+slot+" "), slot)
 		}
+		require.Len(t, third.GuideCandidates, 1)
+		assert.Equal(t, third.Texts[fortune.SlotGuide], third.GuideCandidates[0])
 	})
 }
 
@@ -541,9 +602,8 @@ func TestViews_ChartAsOfIsTodayInCurrentTimezone(t *testing.T) {
 	assert.EqualValues(t, 15, got.GetDay())
 }
 
-// 잠긴 요청은 근거를 렌더하지 않으므로, 근거 원고가 없어도 Error 로그가 남지 않습니다.
-// 열린 요청은 같은 조건에서 로그가 남습니다(대조군).
-func TestViews_LockedSkipsEvidenceRendering(t *testing.T) {
+// 잠긴 요청도 미리보기를 위해 근거 문장을 렌더하므로(S141), 근거 원고가 없으면 열린 요청처럼 Error 로그가 남습니다.
+func TestViews_LockedRendersEvidenceForPreview(t *testing.T) {
 	fake := dailyFake(true)
 	fake.MonthCalendar = func(*enginev1.MonthRequest) (*enginev1.MonthResponse, error) {
 		return &enginev1.MonthResponse{
@@ -575,12 +635,29 @@ func TestViews_LockedSkipsEvidenceRendering(t *testing.T) {
 			f := newViewsFixture(t, fake, viewSeed(t, "", "evidence.basis"), fakeInsight{unlocked: tc.unlocked})
 
 			require.NoError(t, tc.call(f))
-			if tc.unlocked {
-				assert.Contains(t, f.logs.String(), "evidence.basis")
-			} else {
-				assert.Empty(t, f.logs.String())
-			}
+			assert.Contains(t, f.logs.String(), "evidence.basis")
 		})
+	}
+}
+
+// 잠긴 오늘 화면은 근거 문장의 앞부분만 EvidencePreview에 담고 전체 근거(Evidence)는 비웁니다. 열리면 반대입니다(D106, S141).
+func TestViews_DailyEvidencePreviewOnlyWhenLocked(t *testing.T) {
+	for _, unlocked := range []bool{false, true} {
+		f := newViewsFixture(t, dailyFake(false), viewSeed(t, ""), fakeInsight{unlocked: unlocked})
+
+		view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+		require.NoError(t, err)
+
+		head := view.Texts[fortune.SlotFortuneHead]
+		if unlocked {
+			require.Len(t, head.Evidence, 1)
+			assert.Equal(t, "판정 근거예요.", plain(head.Evidence[0].Basis))
+			assert.Nil(t, head.EvidencePreview)
+			continue
+		}
+		assert.Nil(t, head.Evidence)
+		require.Len(t, head.EvidencePreview, 1)
+		assert.Equal(t, "판정", plain(head.EvidencePreview[0].Basis), "두 단어 문장은 한 단어만")
 	}
 }
 

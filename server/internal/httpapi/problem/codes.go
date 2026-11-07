@@ -34,6 +34,7 @@ var (
 	BirthInvalid             = Code{"birth.invalid", http.StatusUnprocessableEntity}
 	DiaryFutureDate          = Code{"diary.future_date", http.StatusUnprocessableEntity}
 	DiaryDayFull             = Code{"diary.day_full", http.StatusUnprocessableEntity}
+	DiaryGuideInvalid        = Code{"diary.guide_invalid", http.StatusUnprocessableEntity}
 	NameEmpty                = Code{"name.empty", http.StatusUnprocessableEntity}
 	NameTooLong              = Code{"name.too_long", http.StatusUnprocessableEntity}
 	NameEmoji                = Code{"name.emoji", http.StatusUnprocessableEntity}
@@ -86,7 +87,7 @@ var (
 func AllCodes() []Code {
 	return []Code{
 		RequestMalformed, RequestInvalid, RouteNotFound, MethodNotAllowed, RequestTooLarge, UnsupportedMediaType,
-		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate, DiaryDayFull,
+		DateOutOfRange, BirthOutOfRange, DateInvalid, RequestInconsistent, BirthInvalid, DiaryFutureDate, DiaryDayFull, DiaryGuideInvalid,
 		NameEmpty, NameTooLong, NameEmoji, NameControl, NameInvalidChar, IdempotencyMismatch, ConsentVersionMismatch,
 		TimezoneInvalid, CityNotFound, RangeTooLong, MergeTokenInvalid, MergeSameAccount, MergeNoAccount,
 		AuthTokenExpired, AuthTokenInvalid, AuthRefreshReused, AuthProviderTokenInvalid, AuthExchangeInvalid, AppCheckInvalid,

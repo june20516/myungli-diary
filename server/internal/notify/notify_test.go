@@ -190,10 +190,26 @@ type notifyRun struct {
 	composer notify.Composer
 	prepare  func(context.Context) error
 	logs     syncBuffer
+	// offsets는 계정별 오프셋입니다. 없는 계정은 0이라 고른 시각에 보냅니다.
+	offsets map[uuid.UUID]time.Duration
+	// waits는 Run이 기다린 시각을 차례로 담습니다. wait가 있으면 그 결과를 돌려주고, 없으면 바로 돌아옵니다.
+	waitMu sync.Mutex
+	waits  []time.Time
+	wait   func(ctx context.Context, until time.Time) error
+}
+
+func (r *notifyRun) recordWait(ctx context.Context, until time.Time) error {
+	r.waitMu.Lock()
+	r.waits = append(r.waits, until)
+	r.waitMu.Unlock()
+	if r.wait != nil {
+		return r.wait(ctx, until)
+	}
+	return nil
 }
 
 func newNotifyRun() *notifyRun {
-	return &notifyRun{ledger: newLedger(), sender: &recordSender{}, composer: fixedComposer{body: testBody}}
+	return &notifyRun{ledger: newLedger(), sender: &recordSender{}, composer: fixedComposer{body: testBody}, offsets: map[uuid.UUID]time.Duration{}}
 }
 
 func (r *notifyRun) run(t *testing.T) (notify.Result, error) {
@@ -205,6 +221,8 @@ func (r *notifyRun) run(t *testing.T) (notify.Result, error) {
 		Prepare:  r.prepare,
 		Clock:    clocktest.New(notifyNow),
 		Logger:   slog.New(slog.NewTextHandler(&r.logs, nil)),
+		Offset:   func(id uuid.UUID) time.Duration { return r.offsets[id] },
+		Wait:     r.recordWait,
 	})
 }
 
@@ -492,4 +510,73 @@ func TestRun_LogsCountsWithoutIdentifiers(t *testing.T) {
 	assert.NotContains(t, logs, id.String())
 	assert.NotContains(t, logs, r.ledger.devices[id][0].Token)
 	assert.NotContains(t, logs, testBody)
+}
+
+// 보낼 시각(고른 시각 + 오프셋)이 지났거나 다음 5분 안이면 이번 실행이 맡고, 보낼 시각 순으로 그 시각까지 기다립니다(D109).
+func TestRun_SpreadsBySendAtWithinLookahead(t *testing.T) {
+	r := newNotifyRun()
+	seoul := mustLocation(t, "Asia/Seoul")
+	at := func(hh, mm int) time.Time { return time.Date(2026, 11, 4, hh, mm, 0, 0, seoul) }
+	later := r.ledger.addUser("Asia/Seoul", seven, 1)
+	r.offsets[later] = 9 * time.Minute // 07:09, 지금(07:05)부터 5분 안
+	past := r.ledger.addUser("Asia/Seoul", seven, 1)
+	r.offsets[past] = 2 * time.Minute // 07:02, 이미 지남
+	next := r.ledger.addUser("Asia/Seoul", profile.LocalTime{Hour: 7, Minute: 6}, 1)
+	r.offsets[next] = 4 * time.Minute // 07:10, 다음 실행 몫
+	beyond := r.ledger.addUser("Asia/Seoul", profile.LocalTime{Hour: 7, Minute: 10}, 1)
+
+	result, err := r.run(t)
+
+	require.NoError(t, err)
+	assert.Equal(t, 2, result.Targets)
+	assert.Equal(t, 2, result.Sent)
+	require.Len(t, r.waits, 2)
+	assert.True(t, r.waits[0].Equal(at(7, 2)), "첫 대기 %v", r.waits[0])
+	assert.True(t, r.waits[1].Equal(at(7, 9)), "둘째 대기 %v", r.waits[1])
+	assert.Equal(t, notify.ResultSent, r.ledger.result(later, notifyToday))
+	assert.Empty(t, r.ledger.result(next, notifyToday))
+	assert.Empty(t, r.ledger.result(beyond, notifyToday))
+}
+
+// 기다리는 중 Job ctx가 끝나면 남은 대상은 시작하지 않고 기록도 남기지 않습니다(다음 실행이 보냄).
+func TestRun_WaitCancelLeavesRestForNextRun(t *testing.T) {
+	r := newNotifyRun()
+	first := r.ledger.addUser("Asia/Seoul", seven, 1)
+	second := r.ledger.addUser("Asia/Seoul", seven, 1)
+	r.offsets[second] = 8 * time.Minute
+	r.wait = func(_ context.Context, until time.Time) error {
+		if until.After(notifyNow) {
+			return context.DeadlineExceeded
+		}
+		return nil
+	}
+
+	result, err := r.run(t)
+
+	require.NoError(t, err)
+	assert.Equal(t, 2, result.Targets)
+	assert.Equal(t, 1, result.Sent)
+	assert.Equal(t, notify.ResultSent, r.ledger.result(first, notifyToday))
+	assert.Empty(t, r.ledger.result(second, notifyToday))
+}
+
+// Wait가 없으면 실제 timer로 기다리고, 그 사이 ctx가 끝나면 보내지 않고 중단 오류로 끝납니다.
+func TestRun_DefaultWaitStopsOnContext(t *testing.T) {
+	r := newNotifyRun()
+	id := r.ledger.addUser("Asia/Seoul", seven, 1)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	_, err := notify.Run(ctx, notify.Deps{
+		Ledger:   r.ledger,
+		Sender:   r.sender,
+		Composer: r.composer,
+		Clock:    clocktest.New(notifyNow),
+		Logger:   slog.New(slog.DiscardHandler),
+		Offset:   func(uuid.UUID) time.Duration { return 9 * time.Minute },
+	})
+
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+	assert.Zero(t, r.sender.count())
+	assert.Empty(t, r.ledger.result(id, notifyToday))
 }

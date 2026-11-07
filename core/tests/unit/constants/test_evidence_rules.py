@@ -21,7 +21,8 @@ def test_rule_detail_keys_declared_per_rule() -> None:
         "part",
         "role",
     )
-    assert len(evidence_rules.RULE_DETAIL_KEYS) == 24
+    assert evidence_rules.RULE_DETAIL_KEYS["tags/clash_day_branch"] == ("day_branch", "natal_positions")
+    assert len(evidence_rules.RULE_DETAIL_KEYS) == 36
 
 
 def test_require_rule_accepts_declared_detail_subset() -> None:

@@ -430,6 +430,7 @@ func TestStore_SlotsLogsMissingEvidenceSlotsOncePerVersion(t *testing.T) {
 	complete := maps.Clone(withBasis)
 	complete["explain.today_reason"] = seed.Slot{ID: "explain.today_reason"}
 	complete["evidence.source"] = seed.Slot{ID: "evidence.source"}
+	complete["evidence.no_source"] = seed.Slot{ID: "evidence.no_source"}
 	partial, full := testSeedWithSlots(t, withBasis, ""), testSeedWithSlots(t, complete, "")
 	for _, s := range []seed.Seed{partial, full} {
 		_, err := content.Apply(ctx, pool, s)
@@ -445,9 +446,10 @@ func TestStore_SlotsLogsMissingEvidenceSlotsOncePerVersion(t *testing.T) {
 		require.NoError(t, err)
 	}
 	out := logs.String()
-	assert.Equal(t, 2, strings.Count(out, "level=ERROR"), out)
+	assert.Equal(t, 3, strings.Count(out, "level=ERROR"), out)
 	assert.Contains(t, out, "slot=explain.today_reason")
 	assert.Contains(t, out, "slot=evidence.source")
+	assert.Contains(t, out, "slot=evidence.no_source")
 	assert.NotContains(t, out, "slot=evidence.basis")
 
 	logs.Reset()

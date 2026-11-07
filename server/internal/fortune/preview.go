@@ -60,14 +60,14 @@ func (v *Views) Preview(ctx context.Context, b profile.Birth, currentTimezone, l
 
 	view := PreviewView{Response: response, DayKindName: name, Date: date, Notices: v.renderNotices(ctx, tpl, response.GetMeta())}
 	// 총운 문장은 계약에서 필수라 원고가 없으면 빈 문장으로 채웁니다(로그는 Renderer가 남김).
-	head, ok := v.renderer.Slot(ctx, tpl, SlotFortuneHead, content.VariantAdvice, fortunes[0], "", false)
+	head, ok := v.renderer.Slot(ctx, tpl, SlotFortuneHead, content.VariantAdvice, fortunes[0], "", content.EvidenceNone)
 	if !ok {
 		head = emptyText(SlotFortuneHead, fortunes[0].GetMessageKey(), content.VariantAdvice)
 	}
 	view.Head = head
 	if len(fortunes) > 1 {
 		// 보조 문장은 계약에서 선택 필드라 원고가 없으면 뺍니다(로그는 Renderer가 남김).
-		if tag, ok := v.renderer.Slot(ctx, tpl, SlotFortuneTag, content.VariantAdvice, fortunes[1], "", false); ok {
+		if tag, ok := v.renderer.Slot(ctx, tpl, SlotFortuneTag, content.VariantAdvice, fortunes[1], "", content.EvidenceNone); ok {
 			view.Tag = &tag
 		}
 	}

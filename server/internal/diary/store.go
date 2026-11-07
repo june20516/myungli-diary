@@ -34,7 +34,8 @@ var (
 )
 
 // Entry는 일기 한 편입니다.
-// AllTags·Featured·GuideQuestion·RulesetVersion·DayKind는 그날 첫 편을 쓸 때 본 엔진 결과와 질문의 기록(날짜 기록)이고, 같은 날 일기에 똑같이 붙습니다.
+// AllTags·Featured·RulesetVersion·DayKind는 그날 첫 편을 쓸 때 본 엔진 결과의 기록(날짜 기록)이고, 같은 날 일기에 똑같이 붙습니다.
+// GuideQuestion은 이 편에서 고른 오늘의 질문이고, 고르지 않은 편은 날짜 기록의 기본 질문입니다(S140).
 type Entry struct {
 	ID             uuid.UUID
 	Date           profile.LocalDate
@@ -87,10 +88,15 @@ func (s *Store) DayExists(ctx context.Context, accountID uuid.UUID, date profile
 // CreateEntry는 date에 일기를 한 편 만듭니다. 한 트랜잭션에서 날짜 기록 넣기, 날짜 잠금, 편수 확인, 일기 넣기 순으로 처리합니다(spec §2.4).
 // record가 있으면 날짜 기록이 없을 때 그것을 적고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
 // record가 nil인데 날짜 기록이 없으면 ErrDayRecordMissing, 그 날짜에 살아 있는 일기가 이미 MaxEntriesPerDay편이면 ErrDayFull입니다.
-func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, record *fortune.DayRecord) (Entry, error) {
+// guide는 이 편에서 고른 오늘의 질문이고, nil이면 이 편의 질문을 비워 날짜 기록의 질문을 씁니다(S140).
+func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, guide []render.Segment, record *fortune.DayRecord) (Entry, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return Entry{}, fmt.Errorf("일기 ID 생성: %w", err)
+	}
+	guideJSON, err := encodeSegments(guide)
+	if err != nil {
+		return Entry{}, err
 	}
 	var entry Entry
 	err = postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
@@ -108,7 +114,7 @@ func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profi
 		if err := lockAndCheckRoom(ctx, q, accountID, pgDate); err != nil {
 			return err
 		}
-		row, err := q.InsertDiary(ctx, diarydb.InsertDiaryParams{ID: id, AccountID: accountID, Date: pgDate, Body: body})
+		row, err := q.InsertDiary(ctx, diarydb.InsertDiaryParams{ID: id, AccountID: accountID, Date: pgDate, Body: body, GuideQuestion: guideJSON})
 		if err != nil {
 			return fmt.Errorf("일기 저장: %w", err)
 		}
@@ -294,17 +300,27 @@ func encodeJSON(r *fortune.DayRecord) (featured, guide []byte, err error) {
 	if featured, err = json.Marshal(tags); err != nil {
 		return nil, nil, fmt.Errorf("대표 태그 직렬화: %w", err)
 	}
-	if len(r.GuideQuestion) == 0 {
-		return featured, nil, nil
-	}
-	segments := make([]segmentJSON, len(r.GuideQuestion))
-	for i, seg := range r.GuideQuestion {
-		segments[i] = segmentJSON{Text: seg.Text, Term: seg.Term}
-	}
-	if guide, err = json.Marshal(segments); err != nil {
-		return nil, nil, fmt.Errorf("가이드 질문 직렬화: %w", err)
+	if guide, err = encodeSegments(r.GuideQuestion); err != nil {
+		return nil, nil, err
 	}
 	return featured, guide, nil
+}
+
+// encodeSegments는 가이드 질문 조각을 jsonb 값([{"text","term"}])으로 바꿉니다. 비어 있으면 nil(NULL)입니다.
+// 날짜 기록의 기본 질문(diary_days)과 편마다 고른 질문(diaries, S140)이 같은 모양입니다.
+func encodeSegments(question []render.Segment) ([]byte, error) {
+	if len(question) == 0 {
+		return nil, nil
+	}
+	segments := make([]segmentJSON, len(question))
+	for i, seg := range question {
+		segments[i] = segmentJSON{Text: seg.Text, Term: seg.Term}
+	}
+	out, err := json.Marshal(segments)
+	if err != nil {
+		return nil, fmt.Errorf("가이드 질문 직렬화: %w", err)
+	}
+	return out, nil
 }
 
 // toEntry는 조회한 행을 Entry로 바꿉니다. 일기 본문은 오류 메시지에 담지 않습니다.

@@ -30,7 +30,7 @@
   user_state: "잠긴 용신 근거 줄을 열려 합니다."
   structure: "동작 이름 하나."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 12, en: 20, ja: 9}
+  max_length: {ko: 12, en: 19, ja: 9}
   keys:
     - sajuChartYongsinOpen
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -49,7 +49,7 @@
   user_state: "용신 판정 근거 줄의 이름을 봅니다. 잠겼을 때 스크린리더는 이 이름 뒤에 \"잠김\"을 읽습니다(#94)."
   structure: "구역 이름 하나(evidence-sheet.section.basis와 같은 성격)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 27, en: 50, ja: 22}
+  max_length: {ko: 26, en: 48, ja: 21}
   keys:
     - sajuChartYongsinTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -70,7 +70,7 @@
   user_state: "사주 표 화면에서 볼 내용을 고릅니다."
   structure: "탭 이름 하나. 명리 용어 그대로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 13, en: 22, ja: 10}
+  max_length: {ko: 13, en: 21, ja: 10}
   components: [segmented]
   keys:
     - sajuChartTabNatal
@@ -164,3 +164,415 @@
   a11y:
     truncation: "화면에 보이지 않습니다."
     screen_reader: "스크린리더만 읽습니다. 오행 항목은 a11yListSeparator로 잇습니다."
+
+# IA v5 새 자리(#813)
+
+- id: my-saju.chart.title
+  where: "나 탭 사주 원국 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuChartTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuChartTitle, text: "사주 원국", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.chart.link
+  where: "나 탭 사주 원국 섹션의 사주 표 이동"
+  purpose: guide
+  user_state: "섹션 오른쪽 이동 글자를 보고 더 자세한 화면으로 갑니다."
+  structure: "이동할 곳 이름 하나(오른쪽 꺾쇠는 app)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuChartLink
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.ilgan.title
+  where: "나 탭 사주 성향 풀이 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuIlganTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuIlganTitle, text: "사주 성향 풀이", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.yongsin.title
+  where: "나 탭 나를 돕는 기운 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuYongsinTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuYongsinTitle, text: "나를 돕는 기운", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.flow.title
+  where: "나 탭 올해와 지금 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuFlowTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuFlowTitle, text: "올해와 지금", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.flow.link
+  where: "나 탭 올해와 지금 섹션의 대운 전체 이동"
+  purpose: guide
+  user_state: "섹션 오른쪽 이동 글자를 보고 더 자세한 화면으로 갑니다."
+  structure: "이동할 곳 이름 하나(오른쪽 꺾쇠는 app)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuFlowLink
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.record.title
+  where: "나 탭 명리일기 회고 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuRecordTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuRecordTitle, text: "명리일기 회고", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: my-saju.record.few
+  where: "나 탭 명리일기 회고에 기록이 적을 때 안내"
+  purpose: guide
+  user_state: "아직 일기를 몇 편 쓰지 않아 회고할 기록이 적습니다."
+  structure: "한 문장. 막는 말 대신 쌓이면 보이는 것(W36)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - mySajuRecordFew
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.head.title
+  where: "사주 표 두 탭 공통 머리(\"<호칭>님의 사주\")"
+  purpose: info
+  user_state: "내 사주 표를 엽니다."
+  structure: "호칭과 사주. 호칭 덩어리는 ui 원고에 쓸 수 없어 app이 채우는 `nickname`(text)으로 받습니다. 호칭 접미사(님, さん)는 호칭 규칙과 맞춥니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {nickname: text}
+      keys: [sajuChartHeadTitle]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.pillars.title
+  where: "사주 표 원국 탭 첫 섹션 제목(\"네 기둥\" 아님)"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartPillarsTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuChartPillarsTitle, text: "사주", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.pillars.desc
+  where: "사주 표 사주 섹션 한 줄 설명"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartPillarsDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.ohaeng.title
+  where: "사주 표 오행 분포 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartOhaengTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuChartOhaengTitle, text: "오행 분포", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.ohaeng.desc
+  where: "사주 표 오행 분포 섹션 한 줄 설명"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartOhaengDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.manse.basis
+  where: "만세력과 대운 탭 위 \"내 일간 <간>(<이름>) 기준\""
+  purpose: info
+  user_state: "만세력의 십성이 무엇을 기준으로 붙었는지 봅니다."
+  structure: "틀 하나. 일간 글자와 이름은 app이 `stem`으로 채웁니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {stem: text}
+      keys: [sajuChartManseBasis]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.jijanggan.desc
+  where: "지장간 설명 시트 본문(띠 이름 용어 칩)"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartJijangganDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.unseong.desc
+  where: "12운성 설명 시트 본문(띠 이름 용어 칩)"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartUnseongDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.sinsal.desc
+  where: "신살 설명 시트 본문(띠 이름 용어 칩)"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartSinsalDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.daeun.title
+  where: "만세력과 대운 탭 대운 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartDaeunTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuChartDaeunTitle, text: "대운", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.daeun.desc
+  where: "대운 섹션 한 줄 설명"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartDaeunDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.seun.title
+  where: "만세력과 대운 탭 세운 섹션 제목"
+  purpose: info
+  user_state: "섹션 제목을 보고 아래 내용이 무엇인지 압니다."
+  structure: "명사구 하나. 꾸밈말 없이 짧게."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartSeunTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuChartSeunTitle, text: "세운", why: "사용자 확정 문구(#813)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: saju-chart.seun.desc
+  where: "세운 섹션 한 줄 설명"
+  purpose: info
+  user_state: "섹션 제목 아래 한 줄 설명으로 이 구조가 무엇인지 처음 봅니다."
+  structure: "한 문장. 용어를 일상어로 풀고, 쉼표로 늘어놓지 않습니다(#813)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - sajuChartSeunDesc
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: ui.birth-info.row
+  where: "사주 표 머리 아래 출생 정보 줄(birth-info-row)의 시진 칸. 달력 종류는 `calendarSolar`·`calendarLunar`, 성별은 `genderMale`·`genderFemale`, 시간 모름은 `timeUnknownLabel`을 함께 씁니다(R30-13)"
+  purpose: info
+  user_state: "사주 표를 열고 내 출생 정보를 확인합니다."
+  structure: "시진 이름 하나. 지지 이름 `branch`는 app이 glossary 지지 이름으로 채웁니다(예: 미시)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [birth-info-row]
+  keys:
+    - params: {branch: text}
+      keys: [birthInfoHour]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: birthInfoHour, text: "{branch}시", why: "기준 이미지(E-chart-wonguk) 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "칸 안에서 잘리지 않게 짧게 씁니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."

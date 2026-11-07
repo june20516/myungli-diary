@@ -21,6 +21,7 @@
         - calendar.caution
         - calendar.good
         - calendar.neutral
+        - calendar.very_good
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:

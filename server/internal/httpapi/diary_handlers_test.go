@@ -38,17 +38,18 @@ type fakeDiaries struct {
 	gotProfile   profile.Profile
 	gotDate      profile.LocalDate
 	gotBody      string
+	gotChoice    *diary.GuideChoice
 	gotQuery     diary.ListQuery
 	createCalls  int
 	listCalls    int
 	deleteCalled bool
 }
 
-func (f *fakeDiaries) Create(_ context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string) (diary.Entry, error) {
+func (f *fakeDiaries) Create(_ context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, choice *diary.GuideChoice) (diary.Entry, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.createCalls++
-	f.gotAccount, f.gotProfile, f.gotDate, f.gotBody = accountID, p, date, body
+	f.gotAccount, f.gotProfile, f.gotDate, f.gotBody, f.gotChoice = accountID, p, date, body, choice
 	return f.entry, f.err
 }
 
@@ -175,6 +176,36 @@ func TestCreateDiary_Errors(t *testing.T) {
 			expectFortuneContract(t, req, rec)
 		})
 	}
+}
+
+// 고른 오늘의 질문(1.6.0)은 서비스로 넘기고, 보내지 않으면 nil입니다. 후보에 없으면 guideQuestion을 가리키는 422입니다(S140).
+func TestCreateDiary_GuideChoice(t *testing.T) {
+	t.Run("고른 질문을 넘김", func(t *testing.T) {
+		diaries := &fakeDiaries{entry: sampleEntry()}
+		req, rec := sendRequest(t, diaryAPI(diaries), http.MethodPost, diariesTarget,
+			`{"date":"2026-10-13","body":"오늘의 일기","guideQuestion":{"messageKey":"guide.yeokma","variant":"1"}}`)
+
+		require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		assert.Equal(t, &diary.GuideChoice{MessageKey: "guide.yeokma", Variant: "1"}, diaries.gotChoice)
+	})
+	t.Run("보내지 않으면 nil", func(t *testing.T) {
+		diaries := &fakeDiaries{entry: sampleEntry()}
+		_, rec := sendRequest(t, diaryAPI(diaries), http.MethodPost, diariesTarget, createDiaryJS)
+
+		require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+		assert.Nil(t, diaries.gotChoice)
+	})
+	t.Run("후보에 없으면 422", func(t *testing.T) {
+		req, rec := sendRequest(t, diaryAPI(&fakeDiaries{err: diary.ErrGuideChoiceInvalid}), http.MethodPost, diariesTarget,
+			`{"date":"2026-10-13","body":"오늘의 일기","guideQuestion":{"messageKey":"guide.x","variant":"9"}}`)
+
+		require.Equal(t, http.StatusUnprocessableEntity, rec.Code, rec.Body.String())
+		p := decodeProblem(t, rec)
+		assert.Equal(t, "diary.guide_invalid", p.Code)
+		assert.Equal(t, []string{"/guideQuestion"}, fieldsOf(p))
+		expectFortuneContract(t, req, rec)
+	})
 }
 
 func TestCreateDiary_WithoutProfileIs409(t *testing.T) {

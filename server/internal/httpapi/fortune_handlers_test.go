@@ -143,7 +143,8 @@ func dailyView() fortune.DailyView {
 			fortune.SlotFocusTime:       text(fortune.SlotFocusTime, "focus_time.picked", "single", "오전"),
 			fortune.SlotCharacterReason: text(fortune.SlotCharacterReason, "character.reason.yongsin_day", "single", "도움"),
 		},
-		Notices: []content.Notice{{Code: "time_unknown", Text: []render.Segment{}}},
+		GuideCandidates: []content.SlotText{guide},
+		Notices:         []content.Notice{{Code: "time_unknown", Text: []render.Segment{}}},
 	}
 }
 
@@ -394,6 +395,73 @@ func TestGetDaily_UnknownEngineEnumIs500(t *testing.T) {
 	assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
 }
 
+// 일진 천간의 십성과 묶음(ruleset 2026.11.0, #806 ③)은 엔진이 내면 담고, 옛 규칙 버전처럼 둘 다 없으면 생략합니다.
+func TestGetDaily_DayStemTenGod(t *testing.T) {
+	t.Run("엔진이 내면 담음", func(t *testing.T) {
+		view := dailyView()
+		view.Response.DayStemTenGod = enginev1.TenGod_TEN_GOD_SIKSIN
+		view.Response.DayStemTenGodGroup = enginev1.TenGodGroup_TEN_GOD_GROUP_SIKSANG
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		var got gen.Daily
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+		require.NotNil(t, got.DayStemTenGod)
+		require.NotNil(t, got.DayStemTenGodGroup)
+		assert.Equal(t, gen.Siksin, *got.DayStemTenGod)
+		assert.Equal(t, gen.Siksang, *got.DayStemTenGodGroup)
+	})
+	t.Run("둘 다 없으면 생략", func(t *testing.T) {
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: dailyView()}, Contents: &fakeContents{}}
+
+		_, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		assert.NotContains(t, rec.Body.String(), "dayStemTenGod")
+	})
+	t.Run("하나만 오면 500", func(t *testing.T) {
+		view := dailyView()
+		view.Response.DayStemTenGod = enginev1.TenGod_TEN_GOD_SIKSIN
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		_, rec, logs := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+		assert.Equal(t, 1, handlerErrorLogs(t, logs), logs.String())
+	})
+}
+
+// 그날 음력(ruleset 2026.11.1, #806 ②)은 엔진이 내면 담고, 옛 규칙 버전처럼 달이 0이면 생략합니다.
+func TestGetDaily_Lunar(t *testing.T) {
+	t.Run("엔진이 내면 담음", func(t *testing.T) {
+		view := dailyView()
+		view.Response.LunarMonth = 9
+		view.Response.LunarDay = 2
+		view.Response.IsLeapMonth = true
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		var got gen.Daily
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+		require.NotNil(t, got.Lunar)
+		assert.Equal(t, gen.LunarDate{Month: 9, Day: 2, IsLeapMonth: true}, *got.Lunar)
+	})
+	t.Run("없으면 생략", func(t *testing.T) {
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: dailyView()}, Contents: &fakeContents{}}
+
+		_, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		assert.NotContains(t, rec.Body.String(), `"lunar":`)
+	})
+}
+
 // calendarView는 이틀짜리 달력 묶음입니다. 첫날만 입절일이고 대표 태그가 있습니다.
 func calendarView() fortune.CalendarView {
 	day := func(d int32) *enginev1.MonthDay {
@@ -408,6 +476,7 @@ func calendarView() fortune.CalendarView {
 		}
 	}
 	first := day(1)
+	first.ScoreItems = []*enginev1.ScoreItem{{Id: "yongsin_day", Score: 2}}
 	first.SolarTerm = &enginev1.SolarTerm{
 		Name: "寒露", Kind: enginev1.SolarTermKind_SOLAR_TERM_KIND_HALLO,
 		At: timestamppb.New(time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)),
@@ -466,9 +535,12 @@ func TestGetCalendar_Returns200(t *testing.T) {
 	body := rec.Body.String()
 	assert.Contains(t, body, `"at":"2026-10-01T12:00:00+09:00"`)
 	assert.Contains(t, body, `"slot":"calendar.day_level","text":{"segments":[]}`)
-	for _, key := range []string{`"notices"`, `"scoreItems"`, `"featuredTag"`} {
+	for _, key := range []string{`"notices"`, `"featuredTag"`} {
 		assert.NotContains(t, body, key, "쓰지 않는 필드(S77)는 응답에 나가지 않습니다")
 	}
+	// 길흉 내역(#806 ①, 1.6.0)은 항목이 없는 날도 빈 배열로 나갑니다.
+	assert.Contains(t, body, `"scoreItems":[{"id":"yongsin_day","score":2}]`)
+	assert.Contains(t, body, `"scoreItems":[]`)
 	assert.NotContains(t, body, `"evidence"`)
 	assert.NotContains(t, body, rawEvidenceRule)
 }
@@ -684,6 +756,66 @@ func TestGetChart_UnlockedIncludesYongsinBasis(t *testing.T) {
 	assert.Equal(t, &zero, readings[2].Index, "대운의 첫 번째 index 0은 담음")
 	// 열려 있어도 판정 근거는 옮기지 않습니다.
 	assert.NotContains(t, rec.Body.String(), rawEvidenceRule)
+}
+
+// 잠긴 응답에는 View가 자른 앞부분만 나가고(D106, S141), 열린 응답에는 미리보기 필드가 섞여 있어도 나가지 않습니다(방어).
+func TestGetChart_PreviewsOnlyWhenLocked(t *testing.T) {
+	response := chartResponse()
+	prefix := []render.Segment{{Text: "조후로 보면"}}
+	reading := fortune.PersonalReadingText{
+		Reading: response.PersonalReadings[0],
+		Text:    content.SlotText{Slot: "personal.day_master", MessageKey: "personal.day_master.gap", Variant: "single", Text: []render.Segment{{Text: "내 일간은"}}},
+	}
+	for _, unlocked := range []bool{false, true} {
+		view := fortune.ChartView{
+			Response: response, Unlocked: unlocked, Notices: []content.Notice{},
+			YongsinBasisPreview: prefix, PersonalReadingPreviews: []fortune.PersonalReadingText{reading},
+		}
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{chart: view}}
+
+		req, rec, _ := getFortune(t, api, "/v1/chart")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		var got gen.Chart
+		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+		if unlocked {
+			assert.Nil(t, got.Yongsin.BasisPreview)
+			assert.Nil(t, got.PersonalReadingPreviews)
+			continue
+		}
+		require.NotNil(t, got.Yongsin.BasisPreview)
+		assert.Equal(t, "조후로 보면", got.Yongsin.BasisPreview.Segments[0].Text)
+		assert.Nil(t, got.Yongsin.Basis)
+		assert.Nil(t, got.PersonalReadings)
+		require.NotNil(t, got.PersonalReadingPreviews)
+		require.Len(t, *got.PersonalReadingPreviews, 1)
+		assert.Equal(t, "내 일간은", (*got.PersonalReadingPreviews)[0].Text.Segments[0].Text)
+	}
+}
+
+// 잠긴 오늘 화면은 근거 앞부분만 evidencePreview로 나가고 evidence는 없습니다. 열리면 evidencePreview가 섞여 있어도 나가지 않습니다.
+func TestGetDaily_EvidencePreviewOnlyWhenLocked(t *testing.T) {
+	for _, unlocked := range []bool{false, true} {
+		view := dailyView()
+		view.Unlocked = unlocked
+		head := view.Texts[fortune.SlotFortuneHead]
+		head.EvidencePreview = []content.EvidencePreview{{Basis: []render.Segment{{Text: "용신이 들어오는"}}}}
+		view.Texts[fortune.SlotFortuneHead] = head
+		api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+		req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+		require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		body := rec.Body.String()
+		if unlocked {
+			assert.NotContains(t, body, "evidencePreview")
+			continue
+		}
+		assert.Contains(t, body, `"evidencePreview":[{"basis":{"segments":[{"text":"용신이 들어오는"}]}}]`)
+		assert.NotContains(t, body, `"evidence":`)
+	}
 }
 
 func TestGetChart_UnknownPersonalReadingKindIs500(t *testing.T) {

@@ -108,10 +108,58 @@
     "role",
     "strength"
   ],
+  "tags/cheoneul_gwiin": [
+    "day_branch",
+    "shinsal"
+  ],
+  "tags/clash": [
+    "day_branch",
+    "natal_positions"
+  ],
+  "tags/clash_day_branch": [
+    "day_branch",
+    "natal_positions"
+  ],
+  "tags/clash_month_branch": [
+    "day_branch",
+    "natal_positions"
+  ],
+  "tags/dohwa": [
+    "day_branch",
+    "shinsal"
+  ],
+  "tags/gongmang": [
+    "day_branch",
+    "shinsal"
+  ],
+  "tags/gwiin_day": [
+    "day_kind"
+  ],
+  "tags/harmony": [
+    "natal_positions",
+    "relation_kind"
+  ],
+  "tags/hwagae": [
+    "day_branch",
+    "shinsal"
+  ],
   "tags/select": [
     "all",
     "day_kind",
     "featured"
+  ],
+  "tags/ten_god_rush": [
+    "branch_ten_god",
+    "group",
+    "natal_count",
+    "stem_ten_god"
+  ],
+  "tags/yeokma": [
+    "day_branch",
+    "shinsal"
+  ],
+  "tags/yongsin_day": [
+    "day_kind"
   ],
   "yongsin/eokbu": [
     "strength_level",

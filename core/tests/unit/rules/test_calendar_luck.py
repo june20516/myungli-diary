@@ -102,3 +102,15 @@ def test_breakdown_sums_to_score() -> None:
     ]
     result = score_day(DayKind.YONGSIN_DAY, relations)
     assert result.score == sum(points for _, points in result.breakdown) == 1
+
+
+def test_score_three_is_very_good() -> None:
+    result = score_day(DayKind.GWIIN_DAY, [rel(RelationKind.BRANCH_HAP, Position.YEAR_BRANCH)])
+    assert result.score == 3
+    assert result.level == LuckLevel.VERY_GOOD
+
+
+def test_score_two_stays_good() -> None:
+    result = score_day(DayKind.YONGSIN_DAY, [])
+    assert result.score == 2
+    assert result.level == LuckLevel.GOOD

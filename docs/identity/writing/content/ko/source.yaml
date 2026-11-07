@@ -123,3 +123,13 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.申", text: "궁통보감 「칠월신」\n七月辛金，值庚司令，不旺自旺，且壬水居申，四柱不见戊土，胎元戊藏申内，为壬堤岸，人命得此，为官清正，但不富耳。\n7월의 신금은 임수가 있고 무토가 둑이 되어 주면 깨끗한 관리가 되지만 부자는 못 된다는 뜻이에요."}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.辰", text: "궁통보감 「삼월신」\n三月辛金，戊土司令，辛承正气，母旺子相，先壬后甲。\n3월에 태어난 신금 일간에게는 임수가 먼저, 그다음 갑목이 필요하다는 뜻이에요."}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.酉", text: "궁통보감 「팔월신」\n八月辛金，当权得令，旺之极矣，专用壬水淘洗火，故云：金见水以流通。\n8월에 태어난 신금 일간에게는 임수만 쓴다는 뜻이에요."}
+- {slot: evidence.source, key: "source.jeokcheonsu/tags#clash_month_branch", text: "적천수 「월령론」\n月令提綱，譬之宅也，人元用事之神，宅之向也，不可以不卜。\n월령은 집과 같고 그 안에서 일을 맡은 기운은 집의 방향과 같아, 반드시 살펴야 한다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#branch_hap", text: "삼명통회 「논지원육합」\n夫合者，和也，乃阴阳相和，其气自合。\n합은 어울림이라, 음과 양이 서로 어울리면 기운이 저절로 합해진다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#cheoneul_gwiin", text: "삼명통회 「논천을귀인」\n其神最尊贵，所至之处，一切凶煞隐然而避。\n천을귀인은 가장 귀한 신이라, 이르는 곳마다 모든 흉살이 조용히 피해 간다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#clash", text: "삼명통회 「논충격」\n相冲者，十二支战击之神，大概为凶。\n충은 열두 지지가 서로 맞부딪혀 싸우는 것이라 대개 흉하게 본다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#clash_day_branch", text: "삼명통회 「논년월일시」\n伤日不利己身，名折腰煞\n일주 자리가 상하면 나 자신에게 이롭지 않으니, 이를 절요살이라 부른다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#dohwa", text: "삼명통회 「논함지」\n寅午戌卯、已酉丑午、申子辰酉、亥卯未子即长生第二位沐浴之宫是也。一名败神，一名桃花煞\n인오술은 묘, 사유축은 오, 신자진은 유, 해묘미는 자가 장생 다음 목욕 자리이고, 패신이나 도화살이라고도 부른다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#gongmang", text: "삼명통회 「논공망」\n故以甲旬尽处曰空亡，盖有是位而无禄，曰空；有支而无干，曰亡。\n갑으로 시작하는 열흘이 끝나고 남는 자리를 공망이라 하니, 자리는 있으나 녹이 없어 공, 지지는 있으나 천간이 없어 망이라는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#hwagae", text: "삼명통회 「논장성화개」\n故以三合底处得库谓之华盖。\n삼합의 마지막 자리인 창고 자리를 화개라 부른다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#stem_hap", text: "삼명통회 「논십간합」\n唯阴见阳，阳见阴为合，亦如男女相合而成夫妇之道。\n음이 양을, 양이 음을 만나야 합이 되니, 남녀가 만나 부부가 되는 것과 같다는 뜻이에요."}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#yeokma", text: "삼명통회 「논역마」\n所谓驿马者，乃先天三合数也\n역마는 선천수로 따진 삼합의 수에서 나온다는 뜻이에요."}

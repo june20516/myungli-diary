@@ -180,9 +180,12 @@ class YongsinMethod(Enum):
 
 
 class LuckLevel(Enum):
+    """순서는 proto 번호 순서다(VERY_GOOD은 #804에서 더함). 수준의 높낮이 순서가 아니다."""
+
     GOOD = auto()
     NEUTRAL = auto()
     CAUTION = auto()
+    VERY_GOOD = auto()
 
 
 class NoticeCode(Enum):

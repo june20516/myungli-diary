@@ -39,6 +39,40 @@ jobs:
           service_account: ${{ inputs.service_account }}
       - uses: google-github-actions/setup-gcloud@v3
 
+      # 배포 관문(D110, workflow §6.3): 같은 환경의 server가 다루는 엔진 규칙 버전(GET /version)보다 새 엔진이 높으면
+      # 이미지를 push하기 전에 멈춥니다. server가 그 버전을 따라잡아 이 환경에 배포된 뒤 다시 돌리면 나갑니다.
+      # server 서비스가 아직 없으면(첫 배포) 깨질 받는 쪽이 없어 통과합니다.
+      - name: 배포 관문 (server 지원 버전)
+        run: |
+          engine_version="$(sed -n 's/^RULESET_VERSION: Final\[str\] = "\(.*\)"$/\1/p' core/src/myungli_engine/version.py)"
+          if [ -z "$engine_version" ]; then
+            echo "core/src/myungli_engine/version.py에서 RULESET_VERSION을 읽지 못했습니다." >&2
+            exit 1
+          fi
+          if ! url="$(gcloud run services describe server --region "$REGION" --project "${{ inputs.project_id }}" --format='value(status.url)' 2>&1)"; then
+            if grep -q "Cannot find service\|NOT_FOUND\|could not be found" <<< "$url"; then
+              echo "### 배포 관문 통과 (${{ inputs.environment }}): server 서비스가 아직 없습니다. 엔진 ${engine_version}" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "$url" >&2
+            exit 1
+          fi
+          supported="$(curl -fsS --retry 3 --max-time 20 "$url/version" | jq -r '.supportedRulesetVersion // empty')"
+          if [ -z "$supported" ]; then
+            echo "server가 지원 버전을 내지 않습니다(GET /version, 계약 1.5.0 전 빌드). server를 먼저 배포하세요." >&2
+            exit 1
+          fi
+          highest="$(printf '%s\n%s\n' "$supported" "$engine_version" | sort -V | tail -n 1)"
+          if [ "$engine_version" != "$supported" ] && [ "$highest" = "$engine_version" ]; then
+            {
+              echo "### 배포 멈춤 (${{ inputs.environment }}): 엔진 ${engine_version}이 server 지원 버전 ${supported}보다 높습니다"
+              echo "server가 이 규칙 버전을 따라잡아 이 환경에 배포된 뒤 deploy-engine을 다시 실행하세요(D110)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "엔진 ${engine_version} > server 지원 ${supported}. 배포하지 않습니다(D110)." >&2
+            exit 1
+          fi
+          echo "### 배포 관문 통과 (${{ inputs.environment }}): 엔진 ${engine_version}, server 지원 ${supported}" >> "$GITHUB_STEP_SUMMARY"
+
       # 빌드 맥락은 core/만입니다(D33). engine:current는 Terraform이 엔진 서비스를 처음 만들 때 쓰는 이미지입니다.
       - name: 이미지 빌드와 push
         id: image
@@ -56,6 +90,8 @@ jobs:
           # gcloud 591은 "Cannot find service [engine]"을 내고, 앞의 두 문구는 API 원문(NOT_FOUND)을 그대로 낼 때를 위해 둡니다.
           if output="$(gcloud run services describe engine --region "$REGION" --project "${{ inputs.project_id }}" --format='value(name)' 2>&1)"; then
             gcloud run services update engine --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
+            # traffic이 이전 리비전에 고정돼 있으면(되돌리기 등) update가 새 리비전으로 옮기지 않으므로 최신으로 돌립니다(#824).
+            gcloud run services update-traffic engine --to-latest --region "$REGION" --project "${{ inputs.project_id }}"
           elif grep -q "Cannot find service\|NOT_FOUND\|could not be found" <<< "$output"; then
             echo "### 엔진 서비스가 아직 없어 이미지 push만 했습니다. deploy-server가 Terraform으로 만듭니다." >> "$GITHUB_STEP_SUMMARY"
           else

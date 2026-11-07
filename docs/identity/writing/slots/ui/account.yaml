@@ -49,9 +49,9 @@
   user_state: "로그인 수단 하나를 떼려 합니다."
   structure: "확인 창: 제목은 질문(제공자 이름 매개변수), 본문(`Body`)은 연결한 다른 인증 수단으로 계속 로그인할 수 있다는 것(W36), 버튼 둘(`Unlink`, `Cancel`). 제공자 이름 뒤에 조사를 붙이지 않습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    loginMethodsUnlinkConfirm: {ko: 34, en: 60, ja: 28}
+    loginMethodsUnlinkConfirm: {ko: 34, en: 60, ja: 26}
     loginMethodsUnlinkConfirmBody: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - params: {provider: text}
@@ -276,9 +276,9 @@
   user_state: "합치기 버튼을 눌렀습니다."
   structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Merge`, `Cancel`)."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    accountMergeMergeConfirm: {ko: 34, en: 60, ja: 28}
+    accountMergeMergeConfirm: {ko: 34, en: 60, ja: 26}
   keys:
     - accountMergeMergeConfirm
     - accountMergeMergeConfirmMerge
@@ -370,7 +370,7 @@
   user_state: "설정에서 로그인 수단을 찾습니다."
   structure: "줄 이름 하나. 화면 이름(login-methods.bar.title)과 같습니다."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 18}
+  max_length: {ko: 20, en: 37, ja: 16}
   components: [settings-row]
   keys:
     - settingsLoginMethodsLabel

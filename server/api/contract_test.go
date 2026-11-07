@@ -29,7 +29,7 @@ var expectedOperationIDs = []string{
 	"registerDevice",
 	"createInquiry", "deleteDevice",
 	"getEntitlements", "restorePurchases", "revenuecatWebhook", "admobRewardCallback",
-	"listCities", "getAppConfig", "checkHealth", "getHealth",
+	"listCities", "getAppConfig", "checkHealth", "getHealth", "getServerVersion",
 	"loginLine", "loginGoogle", "listIdentities", "linkIdentity", "unlinkIdentity", "previewMerge", "mergeAccounts", "listPurchases",
 }
 
@@ -49,6 +49,7 @@ var securityOverrides = map[string][]string{
 	"getAppConfig":          {},
 	"checkHealth":           {},
 	"getHealth":             {},
+	"getServerVersion":      {},
 	"createPreview":         {"appCheck"},
 	"getBirthHour":          {"appCheck"},
 	"convertLunarDate":      {"appCheck"},
@@ -688,10 +689,11 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 }
 
 // TestContract_VersionIsFrozen은 v1의 현재 버전을 고정합니다. freeze(1.0.0) 뒤 하위 호환 추가는 minor, 설명만은 patch를 올립니다. (S93, S114~S116, S126)
+// 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.4.0" {
-		t.Errorf("info.version = %q, want 1.4.0", doc.Info.Version)
+	if doc.Info.Version != "1.8.0" {
+		t.Errorf("info.version = %q, want 1.8.0", doc.Info.Version)
 	}
 }
 
@@ -1165,12 +1167,13 @@ func TestContract_Draft9Additions(t *testing.T) {
 }
 
 // TestContract_Draft9Removals는 draft.9에서 뺀, app이 쓰지 않는 필드 다섯 개가 없음을 고정합니다. (S77, app 확인 #309)
+// CalendarDay.scoreItems와 ScoreItem은 그날 시트의 길흉판정 내역으로 1.6.0에서 다시 더했습니다(#806 ①, S140).
 func TestContract_Draft9Removals(t *testing.T) {
 	doc := loadDoc(t)
 
 	removed := map[string][]string{
 		"FocusSlot":   {"score", "pillar"},
-		"CalendarDay": {"scoreItems", "featuredTag"},
+		"CalendarDay": {"featuredTag"},
 		"Calendar":    {"notices"},
 	}
 	for name, properties := range removed {
@@ -1191,7 +1194,7 @@ func TestContract_Draft9Removals(t *testing.T) {
 	kept := map[string][]string{
 		"Daily":       {"notices"},
 		"Chart":       {"notices"},
-		"CalendarDay": {"score", "pillar"},
+		"CalendarDay": {"score", "pillar", "scoreItems"},
 	}
 	for name, properties := range kept {
 		for _, property := range properties {
@@ -1199,10 +1202,6 @@ func TestContract_Draft9Removals(t *testing.T) {
 				t.Errorf("%s.%s가 없음", name, property)
 			}
 		}
-	}
-
-	if _, ok := doc.Components.Schemas["ScoreItem"]; ok {
-		t.Error("참조되지 않는 ScoreItem 스키마가 남아 있음")
 	}
 }
 

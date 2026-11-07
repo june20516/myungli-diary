@@ -18,6 +18,7 @@
 - {slot: explain.today_reason, key: "reason.number/hado", text: "今日の色と同じ気の数のうち、今日の天干の陰陽に合う数を選んだからです。"}
 - {slot: explain.today_reason, key: "reason.tags/select", text: "今日の干支があなたの命式と出会って生まれた合・冲・神殺と、多くなった通変星を集めたからです。"}
 - {slot: calendar.day_level, key: calendar.caution, text: "気をつける日"}
+- {slot: calendar.day_level, key: calendar.very_good, text: "とてもうまく運ぶ日"}
 - {slot: calendar.day_level, key: calendar.good, text: "うまく運ぶ日"}
 - {slot: calendar.day_level, key: calendar.neutral, text: "無難な日"}
 - {slot: calendar.score_item, key: gwiin_day, text: "貴人の日"}

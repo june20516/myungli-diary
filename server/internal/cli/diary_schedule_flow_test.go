@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/june20516/myungli-diary/server/internal/content/render"
 	"github.com/june20516/myungli-diary/server/internal/fortune"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/profile"
@@ -21,6 +22,11 @@ type fakeDays struct{}
 
 func (fakeDays) DayRecord(context.Context, uuid.UUID, profile.Profile, profile.LocalDate) (fortune.DayRecord, error) {
 	return fortune.DayRecord{AllTags: []string{}, Featured: []fortune.FeaturedTag{}, RulesetVersion: "flow-1"}, nil
+}
+
+// GuideChoice는 후보가 없는 날처럼 늘 ErrGuideChoiceNotFound입니다(흐름 시험은 질문을 고르지 않음).
+func (fakeDays) GuideChoice(context.Context, uuid.UUID, profile.Profile, profile.LocalDate, string, string) ([]render.Segment, error) {
+	return nil, fortune.ErrGuideChoiceNotFound
 }
 
 // okCharts는 프로필 저장의 차트 확인을 늘 통과시키는 ChartChecker 대역입니다.

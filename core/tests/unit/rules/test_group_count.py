@@ -37,7 +37,7 @@ def test_matches_tag_rush_rule(pillar_of: PillarOf) -> None:
     """tags._rush_tags가 공용 함수의 개수로 쏠림을 판단한다."""
     natal = _natal(pillar_of)
     day = pillar_of("甲寅")  # 천간·지지 정기 모두 비겁, 원국 비겁 2개
-    assert tags._rush_tags(natal, day) == (tags.rush_tag_key(TenGodGroup.BIGYEOP),)
+    assert [tag.key for tag in tags._rush_tags(natal, day)] == [tags.rush_tag_key(TenGodGroup.BIGYEOP)]
     with patch.object(tags, "natal_group_count", return_value=1) as spy:
         assert tags._rush_tags(natal, day) == ()
     spy.assert_called_once_with(natal, TenGodGroup.BIGYEOP)

@@ -29,7 +29,8 @@ _SHINSALS = tuple(_lower(kind) for kind in Shinsal)
 
 TAG_KEYS: frozenset[str] = frozenset(
     {
-        "tag.big_change",
+        "tag.clash_day_branch",
+        "tag.clash_month_branch",
         "tag.clash",
         "tag.harmony",
         *(f"tag.ten_god_rush.{group}" for group in _GROUPS),
@@ -76,7 +77,7 @@ KEY_PARAMS: dict[str, tuple[str, ...]] = {
         (f"yongsin.method.{method}" for method in ("johu", "johu_neutral", "eokbu")),
         ("yongsin", "huisin", "gisin", "tonggwan"),
     ),
-    **_declare((f"calendar.{level}" for level in ("good", "neutral", "caution")), ("score",)),
+    **_declare((f"calendar.{level}" for level in ("very_good", "good", "neutral", "caution")), ("score",)),
     **_declare((f"personal.day_master.{stem}" for stem in _STEMS), ("strength", "yongsin", "gisin")),
     **_declare(
         (f"personal.ten_god.{god}" for god in _TEN_GODS),

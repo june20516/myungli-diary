@@ -48,7 +48,7 @@ func setup(t *testing.T) (*diary.Store, uuid.UUID, *pgxpool.Pool) {
 // mustCreate는 date에 일기를 한 편 만듭니다. 그날 첫 편이면 record를 적습니다.
 func mustCreate(t *testing.T, store *diary.Store, acc uuid.UUID, d int, body string, rec *fortune.DayRecord) diary.Entry {
 	t.Helper()
-	e, err := store.CreateEntry(context.Background(), acc, day(d), body, rec)
+	e, err := store.CreateEntry(context.Background(), acc, day(d), body, nil, rec)
 	require.NoError(t, err)
 	return e
 }
@@ -114,7 +114,7 @@ func TestStore_SecondRecordIsIgnored(t *testing.T) {
 
 func TestStore_CreateWithoutRecordWhenDayMissing(t *testing.T) {
 	store, acc, pool := setup(t)
-	_, err := store.CreateEntry(context.Background(), acc, day(10), "본문", nil)
+	_, err := store.CreateEntry(context.Background(), acc, day(10), "본문", nil, nil)
 	assert.ErrorIs(t, err, diary.ErrDayRecordMissing)
 	assert.Equal(t, 0, countLive(t, pool, acc, 10))
 }
@@ -130,7 +130,7 @@ func TestStore_ConcurrentCreatesStopAtTen(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, errs[i] = store.CreateEntry(ctx, acc, day(10), "본문", record("a"))
+			_, errs[i] = store.CreateEntry(ctx, acc, day(10), "본문", nil, record("a"))
 		}()
 	}
 	wg.Wait()
@@ -170,11 +170,11 @@ func TestStore_DeletedEntriesDoNotCount(t *testing.T) {
 	ctx := context.Background()
 	store, acc, _ := setup(t)
 	ids := fillDay(t, store, acc, 10, diary.MaxEntriesPerDay)
-	_, err := store.CreateEntry(ctx, acc, day(10), "열한째", nil)
+	_, err := store.CreateEntry(ctx, acc, day(10), "열한째", nil, nil)
 	require.ErrorIs(t, err, diary.ErrDayFull)
 
 	require.NoError(t, store.Delete(ctx, acc, ids[0]))
-	_, err = store.CreateEntry(ctx, acc, day(10), "열한째", nil)
+	_, err = store.CreateEntry(ctx, acc, day(10), "열한째", nil, nil)
 	assert.NoError(t, err)
 }
 

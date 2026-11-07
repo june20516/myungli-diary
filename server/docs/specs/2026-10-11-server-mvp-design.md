@@ -370,7 +370,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
 ### 8.2 `job notify` (5분마다, S13)
 
 * 알림 시각은 5분 단위로 받습니다. 계약의 `pattern`으로 표현되므로 REST에서 분이 5의 배수가 아니면 `pattern` 위반 400 `request.invalid`입니다(§11.2).
-* 대상: `notify_status = enabled`이고, 현재 시간대의 현지 알림 시각이 [지금−60분, 지금]이며, 그 현지 날짜의 `notification_log`가 없는 사용자. Job이 멈췄다 돌아와도 1시간 안의 누락분만 보냅니다.
+* 대상: `notify_status = enabled`이고, 보낼 시각(현재 시간대의 현지 알림 시각 + 계정 고정 오프셋 0~10분)이 [지금−60분, 지금+5분)이며, 그 현지 날짜의 `notification_log`가 없는 사용자. 다음 5분 안의 보낼 시각은 이번 실행이 그 시각까지 기다렸다 보냅니다(D109, S144로 개정). Job이 멈췄다 돌아와도 1시간 안의 누락분만 보냅니다.
 * 내용: 그날 데일리를 §6.2로 선택(알림이 그날 첫 요청이면 여기서 선택이 정해짐)하고, 알림 슬롯 문장을 호칭 없이 렌더합니다. 알림 슬롯은 IA content 슬롯 `system-push.morning.body`입니다(D62).
 * 발송: FCM HTTP v1. 일괄 발송 API가 없으므로 메시지를 하나씩 동시에 보냅니다(동시 50개).
   * `UNREGISTERED`, 토큰 관련 `INVALID_ARGUMENT`는 기기를 비활성으로 바꿉니다.

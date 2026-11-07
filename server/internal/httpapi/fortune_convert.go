@@ -21,6 +21,7 @@ import (
 // 이 파일은 운세 화면 묶음(fortune.DailyView·CalendarView·ChartView)을 계약 타입으로 옮깁니다.
 //
 // 잠금(D60): 문장의 근거는 View가 권한에 따라 이미 비웠고, 여기서는 View의 문장만 옮깁니다.
+// 잠겼을 때의 앞부분(D106, S141)도 View가 잘라 두었고, 여기서는 잠긴 응답에만 옮깁니다(방어로 권한을 한 번 더 봄).
 // 엔진 응답의 판정 근거(Judgment.evidence, DailyResponse.tag_evidence)는 계약에 자리가 없어 옮기지 않습니다.
 // 원국 개인 해석(ChartResponse.personal_readings)은 View가 렌더한 문장만 Chart.personalReadings로 옮깁니다.
 // 엔진 값이 계약 enum에 없으면(UNSPECIFIED, 모르는 번호) 엔진 계약 위반이라 오류(500)입니다.
@@ -185,6 +186,12 @@ func (c *converter) slotText(t content.SlotText) gen.SlotText {
 		evidence := convertAll(t.Evidence, evidenceOf)
 		out.Evidence = &evidence
 	}
+	if !c.unlocked && len(t.EvidencePreview) > 0 {
+		previews := convertAll(t.EvidencePreview, func(p content.EvidencePreview) gen.EvidencePreview {
+			return gen.EvidencePreview{Basis: optionalText(p.Basis), Source: optionalText(p.Source)}
+		})
+		out.EvidencePreview = &previews
+	}
 	if reaction, ok := c.reactions[t.Slot]; ok && t.Reactable {
 		value := contractValue[gen.SlotTextReaction](c, "SlotText.reaction", reaction)
 		out.Reaction = &value
@@ -237,6 +244,7 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 		CharacterReason: c.requiredText(view.Texts, fortune.SlotCharacterReason),
 		Fortune:         gen.Fortune{Head: c.requiredText(view.Texts, fortune.SlotFortuneHead)},
 		Guide:           c.requiredText(view.Texts, fortune.SlotGuide),
+		GuideCandidates: c.guideCandidates(view),
 		Cards:           c.dailyCards(view),
 		Tags: gen.DayTags{
 			Featured: convertAll(r.GetFeaturedTags(), c.tag),
@@ -249,7 +257,43 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 		text := c.slotText(tag)
 		out.Fortune.Tag = &text
 	}
+	out.DayStemTenGod, out.DayStemTenGodGroup = c.dayStemTenGod(r)
+	out.Lunar = dailyLunar(r)
 	return out, c.err
+}
+
+// dailyLunar는 그날의 한국 음력 날짜를 옮깁니다(#806 ②). 2026.11.1 전 규칙 버전의 엔진은 음력을 내지 않아(달 0) 생략합니다.
+func dailyLunar(r *enginev1.DailyResponse) *gen.LunarDate {
+	if r.GetLunarMonth() == 0 {
+		return nil
+	}
+	return &gen.LunarDate{Month: int(r.GetLunarMonth()), Day: int(r.GetLunarDay()), IsLeapMonth: r.GetIsLeapMonth()}
+}
+
+// guideCandidates는 오늘의 질문 후보를 옮깁니다. View는 기본 질문을 첫 항목으로 늘 채우므로, 비어 있으면 묶음을 만든 쪽의 잘못이라 오류입니다.
+func (c *converter) guideCandidates(view fortune.DailyView) []gen.SlotText {
+	if len(view.GuideCandidates) == 0 {
+		c.fail(errors.New("오늘 화면 묶음에 오늘의 질문 후보가 없습니다"))
+		return []gen.SlotText{}
+	}
+	return convertAll(view.GuideCandidates, c.slotText)
+}
+
+// dayStemTenGod는 일진 천간의 십성과 그 묶음을 옮깁니다. 2026.11.0 전 규칙 버전의 엔진은 둘 다 내지 않아(UNSPECIFIED) 둘 다 생략합니다.
+// 하나만 오면 엔진 계약 위반이라 오류입니다.
+func (c *converter) dayStemTenGod(r *enginev1.DailyResponse) (*gen.TenGod, *gen.TenGodGroup) {
+	tenGodMissing := r.GetDayStemTenGod() == enginev1.TenGod_TEN_GOD_UNSPECIFIED
+	groupMissing := r.GetDayStemTenGodGroup() == enginev1.TenGodGroup_TEN_GOD_GROUP_UNSPECIFIED
+	if tenGodMissing && groupMissing {
+		return nil, nil
+	}
+	if tenGodMissing != groupMissing {
+		c.fail(errors.New("엔진 응답에 일진 천간의 십성과 묶음 중 하나만 있습니다"))
+		return nil, nil
+	}
+	tenGod := enumValue[gen.TenGod](c, r.GetDayStemTenGod())
+	group := enumValue[gen.TenGodGroup](c, r.GetDayStemTenGodGroup())
+	return &tenGod, &group
 }
 
 // toPreview는 미리보기 묶음을 계약 Preview로 바꿉니다. 근거 열람 권한이 없어 evidenceAccess는 늘 locked입니다.
@@ -356,7 +400,10 @@ func (c *converter) calendarDay(d *enginev1.MonthDay, texts fortune.DayTexts) ge
 		CharacterReason: c.slotText(texts.CharacterReason),
 		LuckLevel:       enumValue[gen.LuckLevel](c, d.GetLuckLevel()),
 		Score:           int(d.GetScore()),
-		Level:           c.slotText(texts.Level),
+		ScoreItems: convertAll(d.GetScoreItems(), func(item *enginev1.ScoreItem) gen.ScoreItem {
+			return gen.ScoreItem{Id: item.GetId(), Score: int(item.GetScore())}
+		}),
+		Level: c.slotText(texts.Level),
 	}
 	if term := d.GetSolarTerm(); term != nil {
 		out.SolarTerm = &gen.SolarTerm{Kind: enumValue[gen.SolarTermKind](c, term.GetKind()), At: c.instant(term.GetAt())}
@@ -397,7 +444,7 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 			Score: float32(r.GetStrength().GetScore()),
 			Level: enumValue[gen.StrengthLevel](c, r.GetStrength().GetLevel()),
 		},
-		Yongsin:        c.yongsin(r.GetYongsin(), view.YongsinBasis),
+		Yongsin:        c.yongsin(r.GetYongsin(), view.YongsinBasis, view.YongsinBasisPreview),
 		Daeun:          c.daeun(r.GetDaeun()),
 		Seun:           convertAll(r.GetSeun(), c.seunYear),
 		Notices:        c.notices(view.Notices),
@@ -408,6 +455,9 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 	if view.Unlocked {
 		readings := convertAll(view.PersonalReadings, c.personalReading)
 		out.PersonalReadings = &readings
+	} else if len(view.PersonalReadingPreviews) > 0 {
+		previews := convertAll(view.PersonalReadingPreviews, c.personalReading)
+		out.PersonalReadingPreviews = &previews
 	}
 	return out, c.err
 }
@@ -466,8 +516,8 @@ func (c *converter) chartPillars(p *enginev1.FourPillars) gen.ChartPillars {
 	return out
 }
 
-// yongsin은 용신 정보를 옮깁니다. 조후 천간은 있을 때만, 용신 근거 문장은 권한이 있을 때만 담습니다.
-func (c *converter) yongsin(y *enginev1.YongsinInfo, basis *content.SlotText) gen.Yongsin {
+// yongsin은 용신 정보를 옮깁니다. 조후 천간은 있을 때만, 용신 근거 문장은 권한이 있을 때만, 그 앞부분은 잠겼을 때만 담습니다.
+func (c *converter) yongsin(y *enginev1.YongsinInfo, basis *content.SlotText, basisPreview []render.Segment) gen.Yongsin {
 	out := gen.Yongsin{
 		Yongsin:  enumValue[gen.FiveElement](c, y.GetYongsin()),
 		Huisin:   enumValue[gen.FiveElement](c, y.GetHuisin()),
@@ -482,6 +532,9 @@ func (c *converter) yongsin(y *enginev1.YongsinInfo, basis *content.SlotText) ge
 	if c.unlocked && basis != nil {
 		text := c.slotText(*basis)
 		out.Basis = &text
+	}
+	if !c.unlocked {
+		out.BasisPreview = optionalText(basisPreview)
 	}
 	return out
 }

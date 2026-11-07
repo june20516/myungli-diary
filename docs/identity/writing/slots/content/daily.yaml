@@ -24,7 +24,7 @@
   endings: ["advice: ~해 보세요", "state: ~날이에요", "care: ~해도 괜찮은 날이에요, ~큰 날이에요 (괜찮아요 반복은 limit.L8)"]
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: 32, en: 57, ja: 32}
-  ia: [today.fortune.head, preview.fortune.head, system-push.morning.body]
+  ia: [today.fortune.head, preview.fortune.head, system-push.morning.body, evidence-sheet.target.body]
   vocative: true
   keys:
     - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
@@ -92,9 +92,10 @@
   keys:
     - params: {day_kind: [day_kind], ten_god: [ten_god, ten_god_group], element: [element, color], emphasis: none}
       keys:
-        - fortune.tag.big_change
         - fortune.tag.cheoneul_gwiin
         - fortune.tag.clash
+        - fortune.tag.clash_day_branch
+        - fortune.tag.clash_month_branch
         - fortune.tag.dohwa
         - fortune.tag.gongmang
         - fortune.tag.gwiin_day
@@ -135,9 +136,10 @@
   keys:
     - params: {ten_god: [ten_god, ten_god_group], element: [element, color]}
       keys:
-        - guide.big_change
         - guide.cheoneul_gwiin
         - guide.clash
+        - guide.clash_day_branch
+        - guide.clash_month_branch
         - guide.dohwa
         - guide.gongmang
         - guide.gwiin_day
@@ -307,9 +309,10 @@
   max_length: {ko: 10, en: 18, ja: 10}
   components: [tag-chip, lucky-card]
   keys:
-    - tag.big_change
     - tag.cheoneul_gwiin
     - tag.clash
+    - tag.clash_day_branch
+    - tag.clash_month_branch
     - tag.dohwa
     - tag.gongmang
     - tag.gwiin_day
@@ -327,7 +330,6 @@
   examples:
     good:
       - {lang: ko, key: tag.dohwa, text: "도화", why: "이름 그대로", source: writing}
-      - {lang: ko, key: tag.big_change, text: "큰 변화", why: "쉬운 일상어 명사구", source: writing}
     bad:
       - {lang: ko, key: tag.dohwa, text: "도화살 발동!", why: "들뜬 강조 slop.P8", source: writing}
   a11y:

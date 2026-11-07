@@ -85,6 +85,12 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **L1 생성기 Job(브랜치 `server/l1-generator`, #782):** 같은 region의 Cloud Run Job `load-k6`(env `load.tf`, 이미지 `server/load/Dockerfile`), 결과 bucket(bootstrap, 부하 프로젝트만), 원자료 gzip. 기본 STAGES 2~320세션/초, `ACCOUNTS` 3200. 다음은 1회차 측정(L1-4).
 * **L1 warmup 판정(브랜치 `server/l1-warmup-phase`, #782):** cold 1회차(2026-11-05)가 `stage_40` 시작 7초의 증설 구간 표본으로 멈춰, 단계마다 처음 30초를 tag `phase=warmup`으로 나누고 멈춤 조건은 `phase=steady`에만 겁니다. `stages.csv`에 `phase` 열.
 * **L1 1회차 결과(브랜치 `server/l1-results`, #782):** cold와 warm 모두 초당 80세션에서 버티고 160에서 멈춤. Cloud SQL CPU 100%, cold는 엔진 429와 server 504, 단계 처음 증설 지연 10~13초. `load-teardown`이 DB와 DB 사용자를 state에서만 빼게 고침.
+* **엔진 2026.11.0 따라잡기와 배포 관문(브랜치 `server/engine-2026-11`, #821, #824, #827, #806 ③④):** 계약 1.5.0. 달력 `LuckLevel` `very_good`(출시 전 예외, 닫힌 enum 유지, S138), 오늘 `Daily.dayStemTenGod`·`dayStemTenGodGroup`, 새 태그 `clash_day_branch`·`clash_month_branch`의 길흉(`big_change`는 옛 기록용으로 남김), 원전 없는 근거의 `no_source.<rule_id>` 문장, 지원 엔진 버전 `GET /version`과 `deploy-engine-env.yml` 관문, 엔진 배포 뒤 traffic 최신으로(S139).
+* **DS1 질문 고르기와 길흉 내역(브랜치 `server/ds1-guide-choice`, `server/engine-2026-11` 위에 쌓음, #806 ①⑤):** 계약 1.6.0. `CalendarDay.scoreItems`(S77에서 뺀 필드 복원), `Daily.guideCandidates`, `createDiary`의 `guideQuestion`과 422 `diary.guide_invalid`, 편마다 고른 질문 `diaries.guide_question`(migration 00025). 결정 S140. 오늘 음력(#806 ②)은 엔진 `DailyResponse`에 음력이 없어 core #834로 요청했습니다.
+* **잠긴 근거 미리보기(브랜치 `server/locked-preview`, `server/ds1-guide-choice` 위에 쌓음, #797):** 계약 1.7.0. `render.Preview`(ko·en 단어 3개, ja 8글자, 늘 일부를 남김), 렌더러의 근거 방식 `EvidenceNone`·`EvidenceLocked`·`EvidenceFull`, `SlotText.evidencePreview`, `Yongsin.basisPreview`, `Chart.personalReadingPreviews`. 결정 S141(S42, S74 개정).
+* **오늘 음력과 엔진 2026.11.1(브랜치 `server/daily-lunar`, #806 ②, core #834):** 계약 1.8.0. `Daily.lunar`(`LunarDate`, 2026.11.1 전 엔진 응답에는 없음), 지원 엔진 버전 2026.11.1. 결정 S142.
+* **엔진 동시 요청과 최소 인스턴스(브랜치 `server/817-scaling`, #817 ②④):** 엔진 서비스 동시 요청 8(core `MAX_WORKERS`와 대조 테스트), `min_instances`(prod와 load 1), Cloud SQL Query Insights(모든 환경). load 용량 값은 prod와 같게 두고, CPU 할당은 prod 56 vCPU에 생성기 몫을 더한 64 vCPU(사용자 콘솔 요청). 결정 S143.
+* **아침 알림 10분 분산(브랜치 `server/817-notify-spread`, #817 ①, D109):** 계정 고정 오프셋 0~10분(`notify.SpreadOffset`), 실행이 다음 5분 안의 보낼 시각까지 기다렸다 보냄(`lookahead`), 실행 상한 8분. 결정 S144.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
@@ -96,5 +102,6 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 2로 정했습니다(S135). 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
-6. L1(#782): 1회차 결과는 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md)입니다(한계 초당 80세션, 처음 막히는 곳 Cloud SQL CPU, cold는 엔진도). 결과 PR 병합 뒤 `load-teardown`을 다시 돌리고, README "고칠 것"을 Issue로 엽니다(엔진 동시 처리는 core에 요청). 고친 뒤 2회차를 잽니다.
-7. app 질문이 오면 답합니다.
+6. **엔진 배포 순서(S139):** `server/daily-lunar` 병합 뒤 deploy-server가 staging과 prod(승인)에 나가면 `deploy-engine`을 dispatch로 돌립니다. 관문이 server `/version`(2026.11.1)을 보고 통과시키고, 배포 단계의 `update-traffic --to-latest`가 staging의 리비전 고정도 풉니다. #806은 이 PR로 닫힙니다.
+7. L1(#782, #817): 1회차 결과는 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md)입니다(한계 초당 80세션, 처음 막히는 곳 Cloud SQL CPU, cold는 엔진도). 고칠 것은 #817이고, 엔진 증설, 최소 인스턴스, Query Insights는 S143, 알림 10분 분산(D109)은 S144로 했습니다. 배포 뒤 load CPU 할당 64 vCPU를 다시 요청하고(자동 거절되면 콘솔로) 2회차를 잽니다(계정은 회차마다 새로).
+8. app 질문이 오면 답합니다.

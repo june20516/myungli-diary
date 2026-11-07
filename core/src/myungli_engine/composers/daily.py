@@ -5,14 +5,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from myungli_engine.calendar_core import lunar_adapter
+from myungli_engine.calendar_core import korean_lunar, lunar_adapter
 from myungli_engine.calendar_core.birth import BirthInput, validate_civil_date
+from myungli_engine.calendar_core.korean_lunar import KoreanLunarDate
 from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
 from myungli_engine.composers.chart import merge_notices, prepare_natal
 from myungli_engine.constants.message_keys import require
-from myungli_engine.domain.enums import DayKind, NoticeCode
+from myungli_engine.domain.enums import DayKind, NoticeCode, TenGod
 from myungli_engine.domain.models import Evidence, Judgment, Notice, Pillar
+from myungli_engine.domain.ten_gods import ten_god
 from myungli_engine.references.loader import FIVE_ELEMENTS_REF
 from myungli_engine.rules import messages
 from myungli_engine.rules.color import ElementPick, lucky_element
@@ -40,6 +42,9 @@ class DailyView:
     fortune: tuple[Judgment, ...]
     guide: Judgment
     notices: tuple[Notice, ...]
+    day_stem_ten_god: TenGod
+    guide_candidates: tuple[Judgment, ...]
+    lunar: KoreanLunarDate  # 그날의 한국 음력 날짜(월간 캘린더와 같은 계산)
 
 
 def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> DailyView:
@@ -58,9 +63,17 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         lunar_adapter.hour_slots(target, current_timezone), natal_pillars, yongsin, natal.gwiin
     )
     relations = find_relations(natal_pillars, day)
-    tags = select_tags(natal_pillars, day, relations, activated(natal.shinsal_branches, day.branch), kind)
+    tags = select_tags(
+        natal_pillars,
+        day,
+        relations,
+        activated(natal.shinsal_branches, day.branch),
+        kind,
+        yongsin_ref=yongsin.evidence[0].source_ref,
+    )
 
     fallback_notices = (Notice(NoticeCode.FOCUS_TIME_FALLBACK),) if focus.fallback else ()
+    guides = messages.guide_candidates(day, natal_pillars.day.stem, tags.featured, tag_sources=tags.source_refs)
     return DailyView(
         date=target,
         day=day,
@@ -71,9 +84,14 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         focus=(focus, _focus_judgment(focus)),
         relations=relations,
         tags=tags,
-        fortune=messages.fortune(kind, day, natal_pillars.day.stem, tags.featured, yongsin),
-        guide=messages.guide_question(day, natal_pillars.day.stem, tags.featured),
+        fortune=messages.fortune(
+            kind, day, natal_pillars.day.stem, tags.featured, yongsin, tag_sources=tags.source_refs
+        ),
+        guide=guides[0],
         notices=merge_notices(natal.chart.notices, fallback_notices),
+        day_stem_ten_god=ten_god(natal_pillars.day.stem, day.stem),
+        guide_candidates=guides,
+        lunar=korean_lunar.solar_to_lunar(target),
     )
 
 

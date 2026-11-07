@@ -155,7 +155,7 @@
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 48, en: 78, ja: 34}
   key_max_length:
-    contactEmailInvalid: {ko: 60, en: 102, ja: 44}
+    contactEmailInvalid: {ko: 60, en: 100, ja: 44}
   components: [toast, text-field]
   keys:
     - contactSendFailed

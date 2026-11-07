@@ -32,9 +32,9 @@
   user_state: "로그아웃하려 합니다."
   structure: "확인 창: 질문과 버튼 둘(`Logout`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    settingsLogoutConfirm: {ko: 34, en: 60, ja: 28}
+    settingsLogoutConfirm: {ko: 34, en: 60, ja: 26}
   keys:
     - settingsLogoutConfirm
     - settingsLogoutConfirmLogout
@@ -57,7 +57,7 @@
   user_state: "설정에서 광고 제거 메뉴를 봅니다."
   structure: "메뉴 이름과, 기간이 남았을 때 오른쪽 값(`Active`)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 42, ja: 18}
+  max_length: {ko: 20, en: 37, ja: 16}
   keys:
     - settingsAdFreeLabel
     - params: {date: text}
@@ -98,9 +98,9 @@
   user_state: "생일·시간·성별·출생지를 바꿔 저장하려 합니다(app A6)."
   structure: "확인 창: 제목(`Title`), 본문(`Body`), 버튼 둘(`Cancel` 기본, `Save`). 본문은 두 줄이고 줄바꿈(\\n)을 그대로 보입니다. 첫 줄은 `{before} → {after}`로, 값은 app이 정보 수정 화면과 같은 표기로 만들고 바뀐 항목이 여럿이면 쉼표로 잇습니다. 둘째 줄은 영향이며 이미 쓴 일기와 태그는 그대로 남는다는 것을 꼭 말합니다(#94)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    profileEditRecalcConfirmTitle: {ko: 34, en: 60, ja: 28}
+    profileEditRecalcConfirmTitle: {ko: 34, en: 60, ja: 26}
     profileEditRecalcConfirmBody: {ko: unbounded, en: unbounded, ja: unbounded}
   keys:
     - profileEditRecalcConfirmTitle
@@ -299,9 +299,9 @@
   user_state: "마지막으로 확인합니다."
   structure: "확인 창: 질문과 되돌릴 수 없다는 것, 버튼 둘(`Delete`, `Cancel`)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 10, en: 16, ja: 7}
+  max_length: {ko: 8, en: 13, ja: 6}
   key_max_length:
-    accountDeleteDeleteConfirm: {ko: 34, en: 60, ja: 28}
+    accountDeleteDeleteConfirm: {ko: 34, en: 60, ja: 26}
   keys:
     - accountDeleteDeleteConfirm
     - accountDeleteDeleteConfirmDelete
@@ -325,7 +325,7 @@
   user_state: "설정에서 바꿀 수 있는 항목을 훑어봅니다."
   structure: "줄 이름 하나. 알림 시각 줄은 오른쪽에 시각이나 꺼짐(`Off`)이 붙습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 11, en: 19, ja: 8}
+  max_length: {ko: 9, en: 16, ja: 7}
   components: [settings-row]
   keys:
     - settingsNotifyLabel
@@ -373,7 +373,7 @@
   user_state: "출생지 없이 한국 기준으로 계산되고 있습니다(D29)."
   structure: "값 하나. 나라 이름이 아니라 계산 기준이라는 것이 보이게 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 11, en: 19, ja: 8}
+  max_length: {ko: 9, en: 16, ja: 7}
   components: [settings-row]
   keys:
     - profileEditBirthplaceKorea
@@ -387,3 +387,23 @@
   a11y:
     truncation: "한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "줄 이름 다음에 값을 읽습니다."
+
+# IA v5 새 자리(#813)
+
+- id: settings.notify-time.note
+  where: "설정 알림 시각 시트 안 안내"
+  purpose: guide
+  user_state: "알림 시각을 바꿉니다."
+  structure: "한 문장. notify-ask.time.note와 같은 뜻(D109)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - settingsNotifyTimeNote
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
