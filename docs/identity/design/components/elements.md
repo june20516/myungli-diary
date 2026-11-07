@@ -6,24 +6,24 @@
 | 요소 | 정의 | 쓰는 곳 |
 | --- | --- | --- |
 | `seal` 낙관 도장 | 로고 낙관 경로(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
-| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `mini`(30×30) | 원국표, 만세력 표, 대운·세운 |
+| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
 | `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, tag-chip, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
 | `tag.me` '나' 꼬리표 | sage 채움 작은 알약(10px 700), 칸 오른쪽 위 모서리에 겹침 | 원국표 일간 |
-| `highlight.current` 현재 강조 | 바탕 `status.bg` + 글자 `action.primary` 굵게 | 대운 지금, 세운 올해 |
+| `highlight.current` 현재 강조 | 바탕 `highlight.bg`(옅은 회색, 카드 `bg.sheet` 위에서만) + 글자 `action.primary` 굵게 (V93) | 대운 지금, 세운 올해, 띠 표 일주 열 |
 | `mark.underline-grow` 펼침 밑줄 | `action.primary` 14×2px 둥근 막대, 숫자 아래 2px | 달력 선택 날짜 |
 | `mark.caution` 경고 표시 | Phosphor `warning-circle` Fill, 글자색, 옆 글자 기준 아이콘 단계 | 되돌릴 수 없는 동작 |
 | `surface.paper` 종이 | `bg.sheet`, `radius.lg`, 안쪽 16px, 아래 여백에 늘 도장 자리 | 일기 쓰기·보기 |
 | `rail.timeline` 세로 흐름 줄 | `timeline.line` 1.5px, 날짜 열 가운데 | 일기 목록 |
-| `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 행 머리 |
+| `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 십성 칩과 띠 머리 칩 |
+| `keyboard.dismiss` 키보드 내리기 | 키보드 inset 위 `space.12` 오른쪽 44 원형 버튼(`bg.sheet`, `shadow.raised`, `caret-down` Regular 20) | `text-field`, `diary-editor` 초점 상태 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
-| `explain.sheet` 짧은 설명 시트 | 내용 높이 half 시트, 제목 `type.subtitle` + 본문, 배치 안에 끼우지 않음 | lucky-card, term-token 풀이 시트 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
-| `section.header` 섹션 제목 | `type.label.lg` 600 제목 + 선택 설명 `type.caption.md`(사이 `space.2`), 내용과 `space.12`, 섹션 사이 `space.32` | 2단계 IA가 화면에 둠 |
+| `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
-| `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 흐린 자리 채우기 본문(6px, 0.5) | 근거 시트 세 구역, 잠긴 용신 근거 |
+| `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 또렷한 앞 2~3 단어 + 흐린 자리값 본문(6px, 0.5, G1), 여는 입구 `open`(자물쇠 + 열기) | 근거 시트 세 구역, 잠긴 용신 근거 |
 
 ## 낙관 도장 `seal`
 
@@ -49,11 +49,11 @@
 
 | 톤 | 엔진 값 | 태그 칩 | 달력 칸 | 배지 |
 | --- | --- | --- | --- | --- |
-| good | 좋음, `YONGSIN_DAY`, `GWIIN_DAY`, `LuckLevel.GOOD` | `tag.good.*` | `calendar.good.bg` | `badge.good`·`badge.gwiin` |
-| bad | 나쁨, `GISIN_DAY`, `LuckLevel.CAUTION` | `tag.bad.*` | `calendar.caution.bg` | `badge.gisin` |
-| neutral | 중립, `ORDINARY_DAY`, `LuckLevel.NEUTRAL` | `tag.neutral.*` 테두리 | 채우지 않음 | `badge.ordinary` |
+| good | 좋음, `YONGSIN_DAY`, `GWIIN_DAY`, 잘 풀리는 날, 아주 잘 풀리는 날 | `tag.good.*` | `calendar.level.good`, 아주 잘 풀리는 날 `calendar.level.great`(V84) | `badge.good`·`badge.gwiin` |
+| bad | 나쁨, `GISIN_DAY`, 조심할 날 | `tag.bad.*` | `calendar.level.caution` | `badge.gisin` |
+| neutral | 중립, `ORDINARY_DAY`, 무난한 날 | `tag.neutral.*` 테두리 | 채우지 않음 | `badge.ordinary` |
 
-색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말("좋은 날", "조심할 날")을 넣습니다(문구는 writing).
+색만으로 전하지 않습니다. 스크린리더 라벨에 길흉 낱말(달력은 네 단계 이름 "아주 잘 풀리는 날", "잘 풀리는 날", "무난한 날", "조심할 날")을 넣습니다(문구는 writing, V84).
 
 ## 시스템 글자 크기
 
@@ -70,11 +70,13 @@
 D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 * 제목: 자물쇠 `lock-simple` Regular 14 + 구역 이름(`type.label.md`, `text.secondary`). 무엇이 잠겼는지 늘 읽힙니다.
-* 본문: `type.sentence.body`를 흐림 6px, 투명도 0.5로 그리고 선택·복사를 막습니다. V2 풀이 시트 잠김 변형의 값을 그대로 옮겼습니다.
-* **실제 내용은 내려받지 않습니다**(server가 빼서 보냄, D60 ④). 흐린 글은 자리 채우기입니다. server가 길이 힌트를 주면 그 길이, 없으면 두 줄입니다.
-* 줄 수는 매개변수 `lines`입니다. 기본은 위와 같고 `sentence-block` `locked`는 1줄입니다. app의 `LockVeil.line`은 새 변형이 아니라 `lines: 1`입니다.
-* 스크린리더는 "판정 근거, 잠김"처럼 제목 + "잠김"만 읽고 흐린 글은 건너뜁니다.
+* **G1(D106, 결정 V80):** 본문 맨 앞에 server가 준 문장 앞부분(2~3 단어, #797)을 또렷하게(`lead`, `type.sentence.body` 본문색) 두고, 바로 뒤 같은 줄부터 app이 준비한 자리값 글자를 흐리게 이어 채웁니다. 앞부분이 오지 않으면 자리값만입니다.
+* 흐린 자리값: `type.sentence.body`를 흐림 6px, 투명도 0.5로 그리고 선택·복사를 막습니다. V2 풀이 시트 잠김 변형의 값을 그대로 옮겼습니다.
+* **실제 내용은 내려받지 않습니다**(server가 빼서 보냄, D60 ④). 자리값 글자는 app이 언어별로 하나 준비하고, 실제 문장 길이와 맞추지 않습니다.
+* 줄 수(`lines`, 앞부분 포함)는 구역마다 고정입니다: 판정 근거 3, 원전 2, 내 사주에서는 3, `sentence-block` `locked`(사주 표 용신 판정 근거) 2(2026-11-07 V92, origin. 그 전 1). app의 `LockVeil.line`(지금 한 줄)은 새 변형이 아니라 이 자리의 `lines` 값(2)으로 그립니다. server 길이 힌트는 쓰지 않습니다.
+* 스크린리더는 "판정 근거, 오늘은 용신의, 잠김"처럼 제목 + 앞부분 + "잠김"을 읽고 흐린 자리값은 건너뜁니다.
 * 동작 줄이기에서도 흐림은 그대로 둡니다(대상 자신의 효과, 결정 V14).
+* **여는 입구(`open`, 결정 V73):** 잠긴 것을 여는 입구는 어디서나 자물쇠 `lock-simple` Regular(옆 글자 단계, 링크 색, 글자 앞 `space.4`) + "열기" 글자입니다. 꺾쇠를 쓰지 않습니다. `sentence-block` `locked`의 열기가 이 모양이고, 근거 시트 잠금 안내 머리도 자물쇠로 시작합니다. 잠금 안내의 `pass`(광고 제거 화면으로 이동)는 화면 이동이라 꺾쇠, 광고 보고 열기는 `primary-button`입니다.
 
 ## 아이콘 `icon`
 
@@ -88,22 +90,20 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 * 직접 그린 아이콘은 쓰지 않습니다. 세트에 없는 뜻은 글자로 씁니다. 명세에 적는 이름은 `tools/phosphor_names.txt`(`phosphor_glyphs` 2.1.2+1에서 뽑은 1512개)에 있어야 하고, 테스트가 대조합니다.
 * 소셜 로그인 로고는 아이콘 세트에서 가져오지 않습니다(각 사 공식 자산).
 
+## 키보드 내리기 `keyboard.dismiss`
+
+입력칸에 초점이 있는 동안 키보드 바로 위 오른쪽에 띄우는 44 원형 버튼입니다(결정 V68, V83). 기준은 플랫폼 키보드 inset(OS 자동완성과 추천 줄 포함)이고 그 위 `space.12`입니다. 누르면 키보드가 내려가고 초점이 풀립니다. 스크린리더 이름은 `ui.keyboard.dismiss`, 동작 구현은 app #796입니다. `text-field`와 `diary-editor`는 `focused` 상태에서 이 요소를 가리키기만 합니다. 4.0.0까지 두 컴포넌트에 같은 값이 겹쳐 있던 것을 5.0.0에서 요소로 뺐습니다.
+
 ## 두 버튼 `button.pair`
 
 두 동작을 함께 둘 때의 배치입니다(결정 V60). 세로로 쌓고 주 동작(`primary-button` `filled`)이 위, 보조 동작(`quiet`)이 아래, 사이 `space.8`입니다. 두 버튼은 높이 52, 폭 전체로 같고, 위계는 크기가 아니라 모양으로 구분합니다. 가로로 나란히 두지 않습니다. 확인 창(`dialog`)의 두 버튼만 상자 안 가로 둘입니다(V65).
 
-## 짧은 설명 시트 `explain.sheet`
-
-칩, 배지, 용어를 눌러 짧은 설명을 여는 곳입니다(결정 V62). 내용 높이만큼의 half 시트(`sheet` 규칙, 핸들 있음)이고, 제목은 누른 항목의 이름(`type.subtitle`, 아래 `space.8`), 본문은 `sentence-block` `body`입니다. 바깥 누르기, 끌어 내리기, 뒤로 가기로 닫힙니다.
-
-설명은 화면 배치 안에 끼워 넣지 않습니다. 그래서 열려도 아래 내용이 밀리지 않습니다(F-008). 연 항목에는 열린 동안 표시가 남습니다(`lucky-card` 테두리, V52). 어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정합니다(#801).
-
 ## 목록 구분선 `list.divider`
 
-같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표 격자선(`manse-table` `grid.divider`)은 이 요소가 아닙니다.
+같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표와 줄의 세로선(`band-table` 열 구분선 `columns.divider`, `birth-info-row` 칸 사이 `divider`)은 이 요소가 아닙니다.
 
-## 섹션 제목 `section.header`
+## 간지 칩 `stem.chip`
 
-내용 묶음의 이름입니다(결정 V59). 제목은 `type.label.lg` 600 본문색, 설명 줄은 선택이고 `type.caption.md` `text.secondary`, 제목 아래 `space.2`입니다. 제목과 내용 사이 `space.12`, 섹션과 섹션 사이 `space.32`입니다. 오른쪽 더 보기 자리는 두지 않습니다. 스크린리더는 머리글로 읽습니다.
+`band-table` 지장간 칸의 천간 한 글자를 오행 색으로 보이는 정사각 칸입니다(DS1 2단계, 결정 V72). 크기 22, 반경 `radius.sm`, 바탕색과 글자색은 `ohaeng.cell`의 그 오행 값, 한자는 `font.family.hanja` 13 700입니다. 지장간 칸 전용입니다. 원국 칸(`saju-pillars`)과 대운, 세운 칸(`luck-pillar`)은 `ohaeng.cell` 자체라 같은 색 규칙을 이미 쓰고 독음과 큰 한자를 담아 이 칩을 쓰지 않습니다(`notFor`, 결정 V89. spec §1의 "원국 칸도 씀"을 정정). `hanja-tag` `ganji`는 이 칩을 쓰지 않고 알약 전체를 오행 색으로 칠합니다(`sentence.md`). 칸이 고정이라 글자 배율 상한은 1.3배입니다(`ohaeng.cell`과 같음).
 
-묶음의 기본은 간격(가까운 것끼리 묶여 보임)이고, 목록 줄이 이어지는 묶음은 카드(`bg.sheet`, `radius.lg`)로 묶을 수 있습니다. 어느 화면에 섹션 제목을 두고 어떤 문구 슬롯을 쓸지는 2단계 IA가 정합니다(#801).
+1단계 요소 `section.header`와 `explain.sheet`는 IA v5의 컴포넌트 `section-header`, `explain-sheet`로 옮겼습니다(`frame.md`, 결정 V69, V71).

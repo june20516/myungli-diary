@@ -1,18 +1,18 @@
 # sentence: 문장 (`sentence.json`)
 
-* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.5, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §2, [문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.2·§2.10·§4, 결정 V16·V20·V21·V25·V28·V29·V32
+* 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.5, [근거 잠금 spec](../specs/2026-10-11-depth-lock-lengths-design.md) §2, [문장 조각 spec](../specs/2026-10-13-term-segments-lock-slots-design.md), [구현 대응 spec](../specs/2026-10-15-spec-followups-design.md) §2.2·§2.10·§4, [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §2·§4, 결정 V16·V20·V21·V25·V28·V29·V32·V70·V73·V80
 * 시안: `design-v2-today`(근거 보기 0-나, 하트 아래), `design-v2-tab-seal`(도장 반응), `design-v2-evidence-lock`(근거 시트 잠김 B)
 
 문장은 이 앱의 본체입니다. 문장 컴포넌트는 글꼴·줄바꿈·덧붙는 링크와 반응만 정하고, 문구는 writing(UI 슬롯)과 server(콘텐츠)가 정합니다.
 
 ## sentence-block
 
-* 쓰는 화면: preview, today, explain-sheet, evidence-sheet, diary-edit, diary-view, tag-diary, my-saju, saju-chart. ui 문구만 있는 화면은 쓰지 않습니다(D68 ③).
+* 쓰는 화면: preview, today, explain-sheet, evidence-sheet, tag-sheet, diary-edit, diary-view, tag-diary, my-saju, saju-chart. ui 문구만 있는 화면은 쓰지 않습니다(D68 ③).
 * 변형 `card`(`type.sentence.card` 17px) / `body`(`type.sentence.body` 15px) / `preview`(일기 목록, 14.5px 두 줄 말줄임).
 * my-saju 일간 소개의 첫 문장(`my-saju.ilgan.head`, 호칭 자리)은 today 총운 첫 문장과 같은 `card`이고, 이어지는 문장은 `body`입니다.
 * 한국어는 어절 단위 줄바꿈(keep-all), 일본어는 글자 단위 + 금칙 처리.
 * 호칭은 문장 안의 자리로만 들어갑니다. 굵게 하거나 색을 바꾸지 않습니다.
-* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 흐린 한 줄(`lock.veil`) + 오른쪽 끝 "열기" 링크와 화살표. 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + "잠김"(`evidence-sheet.a11y.locked`)입니다.
+* **잠김**(`states.locked`): 근거·해석 열람 권한이 없을 때의 콘텐츠 문장(D60). 앞 2~3 단어는 또렷하고 뒤는 흐린 자리값이 이어지는 두 줄(`lock.veil` G1, 결정 V80, 2026-11-07 V92로 한 줄에서 두 줄, origin) + 오른쪽 끝 자물쇠(`lock-simple` Regular, 옆 글자 단계, 사이 `space.4`) + "열기" 링크. 꺾쇠는 쓰지 않습니다(Q3 ③, 결정 V73, 요소 `lock.veil` `open`). 누르면 근거 시트가 잠긴 상태로 열립니다. 지금 쓰는 곳은 사주 표의 용신 판정 근거(`saju-chart.yongsin.basis`)뿐이고, "열기" 문구 슬롯은 `saju-chart.yongsin.open`입니다. 스크린리더 라벨은 구역 이름(`saju-chart.yongsin.title`, `a11y.lockedNameSlot`) + 앞부분 + "잠김"(`evidence-sheet.a11y.locked`)이고, 열기는 따로 초점입니다(`lock.veil` `a11y`, 결정 V80).
 
 ### 문장 조각 (`parts.segments`, 결정 V28)
 
@@ -20,14 +20,14 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 | 화면 | `term` 조각 |
 | --- | --- |
-| IA에 `term-token`이 있는 화면: today, day-sheet, tag-diary, my-saju, saju-chart | `term-token` `inline`. 누르면 풀이 시트 |
-| 그 밖의 화면(explain-sheet, evidence-sheet, `preview` 화면(온보딩 미리보기), diary-edit, diary-view 등) | 일반 글자. 앞뒤 조각과 같은 스타일이고 누를 수 없음 |
+| IA에 `term-token`이 있는 화면: today, tag-diary, my-saju, saju-chart | `term-token` `inline`. 누르면 풀이 시트 |
+| 그 밖의 화면(explain-sheet, evidence-sheet, day-sheet, `preview` 화면(온보딩 미리보기), diary-edit, diary-view 등) | 일반 글자. 앞뒤 조각과 같은 스타일이고 누를 수 없음 |
 | 공유 이미지(`share-image`) | 일반 글자 |
 | 카드 전체가 버튼인 곳(`diary-row`, 일기 목록 미리보기) 안 | 일반 글자(`insidePressable`). tag-diary 화면이어도 같음 |
 
 * **칩은 누를 수 있다는 표시**라서 누를 수 있는 곳에서만 그립니다. 풀이·근거 시트 안의 용어까지 누르게 하면 시트가 끝없이 쌓이고 깊이 순서(surface → explain → evidence)가 돕니다. 같은 질문 문장이 today에서는 칩, diary-edit에서는 일반 글자인 차이는 받아들입니다.
 * 누를 것 안에 누를 것을 두지 않습니다. 그래서 `diary-row` 미리보기에는 칩이 없고, 두 줄 말줄임이 칩을 반쯤 자르는 일도 없습니다. 질문 카드(`guide-question-card`)는 카드가 버튼이 아니라(동작은 따로 있는 버튼) 칩을 그립니다. `after` 상태에서 문장 글자색이 `text.secondary`로 바뀌어도 칩은 `term.bg`·`term.fg` 그대로입니다(`textColorChange`).
-* `sentence-block` 밖에서 콘텐츠 문장을 그리는 `day-character` 이유 줄과 `lucky-card` 설명도 이 규칙을 따릅니다(`"segments": "sentence-block"`). day-sheet가 칩 화면인 것은 이유 줄 때문입니다.
+* `sentence-block` 밖에서 콘텐츠 문장을 그리는 `day-character` 이유 줄과 `lucky-card` 설명도 이 규칙을 따릅니다(`"segments": "sentence-block"`). IA v5(#812)에서 day-sheet가 `term-token` 화면에서 빠져 일반 글자입니다.
 * 조각은 순서대로 한 문단으로 잇습니다. 경계에 공백·줄바꿈을 넣지 않고, 공백은 `text` 안의 것만 씁니다. 호칭 자리와 문장 끝 `depth-link`의 규칙은 같습니다.
 * **줄바꿈:** 용어 안에서 끊지 않습니다. 한국어는 공백 없이 붙은 조사까지 한 덩어리라 "편관 / 의"로 갈라지지 않습니다(keep-all 어절과 같은 결과). 일본어는 용어 앞뒤에서만 글자 단위 + 금칙으로 끊습니다. 용어가 한 줄보다 길 때만 용어 안에서 끊습니다. 구현 방법(텍스트 배경 span, 위젯 span, joiner)은 app이 고릅니다.
 * **접근성:** `term-token`이 있는 화면에서는 용어마다 따로 초점을 받습니다. `term-token` 라벨은 화면에 보이는 `text` + "풀이 보기"입니다. `term` 값은 풀이를 찾는 키라 읽지 않습니다. 일반 글자로 그린 용어는 따로 초점을 받지 않습니다.
@@ -36,24 +36,24 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 ## term-token
 
-* 쓰는 화면: today, day-sheet, tag-diary, my-saju, saju-chart
+* 쓰는 화면: today, tag-diary, my-saju, saju-chart
 * `term` 요소: `term.bg`/`term.fg`, `radius.xs`, 굵게 하지 않음(결정 V0).
-* 변형 `inline`(문장 안, 글자 스타일 그대로) / `label`(표 행 머리·십성 줄, `type.caption.md`).
-* 누르면 풀이 시트(요소 `explain.sheet` 바탕의 half 시트, V62)가 열립니다: 제목 + 한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때만) → 근거 진입점 아이콘(`depth-link` `block`). **모두 무료이고 잠기지 않습니다**(D60).
-* 제목 옆 한자는 `type.caption.md`·`text.secondary`에 글꼴만 `font.family.hanja`입니다. UI 글꼴(Pretendard)에는 한자 글리프가 없어서이고, 다른 한자 자리(`elements` mini, `saju` 지장간)와 같습니다(#218).
+* 변형 `inline`(문장 안, 글자 스타일 그대로) / `label`(표 칸의 십성, 12운성, 신살 칩과 `band-table` 띠 머리 칩, `type.caption.md`).
+* 누르면 풀이 시트(컴포넌트 `explain-sheet` 바탕의 half 시트, V62, V71)가 열립니다: 제목 + 한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때만) → 근거 진입점 아이콘(`depth-link` `block`). **모두 무료이고 잠기지 않습니다**(D60).
+* 제목 옆 한자는 `type.caption.md`·`text.secondary`에 글꼴만 `font.family.hanja`입니다. UI 글꼴(Pretendard)에는 한자 글리프가 없어서이고, 다른 한자 자리(`elements` `ohaeng.cell`, `stem.chip`)와 같습니다(#218).
 * 2.0.0에서 "내 사주에서는" 상자와 잠김 변형을 뺐습니다. 원국 개인 해석은 근거 시트로 옮겨 처음부터 잠긴 기능으로 둡니다(D60 ②, depth-link 참고).
 * 터치 영역: 글자 높이가 작아도 줄 높이까지 위아래로 넓혀 44px를 맞춥니다.
 
 ## depth-link
 
-* 쓰는 화면: today, explain-sheet, my-saju, birthplace(`navigate`)
+* 쓰는 화면: today, explain-sheet, tag-sheet, my-saju, birthplace(`navigate`)
 * 근거 시트(evidence-sheet)의 구성도 이 컴포넌트가 정합니다(`parts.evidenceSheet`, 아래).
 * **근거 진입점은 primary 아이콘 하나입니다(결정 V63):** Phosphor `book-open-text` Regular 20, `action.primary`, 터치 48. 글자 "근거 보기"를 화면에 쓰지 않고 모든 곳이 같은 모양입니다. 줄 배치 폭은 그림 20이고 터치 영역 48은 배치 밖으로 넓힙니다. 스크린리더는 역할 `button`, 이름은 "항목 이름 + 근거 보기" 틀(`ui.depth.evidence_link`)이라 한 화면에 진입점이 여럿이어도 무엇의 근거인지 구분되고, 누르면 근거 시트가 열린다고 알립니다. 항목 이름은 `inline-end`면 앞 문장이 속한 항목(배지 글자), `block`이면 시트 제목(용어 이름)이나 구역 이름입니다.
 * `inline-end`: 이유 문장 끝에 붙습니다. 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 이어져, 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어갑니다. 아이콘만 혼자 다음 줄에 가지 않습니다.
 * `block`: 문단 아래 따로 놓입니다(나 탭, 풀이 시트).
 * `navigate`: 근거 진입점이 아니라 글자 링크입니다(`type.label.lg` `action.primary` + 화살표). 시트를 열지 않고 다른 페이지로 이동합니다(IA v3, D71). `birthplace`에서 계산 기준 화면(`calc-basis`)으로 가는 링크 한 곳입니다. 그날 시트의 일기 입구는 D83 뒤 머리 + `diary-row` 줄로 바뀌어 이 변형을 쓰지 않습니다(결정 V42가 V37을 개정). 출생지 링크의 자리는 `birthplace.standard.note`(`input-step` `help`와 같은 글자 스타일) 바로 아래, 검색칸 위이고, 문구 슬롯은 `birthplace.standard.link`입니다. 플랫폼 기본 페이지 전환으로 이동하고 `sheet.enter`·`sheet.stack`을 쓰지 않습니다. 눌림은 `press.ink`, 스크린리더 role은 `link`입니다(결정 V32).
 * `inline-end`·`block`은 누르면 한 단계 깊은 시트가 열립니다. 이미 시트 안이면 `sheet.stack`으로 쌓입니다.
-* **화살표(결정 V29):** `navigate`의 화살표는 원고에 넣지 않습니다. 슬롯 문구는 링크 이름만이고, 컴포넌트가 그 뒤에 아이콘 `caret-right`(regular, 옆 글자 기준 크기, 링크 색, 간격 `space.2`)를 붙입니다. `›` 글리프는 ko·ja 글꼴에서 모양과 굵기가 달라 아이콘으로 바꿨습니다. 스크린리더는 읽지 않고(장식), 링크가 감기면 마지막 줄 끝에 붙어 마지막 낱말과 떨어지지 않습니다. `sentence-block` 잠김의 "열기"와 잠금 안내의 `pass` 링크도 같습니다.
+* **화살표(결정 V29):** `navigate`의 화살표는 원고에 넣지 않습니다. 슬롯 문구는 링크 이름만이고, 컴포넌트가 그 뒤에 아이콘 `caret-right`(regular, 옆 글자 기준 크기, 링크 색, 간격 `space.2`)를 붙입니다. `›` 글리프는 ko·ja 글꼴에서 모양과 굵기가 달라 아이콘으로 바꿨습니다. 스크린리더는 읽지 않고(장식), 링크가 감기면 마지막 줄 끝에 붙어 마지막 낱말과 떨어지지 않습니다. 잠금 안내의 `pass` 링크도 같습니다. `sentence-block` 잠김의 "열기"는 꺾쇠 대신 앞에 자물쇠를 둡니다(결정 V73이 V29를 개정).
 * 구현 힌트(Flutter): `inline-end`는 문장 마지막 낱말과 아이콘을 `WidgetSpan` 하나로 담아 함께 줄을 바꿉니다(아이콘은 `TextSpan`에 담을 수 없음). 스크린리더 초점은 아이콘에 따로 줍니다.
 
 ### 근거 시트 (`parts.evidenceSheet`)
@@ -62,11 +62,14 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 | 순서 | 구성 | 잠김 |
 | --- | --- | --- |
-| 1 | 제목(`type.title`) | 무료 |
-| 2 | 원국표(`saju-pillars`) | 무료(표 데이터) |
-| 3 | 판정 근거(제목 `evidence-sheet.section.basis`, 본문 `evidence-sheet.basis.body`) | 본문만 잠김 |
-| 4 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, `bg.base` 상자) | 본문만 잠김 |
-| 5 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
+| 1 | 제목(`type.title`, `evidence-sheet.sheet.title`) | 무료 |
+| 2 | 대상(`target`): 그 문장을 정한 `hanja-tag` 줄 + 대상 문장(`evidence-sheet.target.body`) | 무료 |
+| 3 | 원국표(`saju-pillars`) | 무료(표 데이터) |
+| 4 | 판정 근거(제목 `evidence-sheet.section.basis`, 본문 `evidence-sheet.basis.body`) | 본문만 잠김 |
+| 5 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, `bg.base` 상자) | 본문만 잠김 |
+| 6 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
+
+**시트 위 대상(결정 V80, D108):** 제목 아래 `space.12`에 그 문장을 정한 태그 줄(`hanja-tag` `default`, 사이 `space.8`, 넘치면 다음 줄)을 두고, 그 아래 `space.8`에 대상 문장(`type.caption.lg` `text.secondary`, 일반 글자, 세 줄까지)을 둡니다. 총운 헤드라인에서 열면 날의 성격과 십성 묶음, 보조 문장에서 열면 대표 태그 1순위, 사주 기운 시트에서 열면 그 태그입니다. 시트 안의 태그는 누를 수 없는 표시입니다(시트를 더 쌓지 않음). 태그나 문장이 없는 자리(용어 풀이 시트, 사주 표 계열에서 연 시트)는 그 줄을 그리지 않습니다. 대상은 잠기지 않습니다.
 
 구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다(`sectionTitle` 스타일, 구역마다 `basisTitle`·`sourceTitle`·`personalTitle`). **구역 제목은 잠겨도 또렷하게 보입니다.** `lock.veil`은 본문에만 씌웁니다.
 
@@ -82,7 +85,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 | 상태 | 언제 | 모습 |
 | --- | --- | --- |
-| `locked` | 권한 없음, 광고 준비됨 | 세 구역을 같은 자리에 `lock.veil`로. 시트 아래 고정 안내 영역(위 1px `line`, `bg.sheet`): 자물쇠 + `lock.head` → `lock.reward`(보상 고지, 버튼보다 먼저) → `primary-button` `filled`(`lock.cta`) → `lock.pass` 링크(→ `ad-free`) |
+| `locked` | 권한 없음, 광고 준비됨 | 세 구역을 같은 자리에 `lock.veil`로(앞 2~3 단어 또렷 + 흐린 자리값, 판정 근거 3줄, 원전 2줄, 내 사주에서는 3줄). 시트 아래 고정 안내 영역(위 1px `line`, `bg.sheet`): 자물쇠 + `lock.head` → `lock.reward`(보상 고지, 버튼보다 먼저) → `primary-button` `filled`(`lock.cta`) → `lock.pass` 링크(→ `ad-free`) |
 | `lockedNoAd` | 권한 없음, 광고 준비 안 됨 | 버튼 `disabled` + 아래 `lock.unavailable`. 광고가 준비되면 `locked`(`appear.seep`) |
 | `unlocking` | 광고를 끝까지 보고 돌아와 server 확인(SSV)을 기다림 | 버튼 `loading`(점 숨쉬기). 스크린리더 "확인 중" |
 | `unlocked` | 권한 있음 | 안내 영역 없음, 세 구역 본문 |
@@ -104,3 +107,45 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 * 하트 Light 24(`size.icon.24`, `text.secondary`), 터치 44px. 문장 아래 오른쪽에 홀로 둡니다(근거 진입점과 다른 줄).
 * 누르면 `seal` fill 34px가 `seal.stamp`로 찍히고 하트가 Regular `action.on-primary`(라이트 흰색, 다크 neutral-950)로 바뀝니다. 햅틱 light.
 * 다시 누르면 `seal.erase`, 햅틱 없음.
+
+## hanja-tag
+
+* 쓰는 화면: today, explain-sheet, tag-sheet, evidence-sheet, day-sheet, color-rule-sheet, diary-list, diary-view, my-saju, saju-chart
+* D108 ②: 사주 용어(날의 성격, 십성 묶음, 합충형, 신살)는 어디서나 한자 아이콘 태그로 씁니다(결정 V70).
+* 알약 높이 30, 왼쪽 안쪽 `space.4`, 오른쪽 `space.12`. 왼쪽에 한자 원(지름 22, `bg.sheet` 바탕, 한자 `font.family.hanja` 12 700), 원과 이름 사이 `space.4`, 이름 `type.label.md` 한 줄.
+* **사주 용어 한자(D108 ②, 17자):** 사주 용어 태그(날의 성격, 십성 묶음, 합충형, 신살)의 글자입니다. 같은 글자는 옆 이름으로 구분합니다. 刑(형)은 D108 목록에서 빠져 있던 것을 사용자 결정(2026-11-07)으로 더했고, 사주 용어라 기본 `term` 초록 톤입니다(길흉 톤은 `fortune-verdict`, `score-row` 안 규칙 그대로).
+
+| 묶음 | 한자 |
+| --- | --- |
+| 날의 성격 | 貴(귀인의 날) 用(용신의 날) 忌(기신의 날) 平(평범한 날) |
+| 십성 묶음 | 比 食 財 官 印 (십성 몰림 태그도 같은 글자) |
+| 합충형 | 合(합) 沖(충, 일지 충, 월지 충) 刑(형) |
+| 신살 | 天(천을귀인) 桃(도화) 驛(역마) 華(화개) 空(공망) |
+
+* **톤(Q4 ③ + ①):**
+
+| 용어 | `default` 톤 | 어디서 |
+| --- | --- | --- |
+| 날의 성격: 귀인, 용신 | `tag.good.*` | 어디서나 |
+| 날의 성격: 기신 | `tag.bad.*` | 어디서나 |
+| 날의 성격: 평범 | 바탕 없음, 1px `tag.neutral.border` | 어디서나 |
+| 그 밖의 사주 용어 | `term.bg`/`term.fg` 초록 | 어디서나 |
+| 그 밖의 사주 용어의 길흉 톤(좋음 `tag.good`, 나쁨 `tag.bad`) | `verdictTone` | `fortune-verdict`, `score-row` 안에서만(`toneAllowedIn`, 더함과 뺌을 보이는 자리) |
+
+* **변형:**
+  * `default`: 위 표.
+  * `emphasis`(Q4-2 ①): 날의 성격을 강조하는 자리(그날 시트 머리, 오늘 총운 결정 태그). V8 배지 매핑 그대로 용신의 날만 진한 채움(`badge.good.*`), 귀인의 날 옅은 coral(`badge.gwiin.*`), 기신의 날 옅은 회색(`badge.gisin.*`), 평범한 날 테두리(`badge.ordinary.*`). 용신의 날은 이름이 흰 글자라 흰 원 안 한자를 알약 바탕색(`badge.good.bg`)으로 그립니다(결정 V78).
+  * `selected`: 둘레 1.5px `action.primary`(안쪽에 그려 크기 그대로). 이 테두리가 톤 테두리(평범한 날 1px)를 대신합니다. 태그 시트에서 연 태그, 설명 시트가 열린 동안.
+  * `ganji`: 간지 한 글자(천간 甲乙丙丁戊己庚辛壬癸 10자, 지지 子丑寅卯辰巳午未申酉戌亥 12자)를 보이는 태그입니다. 사주 용어 17자 규칙 밖입니다. 알약 바탕과 이름 글자는 그 간지 오행의 `ohaeng.<오행>.bg`/`.fg`이고, 한자 원은 다른 태그와 같은 22 `bg.sheet` 원에 한자 글자색 `ohaeng.<오행>.fg`입니다(원은 장식, 스크린리더는 이름만). 쓰는 자리는 IA가 정합니다(예: 사주 표 출생 정보 줄의 시진 태그 "未 미시"는 토의 옅은 바탕, 흰 원, 토 글자색).
+
+    | 오행 | 천간 | 지지 |
+    | --- | --- | --- |
+    | 목 `wood` | 甲 乙 | 寅 卯 |
+    | 화 `fire` | 丙 丁 | 巳 午 |
+    | 토 `earth` | 戊 己 | 辰 戌 丑 未 |
+    | 금 `metal` | 庚 辛 | 申 酉 |
+    | 수 `water` | 壬 癸 | 亥 子 |
+* 누르면 어디서나 시트입니다: `explain-sheet`(용어 뜻)나, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 `tag-sheet`(사주 기운 시트). 태그에서 바로 화면 이동하는 예외는 없습니다(V73, 관문 답 2026-11-06). 근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그(`score-row` `rule`), 사주 표 출생 정보 줄의 시진 태그(`birth-info-row` `hour`, `ganji`)는 누를 수 없는 표시입니다(`opens.notInteractiveIn`, 시트를 더 쌓지 않음. 색 규칙 시트는 IA에 출구가 없음. 시진은 뜻 원고가 없음, 결정 V88).
+* 일기 목록 줄, 일기 보기 태그 칩, 나 탭 회고의 태그도 뜻 시트를 엽니다. 그 태그의 일기 모아보기(`tag-diary`)는 대표 태그 시트 아래 꺾쇠 링크(`explain-sheet` `diaryLink`, 편수 없음)이고, 날의 성격 시트는 뜻만입니다(결정 V76, V81 개정).
+* 스크린리더는 이름 글자만 읽습니다(한자 원은 장식). 길흉은 이름 낱말로 전하고 색만으로 전하지 않습니다. 터치 영역은 위아래로 넓혀 44입니다.
+* 불러오는 중에는 알약 모양 뼈(64px) 하나입니다.

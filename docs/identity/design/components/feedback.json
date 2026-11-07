@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -30,7 +30,7 @@
         "body": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" },
         "actions": { "layout": "equal-width", "count": 2, "gap": "{space.8}", "marginTop": "{space.24}", "height": { "value": 44, "unit": "px" }, "buttonPaddingX": "{space.12}", "overflow": "stack-vertical-confirm-top", "note": "두 버튼 공통 좌우 안쪽 space.12(확인 창 안에서는 primary-button의 space.20을 덮어씀). 글자 수 상한은 가로 둘 기준" },
         "confirm": { "component": "primary-button", "variant": "filled", "order": "end", "note": "확인 창 안에서는 높이 44(actions.height)" },
-        "cancel": { "bg": "{color.chip.bg}", "fg": "{color.text.primary}", "type": "{type.label.lg}", "radius": "{radius.md}", "order": "start" },
+        "cancel": { "bg": "{color.fill.soft}", "note": "흰 확인 창 위 옅은 채움. 반투명 chip.bg는 bg.sheet 위에서 보이지 않음(결정 V74)", "fg": "{color.text.primary}", "type": "{type.label.lg}", "radius": "{radius.md}", "order": "start" },
         "scrim": { "color": "{color.scrim}" }
       },
       "states": {

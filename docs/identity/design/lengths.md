@@ -12,21 +12,21 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `daily.fortune.head`<br>`daily.fortune.tag` | today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today) | 320px | 2 | 32 | 42 | **32** | **32** | **57** |
 | `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |
-| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain.sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |
+| `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |
 | `daily.focus_reason` | lucky-card 설명 시트 안 한 줄 | 312px | 1 | 10 | 22 | **10** | **10** | **18** |
-| `daily.tag_label` | lucky-card tag 칩 값 (오늘 화면, 굵기 600, 좌우 12px, 아이콘 16 + 간격 4. diary tag-chip보다 좁음) | 276px | 1 | 10 | 25 | **10** | **10** | **18** |
+| `daily.tag_label` | hanja-tag 이름 (카드 안 한 줄, 카드 안쪽 16, 앞 4 + 한자 원 22 + 간격 4, 뒤 12. diary-summary, diary-row 카드가 가장 좁음) | 246px | 1 | 10 | 22 | **10** | **10** | **18** |
 | `calendar.day_level` | day-character badge (좌우 12px, day-sheet 안이 가장 좁음) | 288px | 1 | 10 | 26 | **10** | **10** | **18** |
 | `calendar.score_item` | term-token label (좌우 4px) | 312px | 1 | 10 | 30 | **10** | **10** | **18** |
 | `calendar.solar_term` | day-cell lunar 줄 (칸 폭 44px, 굵게) | 44px | 1 | 10 | 4 | **4** | **3** | **6** |
 | `glossary.value_name` | lucky-card chip 값 (칩이 한 줄에 혼자일 때, 좌우 12px, 아이콘 16 + 간격 4) | 276px | 1 | 10 | 25 | **10** | **10** | **18** |
-| `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`diary-list.pick-date.cta`<br>`ui.event-edit.save`<br>`ui.event-edit.delete`<br>`ui.diary-edit.save`<br>`account-merge.cta.merge`<br>`login-methods.merge.cta`<br>`contact.send.cta` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
+| `welcome.cta.start`<br>`welcome.cta.signin`<br>`preview.cta.save`<br>`preview.cta.restart`<br>`consent.cta.agree`<br>`notify-ask.cta.allow`<br>`notify-ask.cta.skip`<br>`force-update.cta.store`<br>`account-delete.cta.delete`<br>`today.guide.cta`<br>`diary-list.pick-date.cta`<br>`ui.event-edit.save`<br>`ui.event-edit.delete`<br>`account-merge.cta.merge`<br>`login-methods.merge.cta`<br>`contact.send.cta` | primary-button (좌우 space.20) | 280px | 1 | - | 23 | **23** | **19** | **42** |
 | `evidence-sheet.lock.cta`<br>`day-sheet.event.add`<br>`day-sheet.diary.write-cta`<br>`share-preview.cta.share` | primary-button 시트 안 (sheet 안쪽 24, 좌우 space.20) | 272px | 1 | - | 23 | **23** | **18** | **40** |
 | `diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm`<br>`login-methods.unlink.confirm`<br>`account-merge.merge.confirm` | dialog title (확인 창 슬롯의 제목 키, 바깥 24·안쪽 24, destructive 앞 mark.caution 20 + 간격 8) | 236px | 2 | - | 34 | **34** | **26** | **60** |
 | `ui.action.button`<br>`diary-view.delete.confirm`<br>`event-edit.delete.confirm`<br>`account-delete.delete.confirm`<br>`settings.logout.confirm`<br>`preview.share.login-notice`<br>`profile-edit.recalc.confirm`<br>`login-methods.unlink.confirm`<br>`account-merge.merge.confirm` | dialog 버튼 두 개 중 하나 (확인 창 슬롯은 버튼 키, 같은 폭 둘 사이 8, 버튼 좌우 12, 가로 둘 기준) | 104px | 1 | - | 8 | **8** | **6** | **13** |
 | `ui.login.provider` | social-login-button 글자 (가운데 정렬, 양쪽 16 + 로고 20 + 간격 8) | 232px | 1 | - | 19 | **19** | **15** | **34** |
 | `ui.error.client`<br>`ui.error.code`<br>`ui.login.error`<br>`ui.app.trace`<br>`evidence-sheet.unlock.failed`<br>`diary-edit.saved.tags`<br>`ui.event-edit.save-failed`<br>`ui.diary-view.deleted`<br>`contact.sent.toast`<br>`ui.contact.error` | toast (좌우 16, 앞 아이콘 16 + 간격 16) | 256px | 2 | - | 48 | **48** | **34** | **78** |
 | `ui.nav.tab` | tab-bar 탭 라벨 (화면 폭 4등분) | 90px | 1 | - | 9 | **9** | **7** | **15** |
-| `ui.birth.option`<br>`ui.saju-chart.tab` | segmented 두 칸 중 한 칸 (check-row inline 글자 포함) | 155px | 1 | - | 13 | **13** | **10** | **21** |
+| `ui.birth.option`<br>`ui.saju-chart.tab` | segmented 두 칸 중 한 칸 (check-row inline 글자 포함. birth-info-row 성별과 시간 모름 알약, 달력 종류 꼬리표는 칸 단위 줄바꿈이라 더 넓음) | 155px | 1 | - | 13 | **13** | **10** | **21** |
 | `share-preview.ratio.label` | segmented 세 칸 중 한 칸 (share-preview 시트 안) | 100.7px | 1 | - | 8 | **8** | **6** | **13** |
 | `consent.required.label` | check-row card 동의 항목 (좌우 16, 상자 24 + 간격 12, 보기 40) | 212px | 2 | - | 34 | **34** | **28** | **64** |
 | `onboard-call.input.hint`<br>`event-edit.title.hint`<br>`event-edit.memo.hint` | text-field 안내 (좌우 16, 지우기 20 + 간격 8) | 260px | 1 | - | 17 | **17** | **14** | **31** |
@@ -38,11 +38,14 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `birthplace.standard.link`<br>`day-sheet.diary.open` | depth-link navigate 이름 (day-sheet 안이 가장 좁음, 화살표 16 + 간격 2) | 294px | 1 | - | 24 | **24** | **20** | **44** |
 | `saju-chart.yongsin.open` | sentence-block locked 열기 (흐린 줄과 같은 줄 오른쪽 절반, 화살표 16 + 간격 2) | 142px | 1 | - | 12 | **12** | **9** | **19** |
 | `ui.app.name`<br>`contact.bar.title` | app-bar 제목 (좌우 16, 뒤로 44, 동작 44 × 2) | 196px | 1 | - | 14 | **14** | **11** | **24** |
+| `ui.diary-edit.save` | app-bar textAction 저장 글자 (최대 폭 88 = 동작 44 × 2, 좌우 space.8) | 72px | 1 | - | 6 | **6** | **4** | **8** |
+| `diary-edit.draft.status` | draft-indicator 상태 글자 (app-bar 가운데 정렬: 좌우 16, 양쪽 저장 최대 88을 비운 152에서 아이콘 16 + 간격 4, 글자 수 앞 8과 글자 수 자리 64) | 60px | 1 | - | 5 | **5** | **4** | **8** |
 | `onboard-time.hour.confirm` | time-picker 시진 확인 줄 | 320px | 1 | - | 29 | **29** | **23** | **54** |
-| `character.reason` | day-character 이유 줄 (day-sheet 안이 가장 좁음, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌) | 312px | 2 | - | 59 | **59** | **44** | **102** |
+| `character.reason` | day-character 이유 줄 (IA v4 기준 day-sheet 폭으로 잰 확정값, IA v5에서 day-sheet 자리는 빠졌지만 값 유지, 마지막 줄 끝 근거 아이콘: U+00A0 + 20을 뺌) | 312px | 2 | - | 59 | **59** | **44** | **102** |
 | `ui.guide.card` | guide-question-card 머리글 (안쪽 space.20) | 280px | 1 | - | 27 | **27** | **22** | **50** |
 | `settings.ad-free.label` | settings-row 이름 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 남은 기간을 담은 키 포함) | 240px | 1 | - | 20 | **20** | **16** | **37** |
 | `ui.evidence.title` | evidence-sheet 제목 (sheet 안쪽 24) | 312px | 1 | - | 18 | **18** | **14** | **32** |
+| `today.featured.empty` | today 사주 기운 카드 안 한 줄 (카드 안쪽 16, type.body.ui, 한 줄) | 288px | 1 | - | 24 | **24** | **19** | **45** |
 | `chart.ilgan_head` | my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸) | 320px | 2 | - | 42 | **42** | **34** | **82** |
 | `login-methods.intro.body` | login-methods 첫머리 (본문 폭) | 320px | 3 | - | 90 | **90** | **63** | **150** |
 | `login-methods.last.notice` | login-methods 마지막 수단 안내 (본문 폭) | 320px | 2 | - | 64 | **64** | **46** | **108** |
@@ -64,13 +67,15 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `profile-edit.recalc.notice` | settings-row groupNote (묶음 카드 위, 좌우 16) | 288px | 2 | - | 62 | **62** | **46** | **104** |
 | `ui.settings.row`<br>`ui.profile-edit.birthplace` | settings-row 이름과 값 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 사이 space.8, 둘이 나눔) | 116px | 1 | - | 9 | **9** | **7** | **16** |
 | `ui.legal.row` | settings-row 이름 (좌우 16, 화살표 16) | 272px | 1 | - | 23 | **23** | **18** | **42** |
-| `ui.saju.header` | manse-table 행 머리 term-token label (행 머리 52, 좌우 4, 두 줄. 원국표 열 머리보다 좁음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
+| `ui.saju.header` | 사주 표 열 머리와 band-table 띠 머리 term-token label (상한은 옛 manse-table 행 머리 52, 좌우 4, 두 줄 그대로. V89 뒤 자리가 더 넓음) | 44px | 2 | - | 8 | **8** | **4** | **10** |
 | `ui.saju.tag` | daeun-table 꼬리표 tag.status (기둥 52 × 2 + 간격 4, 좌우 8) | 92px | 1 | - | 8 | **8** | **6** | **13** |
 | `ui.evidence.personal-empty` | evidence-sheet 빈 해석 안내 (sheet 안쪽 24, 두 줄) | 312px | 2 | - | 58 | **58** | **42** | **98** |
+| `ui.birth-info.row` | birth-info-row 시진 hanja-tag 이름 (본문 폭, 앞 4 + 한자 원 22 + 간격 4, 뒤 12, 시간 앞 8 + 시간 자리 56) | 214px | 1 | - | 19 | **19** | **15** | **34** |
 | `contact.intro.body` | contact 첫머리 (본문 폭, 세 줄) | 320px | 3 | - | 90 | **90** | **63** | **150** |
 | `contact.message.field`<br>`contact.email.field` | text-field label 칸 이름 (본문 폭, 한 줄) | 320px | 1 | - | 29 | **29** | **23** | **53** |
 | `contact.attached.notice` | contact 함께 보내는 정보 고지 (본문 폭, 세 줄) | 320px | 3 | - | 96 | **96** | **69** | **162** |
 | `contact.address.note` | contact 주소 안내 문장 (본문 폭, 두 줄. 다음 줄 주소 {email}은 E14 고정값이라 뺌) | 320px | 2 | - | 64 | **64** | **46** | **108** |
+| `ui.saju.stage-marker` | stage-strip 자리 표시 원 안 기둥 한 글자 (원 18, caption.sm 700) | 18px | 1 | - | - | **1** | **1** | **1** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
 | `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
 
@@ -129,7 +134,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `ui.system.tracking` | iOS 시스템 창(ATT 본문, 앱이 그리지 않음) |
 
 * **ko 계산**: 레이아웃에 들어가는 글자 수입니다. 확정값은 writing 초안과 이 값 중 작은 값입니다(ja 초안 = ko, en 초안 = ko × 1.8). 초안이 `-`인 칸(#131에서 더한 칸)은 계산값이 곧 확정값입니다.
-* **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `today.evidence.link` = `ui.depth.evidence_link`, `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21). 기본 깊이 설정(segmented 세 칸, settings-row 값)은 D79로 빠져 `ui.depth.surface`·`evidence`·`default_label` 행을 지웠고, `ui.depth.explain`은 풀이 시트의 접근성 라벨로만 남아 상한이 없습니다(#318).
+* **IA 자리와 슬롯 이름:** 표는 writing 슬롯 id로 적습니다. D77로 IA에 더한 자리(`today.evidence.link`는 IA v5에서 지워졌고, writing 슬롯 `ui.depth.evidence_link`는 스크린리더 이름이라 상한이 없음) 중 writing이 기존 `ui.*` 슬롯에 `ia`로 담은 것은 그 슬롯 행을 봅니다(W33): `evidence-sheet.sheet.title` = `ui.evidence.title`, `login.error.body` = `ui.login.error`, `event-edit.save.cta`·`delete.cta` = `ui.event-edit.save`·`delete`, `event-edit.offline.notice` = `ui.event-edit.offline`, `event-edit.save.failed` = `ui.event-edit.save-failed`, `diary-edit.save.cta` = `ui.diary-edit.save`, `diary-view.deleted.toast` = `ui.diary-view.deleted`. 옛 content 슬롯 `settings.calculation_basis`는 `calc-basis.longitude.body`로 옮겨 갔습니다(W21). 기본 깊이 설정(segmented 세 칸, settings-row 값)은 D79로 빠져 `ui.depth.surface`·`evidence`·`default_label` 행을 지웠고, `ui.depth.explain`은 풀이 시트의 접근성 라벨로만 남아 상한이 없습니다(#318).
 * **여러 자리에 쓰는 슬롯은 가장 좁은 자리의 값**을 받습니다. 예를 들어 `ui.action.button`은 `primary-button`과 `dialog` 버튼에 쓰이므로 dialog 버튼 폭(124px)으로 잽니다.
 * **확인 창 슬롯**(`diary-view.delete.confirm` 등 8개)은 한 슬롯에 제목·본문·버튼 키가 함께 있어 두 칸에 나옵니다. 제목 키는 "dialog title" 행, 버튼 키는 "dialog 버튼" 행의 값이고, 본문 키는 창이 늘어나므로 상한이 없습니다. writing은 슬롯을 나누지 않고 제목 키 상한을 `key_max_length`로 담았습니다(W26, #191).
 * `character.reason`은 마지막 줄 끝에 `depth-link` `inline-end` 근거 아이콘(앞 U+00A0 + 20)이 붙으므로, 마지막 줄에서 그 폭에 해당하는 글자 수를 한 번 뺍니다(4.0.0, V63). 3.4.0까지는 링크 원고("근거 보기" + 화살표 16) 폭을 뺐습니다.
@@ -141,8 +146,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 * **3.3.0(#710, writing W51):** IA 밖 새 `ui.*` 슬롯 7개를 쟀습니다. 기존 확정값은 그대로입니다.
   * `ui.settings.row`(설정 줄 이름과 알림 꺼짐 값)와 `ui.profile-edit.birthplace`(출생지 값)는 이름과 값이 한 줄을 나누므로, 화살표와 앞 아이콘(20 + 간격 12)을 뺀 줄(240)에서 사이 `space.8`을 두고 반씩(116px) 잽니다(4.0.0). `ui.legal.row`(문서 이름, 값 없음)는 `settings.ad-free.label`과 같은 272px입니다.
   * `ui.saju-chart.tab`은 `ui.birth.option`과 같은 segmented 두 칸입니다.
-  * `ui.saju.header`는 가장 좁은 만세력 행 머리(52px, term-token `label` 좌우 4)에서 두 줄로 잽니다. 행 머리는 대운 라벨처럼 낱말 단위 두 줄을 허용합니다(결정 V53). en `manseRowHiddenStems` "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 44px 한 줄에 들어가 실측 상한 12를 "키별 상한" 표에 냅니다.
-  * `ui.saju.tag`는 대운 꼬리표 `tag.status`로 잽니다. 꼬리표는 줄에 하나라 이웃 기둥 위로 넘쳐 기둥 둘과 간격(108px)까지 쓰고(결정 V53), 좌우 8을 뺀 92px입니다. '나' 꼬리표 `sajuTagMe`(`tag.me`, 10px 굵게, 원국표 기둥 폭)는 "키별 상한" 표에 따로 냅니다.
+  * `ui.saju.header`는 가장 좁은 만세력 행 머리(52px, term-token `label` 좌우 4)에서 두 줄로 잽니다. 행 머리는 대운 라벨처럼 낱말 단위 두 줄을 허용합니다(결정 V53). en `manseRowHiddenStems` "Hidden stems"는 이름 자리 추정(10)을 넘지만 낱말마다 44px 한 줄에 들어가 실측 상한 12를 "키별 상한" 표에 냅니다. (2026-11-07 개정: V89로 만세력 행 머리 열이 없어지고 띠 이름은 `band-table` 띠 머리줄 칩, 열 머리는 네 열 같은 폭(74px)입니다. 다만 `band-table` 일주 열 머리는 나 꼬리표와 한 줄이라 글자 실효 폭이 약 32px(74 − 간격 4 − ja "わたし" 꼬리표 36)로 옛 행 머리(44px 두 줄)보다 좁은 한 줄입니다. 지금 원고 일주, Day, 日柱는 700 굵기 실측 약 21px로 들어가고, 넘치면 꼬리표를 열 머리 아래 줄로 내립니다(V89). 그 밖의 자리는 더 넓어 확정 상한은 그대로 둡니다.)
+  * `ui.saju.tag`는 대운 꼬리표 `tag.status`로 잽니다. 꼬리표는 줄에 하나라 이웃 기둥 위로 넘쳐 기둥 둘과 간격(108px)까지 쓰고(결정 V53), 좌우 8을 뺀 92px입니다. 2026-11-07부터 꼬리표는 `luck-pillar` 강조 바탕 밖 아래 줄이고(V90) 폭은 그대로입니다. '나' 꼬리표 `sajuTagMe`(`tag.me`, 10px 굵게, 원국표 기둥 폭)는 "키별 상한" 표에 따로 냅니다.
   * `ui.evidence.personal-empty`는 표 칸에서 연 근거 시트의 빈 해석 안내(결정 V54, sheet 본문 폭 두 줄)입니다.
   * 스크린리더 전용 `ui.saju.a11y`, `ui.lucky-card.a11y`, `ui.share.a11y`와 iOS 시스템 창 `ui.system.tracking`은 상한 없음 표에 넣었습니다.
   * 원고와 견준 결과(writing R26): en `sajuChartTabLuck` "Calendar and luck cycles"(24자)가 상한 22를 넘습니다(실측 155.1px로 칸 156px에 여유가 없음). segmented는 글자를 줄이지 않으므로 writing에 줄이기를 요청했습니다. 나머지 원고는 모두 들어갑니다.
@@ -159,6 +164,15 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * 확인 창 바깥 28 → 24, 경고 표시 15 → 20 + 간격 8: 제목 행 ja 28 → 26. 같은 폭 두 버튼(좌우 안쪽 12, 가로 둘 기준 104px): 버튼 행 ko 10 → 8, ja 7 → 6, en 16 → 13.
   * 그 밖: `saju-chart.yongsin.open`(화살표 16, en 20 → 19), segmented 트랙 4(`ui.birth.option` 행 en 22 → 21), `ui.login-methods.row`(check 16), `contactEmailInvalid`(경고 표시 16 + 4, en 102 → 100).
   * 원고와 견준 결과(writing R29): ja `accountDeleteDeleteConfirm`(28자)이 새 제목 상한 26을 넘습니다. 나머지 원고는 모두 들어갑니다.
+* **5.0.0(DS1 2단계 #801, 결정 V82, V88, V91, V94):** 화면 결정 시안의 새 자리와 바뀐 자리를 잽니다. 기존 확정값은 그대로입니다.
+  * `ui.diary-edit.save`는 아래 고정 버튼이 아니라 일기 쓰기 상단 바 오른쪽 글자 버튼(`app-bar` `textAction`)이 되어 `primary-button` 행에서 옮겼습니다. 버튼 최대 폭은 동작 아이콘 둘 자리(44 × 2 = 88)이고 좌우 `space.8`을 뺀 72px입니다(ko 23 → 6, ja 18 → 4, en 40 → 8). 지금 원고 "저장"(2자), "保存", "Save"는 들어갑니다.
+  * `diary-edit.draft.status`(가운데 초안 상태)는 상단 바 가운데 정렬이라(시안 `design-ds1-screen-f-c`의 `1fr auto 1fr`, `draft-indicator` `container.align`) 뒤로 쪽도 저장 버튼 최대 폭만큼 비운 가운데 152px에서 아이콘 16 + 간격 4, 글자 수 앞 `space.8`, 글자 수 자리 64를 뺀 60px 한 줄입니다(ko 5, ja 4, en 8). 글자 수 자리 64는 가장 넓은 en "9,999 chars"(12px 실측 63.8px)이고, 글자 수 틀 `diary-edit.length.count`는 이 폭 안이어야 합니다. 넘치면 상태 글자 끝을 말줄임하고 글자 수는 지킵니다(`draft-indicator` 규칙). 지금 원고 가운데 `diaryEditDraftStatusLocal`(ko "기기에 임시 저장됨" 10자 86.4px, ja 13자, en 26자)은 넘어 writing에 줄이기를 요청합니다. "저장 중", "저장됨"과 ja, en 같은 키는 들어갑니다.
+  * `ui.birth-info.row`(사주 표 출생 정보 줄 시진 태그 이름, writing 슬롯 `birthInfoHour` "{branch}시")는 칸 단위 줄바꿈(V88)이라 시진 칸 하나가 본문 폭 320을 다 쓰는 경우로 잽니다. `hanja-tag` 둘레 42, 시간 앞 `space.8`, 시간 자리 56(가장 넓은 ja "午後11:30")을 뺀 214px입니다. 세 칸이 한 줄에 함께 들어가는지는 화면에서 봅니다(ko "미시" 22px).
+  * 성별과 시간 모름 알약은 출생 정보 입력과 같은 낱말이라 `ui.birth.option`(`genderMale`·`genderFemale`·`timeUnknownLabel`)을 함께 씁니다. 알약(좌우 8 + 테두리 1)은 칸 단위 줄바꿈이라 segmented 칸(155px)보다 넓어 그 행 값 그대로입니다. 달력 종류 꼬리표(`calendarSolar`·`calendarLunar`)도 같습니다.
+  * `ui.saju.stage-marker`(12운성 막대 자리 표시 원 18 안 기둥 한 글자 넷)는 이름 자리 계산이 맞지 않는 한 글자 칸이라 칸 폭으로 확인해 세 언어 모두 1입니다(ko 시 9.3px, ja 時 전각 11px, en 대문자 W 10.8px).
+  * `band-table` 빈 칸의 "없음"은 스크린리더만 읽어 상한이 없습니다. 기존 스크린리더 슬롯 `ui.saju.a11y`의 새 키(제안 `bandTableEmptyCell`)로 요청합니다.
+  * `today.featured.empty`(대표 태그가 없는 날 사주 기운 카드 안 한 줄, D112, 결정 V95)는 카드 안쪽 16을 뺀 288px, `type.body.ui` 한 줄입니다(ko 24, ja 19, en 45). 지금 원고 ko "오늘은 두드러진 사주 기운이 없어요."(20자), ja 18자, en "No standout chart energies today."(33자)는 모두 들어갑니다.
+  * `daily.tag_label`은 `lucky-card` `tag` 칩이 지워져(V78) 이름이 놓이는 가장 좁은 자리인 카드 안 `hanja-tag` 이름 칸(246px)으로 다시 잽니다. 확정값(10, 10, 18)은 그대로입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
 * 초안보다 줄어든 곳: `daily.guide`(질문 카드 안쪽 여백), `calendar.solar_term`(날짜 칸 44px).
@@ -168,9 +182,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 
 "상한을 두지 않는 슬롯" 표의 슬롯은 레이아웃이 길이를 막지 않으므로 design이 상한을 정하지 않습니다(스크린리더 전용, 스크롤 본문, 확인 창 본문, app 밖 화면). 슬롯 명세에는 상한 값 `unbounded`로 적혀 있습니다(W26, #191). 편집상의 길이 규칙이 필요하면 writing이 정합니다.
 
-#131이 묻지 않은 문장형 ui 슬롯(질문 제목 `*.question.head`, 설명 `*.why.body`, 잠금 안내 `evidence-sheet.lock.*` 등)은 아직 계산하지 않았습니다. 이름형 중에서는 다음 셋을 계산하지 않았습니다. 필요하면 writing이 다시 요청합니다.
+#131이 묻지 않은 문장형 ui 슬롯(질문 제목 `*.question.head`, 설명 `*.why.body`, 잠금 안내 `evidence-sheet.lock.*` 등)은 아직 계산하지 않았습니다. 이름형 중에서는 다음 둘을 계산하지 않았습니다(`diary-edit.draft.status`는 5.0.0에서 잼). 필요하면 writing이 다시 요청합니다.
 
-* `diary-edit.draft.status`: app-bar 제목과 나눠 쓰는 폭을 명세가 정하지 않았습니다.
 * `ad-free.offer.price`, `ad-free.status.remaining`: 가격·날짜 매개변수의 길이가 통화·로캘마다 달라 이름 자리 계산이 맞지 않습니다.
 
 ## 값의 성격

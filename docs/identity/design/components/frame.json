@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "group": "frame",
   "components": [
     {
@@ -43,23 +43,41 @@
     },
     {
       "id": "app-bar",
-      "summary": "화면 위 제목·뒤로·동작 아이콘. 바탕 없음",
-      "uses": ["icon", "press.ink"],
+      "summary": "화면 위 제목·뒤로·동작 아이콘. 바탕 없음. 일기 쓰기는 가운데 상태와 오른쪽 글자 버튼",
+      "uses": ["icon", "press.ink", "appear.seep", "loading.breathe"],
       "variants": [
         { "id": "tab-root", "when": "탭 첫 화면", "parts": { "title": { "type": "{type.subtitle}", "align": "start" } } },
-        { "id": "inner", "when": "안쪽 화면", "parts": { "back": { "icon": "caret-left", "visible": true }, "title": { "type": "{type.subtitle}", "align": "start" } } }
+        { "id": "inner", "when": "안쪽 화면", "parts": { "back": { "icon": "caret-left", "visible": true }, "title": { "type": "{type.subtitle}", "align": "start" } } },
+        { "id": "edit", "when": "일기 쓰기(diary-edit): 뒤로 + 가운데 제목이나 초안 상태 + 오른쪽 저장 글자 버튼. 동작 아이콘 없음(V82)",
+          "parts": {
+            "back": { "icon": "caret-left", "visible": true },
+            "title": { "slot": "diary-edit.bar.title", "align": "center", "type": "{type.label.lg}" },
+            "center": { "component": "draft-indicator", "when": "본문에 초점이 있는 동안(쓰는 중)", "replaces": "title", "transition": "appear.seep" },
+            "textAction": { "slot": "diary-edit.save.cta" }
+          } }
       ],
       "parts": {
         "container": { "bg": "transparent", "height": { "value": 44, "unit": "px" }, "paddingX": "{space.16}" },
         "title": { "fg": "{color.text.primary}", "maxLines": 1, "overflow": "ellipsis" },
-        "action": { "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 }
+        "action": { "icon": { "size": "{size.icon.24}", "weight": "light", "color": "{color.text.primary}" }, "target": { "value": 44, "unit": "px" }, "max": 2 },
+        "textAction": {
+          "type": "{type.label.lg}", "fg": "{color.action.primary}", "paddingX": "{space.8}", "minTarget": 44, "maxWidth": { "value": 88, "unit": "px" }, "max": 1, "maxLines": 1,
+          "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}", "maxLines": 1 },
+          "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": "{space.4}", "color": "label-color" },
+          "note": "글자만 있는 오른쪽 버튼(바탕 없음). edit 변형에서 동작 아이콘 대신 하나. 최대 폭은 동작 아이콘 둘 자리(44 × 2)이고 글자 상한은 이 폭으로 잼(lengths.md, 결정 V94)"
+        }
       },
-      "states": { "pressed": { "pattern": "press.ink", "note": "뒤로·동작 아이콘의 44px 원 안에서만" } },
+      "states": {
+        "pressed": { "pattern": "press.ink", "note": "뒤로·동작 아이콘의 44px 원 안에서만. 글자 버튼은 그 버튼의 터치 영역 안" },
+        "textActionDisabled": { "parts": { "textAction": { "label": { "fg": "{color.disabled.fg}" } } }, "note": "쓴 것이 없으면 누를 수 없음(diary-edit.save.cta)" },
+        "textActionSaving": { "pattern": "loading.breathe", "parts": { "textAction": { "label": { "visible": false }, "dots": { "visible": true } } }, "note": "글자 자리에 점 셋, 폭은 그대로. 처리 중에는 다시 누를 수 없음" }
+      },
       "haptic": [],
-      "a11y": { "role": "header", "label": "화면 제목", "backLabel": "뒤로", "minTarget": 44 },
+      "a11y": { "role": "header", "label": "화면 제목", "backLabel": "뒤로", "minTarget": 44, "center": "edit 가운데 상태는 draft-indicator a11y. 머리 이름은 늘 화면 제목", "textAction": "button, 글자 그대로, 처리 중 busy" },
       "rules": [
         "바탕을 칠하지 않는다. 내용이 스크롤되어 아래로 지나가도 그림자·선을 더하지 않는다.",
-        "오른쪽 동작은 두 개까지. 초안 상태(draft-indicator)는 동작 왼쪽에 둔다.",
+        "오른쪽 동작은 두 개까지. edit 변형은 동작 아이콘 대신 글자 버튼(textAction) 하나를 둔다.",
+        "edit 변형의 가운데는 화면 제목이고, 본문에 초점이 있는 동안은 같은 자리에 초안 상태(draft-indicator, 상태 글자와 글자 수)가 appear.seep으로 바뀌어 보인다. 가운데 글자는 뒤로와 글자 버튼 사이 폭에 한 줄이다.",
         "갈래의 첫 화면이라 돌아갈 곳이 없으면(consent, notify-ask) inner여도 뒤로 버튼을 숨긴다. 뒤로 자리를 비워 두지 않고 제목은 같은 자리에서 시작한다."
       ]
     },
@@ -68,8 +86,8 @@
       "summary": "하프·풀 시트 틀. 깊어지면 위에 겹쳐 쌓임",
       "uses": ["sheet.enter", "sheet.exit", "sheet.stack"],
       "variants": [
-        { "id": "half", "when": "풀이·근거·그날·공유 미리보기처럼 짧은 내용", "parts": { "container": { "maxHeight": "60%" } } },
-        { "id": "full", "when": "긴 목록·설정 안쪽", "parts": { "container": { "maxHeight": "100% - top-safe-area - 12px" } } }
+        { "id": "half", "when": "풀이·근거·색 규칙·공유 미리보기처럼 짧은 내용", "parts": { "container": { "maxHeight": "60%" } } },
+        { "id": "full", "when": "긴 목록·설정 안쪽, 그날 시트", "screens": ["day-sheet"], "note": "그날 시트는 펼침과 접힘 없이 처음부터 full 높이로 열린다(IA day-sheet, 결정 V85)", "parts": { "container": { "maxHeight": "100% - top-safe-area - 12px" } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radiusTop": "{radius.xl}", "paddingX": "{space.24}", "paddingBottom": "{space.24}", "note": "모서리 radius.xl(28) 때문에 화면 좌우 20보다 넓힘(결정 V64)" },
@@ -123,6 +141,114 @@
         "탭 바 바로 위에 붙어 함께 고정되고 같은 반투명 바탕·뒤 흐림을 쓴다. 내용은 둘 뒤로 지나간다.",
         "광고 안의 색·글꼴은 네트워크가 그린다. 명세는 틀(바탕·선·위치)만 정한다.",
         "높이가 생기거나 사라질 때 아래 내용 여백이 함께 바뀌며 화면이 튀지 않게 스크롤 위치를 지킨다."
+      ]
+    },
+    {
+      "id": "section-header",
+      "summary": "섹션 제목: 굵은 라벨, 선택 설명 줄, 오른쪽 자리 하나 (결정 V59, V69)",
+      "uses": ["icon", "press.ink", "page.push"],
+      "variants": [
+        { "id": "plain", "when": "오른쪽 자리 없음", "parts": { "trailing": { "visible": false } } },
+        { "id": "link", "when": "섹션 내용을 더 보는 다른 화면으로 이동", "parts": { "trailing": {
+          "label": { "type": "{type.label.md}", "fg": "{color.action.primary}" },
+          "chevron": { "icon": "caret-right", "weight": "light", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
+          "target": { "presentation": "page", "transition": "page.push" } } } },
+        { "id": "action", "when": "섹션에 바로 하는 동작 하나(좋아요, 더하기)", "parts": { "trailing": {
+          "options": [
+            { "component": "reaction-button", "when": "좋아요" },
+            { "icon": "plus", "weight": "light", "size": "{size.icon.24}", "color": "{color.text.primary}", "when": "더하기" }
+          ],
+          "minTarget": 44 } } }
+      ],
+      "parts": {
+        "title": { "type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": true },
+        "description": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "optional": true },
+        "trailing": { "align": "end", "verticalAlign": "title-center", "max": 1 },
+        "startLine": { "align": "card-outer-edge", "screen": "{space.20}", "sheet": "{space.24}" },
+        "contentGap": "{space.12}",
+        "sectionGap": "{space.32}",
+        "grouping": { "default": "spacing", "card": { "when": "목록 줄이 이어지는 묶음", "bg": "{color.bg.sheet}", "radius": "{radius.lg}" } }
+      },
+      "states": { "pressed": { "pattern": "press.ink", "note": "오른쪽 자리 안에서만. 제목 줄은 누를 수 없음" } },
+      "haptic": [],
+      "a11y": { "role": "header", "label": "제목 글자", "trailingRole": { "link": "link", "action": "button" }, "trailingLabel": "링크는 글자 그대로, 동작은 그 동작 이름", "separateFocus": true },
+      "rules": [
+        "제목은 어디서나 type.label.lg 600 본문색이다. 화면마다 크기나 색을 바꾸지 않는다(Q1 ③, 결정 V69).",
+        "오른쪽 자리는 꺾쇠 링크(link, 화면 이동)와 아이콘 동작(action) 둘뿐이고 하나만 둔다. 더 보기 글자 버튼, ⓘ, 밑줄 링크를 두지 않는다.",
+        "시작선은 카드 바깥 가장자리다. 화면에서는 화면 좌우 여백(space.20), 시트 안에서는 시트 안쪽(space.24)에서 시작하고 카드 안쪽 여백만큼 들이지 않는다.",
+        "제목과 내용 사이 space.12, 섹션 사이 space.32. 묶음의 기본은 간격이고 목록 줄 묶음은 카드로 묶을 수 있다.",
+        "제목과 설명 문구는 화면마다 IA 슬롯이다. 불러오는 중에도 제목은 그대로 그린다(UI 문구)."
+      ]
+    },
+    {
+      "id": "explain-sheet",
+      "summary": "짧은 설명 시트: 칩, 배지, 용어, 한자 태그를 눌러 여는 설명 (결정 V62, V71)",
+      "uses": ["sheet.enter", "sheet.exit", "page.push"],
+      "parts": {
+        "container": { "component": "sheet", "variant": "half", "height": "content" },
+        "layout": "overlay",
+        "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "누른 항목의 이름", "marginBottom": "{space.8}" },
+        "body": { "component": "sentence-block", "variant": "body" },
+        "stageStrip": { "component": "stage-strip", "marginTop": "{space.12}", "when": "12운성 설명일 때만 본문 아래(사주 표 band-table 12운성 띠 머리 칩으로 연 시트). 12운성 값 칩(관대 등)의 뜻 시트에는 없음" },
+        "diaryLink": {
+          "when": "대표 태그(엔진이 일기에 붙이는 사주 기운 태그: 합충, 신살, 십성 몰림)의 뜻 시트일 때만 본문 아래",
+          "notFor": "날의 성격(뜻만), 오늘 총운의 십성 묶음 결정 태그, 간지 태그, 용어 칩",
+          "copy": "가안 \"<태그>이 붙은 내 일기 보기\". IA 자리 없음(새 슬롯 요청, tag-sheet.diary.cta와 같은 문구 틀)",
+          "params": ["tag"],
+          "josa": "태그 이름 뒤 조사는 writing josa 규칙(이/가)",
+          "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" },
+          "chevron": { "icon": "caret-right", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.2}", "decorative": true },
+          "marginTop": "{space.16}",
+          "minTarget": 44,
+          "target": { "screen": "tag-diary", "presentation": "page", "transition": "page.push" },
+          "whenNoDiary": "늘 보임. 그 태그의 일기가 없으면 tag-diary 빈 상태가 맡음(편수를 세지 않음)",
+          "note": "시트를 닫고 tag-diary로 page.push. 일기 줄, 일기 보기 태그 칩, 나 탭 회고 태그에서 연 대표 태그 시트도 같음(관문 답 2026-11-06)"
+        },
+        "dismiss": ["바깥 누르기", "끌어 내리기", "뒤로 가기"]
+      },
+      "states": {
+        "opening": { "pattern": "sheet.enter" },
+        "closing": { "pattern": "sheet.exit" }
+      },
+      "haptic": [],
+      "a11y": { "role": "dialog", "label": "제목", "modal": true, "focusOnOpen": "first-heading", "linkRole": "link", "linkLabel": "diaryLink 글자 그대로(꺾쇠는 읽지 않음)" },
+      "rules": [
+        "설명은 화면 배치 안에 끼워 넣지 않는다. 열려도 아래 내용이 밀리지 않는다(F-008).",
+        "연 항목에는 열린 동안 표시가 남고 닫으면 사라진다(lucky-card 테두리, hanja-tag selected).",
+        "어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정한다.",
+        "한자 태그와 태그 칩은 어디서나 이 시트를 연다. 대표 태그 시트에만 본문 아래 그 태그의 모아보기 꺾쇠 링크(diaryLink, 편수 없음)가 있고, 날의 성격 시트는 뜻만이다(V73, 관문 답 2026-11-06).",
+        "다른 컴포넌트가 이 시트에 부품을 더하거나 값을 덮어쓸 때는 그 부품에 note로 적는다(term-token 풀이 시트)."
+      ]
+    },
+    {
+      "id": "scroll-hint",
+      "summary": "가로 스크롤 알림: 데이터가 더 있는 쪽 끝만 흐림과 줄 아래 좌우 화살표, 글자 안내 없음 (결정 V90)",
+      "uses": ["icon", "press.ink"],
+      "parts": {
+        "fade": { "width": { "value": 24, "unit": "px" }, "to": "{color.bg.sheet}", "side": "더 있는 쪽 끝만", "note": "줄 바탕(흰 카드)으로 흐려짐. 더 없는 쪽 끝은 흐리지 않아 끝임을 보임" },
+        "arrows": {
+          "row": "넘기는 줄 아래, 양 끝 정렬",
+          "marginTop": "{space.4}",
+          "start": { "icon": "caret-double-left", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
+          "end": { "icon": "caret-double-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
+          "hiddenWhenNoMore": true,
+          "minTarget": 44,
+          "press": "보이는 폭만큼 그쪽으로 넘김(기둥 경계에 맞춤)"
+        }
+      },
+      "states": {
+        "atStart": { "parts": { "fade": { "start": false }, "arrows": { "start": { "visible": false } } }, "note": "맨 앞. 처음 열 때 지금 칸으로 넘겨 두면 대개 middle" },
+        "middle": { "parts": { "fade": { "start": true, "end": true } } },
+        "atEnd": { "parts": { "fade": { "end": false }, "arrows": { "end": { "visible": false } } } },
+        "pressed": { "pattern": "press.ink", "note": "화살표 터치 영역 안에서만" }
+      },
+      "motion": { "fadeChange": "넘기는 동안 끝에 닿으면 흐림과 화살표가 appear.seep, disappear.seep으로 바뀜", "reduceMotion": "흐림과 화살표는 바로 바뀌고, 화살표로 넘길 때 움직임 없이 바로 그 자리로 감" },
+      "haptic": [],
+      "a11y": { "role": "none", "scrollerRole": "list", "arrowsHidden": true, "label": "글자 없음. 줄 자체가 목록(list)이고 스크린리더는 목록을 넘겨 읽어 화살표는 숨김" },
+      "rules": [
+        "글자 안내(옆으로 넘겨 보세요)를 쓰지 않는다. 흐림과 화살표만으로 더 있음을 보인다(사용자, #801 IA 시안 E).",
+        "더 있는 쪽만 흐리고 그쪽 화살표만 보인다. 양쪽에 더 있으면 둘 다다.",
+        "화살표는 꺾쇠(화면 이동)가 아니라 겹 화살표(caret-double)이고 누르면 그 줄 안에서만 넘긴다(V73의 화면 이동 꺾쇠와 다름)."
       ]
     }
   ]

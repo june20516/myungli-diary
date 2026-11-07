@@ -723,8 +723,217 @@
     "date": "2026-11-05",
     "milestone": "DS1",
     "screens": [],
-    "decisions": ["V56", "V57", "V58", "V59", "V60", "V61", "V62", "V63", "V64", "V65", "V66", "V67", "V68"],
+    "decisions": [
+      "V56",
+      "V57",
+      "V58",
+      "V59",
+      "V60",
+      "V61",
+      "V62",
+      "V63",
+      "V64",
+      "V65",
+      "V66",
+      "V67",
+      "V68"
+    ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 고른 안(2026-11-05, #801): Q1 ① 먹 번짐(진한 영역이 가장 먼 모서리까지), Q2 ① 세로 quiet 52, Q3 ② 굵은 라벨과 설명 줄, Q4 ② 하프 시트, Q5 ① book-open-text, Q6 ① 24px 밀림과 페이드. 정한 값 A~G 확인, C 구분선은 좌우 같은 들임으로 아이콘 아래까지, F는 요소별 skeleton을 화면 배치대로"
+  },
+  {
+    "id": "design-ds1-questions",
+    "title": "DS1 2단계 질문 비교: origin 이미지와 1단계 규칙이 부딪히는 Q1~Q8(섹션 제목, 범례 입구, 잠김 열기, 한자 태그 색과 머리 강조, 행운 칩, 달력 오늘, 일기 목록 줄, 키보드 내리기)",
+    "kind": "concept",
+    "file": "2026-11-05-ds1-questions.html",
+    "source": "2026-11-05-ds1-questions.html",
+    "date": "2026-11-05",
+    "milestone": "DS1",
+    "screens": [
+      "my-saju",
+      "saju-chart",
+      "today",
+      "calendar",
+      "day-sheet",
+      "diary-list",
+      "diary-edit"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 아주 잘 풀리는 날 색은 토큰 1.4.0 전 자리값. 사용자 선택 대기(#801)"
+  },
+  {
+    "id": "design-ds1-screen-b",
+    "title": "DS1 화면 묶음 B: 나 탭(사주 원국, 사주 성향 풀이, 나를 돕는 기운, 올해와 지금, 명리일기 회고)과 상태 셋(기록이 적을 때, 시간 모름, 불러오는 중)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-b.html",
+    "source": "2026-11-05-ds1-screen-b.html",
+    "date": "2026-11-05",
+    "milestone": "DS1",
+    "screens": [
+      "my-saju"
+    ],
+    "decisions": [
+      "V76",
+      "V77"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 luck-pillar compact, diary-summary. 앱 fixture 하늘님 값, 기록 요약 수치는 예시. 사용자 확인(2026-11-06, #801): 용신 표시(이름 + 용어 칩) 승인, 대운 요약 바탕 없음, 회고 태그는 tag-diary"
+  },
+  {
+    "id": "design-ds1-screen-a-g",
+    "title": "DS1 화면 묶음 A와 G: 오늘(기본, 불러오는 중), 사주 기운 시트(대표 태그 1순위, 2순위), 잠긴 근거 시트(G1)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-a-g.html",
+    "source": "2026-11-05-ds1-screen-a-g.html",
+    "date": "2026-11-06",
+    "milestone": "DS1",
+    "screens": [
+      "today",
+      "tag-sheet",
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "V78",
+      "V79",
+      "V80",
+      "V95"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 date-header, tag-sentence-list, lock.veil G1과 근거 시트 머리. 앱 fixture 하늘님 2026-10-13 값, fixture에 없는 값은 예시. 사용자 확인(2026-11-06, #801): 이름 칸 52 두 줄 허용, 총운 안 선 유지, 근거 시트 원국표 유지. 대표 태그 없는 날(D112, V95) 화면 더함(2026-11-07, 달력 fixture 2026-11-01)"
+  },
+  {
+    "id": "design-ds1-screen-f-c",
+    "title": "DS1 화면 묶음 F와 C: 일기 목록(기본, 같은 날 여러 편, 불러오는 중, 빈 상태), 일기 쓰기(쓰는 중, 처음, 저장 글자 버튼 셋, 불러오는 중)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-f-c.html",
+    "source": "2026-11-05-ds1-screen-f-c.html",
+    "date": "2026-11-06",
+    "milestone": "DS1",
+    "screens": [
+      "diary-list",
+      "diary-edit"
+    ],
+    "decisions": [
+      "V81",
+      "V82",
+      "V83"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 date-block, app-bar edit, primary-button floating. 앱 fixture 하늘님 값, 원고 없는 문구는 예시. 사용자 확인(2026-11-06, #801): 목록 줄에 날의 성격과 대표 태그, 모아보기 안 태그 숨김, 태그는 어디서나 뜻 시트, 일기 보기에 질문, 질문 14, 상태 간격 8, 흰 종이 유지, 쓰기 버튼 일기 쓰기"
+  },
+  {
+    "id": "design-ds1-f-c-questions",
+    "title": "DS1 일기 화면 관문 질문 비교: 목록 줄 표시, 태그 모아보기 안 태그, 목록 줄 두 태그 누름 통일, 일기 보기의 질문 + 정해진 것(질문 14, 상태 간격 8, 흰 종이, 일기 쓰기 버튼)",
+    "kind": "concept",
+    "file": "2026-11-06-ds1-f-c-questions.html",
+    "source": "2026-11-06-ds1-f-c-questions.html",
+    "date": "2026-11-06",
+    "milestone": "DS1",
+    "screens": [
+      "diary-list",
+      "tag-diary",
+      "diary-edit",
+      "diary-view"
+    ],
+    "decisions": [],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 하늘님 값, 원고 없는 문구는 예시. 사용자 답(2026-11-06, #801): Q1 ② 날의 성격 태그도 함께, Q2 ① 모아보기 안 태그 숨김, Q3 안 A 확장(한자 태그는 어디서나 뜻 시트, 모아보기는 대표 태그 시트 안 꺾쇠 링크, 편수 없음), Q4 ① 일기 보기에 질문"
+  },
+  {
+    "id": "design-ds1-screen-d",
+    "title": "DS1 화면 묶음 D: 달력(네 단계, 범례 셋과 규칙 입구), 그날 시트(무난한 날, 아주 잘 풀리는 날, 조심할 날, 불러오는 중), 색 규칙 시트(설명과 점수표)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-d.html",
+    "source": "2026-11-05-ds1-screen-d.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "calendar",
+      "day-sheet",
+      "color-rule-sheet"
+    ],
+    "decisions": [
+      "V84",
+      "V85",
+      "V86",
+      "V87"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 2026-11 하늘님 값, 원고 없는 문구는 예시. 사용자 확인(2026-11-07, #801): 라이트 칸 색 #ffd2ca, #ffe4df, #d4d4d3(맑은 coral), 범례 셋, 길흉판정 막대 이름 셋, 척도 그림은 합치지 않고 색 규칙 시트는 척도 없이(half, 59.6%), 일기 섹션 제목 늘 보임, 刑 한자"
+  },
+  {
+    "id": "design-ds1-d-questions",
+    "title": "DS1 달력 화면 관문 질문 비교: 칸 색 네 단계(라이트 두 안, origin 참고, 다크), 범례의 무난한 날, 길흉판정 막대 이름 수, 색 규칙 시트 높이, 그날 시트 일기 섹션 제목",
+    "kind": "concept",
+    "file": "2026-11-06-ds1-d-questions.html",
+    "source": "2026-11-06-ds1-d-questions.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "calendar",
+      "day-sheet",
+      "color-rule-sheet"
+    ],
+    "decisions": [],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 읽고 Q1 후보 칸과 Q4 화면만 색을 덮어씀. 사용자 답(2026-11-07, #801): Q1 ⑤ 맑은 coral, Q2 ① 범례 셋, Q3 ① 막대 이름 셋, Q4 척도 합치지 않음(색 규칙 시트는 척도 그림 없이), Q5 ① 일기 섹션 제목 늘 보임"
+  },
+  {
+    "id": "design-ds1-screen-e",
+    "title": "DS1 화면 묶음 E: 사주 표(원국, 만세력과 대운, 12운성 설명 시트, 시간 모름 둘, 불러오는 중)",
+    "kind": "mockup",
+    "file": "2026-11-05-ds1-screen-e.html",
+    "source": "2026-11-05-ds1-screen-e.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "V88",
+      "V89",
+      "V90",
+      "V91",
+      "V92",
+      "V93"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. 새 컴포넌트 birth-info-row, band-table, stage-strip, scroll-hint, 대운 세운 줄 luck-pillar column. app fixture 하늘님 값(명리 검산), 원고 없는 문구는 예시. 사용자 확인(2026-11-07, #801): 관문 Q1 ① 꼬리표는 강조 바탕 밖 아래, Q2 ② 잠긴 용신 근거 두 줄, Q3 ① 시진 태그는 누를 수 없는 표시, Q4 ③ 강조 바탕과 일주 열은 옅은 회색 color.highlight.bg"
+  },
+  {
+    "id": "design-ds1-e-questions",
+    "title": "DS1 사주 표 관문 질문 비교: 지금, 올해 꼬리표 자리, 잠긴 용신 판정 근거 줄 수, 시진 태그 누름",
+    "kind": "concept",
+    "file": "2026-11-07-ds1-e-questions.html",
+    "source": "2026-11-07-ds1-e-questions.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "explain-sheet"
+    ],
+    "decisions": [],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 직접 읽음. app fixture 하늘님 값, 원고 없는 문구는 예시. 사용자 답(2026-11-07, #801): Q1 ① 꼬리표는 강조 바탕 밖 아래, Q2 ② 잠긴 용신 근거 두 줄, Q3 ① 시진 태그는 누를 수 없는 표시. 이어진 강조 바탕 색 질문은 design-ds1-e-q4-highlight"
+  },
+  {
+    "id": "design-ds1-e-q4-highlight",
+    "title": "DS1 사주 표 관문 질문 Q4: 강조 바탕(highlight.current)과 띠 표 일주 열을 회색으로(지금 sage, neutral.100, neutral.50), 라이트와 다크",
+    "kind": "concept",
+    "file": "2026-11-07-ds1-e-q4-highlight.html",
+    "source": "2026-11-07-ds1-e-q4-highlight.html",
+    "date": "2026-11-07",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "my-saju"
+    ],
+    "decisions": [
+      "V93"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 읽고 안 ①, ②만 강조 바탕을 primitive로 덮어씀(새 primitive 없음). 사용자 의견 2026-11-07(초록이 많아 태그가 갈리지 않음). 사용자 답(2026-11-07, #801): ③ neutral.50(다크 neutral.950) 권장안, 새 토큰 color.highlight.bg로 반영(V93). 칩과 거리 0.029(다크 0.162), sage 글자 대비 6.21:1(다크 10.34:1), 일주 열 0.35 옅게 깔기 없앰"
   }
 ]

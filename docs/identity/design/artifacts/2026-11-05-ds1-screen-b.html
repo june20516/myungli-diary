@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS1 화면 묶음 B: 나 탭</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 모든 색, 간격, 반경, 시간은 ds1/tokens.css의 토큰 변수입니다. 명세 값 출처: components/*.json */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--color-bg-base); color: var(--color-text-primary);
+    font-family: var(--type-body-ui-family); font-size: var(--type-body-ui-size); line-height: var(--type-body-ui-line-height);
+    letter-spacing: var(--type-body-ui-letter-spacing);
+  }
+  .page { max-width: 1240px; margin: 0 auto; padding: var(--space-32) var(--space-20) var(--space-48); }
+  h1 { font-size: var(--type-display-size); font-weight: var(--type-display-weight); line-height: var(--type-display-line-height); margin: 0 0 var(--space-8); }
+  h2 { font-size: var(--type-title-size); font-weight: var(--type-title-weight); margin: var(--space-48) 0 var(--space-8); }
+  .intro, .note { color: var(--color-text-secondary); margin: 0 0 var(--space-16); max-width: 760px; }
+  .note { font-size: var(--type-caption-lg-size); }
+  .toolbar { display: flex; gap: var(--space-8); margin: var(--space-16) 0; }
+  .toolbar button {
+    font: inherit; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+    border: 1px solid var(--color-line); background: var(--color-bg-sheet); color: var(--color-text-primary);
+    border-radius: var(--radius-full); padding: var(--space-4) var(--space-12); cursor: pointer;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-24); align-items: flex-start; }
+  .caption { font-size: var(--type-label-md-size); font-weight: 600; color: var(--color-action-primary); margin-bottom: var(--space-4); }
+  .ic { width: var(--icon, 16px); height: var(--icon, 16px); flex: none; display: inline-block; vertical-align: middle; fill: currentColor; }
+
+  /* 휴대폰 틀 360 */
+  .phone {
+    position: relative; overflow: hidden; width: 360px; background: var(--color-bg-base);
+    border: 1px solid var(--color-line); border-radius: var(--radius-xl);
+  }
+  .phone .content { padding: 0 var(--space-20) var(--space-24); }
+  .phone.mini .content { padding-top: var(--space-16); }
+
+  /* app-bar tab-root: 바탕 없음, 높이 44, 좌우 space.16, 제목 type.subtitle */
+  .appbar { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-16); margin-top: var(--space-8); }
+  .appbar .title { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); line-height: var(--type-subtitle-line-height); }
+  .appbar .action { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-right: calc(var(--space-12) * -1); color: var(--color-text-primary); --icon: var(--size-icon-24); }
+
+  /* section-header: 제목 type.label.lg 600, 내용까지 space.12, 섹션 사이 space.32, 오른쪽 꺾쇠 링크 */
+  .section { margin-top: var(--space-32); }
+  .section:first-child { margin-top: var(--space-16); }
+  .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-12); min-height: 24px; }
+  .sh .t { font-size: var(--type-label-lg-size); font-weight: 600; line-height: var(--type-label-lg-line-height); color: var(--color-text-primary); }
+  .sh .link { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-action-primary); --icon: var(--size-icon-16); }
+
+  .card { position: relative; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: var(--space-16); }
+  /* 원고에 없는 문구 자리 표시: 글과 겹치지 않게 카드 맨 아래 오른쪽 줄 */
+  .ex-row { display: flex; justify-content: flex-end; margin-top: var(--space-12); }
+  .ex {
+    font-size: var(--type-caption-sm-size); color: var(--color-text-secondary);
+    border: 1px dashed var(--color-line); border-radius: var(--radius-full); padding: 0 var(--space-8);
+  }
+
+  /* term-token: term.bg + term.fg, radius.xs, 좌우 space.4. label은 type.caption.md */
+  .term { background: var(--color-term-bg); color: var(--color-term-fg); border-radius: var(--radius-xs); padding: 0 var(--space-4); }
+  .term.label { display: inline-block; font-size: var(--type-caption-md-size); font-weight: var(--type-caption-md-weight); line-height: 18px; }
+
+  /* saju-pillars */
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: var(--space-8); text-align: center; }
+  .pillars .head { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+  .pillars .term.label { margin: var(--space-4) 0; }
+  .cell {
+    position: relative; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .cell.pillar { height: 66px; }
+  .cell.pillar .h { font-family: var(--type-hanja-pillar-family); font-size: var(--type-hanja-pillar-size); font-weight: var(--type-hanja-pillar-weight); line-height: 1; }
+  .cell.pillar .r { font-size: var(--type-caption-sm-size); margin-top: var(--space-4); }
+  .cell.pillar + .cell.pillar { margin-top: var(--space-4); }
+  .cell.me { box-shadow: inset 0 0 0 2px var(--color-action-primary); }
+  .cell .tag-me {
+    position: absolute; top: calc(var(--space-4) * -1); right: calc(var(--space-4) * -1); background: var(--color-action-primary); color: var(--color-action-on-primary);
+    font-size: 10px; font-weight: 700; border-radius: var(--radius-full); padding: 0 var(--space-4); line-height: 14px;
+  }
+  .cell.empty { border: 1px dashed var(--color-line); background: transparent; }
+  .wood { background: var(--color-ohaeng-wood-bg); color: var(--color-ohaeng-wood-fg); }
+  .fire { background: var(--color-ohaeng-fire-bg); color: var(--color-ohaeng-fire-fg); }
+  .earth { background: var(--color-ohaeng-earth-bg); color: var(--color-ohaeng-earth-fg); }
+  .metal { background: var(--color-ohaeng-metal-bg); color: var(--color-ohaeng-metal-fg); }
+  .water { background: var(--color-ohaeng-water-bg); color: var(--color-ohaeng-water-fg); }
+
+  /* ohaeng-bar: 막대 10, 칸 사이 2, 범례 다섯 칸 위 space.12 */
+  .obar { display: flex; gap: var(--space-2); height: 10px; margin-top: var(--space-16); }
+  .obar span { border-radius: var(--radius-full); }
+  .sw-wood { background: var(--color-ohaeng-wood-swatch); } .sw-fire { background: var(--color-ohaeng-fire-swatch); }
+  .sw-earth { background: var(--color-ohaeng-earth-swatch); } .sw-metal { background: var(--color-ohaeng-metal-swatch); }
+  .sw-water { background: var(--color-ohaeng-water-swatch); }
+  .legend { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: var(--space-12); font-size: var(--type-caption-md-size); }
+  .legend > div { display: flex; align-items: center; gap: var(--space-4); }
+  .legend .sw { width: 12px; height: 12px; border-radius: var(--radius-full); }
+  .legend b { font-weight: var(--type-numeric-table-weight); font-feature-settings: "tnum"; }
+
+  /* sentence-block */
+  .s-card { font-family: var(--type-sentence-card-family); font-size: var(--type-sentence-card-size); line-height: var(--type-sentence-card-line-height); word-break: keep-all; margin: 0; }
+  .s-body { font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); word-break: keep-all; margin: var(--space-12) 0 0; }
+  .evidence { color: var(--color-action-primary); --icon: var(--size-icon-20); }
+
+  /* lucky-card 칩: bg.sheet + 1px line 안쪽 테두리, 높이 34 */
+  .yong { display: flex; align-items: center; gap: var(--space-8); flex-wrap: wrap; }
+  .yong .k { font-size: var(--type-label-lg-size); font-weight: 600; }
+  .lchip {
+    display: inline-flex; align-items: center; gap: var(--space-4); height: 34px; padding: 0 var(--space-12); border-radius: var(--radius-full);
+    background: var(--color-bg-sheet); box-shadow: inset 0 0 0 1px var(--color-line);
+    font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+  }
+  .lchip .dot { width: 14px; height: 14px; border-radius: var(--radius-full); }
+
+  /* luck-pillar compact: 줄 사이 space.16, 칸 세로(사이 space.4), 정보 묶음 space.12 */
+  .lp { display: flex; align-items: flex-start; }
+  .lp + .lp { margin-top: var(--space-16); }
+  .lp .cells { display: flex; flex-direction: column; gap: var(--space-4); }
+  .cell.small { width: 40px; height: 40px; font-family: var(--font-family-hanja); font-size: 18px; font-weight: 700; line-height: 1; }
+  .lp .info { margin-left: var(--space-12); }
+  .lp .head { display: flex; align-items: center; gap: var(--space-4); }
+  .status-tag { background: var(--color-status-bg); color: var(--color-status-fg); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); border-radius: var(--radius-full); padding: var(--space-2) var(--space-8); line-height: 1.3; }
+  .lp .period { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); font-feature-settings: "tnum"; margin-top: var(--space-4); }
+  .lp .gods { display: flex; gap: var(--space-4); margin-top: var(--space-4); }
+
+  /* diary-summary */
+  .count { display: flex; align-items: baseline; gap: var(--space-4); }
+  .count b { font-size: 28px; font-weight: 700; font-feature-settings: "tnum"; line-height: 1.2; }
+  .count span { font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
+  .ds-head { font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); color: var(--color-text-secondary); margin: var(--space-16) 0 var(--space-8); }
+  .kinds { display: flex; flex-direction: column; gap: var(--space-8); }
+  .kind { display: flex; align-items: center; min-height: 24px; }
+  .kind .n { width: 72px; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); }
+  .kind .track { flex: 1; height: 8px; border-radius: var(--radius-full); background: var(--color-bg-base); overflow: hidden; }
+  .kind .fill { height: 100%; border-radius: var(--radius-full); }
+  .kind .c { width: 28px; margin-left: var(--space-12); text-align: right; font-size: var(--type-numeric-table-size); font-weight: var(--type-numeric-table-weight); font-feature-settings: "tnum"; }
+  .f-yongsin { background: var(--color-badge-good-bg); } .f-gwiin { background: var(--color-badge-gwiin-fg); }
+  .f-ordinary { background: var(--color-badge-ordinary-border); } .f-gisin { background: var(--color-badge-gisin-fg); }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+  .few { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); margin-top: var(--space-12); }
+
+  /* hanja-tag default: 높이 30, 왼쪽 4, 오른쪽 space.12, 원 22(bg.sheet, 한자 12 700), 사이 space.4, 사주 용어는 term 초록 */
+  .htag {
+    display: inline-flex; align-items: center; gap: var(--space-4); height: 30px; padding: 0 var(--space-12) 0 var(--space-4);
+    border-radius: var(--radius-full); background: var(--color-term-bg); color: var(--color-term-fg);
+    font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight);
+  }
+  .htag .g { width: 22px; height: 22px; border-radius: var(--radius-full); background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-size: 12px; font-weight: 700; }
+  .htag .num { color: var(--color-text-secondary); font-feature-settings: "tnum"; }
+
+  /* notice-banner time-unknown */
+  .banner { display: flex; align-items: center; gap: var(--space-8); background: var(--color-bg-sheet); border-radius: var(--radius-md); padding: var(--space-12); margin-bottom: var(--space-16); font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); --icon: var(--size-icon-16); }
+
+  /* ad-banner + tab-bar */
+  .ad { background: var(--color-bar-bg); border-top: 0.5px solid var(--color-line); padding: var(--space-4) 0; text-align: center; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); }
+  .ad div { height: 50px; display: flex; align-items: center; justify-content: center; border: 1px dashed var(--color-line); margin: 0 var(--space-16); border-radius: var(--radius-sm); }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); height: 72px; background: var(--color-bar-bg); }
+  .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); color: var(--color-text-secondary); font-size: var(--type-caption-sm-size); --icon: var(--size-icon-24); }
+  .tab .mark { position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+  .tab.on { color: var(--color-action-primary); font-weight: 600; }
+  .tab.on .seal { position: absolute; inset: 0; width: 34px; height: 34px; fill: var(--color-seal-fill); }
+  .tab.on .mark .ic { position: relative; color: var(--color-action-on-primary); }
+
+  /* skeleton: 요소마다 자기 모양, 글줄은 글줄 높이의 60% */
+  .bone { background: var(--color-skeleton-bone); animation: breathe var(--motion-duration-breathe) var(--motion-easing-standard) infinite alternate; }
+  .bone.line { height: 9px; border-radius: var(--radius-xs); margin: var(--space-4) 0; }
+  .bone.chip { display: inline-block; height: 30px; border-radius: var(--radius-full); }
+  .bone.cell { border-radius: var(--radius-sm); }
+  .bone.d1 { animation-delay: 150ms; } .bone.d2 { animation-delay: 300ms; }
+  @keyframes breathe { from { opacity: 0.55; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .bone { animation: none; } }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true"><symbol id="ic-gear-six-light" viewBox="0 0 256 256"><path d="M128,82a46,46,0,1,0,46,46A46.06,46.06,0,0,0,128,82Zm0,80a34,34,0,1,1,34-34A34,34,0,0,1,128,162Zm108-54.4a6,6,0,0,0-2.92-4L202.64,86.22l-.42-.71L202.1,51.2A6,6,0,0,0,200,46.64a110.12,110.12,0,0,0-36.07-20.31,6,6,0,0,0-4.84.45L128.46,43.86h-1L96.91,26.76a6,6,0,0,0-4.86-.44A109.92,109.92,0,0,0,56,46.68a6,6,0,0,0-2.12,4.55l-.16,34.34c-.14.23-.28.47-.41.71L22.91,103.57A6,6,0,0,0,20,107.62a104.81,104.81,0,0,0,0,40.78,6,6,0,0,0,2.92,4l30.42,17.33.42.71.12,34.31A6,6,0,0,0,56,209.36a110.12,110.12,0,0,0,36.07,20.31,6,6,0,0,0,4.84-.45l30.61-17.08h1l30.56,17.1A6.09,6.09,0,0,0,162,230a5.83,5.83,0,0,0,1.93-.32,109.92,109.92,0,0,0,36-20.36,6,6,0,0,0,2.12-4.55l.16-34.34c.14-.23.28-.47.41-.71l30.42-17.29a6,6,0,0,0,2.92-4.05A104.81,104.81,0,0,0,236,107.6Zm-11.25,35.79L195.32,160.1a6.07,6.07,0,0,0-2.28,2.3c-.59,1-1.21,2.11-1.86,3.14a6,6,0,0,0-.91,3.16l-.16,33.21a98.15,98.15,0,0,1-27.52,15.53L133,200.88a6,6,0,0,0-2.93-.77h-.14c-1.24,0-2.5,0-3.74,0a6,6,0,0,0-3.07.76L93.45,217.43a98,98,0,0,1-27.56-15.49l-.12-33.17a6,6,0,0,0-.91-3.16c-.64-1-1.27-2.08-1.86-3.14a6,6,0,0,0-2.27-2.3L31.3,143.4a93,93,0,0,1,0-30.79L60.68,95.9A6.07,6.07,0,0,0,63,93.6c.59-1,1.21-2.11,1.86-3.14a6,6,0,0,0,.91-3.16l.16-33.21A98.15,98.15,0,0,1,93.41,38.56L123,55.12a5.81,5.81,0,0,0,3.07.76c1.24,0,2.5,0,3.74,0a6,6,0,0,0,3.07-.76l29.65-16.56a98,98,0,0,1,27.56,15.49l.12,33.17a6,6,0,0,0,.91,3.16c.64,1,1.27,2.08,1.86,3.14a6,6,0,0,0,2.27,2.3L224.7,112.6A93,93,0,0,1,224.73,143.39Z"/></symbol><symbol id="ic-caret-right-light" viewBox="0 0 256 256"><path d="M180.24,132.24l-80,80a6,6,0,0,1-8.48-8.48L167.51,128,91.76,52.24a6,6,0,0,1,8.48-8.48l80,80A6,6,0,0,1,180.24,132.24Z"/></symbol><symbol id="ic-book-open-text-regular" viewBox="0 0 256 256"><path d="M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64ZM160,88h40a8,8,0,0,1,0,16H160a8,8,0,0,1,0-16Zm48,40a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,128Zm0,32a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,160Z"/></symbol><symbol id="ic-clock-light" viewBox="0 0 256 256"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm0,192a90,90,0,1,1,90-90A90.1,90.1,0,0,1,128,218Zm62-90a6,6,0,0,1-6,6H128a6,6,0,0,1-6-6V72a6,6,0,0,1,12,0v50h50A6,6,0,0,1,190,128Z"/></symbol><symbol id="ic-sun-light" viewBox="0 0 256 256"><path d="M122,40V16a6,6,0,0,1,12,0V40a6,6,0,0,1-12,0Zm68,88a62,62,0,1,1-62-62A62.07,62.07,0,0,1,190,128Zm-12,0a50,50,0,1,0-50,50A50.06,50.06,0,0,0,178,128ZM59.76,68.24a6,6,0,1,0,8.48-8.48l-16-16a6,6,0,0,0-8.48,8.48Zm0,119.52-16,16a6,6,0,1,0,8.48,8.48l16-16a6,6,0,1,0-8.48-8.48ZM192,70a6,6,0,0,0,4.24-1.76l16-16a6,6,0,0,0-8.48-8.48l-16,16A6,6,0,0,0,192,70Zm4.24,117.76a6,6,0,0,0-8.48,8.48l16,16a6,6,0,0,0,8.48-8.48ZM46,128a6,6,0,0,0-6-6H16a6,6,0,0,0,0,12H40A6,6,0,0,0,46,128Zm82,82a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V216A6,6,0,0,0,128,210Zm112-88H216a6,6,0,0,0,0,12h24a6,6,0,0,0,0-12Z"/></symbol><symbol id="ic-calendar-blank-light" viewBox="0 0 256 256"><path d="M208,34H182V24a6,6,0,0,0-12,0V34H86V24a6,6,0,0,0-12,0V34H48A14,14,0,0,0,34,48V208a14,14,0,0,0,14,14H208a14,14,0,0,0,14-14V48A14,14,0,0,0,208,34ZM48,46H74V56a6,6,0,0,0,12,0V46h84V56a6,6,0,0,0,12,0V46h26a2,2,0,0,1,2,2V82H46V48A2,2,0,0,1,48,46ZM208,210H48a2,2,0,0,1-2-2V94H210V208A2,2,0,0,1,208,210Z"/></symbol><symbol id="ic-notebook-light" viewBox="0 0 256 256"><path d="M182,112a6,6,0,0,1-6,6H112a6,6,0,0,1,0-12h64A6,6,0,0,1,182,112Zm-6,26H112a6,6,0,0,0,0,12h64a6,6,0,0,0,0-12Zm46-90V208a14,14,0,0,1-14,14H48a14,14,0,0,1-14-14V48A14,14,0,0,1,48,34H208A14,14,0,0,1,222,48ZM48,210H74V46H48a2,2,0,0,0-2,2V208A2,2,0,0,0,48,210ZM210,48a2,2,0,0,0-2-2H86V210H208a2,2,0,0,0,2-2Z"/></symbol><symbol id="ic-user-regular" viewBox="0 0 256 256"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/></symbol></svg>
+<div class="page">
+  <h1>DS1 화면 묶음 B: 나 탭</h1>
+  <p class="intro">IA v5 <code>my-saju</code>의 기본 상태와 상태 셋입니다. 섹션 순서는 사주 원국, 사주 성향 풀이, 나를 돕는 기운, 올해와 지금, 명리일기 회고입니다. 새 컴포넌트는 <code>luck-pillar</code> <code>compact</code>(올해와 지금)와 <code>diary-summary</code>(명리일기 회고)입니다. 데이터는 앱 fixture의 가상 사용자 하늘님(원국, 오행 분포, 대운, 세운, 문장)이고, 기록 요약 수치는 server 새 경로라 예시입니다. 원고에 없는 문구 자리는 카드 아래 "예시" 표시로 알립니다.</p>
+  <div class="toolbar"><button id="theme" type="button">다크로 보기</button></div>
+
+  <div class="row">
+    <div>
+      <div class="caption">기본</div>
+      <div class="phone">
+        <div class="appbar"><span class="title">나의 사주</span><span class="action" aria-label="설정"><svg class="ic"><use href="#ic-gear-six-light"/></svg></span></div>
+        <div class="content">
+          <section class="section">
+            <div class="sh"><span class="t">사주 원국</span><span class="link">사주 표<svg class="ic"><use href="#ic-caret-right-light"/></svg></span></div>
+            <div class="card">
+              <div class="pillars">
+                <div><div class="head">시주</div><span class="term label">상관</span><div class="cell pillar water"><span class="h">癸</span><span class="r">계수</span></div><div class="cell pillar earth"><span class="h">未</span><span class="r">미</span></div><span class="term label">정인</span></div>
+                <div><div class="head">일주</div><span class="term label">일간</span><div class="cell pillar metal me"><span class="tag-me">나</span><span class="h">庚</span><span class="r">경금</span></div><div class="cell pillar earth"><span class="h">辰</span><span class="r">진</span></div><span class="term label">편인</span></div>
+                <div><div class="head">월주</div><span class="term label">겁재</span><div class="cell pillar metal"><span class="h">辛</span><span class="r">신금</span></div><div class="cell pillar fire"><span class="h">巳</span><span class="r">사</span></div><span class="term label">편관</span></div>
+                <div><div class="head">연주</div><span class="term label">비견</span><div class="cell pillar metal"><span class="h">庚</span><span class="r">경금</span></div><div class="cell pillar fire"><span class="h">午</span><span class="r">오</span></div><span class="term label">정관</span></div>
+              </div>
+              <div class="obar"><span class="sw-wood" style="flex: 0.6"></span><span class="sw-fire" style="flex: 3.3"></span><span class="sw-earth" style="flex: 2.55"></span><span class="sw-metal" style="flex: 2.9"></span><span class="sw-water" style="flex: 1.15"></span></div>
+              <div class="legend">
+                <div><span class="sw sw-wood"></span>목 <b>0.6</b></div><div><span class="sw sw-fire"></span>화 <b>3.3</b></div><div><span class="sw sw-earth"></span>토 <b>2.55</b></div><div><span class="sw sw-metal"></span>금 <b>2.9</b></div><div><span class="sw sw-water"></span>수 <b>1.15</b></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="sh"><span class="t">사주 성향 풀이</span></div>
+            <div class="card">
+              <p class="s-card">하늘님, 다듬기 전의 단단한 쇠를 닮았어요.</p>
+              <p class="s-body">옳다고 여긴 일은 바로 행동으로 옮기는 편이에요. 결단이 필요한 순간에 망설이지 않는 모습이 돋보여요.&nbsp;<span class="evidence" aria-label="일간 풀이의 근거"><svg class="ic"><use href="#ic-book-open-text-regular"/></svg></span></p>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="sh"><span class="t">나를 돕는 기운</span></div>
+            <div class="card">
+              <div class="yong"><span class="k">용신</span><span class="term">수</span><span class="lchip"><span class="dot sw-water"></span>남색</span></div>
+              <p class="s-body">나와 잘 맞는 오행은 <span class="term">수</span>예요. 색으로는 남색이 어울리니, 옷이나 소품으로 곁에 두어 보세요.</p>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="sh"><span class="t">올해와 지금</span><span class="link">대운 전체<svg class="ic"><use href="#ic-caret-right-light"/></svg></span></div>
+            <div class="card">
+              <div class="lp">
+                <div class="cells"><div class="cell small fire">丁</div><div class="cell small earth">丑</div></div>
+                <div class="info"><div class="head"><span class="status-tag">지금</span><span class="term label">대운</span></div><div class="period">34~43세, 2023~2032년</div><div class="gods"><span class="term label">정관</span><span class="term label">정인</span></div></div>
+              </div>
+              <div class="lp">
+                <div class="cells"><div class="cell small fire">丙</div><div class="cell small fire">午</div></div>
+                <div class="info"><div class="head"><span class="status-tag">올해</span><span class="term label">세운</span></div><div class="period">2026년, 37세</div><div class="gods"><span class="term label">편관</span></div></div>
+              </div>
+              <div class="ex-row"><span class="ex">기간 문구 예시</span></div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="sh"><span class="t">명리일기 회고</span></div>
+            <div class="card">
+              <div class="count"><b>23</b><span>편을 썼어요</span></div>
+              <div class="ds-head">어떤 날에 썼나</div>
+              <div class="kinds">
+                <div class="kind"><span class="n">용신의 날</span><span class="track"><span class="fill f-yongsin" style="display: block; width: 60%"></span></span><span class="c">6</span></div>
+                <div class="kind"><span class="n">귀인의 날</span><span class="track"><span class="fill f-gwiin" style="display: block; width: 30%"></span></span><span class="c">3</span></div>
+                <div class="kind"><span class="n">평범한 날</span><span class="track"><span class="fill f-ordinary" style="display: block; width: 100%"></span></span><span class="c">10</span></div>
+                <div class="kind"><span class="n">기신의 날</span><span class="track"><span class="fill f-gisin" style="display: block; width: 40%"></span></span><span class="c">4</span></div>
+              </div>
+              <div class="ds-head">자주 붙은 태그</div>
+              <div class="tags">
+                <span class="htag"><span class="g" aria-hidden="true">合</span>합 <span class="num">5</span></span>
+                <span class="htag"><span class="g" aria-hidden="true">桃</span>도화 <span class="num">3</span></span>
+                <span class="htag"><span class="g" aria-hidden="true">驛</span>역마 <span class="num">2</span></span>
+              </div>
+              <div class="ex-row"><span class="ex">집계 수치와 문구 예시</span></div>
+            </div>
+          </section>
+        </div>
+        <div class="ad"><div>배너 광고 자리(D53)</div></div>
+        <div class="tabbar">
+          <div class="tab"><span class="mark"><svg class="ic"><use href="#ic-sun-light"/></svg></span>오늘</div>
+          <div class="tab"><span class="mark"><svg class="ic"><use href="#ic-calendar-blank-light"/></svg></span>달력</div>
+          <div class="tab"><span class="mark"><svg class="ic"><use href="#ic-notebook-light"/></svg></span>일기</div>
+          <div class="tab on"><span class="mark"><svg class="seal" viewBox="0 0 20 20" aria-hidden="true"><path d="M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"/></svg><svg class="ic"><use href="#ic-user-regular"/></svg></span>나</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="caption">기록이 적을 때 (5편 미만)</div>
+      <div class="phone mini">
+        <div class="content">
+          <section class="section">
+            <div class="sh"><span class="t">명리일기 회고</span></div>
+            <div class="card">
+              <div class="count"><b>4</b><span>편을 썼어요</span></div>
+              <p class="few">다섯 편부터 어떤 날에 썼는지 모아 보여 드려요.</p>
+              <div class="ds-head">자주 붙은 태그</div>
+              <div class="tags"><span class="htag"><span class="g" aria-hidden="true">天</span>천을귀인 <span class="num">1</span></span><span class="htag"><span class="g" aria-hidden="true">沖</span>충 <span class="num">1</span></span></div>
+              <div class="ex-row"><span class="ex">안내 문구 예시</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">막대를 숨기고 안내 한 줄(<code>my-saju.record.few</code>)을 둡니다. 편수와 태그는 그대로입니다.</p>
+
+      <div class="caption" style="margin-top: var(--space-24)">time-unknown</div>
+      <div class="phone mini">
+        <div class="content">
+          <div class="banner"><svg class="ic"><use href="#ic-clock-light"/></svg>태어난 시간을 몰라 시주는 빼고 보여 드려요.</div>
+          <section class="section" style="margin-top: 0">
+            <div class="sh"><span class="t">사주 원국</span><span class="link">사주 표<svg class="ic"><use href="#ic-caret-right-light"/></svg></span></div>
+            <div class="card">
+              <div class="pillars">
+                <div><div class="head">시주</div><span class="term label" style="visibility: hidden">없음</span><div class="cell pillar empty"></div><div class="cell pillar empty"></div></div>
+                <div><div class="head">일주</div><span class="term label">일간</span><div class="cell pillar metal me"><span class="tag-me">나</span><span class="h">庚</span><span class="r">경금</span></div><div class="cell pillar earth"><span class="h">辰</span><span class="r">진</span></div><span class="term label">편인</span></div>
+                <div><div class="head">월주</div><span class="term label">겁재</span><div class="cell pillar metal"><span class="h">辛</span><span class="r">신금</span></div><div class="cell pillar fire"><span class="h">巳</span><span class="r">사</span></div><span class="term label">편관</span></div>
+                <div><div class="head">연주</div><span class="term label">비견</span><div class="cell pillar metal"><span class="h">庚</span><span class="r">경금</span></div><div class="cell pillar fire"><span class="h">午</span><span class="r">오</span></div><span class="term label">정관</span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">안내 문구는 사주 표의 원고 키(<code>sajuChartTimeUnknownNotice</code>)를 빌렸습니다. 나 탭에는 IA 슬롯이 없습니다.</p>
+    </div>
+
+    <div>
+      <div class="caption">loading</div>
+      <div class="phone mini">
+        <div class="content">
+          <section class="section">
+            <div class="sh"><span class="t">사주 원국</span><span class="link">사주 표<svg class="ic"><use href="#ic-caret-right-light"/></svg></span></div>
+            <div class="card">
+              <div class="pillars">
+                <div><div class="head">시주</div><div class="bone cell" style="height: 66px"></div><div class="bone cell d1" style="height: 66px; margin-top: var(--space-4)"></div></div>
+                <div><div class="head">일주</div><div class="bone cell" style="height: 66px"></div><div class="bone cell d1" style="height: 66px; margin-top: var(--space-4)"></div></div>
+                <div><div class="head">월주</div><div class="bone cell" style="height: 66px"></div><div class="bone cell d1" style="height: 66px; margin-top: var(--space-4)"></div></div>
+                <div><div class="head">연주</div><div class="bone cell" style="height: 66px"></div><div class="bone cell d1" style="height: 66px; margin-top: var(--space-4)"></div></div>
+              </div>
+              <div class="bone d2" style="height: 10px; border-radius: var(--radius-full); margin-top: var(--space-16)"></div>
+              <div class="bone line d2" style="margin-top: var(--space-12)"></div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">사주 성향 풀이</span></div>
+            <div class="card"><div class="bone line"></div><div class="bone line d1"></div><div class="bone line d2" style="width: 60%"></div></div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">나를 돕는 기운</span></div>
+            <div class="card"><div class="tags"><span class="bone chip" style="width: 72px; height: 34px"></span></div><div class="bone line d1" style="margin-top: var(--space-12)"></div><div class="bone line d2" style="width: 60%"></div></div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">올해와 지금</span><span class="link">대운 전체<svg class="ic"><use href="#ic-caret-right-light"/></svg></span></div>
+            <div class="card">
+              <div class="lp"><div class="cells"><div class="bone cell" style="width: 40px; height: 40px"></div><div class="bone cell d1" style="width: 40px; height: 40px"></div></div><div class="info"><span class="bone chip" style="width: 36px; height: 18px"></span></div></div>
+              <div class="lp"><div class="cells"><div class="bone cell" style="width: 40px; height: 40px"></div><div class="bone cell d1" style="width: 40px; height: 40px"></div></div><div class="info"><span class="bone chip" style="width: 36px; height: 18px"></span></div></div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="sh"><span class="t">명리일기 회고</span></div>
+            <div class="card">
+              <div class="bone line" style="width: 96px; height: 20px"></div>
+              <div class="ds-head">어떤 날에 썼나</div>
+              <div class="bone line"></div><div class="bone line d1"></div><div class="bone line d2"></div><div class="bone line d1"></div>
+              <div class="ds-head">자주 붙은 태그</div>
+              <div class="tags"><span class="bone chip" style="width: 64px"></span><span class="bone chip d1" style="width: 64px"></span><span class="bone chip d2" style="width: 64px"></span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <p class="note" style="width: 360px">섹션 제목과 머리 글자는 UI 슬롯이라 바로 보이고, 요소마다 자기 skeleton을 화면 배치대로 놓습니다.</p>
+    </div>
+  </div>
+
+  <h2>origin과 다른 점</h2>
+  <p class="note">대운 나이는 한국식 나이(core C22)로 적습니다. 올해와 지금의 줄 머리는 굵은 글자 대신 상태 꼬리표(지금, 올해)와 용어 칩(대운, 세운)이고, origin처럼 강조 바탕은 없습니다. 자주 붙은 태그는 한자 태그(사주 용어 초록)이고 수는 알약 안에 두며, 누르면 뜻 시트가 열리고, 시트 아래 꺾쇠 링크로 그 태그의 일기 모아보기로 갑니다(2026-11-06 개정). 행운 색 칩은 테두리 칩(V75)이고, 용신은 칩이 아닌 이름과 용어 칩입니다(사용자 승인 2026-11-06). 막대 트랙은 화면 바탕색입니다.</p>
+  <p class="note" style="margin-top: var(--space-48)">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Pretendard JP, Gowun Dodum.</p>
+</div>
+
+<script>
+  const themeButton = document.getElementById('theme');
+  themeButton.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    document.documentElement.dataset.theme = dark ? '' : 'dark';
+    themeButton.textContent = dark ? '다크로 보기' : '라이트로 보기';
+  });
+</script>
+</body>
+</html>

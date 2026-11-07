@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "group": "action",
   "components": [
     {
@@ -16,19 +16,35 @@
       "parts": {
         "container": { "bg": "{color.action.primary}", "radius": "{radius.md}", "height": { "value": 52, "unit": "px" }, "paddingX": "{space.20}", "width": "fill" },
         "label": { "fg": "{color.action.on-primary}", "type": "{type.label.lg}", "maxLines": 1 },
-        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": "{space.4}", "color": "label-color" }
+        "dots": { "count": 3, "size": { "value": 6, "unit": "px" }, "gap": "{space.4}", "color": "label-color" },
+        "leadingIcon": { "optional": true, "size": "adjacent-text", "weight": "regular", "color": "label-color", "gap": "{space.8}", "decorative": true, "note": "글자 앞 아이콘. 아이콘과 글자 묶음을 버튼 가운데에 둔다. 아이콘 이름은 쓰는 자리가 정함" },
+        "floating": {
+          "when": "목록 화면의 아래 고정 주 동작. 목록이 있을 때 목록 위에 떠 있음",
+          "above": ["ad-banner", "tab-bar", "safe-area"],
+          "marginX": "{space.20}", "marginBottom": "{space.16}",
+          "shadow": "{shadow.raised}",
+          "contentBehind": true,
+          "listPaddingBottom": "버튼 높이 52 + space.16 + space.16",
+          "whenEmpty": "떠 있지 않음. 같은 버튼을 empty-state action으로 안내 아래 가운데에 둠",
+          "whenLoading": "숨김(빈 상태인지 알기 전에는 자리를 잡지 않음)",
+          "whenError": "숨김. 목록을 불러오지 못하면 stateMap error-state의 다시 시도가 화면의 주 동작이라 버튼을 겹쳐 두지 않음",
+          "usedIn": [{ "screen": "diary-list", "slot": "diary-list.pick-date.cta", "leadingIcon": "pencil-simple" }],
+          "note": "above는 아래에 붙은 것 가운데 먼저 있는 것(광고 배너, 탭 바, 아래 안전 영역) 위 space.16. 목록이 버튼 뒤로 지나가고, 마지막 줄은 아래 여백으로 버튼 위까지 올라옴. toast는 이 버튼 위 16px(V51)"
+        }
       },
       "states": {
         "pressed": { "pattern": "press.ink" },
         "disabled": { "parts": { "container": { "bg": "{color.disabled.bg}" }, "label": { "fg": "{color.disabled.fg}" } } },
-        "loading": { "pattern": "loading.breathe", "note": "글자 자리에 점 세 개. 너비는 그대로", "parts": { "label": { "visible": false }, "dots": { "visible": true } } }
+        "loading": { "pattern": "loading.breathe", "note": "글자 자리에 점 세 개. 너비는 그대로", "parts": { "label": { "visible": false }, "dots": { "visible": true }, "leadingIcon": { "visible": false } } }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "글자 그대로", "busyAnnounced": "처리 중", "minTarget": 48 },
+      "a11y": { "role": "button", "label": "글자 그대로", "busyAnnounced": "처리 중", "minTarget": 48, "leadingIconAnnounced": false },
       "rules": [
         "스피너를 쓰지 않는다. 처리 중은 점 숨쉬기가 유일한 대체다.",
         "처리 중에는 다시 누를 수 없다.",
-        "quiet 변형은 disabled에서 바탕 없이 글자만 color.disabled.fg다."
+        "quiet 변형은 disabled에서 바탕 없이 글자만 color.disabled.fg다.",
+        "leadingIcon은 글자 앞 space.8, 크기는 옆 글자 단계(adjacent-text), 색은 글자와 같다. 처리 중에는 아이콘도 숨기고 점 셋만 보인다.",
+        "floating은 목록이 있을 때만 목록 위에 떠 있고(shadow.raised), 빈 상태에서는 같은 버튼이 empty-state 안내 아래 가운데에 놓인다. 둘이 함께 보이지 않는다."
       ]
     },
     {

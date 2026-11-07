@@ -132,7 +132,8 @@ def test_v1_roles_follow_spec():
 
 def test_contrast_covers_v1_pairs():
     names = {result.name for result in check_contrast(build_palette())}
-    assert len(names) == 52 + 26 + 8  # V1 52개 + V2 모드당 13개 + 옅은 도장 위 sage 글자 모드당 4개
+    # V1 52개 + V2 모드당 13개 + 옅은 도장 위 sage 글자 모드당 4개 + 달력 4단계 숫자 모드당 3개 + 강조 바탕 위 글자 모드당 2개(V93)
+    assert len(names) == 52 + 26 + 8 + 6 + 4
     for mode in ("light", "dark"):
         assert f"{mode} badge.gwiin" in names
         assert f"{mode} badge.gisin" in names

@@ -16,7 +16,8 @@
 * 쓰는 화면: onboard-call, event-edit, contact
 * `bg.sheet`, 1px `line`, `radius.md`, 높이 52px, 글자 17px(ui 글꼴 400).
 * 포커스는 `focus.ring`(1px `line` → 2px `action.primary`). 바탕은 바뀌지 않습니다. 다크 모드에서도 같은 규칙입니다.
-* **키보드 내리기(결정 V68):** 입력칸에 초점이 있는 동안 키보드 바로 위 오른쪽(`space.12` 띄움)에 44 원형 버튼(`bg.sheet`, `shadow.raised`, `caret-down` Regular 20 본문색)을 띄웁니다. 누르면 키보드가 내려가고 초점이 풀립니다. 스크린리더 이름은 writing 새 슬롯 `ui.keyboard.dismiss`입니다. 동작 구현은 app #796입니다.
+* **키보드 내리기(요소 `keyboard.dismiss`, 결정 V68, V83):** 입력칸에 초점이 있는 동안 키보드 바로 위 오른쪽(`space.12` 띄움)에 44 원형 버튼(`bg.sheet`, `shadow.raised`, `caret-down` Regular 20 본문색)을 띄웁니다. 기준은 플랫폼 키보드 inset이고, OS 자동완성과 추천 줄을 포함한 높이 위로 `space.12`입니다(`anchor: keyboard-inset`). 누르면 키보드가 내려가고 초점이 풀립니다. 스크린리더 이름은 writing 새 슬롯 `ui.keyboard.dismiss`입니다. 동작 구현은 app #796입니다. 일기 쓰기 본문(`diary-editor` `edit`)도 같은 버튼입니다(Q8).
+  * QA 메모: 붙여넣기 막대(iOS 편집 메뉴, Android 클립보드 추천)와 겹치는지 기기에서 확인합니다(`qa`).
 * Material 힌트: `InputDecoration`의 `filled: true`, `fillColor: bg.sheet`, `OutlineInputBorder` 두 벌(평소·포커스).
 * **여러 줄(`multiline`, #218):** event-edit 메모(2000자)처럼 줄바꿈이 필요한 칸입니다. 최소 높이 52를 지키며 글이 길어지면 6줄까지 늘고, 그 뒤로는 칸 안에서 스크롤합니다. 첫 줄은 한 줄 칸의 글자와 같은 자리이고, 지우기 아이콘은 첫 줄 높이에 둡니다. 키보드는 여러 줄 입력, 키보드 동작은 줄바꿈(완료가 아님)입니다. 바탕·테두리·포커스·글자 수·지우기 규칙은 한 줄 칸과 같습니다.
   * 최소 줄 수(`minLines`)는 기본 1입니다. 문의 내용처럼 긴 글을 받는 칸은 처음부터 4줄 높이로 열어 길게 써도 된다는 것을 모양으로 알립니다. 칸 안 안내(placeholder)는 두 줄까지 감습니다.

@@ -17,7 +17,7 @@ from tokens import DESIGN_DIR, TOKENS_DIR
 
 COMPONENTS_DIR = DESIGN_DIR / "components"
 IA_PATH = DESIGN_DIR.parent.parent / "ia" / "screens.json"
-CONTRACT_VERSION = "4.0.0"
+CONTRACT_VERSION = "5.0.0"
 CONTRACT_LINE = f"컴포넌트 계약 {CONTRACT_VERSION}"
 
 GROUPS = ("frame", "feedback", "input", "action", "sentence", "today", "calendar", "diary", "saju")
@@ -32,6 +32,15 @@ HAPTIC_STRENGTHS = ("selection", "light", "medium")
 # 시간·곡선 키: duration, easing, 그리고 drawDuration처럼 Duration·Easing으로 끝나는 키
 TIMING_KEY = re.compile(r"^(duration|easing)$|(Duration|Easing)$")
 EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
+
+# IA v5(#812)가 더했지만 명세를 아직 쓰지 않은 컴포넌트(DS1 2단계 spec §1). "명세가 없음" 문제에서만 빠지고
+# 다른 검사는 그대로 돕니다. 명세를 쓰는 task가 그 컴포넌트를 이 목록에서 뺍니다.
+# 마지막 묶음 E(사주 표, 결정 V88~V92)로 비었습니다. 새 IA 컴포넌트가 오면 다시 씁니다.
+IA_PENDING_COMPONENTS = frozenset()
+
+# IA에 있지만 쓰지 않기로 해 IA에서 빼 달라고 요청한 컴포넌트. 명세를 두지 않고 "명세가 없음" 문제에서만 빠집니다.
+# score-scale: 관문 답 2026-11-07 Q4(색 규칙 시트에 척도 그림을 두지 않음, #801)
+IA_REMOVAL_REQUESTED = frozenset({"score-scale"})
 
 # 테마 조합 이름 → (색 모드 파일, 글자 언어 파일). primitive는 모든 조합에 들어갑니다.
 THEMES = {
@@ -117,7 +126,7 @@ def _ia_problems(documents: dict[str, dict], ia: dict) -> list[str]:
         for component in _component_list(documents.get(name, {})):
             if "id" in component:
                 owners.setdefault(component["id"], []).append(name)
-    problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners))]
+    problems = [f"{component_id}: IA 컴포넌트인데 명세가 없음" for component_id in sorted(expected - set(owners) - IA_PENDING_COMPONENTS - IA_REMOVAL_REQUESTED)]
     for component_id, groups in sorted(owners.items()):
         if component_id not in expected:
             problems.append(f"{component_id}: IA에 없는 컴포넌트 ({', '.join(groups)}.json)")

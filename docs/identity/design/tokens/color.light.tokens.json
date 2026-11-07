@@ -118,6 +118,47 @@
           "$description": "캘린더 LuckLevel CAUTION 날짜 칸 채우기"
         }
       },
+      "level": {
+        "great": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              0.8235,
+              0.7922
+            ],
+            "hex": "#ffd2ca"
+          },
+          "$description": "캘린더 아주 잘 풀리는 날 칸 채우기. good과 명도는 같고 채도가 더 높음(1.4.0)"
+        },
+        "good": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              0.8941,
+              0.8745
+            ],
+            "hex": "#ffe4df"
+          },
+          "$description": "캘린더 잘 풀리는 날 칸 채우기(1.4.0). calendar.good.bg는 그대로 둠"
+        },
+        "caution": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8314,
+              0.8314,
+              0.8275
+            ],
+            "hex": "#d4d4d3"
+          },
+          "$description": "캘린더 조심할 날 칸 채우기. 회색이고 명도를 낮춰 good과 구분(1.4.0)"
+        }
+      },
       "weekday": {
         "sun": {
           "$type": "color",
@@ -129,6 +170,20 @@
           "$value": "{color.ohaeng.earth.fg}",
           "$description": "달력 요일 머리 '토'. 날짜 숫자에는 쓰지 않음"
         }
+      }
+    },
+    "fill": {
+      "soft": {
+        "$type": "color",
+        "$value": "{color.neutral.100}",
+        "$description": "흰 표면(bg.sheet) 위 옅은 채움: 확인 창 취소 버튼 등. chip.bg는 흰 표면 위에서 보이지 않음(1.4.0)"
+      }
+    },
+    "highlight": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.neutral.50}",
+        "$description": "현재 강조 바탕(지금 대운, 올해 세운 칸, 띠 표 일주 열). 옅은 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드(bg.sheet) 위에서만(1.4.0, V93)"
       }
     },
     "inverse": {
@@ -465,6 +520,43 @@
             "hex": "#304d78"
           },
           "$description": "오행 글자"
+        }
+      }
+    },
+    "verdict": {
+      "track": {
+        "$type": "gradient",
+        "$value": [
+          {
+            "color": {
+              "colorSpace": "srgb",
+              "components": [
+                0.8314,
+                0.8314,
+                0.8275
+              ],
+              "hex": "#d4d4d3"
+            },
+            "position": 0.0
+          },
+          {
+            "color": {
+              "colorSpace": "srgb",
+              "components": [
+                1.0,
+                0.8235,
+                0.7922
+              ],
+              "hex": "#ffd2ca"
+            },
+            "position": 1.0
+          }
+        ],
+        "$description": "길흉판정 위치 막대(fortune-verdict). 왼쪽 조심할 날에서 오른쪽 잘 풀리는 날로(1.4.0)",
+        "$extensions": {
+          "io.github.june20516.myungli-diary": {
+            "angle": 90
+          }
         }
       }
     }

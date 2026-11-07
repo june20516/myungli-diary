@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -33,7 +33,7 @@
       },
       "sizes": {
         "pillar": { "height": { "value": 66, "unit": "px" }, "hanja": "{type.hanja.pillar}", "reading": "{type.caption.sm}" },
-        "mini": { "width": { "value": 30, "unit": "px" }, "height": { "value": 30, "unit": "px" }, "hanjaSize": { "value": 15, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}" }
+        "small": { "width": { "value": 40, "unit": "px" }, "height": { "value": 40, "unit": "px" }, "hanjaSize": { "value": 18, "unit": "px" }, "hanjaWeight": 700, "hanjaFamily": "{font.family.hanja}", "where": "luck-pillar" }
       },
       "textScaleMax": 1.3
     },
@@ -49,17 +49,18 @@
       "border": { "color": "{color.swatch.border}", "width": { "value": 1, "unit": "px" } }
     },
     "tone": {
-      "summary": "길흉 톤: 배지·태그 칩·달력 칸이 같은 매핑을 씀 (결정 V8·V10)",
+      "summary": "길흉 톤: 배지·태그 칩·달력 칸이 같은 매핑을 씀 (결정 V8·V10, 달력 네 단계 V84)",
       "good": {
         "meaning": "좋음·귀인 (coral 계열)",
         "tag": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" },
-        "calendarFill": "{color.calendar.good.bg}",
+        "calendarFill": "{color.calendar.level.good}",
+        "calendarFillGreat": "{color.calendar.level.great}",
         "badges": ["{color.badge.good.bg}", "{color.badge.gwiin.bg}"]
       },
       "bad": {
         "meaning": "나쁨 (neutral 채움)",
         "tag": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" },
-        "calendarFill": "{color.calendar.caution.bg}",
+        "calendarFill": "{color.calendar.level.caution}",
         "badges": ["{color.badge.gisin.bg}"]
       },
       "neutral": {
@@ -90,8 +91,11 @@
       "clippedByCell": false
     },
     "highlight.current": {
-      "summary": "현재 강조: 기둥·칸 바탕 옅은 sage + 글자 sage 굵게",
-      "bg": "{color.status.bg}",
+      "summary": "현재 강조: 기둥, 칸 바탕 옅은 회색 + 글자 sage 굵게 (결정 V93)",
+      "bg": "{color.highlight.bg}",
+      "onlyOn": "{color.bg.sheet}",
+      "onlyOnRule": "바탕이 화면 바탕(bg.base)과 같은 회색이라 흰 카드(bg.sheet) 위에서만 쓴다. 화면 바탕 위에 두면 보이지 않음",
+      "note": "회색으로 둔 이유: sage 꼬리표(tag.status)와 용어 칩(term)이 강조 바탕 위에서도 갈리게(사용자 의견, 관문 Q4 ③ 2026-11-07)",
       "fg": "{color.action.primary}",
       "fontWeight": 700,
       "outlineSeal": false
@@ -142,19 +146,15 @@
       "width": "fill",
       "note": "가로 배치는 쓰지 않음. 확인 창(dialog)의 두 버튼은 dialog 규칙(V65)"
     },
-    "explain.sheet": {
-      "summary": "짧은 설명 시트: 칩, 배지, 용어를 눌러 여는 설명 (결정 V62, Q4 ②)",
-      "uses": ["sheet.enter", "sheet.exit"],
-      "container": { "component": "sheet", "variant": "half", "height": "content" },
-      "layout": "overlay",
-      "title": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "누른 항목의 이름", "marginBottom": "{space.8}" },
-      "body": { "component": "sentence-block", "variant": "body" },
-      "dismiss": ["바깥 누르기", "끌어 내리기", "뒤로 가기"],
-      "rules": [
-        "설명은 화면 배치 안에 끼워 넣지 않는다. 열려도 아래 내용이 밀리지 않는다(F-008).",
-        "연 항목에는 열린 동안 표시가 남고 닫으면 사라진다.",
-        "어느 화면의 어느 항목이 이 시트를 열지와 제목 문구 슬롯은 IA가 정한다(#801)."
-      ]
+    "keyboard.dismiss": {
+      "summary": "키보드 내리기 버튼: 입력칸에 초점이 있는 동안 키보드 바로 위 오른쪽 44 원형 버튼 (결정 V68, V83)",
+      "position": "키보드 바로 위 오른쪽", "anchor": "keyboard-inset", "anchorIncludes": ["OS 자동완성과 추천 줄", "플랫폼 키보드 inset"], "inset": "{space.12}",
+      "size": { "value": 44, "unit": "px" }, "radius": "{radius.full}", "bg": "{color.bg.sheet}", "shadow": "{shadow.raised}",
+      "icon": { "icon": "caret-down", "weight": "regular", "size": "{size.icon.20}", "color": "{color.text.primary}" },
+      "action": "키보드를 내림(입력칸 초점 풀기)", "a11y": { "role": "button", "labelSlot": "ui.keyboard.dismiss" },
+      "qa": "붙여넣기 막대(iOS 편집 메뉴, Android 클립보드 추천)와 겹치는지 QA에서 확인(Q8)",
+      "where": ["text-field focused", "diary-editor focused(edit 본문)"],
+      "note": "입력칸에 초점이 있는 동안만. 키보드 inset은 OS 자동완성과 추천 줄을 포함한 플랫폼 값이고, 버튼은 그 위 space.12. 동작 구현은 app #796. 5.0.0에서 text-field와 diary-editor에 겹쳐 있던 값을 이 요소로 뺌"
     },
     "list.divider": {
       "summary": "목록 구분선: 같은 묶음 안 줄 사이 (결정 V58)",
@@ -166,15 +166,16 @@
       "between": "rows-only",
       "note": "첫 줄 위와 끝 줄 아래에는 없음. 묶음과 묶음은 선 없이 간격으로 나눔"
     },
-    "section.header": {
-      "summary": "섹션 제목: 굵은 라벨과 선택 설명 줄 (결정 V59, Q3 ②)",
-      "title": { "type": "{type.label.lg}", "fontWeight": 600, "fg": "{color.text.primary}", "required": true },
-      "description": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "optional": true },
-      "contentGap": "{space.12}",
-      "sectionGap": "{space.32}",
-      "grouping": { "default": "spacing", "card": { "when": "목록 줄이 이어지는 묶음", "bg": "{color.bg.sheet}", "radius": "{radius.lg}" } },
-      "a11y": { "role": "header" },
-      "note": "어느 화면에 둘지와 문구 슬롯은 2단계 IA가 정함(#801)"
+    "stem.chip": {
+      "summary": "간지 오행 색 칩: band-table 지장간 칸의 천간 한 글자 정사각 칸 (DS1 2단계, 결정 V72)",
+      "size": { "value": 22, "unit": "px" },
+      "radius": "{radius.sm}",
+      "colors": "ohaeng.cell",
+      "colorsRule": "ohaeng.cell byElement의 바탕색과 글자색을 그 간지의 오행으로",
+      "hanja": { "fontFamily": "{font.family.hanja}", "fontSize": { "value": 13, "unit": "px" }, "fontWeight": 700 },
+      "textScaleMax": 1.3,
+      "where": ["band-table 지장간 칸"],
+      "notFor": "원국 칸(saju-pillars)과 대운, 세운 칸(luck-pillar). 이 칸들은 ohaeng.cell 자체라 같은 색 규칙을 이미 쓰고, 독음과 큰 한자를 담아 22 칸으로 줄일 수 없음(결정 V89)"
     },
     "skeleton.bone": {
       "summary": "skeleton 자리: 실제 요소와 같은 크기·반경",
@@ -204,14 +205,18 @@
       "missing": "세트에 없는 뜻은 아이콘 없이 글자로 씀"
     },
     "lock.veil": {
-      "summary": "잠긴 구역 하나: 또렷한 제목 + 흐린 자리 채우기 본문 (D60, 결정 V25)",
+      "summary": "잠긴 구역 하나: 또렷한 제목, 또렷한 앞 2~3 단어 + 흐린 자리값 본문 (D60, D106, 결정 V25, V80)",
       "title": { "icon": "lock-simple", "iconWeight": "regular", "iconSize": "adjacent-text", "type": "{type.label.md}", "fg": "{color.text.secondary}", "gap": "{space.4}" },
+      "lead": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "words": "2~3", "source": "server가 준 문장 앞부분(#797)", "selectable": false, "whenMissing": "앞부분이 없으면 자리값만" },
       "body": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "blur": { "value": 6, "unit": "px" }, "opacity": 0.5, "selectable": false, "marginTop": "{space.8}" },
-      "placeholder": "실제 내용은 내려받지 않음. 자리 채우기 글을 server가 준 길이 힌트만큼, 없으면 두 줄",
-      "lines": { "default": "server 길이 힌트, 없으면 2", "sentence-block locked": 1 },
-      "a11y": { "label": "구역 제목 + '잠김'", "bodyExcluded": true },
+      "placeholder": { "source": "app", "text": "app이 준비한 자리값 글자(언어별 하나). 실제 내용은 내려받지 않음(D60 ④)", "matchesRealLength": false, "flow": "앞부분 바로 뒤, 같은 줄에서 이어짐", "style": "body" },
+      "lines": { "basis": 3, "source": 2, "personal": 3, "sentence-block locked": 2 },
+      "linesRule": "앞부분과 자리값을 합한 줄 수. 실제 문장 길이와 맞추지 않음(D106)",
+      "a11y": { "label": "구역 제목 + 앞부분 + '잠김'", "order": ["title", "lead", "state"], "stateSlot": "evidence-sheet.a11y.locked", "stateSlotRule": "슬롯은 상태 낱말('잠김')뿐이고 틀에 앞부분 자리를 두지 않음. 제목, 앞부분, 상태 낱말을 따로 받아 이 순서로 이어 읽음", "leadRead": true, "bodyExcluded": true },
       "reduceMotion": "흐림은 대상 자신의 효과라 그대로 둠(결정 V14)",
-      "where": ["depth-link evidenceSheet basis·source·personal", "sentence-block locked"]
+      "open": { "icon": "lock-simple", "weight": "regular", "size": "adjacent-text", "color": "link-color", "gap": "{space.4}", "placement": "before-label", "decorative": true },
+      "openRule": "잠긴 것을 여는 입구는 어디서나 자물쇠 + '열기' 글자(꺾쇠 없음, 결정 V73). 화면 이동 링크(pass)와 광고 보고 열기 버튼은 이 모양이 아님",
+      "where": ["depth-link evidenceSheet basis·source·personal", "sentence-block locked (saju-chart.yongsin.basis)"]
     }
   }
 }

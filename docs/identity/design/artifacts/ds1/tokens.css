@@ -94,8 +94,13 @@
   --color-badge-ordinary-fg: var(--color-neutral-700);
   --color-calendar-good-bg: var(--color-coral-100);
   --color-calendar-caution-bg: var(--color-neutral-100);
+  --color-calendar-level-great: #ffd2ca;
+  --color-calendar-level-good: #ffe4df;
+  --color-calendar-level-caution: #d4d4d3;
   --color-calendar-weekday-sun: var(--color-ohaeng-fire-fg);
   --color-calendar-weekday-sat: var(--color-ohaeng-earth-fg);
+  --color-fill-soft: var(--color-neutral-100);
+  --color-highlight-bg: var(--color-neutral-50);
   --color-inverse-bg: var(--color-neutral-900);
   --color-inverse-fg: var(--color-neutral-100);
   --color-disabled-bg: var(--color-neutral-100);
@@ -129,6 +134,7 @@
   --color-ohaeng-metal-fg: #454e58;
   --color-ohaeng-water-bg: #e0ecfe;
   --color-ohaeng-water-fg: #304d78;
+  --color-verdict-track: #d4d4d3 0%, #ffd2ca 100%;
   --gradient-today: #eef4ef 0%, #fbefee 100%;
   --font-family-sentence: "Gowun Dodum", "Pretendard", sans-serif;
   --font-family-ui: "Pretendard", sans-serif;
@@ -225,8 +231,13 @@
   --color-badge-ordinary-fg: var(--color-neutral-400);
   --color-calendar-good-bg: var(--color-coral-900);
   --color-calendar-caution-bg: var(--color-neutral-900);
+  --color-calendar-level-great: #582720;
+  --color-calendar-level-good: #46322f;
+  --color-calendar-level-caution: #2a2a29;
   --color-calendar-weekday-sun: var(--color-ohaeng-fire-fg);
   --color-calendar-weekday-sat: var(--color-ohaeng-earth-fg);
+  --color-fill-soft: var(--color-neutral-800);
+  --color-highlight-bg: var(--color-neutral-950);
   --color-inverse-bg: var(--color-neutral-100);
   --color-inverse-fg: var(--color-neutral-900);
   --color-disabled-bg: var(--color-neutral-800);
@@ -260,6 +271,7 @@
   --color-ohaeng-metal-fg: #d3d8de;
   --color-ohaeng-water-bg: #212e42;
   --color-ohaeng-water-fg: #c4d9f9;
+  --color-verdict-track: #2a2a29 0%, #582720 100%;
   --gradient-today: #162017 0%, #271818 100%;
 }
 

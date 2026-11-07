@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "5.0.0",
   "group": "saju",
   "components": [
     {
@@ -51,72 +51,241 @@
     },
     {
       "id": "manse-table",
-      "summary": "만세력 기본 표 (십성·지장간·12운성·신살)",
-      "uses": ["ohaeng.cell", "term"],
+      "summary": "만세력 표: 내 일간 기준 줄과 지장간, 12운성, 신살 띠. 네 열 속성 띠 표(band-table)로 그림 (IA v5, 결정 V89)",
+      "uses": [],
       "parts": {
-        "grid": { "columns": ["hour", "day", "month", "year"], "rowHeaderWidth": { "value": 52, "unit": "px" }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } } },
-        "rowHeader": { "component": "term-token", "variant": "label", "rows": ["지장간", "12운성", "신살"], "slot": "ui.saju.header", "align": "center", "maxWidth": "행 머리 폭 52", "maxLines": 2, "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 글자를 type.caption.sm 크기까지 줄임. 말줄임 없음(daeun-table label과 같은 규칙, 결정 V53)" },
-        "top": { "stem": { "element": "ohaeng.cell", "size": "mini" }, "branch": { "element": "ohaeng.cell", "size": "mini" } },
-        "value": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "align": "center" },
-        "hiddenStems": {
-          "hanja": { "fontFamily": "{font.family.hanja}" },
-          "reading": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
-          "tenGod": { "component": "term-token", "variant": "label", "position": "below-stem", "marginTop": "{space.2}", "source": "HiddenStem.tenGod" },
-          "stack": { "direction": "vertical", "gap": "{space.4}", "order": "계약 배열 순서", "note": "지장간 하나 = 한자와 독음 한 줄 + 그 아래 십성 한 줄. 글자 크기와 상관없이 늘 두 줄" }
+        "basis": {
+          "slot": "saju-chart.manse.basis",
+          "params": ["stem"],
+          "type": "{type.caption.lg}",
+          "fg": "{color.text.secondary}",
+          "stemGlyph": { "fontFamily": "{font.family.hanja}" },
+          "marginBottom": "{space.12}",
+          "note": "누를 수 없는 글자 한 줄. origin의 초록 바탕은 누르면 뜻 시트인 용어 칩과 헷갈려 쓰지 않음(V73)"
         },
-        "twelveStages": { "component": "term-token", "variant": "inline", "type": "{type.body.ui}", "fallback": "사전 이름이 없으면 value 글자(한자), 한자도 없으면 비움" },
-        "shinsal": { "component": "term-token", "variant": "inline", "type": "{type.body.ui}", "stack": { "direction": "vertical", "gap": "{space.4}" }, "fallback": "사전 이름이 없으면 value 글자(한자), 한자도 없으면 비움" },
-        "row": { "align": "top", "height": "그 줄에서 가장 높은 칸" }
+        "table": { "component": "band-table", "bands": ["hiddenStems", "twelveStages", "shinsal"] }
       },
-      "states": { "loading": { "skeleton": [{ "bone": "cells", "shape": "표 칸", "note": "행 머리와 격자선은 바로" }] }, "time-unknown": { "parts": { "grid": { "hour": "empty" } } } },
+      "states": {
+        "loading": { "skeleton": [{ "bone": "basis", "shape": "textLine", "lines": 1, "width": "50%" }, { "bone": "table", "shape": "band-table loading" }], "note": "기준 줄은 일간 값이라 뼈 한 줄" },
+        "time-unknown": { "parts": { "table": { "hour": "모든 띠가 empty" } } }
+      },
       "haptic": [],
-      "a11y": { "role": "table", "label": "만세력 표", "rowHeaderAnnounced": true, "cellLabel": "행 이름, 기둥 이름, 값(지장간은 한자와 독음, 십성 순서로 하나씩)", "textScaleMax": 1.3 },
+      "a11y": { "role": "group", "label": "기준 줄은 글자 그대로, 표는 band-table 표 읽기", "textScaleMax": 1.3 },
       "rules": [
-        "열 순서는 원국표와 같다.",
-        "행 머리 용어는 모두 term-token(누르면 풀이).",
-        "지장간 십성은 늘 지장간 아래 줄이다. 칸이 좁을 때만 줄을 바꾸지 않아 1.3배에서도 모양이 같다.",
-        "같은 줄의 칸은 위로 맞추고 가장 높은 칸만큼 줄이 늘어난다. 칸마다 높이가 달라도 줄 선이 어긋나지 않는다.",
-        "신살이 여러 개면 한 줄에 하나씩 쌓는다."
+        "만세력과 대운 탭은 원국 칸(사주 블록)을 다시 보이지 않는다. 네 열이 원국표와 같은 순서라 원국 탭과 대조된다(IA 시안 E).",
+        "옛 왼쪽 행 머리 열(52)과 위 mini 칸은 없다. 띠 이름은 band-table 띠 머리줄의 용어 칩이다(2026-11-07, V49, V53 개정).",
+        "지장간은 stem.chip(오행 바탕색과 글자색) + 십성 한 줄이 하나이고, 지장간 여럿은 세로로 쌓는다."
       ]
     },
     {
       "id": "daeun-table",
-      "summary": "대운·세운 표",
-      "uses": ["ohaeng.cell", "highlight.current", "tag.status"],
+      "summary": "대운, 세운 줄: luck-pillar 칸을 가로로 넘기는 두 줄과 scroll-hint (IA v5, 결정 V90)",
+      "uses": ["highlight.current", "tag.status"],
       "parts": {
-        "daeun": {
+        "rows": {
+          "order": ["daeun", "seun"],
+          "header": { "component": "section-header", "variant": "plain", "slots": { "daeun": ["saju-chart.daeun.title", "saju-chart.daeun.desc"], "seun": ["saju-chart.seun.title", "saju-chart.seun.desc"] }, "note": "섹션 제목 아래 한 줄 설명을 늘 보임(ⓘ 없음)" }
+        },
+        "row": {
+          "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingY": "{space.12}" },
           "scroll": "horizontal",
-          "pillar": { "width": { "value": 52, "unit": "px" }, "gap": "{space.4}" },
-          "age": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "basis": "한국식 나이 (core C22)" },
-          "stemTenGod": { "component": "term-token", "variant": "label", "position": "above-stem", "marginBottom": "{space.4}", "source": "DaeunPeriod.stemTenGod" },
-          "cells": { "element": "ohaeng.cell", "size": "mini", "count": 2 },
-          "branchTenGod": { "component": "term-token", "variant": "label", "position": "below-branch", "marginTop": "{space.4}", "basis": "정기", "source": "DaeunPeriod.branchTenGod" },
-          "twelveStage": { "component": "term-token", "variant": "label", "position": "below-branchTenGod", "marginTop": "{space.2}", "source": "DaeunPeriod.twelveStage" },
-          "startYear": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}" },
-          "order": ["age", "stemTenGod", "cells", "branchTenGod", "twelveStage", "startYear"]
+          "paddingX": "{space.12}",
+          "pillar": { "component": "luck-pillar", "variant": "column" },
+          "gap": "{space.4}",
+          "hint": { "component": "scroll-hint" }
         },
-        "seun": {
-          "grid": { "columns": 5, "rows": 2 },
-          "scope": "지금 대운 10년",
-          "stemTenGod": { "component": "term-token", "variant": "label", "position": "above-stem", "marginBottom": "{space.4}", "source": "SeunYear.tenGod" },
-          "cells": { "element": "ohaeng.cell", "size": "mini" },
-          "year": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}" }
-        },
-        "label": { "maxWidth": "기둥·칸 폭", "maxLines": 2, "align": "center", "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 글자를 type.caption.sm 크기까지 줄임. 말줄임 없음", "fallback": "사전 이름이 없으면 한자, 한자도 없으면 칩 없이 자리만 남김" },
-        "currentLabel": { "element": "tag.status", "slot": "ui.saju.tag", "position": "기둥, 칸 위 꼬리표 줄 가운데", "maxWidth": "기둥 둘과 그 사이 간격", "maxLines": 1, "overflow": "기둥, 칸보다 넓으면 이웃 위 빈 꼬리표 자리로 넘침. 표 양 끝 밖으로는 나가지 않게 그 끝에 맞춤(결정 V53)" }
+        "daeun": { "source": "Chart.daeun.periods", "current": "지금 대운 칸은 luck-pillar current" },
+        "seun": { "source": "Chart.seun", "scope": "지금 대운 10년", "current": "올해 칸은 luck-pillar thisYear", "note": "5×2 격자 대신 대운과 같은 가로 줄(origin, IA v5). 칸 폭이 같다. 두 줄은 따로 넘김" },
+        "label": { "maxWidth": "기둥 폭", "maxLines": 2, "align": "center", "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 글자를 type.caption.sm 크기까지 줄임. 말줄임 없음", "fallback": "사전 이름이 없으면 한자, 한자도 없으면 칩 없이 자리만 남김" },
+        "currentLabel": { "component": "luck-pillar", "part": "currentTag" }
       },
-      "states": { "loading": { "skeleton": [{ "bone": "pillars", "shape": "기둥 칸", "count": "화면에 보이는 기둥 수" }] },
-        "current": { "parts": { "daeun": { "pillar": { "element": "highlight.current", "bg": "{color.status.bg}" }, "age": { "fg": "{color.action.primary}", "fontWeight": 700 } }, "currentLabel": { "visible": true } }, "note": "지금 대운 기둥 + '지금'" },
-        "thisYear": { "parts": { "seun": { "cell": { "element": "highlight.current", "bg": "{color.status.bg}" }, "year": { "fg": "{color.action.primary}", "fontWeight": 700 } }, "currentLabel": { "visible": true } }, "note": "올해 세운 칸 + '올해'" }
+      "states": { "loading": { "skeleton": [{ "bone": "pillars", "shape": "luck-pillar loading", "count": "화면에 보이는 기둥 수" }], "note": "섹션 제목과 설명은 UI 슬롯이라 바로" } },
+      "haptic": [],
+      "a11y": { "role": "list", "label": "대운 줄, 세운 줄 각각 목록", "itemLabel": "luck-pillar 그룹 읽기", "currentAnnounced": "지금, 올해", "textScaleMax": 1.3 },
+      "rules": [
+        "처음 열 때 지금 대운, 올해 세운 칸이 보이게 줄을 넘겨 둔다(움직임 없이). 그 칸이 줄 가운데 오면 양쪽에 더 있는 쪽이 모두 흐려 보인다.",
+        "지금, 올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
+        "십성, 12운성 칩은 원국표와 같은 term-token label이다. 누르면 뜻 시트이고 근거 보기에서 그 자리의 원국 개인 해석으로 이어진다(D60).",
+        "같은 줄의 기둥은 부품 줄마다 높이를 맞춘다. 한 기둥의 라벨이 두 줄이면 같은 줄의 모든 기둥이 그 높이를 따라 간지 칸이 가로로 나란하다.",
+        "세운은 계약에 천간 십성만 있어 천간 위 칩 하나이고, 지지 십성, 12운성, 시작 연도 자리가 없다.",
+        "가로로 넘기는 줄은 scroll-hint를 둔다. 글자 안내(옆으로 넘겨 보세요)는 쓰지 않는다."
+      ]
+    },
+    {
+      "id": "luck-pillar",
+      "summary": "대운, 세운 기둥 한 칸: 위 나이 또는 연도, 천간 십성, 천간과 지지 칸, 지지 십성. 지금 대운과 올해 세운은 강조",
+      "uses": ["ohaeng.cell", "highlight.current", "tag.status", "term"],
+      "variants": [
+        { "id": "column", "when": "사주 표 대운과 세운 줄(saju-chart). 가로로 넘기는 줄의 기둥 하나" },
+        {
+          "id": "compact",
+          "when": "나 탭 올해와 지금(my-saju). 지금 대운과 올해 세운 두 줄 요약",
+          "parts": {
+            "layout": { "direction": "horizontal", "rows": ["daeun", "seun"], "rowGap": "{space.16}" },
+            "cells": { "direction": "vertical", "gap": "{space.4}" },
+            "info": { "marginStart": "{space.12}", "order": ["head", "period", "tenGods"], "align": "top" },
+            "head": { "tag": { "element": "tag.status", "slot": "ui.saju.tag" }, "kind": { "component": "term-token", "variant": "label", "terms": ["대운", "세운"], "note": "사주 용어라 용어 칩(누르면 뜻 시트)" }, "gap": "{space.4}" },
+            "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginTop": "{space.4}", "source": "대운은 나이 범위(한국식 나이, core C22)와 연도 범위, 세운은 연도와 그해 나이", "copy": "문구 틀은 IA 슬롯 없음(writing 새 슬롯)" },
+            "tenGods": { "component": "term-token", "variant": "label", "order": ["stem", "branch"], "gap": "{space.4}", "marginTop": "{space.4}", "note": "세운은 천간 십성 하나(계약 SeunYear.tenGod)" },
+            "topLabel": { "visible": false },
+            "stemTenGod": { "visible": false },
+            "branchTenGod": { "visible": false },
+            "currentTag": { "visible": false },
+            "twelveStage": { "visible": false },
+            "startYear": { "visible": false },
+            "highlight": "none",
+            "onCard": { "bg": "{color.bg.sheet}", "note": "두 줄이 모두 지금이라 여러 칸 가운데 가릴 것이 없어 강조 바탕을 칠하지 않음(사용자 결정 2026-11-06, origin). 흰 카드 위라 꼬리표(tag.status 알약)와 용어 칩(term, radius.xs)이 바탕과 구분됨" }
+          }
+        }
+      ],
+      "parts": {
+        "order": ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "twelveStage", "startYear", "currentTag"],
+        "container": { "width": { "value": 52, "unit": "px" }, "radius": "{radius.md}", "padding": "{space.4}", "align": "center", "highlightCovers": ["topLabel", "stemTenGod", "stem", "branch", "branchTenGod", "twelveStage", "startYear"] },
+        "topLabel": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "source": "대운은 시작 나이(한국식 나이, core C22), 세운은 연도" },
+        "stemTenGod": { "component": "term-token", "variant": "label", "marginTop": "{space.4}", "source": "DaeunPeriod.stemTenGod, SeunYear.tenGod" },
+        "stem": { "element": "ohaeng.cell", "size": "small", "marginTop": "{space.4}" },
+        "branch": { "element": "ohaeng.cell", "size": "small", "marginTop": "{space.4}" },
+        "branchTenGod": { "component": "term-token", "variant": "label", "marginTop": "{space.4}", "basis": "정기", "source": "DaeunPeriod.branchTenGod", "seun": "계약에 없어 그리지 않음. 세운 줄은 모든 칸에 없어 자리를 남길 이유가 없음(2026-11-07, 세운이 가로 줄이 됨)" },
+        "twelveStage": { "component": "term-token", "variant": "label", "marginTop": "{space.2}", "source": "DaeunPeriod.twelveStage", "seun": "그리지 않음(계약에 없음)", "note": "daeun-table 대운 기둥에서 옮김" },
+        "startYear": { "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "marginTop": "{space.4}", "source": "DaeunPeriod.startYear", "seun": "그리지 않음(위 글자가 연도)", "note": "daeun-table 대운 기둥에서 옮김" },
+        "currentTag": { "element": "tag.status", "slot": "ui.saju.tag", "position": "기둥 바탕 밖 아래 가운데(꼬리표 줄)", "outsideHighlight": true, "marginTop": "{space.4}", "visible": false, "maxWidth": "기둥 둘과 그 사이 간격", "maxLines": 1, "overflow": "기둥보다 넓으면 이웃 기둥 아래 빈 꼬리표 자리로 넘침. 줄 양 끝 밖으로는 나가지 않게 그 끝에 맞춤(결정 V53). 꼬리표는 줄에 하나뿐이라 이웃 자리가 빔" }
+      },
+      "states": {
+        "current": { "when": "지금 대운", "parts": { "container": { "element": "highlight.current", "bg": "{color.highlight.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "지금" } } },
+        "thisYear": { "when": "올해 세운", "parts": { "container": { "element": "highlight.current", "bg": "{color.highlight.bg}" }, "topLabel": { "fg": "{color.action.primary}", "fontWeight": 700 }, "currentTag": { "visible": true, "label": "올해" } } },
+        "loading": { "skeleton": [{ "bone": "cells", "shape": "ohaeng.cell 칸", "count": 2 }, { "bone": "tenGods", "shape": "chip", "width": "36px" }], "note": "꼬리표와 위 글자는 그리지 않음" }
       },
       "haptic": [],
-      "a11y": { "role": "table", "label": "대운 N세부터 …", "cellLabel": "나이, 천간 십성, 천간·지지 한자와 독음, 지지 십성, 12운성, 시작 연도(세운은 연도, 십성, 한자와 독음)", "currentAnnounced": "지금·올해", "textScaleMax": 1.3 },
+      "a11y": { "role": "group", "label": "나이 또는 연도, 천간 십성, 천간 지지 한자와 독음, 지지 십성", "currentAnnounced": "지금, 올해", "textScaleMax": 1.3 },
       "rules": [
-        "처음 열 때 지금 대운이 보이게 가로로 넘겨 둔다(움직임 없이).",
-        "지금·올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
-        "십성·12운성 칩은 원국표와 같은 term-token label이다. 누르면 풀이 시트이고 근거 보기에서 그 자리의 원국 개인 해석으로 이어진다(D60).",
-        "대운 기둥은 부품 줄(order)마다 높이를 맞춘다. 한 기둥의 라벨이 두 줄이면 같은 줄의 모든 기둥이 그 높이를 따라 간지 칸이 가로로 나란하다. 세운도 같은 행 다섯 칸의 십성 줄 높이를 맞춘다.",
-        "세운은 계약에 천간 십성만 있어 천간 위 한 칩이다."
+        "지금, 올해 강조에 낙관 윤곽을 쓰지 않는다. 낙관 윤곽은 칸 하나 단위(달력 오늘)에만.",
+        "십성 칩은 term-token label이고 누르면 뜻 시트(explain-sheet)다.",
+        "compact는 두 줄 모두 지금이라 여러 칸 가운데 가릴 것이 없어 강조 바탕을 칠하지 않는다. 꼬리표(지금, 올해)는 기둥 아래 대신 줄 머리에 용어 칩(대운, 세운)과 함께 둔다.",
+        "기둥 칸은 기둥 사이에 같은 줄 높이를 맞춘다(daeun-table 높이 맞춤과 같음).",
+        "column의 꼬리표(지금, 올해)는 강조 바탕 밖 아래에 둔다(관문 Q1 ①, 결정 V90). 줄에 하나뿐인 꼬리표가 이웃 기둥 아래로 넘칠 수 있게(V53) 바탕과 따로 둔다. 강조 바탕은 옅은 회색(V93)이라 sage 꼬리표와 다르다."
+      ]
+    },
+    {
+      "id": "birth-info-row",
+      "summary": "출생 정보 줄: 쉼표 없이 칸 셋(달력 종류 꼬리표와 날짜, 시진 한자 태그와 시간, 성별 알약)을 세로선으로 나눔 (결정 V88)",
+      "uses": [],
+      "parts": {
+        "cells": { "order": ["date", "hour", "gender"], "direction": "horizontal", "align": "center", "wrap": "넘치면 칸 단위로 다음 줄. 칸 안에서는 줄을 바꾸지 않음", "rowGap": "{space.8}" },
+        "divider": { "width": { "value": 1, "unit": "px" }, "height": { "value": 16, "unit": "px" }, "color": "{color.line}", "marginX": "{space.12}", "between": "같은 줄의 칸 사이", "note": "목록 구분선(list.divider)이 아니라 칸 사이 세로선. 줄이 바뀐 칸 앞에는 긋지 않음" },
+        "date": {
+          "calendarKind": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "border": { "color": "{color.line}", "width": "{border.width.hairline}" }, "radius": "{radius.xs}", "paddingX": "{space.4}", "source": "프로필 달력 종류(양력, 음력). 음력 윤달이면 뒤에 윤달 낱말(account-choice 사주 줄과 같은 낱말, 결정 V48)" },
+          "value": { "type": "{type.label.md}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "marginStart": "{space.4}", "source": "프로필 출생 날짜", "format": "언어별 숫자 날짜(ko 1990.5.15)" }
+        },
+        "hour": {
+          "tag": { "component": "hanja-tag", "variant": "ganji", "glyph": "시주 지지 한자", "name": "시진 이름(ko 미시)", "copy": "writing 새 슬롯(시진 이름 틀, 매개변수 지지)", "interactive": false, "note": "시진 뜻 원고가 없어 누를 수 없는 표시(hanja-tag notInteractiveIn, 관문 질문 Q3)" },
+          "value": { "type": "{type.label.md}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "marginStart": "{space.8}", "source": "프로필 출생 시각", "format": "기기 시간 형식" }
+        },
+        "gender": { "use": "pill", "source": "프로필 성별", "copy": "writing 새 슬롯(성별 한 낱말)" },
+        "pill": { "height": { "value": 24, "unit": "px" }, "radius": "{radius.full}", "paddingX": "{space.8}", "bg": "transparent", "border": { "color": "{color.tag.neutral.border}", "width": { "value": 1, "unit": "px" } }, "type": "{type.label.md}", "fg": "{color.tag.neutral.fg}", "note": "성별과 시간 모름이 같은 중립 알약. 색으로 성별을 나누지 않음" }
+      },
+      "states": {
+        "time-unknown": { "parts": { "hour": { "tag": { "visible": false }, "value": { "visible": false }, "unknown": { "use": "pill", "copy": "시간 모름(writing 새 슬롯, 출생 시간 입력의 모름과 같은 낱말)" } } } },
+        "loading": { "skeleton": [{ "bone": "row", "shape": "textLine", "lines": 1, "width": "70%" }], "note": "프로필 값이라 머리 제목 아래 뼈 한 줄" }
+      },
+      "haptic": [],
+      "a11y": { "role": "group", "label": "달력 종류와 날짜, 시진과 시간, 성별 순서로 이어 읽음", "dividersDecorative": true, "textScaleMax": 1.3 },
+      "rules": [
+        "칸 사이는 쉼표나 가운뎃점 같은 글자가 아니라 세로선으로 나눈다. 장황한 글이 되지 않게 꼬리표, 태그, 알약 모양으로 값의 종류를 보인다(사용자, #801 IA 시안 E).",
+        "넘치면 칸 단위로 다음 줄로 보낸다. 줄이 바뀐 칸 앞에는 선을 긋지 않는다.",
+        "성별은 색으로 나누지 않는 중립 알약이다. coral 같은 톤 색은 길흉 톤 자리(fortune-verdict, score-row)에서만 쓴다(Q4).",
+        "시진 태그는 오행 색 hanja-tag ganji이고 누를 수 없는 표시다(시진 뜻 원고 없음).",
+        "시간 모름이면 시진 태그와 시간 대신 시간 모름 알약 하나다. 시주 칸 비움과 notice-banner time-unknown은 화면이 그대로 둔다."
+      ]
+    },
+    {
+      "id": "band-table",
+      "summary": "네 열 속성 띠 표: 시주, 일주, 월주, 연주 네 열을 끝까지 유지하고 열 구분선이 모든 띠를 관통, 일주 열 옅은 바탕, 네 열에 걸친 띠 머리줄 (결정 V89)",
+      "uses": ["term", "tag.me", "stem.chip"],
+      "parts": {
+        "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "paddingX": "{space.12}", "paddingY": "{space.4}" },
+        "columns": {
+          "order": ["hour", "day", "month", "year"],
+          "width": "네 열 같은 폭",
+          "divider": { "width": "{border.width.hairline}", "color": "{color.line}", "span": "열 머리부터 마지막 띠 끝까지 모든 띠를 관통", "note": "표 격자선이라 list.divider가 아님. 띠 머리줄만 그 위를 흰 바탕으로 덮어 가로로 가름" }
+        },
+        "header": { "slot": "ui.saju.header", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "center", "paddingY": "{space.8}" },
+        "dayColumn": {
+          "bg": "{color.highlight.bg}",
+          "span": "열 머리부터 마지막 띠 끝까지",
+          "header": { "fg": "{color.action.primary}", "fontWeight": 700, "line": "글자와 나 꼬리표 한 줄", "textWidth": { "value": 32, "unit": "px" }, "overflow": "글자 실효 폭은 열 74 − 간격 4 − 가장 넓은 꼬리표(ja わたし 36)로 약 32. 넘치면 꼬리표를 열 머리 아래 줄로 내리고 글자는 줄이지 않음" },
+          "me": { "element": "tag.me", "slot": "ui.saju.tag", "marginStart": "{space.4}", "note": "열 머리 일주 뒤 나 꼬리표. origin의 일주(나) 글자 대신 원국표와 같은 표시라 새 문구가 없음" },
+          "note": "강조 바탕(highlight.current)과 같은 옅은 회색을 그대로 칠함. sage 용어 칩과 갈려 옅게 깔 필요가 없음(V93, 0.35 옅게 깔기 삭제)"
+        },
+        "bandHeader": {
+          "span": "네 열",
+          "bg": "{color.bg.sheet}",
+          "border": { "top": { "width": "{border.width.hairline}", "color": "{color.line}" }, "bottom": { "width": "{border.width.hairline}", "color": "{color.line}" } },
+          "marginTop": "{space.8}",
+          "paddingY": "{space.8}",
+          "label": { "component": "term-token", "variant": "label", "slot": "ui.saju.header", "align": "center" },
+          "opens": { "sheet": "explain-sheet", "bodySlots": { "hiddenStems": "saju-chart.jijanggan.desc", "twelveStages": "saju-chart.unseong.desc", "shinsal": "saju-chart.sinsal.desc" }, "stageStrip": ["twelveStages"], "note": "한 줄 설명은 띠 안에 두지 않고 이 시트 본문. 12운성 시트만 본문 아래 stage-strip" }
+        },
+        "bands": {
+          "order": ["hiddenStems", "twelveStages", "shinsal"],
+          "hiddenStems": {
+            "item": { "direction": "horizontal", "align": "center", "chip": { "element": "stem.chip" }, "tenGod": { "component": "term-token", "variant": "label", "marginStart": "{space.4}", "source": "HiddenStem.tenGod" } },
+            "stack": { "direction": "vertical", "gap": "{space.4}", "order": "계약 배열 순서" },
+            "source": "Chart.hiddenStems",
+            "note": "지장간 하나 = 오행 색 칩 + 십성 한 줄(2026-11-07, V49의 한자와 독음 / 십성 두 줄 묶음을 바꿈). 독음은 스크린리더만"
+          },
+          "twelveStages": { "component": "term-token", "variant": "label", "source": "Chart.twelveStages" },
+          "shinsal": { "component": "term-token", "variant": "label", "stack": { "direction": "vertical", "gap": "{space.4}" }, "source": "Chart.shinsal", "whenEmpty": "empty" }
+        },
+        "cell": { "align": "center", "verticalAlign": "top", "paddingTop": "{space.8}", "paddingBottom": "{space.12}", "rowHeight": "그 띠에서 가장 높은 칸", "note": "아래를 더 띄워 다음 띠 머리줄과 가름" },
+        "empty": { "shape": "line", "width": { "value": 12, "unit": "px" }, "height": { "value": 1, "unit": "px" }, "color": "{color.text.secondary}", "a11y": "writing 새 슬롯(없음)", "note": "글자 '-' 대신 짧은 가로선. 표 안에서 빈 칸임을 보임" },
+        "label": { "maxWidth": "열 폭(지장간은 칩과 간격을 뺀 폭)", "maxLines": 2, "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 type.caption.sm 크기까지 줄임. 말줄임 없음(V49와 같음)" }
+      },
+      "states": {
+        "time-unknown": { "parts": { "columns": { "hour": "모든 띠가 empty" } }, "note": "시주 열 머리는 그대로 두고 칸은 빈 칸 표시" },
+        "loading": { "skeleton": [{ "bone": "cells", "shape": "띠 칸마다 칩 모양", "note": "열 머리, 띠 머리줄, 열 구분선, 일주 열 바탕은 바로" }] }
+      },
+      "haptic": [],
+      "a11y": { "role": "table", "label": "만세력 표", "columnHeaderAnnounced": true, "bandHeaderRole": "button(띠 이름 용어 칩, 누르면 설명 시트)", "cellLabel": "띠 이름, 기둥 이름, 값(지장간은 한자와 독음, 십성 순서로 하나씩)", "emptyLabel": "없음(writing 새 슬롯)", "textScaleMax": 1.3 },
+      "rules": [
+        "네 열 순서와 폭은 띠가 바뀌어도 그대로다. 열 구분선이 모든 띠를 관통해 위아래로 같은 기둥임을 보인다.",
+        "띠 이름은 왼쪽 행 머리가 아니라 네 열에 걸친 가운데 머리줄의 용어 칩이다(누르면 설명 시트).",
+        "일주 열은 옅은 바탕과 나 꼬리표로 내 기둥임을 보인다.",
+        "같은 띠의 칸은 위로 맞추고 가장 높은 칸만큼 띠가 늘어난다.",
+        "값이 없는 칸은 비워 두지 않고 짧은 가로선을 그린다. 시간 모름의 시주 열도 같다."
+      ]
+    },
+    {
+      "id": "stage-strip",
+      "summary": "12운성 열두 단계를 한 줄 막대로 늘어놓고 내 네 자리(시, 일, 월, 연)를 표시 (결정 V91)",
+      "uses": [],
+      "parts": {
+        "stages": { "order": ["jangsaeng", "mokyok", "gwandae", "geonrok", "jewang", "soe", "byeong", "sa", "myo", "jeol", "tae", "yang"], "count": 12, "source": "계약 twelveStage 값 열두 개, 이름은 glossary" },
+        "track": { "cellWidth": "트랙 폭을 열두 칸이 나눔", "cellHeight": { "value": 6, "unit": "px" }, "gap": "{space.2}", "radius": "{radius.full}", "fill": "{color.line}", "mine": "{color.action.primary}" },
+        "marker": {
+          "shape": "circle",
+          "size": { "value": 18, "unit": "px" },
+          "bg": "{color.action.primary}",
+          "fg": "{color.action.on-primary}",
+          "type": "{type.caption.sm}",
+          "fontWeight": 700,
+          "labels": { "hour": "시", "day": "일", "month": "월", "year": "연" },
+          "copy": "writing 새 슬롯(기둥 한 글자 이름 넷)",
+          "position": "그 단계 칸 위 가운데",
+          "marginBottom": "{space.4}",
+          "sameStage": { "direction": "horizontal", "gap": "{space.2}", "order": ["hour", "day", "month", "year"], "note": "같은 단계에 자리가 둘 이상이면 나란히. 칸 폭을 넘으면 이웃 칸 위로 넘치고 트랙 양 끝 밖으로는 나가지 않음" }
+        },
+        "names": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "mine": { "fg": "{color.text.primary}", "fontWeight": 600 }, "marginTop": "{space.4}", "align": "center", "maxLines": 1, "overflow": "칸 폭(약 24)에 이름이 들어가지 않는 언어는 내 자리 칸의 이름만 보이고 나머지는 숨김. 줄이거나 자르지 않음", "source": "glossary 12운성 이름" }
+      },
+      "states": {
+        "time-unknown": { "parts": { "marker": { "hour": "그리지 않음" } } },
+        "loading": { "skeleton": [{ "bone": "track", "shape": "트랙 전체 폭", "height": "6px" }], "note": "시트 본문 뼈 아래" }
+      },
+      "haptic": [],
+      "a11y": { "role": "img", "label": "내 자리가 있는 단계만 막대 순서로 단계 이름과 그 자리 기둥 이름(하늘님 예 장생, 월주 / 목욕, 연주 / 관대, 시주 / 양, 일주. 같은 단계에 자리가 둘이면 두 기둥 이름을 와로 이어 읽음)", "textScaleMax": 1.3 },
+      "rules": [
+        "막대는 장생에서 양까지 순서이고 강하다 약하다 같은 평가를 덧붙이지 않는다.",
+        "내 자리 칸만 action.primary로 칠하고 그 위에 자리 표시(시, 일, 월, 연)를 둔다.",
+        "explain-sheet의 12운성 설명 시트(띠 머리 12운성 칩으로 연 시트) 본문 아래에만 둔다. 12운성 값 칩(관대 등)의 뜻 시트에는 두지 않는다."
       ]
     }
   ]

@@ -79,6 +79,25 @@ def test_specimen_seal_uses_logo_path():
 
 
 DS1_RULES_PAGE = DESIGN_DIR / "artifacts" / "2026-11-05-ds1-rules.html"
+# 색이 들어갈 수 있는 자리: <style> 블록, style 속성, 색 속성. 본문의 Issue 번호(#796)는 보지 않음
+COLOR_PLACES = re.compile(
+    r"""<style[^>]*>(.*?)</style>|\sstyle=["']([^"']*)["']|\s(?:fill|stroke|stop-color|color|bgcolor)=["']([^"']*)["']""",
+    re.S | re.I)
+# 그 자리 안의 문서 참조(url(#…))는 색이 아님. 남은 #hex는 값 중간(테두리, 그림자)에 있어도 직접 쓴 색
+IN_DOCUMENT_REFERENCE = re.compile(r"url\(#[^)]*\)")
+RAW_HEX = re.compile(r"(?<![\w&])#[0-9a-fA-F]{3,8}\b")
+
+
+def raw_hex_colors(html: str) -> list[str]:
+    places = " ".join(part for match in COLOR_PLACES.finditer(html) for part in match.groups() if part)
+    return RAW_HEX.findall(IN_DOCUMENT_REFERENCE.sub("", places))
+
+
+def test_raw_hex_pattern_catches_colors_inside_values():
+    css = "<style>.a { border: 1px solid #ccc; box-shadow: 0 0 0 1px #000; color:#a1b2c3 }</style>"
+    assert raw_hex_colors(css) == ["#ccc", "#000", "#a1b2c3"]
+    assert raw_hex_colors('<div style="background: linear-gradient(#fff, #123)"></div><path fill="#abc"/>') == ["#fff", "#123", "#abc"]
+    assert raw_hex_colors('<use href="#ic-caret-right-light"/><a href="#fade">app #796</a><style>.b { fill: url(#bead) }</style>') == []
 
 
 def test_ds1_rules_page_uses_only_token_variables():
@@ -86,7 +105,7 @@ def test_ds1_rules_page_uses_only_token_variables():
     html = DS1_RULES_PAGE.read_text(encoding="utf-8")
 
     assert 'href="ds1/tokens.css"' in html
-    assert re.findall(r"""(?:[:=]\s*["']?|,\s*)#[0-9a-fA-F]{3,8}\b""", html) == []
+    assert raw_hex_colors(html) == []
     assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html
     assert "var(--color-" in html
 
@@ -96,3 +115,48 @@ def test_ds1_rules_page_has_no_forbidden_dashes():
     html = DS1_RULES_PAGE.read_text(encoding="utf-8")
 
     assert [char for char in ("—", "–", "·") if char in html] == []
+
+
+SCREEN_SAMPLES = sorted((DESIGN_DIR / "artifacts").glob("*-ds1-screen-*.html"))
+
+
+def test_screen_samples_use_tokens():
+    """DS1 2단계 화면 시안은 토큰 CSS를 읽고 색은 변수만 쓰며 D93 글자가 없습니다."""
+    assert SCREEN_SAMPLES, "화면 시안이 없음"
+    for page in SCREEN_SAMPLES:
+        html = page.read_text(encoding="utf-8")
+        assert 'href="ds1/tokens.css"' in html, page.name
+        assert raw_hex_colors(html) == [], page.name
+        assert "rgb(" not in html and "rgba(" not in html and "hsl(" not in html, page.name
+        assert "var(--color-" in html, page.name
+        assert [char for char in ("—", "–", "·") if char in html] == [], page.name
+
+
+# 최종 리뷰: sentence body 줄 높이는 로케일마다 달라(1.6, 1.7) 시안에 숫자로 고정하지 않고 토큰 변수를 씀
+SENTENCE_BODY_SIZE = "var(--type-sentence-body-size)"
+
+
+def fixed_sentence_line_heights(html):
+    """sentence body 글자를 쓰는 CSS 규칙에서 숫자로 고정한 줄 높이(line-height: 1.7, size * 1.6)를 찾습니다."""
+    found = []
+    for rule in re.findall(r"[^{}]*\{[^{}]*\}", html):
+        if SENTENCE_BODY_SIZE not in rule:
+            continue
+        if re.search(r"line-height:\s*[\d.]+\s*[;}]", rule) or re.search(r"sentence-body-size\)\s*\*\s*[\d.]", rule):
+            found.append(rule.strip()[:80])
+    return found
+
+
+def test_fixed_sentence_line_height_detector():
+    assert fixed_sentence_line_heights(".a { font-size: var(--type-sentence-body-size); line-height: 1.7; }")
+    assert fixed_sentence_line_heights(".b { min-height: calc(var(--type-sentence-body-size) * 1.6 * 3); }")
+    assert not fixed_sentence_line_heights(
+        ".c { min-height: calc(var(--type-sentence-body-size) * var(--type-sentence-body-line-height) * 3); }")
+    assert not fixed_sentence_line_heights(".d { font-size: var(--type-body-ui-size); line-height: 1.6; }")
+
+
+def test_ds1_pages_do_not_fix_sentence_line_height():
+    pages = sorted((DESIGN_DIR / "artifacts").glob("*-ds1-*.html"))
+    assert pages
+    for page in pages:
+        assert fixed_sentence_line_heights(page.read_text(encoding="utf-8")) == [], page.name

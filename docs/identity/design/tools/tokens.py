@@ -22,10 +22,12 @@ GRADIENT_ANGLE = 160
 
 SPACES = (2, 4, 8, 12, 16, 20, 24, 32, 48)
 RADII = {"xs": 4, "sm": 8, "md": 12, "lg": 20, "xl": 28, "full": 9999}
-# DS1 spec(2026-11-05-ds1-rules-design.md) §2·§3·§7.4, 토큰 1.3.0
+# DS1 spec(2026-11-05-ds1-rules-design.md) §2·§3·§7.4, 토큰 1.3.0, 1.4.0
 HAIRLINE_WIDTH = 0.5
 ICON_SIZES = (16, 20, 24, 28)
 PAGE_OFFSET = 24
+# 토큰 1.4.0: 길흉판정 위치 막대 그라데이션 (왼쪽 조심할 날 → 오른쪽 잘 풀리는 날)
+VERDICT_TRACK_ANGLE = 90
 
 # 모드별 알파 색 (spec §3.3): (원시 팔레트 이름 또는 white, 단계, 알파)
 CHIP_ALPHA = {"light": 0.70, "dark": 0.08}
@@ -63,6 +65,11 @@ ROLE_DESCRIPTIONS = {
     "tag.bad.fg": "나쁜 태그 칩 글자",
     "tag.neutral.border": "중립 태그 칩 테두리. 바탕은 없음",
     "tag.neutral.fg": "중립 태그 칩 글자",
+    "calendar.level.great": "캘린더 아주 잘 풀리는 날 칸 채우기. good과 명도는 같고 채도가 더 높음(1.4.0)",
+    "calendar.level.good": "캘린더 잘 풀리는 날 칸 채우기(1.4.0). calendar.good.bg는 그대로 둠",
+    "calendar.level.caution": "캘린더 조심할 날 칸 채우기. 회색이고 명도를 낮춰 good과 구분(1.4.0)",
+    "fill.soft": "흰 표면(bg.sheet) 위 옅은 채움: 확인 창 취소 버튼 등. chip.bg는 흰 표면 위에서 보이지 않음(1.4.0)",
+    "highlight.bg": "현재 강조 바탕(지금 대운, 올해 세운 칸, 띠 표 일주 열). 옅은 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드(bg.sheet) 위에서만(1.4.0, V93)",
     "timeline.entry": "같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)",
 }
 
@@ -266,6 +273,12 @@ def _color_document(palette: dict, mode: str) -> dict:
         [{"color": color_value(stop), "position": index / (len(stops) - 1)} for index, stop in enumerate(stops)],
         "데일리 카드·온보딩·공유 이미지에만 씁니다. 단색으로 바뀌어도 깨지지 않게 씁니다",
         {"angle": GRADIENT_ANGLE}))
+    track = [palette["roles"][mode]["calendar.level.caution"], palette["roles"][mode]["calendar.level.great"]]
+    _place(document, "color.verdict.track", _token(
+        "gradient",
+        [{"color": color_value(stop), "position": float(index)} for index, stop in enumerate(track)],
+        "길흉판정 위치 막대(fortune-verdict). 왼쪽 조심할 날에서 오른쪽 잘 풀리는 날로(1.4.0)",
+        {"angle": VERDICT_TRACK_ANGLE}))
     return document
 
 
