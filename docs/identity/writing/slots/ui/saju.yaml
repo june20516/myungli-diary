@@ -6,7 +6,7 @@
 # ui 원고는 앱 ARB가 렌더하므로 호칭·조사 표기·용어 토큰을 쓰지 않습니다(ui.markup).
 
 - id: saju-chart.time-unknown.notice
-  where: "사주 표 화면(saju-chart): 시간 모름으로 시주가 빠졌다는 안내"
+  where: "사주 표 화면(saju-chart): 시간 모름으로 시주가 빠졌다는 안내. 오늘 화면과 나 탭의 시간 모름 안내도 같은 키입니다(#856)"
   purpose: info
   user_state: "시간 모름으로 입력해 사주 표에 시주가 없습니다."
   structure: "한 문장."
@@ -42,7 +42,6 @@
   a11y:
     truncation: "버튼 한 줄 안에 들어가게 짧게 씁니다."
     screen_reader: "버튼 이름 그대로 읽습니다."
-
 - id: saju-chart.yongsin.title
   where: "사주 표 화면(saju-chart): 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분"
   purpose: info
@@ -154,6 +153,7 @@
     - {params: {age: number}, keys: [daeunTableLabel]}
     - {params: {year: number}, keys: [luckYearLabel]}
     - {params: {element: text, weight: text}, keys: [ohaengBarItem]}
+    - bandTableEmptyCell
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -163,7 +163,58 @@
   endings: []
   a11y:
     truncation: "화면에 보이지 않습니다."
-    screen_reader: "스크린리더만 읽습니다. 오행 항목은 a11yListSeparator로 잇습니다."
+    screen_reader: "스크린리더만 읽습니다. 오행 항목은 a11yListSeparator로 잇습니다. 만세력 띠 표에서 값이 없는 칸(짧은 가로선만 그림)은 bandTableEmptyCell로 읽습니다(DS1 V89)."
+
+- id: ui.saju.stage-marker
+  where: "12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)"
+  purpose: info
+  user_state: "12단계 띠에서 내 기둥이 어느 단계에 있는지 봅니다."
+  structure: "기둥을 가리키는 한 글자. 스크린리더는 이 글자 대신 기둥 이름(ui.saju.header)을 읽습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 1, en: 1, ja: 1}
+  components: [stage-strip]
+  keys:
+    - sajuStageMarkerHour
+    - sajuStageMarkerDay
+    - sajuStageMarkerMonth
+    - sajuStageMarkerYear
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: sajuStageMarkerHour, text: "시", why: "기둥 이름 \"시주\"의 첫 글자", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "원 안 한 글자입니다."
+    screen_reader: "읽지 않습니다. \"장생, 월주\"처럼 기둥 이름 전체(ui.saju.header)를 읽습니다."
+
+- id: ui.saju.luck-period
+  where: "나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)"
+  purpose: info
+  user_state: "지금 대운과 올해 세운이 언제인지 봅니다."
+  structure: "값 하나씩 따로 둡니다. 둘을 구분 글자로 한 줄에 잇지 않고 레이아웃으로 나눕니다(W44). 범위는 ko `~`, ja `〜`, en \" to \"."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [luck-pillar]
+  keys:
+    - params: {startAge: number, endAge: number}
+      keys: [luckDaeunAgeRange]
+    - params: {startYear: number, endYear: number}
+      keys: [luckDaeunYearRange]
+    - params: {year: number}
+      keys: [luckSeunYear]
+    - params: {age: number}
+      keys: [luckSeunAge]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: luckDaeunAgeRange, text: "{startAge}~{endAge}세", why: "시안 \"34~43세\", 범위는 W44", source: writing}
+    bad:
+      - {lang: ko, text: "34~43세 · 2023~2032년", why: "가운뎃점으로 두 값을 이음(D93, W44)", source: writing}
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
 
 # IA v5 새 자리(#813)
 
@@ -315,6 +366,30 @@
   a11y:
     truncation: "design 상한 측정 전입니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: ui.my-saju.record
+  where: "나 탭 명리일기 회고 카드의 낱말: 28px 숫자 옆 편수 단위, 날의 성격 막대 머리, 자주 붙은 태그 머리(DS1 V76, D77 ② IA 밖)"
+  purpose: info
+  user_state: "지금까지 쓴 일기를 숫자와 막대로 돌아봅니다."
+  structure: "편수 단위는 숫자 뒤에 붙는 짧은 말(숫자는 따로 그림, ICU plural로 단위만). 머리 둘은 명사구나 짧은 질문."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [diary-summary]
+  keys:
+    - params: {count: number}
+      keys: [mySajuRecordCountUnit]
+    - mySajuRecordDayKindHead
+    - mySajuRecordTagHead
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: mySajuRecordDayKindHead, text: "쓴 날의 성격", why: "막대가 보이는 것(날의 성격 넷) 그대로의 명사구(R34-5)", source: round-R34-5}
+    bad:
+      - {lang: ko, key: mySajuRecordCountUnit, text: "편을 썼어요", why: "숫자 옆 단위에 서술어가 붙어 카드 머리가 문장이 됨(R34-5 탈락)", source: round-R34-5}
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "편수는 숫자와 단위를 이어 읽습니다."
 
 - id: saju-chart.head.title
   where: "사주 표 두 탭 공통 머리(\"<호칭>님의 사주\")"
@@ -562,7 +637,7 @@
   user_state: "사주 표를 열고 내 출생 정보를 확인합니다."
   structure: "시진 이름 하나. 지지 이름 `branch`는 app이 glossary 지지 이름으로 채웁니다(예: 미시)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 19, en: 34, ja: 15}
   components: [birth-info-row]
   keys:
     - params: {branch: text}

@@ -50,6 +50,7 @@
 - {slot: today.event.summary, key: todayEventSummaryDone, text: "All of today's events are done"}
 - {slot: today.event.summary, key: todayEventSummaryNextAt, text: "Next: {time} {title}"}
 - {slot: today.event.summary, key: todayEventSummaryAllPast, text: "{count, plural, one{Today's event is done} other{All {count} of today's events are done}}"}
+- {slot: today.event.title, key: todayEventTitle, text: "Events"}
 - {slot: today.reaction.label, key: todayReactionLabel, text: "Like"}
 - {slot: today.reaction.label, key: todayReactionLabelSelected, text: "Unlike"}
 - {slot: share-preview.image.footer, key: sharePreviewImageFooter, text: "Myungli Diary"}
@@ -62,7 +63,7 @@
 - {slot: calendar.legend.body, key: calendarLegendBodyCaution, text: "Careful day"}
 - {slot: day-sheet.event.empty, key: daySheetEventEmpty, text: "No events on this day."}
 - {slot: day-sheet.event.add, key: daySheetEventAdd, text: "Add event"}
-- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "{count, plural, one{{count} entry this day} other{{count} entries this day}}"}
+- {slot: day-sheet.diary.open, key: daySheetDiaryOpen, text: "Diary"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCta, text: "Write about {date}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaWritten, text: "Write a new entry for {date}"}
 - {slot: day-sheet.diary.write-cta, key: daySheetDiaryWriteCtaFull, text: "You've written enough for this day"}
@@ -89,7 +90,7 @@
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "Write a {date} entry"}
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirmFull, text: "You've written enough for this day"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
-- {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft saved on this device"}
+- {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaving, text: "Saving"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusSaved, text: "Saved"}
 - {slot: diary-edit.offline.notice, key: diaryEditOfflineNotice, text: "We'll save it when you're back online. What you've written stays on this device."}
@@ -399,6 +400,15 @@
 - {slot: ui.saju.a11y, key: daeunTableLabel, text: "10-year luck cycles from age {age}"}
 - {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}"}
 - {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {weight}"}
+- {slot: ui.saju.a11y, key: bandTableEmptyCell, text: "None"}
+- {slot: ui.saju.stage-marker, key: sajuStageMarkerHour, text: "H"}
+- {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "D"}
+- {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "M"}
+- {slot: ui.saju.stage-marker, key: sajuStageMarkerYear, text: "Y"}
+- {slot: ui.saju.luck-period, key: luckDaeunAgeRange, text: "Ages {startAge} to {endAge}"}
+- {slot: ui.saju.luck-period, key: luckDaeunYearRange, text: "{startYear} to {endYear}"}
+- {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}"}
+- {slot: ui.saju.luck-period, key: luckSeunAge, text: "Age {age}"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "There's no separate reading for this spot."}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "Lucky color"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
@@ -422,6 +432,7 @@
 - {slot: ui.contact.error, key: contactSendFailed, text: "We couldn't send your message. Please try again in a moment."}
 - {slot: ui.contact.error, key: contactEmailInvalid, text: "Please check the email address."}
 - {slot: ui.keyboard.dismiss, key: keyboardDismiss, text: "Hide keyboard"}
+- {slot: ui.diary-edit.swap, key: diaryEditQuestionSwap, text: "Change question"}
 - {slot: today.featured.title, key: todayFeaturedTitle, text: "Chart energies"}
 - {slot: today.featured.empty, key: todayFeaturedEmpty, text: "No standout chart energies today."}
 - {slot: today.lucky.title, key: todayLuckyTitle, text: "Luck"}
@@ -444,11 +455,14 @@
 - {slot: color-rule-sheet.rule.body, key: colorRuleSheetRuleBody, text: "We add up the energies coming in that day. For example, even a day in your favor can become a steady day if a clashing energy comes in too."}
 - {slot: tag-sheet.sentences.title, key: tagSheetSentencesTitle, text: "Today's lines from this energy"}
 - {slot: tag-sheet.sentences.empty, key: tagSheetSentencesEmpty, text: "No lines came from this energy today."}
-- {slot: tag-sheet.diary.cta, key: tagSheetDiaryCta, text: "View {count, plural, one{{count} entry} other{{count} entries}} tagged {tag}"}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindFortune, text: "Main reading"}
+- {slot: ui.tag-sheet.sentence-kind, key: tagSheetSentenceKindGuide, text: "Today's question"}
+- {slot: tag-sheet.diary.cta, key: tagSheetDiaryCta, text: "View entries tagged {tag}"}
+- {slot: explain-sheet.tag.diary-link, key: explainSheetTagDiaryLink, text: "View entries tagged {tag}"}
 - {slot: diary-edit.date.day, key: diaryEditDateDay, text: "{date}"}
 - {slot: diary-edit.date.month, key: diaryEditDateMonth, text: "{date}"}
 - {slot: diary-edit.date.iljin, key: diaryEditDateIljin, text: "{pillar} day"}
-- {slot: diary-edit.length.count, key: diaryEditLengthCount, text: "{count, plural, one{{count} character} other{{count} characters}}"}
+- {slot: diary-edit.length.count, key: diaryEditLengthCount, text: "{count, plural, one{{count} char} other{{count} chars}}"}
 - {slot: my-saju.chart.title, key: mySajuChartTitle, text: "Natal chart"}
 - {slot: my-saju.chart.link, key: mySajuChartLink, text: "Saju chart"}
 - {slot: my-saju.ilgan.title, key: mySajuIlganTitle, text: "Your nature"}
@@ -457,6 +471,9 @@
 - {slot: my-saju.flow.link, key: mySajuFlowLink, text: "All 10-year cycles"}
 - {slot: my-saju.record.title, key: mySajuRecordTitle, text: "Looking back on your diary"}
 - {slot: my-saju.record.few, key: mySajuRecordFew, text: "Once a few more entries build up, you can look back on your record here."}
+- {slot: ui.my-saju.record, key: mySajuRecordCountUnit, text: "{count, plural, one{entry} other{entries}}"}
+- {slot: ui.my-saju.record, key: mySajuRecordDayKindHead, text: "Kinds of days you wrote on"}
+- {slot: ui.my-saju.record, key: mySajuRecordTagHead, text: "Frequent tags"}
 - {slot: saju-chart.head.title, key: sajuChartHeadTitle, text: "{nickname}'s chart"}
 - {slot: saju-chart.pillars.title, key: sajuChartPillarsTitle, text: "Saju"}
 - {slot: saju-chart.pillars.desc, key: sajuChartPillarsDesc, text: "Your birth year, month, day, and hour, each written as a pair of a heavenly stem and an earthly branch. The day master is you."}

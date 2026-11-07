@@ -297,7 +297,7 @@
     screen_reader: 시간 칩을 먼저, 문장을 다음에 읽습니다(app).
 
 - id: daily.tag_label
-  where: 태그 이름 칩(오늘 화면 행운 칩 줄의 대표 태그 D76, 일기 태그 칩)
+  where: 태그 이름(한자 아이콘 태그 hanja-tag의 이름 칸. 오늘 화면 대표 태그, 일기 태그. 상한은 행운 카드 안 이름 칸 기준, design 5.0.0)
   purpose: info
   user_state: 칩을 훑어보고 탭해서 풀이를 엽니다.
   structure: 명사구 하나. 태그 이름 그대로 쓰고 꾸밈말을 붙이지 않습니다.
@@ -307,7 +307,7 @@
   endings: []
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 10, en: 18, ja: 10}
-  components: [tag-chip, lucky-card]
+  components: [hanja-tag, lucky-card]
   keys:
     - tag.cheoneul_gwiin
     - tag.clash

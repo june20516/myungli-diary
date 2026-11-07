@@ -63,12 +63,12 @@
     screen_reader: "입력칸 이름 다음에 읽습니다."
 
 - id: diary-edit.draft.status
-  where: "일기 쓰기 화면(diary-edit): 초안 저장 상태"
+  where: "일기 쓰기 화면(diary-edit): 상단 바 가운데 초안 저장 상태(draft-indicator, 옆에 글자 수). 넘치면 끝을 말줄임합니다(DS1 V94)"
   purpose: info
   user_state: "초안이 저장됐는지 봅니다(#42)."
-  structure: "상태 셋: `Local` 기기 초안, `Saving` 저장 중, `Saved` 저장됨."
+  structure: "상태 셋: `Local` 기기 초안, `Saving` 저장 중, `Saved` 저장됨. 상단 바 한가운데라 낱말 하나 길이로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 5, en: 8, ja: 4}
   keys:
     - diaryEditDraftStatusLocal
     - diaryEditDraftStatusSaving
@@ -76,10 +76,11 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: diaryEditDraftStatusLocal, text: "기기에 임시 저장됨", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
+      - {lang: ko, key: diaryEditDraftStatusLocal, text: "임시 저장", why: "상단 바 상한 안 기기 초안 상태(R34-2)", source: round-R34-2}
       - {lang: ko, key: diaryEditDraftStatusSaving, text: "저장 중", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: diaryEditDraftStatusSaved, text: "저장됨", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
-    bad: []
+    bad:
+      - {lang: ko, key: diaryEditDraftStatusLocal, text: "기기에 임시 저장됨", why: "상단 바 가운데 상한 5자를 넘음(design 5.0.0, #850)", source: writing}
   endings: []
   a11y:
     truncation: "한 줄 안에 들어가게 짧게 씁니다."
@@ -230,7 +231,7 @@
   where: "일기 쓰기 상단 바 가운데 글자 수(쓰는 중에만)"
   purpose: info
   user_state: "일기를 쓰는 중에 얼마나 썼는지 흘끗 봅니다."
-  structure: "숫자와 단위만. 작게 보입니다."
+  structure: "숫자와 단위만. 작게 보입니다. 상태 글자 옆 64px 자리라 단위는 짧게 씁니다(en chars, design 5.0.0)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -242,5 +243,5 @@
     bad: []
   endings: []
   a11y:
-    truncation: "design 상한 측정 전입니다."
+    truncation: "가장 넓은 en \"9,999 chars\"가 64px 자리에 들어갑니다(design 5.0.0)."
     screen_reader: "보이는 글자 그대로 읽습니다."

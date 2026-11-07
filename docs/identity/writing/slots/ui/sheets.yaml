@@ -297,15 +297,37 @@
     truncation: "design 상한 측정 전입니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
 
+- id: ui.tag-sheet.sentence-kind
+  where: "사주 기운 시트 문장 목록(tag-sentence-list) 줄 왼쪽 52px 이름 칸. 칸 안에서 줄바꿈합니다(DS1 V79, D77 ② IA 밖)"
+  purpose: info
+  user_state: "이 기운에서 나온 문장이 오늘 화면 어디에 있던 문장인지 봅니다."
+  structure: "오늘 화면에서 그 문장이 놓인 자리의 이름. 두 줄까지."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  components: [tag-sentence-list]
+  keys:
+    - tagSheetSentenceKindFortune
+    - tagSheetSentenceKindGuide
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: tagSheetSentenceKindFortune, text: "총운", why: "오늘 화면에서 그 문장이 놓인 섹션 제목 그대로(R34-4)", source: round-R34-4}
+    bad:
+      - {lang: ko, key: tagSheetSentenceKindFortune, text: "보조 문장", why: "작업 용어라 화면에서 처음 보는 이름(R34-4 탈락)", source: round-R34-4}
+  endings: []
+  a11y:
+    truncation: "칸 안에서 두 줄까지 감깁니다."
+    screen_reader: "이름 다음에 문장을 이어 읽습니다."
+
 - id: tag-sheet.diary.cta
-  where: "사주 기운 시트 아래 그 태그가 붙은 내 일기 보기(0편이면 숨김)"
+  where: "사주 기운 시트 아래 그 태그가 붙은 내 일기 보기. 편수 없이 늘 보이고, 일기가 없으면 tag-diary 빈 상태가 맡습니다(DS1 V79, #856)"
   purpose: guide
   user_state: "이 기운이 붙은 날 쓴 일기를 모아 보고 싶습니다."
-  structure: "동작 이름 하나. 태그 이름과 편수(가안 \"<태그>이 붙은 내 일기 n편 보기\"). 태그 뒤 조사는 ui 조사 규칙(W38)으로."
+  structure: "동작 이름 하나. 태그 이름만 받고 편수는 넣지 않습니다(V79). 태그 뒤 조사는 ui 조사 규칙(W38)으로 피해 \"{tag} 태그가\"로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
-    - params: {tag: text, count: number}
+    - params: {tag: text}
       keys: [tagSheetDiaryCta]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
@@ -315,6 +337,26 @@
   a11y:
     truncation: "design 상한 측정 전입니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: explain-sheet.tag.diary-link
+  where: "뜻 시트(explain-sheet) 가운데 대표 태그 시트에만 두는 꺾쇠 링크. 그 태그가 붙은 내 일기 보기로, 누르면 tag-diary, 일기가 없으면 tag-diary 빈 상태(V73, V81, #856)"
+  purpose: guide
+  user_state: "태그 뜻을 읽고 이 태그가 붙은 날의 일기를 모아 보고 싶습니다."
+  structure: "동작 이름 하나. 사주 기운 시트 `tagSheetDiaryCta`와 같은 말로 씁니다. 태그 뒤 조사는 \"{tag} 태그가\"로 피합니다(W38)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {tag: text}
+      keys: [explainSheetTagDiaryLink]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: explainSheetTagDiaryLink, text: "{tag} 태그가 붙은 내 일기 보기", why: "사주 기운 시트 링크와 같은 말(#857)", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다. 역할은 링크입니다."
 
 - id: color-rule-sheet.sheet.title
   where: "달력 색 규칙 시트 제목"
