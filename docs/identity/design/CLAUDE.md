@@ -38,7 +38,7 @@
   * 정리(V94): 요소 `section.header`·`explain.sheet`는 컴포넌트로 옮겨 지움, `lucky-card` `tag`와 `ohaeng.cell` `mini`와 옛 만세력·대운 부품 삭제, 키보드 내리기는 요소 `keyboard.dismiss`, 사주 용어 한자 17자(刑 추가, V70·V87). 지움과 이름 바뀜은 `components/README.md` 판 기록에 있습니다.
   * 글자 수 상한(`lengths.md` DS1 2단계 절): 상단 바 저장 글자, 가운데 초안 상태, 시진 이름, 자리 표시 기둥 글자를 새로 잼. 성별과 시간 모름 알약은 `ui.birth.option`을 함께 씀.
   * 근거: [spec](specs/2026-11-05-ds1-screens-design.md), [plan](plans/2026-11-05-ds1-screens.md), 감사 `specs/2026-11-05-ds1-audit.md`.
-  * 보낼 요청(원고 작성됨, 게시 전): writing(상단 바 저장, 초안 상태, 시진 이름, 대표 태그 없는 날 한 줄의 상한, 초안 상태 원고 줄이기, 새 슬롯: 자리 표시 기둥 글자, 빈 칸 "없음", 질문 바꾸기 이름, 회고 낱말, 대운 기간 틀, 문장 목록 이름 칸, 점수 항목 짧은 뜻, 그날 시트 일기 0편 제목, IA 뒤 모아보기 링크와 편수 삭제), app(따라잡기, LockVeil 두 줄, 강조 바탕, 대표 태그 없는 날, fixture 명리 확인), 지휘(IA 출구와 슬롯, `score-scale` 제거, 刑 보고), core(巳 지장간 순서).
+  * 보낸 요청: writing #850(상한과 초안 상태 원고 줄이기, 새 슬롯 여섯, 점수 항목 짧은 뜻, 그날 시트 일기 0편 제목, IA 뒤 모아보기 링크와 편수 삭제), app #851(컴포넌트 계약과 토큰 따라잡기, #808 함께, LockVeil 두 줄, 강조 바탕, 대표 태그 없는 날, fixture 명리 확인), 지휘 #852(IA 출구와 슬롯, `score-scale` 제거, D108 ② 刑), core #853(巳 지장간 순서). #801에 결과 코멘트. 결정 행 사용자 영향은 이 번호들입니다.
 * **DS1 1단계 규칙 #801** (브랜치 `design/ds1-rules`, D107, 결정 V56~V68).
   * 검수 F-001~F-012를 규칙으로: 간격 쓰임표와 직접 쓴 px 0개(V56), 아이콘 `size.icon.*`·`adjacent-text`와 직접 그린 아이콘 금지(V57), 0.5px `list.divider`와 꺾쇠는 이동 줄에만, `settings-row` 앞 아이콘·`select`(V58), `section.header`(V59), `button.pair`와 `quiet` 52(V60), `press.ink` 반지름과 범위(V61), `explain.sheet`(V62), 근거 진입점 `book-open-text` 아이콘(V63), 시트 안쪽 24와 핸들 자리(V64), 확인 창 사방 24와 같은 폭 두 버튼(V65), 요소별 skeleton(V66), `page.push`(V67), 키보드 내리기(V68).
   * 도구: `tools/rules_audit.py`(간격 전수 점검, 결과 `specs/2026-11-05-ds1-audit.md`), `tools/token_css.py`(토큰을 CSS 변수로, `artifacts/ds1/tokens.css`), `tools/phosphor_names.txt`(Phosphor 이름 목록). 규칙마다 `test_components.py`에 검사.
@@ -135,7 +135,7 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#801 2단계 마무리:** 최종 리뷰 뒤 PR(`Closes #801`, `참고 #815`)을 냅니다. writing, app, 지휘, core 요청 Issue를 게시하고, 결정 행의 `사용자 영향: #801`을 각 Issue 번호로 바꿉니다.
+1. **#801 2단계 마무리:** 최종 리뷰 뒤 PR(`Closes #801`, `참고 #815`)을 냅니다. 요청 Issue(#850~#853)는 게시했고 결정 행 사용자 영향도 그 번호로 바꿨습니다.
 2. **2단계 후속:** writing이 새 슬롯을 만들고 상한을 넣는지(lengths drift), app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지, 지휘가 IA(`score-scale` 제거, 출구, 슬롯)를 고치는지 봅니다. IA에서 `score-scale`이 빠지면 `IA_REMOVAL_REQUESTED`를 비웁니다.
 3. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
 

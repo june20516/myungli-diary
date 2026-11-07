@@ -2419,7 +2419,7 @@ def test_revised_decisions_are_marked():
     assert "2026-11-07 개정" in rows["V42"] and "V85" in rows["V42"]
     assert "2026-11-07 개정" in rows["V84"] and "Q1 ⑤" in rows["V84"]  # 관문 답 리뷰 I1
     assert "2026-11-07 개정" in rows["V87"] and "score-scale을 뺌" in rows["V87"]
-    assert reasons["V86"].endswith("사용자 영향: #801(길흉판정 막대 세 이름 day-sheet 슬롯 IA 요청)")
+    assert reasons["V86"].endswith("사용자 영향: #850(점수 항목 짧은 뜻), #852(IA 막대 세 이름 자리)")  # Task 10: 요청 Issue 번호로
     # 묶음 E(사주 표)가 바꾼 앞 결정 (V88~V92)
     assert "2026-11-07 개정" in rows["V49"] and "V89" in rows["V49"]
     assert "2026-11-07 개정" in rows["V53"] and "V89" in rows["V53"]
@@ -2656,7 +2656,7 @@ def test_screen_e_sample():
     for key in ("V89", "V90"):
         assert "답 대기" not in rows[key]["근거"] and "V93" in rows[key]["결정"] and "V93" in rows[key]["근거"], key
     assert "Q4 ③" in rows["V93"]["결정"] and "color.highlight.bg" in rows["V93"]["결정"] and "1.4.0" in rows["V93"]["결정"]
-    assert rows["V93"]["근거"].split("사용자 영향: ", 1)[1].startswith("#801")
+    assert rows["V93"]["근거"].split("사용자 영향: ", 1)[1].startswith("#851")  # Task 10: app 요청 Issue
 
 
 # 리뷰 Minor 2: 지운 부품(manse-table 격자선, 행 머리)을 가리키는 문장이 남지 않음
@@ -2791,7 +2791,7 @@ def test_today_featured_empty_day():
     assert "today.fortune.body" in rule and "결정 태그 줄" in rule  # 리뷰 1회차 Ruling: 근거는 IA 보조 문장 role
     row = decision_rows()["V95"]
     assert "today.fortune.body" in row["결정"] and "결정 태그 줄" in row["결정"]
-    assert "D112" in row["결정"] and "today.featured.empty" in row["결정"] and "사용자 영향: #801" in row["근거"]
+    assert "D112" in row["결정"] and "today.featured.empty" in row["결정"] and "사용자 영향: #850" in row["근거"] and "#851" in row["근거"]
     assert "`today.featured.empty`" in _readme_row("5.0.0")
     sample = (DESIGN_DIR / "artifacts" / "2026-11-05-ds1-screen-a-g.html").read_text(encoding="utf-8")
     assert "대표 태그 없는 날" in sample and '<p class="tsl-empty">오늘은 두드러진 사주 기운이 없어요.</p>' in sample
