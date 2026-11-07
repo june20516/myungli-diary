@@ -41,7 +41,8 @@ jobs:
 
       # 배포 관문(D110, workflow §6.3): 같은 환경의 server가 다루는 엔진 규칙 버전(GET /version)보다 새 엔진이 높으면
       # 이미지를 push하기 전에 멈춥니다. server가 그 버전을 따라잡아 이 환경에 배포된 뒤 다시 돌리면 나갑니다.
-      # server 서비스가 아직 없으면(첫 배포) 깨질 받는 쪽이 없어 통과합니다.
+      # server 서비스가 아직 없거나, 있어도 Terraform이 처음 만든 자리표시 이미지(env/main.tf placeholder_image)면
+      # 깨질 받는 쪽이 없어 통과합니다(#848). 자리표시는 /version에 Cloud Run 기본 안내 HTML을 줍니다.
       - name: 배포 관문 (server 지원 버전)
         run: |
           engine_version="$(sed -n 's/^RULESET_VERSION: Final\[str\] = "\(.*\)"$/\1/p' core/src/myungli_engine/version.py)"
@@ -49,17 +50,23 @@ jobs:
             echo "core/src/myungli_engine/version.py에서 RULESET_VERSION을 읽지 못했습니다." >&2
             exit 1
           fi
-          if ! url="$(gcloud run services describe server --region "$REGION" --project "${{ inputs.project_id }}" --format='value(status.url)' 2>&1)"; then
-            if grep -q "Cannot find service\|NOT_FOUND\|could not be found" <<< "$url"; then
+          placeholder_image="us-docker.pkg.dev/cloudrun/container/hello"
+          if ! described="$(gcloud run services describe server --region "$REGION" --project "${{ inputs.project_id }}" --format='value(status.url,spec.template.spec.containers[0].image)' 2>&1)"; then
+            if grep -q "Cannot find service\|NOT_FOUND\|could not be found" <<< "$described"; then
               echo "### 배포 관문 통과 (${{ inputs.environment }}): server 서비스가 아직 없습니다. 엔진 ${engine_version}" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
-            echo "$url" >&2
+            echo "$described" >&2
             exit 1
           fi
-          supported="$(curl -fsS --retry 3 --max-time 20 "$url/version" | jq -r '.supportedRulesetVersion // empty')"
-          if [ -z "$supported" ]; then
-            echo "server가 지원 버전을 내지 않습니다(GET /version, 계약 1.5.0 전 빌드). server를 먼저 배포하세요." >&2
+          read -r url image <<< "$described"
+          if [ "$image" = "$placeholder_image" ]; then
+            echo "### 배포 관문 통과 (${{ inputs.environment }}): server가 아직 자리표시 이미지입니다(실제 server 배포 전). 엔진 ${engine_version}" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          body="$(curl -fsS --retry 3 --max-time 20 "$url/version")"
+          if ! supported="$(jq -er '.supportedRulesetVersion' <<< "$body" 2>/dev/null)"; then
+            echo "server(${image})가 GET /version에 지원 버전 JSON을 내지 않습니다(계약 1.5.0 전 빌드이거나 다른 응답). server를 먼저 배포하세요." >&2
             exit 1
           fi
           highest="$(printf '%s\n%s\n' "$supported" "$engine_version" | sort -V | tail -n 1)"
