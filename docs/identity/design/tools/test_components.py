@@ -2613,7 +2613,21 @@ def test_screen_e_sample():
     assert ".arrows button { width: 44px; height: 44px;" in page  # 명세 minTarget 44 (리뷰 Minor 4)
     entries = {entry["id"]: entry for entry in json.loads((DESIGN_DIR / "artifacts" / "index.json").read_text(encoding="utf-8"))}
     assert entries["design-ds1-screen-e"]["status"] == "draft" and "사용자 확인 대기(#801)" in entries["design-ds1-screen-e"]["note"]
-    assert entries["design-ds1-e-questions"]["kind"] == "concept" and entries["design-ds1-e-questions"]["status"] == "draft"
+    # 관문 답(2026-11-07): Q1 ①, Q2 ②, Q3 ① 확정. 새 질문 Q4(강조 바탕 회색)는 답 대기
+    assert entries["design-ds1-e-questions"]["kind"] == "concept" and entries["design-ds1-e-questions"]["status"] == "chosen"
+    assert "Q1 ①" in entries["design-ds1-e-questions"]["note"] and "Q3 ①" in entries["design-ds1-e-questions"]["note"]
+    questions = (DESIGN_DIR / "artifacts" / "2026-11-07-ds1-e-questions.html").read_text(encoding="utf-8")
+    assert questions.count("고름(2026-11-07)") == 3
+    q4 = entries["design-ds1-e-q4-highlight"]
+    assert (q4["kind"], q4["status"], q4["file"]) == ("concept", "draft", "2026-11-07-ds1-e-q4-highlight.html")
+    q4_page = (DESIGN_DIR / "artifacts" / "2026-11-07-ds1-e-q4-highlight.html").read_text(encoding="utf-8")
+    assert 'href="ds1/tokens.css"' in q4_page and 'data-theme="dark"' in q4_page and "권장" in q4_page
+    assert [char for char in ("—", "–", "·") if char in q4_page] == []
+    rows = {line.split("|")[1].strip(): line for line in (DESIGN_DIR / "decisions.md").read_text(encoding="utf-8").splitlines()
+            if line.startswith("| V")}
+    for key in ("V88", "V89", "V90", "V91", "V92"):
+        assert "사용자 확인 대기" not in rows[key] and "관문 답 2026-11-07" in rows[key], key
+    assert "Q4" in rows["V90"] and "Q4" in rows["V89"]  # 강조 바탕 색은 Q4 답 대기
 
 
 # 리뷰 Minor 2: 지운 부품(manse-table 격자선, 행 머리)을 가리키는 문장이 남지 않음
