@@ -82,8 +82,8 @@ func createNotifyTarget(t *testing.T, pool *pgxpool.Pool, now time.Time) uuid.UU
 	return id
 }
 
-// 2026-11-04 07:05 KST
-var notifyJobNow = time.Date(2026, 11, 3, 22, 5, 0, 0, time.UTC)
+// 2026-11-04 07:15 KST. 07:00을 고른 계정의 보낼 시각(오프셋 10분 안, D109)이 모두 지나 기다리지 않습니다.
+var notifyJobNow = time.Date(2026, 11, 3, 22, 15, 0, 0, time.UTC)
 
 // 알림이 그날 총운 머리 문장을 호칭 없이 평문으로 보내고 기록을 sent로 남긴다.
 func TestNotifyJob_SendsHeadWithoutHonorific(t *testing.T) {

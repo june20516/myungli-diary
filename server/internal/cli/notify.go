@@ -22,9 +22,10 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
-// notifyDeadline은 한 번 실행의 상한입니다. Scheduler 간격(5분)보다 짧게 두어 다음 실행과 겹치는 시간을 줄입니다.
-// 겹쳐도 notification_log claim이 두 번 발송을 막습니다(S129).
-const notifyDeadline = 270 * time.Second
+// notifyDeadline은 한 번 실행의 상한입니다. 실행은 보낼 시각이 다음 5분 안에 오는 사용자를 그 시각까지 기다렸다 보내므로(D109),
+// 그 5분에 발송 여유 3분을 더합니다. Job timeout(900초)보다 짧고, 다음 실행과 겹쳐도 notification_log claim이
+// 두 번 발송을 막습니다(S129). 상한에 닿아 시작하지 못한 사용자는 60분 창 안의 다음 실행이 보냅니다.
+const notifyDeadline = 8 * time.Minute
 
 // notifyDeps는 notifyJob이 쓰는 것입니다. 테스트는 엔진 대역, 기록하는 Sender, 고정 시계를 넣습니다.
 type notifyDeps struct {

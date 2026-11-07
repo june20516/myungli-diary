@@ -89,6 +89,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **DS1 질문 고르기와 길흉 내역(브랜치 `server/ds1-guide-choice`, `server/engine-2026-11` 위에 쌓음, #806 ①⑤):** 계약 1.6.0. `CalendarDay.scoreItems`(S77에서 뺀 필드 복원), `Daily.guideCandidates`, `createDiary`의 `guideQuestion`과 422 `diary.guide_invalid`, 편마다 고른 질문 `diaries.guide_question`(migration 00025). 결정 S140. 오늘 음력(#806 ②)은 엔진 `DailyResponse`에 음력이 없어 core #834로 요청했습니다.
 * **잠긴 근거 미리보기(브랜치 `server/locked-preview`, `server/ds1-guide-choice` 위에 쌓음, #797):** 계약 1.7.0. `render.Preview`(ko·en 단어 3개, ja 8글자, 늘 일부를 남김), 렌더러의 근거 방식 `EvidenceNone`·`EvidenceLocked`·`EvidenceFull`, `SlotText.evidencePreview`, `Yongsin.basisPreview`, `Chart.personalReadingPreviews`. 결정 S141(S42, S74 개정).
 * **오늘 음력과 엔진 2026.11.1(브랜치 `server/daily-lunar`, #806 ②, core #834):** 계약 1.8.0. `Daily.lunar`(`LunarDate`, 2026.11.1 전 엔진 응답에는 없음), 지원 엔진 버전 2026.11.1. 결정 S142.
+* **아침 알림 10분 분산(브랜치 `server/817-notify-spread`, #817 ①, D109):** 계정 고정 오프셋 0~10분(`notify.SpreadOffset`), 실행이 다음 5분 안의 보낼 시각까지 기다렸다 보냄(`lookahead`), 실행 상한 8분. 결정 S144.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
