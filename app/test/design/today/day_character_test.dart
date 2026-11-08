@@ -106,9 +106,9 @@ void main() {
               variant: DayCharacterVariant.good,
               label: '좋은 날',
               reason: _text('오늘은 기운이 나를 돕는 날이에요.'),
-              reasonTrailing: DepthLink(
-                variant: DepthLinkVariant.inlineEnd,
-                label: '근거 보기',
+              reasonTrailing: DepthLink.evidence(
+                subject: '총운',
+                placement: DepthLinkPlacement.inlineEnd,
                 onTap: () {},
               ),
             ),
@@ -121,7 +121,7 @@ void main() {
         '좋은 날, 오늘은 기운이 나를 돕는 날이에요.',
       ]);
       expect(labels.where((label) => label == '좋은 날'), isEmpty);
-      expect(labels.where((label) => label.contains('근거 보기')), ['근거 보기']);
+      expect(labels.where((label) => label.contains('근거 보기')), ['총운 근거 보기']);
       handle.dispose();
     });
 

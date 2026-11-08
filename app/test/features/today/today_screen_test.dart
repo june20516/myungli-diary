@@ -165,16 +165,14 @@ void main() {
 
     expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
     expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
-    // 근거 보기 링크는 총운 끝에 있습니다.
+    // 근거 진입점 아이콘은 총운 끝에 있습니다(글자 없음, 이름은 총운).
     final link = find.descendant(
       of: find.byKey(const Key(SlotIds.todayFortuneHead)),
       matching: find.byType(DepthLink),
     );
     expect(tester.widget<DepthLink>(link).variant, DepthLinkVariant.inlineEnd);
-    expect(
-      tester.widget<DepthLink>(link).label,
-      _ko.depthLinkEvidence(_ko.todayFortuneTitle),
-    );
+    expect(tester.widget<DepthLink>(link).label, isNull);
+    expect(tester.widget<DepthLink>(link).subject, _ko.todayFortuneTitle);
 
     for (final variant in LuckyCardVariant.luckyValues) {
       expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);

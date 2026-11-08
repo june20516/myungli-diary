@@ -40,9 +40,9 @@ Widget _dayCharacters() => Builder(
             variant: dayCharacterVariantOf(kind),
             label: name(kind),
             reason: reason,
-            reasonTrailing: DepthLink(
-              variant: DepthLinkVariant.inlineEnd,
-              label: ja ? '根拠を見る' : '근거 보기',
+            reasonTrailing: DepthLink.evidence(
+              subject: ja ? '総運' : '총운',
+              placement: DepthLinkPlacement.inlineEnd,
               onTap: () {},
             ),
           ),

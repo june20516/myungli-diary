@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
@@ -18,10 +19,12 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
@@ -39,7 +42,8 @@ const _names = GlossaryNames({
 });
 
 final _depthSheets = DepthSheets(
-  explainBody: (termId, origin) => ExplainSheet(termId: termId, origin: origin),
+  explainBody: (content, {head, diaryLinkTag}) =>
+      ExplainSheet(content: content, head: head, diaryLinkTag: diaryLinkTag),
   evidenceBody: (slotId, personal) => Text(
     personal == null
         ? '근거 $slotId'
@@ -109,7 +113,9 @@ Widget _app(
 TermOrigin _today(String slotId) =>
     TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
 
-final _sheet = ExplainSheet(termId: 'ten_god.siksin', origin: _today('a.b'));
+final _sheet = ExplainSheet(
+  content: ExplainTerm('ten_god.siksin', origin: _today('a.b')),
+);
 
 void main() {
   group('ExplainSheet', () {
@@ -157,7 +163,8 @@ void main() {
       );
       final link = tester.widget<DepthLink>(find.byType(DepthLink));
       expect(link.variant, DepthLinkVariant.block);
-      expect(link.label, _ko.depthLinkEvidence('식신'));
+      expect(link.label, isNull, reason: '근거 진입점은 글자가 없는 아이콘');
+      expect(link.subject, '식신');
     });
 
     testWidgets('사전에 한자가 있으면 제목 옆에 한자를 그립니다', (tester) async {
@@ -196,8 +203,10 @@ void main() {
       await tester.pumpWidget(
         _app(
           ExplainSheet(
-            termId: 'ten_god.siksin',
-            origin: _today('daily.fortune.head'),
+            content: ExplainTerm(
+              'ten_god.siksin',
+              origin: _today('daily.fortune.head'),
+            ),
           ),
           glossary: () async => _names,
         ),
@@ -217,7 +226,12 @@ void main() {
       // 가이드 질문 슬롯에는 todayReason이 없습니다.
       await tester.pumpWidget(
         _app(
-          ExplainSheet(termId: 'ten_god.siksin', origin: _today('daily.guide')),
+          ExplainSheet(
+            content: ExplainTerm(
+              'ten_god.siksin',
+              origin: _today('daily.guide'),
+            ),
+          ),
           glossary: () async => _names,
         ),
       );
@@ -234,8 +248,10 @@ void main() {
       await tester.pumpWidget(
         _app(
           ExplainSheet(
-            termId: 'ten_god.siksin',
-            origin: _today('daily.fortune.head'),
+            content: ExplainTerm(
+              'ten_god.siksin',
+              origin: _today('daily.fortune.head'),
+            ),
           ),
           glossary: () async => _names,
         ),
@@ -255,7 +271,7 @@ void main() {
       _dailyBuilds = 0;
       await tester.pumpWidget(
         _app(
-          const ExplainSheet(termId: 'ten_god.siksin'),
+          const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
           glossary: () async => _names,
         ),
       );
@@ -284,13 +300,15 @@ void main() {
       tester,
     ) async {
       const sheet = ExplainSheet(
-        termId: 'ten_god.siksin',
-        origin: TermOrigin(
-          slotId: SlotIds.evidenceSheetPersonalBody,
-          subject: ChartEvidenceSubject(),
-          personal: PersonalReadingKey(
-            kind: PersonalReadingKindEnum.PersonalReadingKindTenGod,
-            position: Position.yearStem,
+        content: ExplainTerm(
+          'ten_god.siksin',
+          origin: TermOrigin(
+            slotId: SlotIds.evidenceSheetPersonalBody,
+            subject: ChartEvidenceSubject(),
+            personal: PersonalReadingKey(
+              kind: PersonalReadingKindEnum.PersonalReadingKindTenGod,
+              position: Position.yearStem,
+            ),
           ),
         ),
       );
@@ -309,7 +327,7 @@ void main() {
     testWidgets('근거 슬롯 없이 열면(그날 시트) 근거 보기가 없습니다', (tester) async {
       await tester.pumpWidget(
         _app(
-          const ExplainSheet(termId: 'ten_god.siksin'),
+          const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
           glossary: () async => _names,
         ),
       );
@@ -391,7 +409,9 @@ void main() {
       final crash = FakeCrashReporter();
       await tester.pumpWidget(
         _app(
-          ExplainSheet(termId: 'ten_god.nope', origin: _today('a.b')),
+          ExplainSheet(
+            content: ExplainTerm('ten_god.nope', origin: _today('a.b')),
+          ),
           glossary: () async => _names,
           crash: crash,
         ),
@@ -503,6 +523,191 @@ void main() {
         find.byKey(const Key(SlotIds.explainSheetTodayReason)),
         findsNothing,
       );
+    });
+  });
+
+  group('ExplainSheet 통합 본문', () {
+    testWidgets('용어 풀이 제목은 type.title로 덮어씁니다(term-token)', (tester) async {
+      await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
+      await tester.pumpAndSettle();
+
+      final tokens = tester.element(find.byType(ExplainSheetBody)).tokens;
+      final style = tester.widget<Text>(find.text('식신')).style!;
+      expect(style.fontSize, tokens.typography.title.fontSize);
+      expect(style.fontWeight, tokens.typography.title.fontWeight);
+    });
+
+    testWidgets(
+      'ExplainUiText: 제목은 type.subtitle, 아래 space.8에 본문, 본문 아래 12에 붙임',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(
+              content: ExplainUiText(
+                title: '관대',
+                body: '띠 머리 설명이에요.',
+                attachment: SizedBox(key: Key('strip'), height: 20, width: 100),
+              ),
+            ),
+            glossary: () async => _names,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final tokens = tester.element(find.byType(ExplainSheetBody)).tokens;
+        final style = tester.widget<Text>(find.text('관대')).style!;
+        expect(style.fontSize, tokens.typography.subtitle.fontSize);
+        final title = tester.getRect(find.text('관대'));
+        final body = tester.getRect(find.byType(SentenceBlock));
+        expect(body.top - title.bottom, 8);
+        expect(
+          tester.getTopLeft(find.byKey(const Key('strip'))).dy - body.bottom,
+          12,
+        );
+        // 사전을 거치지 않으므로 근거 진입점이 없습니다.
+        expect(find.byType(DepthLink), findsNothing);
+      },
+    );
+
+    testWidgets('ExplainLucky: 제목과 문장을 그립니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          ExplainSheet(
+            content: ExplainLucky(
+              title: '행운 색',
+              body: RenderedText(segments: [Segment(text: '오늘은 초록이 좋아요.')]),
+            ),
+          ),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('행운 색'), findsOneWidget);
+      expect(find.text('오늘은 초록이 좋아요.', findRichText: true), findsOneWidget);
+    });
+
+    testWidgets('head를 주면 제목 줄 대신 머리를 놓습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(
+            content: ExplainUiText(title: '합', body: '설명'),
+            head: SizedBox(key: Key('head'), height: 30, width: 50),
+          ),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('head')), findsOneWidget);
+      expect(find.text('합'), findsNothing);
+    });
+
+    testWidgets(
+      'diaryLinkTag가 있으면 본문 아래 space.16에 링크가 보이고 누르면 tag-diary로 이동합니다',
+      (tester) async {
+        const names = GlossaryNames({
+          'tag': {'hap': '합'},
+        });
+        final sheets = DepthSheets(
+          explainBody: (content, {head, diaryLinkTag}) => ExplainSheet(
+            content: content,
+            head: head,
+            diaryLinkTag: diaryLinkTag,
+          ),
+          evidenceBody: (_, _) => const SizedBox.shrink(),
+          shareBody: SizedBox.shrink,
+        );
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, _) => Scaffold(
+                body: TextButton(
+                  onPressed: () => unawaited(
+                    sheets.openExplain(
+                      context,
+                      const ExplainUiText(title: '합', body: '설명'),
+                      diaryLinkTag: 'hap',
+                    ),
+                  ),
+                  child: const Text('열기'),
+                ),
+              ),
+            ),
+            GoRoute(
+              path: '/tag-diary',
+              builder: (context, state) =>
+                  Text('모아보기 ${state.uri.queryParameters['tag']}'),
+            ),
+          ],
+        );
+        addTearDown(router.dispose);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [glossaryProvider.overrideWith((ref) async => names)],
+            child: MaterialApp.router(
+              routerConfig: router,
+              locale: const Locale('ko'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              theme: buildTheme(
+                brightness: Brightness.light,
+                locale: const Locale('ko'),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('열기'));
+        await tester.pumpAndSettle();
+
+        final link = find.textContaining(_ko.explainSheetTagDiaryLink('합'));
+        expect(link, findsOneWidget);
+        final body = tester.getRect(find.byType(SentenceBlock));
+        final labelTop = tester.getTopLeft(link).dy;
+        // 링크 줄 위 여백 16(글자 줄 높이 안의 위 여백은 제외한 상한 확인).
+        expect(labelTop - body.bottom, greaterThanOrEqualTo(16));
+        await tester.tap(link);
+        await tester.pumpAndSettle();
+
+        expect(find.text('모아보기 hap'), findsOneWidget);
+        expect(find.byType(ExplainSheetBody), findsNothing, reason: '시트는 닫힘');
+      },
+    );
+
+    testWidgets('diaryLinkTag가 없으면 링크가 없습니다', (tester) async {
+      await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('내 일기 보기'), findsNothing);
+    });
+
+    testWidgets('근거 진입점 아이콘의 스크린리더 이름은 depthLinkEvidence(항목 이름)입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(
+            content: ExplainTerm(
+              'ten_god.siksin',
+              origin: TermOrigin(
+                slotId: 'a.b',
+                subject: DailyEvidenceSubject(),
+              ),
+              evidenceSubject: '총운',
+            ),
+          ),
+          glossary: () async => _names,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.bySemanticsLabel(_ko.depthLinkEvidence('총운')),
+        findsOneWidget,
+      );
+      handle.dispose();
     });
   });
 }

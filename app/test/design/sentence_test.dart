@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
@@ -623,67 +624,212 @@ void main() {
     });
   });
 
-  group('DepthLink', () {
-    testWidgets('링크로 읽고 누르면 onTap, 라벨은 글자 그대로입니다', (tester) async {
-      final handle = tester.ensureSemantics();
-      var taps = 0;
+  group('DepthLink 근거 진입점', () {
+    final l10n = AppLocalizationsKo();
+
+    testWidgets('글자 없이 book-open-text Regular 20 action.primary 아이콘 하나입니다', (
+      tester,
+    ) async {
+      for (final placement in DepthLinkPlacement.values) {
+        await tester.pumpWidget(
+          _app(
+            DepthLink.evidence(
+              subject: '총운',
+              placement: placement,
+              onTap: () {},
+            ),
+          ),
+        );
+        expect(
+          find.descendant(
+            of: find.byType(DepthLink),
+            matching: find.byType(Text),
+          ),
+          findsNothing,
+          reason: placement.name,
+        );
+        final icon = tester.widget<Icon>(
+          find.descendant(
+            of: find.byType(DepthLink),
+            matching: find.byType(Icon),
+          ),
+        );
+        final tokens = tester.element(find.byType(DepthLink)).tokens;
+        expect(icon.icon, PhosphorIconsRegular.bookOpenText);
+        expect(icon.size, IconSizeTokens.s20);
+        expect(icon.color, tokens.colors.actionPrimary);
+      }
+    });
+
+    testWidgets('글자 크기를 키워도 아이콘은 20 그대로이고 줄 배치 폭도 20입니다', (tester) async {
       await tester.pumpWidget(
-        _app(
-          DepthLink(
-            variant: DepthLinkVariant.block,
-            label: '근거 보기',
-            onTap: () => taps++,
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: _app(
+            DepthLink.evidence(
+              subject: '총운',
+              placement: DepthLinkPlacement.inlineEnd,
+              onTap: () {},
+            ),
           ),
         ),
       );
-      final data = _semantics(tester, find.bySemanticsLabel('근거 보기'));
-      expect(data.flagsCollection.isLink, isTrue);
-      await tester.tap(find.textContaining('근거 보기'));
+      expect(
+        tester.getSize(find.byType(PressInkTarget)),
+        const Size(IconSizeTokens.s20, IconSizeTokens.s20),
+      );
+    });
+
+    testWidgets('스크린리더는 버튼으로 읽고 이름은 depthLinkEvidence(subject)입니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      await tester.pumpWidget(
+        _app(DepthLink.evidence(subject: '총운', onTap: () => taps++)),
+      );
+      final data = _semantics(
+        tester,
+        find.bySemanticsLabel(l10n.depthLinkEvidence('총운')),
+      );
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isLink, isFalse);
+      await tester.tap(find.byType(Icon));
       expect(taps, 1);
       handle.dispose();
     });
 
     testWidgets('block은 위에 space.12, inline-end는 여백이 없습니다', (tester) async {
+      Future<double> topOf(DepthLinkPlacement placement) async {
+        await tester.pumpWidget(
+          _app(
+            DepthLink.evidence(
+              subject: '총운',
+              placement: placement,
+              onTap: () {},
+            ),
+          ),
+        );
+        return tester.getTopLeft(find.byType(Icon)).dy;
+      }
+
+      final blockTop = await topOf(DepthLinkPlacement.block);
+      final inlineTop = await topOf(DepthLinkPlacement.inlineEnd);
+      expect(blockTop - inlineTop, Space.s12);
+    });
+
+    testWidgets('터치 48은 배치 밖으로 넓어지고 inline-end는 왼쪽으로만 넓어집니다', (tester) async {
+      var taps = 0;
       await tester.pumpWidget(
         _app(
-          DepthLink(
-            variant: DepthLinkVariant.block,
-            label: '근거 보기',
-            onTap: () {},
+          Center(
+            child: DepthLink.evidence(
+              subject: '총운',
+              placement: DepthLinkPlacement.inlineEnd,
+              onTap: () => taps++,
+            ),
           ),
         ),
       );
-      final blockTop = tester.getTopLeft(find.textContaining('근거 보기')).dy;
+      final rect = tester.getRect(find.byType(PressInkTarget));
+      // 위아래로 14씩, 왼쪽으로 28 넓어집니다.
+      await tester.tapAt(rect.topLeft + const Offset(-20, -10));
+      expect(taps, 1);
+      await tester.tapAt(rect.topRight + const Offset(10, 10));
+      expect(taps, 1, reason: '오른쪽 끝선 바깥은 부모 경계라 닿지 않음');
+
+      await tester.pumpWidget(
+        _app(
+          Center(
+            child: DepthLink.evidence(subject: '총운', onTap: () => taps++),
+          ),
+        ),
+      );
+      final block = tester.getRect(find.byType(PressInkTarget));
+      await tester.tapAt(block.centerRight + const Offset(10, 0));
+      expect(taps, 2, reason: 'block은 좌우 모두 넓어짐');
+    });
+
+    testWidgets('inline-end 아이콘은 문장 끝 WidgetSpan 하나에 담기고 글자가 없습니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 320,
+            child: SentenceBlock(
+              variant: SentenceBlockVariant.body,
+              text: _text([Segment(text: '오늘은 쉬어 가는 날이에요.')]),
+              trailing: DepthLink.evidence(
+                subject: '총운',
+                placement: DepthLinkPlacement.inlineEnd,
+                onTap: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      final sentence = tester.widget<RichText>(
+        find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget is RichText &&
+                  widget.text.toPlainText().contains('쉬어 가는'),
+            )
+            .first,
+      );
+      final widgetSpans = <WidgetSpan>[];
+      sentence.text.visitChildren((span) {
+        if (span is WidgetSpan) widgetSpans.add(span);
+        return true;
+      });
+      expect(widgetSpans, hasLength(1));
+      expect(
+        find.descendant(
+          of: find.byType(DepthLink),
+          matching: find.byType(LinkLabel),
+        ),
+        findsNothing,
+      );
+      // 문장 마지막 낱말과 줄바꿈 없는 공백으로 이어집니다.
+      expect(sentence.text.toPlainText(), contains('\u00A0\u2060'));
+    });
+  });
+
+  group('DepthLink 글자 링크', () {
+    testWidgets('navigate: 링크로 읽고 누르면 onTap이고 위에 space.12입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      await tester.pumpWidget(
+        _app(
+          DepthLink(
+            variant: DepthLinkVariant.navigate,
+            label: '계산 기준 보기',
+            onTap: () => taps++,
+          ),
+        ),
+      );
+      final top = tester.getTopLeft(find.textContaining('계산 기준 보기')).dy;
       await tester.pumpWidget(
         _app(
           DepthLink(
             variant: DepthLinkVariant.inlineEnd,
-            label: '근거 보기',
+            label: '계산 기준 보기',
             onTap: () {},
           ),
         ),
       );
-      final inlineTop = tester.getTopLeft(find.textContaining('근거 보기')).dy;
-      expect(blockTop - inlineTop, Space.s12);
-    });
-
-    testWidgets('navigate는 block과 같은 자리(위 space.12)이고 링크로 읽고 누르면 onTap입니다', (
-      tester,
-    ) async {
-      final handle = tester.ensureSemantics();
-      var taps = 0;
-      Future<double> topOf(DepthLinkVariant variant) async {
-        await tester.pumpWidget(
-          _app(
-            DepthLink(variant: variant, label: '계산 기준 보기', onTap: () => taps++),
+      final inlineTop = tester.getTopLeft(find.textContaining('계산 기준 보기')).dy;
+      expect(top - inlineTop, Space.s12);
+      await tester.pumpWidget(
+        _app(
+          DepthLink(
+            variant: DepthLinkVariant.navigate,
+            label: '계산 기준 보기',
+            onTap: () => taps++,
           ),
-        );
-        return tester.getTopLeft(find.textContaining('계산 기준 보기')).dy;
-      }
-
-      final blockTop = await topOf(DepthLinkVariant.block);
-      final navigateTop = await topOf(DepthLinkVariant.navigate);
-      expect(navigateTop, blockTop);
+        ),
+      );
       final data = _semantics(tester, find.bySemanticsLabel('계산 기준 보기'));
       expect(data.flagsCollection.isLink, isTrue);
       await tester.tap(find.textContaining('계산 기준 보기'));
@@ -691,7 +837,37 @@ void main() {
       handle.dispose();
     });
 
-    for (final variant in DepthLinkVariant.values) {
+    testWidgets('marginTop을 주면 그 값만큼 위에 둡니다(일기 모아보기 링크 space.16)', (
+      tester,
+    ) async {
+      Future<double> topOf(double? marginTop) async {
+        await tester.pumpWidget(
+          _app(
+            marginTop == null
+                ? DepthLink(
+                    variant: DepthLinkVariant.navigate,
+                    label: '일기 보기',
+                    onTap: () {},
+                  )
+                : DepthLink(
+                    variant: DepthLinkVariant.navigate,
+                    label: '일기 보기',
+                    marginTop: marginTop,
+                    onTap: () {},
+                  ),
+          ),
+        );
+        return tester.getTopLeft(find.textContaining('일기 보기')).dy;
+      }
+
+      final base = await topOf(null);
+      expect(await topOf(Space.s16) - base, Space.s16 - Space.s12);
+    });
+
+    for (final variant in [
+      DepthLinkVariant.navigate,
+      DepthLinkVariant.inlineEnd,
+    ]) {
       testWidgets(
         '${variant.id}: 화살표는 caret-right Regular, 링크 글자 크기·색, 간격 2px, '
         '스크린리더는 이름만 읽습니다(V29)',
@@ -747,60 +923,25 @@ void main() {
       );
     }
 
-    testWidgets('inline-end는 링크 이름과 화살표를 문장 끝 WidgetSpan 하나에 담습니다', (
-      tester,
-    ) async {
+    testWidgets('inline-end 글자 링크(잠김 열기)는 감기지 않는 한 줄입니다', (tester) async {
       await tester.pumpWidget(
         _app(
-          SizedBox(
-            width: 320,
-            child: SentenceBlock(
-              variant: SentenceBlockVariant.body,
-              text: _text([Segment(text: '오늘은 쉬어 가는 날이에요.')]),
-              trailing: DepthLink(
-                variant: DepthLinkVariant.inlineEnd,
-                label: '근거 보기',
-                onTap: () {},
-              ),
-            ),
+          DepthLink(
+            variant: DepthLinkVariant.inlineEnd,
+            label: '열기',
+            onTap: () {},
           ),
         ),
       );
-      final sentence = tester.widget<RichText>(
-        find
-            .byWidgetPredicate(
-              (widget) =>
-                  widget is RichText &&
-                  widget.text.toPlainText().contains('쉬어 가는'),
-            )
-            .first,
-      );
-      final widgetSpans = <WidgetSpan>[];
-      sentence.text.visitChildren((span) {
-        if (span is WidgetSpan) widgetSpans.add(span);
-        return true;
-      });
-      expect(widgetSpans, hasLength(1));
-      expect(
-        find.descendant(
-          of: find.byType(DepthLink),
-          matching: find.byType(LinkLabel),
-        ),
-        findsOneWidget,
-      );
-      // 한 덩어리라 링크 글자 안에서 줄이 바뀌지 않습니다.
       expect(
         tester.widget<LinkLabel>(find.byType(LinkLabel)).softWrap,
         isFalse,
       );
     });
 
-    testWidgets('block·navigate가 감기면 화살표가 마지막 줄 끝에 붙습니다', (tester) async {
+    testWidgets('navigate가 감기면 화살표가 마지막 줄 끝에 붙습니다', (tester) async {
       await tester.runAsync(ensureGoldenFonts);
-      for (final variant in [
-        DepthLinkVariant.block,
-        DepthLinkVariant.navigate,
-      ]) {
+      for (final variant in [DepthLinkVariant.navigate]) {
         await tester.pumpWidget(
           _app(
             SizedBox(

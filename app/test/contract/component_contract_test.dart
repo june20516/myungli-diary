@@ -226,18 +226,20 @@ void main() {
 
     test('링크 화살표 세 곳은 caret-right 아이콘이고 LinkLabel 값과 같습니다(V29)', () {
       final chevrons = _chevrons(specs['depth-link'])
-        ..addAll(_chevrons(specs['sentence-block']));
-      // depth-link parts.chevron, lockPanel.pass.chevron,
-      // sentence-block open.chevron.
+        ..addAll(_chevrons(specs['explain-sheet']));
+      // depth-link navigate.chevron, lockPanel.pass.chevron,
+      // explain-sheet diaryLink.chevron. 근거 진입점은 아이콘 하나(V63)라 꺾쇠가 없고,
+      // sentence-block 잠김의 열기는 꺾쇠 대신 자물쇠입니다(V73).
       expect(chevrons, hasLength(3), reason: '${chevrons.keys}');
       for (final MapEntry(key: path, value: chevron) in chevrons.entries) {
         final map = _map(chevron);
         expect(map['weight'], 'regular', reason: path);
         expect(_regularIcons[map['icon']], LinkLabel.caret, reason: path);
         // 크기·색은 링크 글자에서 이어받습니다(LinkLabel이 글리프 조각에 크기·색을 두지 않음).
-        expect(map['size'], 'link-text-size', reason: path);
+        expect(map['size'], 'adjacent-text', reason: path);
         expect(map['color'], 'link-color', reason: path);
-        expect(_px(map['gap']), LinkLabel.gap, reason: path);
+        expect(map['gap'], '{space.2}', reason: path);
+        expect(LinkLabel.gap, Space.s2);
         expect(map['decorative'], isTrue, reason: path);
       }
     });

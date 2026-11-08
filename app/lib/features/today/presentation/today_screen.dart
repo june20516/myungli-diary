@@ -33,6 +33,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
@@ -226,8 +227,13 @@ class _TodayBody extends ConsumerWidget {
     // 오늘 화면의 용어는 오늘 응답의 슬롯에서 왔으므로 오늘 응답을 출처로 넘깁니다.
     void openExplain(String termId, String slotId) => sheets.openExplain(
       context,
-      termId: termId,
-      origin: TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject()),
+      ExplainTerm(
+        termId,
+        origin: TermOrigin(
+          slotId: slotId,
+          subject: const DailyEvidenceSubject(),
+        ),
+      ),
     );
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     return SeepOnChange(
@@ -270,9 +276,9 @@ class _TodayBody extends ConsumerWidget {
                 text: head.text,
                 slotId: SlotIds.todayFortuneHead,
                 onTerm: (termId) => openExplain(termId, head.slot),
-                trailing: DepthLink(
-                  variant: DepthLinkVariant.inlineEnd,
-                  label: l10n.depthLinkEvidence(l10n.todayFortuneTitle),
+                trailing: DepthLink.evidence(
+                  subject: l10n.todayFortuneTitle,
+                  placement: DepthLinkPlacement.inlineEnd,
                   onTap: () => sheets.openEvidence(context, slotId: head.slot),
                 ),
               ),

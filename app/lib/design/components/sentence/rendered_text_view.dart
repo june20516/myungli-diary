@@ -87,11 +87,8 @@ class RenderedTextView extends StatelessWidget {
         // 링크 앞 틈은 줄바꿈 없는 공백(U+00A0)과 결합자(U+2060)라
         // 마지막 낱말과 링크가 함께 넘어갑니다.
         const TextSpan(text: '\u00A0\u2060'),
-        WidgetSpan(
-          alignment: PlaceholderAlignment.baseline,
-          baseline: TextBaseline.alphabetic,
-          child: trailing!,
-        ),
+        // 끝 위젯은 근거 진입점 아이콘이라 글자 기준선이 없어 줄 가운데에 맞춥니다.
+        WidgetSpan(alignment: PlaceholderAlignment.middle, child: trailing!),
       ],
     ];
     return Text.rich(

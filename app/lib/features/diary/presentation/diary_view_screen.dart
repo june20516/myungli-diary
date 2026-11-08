@@ -25,6 +25,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -234,7 +235,7 @@ class _DiaryViewBody extends ConsumerWidget {
                     ),
                     onTap: () => sheets.openExplain(
                       context,
-                      termId: 'day_kind.${kind.value}',
+                      ExplainTerm('day_kind.${kind.value}'),
                     ),
                     child: DayCharacter(
                       variant: dayCharacterVariantOf(kind),

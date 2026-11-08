@@ -4,12 +4,16 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
-import 'package:myungli_diary/features/depth/application/term_origin.dart';
 
-/// 풀이 시트 본문. [termId]는 용어 id, [origin]은 용어가 눌린 슬롯과 그 응답입니다.
-/// [origin]이 null이면 근거로 이어지지 않는 곳에서 연 것이라 근거 보기도 오늘 그런 이유도 없습니다.
-typedef ExplainBodyBuilder = Widget Function(String termId, TermOrigin? origin);
+/// 풀이 시트 본문. [content]는 풀이할 내용이고, [head]가 있으면 제목 줄 대신 머리로 놓습니다
+/// (`hanja-tag`). [diaryLinkTag]가 있으면 본문 아래에 그 태그(키)의 모아보기 링크를 둡니다.
+typedef ExplainBodyBuilder = Widget Function(
+  ExplainContent content, {
+  Widget? head,
+  String? diaryLinkTag,
+});
 
 /// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id이고, [personal]은 "내 사주에서는"에
 /// 보일 원국 개인 해석의 자리입니다(사주 표 칸 용어에서 열었을 때만, A58).
@@ -42,15 +46,18 @@ final class DepthSheets {
   /// 공유 미리보기 시트 본문.
   final ShareBodyBuilder shareBody;
 
-  /// 풀이 시트(half)를 엽니다. [origin]은 용어가 들어 있던 슬롯과 그 슬롯을 담은 응답입니다.
+  /// 풀이 시트(half)를 엽니다. [content]는 풀이할 내용입니다([ExplainTerm]은 용어가 들어 있던
+  /// 슬롯과 그 슬롯을 담은 응답을 [ExplainTerm.origin]으로 갖습니다).
   ///
-  /// [origin]을 주지 않으면 풀이 시트에 근거 보기도 오늘 그런 이유도 없고 응답을 받지 않습니다.
-  /// 그날 시트(`day-sheet`)는 IA 깊이가 `surface`·`explain`까지라 근거 시트로 이어지지 않으므로
-  /// 주지 않습니다.
+  /// [ExplainTerm.origin]을 주지 않으면 풀이 시트에 근거 보기도 오늘 그런 이유도 없고 응답을 받지
+  /// 않습니다. 그날 시트(`day-sheet`)는 IA 깊이가 `surface`·`explain`까지라 근거 시트로 이어지지
+  /// 않으므로 주지 않습니다. [head]는 제목 자리에 놓을 머리(`hanja-tag`)이고, [diaryLinkTag]는
+  /// 대표 태그의 뜻 시트에서만 주는 태그 키입니다(본문 아래 모아보기 링크, `tag-diary` page.push).
   Future<void> openExplain(
-    BuildContext context, {
-    required String termId,
-    TermOrigin? origin,
+    BuildContext context,
+    ExplainContent content, {
+    Widget? head,
+    String? diaryLinkTag,
   }) => showMyungliSheet<void>(
     context,
     size: SheetSize.half,
@@ -58,7 +65,7 @@ final class DepthSheets {
     semanticLabel: AppLocalizations.of(context).depthExplain,
     builder: (_) => SheetScreenId(
       screenId: ScreenIds.explainSheet,
-      child: explainBody(termId, origin),
+      child: explainBody(content, head: head, diaryLinkTag: diaryLinkTag),
     ),
   );
 
@@ -98,7 +105,7 @@ const String _unwired = 'depthSheetBodyOverrides를 연결하세요';
 /// override로 실제 시트를 연결합니다(feature presentation끼리 import하지 않기 위해, spec §2).
 final explainBodyProvider = Provider<ExplainBodyBuilder>(
   (ref) =>
-      (_, _) => throw UnimplementedError(_unwired),
+      (_, {head, diaryLinkTag}) => throw UnimplementedError(_unwired),
 );
 
 /// 근거 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.

@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
@@ -131,7 +132,8 @@ class _MySajuBody extends ConsumerWidget {
     final tokens = context.tokens;
     final names = ref.watch(glossaryProvider).value;
     final sheets = ref.read(depthSheetsProvider);
-    void explain(String termId) => sheets.openExplain(context, termId: termId);
+    void explain(String termId) =>
+        sheets.openExplain(context, ExplainTerm(termId));
 
     // 판정은 사주 표와 같은 [chartTimeUnknown]이고, 문구는 이 화면에 ui 슬롯이 없어 server 안내
     // 문장입니다(문장이 없으면 배너도 없음).
@@ -218,9 +220,8 @@ class _MySajuBody extends ConsumerWidget {
           ),
         ],
         ?_sentence(chart.yongsinSummary, SlotIds.mySajuYongsinBody, explain),
-        DepthLink(
-          variant: DepthLinkVariant.block,
-          label: l10n.depthLinkEvidence(l10n.mySajuYongsinTitle),
+        DepthLink.evidence(
+          subject: l10n.mySajuYongsinTitle,
           onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
         ),
       ],

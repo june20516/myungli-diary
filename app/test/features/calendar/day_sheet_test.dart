@@ -35,6 +35,7 @@ import 'package:myungli_diary/features/calendar/application/calendar_providers.d
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/calendar/presentation/day_sheet_body.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 
@@ -109,9 +110,10 @@ final class _Harness {
       daySheetBodyProvider.overrideWithValue(
         (date) => DaySheetBody(date: date),
       ),
-      explainBodyProvider.overrideWithValue(
-        (termId, origin) => Text('풀이 $termId ${origin?.slotId}'),
-      ),
+      explainBodyProvider.overrideWithValue((content, {head, diaryLinkTag}) {
+        final term = content as ExplainTerm;
+        return Text('풀이 ${term.termId} ${term.origin?.slotId}');
+      }),
     ],
     child: MaterialApp.router(
       routerConfig: router,

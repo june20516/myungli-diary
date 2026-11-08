@@ -29,6 +29,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
@@ -322,10 +323,11 @@ void main() {
       overrides: [
         depthSheetsProvider.overrideWithValue(
           DepthSheets(
-            explainBody: (termId, origin) => ProviderScope(
+            explainBody: (content, {head, diaryLinkTag}) => ProviderScope(
               overrides: [
                 glossaryProvider.overrideWith((ref) {
                   if (++attempts == 1) return firstAttempt.future;
+                  final termId = (content as ExplainTerm).termId;
                   final dot = termId.indexOf('.');
                   return GlossaryNames({
                     termId.substring(0, dot): {
@@ -334,7 +336,7 @@ void main() {
                   });
                 }),
               ],
-              child: ExplainSheet(termId: termId, origin: origin),
+              child: ExplainSheet(content: content),
             ),
             evidenceBody: (_, _) => const SizedBox.shrink(),
             shareBody: SizedBox.shrink,

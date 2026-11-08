@@ -25,7 +25,7 @@ const Map<String, SheetSpec> sheetRegistry = {
   ScreenIds.explainSheet: SheetSpec(
     ScreenIds.explainSheet,
     handledStates: {'loading', 'error'},
-    exits: {ScreenIds.evidenceSheet},
+    exits: {ScreenIds.evidenceSheet, ScreenIds.tagDiary},
   ),
   ScreenIds.evidenceSheet: SheetSpec(
     ScreenIds.evidenceSheet,

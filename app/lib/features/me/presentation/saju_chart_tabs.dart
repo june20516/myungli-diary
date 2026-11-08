@@ -25,6 +25,7 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -100,12 +101,14 @@ final class _ChartText {
   void openTerm(String termId, PersonalReadingKey personal) =>
       sheets.openExplain(
         context,
-        termId: termId,
-        origin: TermOrigin(
-          // 표 칸은 writing 슬롯이 아니라, 열릴 근거 시트의 "내 사주에서는" 슬롯을 가리킵니다.
-          slotId: SlotIds.evidenceSheetPersonalBody,
-          subject: const ChartEvidenceSubject(),
-          personal: personal,
+        ExplainTerm(
+          termId,
+          origin: TermOrigin(
+            // 표 칸은 writing 슬롯이 아니라, 열릴 근거 시트의 "내 사주에서는" 슬롯을 가리킵니다.
+            slotId: SlotIds.evidenceSheetPersonalBody,
+            subject: const ChartEvidenceSubject(),
+            personal: personal,
+          ),
         ),
       );
 
@@ -375,10 +378,12 @@ class _YongsinBasis extends StatelessWidget {
             slotId: SlotIds.sajuChartYongsinBasis,
             onTerm: (termId) => sheets.openExplain(
               context,
-              termId: termId,
-              origin: const TermOrigin(
-                slotId: SlotIds.sajuChartYongsinBasis,
-                subject: ChartEvidenceSubject(),
+              ExplainTerm(
+                termId,
+                origin: const TermOrigin(
+                  slotId: SlotIds.sajuChartYongsinBasis,
+                  subject: ChartEvidenceSubject(),
+                ),
               ),
             ),
             onOpenLocked: () => sheets.openEvidence(

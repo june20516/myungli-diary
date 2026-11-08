@@ -3,10 +3,10 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// 글자 링크의 이름 + 끝 화살표(`chevron`, 결정 V29).
 ///
-/// `depth-link`(`inline-end`·`block`·`navigate`), `sentence-block` `locked`의
-/// "열기", 근거 잠금 안내의 광고 제거권 링크(`lockPanel.pass`)가 함께 씁니다. 화살표는 원고에 넣지
-/// 않고 이 위젯이 그립니다. 명세는 아이콘 `caret-right` Regular, 크기는 링크 글자 크기, 색은
-/// 링크 색, 간격 2px, 장식입니다.
+/// `depth-link`(`navigate`), `explain-sheet`의 일기 모아보기 링크,
+/// `sentence-block` `locked`의 "열기", 근거 잠금 안내의 광고 제거권 링크(`lockPanel.pass`)가
+/// 함께 씁니다. 화살표는 원고에 넣지 않고 이 위젯이 그립니다. 명세는 아이콘 `caret-right`
+/// Regular, 크기는 링크 글자 크기, 색은 링크 색, 간격 2px, 장식입니다.
 ///
 /// 화살표는 아이콘 글꼴의 글리프를 글자 조각(`TextSpan`)으로 이어 붙여 [style]의 크기·색을
 /// 그대로 이어받습니다. 링크가 감기면 화살표는 마지막 줄 끝을 따라가고, 앞의 단어 연결 문자
