@@ -101,7 +101,6 @@ class _NotifyTimeSheetState extends State<NotifyTimeSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: Space.s16),
                 SheetHeading(
                   child: Text(
                     l10n.settingsNotifyLabel,
@@ -179,7 +178,6 @@ class LanguageSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: Space.s16),
           SheetHeading(
             child: Text(
               l10n.settingsLanguageLabel,
@@ -240,7 +238,6 @@ class BirthplaceNoticeSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: Space.s16),
             SheetHeading(
               child: Text(
                 l10n.settingsLanguageBirthplaceNotice,

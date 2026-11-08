@@ -33,6 +33,12 @@ const double sheetHandleWidth = 36;
 /// 손잡이 높이(px).
 const double sheetHandleHeight = 4;
 
+/// 시트 맨 위 핸들 자리 높이(px). `frame.json` `sheet.parts.handleArea.height`.
+const double sheetHandleAreaHeight = 24;
+
+/// 핸들 자리의 끌기 터치 높이(px). `frame.json` `sheet.parts.handleArea.minTarget`.
+const double sheetHandleTouchHeight = 44;
+
 /// 끌어내려 닫는 기준: 시트 높이의 이 비율 이상.
 const double _dismissFraction = 0.25;
 
@@ -56,7 +62,8 @@ double sheetMaxHeight(BuildContext context, SheetSize size) {
   };
 }
 
-/// 시트 틀: 위 모서리 `radius.xl`, `bg.sheet`, 손잡이, 안쪽 여백.
+/// 시트 틀: 위 모서리 `radius.xl`, `bg.sheet`, 높이 24 핸들 자리(끌기 터치 44), 좌우와 아래
+/// 안쪽 `space.24`.
 ///
 /// 열고 닫는 움직임은 [showMyungliSheet]의 route가 입힙니다. 이 위젯은 모양만 정합니다.
 class MyungliSheetFrame extends StatelessWidget {
@@ -120,44 +127,63 @@ class MyungliSheetFrame extends StatelessWidget {
                 top: Radius.circular(Radii.xl),
               ),
             ),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                Space.s20,
-                0,
-                Space.s20,
-                Space.s24 + MediaQuery.viewPaddingOf(context).bottom,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: Space.s8),
-                    child: Center(
-                      child: DecoratedBox(
-                        key: const ValueKey('sheet.handle'),
-                        decoration: BoxDecoration(
-                          color: colors.line,
-                          borderRadius: BorderRadius.circular(Radii.full),
-                        ),
-                        child: const SizedBox(
-                          width: sheetHandleWidth,
-                          height: sheetHandleHeight,
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: sheetHandleAreaHeight,
+                      child: Center(
+                        child: DecoratedBox(
+                          key: const ValueKey('sheet.handle'),
+                          decoration: BoxDecoration(
+                            color: colors.line,
+                            borderRadius: BorderRadius.circular(Radii.full),
+                          ),
+                          child: const SizedBox(
+                            width: sheetHandleWidth,
+                            height: sheetHandleHeight,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  // 시트는 셸 바깥 navigator에 쌓여 셸의 Material을 벗어나므로, 내용 글자가
-                  // MaterialApp의 오류 스타일(노란 이중 밑줄)을 받지 않게 그리지 않는
-                  // Material 조상을 둡니다(탭 셸과 같은 방식).
-                  Flexible(
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: child,
+                    // 시트는 셸 바깥 navigator에 쌓여 셸의 Material을 벗어나므로, 내용 글자가
+                    // MaterialApp의 오류 스타일(노란 이중 밑줄)을 받지 않게 그리지 않는
+                    // Material 조상을 둡니다(탭 셸과 같은 방식).
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          Space.s24,
+                          0,
+                          Space.s24,
+                          Space.s24 + MediaQuery.viewPaddingOf(context).bottom,
+                        ),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: child,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                // 핸들 자리의 끌기 터치 44. 본문이 스크롤된 상태여도 여기서 끌면 시트가
+                // 내려갑니다. 누르기는 통과시켜 아래 내용이 받습니다(translucent).
+                Positioned(
+                  key: const ValueKey('sheet.handleArea'),
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: sheetHandleTouchHeight,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onVerticalDragUpdate: onDragUpdate,
+                    onVerticalDragEnd: onDragEnd,
+                    onVerticalDragCancel: onDragCancel,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -246,6 +272,8 @@ class SheetScreenBelow extends StatelessWidget {
 
 /// 시트 안 첫 제목. 시트가 열리면 스크린리더 초점이 여기로 옵니다(`focusOnOpen: first-heading`).
 ///
+/// 위에 `space.8`을 둡니다(`frame.json` `sheet.parts.title.marginTop`, 핸들 자리 아래).
+///
 /// 시트 안에서 이 위젯을 여러 개 쓰면 먼저 만들어진 하나만 초점을 받습니다. 쓰지 않으면
 /// 시트 이름([showMyungliSheet]의 `semanticLabel`)만 알려지고 초점은 플랫폼 기본을 따릅니다.
 class SheetHeading extends StatefulWidget {
@@ -277,8 +305,10 @@ class _SheetHeadingState extends State<SheetHeading> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      Semantics(header: true, child: widget.child);
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: Space.s8),
+    child: Semantics(header: true, child: widget.child),
+  );
 }
 
 class _HeadingClaim {
@@ -396,6 +426,11 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
   /// iOS 같은 Bouncing 본문이 맨 위에서 밀려난 양. 시트가 그만큼 따라 내려가므로 본문은
   /// 같은 양만큼 되올려 이중으로 움직여 보이지 않게 합니다.
   double _bounce = 0;
+
+  /// 본문 스크롤로 끄는 동안 손가락이 아래로 움직인 누적 거리. 닫기 판정은 이 값으로 합니다
+  /// (A120). iOS bounce 본문은 마찰 때문에 [_drag]가 손가락보다 덜 움직여 시트 높이의 25%에
+  /// 잘 닿지 않으므로 따로 셉니다.
+  double _fingerTravel = 0;
   bool _scrollDragging = false;
   bool _dismissing = false;
   VelocityTracker _tracker = VelocityTracker.withKind(PointerDeviceKind.touch);
@@ -431,6 +466,7 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     _tracker = VelocityTracker.withKind(PointerDeviceKind.touch);
     _lastSample = null;
     _scrollDragging = false;
+    _fingerTravel = 0;
   }
 
   /// 본문 바깥(시트 프레임)에서 받은 드래그: 스크롤할 수 없는 본문.
@@ -442,7 +478,7 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
   }
 
   void _onDragEnd(DragEndDetails details) =>
-      _finishDrag(details.velocity.pixelsPerSecond.dy);
+      _finishDrag(details.velocity.pixelsPerSecond.dy, distance: _drag);
 
   /// 취소되면 놓은 것처럼 제자리로 돌아갑니다(닫지 않음).
   void _onDragCancel() {
@@ -472,18 +508,21 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
         _snap.stop();
         _scrollDragging = true;
         _track(dragDetails);
+        _fingerTravel += -overscroll;
         setState(() => _drag += -overscroll);
       case ScrollUpdateNotification()
           when metrics.pixels < metrics.minScrollExtent:
         final amount = metrics.minScrollExtent - metrics.pixels;
-        if (n.dragDetails != null) {
+        if (n.dragDetails case final dragDetails?) {
           _snap.stop();
           _scrollDragging = true;
-          _track(n.dragDetails!);
+          _track(dragDetails);
+          _fingerTravel = math.max(0, _fingerTravel + dragDetails.delta.dy);
         } else if (_scrollDragging) {
           // 손을 뗀 순간: 이후의 되돌아옴은 본문 bounce가 끌고 가고 시트가 따라갑니다.
-          _scrollDragging = false;
-          if (_shouldDismiss(amount, _releaseVelocity())) {
+          final dismiss = _shouldDismiss(_fingerTravel, _releaseVelocity());
+          _resetTracking();
+          if (dismiss) {
             unawaited(_dismiss());
             return false;
           }
@@ -496,6 +535,7 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
         // bounce가 끝나 제자리로 돌아옴.
         _bounce = 0;
         _drag = 0;
+        _fingerTravel = 0;
         setState(() {});
       case ScrollUpdateNotification(:final scrollDelta?, :final dragDetails?)
           when _drag > 0 && scrollDelta > 0:
@@ -508,12 +548,12 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
         final absorbed = math.min(scrollDelta, _drag);
         Scrollable.maybeOf(n.context!)?.position.correctBy(-absorbed);
         _track(dragDetails);
+        _fingerTravel = math.max(0, _fingerTravel - absorbed);
         setState(() => _drag -= absorbed);
       case ScrollEndNotification() when _scrollDragging && _drag > 0:
         final velocity =
             n.dragDetails?.velocity.pixelsPerSecond.dy ?? _releaseVelocity();
-        _scrollDragging = false;
-        _finishDrag(velocity);
+        _finishDrag(velocity, distance: _fingerTravel);
       default:
         break;
     }
@@ -526,9 +566,10 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
         velocity > _dismissVelocity;
   }
 
-  void _finishDrag(double velocity) {
+  /// 놓은 순간 닫을지 정합니다. [distance]는 손가락이 아래로 움직인 거리입니다.
+  void _finishDrag(double velocity, {required double distance}) {
     _resetTracking();
-    if (_shouldDismiss(_drag, velocity)) {
+    if (_shouldDismiss(distance, velocity)) {
       unawaited(_dismiss());
       return;
     }
@@ -648,9 +689,10 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
 
 /// iOS bounce로 본문이 [bounce]만큼 밀려난 것을 되올립니다.
 ///
-/// 본문 전체를 위로 옮기면 아래 [bounce]만큼이 비므로, 본문의 높이를 그만큼 늘려 아래 끝을
-/// 원래 자리에 둡니다(띠가 생기지 않음). 높이가 정해진 경우에만 늘리고, 시트 높이는
-/// 부모가 정한 범위를 넘지 않습니다.
+/// 그리는 위치만 옮기고 본문 크기(viewport 높이)는 바꾸지 않습니다. 크기를 bounce만큼 늘리면
+/// viewport와 `maxScrollExtent`가 프레임마다 바뀌어 스크롤 위치가 되돌려지고, 천천히 끌 때
+/// 시트가 제자리에서 떨리며 닫히지 않았습니다(F-027, A120). 끄는 동안 본문 아래에
+/// [bounce]만큼 시트 바탕이 더 보입니다.
 class _BounceCompensation extends StatelessWidget {
   const new({required this.bounce, required this.child});
 
@@ -660,15 +702,6 @@ class _BounceCompensation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 구조는 항상 같게 둡니다(본문의 스크롤 상태가 유지되도록).
-    return LayoutBuilder(
-      builder: (context, constraints) => OverflowBox(
-        alignment: Alignment.topCenter,
-        fit: OverflowBoxFit.deferToChild,
-        maxHeight: constraints.hasBoundedHeight
-            ? constraints.maxHeight + bounce
-            : null,
-        child: Transform.translate(offset: Offset(0, -bounce), child: child),
-      ),
-    );
+    return Transform.translate(offset: Offset(0, -bounce), child: child);
   }
 }

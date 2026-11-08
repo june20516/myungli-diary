@@ -900,6 +900,103 @@ void main() {
       ],
     );
 
+    testWidgets('좌우와 아래 안쪽 24, 핸들 자리 높이 24, 제목은 그 아래 8', (tester) async {
+      await openBody(
+        tester,
+        (_) => const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SheetHeading(child: Text('제목', key: ValueKey('title'))),
+              SizedBox(key: ValueKey('last'), height: 40),
+            ],
+          ),
+        ),
+      );
+      final frame = find.byType(MyungliSheetFrame);
+      final frameRect = tester.getRect(frame);
+      final title = tester.getRect(find.byKey(const ValueKey('title')));
+      final last = tester.getRect(find.byKey(const ValueKey('last')));
+      expect(title.left - frameRect.left, Space.s24);
+      expect(frameRect.right - last.right, Space.s24);
+      expect(frameRect.bottom - last.bottom, Space.s24);
+      // 핸들 자리 24 + 제목 위 8.
+      expect(title.top - frameRect.top, 24 + Space.s8);
+      final handle = tester.getRect(find.byKey(const ValueKey('sheet.handle')));
+      expect(handle.center.dy - frameRect.top, 12, reason: '핸들 자리 가운데');
+      expect(handle.center.dx, closeTo(frameRect.center.dx, 0.01));
+      final area = tester.getRect(
+        find.byKey(const ValueKey('sheet.handleArea')),
+      );
+      expect(area.top, frameRect.top);
+      expect(area.height, 44, reason: '끌기 터치 44');
+      expect(area.width, frameRect.width);
+    });
+
+    testWidgets('핸들 자리를 끌면 본문이 스크롤된 상태여도 시트가 내려가고 닫힙니다', (tester) async {
+      await openBody(tester, (_) => list(40));
+      await tester.drag(
+        find.byKey(const ValueKey('sheet-body')),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      // 손잡이 아래 30px(핸들 자리 24 밖, 터치 44 안)에서 끕니다.
+      final top = tester.getTopLeft(find.byType(MyungliSheetFrame));
+      await tester.timedDragFrom(
+        top + const Offset(200, 30),
+        const Offset(0, 300),
+        const Duration(seconds: 1),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsNothing);
+    });
+
+    // F-027: 본문이 half 높이를 조금 넘는 SingleChildScrollView일 때 천천히 끌어
+    // 닫으면 시트가 떨리거나 닫히지 않던 버그.
+    for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+      testWidgets(
+        '${platform.name}: half보다 조금 긴 본문을 천천히 끌면 떨림 없이 따라오고 놓으면 닫힙니다',
+        (tester) async {
+          debugDefaultTargetPlatformOverride = platform;
+          try {
+            await openBody(
+              tester,
+              (_) => const SingleChildScrollView(
+                key: ValueKey('sheet-body'),
+                child: SizedBox(height: 900 * 0.6 + 80, width: 300),
+              ),
+            );
+            final frame = find.byType(MyungliSheetFrame);
+            final tops = <double>[];
+            var recording = true;
+            tester.binding.addPersistentFrameCallback((_) {
+              if (!recording || frame.evaluate().isEmpty) return;
+              tops.add(tester.getTopLeft(frame).dy);
+            });
+            addTearDown(() => recording = false);
+            await tester.timedDrag(
+              find.byKey(const ValueKey('sheet-body')),
+              const Offset(0, 300),
+              const Duration(seconds: 1),
+            );
+            final whileDragging = List<double>.of(tops);
+            await tester.pumpAndSettle();
+            recording = false;
+            for (var i = 1; i < whileDragging.length; i++) {
+              expect(
+                whileDragging[i],
+                greaterThanOrEqualTo(whileDragging[i - 1] - 0.5),
+                reason: 'frame $i: ${whileDragging.join(', ')}',
+              );
+            }
+            expect(frame, findsNothing);
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        },
+      );
+    }
+
     // 플랫폼마다 본문 스크롤 물리(Clamping·Bouncing)가 달라 둘 다 확인합니다.
     for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
       final bodies = <String, WidgetBuilder>{
@@ -1188,7 +1285,9 @@ void main() {
       }
     });
 
-    testWidgets('ios: bounce 상쇄로 빈 띠가 없고 놓은 뒤 복귀가 튀지 않습니다', (tester) async {
+    testWidgets('ios: bounce 상쇄는 본문 viewport 높이를 바꾸지 않고 놓은 뒤 복귀가 튀지 않습니다', (
+      tester,
+    ) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       try {
         await openBody(tester, (_) => list(40));
@@ -1196,7 +1295,7 @@ void main() {
         final body = find.byKey(const ValueKey('sheet-body'));
         final item = find.text('항목 0');
         final baseTop = tester.getTopLeft(frame).dy;
-        final baseBottom = tester.getBottomLeft(body).dy;
+        final baseHeight = tester.getSize(body).height;
         final baseRel = tester.getTopLeft(item).dy - baseTop;
         final gesture = await dragSlowlyThenStop(
           tester,
@@ -1205,8 +1304,8 @@ void main() {
         );
         final moved = tester.getTopLeft(frame).dy - baseTop;
         expect(moved, greaterThan(0));
-        // 본문 아래 끝이 시트와 같은 양만 움직여 빈 띠가 생기지 않습니다.
-        expect(tester.getBottomLeft(body).dy - baseBottom, closeTo(moved, 1));
+        // 본문 viewport 높이는 그대로입니다(A120, F-027).
+        expect(tester.getSize(body).height, baseHeight);
         expect(
           tester.getTopLeft(item).dy - tester.getTopLeft(frame).dy,
           closeTo(baseRel, 1),
@@ -1223,11 +1322,7 @@ void main() {
             closeTo(baseRel, 1),
             reason: 'frame $i',
           );
-          expect(
-            tester.getBottomLeft(body).dy - baseBottom,
-            closeTo(top - baseTop, 1),
-            reason: 'frame $i',
-          );
+          expect(tester.getSize(body).height, baseHeight, reason: 'frame $i');
           previous = top;
         }
         expect(tester.getTopLeft(frame).dy, closeTo(baseTop, 0.5));
