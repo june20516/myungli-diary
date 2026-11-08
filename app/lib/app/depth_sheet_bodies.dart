@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:myungli_diary/features/calendar/application/color_rule_sheets.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
+import 'package:myungli_diary/features/calendar/presentation/color_rule_sheet.dart';
 import 'package:myungli_diary/features/calendar/presentation/day_sheet_body.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
@@ -31,4 +33,9 @@ final List<Override> depthSheetBodyOverrides = [
 /// 오늘 화면(today)도 그날 시트를 열므로, 깊이 시트와 같은 이유로 조립 지점인 app이 잇습니다.
 final List<Override> daySheetBodyOverrides = [
   daySheetBodyProvider.overrideWithValue((date) => DaySheetBody(date: date)),
+];
+
+/// 색 규칙 시트(`color-rule-sheet`) 본문을 시트 서비스(`calendar/application`)에 연결하는 override.
+final List<Override> colorRuleSheetBodyOverrides = [
+  colorRuleSheetBodyProvider.overrideWithValue(() => const ColorRuleSheet()),
 ];

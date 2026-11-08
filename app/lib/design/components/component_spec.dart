@@ -8,6 +8,8 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
+import 'package:myungli_diary/design/components/calendar/score_row.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
@@ -118,6 +120,8 @@ const List<ComponentSpec> implementedComponents = [
   OfferCard.spec,
   PurchaseRowGroup.spec,
   EventRow.spec,
+  FortuneVerdict.spec,
+  ScoreRow.spec,
   CalendarMonthView.spec,
   DayCell.spec,
   TagChip.spec,

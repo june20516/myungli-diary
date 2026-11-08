@@ -5,8 +5,6 @@
 /// 여기 남아 있거나, 여기에도 등록부에도 없는 계약 id가 있으면 계약 대조 테스트가 실패합니다
 /// (ratchet). 단계 7(Task 23~24)이 끝나면 비어야 하고, Task 27이 빈 맵을 확인합니다.
 const Map<String, String> knownPendingComponents = {
-  'fortune-verdict': '그날 시트 길흉판정 새 컴포넌트 (Task 21)',
-  'score-row': '길흉판정 내역 줄 새 컴포넌트 (Task 21)',
   'birth-info-row': '사주 표 머리 출생 정보 줄 새 컴포넌트 (Task 23)',
   'band-table': '만세력 띠 표 새 컴포넌트 (Task 23)',
   'stage-strip': '12운성 띠 새 컴포넌트 (Task 23)',

@@ -107,6 +107,7 @@ Future<ProviderContainer> bootstrap({
       ...profileLanguageOverrides,
       ...depthSheetBodyOverrides,
       ...daySheetBodyOverrides,
+      ...colorRuleSheetBodyOverrides,
       ...realPlatformOverrides(resolvedMode, skip: skipRealPlatform),
       if (scenario != null) ...[
         databaseNameProvider.overrideWithValue(fakeDatabaseName),

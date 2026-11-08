@@ -42,6 +42,7 @@ const Map<String, SheetSpec> sheetRegistry = {
     handledStates: {'empty'},
     exits: {ScreenIds.tagDiary, ScreenIds.evidenceSheet},
   ),
+  ScreenIds.colorRuleSheet: SheetSpec(ScreenIds.colorRuleSheet),
   ScreenIds.daySheet: SheetSpec(
     ScreenIds.daySheet,
     handledStates: {'loading', 'empty', 'error'},
