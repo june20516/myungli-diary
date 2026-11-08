@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/input/field_error_line.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/line_height.dart';
@@ -304,6 +305,15 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                   child: TextField(
                     controller: _controller,
                     focusNode: _focus,
+                    // 모바일 기본은 밖을 눌러도 초점이 남아 키보드를 내릴 수 없습니다(F-013).
+                    onTapOutside: (_) => _focus.unfocus(),
+                    // 커서 줄이 키보드 내리기 버튼에 가리지 않게 그 자리만큼 더 올립니다.
+                    scrollPadding: const EdgeInsets.fromLTRB(
+                      Space.s20,
+                      Space.s20,
+                      Space.s20,
+                      Space.s20 + KeyboardDismissPortal.reservedHeight,
+                    ),
                     enabled: enabled,
                     maxLength: widget.maxLength,
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
@@ -417,64 +427,68 @@ class _MyungliTextFieldState extends State<MyungliTextField>
 
     final maxLength = widget.maxLength;
     final errorText = widget.errorText;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (widget.showLabel)
-          Padding(
-            padding: const EdgeInsets.only(bottom: Space.s8),
-            // 스크린리더는 칸 라벨로 읽으므로 이 글자는 따로 읽지 않습니다.
-            child: ExcludeSemantics(
-              child: Text(
-                widget.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: tokens.typography.labelMd.copyWith(
-                  color: colors.textPrimary,
+    // 초점이 있는 동안 키보드 위에 내리기 버튼(`focused` `keyboardDismiss`, V68).
+    return KeyboardDismissPortal(
+      focus: _focus,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.showLabel)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.s8),
+              // 스크린리더는 칸 라벨로 읽으므로 이 글자는 따로 읽지 않습니다.
+              child: ExcludeSemantics(
+                child: Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.typography.labelMd.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
               ),
             ),
-          ),
-        bordered,
-        if (errorText != null)
-          Padding(
-            padding: const EdgeInsets.only(top: Space.s8),
-            child: LiveAnnouncement(
-              label: errorText,
-              role: SemanticsRole.status,
-              identifier: widget.errorIdentifier,
-              child: FieldErrorLine(
-                key: MyungliTextField.errorLineKey,
-                text: errorText,
+          bordered,
+          if (errorText != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Space.s8),
+              child: LiveAnnouncement(
+                label: errorText,
+                role: SemanticsRole.status,
+                identifier: widget.errorIdentifier,
+                child: FieldErrorLine(
+                  key: MyungliTextField.errorLineKey,
+                  text: errorText,
+                ),
               ),
             ),
-          ),
-        if (maxLength != null)
-          Padding(
-            padding: const EdgeInsets.only(top: Space.s4),
-            child: ListenableBuilder(
-              listenable: _controller,
-              builder: (context, _) {
-                final length = _controller.text.characters.length;
-                // 스크린리더에는 "2/10" 대신 "글자 수 2/10"로 읽힙니다.
-                return Semantics(
-                  container: true,
-                  excludeSemantics: true,
-                  label: AppLocalizations.of(context)
-                      .textFieldCounter(length, maxLength),
-                  child: Text(
-                    '$length/$maxLength',
-                    textAlign: TextAlign.end,
-                    style: tokens.typography.captionMd.copyWith(
-                      color: colors.textSecondary,
+          if (maxLength != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Space.s4),
+              child: ListenableBuilder(
+                listenable: _controller,
+                builder: (context, _) {
+                  final length = _controller.text.characters.length;
+                  // 스크린리더에는 "2/10" 대신 "글자 수 2/10"로 읽힙니다.
+                  return Semantics(
+                    container: true,
+                    excludeSemantics: true,
+                    label: AppLocalizations.of(context)
+                        .textFieldCounter(length, maxLength),
+                    child: Text(
+                      '$length/$maxLength',
+                      textAlign: TextAlign.end,
+                      style: tokens.typography.captionMd.copyWith(
+                        color: colors.textSecondary,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

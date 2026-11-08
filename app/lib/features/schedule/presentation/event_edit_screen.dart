@@ -287,6 +287,8 @@ class _EventEditFormState extends ConsumerState<_EventEditForm> {
       children: [
         Expanded(
           child: SingleChildScrollView(
+            // 끌면 키보드가 내려갑니다(F-013).
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(
               Space.s20,
               Space.s8,

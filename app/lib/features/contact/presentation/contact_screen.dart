@@ -149,6 +149,8 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       children: [
         Expanded(
           child: SingleChildScrollView(
+            // 끌면 키보드가 내려갑니다(F-013).
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(
               Space.s20,
               Space.s12,

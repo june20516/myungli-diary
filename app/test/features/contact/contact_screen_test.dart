@@ -178,6 +178,17 @@ void main() {
       );
     });
 
+    testWidgets('입력 중 스크롤을 끌면 키보드가 내려갑니다(F-013)', (tester) async {
+      await _openContact(tester);
+      final scroll = tester.widget<SingleChildScrollView>(
+        find.byType(SingleChildScrollView).first,
+      );
+      expect(
+        scroll.keyboardDismissBehavior,
+        ScrollViewKeyboardDismissBehavior.onDrag,
+      );
+    });
+
     testWidgets('내용과 메일이 있어야 보내기가 켜지고, 메일 형식이 틀리면 보내지 않고 알립니다', (tester) async {
       final container = await _openContact(tester);
       expect(_sendEnabled(tester), isFalse);

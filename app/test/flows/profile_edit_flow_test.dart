@@ -225,6 +225,18 @@ void main() {
     expect(_saveButton(tester).onPressed, isNull);
     // 실패 전에는 오류 배너가 없습니다.
     expect(tester.widget<NoticeBanner>(_banner).present, isFalse);
+    // 끌면 키보드가 내려갑니다(F-013).
+    expect(
+      tester
+          .widget<ListView>(
+            find.ancestor(
+              of: find.byType(SettingsGroup).first,
+              matching: find.byType(ListView),
+            ),
+          )
+          .keyboardDismissBehavior,
+      ScrollViewKeyboardDismissBehavior.onDrag,
+    );
   });
 
   testWidgets('줄을 누르면 그 입력 화면을 수정 모드로, extra는 지금 값입니다', (tester) async {

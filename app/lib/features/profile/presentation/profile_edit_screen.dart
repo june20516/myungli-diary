@@ -299,6 +299,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
               ),
               Expanded(
                 child: ListView(
+                  // 끌면 키보드가 내려갑니다(F-013).
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(
                     Space.s20,
                     Space.s8,

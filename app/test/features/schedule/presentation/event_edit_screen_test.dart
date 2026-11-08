@@ -164,6 +164,19 @@ void main() {
     expect(_saveEnabled(tester), isTrue);
   });
 
+  testWidgets('입력 중 스크롤을 끌면 키보드가 내려갑니다(F-013)', (tester) async {
+    await _open(tester);
+    final scroll = tester.widget<SingleChildScrollView>(
+      find
+          .descendant(of: _screen, matching: find.byType(SingleChildScrollView))
+          .first,
+    );
+    expect(
+      scroll.keyboardDismissBehavior,
+      ScrollViewKeyboardDismissBehavior.onDrag,
+    );
+  });
+
   testWidgets('날짜가 없으면 오늘(2026-10-13)의 새 일정입니다', (tester) async {
     await _open(tester, location: '/event-edit');
     final picker = tester.widget<BirthDatePicker>(find.byType(BirthDatePicker));

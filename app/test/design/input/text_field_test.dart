@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -17,7 +18,104 @@ Finder _ring() => find.byWidgetPredicate(
       widget.position == DecorationPosition.foreground,
 );
 
+/// 키보드 inset [height]를 띄웁니다(OS 자동완성 줄 포함 값).
+void _showKeyboard(WidgetTester tester, [double height = 300]) {
+  tester.view.devicePixelRatio = 1;
+  tester.view.viewInsets = FakeViewPadding(bottom: height);
+  addTearDown(tester.view.resetViewInsets);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
+bool _fieldFocused(WidgetTester tester) =>
+    tester.widget<TextField>(find.byType(TextField)).focusNode!.hasFocus;
+
 void main() {
+  group('text-field 키보드 내리기(F-013, V68)', () {
+    Widget page() => inputApp(
+      const Column(
+        children: [
+          MyungliTextField(label: '이름'),
+          Expanded(child: SizedBox.expand()),
+        ],
+      ),
+    );
+
+    testWidgets('초점 중 칸 밖을 누르면 초점이 풀립니다', (tester) async {
+      await tester.pumpWidget(page());
+      await tester.showKeyboard(find.byType(TextField));
+      expect(_fieldFocused(tester), isTrue);
+
+      await tester.tapAt(const Offset(200, 400));
+      await tester.pump();
+      expect(_fieldFocused(tester), isFalse);
+    });
+
+    testWidgets('지우기 버튼은 칸 안이라 눌러도 초점이 남습니다', (tester) async {
+      await tester.pumpWidget(page());
+      await tester.showKeyboard(find.byType(TextField));
+      await tester.enterText(find.byType(TextField), '글');
+      await tester.pump();
+      await tester.tap(find.byKey(MyungliTextField.clearKey));
+      await tester.pump();
+      expect(_fieldFocused(tester), isTrue);
+    });
+
+    testWidgets('키보드가 보이는 동안 Scaffold 안 칸에서도 내리기 버튼이 키보드 위 12, 오른쪽 20에 뜨고 '
+        '누르면 초점이 풀립니다', (tester) async {
+      _showKeyboard(tester);
+      await tester.pumpWidget(page());
+      expect(find.byType(KeyboardDismissButton), findsNothing);
+      await tester.showKeyboard(find.byType(TextField));
+      await tester.pump();
+
+      final button = find.byType(KeyboardDismissButton);
+      expect(button, findsOneWidget);
+      final screen = tester.getRect(find.byType(Scaffold));
+      final rect = tester.getRect(button);
+      expect(
+        screen.bottom - 300 - rect.bottom,
+        KeyboardDismissOverlay.gapAboveKeyboard,
+      );
+      expect(screen.right - rect.right, KeyboardDismissOverlay.gapEnd);
+
+      await tester.tap(button);
+      await tester.pump();
+      expect(_fieldFocused(tester), isFalse);
+      expect(find.byType(KeyboardDismissButton), findsNothing);
+    });
+
+    testWidgets('키보드가 없으면 초점이 있어도 내리기 버튼이 없습니다', (tester) async {
+      await tester.pumpWidget(page());
+      await tester.showKeyboard(find.byType(TextField));
+      await tester.pump();
+      expect(find.byType(KeyboardDismissButton), findsNothing);
+    });
+
+    testWidgets('키보드가 늦게 올라와도 버튼이 따라 뜨고, 내려가면 사라집니다', (tester) async {
+      await tester.pumpWidget(page());
+      await tester.showKeyboard(find.byType(TextField));
+      await tester.pump();
+      _showKeyboard(tester);
+      await tester.pump();
+      expect(find.byType(KeyboardDismissButton), findsOneWidget);
+      tester.view.resetViewInsets();
+      await tester.pump();
+      expect(find.byType(KeyboardDismissButton), findsNothing);
+    });
+
+    testWidgets('커서 줄이 내리기 버튼에 가리지 않게 스크롤 아래 여백을 버튼 자리만큼 둡니다', (tester) async {
+      await tester.pumpWidget(page());
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(
+        field.scrollPadding.bottom,
+        greaterThanOrEqualTo(
+          KeyboardDismissButton.diameter +
+              KeyboardDismissOverlay.gapAboveKeyboard,
+        ),
+      );
+    });
+  });
+
   group('text-field 3.4.0(label, errorLine, email, minLines)', () {
     testWidgets('showLabel이면 칸 위에 이름을 label.md text.primary로 보이고 사이는 8입니다', (
       tester,
