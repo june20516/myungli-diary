@@ -529,6 +529,14 @@ void main() {
         tester.widget<HanjaTag>(_tagIn(TodayScreen.bodyTagKeyValue)).glyph,
         '天',
       );
+      // 바로 앞 "하나도 그릴 수 없는 날" 사례가 findsNothing으로 확인하는 같은 키가 대표 태그가 있는
+      // 날에는 실제로 그려집니다. 키 이름이 바뀌어 그 사례가 공허하게 통과하는 것을 막습니다.
+      expect(find.byKey(TodayScreen.featuredCardKey), findsOneWidget);
+      expect(find.text(_ko.todayFeaturedTitle), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(TodayScreen.bodyTagKeyValue)),
+        findsOneWidget,
+      );
     });
 
     testWidgets('사주 기운 태그를 누르면 사주 기운 시트이고 열린 동안 selected입니다', (tester) async {

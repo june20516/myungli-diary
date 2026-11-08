@@ -270,20 +270,50 @@ void main() {
         _host(_stats(), locale: const Locale('en'), textScale: 1.3),
       );
       expect(tester.takeException(), isNull);
+      var wrappedRows = 0;
       for (var i = 0; i < 4; i++) {
         final track = tester.getCenter(find.byKey(DiarySummary.trackKey(i)));
-        final row = find
-            .ancestor(
-              of: find.byKey(DiarySummary.trackKey(i)),
-              matching: find.byType(ConstrainedBox),
-            )
-            .first;
+        // 줄은 막대 칸의 조상 가운데 최소 높이 제약을 가진 ConstrainedBox입니다(순서에 기대지 않음).
+        final row = find.ancestor(
+          of: find.byKey(DiarySummary.trackKey(i)),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is ConstrainedBox &&
+                widget.constraints.minHeight == DiarySummary.rowMinHeight,
+          ),
+        );
+        expect(row, findsOneWidget, reason: '줄 $i');
         expect(
           track.dy,
           closeTo(tester.getCenter(row).dy, 0.5),
           reason: '줄 $i',
         );
+        // 이름 칸은 계약 폭 그대로이고, 이름이 한 줄보다 길어지면 칸 안에서 아래로 내려갑니다.
+        final nameCell = find.descendant(
+          of: row,
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is SizedBox && widget.width == DiarySummary.nameWidth,
+          ),
+        );
+        expect(
+          tester.getSize(nameCell).width,
+          DiarySummary.nameWidth,
+          reason: '줄 $i',
+        );
+        final style = tester
+            .widget<Text>(
+              find.descendant(of: nameCell, matching: find.byType(Text)),
+            )
+            .style!;
+        final oneLine = style.fontSize! * (style.height ?? 1) * 1.3;
+        final nameHeight = tester
+            .getSize(find.descendant(of: nameCell, matching: find.byType(Text)))
+            .height;
+        if (nameHeight > oneLine * 1.5) wrappedRows++;
       }
+      // en 1.3배 320 폭에서는 이름이 실제로 두 줄로 내려가는 줄이 있어야 이 사례가 뜻을 가집니다.
+      expect(wrappedRows, greaterThan(0));
     });
 
     testWidgets('글자 배율 상한 1.3배: 2.0배여도 편수 글자는 1.3배까지만 커집니다', (tester) async {
