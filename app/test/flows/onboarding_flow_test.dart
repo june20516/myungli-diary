@@ -96,6 +96,17 @@ Future<void> _settleConfirm(WidgetTester tester) async {
   }
 }
 
+/// 확인 줄을 감싼 FadeTransition들의 현재 투명도(깜빡이면 1 아래로 내려갑니다).
+List<double> _lineOpacities(WidgetTester tester, Key lineKey) => tester
+    .widgetList<FadeTransition>(
+      find.ancestor(
+        of: find.byKey(lineKey),
+        matching: find.byType(FadeTransition),
+      ),
+    )
+    .map((fade) => fade.opacity.value)
+    .toList();
+
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
 
@@ -502,12 +513,7 @@ void main() {
           overrides: [
             birthHourProvider.overrideWith((ref, query) async {
               return switch (query.time) {
-                '12:00' => BirthHour(
-                  branch: Branch.o,
-                  start: '11:30',
-                  end: '13:30',
-                ),
-                '13:00' => BirthHour(
+                '12:00' || '13:00' => BirthHour(
                   branch: Branch.o,
                   start: '11:30',
                   end: '13:30',
@@ -536,6 +542,11 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
           await tester.runAsync(() => Future<void>.delayed(Duration.zero));
           expect(find.byKey(lineKey), findsOneWidget, reason: '프레임 $i');
+          expect(
+            _lineOpacities(tester, lineKey),
+            everyElement(1.0),
+            reason: '프레임 $i',
+          );
         }
         expect(find.textContaining('미시'), findsOneWidget);
         expect(find.textContaining('오시'), findsNothing);
@@ -549,21 +560,28 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
           await tester.runAsync(() => Future<void>.delayed(Duration.zero));
           expect(find.byKey(lineKey), findsOneWidget, reason: '프레임 $i');
+          expect(
+            _lineOpacities(tester, lineKey),
+            everyElement(1.0),
+            reason: '프레임 $i',
+          );
         }
         expect(find.textContaining('미시'), findsOneWidget);
       },
     );
 
-    testWidgets('생일이 바뀌면 이전 생일의 시진이 아니라 새 생일의 시진으로 바뀝니다(F-030)', (
+    testWidgets('생일이 바뀌면 새 시진을 받기 전에는 줄이 빠지고 이전 생일의 시진이 보이지 않습니다(F-030)', (
       tester,
     ) async {
+      final newBirthdayHour = Completer<BirthHour?>();
       final container = await openTimeStep(
         tester,
         overrides: [
-          birthHourProvider.overrideWith((ref, query) async {
-            return query.date.year == 1990
-                ? BirthHour(branch: Branch.o, start: '11:30', end: '13:30')
-                : BirthHour(branch: Branch.mi, start: '13:30', end: '15:30');
+          birthHourProvider.overrideWith((ref, query) {
+            if (query.date.year == 1990) {
+              return BirthHour(branch: Branch.o, start: '11:30', end: '13:30');
+            }
+            return newBirthdayHour.future;
           }),
         ],
       );
@@ -582,6 +600,17 @@ void main() {
               ),
             ),
           );
+      await _settleConfirm(tester);
+      // 새 생일의 응답을 기다리는 동안 이전 생일의 시진은 보이지 않습니다.
+      expect(find.textContaining('오시'), findsNothing);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsNothing,
+      );
+
+      newBirthdayHour.complete(
+        BirthHour(branch: Branch.mi, start: '13:30', end: '15:30'),
+      );
       await _settleConfirm(tester);
       expect(find.textContaining('미시'), findsOneWidget);
       expect(find.textContaining('오시'), findsNothing);
