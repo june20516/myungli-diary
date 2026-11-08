@@ -25,10 +25,14 @@ final _reportedScoreItemGapsProvider = Provider<Set<String>>(
 /// 색 규칙 시트(`color-rule-sheet`, V87) 본문.
 ///
 /// 위에서부터 제목(`type.subtitle`, 핸들 자리 아래 `space.8`) → 설명 문장(`sentence-block`
-/// `body`) → 아래 `space.24`에 점수 항목 표 [ScoreRow.rule] 일곱 줄(줄 사이 `list.divider`)입니다
+/// `body`) → 아래 `space.24`에 점수 항목 표 [ScoreRow.rule] 일곱 줄(줄 사이
+/// `list.divider`)입니다
 /// (A116: 일곱 줄은 [ScoreItemMeta.rule] 상수, 점수 0 제외). 항목 이름은 용어 사전
 /// `score_item`이고, 사전에 이름이 없거나 한자 글자표에 없는 줄은 그리지 않고 비치명으로 한 번만
-/// 기록합니다(A112). 출구가 없고 태그는 누를 수 없습니다. 내용이 넘치면 시트 안에서 스크롤합니다.
+/// 기록합니다(A112). 사전을 받기 전(로딩, 오류)에는 표 자리에 보이지 않는 일곱 줄을 두어
+/// 높이를 지킵니다(계약은 뼈가 없음). 시트는 달력 화면 뒤에서 사전이 이미 로드된 채 열리는
+/// 경우가 대부분이라 이 자리는 드뭅니다. 사전 오류는 사전 쪽 기존 경로가 보고합니다.
+/// 출구가 없고 태그는 누를 수 없습니다. 내용이 넘치면 시트 안에서 스크롤합니다.
 class ColorRuleSheet extends ConsumerWidget {
   /// 색 규칙 시트 본문을 만듭니다.
   const new({super.key});
@@ -44,16 +48,18 @@ class ColorRuleSheet extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final tokens = context.tokens;
     final names = ref.watch(glossaryProvider).value;
-    final rows = <ScoreRow>[];
+    final rows = <Widget>[];
     final gaps = <String>[];
     for (final rule in ScoreItemMeta.rule) {
-      final name = names?.valueName(ScoreItemMeta.glossaryCategory, rule.id);
+      if (names == null) {
+        rows.add(_placeholderRow(rule.score));
+        continue;
+      }
+      final name = names.valueName(ScoreItemMeta.glossaryCategory, rule.id);
       final glyph = HanjaGlyphs.forScoreItem(rule.id);
       if (name == null || glyph == null) {
-        // 사전을 받은 뒤에만 빈칸으로 셉니다(받기 전에는 모든 항목이 이름이 없어 보임).
-        if (names != null) {
-          gaps.add('${ScoreItemMeta.glossaryCategory}.${rule.id}');
-        }
+        // 사전을 받은 뒤의 빈칸입니다(받기 전은 위에서 자리만 지킴).
+        gaps.add('${ScoreItemMeta.glossaryCategory}.${rule.id}');
         continue;
       }
       rows.add(ScoreRow.rule(glyph: glyph, name: name, score: rule.score));
@@ -105,6 +111,17 @@ class ColorRuleSheet extends ConsumerWidget {
       ),
     );
   }
+
+  /// 사전을 받기 전 자리 지킴 줄: 그리지도 읽지도 않고 높이만 차지합니다.
+  Widget _placeholderRow(int score) => Visibility(
+    visible: false,
+    maintainSize: true,
+    maintainAnimation: true,
+    maintainState: true,
+    child: ExcludeSemantics(
+      child: ScoreRow.rule(glyph: '合', name: '합', score: score),
+    ),
+  );
 
   void _reportGaps(WidgetRef ref, List<String> termIds) {
     final reported = ref.read(_reportedScoreItemGapsProvider);

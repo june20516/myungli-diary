@@ -235,4 +235,31 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(FortuneVerdict), findsNothing);
   });
+
+  testWidgets('내역이 있어도 섹션 묶음이 줄 의미를 삼키지 않음', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _app(_verdict(items: [_item('hap', 1), _item('gisin_day', -2)])),
+    );
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(FortuneVerdict)),
+    );
+    expect(
+      find.bySemanticsLabel('합, 합 뜻, ${l10n.daySheetVerdictItemPlus(1)}'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        '기신의 날, 기신의 날 뜻, ${l10n.daySheetVerdictItemMinus(2)}',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        '${l10n.daySheetVerdictTitle}, ${l10n.calendarLegendBodyNeutral}',
+      ),
+      findsOneWidget,
+    );
+    handle.dispose();
+  });
 }

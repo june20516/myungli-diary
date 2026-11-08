@@ -60,7 +60,8 @@ class ScoreRow extends StatelessWidget {
   /// 점 지름. 계약 `score-row.parts.dots.size`.
   static const double dotSize = 8;
 
-  /// 점 사이와 부호 뒤 간격. 계약 `dots.gap`·`dots.marginStart`는 `space.4`(spec의 3은 토큰이 아님, V56).
+  /// 점 사이와 부호 뒤 간격. 계약 `dots.gap`·`dots.marginStart`는 `space.4`
+  /// (spec의 3은 토큰이 아님, V56).
   static const double dotGap = Space.s4;
 
   /// 점 최대 개수(`dots.max`).
@@ -148,7 +149,8 @@ class ScoreRow extends StatelessWidget {
   bool get _plus => score > 0;
 
   String _semanticLabel(AppLocalizations l10n) {
-    final count = score.abs();
+    // 계약 a11y.label("더함 둘")대로 읽는 개수는 보이는 점 개수와 같습니다.
+    final count = dotCountOf(score);
     final change = _plus
         ? l10n.daySheetVerdictItemPlus(count)
         : l10n.daySheetVerdictItemMinus(count);
@@ -212,10 +214,7 @@ class ScoreRow extends StatelessWidget {
           tag,
           Expanded(
             child: Padding(
-              padding: const EdgeInsetsDirectional.only(
-                start: Space.s12,
-                end: Space.s12,
-              ),
+              padding: const EdgeInsetsDirectional.only(start: Space.s12),
               child: ExcludeSemantics(
                 child: Text(
                   meaning ?? '',
@@ -235,6 +234,8 @@ class ScoreRow extends StatelessWidget {
             ),
           ),
         ],
+        // 태그(또는 뜻)와 부호 사이 `sign.marginStart`(space.12)를 늘 남깁니다.
+        const SizedBox(width: Space.s12),
         trailing,
       ],
     );

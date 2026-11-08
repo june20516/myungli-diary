@@ -137,6 +137,25 @@ void main() {
     });
   }
 
+  testWidgets('사전을 받기 전에도 일곱 줄 높이를 지키고 읽지 않음', (tester) async {
+    await tester.pumpWidget(_app(names: _scoreItemNames));
+    final contentFinder = find.descendant(
+      of: find.byType(SingleChildScrollView),
+      matching: find.byType(Column),
+    );
+    final before = tester.getSize(contentFinder.first).height;
+    final hidden = find.descendant(
+      of: find.byType(ColorRuleSheet),
+      matching: find.byType(Visibility),
+    );
+    expect(hidden, findsNWidgets(7));
+    await tester.pump();
+    await tester.pump();
+    expect(hidden, findsNothing);
+    expect(find.byType(ScoreRow), findsNWidgets(7));
+    expect(tester.getSize(contentFinder.first).height, before);
+  });
+
   test('sheetRegistry: color-rule-sheet는 상태도 출구도 없음', () {
     final spec = sheetRegistry[ScreenIds.colorRuleSheet]!;
     expect(spec.handledStates, isEmpty);

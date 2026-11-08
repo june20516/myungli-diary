@@ -202,10 +202,37 @@ void main() {
 
   testWidgets('로딩 뼈는 줄 높이 48 이상', (tester) async {
     await tester.pumpWidget(_app(ScoreRow.skeleton(animated: false)));
+    expect(tester.takeException(), isNull);
     expect(
-      tester.getSize(find.byType(ConstrainedBox).first).height,
-      greaterThanOrEqualTo(0),
+      tester.getSize(find.byType(ConstrainedBox).last).height,
+      greaterThanOrEqualTo(ScoreRow.minHeight),
+    );
+    expect(ScoreRow.minHeight, 48);
+  });
+
+  testWidgets('rule: 글자 2배 긴 이름에서도 태그와 부호 사이 12를 남김', (tester) async {
+    await tester.pumpWidget(
+      _app(
+        const ScoreRow.rule(glyph: '沖', name: '일지나 월지와의 충', score: -2),
+        textScale: 2,
+      ),
     );
     expect(tester.takeException(), isNull);
+    final tag = tester.getRect(find.byType(HanjaTag));
+    final sign = tester.getRect(find.byKey(ScoreRow.signKey));
+    expect(sign.left - tag.right, greaterThanOrEqualTo(12));
+  });
+
+  testWidgets('점수 4를 읽는 개수는 점과 같은 셋', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _app(const ScoreRow.rule(glyph: '用', name: '용신의 날', score: 4)),
+    );
+    final l10n = AppLocalizations.of(tester.element(find.byType(ScoreRow)));
+    expect(
+      find.bySemanticsLabel('용신의 날, ${l10n.daySheetVerdictItemPlus(3)}'),
+      findsOneWidget,
+    );
+    handle.dispose();
   });
 }

@@ -19,7 +19,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// [items]가 null(내역이 계약에 없음, `noBreakdown`)이거나 비어(`noItems`) 있으면 막대와 이름만
 /// 그립니다. 내역은 더함 먼저, 뺌 다음이고 같은 부호 안은 받은 순서(server 순서)이며 점수 0
 /// 항목은 그리지 않습니다. 이름([nameOf])이나 한자 글자표가 없는 항목은 줄을 그리지 않고
-/// [onUnrenderable]로 id를 알립니다(A112). 스크린리더는 묶음 하나로 "섹션 제목, 단계 이름"을
+/// [onUnrenderable]로 id를 알립니다(A112). 이 콜백은 다시 그릴 때마다 호출될 수 있어
+/// 부르는 쪽이 중복을 제거해야 합니다. 스크린리더는 묶음 하나로 "섹션 제목, 단계 이름"을
 /// 읽고 이어서 줄을 읽습니다.
 class FortuneVerdict extends StatelessWidget {
   /// 길흉판정 카드를 만듭니다.
@@ -73,7 +74,8 @@ class FortuneVerdict extends StatelessWidget {
   /// 내역 줄의 태그를 눌렀을 때.
   final void Function(ScoreItem item)? onItemTap;
 
-  /// 그릴 수 없어 건너뛴 항목 id(이름이나 글자표가 없음)를 알립니다.
+  /// 그릴 수 없어 건너뛴 항목 id(이름이나 글자표가 없음)를 알립니다. 다시 그릴 때마다
+  /// 호출될 수 있으니 부르는 쪽이 중복을 제거합니다.
   final void Function(List<String> ids)? onUnrenderable;
 
   /// [score]의 막대 위 자리(0~1): `(clamp(score, -3, 3) + 3) / 6`.
@@ -143,7 +145,10 @@ class FortuneVerdict extends StatelessWidget {
       final report = onUnrenderable;
       if (report != null) {
         // build 중 상태를 바꾸지 않도록 그린 뒤에 알립니다.
-        WidgetsBinding.instance.addPostFrameCallback((_) => report(skipped));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          report(skipped);
+        });
       }
     }
     return Semantics(
