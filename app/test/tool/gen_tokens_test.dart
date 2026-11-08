@@ -193,6 +193,7 @@ void main() {
         };
         final roles = theme.keys.where(
           (n) =>
+              theme[n]!.type == 'color' &&
               n.startsWith('color.') &&
               !RegExp(r'^color\.(sage|coral|neutral)\.|^color\.white$')
                   .hasMatch(n),
@@ -233,6 +234,59 @@ void main() {
       final out = generateTokensSource(edited);
       expect(out, matches(RegExp(r'^\s*/// 첫째 줄$', multiLine: true)));
       expect(out, matches(RegExp(r'^\s*/// 둘째 줄$', multiLine: true)));
+    });
+
+    test('1.4.0 새 토큰 이름이 생성 결과에 있다', () {
+      for (final id in [
+        'verdictTrack',
+        'calendarLevelGreat',
+        'calendarLevelGood',
+        'calendarLevelCaution',
+        'highlightBg',
+        'fillSoft',
+        'pageDuration',
+        'pageEasing',
+        'pageOffset',
+        'hairline',
+        's16',
+        's20',
+        's24',
+        's28',
+      ]) {
+        expect(source, contains(id), reason: id);
+      }
+    });
+
+    test('gradient 값은 색 역할이 아니라 GradientTokens로 간다', () {
+      expect(source, isNot(contains('final Color verdictTrack')));
+      expect(source, contains('final LinearGradient verdictTrack'));
+    });
+
+    test('verdictTrack 두 점: 라이트 d4d4d3 ffd2ca, 다크 2a2a29 582720', () {
+      expect(lightGradients.verdictTrack.colors, const [
+        Color(0xFFD4D4D3),
+        Color(0xFFFFD2CA),
+      ]);
+      expect(darkGradients.verdictTrack.colors, const [
+        Color(0xFF2A2A29),
+        Color(0xFF582720),
+      ]);
+    });
+
+    test('page 움직임, hairline, 아이콘 크기 값', () {
+      expect(Motion.pageDuration, const Duration(milliseconds: 320));
+      expect(Motion.pageEasing, const Cubic(0.2, 0.8, 0.2, 1));
+      expect(Motion.pageOffset, 24);
+      expect(BorderTokens.hairline, 0.5);
+      expect(
+        [
+          IconSizeTokens.s16,
+          IconSizeTokens.s20,
+          IconSizeTokens.s24,
+          IconSizeTokens.s28,
+        ],
+        [16, 20, 24, 28],
+      );
     });
 
     test('커밋된 tokens.g.dart가 다시 생성한 결과와 정확히 같다', () async {

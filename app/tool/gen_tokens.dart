@@ -82,6 +82,8 @@ String generateTokensSource(TokenThemes themes) {
   _writeSpace(out, themes.lightKo);
   _writeRadii(out, themes.lightKo);
   _writeMotion(out, themes.lightKo);
+  _writeBorders(out, themes.lightKo);
+  _writeIconSizes(out, themes.lightKo);
   _writeShadows(out, themes.lightKo);
   return out.toString();
 }
@@ -152,11 +154,17 @@ String _colorSource(Object? value) {
 
 // ---- 색 ----
 
-bool _isColorRole(String name) =>
-    name.startsWith('color.') && !_isRawPalette(name);
+/// 색 역할은 `$type`이 color인 토큰뿐입니다. `color.` 아래의 gradient는 그라데이션으로 갑니다.
+bool _isColorRole(ResolvedToken token) =>
+    token.type == 'color' &&
+    token.name.startsWith('color.') &&
+    !_isRawPalette(token.name);
 
 void _writeColors(StringBuffer out, TokenThemes themes) {
-  final names = themes.lightKo.keys.where(_isColorRole).toList();
+  final names = themes.lightKo.values
+      .where(_isColorRole)
+      .map((token) => token.name)
+      .toList();
   final ids = _identifiers(names, (n) => _camel(n.substring('color.'.length)));
 
   out
@@ -269,9 +277,10 @@ void _writeGradients(StringBuffer out, TokenThemes themes) {
       .where((token) => token.type == 'gradient')
       .map((token) => token.name)
       .toList();
+  // 맨 앞 묶음 이름(`gradient.`, `color.`)을 떼고 camelCase로 씁니다.
   final ids = _identifiers(
     names,
-    (n) => _camel(n.substring('gradient.'.length)),
+    (n) => _camel(n.substring(n.indexOf('.') + 1)),
   );
 
   out
@@ -356,32 +365,94 @@ void _writeRadii(StringBuffer out, Map<String, ResolvedToken> theme) {
 // ---- 움직임 ----
 
 void _writeMotion(StringBuffer out, Map<String, ResolvedToken> theme) {
+  const kinds = ['duration', 'easing', 'offset'];
   final names = [
-    ..._namesUnder(theme, 'motion.duration.'),
-    ..._namesUnder(theme, 'motion.easing.'),
+    for (final kind in kinds) ..._namesUnder(theme, 'motion.$kind.'),
   ];
-  final ids = _identifiers(
-    names,
-    (n) => _camel(n.split('.').skip(2).join('.')),
-  );
-  out.writeln('/// 움직임 시간과 곡선.\nabstract final class Motion {');
+  String kindOf(String name) => name.split('.')[1];
+  String baseOf(String name) => _camel(name.split('.').skip(2).join('.'));
+
+  // 종류가 달라도 이름(예: page)이 같으면 종류를 이름 끝에 붙입니다(pageDuration).
+  final kindsByBase = <String, Set<String>>{};
+  for (final name in names) {
+    kindsByBase.putIfAbsent(baseOf(name), () => {}).add(kindOf(name));
+  }
+  String toId(String name) {
+    final base = baseOf(name);
+    if (kindsByBase[base]!.length == 1) {
+      return base;
+    }
+    final kind = kindOf(name);
+    return '$base${kind[0].toUpperCase()}${kind.substring(1)}';
+  }
+
+  final ids = _identifiers(names, toId);
+  out.writeln('/// 움직임 시간, 곡선, 이동 거리.\nabstract final class Motion {');
   for (final name in names) {
     final token = theme[name]!;
-    if (token.type == 'duration') {
-      out.writeln(
-        'static const Duration ${ids[name]} = '
-        'Duration(milliseconds: ${parseDurationMs(token.value)});',
-      );
-    } else {
-      final points = (token.value! as List<Object?>).cast<num>();
-      if (points.length != 4) {
-        throw TokenError("'$name'의 cubicBezier는 숫자 4개여야 합니다.");
-      }
-      out.writeln(
-        'static const Cubic ${ids[name]} = '
-        'Cubic(${points.map(_number).join(', ')});',
-      );
+    switch (token.type) {
+      case 'duration':
+        out.writeln(
+          'static const Duration ${ids[name]} = '
+          'Duration(milliseconds: ${parseDurationMs(token.value)});',
+        );
+      case 'cubicBezier':
+        final points = (token.value! as List<Object?>).cast<num>();
+        if (points.length != 4) {
+          throw TokenError("'$name'의 cubicBezier는 숫자 4개여야 합니다.");
+        }
+        out.writeln(
+          'static const Cubic ${ids[name]} = '
+          'Cubic(${points.map(_number).join(', ')});',
+        );
+      case 'dimension':
+        out.writeln(
+          'static const double ${ids[name]} = '
+          '${_number(parseDimension(token.value))};',
+        );
+      default:
+        throw TokenError("'$name'의 \$type '${token.type}'은 움직임에 없습니다.");
     }
+  }
+  out
+    ..writeln('}')
+    ..writeln();
+}
+
+// ---- 선 굵기·아이콘 크기 ----
+
+void _writeBorders(StringBuffer out, Map<String, ResolvedToken> theme) {
+  final names = _namesUnder(theme, 'border.width.').toList();
+  final ids = _identifiers(
+    names,
+    (n) => _camel(n.substring('border.width.'.length)),
+  );
+  out.writeln('/// 선 굵기(logical px).\nabstract final class BorderTokens {');
+  for (final name in names) {
+    out.writeln(
+      'static const double ${ids[name]} = '
+      '${_number(parseDimension(theme[name]!.value))};',
+    );
+  }
+  out
+    ..writeln('}')
+    ..writeln();
+}
+
+void _writeIconSizes(StringBuffer out, Map<String, ResolvedToken> theme) {
+  final names = _namesUnder(theme, 'size.icon.').toList();
+  final ids = _identifiers(
+    names,
+    (n) => 's${n.substring('size.icon.'.length)}',
+  );
+  out.writeln(
+    '/// 아이콘 크기 단계(logical px).\nabstract final class IconSizeTokens {',
+  );
+  for (final name in names) {
+    out.writeln(
+      'static const double ${ids[name]} = '
+      '${_number(parseDimension(theme[name]!.value))};',
+    );
   }
   out
     ..writeln('}')
