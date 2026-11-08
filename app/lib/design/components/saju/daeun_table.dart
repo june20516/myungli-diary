@@ -98,8 +98,8 @@ final class SeunYear {
 /// 그 칸이 줄 가운데 오도록(넘길 수 있는 범위 안) 움직임 없이 넘겨 둡니다. 두 줄은 따로 넘깁니다.
 ///
 /// 스크린리더는 줄마다 목록(이름은 섹션 제목)이고 항목은 기둥 그룹입니다. 그룹 라벨은 나이 또는
-/// 연도, 누를 수 없는 라벨, 간지, 시작 연도이고 누를 수 있는 칩은 따로 초점을 받습니다. 글자
-/// 크기는 1.3배에서 멈춥니다.
+/// 연도, 누를 수 없는 라벨, 간지, 시작 연도이고 누를 수 있는 칩은 따로 초점을 받습니다. 기둥
+/// 줄의 글자 크기는 1.3배에서 멈추고, 섹션 머리는 기기 글자 배율을 그대로 따릅니다.
 class DaeunTable extends StatefulWidget {
   /// 두 줄을 만듭니다.
   const new({
@@ -148,7 +148,7 @@ class DaeunTable extends StatefulWidget {
   /// 카드 위아래 안쪽 여백(`row.container.paddingY` `space.12`).
   static const double cardPaddingY = Space.s12;
 
-  /// 글자 크기를 멈추는 배율.
+  /// 기둥 줄의 글자 크기를 멈추는 배율(섹션 머리는 멈추지 않음).
   static const double textScaleMax = 1.3;
 
   /// 대운 줄(가로 스크롤)을 찾는 테스트용 키.
@@ -258,50 +258,53 @@ class _DaeunTableState extends State<DaeunTable> {
   @override
   Widget build(BuildContext context) {
     final widget = this.widget;
-    return MediaQuery.withClampedTextScaling(
+    // 섹션 머리는 원국 탭 섹션 머리처럼 기기 글자 배율을 그대로 따르고, 기둥 줄만 1.3배에서
+    // 멈춥니다(a11y.textScaleMax는 기둥 줄 몫, controller 결정 B).
+    Widget card(Widget child) => MediaQuery.withClampedTextScaling(
       maxScaleFactor: DaeunTable.textScaleMax,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionHeader(
-            title: widget.daeunTitle,
-            description: widget.daeunDescription,
-          ),
-          const SizedBox(height: SectionHeader.contentGap),
-          _Card(
-            child: widget.loading
-                ? _SkeletonRow(animated: widget.animated)
-                : LayoutBuilder(
-                    builder: (context, constraints) => _row(
-                      context,
-                      scrollKey: DaeunTable.daeunScrollKey,
-                      controller: _daeunController(constraints.maxWidth),
-                      label: widget.daeunTitle,
-                      pillars: _daeunPillars(context),
-                    ),
+      child: _Card(child: child),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(
+          title: widget.daeunTitle,
+          description: widget.daeunDescription,
+        ),
+        const SizedBox(height: SectionHeader.contentGap),
+        card(
+          widget.loading
+              ? _SkeletonRow(animated: widget.animated)
+              : LayoutBuilder(
+                  builder: (context, constraints) => _row(
+                    context,
+                    scrollKey: DaeunTable.daeunScrollKey,
+                    controller: _daeunController(constraints.maxWidth),
+                    label: widget.daeunTitle,
+                    pillars: _daeunPillars(context),
                   ),
-          ),
-          const SizedBox(height: SectionHeader.sectionGap),
-          SectionHeader(
-            title: widget.seunTitle,
-            description: widget.seunDescription,
-          ),
-          const SizedBox(height: SectionHeader.contentGap),
-          _Card(
-            child: widget.loading
-                ? _SkeletonRow(animated: widget.animated)
-                : LayoutBuilder(
-                    builder: (context, constraints) => _row(
-                      context,
-                      scrollKey: DaeunTable.seunScrollKey,
-                      controller: _seunController(constraints.maxWidth),
-                      label: widget.seunTitle,
-                      pillars: _seunPillars(context),
-                    ),
+                ),
+        ),
+        const SizedBox(height: SectionHeader.sectionGap),
+        SectionHeader(
+          title: widget.seunTitle,
+          description: widget.seunDescription,
+        ),
+        const SizedBox(height: SectionHeader.contentGap),
+        card(
+          widget.loading
+              ? _SkeletonRow(animated: widget.animated)
+              : LayoutBuilder(
+                  builder: (context, constraints) => _row(
+                    context,
+                    scrollKey: DaeunTable.seunScrollKey,
+                    controller: _seunController(constraints.maxWidth),
+                    label: widget.seunTitle,
+                    pillars: _seunPillars(context),
                   ),
-          ),
-        ],
-      ),
+                ),
+        ),
+      ],
     );
   }
 

@@ -84,6 +84,15 @@ final Finder _yongsinBasis = _inChart(
   ),
 );
 
+/// 시간 모름 안내 배너.
+final Finder _timeUnknownBanner = _inChart(
+  find.byWidgetPredicate(
+    (widget) =>
+        widget is NoticeBanner &&
+        widget.variant == NoticeBannerVariant.timeUnknown,
+  ),
+);
+
 final Finder _evidenceSheet = find.byKey(const Key(ScreenIds.evidenceSheet));
 
 Finder _inEvidence(Finder matching) =>
@@ -678,9 +687,8 @@ void main() {
   testWidgets('time-unknown: 시주 빈 칸과 안내', (tester) async {
     covers(const Covers(states: ['saju-chart:time-unknown']));
     await _openFromMySaju(tester, scenario: 'member-time-unknown');
-    final banner = tester.widget<NoticeBanner>(
-      _inChart(find.byType(NoticeBanner)),
-    );
+    // 오프라인 배너는 숨은 채(present: false) 자리만 있어 시간 모름 배너를 골라 봅니다.
+    final banner = tester.widget<NoticeBanner>(_timeUnknownBanner);
     expect(banner.variant, NoticeBannerVariant.timeUnknown);
     expect(banner.message, _ko.sajuChartTimeUnknownNotice);
     final pillars = tester.widget<SajuPillars>(
@@ -692,7 +700,7 @@ void main() {
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
     expect(_band(manse).columns[0].empty, isTrue);
-    expect(_inChart(find.byType(NoticeBanner)), findsOneWidget);
+    expect(_timeUnknownBanner, findsOneWidget);
   });
 
   testWidgets('loading: 받는 동안 skeleton, 오면 내용', (tester) async {

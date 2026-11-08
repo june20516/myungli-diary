@@ -223,9 +223,13 @@ void main() {
     expect(veil.lead?.segments.single.text, '여름에 태어난 경금은');
   });
 
-  testWidgets('대운과 세운: 섹션 머리, luck-pillar 줄 둘, 처음에 지금과 올해 칸이 보임', (
+  testWidgets('대운과 세운: 섹션 머리, luck-pillar 줄 둘, 좁은 폭(360)에서도 처음에 지금과 올해 칸이 보임', (
     tester,
   ) async {
+    tester.view
+      ..physicalSize = const Size(360, 780)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await _openChart(tester, luck: true);
     final titles = tester
         .widgetList<SectionHeader>(_inChart(find.byType(SectionHeader)))
@@ -242,6 +246,11 @@ void main() {
     // 1990년생 2026년: 지금 대운은 넷째(34세), 올해 세운은 2026년입니다.
     final current = find.byKey(DaeunTable.daeunKey(3));
     expect(_insideViewport(tester, current, daeunRow), isTrue);
+    // 좁은 폭이라 첫 기둥은 넘겨져 다 보이지 않습니다(지금 칸이 가운데 쪽).
+    expect(
+      _insideViewport(tester, find.byKey(DaeunTable.daeunKey(0)), daeunRow),
+      isFalse,
+    );
     expect(tester.widget<LuckPillar>(current).current, isTrue);
     final thisYear = find.byKey(DaeunTable.seunKey(2026));
     expect(_insideViewport(tester, thisYear, seunRow), isTrue);
@@ -274,6 +283,28 @@ void main() {
       find.descendant(of: _explain, matching: find.byType(StageStrip)),
       findsOneWidget,
     );
+  });
+
+  testWidgets('시간 모름이면 12운성 시트의 stage-strip은 시 자리를 뺀 일, 월, 연 세 자리', (
+    tester,
+  ) async {
+    await _openChart(tester, luck: true, scenario: 'member-time-unknown');
+    final chip = _inChart(
+      find.widgetWithText(TermToken, _ko.manseRowTwelveStages),
+    );
+    await tester.ensureVisible(chip);
+    await tester.pumpAndSettle();
+    await tester.tap(chip);
+    await settleWithIo(tester);
+
+    final strip = tester.widget<StageStrip>(
+      find.descendant(of: _explain, matching: find.byType(StageStrip)),
+    );
+    expect(strip.positions.keys, [
+      PillarPosition.day,
+      PillarPosition.month,
+      PillarPosition.year,
+    ]);
   });
 
   testWidgets('띠 머리 "지장간" → 설명 시트(stage-strip 없음)', (tester) async {

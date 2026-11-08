@@ -260,15 +260,19 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('글자 크기 1.3배에서 멈춥니다', (tester) async {
+  testWidgets('글자 크기: 기둥 줄만 1.3배에서 멈추고 섹션 머리는 기기 배율을 따릅니다', (tester) async {
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(textScaler: TextScaler.linear(2)),
         child: inputApp(_table()),
       ),
     );
-    final scaler = MediaQuery.textScalerOf(tester.element(_daeun(0)));
-    expect(scaler.scale(10), closeTo(13, 0.01));
+    final pillar = MediaQuery.textScalerOf(tester.element(_daeun(0)));
+    expect(pillar.scale(10), closeTo(13, 0.01));
+    final header = MediaQuery.textScalerOf(
+      tester.element(find.text('10년마다 바뀌는 큰 흐름이에요.')),
+    );
+    expect(header.scale(10), closeTo(20, 0.01));
     expect(tester.takeException(), isNull);
   });
 

@@ -213,6 +213,8 @@ class SentenceBlock extends StatelessWidget {
   Widget _buildLocked(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final open = onOpenLocked;
+    // 위 맞춤과 veil, 열기 사이 space.12는 계약 값이 없어 시각 정렬용으로 둔 app 값입니다
+    // (열기가 첫 줄 높이에 오고 흐린 글줄에 붙지 않게).
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

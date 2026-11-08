@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
-import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -95,38 +94,58 @@ class _SajuChartScreenState extends ConsumerState<SajuChartScreen> {
                 // 스택 바닥(딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
                 showBack: MyungliAppBar.canGoBack(context),
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
-                child: _SajuChartHead(),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Space.s20,
-                  Space.s16,
-                  Space.s20,
-                  Space.s16,
-                ),
-                child: Segmented<SajuChartTab>(
-                  items: [
-                    SegmentedItem(SajuChartTab.natal, l10n.sajuChartTabNatal),
-                    SegmentedItem(SajuChartTab.luck, l10n.sajuChartTabLuck),
-                  ],
-                  selected: _tab,
-                  onChanged: (tab) => setState(() => _tab = tab),
-                  label: l10n.sajuChartBarTitle,
-                ),
-              ),
               Expanded(
-                child: ScreenStateView<Chart>(
-                  value: chart,
-                  onRetry: () =>
-                      ref.read(chartControllerProvider.notifier).reload(),
-                  skeleton: _SajuChartSkeleton(tab: _tab),
-                  dataWithNotice: (value, notice) => _SajuChartBody(
-                    chart: value,
-                    tab: _tab,
-                    offlineNotice: notice,
+                // 머리와 탭 고르기는 탭 내용과 함께 스크롤합니다. 작은 화면과 큰 글자에서 본문
+                // 높이를 지키고, 탭을 바꿔도 머리는 같은 모양입니다(controller 결정 A).
+                child: ListView(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.paddingOf(context).bottom + Space.s32,
                   ),
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        Space.s20,
+                        Space.s8,
+                        Space.s20,
+                        0,
+                      ),
+                      child: _SajuChartHead(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Space.s20,
+                        Space.s16,
+                        Space.s20,
+                        Space.s16,
+                      ),
+                      child: Segmented<SajuChartTab>(
+                        items: [
+                          SegmentedItem(
+                            SajuChartTab.natal,
+                            l10n.sajuChartTabNatal,
+                          ),
+                          SegmentedItem(
+                            SajuChartTab.luck,
+                            l10n.sajuChartTabLuck,
+                          ),
+                        ],
+                        selected: _tab,
+                        onChanged: (tab) => setState(() => _tab = tab),
+                        label: l10n.sajuChartBarTitle,
+                      ),
+                    ),
+                    ScreenStateView<Chart>(
+                      value: chart,
+                      onRetry: () =>
+                          ref.read(chartControllerProvider.notifier).reload(),
+                      skeleton: _SajuChartSkeleton(tab: _tab),
+                      dataWithNotice: (value, notice) => _SajuChartBody(
+                        chart: value,
+                        tab: _tab,
+                        offlineNotice: notice,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -151,32 +170,30 @@ class _SajuChartBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return ListView(
-      padding: EdgeInsets.fromLTRB(
-        Space.s20,
-        0,
-        Space.s20,
-        MediaQuery.paddingOf(context).bottom + Space.s32,
-      ),
-      children: [
-        offlineNotice,
-        if (chartTimeUnknown(chart))
-          Padding(
-            padding: const EdgeInsets.only(bottom: Space.s16),
-            child: NoticeBanner(
-              variant: NoticeBannerVariant.timeUnknown,
-              message: l10n.sajuChartTimeUnknownNotice,
-              identifier: SlotIds.sajuChartTimeUnknownNotice,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          offlineNotice,
+          if (chartTimeUnknown(chart))
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.s16),
+              child: NoticeBanner(
+                variant: NoticeBannerVariant.timeUnknown,
+                message: l10n.sajuChartTimeUnknownNotice,
+                identifier: SlotIds.sajuChartTimeUnknownNotice,
+              ),
             ),
+          SeepOnChange(
+            changeKey: tab,
+            child: switch (tab) {
+              SajuChartTab.natal => SajuChartNatalTab(chart: chart),
+              SajuChartTab.luck => SajuChartLuckTab(chart: chart),
+            },
           ),
-        SeepOnChange(
-          changeKey: tab,
-          child: switch (tab) {
-            SajuChartTab.natal => SajuChartNatalTab(chart: chart),
-            SajuChartTab.luck => SajuChartLuckTab(chart: chart),
-          },
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -191,8 +208,7 @@ class _SajuChartSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Space.s20),
       child: switch (tab) {
         SajuChartTab.natal => Column(
@@ -263,6 +279,7 @@ class _SajuChartHead extends ConsumerWidget {
     final profileState = ref.watch(profileProvider);
     final chartState = ref.watch(chartControllerProvider);
     final profile = profileState.value;
+    // 머리 제목 서체: 계약(saju.json, IA)에 값이 없어 app이 고른 type.title입니다.
     final titleStyle = tokens.typography.title.copyWith(
       color: tokens.colors.textPrimary,
     );
@@ -312,12 +329,11 @@ class _SajuChartHead extends ConsumerWidget {
   ) {
     if (profile == null) return null;
     final birth = profile.birth;
-    final lunar = birth.calendar == CalendarType.lunar;
-    final calendarTag = lunar
-        ? (birth.isLeapMonth
-              ? [l10n.calendarLunar, l10n.dayCellLeapMonth].join(' ')
-              : l10n.calendarLunar)
-        : l10n.calendarSolar;
+    final calendarTag = birthCalendarTag(
+      l10n,
+      calendar: birth.calendar,
+      isLeapMonth: birth.isLeapMonth,
+    );
     final date = formatBirthDayNumeric(
       l10n.localeName,
       birth.date.year,

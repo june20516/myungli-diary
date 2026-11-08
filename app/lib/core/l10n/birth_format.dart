@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/branch.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 
 /// [locale]의 연월일 모양(`yMMMMd`, 예 "1990년 5월 15일")으로 쓰되, 날 칸은 [day] 숫자를
@@ -81,3 +82,16 @@ String genderLabel(AppLocalizations l10n, BirthGenderEnum gender) =>
       BirthGenderEnum.female => l10n.genderFemale,
       BirthGenderEnum.male => l10n.genderMale,
     };
+
+/// 출생 정보 줄의 달력 종류 꼬리표: "양력", "음력", 음력 윤달이면 "음력 윤달"(달력 종류 낱말과
+/// 윤달 낱말을 띄어 잇습니다, `birth-info-row` `calendarTag`).
+String birthCalendarTag(
+  AppLocalizations l10n, {
+  required CalendarType calendar,
+  required bool isLeapMonth,
+}) {
+  if (calendar != CalendarType.lunar) return l10n.calendarSolar;
+  return isLeapMonth
+      ? [l10n.calendarLunar, l10n.dayCellLeapMonth].join(' ')
+      : l10n.calendarLunar;
+}
