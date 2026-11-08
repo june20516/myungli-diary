@@ -4,11 +4,7 @@
 /// 컴포넌트를 만드는 task가 `implementedComponents`에 올리면서 여기서 지웁니다. 등록한 id가
 /// 여기 남아 있거나, 여기에도 등록부에도 없는 계약 id가 있으면 계약 대조 테스트가 실패합니다
 /// (ratchet). 단계 7(Task 23~24)이 끝나면 비어야 하고, Task 27이 빈 맵을 확인합니다.
-const Map<String, String> knownPendingComponents = {
-  'birth-info-row': '사주 표 머리 출생 정보 줄 새 컴포넌트 (Task 23)',
-  'band-table': '만세력 띠 표 새 컴포넌트 (Task 23)',
-  'stage-strip': '12운성 띠 새 컴포넌트 (Task 23)',
-};
+const Map<String, String> knownPendingComponents = {};
 
 /// 대기 중인 대조 하나: 이유와 담당 task, 그리고 아직 따라잡지 않아 나야 하는 실패의 표지.
 typedef PendingCheck = ({String reason, String failure});
@@ -21,12 +17,6 @@ typedef PendingCheck = ({String reason, String failure});
 /// 통과하면 테스트가 "대기 목록에서 지우세요"로 실패하므로(ratchet) 그때 여기서 지웁니다.
 /// Task 27이 빈 맵을 확인합니다.
 const Map<String, PendingCheck> knownPendingChecks = {
-  'manse-table spec': (
-    reason:
-        'loading 뼈가 기준 줄 + band-table 뼈라 band-table이 있어야 함 '
-        '(V89, Task 23)',
-    failure: 'manse-table states',
-  ),
   'daeun-table spec': (
     reason:
         'states.current, thisYear 삭제와 luck-pillar 뼈 loading '

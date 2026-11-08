@@ -11,9 +11,6 @@ enum OhaengCellSize {
   /// 원국표 기둥 칸: 높이 66, 한자 `type.hanja.pillar` + 아래 독음 `type.caption.sm`.
   pillar,
 
-  /// 만세력·대운 칸: 30 × 30, 한자 15 700(`font.family.hanja`), 독음 없음.
-  mini,
-
   /// 대운, 세운 기둥 칸(`luck-pillar`): 40 × 40, 한자 18 700, 독음 없음.
   small,
 }
@@ -42,9 +39,6 @@ class OhaengCell extends StatelessWidget {
 
   /// 칸 높이(`pillar`).
   static const double pillarHeight = 66;
-
-  /// 칸 한 변(`mini`).
-  static const double miniSide = 30;
 
   /// 칸 한 변(`small`, 계약 `ohaeng.cell` `sizes`).
   static const double smallSide = 40;
@@ -78,7 +72,6 @@ class OhaengCell extends StatelessWidget {
     final grow = scaler.scale(10) / 10;
     final side = switch (size) {
       OhaengCellSize.pillar => pillarHeight,
-      OhaengCellSize.mini => miniSide,
       OhaengCellSize.small => smallSide,
     };
     final height = side * math.max(1, grow);
@@ -97,11 +90,6 @@ class OhaengCell extends StatelessWidget {
     final hanjaStyle = switch (size) {
       OhaengCellSize.pillar => tokens.typography.hanjaPillar.copyWith(
         color: cell.fg,
-      ),
-      OhaengCellSize.mini => tokens.typography.hanjaPillar.copyWith(
-        color: cell.fg,
-        fontSize: 15,
-        fontWeight: FontWeight.w700,
       ),
       OhaengCellSize.small => tokens.typography.hanjaPillar.copyWith(
         color: cell.fg,

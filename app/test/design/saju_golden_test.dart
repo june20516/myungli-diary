@@ -3,6 +3,7 @@ import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
@@ -110,70 +111,81 @@ OhaengBar _ohaengBar(BuildContext context, Map<FiveElement, double> values) {
 }
 
 OhaengCell _mini(FiveElement element, String hanja) =>
-    OhaengCell(element: element, hanja: hanja, size: OhaengCellSize.mini);
+    OhaengCell(element: element, hanja: hanja, size: OhaengCellSize.small);
 
 /// member 만세력. [hourUnknown]이면 시주 열이 빕니다.
 Widget _manse(BuildContext context, {bool hourUnknown = false}) {
   final ja = _ja(context);
-  // 지장간 십성 라벨은 지장간마다 붙습니다(member 화면처럼 사전에 이름이 있을 때).
-  ManseHiddenStem h(
+  BandHiddenStem h(
+    FiveElement element,
     String hanja,
-    String ko,
-    String jaReading, [
+    String reading, [
     String? god,
-    String? jaGod,
-  ]) => ManseHiddenStem(
+  ]) => BandHiddenStem(
+    element: element,
     hanja: hanja,
-    reading: ja ? jaReading : ko,
-    label: god == null ? null : _label(ja ? jaGod! : god),
+    semanticLabel: '$hanja $reading',
+    tenGod: god == null ? null : LuckLabel(god, onTap: () {}),
   );
-  TermToken value(String text) =>
-      TermToken(label: text, variant: TermTokenVariant.inline, onTap: () {});
-  final gwiin = value(ja ? '天乙貴人' : '천을귀인');
-  final hwagae = value(ja ? '華蓋' : '화개');
+  LuckLabel value(String text) => LuckLabel(text, onTap: () {});
   return ManseTable(
-    hour: hourUnknown
-        ? ManseColumn(header: ja ? '時柱' : '시주')
-        : ManseColumn(
+    basis: ja ? '自分の日干庚が基準' : '내 일간 庚(경금) 기준',
+    basisGlyph: '庚',
+    table: BandTable(
+      columns: [
+        if (hourUnknown)
+          BandColumn(header: ja ? '時柱' : '시주', empty: true)
+        else
+          BandColumn(
             header: ja ? '時柱' : '시주',
-            stem: _mini(FiveElement.water, '癸'),
-            branch: _mini(FiveElement.earth, '未'),
             hiddenStems: [
-              h('丁', '정', 'てい', '정관', '正官'),
-              h('乙', '을', 'おつ', '정재', '正財'),
-              h('己', '기', 'き', '정인', '正印'),
+              h(FiveElement.fire, '丁', '정', ja ? '正官' : '정관'),
+              h(FiveElement.wood, '乙', '을', ja ? '正財' : '정재'),
+              h(FiveElement.earth, '己', '기', ja ? '正印' : '정인'),
             ],
             twelveStage: value(ja ? '冠帯' : '관대'),
-            shinsal: [gwiin],
+            shinsal: [value(ja ? '天乙貴人' : '천을귀인')],
           ),
-    day: ManseColumn(
-      header: ja ? '日柱' : '일주',
-      stem: _mini(FiveElement.metal, '庚'),
-      branch: _mini(FiveElement.earth, '辰'),
-      hiddenStems: [h('乙', '을', 'おつ'), h('癸', '계', 'き'), h('戊', '무', 'ぼ')],
-      twelveStage: value(ja ? '養' : '양'),
-      shinsal: [hwagae],
+        BandColumn(
+          header: ja ? '日柱' : '일주',
+          isDay: true,
+          hiddenStems: [
+            h(FiveElement.wood, '乙', '을', ja ? '正財' : '정재'),
+            h(FiveElement.water, '癸', '계', ja ? '傷官' : '상관'),
+            h(FiveElement.earth, '戊', '무', ja ? '偏印' : '편인'),
+          ],
+          twelveStage: value(ja ? '養' : '양'),
+          shinsal: [value(ja ? '華蓋' : '화개')],
+        ),
+        BandColumn(
+          header: ja ? '月柱' : '월주',
+          hiddenStems: [
+            h(FiveElement.fire, '丙', '병', ja ? '偏官' : '편관'),
+            h(FiveElement.metal, '庚', '경', ja ? '比肩' : '비견'),
+            h(FiveElement.earth, '戊', '무', ja ? '偏印' : '편인'),
+          ],
+          twelveStage: value(ja ? '長生' : '장생'),
+        ),
+        BandColumn(
+          header: ja ? '年柱' : '연주',
+          hiddenStems: [
+            h(FiveElement.fire, '丁', '정', ja ? '正官' : '정관'),
+            h(FiveElement.earth, '己', '기', ja ? '正印' : '정인'),
+          ],
+          // 사전에 이름이 없으면(A65) 화면은 누를 수 없는 글자를 넘깁니다.
+          twelveStage: LuckLabel(ja ? '沐浴' : '목욕'),
+        ),
+      ],
+      bandLabels: {
+        BandKind.hiddenStems: ja ? '蔵干' : '지장간',
+        BandKind.twelveStages: ja ? '十二運' : '12운성',
+        BandKind.shinsal: ja ? '神殺' : '신살',
+      },
+      onBandTap: (_) {},
+      meLabel: ja ? 'わたし' : '나',
+      emptyLabel: ja ? 'なし' : '없음',
+      tableLabel: ja ? '万年暦' : '만세력 표',
     ),
-    month: ManseColumn(
-      header: ja ? '月柱' : '월주',
-      stem: _mini(FiveElement.metal, '辛'),
-      branch: _mini(FiveElement.fire, '巳'),
-      hiddenStems: [h('丙', '병', 'へい'), h('庚', '경', 'こう'), h('戊', '무', 'ぼ')],
-      twelveStage: value(ja ? '長生' : '장생'),
-    ),
-    year: ManseColumn(
-      header: ja ? '年柱' : '연주',
-      stem: _mini(FiveElement.metal, '庚'),
-      branch: _mini(FiveElement.fire, '午'),
-      hiddenStems: [h('丁', '정', 'てい'), h('己', '기', 'き')],
-      // 사전에 이름이 없으면(A65) 화면은 누를 수 없는 글자를 넘깁니다.
-      twelveStage: Text(ja ? '沐浴' : '목욕'),
-    ),
-    // 줄 머리는 앱처럼 누를 수 없는 라벨입니다(V53).
-    hiddenStemsHeader: LuckLabel(ja ? '蔵干' : '지장간'),
-    twelveStageHeader: LuckLabel(ja ? '十二運' : '12운성'),
-    shinsalHeader: LuckLabel(ja ? '神殺' : '신살'),
-    tableLabel: ja ? '万年暦' : '만세력 표',
   );
 }
 

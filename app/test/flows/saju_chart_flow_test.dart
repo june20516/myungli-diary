@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
@@ -63,6 +64,13 @@ Finder _luckChip(Key cell, LuckLabel label) => find
 
 Finder _inChart(Finder matching) =>
     find.descendant(of: _chart, matching: matching);
+
+/// 만세력 표 안 띠 표.
+BandTable _band(ManseTable manse) => manse.table;
+
+/// 띠 표 안.
+Finder _inBand(Finder matching) =>
+    find.descendant(of: _inChart(find.byType(BandTable)), matching: matching);
 
 /// 용신 판정 근거 줄.
 final Finder _yongsinBasis = _inChart(
@@ -289,9 +297,10 @@ void main() {
     await _openLuckTab(tester);
 
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.year.hiddenStems.map((stem) => stem.hanja), ['丁', '己']);
-    expect(manse.day.stem?.hanja, '庚');
-    expect(manse.tableLabel, _ko.manseTableLabel);
+    final band = _band(manse);
+    expect(band.columns[3].hiddenStems.map((stem) => stem.hanja), ['丁', '己']);
+    expect(manse.basisGlyph, '庚');
+    expect(band.tableLabel, _ko.manseTableLabel);
 
     final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
     expect(daeun.daeun.map((pillar) => pillar.age).take(4), [4, 14, 24, 34]);
@@ -448,14 +457,17 @@ void main() {
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
     // 연지 午의 지장간 丁(정관)·己(정인). 둘째(己)의 십성을 누릅니다.
-    final label = manse.year.hiddenStems[1].label;
-    expect(label, isA<TermToken>());
-    expect((label! as TermToken).label, '정인');
-    // 사전에 12운성·신살 이름이 없으면 칸을 비우고(A65) 줄 머리는 누를 수 없는 라벨입니다.
-    expect(manse.year.twelveStage, isNull);
-    expect(manse.hiddenStemsHeader.onTap, isNull);
+    final label = _band(manse).columns[3].hiddenStems[1].tenGod;
+    expect(label?.text, '정인');
+    // 사전에 12운성·신살 이름이 없으면 칸을 비웁니다(A65).
+    expect(_band(manse).columns[3].twelveStage, isNull);
 
-    await _openPersonal(tester, find.byWidget(label));
+    // 연주 열은 가장 오른쪽 열이라 같은 십성 가운데 가장 오른쪽 칩입니다.
+    final chips = _inBand(find.widgetWithText(TermToken, '정인'));
+    final rightmost = [
+      for (var i = 0; i < chips.evaluate().length; i++) chips.at(i),
+    ]..sort((a, b) => tester.getCenter(b).dx.compareTo(tester.getCenter(a).dx));
+    await _openPersonal(tester, rightmost.first);
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -543,10 +555,14 @@ void main() {
     );
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.day.twelveStage, isA<TermToken>());
-    expect((manse.day.shinsal.single as TermToken).label, '화개');
+    final dayColumn = _band(manse).columns[1];
+    expect(dayColumn.twelveStage?.onTap, isNotNull);
+    expect(dayColumn.shinsal.single.text, '화개');
 
-    await _openPersonal(tester, find.byWidget(manse.day.twelveStage!));
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, dayColumn.twelveStage!.text)),
+    );
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -559,12 +575,7 @@ void main() {
     // 근거 시트와 풀이 시트를 닫고 신살 칸을 누릅니다.
     await closeSheet(tester, _evidenceSheet);
     await closeSheet(tester, find.byKey(const Key(ScreenIds.explainSheet)));
-    final shinsal = tester
-        .widget<ManseTable>(_inChart(find.byType(ManseTable)))
-        .day
-        .shinsal
-        .single;
-    await _openPersonal(tester, find.byWidget(shinsal));
+    await _openPersonal(tester, _inBand(find.widgetWithText(TermToken, '화개')));
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -597,8 +608,7 @@ void main() {
     );
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.day.shinsal, hasLength(1));
-    expect((manse.day.shinsal.single as TermToken).label, '화개');
+    expect(_band(manse).columns[1].shinsal.map((label) => label.text), ['화개']);
     expect(find.text('모르는 신살'), findsNothing);
   });
 
@@ -661,7 +671,7 @@ void main() {
 
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.hour.empty, isTrue);
+    expect(_band(manse).columns[0].empty, isTrue);
     expect(_inChart(find.byType(NoticeBanner)), findsOneWidget);
   });
 

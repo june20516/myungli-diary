@@ -66,7 +66,7 @@ void main() {
       expect(find.text('갑'), findsOneWidget);
     });
 
-    testWidgets('mini는 30 × 30이고 독음을 그리지 않습니다', (tester) async {
+    testWidgets('small은 40 × 40이고 독음을 그리지 않습니다', (tester) async {
       await tester.pumpWidget(
         inputApp(
           const Center(
@@ -74,12 +74,12 @@ void main() {
               element: FiveElement.water,
               hanja: '子',
               reading: '자',
-              size: OhaengCellSize.mini,
+              size: OhaengCellSize.small,
             ),
           ),
         ),
       );
-      expect(tester.getSize(find.byType(OhaengCell)), const Size(30, 30));
+      expect(tester.getSize(find.byType(OhaengCell)), const Size(40, 40));
       expect(find.text('자'), findsNothing);
     });
 
@@ -91,7 +91,7 @@ void main() {
               child: OhaengCell(
                 element: FiveElement.fire,
                 hanja: '丙',
-                size: OhaengCellSize.mini,
+                size: OhaengCellSize.small,
               ),
             ),
             2,
@@ -100,7 +100,7 @@ void main() {
       );
       expect(
         tester.getSize(find.byType(OhaengCell)).width,
-        closeTo(30 * 1.3, 0.01),
+        closeTo(40 * 1.3, 0.01),
       );
     });
 

@@ -71,7 +71,7 @@ class SajuPillars extends StatelessWidget {
   static const Key meTagKey = ValueKey('saju-pillars-me');
 
   /// 열 사이(`columns.gap`).
-  static const double columnGap = 6;
+  static const double columnGap = Space.s8;
 
   /// 시주.
   final SajuPillarColumn hour;

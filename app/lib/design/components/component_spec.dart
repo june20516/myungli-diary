@@ -37,11 +37,14 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
+import 'package:myungli_diary/design/components/saju/birth_info_row.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/components/saju/stage_strip.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
@@ -99,6 +102,9 @@ const List<ComponentSpec> implementedComponents = [
   SajuPillars.spec,
   OhaengBar.spec,
   ManseTable.spec,
+  BandTable.spec,
+  BirthInfoRow.spec,
+  StageStrip.spec,
   DaeunTable.spec,
   LuckPillar.spec,
   InputStep.spec,

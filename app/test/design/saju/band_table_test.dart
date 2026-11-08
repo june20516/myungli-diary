@@ -1,0 +1,247 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_label.dart';
+import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/elements/stem_chip.dart';
+import 'package:myungli_diary/design/elements/tag_me.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+
+import '../input/input_harness.dart';
+
+BandColumn _column(
+  String header, {
+  bool isDay = false,
+  bool empty = false,
+  bool withShinsal = true,
+  VoidCallback? onStage,
+}) => BandColumn(
+  header: header,
+  isDay: isDay,
+  empty: empty,
+  hiddenStems: [
+    BandHiddenStem(
+      element: FiveElement.wood,
+      hanja: '乙',
+      semanticLabel: '乙 을',
+      tenGod: LuckLabel('$header-정재', onTap: () {}),
+    ),
+    const BandHiddenStem(
+      element: FiveElement.water,
+      hanja: '癸',
+      semanticLabel: '癸 계',
+    ),
+  ],
+  twelveStage: LuckLabel('$header-운성', onTap: onStage),
+  shinsal: withShinsal ? [LuckLabel('$header-신살', onTap: () {})] : const [],
+);
+
+BandTable _table({
+  bool hourUnknown = false,
+  bool loading = false,
+  List<BandKind>? taps,
+  VoidCallback? onStage,
+  bool shinsalOnDay = true,
+}) => BandTable(
+  columns: [
+    _column('시주', empty: hourUnknown),
+    _column('일주', isDay: true, withShinsal: shinsalOnDay),
+    _column('월주', onStage: onStage),
+    _column('연주'),
+  ],
+  bandLabels: const {
+    BandKind.hiddenStems: '지장간',
+    BandKind.twelveStages: '12운성',
+    BandKind.shinsal: '신살',
+  },
+  onBandTap: (kind) => taps?.add(kind),
+  meLabel: '나',
+  emptyLabel: '없음',
+  tableLabel: '만세력 표',
+  loading: loading,
+  animated: false,
+);
+
+Widget _wrap(Widget table, {double width = 360}) => SingleChildScrollView(
+  child: SizedBox(width: width, child: table),
+);
+
+void main() {
+  testWidgets('열 순서는 시·일·월·연이고 네 열이 같은 폭입니다', (tester) async {
+    await tester.pumpWidget(inputApp(_wrap(_table())));
+    final xs = [
+      for (final header in ['시주', '일주', '월주', '연주'])
+        tester.getCenter(find.text(header)).dx,
+    ];
+    expect(xs, orderedEquals([...xs]..sort()));
+    // 칸 첫 지장간 칩의 가운데는 네 열이 같은 간격입니다(같은 폭).
+    final chips = [
+      for (final index in [0, 2, 4, 6])
+        tester.getCenter(find.byType(StemChip).at(index)).dx,
+    ];
+    final gaps = [
+      chips[1] - chips[0],
+      chips[2] - chips[1],
+      chips[3] - chips[2],
+    ];
+    expect(gaps[1], moreOrLessEquals(gaps[0], epsilon: 1));
+    expect(gaps[2], moreOrLessEquals(gaps[0], epsilon: 1));
+  });
+
+  testWidgets('일주 열은 highlight.bg 바탕이 열 머리부터 마지막 띠 끝까지 깔립니다', (tester) async {
+    await tester.pumpWidget(inputApp(_wrap(_table())));
+    final context = tester.element(find.byType(BandTable));
+    final day = find.byKey(BandTable.dayColumnKey);
+    final bg = tester.widget<ColoredBox>(
+      find.descendant(of: day, matching: find.byType(ColoredBox)).first,
+    );
+    expect(bg.color, context.tokens.colors.highlightBg);
+    final dayRect = tester.getRect(day);
+    final headerTop = tester.getTopLeft(find.text('일주')).dy;
+    final lastBottom = tester.getBottomLeft(find.text('일주-신살')).dy;
+    expect(dayRect.top, lessThanOrEqualTo(headerTop));
+    expect(dayRect.bottom, greaterThanOrEqualTo(lastBottom));
+    // 열 머리: action.primary 700 + tag.me.
+    final header = tester.widget<Text>(find.text('일주'));
+    expect(header.style?.color, context.tokens.colors.actionPrimary);
+    expect(header.style?.fontWeight, FontWeight.w700);
+    expect(find.byType(TagMe), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byType(TagMe)).dx,
+      greaterThan(tester.getTopRight(find.text('일주')).dx),
+    );
+    // 다른 열은 보통 머리입니다.
+    final other = tester.widget<Text>(find.text('월주'));
+    expect(other.style?.color, context.tokens.colors.textSecondary);
+  });
+
+  testWidgets('열 구분선(0.5px line)은 모든 띠를 관통하고 띠 머리줄이 흰 바탕으로 가립니다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(inputApp(_wrap(_table())));
+    final context = tester.element(find.byType(BandTable));
+    final line = context.tokens.colors.line;
+    // 바탕 층 열 셋(일주, 월주, 연주)은 왼쪽 0.5px line 테두리를 가집니다.
+    final columns = tester
+        .widgetList<DecoratedBox>(
+          find.descendant(
+            of: find.byType(Positioned),
+            matching: find.byType(DecoratedBox),
+          ),
+        )
+        .where((box) => (box.decoration as BoxDecoration).border != null)
+        .toList();
+    expect(columns, hasLength(3));
+    for (final box in columns) {
+      final left = ((box.decoration as BoxDecoration).border! as Border).left;
+      expect(left.color, line);
+      expect(left.width, BorderTokens.hairline);
+    }
+    // 층은 마지막 띠 끝까지 이어집니다.
+    final grid = tester.getRect(find.byType(Positioned).first);
+    final lastBand = tester.getRect(find.text('연주-신살'));
+    expect(grid.bottom, greaterThan(lastBand.bottom));
+    // 띠 머리줄 셋: 네 열에 걸친 흰 바탕, 위아래 0.5px line.
+    final headers = find.byKey(BandTable.bandHeaderKey);
+    expect(headers, findsNWidgets(3));
+    final tableRect = tester.getRect(find.byType(BandTable));
+    for (final element in headers.evaluate()) {
+      final box = element.widget as DecoratedBox;
+      final decoration = box.decoration as BoxDecoration;
+      expect(decoration.color, context.tokens.colors.bgSheet);
+      final border = decoration.border! as Border;
+      expect(border.top.width, BorderTokens.hairline);
+      expect(border.bottom.color, line);
+      final rect = tester.getRect(find.byWidget(box));
+      expect(rect.width, tableRect.width - Space.s12 * 2);
+    }
+  });
+
+  testWidgets('띠 이름은 가운데 용어 칩이고 누르면 그 띠로 onBandTap', (tester) async {
+    final taps = <BandKind>[];
+    await tester.pumpWidget(inputApp(_wrap(_table(taps: taps))));
+    await tester.tap(find.widgetWithText(TermToken, '12운성'));
+    await tester.tap(find.widgetWithText(TermToken, '신살'));
+    expect(taps, [BandKind.twelveStages, BandKind.shinsal]);
+    final center = tester.getCenter(find.widgetWithText(TermToken, '지장간')).dx;
+    final table = tester.getRect(find.byType(BandTable));
+    expect(center, moreOrLessEquals(table.center.dx, epsilon: 1));
+  });
+
+  testWidgets('지장간은 오행 칩 + 십성 한 줄을 세로로 쌓고, 칩은 읽지 않고 한자와 독음을 읽습니다', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(inputApp(_wrap(_table())));
+    final first = tester.getRect(find.byType(StemChip).first);
+    final second = tester.getRect(find.byType(StemChip).at(1));
+    expect(first.width, StemChip.side);
+    expect(second.top, greaterThanOrEqualTo(first.bottom + Space.s4));
+    final label = tester.getRect(find.text('시주-정재'));
+    expect(label.left, greaterThanOrEqualTo(first.right + Space.s4));
+    expect(find.bySemanticsLabel('乙 을'), findsWidgets);
+    handle.dispose();
+  });
+
+  testWidgets('값이 없는 칸은 12×1 가로선이고 스크린리더는 없음을 읽습니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(inputApp(_wrap(_table(shinsalOnDay: false))));
+    final line = find.byKey(BandTable.emptyLineKey);
+    expect(line, findsOneWidget);
+    final size = tester.getSize(line);
+    expect(size.width, 12);
+    expect(size.height, 1);
+    final context = tester.element(find.byType(BandTable));
+    expect(
+      tester
+          .widget<ColoredBox>(
+            find.descendant(of: line, matching: find.byType(ColoredBox)),
+          )
+          .color,
+      context.tokens.colors.textSecondary,
+    );
+    expect(find.bySemanticsLabel('신살, 일주, 없음'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('시간 모름이면 시주 열은 머리만 두고 모든 띠가 빈 칸입니다', (tester) async {
+    await tester.pumpWidget(inputApp(_wrap(_table(hourUnknown: true))));
+    expect(find.text('시주'), findsOneWidget);
+    expect(find.text('시주-정재'), findsNothing);
+    expect(find.byKey(BandTable.emptyLineKey), findsNWidgets(3));
+  });
+
+  testWidgets('표 role과 이름을 가집니다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(inputApp(_wrap(_table())));
+    expect(find.bySemanticsLabel('만세력 표'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('loading: 머리, 띠 머리줄, 구분선, 일주 바탕은 바로, 칸은 칩 모양 뼈', (tester) async {
+    await tester.pumpWidget(inputApp(_wrap(_table(loading: true))));
+    expect(find.text('시주'), findsOneWidget);
+    expect(find.byKey(BandTable.bandHeaderKey), findsNWidgets(3));
+    expect(find.byKey(BandTable.dayColumnKey), findsOneWidget);
+    // 지장간 칸마다 칩 + 라벨 뼈 둘, 12운성과 신살은 라벨 뼈 하나: (2 + 1 + 1) × 4.
+    expect(find.byType(SkeletonBone), findsNWidgets(16));
+    expect(find.byType(StemChip), findsNothing);
+  });
+
+  testWidgets('글자 배율 2.0은 1.3에서 멈추고 넘치지 않습니다', (tester) async {
+    await tester.pumpWidget(
+      inputApp(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: _wrap(_table()),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final context = tester.element(find.text('월주'));
+    expect(MediaQuery.textScalerOf(context).scale(10), moreOrLessEquals(13));
+  });
+}

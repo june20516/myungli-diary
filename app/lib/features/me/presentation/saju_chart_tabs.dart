@@ -9,8 +9,9 @@ import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
-import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -144,16 +145,7 @@ class SajuChartLuckTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ManseTable(
-          hour: _manseColumn(text, ChartColumn.hour),
-          day: _manseColumn(text, ChartColumn.day),
-          month: _manseColumn(text, ChartColumn.month),
-          year: _manseColumn(text, ChartColumn.year),
-          hiddenStemsHeader: LuckLabel(l10n.manseRowHiddenStems),
-          twelveStageHeader: LuckLabel(l10n.manseRowTwelveStages),
-          shinsalHeader: LuckLabel(l10n.manseRowShinsal),
-          tableLabel: l10n.manseTableLabel,
-        ),
+        _manseTable(text, l10n),
         if (periods.isNotEmpty) ...[
           const SizedBox(height: Space.s32),
           DaeunTable(
@@ -232,11 +224,38 @@ class SajuChartLuckTab extends ConsumerWidget {
     );
   }
 
-  ManseColumn _manseColumn(ChartText text, ChartColumn column) {
+  /// 만세력 표: 기준 줄 + 띠 표. 띠 이름 용어 칩의 설명 시트 연결은 Task 24가 합니다.
+  Widget _manseTable(ChartText text, AppLocalizations l10n) {
+    final dayStem = chart.pillars.day.stem;
+    final glyph = stemHanja(dayStem);
+    final reading = text.stemReading(dayStem);
+    return ManseTable(
+      basis: l10n.sajuChartManseBasis(
+        reading == null ? glyph : '$glyph($reading)',
+      ),
+      basisGlyph: glyph,
+      table: BandTable(
+        columns: [
+          for (final column in ChartColumn.values) _bandColumn(text, column),
+        ],
+        bandLabels: {
+          BandKind.hiddenStems: l10n.manseRowHiddenStems,
+          BandKind.twelveStages: l10n.manseRowTwelveStages,
+          BandKind.shinsal: l10n.manseRowShinsal,
+        },
+        onBandTap: (_) {},
+        meLabel: l10n.sajuTagMe,
+        emptyLabel: l10n.bandTableEmptyCell,
+        tableLabel: l10n.manseTableLabel,
+      ),
+    );
+  }
+
+  BandColumn _bandColumn(ChartText text, ChartColumn column) {
     final header = column.header(text.l10n);
-    final pillar = column.of(chart);
-    if (pillar == null) {
-      return ManseColumn(header: header);
+    final isDay = column == ChartColumn.day;
+    if (column.of(chart) == null) {
+      return BandColumn(header: header, isDay: isDay, empty: true);
     }
     final positions = {column.stem, column.branch};
     final hidden = chart.hiddenStems
@@ -246,17 +265,17 @@ class SajuChartLuckTab extends ConsumerWidget {
         .where((item) => item.position == column.branch)
         .firstOrNull
         ?.stage;
-    return ManseColumn(
+    return BandColumn(
       header: header,
-      stem: _mini(pillar.stem),
-      branch: _miniBranch(pillar.branch),
+      isDay: isDay,
       // 계약 순서(0이 정기) 그대로이고, 개인 해석의 `index`도 이 순서입니다.
       hiddenStems: [
         for (final (index, item) in hidden.indexed)
-          ManseHiddenStem(
+          BandHiddenStem(
+            element: stemElement(item.stem),
             hanja: stemHanja(item.stem),
-            reading: text.stemReading(item.stem),
-            label: text.termLabel(
+            semanticLabel: text.stemText(item.stem),
+            tenGod: text.luckLabel(
               'ten_god',
               item.tenGod.value,
               PersonalReadingKey(
@@ -269,7 +288,7 @@ class SajuChartLuckTab extends ConsumerWidget {
       ],
       twelveStage: stage == null
           ? null
-          : text.termValue(
+          : text.luckLabel(
               'twelve_stage',
               stage.value,
               PersonalReadingKey(
@@ -281,7 +300,7 @@ class SajuChartLuckTab extends ConsumerWidget {
         // 신살은 열린 enum이라 이 app이 모르는 신살은 그 칸에서 건너뜁니다(A66).
         for (final item in chart.shinsal)
           if (item.kind.isKnown && positions.contains(item.position))
-            ?text.termValue(
+            ?text.luckLabel(
               'shinsal',
               item.kind.value,
               PersonalReadingKey(
@@ -297,12 +316,12 @@ class SajuChartLuckTab extends ConsumerWidget {
   static OhaengCell _mini(Stem stem) => OhaengCell(
     element: stemElement(stem),
     hanja: stemHanja(stem),
-    size: OhaengCellSize.mini,
+    size: OhaengCellSize.small,
   );
 
   static OhaengCell _miniBranch(Branch branch) => OhaengCell(
     element: branchElement(branch),
     hanja: branchHanja(branch),
-    size: OhaengCellSize.mini,
+    size: OhaengCellSize.small,
   );
 }

@@ -13,7 +13,7 @@ import '../input/input_harness.dart';
 const _cell = OhaengCell(
   element: FiveElement.metal,
   hanja: '庚',
-  size: OhaengCellSize.mini,
+  size: OhaengCellSize.small,
 );
 
 Widget _table({
