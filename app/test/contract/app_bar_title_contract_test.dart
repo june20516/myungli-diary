@@ -47,14 +47,15 @@ const Map<String, String> _barTitleKeys = {
 
 /// ARB에 "임시" 표시가 남아도 되는 키(슬롯이 없는 접근성 라벨·writing 원고 대기 문구).
 /// writing R26(PR #709, #331)으로 임시 키가 모두 원고가 되어 지금은 없습니다.
-/// 설명의 "임시"는 모두 기기 초안 "임시 저장" 상태를 말하는 뜻 그대로의 낱말입니다(DS1 W60).
-/// 그 밖의 키 설명에 "임시"가 들어가면 실패합니다.
-const Set<String> _allowedTemporaryKeys = {
-  'diaryEditDraftStatusLocal',
-  'diaryEditDraftStatusSaving',
-  'diaryEditDraftStatusSaved',
-  'diaryEditLengthCount',
-};
+const Set<String> _allowedTemporaryKeys = {};
+
+/// 설명이 app 임시 키 표지인지 봅니다. 임시 키는 설명이 "임시"로 시작합니다(예 "임시, #548 원고 전",
+/// "임시. daeun-table ..."). writing 슬롯 접두(`diary-edit.draft.status: `)를 떼고 보며,
+/// 정식 원고 설명이 "임시 저장 상태"처럼 낱말로 "임시 저장"을 쓰는 것은 임시 키가 아닙니다.
+bool isTemporaryDescription(String description) {
+  final body = description.replaceFirst(RegExp(r'^[a-z0-9._-]+:\s*'), '');
+  return RegExp(r'^임시(?!\s*저장)').hasMatch(body);
+}
 
 Map<String, Object?> _readJson(String path) =>
     jsonDecode(File(path).readAsStringSync())! as Map<String, Object?>;
@@ -132,14 +133,29 @@ void main() {
     }
   });
 
+  test('임시 키 표지 판정: 슬롯 접두 뒤 "임시"로 시작하는 설명만 임시입니다', () {
+    expect(
+      isTemporaryDescription('diary-edit.draft.status: 임시 저장 상태. 상단 바'),
+      isFalse,
+    );
+    expect(isTemporaryDescription('임시 저장 상태'), isFalse);
+    expect(isTemporaryDescription('임시: 원고 전 문구'), isTrue);
+    expect(isTemporaryDescription('임시, #548 원고 전(A7)'), isTrue);
+    expect(isTemporaryDescription('임시. daeun-table 글'), isTrue);
+    expect(isTemporaryDescription('x.y: 임시. 원고 전'), isTrue);
+    expect(isTemporaryDescription('일반 설명, 임시 언급'), isFalse);
+  });
+
   test('ARB에 임시 표시가 남은 키는 허용 목록뿐입니다', () {
     final temporary = {
       for (final entry in ko.entries)
         if (entry.key.startsWith('@') &&
             entry.value is Map<String, Object?> &&
-            ((entry.value! as Map<String, Object?>)['description'] as String?)
-                    ?.contains('임시') ==
-                true)
+            isTemporaryDescription(
+              ((entry.value! as Map<String, Object?>)['description']
+                      as String?) ??
+                  '',
+            ))
           entry.key.substring(1),
     };
 
