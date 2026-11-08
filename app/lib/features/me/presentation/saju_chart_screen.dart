@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -39,7 +41,8 @@ enum SajuChartTab {
 ///   "만세력과 대운"은 만세력 표 → 대운·세운 표입니다. 표 데이터는 무료이고 판정 근거·원국 개인
 ///   해석만 잠깁니다.
 /// * 칸의 용어는 풀이 시트를 열고, 그 "근거 보기"가 누른 칸의 원국 개인 해석을 엽니다(A58).
-/// * 탭은 화면을 떠났다 와도 기억하지 않고 "원국"부터입니다. 바꾸면 내용이 `appear.seep`으로
+/// * 탭은 화면을 떠났다 와도 기억하지 않고 "원국"부터입니다(나 탭 "대운 전체"만 `?tab=luck`으로
+///   만세력과 대운 탭에서 엽니다, A117). 바꾸면 내용이 `appear.seep`으로
 ///   스밉니다.
 /// * 시간 모름이면 위에 안내(`saju-chart.time-unknown.notice`)이고 시주 칸이 빕니다.
 /// * 받는 중 skeleton(`loading`), 받지 못하면 오류와 다시 시도(`error`).
@@ -52,7 +55,12 @@ class SajuChartScreen extends ConsumerStatefulWidget {
 }
 
 class _SajuChartScreenState extends ConsumerState<SajuChartScreen> {
-  SajuChartTab _tab = SajuChartTab.natal;
+  /// 처음 탭은 경로 query(`?tab=luck`, A117)가 정합니다. 없거나 다른 값이면 원국입니다.
+  late SajuChartTab _tab =
+      GoRouterState.of(context).uri.queryParameters[sajuChartTabQuery] ==
+          sajuChartTabLuck
+      ? SajuChartTab.luck
+      : SajuChartTab.natal;
 
   @override
   Widget build(BuildContext context) {

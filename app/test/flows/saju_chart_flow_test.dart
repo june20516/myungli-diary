@@ -42,6 +42,7 @@ import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
 import '../support/chart_network.dart';
 import '../support/depth_link_finders.dart';
+import '../support/my_saju_finders.dart';
 import '../support/onboarding_steps.dart';
 import '../support/sheet_close.dart';
 import '../support/test_today.dart';
@@ -107,7 +108,7 @@ Future<ProviderContainer> _openFromMySaju(
   await tester.tap(find.byKey(const ValueKey('tab-bar.tab.3')));
   await pumpUntilScreen(tester, ScreenIds.mySaju);
   await settleWithIo(tester);
-  final link = depthLinkTarget(
+  final link = mySajuChartLink(
     of: find.byKey(const ValueKey(ScreenIds.mySaju)),
   );
   await tester.scrollUntilVisible(
@@ -308,7 +309,7 @@ void main() {
     // 화면을 떠났다 오면 탭을 기억하지 않습니다(A57).
     container.read(routerProvider).pop();
     await tester.pumpAndSettle();
-    final link = depthLinkTarget(
+    final link = mySajuChartLink(
       of: find.byKey(const ValueKey(ScreenIds.mySaju)),
     );
     await tester.tap(link);

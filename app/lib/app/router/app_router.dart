@@ -90,6 +90,19 @@ String taggedPathOf(String tag) => Uri(
   queryParameters: {tagQuery: tag},
 ).toString();
 
+/// 사주 표(`saju-chart`) 처음 탭의 query 이름(A117). 값은 [sajuChartTabLuck]이고, 없거나 다른 값이면
+/// 원국 탭입니다.
+const String sajuChartTabQuery = 'tab';
+
+/// [sajuChartTabQuery]의 만세력과 대운 탭 값.
+const String sajuChartTabLuck = 'luck';
+
+/// 사주 표를 만세력과 대운 탭으로 여는 경로(`/saju-chart?tab=luck`, A117).
+String sajuChartLuckPath() => Uri(
+  path: pathOf(ScreenIds.sajuChart),
+  queryParameters: {sajuChartTabQuery: sajuChartTabLuck},
+).toString();
+
 final Map<String, IaScreen> _screensById = {
   for (final screen in iaScreens) screen.id: screen,
 };
