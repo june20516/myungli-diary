@@ -96,15 +96,13 @@ Future<void> _settleConfirm(WidgetTester tester) async {
   }
 }
 
-/// 확인 줄을 감싼 FadeTransition들의 현재 투명도(깜빡이면 1 아래로 내려갑니다).
+/// 확인 줄을 감싼 Opacity들의 현재 투명도(`appear.seep`이 Opacity로 입힙니다). 깜빡이면
+/// 1 아래로 내려갑니다.
 List<double> _lineOpacities(WidgetTester tester, Key lineKey) => tester
-    .widgetList<FadeTransition>(
-      find.ancestor(
-        of: find.byKey(lineKey),
-        matching: find.byType(FadeTransition),
-      ),
+    .widgetList<Opacity>(
+      find.ancestor(of: find.byKey(lineKey), matching: find.byType(Opacity)),
     )
-    .map((fade) => fade.opacity.value)
+    .map((fade) => fade.opacity)
     .toList();
 
 FakeServerInterceptor _fake(ProviderContainer container) =>
@@ -542,11 +540,9 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
           await tester.runAsync(() => Future<void>.delayed(Duration.zero));
           expect(find.byKey(lineKey), findsOneWidget, reason: '프레임 $i');
-          expect(
-            _lineOpacities(tester, lineKey),
-            everyElement(1.0),
-            reason: '프레임 $i',
-          );
+          final opacities = _lineOpacities(tester, lineKey);
+          expect(opacities, isNotEmpty, reason: '프레임 $i');
+          expect(opacities, everyElement(1.0), reason: '프레임 $i');
         }
         expect(find.textContaining('미시'), findsOneWidget);
         expect(find.textContaining('오시'), findsNothing);
@@ -560,11 +556,9 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
           await tester.runAsync(() => Future<void>.delayed(Duration.zero));
           expect(find.byKey(lineKey), findsOneWidget, reason: '프레임 $i');
-          expect(
-            _lineOpacities(tester, lineKey),
-            everyElement(1.0),
-            reason: '프레임 $i',
-          );
+          final opacities = _lineOpacities(tester, lineKey);
+          expect(opacities, isNotEmpty, reason: '프레임 $i');
+          expect(opacities, everyElement(1.0), reason: '프레임 $i');
         }
         expect(find.textContaining('미시'), findsOneWidget);
       },

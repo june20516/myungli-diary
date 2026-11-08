@@ -343,15 +343,17 @@ void main() {
       expect(find.text('오시 (11:30~13:30)'), findsOneWidget);
       expect(find.text('사시 (09:30~11:30)'), findsNothing);
       expect(tester.state(find.byType(SeepPresence).last), same(before));
-      final opacity = tester
-          .widgetList<FadeTransition>(
+      final opacities = tester
+          .widgetList<Opacity>(
             find.ancestor(
               of: find.byKey(TimePicker.sijinConfirmKey),
-              matching: find.byType(FadeTransition),
+              matching: find.byType(Opacity),
             ),
           )
-          .map((fade) => fade.opacity.value);
-      expect(opacity.every((value) => value == 1), isTrue);
+          .map((widget) => widget.opacity)
+          .toList();
+      expect(opacities, isNotEmpty);
+      expect(opacities, everyElement(1.0));
     });
 
     testWidgets('오전·오후·시·분 휠이 각각 adjustable Semantics입니다', (tester) async {

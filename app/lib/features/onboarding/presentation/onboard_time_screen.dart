@@ -175,7 +175,7 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
     super.didUpdateWidget(oldWidget);
     // 생일이 바뀌면 이전 생일의 시진은 맞지 않으니 비우고 새 값으로 채웁니다. 새 시진을 받기
     // 전에는 줄을 뺍니다: 틀린 시진을 보이지 않는 것이 우선이고, 깜빡임 방지(F-030)는 같은
-    // 생일 안에서 시간만 바뀔 때에 한합니다(controller 결정).
+    // 생일 안에서 시간만 바뀔 때에 한정합니다.
     if (widget.date != oldWidget.date) _held = null;
   }
 
