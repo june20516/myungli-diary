@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/notice_text.dart';
+import 'package:myungli_diary/design/components/action/button_pair.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
@@ -87,27 +88,22 @@ class PreviewScreen extends ConsumerWidget {
                   Space.s24,
                 ),
                 child: ToastAnchor(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      PrimaryButton(
-                        key: const ValueKey(SlotIds.previewCtaSave),
-                        identifier: SlotIds.previewCtaSave,
-                        label: l10n.previewCtaSave,
-                        onPressed: () =>
-                            context.push<void>(pathOf(ScreenIds.login)),
-                      ),
-                      const SizedBox(height: Space.s8),
-                      PrimaryButton(
-                        key: const ValueKey(SlotIds.previewCtaRestart),
-                        identifier: SlotIds.previewCtaRestart,
-                        variant: PrimaryButtonVariant.quiet,
-                        label: l10n.previewCtaRestart,
-                        // 입력은 초안에 남아 있어 onboard-call이 채워진 채로 열립니다.
-                        onPressed: () => goBackToOnboardCall(context),
-                      ),
-                    ],
+                  child: ButtonPair(
+                    filled: PrimaryButton(
+                      key: const ValueKey(SlotIds.previewCtaSave),
+                      identifier: SlotIds.previewCtaSave,
+                      label: l10n.previewCtaSave,
+                      onPressed: () =>
+                          context.push<void>(pathOf(ScreenIds.login)),
+                    ),
+                    quiet: PrimaryButton(
+                      key: const ValueKey(SlotIds.previewCtaRestart),
+                      identifier: SlotIds.previewCtaRestart,
+                      variant: PrimaryButtonVariant.quiet,
+                      label: l10n.previewCtaRestart,
+                      // 입력은 초안에 남아 있어 onboard-call이 채워진 채로 열립니다.
+                      onPressed: () => goBackToOnboardCall(context),
+                    ),
                   ),
                 ),
               ),
