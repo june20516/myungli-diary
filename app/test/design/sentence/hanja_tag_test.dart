@@ -296,6 +296,19 @@ void main() {
       );
     });
 
+    testWidgets('ganji에 간지가 아닌 글자가 오면 예외 없이 term 톤으로 그립니다', (tester) async {
+      await pump(
+        tester,
+        const HanjaTag(glyph: '貴', label: '귀', variant: HanjaTagVariant.ganji),
+      );
+      final colors = tester
+          .element(find.byKey(HanjaTag.surfaceKey))
+          .tokens
+          .colors;
+      expect(tester.takeException(), isNull);
+      expect(_decoration(tester).color, colors.termBg);
+    });
+
     testWidgets('다크 모드는 라이트와 다른 색을 칠합니다', (tester) async {
       await pump(tester, const HanjaTag(glyph: '合', label: '합'));
       final light = _decoration(tester).color;

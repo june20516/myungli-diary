@@ -159,8 +159,10 @@ class HanjaTag extends StatelessWidget {
   );
 
   _TagColors _colors(ColorTokens colors) {
-    if (variant == HanjaTagVariant.ganji) {
-      final (bg, fg) = switch (_ganjiElements[glyph]!) {
+    final element = _ganjiElements[glyph];
+    // 알 수 없는 간지 글자는 release에서 죽지 않도록 term 톤으로 그립니다.
+    if (variant == HanjaTagVariant.ganji && element != null) {
+      final (bg, fg) = switch (element) {
         _Element.wood => (colors.ohaengWoodBg, colors.ohaengWoodFg),
         _Element.fire => (colors.ohaengFireBg, colors.ohaengFireFg),
         _Element.earth => (colors.ohaengEarthBg, colors.ohaengEarthFg),
@@ -168,6 +170,9 @@ class HanjaTag extends StatelessWidget {
         _Element.water => (colors.ohaengWaterBg, colors.ohaengWaterFg),
       };
       return _TagColors(bg: bg, fg: fg, glyph: fg);
+    }
+    if (variant == HanjaTagVariant.ganji) {
+      return _TagColors(bg: colors.termBg, fg: colors.termFg);
     }
     if (variant == HanjaTagVariant.emphasis) {
       final badge = dayCharacterBadgeColors(switch (tone) {
@@ -200,10 +205,6 @@ class HanjaTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(
-      variant != HanjaTagVariant.ganji || _ganjiElements.containsKey(glyph),
-      'ganji는 천간 10자, 지지 12자만 그립니다',
-    );
     final tokens = context.tokens;
     final colors = _colors(tokens.colors);
     final selected = variant == HanjaTagVariant.selected;

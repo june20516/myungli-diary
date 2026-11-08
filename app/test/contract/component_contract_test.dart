@@ -6,7 +6,17 @@ import 'dart:io';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart'
-    show BuildContext, Builder, Icon, IconData, Locale, SizedBox, Text;
+    show
+        Border,
+        BoxDecoration,
+        BuildContext,
+        Builder,
+        DecoratedBox,
+        Icon,
+        IconData,
+        Locale,
+        SizedBox,
+        Text;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -926,6 +936,91 @@ void main() {
       expect('${HanjaTag.skeletonWidth.toInt()}px', bone['width']);
       expect(_num(_map(tag['a11y'])['minTarget']), 44);
     });
+
+    testWidgets(
+      '날의 성격 톤이 계약 tone.dayKind의 토큰과 같습니다 (default tag.*, emphasis badge.*)',
+      (tester) async {
+        final emphasis = _map(
+          _map(
+            (tag['variants']! as List<Object?>)
+                .map(_map)
+                .firstWhere((v) => v['id'] == 'emphasis')['parts'],
+          )['tone'],
+        );
+        const toneOf = {
+          'YONGSIN_DAY': HanjaTagTone.yongsin,
+          'GWIIN_DAY': HanjaTagTone.gwiin,
+          'GISIN_DAY': HanjaTagTone.gisin,
+          'ORDINARY_DAY': HanjaTagTone.ordinary,
+        };
+        Color? colorOf(ColorTokens c, Object? ref) => switch (ref) {
+          '{color.tag.good.bg}' => c.tagGoodBg,
+          '{color.tag.good.fg}' => c.tagGoodFg,
+          '{color.tag.bad.bg}' => c.tagBadBg,
+          '{color.tag.bad.fg}' => c.tagBadFg,
+          '{color.tag.neutral.border}' => c.tagNeutralBorder,
+          '{color.tag.neutral.fg}' => c.tagNeutralFg,
+          '{color.badge.good.bg}' => c.badgeGoodBg,
+          '{color.badge.good.fg}' => c.badgeGoodFg,
+          '{color.badge.gwiin.bg}' => c.badgeGwiinBg,
+          '{color.badge.gwiin.fg}' => c.badgeGwiinFg,
+          '{color.badge.gisin.bg}' => c.badgeGisinBg,
+          '{color.badge.gisin.fg}' => c.badgeGisinFg,
+          '{color.badge.ordinary.border}' => c.badgeOrdinaryBorder,
+          '{color.badge.ordinary.fg}' => c.badgeOrdinaryFg,
+          'transparent' => null,
+          _ => fail('모르는 토큰 $ref'),
+        };
+        Future<void> check(
+          Map<String, Object?> dayKinds,
+          HanjaTagVariant variant,
+        ) async {
+          for (final MapEntry(key: kind, value: json) in dayKinds.entries) {
+            final spec = _map(json);
+            await tester.pumpWidget(
+              inputApp(
+                HanjaTag(
+                  glyph: '用',
+                  label: '이름',
+                  tone: toneOf[kind]!,
+                  variant: variant,
+                ),
+              ),
+            );
+            final c = tester
+                .element(find.byKey(HanjaTag.surfaceKey))
+                .tokens
+                .colors;
+            final box =
+                tester
+                        .widget<DecoratedBox>(find.byKey(HanjaTag.surfaceKey))
+                        .decoration
+                    as BoxDecoration;
+            final reason = '$variant $kind';
+            expect(box.color, colorOf(c, spec['bg']), reason: reason);
+            expect(
+              tester.widget<Text>(find.text('이름')).style!.color,
+              colorOf(c, spec['fg']),
+              reason: reason,
+            );
+            final border = spec['border'];
+            expect(
+              box.border,
+              border == null
+                  ? isNull
+                  : Border.all(color: colorOf(c, _map(border)['color'])!),
+              reason: reason,
+            );
+          }
+        }
+
+        await check(
+          _map(_map(parts['tone'])['dayKind']),
+          HanjaTagVariant.normal,
+        );
+        await check(_map(emphasis['dayKind']), HanjaTagVariant.emphasis);
+      },
+    );
   });
 
   group('InteractionPattern 대조', () {
