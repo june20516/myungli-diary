@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
+import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
@@ -124,4 +125,5 @@ const List<ComponentSpec> implementedComponents = [
   DiarySummary.spec,
   DiaryEditor.spec,
   DraftIndicator.spec,
+  DateBlock.spec,
 ];

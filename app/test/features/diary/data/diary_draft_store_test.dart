@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/guide_choice.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/features/diary/data/diary_draft_store.dart';
@@ -88,5 +89,30 @@ void main() {
       () => DiaryDraftTarget.existing(date: day, id: ''),
       throwsA(isA<AssertionError>()),
     );
+  });
+
+  test('고른 질문(messageKey, variant)을 본문과 함께 남기고 읽습니다(A115)', () async {
+    final store = DiaryDraftStore(
+      database,
+      accountId: 'a',
+      nowUtc: () => DateTime.utc(2026, 10, 13),
+    );
+    await store.write(
+      target,
+      '글',
+      guide: GuideChoice(messageKey: 'guide.dohwa', variant: '2'),
+    );
+    final draft = await store.find(target);
+    expect(draft!.body, '글');
+    expect(draft.guideMessageKey, 'guide.dohwa');
+    expect(draft.guideVariant, '2');
+
+    // 고르지 않은 채 다시 쓰면 고른 질문도 비웁니다.
+    await store.write(target, '고친 글');
+    final rewritten = await store.find(target);
+    expect(rewritten!.body, '고친 글');
+    expect(rewritten.guideMessageKey, isNull);
+    expect(rewritten.guideVariant, isNull);
+    expect(await store.read(target), '고친 글');
   });
 }

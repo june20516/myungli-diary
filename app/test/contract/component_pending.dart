@@ -5,7 +5,6 @@
 /// 여기 남아 있거나, 여기에도 등록부에도 없는 계약 id가 있으면 계약 대조 테스트가 실패합니다
 /// (ratchet). 단계 7(Task 23~24)이 끝나면 비어야 하고, Task 27이 빈 맵을 확인합니다.
 const Map<String, String> knownPendingComponents = {
-  'date-block': '일기 쓰기 날짜 블록 새 컴포넌트 (Task 19)',
   'fortune-verdict': '그날 시트 길흉판정 새 컴포넌트 (Task 21)',
   'score-row': '길흉판정 내역 줄 새 컴포넌트 (Task 21)',
   'birth-info-row': '사주 표 머리 출생 정보 줄 새 컴포넌트 (Task 23)',
@@ -24,12 +23,6 @@ typedef PendingCheck = ({String reason, String failure});
 /// 통과하면 테스트가 "대기 목록에서 지우세요"로 실패하므로(ratchet) 그때 여기서 지웁니다.
 /// Task 27이 빈 맵을 확인합니다.
 const Map<String, PendingCheck> knownPendingChecks = {
-  'diary-editor spec': (
-    reason:
-        '본문 초점 중 키보드 내리기 버튼(focused, keyboard.dismiss, F-013) '
-        '(V68, Task 19)',
-    failure: 'diary-editor states',
-  ),
   'diary-row entries head': (
     reason:
         '그날 시트 일기 머리를 section-header가 맡고 entries head는 그리지 않음 '

@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
+import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/gen/model/tag.dart';
@@ -394,17 +395,19 @@ String? lunarTextOf(Daily daily, AppLocalizations l10n) {
       : l10n.todayDateLunar(lunar.month, lunar.day);
 }
 
-/// [daily]의 일진 글자(`todayDateIljin`). 한자 뒤 괄호에 사전 독음을 붙이고(`庚申(경신)`),
-/// 천간이나 지지 독음이 사전에 없으면 한자만 씁니다.
-String iljinTextOf(Daily daily, GlossaryNames names, AppLocalizations l10n) {
-  final pillar = daily.dayPillar;
+/// [daily]의 일진 글자(`todayDateIljin`). 간지 글자는 [pillarTextOf]입니다.
+String iljinTextOf(Daily daily, GlossaryNames names, AppLocalizations l10n) =>
+    l10n.todayDateIljin(pillarTextOf(daily.dayPillar, names));
+
+/// [pillar]의 간지 글자: 한자 뒤 괄호에 사전 독음을 붙이고(`庚申(경신)`), 사전이 없거나
+/// 천간이나 지지 독음이 사전에 없으면 한자만 씁니다(오늘 날짜 머리, 일기 쓰기 날짜 블록).
+String pillarTextOf(Pillar pillar, GlossaryNames? names) {
   final hanja = '${stemHanja(pillar.stem)}${branchHanja(pillar.branch)}';
-  final stemReading = names.valueName('stem', pillar.stem.value);
-  final branchReading = names.valueName('branch', pillar.branch.value);
-  final text = stemReading == null || branchReading == null
+  final stemReading = names?.valueName('stem', pillar.stem.value);
+  final branchReading = names?.valueName('branch', pillar.branch.value);
+  return stemReading == null || branchReading == null
       ? hanja
       : '$hanja($stemReading$branchReading)';
-  return l10n.todayDateIljin(text);
 }
 
 /// [daily]를 오늘 화면 값으로 바꿉니다. 이름은 [names]·[l10n], 시각은 [timezone](프로필 시간대)입니다.

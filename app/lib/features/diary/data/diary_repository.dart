@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
+import 'package:myungli_diary/core/api/gen/model/guide_choice.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/features/diary/model/diary_limits.dart';
 
@@ -33,18 +34,26 @@ final class DiaryRepository {
 
   /// [date]에 [body]로 새 일기를 씁니다(하루 여러 편). 쓴 일기를 돌려줍니다.
   ///
-  /// [idempotencyKey]가 같으면 server가 24시간 동안 같은 일기를 돌려주므로, 실패 뒤 다시
-  /// 저장할 때는 같은 키를 씁니다. 그날 일기가 이미 [diaryDayLimit]편이면 422
-  /// `diary.day_full`, 오늘 이후 날짜는 422 `diary.future_date`의 [ProblemError]입니다.
+  /// [guideQuestion]은 고른 오늘의 질문(`Daily.guideCandidates` 하나)이고, 없으면 보내지 않아
+  /// server가 그날 기본 질문을 남깁니다(A115). [idempotencyKey]가 같으면 server가 24시간 동안
+  /// 같은 일기를 돌려주므로, 실패 뒤 같은 본문과 질문을 다시 저장할 때는 같은 키를 씁니다.
+  /// 그날 일기가 이미 [diaryDayLimit]편이면 422 `diary.day_full`, 오늘 이후 날짜는 422
+  /// `diary.future_date`, 고른 질문이 그날 후보에 없으면 422 `diary.guide_invalid`의
+  /// [ProblemError]입니다.
   Future<Diary> create(
     CalendarDate date,
     String body, {
     required String idempotencyKey,
+    GuideChoice? guideQuestion,
   }) async {
     final Diary? diary;
     try {
       diary = (await _api.createDiary(
-        diaryInput: DiaryInput(date: date.toIso(), body: body),
+        diaryInput: DiaryInput(
+          date: date.toIso(),
+          body: body,
+          guideQuestion: guideQuestion,
+        ),
         idempotencyKey: idempotencyKey,
       )).data;
     } on DioException catch (e) {

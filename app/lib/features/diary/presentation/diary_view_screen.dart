@@ -9,7 +9,6 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
-import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
@@ -19,15 +18,12 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
-import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
-import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
-import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
-import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_row_tags.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -52,14 +48,14 @@ const AppGlyph _trash = AppGlyph(
   regular: PhosphorIconsRegular.trash,
 );
 
-/// 일기 보기(`diary-view`): 그날 성격과 이유(용어는 풀이 시트), 도장이 찍힌 종이, 태그 칩.
+/// 일기 보기(`diary-view`): 그날 성격 `hanja-tag`(누르면 뜻 시트), 도장이 찍힌 종이(쓸 때 고른
+/// 질문은 인용형), 태그 칩.
 /// 일기는 `?id=`(A67)이고, 제목의 날짜는 받은 일기의 날짜입니다(받기 전에는 제목 없음).
 ///
 /// * 일기를 받는 동안 skeleton(`loading`), 받지 못하면 오류와 다시 시도(`error`)입니다.
 ///   일기가 없으면(다른 곳에서 지워짐, `id` 없음) 그 안내만 둡니다.
-/// * 그날 성격은 쓸 때 기록한 값이고, 기록이 없으면 달 길흉 캐시(A46)입니다(A88).
-///   이유 문장은 달 길흉의 성격이 그 성격과 같을 때만 보입니다.
-///   둘 다 없으면 성격 줄 없이 일기만 보입니다.
+/// * 그날 성격은 쓸 때 기록한 값만이고(D90 ①) 이유 문장은 없습니다(IA v5). 기록이 없는
+///   일기는 성격 줄 없이 일기만 보입니다.
 /// * 고치기는 이 화면을 그 일기의 `diary-edit`로 바꿔 엽니다(저장하면 다시 이 화면으로 바뀜).
 ///   지우기는 확인 창(`dialog` `destructive`) 뒤 지우고 앞 화면으로 돌아가 toast입니다.
 ///   되살리기는 없습니다(A50).
@@ -200,17 +196,10 @@ class _DiaryViewBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final date = CalendarDate.parse(diary.date);
-    final day = ref.watch(calendarDayProvider(date)).value;
-    // 쓸 때 기록한 성격이 먼저이고, 기록이 없으면(1.1.0 전 일기) 달 길흉 캐시입니다(A88).
-    final kind = diary.dayKind ?? day?.dayKind;
-    // 이유 문장은 달 길흉의 성격이 보이는 성격과 같을 때만 맞는 설명입니다.
-    final reason = day != null && day.dayKind == kind
-        ? day.characterReason.text
-        : null;
+    // 쓸 때 기록한 성격만 씁니다(D90 ①). 기록이 없는 일기(1.1.0 전)는 성격 줄이 없습니다.
+    final kind = diary.dayKind;
     final names = ref.watch(glossaryProvider).value;
-    final sheets = ref.read(depthSheetsProvider);
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
         Space.s20,
@@ -222,6 +211,7 @@ class _DiaryViewBody extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (kind != null) ...[
+            // 한자 아이콘 태그만 두고 이유 문장은 두지 않습니다. 누르면 뜻 시트(D108).
             Semantics(
               identifier: SlotIds.diaryViewCharacterLabel,
               container: true,
@@ -229,31 +219,13 @@ class _DiaryViewBody extends ConsumerWidget {
                 key: const ValueKey(SlotIds.diaryViewCharacterLabel),
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  // 날의 성격을 누르면 그 성격 용어(`day_kind.<값>`)의 풀이 시트입니다.
-                  child: PressInkTarget(
-                    semanticLabel: dayKindName(l10n, kind),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(Radii.full),
-                    ),
-                    onTap: () => sheets.openExplain(
-                      context,
-                      ExplainTerm('day_kind.${kind.value}'),
-                    ),
-                    child: DayCharacter(
-                      variant: dayCharacterVariantOf(kind),
-                      label: dayKindName(l10n, kind),
-                    ),
-                  ),
+                  child: diaryDayKindTagOf(context, ref, kind),
                 ),
               ),
             ),
-            if (reason != null) ...[
-              const SizedBox(height: Space.s12),
-              // diary-view의 IA에는 term-token이 없어 용어는 일반 글자입니다(V28).
-              SentenceBlock(variant: SentenceBlockVariant.body, text: reason),
-            ],
             const SizedBox(height: Space.s24),
           ],
+          // 질문은 쓸 때 고른 질문을 같은 인용 모양으로, 바꾸기 없이 보입니다(DS1 관문 Q4 ①).
           DiaryEditor.view(
             date: date,
             body: diary.body,
@@ -271,8 +243,8 @@ class _DiaryViewBody extends ConsumerWidget {
   }
 }
 
-/// 일기를 받는 동안: [_DiaryViewBody]와 같은 배치(좌우 20, 위 8)에 날의 성격 배지 칩, 그 아래
-/// [Space.s24]에 `diary-editor` `view` 뼈(V66).
+/// 일기를 받는 동안: [_DiaryViewBody]와 같은 배치(좌우 20, 위 8)에 날의 성격 `hanja-tag` 뼈,
+/// 그 아래 [Space.s24]에 `diary-editor` `view` 뼈(V66).
 class _DiaryViewSkeleton extends StatelessWidget {
   const new();
 
@@ -286,8 +258,8 @@ class _DiaryViewSkeleton extends StatelessWidget {
         const Align(
           alignment: AlignmentDirectional.centerStart,
           child: SkeletonChip(
-            width: DayCharacter.skeletonBadgeWidth,
-            height: DayCharacterBadge.minHeight,
+            width: HanjaTag.skeletonWidth,
+            height: HanjaTag.height,
           ),
         ),
         const SizedBox(height: Space.s24),

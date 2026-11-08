@@ -11,12 +11,15 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
-import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/diary/date_block.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/model/diary_draft_target.dart';
@@ -121,12 +124,19 @@ Future<void> _untilShown(WidgetTester tester) => pumpUntil(
       find.byType(EmptyState).evaluate().isNotEmpty,
 );
 
-PrimaryButton _saveButton(WidgetTester tester) => tester.widget<PrimaryButton>(
-  find.ancestor(
-    of: find.text(_ko.diaryEditSave),
-    matching: find.byType(PrimaryButton),
-  ),
-);
+/// 상단 바 오른쪽 저장 글자 버튼(`app-bar` `textAction`).
+AppBarTextAction _saveButton(WidgetTester tester) =>
+    tester.widget<AppBarTextAction>(find.byType(AppBarTextAction));
+
+bool _bodyFocused(WidgetTester tester) =>
+    tester.widget<TextField>(_body).focusNode!.hasFocus;
+
+/// 본문에 초점을 주고, 입력칸이 초점 상태로 다시 그려질 때까지 프레임을 돌립니다.
+Future<void> _focusBody(WidgetTester tester) async {
+  await tester.showKeyboard(_body);
+  await tester.pump();
+  await tester.pump();
+}
 
 FakeServerInterceptor _server(ProviderContainer container) => container
     .read(dioProvider)
@@ -146,7 +156,132 @@ void main() {
     expect(find.text('오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'), findsOneWidget);
     expect(find.text(_ko.diaryEditBodyPlaceholder), findsOneWidget);
     expect(find.byType(DraftIndicator), findsNothing);
-    expect(_saveButton(tester).onPressed, isNull);
+    expect(_saveButton(tester).enabled, isFalse);
+    // 아래 고정 저장 버튼은 없고 저장은 상단 바 글자 버튼입니다(V82).
+    expect(find.text(_ko.diaryEditSave), findsOneWidget);
+  });
+
+  testWidgets('맨 위 큰 날짜 블록: 일 숫자, 월과 요일, 그날 일진', (tester) async {
+    await _openEdit(tester, _today);
+    expect(find.byType(DateBlock), findsOneWidget);
+    final block = tester.widget<DateBlock>(find.byType(DateBlock));
+    expect(block.day, _ko.diaryEditDateDay('13'));
+    expect(block.monthWeekday, _ko.diaryEditDateMonth('10월 화요일'));
+    // member 그날 일진은 경신(庚申)입니다.
+    expect(block.iljin, _ko.diaryEditDateIljin('庚申(경신)'));
+    expect(
+      tester.getTopLeft(find.byKey(DiaryEditor.paperKey)).dy,
+      greaterThan(tester.getBottomLeft(find.byType(DateBlock)).dy),
+    );
+  });
+
+  testWidgets('질문 바꾸기: 그날 후보 둘을 돌고, 저장하면 고른 질문이 diary-view에 남습니다', (
+    tester,
+  ) async {
+    covers(const Covers(exits: ['diary-edit>diary-view']));
+    final container = await _openEdit(tester, _today);
+    const first = '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?';
+    const second = '오늘 들은 말 중에 기억에 남는 게 있나요?';
+    expect(find.text(first), findsOneWidget);
+    await tester.tap(find.byKey(DiaryEditor.swapKey));
+    await tester.pumpAndSettle();
+    expect(find.text(second), findsOneWidget);
+    expect(find.text(first), findsNothing);
+    await tester.tap(find.byKey(DiaryEditor.swapKey));
+    await tester.pumpAndSettle();
+    expect(find.text(first), findsOneWidget);
+    await tester.tap(find.byKey(DiaryEditor.swapKey));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(_body, '들은 말을 적었다.');
+    await tester.pump();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
+    );
+    expect(_server(container).callCountOf('createDiary'), 1);
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await pumpUntil(tester, () => find.text(second).evaluate().isNotEmpty);
+    // 보기는 같은 인용 모양이고 바꾸기가 없습니다.
+    expect(find.byKey(DiaryEditor.quoteLineKey), findsOneWidget);
+    expect(find.byKey(DiaryEditor.swapKey), findsNothing);
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
+  });
+
+  testWidgets('쓰는 중(본문 초점)에만 가운데가 초안 상태와 글자 수, 밖을 누르면 제목', (tester) async {
+    await _openEdit(tester, _today);
+    await _focusBody(tester);
+    await tester.enterText(_body, '열 글자 일기 쓰기');
+    await tester.pump(diaryDraftDelay + const Duration(milliseconds: 100));
+    await settleWithIo(tester);
+    final indicator = tester.widget<DraftIndicator>(
+      find.byType(DraftIndicator),
+    );
+    expect(indicator.state, DraftIndicatorState.local);
+    expect(indicator.length, 10);
+    expect(_saveButton(tester).enabled, isTrue);
+
+    await tester.tapAt(
+      tester.getBottomLeft(find.byType(DateBlock)) + const Offset(200, -10),
+    );
+    await tester.pumpAndSettle();
+    expect(_bodyFocused(tester), isFalse);
+    expect(find.byType(DraftIndicator), findsNothing);
+  });
+
+  group('키보드 내리기(F-013)', () {
+    testWidgets('본문 초점 중 종이 밖(날짜 블록)을 누르면 키보드가 내려갑니다', (tester) async {
+      await _openEdit(tester, _today);
+      await _focusBody(tester);
+      expect(_bodyFocused(tester), isTrue);
+      await tester.tap(find.byType(DateBlock));
+      await tester.pump();
+      expect(_bodyFocused(tester), isFalse);
+    });
+
+    testWidgets('스크롤을 끌면 키보드가 내려갑니다', (tester) async {
+      await _openEdit(tester, _today);
+      await _focusBody(tester);
+      await tester.enterText(
+        _body,
+        List.generate(40, (i) => '줄 $i').join('\n'),
+      );
+      // 커서를 보이게 하는 스크롤 애니메이션(다음 프레임에 시작) 동안은 스크롤 안 누르기가
+      // 무시되므로 끝까지 둡니다.
+      for (var frame = 0; frame < 5; frame++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(_bodyFocused(tester), isTrue);
+      // 본문 칸 안에서 끌기 시작해 밖 누르기(onTapOutside)가 아니라 스크롤 끌기만 봅니다. 긴
+      // 본문은 일부만 보이므로 보이는 영역과 본문 칸이 겹친 곳 가운데에서 시작합니다.
+      final viewport = tester.getRect(
+        find.ancestor(of: _body, matching: find.byType(Scrollable)).first,
+      );
+      final visibleBody = viewport.intersect(tester.getRect(_body));
+      await tester.dragFrom(visibleBody.center, const Offset(0, -200));
+      await tester.pump();
+      expect(_bodyFocused(tester), isFalse);
+      // 쓴 글의 초안 쓰기(디바운스)가 끝날 때까지 둡니다.
+      await tester.pump(diaryDraftDelay);
+      await settleWithIo(tester);
+    });
+
+    testWidgets('키보드 위 내리기 버튼을 누르면 키보드가 내려갑니다', (tester) async {
+      tester.view.viewInsets = FakeViewPadding(
+        bottom: 300 * tester.view.devicePixelRatio,
+      );
+      addTearDown(tester.view.resetViewInsets);
+      await _openEdit(tester, _today);
+      await _focusBody(tester);
+      await tester.pump();
+      expect(find.byType(KeyboardDismissButton), findsOneWidget);
+      await tester.tap(find.byType(KeyboardDismissButton));
+      await tester.pump();
+      expect(_bodyFocused(tester), isFalse);
+      expect(find.byType(KeyboardDismissButton), findsNothing);
+    });
   });
 
   testWidgets('쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view', (
@@ -157,6 +292,7 @@ void main() {
     await tester.enterText(_body, '회의에서 먼저 말을 꺼냈다.');
     await tester.pump(diaryDraftDelay + const Duration(milliseconds: 100));
     await settleWithIo(tester);
+    // 쓰는 중(초점)이라 가운데가 초안 상태입니다.
     expect(
       tester.widget<DraftIndicator>(find.byType(DraftIndicator)).state,
       DraftIndicatorState.local,
@@ -227,12 +363,17 @@ void main() {
     expect(find.byType(DraftIndicator), findsNothing);
   });
 
-  testWidgets('?id=로 열면 그 일기 본문이고 저장됨 상태입니다', (tester) async {
+  testWidgets('?id=로 열면 그 일기 본문이고 저장됨 상태, 질문 바꾸기는 없습니다', (tester) async {
     await _openEditAt(tester, diaryPathOf(ScreenIds.diaryEdit, _writtenId));
     expect(
       tester.widget<TextField>(_body).controller!.text,
       startsWith('오랜만에'),
     );
+    expect(find.byKey(DiaryEditor.swapKey), findsNothing);
+    // 초점 전에는 제목, 쓰기 시작하면 저장됨 상태입니다.
+    expect(find.byType(DraftIndicator), findsNothing);
+    await _focusBody(tester);
+    await tester.pump();
     expect(
       tester.widget<DraftIndicator>(find.byType(DraftIndicator)).state,
       DraftIndicatorState.saved,
@@ -268,7 +409,7 @@ void main() {
       ),
       '끊긴 글',
     );
-    expect(_saveButton(tester).onPressed, isNotNull, reason: '다시 시도');
+    expect(_saveButton(tester).enabled, isTrue, reason: '다시 시도');
   });
 
   testWidgets('error: 저장된 일기를 읽지 못하면 오류 화면과 다시 시도', (tester) async {

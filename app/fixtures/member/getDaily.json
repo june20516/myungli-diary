@@ -69,6 +69,17 @@
             { "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?" }
           ]
         }
+      },
+      {
+        "slot": "daily.guide",
+        "messageKey": "guide.dohwa",
+        "variant": "2",
+        "reactable": false,
+        "text": {
+          "segments": [
+            { "text": "오늘 들은 말 중에 기억에 남는 게 있나요?" }
+          ]
+        }
       }
     ],
     "cards": {

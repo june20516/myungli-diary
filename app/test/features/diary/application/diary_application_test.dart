@@ -267,7 +267,7 @@ void main() {
       expect(state.fromDraft, isFalse);
     });
 
-    test('고치기는 그 일기의 본문·날짜·저장됨 상태이고 daily를 묻지 않습니다', () async {
+    test('고치기는 그 일기의 본문·날짜·저장됨 상태이고 daily는 날짜 블록 일진만 묻습니다', () async {
       final h = await _harness();
       final id = await _idOn(h, CalendarDate(2026, 10, 12));
       final state = await _edit(h, DiaryEditTarget.existing(id));
@@ -275,7 +275,10 @@ void main() {
       expect(state.existing!.id, id);
       expect(state.initialBody, startsWith('오랜만에'));
       expect(state.status, DiaryDraftStatus.saved);
-      expect(h.calls('getDaily'), 0);
+      // 질문은 저장된 질문이고 후보는 쓰지 않습니다(A115). 일진(date-block)만 받습니다.
+      expect(h.calls('getDaily'), 1);
+      expect(state.candidates, isEmpty);
+      expect(state.dayPillar, isNotNull);
     });
 
     test('없는 일기를 고치려 열면 diary.not_found ProblemError입니다', () async {

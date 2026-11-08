@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
@@ -106,7 +107,15 @@ List<DiaryEntryData> _entries() => [
   ),
 ];
 
-/// diary-editor edit: 저장 순간 버튼으로 도장·태그 칩 순서를 봅니다.
+/// 질문 바꾸기 후보(같은 질문의 다른 변주, 대표 태그 2순위).
+const List<String> _questions = [
+  '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?',
+  '오늘 들은 말 중에 기억에 남는 게 있나요?',
+  '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?',
+];
+
+/// diary-editor edit: 질문 바꾸기로 후보를 돌고, 저장 순간 버튼으로 도장·태그 칩 순서를
+/// 봅니다.
 class _EditorDemo extends StatefulWidget {
   const new();
 
@@ -117,6 +126,7 @@ class _EditorDemo extends StatefulWidget {
 class _EditorDemoState extends State<_EditorDemo> {
   final _controller = TextEditingController();
   final _editor = DiaryEditorController();
+  int _question = 0;
 
   @override
   void dispose() {
@@ -135,8 +145,10 @@ class _EditorDemoState extends State<_EditorDemo> {
         controller: _controller,
         editorController: _editor,
         question: RenderedText(
-          segments: [Segment(text: '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?')],
+          segments: [Segment(text: _questions[_question])],
         ),
+        onSwapQuestion: () =>
+            setState(() => _question = (_question + 1) % _questions.length),
         placeholder: '오늘 있었던 일을 적어 보세요',
       ),
       TextButton(
@@ -196,6 +208,31 @@ final WidgetbookFolder diaryDirectory = WidgetbookFolder(
           name: 'entries skeleton',
           builder: (context) => const Stage(
             child: SizedBox(width: 360, child: DiaryEntriesSkeleton()),
+          ),
+        ),
+      ],
+    ),
+    WidgetbookComponent(
+      name: 'date-block',
+      useCases: [
+        WidgetbookUseCase(
+          name: '일진 있음',
+          builder: (context) => const Stage(
+            child: DateBlock(
+              day: '5',
+              monthWeekday: '11월 목요일',
+              iljin: '癸未(계미)일',
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: '일진 불러오는 중',
+          builder: (context) => const Stage(
+            child: DateBlock(
+              day: '5',
+              monthWeekday: '11월 목요일',
+              iljinLoading: true,
+            ),
           ),
         ),
       ],
