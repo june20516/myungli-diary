@@ -592,5 +592,22 @@
     ],
     "status": "chosen",
     "note": "이름 칸은 오늘 화면 섹션 제목, 0편에도 보이는 제목은 편수 없이"
+  },
+  {
+    "id": "round-R35",
+    "title": "라운드 R35: 용어 \"일간\" 뜻 (W61)",
+    "kind": "copy-sample",
+    "file": "2026-11-08-round-R35.md",
+    "date": "2026-11-08",
+    "milestone": "A2",
+    "screens": [
+      "saju-chart",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "W61"
+    ],
+    "status": "chosen",
+    "note": "일간은 나를 나타내는 기준 글자, 키는 role.day_master"
   }
 ]

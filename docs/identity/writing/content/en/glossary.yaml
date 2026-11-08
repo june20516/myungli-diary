@@ -53,6 +53,7 @@
 - {slot: glossary.value_name, key: role.huisin, text: "a good support"}
 - {slot: glossary.value_name, key: role.gisin, text: "not a great fit"}
 - {slot: glossary.value_name, key: role.neutral, text: "a neutral one"}
+- {slot: glossary.value_name, key: role.day_master, text: "Day master"}
 - {slot: glossary.value_name, key: strength.very_weak, text: "very weak"}
 - {slot: glossary.value_name, key: strength.weak, text: "on the weak side"}
 - {slot: glossary.value_name, key: strength.neutral, text: "well balanced"}

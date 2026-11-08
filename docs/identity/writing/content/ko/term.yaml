@@ -75,5 +75,6 @@
 - {slot: term.meaning, key: term.role.huisin, text: "용신을 곁에서 도와 힘을 보태는 오행이에요. 용신만큼은 아니어도 반가운 기운이에요."}
 - {slot: term.meaning, key: term.role.gisin, text: "내 사주와 잘 안 맞는 오행이에요. 이 기운이 센 때에는 무리하지 않는 게 좋아요."}
 - {slot: term.meaning, key: term.role.neutral, text: "내 사주를 크게 돕지도 해치지도 않는 오행이에요. 그 자체로는 무난한 기운이에요."}
+- {slot: term.meaning, key: term.role.day_master, text: "태어난 날의 천간으로, 사주에서 '나' 자신을 나타내요. 옆 글자들이 나에게 어떤 기운인지는 모두 일간을 기준으로 읽어요."}
 - {slot: term.meaning, key: term.luck.daeun, text: "인생의 계절처럼 10년 단위로 찾아오는 큰 흐름이에요."}
 - {slot: term.meaning, key: term.luck.seun, text: "해마다 바뀌는 한 해의 흐름이에요. 그해에 들어오는 기운이 내 사주와 어떻게 어울리는지 보여 줘요."}

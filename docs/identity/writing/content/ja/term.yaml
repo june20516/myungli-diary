@@ -75,5 +75,6 @@
 - {slot: term.meaning, key: term.role.huisin, text: "用神をそばで助け、力を添える五行です。用神ほどではなくても、うれしい気です。"}
 - {slot: term.meaning, key: term.role.gisin, text: "命式とあまり合わない五行です。この気が強い時期は、無理をしないのがよいでしょう。"}
 - {slot: term.meaning, key: term.role.neutral, text: "命式を大きく助けも損ないもしない五行です。それ自体は穏やかな気です。"}
+- {slot: term.meaning, key: term.role.day_master, text: "生まれた日の天干で、命式の中で「自分」自身を表します。まわりの字が自分にとってどんな気なのかは、すべて日干を基準に読みます。"}
 - {slot: term.meaning, key: term.luck.daeun, text: "人生の季節のように、10年ごとに巡ってくる大きな流れです。"}
 - {slot: term.meaning, key: term.luck.seun, text: "年ごとに変わる、一年の流れです。その年に入る気が命式とどう合うかを表します。"}
