@@ -40,7 +40,8 @@ Widget _explain(ExplainContent content, {Widget? head, String? diaryLinkTag}) {
 /// 오늘 화면 [slotId] 슬롯에서 연 출처.
 TermOrigin _origin(String slotId) =>
     TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
-Widget _evidence(String slotId, PersonalReadingKey? _) => _tall('근거 $slotId');
+Widget _evidence(String slotId, PersonalReadingKey? _, EvidenceTarget _) =>
+    _tall('근거 $slotId');
 Widget _share() => _tall('공유');
 
 Future<void> _pumpHost(WidgetTester tester) async {
@@ -116,7 +117,7 @@ void main() {
     testWidgets('openEvidence는 full로 열리고 id가 붙습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await _pumpHost(tester);
-      unawaited(_sheets.openEvidence(_context, slotId: 'daily.fortune.head'));
+      unawaited(_sheets.openEvidence(_context, 'daily.fortune.head'));
       await tester.pumpAndSettle();
 
       expect(find.text('근거 daily.fortune.head'), findsOneWidget);
@@ -155,7 +156,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final explainContext = tester.element(find.text('풀이 t s'));
-      unawaited(_sheets.openEvidence(explainContext, slotId: 's'));
+      unawaited(_sheets.openEvidence(explainContext, 's'));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
       expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
@@ -174,7 +175,10 @@ void main() {
         () => sheets.explainBody(ExplainTerm('a.b', origin: _origin('s.t'))),
         throwsUnimplementedError,
       );
-      expect(() => sheets.evidenceBody('s.t', null), throwsUnimplementedError);
+      expect(
+        () => sheets.evidenceBody('s.t', null, EvidenceTarget.none),
+        throwsUnimplementedError,
+      );
       expect(sheets.shareBody, throwsUnimplementedError);
       expect(
         () => sheets.tagBody(Daily.fromJson(memberDailyJson()), 0),
@@ -186,7 +190,7 @@ void main() {
       final wired = ProviderContainer(overrides: depthSheetBodyOverrides);
       addTearDown(wired.dispose);
       final sheets = wired.read(depthSheetsProvider);
-      final evidence = sheets.evidenceBody('s.t', null);
+      final evidence = sheets.evidenceBody('s.t', null, EvidenceTarget.none);
       expect(evidence, isA<EvidenceSheet>());
       expect((evidence as EvidenceSheet).slotId, 's.t');
       final explain = sheets.explainBody(
@@ -199,7 +203,7 @@ void main() {
     testWidgets('openEvidence는 시트 이름(근거 시트 제목)을 스크린리더에 알립니다', (tester) async {
       final handle = tester.ensureSemantics();
       await _pumpHost(tester);
-      unawaited(_sheets.openEvidence(_context, slotId: 's'));
+      unawaited(_sheets.openEvidence(_context, 's'));
       await tester.pumpAndSettle();
 
       expect(

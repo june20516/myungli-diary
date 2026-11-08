@@ -110,10 +110,8 @@ class _YongsinBasis extends StatelessWidget {
                 ),
               ),
             ),
-            onOpenLocked: () => sheets.openEvidence(
-              context,
-              slotId: SlotIds.sajuChartYongsinBasis,
-            ),
+            onOpenLocked: () =>
+                sheets.openEvidence(context, SlotIds.sajuChartYongsinBasis),
           ),
         ],
       ),

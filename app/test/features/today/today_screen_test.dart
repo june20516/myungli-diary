@@ -207,7 +207,7 @@ final class _SheetLog {
         explainHeads.add(head);
         return const Text('explain-body');
       },
-      evidenceBody: (_, _) => const Text('evidence-body'),
+      evidenceBody: (_, _, _) => const Text('evidence-body'),
       shareBody: () => const Text('share-body'),
       tagBody: (daily, rank) {
         if (tagRanks.lastOrNull != rank) tagRanks.add(rank);

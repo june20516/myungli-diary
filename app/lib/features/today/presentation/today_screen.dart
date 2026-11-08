@@ -512,11 +512,14 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     final body = display.body;
     final bodyTag = display.bodyTag;
     // 같은 태그를 화면(누를 수 있음)과 뜻 시트 머리(누를 수 없음)에 함께 씁니다.
-    HanjaTag dayKindTag({VoidCallback? onTap}) => HanjaTag(
+    HanjaTag dayKindTag({
+      VoidCallback? onTap,
+      HanjaTagVariant variant = HanjaTagVariant.emphasis,
+    }) => HanjaTag(
       glyph: HanjaGlyphs.forDayKind(display.dayKind),
       label: display.dayKindLabel,
       tone: HanjaGlyphs.toneOfDayKind(display.dayKind),
-      variant: HanjaTagVariant.emphasis,
+      variant: variant,
       onTap: onTap,
     );
     final group = display.tenGodGroup;
@@ -567,7 +570,17 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
             trailing: DepthLink.evidence(
               subject: l10n.todayFortuneTitle,
               placement: DepthLinkPlacement.inlineEnd,
-              onTap: () => _sheets.openEvidence(context, slotId: head.slot),
+              // 근거 시트 위 대상: 헤드라인을 정한 날의 성격과 십성 묶음(누를 수 없는 default).
+              onTap: () => _sheets.openEvidence(
+                context,
+                head.slot,
+                headTags: [
+                  dayKindTag(variant: HanjaTagVariant.normal),
+                  if (group != null && groupLabel != null)
+                    groupTag(group, groupLabel),
+                ],
+                target: head.text,
+              ),
             ),
           ),
         ],
@@ -601,7 +614,16 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
               // 그대로 두고 태그 자리만 비우며, 항목 이름은 총운입니다.
               subject: bodyTag?.label ?? l10n.todayFortuneTitle,
               placement: DepthLinkPlacement.inlineEnd,
-              onTap: () => _sheets.openEvidence(context, slotId: body.slot),
+              // 근거 시트 위 대상: 보조 문장을 정한 대표 태그 1순위(누를 수 없음).
+              onTap: () => _sheets.openEvidence(
+                context,
+                body.slot,
+                headTags: [
+                  if (bodyTag != null)
+                    HanjaTag(glyph: bodyTag.glyph, label: bodyTag.label),
+                ],
+                target: body.text,
+              ),
             ),
           ),
         ],

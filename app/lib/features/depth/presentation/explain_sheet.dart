@@ -145,7 +145,7 @@ class ExplainSheet extends ConsumerWidget {
                 .read(depthSheetsProvider)
                 .openEvidence(
                   context,
-                  slotId: origin.slotId,
+                  origin.slotId,
                   personal: origin.personal,
                 ),
       diaryLinkLabel: tag == null || tagName == null

@@ -44,7 +44,7 @@ const _names = GlossaryNames({
 final _depthSheets = DepthSheets(
   explainBody: (content, {head, diaryLinkTag}) =>
       ExplainSheet(content: content, head: head, diaryLinkTag: diaryLinkTag),
-  evidenceBody: (slotId, personal) => Text(
+  evidenceBody: (slotId, personal, _) => Text(
     personal == null
         ? '근거 $slotId'
         : '근거 $slotId ${personal.kind.value} ${personal.position?.value}',
@@ -615,7 +615,7 @@ void main() {
             head: head,
             diaryLinkTag: diaryLinkTag,
           ),
-          evidenceBody: (_, _) => const SizedBox.shrink(),
+          evidenceBody: (_, _, _) => const SizedBox.shrink(),
           shareBody: SizedBox.shrink,
         );
         final router = GoRouter(

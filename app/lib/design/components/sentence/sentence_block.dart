@@ -30,7 +30,7 @@ enum SentenceBlockVariant {
 /// 공유 이미지처럼 화면과 관계없이 일반 글자여야 하면 [TermStyle.plain]을 줍니다.
 ///
 /// 호칭은 server가 문장 안에 넣어 보내므로 굵게 하거나 색을 바꾸지 않고 그대로 그립니다.
-/// [locked]면 근거·해석 열람 권한이 없는 문장(D60)이라 본문을 그리지 않고, 흐린 한 줄
+/// [locked]면 근거·해석 열람 권한이 없는 문장(D60)이라 본문을 그리지 않고, 흐린 두 줄
 /// (`lock.veil`)과 오른쪽 끝 "열기" 링크(화살표는 [DepthLink]가 그림)만 둡니다.
 /// 잠긴 내용은 server가 보내지 않으므로 [text]는 트리에도 스크린리더에도 들어가지 않습니다.
 class SentenceBlock extends StatelessWidget {
@@ -206,11 +206,11 @@ class SentenceBlock extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: LockVeil.line(
-            // 구역 이름 + "잠김"(컴포넌트 2.2.0).
-            semanticLabel: [
-              for (final textOf in lockedLabelTexts.values) textOf(l10n),
-            ].join(', '),
+          // 구역 이름 + "잠김"(컴포넌트 2.2.0). 앞부분(`basisPreview`)은 아직 잇지 않았습니다.
+          child: LockVeil(
+            semanticTitle: lockedLabelTexts[lockedNameSlotId]!(l10n),
+            stateLabel: lockedLabelTexts[lockedLabelSlotId]!(l10n),
+            lines: LockVeilLines.sentenceBlock,
             a11ySlotId: lockedLabelSlotId,
           ),
         ),

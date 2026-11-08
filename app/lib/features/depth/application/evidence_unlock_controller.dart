@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/misc.dart'
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -51,6 +52,13 @@ abstract interface class EvidenceSubject {
   /// 읽습니다.
   ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId);
 
+  /// 응답 안 [slotId] 슬롯의 잠긴 근거 문장 앞부분(`SlotText.evidencePreview`, D106). 근거 순서이고,
+  /// 응답을 받는 중이거나 슬롯·미리보기가 없으면 빈 목록입니다.
+  ///
+  /// server는 [access]가 `locked`일 때만 담습니다. 근거 시트는 잠겼을 때만 이 값을 읽어 `lock.veil`의
+  /// 앞부분으로 씁니다.
+  ProviderListenable<List<EvidencePreview>> previewOf(String slotId);
+
   /// 응답 안 [slotId] 슬롯의 오늘 그런 이유(`SlotText.todayReason`). 응답을 받는 중이거나 슬롯·
   /// 문장이 없거나 빈 문장이면 null입니다. 오늘 그런 이유가 없는 응답은 늘 null입니다.
   ProviderListenable<RenderedText?> todayReasonOf(String slotId);
@@ -86,6 +94,16 @@ final class DailyEvidenceSubject implements EvidenceSubject {
           (view) => dailySlotText(view.daily, slotId)?.evidence ?? const [],
         ),
       );
+
+  @override
+  ProviderListenable<List<EvidencePreview>> previewOf(String slotId) =>
+      dailyControllerProvider.select((value) {
+        final view = value.value;
+        return view == null
+            ? const <EvidencePreview>[]
+            : dailySlotText(view.daily, slotId)?.evidencePreview ??
+                  const <EvidencePreview>[];
+      });
 
   @override
   ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
@@ -142,6 +160,15 @@ final class ChartEvidenceSubject implements EvidenceSubject {
               : const [],
         ),
       );
+
+  @override
+  ProviderListenable<List<EvidencePreview>> previewOf(String slotId) =>
+      chartControllerProvider.select((value) {
+        final chart = value.value;
+        return chart == null || slotId != SlotIds.sajuChartYongsinBasis
+            ? const <EvidencePreview>[]
+            : chart.yongsin.basis?.evidencePreview ?? const <EvidencePreview>[];
+      });
 
   @override
   ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>

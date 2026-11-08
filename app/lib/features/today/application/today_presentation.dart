@@ -150,8 +150,12 @@ List<LuckyItem> luckyItemsOf(
 }
 
 /// 대표 태그 [tag]를 `hanja-tag`로 그릴 값. 사전에 이름이 없거나 한자 글자표(A112)에 없으면
-/// null입니다.
-FeaturedTagContent? _featuredTagOf(Tag tag, int rank, GlossaryNames names) {
+/// null입니다. [rank]는 응답 `tags.featured` 안 순번입니다. 오늘 화면과 사주 기운 시트가 함께 씁니다.
+FeaturedTagContent? featuredTagContentOf(
+  Tag tag,
+  int rank,
+  GlossaryNames names,
+) {
   final label = names.valueName('tag', tag.key);
   final glyph = HanjaGlyphs.forTagKey(tag.key);
   if (label == null || glyph == null) return null;
@@ -170,7 +174,7 @@ FeaturedTagContent? _featuredTagOf(Tag tag, int rank, GlossaryNames names) {
 /// (`todayContentProvider`). 대표 태그 표시는 사주 기운 섹션의 `hanja-tag`입니다(V78).
 List<String> skippedFeaturedTagKeysOf(Daily daily, GlossaryNames names) => [
   for (final (rank, tag) in daily.tags.featured.indexed)
-    if (_featuredTagOf(tag, rank, names) == null) tag.key,
+    if (featuredTagContentOf(tag, rank, names) == null) tag.key,
 ];
 
 /// [daily]에서 writing 슬롯 id가 [slotId]인 문장. 응답에 없는 슬롯이면 null입니다.
@@ -435,7 +439,7 @@ TodayDisplay todayDisplayOf(
     body: body,
     featured: [
       for (final (rank, featured) in featuredTags.take(maxFeaturedTags).indexed)
-        ?_featuredTagOf(featured, rank, names),
+        ?featuredTagContentOf(featured, rank, names),
     ],
     featuredEmpty: featuredTags.isEmpty,
     lucky: luckyItemsOf(daily, names, l10n, timezone),
