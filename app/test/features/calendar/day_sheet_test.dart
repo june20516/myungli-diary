@@ -30,6 +30,7 @@ import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/calendar/score_row.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
@@ -762,6 +763,15 @@ void main() {
       );
       expect(find.byType(ScoreRow), findsNothing);
       expect(find.byKey(FortuneVerdict.trackKey), findsNothing);
+      Finder bones(String key) => find.descendant(
+        of: find.byKey(ValueKey(key)),
+        matching: find.byType(SkeletonTextLines),
+      );
+      // 음력 글줄 뼈(날짜 글자는 실제 글자라 뼈는 음력 하나), 길흉판정 카드 뼈, 일정 줄 뼈.
+      expect(bones('day-sheet.skeleton.date'), findsOneWidget);
+      expect(bones('day-sheet.skeleton.verdict'), findsWidgets);
+      expect(find.text(_ko.calendarLegendBodyCaution), findsOneWidget);
+      expect(bones('day-sheet.skeleton.schedule'), findsWidgets);
       expect(find.byType(EventRow), findsNothing, reason: '일정은 뼈만');
       expect(find.text(_ko.daySheetEventEmpty), findsNothing);
       expect(

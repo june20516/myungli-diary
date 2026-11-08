@@ -223,8 +223,9 @@ class _VerdictSection extends ConsumerWidget {
     );
   }
 
-  /// 줄이 빠진 실제 원인 용어 id: 매핑이 없거나 한자 글자표가 없으면 `score_item.<id>`,
-  /// 매핑된 용어의 사전 이름이 없으면 그 용어 id(`day_kind.*`, `relation.*`)입니다.
+  /// 줄이 빠진 실제 원인 용어 id: 매핑된 용어의 사전 이름이 없으면 그 용어 id(`day_kind.*`,
+  /// `relation.*`)이고, 그 밖(이름은 있는데 한자 글자표에 id가 없거나 id 매핑 자체가 없음)은
+  /// `score_item.<id>`입니다.
   static String _gapTermIdOf(GlossaryNames? names, String id) {
     final termId = ScoreItemMeta.termIdOf(id);
     if (termId != null && names?.nameOf(termId) == null) return termId;
@@ -447,6 +448,15 @@ class _EntrySkeleton extends StatelessWidget {
 class _DaySheetSkeleton extends ConsumerWidget {
   const new({required this.date});
 
+  /// 날짜 머리 뼈(날짜 글자와 음력 글줄 뼈)를 찾는 테스트용 키.
+  static const Key dateKey = ValueKey('day-sheet.skeleton.date');
+
+  /// 길흉판정 카드 뼈를 찾는 테스트용 키.
+  static const Key verdictKey = ValueKey('day-sheet.skeleton.verdict');
+
+  /// 일정 줄 뼈를 찾는 테스트용 키.
+  static const Key scheduleKey = ValueKey('day-sheet.skeleton.schedule');
+
   final CalendarDate date;
 
   @override
@@ -460,7 +470,10 @@ class _DaySheetSkeleton extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SheetHeading(
-            child: DateHeader.skeleton(solar: _solarTextOf(l10n, date)),
+            child: KeyedSubtree(
+              key: dateKey,
+              child: DateHeader.skeleton(solar: _solarTextOf(l10n, date)),
+            ),
           ),
           const SizedBox(height: Space.s12),
           Align(
@@ -470,11 +483,17 @@ class _DaySheetSkeleton extends ConsumerWidget {
           const SizedBox(height: SectionHeader.sectionGap),
           SectionHeader(title: l10n.daySheetVerdictTitle),
           const SizedBox(height: SectionHeader.contentGap),
-          FortuneVerdict.skeleton(index: 3),
+          KeyedSubtree(
+            key: verdictKey,
+            child: FortuneVerdict.skeleton(index: 3),
+          ),
           const SizedBox(height: SectionHeader.sectionGap),
           SectionHeader(title: l10n.todayEventTitle),
           const SizedBox(height: SectionHeader.contentGap),
-          EventRow.skeleton(variant: EventRowVariant.list, index: 6),
+          KeyedSubtree(
+            key: scheduleKey,
+            child: EventRow.skeleton(variant: EventRowVariant.list, index: 6),
+          ),
           if (diaryAllowed) ...[
             const SizedBox(height: SectionHeader.sectionGap),
             SectionHeader(title: l10n.daySheetDiaryOpen),
