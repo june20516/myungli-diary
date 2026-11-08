@@ -145,6 +145,32 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('여러 줄 칸은 글자 배율 2.0에서도 앞 아이콘 중심이 첫 줄 중심입니다', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: MyungliTextField(
+              label: '메모',
+              maxLines: 3,
+              leadingIcon: AppGlyph(
+                light: PhosphorIconsLight.magnifyingGlass,
+                regular: PhosphorIconsRegular.magnifyingGlass,
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final iconCenter = tester
+          .getCenter(find.byIcon(PhosphorIconsLight.magnifyingGlass))
+          .dy;
+      final editable = tester.getRect(find.byType(EditableText));
+      final firstLineCenter = editable.top + editable.height / 2;
+      expect(iconCenter, closeTo(firstLineCenter, 1));
+    });
+
     testWidgets('maxLength를 넘게 칠 수 없습니다', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(

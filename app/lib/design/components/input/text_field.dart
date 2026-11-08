@@ -280,7 +280,9 @@ class _MyungliTextFieldState extends State<MyungliTextField>
               Padding(
                 padding: EdgeInsetsDirectional.only(
                   // 여러 줄 칸에서도 아이콘은 첫 줄 가운데입니다.
-                  top: multiline ? firstLineCenter - leadingIconSize / 2 : 0,
+                  top: multiline
+                      ? math.max(0, firstLineCenter - leadingIconSize / 2)
+                      : 0,
                   end: Space.s12,
                 ),
                 child: ExcludeSemantics(
