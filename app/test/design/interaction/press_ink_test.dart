@@ -2,9 +2,54 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/theme/app_theme.dart';
 
 void main() {
+  testWidgets('위젯: 다 자란 얼룩이 pressInkRadius 반지름으로 그려집니다(smoke)', (tester) async {
+    final controller = AnimationController(
+      vsync: tester,
+      duration: const Duration(milliseconds: 200),
+    );
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(
+          brightness: Brightness.light,
+          locale: const Locale('ko'),
+        ),
+        home: Center(
+          child: SizedBox(
+            width: 100,
+            height: 40,
+            child: animate(
+              InteractionPattern.pressInk,
+              t: controller,
+              prefs: const MotionPrefs(
+                reduceMotion: false,
+                reduceTransparency: false,
+                lowEnd: false,
+              ),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      ),
+    );
+    controller.value = 1;
+    await tester.pump();
+    final expected = math.sqrt(50 * 50 + 20 * 20) / 0.7;
+    final paintFinder = find.descendant(
+      of: find.byType(SizedBox),
+      matching: find.byType(CustomPaint),
+    );
+    expect(
+      tester.renderObject(paintFinder.first),
+      paints..circle(radius: expected),
+    );
+  });
+
   group('pressInkRadius', () {
     const size = Size(100, 40);
     final farthest = math.sqrt(100 * 100 + 40 * 40);

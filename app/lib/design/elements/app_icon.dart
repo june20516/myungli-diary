@@ -84,13 +84,16 @@ class AppIcon extends StatelessWidget {
   /// 크기는 [size]를 주면 그 단계로 고정하고(대화상자 제목 앞 20), 없으면 주변 글자의
   /// 기본 크기에서 [AppIconSize.adjacentText]로 고른 단계에 기기 글자 배율을 곱합니다.
   /// 색은 주변 글자색을 따릅니다.
-  const new caution({this.size, this.semanticLabel, super.key})
-    : icon = _cautionGlyph,
-      weight = AppIconWeight.light,
-      color = null,
-      scalesWithText = false,
-      textScaleMax = null,
-      _caution = true;
+  const new caution({
+    this.size,
+    this.textScaleMax,
+    this.semanticLabel,
+    super.key,
+  }) : icon = _cautionGlyph,
+       weight = AppIconWeight.light,
+       color = null,
+       scalesWithText = false,
+       _caution = true;
 
   /// 글자 옆 아이콘의 굵기(`elements.json` `icon.adjacentTextWeight`): 옆 글자가
   /// 400~500이면 [AppIconWeight.light], 600 이상이면 [AppIconWeight.regular]입니다.
@@ -118,7 +121,7 @@ class AppIcon extends StatelessWidget {
   /// 배율을 따르지 않습니다.
   final bool scalesWithText;
 
-  /// [scalesWithText]일 때 배율 상한. 없으면 기기 배율 그대로입니다.
+  /// 배율 상한([scalesWithText]이거나 [AppIcon.caution]이 글자에 맞출 때). 없으면 기기 배율 그대로입니다.
   final double? textScaleMax;
 
   final bool _caution;
@@ -133,7 +136,7 @@ class AppIcon extends StatelessWidget {
       return Icon(
         PhosphorIconsFill.warningCircle,
         size: fixed == null
-            ? _scaled(context, baseSize.logical)
+            ? scaledSize(context, baseSize.logical, textScaleMax)
             : fixed.logical,
         color: style.color,
         semanticLabel: semanticLabel,
@@ -145,16 +148,25 @@ class AppIcon extends StatelessWidget {
         AppIconWeight.light => icon.light,
         AppIconWeight.regular => icon.regular,
       },
-      size: scalesWithText ? _scaled(context, logical) : logical,
+      size: scalesWithText
+          ? scaledSize(context, logical, textScaleMax)
+          : logical,
       color: color,
       semanticLabel: semanticLabel,
     );
   }
 
-  double _scaled(BuildContext context, double logical) {
+  /// 기본 크기 [logical]에 기기 글자 배율을 곱한 크기. [textScaleMax]가 있으면
+  /// 배율이 그 값에서 멈춥니다(`icon.textScale.adjacent-text`).
+  static double scaledSize(
+    BuildContext context,
+    double logical,
+    double? textScaleMax,
+  ) {
     final scaled = MediaQuery.textScalerOf(context).scale(logical);
-    final max = textScaleMax;
-    return max == null ? scaled : math.min(scaled, logical * max);
+    return textScaleMax == null
+        ? scaled
+        : math.min(scaled, logical * textScaleMax);
   }
 }
 

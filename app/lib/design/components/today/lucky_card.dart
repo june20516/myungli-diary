@@ -191,7 +191,10 @@ class LuckyChip extends StatelessWidget {
             size: AppIconSize.adjacentText(
               context.tokens.typography.labelMd.fontSize!,
             ),
+            // `lucky-card` `lead.iconWeight`가 regular로 못박혀 있어 짝 규칙보다 우선합니다.
             weight: AppIconWeight.regular,
+            // 칩 높이는 최소 높이라 배율만큼 늘어납니다.
+            scalesWithText: true,
             // tag 변형만 앞 아이콘이 text.primary입니다.
             color: item.variant == LuckyCardVariant.tag
                 ? colors.textPrimary

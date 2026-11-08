@@ -122,6 +122,29 @@ void main() {
       expect(find.bySemanticsLabel('도시 이름'), findsOneWidget);
     });
 
+    testWidgets('앞 아이콘은 글자 배율 2.0에서 20 x 2로 커지고 넘치지 않습니다', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(
+        inputApp(
+          const Center(
+            child: MyungliTextField(
+              label: '도시 이름',
+              leadingIcon: AppGlyph(
+                light: PhosphorIconsLight.magnifyingGlass,
+                regular: PhosphorIconsRegular.magnifyingGlass,
+              ),
+            ),
+          ),
+        ),
+      );
+      final icon = tester.widget<Icon>(
+        find.byIcon(PhosphorIconsLight.magnifyingGlass),
+      );
+      expect(icon.size, closeTo(40, 0.001));
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('maxLength를 넘게 칠 수 없습니다', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(

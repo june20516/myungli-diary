@@ -266,6 +266,11 @@ class _MyungliTextFieldState extends State<MyungliTextField>
         final showClear =
             enabled && _focus.hasFocus && _controller.text.isNotEmpty;
         final leading = widget.leadingIcon;
+        final leadingIconSize = AppIcon.scaledSize(
+          context,
+          MyungliTextField._leadingIconSize.logical,
+          null,
+        );
         return Row(
           crossAxisAlignment: multiline
               ? CrossAxisAlignment.start
@@ -275,16 +280,15 @@ class _MyungliTextFieldState extends State<MyungliTextField>
               Padding(
                 padding: EdgeInsetsDirectional.only(
                   // 여러 줄 칸에서도 아이콘은 첫 줄 가운데입니다.
-                  top: multiline
-                      ? firstLineCenter -
-                            MyungliTextField._leadingIconSize.logical / 2
-                      : 0,
+                  top: multiline ? firstLineCenter - leadingIconSize / 2 : 0,
                   end: Space.s12,
                 ),
                 child: ExcludeSemantics(
                   child: AppIcon(
                     leading,
                     size: MyungliTextField._leadingIconSize,
+                    scalesWithText: true,
+                    weight: AppIcon.weightFor(textStyle.fontWeight!),
                     color: enabled ? colors.textSecondary : colors.disabledFg,
                   ),
                 ),

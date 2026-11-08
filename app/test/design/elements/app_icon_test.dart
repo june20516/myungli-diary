@@ -28,6 +28,9 @@ void main() {
       expect(AppIconSize.adjacentText(19), AppIconSize.s24);
       expect(AppIconSize.adjacentText(22), AppIconSize.s24);
       expect(AppIconSize.adjacentText(23), AppIconSize.s28);
+      expect(AppIconSize.adjacentText(14.5), AppIconSize.s20);
+      expect(AppIconSize.adjacentText(18.5), AppIconSize.s24);
+      expect(AppIconSize.adjacentText(22.5), AppIconSize.s28);
     });
   });
 
@@ -79,6 +82,19 @@ void main() {
         ),
       );
       expect(drawnSize(tester), closeTo(22, 0.001));
+    });
+
+    testWidgets('caution 자동 크기는 배율을 곱하고 textScaleMax에서 멈춥니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const DefaultTextStyle(
+            style: TextStyle(fontSize: 14),
+            child: AppIcon.caution(textScaleMax: 1.3),
+          ),
+          textScale: 2,
+        ),
+      );
+      expect(drawnSize(tester), closeTo(16 * 1.3, 0.001));
     });
 
     testWidgets('caution은 크기를 고정하면 배율을 따르지 않습니다', (tester) async {

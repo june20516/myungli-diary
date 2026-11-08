@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -185,6 +186,36 @@ void main() {
       expect(data.label, '3이 흐름을 열어 줘요.', reason: '설명 노드를 읽었는지 확인');
       expect(data.identifier, isEmpty);
       handle.dispose();
+    });
+
+    testWidgets('글자 배율 2.0에서 앞 아이콘이 배율만큼 커지고 칩은 최소 높이 34 아래로 줄지 않으며 넘치지 않습니다', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(_app());
+      final icons = tester
+          .widgetList<AppIcon>(find.byType(AppIcon))
+          .where((icon) => icon.scalesWithText);
+      expect(icons, isNotEmpty);
+      for (final icon in icons) {
+        final drawn = tester.widget<Icon>(
+          find.descendant(of: find.byWidget(icon), matching: find.byType(Icon)),
+        );
+        expect(drawn.size, icon.size!.logical * 2);
+      }
+      for (final variant in _luckyVariants) {
+        final chip = find.descendant(
+          of: _chip(variant),
+          matching: find.byKey(LuckyChip.surfaceKey),
+        );
+        expect(
+          tester.getSize(chip).height,
+          greaterThanOrEqualTo(34),
+          reason: variant.name,
+        );
+      }
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('칩은 높이 34 이상이고 누름 영역은 44 이상입니다', (tester) async {

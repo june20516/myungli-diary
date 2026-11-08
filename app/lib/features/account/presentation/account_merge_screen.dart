@@ -317,12 +317,20 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
         spacing: Space.s8,
         children: [
           // 아이콘을 첫 줄 글자 높이 가운데에 맞춥니다.
-          SizedBox(
-            height: style.fontSize! * style.height!,
-            child: AppIcon(
-              _checkCircle,
-              size: AppIconSize.adjacentText(style.fontSize!),
-              color: tokens.colors.textSecondary,
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.textScalerOf(context).scale(style.fontSize!) *
+                  style.height!,
+            ),
+            child: Center(
+              child: AppIcon(
+                _checkCircle,
+                size: AppIconSize.adjacentText(style.fontSize!),
+                scalesWithText: true,
+                weight: AppIcon.weightFor(style.fontWeight!),
+                color: tokens.colors.textSecondary,
+              ),
             ),
           ),
           Expanded(child: Text(text, style: style)),
