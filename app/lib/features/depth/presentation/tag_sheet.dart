@@ -34,6 +34,7 @@ import 'package:myungli_diary/features/today/application/today_presentation.dart
 ///
 /// 이 시트는 오늘 화면이 사전으로 그린 대표 태그에서만 열립니다. 그래서 사전은 이미 받아 둔
 /// 상태이고, 받지 못했거나 그 태그를 그릴 수 없으면(사전, 글자표에 없음) 아무것도 그리지 않습니다.
+/// [rank]가 응답의 대표 태그 범위 밖이어도 그리지 않습니다.
 class TagSheet extends ConsumerWidget {
   /// [daily]의 [rank]순위 대표 태그 시트를 만듭니다.
   const new({required this.daily, required this.rank, super.key});
@@ -53,9 +54,12 @@ class TagSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final names = ref.watch(glossaryProvider).value;
-    final tag = names == null
+    final featured = daily.tags.featured;
+    // 범위 밖 순번(응답이 바뀐 뒤 열린 시트 등)은 그리지 않습니다.
+    final inRange = rank >= 0 && rank < featured.length;
+    final tag = names == null || !inRange
         ? null
-        : featuredTagContentOf(daily.tags.featured[rank], rank, names);
+        : featuredTagContentOf(featured[rank], rank, names);
     if (names == null || tag == null) {
       return const SizedBox.shrink();
     }
@@ -83,7 +87,7 @@ class TagSheet extends ConsumerWidget {
               if (first && fortuneTag != null)
                 // SheetHeading의 위 여백과 같은 자리에서 태그와 가운데를 맞춥니다.
                 Padding(
-                  padding: const EdgeInsets.only(top: Space.s8),
+                  padding: const EdgeInsets.only(top: SheetHeading.topGap),
                   child: DepthLink.evidence(
                     subject: tag.label,
                     placement: DepthLinkPlacement.inlineEnd,

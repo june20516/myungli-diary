@@ -13,6 +13,8 @@ import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/presentation/tag_sheet.dart';
+import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
@@ -140,6 +142,42 @@ void main() {
       expect(meaning.top - head.bottom, Space.s12);
       expect(list.top - meaning.bottom, Space.s24);
       expect(find.byType(TagSheet), findsOneWidget);
+    });
+
+    testWidgets('머리 태그와 근거 아이콘은 세로 가운데가 같습니다', (tester) async {
+      await _openTagSheet(tester);
+
+      final tag = tester.getRect(_inSheet(find.byType(HanjaTag)));
+      final icon = tester.getRect(
+        find.descendant(
+          of: _inSheet(find.byType(DepthLink)),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(icon.center.dy, moreOrLessEquals(tag.center.dy, epsilon: 0.5));
+    });
+
+    testWidgets('순번이 대표 태그 범위 밖이면 아무것도 그리지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            glossaryProvider.overrideWith(
+              (ref) async => const GlossaryNames({
+                'tag': {'cheoneul_gwiin': '천을귀인'},
+              }),
+            ),
+          ],
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: TagSheet(daily: Daily.fromJson(memberDailyJson()), rank: 1),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(HanjaTag), findsNothing);
+      expect(find.byType(TagSentenceList), findsNothing);
     });
 
     testWidgets('2순위: 근거 아이콘 없이 빈 안내(IA empty)', (tester) async {

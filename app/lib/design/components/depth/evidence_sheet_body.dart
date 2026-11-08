@@ -35,7 +35,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 ///
 /// 잠긴 구역은 `lock.veil` G1입니다: server가 준 앞부분([basisLead], [sourceLead])이 있으면
 /// 또렷하게 두고 뒤는 흐린 자리값이며, 줄 수는 판정 근거 3, 원전 2, 내 사주에서는 3입니다
-/// ([LockVeilLines]). 내 사주에서는은 앞부분이 오지 않아 자리값만입니다.
+/// ([LockVeilLines]). "내 사주에서는" 구역은 앞부분이 오지 않아 자리값만입니다.
 ///
 /// [loading]이면 구역 제목 아래 본문 자리가 skeleton입니다(권한이 생겨 응답을 다시 받는 중,
 /// IA `loading`). 안내 영역은 [state]대로 남습니다.

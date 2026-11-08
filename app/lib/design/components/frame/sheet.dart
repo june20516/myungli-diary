@@ -289,6 +289,10 @@ class SheetHeading extends StatefulWidget {
   /// 제목을 header 의미로 감쌉니다.
   const new({required this.child, super.key});
 
+  /// 제목 위 여백(핸들 자리 아래 `space.8`). 제목과 같은 줄에 놓는 위젯이 세로 자리를 맞출 때
+  /// 이 값을 씁니다.
+  static const double topGap = Space.s8;
+
   /// 제목 위젯.
   final Widget child;
 
@@ -315,7 +319,7 @@ class _SheetHeadingState extends State<SheetHeading> {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: Space.s8),
+    padding: const EdgeInsets.only(top: SheetHeading.topGap),
     child: Semantics(header: true, child: widget.child),
   );
 }
