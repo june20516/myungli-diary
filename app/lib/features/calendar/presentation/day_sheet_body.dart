@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
@@ -19,7 +20,6 @@ import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
-import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
@@ -27,7 +27,6 @@ import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
-import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
@@ -83,7 +82,6 @@ class _DaySheetContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final reason = day.characterReason;
     final today = ref.watch(todayProvider);
     // 일기 입구는 오늘·지난 날만입니다(D49).
     final diaryAllowed = date.compareTo(today) <= 0;
@@ -108,15 +106,6 @@ class _DaySheetContent extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: Space.s12),
-          SentenceBlock(
-            variant: SentenceBlockVariant.body,
-            text: reason.text,
-            slotId: SlotIds.daySheetCharacterReason,
-            onTerm: (termId) => ref
-                .read(depthSheetsProvider)
-                .openExplain(context, termId: termId),
           ),
           const SizedBox(height: Space.s24),
           _ScheduleSection(date: date),
@@ -216,6 +205,8 @@ class _DiaryEntry extends ConsumerWidget {
       return const _EntrySkeleton();
     }
     final entry = diaryWriteEntryOf(diaries.length);
+    final dateText = DateFormat.MMMMd(l10n.localeName)
+        .format(DateTime(date.year, date.month, date.day));
     return Column(
       key: entryKey,
       mainAxisSize: MainAxisSize.min,
@@ -224,7 +215,7 @@ class _DiaryEntry extends ConsumerWidget {
         // 머리(편수, 동작 아님)와 작성 순 줄. 0편이면 아무것도 그리지 않습니다.
         DiaryEntries(
           surface: DiaryEntriesSurface.plain,
-          head: diaries.isEmpty ? null : l10n.daySheetDiaryOpen(diaries.length),
+          head: diaries.isEmpty ? null : l10n.daySheetDiaryOpen,
           headIdentifier: SlotIds.daySheetDiaryOpen,
           entries: diaryEntriesDataOf(context, diaries),
         ),
@@ -232,8 +223,10 @@ class _DiaryEntry extends ConsumerWidget {
           padding: const EdgeInsets.only(top: Space.s12),
           child: PrimaryButton(
             label: switch (entry) {
-              DiaryWriteEntry.first => l10n.daySheetDiaryWriteCta,
-              DiaryWriteEntry.more => l10n.daySheetDiaryWriteCtaWritten,
+              DiaryWriteEntry.first => l10n.daySheetDiaryWriteCta(dateText),
+              DiaryWriteEntry.more => l10n.daySheetDiaryWriteCtaWritten(
+                dateText,
+              ),
               DiaryWriteEntry.full => l10n.daySheetDiaryWriteCtaFull,
             },
             // 그날 일기를 다 채웠으면 누를 수 없습니다(D83 ②).

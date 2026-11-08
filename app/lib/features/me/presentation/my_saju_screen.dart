@@ -220,7 +220,7 @@ class _MySajuBody extends ConsumerWidget {
         ?_sentence(chart.yongsinSummary, SlotIds.mySajuYongsinBody, explain),
         DepthLink(
           variant: DepthLinkVariant.block,
-          label: l10n.depthLinkEvidence,
+          label: l10n.depthLinkEvidence(l10n.mySajuYongsinTitle),
           onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
         ),
       ],

@@ -90,6 +90,9 @@ Future<void> _tap(WidgetTester tester, LuckyCardVariant variant) async {
   await tester.pumpAndSettle();
 }
 
+// 화면 슬롯은 없어졌지만 컴포넌트는 slotIds로 받은 id를 그대로 붙이므로 시험용 id를 씁니다.
+const String _tagBodySlot = 'test.lucky-tag.body';
+
 void main() {
   group('lucky-card', () {
     testWidgets('time 값만 숫자 폭이 고른 tnum이고 다른 값은 그대로입니다', (tester) async {
@@ -777,10 +780,7 @@ void main() {
           child: LuckyCardRow(
             items: items ?? [...tags(), ..._items()],
             interactive: interactive,
-            slotIds: const {
-              ..._slotIds,
-              LuckyCardVariant.tag: SlotIds.todayLuckyTagBody,
-            },
+            slotIds: const {..._slotIds, LuckyCardVariant.tag: _tagBodySlot},
           ),
         ),
       ),
@@ -789,8 +789,7 @@ void main() {
     Finder tagChip(String tagKey) =>
         find.byKey(LuckyCardRow.tagChipKey(tagKey));
 
-    Finder tagExplain() =>
-        find.byKey(const ValueKey<String>(SlotIds.todayLuckyTagBody));
+    Finder tagExplain() => find.byKey(const ValueKey<String>(_tagBodySlot));
 
     test('행운 4종은 tag를 뺀 변형이고, tag 칩 키는 chipKey로 만들 수 없습니다', () {
       expect(LuckyCardVariant.luckyValues, [
@@ -875,7 +874,7 @@ void main() {
         find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
         findsOneWidget,
       );
-      expect(_data(tester, tagExplain()).identifier, SlotIds.todayLuckyTagBody);
+      expect(_data(tester, tagExplain()).identifier, _tagBodySlot);
 
       // 같은 칩을 다시 누르면 닫힙니다.
       await tester.tap(tagChip('cheoneul_gwiin'));

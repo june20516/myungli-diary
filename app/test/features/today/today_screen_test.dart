@@ -161,27 +161,20 @@ void main() {
     final character = tester.widget<DayCharacter>(_content);
     expect(character.variant, DayCharacterVariant.good);
     expect(character.label, _ko.dayKindYongsinDay);
-    expect(
-      character.reason?.segments.single.text,
-      '내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
-    );
     expect(_id(SlotIds.todayCharacterLabel), findsOneWidget);
-    expect(_id(SlotIds.todayCharacterReason), findsOneWidget);
 
     expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
     expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
-    // 근거 보기 링크는 총운 끝과 날의 성격 이유 줄 끝(`day-character` rules)에 있습니다.
-    for (final scope in [
-      find.byKey(const Key(SlotIds.todayFortuneHead)),
-      find.byKey(DayCharacter.reasonKey),
-    ]) {
-      final link = find.descendant(of: scope, matching: find.byType(DepthLink));
-      expect(
-        tester.widget<DepthLink>(link).variant,
-        DepthLinkVariant.inlineEnd,
-      );
-      expect(tester.widget<DepthLink>(link).label, _ko.depthLinkEvidence);
-    }
+    // 근거 보기 링크는 총운 끝에 있습니다.
+    final link = find.descendant(
+      of: find.byKey(const Key(SlotIds.todayFortuneHead)),
+      matching: find.byType(DepthLink),
+    );
+    expect(tester.widget<DepthLink>(link).variant, DepthLinkVariant.inlineEnd);
+    expect(
+      tester.widget<DepthLink>(link).label,
+      _ko.depthLinkEvidence(_ko.todayFortuneTitle),
+    );
 
     for (final variant in LuckyCardVariant.luckyValues) {
       expect(find.byKey(LuckyCardRow.chipKey(variant)), findsOneWidget);
@@ -223,42 +216,6 @@ void main() {
   });
 
   group('대표 태그 칩(D76)', () {
-    final tagChip = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
-
-    testWidgets('tag 칩은 칩 줄 맨 앞, 행운 4종 앞에 그립니다', (tester) async {
-      await pumpApp(tester, scenario: 'member');
-      await _settleToday(tester);
-
-      final row = find.byType(LuckyCardRow);
-      expect(find.descendant(of: row, matching: tagChip), findsOneWidget);
-      // 칩 이름은 사전 tag 이름입니다(member glossary `tag.cheoneul_gwiin`).
-      expect(
-        find.descendant(of: tagChip, matching: find.text('천을귀인')),
-        findsOneWidget,
-      );
-      final chips = tester.widgetList<LuckyChip>(
-        find.descendant(of: row, matching: find.byType(LuckyChip)),
-      );
-      expect(
-        [for (final chip in chips) chip.item.variant],
-        [LuckyCardVariant.tag, ...LuckyCardVariant.luckyValues],
-      );
-    });
-
-    testWidgets('태그 칩을 누르면 뜻 한 줄이 스밉니다', (tester) async {
-      await pumpApp(tester, scenario: 'member');
-      await _settleToday(tester);
-
-      await tester.ensureVisible(tagChip);
-      await tester.tap(tagChip);
-      await tester.pumpAndSettle();
-      expect(_id(SlotIds.todayLuckyTagBody), findsOneWidget);
-      expect(
-        find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
-        findsOneWidget,
-      );
-    });
-
     testWidgets('사전에 이름이 없는 태그는 칩 없이 사전 빈칸으로 한 번만 보고합니다', (tester) async {
       final json = memberDailyJson();
       (json['tags'] as Map<String, dynamic>)['featured'] = [
@@ -282,7 +239,6 @@ void main() {
         ],
       );
       await _settleToday(tester);
-      expect(tagChip, findsOneWidget);
       expect(
         find.byKey(LuckyCardRow.tagChipKey('not_in_glossary')),
         findsNothing,
@@ -323,7 +279,10 @@ void main() {
       );
       await _settleToday(tester);
 
-      expect(tagChip, findsNothing);
+      expect(
+        find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin')),
+        findsNothing,
+      );
       expect(find.byType(LuckyChip), findsNWidgets(4));
     });
   });

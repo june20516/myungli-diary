@@ -82,7 +82,7 @@ class ExplainSheetBody extends StatelessWidget {
           if (onEvidence != null)
             DepthLink(
               variant: DepthLinkVariant.block,
-              label: AppLocalizations.of(context).depthLinkEvidence,
+              label: AppLocalizations.of(context).depthLinkEvidence(title),
               onTap: onEvidence,
             ),
         ],

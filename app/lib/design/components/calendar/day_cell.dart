@@ -17,6 +17,9 @@ enum DayLuck {
   /// 좋은 날: `calendar.good.bg`로 채웁니다.
   good,
 
+  /// 아주 좋은 날: 임시로 좋은 날과 같은 색입니다(Task 20에서 `calendar.level.great`).
+  great,
+
   /// 보통 날: 채우지 않습니다.
   neutral,
 
@@ -302,7 +305,7 @@ class _DayCellState extends State<DayCell>
 
     final luck = widget.outsideMonth ? null : data.luck;
     final luckColor = switch (luck) {
-      DayLuck.good => colors.calendarGoodBg,
+      DayLuck.good || DayLuck.great => colors.calendarGoodBg,
       DayLuck.caution => colors.calendarCautionBg,
       DayLuck.neutral || null => null,
     };

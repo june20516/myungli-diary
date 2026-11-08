@@ -259,17 +259,6 @@ class _TodayBody extends ConsumerWidget {
                   child: DayCharacter(
                     variant: character.variant,
                     label: character.label,
-                    reason: character.reason,
-                    reasonSlotId: SlotIds.todayCharacterReason,
-                    reasonTrailing: DepthLink(
-                      variant: DepthLinkVariant.inlineEnd,
-                      label: l10n.depthLinkEvidence,
-                      slotId: SlotIds.todayEvidenceLink,
-                      onTap: () => sheets.openEvidence(
-                        context,
-                        slotId: display.characterReasonSlot,
-                      ),
-                    ),
                   ),
                 ),
               ),
@@ -283,8 +272,7 @@ class _TodayBody extends ConsumerWidget {
                 onTerm: (termId) => openExplain(termId, head.slot),
                 trailing: DepthLink(
                   variant: DepthLinkVariant.inlineEnd,
-                  label: l10n.depthLinkEvidence,
-                  slotId: SlotIds.todayEvidenceLink,
+                  label: l10n.depthLinkEvidence(l10n.todayFortuneTitle),
                   onTap: () => sheets.openEvidence(context, slotId: head.slot),
                 ),
               ),
@@ -311,7 +299,7 @@ class _TodayBody extends ConsumerWidget {
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             LuckyCardRow(
               // 대표 태그 칩이 맨 앞, 그 뒤에 행운 4종입니다.
-              items: [...display.tags, ...display.lucky],
+              items: display.lucky,
               slotIds: todayLuckySlotIds,
             ),
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),

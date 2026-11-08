@@ -158,11 +158,14 @@ void main() {
     expect(
       find.descendant(
         of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
-        matching: find.text(_ko.daySheetDiaryOpen(1)),
+        matching: find.text(_ko.daySheetDiaryOpen),
       ),
       findsOneWidget,
     );
-    expect(find.text(_ko.daySheetDiaryWriteCtaWritten), findsOneWidget);
+    expect(
+      find.text(_ko.daySheetDiaryWriteCtaWritten('10월 13일')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('diary-written: 지난 날 일기 줄 → 그 일기의 diary-view', (tester) async {
@@ -224,23 +227,6 @@ void main() {
       find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
       findsNothing,
     );
-  });
-
-  testWidgets('member: 이유 문장의 용어 칩 → 풀이 시트가 위로 쌓입니다', (tester) async {
-    covers(const Covers(exits: ['day-sheet>explain-sheet']));
-    await _openDaySheet(tester, CalendarDate(2026, 10, 12));
-
-    await tester.tap(_inSheet(find.byType(TermToken)));
-    await settleWithIo(tester);
-    final explain = find.byKey(const Key(ScreenIds.explainSheet));
-    expect(explain, findsOneWidget);
-    expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
-    // day-sheet의 깊이는 explain까지라 근거 보기가 없고 근거 시트로 가지 않습니다.
-    expect(
-      find.descendant(of: explain, matching: find.byType(DepthLink)),
-      findsNothing,
-    );
-    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
   });
 
   testWidgets('today: 용어 칩 → 풀이 시트에는 근거 보기가 그대로 있습니다', (tester) async {

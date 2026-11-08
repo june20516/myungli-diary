@@ -157,7 +157,7 @@ void main() {
       );
       final link = tester.widget<DepthLink>(find.byType(DepthLink));
       expect(link.variant, DepthLinkVariant.block);
-      expect(link.label, _ko.depthLinkEvidence);
+      expect(link.label, _ko.depthLinkEvidence('식신'));
     });
 
     testWidgets('사전에 한자가 있으면 제목 옆에 한자를 그립니다', (tester) async {

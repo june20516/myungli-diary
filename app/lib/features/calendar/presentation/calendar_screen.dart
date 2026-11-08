@@ -418,6 +418,7 @@ final class _CellBuilder {
       date: date,
       semanticLabel: view.semanticLabel,
       luck: switch (view.luck) {
+        LuckLevel.veryGood => DayLuck.great,
         LuckLevel.good => DayLuck.good,
         LuckLevel.neutral => DayLuck.neutral,
         LuckLevel.caution => DayLuck.caution,

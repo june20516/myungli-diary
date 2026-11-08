@@ -27,7 +27,6 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
-import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
@@ -210,41 +209,9 @@ void main() {
     await _closeSheet(tester);
     expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
 
-    // 날의 성격 이유 줄 끝의 근거 보기(`day-character` rules).
-    await tester.tap(depthLinkTarget(of: find.byKey(DayCharacter.reasonKey)));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
-    await _closeSheet(tester);
-    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
-
     await tester.tap(find.byType(ShareButton));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.sharePreview)), findsOneWidget);
-  });
-
-  testWidgets('member: 대표 태그 칩을 누르면 뜻 한 줄이 스미고 시트는 열리지 않습니다(D76)', (
-    tester,
-  ) async {
-    await _openToday(tester);
-
-    final tagChip = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
-    await tester.ensureVisible(tagChip);
-    await tester.tap(tagChip);
-    await tester.pumpAndSettle();
-    expect(
-      find.bySemanticsIdentifier(SlotIds.todayLuckyTagBody),
-      findsOneWidget,
-    );
-    expect(
-      find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
-      findsOneWidget,
-    );
-    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
-
-    // 다시 누르면 닫힙니다(행운 칩과 같은 동작).
-    await tester.tap(tagChip);
-    await tester.pumpAndSettle();
-    expect(find.bySemanticsIdentifier(SlotIds.todayLuckyTagBody), findsNothing);
   });
 
   testWidgets('evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장', (

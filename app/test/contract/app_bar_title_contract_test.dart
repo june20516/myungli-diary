@@ -131,7 +131,8 @@ void main() {
         if (entry.key.startsWith('@') &&
             entry.value is Map<String, Object?> &&
             ((entry.value! as Map<String, Object?>)['description'] as String?)
-                    ?.contains('임시') ==
+                    ?.replaceAll('임시 저장', '')
+                    .contains('임시') ==
                 true)
           entry.key.substring(1),
     };

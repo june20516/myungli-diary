@@ -29,8 +29,6 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
-import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -218,24 +216,6 @@ void main() {
         tester.widget<DayCharacter>(find.byType(DayCharacter)).label,
         _ko.dayKindGwiinDay,
       );
-      final reason = find.byKey(
-        const ValueKey(SlotIds.daySheetCharacterReason),
-      );
-      expect(
-        tester
-            .widget<SentenceBlock>(
-              find.ancestor(of: reason, matching: find.byType(SentenceBlock)),
-            )
-            .text
-            .segments
-            .map((segment) => segment.text)
-            .join(),
-        '천을귀인이 들어 도와주는 사람이 곁에 오는 날이에요.',
-      );
-      expect(
-        find.descendant(of: reason, matching: find.byType(TermToken)),
-        findsOneWidget,
-      );
     });
 
     testWidgets('시트에는 광고 배너가 없습니다(D53)', (tester) async {
@@ -243,17 +223,6 @@ void main() {
 
       expect(find.byType(AdBanner), findsNothing);
       expect(find.byType(AdBannerFrame), findsNothing);
-    });
-
-    testWidgets('용어 칩을 누르면 근거 슬롯 없이(근거 보기 없음) 풀이 시트가 위로 쌓입니다', (tester) async {
-      await _open(tester, CalendarDate(2026, 10, 12));
-
-      await tester.tap(find.byType(TermToken));
-      await tester.pumpAndSettle();
-
-      expect(find.text('풀이 tag.cheoneul_gwiin null'), findsOneWidget);
-      expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
-      expect(find.byKey(const Key(ScreenIds.daySheet)), findsOneWidget);
     });
 
     testWidgets('일정은 시각순이고 하루 종일이 먼저이며 마지막 줄은 구분선이 없습니다', (tester) async {
@@ -376,7 +345,7 @@ void main() {
       answer.complete(const []);
       await tester.pumpAndSettle();
       expect(find.byKey(skeleton), findsNothing);
-      expect(_writeButton(tester).label, _ko.daySheetDiaryWriteCta);
+      expect(_writeButton(tester).label, _ko.daySheetDiaryWriteCta('10월 13일'));
     });
 
     testWidgets('지난 날 0편: 머리·줄 없이 이날 일기 쓰기 → 그날 새 일기', (tester) async {
@@ -391,7 +360,7 @@ void main() {
       expect(find.byKey(DiaryEntries.cardKey), findsNothing);
       // 쓰기는 실행하는 동작이라 filled 버튼입니다(V37).
       final button = _writeButton(tester);
-      expect(button.label, _ko.daySheetDiaryWriteCta);
+      expect(button.label, _ko.daySheetDiaryWriteCta('10월 12일'));
       expect(button.variant, PrimaryButtonVariant.filled);
       await tester.tap(
         find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta).hitTestable(),
@@ -408,10 +377,7 @@ void main() {
       final head = find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen);
       expect(head, findsOneWidget);
       expect(
-        find.descendant(
-          of: head,
-          matching: find.text(_ko.daySheetDiaryOpen(3)),
-        ),
+        find.descendant(of: head, matching: find.text(_ko.daySheetDiaryOpen)),
         findsOneWidget,
       );
       final lines = tester
@@ -425,7 +391,10 @@ void main() {
       // 줄만 있고 날짜 열·태그 칩은 없습니다(그날 시트 모양).
       expect(find.byType(DiaryRow), findsNothing);
       expect(find.byKey(DiaryRow.dateColumnKey), findsNothing);
-      expect(_writeButton(tester).label, _ko.daySheetDiaryWriteCtaWritten);
+      expect(
+        _writeButton(tester).label,
+        _ko.daySheetDiaryWriteCtaWritten('10월 12일'),
+      );
       expect(_writeButton(tester).onPressed, isNotNull);
 
       // 줄은 머리와 버튼 사이에 놓입니다.
@@ -456,7 +425,7 @@ void main() {
         diaries: (date) async => _diaries(date, 2),
       );
       final data = tester
-          .getSemantics(find.text(_ko.daySheetDiaryOpen(2)))
+          .getSemantics(find.text(_ko.daySheetDiaryOpen))
           .getSemanticsData();
       expect(data.hasAction(SemanticsAction.tap), isFalse);
       expect(data.identifier, SlotIds.daySheetDiaryOpen);
@@ -489,7 +458,7 @@ void main() {
         expect(
           find.descendant(
             of: find.bySemanticsIdentifier(SlotIds.daySheetDiaryOpen),
-            matching: find.text(_ko.daySheetDiaryOpen(count)),
+            matching: find.text(_ko.daySheetDiaryOpen),
           ),
           findsOneWidget,
         );

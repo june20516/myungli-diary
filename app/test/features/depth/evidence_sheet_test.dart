@@ -351,23 +351,6 @@ void main() {
       expect(_sheet, findsOneWidget);
     });
 
-    testWidgets('권한이 있으면(unlocked) 본문 없는 구역은 제목도 그리지 않습니다(A22)', (
-      tester,
-    ) async {
-      // 날의 성격 이유 슬롯에는 근거 문장이 없습니다.
-      await _openSheet(
-        tester,
-        scenario: 'evidence-unlocked',
-        link: find.byKey(DayCharacter.reasonKey),
-      );
-
-      expect(_inSheet(find.text(_ko.evidenceSheetTitle)), findsOneWidget);
-      expect(_inSheet(find.byType(LockVeil)), findsNothing);
-      expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
-      expect(_inSheet(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
-      expect(_inSheet(find.text(_ko.evidenceSheetSectionSource)), findsNothing);
-    });
-
     testWidgets('unlocked면 evidence의 basis·source를 순서대로 문단으로 그립니다', (
       tester,
     ) async {

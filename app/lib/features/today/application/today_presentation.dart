@@ -33,7 +33,6 @@ const Map<LuckyCardVariant, String> todayLuckySlotIds = {
   LuckyCardVariant.direction: SlotIds.todayLuckyDirectionBody,
   LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
   LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
-  LuckyCardVariant.tag: SlotIds.todayLuckyTagBody,
 };
 
 /// 날의 성격 줄(`day-character`)에 보일 값.
