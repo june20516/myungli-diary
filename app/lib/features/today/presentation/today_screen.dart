@@ -306,7 +306,10 @@ class _TodayBody extends ConsumerWidget {
             LuckyCardRow(
               // 행운 4종만 그립니다. 대표 태그는 IA v5의 사주 기운 섹션으로 옮길 예정입니다.
               items: display.lucky,
-              slotIds: todayLuckySlotIds,
+              onOpen: (item) => sheets.openExplain(
+                context,
+                ExplainLucky(title: item.name, body: item.explain),
+              ),
             ),
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             const _TodayEventSummary(),

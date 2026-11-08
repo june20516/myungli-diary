@@ -5,8 +5,6 @@
 /// 여기 남아 있거나, 여기에도 등록부에도 없는 계약 id가 있으면 계약 대조 테스트가 실패합니다
 /// (ratchet). 단계 7(Task 23~24)이 끝나면 비어야 하고, Task 27이 빈 맵을 확인합니다.
 const Map<String, String> knownPendingComponents = {
-  'date-header': '오늘, 그날 시트 날짜 머리 새 컴포넌트 (Task 15)',
-  'tag-sentence-list': '오늘 사주 기운 태그 문장 목록 새 컴포넌트 (Task 15)',
   'date-block': '일기 쓰기 날짜 블록 새 컴포넌트 (Task 19)',
   'fortune-verdict': '그날 시트 길흉판정 새 컴포넌트 (Task 21)',
   'score-row': '길흉판정 내역 줄 새 컴포넌트 (Task 21)',
@@ -26,12 +24,6 @@ typedef PendingCheck = ({String reason, String failure});
 /// 통과하면 테스트가 "대기 목록에서 지우세요"로 실패하므로(ratchet) 그때 여기서 지웁니다.
 /// Task 27이 빈 맵을 확인합니다.
 const Map<String, PendingCheck> knownPendingChecks = {
-  'lucky-card spec': (
-    reason:
-        '변형 tag 삭제(대표 태그는 hanja-tag, V78). 오늘 화면이 쓰는 칩이라 '
-        '오늘 재구성과 함께 (Task 15)',
-    failure: 'lucky-card variants',
-  ),
   'diary-row day group': (
     reason:
         '묶음 카드 맨 위 배지를 날의 성격 dayKind hanja-tag로 '

@@ -180,7 +180,14 @@ class _MySajuBody extends ConsumerWidget {
               .firstOrNull
         : null;
     final text = ChartText(context, names, sheets);
-    final yongsin = _YongsinSection(chart: chart, explain: explain);
+    final yongsin = _YongsinSection(
+      chart: chart,
+      explain: explain,
+      explainLucky: (item) => sheets.openExplain(
+        context,
+        ExplainLucky(title: item.name, body: item.explain),
+      ),
+    );
     final ilgan = _IlganSection(chart: chart, explain: explain);
 
     return ListView(
@@ -295,10 +302,17 @@ class _IlganSection extends StatelessWidget {
 
 /// 나를 돕는 기운: 용신 줄(역할 이름 + 오행 용어), 행운 색 칩, 용신 문장.
 class _YongsinSection extends ConsumerWidget {
-  const new({required this.chart, required this.explain});
+  const new({
+    required this.chart,
+    required this.explain,
+    required this.explainLucky,
+  });
 
   final Chart chart;
   final void Function(String termId) explain;
+
+  /// 행운 색 칩을 눌렀을 때 설명 시트를 엽니다(시트가 닫히면 끝나는 Future).
+  final Future<void> Function(LuckyItem item) explainLucky;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -343,6 +357,7 @@ class _YongsinSection extends ConsumerWidget {
             if (hasLine) const SizedBox(height: SectionHeader.contentGap),
             LuckyCardRow(
               items: [_colorItem(l10n, names!, chart, colorName, colorMeaning)],
+              onOpen: explainLucky,
             ),
           ],
           if (summary != null) ...[

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
@@ -98,35 +100,11 @@ bool _isJa(BuildContext context) =>
 
 /// lucky-card: 네 변형 칩 줄. 칸 폭 360에서 글자가 커지면 두 줄로 넘어갑니다.
 Widget _luckyCard() => Builder(
-  builder: (context) =>
-      LuckyCardRow(items: _goldenLuckyItems(ja: _isJa(context))),
-);
-
-/// lucky-card: 맨 앞에 `tag` 변형 칩 두 개(D76) 뒤에 네 변형 칩. 두 번째 태그는 뜻이 없어
-/// 누를 수 없는 이름 칩입니다.
-Widget _luckyCardWithTags() => Builder(
-  builder: (context) {
-    final ja = _isJa(context);
-    return LuckyCardRow(
-      items: [
-        LuckyItem.tag(
-          tagKey: 'cheoneul_gwiin',
-          name: ja ? '天乙貴人' : '천을귀인',
-          meaning: RenderedText(
-            segments: [
-              Segment(
-                text: ja
-                    ? '困ったときに助けてくれる人がそばに来る気です。'
-                    : '어려울 때 도와주는 사람이 곁에 오는 기운이에요.',
-              ),
-            ],
-          ),
-        ),
-        LuckyItem.tag(tagKey: 'clash', name: ja ? '冲' : '충'),
-        ..._goldenLuckyItems(ja: ja),
-      ],
-    );
-  },
+  builder: (context) => LuckyCardRow(
+    items: _goldenLuckyItems(ja: _isJa(context)),
+    // 시트가 열려 있는 동안을 흉내 내려고 닫히지 않는 Future를 줍니다.
+    onOpen: (_) => Completer<void>().future,
+  ),
 );
 
 /// guide-question-card: 상태별 카드. 질문은 server가 렌더한 문장이라 언어별로 줍니다.
@@ -237,25 +215,8 @@ void main() {
       _luckyCard,
       settle: (tester) async {
         await tester.pump();
-        // 칸마다 행운 색 칩을 눌러 설명을 엽니다.
+        // 칸마다 행운 색 칩을 눌러 열림 테두리를 그립니다.
         final chips = find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color));
-        for (var i = 0; i < chips.evaluate().length; i++) {
-          await tester.tapAt(tester.getCenter(chips.at(i)));
-        }
-        await tester.pumpAndSettle();
-      },
-    );
-  });
-
-  goldenTest('lucky-card: 대표 태그 칩 두 개, 태그 뜻 열림(D76)', (tester) async {
-    await goldenMatrix(
-      tester,
-      'today_lucky_card_tags',
-      _luckyCardWithTags,
-      settle: (tester) async {
-        await tester.pump();
-        // 칸마다 첫 태그 칩을 눌러 뜻을 엽니다.
-        final chips = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
         for (var i = 0; i < chips.evaluate().length; i++) {
           await tester.tapAt(tester.getCenter(chips.at(i)));
         }

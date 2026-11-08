@@ -27,14 +27,6 @@ import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 // A22는 draft.4로 해제되어 계약의 문장 필드를 모두 그리고, 원고가 없어 server가 생략한
 // 선택 문장만 자리 없이 건너뜁니다.
 
-/// 오늘 화면 행운 설명 상자의 슬롯 id.
-const Map<LuckyCardVariant, String> todayLuckySlotIds = {
-  LuckyCardVariant.color: SlotIds.todayLuckyColorBody,
-  LuckyCardVariant.direction: SlotIds.todayLuckyDirectionBody,
-  LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
-  LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
-};
-
 /// 날의 성격 줄(`day-character`)에 보일 값.
 final class DayCharacterContent {
   /// 날의 성격 줄 값을 만듭니다.
@@ -152,38 +144,14 @@ List<LuckyItem> luckyItemsOf(
   ];
 }
 
-/// 대표 태그 칩 상한(`lucky-card` `tag`: 계약 `Daily.tags.featured` 0~2개).
-const int maxFeaturedTags = 2;
-
-/// [daily]의 대표 태그 칩 값(D76, 계약 `Daily.tags.featured`, 응답 순서,
-/// 앞 [maxFeaturedTags]개).
+/// [daily]의 대표 태그 중 사전에 이름이 없어 그릴 수 없는 키(응답 순서).
 ///
-/// 이름은 사전 `tag` 범주, 뜻은 `term.meaning`(용어 id `tag.<키>`,
-/// IA `today.lucky-tag.body`)입니다. 사전에 이름이 없는 태그는 키를 그대로 보이지 않도록
-/// 칩을 만들지 않고([unnamedFeaturedTagKeysOf]로 보고), 뜻이 없거나 공백뿐이면 누를 수 없는 이름 칩입니다.
-/// 길흉(`polarity`)은 모양에 쓰지 않습니다(design `tag` 변형).
-/// 응답이 상한을 넘겨도 칩 줄이 깨지지 않도록 칩이 되는 태그 중 앞에서 상한만큼만 씁니다.
-List<LuckyItem> featuredTagsOf(Daily daily, GlossaryNames names) => [
-  for (final tag in daily.tags.featured)
-    if (names.valueName('tag', tag.key) case final name?)
-      LuckyItem.tag(
-        tagKey: tag.key,
-        name: name,
-        meaning: _nonBlank(names.meaningOf('tag.${tag.key}')),
-      ),
-].take(maxFeaturedTags).toList();
-
-/// [daily]의 대표 태그 중 사전에 이름이 없어 칩이 되지 않는 키(응답 순서).
-///
-/// [featuredTagsOf]가 조용히 건너뛰는 태그입니다. 사전과 계약이 어긋난 것을 알 수 있게
-/// 오늘 화면 값이 이 키를 보고합니다(`todayContentProvider`).
+/// 사전과 계약이 어긋난 것을 알 수 있게 오늘 화면 값이 이 키를 보고합니다
+/// (`todayContentProvider`). 대표 태그 표시는 사주 기운 섹션의 `hanja-tag`입니다(V78).
 List<String> unnamedFeaturedTagKeysOf(Daily daily, GlossaryNames names) => [
   for (final tag in daily.tags.featured)
     if (names.valueName('tag', tag.key) == null) tag.key,
 ];
-
-RenderedText? _nonBlank(RenderedText? text) =>
-    text == null || isBlankText(text) ? null : text;
 
 /// [daily]에서 writing 슬롯 id가 [slotId]인 문장. 응답에 없는 슬롯이면 null입니다.
 ///
@@ -255,7 +223,6 @@ final class TodayDisplay {
     required this.headReactable,
     required this.tag,
     required this.lucky,
-    required this.tags,
     required this.guide,
   });
 
@@ -280,9 +247,6 @@ final class TodayDisplay {
   /// 행운 항목 4개.
   final List<LuckyItem> lucky;
 
-  /// 행운 칩 줄 맨 앞에 그릴 대표 태그 칩(`tag` 변형, D76). 없으면 빈 목록입니다.
-  final List<LuckyItem> tags;
-
   /// 가이드 질문.
   final RenderedText guide;
 
@@ -295,7 +259,6 @@ final class TodayDisplay {
     headReactable,
     tag,
     lucky,
-    tags,
     guide,
   ];
 
@@ -325,9 +288,8 @@ Object? _canonical(Object? value) => switch (value) {
     value.variant.name,
     value.name,
     value.value,
-    value.explain?.toJson(),
+    value.explain.toJson(),
     value.element?.name,
-    value.tagKey,
     value.ordinal,
   ],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
@@ -353,7 +315,6 @@ TodayDisplay todayDisplayOf(
     headReactable: daily.fortune.head.reactable,
     tag: tag == null ? null : SentenceLine(text: tag.text, slot: tag.slot),
     lucky: luckyItemsOf(daily, names, l10n, timezone),
-    tags: featuredTagsOf(daily, names),
     guide: daily.guide.text,
   );
 }

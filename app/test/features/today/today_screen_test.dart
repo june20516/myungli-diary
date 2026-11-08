@@ -195,26 +195,27 @@ void main() {
     expect(find.byKey(const ValueKey('today.time-unknown')), findsNothing);
   });
 
-  testWidgets('행운 칩을 누르면 설명에 슬롯 id가 붙습니다', (tester) async {
+  testWidgets('행운 칩을 누르면 설명이 칩 아래가 아니라 풀이 시트로 열립니다', (tester) async {
     await pumpApp(tester, scenario: 'member');
     await _settleToday(tester);
 
-    const slots = {
-      LuckyCardVariant.color: SlotIds.todayLuckyColorBody,
-      LuckyCardVariant.direction: SlotIds.todayLuckyDirectionBody,
-      LuckyCardVariant.number: SlotIds.todayLuckyNumberBody,
-      LuckyCardVariant.time: SlotIds.todayLuckyTimeBody,
-    };
-    for (final MapEntry(key: variant, value: slot) in slots.entries) {
-      await tester.ensureVisible(find.byKey(LuckyCardRow.chipKey(variant)));
-      await tester.tap(find.byKey(LuckyCardRow.chipKey(variant)));
-      await tester.pumpAndSettle();
-      expect(_id(slot), findsOneWidget, reason: slot);
-    }
+    await tester.ensureVisible(
+      find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color)),
+    );
+    await tester.tap(find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color)));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    // 시트 제목은 항목 이름이고 본문은 행운 색 설명입니다.
+    expect(find.text(_ko.todayLuckyColorName), findsWidgets);
+    expect(
+      find.text('오늘은 초록이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.', findRichText: true),
+      findsOneWidget,
+    );
   });
 
-  group('대표 태그 칩(D76)', () {
-    testWidgets('사전에 이름이 없는 태그는 칩 없이 사전 빈칸으로 한 번만 보고합니다', (tester) async {
+  group('대표 태그 사전 빈칸(D76)', () {
+    testWidgets('사전에 이름이 없는 태그는 사전 빈칸으로 한 번만 보고합니다', (tester) async {
       final json = memberDailyJson();
       (json['tags'] as Map<String, dynamic>)['featured'] = [
         {'key': 'not_in_glossary', 'polarity': 'neutral'},
@@ -237,11 +238,6 @@ void main() {
         ],
       );
       await _settleToday(tester);
-      expect(
-        find.byKey(LuckyCardRow.tagChipKey('not_in_glossary')),
-        findsNothing,
-      );
-
       // 다시 그려도(다른 탭에 다녀옴) 같은 빈칸은 한 번만 남습니다.
       await tester.tap(find.byKey(const ValueKey('tab-bar.tab.1')));
       await settleWithIo(tester);
@@ -254,34 +250,6 @@ void main() {
         (summary) => summary.errorType == 'MissingDictionaryEntry',
       );
       expect([for (final gap in gaps) gap.code], ['tag.not_in_glossary']);
-    });
-
-    testWidgets('대표 태그가 없으면 태그 칩이 없고 줄은 행운 칩 4개입니다', (tester) async {
-      final json = memberDailyJson();
-      (json['tags'] as Map<String, dynamic>)['featured'] = <Object>[];
-      await pumpApp(
-        tester,
-        scenario: 'member',
-        overrides: [
-          dailyControllerProvider.overrideWith(
-            () => _StubDaily(
-              () async => DailyView(
-                date: _today,
-                daily: Daily.fromJson(json),
-                stale: false,
-                cacheKey: null,
-              ),
-            ),
-          ),
-        ],
-      );
-      await _settleToday(tester);
-
-      expect(
-        find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin')),
-        findsNothing,
-      );
-      expect(find.byType(LuckyChip), findsNWidgets(4));
     });
   });
 
