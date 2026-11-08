@@ -758,23 +758,17 @@ enum DiaryEntriesSurface {
   /// 오늘: 가이드 질문 카드 아래 카드 한 장(`bg.sheet`, `radius.lg`) 안.
   card,
 
-  /// 그날 시트: 시트 바탕 위에 바로. 머리([DiaryEntries.head])가 위에 붙을 수 있습니다.
+  /// 그날 시트: 시트 바탕 위에 바로. 머리는 그리지 않습니다(섹션 제목은 `section-header`가 맡음).
   plain,
 }
 
 /// 오늘·그날 시트의 같은 날 일기 줄들(`diary-row` `entries`).
 ///
 /// 날짜 열·배지·태그 없이 [DiaryEntryLine]만 작성 순으로 놓습니다(날짜와 날의 성격은 화면이
-/// 이미 보여 줌). [entries]가 비면 머리와 바탕 모두 그리지 않습니다.
+/// 이미 보여 줌). [entries]가 비면 바탕까지 그리지 않습니다. 머리는 그리지 않습니다(V85).
 class DiaryEntries extends StatelessWidget {
-  /// 줄들을 만듭니다. [head]는 [DiaryEntriesSurface.plain]일 때만 위에 그립니다(링크 아님).
-  const new({
-    required this.entries,
-    required this.surface,
-    this.head,
-    this.headIdentifier,
-    super.key,
-  });
+  /// 줄들을 만듭니다.
+  const new({required this.entries, required this.surface, super.key});
 
   /// 오늘 바탕 카드를 찾는 테스트용 키.
   static const Key cardKey = ValueKey('diary-entries-card');
@@ -788,62 +782,23 @@ class DiaryEntries extends StatelessWidget {
   /// 오늘 바탕 위 간격(`container.byScreen.today.marginTop`).
   static const double cardMarginTop = Space.s12;
 
-  /// 머리 위 간격(`head.marginTop`).
-  static const double headMarginTop = Space.s16;
-
-  /// 머리 아래 간격(`head.marginBottom`).
-  static const double headMarginBottom = Space.s4;
-
   /// 그날 일기 줄들(작성 순).
   final List<DiaryEntryData> entries;
 
   /// 놓이는 화면의 바탕.
   final DiaryEntriesSurface surface;
 
-  /// 그날 시트 머리 글자(`daySheetDiaryOpen(count)`).
-  /// [DiaryEntriesSurface.plain]에서만 씁니다.
-  final String? head;
-
-  /// 머리의 IA 슬롯 id(`day-sheet.diary.open`). 있으면 Semantics `identifier`로 붙입니다.
-  final String? headIdentifier;
-
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) return const SizedBox.shrink();
     final lines = _EntryLines(entries: entries);
-    switch (surface) {
-      case DiaryEntriesSurface.card:
-        return Padding(
-          padding: const EdgeInsets.only(top: cardMarginTop),
-          child: _cardSurface(context, lines),
-        );
-      case DiaryEntriesSurface.plain:
-        final head = this.head;
-        final tokens = context.tokens;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (head != null)
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: headMarginTop,
-                  bottom: headMarginBottom,
-                ),
-                child: Semantics(
-                  identifier: headIdentifier,
-                  container: headIdentifier != null,
-                  child: Text(
-                    head,
-                    style: tokens.typography.labelMd.copyWith(
-                      color: tokens.colors.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
-            lines,
-          ],
-        );
-    }
+    return switch (surface) {
+      DiaryEntriesSurface.card => Padding(
+        padding: const EdgeInsets.only(top: cardMarginTop),
+        child: _cardSurface(context, lines),
+      ),
+      DiaryEntriesSurface.plain => lines,
+    };
   }
 }
 

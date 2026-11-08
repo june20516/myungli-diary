@@ -426,21 +426,15 @@ void main() {
   });
 
   group('EventRowListEmpty', () {
-    testWidgets('빈 문장(caption.lg text.secondary) + quiet 일정 추가 버튼', (
+    testWidgets('빈 문장(caption.lg text.secondary)만 있고 버튼은 없습니다(V85)', (
       tester,
     ) async {
-      var adds = 0;
       await tester.pumpWidget(
         _app(
           Builder(
-            builder: (context) {
-              final l10n = AppLocalizations.of(context);
-              return EventRowListEmpty(
-                message: l10n.daySheetEventEmpty,
-                addLabel: l10n.daySheetEventAdd,
-                onAdd: () => adds++,
-              );
-            },
+            builder: (context) => EventRowListEmpty(
+              message: AppLocalizations.of(context).daySheetEventEmpty,
+            ),
           ),
         ),
       );
@@ -449,24 +443,16 @@ void main() {
       final style = _text(tester, l10n.daySheetEventEmpty).style!;
       expect(style.fontSize, tokens.typography.captionLg.fontSize);
       expect(style.color, tokens.colors.textSecondary);
-      final button = tester.widget<PrimaryButton>(find.byType(PrimaryButton));
-      expect(button.variant, PrimaryButtonVariant.quiet);
-      expect(button.label, l10n.daySheetEventAdd);
-      await tester.tap(find.text(l10n.daySheetEventAdd));
-      await tester.pumpAndSettle();
-      expect(adds, 1);
+      expect(find.byType(PrimaryButton), findsNothing);
     });
 
     testWidgets('IA 슬롯 id가 Semantics identifier로 붙습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
-          EventRowListEmpty(
+          const EventRowListEmpty(
             message: '이날은 일정이 없어요.',
-            addLabel: '일정 추가',
-            onAdd: () {},
             messageIdentifier: SlotIds.daySheetEventEmpty,
-            addIdentifier: SlotIds.daySheetEventAdd,
           ),
         ),
       );
@@ -475,29 +461,21 @@ void main() {
           .getSemanticsData();
       expect(message.identifier, SlotIds.daySheetEventEmpty);
       expect(message.label, '이날은 일정이 없어요.');
-      final add = tester.getSemantics(find.text('일정 추가')).getSemanticsData();
-      expect(add.identifier, SlotIds.daySheetEventAdd);
-      expect(add.label, '일정 추가');
       handle.dispose();
     });
   });
 
   group('EventRowListFailed', () {
-    testWidgets('문구 한 줄(caption.lg text.secondary 가운데) + quiet 다시 시도·일정 추가', (
+    testWidgets('문구 한 줄(caption.lg text.secondary 가운데) + quiet 다시 시도만', (
       tester,
     ) async {
       var retries = 0;
-      var adds = 0;
-      final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
           EventRowListFailed(
             message: '인터넷에 연결되어 있지 않아요.',
             retryLabel: '다시 시도',
             onRetry: () => retries++,
-            addLabel: '일정 추가',
-            onAdd: () => adds++,
-            addIdentifier: SlotIds.daySheetEventAdd,
           ),
         ),
       );
@@ -510,20 +488,11 @@ void main() {
       final buttons = tester
           .widgetList<PrimaryButton>(find.byType(PrimaryButton))
           .toList();
-      expect(buttons.map((b) => b.label), ['다시 시도', '일정 추가']);
-      expect(
-        buttons.map((b) => b.variant),
-        everyElement(PrimaryButtonVariant.quiet),
-      );
-      expect(
-        tester.getSemantics(find.text('일정 추가')).getSemanticsData().identifier,
-        SlotIds.daySheetEventAdd,
-      );
+      expect(buttons.map((b) => b.label), ['다시 시도']);
+      expect(buttons.single.variant, PrimaryButtonVariant.quiet);
       await tester.tap(find.text('다시 시도'));
-      await tester.tap(find.text('일정 추가'));
       await tester.pumpAndSettle();
-      expect((retries, adds), (1, 1));
-      handle.dispose();
+      expect(retries, 1);
     });
   });
 }

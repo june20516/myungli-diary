@@ -18,6 +18,16 @@ abstract final class ScoreItemMeta {
   /// 용어 사전 범주 이름. 항목 이름은 `Glossary.values['score_item'][id]`입니다.
   static const String glossaryCategory = 'score_item';
 
+  /// 점수 항목 id → 용어 id(writing `calendar.score_item` select 대응). 풀이 시트와 태그 이름이
+  /// 이 용어를 씁니다. 모르는 id는 null입니다.
+  static String? termIdOf(String id) => switch (id) {
+    'gwiin_day' || 'yongsin_day' || 'gisin_day' => 'day_kind.$id',
+    'hap' => 'relation.branch_hap',
+    'chung_day_or_month' || 'chung_other' => 'relation.chung',
+    'hyeong' => 'relation.hyeong',
+    _ => null,
+  };
+
   /// 색 규칙 시트의 일곱 줄(A116). 더함 먼저, 뺌 다음의 표 순서이고 점수 0 항목은 없습니다.
   static const List<ScoreRuleRow> rule = [
     ScoreRuleRow('yongsin_day', 2),

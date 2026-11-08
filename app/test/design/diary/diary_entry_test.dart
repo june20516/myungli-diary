@@ -628,88 +628,26 @@ void main() {
       expect(_dividers(), findsNWidgets(2));
     });
 
-    testWidgets(
-      'plain: 그날 시트는 바탕 없이 줄만, 머리는 label.md text.secondary 위 16 아래 4입니다',
-      (tester) async {
-        await tester.pumpWidget(
-          _app(
-            DiaryEntries(
-              entries: _three(),
-              surface: DiaryEntriesSurface.plain,
-              head: '이날 일기 3편',
-            ),
-          ),
-        );
-        final tokens = tester.element(find.byType(DiaryEntries)).tokens;
-        expect(find.byKey(DiaryEntries.cardKey), findsNothing);
-        final head = tester.widget<Text>(find.text('이날 일기 3편'));
-        expect(head.style!.fontSize, tokens.typography.labelMd.fontSize);
-        expect(head.style!.fontWeight, tokens.typography.labelMd.fontWeight);
-        expect(head.style!.color, tokens.colors.textSecondary);
-        expect(DiaryEntries.headMarginTop, Space.s16);
-        expect(DiaryEntries.headMarginBottom, Space.s4);
-        final top = tester.getTopLeft(find.byType(DiaryEntries)).dy;
-        expect(tester.getTopLeft(find.text('이날 일기 3편')).dy - top, Space.s16);
-        expect(
-          tester.getTopLeft(find.byType(DiaryEntryLine).first).dy -
-              tester.getBottomLeft(find.text('이날 일기 3편')).dy,
-          Space.s4,
-        );
-        // 머리는 링크가 아니라 글자입니다(누르는 자리 없음).
-        final handle = tester.ensureSemantics();
-        final data = tester
-            .getSemantics(find.text('이날 일기 3편'))
-            .getSemanticsData();
-        expect(data.hasAction(SemanticsAction.tap), isFalse);
-        handle.dispose();
-      },
-    );
-
-    testWidgets('headIdentifier가 있으면 머리에 Semantics identifier로 붙습니다', (
-      tester,
-    ) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(
-        _app(
-          DiaryEntries(
-            entries: _three(),
-            surface: DiaryEntriesSurface.plain,
-            head: '이날 일기 3편',
-            headIdentifier: 'day-sheet.diary.open',
-          ),
-        ),
-      );
-      expect(
-        tester
-            .getSemantics(find.text('이날 일기 3편'))
-            .getSemanticsData()
-            .identifier,
-        'day-sheet.diary.open',
-      );
-      handle.dispose();
-    });
-
-    testWidgets('plain에서 head가 없으면 머리를 그리지 않습니다', (tester) async {
+    testWidgets('plain: 그날 시트는 바탕과 머리 없이 줄만 그립니다(V85)', (tester) async {
       await tester.pumpWidget(
         _app(
           DiaryEntries(entries: _three(), surface: DiaryEntriesSurface.plain),
         ),
       );
+      expect(find.byKey(DiaryEntries.cardKey), findsNothing);
+      expect(find.byType(DiaryEntryLine), findsNWidgets(3));
       expect(
         tester.getTopLeft(find.byType(DiaryEntryLine).first).dy,
         tester.getTopLeft(find.byType(DiaryEntries)).dy,
       );
     });
 
-    testWidgets('entries가 비면 아무것도 그리지 않습니다(머리도 바탕도)', (tester) async {
+    testWidgets('entries가 비면 아무것도 그리지 않습니다(바탕도)', (tester) async {
       for (final surface in DiaryEntriesSurface.values) {
         await tester.pumpWidget(
-          _app(
-            DiaryEntries(entries: const [], surface: surface, head: '이날 일기 0편'),
-          ),
+          _app(DiaryEntries(entries: const [], surface: surface)),
         );
         expect(tester.getSize(find.byType(DiaryEntries)).height, 0);
-        expect(find.text('이날 일기 0편'), findsNothing);
         expect(find.byKey(DiaryEntries.cardKey), findsNothing);
         expect(find.byType(DiaryEntryLine), findsNothing);
       }

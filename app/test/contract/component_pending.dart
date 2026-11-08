@@ -21,12 +21,6 @@ typedef PendingCheck = ({String reason, String failure});
 /// 통과하면 테스트가 "대기 목록에서 지우세요"로 실패하므로(ratchet) 그때 여기서 지웁니다.
 /// Task 27이 빈 맵을 확인합니다.
 const Map<String, PendingCheck> knownPendingChecks = {
-  'diary-row entries head': (
-    reason:
-        '그날 시트 일기 머리를 section-header가 맡고 entries head는 그리지 않음 '
-        '(V85, Task 22 그날 시트 재구성)',
-    failure: 'diary-row entries head',
-  ),
   'manse-table spec': (
     reason:
         'loading 뼈가 기준 줄 + band-table 뼈라 band-table이 있어야 함 '

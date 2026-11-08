@@ -10,12 +10,13 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -28,6 +29,14 @@ final _ko = AppLocalizationsKo();
 Finder _inSheet(Finder finder) => find.descendant(
   of: find.byKey(const Key(ScreenIds.daySheet)),
   matching: finder,
+);
+
+/// 그날 시트의 날의 성격 태그.
+Finder _dayKindTag() => _inSheet(
+  find.descendant(
+    of: find.byKey(const ValueKey(SlotIds.daySheetCharacterLabel)),
+    matching: find.byType(HanjaTag),
+  ),
 );
 
 /// [scenario]로 앱을 띄우고 오늘 화면에서 [date]의 그날 시트를 엽니다.
@@ -78,7 +87,7 @@ void main() {
     covers(const Covers(exits: ['day-sheet>event-edit']));
     final container = await _openDaySheet(tester, CalendarDate(2026, 10, 13));
 
-    expect(_inSheet(find.byType(DayCharacter)), findsOneWidget);
+    expect(_dayKindTag(), findsOneWidget);
     final titles = [
       for (final row in tester.widgetList<EventRow>(
         _inSheet(find.byType(EventRow)),
@@ -105,12 +114,43 @@ void main() {
     final container = await _openDaySheet(tester, CalendarDate(2026, 10, 14));
 
     expect(find.text(_ko.daySheetEventEmpty), findsOneWidget);
-    await tester.tap(find.text(_ko.daySheetEventAdd));
+    // 추가는 일정 섹션 머리 +이고, 빈 문장 아래에는 버튼이 없습니다(V85).
+    await tester.tap(find.bySemanticsIdentifier(SlotIds.daySheetEventAdd));
     await settleWithIo(tester);
     expect(
       container.read(routerProvider).state.uri.toString(),
       '/event-edit?date=2026-10-14',
     );
+  });
+
+  testWidgets('member: 날의 성격 태그 → 그 용어의 뜻 시트(근거 보기 없음)', (tester) async {
+    covers(const Covers(exits: ['day-sheet>explain-sheet']));
+    await _openDaySheet(tester, CalendarDate(2026, 10, 13));
+
+    await tester.tap(_dayKindTag());
+    await settleWithIo(tester);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
+    // 그날 시트의 깊이는 surface, explain까지라 근거 보기가 없습니다.
+    expect(
+      find.descendant(of: explain, matching: find.byType(DepthLink)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('member: 길흉판정 내역 태그 → 그 용어의 뜻 시트', (tester) async {
+    covers(const Covers(exits: ['day-sheet>explain-sheet']));
+    await _openDaySheet(tester, CalendarDate(2026, 10, 13));
+
+    final verdict = _inSheet(find.byType(FortuneVerdict));
+    expect(verdict, findsOneWidget);
+    final tag = find.descendant(of: verdict, matching: find.byType(HanjaTag));
+    expect(tag, findsWidgets);
+    await tester.ensureVisible(tag.first);
+    await tester.pumpAndSettle();
+    await tester.tap(tag.first);
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
   });
 
   testWidgets('member: 일기 쓰기 → 새 일기 저장, 돌아오면 그날 일기 줄과 새 일기 쓰기', (tester) async {
@@ -257,11 +297,11 @@ void main() {
       _inSheet(find.byKey(const ValueKey('screen-state.loading'))),
       findsOneWidget,
     );
-    expect(_inSheet(find.byType(DayCharacter)), findsNothing);
+    expect(_dayKindTag(), findsNothing);
 
     hold.gate.complete();
     await settleWithIo(tester);
-    expect(_inSheet(find.byType(DayCharacter)), findsOneWidget);
+    expect(_dayKindTag(), findsOneWidget);
   });
 
   testWidgets('calendar-error: 오류 화면과 다시 시도', (tester) async {
@@ -273,7 +313,7 @@ void main() {
     );
 
     expect(_inSheet(find.byType(ErrorState)), findsOneWidget);
-    expect(_inSheet(find.byType(DayCharacter)), findsNothing);
+    expect(_dayKindTag(), findsNothing);
     await tester.tap(_inSheet(find.text(_ko.actionRetry)));
     await settleWithIo(tester);
     expect(_inSheet(find.byType(ErrorState)), findsOneWidget);

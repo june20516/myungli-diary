@@ -4,8 +4,6 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/core/platform/crash_reporter.dart';
-import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/calendar/score_row.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
@@ -13,14 +11,9 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/calendar/application/score_item_gaps.dart';
 import 'package:myungli_diary/features/calendar/model/score_item_meta.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
-
-/// 이미 보고한 점수 항목 사전 빈칸(용어 id). 시트를 다시 그려도 같은 빈칸을 거듭 보고하지
-/// 않게 앱 실행 동안 한 번만 보고합니다(A112).
-final _reportedScoreItemGapsProvider = Provider<Set<String>>(
-  (ref) => <String>{},
-);
 
 /// 색 규칙 시트(`color-rule-sheet`, V87) 본문.
 ///
@@ -67,7 +60,7 @@ class ColorRuleSheet extends ConsumerWidget {
     if (gaps.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
-        _reportGaps(ref, gaps);
+        reportScoreItemGaps(ref, gaps);
       });
     }
     return SingleChildScrollView(
@@ -122,17 +115,4 @@ class ColorRuleSheet extends ConsumerWidget {
       child: ScoreRow.rule(glyph: '合', name: '합', score: score),
     ),
   );
-
-  void _reportGaps(WidgetRef ref, List<String> termIds) {
-    final reported = ref.read(_reportedScoreItemGapsProvider);
-    for (final termId in termIds) {
-      if (!reported.add(termId)) continue;
-      ref
-          .read(crashReporterProvider)
-          .record(
-            CrashSummary.from(MissingDictionaryEntry(termId)),
-            StackTrace.current,
-          );
-    }
-  }
 }

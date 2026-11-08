@@ -36,10 +36,14 @@ final class SectionHeaderAction extends SectionHeaderTrailing {
     required this.icon,
     required this.semanticLabel,
     required this.onTap,
+    this.identifier,
   });
 
   /// 아이콘.
   final AppGlyph icon;
+
+  /// IA 슬롯 id(예: `day-sheet.event.add`). 있으면 Semantics `identifier`로 붙입니다.
+  final String? identifier;
 
   /// 동작 이름(스크린리더).
   final String semanticLabel;
@@ -188,13 +192,19 @@ class SectionHeader extends StatelessWidget {
           ),
         );
       }(),
-      SectionHeaderAction(:final icon, :final semanticLabel, :final onTap) =>
+      SectionHeaderAction(
+        :final icon,
+        :final semanticLabel,
+        :final onTap,
+        :final identifier,
+      ) =>
         // 그림 24의 오른쪽 끝을 끝선에 맞추고 터치 44는 왼쪽으로만 넓힙니다(오른쪽 밖은 부모 경계).
         VerticalHitSlop(
           minWidth: minTarget,
           widenLeftOnly: true,
           child: PressInkTarget(
             semanticLabel: semanticLabel,
+            identifier: identifier,
             onTap: onTap,
             borderRadius: BorderRadius.circular(Radii.full),
             child: AppIcon(icon, color: colors.textPrimary),

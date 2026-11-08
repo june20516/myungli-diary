@@ -414,82 +414,50 @@ class EventRow extends StatelessWidget {
   }
 }
 
-/// 그날 일정이 없을 때의 목록 자리(`event-row` `list` `parts.empty`): 빈 문장 + `quiet` 버튼.
+/// 그날 일정이 없을 때의 목록 자리(`event-row` `list` `parts.empty`): 빈 문장 한 줄.
+///
+/// 일정 추가는 일정 섹션 머리 +(`section-header` `action`)가 맡아 버튼을 두지 않습니다(V85).
 class EventRowListEmpty extends StatelessWidget {
-  /// 빈 목록 자리를 만듭니다.
-  ///
-  /// [messageIdentifier]·[addIdentifier]는 IA 슬롯 id(예: `day-sheet.event.empty`·
-  /// `day-sheet.event.add`)입니다.
-  const new({
-    required this.message,
-    required this.addLabel,
-    required this.onAdd,
-    this.messageIdentifier,
-    this.addIdentifier,
-    super.key,
-  });
+  /// 빈 목록 자리를 만듭니다. [messageIdentifier]는 IA 슬롯 id(`day-sheet.event.empty`)입니다.
+  const new({required this.message, this.messageIdentifier, super.key});
 
   /// 빈 문장.
   final String message;
 
-  /// 일정 추가 버튼 글자.
-  final String addLabel;
-
-  /// 일정 추가를 눌렀을 때.
-  final VoidCallback onAdd;
-
   /// 빈 문장의 IA 슬롯 id.
   final String? messageIdentifier;
-
-  /// 일정 추가 버튼의 IA 슬롯 id.
-  final String? addIdentifier;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final messageIdentifier = this.messageIdentifier;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: Space.s4,
-      children: [
-        Semantics(
-          identifier: messageIdentifier,
-          child: Text(
-            message,
-            key: messageIdentifier == null
-                ? null
-                : ValueKey<String>(messageIdentifier),
-            textAlign: TextAlign.center,
-            style: tokens.typography.captionLg.copyWith(
-              color: tokens.colors.textSecondary,
-            ),
-          ),
+    return Semantics(
+      identifier: messageIdentifier,
+      child: Text(
+        message,
+        key: messageIdentifier == null
+            ? null
+            : ValueKey<String>(messageIdentifier),
+        textAlign: TextAlign.center,
+        style: tokens.typography.captionLg.copyWith(
+          color: tokens.colors.textSecondary,
         ),
-        PrimaryButton(
-          label: addLabel,
-          onPressed: onAdd,
-          variant: PrimaryButtonVariant.quiet,
-          identifier: addIdentifier,
-        ),
-      ],
+      ),
     );
   }
 }
 
 /// 날의 성격은 받았는데 일정 목록만 받지 못했을 때의 목록 자리(`event-row` `list`
-/// `parts.failed`): 오류 종류별 문구 한 줄 + `quiet` 다시 시도 + `quiet` 일정 추가.
+/// `parts.failed`): 오류 종류별 문구 한 줄 + `quiet` 다시 시도.
 ///
 /// 없는 일정을 없다고 말하지 않으려고 빈 문장 대신 씁니다. 시트 전체 `error`(`error-state`)는
-/// 날의 성격을 받지 못했을 때만입니다.
+/// 날의 성격을 받지 못했을 때만입니다. 일정 추가는 섹션 머리 +가 맡습니다(V85).
 class EventRowListFailed extends StatelessWidget {
-  /// 실패 자리를 만듭니다. [addIdentifier]는 일정 추가의 IA 슬롯 id(`day-sheet.event.add`)입니다.
+  /// 실패 자리를 만듭니다.
   const new({
     required this.message,
     required this.retryLabel,
     required this.onRetry,
-    required this.addLabel,
-    required this.onAdd,
-    this.addIdentifier,
     super.key,
   });
 
@@ -504,15 +472,6 @@ class EventRowListFailed extends StatelessWidget {
 
   /// 다시 시도를 눌렀을 때.
   final VoidCallback onRetry;
-
-  /// 일정 추가 버튼 글자.
-  final String addLabel;
-
-  /// 일정 추가를 눌렀을 때.
-  final VoidCallback onAdd;
-
-  /// 일정 추가 버튼의 IA 슬롯 id.
-  final String? addIdentifier;
 
   @override
   Widget build(BuildContext context) {
@@ -533,12 +492,6 @@ class EventRowListFailed extends StatelessWidget {
           label: retryLabel,
           onPressed: onRetry,
           variant: PrimaryButtonVariant.quiet,
-        ),
-        PrimaryButton(
-          label: addLabel,
-          onPressed: onAdd,
-          variant: PrimaryButtonVariant.quiet,
-          identifier: addIdentifier,
         ),
       ],
     );

@@ -790,28 +790,25 @@ void main() {
       expect(_map(parts['container'])['whenEmpty'], '그리지 않음');
       // 5.0.0: 그날 시트 일기 머리는 section-header가 맡고 entries head는 그리지 않습니다(V85).
       expect(_map(parts['head'])['visible'], false);
-      await _contractCheckWidgets('diary-row entries head', () async {
-        await tester.pumpWidget(
-          inputApp(
-            DiaryEntries(
-              entries: [
-                DiaryEntryData(
-                  createdAt: DateTime(2026, 10, 12, 8),
-                  excerpt: '아침',
-                  onTap: () {},
-                ),
-              ],
-              surface: DiaryEntriesSurface.plain,
-              head: '일기 머리',
-            ),
+      // head 인자가 없어 그날 시트 바탕(plain)은 줄만 그립니다.
+      await tester.pumpWidget(
+        inputApp(
+          DiaryEntries(
+            entries: [
+              DiaryEntryData(
+                createdAt: DateTime(2026, 10, 12, 8),
+                excerpt: '아침',
+                onTap: () {},
+              ),
+            ],
+            surface: DiaryEntriesSurface.plain,
           ),
-        );
-        expect(
-          find.text('일기 머리'),
-          findsNothing,
-          reason: 'diary-row entries head',
-        );
-      });
+        ),
+      );
+      expect(
+        tester.getTopLeft(find.byType(DiaryEntryLine)).dy,
+        tester.getTopLeft(find.byType(DiaryEntries)).dy,
+      );
     });
 
     test(

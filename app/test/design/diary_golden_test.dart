@@ -169,11 +169,7 @@ Widget _diaryEntries() => Builder(
       children: [
         DiaryEntries(entries: entries, surface: DiaryEntriesSurface.card),
         const SizedBox(height: Space.s24),
-        DiaryEntries(
-          entries: entries,
-          surface: DiaryEntriesSurface.plain,
-          head: ja ? 'この日の日記 3件' : '이날 일기 3편',
-        ),
+        DiaryEntries(entries: entries, surface: DiaryEntriesSurface.plain),
         const SizedBox(height: Space.s24),
         const DiaryEntriesSkeleton(),
         const SizedBox(height: Space.s24),
