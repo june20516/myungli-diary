@@ -439,16 +439,20 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
             ),
             const SizedBox(height: SectionHeader.contentGap),
             _SectionCard(child: _fortuneCard(l10n, display)),
-            const SizedBox(height: SectionHeader.sectionGap),
-            SectionHeader(
-              title: l10n.todayFeaturedTitle,
-              titleIdentifier: SlotIds.todayFeaturedTitle,
-            ),
-            const SizedBox(height: SectionHeader.contentGap),
-            _SectionCard(
-              key: TodayScreen.featuredCardKey,
-              child: _featuredSection(l10n, display),
-            ),
+            // 태그가 왔지만 하나도 그릴 수 없는 날은 D112가 아니라 섹션째 두지 않습니다
+            // (빈 안내는 server 대표 태그가 실제로 빈 날만).
+            if (display.featuredEmpty || display.featured.isNotEmpty) ...[
+              const SizedBox(height: SectionHeader.sectionGap),
+              SectionHeader(
+                title: l10n.todayFeaturedTitle,
+                titleIdentifier: SlotIds.todayFeaturedTitle,
+              ),
+              const SizedBox(height: SectionHeader.contentGap),
+              _SectionCard(
+                key: TodayScreen.featuredCardKey,
+                child: _featuredSection(l10n, display),
+              ),
+            ],
             const SizedBox(height: SectionHeader.sectionGap),
             SectionHeader(
               title: l10n.todayLuckyTitle,
@@ -593,6 +597,8 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
             onTerm: (termId) => _openTermInSentence(termId, body.slot),
             trailing: DepthLink.evidence(
               // 보조 문장은 1순위 사주 기운에서 나온 문장이라 그 이름을 항목 이름으로 읽습니다.
+              // 1순위를 그릴 수 없는 날(사전이나 글자표 빈칸, D112 아님)은 선과 보조 문장을
+              // 그대로 두고 태그 자리만 비우며, 항목 이름은 총운입니다.
               subject: bodyTag?.label ?? l10n.todayFortuneTitle,
               placement: DepthLinkPlacement.inlineEnd,
               onTap: () => _sheets.openEvidence(context, slotId: body.slot),
@@ -603,9 +609,10 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     );
   }
 
-  /// 사주 기운 카드: 대표 태그 줄, 없으면 안내 한 줄(today 화면 배치 4번, D112 ②, V95).
+  /// 사주 기운 카드: 대표 태그 줄, server 대표 태그가 빈 날은 안내 한 줄(today 화면 배치
+  /// 4번, D112 ②, V95).
   Widget _featuredSection(AppLocalizations l10n, TodayDisplay display) {
-    if (display.featured.isEmpty) {
+    if (display.featuredEmpty) {
       final tokens = context.tokens;
       return Semantics(
         identifier: SlotIds.todayFeaturedEmpty,
@@ -635,10 +642,11 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
 /// 오늘 일정 섹션: 앞 섹션과 간격, 제목(`today.event.title`, A114), 일정 한 줄
 /// (`today.event.summary`, A35) 카드.
 ///
-/// 요약은 `todayScheduleSummaryProvider`에서 받고, 분이 바뀌면 "다음"이 다시 골라집니다.
-/// 일정이 없거나 불러오지 못하면(요약 null) 섹션째(간격, 제목, 카드) 그리지 않아 오늘의 다른
-/// 상태에 영향이 없습니다(IA "일정이 있는 날만 섹션째"). 화면을 연 뒤 도착한 줄은 스며 나타나고(열 때 이미 있으면 바로),
-/// 사라질 때는 마지막 요약을 보이며 스며 사라집니다. 누르면 오늘 `day-sheet`를 엽니다.
+/// 요약은 `todayScheduleSummaryProvider`에서 받고, 분이 바뀌면 "다음"이 다시
+/// 골라집니다. 일정이 없거나 불러오지 못하면(요약 null) 섹션째(간격, 제목, 카드)
+/// 그리지 않습니다(IA "일정이 있는 날만 섹션째"). 화면을 연 뒤 도착한 섹션은 스며
+/// 나타나고(열 때 이미 있으면 바로), 사라질 때는 마지막 요약을 보이며 스며
+/// 사라집니다. 누르면 오늘 `day-sheet`를 엽니다.
 class _TodayEventSection extends ConsumerStatefulWidget {
   const new();
 

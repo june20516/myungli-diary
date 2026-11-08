@@ -520,7 +520,22 @@ void main() {
         ),
       );
       expect(display.featured, isEmpty);
+      expect(display.featuredEmpty, isTrue);
       expect(display.body, isNull);
+      expect(display.bodyTag, isNull);
+    });
+
+    test('대표 태그가 있지만 모두 그릴 수 없으면 featuredEmpty가 아니고 보조 문장은 남습니다', () {
+      final display = displayOf(
+        dailyWith(
+          (json) => (json['tags'] as Map<String, dynamic>)['featured'] = [
+            {'key': 'not_in_table', 'polarity': 'neutral'},
+          ],
+        ),
+      );
+      expect(display.featured, isEmpty);
+      expect(display.featuredEmpty, isFalse);
+      expect(display.body, isNotNull);
       expect(display.bodyTag, isNull);
     });
 

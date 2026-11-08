@@ -470,6 +470,39 @@ void main() {
       expect(_id(SlotIds.todayFeaturedEmpty), findsOneWidget);
     });
 
+    testWidgets('대표 태그가 있지만 하나도 그릴 수 없으면 D112가 아니라 사주 기운 섹션째 없고 보조 문장은 남습니다', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          _dailyWith(
+            (json) => (json['tags'] as Map<String, dynamic>)['featured'] = [
+              {'key': 'not_in_table', 'polarity': 'neutral'},
+            ],
+          ),
+        ],
+      );
+      await _settleToday(tester);
+
+      expect(find.text(_ko.todayFeaturedEmpty), findsNothing);
+      expect(find.text(_ko.todayFeaturedTitle), findsNothing);
+      expect(find.byKey(TodayScreen.featuredCardKey), findsNothing);
+      // 보조 문장과 선은 남고 그 위 태그 자리만 빕니다.
+      expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
+      expect(find.byKey(TodayScreen.fortuneDividerKey), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey(TodayScreen.bodyTagKeyValue)),
+        findsNothing,
+      );
+      final link = find.descendant(
+        of: find.byKey(const Key(SlotIds.todayFortuneBody)),
+        matching: find.byType(DepthLink),
+      );
+      expect(tester.widget<DepthLink>(link).subject, _ko.todayFortuneTitle);
+    });
+
     testWidgets('대표 태그가 둘이면 사주 기운에 둘, 보조 문장 위는 1순위입니다', (tester) async {
       await pumpApp(
         tester,

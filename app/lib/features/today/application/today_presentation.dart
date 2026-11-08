@@ -279,6 +279,7 @@ final class TodayDisplay {
     required this.headReactable,
     required this.body,
     required this.featured,
+    required this.featuredEmpty,
     required this.lucky,
     required this.guide,
   });
@@ -317,6 +318,10 @@ final class TodayDisplay {
   /// 그릴 수 있는 대표 태그(앞 [maxFeaturedTags]개 중, 응답 순서).
   final List<FeaturedTagContent> featured;
 
+  /// server `tags.featured`가 실제로 빈 날(D112)인지. 태그가 왔지만 사전이나 글자표에 없어
+  /// [featured]만 빈 날은 false이고, 그날은 D112 안내 없이 사주 기운 섹션째 두지 않습니다.
+  final bool featuredEmpty;
+
   /// 행운 항목 4개.
   final List<LuckyItem> lucky;
 
@@ -324,6 +329,7 @@ final class TodayDisplay {
   final RenderedText guide;
 
   /// 보조 문장 위 태그(대표 태그 1순위). 보조 문장이 없거나 1순위를 그릴 수 없으면 null입니다.
+  /// 1순위를 그릴 수 없는 날은 D112가 아니므로 보조 문장과 선은 그대로 두고 태그 자리만 비웁니다.
   FeaturedTagContent? get bodyTag =>
       body == null ? null : featured.where((tag) => tag.rank == 0).firstOrNull;
 
@@ -340,6 +346,7 @@ final class TodayDisplay {
     headReactable,
     body,
     featured,
+    featuredEmpty,
     lucky,
     guide,
   ];
@@ -430,6 +437,7 @@ TodayDisplay todayDisplayOf(
       for (final (rank, featured) in featuredTags.take(maxFeaturedTags).indexed)
         ?_featuredTagOf(featured, rank, names),
     ],
+    featuredEmpty: featuredTags.isEmpty,
     lucky: luckyItemsOf(daily, names, l10n, timezone),
     guide: daily.guide.text,
   );
