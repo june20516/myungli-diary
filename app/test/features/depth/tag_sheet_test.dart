@@ -31,10 +31,10 @@ Finder _inSheet(Finder matching) =>
     find.descendant(of: _sheet, matching: matching);
 
 /// member 보조 문장(`fortune.tag`)의 평문.
-const String _fortuneTag = '천을귀인이 들어 도움을 받기 쉬운 날이에요.';
+const String _fortuneTag = '이야기나 약속이 잘 맞아떨어지는 날이에요.';
 
 /// member 오늘의 질문(`guide`)의 평문.
-const String _guide = '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?';
+const String _guide = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
 
 /// 오늘 응답을 [daily]로 고정하는 대역.
 final class _StubDaily extends DailyController {
@@ -51,17 +51,17 @@ final class _StubDaily extends DailyController {
   );
 }
 
-/// member 응답에 대표 태그 2순위(역마)를 더한 응답.
+/// member 응답의 대표 태그 2순위를 사전에 뜻이 없는 화개로 바꾼 응답.
 Daily _twoFeatured() {
   final json = memberDailyJson();
   return Daily.fromJson({
     ...json,
     'tags': {
       'featured': [
-        {'key': 'cheoneul_gwiin', 'polarity': 'good'},
-        {'key': 'yeokma', 'polarity': 'neutral'},
+        {'key': 'harmony', 'polarity': 'good'},
+        {'key': 'hwagae', 'polarity': 'neutral'},
       ],
-      'all': ['cheoneul_gwiin', 'yeokma', 'yongsin_day'],
+      'all': ['harmony', 'hwagae', 'gongmang'],
     },
   });
 }
@@ -103,12 +103,17 @@ void main() {
       await _openTagSheet(tester);
 
       final head = tester.widget<HanjaTag>(_inSheet(find.byType(HanjaTag)));
-      expect(head.label, '천을귀인');
+      expect(head.label, '합');
       expect(head.onTap, isNull, reason: '시트 머리 태그는 누를 수 없습니다');
       expect(head.variant, HanjaTagVariant.normal);
       expect(_inSheet(find.byType(DepthLink)), findsOneWidget);
       expect(
-        _inSheet(find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true)),
+        _inSheet(
+          find.text(
+            '서로 다른 기운이 맞물려 하나가 되는 것으로, 사람과 일이 잘 어울려요.',
+            findRichText: true,
+          ),
+        ),
         findsOneWidget,
       );
 
@@ -127,7 +132,7 @@ void main() {
         ],
         [_fortuneTag, _guide],
       );
-      expect(list.diaryLinkLabel, _ko.tagSheetDiaryCta('천을귀인'));
+      expect(list.diaryLinkLabel, _ko.tagSheetDiaryCta('합'));
       expect(_inSheet(find.byKey(TagSentenceList.emptyKey)), findsNothing);
     });
 
@@ -184,7 +189,7 @@ void main() {
       await _openTagSheet(tester, rank: 1, daily: _twoFeatured());
 
       final head = tester.widget<HanjaTag>(_inSheet(find.byType(HanjaTag)));
-      expect(head.label, '역마');
+      expect(head.label, '화개');
       expect(_inSheet(find.byType(DepthLink)), findsNothing);
       expect(_inSheet(find.byKey(TagSentenceList.emptyKey)), findsOneWidget);
       expect(_inSheet(find.text(_ko.tagSheetSentencesEmpty)), findsOneWidget);
@@ -197,7 +202,7 @@ void main() {
         tester
             .widget<TagSentenceList>(_inSheet(find.byType(TagSentenceList)))
             .diaryLinkLabel,
-        _ko.tagSheetDiaryCta('역마'),
+        _ko.tagSheetDiaryCta('화개'),
       );
     });
 
@@ -231,7 +236,7 @@ void main() {
       );
       expect(
         [for (final tag in body.targetTags) (tag as HanjaTag).label],
-        ['천을귀인'],
+        ['합'],
       );
       expect(body.target?.segments.map((s) => s.text).join(), _fortuneTag);
     });

@@ -185,7 +185,7 @@ void main() {
       SlotIds.diaryEditBarTitle,
       _ko.diaryEditBarTitle,
     );
-    expect(find.text('오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'), findsOneWidget);
+    expect(find.text('오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?'), findsOneWidget);
     expect(find.text(_ko.diaryEditBodyPlaceholder), findsOneWidget);
     expect(find.byType(DraftIndicator), findsNothing);
     expect(_saveButton(tester).enabled, isFalse);
@@ -207,23 +207,32 @@ void main() {
     );
   });
 
-  testWidgets('질문 바꾸기: 그날 후보 둘을 돌고, 저장하면 고른 질문이 diary-view에 남습니다', (
+  testWidgets('질문 바꾸기: 그날 후보 넷을 돌고, 저장하면 고른 질문이 diary-view에 남습니다', (
     tester,
   ) async {
     covers(const Covers(exits: ['diary-edit>diary-view']));
     final container = await _openEdit(tester, _today);
-    const first = '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?';
-    const second = '오늘 들은 말 중에 기억에 남는 게 있나요?';
+    // member fixture의 그날 후보 순서: 합 질문 둘, 대표 태그 2순위 질문, 일진 십성 묶음 질문.
+    const first = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
+    const second = '오늘 함께해서 좋았던 사람이 있었나요?';
+    const third = '오늘 끝까지 지키고 싶었던 내 생각을 적어 볼까요?';
+    const fourth = '오늘 함께 시간을 보낸 사람이 있었다면 그 이야기를 적어 볼까요?';
+    Future<void> swap() async {
+      await tester.tap(find.byKey(DiaryEditor.swapKey));
+      await tester.pumpAndSettle();
+    }
+
     expect(find.text(first), findsOneWidget);
-    await tester.tap(find.byKey(DiaryEditor.swapKey));
-    await tester.pumpAndSettle();
+    await swap();
     expect(find.text(second), findsOneWidget);
     expect(find.text(first), findsNothing);
-    await tester.tap(find.byKey(DiaryEditor.swapKey));
-    await tester.pumpAndSettle();
+    await swap();
+    expect(find.text(third), findsOneWidget);
+    await swap();
+    expect(find.text(fourth), findsOneWidget);
+    await swap();
     expect(find.text(first), findsOneWidget);
-    await tester.tap(find.byKey(DiaryEditor.swapKey));
-    await tester.pumpAndSettle();
+    await swap();
 
     await tester.enterText(_body, '들은 말을 적었다.');
     await tester.pump();
@@ -334,9 +343,9 @@ void main() {
     };
     final network = _Network()
       ..candidates = [
-        candidate('guide.dohwa', '1', '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'),
-        candidate('guide.dohwa', '2', '오늘 들은 말 중에 기억에 남는 게 있나요?'),
         candidate('guide.harmony', '1', '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?'),
+        candidate('guide.harmony', '2', '오늘 함께해서 좋았던 사람이 있었나요?'),
+        candidate('guide.gongmang', '1', '오늘 기대와 다르게 흘러간 일이 있었다면 하나 적어 볼까요?'),
       ];
     final container = await _openEdit(tester, _today, network: network);
     await tester.tap(find.byKey(DiaryEditor.swapKey));
@@ -354,8 +363,8 @@ void main() {
     expect(_server(container).callCountOf('createDiary'), 1);
     expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
     expect(tester.widget<TextField>(_body).controller!.text, '지켜야 할 글');
-    // 다시 읽은 후보(둘)의 첫 질문으로 돌아옵니다.
-    expect(find.text('오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'), findsOneWidget);
+    // 다시 읽은 후보(fixture 넷)의 첫 질문으로 돌아옵니다.
+    expect(find.text('오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
     await settleWithIo(tester);
   });

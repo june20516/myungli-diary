@@ -239,7 +239,9 @@ void main() {
       expect(_previewImage(tester).variant, ShareImageVariant.square);
     });
 
-    testWidgets('이미지 내용은 총운 문장(호칭 포함)·날짜·날의 성격·행운·footer입니다', (tester) async {
+    testWidgets('이미지 내용은 총운 문장(용어 조각 포함)·날짜·날의 성격·행운·footer입니다', (
+      tester,
+    ) async {
       await _pump(
         tester,
         _app(renderer: _RecordingRenderer(), share: FakeShareSheet()),
@@ -247,7 +249,8 @@ void main() {
       final image = _previewImage(tester);
       final daily = Daily.fromJson(memberDailyJson());
       expect(image.sentence.toJson(), daily.fortune.head.text.toJson());
-      expect(image.sentence.segments.first.text, '하늘님, ');
+      // 총운 문장은 용어 조각(비겁)으로 시작합니다.
+      expect(image.sentence.segments.first.text, '비겁');
       expect(image.date, '10월 13일 화요일');
       expect(image.dayKind, daily.dayKind);
       expect(image.dayKindLabel, _ko.dayKindYongsinDay);

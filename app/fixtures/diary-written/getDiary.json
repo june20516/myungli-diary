@@ -6,12 +6,28 @@
     "body": "회의에서 먼저 말을 꺼냈더니 생각보다 반응이 좋았다.",
     "guideQuestion": {
       "segments": [
-        { "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?" }
+        {
+          "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
+        }
       ]
     },
     "tags": {
-      "featured": [{ "key": "cheoneul_gwiin", "polarity": "good" }],
-      "all": ["cheoneul_gwiin", "yongsin_day"]
+      "featured": [
+        {
+          "key": "harmony",
+          "polarity": "good"
+        },
+        {
+          "key": "ten_god_rush.bigyeop",
+          "polarity": "neutral"
+        }
+      ],
+      "all": [
+        "harmony",
+        "ten_god_rush.bigyeop",
+        "gongmang",
+        "yeokma"
+      ]
     },
     "rulesetVersion": "r1",
     "createdAt": "2026-10-13T12:10:00Z",

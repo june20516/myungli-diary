@@ -442,8 +442,8 @@ void main() {
     test('tag면 그 태그가 붙은 일기만 준다(대역은 featuredTags로 거름)', () async {
       final api = _apiOf(await _scenarioOf('member'));
       final list = (await api.listDiaries(tag: 'clash')).data!;
-      expect([for (final item in list.items) item.date], ['2026-10-02']);
-      final none = (await api.listDiaries(tag: 'gongmang')).data!;
+      expect([for (final item in list.items) item.date], ['2026-10-05']);
+      final none = (await api.listDiaries(tag: 'yongsin_day')).data!;
       expect(none.items, isEmpty);
     });
 

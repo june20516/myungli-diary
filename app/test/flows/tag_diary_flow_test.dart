@@ -24,9 +24,9 @@ import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
 
 final _ko = AppLocalizationsKo();
-const _tag = 'cheoneul_gwiin';
+const _tag = 'harmony';
 const _listPath = '/v1/diaries';
-const _meaning = '어려울 때 도와주는 사람이 곁에 오는 기운이에요.';
+const _meaning = '서로 다른 기운이 맞물려 하나가 되는 것으로, 사람과 일이 잘 어울려요.';
 
 /// [failListing]이면 일기 목록 GET을 503으로 답하고, [holdListing]이면 [gate]가 열릴 때까지
 /// 붙잡습니다. [termInMeaning]이면 용어 사전의 태그 뜻 끝에 용어 조각을 붙여 답합니다.
@@ -151,7 +151,7 @@ void main() {
     await expectAppBarTitle(
       tester,
       SlotIds.tagDiaryBarTitle,
-      _ko.tagDiaryBarTitle('천을귀인'),
+      _ko.tagDiaryBarTitle('합'),
     );
     expect(find.text(_meaning), findsOneWidget);
     expect(find.byType(DiaryRow), findsWidgets);
@@ -186,7 +186,7 @@ void main() {
     await tester.tap(find.byType(TagChip).first);
     await settleWithIo(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
-    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')));
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('합')));
     await pumpUntilScreen(tester, ScreenIds.tagDiary);
     await _untilShown(tester);
     expect(
@@ -223,7 +223,7 @@ void main() {
 
   testWidgets('empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다', (tester) async {
     covers(const Covers(states: ['tag-diary:empty']));
-    await _openTagDiary(tester, tag: 'yeokma');
+    await _openTagDiary(tester, tag: 'hwagae');
     expect(find.text(_ko.tagDiaryEmptyBody), findsOneWidget);
     expect(
       find.byKey(const ValueKey(SlotIds.tagDiaryTagMeaning)),
@@ -232,7 +232,7 @@ void main() {
     await expectAppBarTitle(
       tester,
       SlotIds.tagDiaryBarTitle,
-      _ko.tagDiaryBarTitle('역마'),
+      _ko.tagDiaryBarTitle('화개'),
     );
   });
 

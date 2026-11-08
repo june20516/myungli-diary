@@ -239,7 +239,7 @@ void main() {
 
     test('태그 목록은 그 태그 일기만입니다', () async {
       final h = await _harness();
-      expect(_dates(await _pages(h, 'clash')), ['2026-10-02']);
+      expect(_dates(await _pages(h, 'clash')), ['2026-10-05']);
     });
 
     test('로그아웃하면 받아 둔 목록을 버립니다', () async {

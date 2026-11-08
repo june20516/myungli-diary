@@ -10,6 +10,13 @@
           "stem": "gyeong",
           "branch": "shin"
         },
+        "lunar": {
+          "month": 9,
+          "day": 3,
+          "isLeapMonth": false
+        },
+        "dayStemTenGod": "bigyeon",
+        "dayStemTenGodGroup": "bigyeop",
         "dayKind": "yongsin_day",
         "characterReason": {
           "slot": "character.reason",
@@ -18,44 +25,50 @@
           "reactable": false,
           "text": {
             "segments": [
-              { "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요." }
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
             ]
           }
         },
         "fortune": {
           "head": {
             "slot": "daily.fortune.head",
-            "messageKey": "fortune.yongsin_day.siksang",
+            "messageKey": "fortune.yongsin_day.bigyeop",
             "variant": "advice",
             "reactable": true,
             "text": {
               "segments": [
                 {
-                  "text": "하늘님, "
+                  "text": "비겁",
+                  "term": "ten_god_group.bigyeop"
                 },
                 {
-                  "text": "목",
-                  "term": "element.wood"
-                },
-                {
-                  "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."
+                  "text": "이 들어오니, 미뤄 둔 일을 친구와 해 보세요."
                 }
               ]
-            }
+            },
+            "evidencePreview": [
+              {
+                "basis": {
+                  "segments": [
+                    {
+                      "text": "일간을 돕는 오행이"
+                    }
+                  ]
+                }
+              }
+            ]
           },
           "tag": {
             "slot": "daily.fortune.tag",
-            "messageKey": "fortune.tag.cheoneul_gwiin",
+            "messageKey": "fortune.tag.harmony",
             "variant": "state",
             "reactable": false,
             "text": {
               "segments": [
                 {
-                  "text": "천을귀인",
-                  "term": "tag.cheoneul_gwiin"
-                },
-                {
-                  "text": "이 들어 도움을 받기 쉬운 날이에요."
+                  "text": "이야기나 약속이 잘 맞아떨어지는 날이에요."
                 }
               ]
             }
@@ -63,13 +76,13 @@
         },
         "guide": {
           "slot": "daily.guide",
-          "messageKey": "guide.dohwa",
+          "messageKey": "guide.harmony",
           "variant": "1",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
+                "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
               }
             ]
           }
@@ -77,13 +90,52 @@
         "guideCandidates": [
           {
             "slot": "daily.guide",
-            "messageKey": "guide.dohwa",
+            "messageKey": "guide.harmony",
             "variant": "1",
             "reactable": false,
             "text": {
               "segments": [
                 {
-                  "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
+                  "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
+                }
+              ]
+            }
+          },
+          {
+            "slot": "daily.guide",
+            "messageKey": "guide.harmony",
+            "variant": "2",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "오늘 함께해서 좋았던 사람이 있었나요?"
+                }
+              ]
+            }
+          },
+          {
+            "slot": "daily.guide",
+            "messageKey": "guide.ten_god_rush.bigyeop",
+            "variant": "1",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "오늘 끝까지 지키고 싶었던 내 생각을 적어 볼까요?"
+                }
+              ]
+            }
+          },
+          {
+            "slot": "daily.guide",
+            "messageKey": "guide.ten_god.bigyeop",
+            "variant": "1",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "오늘 함께 시간을 보낸 사람이 있었다면 그 이야기를 적어 볼까요?"
                 }
               ]
             }
@@ -170,13 +222,19 @@
         "tags": {
           "featured": [
             {
-              "key": "cheoneul_gwiin",
+              "key": "harmony",
               "polarity": "good"
+            },
+            {
+              "key": "ten_god_rush.bigyeop",
+              "polarity": "neutral"
             }
           ],
           "all": [
-            "cheoneul_gwiin",
-            "yongsin_day"
+            "harmony",
+            "ten_god_rush.bigyeop",
+            "gongmang",
+            "yeokma"
           ]
         },
         "relations": [],
@@ -193,6 +251,13 @@
           "stem": "gyeong",
           "branch": "shin"
         },
+        "lunar": {
+          "month": 9,
+          "day": 3,
+          "isLeapMonth": false
+        },
+        "dayStemTenGod": "bigyeon",
+        "dayStemTenGodGroup": "bigyeop",
         "dayKind": "yongsin_day",
         "characterReason": {
           "slot": "character.reason",
@@ -201,44 +266,39 @@
           "reactable": false,
           "text": {
             "segments": [
-              { "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요." }
+              {
+                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+              }
             ]
           }
         },
         "fortune": {
           "head": {
             "slot": "daily.fortune.head",
-            "messageKey": "fortune.yongsin_day.siksang",
+            "messageKey": "fortune.yongsin_day.bigyeop",
             "variant": "advice",
             "reactable": true,
             "text": {
               "segments": [
                 {
-                  "text": "하늘님, "
+                  "text": "비겁",
+                  "term": "ten_god_group.bigyeop"
                 },
                 {
-                  "text": "목",
-                  "term": "element.wood"
-                },
-                {
-                  "text": "의 기운이 살아나니, 회의에서 먼저 의견을 꺼내 보세요."
+                  "text": "이 들어오니, 미뤄 둔 일을 친구와 해 보세요."
                 }
               ]
             }
           },
           "tag": {
             "slot": "daily.fortune.tag",
-            "messageKey": "fortune.tag.cheoneul_gwiin",
+            "messageKey": "fortune.tag.harmony",
             "variant": "state",
             "reactable": false,
             "text": {
               "segments": [
                 {
-                  "text": "천을귀인",
-                  "term": "tag.cheoneul_gwiin"
-                },
-                {
-                  "text": "이 들어 도움을 받기 쉬운 날이에요."
+                  "text": "이야기나 약속이 잘 맞아떨어지는 날이에요."
                 }
               ]
             }
@@ -246,13 +306,13 @@
         },
         "guide": {
           "slot": "daily.guide",
-          "messageKey": "guide.dohwa",
+          "messageKey": "guide.harmony",
           "variant": "1",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
+                "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
               }
             ]
           }
@@ -260,13 +320,52 @@
         "guideCandidates": [
           {
             "slot": "daily.guide",
-            "messageKey": "guide.dohwa",
+            "messageKey": "guide.harmony",
             "variant": "1",
             "reactable": false,
             "text": {
               "segments": [
                 {
-                  "text": "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?"
+                  "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
+                }
+              ]
+            }
+          },
+          {
+            "slot": "daily.guide",
+            "messageKey": "guide.harmony",
+            "variant": "2",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "오늘 함께해서 좋았던 사람이 있었나요?"
+                }
+              ]
+            }
+          },
+          {
+            "slot": "daily.guide",
+            "messageKey": "guide.ten_god_rush.bigyeop",
+            "variant": "1",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "오늘 끝까지 지키고 싶었던 내 생각을 적어 볼까요?"
+                }
+              ]
+            }
+          },
+          {
+            "slot": "daily.guide",
+            "messageKey": "guide.ten_god.bigyeop",
+            "variant": "1",
+            "reactable": false,
+            "text": {
+              "segments": [
+                {
+                  "text": "오늘 함께 시간을 보낸 사람이 있었다면 그 이야기를 적어 볼까요?"
                 }
               ]
             }
@@ -353,13 +452,19 @@
         "tags": {
           "featured": [
             {
-              "key": "cheoneul_gwiin",
+              "key": "harmony",
               "polarity": "good"
+            },
+            {
+              "key": "ten_god_rush.bigyeop",
+              "polarity": "neutral"
             }
           ],
           "all": [
-            "cheoneul_gwiin",
-            "yongsin_day"
+            "harmony",
+            "ten_god_rush.bigyeop",
+            "gongmang",
+            "yeokma"
           ]
         },
         "relations": [],

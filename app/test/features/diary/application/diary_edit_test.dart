@@ -27,10 +27,10 @@ import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
-/// member fixture의 그날 후보 둘(guide.dohwa 1, 2)과 대표 태그 2순위로 더한 셋째 후보.
-const _first = '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?';
-const _second = '오늘 들은 말 중에 기억에 남는 게 있나요?';
-const _third = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
+/// member fixture의 그날 후보 앞 둘(guide.harmony 1, 2)과, fixture에 없는 셋째 후보(guide.gongmang 1).
+const _first = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
+const _second = '오늘 함께해서 좋았던 사람이 있었나요?';
+const _third = '오늘 기대와 다르게 흘러간 일이 있었다면 하나 적어 볼까요?';
 
 Map<String, Object?> _candidate(String key, String variant, String text) => {
   'slot': 'daily.guide',
@@ -224,9 +224,9 @@ void main() {
     test('세 후보를 server 순서대로 돌고 끝에서 처음으로 돌아갑니다', () async {
       final h = await _harness();
       h.network.candidates = [
-        _candidate('guide.dohwa', '1', _first),
-        _candidate('guide.dohwa', '2', _second),
-        _candidate('guide.harmony', '1', _third),
+        _candidate('guide.harmony', '1', _first),
+        _candidate('guide.harmony', '2', _second),
+        _candidate('guide.gongmang', '1', _third),
       ];
       final opened = await _open(h, _newToday);
       expect(opened.candidates, hasLength(3));
@@ -249,7 +249,7 @@ void main() {
       h.notifier(_newToday).swapQuestion();
       final saved = await h.notifier(_newToday).save('들은 말');
       expect(h.network.creates.single.body['guideQuestion'], {
-        'messageKey': 'guide.dohwa',
+        'messageKey': 'guide.harmony',
         'variant': '2',
       });
       // fake 서버도 고른 후보를 이 편의 질문으로 남깁니다.
@@ -261,7 +261,7 @@ void main() {
       await _open(h, _newToday);
       await h.notifier(_newToday).save('글');
       expect(h.network.creates.single.body['guideQuestion'], {
-        'messageKey': 'guide.dohwa',
+        'messageKey': 'guide.harmony',
         'variant': '1',
       });
     });
@@ -290,7 +290,7 @@ void main() {
 
     test('후보가 하나면 바꿀 수 없습니다', () async {
       final h = await _harness();
-      h.network.candidates = [_candidate('guide.dohwa', '1', _first)];
+      h.network.candidates = [_candidate('guide.harmony', '1', _first)];
       final opened = await _open(h, _newToday);
       expect(opened.canSwapQuestion, isFalse);
       h.notifier(_newToday).swapQuestion();
@@ -331,9 +331,9 @@ void main() {
       final h = await _harness();
       // 화면은 셋째 후보를 받았지만 server의 그날 후보에는 없습니다.
       h.network.candidates = [
-        _candidate('guide.dohwa', '1', _first),
-        _candidate('guide.dohwa', '2', _second),
-        _candidate('guide.harmony', '1', _third),
+        _candidate('guide.harmony', '1', _first),
+        _candidate('guide.harmony', '2', _second),
+        _candidate('guide.gongmang', '1', _third),
       ];
       await _open(h, _newToday);
       final notifier = h.notifier(_newToday)
@@ -353,7 +353,7 @@ void main() {
       );
       expect(h.server.callCountOf('getDaily'), dailyCalls + 1);
       final after = h.state(_newToday);
-      expect(after.candidates, hasLength(2));
+      expect(after.candidates, hasLength(4));
       expect(after.questionIndex, 0);
       expect(after.saving, isFalse);
       expect(
@@ -381,7 +381,7 @@ void main() {
           .read(diaryDraftStoreProvider)
           .find(_draftToday);
       expect(draft!.body, '쓰는 중');
-      expect(draft.guideMessageKey, 'guide.dohwa');
+      expect(draft.guideMessageKey, 'guide.harmony');
       expect(draft.guideVariant, '2');
     });
 
@@ -392,7 +392,7 @@ void main() {
           .write(
             _draftToday,
             '이어 쓸 글',
-            guide: GuideChoice(messageKey: 'guide.dohwa', variant: '2'),
+            guide: GuideChoice(messageKey: 'guide.harmony', variant: '2'),
           );
       final opened = await _open(h, _newToday);
       expect(opened.fromDraft, isTrue);
@@ -492,9 +492,9 @@ void main() {
   test('422 guide_invalid 뒤 오늘 풀이를 다시 읽지 못하면 받아 둔 후보와 고른 질문을 지킵니다', () async {
     final h = await _harness();
     h.network.candidates = [
-      _candidate('guide.dohwa', '1', _first),
-      _candidate('guide.dohwa', '2', _second),
-      _candidate('guide.harmony', '1', _third),
+      _candidate('guide.harmony', '1', _first),
+      _candidate('guide.harmony', '2', _second),
+      _candidate('guide.gongmang', '1', _third),
     ];
     await _open(h, _newToday);
     final notifier = h.notifier(_newToday)
@@ -509,6 +509,6 @@ void main() {
         .read(diaryDraftStoreProvider)
         .find(_draftToday);
     expect(draft!.body, '지킬 글');
-    expect(draft.guideMessageKey, 'guide.harmony');
+    expect(draft.guideMessageKey, 'guide.gongmang');
   });
 }

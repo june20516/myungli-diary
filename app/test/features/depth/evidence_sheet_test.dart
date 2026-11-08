@@ -544,7 +544,18 @@ void main() {
     });
 
     testWidgets('evidencePreview가 없으면 두 구역 모두 자리값만입니다', (tester) async {
-      await _openSheet(tester);
+      // member fixture의 총운 헤드라인에는 앞부분이 있어, 필드를 뺀 응답으로 엽니다.
+      final json = memberDailyJson();
+      final fortune = Map<String, dynamic>.of(
+        json['fortune'] as Map<String, dynamic>,
+      );
+      fortune['head'] = Map<String, dynamic>.of(
+        fortune['head'] as Map<String, dynamic>,
+      )..remove('evidencePreview');
+      await _openSheet(
+        tester,
+        daily: Daily.fromJson({...json, 'fortune': fortune}),
+      );
 
       final body = tester.widget<EvidenceSheetBody>(
         _inSheet(find.byType(EvidenceSheetBody)),
@@ -587,10 +598,12 @@ void main() {
       );
       expect(body.state, DepthLinkState.locked);
       final tags = [for (final tag in body.targetTags) tag as HanjaTag];
-      // member는 십성 묶음이 없는 날이라 날의 성격 하나입니다.
-      expect(tags, hasLength(1));
-      expect(tags.single.onTap, isNull);
-      expect(tags.single.variant, HanjaTagVariant.normal);
+      // member는 날의 성격과 십성 묶음(비겁) 둘입니다.
+      expect(tags, hasLength(2));
+      for (final tag in tags) {
+        expect(tag.onTap, isNull);
+        expect(tag.variant, HanjaTagVariant.normal);
+      }
       final headText = Daily.fromJson(memberDailyJson())
           .fortune
           .head
@@ -637,11 +650,11 @@ void main() {
       );
       expect(
         [for (final tag in body.targetTags) (tag as HanjaTag).label],
-        ['천을귀인'],
+        ['합'],
       );
       expect(
         body.target?.segments.map((s) => s.text).join(),
-        '천을귀인이 들어 도움을 받기 쉬운 날이에요.',
+        '이야기나 약속이 잘 맞아떨어지는 날이에요.',
       );
     });
   });

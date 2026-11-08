@@ -241,10 +241,10 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
     expect(_id(ScreenIds.today), findsOneWidget);
 
-    // 날짜 머리: 양력과 요일, 일진(사전 독음), 응답에 음력이 없으면 그 칸만 빠집니다.
+    // 날짜 머리: 양력과 요일, 음력, 일진(사전 독음).
     final header = tester.widget<DateHeader>(_content);
     expect(header.solar, _ko.todayDateSolar('10월 13일 화요일'));
-    expect(header.lunar, isNull);
+    expect(header.lunar, _ko.todayDateLunar(9, 3));
     expect(header.iljin, _ko.todayDateIljin('庚申(경신)'));
 
     // 섹션 제목은 위에서부터 총운, 사주 기운, 행운, 일정(있는 날), 오늘의 질문입니다.
@@ -264,7 +264,7 @@ void main() {
     double topOf(Finder finder) => tester.getTopLeft(finder).dy;
     expect(topOf(_content), lessThan(topOf(find.byType(SectionHeader).first)));
 
-    // 총운 결정 태그: 날의 성격 emphasis(용신 톤). 십성 묶음은 응답에 없어 하나뿐입니다.
+    // 총운 결정 태그: 날의 성격 emphasis(용신 톤) 다음에 일진 십성 묶음(비겁).
     final dayKind = tester.widget<HanjaTag>(
       _tagIn(SlotIds.todayCharacterLabel),
     );
@@ -272,7 +272,9 @@ void main() {
     expect(dayKind.label, _ko.dayKindYongsinDay);
     expect(dayKind.tone, HanjaTagTone.yongsin);
     expect(dayKind.variant, HanjaTagVariant.emphasis);
-    expect(find.byKey(const ValueKey(SlotIds.todayTenGodLabel)), findsNothing);
+    final tenGod = tester.widget<HanjaTag>(_tagIn(SlotIds.todayTenGodLabel));
+    expect(tenGod.label, '비겁');
+    expect(tenGod.variant, HanjaTagVariant.normal);
 
     // 헤드라인과 근거 아이콘(글자 없음, 이름은 총운).
     expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
@@ -288,13 +290,13 @@ void main() {
       lessThan(topOf(find.byKey(const Key(SlotIds.todayFortuneHead)))),
     );
 
-    // 선 아래 1순위 태그(천을귀인)와 보조 문장, 그 끝 근거 아이콘.
+    // 선 아래 1순위 태그(합)와 보조 문장, 그 끝 근거 아이콘.
     expect(find.byKey(TodayScreen.fortuneDividerKey), findsOneWidget);
     final bodyTag = tester.widget<HanjaTag>(
       _tagIn(TodayScreen.bodyTagKeyValue),
     );
-    expect(bodyTag.glyph, '天');
-    expect(bodyTag.label, '천을귀인');
+    expect(bodyTag.glyph, '合');
+    expect(bodyTag.label, '합');
     expect(bodyTag.variant, HanjaTagVariant.normal);
     expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
     expect(
@@ -311,7 +313,7 @@ void main() {
         for (final tag in tester.widgetList<HanjaTag>(_featuredTags()))
           tag.label,
       ],
-      ['천을귀인'],
+      ['합', '비겁이 많은 날'],
     );
     expect(find.text(_ko.todayFeaturedEmpty), findsNothing);
 
@@ -397,9 +399,7 @@ void main() {
       final container = await pumpApp(
         tester,
         scenario: 'member',
-        overrides: [
-          _dailyWith((json) => json['dayStemTenGodGroup'] = 'siksang'),
-        ],
+        network: _GlossaryWith({'ten_god_group': {}}),
       );
       await _settleToday(tester);
       expect(
@@ -413,7 +413,7 @@ void main() {
           for (final gap in reporter.errors)
             if (gap.errorType == 'MissingDictionaryEntry') gap.code,
         ],
-        ['ten_god_group.siksang'],
+        ['ten_god_group.bigyeop'],
       );
     });
 
@@ -1286,8 +1286,8 @@ void main() {
         findsNothing,
       );
       expect(_id(SlotIds.todayFortuneHead), findsOneWidget);
-      // 사주 기운 섹션의 대표 태그는 그대로입니다.
-      expect(_featuredTags(), findsOneWidget);
+      // 사주 기운 섹션의 대표 태그(합, 비겁이 많은 날)는 그대로입니다.
+      expect(_featuredTags(), findsNWidgets(2));
     });
 
     testWidgets('총운 문장이 빈 segments면 문장 자리를 그리지 않습니다', (tester) async {

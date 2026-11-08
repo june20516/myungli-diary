@@ -199,7 +199,7 @@ void main() {
     ]);
     final first = tester.widget<DiaryRow>(find.byType(DiaryRow).first);
     expect(first.dayKind, isNotNull);
-    expect(first.tag!.label, '천을귀인');
+    expect(first.tag!.label, '합');
     expect(first.tag!.tone, HanjaTagTone.term);
     expect(first.tag!.variant, HanjaTagVariant.normal);
     expect(tester.widget<DiaryRow>(find.byType(DiaryRow).last).isLast, isTrue);
@@ -325,12 +325,9 @@ void main() {
     await settleWithIo(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsNothing);
-    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')));
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('합')));
     await settleWithIo(tester);
-    expect(
-      _locationOf(tester, ScreenIds.tagDiary),
-      '/tag-diary?tag=cheoneul_gwiin',
-    );
+    expect(_locationOf(tester, ScreenIds.tagDiary), '/tag-diary?tag=harmony');
   });
 
   testWidgets('날의 성격 태그는 뜻만 있는 뜻 시트이고 모아보기 링크가 없습니다', (tester) async {
@@ -341,7 +338,7 @@ void main() {
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     expect(find.text(kind.label), findsWidgets);
     expect(
-      find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')),
+      find.textContaining(_ko.explainSheetTagDiaryLink('합')),
       findsNothing,
     );
   });
@@ -351,7 +348,7 @@ void main() {
     await _openDiaryList(tester);
     await tester.tap(_rowTag(tester, 0));
     await settleWithIo(tester);
-    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')));
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('합')));
     await settleWithIo(tester);
 
     final rows = tester.widgetList<DiaryRow>(
@@ -616,6 +613,11 @@ void main() {
 
   testWidgets('offline: 받아 둔 목록이 있으면 그대로 보이고 배너', (tester) async {
     covers(const Covers(states: ['diary-list:offline']));
+    // 대표 태그가 둘인 줄이 있어 배너까지 있으면 기본 높이에는 넷째 줄이 만들어지지 않습니다.
+    tester.view
+      ..physicalSize = const Size(390, 1200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final network = _Network();
     await _openDiaryList(tester, network: network);
     network.offline = true;

@@ -90,6 +90,25 @@ final class _AddBasisPreview extends Interceptor {
   }
 }
 
+/// 받은 나의 사주의 용신에서 판정 근거 앞부분(`basisPreview`)을 뺍니다(미리보기가 없는 응답).
+final class _DropBasisPreview extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/chart' && data is Map) {
+      final body = Map<String, Object?>.of(data.cast<String, Object?>());
+      body['yongsin'] = Map<String, Object?>.of(
+        (body['yongsin']! as Map).cast<String, Object?>(),
+      )..remove('basisPreview');
+      response.data = body;
+    }
+    handler.next(response);
+  }
+}
+
 /// [scenario]로 앱을 띄우고 사주 표를 엽니다. [luck]이면 만세력과 대운 탭부터입니다.
 Future<void> _openChart(
   WidgetTester tester, {
@@ -184,7 +203,7 @@ void main() {
   });
 
   testWidgets('잠긴 용신 판정 근거: 두 줄, 자물쇠와 열기(꺾쇠 없음), 앞부분 없으면 자리값만', (tester) async {
-    await _openChart(tester);
+    await _openChart(tester, network: _DropBasisPreview());
     await tester.ensureVisible(_yongsinBasis);
     await tester.pumpAndSettle();
     final veil = tester.widget<LockVeil>(
@@ -215,7 +234,19 @@ void main() {
     );
   });
 
-  testWidgets('잠긴 용신 판정 근거: basisPreview가 오면 앞부분으로 또렷하게', (tester) async {
+  testWidgets('잠긴 용신 판정 근거: member 응답의 basisPreview가 앞부분으로 또렷하게', (
+    tester,
+  ) async {
+    await _openChart(tester);
+    final member = tester.widget<LockVeil>(
+      find.descendant(of: _yongsinBasis, matching: find.byType(LockVeil)),
+    );
+    expect(member.lead?.segments.single.text, '태어난 계절의 온도를');
+  });
+
+  testWidgets('잠긴 용신 판정 근거: basisPreview가 다른 문장이면 그 앞부분으로 또렷하게', (
+    tester,
+  ) async {
     await _openChart(tester, network: _AddBasisPreview());
     final veil = tester.widget<LockVeil>(
       find.descendant(of: _yongsinBasis, matching: find.byType(LockVeil)),

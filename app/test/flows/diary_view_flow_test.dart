@@ -179,7 +179,7 @@ void main() {
     expect(tester.widget<HanjaTag>(_characterTag).label, _ko.dayKindYongsinDay);
     expect(find.byType(SentenceBlock), findsNothing);
     expect(find.byKey(DiaryEditor.quoteLineKey), findsOneWidget);
-    expect(find.text('오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'), findsOneWidget);
+    expect(find.text('오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?'), findsOneWidget);
     expect(find.byKey(DiaryEditor.swapKey), findsNothing);
   });
 

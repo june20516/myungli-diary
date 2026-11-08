@@ -96,7 +96,11 @@ void main() {
     ];
     expect(titles, ['엄마 생신', '팀 주간 회의', '요가 수업']);
 
-    await tester.tap(_inSheet(find.widgetWithText(EventRow, '팀 주간 회의')));
+    // 길흉 내역 이름이 사전에 생겨 시트가 길어졌으니 일정 줄을 보이게 한 뒤 누릅니다.
+    final meeting = _inSheet(find.widgetWithText(EventRow, '팀 주간 회의'));
+    await tester.ensureVisible(meeting);
+    await tester.pumpAndSettle();
+    await tester.tap(meeting);
     await settleWithIo(tester);
     expect(
       container.read(routerProvider).state.uri.path,

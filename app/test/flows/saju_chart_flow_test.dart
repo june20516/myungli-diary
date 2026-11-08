@@ -286,10 +286,10 @@ void main() {
     expect(pillars.hour.stem?.hanja, '癸');
     expect(pillars.year.stemLabel, isA<TermToken>());
     expect((pillars.year.stemLabel! as TermToken).label, '비견');
-    // 일간 칩은 용어 role.day_master를 엽니다(F-019). member 사전에는 그 용어가 아직 없어
-    // 누를 수 없는 글자입니다.
-    expect(pillars.day.stemLabel, isA<Text>());
-    expect((pillars.day.stemLabel! as Text).data, _ko.sajuPillarDayMaster);
+    // 일간 칩은 용어 role.day_master를 엽니다(F-019). member 사전에 그 이름(일간)이 있어
+    // 누를 수 있는 용어 칩입니다.
+    expect(pillars.day.stemLabel, isA<TermToken>());
+    expect((pillars.day.stemLabel! as TermToken).label, '일간');
     expect(pillars.tableLabel, _ko.sajuPillarsTableLabel);
 
     // 오행 분포: 목·화·토·금·수, 값은 소수 한 자리.

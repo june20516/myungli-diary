@@ -343,12 +343,12 @@ void main() {
         );
         expectChanged(
           (json) =>
-              json['lunar'] = {'month': 9, 'day': 3, 'isLeapMonth': false},
+              json['lunar'] = {'month': 6, 'day': 1, 'isLeapMonth': false},
         );
         expectChanged((json) => json['dayStemTenGodGroup'] = 'siksang');
         expectChanged(
           (json) => (json['tags'] as Map<String, dynamic>)['featured'] = [
-            {'key': 'harmony', 'polarity': 'good'},
+            {'key': 'cheoneul_gwiin', 'polarity': 'good'},
           ],
         );
         expectChanged(
@@ -385,6 +385,8 @@ void main() {
         'cheoneul_gwiin': '천을귀인',
         'clash': '충',
         'gongmang': '공망',
+        'harmony': '합',
+        'ten_god_rush.bigyeop': '비겁이 많은 날',
         'yangin': '양인',
       },
     });
@@ -409,6 +411,7 @@ void main() {
         ),
         ['hwagae', 'yangin', 'unknown_key'],
       );
+      // member의 대표 태그(합, 비겁이 많은 날)는 둘 다 이름과 글자표(A112)에 있어 모두 그릴 수 있습니다.
       expect(
         skippedFeaturedTagKeysOf(Daily.fromJson(memberDailyJson()), names),
         isEmpty,
@@ -427,14 +430,21 @@ void main() {
       'stem': {'gyeong': '경'},
       'branch': {'shin': '신'},
       'tag': {'cheoneul_gwiin': '천을귀인', 'harmony': '합', 'yangin': '양인'},
-      'ten_god_group': {'siksang': '식상'},
+      'ten_god_group': {'bigyeop': '비겁', 'siksang': '식상'},
     });
 
     TodayDisplay displayOf(Daily daily, [GlossaryNames names = readings]) =>
         todayDisplayOf(daily, names, _l10n, 'Asia/Seoul');
 
     test('음력은 ARB 틀이고 윤달이면 윤달 틀, 응답에 없으면 null입니다', () {
-      expect(displayOf(Daily.fromJson(memberDailyJson())).lunarText, isNull);
+      expect(
+        displayOf(Daily.fromJson(memberDailyJson())).lunarText,
+        _l10n.todayDateLunar(9, 3),
+      );
+      expect(
+        displayOf(dailyWith((json) => json.remove('lunar'))).lunarText,
+        isNull,
+      );
       expect(
         displayOf(
           dailyWith(
@@ -462,9 +472,18 @@ void main() {
     });
 
     test('날의 성격은 enum과 ARB 이름, 십성 묶음은 enum과 사전 이름입니다', () {
-      final plain = displayOf(Daily.fromJson(memberDailyJson()));
-      expect(plain.dayKind, DayKind.yongsinDay);
-      expect(plain.dayKindLabel, _l10n.dayKindYongsinDay);
+      final member = displayOf(Daily.fromJson(memberDailyJson()));
+      expect(member.dayKind, DayKind.yongsinDay);
+      expect(member.dayKindLabel, _l10n.dayKindYongsinDay);
+      expect(member.tenGodGroup, TenGodGroup.bigyeop);
+      expect(member.tenGodGroupLabel, '비겁');
+      // 십성 묶음이 없는 응답(옛 규칙 버전)은 둘 다 비어 있습니다.
+      final plain = displayOf(
+        dailyWith((json) {
+          json.remove('dayStemTenGod');
+          json.remove('dayStemTenGodGroup');
+        }),
+      );
       expect(plain.tenGodGroup, isNull);
       expect(plain.tenGodGroupLabel, isNull);
 
@@ -502,11 +521,11 @@ void main() {
       expect(display.bodyTag, isNull);
     });
 
-    test('member: 1순위 천을귀인이 보조 문장 위 태그이고 보조 문장은 fortune.tag입니다', () {
+    test('member: 1순위 합이 보조 문장 위 태그이고 보조 문장은 fortune.tag입니다', () {
       final daily = Daily.fromJson(memberDailyJson());
       final display = displayOf(daily);
       expect(display.featured.single.rank, 0);
-      expect(display.featured.single.glyph, '天');
+      expect(display.featured.single.glyph, '合');
       expect(display.bodyTag, display.featured.single);
       expect(display.body?.slot, daily.fortune.tag?.slot);
       expect(display.body?.text.toJson(), daily.fortune.tag?.text.toJson());
