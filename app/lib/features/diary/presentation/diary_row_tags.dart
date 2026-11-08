@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/tag.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/sentence/day_kind_hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
@@ -18,10 +19,9 @@ import 'package:myungli_diary/features/glossary/application/glossary_providers.d
 /// 누르면 뜻만 있는 뜻 시트(`explain-sheet`, `day_kind.<값>`)이고 대표 태그와 달리 모아보기
 /// 링크가 없습니다. 시트 머리는 같은 모양의 누를 수 없는 태그입니다(V81, V73).
 HanjaTag diaryDayKindTagOf(BuildContext context, WidgetRef ref, DayKind kind) {
-  HanjaTag tag({VoidCallback? onTap}) => HanjaTag(
-    glyph: HanjaGlyphs.forDayKind(kind),
+  HanjaTag tag({VoidCallback? onTap}) => dayKindHanjaTag(
+    kind: kind,
     label: dayKindName(AppLocalizations.of(context), kind),
-    tone: HanjaGlyphs.toneOfDayKind(kind),
     onTap: onTap,
   );
   final sheets = ref.read(depthSheetsProvider);

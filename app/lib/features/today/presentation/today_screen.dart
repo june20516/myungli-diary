@@ -25,6 +25,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
+import 'package:myungli_diary/design/components/sentence/day_kind_hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
@@ -492,10 +493,9 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     HanjaTag dayKindTag({
       VoidCallback? onTap,
       HanjaTagVariant variant = HanjaTagVariant.emphasis,
-    }) => HanjaTag(
-      glyph: HanjaGlyphs.forDayKind(display.dayKind),
+    }) => dayKindHanjaTag(
+      kind: display.dayKind,
       label: display.dayKindLabel,
-      tone: HanjaGlyphs.toneOfDayKind(display.dayKind),
       variant: variant,
       onTap: onTap,
     );

@@ -24,6 +24,7 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/sentence/day_kind_hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
@@ -149,10 +150,9 @@ class _DayKindTag extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    HanjaTag tag({VoidCallback? onTap}) => HanjaTag(
-      glyph: HanjaGlyphs.forDayKind(dayKind),
+    HanjaTag tag({VoidCallback? onTap}) => dayKindHanjaTag(
+      kind: dayKind,
       label: dayKindName(l10n, dayKind),
-      tone: HanjaGlyphs.toneOfDayKind(dayKind),
       variant: HanjaTagVariant.emphasis,
       onTap: onTap,
     );
