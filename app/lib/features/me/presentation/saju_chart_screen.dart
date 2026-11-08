@@ -13,6 +13,7 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
@@ -219,7 +220,7 @@ class _SajuChartSkeleton extends StatelessWidget {
               description: l10n.sajuChartPillarsDesc,
             ),
             const SizedBox(height: SectionHeader.contentGap),
-            const SajuChartCard(child: SajuPillarsSkeleton()),
+            const SectionCard(child: SajuPillarsSkeleton()),
           ],
         ),
         SajuChartTab.luck => Column(

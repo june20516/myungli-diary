@@ -24,6 +24,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -130,25 +131,6 @@ class MySajuScreen extends ConsumerWidget {
   }
 }
 
-/// 섹션 안 카드 바탕(`bg.sheet`, `radius.lg`, 안쪽 `space.16`).
-class _SectionCard extends StatelessWidget {
-  const new({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.tokens.colors.bgSheet,
-        borderRadius: const BorderRadius.all(Radius.circular(Radii.lg)),
-      ),
-      child: Padding(padding: const EdgeInsets.all(Space.s16), child: child),
-    ),
-  );
-}
-
 class _MySajuBody extends ConsumerWidget {
   const new({required this.chart, required this.offlineNotice});
 
@@ -209,7 +191,7 @@ class _MySajuBody extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: SectionHeader.contentGap),
-        _SectionCard(
+        SectionCard(
           child: NatalCard(chart: chart, onTermTap: text.openTerm),
         ),
         const SizedBox(height: SectionHeader.sectionGap),
@@ -267,7 +249,7 @@ class _IlganSection extends StatelessWidget {
     final head = _textOf(chart.ilganHead);
     final body = _textOf(chart.ilganBody);
     if (head == null && body == null) return const SizedBox.shrink();
-    return _SectionCard(
+    return SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -323,7 +305,7 @@ class _YongsinSection extends ConsumerWidget {
     if (!hasLine && !hasColor && summary == null) {
       return const SizedBox.shrink();
     }
-    return _SectionCard(
+    return SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -409,7 +391,7 @@ class _FlowCard extends ConsumerWidget {
         : periods.first.startYear - periods.first.startAgeKorean + 1;
 
     Widget gap() => const SizedBox(height: Space.s16);
-    return _SectionCard(
+    return SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

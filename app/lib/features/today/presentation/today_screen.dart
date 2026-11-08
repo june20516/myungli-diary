@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
@@ -166,30 +167,6 @@ class TodayScreen extends ConsumerWidget {
 String _solarTextOf(BuildContext context, CalendarDate date) =>
     AppLocalizations.of(context)
         .todayDateSolar(shareDateText(date, Localizations.localeOf(context)));
-
-/// 섹션 내용 흰 카드(`bg.sheet`, `radius.lg`, 안쪽 [padding], 결정 V78).
-class _SectionCard extends StatelessWidget {
-  const new({
-    required this.child,
-    this.padding = const EdgeInsets.all(Space.s16),
-    super.key,
-  });
-
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.tokens.colors.bgSheet,
-        borderRadius: const BorderRadius.all(Radius.circular(Radii.lg)),
-      ),
-      child: Padding(padding: padding, child: child),
-    ),
-  );
-}
 
 /// 행운 카드 안쪽 여백. 칩 줄이 위아래에 판정 여유([LuckyCardRow.hitInset])를 품으므로
 /// 보이는 여백이 `space.16`이 되게 그만큼 뺍니다.
@@ -438,7 +415,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                   : null,
             ),
             const SizedBox(height: SectionHeader.contentGap),
-            _SectionCard(child: _fortuneCard(l10n, display)),
+            SectionCard(child: _fortuneCard(l10n, display)),
             // 태그가 왔지만 하나도 그릴 수 없는 날은 D112가 아니라 섹션째 두지 않습니다
             // (빈 안내는 server 대표 태그가 실제로 빈 날만).
             if (display.featuredEmpty || display.featured.isNotEmpty) ...[
@@ -448,7 +425,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                 titleIdentifier: SlotIds.todayFeaturedTitle,
               ),
               const SizedBox(height: SectionHeader.contentGap),
-              _SectionCard(
+              SectionCard(
                 key: TodayScreen.featuredCardKey,
                 child: _featuredSection(l10n, display),
               ),
@@ -459,7 +436,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
               titleIdentifier: SlotIds.todayLuckyTitle,
             ),
             const SizedBox(height: SectionHeader.contentGap),
-            _SectionCard(
+            SectionCard(
               padding: _luckyCardPadding,
               child: LuckyCardRow(
                 items: display.lucky,
@@ -740,7 +717,7 @@ class _TodayEventSectionState extends ConsumerState<_TodayEventSection> {
                   titleIdentifier: SlotIds.todayEventTitle,
                 ),
                 const SizedBox(height: SectionHeader.contentGap),
-                _SectionCard(child: _row(l10n, shown)),
+                SectionCard(child: _row(l10n, shown)),
               ],
             ),
     );

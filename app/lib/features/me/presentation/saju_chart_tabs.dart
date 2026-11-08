@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
@@ -21,8 +22,6 @@ import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/stage_strip.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/theme/myungli_tokens.dart';
-import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -62,7 +61,7 @@ class SajuChartNatalTab extends ConsumerWidget {
           titleIdentifier: SlotIds.sajuChartPillarsTitle,
         ),
         const SizedBox(height: SectionHeader.contentGap),
-        SajuChartCard(
+        SectionCard(
           child: NatalCard.pillars(chart: chart, onTermTap: text.openTerm),
         ),
         const SizedBox(height: SectionHeader.sectionGap),
@@ -72,29 +71,11 @@ class SajuChartNatalTab extends ConsumerWidget {
           titleIdentifier: SlotIds.sajuChartOhaengTitle,
         ),
         const SizedBox(height: SectionHeader.contentGap),
-        SajuChartCard(child: NatalCard.ohaeng(chart: chart)),
+        SectionCard(child: NatalCard.ohaeng(chart: chart)),
         _YongsinBasis(chart: chart, text: text),
       ],
     );
   }
-}
-
-/// 사주 표 섹션 안 흰 카드(`bg.sheet`, `radius.lg`, 안쪽 `space.16`).
-class SajuChartCard extends StatelessWidget {
-  /// [child]를 카드에 담습니다.
-  const new({required this.child, super.key});
-
-  /// 카드 내용.
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.tokens.colors.bgSheet,
-      borderRadius: const BorderRadius.all(Radius.circular(Radii.lg)),
-    ),
-    child: Padding(padding: const EdgeInsets.all(Space.s16), child: child),
-  );
 }
 
 /// 용신 판정 근거 섹션(`saju-chart.yongsin.basis`, `sentence-block` `body`, 흰 카드).
@@ -132,7 +113,7 @@ class _YongsinBasis extends StatelessWidget {
             ),
           ),
           const SizedBox(height: SectionHeader.contentGap),
-          SajuChartCard(
+          SectionCard(
             child: SentenceBlock(
               variant: SentenceBlockVariant.body,
               text: basis ?? RenderedText(segments: const []),
