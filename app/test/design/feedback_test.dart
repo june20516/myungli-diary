@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -162,6 +163,9 @@ Future<AsyncValue<String>> _afterFailedLoad(WidgetTester tester) async {
   return container.read(_failing);
 }
 
+/// 화면 상태 뷰 테스트의 skeleton(글줄 뼈 세 줄).
+const Widget _skeleton = SkeletonTextLines(lines: 3);
+
 Widget _view(
   AsyncValue<String> value, {
   bool Function(String)? isEmpty,
@@ -177,6 +181,7 @@ Widget _view(
     isEmpty: isEmpty,
     isStale: isStale,
     onStaleError: onStaleError,
+    skeleton: _skeleton,
     data: (v) => Center(child: Text('값:$v')),
   ),
 );
@@ -946,19 +951,19 @@ void main() {
 
   group('skeleton', () {
     testWidgets('300ms 안에는 보이지 않고 그 뒤에 나타납니다', (tester) async {
-      await tester.pumpWidget(_app(const SkeletonBlock()));
+      await tester.pumpWidget(_app(const SkeletonBlock(child: _skeleton)));
       await tester.pump(const Duration(milliseconds: 299));
       expect(find.byType(SkeletonBone), findsNothing);
       await tester.pump(const Duration(milliseconds: 2));
       expect(find.byType(SkeletonBone), findsNWidgets(3));
     });
 
-    testWidgets('글줄 높이는 줄 높이의 60%, 마지막 줄은 너비 60%', (tester) async {
+    testWidgets('글줄 뼈 높이는 줄 높이의 60%이고 줄 가운데, 마지막 줄은 너비 60%', (tester) async {
       await tester.pumpWidget(
         _app(
           const SizedBox(
             width: 300,
-            child: SkeletonBlock(delay: Duration.zero),
+            child: SkeletonBlock(delay: Duration.zero, child: _skeleton),
           ),
         ),
       );
@@ -967,20 +972,116 @@ void main() {
           tester.getSize(find.byType(SkeletonBone).at(i)),
       ];
       expect(sizes[0].width, 300);
+      expect(sizes[1].width, 300);
       expect(sizes[2].width, closeTo(180, 0.01));
-      final tokens = tester.element(find.byType(SkeletonBlock)).tokens;
-      final style = tokens.typography.bodyUi;
-      expect(
-        sizes[0].height,
-        closeTo(style.fontSize! * style.height! * 0.6, 0.01),
+      final context = tester.element(find.byType(SkeletonTextLines));
+      final line = lineHeightOf(
+        SkeletonTextLines.defaultStyleOf(context),
+        MediaQuery.textScalerOf(context),
       );
+      expect(sizes[0].height, closeTo(line * 0.6, 0.01));
+      expect(
+        tester.getSize(find.byType(SkeletonTextLines)).height,
+        closeTo(line * 3, 0.01),
+      );
+      final firstTop = tester.getTopLeft(find.byType(SkeletonBone).first).dy;
+      final blockTop = tester.getTopLeft(find.byType(SkeletonTextLines)).dy;
+      expect(firstTop - blockTop, closeTo(line * 0.2, 0.01));
+    });
+
+    testWidgets('글줄 뼈에 폭 비율을 주면 모든 줄이 그 폭입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 300,
+            child: SkeletonTextLines(lines: 2, widthFactor: 0.4),
+          ),
+        ),
+      );
+      for (var i = 0; i < 2; i++) {
+        expect(
+          tester.getSize(find.byType(SkeletonBone).at(i)).width,
+          closeTo(120, 0.01),
+        );
+      }
+    });
+
+    testWidgets('글줄 뼈 줄 높이는 실제 글자 스타일과 글자 배율을 따릅니다', (tester) async {
+      late TextStyle style;
+      await tester.pumpWidget(
+        _app(
+          MediaQuery.withClampedTextScaling(
+            minScaleFactor: 2,
+            maxScaleFactor: 2,
+            child: Builder(
+              builder: (context) {
+                style = context.tokens.typography.sentenceBody;
+                return SkeletonTextLines(style: style);
+              },
+            ),
+          ),
+        ),
+      );
+      expect(
+        tester.getSize(find.byType(SkeletonTextLines)).height,
+        closeTo(lineHeightOf(style, const TextScaler.linear(2)), 0.01),
+      );
+    });
+
+    testWidgets('칩 뼈는 알약, 카드 뼈는 bg.sheet 바탕과 radius.lg입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SkeletonCard(
+            padding: EdgeInsets.all(Space.s16),
+            child: SkeletonChip(width: 56, height: 26),
+          ),
+        ),
+      );
+      final colors = tester.element(find.byType(SkeletonCard)).tokens.colors;
+      final card =
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .descendant(
+                          of: find.byType(SkeletonCard),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+      expect(card.color, colors.bgSheet);
+      expect(
+        card.borderRadius,
+        const BorderRadius.all(Radius.circular(Radii.lg)),
+      );
+      final chip = tester.widget<SkeletonBone>(find.byType(SkeletonBone));
+      expect(chip.borderRadius, Radii.full);
+      expect(tester.getSize(find.byType(SkeletonBone)), const Size(56, 26));
     });
 
     testWidgets('읽어 주는 라벨은 불러오는 중이고 자식은 숨깁니다', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      await tester.pumpWidget(
+        _app(const SkeletonBlock(delay: Duration.zero, child: _skeleton)),
+      );
       expect(find.bySemanticsLabel('불러오는 중'), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('화면 상태 뷰는 받는 중에 화면이 준 skeleton을 그립니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          ScreenStateView<String>(
+            value: const AsyncLoading(),
+            onRetry: () {},
+            skeletonDelay: Duration.zero,
+            skeleton: const SizedBox(key: ValueKey('화면 뼈')),
+            data: Text.new,
+          ),
+        ),
+      );
+      expect(find.byKey(const ValueKey('화면 뼈')), findsOneWidget);
     });
   });
 
@@ -1216,6 +1317,7 @@ void main() {
           ScreenStateView<String>(
             value: await _states(tester, (p) => p.fail(const OfflineError())),
             onRetry: () {},
+            skeleton: _skeleton,
             dataWithNotice: (v, notice) =>
                 ListView(children: [notice, Text('값:$v')]),
           ),
@@ -1282,7 +1384,9 @@ void main() {
 
     testWidgets('skeleton: loadingSpinner', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      await tester.pumpWidget(
+        _app(const SkeletonBlock(delay: Duration.zero, child: _skeleton)),
+      );
       expect(
         _roleOf(tester, find.byType(SkeletonBlock)),
         SemanticsRole.loadingSpinner,

@@ -20,6 +20,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
@@ -99,15 +100,7 @@ class MySajuScreen extends ConsumerWidget {
                   value: chart,
                   onRetry: () =>
                       ref.read(chartControllerProvider.notifier).reload(),
-                  skeleton: const Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      Space.s20,
-                      Space.s8,
-                      Space.s20,
-                      0,
-                    ),
-                    child: SkeletonBlock(lines: 4),
-                  ),
+                  skeleton: const _MySajuSkeleton(),
                   dataWithNotice: (value, notice) =>
                       _MySajuBody(chart: value, offlineNotice: notice),
                 ),
@@ -259,5 +252,50 @@ class _MySajuBody extends ConsumerWidget {
     value: colorName,
     explain: meaning,
     element: chart.yongsin.yongsin,
+  );
+}
+
+/// 받는 중: 일간 칸, 일간 문장 두 덩어리, 용신 줄, 행운 색 칩, 용신 문장 자리를 지금 배치
+/// (화면 좌우 [Space.s20], 문장 사이 [Space.s12], 용신 묶음 위 [Space.s24])대로 놓습니다(V66).
+/// 큰 글자에서 화면보다 길어도 넘치지 않게 잘라 둡니다.
+class _MySajuSkeleton extends StatelessWidget {
+  const new();
+
+  /// 일간 칸 너비(본문의 일간 칸과 같음).
+  static const double _dayStemWidth = 88;
+
+  /// 용신 줄(역할 이름 + 용신 이름) 뼈 폭 비율.
+  static const double _yongsinLineWidthFactor = 0.4;
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    physics: const NeverScrollableScrollPhysics(),
+    padding: const EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Center(
+          child: SkeletonBone(
+            width: _dayStemWidth,
+            height: OhaengCell.pillarHeight,
+            borderRadius: Radii.sm,
+          ),
+        ),
+        const SizedBox(height: Space.s12),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.card, index: 1),
+        const SizedBox(height: Space.s12),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.card, index: 3),
+        const SizedBox(height: Space.s24),
+        SkeletonTextLines(
+          style: context.tokens.typography.bodyUi,
+          widthFactor: _yongsinLineWidthFactor,
+          index: 5,
+        ),
+        const SizedBox(height: Space.s12),
+        LuckyCardRow.skeleton(count: 1, index: 6),
+        const SizedBox(height: Space.s12),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.card, index: 7),
+      ],
+    ),
   );
 }

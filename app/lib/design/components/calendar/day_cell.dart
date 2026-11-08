@@ -121,8 +121,8 @@ class DayCell extends StatefulWidget {
   /// 숫자 상자 한 변(`parts.numberBox.size`).
   static const double numberBoxSize = 32;
 
-  /// 숫자 상자 위 여백(`parts.numberBox.marginTop`).
-  static const double numberBoxTop = 6;
+  /// 숫자 상자 위 여백(`parts.numberBox.marginTop`, `space.4`).
+  static const double numberBoxTop = Space.s4;
 
   /// 음력 글자 크기(`parts.lunar.fontSize`).
   static const double lunarFontSize = 10.5;
@@ -140,7 +140,7 @@ class DayCell extends StatefulWidget {
   static const double underlineHeight = 2;
 
   /// 숫자와 선택 밑줄 사이.
-  static const double underlineGap = 2;
+  static const double underlineGap = Space.s2;
 
   /// 바깥 달 숫자 투명도(`states.outsideMonth.parts.number.opacity`).
   static const double outsideMonthOpacity = 0.35;

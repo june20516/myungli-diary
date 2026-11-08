@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
-import 'package:myungli_diary/design/elements/skeleton_bone.dart';
-import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/components/today/guide_question_card.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
-/// 그날 풀이(날의 성격 배지 → 총운 문장 → 행운 칩 → 질문 카드) 자리의 skeleton.
+/// 그날 풀이(날의 성격 → 총운 문장 → 행운 칩 → 질문 카드) 자리의 skeleton.
 ///
-/// 오늘 화면이 처음 불러올 때 `ScreenStateView.skeleton`으로 쓰고, 같은 내용을 보이는
-/// 계획 4 `day-sheet`도 다시 씁니다(그래서 design에 둡니다). 바깥 여백은 쓰는 쪽이 정합니다. 글줄 높이는 기기 글자
-/// 크기를 따라 실제 문장과 같은 높이로 둡니다.
+/// 각 컴포넌트의 `states.loading.skeleton` 뼈(`day-character`,
+/// `sentence-block` `card`, `lucky-card`, `guide-question-card`)를 오늘 화면의 지금 배치
+/// 간격대로 놓습니다(결정 V66). 오늘 화면이 처음 불러올 때 `ScreenStateView.skeleton`으로 씁니다. 바깥 여백은
+/// 쓰는 쪽이 정합니다.
 class DayReadingSkeleton extends StatelessWidget {
   /// skeleton을 만듭니다. [guideCard]가 false면 질문 카드 자리를 두지 않습니다.
   const new({this.guideCard = true, super.key});
@@ -16,66 +18,20 @@ class DayReadingSkeleton extends StatelessWidget {
   /// 질문 카드 자리를 둘지.
   final bool guideCard;
 
-  /// 날의 성격 배지 자리 너비. 같은 배지를 보이는 그날 시트 skeleton도 씁니다.
-  static const double badgeWidth = 64;
-  static const double _chipHeight = 34;
-  static const List<double> _chipWidths = [76, 68, 52, 112];
-  static const double _cardHeight = 168;
-  static const int _sentenceLines = 3;
-
   @override
-  Widget build(BuildContext context) {
-    final style = context.tokens.typography.sentenceCard;
-    final fontSize = MediaQuery.textScalerOf(context)
-        .scale(style.fontSize ?? 18);
-    final lineHeight = fontSize * (style.height ?? 1.6);
-    final boneHeight = lineHeight * 0.6;
-    var index = 0;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SkeletonBone(
-          width: badgeWidth,
-          height: DayCharacterBadge.minHeight,
-          borderRadius: Radii.full,
-          index: index++,
-        ),
-        const SizedBox(height: Space.s16),
-        for (var i = 0; i < _sentenceLines; i++)
-          Padding(
-            padding: EdgeInsets.only(bottom: lineHeight - boneHeight),
-            child: FractionallySizedBox(
-              widthFactor: i == _sentenceLines - 1 ? 0.6 : 1,
-              child: SkeletonBone(
-                height: boneHeight,
-                borderRadius: Radii.xs,
-                index: index++,
-              ),
-            ),
-          ),
-        const SizedBox(height: Space.s16),
-        Wrap(
-          spacing: Space.s8,
-          runSpacing: Space.s8,
-          children: [
-            for (final width in _chipWidths)
-              SkeletonBone(
-                width: width,
-                height: _chipHeight,
-                borderRadius: Radii.full,
-                index: index++,
-              ),
-          ],
-        ),
-        if (guideCard) ...[
-          const SizedBox(height: Space.s24),
-          SkeletonBone(
-            height: _cardHeight,
-            borderRadius: Radii.lg,
-            index: index++,
-          ),
-        ],
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      DayCharacter.skeleton(),
+      const SizedBox(height: Space.s16),
+      SentenceBlock.skeleton(variant: SentenceBlockVariant.card, index: 2),
+      const SizedBox(height: Space.s24),
+      LuckyCardRow.skeleton(index: 4),
+      if (guideCard) ...[
+        const SizedBox(height: Space.s24),
+        GuideQuestionCard.skeleton(index: 7),
       ],
-    );
-  }
+    ],
+  );
 }

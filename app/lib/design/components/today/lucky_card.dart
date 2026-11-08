@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
@@ -326,7 +327,30 @@ class LuckyCardRow extends StatefulWidget {
   static const ComponentSpec spec = ComponentSpec(
     'lucky-card',
     {'color', 'direction', 'number', 'time', 'tag'},
-    {'pressed', 'open', 'closed'},
+    {'loading', 'pressed', 'open', 'closed'},
+  );
+
+  /// 뼈 칩 너비(`states.loading.skeleton` `chip.widths`, 72, 56, 64px).
+  static const List<double> skeletonChipWidths = [72, 56, 64];
+
+  /// 불러오는 중 뼈: 칩 높이의 알약 셋을 [Space.s8] 사이로 줄 세웁니다(`chip.gap`).
+  /// 칩을 하나만 보이는 화면(나의 사주 행운 색)은 [count]로 앞에서부터 줄입니다.
+  static Widget skeleton({
+    int count = 3,
+    int index = 0,
+    bool animated = true,
+  }) => Wrap(
+    spacing: _rowGap,
+    runSpacing: _rowGap,
+    children: [
+      for (final (i, width) in skeletonChipWidths.take(count).indexed)
+        SkeletonChip(
+          width: width,
+          height: LuckyChip._height,
+          index: index + i,
+          animated: animated,
+        ),
+    ],
   );
 
   /// 설명 상자를 찾는 테스트용 키.

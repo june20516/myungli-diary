@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
@@ -80,7 +81,74 @@ class EventRow extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'event-row',
     {'summary', 'list'},
-    {'pressed'},
+    {'loading', 'pressed'},
+  );
+
+  /// `list` 뼈 줄 수(`states.loading.skeleton` `row.rows`).
+  static const int skeletonListRows = 2;
+
+  /// 불러오는 중 뼈. `summary`는 줄 높이([minHeight]) 안에 글줄 한 줄, `list`는 줄
+  /// [skeletonListRows]개(시각 칸 글줄 + 제목 글줄, 줄 사이 `list.divider`)입니다.
+  static Widget skeleton({
+    required EventRowVariant variant,
+    int index = 0,
+    bool animated = true,
+  }) => Builder(
+    builder: (context) {
+      final type = context.tokens.typography;
+      Widget row(Widget child) => ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: minHeight),
+        child: Align(alignment: AlignmentDirectional.centerStart, child: child),
+      );
+      return switch (variant) {
+        EventRowVariant.summary => row(
+          SkeletonTextLines(
+            style: type.bodyUi,
+            index: index,
+            animated: animated,
+          ),
+        ),
+        EventRowVariant.list => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < skeletonListRows; i++) ...[
+              if (i > 0) const ListDivider(),
+              row(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: Space.s8),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: timeColumnWidth,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            end: timeColumnGap,
+                          ),
+                          child: SkeletonTextLines(
+                            style: type.numericTable,
+                            widthFactor: 1,
+                            index: index + i * 2,
+                            animated: animated,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: SkeletonTextLines(
+                          style: type.bodyUi,
+                          index: index + i * 2 + 1,
+                          animated: animated,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      };
+    },
   );
 
   /// `list` 시각 칸 너비(`parts.timeColumn.width`).

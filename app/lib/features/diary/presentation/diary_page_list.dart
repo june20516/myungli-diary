@@ -125,13 +125,15 @@ class DiaryPageListSkeleton extends StatelessWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context) => const Padding(
+  // 낮은 화면이나 큰 글자에서 화면보다 길어도 넘치지 않게 잘라 둡니다.
+  Widget build(BuildContext context) => const SingleChildScrollView(
+    physics: NeverScrollableScrollPhysics(),
     padding: EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
     child: Column(
       children: [
         DiaryRowSkeleton(),
-        DiaryRowSkeleton(index: 2),
         DiaryRowSkeleton(index: 4),
+        DiaryRowSkeleton(index: 8),
       ],
     ),
   );

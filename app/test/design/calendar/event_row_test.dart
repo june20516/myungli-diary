@@ -113,10 +113,10 @@ void main() {
       onTap: onTap,
     );
 
-    test('명세 대조용 요약은 event-row, summary·list, pressed입니다', () {
+    test('명세 대조용 요약은 event-row, summary·list, loading·pressed입니다', () {
       expect(EventRow.spec.id, 'event-row');
       expect(EventRow.spec.variants, {'summary', 'list'});
-      expect(EventRow.spec.states, {'pressed'});
+      expect(EventRow.spec.states, {'loading', 'pressed'});
       expect(EventRowVariant.values.map((v) => v.name), ['summary', 'list']);
       expect(EventRowStatus.values.map((v) => v.name), ['inProgress', 'next']);
     });

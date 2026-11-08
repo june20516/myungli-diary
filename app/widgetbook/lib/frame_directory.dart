@@ -54,7 +54,10 @@ Widget _prosePage({required bool loading}) => Stage(
                 ),
                 if (loading)
                   SkeletonBlock(
-                    lineStyle: context.tokens.typography.sentenceBody,
+                    child: SkeletonTextLines(
+                      lines: 3,
+                      style: context.tokens.typography.sentenceBody,
+                    ),
                   )
                 else
                   _proseParagraph(

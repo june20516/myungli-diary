@@ -240,11 +240,15 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
         children: [
           _sectionTitle(context, title: title, titleSlotId: titleSlotId),
           const SizedBox(height: Space.s8),
+          // 구역 본문(`sentence-block` `body`) 자리의 글줄 두 줄.
           SkeletonBlock(
             key: EvidenceSheetBody.sectionSkeletonKey,
-            lines: 2,
             delay: Duration.zero,
-            animated: widget.animated,
+            child: SkeletonTextLines(
+              lines: 2,
+              style: tokens.typography.sentenceBody,
+              animated: widget.animated,
+            ),
           ),
         ],
       );

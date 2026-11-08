@@ -16,6 +16,7 @@ import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
@@ -128,6 +129,7 @@ class DiaryViewScreen extends ConsumerWidget {
                         : null,
                     isEmpty: (value) => value == null,
                     empty: EmptyState(body: l10n.errorDiaryNotFound),
+                    skeleton: const _DiaryViewSkeleton(),
                     data: (value) => _DiaryViewBody(diary: value!),
                   ),
                 ),
@@ -262,4 +264,30 @@ class _DiaryViewBody extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 일기를 받는 동안: [_DiaryViewBody]와 같은 배치(좌우 20, 위 8)에 날의 성격 배지 칩, 그 아래
+/// [Space.s24]에 `diary-editor` `view` 뼈(V66).
+class _DiaryViewSkeleton extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    physics: const NeverScrollableScrollPhysics(),
+    padding: const EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: SkeletonChip(
+            width: DayCharacter.skeletonBadgeWidth,
+            height: DayCharacterBadge.minHeight,
+          ),
+        ),
+        const SizedBox(height: Space.s24),
+        DiaryEditor.skeleton(variant: DiaryEditorVariant.view, index: 1),
+      ],
+    ),
+  );
 }

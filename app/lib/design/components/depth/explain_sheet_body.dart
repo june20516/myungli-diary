@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -46,6 +48,13 @@ class ExplainSheetBody extends StatelessWidget {
     this.diaryLinkLabel,
     this.onDiaryLink,
     super.key,
+  });
+
+  /// 명세 대조용 요약. 열림과 닫힘(`sheet.enter`, `sheet.exit`)은 이 본문을 담는 시트 틀
+  /// (`sheet` `half`, `DepthSheets.openExplain`)이 그립니다.
+  static const ComponentSpec spec = ComponentSpec('explain-sheet', {}, {
+    'opening',
+    'closing',
   });
 
   /// 제목 줄의 한자를 찾는 테스트용 키. IA 슬롯이 아닌 컴포넌트 안쪽 키입니다
@@ -94,6 +103,41 @@ class ExplainSheetBody extends StatelessWidget {
 
   /// 일기 모아보기 링크를 눌렀을 때(시트를 닫고 `tag-diary` page.push). null이면 링크가 없습니다.
   final VoidCallback? onDiaryLink;
+
+  /// 불러오는 중 뼈: 제목 자리(글줄 한 줄, [titleSize]의 글자) 또는 이미 아는 [head]를 그대로,
+  /// [titleGap] 아래 본문 `sentence-block` `body` 뼈. 화면 배치는 시트 본문과 같습니다(V66).
+  static Widget skeleton({
+    Widget? head,
+    ExplainTitleSize titleSize = ExplainTitleSize.subtitle,
+  }) => Builder(
+    builder: (context) {
+      final typography = context.tokens.typography;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 제목 자리와 같은 여백(SheetHeading 위 space.8)만 둡니다. SheetHeading은 시트의 첫
+          // 초점을 가져가므로 뼈에 쓰면 내용이 온 뒤 실제 제목이 초점을 받지 못합니다.
+          Padding(
+            padding: const EdgeInsets.only(top: Space.s8),
+            child: head == null
+                ? SkeletonTextLines(
+                    style: switch (titleSize) {
+                      ExplainTitleSize.subtitle => typography.subtitle,
+                      ExplainTitleSize.title => typography.title,
+                    },
+                  )
+                : Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: head,
+                  ),
+          ),
+          const SizedBox(height: titleGap),
+          SentenceBlock.skeleton(variant: SentenceBlockVariant.body, index: 1),
+        ],
+      );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {

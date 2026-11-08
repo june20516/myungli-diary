@@ -12,35 +12,43 @@ import 'package:flutter/widgets.dart'
         BuildContext,
         Builder,
         DecoratedBox,
-        Icon,
         IconData,
         Locale,
+        SingleChildScrollView,
         SizedBox,
-        Text;
+        Text,
+        Widget;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -49,6 +57,7 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../design/input/input_harness.dart';
 import '../support/component_spec_json.dart';
+import 'component_pending.dart';
 
 Map<String, Object?> _interaction() =>
     jsonDecode(File('$componentsDir/interaction.json').readAsStringSync())
@@ -118,6 +127,50 @@ Map<String, Object?> _chevrons(Object? json, [String path = '']) => {
     for (final (i, item) in json.indexed) ..._chevrons(item, '$path[$i]'),
 };
 
+/// `{size.icon.16}` → [AppIconSize.s16].
+AppIconSize _iconSize(Object? reference) => AppIconSize.values.singleWhere(
+  (size) => reference == '{size.icon.${size.logical.toInt()}}',
+  orElse: () => fail('모르는 아이콘 크기 $reference'),
+);
+
+/// 대조 [check]를 돌립니다. [key]가 [knownPendingChecks]에 있으면 아직 5.0.0을 따라잡지
+/// 않은 대조라 실패해야 하고, 통과하면 대기 목록에서 지우라고 실패합니다(ratchet).
+void _contractCheck(String key, void Function() check) {
+  final pending = knownPendingChecks[key];
+  if (pending == null) {
+    check();
+    return;
+  }
+  expect(
+    check,
+    throwsA(anything),
+    reason: '"$key"는 대기($pending)인데 대조가 통과합니다. knownPendingChecks에서 지우세요.',
+  );
+}
+
+/// [_contractCheck]의 위젯 판. 대기 중이면 [check]가 실패해야 합니다.
+Future<void> _contractCheckWidgets(
+  String key,
+  Future<void> Function() check,
+) async {
+  final pending = knownPendingChecks[key];
+  if (pending == null) {
+    await check();
+    return;
+  }
+  Object? failure;
+  try {
+    await check();
+  } on Object catch (error) {
+    failure = error;
+  }
+  expect(
+    failure,
+    isNotNull,
+    reason: '"$key"는 대기($pending)인데 대조가 통과합니다. knownPendingChecks에서 지우세요.',
+  );
+}
+
 /// 명세 아이콘 이름(kebab-case) → Phosphor Regular 글리프. 대조에 쓰는 것만 둡니다.
 const Map<String, IconData> _regularIcons = {
   'caret-right': PhosphorIconsRegular.caretRight,
@@ -131,11 +184,31 @@ void main() {
   group('ComponentSpec 대조', () {
     final specs = loadSpecComponents();
 
-    test('명세 묶음에서 IA 컴포넌트 43개를 읽습니다', () {
-      expect(specs, hasLength(43));
+    test('명세 묶음(5.0.0)에서 컴포넌트 57개를 읽습니다', () {
+      expect(specs, hasLength(57));
     });
 
-    test('43개 전체의 variants·states 형태가 기대와 같습니다', () {
+    test('계약 id는 모두 등록됐거나 대기 목록에 있고, 둘은 겹치지 않습니다', () {
+      final registered = {for (final spec in implementedComponents) spec.id};
+      expect(
+        registered.intersection(knownPendingComponents.keys.toSet()),
+        isEmpty,
+        reason: '등록한 컴포넌트는 knownPendingComponents에서 지웁니다',
+      );
+      expect({
+        ...registered,
+        ...knownPendingComponents.keys,
+      }, specs.keys.toSet());
+    });
+
+    test('대기 대조 키는 등록된 컴포넌트를 가리킵니다', () {
+      final registered = {for (final spec in implementedComponents) spec.id};
+      for (final key in knownPendingChecks.keys) {
+        expect(registered, contains(key.split(' ').first), reason: key);
+      }
+    });
+
+    test('57개 전체의 variants·states 형태가 기대와 같습니다', () {
       for (final component in specs.values) {
         // variantIds·stateKeys가 형태(list/null, 문자열 id, dict/null)를 assert합니다.
         variantIds(component);
@@ -143,7 +216,7 @@ void main() {
       }
     });
 
-    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(43개)', () {
+    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(57개)', () {
       for (final component in specs.values) {
         final spec = ComponentSpec(
           component['id']! as String,
@@ -189,7 +262,10 @@ void main() {
 
     for (final spec in implementedComponents) {
       test('${spec.id}: 변형·상태가 명세와 같습니다', () {
-        expectSpecMatches(spec, specs[spec.id]!);
+        _contractCheck(
+          '${spec.id} spec',
+          () => expectSpecMatches(spec, specs[spec.id]!),
+        );
       });
     }
 
@@ -289,7 +365,7 @@ void main() {
       final chevron = _map(list['chevron']);
       expect(chevron['icon'], 'caret-right');
       expect(chevron['weight'], 'light');
-      expect(_px(chevron['size']), AppIconSize.s16.logical);
+      expect(_iconSize(chevron['size']), AppIconSize.s16);
       expect(
         _num(_map(specs['event-row']!['a11y'])['minTarget']),
         EventRow.minHeight,
@@ -303,7 +379,8 @@ void main() {
       expect(_map(parts['container'])['radius'], '{radius.sm}');
       final numberBox = _map(parts['numberBox']);
       expect(_px(numberBox['size']), DayCell.numberBoxSize);
-      expect(_px(numberBox['marginTop']), DayCell.numberBoxTop);
+      expect(numberBox['marginTop'], '{space.4}');
+      expect(DayCell.numberBoxTop, Space.s4);
       expect(_px(_map(parts['lunar'])['fontSize']), DayCell.lunarFontSize);
       for (final seal in ['diarySeal', 'todayOutline']) {
         expect(_px(_map(parts[seal])['size']), SealSize.cell.logical);
@@ -331,7 +408,8 @@ void main() {
       final underline = _map(_elements()['mark.underline-grow']);
       expect(_px(underline['width']), DayCell.underlineWidth);
       expect(_px(underline['height']), DayCell.underlineHeight);
-      expect(_px(underline['gap']), DayCell.underlineGap);
+      expect(underline['gap'], '{space.2}');
+      expect(DayCell.underlineGap, Space.s2);
     });
 
     test('calendar-month 머리·요일·격자·범례 값이 명세와 같습니다', () {
@@ -401,9 +479,16 @@ void main() {
       expect(InputStep.prefaceGap, Space.s24);
     });
 
-    testWidgets('skeleton textLine.type 기본은 type.body.ui입니다', (tester) async {
+    testWidgets('skeleton textLine 기본 글자, 높이, 마지막 줄 폭이 명세와 같습니다', (
+      tester,
+    ) async {
       final textLine = _map(_map(specs['skeleton']!['parts'])['textLine']);
       expect(_map(textLine['type'])['default'], '{type.body.ui}');
+      expect(textLine['height'], '글자 줄 높이의 60%');
+      expect(SkeletonTextLines.heightFactor, 0.6);
+      expect(textLine['lastLineWidth'], '60%');
+      expect(SkeletonTextLines.lastLineWidthFactor, 0.6);
+      expect(textLine['radius'], '{radius.xs}');
       late BuildContext inner;
       await tester.pumpWidget(
         inputApp(
@@ -416,61 +501,9 @@ void main() {
         ),
       );
       expect(
-        SkeletonBlock.defaultLineStyleOf(inner),
+        SkeletonTextLines.defaultStyleOf(inner),
         inner.tokens.typography.bodyUi,
       );
-    });
-  });
-
-  group('컴포넌트 2.5.0 값 대조', () {
-    final specs = loadSpecComponents();
-
-    Map<String, Object?> tagVariant() => _map(
-      (specs['lucky-card']!['variants']! as List<Object?>)
-          .map(_map)
-          .firstWhere((v) => v['id'] == 'tag'),
-    );
-
-    testWidgets('lucky-card tag는 tag 아이콘(text.primary)과 굵기 600입니다(V35)', (
-      tester,
-    ) async {
-      final parts = _map(tagVariant()['parts']);
-      final lead = _map(parts['lead']);
-      expect(lead['icon'], 'tag');
-      expect(lead['iconColor'], '{color.text.primary}');
-      final weight = _num(_map(parts['value'])['fontWeight']);
-      expect(weight, 600);
-      expect(LuckyChip.tagValueWeight.value, weight.toInt());
-
-      await tester.pumpWidget(
-        inputApp(
-          const LuckyChip(
-            item: LuckyItem.tag(tagKey: 'clash', name: '충'),
-            open: false,
-            onTap: null,
-          ),
-        ),
-      );
-      final icon = tester.widget<Icon>(find.byType(Icon));
-      expect(icon.icon, PhosphorIconsRegular.tag);
-      expect(
-        icon.color,
-        tester.element(find.byType(Icon)).tokens.colors.textPrimary,
-      );
-      expect(
-        tester.widget<Text>(find.byType(Text)).style!.fontWeight,
-        LuckyChip.tagValueWeight,
-      );
-    });
-
-    test('lucky-card tag 라벨은 태그 이름만이고 변형 id가 명세와 같습니다', () {
-      expect(
-        _map(specs['lucky-card']!['a11y'])['label'],
-        contains('tag는 태그 이름만'),
-      );
-      expect({
-        for (final v in LuckyCardVariant.values) v.name,
-      }, variantIds(specs['lucky-card']!));
     });
   });
 
@@ -578,7 +611,7 @@ void main() {
       final state = _map(_map(connected['parts'])['state']);
       expect(state['icon'], 'check');
       expect(state['weight'], 'regular');
-      expect(_px(state['size']), SocialLoginButton.connectedIconSize);
+      expect(_iconSize(state['size']), SocialLoginButton.connectedIconSize);
       expect(state['gap'], '{space.4}');
       expect(SocialLoginButton.connectedStateGap, Space.s4);
       expect(state['inset'], '{space.16}');
@@ -657,7 +690,7 @@ void main() {
       final chevron = _map(entry['chevron']);
       expect(chevron['icon'], 'caret-right');
       expect(chevron['weight'], 'light');
-      expect(_px(chevron['size']), DiaryEntryLine.chevronSize);
+      expect(_iconSize(chevron['size']).logical, DiaryEntryLine.chevronSize);
       expect(chevron['fg'], '{color.text.secondary}');
       expect(entry['paddingY'], '{space.12}');
       expect(DiaryEntryLine.paddingY, Space.s12);
@@ -668,26 +701,52 @@ void main() {
       final divider = _map(_map(rowParts()['entry'])['divider']);
       expect(divider['style'], 'dashed');
       expect(_px(divider['width']), DiaryEntryLine.dividerWidth);
-      expect(_px(divider['dash']), DiaryEntryLine.dividerDash);
-      expect(_px(divider['gap']), DiaryEntryLine.dividerGap);
+      // 4.0.0에서 키 dash, gap → dashLength, dashGap.
+      expect(divider, isNot(contains('dash')));
+      expect(_px(divider['dashLength']), DiaryEntryLine.dividerDashLength);
+      expect(_px(divider['dashGap']), DiaryEntryLine.dividerDashGap);
       expect(divider['color'], '{color.timeline.entry}');
       expect(divider['between'], 'entries-only');
       expect(divider['span'], 'row');
       expect(divider['inMinHeight'], true);
     });
 
-    test('diary-row day 묶음 카드 간격과 눌림 규칙이 명세와 같습니다', () {
+    testWidgets('diary-row day 묶음 카드 간격과 눌림 규칙이 명세와 같습니다', (tester) async {
       final group = _map(variantParts('day')['group']);
       expect(group['pressable'], false);
-      expect(group['order'], ['badge', 'entries', 'tag']);
       expect(group['entriesMarginTop'], '{space.4}');
       expect(DiaryRow.entriesMarginTop, Space.s4);
       expect(_map(group['tag'])['marginTop'], '{space.8}');
       expect(DiaryRow.groupTagMarginTop, Space.s8);
       expect(_map(group['preview'])['visible'], false);
+      // 5.0.0: 맨 위가 배지(badge) 대신 날의 성격(dayKind) hanja-tag이고 그 아래 space.4.
+      expect(group['order'], ['dayKind', 'entries', 'tag']);
+      expect(_map(group['dayKind'])['marginBottom'], '{space.4}');
+      await _contractCheckWidgets('diary-row day group', () async {
+        await tester.pumpWidget(
+          inputApp(
+            SingleChildScrollView(
+              child: DiaryDayGroup(
+                date: CalendarDate(2026, 10, 12),
+                entries: [
+                  for (final hour in [8, 21])
+                    DiaryEntryData(
+                      createdAt: DateTime(2026, 10, 12, hour),
+                      excerpt: '$hour시',
+                      onTap: () {},
+                    ),
+                ],
+                character: DayCharacterVariant.good,
+                characterLabel: '좋은 날',
+              ),
+            ),
+          ),
+        );
+        expect(find.byType(HanjaTag), findsOneWidget);
+      });
     });
 
-    test('diary-row entries 오늘 바탕과 그날 시트 머리가 명세와 같습니다', () {
+    testWidgets('diary-row entries 오늘 바탕과 그날 시트 머리가 명세와 같습니다', (tester) async {
       final parts = variantParts('entries');
       final byScreen = _map(_map(parts['container'])['byScreen']);
       final today = _map(byScreen['today']);
@@ -701,21 +760,33 @@ void main() {
       expect(DiaryEntries.cardMarginTop, Space.s12);
       expect(byScreen['day-sheet'], 'none');
       expect(_map(parts['container'])['whenEmpty'], '그리지 않음');
-      final head = _map(parts['head']);
-      expect(head['screens'], ['day-sheet']);
-      expect(head['type'], '{type.label.md}');
-      expect(head['fg'], '{color.text.secondary}');
-      expect(head['marginTop'], '{space.16}');
-      expect(DiaryEntries.headMarginTop, Space.s16);
-      expect(head['marginBottom'], '{space.4}');
-      expect(DiaryEntries.headMarginBottom, Space.s4);
+      // 5.0.0: 그날 시트 일기 머리는 section-header가 맡고 entries head는 그리지 않습니다(V85).
+      expect(_map(parts['head'])['visible'], false);
+      await _contractCheckWidgets('diary-row entries head', () async {
+        await tester.pumpWidget(
+          inputApp(
+            DiaryEntries(
+              entries: [
+                DiaryEntryData(
+                  createdAt: DateTime(2026, 10, 12, 8),
+                  excerpt: '아침',
+                  onTap: () {},
+                ),
+              ],
+              surface: DiaryEntriesSurface.plain,
+              head: '일기 머리',
+            ),
+          ),
+        );
+        expect(find.text('일기 머리'), findsNothing);
+      });
     });
 
     test(
       'guide-question-card full은 quiet disabled 버튼과 52 도장, 낭독은 after와 같습니다',
       () {
         final component = specs['guide-question-card']!;
-        expect(stateKeys(component), {'before', 'after', 'full'});
+        expect(stateKeys(component), {'loading', 'before', 'after', 'full'});
         final full = _map(_map(component['states'])['full']);
         expect(full['labelKey'], 'todayGuideCtaFull');
         final parts = _map(full['parts']);
@@ -858,10 +929,11 @@ void main() {
       expect(row['paddingY'], '{space.16}');
       expect(PurchaseRowGroup.rowPaddingY, Space.s16);
       expect(row['pressable'], isFalse);
+      // 4.0.0: 줄 사이 선은 요소 list.divider(0.5px, V58).
       final divider = _map(row['divider']);
-      expect(divider['color'], '{color.line}');
-      expect(_px(divider['width']), 1);
+      expect(divider['element'], 'list.divider');
       expect(divider['between'], 'rows-only');
+      expect(PurchaseRowGroup.dividerKey, isNotNull);
 
       expect(_map(parts['product'])['type'], '{type.subtitle}');
       expect(_map(parts['product'])['overflow'], 'wrap');
@@ -1023,6 +1095,195 @@ void main() {
         await check(_map(emphasis['dayKind']), HanjaTagVariant.emphasis);
       },
     );
+  });
+
+  group('loading skeleton 뼈 대조 (5.0.0, V66)', () {
+    final specs = loadSpecComponents();
+
+    /// 컴포넌트 [id]의 `states.loading.skeleton` 뼈를 bone 이름별로 읽습니다.
+    Map<String, Map<String, Object?>> bones(String id) => {
+      for (final bone
+          in _map(_map(specs[id]!['states'])['loading'])['skeleton']!
+              as List<Object?>)
+        _map(bone)['bone']! as String: _map(bone),
+    };
+
+    /// `"72px"` → 72.
+    double px(Object? text) =>
+        double.parse((text! as String).replaceFirst('px', ''));
+
+    /// `"60%"` → 0.6.
+    double percent(Object? text) =>
+        double.parse((text! as String).replaceFirst('%', '')) / 100;
+
+    test('뼈가 있는 계약 컴포넌트는 모두 등록됐거나 대기 목록에 있고 loading 상태를 냅니다', () {
+      final withBones = {
+        for (final MapEntry(:key, :value) in specs.entries)
+          if (_map(value['states'] ?? <String, Object?>{})['loading']
+              case final Map<String, Object?> loading
+              when loading.containsKey('skeleton'))
+            key,
+      };
+      for (final spec in implementedComponents) {
+        if (!withBones.contains(spec.id)) continue;
+        if (knownPendingChecks.containsKey('${spec.id} spec')) continue;
+        expect(spec.states, contains('loading'), reason: spec.id);
+      }
+    });
+
+    test('day-character: 배지 칩 72px, 이유 글줄 80%', () {
+      final b = bones('day-character');
+      expect(b['badge']!['shape'], 'chip');
+      expect(px(b['badge']!['width']), DayCharacter.skeletonBadgeWidth);
+      expect(b['reason']!['shape'], 'textLine');
+      expect(b['reason']!['lines'], 1);
+      expect(
+        percent(b['reason']!['width']),
+        DayCharacter.skeletonReasonWidthFactor,
+      );
+    });
+
+    test('lucky-card: 칩 셋 72, 56, 64px, 사이 space.8', () {
+      final chip = bones('lucky-card')['chip']!;
+      expect(chip['shape'], 'chip');
+      expect(chip['count'], LuckyCardRow.skeletonChipWidths.length);
+      expect([
+        for (final width in chip['widths']! as List<Object?>) px(width),
+      ], LuckyCardRow.skeletonChipWidths);
+      expect(chip['gap'], '{space.8}');
+    });
+
+    test('tag-chip: 칩 하나 56px', () {
+      final chip = bones('tag-chip')['chip']!;
+      expect(chip['shape'], 'chip');
+      expect(px(chip['width']), TagChip.skeletonWidth);
+    });
+
+    test('offer-card: 카드, 아이콘 원 28, 머리 60%, 가격 40%', () {
+      final b = bones('offer-card');
+      expect(b['container']!['shape'], 'card');
+      expect(b['icon']!['shape'], 'circle');
+      expect(_iconSize(b['icon']!['size']).logical, OfferCard.iconSize);
+      expect(percent(b['head']!['width']), OfferCard.skeletonHeadWidthFactor);
+      expect(percent(b['price']!['width']), OfferCard.skeletonPriceWidthFactor);
+    });
+
+    test('guide-question-card: 카드, 머리 40%, 질문 두 줄, 버튼 52px', () {
+      final b = bones('guide-question-card');
+      expect(b['container']!['shape'], 'card');
+      expect(
+        percent(b['header']!['width']),
+        GuideQuestionCard.skeletonHeaderWidthFactor,
+      );
+      expect(
+        b['question']!['lines'],
+        SentenceBlock.skeletonLines(SentenceBlockVariant.card),
+      );
+      expect(b['action']!['shape'], 'button');
+      expect(px(b['action']!['height']), PrimaryButtonVariant.filled.height);
+    });
+
+    test('purchase-row: 상품 글줄, 구매일과 사용 기간 60%', () {
+      final b = bones('purchase-row');
+      expect(b.keys, ['product', 'purchased', 'period']);
+      expect(b['product']!['shape'], 'textLine');
+      for (final id in ['purchased', 'period']) {
+        expect(
+          percent(b[id]!['width']),
+          PurchaseRowGroup.skeletonMetaWidthFactor,
+          reason: id,
+        );
+      }
+    });
+
+    test('diary-row: 날의 성격 칩 88px, 미리보기 두 줄, 태그 칩 72px, entry 두 줄', () {
+      final b = bones('diary-row');
+      expect(b, isNot(contains('badge')));
+      expect(px(b['dayKind']!['width']), DiaryRowSkeleton.dayKindBoneWidth);
+      expect(px(b['tag']!['width']), DiaryRowSkeleton.tagBoneWidth);
+      expect(
+        b['preview']!['lines'],
+        SentenceBlock.skeletonLines(SentenceBlockVariant.preview),
+      );
+      expect(b['entry']!['rows'], 2);
+    });
+
+    test('diary-editor: edit 질문 두 줄, 종이 카드, 본문 다섯 줄', () {
+      final b = bones('diary-editor');
+      expect(b['question']!['variant'], 'edit');
+      expect(b['question']!['lines'], DiaryEditor.skeletonQuestionLines);
+      expect(b['paper']!['shape'], 'card');
+      expect(b['body']!['lines'], DiaryEditor.skeletonBodyLines);
+    });
+
+    test('event-row: summary 글줄 한 줄, list 줄 둘', () {
+      final b = bones('event-row');
+      expect(b['summary']!['variant'], 'summary');
+      expect(b['summary']!['lines'], 1);
+      expect(b['row']!['variant'], 'list');
+      expect(b['row']!['rows'], EventRow.skeletonListRows);
+    });
+
+    test('sentence-block: 변형별 줄 수 card 2, body 3, preview 2', () {
+      final lines = bones('sentence-block')['text']!['lines']! as String;
+      for (final variant in SentenceBlockVariant.values) {
+        final match = RegExp('${variant.name} (\\d+)').firstMatch(lines);
+        expect(
+          int.parse(match!.group(1)!),
+          SentenceBlock.skeletonLines(variant),
+          reason: variant.name,
+        );
+      }
+    });
+
+    test('ohaeng-bar: 막대 전체 폭과 범례 글줄 한 줄', () {
+      final b = bones('ohaeng-bar');
+      expect(b.keys, ['bar', 'legend']);
+      expect(b['legend']!['lines'], 1);
+    });
+
+    testWidgets('각 컴포넌트 뼈가 계약 뼈 수만큼 그립니다', (tester) async {
+      Future<int> count(Widget skeleton) async {
+        await tester.pumpWidget(
+          inputApp(SingleChildScrollView(child: skeleton)),
+        );
+        return tester.widgetList(find.byType(SkeletonBone)).length;
+      }
+
+      // 칩, 글줄 한 줄.
+      expect(await count(DayCharacter.skeleton()), 2);
+      expect(await count(LuckyCardRow.skeleton()), 3);
+      expect(await count(TagChip.skeleton()), 1);
+      // 아이콘 원, 머리, 가격(카드 바탕은 뼈가 아님).
+      expect(await count(OfferCard.skeleton()), 3);
+      // 머리, 질문 두 줄, 버튼.
+      expect(await count(GuideQuestionCard.skeleton()), 4);
+      expect(await count(const PurchaseRowGroup.loading()), 3 * 3);
+      expect(
+        await count(DiaryEditor.skeleton(variant: DiaryEditorVariant.edit)),
+        2 + 5,
+      );
+      expect(
+        await count(DiaryEditor.skeleton(variant: DiaryEditorVariant.view)),
+        5,
+      );
+      expect(
+        await count(EventRow.skeleton(variant: EventRowVariant.summary)),
+        1,
+      );
+      expect(
+        await count(EventRow.skeleton(variant: EventRowVariant.list)),
+        2 * 2,
+      );
+      expect(await count(OhaengBar.skeleton()), 2);
+      for (final variant in SentenceBlockVariant.values) {
+        expect(
+          await count(SentenceBlock.skeleton(variant: variant)),
+          SentenceBlock.skeletonLines(variant),
+          reason: variant.name,
+        );
+      }
+    });
   });
 
   group('InteractionPattern 대조', () {

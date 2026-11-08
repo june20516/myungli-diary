@@ -183,7 +183,6 @@ class _CitySearchState extends State<CitySearch> {
     if (cities == null || (cities.isEmpty && results.isLoading)) {
       return SkeletonBlock(
         delay: widget.skeletonDelay,
-        animated: widget.animated,
         child: Column(
           // 줄이 카드 너비를 채워야 합니다(기본 가운데 정렬이면 너비 0).
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -72,7 +72,8 @@ class Segmented<T> extends StatefulWidget {
   /// [index]번째 항목을 찾는 테스트용 키.
   static Key itemKey(int index) => ValueKey('segmented-item-$index');
 
-  static const double _trackHeight = 40;
+  /// 트랙 최소 높이.
+  static const double trackHeight = 40;
   static const double _padding = 3;
 
   /// 항목 2~4개.
@@ -292,7 +293,7 @@ class _SegmentCellState extends State<_SegmentCell>
     // 눌림 영역이 칸 너비를 모두 차지하도록 너비를 채웁니다.
     final content = ConstrainedBox(
       constraints: const BoxConstraints(
-        minHeight: Segmented._trackHeight,
+        minHeight: Segmented.trackHeight,
         minWidth: double.infinity,
       ),
       child: Padding(

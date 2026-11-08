@@ -57,6 +57,7 @@ class ExplainSheet extends ConsumerWidget {
             ? const AsyncLoading<void>()
             : const AsyncData<void>(null),
         onRetry: () => ref.invalidate(glossaryProvider),
+        skeleton: ExplainSheetBody.skeleton(head: head),
         dataWithNotice: (_, _) => _plain(context, ref, content),
       );
     }
@@ -92,6 +93,10 @@ class ExplainSheet extends ConsumerWidget {
     return ScreenStateView<_TermText>(
       value: _termTextOf(glossary, term.termId),
       onRetry: () => ref.invalidate(glossaryProvider),
+      skeleton: ExplainSheetBody.skeleton(
+        head: head,
+        titleSize: ExplainTitleSize.title,
+      ),
       dataWithNotice: (text, _) => _body(
         context,
         ref,

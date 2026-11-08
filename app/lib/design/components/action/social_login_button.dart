@@ -6,6 +6,7 @@ import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/breathing.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -213,8 +214,8 @@ class SocialLoginButton extends StatelessWidget {
   /// `connected` 배지 안 심볼 크기.
   static const double badgeSymbolSize = 14;
 
-  /// `connected` 끝의 `check` 아이콘 크기.
-  static const double connectedIconSize = 14;
+  /// `connected` 끝의 `check` 아이콘 크기(`state.size`, `size.icon.16`).
+  static const AppIconSize connectedIconSize = AppIconSize.s16;
 
   /// `connected` `check`와 "연결됨" 사이(`state.gap`, `space.4`).
   static const double connectedStateGap = Space.s4;
@@ -247,7 +248,8 @@ class SocialLoginButton extends StatelessWidget {
   static const String _googleLogoLight = 'assets/brand/google/g_logo_light.png';
   static const String _googleLogoDark = 'assets/brand/google/g_logo_dark.png';
 
-  static const double _minHeight = 52;
+  /// 버튼 최소 높이.
+  static const double minHeight = 52;
   static const double _minTarget = 48;
 
   /// 글자 양옆에 비우는 폭. 로고가 왼쪽에 고정돼 있어 글자가 가운데에 오도록 양쪽을 같이
@@ -257,7 +259,7 @@ class SocialLoginButton extends StatelessWidget {
   /// LINE 구분선 자리. 공식 자산(`btn_login_base`)은 버튼 높이만 한 정사각 칸 가운데에 아이콘을
   /// 두고 그 칸 오른쪽 끝에 1px 구분선을 긋습니다. 높이 52에서 로고(16~36)가 가운데인 칸의 끝이
   /// 52입니다.
-  static const double _lineSeparatorStart = _minHeight;
+  static const double _lineSeparatorStart = minHeight;
 
   /// LINE 글자 양옆 폭. 글자가 구분선에 닿지 않게 구분선 뒤 `space.8`까지 비웁니다.
   static const double lineLabelInset = _lineSeparatorStart + 1 + Space.s8;
@@ -447,7 +449,7 @@ class SocialLoginButton extends StatelessWidget {
       ),
       child: ConstrainedBox(
         // 명세 높이는 최소값입니다. 글자 배율이 크면 잘리지 않고 면이 커집니다.
-        constraints: const BoxConstraints(minHeight: _minHeight),
+        constraints: const BoxConstraints(minHeight: minHeight),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -542,7 +544,7 @@ class SocialLoginButton extends StatelessWidget {
         border: Border.all(color: colors.line),
       ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: _minHeight),
+        constraints: const BoxConstraints(minHeight: minHeight),
         child: Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(
             logoInset,
@@ -565,7 +567,7 @@ class SocialLoginButton extends StatelessWidget {
               const SizedBox(width: Space.s8),
               Icon(
                 PhosphorIconsRegular.check,
-                size: connectedIconSize,
+                size: connectedIconSize.logical,
                 color: stateColor,
               ),
               const SizedBox(width: connectedStateGap),

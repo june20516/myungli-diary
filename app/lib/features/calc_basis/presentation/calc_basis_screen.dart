@@ -12,7 +12,6 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/prose_page_body.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/calc_basis/application/calc_basis_providers.dart';
 import 'package:myungli_diary/features/calc_basis/model/time_basis.dart';
 
@@ -161,8 +160,10 @@ class _CalcBasisScreenState extends ConsumerState<CalcBasisScreen> {
     // 멱등 단방향 플래그이고, 같은 build가 곧바로 읽는 값이 아니라 "다음에 값이 오면
     // seep으로 나타낼지"만 정해서 이 변경으로 다시 그릴 필요가 없습니다.
     _shownLoading = true;
-    // 기본 글줄 셋이 문단 한 개 자리입니다.
-    return SkeletonBlock(lineStyle: context.tokens.typography.sentenceBody);
+    // 경도 문단(`sentence-block` `body`) 한 개 자리의 뼈입니다.
+    return SkeletonBlock(
+      child: SentenceBlock.skeleton(variant: SentenceBlockVariant.body),
+    );
   }
 }
 

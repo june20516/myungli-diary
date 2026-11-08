@@ -72,6 +72,7 @@ class PreviewScreen extends ConsumerWidget {
                   onRetry: _retriable(ref.watch(previewProvider).error)
                       ? () => ref.invalidate(previewProvider)
                       : null,
+                  skeleton: const _PreviewSkeleton(),
                   dataWithNotice: (preview, offlineNotice) => _PreviewBody(
                     preview: preview,
                     offlineNotice: offlineNotice,
@@ -223,4 +224,26 @@ class _PreviewBody extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 풀이를 계산하는 동안: [_PreviewBody]와 같은 배치(좌우 20, 위 24)에 `day-character` 뼈,
+/// [Space.s16] 아래 총운 `sentence-block` `card` 뼈, [Space.s12] 아래 `body` 뼈(V66).
+class _PreviewSkeleton extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    physics: const NeverScrollableScrollPhysics(),
+    padding: const EdgeInsets.fromLTRB(Space.s20, Space.s24, Space.s20, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DayCharacter.skeleton(),
+        const SizedBox(height: Space.s16),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.card, index: 2),
+        const SizedBox(height: Space.s12),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.body, index: 4),
+      ],
+    ),
+  );
 }

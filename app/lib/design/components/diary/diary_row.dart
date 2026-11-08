@@ -7,13 +7,13 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
-import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
-import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -357,10 +357,9 @@ List<Widget> _badgeSlot({
   }
   if (characterPending) {
     return [
-      const SkeletonBone(
-        width: DayReadingSkeleton.badgeWidth,
+      const SkeletonChip(
+        width: DayCharacter.skeletonBadgeWidth,
         height: DayCharacterBadge.minHeight,
-        borderRadius: Radii.full,
       ),
       SizedBox(height: gap),
     ];
@@ -446,8 +445,9 @@ class _DateColumn extends StatelessWidget {
   }
 }
 
-/// 일기 목록을 받는 동안의 한 줄(`diary-row` `loading`): 날짜 열은 도장 자리와 요일 뼈,
-/// 카드는 배지·미리보기 두 줄 뼈입니다. 스크린리더는 읽지 않습니다.
+/// 일기 목록을 받는 동안의 한 줄(`diary-row` `day` `loading`): 날짜 열은 도장 자리와 요일
+/// 글줄 뼈, 카드는 날의 성격 칩(88), 미리보기 글줄 두 줄, 대표 태그 칩(72) 뼈입니다.
+/// 스크린리더는 읽지 않습니다.
 class DiaryRowSkeleton extends StatelessWidget {
   /// skeleton 줄을 만듭니다. [index]는 숨쉬기 순서입니다.
   const new({this.index = 0, super.key});
@@ -455,12 +455,18 @@ class DiaryRowSkeleton extends StatelessWidget {
   /// 숨쉬기 순서(여러 줄이 차례로 숨쉼).
   final int index;
 
+  /// 뼈 `dayKind` 너비(`states.loading.skeleton` `dayKind.width` 88px).
+  static const double dayKindBoneWidth = 88;
+
+  /// 뼈 `tag` 너비(`states.loading.skeleton` `tag.width` 72px).
+  static const double tagBoneWidth = 72;
+
+  /// 요일 글줄 뼈 폭. 요일 한두 글자 폭입니다.
   static const double _weekdayBoneWidth = 16;
-  static const double _lineHeight = SkeletonBone.lineHeight;
-  static const double _lastLineFactor = 0.6;
 
   @override
   Widget build(BuildContext context) {
+    final typography = context.tokens.typography;
     return ExcludeSemantics(
       child: IntrinsicHeight(
         child: Row(
@@ -469,50 +475,47 @@ class DiaryRowSkeleton extends StatelessWidget {
             _DateColumn(
               isLast: false,
               number: const SizedBox.shrink(),
-              weekday: SkeletonBone(
+              weekday: SizedBox(
                 width: _weekdayBoneWidth,
-                height: _lineHeight,
-                borderRadius: Radii.xs,
-                index: index,
+                child: SkeletonTextLines(
+                  style: typography.captionMd,
+                  widthFactor: 1,
+                  index: index,
+                ),
               ),
             ),
             const SizedBox(width: Space.s12),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: Space.s12),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: context.tokens.colors.bgSheet,
-                    borderRadius: BorderRadius.circular(Radii.lg),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Space.s16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SkeletonBone(
-                          width: DayReadingSkeleton.badgeWidth,
-                          height: DayCharacterBadge.minHeight,
-                          borderRadius: Radii.full,
+                child: SkeletonCard(
+                  padding: const EdgeInsets.all(Space.s16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: SkeletonChip(
+                          width: dayKindBoneWidth,
+                          height: HanjaTag.height,
                           index: index,
                         ),
-                        const SizedBox(height: Space.s8),
-                        SkeletonBone(
-                          height: _lineHeight,
-                          borderRadius: Radii.xs,
-                          index: index + 1,
+                      ),
+                      const SizedBox(height: Space.s8),
+                      SentenceBlock.skeleton(
+                        variant: SentenceBlockVariant.preview,
+                        index: index + 1,
+                      ),
+                      const SizedBox(height: Space.s12),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: SkeletonChip(
+                          width: tagBoneWidth,
+                          height: HanjaTag.height,
+                          index: index + 3,
                         ),
-                        const SizedBox(height: Space.s8),
-                        FractionallySizedBox(
-                          widthFactor: _lastLineFactor,
-                          child: SkeletonBone(
-                            height: _lineHeight,
-                            borderRadius: Radii.xs,
-                            index: index + 1,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -585,11 +588,11 @@ class DiaryEntryLine extends StatelessWidget {
   /// 점선 두께(`entry.divider.width`).
   static const double dividerWidth = 1;
 
-  /// 점선 대시 길이(`entry.divider.dash`).
-  static const double dividerDash = 4;
+  /// 점선 대시 길이(`entry.divider.dashLength`).
+  static const double dividerDashLength = 4;
 
-  /// 점선 대시 사이 간격(`entry.divider.gap`).
-  static const double dividerGap = 3;
+  /// 점선 대시 사이 간격(`entry.divider.dashGap`).
+  static const double dividerDashGap = 3;
 
   /// 미리보기와 꺾쇠 사이(`entry.chevron.marginStart`, `space.8`).
   static const double chevronGap = Space.s8;
@@ -707,9 +710,10 @@ class _DashedDividerPainter extends CustomPainter {
       ..strokeWidth = DiaryEntryLine.dividerWidth
       ..style = PaintingStyle.stroke;
     const y = DiaryEntryLine.dividerWidth / 2;
-    const step = DiaryEntryLine.dividerDash + DiaryEntryLine.dividerGap;
+    const step =
+        DiaryEntryLine.dividerDashLength + DiaryEntryLine.dividerDashGap;
     for (var x = 0.0; x < size.width; x += step) {
-      final end = x + DiaryEntryLine.dividerDash;
+      final end = x + DiaryEntryLine.dividerDashLength;
       canvas.drawLine(
         Offset(x, y),
         Offset(end < size.width ? end : size.width, y),
@@ -867,11 +871,11 @@ class DiaryEntriesSkeleton extends StatelessWidget {
   final DiaryEntriesSurface surface;
 
   static const double _timeBoneWidth = 48;
-  static const double _boneHeight = SkeletonBone.lineHeight;
   static const int _lineCount = 2;
 
   @override
   Widget build(BuildContext context) {
+    final typography = context.tokens.typography;
     final lines = Column(
       children: [
         for (var i = 0; i < _lineCount; i++)
@@ -885,17 +889,19 @@ class DiaryEntriesSkeleton extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  SkeletonBone(
+                  SizedBox(
                     width: _timeBoneWidth,
-                    height: _boneHeight,
-                    borderRadius: Radii.xs,
-                    index: i,
+                    child: SkeletonTextLines(
+                      style: typography.captionMd,
+                      widthFactor: 1,
+                      index: i,
+                    ),
                   ),
                   const SizedBox(width: DiaryEntryLine.timeGap),
                   Expanded(
-                    child: SkeletonBone(
-                      height: _boneHeight,
-                      borderRadius: Radii.xs,
+                    child: SkeletonTextLines(
+                      style: typography.sentenceBody,
+                      widthFactor: 1,
                       index: i + 1,
                     ),
                   ),

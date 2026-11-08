@@ -3,6 +3,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -77,12 +78,40 @@ class DayCharacter extends StatelessWidget {
   });
 
   /// 명세 대조용 요약.
-  static const ComponentSpec spec = ComponentSpec('day-character', {
-    'good',
-    'gwiin',
-    'gisin',
-    'ordinary',
-  }, {});
+  static const ComponentSpec spec = ComponentSpec(
+    'day-character',
+    {'good', 'gwiin', 'gisin', 'ordinary'},
+    {'loading'},
+  );
+
+  /// 뼈 `badge` 너비(`states.loading.skeleton` `badge.width` 72px).
+  static const double skeletonBadgeWidth = 72;
+
+  /// 뼈 `reason` 폭 비율(`states.loading.skeleton` `reason.width` 80%).
+  static const double skeletonReasonWidthFactor = 0.8;
+
+  /// 불러오는 중 뼈: 배지 칩(72) 아래 [Space.s8]에 이유 글줄 한 줄(80%).
+  static Widget skeleton({int index = 0, bool animated = true}) => Builder(
+    builder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SkeletonChip(
+          width: skeletonBadgeWidth,
+          height: DayCharacterBadge.minHeight,
+          index: index,
+          animated: animated,
+        ),
+        const SizedBox(height: Space.s8),
+        SkeletonTextLines(
+          style: context.tokens.typography.captionLg,
+          widthFactor: skeletonReasonWidthFactor,
+          index: index + 1,
+          animated: animated,
+        ),
+      ],
+    ),
+  );
 
   /// 배지 면을 찾는 테스트용 키.
   static const Key badgeKey = DayCharacterBadge.surfaceKey;

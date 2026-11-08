@@ -35,7 +35,12 @@ Future<ProviderContainer> _openMe(
     interceptors.insert(interceptors.length - 1, network);
   }
   await tester.tap(find.byKey(const ValueKey('tab-bar.tab.3')));
-  await pumpUntilScreen(tester, ScreenIds.mySaju);
+  // 응답을 붙잡아 두면(settle false) skeleton이 계속 숨 쉬므로 움직임이 이어져도 돌아갑니다.
+  await pumpUntil(
+    tester,
+    () => find.byKey(const ValueKey(ScreenIds.mySaju)).evaluate().isNotEmpty,
+    allowOngoing: !settle,
+  );
   if (settle) {
     await pumpUntil(
       tester,

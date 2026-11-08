@@ -20,6 +20,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
@@ -93,6 +94,7 @@ class DiaryEditScreen extends ConsumerWidget {
                           value: edit,
                           onRetry: () =>
                               ref.invalidate(diaryEditProvider(target)),
+                          skeleton: const _DiaryEditSkeleton(),
                           data: (state) => _DiaryEditForm(
                             // 다른 일기로 바뀌면 입력 상태를 새로 만듭니다.
                             key: ValueKey(target),
@@ -261,4 +263,43 @@ class _DiaryEditFormState extends ConsumerState<_DiaryEditForm> {
       ],
     );
   }
+}
+
+/// 가이드 질문을 받는 동안: [_DiaryEditForm]과 같은 배치(좌우 20, 위 8)에 `diary-editor`
+/// `edit` 뼈, 아래 고정 저장 버튼(52, `radius.md`) 자리(V66).
+class _DiaryEditSkeleton extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Expanded(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(
+            Space.s20,
+            Space.s8,
+            Space.s20,
+            Space.s24,
+          ),
+          child: DiaryEditor.skeleton(variant: DiaryEditorVariant.edit),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Space.s20,
+          Space.s8,
+          Space.s20,
+          Space.s16,
+        ),
+        child: SkeletonBone(
+          height: PrimaryButtonVariant.filled.height,
+          borderRadius: Radii.md,
+          index:
+              DiaryEditor.skeletonQuestionLines + DiaryEditor.skeletonBodyLines,
+        ),
+      ),
+    ],
+  );
 }

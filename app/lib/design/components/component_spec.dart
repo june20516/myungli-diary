@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
@@ -64,7 +65,9 @@ final class ComponentSpec {
   final Set<String> states;
 }
 
-/// 구현을 마친 컴포넌트의 명세 목록. Task 17~19가 채웁니다.
+/// 구현을 마친 컴포넌트의 명세 목록. 아직 없는 계약 컴포넌트는 계약 대조 테스트의
+/// `knownPendingComponents`(test/contract/component_pending.dart)에 있고, 만들 때마다
+/// 여기에 올리고 그 목록에서 지웁니다.
 const List<ComponentSpec> implementedComponents = [
   MyungliTabBar.spec,
   MyungliAppBar.spec,
@@ -79,6 +82,7 @@ const List<ComponentSpec> implementedComponents = [
   EmptyState.spec,
   ErrorState.spec,
   SentenceBlock.spec,
+  ExplainSheetBody.spec,
   TermToken.spec,
   HanjaTag.spec,
   DepthLink.spec,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
-import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -87,16 +87,9 @@ class PurchaseRowGroup extends StatelessWidget {
   static const double statusMaxWidth = 80;
 
   static const int _skeletonRowCount = 3;
-  static const double _productBoneWidth = 160;
-  static const double _purchasedBoneWidth = 120;
-  static const double _periodBoneWidth = 200;
-  static const double _boneHeight = SkeletonBone.lineHeight;
 
-  /// loading에서 상품 줄 뼈와 구매일 줄 뼈 사이(실제 줄 높이 차이를 뼈 높이로 어림).
-  static const double _skeletonLineGap = metaGap + Space.s8;
-
-  /// loading에서 구매일 줄 뼈와 사용 기간 줄 뼈 사이(같은 어림).
-  static const double _skeletonPeriodGap = periodGap + Space.s4;
+  /// 뼈 `purchased`, `period` 폭 비율(`states.loading.skeleton` `width` 60%).
+  static const double skeletonMetaWidthFactor = 0.6;
 
   static const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
@@ -110,7 +103,7 @@ class PurchaseRowGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final data = rows;
     final children = data == null
-        ? [for (var i = 0; i < _skeletonRowCount; i++) _skeletonRow(i)]
+        ? [for (var i = 0; i < _skeletonRowCount; i++) _skeletonRow(context, i)]
         : [for (final row in data) _row(context, row)];
     final body = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -223,38 +216,41 @@ class PurchaseRowGroup extends StatelessWidget {
     );
   }
 
-  Widget _skeletonRow(int index) => Padding(
-    key: rowKey,
-    padding: const EdgeInsets.symmetric(vertical: rowPaddingY),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SkeletonBone(
-          width: _productBoneWidth,
-          height: _boneHeight,
-          borderRadius: Radii.xs,
-          index: index,
-          animated: animated,
-        ),
-        const SizedBox(height: _skeletonLineGap),
-        SkeletonBone(
-          width: _purchasedBoneWidth,
-          height: _boneHeight,
-          borderRadius: Radii.xs,
-          index: index + 1,
-          animated: animated,
-        ),
-        const SizedBox(height: _skeletonPeriodGap),
-        SkeletonBone(
-          width: _periodBoneWidth,
-          height: _boneHeight,
-          borderRadius: Radii.xs,
-          index: index + 2,
-          animated: animated,
-        ),
-      ],
-    ),
-  );
+  /// 불러오는 중 줄 하나: 상품 이름 글줄(`type.subtitle`), [metaGap] 아래 구매일 글줄,
+  /// [periodGap] 아래 사용 기간 글줄(둘 다 `type.caption.lg` 60%).
+  Widget _skeletonRow(BuildContext context, int index) {
+    final typography = context.tokens.typography;
+    final base = index * 3;
+    return Padding(
+      key: rowKey,
+      padding: const EdgeInsets.symmetric(vertical: rowPaddingY),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SkeletonTextLines(
+            style: typography.subtitle,
+            widthFactor: 1,
+            index: base,
+            animated: animated,
+          ),
+          const SizedBox(height: metaGap),
+          SkeletonTextLines(
+            style: typography.captionLg,
+            widthFactor: skeletonMetaWidthFactor,
+            index: base + 1,
+            animated: animated,
+          ),
+          const SizedBox(height: periodGap),
+          SkeletonTextLines(
+            style: typography.captionLg,
+            widthFactor: skeletonMetaWidthFactor,
+            index: base + 2,
+            animated: animated,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 줄 사이 `list.divider`. 테스트가 찾을 키는 감싼 쪽이 아니라 선에 붙습니다.

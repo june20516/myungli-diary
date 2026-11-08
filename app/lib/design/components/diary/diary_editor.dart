@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
@@ -78,7 +79,52 @@ class DiaryEditor extends StatefulWidget {
   static const ComponentSpec spec = ComponentSpec(
     'diary-editor',
     {'edit', 'view'},
-    {'saving', 'saved'},
+    {'loading', 'saving', 'saved'},
+  );
+
+  /// 뼈 `question` 줄 수(`states.loading.skeleton`, `edit`에만).
+  static const int skeletonQuestionLines = 2;
+
+  /// 뼈 `body` 줄 수(`states.loading.skeleton`).
+  static const int skeletonBodyLines = 5;
+
+  /// 불러오는 중 뼈: 종이 카드(안쪽 [Space.s16]) 안에 `edit`이면 질문 글줄 두 줄과
+  /// [Space.s12], 본문 글줄 다섯 줄(`type.sentence.body`), 아래 도장 자리 높이.
+  static Widget skeleton({
+    required DiaryEditorVariant variant,
+    int index = 0,
+    bool animated = true,
+  }) => Builder(
+    builder: (context) {
+      final typography = context.tokens.typography;
+      final edit = variant == DiaryEditorVariant.edit;
+      return SkeletonCard(
+        padding: const EdgeInsets.all(Space.s16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (edit) ...[
+              SkeletonTextLines(
+                lines: skeletonQuestionLines,
+                style: typography.captionLg,
+                index: index,
+                animated: animated,
+              ),
+              const SizedBox(height: Space.s12),
+            ],
+            SkeletonTextLines(
+              lines: skeletonBodyLines,
+              style: typography.sentenceBody,
+              index: index + (edit ? skeletonQuestionLines : 0),
+              animated: animated,
+            ),
+            const SizedBox(height: Space.s12),
+            SizedBox(height: SealSize.paper.logical),
+          ],
+        ),
+      );
+    },
   );
 
   /// 본문 글자 수 상한(계약 `DiaryInput.body` maxLength).

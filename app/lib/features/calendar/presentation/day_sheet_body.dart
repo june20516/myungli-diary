@@ -19,11 +19,10 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
-import 'package:myungli_diary/design/components/today/day_reading_skeleton.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
-import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -258,15 +257,6 @@ class _DiaryEntry extends ConsumerWidget {
 Future<void> _push(BuildContext context, String location, {Object? extra}) =>
     context.push<void>(location, extra: extra);
 
-/// [style] 글줄 하나의 높이(기기 글자 크기 반영)와 그 안의 뼈 높이(글자 몸통, 0.6).
-({double line, double bone}) _lineMetrics(
-  BuildContext context,
-  TextStyle style,
-) {
-  final line = lineHeightOf(style, MediaQuery.textScalerOf(context));
-  return (line: line, bone: line * 0.6);
-}
-
 /// 일기 입구를 받는 동안의 자리: 쓰기 버튼(`primary-button` `filled`) 크기의 뼈. 0편(가장 흔한
 /// 답)일 때 시트 높이가 그대로입니다.
 class _EntrySkeleton extends StatelessWidget {
@@ -285,7 +275,7 @@ class _EntrySkeleton extends StatelessWidget {
   );
 }
 
-/// 일정 두 줄(`event-row` `list` 최소 높이) 자리.
+/// 일정 목록 자리: `event-row` `list` 뼈(시각 칸과 제목 글줄 두 줄).
 class _ScheduleSkeleton extends StatelessWidget {
   const new({this.firstIndex = 0});
 
@@ -293,60 +283,38 @@ class _ScheduleSkeleton extends StatelessWidget {
   final int firstIndex;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: Space.s8,
-      children: [
-        for (var i = 0; i < 2; i++)
-          SkeletonBone(
-            height: EventRow.minHeight,
-            borderRadius: Radii.xs,
-            index: firstIndex + i,
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) =>
+      EventRow.skeleton(variant: EventRowVariant.list, index: firstIndex);
 }
 
-/// 날의 성격 배지·이유 두 줄·일정 두 줄 자리의 skeleton. 크기는 실제 요소(배지·문장 글줄·
-/// 일정 줄)에서 가져옵니다.
+/// 그날 시트 skeleton: 날의 성격 배지 칩, 이유 문장 글줄 두 줄(`type.sentence.body`), 일정
+/// 목록 뼈를 지금 시트 배치(배지 아래 [Space.s12], 이유 아래 [Space.s24])대로 놓습니다.
 class _DaySheetSkeleton extends StatelessWidget {
   const new();
 
-  /// 이유 문장 마지막 줄의 너비 비율.
-  static const double _lastLineFactor = 0.6;
+  /// 이유 문장 뼈 줄 수.
+  static const int _reasonLines = 2;
 
   @override
-  Widget build(BuildContext context) {
-    final metrics = _lineMetrics(
-      context,
-      context.tokens.typography.sentenceBody,
-    );
-    final gap = metrics.line - metrics.bone;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SkeletonBone(
-          width: DayReadingSkeleton.badgeWidth,
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: SkeletonChip(
+          width: DayCharacter.skeletonBadgeWidth,
           height: DayCharacterBadge.minHeight,
-          borderRadius: Radii.full,
         ),
-        const SizedBox(height: Space.s12),
-        SkeletonBone(height: metrics.bone, borderRadius: Radii.xs, index: 1),
-        SizedBox(height: gap),
-        FractionallySizedBox(
-          widthFactor: _lastLineFactor,
-          child: SkeletonBone(
-            height: metrics.bone,
-            borderRadius: Radii.xs,
-            index: 2,
-          ),
-        ),
-        SizedBox(height: Space.s24 - gap),
-        const _ScheduleSkeleton(firstIndex: 3),
-      ],
-    );
-  }
+      ),
+      const SizedBox(height: Space.s12),
+      SkeletonTextLines(
+        lines: _reasonLines,
+        style: context.tokens.typography.sentenceBody,
+        index: 1,
+      ),
+      const SizedBox(height: Space.s24),
+      const _ScheduleSkeleton(firstIndex: 1 + _reasonLines),
+    ],
+  );
 }

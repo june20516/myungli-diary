@@ -257,7 +257,6 @@ void main() {
             _member(context, hourUnknown: true),
             const SkeletonBlock(
               delay: Duration.zero,
-              animated: false,
               child: SajuPillarsSkeleton(animated: false),
             ),
           ],

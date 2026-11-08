@@ -3,9 +3,11 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -99,6 +101,7 @@ class OfferCard extends StatelessWidget {
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('offer-card', {}, {
+    'loading',
     'available',
     'active',
     'purchasing',
@@ -107,6 +110,53 @@ class OfferCard extends StatelessWidget {
 
   /// 카드 묶음을 찾는 테스트용 키.
   static const Key cardKey = ValueKey('offer-card');
+
+  /// 뼈 `head` 폭 비율(`states.loading.skeleton` `head.width` 60%).
+  static const double skeletonHeadWidthFactor = 0.6;
+
+  /// 뼈 `price` 폭 비율(`states.loading.skeleton` `price.width` 40%).
+  static const double skeletonPriceWidthFactor = 0.4;
+
+  /// 불러오는 중 뼈: 카드(안쪽 [padding]) 안에 아이콘 원(28), [headGap] 아래 머리
+  /// 글줄(60%, `type.subtitle`), [priceGap] 아래 가격 글줄(40%, `type.title`).
+  static Widget skeleton({int index = 0, bool animated = true}) => Builder(
+    builder: (context) {
+      final typography = context.tokens.typography;
+      return SkeletonCard(
+        padding: const EdgeInsets.all(padding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SkeletonBone(
+                width: iconSize,
+                height: iconSize,
+                borderRadius: Radii.full,
+                index: index,
+                animated: animated,
+              ),
+            ),
+            const SizedBox(height: headGap),
+            SkeletonTextLines(
+              style: typography.subtitle,
+              widthFactor: skeletonHeadWidthFactor,
+              index: index + 1,
+              animated: animated,
+            ),
+            const SizedBox(height: priceGap),
+            SkeletonTextLines(
+              style: typography.title,
+              widthFactor: skeletonPriceWidthFactor,
+              index: index + 2,
+              animated: animated,
+            ),
+          ],
+        ),
+      );
+    },
+  );
 
   /// 구매 버튼을 찾는 테스트용 키.
   static const Key buyKey = ValueKey('offer-card-buy');

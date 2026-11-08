@@ -446,7 +446,8 @@ class _CharacterHint extends ConsumerWidget {
     } else if (month.hasError) {
       child = const SizedBox.shrink();
     } else {
-      child = SkeletonBlock(lines: 1, lineStyle: style);
+      // 그날 성격 이유 한 줄(같은 글자) 자리의 글줄 뼈.
+      child = SkeletonBlock(child: SkeletonTextLines(style: style));
     }
     return Semantics(
       identifier: SlotIds.eventEditCharacterHint,

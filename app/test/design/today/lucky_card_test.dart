@@ -777,7 +777,7 @@ void main() {
       expect(find.byType(Icon), findsOneWidget);
     });
 
-    test('ComponentSpec은 변형 5개를 가집니다(tag 포함)', () {
+    test('ComponentSpec은 변형 5개(tag 포함, 5.0.0 삭제는 Task 15)와 loading을 가집니다', () {
       expect(LuckyCardRow.spec.id, 'lucky-card');
       expect(LuckyCardRow.spec.variants, {
         'color',
@@ -786,7 +786,12 @@ void main() {
         'time',
         'tag',
       });
-      expect(LuckyCardRow.spec.states, {'pressed', 'open', 'closed'});
+      expect(LuckyCardRow.spec.states, {
+        'loading',
+        'pressed',
+        'open',
+        'closed',
+      });
     });
   });
 

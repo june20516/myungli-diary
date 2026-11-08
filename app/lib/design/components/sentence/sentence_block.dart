@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_lookup.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
@@ -57,8 +58,45 @@ class SentenceBlock extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'sentence-block',
     {'card', 'body', 'preview'},
-    {'locked'},
+    {'loading', 'locked'},
   );
+
+  /// 불러오는 중 뼈(`states.loading.skeleton` `text`): 변형의 글자 스타일로 글줄
+  /// card 2, body 3, preview 2줄입니다.
+  static Widget skeleton({
+    required SentenceBlockVariant variant,
+    int index = 0,
+    bool animated = true,
+  }) => Builder(
+    builder: (context) => SkeletonTextLines(
+      lines: skeletonLines(variant),
+      style: _styleOf(context, variant),
+      index: index,
+      animated: animated,
+    ),
+  );
+
+  /// 변형별 뼈 줄 수(`states.loading.skeleton` `text.lines`).
+  static int skeletonLines(SentenceBlockVariant variant) => switch (variant) {
+    SentenceBlockVariant.card => 2,
+    SentenceBlockVariant.body => 3,
+    SentenceBlockVariant.preview => 2,
+  };
+
+  /// 변형의 글자 스타일(색 제외). preview는 본문 글자를 14.5px로 줄입니다.
+  static TextStyle _styleOf(
+    BuildContext context,
+    SentenceBlockVariant variant,
+  ) {
+    final typography = context.tokens.typography;
+    return switch (variant) {
+      SentenceBlockVariant.card => typography.sentenceCard,
+      SentenceBlockVariant.body => typography.sentenceBody,
+      SentenceBlockVariant.preview => typography.sentenceBody.copyWith(
+        fontSize: _previewFontSize,
+      ),
+    };
+  }
 
   /// 잠김 라벨 앞부분(구역 이름) 슬롯(`a11y.lockedNameSlot`, 컴포넌트 2.2.0).
   /// 잠긴 문장은 지금 사주 표 용신 판정 근거에만 쓰여 이름이 하나입니다.
@@ -125,12 +163,7 @@ class SentenceBlock extends StatelessWidget {
   }
 
   Widget _buildText(BuildContext context) {
-    final typography = context.tokens.typography;
-    final base = switch (variant) {
-      SentenceBlockVariant.card => typography.sentenceCard,
-      SentenceBlockVariant.body ||
-      SentenceBlockVariant.preview => typography.sentenceBody,
-    };
+    final base = _styleOf(context, variant);
     final preview = variant == SentenceBlockVariant.preview;
     final terms = _resolveTermStyle();
     assert(
@@ -143,7 +176,6 @@ class SentenceBlock extends StatelessWidget {
       text: text,
       style: base.copyWith(
         color: color ?? context.tokens.colors.textPrimary,
-        fontSize: preview ? _previewFontSize : null,
         fontFamilyFallback: fontFallback.isEmpty
             ? null
             : [...fontFallback, ...?base.fontFamilyFallback],

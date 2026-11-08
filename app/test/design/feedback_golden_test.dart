@@ -78,10 +78,12 @@ Widget _skeletons() => const Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
   spacing: 16,
   children: [
-    SkeletonBlock(delay: Duration.zero, animated: false),
     SkeletonBlock(
       delay: Duration.zero,
-      animated: false,
+      child: SkeletonTextLines(lines: 3, animated: false),
+    ),
+    SkeletonBlock(
+      delay: Duration.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 8,

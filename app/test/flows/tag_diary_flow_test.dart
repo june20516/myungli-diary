@@ -117,8 +117,14 @@ Future<ProviderContainer> _openTagDiary(
   }
   final path = tag == null ? pathOf(ScreenIds.tagDiary) : taggedPathOf(tag);
   unawaited(container.read(routerProvider).push<void>(path));
-  await pumpUntilScreen(tester, ScreenIds.tagDiary);
-  if (!(network?.holdListing ?? false)) {
+  final holding = network?.holdListing ?? false;
+  // 목록을 붙잡아 두면 skeleton이 계속 숨 쉬므로 움직임이 이어져도 돌아갑니다.
+  await pumpUntil(
+    tester,
+    () => find.byKey(const ValueKey(ScreenIds.tagDiary)).evaluate().isNotEmpty,
+    allowOngoing: holding,
+  );
+  if (!holding) {
     await _untilShown(tester);
   }
   return container;

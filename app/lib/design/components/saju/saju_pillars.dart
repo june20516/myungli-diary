@@ -252,7 +252,7 @@ class SajuPillarsSkeleton extends StatelessWidget {
                 index: i,
                 animated: animated,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: Space.s4),
               SkeletonBone(
                 height: OhaengCell.pillarHeight,
                 borderRadius: Radii.sm,

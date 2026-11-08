@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/tag.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -47,7 +48,18 @@ class TagChip extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'tag-chip',
     {'good', 'bad', 'neutral'},
-    {'pressed', 'appearing'},
+    {'loading', 'pressed', 'appearing'},
+  );
+
+  /// 뼈 칩 너비(`states.loading.skeleton` `chip.width` 56px).
+  static const double skeletonWidth = 56;
+
+  /// 불러오는 중 뼈: 칩 높이([height])의 알약 하나(56).
+  static Widget skeleton({int index = 0, bool animated = true}) => SkeletonChip(
+    width: skeletonWidth,
+    height: height,
+    index: index,
+    animated: animated,
   );
 
   /// 칩 바탕을 그리는 상자를 찾는 테스트용 키.

@@ -338,8 +338,8 @@ void main() {
             .colors
             .timelineEntry;
         expect(DiaryEntryLine.dividerWidth, 1);
-        expect(DiaryEntryLine.dividerDash, 4);
-        expect(DiaryEntryLine.dividerGap, 3);
+        expect(DiaryEntryLine.dividerDashLength, 4);
+        expect(DiaryEntryLine.dividerDashGap, 3);
         final painted = tester.renderObject(_dividers());
         expect(
           painted,
