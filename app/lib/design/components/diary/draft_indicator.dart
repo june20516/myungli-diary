@@ -89,7 +89,7 @@ class _DraftIndicatorState extends State<DraftIndicator>
     final lead = switch (widget.state) {
       DraftIndicatorState.local => AppIcon(
         _cloud,
-        size: AppIconSize.inline,
+        size: AppIconSize.s16,
         color: color,
       ),
       DraftIndicatorState.saving => BreathingDots(
@@ -101,7 +101,7 @@ class _DraftIndicatorState extends State<DraftIndicator>
       ),
       DraftIndicatorState.saved => AppIcon(
         _check,
-        size: AppIconSize.inline,
+        size: AppIconSize.s16,
         color: color,
       ),
     };

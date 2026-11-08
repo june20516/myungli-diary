@@ -228,10 +228,8 @@ void main() {
       }
     });
 
-    test('mark.caution 크기는 글자 크기 × ratio입니다', () {
-      final size = _map(_map(_elements()['mark.caution'])['size']);
-      expect(size['of'], 'font-size');
-      expect(_num(size['ratio']), AppIcon.capHeightRatio);
+    test('mark.caution 크기는 옆 글자에 맞춘 adjacent-text입니다', () {
+      expect(_map(_elements()['mark.caution'])['size'], 'adjacent-text');
     });
 
     test('아이콘 패키지와 버전이 명세와 같습니다', () {
@@ -272,7 +270,7 @@ void main() {
       final chevron = _map(list['chevron']);
       expect(chevron['icon'], 'caret-right');
       expect(chevron['weight'], 'light');
-      expect(_px(chevron['size']), AppIconSize.inline.logical);
+      expect(_px(chevron['size']), AppIconSize.s16.logical);
       expect(
         _num(_map(specs['event-row']!['a11y'])['minTarget']),
         EventRow.minHeight,
@@ -795,7 +793,7 @@ void main() {
       expect(icon['name'], 'sparkle');
       expect(icon['weight'], 'light');
       expect(_px(icon['size']), OfferCard.iconSize);
-      expect(OfferCard.iconSize, AppIconSize.state.logical);
+      expect(OfferCard.iconSize, AppIconSize.s28.logical);
       expect(OfferCard.iconSize, 28);
       expect(icon['color'], '{color.action.primary}');
 

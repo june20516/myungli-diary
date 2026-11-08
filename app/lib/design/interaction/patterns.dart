@@ -179,6 +179,9 @@ abstract final class PatternValues {
   /// `press.ink` 뗄 때 번지는 배율.
   static const double inkReleaseScale = 1.15;
 
+  /// 얼룩이 진하게 차는 반지름 비율(`press.ink.ink.solidUntil`).
+  static const double inkSolidUntil = 0.7;
+
   /// `press.ink` 뗄 때 시간·곡선.
   static const Duration releaseDuration = Motion.long;
 
@@ -681,6 +684,33 @@ Widget _pressInk(
   );
 }
 
+/// `press.ink` 얼룩 반지름(`interaction.json` `press.ink.ink.radius`).
+///
+/// 다 자란 반지름은 누른 자리에서 가장 먼 모서리 거리 ÷ [PatternValues.inkSolidUntil]이라,
+/// 진한 영역(0~0.7)이 그 모서리까지 닿습니다. 손을 떼면([release] 0~1) 덜 자랐어도
+/// 다 자란 크기(grow 1)까지 이어 자라고, 이어서 [PatternValues.inkReleaseScale]배까지 커집니다.
+@visibleForTesting
+double pressInkRadius({
+  required Size size,
+  required Alignment origin,
+  required double grow,
+  required double release,
+}) {
+  final bounds = Offset.zero & size;
+  final center = origin.alongSize(size);
+  final farthest = [
+    bounds.topLeft,
+    bounds.topRight,
+    bounds.bottomLeft,
+    bounds.bottomRight,
+  ].map((corner) => (corner - center).distance).reduce(math.max);
+  final fullRadius = farthest / PatternValues.inkSolidUntil;
+  final effectiveGrow = grow + (1 - grow) * release;
+  return fullRadius *
+      effectiveGrow *
+      (1 + (PatternValues.inkReleaseScale - 1) * release);
+}
+
 /// 누른 자리에서 번지는 원형 얼룩. 이 층 안에서만 자릅니다.
 class _InkPainter extends CustomPainter {
   new({
@@ -704,12 +734,6 @@ class _InkPainter extends CustomPainter {
     final bounds = Offset.zero & size;
     canvas.clipRRect(borderRadius.toRRect(bounds));
     final center = origin.alongSize(size);
-    final farthest = [
-      bounds.topLeft,
-      bounds.topRight,
-      bounds.bottomLeft,
-      bounds.bottomRight,
-    ].map((corner) => (corner - center).distance).reduce(math.max);
     final alpha = PatternValues.inkAlpha * (1 - release);
     if (alpha <= 0) return;
     if (fadeOnly) {
@@ -720,8 +744,12 @@ class _InkPainter extends CustomPainter {
       );
       return;
     }
-    final radius =
-        farthest * grow * (1 + (PatternValues.inkReleaseScale - 1) * release);
+    final radius = pressInkRadius(
+      size: size,
+      origin: origin,
+      grow: grow,
+      release: release,
+    );
     if (radius <= 0) return;
     final tint = color.withValues(alpha: alpha);
     canvas.drawCircle(
@@ -732,7 +760,7 @@ class _InkPainter extends CustomPainter {
           center,
           radius,
           [tint, tint, tint.withValues(alpha: 0)],
-          [0, 0.7, 1],
+          [0, PatternValues.inkSolidUntil, 1],
         ),
     );
   }

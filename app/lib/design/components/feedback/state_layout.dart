@@ -72,7 +72,7 @@ class StateLayout extends StatelessWidget {
                       child: Center(
                         child: AppIcon(
                           icon,
-                          size: AppIconSize.state,
+                          size: AppIconSize.s28,
                           color: colors.actionPrimary,
                         ),
                       ),

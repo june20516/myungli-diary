@@ -57,17 +57,14 @@ void main() {
         ),
       );
       final icon = tester.widget<Icon>(find.byType(Icon));
-      expect(icon.size, closeTo(20 * 2 * AppIcon.capHeightRatio, 0.001));
+      expect(icon.size, closeTo(24 * 2, 0.001));
       expect(icon.color, const Color(0xFF123456));
       expect(icon.icon!.fontFamily, 'Phosphor-Fill');
       expect(icon.icon, PhosphorIconsFill.warningCircle);
     });
 
-    testWidgets('크기: tab·bar 24, inline 16, state 28', (tester) async {
-      expect(AppIconSize.tab.logical, 24);
-      expect(AppIconSize.bar.logical, 24);
-      expect(AppIconSize.inline.logical, 16);
-      expect(AppIconSize.state.logical, 28);
+    testWidgets('크기: 토큰 16·20·24·28 네 단계', (tester) async {
+      expect(AppIconSize.values.map((size) => size.logical), [16, 20, 24, 28]);
     });
   });
 

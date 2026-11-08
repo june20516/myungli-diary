@@ -105,7 +105,7 @@ class ShareButton extends StatelessWidget {
                     children: [
                       AppIcon(
                         _export,
-                        size: AppIconSize.inline,
+                        size: AppIconSize.s16,
                         weight: AppIconWeight.regular,
                         color: tokens.colors.statusFg,
                       ),

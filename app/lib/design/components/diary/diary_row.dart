@@ -668,7 +668,7 @@ class DiaryEntryLine extends StatelessWidget {
           AppIcon(
             _caretRight,
             key: chevronKey,
-            size: AppIconSize.inline,
+            size: AppIconSize.s16,
             color: colors.textSecondary,
           ),
         ],

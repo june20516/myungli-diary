@@ -35,7 +35,7 @@ Widget _elements() {
           ),
           Seal(
             size: SealSize.row,
-            child: AppIcon(_heart, size: AppIconSize.inline),
+            child: AppIcon(_heart, size: AppIconSize.s16),
           ),
         ],
       ),

@@ -313,7 +313,7 @@ class EventRow extends StatelessWidget {
         const SizedBox(width: Space.s8),
         AppIcon(
           _caretRight,
-          size: AppIconSize.inline,
+          size: AppIconSize.s16,
           color: colors.textSecondary,
         ),
       ],

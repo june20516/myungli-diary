@@ -231,7 +231,7 @@ void main() {
       final tokens = tester.element(find.byType(DraftIndicator)).tokens;
       final cloud = tester.widget<AppIcon>(find.byType(AppIcon));
       expect(cloud.icon.light, PhosphorIconsLight.cloud);
-      expect(cloud.size, AppIconSize.inline);
+      expect(cloud.size, AppIconSize.s16);
       final label = tester.widget<Text>(find.text('local'));
       expect(label.style!.fontSize, tokens.typography.captionMd.fontSize);
       expect(label.style!.color, tokens.colors.textSecondary);

@@ -307,7 +307,8 @@ class DialogCard extends StatelessWidget {
                     child: Row(
                       children: [
                         if (destructive) ...[
-                          const AppIcon.caution(),
+                          // `alert` 제목 앞 경고 표시는 `leadingSize` 20 고정입니다.
+                          const AppIcon.caution(size: AppIconSize.s20),
                           const SizedBox(width: Space.s8),
                         ],
                         Expanded(child: Text(title)),

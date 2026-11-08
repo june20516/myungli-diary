@@ -228,7 +228,7 @@ class OfferCard extends StatelessWidget {
                 child: ExcludeSemantics(
                   child: AppIcon(
                     _sparkle,
-                    size: AppIconSize.state,
+                    size: AppIconSize.s28,
                     color: colors.actionPrimary,
                   ),
                 ),

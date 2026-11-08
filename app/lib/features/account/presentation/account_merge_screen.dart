@@ -321,7 +321,7 @@ class _AccountMergeScreenState extends ConsumerState<AccountMergeScreen>
             height: style.fontSize! * style.height!,
             child: AppIcon(
               _checkCircle,
-              size: AppIconSize.inline,
+              size: AppIconSize.adjacentText(style.fontSize!),
               color: tokens.colors.textSecondary,
             ),
           ),

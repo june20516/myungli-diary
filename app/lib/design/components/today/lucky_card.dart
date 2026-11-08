@@ -187,7 +187,10 @@ class LuckyChip extends StatelessWidget {
           )
         : AppIcon(
             glyph,
-            size: AppIconSize.inline,
+            // `lucky-card` `lead.iconSize`: adjacent-text(옆 글자 label.md).
+            size: AppIconSize.adjacentText(
+              context.tokens.typography.labelMd.fontSize!,
+            ),
             weight: AppIconWeight.regular,
             // tag 변형만 앞 아이콘이 text.primary입니다.
             color: item.variant == LuckyCardVariant.tag

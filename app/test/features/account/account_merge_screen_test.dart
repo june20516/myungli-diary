@@ -415,7 +415,7 @@ void main() {
       final glyph = tester.widget<AppIcon>(icon);
       expect(glyph.icon.light, PhosphorIconsLight.checkCircle);
       expect(glyph.weight, AppIconWeight.light);
-      expect(glyph.size, AppIconSize.inline);
+      expect(glyph.size, AppIconSize.s16);
       expect(glyph.color, tokens.colors.textSecondary);
       expect(
         tester.getTopLeft(notice).dx - tester.getTopRight(icon).dx,

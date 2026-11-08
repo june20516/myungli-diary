@@ -85,6 +85,11 @@ class MyungliTextField extends StatefulWidget {
 
   static const double _minHeight = 52;
   static const double _fontSize = 17;
+
+  /// 앞 아이콘은 입력 글자 옆이라 `icon.adjacentText`로 고릅니다.
+  static final AppIconSize _leadingIconSize = AppIconSize.adjacentText(
+    _fontSize,
+  );
   static const double _clearTarget = 48;
   static const double _clearIconSize = 20;
 
@@ -271,14 +276,15 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                 padding: EdgeInsetsDirectional.only(
                   // 여러 줄 칸에서도 아이콘은 첫 줄 가운데입니다.
                   top: multiline
-                      ? firstLineCenter - AppIconSize.inline.logical / 2
+                      ? firstLineCenter -
+                            MyungliTextField._leadingIconSize.logical / 2
                       : 0,
                   end: Space.s12,
                 ),
                 child: ExcludeSemantics(
                   child: AppIcon(
                     leading,
-                    size: AppIconSize.inline,
+                    size: MyungliTextField._leadingIconSize,
                     color: enabled ? colors.textSecondary : colors.disabledFg,
                   ),
                 ),

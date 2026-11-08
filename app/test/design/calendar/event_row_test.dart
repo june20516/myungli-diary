@@ -335,7 +335,7 @@ void main() {
       expect(title.style!.color, tokens.colors.textPrimary);
       final icon = tester.widget<Icon>(find.byType(Icon));
       expect(icon.icon, PhosphorIconsLight.caretRight);
-      expect(icon.size, AppIconSize.inline.logical);
+      expect(icon.size, AppIconSize.s16.logical);
       expect(icon.size, 16);
       expect(icon.color, tokens.colors.textSecondary);
     });
