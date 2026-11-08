@@ -37,6 +37,7 @@ import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
@@ -79,6 +80,7 @@ const List<ComponentSpec> implementedComponents = [
   ErrorState.spec,
   SentenceBlock.spec,
   TermToken.spec,
+  HanjaTag.spec,
   DepthLink.spec,
   ReactionButton.spec,
   PrimaryButton.spec,

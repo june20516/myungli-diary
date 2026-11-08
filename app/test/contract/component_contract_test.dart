@@ -23,6 +23,8 @@ import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
@@ -875,6 +877,54 @@ void main() {
         _map(_map(purchase['states'])['loading'])['component'],
         'skeleton',
       );
+    });
+  });
+
+  group('hanja-tag 값 대조', () {
+    final specs = loadSpecComponents();
+    final tag = specs['hanja-tag']!;
+    final parts = _map(tag['parts']);
+
+    test('글자표의 값 집합이 계약 parts.glyphs 17자와 같습니다 (A112)', () {
+      final glyphs = _map(parts['glyphs']);
+      final contract = <String>{
+        for (final group in glyphs.values) ..._map(group).keys,
+      };
+      expect(contract, hasLength(17));
+      expect(HanjaGlyphs.allGlyphs, contract);
+    });
+
+    test('알약·한자 원 치수가 계약과 같습니다', () {
+      final pill = _map(parts['pill']);
+      final glyph = _map(parts['glyph']);
+      expect(_px(pill['height']), HanjaTag.height);
+      expect(pill['paddingStart'], '{space.4}');
+      expect(HanjaTag.paddingStart, Space.s4);
+      expect(pill['paddingEnd'], '{space.12}');
+      expect(HanjaTag.paddingEnd, Space.s12);
+      expect(pill['gap'], '{space.4}');
+      expect(HanjaTag.gap, Space.s4);
+      expect(_px(glyph['size']), HanjaTag.glyphSize);
+      expect(_px(glyph['fontSize']), HanjaTag.glyphFontSize);
+      expect(glyph['fontWeight'], 700);
+      expect(glyph['bg'], '{color.bg.sheet}');
+      expect(_map(parts['name'])['type'], '{type.label.md}');
+      expect(_map(parts['name'])['maxLines'], 1);
+    });
+
+    test('selected 둘레 굵기와 skeleton 폭, 터치 영역이 계약과 같습니다', () {
+      final selected = (tag['variants']! as List<Object?>)
+          .map(_map)
+          .firstWhere((v) => v['id'] == 'selected');
+      final border = _map(_map(_map(selected['parts'])['pill'])['border']);
+      expect(_px(border['width']), HanjaTag.selectedBorderWidth);
+      expect(border['color'], '{color.action.primary}');
+      final bone = _map(
+        ((_map(_map(tag['states'])['loading'])['skeleton']!) as List<Object?>)
+            .single,
+      );
+      expect('${HanjaTag.skeletonWidth.toInt()}px', bone['width']);
+      expect(_num(_map(tag['a11y'])['minTarget']), 44);
     });
   });
 

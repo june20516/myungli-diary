@@ -30,6 +30,35 @@ DayCharacterVariant dayCharacterVariantOf(DayKind kind) => switch (kind) {
   DayKind.ordinaryDay => DayCharacterVariant.ordinary,
 };
 
+/// 날의 성격 배지 색(V8 매핑): 바탕(없으면 null), 글자, 테두리(평범한 날만).
+///
+/// `day-character`의 배지와 `hanja-tag` `emphasis`가 같은 매핑을 씁니다.
+({Color? bg, Color fg, Color? border}) dayCharacterBadgeColors(
+  DayCharacterVariant variant,
+  ColorTokens colors,
+) => switch (variant) {
+  DayCharacterVariant.good => (
+    bg: colors.badgeGoodBg,
+    fg: colors.badgeGoodFg,
+    border: null,
+  ),
+  DayCharacterVariant.gwiin => (
+    bg: colors.badgeGwiinBg,
+    fg: colors.badgeGwiinFg,
+    border: null,
+  ),
+  DayCharacterVariant.gisin => (
+    bg: colors.badgeGisinBg,
+    fg: colors.badgeGisinFg,
+    border: null,
+  ),
+  DayCharacterVariant.ordinary => (
+    bg: null,
+    fg: colors.badgeOrdinaryFg,
+    border: colors.badgeOrdinaryBorder,
+  ),
+};
+
 /// 날의 성격 배지와 이유 한 줄(`day-character`).
 ///
 /// 배지는 글자([label])로 날의 성격을 말합니다. 색만으로 전하지 않습니다.
@@ -152,20 +181,13 @@ class DayCharacterBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final (bg, fg) = switch (variant) {
-      DayCharacterVariant.good => (colors.badgeGoodBg, colors.badgeGoodFg),
-      DayCharacterVariant.gwiin => (colors.badgeGwiinBg, colors.badgeGwiinFg),
-      DayCharacterVariant.gisin => (colors.badgeGisinBg, colors.badgeGisinFg),
-      DayCharacterVariant.ordinary => (null, colors.badgeOrdinaryFg),
-    };
+    final (:bg, :fg, :border) = dayCharacterBadgeColors(variant, colors);
     return DecoratedBox(
       key: surfaceKey,
       decoration: BoxDecoration(
         color: bg,
         borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
-        border: variant == DayCharacterVariant.ordinary
-            ? Border.all(color: colors.badgeOrdinaryBorder)
-            : null,
+        border: border == null ? null : Border.all(color: border),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: minHeight),
