@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/tag_me.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
@@ -213,5 +214,40 @@ void main() {
       final context = tester.element(find.text('시주'));
       expect(MediaQuery.textScalerOf(context).scale(10), closeTo(13, 0.01));
     });
+  });
+
+  group('saju-pillars loading', () {
+    for (final scale in [1.0, 1.3, 2.0]) {
+      testWidgets('글자 배율 $scale에서 뼈 머리 글자가 실제 표 머리와 같은 크기와 자리', (tester) async {
+        Future<(Size, double)> header(Widget child) async {
+          await tester.pumpWidget(
+            inputApp(SizedBox(width: 360, child: _scaled(child, scale))),
+          );
+          final text = find.text('시주');
+          final cellTop = tester
+              .getTopLeft(
+                find
+                    .descendant(
+                      of: find.byWidget(child),
+                      matching: find.byType(
+                        child is SajuPillarsSkeleton
+                            ? SkeletonBone
+                            : OhaengCell,
+                      ),
+                    )
+                    .first,
+              )
+              .dy;
+          return (tester.getSize(text), cellTop);
+        }
+
+        final (realSize, realCellTop) = await header(_pillars());
+        final (boneSize, boneCellTop) = await header(
+          const SajuPillarsSkeleton(animated: false),
+        );
+        expect(boneSize, realSize);
+        expect(boneCellTop, closeTo(realCellTop, 0.01));
+      });
+    }
   });
 }
