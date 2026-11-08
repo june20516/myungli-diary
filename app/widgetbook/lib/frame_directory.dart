@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
@@ -235,6 +236,49 @@ final WidgetbookFolder frameDirectory = WidgetbookFolder(
                   onPressed: () {},
                 ),
               ],
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'edit(제목, 저장 글자)',
+          builder: (context) => Stage(
+            child: MyungliAppBar.edit(
+              onBack: () {},
+              title: '일기 쓰기',
+              textAction: AppBarTextAction(label: '저장', onTap: () {}),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'edit(쓰는 중 초안 상태, 저장 중)',
+          builder: (context) => Stage(
+            child: MyungliAppBar.edit(
+              onBack: () {},
+              title: '일기 쓰기',
+              status: const DraftIndicator(
+                state: DraftIndicatorState.local,
+                label: '임시 저장',
+                length: 39,
+              ),
+              textAction: AppBarTextAction(
+                label: '저장',
+                onTap: () {},
+                saving: true,
+              ),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: 'edit(쓴 것 없음)',
+          builder: (context) => Stage(
+            child: MyungliAppBar.edit(
+              onBack: () {},
+              title: '일기 쓰기',
+              textAction: AppBarTextAction(
+                label: '저장',
+                onTap: () {},
+                enabled: false,
+              ),
             ),
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -7,7 +8,8 @@ import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
@@ -28,7 +30,22 @@ class _TagChipDemo extends StatelessWidget {
   );
 }
 
-/// diary-row 목록: 달 머리, 배지·태그 줄, 배지 대기, 마지막 줄, skeleton.
+/// 날의 성격 `hanja-tag`(귀인의 날, 길흉 톤, V81).
+HanjaTag _dayKindTag() => HanjaTag(
+  glyph: HanjaGlyphs.forDayKind(DayKind.gwiinDay),
+  label: '귀인의 날',
+  tone: HanjaGlyphs.toneOfDayKind(DayKind.gwiinDay),
+  onTap: () {},
+);
+
+/// 대표 태그 `hanja-tag`(사주 용어 초록 `default`).
+HanjaTag _featuredTag() => HanjaTag(
+  glyph: HanjaGlyphs.forTagKey('cheoneul_gwiin')!,
+  label: '천을귀인',
+  onTap: () {},
+);
+
+/// diary-row 목록: 달 머리, 날의 성격과 대표 태그 줄, 성격 대기, 마지막 줄, skeleton.
 class _DiaryRowDemo extends StatelessWidget {
   const new();
 
@@ -41,15 +58,14 @@ class _DiaryRowDemo extends StatelessWidget {
       DiaryRow(
         date: CalendarDate(2026, 10, 12),
         excerpt: '오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.',
-        character: DayCharacterVariant.good,
-        characterLabel: '좋은 날',
-        tag: TagChip(name: '천을귀인', variant: TagChipVariant.good, onTap: () {}),
+        dayKind: _dayKindTag(),
+        tag: _featuredTag(),
         onTap: () {},
       ),
       DiaryRow(
         date: CalendarDate(2026, 10, 8),
         excerpt: '아침 공기가 갑자기 차가워졌다.',
-        characterPending: true,
+        dayKindPending: true,
         onTap: () {},
       ),
       DiaryRow(
@@ -74,10 +90,9 @@ class _DiaryGroupDemo extends StatelessWidget {
     children: [
       DiaryDayGroup(
         date: CalendarDate(2026, 10, 12),
-        character: DayCharacterVariant.good,
-        characterLabel: '좋은 날',
+        dayKind: _dayKindTag(),
         entries: _entries(),
-        tag: TagChip(name: '천을귀인', variant: TagChipVariant.good, onTap: () {}),
+        tag: _featuredTag(),
       ),
       DiaryRow(
         date: CalendarDate(2026, 10, 8),
