@@ -207,18 +207,31 @@ PersonalReadingKey? _personalKey(WidgetTester tester) =>
 Finder _personalText(String text) =>
     _inEvidence(find.textContaining(text, findRichText: true));
 
-/// member 사전에 12운성·신살 범주를 더한 사전(writing #331 원고가 온 뒤를 흉내 냄).
-Future<GlossaryNames> _glossaryWithStages() async {
+/// member 사전의 범주별 이름.
+Map<String, Map<String, String>> _memberGlossaryValues() {
   final json = jsonDecode(
     File('fixtures/member/getGlossary.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   final body = json['body'] as Map<String, dynamic>;
-  final values = {
+  return {
     for (final entry in (body['values'] as Map<String, dynamic>).entries)
       entry.key: Map<String, String>.from(entry.value as Map),
   };
+}
+
+/// 12운성·신살 이름을 일부만 둔 사전(이름이 없는 값은 한자 글자로 대신함, A65).
+Future<GlossaryNames> _glossaryWithStages() async {
+  final values = _memberGlossaryValues();
   values['twelve_stage'] = const {'yang': '양', 'mokyok': '목욕'};
   values['shinsal'] = const {'hwagae': '화개'};
+  return GlossaryNames(values);
+}
+
+/// 12운성·신살 범주가 없는 사전(server 시드가 이름을 넣기 전을 흉내 냄).
+Future<GlossaryNames> _glossaryWithoutStages() async {
+  final values = _memberGlossaryValues()
+    ..remove('twelve_stage')
+    ..remove('shinsal');
   return GlossaryNames(values);
 }
 
@@ -482,7 +495,13 @@ void main() {
   testWidgets('evidence-unlocked: 지장간 십성 → 지장간 개인 해석(지지 자리·순서)', (
     tester,
   ) async {
-    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      overrides: [
+        glossaryProvider.overrideWith((ref) => _glossaryWithoutStages()),
+      ],
+    );
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
     // 연지 午의 지장간 丁(정관)·己(정인). 둘째(己)의 십성을 누릅니다.

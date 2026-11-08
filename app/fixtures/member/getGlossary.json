@@ -138,6 +138,28 @@
         "branch_hap": "지지합",
         "chung": "충",
         "hyeong": "형"
+      },
+      "shinsal": {
+        "cheoneul_gwiin": "천을귀인",
+        "dohwa": "도화",
+        "yeokma": "역마",
+        "hwagae": "화개",
+        "yangin": "양인",
+        "gongmang": "공망"
+      },
+      "twelve_stage": {
+        "jangsaeng": "장생",
+        "mokyok": "목욕",
+        "gwandae": "관대",
+        "geonrok": "건록",
+        "jewang": "제왕",
+        "soe": "쇠",
+        "byeong": "병",
+        "sa": "사",
+        "myo": "묘",
+        "jeol": "절",
+        "tae": "태",
+        "yang": "양"
       }
     },
     "meanings": {
