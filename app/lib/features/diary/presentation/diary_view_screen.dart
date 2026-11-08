@@ -31,10 +31,10 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 /// IA `diary-view`가 직접 처리하는 상태.
 const Set<String> diaryViewHandledStates = {'loading', 'error'};
 
-/// IA `diary-view`의 출구 대상.
+/// IA `diary-view`의 출구 대상. 태그 모아보기(`tag-diary`)는 뜻 시트(`explain-sheet`)의 꺾쇠
+/// 링크를 거치므로 이 화면의 직접 출구가 아닙니다(IA v5, V73).
 const Set<String> diaryViewExits = {
   ScreenIds.diaryEdit,
-  ScreenIds.tagDiary,
   ScreenIds.explainSheet,
 };
 
