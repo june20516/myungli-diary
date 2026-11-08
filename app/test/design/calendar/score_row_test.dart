@@ -223,6 +223,40 @@ void main() {
     expect(sign.left - tag.right, greaterThanOrEqualTo(12));
   });
 
+  testWidgets('verdict: 긴 영어 이름, 글자 2배, 폭 320에서 넘치지 않음', (tester) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+        child: inputApp(
+          const Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 320,
+              child: ScoreRow.verdict(
+                glyph: '沖',
+                name: 'Clash with the day or month branch',
+                meaning:
+                    'A clashing energy arrives and the flow may turn rough',
+                score: -2,
+              ),
+            ),
+          ),
+          locale: const Locale('en'),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final row = tester.getRect(find.byType(ScoreRow));
+    expect(
+      tester.getRect(find.byType(HanjaTag)).right,
+      lessThanOrEqualTo(row.right),
+    );
+    expect(
+      tester.getRect(find.byType(HanjaTag)).right + 12,
+      lessThanOrEqualTo(tester.getRect(find.byKey(ScoreRow.signKey)).left),
+    );
+  });
+
   testWidgets('점수 4를 읽는 개수는 점과 같은 셋', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(

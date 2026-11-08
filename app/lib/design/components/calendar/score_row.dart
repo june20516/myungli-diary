@@ -64,6 +64,12 @@ class ScoreRow extends StatelessWidget {
   /// (spec의 3은 토큰이 아님, V56).
   static const double dotGap = Space.s4;
 
+  /// `verdict`에서 태그와 뜻이 남은 폭을 나누는 비율(태그 2, 뜻 3).
+  static const int tagFlex = 2;
+
+  /// 위 비율의 뜻 몫.
+  static const int meaningFlex = 3;
+
   /// 점 최대 개수(`dots.max`).
   static const int maxDots = 3;
 
@@ -210,20 +216,30 @@ class ScoreRow extends StatelessWidget {
     final row = Row(
       children: [
         if (isVerdict) ...[
-          // 태그는 따로 버튼이라 묶음 라벨 밖에 둡니다.
-          tag,
+          // 태그는 따로 버튼이라 묶음 라벨 밖에 둡니다. 태그와 뜻이 남은 폭을 나눠 가져,
+          // 긴 이름은 태그 안에서 한 줄 말줄임(hanja-tag 이름 maxLines 1)이 되고 넘치지 않습니다.
           Expanded(
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: Space.s12),
-              child: ExcludeSemantics(
-                child: Text(
-                  meaning ?? '',
-                  key: meaningKey,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: type.captionLg.copyWith(color: colors.textSecondary),
+            child: Row(
+              children: [
+                Flexible(flex: tagFlex, child: tag),
+                Flexible(
+                  flex: meaningFlex,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: Space.s12),
+                    child: ExcludeSemantics(
+                      child: Text(
+                        meaning ?? '',
+                        key: meaningKey,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: type.captionLg.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ] else ...[

@@ -18,8 +18,8 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
-import 'package:myungli_diary/features/calendar/application/color_rule_sheets.dart';
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
+import 'package:myungli_diary/features/calendar/presentation/color_rule_sheet.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_bar_title.dart';
@@ -220,14 +220,8 @@ void main() {
 
   testWidgets('member: 범례 아래 입구를 누르면 색 규칙 시트가 열립니다', (tester) async {
     covers(const Covers(exits: ['calendar>color-rule-sheet']));
-    await _openCalendar(
-      tester,
-      overrides: [
-        colorRuleSheetBodyProvider.overrideWithValue(
-          () => const Text('색 규칙 본문'),
-        ),
-      ],
-    );
+    // 본문은 bootstrap이 잇는 실제 ColorRuleSheet입니다(override를 겹치지 않음).
+    await _openCalendar(tester);
 
     final entry = find.byKey(CalendarMonthView.ruleEntryKey);
     await tester.ensureVisible(entry);
@@ -235,7 +229,7 @@ void main() {
     await settleWithIo(tester);
 
     expect(find.byKey(const Key(ScreenIds.colorRuleSheet)), findsOneWidget);
-    expect(find.text('색 규칙 본문'), findsOneWidget);
+    expect(find.byType(ColorRuleSheet), findsOneWidget);
   });
 
   testWidgets('member: 일정 추가 → 선택한 날의 event-edit', (tester) async {
