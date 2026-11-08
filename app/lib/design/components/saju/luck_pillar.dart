@@ -12,15 +12,6 @@ import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
-/// 대운인지 세운인지(`luck-pillar`).
-enum LuckPillarKind {
-  /// 10년 단위 대운.
-  daeun,
-
-  /// 한 해 단위 세운.
-  seun,
-}
-
 /// 기둥 한 칸의 간지: 천간과 지지의 오행과 한자 한 글자씩(`ohaeng.cell` 입력).
 ///
 /// design 계층이 features 모델을 몰라도 되도록 화면이 자기 간지를 이 값으로 바꿔 넘깁니다.
@@ -88,7 +79,7 @@ class LuckPillar extends StatelessWidget {
     this.currentTag,
     this.tagEdge = TagEdge.none,
     super.key,
-  }) : kind = null,
+  }) : _compact = false,
        tagLabel = null,
        kindLabel = null,
        onKindTap = null,
@@ -97,11 +88,10 @@ class LuckPillar extends StatelessWidget {
 
   /// 나 탭 올해와 지금 카드의 한 줄입니다.
   ///
-  /// [tagLabel]은 "지금"/"올해", [kindLabel]은 용어 칩 "대운"/"세운", [period]는 기간 줄,
+  /// [tagLabel]은 "지금"/"올해", [kindLabel]은 용어 칩 "대운"/"세운"([onKindTap]이 없으면 글자만), [period]는 기간 줄,
   /// [tenGods]는 천간, 지지 순 십성(세운은 하나)입니다.
   const new compact({
     required this.pillar,
-    required this.kind,
     required this.tagLabel,
     required this.kindLabel,
     required this.period,
@@ -109,7 +99,8 @@ class LuckPillar extends StatelessWidget {
     required this.semanticLabel,
     this.onKindTap,
     super.key,
-  }) : top = null,
+  }) : _compact = true,
+       top = null,
        tenGod = null,
        branchTenGod = null,
        twelveStage = null,
@@ -183,8 +174,7 @@ class LuckPillar extends StatelessWidget {
   /// 간지.
   final LuckGanji pillar;
 
-  /// 대운인지 세운인지(`compact`).
-  final LuckPillarKind? kind;
+  final bool _compact;
 
   /// 위 나이 또는 연도(`column`).
   final String? top;
@@ -237,8 +227,10 @@ class LuckPillar extends StatelessWidget {
       child: Semantics(
         container: true,
         explicitChildNodes: true,
-        label: semanticLabel,
-        child: kind == null ? _buildColumn(context) : _buildCompact(context),
+        label: current && currentTag != null
+            ? '$semanticLabel, $currentTag'
+            : semanticLabel,
+        child: _compact ? _buildCompact(context) : _buildColumn(context),
       ),
     );
   }
@@ -254,30 +246,32 @@ class LuckPillar extends StatelessWidget {
       color: colors.textSecondary,
     );
     const innerWidth = columnWidth - columnPadding * 2;
-    Widget label(LuckLabel value, double gapBefore) => Padding(
-      padding: EdgeInsets.only(top: gapBefore),
-      child: LuckLabelView(label: value, width: innerWidth),
-    );
+    // 누를 수 있는 칩은 별도 포커스(button)로 남기고, 글자뿐인 라벨은 그룹 라벨이 읽습니다.
+    Widget label(LuckLabel value, double gapBefore) {
+      final view = LuckLabelView(label: value, width: innerWidth);
+      return Padding(
+        padding: EdgeInsets.only(top: gapBefore),
+        child: value.onTap == null ? ExcludeSemantics(child: view) : view,
+      );
+    }
 
     final body = Padding(
       padding: const EdgeInsets.all(columnPadding),
-      child: ExcludeSemantics(
-        child: Column(
-          children: [
-            Text(top!, style: topStyle),
-            label(tenGod!, Space.s4),
+      child: Column(
+        children: [
+          ExcludeSemantics(child: Text(top!, style: topStyle)),
+          label(tenGod!, Space.s4),
+          const SizedBox(height: Space.s4),
+          pillar._stemCell(),
+          const SizedBox(height: Space.s4),
+          pillar._branchCell(),
+          if (branchTenGod != null) label(branchTenGod!, Space.s4),
+          if (twelveStage != null) label(twelveStage!, Space.s2),
+          if (startYear != null) ...[
             const SizedBox(height: Space.s4),
-            pillar._stemCell(),
-            const SizedBox(height: Space.s4),
-            pillar._branchCell(),
-            if (branchTenGod != null) label(branchTenGod!, Space.s4),
-            if (twelveStage != null) label(twelveStage!, Space.s2),
-            if (startYear != null) ...[
-              const SizedBox(height: Space.s4),
-              Text(startYear!, style: numberStyle),
-            ],
+            ExcludeSemantics(child: Text(startYear!, style: numberStyle)),
           ],
-        ),
+        ],
       ),
     );
     final radius = BorderRadius.circular(Radii.md);
@@ -316,19 +310,21 @@ class LuckPillar extends StatelessWidget {
     );
   }
 
-  /// 십성 칩. 누를 수 없으면(한자 대체) 글자만 둡니다.
-  static Widget _tenGodChip(LuckLabel god, MyungliTokens tokens) {
-    final onTap = god.onTap;
+  /// 용어 칩. [onTap]이 없으면(한자 대체 등) 글자만 두고 그룹 라벨이 읽습니다. 누를 수 있으면
+  /// 별도 포커스(button)로 남습니다.
+  static Widget _chip(String text, VoidCallback? onTap, MyungliTokens tokens) {
     if (onTap == null) {
-      return Text(
-        god.text,
-        style: tokens.typography.captionMd.copyWith(
-          color: tokens.colors.textSecondary,
+      return ExcludeSemantics(
+        child: Text(
+          text,
+          style: tokens.typography.captionMd.copyWith(
+            color: tokens.colors.textSecondary,
+          ),
         ),
       );
     }
     return TermToken(
-      label: god.text,
+      label: text,
       variant: TermTokenVariant.label,
       onTap: onTap,
     );
@@ -338,52 +334,51 @@ class LuckPillar extends StatelessWidget {
     final tokens = context.tokens;
     final periodStyle = tokens.typography.captionLg.copyWith(
       color: tokens.colors.textSecondary,
+      // 기간 숫자는 고정폭(계약 parts.period.fontFeatures tnum).
+      fontFeatures: const [FontFeature.tabularFigures()],
     );
-    return ExcludeSemantics(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: Space.s4,
+          children: [pillar._stemCell(), pillar._branchCell()],
+        ),
+        const SizedBox(width: Space.s12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            spacing: Space.s4,
-            children: [pillar._stemCell(), pillar._branchCell()],
-          ),
-          const SizedBox(width: Space.s12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            children: [
+              Wrap(
+                spacing: Space.s4,
+                runSpacing: Space.s4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  ExcludeSemantics(child: StatusTag(tagLabel!)),
+                  _chip(kindLabel!, onKindTap, tokens),
+                ],
+              ),
+              const SizedBox(height: Space.s4),
+              ExcludeSemantics(
+                child: Text(period!, key: periodKey, style: periodStyle),
+              ),
+              if (tenGods.isNotEmpty) ...[
+                const SizedBox(height: Space.s4),
                 Wrap(
                   spacing: Space.s4,
                   runSpacing: Space.s4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    StatusTag(tagLabel!),
-                    TermToken(
-                      label: kindLabel!,
-                      variant: TermTokenVariant.label,
-                      onTap: onKindTap ?? () {},
-                    ),
+                    for (final god in tenGods)
+                      _chip(god.text, god.onTap, tokens),
                   ],
                 ),
-                const SizedBox(height: Space.s4),
-                Text(period!, key: periodKey, style: periodStyle),
-                if (tenGods.isNotEmpty) ...[
-                  const SizedBox(height: Space.s4),
-                  Wrap(
-                    spacing: Space.s4,
-                    runSpacing: Space.s4,
-                    children: [
-                      for (final god in tenGods) _tenGodChip(god, tokens),
-                    ],
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/tag_slot.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -36,7 +37,6 @@ Widget _compact({String period = '30~39세, 2030~2039년'}) => SizedBox(
   width: 320,
   child: LuckPillar.compact(
     pillar: _ganji,
-    kind: LuckPillarKind.daeun,
     tagLabel: '지금',
     kindLabel: '대운',
     period: period,
@@ -88,13 +88,81 @@ void main() {
     expect(slot.height, greaterThan(0));
   });
 
-  testWidgets('column 꼬리표는 기둥보다 넓어도 한 줄로 이웃 쪽으로 넘침', (tester) async {
+  testWidgets('column 꼬리표: 바탕 아래 간격 4, 기둥보다 넓은 한 줄', (tester) async {
     await tester.pumpWidget(
       inputApp(Center(child: _column(current: true, tag: '지금 대운입니다 길게'))),
     );
-    final tag = tester.getSize(find.byType(TagSlot));
-    expect(tag.width, LuckPillar.columnWidth);
+    expect(tester.getSize(find.byType(TagSlot)).width, LuckPillar.columnWidth);
+    final bg = tester.getRect(find.byKey(LuckPillar.highlightKey));
+    final tag = tester.getRect(find.byType(StatusTag));
+    expect(tag.top - bg.bottom, Space.s4);
+    expect(tag.width, greaterThan(LuckPillar.columnWidth));
+    expect(tag.width, lessThanOrEqualTo(LuckPillar.tagMaxWidth));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('column 끝 기둥은 꼬리표를 표 안쪽으로 맞춤', (tester) async {
+    for (final edge in [TagEdge.start, TagEdge.end]) {
+      await tester.pumpWidget(
+        inputApp(
+          Align(
+            alignment: edge == TagEdge.start
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+            child: _column(current: true, tag: '지금 대운입니다 길게', edge: edge),
+          ),
+        ),
+      );
+      final pillar = tester.getRect(find.byType(TagSlot));
+      final tag = tester.getRect(find.byType(StatusTag));
+      if (edge == TagEdge.start) {
+        expect(tag.left, pillar.left, reason: 'start');
+      } else {
+        expect(tag.right, pillar.right, reason: 'end');
+      }
+    }
+  });
+
+  testWidgets('column 지금이면 라벨 끝에 꼬리표 낱말을 붙여 읽음', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(inputApp(Center(child: _column(current: true))));
+    expect(find.bySemanticsLabel('10세, 비견, 갑오, 지금'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('십성 칩은 별도 포커스(button)이고 칸 글자는 그룹 라벨이 읽음', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(inputApp(Center(child: _column())));
+    expect(
+      tester.getSemantics(find.text('비견')),
+      isSemantics(label: '비견 뜻 보기', isButton: true, hasTapAction: true),
+    );
+    handle.dispose();
+  });
+
+  testWidgets('compact 용어 칩은 누를 수 있으면 button, 콜백 없으면 글자만', (tester) async {
+    final handle = tester.ensureSemantics();
+    var tapped = 0;
+    await tester.pumpWidget(
+      inputApp(
+        Center(
+          child: LuckPillar.compact(
+            pillar: _ganji,
+            tagLabel: '지금',
+            kindLabel: '대운',
+            period: '30~39세',
+            tenGods: const [LuckLabel('比肩')],
+            semanticLabel: '지금 대운',
+            onKindTap: () => tapped++,
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('대운'));
+    expect(tapped, 1);
+    expect(find.bySemanticsLabel('대운 뜻 보기'), findsOneWidget);
+    expect(find.bySemanticsLabel('比肩 뜻 보기'), findsNothing);
+    handle.dispose();
   });
 
   testWidgets('compact: 강조 바탕 없고 칸 둘이 세로', (tester) async {
@@ -110,33 +178,39 @@ void main() {
     expect(find.text('대운'), findsOneWidget);
   });
 
-  testWidgets('compact 큰 글자 1.3 en에서 기간 줄이 줄바꿈되고 넘치지 않음', (tester) async {
-    await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-        child: inputApp(
-          Center(
-            child: SizedBox(
-              width: 220,
-              child: _compact(
-                period: 'Age 30 to 39, from 2030 to 2039 inclusive',
+  for (final scale in [1.3, 2.0]) {
+    testWidgets('compact 글자 배율 $scale en: 기간 줄이 줄바꿈되고 넘치지 않음', (tester) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+          child: inputApp(
+            Center(
+              child: SizedBox(
+                width: 220,
+                child: _compact(
+                  period: 'Age 30 to 39, from 2030 to 2039 inclusive',
+                ),
               ),
             ),
+            locale: const Locale('en'),
           ),
-          locale: const Locale('en'),
         ),
-      ),
-    );
-    expect(tester.takeException(), isNull);
-    final period = tester.getSize(find.byKey(LuckPillar.periodKey));
-    final style = tester
-        .element(find.byKey(LuckPillar.periodKey))
-        .tokens
-        .typography
-        .captionLg;
-    final oneLine = style.fontSize! * (style.height ?? 1) * 1.3;
-    expect(period.height, greaterThan(oneLine * 1.5));
-  });
+      );
+      expect(tester.takeException(), isNull);
+      final style = tester
+          .element(find.byKey(LuckPillar.periodKey))
+          .tokens
+          .typography
+          .captionLg;
+      // 배율은 1.3에서 멈춥니다.
+      final oneLine = style.fontSize! * (style.height ?? 1) * 1.3;
+      final root = tester.getRect(find.byType(LuckPillar));
+      final period = tester.getRect(find.byKey(LuckPillar.periodKey));
+      expect(period.height, greaterThan(oneLine * 1.5));
+      expect(period.right, lessThanOrEqualTo(root.right));
+      expect(root.width, lessThanOrEqualTo(220));
+    });
+  }
 
   testWidgets('loading 뼈: 칸 둘과 십성 칩 하나', (tester) async {
     await tester.pumpWidget(
