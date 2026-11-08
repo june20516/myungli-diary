@@ -47,7 +47,14 @@ const Map<String, String> _barTitleKeys = {
 
 /// ARB에 "임시" 표시가 남아도 되는 키(슬롯이 없는 접근성 라벨·writing 원고 대기 문구).
 /// writing R26(PR #709, #331)으로 임시 키가 모두 원고가 되어 지금은 없습니다.
-const Set<String> _allowedTemporaryKeys = {};
+/// 설명의 "임시"는 모두 기기 초안 "임시 저장" 상태를 말하는 뜻 그대로의 낱말입니다(DS1 W60).
+/// 그 밖의 키 설명에 "임시"가 들어가면 실패합니다.
+const Set<String> _allowedTemporaryKeys = {
+  'diaryEditDraftStatusLocal',
+  'diaryEditDraftStatusSaving',
+  'diaryEditDraftStatusSaved',
+  'diaryEditLengthCount',
+};
 
 Map<String, Object?> _readJson(String path) =>
     jsonDecode(File(path).readAsStringSync())! as Map<String, Object?>;
@@ -131,8 +138,7 @@ void main() {
         if (entry.key.startsWith('@') &&
             entry.value is Map<String, Object?> &&
             ((entry.value! as Map<String, Object?>)['description'] as String?)
-                    ?.replaceAll('임시 저장', '')
-                    .contains('임시') ==
+                    ?.contains('임시') ==
                 true)
           entry.key.substring(1),
     };

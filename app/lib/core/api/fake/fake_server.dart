@@ -191,6 +191,7 @@ final class FakeServerInterceptor extends Interceptor {
   ///
   /// 시나리오가 오류 응답 파일을 두면(오류 시나리오) 파일이 우선이라 null입니다.
   /// `getDiaryStats`는 저장소의 살아 있는 일기로 셉니다(200 파일은 무시, 오류 파일은 우선).
+  /// `fixtures/member/getDiaryStats.json`은 스키마 검증용이라 200에서는 쓰이지 않습니다.
   /// `listDiaries`·`getDiary` 파일의 200 응답은 저장소의 처음 상태이고, `getDiary`의 404
   /// 파일은 "기본은 없음"이라 저장소가 답합니다.
   Future<_Fixture?> _answerFromDiaryStore(

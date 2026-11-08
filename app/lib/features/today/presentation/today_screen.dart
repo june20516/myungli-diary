@@ -298,7 +298,7 @@ class _TodayBody extends ConsumerWidget {
             // 칩 줄은 위아래에 판정 여유(hitInset)를 품으므로 보이는 간격이 24가 되게 뺍니다.
             const SizedBox(height: Space.s24 - LuckyCardRow.hitInset),
             LuckyCardRow(
-              // 대표 태그 칩이 맨 앞, 그 뒤에 행운 4종입니다.
+              // 행운 4종만 그립니다. 대표 태그는 IA v5의 사주 기운 섹션으로 옮길 예정입니다.
               items: display.lucky,
               slotIds: todayLuckySlotIds,
             ),
