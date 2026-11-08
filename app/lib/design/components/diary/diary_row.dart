@@ -215,9 +215,11 @@ class DiaryDayGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tag = this.tag;
+    // 날의 성격 태그를 누를 수 있으면 자식 버튼 노드가 이름을 따로 읽으므로 그룹 라벨에서는
+    // 뺍니다(같은 낱말을 두 번 읽지 않게). 누를 수 없으면 제외된 자식 대신 그룹이 읽습니다.
     final label = [
       _dateLabel(context, date),
-      ?dayKind?.label,
+      if (dayKind?.onTap == null) ?dayKind?.label,
     ].join(l10n.a11yListSeparator);
     return _DayFrame(
       date: date,

@@ -509,6 +509,27 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('누를 수 있는 날의 성격 태그는 그룹 라벨과 겹쳐 읽히지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          DiaryDayGroup(
+            date: _date,
+            entries: _three(),
+            dayKind: HanjaTag(
+              glyph: '用',
+              label: '좋은 날',
+              tone: HanjaTagTone.yongsin,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('10월 12일 월요일'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('좋은 날')), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('줄마다 따로 눌립니다(눌린 줄의 onTap만)', (tester) async {
       final taps = [0, 0, 0];
       await tester.pumpWidget(

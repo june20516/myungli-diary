@@ -25,6 +25,7 @@ import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
@@ -364,6 +365,14 @@ void main() {
       expect(row.tag, isNull, reason: '${row.date}');
     }
     expect(rows.any((row) => row.dayKind != null), isTrue);
+
+    // 줄을 누르면 그 일기의 diary-view입니다.
+    await tester.tap(find.byType(DiaryRow).first);
+    await settleWithIo(tester);
+    expect(
+      _locationOf(tester, ScreenIds.diaryView),
+      startsWith('/diary-view?id='),
+    );
   });
 
   testWidgets('쓰기 버튼: 앱 바에 동작이 없고 목록 위에 떠 있는 하나뿐이며 광고 위 16입니다', (tester) async {
@@ -402,6 +411,19 @@ void main() {
     );
     expect(tester.getRect(button).left, Space.s20);
     expect(tester.getRect(button).right, 390 - Space.s20);
+  });
+
+  testWidgets('목록 끝까지 내리면 마지막 줄이 떠 있는 버튼 위에 있습니다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(390, 520)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _openDiaryList(tester);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    final last = tester.getRect(find.byType(DiaryRow).last);
+    final button = tester.getRect(find.byKey(DiaryListScreen.pickDateKey));
+    expect(last.bottom, lessThanOrEqualTo(button.top));
   });
 
   testWidgets('쓰기 버튼: 불러오는 중과 오류에는 없고 목록을 받으면 생깁니다', (tester) async {
@@ -448,6 +470,22 @@ void main() {
       findsOneWidget,
     );
     expect(tester.getCenter(button).dx, closeTo(195, 0.5));
+    // 안내 묶음(아이콘, 문장, 버튼)의 가운데는 상태 영역의 40% 지점입니다(state-layout 규칙).
+    final area = tester.getRect(find.byType(EmptyState));
+    final block = tester
+        .getRect(find.text(_ko.diaryListEmptyBody))
+        .expandToInclude(tester.getRect(button))
+        .expandToInclude(
+          tester.getRect(
+            find
+                .descendant(
+                  of: find.byType(EmptyState),
+                  matching: find.byType(AppIcon),
+                )
+                .first,
+          ),
+        );
+    expect(block.center.dy, closeTo(area.top + area.height * 0.4, 10));
     expect(
       tester.getTopLeft(button).dy,
       greaterThan(tester.getBottomLeft(find.text(_ko.diaryListEmptyBody)).dy),
@@ -466,6 +504,32 @@ void main() {
     await settleWithIo(tester);
     expect(find.byType(DiaryRow), findsWidgets);
     expect(find.byKey(DiaryListScreen.pickDateKey), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    // 큰 글자에서 날짜 시트: 달력이 시트보다 길어 스크롤되어도 확인 버튼은 시트 안에 고정입니다.
+    await tester.tap(find.byKey(DiaryListScreen.pickDateKey));
+    await settleWithIo(tester);
+    final confirm = find.bySemanticsIdentifier(
+      SlotIds.diaryListPickDateConfirm,
+    );
+    expect(confirm, findsOneWidget);
+    final frame = tester.getRect(find.byType(MyungliSheetFrame));
+    final before = tester.getRect(confirm);
+    expect(before.top, greaterThanOrEqualTo(frame.top));
+    expect(before.bottom, lessThanOrEqualTo(frame.bottom));
+    final scroll = find.descendant(
+      of: find.byType(MonthDatePicker),
+      matching: find.byType(SingleChildScrollView),
+    );
+    final position = tester
+        .state<ScrollableState>(
+          find.descendant(of: scroll, matching: find.byType(Scrollable)),
+        )
+        .position;
+    expect(position.maxScrollExtent, greaterThan(0), reason: '달력이 스크롤 가능');
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pump();
+    expect(tester.getRect(confirm), before, reason: '스크롤해도 확인 버튼 위치 불변');
     expect(tester.takeException(), isNull);
   });
 
