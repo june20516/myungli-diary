@@ -36,6 +36,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -734,17 +735,79 @@ void main() {
       unawaited(
         container.read(daySheetsProvider).open(harness.context, _today),
       );
-      await tester.pump(const Duration(milliseconds: 600));
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(
         find.byKey(const ValueKey('screen-state.loading')),
         findsOneWidget,
       );
       expect(_dayKindTag, findsNothing);
+      // 날짜와 요일은 바로 보이고, 음력 줄은 뼈입니다.
+      expect(find.text('10월 13일 화요일'), findsOneWidget);
+      expect(find.byType(DateHeader), findsNothing);
+      expect(find.textContaining('음력'), findsNothing);
+      // 섹션 제목 셋은 글자 그대로, 안쪽은 각자 뼈입니다.
+      expect(find.text(_ko.daySheetVerdictTitle), findsOneWidget);
+      expect(find.text(_ko.todayEventTitle), findsOneWidget);
+      expect(find.text(_ko.daySheetDiaryOpen), findsOneWidget);
+      expect(find.byType(HanjaTag), findsNothing);
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is SkeletonBone && w.width == HanjaTag.skeletonWidth,
+        ),
+        findsWidgets,
+        reason: '날의 성격 알약 뼈',
+      );
+      expect(find.byType(ScoreRow), findsNothing);
+      expect(find.byKey(FortuneVerdict.trackKey), findsNothing);
+      expect(find.byType(EventRow), findsNothing, reason: '일정은 뼈만');
+      expect(find.text(_ko.daySheetEventEmpty), findsNothing);
+      expect(
+        find.byKey(const ValueKey('day-sheet.diary.skeleton')),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier(SlotIds.daySheetDiaryWriteCta),
+        findsNothing,
+      );
 
       pending.complete(_october());
       await tester.pumpAndSettle();
       expect(_dayKindTag, findsOneWidget);
+    });
+
+    testWidgets('loading: 미래 날 skeleton에는 일기 제목이 없습니다(D49)', (tester) async {
+      final pending = Completer<Calendar>();
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final harness = _Harness(
+        server: ScheduleTestServer(),
+        calendar: () => pending.future,
+        diaries: (_) async => const [],
+      );
+      addTearDown(harness.router.dispose);
+      await tester.pumpWidget(harness.app());
+      final container = ProviderScope.containerOf(harness.context);
+      unawaited(
+        container
+            .read(daySheetsProvider)
+            .open(harness.context, CalendarDate(2026, 10, 20)),
+      );
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      expect(find.text(_ko.daySheetVerdictTitle), findsOneWidget);
+      expect(find.text(_ko.todayEventTitle), findsOneWidget);
+      expect(find.text(_ko.daySheetDiaryOpen), findsNothing);
+      expect(
+        find.byKey(const ValueKey('day-sheet.diary.skeleton')),
+        findsNothing,
+      );
     });
 
     testWidgets('error: 달 길흉을 받지 못하면 오류 화면, 다시 시도하면 내용입니다', (tester) async {

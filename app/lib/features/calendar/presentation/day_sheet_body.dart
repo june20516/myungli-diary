@@ -208,16 +208,27 @@ class _VerdictSection extends ConsumerWidget {
         else
           FortuneVerdict(
             score: day.score,
+            // 사전을 받지 못하면(오류) 내역은 이름을 알 수 없어 빠지고 막대와 이름만 남습니다.
+            // 사전 로드 실패는 이 화면이 따로 보고하지 않습니다(glossaryProvider의 오류 상태로
+            // 남고, 저장소는 캐시 쓰기 실패만 보고함). 막대 판정은 사전과 무관해 그대로 보입니다.
             items: names == null ? null : day.scoreItems,
             nameOf: (id) => _tagNameOf(names, id),
             meaningOf: (id) => _meaningOf(names, id),
             onItemTap: (item) => _openItem(context, ref, names, item),
             onUnrenderable: (ids) => reportScoreItemGaps(ref, [
-              for (final id in ids) '${ScoreItemMeta.glossaryCategory}.$id',
+              for (final id in ids) _gapTermIdOf(names, id),
             ]),
           ),
       ],
     );
+  }
+
+  /// 줄이 빠진 실제 원인 용어 id: 매핑이 없거나 한자 글자표가 없으면 `score_item.<id>`,
+  /// 매핑된 용어의 사전 이름이 없으면 그 용어 id(`day_kind.*`, `relation.*`)입니다.
+  static String _gapTermIdOf(GlossaryNames? names, String id) {
+    final termId = ScoreItemMeta.termIdOf(id);
+    if (termId != null && names?.nameOf(termId) == null) return termId;
+    return '${ScoreItemMeta.glossaryCategory}.$id';
   }
 
   /// 내역 태그 이름: 매핑된 용어의 사전 이름. 모르면 null(그 줄은 그리지 않음).
