@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -286,6 +287,21 @@ void main() {
     await tester.tap(term.first);
     await settleWithIo(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+  });
+
+  testWidgets('행운 색 칩 → 행운 설명 풀이 시트(칩 아래 상자 없음)', (tester) async {
+    covers(const Covers(exits: ['my-saju>explain-sheet']));
+    await _openMe(tester);
+    final chip = tester.widget<LuckyChip>(find.byType(LuckyChip));
+    await tester.ensureVisible(find.byType(LuckyChip));
+    await tester.tap(find.byType(LuckyChip));
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    expect(find.text(chip.item.name), findsWidgets);
+    expect(
+      find.text(plainTextOf(chip.item.explain), findRichText: true),
+      findsWidgets,
+    );
   });
 
   testWidgets('올해와 지금: 지금 대운과 올해 세운이 compact로 있고 낭독에 칩 낱말이 없습니다', (

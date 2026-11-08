@@ -396,6 +396,38 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('먼저 연 칩의 시트가 늦게 끝나도 나중에 연 칩의 열림 테두리는 남습니다', (tester) async {
+      final sheets = <Completer<void>>[];
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: SizedBox(
+              width: 360,
+              child: LuckyCardRow(
+                items: _items(),
+                onOpen: (_) {
+                  final sheet = Completer<void>();
+                  sheets.add(sheet);
+                  return sheet.future;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(_chip(LuckyCardVariant.color));
+      await tester.pump();
+      await tester.tap(_chip(LuckyCardVariant.number));
+      await tester.pump();
+      sheets.first.complete();
+      await tester.pumpAndSettle();
+      expect(_borderOf(tester, LuckyCardVariant.number).top.width, 1.5);
+      expect(_borderOf(tester, LuckyCardVariant.color).top.width, 1);
+      sheets.last.complete();
+      await tester.pumpAndSettle();
+      expect(_borderOf(tester, LuckyCardVariant.number).top.width, 1);
+    });
+
     testWidgets('onOpen이 바로 끝나면 열림 테두리가 남지 않습니다', (tester) async {
       await tester.pumpWidget(_app(opened: <LuckyItem>[]));
       await tester.tap(_chip(LuckyCardVariant.color));

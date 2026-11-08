@@ -331,6 +331,24 @@ void main() {
       );
     });
 
+    testWidgets('칩은 그라데이션 위에서도 불투명 bg.sheet와 1px line 테두리입니다(V75)', (
+      tester,
+    ) async {
+      await _bigScreen(tester);
+      await tester.pumpWidget(_app(_image(ShareImageVariant.story)));
+      final surfaces = find.byKey(LuckyChip.surfaceKey);
+      expect(surfaces, findsWidgets);
+      for (var i = 0; i < surfaces.evaluate().length; i++) {
+        final box = tester.widget<Container>(surfaces.at(i));
+        expect((box.decoration! as BoxDecoration).color, lightColors.bgSheet);
+        expect(lightColors.bgSheet.a, 1);
+        final border =
+            (box.foregroundDecoration! as BoxDecoration).border! as Border;
+        expect(border.top.width, 1);
+        expect(border.top.color, lightColors.line);
+      }
+    });
+
     testWidgets('라이트 기기와 다크 기기의 글자색이 같습니다', (tester) async {
       await _bigScreen(tester);
       Color? sentenceColor() => tester

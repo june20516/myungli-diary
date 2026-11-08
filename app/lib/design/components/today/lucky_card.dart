@@ -262,7 +262,8 @@ class _ChipFrame extends StatelessWidget {
 
 /// 행운 칩 줄(`lucky-card`).
 ///
-/// 칩을 누르면 [onOpen]이 설명 시트(`explain-sheet`)를 엽니다. 설명을 줄 아래에 끼워 넣지
+/// 칩을 누르면 [onOpen]이 설명 시트(`explain-sheet`)를 엽니다. 계약 `a11y.opensSheet`는 별도 힌트 없이
+/// 시트 route가 열릴 때 제목으로 알려지는 것으로 충족합니다(depth-link와 같은 원칙). 설명을 줄 아래에 끼워 넣지
 /// 않습니다. [onOpen]이 끝날 때까지(시트가 닫힐 때까지) 누른 칩에만 열림 테두리(1.5px
 /// `action.primary`)가 생기고, 시간 칩 둘은 같은 설명을 열어도 누른 칩만 테두리가 바뀝니다(V52).
 /// 햅틱은 없습니다(명세 `haptic` 비어 있음). 칩 수 상한(색, 방향, 숫자 3 + 시간 2, V52)은 값을
@@ -341,11 +342,13 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
   Future<void> _open(LuckyItem item) async {
     final onOpen = widget.onOpen;
     if (onOpen == null) return;
-    setState(() => _openId = _itemId(item));
+    final id = _itemId(item);
+    setState(() => _openId = id);
     try {
       await onOpen(item);
     } finally {
-      if (mounted) setState(() => _openId = null);
+      // 그사이 다른 칩이 열렸다면 그 칩의 열림 테두리를 지우지 않습니다.
+      if (mounted && _openId == id) setState(() => _openId = null);
     }
   }
 

@@ -186,16 +186,21 @@ void main() {
         );
         final link = tester.getRect(find.text(_link));
         // 마지막 줄 아래 안쪽 여백 12 + marginTop 16, 글자 상자 위까지.
-        expect(link.top - lastSentence.dy, greaterThanOrEqualTo(12 + 16));
+        expect(link.top - lastSentence.dy, closeTo(12 + 16, 1));
         final icon = tester.getRect(find.byType(Icon));
         expect(icon.left - link.right, TagSentenceList.chevronGap);
-        // 보이는 높이는 글자 줄이지만 눌림 영역은 위로 44까지 넓습니다.
+        // 눌림 44는 레이아웃 안이라 글자 위아래 바깥 각각 동작하고, 44 밖은 동작하지 않습니다.
         var taps = 0;
         await tester.pumpWidget(_app(onLink: () => taps++));
-        final rect = tester.getRect(find.byKey(TagSentenceList.diaryLinkKey));
-        await tester.tapAt(Offset(rect.center.dx, rect.top - 10));
-        // 아래쪽은 이 목록의 끝이라 부모 경계 밖이고, 시트 아래 여백이 받습니다.
-        expect(taps, 1);
+        final target = tester.getRect(find.byKey(TagSentenceList.diaryLinkKey));
+        expect(target.height, 44);
+        final shown = tester.getRect(find.text(_link));
+        await tester.tapAt(Offset(shown.center.dx, shown.top - 8));
+        await tester.tapAt(Offset(shown.center.dx, shown.bottom + 8));
+        expect(taps, 2);
+        await tester.tapAt(Offset(shown.center.dx, target.top - 4));
+        await tester.tapAt(Offset(shown.center.dx, target.bottom + 4));
+        expect(taps, 2);
       },
     );
 

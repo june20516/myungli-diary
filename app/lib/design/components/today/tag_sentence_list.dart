@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
@@ -7,6 +9,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -130,7 +133,6 @@ class TagSentenceList extends StatelessWidget {
             if (index > 0) const ListDivider(indentStart: 0, indentEnd: 0),
             _Row(item: item),
           ],
-        const SizedBox(height: diaryLinkGap),
         _DiaryLink(label: diaryLinkLabel, onTap: onDiaryLink),
       ],
     );
@@ -180,7 +182,11 @@ class _Row extends StatelessWidget {
   }
 }
 
-/// 그 태그의 일기 보기 꺾쇠 링크(`diaryLink`): label.lg `action.primary` 글자와 꺾쇠, 터치 44.
+/// 그 태그의 일기 보기 꺾쇠 링크(`diaryLink`): label.lg `action.primary` 글자와 꺾쇠.
+///
+/// 눌림 44를 레이아웃에 담습니다(`VerticalHitSlop`은 부모 경계 안에서만 넓어져 목록 끝에서는
+/// 아래쪽이 죽음). 글자는 44 안 가운데에 놓이고, 보이는 위 간격이 [TagSentenceList.diaryLinkGap]
+/// 그대로이도록 위 여백에서 위쪽 여유를 뺍니다.
 class _DiaryLink extends StatelessWidget {
   const new({required this.label, required this.onTap});
 
@@ -194,29 +200,38 @@ class _DiaryLink extends StatelessWidget {
     final style = tokens.typography.labelLg.copyWith(
       color: colors.actionPrimary,
     );
-    return VerticalHitSlop(
-      child: PressInkTarget(
-        key: TagSentenceList.diaryLinkKey,
-        semanticLabel: label,
-        link: true,
-        onTap: onTap,
-        inkColor: colors.actionPrimary,
-        borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: TagSentenceList.chevronGap,
-          children: [
-            Flexible(child: Text(label, style: style)),
-            // 장식이라 스크린리더가 읽지 않습니다(글자만 link로 읽음).
-            ExcludeSemantics(
-              child: AppIcon(
-                _caretRight,
-                size: AppIconSize.adjacentText(style.fontSize ?? 15),
-                color: colors.actionPrimary,
-                scalesWithText: true,
-              ),
+    final lineHeight = lineHeightOf(style, MediaQuery.textScalerOf(context));
+    final inset = math.max(0, (sentenceMinTarget - lineHeight) / 2);
+    return Padding(
+      padding: EdgeInsets.only(top: TagSentenceList.diaryLinkGap - inset),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: PressInkTarget(
+          key: TagSentenceList.diaryLinkKey,
+          semanticLabel: label,
+          link: true,
+          onTap: onTap,
+          inkColor: colors.actionPrimary,
+          borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: sentenceMinTarget),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: TagSentenceList.chevronGap,
+              children: [
+                Flexible(child: Text(label, style: style)),
+                // 장식이라 스크린리더가 읽지 않습니다(글자만 link로 읽음).
+                ExcludeSemantics(
+                  child: AppIcon(
+                    _caretRight,
+                    size: AppIconSize.adjacentText(style.fontSize ?? 15),
+                    color: colors.actionPrimary,
+                    scalesWithText: true,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
