@@ -14,6 +14,8 @@ from mlw._gen.myungli.engine.v1 import engine_pb2
 TEN_GOD_GROUPS: tuple[str, ...] = ("bigyeop", "siksang", "jaeseong", "gwanseong", "inseong")
 # 원국 개인 해석(core `rules/personal.py`)의 매개변수 값 중 proto enum이 아닌 것입니다.
 PERSONAL_ROLES: tuple[str, ...] = ("yongsin", "huisin", "gisin", "neutral")
+# core가 내지 않는 role 값입니다. 사주 표 일간 칸의 십성 자리 칩이 용어 id로 씁니다(#863).
+CHART_ROLES: tuple[str, ...] = ("day_master",)
 LUCK_KINDS: tuple[str, ...] = ("daeun", "seun")
 PILLAR_PARTS: tuple[str, ...] = ("stem", "branch")
 # 지장간 자리는 지지 자리 이름에 이 접미사를 붙입니다(core `_place`).
@@ -64,7 +66,7 @@ def glossary_values() -> dict[str, tuple[str, ...]]:
         "day_kind": _enum_value_names(engine_pb2.DayKind),
         "relation": _enum_value_names(engine_pb2.RelationKind),
         "place": _place_values(),
-        "role": PERSONAL_ROLES,
+        "role": PERSONAL_ROLES + CHART_ROLES,
         "strength": _enum_value_names(engine_pb2.StrengthLevel),
         "luck": LUCK_KINDS,
         "part": PILLAR_PARTS,

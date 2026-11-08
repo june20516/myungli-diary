@@ -121,7 +121,7 @@
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 106 | - | ko 10, en 18, ja 10 |
+| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 107 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.error.body | login-methods.error.body | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -216,7 +216,7 @@
 | tag-sheet.diary.cta | tag-sheet.diary.cta | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
 | tag-sheet.sentences.empty | tag-sheet.sentences.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
 | tag-sheet.sentences.title | tag-sheet.sentences.title | info | - | 1 | 1 | - | ko -, en -, ja - |
-| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 78 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 79 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |

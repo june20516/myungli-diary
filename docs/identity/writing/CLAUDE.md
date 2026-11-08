@@ -51,6 +51,7 @@
 ## 현재 상태 (2026-11-05, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **용어 "일간" 뜻**(#863, F-019, 라운드 R35 `artifacts/2026-11-08-round-R35.md`, W61): 용어 id `role.day_master`의 값 이름, 한자, 뜻 3개 언어 원고. server 시드 반영은 server 몫입니다.
 * **DS1 2단계 화면 낱말**(#857, #850, D113, drift #855, 라운드 R34 `artifacts/2026-11-07-round-R34.md`, W60): IA 새 ui 슬롯 `explain-sheet.tag.diary-link`, `today.event.title`(그날 시트와 같은 키), IA 밖 슬롯 5개(12운성 자리 글자, 대운 세운 기간, 회고 낱말, 사주 기운 시트 이름 칸, 질문 바꾸기)와 띠 표 빈 칸 키, design 5.0.0 상한, 편수 삭제 둘. 신강약 알약은 IA에서 빠져(#860) 넣지 않았습니다.
 * **대표 태그 없는 날 한 줄**(#840, D112, drift #842, 라운드 R33 `artifacts/2026-11-06-round-R33.md`, W59): IA 새 ui 슬롯 `today.featured.empty` "오늘은 두드러진 사주 기운이 없어요." 3개 언어 원고. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
 * **로그인 덧붙임**(#830, D111, drift #831, 라운드 R32 `artifacts/2026-11-06-round-R32.md`, W58): IA 새 ui 슬롯 `login.save.note`(첫 풀이를 거쳐 온 경우에만) "로그인하시면 방금 본 풀이를 이어서 볼 수 있어요." 3개 언어 원고. 새 슬롯 상한은 design 측정 전이라 `null`입니다.

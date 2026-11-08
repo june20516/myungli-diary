@@ -272,7 +272,7 @@ def test_glossary_values_personal() -> None:
         "day_branch_hidden",
         "hour_branch_hidden",
     )
-    assert values["role"] == ("yongsin", "huisin", "gisin", "neutral")
+    assert values["role"] == ("yongsin", "huisin", "gisin", "neutral", "day_master")
     assert values["strength"] == ("very_weak", "weak", "neutral", "strong", "very_strong")
     assert values["luck"] == ("daeun", "seun")
     assert values["part"] == ("stem", "branch")

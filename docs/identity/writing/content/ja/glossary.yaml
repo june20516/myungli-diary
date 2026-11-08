@@ -101,6 +101,7 @@
 - {slot: glossary.value_name, key: role.huisin, text: "喜神"}
 - {slot: glossary.value_name, key: role.gisin, text: "忌神"}
 - {slot: glossary.value_name, key: role.neutral, text: "閑神"}
+- {slot: glossary.value_name, key: role.day_master, text: "日干"}
 - {slot: glossary.value_name, key: strength.very_weak, text: "極身弱"}
 - {slot: glossary.value_name, key: strength.weak, text: "身弱"}
 - {slot: glossary.value_name, key: strength.neutral, text: "中和"}

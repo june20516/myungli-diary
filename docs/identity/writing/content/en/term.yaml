@@ -75,5 +75,6 @@
 - {slot: term.meaning, key: term.role.huisin, text: "An element that backs up the one your chart needs most. It's not quite as strong, but it's still a welcome energy."}
 - {slot: term.meaning, key: term.role.gisin, text: "An element that doesn't suit your chart. When this energy is strong, it's best not to push yourself."}
 - {slot: term.meaning, key: term.role.neutral, text: "An element that does little to help or harm your chart. On its own, it's an easygoing energy."}
+- {slot: term.meaning, key: term.role.day_master, text: "The heavenly stem of the day you were born, standing for you yourself in your chart. How the characters around it relate to you is all read from your day master."}
 - {slot: term.meaning, key: term.luck.daeun, text: "A big current that changes every 10 years, like the seasons of a life."}
 - {slot: term.meaning, key: term.luck.seun, text: "The current of a single year, changing each year. It shows how the energy coming in that year gets along with your chart."}

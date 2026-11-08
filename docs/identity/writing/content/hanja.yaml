@@ -57,6 +57,7 @@
 - {term: role.huisin, hanja: "喜神"}
 - {term: role.gisin, hanja: "忌神"}
 - {term: role.neutral, hanja: "閑神"}
+- {term: role.day_master, hanja: "日干"}
 - {term: luck.daeun, hanja: "大運"}
 - {term: luck.seun, hanja: "歲運"}
 - {term: tag.cheoneul_gwiin, hanja: "天乙貴人"}
