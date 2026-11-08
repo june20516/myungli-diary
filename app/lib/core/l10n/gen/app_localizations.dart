@@ -538,13 +538,13 @@ abstract class AppLocalizations {
   /// **'열기'**
   String get sajuChartYongsinOpen;
 
-  /// saju-chart.yongsin.title: 용신 판정 근거 줄의 이름. 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분
+  /// saju-chart.yongsin.title: 원국 탭 섹션 제목(용신 판정 근거). 잠겼을 때 스크린리더 라벨(구역 이름 + 잠김)의 앞부분
   ///
   /// In ko, this message translates to:
   /// **'용신 판정 근거'**
   String get sajuChartYongsinTitle;
 
-  /// today.reaction.label: 좋아요 반응 접근성 라벨
+  /// today.reaction.label: 총운 섹션 제목 줄 오른쪽 좋아요 반응의 접근성 라벨
   ///
   /// In ko, this message translates to:
   /// **'좋아요'**
@@ -766,13 +766,13 @@ abstract class AppLocalizations {
   /// **'저장'**
   String get onboardingSave;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)
   ///
   /// In ko, this message translates to:
   /// **'양력'**
   String get calendarSolar;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)
   ///
   /// In ko, this message translates to:
   /// **'음력'**
@@ -796,7 +796,7 @@ abstract class AppLocalizations {
   /// **'시간을 모르면 태어난 시를 빼고 세 기둥으로 풀어요.'**
   String get onboardTimeUnknownNote;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)
   ///
   /// In ko, this message translates to:
   /// **'모름'**
@@ -922,13 +922,13 @@ abstract class AppLocalizations {
   /// **'태어난 도시 찾기'**
   String get birthplaceSearchLabel;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)
   ///
   /// In ko, this message translates to:
   /// **'남성'**
   String get genderMale;
 
-  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31)
+  /// 출생 정보 입력의 선택지 이름(양력·음력, 시간 모름, 성별). 윤달은 월 휠에서 고릅니다(`datePickerLeapMonthValue`, V31). 사주 표 출생 정보 줄의 알약과 꼬리표도 같은 키를 씁니다(R30-13, design 5.0.0, 상한은 더 좁은 segmented 칸 기준 그대로)
   ///
   /// In ko, this message translates to:
   /// **'여성'**
@@ -988,16 +988,16 @@ abstract class AppLocalizations {
   /// **'닫기'**
   String get actionClose;
 
-  /// login.title.head: 로그인 제목
+  /// login.title.head: 로그인 제목. 첫 화면 맞이 문구(경로와 상관없이 같음, D111)
   ///
   /// In ko, this message translates to:
-  /// **'로그인하고 풀이를 저장해요'**
+  /// **'명리일기'**
   String get loginTitleHead;
 
-  /// login.title.body: 저장하려면 로그인한다는 설명
+  /// login.title.body: 로그인 설명. 첫 화면 맞이 문구로 경로와 상관없이 같음(D111, 검수 F-029, writing W56)
   ///
   /// In ko, this message translates to:
-  /// **'로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.'**
+  /// **'로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요.'**
   String get loginTitleBody;
 
   /// login.discard.notice: 사주가 저장된 계정이면 미리보기 입력을 쓰지 않는다는 안내
@@ -1162,13 +1162,13 @@ abstract class AppLocalizations {
   /// **'음력은 한국천문연구원 기준의 한국 음력을 따릅니다.'**
   String get calcBasisLunarBody;
 
-  /// calendar.legend.body: 점 색의 뜻
+  /// calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키
   ///
   /// In ko, this message translates to:
   /// **'잘 풀리는 날'**
   String get calendarLegendBodyGood;
 
-  /// calendar.legend.body: 점 색의 뜻
+  /// calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키
   ///
   /// In ko, this message translates to:
   /// **'조심할 날'**
@@ -1186,17 +1186,17 @@ abstract class AppLocalizations {
   /// **'(필수) 개인정보 수집 및 이용'**
   String get consentRequiredLabelPrivacy;
 
-  /// day-sheet.diary.open: 그날 쓴 일기 머리(편수). 아래에 diary-row로 작성 순으로 놓입니다
+  /// day-sheet.diary.open: 그날 일기 섹션 제목. 쓴 일기가 없어도 보이고, 0편이면 제목 아래 쓰기 버튼만(DS1 관문 Q5 ①). 쓴 일기는 아래에 diary-row로 작성 순
   ///
   /// In ko, this message translates to:
-  /// **'이날 쓴 일기 {count, plural, other{{count}편}}'**
-  String daySheetDiaryOpen(int count);
+  /// **'일기'**
+  String get daySheetDiaryOpen;
 
-  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
+  /// day-sheet.diary.write-cta: 일기 쓰기 버튼 "<날짜> 일기 쓰기" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)
   ///
   /// In ko, this message translates to:
-  /// **'이날 일기 쓰기'**
-  String get daySheetDiaryWriteCta;
+  /// **'{date} 일기 쓰기'**
+  String daySheetDiaryWriteCta(String date);
 
   /// day-sheet.event.add: 일정 추가 버튼
   ///
@@ -1216,19 +1216,19 @@ abstract class AppLocalizations {
   /// **'오늘 있었던 일을 적어 보세요'**
   String get diaryEditBodyPlaceholder;
 
-  /// diary-edit.draft.status: 초안 저장 상태
+  /// diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)
   ///
   /// In ko, this message translates to:
-  /// **'기기에 임시 저장됨'**
+  /// **'임시 저장'**
   String get diaryEditDraftStatusLocal;
 
-  /// diary-edit.draft.status: 초안 저장 상태
+  /// diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)
   ///
   /// In ko, this message translates to:
   /// **'저장 중'**
   String get diaryEditDraftStatusSaving;
 
-  /// diary-edit.draft.status: 초안 저장 상태
+  /// diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)
   ///
   /// In ko, this message translates to:
   /// **'저장됨'**
@@ -1246,16 +1246,16 @@ abstract class AppLocalizations {
   /// **'일기에 태그가 붙었어요'**
   String get diaryEditSavedTags;
 
-  /// diary-list.empty.body: 쓴 일기가 없을 때 안내
+  /// diary-list.empty.body: 쓴 일기가 없을 때 안내. 아래에 같은 일기 쓰기 버튼을 가운데 둠
   ///
   /// In ko, this message translates to:
   /// **'아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?'**
   String get diaryListEmptyBody;
 
-  /// diary-list.pick-date.cta: 날짜 골라 쓰기 버튼
+  /// diary-list.pick-date.cta: 일기 쓰기 버튼(가안 "일기 쓰기", 문구 writing). 쓰기 입구는 이것 하나이고 목록이 있으면 아래 고정, 빈 상태에서는 안내 아래 가운데. 누르면 날짜 고르기 시트(기본값 오늘)
   ///
   /// In ko, this message translates to:
-  /// **'날짜 골라 쓰기'**
+  /// **'일기 쓰기'**
   String get diaryListPickDateCta;
 
   /// diary-view.delete.confirm: 일기 삭제 확인
@@ -1516,7 +1516,7 @@ abstract class AppLocalizations {
   /// **'일기 질문'**
   String get todayGuideLabel;
 
-  /// today.reaction.label: 좋아요 반응 접근성 라벨
+  /// today.reaction.label: 총운 섹션 제목 줄 오른쪽 좋아요 반응의 접근성 라벨
   ///
   /// In ko, this message translates to:
   /// **'좋아요 취소'**
@@ -1528,11 +1528,11 @@ abstract class AppLocalizations {
   /// **'풀이'**
   String get depthExplain;
 
-  /// 깊이 링크(depth-link): 오늘 화면에서 근거 시트로 가는 링크 이름(#153)
+  /// 근거 아이콘(book-open-text)의 스크린리더 이름: 오늘 화면 문장 끝에서 근거 시트로 가는 아이콘(#153, DS1 V63, #807)
   ///
   /// In ko, this message translates to:
-  /// **'근거 보기'**
-  String get depthLinkEvidence;
+  /// **'{subject} 근거 보기'**
+  String depthLinkEvidence(String subject);
 
   /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
   ///
@@ -1974,7 +1974,7 @@ abstract class AppLocalizations {
   /// **'한 번에 볼 수 있는 기간을 넘었어요. 기간을 줄여 주세요.'**
   String get errorRangeTooLong;
 
-  /// 일기 쓰기 화면(diary-edit): 저장 버튼. 누르면 diary-view로 갑니다(#275)
+  /// 일기 쓰기 화면(diary-edit): 상단 바 오른쪽 저장 글자 버튼(app-bar textAction, DS1 V82, V94). 누르면 diary-view로 갑니다(#275)
   ///
   /// In ko, this message translates to:
   /// **'저장'**
@@ -2004,25 +2004,25 @@ abstract class AppLocalizations {
   /// **'{date} 일기 쓰기'**
   String diaryListPickDateConfirm(String date);
 
-  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
+  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
   ///
   /// In ko, this message translates to:
   /// **'#{tag}'**
   String tagChipLabel(String tag);
 
-  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
+  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
   ///
   /// In ko, this message translates to:
   /// **'좋은 흐름'**
   String get tagChipPolarityGood;
 
-  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
+  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
   ///
   /// In ko, this message translates to:
   /// **'조심할 흐름'**
   String get tagChipPolarityBad;
 
-  /// 태그 칩(tag-chip): 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다
+  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
   ///
   /// In ko, this message translates to:
   /// **'무난한 흐름'**
@@ -2262,13 +2262,13 @@ abstract class AppLocalizations {
   /// **'다른 계정의 기록을 이 계정으로 가져올까요?'**
   String get accountMergeTitleHead;
 
-  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
+  /// day-sheet.diary.write-cta: 일기 쓰기 버튼 "<날짜> 일기 쓰기" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)
   ///
   /// In ko, this message translates to:
-  /// **'이날 새 일기 쓰기'**
-  String get daySheetDiaryWriteCtaWritten;
+  /// **'{date} 새 일기 쓰기'**
+  String daySheetDiaryWriteCtaWritten(String date);
 
-  /// day-sheet.diary.write-cta: 이날 일기 쓰기(지난 날·오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구, D83 ②)
+  /// day-sheet.diary.write-cta: 일기 쓰기 버튼 "<날짜> 일기 쓰기" 틀(매개변수 date, 예: 11월 9일 일기 쓰기). 지난 날과 오늘. 이미 쓴 날이면 한 편 더 쓰기, 10편을 채웠으면 누를 수 없고 더 쓸 수 없다는 문구(D83 ②)
   ///
   /// In ko, this message translates to:
   /// **'이날은 충분히 썼어요'**
@@ -2735,6 +2735,426 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'문의하기'**
   String get settingsContactLabel;
+
+  /// calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키
+  ///
+  /// In ko, this message translates to:
+  /// **'아주 잘 풀리는 날'**
+  String get calendarLegendBodyVeryGood;
+
+  /// calendar.legend.body: 범례 견본 셋의 이름: 아주 잘 풀리는 날(합한 점 3 이상), 잘 풀리는 날(2), 조심할 날. 무난한 날은 무색이라 범례 견본이 없음(DS1 관문 Q2 ①). 그날 시트 길흉판정 막대의 세 이름도 이 키
+  ///
+  /// In ko, this message translates to:
+  /// **'무난한 날'**
+  String get calendarLegendBodyNeutral;
+
+  /// calendar.legend.rule-link: 범례 끝 입구 "길흉은 어떻게 정해지나요". 누르면 색 규칙 시트(DS1 관문 Q2 ②)
+  ///
+  /// In ko, this message translates to:
+  /// **'길흉은 어떻게 정해지나요'**
+  String get calendarLegendRuleLink;
+
+  /// color-rule-sheet.rule.body: 설명 문장(사용자 문구 바탕, writing 확정): 그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요
+  ///
+  /// In ko, this message translates to:
+  /// **'그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.'**
+  String get colorRuleSheetRuleBody;
+
+  /// color-rule-sheet.sheet.title: 시트 제목(문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'길흉을 정하는 방법'**
+  String get colorRuleSheetSheetTitle;
+
+  /// day-sheet.date.lunar: 머리의 음력 날짜 틀(매개변수 lunarDate, 예: 음력 10월 1일)
+  ///
+  /// In ko, this message translates to:
+  /// **'음력 {month}월 {day}일'**
+  String daySheetDateLunar(int month, int day);
+
+  /// day-sheet.date.lunar: 머리의 음력 날짜 틀(매개변수 lunarDate, 예: 음력 10월 1일)
+  ///
+  /// In ko, this message translates to:
+  /// **'음력 윤{month}월 {day}일'**
+  String daySheetDateLunarLeap(int month, int day);
+
+  /// day-sheet.date.solar: 머리의 날짜와 요일 틀(매개변수 date, 예: 11월 9일 월요일)
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}'**
+  String daySheetDateSolar(String date);
+
+  /// day-sheet.verdict.item: 내역 한 줄 틀: 한자 아이콘 태그, 짧은 뜻, 점과 더함 또는 뺌(예: 用 용신의 날, 점 둘, 더함). 숫자 대신 점, 한 줄 요약 문장 없음
+  ///
+  /// In ko, this message translates to:
+  /// **'좋은 쪽으로 {count}'**
+  String daySheetVerdictItemPlus(int count);
+
+  /// day-sheet.verdict.item: 내역 한 줄 틀: 한자 아이콘 태그, 짧은 뜻, 점과 더함 또는 뺌(예: 用 용신의 날, 점 둘, 더함). 숫자 대신 점, 한 줄 요약 문장 없음
+  ///
+  /// In ko, this message translates to:
+  /// **'조심할 쪽으로 {count}'**
+  String daySheetVerdictItemMinus(int count);
+
+  /// day-sheet.verdict.title: 섹션 제목 "길흉판정"(확정). 아래에 조심할 날, 무난한 날, 잘 풀리는 날 위의 위치 막대와 내역. 아래 막대의 세 이름(조심할 날, 무난한 날, 잘 풀리는 날)은 `calendar.legend.body`와 같은 키(DS1 관문 Q3)
+  ///
+  /// In ko, this message translates to:
+  /// **'길흉판정'**
+  String get daySheetVerdictTitle;
+
+  /// diary-edit.date.day: 큰 날짜 블록의 일 숫자 틀(매개변수 date)
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}'**
+  String diaryEditDateDay(String date);
+
+  /// diary-edit.date.iljin: 큰 날짜 블록의 일진 틀(매개변수 pillar), 일 숫자 아래
+  ///
+  /// In ko, this message translates to:
+  /// **'{pillar}일'**
+  String diaryEditDateIljin(String pillar);
+
+  /// diary-edit.date.month: 큰 날짜 블록의 월과 요일 틀(매개변수 date), 일 숫자 옆
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}'**
+  String diaryEditDateMonth(String date);
+
+  /// diary-edit.length.count: 글자 수 틀(매개변수 count). 임시 저장 상태와 함께 상단 바 가운데에 작게, 쓰는 중에만
+  ///
+  /// In ko, this message translates to:
+  /// **'{count, plural, other{{count}자}}'**
+  String diaryEditLengthCount(int count);
+
+  /// explain-sheet.tag.diary-link: 대표 태그 뜻 시트에만 두는 꺾쇠 링크: 그 태그가 붙은 내 일기 보기(매개변수 tag). 누르면 tag-diary, 일기가 없으면 tag-diary 빈 상태(V73, V81, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'{tag} 태그가 붙은 내 일기 보기'**
+  String explainSheetTagDiaryLink(String tag);
+
+  /// login.save.note: 첫 풀이(preview)를 거쳐 온 경우에만 보이는 덧붙임 문구: 지금 본 풀이를 계속 저장하려면 로그인한다는 안내. 거치지 않고 오면(이미 계정이 있어요 등) 보이지 않음(D111, 검수 F-029)
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하시면 방금 본 풀이를 이어서 볼 수 있어요.'**
+  String get loginSaveNote;
+
+  /// my-saju.chart.link: 사주 원국 섹션의 "사주 표" 이동(오른쪽 꺾쇠). 누르면 사주 표
+  ///
+  /// In ko, this message translates to:
+  /// **'사주 표'**
+  String get mySajuChartLink;
+
+  /// my-saju.chart.title: 섹션 제목 "사주 원국"(사용자가 정한 문구). 아래에 네 기둥(천간, 지지, 위아래 십성, 일간 표시)과 오행 분포
+  ///
+  /// In ko, this message translates to:
+  /// **'사주 원국'**
+  String get mySajuChartTitle;
+
+  /// my-saju.flow.link: 올해와 지금 섹션의 "대운 전체" 이동(오른쪽 꺾쇠). 누르면 사주 표의 만세력과 대운 탭
+  ///
+  /// In ko, this message translates to:
+  /// **'대운 전체'**
+  String get mySajuFlowLink;
+
+  /// my-saju.flow.title: 섹션 제목 "올해와 지금"(사용자가 정한 문구). 아래에 지금 대운과 올해 세운의 기둥과 십성 칩(누르면 용어 풀이). 흐름 설명 문장은 T1 뒤
+  ///
+  /// In ko, this message translates to:
+  /// **'올해와 지금'**
+  String get mySajuFlowTitle;
+
+  /// my-saju.ilgan.title: 섹션 제목 "사주 성향 풀이"(사용자가 정한 문구)
+  ///
+  /// In ko, this message translates to:
+  /// **'사주 성향 풀이'**
+  String get mySajuIlganTitle;
+
+  /// my-saju.record.few: 기록이 적을 때 명리일기 회고 자리의 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'일기가 몇 편 더 쌓이면 내 기록을 돌아볼 수 있어요.'**
+  String get mySajuRecordFew;
+
+  /// my-saju.record.title: 섹션 제목 "명리일기 회고"(사용자가 정한 문구). 아래에 기록 요약(쓴 편수, 날의 성격별 쓴 날, 자주 붙은 태그, server 집계 경로 새로 필요)
+  ///
+  /// In ko, this message translates to:
+  /// **'명리일기 회고'**
+  String get mySajuRecordTitle;
+
+  /// my-saju.yongsin.title: 섹션 제목 "나를 돕는 기운"(사용자가 정한 문구). 아래에 용신, 행운 색, 용신 문장
+  ///
+  /// In ko, this message translates to:
+  /// **'나를 돕는 기운'**
+  String get mySajuYongsinTitle;
+
+  /// notify-ask.time.note: 시각 고르기 아래 안내: 고른 시각부터 10분 안에 도착(D109, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'상황에 따라 알림이 최대 10분 지연될 수 있어요.'**
+  String get notifyAskTimeNote;
+
+  /// saju-chart.daeun.desc: 대운 섹션 제목 아래 한 줄 설명(늘 보임)
+  ///
+  /// In ko, this message translates to:
+  /// **'10년마다 바뀌는 큰 흐름이에요.'**
+  String get sajuChartDaeunDesc;
+
+  /// saju-chart.daeun.title: 만세력과 대운 탭 섹션 제목 "대운"
+  ///
+  /// In ko, this message translates to:
+  /// **'대운'**
+  String get sajuChartDaeunTitle;
+
+  /// saju-chart.head.title: 두 탭 공통 머리 "<호칭>님의 사주" 틀, 호칭 자리. 아래에 출생 정보 줄(달력 종류 꼬리표와 날짜, 시진 한자 태그와 시간, 성별 알약)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname}님의 사주'**
+  String sajuChartHeadTitle(String nickname);
+
+  /// saju-chart.jijanggan.desc: 지장간 한 줄 설명. 띠 안에 두지 않고 띠 이름 용어 칩을 누르면 여는 설명 시트의 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'지지 속에 숨어 있는 천간이에요. 겉으로 보이지 않아도 그 자리의 기운을 구성해요.'**
+  String get sajuChartJijangganDesc;
+
+  /// saju-chart.manse.basis: 만세력과 대운 탭 위 "내 일간 <간>(<이름>) 기준" 틀(매개변수 stem)
+  ///
+  /// In ko, this message translates to:
+  /// **'내 일간 {stem} 기준'**
+  String sajuChartManseBasis(String stem);
+
+  /// saju-chart.ohaeng.desc: 오행 분포 섹션 제목 아래 한 줄 설명(늘 보임)
+  ///
+  /// In ko, this message translates to:
+  /// **'내 사주에 나무, 불, 흙, 쇠, 물 기운이 얼마나 있는지를 보여 줘요.'**
+  String get sajuChartOhaengDesc;
+
+  /// saju-chart.ohaeng.title: 원국 탭 섹션 제목 "오행 분포"
+  ///
+  /// In ko, this message translates to:
+  /// **'오행 분포'**
+  String get sajuChartOhaengTitle;
+
+  /// saju-chart.pillars.desc: 사주 섹션 제목 아래 한 줄 설명(늘 보임)
+  ///
+  /// In ko, this message translates to:
+  /// **'태어난 연, 월, 일, 시를 천간과 지지 한 쌍으로 나타낸 것이에요. 일간이 \'나\'예요.'**
+  String get sajuChartPillarsDesc;
+
+  /// saju-chart.pillars.title: 원국 탭 섹션 제목 "사주"("네 기둥" 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'사주'**
+  String get sajuChartPillarsTitle;
+
+  /// saju-chart.seun.desc: 세운 섹션 제목 아래 한 줄 설명(늘 보임)
+  ///
+  /// In ko, this message translates to:
+  /// **'해마다 들어오는 기운이에요.'**
+  String get sajuChartSeunDesc;
+
+  /// saju-chart.seun.title: 만세력과 대운 탭 섹션 제목 "세운"
+  ///
+  /// In ko, this message translates to:
+  /// **'세운'**
+  String get sajuChartSeunTitle;
+
+  /// saju-chart.sinsal.desc: 신살 한 줄 설명. 띠 이름 용어 칩을 누르면 여는 설명 시트의 본문. 신살이 없는 자리는 비움 표시
+  ///
+  /// In ko, this message translates to:
+  /// **'특정 글자의 조합으로 생기는 고유 성질이에요. 없는 경우도 있어요.'**
+  String get sajuChartSinsalDesc;
+
+  /// saju-chart.unseong.desc: 12운성 한 줄 설명. 띠 이름 용어 칩을 누르면 여는 설명 시트의 본문이고, 시트 안에 12단계 선형 띠와 내 네 자리(시, 일, 월, 연)
+  ///
+  /// In ko, this message translates to:
+  /// **'일간의 기운이 그 자리에서 얼마나 힘을 쓰는지 열두 단계로 나타냅니다.'**
+  String get sajuChartUnseongDesc;
+
+  /// settings.notify-time.note: 알림 시각 고르기(시트) 안의 안내: 고른 시각부터 10분 안에 도착(D109, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'상황에 따라 알림이 최대 10분 지연될 수 있어요.'**
+  String get settingsNotifyTimeNote;
+
+  /// tag-sheet.diary.cta: 그 태그가 붙은 내 일기 보기 링크. 편수 없이 늘 보이고, 일기가 없으면 tag-diary 빈 상태가 맡음(V79, DS1 관문)
+  ///
+  /// In ko, this message translates to:
+  /// **'{tag} 태그가 붙은 내 일기 보기'**
+  String tagSheetDiaryCta(String tag);
+
+  /// tag-sheet.sentences.empty: 이 기운으로 정해진 오늘 문장이 없을 때 안내(가안 "오늘은 이 기운으로 정해진 문장이 없어요", 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 이 기운으로 정해진 문장이 없어요.'**
+  String get tagSheetSentencesEmpty;
+
+  /// tag-sheet.sentences.title: 구역 제목 "이 기운에서 나온 오늘 문장". 아래 목록은 오늘 화면의 보조 문장(today.fortune.body), 오늘의 질문(today.guide.question)과 같은 문장
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기운에서 나온 오늘 문장'**
+  String get tagSheetSentencesTitle;
+
+  /// today.date.iljin: 날짜 머리의 일진 틀(매개변수 pillar, 예: 癸未(계미)일)
+  ///
+  /// In ko, this message translates to:
+  /// **'{pillar}일'**
+  String todayDateIljin(String pillar);
+
+  /// today.date.lunar: 날짜 머리의 음력 날짜 틀(매개변수 lunarDate). 음력은 server 계약 추가
+  ///
+  /// In ko, this message translates to:
+  /// **'음력 {month}월 {day}일'**
+  String todayDateLunar(int month, int day);
+
+  /// today.date.lunar: 날짜 머리의 음력 날짜 틀(매개변수 lunarDate). 음력은 server 계약 추가
+  ///
+  /// In ko, this message translates to:
+  /// **'음력 윤{month}월 {day}일'**
+  String todayDateLunarLeap(int month, int day);
+
+  /// today.date.solar: 날짜 머리의 날짜와 요일 틀(매개변수 date, 예: 11월 5일 목요일)
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}'**
+  String todayDateSolar(String date);
+
+  /// today.event.title: 일정 섹션 제목 "일정". 일정이 있는 날만 섹션째 보임(그날 시트 `day-sheet.event.title`과 같은 키, 사용자 결정 2026-11-07, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'일정'**
+  String get todayEventTitle;
+
+  /// today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, 표본 기준 약 7%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 두드러진 사주 기운이 없어요.'**
+  String get todayFeaturedEmpty;
+
+  /// today.featured.title: 섹션 제목 "사주 기운"(가안, 문구 writing). 아래에 대표 태그(최대 둘)를 한자 아이콘 태그로 두고, 누르면 사주 기운 시트. 대표 태그가 없는 날도 제목은 두고 아래에 `today.featured.empty` 한 줄(D112)
+  ///
+  /// In ko, this message translates to:
+  /// **'사주 기운'**
+  String get todayFeaturedTitle;
+
+  /// today.fortune.title: 섹션 제목 "총운"(확정). 제목 줄 오른쪽에 좋아요
+  ///
+  /// In ko, this message translates to:
+  /// **'총운'**
+  String get todayFortuneTitle;
+
+  /// today.guide.title: 섹션 제목 "오늘의 질문"(가안, 문구 writing). 아래에 오늘의 질문, 일기 쓰기, 오늘 쓴 일기
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 질문'**
+  String get todayGuideTitle;
+
+  /// today.lucky.title: 섹션 제목 "행운"(가안, 문구 writing). 아래에 색(색 견본), 방향(나침반), 숫자(#), 시간(시계) 칩
+  ///
+  /// In ko, this message translates to:
+  /// **'행운'**
+  String get todayLuckyTitle;
+
+  /// 사주 표 머리 아래 출생 정보 줄(birth-info-row)의 시진 칸. 달력 종류는 `calendarSolar`·`calendarLunar`, 성별은 `genderMale`·`genderFemale`, 시간 모름은 `timeUnknownLabel`을 함께 씁니다(R30-13)
+  ///
+  /// In ko, this message translates to:
+  /// **'{branch}시'**
+  String birthInfoHour(String branch);
+
+  /// 일기 쓰기 인용 질문 옆 질문 바꾸기 아이콘 버튼(arrows-clockwise)의 스크린리더 이름. 바꾼 뒤에는 새 질문을 읽습니다(DS1 V82, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'질문 바꾸기'**
+  String get diaryEditQuestionSwap;
+
+  /// text-field focused의 키보드 위 내리기 원형 버튼(keyboardDismiss, caret-down)의 스크린리더 이름. 입력칸에 초점이 있는 동안만 보입니다(DS1 V68, #807)
+  ///
+  /// In ko, this message translates to:
+  /// **'키보드 내리기'**
+  String get keyboardDismiss;
+
+  /// 나 탭 명리일기 회고 카드의 낱말: 28px 숫자 옆 편수 단위, 날의 성격 막대 머리, 자주 붙은 태그 머리(DS1 V76, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'{count, plural, other{편}}'**
+  String mySajuRecordCountUnit(int count);
+
+  /// 나 탭 명리일기 회고 카드의 낱말: 28px 숫자 옆 편수 단위, 날의 성격 막대 머리, 자주 붙은 태그 머리(DS1 V76, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'쓴 날의 성격'**
+  String get mySajuRecordDayKindHead;
+
+  /// 나 탭 명리일기 회고 카드의 낱말: 28px 숫자 옆 편수 단위, 날의 성격 막대 머리, 자주 붙은 태그 머리(DS1 V76, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'자주 붙은 태그'**
+  String get mySajuRecordTagHead;
+
+  /// saju-pillars, manse-table, daeun-table, ohaeng-bar: 스크린리더 표 이름과 항목
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get bandTableEmptyCell;
+
+  /// 나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'{startAge}~{endAge}세'**
+  String luckDaeunAgeRange(int startAge, int endAge);
+
+  /// 나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'{startYear}~{endYear}년'**
+  String luckDaeunYearRange(int startYear, int endYear);
+
+  /// 나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년'**
+  String luckSeunYear(int year);
+
+  /// 나 탭 대운, 세운 줄(luck-pillar compact)의 기간. 대운은 나이 범위와 연도 범위, 세운은 연도와 나이(DS1 V77, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'{age}세'**
+  String luckSeunAge(int age);
+
+  /// 12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'시'**
+  String get sajuStageMarkerHour;
+
+  /// 12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'일'**
+  String get sajuStageMarkerDay;
+
+  /// 12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get sajuStageMarkerMonth;
+
+  /// 12운성 설명 시트의 12단계 띠(stage-strip)에서 내 네 자리 위 원 18 안 기둥 한 글자(DS1 V91, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'연'**
+  String get sajuStageMarkerYear;
+
+  /// 사주 기운 시트 문장 목록(tag-sentence-list) 줄 왼쪽 52px 이름 칸. 칸 안에서 줄바꿈합니다(DS1 V79, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'총운'**
+  String get tagSheetSentenceKindFortune;
+
+  /// 사주 기운 시트 문장 목록(tag-sentence-list) 줄 왼쪽 52px 이름 칸. 칸 안에서 줄바꿈합니다(DS1 V79, D77 ② IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 질문'**
+  String get tagSheetSentenceKindGuide;
 }
 
 class _AppLocalizationsDelegate

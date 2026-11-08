@@ -21,6 +21,8 @@ abstract class _$YongsinCWProxy {
 
   Yongsin basis(SlotText? basis);
 
+  Yongsin basisPreview(RenderedText? basisPreview);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Yongsin(...).copyWith.fieldName(value)`.
@@ -37,6 +39,7 @@ abstract class _$YongsinCWProxy {
     YongsinMethod method,
     Stem? johuStem,
     SlotText? basis,
+    RenderedText? basisPreview,
   });
 }
 
@@ -68,6 +71,10 @@ class _$YongsinCWProxyImpl implements _$YongsinCWProxy {
   @override
   Yongsin basis(SlotText? basis) => call(basis: basis);
 
+  @override
+  Yongsin basisPreview(RenderedText? basisPreview) =>
+      call(basisPreview: basisPreview);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Yongsin(...).copyWith.fieldName(value)`.
@@ -85,6 +92,7 @@ class _$YongsinCWProxyImpl implements _$YongsinCWProxy {
     Object? method = const $CopyWithPlaceholder(),
     Object? johuStem = const $CopyWithPlaceholder(),
     Object? basis = const $CopyWithPlaceholder(),
+    Object? basisPreview = const $CopyWithPlaceholder(),
   }) {
     return Yongsin(
       yongsin: yongsin == const $CopyWithPlaceholder() || yongsin == null
@@ -115,6 +123,10 @@ class _$YongsinCWProxyImpl implements _$YongsinCWProxy {
           ? _value.basis
           // ignore: cast_nullable_to_non_nullable
           : basis as SlotText?,
+      basisPreview: basisPreview == const $CopyWithPlaceholder()
+          ? _value.basisPreview
+          // ignore: cast_nullable_to_non_nullable
+          : basisPreview as RenderedText?,
     );
   }
 }
@@ -171,6 +183,11 @@ Yongsin _$YongsinFromJson(Map<String, dynamic> json) => $checkedCreate(
         'basis',
         (v) => v == null ? null : SlotText.fromJson(v as Map<String, dynamic>),
       ),
+      basisPreview: $checkedConvert(
+        'basisPreview',
+        (v) =>
+            v == null ? null : RenderedText.fromJson(v as Map<String, dynamic>),
+      ),
     );
     return val;
   },
@@ -184,6 +201,7 @@ Map<String, dynamic> _$YongsinToJson(Yongsin instance) => <String, dynamic>{
   'method': _$YongsinMethodEnumMap[instance.method]!,
   'johuStem': ?_$StemEnumMap[instance.johuStem],
   'basis': ?instance.basis?.toJson(),
+  'basisPreview': ?instance.basisPreview?.toJson(),
 };
 
 const _$FiveElementEnumMap = {

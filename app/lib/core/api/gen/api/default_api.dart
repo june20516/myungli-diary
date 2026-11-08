@@ -26,6 +26,7 @@ import 'package:myungli_diary/core/api/gen/model/diary.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_stats.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
@@ -58,6 +59,7 @@ import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_input.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_list.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_patch.dart';
+import 'package:myungli_diary/core/api/gen/model/server_version.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 
 class DefaultApi {
@@ -549,7 +551,7 @@ class DefaultApi {
   }
 
   /// 일기 쓰기
-  /// 일기를 한 편 씁니다. 하루에 살아 있는 일기는 10편까지입니다. 그날 첫 편이면 날짜 기록(태그·&#x60;rulesetVersion&#x60;·가이드 질문)을 함께 만듭니다. 같은 &#x60;Idempotency-Key&#x60;로 다시 보내면 24시간 동안 같은 응답입니다. 그날 살아 있는 일기가 이미 10편이면 422 &#x60;diary.day_full&#x60;, 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
+  /// 일기를 한 편 씁니다. 하루에 살아 있는 일기는 10편까지입니다. 그날 첫 편이면 날짜 기록(태그·&#x60;rulesetVersion&#x60;·가이드 질문)을 함께 만듭니다. &#x60;guideQuestion&#x60;에 그날 오늘의 질문 후보(&#x60;Daily.guideCandidates&#x60;) 하나의 &#x60;messageKey&#x60;와 &#x60;variant&#x60;를 보내면, server가 그 질문을 다시 렌더해 이 편의 &#x60;Diary.guideQuestion&#x60;으로 남깁니다(1.6.0에서 더함). 보내지 않으면 지금처럼 그날 기본 질문입니다. 그날 후보에 없는 조합이면 422 &#x60;diary.guide_invalid&#x60;(field &#x60;guideQuestion&#x60;)입니다. 같은 &#x60;Idempotency-Key&#x60;로 다시 보내면 24시간 동안 같은 응답입니다. 그날 살아 있는 일기가 이미 10편이면 422 &#x60;diary.day_full&#x60;, 오늘 이후 날짜는 422 &#x60;diary.future_date&#x60;, 지원 범위(D41) 밖 날짜는 422 &#x60;date.out_of_range&#x60;입니다. 프로필이 없으면 409 &#x60;profile.required&#x60;입니다.
   ///
   /// Parameters:
   /// * [diaryInput]
@@ -1737,6 +1739,81 @@ class DefaultApi {
     );
   }
 
+  /// 일기 회고 집계
+  /// 나 탭 \&quot;명리일기 회고\&quot;에 쓰는 계정 전체의 일기 집계입니다(#862, 1.9.0에서 더함). 지운 일기는 세지 않습니다. &#x60;entryCount&#x60;는 살아 있는 일기 편수입니다. &#x60;dayKinds&#x60;와 &#x60;topTags&#x60;는 날짜 단위로, 살아 있는 일기가 한 편 이상 있는 날짜를 셉니다. 같은 날 여러 편을 써도 그날은 한 번입니다. 그래서 &#x60;dayKinds&#x60;의 합은 &#x60;entryCount&#x60;보다 작을 수 있습니다. 일기가 없으면 &#x60;entryCount&#x60; 0, &#x60;dayKinds&#x60;의 수는 모두 0, &#x60;topTags&#x60;는 빈 목록입니다.
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [DiaryStats] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<DiaryStats>> getDiaryStats({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/v1/diary-stats';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {'type': 'http', 'scheme': 'bearer', 'name': 'bearerAuth'},
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    DiaryStats? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<DiaryStats, DiaryStats>(
+              rawData,
+              'DiaryStats',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<DiaryStats>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// 이용권 상태
   ///
   ///
@@ -2095,6 +2172,76 @@ class DefaultApi {
     }
 
     return Response<Profile>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// server 빌드가 다루는 엔진 규칙 버전
+  /// 엔진 배포 workflow가 배포 직전에 그 환경의 이 값을 읽고, 배포할 엔진의 &#x60;ruleset_version&#x60;이 더 높으면 배포하지 않습니다(D110). DB와 엔진에 기대지 않아, Cloud SQL이 없는 부하 환경에서도 200입니다. app은 쓰지 않습니다. 1.5.0에서 더했습니다.
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [ServerVersion] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<ServerVersion>> getServerVersion({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/version';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{...?headers},
+      extra: <String, dynamic>{'secure': <Map<String, String>>[], ...?extra},
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    ServerVersion? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<ServerVersion, ServerVersion>(
+              rawData,
+              'ServerVersion',
+              growable: true,
+            );
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<ServerVersion>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

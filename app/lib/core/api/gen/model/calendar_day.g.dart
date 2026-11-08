@@ -23,6 +23,8 @@ abstract class _$CalendarDayCWProxy {
 
   CalendarDay score(int score);
 
+  CalendarDay scoreItems(List<ScoreItem> scoreItems);
+
   CalendarDay level(SlotText level);
 
   /// Creates a new instance with the provided field values.
@@ -42,6 +44,7 @@ abstract class _$CalendarDayCWProxy {
     SlotText characterReason,
     LuckLevel luckLevel,
     int score,
+    List<ScoreItem> scoreItems,
     SlotText level,
   });
 }
@@ -79,6 +82,10 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
   CalendarDay score(int score) => call(score: score);
 
   @override
+  CalendarDay scoreItems(List<ScoreItem> scoreItems) =>
+      call(scoreItems: scoreItems);
+
+  @override
   CalendarDay level(SlotText level) => call(level: level);
 
   /// Creates a new instance with the provided field values.
@@ -99,6 +106,7 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
     Object? characterReason = const $CopyWithPlaceholder(),
     Object? luckLevel = const $CopyWithPlaceholder(),
     Object? score = const $CopyWithPlaceholder(),
+    Object? scoreItems = const $CopyWithPlaceholder(),
     Object? level = const $CopyWithPlaceholder(),
   }) {
     return CalendarDay(
@@ -136,6 +144,11 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
           ? _value.score
           // ignore: cast_nullable_to_non_nullable
           : score as int,
+      scoreItems:
+          scoreItems == const $CopyWithPlaceholder() || scoreItems == null
+          ? _value.scoreItems
+          // ignore: cast_nullable_to_non_nullable
+          : scoreItems as List<ScoreItem>,
       level: level == const $CopyWithPlaceholder() || level == null
           ? _value.level
           // ignore: cast_nullable_to_non_nullable
@@ -167,6 +180,7 @@ CalendarDay _$CalendarDayFromJson(Map<String, dynamic> json) =>
           'characterReason',
           'luckLevel',
           'score',
+          'scoreItems',
           'level',
         ],
       );
@@ -198,6 +212,12 @@ CalendarDay _$CalendarDayFromJson(Map<String, dynamic> json) =>
           (v) => $enumDecode(_$LuckLevelEnumMap, v),
         ),
         score: $checkedConvert('score', (v) => (v as num).toInt()),
+        scoreItems: $checkedConvert(
+          'scoreItems',
+          (v) => (v as List<dynamic>)
+              .map((e) => ScoreItem.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
         level: $checkedConvert(
           'level',
           (v) => SlotText.fromJson(v as Map<String, dynamic>),
@@ -216,6 +236,7 @@ Map<String, dynamic> _$CalendarDayToJson(CalendarDay instance) =>
       'characterReason': instance.characterReason.toJson(),
       'luckLevel': _$LuckLevelEnumMap[instance.luckLevel]!,
       'score': instance.score,
+      'scoreItems': instance.scoreItems.map((e) => e.toJson()).toList(),
       'level': instance.level.toJson(),
     };
 
@@ -227,6 +248,7 @@ const _$DayKindEnumMap = {
 };
 
 const _$LuckLevelEnumMap = {
+  LuckLevel.veryGood: 'very_good',
   LuckLevel.good: 'good',
   LuckLevel.neutral: 'neutral',
   LuckLevel.caution: 'caution',
