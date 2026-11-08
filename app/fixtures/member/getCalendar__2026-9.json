@@ -33,6 +33,20 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -74,6 +88,12 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -115,6 +135,16 @@
         },
         "luckLevel": "caution",
         "score": -2,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -156,6 +186,7 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -197,6 +228,20 @@
         },
         "luckLevel": "good",
         "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.good",
@@ -240,17 +285,27 @@
             ]
           }
         },
-        "luckLevel": "good",
+        "luckLevel": "very_good",
         "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
-          "messageKey": "calendar.good",
+          "messageKey": "calendar.very_good",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "잘 풀리는 날"
+                "text": "아주 잘 풀리는 날"
               }
             ]
           }
@@ -287,6 +342,16 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -328,6 +393,12 @@
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -369,6 +440,24 @@
         },
         "luckLevel": "caution",
         "score": -3,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -410,6 +499,16 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -451,6 +550,20 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -496,6 +609,20 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -537,6 +664,12 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -578,6 +711,7 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -619,6 +753,16 @@
         },
         "luckLevel": "caution",
         "score": -2,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -660,6 +804,12 @@
         },
         "luckLevel": "good",
         "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.good",
@@ -701,6 +851,16 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -744,17 +904,27 @@
             ]
           }
         },
-        "luckLevel": "good",
+        "luckLevel": "very_good",
         "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
-          "messageKey": "calendar.good",
+          "messageKey": "calendar.very_good",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "잘 풀리는 날"
+                "text": "아주 잘 풀리는 날"
               }
             ]
           }
@@ -787,6 +957,16 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -828,6 +1008,12 @@
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -869,6 +1055,24 @@
         },
         "luckLevel": "caution",
         "score": -3,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -910,6 +1114,16 @@
         },
         "luckLevel": "caution",
         "score": -3,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -955,6 +1169,16 @@
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1000,6 +1224,20 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1041,6 +1279,16 @@
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1082,6 +1330,12 @@
         },
         "luckLevel": "good",
         "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.good",
@@ -1123,6 +1377,16 @@
         },
         "luckLevel": "caution",
         "score": -2,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -1164,6 +1428,12 @@
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1205,6 +1475,16 @@
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1248,17 +1528,27 @@
             ]
           }
         },
-        "luckLevel": "good",
+        "luckLevel": "very_good",
         "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
-          "messageKey": "calendar.good",
+          "messageKey": "calendar.very_good",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "잘 풀리는 날"
+                "text": "아주 잘 풀리는 날"
               }
             ]
           }

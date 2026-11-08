@@ -10,7 +10,8 @@ core `compose_month`를 돌려 2026년 9~11월의 날마다 `pillar`·`lunar`(�
 * **2026-10-13(시나리오의 오늘)만 엔진 값이 아닙니다.** 오늘 화면 fixture(`member/getDaily.json`,
   `dayKind: yongsin_day`)와 같게 보이도록 `dayKind`를 `yongsin_day`로 바꾸고, 점수는 엔진 규칙
   (`rules/calendar_luck.py`)대로 다시 셉니다. 그날의 관계 항목(합 +1, 형 -1)은 엔진 값 그대로 두고
-  용신일 +2를 앞에 더해 2점, good 기준(2 이상)이라 `luckLevel: good`, `level`은 `calendar.good`입니다.
+  용신일 +2를 앞에 더해 2점, good 기준(2 이상, 3 이상은 very_good)이라 `luckLevel: good`, `level`은 `calendar.good`입니다.
+* `scoreItems`는 엔진 일 결과의 점수 구성(`luck.breakdown`)을 `{id, score}`로 옮긴 것입니다(합이 `score`).
   `characterReason`은 getDaily의 것과 같은 문장입니다. 일진(庚申)·음력은 엔진 값입니다.
 
 core/에서 실행합니다(엔진 가상환경을 씁니다).
@@ -27,7 +28,7 @@ from pathlib import Path
 from myungli_engine.calendar_core.birth import BirthInput
 from myungli_engine.composers.month import compose_month
 from myungli_engine.domain.enums import CalendarType, DayKind, Gender
-from myungli_engine.rules.calendar_luck import DAY_KIND_SCORES, GOOD_THRESHOLD
+from myungli_engine.rules.calendar_luck import DAY_KIND_SCORES, _level_of
 
 SEOUL = "Asia/Seoul"
 BIRTH = BirthInput(CalendarType.SOLAR, False, date(1990, 5, 15), time(14, 30), Gender.FEMALE, SEOUL, None)
@@ -46,7 +47,8 @@ REASON = {
     "gisin_day": [{"text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."}],
     "ordinary_day": [{"text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."}],
 }
-LEVEL = {"good": "잘 풀리는 날", "neutral": "무난한 날", "caution": "조심할 날"}
+# writing 원고 `calendar.day_level`(`docs/identity/writing/content/ko/daily.yaml`)의 값입니다.
+LEVEL = {"very_good": "아주 잘 풀리는 날", "good": "잘 풀리는 날", "neutral": "무난한 날", "caution": "조심할 날"}
 DAY_KIND_ITEM_IDS = {item_id for item_id, _ in DAY_KIND_SCORES.values()}
 
 
@@ -54,23 +56,25 @@ def _slot(slot_id: str, key: str, variant: str, segments: list[dict[str, str]]) 
     return {"slot": slot_id, "messageKey": key, "variant": variant, "reactable": False, "text": {"segments": segments}}
 
 
-def _luck(day) -> tuple[str, str, int]:
-    """(dayKind, luckLevel, score). 바꾸는 날은 엔진 규칙으로 다시 셉니다."""
+def _luck(day) -> tuple[str, str, int, list[dict[str, object]]]:
+    """(dayKind, luckLevel, score, scoreItems). 바꾸는 날은 엔진 규칙으로 다시 셉니다."""
     kind = DAY_KIND_OVERRIDES.get(day.info.date)
     if kind is None:
-        return day.kind.name.lower(), day.luck.level.name.lower(), day.luck.score
+        items = [{"id": item_id, "score": points} for item_id, points in day.luck.breakdown]
+        return day.kind.name.lower(), day.luck.level.name.lower(), day.luck.score, items
     relations = [item for item in day.luck.breakdown if item[0] not in DAY_KIND_ITEM_IDS]
     items = ([DAY_KIND_SCORES[kind]] if kind in DAY_KIND_SCORES else []) + relations
     score = sum(points for _, points in items)
-    # 바꾸는 날은 오늘 화면(용신일)과 같은 good이어야 합니다.
-    if score < GOOD_THRESHOLD:
-        raise ValueError(f"{day.info.date}: 바꾼 날의 점수가 good이 아닙니다: {items}")
-    return kind.name.lower(), "good", score
+    level = _level_of(score).name.lower()
+    # 바꾸는 날은 오늘 화면(용신일)과 같은 good 이상이어야 합니다.
+    if level not in ("good", "very_good"):
+        raise ValueError(f"{day.info.date}: 바꾼 날의 점수가 good 이상이 아닙니다: {items}")
+    return kind.name.lower(), level, score, [{"id": item_id, "score": points} for item_id, points in items]
 
 
 def _day_json(day) -> dict[str, object]:
     info = day.info
-    kind, level, score = _luck(day)
+    kind, level, score, score_items = _luck(day)
     if info.date not in DAY_KIND_OVERRIDES:
         assert day.judgment.message_key == f"calendar.{level}", day.judgment.message_key
     out: dict[str, object] = {
@@ -89,6 +93,7 @@ def _day_json(day) -> dict[str, object]:
             "characterReason": _slot("character.reason", f"character.reason.{kind}", "1", REASON[kind]),
             "luckLevel": level,
             "score": score,
+            "scoreItems": score_items,
             "level": _slot("calendar.day_level", f"calendar.{level}", "single", [{"text": LEVEL[level]}]),
         }
     )

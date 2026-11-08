@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myungli_diary/core/api/fake/fake_diary_list.dart';
+import 'package:myungli_diary/core/api/fake/fake_diary_stats.dart';
 import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:uuid/uuid.dart';
@@ -166,6 +167,25 @@ final class FakeDiaryStore {
     _diaries.remove(id);
   }
 
+  /// `getDiaryStats`: 살아 있는 일기 전부의 회고 집계(`DiaryStats` JSON, [FakeDiaryStats]).
+  Map<String, Object> stats() => FakeDiaryStats.compute([
+    for (final diary in _diaries.values) _summaryOf(diary),
+  ]);
+
+  /// [diary]의 목록 요약(`DiarySummary` JSON).
+  Map<String, Object?> _summaryOf(Map<String, Object?> diary) => {
+    // 날짜 기록의 값입니다. 기록에 없으면(1.2.0 전 날짜) 생략합니다.
+    if (_dayRecords[diary['date']]?['dayKind'] != null)
+      'dayKind': _dayRecords[diary['date']]!['dayKind'],
+    'id': diary['id'],
+    'date': diary['date'],
+    'createdAt': diary['createdAt'],
+    'excerpt': _excerptOf(diary['body']! as String),
+    'featuredTags':
+        (diary['tags']! as Map<String, Object?>)['featured'] ??
+        const <Object?>[],
+  };
+
   /// `listDiaries`: 요약 목록 한 쪽(`DiaryList` JSON). 범위·쪽 넘김은 [filterDiaryList]입니다.
   Map<String, Object?> list({
     Object? from,
@@ -178,18 +198,7 @@ final class FakeDiaryStore {
     final items = [
       for (final diary in _diaries.values)
         if (tagKey == null || _allTags(diary).contains(tagKey))
-          {
-            // 날짜 기록의 값입니다. 기록에 없으면(1.2.0 전 날짜) 생략합니다.
-            if (_dayRecords[diary['date']]?['dayKind'] != null)
-              'dayKind': _dayRecords[diary['date']]!['dayKind'],
-            'id': diary['id'],
-            'date': diary['date'],
-            'createdAt': diary['createdAt'],
-            'excerpt': _excerptOf(diary['body']! as String),
-            'featuredTags':
-                (diary['tags']! as Map<String, Object?>)['featured'] ??
-                const <Object?>[],
-          },
+          _summaryOf(diary),
     ];
     return filterDiaryList(
       {'items': items},
