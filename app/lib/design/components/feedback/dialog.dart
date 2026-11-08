@@ -394,14 +394,12 @@ class _Actions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cancelLabel = this.cancelLabel;
-    final confirm = PrimaryButton(
+    final confirm = PrimaryButton.dialogAction(
       key: DialogCard.confirmKey,
       label: confirmLabel,
       variant: destructive
           ? PrimaryButtonVariant.destructive
           : PrimaryButtonVariant.filled,
-      showCaution: false,
-      compact: true,
       autofocus: autofocusConfirm,
       onPressed: () {
         if (destructive) unawaited(Haptics.medium());

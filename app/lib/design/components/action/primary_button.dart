@@ -49,10 +49,27 @@ class PrimaryButton extends StatelessWidget {
     this.animated = true,
     this.leadingIcon,
     this.showCaution = true,
-    this.compact = false,
+    super.key,
+  }) : compact = false,
+       autofocus = false;
+
+  /// 확인 창 버튼 줄 전용(`dialog` `actions`): 높이 44, 좌우 안쪽 `space.12`, 눌림 최소 44.
+  /// 다른 곳에서 쓰지 않습니다. [autofocus]는 notice의 확인 버튼이 처음 초점을 받게 합니다.
+  const new dialogAction({
+    required this.label,
+    required this.onPressed,
+    this.variant = PrimaryButtonVariant.filled,
     this.autofocus = false,
     super.key,
-  });
+  }) : loading = false,
+       busyLabel = null,
+       identifier = null,
+       busyIdentifier = null,
+       labelColor = null,
+       animated = true,
+       leadingIcon = null,
+       showCaution = false,
+       compact = true;
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
@@ -107,13 +124,13 @@ class PrimaryButton extends StatelessWidget {
   /// 버튼에서는 끕니다(V65).
   final bool showCaution;
 
-  /// 확인 창 안의 크기(`dialog` `actions`): 높이 44, 좌우 안쪽 `space.12`. 눌림 최소 영역도 44입니다.
+  /// 확인 창 안의 크기. 주의: [PrimaryButton.dialogAction]만 켭니다(일반 버튼은 항상 false).
   final bool compact;
 
   /// 확인 창 안 버튼 높이(px, `dialog.parts.actions.height`).
   static const double compactHeight = 44;
 
-  /// 열릴 때 처음 초점을 받을지(확인 창 notice의 확인 버튼).
+  /// 열릴 때 처음 초점을 받을지. 주의: [PrimaryButton.dialogAction]만 켤 수 있습니다.
   final bool autofocus;
 
   bool get _disabled => onPressed == null;

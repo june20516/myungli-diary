@@ -155,8 +155,7 @@ class _NotifyTimeSheetState extends State<NotifyTimeSheet> {
 
 /// 언어 시트(A60): 세 언어를 `settings-row`로 늘어놓고, 누르면 그 언어를 돌려주며 닫힙니다.
 ///
-/// 지금 언어 줄은 고를 수 없게(disabled) 둡니다. 화면의 언어 줄이 지금 값을 보이므로 시트는 바꿀
-/// 곳만 엽니다.
+/// 지금 언어 줄은 고른 줄(`select`, 끝 체크)이고, 다시 누르면 바꾸지 않고 닫힙니다.
 class LanguageSheet extends StatelessWidget {
   /// 지금 언어 [current]로 시트를 만듭니다.
   const new({required this.current, super.key = sheetKey});
@@ -201,11 +200,13 @@ class LanguageSheet extends StatelessWidget {
                   ),
                   child: SettingsRow(
                     key: rowKey(language),
-                    variant: SettingsRowVariant.navigate,
+                    variant: SettingsRowVariant.select,
                     label: languageNameOf(language),
-                    onTap: language == knownLanguageOf(current)
-                        ? null
-                        : () => Navigator.of(context).pop(language),
+                    selected: language == knownLanguageOf(current),
+                    // 지금 언어를 다시 누르면 바꾸지 않고 시트만 닫힙니다.
+                    onTap: () => Navigator.of(context).pop(
+                      language == knownLanguageOf(current) ? null : language,
+                    ),
                   ),
                 ),
             ],

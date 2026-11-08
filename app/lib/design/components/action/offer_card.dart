@@ -117,7 +117,7 @@ class OfferCard extends StatelessWidget {
   /// 약관 안내를 찾는 테스트용 키.
   static const Key legalKey = ValueKey('offer-card-legal');
 
-  /// 카드 안쪽 여백(`parts.container.padding`, `space.24`).
+  /// 카드 안쪽 여백(`parts.container.padding`, `space.20`).
   static const double padding = Space.s20;
 
   /// 아이콘 크기(`parts.icon.size`).

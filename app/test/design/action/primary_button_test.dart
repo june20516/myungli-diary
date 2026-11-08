@@ -244,7 +244,7 @@ void main() {
         _app(
           SizedBox(
             width: 200,
-            child: PrimaryButton(label: '확인', compact: true, onPressed: () {}),
+            child: PrimaryButton.dialogAction(label: '확인', onPressed: () {}),
           ),
         ),
       );
@@ -290,6 +290,14 @@ void main() {
           find.byKey(FloatingPrimaryButton.shadowKey),
         );
         expect((box.decoration as BoxDecoration).boxShadow, Shadows.raised);
+      });
+
+      testWidgets('탭 셸이 넘긴 viewPadding(광고+탭 바) 위 16에 놓입니다', (tester) async {
+        // 탭 셸은 광고 배너와 탭 바 높이를 MediaQuery.viewPadding.bottom으로 넘깁니다.
+        await pumpFloating(tester, bottom: 120);
+        final face = tester.getRect(find.byKey(PrimaryButton.faceKey));
+        final stack = tester.getRect(find.byType(Stack).first);
+        expect(stack.bottom - face.bottom, 120 + 16);
       });
 
       test('목록 아래 여백은 버튼 52 + 16 + 16', () {

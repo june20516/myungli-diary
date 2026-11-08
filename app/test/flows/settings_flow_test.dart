@@ -409,6 +409,28 @@ void main() {
     final container = await _openSettings(tester);
     await _tapRow(tester, SettingsScreen.languageRowKey);
     expect(find.byKey(LanguageSheet.sheetKey), findsOneWidget);
+    // 지금 언어(한국어)만 끝 체크가 있는 고른 줄이고 꺾쇠는 어느 줄에도 없습니다.
+    expect(
+      find.descendant(
+        of: find.byKey(LanguageSheet.sheetKey),
+        matching: find.byKey(SettingsRow.checkKey),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(LanguageSheet.rowKey(Language.ko)),
+        matching: find.byKey(SettingsRow.checkKey),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(LanguageSheet.sheetKey),
+        matching: find.byKey(SettingsRow.chevronKey),
+      ),
+      findsNothing,
+    );
     await tester.tap(find.byKey(LanguageSheet.rowKey(Language.en)));
     await settleWithIo(tester);
 
