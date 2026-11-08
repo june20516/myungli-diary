@@ -951,6 +951,75 @@ void main() {
       expect(find.byType(MyungliSheetFrame), findsNothing);
     });
 
+    test('닫기 판정: 시트 높이의 정확히 25%에서 닫히고 그 아래는 닫히지 않습니다', () {
+      expect(
+        sheetShouldDismiss(distance: 135, velocity: 0, sheetHeight: 540),
+        isTrue,
+      );
+      expect(
+        sheetShouldDismiss(distance: 134.9, velocity: 0, sheetHeight: 540),
+        isFalse,
+      );
+      expect(
+        sheetShouldDismiss(distance: 0, velocity: 701, sheetHeight: 540),
+        isTrue,
+      );
+    });
+
+    // 본문을 맨 위까지 되스크롤하며 경계를 걸친 첫 갱신에서, 스크롤한 몫은 닫기 거리에
+    // 들지 않고 경계 아래로 넘어간 몫만 듭니다.
+    for (final (beyondDelta, closes) in [(-10.0, false), (10.0, true)]) {
+      testWidgets(
+        'ios: 경계를 걸친 첫 갱신은 넘어간 몫만 셉니다(25% ${beyondDelta < 0 ? '미만' : '초과'})',
+        (tester) async {
+          debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+          try {
+            final controller = ScrollController();
+            addTearDown(controller.dispose);
+            await openBody(
+              tester,
+              (_) => ListView(
+                key: const ValueKey('sheet-body'),
+                controller: controller,
+                children: [
+                  for (var i = 0; i < 40; i++)
+                    SizedBox(height: 48, child: Text('항목 $i')),
+                ],
+              ),
+            );
+            controller.jumpTo(60);
+            await tester.pump();
+            final sheetHeight = tester
+                .getSize(find.byType(MyungliSheetFrame))
+                .height;
+            final gesture = await tester.startGesture(
+              tester.getCenter(find.byKey(const ValueKey('sheet-body'))),
+            );
+            // 드래그 인식 거리(slop)를 넘깁니다. 본문은 아직 범위 안입니다.
+            await gesture.moveBy(const Offset(0, 20));
+            await tester.pump();
+            final remaining = controller.position.pixels;
+            expect(remaining, greaterThan(30));
+            // 한 번의 이동으로 남은 스크롤을 다 쓰고 경계 아래로 넘어갑니다.
+            final beyond = sheetHeight * 0.25 + beyondDelta;
+            await gesture.moveBy(Offset(0, remaining + beyond));
+            await tester.pump();
+            expect(controller.position.pixels, lessThan(0));
+            // 멈췄다 놓아 속도로는 닫히지 않게 합니다.
+            await tester.pump(const Duration(milliseconds: 300));
+            await gesture.up();
+            await tester.pumpAndSettle();
+            expect(
+              find.byType(MyungliSheetFrame),
+              closes ? findsNothing : findsOneWidget,
+            );
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        },
+      );
+    }
+
     // F-027: 본문이 half 높이를 조금 넘는 SingleChildScrollView일 때 천천히 끌어
     // 닫으면 시트가 떨리거나 닫히지 않던 버그.
     for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {

@@ -52,6 +52,15 @@ const Duration _staleSample = Duration(milliseconds: 80);
 /// 끌어내려 닫는 기준 속도(px/s).
 const double _dismissVelocity = 700;
 
+/// 끌어내리다 놓은 시트를 닫을지: 손가락이 시트 높이의 25% 이상 내려왔거나(`frame.json`
+/// `sheet.parts.dragDismiss.threshold`) 아래 방향 속도가 700px/s를 넘으면 닫습니다(A120).
+@visibleForTesting
+bool sheetShouldDismiss({
+  required double distance,
+  required double velocity,
+  required double sheetHeight,
+}) => distance >= sheetHeight * _dismissFraction || velocity > _dismissVelocity;
+
 /// [size]의 시트가 가질 수 있는 최대 높이.
 double sheetMaxHeight(BuildContext context, SheetSize size) {
   final screen = MediaQuery.sizeOf(context).height;
@@ -517,7 +526,14 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
           _snap.stop();
           _scrollDragging = true;
           _track(dragDetails);
-          _fingerTravel = math.max(0, _fingerTravel + dragDetails.delta.dy);
+          // 경계를 막 넘는 갱신이면 손가락 이동 중 본문을 맨 위까지 스크롤한 몫은 빼고,
+          // 경계 아래로 넘어간 몫만 셉니다.
+          final previous = metrics.pixels - (n.scrollDelta ?? 0);
+          final scrolled = math.max(0, previous - metrics.minScrollExtent);
+          _fingerTravel = math.max(
+            0,
+            _fingerTravel + dragDetails.delta.dy - scrolled,
+          );
         } else if (_scrollDragging) {
           // 손을 뗀 순간: 이후의 되돌아옴은 본문 bounce가 끌고 가고 시트가 따라갑니다.
           final dismiss = _shouldDismiss(_fingerTravel, _releaseVelocity());
@@ -560,11 +576,11 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     return false;
   }
 
-  bool _shouldDismiss(double distance, double velocity) {
-    final sheetHeight = _frameKey.currentContext?.size?.height ?? 0;
-    return distance > sheetHeight * _dismissFraction ||
-        velocity > _dismissVelocity;
-  }
+  bool _shouldDismiss(double distance, double velocity) => sheetShouldDismiss(
+    distance: distance,
+    velocity: velocity,
+    sheetHeight: _frameKey.currentContext?.size?.height ?? 0,
+  );
 
   /// 놓은 순간 닫을지 정합니다. [distance]는 손가락이 아래로 움직인 거리입니다.
   void _finishDrag(double velocity, {required double distance}) {
