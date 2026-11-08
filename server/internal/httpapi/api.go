@@ -154,6 +154,7 @@ type DiaryService interface {
 	Delete(ctx context.Context, accountID, id uuid.UUID) error
 	Restore(ctx context.Context, accountID, id uuid.UUID) (diary.Entry, error)
 	List(ctx context.Context, accountID uuid.UUID, q diary.ListQuery) ([]diary.Entry, error)
+	Stats(ctx context.Context, accountID uuid.UUID) (diary.Stats, error)
 }
 
 var _ DiaryService = (*diary.Service)(nil)

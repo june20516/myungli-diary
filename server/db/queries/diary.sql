@@ -83,3 +83,34 @@ WHERE d.account_id = @account_id AND d.deleted_at IS NULL
            AND (d.created_at, d.id) > (sqlc.narg('after_created_at')::timestamptz, sqlc.narg('after_id')::uuid)))
 ORDER BY d.date DESC, d.created_at ASC, d.id ASC
 LIMIT @row_limit;
+
+-- name: DiaryStatsCounts :one
+-- 회고 집계의 편수와 날의 성격별 날짜 수입니다(#862). 날짜는 살아 있는 일기가 한 편 이상 있는 날만 세고, day_kind가 NULL인 날은 어디에도 세지 않습니다.
+WITH live_days AS (
+    SELECT dd.day_kind
+    FROM diary_days dd
+    WHERE dd.account_id = @account_id::uuid
+      AND dd.date IN (SELECT d.date FROM diaries d WHERE d.account_id = @account_id::uuid AND d.deleted_at IS NULL)
+)
+SELECT
+    (SELECT count(*) FROM diaries WHERE account_id = @account_id::uuid AND deleted_at IS NULL) AS entry_count,
+    count(*) FILTER (WHERE day_kind = 'yongsin_day') AS yongsin_days,
+    count(*) FILTER (WHERE day_kind = 'gwiin_day') AS gwiin_days,
+    count(*) FILTER (WHERE day_kind = 'ordinary_day') AS ordinary_days,
+    count(*) FILTER (WHERE day_kind = 'gisin_day') AS gisin_days
+FROM live_days;
+
+-- name: TopFeaturedTags :many
+-- 살아 있는 일기가 있는 날짜의 대표 태그를 날짜 수가 많은 순(같으면 키 오름차순)으로 tag_limit개까지 셉니다(#862).
+-- polarity는 그 태그가 붙은 가장 최근 날짜의 값입니다.
+SELECT
+    t.key::text AS key,
+    ((array_agg(t.polarity ORDER BY dd.date DESC))[1])::text AS polarity,
+    count(DISTINCT dd.date) AS days
+FROM diary_days dd
+CROSS JOIN LATERAL jsonb_to_recordset(dd.featured_tags) AS t(key text, polarity text)
+WHERE dd.account_id = @account_id::uuid
+  AND dd.date IN (SELECT d.date FROM diaries d WHERE d.account_id = @account_id::uuid AND d.deleted_at IS NULL)
+GROUP BY t.key
+ORDER BY days DESC, t.key ASC
+LIMIT @tag_limit;

@@ -120,6 +120,10 @@ func (Unimplemented) ListDiaries(context.Context, gen.ListDiariesRequestObject) 
 	return nil, ErrNotImplemented
 }
 
+func (Unimplemented) GetDiaryStats(context.Context, gen.GetDiaryStatsRequestObject) (gen.GetDiaryStatsResponseObject, error) {
+	return nil, ErrNotImplemented
+}
+
 func (Unimplemented) DeleteDiary(context.Context, gen.DeleteDiaryRequestObject) (gen.DeleteDiaryResponseObject, error) {
 	return nil, ErrNotImplemented
 }

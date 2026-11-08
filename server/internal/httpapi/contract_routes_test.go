@@ -482,6 +482,7 @@ var minimalRequests = map[string]operationRequest{
 	"updateDiary":       {http.MethodPut, "/v1/diaries/" + diaryID, contentTypeJSON, `{"body":"오늘"}`},
 	"deleteDiary":       {http.MethodDelete, "/v1/diaries/" + diaryID, "", ""},
 	"restoreDiary":      {http.MethodPost, "/v1/diaries/" + diaryID + "/restore", "", ""},
+	"getDiaryStats":     {http.MethodGet, "/v1/diary-stats", "", ""},
 	"listSchedules":     {http.MethodGet, "/v1/schedules?from=2026-10-01&to=2026-10-31", "", ""},
 	"createSchedule":    {http.MethodPost, "/v1/schedules", contentTypeJSON, `{"date":"2026-10-11","allDay":true,"title":"점심"}`},
 	"updateSchedule":    {http.MethodPatch, "/v1/schedules/" + scheduleID, contentTypeMergePatch, `{"title":"점심"}`},

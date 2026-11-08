@@ -123,6 +123,7 @@
     - role.huisin
     - role.gisin
     - role.neutral
+    - role.day_master
     - strength.very_weak
     - strength.weak
     - strength.neutral

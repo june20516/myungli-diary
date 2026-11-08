@@ -1,5 +1,5 @@
 {
-  "version": "de9d4756c522064d",
+  "version": "f82ec15a30790ccd",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -10830,6 +10830,27 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "role.day_master",
+      "variant": "single",
+      "lang": "en",
+      "body": "Day master"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "role.day_master",
+      "variant": "single",
+      "lang": "ja",
+      "body": "日干"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "role.day_master",
+      "variant": "single",
+      "lang": "ko",
+      "body": "일간"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "role.gisin",
       "variant": "single",
       "lang": "en",
@@ -13980,6 +14001,27 @@
     },
     {
       "slot": "term.meaning",
+      "key": "term.role.day_master",
+      "variant": "single",
+      "lang": "en",
+      "body": "The heavenly stem of the day you were born, standing for you yourself in your chart. How the characters around it relate to you is all read from your day master."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.day_master",
+      "variant": "single",
+      "lang": "ja",
+      "body": "生まれた日の天干で、命式の中で「自分」自身を表します。まわりの字が自分にとってどんな気なのかは、すべて日干を基準に読みます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.role.day_master",
+      "variant": "single",
+      "lang": "ko",
+      "body": "태어난 날의 천간으로, 사주에서 '나' 자신을 나타내요. 옆 글자들이 나에게 어떤 기운인지는 모두 일간을 기준으로 읽어요."
+    },
+    {
+      "slot": "term.meaning",
       "key": "term.role.gisin",
       "variant": "single",
       "lang": "en",
@@ -15074,6 +15116,7 @@
     "relation.chung": "沖",
     "relation.hyeong": "刑",
     "relation.stem_hap": "天干合",
+    "role.day_master": "日干",
     "role.gisin": "忌神",
     "role.huisin": "喜神",
     "role.neutral": "閑神",

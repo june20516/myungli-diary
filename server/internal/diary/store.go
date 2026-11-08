@@ -259,6 +259,59 @@ func (s *Store) List(ctx context.Context, accountID uuid.UUID, q ListQuery) ([]E
 	return entries, nil
 }
 
+// TopTagLimit은 회고 집계가 돌려주는 자주 붙은 대표 태그의 최대 수입니다(#862).
+const TopTagLimit = 3
+
+// Stats는 계정 전체의 일기 회고 집계입니다(#862). 지운 일기는 세지 않습니다.
+// DayKinds와 TopTags는 날짜 단위로, 살아 있는 일기가 한 편 이상 있는 날짜를 셉니다.
+type Stats struct {
+	EntryCount int
+	DayKinds   []DayKindCount // 날의 성격 네 값을 모두 담습니다(0 포함).
+	TopTags    []TagCount     // 날짜 수가 많은 순, 같으면 키 오름차순, TopTagLimit개까지입니다.
+}
+
+// DayKindCount는 날의 성격 하나(계약 값)로 기록된 날짜 수입니다.
+type DayKindCount struct {
+	DayKind string
+	Days    int
+}
+
+// TagCount는 대표 태그 하나가 붙은 날짜 수입니다. Polarity는 그 태그가 붙은 가장 최근 날짜의 값입니다.
+type TagCount struct {
+	Tag  fortune.FeaturedTag
+	Days int
+}
+
+// Stats는 accountID의 일기 회고 집계를 돌려줍니다.
+func (s *Store) Stats(ctx context.Context, accountID uuid.UUID) (Stats, error) {
+	q := diarydb.New(s.pool)
+	counts, err := q.DiaryStatsCounts(ctx, accountID)
+	if err != nil {
+		return Stats{}, fmt.Errorf("일기 회고 편수 집계: %w", err)
+	}
+	tags, err := q.TopFeaturedTags(ctx, diarydb.TopFeaturedTagsParams{AccountID: accountID, TagLimit: TopTagLimit})
+	if err != nil {
+		return Stats{}, fmt.Errorf("일기 회고 태그 집계: %w", err)
+	}
+	stats := Stats{
+		EntryCount: int(counts.EntryCount),
+		DayKinds: []DayKindCount{
+			{DayKind: "gwiin_day", Days: int(counts.GwiinDays)},
+			{DayKind: "yongsin_day", Days: int(counts.YongsinDays)},
+			{DayKind: "gisin_day", Days: int(counts.GisinDays)},
+			{DayKind: "ordinary_day", Days: int(counts.OrdinaryDays)},
+		},
+		TopTags: make([]TagCount, 0, len(tags)),
+	}
+	for _, t := range tags {
+		stats.TopTags = append(stats.TopTags, TagCount{
+			Tag:  fortune.FeaturedTag{Key: t.Key, Polarity: fortune.Polarity(t.Polarity)},
+			Days: int(t.Days),
+		})
+	}
+	return stats, nil
+}
+
 // featuredJSON·segmentJSON은 jsonb에 적는 모양입니다. term은 없으면 생략합니다.
 type featuredJSON struct {
 	Key      string `json:"key"`
