@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
-import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -57,26 +57,11 @@ String _hhmm(TimeOfDay time) =>
     '${time.hour.toString().padLeft(2, '0')}:'
     '${time.minute.toString().padLeft(2, '0')}';
 
-String _branchName(AppLocalizations l10n, Branch branch) => switch (branch) {
-  Branch.ja => l10n.branchJa,
-  Branch.chuk => l10n.branchChuk,
-  Branch.in_ => l10n.branchIn,
-  Branch.myo => l10n.branchMyo,
-  Branch.jin => l10n.branchJin,
-  Branch.sa => l10n.branchSa,
-  Branch.o => l10n.branchO,
-  Branch.mi => l10n.branchMi,
-  Branch.shin => l10n.branchShin,
-  Branch.yu => l10n.branchYu,
-  Branch.sul => l10n.branchSul,
-  Branch.hae => l10n.branchHae,
-};
-
 /// 시진 확인 줄 글자(`onboard-time.hour.confirm`). server는 지지와 시각 범위만 주므로
 /// app이 ARB 틀에 넣어 씁니다(A20 ③, IA v2에서 ui 슬롯이 됨 D68).
 String sijinConfirmText(AppLocalizations l10n, BirthHour hour) =>
     l10n.onboardTimeHourConfirm(
-      _branchName(l10n, hour.branch),
+      branchName(l10n, hour.branch),
       hour.start,
       hour.end,
     );

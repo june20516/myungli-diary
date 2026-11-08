@@ -2,19 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
+import 'package:myungli_diary/core/api/gen/model/profile.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
+import 'package:myungli_diary/design/components/saju/birth_info_row.dart';
+import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
+import 'package:myungli_diary/features/me/model/ganji.dart';
+import 'package:myungli_diary/features/me/presentation/chart_text.dart';
 import 'package:myungli_diary/features/me/presentation/saju_chart_tabs.dart';
+import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 
 /// IA `saju-chart`가 직접 처리하는 상태.
 const Set<String> sajuChartHandledStates = {'loading', 'error', 'time-unknown'};
@@ -81,10 +95,14 @@ class _SajuChartScreenState extends ConsumerState<SajuChartScreen> {
                 // 스택 바닥(딥링크·복원)이면 돌아갈 곳이 없어 숨깁니다.
                 showBack: MyungliAppBar.canGoBack(context),
               ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, 0),
+                child: _SajuChartHead(),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   Space.s20,
-                  Space.s8,
+                  Space.s16,
                   Space.s20,
                   Space.s16,
                 ),
@@ -103,7 +121,7 @@ class _SajuChartScreenState extends ConsumerState<SajuChartScreen> {
                   value: chart,
                   onRetry: () =>
                       ref.read(chartControllerProvider.notifier).reload(),
-                  skeleton: const _SajuChartSkeleton(),
+                  skeleton: _SajuChartSkeleton(tab: _tab),
                   dataWithNotice: (value, notice) => _SajuChartBody(
                     chart: value,
                     tab: _tab,
@@ -163,14 +181,170 @@ class _SajuChartBody extends StatelessWidget {
   }
 }
 
-/// 받는 중: 원국표 칸 모양. [ScreenStateView]가 [SkeletonBlock]으로 감싸 지연·숨쉬기·
-/// 스크린리더 라벨을 붙입니다.
+/// 받는 중: 고른 탭의 배치대로 섹션 머리(ui 슬롯이라 바로)와 컴포넌트 뼈. [ScreenStateView]가
+/// [SkeletonBlock]으로 감싸 지연, 숨쉬기, 스크린리더 라벨을 붙입니다.
 class _SajuChartSkeleton extends StatelessWidget {
+  const new({required this.tab});
+
+  final SajuChartTab tab;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+      child: switch (tab) {
+        SajuChartTab.natal => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SectionHeader(
+              title: l10n.sajuChartPillarsTitle,
+              description: l10n.sajuChartPillarsDesc,
+            ),
+            const SizedBox(height: SectionHeader.contentGap),
+            const SajuChartCard(child: SajuPillarsSkeleton()),
+          ],
+        ),
+        SajuChartTab.luck => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManseTable(
+              basis: '',
+              basisGlyph: '',
+              table: BandTable(
+                columns: [
+                  for (final column in ChartColumn.values)
+                    BandColumn(
+                      header: column.header(l10n),
+                      isDay: column == ChartColumn.day,
+                    ),
+                ],
+                bandLabels: {
+                  BandKind.hiddenStems: l10n.manseRowHiddenStems,
+                  BandKind.twelveStages: l10n.manseRowTwelveStages,
+                  BandKind.shinsal: l10n.manseRowShinsal,
+                },
+                onBandTap: (_) {},
+                meLabel: l10n.sajuTagMe,
+                emptyLabel: l10n.bandTableEmptyCell,
+                tableLabel: l10n.manseTableLabel,
+                loading: true,
+              ),
+            ),
+            const SizedBox(height: SectionHeader.sectionGap),
+            DaeunTable.loading(
+              daeunTitle: l10n.sajuChartDaeunTitle,
+              daeunDescription: l10n.sajuChartDaeunDesc,
+              seunTitle: l10n.sajuChartSeunTitle,
+              seunDescription: l10n.sajuChartSeunDesc,
+            ),
+          ],
+        ),
+      },
+    );
+  }
+}
+
+/// 두 탭 공통 머리(`saju-chart.head.title`, `birth-info-row`, A118): "<호칭>님의 사주"와 출생
+/// 정보 줄.
+///
+/// 호칭과 출생 정보는 `Chart`에 없어 프로필([profileProvider])에서 읽습니다. 시진은 계산
+/// 기준(야자시 등)을 따른 원국의 시주 지지이고, 원국이 시간 모름이면 시간 모름 알약입니다.
+/// 프로필을 못 읽었거나 시간을 아는데 원국이 없으면 그 줄만 뼈로 둡니다(화면의 나머지는 그대로).
+/// 뼈는 받는 중에만 숨쉬고, 받지 못했으면(오류) 멈춘 뼈입니다.
+class _SajuChartHead extends ConsumerWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.symmetric(horizontal: Space.s20),
-    child: SajuPillarsSkeleton(),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final tokens = context.tokens;
+    final profileState = ref.watch(profileProvider);
+    final chartState = ref.watch(chartControllerProvider);
+    final profile = profileState.value;
+    final titleStyle = tokens.typography.title.copyWith(
+      color: tokens.colors.textPrimary,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (profile == null)
+          SkeletonBlock(
+            child: FractionallySizedBox(
+              widthFactor: _titleSkeletonWidth,
+              alignment: AlignmentDirectional.centerStart,
+              child: SkeletonBone(
+                height: titleStyle.fontSize! * titleStyle.height!,
+                borderRadius: Radii.xs,
+                animated: profileState.isLoading,
+              ),
+            ),
+          )
+        else
+          Semantics(
+            identifier: SlotIds.sajuChartHeadTitle,
+            header: true,
+            child: Text(
+              l10n.sajuChartHeadTitle(profile.honorific),
+              style: titleStyle,
+            ),
+          ),
+        const SizedBox(height: Space.s8),
+        _birthRow(l10n, profile, chartState.value) ??
+            SkeletonBlock(
+              child: BirthInfoRow.skeleton(
+                animated: profileState.isLoading || chartState.isLoading,
+              ),
+            ),
+      ],
+    );
+  }
+
+  // 제목 뼈 폭(제목 한 줄의 절반 정도). 계약 값이 없는 화면 배치 값입니다.
+  static const double _titleSkeletonWidth = 0.5;
+
+  /// 출생 정보 줄. 그릴 값이 모자라면 null입니다.
+  static Widget? _birthRow(
+    AppLocalizations l10n,
+    Profile? profile,
+    Chart? chart,
+  ) {
+    if (profile == null) return null;
+    final birth = profile.birth;
+    final lunar = birth.calendar == CalendarType.lunar;
+    final calendarTag = lunar
+        ? (birth.isLeapMonth
+              ? [l10n.calendarLunar, l10n.dayCellLeapMonth].join(' ')
+              : l10n.calendarLunar)
+        : l10n.calendarSolar;
+    final date = formatBirthDayNumeric(
+      l10n.localeName,
+      birth.date.year,
+      birth.date.month,
+      birth.date.day,
+    );
+    final gender = genderLabel(l10n, birth.gender);
+    final clock = birth.time.value;
+    if (birth.time.status != BirthTimeStatusEnum.known ||
+        clock == null ||
+        (chart != null && chartTimeUnknown(chart))) {
+      return BirthInfoRow(
+        calendarTag: calendarTag,
+        date: date,
+        gender: gender,
+        timeUnknown: true,
+      );
+    }
+    final hourBranch = chart?.pillars.hour?.branch;
+    if (hourBranch == null) return null;
+    return BirthInfoRow(
+      calendarTag: calendarTag,
+      date: date,
+      gender: gender,
+      hourGlyph: branchHanja(hourBranch),
+      hourName: l10n.birthInfoHour(branchName(l10n, hourBranch)),
+      time: formatBirthClock(l10n.localeName, clock),
+    );
+  }
 }

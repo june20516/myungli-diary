@@ -68,13 +68,6 @@ String birthTimeLabel(AppLocalizations l10n, BirthTime time) {
   return formatBirthClock(l10n.localeName, value);
 }
 
-/// 성별 글자.
-String genderLabel(AppLocalizations l10n, BirthGenderEnum gender) =>
-    switch (gender) {
-      BirthGenderEnum.female => l10n.genderFemale,
-      BirthGenderEnum.male => l10n.genderMale,
-    };
-
 /// 출생지 글자. 도시면 "도시, 나라", 한국 기준이면 그 문구(D29)입니다. 도시 이름을 모르면 null입니다.
 String? birthplaceLabel(AppLocalizations l10n, BirthplaceValue place) {
   if (place.cityId == null) return l10n.profileEditBirthplaceKorea;

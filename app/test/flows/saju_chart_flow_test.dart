@@ -31,11 +31,14 @@ import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
+import 'package:myungli_diary/features/me/presentation/natal_card.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -85,6 +88,16 @@ final Finder _evidenceSheet = find.byKey(const Key(ScreenIds.evidenceSheet));
 
 Finder _inEvidence(Finder matching) =>
     find.descendant(of: _evidenceSheet, matching: matching);
+
+/// 잠긴 용신 판정 근거의 "열기"를 화면에 들인 뒤 누릅니다.
+Future<void> _tapYongsinOpen(WidgetTester tester) async {
+  final open = _inChart(
+    find.bySemanticsIdentifier(SlotIds.sajuChartYongsinOpen),
+  );
+  await tester.ensureVisible(open);
+  await tester.pumpAndSettle();
+  await tester.tap(open);
+}
 
 /// 내용이 그려졌거나 오류가 보일 때까지 기다립니다.
 Future<void> _settleChart(WidgetTester tester) async {
@@ -264,10 +277,10 @@ void main() {
     expect(pillars.hour.stem?.hanja, '癸');
     expect(pillars.year.stemLabel, isA<TermToken>());
     expect((pillars.year.stemLabel! as TermToken).label, '비견');
-    expect(
-      (pillars.day.stemLabel! as TermToken).label,
-      _ko.sajuPillarDayMaster,
-    );
+    // 일간 칩은 용어 role.day_master를 엽니다(F-019). member 사전에는 그 용어가 아직 없어
+    // 누를 수 없는 글자입니다.
+    expect(pillars.day.stemLabel, isA<Text>());
+    expect((pillars.day.stemLabel! as Text).data, _ko.sajuPillarDayMaster);
     expect(pillars.tableLabel, _ko.sajuPillarsTableLabel);
 
     // 오행 분포: 목·화·토·금·수, 값은 소수 한 자리.
@@ -278,7 +291,7 @@ void main() {
     expect(counts[FiveElement.metal], '2.9');
     expect(bar.semanticLabel, startsWith('목 0.6, 화 3.3'));
 
-    // 잠긴 용신 판정 근거: 이름 + 흐린 한 줄 + "열기".
+    // 잠긴 용신 판정 근거: 이름 + 흐린 두 줄 + 자물쇠 "열기".
     expect(_inChart(find.text(_ko.sajuChartYongsinTitle)), findsOneWidget);
     final basis = tester.widget<SentenceBlock>(
       _inChart(find.byType(SentenceBlock)),
@@ -332,9 +345,7 @@ void main() {
       const Covers(exits: ['saju-chart>evidence-sheet'], decisions: ['D60']),
     );
     await _openFromMySaju(tester);
-    await tester.tap(
-      _inChart(find.bySemanticsIdentifier(SlotIds.sajuChartYongsinOpen)),
-    );
+    await _tapYongsinOpen(tester);
     await settleWithIo(tester);
     expect(_evidenceSheet, findsOneWidget);
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsOneWidget);
@@ -358,9 +369,7 @@ void main() {
       container.read(chartControllerProvider).value?.evidenceAccess,
       EvidenceAccess.locked,
     );
-    await tester.tap(
-      _inChart(find.bySemanticsIdentifier(SlotIds.sajuChartYongsinOpen)),
-    );
+    await _tapYongsinOpen(tester);
     final unlock = evidenceUnlockControllerProvider(
       const ChartEvidenceSubject(),
     );
@@ -424,21 +433,32 @@ void main() {
     expect(_inEvidence(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
   });
 
-  testWidgets('evidence-unlocked: 일간 → 일간(천간) 풀이 → 근거 보기 → 일간 개인 해석', (
+  testWidgets('evidence-unlocked: 일간 → 용어 "일간" 풀이(F-019) → 근거 보기 → 일간 개인 해석', (
     tester,
   ) async {
-    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      overrides: [
+        glossaryProvider.overrideWith((ref) async {
+          final names = await _glossaryWithStages();
+          return GlossaryNames({
+            ...names.values,
+            'role': {...?names.values['role'], 'day_master': '일간'},
+          });
+        }),
+      ],
+    );
     final pillars = tester.widget<SajuPillars>(
       _inChart(find.byType(SajuPillars)),
     );
     await _openPersonal(tester, find.byWidget(pillars.day.stemLabel!));
-    // 풀이 시트 제목은 일간(庚)의 이름입니다.
+    // 풀이 시트는 천간(庚)이 아니라 용어 "일간"입니다(F-019).
     expect(
-      find.descendant(
-        of: find.byKey(const Key(ScreenIds.explainSheet)),
-        matching: find.text('경'),
-      ),
-      findsWidgets,
+      (tester.widget<ExplainSheet>(find.byType(ExplainSheet)).content
+              as ExplainTerm)
+          .termId,
+      dayMasterTermId,
     );
     expect(
       _personalKey(tester),

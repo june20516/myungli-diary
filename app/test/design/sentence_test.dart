@@ -622,6 +622,45 @@ void main() {
       expect(opened, 1);
       handle.dispose();
     });
+
+    testWidgets('locked: 앞부분 또렷 + 자리값 두 줄, 오른쪽 자물쇠 + space.4 + 열기(꺾쇠 없음)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          SentenceBlock(
+            variant: SentenceBlockVariant.body,
+            text: _siksin,
+            locked: true,
+            lockedLead: RenderedText(segments: [Segment(text: '여름에 태어난 경금은')]),
+            onOpenLocked: () {},
+          ),
+        ),
+      );
+      final veil = tester.widget<LockVeil>(find.byType(LockVeil));
+      expect(veil.lines, LockVeilLines.sentenceBlock);
+      expect(veil.lines, 2);
+      expect(
+        find.bySemanticsLabel('용신 판정 근거, 여름에 태어난 경금은, 잠김'),
+        findsOneWidget,
+      );
+      final lock = find.byIcon(PhosphorIconsRegular.lockSimple);
+      expect(lock, findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('열기')).dx - tester.getTopRight(lock).dx,
+        Space.s4,
+      );
+      expect(find.byType(LinkLabel), findsNothing);
+      expect(find.byIcon(PhosphorIconsLight.caretRight), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsNothing);
+      // 열기는 본문 오른쪽 끝입니다.
+      expect(
+        tester.getTopRight(find.text('열기')).dx,
+        greaterThan(tester.getTopRight(find.byType(LockVeil)).dx),
+      );
+      handle.dispose();
+    });
   });
 
   group('DepthLink 근거 진입점', () {

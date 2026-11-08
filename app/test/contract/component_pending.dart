@@ -16,11 +16,4 @@ typedef PendingCheck = ({String reason, String failure});
 /// 있어야 합니다(다른 이유의 실패를 대기로 오인하지 않게). 담당 task가 구현을 고쳐 대조가
 /// 통과하면 테스트가 "대기 목록에서 지우세요"로 실패하므로(ratchet) 그때 여기서 지웁니다.
 /// Task 27이 빈 맵을 확인합니다.
-const Map<String, PendingCheck> knownPendingChecks = {
-  'daeun-table spec': (
-    reason:
-        'states.current, thisYear 삭제와 luck-pillar 뼈 loading '
-        '(V90, Task 24 대운과 세운 줄 재구성)',
-    failure: 'daeun-table states',
-  ),
-};
+const Map<String, PendingCheck> knownPendingChecks = {};

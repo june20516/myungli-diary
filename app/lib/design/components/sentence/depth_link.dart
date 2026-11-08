@@ -71,8 +71,7 @@ enum DepthLinkPlacement {
 /// 글자 링크는 `action.primary` `type.label.lg`이고 눌림은 글자 둘레에서만 번지는
 /// `press.ink`입니다. 끝 화살표(`caret-right`)는 원고가 아니라 [LinkLabel]이 그립니다
 /// (결정 V29). 길면 감기고 화살표는 마지막 줄 끝에 붙으며, 스크린리더 role은 `link`입니다.
-/// `sentence-block`의 잠김 "열기"도 글자 링크로 [DepthLinkVariant.inlineEnd] 기본 생성자를
-/// 씁니다(한 줄, 감기지 않음).
+/// `sentence-block`의 잠김 "열기"는 꺾쇠 없는 자물쇠 링크라 이 위젯을 쓰지 않습니다(V73).
 ///
 /// 누른 뒤 어디로 가는지는 [onTap]을 주는 쪽이 정합니다. 근거 진입점은 근거 시트를 열고,
 /// [DepthLinkVariant.navigate]는 페이지를 쌓습니다(`context.push`).

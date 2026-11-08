@@ -50,6 +50,23 @@ final class LuckGanji {
   );
 }
 
+/// 같은 줄 기둥들이 함께 쓰는 라벨 줄 높이(`luck-pillar` rules "기둥 칸은 기둥 사이에 같은 줄
+/// 높이를 맞춘다"). 0이면 그 줄을 두지 않습니다.
+@immutable
+final class LuckPillarRowHeights {
+  /// 줄마다 가장 높은 라벨의 높이로 만듭니다.
+  const new({this.tenGod = 0, this.branchTenGod = 0, this.twelveStage = 0});
+
+  /// 천간 십성 줄.
+  final double tenGod;
+
+  /// 지지 십성 줄.
+  final double branchTenGod;
+
+  /// 12운성 줄.
+  final double twelveStage;
+}
+
 /// 대운, 세운 기둥 한 칸(`luck-pillar`, V77, V90).
 ///
 /// [LuckPillar.column]은 사주 표 대운·세운 줄의 기둥입니다: 위 나이 또는 연도, 천간 십성, 천간
@@ -66,12 +83,14 @@ class LuckPillar extends StatelessWidget {
   ///
   /// [top]은 나이 또는 연도, [tenGod]은 천간 십성입니다. [currentTag]를 주면 꼬리표 자리를 늘
   /// 남기고(줄 높이가 흔들리지 않게) [current]일 때만 보입니다. 줄 양 끝 기둥은 [tagEdge]로
-  /// 꼬리표가 줄 밖으로 나가지 않게 합니다. 줄 높이 맞춤은 줄이 맡습니다.
+  /// 꼬리표가 줄 밖으로 나가지 않게 합니다. 줄 높이 맞춤은 줄이 [rowHeights]로 줍니다(없으면
+  /// 라벨 제 높이). [tenGod]이 null이면(사전 이름도 한자도 없음) 칩 없이 자리만 남깁니다.
   const new column({
     required this.pillar,
     required this.top,
     required this.tenGod,
     required this.semanticLabel,
+    this.rowHeights,
     this.branchTenGod,
     this.twelveStage,
     this.startYear,
@@ -107,6 +126,7 @@ class LuckPillar extends StatelessWidget {
        startYear = null,
        current = true,
        currentTag = null,
+       rowHeights = null,
        tagEdge = TagEdge.none;
 
   /// 명세 대조용 요약.
@@ -182,6 +202,9 @@ class LuckPillar extends StatelessWidget {
   /// 천간 십성 칩(`column`).
   final LuckLabel? tenGod;
 
+  /// 같은 줄 기둥들의 라벨 줄 높이(`column`). null이면 라벨 제 높이입니다.
+  final LuckPillarRowHeights? rowHeights;
+
   /// 지지 십성 칩(`column`, 대운만).
   final LuckLabel? branchTenGod;
 
@@ -246,13 +269,35 @@ class LuckPillar extends StatelessWidget {
       color: colors.textSecondary,
     );
     const innerWidth = columnWidth - columnPadding * 2;
+    final rows = rowHeights;
     // 누를 수 있는 칩은 별도 포커스(button)로 남기고, 글자뿐인 라벨은 그룹 라벨이 읽습니다.
-    Widget label(LuckLabel value, double gapBefore) {
-      final view = LuckLabelView(label: value, width: innerWidth);
-      return Padding(
-        padding: EdgeInsets.only(top: gapBefore),
-        child: value.onTap == null ? ExcludeSemantics(child: view) : view,
-      );
+    // [rows]가 있으면 그 줄 높이에 맞춰 두고(칸 위 라벨은 칸 쪽 아래, 칸 아래 라벨은 칸 쪽 위),
+    // 줄 높이가 0이면 그 줄을 두지 않습니다.
+    List<Widget> label(
+      LuckLabel? value,
+      double gapBefore, {
+      required double? rowHeight,
+      required Alignment alignment,
+    }) {
+      if (rowHeight == null && value == null) return const [];
+      if (rowHeight == 0) return const [];
+      final view = value == null
+          ? null
+          : value.onTap == null
+          ? ExcludeSemantics(
+              child: LuckLabelView(label: value, width: innerWidth),
+            )
+          : LuckLabelView(label: value, width: innerWidth);
+      return [
+        SizedBox(height: gapBefore),
+        if (rowHeight == null)
+          ?view
+        else
+          SizedBox(
+            height: rowHeight,
+            child: Align(alignment: alignment, child: view),
+          ),
+      ];
     }
 
     final body = Padding(
@@ -260,13 +305,28 @@ class LuckPillar extends StatelessWidget {
       child: Column(
         children: [
           ExcludeSemantics(child: Text(top!, style: topStyle)),
-          label(tenGod!, Space.s4),
+          ...label(
+            tenGod,
+            Space.s4,
+            rowHeight: rows?.tenGod,
+            alignment: Alignment.bottomCenter,
+          ),
           const SizedBox(height: Space.s4),
           pillar._stemCell(),
           const SizedBox(height: Space.s4),
           pillar._branchCell(),
-          if (branchTenGod != null) label(branchTenGod!, Space.s4),
-          if (twelveStage != null) label(twelveStage!, Space.s2),
+          ...label(
+            branchTenGod,
+            Space.s4,
+            rowHeight: rows?.branchTenGod,
+            alignment: Alignment.topCenter,
+          ),
+          ...label(
+            twelveStage,
+            Space.s2,
+            rowHeight: rows?.twelveStage,
+            alignment: Alignment.topCenter,
+          ),
           if (startYear != null) ...[
             const SizedBox(height: Space.s4),
             ExcludeSemantics(child: Text(startYear!, style: numberStyle)),

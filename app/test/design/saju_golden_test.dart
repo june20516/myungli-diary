@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -109,9 +111,6 @@ OhaengBar _ohaengBar(BuildContext context, Map<FiveElement, double> values) {
     ],
   );
 }
-
-OhaengCell _mini(FiveElement element, String hanja) =>
-    OhaengCell(element: element, hanja: hanja, size: OhaengCellSize.small);
 
 /// member 만세력. [hourUnknown]이면 시주 열이 빕니다.
 Widget _manse(BuildContext context, {bool hourUnknown = false}) {
@@ -218,19 +217,23 @@ const List<(int, Stem, Branch)> _memberSeun = [
 /// member 대운(지금 34세)·세운(올해 2026).
 Widget _daeun(BuildContext context) {
   final ja = _ja(context);
-  OhaengCell stem(Stem value) => _mini(stemElement(value), stemHanja(value));
-  OhaengCell branch(Branch value) =>
-      _mini(branchElement(value), branchHanja(value));
+  final l10n = AppLocalizations.of(context);
+  LuckGanji ganji(Stem s, Branch b) => LuckGanji(
+    stemElement: stemElement(s),
+    stemHanja: stemHanja(s),
+    branchElement: branchElement(b),
+    branchHanja: branchHanja(b),
+  );
   return DaeunTable(
     daeun: [
       for (final (age, s, b) in _memberDaeun)
         DaeunPillar(
           age: age,
           startYear: 1989 + age,
-          stem: stem(s),
-          branch: branch(b),
+          pillar: ganji(s, b),
           ageSemanticLabel: '$age',
           semanticLabel: '$age',
+          yearSemanticLabel: '${1989 + age}',
           stemLabel: _luck(ja ? '比肩' : '비견'),
           branchLabel: _luck(ja ? '偏印' : '편인'),
           stageLabel: _luck(ja ? '長生' : '장생'),
@@ -240,8 +243,7 @@ Widget _daeun(BuildContext context) {
       for (final (year, s, b) in _memberSeun)
         SeunYear(
           year: year,
-          stem: stem(s),
-          branch: branch(b),
+          pillar: ganji(s, b),
           yearSemanticLabel: '$year',
           semanticLabel: '$year',
           label: _luck(ja ? '傷官' : '상관'),
@@ -251,7 +253,10 @@ Widget _daeun(BuildContext context) {
     thisYear: 2026,
     nowLabel: ja ? '今' : '지금',
     thisYearLabel: ja ? '今年' : '올해',
-    tableLabel: '',
+    daeunTitle: l10n.sajuChartDaeunTitle,
+    daeunDescription: l10n.sajuChartDaeunDesc,
+    seunTitle: l10n.sajuChartSeunTitle,
+    seunDescription: l10n.sajuChartSeunDesc,
   );
 }
 

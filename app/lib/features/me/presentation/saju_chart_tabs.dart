@@ -1,20 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
+import 'package:myungli_diary/core/api/gen/model/pillar.dart';
+import 'package:myungli_diary/core/api/gen/model/position.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
+import 'package:myungli_diary/core/api/gen/model/twelve_stage.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
+import 'package:myungli_diary/design/components/saju/stage_strip.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
@@ -25,12 +31,13 @@ import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/me/application/luck_years.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
-
 import 'package:myungli_diary/features/me/presentation/chart_text.dart';
-
 import 'package:myungli_diary/features/me/presentation/natal_card.dart';
 
-/// "원국" 탭: 원국표(`saju-pillars`) → 오행 분포(`ohaeng-bar`) → 용신 판정 근거(A57).
+/// "원국" 탭: 사주(`saju-pillars`) → 오행 분포(`ohaeng-bar`) → 용신 판정 근거(A57, V88).
+///
+/// 섹션마다 `section-header`이고 사주와 오행 분포는 제목 아래 한 줄 설명을 늘 보입니다. 표와
+/// 막대는 흰 카드에 놓입니다. 원국 "신강" 알약은 그리지 않습니다(D113 ⑦).
 class SajuChartNatalTab extends ConsumerWidget {
   /// [chart]의 원국 탭을 만듭니다.
   const new({required this.chart, super.key});
@@ -45,22 +52,57 @@ class SajuChartNatalTab extends ConsumerWidget {
       ref.watch(glossaryProvider).value,
       ref.read(depthSheetsProvider),
     );
+    final l10n = text.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        NatalCard(chart: chart, onTermTap: text.openTerm),
+        SectionHeader(
+          title: l10n.sajuChartPillarsTitle,
+          description: l10n.sajuChartPillarsDesc,
+          titleIdentifier: SlotIds.sajuChartPillarsTitle,
+        ),
+        const SizedBox(height: SectionHeader.contentGap),
+        SajuChartCard(
+          child: NatalCard.pillars(chart: chart, onTermTap: text.openTerm),
+        ),
+        const SizedBox(height: SectionHeader.sectionGap),
+        SectionHeader(
+          title: l10n.sajuChartOhaengTitle,
+          description: l10n.sajuChartOhaengDesc,
+          titleIdentifier: SlotIds.sajuChartOhaengTitle,
+        ),
+        const SizedBox(height: SectionHeader.contentGap),
+        SajuChartCard(child: NatalCard.ohaeng(chart: chart)),
         _YongsinBasis(chart: chart, text: text),
       ],
     );
   }
 }
 
-/// 용신 판정 근거 줄(`saju-chart.yongsin.basis`, `sentence-block` `body`).
+/// 사주 표 섹션 안 흰 카드(`bg.sheet`, `radius.lg`, 안쪽 `space.16`).
+class SajuChartCard extends StatelessWidget {
+  /// [child]를 카드에 담습니다.
+  const new({required this.child, super.key});
+
+  /// 카드 내용.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: context.tokens.colors.bgSheet,
+      borderRadius: const BorderRadius.all(Radius.circular(Radii.lg)),
+    ),
+    child: Padding(padding: const EdgeInsets.all(Space.s16), child: child),
+  );
+}
+
+/// 용신 판정 근거 섹션(`saju-chart.yongsin.basis`, `sentence-block` `body`, 흰 카드).
 ///
-/// 열렸으면 문장이고 그 안 용어는 풀이 시트(→ 이 슬롯의 근거)를 엽니다. 잠겼으면 흐린 한 줄과
-/// "열기"이고, 누르면 근거 시트가 잠긴 채 열려 잠금 해제 흐름(A26)으로 이어집니다(D60). 잠금이
-/// 풀리면 차트를 다시 받아 이 줄이 문장으로 바뀝니다. 열렸는데 문장이 없으면(원고 없음) 줄을
-/// 그리지 않습니다.
+/// 열렸으면 문장이고 그 안 용어는 풀이 시트(→ 이 슬롯의 근거)를 엽니다. 잠겼으면 앞부분
+/// (`Yongsin.basisPreview`, 없으면 자리값만)과 흐린 자리값 두 줄, 오른쪽 자물쇠 "열기"이고, 누르면
+/// 근거 시트가 잠긴 채 열려 잠금 해제 흐름(A26)으로 이어집니다(D60, D106). 잠금이 풀리면 차트를
+/// 다시 받아 문장으로 바뀝니다. 열렸는데 문장이 없으면(원고 없음) 섹션을 그리지 않습니다.
 class _YongsinBasis extends StatelessWidget {
   const new({required this.chart, required this.text});
 
@@ -69,7 +111,6 @@ class _YongsinBasis extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
     final locked = chart.evidenceAccess != EvidenceAccess.unlocked;
     final basis = chart.yongsin.basis?.text;
     if (!locked && (basis == null || isBlankText(basis))) {
@@ -77,42 +118,40 @@ class _YongsinBasis extends StatelessWidget {
     }
     final sheets = text.sheets;
     return Padding(
-      padding: const EdgeInsets.only(top: Space.s32),
+      padding: const EdgeInsets.only(top: SectionHeader.sectionGap),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 잠겼을 때는 잠긴 줄의 라벨("용신 판정 근거, 잠김")이 이름을 읽으므로 두 번 읽지 않습니다.
+          // 잠겼을 때는 잠긴 줄의 라벨("용신 판정 근거, 앞부분, 잠김")이 이름을 읽으므로 두 번
+          // 읽지 않습니다.
           ExcludeSemantics(
             excluding: locked,
-            child: Semantics(
-              identifier: SlotIds.sajuChartYongsinTitle,
-              header: true,
-              child: Text(
-                text.l10n.sajuChartYongsinTitle,
-                style: tokens.typography.subtitle.copyWith(
-                  color: tokens.colors.textPrimary,
-                ),
-              ),
+            child: SectionHeader(
+              title: text.l10n.sajuChartYongsinTitle,
+              titleIdentifier: SlotIds.sajuChartYongsinTitle,
             ),
           ),
-          const SizedBox(height: Space.s8),
-          SentenceBlock(
-            variant: SentenceBlockVariant.body,
-            text: basis ?? RenderedText(segments: const []),
-            locked: locked,
-            slotId: SlotIds.sajuChartYongsinBasis,
-            onTerm: (termId) => sheets.openExplain(
-              context,
-              ExplainTerm(
-                termId,
-                origin: const TermOrigin(
-                  slotId: SlotIds.sajuChartYongsinBasis,
-                  subject: ChartEvidenceSubject(),
+          const SizedBox(height: SectionHeader.contentGap),
+          SajuChartCard(
+            child: SentenceBlock(
+              variant: SentenceBlockVariant.body,
+              text: basis ?? RenderedText(segments: const []),
+              locked: locked,
+              lockedLead: chart.yongsin.basisPreview,
+              slotId: SlotIds.sajuChartYongsinBasis,
+              onTerm: (termId) => sheets.openExplain(
+                context,
+                ExplainTerm(
+                  termId,
+                  origin: const TermOrigin(
+                    slotId: SlotIds.sajuChartYongsinBasis,
+                    subject: ChartEvidenceSubject(),
+                  ),
                 ),
               ),
+              onOpenLocked: () =>
+                  sheets.openEvidence(context, SlotIds.sajuChartYongsinBasis),
             ),
-            onOpenLocked: () =>
-                sheets.openEvidence(context, SlotIds.sajuChartYongsinBasis),
           ),
         ],
       ),
@@ -120,10 +159,11 @@ class _YongsinBasis extends StatelessWidget {
   }
 }
 
-/// "만세력과 대운" 탭: 만세력 표(`manse-table`) → 대운·세운 표(`daeun-table`, A57).
+/// "만세력과 대운" 탭: 만세력 표(`manse-table`) → 대운과 세운 줄(`daeun-table`, A57, V89, V90).
 ///
 /// 지금 대운과 올해 세운은 기기 오늘([todayProvider]) 기준이라 해가 바뀌면 새 해를 따릅니다
-/// (Review Focus 4). 대운 시작 연도는 계약 `DaeunPeriod.startYear`입니다.
+/// (Review Focus 4). 대운 시작 연도는 계약 `DaeunPeriod.startYear`입니다. 띠 머리 칩(지장간,
+/// 12운성, 신살)은 설명 시트를 열고, 12운성 시트만 본문 아래 `stage-strip`이 붙습니다(V91).
 class SajuChartLuckTab extends ConsumerWidget {
   /// [chart]의 만세력 탭을 만듭니다.
   const new({required this.chart, super.key});
@@ -145,17 +185,16 @@ class SajuChartLuckTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _manseTable(text, l10n),
-        if (periods.isNotEmpty) ...[
-          const SizedBox(height: Space.s32),
+        _manseTable(context, text),
+        if (periods.isNotEmpty || chart.seun.isNotEmpty) ...[
+          const SizedBox(height: SectionHeader.sectionGap),
           DaeunTable(
             daeun: [
               for (final (index, period) in periods.indexed)
                 DaeunPillar(
                   age: period.startAgeKorean,
                   startYear: period.startYear,
-                  stem: _mini(period.pillar.stem),
-                  branch: _miniBranch(period.pillar.branch),
+                  pillar: luckGanjiOf(period.pillar),
                   ageSemanticLabel: l10n.daeunTableLabel(period.startAgeKorean),
                   semanticLabel: text.join([
                     text.stemText(period.pillar.stem),
@@ -195,8 +234,7 @@ class SajuChartLuckTab extends ConsumerWidget {
               for (final (index, year) in chart.seun.indexed)
                 SeunYear(
                   year: year.year,
-                  stem: _mini(year.pillar.stem),
-                  branch: _miniBranch(year.pillar.branch),
+                  pillar: luckGanjiOf(year.pillar),
                   yearSemanticLabel: l10n.luckYearLabel(year.year),
                   semanticLabel: text.join([
                     text.stemText(year.pillar.stem),
@@ -217,38 +255,86 @@ class SajuChartLuckTab extends ConsumerWidget {
             thisYear: thisYear,
             nowLabel: l10n.daeunTagNow,
             thisYearLabel: l10n.seunTagThisYear,
-            tableLabel: l10n.daeunTableLabel(periods.first.startAgeKorean),
+            daeunTitle: l10n.sajuChartDaeunTitle,
+            daeunDescription: l10n.sajuChartDaeunDesc,
+            seunTitle: l10n.sajuChartSeunTitle,
+            seunDescription: l10n.sajuChartSeunDesc,
           ),
         ],
       ],
     );
   }
 
-  /// 만세력 표: 기준 줄 + 띠 표. 띠 이름 용어 칩의 설명 시트 연결은 Task 24가 합니다.
-  Widget _manseTable(ChartText text, AppLocalizations l10n) {
+  /// 만세력 표: 기준 줄 "내 일간 庚(경금) 기준" + 띠 표.
+  Widget _manseTable(BuildContext context, ChartText text) {
+    final l10n = text.l10n;
     final dayStem = chart.pillars.day.stem;
     final glyph = stemHanja(dayStem);
-    final reading = text.stemReading(dayStem);
     return ManseTable(
-      basis: l10n.sajuChartManseBasis(
-        reading == null ? glyph : '$glyph($reading)',
-      ),
+      basis: l10n.sajuChartManseBasis(dayMasterText(text, dayStem)),
       basisGlyph: glyph,
       table: BandTable(
         columns: [
           for (final column in ChartColumn.values) _bandColumn(text, column),
         ],
-        bandLabels: {
-          BandKind.hiddenStems: l10n.manseRowHiddenStems,
-          BandKind.twelveStages: l10n.manseRowTwelveStages,
-          BandKind.shinsal: l10n.manseRowShinsal,
-        },
-        // Task 24에서 explain-sheet(ExplainUiText + StageStrip) 연결
-        onBandTap: (_) {},
+        bandLabels: _bandLabels(l10n),
+        onBandTap: (kind) => unawaited(_openBand(context, text, kind)),
         meLabel: l10n.sajuTagMe,
         emptyLabel: l10n.bandTableEmptyCell,
         tableLabel: l10n.manseTableLabel,
       ),
+    );
+  }
+
+  static Map<BandKind, String> _bandLabels(AppLocalizations l10n) => {
+    BandKind.hiddenStems: l10n.manseRowHiddenStems,
+    BandKind.twelveStages: l10n.manseRowTwelveStages,
+    BandKind.shinsal: l10n.manseRowShinsal,
+  };
+
+  /// 띠 머리 칩 [kind]의 설명 시트. 12운성만 본문 아래 내 네 자리의 `stage-strip`입니다.
+  Future<void> _openBand(BuildContext context, ChartText text, BandKind kind) {
+    final l10n = text.l10n;
+    final title = _bandLabels(l10n)[kind]!;
+    final content = switch (kind) {
+      BandKind.hiddenStems => ExplainUiText(
+        title: title,
+        body: l10n.sajuChartJijangganDesc,
+      ),
+      BandKind.twelveStages => ExplainUiText(
+        title: title,
+        body: l10n.sajuChartUnseongDesc,
+        attachment: _stageStrip(text),
+      ),
+      BandKind.shinsal => ExplainUiText(
+        title: title,
+        body: l10n.sajuChartSinsalDesc,
+      ),
+    };
+    return text.sheets.openExplain(context, content);
+  }
+
+  /// 내 네 자리(시간 모름이면 시주 없음)의 12운성 띠.
+  StageStrip _stageStrip(ChartText text) {
+    TwelveStage? stageAt(Position branch) => chart.twelveStages
+        .where((item) => item.position == branch)
+        .firstOrNull
+        ?.stage;
+    final positions = <PillarPosition, TwelveStage>{
+      for (final (position, column) in [
+        (PillarPosition.hour, ChartColumn.hour),
+        (PillarPosition.day, ChartColumn.day),
+        (PillarPosition.month, ChartColumn.month),
+        (PillarPosition.year, ChartColumn.year),
+      ])
+        if (column.of(chart) != null) position: ?stageAt(column.branch),
+    };
+    return StageStrip(
+      positions: positions,
+      stageNames: {
+        for (final stage in StageStrip.order)
+          stage: ?text.nameOf('twelve_stage', stage.value),
+      },
     );
   }
 
@@ -313,16 +399,22 @@ class SajuChartLuckTab extends ConsumerWidget {
       ],
     );
   }
+}
 
-  static OhaengCell _mini(Stem stem) => OhaengCell(
-    element: stemElement(stem),
-    hanja: stemHanja(stem),
-    size: OhaengCellSize.small,
-  );
+/// 간지 [pillar]를 `luck-pillar` 입력으로 바꿉니다.
+LuckGanji luckGanjiOf(Pillar pillar) => LuckGanji(
+  stemElement: stemElement(pillar.stem),
+  stemHanja: stemHanja(pillar.stem),
+  branchElement: branchElement(pillar.branch),
+  branchHanja: branchHanja(pillar.branch),
+);
 
-  static OhaengCell _miniBranch(Branch branch) => OhaengCell(
-    element: branchElement(branch),
-    hanja: branchHanja(branch),
-    size: OhaengCellSize.small,
-  );
+/// 일간 표기 "庚(경금)": 한자 뒤 괄호에 독음과 오행 이름. 독음이 없으면 한자만, 오행 이름이
+/// 없으면 독음까지입니다.
+String dayMasterText(ChartText text, Stem stem) {
+  final glyph = stemHanja(stem);
+  final reading = text.stemReading(stem);
+  if (reading == null) return glyph;
+  final element = text.names?.valueName('element', stemElement(stem).value);
+  return '$glyph($reading${element ?? ''})';
 }
