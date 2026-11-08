@@ -2874,7 +2874,7 @@ abstract class AppLocalizations {
   /// **'일기가 몇 편 더 쌓이면 내 기록을 돌아볼 수 있어요.'**
   String get mySajuRecordFew;
 
-  /// my-saju.record.title: 섹션 제목 "명리일기 회고"(사용자가 정한 문구). 아래에 기록 요약(쓴 편수, 날의 성격별 쓴 날, 자주 붙은 태그, server 집계 경로 새로 필요)
+  /// my-saju.record.title: 섹션 제목 "명리일기 회고"(사용자가 정한 문구). 아래에 기록 요약(server `getDiaryStats`, REST 1.9.0, S146: 쓴 편수, 날의 성격별로 일기가 있는 날짜 수, 대표 태그 기준 날짜 수가 많은 태그 최대 셋)
   ///
   /// In ko, this message translates to:
   /// **'명리일기 회고'**
