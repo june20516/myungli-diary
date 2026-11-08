@@ -146,3 +146,8 @@ func (s *Service) Restore(ctx context.Context, accountID, id uuid.UUID) (Entry, 
 func (s *Service) List(ctx context.Context, accountID uuid.UUID, q ListQuery) ([]Entry, error) {
 	return s.store.List(ctx, accountID, q)
 }
+
+// Stats는 계정 전체의 일기 회고 집계를 돌려줍니다(#862).
+func (s *Service) Stats(ctx context.Context, accountID uuid.UUID) (Stats, error) {
+	return s.store.Stats(ctx, accountID)
+}

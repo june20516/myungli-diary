@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.8.0
+  version: 1.9.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -1367,6 +1367,33 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /v1/diary-stats:
+    get:
+      operationId: getDiaryStats
+      summary: 일기 회고 집계
+      description: |
+        나 탭 "명리일기 회고"에 쓰는 계정 전체의 일기 집계입니다(#862, 1.9.0에서 더함). 지운 일기는 세지 않습니다.
+        `entryCount`는 살아 있는 일기 편수입니다. `dayKinds`와 `topTags`는 날짜 단위로, 살아 있는 일기가 한 편 이상 있는 날짜를 셉니다.
+        같은 날 여러 편을 써도 그날은 한 번입니다. 그래서 `dayKinds`의 합은 `entryCount`보다 작을 수 있습니다.
+        일기가 없으면 `entryCount` 0, `dayKinds`의 수는 모두 0, `topTags`는 빈 목록입니다.
+      responses:
+        '200':
+          description: 일기 회고 집계
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiaryStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalError'
         '503':
@@ -3872,6 +3899,50 @@ components:
             $ref: '#/components/schemas/Tag'
         dayKind:
           $ref: '#/components/schemas/DayKind'
+    DiaryStats:
+      type: object
+      description: |
+        `dayKinds`는 `DayKind` 네 값을 하나씩 모두 담고(수가 0이어도 담음), 순서는 정하지 않습니다.
+        값은 날짜 기록의 `dayKind`(D96, 쓸 때 본 날의 성격)이고, 1.1.0 전에 만든 날짜 기록처럼 `dayKind`가 없는 날은 어디에도 세지 않습니다.
+        `topTags`는 날짜 기록의 대표 태그(`DiarySummary.featuredTags`) 기준으로 그 태그가 붙은 날짜 수가 많은 순이고 최대 3개입니다.
+        수가 같으면 태그 키 오름차순입니다. `tag.polarity`는 그 태그가 붙은 가장 최근 날짜의 값입니다.
+      required: [entryCount, dayKinds, topTags]
+      properties:
+        entryCount:
+          type: integer
+          minimum: 0
+          description: 살아 있는 일기 편수
+        dayKinds:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/DayKindCount'
+        topTags:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/TagCount'
+    DayKindCount:
+      type: object
+      required: [dayKind, days]
+      properties:
+        dayKind:
+          $ref: '#/components/schemas/DayKind'
+        days:
+          type: integer
+          minimum: 0
+          description: 그날 성격으로 기록된, 살아 있는 일기가 있는 날짜 수
+    TagCount:
+      type: object
+      required: [tag, days]
+      properties:
+        tag:
+          $ref: '#/components/schemas/Tag'
+        days:
+          type: integer
+          minimum: 1
+          description: 그 대표 태그가 붙은, 살아 있는 일기가 있는 날짜 수
 
     # ---- 일정 ----
     ScheduleInput:

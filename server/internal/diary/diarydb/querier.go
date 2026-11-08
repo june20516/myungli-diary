@@ -6,6 +6,8 @@ package diarydb
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
@@ -13,6 +15,8 @@ type Querier interface {
 	// 일기 쿼리입니다. 일기 한 편(diaries)과 날짜 기록(diary_days)을 JOIN해 읽습니다(D83).
 	// 조회는 모두 살아 있는 행(deleted_at IS NULL)만 보고, 모든 쿼리가 account_id 조건을 겁니다.
 	DiaryDayExists(ctx context.Context, arg DiaryDayExistsParams) (bool, error)
+	// 회고 집계의 편수와 날의 성격별 날짜 수입니다(#862). 날짜는 살아 있는 일기가 한 편 이상 있는 날만 세고, day_kind가 NULL인 날은 어디에도 세지 않습니다.
+	DiaryStatsCounts(ctx context.Context, accountID uuid.UUID) (DiaryStatsCountsRow, error)
 	GetDiary(ctx context.Context, arg GetDiaryParams) (GetDiaryRow, error)
 	// 지운 행까지 보고 그 행을 잠급니다. 되살리기가 대상의 날짜와 상태를 확인하는 데 씁니다(같은 일기의 동시 되살리기·지우기가 줄을 섭니다).
 	// 잠금 순서는 diaries 행 다음 diary_days 행입니다(만들기는 diary_days 행 다음 새 행이라 순환이 없습니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
@@ -27,6 +31,9 @@ type Querier interface {
 	// 날짜 기록 행을 잠가 그 날짜를 잠급니다(같은 날짜의 만들기·되살리기가 줄을 섭니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	LockDiaryDay(ctx context.Context, arg LockDiaryDayParams) (int32, error)
 	SoftDeleteDiary(ctx context.Context, arg SoftDeleteDiaryParams) (int64, error)
+	// 살아 있는 일기가 있는 날짜의 대표 태그를 날짜 수가 많은 순(같으면 키 오름차순)으로 tag_limit개까지 셉니다(#862).
+	// polarity는 그 태그가 붙은 가장 최근 날짜의 값입니다.
+	TopFeaturedTags(ctx context.Context, arg TopFeaturedTagsParams) ([]TopFeaturedTagsRow, error)
 	UndeleteDiary(ctx context.Context, arg UndeleteDiaryParams) error
 	// 살아 있는 일기의 본문만 바꿉니다(날짜 기록은 유지). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	UpdateDiaryBody(ctx context.Context, arg UpdateDiaryBodyParams) (UpdateDiaryBodyRow, error)

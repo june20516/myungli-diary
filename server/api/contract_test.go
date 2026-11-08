@@ -24,7 +24,7 @@ var expectedOperationIDs = []string{
 	"getMe", "deleteMe", "agreeConsents", "createProfile", "updateProfile", "getProfile",
 	"getDaily", "getChart", "getCalendar", "putReaction", "deleteReaction",
 	"getGlossary", "createPreview", "getBirthHour", "convertLunarDate",
-	"listDiaries", "createDiary", "getDiary", "updateDiary", "deleteDiary", "restoreDiary",
+	"listDiaries", "createDiary", "getDiary", "updateDiary", "deleteDiary", "restoreDiary", "getDiaryStats",
 	"listSchedules", "createSchedule", "updateSchedule", "deleteSchedule", "restoreSchedule",
 	"registerDevice",
 	"createInquiry", "deleteDevice",
@@ -692,8 +692,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.8.0" {
-		t.Errorf("info.version = %q, want 1.8.0", doc.Info.Version)
+	if doc.Info.Version != "1.9.0" {
+		t.Errorf("info.version = %q, want 1.9.0", doc.Info.Version)
 	}
 }
 
