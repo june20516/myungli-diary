@@ -306,13 +306,28 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   }
 
   /// 고치기 화면의 일진을 뒤에서 받아 채웁니다.
+  ///
+  /// 어떤 실패에서도 일진 줄만 빼고 [DiaryEditState.dayPillarPending]을 풉니다. 조용히 넘기는
+  /// 실패는 [recordUnlessAppError] 규칙(분류된 실패는 삼키고 예상 밖 오류만 비치명 기록)을
+  /// 따릅니다. 일진이 build보다 먼저 와도 build가 끝난 뒤([future])에 반영합니다.
   Future<void> _fillDayPillar(CalendarDate date) async {
-    final daily = await _daily(date, onOffline: () {});
+    Pillar? pillar;
+    try {
+      pillar = (await _daily(date, onOffline: () {}))?.dayPillar;
+    } on Object catch (error, stackTrace) {
+      recordUnlessAppError(_crashReporter, error, stackTrace);
+    }
+    try {
+      await future;
+    } on Object {
+      // build가 실패했으면 채울 화면이 없습니다(오류는 build가 이미 상태로 남김).
+      return;
+    }
     if (!ref.mounted) return;
     final current = state.value;
     if (current == null) return;
     state = AsyncData(
-      current.copyWith(dayPillar: daily?.dayPillar, dayPillarPending: false),
+      current.copyWith(dayPillar: pillar, dayPillarPending: false),
     );
   }
 

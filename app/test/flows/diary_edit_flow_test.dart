@@ -291,6 +291,32 @@ void main() {
     await settleWithIo(tester);
   });
 
+  testWidgets('스택 바닥(딥링크)에서 저장 중 뒤로를 눌러도 목록으로 가지 않습니다', (tester) async {
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    container.read(routerProvider).go(datedPathOf(ScreenIds.diaryEdit, _today));
+    await _untilShown(tester);
+    await tester.enterText(_body, '바닥에서 쓰는 글');
+    await tester.pump();
+    final hold = network.holdCreate = Completer<void>();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await tester.pump();
+    expect(_saveButton(tester).saving, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('app-bar.back')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
+    expect(find.byKey(const ValueKey(ScreenIds.diaryList)), findsNothing);
+
+    hold.complete();
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
+  });
+
   testWidgets('422 diary.guide_invalid: 일반 저장 실패 문구 toast, 본문과 화면은 그대로', (
     tester,
   ) async {

@@ -57,6 +57,12 @@ final class _Network extends Interceptor {
   /// 있으면 `getDaily` 요청을 이 completer가 끝날 때까지 붙잡습니다.
   Completer<void>? holdDaily;
 
+  /// `getDaily`를 503 problem으로 끊습니다.
+  bool dailyUnavailable = false;
+
+  /// 있으면 `getDaily`를 서버를 거치지 않고 이 본문으로 바로 답합니다.
+  Map<String, Object?>? dailyImmediate;
+
   /// 있으면 `getDaily` 응답의 `guideCandidates`를 이 목록으로 바꿉니다.
   List<Map<String, Object?>>? candidates;
 
@@ -69,6 +75,40 @@ final class _Network extends Interceptor {
       if (dailyOffline) {
         handler.reject(
           DioException.connectionError(requestOptions: options, reason: '오프라인'),
+        );
+        return;
+      }
+      if (dailyUnavailable) {
+        handler.reject(
+          DioException.badResponse(
+            statusCode: 503,
+            requestOptions: options,
+            response: Response<Object?>(
+              requestOptions: options,
+              statusCode: 503,
+              data: {
+                'type': 'about:blank',
+                'title': 'Unavailable',
+                'status': 503,
+                'code': 'service.unavailable',
+                'traceId': 'test',
+              },
+              headers: Headers.fromMap({
+                Headers.contentTypeHeader: ['application/problem+json'],
+              }),
+            ),
+          ),
+        );
+        return;
+      }
+      final immediate = dailyImmediate;
+      if (immediate != null) {
+        handler.resolve(
+          Response<Object?>(
+            requestOptions: options,
+            statusCode: 200,
+            data: immediate,
+          ),
         );
         return;
       }
@@ -404,6 +444,34 @@ void main() {
       }
       expect(h.state(target).dayPillar, isNotNull);
       expect(h.state(target).dayPillarPending, isFalse);
+    });
+
+    test('고치기에서 일진 읽기가 5xx로 실패해도 예외 없이 열리고 일진 줄만 없습니다', () async {
+      final h = await _harness();
+      final target = DiaryEditTarget.existing(await writtenId(h));
+      h.network.dailyUnavailable = true;
+      final opened = await _open(h, target);
+      expect(opened.initialBody, startsWith('오랜만에'));
+      for (var i = 0; i < 50 && h.state(target).dayPillarPending; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(h.state(target).dayPillar, isNull);
+      expect(h.state(target).dayPillarPending, isFalse);
+    });
+
+    test('일진이 build보다 먼저 끝나도 pending이 풀리고 일진이 채워집니다', () async {
+      final h = await _harness();
+      final target = DiaryEditTarget.existing(await writtenId(h));
+      final fixture = jsonDecode(
+        await rootBundle.loadString('fixtures/member/getDaily.json'),
+      ) as Map<String, Object?>;
+      h.network.dailyImmediate = fixture['body']! as Map<String, Object?>;
+      await _open(h, target);
+      for (var i = 0; i < 50 && h.state(target).dayPillarPending; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(h.state(target).dayPillarPending, isFalse);
+      expect(h.state(target).dayPillar, isNotNull);
     });
 
     test('고치기에서 일진을 받지 못해도(오프라인) 열리고 일진만 없습니다', () async {
