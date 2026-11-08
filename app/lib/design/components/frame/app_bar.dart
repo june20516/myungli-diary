@@ -156,13 +156,18 @@ class MyungliAppBar extends StatelessWidget {
   Widget _buildEdit(BuildContext context, AppBarTextAction action) {
     final tokens = context.tokens;
     final prefs = MotionPrefs.of(context);
-    final titleText = Text(
-      title,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      textAlign: TextAlign.center,
-      style: tokens.typography.labelLg.copyWith(
-        color: tokens.colors.textPrimary,
+    const centerKey = ValueKey('app-bar.center.title');
+    final titleNode = Semantics(
+      identifier: titleIdentifier,
+      header: true,
+      child: Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: tokens.typography.labelLg.copyWith(
+          color: tokens.colors.textPrimary,
+        ),
       ),
     );
     return SizedBox(
@@ -186,30 +191,45 @@ class MyungliAppBar extends StatelessWidget {
             ),
             Expanded(
               // 머리 이름은 늘 화면 제목이고, 가운데 상태는 draft-indicator 의미를 따로 냅니다.
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Semantics(
-                    identifier: titleIdentifier,
-                    header: true,
-                    label: title,
-                    child: const SizedBox.shrink(),
-                  ),
-                  AnimatedSwitcher(
-                    duration: prefs.reduceMotion
-                        ? Duration.zero
-                        : InteractionPattern.appearSeep.duration,
-                    child: status == null
-                        ? KeyedSubtree(
-                            key: const ValueKey('app-bar.center.title'),
-                            child: ExcludeSemantics(child: titleText),
-                          )
-                        : KeyedSubtree(
-                            key: const ValueKey('app-bar.center.status'),
-                            child: status!,
-                          ),
-                  ),
-                ],
+              child: AnimatedSwitcher(
+                duration: prefs.reduceMotion
+                    ? Duration.zero
+                    : InteractionPattern.appearSeep.duration,
+                transitionBuilder: (child, animation) {
+                  final incoming = child.key == centerKey;
+                  return animate(
+                    incoming
+                        ? InteractionPattern.appearSeep
+                        : InteractionPattern.disappearSeep,
+                    // 나가는 쪽 animation은 1에서 0으로 가므로 뒤집어 0에서 1로 줍니다.
+                    t: incoming ? animation : ReverseAnimation(animation),
+                    prefs: prefs,
+                    child: child,
+                  );
+                },
+                child: status == null
+                    ? KeyedSubtree(
+                        key: const ValueKey('app-bar.center.title'),
+                        child: titleNode,
+                      )
+                    : KeyedSubtree(
+                        key: const ValueKey('app-bar.center.status'),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // 상태가 보여도 머리 이름은 화면 제목으로 남깁니다(그리지 않음).
+                            Visibility(
+                              visible: false,
+                              maintainSize: true,
+                              maintainAnimation: true,
+                              maintainState: true,
+                              maintainSemantics: true,
+                              child: titleNode,
+                            ),
+                            status!,
+                          ],
+                        ),
+                      ),
               ),
             ),
             SizedBox(

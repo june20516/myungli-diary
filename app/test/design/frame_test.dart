@@ -133,6 +133,16 @@ void _phone(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
+/// 겹 화살표([icon])의 지금 투명도(seep 전환이 끝나면 보임 1, 숨김 0).
+double _arrowOpacity(WidgetTester tester, IconData icon) => tester
+    .widget<AnimatedOpacity>(
+      find.ancestor(
+        of: find.byIcon(icon),
+        matching: find.byType(AnimatedOpacity),
+      ),
+    )
+    .opacity;
+
 void main() {
   group('tab-bar', () {
     Widget bar({
@@ -1664,18 +1674,22 @@ void main() {
       ),
     );
 
-    testWidgets('시작선은 화면 20, 시트 24이고 제목은 600 본문색입니다', (tester) async {
+    testWidgets('시작선은 부모 내용 여백을 따릅니다(화면 20, 시트 24)', (tester) async {
       _phone(tester);
-      await tester.pumpWidget(host(const SectionHeader(title: '제목')));
+      Widget inset(double value) => host(
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: value),
+          child: const SectionHeader(title: '제목'),
+        ),
+      );
+      await tester.pumpWidget(inset(20));
       expect(tester.getTopLeft(find.text('제목')).dx, 20);
       final text = tester.widget<Text>(find.text('제목'));
       final tokens = tester.element(find.text('제목')).tokens;
       expect(text.style!.fontWeight, FontWeight.w600);
       expect(text.style!.fontSize, tokens.typography.labelLg.fontSize);
       expect(text.style!.color, tokens.colors.textPrimary);
-      await tester.pumpWidget(
-        host(const SectionHeader(title: '제목', inSheet: true)),
-      );
+      await tester.pumpWidget(inset(24));
       expect(tester.getTopLeft(find.text('제목')).dx, 24);
     });
 
@@ -1718,6 +1732,7 @@ void main() {
     });
 
     testWidgets('action: 아이콘 동작은 44 폭 터치 영역이고 이름으로 읽습니다', (tester) async {
+      _phone(tester);
       final handle = tester.ensureSemantics();
       var taps = 0;
       await tester.pumpWidget(
@@ -1736,12 +1751,14 @@ void main() {
         ),
       );
       expect(find.byIcon(PhosphorIconsLight.plus), findsOneWidget);
-      expect(
-        tester.getSize(find.bySemanticsLabel('추가')).width,
-        greaterThanOrEqualTo(44),
-      );
       await tester.tap(find.byIcon(PhosphorIconsLight.plus));
       expect(taps, 1);
+      // 그림 24가 부모 내용 끝선에 닿고, 터치 44는 그 바깥으로 넓어집니다.
+      expect(tester.getSize(find.byIcon(PhosphorIconsLight.plus)).width, 24);
+      expect(tester.getTopRight(find.byIcon(PhosphorIconsLight.plus)).dx, 360);
+      final iconRect = tester.getRect(find.byIcon(PhosphorIconsLight.plus));
+      await tester.tapAt(iconRect.centerLeft - const Offset(8, 0));
+      expect(taps, 2);
       handle.dispose();
     });
 
@@ -1752,12 +1769,13 @@ void main() {
           const SectionHeader(
             title: '제목',
             trailing: SectionHeaderActionWidget(
-              SizedBox(key: ValueKey('custom'), width: 30, height: 30),
+              SizedBox(key: ValueKey('custom'), width: 200, height: 30),
             ),
           ),
         ),
       );
-      expect(tester.getTopRight(find.byKey(const ValueKey('custom'))).dx, 340);
+      expect(tester.getTopRight(find.byKey(const ValueKey('custom'))).dx, 360);
+      expect(tester.getSize(find.byKey(const ValueKey('custom'))).width, 200);
     });
 
     for (final scale in [1.3, 2.0]) {
@@ -1792,7 +1810,7 @@ void main() {
                 1.2,
           ),
         );
-        expect(link.right, lessThanOrEqualTo(340 + 0.01));
+        expect(link.right, lessThanOrEqualTo(360 + 0.01));
         expect(titleBox.right, lessThanOrEqualTo(link.left));
       });
     }
@@ -1826,8 +1844,8 @@ void main() {
       addTearDown(controller.dispose);
       await tester.pumpWidget(hint(controller));
       await tester.pump();
-      expect(find.byIcon(PhosphorIconsLight.caretDoubleLeft), findsNothing);
-      expect(find.byIcon(PhosphorIconsLight.caretDoubleRight), findsOneWidget);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 0);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleRight), 1);
     });
 
     testWidgets('오른쪽 화살표는 보이는 폭만큼 넘기고, 끝에서는 숨습니다', (tester) async {
@@ -1838,15 +1856,33 @@ void main() {
       await tester.tap(find.byIcon(PhosphorIconsLight.caretDoubleRight));
       await tester.pumpAndSettle();
       expect(controller.offset, 300);
-      expect(find.byIcon(PhosphorIconsLight.caretDoubleLeft), findsOneWidget);
-      expect(find.byIcon(PhosphorIconsLight.caretDoubleRight), findsOneWidget);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 1);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleRight), 1);
       controller.jumpTo(controller.position.maxScrollExtent);
       await tester.pump();
       await tester.pump();
-      expect(find.byIcon(PhosphorIconsLight.caretDoubleRight), findsNothing);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleRight), 0);
       await tester.tap(find.byIcon(PhosphorIconsLight.caretDoubleLeft));
       await tester.pumpAndSettle();
       expect(controller.offset, 400);
+    });
+
+    testWidgets('컨트롤러를 바꾸면 새 위치로 다시 셉니다', (tester) async {
+      final first = ScrollController();
+      final second = ScrollController();
+      addTearDown(first.dispose);
+      addTearDown(second.dispose);
+      Widget build(ScrollController c) => hint(c);
+      await tester.pumpWidget(build(first));
+      await tester.pump();
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 0);
+      await tester.pumpWidget(build(second));
+      await tester.pumpAndSettle();
+      // 새 컨트롤러의 스크롤을 듣고, 옛 컨트롤러는 더 듣지 않습니다.
+      second.jumpTo(700);
+      await tester.pumpAndSettle();
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 1);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleRight), 0);
     });
 
     testWidgets('움직임 줄이기: 바로 그 자리로 넘어갑니다', (tester) async {
@@ -1915,12 +1951,53 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('임시 저장됨'), findsOneWidget);
-      expect(find.text('일기 쓰기'), findsNothing);
+      // 제목은 그려지지 않고(보이지 않음) 머리 이름으로만 남습니다.
+      expect(
+        find.ancestor(
+          of: find.text('일기 쓰기'),
+          matching: find.byWidgetPredicate(
+            (w) => w is Visibility && !w.visible,
+          ),
+        ),
+        findsOneWidget,
+      );
       expect(tester.getCenter(find.byType(DraftIndicator)).dx, 180);
       await tester.pumpWidget(bar());
       await tester.pumpAndSettle();
       expect(find.text('일기 쓰기'), findsOneWidget);
       expect(find.byType(DraftIndicator), findsNothing);
+    });
+
+    testWidgets('제목에서 status로: 들어오는 쪽 appear.seep, 나가는 쪽 disappear.seep', (
+      tester,
+    ) async {
+      await tester.pumpWidget(bar());
+      await tester.pumpWidget(
+        bar(
+          status: const DraftIndicator(
+            state: DraftIndicatorState.local,
+            label: '임시 저장됨',
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      double alpha(String key) => tester
+          .widget<Opacity>(
+            find
+                .ancestor(
+                  of: find.byKey(ValueKey('app-bar.center.$key')),
+                  matching: find.byType(Opacity),
+                )
+                .first,
+          )
+          .opacity;
+      final incoming = alpha('status');
+      final outgoing = alpha('title');
+      expect(incoming, inExclusiveRange(0, 1));
+      expect(outgoing, inExclusiveRange(0, 1));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('app-bar.center.title')), findsNothing);
     });
 
     testWidgets('머리 이름은 status가 있어도 화면 제목입니다', (tester) async {

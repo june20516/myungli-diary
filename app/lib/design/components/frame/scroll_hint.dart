@@ -71,6 +71,10 @@ class _ScrollHintState extends State<ScrollHint> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_sync);
       widget.controller.addListener(_sync);
+      // 새 컨트롤러는 자식이 이번 빌드에서 붙이므로 그 뒤에 다시 셉니다.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _sync();
+      });
     }
   }
 
@@ -173,11 +177,13 @@ class _ScrollHintState extends State<ScrollHint> {
                     _Arrow(
                       glyph: _doubleLeft,
                       visible: _moreBefore,
+                      duration: fadeDuration,
                       onTap: () => _page(-1),
                     ),
                     _Arrow(
                       glyph: _doubleRight,
                       visible: _moreAfter,
+                      duration: fadeDuration,
                       onTap: () => _page(1),
                     ),
                   ],
@@ -192,28 +198,42 @@ class _ScrollHintState extends State<ScrollHint> {
 
 /// 44 터치 영역 안 16 Light 겹 화살표. 보이지 않을 때도 자리는 지켜 반대쪽이 제 끝에 남습니다.
 class _Arrow extends StatelessWidget {
-  const new({required this.glyph, required this.visible, required this.onTap});
+  const new({
+    required this.glyph,
+    required this.visible,
+    required this.duration,
+    required this.onTap,
+  });
 
   final AppGlyph glyph;
   final bool visible;
+  final Duration duration;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     const box = ScrollHint.minTarget;
-    if (!visible) return const SizedBox.square(dimension: box);
+    // 보이지 않을 때도 자리를 지켜 행 높이가 변하지 않고, 바뀔 때 seep으로 흐려집니다.
     return SizedBox.square(
       dimension: box,
-      child: PressInkTarget(
-        semanticLabel: '',
-        onTap: onTap,
-        inkColor: context.tokens.colors.textSecondary,
-        borderRadius: BorderRadius.circular(box / 2),
-        child: Center(
-          child: AppIcon(
-            glyph,
-            size: AppIconSize.s16,
-            color: context.tokens.colors.textSecondary,
+      child: IgnorePointer(
+        ignoring: !visible,
+        child: AnimatedOpacity(
+          key: ValueKey('scroll-hint.arrow.${visible ? 'on' : 'off'}'),
+          opacity: visible ? 1 : 0,
+          duration: duration,
+          child: PressInkTarget(
+            semanticLabel: '',
+            onTap: onTap,
+            inkColor: context.tokens.colors.textSecondary,
+            borderRadius: BorderRadius.circular(box / 2),
+            child: Center(
+              child: AppIcon(
+                glyph,
+                size: AppIconSize.s16,
+                color: context.tokens.colors.textSecondary,
+              ),
+            ),
           ),
         ),
       ),

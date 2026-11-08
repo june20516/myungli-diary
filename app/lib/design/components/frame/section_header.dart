@@ -59,7 +59,8 @@ final class SectionHeaderActionWidget extends SectionHeaderTrailing {
 
 /// 섹션 제목(`section-header`, V59, V69): 굵은 라벨, 선택 설명 줄, 오른쪽 자리 하나.
 ///
-/// 시작선은 카드 바깥 가장자리라 화면에서는 `space.20`, 시트 안([inSheet])에서는 `space.24`입니다.
+/// 시작선은 카드 바깥 가장자리이고, 좌우 여백(화면 `space.20`, 시트 안 `space.24`)은 이 위젯이
+/// 놓이는 부모의 내용 여백이 줍니다. 이 위젯은 자체 여백을 두지 않습니다.
 /// 제목이 줄바꿈되어도 오른쪽 자리는 제 크기를 지키고 제목이 남는 폭에서 내려갑니다.
 class SectionHeader extends StatelessWidget {
   /// 섹션 제목 [title]과 선택 [description], [trailing]으로 만듭니다.
@@ -67,7 +68,6 @@ class SectionHeader extends StatelessWidget {
     required this.title,
     this.description,
     this.trailing,
-    this.inSheet = false,
     this.titleIdentifier,
     super.key,
   });
@@ -85,12 +85,6 @@ class SectionHeader extends StatelessWidget {
   /// 섹션과 섹션 사이 간격(`section-header.parts.sectionGap`).
   static const double sectionGap = Space.s32;
 
-  /// 화면 좌우 시작선(`startLine.screen`).
-  static const double screenInset = Space.s20;
-
-  /// 시트 안 시작선(`startLine.sheet`).
-  static const double sheetInset = Space.s24;
-
   /// 오른쪽 자리 터치 최소 크기(`action.minTarget`).
   static const double minTarget = 44;
 
@@ -102,9 +96,6 @@ class SectionHeader extends StatelessWidget {
 
   /// 오른쪽 자리(선택).
   final SectionHeaderTrailing? trailing;
-
-  /// 시트 안이면 시작선이 `space.24`입니다.
-  final bool inSheet;
 
   /// 제목의 IA 슬롯 id.
   final String? titleIdentifier;
@@ -125,39 +116,37 @@ class SectionHeader extends StatelessWidget {
         ),
       ),
     );
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: inSheet ? sheetInset : screenInset,
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(child: titleText),
-                if (trailing != null)
-                  // 오른쪽 자리가 폭 절반을 넘으면 줄바꿈해 제목 자리를 지킵니다.
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: constraints.maxWidth / 2,
-                    ),
-                    child: _buildTrailing(context, trailing),
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: titleText),
+              if (trailing is SectionHeaderActionWidget)
+                // 좋아요 같은 위젯은 제 폭을 지킵니다(자르지 않음).
+                trailing.child
+              else if (trailing != null)
+                // 오른쪽 자리가 폭 절반을 넘으면 줄바꿈해 제목 자리를 지킵니다.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth / 2,
                   ),
-              ],
-            ),
-            if (description != null)
-              Padding(
-                padding: const EdgeInsets.only(top: Space.s2),
-                child: Text(
-                  description!,
-                  style: tokens.typography.captionMd.copyWith(
-                    color: colors.textSecondary,
-                  ),
+                  child: _buildTrailing(context, trailing),
+                ),
+            ],
+          ),
+          if (description != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Space.s2),
+              child: Text(
+                description!,
+                style: tokens.typography.captionMd.copyWith(
+                  color: colors.textSecondary,
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -197,15 +186,14 @@ class SectionHeader extends StatelessWidget {
         );
       }(),
       SectionHeaderAction(:final icon, :final semanticLabel, :final onTap) =>
+        // 그림 24를 끝선에 맞추고 터치 44는 배치 밖으로 넓힙니다(depth-link layoutWidth와 같은 원칙).
         VerticalHitSlop(
+          minWidth: minTarget,
           child: PressInkTarget(
             semanticLabel: semanticLabel,
             onTap: onTap,
             borderRadius: BorderRadius.circular(Radii.full),
-            child: SizedBox(
-              width: minTarget,
-              child: Center(child: AppIcon(icon, color: colors.textPrimary)),
-            ),
+            child: AppIcon(icon, color: colors.textPrimary),
           ),
         ),
       SectionHeaderActionWidget(:final child) => child,
