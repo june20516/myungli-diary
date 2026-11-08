@@ -25,8 +25,9 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -34,6 +35,7 @@ import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -44,7 +46,7 @@ import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
 
-final Finder _content = find.byType(DayCharacter);
+final Finder _content = find.byType(DateHeader);
 
 Future<void> _settleToday(WidgetTester tester) => pumpUntil(
   tester,
@@ -369,6 +371,49 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('풀이 이름'), findsOneWidget);
     expect(find.byType(ErrorState), findsNothing);
+  });
+
+  testWidgets('member: 사주 기운 태그 → 사주 기운 시트(열린 동안 selected)', (tester) async {
+    covers(const Covers(exits: ['today>tag-sheet'], decisions: ['D108']));
+    // 시트 본문(tag-sheet)은 Task 17이 잇습니다. 여기서는 오늘 화면에서 그 시트가 열리는지만 봅니다.
+    await pumpApp(
+      tester,
+      scenario: 'member',
+      overrides: [
+        tagBodyProvider.overrideWithValue(
+          (daily, rank) => Text('${daily.tags.featured[rank].key} $rank'),
+        ),
+      ],
+    );
+    await _settleToday(tester);
+
+    final featured = find.descendant(
+      of: find.byKey(TodayScreen.featuredCardKey),
+      matching: find.byType(HanjaTag),
+    );
+    await tester.ensureVisible(featured.first);
+    await tester.pumpAndSettle();
+    await tester.tap(featured.first);
+    await tester.pumpAndSettle();
+
+    final sheet = find.byKey(const Key(ScreenIds.tagSheet));
+    expect(sheet, findsOneWidget);
+    expect(
+      find.descendant(of: sheet, matching: find.text('cheoneul_gwiin 0')),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<HanjaTag>(featured.first).variant,
+      HanjaTagVariant.selected,
+    );
+
+    await tapSheetScrim(tester);
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
+    expect(
+      tester.widget<HanjaTag>(featured.first).variant,
+      HanjaTagVariant.normal,
+    );
   });
 
   testWidgets('member: 가이드 카드 → 오늘 새 일기 diary-edit', (tester) async {

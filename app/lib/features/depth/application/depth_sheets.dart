@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
@@ -25,16 +26,25 @@ typedef EvidenceBodyBuilder = Widget Function(
 /// 공유 미리보기 시트 본문.
 typedef ShareBodyBuilder = Widget Function();
 
-/// 깊이 시트(풀이·근거·공유 미리보기)를 어느 화면에서든 같은 호출로 여는 서비스(결정 A23).
+/// 사주 기운 시트(`tag-sheet`) 본문. [daily]는 그날 응답이고 [rank]는 누른 대표 태그의
+/// `tags.featured` 순번(0이 1순위, A113)입니다.
+typedef TagBodyBuilder = Widget Function(Daily daily, int rank);
+
+/// 사주 기운 시트 본문이 연결되지 않았을 때. [tagBodyProvider]의 기본값과 같습니다.
+Widget _unwiredTagBody(Daily daily, int rank) =>
+    throw UnimplementedError(_unwired);
+
+/// 깊이 시트(풀이·근거·공유 미리보기·사주 기운)를 어느 화면에서든 같은 호출로 여는 서비스(결정 A23).
 ///
 /// 열고 닫는 움직임·햅틱·쌓임은 `showMyungliSheet`가 처리합니다.
 /// 본문은 주입받으므로 시트를 만드는 task가 builder만 바꿔 끼웁니다.
 final class DepthSheets {
-  /// 세 시트의 본문 builder를 받습니다.
+  /// 시트 본문 builder를 받습니다. [tagBody]를 주지 않으면 사주 기운 시트를 열 때 실패합니다.
   const new({
     required this.explainBody,
     required this.evidenceBody,
     required this.shareBody,
+    this.tagBody = _unwiredTagBody,
   });
 
   /// 풀이 시트 본문.
@@ -45,6 +55,9 @@ final class DepthSheets {
 
   /// 공유 미리보기 시트 본문.
   final ShareBodyBuilder shareBody;
+
+  /// 사주 기운 시트 본문.
+  final TagBodyBuilder tagBody;
 
   /// 풀이 시트(half)를 엽니다. [content]는 풀이할 내용입니다([ExplainTerm]은 용어가 들어 있던
   /// 슬롯과 그 슬롯을 담은 응답을 [ExplainTerm.origin]으로 갖습니다).
@@ -87,6 +100,30 @@ final class DepthSheets {
     ),
   );
 
+  /// 사주 기운 시트(half, 내용 높이)를 엽니다. [rank]는 누른 대표 태그의 `daily.tags.featured`
+  /// 순번(0이 1순위, 1이 2순위)입니다(A113). 시트가 닫히면 끝나므로, 여는 쪽은 그동안 누른
+  /// 태그를 `selected`로 둡니다.
+  Future<void> openTag(
+    BuildContext context, {
+    required Daily daily,
+    required int rank,
+  }) {
+    assert(
+      rank >= 0 && rank < daily.tags.featured.length,
+      '대표 태그 순번 $rank이 응답 범위 밖입니다',
+    );
+    return showMyungliSheet<void>(
+      context,
+      size: SheetSize.half,
+      // 시트 이름은 IA tag-sheet의 이름(사주 기운)입니다.
+      semanticLabel: AppLocalizations.of(context).todayFeaturedTitle,
+      builder: (_) => SheetScreenId(
+        screenId: ScreenIds.tagSheet,
+        child: tagBody(daily, rank),
+      ),
+    );
+  }
+
   /// 공유 미리보기 시트(half)를 엽니다.
   Future<void> openSharePreview(BuildContext context) => showMyungliSheet<void>(
     context,
@@ -120,11 +157,15 @@ final shareBodyProvider = Provider<ShareBodyBuilder>(
       () => throw UnimplementedError(_unwired),
 );
 
-/// 깊이 시트 서비스. 본문은 위 세 provider에서 받습니다.
+/// 사주 기운 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
+final tagBodyProvider = Provider<TagBodyBuilder>((ref) => _unwiredTagBody);
+
+/// 깊이 시트 서비스. 본문은 위 네 provider에서 받습니다.
 final depthSheetsProvider = Provider<DepthSheets>(
   (ref) => DepthSheets(
     explainBody: ref.watch(explainBodyProvider),
     evidenceBody: ref.watch(evidenceBodyProvider),
     shareBody: ref.watch(shareBodyProvider),
+    tagBody: ref.watch(tagBodyProvider),
   ),
 );

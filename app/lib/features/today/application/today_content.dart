@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -68,8 +69,8 @@ AsyncValue<TodayContent> todayContentOf({
 
 /// 오늘 화면 값. 오늘 응답·이름 사전·오늘 쓴 일기·"오늘"을 한 곳에서 묶습니다.
 ///
-/// 값이 생기면 사전에 이름이 없어 칩이 되지 않은 대표 태그를 보고합니다
-/// ([unnamedFeaturedTagKeysOf], 같은 빈칸은 앱 실행 동안 한 번).
+/// 값이 생기면 사전이나 한자 글자표에 없어 그리지 못한 대표 태그와 이름 없는 십성 묶음을
+/// 보고합니다([todayDictionaryGapsOf], 같은 빈칸은 앱 실행 동안 한 번).
 final todayContentProvider = Provider<AsyncValue<TodayContent>>((ref) {
   final today = ref.watch(todayProvider);
   final content = todayContentOf(
@@ -90,12 +91,22 @@ final _reportedDictionaryGapsProvider = Provider<Set<String>>(
   (ref) => <String>{},
 );
 
-/// [content]의 대표 태그 중 사전에 이름이 없는 것을 용어 id만 담아 보고합니다(D64).
+/// 오늘 화면이 그리지 못한 용어 id(`<범주>.<값>`): 대표 태그([skippedFeaturedTagKeysOf])와
+/// 사전에 이름이 없는 십성 묶음(`ten_god_group.<값>`).
+List<String> todayDictionaryGapsOf(Daily daily, GlossaryNames names) {
+  final group = daily.dayStemTenGodGroup;
+  return [
+    for (final key in skippedFeaturedTagKeysOf(daily, names)) 'tag.$key',
+    if (group != null && names.valueName('ten_god_group', group.value) == null)
+      'ten_god_group.${group.value}',
+  ];
+}
+
+/// [content]에서 그리지 못한 용어를 용어 id만 담아 보고합니다(D64, A112).
 void _reportUnnamedTags(Ref ref, TodayContent content) {
   final reported = ref.read(_reportedDictionaryGapsProvider);
-  final keys = unnamedFeaturedTagKeysOf(content.view.daily, content.names);
-  for (final key in keys) {
-    final termId = 'tag.$key';
+  final termIds = todayDictionaryGapsOf(content.view.daily, content.names);
+  for (final termId in termIds) {
     if (reported.add(termId)) {
       ref
           .read(crashReporterProvider)

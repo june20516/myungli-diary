@@ -52,10 +52,10 @@ class GuideQuestionCard extends StatefulWidget {
   /// `identifier`로 붙습니다.
   const new({
     required this.state,
-    required this.eyebrow,
     required this.question,
     required this.actionLabel,
     required this.onAction,
+    this.eyebrow,
     this.questionSlotId,
     this.actionSlotId,
     super.key,
@@ -111,8 +111,9 @@ class GuideQuestionCard extends StatefulWidget {
   /// 상태.
   final GuideQuestionState state;
 
-  /// 질문 위 작은 머리글("오늘의 질문").
-  final String eyebrow;
+  /// 질문 위 작은 머리글(`parts.eyebrow`). null이면 머리글과 그 아래 간격을 그리지 않습니다.
+  /// 오늘 화면은 섹션 제목(`today.guide.title`)이 같은 말을 하므로 주지 않습니다(today 화면 배치 7번).
+  final String? eyebrow;
 
   /// 질문 문장(server가 렌더한 조각).
   final RenderedText question;
@@ -277,6 +278,7 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
     final l10n = AppLocalizations.of(context);
     final after = _written(widget.state);
     final full = widget.state == GuideQuestionState.full;
+    final eyebrow = widget.eyebrow;
     final question = SentenceBlock(
       variant: SentenceBlockVariant.card,
       text: widget.question,
@@ -312,13 +314,15 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                widget.eyebrow,
-                style: tokens.typography.captionMd.copyWith(
-                  color: colors.textSecondary,
+              if (eyebrow != null) ...[
+                Text(
+                  eyebrow,
+                  style: tokens.typography.captionMd.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: Space.s8),
+                const SizedBox(height: Space.s8),
+              ],
               question,
               const SizedBox(height: Space.s16),
               action,

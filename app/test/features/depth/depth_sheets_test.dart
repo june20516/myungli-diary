@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/depth_sheet_bodies.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
@@ -17,6 +18,8 @@ import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/share_preview_sheet.dart';
+
+import '../../support/daily_fixture.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -173,6 +176,10 @@ void main() {
       );
       expect(() => sheets.evidenceBody('s.t', null), throwsUnimplementedError);
       expect(sheets.shareBody, throwsUnimplementedError);
+      expect(
+        () => sheets.tagBody(Daily.fromJson(memberDailyJson()), 0),
+        throwsUnimplementedError,
+      );
     });
 
     test('app의 override가 실제 시트를 잇습니다', () {

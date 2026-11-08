@@ -12,6 +12,7 @@ import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
@@ -195,6 +196,30 @@ void main() {
         expect(taps, 1);
       });
     }
+
+    testWidgets('eyebrow가 없으면 머리글 없이 질문이 카드 안쪽 위에서 시작합니다(오늘 화면)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: SizedBox(
+              width: 360,
+              child: GuideQuestionCard(
+                state: GuideQuestionState.before,
+                question: RenderedText(segments: [Segment(text: '질문')]),
+                actionLabel: '일기 쓰기',
+                onAction: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('오늘의 질문'), findsNothing);
+      final card = tester.getTopLeft(find.byType(GuideQuestionCard));
+      final question = tester.getTopLeft(find.byType(SentenceBlock));
+      expect(question.dy - card.dy, Space.s20);
+    });
 
     testWidgets('onAction이 null이면 버튼이 꺼집니다(disabled)', (tester) async {
       await tester.pumpWidget(
