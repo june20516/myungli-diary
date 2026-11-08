@@ -196,12 +196,14 @@ void main() {
     await tester.tap(find.byType(TermToken).first);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
-    // 첫 칩은 총운의 `ten_god_group.bigyeop`이고, 뜻은 member `getGlossary.json`의 meanings입니다.
+    // 첫 칩은 총운의 `ten_god_group.bigyeop`이고,
+    // 뜻은 member `getGlossary.json`의 meanings입니다.
     expect(
       find.descendant(
         of: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
         matching: find.text(
-          '비견과 겁재를 함께 부르는 이름으로, 나와 어깨를 나란히 하는 기운이에요. 나를 지키고 내 몫을 챙기려는 힘이 여기에 들어요.',
+          '비견과 겁재를 함께 부르는 이름으로, 나와 어깨를 나란히 하는 기운이에요. '
+          '나를 지키고 내 몫을 챙기려는 힘이 여기에 들어요.',
           findRichText: true,
         ),
       ),
@@ -275,7 +277,7 @@ void main() {
       find.descendant(
         of: find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
         matching: find.text(
-          '일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요.',
+          '억부법으로 용신을 정했어요. 내 일간의 힘이 힘이 센 편이라, 그 힘을 고르게 맞추는 오행을 골랐어요.',
           findRichText: true,
         ),
       ),

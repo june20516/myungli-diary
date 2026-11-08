@@ -219,7 +219,7 @@ void main() {
         expect(line.reason?.toJson(), daily.characterReason.text.toJson());
         expect(
           line.reason?.segments.single.text,
-          '내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
+          '내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
         );
         expect(daily.dayKind, DayKind.yongsinDay);
       },
@@ -480,8 +480,9 @@ void main() {
       // 십성 묶음이 없는 응답(옛 규칙 버전)은 둘 다 비어 있습니다.
       final plain = displayOf(
         dailyWith((json) {
-          json.remove('dayStemTenGod');
-          json.remove('dayStemTenGodGroup');
+          json
+            ..remove('dayStemTenGod')
+            ..remove('dayStemTenGodGroup');
         }),
       );
       expect(plain.tenGodGroup, isNull);

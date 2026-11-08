@@ -37,15 +37,13 @@ MONTHS = ((2026, 9), (2026, 10), (2026, 11))
 # 오늘 화면 fixture와 맞추려고 dayKind를 바꾸는 날(위 설명 참고).
 DAY_KIND_OVERRIDES = {date(2026, 10, 13): DayKind.YONGSIN_DAY}
 
+# writing 원고 `character.reason.<dayKind>`(`docs/identity/writing/content/ko/daily.yaml`)의 문장입니다.
+# member/getDaily.json의 characterReason과 같은 문장입니다.
 REASON = {
-    "gwiin_day": [
-        {"text": "천을귀인", "term": "tag.cheoneul_gwiin"},
-        {"text": "이 들어 도와주는 사람이 곁에 오는 날이에요."},
-    ],
-    # member/getDaily.json의 characterReason과 같은 문장입니다.
-    "yongsin_day": [{"text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."}],
+    "gwiin_day": [{"text": "누군가의 도움을 받기 쉬운 날이에요."}],
+    "yongsin_day": [{"text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."}],
     "gisin_day": [{"text": "기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요."}],
-    "ordinary_day": [{"text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."}],
+    "ordinary_day": [{"text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."}],
 }
 # writing 원고 `calendar.day_level`(`docs/identity/writing/content/ko/daily.yaml`)의 값입니다.
 LEVEL = {"very_good": "아주 잘 풀리는 날", "good": "잘 풀리는 날", "neutral": "무난한 날", "caution": "조심할 날"}

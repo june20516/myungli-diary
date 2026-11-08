@@ -615,10 +615,7 @@ void main() {
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     // 시트 제목은 항목 이름이고 본문은 행운 색 설명입니다.
     expect(find.text(_ko.todayLuckyColorName), findsWidgets);
-    expect(
-      find.text('오늘은 초록이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.', findRichText: true),
-      findsOneWidget,
-    );
+    expect(find.text('오늘은 초록이 잘 맞아요.', findRichText: true), findsOneWidget);
   });
 
   group('대표 태그 사전 빈칸(D76)', () {

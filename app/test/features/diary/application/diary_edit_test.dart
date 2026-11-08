@@ -27,7 +27,8 @@ import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 
 final _today = CalendarDate(2026, 10, 13);
 
-/// member fixture의 그날 후보 앞 둘(guide.harmony 1, 2)과, fixture에 없는 셋째 후보(guide.gongmang 1).
+/// member fixture의 그날 후보 앞 둘(guide.harmony 1, 2)과,
+/// fixture에 없는 셋째 후보(guide.gongmang 1).
 const _first = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
 const _second = '오늘 함께해서 좋았던 사람이 있었나요?';
 const _third = '오늘 기대와 다르게 흘러간 일이 있었다면 하나 적어 볼까요?';
