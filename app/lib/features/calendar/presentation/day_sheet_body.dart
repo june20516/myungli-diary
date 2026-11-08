@@ -223,9 +223,10 @@ class _VerdictSection extends ConsumerWidget {
     );
   }
 
-  /// 줄이 빠진 실제 원인 용어 id: 매핑된 용어의 사전 이름이 없으면 그 용어 id(`day_kind.*`,
-  /// `relation.*`)이고, 그 밖(이름은 있는데 한자 글자표에 id가 없거나 id 매핑 자체가 없음)은
-  /// `score_item.<id>`입니다.
+  /// 줄이 빠진 원인 용어 id: 매핑된 용어의 사전 이름이 없으면 그 용어 id(`day_kind.*`,
+  /// `relation.*`)이고, 아니면 `score_item.<id>`입니다. 한자 글자표
+  /// (`HanjaGlyphs.forScoreItem`) 판단은 `FortuneVerdict`가 하므로, 이름이 있는데 줄이
+  /// 빠졌다면 글자표에 id가 없는 경우입니다.
   static String _gapTermIdOf(GlossaryNames? names, String id) {
     final termId = ScoreItemMeta.termIdOf(id);
     if (termId != null && names?.nameOf(termId) == null) return termId;
@@ -443,19 +444,22 @@ class _EntrySkeleton extends StatelessWidget {
   );
 }
 
+/// 그날 시트 skeleton 부분을 찾는 테스트용 키.
+abstract final class DaySheetSkeletonKeys {
+  /// 날짜 머리 뼈(날짜 글자와 음력 글줄 뼈).
+  static const Key date = ValueKey('day-sheet.skeleton.date');
+
+  /// 길흉판정 카드 뼈.
+  static const Key verdict = ValueKey('day-sheet.skeleton.verdict');
+
+  /// 일정 줄 뼈.
+  static const Key schedule = ValueKey('day-sheet.skeleton.schedule');
+}
+
 /// 그날 시트 skeleton(V66): 날짜와 요일은 바로, 음력 줄, 날의 성격 알약, `fortune-verdict`, 일정
 /// 줄, 일기 줄은 각자 뼈이고 섹션 제목은 그대로입니다. 배치는 본문과 같습니다.
 class _DaySheetSkeleton extends ConsumerWidget {
   const new({required this.date});
-
-  /// 날짜 머리 뼈(날짜 글자와 음력 글줄 뼈)를 찾는 테스트용 키.
-  static const Key dateKey = ValueKey('day-sheet.skeleton.date');
-
-  /// 길흉판정 카드 뼈를 찾는 테스트용 키.
-  static const Key verdictKey = ValueKey('day-sheet.skeleton.verdict');
-
-  /// 일정 줄 뼈를 찾는 테스트용 키.
-  static const Key scheduleKey = ValueKey('day-sheet.skeleton.schedule');
 
   final CalendarDate date;
 
@@ -471,7 +475,7 @@ class _DaySheetSkeleton extends ConsumerWidget {
         children: [
           SheetHeading(
             child: KeyedSubtree(
-              key: dateKey,
+              key: DaySheetSkeletonKeys.date,
               child: DateHeader.skeleton(solar: _solarTextOf(l10n, date)),
             ),
           ),
@@ -484,14 +488,14 @@ class _DaySheetSkeleton extends ConsumerWidget {
           SectionHeader(title: l10n.daySheetVerdictTitle),
           const SizedBox(height: SectionHeader.contentGap),
           KeyedSubtree(
-            key: verdictKey,
+            key: DaySheetSkeletonKeys.verdict,
             child: FortuneVerdict.skeleton(index: 3),
           ),
           const SizedBox(height: SectionHeader.sectionGap),
           SectionHeader(title: l10n.todayEventTitle),
           const SizedBox(height: SectionHeader.contentGap),
           KeyedSubtree(
-            key: scheduleKey,
+            key: DaySheetSkeletonKeys.schedule,
             child: EventRow.skeleton(variant: EventRowVariant.list, index: 6),
           ),
           if (diaryAllowed) ...[

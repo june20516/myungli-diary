@@ -763,15 +763,18 @@ void main() {
       );
       expect(find.byType(ScoreRow), findsNothing);
       expect(find.byKey(FortuneVerdict.trackKey), findsNothing);
-      Finder bones(String key) => find.descendant(
-        of: find.byKey(ValueKey(key)),
+      Finder bones(Key key) => find.descendant(
+        of: find.byKey(key),
         matching: find.byType(SkeletonTextLines),
       );
       // 음력 글줄 뼈(날짜 글자는 실제 글자라 뼈는 음력 하나), 길흉판정 카드 뼈, 일정 줄 뼈.
-      expect(bones('day-sheet.skeleton.date'), findsOneWidget);
-      expect(bones('day-sheet.skeleton.verdict'), findsWidgets);
+      expect(bones(DaySheetSkeletonKeys.date), findsOneWidget);
+      expect(bones(DaySheetSkeletonKeys.verdict), findsOneWidget);
       expect(find.text(_ko.calendarLegendBodyCaution), findsOneWidget);
-      expect(bones('day-sheet.skeleton.schedule'), findsWidgets);
+      expect(
+        bones(DaySheetSkeletonKeys.schedule),
+        findsNWidgets(EventRow.skeletonListRows * 2),
+      );
       expect(find.byType(EventRow), findsNothing, reason: '일정은 뼈만');
       expect(find.text(_ko.daySheetEventEmpty), findsNothing);
       expect(
