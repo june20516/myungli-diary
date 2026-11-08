@@ -165,6 +165,41 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('칸 글자와 꼬리표는 낱개 노드로 읽히지 않고 칩 button은 하나씩', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(inputApp(Center(child: _column(current: true))));
+    for (final text in ['甲', '午', '지금', '10']) {
+      expect(find.bySemanticsLabel(text), findsNothing, reason: 'column $text');
+    }
+    expect(find.bySemanticsLabel('비견 뜻 보기'), findsOneWidget);
+
+    await tester.pumpWidget(
+      inputApp(
+        Center(
+          child: LuckPillar.compact(
+            pillar: _ganji,
+            tagLabel: '지금',
+            kindLabel: '대운',
+            period: '30~39세',
+            tenGods: [LuckLabel('비견', onTap: () {})],
+            semanticLabel: '지금 대운 30~39세',
+            onKindTap: () {},
+          ),
+        ),
+      ),
+    );
+    for (final text in ['甲', '午', '지금', '30~39세']) {
+      expect(
+        find.bySemanticsLabel(text),
+        findsNothing,
+        reason: 'compact $text',
+      );
+    }
+    expect(find.bySemanticsLabel('대운 뜻 보기'), findsOneWidget);
+    expect(find.bySemanticsLabel('비견 뜻 보기'), findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('compact: 강조 바탕 없고 칸 둘이 세로', (tester) async {
     await tester.pumpWidget(inputApp(Center(child: _compact())));
     expect(find.byKey(LuckPillar.highlightKey), findsNothing);
