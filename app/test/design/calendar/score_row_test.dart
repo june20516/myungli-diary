@@ -246,6 +246,14 @@ void main() {
       ),
     );
     expect(tester.takeException(), isNull);
+    final label = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(HanjaTag),
+        matching: find.text('Clash with the day or month branch'),
+      ),
+    );
+    expect(label.overflow, TextOverflow.ellipsis);
+    expect(label.maxLines, 1);
     final row = tester.getRect(find.byType(ScoreRow));
     expect(
       tester.getRect(find.byType(HanjaTag)).right,
@@ -255,6 +263,24 @@ void main() {
       tester.getRect(find.byType(HanjaTag)).right + 12,
       lessThanOrEqualTo(tester.getRect(find.byKey(ScoreRow.signKey)).left),
     );
+  });
+
+  testWidgets('verdict: 짧은 태그면 뜻 칸이 나머지 폭을 모두 씀', (tester) async {
+    await tester.pumpWidget(
+      _app(
+        const ScoreRow.verdict(
+          glyph: '合',
+          name: '합',
+          meaning: '짧은 뜻',
+          score: 1,
+        ),
+      ),
+    );
+    final tag = tester.getRect(find.byType(HanjaTag));
+    final cell = tester.getRect(find.byKey(ScoreRow.meaningCellKey));
+    final sign = tester.getRect(find.byKey(ScoreRow.signKey));
+    expect(cell.left, tag.right);
+    expect(cell.right, sign.left - 12);
   });
 
   testWidgets('점수 4를 읽는 개수는 점과 같은 셋', (tester) async {

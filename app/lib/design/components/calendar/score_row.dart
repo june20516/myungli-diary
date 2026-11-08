@@ -64,11 +64,11 @@ class ScoreRow extends StatelessWidget {
   /// (spec의 3은 토큰이 아님, V56).
   static const double dotGap = Space.s4;
 
-  /// `verdict`에서 태그와 뜻이 남은 폭을 나누는 비율(태그 2, 뜻 3).
-  static const int tagFlex = 2;
+  /// `verdict`에서 태그가 가질 수 있는 최대 폭(태그와 뜻 자리의 비율).
+  static const double tagMaxWidthFactor = 0.5;
 
-  /// 위 비율의 뜻 몫.
-  static const int meaningFlex = 3;
+  /// 뜻 칸(앞 여백 포함)을 찾는 테스트용 키.
+  static const Key meaningCellKey = ValueKey('score-row-meaning-cell');
 
   /// 점 최대 개수(`dots.max`).
   static const int maxDots = 3;
@@ -216,30 +216,39 @@ class ScoreRow extends StatelessWidget {
     final row = Row(
       children: [
         if (isVerdict) ...[
-          // 태그는 따로 버튼이라 묶음 라벨 밖에 둡니다. 태그와 뜻이 남은 폭을 나눠 가져,
-          // 긴 이름은 태그 안에서 한 줄 말줄임(hanja-tag 이름 maxLines 1)이 되고 넘치지 않습니다.
+          // 태그는 따로 버튼이라 묶음 라벨 밖에 둡니다. 태그는 제 폭을 쓰되 남은 폭의 절반까지만
+          // 커지고(넘으면 이름 한 줄 말줄임, hanja-tag 이름 maxLines 1), 뜻이 나머지를 모두 씁니다.
           Expanded(
-            child: Row(
-              children: [
-                Flexible(flex: tagFlex, child: tag),
-                Flexible(
-                  flex: meaningFlex,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: Space.s12),
-                    child: ExcludeSemantics(
-                      child: Text(
-                        meaning ?? '',
-                        key: meaningKey,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: type.captionLg.copyWith(
-                          color: colors.textSecondary,
+            child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth * tagMaxWidthFactor,
+                    ),
+                    child: tag,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      key: meaningCellKey,
+                      padding: const EdgeInsetsDirectional.only(
+                        start: Space.s12,
+                      ),
+                      child: ExcludeSemantics(
+                        child: Text(
+                          meaning ?? '',
+                          key: meaningKey,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: type.captionLg.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ] else ...[
