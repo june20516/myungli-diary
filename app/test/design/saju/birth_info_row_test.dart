@@ -26,6 +26,7 @@ Widget _scaled(Widget child, double scale) => MediaQuery(
 );
 
 void main() {
+  _overflowTests();
   testWidgets('칸 셋은 날짜, 시진, 성별 순으로 한 줄에 놓이고 칸 사이는 세로선입니다', (tester) async {
     await tester.pumpWidget(inputApp(_row(width: 600)));
     final rects = [
@@ -133,5 +134,32 @@ void main() {
       tester.getSize(find.byType(SizedBox).last).width,
       moreOrLessEquals(210, epsilon: 0.5),
     );
+  });
+}
+
+void _overflowTests() {
+  testWidgets('칸 하나가 폭보다 넓어도 넘치지 않고 글자를 말줄임합니다(폭 200, 1.3배)', (tester) async {
+    await tester.pumpWidget(
+      inputApp(
+        _scaled(
+          const SizedBox(
+            width: 200,
+            child: BirthInfoRow(
+              calendarTag: '음력 윤달',
+              date: '1990.12.31',
+              hourGlyph: '未',
+              hourName: '미시',
+              time: '오후 12:30',
+              gender: '남성',
+            ),
+          ),
+          1.3,
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    for (final key in BirthInfoRow.cellKeys) {
+      expect(tester.getRect(find.byKey(key)).right, lessThanOrEqualTo(200.01));
+    }
   });
 }

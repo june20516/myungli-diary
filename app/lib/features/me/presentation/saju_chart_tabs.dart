@@ -243,6 +243,7 @@ class SajuChartLuckTab extends ConsumerWidget {
           BandKind.twelveStages: l10n.manseRowTwelveStages,
           BandKind.shinsal: l10n.manseRowShinsal,
         },
+        // Task 24에서 explain-sheet(ExplainUiText + StageStrip) 연결
         onBandTap: (_) {},
         meLabel: l10n.sajuTagMe,
         emptyLabel: l10n.bandTableEmptyCell,

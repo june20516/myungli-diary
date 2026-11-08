@@ -116,7 +116,14 @@ class BirthInfoRow extends StatelessWidget {
       children: [
         _CalendarKindTag(label: calendarTag),
         const SizedBox(width: Space.s4),
-        Text(date, maxLines: 1, softWrap: false, style: primaryValue),
+        Flexible(
+          child: Text(
+            date,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: primaryValue,
+          ),
+        ),
       ],
     );
     final hourCell = timeUnknown
@@ -131,7 +138,14 @@ class BirthInfoRow extends StatelessWidget {
                 variant: HanjaTagVariant.ganji,
               ),
               const SizedBox(width: Space.s8),
-              Text(time!, maxLines: 1, softWrap: false, style: primaryValue),
+              Flexible(
+                child: Text(
+                  time!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: primaryValue,
+                ),
+              ),
             ],
           );
     final genderCell = _Pill(key: cellKeys[2], label: gender);
@@ -186,7 +200,7 @@ class _CalendarKindTag extends StatelessWidget {
         child: Text(
           label,
           maxLines: 1,
-          softWrap: false,
+          overflow: TextOverflow.ellipsis,
           style: tokens.typography.captionSm.copyWith(
             color: tokens.colors.textSecondary,
           ),
@@ -219,7 +233,7 @@ class _Pill extends StatelessWidget {
             child: Text(
               label,
               maxLines: 1,
-              softWrap: false,
+              overflow: TextOverflow.ellipsis,
               style: tokens.typography.labelMd.copyWith(
                 color: tokens.colors.tagNeutralFg,
               ),

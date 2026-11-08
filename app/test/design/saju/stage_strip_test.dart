@@ -165,6 +165,7 @@ void main() {
     for (final position in PillarPosition.values) {
       final rect = tester.getRect(find.byKey(StageStrip.markerKey(position)));
       expect(rect.left, greaterThanOrEqualTo(track.left - 0.01));
+      expect(rect.right, lessThanOrEqualTo(track.right + 0.01));
     }
   });
 
@@ -205,5 +206,34 @@ void main() {
       ),
     );
     expect(tester.getSize(find.byType(SkeletonBone)), const Size(300, 6));
+  });
+
+  testWidgets('트랙 양 끝 칸의 내 자리 이름이 칸보다 넓어도 트랙 밖으로 나가지 않습니다', (tester) async {
+    await tester.pumpWidget(
+      inputApp(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SizedBox(
+            width: 300,
+            child: StageStrip(
+              positions: const {
+                PillarPosition.month: TwelveStage.jangsaeng,
+                PillarPosition.day: TwelveStage.yang,
+              },
+              stageNames: {
+                for (final stage in StageStrip.order)
+                  stage: 'Long ${stage.value}',
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    final track = tester.getRect(find.byType(StageStrip));
+    for (final name in ['Long jangsaeng', 'Long yang']) {
+      final rect = tester.getRect(find.text(name));
+      expect(rect.left, greaterThanOrEqualTo(track.left - 0.01), reason: name);
+      expect(rect.right, lessThanOrEqualTo(track.right + 0.01), reason: name);
+    }
   });
 }

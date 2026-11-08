@@ -32,10 +32,10 @@ final class DaeunPillar {
   /// 시작 연도. 모르면(출생 연도를 모름) null이고 그 줄을 비웁니다.
   final int? startYear;
 
-  /// 천간 `mini` 칸.
+  /// 천간 `small` 칸.
   final OhaengCell stem;
 
-  /// 지지 `mini` 칸.
+  /// 지지 `small` 칸.
   final OhaengCell branch;
 
   /// 나이 칸 낭독 글.
@@ -73,10 +73,10 @@ final class SeunYear {
   /// 연도.
   final int year;
 
-  /// 천간 `mini` 칸.
+  /// 천간 `small` 칸.
   final OhaengCell stem;
 
-  /// 지지 `mini` 칸.
+  /// 지지 `small` 칸.
   final OhaengCell branch;
 
   /// 연도 칸 낭독 글.
@@ -92,7 +92,7 @@ final class SeunYear {
 /// 대운·세운 표(`daeun-table`).
 ///
 /// 대운은 가로로 넘기는 기둥 줄(너비 52, 사이 4)이고 기둥마다 위에서부터 한국식 나이 → 천간
-/// 십성 → 천간·지지 `ohaeng.cell` `mini` → 지지 십성(정기) → 12운성 → 시작 연도입니다(V49).
+/// 십성 → 천간·지지 `ohaeng.cell` `small` → 지지 십성(정기) → 12운성 → 시작 연도입니다(V49).
 /// 세운은 지금 대운 10년을 5열 2줄로 두고 칸마다 천간 위에 그 해 십성 하나입니다. 라벨은
 /// [LuckLabelView] 규칙(가운데, 낱말 단위 두 줄, 넘치면 글자 줄임)이고, 없는 기둥도 자리는
 /// 남깁니다. 라벨 줄은 기둥(세운은 같은 행 다섯 칸)마다 가장 높은 라벨에 맞춰 간지 칸이 가로로
