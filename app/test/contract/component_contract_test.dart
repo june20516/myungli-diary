@@ -50,6 +50,7 @@ const _durations = <String, Duration>{
   'long': Motion.long,
   'stamp': Motion.stamp,
   'breathe': Motion.breathe,
+  'page': Motion.pageDuration,
 };
 const _easings = <String, Cubic>{
   'seep': Motion.seep,
@@ -57,6 +58,7 @@ const _easings = <String, Cubic>{
   'exit': Motion.exit,
   'stamp-press': Motion.stampPress,
   'standard': Motion.standard,
+  'page': Motion.pageEasing,
 };
 
 /// `{motion.duration.stamp}` → `stamp`.
@@ -985,6 +987,16 @@ void main() {
       expect(_px(sheet['translateY']), PatternValues.stackSheetTranslateY);
       expect(_num(sheet['scale']), PatternValues.stackSheetScale);
       expect(_num(sheet['brightness']), PatternValues.stackSheetBrightness);
+
+      final push = p('page.push');
+      final enter = _map(push['enter']);
+      // 오른쪽 motion.offset.page(24)에서 0으로, 투명도 0에서 1로.
+      final translateX = enter['translateX']! as List<Object?>;
+      expect(translateX.first, '{motion.offset.page}');
+      expect(_num(translateX.last), 0);
+      expect(enter['opacity'], [0, 1]);
+      expect(push['below'], 'still');
+      expect(push['back'], 'reverse');
 
       final focus = p('focus.ring');
       expect(

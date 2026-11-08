@@ -138,6 +138,18 @@ enum InteractionPattern {
     LowEndRule.same,
   ),
 
+  /// 화면 이동: 새 화면이 오른쪽에서 조금 밀려 들어오며 나타남(V67).
+  ///
+  /// 화면 쌓기 이동(push, pop)에만 씁니다. 탭 사이 이동과 시트는 쓰지 않습니다.
+  /// route에서는 `PagePushTransitionsBuilder`(`page_push_transition.dart`)가 입힙니다.
+  pagePush(
+    'page.push',
+    Motion.pageDuration,
+    Motion.pageEasing,
+    ReduceMotionRule.opacityOnly,
+    LowEndRule.same,
+  ),
+
   /// 입력 포커스 테두리.
   focusRing(
     'focus.ring',
@@ -368,6 +380,11 @@ Widget animate(
         InteractionPattern.sheetEnter => _sheetEnter(effect, child!),
         InteractionPattern.sheetExit => _sheetExit(effect, child!),
         InteractionPattern.sheetStack => _sheetStack(effect, options, child!),
+        InteractionPattern.pagePush => animatePagePush(
+          t: t,
+          prefs: prefs,
+          child: child!,
+        ),
         InteractionPattern.focusRing => _focusRing(
           context,
           effect,
@@ -627,6 +644,35 @@ Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
       0,
     )..scaleByDouble(scale, scale, 1, 1),
     child: dimmed,
+  );
+}
+
+/// `page.push`를 [t](0→1 선형 진행)에 입힙니다. 오른쪽 `motion.offset.page`(24)에서 0으로,
+/// 투명도 0에서 1로 움직이고 뒤 화면은 그대로입니다. 동작 줄이기는 투명도만 바꿉니다.
+///
+/// route 전환은 끝난 뒤에도 화면 위에 남으므로 [FadeTransition]과 [SlideTransition]으로
+/// 그립니다. 진행 1에서 `Opacity`나 `Transform`이 남지 않고, 위젯 구조는 늘 같아 화면
+/// 상태가 유지됩니다. 24px는 화면 폭에 대한 비율로 바꿉니다.
+Widget animatePagePush({
+  required Animation<double> t,
+  required MotionPrefs prefs,
+  required Widget child,
+}) {
+  const pattern = InteractionPattern.pagePush;
+  final eased = t.drive(CurveTween(curve: pattern.curve));
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      final slides =
+          !_Effect(pattern, prefs, t).opacityOnly &&
+          width.isFinite &&
+          width > 0;
+      final from = slides ? Offset(Motion.pageOffset / width, 0) : Offset.zero;
+      return SlideTransition(
+        position: eased.drive(Tween(begin: from, end: Offset.zero)),
+        child: FadeTransition(opacity: eased, child: child),
+      );
+    },
   );
 }
 
