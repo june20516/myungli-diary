@@ -6,7 +6,7 @@ import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
@@ -53,31 +53,31 @@ Widget _diaryRows() => Builder(
           excerpt: ja
               ? '久しぶりに連絡をくれた友達とお昼を食べた。話が長くなって午後の予定がずれたけれど、気分は良かった。'
               : '오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.',
-          character: DayCharacterVariant.good,
-          characterLabel: ja ? '良い日' : '좋은 날',
-          tag: TagChip(
-            name: ja ? '天乙貴人' : '천을귀인',
-            variant: TagChipVariant.good,
+          dayKind: HanjaTag(
+            glyph: '用',
+            label: ja ? '良い日' : '좋은 날',
+            tone: HanjaTagTone.yongsin,
             onTap: () {},
           ),
+          tag: HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
           onTap: () {},
         ),
         DiaryRow(
           date: CalendarDate(2026, 10, 8),
           excerpt: ja ? '朝の空気が急に冷たくなった。' : '아침 공기가 갑자기 차가워졌다.',
-          characterPending: true,
+          dayKindPending: true,
           onTap: () {},
         ),
         DiaryRow(
           date: CalendarDate(2026, 10, 2),
           excerpt: ja ? '会議で意見が分かれた。' : '회의에서 의견이 엇갈렸다.',
-          character: DayCharacterVariant.gisin,
-          characterLabel: ja ? '気をつける日' : '조심할 날',
-          tag: TagChip(
-            name: ja ? '沖' : '충',
-            variant: TagChipVariant.bad,
+          dayKind: HanjaTag(
+            glyph: '忌',
+            label: ja ? '気をつける日' : '조심할 날',
+            tone: HanjaTagTone.gisin,
             onTap: () {},
           ),
+          tag: HanjaTag(glyph: '沖', label: ja ? '沖' : '충', onTap: () {}),
           isLast: true,
           onTap: () {},
         ),
@@ -97,8 +97,12 @@ Widget _diaryRowGroups() => Builder(
       children: [
         DiaryDayGroup(
           date: CalendarDate(2026, 10, 12),
-          character: DayCharacterVariant.good,
-          characterLabel: ja ? '良い日' : '좋은 날',
+          dayKind: HanjaTag(
+            glyph: '用',
+            label: ja ? '良い日' : '좋은 날',
+            tone: HanjaTagTone.yongsin,
+            onTap: () {},
+          ),
           entries: [
             DiaryEntryData(
               createdAt: DateTime(2026, 10, 12, 8, 40),
@@ -118,17 +122,17 @@ Widget _diaryRowGroups() => Builder(
               onTap: () {},
             ),
           ],
-          tag: TagChip(
-            name: ja ? '天乙貴人' : '천을귀인',
-            variant: TagChipVariant.good,
-            onTap: () {},
-          ),
+          tag: HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
         ),
         DiaryRow(
           date: CalendarDate(2026, 10, 8),
           excerpt: ja ? '朝の空気が急に冷たくなった。' : '아침 공기가 갑자기 차가워졌다.',
-          character: DayCharacterVariant.gisin,
-          characterLabel: ja ? '気をつける日' : '조심할 날',
+          dayKind: HanjaTag(
+            glyph: '忌',
+            label: ja ? '気をつける日' : '조심할 날',
+            tone: HanjaTagTone.gisin,
+            onTap: () {},
+          ),
           isLast: true,
           onTap: () {},
         ),

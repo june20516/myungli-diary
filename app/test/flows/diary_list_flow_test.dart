@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,12 +15,17 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/frame/ad_banner.dart';
+import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/month_date_picker.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
@@ -153,6 +160,21 @@ String _locationOf(WidgetTester tester, String screenId) =>
     GoRouterState.of(tester.element(find.byKey(ValueKey(screenId)).last)).uri
         .toString();
 
+/// [index]번째 줄의 대표 태그(`hanja-tag`)와 날의 성격 태그를 찾습니다.
+Finder _rowTag(WidgetTester tester, int index) => find
+    .descendant(
+      of: find.byType(DiaryRow).at(index),
+      matching: find.byType(HanjaTag),
+    )
+    .last;
+
+Finder _rowDayKind(WidgetTester tester, int index) => find
+    .descendant(
+      of: find.byType(DiaryRow).at(index),
+      matching: find.byType(HanjaTag),
+    )
+    .first;
+
 List<CalendarDate> _rowDates(WidgetTester tester) => [
   for (final row in tester.widgetList<DiaryRow>(find.byType(DiaryRow)))
     row.date,
@@ -175,9 +197,10 @@ void main() {
       CalendarDate(2026, 10, 2),
     ]);
     final first = tester.widget<DiaryRow>(find.byType(DiaryRow).first);
-    expect(first.character, isA<DayCharacterVariant>());
-    expect(first.tag!.name, '천을귀인');
-    expect(first.tag!.variant, TagChipVariant.good);
+    expect(first.dayKind, isNotNull);
+    expect(first.tag!.label, '천을귀인');
+    expect(first.tag!.tone, HanjaTagTone.term);
+    expect(first.tag!.variant, HanjaTagVariant.normal);
     expect(tester.widget<DiaryRow>(find.byType(DiaryRow).last).isLast, isTrue);
   });
 
@@ -209,11 +232,11 @@ void main() {
     );
     expect(calendarDay!.dayKind, DayKind.gisinDay);
     final recorded = rowOn(CalendarDate(2026, 10, 11));
-    expect(recorded.characterLabel, _ko.dayKindYongsinDay);
-    expect(recorded.characterPending, isFalse);
+    expect(recorded.dayKind!.label, _ko.dayKindYongsinDay);
+    expect(recorded.dayKindPending, isFalse);
     // 기록이 없는 시드 일기는 달 길흉 캐시를 씁니다.
     expect(
-      rowOn(CalendarDate(2026, 10, 12)).characterLabel,
+      rowOn(CalendarDate(2026, 10, 12)).dayKind!.label,
       _ko.dayKindGwiinDay,
     );
   });
@@ -241,8 +264,8 @@ void main() {
     final recorded = rows.firstWhere(
       (row) => row.date == CalendarDate(2026, 10, 11),
     );
-    expect(recorded.characterLabel, _ko.dayKindYongsinDay);
-    expect(recorded.characterPending, isFalse);
+    expect(recorded.dayKind!.label, _ko.dayKindYongsinDay);
+    expect(recorded.dayKindPending, isFalse);
   });
 
   testWidgets('같은 날 묶음 카드도 기록값 먼저, 첫 비-null 기록값을 씁니다 (A89)', (tester) async {
@@ -264,14 +287,22 @@ void main() {
     await settleWithIo(tester);
 
     final group = tester.widget<DiaryDayGroup>(find.byType(DiaryDayGroup));
-    expect(group.character, dayCharacterVariantOf(recordedKind));
-    expect(group.character, isNot(dayCharacterVariantOf(calendarKind)));
-    expect(group.characterPending, isFalse);
+    expect(group.dayKind!.tone, HanjaGlyphs.toneOfDayKind(recordedKind));
+    expect(group.dayKind!.tone, isNot(HanjaGlyphs.toneOfDayKind(calendarKind)));
+    expect(group.dayKindPending, isFalse);
   });
 
-  testWidgets('줄을 누르면 그 줄 일기의 diary-view, 태그 칩을 누르면 tag-diary', (tester) async {
+  testWidgets('줄을 누르면 그 줄 일기의 diary-view, 대표 태그는 뜻 시트와 모아보기 링크', (
+    tester,
+  ) async {
     covers(
-      const Covers(exits: ['diary-list>diary-view', 'diary-list>tag-diary']),
+      const Covers(
+        exits: [
+          'diary-list>diary-view',
+          'diary-list>explain-sheet',
+          'explain-sheet>tag-diary',
+        ],
+      ),
     );
     final container = await _openDiaryList(tester);
     await tester.tap(
@@ -288,12 +319,154 @@ void main() {
 
     container.read(routerProvider).pop();
     await settleWithIo(tester);
-    await tester.tap(find.byType(TagChip).first);
+    // 줄에서 바로 화면 이동하지 않고 뜻 시트가 열립니다(V73).
+    await tester.tap(_rowTag(tester, 0));
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsNothing);
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')));
     await settleWithIo(tester);
     expect(
       _locationOf(tester, ScreenIds.tagDiary),
       '/tag-diary?tag=cheoneul_gwiin',
     );
+  });
+
+  testWidgets('날의 성격 태그는 뜻만 있는 뜻 시트이고 모아보기 링크가 없습니다', (tester) async {
+    await _openDiaryList(tester);
+    final kind = tester.widget<DiaryRow>(find.byType(DiaryRow).first).dayKind!;
+    await tester.tap(_rowDayKind(tester, 0));
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    expect(find.text(kind.label), findsWidgets);
+    expect(
+      find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('tag-diary 안의 줄은 대표 태그를 그리지 않고 날의 성격은 그대로 보입니다', (tester) async {
+    covers(const Covers(exits: ['tag-diary>diary-view']));
+    await _openDiaryList(tester);
+    await tester.tap(_rowTag(tester, 0));
+    await settleWithIo(tester);
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')));
+    await settleWithIo(tester);
+
+    final rows = tester.widgetList<DiaryRow>(
+      find.descendant(
+        of: find.byKey(const ValueKey(ScreenIds.tagDiary)),
+        matching: find.byType(DiaryRow),
+      ),
+    );
+    expect(rows, isNotEmpty);
+    for (final row in rows) {
+      expect(row.tag, isNull, reason: '${row.date}');
+    }
+    expect(rows.any((row) => row.dayKind != null), isTrue);
+  });
+
+  testWidgets('쓰기 버튼: 앱 바에 동작이 없고 목록 위에 떠 있는 하나뿐이며 광고 위 16입니다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _openDiaryList(tester);
+
+    expect(
+      find.descendant(
+        of: find.byType(MyungliAppBar),
+        matching: find.byType(AppBarAction),
+      ),
+      findsNothing,
+    );
+    final button = find.byKey(DiaryListScreen.pickDateKey);
+    expect(button, findsOneWidget);
+    expect(find.byType(FloatingPrimaryButton), findsOneWidget);
+    final primary = tester.widget<PrimaryButton>(button);
+    expect(primary.leadingIcon, isNotNull);
+    expect(primary.variant, PrimaryButtonVariant.filled);
+    // 광고 배너가 없으면 탭 바 위입니다. 둘 가운데 위에 있는 것의 위 space.16에 떠 있습니다.
+    final below = [
+      for (final finder in [
+        find.byType(AdBannerFrame),
+        find.byType(MyungliTabBar),
+      ])
+        if (finder.evaluate().isNotEmpty) tester.getTopLeft(finder.first).dy,
+    ];
+    expect(below, isNotEmpty);
+    expect(
+      tester.getRect(button).bottom,
+      closeTo(below.reduce(math.min) - Space.s16, 0.5),
+      reason: '광고 배너(없으면 탭 바) 위 space.16',
+    );
+    expect(tester.getRect(button).left, Space.s20);
+    expect(tester.getRect(button).right, 390 - Space.s20);
+  });
+
+  testWidgets('쓰기 버튼: 불러오는 중과 오류에는 없고 목록을 받으면 생깁니다', (tester) async {
+    await pumpApp(tester, scenario: 'member');
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    // 목록 응답이 오기 전 한 프레임: 불러오는 중입니다.
+    await tester.pump();
+    expect(find.byType(DiaryRow), findsNothing, reason: '불러오는 중');
+    expect(find.byKey(DiaryListScreen.pickDateKey), findsNothing);
+    expect(find.byType(FloatingPrimaryButton), findsNothing);
+    await settleWithIo(tester);
+    expect(find.byType(DiaryRow), findsNWidgets(4));
+    expect(find.byKey(DiaryListScreen.pickDateKey), findsOneWidget);
+  });
+
+  testWidgets('쓰기 버튼: 오류 화면에는 없고 다시 시도해 받으면 생깁니다', (tester) async {
+    final network = _Network()..offline = true;
+    await _openDiaryList(tester, network: network);
+    expect(find.byType(ErrorState), findsOneWidget);
+    expect(find.byKey(DiaryListScreen.pickDateKey), findsNothing);
+    expect(find.byType(FloatingPrimaryButton), findsNothing);
+    network.offline = false;
+    await tester.tap(find.text(_ko.actionRetry));
+    await settleWithIo(tester);
+    expect(find.byKey(DiaryListScreen.pickDateKey), findsOneWidget);
+  });
+
+  testWidgets('쓰기 버튼: 빈 상태에서는 떠 있지 않고 안내 아래 가운데에 있습니다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final container = await _openDiaryList(
+      tester,
+      network: _Network()..emptyDiaries = true,
+    );
+    container.invalidate(diaryPagesProvider(null));
+    await settleWithIo(tester);
+    expect(find.byType(FloatingPrimaryButton), findsNothing);
+    final button = find.byKey(DiaryListScreen.pickDateKey);
+    expect(button, findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(EmptyState), matching: button),
+      findsOneWidget,
+    );
+    expect(tester.getCenter(button).dx, closeTo(195, 0.5));
+    expect(
+      tester.getTopLeft(button).dy,
+      greaterThan(tester.getBottomLeft(find.text(_ko.diaryListEmptyBody)).dy),
+    );
+  });
+
+  testWidgets('ja와 글자 2.0배: 줄의 두 태그가 넘치지 않고 쓰기 버튼에 닿습니다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pumpApp(tester, scenario: 'member', locale: const Locale('ja'));
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.2')));
+    await settleWithIo(tester);
+    expect(find.byType(DiaryRow), findsWidgets);
+    expect(find.byKey(DiaryListScreen.pickDateKey), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('같은 날 두 편은 묶음 카드 하나, 날짜 열은 한 번', (tester) async {
@@ -408,8 +581,39 @@ void main() {
     expect(_rowDates(tester), hasLength(4));
   });
 
+  testWidgets('F-026: 날짜 시트의 확인 버튼이 스크롤 없이 시트 안에 보이고 누르면 쓰기로 갑니다', (
+    tester,
+  ) async {
+    covers(const Covers(exits: ['diary-list>diary-edit']));
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _openDiaryList(tester);
+    await tester.tap(find.byKey(DiaryListScreen.pickDateKey));
+    await settleWithIo(tester);
+
+    final confirm = find.text(_ko.diaryListPickDateConfirm('10월 13일'));
+    expect(confirm, findsOneWidget);
+    final frame = tester.getRect(find.byType(MyungliSheetFrame));
+    final rect = tester.getRect(confirm);
+    // ensureVisible 없이 시트 틀 안에 있어야 합니다.
+    expect(rect.top, greaterThanOrEqualTo(frame.top));
+    expect(rect.bottom, lessThanOrEqualTo(frame.bottom));
+    await tester.tap(confirm);
+    await settleWithIo(tester);
+    expect(
+      _locationOf(tester, ScreenIds.diaryEdit),
+      '/diary-edit?date=2026-10-13',
+    );
+  });
+
   testWidgets('날짜 골라 쓰기: 미래는 막고, 이미 쓴 날도 그날 새 일기', (tester) async {
     covers(const Covers(exits: ['diary-list>diary-edit'], decisions: ['D49']));
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final container = await _openDiaryList(tester);
     await tester.tap(find.byKey(DiaryListScreen.pickDateKey));
     await settleWithIo(tester);
@@ -429,8 +633,6 @@ void main() {
     await tester.pump();
     expect(todayConfirm, findsOneWidget, reason: '미래 날짜는 막힘');
 
-    await tester.ensureVisible(todayConfirm);
-    await tester.pumpAndSettle();
     await tester.tap(todayConfirm);
     await settleWithIo(tester);
     expect(
@@ -447,8 +649,6 @@ void main() {
     );
     await settleWithIo(tester);
     final writtenConfirm = find.text(_ko.diaryListPickDateConfirm('10월 12일'));
-    await tester.ensureVisible(writtenConfirm);
-    await tester.pumpAndSettle();
     await tester.tap(writtenConfirm);
     await settleWithIo(tester);
     expect(

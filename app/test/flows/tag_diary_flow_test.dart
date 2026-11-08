@@ -155,16 +155,21 @@ void main() {
     );
     expect(find.text(_meaning), findsOneWidget);
     expect(find.byType(DiaryRow), findsWidgets);
-    // 목록과 같은 태그 칩은 같은 화면을 다시 쌓지 않도록 누를 수 없습니다.
-    final chips = tester.widgetList<TagChip>(
-      find.descendant(of: _screen, matching: find.byType(TagChip)),
+    // 모든 줄이 같은 태그이고 화면 위에 그 이름과 뜻이 있어 줄은 대표 태그를 그리지 않습니다
+    // (`diary-row` `hiddenIn`). 날의 성격 태그는 줄마다 달라 그대로 보입니다.
+    final rows = tester.widgetList<DiaryRow>(
+      find.descendant(of: _screen, matching: find.byType(DiaryRow)),
     );
-    expect(chips, isNotEmpty);
-    expect(chips.every((chip) => chip.onTap == null), isTrue);
+    expect(rows.every((row) => row.tag == null), isTrue);
+    expect(rows.any((row) => row.dayKind != null), isTrue);
   });
 
-  testWidgets('diary-view의 태그 칩 → 그 태그 모아보기', (tester) async {
-    covers(const Covers(exits: ['diary-view>tag-diary']));
+  testWidgets('diary-view의 태그 칩 → 뜻 시트의 링크 → 그 태그 모아보기', (tester) async {
+    covers(
+      const Covers(
+        exits: ['diary-view>explain-sheet', 'explain-sheet>tag-diary'],
+      ),
+    );
     final container = await pumpApp(tester, scenario: 'member');
     unawaited(
       container
@@ -179,6 +184,9 @@ void main() {
     await pumpUntil(tester, () => find.byType(TagChip).evaluate().isNotEmpty);
     await settleWithIo(tester);
     await tester.tap(find.byType(TagChip).first);
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('천을귀인')));
     await pumpUntilScreen(tester, ScreenIds.tagDiary);
     await _untilShown(tester);
     expect(

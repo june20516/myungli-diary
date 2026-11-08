@@ -13,6 +13,10 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 밑줄)이고 길흉 칸 채우기와 음력만 뺍니다. 미래 날짜는 흐리게 막고, 오늘이 든 달 뒤로는
 /// 넘기지 않습니다(D49). 아래 버튼 글자([confirmLabel])에는 고른 날짜가 들어갑니다.
 ///
+/// 달력만 스크롤하고 아래 버튼은 스크롤 밖에 고정합니다(A120, 검수 F-026). 시트가 낮거나
+/// 글자가 커서 달력이 시트보다 길어져도 버튼이 늘 시트 안에 보입니다. 시트처럼 높이가
+/// 정해진 곳 안에 놓아 쓰며, 높이가 넉넉하면 내용만큼만 차지합니다.
+///
 /// 보이는 달([month])과 고른 날([selected])은 쓰는 쪽이 듭니다. 달을 넘기면
 /// [onMonthChange]로 알리고, 쓰는 쪽은 그 달의 일기 날짜([markedDates])를 넘깁니다.
 class MonthDatePicker extends StatelessWidget {
@@ -61,30 +65,38 @@ class MonthDatePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        CalendarMonthView(
-          month: month,
-          title: calendarMonthTitle(locale, month),
-          weekdayLabels: calendarWeekdayLabels(locale),
-          cellOf: (date) => _cellOf(date, l10n, locale),
-          loading: false,
-          today: today,
-          selected: selected,
-          onSelect: onSelect,
-          onMonthChange: onMonthChange,
-          isDateEnabled: (date) => date.compareTo(today) <= 0,
-          lastMonth: CalendarMonth.of(today),
-        ),
-        const SizedBox(height: Space.s16),
-        PrimaryButton(
-          label: confirmLabel,
-          onPressed: onConfirm,
-          identifier: confirmIdentifier,
-        ),
-      ],
+    final calendar = CalendarMonthView(
+      month: month,
+      title: calendarMonthTitle(locale, month),
+      weekdayLabels: calendarWeekdayLabels(locale),
+      cellOf: (date) => _cellOf(date, l10n, locale),
+      loading: false,
+      today: today,
+      selected: selected,
+      onSelect: onSelect,
+      onMonthChange: onMonthChange,
+      isDateEnabled: (date) => date.compareTo(today) <= 0,
+      lastMonth: CalendarMonth.of(today),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 높이가 정해진 곳(시트)에서만 달력을 스크롤 칸에 넣습니다. 높이가 무한한 곳에서는
+          // 바깥 스크롤을 따르므로 그대로 놓습니다.
+          if (constraints.hasBoundedHeight)
+            Flexible(child: SingleChildScrollView(child: calendar))
+          else
+            calendar,
+          const SizedBox(height: Space.s16),
+          PrimaryButton(
+            label: confirmLabel,
+            onPressed: onConfirm,
+            identifier: confirmIdentifier,
+          ),
+        ],
+      ),
     );
   }
 

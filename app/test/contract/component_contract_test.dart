@@ -742,6 +742,7 @@ void main() {
       // 5.0.0: 맨 위가 배지(badge) 대신 날의 성격(dayKind) hanja-tag이고 그 아래 space.4.
       expect(group['order'], ['dayKind', 'entries', 'tag']);
       expect(_map(group['dayKind'])['marginBottom'], '{space.4}');
+      expect(DiaryRow.groupDayKindMarginBottom, Space.s4);
       await _contractCheckWidgets('diary-row day group', () async {
         await tester.pumpWidget(
           inputApp(
@@ -756,8 +757,11 @@ void main() {
                       onTap: () {},
                     ),
                 ],
-                character: DayCharacterVariant.good,
-                characterLabel: '좋은 날',
+                dayKind: const HanjaTag(
+                  glyph: '用',
+                  label: '좋은 날',
+                  tone: HanjaTagTone.yongsin,
+                ),
               ),
             ),
           ),

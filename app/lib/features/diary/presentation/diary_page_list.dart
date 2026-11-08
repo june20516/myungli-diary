@@ -7,19 +7,16 @@ import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
-import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/model/diary_day_groups.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
-import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_row_tags.dart';
 
 /// 끝에서 이 줄 수 안쪽이 그려지면 다음 쪽을 받습니다.
 const int _loadMoreThreshold = 3;
@@ -40,6 +37,7 @@ class DiaryPageList extends ConsumerWidget {
     required this.tag,
     required this.view,
     this.leading = const [],
+    this.underFloatingButton = false,
     super.key,
   });
 
@@ -51,6 +49,10 @@ class DiaryPageList extends ConsumerWidget {
 
   /// 목록 맨 위에 놓는 위젯들.
   final List<Widget> leading;
+
+  /// 목록 위에 떠 있는 버튼(`FloatingPrimaryButton`)이 겹치는지. true면 마지막 줄이 버튼 위까지
+  /// 올라오도록 아래 여백을 버튼 높이만큼 둡니다.
+  final bool underFloatingButton;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -104,7 +106,10 @@ class DiaryPageList extends ConsumerWidget {
         ),
       );
     }
-    final bottom = MediaQuery.paddingOf(context).bottom + Space.s32;
+    final bottom = underFloatingButton
+        ? MediaQuery.viewPaddingOf(context).bottom +
+              FloatingPrimaryButton.listBottomInset
+        : MediaQuery.paddingOf(context).bottom + Space.s32;
     return ListView(
       padding: EdgeInsets.fromLTRB(Space.s20, Space.s8, Space.s20, bottom),
       children: entries,
@@ -170,7 +175,6 @@ class DiaryDayRow extends ConsumerWidget {
         listTag: listTag,
       );
     }
-    final l10n = AppLocalizations.of(context);
     final date = CalendarDate.parse(summaries.first.date);
     // 날짜 기록 값이라 같은 날 일기 모두에 같습니다. 첫 값을 씁니다.
     final recorded = summaries.map((summary) => summary.dayKind).nonNulls;
@@ -179,10 +183,9 @@ class DiaryDayRow extends ConsumerWidget {
     return DiaryDayGroup(
       date: date,
       entries: diaryEntriesDataOf(context, summaries),
-      character: kind == null ? null : dayCharacterVariantOf(kind),
-      characterLabel: kind == null ? null : dayKindName(l10n, kind),
-      characterPending: badge.pending,
-      tag: _featuredTagChip(context, ref, summaries.first, listTag),
+      dayKind: kind == null ? null : diaryDayKindTagOf(context, ref, kind),
+      dayKindPending: badge.pending,
+      tag: _featuredTag(context, ref, summaries.first, listTag),
       isLast: isLast,
     );
   }
@@ -202,26 +205,22 @@ _DayBadge _watchDayBadge(WidgetRef ref, CalendarDate date, DayKind? recorded) {
   return (kind: day.value?.dayKind, pending: day.isLoading && !day.hasValue);
 }
 
-/// [summary]의 대표 태그 칩(없으면 null). [listTag]와 같은 태그는 누를 수 없는 표시입니다.
-TagChip? _featuredTagChip(
+/// [summary]의 대표 태그 `hanja-tag`(없으면 null). 태그 모아보기 안([listTag]이 있음)의 줄은
+/// 모두 같은 태그이고 화면 위에 그 이름과 뜻이 있어 그리지 않습니다(`hiddenIn`).
+HanjaTag? _featuredTag(
   BuildContext context,
   WidgetRef ref,
   DiarySummary summary,
   String? listTag,
 ) {
   final featured = summary.featuredTags;
-  if (featured.isEmpty) {
+  if (listTag != null || featured.isEmpty) {
     return null;
   }
-  return diaryTagChipOf(
-    context,
-    ref.watch(glossaryProvider).value,
-    featured.first,
-    linked: featured.first.key != listTag,
-  );
+  return diaryFeaturedHanjaTagOf(context, ref, featured.first);
 }
 
-/// 일기 한 편의 줄: 그날 성격 배지(기록값 먼저, 없으면 달 길흉 캐시, A89)와 대표 태그 칩을 채운 `diary-row`.
+/// 일기 한 편의 줄: 날의 성격 태그(기록값 먼저, 없으면 달 길흉 캐시, A89)와 대표 태그를 채운 `diary-row`.
 ///
 /// 일기 목록·태그 모아보기가 같은 날 한 편일 때 씁니다. 누르면 그 일기의 `diary-view`(A67)이고,
 /// 대표 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([listTag])와 같은 칩은 같은
@@ -246,17 +245,15 @@ class DiarySummaryRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final date = CalendarDate.parse(summary.date);
     final badge = _watchDayBadge(ref, date, summary.dayKind);
     final kind = badge.kind;
     return DiaryRow(
       date: date,
       excerpt: summary.excerpt,
-      character: kind == null ? null : dayCharacterVariantOf(kind),
-      characterLabel: kind == null ? null : dayKindName(l10n, kind),
-      characterPending: badge.pending,
-      tag: _featuredTagChip(context, ref, summary, listTag),
+      dayKind: kind == null ? null : diaryDayKindTagOf(context, ref, kind),
+      dayKindPending: badge.pending,
+      tag: _featuredTag(context, ref, summary, listTag),
       isLast: isLast,
       onTap: () => pushDiaryView(context, summary.id),
     );

@@ -211,7 +211,6 @@ void main() {
   testWidgets('섹션 제목 다섯이 위에서 원국, 성향 풀이, 돕는 기운, 올해와 지금, 회고 순서입니다', (
     tester,
   ) async {
-    covers(const Covers(decisions: ['V76', 'V77']));
     await _openMe(tester);
     final titles = [
       _ko.mySajuChartTitle,
@@ -307,7 +306,6 @@ void main() {
   testWidgets('올해와 지금: 지금 대운과 올해 세운이 compact로 있고 낭독에 칩 낱말이 없습니다', (
     tester,
   ) async {
-    covers(const Covers(decisions: ['V77']));
     await _openMe(tester);
     final pillars = find.byType(LuckPillar);
     await _reveal(tester, pillars.first);
@@ -359,7 +357,7 @@ void main() {
   });
 
   testWidgets('대운 전체 → 사주 표 만세력과 대운 탭이 선택된 채 열립니다(A117)', (tester) async {
-    covers(const Covers(exits: ['my-saju>saju-chart'], decisions: ['A117']));
+    covers(const Covers(exits: ['my-saju>saju-chart']));
     await _openMe(tester);
     final link = mySajuFlowLink(of: _screen);
     await _reveal(tester, link);
@@ -377,7 +375,7 @@ void main() {
   testWidgets('회고: 집계를 받으면 diary-summary, 태그를 누르면 뜻 시트와 모아보기 링크(A119)', (
     tester,
   ) async {
-    covers(const Covers(exits: ['my-saju>explain-sheet'], decisions: ['V76']));
+    covers(const Covers(exits: ['my-saju>explain-sheet']));
     await _openMe(tester);
     final summary = find.byType(DiarySummary);
     await _reveal(tester, summary);
@@ -421,7 +419,6 @@ void main() {
   });
 
   testWidgets('대운과 세운 기간 줄은 fixture 출생 연도(1990) 기준 한국식 나이입니다', (tester) async {
-    covers(const Covers(decisions: ['V77']));
     await _openMe(tester, overrides: [_fixedToday]);
     final pillars = find.byType(LuckPillar);
     expect(pillars, findsNWidgets(2));

@@ -24,12 +24,6 @@ typedef PendingCheck = ({String reason, String failure});
 /// 통과하면 테스트가 "대기 목록에서 지우세요"로 실패하므로(ratchet) 그때 여기서 지웁니다.
 /// Task 27이 빈 맵을 확인합니다.
 const Map<String, PendingCheck> knownPendingChecks = {
-  'diary-row day group': (
-    reason:
-        '묶음 카드 맨 위 배지를 날의 성격 dayKind hanja-tag로 '
-        '(V81, Task 18)',
-    failure: 'diary-row day group dayKind hanja-tag',
-  ),
   'diary-editor spec': (
     reason:
         '본문 초점 중 키보드 내리기 버튼(focused, keyboard.dismiss, F-013) '

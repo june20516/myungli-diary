@@ -258,7 +258,12 @@ class _DiaryViewBody extends ConsumerWidget {
             date: date,
             body: diary.body,
             question: diary.guideQuestion,
-            tags: diaryTagChipsOf(context, names, diary.tags.featured),
+            tags: diaryTagChipsOf(
+              context,
+              ref.read(depthSheetsProvider),
+              names,
+              diary.tags.featured,
+            ),
           ),
         ],
       ),

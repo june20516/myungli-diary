@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
@@ -190,6 +191,7 @@ class _DiaryEditFormState extends ConsumerState<_DiaryEditForm> {
     await _editor.playSaveSequence(
       diaryTagChipsOf(
         context,
+        ref.read(depthSheetsProvider),
         ref.read(glossaryProvider).value,
         saved.tags.featured,
       ),
