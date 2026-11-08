@@ -530,13 +530,14 @@ void main() {
       findsNothing,
     );
     // 눌리는 영역은 칩 위아래로 넓어져 44가 됩니다(모양은 그대로).
-    final slop = (44 - chip.height) / 2;
-    await tester.tapAt(Offset(chip.center.dx, chip.top - slop + 1));
-    await tester.tapAt(Offset(chip.center.dx, chip.bottom + slop - 1));
+    // 칩 중심에서 위아래 21px는 닿고 23px는 닿지 않습니다.
+    await tester.tapAt(Offset(chip.center.dx, chip.center.dy - 21));
+    await tester.tapAt(Offset(chip.center.dx, chip.center.dy + 21));
     await tester.pump();
     expect(taps, 2);
-    // 44 밖은 닿지 않습니다.
-    await tester.tapAt(Offset(chip.center.dx, chip.top - slop - 2));
+    await tester.tapAt(Offset(chip.center.dx, chip.center.dy - 23));
+    await tester.tapAt(Offset(chip.center.dx, chip.center.dy + 23));
+    await tester.pump();
     expect(taps, 2);
     await tester.tap(find.text('길흉은 어떻게 정해지나요'));
     await tester.pump();

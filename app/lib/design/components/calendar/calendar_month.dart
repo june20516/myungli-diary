@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -14,6 +15,7 @@ import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart'
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -126,8 +128,8 @@ class CalendarMonthView extends StatefulWidget {
   /// 범례 아래 규칙 입구 간격(`parts.ruleEntry.marginTop`, `space.12`).
   static const double ruleEntryTop = Space.s12;
 
-  /// 규칙 입구 아래 빈 자리: 눌림 영역이 칩 아래로 넓어지는 만큼을 부모 영역에 넣습니다.
-  static const double ruleEntryReach = Space.s12;
+  /// 규칙 입구 터치 최소 높이(`parts.ruleEntry.minTarget`).
+  static const double ruleEntryMinTarget = 44;
 
   /// 규칙 입구(터치 영역 전체).
   static const Key ruleEntryKey = ValueKey('calendar-month-rule-entry');
@@ -587,14 +589,25 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
     final tokens = context.tokens;
     final colors = tokens.colors;
     const radius = BorderRadius.all(Radius.circular(Radii.xs));
-    // 눌림 영역을 위아래로 넓히는 슬롭은 부모 영역 안에서만 닿으므로, 위는 입구 간격 안으로,
-    // 아래는 같은 크기의 빈 자리를 두어 부모 영역에 넣습니다(칩 높이 25 기준 위아래 9.5).
+    // 터치 44를 위한 판정 여유이고 계약 시각 간격이 아닙니다. 눌림 영역을 위아래로 넓히는
+    // 슬롭은 부모 영역 안에서만 닿으므로, 위는 입구 간격(space.12) 안으로 넓히고 아래는 44에서
+    // 칩 높이를 뺀 절반(글자 배율 반영)만큼만 빈 자리를 둡니다.
+    final chipHeight =
+        lineHeightOf(
+          tokens.typography.labelMd,
+          MediaQuery.textScalerOf(context),
+        ) +
+        Space.s4 * 2;
+    final reach = math.max<double>(
+      0,
+      (CalendarMonthView.ruleEntryMinTarget - chipHeight) / 2,
+    );
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: Padding(
-        padding: const EdgeInsets.only(
+        padding: EdgeInsets.only(
           top: CalendarMonthView.ruleEntryTop,
-          bottom: CalendarMonthView.ruleEntryReach,
+          bottom: reach,
         ),
         child: VerticalHitSlop(
           key: CalendarMonthView.ruleEntryKey,

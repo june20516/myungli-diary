@@ -185,6 +185,30 @@ void main() {
     expect(dark[DayLuck.great], isNot(dark[DayLuck.good]));
   });
 
+  testWidgets('great 채움 위에도 오늘 낙관 윤곽 26px이 같은 자리에 겹친다', (tester) async {
+    await tester.pumpWidget(
+      _app(_cell(data: _data(luck: DayLuck.great), isToday: true)),
+    );
+    expect(find.byKey(DayCell.luckFillKey), findsOneWidget);
+    expect(_layerKeys(tester), [
+      DayCell.luckFillKey,
+      DayCell.todayOutlineKey,
+      DayCell.numberKey,
+    ]);
+    final outline = tester.getRect(find.byKey(DayCell.todayOutlineKey));
+    final seal = tester.widget<Seal>(
+      find.descendant(
+        of: find.byKey(DayCell.todayOutlineKey),
+        matching: find.byType(Seal),
+      ),
+    );
+    expect(seal.variant, SealVariant.outline);
+    expect(seal.size.logical, 26);
+    final number = tester.getRect(find.byKey(DayCell.numberKey));
+    expect(outline.center.dx, number.center.dx);
+    expect(outline.center.dy, number.center.dy);
+  });
+
   testWidgets('숫자는 위쪽 32px 상자 가운데, numeric.calendar 본문색', (tester) async {
     await tester.pumpWidget(_app(_cell()));
     final tokens = _tokens(tester);
