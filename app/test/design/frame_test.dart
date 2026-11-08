@@ -12,9 +12,13 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
+import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -119,6 +123,14 @@ List<String> _recordHaptics(WidgetTester tester) {
     ),
   );
   return calls;
+}
+
+/// 폭 360 휴대폰 화면으로 맞춥니다(가로 위치 단언용).
+void _phone(WidgetTester tester) {
+  tester.view
+    ..devicePixelRatio = 1
+    ..physicalSize = const Size(360, 640);
+  addTearDown(tester.view.reset);
 }
 
 void main() {
@@ -1629,6 +1641,394 @@ void main() {
       expect(find.byType(MyungliSheetFrame), findsOneWidget);
       expect(Navigator.of(inner).canPop(), isTrue);
       expect(Navigator.of(outer).canPop(), isFalse);
+    });
+  });
+  group('section-header', () {
+    Widget host(
+      Widget child, {
+      Locale locale = const Locale('ko'),
+      double textScale = 1,
+    }) => MaterialApp(
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      theme: buildTheme(brightness: Brightness.light, locale: locale),
+      home: MediaQuery(
+        data: MediaQueryData(
+          size: const Size(360, 640),
+          textScaler: TextScaler.linear(textScale),
+        ),
+        child: Scaffold(
+          body: Align(alignment: Alignment.topLeft, child: child),
+        ),
+      ),
+    );
+
+    testWidgets('시작선은 화면 20, 시트 24이고 제목은 600 본문색입니다', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(host(const SectionHeader(title: '제목')));
+      expect(tester.getTopLeft(find.text('제목')).dx, 20);
+      final text = tester.widget<Text>(find.text('제목'));
+      final tokens = tester.element(find.text('제목')).tokens;
+      expect(text.style!.fontWeight, FontWeight.w600);
+      expect(text.style!.fontSize, tokens.typography.labelLg.fontSize);
+      expect(text.style!.color, tokens.colors.textPrimary);
+      await tester.pumpWidget(
+        host(const SectionHeader(title: '제목', inSheet: true)),
+      );
+      expect(tester.getTopLeft(find.text('제목')).dx, 24);
+    });
+
+    testWidgets('설명은 제목 아래 space.2이고 간격 상수는 12, 32입니다', (tester) async {
+      await tester.pumpWidget(
+        host(const SectionHeader(title: '제목', description: '설명')),
+      );
+      final gap =
+          tester.getTopLeft(find.text('설명')).dy -
+          tester.getBottomLeft(find.text('제목')).dy;
+      expect(gap, 2);
+      final context = tester.element(find.text('설명'));
+      expect(
+        tester.widget<Text>(find.text('설명')).style!.color,
+        context.tokens.colors.textSecondary,
+      );
+      expect(SectionHeader.contentGap, Space.s12);
+      expect(SectionHeader.sectionGap, Space.s32);
+    });
+
+    testWidgets('link: 글자와 꺾쇠, 누르면 onTap, 링크로 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      await tester.pumpWidget(
+        host(
+          SectionHeader(
+            title: '제목',
+            trailing: SectionHeaderLink(label: '더 보기', onTap: () => taps++),
+          ),
+        ),
+      );
+      expect(find.byIcon(PhosphorIconsLight.caretRight), findsOneWidget);
+      expect(
+        tester.getSemantics(find.text('더 보기')).flagsCollection.isLink,
+        isTrue,
+      );
+      await tester.tap(find.text('더 보기'));
+      expect(taps, 1);
+      handle.dispose();
+    });
+
+    testWidgets('action: 아이콘 동작은 44 폭 터치 영역이고 이름으로 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      await tester.pumpWidget(
+        host(
+          SectionHeader(
+            title: '제목',
+            trailing: SectionHeaderAction(
+              icon: const AppGlyph(
+                light: PhosphorIconsLight.plus,
+                regular: PhosphorIconsRegular.plus,
+              ),
+              semanticLabel: '추가',
+              onTap: () => taps++,
+            ),
+          ),
+        ),
+      );
+      expect(find.byIcon(PhosphorIconsLight.plus), findsOneWidget);
+      expect(
+        tester.getSize(find.bySemanticsLabel('추가')).width,
+        greaterThanOrEqualTo(44),
+      );
+      await tester.tap(find.byIcon(PhosphorIconsLight.plus));
+      expect(taps, 1);
+      handle.dispose();
+    });
+
+    testWidgets('ActionWidget은 받은 위젯을 오른쪽 끝에 놓습니다', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(
+        host(
+          const SectionHeader(
+            title: '제목',
+            trailing: SectionHeaderActionWidget(
+              SizedBox(key: ValueKey('custom'), width: 30, height: 30),
+            ),
+          ),
+        ),
+      );
+      expect(tester.getTopRight(find.byKey(const ValueKey('custom'))).dx, 340);
+    });
+
+    for (final scale in [1.3, 2.0]) {
+      testWidgets('ja textScale $scale: 제목이 줄바꿈되어도 오른쪽 자리는 밀려나지 않습니다', (
+        tester,
+      ) async {
+        _phone(tester);
+        const title = '今日の運勢と過去の記録をまとめて確認する長い見出しです';
+        await tester.pumpWidget(
+          host(
+            SectionHeader(
+              title: title,
+              trailing: SectionHeaderLink(label: 'もっと見る', onTap: () {}),
+            ),
+            locale: const Locale('ja'),
+            textScale: scale,
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        final titleBox = tester.getRect(find.text(title));
+        final link = tester.getRect(find.text('もっと見る'));
+        expect(
+          titleBox.height,
+          greaterThan(
+            tester
+                    .element(find.text(title))
+                    .tokens
+                    .typography
+                    .labelLg
+                    .fontSize! *
+                scale *
+                1.2,
+          ),
+        );
+        expect(link.right, lessThanOrEqualTo(340 + 0.01));
+        expect(titleBox.right, lessThanOrEqualTo(link.left));
+      });
+    }
+  });
+
+  group('scroll-hint', () {
+    Widget hint(ScrollController controller, {MotionPrefs prefs = _normal}) =>
+        _app(
+          prefs: prefs,
+          SizedBox(
+            width: 300,
+            child: ScrollHint(
+              controller: controller,
+              child: SizedBox(
+                height: 40,
+                child: ListView(
+                  controller: controller,
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    for (var i = 0; i < 10; i++)
+                      SizedBox(width: 100, child: Text('칸$i')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+
+    testWidgets('처음에는 왼쪽 겹 화살표가 숨고 오른쪽만 보입니다', (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(hint(controller));
+      await tester.pump();
+      expect(find.byIcon(PhosphorIconsLight.caretDoubleLeft), findsNothing);
+      expect(find.byIcon(PhosphorIconsLight.caretDoubleRight), findsOneWidget);
+    });
+
+    testWidgets('오른쪽 화살표는 보이는 폭만큼 넘기고, 끝에서는 숨습니다', (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(hint(controller));
+      await tester.pump();
+      await tester.tap(find.byIcon(PhosphorIconsLight.caretDoubleRight));
+      await tester.pumpAndSettle();
+      expect(controller.offset, 300);
+      expect(find.byIcon(PhosphorIconsLight.caretDoubleLeft), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsLight.caretDoubleRight), findsOneWidget);
+      controller.jumpTo(controller.position.maxScrollExtent);
+      await tester.pump();
+      await tester.pump();
+      expect(find.byIcon(PhosphorIconsLight.caretDoubleRight), findsNothing);
+      await tester.tap(find.byIcon(PhosphorIconsLight.caretDoubleLeft));
+      await tester.pumpAndSettle();
+      expect(controller.offset, 400);
+    });
+
+    testWidgets('움직임 줄이기: 바로 그 자리로 넘어갑니다', (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(hint(controller, prefs: _reducedMotion));
+      await tester.pump();
+      await tester.tap(find.byIcon(PhosphorIconsLight.caretDoubleRight));
+      await tester.pump();
+      expect(controller.offset, 300);
+    });
+
+    testWidgets('화살표는 스크린리더에서 숨고 터치 영역은 44입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(hint(controller));
+      await tester.pump();
+      final arrow = find.byIcon(PhosphorIconsLight.caretDoubleRight);
+      expect(
+        find.ancestor(of: arrow, matching: find.byType(ExcludeSemantics)),
+        findsWidgets,
+      );
+      final target = find.ancestor(of: arrow, matching: find.byType(SizedBox));
+      expect(tester.getSize(target.first), const Size.square(44));
+      handle.dispose();
+    });
+  });
+
+  group('app-bar edit', () {
+    Widget bar({
+      Widget? status,
+      String title = '일기 쓰기',
+      AppBarTextAction? action,
+      Locale locale = const Locale('ko'),
+      VoidCallback? onBack,
+    }) => _app(
+      MyungliAppBar.edit(
+        onBack: onBack ?? () {},
+        title: title,
+        status: status,
+        textAction: action ?? AppBarTextAction(label: '저장', onTap: () {}),
+      ),
+      locale: locale,
+    );
+
+    testWidgets('높이 44, 가운데 제목은 label.lg이고 정중앙입니다', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(bar());
+      expect(tester.getSize(find.byType(MyungliAppBar)).height, 44);
+      final text = tester.widget<Text>(find.text('일기 쓰기'));
+      final tokens = tester.element(find.text('일기 쓰기')).tokens;
+      expect(text.style!.fontSize, tokens.typography.labelLg.fontSize);
+      expect(tester.getCenter(find.text('일기 쓰기')).dx, 180);
+    });
+
+    testWidgets('status가 있으면 가운데 제목 대신 status가 보입니다', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(
+        bar(
+          status: const DraftIndicator(
+            state: DraftIndicatorState.local,
+            label: '임시 저장됨',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('임시 저장됨'), findsOneWidget);
+      expect(find.text('일기 쓰기'), findsNothing);
+      expect(tester.getCenter(find.byType(DraftIndicator)).dx, 180);
+      await tester.pumpWidget(bar());
+      await tester.pumpAndSettle();
+      expect(find.text('일기 쓰기'), findsOneWidget);
+      expect(find.byType(DraftIndicator), findsNothing);
+    });
+
+    testWidgets('머리 이름은 status가 있어도 화면 제목입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        bar(
+          status: const DraftIndicator(
+            state: DraftIndicatorState.saved,
+            label: '저장됨',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final headers = find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.header == true,
+      );
+      expect(headers, findsOneWidget);
+      expect(tester.getSemantics(headers).label, '일기 쓰기');
+      handle.dispose();
+    });
+
+    testWidgets('뒤로와 글자 버튼이 동작하고 글자 버튼은 44 이상입니다', (tester) async {
+      _phone(tester);
+      var backs = 0;
+      var saves = 0;
+      await tester.pumpWidget(
+        bar(
+          onBack: () => backs++,
+          action: AppBarTextAction(label: '저장', onTap: () => saves++),
+        ),
+      );
+      await tester.tap(find.byKey(const ValueKey('app-bar.back')));
+      await tester.tap(find.text('저장'));
+      expect((backs, saves), (1, 1));
+      final button = find.byType(AppBarTextAction);
+      expect(tester.getSize(button).height, greaterThanOrEqualTo(44));
+      expect(tester.getSize(button).width, greaterThanOrEqualTo(44));
+      expect(tester.getSize(button).width, lessThanOrEqualTo(88));
+      expect(tester.getTopRight(button).dx, 344);
+      final style = tester.widget<Text>(find.text('저장')).style!;
+      final colors = tester.element(find.text('저장')).tokens.colors;
+      expect(style.color, colors.actionPrimary);
+    });
+
+    testWidgets('enabled false: disabled.fg이고 눌러도 부르지 않습니다', (tester) async {
+      var saves = 0;
+      await tester.pumpWidget(
+        bar(
+          action: AppBarTextAction(
+            label: '저장',
+            onTap: () => saves++,
+            enabled: false,
+          ),
+        ),
+      );
+      final colors = tester.element(find.text('저장')).tokens.colors;
+      expect(
+        tester.widget<Text>(find.text('저장')).style!.color,
+        colors.disabledFg,
+      );
+      await tester.tap(find.text('저장'), warnIfMissed: false);
+      expect(saves, 0);
+    });
+
+    testWidgets('saving: 점 셋, 폭은 그대로, 다시 누를 수 없고 busy로 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      var saves = 0;
+      await tester.pumpWidget(
+        bar(
+          action: AppBarTextAction(label: '저장', onTap: () => saves++),
+        ),
+      );
+      final before = tester.getSize(find.byType(AppBarTextAction));
+      await tester.pumpWidget(
+        bar(
+          action: AppBarTextAction(
+            label: '저장',
+            onTap: () => saves++,
+            saving: true,
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(AppBarTextAction)), before);
+      expect(find.byType(BreathingDots), findsOneWidget);
+      await tester.tap(find.byType(AppBarTextAction), warnIfMissed: false);
+      expect(saves, 0);
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(AppBarTextAction)),
+      );
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('저장')).hint,
+        l10n.actionBusy,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('en 긴 글자: 최대 폭 88에서 한 줄 말줄임입니다', (tester) async {
+      await tester.pumpWidget(
+        bar(
+          action: AppBarTextAction(label: 'Save the whole entry', onTap: () {}),
+          locale: const Locale('en'),
+        ),
+      );
+      expect(tester.getSize(find.byType(AppBarTextAction)).width, 88);
+      final text = tester.widget<Text>(find.text('Save the whole entry'));
+      expect(text.maxLines, 1);
+      expect(text.overflow, TextOverflow.ellipsis);
+      expect(tester.takeException(), isNull);
     });
   });
 }

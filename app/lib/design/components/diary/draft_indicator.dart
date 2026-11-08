@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsRole;
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
@@ -37,7 +38,7 @@ const AppGlyph _check = AppGlyph(
 /// 스크린리더에는 상태 글자([label], writing 문구 3종)를 `status`로 알립니다.
 class DraftIndicator extends StatefulWidget {
   /// [state]와 그 글자 [label]로 만듭니다.
-  const new({required this.state, required this.label, super.key});
+  const new({required this.state, required this.label, this.length, super.key});
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('draft-indicator', {}, {
@@ -47,6 +48,7 @@ class DraftIndicator extends StatefulWidget {
   });
 
   static const double _gap = 4;
+  static const double _countGap = 8;
   static const double _dotSize = 3;
   static const double _dotGap = 2;
 
@@ -55,6 +57,11 @@ class DraftIndicator extends StatefulWidget {
 
   /// 상태 글자.
   final String label;
+
+  /// 본문 글자 수. 있으면 상태 글자 뒤에 `space.8`을 두고 `diary-edit.length.count`로
+  /// 그립니다. 칠 때마다 바뀌어도 고정폭 숫자라 상태 글자가 움직이지 않고, 스크린리더는
+  /// 상태 글자만 읽습니다.
+  final int? length;
 
   @override
   State<DraftIndicator> createState() => _DraftIndicatorState();
@@ -86,6 +93,8 @@ class _DraftIndicatorState extends State<DraftIndicator>
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final color = tokens.colors.textSecondary;
+    final style = tokens.typography.captionMd.copyWith(color: color);
+    final length = widget.length;
     final lead = switch (widget.state) {
       DraftIndicatorState.local => AppIcon(
         _cloud,
@@ -114,13 +123,28 @@ class _DraftIndicatorState extends State<DraftIndicator>
         prefs: MotionPrefs.of(context),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: DraftIndicator._gap,
           children: [
             lead,
-            Text(
-              widget.label,
-              style: tokens.typography.captionMd.copyWith(color: color),
+            const SizedBox(width: DraftIndicator._gap),
+            // 가운데 폭이 좁으면 상태 글자 끝을 말줄임하고 글자 수는 지킵니다.
+            Flexible(
+              child: Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style,
+              ),
             ),
+            if (length != null) ...[
+              const SizedBox(width: DraftIndicator._countGap),
+              Text(
+                AppLocalizations.of(context).diaryEditLengthCount(length),
+                maxLines: 1,
+                style: style.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
           ],
         ),
       ),

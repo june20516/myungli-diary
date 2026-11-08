@@ -20,6 +20,8 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
@@ -65,6 +67,8 @@ final class ComponentSpec {
 const List<ComponentSpec> implementedComponents = [
   MyungliTabBar.spec,
   MyungliAppBar.spec,
+  SectionHeader.spec,
+  ScrollHint.spec,
   MyungliSheetFrame.spec,
   AdBanner.spec,
   MyungliDialog.spec,
