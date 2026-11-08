@@ -58,12 +58,14 @@ class KeyboardDismissButton extends StatelessWidget {
 
 /// [child] 위에 키보드 내리기 버튼을 겹칩니다(`keyboard.dismiss` `where`).
 ///
-/// 키보드가 보이고(`MediaQuery.viewInsets`의 아래쪽이 0보다 큼) [focus]에 초점이 있는
-/// 동안만 버튼을 그립니다. 위치는 키보드 inset 위 `space.12`, 오른쪽 `space.20`입니다.
+/// 키보드가 보이고([View]의 viewInsets 아래쪽이 0보다 큼) [focus]에 초점이 있는 동안만
+/// 버튼을 그립니다. 위치는 키보드 inset 위 `space.12`, 오른쪽 `space.20`입니다.
 /// inset은 OS 자동완성, 추천 줄을 포함한 플랫폼 값입니다.
 ///
-/// Scaffold의 `resizeToAvoidBottomInset`이 inset을 먹기 전의 `MediaQuery`를 읽도록
-/// Scaffold 바깥(또는 body를 감싸는 자리)에 둡니다.
+/// Scaffold 안(기본 `resizeToAvoidBottomInset: true`)에서도, 바깥이나
+/// `resizeToAvoidBottomInset: false`에서도 같은 자리에 뜹니다. 키보드 inset은 `View`의 원래 값을
+/// 읽고, 조상이 이미 소비한 만큼(`MediaQuery.viewInsets`에 남지 않은 만큼)은 [child] 영역이
+/// 줄어든 것으로 보아 뺍니다. [child]는 키보드 위쪽 영역 전체를 채워야 합니다.
 class KeyboardDismissOverlay extends StatelessWidget {
   /// [child]를 감쌉니다.
   const new({required this.focus, required this.child, super.key});
@@ -82,17 +84,20 @@ class KeyboardDismissOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inset = MediaQuery.viewInsetsOf(context).bottom;
+    final view = View.of(context);
+    final keyboard = view.viewInsets.bottom / view.devicePixelRatio;
+    final unconsumed = MediaQuery.viewInsetsOf(context).bottom;
     return Stack(
+      fit: StackFit.expand,
       children: [
         child,
-        if (inset > 0)
+        if (keyboard > 0)
           ListenableBuilder(
             listenable: focus,
             builder: (context, _) => focus.hasFocus
                 ? PositionedDirectional(
                     end: gapEnd,
-                    bottom: inset + gapAboveKeyboard,
+                    bottom: unconsumed + gapAboveKeyboard,
                     child: KeyboardDismissButton(focus: focus),
                   )
                 : const SizedBox.shrink(),

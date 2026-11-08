@@ -266,7 +266,10 @@ void main() {
       expect(_px(_map(list['timeColumn'])['width']), EventRow.timeColumnWidth);
       final row = _map(list['row']);
       expect(_px(row['minHeight']), EventRow.minHeight);
-      expect(_px(_map(row['divider'])['width']), EventRow.dividerWidth);
+      expect(_map(row['divider'])['element'], 'list.divider');
+      final divider = _map(_elements()['list.divider']);
+      expect(divider['width'], '{border.width.hairline}');
+      expect(EventRow.dividerWidth, BorderTokens.hairline);
       final chevron = _map(list['chevron']);
       expect(chevron['icon'], 'caret-right');
       expect(chevron['weight'], 'light');

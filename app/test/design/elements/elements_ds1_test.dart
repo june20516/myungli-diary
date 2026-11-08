@@ -17,7 +17,6 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 Widget _app(
   Widget child, {
   Brightness brightness = Brightness.light,
-  EdgeInsets viewInsets = EdgeInsets.zero,
   double textScale = 1,
 }) => MaterialApp(
   theme: buildTheme(brightness: brightness, locale: const Locale('ko')),
@@ -25,14 +24,20 @@ Widget _app(
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),
   builder: (context, home) => MediaQuery(
-    data: MediaQuery.of(context).copyWith(
-      viewInsets: viewInsets,
-      textScaler: TextScaler.linear(textScale),
-    ),
+    data: MediaQuery.of(context)
+        .copyWith(textScaler: TextScaler.linear(textScale)),
     child: home!,
   ),
   home: Scaffold(resizeToAvoidBottomInset: false, body: child),
 );
+
+/// 기기 키보드 inset을 높이 [height]로 주입합니다(View 값).
+void _showKeyboard(WidgetTester tester, [double height = 300]) {
+  tester.view.devicePixelRatio = 1;
+  tester.view.viewInsets = FakeViewPadding(bottom: height);
+  addTearDown(tester.view.resetViewInsets);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
 
 void main() {
   final l10n = AppLocalizationsKo();
@@ -111,21 +116,18 @@ void main() {
   });
 
   group('keyboard.dismiss', () {
-    Widget overlay(FocusNode focus, {EdgeInsets inset = EdgeInsets.zero}) =>
-        _app(
-          viewInsets: inset,
-          KeyboardDismissOverlay(
-            focus: focus,
-            child: Center(child: TextField(focusNode: focus)),
-          ),
-        );
+    Widget overlay(FocusNode focus) => _app(
+      KeyboardDismissOverlay(
+        focus: focus,
+        child: Center(child: TextField(focusNode: focus)),
+      ),
+    );
 
     testWidgets('초점이 없으면 키보드가 있어도 안 보입니다', (tester) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
-      await tester.pumpWidget(
-        overlay(focus, inset: const EdgeInsets.only(bottom: 300)),
-      );
+      _showKeyboard(tester);
+      await tester.pumpWidget(overlay(focus));
       expect(find.bySemanticsLabel(l10n.keyboardDismiss), findsNothing);
       expect(find.byType(KeyboardDismissButton), findsNothing);
     });
@@ -142,9 +144,8 @@ void main() {
     testWidgets('키보드와 초점이 있으면 보이고, 누르면 초점이 풀립니다', (tester) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
-      await tester.pumpWidget(
-        overlay(focus, inset: const EdgeInsets.only(bottom: 300)),
-      );
+      _showKeyboard(tester);
+      await tester.pumpWidget(overlay(focus));
       focus.requestFocus();
       await tester.pump();
       expect(focus.hasFocus, isTrue);
@@ -161,9 +162,8 @@ void main() {
     ) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
-      await tester.pumpWidget(
-        overlay(focus, inset: const EdgeInsets.only(bottom: 300)),
-      );
+      _showKeyboard(tester);
+      await tester.pumpWidget(overlay(focus));
       focus.requestFocus();
       await tester.pump();
       final screen = tester.getRect(find.byType(Scaffold));
@@ -190,10 +190,10 @@ void main() {
     testWidgets('글자 배율 2.0에서도 아이콘은 20, 버튼은 44입니다', (tester) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
+      _showKeyboard(tester);
       await tester.pumpWidget(
         _app(
           textScale: 2,
-          viewInsets: const EdgeInsets.only(bottom: 300),
           KeyboardDismissOverlay(
             focus: focus,
             child: Center(child: TextField(focusNode: focus)),
@@ -311,5 +311,52 @@ void main() {
       final dark = bgOf(tester);
       expect(dark, isNot(light));
     });
+  });
+
+  group('keyboard.dismiss Scaffold 안과 바깥', () {
+    Widget scaffoldApp(
+      FocusNode focus, {
+      required bool resize,
+      required bool inside,
+    }) {
+      final field = Center(child: TextField(focusNode: focus));
+      return MaterialApp(
+        theme: buildTheme(
+          brightness: Brightness.light,
+          locale: const Locale('ko'),
+        ),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: inside
+            ? Scaffold(
+                resizeToAvoidBottomInset: resize,
+                body: KeyboardDismissOverlay(focus: focus, child: field),
+              )
+            : KeyboardDismissOverlay(
+                focus: focus,
+                child: Scaffold(resizeToAvoidBottomInset: resize, body: field),
+              ),
+      );
+    }
+
+    for (final inside in [true, false]) {
+      for (final resize in [true, false]) {
+        testWidgets('${inside ? "Scaffold body 안" : "Scaffold 바깥"}, '
+            'resizeToAvoidBottomInset $resize: 키보드 위 12에 뜹니다', (tester) async {
+          final focus = FocusNode();
+          addTearDown(focus.dispose);
+          _showKeyboard(tester);
+          await tester.pumpWidget(
+            scaffoldApp(focus, resize: resize, inside: inside),
+          );
+          focus.requestFocus();
+          await tester.pump();
+          final rect = tester.getRect(find.byType(KeyboardDismissButton));
+          final screenBottom = tester.view.physicalSize.height;
+          expect(screenBottom - 300 - rect.bottom, 12);
+        });
+      }
+    }
   });
 }
