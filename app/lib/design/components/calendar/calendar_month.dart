@@ -10,6 +10,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
+import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
@@ -38,7 +39,20 @@ List<String> calendarWeekdayLabels(String locale) =>
 /// 범례 한 줄: 색 견본과 낱말.
 typedef CalendarLegendEntry = ({Color swatch, String label});
 
-/// 한 달 격자(`calendar-month`): 달 제목·이전·다음, 요일 머리, 일요일 시작 6주 42칸, 범례.
+/// 범례 아래 규칙 입구(`parts.ruleEntry`): 용어 칩 모양이고 누르면 색 규칙 시트가 열립니다.
+@immutable
+final class CalendarRuleEntry {
+  /// 입구를 만듭니다. [label]은 `calendar.legend.rule-link` 문구입니다.
+  const new({required this.label, required this.onTap});
+
+  /// 칩 글자(스크린리더 이름도 같음).
+  final String label;
+
+  /// 눌렀을 때(색 규칙 시트 열기).
+  final VoidCallback onTap;
+}
+
+/// 한 달 격자(`calendar-month`): 달 제목·이전·다음, 요일 머리, 일요일 시작 6주 42칸, 범례와 규칙 입구.
 ///
 /// 달 넘김은 이전·다음 버튼과 격자 좌우 밀기 모두로 [onMonthChange]를 부릅니다. 지원 범위
 /// ([CalendarMonth.isSupported]) 밖으로는 넘어가지 않고 그쪽 버튼은 흐리게 막힙니다. 지원 날짜
@@ -59,7 +73,8 @@ class CalendarMonthView extends StatefulWidget {
   /// 2100-01-01 등)에도 불리므로 그 날짜에도 값을 돌려줘야 합니다(그 칸은 누를 수 없음).
   /// [isDateEnabled]가 false를 돌려주는 날짜도 누를 수 없습니다(date-picker의 미래 날짜 등).
   /// [legend]가 있으면 격자 아래에 범례를 두고, [legendIdentifier]는 그 IA 슬롯
-  /// id(`calendar.legend.body`)입니다.
+  /// id(`calendar.legend.body`)입니다. [ruleEntry]가 있으면 범례 아래에 규칙 입구를 두고
+  /// ([ruleEntryIdentifier]는 `calendar.legend.rule-link`), 범례가 없으면 그리지 않습니다.
   const new({
     required this.month,
     required this.title,
@@ -72,6 +87,8 @@ class CalendarMonthView extends StatefulWidget {
     this.selected,
     this.legend,
     this.legendIdentifier,
+    this.ruleEntry,
+    this.ruleEntryIdentifier,
     this.isDateEnabled,
     this.lastMonth,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
@@ -105,6 +122,18 @@ class CalendarMonthView extends StatefulWidget {
 
   /// 이 속도(px/s)보다 빠르게 밀면 짧게 밀어도 달이 넘어갑니다.
   static const double swipeVelocity = 300;
+
+  /// 범례 아래 규칙 입구 간격(`parts.ruleEntry.marginTop`, `space.12`).
+  static const double ruleEntryTop = Space.s12;
+
+  /// 규칙 입구 아래 빈 자리: 눌림 영역이 칩 아래로 넓어지는 만큼을 부모 영역에 넣습니다.
+  static const double ruleEntryReach = Space.s12;
+
+  /// 규칙 입구(터치 영역 전체).
+  static const Key ruleEntryKey = ValueKey('calendar-month-rule-entry');
+
+  /// 규칙 입구의 칩(바탕이 칠해진 부분).
+  static const Key ruleChipKey = ValueKey('calendar-month-rule-chip');
 
   /// 이전 달 버튼.
   static const Key prevKey = ValueKey('calendar-month-prev');
@@ -169,6 +198,12 @@ class CalendarMonthView extends StatefulWidget {
 
   /// 범례의 IA 슬롯 id.
   final String? legendIdentifier;
+
+  /// 범례 아래 규칙 입구. null이면 그리지 않습니다(date-picker `calendar` 변형).
+  final CalendarRuleEntry? ruleEntry;
+
+  /// 규칙 입구의 IA 슬롯 id.
+  final String? ruleEntryIdentifier;
 
   /// 날짜를 누를 수 있는지. null이면 지원 범위 안의 모든 날짜를 누를 수 있습니다.
   final bool Function(CalendarDate date)? isDateEnabled;
@@ -326,6 +361,8 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
           ],
         ),
         if (legend != null) _legend(context, legend),
+        if (legend != null && widget.ruleEntry != null)
+          _ruleEntry(context, widget.ruleEntry!),
       ],
     );
   }
@@ -510,7 +547,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
       color: tokens.colors.textSecondary,
     );
     return Padding(
-      padding: const EdgeInsets.only(top: Space.s12),
+      padding: const EdgeInsets.only(top: Space.s16),
       child: Semantics(
         identifier: identifier,
         child: Wrap(
@@ -539,6 +576,54 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
                 ],
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// 규칙 입구: `term-token`과 같은 칩 모양. 눌림 영역만 위아래로
+  /// 44까지(`parts.ruleEntry.minTarget`) 넓힙니다.
+  Widget _ruleEntry(BuildContext context, CalendarRuleEntry entry) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    const radius = BorderRadius.all(Radius.circular(Radii.xs));
+    // 눌림 영역을 위아래로 넓히는 슬롭은 부모 영역 안에서만 닿으므로, 위는 입구 간격 안으로,
+    // 아래는 같은 크기의 빈 자리를 두어 부모 영역에 넣습니다(칩 높이 25 기준 위아래 9.5).
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: CalendarMonthView.ruleEntryTop,
+          bottom: CalendarMonthView.ruleEntryReach,
+        ),
+        child: VerticalHitSlop(
+          key: CalendarMonthView.ruleEntryKey,
+          child: PressInkTarget(
+            semanticLabel: entry.label,
+            identifier: widget.ruleEntryIdentifier,
+            onTap: entry.onTap,
+            borderRadius: radius,
+            inkColor: colors.termFg,
+            child: DecoratedBox(
+              key: CalendarMonthView.ruleChipKey,
+              decoration: BoxDecoration(
+                color: colors.termBg,
+                borderRadius: radius,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Space.s8,
+                  vertical: Space.s4,
+                ),
+                child: Text(
+                  entry.label,
+                  style: tokens.typography.labelMd.copyWith(
+                    color: colors.termFg,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

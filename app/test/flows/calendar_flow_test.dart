@@ -18,6 +18,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
+import 'package:myungli_diary/features/calendar/application/color_rule_sheets.dart';
 import 'package:myungli_diary/features/calendar/presentation/calendar_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -188,12 +189,17 @@ void main() {
     expect(_cell(tester, CalendarDate(2026, 10, 3)).data.luck, DayLuck.caution);
     expect(_cell(tester, CalendarDate(2026, 10, 20)).data.eventCount, 1);
 
-    // 범례 두 줄(A39).
+    // 범례 셋(A39, V84): 무난한 날은 두지 않습니다.
     expect(view.legendIdentifier, SlotIds.calendarLegendBody);
     expect(
       [for (final entry in view.legend!) entry.label],
-      [_ko.calendarLegendBodyGood, _ko.calendarLegendBodyCaution],
+      [
+        _ko.calendarLegendBodyVeryGood,
+        _ko.calendarLegendBodyGood,
+        _ko.calendarLegendBodyCaution,
+      ],
     );
+    expect(view.ruleEntry!.label, _ko.calendarLegendRuleLink);
     expect(find.bySemanticsIdentifier(SlotIds.calendarLegendBody), findsOne);
     handle.dispose();
   });
@@ -210,6 +216,26 @@ void main() {
     expect(_monthView(tester).selected, date);
     expect(_cell(tester, date).isSelected, isTrue);
     expect(_cell(tester, _today).isSelected, isFalse);
+  });
+
+  testWidgets('member: 범례 아래 입구를 누르면 색 규칙 시트가 열립니다', (tester) async {
+    covers(const Covers(exits: ['calendar>color-rule-sheet']));
+    await _openCalendar(
+      tester,
+      overrides: [
+        colorRuleSheetBodyProvider.overrideWithValue(
+          () => const Text('색 규칙 본문'),
+        ),
+      ],
+    );
+
+    final entry = find.byKey(CalendarMonthView.ruleEntryKey);
+    await tester.ensureVisible(entry);
+    await tester.tap(entry);
+    await settleWithIo(tester);
+
+    expect(find.byKey(const Key(ScreenIds.colorRuleSheet)), findsOneWidget);
+    expect(find.text('색 규칙 본문'), findsOneWidget);
   });
 
   testWidgets('member: 일정 추가 → 선택한 날의 event-edit', (tester) async {
@@ -304,6 +330,9 @@ void main() {
     expect(tester.widget<ErrorState>(error).variant, ErrorStateVariant.generic);
     // 달 넘김은 그대로 쓸 수 있습니다.
     expect(find.byType(CalendarMonthView), findsOneWidget);
+    // 범례와 규칙 입구는 오류에서도 늘 보입니다(V84).
+    expect(_monthView(tester).legend, hasLength(3));
+    expect(find.byKey(CalendarMonthView.ruleEntryKey), findsOneWidget);
 
     final before = network.calendarPaths
         .where((path) => path == '/v1/calendar/2026/10')
@@ -593,7 +622,7 @@ void main() {
     expect(_monthView(tester).today, tomorrow);
   });
 
-  testWidgets('탭 셸 아래 배너 자리를 비워 범례가 하단 틀에 가리지 않습니다', (tester) async {
+  testWidgets('탭 셸 아래 배너 자리를 비워 범례와 규칙 입구가 하단 틀에 가리지 않습니다', (tester) async {
     await _openCalendar(tester);
     final bar = tester.widget<MyungliBottomBar>(find.byType(MyungliBottomBar));
     expect(bar.showAd, isTrue);
@@ -607,9 +636,7 @@ void main() {
     await tester.drag(scrollable, const Offset(0, -2000));
     await tester.pumpAndSettle();
 
-    final legend = tester.getRect(
-      find.byKey(const ValueKey<String>(SlotIds.calendarLegendBody)),
-    );
+    final legend = tester.getRect(find.byKey(CalendarMonthView.ruleEntryKey));
     final barTop = tester
         .getRect(find.byKey(const ValueKey('bottom-bar.surface')))
         .top;

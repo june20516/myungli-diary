@@ -10,6 +10,7 @@ import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
@@ -407,42 +408,150 @@ void main() {
     expect(find.byType(SkeletonBone), findsNothing);
   });
 
-  testWidgets('범례: 10px 견본(radius.xs) + caption.md 낱말', (tester) async {
-    await tester.pumpWidget(
-      inputApp(
-        Builder(
-          builder: (context) {
-            final colors = context.tokens.colors;
-            return CalendarMonthView(
-              month: const CalendarMonth(2026, 10),
-              title: '2026년 10월',
-              weekdayLabels: _weekdays,
-              cellOf: _cellOf,
-              loading: false,
-              today: CalendarDate(2026, 10, 16),
-              onSelect: (_) {},
-              onMonthChange: (_) {},
-              legend: [
-                (swatch: colors.calendarGoodBg, label: '잘 풀리는 날'),
-                (swatch: colors.calendarCautionBg, label: '조심할 날'),
-              ],
-              legendIdentifier: 'calendar.legend.body',
-            );
-          },
-        ),
+  /// 범례와 규칙 입구를 단 달 격자를 놓습니다.
+  Future<void> pumpLegend(
+    WidgetTester tester, {
+    CalendarRuleEntry? ruleEntry,
+    Brightness brightness = Brightness.light,
+  }) => tester.pumpWidget(
+    inputApp(
+      Builder(
+        builder: (context) {
+          final colors = context.tokens.colors;
+          return CalendarMonthView(
+            month: const CalendarMonth(2026, 10),
+            title: '2026년 10월',
+            weekdayLabels: _weekdays,
+            cellOf: _cellOf,
+            loading: false,
+            today: CalendarDate(2026, 10, 16),
+            onSelect: (_) {},
+            onMonthChange: (_) {},
+            legend: [
+              (swatch: colors.calendarLevelGreat, label: '아주 잘 풀리는 날'),
+              (swatch: colors.calendarLevelGood, label: '잘 풀리는 날'),
+              (swatch: colors.calendarLevelCaution, label: '조심할 날'),
+            ],
+            legendIdentifier: 'calendar.legend.body',
+            ruleEntry: ruleEntry,
+            ruleEntryIdentifier: 'calendar.legend.rule-link',
+          );
+        },
       ),
+      brightness: brightness,
+    ),
+  );
+
+  testWidgets(
+    '범례: 셋(great·good·caution) 순서, 10px 견본(radius.xs) + caption.md 낱말, '
+    '격자 아래 space.16',
+    (tester) async {
+      await pumpLegend(tester);
+      final tokens = tester.element(find.byType(CalendarMonthView)).tokens;
+      expect(
+        find.byKey(const ValueKey('calendar.legend.body')),
+        findsOneWidget,
+      );
+      final swatches = find.byKey(CalendarMonthView.legendSwatchKey);
+      expect(swatches, findsNWidgets(3));
+      expect(tester.getSize(swatches.first), const Size.square(10));
+      final colors = [
+        for (final swatch in tester.widgetList<DecoratedBox>(swatches))
+          (swatch.decoration as BoxDecoration).color,
+      ];
+      expect(colors, [
+        tokens.colors.calendarLevelGreat,
+        tokens.colors.calendarLevelGood,
+        tokens.colors.calendarLevelCaution,
+      ]);
+      final radius =
+          (tester.widget<DecoratedBox>(swatches.first).decoration
+                  as BoxDecoration)
+              .borderRadius;
+      expect(radius, const BorderRadius.all(Radius.circular(Radii.xs)));
+      final lefts = [
+        for (final label in ['아주 잘 풀리는 날', '잘 풀리는 날', '조심할 날'])
+          tester.getTopLeft(find.text(label)).dx,
+      ];
+      expect(lefts, [...lefts]..sort());
+      final label = tester.widget<Text>(find.text('조심할 날'));
+      expect(label.style!.fontSize, tokens.typography.captionMd.fontSize);
+      expect(label.style!.color, tokens.colors.textSecondary);
+      // 무난한 날 견본은 두지 않습니다.
+      expect(find.text('무난한 날'), findsNothing);
+
+      final grid = tester.getRect(find.byKey(CalendarMonthView.gridKey));
+      final legend = tester.getRect(
+        find.byKey(const ValueKey('calendar.legend.body')),
+      );
+      expect(legend.top - grid.bottom, Space.s16);
+    },
+  );
+
+  testWidgets('규칙 입구: 범례 아래 space.12, 용어 칩 모양, 터치 44, 누르면 콜백', (tester) async {
+    var taps = 0;
+    await pumpLegend(
+      tester,
+      ruleEntry: CalendarRuleEntry(label: '길흉은 어떻게 정해지나요', onTap: () => taps++),
     );
     final tokens = tester.element(find.byType(CalendarMonthView)).tokens;
-    expect(find.byKey(const ValueKey('calendar.legend.body')), findsOneWidget);
-    final swatches = find.byKey(CalendarMonthView.legendSwatchKey);
-    expect(swatches, findsNWidgets(2));
-    expect(tester.getSize(swatches.first), const Size.square(10));
+    final entry = find.byKey(CalendarMonthView.ruleEntryKey);
+    expect(entry, findsOneWidget);
+
+    final legend = tester.getRect(
+      find.byKey(const ValueKey('calendar.legend.body')),
+    );
+    final chip = tester.getRect(find.byKey(CalendarMonthView.ruleChipKey));
+    expect(chip.top - legend.bottom, Space.s12);
+    expect(chip.left, tester.getTopLeft(find.byType(CalendarMonthView)).dx);
+
     final decoration =
-        tester.widget<DecoratedBox>(swatches.first).decoration as BoxDecoration;
-    expect(decoration.color, tokens.colors.calendarGoodBg);
-    final label = tester.widget<Text>(find.text('조심할 날'));
-    expect(label.style!.fontSize, tokens.typography.captionMd.fontSize);
-    expect(label.style!.color, tokens.colors.textSecondary);
+        tester
+                .widget<DecoratedBox>(find.byKey(CalendarMonthView.ruleChipKey))
+                .decoration
+            as BoxDecoration;
+    expect(decoration.color, tokens.colors.termBg);
+    expect(
+      decoration.borderRadius,
+      const BorderRadius.all(Radius.circular(Radii.xs)),
+    );
+    final text = tester.widget<Text>(find.text('길흉은 어떻게 정해지나요'));
+    expect(text.style!.color, tokens.colors.termFg);
+    expect(text.style!.fontSize, tokens.typography.labelMd.fontSize);
+    // 안쪽 좌우 space.8, 위아래 space.4.
+    final textRect = tester.getRect(find.text('길흉은 어떻게 정해지나요'));
+    expect(textRect.left - chip.left, Space.s8);
+    expect(chip.right - textRect.right, Space.s8);
+    expect(textRect.top - chip.top, Space.s4);
+    expect(chip.bottom - textRect.bottom, Space.s4);
+    // ⓘ 아이콘과 꺾쇠는 없습니다.
+    expect(
+      find.descendant(of: entry, matching: find.byType(Icon)),
+      findsNothing,
+    );
+    // 눌리는 영역은 칩 위아래로 넓어져 44가 됩니다(모양은 그대로).
+    final slop = (44 - chip.height) / 2;
+    await tester.tapAt(Offset(chip.center.dx, chip.top - slop + 1));
+    await tester.tapAt(Offset(chip.center.dx, chip.bottom + slop - 1));
+    await tester.pump();
+    expect(taps, 2);
+    // 44 밖은 닿지 않습니다.
+    await tester.tapAt(Offset(chip.center.dx, chip.top - slop - 2));
+    expect(taps, 2);
+    await tester.tap(find.text('길흉은 어떻게 정해지나요'));
+    await tester.pump();
+    expect(taps, 3);
+    final semantics = tester
+        .getSemantics(find.bySemanticsLabel('길흉은 어떻게 정해지나요'))
+        .getSemanticsData();
+    expect(semantics.flagsCollection.isButton, isTrue);
+    expect(semantics.flagsCollection.isEnabled, Tristate.isTrue);
+    expect(semantics.hasAction(SemanticsAction.tap), isTrue);
+  });
+
+  testWidgets('규칙 입구가 없으면(date-picker) 그리지 않는다', (tester) async {
+    await pumpLegend(tester);
+    expect(find.byKey(CalendarMonthView.ruleEntryKey), findsNothing);
   });
 
   /// [date] 칸을 눌러도 onSelect가 없고 Semantics가 비활성인지 확인합니다.

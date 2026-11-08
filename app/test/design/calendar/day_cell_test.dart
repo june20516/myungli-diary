@@ -106,36 +106,83 @@ void main() {
     ]);
   });
 
-  testWidgets('높이 62·radius.sm 길흉 채우기: good·caution 색, neutral·null은 채우지 않음', (
-    tester,
-  ) async {
-    await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.good))));
-    final tokens = _tokens(tester);
-    expect(tester.getSize(find.byType(DayCell)).height, DayCell.height);
-    BoxDecoration fill() =>
-        tester
-                .widget<DecoratedBox>(
-                  find.descendant(
-                    of: find.byKey(DayCell.luckFillKey),
-                    matching: find.byType(DecoratedBox),
-                  ),
-                )
-                .decoration
-            as BoxDecoration;
-    expect(fill().color, tokens.colors.calendarGoodBg);
-    expect(
-      fill().borderRadius,
-      const BorderRadius.all(Radius.circular(Radii.sm)),
-    );
+  testWidgets(
+    '높이 62·radius.sm 길흉 네 단계: great·good·caution 색, neutral·null은 채우지 않음',
+    (tester) async {
+      await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.good))));
+      final tokens = _tokens(tester);
+      expect(tester.getSize(find.byType(DayCell)).height, DayCell.height);
+      BoxDecoration fill() =>
+          tester
+                  .widget<DecoratedBox>(
+                    find.descendant(
+                      of: find.byKey(DayCell.luckFillKey),
+                      matching: find.byType(DecoratedBox),
+                    ),
+                  )
+                  .decoration
+              as BoxDecoration;
+      expect(fill().color, tokens.colors.calendarLevelGood);
+      expect(
+        fill().borderRadius,
+        const BorderRadius.all(Radius.circular(Radii.sm)),
+      );
 
-    await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.caution))));
-    expect(fill().color, tokens.colors.calendarCautionBg);
+      await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.great))));
+      expect(fill().color, tokens.colors.calendarLevelGreat);
 
-    await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.neutral))));
-    expect(find.byKey(DayCell.luckFillKey), findsNothing);
+      await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.caution))));
+      expect(fill().color, tokens.colors.calendarLevelCaution);
 
-    await tester.pumpWidget(_app(_cell(data: _data())));
-    expect(find.byKey(DayCell.luckFillKey), findsNothing);
+      await tester.pumpWidget(_app(_cell(data: _data(luck: DayLuck.neutral))));
+      expect(find.byKey(DayCell.luckFillKey), findsNothing);
+
+      await tester.pumpWidget(_app(_cell(data: _data())));
+      expect(find.byKey(DayCell.luckFillKey), findsNothing);
+    },
+  );
+
+  testWidgets('네 단계 색은 라이트와 다크가 다르고 great는 good과 다르다', (tester) async {
+    Future<Map<DayLuck, Color?>> fills(Brightness brightness) async {
+      final result = <DayLuck, Color?>{};
+      for (final luck in DayLuck.values) {
+        await tester.pumpWidget(
+          inputApp(
+            Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 48,
+                child: _cell(data: _data(luck: luck)),
+              ),
+            ),
+            brightness: brightness,
+          ),
+        );
+        // 테마 전환은 움직임이 끝나야 새 색이 됩니다.
+        await tester.pumpAndSettle();
+        final fill = find.descendant(
+          of: find.byKey(DayCell.luckFillKey),
+          matching: find.byType(DecoratedBox),
+        );
+        result[luck] = fill.evaluate().isEmpty
+            ? null
+            : (tester.widget<DecoratedBox>(fill).decoration as BoxDecoration)
+                  .color;
+      }
+      return result;
+    }
+
+    final light = await fills(Brightness.light);
+    final dark = await fills(Brightness.dark);
+    for (final luck in [DayLuck.great, DayLuck.good, DayLuck.caution]) {
+      expect(light[luck], isNotNull, reason: '$luck');
+      expect(dark[luck], isNotNull, reason: '$luck');
+      expect(dark[luck], isNot(light[luck]), reason: '$luck 다크가 라이트와 같음');
+    }
+    expect(light[DayLuck.neutral], isNull);
+    expect(dark[DayLuck.neutral], isNull);
+    expect(light[DayLuck.great], isNot(light[DayLuck.good]));
+    expect(dark[DayLuck.great], isNot(dark[DayLuck.good]));
   });
 
   testWidgets('숫자는 위쪽 32px 상자 가운데, numeric.calendar 본문색', (tester) async {
