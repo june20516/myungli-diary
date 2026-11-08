@@ -11,8 +11,8 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
-import 'package:myungli_diary/features/calendar/application/score_item_gaps.dart';
 import 'package:myungli_diary/features/calendar/model/score_item_meta.dart';
+import 'package:myungli_diary/features/glossary/application/dictionary_gaps.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 
 /// 색 규칙 시트(`color-rule-sheet`, V87) 본문.
@@ -60,7 +60,7 @@ class ColorRuleSheet extends ConsumerWidget {
     if (gaps.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
-        reportScoreItemGaps(ref, gaps);
+        reportDictionaryGaps(ref.read, gaps);
       });
     }
     return SingleChildScrollView(

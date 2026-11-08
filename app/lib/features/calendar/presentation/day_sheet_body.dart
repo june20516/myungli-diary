@@ -31,12 +31,12 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
-import 'package:myungli_diary/features/calendar/application/score_item_gaps.dart';
 import 'package:myungli_diary/features/calendar/model/score_item_meta.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
+import 'package:myungli_diary/features/glossary/application/dictionary_gaps.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
@@ -215,7 +215,7 @@ class _VerdictSection extends ConsumerWidget {
             nameOf: (id) => _tagNameOf(names, id),
             meaningOf: (id) => _meaningOf(names, id),
             onItemTap: (item) => _openItem(context, ref, names, item),
-            onUnrenderable: (ids) => reportScoreItemGaps(ref, [
+            onUnrenderable: (ids) => reportDictionaryGaps(ref.read, [
               for (final id in ids) _gapTermIdOf(names, id),
             ]),
           ),

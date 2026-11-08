@@ -3,9 +3,8 @@ import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
-import 'package:myungli_diary/core/platform/crash_reporter.dart';
-import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/glossary/application/dictionary_gaps.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -86,11 +85,6 @@ final todayContentProvider = Provider<AsyncValue<TodayContent>>((ref) {
   return content;
 });
 
-/// 이미 보고한 사전 빈칸(용어 id). 다시 계산할 때마다 같은 빈칸을 거듭 보고하지 않게 합니다.
-final _reportedDictionaryGapsProvider = Provider<Set<String>>(
-  (ref) => <String>{},
-);
-
 /// 오늘 화면이 그리지 못한 용어 id(`<범주>.<값>`): 대표 태그([skippedFeaturedTagKeysOf])와
 /// 사전에 이름이 없는 십성 묶음(`ten_god_group.<값>`).
 List<String> todayDictionaryGapsOf(Daily daily, GlossaryNames names) {
@@ -104,16 +98,8 @@ List<String> todayDictionaryGapsOf(Daily daily, GlossaryNames names) {
 
 /// [content]에서 그리지 못한 용어를 용어 id만 담아 보고합니다(D64, A112).
 void _reportUnnamedTags(Ref ref, TodayContent content) {
-  final reported = ref.read(_reportedDictionaryGapsProvider);
-  final termIds = todayDictionaryGapsOf(content.view.daily, content.names);
-  for (final termId in termIds) {
-    if (reported.add(termId)) {
-      ref
-          .read(crashReporterProvider)
-          .record(
-            CrashSummary.from(MissingDictionaryEntry(termId)),
-            StackTrace.current,
-          );
-    }
-  }
+  reportDictionaryGaps(
+    ref.read,
+    todayDictionaryGapsOf(content.view.daily, content.names),
+  );
 }

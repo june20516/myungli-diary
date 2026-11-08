@@ -6,17 +6,12 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/tag.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/core/platform/crash_reporter.dart';
-import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
+import 'package:myungli_diary/features/glossary/application/dictionary_gaps.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
-
-/// 이미 보고한 일기 줄 태그 사전 빈칸(용어 id). 줄이 많고 다시 그려도 같은 빈칸을 거듭 보고하지
-/// 않게 앱 실행 동안 한 번만 보고합니다(A112).
-final _reportedRowTagGapsProvider = Provider<Set<String>>((ref) => <String>{});
 
 /// 일기 줄(`diary-row`)의 날의 성격 `hanja-tag`(길흉 톤, `default`).
 ///
@@ -57,7 +52,7 @@ HanjaTag? diaryFeaturedHanjaTagOf(
   final glyph = HanjaGlyphs.forTagKey(tag.key);
   if (label == null || glyph == null) {
     // 이름 사전을 받은 뒤에만 빈칸으로 셉니다(받기 전에는 모든 태그가 이름이 없어 보임).
-    if (names != null) _reportGap(ref, 'tag.${tag.key}');
+    if (names != null) reportDictionaryGaps(ref.read, ['tag.${tag.key}']);
     return null;
   }
   final sheets = ref.read(depthSheetsProvider);
@@ -73,14 +68,4 @@ HanjaTag? diaryFeaturedHanjaTagOf(
       ),
     ),
   );
-}
-
-void _reportGap(WidgetRef ref, String termId) {
-  if (!ref.read(_reportedRowTagGapsProvider).add(termId)) return;
-  ref
-      .read(crashReporterProvider)
-      .record(
-        CrashSummary.from(MissingDictionaryEntry(termId)),
-        StackTrace.current,
-      );
 }

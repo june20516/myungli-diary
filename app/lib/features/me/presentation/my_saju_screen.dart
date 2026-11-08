@@ -18,8 +18,6 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/notice_text.dart';
-import 'package:myungli_diary/core/platform/crash_reporter.dart';
-import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
@@ -40,6 +38,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
+import 'package:myungli_diary/features/glossary/application/dictionary_gaps.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
@@ -63,12 +62,6 @@ const Set<String> mySajuExits = {
 const AppGlyph _gear = AppGlyph(
   light: PhosphorIconsLight.gear,
   regular: PhosphorIconsRegular.gear,
-);
-
-/// 이미 보고한 회고 태그 사전 빈칸(용어 id). 화면을 다시 그려도 같은 빈칸을 거듭 보고하지 않게
-/// 앱 실행 동안 한 번만 보고합니다(A112).
-final _reportedRecordTagGapsProvider = Provider<Set<String>>(
-  (ref) => <String>{},
 );
 
 /// 나의 사주(`me` 탭 루트, `my-saju`): 내 원국을 다섯 섹션으로 보입니다(D16, V76, V77).
@@ -585,18 +578,10 @@ class _RecordSection extends ConsumerWidget {
     DiaryStats stats,
     DiaryTagNameOf tagNameOf,
   ) {
-    final reported = ref.read(_reportedRecordTagGapsProvider);
-    for (final key in DiarySummary.skippedTagKeys(stats, tagNameOf)) {
-      final termId = 'tag.$key';
-      if (reported.add(termId)) {
-        ref
-            .read(crashReporterProvider)
-            .record(
-              CrashSummary.from(MissingDictionaryEntry(termId)),
-              StackTrace.current,
-            );
-      }
-    }
+    reportDictionaryGaps(ref.read, [
+      for (final key in DiarySummary.skippedTagKeys(stats, tagNameOf))
+        'tag.$key',
+    ]);
   }
 }
 
