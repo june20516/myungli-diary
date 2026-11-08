@@ -2,10 +2,10 @@
 
 * 작성: app 세션, 2026-11-08
 * 상태: 초안, 구현 브랜치 `app/ds1-screens`
-* 요청: drift #810(PR #809~#861 계약 변경), #808(컴포넌트 4.0.0, 토큰 1.3.0), #851(컴포넌트 5.0.0, 토큰 1.4.0, fixture 명리 확인), #833(REST 1.5.0~1.8.0), #796(검수 회차1 동작 버그 다섯 건)
-* 보낸 요청(이 PR이 기다림): #862(server, 나 탭 회고 집계 응답), #863(writing, 용어 "일간" 뜻)
-* 관련 결정: 루트 D105~D113, design V56~V95, server S138~S142, writing W55~W60
-* 쓰는 계약: design 컴포넌트 5.0.0과 토큰 1.4.0(`docs/identity/design/components/`, `tokens/`), IA v5(`docs/ia/screens.json`), REST 1.8.0(`server/api/openapi.yaml`), writing ARB(R34까지)
+* 요청: drift #810(PR #809~#867 계약 변경), #808(컴포넌트 4.0.0, 토큰 1.3.0), #851(컴포넌트 5.0.0, 토큰 1.4.0, fixture 명리 확인), #833(REST 1.5.0~1.8.0), #796(검수 회차1 동작 버그 다섯 건)
+* 보낸 요청(처리됨): #862(server PR #866, REST 1.9.0 `getDiaryStats`, S146), #863(writing PR #864 `role.day_master` W61, server seed #865)
+* 관련 결정: 루트 D105~D113, design V56~V95, server S138~S142·S146, writing W55~W61
+* 쓰는 계약: design 컴포넌트 5.0.0과 토큰 1.4.0(`docs/identity/design/components/`, `tokens/`), IA v5(`docs/ia/screens.json`), REST 1.9.0(`server/api/openapi.yaml`), writing ARB(R35까지)
 * 화면 기준(origin): 비공개 기록 `review/shots/2026-11-05/ia-final/` 2판(10장). 내용은 이 문서에 옮기지 않습니다(D74)
 
 ## 1. 목적과 범위
@@ -21,13 +21,12 @@ app을 DS1 확정 화면과 지금 main의 계약에 한 번에 맞춥니다. **
 
 **다루지 않는 것**
 * 공유 이미지(`share-image`)의 모양 변경. IA에 `day-character`가 이 자리로 남아 있고 계약 변경이 없습니다.
-* server 집계 API 자체(#862)와 "일간" 원고(#863). 계약이 들어오면 이 브랜치에서 연결합니다. 그때까지 PR은 draft입니다.
 
 ## 2. 현재 상태(실측, 2026-11-08)
 
 * main을 합치고 생성기(IA, ARB, API)를 돌리면 지워진 슬롯과 부품을 쓰는 곳에서 컴파일이 깨집니다(`todayLuckyTagBody`, `todayCharacterReason`, `todayEvidenceLink`, `daySheetCharacterReason`, `depthLinkEvidence`가 함수로 바뀜, `LuckLevel.veryGood` switch).
 * `tool/gen_tokens.dart`는 `color.verdict.track`(DTCG gradient 값)에서 멈추고, 그다음 `motion.duration.page`와 `motion.easing.page`가 같은 이름이 되어 멈춥니다. `border.width.hairline`, `size.icon.*`, `motion.offset.page`는 내보내는 코드가 없습니다.
-* REST 1.8.0에서 `Daily.guideCandidates`와 `CalendarDay.scoreItems`가 필수라 지금 fixture로는 fake 모드가 읽기에 실패합니다.
+* REST 1.6.0부터 `Daily.guideCandidates`와 `CalendarDay.scoreItems`가 필수라 지금 fixture로는 fake 모드가 읽기에 실패합니다.
 * app에 없는 컴포넌트: `section-header`, `explain-sheet`(지금은 term 풀이 판만), `scroll-hint`, `hanja-tag`, `date-header`, `tag-sentence-list`, `fortune-verdict`, `score-row`, `date-block`, `diary-summary`, `luck-pillar`, `birth-info-row`, `band-table`, `stage-strip`, 요소 `stem.chip`, `keyboard.dismiss`, `button.pair`, `list.divider`(공용), 패턴 `page.push`.
 
 ## 3. 진행 단계
@@ -38,12 +37,12 @@ app을 DS1 확정 화면과 지금 main의 계약에 한 번에 맞춥니다. **
 | --- | --- | --- |
 | 1. drift 기반 | 생성 코드(IA, ARB, API, 토큰) 다시 만들기, 토큰 생성기 고치기, 지워진 슬롯과 부품을 쓰는 곳 정리, fixture 필수 필드, 컴파일과 계약 테스트 복구 | #810, #833 일부 |
 | 2. 공용 기반 | 4.0.0 규칙(간격, 아이콘 크기, 구분선, press.ink, sheet, dialog, skeleton, page.push, quiet 52, button.pair, settings-row, keyboard.dismiss)과 여러 화면이 쓰는 새 컴포넌트(`section-header`, `hanja-tag`, `explain-sheet`, `stem.chip`, `scroll-hint`) | #808 |
-| 3. 나 탭(B) | 다섯 섹션, `luck-pillar` `compact`, `diary-summary`(fake), 사주 원국 카드 공유 | #851 일부 |
+| 3. 나 탭(B) | 다섯 섹션, `luck-pillar` `compact`, `diary-summary`(`getDiaryStats`), 사주 원국 카드 공유 | #851 일부 |
 | 4. 오늘(A), 근거(G), tag-sheet | `date-header`, 총운 결정 태그와 보조 문장, 사주 기운, 행운 칩과 설명 시트, D112, `lock.veil` G1, `tag-sentence-list` | #851, #833 |
 | 5. 일기(F, C) | `diary-row` 날의 성격과 대표 태그, 떠 있는 쓰기 버튼, `app-bar` `edit`, `date-block`, 인용 질문과 바꾸기 | #851, #833 |
 | 6. 달력(D) | `day-cell` 네 단계, 범례와 입구, 그날 시트 full, `fortune-verdict`, `score-row`, `color-rule-sheet`, 일정 섹션 머리 + | #851, #833 |
 | 7. 사주 표(E) | 머리 제목과 `birth-info-row`, 섹션 머리, 용신 판정 근거 잠김 2줄, `band-table`, `luck-pillar` `column`, `scroll-hint`, `stage-strip` 시트 | #851 |
-| 8. 검수 버그 | F-026, F-027, F-013, F-030은 재현 테스트 뒤 고침, F-019는 #863 키로 연결 | #796 |
+| 8. 검수 버그 | 다섯 건 모두 재현 테스트 뒤 고침(F-019는 `role.day_master`) | #796 |
 | 9. fixture 명리 | #851 표 정정, 엔진으로 다시 계산한 값, 새 필드 | #851 |
 | 10. origin 대조와 마무리 | 화면 스크린샷 대조, golden, 전체 검사, 로컬 Patrol, CLAUDE.md, 결정 기록 | |
 
@@ -63,8 +62,8 @@ app을 DS1 확정 화면과 지금 main의 계약에 한 번에 맞춥니다. **
 * **A116 색 규칙 시트 점수표.** 일곱 줄(용신의 날 +2, 귀인의 날 +2, 합 +1, 기신의 날 −1, 일지 충과 월지 충 −2, 충 −1, 형 −1)은 계약 `calendar.md` color-rule-sheet 배치 절과 엔진 spec §8에서 온 app 상수입니다. 내려주는 API가 없습니다. 이름은 용어 사전 `score_item`에서 찾습니다. 그날 시트 내역 줄은 server `scoreItems`를 더함 먼저, 뺌 다음(같은 부호 안은 server 순서)으로 놓고, 점수 0인 항목은 그리지 않습니다.
 * **A117 사주 표 처음 탭.** 나 탭 "대운 전체"는 사주 표를 만세력과 대운 탭으로 엽니다. 경로 query `tab=luck`으로 넘기고, 없으면 원국 탭입니다.
 * **A118 사주 표 머리 데이터.** 제목의 호칭과 `birth-info-row`의 출생 정보는 `Chart`에 없어 프로필 provider에서 읽습니다. 프로필을 못 읽으면 머리 줄만 뼈로 둡니다.
-* **A119 회고 집계(대기).** `diary-summary`는 집계 저장소 경계 하나로 받고, #862 계약 전에는 fake 대역만 값을 줍니다. 실제 클라이언트는 계약이 들어온 뒤 이 브랜치에서 생성 코드로 연결합니다. 그 전까지 PR은 draft입니다.
-* **A120 #796 고치는 방향.** F-026: 날짜 시트의 확인 버튼을 스크롤 밖 아래에 고정해 늘 보이게 합니다(계약의 고르기 → 확인 흐름 유지). F-027: 시트의 bounce 보정이 본문 viewport 높이를 바꾸지 않게 하고(Transform만), 닫기 판정은 손가락 이동 거리로 합니다. F-013: `MyungliTextField`와 `DiaryEditor`에 밖을 누르면 초점 풀기, 입력 화면 스크롤 뷰에 끌면 내리기, 그리고 `keyboard.dismiss` 버튼. F-030: 시진 확인 줄의 key 교체를 없애 글자만 바꾸고, 요청 실패(null) 때 붙잡은 값을 지우지 않습니다. F-019: 일간 칩은 #863에서 정한 용어 id를 엽니다. 재현 테스트를 먼저 쓰고 실패를 본 뒤 고칩니다.
+* **A119 회고 집계.** `diary-summary`는 `getDiaryStats`(REST 1.9.0)를 나의 사주 화면 진입 때 받습니다. 편수 `entryCount`는 편 단위이고 `few`(5편 미만) 판단에 씁니다. 날의 성격 막대와 태그 옆 수는 날짜 단위(`days`, S146)이고, 막대 순서는 계약 `order`로 app이 정합니다. 캐시는 두지 않고(일기를 쓰거나 지우면 바뀜), 일기 저장과 삭제 뒤 이 provider를 다시 읽습니다. 실패하면 회고 카드 자리에만 `error-state`(다시 시도)를 두고 다른 섹션은 그대로 보입니다(화면 전체를 막지 않음). fake 대역은 fixture 일기 목록에서 S146 규칙대로 셉니다.
+* **A120 #796 고치는 방향.** F-026: 날짜 시트의 확인 버튼을 스크롤 밖 아래에 고정해 늘 보이게 합니다(계약의 고르기 → 확인 흐름 유지). F-027: 시트의 bounce 보정이 본문 viewport 높이를 바꾸지 않게 하고(Transform만), 닫기 판정은 손가락 이동 거리로 합니다. F-013: `MyungliTextField`와 `DiaryEditor`에 밖을 누르면 초점 풀기, 입력 화면 스크롤 뷰에 끌면 내리기, 그리고 `keyboard.dismiss` 버튼. F-030: 시진 확인 줄의 key 교체를 없애 글자만 바꾸고, 요청 실패(null) 때 붙잡은 값을 지우지 않습니다. F-019: 일간 칩은 용어 `role.day_master`(W61, 시드 #865)를 엽니다. 근거 시트의 원국 개인 해석(`day_master`) 연결은 그대로 둡니다. 재현 테스트를 먼저 쓰고 실패를 본 뒤 고칩니다.
 * **A121 fixture 명리 값.** #851 표를 따르되 태그는 손 계산하지 않고 core 엔진으로 그날 값을 다시 뽑아 넣습니다(달력과 원국은 기존 생성 스크립트, 오늘과 일기는 엔진 호출로 값을 확인한 뒤 손으로 고침). 표에 없던 어긋남(10-05, 10-08, 10-12)도 엔진 값으로 맞추고 #851에 결과를 남깁니다. `dayKind`를 일부러 덮은 날(`DAY_KIND_OVERRIDES`)은 화면 사례용이라 그대로 둡니다.
 
 ## 5. 경계와 데이터 흐름
@@ -94,4 +93,4 @@ app을 DS1 확정 화면과 지금 main의 계약에 한 번에 맞춥니다. **
 * 시트 안쪽 24와 핸들 자리, dialog 버튼 구조, `quiet` 52, 아이콘 크기 규칙은 거의 모든 golden을 바꿉니다. 단계 2 끝에서 golden을 한 번에 다시 만들고 눈으로 확인합니다.
 * `page.push`는 전환 시간에 기대는 테스트(pumpAndSettle, Patrol)의 타이밍을 바꿉니다.
 * 공용 글줄 skeleton을 없애면 skeleton을 주지 않던 화면 8곳이 바로 걸립니다. 기본값을 남긴 채 화면별로 옮기고 마지막에 기본값을 지웁니다.
-* #862, #863이 늦으면 PR이 draft로 오래 남습니다. 다른 PR이 계약을 또 바꾸면 이 브랜치에서 다시 따라잡습니다.
+* 작업 중 다른 PR이 계약을 또 바꾸면 이 브랜치에서 다시 따라잡습니다(drift #810에 원인이 더해짐).
