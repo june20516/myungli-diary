@@ -31,6 +31,7 @@ type fakeDiaries struct {
 	mu    sync.Mutex
 	entry diary.Entry
 	list  []diary.Entry
+	stats diary.Stats
 	err   error
 
 	gotAccount   uuid.UUID
@@ -81,6 +82,11 @@ func (f *fakeDiaries) List(_ context.Context, accountID uuid.UUID, q diary.ListQ
 	f.listCalls++
 	f.gotAccount, f.gotQuery = accountID, q
 	return f.list, f.err
+}
+
+func (f *fakeDiaries) Stats(_ context.Context, accountID uuid.UUID) (diary.Stats, error) {
+	f.gotAccount = accountID
+	return f.stats, f.err
 }
 
 var sampleDiaryID = uuid.MustParse("0198a000-0000-7000-8000-0000000000d1")
@@ -494,4 +500,51 @@ func TestListDiaries_Excerpt(t *testing.T) {
 	assert.Equal(t, strings.Repeat("가", 100), excerpt(0))
 	assert.Equal(t, strings.Repeat("각", 100), excerpt(1))
 	assert.Equal(t, "짧은 글", excerpt(2))
+}
+
+func TestGetDiaryStats_ReturnsCounts(t *testing.T) {
+	diaries := &fakeDiaries{stats: diary.Stats{
+		EntryCount: 7,
+		DayKinds: []diary.DayKindCount{
+			{DayKind: "gwiin_day", Days: 1}, {DayKind: "yongsin_day", Days: 3},
+			{DayKind: "gisin_day", Days: 0}, {DayKind: "ordinary_day", Days: 2},
+		},
+		TopTags: []diary.TagCount{{Tag: fortune.FeaturedTag{Key: "dohwa", Polarity: "neutral"}, Days: 4}},
+	}}
+	req, rec := sendRequest(t, diaryAPI(diaries), http.MethodGet, "/v1/diary-stats", "")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	assert.Equal(t, fixedAccountID, diaries.gotAccount)
+	assert.JSONEq(t, `{
+		"entryCount": 7,
+		"dayKinds": [
+			{"dayKind": "gwiin_day", "days": 1}, {"dayKind": "yongsin_day", "days": 3},
+			{"dayKind": "gisin_day", "days": 0}, {"dayKind": "ordinary_day", "days": 2}
+		],
+		"topTags": [{"tag": {"key": "dohwa", "polarity": "neutral"}, "days": 4}]
+	}`, rec.Body.String())
+}
+
+func TestGetDiaryStats_EmptyTagsIsArray(t *testing.T) {
+	diaries := &fakeDiaries{stats: diary.Stats{
+		DayKinds: []diary.DayKindCount{
+			{DayKind: "gwiin_day"}, {DayKind: "yongsin_day"}, {DayKind: "gisin_day"}, {DayKind: "ordinary_day"},
+		},
+	}}
+	req, rec := sendRequest(t, diaryAPI(diaries), http.MethodGet, "/v1/diary-stats", "")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	assert.Equal(t, []any{}, decodeMap(t, rec)["topTags"])
+}
+
+func TestGetDiaryStats_BrokenPolarityIs500(t *testing.T) {
+	diaries := &fakeDiaries{stats: diary.Stats{
+		DayKinds: []diary.DayKindCount{{DayKind: "gwiin_day"}, {DayKind: "yongsin_day"}, {DayKind: "gisin_day"}, {DayKind: "ordinary_day"}},
+		TopTags:  []diary.TagCount{{Tag: fortune.FeaturedTag{Key: "dohwa", Polarity: "weird"}, Days: 1}},
+	}}
+	_, rec := sendRequest(t, diaryAPI(diaries), http.MethodGet, "/v1/diary-stats", "")
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
 }

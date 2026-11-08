@@ -91,6 +91,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **오늘 음력과 엔진 2026.11.1(브랜치 `server/daily-lunar`, #806 ②, core #834):** 계약 1.8.0. `Daily.lunar`(`LunarDate`, 2026.11.1 전 엔진 응답에는 없음), 지원 엔진 버전 2026.11.1. 결정 S142.
 * **엔진 동시 요청과 최소 인스턴스(브랜치 `server/817-scaling`, #817 ②④):** 엔진 서비스 동시 요청 8(core `MAX_WORKERS`와 대조 테스트), `min_instances`(prod와 load 1), Cloud SQL Query Insights(모든 환경). load 용량 값은 prod와 같게 두고, CPU 할당은 prod 56 vCPU에 생성기 몫을 더한 64 vCPU(사용자 콘솔 요청). 결정 S143.
 * **아침 알림 10분 분산(브랜치 `server/817-notify-spread`, #817 ①, D109):** 계정 고정 오프셋 0~10분(`notify.SpreadOffset`), 실행이 다음 5분 안의 보낼 시각까지 기다렸다 보냄(`lookahead`), 실행 상한 8분. 결정 S144.
+* **명리일기 회고 집계(브랜치 `server/862-diary-stats`, #862):** `getDiaryStats`(`GET /v1/diary-stats`)로 살아 있는 편수, 날짜 단위 날의 성격별 수(네 값 모두), 대표 태그 상위 3개(날짜 수 순, 같으면 키 순). 결정 S146.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.

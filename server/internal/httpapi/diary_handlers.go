@@ -215,6 +215,35 @@ func (a *API) ListDiaries(ctx context.Context, req gen.ListDiariesRequestObject)
 	return gen.ListDiaries200JSONResponse(gen.DiaryList{Items: items, NextCursor: nextCursor}), nil
 }
 
+// GetDiaryStats는 나 탭 명리일기 회고의 계정 전체 집계를 돌려줍니다(#862).
+func (a *API) GetDiaryStats(ctx context.Context, _ gen.GetDiaryStatsRequestObject) (gen.GetDiaryStatsResponseObject, error) {
+	accountID, err := a.diaryAccountID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	stats, err := a.Diaries.Stats(ctx, accountID)
+	if err != nil {
+		return nil, err
+	}
+	c := &converter{}
+	out := gen.DiaryStats{
+		EntryCount: stats.EntryCount,
+		DayKinds: convertAll(stats.DayKinds, func(k diary.DayKindCount) gen.DayKindCount {
+			return gen.DayKindCount{DayKind: contractValue[gen.DayKind](c, "DayKindCount.dayKind", k.DayKind), Days: k.Days}
+		}),
+		TopTags: convertAll(stats.TopTags, func(t diary.TagCount) gen.TagCount {
+			return gen.TagCount{
+				Tag:  gen.Tag{Key: t.Tag.Key, Polarity: contractValue[gen.TagPolarity](c, "Tag.polarity", string(t.Tag.Polarity))},
+				Days: t.Days,
+			}
+		}),
+	}
+	if c.err != nil {
+		return nil, c.err
+	}
+	return gen.GetDiaryStats200JSONResponse(out), nil
+}
+
 // diaryAccountID는 일기 operation 공통 앞부분으로, 인증된 계정 id를 돌려줍니다.
 // Diaries가 조립되지 않은 것은 조립 실수이므로 운세와 같게 503으로 드러냅니다.
 func (a *API) diaryAccountID(ctx context.Context) (uuid.UUID, error) {
