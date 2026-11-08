@@ -675,6 +675,50 @@ void main() {
       },
     );
 
+    testWidgets('diaryLinkTag가 있으면 사전 로딩 중에는 본문을 그리지 않고 로딩 뒤 링크와 함께 그립니다', (
+      tester,
+    ) async {
+      final completer = Completer<GlossaryNames>();
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(
+            content: ExplainUiText(title: '합', body: '설명이에요'),
+            diaryLinkTag: 'hap',
+          ),
+          glossary: () => completer.future,
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(SentenceBlock), findsNothing);
+
+      completer.complete(
+        const GlossaryNames({
+          'tag': {'hap': '합'},
+        }),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(SentenceBlock), findsOneWidget);
+      expect(
+        find.textContaining(_ko.explainSheetTagDiaryLink('합')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('사전이 오류면 링크만 숨기고 본문은 그립니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const ExplainSheet(
+            content: ExplainUiText(title: '합', body: '설명이에요'),
+            diaryLinkTag: 'hap',
+          ),
+          glossary: () async => throw StateError('실패'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(SentenceBlock), findsOneWidget);
+      expect(find.textContaining('내 일기 보기'), findsNothing);
+    });
+
     testWidgets('diaryLinkTag가 없으면 링크가 없습니다', (tester) async {
       await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
       await tester.pumpAndSettle();

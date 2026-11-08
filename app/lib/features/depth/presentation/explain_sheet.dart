@@ -47,6 +47,23 @@ class ExplainSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final content = this.content;
+    // 모아보기 링크가 있으면 태그 이름을 알 때까지 기다려, 링크가 뒤늦게 생겨 본문이 밀리지
+    // 않게 합니다. 사전을 못 받으면(error) 링크만 숨기고 본문은 그립니다.
+    if (diaryLinkTag != null && content is! ExplainTerm) {
+      final glossary = ref.watch(glossaryProvider);
+      return ScreenStateView<void>(
+        value: glossary.isLoading
+            ? const AsyncLoading<void>()
+            : const AsyncData<void>(null),
+        onRetry: () => ref.invalidate(glossaryProvider),
+        dataWithNotice: (_, _) => _plain(context, ref, content),
+      );
+    }
+    return _plain(context, ref, content);
+  }
+
+  Widget _plain(BuildContext context, WidgetRef ref, ExplainContent content) {
     return switch (content) {
       final ExplainTerm term => _buildTerm(context, ref, term),
       final ExplainUiText ui => _body(
