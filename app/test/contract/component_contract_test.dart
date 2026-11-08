@@ -38,6 +38,7 @@ import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
@@ -1298,6 +1299,14 @@ void main() {
       expect(b['legend']!['lines'], 1);
     });
 
+    test('luck-pillar: 뼈는 칸 둘(ohaeng.cell 칸)과 십성 칩 36, 변형 column, compact', () {
+      final b = bones('luck-pillar');
+      expect(b.keys, ['cells', 'tenGods']);
+      expect(b['cells']!['count'], 2);
+      expect(b['tenGods']!['width'], '36px');
+      expect(LuckPillar.spec.variants, {'column', 'compact'});
+    });
+
     testWidgets('각 컴포넌트 뼈가 계약 뼈 수만큼 그립니다', (tester) async {
       Future<int> count(Widget skeleton) async {
         await tester.pumpWidget(
@@ -1332,6 +1341,8 @@ void main() {
         2 * 2,
       );
       expect(await count(OhaengBar.skeleton()), 2);
+      // 칸 둘, 십성 칩.
+      expect(await count(LuckPillar.skeleton()), 3);
       for (final variant in SentenceBlockVariant.values) {
         expect(
           await count(SentenceBlock.skeleton(variant: variant)),
