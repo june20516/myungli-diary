@@ -48,6 +48,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -1178,6 +1179,27 @@ void main() {
         for (final width in chip['widths']! as List<Object?>) px(width),
       ], LuckyCardRow.skeletonChipWidths);
       expect(chip['gap'], '{space.8}');
+    });
+
+    test('lucky-card: 칩 안 간격 space.4, 테두리 1px와 열림 1.5px', () {
+      final spec = loadSpecComponents()['lucky-card']!;
+      final chip = _map(_map(spec['parts'])['chip']);
+      expect(chip['gap'], '{space.4}');
+      expect(Space.s4, 4);
+      expect(_px(_map(_map(chip['border'])['width'])), 1);
+      expect(chip['bg'], '{color.bg.sheet}');
+    });
+
+    test('tag-sentence-list: diaryLink 간격과 꺾쇠 gap이 구현 상수와 같습니다', () {
+      final spec = loadSpecComponents()['tag-sentence-list']!;
+      final link = _map(_map(spec['parts'])['diaryLink']);
+      expect(link['marginTop'], '{space.16}');
+      expect(TagSentenceList.diaryLinkGap, Space.s16);
+      expect(_map(link['chevron'])['gap'], '{space.2}');
+      expect(TagSentenceList.chevronGap, Space.s2);
+      expect(_map(link['label'])['type'], '{type.label.lg}');
+      expect(_map(link['label'])['fg'], '{color.action.primary}');
+      expect(link['minTarget'], 44);
     });
 
     test('tag-chip: 칩 하나 56px', () {

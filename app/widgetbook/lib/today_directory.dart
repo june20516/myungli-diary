@@ -152,6 +152,8 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 TagSentenceList(
                   title: '이 기운에서 나온 오늘 문장',
                   emptyText: '오늘은 이 기운으로 정해진 문장이 없어요.',
+                  diaryLinkLabel: '천을귀인 태그가 붙은 일기 보기',
+                  onDiaryLink: () {},
                   items: [
                     TagSentence(
                       kindLabel: '보조 문장',
@@ -167,10 +169,12 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
             WidgetbookUseCase(
               name: '문장 없음',
               builder: (context) => _stage360(
-                const TagSentenceList(
+                TagSentenceList(
                   title: '이 기운에서 나온 오늘 문장',
                   emptyText: '오늘은 이 기운으로 정해진 문장이 없어요.',
-                  items: [],
+                  diaryLinkLabel: '천을귀인 태그가 붙은 일기 보기',
+                  onDiaryLink: () {},
+                  items: const [],
                 ),
               ),
             ),

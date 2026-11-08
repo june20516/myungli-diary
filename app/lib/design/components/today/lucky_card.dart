@@ -118,7 +118,8 @@ class LuckyChip extends StatelessWidget {
   ];
 
   static const double _height = 34;
-  static const double _gap = 6;
+  // 계약 `lucky-card.parts.chip.gap` {space.4}.
+  static const double _gap = Space.s4;
   static const double _swatchSize = 14;
   // 계약 `lucky-card.parts.chip.border.width` 1px.
   static const double _border = 1;

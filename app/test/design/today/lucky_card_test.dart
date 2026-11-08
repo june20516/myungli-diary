@@ -228,7 +228,7 @@ void main() {
       expect((decoration.border! as Border).top.width, 1);
     });
 
-    testWidgets('칩 높이 34 안쪽 여백 12·아이콘과 값 사이 6', (tester) async {
+    testWidgets('칩 높이 34 안쪽 여백 12·아이콘과 값 사이 4', (tester) async {
       await tester.pumpWidget(_app());
       final chip = tester.getRect(
         find.descendant(
@@ -249,7 +249,7 @@ void main() {
         ),
       );
       expect(icon.left - chip.left, 12);
-      expect(value.left - icon.right, 6);
+      expect(value.left - icon.right, 4);
       expect(chip.right - value.right, 12);
       expect(chip.height, 34);
     });

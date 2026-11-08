@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -11,6 +12,7 @@ import '../input/input_harness.dart';
 RenderedText _text(String value) =>
     RenderedText(segments: [Segment(text: value)]);
 
+const _link = '천을귀인 태그가 붙은 일기 보기';
 const _title = '이 기운에서 나온 오늘 문장';
 const _empty = '오늘은 이 기운으로 정해진 문장이 없어요.';
 const _fortune = '어려울 때 도와주는 사람이 곁에 오는 날이에요.';
@@ -21,7 +23,7 @@ List<TagSentence> _items() => [
   TagSentence(kindLabel: '오늘의 질문', text: _text(_question)),
 ];
 
-Widget _app({List<TagSentence>? items}) => inputApp(
+Widget _app({List<TagSentence>? items, VoidCallback? onLink}) => inputApp(
   Align(
     alignment: Alignment.topLeft,
     child: SizedBox(
@@ -30,6 +32,8 @@ Widget _app({List<TagSentence>? items}) => inputApp(
         title: _title,
         items: items ?? _items(),
         emptyText: _empty,
+        diaryLinkLabel: _link,
+        onDiaryLink: onLink ?? () {},
       ),
     ),
   ),
@@ -131,8 +135,15 @@ void main() {
           items: [TagSentence(kindLabel: '보조 문장', text: termText)],
         ),
       );
-      expect(find.byType(InkWell), findsNothing);
-      expect(find.byType(GestureDetector), findsNothing);
+      final sentence = find.byType(SentenceBlock);
+      expect(
+        find.descendant(of: sentence, matching: find.byType(InkWell)),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: sentence, matching: find.byType(GestureDetector)),
+        findsNothing,
+      );
     });
 
     testWidgets('접근성: 머리는 header이고 줄은 이름 칸과 문장을 한 덩어리로 읽습니다', (tester) async {
@@ -151,6 +162,52 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       await tester.pumpWidget(_app());
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('출구 링크는 문장이 없어도 늘 보이고 누르면 콜백이 불립니다', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(_app(items: const [], onLink: () => taps++));
+      expect(find.text(_link), findsOneWidget);
+      await tester.tap(find.byKey(TagSentenceList.diaryLinkKey));
+      await tester.pumpAndSettle();
+      expect(taps, 1);
+    });
+
+    testWidgets(
+      '출구 링크: 위 간격 16, label.lg action.primary, 꺾쇠는 글자 뒤 space.2, 터치 44',
+      (tester) async {
+        await tester.pumpWidget(_app());
+        final tokens = tester.element(find.byType(TagSentenceList)).tokens;
+        final text = tester.widget<Text>(find.text(_link));
+        expect(text.style?.fontSize, tokens.typography.labelLg.fontSize);
+        expect(text.style?.color, tokens.colors.actionPrimary);
+        final lastSentence = tester.getBottomLeft(
+          find.text(_question, findRichText: true),
+        );
+        final link = tester.getRect(find.text(_link));
+        // 마지막 줄 아래 안쪽 여백 12 + marginTop 16, 글자 상자 위까지.
+        expect(link.top - lastSentence.dy, greaterThanOrEqualTo(12 + 16));
+        final icon = tester.getRect(find.byType(Icon));
+        expect(icon.left - link.right, TagSentenceList.chevronGap);
+        // 보이는 높이는 글자 줄이지만 눌림 영역은 위로 44까지 넓습니다.
+        var taps = 0;
+        await tester.pumpWidget(_app(onLink: () => taps++));
+        final rect = tester.getRect(find.byKey(TagSentenceList.diaryLinkKey));
+        await tester.tapAt(Offset(rect.center.dx, rect.top - 10));
+        // 아래쪽은 이 목록의 끝이라 부모 경계 밖이고, 시트 아래 여백이 받습니다.
+        expect(taps, 1);
+      },
+    );
+
+    testWidgets('출구 링크는 link로 읽히고 꺾쇠는 읽지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app());
+      final data = tester
+          .getSemantics(find.byKey(TagSentenceList.diaryLinkKey))
+          .getSemanticsData();
+      expect(data.label, _link);
+      expect(data.flagsCollection.isLink, isTrue);
+      handle.dispose();
     });
 
     test('ComponentSpec은 변형 없이 empty, pressed 상태를 가집니다', () {
