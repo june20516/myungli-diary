@@ -126,6 +126,9 @@ class SectionHeader extends StatelessWidget {
               if (trailing is SectionHeaderActionWidget)
                 // 좋아요 같은 위젯은 제 폭을 지킵니다(자르지 않음).
                 trailing.child
+              else if (trailing is SectionHeaderAction)
+                // 터치가 배치 밖으로 넓어지려면 위 상자가 줄이지 않아야 합니다(그림은 24).
+                _buildTrailing(context, trailing)
               else if (trailing != null)
                 // 오른쪽 자리가 폭 절반을 넘으면 줄바꿈해 제목 자리를 지킵니다.
                 ConstrainedBox(
@@ -186,9 +189,10 @@ class SectionHeader extends StatelessWidget {
         );
       }(),
       SectionHeaderAction(:final icon, :final semanticLabel, :final onTap) =>
-        // 그림 24를 끝선에 맞추고 터치 44는 배치 밖으로 넓힙니다(depth-link layoutWidth와 같은 원칙).
+        // 그림 24의 오른쪽 끝을 끝선에 맞추고 터치 44는 왼쪽으로만 넓힙니다(오른쪽 밖은 부모 경계).
         VerticalHitSlop(
           minWidth: minTarget,
+          widenStartOnly: true,
           child: PressInkTarget(
             semanticLabel: semanticLabel,
             onTap: onTap,

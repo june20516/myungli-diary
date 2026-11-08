@@ -156,7 +156,10 @@ class MyungliAppBar extends StatelessWidget {
   Widget _buildEdit(BuildContext context, AppBarTextAction action) {
     final tokens = context.tokens;
     final prefs = MotionPrefs.of(context);
-    const centerKey = ValueKey('app-bar.center.title');
+    // 지금 보여야 할 쪽(들어오는 쪽)의 키.
+    final centerKey = ValueKey(
+      status == null ? 'app-bar.center.title' : 'app-bar.center.status',
+    );
     final titleNode = Semantics(
       identifier: titleIdentifier,
       header: true,

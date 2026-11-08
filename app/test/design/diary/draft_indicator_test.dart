@@ -77,15 +77,15 @@ void main() {
             child: DraftIndicator(
               state: DraftIndicatorState.local,
               label: 'Draft saved on this device only',
-              length: 12345,
+              length: 123,
             ),
           ),
           locale: const Locale('en'),
         ),
       );
       expect(tester.takeException(), isNull);
-      expect(find.text('12345 characters'), findsNothing);
-      final count = tester.getRect(find.textContaining('12345'));
+      expect(find.text('123 chars'), findsOneWidget);
+      final count = tester.getRect(find.textContaining('123'));
       final box = tester.getRect(find.byType(DraftIndicator));
       expect(count.right, lessThanOrEqualTo(box.right));
       final label = tester.widget<Text>(

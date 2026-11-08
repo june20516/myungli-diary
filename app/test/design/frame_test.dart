@@ -1753,11 +1753,15 @@ void main() {
       expect(find.byIcon(PhosphorIconsLight.plus), findsOneWidget);
       await tester.tap(find.byIcon(PhosphorIconsLight.plus));
       expect(taps, 1);
-      // 그림 24가 부모 내용 끝선에 닿고, 터치 44는 그 바깥으로 넓어집니다.
+      // 그림 24의 오른쪽 끝이 끝선(부모 내용 끝)에 닿고, 터치 44는 왼쪽으로만 넓어집니다.
       expect(tester.getSize(find.byIcon(PhosphorIconsLight.plus)).width, 24);
       expect(tester.getTopRight(find.byIcon(PhosphorIconsLight.plus)).dx, 360);
       final iconRect = tester.getRect(find.byIcon(PhosphorIconsLight.plus));
-      await tester.tapAt(iconRect.centerLeft - const Offset(8, 0));
+      await tester.tapAt(iconRect.centerLeft - const Offset(15, 0));
+      expect(taps, 2);
+      await tester.tapAt(iconRect.centerLeft - const Offset(25, 0));
+      expect(taps, 2);
+      await tester.tapAt(iconRect.centerRight + const Offset(8, 0));
       expect(taps, 2);
       handle.dispose();
     });
@@ -1867,22 +1871,51 @@ void main() {
       expect(controller.offset, 400);
     });
 
-    testWidgets('컨트롤러를 바꾸면 새 위치로 다시 셉니다', (tester) async {
-      final first = ScrollController();
+    testWidgets('컨트롤러를 바꾸면 옛 리스너를 풀고 새 컨트롤러로 다시 셉니다', (tester) async {
+      final first = ScrollController(initialScrollOffset: 700);
       final second = ScrollController();
       addTearDown(first.dispose);
       addTearDown(second.dispose);
-      Widget build(ScrollController c) => hint(c);
-      await tester.pumpWidget(build(first));
-      await tester.pump();
-      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 0);
-      await tester.pumpWidget(build(second));
-      await tester.pumpAndSettle();
-      // 새 컨트롤러의 스크롤을 듣고, 옛 컨트롤러는 더 듣지 않습니다.
-      second.jumpTo(700);
+      await tester.pumpWidget(hint(first));
       await tester.pumpAndSettle();
       expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 1);
       expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleRight), 0);
+      // 리스너 해제 확인용으로 보호된 hasListeners를 읽습니다.
+      // ignore: invalid_use_of_protected_member
+      expect(first.hasListeners, isTrue);
+      await tester.pumpWidget(hint(second));
+      await tester.pumpAndSettle();
+      // 리스너 해제 확인용으로 보호된 hasListeners를 읽습니다.
+      // ignore: invalid_use_of_protected_member
+      expect(first.hasListeners, isFalse);
+      // 리스너 해제 확인용으로 보호된 hasListeners를 읽습니다.
+      // ignore: invalid_use_of_protected_member
+      expect(second.hasListeners, isTrue);
+      // 새 컨트롤러가 이어받은 끝 쪽 위치로 다시 센 상태입니다.
+      expect(second.offset, 700);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleLeft), 1);
+      expect(_arrowOpacity(tester, PhosphorIconsLight.caretDoubleRight), 0);
+    });
+
+    testWidgets('화살표가 바뀌면 한 프레임 뒤 투명도가 0과 1 사이입니다(seep)', (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(hint(controller));
+      await tester.pump();
+      controller.jumpTo(300);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      final fade = tester.widget<FadeTransition>(
+        find
+            .ancestor(
+              of: find.byIcon(PhosphorIconsLight.caretDoubleLeft),
+              matching: find.byType(FadeTransition),
+            )
+            .first,
+      );
+      expect(fade.opacity.value, inExclusiveRange(0, 1));
+      await tester.pumpAndSettle();
+      expect(fade.opacity.value, 1);
     });
 
     testWidgets('움직임 줄이기: 바로 그 자리로 넘어갑니다', (tester) async {
@@ -1968,36 +2001,59 @@ void main() {
       expect(find.byType(DraftIndicator), findsNothing);
     });
 
-    testWidgets('제목에서 status로: 들어오는 쪽 appear.seep, 나가는 쪽 disappear.seep', (
+    double alphaOf(WidgetTester tester, String key) => tester
+        .widget<Opacity>(
+          find
+              .ancestor(
+                of: find.byKey(ValueKey('app-bar.center.$key')),
+                matching: find.byType(Opacity),
+              )
+              .first,
+        )
+        .opacity;
+
+    const indicator = DraftIndicator(
+      state: DraftIndicatorState.local,
+      label: '임시 저장됨',
+    );
+
+    testWidgets('제목에서 status로: 들어오는 status는 0에서 올라가고 제목은 1에서 내려갑니다', (
       tester,
     ) async {
       await tester.pumpWidget(bar());
-      await tester.pumpWidget(
-        bar(
-          status: const DraftIndicator(
-            state: DraftIndicatorState.local,
-            label: '임시 저장됨',
-          ),
-        ),
-      );
-      await tester.pump();
+      await tester.pumpWidget(bar(status: indicator));
+      expect(alphaOf(tester, 'status'), 0);
+      expect(alphaOf(tester, 'title'), 1);
       await tester.pump(const Duration(milliseconds: 100));
-      double alpha(String key) => tester
-          .widget<Opacity>(
-            find
-                .ancestor(
-                  of: find.byKey(ValueKey('app-bar.center.$key')),
-                  matching: find.byType(Opacity),
-                )
-                .first,
-          )
-          .opacity;
-      final incoming = alpha('status');
-      final outgoing = alpha('title');
+      final incoming = alphaOf(tester, 'status');
+      final outgoing = alphaOf(tester, 'title');
       expect(incoming, inExclusiveRange(0, 1));
       expect(outgoing, inExclusiveRange(0, 1));
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(alphaOf(tester, 'status'), greaterThan(incoming));
+      expect(alphaOf(tester, 'title'), lessThan(outgoing));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('app-bar.center.title')), findsNothing);
+    });
+
+    testWidgets('status에서 제목으로: 들어오는 제목은 0에서 올라가고 status는 1에서 내려갑니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(bar(status: indicator));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(bar());
+      expect(alphaOf(tester, 'title'), 0);
+      expect(alphaOf(tester, 'status'), 1);
+      await tester.pump(const Duration(milliseconds: 100));
+      final incoming = alphaOf(tester, 'title');
+      final outgoing = alphaOf(tester, 'status');
+      expect(incoming, inExclusiveRange(0, 1));
+      expect(outgoing, inExclusiveRange(0, 1));
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(alphaOf(tester, 'title'), greaterThan(incoming));
+      expect(alphaOf(tester, 'status'), lessThan(outgoing));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('app-bar.center.status')), findsNothing);
     });
 
     testWidgets('머리 이름은 status가 있어도 화면 제목입니다', (tester) async {

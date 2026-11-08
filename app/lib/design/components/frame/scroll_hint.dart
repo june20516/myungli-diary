@@ -219,7 +219,6 @@ class _Arrow extends StatelessWidget {
       child: IgnorePointer(
         ignoring: !visible,
         child: AnimatedOpacity(
-          key: ValueKey('scroll-hint.arrow.${visible ? 'on' : 'off'}'),
           opacity: visible ? 1 : 0,
           duration: duration,
           child: PressInkTarget(
