@@ -18,7 +18,6 @@ import 'package:myungli_diary/design/components/feedback/live_announcement.dart'
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
-import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -237,7 +236,9 @@ void main() {
       expect(results, [false]);
     });
 
-    testWidgets('destructive: 경고 표시가 제목 앞에 있고 빨간색이 없습니다', (tester) async {
+    testWidgets('destructive: 경고 표시는 제목 앞에만 있고 확정은 본문색 바탕 버튼입니다', (
+      tester,
+    ) async {
       await open(tester, DialogVariant.destructive);
       final icon = tester.widget<Icon>(
         find.descendant(
@@ -246,12 +247,126 @@ void main() {
         ),
       );
       expect(icon.icon, const AppIcon.caution().icon.light);
+      expect(icon.size, 20, reason: '제목 앞 경고 표시는 20 고정');
       final tokens = tester.element(find.byType(DialogCard)).tokens;
-      final confirm = tester.widget<Text>(find.text('지우기'));
-      expect(confirm.style!.color, tokens.colors.textPrimary);
-      expect(confirm.style!.fontWeight, FontWeight.w700);
-      final cancel = tester.widget<Text>(find.text('취소'));
-      expect(cancel.style!.color, tokens.colors.actionPrimary);
+      final confirm = tester.widget<PrimaryButton>(
+        find.byKey(DialogCard.confirmKey),
+      );
+      expect(confirm.variant, PrimaryButtonVariant.destructive);
+      expect(confirm.showCaution, isFalse, reason: '버튼 글자 앞에는 경고 표시 없음(V65)');
+      final face = tester.widget<DecoratedBox>(
+        find.descendant(
+          of: find.byKey(DialogCard.confirmKey),
+          matching: find.byType(DecoratedBox),
+        ),
+      );
+      expect(
+        (face.decoration as BoxDecoration).color,
+        tokens.colors.textPrimary,
+      );
+    });
+
+    testWidgets('ko: 두 버튼은 같은 폭, 높이 44, 사이 8, 취소가 왼쪽입니다', (tester) async {
+      await open(tester, DialogVariant.destructive);
+      final cancel = tester.getRect(find.byKey(DialogCard.cancelKey));
+      final confirm = tester.getRect(find.byKey(DialogCard.confirmKey));
+      expect(cancel.width, confirm.width);
+      expect(cancel.height, 44);
+      expect(confirm.height, 44);
+      expect(confirm.left - cancel.right, 8);
+      expect(cancel.top, confirm.top);
+      final card = tester.getRect(find.byType(DialogCard));
+      expect(cancel.left - card.left, Space.s24);
+      expect(card.right - confirm.right, Space.s24);
+      expect(card.left, Space.s24, reason: '좌우 바깥 여백 24');
+    });
+
+    testWidgets('취소 바탕은 fill.soft이고 다크에서는 라이트와 다른 값입니다', (tester) async {
+      for (final brightness in Brightness.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: _navigatorKey,
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: buildTheme(
+              brightness: brightness,
+              locale: const Locale('ko'),
+            ),
+            home: const Scaffold(body: SizedBox.expand()),
+          ),
+        );
+        unawaited(
+          showMyungliDialog(
+            _navigatorKey.currentContext!,
+            variant: DialogVariant.confirm,
+            title: '제목',
+            confirm: '확인',
+            cancel: '취소',
+          ),
+        );
+        await tester.pumpAndSettle();
+        final tokens = tester.element(find.byType(DialogCard)).tokens;
+        final bar = tester.widget<DecoratedBox>(
+          find.descendant(
+            of: find.byKey(DialogCard.cancelKey),
+            matching: find.byType(DecoratedBox),
+          ),
+        );
+        expect(
+          (bar.decoration as BoxDecoration).color,
+          tokens.colors.fillSoft,
+          reason: brightness.name,
+        );
+        await tester.tap(find.byKey(DialogCard.cancelKey));
+        await tester.pumpAndSettle();
+      }
+      expect(
+        buildTheme(
+          brightness: Brightness.dark,
+          locale: const Locale('ko'),
+        ).extension<MyungliTokens>()!.colors.fillSoft,
+        isNot(
+          buildTheme(
+            brightness: Brightness.light,
+            locale: const Locale('ko'),
+          ).extension<MyungliTokens>()!.colors.fillSoft,
+        ),
+      );
+    });
+
+    testWidgets('ja + 글자 배율 2.0: 세로로 쌓이고 확정이 위입니다(Review Focus 1)', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 844),
+            textScaler: TextScaler.linear(2),
+          ),
+          child: _app(const SizedBox.expand(), locale: const Locale('ja')),
+        ),
+      );
+      unawaited(
+        showMyungliDialog(
+          _navigatorKey.currentContext!,
+          variant: DialogVariant.destructive,
+          title: '日記を削除しますか?',
+          body: '削除すると元に戻せません。',
+          confirm: '削除する',
+          cancel: 'キャンセル',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final cancel = tester.getRect(find.byKey(DialogCard.cancelKey));
+      final confirm = tester.getRect(find.byKey(DialogCard.confirmKey));
+      expect(confirm.bottom + 8, cancel.top, reason: '확정이 위, 사이 8');
+      expect(confirm.left, cancel.left);
+      expect(confirm.width, cancel.width);
     });
 
     testWidgets('confirm에는 경고 표시가 없습니다', (tester) async {
@@ -356,34 +471,28 @@ void main() {
         return closed;
       }
 
-      testWidgets('확인 버튼 하나뿐이고 오른쪽 끝에 놓이며 처음 초점을 받습니다', (tester) async {
+      testWidgets('확인 버튼 하나뿐이고 폭 전체이며 처음 초점을 받습니다', (tester) async {
         await openNotice(tester);
         final card = find.byType(DialogCard);
-        expect(
-          find.descendant(of: card, matching: find.byType(FeedbackTextAction)),
-          findsOneWidget,
-        );
+        expect(find.byType(PrimaryButton), findsOneWidget);
+        expect(find.byKey(DialogCard.cancelKey), findsNothing);
         expect(
           Focus.of(tester.element(find.text('확인'))).hasPrimaryFocus,
           isTrue,
         );
-        // 확인 버튼은 카드 안쪽 여백(space.24)만큼 떨어진 오른쪽 끝입니다.
-        final confirmRight = tester
-            .getTopRight(
-              find
-                  .ancestor(
-                    of: find.text('확인'),
-                    matching: find.byType(FeedbackTextAction),
-                  )
-                  .first,
-            )
-            .dx;
-        expect(confirmRight, tester.getTopRight(card).dx - Space.s24);
-        // confirm과 같은 모양(action.primary, 굵게 하지 않음), 경고 표시 없음.
-        final tokens = tester.element(card).tokens;
-        final confirm = tester.widget<Text>(find.text('확인'));
-        expect(confirm.style!.color, tokens.colors.actionPrimary);
-        expect(confirm.style!.fontWeight, isNot(FontWeight.w700));
+        // 확인 버튼은 카드 안쪽 여백(space.24)을 뺀 폭 전체입니다.
+        final confirm = tester.getRect(find.byKey(DialogCard.confirmKey));
+        final cardRect = tester.getRect(card);
+        expect(confirm.left, cardRect.left + Space.s24);
+        expect(confirm.right, cardRect.right - Space.s24);
+        expect(confirm.height, 44);
+        // confirm의 확정 버튼과 같은 모양(filled), 경고 표시 없음.
+        expect(
+          tester
+              .widget<PrimaryButton>(find.byKey(DialogCard.confirmKey))
+              .variant,
+          PrimaryButtonVariant.filled,
+        );
         expect(
           find.descendant(of: card, matching: find.byType(Icon)),
           findsNothing,

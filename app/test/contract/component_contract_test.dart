@@ -782,7 +782,7 @@ void main() {
       expect(DiaryEntryLine.chevronGap, Space.s8);
     });
 
-    test('offer-card 부품 값(바탕·radius·padding·아이콘 sparkle 28·간격 12/16/20/12)이 명세와 같다', () {
+    test('offer-card 부품 값(바탕·radius·padding·아이콘 sparkle 28·간격 12/16/24/12)이 명세와 같다', () {
       final offer = specs['offer-card']!;
       final parts = _map(offer['parts']);
       final container = _map(parts['container']);
@@ -795,7 +795,7 @@ void main() {
       final icon = _map(parts['icon']);
       expect(icon['name'], 'sparkle');
       expect(icon['weight'], 'light');
-      expect(_px(icon['size']), OfferCard.iconSize);
+      expect(icon['size'], '{size.icon.28}');
       expect(OfferCard.iconSize, AppIconSize.s28.logical);
       expect(OfferCard.iconSize, 28);
       expect(icon['color'], '{color.action.primary}');
@@ -818,8 +818,8 @@ void main() {
       expect(_map(parts['status'])['element'], 'tag.status');
       expect(_map(parts['remaining'])['type'], '{type.body.ui}');
       expect(_map(parts['remaining'])['fontFeatures'], ['tnum']);
-      expect(_map(parts['buy'])['marginTop'], '{space.20}');
-      expect(OfferCard.buyGap, Space.s20);
+      expect(_map(parts['buy'])['marginTop'], '{space.24}');
+      expect(OfferCard.buyGap, Space.s24);
       expect(_map(parts['legal'])['type'], '{type.caption.md}');
       expect(_map(parts['legal'])['marginTop'], '{space.12}');
       expect(OfferCard.legalGap, Space.s12);

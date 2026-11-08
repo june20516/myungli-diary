@@ -1,3 +1,5 @@
+import 'dart:ui' show CheckedState;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
@@ -21,6 +23,16 @@ Widget _row(
   toggled: toggled,
   onTap: onTap,
   onToggle: onToggle,
+);
+
+const AppGlyph _bell = AppGlyph(
+  light: PhosphorIconsLight.bell,
+  regular: PhosphorIconsRegular.bell,
+);
+
+const AppGlyph _trash = AppGlyph(
+  light: PhosphorIconsLight.trash,
+  regular: PhosphorIconsRegular.trash,
 );
 
 Color? _labelColor(WidgetTester tester) =>
@@ -91,22 +103,102 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('destructive: 경고 표시와 굵은 글자, 화살표 없음', (tester) async {
+    testWidgets('destructive: 경고 표시 없이 자기 아이콘(Regular)과 600 글자, 화살표 없음', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        inputApp(_row(SettingsRowVariant.destructive, onTap: () {})),
+        inputApp(
+          SettingsRow(
+            variant: SettingsRowVariant.destructive,
+            label: '알림 시각',
+            leading: _trash,
+            onTap: () {},
+          ),
+        ),
       );
       expect(
         find.byWidgetPredicate(
           (w) =>
               w is AppIcon && w.icon.light == PhosphorIconsFill.warningCircle,
         ),
-        findsOneWidget,
+        findsNothing,
       );
+      final leading = tester.widget<AppIcon>(
+        find.byKey(SettingsRow.leadingKey),
+      );
+      expect(leading.weight, AppIconWeight.regular);
       expect(find.byKey(SettingsRow.chevronKey), findsNothing);
       expect(
         tester.widget<Text>(find.text('알림 시각')).style?.fontWeight,
         FontWeight.w600,
       );
+    });
+
+    testWidgets('leading: 20 Light 고정(글자 배율 무시), 글자와 사이 12', (tester) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: inputApp(
+            SettingsRow(
+              variant: SettingsRowVariant.navigate,
+              label: '알림 시각',
+              leading: _bell,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+      final leading = tester.widget<AppIcon>(
+        find.byKey(SettingsRow.leadingKey),
+      );
+      expect(leading.weight, AppIconWeight.light);
+      expect(leading.scalesWithText, isFalse);
+      final iconRect = tester.getRect(find.byKey(SettingsRow.leadingKey));
+      expect(iconRect.size, const Size.square(20));
+      expect(tester.getRect(find.text('알림 시각')).left - iconRect.right, 12);
+    });
+
+    testWidgets('select: 꺾쇠 없이 고른 줄 끝에만 체크(Regular 20), 라디오로 읽습니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(
+          Column(
+            children: [
+              SettingsRow(
+                variant: SettingsRowVariant.select,
+                label: '한국어',
+                selected: true,
+                onTap: () {},
+              ),
+              SettingsRow(
+                variant: SettingsRowVariant.select,
+                label: 'English',
+                onTap: () {},
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(find.byKey(SettingsRow.chevronKey), findsNothing);
+      expect(find.byKey(SettingsRow.checkKey), findsOneWidget);
+      final context = tester.element(find.byType(Column).first);
+      final check = tester.widget<AppIcon>(find.byKey(SettingsRow.checkKey));
+      expect(check.weight, AppIconWeight.regular);
+      expect(check.size, AppIconSize.s20);
+      expect(check.color, context.tokens.colors.actionPrimary);
+      final checked = tester
+          .getSemantics(find.bySemanticsLabel('한국어'))
+          .getSemanticsData();
+      expect(checked.flagsCollection.isChecked, CheckedState.isTrue);
+      expect(checked.flagsCollection.isInMutuallyExclusiveGroup, isTrue);
+      expect(checked.flagsCollection.isButton, isFalse);
+      final other = tester
+          .getSemantics(find.bySemanticsLabel('English'))
+          .getSemanticsData();
+      expect(other.flagsCollection.isChecked, CheckedState.isFalse);
+      handle.dispose();
     });
 
     testWidgets('disabled: 글자 disabled.fg, 눌러도 아무 일 없음', (tester) async {

@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
-import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
@@ -18,7 +19,7 @@ enum DialogVariant {
   /// 일반 확인.
   confirm,
 
-  /// 되돌릴 수 없는 동작(일기 삭제, 계정 삭제). 빨간색 없이 경고 표시와 굵은 확정 글자로 구분합니다.
+  /// 되돌릴 수 없는 동작(일기 삭제, 계정 삭제). 빨간색 없이 제목 앞 경고 표시와 본문색 바탕 확정 버튼으로 구분합니다.
   destructive,
 
   /// 고를 것 없이 읽었다는 확인만 받는 안내(`login.discard.notice`). 확인 버튼 하나이고,
@@ -36,7 +37,7 @@ abstract final class MyungliDialog {
   );
 
   /// 좌우 바깥 여백(px).
-  static const double marginX = 28;
+  static const double marginX = Space.s24;
 }
 
 /// 확인 창을 열고 확정이면 true, 취소·바깥 누르기·뒤로 가기면 false를 돌려줍니다.
@@ -264,22 +265,20 @@ class DialogCard extends StatelessWidget {
   /// 취소 버튼 글자(notice는 없음).
   final String? cancel;
 
+  /// 취소 버튼을 찾는 테스트용 키.
+  static const Key cancelKey = ValueKey('dialog-cancel');
+
+  /// 확정 버튼을 찾는 테스트용 키.
+  static const Key confirmKey = ValueKey('dialog-confirm');
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final destructive = variant == DialogVariant.destructive;
     final title = this.title;
-    final cancel = this.cancel;
     final titleStyle = tokens.typography.subtitle.copyWith(
       color: colors.textPrimary,
-    );
-    final confirmStyle = tokens.typography.labelLg.copyWith(
-      color: destructive ? colors.textPrimary : colors.actionPrimary,
-      fontWeight: destructive ? FontWeight.w700 : null,
-    );
-    final cancelStyle = tokens.typography.labelLg.copyWith(
-      color: destructive ? colors.actionPrimary : colors.textSecondary,
     );
 
     return Semantics(
@@ -336,31 +335,154 @@ class DialogCard extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: Space.s20),
-              Wrap(
-                alignment: WrapAlignment.end,
-                spacing: Space.s8,
-                runSpacing: Space.s8,
-                children: [
-                  if (cancel != null)
-                    FeedbackTextAction(
-                      label: cancel,
-                      style: cancelStyle,
-                      onPressed: () => Navigator.of(context).pop(false),
-                    ),
-                  FeedbackTextAction(
-                    label: confirm,
-                    style: confirmStyle,
-                    // 처음 초점은 notice의 확인 버튼만 받습니다(V41).
-                    autofocus: variant == DialogVariant.notice,
-                    onPressed: () {
-                      if (destructive) unawaited(Haptics.medium());
-                      Navigator.of(context).pop(true);
-                    },
-                  ),
-                ],
+              const SizedBox(height: Space.s24),
+              _Actions(
+                cancelLabel: cancel,
+                confirmLabel: confirm,
+                destructive: destructive,
+                autofocusConfirm: variant == DialogVariant.notice,
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 확인 창 버튼 줄(`dialog` `actions`): 같은 폭 두 버튼(취소 왼쪽, 확정 오른쪽), 높이 44,
+/// 사이 `space.8`, 좌우 안쪽 `space.12`(V65).
+///
+/// 두 글자 가운데 하나라도 가로 칸에 한 줄로 들어가지 않으면 세로로 쌓고 확정이 위입니다.
+/// 확정만 있는 notice는 확정 하나가 폭 전체입니다.
+class _Actions extends StatelessWidget {
+  const new({
+    required this.cancelLabel,
+    required this.confirmLabel,
+    required this.destructive,
+    required this.autofocusConfirm,
+  });
+
+  final String? cancelLabel;
+  final String confirmLabel;
+  final bool destructive;
+  final bool autofocusConfirm;
+
+  /// 버튼 줄 너비가 [width]일 때 두 글자가 가로 칸에 한 줄로 들어가는지.
+  bool _fitsSideBySide(BuildContext context, double width) {
+    final cancelLabel = this.cancelLabel;
+    if (cancelLabel == null) return true;
+    final slot = (width - Space.s8) / 2 - Space.s12 * 2;
+    final style = context.tokens.typography.labelLg;
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    double measure(String text) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final textWidth = painter.width;
+      painter.dispose();
+      return textWidth;
+    }
+
+    return measure(cancelLabel) <= slot && measure(confirmLabel) <= slot;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cancelLabel = this.cancelLabel;
+    final confirm = PrimaryButton(
+      key: DialogCard.confirmKey,
+      label: confirmLabel,
+      variant: destructive
+          ? PrimaryButtonVariant.destructive
+          : PrimaryButtonVariant.filled,
+      showCaution: false,
+      compact: true,
+      autofocus: autofocusConfirm,
+      onPressed: () {
+        if (destructive) unawaited(Haptics.medium());
+        Navigator.of(context).pop(true);
+      },
+    );
+    if (cancelLabel == null) return confirm;
+    final cancel = _CancelButton(
+      label: cancelLabel,
+      onPressed: () => Navigator.of(context).pop(false),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!_fitsSideBySide(context, constraints.maxWidth)) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              confirm,
+              const SizedBox(height: Space.s8),
+              cancel,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: cancel),
+            const SizedBox(width: Space.s8),
+            Expanded(child: confirm),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// 취소 버튼: `fill.soft` 바탕에 `text.primary` 글자(`dialog` `cancel`). 흰 확인 창 위에서
+/// 반투명 `chip.bg`는 보이지 않아 옅은 채움을 씁니다(V74).
+class _CancelButton extends StatelessWidget {
+  const new({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    const radius = BorderRadius.all(Radius.circular(Radii.md));
+    final style = tokens.typography.labelLg.copyWith(
+      color: tokens.colors.textPrimary,
+    );
+    return PressInkTarget(
+      key: DialogCard.cancelKey,
+      semanticLabel: label,
+      onTap: onPressed,
+      borderRadius: radius,
+      inkColor: tokens.colors.textPrimary,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: PrimaryButton.compactHeight,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: tokens.colors.fillSoft,
+            borderRadius: radius,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Space.s12,
+              vertical: Space.s8,
+            ),
+            child: Center(
+              heightFactor: 1,
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: style,
+              ),
+            ),
           ),
         ),
       ),

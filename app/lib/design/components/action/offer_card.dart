@@ -117,7 +117,7 @@ class OfferCard extends StatelessWidget {
   /// 약관 안내를 찾는 테스트용 키.
   static const Key legalKey = ValueKey('offer-card-legal');
 
-  /// 카드 안쪽 여백(`parts.container.padding`, `space.20`).
+  /// 카드 안쪽 여백(`parts.container.padding`, `space.24`).
   static const double padding = Space.s20;
 
   /// 아이콘 크기(`parts.icon.size`).
@@ -133,8 +133,8 @@ class OfferCard extends StatelessWidget {
   /// (`PurchaseRowGroup.metaGap`, `space.4`)을 따릅니다.
   static const double periodGap = Space.s4;
 
-  /// 마지막 안내(가격·기간)와 구매 버튼·이용 중 표시 사이(`parts.buy.marginTop`, `space.20`).
-  static const double buyGap = Space.s20;
+  /// 마지막 안내(가격·기간)와 구매 버튼·이용 중 표시 사이(`parts.buy.marginTop`, `space.24`).
+  static const double buyGap = Space.s24;
 
   /// 구매 내역 버튼과 약관 안내 사이(`parts.legal.marginTop`, `space.12`).
   static const double legalGap = Space.s12;

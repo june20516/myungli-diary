@@ -77,7 +77,7 @@ class ErrorState extends StatelessWidget {
       sentence: errorMessage(l10n, error),
       alert: true,
       children: [
-        const SizedBox(height: Space.s20),
+        const SizedBox(height: Space.s24),
         if (onRetry != null)
           PrimaryButton(
             label: l10n.actionRetry,
