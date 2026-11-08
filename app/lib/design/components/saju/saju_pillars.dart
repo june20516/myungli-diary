@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -165,7 +166,7 @@ class _PillarColumn extends StatelessWidget {
             _DayMaster(meLabel: meLabel, child: stem)
           else
             stem,
-          const SizedBox(height: 4),
+          const SizedBox(height: Space.s4),
           branch,
           const SizedBox(height: Space.s4),
           label(column.branchLabel),
@@ -218,7 +219,9 @@ class _DayMaster extends StatelessWidget {
   );
 }
 
-/// 원국표 `loading`: 칸 모양 skeleton(네 기둥 × 천간·지지 칸, 라벨 자리는 짧은 막대).
+/// 원국표 `loading`(`states.loading.skeleton` `cells`): 천간, 지지 칸 자리만 뼈입니다.
+/// 머리 글자(시주, 일주, 월주, 연주)는 UI 글자라 바로 그리고("머리 글자는 바로"), 십성 라벨 줄은
+/// 높이만 지켜 [SajuPillars]와 같은 자리에 칸이 놓입니다.
 ///
 /// [SkeletonBlock]의 `child`로 넣어 쓰면 지연·숨쉬기·스크린리더 라벨을 그대로 받습니다.
 class SajuPillarsSkeleton extends StatelessWidget {
@@ -229,40 +232,55 @@ class SajuPillarsSkeleton extends StatelessWidget {
   final bool animated;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      for (var i = 0; i < 4; i++) ...[
-        if (i > 0) const SizedBox(width: SajuPillars.columnGap),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: SkeletonBone(
-                  height: 12,
-                  width: 28,
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final tokens = context.tokens;
+    final headers = [
+      l10n.sajuPillarHour,
+      l10n.sajuPillarDay,
+      l10n.sajuPillarMonth,
+      l10n.sajuPillarYear,
+    ];
+    const labelRow = SizedBox(height: _PillarColumn._labelRow);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final (i, header) in headers.indexed) ...[
+          if (i > 0) const SizedBox(width: SajuPillars.columnGap),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  header,
+                  textAlign: TextAlign.center,
+                  style: tokens.typography.captionMd.copyWith(
+                    color: tokens.colors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: Space.s4),
+                labelRow,
+                const SizedBox(height: Space.s4),
+                SkeletonBone(
+                  height: OhaengCell.pillarHeight,
+                  borderRadius: Radii.sm,
                   index: i,
                   animated: animated,
                 ),
-              ),
-              const SizedBox(height: Space.s12),
-              SkeletonBone(
-                height: OhaengCell.pillarHeight,
-                borderRadius: Radii.sm,
-                index: i,
-                animated: animated,
-              ),
-              const SizedBox(height: Space.s4),
-              SkeletonBone(
-                height: OhaengCell.pillarHeight,
-                borderRadius: Radii.sm,
-                index: i + 1,
-                animated: animated,
-              ),
-            ],
+                const SizedBox(height: Space.s4),
+                SkeletonBone(
+                  height: OhaengCell.pillarHeight,
+                  borderRadius: Radii.sm,
+                  index: i + 1,
+                  animated: animated,
+                ),
+                const SizedBox(height: Space.s4),
+                labelRow,
+              ],
+            ),
           ),
-        ),
+        ],
       ],
-    ],
-  );
+    );
+  }
 }

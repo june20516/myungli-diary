@@ -70,6 +70,10 @@ class MySajuScreen extends ConsumerWidget {
   /// 일간 표지 칸(`ohaeng.cell`).
   static const Key dayStemKey = ValueKey('my-saju.day-stem');
 
+  /// 일간 칸 너비. 계약(`ohaeng.cell` `sizes.pillar`는 높이만, my-saju 배치)에 근거가 없는
+  /// 지금 배치 값이고, 나 탭 재구성(DS1 계획 Task 14)에서 이 칸과 함께 사라집니다.
+  static const double dayStemWidth = 88;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -164,7 +168,7 @@ class _MySajuBody extends ConsumerWidget {
           ),
         Center(
           child: SizedBox(
-            width: 88,
+            width: MySajuScreen.dayStemWidth,
             child: OhaengCell(
               key: MySajuScreen.dayStemKey,
               element: stemElement(dayStem),
@@ -261,9 +265,6 @@ class _MySajuBody extends ConsumerWidget {
 class _MySajuSkeleton extends StatelessWidget {
   const new();
 
-  /// 일간 칸 너비(본문의 일간 칸과 같음).
-  static const double _dayStemWidth = 88;
-
   /// 용신 줄(역할 이름 + 용신 이름) 뼈 폭 비율.
   static const double _yongsinLineWidthFactor = 0.4;
 
@@ -276,7 +277,7 @@ class _MySajuSkeleton extends StatelessWidget {
       children: [
         const Center(
           child: SkeletonBone(
-            width: _dayStemWidth,
+            width: MySajuScreen.dayStemWidth,
             height: OhaengCell.pillarHeight,
             borderRadius: Radii.sm,
           ),

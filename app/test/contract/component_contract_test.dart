@@ -39,6 +39,7 @@ import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
+import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
@@ -47,6 +48,7 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
@@ -133,22 +135,42 @@ AppIconSize _iconSize(Object? reference) => AppIconSize.values.singleWhere(
   orElse: () => fail('모르는 아이콘 크기 $reference'),
 );
 
+/// 대기 중인 대조의 실패가 기대한 실패(`PendingCheck.failure`가 든 `TestFailure`)인지 봅니다.
+/// 실패하지 않았으면 대기 목록에서 지우라고, 다른 실패면 그 실패를 그대로 알립니다.
+void _expectPendingFailure(String key, PendingCheck pending, Object? failure) {
+  if (failure == null) {
+    fail(
+      '"$key"는 대기(${pending.reason})인데 대조가 통과합니다. '
+      'knownPendingChecks에서 지우세요.',
+    );
+  }
+  if (failure is! TestFailure ||
+      !(failure.message ?? '').contains(pending.failure)) {
+    fail(
+      '"$key"는 대기(${pending.reason})인데 기대한 실패 '
+      '"${pending.failure}"가 아닌 다른 이유로 실패합니다: $failure',
+    );
+  }
+}
+
 /// 대조 [check]를 돌립니다. [key]가 [knownPendingChecks]에 있으면 아직 5.0.0을 따라잡지
-/// 않은 대조라 실패해야 하고, 통과하면 대기 목록에서 지우라고 실패합니다(ratchet).
+/// 않은 대조라 기대한 실패가 나야 하고, 통과하면 대기 목록에서 지우라고 실패합니다(ratchet).
 void _contractCheck(String key, void Function() check) {
   final pending = knownPendingChecks[key];
   if (pending == null) {
     check();
     return;
   }
-  expect(
-    check,
-    throwsA(anything),
-    reason: '"$key"는 대기($pending)인데 대조가 통과합니다. knownPendingChecks에서 지우세요.',
-  );
+  Object? failure;
+  try {
+    check();
+  } on Object catch (error) {
+    failure = error;
+  }
+  _expectPendingFailure(key, pending, failure);
 }
 
-/// [_contractCheck]의 위젯 판. 대기 중이면 [check]가 실패해야 합니다.
+/// [_contractCheck]의 위젯 판.
 Future<void> _contractCheckWidgets(
   String key,
   Future<void> Function() check,
@@ -164,11 +186,7 @@ Future<void> _contractCheckWidgets(
   } on Object catch (error) {
     failure = error;
   }
-  expect(
-    failure,
-    isNotNull,
-    reason: '"$key"는 대기($pending)인데 대조가 통과합니다. knownPendingChecks에서 지우세요.',
-  );
+  _expectPendingFailure(key, pending, failure);
 }
 
 /// 명세 아이콘 이름(kebab-case) → Phosphor Regular 글리프. 대조에 쓰는 것만 둡니다.
@@ -742,7 +760,11 @@ void main() {
             ),
           ),
         );
-        expect(find.byType(HanjaTag), findsOneWidget);
+        expect(
+          find.byType(HanjaTag),
+          findsOneWidget,
+          reason: 'diary-row day group dayKind hanja-tag',
+        );
       });
     });
 
@@ -778,7 +800,11 @@ void main() {
             ),
           ),
         );
-        expect(find.text('일기 머리'), findsNothing);
+        expect(
+          find.text('일기 머리'),
+          findsNothing,
+          reason: 'diary-row entries head',
+        );
       });
     });
 
@@ -1234,6 +1260,36 @@ void main() {
           reason: variant.name,
         );
       }
+    });
+
+    test('saju-pillars: 뼈는 칸(cells)뿐이고 머리 글자는 바로 그립니다', () {
+      final b = bones('saju-pillars');
+      expect(b.keys, ['cells']);
+      expect(b['cells']!['note'], '머리 글자는 바로');
+    });
+
+    testWidgets('saju-pillars: 머리 네 글자는 실제 글자, 뼈는 기둥마다 칸 둘', (tester) async {
+      await tester.pumpWidget(inputApp(const SajuPillarsSkeleton()));
+      final l10n = lookupAppLocalizations(const Locale('ko'));
+      for (final header in [
+        l10n.sajuPillarHour,
+        l10n.sajuPillarDay,
+        l10n.sajuPillarMonth,
+        l10n.sajuPillarYear,
+      ]) {
+        expect(find.text(header), findsOneWidget, reason: header);
+      }
+      final bones = tester.widgetList<SkeletonBone>(find.byType(SkeletonBone));
+      expect(bones, hasLength(4 * 2));
+      for (final bone in bones) {
+        expect(bone.height, OhaengCell.pillarHeight);
+      }
+    });
+
+    test('diary-row: 한 편 카드 태그 위 space.12, 묶음 카드 space.8', () {
+      final parts = _map(specs['diary-row']!['parts']);
+      expect(_map(parts['tag'])['marginTop'], '{space.12}');
+      expect(DiaryRow.tagMarginTop, Space.s12);
     });
 
     test('ohaeng-bar: 막대 전체 폭과 범례 글줄 한 줄', () {

@@ -89,6 +89,10 @@ class DiaryRow extends StatelessWidget {
   /// 묶음 카드에서 마지막 줄 아래 태그 칩까지의 간격(`day.parts.group.tag.marginTop`).
   static const double groupTagMarginTop = Space.s8;
 
+  /// 한 편 카드에서 미리보기와 대표 태그 사이(`parts.tag.marginTop`, `space.12`).
+  /// 두 편 이상 묶음 카드는 [groupTagMarginTop]으로 덮어씁니다.
+  static const double tagMarginTop = Space.s12;
+
   static const double _numberSize = 18;
   static const double _weekdayGap = 4;
   static const double _railWidth = 1.5;
@@ -160,7 +164,7 @@ class DiaryRow extends StatelessWidget {
               variant: SentenceBlockVariant.preview,
               text: RenderedText(segments: [Segment(text: excerpt)]),
             ),
-            if (tag != null) ...[const SizedBox(height: Space.s12), tag],
+            if (tag != null) ...[const SizedBox(height: tagMarginTop), tag],
           ],
         ),
       ),
@@ -506,7 +510,7 @@ class DiaryRowSkeleton extends StatelessWidget {
                         variant: SentenceBlockVariant.preview,
                         index: index + 1,
                       ),
-                      const SizedBox(height: Space.s12),
+                      const SizedBox(height: DiaryRow.tagMarginTop),
                       Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: SkeletonChip(
