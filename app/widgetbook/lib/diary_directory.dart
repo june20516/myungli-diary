@@ -207,14 +207,13 @@ final WidgetbookFolder diaryDirectory = WidgetbookFolder(
           ),
         ),
         WidgetbookUseCase(
-          name: 'entries(그날 시트 머리)',
+          name: 'entries(그날 시트 plain)',
           builder: (context) => Stage(
             child: SizedBox(
               width: 360,
               child: DiaryEntries(
                 entries: _entries(),
                 surface: DiaryEntriesSurface.plain,
-                head: '이날 일기 3편',
               ),
             ),
           ),

@@ -78,11 +78,7 @@ class _EmptyDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return EventRowListEmpty(
-      message: l10n.daySheetEventEmpty,
-      addLabel: l10n.daySheetEventAdd,
-      onAdd: () {},
-    );
+    return EventRowListEmpty(message: l10n.daySheetEventEmpty);
   }
 }
 
