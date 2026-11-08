@@ -19,7 +19,7 @@ class VerticalHitSlop extends SingleChildRenderObjectWidget {
     required super.child,
     this.minHeight = sentenceMinTarget,
     this.minWidth = 0,
-    this.widenStartOnly = false,
+    this.widenLeftOnly = false,
     super.key,
   });
 
@@ -29,15 +29,15 @@ class VerticalHitSlop extends SingleChildRenderObjectWidget {
   /// 눌림 영역의 최소 폭. 자식이 더 좁으면 좌우로 넓힙니다(0이면 넓히지 않음).
   final double minWidth;
 
-  /// true면 폭은 시작(왼쪽) 쪽으로만 넓힙니다(끝선 바깥은 부모 경계라 눌림이 닿지 않음).
-  final bool widenStartOnly;
+  /// true면 폭은 물리적 왼쪽으로만 넓힙니다(오른쪽 끝선 바깥은 부모 경계라 눌림이 닿지 않음. 방향 전환 없음).
+  final bool widenLeftOnly;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
       _RenderVerticalHitSlop(
         minHeight: minHeight,
         minWidth: minWidth,
-        widenStartOnly: widenStartOnly,
+        widenLeftOnly: widenLeftOnly,
       );
 
   @override
@@ -45,19 +45,19 @@ class VerticalHitSlop extends SingleChildRenderObjectWidget {
       (renderObject as _RenderVerticalHitSlop)
         ..minHeight = minHeight
         ..minWidth = minWidth
-        ..widenStartOnly = widenStartOnly;
+        ..widenLeftOnly = widenLeftOnly;
 }
 
 class _RenderVerticalHitSlop extends RenderProxyBox {
   new({
     required this._minHeight,
     required this._minWidth,
-    required this._widenStartOnly,
+    required this._widenLeftOnly,
   });
 
   double _minHeight;
   double _minWidth;
-  bool _widenStartOnly;
+  bool _widenLeftOnly;
 
   // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
   // ignore: avoid_setters_without_getters
@@ -69,14 +69,14 @@ class _RenderVerticalHitSlop extends RenderProxyBox {
 
   // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
   // ignore: avoid_setters_without_getters
-  set widenStartOnly(bool value) => _widenStartOnly = value;
+  set widenLeftOnly(bool value) => _widenLeftOnly = value;
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     final slop = math.max(0, (_minHeight - size.height) / 2);
     final extra = math.max(0, _minWidth - size.width);
-    final slopStart = _widenStartOnly ? extra : extra / 2;
-    final slopEnd = _widenStartOnly ? 0 : extra / 2;
+    final slopStart = _widenLeftOnly ? extra : extra / 2;
+    final slopEnd = _widenLeftOnly ? 0 : extra / 2;
     final inside =
         position.dx >= -slopStart &&
         position.dx < size.width + slopEnd &&

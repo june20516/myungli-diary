@@ -192,7 +192,7 @@ class SectionHeader extends StatelessWidget {
         // 그림 24의 오른쪽 끝을 끝선에 맞추고 터치 44는 왼쪽으로만 넓힙니다(오른쪽 밖은 부모 경계).
         VerticalHitSlop(
           minWidth: minTarget,
-          widenStartOnly: true,
+          widenLeftOnly: true,
           child: PressInkTarget(
             semanticLabel: semanticLabel,
             onTap: onTap,

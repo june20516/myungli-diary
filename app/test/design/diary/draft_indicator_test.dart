@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
+import '../../support/fonts.dart';
 import '../input/input_harness.dart';
 
 Widget _host(Widget child, {Locale locale = const Locale('ko')}) =>
@@ -69,30 +71,58 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('가운데 폭 152에서 상태 글자만 말줄임하고 글자 수는 지킵니다', (tester) async {
-      await tester.pumpWidget(
-        _host(
-          const SizedBox(
-            width: 152,
-            child: DraftIndicator(
-              state: DraftIndicatorState.local,
-              label: 'Draft saved on this device only',
-              length: 123,
+    // 일기 본문 상한(계약 10000자)을 그대로 씁니다.
+    const maxLength = DiaryEditor.defaultMaxLength;
+    // 고정부: 아이콘 16 + 간격 4 + 글자 수 앞 간격 8.
+    const fixedWidth = 16.0 + 4 + 8;
+    // app-bar edit 가운데 폭: 최소 지원 화면 폭 320 - 좌우 여백 16씩 - 양쪽 88.
+    const centerWidth = 320.0 - 16 * 2 - 88 * 2;
+    const longLabel = 'Draft saved on this device only, not yet sent';
+
+    for (final locale in ['ko', 'en', 'ja']) {
+      testWidgets('$locale: 상한 글자 수는 가운데 폭에 들어가고 좁으면 상태 글자만 말줄임합니다', (
+        tester,
+      ) async {
+        await loadBundledFonts();
+        Widget indicator(double width) => _host(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: width,
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: DraftIndicator(
+                  state: DraftIndicatorState.local,
+                  label: longLabel,
+                  length: maxLength,
+                ),
+              ),
             ),
           ),
-          locale: const Locale('en'),
-        ),
-      );
-      expect(tester.takeException(), isNull);
-      expect(find.text('123 chars'), findsOneWidget);
-      final count = tester.getRect(find.textContaining('123'));
-      final box = tester.getRect(find.byType(DraftIndicator));
-      expect(count.right, lessThanOrEqualTo(box.right));
-      final label = tester.widget<Text>(
-        find.text('Draft saved on this device only'),
-      );
-      expect(label.overflow, TextOverflow.ellipsis);
-      expect(label.maxLines, 1);
-    });
+          locale: Locale(locale),
+        );
+        final count = find.textContaining('10000');
+        final label = find.text(longLabel);
+
+        // 넉넉한 폭에서 자연 폭을 잽니다.
+        await tester.pumpWidget(indicator(2000));
+        final countWidth = tester.getSize(count).width;
+        final labelNatural = tester.getSize(label).width;
+
+        // 고정부 + 글자 수가 실제 가운데 폭에 들어갑니다.
+        expect(fixedWidth + countWidth, lessThanOrEqualTo(centerWidth));
+
+        // 고정부 + 글자 수 + 상태 글자 일부 폭으로 좁힙니다.
+        const labelPart = 24.0;
+        await tester.pumpWidget(indicator(fixedWidth + countWidth + labelPart));
+        expect(tester.takeException(), isNull);
+        expect(tester.getSize(label).width, lessThan(labelNatural));
+        expect(tester.getSize(label).width, lessThanOrEqualTo(labelPart));
+        expect(tester.getSize(count).width, countWidth);
+        final text = tester.widget<Text>(label);
+        expect(text.overflow, TextOverflow.ellipsis);
+        expect(text.maxLines, 1);
+      });
+    }
   });
 }
