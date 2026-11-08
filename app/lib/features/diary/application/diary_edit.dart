@@ -334,7 +334,13 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     }
     _saving = false;
     if (ref.mounted) {
-      invalidateDiaryViews(ref, current.date, id: saved.id);
+      // 본문만 고친 저장은 편수와 날의 성격, 태그를 바꾸지 않습니다(새 일기만 집계가 바뀜).
+      invalidateDiaryViews(
+        ref,
+        current.date,
+        id: saved.id,
+        statsChanged: current.existing == null,
+      );
       state = AsyncData(
         current.copyWith(
           existing: saved,
@@ -442,19 +448,26 @@ final class DiaryDeleter extends Notifier<bool> {
           .read(crashReporterProvider)
           .record(CrashSummary.from(error), stackTrace);
     }
-    invalidateDiaryViews(ref, date, id: diary.id);
+    invalidateDiaryViews(ref, date, id: diary.id, statsChanged: true);
   }
 }
 
 /// [date] 일기가 바뀐 뒤 그 일기를 보이는 곳이 새 상태를 묻게 합니다: 일기 목록(모든 태그),
-/// 그날 일기 요약, 달력 도장, 나 탭 회고 집계, [id]가 있으면 그 일기 한 편.
-void invalidateDiaryViews(Ref ref, CalendarDate date, {String? id}) {
+/// 그날 일기 요약, 달력 도장, [id]가 있으면 그 일기 한 편. [statsChanged](새 일기 저장,
+/// 삭제)면 나 탭 회고 집계도 묻게 합니다(A119). 본문만 고친 저장은 집계가 같습니다.
+void invalidateDiaryViews(
+  Ref ref,
+  CalendarDate date, {
+  String? id,
+  bool statsChanged = false,
+}) {
   ref
     ..invalidate(diaryPagesProvider)
     ..invalidate(diariesOnProvider(date))
-    ..invalidate(diaryDatesProvider)
-    // 나 탭 회고 집계(편수, 날의 성격, 태그)도 저장·삭제로 바뀝니다(A119).
-    ..invalidate(diaryStatsProvider);
+    ..invalidate(diaryDatesProvider);
+  if (statsChanged) {
+    ref.invalidate(diaryStatsProvider);
+  }
   if (id != null) {
     ref.invalidate(diaryProvider(id));
   }

@@ -93,7 +93,13 @@ class DiarySummary extends StatelessWidget {
   ///
   /// 표에 없는 태그는 건너뜁니다.
   static List<TagCount> shownTags(DiaryStats stats, DiaryTagNameOf tagNameOf) {
-    final sorted = [...stats.topTags]..sort((a, b) => b.days.compareTo(a.days));
+    // List.sort는 안정적이지 않아 같은 수는 응답 순서(원래 인덱스)를 보조 키로 씁니다.
+    final indexed = [...stats.topTags.indexed]
+      ..sort((a, b) {
+        final byDays = b.$2.days.compareTo(a.$2.days);
+        return byDays != 0 ? byDays : a.$1.compareTo(b.$1);
+      });
+    final sorted = [for (final (_, count) in indexed) count];
     return [
       for (final count in sorted)
         if (_isShown(count.tag, tagNameOf)) count,
@@ -130,6 +136,10 @@ class DiarySummary extends StatelessWidget {
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: textScaleMax,
       child: _Card(
+        // 계약 a11y: role group(역할 값이 없어 container로 묶음).
+        // label("편수, 날의 성격마다 이름과 수, 태그 이름과 수")은 자식
+        // 낭독(편수 줄, 막대 줄마다 이름과 수, 태그 이름과 수)을 그대로 합성한 설명이라 따로
+        // 붙이지 않고 group 묶음만 둡니다(같은 말을 두 번 읽지 않게).
         child: Semantics(
           container: true,
           explicitChildNodes: true,

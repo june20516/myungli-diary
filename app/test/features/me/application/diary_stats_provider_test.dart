@@ -109,6 +109,23 @@ void main() {
       expect(after.entryCount, before.entryCount + 1);
     });
 
+    test('본문만 고친 저장은 집계를 다시 읽지 않습니다', () async {
+      final (container, server, _) = await _harness();
+      final subscription = container.listen(diaryStatsProvider, (_, _) {});
+      addTearDown(subscription.close);
+      await container.read(diaryStatsProvider.future);
+      final repository = container.read(diaryRepositoryProvider);
+      final summary = (await repository.diariesOn(CalendarDate(2026, 10, 12)))
+          .first;
+      final target = DiaryEditTarget.existing(summary.id);
+      final edit = container.listen(diaryEditProvider(target), (_, _) {});
+      addTearDown(edit.close);
+      await container.read(diaryEditProvider(target).future);
+      await container.read(diaryEditProvider(target).notifier).save('고친 글');
+      await Future<void>.delayed(Duration.zero);
+      expect(server.callCountOf('getDiaryStats'), 1);
+    });
+
     test('일기를 지우면 집계를 다시 읽고 편수가 하나 줄어듭니다', () async {
       final (container, server, _) = await _harness();
       final subscription = container.listen(diaryStatsProvider, (_, _) {});

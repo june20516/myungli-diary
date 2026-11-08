@@ -262,6 +262,30 @@ void main() {
       }
     }
 
+    testWidgets('이름이 두 줄로 내려가도 막대와 수가 줄 가운데에 맞고 넘치지 않습니다', (tester) async {
+      tester.view.physicalSize = const Size(320, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _host(_stats(), locale: const Locale('en'), textScale: 1.3),
+      );
+      expect(tester.takeException(), isNull);
+      for (var i = 0; i < 4; i++) {
+        final track = tester.getCenter(find.byKey(DiarySummary.trackKey(i)));
+        final row = find
+            .ancestor(
+              of: find.byKey(DiarySummary.trackKey(i)),
+              matching: find.byType(ConstrainedBox),
+            )
+            .first;
+        expect(
+          track.dy,
+          closeTo(tester.getCenter(row).dy, 0.5),
+          reason: '줄 $i',
+        );
+      }
+    });
+
     testWidgets('글자 배율 상한 1.3배: 2.0배여도 편수 글자는 1.3배까지만 커집니다', (tester) async {
       await tester.pumpWidget(_host(_stats(entryCount: 28), textScale: 2));
       final element = tester.element(find.text('28'));
@@ -270,6 +294,33 @@ void main() {
   });
 
   group('diary-summary 접근성과 뼈', () {
+    testWidgets('태그 시맨틱 라벨은 이름 뒤에 수를 붙인 "도화 4"입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_host(_stats(tags: [_tag('dohwa', 4)])));
+      expect(find.bySemanticsLabel('도화 4'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('같은 수의 태그는 응답 순서를 지킵니다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          _stats(
+            tags: [
+              _tag('yeokma', 3),
+              _tag('dohwa', 3),
+              _tag('hwagae', 3),
+              _tag('gongmang', 3),
+            ],
+          ),
+        ),
+      );
+      final labels = [
+        for (final tag in tester.widgetList<HanjaTag>(find.byType(HanjaTag)))
+          tag.label,
+      ];
+      expect(labels, ['역마', '도화', '화개']);
+    });
+
     testWidgets('막대는 읽지 않고 줄은 이름과 수를 한 덩어리로 읽습니다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_host(_stats()));
