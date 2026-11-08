@@ -1,10 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
+import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
@@ -20,6 +25,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/saju_chart_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -38,13 +44,18 @@ Future<ProviderContainer> _openMe(
   String scenario = 'member',
   Interceptor? network,
   bool settle = true,
+  List<Override> overrides = const [],
 }) async {
   // 다섯 섹션이 한 번에 놓이게 세로로 긴 화면을 씁니다(ListView는 화면 밖을 그리지 않음).
   tester.view
     ..devicePixelRatio = 3
     ..physicalSize = const Size(1170, 9000);
   addTearDown(tester.view.reset);
-  final container = await pumpApp(tester, scenario: scenario);
+  final container = await pumpApp(
+    tester,
+    scenario: scenario,
+    overrides: overrides,
+  );
   if (network != null) {
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
@@ -91,6 +102,9 @@ Finder _block(String slotId) => find.byWidgetPredicate(
   (widget) => widget is SentenceBlock && widget.slotId == slotId,
 );
 
+/// 사전과 한자 표에 없는 태그 키.
+const unknownTagKey = 'no_such_tag';
+
 /// 회고 집계(`/v1/me/diary-stats`) 요청을 [fail]이면 503으로 끊는 대역.
 final class _DiaryStatsNetwork extends Interceptor {
   /// 503으로 답할지.
@@ -98,6 +112,31 @@ final class _DiaryStatsNetwork extends Interceptor {
 
   /// 지금까지 받은 요청 수.
   int requests = 0;
+
+  /// 성공 응답의 자주 붙은 태그에 사전에 없는 태그([unknownTagKey])를 더할지.
+  bool addUnknownTag = false;
+
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (addUnknownTag &&
+        response.requestOptions.path.endsWith('diary-stats') &&
+        data is Map) {
+      final map = Map<String, Object?>.of(data.cast<String, Object?>());
+      map['topTags'] = [
+        ...(map['topTags']! as List<Object?>),
+        {
+          'tag': {'key': unknownTagKey, 'polarity': 'good'},
+          'days': 1,
+        },
+      ];
+      response.data = map;
+    }
+    handler.next(response);
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -111,6 +150,31 @@ final class _DiaryStatsNetwork extends Interceptor {
     handler.next(options);
   }
 }
+
+/// 받은 나의 사주에서 대운 목록을 비웁니다(대운이 없는 차트).
+final class _DropDaeun extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/chart' && data is Map) {
+      final map = Map<String, Object?>.of(data.cast<String, Object?>());
+      map['daeun'] = {
+        ...(map['daeun']! as Map<String, Object?>),
+        'periods': <Object?>[],
+      };
+      response.data = map;
+    }
+    handler.next(response);
+  }
+}
+
+/// 기기 오늘을 2026-06-15로 고정합니다(fixture 지금 대운 2023~2032, 출생 연도 1990).
+final Override _fixedToday = todayProvider.overrideWith(
+  (ref) => CalendarDate(2026, 6, 15),
+);
 
 Finder get _screen => find.byKey(const ValueKey(ScreenIds.mySaju));
 
@@ -338,6 +402,60 @@ void main() {
     expect(network.requests, before + 1);
     expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
     expect(find.byType(DiarySummary), findsOneWidget);
+  });
+
+  testWidgets('대운과 세운 기간 줄은 fixture 출생 연도(1990) 기준 한국식 나이입니다', (tester) async {
+    covers(const Covers(decisions: ['V77']));
+    await _openMe(tester, overrides: [_fixedToday]);
+    final pillars = find.byType(LuckPillar);
+    expect(pillars, findsNWidgets(2));
+    expect(
+      tester.widget<LuckPillar>(pillars.first).period,
+      '34~43세 2023~2032년',
+    );
+    // 2026 - 1990 + 1 = 37.
+    expect(tester.widget<LuckPillar>(pillars.last).period, '2026년 37세');
+  });
+
+  testWidgets('대운이 없으면 대운 줄은 없고 세운 줄은 연도만 보입니다', (tester) async {
+    await _openMe(tester, network: _DropDaeun(), overrides: [_fixedToday]);
+    final pillars = find.byType(LuckPillar);
+    expect(pillars, findsOneWidget);
+    final seun = tester.widget<LuckPillar>(pillars);
+    expect(seun.tagLabel, _ko.seunTagThisYear);
+    expect(seun.period, '2026년');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('사전에 없는 회고 태그는 crashReporter에 한 번만 기록됩니다(A112)', (tester) async {
+    final reporter = FakeCrashReporter();
+    final network = _DiaryStatsNetwork()..addUnknownTag = true;
+    final container = await _openMe(
+      tester,
+      network: network,
+      overrides: [crashReporterProvider.overrideWithValue(reporter)],
+    );
+    List<String?> gaps() => [
+      for (final error in reporter.errors)
+        if (error.errorType == 'MissingDictionaryEntry') error.code,
+    ];
+    // 처음에는 집계가 실패했으므로 기록이 없습니다.
+    expect(gaps(), isEmpty);
+    // 다시 시도로 받으면 한 번 기록됩니다.
+    network.fail = false;
+    final error = find.byKey(MySajuScreen.recordErrorKey);
+    await _reveal(tester, error);
+    await tester.tap(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+    );
+    await settleWithIo(tester);
+    expect(gaps(), ['tag.$unknownTagKey']);
+    // 재빌드와 집계 다시 읽기 뒤에도 늘지 않습니다.
+    container.invalidate(diaryStatsProvider);
+    await settleWithIo(tester);
+    await tester.pumpAndSettle();
+    expect(find.byType(DiarySummary), findsOneWidget);
+    expect(gaps(), ['tag.$unknownTagKey']);
   });
 
   testWidgets('톱니 → 설정', (tester) async {

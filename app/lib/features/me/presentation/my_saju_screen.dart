@@ -532,7 +532,9 @@ class _RecordSection extends ConsumerWidget {
     final value = stats.value;
     if (value != null) {
       String? tagNameOf(Tag tag) => names?.valueName('tag', tag.key);
-      // 이름 사전을 받은 뒤에만 빈칸을 셉니다(받기 전에는 모든 태그가 이름이 없어 보임).
+      // 이름 사전을 받은 뒤에만 빈칸을 셉니다(받기 전에는 모든 태그가 이름이 없어 보임). 사전을
+      // 끝내 못 받으면(names == null) 태그가 모두 숨고 아무것도 기록하지 않습니다. 그 실패는
+      // 사전 provider와 화면 상태가 따로 다루고, 태그 수만큼 기록이 쏟아지지 않게 합니다.
       if (names != null) _reportSkippedTags(ref, value, tagNameOf);
       return DiarySummary(
         stats: value,
