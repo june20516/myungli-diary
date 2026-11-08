@@ -64,7 +64,11 @@ class ExplainSheet extends ConsumerWidget {
     return _contentBody(context, ref, content);
   }
 
-  Widget _contentBody(BuildContext context, WidgetRef ref, ExplainContent content) {
+  Widget _contentBody(
+    BuildContext context,
+    WidgetRef ref,
+    ExplainContent content,
+  ) {
     return switch (content) {
       final ExplainTerm term => _buildTerm(context, ref, term),
       final ExplainUiText ui => _body(
