@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
@@ -93,7 +94,7 @@ void main() {
     expect(width, moreOrLessEquals(180, epsilon: 0.5));
   });
 
-  testWidgets('group semantics 컨테이너이고 글자 배율은 1.3에서 멈춥니다', (tester) async {
+  testWidgets('group semantics 묶음이고 글자 배율은 1.3에서 멈춥니다', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(
       inputApp(
@@ -106,8 +107,19 @@ void main() {
     expect(find.bySemanticsLabel('만세력 표'), findsOneWidget);
     final context = tester.element(find.byKey(ManseTable.basisKey));
     expect(MediaQuery.textScalerOf(context).scale(10), moreOrLessEquals(13));
-    // 기준 줄과 표 이름이 한 묶음(group) 안에서 따로 읽힙니다.
-    expect(find.bySemanticsLabel('내 일간 庚(경금) 기준'), findsOneWidget);
+    // 기준 줄과 표는 한 묶음(group) 노드 안에 병합되지 않은 별도 자식입니다.
+    // 묶음(group) 노드가 기준 줄 글자를 라벨로 갖고, 표 노드는 그 안의 병합되지 않은
+    // 자식으로 남습니다(표 안 셀과 용어 칩이 표 노드 아래에서 따로 읽힘).
+    final table = tester.getSemantics(find.bySemanticsLabel('만세력 표'));
+    final group = table.parent!;
+    expect(group.label, '내 일간 庚(경금) 기준');
+    final children = <SemanticsNode>[];
+    group.visitChildren((child) {
+      children.add(child);
+      return true;
+    });
+    expect(children.map((child) => child.label), contains('만세력 표'));
+    expect(table.mergeAllDescendantsIntoThisNode, isFalse);
     handle.dispose();
   });
 }
