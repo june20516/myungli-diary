@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
+import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import '../../support/fonts.dart';
@@ -26,7 +27,7 @@ void main() {
       final gap =
           tester.getTopLeft(find.text('1234자')).dx -
           tester.getTopRight(find.text('임시 저장됨')).dx;
-      expect(gap, 8);
+      expect(gap, DraftIndicator.countGap);
     });
 
     testWidgets('length가 없으면 글자 수를 그리지 않습니다', (tester) async {
@@ -73,10 +74,11 @@ void main() {
 
     // 일기 본문 상한(계약 10000자)을 그대로 씁니다.
     const maxLength = DiaryEditor.defaultMaxLength;
-    // 고정부: 아이콘 16 + 간격 4 + 글자 수 앞 간격 8.
-    const fixedWidth = 16.0 + 4 + 8;
+    // 고정부: 아이콘 자리 + 아이콘과 글자 사이 + 글자 수 앞 간격(위젯 상수를 그대로 씁니다).
+    const fixedWidth =
+        DraftIndicator.leadWidth + DraftIndicator.gap + DraftIndicator.countGap;
     // app-bar edit 가운데 폭: 최소 지원 화면 폭 320 - 좌우 여백 16씩 - 양쪽 88.
-    const centerWidth = 320.0 - 16 * 2 - 88 * 2;
+    const centerWidth = 320.0 - 16 * 2 - appBarTextActionMaxWidth * 2;
     const longLabel = 'Draft saved on this device only, not yet sent';
 
     for (final locale in ['ko', 'en', 'ja']) {

@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// [DraftIndicator] 상태(`draft-indicator` `states`).
@@ -47,10 +48,22 @@ class DraftIndicator extends StatefulWidget {
     'saved',
   });
 
-  static const double _gap = 4;
-  static const double _countGap = 8;
-  static const double _dotSize = 3;
-  static const double _dotGap = 2;
+  /// 아이콘과 상태 글자 사이(`docs/identity/design/components/diary.json`
+  /// `draft-indicator.parts.container.gap`, `space.4`).
+  static const double gap = Space.s4;
+
+  /// 상태 글자와 글자 수 사이(같은 파일 `parts.count.marginStart`, `space.8`).
+  static const double countGap = Space.s8;
+
+  /// 아이콘 자리([AppIconSize.s16]) 한 칸에 점 세 개가 들어가도록 이 위젯이 정한 `saving` 점 지름.
+  /// 계약 `draft-indicator.states.saving`은 "점 세 개"만 정하고 지름과 간격은 정하지 않습니다.
+  static const double dotSize = 3;
+
+  /// `saving` 점 사이 간격(점 지름과 같은 근거로 이 위젯이 정함).
+  static const double dotGap = 2;
+
+  /// 아이콘 자리 폭([AppIconSize.s16]).
+  static const double leadWidth = IconSizeTokens.s16;
 
   /// 상태.
   final DraftIndicatorState state;
@@ -105,8 +118,8 @@ class _DraftIndicatorState extends State<DraftIndicator>
         color: color,
         animated: true,
         count: BreathingDots.standardCount,
-        size: DraftIndicator._dotSize,
-        gap: DraftIndicator._dotGap,
+        size: DraftIndicator.dotSize,
+        gap: DraftIndicator.dotGap,
       ),
       DraftIndicatorState.saved => AppIcon(
         _check,
@@ -125,7 +138,7 @@ class _DraftIndicatorState extends State<DraftIndicator>
           mainAxisSize: MainAxisSize.min,
           children: [
             lead,
-            const SizedBox(width: DraftIndicator._gap),
+            const SizedBox(width: DraftIndicator.gap),
             // 가운데 폭이 좁으면 상태 글자 끝을 말줄임하고 글자 수는 지킵니다.
             Flexible(
               child: Text(
@@ -136,7 +149,7 @@ class _DraftIndicatorState extends State<DraftIndicator>
               ),
             ),
             if (length != null) ...[
-              const SizedBox(width: DraftIndicator._countGap),
+              const SizedBox(width: DraftIndicator.countGap),
               Text(
                 AppLocalizations.of(context).diaryEditLengthCount(length),
                 maxLines: 1,
