@@ -20,6 +20,7 @@ import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/data/diary_draft_store.dart';
 import 'package:myungli_diary/features/diary/model/diary_draft_target.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
+import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:uuid/uuid.dart';
 
@@ -446,12 +447,14 @@ final class DiaryDeleter extends Notifier<bool> {
 }
 
 /// [date] 일기가 바뀐 뒤 그 일기를 보이는 곳이 새 상태를 묻게 합니다: 일기 목록(모든 태그),
-/// 그날 일기 요약, 달력 도장, [id]가 있으면 그 일기 한 편.
+/// 그날 일기 요약, 달력 도장, 나 탭 회고 집계, [id]가 있으면 그 일기 한 편.
 void invalidateDiaryViews(Ref ref, CalendarDate date, {String? id}) {
   ref
     ..invalidate(diaryPagesProvider)
     ..invalidate(diariesOnProvider(date))
-    ..invalidate(diaryDatesProvider);
+    ..invalidate(diaryDatesProvider)
+    // 나 탭 회고 집계(편수, 날의 성격, 태그)도 저장·삭제로 바뀝니다(A119).
+    ..invalidate(diaryStatsProvider);
   if (id != null) {
     ref.invalidate(diaryProvider(id));
   }

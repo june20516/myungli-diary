@@ -60,6 +60,7 @@ class HanjaTag extends StatelessWidget {
     required this.label,
     this.tone = HanjaTagTone.term,
     this.variant = HanjaTagVariant.normal,
+    this.trailing,
     this.onTap,
     super.key,
   }) : assert(
@@ -146,6 +147,10 @@ class HanjaTag extends StatelessWidget {
   /// 변형.
   final HanjaTagVariant variant;
 
+  /// 이름 뒤 `space.4`에 붙는 수 글자(`diary-summary` `tags.count`: `type.label.md`
+  /// `text.secondary` 고정폭). null이면 그리지 않습니다. 스크린리더는 이름 뒤에 이어 읽습니다.
+  final String? trailing;
+
   /// 눌렀을 때(`explain-sheet`나 `tag-sheet` 열기). null이면 누를 수 없는 표시입니다.
   final VoidCallback? onTap;
 
@@ -157,6 +162,8 @@ class HanjaTag extends StatelessWidget {
     index: index,
     animated: animated,
   );
+
+  String get _semanticLabel => trailing == null ? label : '$label $trailing';
 
   _TagColors _colors(ColorTokens colors) {
     final element = _ganjiElements[glyph];
@@ -245,6 +252,17 @@ class HanjaTag extends StatelessWidget {
                   style: tokens.typography.labelMd.copyWith(color: colors.fg),
                 ),
               ),
+              if (trailing case final trailing?) ...[
+                const SizedBox(width: gap),
+                Text(
+                  trailing,
+                  maxLines: 1,
+                  style: tokens.typography.labelMd.copyWith(
+                    color: tokens.colors.textSecondary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -255,14 +273,14 @@ class HanjaTag extends StatelessWidget {
     if (onTap == null) {
       return Semantics(
         container: true,
-        label: label,
+        label: _semanticLabel,
         child: ExcludeSemantics(child: pill),
       );
     }
     // 눌림 영역을 넓히는 상자는 조상이 가로채지 못하도록 가장 바깥에 둡니다.
     return VerticalHitSlop(
       child: PressInkTarget(
-        semanticLabel: label,
+        semanticLabel: _semanticLabel,
         onTap: onTap,
         borderRadius: radius,
         inkColor: colors.fg,

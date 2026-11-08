@@ -11,6 +11,7 @@ import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
@@ -116,6 +117,7 @@ const List<ComponentSpec> implementedComponents = [
   DayCell.spec,
   TagChip.spec,
   DiaryRow.spec,
+  DiarySummary.spec,
   DiaryEditor.spec,
   DraftIndicator.spec,
 ];
