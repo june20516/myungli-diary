@@ -119,6 +119,31 @@ void main() {
       );
     });
 
+    testWidgets('fontFallback을 주면 앞부분 글꼴 대체에 먼저 넣습니다(원전 한자)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          LockVeil(
+            sectionTitle: '원전',
+            stateLabel: '잠김',
+            lines: LockVeilLines.source,
+            lead: _text('궁통보감 「오행총론」\n以义推之'),
+            fontFallback: const ['Hanja Test'],
+          ),
+        ),
+      );
+      final clear = tester.widget<Text>(find.byKey(LockVeil.clearKey));
+      final veil = tester.widget<Text>(find.byKey(LockVeil.veilKey));
+      for (final text in [clear, veil]) {
+        expect(text.style?.fontFamilyFallback?.first, 'Hanja Test');
+        for (final span in (text.textSpan! as TextSpan).children!) {
+          expect(
+            (span as TextSpan).style?.fontFamilyFallback?.first,
+            'Hanja Test',
+          );
+        }
+      }
+    });
+
     testWidgets('앞부분이 없으면 자리값만입니다', (tester) async {
       await tester.pumpWidget(
         _app(

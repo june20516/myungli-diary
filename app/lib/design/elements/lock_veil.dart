@@ -52,6 +52,7 @@ class LockVeil extends StatelessWidget {
     this.titleSlotId,
     this.bodySlotId,
     this.a11ySlotId,
+    this.fontFallback = const [],
     super.key,
   }) : assert(lines > 0, 'lines는 양수여야 합니다.');
 
@@ -110,6 +111,10 @@ class LockVeil extends StatelessWidget {
   /// `identifier`입니다.
   final String? a11ySlotId;
 
+  /// 본문 글꼴 앞에 둘 대체 글꼴. 원전 앞부분의 한자처럼 문장 글꼴에 글리프가 없는 글자를
+  /// 그 글꼴로 그립니다(`sentence-block`의 `fontFallback`과 같음).
+  final List<String> fontFallback;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
@@ -166,7 +171,15 @@ class LockVeil extends StatelessWidget {
       Localizations.maybeLocaleOf(context) ?? const Locale('en'),
     );
     final fill = List.filled((_fillLength / unit.length).ceil(), unit).join();
-    final base = tokens.typography.sentenceBody;
+    final sentence = tokens.typography.sentenceBody;
+    final base = fontFallback.isEmpty
+        ? sentence
+        : sentence.copyWith(
+            fontFamilyFallback: [
+              ...fontFallback,
+              ...?sentence.fontFamilyFallback,
+            ],
+          );
     final shown = base.copyWith(color: tokens.colors.textPrimary);
     final hidden = base.copyWith(color: const Color(0x00000000));
     Text layer({required bool veil, required Key key}) => Text.rich(

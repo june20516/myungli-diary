@@ -323,6 +323,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
         stateLabel: l10n.evidenceSheetA11yLocked,
         lines: lockedLines,
         lead: lead == null || isBlankText(lead) ? null : lead,
+        fontFallback: quote ? _quoteFontFallback(context) : const [],
         titleSlotId: titleSlotId,
         bodySlotId: slotId,
         a11ySlotId: SlotIds.evidenceSheetA11yLocked,
@@ -397,6 +398,13 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     ];
   }
 
+  /// 원전 인용(열린 문단과 잠긴 앞부분)의 대체 글꼴. 한자는 문장 글꼴에 글리프가 없어
+  /// `font.family.hanja`로만 그립니다(한글은 그대로).
+  List<String> _quoteFontFallback(BuildContext context) {
+    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
+    return hanjaFamily == null ? const [] : [hanjaFamily];
+  }
+
   /// 본문 한 문단. [quote]면 원전 인용 상자(`bg.base`, `radius.md`, 안쪽 `space.12`)에 담고
   /// 한자는 `font.family.hanja`(`fontFallback`)로 그립니다.
   Widget _paragraph(
@@ -404,13 +412,11 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     required String slotId,
     required bool quote,
   }) {
-    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
     final block = SentenceBlock(
       variant: SentenceBlockVariant.body,
       text: text,
       slotId: slotId,
-      // 원전의 한자는 문장 글꼴에 글리프가 없어 한자 글꼴로만 그립니다(한글은 그대로).
-      fontFallback: quote && hanjaFamily != null ? [hanjaFamily] : const [],
+      fontFallback: quote ? _quoteFontFallback(context) : const [],
     );
     if (!quote) {
       return block;

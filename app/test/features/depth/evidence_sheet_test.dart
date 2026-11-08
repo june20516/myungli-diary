@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -541,6 +542,34 @@ void main() {
         findsOneWidget,
       );
       handle.dispose();
+    });
+
+    testWidgets('잠긴 원전 앞부분의 한자는 한자 글꼴로 그리고 판정 근거는 대체하지 않습니다', (tester) async {
+      await _openSheet(
+        tester,
+        daily: _dailyWithPreview([
+          {
+            'basis': _sentence('오늘은 용신의'),
+            'source': _sentence('궁통보감 「오행총론」\n以义推之'),
+          },
+        ]),
+      );
+      final hanja = tester
+          .element(_inSheet(find.byType(EvidenceSheetBody)))
+          .tokens
+          .typography
+          .hanjaPillar
+          .fontFamily;
+      final veils = tester
+          .widgetList<LockVeil>(_inSheet(find.byType(LockVeil)))
+          .toList();
+      expect(
+        [for (final veil in veils) veil.fontFallback],
+        [
+          const <String>[],
+          [hanja],
+        ],
+      );
     });
 
     testWidgets('evidencePreview가 없으면 두 구역 모두 자리값만입니다', (tester) async {

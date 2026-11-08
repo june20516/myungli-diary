@@ -247,6 +247,39 @@ void main() {
     });
   }
 
+  for (final scale in [1.3, 2.0]) {
+    testWidgets('column 글자 배율 $scale: 지금(굵게) 연도는 한 줄이고 기둥 폭을 넘지 않음', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+          child: inputApp(
+            Center(
+              child: LuckPillar.column(
+                pillar: _ganji,
+                top: '2026',
+                tenGod: LuckLabel('상관', onTap: () {}),
+                semanticLabel: '2026년, 상관, 갑오',
+                current: true,
+                currentTag: '올해',
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final year = find.text('2026');
+      final style = tester.widget<Text>(year).style!;
+      final oneLine = style.fontSize! * (style.height ?? 1) * 1.3;
+      final rect = tester.getRect(year);
+      final root = tester.getRect(find.byType(LuckPillar));
+      expect(rect.height, lessThanOrEqualTo(oneLine + 0.5));
+      expect(rect.left, greaterThanOrEqualTo(root.left));
+      expect(rect.right, lessThanOrEqualTo(root.left + LuckPillar.columnWidth));
+    });
+  }
+
   testWidgets('loading 뼈: 칸 둘과 십성 칩 하나', (tester) async {
     await tester.pumpWidget(
       inputApp(Center(child: LuckPillar.skeleton(animated: false))),

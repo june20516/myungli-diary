@@ -304,7 +304,14 @@ class LuckPillar extends StatelessWidget {
       padding: const EdgeInsets.all(columnPadding),
       child: Column(
         children: [
-          ExcludeSemantics(child: Text(top!, style: topStyle)),
+          // 나이와 연도는 한 줄 숫자입니다. 지금(굵게)이 큰 글자에서 안쪽 폭을 넘으면 줄을 바꾸지
+          // 않고 그 폭에 맞춰 줄입니다.
+          ExcludeSemantics(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(top!, style: topStyle, maxLines: 1),
+            ),
+          ),
           ...label(
             tenGod,
             Space.s4,
