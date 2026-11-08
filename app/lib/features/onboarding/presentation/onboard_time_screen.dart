@@ -165,7 +165,16 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
     final result = ref.read(
       birthHourProvider((date: date, time: _hhmm(_settled))),
     );
-    if (!result.isLoading) _held = result.value;
+    // 요청이 실패해 null이면 붙잡은 값을 지우지 않습니다(F-030).
+    final hour = result.value;
+    if (!result.isLoading && hour != null) _held = hour;
+  }
+
+  @override
+  void didUpdateWidget(_TimeForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 생일이 바뀌면 이전 생일의 시진은 맞지 않으니 비우고 새 값으로 채웁니다.
+    if (widget.date != oldWidget.date) _held = null;
   }
 
   void _onTimeChanged(TimeOfDay value) {
@@ -197,7 +206,7 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
   }
 
   /// 시진 확인 줄 글자. 모름이거나 생일을 모르거나 값을 못 받았으면 null입니다.
-  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안에는 [_held]의 이전 줄을 그대로 둡니다.
+  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안, 요청이 실패한 때에도 [_held]의 이전 줄을 둡니다.
   String? _confirmText(AppLocalizations l10n) {
     final date = widget.date;
     if (_unknown || date == null) return null;
@@ -206,7 +215,8 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
       final result = ref.watch(
         birthHourProvider((date: date, time: _hhmm(_settled))),
       );
-      if (!result.isLoading) hour = result.value;
+      final fetched = result.value;
+      if (!result.isLoading && fetched != null) hour = fetched;
     }
     return hour == null ? null : sijinConfirmText(l10n, hour);
   }
