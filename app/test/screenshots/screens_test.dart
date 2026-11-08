@@ -24,10 +24,12 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
+import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
@@ -189,6 +191,40 @@ Future<void> _sajuPersonal(WidgetTester tester) async {
   await settleWithIo(tester, allowOngoing: true);
   await tester.pump(const Duration(seconds: 1));
 }
+
+/// "만세력과 대운" 탭에서 띠 머리 "12운성" 칩을 눌러 설명 시트(내 네 자리 `stage-strip`)를 엽니다.
+Future<void> _sajuTwelveStageSheet(WidgetTester tester) async {
+  await _sajuLuckTab(tester);
+  final head = find.descendant(
+    of: find.byType(BandTable),
+    matching: find.widgetWithText(
+      TermToken,
+      AppLocalizationsKo().manseRowTwelveStages,
+    ),
+  );
+  await tester.ensureVisible(head);
+  await settleWithIo(tester);
+  await tester.tap(head);
+  await settleWithIo(tester);
+}
+
+/// [date]의 일기 쓰기를 열고 본문을 입력한 채로 둡니다(쓰는 중: 상단 바 가운데 상태와 글자 수).
+_Open _diaryTyping(CalendarDate date) => (tester, container) async {
+  unawaited(
+    container
+        .read(routerProvider)
+        .push<void>(datedPathOf(ScreenIds.diaryEdit, date)),
+  );
+  await pumpUntilScreen(tester, ScreenIds.diaryEdit);
+  await settleWithIo(tester);
+  final body = find.byType(TextField);
+  await tester.showKeyboard(body);
+  await tester.pump();
+  await tester.enterText(body, '회의에서 먼저 말을 꺼냈더니 생각보다 반응이 좋았다.');
+  // 초안 저장(입력이 멈추고 diaryDraftDelay 뒤)이 끝나 가운데 상태가 "기기에 저장됨"이 됩니다.
+  await tester.pump(diaryDraftDelay + const Duration(milliseconds: 100));
+  await settleWithIo(tester, allowOngoing: true);
+};
 
 /// 설정을 열고 [after]로 화면 안을 더 조작합니다.
 _Open _settings({Future<void> Function(WidgetTester tester)? after}) =>
@@ -451,6 +487,12 @@ final List<_Shot> _shots = [
     ),
   ),
   _Shot(
+    'diary-edit',
+    'typing',
+    'member',
+    _diaryTyping(CalendarDate(2026, 10, 13)),
+  ),
+  _Shot(
     'diary-view',
     'default',
     'member',
@@ -477,6 +519,12 @@ final List<_Shot> _shots = [
   _Shot('saju-chart', 'default', 'member', _sajuChart()),
   _Shot('saju-chart', 'luck', 'member', _sajuChart(after: _sajuLuckTab)),
   _Shot('saju-chart', 'unlocked', 'evidence-unlocked', _sajuChart()),
+  _Shot(
+    'explain-sheet',
+    'twelve-stage',
+    'member',
+    _sajuChart(after: _sajuTwelveStageSheet),
+  ),
   _Shot('saju-chart', 'time-unknown', 'member-time-unknown', _sajuChart()),
   _Shot(
     'saju-chart',
