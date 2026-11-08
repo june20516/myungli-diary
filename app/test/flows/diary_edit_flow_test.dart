@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
@@ -40,8 +42,38 @@ final class _Network extends Interceptor {
   bool offline = false;
   final failingPaths = <String>{};
 
+  /// 있으면 `createDiary` 요청을 이 completer가 끝날 때까지 붙잡습니다.
+  Completer<void>? holdCreate;
+
+  /// 있으면 `getDaily` 응답의 `guideCandidates`를 이 목록으로 바꿉니다.
+  List<Map<String, Object?>>? candidates;
+
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final override = candidates;
+    if (override != null && response.requestOptions.path.contains('/daily')) {
+      final data = response.data;
+      final decoded = Map<String, Object?>.from(
+        (data is String ? jsonDecode(data) : data)! as Map,
+      );
+      final changed = {...decoded, 'guideCandidates': override};
+      response.data = data is String ? jsonEncode(changed) : changed;
+    }
+    handler.next(response);
+  }
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final hold = holdCreate;
+    if (hold != null &&
+        options.method == 'POST' &&
+        options.path == '/v1/diaries') {
+      unawaited(hold.future.then((_) => handler.next(options)));
+      return;
+    }
     if (offline) {
       handler.reject(
         DioException.connectionError(requestOptions: options, reason: '오프라인'),
@@ -229,6 +261,77 @@ void main() {
     await tester.pumpAndSettle();
     expect(_bodyFocused(tester), isFalse);
     expect(find.byType(DraftIndicator), findsNothing);
+  });
+
+  testWidgets('저장 중: 상단 바 저장 글자는 점 숨쉬기이고, 뒤로를 눌러도 화면이 남습니다', (tester) async {
+    final network = _Network();
+    await _openEdit(tester, _today, network: network);
+    await tester.enterText(_body, '보내는 중인 글');
+    await tester.pump();
+    final hold = network.holdCreate = Completer<void>();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await tester.pump();
+    expect(_saveButton(tester).saving, isTrue);
+    expect(
+      find.descendant(
+        of: find.byType(AppBarTextAction),
+        matching: find.byType(BreathingDots),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('app-bar.back')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
+
+    hold.complete();
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
+  });
+
+  testWidgets('422 diary.guide_invalid: 일반 저장 실패 문구 toast, 본문과 화면은 그대로', (
+    tester,
+  ) async {
+    // 화면은 셋째 후보를 받았지만 server의 그날 후보에는 없습니다.
+    Map<String, Object?> candidate(String key, String variant, String text) => {
+      'slot': 'daily.guide',
+      'messageKey': key,
+      'variant': variant,
+      'reactable': false,
+      'text': {
+        'segments': [
+          {'text': text},
+        ],
+      },
+    };
+    final network = _Network()
+      ..candidates = [
+        candidate('guide.dohwa', '1', '오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'),
+        candidate('guide.dohwa', '2', '오늘 들은 말 중에 기억에 남는 게 있나요?'),
+        candidate('guide.harmony', '1', '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?'),
+      ];
+    final container = await _openEdit(tester, _today, network: network);
+    await tester.tap(find.byKey(DiaryEditor.swapKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(DiaryEditor.swapKey));
+    await tester.pumpAndSettle();
+    network.candidates = null;
+    await tester.enterText(_body, '지켜야 할 글');
+    await tester.pump();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.errorClient).evaluate().isNotEmpty,
+    );
+    expect(_server(container).callCountOf('createDiary'), 1);
+    expect(find.byKey(const ValueKey(ScreenIds.diaryEdit)), findsOneWidget);
+    expect(tester.widget<TextField>(_body).controller!.text, '지켜야 할 글');
+    // 다시 읽은 후보(둘)의 첫 질문으로 돌아옵니다.
+    expect(find.text('오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
   });
 
   group('키보드 내리기(F-013)', () {

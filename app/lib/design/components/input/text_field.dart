@@ -388,13 +388,17 @@ class _MyungliTextFieldState extends State<MyungliTextField>
 
     // 글자 한 줄만 TextField의 눌림 영역이라, 칸 전체(padding·최소 높이 포함, 48 이상)를
     // 눌러도 포커스가 가도록 감쌉니다. 지우기 버튼과 TextField는 안쪽에서 먼저 받습니다.
-    final tappable = enabled
-        ? GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _focus.requestFocus,
-            child: container,
-          )
-        : container;
+    // 칸 전체를 입력칸과 같은 누름 묶음에 넣어, 안쪽 여백을 눌러도 밖 누르기(초점 풀기)로
+    // 보지 않습니다(풀렸다 다시 잡히며 키보드가 깜빡이지 않게).
+    final tappable = TextFieldTapRegion(
+      child: enabled
+          ? GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _focus.requestFocus,
+              child: container,
+            )
+          : container,
+    );
 
     final Widget bordered;
     if (widget._hasError) {

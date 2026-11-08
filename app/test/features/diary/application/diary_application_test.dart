@@ -276,9 +276,12 @@ void main() {
       expect(state.initialBody, startsWith('오랜만에'));
       expect(state.status, DiaryDraftStatus.saved);
       // 질문은 저장된 질문이고 후보는 쓰지 않습니다(A115). 일진(date-block)만 받습니다.
-      expect(h.calls('getDaily'), 1);
       expect(state.candidates, isEmpty);
-      expect(state.dayPillar, isNotNull);
+      // 일진은 화면을 연 뒤 뒤에서 받습니다.
+      for (var i = 0; i < 50 && h.calls('getDaily') == 0; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(h.calls('getDaily'), 1);
     });
 
     test('없는 일기를 고치려 열면 diary.not_found ProblemError입니다', () async {

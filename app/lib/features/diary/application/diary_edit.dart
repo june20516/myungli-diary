@@ -76,6 +76,7 @@ final class DiaryEditState {
     this.questionIndex = 0,
     this.savedQuestion,
     this.dayPillar,
+    this.dayPillarPending = false,
     this.status,
     this.saving = false,
     this.offline = false,
@@ -107,6 +108,9 @@ final class DiaryEditState {
   /// 그날 일진(`Daily.dayPillar`, `date-block`). 받지 못했으면 null입니다.
   final Pillar? dayPillar;
 
+  /// 일진을 아직 받는 중인지(고치기는 화면을 먼저 열고 일진을 뒤에서 받음).
+  final bool dayPillarPending;
+
   /// 기기에 남은 초안으로 시작했는지(IA `draft`).
   final bool fromDraft;
 
@@ -135,6 +139,8 @@ final class DiaryEditState {
     Diary? existing,
     List<SlotText>? candidates,
     int? questionIndex,
+    Pillar? dayPillar,
+    bool? dayPillarPending,
     DiaryDraftStatus? status,
     bool? saving,
     bool? offline,
@@ -146,7 +152,8 @@ final class DiaryEditState {
     candidates: candidates ?? this.candidates,
     questionIndex: questionIndex ?? this.questionIndex,
     savedQuestion: savedQuestion,
-    dayPillar: dayPillar,
+    dayPillar: dayPillar ?? this.dayPillar,
+    dayPillarPending: dayPillarPending ?? this.dayPillarPending,
     status: status ?? this.status,
     saving: saving ?? this.saving,
     offline: offline ?? this.offline,
@@ -279,22 +286,34 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
         final draftTarget = DiaryDraftTarget.existing(date: date, id: id);
         _draftTarget = draftTarget;
         final draft = await drafts.read(draftTarget);
-        // 일진만 씁니다. 받지 못하면 날짜 블록의 일진 줄만 빠집니다(저장은 막지 않음).
-        final daily = await _daily(date, onOffline: () {});
         final opened = DiaryEditState(
           date: date,
           initialBody: draft ?? existing.body,
           existing: existing,
           savedQuestion: _usableQuestion(existing.guideQuestion),
-          dayPillar: daily?.dayPillar,
+          dayPillarPending: true,
           fromDraft: draft != null,
           status: draft != null
               ? DiaryDraftStatus.local
               : DiaryDraftStatus.saved,
         );
         _latestBody = opened.initialBody;
+        // 일진만 쓰므로 기다리지 않고 열고, 받으면 날짜 블록에 채웁니다. 받지 못하면 일진 줄만
+        // 빠집니다(저장은 막지 않음).
+        unawaited(_fillDayPillar(date));
         return opened;
     }
+  }
+
+  /// 고치기 화면의 일진을 뒤에서 받아 채웁니다.
+  Future<void> _fillDayPillar(CalendarDate date) async {
+    final daily = await _daily(date, onOffline: () {});
+    if (!ref.mounted) return;
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(
+      current.copyWith(dayPillar: daily?.dayPillar, dayPillarPending: false),
+    );
   }
 
   /// [daily]의 질문 후보 가운데 빈 문장이 아닌 것(A47). 받지 못했으면 빈 목록입니다.
@@ -478,6 +497,8 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   Future<DiaryEditState> _refreshCandidates(DiaryEditState current) async {
     final chosen = current.guideChoice;
     final daily = await _daily(current.date, onOffline: () {});
+    // 다시 읽지 못하면 받아 둔 후보와 고른 질문을 그대로 둡니다.
+    if (daily == null) return current;
     final candidates = _usableCandidates(daily);
     final index = candidates.indexWhere(
       (c) => sameGuideChoice(guideChoiceOf(c), chosen),

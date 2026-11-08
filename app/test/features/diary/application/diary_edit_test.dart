@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -50,6 +51,12 @@ final class _Network extends Interceptor {
   /// 다음 `createDiary` 요청 하나를 시간 초과로 끊습니다.
   bool timeoutNextCreate = false;
 
+  /// `getDaily`만 연결 오류로 끊습니다.
+  bool dailyOffline = false;
+
+  /// 있으면 `getDaily` 요청을 이 completer가 끝날 때까지 붙잡습니다.
+  Completer<void>? holdDaily;
+
   /// 있으면 `getDaily` 응답의 `guideCandidates`를 이 목록으로 바꿉니다.
   List<Map<String, Object?>>? candidates;
 
@@ -58,6 +65,19 @@ final class _Network extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.path.contains('/daily')) {
+      if (dailyOffline) {
+        handler.reject(
+          DioException.connectionError(requestOptions: options, reason: '오프라인'),
+        );
+        return;
+      }
+      final hold = holdDaily;
+      if (hold != null) {
+        unawaited(hold.future.then((_) => handler.next(options)));
+        return;
+      }
+    }
     if (options.method == 'POST' && options.path == '/v1/diaries') {
       creates.add((
         body: _jsonObject(options.data),
@@ -356,18 +376,71 @@ void main() {
   });
 
   group('날짜 블록 일진', () {
-    test('새 일기와 고치기 모두 그날 일진(dayPillar)을 받습니다', () async {
+    Future<String> writtenId(_Harness h) async =>
+        (await h.container
+                .read(diaryRepositoryProvider)
+                .diariesOn(CalendarDate(2026, 10, 12)))
+            .first
+            .id;
+
+    test('새 일기는 열 때 그날 일진(dayPillar)을 받습니다', () async {
       final h = await _harness();
       final opened = await _open(h, _newToday);
       expect(opened.dayPillar, isNotNull);
-      final id =
-          (await h.container
-                  .read(diaryRepositoryProvider)
-                  .diariesOn(CalendarDate(2026, 10, 12)))
-              .first
-              .id;
-      final existing = await _open(h, DiaryEditTarget.existing(id));
-      expect(existing.dayPillar, isNotNull);
+      expect(opened.dayPillarPending, isFalse);
     });
+
+    test('고치기는 일진을 기다리지 않고 열고, 받으면 채웁니다', () async {
+      final h = await _harness();
+      final target = DiaryEditTarget.existing(await writtenId(h));
+      final hold = h.network.holdDaily = Completer<void>();
+      final opened = await _open(h, target);
+      expect(opened.dayPillar, isNull);
+      expect(opened.dayPillarPending, isTrue);
+      hold.complete();
+      await pumpEventQueue();
+      for (var i = 0; i < 50 && h.state(target).dayPillarPending; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(h.state(target).dayPillar, isNotNull);
+      expect(h.state(target).dayPillarPending, isFalse);
+    });
+
+    test('고치기에서 일진을 받지 못해도(오프라인) 열리고 일진만 없습니다', () async {
+      final h = await _harness();
+      final target = DiaryEditTarget.existing(await writtenId(h));
+      h.network.dailyOffline = true;
+      final opened = await _open(h, target);
+      expect(opened.initialBody, startsWith('오랜만에'));
+      for (var i = 0; i < 50 && h.state(target).dayPillarPending; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(h.state(target).dayPillar, isNull);
+      expect(h.state(target).dayPillarPending, isFalse);
+      expect(h.state(target).offline, isFalse);
+    });
+  });
+
+  test('422 guide_invalid 뒤 오늘 풀이를 다시 읽지 못하면 받아 둔 후보와 고른 질문을 지킵니다', () async {
+    final h = await _harness();
+    h.network.candidates = [
+      _candidate('guide.dohwa', '1', _first),
+      _candidate('guide.dohwa', '2', _second),
+      _candidate('guide.harmony', '1', _third),
+    ];
+    await _open(h, _newToday);
+    final notifier = h.notifier(_newToday)
+      ..swapQuestion()
+      ..swapQuestion();
+    h.network.dailyOffline = true;
+    await expectLater(notifier.save('지킬 글'), throwsA(isA<ProblemError>()));
+    final after = h.state(_newToday);
+    expect(after.candidates, hasLength(3));
+    expect(after.questionIndex, 2);
+    final draft = await h.container
+        .read(diaryDraftStoreProvider)
+        .find(_draftToday);
+    expect(draft!.body, '지킬 글');
+    expect(draft.guideMessageKey, 'guide.harmony');
   });
 }

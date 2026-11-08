@@ -50,6 +50,49 @@ void main() {
       expect(_fieldFocused(tester), isFalse);
     });
 
+    testWidgets('칸 안쪽 여백(글자 줄 밖)을 눌러도 초점이 풀렸다 다시 잡히지 않고 그대로입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(page());
+      await tester.showKeyboard(find.byType(TextField));
+      await tester.pump();
+      final focus = tester.widget<TextField>(find.byType(TextField)).focusNode!;
+      var changes = 0;
+      void count() => changes++;
+      focus.addListener(count);
+      addTearDown(() => focus.removeListener(count));
+      final box = tester.getRect(find.byKey(MyungliTextField.containerKey));
+      // 왼쪽 안쪽 여백(16) 안, 칸 위 가장자리 가까이.
+      await tester.tapAt(box.topLeft + const Offset(4, 4));
+      await tester.pump();
+      expect(focus.hasFocus, isTrue);
+      expect(changes, 0, reason: '초점 해제와 다시 잡기가 없어야 키보드가 깜빡이지 않습니다');
+    });
+
+    testWidgets('다른 칸을 누르면 초점이 그 칸으로 옮겨 갑니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          const Column(
+            children: [
+              MyungliTextField(label: '이름'),
+              SizedBox(height: 24),
+              MyungliTextField(label: '메일'),
+            ],
+          ),
+        ),
+      );
+      final fields = find.byType(TextField);
+      await tester.showKeyboard(fields.first);
+      await tester.pump();
+      await tester.tap(fields.last);
+      await tester.pump();
+      expect(
+        tester.widget<TextField>(fields.first).focusNode!.hasFocus,
+        isFalse,
+      );
+      expect(tester.widget<TextField>(fields.last).focusNode!.hasFocus, isTrue);
+    });
+
     testWidgets('지우기 버튼은 칸 안이라 눌러도 초점이 남습니다', (tester) async {
       await tester.pumpWidget(page());
       await tester.showKeyboard(find.byType(TextField));

@@ -124,12 +124,15 @@ class _DiaryEditScreenState extends ConsumerState<DiaryEditScreen> {
     context.pushReplacement(diaryPathOf(ScreenIds.diaryView, saved.id));
   }
 
+  /// 상단 바 뒤로. `Navigator.maybePop`이라 저장 중에는 [PopScope]가 막습니다. 스택 바닥
+  /// (딥링크, 복원)이면 일기 목록으로 가되 저장 중에는 가지 않습니다.
   void _back() {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(pathOf(ScreenIds.diaryList));
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).maybePop();
+      return;
     }
+    if (ref.read(diaryEditProvider(_target)).value?.saving ?? false) return;
+    context.go(pathOf(ScreenIds.diaryList));
   }
 
   @override
@@ -293,6 +296,7 @@ class _DiaryEditBody extends ConsumerWidget {
               iljin: pillar == null
                   ? null
                   : l10n.diaryEditDateIljin(pillarTextOf(pillar, names)),
+              iljinLoading: state.dayPillarPending,
             ),
           ),
           const SizedBox(height: Space.s24),
