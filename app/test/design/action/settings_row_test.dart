@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -153,8 +154,8 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(SettingsGroupDivider), findsNWidgets(2));
-      expect(tester.getSize(find.byType(SettingsGroupDivider).first).height, 1);
+      expect(find.byType(ListDivider), findsNWidgets(2));
+      expect(tester.getSize(find.byType(ListDivider).first).height, 0.5);
       expect(
         tester
             .getSemantics(find.text('계정'))

@@ -340,15 +340,22 @@ void main() {
       expect(icon.color, tokens.colors.textSecondary);
     });
 
-    testWidgets('한 줄 제목도 최소 높이 48이고 아래에 1px line 구분선', (tester) async {
+    testWidgets('한 줄 제목도 최소 높이 48이고 아래에 0.5px line 구분선', (tester) async {
       await tester.pumpWidget(_app(list()));
       final tokens = _context(tester).tokens;
       final content = tester.getSize(find.byKey(EventRow.contentKey));
       expect(content.height, greaterThanOrEqualTo(48));
       expect(EventRow.minHeight, 48);
       final divider = find.byKey(EventRow.dividerKey);
-      expect(tester.getSize(divider).height, 1);
-      expect(tester.widget<ColoredBox>(divider).color, tokens.colors.line);
+      expect(tester.getSize(divider).height, 0.5);
+      expect(
+        tester
+            .widget<ColoredBox>(
+              find.descendant(of: divider, matching: find.byType(ColoredBox)),
+            )
+            .color,
+        tokens.colors.line,
+      );
       expect(
         tester.getRect(divider).top,
         tester.getRect(find.byKey(EventRow.contentKey)).bottom,

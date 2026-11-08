@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -115,7 +116,9 @@ class PurchaseRowGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (index, child) in children.indexed) ...[
-          if (index > 0) const _Divider(),
+          if (index > 0)
+            // 같은 키를 줄 사이마다 쓰므로 Column의 직접 자식이 아니게 한 겹 감쌉니다.
+            const _KeyedDivider(),
           // 같은 키를 가진 줄이 형제로 놓이지 않게 키 없는 Builder로 감쌉니다.
           Builder(builder: (_) => child),
         ],
@@ -254,14 +257,11 @@ class PurchaseRowGroup extends StatelessWidget {
   );
 }
 
-/// 줄 사이 선: 1px `line`.
-class _Divider extends StatelessWidget {
+/// 줄 사이 `list.divider`. 테스트가 찾을 키는 감싼 쪽이 아니라 선에 붙습니다.
+class _KeyedDivider extends StatelessWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) => ColoredBox(
-    key: PurchaseRowGroup.dividerKey,
-    color: context.tokens.colors.line,
-    child: const SizedBox(height: 1, width: double.infinity),
-  );
+  Widget build(BuildContext context) =>
+      const ListDivider(key: PurchaseRowGroup.dividerKey);
 }

@@ -4,6 +4,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -91,8 +92,8 @@ class EventRow extends StatelessWidget {
   /// 줄 최소 높이(`parts.row.minHeight`, `a11y.minTarget`).
   static const double minHeight = 48;
 
-  /// `list` 구분선 두께(`parts.row.divider.width`).
-  static const double dividerWidth = 1;
+  /// `list` 구분선 두께(`list.divider` `width`).
+  static const double dividerWidth = BorderTokens.hairline;
 
   /// `list` 시각 칸을 찾는 테스트용 키.
   static const Key timeColumnKey = ValueKey('event-row-time-column');
@@ -179,11 +180,7 @@ class EventRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           content,
-          ColoredBox(
-            key: dividerKey,
-            color: context.tokens.colors.line,
-            child: const SizedBox(height: dividerWidth),
-          ),
+          const ListDivider(key: dividerKey),
         ],
       ),
     );

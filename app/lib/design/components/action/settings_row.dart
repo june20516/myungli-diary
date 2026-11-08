@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -302,7 +303,7 @@ class SettingsGroup extends StatelessWidget {
     final rows = <Widget>[];
     for (final (index, child) in children.indexed) {
       if (index > 0) {
-        rows.add(const SettingsGroupDivider());
+        rows.add(const ListDivider());
       }
       rows.add(child);
     }
@@ -370,19 +371,4 @@ class SettingsGroup extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 묶음 안 줄 사이 선: 1px `line`, 시작 쪽 16 안으로 들임.
-class SettingsGroupDivider extends StatelessWidget {
-  /// 선을 만듭니다.
-  const new({super.key});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsDirectional.only(start: Space.s16),
-    child: ColoredBox(
-      color: context.tokens.colors.line,
-      child: const SizedBox(height: 1, width: double.infinity),
-    ),
-  );
 }
