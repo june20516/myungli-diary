@@ -58,13 +58,13 @@ class ExplainSheet extends ConsumerWidget {
             : const AsyncData<void>(null),
         onRetry: () => ref.invalidate(glossaryProvider),
         skeleton: ExplainSheetBody.skeleton(head: head),
-        dataWithNotice: (_, _) => _plain(context, ref, content),
+        dataWithNotice: (_, _) => _contentBody(context, ref, content),
       );
     }
-    return _plain(context, ref, content);
+    return _contentBody(context, ref, content);
   }
 
-  Widget _plain(BuildContext context, WidgetRef ref, ExplainContent content) {
+  Widget _contentBody(BuildContext context, WidgetRef ref, ExplainContent content) {
     return switch (content) {
       final ExplainTerm term => _buildTerm(context, ref, term),
       final ExplainUiText ui => _body(

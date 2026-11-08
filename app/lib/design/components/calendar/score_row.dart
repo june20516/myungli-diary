@@ -64,7 +64,8 @@ class ScoreRow extends StatelessWidget {
   /// (spec의 3은 토큰이 아님, V56).
   static const double dotGap = Space.s4;
 
-  /// `verdict`에서 태그가 가질 수 있는 최대 폭(태그와 뜻 자리의 비율).
+  /// `verdict`에서 태그가 가질 수 있는 최대 폭의 비율: 태그와 뜻이 나눠 쓰는 폭에 대한 것이고,
+  /// 넘으면 태그 이름을 말줄임하며 나머지는 모두 뜻이 씁니다.
   static const double tagMaxWidthFactor = 0.5;
 
   /// 뜻 칸(앞 여백 포함)을 찾는 테스트용 키.
