@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 요청함(Issue)·PR·main ci-gate 결과(끝난 실행만, 최근 5개) 변화를 1분마다 비교해, 바뀐 것만 한 줄씩 출력합니다.
+# 요청함(Issue)·PR·main ci-gate 결과(끝난 실행만, 최근 5개)·환경 승인을 기다리는 실행 변화를 1분마다 비교해, 바뀐 것만 한 줄씩 출력합니다.
 # 출력 한 줄이 지휘 세션의 알림 하나가 됩니다. 상태는 STATE_DIR에 두어 다시 띄워도 이어집니다.
 set -u
 REPO=june20516/myungli-diary
@@ -19,7 +19,8 @@ snapshot() {
       --json number,state,title --jq '.[] | "PR #\(.number) \(.state) \(.title)"' &&
     gh_t issue list -R "$REPO" --state all --limit 40 \
       --json number,state,title --jq '.[] | "Issue #\(.number) \(.state) \(.title)"' &&
-    main_ci
+    main_ci &&
+    approval_waits
   } 2>/dev/null) || return 1
   # 같은 커밋의 main 실행이 둘이면 같은 줄이 두 번 나옵니다. 중복을 남기면 comm이 하나를 새 줄로 셉니다.
   printf '%s\n' "$out" | sort -u
@@ -48,6 +49,15 @@ main_ci() {
     verdict=$(cat "$cache")
     echo "main-ci $sha $verdict"
   done <<< "$runs"
+}
+
+approval_waits() {
+  # 환경 승인(prod 배포 등)을 기다리며 멈춘 실행입니다. 지휘가 필요 여부를 판단해 취소하거나 사용자에게 묻습니다.
+  # 이 줄이 없어 2026-11-09 하루 동안 prod 승인 대기 실행 다섯 건이 알림 없이 쌓였습니다.
+  # job 상태는 pending으로 보이기도 해서, 실행 목록의 waiting 필터를 씁니다.
+  gh_t run list -R "$REPO" --status waiting --limit 20 \
+    --json databaseId,workflowName,displayTitle \
+    --jq '.[] | "승인 대기 run \(.databaseId) \(.workflowName): \(.displayTitle)"'
 }
 
 [ -f "$STATE_DIR/prev" ] || snapshot > "$STATE_DIR/prev"
