@@ -16,7 +16,8 @@ STEM_WEIGHT = 1.0
 BRANCH_WEIGHT = 1.5
 MONTH_BRANCH_WEIGHT = 3.0
 
-# 지장간 개수별 (정기, 중기, 여기) 비율. 첫 항목이 정기다.
+# 지장간 개수별 비율. hidden_stems 배열 순서대로 매기고 첫 항목이 정기다.
+# 둘째, 셋째는 寅申巳亥가 중기, 여기이고 辰戌丑未가 여기, 중기다(core C31).
 _HIDDEN_STEM_RATIOS: Mapping[int, tuple[float, ...]] = MappingProxyType(
     {1: (1.0,), 2: (0.7, 0.3), 3: (0.6, 0.3, 0.1)}
 )
