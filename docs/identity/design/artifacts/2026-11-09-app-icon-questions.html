@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>앱 아이콘 새 원본과 공유 이미지 로고 관문 질문 (#908)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 색, 간격, 반경, 글자는 ds1/tokens.css 토큰입니다. 아이콘과 로고는 logo/ 원본 파일입니다. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f2f1ee; color: #1f1f1e; font-family: var(--type-body-ui-family); font-size: 15px; line-height: 1.5; }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 48px 0 8px; }
+  .intro, .note { color: #5b5b59; margin: 0 0 16px; max-width: 820px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; }
+  figure { margin: 0; text-align: center; font-size: 12px; color: #5b5b59; }
+  figure img { display: block; margin: 0 auto 6px; }
+  .home { background: #2e3b33; padding: 24px; border-radius: 20px; display: flex; gap: 24px; align-items: flex-end; }
+  .home figure { color: #e8ece9; }
+  .android { position: relative; overflow: hidden; border-radius: 50%; }
+  .android img { position: absolute; inset: -16.67%; width: 133.33%; height: 133.33%; }
+  .panel { width: 380px; }
+  .panel .home { padding: 16px; gap: 14px; }
+  .panel .caption { font-size: 13px; font-weight: 700; color: var(--color-action-primary); }
+  .panel .sub { font-size: 12px; color: #5b5b59; margin: 2px 0 10px; min-height: 36px; }
+  .rec { display: inline-block; font-size: 11px; font-weight: 700; color: var(--color-badge-good-fg); background: var(--color-badge-good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; }
+  /* 공유 이미지 1080 폭을 1/3로 줄인 360 카드 (gradient.today, 라이트 고정) */
+  .share { width: 360px; height: 360px; border-radius: var(--radius-md); background: linear-gradient(160deg, #eef4ef, #fbefee); box-shadow: 0 4px 16px rgba(43, 43, 42, .14); padding: 28px 24px 18px; display: flex; flex-direction: column; }
+  .share .date { font-size: 12px; color: var(--color-text-secondary); }
+  .share .badge { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--color-badge-good-fg); background: var(--color-badge-good-bg); border-radius: 999px; padding: 2px 10px; align-self: flex-start; }
+  .share .sentence { font-family: var(--font-family-sentence); font-size: 20px; line-height: 1.6; margin-top: 16px; }
+  .share .foot { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .share .footer { font-size: 10px; color: var(--color-text-secondary); }
+  .lockup { display: flex; align-items: center; gap: 8px; height: 30px; }
+  .lockup .mark { width: 30px; height: 30px; border-radius: 22%; }
+  .lockup .word { height: 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>앱 아이콘 새 원본 (#908)</h1>
+  <p class="intro">사용자가 만든 래스터 아이콘(표지 결, 책등, 책갈피 리본, 그림자)을 앱 아이콘 원본으로 바꿉니다. 60px 이상은 큰 원형(질감판), 48px 이하는 작은 원형(평면판, 책을 키움) 규칙은 그대로입니다.</p>
+
+  <h2>홈 화면 크기별 (Q1 ② 기준)</h2>
+  <p class="note">iOS 모서리(22%)로 깎았습니다. 60px 이상은 큰 원형, 40px 이하는 작은 원형입니다. 마지막 둘은 Android 원형 마스크(108dp 중 가운데 72dp)이고, 전경은 책 몸통이 중심에서 30.9dp, 그림자 끝이 32.7dp라 안전 원(반지름 33dp) 안입니다.</p>
+  <div class="home">
+    <figure><img src="2026-11-09-app-icon/icon-large.png" width="180" height="180" style="border-radius:22%" alt="">180</figure>
+    <figure><img src="2026-11-09-app-icon/icon-large.png" width="60" height="60" style="border-radius:22%" alt="">60</figure>
+    <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="40" height="40" style="border-radius:22%" alt="">40</figure>
+    <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="29" height="29" style="border-radius:22%" alt="">29</figure>
+    <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="20" height="20" style="border-radius:22%" alt="">20</figure>
+    <figure><div class="android" style="width:64px;height:64px"><img src="2026-11-09-app-icon/icon-android-background.png" alt=""><img src="2026-11-09-app-icon/icon-android-foreground.png" alt=""></div>Android 64</figure>
+    <figure><div class="android" style="width:48px;height:48px"><img src="2026-11-09-app-icon/icon-android-background.png" alt=""><img src="2026-11-09-app-icon/icon-android-foreground.png" alt=""></div>Android 48</figure>
+  </div>
+
+  <h2>Q1. 작은 원형(48px 이하)의 낙관 크기</h2>
+  <p class="note">생성 그림은 낙관이 캔버스의 23%라, 29px 이하에서는 빨간 사각만 보이고 日이 뭉개집니다. 옛 작은 원형은 낙관을 34%로 키웠습니다(V7). 큰 원형(60px 이상)은 두 안 모두 그대로입니다.</p>
+  <div class="row">
+    <div class="panel">
+      <div class="caption">①  생성 그림 그대로</div>
+      <div class="sub">큰 원형과 낙관 비율이 같습니다. 작은 크기에서 日이 읽히지 않습니다.</div>
+      <div class="home">
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.png" width="120" height="120" style="border-radius:22%" alt="">120</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.png" width="48" height="48" style="border-radius:22%" alt="">48</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.png" width="40" height="40" style="border-radius:22%" alt="">40</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.png" width="29" height="29" style="border-radius:22%" alt="">29</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.png" width="20" height="20" style="border-radius:22%" alt="">20</figure>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="caption">②  낙관 1.45배<span class="rec">권장</span></div>
+      <div class="sub">옛 작은 원형과 같은 34%. 40~48px에서 日이 읽히고, 20~29px에서도 빨간 낙관이 또렷합니다.</div>
+      <div class="home">
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="120" height="120" style="border-radius:22%" alt="">120</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="48" height="48" style="border-radius:22%" alt="">48</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="40" height="40" style="border-radius:22%" alt="">40</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="29" height="29" style="border-radius:22%" alt="">29</figure>
+        <figure><img src="2026-11-09-app-icon/icon-small-seal-1.45.png" width="20" height="20" style="border-radius:22%" alt="">20</figure>
+      </div>
+    </div>
+  </div>
+
+  <h2>Q2. 공유 이미지 아래 로고(가로 조합 lockup)</h2>
+  <p class="note">지금 가로 조합은 옛 도형 아이콘을 품은 SVG이고, 앱의 오늘 문장 공유 이미지 아래에 들어갑니다. 공유 이미지 1080px를 1/3로 줄여 보였습니다.</p>
+  <div class="row">
+    <div class="panel">
+      <div class="caption">①  지금 그대로 (옛 도형 아이콘 SVG)</div>
+      <div class="sub">벡터라 어느 크기에서나 선명합니다. 홈 화면 아이콘과 모양이 달라집니다.</div>
+      <div class="share"><div class="date">11월 9일 일요일</div><span class="badge">용신의 날</span><div class="sentence">오늘은 미뤄 둔 정리를<br>끝내기 좋은 날이에요.</div>
+        <div class="foot"><img src="2026-11-09-app-icon/lockup.svg" height="30" alt="명리일기"><div class="footer">명리일기에서 나의 오늘 보기</div></div></div>
+    </div>
+    <div class="panel">
+      <div class="caption">②  새 아이콘으로 맞춤<span class="rec">권장</span></div>
+      <div class="sub">홈 화면 아이콘과 같은 그림입니다. 가로 조합을 래스터(PNG)로 새로 만들고, app에 공유 이미지 로고를 PNG로 바꿔 달라고 요청합니다.</div>
+      <div class="share"><div class="date">11월 9일 일요일</div><span class="badge">용신의 날</span><div class="sentence">오늘은 미뤄 둔 정리를<br>끝내기 좋은 날이에요.</div>
+        <div class="foot"><div class="lockup"><img class="mark" src="2026-11-09-app-icon/icon-large.png" alt=""><img class="word" src="2026-11-09-app-icon/wordmark.svg" alt="명리일기"></div><div class="footer">명리일기에서 나의 오늘 보기</div></div></div>
+    </div>
+    <div class="panel">
+      <div class="caption">③  워드마크만</div>
+      <div class="sub">아이콘 없이 글자만 둡니다. 벡터 그대로라 app 변경이 가장 작지만, 공유 이미지에서 앱 아이콘을 알아볼 단서가 사라집니다.</div>
+      <div class="share"><div class="date">11월 9일 일요일</div><span class="badge">용신의 날</span><div class="sentence">오늘은 미뤄 둔 정리를<br>끝내기 좋은 날이에요.</div>
+        <div class="foot"><img src="2026-11-09-app-icon/wordmark.svg" height="22" alt="명리일기"><div class="footer">명리일기에서 나의 오늘 보기</div></div></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

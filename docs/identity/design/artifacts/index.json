@@ -935,5 +935,22 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)를 읽고 안 ①, ②만 강조 바탕을 primitive로 덮어씀(새 primitive 없음). 사용자 의견 2026-11-07(초록이 많아 태그가 갈리지 않음). 사용자 답(2026-11-07, #801): ③ neutral.50(다크 neutral.950) 권장안, 새 토큰 color.highlight.bg로 반영(V93). 칩과 거리 0.029(다크 0.162), sage 글자 대비 6.21:1(다크 10.34:1), 일주 열 0.35 옅게 깔기 없앰"
+  },
+  {
+    "id": "design-app-icon-questions",
+    "title": "앱 아이콘 새 원본 관문 질문(#908): 홈 화면 크기별, 작은 원형 낙관 크기(그대로, 1.45배), 공유 이미지 로고(지금 SVG, 새 아이콘 가로 조합, 워드마크만)",
+    "kind": "concept",
+    "file": "2026-11-09-app-icon-questions.html",
+    "source": "2026-11-09-app-icon-questions.html",
+    "date": "2026-11-09",
+    "milestone": "V0",
+    "screens": [
+      "share-image"
+    ],
+    "decisions": [
+      "V99"
+    ],
+    "status": "chosen",
+    "note": "그림은 2026-11-09-app-icon/(360으로 줄인 마스터, 페이지 전용). 사용자 질문(낙관을 키워도 화질이 깨지지 않는지)에 2048 원본에서 키우고 원래 낙관을 지운 뒤 찍어 두 겹 가장자리를 없앤 그림으로 바꿔 다시 물음. 사용자 답(2026-11-09, #908): Q1 ② 낙관 1.45배, Q2 ② 새 아이콘 가로 조합 PNG(V99)"
   }
 ]

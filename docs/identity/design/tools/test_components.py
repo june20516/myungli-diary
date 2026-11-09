@@ -442,8 +442,9 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_6_0():
-    assert VERSION == "6.0.0"  # #859 drift: IA에서 빠진 tag-chip을 지워 주 버전 (V96). 5.0.0은 DS1 2단계(#801)
+def test_contract_version_is_6_0_1():
+    # #908: 공유 이미지 로고를 새 아이콘 PNG 가로 조합으로(값만, V99). 6.0.0은 #859 drift(V96)
+    assert VERSION == "6.0.1"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -2725,16 +2726,16 @@ def test_readme_records_5_0_removals_and_renames():
     assert "토큰 1.4.0 이상" in row and "주 버전" in row
 
 
-def test_contract_list_rows_name_6_0_and_1_4():
+def test_contract_list_rows_name_6_0_1_and_1_4():
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
-    assert "| 6.0.0 |" in component_row and "| 1.4.0 |" in token_row
+    assert "| 6.0.1 |" in component_row and "| 1.4.0 |" in token_row
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     elements_count = len(documents["elements"]["elements"])
     patterns = len(documents["interaction"]["patterns"])
-    tail = component_row.split("6.0.0:", 1)[1]
+    tail = component_row.split("6.0.1:", 1)[1]
     assert f"IA 컴포넌트 {specified}개" in tail and f"요소 {elements_count}개" in tail and f"패턴 {patterns}개" in tail
     assert "IA 컴포넌트 43개" not in tail and "57개" not in tail  # 앞 판 문장의 옛 숫자를 옮기지 않음
     for name in ("color.calendar.level", "color.fill.soft", "color.verdict.track", "color.highlight.bg"):
@@ -2832,7 +2833,6 @@ def test_tag_chip_removed_for_hanja_tag():
 
 def test_readme_records_6_0_removal():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "컴포넌트 계약 6.0.0 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
     row = _readme_row("6.0.0")
     assert "`tag-chip`" in row.split("**지움**", 1)[1] and "V96" in row and "#859" in row
 
@@ -2842,3 +2842,14 @@ def test_time_unknown_notice_shares_saju_chart_key():
     banner = next(v for v in component("feedback", "notice-banner")["variants"] if v["id"] == "time-unknown")
     assert banner["parts"]["text"] == {"slot": "saju-chart.time-unknown.notice"}
     assert "saju-chart.time-unknown.notice" in _md_section("today.md", "### today 화면 배치")
+
+
+# 6.0.1 (#908, 결정 V99): 공유 이미지 로고는 새 아이콘 PNG 가로 조합
+def test_share_image_logo_is_raster_lockup():
+    logo = component("today", "share-image")["parts"]["logo"]
+    assert logo["asset"] == "logo/lockup.png"
+    assert (DESIGN_DIR / logo["asset"]).exists()
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "컴포넌트 계약 6.0.1 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
+    row = _readme_row("6.0.1")
+    assert "V99" in row and "#908" in row and "`logo/lockup.png`" in row

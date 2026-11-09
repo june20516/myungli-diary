@@ -1,5 +1,5 @@
 {
-  "version": "6.0.0",
+  "version": "6.0.1",
   "group": "today",
   "components": [
     {
@@ -176,7 +176,7 @@
         "sentence": { "component": "sentence-block", "variant": "card", "honorific": true },
         "reason": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}" },
         "chips": { "component": "lucky-card", "interactive": false },
-        "logo": { "asset": "logo/lockup.svg" },
+        "logo": { "asset": "logo/lockup.png", "note": "새 앱 아이콘(래스터)과 워드마크 가로 조합, 높이 288px PNG. 1080 캔버스에서 줄여 그림(결정 V99)" },
         "footer": { "slot": "image.footer", "type": "{type.caption.sm}", "fg": "{color.text.secondary}" },
         "preview": { "shadow": "{shadow.raised}", "radius": "{radius.md}" },
         "ratioPicker": { "component": "segmented", "position": "above-preview" }
