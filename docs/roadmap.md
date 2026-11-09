@@ -27,7 +27,7 @@
 | W1 | 콘텐츠: 메시지 키별 문장 3개 언어 초안 → 원어민 검수 (D28) | writing → server 시드 | W0, C2(`message_keys.json`) | I3 | **완료** (W1-3 용어·근거와 스토어 태그라인 PR #627(W47~W49)로 3개 언어 원고가 모두 참, 원고 검사 `--partial` 제거. 원어민 검수는 완료 조건이 아닌 보강 단계(D70). W1 spec `docs/identity/writing/specs/2026-10-16-w1-content-design.md`. W1-1 오늘 화면·엔진 안내 PR #249, W1-2 사주·개인 해석 PR #254, D77 IA ui 슬롯·남은 ui 원고 PR #279·#297(W33), 기본 깊이 원고 삭제 PR #326(D79), 생일 음력 문구 PR #328(W34). 다음 W1-3 용어·근거. 원어민 검수는 사용자 준비물) |
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3, T1 | **완료** (2026-11-03 staging 확인: 엔진이 오늘 요청 71건에 200, server의 daily, chart, calendar 응답 200. 엔진 실행 조건 #79) |
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3, T1 | **완료** (app PR #791, A108: Patrol E2E를 http 모드로 staging에서 통과, 로그인은 S24 테스트 로그인, 계정 연결과 합치기는 실기기 몫, server 어긋남 없음, 2026-11-04) |
-| DS1 | **디자인 시스템 재정비(D107):** 공개 디자인 시스템 레퍼런스 조사 → 규칙(간격, 아이콘, 목록 줄, 버튼 조합, 화면 묶음과 섹션 제목, 눌림, 설명 열기, 시트, 확인 창, 로딩, 전환, 키보드) → 화면 결정 시안(D105) → IA, 컴포넌트 계약, 원고 → app 일괄 구현. 검수 대장 F-001~F-031 | 지휘 + design + writing + app | 검수 회차1 | H1, T1 | 진행 중 (레퍼런스 조사 셋: 디자인 시스템, 일기 쓰기 화면, 나 탭 경쟁 앱) |
+| DS1 | **디자인 시스템 재정비(D107):** 공개 디자인 시스템 레퍼런스 조사 → 규칙(간격, 아이콘, 목록 줄, 버튼 조합, 화면 묶음과 섹션 제목, 눌림, 설명 열기, 시트, 확인 창, 로딩, 전환, 키보드) → 화면 결정 시안(D105) → IA, 컴포넌트 계약, 원고 → app 일괄 구현. 검수 대장 F-001~F-031 | 지휘 + design + writing + app | 검수 회차1 | H1, T1 | app 구현 끝(PR #872), 검수 회차2 남음 |
 | H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 준비 메모 [`docs/specs/2026-10-30-context-slimming-design.md`](specs/2026-10-30-context-slimming-design.md) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | 시작 전 |
 | Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
 | O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | **완료** (server 알림 정책, uptime check, 예산 알림, 대응 절차 PR #764 S133. app Crashlytics 보고와 Android 심볼 업로드 PR #760) |
@@ -40,26 +40,27 @@
 
 **병행 가능 구간:** S1 · A1은 M0 뒤에 서로 기다리지 않고 진행합니다. 동시에 진행하면 `git worktree`로 작업 디렉터리를 나눕니다(`docs/workflow.md` §6). B0 이후 W0와 V0도 서로 기다리지 않으며, core·server 흐름과도 따로 진행합니다. 정체성 쪽 순서는 B0 → (W0 ∥ V0) → IA → V1 → V2 → A1 UI 구현입니다. 수익화 사이클 M0는 IA 뒤, S1·A1 착수 전에 돌려 MVP 범위를 다시 확인합니다(D52).
 
-## 현재 진행 순서 (2026-11-06 기준)
+## 현재 진행 순서 (2026-11-09 기준)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift: design #815, app #810(IA v5, DS1 규칙, D109, D111, core 2026.11.0, REST 1.5.0~1.7.0).
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift: design #859(PR #856, IA DS1 2단계), server #875(PR #880 병합분, main server 검사 뒤 자동으로 닫힘), app #810(PR #872 병합분, main app 검사 뒤 자동으로 닫힘).
 * **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②). CI는 `gh run watch` 없이 60초 이상 간격으로 확인합니다.
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** **DS1 디자인 시스템 재정비(D107, 최우선)** → H1(기준 문서 정리) → bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. DS1 진행: IA v5와 origin 이미지 확정, core 태그 근거(#804), writing 원고(#813, #830), server 계약 1.5.0~1.7.0(#832, #835, #836)까지 끝. 남은 것은 design 2단계(#801), core 그날 음력(#834) → server #806 ②, 그 뒤 app 한 번 구현(D105). 계약 변경 배포는 관문을 거칩니다(D110): 엔진은 그 환경 server의 지원 `ruleset_version` 이하일 때만 나가고, prod는 사용자 승인 뒤 나갑니다. L1은 1회차가 끝났고(한계 80세션/초, 처음 막힌 곳 Cloud SQL CPU, #782 닫힘), 후속과 2회차는 #817입니다. Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1 뒤 출시를 막으므로 테스터 이메일 12개를 지금 모읍니다.
-* **실기기:** Android는 Play 내부 테스트 1.0.0 (5)(Crashlytics, staging 모의 광고), iOS는 TestFlight 1.0.0 (3)입니다. 문의 화면은 다음 빌드(6)부터입니다(A104). LINE은 Developing 채널이라 Tester 역할 계정만 로그인됩니다(E10, T1 직전 Published).
-* **staging 상태:** server, 엔진, Test Store 결제(D99), AdMob SSV(S126), health(S127), 미리 계산(S128), 아침 알림(S129), O1 알림(S133), 문의 메일(S134), 클라이언트 IP `TRUSTED_PROXY_HOPS=2`(S135), 런타임 DB 권한 분리(S137)까지 배포됐습니다. staging E2E는 `app/tool/patrol_staging.sh`로 돌리며, 실행마다 `support@`로 `[E2E]` 문의 메일이 한 통 옵니다.
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** DS1 검수 회차2 → H1(기준 문서 정리) → bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. DS1은 app 구현까지 끝났습니다(PR #872, 검수 회차1 F-001~F-030 끝남). 남은 것은 새 빌드(6)로 실기기 검수 회차2입니다. 계약 변경 배포는 관문을 거칩니다(D110): 엔진은 그 환경 server의 지원 `ruleset_version` 이하일 때만 나가고, prod는 사용자 승인 뒤 나갑니다. L1은 1회차가 끝났고(한계 80세션/초, 처음 막힌 곳 Cloud SQL CPU), 후속과 2회차는 #817입니다(load 프로젝트 quota 승인 대기). Play 비공개 테스트 의무(테스터 12명 14일 + 심사, #535)가 T1 뒤 출시를 막으므로 테스터 이메일 12개를 지금 모읍니다.
+* **T1 전에 정할 것: server → app 관문(D110 ⑦).** 실기기 빌드(5)는 REST 1.5.0의 `LuckLevel.very_good`을 몰라 staging 달력 월 응답을 읽지 못합니다(닫힌 enum, 2026-11-09 확인). 테스터 기기에는 옛 빌드가 남으므로 T1 전에 앱 지원 REST 버전과 최소 지원 버전(업데이트 안내)을 server, app 설계로 정합니다.
+* **실기기:** Android는 Play 내부 테스트 1.0.0 (5)(Crashlytics, staging 모의 광고), iOS는 TestFlight 1.0.0 (3)입니다. DS1 화면, 문의 화면(A104), `very_good` 대응은 다음 빌드(6)부터입니다. LINE은 Developing 채널이라 Tester 역할 계정만 로그인됩니다(E10, T1 직전 Published).
+* **staging 상태:** server(REST 1.9.0, 원전 원문 정자 시드 #876), 엔진(ruleset 2026.11.1), Test Store 결제(D99), AdMob SSV(S126), health(S127), 미리 계산(S128), 아침 알림(S129), O1 알림(S133), 문의 메일(S134), 클라이언트 IP `TRUSTED_PROXY_HOPS=2`(S135), 런타임 DB 권한 분리(S137)까지 배포됐습니다. prod 엔진도 2026.11.1입니다. prod server는 설정이 비어 배포를 건너뛰므로, 그동안 생기는 server prod 승인 대기는 지휘가 취소합니다. staging E2E는 `app/tool/patrol_staging.sh`로 돌리며, 실행마다 `support@`로 `[E2E]` 문의 메일이 한 통 옵니다.
 * **Q1로 넘긴 것:** server 직접 주소(run.app)가 열려 있어 IP 한도를 우회할 수 있음(S135, 직접 주소를 끄면 Hosting 공개 주소도 끊김).
-* **I4 전에 남은 일:** prod 배포 승인, prod `RESEND_API_KEY`, SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 스토어 지원 연락처 `support@`, 법적 문서 원문(E16).
+* **I4 전에 남은 일:** prod server 설정과 비밀 값, prod `RESEND_API_KEY`, SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 스토어 지원 연락처 `support@`, 법적 문서 원문(E16).
 
 | 박자 | 담당 | 할 일 | 막는 것 |
 | --- | --- | --- | --- |
-| 지금 | 사용자 | server prod 배포 승인(#836 병합분) → `deploy-engine` 수동 실행(staging-prod, 2026.11.0). 테스터 이메일 12개(#535), TestFlight 내부 테스터 | T1 |
-| 지금 | 지휘 | DS1 단위 결과를 origin 이미지와 대조, 요청함 정리, 제품 지도. L1 리포트 금액 환산(비공개), 2회차 뒤 리포트 갱신 | T1 |
-| 지금 | design | drift #815 → DS1 2단계(#801): origin 이미지 기준으로 1단계 결과 다시 맞추기, 빠진 곳 채우기, E의 고유 요소를 디자인 시스템 컴포넌트로 등록 | T1 |
-| 지금 | core | `GetDaily` 그날 음력 날짜(#834) | DS1(server #806 ②) |
-| 다음 | server | #806 ②(오늘 음력, core #834 뒤) → L1 후속(#817: 알림 10분 분산 D109, 엔진 증설, 쿼리 비중, 2회차) → staging 테스트 연결(#794) | DS1, L1 |
-| 마지막 | app | drift #810 → 계약 따라잡기(#808, #833 `very_good`), 검수 버그(#796), DS1 화면 전체 한 번에 구현(D105) | T1 |
-| 필요할 때 | writing | design 상한이 나오면 IA v5 새 슬롯 상한 채우기. 구매 상태 `owned` 키 #531(MVP 밖). core #625 답이 오면 반영 | I3 |
+| 지금 | 사용자 | 테스터 이메일 12개(#535), TestFlight 내부 테스터. load 프로젝트 quota 승인 확인(#817) | T1, L1 |
+| 지금 | app | 빌드(6) Play 내부 테스트, TestFlight 업로드(DS1 화면, `very_good`) | DS1 검수 회차2 |
+| 지금 | design | drift #859(IA DS1 2단계 따라잡기) | T1 |
+| 다음 | 사용자 + 지휘 | 빌드(6)로 DS1 검수 회차2(`docs/review/`), origin 이미지와 대조 | H1, T1 |
+| 다음 | server | L1 후속(#817: 알림 10분 분산 D109, 엔진 증설, 쿼리 비중, 2회차) → staging 테스트 연결(#794) | L1 |
+| 다음 | 지휘 | D110 ⑦ server → app 관문 설계 요청, H1 준비, L1 리포트 금액 환산(비공개)과 2회차 뒤 갱신 | T1 |
+| 필요할 때 | writing | 구매 상태 `owned` 키 #531(MVP 밖). core #625 답이 오면 반영 | I3 |
 | 필요할 때 | core | #625(writing 요청, 조후표 칸), #59 남은 2번(스냅샷 분할 검토, 다음 규칙 변경 때) | I3 |
 
 ## 외부 준비물
