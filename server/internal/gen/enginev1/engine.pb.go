@@ -2485,7 +2485,8 @@ func (x *PositionTenGod) GetTenGod() TenGod {
 	return TenGod_TEN_GOD_UNSPECIFIED
 }
 
-// 지지 자리의 지장간. 첫 항목이 정기입니다.
+// 지지 자리의 지장간. 첫 항목이 정기입니다. 둘째, 셋째는 지지마다 뜻이 다릅니다(lunar-python 목록 순서, core C31):
+// 寅申巳亥는 정기, 중기, 여기 / 辰戌丑未는 정기, 여기, 중기 / 午와 亥는 정기, 중기 / 子卯酉는 정기 하나.
 type PositionHiddenStems struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Position      Position               `protobuf:"varint,1,opt,name=position,proto3,enum=myungli.engine.v1.Position" json:"position,omitempty"`
