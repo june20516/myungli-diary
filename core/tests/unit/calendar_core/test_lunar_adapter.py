@@ -95,6 +95,19 @@ def test_hidden_stems_main_qi_first() -> None:
     assert all(la.hidden_stems(b)[0].element == b.element for b in B)
 
 
+# 지장간 배열 순서는 계약이다(core C31, #853). 첫 항목이 정기이고, 둘째, 셋째는 지지마다 다르다.
+# 寅申巳亥: 정기, 중기, 여기 / 辰戌丑未: 정기, 여기, 중기 / 午: 정기, 중기 / 亥: 정기, 중기(여기 戊 없음)
+HIDDEN_STEM_ORDER = {
+    "子": "癸", "丑": "己癸辛", "寅": "甲丙戊", "卯": "乙", "辰": "戊乙癸", "巳": "丙庚戊",
+    "午": "丁己", "未": "己丁乙", "申": "庚壬戊", "酉": "辛", "戌": "戊辛丁", "亥": "壬甲",
+}
+
+
+def test_hidden_stem_order_is_contract() -> None:
+    actual = {b.hanja: "".join(s.hanja for s in la.hidden_stems(b)) for b in B}
+    assert actual == HIDDEN_STEM_ORDER
+
+
 @pytest.mark.parametrize(
     "stem,branch,stage",
     [
