@@ -291,7 +291,6 @@
 | ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 5 | - | ko 9, en 16, ja 7 |
 | ui.share.a11y | 컴포넌트 share-image<br>컴포넌트 segmented | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.tag-chip.label | 컴포넌트 hanja-tag | info | - | 1 | 4 | `tag`: text | ko -, en -, ja -<br>`tagChipPolarityGood` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityBad` ko 상한 없음, en 상한 없음, ja 상한 없음<br>`tagChipPolarityNeutral` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-sheet.sentence-kind | 컴포넌트 tag-sentence-list | info | - | 1 | 2 | - | ko -, en -, ja - |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
