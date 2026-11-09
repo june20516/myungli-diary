@@ -149,7 +149,9 @@ jobs:
       service_account: ${{ vars.GCP_DEPLOYER_LOAD }}
 
   # 측정 회차가 끝나면 비용이 큰 Cloud SQL만 지웁니다. 그 인스턴스에 기대는 자원(DB, DB 사용자, SQL 알림 정책)도 함께 지워지고,
-  # 다음 load 배포의 apply가 다시 만듭니다. Secret 틀과 값, Cloud Run(요청이 없으면 0으로 줄어듦), 네트워크는 남깁니다.
+  # 다음 load 배포의 apply가 다시 만듭니다. server 서비스는 Cloud SQL에 기대므로(run.tf depends_on) 함께 지워집니다.
+  # engine 서비스는 남기되 최소 인스턴스를 0으로 내려 측정 사이에 비용이 나가지 않게 하고, 다음 apply가 load.tfvars 값으로 되돌립니다.
+  # Secret 틀과 값, 네트워크는 남깁니다.
   load-teardown:
     needs: checks
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'load-teardown' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
@@ -185,3 +187,6 @@ jobs:
             fi
           done
           terraform destroy -input=false -auto-approve -var-file=load.tfvars -target=google_sql_database_instance.main
+      - name: engine 최소 인스턴스 0으로 내리기
+        # 측정 때 최소 인스턴스 1(#817)로 둔 engine이 teardown 뒤에도 켜져 있지 않게 합니다(2026-11-09).
+        run: gcloud run services update engine --project myungli-diary-load --region asia-northeast3 --min-instances 0 --quiet
