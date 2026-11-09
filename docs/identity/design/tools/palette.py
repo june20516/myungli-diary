@@ -68,7 +68,8 @@ OHAENG_FIXED = {
         "border": None, "border_dark": (0.38, 0.02),
     },
 }
-# 칸 테두리가 필요한지 가르는 기준: 칸 바탕이나 테두리 중 하나는 bg.sheet와 이 대비 이상 (금, 수)
+# 칸 테두리가 필요한지 가르는 기준: 칸 바탕이나 테두리 중 하나는 칸이 놓이는 면(bg.sheet, bg.base, highlight.bg)과
+# 이 대비 이상 (금, 수)
 MIN_OHAENG_EDGE_CONTRAST = 1.4
 
 GRADIENT_LIGHT = ["#eef4ef", "#fbefee"]

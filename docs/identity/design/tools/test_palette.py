@@ -81,15 +81,17 @@ def test_metal_is_brightest_and_water_darkest_cell_in_both_modes():
     assert _lightness(ohaeng["water"]["swatch"]) < 0.3  # 견본 먹색
 
 
-def test_metal_and_water_cells_stand_apart_from_sheet():
-    # 금, 수 칸은 바탕이나 테두리 중 하나가 bg.sheet와 갈립니다. 테두리가 필요 없는 모드는 칸 바탕과 같은 값
+def test_metal_and_water_cells_stand_apart_from_every_surface():
+    # 금, 수 칸은 바탕이나 테두리 중 하나가 칸이 놓이는 모든 면과 갈립니다: 카드(bg.sheet), 화면(bg.base),
+    # 현재 강조 바탕(highlight.bg, 지금 대운과 올해 세운 칸). 테두리가 필요 없는 모드는 칸 바탕과 같은 값
     built = build_palette()
     for mode, cell, border in (("light", "tint", "border"), ("dark", "tint_dark", "border_dark")):
-        sheet = built["roles"][mode]["bg.sheet"]
-        for element in ("metal", "water"):
-            colors = built["ohaeng"][element]
-            edge = max(contrast_ratio(colors[cell], sheet), contrast_ratio(colors[border], sheet))
-            assert edge >= palette.MIN_OHAENG_EDGE_CONTRAST, (mode, element, edge)
+        for surface in ("bg.sheet", "bg.base", "highlight.bg"):
+            background = built["roles"][mode][surface]
+            for element in ("metal", "water"):
+                colors = built["ohaeng"][element]
+                edge = max(contrast_ratio(colors[cell], background), contrast_ratio(colors[border], background))
+                assert edge >= palette.MIN_OHAENG_EDGE_CONTRAST, (mode, surface, element, edge)
     assert built["ohaeng"]["water"]["border"] == built["ohaeng"]["water"]["tint"]
     assert built["ohaeng"]["metal"]["border_dark"] == built["ohaeng"]["metal"]["tint_dark"]
 
