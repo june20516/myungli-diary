@@ -112,13 +112,26 @@ type Selection struct {
 // date는 날짜 부분(date 자신의 시간대 기준 연·월·일)만 씁니다. 모든 슬롯을 한 트랜잭션에서 처리하므로
 // 하나라도 실패하면 아무것도 기록하지 않습니다. 활성 시드가 없으면 ErrNoActiveSeed,
 // 요청 슬롯이 활성 시드의 명세에 없거나 같은 슬롯이 두 번 나오면 오류입니다.
+// 요청한 슬롯이 모두 같은 메시지 키로 이미 기록돼 있으면 트랜잭션 없이 그 기록을 돌려주므로(빠른 길, S148)
+// 이때는 활성 시드와 명세를 보지 않습니다.
 func (s *Store) Select(ctx context.Context, accountID uuid.UUID, date time.Time, birthHash [32]byte, reqs []SlotRequest) ([]Selection, error) {
 	if err := uniqueRequests(reqs); err != nil {
 		return nil, err
 	}
+	// 빠른 길: 요청한 슬롯이 모두 같은 메시지 키로 이미 기록돼 있으면(같은 날 다시 연 경우) 트랜잭션, 계정 lock,
+	// 활성 시드 조회 없이 그 기록을 돌려줍니다. 커밋된 행만 읽으므로 결과는 lock을 잡고 읽은 것과 같고,
+	// 동시에 다른 요청이 기록을 바꾸는 순간에는 바꾸기 전 값을 볼 수 있습니다(그 요청보다 먼저 온 것과 같음, S148).
+	today := toDate(date)
+	existing, err := listExisting(ctx, s.queries, accountID, today, birthHash[:], reqs)
+	if err != nil {
+		return nil, err
+	}
+	if out, ok := allExisting(reqs, existing); ok {
+		return out, nil
+	}
 
 	var out []Selection
-	err := postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
+	err = postgres.InTx(ctx, s.pool, func(tx pgx.Tx) error {
 		// InTx가 fn을 다시 실행할 수 있으므로 결과를 처음부터 다시 채웁니다.
 		out = make([]Selection, 0, len(reqs))
 		if _, err := tx.Exec(ctx, selectionLockSQL, selectionLockClass, accountID.String()); err != nil {
@@ -144,8 +157,9 @@ func (s *Store) Select(ctx context.Context, accountID uuid.UUID, date time.Time,
 				return fmt.Errorf("시드 %s의 슬롯 명세에 없는 슬롯입니다: %s", version, r.Slot)
 			}
 		}
-		sel := selector{accountID: accountID, today: toDate(date), birthHash: birthHash[:], slots: slots, now: s.clock.Now()}
-		existing, err := sel.existingSelections(ctx, q, reqs)
+		sel := selector{accountID: accountID, today: today, birthHash: birthHash[:], slots: slots, now: s.clock.Now()}
+		// lock을 잡은 뒤 다시 읽습니다. 빠른 길에서 읽은 값은 lock 전이라 쓰지 않습니다.
+		existing, err := listExisting(ctx, q, accountID, today, birthHash[:], reqs)
 		if err != nil {
 			return err
 		}
@@ -201,15 +215,15 @@ type selector struct {
 	now time.Time
 }
 
-// existingSelections는 reqs 슬롯의 기존 기록을 한 번에 읽어 슬롯별로 돌려줍니다. 기록이 없는 슬롯은 맵에 없습니다.
-// Select의 계정 lock 안에서 부르므로 슬롯을 처리하는 동안 다른 요청이 이 기록을 바꾸지 않습니다.
-func (sel selector) existingSelections(ctx context.Context, q *contentdb.Queries, reqs []SlotRequest) (map[string]contentdb.GetSelectionRow, error) {
+// listExisting은 reqs 슬롯의 기존 기록을 한 번에 읽어 슬롯별로 돌려줍니다. 기록이 없는 슬롯은 맵에 없습니다.
+// Select의 계정 lock 안에서 부르면 슬롯을 처리하는 동안 다른 요청이 이 기록을 바꾸지 않습니다.
+func listExisting(ctx context.Context, q *contentdb.Queries, accountID uuid.UUID, today pgtype.Date, birthHash []byte, reqs []SlotRequest) (map[string]contentdb.GetSelectionRow, error) {
 	slots := make([]string, len(reqs))
 	for i, r := range reqs {
 		slots[i] = r.Slot
 	}
 	rows, err := q.ListSelections(ctx, contentdb.ListSelectionsParams{
-		AccountID: sel.accountID, Date: sel.today, BirthHash: sel.birthHash, Slots: slots,
+		AccountID: accountID, Date: today, BirthHash: birthHash, Slots: slots,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("기록 조회: %w", err)
@@ -221,7 +235,21 @@ func (sel selector) existingSelections(ctx context.Context, q *contentdb.Queries
 	return out, nil
 }
 
-// selectSlot은 슬롯 하나의 기록을 다시 쓰거나 새로 고릅니다. existing과 found는 existingSelections가 읽은 그 슬롯의 기록입니다.
+// allExisting은 reqs의 모든 슬롯이 같은 메시지 키로 기록돼 있으면 그 기록을 요청 순서대로 돌려줍니다.
+// 하나라도 없거나 키가 다르면 ok가 false입니다.
+func allExisting(reqs []SlotRequest, existing map[string]contentdb.GetSelectionRow) (out []Selection, ok bool) {
+	out = make([]Selection, 0, len(reqs))
+	for _, r := range reqs {
+		row, found := existing[r.Slot]
+		if !found || row.MessageKey != r.MessageKey {
+			return nil, false
+		}
+		out = append(out, selectionFromRow(r.Slot, row))
+	}
+	return out, true
+}
+
+// selectSlot은 슬롯 하나의 기록을 다시 쓰거나 새로 고릅니다. existing과 found는 listExisting이 lock 안에서 읽은 그 슬롯의 기록입니다.
 func (sel selector) selectSlot(ctx context.Context, q *contentdb.Queries, version string, r SlotRequest, existing contentdb.GetSelectionRow, found bool) (Selection, error) {
 	key := contentdb.GetSelectionParams{AccountID: sel.accountID, Date: sel.today, Slot: r.Slot, BirthHash: sel.birthHash}
 	if found && existing.MessageKey == r.MessageKey {
