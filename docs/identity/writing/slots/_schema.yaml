@@ -71,7 +71,7 @@
 - name: components
   required: false
   type: "list[string]"
-  description: IA 슬롯이 아니라 컴포넌트 안에 들어가는 이름의 자리(IA 컴포넌트 id). 예 tag-chip, day-cell
+  description: IA 슬롯이 아니라 컴포넌트 안에 들어가는 이름의 자리(IA 컴포넌트 id). 예 hanja-tag, day-cell
 - name: select
   required: false
   type: string

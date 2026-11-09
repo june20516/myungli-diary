@@ -2370,27 +2370,6 @@
   "@iosTrackingUsageDescription": {
     "description": "iOS 앱 추적 투명성(ATT) 시스템 창의 본문. 제목과 버튼은 iOS가 정하고, UMP IDFA 안내 다음에 나옵니다"
   },
-  "tagChipLabel": "#{tag}",
-  "@tagChipLabel": {
-    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)",
-    "placeholders": {
-      "tag": {
-        "type": "String"
-      }
-    }
-  },
-  "tagChipPolarityGood": "좋은 흐름",
-  "@tagChipPolarityGood": {
-    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
-  },
-  "tagChipPolarityBad": "조심할 흐름",
-  "@tagChipPolarityBad": {
-    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
-  },
-  "tagChipPolarityNeutral": "무난한 흐름",
-  "@tagChipPolarityNeutral": {
-    "description": "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
-  },
   "tagSheetSentenceKindFortune": "총운",
   "@tagSheetSentenceKindFortune": {
     "description": "사주 기운 시트 문장 목록(tag-sentence-list) 줄 왼쪽 52px 이름 칸. 칸 안에서 줄바꿈합니다(DS1 V79, D77 ② IA 밖)"

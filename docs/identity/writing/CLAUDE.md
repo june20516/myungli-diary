@@ -51,6 +51,7 @@
 ## 현재 상태 (2026-11-05, writing 세션 작성)
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
+* **태그 칩 문구 삭제**(#886, W63): 컴포넌트 6.0.0에서 `tag-chip`이 빠져 `ui.tag-chip.label`과 키 넷을 지움.
 * **원전 원문 정자, 억부 근거 틀**(#871, #870, W62): `evidence.source` 원문 134구절을 정자로(앱 한자 글꼴 안), ko `basis.yongsin/eokbu` "힘이" 겹침 고침.
 * **용어 "일간" 뜻**(#863, F-019, 라운드 R35 `artifacts/2026-11-08-round-R35.md`, W61): 용어 id `role.day_master`의 값 이름, 한자, 뜻 3개 언어 원고. server 시드 반영은 server 몫입니다.
 * **DS1 2단계 화면 낱말**(#857, #850, D113, drift #855, 라운드 R34 `artifacts/2026-11-07-round-R34.md`, W60): IA 새 ui 슬롯 `explain-sheet.tag.diary-link`, `today.event.title`(그날 시트와 같은 키), IA 밖 슬롯 5개(12운성 자리 글자, 대운 세운 기간, 회고 낱말, 사주 기운 시트 이름 칸, 질문 바꾸기)와 띠 표 빈 칸 키, design 5.0.0 상한, 편수 삭제 둘. 신강약 알약은 IA에서 빠져(#860) 넣지 않았습니다.
@@ -123,7 +124,7 @@
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **R31 후속**: server가 `no_source.<rule_id>`를 그리는지 봅니다(#827). design 상한이 나오면 IA v5 새 슬롯의 `null`을 채웁니다. IA v5 새 슬롯과 `login.save.note`, DS1 2단계 새 슬롯(`explain-sheet.tag.diary-link`, `today.event.title`, `ui.saju.luck-period`, `ui.my-saju.record`, `ui.tag-sheet.sentence-kind`)이 대상입니다.
+2. **R31 후속**: server가 `no_source.<rule_id>`를 그리는지 봅니다(#827). design 상한이 나오면 IA v5 새 슬롯의 `null`을 채웁니다. IA v5 새 슬롯과 `login.save.note`, DS1 2단계 새 슬롯(`ui.saju.luck-period`, `ui.my-saju.record`, `ui.tag-sheet.sentence-kind`)이 대상입니다. `explain-sheet.tag.diary-link`, `tag-sheet.diary.cta`, `today.event.title`은 design 6.0.0 상한을 넣었습니다(drift #884).
 3. **문의 화면 후속**: design 3.4.0 상한을 넣었습니다(#763, drift #773). app이 새 키(#746 구현)를 가져가는지 봅니다.
 4. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
 5. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
