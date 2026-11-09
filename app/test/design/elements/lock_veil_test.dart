@@ -126,7 +126,7 @@ void main() {
             sectionTitle: '원전',
             stateLabel: '잠김',
             lines: LockVeilLines.source,
-            lead: _text('궁통보감 「오행총론」\n以义推之'),
+            lead: _text('궁통보감 「오행총론」\n以義推之'),
             fontFallback: const ['Hanja Test'],
           ),
         ),

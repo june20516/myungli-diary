@@ -277,7 +277,7 @@ void main() {
       find.descendant(
         of: find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
         matching: find.text(
-          '억부법으로 용신을 정했어요. 내 일간의 힘이 힘이 센 편이라, 그 힘을 고르게 맞추는 오행을 골랐어요.',
+          '억부법으로 용신을 정했어요. 내 일간은 힘이 센 편이라, 그 힘을 고르게 맞추는 오행을 골랐어요.',
           findRichText: true,
         ),
       ),

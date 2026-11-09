@@ -550,7 +550,7 @@ void main() {
         daily: _dailyWithPreview([
           {
             'basis': _sentence('오늘은 용신의'),
-            'source': _sentence('궁통보감 「오행총론」\n以义推之'),
+            'source': _sentence('궁통보감 「오행총론」\n以義推之'),
           },
         ]),
       );

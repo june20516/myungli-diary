@@ -181,7 +181,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-0. **DS1 PR 마무리(`app/ds1-screens`):** PR을 열고 본문에 origin과 다른 곳(계약이 정한 차이) 목록을 남깁니다. 알려진 writing 원고 결함은 코드로 고치지 않고 writing에 알립니다: 용신 판정 근거 틀 "힘이 {strength_level}"과 사전 값 "힘이 센 편"이 겹쳐 "힘이 힘이 센 편", `stage-strip` 읽기 연결의 "와"가 목록 구분자, en 윤달 태그 "Lunar Leap month". 원전 원고(`source.*`)의 한문이 간체자라 앱 한자 글꼴에 없는 글자가 있습니다(기기에서는 시스템 글꼴로 대체, 렌더 테스트에서는 네모). writing, design에 물을 일입니다.
+0. **DS1 PR(#872) 병합 대기(`app/ds1-screens`):** writing PR #873(W62)으로 #870(용신 억부 근거 "힘이" 겹침)과 #871(원전 원문 간체자)이 고쳐져, fixture와 테스트의 근거 문장, 원전 원문을 새 원고로 맞췄습니다(근거 시트 스크린샷 다시 찍음). 슬롯이 없어 코드가 정한 곳(`stage-strip` 읽기 연결의 "와", en 윤달 태그 "Lunar Leap month" 대소문자, 세운 연도와 나이 배치)과 그날 시트 내역 "지지합 / 합" 겹침은 PR 본문 "남은 것"에 있습니다.
 1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
    * Task 1·2·4~7 코드는 `app/real-login-a2`에서 끝났습니다(위 현재 상태).
    * **로컬 실제 로그인(카카오):** 로컬 server(README "로컬 server")와 에뮬레이터 http 모드로 `getAppConfig` 200, welcome, 카카오 계정 로그인 페이지 열림까지 확인했습니다(debug 전용 localhost 평문 허용). 남은 것: 카카오 콘솔 Android 플랫폼에 debug 키 해시(#311 코멘트) 등록, 사용자 카카오 계정으로 로그인한 뒤 약관 동의 → 온보딩 → 프로필 저장 → 로그인 뒤 화면을 실제 REST로 확인. 미리보기, 시진 확인, 음력 변환은 App Check라 Firebase(E5, #605) 뒤입니다.
