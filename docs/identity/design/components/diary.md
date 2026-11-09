@@ -122,7 +122,7 @@
 
 1. `app-bar` `edit`: 뒤로, 가운데 제목 `diary-edit.bar.title`(쓰는 중에는 `draft-indicator`: `diary-edit.draft.status` + `space.8` + `diary-edit.length.count`), 오른쪽 저장 글자 버튼 `diary-edit.save.cta`(쓴 것이 없으면 누를 수 없음, 누르면 저장 순서 뒤 diary-view).
 2. `date-block`(app-bar 아래 `space.16`, 좌우 `space.20`): `diary-edit.date.day`, `diary-edit.date.month`, `diary-edit.date.iljin`.
-3. `diary-editor` `edit`(date-block 아래 `space.24`): 종이 안 맨 위 인용 질문 `diary-edit.guide.question` + 질문 바꾸기, 그 아래 `space.16`에 본문(안내 `diary-edit.body.placeholder`).
+3. `diary-editor` `edit`(date-block 아래 `space.24`): 종이 안 맨 위 인용 질문 `diary-edit.guide.question` + 질문 바꾸기, 그 아래 `space.16`에 본문(안내 `diary-edit.body.placeholder`). 질문 떼기 `diary-edit.guide.remove`(떼면 이 편에는 질문이 붙지 않음)와 뗀 자리에 남는 다시 붙이기 `diary-edit.guide.attach`(누르면 그날 기본 질문)도 둡니다(D116, IA). 두 동작의 모양과 자리는 #929에서 정하며, 그전에는 명세 JSON에 없습니다.
 4. 본문에 초점이 있는 동안 키보드 내리기 버튼(키보드 inset 위 `space.12` 오른쪽). 키보드 위 막대는 OS 자동완성과 붙여넣기 막대에 비워 둡니다.
 
 * 아래 고정 버튼은 없습니다(저장은 상단 바 글자 버튼, IA v5).

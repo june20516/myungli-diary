@@ -1,0 +1,65 @@
+{
+  "masterPx": 1024,
+  "smallSealScale": 1.45,
+  "lockupHeightPx": 288,
+  "resvg": "0.49.0",
+  "files": {
+    "icon-large.png": {
+      "sha256": "2214f2bb5ae6a5530d54cd33e2f0a996fb1521a5cd5c65199a861e79e2f17504",
+      "mode": "RGB",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "icon-small.png": {
+      "sha256": "e485ef4bff069743e13e50539de3736e3c446a3331fd871f9078f0aef1685417",
+      "mode": "RGB",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "icon-android-foreground.png": {
+      "sha256": "c481d41c3823e9bd14570cadebc6014c96bba416e06248bd83c724f1d38459f6",
+      "mode": "RGBA",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "icon-android-background.png": {
+      "sha256": "14991bafd8101ba9f532001c157cbe075a4146d160d3b0838b7f76ebe0905086",
+      "mode": "RGB",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "lockup.png": {
+      "sha256": "c84a366da16e298881e10bd05b507612629d6d7942f0ed74a1d6b7eea6aa6c29",
+      "mode": "RGBA",
+      "size": [
+        1047,
+        288
+      ]
+    },
+    "lockup-dark.png": {
+      "sha256": "e8297dc697cb605c6cc86c38dacae6b5c13824cff6f08788dd013f7487275859",
+      "mode": "RGBA",
+      "size": [
+        1047,
+        288
+      ]
+    }
+  },
+  "sources": {
+    "book-detailed.png": "22b4fc38b4424b0242221e258b6e438507ccbbc4ac025a8a9f3ebb25d205ff8a",
+    "book-flat.png": "637eab6020f11c65184b82228e3bddb7f0bc243197675dd6ed9d65e1539a84f3"
+  },
+  "androidForeground": {
+    "safeDiameterDp": 66,
+    "bodyMaxRadiusDp": 30.89,
+    "anyMaxRadiusDp": 32.68
+  }
+}

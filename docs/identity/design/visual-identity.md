@@ -226,13 +226,19 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 
 | 파일 | 쓰임 |
 | --- | --- |
-| [`logo/icon-large.svg`](logo/icon-large.svg) | 앱 아이콘, 60px 이상 (스토어, 홈 화면) |
-| [`logo/icon-small.svg`](logo/icon-small.svg) | 앱 아이콘, 48px 이하 (설정, 알림, 스포트라이트) |
-| [`logo/icon-android-background.svg`](logo/icon-android-background.svg), [`logo/icon-android-foreground.svg`](logo/icon-android-foreground.svg) | Android 적응형 아이콘 레이어 (108 단위, 전경은 가운데 66 안전 영역) |
+| [`logo/icon-large.png`](logo/icon-large.png) | 앱 아이콘, 60px 이상 (스토어, 홈 화면). 1024 PNG, 알파 없음 |
+| [`logo/icon-small.png`](logo/icon-small.png) | 앱 아이콘, 48px 이하 (설정, 알림, 스포트라이트). 책을 키우고 낙관을 1.45배로 키운 평면판, 1024 PNG, 알파 없음 |
+| [`logo/icon-android-background.png`](logo/icon-android-background.png), [`logo/icon-android-foreground.png`](logo/icon-android-foreground.png) | Android 적응형 아이콘 레이어 (108dp 캔버스 1024 PNG, 전경은 투명 배경이고 가운데 66dp 안전 원 안) |
 | [`logo/wordmark.svg`](logo/wordmark.svg), [`logo/wordmark-dark.svg`](logo/wordmark-dark.svg) | 워드마크 (고운돋움 아웃라인) |
-| [`logo/lockup.svg`](logo/lockup.svg), [`logo/lockup-dark.svg`](logo/lockup-dark.svg) | 아이콘 + 워드마크 가로 조합 |
+| [`logo/lockup.png`](logo/lockup.png), [`logo/lockup-dark.png`](logo/lockup-dark.png) | 아이콘 + 워드마크 가로 조합, 높이 288 PNG. 라이트는 공유 이미지 로고, 다크는 다크 바탕 문서와 견본용(공유 이미지는 라이트 고정, V5) |
+| [`logo/source/`](logo/source/) | 떼어 낸 책 그림 2048(알파): 질감판 `book-detailed.png`, 평면판 `book-flat.png`. 위 PNG의 원본 |
+| [`logo/app-icon.json`](logo/app-icon.json) | 위 PNG의 sha256, 원본 sha256, resvg 버전, Android 전경 안전 영역 측정값 (`tools/app_icon.py`가 씀. 수치의 기준은 이 파일) |
 
-* 앱 아이콘 원본은 모서리 없는 풀블리드 정사각입니다. 모서리는 플랫폼이 깎습니다.
+* **앱 아이콘은 래스터 그림입니다(결정 V99, V7 개정).** 세이지 공책 + 반시계 낙관 日 방향은 V7 그대로이고, 표지 결, 책등, 책갈피 리본, 그림자가 있습니다. 사용자가 이미지 생성 도구로 만든 그림에서 배경과 워터마크 없이 책과 그림자만 떼어 낸 것이 `logo/source/`입니다.
+* 앱 아이콘 원본은 모서리 없는 풀블리드 정사각입니다. 모서리는 플랫폼이 깎습니다. 배경은 V7 SVG와 같은 대각선 그라데이션(`#e8f2e9` → `#ffe9e5`)에 옅은 종이 결입니다.
+* 배치는 V7 SVG 비율입니다: 책 몸통(리본 뺀) 높이가 큰 원형 72%, 작은 원형 76%. Android 전경은 100 단위 큰 원형 배치를 0.66배로 줄여 108 캔버스 가운데에 둡니다(옛 SVG `translate(21 21) scale(0.66)`과 같음). 책과 그림자 끝은 가운데 66dp 안전 원 안이고, 측정값은 `app-icon.json`에 있고 `test_logo.py`가 PNG 픽셀로 다시 잽니다.
+* 원본 PNG를 다시 만들 때(저장소 루트에서, resvg 필요): `uv run --with pillow==11.0.0 --with numpy==2.1.3 --with scipy==1.14.1 python docs/identity/design/tools/app_icon.py`. 같은 원본과 같은 도구 버전이면 같은 파일이고, `test_logo.py`가 `app-icon.json`과 대조합니다. 원본 PNG는 바이너리라 저장소 이력이 커지므로, 그림을 바꾸는 의도가 있는 PR에서만 다시 만들어 커밋합니다.
 * 크기별 PNG 내보내기는 app이 앱 빌드 설정에서 합니다.
+* **정본은 위 PNG입니다.** 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`, 이 표에는 없음)는 app이 래스터 원본으로 옮길 때(#909)까지만 남겨 두고, 옮긴 뒤 지웁니다. 새 아이콘 낙관은 그림이라 경로가 없고, UI의 낙관 도장 모양(V16)은 지금처럼 컴포넌트 명세의 경로 값이 기준입니다(그 값은 옛 SVG 낙관에서 왔음).
 * 워드마크는 글꼴로 다시 쓰지 않고 SVG 파일을 그대로 씁니다. 다크 바탕에는 `-dark` 파일을 씁니다.
 * 워드마크·가로 조합을 다시 만들 때: `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font <GowunDodum-Regular.ttf> --out-dir docs/identity/design/logo`

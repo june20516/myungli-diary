@@ -50,7 +50,7 @@ def test_specimen_has_no_unsupported_colors():
 
 
 def test_specimen_references_existing_logos():
-    sources = re.findall(r'src="\.\./logo/([\w.-]+\.svg)"', SPECIMEN.read_text())
+    sources = re.findall(r'(?:src|srcset)="\.\./logo/([\w.-]+\.(?:svg|png))"', SPECIMEN.read_text())
     assert sources
     for source in sources:
         assert (DESIGN_DIR / "logo" / source).exists(), source
