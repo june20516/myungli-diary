@@ -321,6 +321,58 @@ func (q *Queries) ListOtherHashVariants(ctx context.Context, arg ListOtherHashVa
 	return items, nil
 }
 
+const listSelections = `-- name: ListSelections :many
+SELECT slot, id, message_key, variant, seed_version FROM daily_selections
+WHERE account_id = $1 AND date = $2 AND birth_hash = $3 AND slot = ANY($4::text[])
+`
+
+type ListSelectionsParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+	BirthHash []byte
+	Slots     []string
+}
+
+type ListSelectionsRow struct {
+	Slot        string
+	ID          int64
+	MessageKey  string
+	Variant     string
+	SeedVersion string
+}
+
+// 문장 선택 한 번(Select)이 요청한 슬롯의 기록을 한꺼번에 읽습니다. 슬롯마다 GetSelection을 부르지 않게 합니다(#817).
+func (q *Queries) ListSelections(ctx context.Context, arg ListSelectionsParams) ([]ListSelectionsRow, error) {
+	rows, err := q.db.Query(ctx, listSelections,
+		arg.AccountID,
+		arg.Date,
+		arg.BirthHash,
+		arg.Slots,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSelectionsRow
+	for rows.Next() {
+		var i ListSelectionsRow
+		if err := rows.Scan(
+			&i.Slot,
+			&i.ID,
+			&i.MessageKey,
+			&i.Variant,
+			&i.SeedVersion,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTemplates = `-- name: ListTemplates :many
 SELECT slot, key, variant, body FROM content_templates
 WHERE seed_version = $1 AND lang = $2

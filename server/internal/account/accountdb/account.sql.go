@@ -210,20 +210,31 @@ func (q *Queries) DeleteSchedulesByAccount(ctx context.Context, accountID uuid.U
 }
 
 const getAccountAccess = `-- name: GetAccountAccess :one
-SELECT status, last_active_at
-FROM accounts
-WHERE id = $1
+SELECT a.status, a.last_active_at,
+       ARRAY(SELECT c.document FROM consents c WHERE c.account_id = a.id ORDER BY c.document, c.version)::text[] AS consent_documents,
+       ARRAY(SELECT c.version FROM consents c WHERE c.account_id = a.id ORDER BY c.document, c.version)::text[] AS consent_versions
+FROM accounts a
+WHERE a.id = $1
 `
 
 type GetAccountAccessRow struct {
-	Status       string
-	LastActiveAt time.Time
+	Status           string
+	LastActiveAt     time.Time
+	ConsentDocuments []string
+	ConsentVersions  []string
 }
 
+// 요청마다 부르는 인증 단계 조회라 계정 상태와 동의한 (문서, 버전)을 한 번에 읽습니다(#817, query 횟수가 SQL CPU를 씀).
+// consent_documents와 consent_versions는 같은 순서의 짝입니다.
 func (q *Queries) GetAccountAccess(ctx context.Context, id uuid.UUID) (GetAccountAccessRow, error) {
 	row := q.db.QueryRow(ctx, getAccountAccess, id)
 	var i GetAccountAccessRow
-	err := row.Scan(&i.Status, &i.LastActiveAt)
+	err := row.Scan(
+		&i.Status,
+		&i.LastActiveAt,
+		&i.ConsentDocuments,
+		&i.ConsentVersions,
+	)
 	return i, err
 }
 
@@ -250,39 +261,6 @@ func (q *Queries) InsertConsent(ctx context.Context, arg InsertConsentParams) er
 		arg.AgreedAt,
 	)
 	return err
-}
-
-const listConsents = `-- name: ListConsents :many
-SELECT document, version, agreed_at
-FROM consents
-WHERE account_id = $1
-ORDER BY agreed_at, document, version
-`
-
-type ListConsentsRow struct {
-	Document string
-	Version  string
-	AgreedAt time.Time
-}
-
-func (q *Queries) ListConsents(ctx context.Context, accountID uuid.UUID) ([]ListConsentsRow, error) {
-	rows, err := q.db.Query(ctx, listConsents, accountID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListConsentsRow
-	for rows.Next() {
-		var i ListConsentsRow
-		if err := rows.Scan(&i.Document, &i.Version, &i.AgreedAt); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const lockAccountForDelete = `-- name: LockAccountForDelete :one
