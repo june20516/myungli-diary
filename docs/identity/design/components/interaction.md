@@ -58,7 +58,7 @@
 * `seal.stamp`: `TweenSequence` 두 구간(가중치 35 / 65), 구간마다 `Cubic` 곡선.
 * `select.seep-slide`: 이전·새 표시를 따로 그려, 새 표시는 `SlideTransition`(거리의 15%) + 흐림 + 크기, 이전 표시는 제자리 흐림 + 크기 + 투명도.
 * `page.push`: 앱의 `PageRoute` 전환 하나(`PageTransitionsTheme`에 두 플랫폼 같은 builder)로, 새 화면을 `SlideTransition`(24px) + `FadeTransition`으로 감쌉니다. 이전 화면에는 secondary 애니메이션을 주지 않습니다. iOS 가장자리 밀어 뒤로 가기 제스처는 남깁니다.
-* `tab.switch`: 탭 갈래 화면(`StatefulShellRoute` 같은 탭 셸)에서 앞 화면과 새 화면을 겹쳐 두고 각각 `FadeTransition`(앞 1→0, 새 0→1, 200ms standard)으로 감쌉니다. 탭 바는 셸 바깥이라 움직이지 않습니다. 각 탭의 화면 상태(스크롤 위치 등)는 지금처럼 유지합니다.
+* `tab.switch`: 탭 갈래 화면(`StatefulShellRoute` 같은 탭 셸)에서 앞 화면과 새 화면을 겹쳐 두고 각각 `FadeTransition`(앞 1→0, 새 0→1, 200ms standard)으로 감쌉니다. 탭 바는 셸 바깥이라 움직이지 않습니다. 각 탭의 화면 상태(스크롤 위치 등)는 지금처럼 유지합니다. 전환 중에는 새 화면만 터치를 받고 앞 화면은 스크린리더에서도 숨깁니다. 전환 중에 다른 탭을 누르면 지금 투명도에서 멈추고 보이는 화면들을 0으로, 새 화면을 0에서 1로 다시 200ms 돌립니다. 같은 탭을 다시 누르면 무시합니다.
 * `sheet.stack`: 새 시트는 새 route. 아래 층은 `Transform.scale`·`Transform.translate`와 덮개 투명도만 바꿉니다(높이를 움직이지 않음).
 * 반투명 탭 바: `BackdropFilter`(탭 바 뒤 흐림)는 이 한 곳에만 씁니다.
 * 동작 줄이기: `MediaQuery.disableAnimations`, 투명도 줄이기: 플랫폼 접근성 설정(iOS `UIAccessibility.isReduceTransparencyEnabled`).

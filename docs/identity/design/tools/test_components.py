@@ -2081,7 +2081,8 @@ def test_diary_row_hanja_tag():
     assert tag["marginTop"] == "{space.12}" and tag["whenMissing"] == "hide"
     assert tag["opens"] == {"sheet": "explain-sheet", "diaryLink": True}  # Q3 안 A: 시트, 모아보기는 시트 안 링크
     # Q2 ①: 모아보기 안 줄은 대표 태그만 숨김. 날의 성격은 줄마다 달라 보임 (controller Ruling)
-    assert "hiddenIn" not in kind and "hiddenIn" not in tag and "모아 본 그 태그만" in tag["hiddenInTagDiary"]  # D113 ①, D115
+    assert "hiddenIn" not in kind and tag["hiddenIn"] == ["tag-diary"]  # 이름은 그대로(지우면 주 버전)
+    assert "모아 본 그 태그만" in tag["hiddenScope"]  # D113 ①, D115 ③: 숨김 범위는 모아 본 태그만
     # 한 편 카드: 날의 성격이 있을 때만 그 아래 space.8 (리뷰 Minor 4)
     assert parts["preview"]["marginTop"] == "{space.8}" and "날의 성격이 있을 때만" in parts["preview"]["marginTopWhen"]
     assert "badge" not in parts and "tag-chip" not in json.dumps(row, ensure_ascii=False)
@@ -2911,7 +2912,11 @@ def test_v100_outside_tap_closes_one_sheet():
 
 def test_v101_band_table_empty_line_centers_in_line_box():
     empty = component("saju", "band-table")["parts"]["empty"]
-    assert empty["verticalAlign"] == "box-center" and "stem.chip 22" in empty["box"]
+    assert (empty["width"], empty["height"]) == ({"value": 12, "unit": "px"}, {"value": 1, "unit": "px"})
+    assert empty["verticalAlign"] == "box-center" and empty["box"]["offsetTop"] == "{space.8}"
+    heights = empty["box"]["heightByBand"]
+    assert set(heights) == {"twelveStages", "shinsal", "hiddenStems"}
+    assert heights["hiddenStems"]["value"] == 22 and "label" in heights["shinsal"] and "label" in heights["twelveStages"]
     assert "V101" in empty["note"]
 
 
@@ -2926,6 +2931,14 @@ def test_v102_guide_question_remove_and_detached_prompt():
     assert detached["quoteLine"] == {"visible": False} and detached["paddingStart"] == 0
     assert detached["trailingIcon"]["icon"] == "chat-teardrop-dots"
     assert detached["trailingIcon"]["color"] == "{color.invite.fg}" and detached["trailingIcon"]["decorative"] is True
+    assert detached["fontSize"] == {"value": 14, "unit": "px"} and detached["trailingIcon"]["gap"] == "{space.4}"
+    assert detached["minTarget"] == 44 and detached["transition"] == {"out": "disappear.seep", "in": "appear.seep"}
+    assert (remove["size"], remove["color"]) == ("{size.icon.20}", "{color.text.secondary}")
+    states = question["guideStates"]
+    assert [(t["from"], t["to"]) for t in states["transitions"]] == [("attached", "detached"), ("detached", "attached")]
+    assert "그리지 않는다" in states["whenNoQuestion"] and "키보드는 그대로" in states["focus"]
+    # 옛 세로선 표현이 규칙 문장에 다시 들어오지 않게
+    assert "term.bg 선" not in json.dumps(editor, ensure_ascii=False)
     assert "disappear.seep" in editor["uses"]
     for name in ("x", "chat-teardrop-dots", "warning-circle"):
         assert name in (TOOLS_DIR / "phosphor_names.txt").read_text(encoding="utf-8").split(), name
@@ -2934,8 +2947,15 @@ def test_v102_guide_question_remove_and_detached_prompt():
 def test_v103_diary_row_shows_all_tags_in_one_scrolling_line():
     tag = component("diary", "diary-row")["parts"]["tag"]
     assert tag["count"] == "all" and tag["row"]["lines"] == 1 and tag["row"]["wrap"] is False
-    assert tag["row"]["hint"] == {"component": "scroll-hint", "parts": {"arrows": {"visible": False}}, "fadeTo": "{color.bg.sheet}"}
-    assert "#933" in tag["source"]
+    hint = tag["row"]["hint"]
+    assert (hint["component"], hint["parts"], hint["fadeTo"]) == (
+        "scroll-hint", {"arrows": {"visible": False}}, "{color.bg.sheet}")
+    assert "scroll-hint.parts.fade.width" in hint["note"]
+    assert "#933" in tag["source"] and tag["gap"] == "{space.8}" and tag["order"] == "대표 태그 순위"
+    row_text = json.dumps(component("diary", "diary-row"), ensure_ascii=False)
+    assert "대표 태그 하나" not in row_text
+    diary_md = (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")
+    assert "`hiddenScope`" in diary_md and "그 줄 안에서 가로로 밀고" in diary_md
 
 
 def test_v104_tab_switch_is_short_cross_fade():
@@ -2943,6 +2963,10 @@ def test_v104_tab_switch_is_short_cross_fade():
     assert (pattern["duration"], pattern["easing"]) == ("{motion.duration.short}", "{motion.easing.standard}")
     assert pattern["outgoing"] == {"opacity": [1, 0]} and pattern["incoming"] == {"opacity": [0, 1]}
     assert pattern["together"] is True and pattern["movement"] == "none"
+    assert (pattern["reduceMotion"], pattern["lowEnd"]) == ("opacity-only", "same")
+    assert "새 화면만" in pattern["inputDuring"] and "다시 200ms" in pattern["interrupt"]
+    primitive = json.loads((DESIGN_DIR / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
+    assert primitive["motion"]["duration"]["short"]["$value"] == {"value": 200, "unit": "ms"}
     tab_bar = component("frame", "tab-bar")
     assert "tab.switch" in tab_bar["uses"] and any("V104" in rule for rule in tab_bar["rules"])
     page_push = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["page.push"]
@@ -2956,3 +2980,5 @@ def test_v106_bottom_buttons_sit_16_above_system_inset():
     assert (secondary["component"], secondary["variant"], secondary["marginTop"]) == (
         "primary-button", "quiet", "{space.16}")
     assert any("V106" in rule for rule in component("action", "primary-button")["rules"])
+    assert "secondaryAction 아래" in step["bottomAction"]["paddingBottomAppliesTo"]
+    assert secondary["paddingX"] == step["bottomAction"]["paddingX"] == "{space.20}"
