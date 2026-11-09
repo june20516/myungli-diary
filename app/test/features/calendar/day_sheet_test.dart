@@ -626,7 +626,7 @@ void main() {
         ['1번째 일기', '2번째 일기', '3번째 일기'],
         reason: '작성 순 그대로',
       );
-      // 줄만 있고 날짜 열·태그 칩은 없습니다(그날 시트 모양).
+      // 줄만 있고 날짜 열·대표 태그은 없습니다(그날 시트 모양).
       expect(find.byType(DiaryRow), findsNothing);
       expect(find.byKey(DiaryRow.dateColumnKey), findsNothing);
       expect(

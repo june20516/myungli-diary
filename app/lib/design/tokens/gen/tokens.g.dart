@@ -198,22 +198,22 @@ final class ColorTokens {
   /// 옅은 낙관 도장 (달력 일기 쓴 날, 일기 목록, 질문 카드 버튼 뒤)
   final Color sealSoft;
 
-  /// 좋은 태그 칩 바탕 (배지 귀인과 같은 톤)
+  /// 좋은 날의 성격 한자 태그 바탕 (배지 귀인과 같은 톤, hanja-tag와 요소 tone)
   final Color tagGoodBg;
 
-  /// 좋은 태그 칩 글자
+  /// 좋은 날의 성격 한자 태그 글자
   final Color tagGoodFg;
 
-  /// 나쁜 태그 칩 바탕
+  /// 나쁜 날의 성격 한자 태그 바탕
   final Color tagBadBg;
 
-  /// 나쁜 태그 칩 글자
+  /// 나쁜 날의 성격 한자 태그 글자
   final Color tagBadFg;
 
-  /// 중립 태그 칩 테두리. 바탕은 없음
+  /// 중립 길흉 톤 테두리. 바탕은 없음
   final Color tagNeutralBorder;
 
-  /// 중립 태그 칩 글자
+  /// 중립 길흉 톤 글자
   final Color tagNeutralFg;
 
   /// 같은 날 일기 사이 점선 (흐름 줄보다 한 단계 뚜렷함)

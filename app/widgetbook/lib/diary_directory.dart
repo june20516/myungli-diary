@@ -7,28 +7,11 @@ import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
-
-/// tag-chip 세 변형.
-class _TagChipDemo extends StatelessWidget {
-  const new();
-
-  @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: Space.s8,
-    runSpacing: Space.s8,
-    children: [
-      TagChip(name: '천을귀인', variant: TagChipVariant.good, onTap: () {}),
-      TagChip(name: '충', variant: TagChipVariant.bad, onTap: () {}),
-      TagChip(name: '역마', variant: TagChipVariant.neutral, onTap: () {}),
-    ],
-  );
-}
 
 /// 날의 성격 `hanja-tag`(귀인의 날, 길흉 톤, V81).
 HanjaTag _dayKindTag() => HanjaTag(
@@ -129,7 +112,7 @@ const List<String> _questions = [
   '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?',
 ];
 
-/// diary-editor edit: 질문 바꾸기로 후보를 돌고, 저장 순간 버튼으로 도장·태그 칩 순서를
+/// diary-editor edit: 질문 바꾸기로 후보를 돌고, 저장 순간 버튼으로 도장·대표 태그 순서를
 /// 봅니다.
 class _EditorDemo extends StatefulWidget {
   const new();
@@ -168,7 +151,7 @@ class _EditorDemoState extends State<_EditorDemo> {
       ),
       TextButton(
         onPressed: () => _editor.playSaveSequence([
-          TagChip(name: '천을귀인', variant: TagChipVariant.good, onTap: () {}),
+          HanjaTag(glyph: '貴', label: '천을귀인', onTap: () {}),
         ]),
         child: const Text('저장 순간'),
       ),
@@ -271,25 +254,10 @@ final WidgetbookFolder diaryDirectory = WidgetbookFolder(
               child: DiaryEditor.view(
                 date: CalendarDate(2026, 10, 13),
                 body: '회의에서 먼저 말을 꺼냈더니 생각보다 반응이 좋았다.',
-                tags: [
-                  TagChip(
-                    name: '천을귀인',
-                    variant: TagChipVariant.good,
-                    onTap: () {},
-                  ),
-                ],
+                tags: [HanjaTag(glyph: '貴', label: '천을귀인', onTap: () {})],
               ),
             ),
           ),
-        ),
-      ],
-    ),
-    WidgetbookComponent(
-      name: 'tag-chip',
-      useCases: [
-        WidgetbookUseCase(
-          name: '변형',
-          builder: (context) => const Stage(child: _TagChipDemo()),
         ),
       ],
     ),

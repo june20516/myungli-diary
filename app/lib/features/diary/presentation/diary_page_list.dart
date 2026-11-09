@@ -29,7 +29,7 @@ const int _loadMoreThreshold = 3;
 ///
 /// [leading]은 목록 맨 위에 놓는 것(오프라인 배너, 태그 뜻 줄 등)입니다. 다음 쪽을 받는
 /// 동안은 맨 아래에 skeleton 줄, 받지 못하면 다시 시도 버튼을 둡니다. 줄을 누르면 그 일기의
-/// `diary-view`, 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([tag])와 같은
+/// `diary-view`, 대표 태그을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([tag])와 같은
 /// 칩은 같은 화면을 다시 쌓지 않도록 누를 수 없는 표시입니다.
 class DiaryPageList extends ConsumerWidget {
   /// [view] 목록을 그립니다. [tag]는 [diaryPagesProvider]의 family 값입니다.
@@ -223,7 +223,7 @@ HanjaTag? _featuredTag(
 /// 일기 한 편의 줄: 날의 성격 태그(기록값 먼저, 없으면 달 길흉 캐시, A89)와 대표 태그를 채운 `diary-row`.
 ///
 /// 일기 목록·태그 모아보기가 같은 날 한 편일 때 씁니다. 누르면 그 일기의 `diary-view`(A67)이고,
-/// 대표 태그 칩을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([listTag])와 같은 칩은 같은
+/// 대표 태그을 누르면 그 태그의 `tag-diary`입니다. 목록의 태그([listTag])와 같은 칩은 같은
 /// 화면을 다시 쌓지 않도록 누를 수 없는 표시입니다.
 class DiarySummaryRow extends ConsumerWidget {
   /// [summary] 일기의 줄을 만듭니다.

@@ -16,11 +16,11 @@ import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
@@ -422,7 +422,7 @@ void main() {
     });
   });
 
-  testWidgets('쓰면 잠시 뒤 기기에 초안, 저장하면 도장·태그 칩·toast 뒤 diary-view', (
+  testWidgets('쓰면 잠시 뒤 기기에 초안, 저장하면 도장·대표 태그·toast 뒤 diary-view', (
     tester,
   ) async {
     covers(const Covers(exits: ['diary-edit>diary-view'], decisions: ['D49']));
@@ -464,15 +464,18 @@ void main() {
     await settleWithIo(tester);
   });
 
-  testWidgets('저장 순간에 도장과 대표 태그 칩이 종이에 남습니다', (tester) async {
+  testWidgets('저장 순간에 도장과 대표 태그이 종이에 남습니다', (tester) async {
     await _openEdit(tester, _today);
     await tester.enterText(_body, '오늘 일기');
     await tester.pump();
     await tester.tap(find.text(_ko.diaryEditSave));
-    // 저장 응답(실제 I/O)을 받은 뒤 스크롤 → 도장 → 태그 칩 순서로 종이에 남습니다.
+    // 저장 응답(실제 I/O)을 받은 뒤 스크롤 → 도장 → 대표 태그 순서로 종이에 남습니다.
     final onPaper = find.descendant(
-      of: find.byKey(const ValueKey(ScreenIds.diaryEdit)),
-      matching: find.byType(TagChip),
+      of: find.descendant(
+        of: find.byKey(const ValueKey(ScreenIds.diaryEdit)),
+        matching: find.byKey(DiaryEditor.tagsKey),
+      ),
+      matching: find.byType(HanjaTag),
     );
     for (var i = 0; i < 100 && onPaper.evaluate().isEmpty; i++) {
       await tester.runAsync(

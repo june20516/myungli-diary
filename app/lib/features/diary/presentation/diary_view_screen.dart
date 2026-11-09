@@ -21,10 +21,8 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
-import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_row_tags.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -49,7 +47,7 @@ const AppGlyph _trash = AppGlyph(
 );
 
 /// 일기 보기(`diary-view`): 그날 성격 `hanja-tag`(누르면 뜻 시트), 도장이 찍힌 종이(쓸 때 고른
-/// 질문은 인용형), 태그 칩.
+/// 질문은 인용형), 대표 태그.
 /// 일기는 `?id=`(A67)이고, 제목의 날짜는 받은 일기의 날짜입니다(받기 전에는 제목 없음).
 ///
 /// * 일기를 받는 동안 skeleton(`loading`), 받지 못하면 오류와 다시 시도(`error`)입니다.
@@ -230,9 +228,9 @@ class _DiaryViewBody extends ConsumerWidget {
             date: date,
             body: diary.body,
             question: diary.guideQuestion,
-            tags: diaryTagChipsOf(
+            tags: diaryFeaturedHanjaTagsWith(
               context,
-              ref.read(depthSheetsProvider),
+              ref,
               names,
               diary.tags.featured,
             ),

@@ -5,39 +5,10 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
-
-/// tag-chip: good·bad·neutral.
-Widget _tagChips() => Builder(
-  builder: (context) {
-    final ja = Localizations.localeOf(context).languageCode == 'ja';
-    return Wrap(
-      spacing: Space.s8,
-      runSpacing: Space.s8,
-      children: [
-        TagChip(
-          name: ja ? '天乙貴人' : '천을귀인',
-          variant: TagChipVariant.good,
-          onTap: () {},
-        ),
-        TagChip(
-          name: ja ? '沖' : '충',
-          variant: TagChipVariant.bad,
-          onTap: () {},
-        ),
-        TagChip(
-          name: ja ? '駅馬' : '역마',
-          variant: TagChipVariant.neutral,
-          onTap: () {},
-        ),
-      ],
-    );
-  },
-);
 
 /// diary-row: 달 머리, 배지·태그 있는 줄, 배지 대기 줄, 마지막 줄, skeleton 줄.
 Widget _diaryRows() => Builder(
@@ -222,16 +193,8 @@ Widget _editors() => Builder(
               ? '会議で先に話を切り出したら、思ったより反応が良かった。'
               : '회의에서 먼저 말을 꺼냈더니 생각보다 반응이 좋았다.',
           tags: [
-            TagChip(
-              name: ja ? '天乙貴人' : '천을귀인',
-              variant: TagChipVariant.good,
-              onTap: () {},
-            ),
-            TagChip(
-              name: ja ? '用神の日' : '용신의 날',
-              variant: TagChipVariant.neutral,
-              onTap: () {},
-            ),
+            HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
+            HanjaTag(glyph: '沖', label: ja ? '沖' : '충', onTap: () {}),
           ],
         ),
       ],
@@ -254,9 +217,5 @@ void main() {
 
   goldenTest('diary-row: entries(오늘 바탕·그날 시트 머리·skeleton)', (tester) async {
     await goldenMatrix(tester, 'diary_entries', _diaryEntries);
-  });
-
-  goldenTest('tag-chip: good·bad·neutral', (tester) async {
-    await goldenMatrix(tester, 'diary_tag_chip', _tagChips);
   });
 }

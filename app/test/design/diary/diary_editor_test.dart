@@ -6,7 +6,7 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -22,8 +22,7 @@ final _question = RenderedText(
   segments: [Segment(text: '오늘 눈길이 갔던 장면을 적어 볼까요?')],
 );
 
-TagChip _chip() =>
-    TagChip(name: '천을귀인', variant: TagChipVariant.good, onTap: () {});
+HanjaTag _chip() => HanjaTag(glyph: '貴', label: '천을귀인', onTap: () {});
 
 Widget _scroll(Widget child, {double height = 640}) => inputApp(
   SizedBox(
@@ -140,7 +139,7 @@ void main() {
       expect(tester.getBottomRight(reserve).dy, paper.bottom - Space.s16);
     });
 
-    testWidgets('저장 순간: 맨 아래로 스크롤 → 도장(fill 64, M.D) + 햅틱 light → 태그 칩', (
+    testWidgets('저장 순간: 맨 아래로 스크롤 → 도장(fill 64, M.D) + 햅틱 light → 대표 태그', (
       tester,
     ) async {
       final haptics = recordHaptics(tester);
@@ -159,7 +158,7 @@ void main() {
           height: 400,
         ),
       );
-      expect(find.byType(TagChip), findsNothing);
+      expect(find.byType(HanjaTag), findsNothing);
       final done = editor.playSaveSequence([_chip()]);
       await tester.pumpAndSettle();
       await done;
@@ -167,12 +166,12 @@ void main() {
       final seal = tester.widget<Seal>(find.byType(Seal));
       expect((seal.size, seal.variant), (SealSize.paper, SealVariant.fill));
       expect(find.text('10.13'), findsOneWidget);
-      expect(find.byType(TagChip), findsOneWidget);
+      expect(find.byType(HanjaTag), findsOneWidget);
       expect(haptics, ['HapticFeedbackType.lightImpact']);
       final viewport = tester.getRect(find.byType(SingleChildScrollView));
       final sealRect = tester.getRect(find.byType(Seal));
       expect(viewport.contains(sealRect.center), isTrue, reason: '도장이 보이게 스크롤');
-      final chip = tester.getTopLeft(find.byType(TagChip)).dy;
+      final chip = tester.getTopLeft(find.byType(HanjaTag)).dy;
       expect(
         chip - tester.getBottomLeft(find.byKey(DiaryEditor.paperKey)).dy,
         Space.s16,
@@ -345,7 +344,7 @@ void main() {
   });
 
   group('diary-editor view', () {
-    testWidgets('같은 종이에 도장이 찍힌 채, 아래 태그 칩(간격 8)', (tester) async {
+    testWidgets('같은 종이에 도장이 찍힌 채, 아래 대표 태그(간격 8)', (tester) async {
       await tester.pumpWidget(
         _scroll(
           DiaryEditor.view(
@@ -362,7 +361,7 @@ void main() {
       // 보기는 저장된 질문을 같은 인용 모양으로, 바꾸기 없이 보입니다.
       expect(find.byKey(DiaryEditor.quoteLineKey), findsOneWidget);
       expect(find.byKey(DiaryEditor.swapKey), findsNothing);
-      final chips = find.byType(TagChip);
+      final chips = find.byType(HanjaTag);
       expect(chips, findsNWidgets(2));
       expect(
         tester.getTopLeft(chips.at(1)).dx - tester.getTopRight(chips.at(0)).dx,

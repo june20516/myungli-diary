@@ -9,9 +9,9 @@ import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -33,7 +33,7 @@ enum DiaryEditorVariant {
   /// 쓰기·고치기.
   edit,
 
-  /// 보기(`diary-view`): 도장이 찍힌 채, 아래 태그 칩.
+  /// 보기(`diary-view`): 도장이 찍힌 채, 아래 대표 태그(`hanja-tag`).
   view,
 }
 
@@ -42,9 +42,9 @@ class DiaryEditorController {
   _DiaryEditorState? _state;
 
   /// 저장 순서(`motion.saveSequence`)의 종이 쪽 단계를 돌립니다: 종이 맨 아래(도장 자리)로
-  /// 스크롤 → 날짜 도장 찍힘 + 햅틱 light → 대표 태그 칩 스밈. 끝나면 완료됩니다. 버튼 숨쉬기와
-  /// toast는 화면 몫입니다. 편집기가 화면에 없으면 바로 끝납니다.
-  Future<void> playSaveSequence(List<TagChip> tags) =>
+  /// 스크롤 → 날짜 도장 찍힘 + 햅틱 light → 대표 태그(`hanja-tag` `default`) 스밈. 끝나면
+  /// 완료됩니다. 버튼 숨쉬기와 toast는 화면 몫입니다. 편집기가 화면에 없으면 바로 끝납니다.
+  Future<void> playSaveSequence(List<HanjaTag> tags) =>
       _state?._playSaveSequence(tags) ?? Future<void>.value();
 }
 
@@ -57,7 +57,7 @@ class DiaryEditorController {
 /// (`focused`, V83, F-013).
 ///
 /// 종이 아래 끝에 64px 도장 자리를 쓰는 중에도 늘 비워 두어, 글이 길어도 도장이 글을 덮지
-/// 않습니다. 해시태그를 쓰는 입력은 없습니다(태그는 저장할 때 엔진이 붙임). 태그 칩은 종이
+/// 않습니다. 해시태그를 쓰는 입력은 없습니다(태그는 저장할 때 엔진이 붙임). 대표 태그는 종이
 /// 아래에 놓입니다.
 class DiaryEditor extends StatefulWidget {
   /// 쓰기·고치기 종이. 본문은 [controller]가 쥐고, [maxLength](계약 10000자)를 넘게 칠 수
@@ -215,8 +215,17 @@ class DiaryEditor extends StatefulWidget {
   /// `edit` 저장 순간 손잡이.
   final DiaryEditorController? editorController;
 
-  /// `view` 아래 태그 칩.
-  final List<TagChip> tags;
+  /// 종이 아래 대표 태그 줄을 찾는 테스트용 키.
+  static const Key tagsKey = ValueKey('diary-editor-tags');
+
+  /// 종이와 대표 태그 사이. 계약 `diary-editor.parts.tags.marginTop`.
+  static const double tagsMarginTop = Space.s16;
+
+  /// 대표 태그 사이(가로와 줄 사이). 계약 `diary-editor.parts.tags.gap`.
+  static const double tagsGap = Space.s8;
+
+  /// `view` 아래 대표 태그(`hanja-tag` `default`, 사이 `space.8`, 위 `space.16`).
+  final List<HanjaTag> tags;
 
   /// 질문의 IA 슬롯 id(`diary-edit.guide.question`).
   final String? questionSlotId;
@@ -245,7 +254,7 @@ class _DiaryEditorState extends State<DiaryEditor>
   );
 
   late bool _sealShown = _viewing;
-  late List<TagChip> _tags = widget.tags;
+  late List<HanjaTag> _tags = widget.tags;
   FocusNode? _ownFocus;
 
   FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
@@ -281,7 +290,7 @@ class _DiaryEditorState extends State<DiaryEditor>
     super.dispose();
   }
 
-  Future<void> _playSaveSequence(List<TagChip> tags) async {
+  Future<void> _playSaveSequence(List<HanjaTag> tags) async {
     final prefs = MotionPrefs.of(context);
     final reserve = _sealKey.currentContext;
     if (reserve != null) {
@@ -353,14 +362,15 @@ class _DiaryEditorState extends State<DiaryEditor>
         ),
         if (tags.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: Space.s16),
+            padding: const EdgeInsets.only(top: DiaryEditor.tagsMarginTop),
             child: animate(
               InteractionPattern.appearSeep,
               t: _seep,
               prefs: prefs,
               child: Wrap(
-                spacing: Space.s8,
-                runSpacing: Space.s8,
+                key: DiaryEditor.tagsKey,
+                spacing: DiaryEditor.tagsGap,
+                runSpacing: DiaryEditor.tagsGap,
                 children: tags,
               ),
             ),

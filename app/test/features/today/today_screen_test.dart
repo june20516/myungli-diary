@@ -23,7 +23,6 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
@@ -722,7 +721,7 @@ void main() {
         ),
         findsNWidgets(2),
       );
-      // 날짜 열·태그 칩 없이 줄만 있습니다.
+      // 날짜 열·대표 태그 없이 줄만 있습니다.
       expect(find.byType(DiaryRow), findsNothing);
 
       await tester.ensureVisible(find.byType(DiaryEntryLine).first);
@@ -765,7 +764,7 @@ void main() {
       );
     });
 
-    testWidgets('일기 줄에는 태그 칩이 없고, 누르면 그 일기 보기입니다', (tester) async {
+    testWidgets('일기 줄에는 대표 태그이 없고, 누르면 그 일기 보기입니다', (tester) async {
       final container = await pumpApp(tester, scenario: 'diary-written');
       await _settleToday(tester);
       final line = find.descendant(
@@ -776,7 +775,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byKey(DiaryEntries.cardKey),
-          matching: find.byType(TagChip),
+          matching: find.byType(HanjaTag),
         ),
         findsNothing,
       );

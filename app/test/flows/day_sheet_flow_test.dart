@@ -12,7 +12,6 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
@@ -237,7 +236,7 @@ void main() {
     );
   });
 
-  testWidgets('diary-written: 그날 시트 일기 줄에는 날짜 열·태그 칩이 없습니다', (tester) async {
+  testWidgets('diary-written: 그날 시트 일기 줄에는 날짜 열·대표 태그이 없습니다', (tester) async {
     await _openDaySheet(
       tester,
       CalendarDate(2026, 10, 12),
@@ -256,7 +255,7 @@ void main() {
     expect(
       find.descendant(
         of: find.descendant(of: sheet, matching: find.byType(DiaryEntries)),
-        matching: find.byType(TagChip),
+        matching: find.byType(HanjaTag),
       ),
       findsNothing,
     );

@@ -446,7 +446,7 @@ void main() {
       expect(find.byType(SentenceBlock), findsNWidgets(3));
     });
 
-    testWidgets('배지가 없으면 첫 줄이 카드 안쪽 위 16에서 시작하고 태그 칩이 없으면 그리지 않습니다', (
+    testWidgets('배지가 없으면 첫 줄이 카드 안쪽 위 16에서 시작하고 대표 태그이 없으면 그리지 않습니다', (
       tester,
     ) async {
       await tester.pumpWidget(_group(withBadge: false));
