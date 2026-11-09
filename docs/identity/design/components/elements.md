@@ -6,7 +6,7 @@
 | 요소 | 정의 | 쓰는 곳 |
 | --- | --- | --- |
 | `seal` 낙관 도장 | 로고 낙관 경로(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
-| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
+| `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 금과 수는 1px 안쪽 테두리 `ohaeng.metal.border`·`water.border`(V98). 크기 `pillar`(66px 높이), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
 | `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, hanja-tag 날의 성격, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
@@ -20,7 +20,7 @@
 | `keyboard.dismiss` 키보드 내리기 | 키보드 inset 위 `space.12` 오른쪽 44 원형 버튼(`bg.sheet`, `shadow.raised`, `caret-down` Regular 20) | `text-field`, `diary-editor` 초점 상태 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
 | `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
-| `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색, 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
+| `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색(금, 수는 테두리까지), 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
 | `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 또렷한 앞 2~3 단어 + 흐린 자리값 본문(6px, 0.5, G1), 여는 입구 `open`(자물쇠 + 열기) | 근거 시트 세 구역, 잠긴 용신 근거 |
@@ -104,6 +104,6 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 ## 간지 칩 `stem.chip`
 
-`band-table` 지장간 칸의 천간 한 글자를 오행 색으로 보이는 정사각 칸입니다(DS1 2단계, 결정 V72). 크기 22, 반경 `radius.sm`, 바탕색과 글자색은 `ohaeng.cell`의 그 오행 값, 한자는 `font.family.hanja` 13 700입니다. 지장간 칸 전용입니다. 원국 칸(`saju-pillars`)과 대운, 세운 칸(`luck-pillar`)은 `ohaeng.cell` 자체라 같은 색 규칙을 이미 쓰고 독음과 큰 한자를 담아 이 칩을 쓰지 않습니다(`notFor`, 결정 V89. spec §1의 "원국 칸도 씀"을 정정). `hanja-tag` `ganji`는 이 칩을 쓰지 않고 알약 전체를 오행 색으로 칠합니다(`sentence.md`). 칸이 고정이라 글자 배율 상한은 1.3배입니다(`ohaeng.cell`과 같음).
+`band-table` 지장간 칸의 천간 한 글자를 오행 색으로 보이는 정사각 칸입니다(DS1 2단계, 결정 V72). 크기 22, 반경 `radius.sm`, 바탕색과 글자색은 `ohaeng.cell`의 그 오행 값(금과 수는 테두리까지, V98), 한자는 `font.family.hanja` 13 700입니다. 지장간 칸 전용입니다. 원국 칸(`saju-pillars`)과 대운, 세운 칸(`luck-pillar`)은 `ohaeng.cell` 자체라 같은 색 규칙을 이미 쓰고 독음과 큰 한자를 담아 이 칩을 쓰지 않습니다(`notFor`, 결정 V89. spec §1의 "원국 칸도 씀"을 정정). `hanja-tag` `ganji`는 이 칩을 쓰지 않고 알약 전체를 오행 색으로 칠합니다(`sentence.md`). 칸이 고정이라 글자 배율 상한은 1.3배입니다(`ohaeng.cell`과 같음).
 
 1단계 요소 `section.header`와 `explain.sheet`는 IA v5의 컴포넌트 `section-header`, `explain-sheet`로 옮겼습니다(`frame.md`, 결정 V69, V71).

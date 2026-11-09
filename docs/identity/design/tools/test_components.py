@@ -442,8 +442,9 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_6_0():
-    assert VERSION == "6.0.0"  # #859 drift: IA에서 빠진 tag-chip을 지워 주 버전 (V96). 5.0.0은 DS1 2단계(#801)
+def test_contract_version_is_6_1():
+    # #892: 오행 금 흰색, 수 먹색으로 테두리 구성 요소를 더해 부 버전 (V98). 6.0.0은 #859 drift(V96)
+    assert VERSION == "6.1.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1668,7 +1669,14 @@ def test_hanja_tag_component():
     assert "톤 테두리" in selected["note"]
     # 간지 글자는 사주 용어 17자 규칙 밖의 변형: 알약과 이름은 그 오행 색, 원은 흰 바탕에 오행 글자색 (리뷰 라운드 2)
     ganji = variants["ganji"]["parts"]
-    assert ganji["glyph"] == {"bg": "{color.bg.sheet}", "fg": "same-as-name", "decorative": True}
+    # V98: 한자색은 오행마다 glyph 토큰(라이트 수, 다크 금은 알약 바탕색. V78 규칙), 금과 수 알약은 테두리
+    elements_order = ("wood", "fire", "earth", "metal", "water")
+    assert {key: value for key, value in ganji["glyph"].items() if key != "note"} == {
+        "bg": "{color.bg.sheet}", "decorative": True,
+        "fg": {"byElement": {element: f"{{color.ohaeng.{element}.glyph}}" for element in elements_order}}}
+    assert "V78" in ganji["glyph"]["note"]
+    assert ganji["pill"]["border"]["byElement"] == {
+        element: f"{{color.ohaeng.{element}.border}}" for element in ("metal", "water")}
     assert ganji["tone"]["byElement"] == {
         element: {"bg": f"{{color.ohaeng.{element}.bg}}", "fg": f"{{color.ohaeng.{element}.fg}}"}
         for element in ("wood", "fire", "earth", "metal", "water")}
@@ -2725,16 +2733,18 @@ def test_readme_records_5_0_removals_and_renames():
     assert "토큰 1.4.0 이상" in row and "주 버전" in row
 
 
-def test_contract_list_rows_name_6_0_and_1_4():
+def test_contract_list_rows_name_6_1_and_1_5():
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
-    assert "| 6.0.0 |" in component_row and "| 1.4.0 |" in token_row
+    assert "| 6.1.0 |" in component_row and "| 1.5.0 |" in token_row
+    for name in ("color.ohaeng.metal.border", "color.ohaeng.water.border", "color.ohaeng.<오행>.glyph"):
+        assert name in token_row.split("1.5.0:", 1)[1], name
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     elements_count = len(documents["elements"]["elements"])
     patterns = len(documents["interaction"]["patterns"])
-    tail = component_row.split("6.0.0:", 1)[1]
+    tail = component_row.split("6.1.0:", 1)[1]
     assert f"IA 컴포넌트 {specified}개" in tail and f"요소 {elements_count}개" in tail and f"패턴 {patterns}개" in tail
     assert "IA 컴포넌트 43개" not in tail and "57개" not in tail  # 앞 판 문장의 옛 숫자를 옮기지 않음
     for name in ("color.calendar.level", "color.fill.soft", "color.verdict.track", "color.highlight.bg"):
@@ -2831,8 +2841,6 @@ def test_tag_chip_removed_for_hanja_tag():
 
 
 def test_readme_records_6_0_removal():
-    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "컴포넌트 계약 6.0.0 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
     row = _readme_row("6.0.0")
     assert "`tag-chip`" in row.split("**지움**", 1)[1] and "V96" in row and "#859" in row
 
@@ -2842,3 +2850,29 @@ def test_time_unknown_notice_shares_saju_chart_key():
     banner = next(v for v in component("feedback", "notice-banner")["variants"] if v["id"] == "time-unknown")
     assert banner["parts"]["text"] == {"slot": "saju-chart.time-unknown.notice"}
     assert "saju-chart.time-unknown.notice" in _md_section("today.md", "### today 화면 배치")
+
+
+# 6.1.0 (#892, D114, 결정 V98): 금 흰색, 수 먹색
+def test_readme_records_6_1_ohaeng_borders():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "컴포넌트 계약 6.1.0 · 토큰 계약 1.5.0 이상을 기대합니다." in readme
+    row = _readme_row("6.1.0")
+    assert "V98" in row and "#892" in row and "**지움**" not in row
+    for name in ("`ohaeng.cell` `border`", "`pill.border`", "`bar.segmentBorder`", "color.ohaeng.<오행>.glyph"):
+        assert name in row, name
+
+
+def test_ohaeng_cell_border_only_for_metal_and_water():
+    cell = load_documents(COMPONENTS_DIR)["elements"]["elements"]["ohaeng.cell"]
+    assert cell["border"]["byElement"] == {
+        "metal": "{color.ohaeng.metal.border}", "water": "{color.ohaeng.water.border}"}
+    assert cell["border"]["width"] == {"value": 1, "unit": "px"} and cell["border"]["placement"] == "inside"
+    chip = load_documents(COMPONENTS_DIR)["elements"]["elements"]["stem.chip"]
+    assert "border" in chip["colorsRule"]  # 지장간 칩도 금과 수 테두리를 따름
+
+
+def test_ohaeng_bar_segments_have_swatch_border():
+    bar = component("saju", "ohaeng-bar")["parts"]["bar"]
+    assert bar["segmentBorder"]["color"] == "{color.swatch.border}"
+    assert any("swatch.border" in rule for rule in component("saju", "ohaeng-bar")["rules"])
+    assert "swatch.border" in _md_section("saju.md", "## ohaeng-bar")

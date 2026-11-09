@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오행 금과 수 색 관문 질문 (#892)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp.min.css" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 색, 간격, 반경, 글자는 ds1/tokens.css 토큰입니다. 안마다 금과 수 변수만 덮어씁니다. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f2f1ee; color: #1f1f1e;
+    font-family: var(--type-body-ui-family); font-size: var(--type-body-ui-size); line-height: var(--type-body-ui-line-height);
+  }
+  .page { max-width: 1300px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 48px 0 8px; }
+  .intro, .note { color: #5b5b59; margin: 0 0 16px; max-width: 820px; }
+  .row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .panel {
+    width: 290px; padding: var(--space-16) var(--space-16) var(--space-20);
+    background: var(--color-bg-base); color: var(--color-text-primary);
+    border-radius: var(--radius-lg, 16px); border: 1px solid var(--color-line);
+  }
+  .panel .caption { font-size: var(--type-label-md-size); font-weight: 700; color: var(--color-action-primary); }
+  .panel .sub { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); margin: 2px 0 var(--space-12); min-height: 32px; }
+  .card { background: var(--color-bg-sheet); border-radius: var(--radius-md, 12px); padding: var(--space-12); margin-top: var(--space-8); }
+  .label { font-size: var(--type-caption-sm-size); color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+
+  /* ohaeng.cell: 칸 바탕 + 글자. 금 칸은 테두리(새 토큰 안) */
+  .cell { border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .cell .h { font-family: var(--font-family-hanja); font-weight: 700; }
+  .pillar { height: 66px; }
+  .pillar .h { font-size: 22px; line-height: 1.1; }
+  .pillar .r { font-size: var(--type-caption-sm-size); }
+  .small { width: 40px; height: 40px; }
+  .small .h { font-size: 18px; }
+  .chip22 { width: 22px; height: 22px; }
+  .chip22 .h { font-size: 13px; }
+  .wood { background: var(--color-ohaeng-wood-bg); color: var(--color-ohaeng-wood-fg); }
+  .fire { background: var(--color-ohaeng-fire-bg); color: var(--color-ohaeng-fire-fg); }
+  .earth { background: var(--color-ohaeng-earth-bg); color: var(--color-ohaeng-earth-fg); }
+  .metal { background: var(--color-ohaeng-metal-bg); color: var(--color-ohaeng-metal-fg); box-shadow: inset 0 0 0 1px var(--metal-border, transparent); }
+  .water { background: var(--color-ohaeng-water-bg); color: var(--color-ohaeng-water-fg); box-shadow: inset 0 0 0 1px var(--water-border, transparent); }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+  .grid4 .head { text-align: center; font-size: var(--type-caption-sm-size); color: var(--color-text-secondary); }
+  .luck { display: flex; gap: var(--space-4); }
+  .luck .col { display: flex; flex-direction: column; gap: var(--space-4); }
+
+  /* hanja-tag ganji: 알약은 오행 bg, fg. 원은 bg.sheet, 한자는 glyph 색 */
+  .htag { display: inline-flex; align-items: center; gap: var(--space-4); height: 30px; padding: 0 var(--space-12) 0 var(--space-4); border-radius: var(--radius-full); font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); margin: 0 var(--space-4) var(--space-4) 0; }
+  .htag .g { width: 22px; height: 22px; border-radius: 50%; background: var(--color-bg-sheet); display: flex; align-items: center; justify-content: center; font-family: var(--font-family-hanja); font-weight: 700; font-size: 12px; }
+  .htag.wood .g { color: var(--color-ohaeng-wood-fg); }
+  .htag.fire .g { color: var(--color-ohaeng-fire-fg); }
+  .htag.metal .g { color: var(--glyph-metal); }
+  .htag.water .g { color: var(--glyph-water); }
+
+  /* ohaeng-bar: 견본 비례, 칸마다 swatch.border */
+  .bar { display: flex; gap: 2px; height: 10px; }
+  .bar span { border-radius: var(--radius-full); box-shadow: inset 0 0 0 1px var(--color-swatch-border); }
+  .legend { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: var(--space-12); font-size: var(--type-caption-md-size); }
+  .legend div { display: flex; align-items: center; gap: 4px; }
+  .sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 1px var(--color-swatch-border); }
+  .s-wood { background: var(--color-ohaeng-wood-swatch); }
+  .s-fire { background: var(--color-ohaeng-fire-swatch); }
+  .s-earth { background: var(--color-ohaeng-earth-swatch); }
+  .s-metal { background: var(--color-ohaeng-metal-swatch); }
+  .s-water { background: var(--color-ohaeng-water-swatch); }
+  .lucky { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 var(--space-12) 0 var(--space-8); border-radius: var(--radius-full); box-shadow: inset 0 0 0 1px var(--color-tag-neutral-border); font-size: var(--type-label-md-size); margin-right: var(--space-4); }
+  .lucky .sw { width: 14px; height: 14px; }
+  .vals { margin-top: var(--space-12); font-size: 11px; color: var(--color-text-secondary); font-family: ui-monospace, monospace; line-height: 1.5; }
+  .rec { display: inline-block; font-size: 11px; font-weight: 700; color: var(--color-badge-good-fg); background: var(--color-badge-good-bg); border-radius: var(--radius-full); padding: 0 8px; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>오행 금과 수 색 (#892)</h1>
+  <p class="intro">금은 흰색(테두리 필수), 수는 먹색(진한 바탕에 흰 글자)으로 바꿉니다. 목, 화, 토는 그대로입니다. 안마다 사주 표 칸, 대운 칸, 지장간 칩, 간지 태그, 오행 막대, 행운 색 견본을 같은 데이터로 그렸습니다. 사주는 年 丙午, 月 庚子, 日 壬戌, 時 甲申입니다.</p>
+  <p class="note">제가 정한 것(질문 아님): 금 칸은 얇은 테두리를 둡니다(새 토큰 <code>color.ohaeng.metal.border</code>). 간지 태그 한자 원은 이름 글자가 밝은 알약(수)이면 한자를 알약 바탕색으로 그립니다(V78 용신의 날과 같은 규칙). 오행 막대 칸에도 견본 테두리를 둡니다. 모든 글자 대비는 7:1 이상입니다.</p>
+
+  <h2>Q1. 라이트 모드 수 색조</h2>
+  <p class="note">금은 세 안 모두 같습니다(지휘 시작값). 수 바탕의 푸른 기만 다릅니다.</p>
+  <div class="row" id="q1"></div>
+
+  <h2>Q2. 다크 모드 금과 수</h2>
+  <p class="note">A는 모드와 관계없이 금 = 가장 밝은 칸, 수 = 가장 어두운 칸으로 둡니다. B는 다크 모드 관례대로 모든 칸을 어둡게 두고, 금은 밝은 회색 글자, 수는 가장 어두운 바탕으로만 가릅니다. 수 칸은 화면보다 어두워 테두리를 둡니다.</p>
+  <div class="row" id="q2"></div>
+</div>
+<script>
+const NOW = { metal: { bg: "#e8ebef", fg: "#454e58", swatch: "#b4bfca" }, water: { bg: "#e0ecfe", fg: "#304d78", swatch: "#153e78" } };
+const NOW_DARK = { metal: { bg: "#2a2e33", fg: "#d3d8de", swatch: "#b4bfca" }, water: { bg: "#212e42", fg: "#c4d9f9", swatch: "#153e78" } };
+const METAL = { bg: "#f5f7f9", fg: "#474e55", swatch: "#f8fafd", border: "#b9bec4" };
+const W1 = { bg: "#242e3d", fg: "#eef2f9", swatch: "#18202b" };
+const options = {
+  q1: [
+    { title: "지금", sub: "금 은회색, 수 남색(바꾸기 전)", theme: "light", metal: NOW.metal, water: NOW.water },
+    { title: "①  먹남(지휘 시작값)", rec: true, sub: "수 L 0.30 C 0.03 hue 258. 검정에 아주 옅은 푸른 기", theme: "light", metal: METAL, water: W1 },
+    { title: "②  순먹", sub: "수 L 0.28 C 0.008. 푸른 기 거의 없음", theme: "light", metal: METAL, water: { bg: "#26292d", fg: "#f0f2f4", swatch: "#191b1d" } },
+    { title: "③  짙은 남", sub: "수 L 0.32 C 0.05. 푸른 기가 보임", theme: "light", metal: METAL, water: { bg: "#22334c", fg: "#ecf2fc", swatch: "#16243a" } },
+  ],
+  q2: [
+    { title: "지금 (다크)", sub: "금 회색, 수 남색 옅은 칸", theme: "dark", metal: NOW_DARK.metal, water: NOW_DARK.water },
+    { title: "A  금 밝은 칸, 수 가장 어두운 칸", rec: true, sub: "라이트와 같은 인상. 금 칸이 화면에서 가장 밝음", theme: "dark", metal: { bg: "#d5d8db", fg: "#2d343a", swatch: METAL.swatch }, water: { bg: "#0a1018", fg: "#dadee5", swatch: W1.swatch, border: "#3c434d" }, glyphMetal: "bg" },
+    { title: "B  모두 어두운 칸", sub: "금은 회색 칸 + 밝은 글자, 수는 가장 어두운 바탕", theme: "dark", metal: { bg: "#3b3d40", fg: "#e2e5e8", swatch: METAL.swatch }, water: { bg: "#060b14", fg: "#cdd1d8", swatch: W1.swatch, border: "#373e48" } },
+  ],
+};
+function panel(o) {
+  const el = document.createElement("div");
+  el.className = "panel";
+  el.dataset.theme = o.theme;
+  const s = el.style;
+  s.setProperty("--color-ohaeng-metal-bg", o.metal.bg); s.setProperty("--color-ohaeng-metal-fg", o.metal.fg);
+  s.setProperty("--color-ohaeng-metal-swatch", o.metal.swatch);
+  s.setProperty("--color-ohaeng-water-bg", o.water.bg); s.setProperty("--color-ohaeng-water-fg", o.water.fg);
+  s.setProperty("--color-ohaeng-water-swatch", o.water.swatch);
+  if (o.metal.border) s.setProperty("--metal-border", o.metal.border);
+  if (o.water.border) s.setProperty("--water-border", o.water.border);
+  // 한자 원(bg.sheet) 안 한자: 이름 글자가 밝은 알약이면 알약 바탕색(V78)
+  const lightName = (hex) => parseInt(hex.slice(1, 3), 16) > 160;
+  const sheetIsLight = o.theme === "light";
+  const glyph = (c) => (sheetIsLight && lightName(c.fg)) || (!sheetIsLight && !lightName(c.fg)) ? c.bg : c.fg;
+  s.setProperty("--glyph-metal", glyph(o.metal)); s.setProperty("--glyph-water", glyph(o.water));
+  const cell = (cls, h, r, size) => `<div class="cell ${size} ${cls}"><span class="h">${h}</span>${r ? `<span class="r">${r}</span>` : ""}</div>`;
+  el.innerHTML = `
+    <div class="caption">${o.title}${o.rec ? '<span class="rec">권장</span>' : ""}</div>
+    <div class="sub">${o.sub}</div>
+    <div class="card">
+      <div class="label">원국 (saju-pillars)</div>
+      <div class="grid4">
+        <div class="head">시</div><div class="head">일</div><div class="head">월</div><div class="head">년</div>
+        ${cell("wood", "甲", "갑", "pillar")}${cell("water", "壬", "임", "pillar")}${cell("metal", "庚", "경", "pillar")}${cell("fire", "丙", "병", "pillar")}
+        ${cell("metal", "申", "신", "pillar")}${cell("earth", "戌", "술", "pillar")}${cell("water", "子", "자", "pillar")}${cell("fire", "午", "오", "pillar")}
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">대운 (luck-pillar)과 지장간 칩 (stem.chip)</div>
+      <div class="luck">
+        <div class="col">${cell("metal", "辛", "", "small")}${cell("earth", "丑", "", "small")}</div>
+        <div class="col">${cell("water", "壬", "", "small")}${cell("wood", "寅", "", "small")}</div>
+        <div class="col">${cell("water", "癸", "", "small")}${cell("wood", "卯", "", "small")}</div>
+        <div class="col">${cell("wood", "甲", "", "small")}${cell("earth", "辰", "", "small")}</div>
+        <div style="display:flex;gap:4px;align-items:flex-end;margin-left:8px">${cell("metal", "庚", "", "chip22")}${cell("water", "壬", "", "chip22")}${cell("earth", "戊", "", "chip22")}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">간지 태그 (hanja-tag ganji)</div>
+      <span class="htag water"><span class="g">子</span>자시</span><span class="htag metal"><span class="g">申</span>신시</span><span class="htag fire"><span class="g">午</span>오시</span>
+    </div>
+    <div class="card">
+      <div class="label">오행 분포 (ohaeng-bar)</div>
+      <div class="bar"><span class="s-wood" style="flex:1"></span><span class="s-fire" style="flex:2"></span><span class="s-earth" style="flex:1"></span><span class="s-metal" style="flex:2"></span><span class="s-water" style="flex:2"></span></div>
+      <div class="legend"><div><i class="sw s-wood"></i>목 1</div><div><i class="sw s-fire"></i>화 2</div><div><i class="sw s-earth"></i>토 1</div><div><i class="sw s-metal"></i>금 2</div><div><i class="sw s-water"></i>수 2</div></div>
+    </div>
+    <div class="card">
+      <div class="label">행운 색 견본</div>
+      <span class="lucky"><i class="sw s-metal"></i>흰색</span><span class="lucky"><i class="sw s-water"></i>검정</span>
+    </div>
+    <div class="vals">금 ${o.metal.bg} / ${o.metal.fg} 견본 ${o.metal.swatch}${o.metal.border ? " 테두리 " + o.metal.border : ""}<br>수 ${o.water.bg} / ${o.water.fg} 견본 ${o.water.swatch}${o.water.border ? " 테두리 " + o.water.border : ""}</div>`;
+  return el;
+}
+for (const [id, list] of Object.entries(options)) {
+  const row = document.getElementById(id);
+  list.forEach((o) => row.appendChild(panel(o)));
+}
+</script>
+</body>
+</html>

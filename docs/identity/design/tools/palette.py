@@ -37,22 +37,39 @@ BRAND_SCALES = {
     "neutral": (110, 0.008, ALL_STEPS),
 }
 
-# 오행: (hue, 견본 명도, 견본 채도) (spec §3.3)
+# 오행: (hue, 견본 명도, 견본 채도) (spec §3.3). 금과 수는 아래 OHAENG_FIXED가 모든 값을 정합니다.
 OHAENG_SWATCHES = {
     "wood": (145, 0.58, 0.13),
     "fire": (27, 0.60, 0.17),
     "earth": (78, 0.76, 0.13),
-    "metal": (250, 0.80, 0.02),
-    "water": (258, 0.37, 0.11),
+    "metal": (250, 0.985, 0.004),
+    "water": (258, 0.24, 0.025),
 }
-# 옅은 바탕·글자의 (명도, 채도). 금은 채도를 낮춰 수와 구분합니다.
+# 목, 화, 토의 옅은 바탕과 글자 (명도, 채도)
 OHAENG_TEXT_LEVELS = {
     "tint": (0.94, 0.03),
     "ink": (0.42, 0.08),
     "tint_dark": (0.30, 0.04),
     "ink_dark": (0.88, 0.05),
 }
-METAL_TEXT_CHROMA = {"tint": 0.006, "ink": 0.02, "tint_dark": 0.01, "ink_dark": 0.01}
+# 금은 흰색, 수는 먹색(국내 사주 앱 관습과 원전 水黑, 淮南子 白虎·玄武. D114, #892, 결정 V98).
+# 부위 → (명도, 채도). 모드와 관계없이 금은 가장 밝은 칸, 수는 가장 어두운 칸(관문 Q2 A).
+# 수는 반전 칸(진한 바탕 + 흰 글자). border는 칸이 화면 바탕과 가까운 모드에서만 보이는 1px 안쪽 선이고,
+# 칸이 바탕과 충분히 다른 모드에서는 None(= 칸 바탕과 같은 값, 보이지 않음)입니다.
+OHAENG_FIXED = {
+    "metal": {
+        "swatch": (0.985, 0.004), "tint": (0.975, 0.004), "ink": (0.42, 0.015),
+        "tint_dark": (0.88, 0.006), "ink_dark": (0.32, 0.015),
+        "border": (0.80, 0.01), "border_dark": None,
+    },
+    "water": {
+        "swatch": (0.24, 0.025), "tint": (0.30, 0.03), "ink": (0.96, 0.01),  # 관문 Q1 ① 먹남
+        "tint_dark": (0.17, 0.02), "ink_dark": (0.90, 0.01),
+        "border": None, "border_dark": (0.38, 0.02),
+    },
+}
+# 칸 테두리가 필요한지 가르는 기준: 칸 바탕이나 테두리 중 하나는 bg.sheet와 이 대비 이상 (금, 수)
+MIN_OHAENG_EDGE_CONTRAST = 1.4
 
 GRADIENT_LIGHT = ["#eef4ef", "#fbefee"]
 GRADIENT_DARK_OKLCH = [(0.23, 0.022, 150), (0.23, 0.024, 20)]
@@ -198,15 +215,27 @@ def brand_scale(hue: float, peak_chroma: float, steps: tuple[int, ...]) -> dict[
 
 
 def _ohaeng_palette() -> dict[str, dict[str, str]]:
+    """오행마다 견본, 바탕(tint), 글자(ink)와 다크 짝. 금과 수는 테두리(border, border_dark)도 둡니다."""
     palette = {}
     for element, (hue, swatch_lightness, swatch_chroma) in OHAENG_SWATCHES.items():
         colors = {"swatch": oklch_to_hex(swatch_lightness, swatch_chroma, hue)}
+        fixed = OHAENG_FIXED.get(element)
         for part, (lightness, chroma) in OHAENG_TEXT_LEVELS.items():
-            if element == "metal":
-                chroma = METAL_TEXT_CHROMA[part]
+            if fixed:
+                lightness, chroma = fixed[part]
             colors[part] = oklch_to_hex(lightness, chroma, hue)
+        if fixed:
+            for part, cell in (("border", "tint"), ("border_dark", "tint_dark")):
+                colors[part] = oklch_to_hex(*fixed[part], hue) if fixed[part] else colors[cell]
         palette[element] = colors
     return palette
+
+
+def ohaeng_glyph_part(colors: dict[str, str], mode: str, sheet: str) -> str:
+    """hanja-tag ganji 흰 원(bg.sheet) 안 한자색이 가리킬 부위: 이름 글자색이 bg.sheet에서 읽히면 글자색,
+    아니면 알약 바탕색(결정 V78 용신의 날과 같은 규칙, V98). 돌려주는 값은 "fg" 또는 "bg"."""
+    ink = "ink" if mode == "light" else "ink_dark"
+    return "fg" if _unrounded_contrast(colors[ink], sheet) >= MIN_TEXT_CONTRAST else "bg"
 
 
 def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
@@ -336,6 +365,9 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
         ink, tint = ("ink", "tint") if mode == "light" else ("ink_dark", "tint_dark")
         for element, colors in palette["ohaeng"].items():
             pairs.append((f"{mode} ohaeng.{element}", colors[ink], colors[tint]))
+            # hanja-tag ganji 흰 원 안 한자 (V98)
+            glyph = colors[ink] if ohaeng_glyph_part(colors, mode, roles["bg.sheet"]) == "fg" else colors[tint]
+            pairs.append((f"{mode} ohaeng.{element}.glyph on bg.sheet", glyph, roles["bg.sheet"]))
         pairs += _v2_pairs(palette, mode, roles, ink)
     return pairs
 
