@@ -11,10 +11,11 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -164,7 +165,7 @@ void main() {
     expect(rows.any((row) => row.dayKind != null), isTrue);
   });
 
-  testWidgets('diary-view의 태그 칩 → 뜻 시트의 링크 → 그 태그 모아보기', (tester) async {
+  testWidgets('diary-view의 대표 태그 → 뜻 시트의 링크 → 그 태그 모아보기', (tester) async {
     covers(
       const Covers(
         exits: ['diary-view>explain-sheet', 'explain-sheet>tag-diary'],
@@ -181,9 +182,13 @@ void main() {
             ),
           ),
     );
-    await pumpUntil(tester, () => find.byType(TagChip).evaluate().isNotEmpty);
+    final tags = find.descendant(
+      of: find.byKey(DiaryEditor.tagsKey),
+      matching: find.byType(HanjaTag),
+    );
+    await pumpUntil(tester, () => tags.evaluate().isNotEmpty);
     await settleWithIo(tester);
-    await tester.tap(find.byType(TagChip).first);
+    await tester.tap(tags.first);
     await settleWithIo(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
     await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('합')));

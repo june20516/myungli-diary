@@ -5,8 +5,9 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_list_screen.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 
@@ -76,14 +77,17 @@ void main() {
     expect(saved.path, '/diary-view');
     expect(saved.queryParameters.keys, ['id']);
 
-    // 태그 칩 → 뜻 시트 → 모아보기 링크: 그 태그 모아보기에 방금 쓴 날이 있습니다.
+    // 대표 태그 → 뜻 시트 → 모아보기 링크: 그 태그 모아보기에 방금 쓴 날이 있습니다.
     final chip = find
         .descendant(
-          of: _screen(ScreenIds.diaryView),
-          matching: find.byType(TagChip),
+          of: find.descendant(
+            of: _screen(ScreenIds.diaryView),
+            matching: find.byKey(DiaryEditor.tagsKey),
+          ),
+          matching: find.byType(HanjaTag),
         )
         .first;
-    final tagName = tester.widget<TagChip>(chip).name;
+    final tagName = tester.widget<HanjaTag>(chip).label;
     await tester.tap(chip);
     await settleWithIo(tester);
     await tester.tap(

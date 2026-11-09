@@ -32,7 +32,6 @@ import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
@@ -155,7 +154,7 @@ void _expectPendingFailure(String key, PendingCheck pending, Object? failure) {
   }
 }
 
-/// 대조 [check]를 돌립니다. [key]가 [knownPendingChecks]에 있으면 아직 5.0.0을 따라잡지
+/// 대조 [check]를 돌립니다. [key]가 [knownPendingChecks]에 있으면 아직 6.0.0을 따라잡지
 /// 않은 대조라 기대한 실패가 나야 하고, 통과하면 대기 목록에서 지우라고 실패합니다(ratchet).
 void _contractCheck(String key, void Function() check) {
   final pending = knownPendingChecks[key];
@@ -204,8 +203,8 @@ void main() {
   group('ComponentSpec 대조', () {
     final specs = loadSpecComponents();
 
-    test('명세 묶음(5.0.0)에서 컴포넌트 57개를 읽습니다', () {
-      expect(specs, hasLength(57));
+    test('명세 묶음(6.0.0)에서 컴포넌트 56개를 읽습니다', () {
+      expect(specs, hasLength(56));
     });
 
     test('계약 id는 모두 등록됐거나 대기 목록에 있고, 둘은 겹치지 않습니다', () {
@@ -228,7 +227,7 @@ void main() {
       }
     });
 
-    test('57개 전체의 variants·states 형태가 기대와 같습니다', () {
+    test('56개 전체의 variants·states 형태가 기대와 같습니다', () {
       for (final component in specs.values) {
         // variantIds·stateKeys가 형태(list/null, 문자열 id, dict/null)를 assert합니다.
         variantIds(component);
@@ -236,7 +235,7 @@ void main() {
       }
     });
 
-    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(57개)', () {
+    test('명세 JSON에서 만든 ComponentSpec은 대조를 통과합니다(56개)', () {
       for (final component in specs.values) {
         final spec = ComponentSpec(
           component['id']! as String,
@@ -993,6 +992,23 @@ void main() {
     });
   });
 
+  test(
+    'diary-editor tags: hanja-tag default, 사이 space.8, 위 space.16 (6.0.0, V96)',
+    () {
+      final tags = _map(
+        _map(loadSpecComponents()['diary-editor']!['parts'])['tags'],
+      );
+      expect(tags['component'], 'hanja-tag');
+      expect(tags['variant'], 'default');
+      expect(tags['gap'], '{space.8}');
+      expect(DiaryEditor.tagsGap, Space.s8);
+      expect(tags['marginTop'], '{space.16}');
+      expect(DiaryEditor.tagsMarginTop, Space.s16);
+      expect(tags['appear'], 'appear.seep');
+      expect(_map(tags['opens'])['diaryLink'], isTrue);
+    },
+  );
+
   group('hanja-tag 값 대조', () {
     final specs = loadSpecComponents();
     final tag = specs['hanja-tag']!;
@@ -1126,7 +1142,7 @@ void main() {
     );
   });
 
-  group('loading skeleton 뼈 대조 (5.0.0, V66)', () {
+  group('loading skeleton 뼈 대조 (6.0.0, V66)', () {
     final specs = loadSpecComponents();
 
     /// 컴포넌트 [id]의 `states.loading.skeleton` 뼈를 bone 이름별로 읽습니다.
@@ -1201,12 +1217,6 @@ void main() {
       expect(_map(link['label'])['type'], '{type.label.lg}');
       expect(_map(link['label'])['fg'], '{color.action.primary}');
       expect(link['minTarget'], 44);
-    });
-
-    test('tag-chip: 칩 하나 56px', () {
-      final chip = bones('tag-chip')['chip']!;
-      expect(chip['shape'], 'chip');
-      expect(px(chip['width']), TagChip.skeletonWidth);
     });
 
     test('offer-card: 카드, 아이콘 원 28, 머리 60%, 가격 40%', () {
@@ -1341,7 +1351,6 @@ void main() {
       // 칩, 글줄 한 줄.
       expect(await count(DayCharacter.skeleton()), 2);
       expect(await count(LuckyCardRow.skeleton()), 3);
-      expect(await count(TagChip.skeleton()), 1);
       // 아이콘 원, 머리, 가격(카드 바탕은 뼈가 아님).
       expect(await count(OfferCard.skeleton()), 3);
       // 머리, 질문 두 줄, 버튼.

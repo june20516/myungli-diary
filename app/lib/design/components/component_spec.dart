@@ -16,7 +16,6 @@ import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -130,7 +129,6 @@ const List<ComponentSpec> implementedComponents = [
   ScoreRow.spec,
   CalendarMonthView.spec,
   DayCell.spec,
-  TagChip.spec,
   DiaryRow.spec,
   DiarySummary.spec,
   DiaryEditor.spec,

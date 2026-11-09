@@ -55,7 +55,8 @@
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
 ## 현재 상태 (2026-11-09, app 세션 갱신)
-* **DS1 화면 따라잡기**, 브랜치 `app/ds1-screens`. spec [`docs/specs/2026-11-08-ds1-screens-design.md`](docs/specs/2026-11-08-ds1-screens-design.md), 결정 A109~A121. drift #810(PR #809~#867 계약 변경), #808(컴포넌트 4.0.0, 토큰 1.3.0), #851(컴포넌트 5.0.0, 토큰 1.4.0, fixture 명리), #833(REST 1.5.0~1.8.0), #796(검수 회차1 버그 다섯 건)을 한 브랜치에서 맞췄습니다.
+* **drift #883(컴포넌트 6.0.0, design PR #882) 따라잡기**, 브랜치 `app/drift-883`. `tag-chip`이 지워져 일기 쓰기와 보기 종이 아래 대표 태그를 `hanja-tag` `default`로 그립니다(`DiaryEditor.tags`는 `List<HanjaTag>`, 줄 키 `DiaryEditor.tagsKey`, 간격 `tagsGap`·`tagsMarginTop`을 계약 대조). 태그 만들기는 목록 줄과 같은 `diaryFeaturedHanjaTagWith`(`diary_row_tags.dart`) 하나입니다. 6.0.0의 나머지(꺾쇠 링크 슬롯, 일정 섹션 제목, 시간 모름 문구 키)는 DS1 PR에서 이미 맞았습니다. 쓰는 곳이 없어진 ARB `tagChip*` 넷은 writing이 원고에서 지워(#886, PR #887, W63) app ARB에서도 지웠습니다.
+* **DS1 화면 따라잡기(PR #872 병합)**, 브랜치 `app/ds1-screens`. spec [`docs/specs/2026-11-08-ds1-screens-design.md`](docs/specs/2026-11-08-ds1-screens-design.md), 결정 A109~A121. drift #810(PR #809~#867 계약 변경), #808(컴포넌트 4.0.0, 토큰 1.3.0), #851(컴포넌트 5.0.0, 토큰 1.4.0, fixture 명리), #833(REST 1.5.0~1.8.0), #796(검수 회차1 버그 다섯 건)을 한 브랜치에서 맞췄습니다.
   * 계약: 컴포넌트 5.0.0, 토큰 1.4.0, IA v5, REST 1.9.0(`getDiaryStats`, #862), writing ARB R35. `ia_pending.dart`, `component_pending.dart`가 모두 비었습니다. 새 화면 `tag-sheet`, `color-rule-sheet`.
   * 화면: 나 탭 다섯 섹션(사주 원국, 성향 풀이, 나를 돕는 기운, 올해와 지금, 명리일기 회고), 오늘(`date-header`, 총운 결정 태그와 보조 문장, 사주 기운, 행운 칩, 일정, 오늘의 질문), 근거 잠김 G1(앞부분 + 흐린 자리값), 일기 목록과 쓰기(`date-block`, 인용 질문과 바꾸기, `app-bar` `edit` 가운데 초안 상태), 달력 네 단계와 범례 입구, 그날 시트 길흉판정, 사주 표 머리와 `band-table`, 대운과 세운 `luck-pillar` `column`, 12운성 `stage-strip` 시트.
   * origin 대조(Task 27): 화면 10개를 `tool/screens_linux.sh`로 찍어 origin(비공개 기록 `review/shots/2026-11-05/ia-final/`)과 나란히 봤고, 구성 차이는 계약이 정한 곳만 남았습니다(목록은 PR 본문). 대조 중 고친 것: member 사전 fixture에 12운성, 신살 이름(server 시드와 같음), 지금(굵게) 세운 연도가 큰 글자에서 두 줄로 끊기던 것(`luck-pillar` 위 글자 한 줄), 잠긴 원전 앞부분의 한자가 한자 글꼴 없이 그려지던 것(`LockVeil.fontFallback`). 스크린샷 사례 `diary-edit` `typing`, `explain-sheet` `twelve-stage`를 더했습니다.
@@ -181,7 +182,7 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-0. **DS1 PR(#872) 병합 대기(`app/ds1-screens`):** writing PR #873(W62)으로 #870(용신 억부 근거 "힘이" 겹침)과 #871(원전 원문 간체자)이 고쳐져, fixture와 테스트의 근거 문장, 원전 원문을 새 원고로 맞췄습니다(근거 시트 스크린샷 다시 찍음). 슬롯이 없어 코드가 정한 곳(`stage-strip` 읽기 연결의 "와", en 윤달 태그 "Lunar Leap month" 대소문자, 세운 연도와 나이 배치)과 그날 시트 내역 "지지합 / 합" 겹침은 PR 본문 "남은 것"에 있습니다.
+0. **drift #883 PR(#888) 병합 대기(`app/drift-883`).** DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.
 1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
    * Task 1·2·4~7 코드는 `app/real-login-a2`에서 끝났습니다(위 현재 상태).
    * **로컬 실제 로그인(카카오):** 로컬 server(README "로컬 server")와 에뮬레이터 http 모드로 `getAppConfig` 200, welcome, 카카오 계정 로그인 페이지 열림까지 확인했습니다(debug 전용 localhost 평문 허용). 남은 것: 카카오 콘솔 Android 플랫폼에 debug 키 해시(#311 코멘트) 등록, 사용자 카카오 계정으로 로그인한 뒤 약관 동의 → 온보딩 → 프로필 저장 → 로그인 뒤 화면을 실제 REST로 확인. 미리보기, 시진 확인, 음력 변환은 App Check라 Firebase(E5, #605) 뒤입니다.

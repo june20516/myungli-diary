@@ -22,10 +22,9 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
-import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
-import 'package:myungli_diary/features/diary/presentation/diary_tag_chips.dart';
+import 'package:myungli_diary/features/diary/presentation/diary_row_tags.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -54,7 +53,7 @@ const Set<String> diaryEditExits = {ScreenIds.diaryView};
 /// * 저장이 연결 오류로 실패하면 배너(`offline`), 그 밖의 실패는 오류 toast이고, 둘 다 초안은
 ///   남고 저장 글자로 다시 시도합니다(A49). 그날 일기가 이미 찼으면(`diary.day_full`) 그 문구의
 ///   toast, 고른 질문이 그날 후보에 없으면(`diary.guide_invalid`) 후보를 새로 받고 일반 실패
-///   문구입니다(A71, A115). 성공하면 저장 순간(도장 → 태그 칩 → toast) 뒤 저장한 일기의
+///   문구입니다(A71, A115). 성공하면 저장 순간(도장 → 대표 태그 → toast) 뒤 저장한 일기의
 ///   `diary-view`로 바꿔 갑니다(뒤로 가면 쓰기 화면이 아니라 그 앞 화면).
 class DiaryEditScreen extends ConsumerStatefulWidget {
   /// diary-edit 화면을 만듭니다.
@@ -112,9 +111,9 @@ class _DiaryEditScreenState extends ConsumerState<DiaryEditScreen> {
     _focus.unfocus();
     setState(() => _celebrating = true);
     await _editor.playSaveSequence(
-      diaryTagChipsOf(
+      diaryFeaturedHanjaTagsWith(
         context,
-        ref.read(depthSheetsProvider),
+        ref,
         ref.read(glossaryProvider).value,
         saved.tags.featured,
       ),
@@ -139,7 +138,7 @@ class _DiaryEditScreenState extends ConsumerState<DiaryEditScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final edit = ref.watch(diaryEditProvider(_target));
-    // 저장 순간의 태그 칩 이름과 일진 독음을 위해 용어 사전을 미리 받아 둡니다.
+    // 저장 순간의 대표 태그 이름과 일진 독음을 위해 용어 사전을 미리 받아 둡니다.
     ref.watch(glossaryProvider);
     final state = edit.value;
     if (state != null) _bodyFor(state);

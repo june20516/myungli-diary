@@ -11,7 +11,6 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
@@ -150,7 +149,7 @@ FakeServerInterceptor _server(ProviderContainer container) => container
     .single;
 
 void main() {
-  testWidgets('받은 일기 날짜의 제목, 본문, 대표 태그 칩. 성격을 기록하지 않은 일기는 성격 줄이 없습니다', (
+  testWidgets('받은 일기 날짜의 제목, 본문, 대표 태그. 성격을 기록하지 않은 일기는 성격 줄이 없습니다', (
     tester,
   ) async {
     await _openView(tester, _written);
@@ -166,7 +165,13 @@ void main() {
     );
     expect(find.byType(SentenceBlock), findsNothing);
     expect(_paper, findsOneWidget);
-    expect(find.byType(TagChip), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byKey(DiaryEditor.tagsKey),
+        matching: find.byType(HanjaTag),
+      ),
+      findsWidgets,
+    );
     expect(find.byKey(DiaryViewScreen.editKey), findsOneWidget);
     expect(find.byKey(DiaryViewScreen.deleteKey), findsOneWidget);
   });

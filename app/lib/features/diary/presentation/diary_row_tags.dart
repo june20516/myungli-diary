@@ -13,6 +13,7 @@ import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/glossary/application/dictionary_gaps.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 
 /// 일기 줄(`diary-row`)의 날의 성격 `hanja-tag`(길흉 톤, `default`).
 ///
@@ -41,13 +42,26 @@ HanjaTag diaryDayKindTagOf(BuildContext context, WidgetRef ref, DayKind kind) {
 /// 기록합니다.
 ///
 /// 누르면 뜻 시트(`explain-sheet`, `tag.<키>`)이고, 시트 본문 아래에 그 태그의 모아보기
-/// 링크(`tag-diary`)가 있습니다(V73). 쓰는 쪽은 build에서 `glossaryProvider`를 구독합니다.
+/// 링크(`tag-diary`)가 있습니다(V73). build에서 부르고 `glossaryProvider`를 구독합니다.
 HanjaTag? diaryFeaturedHanjaTagOf(
   BuildContext context,
   WidgetRef ref,
   Tag tag,
+) => diaryFeaturedHanjaTagWith(
+  context,
+  ref,
+  ref.watch(glossaryProvider).value,
+  tag,
+);
+
+/// [diaryFeaturedHanjaTagOf]와 같은 태그를 이름 사전 [names]로 만듭니다. 일기 쓰기의 저장
+/// 순간처럼 build 밖에서 부를 때 씁니다.
+HanjaTag? diaryFeaturedHanjaTagWith(
+  BuildContext context,
+  WidgetRef ref,
+  GlossaryNames? names,
+  Tag tag,
 ) {
-  final names = ref.watch(glossaryProvider).value;
   final label = names?.valueName('tag', tag.key);
   final glyph = HanjaGlyphs.forTagKey(tag.key);
   if (label == null || glyph == null) {
@@ -69,3 +83,14 @@ HanjaTag? diaryFeaturedHanjaTagOf(
     ),
   );
 }
+
+/// 일기 쓰기와 보기 종이 아래 대표 태그들(`diary-editor` `tags`, 6.0.0). [tags] 중 그릴 수
+/// 있는 것만 순서대로 둡니다.
+List<HanjaTag> diaryFeaturedHanjaTagsWith(
+  BuildContext context,
+  WidgetRef ref,
+  GlossaryNames? names,
+  List<Tag> tags,
+) => [
+  for (final tag in tags) ?diaryFeaturedHanjaTagWith(context, ref, names, tag),
+];
