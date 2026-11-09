@@ -1071,20 +1071,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String tagChipLabel(String tag) {
-    return '#$tag';
-  }
-
-  @override
-  String get tagChipPolarityGood => '좋은 흐름';
-
-  @override
-  String get tagChipPolarityBad => '조심할 흐름';
-
-  @override
-  String get tagChipPolarityNeutral => '무난한 흐름';
-
-  @override
   String dayCellLeapNewMoon(int month) {
     return '윤$month.1';
   }

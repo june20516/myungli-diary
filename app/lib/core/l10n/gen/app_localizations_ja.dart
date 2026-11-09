@@ -1069,20 +1069,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String tagChipLabel(String tag) {
-    return '#$tag';
-  }
-
-  @override
-  String get tagChipPolarityGood => '良い流れ';
-
-  @override
-  String get tagChipPolarityBad => '気をつけたい流れ';
-
-  @override
-  String get tagChipPolarityNeutral => '穏やかな流れ';
-
-  @override
   String dayCellLeapNewMoon(int month) {
     return '閏$month.1';
   }

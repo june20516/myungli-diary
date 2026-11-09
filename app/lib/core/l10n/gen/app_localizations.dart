@@ -2004,30 +2004,6 @@ abstract class AppLocalizations {
   /// **'{date} 일기 쓰기'**
   String diaryListPickDateConfirm(String date);
 
-  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
-  ///
-  /// In ko, this message translates to:
-  /// **'#{tag}'**
-  String tagChipLabel(String tag);
-
-  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
-  ///
-  /// In ko, this message translates to:
-  /// **'좋은 흐름'**
-  String get tagChipPolarityGood;
-
-  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
-  ///
-  /// In ko, this message translates to:
-  /// **'조심할 흐름'**
-  String get tagChipPolarityBad;
-
-  /// 태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)
-  ///
-  /// In ko, this message translates to:
-  /// **'무난한 흐름'**
-  String get tagChipPolarityNeutral;
-
   /// 달력 날짜 칸(day-cell) 음력 줄: 윤달 초하루 표지(#260, design V38). 평달 초하루 `M.1`·절기 이름·일(日)은 app이 숫자로 그립니다
   ///
   /// In ko, this message translates to:
