@@ -5,14 +5,17 @@
 * book-flat.png: 같은 구성의 평면판 → 작은 원형(48px 이하)
 
 배치는 V7 SVG 비율을 따릅니다: 책 몸통(리본 뺀) 높이가 큰 원형 72%, 작은 원형 76%, 가운데.
-Android 전경은 큰 원형 배치를 108 캔버스 가운데 0.66배로(안전 영역 66 원). 배경은 대각선 그라데이션 + 옅은 종이 결.
+Android 전경은 100 단위 큰 원형 배치를 0.66배로 줄여 108 캔버스 가운데에 둡니다(옛 SVG의 translate(21 21) scale(0.66)과
+같고, 책 몸통 높이는 108 캔버스의 0.72 x 0.66 x 100/108 = 44%). 안전 영역은 가운데 66dp 원입니다.
+배경은 대각선 그라데이션 + 옅은 종이 결.
 작은 원형은 낙관을 SMALL_SEAL_SCALE배로 키워 20~48px에서 日이 읽히게 합니다(V7 작은 원형과 같은 생각).
 
 가로 조합(logo/lockup.png, lockup-dark.png)은 큰 원형 마스터와 워드마크 SVG를 lockup.svg와 같은 비율로
 붙인 PNG입니다(공유 이미지 로고, V99 관문 Q2 ②). 워드마크는 resvg로 그립니다.
 
-같은 원본이면 같은 결과입니다(종이 결 난수 고정, PNG 시각 정보 없음). 만든 뒤 logo/app-icon.json에
-파일 sha256과 안전 영역 측정값을 적고, test_logo.py가 그 기록과 파일을 대조합니다.
+같은 원본과 같은 도구 버전(아래 pillow, numpy, scipy 고정, resvg는 app-icon.json에 기록)이면 같은 파일입니다
+(종이 결 난수 고정, PNG 시각 정보 없음). 만든 뒤 logo/app-icon.json에 파일 sha256과 안전 영역 측정값을 적고,
+test_logo.py가 그 기록과 파일을 대조하고 Android 전경 안전 영역은 PNG 픽셀로 다시 잽니다.
 
 필요: resvg(`brew install resvg`). 사용법 (저장소 루트에서):
     uv run --with pillow==11.0.0 --with numpy==2.1.3 --with scipy==1.14.1 \\
@@ -20,6 +23,7 @@ Android 전경은 큰 원형 배치를 108 캔버스 가운데 0.66배로(안전
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import pathlib
@@ -28,7 +32,7 @@ import sys
 import tempfile
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy import ndimage
 
 DESIGN_DIR = pathlib.Path(__file__).resolve().parent.parent
@@ -46,10 +50,11 @@ GRAIN_SEED = 7
 LARGE_BODY_RATIO = 0.72
 SMALL_BODY_RATIO = 0.76
 ANDROID_CANVAS_DP = 108
-ANDROID_SCALE = 0.66
+ANDROID_SCALE = 0.66  # 100 단위 큰 원형 배치를 줄이는 배율(108 캔버스에서 66 단위 정사각)
 ANDROID_SAFE_DIAMETER_DP = 66
 SMALL_SEAL_SCALE = 1.45
-SEAL_MARGIN_PX = 24  # 키운 낙관과 앞표지 가장자리 사이 (원본 2048 기준)
+SEAL_OVERHANG_PX = 12  # 키운 낙관 bbox 오른쪽 아래가 원래 낙관 bbox보다 바깥으로 나가는 거리 (원본 2048 기준)
+SEAL_WIDTH_RATIO = (0.25, 0.50)  # 낙관 덩어리 bbox 폭 / 책 몸통 폭이 이 범위여야 낙관으로 봄(원본은 0.38)
 BODY_ALPHA = 200  # 책 몸통으로 보는 알파 (255 기준)
 
 # 가로 조합: wordmark.lockup_svg와 같은 비율(아이콘 150, 간격 37.5, 워드마크 높이 100, 모서리 22%)
@@ -78,14 +83,29 @@ def body_box(cut: Image.Image) -> tuple[int, int, int, int]:
     return int(cols[0]), int(ys[0]), int(cols[-1]) + 1, int(ys[-1]) + 1
 
 
-def enlarge_seal(cut: Image.Image, scale: float) -> Image.Image:
-    """낙관(coral 덩어리와 그 안 日)을 키워 앞표지 안에 다시 찍습니다. 키운 낙관이 원래 낙관을 덮습니다."""
+def _find_seal(cut: Image.Image) -> np.ndarray:
+    """낙관 마스크: coral(R이 G보다 40 넘게 큼)인 가장 큰 덩어리와 그 안 日.
+    평면판에는 리본이 없지만, 다른 덩어리를 잘못 잡지 않게 위치와 크기를 확인합니다:
+    덩어리 가운데가 책 몸통 오른쪽 아래 사분면에 있고, bbox 폭이 책 몸통 폭의 25~50%."""
     pixels = np.asarray(cut).astype(int)
     red = (pixels[..., 0] - pixels[..., 1] > 40) & (pixels[..., 3] > BODY_ALPHA)
     labels, count = ndimage.label(red)
     sizes = ndimage.sum(red, labels, range(1, count + 1))
     seal = ndimage.binary_fill_holes(labels == (np.argmax(sizes) + 1))
-    seal = ndimage.binary_dilation(seal, iterations=2)
+    ys, xs = np.nonzero(seal)
+    bx0, by0, bx1, by1 = body_box(cut)
+    center_x, center_y = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
+    if not (center_x > (bx0 + bx1) / 2 and center_y > (by0 + by1) / 2):
+        raise ValueError(f"낙관 덩어리가 앞표지 오른쪽 아래에 없음: 가운데 ({center_x}, {center_y})")
+    width_ratio = (xs.max() - xs.min()) / (bx1 - bx0)
+    if not SEAL_WIDTH_RATIO[0] <= width_ratio <= SEAL_WIDTH_RATIO[1]:
+        raise ValueError(f"낙관 덩어리 폭이 책 몸통 폭의 {width_ratio:.2f}배")
+    return seal
+
+
+def enlarge_seal(cut: Image.Image, scale: float) -> Image.Image:
+    """낙관(coral 덩어리와 그 안 日)을 키워 다시 찍습니다. 원래 낙관은 표지 색으로 지웁니다."""
+    seal = ndimage.binary_dilation(_find_seal(cut), iterations=2)
     ys, xs = np.nonzero(seal)
     x0, y0, x1, y1 = xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
     patch = np.asarray(cut)[y0:y1, x0:x1].copy()
@@ -100,8 +120,9 @@ def enlarge_seal(cut: Image.Image, scale: float) -> Image.Image:
     filled = ndimage.uniform_filter(cleared[near_y, near_x].astype(float), size=(9, 9, 1))
     cleared[erase] = filled[erase].astype(np.uint8)
     out = Image.fromarray(cleared, "RGBA")
-    # 앞표지 오른쪽 아래 안쪽에 맞춤: 원래 낙관 오른쪽 아래 모서리를 넘지 않게 왼쪽 위로 키움
-    right, bottom = x1 + SEAL_MARGIN_PX // 2, y1 + SEAL_MARGIN_PX // 2
+    # 키운 낙관 bbox의 오른쪽 아래를 원래 낙관 bbox 오른쪽 아래보다 SEAL_OVERHANG_PX 바깥에 맞춰 왼쪽 위로 키웁니다.
+    # 원본 평면판에서 이 자리는 앞표지 안이고, 결과는 관문 페이지(design-app-icon-questions)에서 눈으로 확인했습니다.
+    right, bottom = x1 + SEAL_OVERHANG_PX, y1 + SEAL_OVERHANG_PX
     out.alpha_composite(big, (right - width, bottom - height))
     return out
 
@@ -136,14 +157,16 @@ def safe_zone(foreground: Image.Image) -> dict[str, float]:
 
 def rounded(image: Image.Image, ratio: float) -> Image.Image:
     """모서리를 ratio만큼 둥글게 깎은 RGBA (4배로 그려 줄여 가장자리를 매끄럽게)."""
-    from PIL import ImageDraw
-
     size = image.width
     mask = Image.new("L", (size * 4, size * 4), 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, size * 4 - 1, size * 4 - 1), radius=size * 4 * ratio, fill=255)
     out = image.convert("RGBA")
     out.putalpha(mask.resize((size, size), Image.LANCZOS))
     return out
+
+
+def resvg_version() -> str:
+    return subprocess.run(["resvg", "--version"], check=True, capture_output=True, text=True).stdout.strip()
 
 
 def render_svg(path: pathlib.Path, height: int) -> Image.Image:
@@ -179,13 +202,17 @@ def build(seal_scale: float = SMALL_SEAL_SCALE) -> dict[str, Image.Image]:
 
 
 def main(argv: list[str]) -> int:
-    seal_scale = float(argv[argv.index("--seal-scale") + 1]) if "--seal-scale" in argv else SMALL_SEAL_SCALE
-    out_dir = pathlib.Path(argv[argv.index("--out-dir") + 1]) if "--out-dir" in argv else LOGO_DIR
+    parser = argparse.ArgumentParser(description="앱 아이콘 래스터 원본과 가로 조합 PNG를 만듭니다.")
+    parser.add_argument("--seal-scale", type=float, default=SMALL_SEAL_SCALE, help="작은 원형 낙관 배율(비교용)")
+    parser.add_argument("--out-dir", type=pathlib.Path, default=LOGO_DIR, help="출력 폴더(비교용, 기본 logo/)")
+    arguments = parser.parse_args(argv)
+    seal_scale, out_dir = arguments.seal_scale, arguments.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     masters = build(seal_scale)
     for name, wordmark_name in LOCKUPS.items():
         masters[name] = lockup(masters["icon-large.png"], LOGO_DIR / wordmark_name)
-    manifest = {"masterPx": MASTER_PX, "smallSealScale": seal_scale, "lockupHeightPx": LOCKUP_ICON_PX, "files": {}}
+    manifest = {"masterPx": MASTER_PX, "smallSealScale": seal_scale, "lockupHeightPx": LOCKUP_ICON_PX,
+                "resvg": resvg_version(), "files": {}}
     for name, image in masters.items():
         path = out_dir / name
         image.save(path, optimize=True)

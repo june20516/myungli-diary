@@ -2,6 +2,7 @@
   "masterPx": 1024,
   "smallSealScale": 1.45,
   "lockupHeightPx": 288,
+  "resvg": "0.49.0",
   "files": {
     "icon-large.png": {
       "sha256": "2214f2bb5ae6a5530d54cd33e2f0a996fb1521a5cd5c65199a861e79e2f17504",

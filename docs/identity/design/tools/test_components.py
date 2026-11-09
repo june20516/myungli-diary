@@ -2726,16 +2726,22 @@ def test_readme_records_5_0_removals_and_renames():
     assert "토큰 1.4.0 이상" in row and "주 버전" in row
 
 
-def test_contract_list_rows_name_6_0_1_and_1_4():
+def _token_contract_version():
+    readme = (DESIGN_DIR / "tokens" / "README.md").read_text(encoding="utf-8")
+    return re.search(r"^계약 버전: (\d+\.\d+\.\d+)$", readme, re.M).group(1)
+
+
+def test_contract_list_rows_name_current_versions():
+    # 판 문자열은 VERSION과 토큰 README에서 읽습니다. 판을 올릴 때 고칠 곳은 test_contract_version_is_* 한 곳
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
-    assert "| 6.0.1 |" in component_row and "| 1.4.0 |" in token_row
+    assert f"| {VERSION} |" in component_row and f"| {_token_contract_version()} |" in token_row
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     elements_count = len(documents["elements"]["elements"])
     patterns = len(documents["interaction"]["patterns"])
-    tail = component_row.split("6.0.1:", 1)[1]
+    tail = component_row.split(f"{VERSION}:", 1)[1]
     assert f"IA 컴포넌트 {specified}개" in tail and f"요소 {elements_count}개" in tail and f"패턴 {patterns}개" in tail
     assert "IA 컴포넌트 43개" not in tail and "57개" not in tail  # 앞 판 문장의 옛 숫자를 옮기지 않음
     for name in ("color.calendar.level", "color.fill.soft", "color.verdict.track", "color.highlight.bg"):
@@ -2849,7 +2855,10 @@ def test_share_image_logo_is_raster_lockup():
     logo = component("today", "share-image")["parts"]["logo"]
     assert logo["asset"] == "logo/lockup.png"
     assert (DESIGN_DIR / logo["asset"]).exists()
-    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "컴포넌트 계약 6.0.1 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
     row = _readme_row("6.0.1")
     assert "V99" in row and "#908" in row and "`logo/lockup.png`" in row
+
+
+def test_readme_header_names_current_versions():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert f"컴포넌트 계약 {VERSION} · 토큰 계약 {_token_contract_version()} 이상을 기대합니다." in readme
