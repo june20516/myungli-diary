@@ -84,6 +84,7 @@
   --color-action-on-primary: var(--color-white);
   --color-term-bg: var(--color-sage-100);
   --color-term-fg: var(--color-sage-700);
+  --color-invite-fg: var(--color-sage-600);
   --color-badge-good-bg: var(--color-coral-600);
   --color-badge-good-fg: var(--color-white);
   --color-badge-gwiin-bg: var(--color-coral-100);
@@ -228,6 +229,7 @@
   --color-action-on-primary: var(--color-neutral-950);
   --color-term-bg: var(--color-sage-800);
   --color-term-fg: var(--color-sage-200);
+  --color-invite-fg: var(--color-sage-400);
   --color-badge-good-bg: var(--color-coral-300);
   --color-badge-good-fg: var(--color-neutral-900);
   --color-badge-gwiin-bg: var(--color-coral-800);

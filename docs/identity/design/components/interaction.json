@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
@@ -117,7 +117,21 @@
       "enter": { "translateX": ["{motion.offset.page}", 0], "opacity": [0, 1] },
       "below": "still",
       "back": "reverse",
-      "scope": "화면 쌓기 이동(push, pop). 탭 사이 이동과 시트는 쓰지 않음",
+      "scope": "화면 쌓기 이동(push, pop). 탭 사이 이동(tab.switch)과 시트는 쓰지 않음",
+      "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "tab.switch": {
+      "summary": "탭 바로 탭을 바꿈: 앞 화면과 새 화면이 겹치며 투명도만 바뀜 (결정 V104, #900 관문 ③)",
+      "duration": "{motion.duration.short}",
+      "easing": "{motion.easing.standard}",
+      "outgoing": { "opacity": [1, 0] },
+      "incoming": { "opacity": [0, 1] },
+      "together": true,
+      "movement": "none",
+      "start": "탭을 누른 프레임. 탭 바 도장 seal.stamp, seal.erase와 같이 시작",
+      "tabBar": "움직이지 않음(두 화면 위에 그대로)",
+      "scope": "탭 바로 탭 사이 이동만. 이미 선택된 탭을 다시 누르면 전환 없이 맨 위로(tab-bar 규칙). 안쪽 화면 이동은 page.push",
       "reduceMotion": "opacity-only",
       "lowEnd": "same"
     },

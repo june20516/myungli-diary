@@ -18,6 +18,8 @@
 | 선택 | Regular, `action.on-primary`(라이트 흰색, 다크 neutral-950) | `action.primary` 600 | `seal` fill 34px가 아이콘 뒤에 `seal.stamp` |
 | 투명도 줄이기 | | | 바탕 `bg.sheet` 불투명, 흐림 없음 |
 
+* **탭 전환(결정 V104, #900):** 탭을 바꾸면 화면은 `tab.switch`로 바뀝니다. 앞 화면과 새 화면이 200ms(`motion.duration.short`, standard 곡선) 동안 겹치며 투명도만 바뀌고, 이동과 크기 변화는 없습니다. 탭 바는 두 화면 위에 그대로 있고, 도장 `seal.stamp`, `seal.erase`와 같은 프레임에 시작합니다(화면은 200ms에 끝나고 도장은 520ms까지 배어듦). 안쪽 화면 이동 `page.push`(오른쪽 24px, 320ms)보다 짧고 방향이 없어 두 이동이 구분됩니다. 동작 줄이기에서도 원래 투명도만이라 그대로입니다. 이미 선택된 탭을 다시 누르면 전환 없이 맨 위로 올라갑니다.
+
 * 선택이 바뀌면 이전 도장은 `seal.erase`, 새 도장은 `seal.stamp`가 동시에 움직이고 햅틱 selection이 울립니다.
 * 선택된 탭을 다시 누르면 맨 위로 올라갑니다. 도장은 다시 찍지 않습니다.
 * Material 힌트: `NavigationBar`를 쓰면 indicator·표면 색조·그림자를 끄고, 선택 표시를 도장 위젯으로 바꿉니다.

@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "input",
   "components": [
     {
@@ -17,7 +17,8 @@
         "input": { "marginTop": "{space.24}" },
         "help": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}" },
         "errorLine": { "type": "{type.caption.lg}", "fg": "{color.text.primary}", "leading": "mark.caution", "marginTop": "{space.8}" },
-        "bottomAction": { "component": "primary-button", "variant": "filled", "position": "bottom-fixed", "keyboard": "rides-above", "paddingX": "{space.20}", "paddingBottom": "{space.16}", "omitWhen": "고르면 바로 넘어가는 단계(birthplace 도시 결과 줄)" }
+        "bottomAction": { "component": "primary-button", "variant": "filled", "position": "bottom-fixed", "keyboard": "rides-above", "paddingX": "{space.20}", "paddingBottom": "{space.16}", "paddingBottomFrom": "맨 아래 버튼 면 아래 끝에서 아래 시스템 inset(안전 영역: Android 3버튼 내비게이션, 제스처 막대, 없음 0, iPhone 홈 막대) 위까지. 키보드가 열리면 키보드 위 space.16(결정 V106)", "omitWhen": "고르면 바로 넘어가는 단계(birthplace 도시 결과 줄)" },
+        "secondaryAction": { "component": "primary-button", "variant": "quiet", "position": "bottomAction 아래", "marginTop": "{space.16}", "paddingX": "{space.20}", "when": "건너뛸 수 있는 단계의 두 번째 버튼(notify-ask 나중에, notify-ask.cta.skip)", "note": "있으면 이 버튼이 맨 아래 버튼이라 paddingBottom은 이 버튼 아래에 둔다. 두 버튼 높이는 모두 52(V60)" }
       },
       "states": {
         "out-of-range": { "parts": { "errorLine": { "visible": true }, "bottomAction": { "state": "disabled" } }, "pattern": "appear.seep" },
@@ -29,6 +30,7 @@
         "진행 막대는 단계가 넘어갈 때 채움 너비만 standard 곡선 320ms로 늘어난다.",
         "오류 줄은 빨간색 없이 mark.caution + 본문색으로 쓴다.",
         "아래 버튼은 키보드가 열리면 키보드 위에 붙는다.",
+        "맨 아래 버튼 면 아래 끝은 아래 시스템 inset 위 space.16이다. inset이 0이어도(Android 내비게이션 없음, 전체 화면) 16. 두 번째 버튼(secondaryAction)이 있으면 그 버튼이 기준이고 두 버튼 사이는 space.16(결정 V106).",
         "고르면 바로 넘어가는 단계에는 아래 버튼을 두지 않는다. 비활성 버튼이 늘 떠 있지 않게 한다."
       ]
     },

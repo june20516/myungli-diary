@@ -38,7 +38,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 * 쓰는 화면: diary-edit, saju-chart, profile-edit (그리고 오프라인일 때 받아둔 내용을 보여 주는 모든 화면)
 * 화면 맨 위 내용의 첫 줄입니다. 떠 있지 않고 내용과 함께 스크롤됩니다. `bg.sheet`, `radius.md`, 아이콘 16 + `type.caption.lg` `text.secondary`.
 * 닫기 버튼이 없습니다. 상태가 풀리면 `disappear.seep`으로 사라집니다.
-* 변형: `offline`(`wifi-slash`), `time-unknown`(`clock`), `draft`(`note-pencil`), `error`(`cloud-warning`, V50).
+* 변형: `offline`(`wifi-slash`), `time-unknown`(`clock`), `draft`(`note-pencil`), `error`(`warning-circle` Light, V50, 2026-11-10 `cloud-warning`에서 바꿈, V105).
 * **`error`(V50):** 연결은 있지만 요청이 실패했을 때입니다(server 오류, 다시 계산 실패). `offline`과 아이콘만 다르고, 빨간색이나 `mark.caution`을 쓰지 않습니다. 버튼을 담지 않습니다. 다시 시도는 화면의 원래 동작 버튼이 맡습니다. 예: `profile-edit`는 저장 버튼 글자가 "다시 시도"로 바뀌고 바꾼 값은 그대로 남습니다.
 * 늘 보이는 안내(예 `profile-edit.recalc.notice`)는 배너가 아니라 `settings-row` `groupNote`입니다(V50).
 
@@ -55,6 +55,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 * 쓰는 화면: empty-state는 birthplace, diary-list, tag-diary. error-state는 IA `error` 상태가 있는 모든 화면.
 * sage 원(56px, `status.bg`) 안 Light 아이콘 28px(`action.primary`) + 문장(`type.sentence.body`, 가운데). 화면 세로 40% 자리.
+* 아이콘: 오류 `generic`은 `warning-circle`(원 안 느낌표, Light), 연결 없음 `offline`은 `wifi-slash`. 오류는 주의 표시(`mark.caution`, 같은 원 안 느낌표를 채운 꼴)와 한 모양 갈래라 "무언가 잘못됨"이 앱 전체에서 한 모양으로 읽히고, 오류는 선, 주의 표시는 채움이라 굵기와 크기로 구분됩니다(결정 V105, #923).
 * 빈 상태는 있으면 주 버튼, 오류 상태는 `quiet` "다시 시도". 다시 시도하면 그 자리에 skeleton이 다시 나옵니다.
 * 문장은 자리 채우기입니다(문구는 writing).
 

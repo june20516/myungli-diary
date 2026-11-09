@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "diary",
   "components": [
     {
@@ -62,10 +62,12 @@
         },
         "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}", "marginTopWhen": "날의 성격이 있을 때만 그 아래 space.8. 없으면 카드 안쪽 위에서 바로 시작" },
         "tag": {
-          "component": "hanja-tag", "variant": "default", "count": 1, "marginTop": "{space.12}", "whenMissing": "hide",
+          "component": "hanja-tag", "variant": "default", "count": "all", "order": "대표 태그 순위", "gap": "{space.8}", "marginTop": "{space.12}", "whenMissing": "hide",
+          "source": "그날 사주 기운 태그 전부(D115 ④, 필드는 server #933이 정함)",
+          "row": { "lines": 1, "wrap": false, "overflow": "가로로 밈(줄을 늘리지 않음)", "hint": { "component": "scroll-hint", "parts": { "arrows": { "visible": false } }, "fadeTo": "{color.bg.sheet}" } },
           "opens": { "sheet": "explain-sheet", "diaryLink": true },
-          "hiddenIn": ["tag-diary"],
-          "note": "그날 대표 태그 하나(엔진이 일진으로 정함, D108 ①. 사주 용어라 term 초록). 없으면 그리지 않음. 누르면 뜻 시트이고 시트 아래 꺾쇠 링크로 그 태그의 모아보기(tag-diary)"
+          "hiddenInTagDiary": "모아 본 그 태그만(D113 ①). 다른 태그는 그대로 보임",
+          "note": "그날 사주 기운 태그 모두(엔진이 일진으로 정함, D108 ①, D115. 사주 용어라 term 초록). 하나도 없으면 줄을 그리지 않음. 한 줄을 넘으면 그 줄 안에서 가로로 밀고, 더 있는 쪽 끝 24만 카드 바탕(bg.sheet)으로 흐림(scroll-hint의 흐림만, 화살표 줄 없음, 결정 V103). 누르면 뜻 시트이고 시트 아래 꺾쇠 링크로 그 태그의 모아보기(tag-diary)"
         },
         "entry": {
           "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "HH:mm", "hourCycle": "h23", "note": "event-row와 같은 24시간제, 앞 0 채움(V46, #475). writing 슬롯 없음" },
@@ -104,7 +106,7 @@
     {
       "id": "diary-editor",
       "summary": "일기 본문 입력과 보기 (종이). 쓰기에서는 인용 질문과 질문 바꾸기",
-      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "icon", "keyboard.dismiss"],
+      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "disappear.seep", "icon", "keyboard.dismiss"],
       "variants": [
         { "id": "edit", "when": "쓰기·고치기(diary-edit). 날짜는 종이 위 date-block이 보임",
           "parts": {
@@ -122,6 +124,32 @@
                 "keepsBody": true,
                 "a11y": { "role": "button", "label": "질문 바꾸기 이름(writing 새 슬롯, IA 자리 없음)", "changedAnnounced": "새 질문을 polite로 읽음" },
                 "note": "질문 글은 아이콘 앞에서 줄바꿈한다. 본문은 건드리지 않는다"
+              },
+              "remove": {
+                "slot": "diary-edit.guide.remove",
+                "icon": "x", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}",
+                "minTarget": 44, "align": "first-line", "position": "swap 바로 뒤(오른쪽 끝). swap이 없으면 질문 글 바로 뒤", "gap": "44 터치 영역끼리 붙여 둠(겹치지 않음)",
+                "visibleWhen": "질문이 붙어 있을 때 늘",
+                "result": "질문 자리가 detached로 바뀌고, 이 편을 저장하면 질문이 붙지 않는다(D116 ①, 일기 보기와 목록에도 없음)",
+                "transition": { "out": "disappear.seep", "in": "appear.seep" },
+                "keepsBody": true,
+                "a11y": { "role": "button", "label": "diary-edit.guide.remove", "changedAnnounced": "detached 문구를 polite로 읽음" },
+                "note": "결정 V102(#929 관문 답: 바꾸기 옆 x)"
+              },
+              "detached": {
+                "slot": "diary-edit.guide.attach",
+                "copy": "가안 \"무엇을 쓸지 고민인가요?\". 문구는 writing",
+                "type": "{type.sentence.body}", "fontSize": { "value": 14, "unit": "px" }, "fg": "{color.invite.fg}",
+                "quoteLine": { "visible": false },
+                "paddingStart": 0,
+                "trailingIcon": { "icon": "chat-teardrop-dots", "weight": "light", "size": "adjacent-text", "color": "{color.invite.fg}", "gap": "{space.4}", "decorative": true },
+                "minTarget": 44, "pressable": "줄 전체",
+                "action": "그날 기본 질문을 붙인다(D116 ②, server 후보 목록의 첫 질문). 질문 바꾸기 순서도 처음부터",
+                "transition": { "out": "disappear.seep", "in": "appear.seep" },
+                "keepsBody": true,
+                "marginBottom": "question.marginBottom과 같음(space.16)",
+                "a11y": { "role": "button", "label": "diary-edit.guide.attach 글자 그대로(말풍선은 읽지 않음)" },
+                "note": "질문이 붙은 상태(진한 세로선 + 질문 + 아이콘 둘)와 선 없는 권유 글자로 구분한다. 본문 글자와 같은 시작선(결정 V102)"
               }
             }
           } },
@@ -133,7 +161,7 @@
         "question": {
           "optional": true,
           "type": "{type.sentence.body}", "fontSize": { "value": 14, "unit": "px" }, "fg": "{color.text.secondary}",
-          "quoteLine": { "width": { "value": 3, "unit": "px" }, "color": "{color.term.bg}", "radius": "{radius.full}" },
+          "quoteLine": { "width": { "value": 3, "unit": "px" }, "color": "{color.action.primary}", "radius": "{radius.full}" },
           "paddingStart": "{space.12}", "marginBottom": "{space.16}",
           "note": "왼쪽 3px 선의 인용형 모양. 글자는 본문(15)보다 작은 14: 문장 글꼴 14 토큰이 없어 sentence.body에 크기만 덮어씀(sentence-block preview 14.5와 같은 방식). 슬롯과 질문 바꾸기는 edit 변형. view는 저장된 질문(getDiary guideQuestion)을 같은 모양으로, 바꾸기 없이"
         },

@@ -252,6 +252,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "action.on-primary": WHITE,
             "term.bg": sage[100],
             "term.fg": sage[700],
+            "invite.fg": sage[600],
             "badge.good.bg": coral[600],
             "badge.good.fg": WHITE,
             "badge.gwiin.bg": coral[100],
@@ -288,6 +289,7 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "action.on-primary": neutral[950],
             "term.bg": sage[800],
             "term.fg": sage[200],
+            "invite.fg": sage[400],
             "badge.good.bg": coral[300],
             "badge.good.fg": neutral[900],
             "badge.gwiin.bg": coral[800],
@@ -349,6 +351,8 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
                 pairs.append((f"{mode} {text_role} on gradient[{index}]", roles[text_role], stop))
         pairs.append((f"{mode} action.primary", roles["action.on-primary"], roles["action.primary"]))
         pairs.append((f"{mode} term", roles["term.fg"], roles["term.bg"]))
+        # 권유 글자(일기 쓰기 질문 뗀 자리 "무엇을 쓸지 고민인가요?", V102)는 종이(bg.sheet) 위에만 놓임
+        pairs.append((f"{mode} invite.fg on bg.sheet", roles["invite.fg"], roles["bg.sheet"]))
         pairs.append((f"{mode} badge.good", roles["badge.good.fg"], roles["badge.good.bg"]))
         pairs.append((f"{mode} badge.gwiin", roles["badge.gwiin.fg"], roles["badge.gwiin.bg"]))
         pairs.append((f"{mode} badge.gisin", roles["badge.gisin.fg"], roles["badge.gisin.bg"]))

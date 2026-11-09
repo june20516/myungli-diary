@@ -43,6 +43,7 @@ ROLE_DESCRIPTIONS = {
     "action.on-primary": "주 버튼 글자",
     "term.bg": "용어 토큰 바탕 (굵게 하지 않음)",
     "term.fg": "용어 토큰 글자",
+    "invite.fg": "권유 글자: 고르지 않은 자리에서 해 보라고 권하는 옅은 초록 글자와 아이콘(일기 쓰기 질문 뗀 자리, V102). 글자 대비 4.5 이상인 가장 옅은 sage",
     "badge.good.bg": "좋은 날(YONGSIN_DAY) 배지 바탕",
     "badge.good.fg": "좋은 날 배지 글자",
     "badge.gwiin.bg": "귀인의 날(GWIIN_DAY) 배지 바탕",
