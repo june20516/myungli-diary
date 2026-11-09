@@ -325,7 +325,7 @@
   user_state: "이 기운이 붙은 날 쓴 일기를 모아 보고 싶습니다."
   structure: "동작 이름 하나. 태그 이름만 받고 편수는 넣지 않습니다(V79). 태그 뒤 조사는 ui 조사 규칙(W38)으로 피해 \"{tag} 태그가\"로 씁니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 24, en: 44, ja: 20}
   keys:
     - params: {tag: text}
       keys: [tagSheetDiaryCta]
@@ -344,7 +344,7 @@
   user_state: "태그 뜻을 읽고 이 태그가 붙은 날의 일기를 모아 보고 싶습니다."
   structure: "동작 이름 하나. 사주 기운 시트 `tagSheetDiaryCta`와 같은 말로 씁니다. 태그 뒤 조사는 \"{tag} 태그가\"로 피합니다(W38)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 24, en: 44, ja: 20}
   keys:
     - params: {tag: text}
       keys: [explainSheetTagDiaryLink]

@@ -123,7 +123,7 @@
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **R31 후속**: server가 `no_source.<rule_id>`를 그리는지 봅니다(#827). design 상한이 나오면 IA v5 새 슬롯의 `null`을 채웁니다. IA v5 새 슬롯과 `login.save.note`, DS1 2단계 새 슬롯(`explain-sheet.tag.diary-link`, `today.event.title`, `ui.saju.luck-period`, `ui.my-saju.record`, `ui.tag-sheet.sentence-kind`)이 대상입니다.
+2. **R31 후속**: server가 `no_source.<rule_id>`를 그리는지 봅니다(#827). design 상한이 나오면 IA v5 새 슬롯의 `null`을 채웁니다. IA v5 새 슬롯과 `login.save.note`, DS1 2단계 새 슬롯(`ui.saju.luck-period`, `ui.my-saju.record`, `ui.tag-sheet.sentence-kind`)이 대상입니다. `explain-sheet.tag.diary-link`, `tag-sheet.diary.cta`, `today.event.title`은 design 6.0.0 상한을 넣었습니다(drift #884).
 3. **문의 화면 후속**: design 3.4.0 상한을 넣었습니다(#763, drift #773). app이 새 키(#746 구현)를 가져가는지 봅니다.
 4. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
 5. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
