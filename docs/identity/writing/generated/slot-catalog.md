@@ -116,7 +116,7 @@
 | evidence.basis | evidence-sheet.basis.body | info | - | 1 | 36 | `breakdown`: none<br>`score`: number<br>`day_kind`: day_kind<br>`element`: element, color<br>`note`: none<br>`role`: role<br>`day_branch`: text<br>`direction`: direction8<br>`deity`: none<br>`picks`: none<br>`group`: ten_god_group<br>`ten_god`: ten_god, ten_god_group<br>`featured`: none<br>`basis`: none<br>`day_stem`: text<br>`number`: number<br>`parity`: none<br>`gisin`: element, color<br>`strength`: strength<br>`yongsin`: element, color<br>`current`: none<br>`luck`: luck<br>`part`: part<br>`place`: place<br>`group_count`: number<br>`all`: none<br>`shinsal`: shinsal<br>`natal_positions`: list:place<br>`relation_kind`: relation<br>`branch_ten_god`: ten_god, ten_god_group<br>`natal_count`: number<br>`stem_ten_god`: ten_god, ten_god_group<br>`strength_level`: strength<br>`strength_score`: none<br>`month_branch`: text<br>`share`: none<br>`threshold`: none | ko -, en -, ja - |
 | evidence.no_source | evidence-sheet.source.quote | info | - | 1 | 1 | - | ko -, en -, ja - |
 | evidence.source | evidence-sheet.source.quote | info | - | 1 | 134 | - | ko -, en -, ja - |
-| explain-sheet.tag.diary-link | explain-sheet.tag.diary-link | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
+| explain-sheet.tag.diary-link | explain-sheet.tag.diary-link | guide | - | 1 | 1 | `tag`: text | ko 24, en 44, ja 20 |
 | explain.today_reason | explain-sheet.today.reason | info | - | 1 | 13 | - | ko -, en -, ja - |
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
@@ -213,7 +213,7 @@
 | system.notice | 컴포넌트 notice-banner | info | - | 1 | 7 | - | ko 52, en 90, ja 38 |
 | tag-diary.bar.title | tag-diary.bar.title | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
 | tag-diary.empty.body | tag-diary.empty.body | info | - | 1 | 1 | - | ko -, en -, ja - |
-| tag-sheet.diary.cta | tag-sheet.diary.cta | guide | - | 1 | 1 | `tag`: text | ko -, en -, ja - |
+| tag-sheet.diary.cta | tag-sheet.diary.cta | guide | - | 1 | 1 | `tag`: text | ko 24, en 44, ja 20 |
 | tag-sheet.sentences.empty | tag-sheet.sentences.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
 | tag-sheet.sentences.title | tag-sheet.sentences.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 79 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -222,7 +222,7 @@
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
-| today.event.title | today.event.title<br>day-sheet.event.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.event.title | today.event.title<br>day-sheet.event.title | info | - | 1 | 1 | - | ko 22, en 40, ja 18 |
 | today.featured.empty | today.featured.empty | info | - | 1 | 1 | - | ko 24, en 45, ja 19 |
 | today.featured.title | today.featured.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.fortune.title | today.fortune.title | info | - | 1 | 1 | - | ko -, en -, ja - |
