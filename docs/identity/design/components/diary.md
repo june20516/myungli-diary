@@ -1,7 +1,7 @@
 # diary: 일기 (`diary.json`)
 
 * 근거: [V2 spec](../specs/2026-10-11-components-design.md) §6.8, 결정 V16·V20, [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md)(V42), [DS1 2단계 spec](../specs/2026-11-05-ds1-screens-design.md) §2 Q7·Q8, §4(V81~V83)
-* 시안: `design-v2-diary-save`(종이 아래 도장 자리), `design-v2-diary-list`(흐름 줄 가), `design-v2-tag-chip`(태그 길흉 B), `design-v2-diary-row-multi`(같은 날 묶음 A + 점선)
+* 시안: `design-v2-diary-save`(종이 아래 도장 자리), `design-v2-diary-list`(흐름 줄 가), `design-v2-diary-row-multi`(같은 날 묶음 A + 점선)
 
 ## diary-row
 
@@ -55,10 +55,10 @@
   1. 상단 바 저장 글자 버튼 점 숨쉬기(`loading.breathe`, `app-bar` `textActionSaving`)
   2. 응답이 오면 종이 맨 아래로 스크롤(320ms)
   3. 아래 여백에 그날 날짜를 새긴 `seal` fill 64px가 `seal.stamp`, 햅틱 light
-  4. 대표 태그 칩 `appear.seep`
+  4. 태그(`hanja-tag` `default`) `appear.seep`
   5. 토스트
   * 실패하면 도장을 찍지 않고 버튼이 돌아오며 오류 토스트.
-* 보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그 칩.
+* 보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그(`hanja-tag` `default`, 사이 `space.8`, 위 `space.16`). 누르면 뜻 시트(`explain-sheet`)이고 대표 태그 시트에만 모아보기 꺾쇠 링크가 있습니다(V73). 옛 태그 칩 컴포넌트는 IA에서 빠져(D113) 6.0.0에서 지웠습니다(V96).
 * 도장 안 날짜(M.D)는 `seal.knock` 색으로 가늘게 새기고, 도장 영역 가운데에 둡니다.
 
 ## date-block
@@ -84,20 +84,6 @@
 
 상태가 바뀔 때만 `appear.seep`으로 바꿔 그립니다. 문구 3종은 writing 몫입니다.
 
-## tag-chip
-
-* 쓰는 화면: diary-list, diary-view, diary-edit(저장 순간)
-* "#이름", `radius.full`, `type.label.md` 12px, 높이 26.
-* 톤은 엔진이 준 태그의 길흉을 따릅니다(배지와 같은 V8 규칙, `tone` 요소):
-
-| 변형 | 바탕 | 글자 |
-| --- | --- | --- |
-| `good` | `tag.good.bg` (coral-100 / 다크 coral-800) | `tag.good.fg` |
-| `bad` | `tag.bad.bg` (neutral 채움) | `tag.bad.fg` |
-| `neutral` | 없음, 1px `tag.neutral.border` | `tag.neutral.fg` |
-
-* 누르면 뜻 시트(`explain-sheet`)이고, 그 태그의 모아보기(tag-diary)는 시트 아래 꺾쇠 링크입니다(관문 답 2026-11-06, V73). 보기·저장 순간에 씁니다. 일기 목록 줄의 태그는 IA v5부터 `hanja-tag`입니다(Q7, V81). IA diary-list 구성에는 아직 `tag-chip`이 남아 있어 지휘에 알립니다.
-
 ## diary-summary
 
 * 쓰는 화면: my-saju
@@ -108,17 +94,17 @@
 | 부품 | 값 |
 | --- | --- |
 | 편수 | 숫자 28 700 고정폭 `text.primary` + 단위 글자 `type.label.lg`(숫자 기준선에 맞춤, 사이 `space.4`) |
-| 막대 줄 | 이름 칸 72(`type.label.md`, 날의 성격 이름 writing `dayKind` 네 키) + 막대 + 수(`type.numeric.table`, 고정폭, 폭 28 오른쪽 맞춤, 막대와 사이 `space.12`). 줄 사이 `space.8`, 최소 높이 24 |
+| 막대 줄 | 이름 칸 72(`type.label.md`, 날의 성격 이름 writing `dayKind` 네 키) + 막대 + 그 날의 성격으로 일기가 있는 날짜 수(`type.numeric.table`, 고정폭, 폭 28 오른쪽 맞춤, 막대와 사이 `space.12`). 줄 사이 `space.8`, 최소 높이 24 |
 | 막대 | 높이 8 `radius.full`, 트랙 `bg.base`. 길이는 그 줄의 수를 네 줄 가운데 가장 큰 수에 견준 비율. 0이면 트랙만 |
 | 줄 순서 | 용신의 날, 귀인의 날, 평범한 날, 기신의 날 |
 | 막대 색 | 날의 성격 톤. V8 배지 매핑의 진한 쪽 색: 용신 `badge.good.bg`, 귀인 `badge.gwiin.fg`, 평범 `badge.ordinary.border`, 기신 `badge.gisin.fg` |
-| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 수 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 뜻 시트(`explain-sheet`)이고, 그 태그의 일기 모아보기(`tag-diary`)는 시트 아래 꺾쇠 링크입니다(V76을 관문 답 2026-11-06으로 개정). 태그가 없으면 머리와 줄을 그리지 않습니다 |
+| 태그 | `hanja-tag` `default`(사주 용어 초록) 최대 셋, 대표 태그 기준 날짜 수가 많은 순, 사이 `space.8`. 수는 알약 안 이름 뒤 `space.4`(`type.label.md` `text.secondary` 고정폭). 누르면 뜻 시트(`explain-sheet`)이고, 그 태그의 일기 모아보기(`tag-diary`)는 시트 아래 꺾쇠 링크입니다(V76을 관문 답 2026-11-06으로 개정). 태그가 없으면 머리와 줄을 그리지 않습니다 |
 
 * 막대 색의 옅은 쪽(귀인 coral-100, 기신 neutral-100)은 트랙과 구분되지 않아 진한 쪽(글자색, 테두리색)을 씁니다. 이름과 수가 늘 함께 보여 색만으로 전하지 않습니다.
 * **기록이 적을 때(`few`):** 쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(`my-saju.record.few`, `type.caption.lg` `text.secondary`, 위 `space.12`)을 둡니다. 편수와 (있으면) 태그는 그대로입니다. 0편도 같습니다.
-* 불러오는 중: 편수 글줄 하나(96), 막대 글줄 넷, 태그 칩 셋(64). 머리 글자는 바로 보입니다.
+* 불러오는 중: 편수 글줄 하나(96), 막대 글줄 넷, 태그 알약 셋(64). 머리 글자는 바로 보입니다.
 * 접근성: 카드는 그룹 "편수, 날의 성격마다 이름과 수, 태그 이름과 수". 막대는 꾸밈이라 읽지 않습니다. 글자 배율 상한 1.3배.
-* **문구 자리:** 단위 글자, 막대 머리, 태그 머리는 IA에 슬롯이 없습니다(writing 새 슬롯, IA 알림 필요). 편수 집계는 server 새 경로입니다(IA `my-saju.record.title` 역할 설명).
+* **문구 자리:** 단위 글자, 막대 머리, 태그 머리는 IA에 슬롯이 없습니다(writing 새 슬롯, IA 알림 필요). 집계는 server `getDiaryStats`(REST 1.9.0, S146)입니다. 편수는 쓴 일기 수, 막대 수는 날의 성격마다 일기가 있는 날짜 수(같은 날 여러 편도 하루), 태그는 대표 태그 기준 날짜 수가 많은 태그 최대 셋입니다(IA `my-saju.record.title`, V97).
 
 ## 화면 배치
 

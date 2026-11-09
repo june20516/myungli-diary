@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0",
+  "version": "6.0.0",
   "group": "diary",
   "components": [
     {
@@ -142,7 +142,7 @@
           "scrollPaddingBottom": "키보드 inset + 내리기 버튼 44 + space.12 (커서 줄이 버튼에 가리지 않음)"
         },
         "seal": { "element": "seal", "variant": "fill", "color": "{color.seal.fill}", "knock": "{color.seal.knock}", "size": { "value": 64, "unit": "px" }, "content": "날짜(M.D)", "position": "paper-bottom-end-reserve" },
-        "tags": { "component": "tag-chip", "gap": "{space.8}", "marginTop": "{space.16}" }
+        "tags": { "component": "hanja-tag", "variant": "default", "gap": "{space.8}", "marginTop": "{space.16}", "opens": { "sheet": "explain-sheet", "diaryLink": true }, "appear": "appear.seep", "note": "엔진이 저장할 때 붙인 태그(사주 용어라 term 초록, D108 ②). 누르면 뜻 시트, 대표 태그 시트에만 모아보기 꺾쇠 링크(V73). 저장 순간 스밈(V96)" }
       },
       "states": { "loading": { "skeleton": [{ "bone": "question", "shape": "textLine", "lines": 2, "variant": "edit" }, { "bone": "paper", "shape": "card" }, { "bone": "body", "shape": "textLine", "lines": 5}], "note": "diary-edit loading은 가이드 질문. 본문 칸은 바로 쓸 수 있음" },
         "focused": { "parts": { "keyboardDismiss": { "element": "keyboard.dismiss" } }, "note": "edit에서 본문에 초점이 있는 동안. text-field와 같은 내리기 버튼(Q8)" },
@@ -163,12 +163,12 @@
       "rules": [
         "종이 아래 여백에 64px 도장 자리를 쓰는 중에도 늘 비워 둔다. 글이 길어도 도장이 글을 덮지 않는다.",
         "해시태그를 쓰는 입력이 없다. 태그는 저장할 때 엔진이 붙인다.",
-        "저장 순서: 상단 바 저장 글자 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 대표 태그 칩 스밈 → 토스트.",
+        "저장 순서: 상단 바 저장 글자 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 태그(hanja-tag) 스밈 → 토스트.",
         "보기(view)는 그 일기를 쓸 때의 질문(getDiary guideQuestion)을 같은 인용 모양으로 보이고 바꾸기 버튼은 없다. 질문이 없으면 그리지 않는다.",
         "쓰기에서 질문은 종이 안 맨 위의 인용형(왼쪽 3px term.bg 선, type.sentence.body 크기 14 text.secondary)이고, 오른쪽 질문 바꾸기 아이콘은 그날 후보가 둘 이상일 때만 보인다. 바꿔도 본문은 그대로다.",
         "본문에 초점이 있는 동안 text-field와 같은 키보드 내리기 버튼을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 space.12에 띄운다. 본문 스크롤 아래 여백은 그 버튼 자리까지 둔다.",
         "저장 응답이 오기 전에는 도장을 찍지 않는다. 실패하면 버튼이 돌아오고 오류 토스트.",
-        "보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그 칩."
+        "보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그(hanja-tag)."
       ]
     },
     {
@@ -219,38 +219,12 @@
       ]
     },
     {
-      "id": "tag-chip",
-      "summary": "명리 태그 칩 (길흉 톤). 누르면 뜻 시트(시트 안에서 태그 모아보기)",
-      "uses": ["tone", "press.ink", "appear.seep"],
-      "variants": [
-        { "id": "good", "when": "길한 태그", "parts": { "chip": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" } } },
-        { "id": "bad", "when": "흉한 태그", "parts": { "chip": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } } },
-        { "id": "neutral", "when": "중립 태그", "parts": { "chip": { "bg": "transparent", "border": { "color": "{color.tag.neutral.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.tag.neutral.fg}" } } }
-      ],
-      "parts": {
-        "chip": { "radius": "{radius.full}", "type": "{type.label.md}", "fontSize": { "value": 12, "unit": "px" }, "height": { "value": 26, "unit": "px" }, "paddingX": "{space.12}" },
-        "text": { "prefix": "#" },
-        "opens": { "sheet": "explain-sheet", "diaryLink": true }
-      },
-      "states": { "loading": { "skeleton": [{ "bone": "chip", "shape": "chip", "width": "56px" }] },
-        "pressed": { "pattern": "press.ink" },
-        "appearing": { "pattern": "appear.seep", "note": "저장 순간" }
-      },
-      "haptic": [],
-      "a11y": { "role": "button", "label": "태그 이름 + 길흉 낱말", "colorIndependent": true, "minTarget": 44, "hitSlop": "위아래 9px" },
-      "rules": [
-        "목록·보기·저장 순간(diary-edit)에 같은 컴포넌트를 쓴다.",
-        "톤은 엔진이 준 태그의 길흉 값을 따른다(배지와 같은 V8 규칙).",
-        "누르면 뜻 시트(explain-sheet)이고, 그 태그의 모아보기는 시트 아래 꺾쇠 링크다. 칩에서 바로 화면 이동하지 않는다(V73, 관문 답 2026-11-06)."
-      ]
-    },
-    {
       "id": "diary-summary",
-      "summary": "기록 요약 (나 탭 명리일기 회고): 쓴 편수, 날의 성격마다 쓴 수 막대, 자주 붙은 태그",
+      "summary": "기록 요약 (나 탭 명리일기 회고): 쓴 편수, 날의 성격마다 일기가 있는 날짜 수 막대, 자주 붙은 태그 (server getDiaryStats)",
       "uses": ["tone", "sheet.enter"],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.16}" },
-        "count": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 28, "unit": "px" }, "fontWeight": 700, "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "source": "쓴 일기 편수(server 집계, 새 경로)" },
+        "count": { "fontFamily": "{font.family.ui}", "fontSize": { "value": 28, "unit": "px" }, "fontWeight": 700, "fg": "{color.text.primary}", "fontFeatures": ["tnum"], "source": "쓴 일기 편수(server getDiaryStats, REST 1.9.0, S146)" },
         "countUnit": { "type": "{type.label.lg}", "fg": "{color.text.primary}", "marginStart": "{space.4}", "baseline": "count", "copy": "편수 단위 글자. IA 슬롯 없음(writing 새 슬롯)" },
         "dayKinds": {
           "head": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.8}", "copy": "막대 머리. IA 슬롯 없음(writing 새 슬롯)", "note": "머리는 아래 막대의 이름이라 아래에 붙임(V56과 같은 이유)" },
@@ -263,7 +237,7 @@
         },
         "tags": {
           "head": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.16}", "marginBottom": "{space.8}", "copy": "태그 머리. IA 슬롯 없음(writing 새 슬롯)", "note": "dayKinds 머리와 같음" },
-          "tag": { "component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순" },
+          "tag": { "component": "hanja-tag", "variant": "default", "max": 3, "order": "대표 태그 기준 날짜 수가 많은 순(server getDiaryStats)" },
           "opens": { "sheet": "explain-sheet", "diaryLink": true },
           "count": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "marginStart": "{space.4}", "position": "알약 안 이름 뒤" },
           "gap": "{space.8}",
@@ -278,9 +252,9 @@
       "haptic": [],
       "a11y": { "role": "group", "label": "편수, 날의 성격마다 이름과 수, 태그 이름과 수", "barsDecorative": true, "textScaleMax": 1.3 },
       "rules": [
-        "막대는 그 날의 성격으로 쓴 수를 네 줄 가운데 가장 큰 수에 견준 길이다. 수는 막대 오른쪽 끝에 고정폭으로 둔다.",
+        "막대는 그 날의 성격으로 일기가 있는 날짜 수(같은 날 여러 편도 하루, getDiaryStats)를 네 줄 가운데 가장 큰 수에 견준 길이다. 수는 막대 오른쪽 끝에 고정폭으로 둔다.",
         "막대 색은 날의 성격 톤(V8 배지 매핑의 진한 쪽 색)이고, 이름과 수를 늘 함께 보여 색만으로 전하지 않는다.",
-        "자주 붙은 태그는 hanja-tag default(사주 용어 초록) 최대 셋, 수 많은 순. 누르면 뜻 시트(explain-sheet)이고 시트 아래 꺾쇠 링크로 그 태그의 일기 모아보기(tag-diary). V76을 관문 답 2026-11-06으로 개정.",
+        "자주 붙은 태그는 hanja-tag default(사주 용어 초록) 최대 셋, 대표 태그 기준 날짜 수가 많은 순(getDiaryStats, V97). 누르면 뜻 시트(explain-sheet)이고 시트 아래 꺾쇠 링크로 그 태그의 일기 모아보기(tag-diary). V76을 관문 답 2026-11-06으로 개정.",
         "쓴 편수가 5편 미만이면 막대를 숨기고 안내 한 줄(my-saju.record.few)을 둔다."
       ]
     }

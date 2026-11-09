@@ -75,6 +75,8 @@ ISSUE_710 = {"ui.settings.row", "ui.legal.row", "ui.profile-edit.birthplace", "u
 # DS1 2단계(#801) 화면 결정 시안의 새 자리: 시진 이름, 자리 표시 기둥 글자, 가운데 초안 상태 (V82, V88, V91)
 DS1_SCREENS = {"ui.birth-info.row", "ui.saju.stage-marker", "diary-edit.draft.status",
                "today.featured.empty"}  # D112 대표 태그 없는 날 한 줄
+# #859 drift(D113): IA 새 슬롯 일정 섹션 제목과 대표 태그 시트 꺾쇠 링크(같은 말인 tag-sheet.diary.cta 포함, V97)
+ISSUE_859 = {"today.event.title", "explain-sheet.tag.diary-link", "tag-sheet.diary.cta"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -132,10 +134,10 @@ class FakeFonts:
         return None
 
 
-def test_free_width_subtracts_prefix_and_reserved_slot():
-    target = Target(("n",), "칸", "ui", 10, 0, 100, 1, False, 10, prefix="a", reserve_slot="v")
-    # 'a' 5px + 값 3자 × 10px
-    assert free_width(target, FAKE, {"v": 3}) == 65
+def test_free_width_subtracts_reserved_slot():
+    target = Target(("n",), "칸", "ui", 10, 0, 100, 1, False, 10, reserve_slot="v")
+    # 값 3자 × 10px
+    assert free_width(target, FAKE, {"v": 3}) == 70
 
 
 def test_measure_uses_earlier_final_for_reserved_width():
@@ -198,7 +200,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
     requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
-                 | ISSUE_763 | DS1_SCREENS)
+                 | ISSUE_763 | DS1_SCREENS | ISSUE_859)
     slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
@@ -431,7 +433,6 @@ def test_layout_constants_match_component_spec():
     assert lengths.DIALOG_CAUTION == _spec_px(title["leadingSize"]) + _spec_px(title["leadingGap"])
     assert lengths.BUTTON_PADDING == _spec_px(_component("action", "primary-button")["parts"]["container"]["paddingX"])
     assert lengths.CHIP_PADDING == _spec_px(_component("today", "day-character")["parts"]["badge"]["paddingX"])
-    assert lengths.CHIP_PADDING == _spec_px(_component("diary", "tag-chip")["parts"]["chip"]["paddingX"])
     lucky = _component("today", "lucky-card")["parts"]["chip"]
     assert lengths.CHIP_PADDING == _spec_px(lucky["paddingX"]) and lengths.LUCKY_CHIP_GAP == _spec_px(lucky["gap"])
     assert lengths.SEGMENTED_TRACK_PADDING == _spec_px(_component("input", "segmented")["parts"]["track"]["padding"])
@@ -508,3 +509,19 @@ def test_ds1_layout_constants_match_component_spec():
     draft = _component("diary", "draft-indicator")["parts"]
     assert _spec_px(draft["icon"]["size"]) == 16 and _spec_px(draft["container"]["gap"]) == 4
     assert _spec_px(draft["count"]["marginStart"]) == 8
+
+
+def test_issue_859_widths_follow_spec():
+    by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    sheet = lengths.SHEET_CONTENT_WIDTH
+    variants = _component("frame", "section-header")["variants"]
+    action = next(v for v in variants if v["id"] == "action")["parts"]["trailing"]
+    assert lengths.SECTION_TRAILING_TARGET == action["minTarget"]
+    assert by_slot["today.event.title"].width == sheet - action["minTarget"]  # 그날 시트 action이 가장 좁음
+    assert by_slot["explain-sheet.tag.diary-link"] is by_slot["tag-sheet.diary.cta"]
+    chevron = _component("frame", "explain-sheet")["parts"]["diaryLink"]["chevron"]
+    assert chevron["size"] == "adjacent-text" and lengths.LINK_CHEVRON_GAP == _spec_px(chevron["gap"])
+    assert by_slot["tag-sheet.diary.cta"].width == sheet - lengths.ICON_BESIDE_SMALL_TEXT - lengths.LINK_CHEVRON_GAP
+    note = next(line for line in (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8").splitlines()
+                if line.startswith("  * `explain-sheet.tag.diary-link`"))
+    assert "`daily.tag_label`" in note and "보장하지 않습니다" in note  # I1: 태그 이름 상한 끝까지는 보장하지 않음

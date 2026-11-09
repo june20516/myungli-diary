@@ -95,7 +95,7 @@ IA v5 `calendar`. 위에서부터입니다.
 1. `date-header` `day-sheet`: 날짜와 요일(`day-sheet.date.solar`), 아래 `space.2`에 음력(`day-sheet.date.lunar`). 일진은 없습니다. 음력이 없으면 줄과 여백을 그리지 않습니다. 핸들 자리 아래 `space.8`.
 2. 날의 성격: 날짜 머리 아래 `space.12`, `hanja-tag` `emphasis`(`day-sheet.character.label`, 용신의 날만 진한 채움, 원 안 한자는 알약 바탕색). 누르면 `explain-sheet` 뜻. 이유 한 줄은 두지 않습니다.
 3. 길흉판정: 앞과 `space.32`, `section-header` `plain`(`day-sheet.verdict.title`), 아래 `space.12`에 `fortune-verdict` 카드. 내역 줄은 `score-row` `verdict`(`day-sheet.verdict.item`)이고 태그를 누르면 `explain-sheet`.
-4. 일정: `section-header` `action`(제목 슬롯 없음, IA 요청), 오른쪽 +(`day-sheet.event.add`, → `event-edit`). 아래 `event-row` `list`(줄 사이 `list.divider`), 없으면 빈 문장(`day-sheet.event.empty`).
+4. 일정: `section-header` `action`(`day-sheet.event.title`, 오늘 화면 `today.event.title`과 같은 키, V97), 오른쪽 +(`day-sheet.event.add`, → `event-edit`). 아래 `event-row` `list`(줄 사이 `list.divider`), 없으면 빈 문장(`day-sheet.event.empty`).
 5. 일기: `section-header` `plain`(`day-sheet.diary.open`, 그날 쓴 일기 머리. 쓴 일기가 없어도 섹션 제목으로 보임). 아래 `diary-row` `entries`(작성 순, 누르면 `diary-view`, V42), 그 아래 `space.12`에 쓰기 버튼 `primary-button` `filled`(`day-sheet.diary.write-cta`, "<날짜> 일기 쓰기", 상한을 채운 날은 `disabled`, V43).
 
 * 빠진 것(D108): 맨 위 날의 성격 배지와 이유 한 줄. 길흉판정에는 한 줄 요약 문장을 두지 않습니다.
@@ -111,5 +111,5 @@ IA v5 `calendar`. 위에서부터입니다.
 2. 설명 문장(`color-rule-sheet.rule.body`): 제목 아래 `space.12`, `sentence-block` `body`.
 3. 점수 항목 표: 문장 아래 `space.24`, `score-row` `rule` 일곱 줄(줄 사이 `list.divider`). 더함은 用 용신의 날 +●●, 貴 귀인의 날 +●●, 合 합 +●. 뺌은 忌 기신의 날 −●, 沖 일지 충과 월지 충 −●●, 沖 충 −●, 刑 형 −●. 점 개수는 엔진 spec §8 점수표입니다.
 
-* 표 아래 합한 점과 색의 관계를 보이는 척도 그림은 두지 않습니다(관문 답 2026-11-07 Q4: 그날 시트 막대와 같은 척도를 두 번 그리지 않음). 그래서 IA의 `score-scale`은 명세를 쓰지 않고 IA 제거 요청입니다(`tools/components.py` `IA_REMOVAL_REQUESTED`).
+* 표 아래 합한 점과 색의 관계를 보이는 척도 그림은 두지 않습니다(관문 답 2026-11-07 Q4: 그날 시트 막대와 같은 척도를 두 번 그리지 않음). 그래서 `score-scale`은 명세를 쓰지 않았고, IA 제거 요청(`tools/components.py` `IA_REMOVAL_REQUESTED`)대로 IA에서 빠졌습니다(D113).
 * 표의 태그는 누를 수 없는 표시입니다(IA에 출구가 없고 시트를 더 쌓지 않음). 불러올 내용이 없어 loading이 없습니다.

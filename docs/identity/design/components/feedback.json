@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0",
+  "version": "6.0.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -76,7 +76,7 @@
       "uses": ["icon", "appear.seep", "disappear.seep"],
       "variants": [
         { "id": "offline", "when": "연결 없음, 받아둔 내용을 보여 줄 때", "parts": { "icon": { "name": "wifi-slash" } } },
-        { "id": "time-unknown", "when": "출생 시간을 모름(시주 없음)", "parts": { "icon": { "name": "clock" } } },
+        { "id": "time-unknown", "when": "출생 시간을 모름(시주 없음)", "parts": { "icon": { "name": "clock" }, "text": { "slot": "saju-chart.time-unknown.notice" } }, "note": "오늘, 나 탭, 사주 표가 같은 문구 키(IA DS1)" },
         { "id": "draft", "when": "이어 쓸 초안이 있음", "parts": { "icon": { "name": "note-pencil" } } },
         { "id": "error", "when": "연결은 있지만 요청이 실패함(server 오류, 다시 계산 실패 등 IA error 상태를 화면 내용과 함께 보일 때, 예 profile-edit:error)", "parts": { "icon": { "name": "cloud-warning" } } }
       ],

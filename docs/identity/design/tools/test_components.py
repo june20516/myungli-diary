@@ -343,7 +343,7 @@ def test_brand_groups_contain_spec_components():
         "sentence": {"sentence-block", "term-token", "depth-link", "reaction-button", "hanja-tag"},
         "today": {"day-character", "lucky-card", "guide-question-card", "share-image", "date-header", "tag-sentence-list"},
         "calendar": {"calendar-month", "day-cell", "event-row", "fortune-verdict", "score-row"},
-        "diary": {"diary-row", "diary-editor", "date-block", "draft-indicator", "tag-chip", "diary-summary"},
+        "diary": {"diary-row", "diary-editor", "date-block", "draft-indicator", "diary-summary"},  # tag-chip은 6.0.0에서 지움(V96)
         "saju": {"saju-pillars", "ohaeng-bar", "manse-table", "daeun-table", "luck-pillar", "birth-info-row", "band-table",
                  "stage-strip"},
     }
@@ -360,7 +360,6 @@ def test_brand_spec_values():
     assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
     day = json.dumps(c["day-cell"])
     assert "{color.seal.soft}" in day and "outline" in day and "mark.underline-grow" in day
-    assert "{color.tag.good.bg}" in json.dumps(c["tag-chip"]) and "tone" in c["tag-chip"]["uses"]
     assert c["depth-link"]["parts"]["icon"]["icon"] == "book-open-text"  # V63: 근거 진입점은 아이콘
     assert "tag.me" in c["saju-pillars"]["uses"] and "highlight.current" in c["daeun-table"]["uses"]
     assert "surface.paper" in c["diary-editor"]["uses"] and "rail.timeline" in c["diary-row"]["uses"]
@@ -443,8 +442,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_5_0():
-    assert VERSION == "5.0.0"  # DS1 2단계(#801): 요소와 부품을 지우고 이름을 바꿔 주 버전
+def test_contract_version_is_6_0():
+    assert VERSION == "6.0.0"  # #859 drift: IA에서 빠진 tag-chip을 지워 주 버전 (V96). 5.0.0은 DS1 2단계(#801)
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -484,8 +483,8 @@ def test_pending_ia_components_are_known():
     specified = {component["id"] for name in components.GROUPS for component in documents[name]["components"]}
     assert components.IA_PENDING_COMPONENTS <= IA_V5_NEW_COMPONENTS  # 목록은 새 15개 안에서만 줄어듦
     assert components.IA_PENDING_COMPONENTS == ia_ids - specified - components.IA_REMOVAL_REQUESTED  # 명세가 생기면 목록에서 빼야 통과
-    # 관문 답 2026-11-07 Q4: 색 규칙 시트에 척도 그림을 두지 않아 score-scale은 명세 없이 IA 제거 요청
-    assert components.IA_REMOVAL_REQUESTED == frozenset({"score-scale"}) and not components.IA_REMOVAL_REQUESTED & specified
+    # score-scale(관문 답 2026-11-07 Q4)과 tag-chip(V81)은 IA에서 빠져(D113) 제거 요청 목록이 빔
+    assert components.IA_REMOVAL_REQUESTED == frozenset() and not {"score-scale", "tag-chip"} & (ia_ids | specified)
     assert not components.IA_PENDING_COMPONENTS & specified
 
 
@@ -1465,7 +1464,7 @@ def test_no_inline_nowrap_link():
 # 서버에서 받은 내용을 그리는 컴포넌트: 각자 skeleton 모양을 가짐 (V66)
 CONTENT_COMPONENTS = {
     "day-character", "lucky-card", "sentence-block", "guide-question-card", "event-row", "calendar-month",
-    "diary-row", "diary-editor", "tag-chip", "saju-pillars", "manse-table", "daeun-table", "ohaeng-bar",
+    "diary-row", "diary-editor", "saju-pillars", "manse-table", "daeun-table", "ohaeng-bar",
     "offer-card", "purchase-row", "account-choice", "city-search",
     "hanja-tag",  # 태그 이름을 받아 그림 (DS1 2단계)
     "diary-summary", "luck-pillar",  # 기록 집계, 대운과 세운 (DS1 2단계 묶음 B)
@@ -1805,7 +1804,8 @@ def test_diary_summary():
                              "ORDINARY_DAY": "{color.badge.ordinary.border}", "GISIN_DAY": "{color.badge.gisin.fg}"}
     assert kinds["count"]["align"] == "end" and kinds["count"]["fontFeatures"] == ["tnum"]
     tags = parts["tags"]
-    assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": "수 많은 순"}
+    assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": tags["tag"]["order"]}
+    assert "getDiaryStats" in tags["tag"]["order"] and "날짜 수" in tags["tag"]["order"]  # S146 세는 기준 (V97)
     assert tags["count"]["position"] == "알약 안 이름 뒤" and tags["count"]["marginStart"] == "{space.4}"
     # 회고 태그도 어디서나처럼 뜻 시트, 모아보기는 시트 안 꺾쇠 링크 (관문 답 2026-11-06 Q3 안 A 확장)
     assert tags["opens"] == {"sheet": "explain-sheet", "diaryLink": True}
@@ -1974,7 +1974,7 @@ def test_evidence_sheet_head():
 TODAY_ORDER = [
     "today.bar.title", "today.date.solar", "today.date.lunar", "today.date.iljin", "today.fortune.title",
     "today.character.label", "today.ten-god.label", "today.fortune.head", "today.fortune.body",
-    "today.featured.title", "today.featured.empty", "today.lucky.title", "today.event.summary", "today.guide.title",
+    "today.featured.title", "today.featured.empty", "today.lucky.title", "today.event.title", "today.event.summary", "today.guide.title",
     "today.guide.question", "today.guide.cta",
 ]
 
@@ -1991,7 +1991,7 @@ def test_today_section_order():
 
     fortune = line_of("today.fortune.title")
     assert "`section-header` `action`" in fortune and "`reaction-button`" in fortune and "`today.reaction.label`" in fortune
-    for slot in ("today.featured.title", "today.lucky.title", "today.guide.title"):
+    for slot in ("today.featured.title", "today.lucky.title", "today.event.title", "today.guide.title"):
         assert "`section-header` `plain`" in line_of(slot), slot
     assert "`hanja-tag` `emphasis`" in line_of("today.character.label")
     assert "`hanja-tag` `default`" in line_of("today.ten-god.label")
@@ -2097,9 +2097,9 @@ def test_hanja_tag_opens_sheet_everywhere():
     assert "<태그>이 붙은 내 일기 보기" in link["copy"] and "josa" in link["josa"]
     assert "page.push" in sheet["uses"]
     assert sheet["a11y"]["linkRole"] == "link" and "꺾쇠는 읽지 않음" in sheet["a11y"]["linkLabel"]  # 리뷰 Minor 3
-    chip = component("diary", "tag-chip")
-    assert chip["parts"]["opens"] == {"sheet": "explain-sheet", "diaryLink": True}
-    assert chip["a11y"]["role"] == "button" and "tag-diary" not in json.dumps(chip["rules"], ensure_ascii=False)
+    tags = component("diary", "diary-editor")["parts"]["tags"]  # tag-chip 대신 hanja-tag (V96)
+    assert tags["component"] == "hanja-tag" and tags["variant"] == "default"
+    assert tags["opens"] == {"sheet": "explain-sheet", "diaryLink": True} and tags["appear"] == "appear.seep"
     for name in ("diary.md", "sentence.md"):
         assert "pageIn" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
 
@@ -2338,6 +2338,7 @@ def test_color_rule_sheet_has_no_scale():
     assert "ja, en" in layout and "스크롤" in layout  # 넘치는 조건: 작은 화면, 큰 글자, 긴 언어
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert "score-scale" in readme and "IA_REMOVAL_REQUESTED" in readme
+    assert "score-scale" not in json.dumps(json.loads(IA_PATH.read_text(encoding="utf-8"))["components"])  # D113로 IA에서 빠짐
 
 def test_day_sheet_opens_full():
     sheet = component("frame", "sheet")
@@ -2350,6 +2351,7 @@ def test_day_sheet_opens_full():
     order = ["`date-header` `day-sheet`", "`hanja-tag` `emphasis`", "`fortune-verdict`", "`event-row` `list`", "`diary-row` `entries`"]
     assert [layout.index(item) for item in order] == sorted(layout.index(item) for item in order)
     assert "day-character" not in layout and any("요약 문장" in line and "두지 않" in line for line in layout.splitlines())
+    assert "`section-header` `action`(`day-sheet.event.title`" in layout  # 일정 섹션 제목 (V97, #859)
     event = next(v for v in component("calendar", "event-row")["variants"] if v["id"] == "list")["parts"]
     assert event["add"] == {"component": "section-header", "variant": "action", "slot": "day-sheet.event.add",
                             "position": "section-header-trailing"}
@@ -2704,8 +2706,7 @@ def _readme_row(version):
 
 def test_readme_records_5_0_removals_and_renames():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "컴포넌트 계약 5.0.0 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
-    row = _readme_row("5.0.0")
+    row = _readme_row("5.0.0")  # 머리의 기대 판은 6.0.0 (test_readme_records_6_0_removal)
     removed = row.split("**지움**", 1)[1].split("**더함**", 1)[0]
     for name in REMOVED_IN_5_0:
         assert name in removed, name
@@ -2724,18 +2725,18 @@ def test_readme_records_5_0_removals_and_renames():
     assert "토큰 1.4.0 이상" in row and "주 버전" in row
 
 
-def test_contract_list_rows_name_5_0_and_1_4():
+def test_contract_list_rows_name_6_0_and_1_4():
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
-    assert "| 5.0.0 |" in component_row and "| 1.4.0 |" in token_row
+    assert "| 6.0.0 |" in component_row and "| 1.4.0 |" in token_row
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     elements_count = len(documents["elements"]["elements"])
     patterns = len(documents["interaction"]["patterns"])
-    tail = component_row.split("5.0.0:", 1)[1]
+    tail = component_row.split("6.0.0:", 1)[1]
     assert f"IA 컴포넌트 {specified}개" in tail and f"요소 {elements_count}개" in tail and f"패턴 {patterns}개" in tail
-    assert "IA 컴포넌트 43개" not in tail  # 4.0.0 문장의 옛 숫자를 5.0.0에 옮기지 않음
+    assert "IA 컴포넌트 43개" not in tail and "57개" not in tail  # 앞 판 문장의 옛 숫자를 옮기지 않음
     for name in ("color.calendar.level", "color.fill.soft", "color.verdict.track", "color.highlight.bg"):
         assert name in token_row.split("1.4.0:", 1)[1], name
 
@@ -2812,3 +2813,32 @@ def test_contract_rows_user_impact_is_writing_only():
         impact = rows[key]["근거"].split("사용자 영향: ", 1)[1]
         assert impact.startswith("#850") and "#851" not in impact, key
         assert "app 반영은 #851" in rows[key]["근거"], key
+
+
+# #859 drift(D113, IA에서 tag-chip, score-scale을 뺌): 컴포넌트 계약 6.0.0 (결정 V96)
+def test_tag_chip_removed_for_hanja_tag():
+    assert "tag-chip" not in {c["id"] for c in all_components()}
+    for name in ("diary.md", "elements.md", "sentence.md"):
+        assert "tag-chip" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+    for path in (COMPONENTS_DIR / "README.md", COMPONENTS_DIR / "feedback.md", COMPONENTS_DIR / "frame.md",
+                 DESIGN_DIR / "visual-identity.md", DESIGN_DIR / "tokens" / "color.light.tokens.json",
+                 DESIGN_DIR / "tokens" / "color.dark.tokens.json", TOOLS_DIR / "tokens.py"):
+        assert "태그 칩" not in path.read_text(encoding="utf-8"), path.name  # 리뷰 M1, M2, M4
+    editor = component("diary", "diary-editor")
+    assert not any("칩" in rule for rule in editor["rules"])
+    screens = next(line for line in _md_section("sentence.md", "## hanja-tag").splitlines() if line.startswith("* 쓰는 화면"))
+    assert "diary-edit" in screens and "tag-diary" in screens
+
+
+def test_readme_records_6_0_removal():
+    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
+    assert "컴포넌트 계약 6.0.0 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
+    row = _readme_row("6.0.0")
+    assert "`tag-chip`" in row.split("**지움**", 1)[1] and "V96" in row and "#859" in row
+
+
+def test_time_unknown_notice_shares_saju_chart_key():
+    # IA DS1: 오늘, 나 탭의 시간 모름 안내 문구는 사주 표 saju-chart.time-unknown.notice와 같은 키
+    banner = next(v for v in component("feedback", "notice-banner")["variants"] if v["id"] == "time-unknown")
+    assert banner["parts"]["text"] == {"slot": "saju-chart.time-unknown.notice"}
+    assert "saju-chart.time-unknown.notice" in _md_section("today.md", "### today 화면 배치")
