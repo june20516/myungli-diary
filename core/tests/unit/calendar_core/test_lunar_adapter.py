@@ -96,7 +96,7 @@ def test_hidden_stems_main_qi_first() -> None:
 
 
 # 지장간 배열 순서는 계약이다(core C31, #853). 첫 항목이 정기이고, 둘째, 셋째는 지지마다 다르다.
-# 寅申巳亥: 정기, 중기, 여기 / 辰戌丑未: 정기, 여기, 중기 / 午: 정기, 중기 / 亥: 정기, 중기(여기 戊 없음)
+# 寅申巳: 정기, 중기, 여기 / 辰戌丑未: 정기, 여기, 중기 / 午: 정기, 중기 / 亥: 정기, 중기(여기 戊 없음)
 HIDDEN_STEM_ORDER = {
     "子": "癸", "丑": "己癸辛", "寅": "甲丙戊", "卯": "乙", "辰": "戊乙癸", "巳": "丙庚戊",
     "午": "丁己", "未": "己丁乙", "申": "庚壬戊", "酉": "辛", "戌": "戊辛丁", "亥": "壬甲",
@@ -106,6 +106,14 @@ HIDDEN_STEM_ORDER = {
 def test_hidden_stem_order_is_contract() -> None:
     actual = {b.hanja: "".join(s.hanja for s in la.hidden_stems(b)) for b in B}
     assert actual == HIDDEN_STEM_ORDER
+
+
+def test_hidden_stem_count_groups_match_documented_groups() -> None:
+    """C31과 proto 주석의 묶음: 셋은 寅申巳와 辰戌丑未, 둘은 午와 亥, 하나는 子卯酉 (#878)."""
+    by_count: dict[int, str] = {}
+    for b in B:
+        by_count[len(la.hidden_stems(b))] = by_count.get(len(la.hidden_stems(b)), "") + b.hanja
+    assert by_count == {1: "子卯酉", 2: "午亥", 3: "丑寅辰巳未申戌"}
 
 
 @pytest.mark.parametrize(
