@@ -154,6 +154,38 @@ func TestSelect_SameKeyReusesRecord(t *testing.T) {
 	assert.Equal(t, "state", f.rotation(t, "k"), "다시 쓰면 순환은 그대로")
 }
 
+// 모든 슬롯이 같은 키로 기록돼 있으면 트랜잭션 없이 기록을 돌려줍니다(빠른 길, S148).
+// 활성 시드를 보지 않으므로 활성 시드가 없어져도 기존 기록은 그대로 나옵니다.
+func TestSelect_AllExistingSkipsTransaction(t *testing.T) {
+	ctx := context.Background()
+	f := newSelectFixture(t)
+	reqs := []content.SlotRequest{{Slot: headSlot, MessageKey: "k"}, {Slot: colorSlot, MessageKey: "c"}}
+	first, err := f.store.Select(ctx, f.account, day0, f.hash, reqs)
+	require.NoError(t, err)
+
+	_, err = f.pool.Exec(ctx, "UPDATE content_seeds SET active = false")
+	require.NoError(t, err)
+	second, err := f.store.Select(ctx, f.account, day0, f.hash, reqs)
+	require.NoError(t, err)
+	assert.Equal(t, first, second, "기록 그대로, 요청 순서대로")
+}
+
+// 일부 슬롯만 기록돼 있으면 기존 길로 가서 빠진 슬롯만 새로 고르고, 있던 기록은 그대로 둡니다.
+func TestSelect_PartlyExistingSelectsMissing(t *testing.T) {
+	ctx := context.Background()
+	f := newSelectFixture(t)
+	head := f.pick(t, day0, f.hash, headSlot, "k")
+
+	got, err := f.store.Select(ctx, f.account, day0, f.hash,
+		[]content.SlotRequest{{Slot: headSlot, MessageKey: "k"}, {Slot: colorSlot, MessageKey: "c"}})
+	require.NoError(t, err)
+	require.Len(t, got, 2)
+	assert.Equal(t, head, got[0], "있던 기록 그대로")
+	assert.Equal(t, colorSlot, got[1].Slot)
+	assert.Equal(t, "c", got[1].MessageKey)
+	assert.NotZero(t, got[1].ID, "빠진 슬롯은 새로 기록")
+}
+
 func TestSelect_ChangedKeySelectsAgain(t *testing.T) {
 	f := newSelectFixture(t)
 	// k2를 전날 한 번 써서 다음 차례를 state로 만들어 둡니다.
