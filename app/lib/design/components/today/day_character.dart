@@ -3,6 +3,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -30,6 +31,35 @@ DayCharacterVariant dayCharacterVariantOf(DayKind kind) => switch (kind) {
   DayKind.ordinaryDay => DayCharacterVariant.ordinary,
 };
 
+/// 날의 성격 배지 색(V8 매핑): 바탕(없으면 null), 글자, 테두리(평범한 날만).
+///
+/// `day-character`의 배지와 `hanja-tag` `emphasis`가 같은 매핑을 씁니다.
+({Color? bg, Color fg, Color? border}) dayCharacterBadgeColors(
+  DayCharacterVariant variant,
+  ColorTokens colors,
+) => switch (variant) {
+  DayCharacterVariant.good => (
+    bg: colors.badgeGoodBg,
+    fg: colors.badgeGoodFg,
+    border: null,
+  ),
+  DayCharacterVariant.gwiin => (
+    bg: colors.badgeGwiinBg,
+    fg: colors.badgeGwiinFg,
+    border: null,
+  ),
+  DayCharacterVariant.gisin => (
+    bg: colors.badgeGisinBg,
+    fg: colors.badgeGisinFg,
+    border: null,
+  ),
+  DayCharacterVariant.ordinary => (
+    bg: null,
+    fg: colors.badgeOrdinaryFg,
+    border: colors.badgeOrdinaryBorder,
+  ),
+};
+
 /// 날의 성격 배지와 이유 한 줄(`day-character`).
 ///
 /// 배지는 글자([label])로 날의 성격을 말합니다. 색만으로 전하지 않습니다.
@@ -48,12 +78,40 @@ class DayCharacter extends StatelessWidget {
   });
 
   /// 명세 대조용 요약.
-  static const ComponentSpec spec = ComponentSpec('day-character', {
-    'good',
-    'gwiin',
-    'gisin',
-    'ordinary',
-  }, {});
+  static const ComponentSpec spec = ComponentSpec(
+    'day-character',
+    {'good', 'gwiin', 'gisin', 'ordinary'},
+    {'loading'},
+  );
+
+  /// 뼈 `badge` 너비(`states.loading.skeleton` `badge.width` 72px).
+  static const double skeletonBadgeWidth = 72;
+
+  /// 뼈 `reason` 폭 비율(`states.loading.skeleton` `reason.width` 80%).
+  static const double skeletonReasonWidthFactor = 0.8;
+
+  /// 불러오는 중 뼈: 배지 칩(72) 아래 [Space.s8]에 이유 글줄 한 줄(80%).
+  static Widget skeleton({int index = 0, bool animated = true}) => Builder(
+    builder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SkeletonChip(
+          width: skeletonBadgeWidth,
+          height: DayCharacterBadge.minHeight,
+          index: index,
+          animated: animated,
+        ),
+        const SizedBox(height: Space.s8),
+        SkeletonTextLines(
+          style: context.tokens.typography.captionLg,
+          widthFactor: skeletonReasonWidthFactor,
+          index: index + 1,
+          animated: animated,
+        ),
+      ],
+    ),
+  );
 
   /// 배지 면을 찾는 테스트용 키.
   static const Key badgeKey = DayCharacterBadge.surfaceKey;
@@ -152,20 +210,13 @@ class DayCharacterBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final (bg, fg) = switch (variant) {
-      DayCharacterVariant.good => (colors.badgeGoodBg, colors.badgeGoodFg),
-      DayCharacterVariant.gwiin => (colors.badgeGwiinBg, colors.badgeGwiinFg),
-      DayCharacterVariant.gisin => (colors.badgeGisinBg, colors.badgeGisinFg),
-      DayCharacterVariant.ordinary => (null, colors.badgeOrdinaryFg),
-    };
+    final (:bg, :fg, :border) = dayCharacterBadgeColors(variant, colors);
     return DecoratedBox(
       key: surfaceKey,
       decoration: BoxDecoration(
         color: bg,
         borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
-        border: variant == DayCharacterVariant.ordinary
-            ? Border.all(color: colors.badgeOrdinaryBorder)
-            : null,
+        border: border == null ? null : Border.all(color: border),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: minHeight),

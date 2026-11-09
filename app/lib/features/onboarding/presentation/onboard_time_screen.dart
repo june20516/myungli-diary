@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_hour.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
-import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
@@ -57,26 +57,11 @@ String _hhmm(TimeOfDay time) =>
     '${time.hour.toString().padLeft(2, '0')}:'
     '${time.minute.toString().padLeft(2, '0')}';
 
-String _branchName(AppLocalizations l10n, Branch branch) => switch (branch) {
-  Branch.ja => l10n.branchJa,
-  Branch.chuk => l10n.branchChuk,
-  Branch.in_ => l10n.branchIn,
-  Branch.myo => l10n.branchMyo,
-  Branch.jin => l10n.branchJin,
-  Branch.sa => l10n.branchSa,
-  Branch.o => l10n.branchO,
-  Branch.mi => l10n.branchMi,
-  Branch.shin => l10n.branchShin,
-  Branch.yu => l10n.branchYu,
-  Branch.sul => l10n.branchSul,
-  Branch.hae => l10n.branchHae,
-};
-
 /// 시진 확인 줄 글자(`onboard-time.hour.confirm`). server는 지지와 시각 범위만 주므로
 /// app이 ARB 틀에 넣어 씁니다(A20 ③, IA v2에서 ui 슬롯이 됨 D68).
 String sijinConfirmText(AppLocalizations l10n, BirthHour hour) =>
     l10n.onboardTimeHourConfirm(
-      _branchName(l10n, hour.branch),
+      branchName(l10n, hour.branch),
       hour.start,
       hour.end,
     );
@@ -180,7 +165,18 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
     final result = ref.read(
       birthHourProvider((date: date, time: _hhmm(_settled))),
     );
-    if (!result.isLoading) _held = result.value;
+    // 요청이 실패해 null이면 붙잡은 값을 지우지 않습니다(F-030).
+    final hour = result.value;
+    if (!result.isLoading && hour != null) _held = hour;
+  }
+
+  @override
+  void didUpdateWidget(_TimeForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 생일이 바뀌면 이전 생일의 시진은 맞지 않으니 비우고 새 값으로 채웁니다. 새 시진을 받기
+    // 전에는 줄을 뺍니다: 틀린 시진을 보이지 않는 것이 우선이고, 깜빡임 방지(F-030)는 같은
+    // 생일 안에서 시간만 바뀔 때에 한정합니다.
+    if (widget.date != oldWidget.date) _held = null;
   }
 
   void _onTimeChanged(TimeOfDay value) {
@@ -212,7 +208,7 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
   }
 
   /// 시진 확인 줄 글자. 모름이거나 생일을 모르거나 값을 못 받았으면 null입니다.
-  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안에는 [_held]의 이전 줄을 그대로 둡니다.
+  /// 휠이 움직이는 중이거나 새 값을 기다리는 동안, 요청이 실패한 때에도 [_held]의 이전 줄을 둡니다.
   String? _confirmText(AppLocalizations l10n) {
     final date = widget.date;
     if (_unknown || date == null) return null;
@@ -221,7 +217,8 @@ class _TimeFormState extends ConsumerState<_TimeForm> {
       final result = ref.watch(
         birthHourProvider((date: date, time: _hhmm(_settled))),
       );
-      if (!result.isLoading) hour = result.value;
+      final fetched = result.value;
+      if (!result.isLoading && fetched != null) hour = fetched;
     }
     return hour == null ? null : sijinConfirmText(l10n, hour);
   }

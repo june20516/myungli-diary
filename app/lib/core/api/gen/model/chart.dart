@@ -68,6 +68,8 @@ class Chart {
     this.yongsinSummary,
 
     this.personalReadings,
+
+    this.personalReadingPreviews,
   });
 
   @JsonKey(name: r'rulesetVersion', required: true, includeIfNull: false)
@@ -125,6 +127,14 @@ class Chart {
   @JsonKey(name: r'personalReadings', required: false, includeIfNull: false)
   final List<PersonalReading>? personalReadings;
 
+  /// 잠긴 원국 개인 해석의 앞부분입니다(D106, 1.7.0에서 더함). 근거 열람 권한이 없고(`evidenceAccess: locked`) 미리보기 항목이 있을 때만 담깁니다. 항목 모양은 `personalReadings`와 같되 `text`가 앞부분만 담습니다. 너무 짧아 자를 수 없는 항목은 빠지고, 빈 배열은 보내지 않습니다.
+  @JsonKey(
+    name: r'personalReadingPreviews',
+    required: false,
+    includeIfNull: false,
+  )
+  final List<PersonalReading>? personalReadingPreviews;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -146,7 +156,8 @@ class Chart {
           other.ilganHead == ilganHead &&
           other.ilganBody == ilganBody &&
           other.yongsinSummary == yongsinSummary &&
-          other.personalReadings == personalReadings;
+          other.personalReadings == personalReadings &&
+          other.personalReadingPreviews == personalReadingPreviews;
 
   @override
   int get hashCode =>
@@ -167,7 +178,8 @@ class Chart {
       ilganHead.hashCode +
       ilganBody.hashCode +
       yongsinSummary.hashCode +
-      personalReadings.hashCode;
+      personalReadings.hashCode +
+      personalReadingPreviews.hashCode;
 
   factory Chart.fromJson(Map<String, dynamic> json) => _$ChartFromJson(json);
 

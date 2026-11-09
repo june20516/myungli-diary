@@ -24,9 +24,9 @@ import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
 
 final _ko = AppLocalizationsKo();
-const _tag = 'cheoneul_gwiin';
+const _tag = 'harmony';
 const _listPath = '/v1/diaries';
-const _meaning = '어려울 때 도와주는 사람이 곁에 오는 기운이에요.';
+const _meaning = '서로 다른 기운이 맞물려 하나가 되는 것으로, 사람과 일이 잘 어울려요.';
 
 /// [failListing]이면 일기 목록 GET을 503으로 답하고, [holdListing]이면 [gate]가 열릴 때까지
 /// 붙잡습니다. [termInMeaning]이면 용어 사전의 태그 뜻 끝에 용어 조각을 붙여 답합니다.
@@ -117,8 +117,14 @@ Future<ProviderContainer> _openTagDiary(
   }
   final path = tag == null ? pathOf(ScreenIds.tagDiary) : taggedPathOf(tag);
   unawaited(container.read(routerProvider).push<void>(path));
-  await pumpUntilScreen(tester, ScreenIds.tagDiary);
-  if (!(network?.holdListing ?? false)) {
+  final holding = network?.holdListing ?? false;
+  // 목록을 붙잡아 두면 skeleton이 계속 숨 쉬므로 움직임이 이어져도 돌아갑니다.
+  await pumpUntil(
+    tester,
+    () => find.byKey(const ValueKey(ScreenIds.tagDiary)).evaluate().isNotEmpty,
+    allowOngoing: holding,
+  );
+  if (!holding) {
     await _untilShown(tester);
   }
   return container;
@@ -145,20 +151,25 @@ void main() {
     await expectAppBarTitle(
       tester,
       SlotIds.tagDiaryBarTitle,
-      _ko.tagDiaryBarTitle('천을귀인'),
+      _ko.tagDiaryBarTitle('합'),
     );
     expect(find.text(_meaning), findsOneWidget);
     expect(find.byType(DiaryRow), findsWidgets);
-    // 목록과 같은 태그 칩은 같은 화면을 다시 쌓지 않도록 누를 수 없습니다.
-    final chips = tester.widgetList<TagChip>(
-      find.descendant(of: _screen, matching: find.byType(TagChip)),
+    // 모든 줄이 같은 태그이고 화면 위에 그 이름과 뜻이 있어 줄은 대표 태그를 그리지 않습니다
+    // (`diary-row` `hiddenIn`). 날의 성격 태그는 줄마다 달라 그대로 보입니다.
+    final rows = tester.widgetList<DiaryRow>(
+      find.descendant(of: _screen, matching: find.byType(DiaryRow)),
     );
-    expect(chips, isNotEmpty);
-    expect(chips.every((chip) => chip.onTap == null), isTrue);
+    expect(rows.every((row) => row.tag == null), isTrue);
+    expect(rows.any((row) => row.dayKind != null), isTrue);
   });
 
-  testWidgets('diary-view의 태그 칩 → 그 태그 모아보기', (tester) async {
-    covers(const Covers(exits: ['diary-view>tag-diary']));
+  testWidgets('diary-view의 태그 칩 → 뜻 시트의 링크 → 그 태그 모아보기', (tester) async {
+    covers(
+      const Covers(
+        exits: ['diary-view>explain-sheet', 'explain-sheet>tag-diary'],
+      ),
+    );
     final container = await pumpApp(tester, scenario: 'member');
     unawaited(
       container
@@ -173,6 +184,9 @@ void main() {
     await pumpUntil(tester, () => find.byType(TagChip).evaluate().isNotEmpty);
     await settleWithIo(tester);
     await tester.tap(find.byType(TagChip).first);
+    await settleWithIo(tester);
+    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    await tester.tap(find.textContaining(_ko.explainSheetTagDiaryLink('합')));
     await pumpUntilScreen(tester, ScreenIds.tagDiary);
     await _untilShown(tester);
     expect(
@@ -209,7 +223,7 @@ void main() {
 
   testWidgets('empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다', (tester) async {
     covers(const Covers(states: ['tag-diary:empty']));
-    await _openTagDiary(tester, tag: 'yeokma');
+    await _openTagDiary(tester, tag: 'hwagae');
     expect(find.text(_ko.tagDiaryEmptyBody), findsOneWidget);
     expect(
       find.byKey(const ValueKey(SlotIds.tagDiaryTagMeaning)),
@@ -218,7 +232,7 @@ void main() {
     await expectAppBarTitle(
       tester,
       SlotIds.tagDiaryBarTitle,
-      _ko.tagDiaryBarTitle('역마'),
+      _ko.tagDiaryBarTitle('화개'),
     );
   });
 

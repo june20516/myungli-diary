@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -31,6 +32,8 @@ FocusSlot _slot(String start, String end) => FocusSlot.fromJson({
 
 const _names = GlossaryNames({
   'color': {'wood': '초록'},
+  'tag': {'cheoneul_gwiin': '천을귀인', 'harmony': '합', 'yangin': '양인'},
+  'ten_god_group': {'siksang': '식상'},
 });
 
 /// 비교 테스트가 쓰는 한국어 문구.
@@ -216,7 +219,7 @@ void main() {
         expect(line.reason?.toJson(), daily.characterReason.text.toJson());
         expect(
           line.reason?.segments.single.text,
-          '내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
+          '내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.',
         );
         expect(daily.dayKind, DayKind.yongsinDay);
       },
@@ -237,28 +240,19 @@ void main() {
       expect(image.reason?.toJson(), daily.characterReason.text.toJson());
     });
 
-    test('time_unknown notice의 조각 글자를 잇고, 없으면 null입니다', () {
+    test('time_unknown notice가 있으면 true이고 문장이 비어도 true입니다', () {
       final json = memberDailyJson();
-      expect(timeUnknownNoticeOf(Daily.fromJson(json)), isNull);
+      expect(hasTimeUnknownNotice(Daily.fromJson(json)), isFalse);
       json['notices'] = [
         {
           'code': 'time_unknown',
-          'text': {
-            'segments': [
-              {'text': '태어난 시간을 몰라 '},
-              {'text': '세 기둥', 'term': 'pillar.three'},
-              {'text': '으로 계산했어요.'},
-            ],
-          },
+          'text': {'segments': <Object>[]},
         },
       ];
-      expect(
-        timeUnknownNoticeOf(Daily.fromJson(json)),
-        '태어난 시간을 몰라 세 기둥으로 계산했어요.',
-      );
+      expect(hasTimeUnknownNotice(Daily.fromJson(json)), isTrue);
     });
 
-    test('모르는 notice code(열린 enum)는 건너뛰고 time_unknown만 고릅니다', () {
+    test('모르는 notice code(열린 enum)는 건너뛰고 time_unknown만 봅니다', () {
       // A66: NoticeCode는 열린 enum이라 모르는 code가 와도 응답이 실패하지 않습니다.
       final json = memberDailyJson()
         ..['notices'] = [
@@ -271,7 +265,7 @@ void main() {
             },
           },
         ];
-      expect(timeUnknownNoticeOf(Daily.fromJson(json)), isNull);
+      expect(hasTimeUnknownNotice(Daily.fromJson(json)), isFalse);
       (json['notices'] as List<Object?>).add({
         'code': 'time_unknown',
         'text': {
@@ -280,7 +274,7 @@ void main() {
           ],
         },
       });
-      expect(timeUnknownNoticeOf(Daily.fromJson(json)), '시간 모름');
+      expect(hasTimeUnknownNotice(Daily.fromJson(json)), isTrue);
     });
 
     test('SentenceLine.isBlank는 빈 조각과 공백뿐인 조각을 빈 문장으로 봅니다', () {
@@ -319,57 +313,64 @@ void main() {
       expect(_display(Daily.fromJson(json)), base);
     });
 
-    test('보이는 필드(행운 값·설명·가이드·성격 이유·시간 모름·반응 가능)가 바뀌면 다른 화면 값입니다', () {
-      final base = _display(Daily.fromJson(memberDailyJson()));
-      void expectChanged(void Function(Map<String, dynamic> json) change) {
-        final json = memberDailyJson();
-        change(json);
-        expect(_display(Daily.fromJson(json)), isNot(base));
-      }
+    test(
+      '보이는 필드(행운 값, 설명, 가이드, 음력, 십성 묶음, 대표 태그, 시간 모름, 반응 가능)가 바뀌면 다른 화면 값입니다',
+      () {
+        final base = _display(Daily.fromJson(memberDailyJson()));
+        void expectChanged(void Function(Map<String, dynamic> json) change) {
+          final json = memberDailyJson();
+          change(json);
+          expect(_display(Daily.fromJson(json)), isNot(base));
+        }
 
-      Map<String, dynamic> cards(Map<String, dynamic> json) =>
-          json['cards'] as Map<String, dynamic>;
-      expectChanged(
-        (json) => (cards(json)['number'] as Map<String, dynamic>)['number'] = 8,
-      );
-      expectChanged(
-        (json) =>
-            (cards(json)['direction'] as Map<String, dynamic>)['direction'] =
-                'w',
-      );
-      expectChanged(
-        (json) =>
-            ((json['guide'] as Map<String, dynamic>)['text']
-                as Map<String, dynamic>)['segments'] = [
-              {'text': '다른 질문'},
-            ],
-      );
-      expectChanged(
-        (json) =>
-            ((json['characterReason'] as Map<String, dynamic>)['text']
-                as Map<String, dynamic>)['segments'] = [
-              {'text': '다른 이유'},
-            ],
-      );
-      expectChanged(
-        (json) => json['notices'] = [
-          {
-            'code': 'time_unknown',
-            'text': {
-              'segments': [
-                {'text': '시간 모름'},
+        Map<String, dynamic> cards(Map<String, dynamic> json) =>
+            json['cards'] as Map<String, dynamic>;
+        expectChanged(
+          (json) =>
+              (cards(json)['number'] as Map<String, dynamic>)['number'] = 8,
+        );
+        expectChanged(
+          (json) =>
+              (cards(json)['direction'] as Map<String, dynamic>)['direction'] =
+                  'w',
+        );
+        expectChanged(
+          (json) =>
+              ((json['guide'] as Map<String, dynamic>)['text']
+                  as Map<String, dynamic>)['segments'] = [
+                {'text': '다른 질문'},
               ],
+        );
+        expectChanged(
+          (json) =>
+              json['lunar'] = {'month': 6, 'day': 1, 'isLeapMonth': false},
+        );
+        expectChanged((json) => json['dayStemTenGodGroup'] = 'siksang');
+        expectChanged(
+          (json) => (json['tags'] as Map<String, dynamic>)['featured'] = [
+            {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+          ],
+        );
+        expectChanged(
+          (json) => json['notices'] = [
+            {
+              'code': 'time_unknown',
+              'text': {
+                'segments': [
+                  {'text': '시간 모름'},
+                ],
+              },
             },
-          },
-        ],
-      );
-      expectChanged(
-        (json) =>
-            ((json['fortune'] as Map<String, dynamic>)['head']
-                    as Map<String, dynamic>)['reactable'] =
-                false,
-      );
-    });
+          ],
+        );
+        expectChanged(
+          (json) =>
+              ((json['fortune'] as Map<String, dynamic>)['head']
+                      as Map<String, dynamic>)['reactable'] =
+                  false,
+        );
+      },
+    );
 
     test('같은 값이면 hashCode도 같습니다', () {
       final a = _display(Daily.fromJson(memberDailyJson()));
@@ -378,22 +379,17 @@ void main() {
     });
   });
 
-  group('featuredTagsOf(D76)', () {
-    RenderedText text(String value) => RenderedText.fromJson({
-      'segments': [
-        {'text': value},
-      ],
+  group('skippedFeaturedTagKeysOf(D76, A112)', () {
+    const names = GlossaryNames({
+      'tag': {
+        'cheoneul_gwiin': '천을귀인',
+        'clash': '충',
+        'gongmang': '공망',
+        'harmony': '합',
+        'ten_god_rush.bigyeop': '비겁이 많은 날',
+        'yangin': '양인',
+      },
     });
-
-    final names = GlossaryNames(
-      const {
-        'tag': {'cheoneul_gwiin': '천을귀인', 'clash': '충', 'gongmang': '공망'},
-      },
-      meanings: {
-        'tag.cheoneul_gwiin': text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.'),
-        'tag.clash': text(' '),
-      },
-    );
 
     Daily dailyWith(List<Map<String, String>> featured) {
       final json = memberDailyJson();
@@ -401,99 +397,192 @@ void main() {
       return Daily.fromJson(json);
     }
 
-    test('칩 이름은 사전 tag 이름이고 뜻은 term.meaning tag.<키>입니다', () {
-      final tags = featuredTagsOf(Daily.fromJson(memberDailyJson()), names);
-      expect(tags, hasLength(1));
-      expect(tags.single.tagKey, 'cheoneul_gwiin');
-      expect(tags.single.name, '천을귀인');
+    test('사전에 이름이 없거나 한자 글자표에 없는 대표 태그 키를 응답 순서로 줍니다', () {
       expect(
-        tags.single.explain?.segments.single.text,
-        '어려울 때 도와주는 사람이 곁에 오는 기운이에요.',
-      );
-    });
-
-    test('응답 순서대로 둘까지 그리고, 길흉은 쓰지 않습니다', () {
-      final tags = featuredTagsOf(
-        dailyWith([
-          {'key': 'clash', 'polarity': 'bad'},
-          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
-        ]),
-        names,
-      );
-      expect([for (final tag in tags) tag.name], ['충', '천을귀인']);
-    });
-
-    test('응답이 둘을 넘어도 앞 둘만 칩이 되고 모두 tag 변형입니다', () {
-      final tags = featuredTagsOf(
-        dailyWith([
-          {'key': 'clash', 'polarity': 'bad'},
-          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
-          {'key': 'gongmang', 'polarity': 'bad'},
-        ]),
-        names,
-      );
-      expect([for (final tag in tags) tag.tagKey], ['clash', 'cheoneul_gwiin']);
-      expect(tags.every((tag) => tag.variant == LuckyCardVariant.tag), isTrue);
-    });
-
-    test('대표 태그가 없으면 빈 목록입니다', () {
-      expect(featuredTagsOf(dailyWith([]), names), isEmpty);
-    });
-
-    test('뜻 문장이 없거나 공백뿐이면 meaning이 null입니다', () {
-      final tags = featuredTagsOf(
-        dailyWith([
-          {'key': 'clash', 'polarity': 'bad'},
-        ]),
-        names,
-      );
-      expect(tags.single.explain, isNull);
-    });
-
-    test('사전에 이름이 없는 태그는 칩을 만들지 않습니다(키를 그대로 보이지 않음)', () {
-      final tags = featuredTagsOf(
-        dailyWith([
-          {'key': 'hwagae', 'polarity': 'neutral'},
-          {'key': 'cheoneul_gwiin', 'polarity': 'good'},
-        ]),
-        names,
-      );
-      expect([for (final tag in tags) tag.tagKey], ['cheoneul_gwiin']);
-    });
-
-    test('unnamedFeaturedTagKeysOf는 사전에 이름이 없는 대표 태그 키를 응답 순서로 줍니다', () {
-      expect(
-        unnamedFeaturedTagKeysOf(
+        skippedFeaturedTagKeysOf(
           dailyWith([
             {'key': 'hwagae', 'polarity': 'neutral'},
             {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+            // 이름은 있지만 글자표(A112)에 없는 키도 그리지 못합니다.
+            {'key': 'yangin', 'polarity': 'bad'},
             {'key': 'unknown_key', 'polarity': 'bad'},
           ]),
           names,
         ),
-        ['hwagae', 'unknown_key'],
+        ['hwagae', 'yangin', 'unknown_key'],
       );
+      // member의 대표 태그(합, 비겁이 많은 날)는 둘 다 이름과 글자표(A112)에 있어 모두 그릴 수 있습니다.
       expect(
-        unnamedFeaturedTagKeysOf(Daily.fromJson(memberDailyJson()), names),
+        skippedFeaturedTagKeysOf(Daily.fromJson(memberDailyJson()), names),
         isEmpty,
       );
     });
+  });
 
-    test('오늘 화면 값에 대표 태그가 담기고, 바뀌면 다른 화면 값입니다', () {
-      TodayDisplay display(Daily daily) =>
-          todayDisplayOf(daily, names, _l10n, 'Asia/Seoul');
-      final base = display(Daily.fromJson(memberDailyJson()));
-      expect([for (final tag in base.tags) tag.tagKey], ['cheoneul_gwiin']);
-      expect(display(Daily.fromJson(memberDailyJson())), base);
+  group('오늘 화면 값(D108, D112)', () {
+    Daily dailyWith(void Function(Map<String, dynamic> json) change) {
+      final json = memberDailyJson();
+      change(json);
+      return Daily.fromJson(json);
+    }
+
+    const readings = GlossaryNames({
+      'stem': {'gyeong': '경'},
+      'branch': {'shin': '신'},
+      'tag': {'cheoneul_gwiin': '천을귀인', 'harmony': '합', 'yangin': '양인'},
+      'ten_god_group': {'bigyeop': '비겁', 'siksang': '식상'},
+    });
+
+    TodayDisplay displayOf(Daily daily, [GlossaryNames names = readings]) =>
+        todayDisplayOf(daily, names, _l10n, 'Asia/Seoul');
+
+    test('음력은 ARB 틀이고 윤달이면 윤달 틀, 응답에 없으면 null입니다', () {
       expect(
-        display(
-          dailyWith([
-            {'key': 'clash', 'polarity': 'bad'},
-          ]),
-        ),
-        isNot(base),
+        displayOf(Daily.fromJson(memberDailyJson())).lunarText,
+        _l10n.todayDateLunar(9, 3),
       );
-      expect(display(dailyWith([])), isNot(base));
+      expect(
+        displayOf(dailyWith((json) => json.remove('lunar'))).lunarText,
+        isNull,
+      );
+      expect(
+        displayOf(
+          dailyWith(
+            (json) =>
+                json['lunar'] = {'month': 9, 'day': 3, 'isLeapMonth': false},
+          ),
+        ).lunarText,
+        _l10n.todayDateLunar(9, 3),
+      );
+      expect(
+        displayOf(
+          dailyWith(
+            (json) =>
+                json['lunar'] = {'month': 6, 'day': 1, 'isLeapMonth': true},
+          ),
+        ).lunarText,
+        _l10n.todayDateLunarLeap(6, 1),
+      );
+    });
+
+    test('일진은 한자와 사전 독음(괄호)이고, 독음이 없으면 한자만입니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      expect(displayOf(daily).iljinText, _l10n.todayDateIljin('庚申(경신)'));
+      expect(displayOf(daily, _names).iljinText, _l10n.todayDateIljin('庚申'));
+    });
+
+    test('날의 성격은 enum과 ARB 이름, 십성 묶음은 enum과 사전 이름입니다', () {
+      final member = displayOf(Daily.fromJson(memberDailyJson()));
+      expect(member.dayKind, DayKind.yongsinDay);
+      expect(member.dayKindLabel, _l10n.dayKindYongsinDay);
+      expect(member.tenGodGroup, TenGodGroup.bigyeop);
+      expect(member.tenGodGroupLabel, '비겁');
+      // 십성 묶음이 없는 응답(옛 규칙 버전)은 둘 다 비어 있습니다.
+      final plain = displayOf(
+        dailyWith((json) {
+          json
+            ..remove('dayStemTenGod')
+            ..remove('dayStemTenGodGroup');
+        }),
+      );
+      expect(plain.tenGodGroup, isNull);
+      expect(plain.tenGodGroupLabel, isNull);
+
+      final grouped = displayOf(
+        dailyWith((json) => json['dayStemTenGodGroup'] = 'siksang'),
+      );
+      expect(grouped.tenGodGroup, TenGodGroup.siksang);
+      expect(grouped.tenGodGroupLabel, '식상');
+      // 사전에 이름이 없으면 이름만 비고, 화면은 그 태그를 그리지 않습니다.
+      expect(
+        displayOf(
+          dailyWith((json) => json['dayStemTenGodGroup'] = 'siksang'),
+          const GlossaryNames({}),
+        ).tenGodGroupLabel,
+        isNull,
+      );
+    });
+
+    test('대표 태그는 앞 둘이고, 그릴 수 없는 태그는 빼되 순번(rank)은 응답 순서입니다', () {
+      final display = displayOf(
+        dailyWith(
+          (json) => (json['tags'] as Map<String, dynamic>)['featured'] = [
+            {'key': 'yangin', 'polarity': 'bad'},
+            {'key': 'harmony', 'polarity': 'good'},
+            {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+          ],
+        ),
+      );
+      expect([for (final tag in display.featured) tag.rank], [1]);
+      expect(display.featured.single.key, 'harmony');
+      expect(display.featured.single.glyph, '合');
+      expect(display.featured.single.label, '합');
+      // 1순위를 그리지 못해도 보조 문장은 그대로이고 그 위 태그만 없습니다.
+      expect(display.body, isNotNull);
+      expect(display.bodyTag, isNull);
+    });
+
+    test('member: 1순위 합이 보조 문장 위 태그이고 보조 문장은 fortune.tag입니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      final display = displayOf(daily);
+      expect(display.featured.single.rank, 0);
+      expect(display.featured.single.glyph, '合');
+      expect(display.bodyTag, display.featured.single);
+      expect(display.body?.slot, daily.fortune.tag?.slot);
+      expect(display.body?.text.toJson(), daily.fortune.tag?.text.toJson());
+    });
+
+    test('대표 태그가 없는 날(D112)은 fortune.tag가 와도 보조 문장이 없습니다', () {
+      final display = displayOf(
+        dailyWith(
+          (json) =>
+              (json['tags'] as Map<String, dynamic>)['featured'] = <Object>[],
+        ),
+      );
+      expect(display.featured, isEmpty);
+      expect(display.featuredEmpty, isTrue);
+      expect(display.body, isNull);
+      expect(display.bodyTag, isNull);
+    });
+
+    test('대표 태그가 있지만 모두 그릴 수 없으면 featuredEmpty가 아니고 보조 문장은 남습니다', () {
+      final display = displayOf(
+        dailyWith(
+          (json) => (json['tags'] as Map<String, dynamic>)['featured'] = [
+            {'key': 'not_in_table', 'polarity': 'neutral'},
+          ],
+        ),
+      );
+      expect(display.featured, isEmpty);
+      expect(display.featuredEmpty, isFalse);
+      expect(display.body, isNotNull);
+      expect(display.bodyTag, isNull);
+    });
+
+    test('fortune.tag가 없으면 보조 문장이 없습니다', () {
+      final display = displayOf(
+        dailyWith(
+          (json) => (json['fortune'] as Map<String, dynamic>).remove('tag'),
+        ),
+      );
+      expect(display.body, isNull);
+    });
+
+    test('시간 모름은 time_unknown notice가 있는지입니다(문구는 화면의 ARB)', () {
+      expect(displayOf(Daily.fromJson(memberDailyJson())).timeUnknown, isFalse);
+      expect(
+        displayOf(
+          dailyWith(
+            (json) => json['notices'] = [
+              {
+                'code': 'time_unknown',
+                'text': {'segments': <Object>[]},
+              },
+            ],
+          ),
+        ).timeUnknown,
+        isTrue,
+      );
     });
   });
 }

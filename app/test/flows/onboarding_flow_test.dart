@@ -9,7 +9,9 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
+import 'package:myungli_diary/core/api/gen/model/birth_hour.dart';
 import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
+import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/profile.dart';
@@ -22,6 +24,7 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/features/onboarding/application/birth_hour_providers.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_completer.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_finish.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
@@ -92,6 +95,15 @@ Future<void> _settleConfirm(WidgetTester tester) async {
     await settleIo(tester);
   }
 }
+
+/// 확인 줄을 감싼 Opacity들의 현재 투명도(`appear.seep`이 Opacity로 입힙니다). 깜빡이면
+/// 1 아래로 내려갑니다.
+List<double> _lineOpacities(WidgetTester tester, Key lineKey) => tester
+    .widgetList<Opacity>(
+      find.ancestor(of: find.byKey(lineKey), matching: find.byType(Opacity)),
+    )
+    .map((fade) => fade.opacity)
+    .toList();
 
 FakeServerInterceptor _fake(ProviderContainer container) =>
     container.read(fakeServerInterceptorProvider)! as FakeServerInterceptor;
@@ -489,6 +501,113 @@ void main() {
       await _settleConfirm(tester);
       expect(fake.callCountOf('getBirthHour'), 2);
       expect(find.byKey(lineKey), findsOneWidget);
+    });
+
+    testWidgets(
+      '휠을 돌려 시진이 바뀌어도 확인 줄이 한 프레임도 빠지지 않고, 요청이 실패하면 이전 글자가 남습니다(F-030)',
+      (tester) async {
+        final container = await openTimeStep(
+          tester,
+          overrides: [
+            birthHourProvider.overrideWith((ref, query) async {
+              return switch (query.time) {
+                '12:00' || '13:00' => BirthHour(
+                  branch: Branch.o,
+                  start: '11:30',
+                  end: '13:30',
+                ),
+                '14:00' => BirthHour(
+                  branch: Branch.mi,
+                  start: '13:30',
+                  end: '15:30',
+                ),
+                _ => null,
+              };
+            }),
+          ],
+        );
+        expect(container, isNotNull);
+        await _settleConfirm(tester);
+        const lineKey = ValueKey(SlotIds.onboardTimeHourConfirm);
+        expect(find.textContaining('오시'), findsOneWidget);
+
+        // 14:00(미시)로 두 칸 돌립니다. 디바운스와 응답을 지나는 모든 프레임에 줄이 있습니다.
+        await tester.drag(
+          find.byKey(TimePicker.hourWheelKey),
+          const Offset(0, -80),
+        );
+        for (var i = 0; i < 40; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+          await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+          expect(find.byKey(lineKey), findsOneWidget, reason: '프레임 $i');
+          final opacities = _lineOpacities(tester, lineKey);
+          expect(opacities, isNotEmpty, reason: '프레임 $i');
+          expect(opacities, everyElement(1.0), reason: '프레임 $i');
+        }
+        expect(find.textContaining('미시'), findsOneWidget);
+        expect(find.textContaining('오시'), findsNothing);
+
+        // 15:00은 요청 실패(null)라 이전 글자(미시)가 남습니다.
+        await tester.drag(
+          find.byKey(TimePicker.hourWheelKey),
+          const Offset(0, -40),
+        );
+        for (var i = 0; i < 40; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+          await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+          expect(find.byKey(lineKey), findsOneWidget, reason: '프레임 $i');
+          final opacities = _lineOpacities(tester, lineKey);
+          expect(opacities, isNotEmpty, reason: '프레임 $i');
+          expect(opacities, everyElement(1.0), reason: '프레임 $i');
+        }
+        expect(find.textContaining('미시'), findsOneWidget);
+      },
+    );
+
+    testWidgets('생일이 바뀌면 새 시진을 받기 전에는 줄이 빠지고 이전 생일의 시진이 보이지 않습니다(F-030)', (
+      tester,
+    ) async {
+      final newBirthdayHour = Completer<BirthHour?>();
+      final container = await openTimeStep(
+        tester,
+        overrides: [
+          birthHourProvider.overrideWith((ref, query) {
+            if (query.date.year == 1990) {
+              return BirthHour(branch: Branch.o, start: '11:30', end: '13:30');
+            }
+            return newBirthdayHour.future;
+          }),
+        ],
+      );
+      await _settleConfirm(tester);
+      final before = container.read(onboardingDraftProvider).value!;
+      expect(find.textContaining('오시'), findsOneWidget);
+
+      await container
+          .read(onboardingDraftProvider.notifier)
+          .update(
+            (d) => d.copyWith(
+              date: LunarOrSolarDate(
+                year: before.date!.year + 1,
+                month: before.date!.month,
+                day: before.date!.day,
+              ),
+            ),
+          );
+      await _settleConfirm(tester);
+      // 새 생일의 응답을 기다리는 동안 이전 생일의 시진은 보이지 않습니다.
+      expect(find.textContaining('오시'), findsNothing);
+      expect(
+        find.byKey(const ValueKey(SlotIds.onboardTimeHourConfirm)),
+        findsNothing,
+      );
+
+      newBirthdayHour.complete(
+        BirthHour(branch: Branch.mi, start: '13:30', end: '15:30'),
+      );
+      await _settleConfirm(tester);
+      expect(find.textContaining('미시'), findsOneWidget);
+      expect(find.textContaining('오시'), findsNothing);
     });
 
     testWidgets('본 적 있는 시각으로 되돌리면 다시 묻지 않습니다', (tester) async {

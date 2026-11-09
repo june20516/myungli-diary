@@ -26,6 +26,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
+import 'package:myungli_diary/features/calendar/application/color_rule_sheets.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/calendar/model/calendar_month_view.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
@@ -38,8 +39,13 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 /// IA `calendar`가 직접 처리하는 상태.
 const Set<String> calendarHandledStates = {'loading', 'error', 'offline'};
 
-/// IA `calendar`의 출구 대상: 날짜 누름 → `day-sheet`, 일정 추가 → `event-edit`.
-const Set<String> calendarExits = {ScreenIds.daySheet, ScreenIds.eventEdit};
+/// IA `calendar`의 출구 대상: 날짜 누름 → `day-sheet`, 일정 추가 → `event-edit`, 범례 끝
+/// 규칙 입구 → `color-rule-sheet`.
+const Set<String> calendarExits = {
+  ScreenIds.daySheet,
+  ScreenIds.eventEdit,
+  ScreenIds.colorRuleSheet,
+};
 
 const AppGlyph _plus = AppGlyph(
   light: PhosphorIconsLight.plus,
@@ -154,6 +160,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     _refetchFailedSchedules(month);
   }
 
+  /// 범례 아래 입구를 누르면 색 규칙 시트를 엽니다.
+  void _openColorRule() {
+    unawaited(ref.read(colorRuleSheetsProvider).open(context));
+  }
+
   /// 고른 날(없으면 오늘)의 새 일정 화면으로 갑니다.
   void _addEvent(CalendarDate selected) {
     unawaited(context.push<void>(datedPathOf(ScreenIds.eventEdit, selected)));
@@ -250,6 +261,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   onSelect: _select,
                   onMonthChange: _changeMonth,
                   onRetry: () => _retry(month),
+                  onRuleEntry: _openColorRule,
                 ),
               ),
             ],
@@ -273,6 +285,7 @@ class _CalendarBody extends StatelessWidget {
     required this.onSelect,
     required this.onMonthChange,
     required this.onRetry,
+    required this.onRuleEntry,
   });
 
   final CalendarMonth month;
@@ -287,6 +300,7 @@ class _CalendarBody extends StatelessWidget {
   final ValueChanged<CalendarDate> onSelect;
   final ValueChanged<CalendarMonth> onMonthChange;
   final VoidCallback onRetry;
+  final VoidCallback onRuleEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -329,20 +343,27 @@ class _CalendarBody extends StatelessWidget {
             selected: selected,
             onSelect: onSelect,
             onMonthChange: onMonthChange,
-            // 오류일 때는 칠한 칸이 없으므로 범례를 두지 않습니다.
-            legend: failure == null
-                ? [
-                    (
-                      swatch: colors.calendarGoodBg,
-                      label: l10n.calendarLegendBodyGood,
-                    ),
-                    (
-                      swatch: colors.calendarCautionBg,
-                      label: l10n.calendarLegendBodyCaution,
-                    ),
-                  ]
-                : null,
+            // 범례와 규칙 입구는 늘 보입니다. 오류와 받는 중에도 같은 자리입니다(V84).
+            legend: [
+              (
+                swatch: colors.calendarLevelGreat,
+                label: l10n.calendarLegendBodyVeryGood,
+              ),
+              (
+                swatch: colors.calendarLevelGood,
+                label: l10n.calendarLegendBodyGood,
+              ),
+              (
+                swatch: colors.calendarLevelCaution,
+                label: l10n.calendarLegendBodyCaution,
+              ),
+            ],
             legendIdentifier: SlotIds.calendarLegendBody,
+            ruleEntry: CalendarRuleEntry(
+              label: l10n.calendarLegendRuleLink,
+              onTap: onRuleEntry,
+            ),
+            ruleEntryIdentifier: SlotIds.calendarLegendRuleLink,
           ),
         ],
       ),
@@ -418,6 +439,7 @@ final class _CellBuilder {
       date: date,
       semanticLabel: view.semanticLabel,
       luck: switch (view.luck) {
+        LuckLevel.veryGood => DayLuck.great,
         LuckLevel.good => DayLuck.good,
         LuckLevel.neutral => DayLuck.neutral,
         LuckLevel.caution => DayLuck.caution,

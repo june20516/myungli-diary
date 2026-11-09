@@ -33,10 +33,15 @@ final class ColorTokens {
     required this.badgeOrdinaryFg,
     required this.calendarGoodBg,
     required this.calendarCautionBg,
+    required this.calendarLevelGreat,
+    required this.calendarLevelGood,
+    required this.calendarLevelCaution,
     required this.ohaengFireFg,
     required this.calendarWeekdaySun,
     required this.ohaengEarthFg,
     required this.calendarWeekdaySat,
+    required this.fillSoft,
+    required this.highlightBg,
     required this.inverseBg,
     required this.inverseFg,
     required this.disabledBg,
@@ -142,6 +147,15 @@ final class ColorTokens {
   /// 캘린더 LuckLevel CAUTION 날짜 칸 채우기
   final Color calendarCautionBg;
 
+  /// 캘린더 아주 잘 풀리는 날 칸 채우기. good과 명도는 같고 채도가 더 높음(1.4.0)
+  final Color calendarLevelGreat;
+
+  /// 캘린더 잘 풀리는 날 칸 채우기(1.4.0). calendar.good.bg는 그대로 둠
+  final Color calendarLevelGood;
+
+  /// 캘린더 조심할 날 칸 채우기. 회색이고 명도를 낮춰 good과 구분(1.4.0)
+  final Color calendarLevelCaution;
+
   /// 오행 글자
   final Color ohaengFireFg;
 
@@ -153,6 +167,12 @@ final class ColorTokens {
 
   /// 달력 요일 머리 '토'. 날짜 숫자에는 쓰지 않음
   final Color calendarWeekdaySat;
+
+  /// 흰 표면(bg.sheet) 위 옅은 채움: 확인 창 취소 버튼 등. chip.bg는 흰 표면 위에서 보이지 않음(1.4.0)
+  final Color fillSoft;
+
+  /// 현재 강조 바탕(지금 대운, 올해 세운 칸, 띠 표 일주 열). 옅은 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드(bg.sheet) 위에서만(1.4.0, V93)
+  final Color highlightBg;
 
   /// 토스트 바탕 (반전색)
   final Color inverseBg;
@@ -273,10 +293,15 @@ const lightColors = ColorTokens(
   badgeOrdinaryFg: Color(0xFF5B5B57),
   calendarGoodBg: Color(0xFFFFE9E5),
   calendarCautionBg: Color(0xFFEEEEED),
+  calendarLevelGreat: Color(0xFFFFD2CA),
+  calendarLevelGood: Color(0xFFFFE4DF),
+  calendarLevelCaution: Color(0xFFD4D4D3),
   ohaengFireFg: Color(0xFF733A35),
   calendarWeekdaySun: Color(0xFF733A35),
   ohaengEarthFg: Color(0xFF65470F),
   calendarWeekdaySat: Color(0xFF65470F),
+  fillSoft: Color(0xFFEEEEED),
+  highlightBg: Color(0xFFF7F7F6),
   inverseBg: Color(0xFF2B2B2A),
   inverseFg: Color(0xFFEEEEED),
   disabledBg: Color(0xFFEEEEED),
@@ -365,10 +390,15 @@ const darkColors = ColorTokens(
   badgeOrdinaryFg: Color(0xFFABABA7),
   calendarGoodBg: Color(0xFF3B2522),
   calendarCautionBg: Color(0xFF2B2B2A),
+  calendarLevelGreat: Color(0xFF582720),
+  calendarLevelGood: Color(0xFF46322F),
+  calendarLevelCaution: Color(0xFF2A2A29),
   ohaengFireFg: Color(0xFFF7CCC6),
   calendarWeekdaySun: Color(0xFFF7CCC6),
   ohaengEarthFg: Color(0xFFEAD4B3),
   calendarWeekdaySat: Color(0xFFEAD4B3),
+  fillSoft: Color(0xFF424340),
+  highlightBg: Color(0xFF1B1B1A),
   inverseBg: Color(0xFFEEEEED),
   inverseFg: Color(0xFF2B2B2A),
   disabledBg: Color(0xFF424340),
@@ -730,13 +760,23 @@ const jaType = TypeTokens(
 
 /// 그라데이션. 각도는 CSS 기준(0°=위쪽, 시계 방향)이며 박스 크기에 맞춰 변환됩니다.
 final class GradientTokens {
-  const GradientTokens({required this.today});
+  const GradientTokens({required this.verdictTrack, required this.today});
+
+  /// 길흉판정 위치 막대(fortune-verdict). 왼쪽 조심할 날에서 오른쪽 잘 풀리는 날로(1.4.0)
+  final LinearGradient verdictTrack;
 
   /// 데일리 카드·온보딩·공유 이미지에만 씁니다. 단색으로 바뀌어도 깨지지 않게 씁니다
   final LinearGradient today;
 }
 
 const lightGradients = GradientTokens(
+  verdictTrack: LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFFD4D4D3), Color(0xFFFFD2CA)],
+    stops: [0, 1],
+    transform: CssAngleGradientTransform(90),
+  ),
   today: LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
@@ -747,6 +787,13 @@ const lightGradients = GradientTokens(
 );
 
 const darkGradients = GradientTokens(
+  verdictTrack: LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF2A2A29), Color(0xFF582720)],
+    stops: [0, 1],
+    transform: CssAngleGradientTransform(90),
+  ),
   today: LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
@@ -779,7 +826,7 @@ abstract final class Radii {
   static const double full = 9999;
 }
 
-/// 움직임 시간과 곡선.
+/// 움직임 시간, 곡선, 이동 거리.
 abstract final class Motion {
   static const Duration short = Duration(milliseconds: 200);
   static const Duration fade = Duration(milliseconds: 280);
@@ -789,11 +836,27 @@ abstract final class Motion {
   static const Duration stamp = Duration(milliseconds: 520);
   static const Duration breathe = Duration(milliseconds: 1800);
   static const Duration toastHold = Duration(milliseconds: 2500);
+  static const Duration pageDuration = Duration(milliseconds: 320);
   static const Cubic seep = Cubic(0.2, 0.7, 0.2, 1);
   static const Cubic enter = Cubic(0.2, 0.8, 0.2, 1);
   static const Cubic exit = Cubic(0.4, 0, 1, 1);
   static const Cubic stampPress = Cubic(0.5, 0, 0.9, 0.6);
   static const Cubic standard = Cubic(0.4, 0, 0.2, 1);
+  static const Cubic pageEasing = Cubic(0.2, 0.8, 0.2, 1);
+  static const double pageOffset = 24;
+}
+
+/// 선 굵기(logical px).
+abstract final class BorderTokens {
+  static const double hairline = 0.5;
+}
+
+/// 아이콘 크기 단계(logical px).
+abstract final class IconSizeTokens {
+  static const double s16 = 16;
+  static const double s20 = 20;
+  static const double s24 = 24;
+  static const double s28 = 28;
 }
 
 /// 그림자.

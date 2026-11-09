@@ -1,19 +1,32 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show SemanticsRole;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
+
+const AppGlyph _arrowsClockwise = AppGlyph(
+  light: PhosphorIconsLight.arrowsClockwise,
+  regular: PhosphorIconsRegular.arrowsClockwise,
+);
 
 /// [DiaryEditor] 변형(`diary-editor` `variants`).
 enum DiaryEditorVariant {
@@ -35,7 +48,13 @@ class DiaryEditorController {
       _state?._playSaveSequence(tags) ?? Future<void>.value();
 }
 
-/// 일기 종이(`diary-editor`, `surface.paper`): 날짜, 오늘의 질문(있으면), 본문.
+/// 일기 종이(`diary-editor`, `surface.paper`): (보기만) 날짜, 오늘의 질문(있으면), 본문.
+///
+/// 질문은 종이 안 맨 위의 인용형(왼쪽 3px `term.bg` 선, 안쪽 `space.12`, `type.sentence.body`
+/// 크기 14 `text.secondary`)이고 본문은 그 아래 `space.16`입니다(V82). 쓰기에서는 날짜를 종이
+/// 위 `date-block`이 맡아 종이 안에 그리지 않고, 질문 오른쪽에 질문 바꾸기를 둘 수 있습니다.
+/// 본문에 초점이 있는 동안 키보드 위 내리기 버튼을 띄우고, 종이 밖을 누르면 초점을 풉니다
+/// (`focused`, V83, F-013).
 ///
 /// 종이 아래 끝에 64px 도장 자리를 쓰는 중에도 늘 비워 두어, 글이 길어도 도장이 글을 덮지
 /// 않습니다. 해시태그를 쓰는 입력은 없습니다(태그는 저장할 때 엔진이 붙임). 태그 칩은 종이
@@ -43,6 +62,8 @@ class DiaryEditorController {
 class DiaryEditor extends StatefulWidget {
   /// 쓰기·고치기 종이. 본문은 [controller]가 쥐고, [maxLength](계약 10000자)를 넘게 칠 수
   /// 없습니다. [placeholder]는 빈 본문 안내이자 본문 칸의 스크린리더 이름입니다.
+  /// [onSwapQuestion]이 있으면 질문 오른쪽에 질문 바꾸기를 둡니다(그날 후보가 둘 이상인 새
+  /// 일기, A115). [focusNode]는 본문 초점이고, 없으면 종이가 만듭니다.
   const new edit({
     required this.date,
     required TextEditingController this.controller,
@@ -50,6 +71,8 @@ class DiaryEditor extends StatefulWidget {
     this.placeholder,
     this.maxLength = defaultMaxLength,
     this.onChanged,
+    this.onSwapQuestion,
+    this.focusNode,
     this.editorController,
     this.questionSlotId,
     this.bodySlotId,
@@ -72,13 +95,60 @@ class DiaryEditor extends StatefulWidget {
        placeholder = null,
        maxLength = defaultMaxLength,
        onChanged = null,
+       onSwapQuestion = null,
+       focusNode = null,
        editorController = null;
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'diary-editor',
     {'edit', 'view'},
-    {'saving', 'saved'},
+    {'loading', 'focused', 'saving', 'saved'},
+  );
+
+  /// 뼈 `question` 줄 수(`states.loading.skeleton`, `edit`에만).
+  static const int skeletonQuestionLines = 2;
+
+  /// 뼈 `body` 줄 수(`states.loading.skeleton`).
+  static const int skeletonBodyLines = 5;
+
+  /// 불러오는 중 뼈: 종이 카드(안쪽 [Space.s16]) 안에 `edit`이면 질문 글줄 두 줄과
+  /// [Space.s12], 본문 글줄 다섯 줄(`type.sentence.body`), 아래 도장 자리 높이.
+  static Widget skeleton({
+    required DiaryEditorVariant variant,
+    int index = 0,
+    bool animated = true,
+  }) => Builder(
+    builder: (context) {
+      final typography = context.tokens.typography;
+      final edit = variant == DiaryEditorVariant.edit;
+      return SkeletonCard(
+        padding: const EdgeInsets.all(Space.s16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (edit) ...[
+              SkeletonTextLines(
+                lines: skeletonQuestionLines,
+                style: typography.captionLg,
+                index: index,
+                animated: animated,
+              ),
+              const SizedBox(height: Space.s12),
+            ],
+            SkeletonTextLines(
+              lines: skeletonBodyLines,
+              style: typography.sentenceBody,
+              index: index + (edit ? skeletonQuestionLines : 0),
+              animated: animated,
+            ),
+            const SizedBox(height: Space.s12),
+            SizedBox(height: SealSize.paper.logical),
+          ],
+        ),
+      );
+    },
   );
 
   /// 본문 글자 수 상한(계약 `DiaryInput.body` maxLength).
@@ -92,6 +162,23 @@ class DiaryEditor extends StatefulWidget {
 
   /// 도장 자리를 찾는 테스트용 키.
   static const Key sealReserveKey = ValueKey('diary-editor-seal');
+
+  /// 인용 질문 왼쪽 선을 찾는 테스트용 키.
+  static const Key quoteLineKey = ValueKey('diary-editor-quote-line');
+
+  /// 질문 바꾸기 버튼을 찾는 테스트용 키.
+  static const Key swapKey = ValueKey('diary-editor-swap');
+
+  /// 질문 글자 크기. 계약 `diary.json` `diary-editor.parts.question.fontSize`(문장 글꼴 14
+  /// 토큰이 없어 `type.sentence.body`에 크기만 덮어씀).
+  static const double questionFontSize = 14;
+
+  /// 인용 선 굵기. 계약 `diary-editor.parts.question.quoteLine.width`.
+  static const double quoteLineWidth = 3;
+
+  /// 질문 바꾸기 터치 영역. 계약
+  /// `diary-editor.variants.edit.parts.question.swap.minTarget`.
+  static const double swapTarget = 44;
 
   static const int _minLines = 8;
 
@@ -118,6 +205,12 @@ class DiaryEditor extends StatefulWidget {
 
   /// `edit` 본문이 바뀔 때.
   final ValueChanged<String>? onChanged;
+
+  /// `edit` 질문 바꾸기. null이면 버튼을 두지 않습니다.
+  final VoidCallback? onSwapQuestion;
+
+  /// `edit` 본문 초점. null이면 종이가 만듭니다.
+  final FocusNode? focusNode;
 
   /// `edit` 저장 순간 손잡이.
   final DiaryEditorController? editorController;
@@ -153,6 +246,9 @@ class _DiaryEditorState extends State<DiaryEditor>
 
   late bool _sealShown = _viewing;
   late List<TagChip> _tags = widget.tags;
+  FocusNode? _ownFocus;
+
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
 
   bool get _viewing => widget.variant == DiaryEditorVariant.view;
 
@@ -181,6 +277,7 @@ class _DiaryEditorState extends State<DiaryEditor>
     }
     _stamp.dispose();
     _seep.dispose();
+    _ownFocus?.dispose();
     super.dispose();
   }
 
@@ -228,7 +325,6 @@ class _DiaryEditorState extends State<DiaryEditor>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ..._heading(context),
-                const SizedBox(height: Space.s12),
                 _body(context),
                 const SizedBox(height: Space.s12),
                 Align(
@@ -275,33 +371,99 @@ class _DiaryEditorState extends State<DiaryEditor>
 
   List<Widget> _heading(BuildContext context) {
     final tokens = context.tokens;
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final date = widget.date;
     final question = widget.question;
     final questionText = question == null ? '' : plainTextOf(question).trim();
-    final slotId = widget.questionSlotId;
     return [
-      Text(
-        DateFormat.yMMMMEEEEd(locale)
-            .format(DateTime(date.year, date.month, date.day)),
-        style: tokens.typography.captionMd.copyWith(
-          color: tokens.colors.textSecondary,
-        ),
-      ),
-      if (questionText.isNotEmpty) ...[
-        const SizedBox(height: Space.s8),
-        Semantics(
-          identifier: slotId,
-          child: Text(
-            questionText,
-            key: DiaryEditor.questionKey,
-            style: tokens.typography.captionLg.copyWith(
-              color: tokens.colors.textSecondary,
-            ),
+      // 쓰기의 날짜는 종이 위 `date-block`이 맡습니다(`edit.parts.date.visible: false`).
+      if (_viewing) ...[
+        Text(
+          _dateLabel(context),
+          style: tokens.typography.captionMd.copyWith(
+            color: tokens.colors.textSecondary,
           ),
         ),
+        const SizedBox(height: Space.s12),
+      ],
+      if (questionText.isNotEmpty) ...[
+        _quote(context, questionText),
+        const SizedBox(height: Space.s16),
       ],
     ];
+  }
+
+  String _dateLabel(BuildContext context) {
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final date = widget.date;
+    return DateFormat.yMMMMEEEEd(locale)
+        .format(DateTime(date.year, date.month, date.day));
+  }
+
+  /// 인용형 질문(V82): 왼쪽 3px `term.bg` 선 + 안쪽 12, 글자는 sentence.body 14
+  /// text.secondary.
+  /// 쓰기에서 [DiaryEditor.onSwapQuestion]이 있으면 오른쪽 `space.8`에 바꾸기 아이콘이고,
+  /// 바뀐 질문은 `appear.seep`으로 그리고 스크린리더가 polite로 읽습니다.
+  Widget _quote(BuildContext context, String text) {
+    final tokens = context.tokens;
+    final style = tokens.typography.sentenceBody.copyWith(
+      fontSize: DiaryEditor.questionFontSize,
+      color: tokens.colors.textSecondary,
+    );
+    final prefs = MotionPrefs.of(context);
+    final onSwap = widget.onSwapQuestion;
+    final textNode = Text(text, key: DiaryEditor.questionKey, style: style);
+    final shown = _viewing
+        ? Semantics(identifier: widget.questionSlotId, child: textNode)
+        // 바꾸면 새 질문을 polite로 읽습니다(`swap.a11y.changedAnnounced`).
+        : LiveAnnouncement(
+            label: text,
+            role: SemanticsRole.status,
+            identifier: widget.questionSlotId,
+            child: AnimatedSwitcher(
+              duration: prefs.reduceMotion
+                  ? Duration.zero
+                  : InteractionPattern.appearSeep.duration,
+              transitionBuilder: (child, animation) => animate(
+                InteractionPattern.appearSeep,
+                t: animation,
+                prefs: prefs,
+                child: child,
+              ),
+              layoutBuilder: (current, previous) =>
+                  Stack(children: [...previous, ?current]),
+              child: KeyedSubtree(key: ValueKey(text), child: textNode),
+            ),
+          );
+    final quote = IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DecoratedBox(
+            key: DiaryEditor.quoteLineKey,
+            decoration: BoxDecoration(
+              color: tokens.colors.termBg,
+              borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
+            ),
+            child: const SizedBox(width: DiaryEditor.quoteLineWidth),
+          ),
+          const SizedBox(width: Space.s12),
+          Expanded(child: shown),
+        ],
+      ),
+    );
+    if (onSwap == null) return quote;
+    final lineHeight = lineHeightOf(style, MediaQuery.textScalerOf(context));
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: quote),
+        const SizedBox(width: Space.s8),
+        _SwapButton(
+          onTap: onSwap,
+          // 아이콘 가운데를 질문 첫 줄 가운데에 맞춥니다(`swap.align: first-line`).
+          iconTop: (lineHeight - AppIconSize.s20.logical) / 2,
+        ),
+      ],
+    );
   }
 
   Widget _body(BuildContext context) {
@@ -317,29 +479,44 @@ class _DiaryEditorState extends State<DiaryEditor>
       );
     }
     final placeholder = widget.placeholder;
-    return Semantics(
-      identifier: widget.bodySlotId,
-      label: placeholder,
-      child: TextField(
-        controller: widget.controller,
-        onChanged: widget.onChanged,
-        style: style,
-        cursorColor: tokens.colors.actionPrimary,
-        minLines: DiaryEditor._minLines,
-        maxLines: null,
-        maxLength: widget.maxLength,
-        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-        buildCounter: (
-          context, {
-          required currentLength,
-          required isFocused,
-          required maxLength,
-        }) => null,
-        keyboardType: TextInputType.multiline,
-        textInputAction: TextInputAction.newline,
-        decoration: InputDecoration.collapsed(
-          hintText: placeholder,
-          hintStyle: style.copyWith(color: tokens.colors.textSecondary),
+    // 본문 초점 중 키보드 위 내리기 버튼(`states.focused` `keyboardDismiss`, V83).
+    return KeyboardDismissPortal(
+      focus: _focus,
+      child: Semantics(
+        identifier: widget.bodySlotId,
+        label: placeholder,
+        child: TextField(
+          controller: widget.controller,
+          focusNode: _focus,
+          // 모바일 기본은 밖을 눌러도 초점이 남아 키보드를 내릴 수 없습니다(F-013).
+          onTapOutside: (_) => _focus.unfocus(),
+          // 커서 줄이 키보드 내리기 버튼(44 + space.12)에 가리지 않게 그 자리만큼 더 올립니다
+          // (`parts.body.scrollPaddingBottom`).
+          scrollPadding: const EdgeInsets.fromLTRB(
+            Space.s20,
+            Space.s20,
+            Space.s20,
+            Space.s20 + KeyboardDismissPortal.reservedHeight,
+          ),
+          onChanged: widget.onChanged,
+          style: style,
+          cursorColor: tokens.colors.actionPrimary,
+          minLines: DiaryEditor._minLines,
+          maxLines: null,
+          maxLength: widget.maxLength,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          buildCounter: (
+            context, {
+            required currentLength,
+            required isFocused,
+            required maxLength,
+          }) => null,
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.newline,
+          decoration: InputDecoration.collapsed(
+            hintText: placeholder,
+            hintStyle: style.copyWith(color: tokens.colors.textSecondary),
+          ),
         ),
       ),
     );
@@ -354,6 +531,48 @@ class _DiaryEditorState extends State<DiaryEditor>
         style: context.tokens.typography.labelLg.copyWith(
           fontWeight: FontWeight.w300,
           fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
+  }
+}
+
+/// 질문 바꾸기 버튼(`edit.parts.question.swap`): 44 터치 안 `arrows-clockwise` Light 20
+/// `text.secondary`. 아이콘은 [iconTop]에 놓아 질문 첫 줄 가운데에 맞춥니다. 본문 초점을 빼앗지
+/// 않게 입력칸과 같은 누름 묶음에 넣습니다.
+class _SwapButton extends StatelessWidget {
+  const new({required this.onTap, required this.iconTop});
+
+  final VoidCallback onTap;
+  final double iconTop;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = AppLocalizations.of(context).diaryEditQuestionSwap;
+    return TextFieldTapRegion(
+      child: Semantics(
+        button: true,
+        label: label,
+        onTap: onTap,
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: SizedBox.square(
+            key: DiaryEditor.swapKey,
+            dimension: DiaryEditor.swapTarget,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.only(top: iconTop < 0 ? 0 : iconTop),
+                child: AppIcon(
+                  _arrowsClockwise,
+                  size: AppIconSize.s20,
+                  color: context.tokens.colors.textSecondary,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

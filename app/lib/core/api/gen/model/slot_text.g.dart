@@ -23,6 +23,8 @@ abstract class _$SlotTextCWProxy {
 
   SlotText evidence(List<Evidence>? evidence);
 
+  SlotText evidencePreview(List<EvidencePreview>? evidencePreview);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `SlotText(...).copyWith.fieldName(value)`.
@@ -40,6 +42,7 @@ abstract class _$SlotTextCWProxy {
     SlotTextReactionEnum? reaction,
     RenderedText? todayReason,
     List<Evidence>? evidence,
+    List<EvidencePreview>? evidencePreview,
   });
 }
 
@@ -75,6 +78,10 @@ class _$SlotTextCWProxyImpl implements _$SlotTextCWProxy {
   @override
   SlotText evidence(List<Evidence>? evidence) => call(evidence: evidence);
 
+  @override
+  SlotText evidencePreview(List<EvidencePreview>? evidencePreview) =>
+      call(evidencePreview: evidencePreview);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `SlotText(...).copyWith.fieldName(value)`.
@@ -93,6 +100,7 @@ class _$SlotTextCWProxyImpl implements _$SlotTextCWProxy {
     Object? reaction = const $CopyWithPlaceholder(),
     Object? todayReason = const $CopyWithPlaceholder(),
     Object? evidence = const $CopyWithPlaceholder(),
+    Object? evidencePreview = const $CopyWithPlaceholder(),
   }) {
     return SlotText(
       slot: slot == const $CopyWithPlaceholder() || slot == null
@@ -128,6 +136,10 @@ class _$SlotTextCWProxyImpl implements _$SlotTextCWProxy {
           ? _value.evidence
           // ignore: cast_nullable_to_non_nullable
           : evidence as List<Evidence>?,
+      evidencePreview: evidencePreview == const $CopyWithPlaceholder()
+          ? _value.evidencePreview
+          // ignore: cast_nullable_to_non_nullable
+          : evidencePreview as List<EvidencePreview>?,
     );
   }
 }
@@ -185,6 +197,12 @@ SlotText _$SlotTextFromJson(
           ?.map((e) => Evidence.fromJson(e as Map<String, dynamic>))
           .toList(),
     ),
+    evidencePreview: $checkedConvert(
+      'evidencePreview',
+      (v) => (v as List<dynamic>?)
+          ?.map((e) => EvidencePreview.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    ),
   );
   return val;
 });
@@ -198,6 +216,7 @@ Map<String, dynamic> _$SlotTextToJson(SlotText instance) => <String, dynamic>{
   'reaction': ?_$SlotTextReactionEnumEnumMap[instance.reaction],
   'todayReason': ?instance.todayReason?.toJson(),
   'evidence': ?instance.evidence?.map((e) => e.toJson()).toList(),
+  'evidencePreview': ?instance.evidencePreview?.map((e) => e.toJson()).toList(),
 };
 
 const _$SlotTextVariantEnumEnumMap = {

@@ -4,10 +4,12 @@ import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
+import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -69,18 +71,6 @@ final List<LuckyItem> _luckyItems = [
   ),
 ];
 
-/// 대표 태그(`tag` 변형, D76). 두 번째는 뜻이 없어 누를 수 없는 이름 칩입니다.
-final List<LuckyItem> _luckyTags = [
-  LuckyItem.tag(
-    tagKey: 'cheoneul_gwiin',
-    name: '천을귀인',
-    meaning: RenderedText(
-      segments: [Segment(text: '어려울 때 도와주는 사람이 곁에 오는 기운이에요.')],
-    ),
-  ),
-  const LuckyItem.tag(tagKey: 'clash', name: '충'),
-];
-
 String _name(DayKind kind) => switch (kind) {
   DayKind.yongsinDay => '좋은 날',
   DayKind.gwiinDay => '귀인의 날',
@@ -105,10 +95,93 @@ ShareImage _shareImage(ShareImageVariant variant) => ShareImage(
 
 /// 오늘 카탈로그: day-character(good·gwiin·gisin·ordinary),
 /// lucky-card(네 변형 칩 줄·대표 태그 칩), guide-question-card,
+/// 가로 360 칸에 놓는 무대.
+Widget _stage360(Widget child) =>
+    Stage(child: SizedBox(width: 360, child: child));
+
 /// share-image(story·feed·square와 비율 전환 미리보기).
 final WidgetbookFolder todayDirectory = WidgetbookFolder(
   name: '오늘',
   children: [
+    WidgetbookFolder(
+      name: 'date-header',
+      children: [
+        WidgetbookComponent(
+          name: 'DateHeader',
+          useCases: [
+            WidgetbookUseCase(
+              name: 'today: 날짜, 음력, 일진',
+              builder: (context) => _stage360(
+                const DateHeader(
+                  solar: '10월 13일 화요일',
+                  lunar: '음력 8월 24일',
+                  iljin: '癸未(계미)일',
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: 'day-sheet: 날짜와 음력',
+              builder: (context) => _stage360(
+                const DateHeader(solar: '10월 13일 화요일', lunar: '음력 8월 24일'),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '음력 없음',
+              builder: (context) => _stage360(
+                const DateHeader(solar: '10월 13일 화요일', iljin: '癸未(계미)일'),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: 'loading',
+              builder: (context) =>
+                  _stage360(DateHeader.skeleton(solar: '10월 13일 화요일')),
+            ),
+          ],
+        ),
+      ],
+    ),
+    WidgetbookFolder(
+      name: 'tag-sentence-list',
+      children: [
+        WidgetbookComponent(
+          name: 'TagSentenceList',
+          useCases: [
+            WidgetbookUseCase(
+              name: '문장 두 줄',
+              builder: (context) => _stage360(
+                TagSentenceList(
+                  title: '이 기운에서 나온 오늘 문장',
+                  emptyText: '오늘은 이 기운으로 정해진 문장이 없어요.',
+                  diaryLinkLabel: '천을귀인 태그가 붙은 일기 보기',
+                  onDiaryLink: () {},
+                  items: [
+                    TagSentence(
+                      kindLabel: '보조 문장',
+                      text: RenderedText(
+                        segments: [Segment(text: '어려울 때 도와주는 사람이 곁에 오는 날이에요.')],
+                      ),
+                    ),
+                    TagSentence(kindLabel: '오늘의 질문', text: _guideQuestion),
+                  ],
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '문장 없음',
+              builder: (context) => _stage360(
+                TagSentenceList(
+                  title: '이 기운에서 나온 오늘 문장',
+                  emptyText: '오늘은 이 기운으로 정해진 문장이 없어요.',
+                  diaryLinkLabel: '천을귀인 태그가 붙은 일기 보기',
+                  onDiaryLink: () {},
+                  items: const [],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
     WidgetbookFolder(
       name: 'day-character',
       children: [
@@ -154,29 +227,25 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
           name: 'LuckyCardRow',
           useCases: [
             WidgetbookUseCase(
-              name: '누르면 설명이 열림',
+              name: '누르면 열림 테두리(시트는 화면에서 연결)',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 360,
+                  // 시트가 열려 있는 동안을 2초로 흉내 냅니다.
+                  child: LuckyCardRow(
+                    items: _luckyItems,
+                    onOpen: (_) =>
+                        Future<void>.delayed(const Duration(seconds: 2)),
+                  ),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '표시 전용(onOpen: null)',
               builder: (context) => Stage(
                 child: SizedBox(
                   width: 360,
                   child: LuckyCardRow(items: _luckyItems),
-                ),
-              ),
-            ),
-            WidgetbookUseCase(
-              name: 'tag 변형: 칩 줄 맨 앞(D76)',
-              builder: (context) => Stage(
-                child: SizedBox(
-                  width: 360,
-                  child: LuckyCardRow(items: [..._luckyTags, ..._luckyItems]),
-                ),
-              ),
-            ),
-            WidgetbookUseCase(
-              name: '공유 이미지(interactive: false)',
-              builder: (context) => Stage(
-                child: SizedBox(
-                  width: 360,
-                  child: LuckyCardRow(items: _luckyItems, interactive: false),
                 ),
               ),
             ),

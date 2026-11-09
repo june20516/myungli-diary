@@ -8,6 +8,8 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 Widget _app(Widget child, {Locale locale = const Locale('ko')}) => MaterialApp(
   locale: locale,
@@ -19,6 +21,11 @@ Widget _app(Widget child, {Locale locale = const Locale('ko')}) => MaterialApp(
 
 SemanticsData _semantics(WidgetTester tester, Finder finder) =>
     tester.getSemantics(finder).getSemanticsData();
+
+const AppGlyph _pencil = AppGlyph(
+  light: PhosphorIconsLight.pencilSimple,
+  regular: PhosphorIconsRegular.pencilSimple,
+);
 
 void main() {
   group('primary-button', () {
@@ -103,7 +110,8 @@ void main() {
           _app(PrimaryButton(label: '다음', variant: variant, onPressed: () {})),
         );
         final face = tester.getSize(find.byKey(PrimaryButton.faceKey));
-        expect(face.height, variant == PrimaryButtonVariant.quiet ? 44 : 52);
+        // quiet도 filled와 같은 52입니다(V60).
+        expect(face.height, 52);
       });
     }
 
@@ -167,21 +175,134 @@ void main() {
       expect(pressed, 1);
     });
 
-    testWidgets('quiet: 면 높이가 44여도 위아래 2px 밖(48 안)을 눌러도 동작합니다', (tester) async {
-      var pressed = 0;
+    testWidgets('leadingIcon: 글자 앞 8 간격, 묶음이 가운데, Regular, 글자색, 읽지 않습니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _app(
-          PrimaryButton(
-            label: '다시 시도',
-            variant: PrimaryButtonVariant.quiet,
-            onPressed: () => pressed++,
+          SizedBox(
+            width: 300,
+            child: PrimaryButton(
+              label: '날짜 고르기',
+              leadingIcon: _pencil,
+              onPressed: () {},
+            ),
           ),
         ),
       );
-      final rect = tester.getRect(find.byKey(PrimaryButton.faceKey));
-      await tester.tapAt(Offset(rect.center.dx, rect.bottom + 1.5));
-      await tester.pumpAndSettle();
-      expect(pressed, 1);
+      final icon = tester.widget<AppIcon>(find.byType(AppIcon));
+      expect(icon.weight, AppIconWeight.regular);
+      expect(icon.scalesWithText, isTrue);
+      expect(icon.size, AppIconSize.s16, reason: '글자 14는 옆 아이콘 16');
+      final iconRect = tester.getRect(find.byType(Icon));
+      final textRect = tester.getRect(find.text('날짜 고르기'));
+      expect(textRect.left - iconRect.right, 8);
+      final face = tester.getRect(find.byKey(PrimaryButton.faceKey));
+      expect(
+        (iconRect.left + textRect.right) / 2,
+        closeTo(face.center.dx, 0.5),
+        reason: '묶음이 버튼 가운데',
+      );
+      expect(tester.widget<Icon>(find.byType(Icon)).color, isNotNull);
+      expect(find.bySemanticsLabel('날짜 고르기'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('leadingIcon: 처리 중에는 아이콘도 숨기고 점만 보입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          PrimaryButton(
+            label: '날짜 고르기',
+            leadingIcon: _pencil,
+            loading: true,
+            onPressed: () {},
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(AppIcon), findsNothing);
+      expect(find.byKey(PrimaryButton.dotsKey), findsOneWidget);
+    });
+
+    testWidgets('destructive: showCaution false면 경고 표시가 없습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          PrimaryButton(
+            label: '지우기',
+            variant: PrimaryButtonVariant.destructive,
+            showCaution: false,
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(find.byType(AppIcon), findsNothing);
+    });
+
+    testWidgets('compact: 높이 44, 좌우 안쪽 12(확인 창 안)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 200,
+            child: PrimaryButton.dialogAction(label: '확인', onPressed: () {}),
+          ),
+        ),
+      );
+      final face = tester.getRect(find.byKey(PrimaryButton.faceKey));
+      expect(face.height, 44);
+      expect(
+        tester.getRect(find.text('확인')).center.dx,
+        closeTo(face.center.dx, 0.5),
+      );
+    });
+
+    group('floating', () {
+      Future<void> pumpFloating(WidgetTester tester, {double bottom = 0}) =>
+          tester.pumpWidget(
+            _app(
+              MediaQuery(
+                data: MediaQueryData(
+                  viewPadding: EdgeInsets.only(bottom: bottom),
+                ),
+                child: SizedBox(
+                  width: 400,
+                  height: 800,
+                  child: Stack(
+                    children: [
+                      FloatingPrimaryButton(
+                        button: PrimaryButton(label: '쓰기', onPressed: () {}),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+
+      testWidgets('아래 고정: 좌우 20, 아래 안전 영역 위 16, shadow.raised', (tester) async {
+        await pumpFloating(tester, bottom: 34);
+        final face = tester.getRect(find.byKey(PrimaryButton.faceKey));
+        final stack = tester.getRect(find.byType(Stack).first);
+        expect(face.left - stack.left, 20);
+        expect(stack.right - face.right, 20);
+        expect(stack.bottom - face.bottom, 16 + 34);
+        final box = tester.widget<DecoratedBox>(
+          find.byKey(FloatingPrimaryButton.shadowKey),
+        );
+        expect((box.decoration as BoxDecoration).boxShadow, Shadows.raised);
+      });
+
+      testWidgets('탭 셸이 넘긴 viewPadding(광고+탭 바) 위 16에 놓입니다', (tester) async {
+        // 탭 셸은 광고 배너와 탭 바 높이를 MediaQuery.viewPadding.bottom으로 넘깁니다.
+        await pumpFloating(tester, bottom: 120);
+        final face = tester.getRect(find.byKey(PrimaryButton.faceKey));
+        final stack = tester.getRect(find.byType(Stack).first);
+        expect(stack.bottom - face.bottom, 120 + 16);
+      });
+
+      test('목록 아래 여백은 버튼 52 + 16 + 16', () {
+        expect(FloatingPrimaryButton.listBottomInset, 84);
+      });
     });
 
     testWidgets('destructive는 caution 아이콘이 글자 앞에 있습니다', (tester) async {

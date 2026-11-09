@@ -161,6 +161,34 @@ void main() {
     expect(view.semanticLabel, '10월 23일 금요일, 상강, 무난한 날');
   });
 
+  test('라벨의 길흉 낱말은 server 문구가 아니라 범례와 같은 네 이름이다(V84)', () {
+    CalendarDay withLevel(String level) {
+      final json = jsonDecode(
+        jsonEncode(_day('2026-10-13').toJson()),
+      ) as Map<String, dynamic>;
+      json['luckLevel'] = level;
+      final text =
+          (json['level'] as Map<String, dynamic>)['text']
+              as Map<String, dynamic>;
+      text['segments'] = [
+        {'text': '서버가 준 다른 문구'},
+      ];
+      return CalendarDay.fromJson(json);
+    }
+
+    final expected = {
+      'very_good': l10n.calendarLegendBodyVeryGood,
+      'good': l10n.calendarLegendBodyGood,
+      'neutral': l10n.calendarLegendBodyNeutral,
+      'caution': l10n.calendarLegendBodyCaution,
+    };
+    for (final MapEntry(key: level, value: name) in expected.entries) {
+      final label = viewOf(withLevel(level)).semanticLabel;
+      expect(label, contains(name), reason: level);
+      expect(label, isNot(contains('서버가 준 다른 문구')), reason: level);
+    }
+  });
+
   test('날짜와 길흉을 그대로 옮긴다', () {
     final day = _day('2026-10-01');
     final view = viewOf(day);

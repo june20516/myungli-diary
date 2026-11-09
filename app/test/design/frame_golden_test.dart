@@ -234,8 +234,11 @@ Widget _prosePage() => Builder(
                 ),
                 SkeletonBlock(
                   delay: Duration.zero,
-                  animated: false,
-                  lineStyle: context.tokens.typography.sentenceBody,
+                  child: SkeletonTextLines(
+                    lines: 3,
+                    style: context.tokens.typography.sentenceBody,
+                    animated: false,
+                  ),
                 ),
                 paragraph(
                   ja ? '旧暦は韓国天文研究院の基準に従います。' : '음력은 한국천문연구원 기준의 한국 음력을 따라요.',

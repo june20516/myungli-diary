@@ -244,9 +244,9 @@ class _TimePickerState extends State<TimePicker> {
             ),
           ),
         ),
-        // 값이 바뀌면(휠이 멈추면) 새 글자로 다시 나타납니다.
+        // 값이 바뀌어도 줄은 그대로 두고 글자만 바뀝니다(key를 글자로 두면 State가 새로 생겨
+        // 0에서 다시 스며 나와 깜빡입니다, F-030).
         SeepPresence(
-          key: ValueKey(showConfirm ? confirm : _lastSijin),
           present: showConfirm,
           child: Padding(
             padding: const EdgeInsets.only(top: Space.s8),

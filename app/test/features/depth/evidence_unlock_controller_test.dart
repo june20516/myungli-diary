@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -356,6 +357,8 @@ final _noPersonalProvider = Provider<AsyncValue<RenderedText?>>(
   (ref) => const AsyncData(null),
 );
 
+final _noPreviewProvider = Provider<List<EvidencePreview>>((ref) => const []);
+
 /// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
 @immutable
 final class _TestSubject implements EvidenceSubject {
@@ -367,6 +370,10 @@ final class _TestSubject implements EvidenceSubject {
   @override
   ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
       _noEvidenceProvider;
+
+  @override
+  ProviderListenable<List<EvidencePreview>> previewOf(String slotId) =>
+      _noPreviewProvider;
 
   @override
   ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>

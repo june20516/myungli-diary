@@ -69,10 +69,15 @@ void main() {
       );
       expect(response.statusCode, 201);
       final created = response.data!;
-      expect(created.tags.all, ['cheoneul_gwiin', 'yongsin_day']);
+      expect(created.tags.all, [
+        'harmony',
+        'ten_god_rush.bigyeop',
+        'gongmang',
+        'yeokma',
+      ]);
       expect(created.guideQuestion, isNotNull);
       expect((await api.getDiary(id: created.id)).data!.body, '오늘 일기');
-      final tagged = (await api.listDiaries(tag: 'yongsin_day')).data!;
+      final tagged = (await api.listDiaries(tag: 'ten_god_rush.bigyeop')).data!;
       expect(tagged.items.single.id, created.id);
     });
 

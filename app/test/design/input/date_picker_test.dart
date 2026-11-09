@@ -237,7 +237,14 @@ void main() {
           matching: find.byType(SkeletonBlock),
         ),
       );
-      expect(skeleton.lines, 1);
+      await tester.pump(SkeletonBlock.defaultDelay);
+      final lines = tester.widget<SkeletonTextLines>(
+        find.descendant(
+          of: find.byWidget(skeleton),
+          matching: find.byType(SkeletonTextLines),
+        ),
+      );
+      expect(lines.lines, 1);
     });
 
     testWidgets('그해 윤달이 든 달 다음에 윤N월 칸이 끼워지고, 고르면 윤달입니다', (tester) async {

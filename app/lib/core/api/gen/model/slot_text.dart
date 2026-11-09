@@ -5,6 +5,7 @@
 // ignore_for_file: unused_element
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -35,6 +36,8 @@ class SlotText {
     this.todayReason,
 
     this.evidence,
+
+    this.evidencePreview,
   });
 
   /// writing 슬롯 id(예 `daily.fortune.head`)
@@ -74,6 +77,10 @@ class SlotText {
   @JsonKey(name: r'evidence', required: false, includeIfNull: false)
   final List<Evidence>? evidence;
 
+  /// 잠긴 판정 근거 문장의 앞부분입니다(D106, 1.7.0에서 더함). 응답의 `evidenceAccess`가 `locked`이고 미리보기가 있는 근거가 있을 때만 담깁니다. 순서는 근거 순서이고, 두 문장 모두 너무 짧아 자를 수 없는 근거는 빠집니다. 빈 배열은 보내지 않습니다.
+  @JsonKey(name: r'evidencePreview', required: false, includeIfNull: false)
+  final List<EvidencePreview>? evidencePreview;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -85,7 +92,8 @@ class SlotText {
           other.reactable == reactable &&
           other.reaction == reaction &&
           other.todayReason == todayReason &&
-          other.evidence == evidence;
+          other.evidence == evidence &&
+          other.evidencePreview == evidencePreview;
 
   @override
   int get hashCode =>
@@ -96,7 +104,8 @@ class SlotText {
       reactable.hashCode +
       reaction.hashCode +
       todayReason.hashCode +
-      evidence.hashCode;
+      evidence.hashCode +
+      evidencePreview.hashCode;
 
   factory SlotText.fromJson(Map<String, dynamic> json) =>
       _$SlotTextFromJson(json);

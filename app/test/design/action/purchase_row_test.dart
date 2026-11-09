@@ -71,9 +71,11 @@ void main() {
       final dividers = find.byKey(PurchaseRowGroup.dividerKey);
       expect(dividers, findsNWidgets(2));
       final size = tester.getSize(dividers.first);
-      expect(size.height, 1);
+      expect(size.height, 0.5);
       final context = tester.element(dividers.first);
-      final box = tester.widget<ColoredBox>(dividers.first);
+      final box = tester.widget<ColoredBox>(
+        find.descendant(of: dividers.first, matching: find.byType(ColoredBox)),
+      );
       expect(box.color, Theme.of(context).colorScheme.outline);
     });
 

@@ -17,7 +17,10 @@ import '../../tool/common/openapi_spec.dart';
 /// * `device.not_found`는 `deleteDevice`(404)에서만 나옵니다. app은 로그아웃 전과 FCM 토큰
 ///   교체 뒤 이 호출을 화면 없이 best-effort로 부르고(#347 ②, 계획 7), 없는 기기는 이미 해제된
 ///   것과 같아 사용자에게 알리지 않습니다(결정 A66).
+/// * `diary.guide_invalid`는 고른 오늘의 질문이 그날 후보에 없을 때입니다. 앱은 오늘 풀이를 다시
+///   읽고 일반 저장 실패 문구를 보이므로 이 code 전용 문구를 두지 않습니다(A115, DS1 일기 쓰기).
 const _notUserFacing = {
+  'diary.guide_invalid',
   'reward.invalid_signature',
   'reward.expired',
   'device.not_found',

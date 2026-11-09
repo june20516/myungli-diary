@@ -37,11 +37,18 @@
         "big_change": "큰 변화",
         "cheoneul_gwiin": "천을귀인",
         "clash": "충",
+        "clash_day_branch": "일지 충",
+        "clash_month_branch": "월지 충",
         "dohwa": "도화",
         "gongmang": "공망",
         "gwiin_day": "귀인의 날",
         "harmony": "합",
         "hwagae": "화개",
+        "ten_god_rush.bigyeop": "비겁이 많은 날",
+        "ten_god_rush.gwanseong": "관성이 많은 날",
+        "ten_god_rush.inseong": "인성이 많은 날",
+        "ten_god_rush.jaeseong": "재성이 많은 날",
+        "ten_god_rush.siksang": "식상이 많은 날",
         "yeokma": "역마",
         "yongsin_day": "용신의 날"
       },
@@ -107,7 +114,52 @@
         "yongsin": "나와 잘 맞는 기운",
         "huisin": "곁에서 돕는 기운",
         "gisin": "잘 안 맞는 기운",
-        "neutral": "무난한 기운"
+        "neutral": "무난한 기운",
+        "day_master": "일간"
+      },
+      "ten_god_group": {
+        "bigyeop": "비겁",
+        "siksang": "식상",
+        "jaeseong": "재성",
+        "gwanseong": "관성",
+        "inseong": "인성"
+      },
+      "score_item": {
+        "gwiin_day": "귀인의 날",
+        "yongsin_day": "용신의 날",
+        "gisin_day": "기신의 날",
+        "hap": "합",
+        "chung_day_or_month": "일지나 월지와의 충",
+        "chung_other": "다른 자리와의 충",
+        "hyeong": "형"
+      },
+      "relation": {
+        "stem_hap": "천간합",
+        "branch_hap": "지지합",
+        "chung": "충",
+        "hyeong": "형"
+      },
+      "shinsal": {
+        "cheoneul_gwiin": "천을귀인",
+        "dohwa": "도화",
+        "yeokma": "역마",
+        "hwagae": "화개",
+        "yangin": "양인",
+        "gongmang": "공망"
+      },
+      "twelve_stage": {
+        "jangsaeng": "장생",
+        "mokyok": "목욕",
+        "gwandae": "관대",
+        "geonrok": "건록",
+        "jewang": "제왕",
+        "soe": "쇠",
+        "byeong": "병",
+        "sa": "사",
+        "myo": "묘",
+        "jeol": "절",
+        "tae": "태",
+        "yang": "양"
       }
     },
     "meanings": {
@@ -146,6 +198,13 @@
           }
         ]
       },
+      "role.day_master": {
+        "segments": [
+          {
+            "text": "태어난 날의 천간으로, 사주에서 '나' 자신을 나타내요. 옆 글자들이 나에게 어떤 기운인지는 모두 일간을 기준으로 읽어요."
+          }
+        ]
+      },
       "tag.cheoneul_gwiin": {
         "segments": [
           {
@@ -153,10 +212,94 @@
           }
         ]
       },
+      "tag.clash": {
+        "segments": [
+          {
+            "text": "서로 반대되는 기운이 맞부딪히는 것으로, 계획이 바뀌거나 의견이 갈리기 쉬워요."
+          }
+        ]
+      },
+      "tag.dohwa": {
+        "segments": [
+          {
+            "text": "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."
+          }
+        ]
+      },
+      "tag.gongmang": {
+        "segments": [
+          {
+            "text": "비어 있는 자리를 뜻하는 신살로, 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어요."
+          }
+        ]
+      },
+      "tag.harmony": {
+        "segments": [
+          {
+            "text": "서로 다른 기운이 맞물려 하나가 되는 것으로, 사람과 일이 잘 어울려요."
+          }
+        ]
+      },
+      "tag.ten_god_rush.bigyeop": {
+        "segments": [
+          {
+            "text": "내 사주에 이미 많은 비겁이 그날 또 들어온 것으로, 나와 내 몫을 앞세우게 돼요."
+          }
+        ]
+      },
+      "tag.ten_god_rush.inseong": {
+        "segments": [
+          {
+            "text": "내 사주에 이미 많은 인성이 그날 또 들어온 것으로, 생각이 많아지고 기대고 싶어져요."
+          }
+        ]
+      },
+      "tag.yeokma": {
+        "segments": [
+          {
+            "text": "움직임을 뜻하는 신살로, 이동하거나 바깥에 나갈 일이 늘어요."
+          }
+        ]
+      },
       "ten_god.jeonggwan": {
         "segments": [
           {
             "text": "나를 바르게 다잡아 주는 기운이에요. 맡은 일을 차분히 해내는 힘이 돼요."
+          }
+        ]
+      },
+      "ten_god_group.bigyeop": {
+        "segments": [
+          {
+            "text": "비견과 겁재를 함께 부르는 이름으로, 나와 어깨를 나란히 하는 기운이에요. 나를 지키고 내 몫을 챙기려는 힘이 여기에 들어요."
+          }
+        ]
+      },
+      "ten_god_group.gwanseong": {
+        "segments": [
+          {
+            "text": "편관과 정관을 함께 부르는 이름으로, 나를 다스리는 규칙과 책임을 뜻해요. 직장, 명예, 지켜야 할 약속이 여기에 들어요."
+          }
+        ]
+      },
+      "ten_god_group.inseong": {
+        "segments": [
+          {
+            "text": "편인과 정인을 함께 부르는 이름으로, 나를 길러 주는 배움과 보살핌을 뜻해요. 공부, 생각, 받는 도움이 여기에 들어요."
+          }
+        ]
+      },
+      "ten_god_group.jaeseong": {
+        "segments": [
+          {
+            "text": "편재와 정재를 함께 부르는 이름으로, 내가 다루고 얻는 돈과 결과를 뜻해요. 살림, 일의 성과, 현실 감각이 여기에 들어요."
+          }
+        ]
+      },
+      "ten_god_group.siksang": {
+        "segments": [
+          {
+            "text": "식신과 상관을 함께 부르는 이름으로, 내 안의 것을 밖으로 풀어내는 기운이에요. 말, 표현, 손재주가 여기에 들어요."
           }
         ]
       }
@@ -178,7 +321,18 @@
       "ten_god.pyeonin": "偏印",
       "ten_god.jeongin": "正印",
       "tag.dohwa": "桃花",
-      "tag.yeokma": "驛馬"
+      "tag.yeokma": "驛馬",
+      "ten_god_group.bigyeop": "比劫",
+      "ten_god_group.siksang": "食傷",
+      "ten_god_group.jaeseong": "財星",
+      "ten_god_group.gwanseong": "官星",
+      "ten_god_group.inseong": "印星",
+      "relation.stem_hap": "天干合",
+      "relation.branch_hap": "地支合",
+      "relation.chung": "沖",
+      "relation.hyeong": "刑",
+      "role.day_master": "日干",
+      "tag.gongmang": "空亡"
     }
   }
 }

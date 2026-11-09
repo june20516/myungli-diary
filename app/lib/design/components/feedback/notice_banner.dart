@@ -110,7 +110,7 @@ class NoticeBanner extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 1),
                     child: AppIcon(
                       variant.glyph,
-                      size: AppIconSize.inline,
+                      size: AppIconSize.s16,
                       color: colors.textSecondary,
                     ),
                   ),

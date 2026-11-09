@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "body": {
+    "entryCount": 4,
+    "dayKinds": [
+      { "dayKind": "gwiin_day", "days": 1 },
+      { "dayKind": "yongsin_day", "days": 1 },
+      { "dayKind": "gisin_day", "days": 1 },
+      { "dayKind": "ordinary_day", "days": 1 }
+    ],
+    "topTags": [
+      { "tag": { "key": "cheoneul_gwiin", "polarity": "good" }, "days": 1 },
+      { "tag": { "key": "clash", "polarity": "bad" }, "days": 1 }
+    ]
+  }
+}

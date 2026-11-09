@@ -50,6 +50,13 @@ class DiaryDrafts extends Table {
   /// 초안 본문.
   TextColumn get body => text()();
 
+  /// 고른 오늘의 질문 `messageKey`(`GuideChoice`, A115). 고르지 않았거나 후보를 받지 못한
+  /// 초안(v3 전 초안 포함)은 null입니다.
+  TextColumn get guideMessageKey => text().nullable()();
+
+  /// 고른 오늘의 질문 `variant`. [guideMessageKey]와 함께 있거나 함께 없습니다.
+  TextColumn get guideVariant => text().nullable()();
+
   /// 마지막 저장 시각(UTC).
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -112,16 +119,28 @@ class AppDatabase extends _$AppDatabase {
   new forExecutor(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) {
-        // v1 날짜 초안은 기본값 id `''`가 되어 그날 새 일기 초안으로 남습니다.
+        // v1 날짜 초안은 기본값 id `''`가 되어 그날 새 일기 초안으로 남습니다. 표를 지금(v3)
+        // 정의로 다시 만들므로 v3 열(고른 질문)도 여기서 null로 더합니다.
         await m.alterTable(
-          TableMigration(diaryDrafts, newColumns: [diaryDrafts.diaryId]),
+          TableMigration(
+            diaryDrafts,
+            newColumns: [
+              diaryDrafts.diaryId,
+              diaryDrafts.guideMessageKey,
+              diaryDrafts.guideVariant,
+            ],
+          ),
         );
+      } else if (from < 3) {
+        // v2 초안은 고른 질문 없이(null) 남고, 다시 열면 그날 첫 후보로 시작합니다(A115).
+        await m.addColumn(diaryDrafts, diaryDrafts.guideMessageKey);
+        await m.addColumn(diaryDrafts, diaryDrafts.guideVariant);
       }
     },
   );

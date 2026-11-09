@@ -33,6 +33,12 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -74,6 +80,16 @@
         },
         "luckLevel": "caution",
         "score": -2,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -108,13 +124,14 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -149,13 +166,27 @@
           "text": {
             "segments": [
               {
-                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+                "text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "good",
         "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.good",
@@ -190,26 +221,32 @@
           "text": {
             "segments": [
               {
-                "text": "천을귀인",
-                "term": "tag.cheoneul_gwiin"
-              },
-              {
-                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+                "text": "누군가의 도움을 받기 쉬운 날이에요."
               }
             ]
           }
         },
-        "luckLevel": "good",
+        "luckLevel": "very_good",
         "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
-          "messageKey": "calendar.good",
+          "messageKey": "calendar.very_good",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "잘 풀리는 날"
+                "text": "아주 잘 풀리는 날"
               }
             ]
           }
@@ -235,13 +272,23 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -280,13 +327,19 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -328,6 +381,24 @@
         },
         "luckLevel": "caution",
         "score": -3,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -362,13 +433,23 @@
           "text": {
             "segments": [
               {
-                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+                "text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -410,6 +491,20 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -444,17 +539,27 @@
           "text": {
             "segments": [
               {
-                "text": "천을귀인",
-                "term": "tag.cheoneul_gwiin"
-              },
-              {
-                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+                "text": "누군가의 도움을 받기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -489,13 +594,19 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -530,13 +641,14 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -578,6 +690,16 @@
         },
         "luckLevel": "caution",
         "score": -2,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -612,13 +734,19 @@
           "text": {
             "segments": [
               {
-                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+                "text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "good",
         "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.good",
@@ -653,13 +781,23 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -694,26 +832,32 @@
           "text": {
             "segments": [
               {
-                "text": "천을귀인",
-                "term": "tag.cheoneul_gwiin"
-              },
-              {
-                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+                "text": "누군가의 도움을 받기 쉬운 날이에요."
               }
             ]
           }
         },
-        "luckLevel": "good",
+        "luckLevel": "very_good",
         "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
-          "messageKey": "calendar.good",
+          "messageKey": "calendar.very_good",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "잘 풀리는 날"
+                "text": "아주 잘 풀리는 날"
               }
             ]
           }
@@ -739,13 +883,23 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -780,13 +934,19 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -828,6 +988,24 @@
         },
         "luckLevel": "caution",
         "score": -3,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -869,6 +1047,16 @@
         },
         "luckLevel": "caution",
         "score": -3,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -907,13 +1095,23 @@
           "text": {
             "segments": [
               {
-                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+                "text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -948,17 +1146,27 @@
           "text": {
             "segments": [
               {
-                "text": "천을귀인",
-                "term": "tag.cheoneul_gwiin"
-              },
-              {
-                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+                "text": "누군가의 도움을 받기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -993,13 +1201,23 @@
           "text": {
             "segments": [
               {
-                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+                "text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1034,13 +1252,19 @@
           "text": {
             "segments": [
               {
-                "text": "내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
+                "text": "내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요."
               }
             ]
           }
         },
         "luckLevel": "good",
         "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.good",
@@ -1082,6 +1306,16 @@
         },
         "luckLevel": "caution",
         "score": -2,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.caution",
@@ -1116,13 +1350,19 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1157,13 +1397,23 @@
           "text": {
             "segments": [
               {
-                "text": "큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요."
+                "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
               }
             ]
           }
         },
         "luckLevel": "neutral",
         "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",
@@ -1198,26 +1448,32 @@
           "text": {
             "segments": [
               {
-                "text": "천을귀인",
-                "term": "tag.cheoneul_gwiin"
-              },
-              {
-                "text": "이 들어 도와주는 사람이 곁에 오는 날이에요."
+                "text": "누군가의 도움을 받기 쉬운 날이에요."
               }
             ]
           }
         },
-        "luckLevel": "good",
+        "luckLevel": "very_good",
         "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
-          "messageKey": "calendar.good",
+          "messageKey": "calendar.very_good",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "잘 풀리는 날"
+                "text": "아주 잘 풀리는 날"
               }
             ]
           }
@@ -1250,6 +1506,20 @@
         },
         "luckLevel": "neutral",
         "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
         "level": {
           "slot": "calendar.day_level",
           "messageKey": "calendar.neutral",

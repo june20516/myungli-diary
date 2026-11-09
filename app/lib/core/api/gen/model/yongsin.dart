@@ -5,6 +5,7 @@
 // ignore_for_file: unused_element
 import 'package:myungli_diary/core/api/gen/model/yongsin_method.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
@@ -35,6 +36,8 @@ class Yongsin {
     this.johuStem,
 
     this.basis,
+
+    this.basisPreview,
   });
 
   @JsonKey(name: r'yongsin', required: true, includeIfNull: false)
@@ -63,6 +66,9 @@ class Yongsin {
   @JsonKey(name: r'basis', required: false, includeIfNull: false)
   final SlotText? basis;
 
+  @JsonKey(name: r'basisPreview', required: false, includeIfNull: false)
+  final RenderedText? basisPreview;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -73,7 +79,8 @@ class Yongsin {
           other.tonggwan == tonggwan &&
           other.method == method &&
           other.johuStem == johuStem &&
-          other.basis == basis;
+          other.basis == basis &&
+          other.basisPreview == basisPreview;
 
   @override
   int get hashCode =>
@@ -83,7 +90,8 @@ class Yongsin {
       tonggwan.hashCode +
       method.hashCode +
       johuStem.hashCode +
-      basis.hashCode;
+      basis.hashCode +
+      basisPreview.hashCode;
 
   factory Yongsin.fromJson(Map<String, dynamic> json) =>
       _$YongsinFromJson(json);

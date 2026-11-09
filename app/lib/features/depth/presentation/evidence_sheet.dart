@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -15,6 +16,7 @@ import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 
@@ -33,17 +35,29 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 /// 찾아 넘깁니다. 항목이 없으면 빈 안내입니다. 이 시트의 응답은 늘 나의 사주입니다
 /// ([evidenceSubjectFor]).
 ///
+/// 잠겼을 때(다시 받는 중 아님)는 [slotId] 슬롯의 앞부분(`evidencePreview`)을 읽어 판정 근거와
+/// 원전 `lock.veil`의 또렷한 앞부분으로 넘깁니다(근거 순서에서 처음 있는 문장, D106). 미리보기가
+/// 없으면 자리값만입니다. 시트 위 대상([target])은 잠기지 않고 늘 보입니다.
+///
 /// 상태: 응답이 아직 없으면 skeleton(`loading`), 받지 못했거나 잠금 해제 뒤 다시 받기에
 /// 실패하면 오류 화면과 다시 시도(`error`), 권한이 생겨 다시 받는 동안은 구역 skeleton입니다.
 class EvidenceSheet extends ConsumerStatefulWidget {
   /// [slotId] 슬롯의 근거 시트를 만듭니다. [personal]은 원국 개인 해석의 자리입니다.
-  const new({required this.slotId, this.personal, super.key});
+  const new({
+    required this.slotId,
+    this.personal,
+    this.target = EvidenceTarget.none,
+    super.key,
+  });
 
   /// 근거를 보는 writing 슬롯 id.
   final String slotId;
 
   /// "내 사주에서는"에 보일 원국 개인 해석의 자리. 문장 안 용어·근거 링크에서 열면 null입니다.
   final PersonalReadingKey? personal;
+
+  /// 시트 위 대상(그 문장을 정한 태그와 대상 문장). 용어나 사주 표에서 열면 없습니다.
+  final EvidenceTarget target;
 
   @override
   ConsumerState<EvidenceSheet> createState() => _EvidenceSheetState();
@@ -110,15 +124,40 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     final personal = opened && personalKey != null
         ? ref.watch(_subject.personalOf(personalKey)).value
         : null;
+    // 잠겼을 때만 앞부분을 읽습니다(열리면 본문을 그리고, 표 칸의 시트는 미리보기가 없음).
+    final locked =
+        unlock.link != DepthLinkState.unlocked &&
+        !unlock.refreshing &&
+        personalKey == null;
+    final previews = locked
+        ? ref.watch(_subject.previewOf(widget.slotId))
+        : const <EvidencePreview>[];
+    final target = widget.target;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
       onRetry: () => unawaited(controller.retry()),
+      // 권한을 읽는 동안: 제목과 구역 제목은 UI 글자라 그대로, 구역 본문 자리만 뼈입니다
+      // (받는 중 모양과 같은 배치, V66). 열람 상태를 아직 몰라 안내 영역은 두지 않습니다.
+      skeleton: EvidenceSheetBody(
+        state: DepthLinkState.unlocked,
+        title: l10n.evidenceSheetTitle,
+        targetTags: target.tags,
+        target: target.sentence,
+        showPersonal: personalKey != null,
+        showJudgment: personalKey == null,
+        loading: true,
+      ),
       dataWithNotice: (state, _) => EvidenceSheetBody(
         state: state.link,
         title: l10n.evidenceSheetTitle,
         titleSlotId: SlotIds.evidenceSheetSheetTitle,
+        targetTags: target.tags,
+        target: target.sentence,
         basis: _sentences(evidence.map((item) => item.basis)),
         source: _sentences(evidence.map((item) => item.source_)),
+        basisLead: _sentences(previews.map((item) => item.basis)).firstOrNull,
+        sourceLead: _sentences(previews.map((item) => item.source_))
+            .firstOrNull,
         personal: personal == null || isBlankText(personal) ? null : personal,
         showPersonal: personalKey != null,
         // 표 칸의 시트는 판정 근거·원전이 없는 자리라 내 사주에서는 구역 하나이고, 열렸는데

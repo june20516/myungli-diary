@@ -18,6 +18,8 @@ DayCellData _sampleCell(CalendarDate date, {bool loaded = true}) {
     date: date,
     luck: !loaded
         ? null
+        : day % 11 == 5
+        ? DayLuck.great
         : day % 5 == 1
         ? DayLuck.good
         : day % 7 == 3
@@ -63,9 +65,11 @@ class _MonthDemoState extends State<_MonthDemo> {
       onSelect: (date) => setState(() => _selected = date),
       onMonthChange: (month) => setState(() => _month = month),
       legend: [
-        (swatch: colors.calendarGoodBg, label: '잘 풀리는 날'),
-        (swatch: colors.calendarCautionBg, label: '조심할 날'),
+        (swatch: colors.calendarLevelGreat, label: '아주 잘 풀리는 날'),
+        (swatch: colors.calendarLevelGood, label: '잘 풀리는 날'),
+        (swatch: colors.calendarLevelCaution, label: '조심할 날'),
       ],
+      ruleEntry: CalendarRuleEntry(label: '길흉은 어떻게 정해지나요', onTap: () {}),
     );
   }
 }

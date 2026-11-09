@@ -230,7 +230,7 @@ void main() {
       await tester.pumpWidget(_app(_card(OfferCardState.available)));
       final icon = tester.widget<AppIcon>(find.byType(AppIcon));
       expect(icon.weight, AppIconWeight.light);
-      expect(icon.size.logical, 28);
+      expect(icon.size!.logical, 28);
       final drawn = tester.widget<Icon>(
         find.descendant(of: find.byType(AppIcon), matching: find.byType(Icon)),
       );

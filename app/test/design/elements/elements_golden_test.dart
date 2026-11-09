@@ -35,7 +35,7 @@ Widget _elements() {
           ),
           Seal(
             size: SealSize.row,
-            child: AppIcon(_heart, size: AppIconSize.inline),
+            child: AppIcon(_heart, size: AppIconSize.s16),
           ),
         ],
       ),
@@ -65,7 +65,11 @@ Widget _elements() {
       SizedBox(height: 12),
       SkeletonBone(width: 200, height: 16, borderRadius: 4, animated: false),
       SizedBox(height: 12),
-      LockVeil(title: '판정 근거', semanticLabel: '판정 근거, 잠김'),
+      LockVeil(
+        sectionTitle: '판정 근거',
+        stateLabel: '잠김',
+        lines: LockVeilLines.basis,
+      ),
     ],
   );
 }

@@ -11,8 +11,8 @@ enum OhaengCellSize {
   /// 원국표 기둥 칸: 높이 66, 한자 `type.hanja.pillar` + 아래 독음 `type.caption.sm`.
   pillar,
 
-  /// 만세력·대운 칸: 30 × 30, 한자 15 700(`font.family.hanja`), 독음 없음.
-  mini,
+  /// 대운, 세운 기둥 칸(`luck-pillar`): 40 × 40, 한자 18 700, 독음 없음.
+  small,
 }
 
 /// 오행 칸(`ohaeng.cell`): 오행 바탕 + 오행 글자로 천간·지지 한 글자를 보입니다. `radius.sm`.
@@ -40,8 +40,8 @@ class OhaengCell extends StatelessWidget {
   /// 칸 높이(`pillar`).
   static const double pillarHeight = 66;
 
-  /// 칸 한 변(`mini`).
-  static const double miniSide = 30;
+  /// 칸 한 변(`small`, 계약 `ohaeng.cell` `sizes`).
+  static const double smallSide = 40;
 
   /// 글자 크기를 멈추는 배율.
   static const double textScaleMax = 1.3;
@@ -70,8 +70,12 @@ class OhaengCell extends StatelessWidget {
         .clamp(maxScaleFactor: textScaleMax);
     // 칸은 글자가 커진 만큼만 늘어납니다(1.3배에서 멈춤).
     final grow = scaler.scale(10) / 10;
-    final height = (pillar ? pillarHeight : miniSide) * math.max(1, grow);
-    final width = pillar ? null : miniSide * math.max(1, grow);
+    final side = switch (size) {
+      OhaengCellSize.pillar => pillarHeight,
+      OhaengCellSize.small => smallSide,
+    };
+    final height = side * math.max(1, grow);
+    final width = pillar ? null : side * math.max(1, grow);
     const radius = BorderRadius.all(Radius.circular(Radii.sm));
 
     if (empty) {
@@ -83,13 +87,16 @@ class OhaengCell extends StatelessWidget {
     }
 
     final cell = ohaengCellColorsOf(colors, element!);
-    final hanjaStyle = pillar
-        ? tokens.typography.hanjaPillar.copyWith(color: cell.fg)
-        : tokens.typography.hanjaPillar.copyWith(
-            color: cell.fg,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          );
+    final hanjaStyle = switch (size) {
+      OhaengCellSize.pillar => tokens.typography.hanjaPillar.copyWith(
+        color: cell.fg,
+      ),
+      OhaengCellSize.small => tokens.typography.hanjaPillar.copyWith(
+        color: cell.fg,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
+    };
     final text = reading;
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: scaler),

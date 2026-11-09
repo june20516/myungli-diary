@@ -27,6 +27,7 @@ import 'package:myungli_diary/features/me/application/settings_controller.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/testing/covers.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
@@ -266,6 +267,25 @@ void main() {
       _ko.settingsLogoutLabel,
       _ko.accountDeleteBarTitle,
     ]);
+    // 앞 아이콘은 `settings-row` `parts.leading.icons`의 줄별 Phosphor입니다.
+    final leadings = [
+      for (final row in tester.widgetList<SettingsRow>(
+        find.byType(SettingsRow),
+      ))
+        row.leading?.light,
+    ];
+    expect(leadings, [
+      PhosphorIconsLight.bell,
+      PhosphorIconsLight.translate,
+      PhosphorIconsLight.prohibit,
+      PhosphorIconsLight.key,
+      PhosphorIconsLight.userCircle,
+      PhosphorIconsLight.globeHemisphereEast,
+      PhosphorIconsLight.fileText,
+      PhosphorIconsLight.chatCircleText,
+      PhosphorIconsLight.signOut,
+      PhosphorIconsLight.trash,
+    ]);
     // 알림은 묻지 않은 상태라 꺼짐, 언어는 사본 그대로입니다.
     expect(
       _row(tester, SettingsScreen.notifyRowKey).value,
@@ -389,6 +409,28 @@ void main() {
     final container = await _openSettings(tester);
     await _tapRow(tester, SettingsScreen.languageRowKey);
     expect(find.byKey(LanguageSheet.sheetKey), findsOneWidget);
+    // 지금 언어(한국어)만 끝 체크가 있는 고른 줄이고 꺾쇠는 어느 줄에도 없습니다.
+    expect(
+      find.descendant(
+        of: find.byKey(LanguageSheet.sheetKey),
+        matching: find.byKey(SettingsRow.checkKey),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(LanguageSheet.rowKey(Language.ko)),
+        matching: find.byKey(SettingsRow.checkKey),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(LanguageSheet.sheetKey),
+        matching: find.byKey(SettingsRow.chevronKey),
+      ),
+      findsNothing,
+    );
     await tester.tap(find.byKey(LanguageSheet.rowKey(Language.en)));
     await settleWithIo(tester);
 

@@ -13,6 +13,7 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -182,7 +183,6 @@ class _CitySearchState extends State<CitySearch> {
     if (cities == null || (cities.isEmpty && results.isLoading)) {
       return SkeletonBlock(
         delay: widget.skeletonDelay,
-        animated: widget.animated,
         child: Column(
           // 줄이 카드 너비를 채워야 합니다(기본 가운데 정렬이면 너비 0).
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -273,15 +273,7 @@ class _ResultsCard extends StatelessWidget {
         child: Column(
           children: [
             for (var i = 0; i < cities.length; i++) ...[
-              if (i > 0)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(start: Space.s16),
-                  child: SizedBox(
-                    height: 1,
-                    width: double.infinity,
-                    child: ColoredBox(color: colors.line),
-                  ),
-                ),
+              if (i > 0) const ListDivider(),
               _CityRow(
                 key: ValueKey(cities[i].id),
                 city: cities[i],

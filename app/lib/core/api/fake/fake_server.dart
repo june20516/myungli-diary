@@ -190,6 +190,8 @@ final class FakeServerInterceptor extends Interceptor {
   /// 일기 operation이면 대역 일기 저장소로 답합니다. 그 밖의 operation이면 null입니다.
   ///
   /// 시나리오가 오류 응답 파일을 두면(오류 시나리오) 파일이 우선이라 null입니다.
+  /// `getDiaryStats`는 저장소의 살아 있는 일기로 셉니다(200 파일은 무시, 오류 파일은 우선).
+  /// `fixtures/member/getDiaryStats.json`은 스키마 검증용이라 200에서는 쓰이지 않습니다.
   /// `listDiaries`·`getDiary` 파일의 200 응답은 저장소의 처음 상태이고, `getDiary`의 404
   /// 파일은 "기본은 없음"이라 저장소가 답합니다.
   Future<_Fixture?> _answerFromDiaryStore(
@@ -206,6 +208,7 @@ final class FakeServerInterceptor extends Interceptor {
     final fileWins = switch (operationId) {
       'listDiaries' => status != null && status != 200,
       'getDiary' => status != null && status != 200 && status != 404,
+      'getDiaryStats' => status != null && status != 200,
       _ => fixture != null,
     };
     if (fileWins) {
@@ -237,6 +240,8 @@ final class FakeServerInterceptor extends Interceptor {
             diary,
             headers: {'location': '/v1/diaries/${diary['id']}'},
           );
+        case 'getDiaryStats':
+          return _ok(200, store.stats());
         case 'getDiary':
           return _ok(200, store.get(id!));
         case 'updateDiary':
@@ -569,6 +574,7 @@ const _diaryOperations = {
   'listDiaries',
   'createDiary',
   'getDiary',
+  'getDiaryStats',
   'updateDiary',
   'deleteDiary',
 };

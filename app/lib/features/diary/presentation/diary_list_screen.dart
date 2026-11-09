@@ -16,7 +16,6 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/input/month_date_picker.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
-import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/model/diary_pick_date_label.dart';
@@ -32,16 +31,17 @@ const Set<String> diaryListHandledStates = {
   'offline',
 };
 
-/// IA `diary-list`의 출구 대상.
+/// IA `diary-list`의 출구 대상. 태그를 누르면 뜻 시트이고, `tag-diary`는 대표 태그 시트의
+/// 링크로 갑니다(V73, V81).
 const Set<String> diaryListExits = {
   ScreenIds.diaryView,
   ScreenIds.diaryEdit,
-  ScreenIds.tagDiary,
+  ScreenIds.explainSheet,
 };
 
-const AppGlyph _calendarPlus = AppGlyph(
-  light: PhosphorIconsLight.calendarPlus,
-  regular: PhosphorIconsRegular.calendarPlus,
+const AppGlyph _pencilSimple = AppGlyph(
+  light: PhosphorIconsLight.pencilSimple,
+  regular: PhosphorIconsRegular.pencilSimple,
 );
 
 /// 일기 목록(탭 루트, `diary-list`): 쓴 일기를 날짜 내림차순으로 넘겨 보고, 날짜를 골라
@@ -51,13 +51,15 @@ const AppGlyph _calendarPlus = AppGlyph(
 ///   다시 묻고, 받는 동안에는 받아 둔 목록을 그대로 보입니다.
 /// * 받는 중 skeleton(`loading`), 쓴 일기 없음(`empty`), 받지 못함(`error`), 다시 받기가
 ///   연결 오류로 실패하면 받아 둔 목록 위에 배너(`offline`)입니다.
-/// * "날짜 골라 쓰기"는 앱 바 동작과 빈 화면 버튼이고, `date-picker` `calendar` 시트를
-///   엽니다(A51). 고른 날에 일기가 있으면 `diary-view`, 없으면 `diary-edit`입니다.
+/// * "날짜 골라 쓰기"는 목록 위에 떠 있는 버튼(`primary-button` `floating`)이고, `date-picker`
+///   `calendar` 시트를 엽니다(A51). 목록이 있을 때만 떠 있고, 빈 상태는 안내 아래 같은 버튼을
+///   가운데 두며, 불러오는 중과 오류에서는 없습니다(V58). 고른 날에 일기가 있으면
+///   `diary-view`, 없으면 `diary-edit`입니다.
 class DiaryListScreen extends ConsumerStatefulWidget {
   /// diary-list 화면을 만듭니다.
   const new({super.key});
 
-  /// 앱 바의 날짜 골라 쓰기 동작.
+  /// 날짜 골라 쓰기 버튼(떠 있는 버튼, 빈 상태의 버튼).
   static const Key pickDateKey = ValueKey('diary-list.pick-date');
 
   @override
@@ -97,51 +99,61 @@ class _DiaryListScreenState extends ConsumerState<DiaryListScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final pages = visibleDiaryPagesOf(ref.watch(diaryPagesProvider(null)));
+    final view = pages.value;
+    // 목록이 있을 때만 떠 있습니다. 받아 둔 목록 위 오프라인 배너 상태도 목록이 있는 때입니다.
+    final showFloating = view != null && view.items.isNotEmpty;
     return Semantics(
       identifier: ScreenIds.diaryList,
       child: Scaffold(
         key: const ValueKey(ScreenIds.diaryList),
         body: SafeArea(
           bottom: false,
-          child: Column(
+          child: Stack(
             children: [
-              MyungliAppBar.tabRoot(
-                title: l10n.diaryListBarTitle,
-                titleIdentifier: SlotIds.diaryListBarTitle,
-                actions: [
-                  AppBarAction(
-                    key: DiaryListScreen.pickDateKey,
-                    icon: _calendarPlus,
-                    semanticLabel: l10n.diaryListPickDateCta,
-                    identifier: SlotIds.diaryListPickDateCta,
-                    onPressed: () => unawaited(_pickDate()),
+              Column(
+                children: [
+                  MyungliAppBar.tabRoot(
+                    title: l10n.diaryListBarTitle,
+                    titleIdentifier: SlotIds.diaryListBarTitle,
+                  ),
+                  Expanded(
+                    child: ScreenStateView<DiaryPagesView>(
+                      value: pages,
+                      onRetry: () => ref.invalidate(diaryPagesProvider(null)),
+                      skeleton: const DiaryPageListSkeleton(),
+                      isEmpty: (view) => view.items.isEmpty,
+                      empty: EmptyState(
+                        body: l10n.diaryListEmptyBody,
+                        identifier: SlotIds.diaryListEmptyBody,
+                        action: _pickDateButton(l10n),
+                      ),
+                      dataWithNotice: (view, notice) => DiaryPageList(
+                        tag: null,
+                        view: view,
+                        leading: [notice],
+                        underFloatingButton: true,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              Expanded(
-                child: ScreenStateView<DiaryPagesView>(
-                  value: pages,
-                  onRetry: () => ref.invalidate(diaryPagesProvider(null)),
-                  skeleton: const DiaryPageListSkeleton(),
-                  isEmpty: (view) => view.items.isEmpty,
-                  empty: EmptyState(
-                    body: l10n.diaryListEmptyBody,
-                    identifier: SlotIds.diaryListEmptyBody,
-                    action: PrimaryButton(
-                      label: l10n.diaryListPickDateCta,
-                      onPressed: () => unawaited(_pickDate()),
-                    ),
-                  ),
-                  dataWithNotice: (view, notice) =>
-                      DiaryPageList(tag: null, view: view, leading: [notice]),
-                ),
-              ),
+              if (showFloating)
+                FloatingPrimaryButton(button: _pickDateButton(l10n)),
             ],
           ),
         ),
       ),
     );
   }
+
+  /// 날짜 골라 쓰기 버튼(`primary-button` `filled`, 앞 아이콘 `pencil-simple`).
+  PrimaryButton _pickDateButton(AppLocalizations l10n) => PrimaryButton(
+    key: DiaryListScreen.pickDateKey,
+    label: l10n.diaryListPickDateCta,
+    leadingIcon: _pencilSimple,
+    identifier: SlotIds.diaryListPickDateCta,
+    onPressed: () => unawaited(_pickDate()),
+  );
 
   /// 날짜 시트를 열고(A51), 고른 날의 새 일기 쓰기로 갑니다(A67). 일기가 있는 날도 새
   /// 일기입니다(D83).
@@ -201,24 +213,22 @@ class _PickDateSheetState extends ConsumerState<PickDateSheet> {
     final dateLabel = diaryPickDateLabel(_selected, locale);
     final count = ref.watch(diariesOnProvider(_selected)).value?.length ?? 0;
     final full = diaryWriteEntryOf(count) == DiaryWriteEntry.full;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: Space.s8),
-      child: MonthDatePicker(
-        month: _month,
-        selected: _selected,
-        today: widget.today,
-        markedDates: marked,
-        onSelect: (date) {
-          _keep(date);
-          setState(() => _selected = date);
-        },
-        onMonthChange: (month) => setState(() => _month = month),
-        confirmLabel: full
-            ? l10n.diaryListPickDateConfirmFull
-            : l10n.diaryListPickDateConfirm(dateLabel),
-        confirmIdentifier: SlotIds.diaryListPickDateConfirm,
-        onConfirm: full ? null : () => Navigator.of(context).pop(_selected),
-      ),
+    // 달력만 스크롤하고 확인 버튼은 시트 아래에 고정합니다(A120, F-026).
+    return MonthDatePicker(
+      month: _month,
+      selected: _selected,
+      today: widget.today,
+      markedDates: marked,
+      onSelect: (date) {
+        _keep(date);
+        setState(() => _selected = date);
+      },
+      onMonthChange: (month) => setState(() => _month = month),
+      confirmLabel: full
+          ? l10n.diaryListPickDateConfirmFull
+          : l10n.diaryListPickDateConfirm(dateLabel),
+      confirmIdentifier: SlotIds.diaryListPickDateConfirm,
+      onConfirm: full ? null : () => Navigator.of(context).pop(_selected),
     );
   }
 }

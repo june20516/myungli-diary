@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/core/l10n/notice_text.dart';
+import 'package:myungli_diary/design/components/action/button_pair.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
@@ -72,6 +73,7 @@ class PreviewScreen extends ConsumerWidget {
                   onRetry: _retriable(ref.watch(previewProvider).error)
                       ? () => ref.invalidate(previewProvider)
                       : null,
+                  skeleton: const _PreviewSkeleton(),
                   dataWithNotice: (preview, offlineNotice) => _PreviewBody(
                     preview: preview,
                     offlineNotice: offlineNotice,
@@ -86,27 +88,22 @@ class PreviewScreen extends ConsumerWidget {
                   Space.s24,
                 ),
                 child: ToastAnchor(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      PrimaryButton(
-                        key: const ValueKey(SlotIds.previewCtaSave),
-                        identifier: SlotIds.previewCtaSave,
-                        label: l10n.previewCtaSave,
-                        onPressed: () =>
-                            context.push<void>(pathOf(ScreenIds.login)),
-                      ),
-                      const SizedBox(height: Space.s8),
-                      PrimaryButton(
-                        key: const ValueKey(SlotIds.previewCtaRestart),
-                        identifier: SlotIds.previewCtaRestart,
-                        variant: PrimaryButtonVariant.quiet,
-                        label: l10n.previewCtaRestart,
-                        // 입력은 초안에 남아 있어 onboard-call이 채워진 채로 열립니다.
-                        onPressed: () => goBackToOnboardCall(context),
-                      ),
-                    ],
+                  child: ButtonPair(
+                    filled: PrimaryButton(
+                      key: const ValueKey(SlotIds.previewCtaSave),
+                      identifier: SlotIds.previewCtaSave,
+                      label: l10n.previewCtaSave,
+                      onPressed: () =>
+                          context.push<void>(pathOf(ScreenIds.login)),
+                    ),
+                    quiet: PrimaryButton(
+                      key: const ValueKey(SlotIds.previewCtaRestart),
+                      identifier: SlotIds.previewCtaRestart,
+                      variant: PrimaryButtonVariant.quiet,
+                      label: l10n.previewCtaRestart,
+                      // 입력은 초안에 남아 있어 onboard-call이 채워진 채로 열립니다.
+                      onPressed: () => goBackToOnboardCall(context),
+                    ),
                   ),
                 ),
               ),
@@ -223,4 +220,26 @@ class _PreviewBody extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 풀이를 계산하는 동안: [_PreviewBody]와 같은 배치(좌우 20, 위 24)에 `day-character` 뼈,
+/// [Space.s16] 아래 총운 `sentence-block` `card` 뼈, [Space.s12] 아래 `body` 뼈(V66).
+class _PreviewSkeleton extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    physics: const NeverScrollableScrollPhysics(),
+    padding: const EdgeInsets.fromLTRB(Space.s20, Space.s24, Space.s20, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DayCharacter.skeleton(),
+        const SizedBox(height: Space.s16),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.card, index: 2),
+        const SizedBox(height: Space.s12),
+        SentenceBlock.skeleton(variant: SentenceBlockVariant.body, index: 4),
+      ],
+    ),
+  );
 }

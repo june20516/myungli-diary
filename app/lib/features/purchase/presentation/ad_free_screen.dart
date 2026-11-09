@@ -98,6 +98,19 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
                         value: _offlineAsEmpty(product),
                         onRetry: () => ref.invalidate(adFreeProductProvider),
                         isStale: (product) => product == null,
+                        // 카드와 같은 자리(화면 좌우 20, 위 8)의 offer-card 뼈(V66).
+                        skeleton: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            Space.s20,
+                            Space.s8,
+                            Space.s20,
+                            0,
+                          ),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: OfferCard.skeleton(),
+                          ),
+                        ),
                         data: (product) =>
                             _content(l10n, product, expiry, purchasing),
                       ),

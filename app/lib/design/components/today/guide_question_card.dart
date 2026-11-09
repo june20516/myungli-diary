@@ -5,8 +5,10 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -50,10 +52,10 @@ class GuideQuestionCard extends StatefulWidget {
   /// `identifier`로 붙습니다.
   const new({
     required this.state,
-    required this.eyebrow,
     required this.question,
     required this.actionLabel,
     required this.onAction,
+    this.eyebrow,
     this.questionSlotId,
     this.actionSlotId,
     super.key,
@@ -61,10 +63,47 @@ class GuideQuestionCard extends StatefulWidget {
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('guide-question-card', {}, {
+    'loading',
     'before',
     'after',
     'full',
   });
+
+  /// 뼈 `header` 폭 비율(`states.loading.skeleton` `header.width` 40%).
+  static const double skeletonHeaderWidthFactor = 0.4;
+
+  /// 불러오는 중 뼈: 카드(안쪽 [Space.s20]) 안에 머리 글줄(40%), [Space.s8] 아래 질문
+  /// 글줄 두 줄(`sentence-block` `card`), [Space.s16] 아래 버튼 자리(52, `radius.md`).
+  static Widget skeleton({int index = 0, bool animated = true}) => Builder(
+    builder: (context) => SkeletonCard(
+      padding: const EdgeInsets.all(Space.s20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SkeletonTextLines(
+            style: context.tokens.typography.captionMd,
+            widthFactor: skeletonHeaderWidthFactor,
+            index: index,
+            animated: animated,
+          ),
+          const SizedBox(height: Space.s8),
+          SentenceBlock.skeleton(
+            variant: SentenceBlockVariant.card,
+            index: index + 1,
+            animated: animated,
+          ),
+          const SizedBox(height: Space.s16),
+          SkeletonBone(
+            height: PrimaryButtonVariant.filled.height,
+            borderRadius: Radii.md,
+            index: index + 3,
+            animated: animated,
+          ),
+        ],
+      ),
+    ),
+  );
 
   /// 도장 층(버튼 글자 뒤)을 찾는 테스트용 키.
   static const Key sealLayerKey = ValueKey('guide-question-card-seal');
@@ -72,8 +111,9 @@ class GuideQuestionCard extends StatefulWidget {
   /// 상태.
   final GuideQuestionState state;
 
-  /// 질문 위 작은 머리글("오늘의 질문").
-  final String eyebrow;
+  /// 질문 위 작은 머리글(`parts.eyebrow`). null이면 머리글과 그 아래 간격을 그리지 않습니다.
+  /// 오늘 화면은 섹션 제목(`today.guide.title`)이 같은 말을 하므로 주지 않습니다(today 화면 배치 7번).
+  final String? eyebrow;
 
   /// 질문 문장(server가 렌더한 조각).
   final RenderedText question;
@@ -238,6 +278,7 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
     final l10n = AppLocalizations.of(context);
     final after = _written(widget.state);
     final full = widget.state == GuideQuestionState.full;
+    final eyebrow = widget.eyebrow;
     final question = SentenceBlock(
       variant: SentenceBlockVariant.card,
       text: widget.question,
@@ -273,13 +314,15 @@ class _GuideQuestionCardState extends State<GuideQuestionCard>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                widget.eyebrow,
-                style: tokens.typography.captionMd.copyWith(
-                  color: colors.textSecondary,
+              if (eyebrow != null) ...[
+                Text(
+                  eyebrow,
+                  style: tokens.typography.captionMd.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: Space.s8),
+                const SizedBox(height: Space.s8),
+              ],
               question,
               const SizedBox(height: Space.s16),
               action,

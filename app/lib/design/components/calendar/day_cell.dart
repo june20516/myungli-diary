@@ -12,15 +12,18 @@ import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
-/// 날짜 칸의 길흉(`day-cell` `parts.luckFill`).
+/// 날짜 칸의 길흉 네 단계(`day-cell` `parts.luckFill`, 결정 V84).
 enum DayLuck {
-  /// 좋은 날: `calendar.good.bg`로 채웁니다.
+  /// 아주 잘 풀리는 날: `calendar.level.great`로 채웁니다.
+  great,
+
+  /// 잘 풀리는 날: `calendar.level.good`으로 채웁니다.
   good,
 
-  /// 보통 날: 채우지 않습니다.
+  /// 무난한 날: 채우지 않습니다.
   neutral,
 
-  /// 조심할 날: `calendar.caution.bg`로 채웁니다.
+  /// 조심할 날: `calendar.level.caution`으로 채웁니다.
   caution,
 }
 
@@ -118,8 +121,8 @@ class DayCell extends StatefulWidget {
   /// 숫자 상자 한 변(`parts.numberBox.size`).
   static const double numberBoxSize = 32;
 
-  /// 숫자 상자 위 여백(`parts.numberBox.marginTop`).
-  static const double numberBoxTop = 6;
+  /// 숫자 상자 위 여백(`parts.numberBox.marginTop`, `space.4`).
+  static const double numberBoxTop = Space.s4;
 
   /// 음력 글자 크기(`parts.lunar.fontSize`).
   static const double lunarFontSize = 10.5;
@@ -137,7 +140,7 @@ class DayCell extends StatefulWidget {
   static const double underlineHeight = 2;
 
   /// 숫자와 선택 밑줄 사이.
-  static const double underlineGap = 2;
+  static const double underlineGap = Space.s2;
 
   /// 바깥 달 숫자 투명도(`states.outsideMonth.parts.number.opacity`).
   static const double outsideMonthOpacity = 0.35;
@@ -302,8 +305,9 @@ class _DayCellState extends State<DayCell>
 
     final luck = widget.outsideMonth ? null : data.luck;
     final luckColor = switch (luck) {
-      DayLuck.good => colors.calendarGoodBg,
-      DayLuck.caution => colors.calendarCautionBg,
+      DayLuck.great => colors.calendarLevelGreat,
+      DayLuck.good => colors.calendarLevelGood,
+      DayLuck.caution => colors.calendarLevelCaution,
       DayLuck.neutral || null => null,
     };
     final lunarText = data.lunarText;

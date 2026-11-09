@@ -26,6 +26,7 @@ import 'package:myungli_diary/features/account/application/account_merge_control
 import 'package:myungli_diary/features/account/data/account_link_repository.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
@@ -492,11 +493,12 @@ void main() {
       expect(h.container.read(entryProvider), EntryState.ready);
     });
 
-    /// 오늘·달력·일기 목록·일정 저장소. 그 화면 provider는 이것을 build에서 watch합니다.
+    /// 오늘·달력·일기 목록·회고 집계·일정 저장소. 그 화면 provider는 이것을 build에서 watch합니다.
     List<Object> accountRepositories(ProviderContainer container) => [
       container.read(dailyRepositoryProvider),
       container.read(calendarRepositoryProvider),
       container.read(diaryRepositoryProvider),
+      container.read(diaryStatsRepositoryProvider),
       container.read(scheduleRepositoryProvider),
     ];
 
@@ -520,6 +522,23 @@ void main() {
       }
       h.container.read(diaryList);
       expect(diaryListBuilds, 2);
+    });
+
+    test('성공이면 나 탭 회고 집계 저장소를 다시 만들어 집계를 새로 읽음', () async {
+      final h = await _harness();
+      // 나 탭이 구독을 유지하는 동안(탭 보존) 회고 집계가 다시 build되는지 셉니다.
+      var statsBuilds = 0;
+      final stats = Provider((ref) {
+        statsBuilds++;
+        return ref.watch(diaryStatsRepositoryProvider);
+      });
+      h.container.listen(stats, (_, _) {});
+      await h.chooseAfterAuth(MergeProfile.other);
+
+      expect(await h.controller.merge(), isA<MergeDone>());
+
+      h.container.read(stats);
+      expect(statsBuilds, 2);
     });
 
     test('실패 갈래에서는 계정 데이터 provider를 다시 만들지 않음', () async {

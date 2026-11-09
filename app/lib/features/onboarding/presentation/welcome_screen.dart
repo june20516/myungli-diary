@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/button_pair.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -54,19 +55,20 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ],
             actions: [
-              PrimaryButton(
-                key: const ValueKey(SlotIds.welcomeCtaStart),
-                identifier: SlotIds.welcomeCtaStart,
-                label: l10n.welcomeCtaStart,
-                onPressed: () => context.push(pathOf(ScreenIds.onboardCall)),
-              ),
-              const SizedBox(height: Space.s8),
-              PrimaryButton(
-                key: const ValueKey(SlotIds.welcomeCtaSignin),
-                identifier: SlotIds.welcomeCtaSignin,
-                variant: PrimaryButtonVariant.quiet,
-                label: l10n.welcomeCtaSignin,
-                onPressed: () => context.push(pathOf(ScreenIds.login)),
+              ButtonPair(
+                filled: PrimaryButton(
+                  key: const ValueKey(SlotIds.welcomeCtaStart),
+                  identifier: SlotIds.welcomeCtaStart,
+                  label: l10n.welcomeCtaStart,
+                  onPressed: () => context.push(pathOf(ScreenIds.onboardCall)),
+                ),
+                quiet: PrimaryButton(
+                  key: const ValueKey(SlotIds.welcomeCtaSignin),
+                  identifier: SlotIds.welcomeCtaSignin,
+                  variant: PrimaryButtonVariant.quiet,
+                  label: l10n.welcomeCtaSignin,
+                  onPressed: () => context.push(pathOf(ScreenIds.login)),
+                ),
               ),
             ],
           ),

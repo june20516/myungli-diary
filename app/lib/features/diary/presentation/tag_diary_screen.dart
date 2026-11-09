@@ -10,6 +10,7 @@ import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_pages.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_page_list.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -72,7 +73,7 @@ class TagDiaryScreen extends ConsumerWidget {
                     slotId: SlotIds.tagDiaryTagMeaning,
                     onTerm: (termId) => ref
                         .read(depthSheetsProvider)
-                        .openExplain(context, termId: termId),
+                        .openExplain(context, ExplainTerm(termId)),
                   ),
                 ),
               Expanded(

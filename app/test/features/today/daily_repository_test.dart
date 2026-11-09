@@ -137,6 +137,19 @@ void main() {
     expect(await s.repository.cached(_key), isNull);
   });
 
+  test('cached: guideCandidates가 없는 앱 갱신 전 캐시면 캐시 없음(null)이다', () async {
+    final s = _setUp();
+    final legacy = memberDailyJson()..remove('guideCandidates');
+    await s.cache.write(
+      CacheKind.daily,
+      _key,
+      jsonEncode(legacy),
+      access: EvidenceAccess.locked,
+    );
+
+    expect(await s.repository.cached(_key), isNull);
+  });
+
   group('규칙 버전 관찰', () {
     test('fetch는 키와 무관하게 응답의 rulesetVersion을 관찰한다', () async {
       final s = _setUp();

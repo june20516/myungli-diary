@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/guide_choice.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/features/diary/data/diary_draft_store.dart';
@@ -50,6 +51,55 @@ void main() {
     expect(
       await store.read(DiaryDraftTarget.existing(date: day, id: 'x')),
       '고치는 글',
+    );
+  });
+
+  test('v2 초안은 v3에서 본문을 지키고 고른 질문은 비어 있다', () async {
+    final day = CalendarDate(2026, 10, 13);
+    final database = AppDatabase.forExecutor(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute('''
+              CREATE TABLE diary_drafts (
+                account_id TEXT NOT NULL,
+                date TEXT NOT NULL,
+                diary_id TEXT NOT NULL DEFAULT '',
+                body TEXT NOT NULL,
+                updated_at INTEGER NOT NULL,
+                PRIMARY KEY (account_id, date, diary_id)
+              )''')
+            ..execute('INSERT INTO diary_drafts VALUES (?, ?, ?, ?, ?)', [
+              'a',
+              day.toIso(),
+              '',
+              'v2 초안',
+              1760000000,
+            ])
+            ..execute('PRAGMA user_version = 2');
+        },
+      ),
+    );
+    addTearDown(database.close);
+
+    final store = DiaryDraftStore(
+      database,
+      accountId: 'a',
+      nowUtc: DateTime.now,
+    );
+    final draft = await store.find(DiaryDraftTarget.newOn(day));
+    expect(draft!.body, 'v2 초안');
+    expect(draft.guideMessageKey, isNull);
+    expect(draft.guideVariant, isNull);
+
+    await store.write(
+      DiaryDraftTarget.newOn(day),
+      'v3 초안',
+      guide: GuideChoice(messageKey: 'guide.harmony', variant: '1'),
+    );
+    expect(
+      (await store.find(DiaryDraftTarget.newOn(day)))!.guideMessageKey,
+      'guide.harmony',
     );
   });
 }

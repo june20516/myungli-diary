@@ -7,7 +7,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -72,7 +72,7 @@ void main() {
     final container = await pumpApp(tester, scenario: 'member');
     await pumpUntil(
       tester,
-      () => find.byType(DayCharacter).evaluate().isNotEmpty,
+      () => find.byType(DateHeader).evaluate().isNotEmpty,
     );
     expect(_guide(tester).actionLabel, _ko.todayGuideCta);
     expect(find.byType(DiaryEntryLine), findsNothing);

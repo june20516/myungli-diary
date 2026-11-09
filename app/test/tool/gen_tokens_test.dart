@@ -193,6 +193,7 @@ void main() {
         };
         final roles = theme.keys.where(
           (n) =>
+              theme[n]!.type == 'color' &&
               n.startsWith('color.') &&
               !RegExp(r'^color\.(sage|coral|neutral)\.|^color\.white$')
                   .hasMatch(n),
@@ -233,6 +234,86 @@ void main() {
       final out = generateTokensSource(edited);
       expect(out, matches(RegExp(r'^\s*/// 첫째 줄$', multiLine: true)));
       expect(out, matches(RegExp(r'^\s*/// 둘째 줄$', multiLine: true)));
+    });
+
+    test('1.4.0 새 토큰이 실제 생성 형태의 선언으로 있다', () {
+      for (final declaration in [
+        'final Color calendarLevelGreat;',
+        'final Color calendarLevelGood;',
+        'final Color calendarLevelCaution;',
+        'final Color highlightBg;',
+        'final Color fillSoft;',
+        'final LinearGradient verdictTrack;',
+        'static const Duration pageDuration =',
+        'static const Cubic pageEasing =',
+        'static const double pageOffset =',
+        'static const double hairline =',
+        'static const double s16 =',
+        'static const double s20 =',
+        'static const double s24 =',
+        'static const double s28 =',
+      ]) {
+        expect(source, contains(declaration), reason: declaration);
+      }
+    });
+
+    test('새 색 5종의 라이트·다크 값이 원본 토큰과 같다', () {
+      expect(lightColors.calendarLevelGreat.toARGB32(), 0xFFFFD2CA);
+      expect(darkColors.calendarLevelGreat.toARGB32(), 0xFF582720);
+      expect(lightColors.calendarLevelGood.toARGB32(), 0xFFFFE4DF);
+      expect(darkColors.calendarLevelGood.toARGB32(), 0xFF46322F);
+      expect(lightColors.calendarLevelCaution.toARGB32(), 0xFFD4D4D3);
+      expect(darkColors.calendarLevelCaution.toARGB32(), 0xFF2A2A29);
+
+      // fillSoft, highlightBg는 원시 팔레트 참조라 원본을 풀어 대조한다.
+      for (final (name, light, dark) in [
+        ('color.fill.soft', lightColors.fillSoft, darkColors.fillSoft),
+        ('color.highlight.bg', lightColors.highlightBg, darkColors.highlightBg),
+      ]) {
+        final lightHex = parseColor(themes.lightKo[name]!.value).hex;
+        final darkHex = parseColor(themes.darkKo[name]!.value).hex;
+        expect(
+          light.toARGB32(),
+          int.parse('FF${lightHex.substring(1)}', radix: 16),
+        );
+        expect(
+          dark.toARGB32(),
+          int.parse('FF${darkHex.substring(1)}', radix: 16),
+        );
+        expect(lightHex, isNot(darkHex), reason: name);
+      }
+    });
+
+    test('gradient 값은 색 역할이 아니라 GradientTokens로 간다', () {
+      expect(source, isNot(contains('final Color verdictTrack')));
+      expect(source, contains('final LinearGradient verdictTrack'));
+    });
+
+    test('verdictTrack 두 점: 라이트 d4d4d3 ffd2ca, 다크 2a2a29 582720', () {
+      expect(lightGradients.verdictTrack.colors, const [
+        Color(0xFFD4D4D3),
+        Color(0xFFFFD2CA),
+      ]);
+      expect(darkGradients.verdictTrack.colors, const [
+        Color(0xFF2A2A29),
+        Color(0xFF582720),
+      ]);
+    });
+
+    test('page 움직임, hairline, 아이콘 크기 값', () {
+      expect(Motion.pageDuration, const Duration(milliseconds: 320));
+      expect(Motion.pageEasing, const Cubic(0.2, 0.8, 0.2, 1));
+      expect(Motion.pageOffset, 24);
+      expect(BorderTokens.hairline, 0.5);
+      expect(
+        [
+          IconSizeTokens.s16,
+          IconSizeTokens.s20,
+          IconSizeTokens.s24,
+          IconSizeTokens.s28,
+        ],
+        [16, 20, 24, 28],
+      );
     });
 
     test('커밋된 tokens.g.dart가 다시 생성한 결과와 정확히 같다', () async {

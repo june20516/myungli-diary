@@ -488,10 +488,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get actionClose => '閉じる';
 
   @override
-  String get loginTitleHead => 'ログインして読み解きを保存しましょう';
+  String get loginTitleHead => '命理日記';
 
   @override
-  String get loginTitleBody => 'ログインすると、ほかの端末でも自分の命式と日記を見られます。';
+  String get loginTitleBody => 'ログインすると、毎日あなたの命式に合わせた読み解きをお届けします。';
 
   @override
   String get loginDiscardNotice =>
@@ -547,7 +547,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'アカウントを削除すると、命式の情報・日記・タグ・予定・購入した商品の残り期間がすべて消え、元に戻せません。法令や不正利用防止のために必要な情報のみ、定められた期間、別途保管します。';
 
   @override
-  String get accountDeleteDeleteConfirm => '本当に削除しますか?削除したアカウントは元に戻せません。';
+  String get accountDeleteDeleteConfirm => '本当に削除しますか?削除後は元に戻せません。';
 
   @override
   String get accountDeleteDeleteConfirmDelete => '削除';
@@ -594,17 +594,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get consentRequiredLabelPrivacy => '(必須)個人情報の収集・利用';
 
   @override
-  String daySheetDiaryOpen(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'この日の日記$count件',
-    );
-    return '$_temp0';
-  }
+  String get daySheetDiaryOpen => '日記';
 
   @override
-  String get daySheetDiaryWriteCta => 'この日の日記を書く';
+  String daySheetDiaryWriteCta(String date) {
+    return '$dateの日記を書く';
+  }
 
   @override
   String get daySheetEventAdd => '予定を追加';
@@ -616,7 +611,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get diaryEditBodyPlaceholder => '今日あったことを書いてみましょう';
 
   @override
-  String get diaryEditDraftStatusLocal => '端末に下書きを保存しました';
+  String get diaryEditDraftStatusLocal => '一時保存';
 
   @override
   String get diaryEditDraftStatusSaving => '保存中';
@@ -634,7 +629,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get diaryListEmptyBody => 'まだ日記がありません。今日のことから書いてみませんか?';
 
   @override
-  String get diaryListPickDateCta => '日付を選んで書く';
+  String get diaryListPickDateCta => '日記を書く';
 
   @override
   String get diaryViewDeleteConfirm => 'この日記を削除しますか?削除すると元に戻せません。';
@@ -779,7 +774,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get depthExplain => '読み解き';
 
   @override
-  String get depthLinkEvidence => '根拠を見る';
+  String depthLinkEvidence(String subject) {
+    return '$subjectの根拠を見る';
+  }
 
   @override
   String get todayLuckyColorName => 'ラッキーカラー';
@@ -1212,7 +1209,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get accountMergeTitleHead => '別のアカウントの記録をこちらに移しますか?';
 
   @override
-  String get daySheetDiaryWriteCtaWritten => 'この日の新しい日記を書く';
+  String daySheetDiaryWriteCtaWritten(String date) {
+    return '$dateの新しい日記を書く';
+  }
 
   @override
   String get daySheetDiaryWriteCtaFull => 'この日は十分に書きました';
@@ -1491,4 +1490,271 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsContactLabel => 'お問い合わせ';
+
+  @override
+  String get calendarLegendBodyVeryGood => 'とてもうまく運ぶ日';
+
+  @override
+  String get calendarLegendBodyNeutral => '無難な日';
+
+  @override
+  String get calendarLegendRuleLink => '吉凶はどう決まりますか';
+
+  @override
+  String get colorRuleSheetRuleBody =>
+      'その日に入ってくる気を合わせて決めます。たとえば用神の日でも、ぶつかる気があれば無難な日になることがあります。';
+
+  @override
+  String get colorRuleSheetSheetTitle => '吉凶の決まり方';
+
+  @override
+  String daySheetDateLunar(int month, int day) {
+    return '旧暦$month月$day日';
+  }
+
+  @override
+  String daySheetDateLunarLeap(int month, int day) {
+    return '旧暦閏$month月$day日';
+  }
+
+  @override
+  String daySheetDateSolar(String date) {
+    return '$date';
+  }
+
+  @override
+  String daySheetVerdictItemPlus(int count) {
+    return '良い方へ$count';
+  }
+
+  @override
+  String daySheetVerdictItemMinus(int count) {
+    return '気をつける方へ$count';
+  }
+
+  @override
+  String get daySheetVerdictTitle => '吉凶判定';
+
+  @override
+  String diaryEditDateDay(String date) {
+    return '$date';
+  }
+
+  @override
+  String diaryEditDateIljin(String pillar) {
+    return '$pillar日';
+  }
+
+  @override
+  String diaryEditDateMonth(String date) {
+    return '$date';
+  }
+
+  @override
+  String diaryEditLengthCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count文字',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String explainSheetTagDiaryLink(String tag) {
+    return '$tagのタグが付いた日記を見る';
+  }
+
+  @override
+  String get loginSaveNote => 'ログインすると、いま見た読み解きの続きを見られます。';
+
+  @override
+  String get mySajuChartLink => '命式表';
+
+  @override
+  String get mySajuChartTitle => '命式';
+
+  @override
+  String get mySajuFlowLink => '大運の一覧';
+
+  @override
+  String get mySajuFlowTitle => '今年と今';
+
+  @override
+  String get mySajuIlganTitle => '命式の性向';
+
+  @override
+  String get mySajuRecordFew => '日記がもう何件かたまると、自分の記録を振り返れます。';
+
+  @override
+  String get mySajuRecordTitle => '命理日記の振り返り';
+
+  @override
+  String get mySajuYongsinTitle => '自分を助ける気';
+
+  @override
+  String get notifyAskTimeNote => '状況により、通知が最大10分遅れることがあります。';
+
+  @override
+  String get sajuChartDaeunDesc => '10年ごとに変わる大きな流れです。';
+
+  @override
+  String get sajuChartDaeunTitle => '大運';
+
+  @override
+  String sajuChartHeadTitle(String nickname) {
+    return '$nicknameさんの命式';
+  }
+
+  @override
+  String get sajuChartJijangganDesc => '地支の中に隠れている天干です。表に見えなくても、その位置の気を形づくります。';
+
+  @override
+  String sajuChartManseBasis(String stem) {
+    return '自分の日干$stemが基準';
+  }
+
+  @override
+  String get sajuChartOhaengDesc => '命式に木、火、土、金、水の気がどれだけあるかを示します。';
+
+  @override
+  String get sajuChartOhaengTitle => '五行の分布';
+
+  @override
+  String get sajuChartPillarsDesc => '生まれた年、月、日、時を天干と地支の一組で表したものです。日干が「自分」です。';
+
+  @override
+  String get sajuChartPillarsTitle => '四柱';
+
+  @override
+  String get sajuChartSeunDesc => '毎年入ってくる気です。';
+
+  @override
+  String get sajuChartSeunTitle => '年運';
+
+  @override
+  String get sajuChartSinsalDesc => '特定の文字の組み合わせから生まれる固有の性質です。ない場合もあります。';
+
+  @override
+  String get sajuChartUnseongDesc => '日干の気がその位置でどれだけ力を出せるかを十二段階で表します。';
+
+  @override
+  String get settingsNotifyTimeNote => '状況により、通知が最大10分遅れることがあります。';
+
+  @override
+  String tagSheetDiaryCta(String tag) {
+    return '$tagのタグが付いた日記を見る';
+  }
+
+  @override
+  String get tagSheetSentencesEmpty => '今日はこの気で決まった文がありません。';
+
+  @override
+  String get tagSheetSentencesTitle => 'この気から出た今日の文';
+
+  @override
+  String todayDateIljin(String pillar) {
+    return '$pillar日';
+  }
+
+  @override
+  String todayDateLunar(int month, int day) {
+    return '旧暦$month月$day日';
+  }
+
+  @override
+  String todayDateLunarLeap(int month, int day) {
+    return '旧暦閏$month月$day日';
+  }
+
+  @override
+  String todayDateSolar(String date) {
+    return '$date';
+  }
+
+  @override
+  String get todayEventTitle => '予定';
+
+  @override
+  String get todayFeaturedEmpty => '今日は目立った命式の気はありません。';
+
+  @override
+  String get todayFeaturedTitle => '命式の気';
+
+  @override
+  String get todayFortuneTitle => '総運';
+
+  @override
+  String get todayGuideTitle => '今日の質問';
+
+  @override
+  String get todayLuckyTitle => 'ラッキー';
+
+  @override
+  String birthInfoHour(String branch) {
+    return '$branchの刻';
+  }
+
+  @override
+  String get diaryEditQuestionSwap => '質問を変える';
+
+  @override
+  String get keyboardDismiss => 'キーボードを閉じる';
+
+  @override
+  String mySajuRecordCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mySajuRecordDayKindHead => '書いた日の性格';
+
+  @override
+  String get mySajuRecordTagHead => 'よく付いたタグ';
+
+  @override
+  String get bandTableEmptyCell => 'なし';
+
+  @override
+  String luckDaeunAgeRange(int startAge, int endAge) {
+    return '$startAge〜$endAge歳';
+  }
+
+  @override
+  String luckDaeunYearRange(int startYear, int endYear) {
+    return '$startYear〜$endYear年';
+  }
+
+  @override
+  String luckSeunYear(int year) {
+    return '$year年';
+  }
+
+  @override
+  String luckSeunAge(int age) {
+    return '$age歳';
+  }
+
+  @override
+  String get sajuStageMarkerHour => '時';
+
+  @override
+  String get sajuStageMarkerDay => '日';
+
+  @override
+  String get sajuStageMarkerMonth => '月';
+
+  @override
+  String get sajuStageMarkerYear => '年';
+
+  @override
+  String get tagSheetSentenceKindFortune => '総運';
+
+  @override
+  String get tagSheetSentenceKindGuide => '今日の質問';
 }

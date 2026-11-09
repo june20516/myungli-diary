@@ -70,6 +70,7 @@ const List<ApiRoute> apiRoutes = [
   ApiRoute('PUT', '/v1/diaries/{id}', 'updateDiary'),
   ApiRoute('DELETE', '/v1/diaries/{id}', 'deleteDiary'),
   ApiRoute('POST', '/v1/diaries/{id}/restore', 'restoreDiary'),
+  ApiRoute('GET', '/v1/diary-stats', 'getDiaryStats'),
   ApiRoute('GET', '/v1/schedules', 'listSchedules'),
   ApiRoute('POST', '/v1/schedules', 'createSchedule'),
   ApiRoute('DELETE', '/v1/schedules/{id}', 'deleteSchedule'),
@@ -96,5 +97,6 @@ const List<ApiRoute> apiRoutes = [
   ApiRoute('POST', '/v1/support/inquiries', 'createInquiry'),
   ApiRoute('GET', '/v1/app-config', 'getAppConfig', requiresBearer: false),
   ApiRoute('GET', '/health', 'checkHealth', requiresBearer: false),
+  ApiRoute('GET', '/version', 'getServerVersion', requiresBearer: false),
   ApiRoute('GET', '/healthz', 'getHealth', requiresBearer: false),
 ];

@@ -54,9 +54,9 @@ Widget _sentenceBlocks() => Builder(
         SentenceBlock(
           variant: SentenceBlockVariant.body,
           text: text,
-          trailing: DepthLink(
-            variant: DepthLinkVariant.inlineEnd,
-            label: ja ? '根拠を見る' : '근거 보기',
+          trailing: DepthLink.evidence(
+            subject: ja ? '総運' : '총운',
+            placement: DepthLinkPlacement.inlineEnd,
             onTap: () {},
           ),
         ),
@@ -83,7 +83,7 @@ Widget _termsAndLinks() => Column(
       textStyle: const TextStyle(fontSize: 15, height: 1.6),
     ),
     TermToken(label: '정관', variant: TermTokenVariant.label, onTap: () {}),
-    DepthLink(variant: DepthLinkVariant.block, label: '근거 보기', onTap: () {}),
+    DepthLink.evidence(subject: '총운', onTap: () {}),
     DepthLink(
       variant: DepthLinkVariant.navigate,
       label: '계산 기준 보기',

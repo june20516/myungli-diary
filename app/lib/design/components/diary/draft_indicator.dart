@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsRole;
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
@@ -7,6 +8,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// [DraftIndicator] 상태(`draft-indicator` `states`).
@@ -37,7 +39,7 @@ const AppGlyph _check = AppGlyph(
 /// 스크린리더에는 상태 글자([label], writing 문구 3종)를 `status`로 알립니다.
 class DraftIndicator extends StatefulWidget {
   /// [state]와 그 글자 [label]로 만듭니다.
-  const new({required this.state, required this.label, super.key});
+  const new({required this.state, required this.label, this.length, super.key});
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('draft-indicator', {}, {
@@ -46,15 +48,33 @@ class DraftIndicator extends StatefulWidget {
     'saved',
   });
 
-  static const double _gap = 4;
-  static const double _dotSize = 3;
-  static const double _dotGap = 2;
+  /// 아이콘과 상태 글자 사이(`docs/identity/design/components/diary.json`
+  /// `draft-indicator.parts.container.gap`, `space.4`).
+  static const double gap = Space.s4;
+
+  /// 상태 글자와 글자 수 사이(같은 파일 `parts.count.marginStart`, `space.8`).
+  static const double countGap = Space.s8;
+
+  /// 아이콘 자리([AppIconSize.s16]) 한 칸에 점 세 개가 들어가도록 이 위젯이 정한 `saving` 점 지름.
+  /// 계약 `draft-indicator.states.saving`은 "점 세 개"만 정하고 지름과 간격은 정하지 않습니다.
+  static const double dotSize = 3;
+
+  /// `saving` 점 사이 간격(점 지름과 같은 근거로 이 위젯이 정함).
+  static const double dotGap = 2;
+
+  /// 아이콘 자리 폭([AppIconSize.s16]).
+  static const double leadWidth = IconSizeTokens.s16;
 
   /// 상태.
   final DraftIndicatorState state;
 
   /// 상태 글자.
   final String label;
+
+  /// 본문 글자 수. 있으면 상태 글자 뒤에 `space.8`을 두고 `diary-edit.length.count`로
+  /// 그립니다. 칠 때마다 바뀌어도 고정폭 숫자라 상태 글자가 움직이지 않고, 스크린리더는
+  /// 상태 글자만 읽습니다.
+  final int? length;
 
   @override
   State<DraftIndicator> createState() => _DraftIndicatorState();
@@ -86,22 +106,24 @@ class _DraftIndicatorState extends State<DraftIndicator>
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final color = tokens.colors.textSecondary;
+    final style = tokens.typography.captionMd.copyWith(color: color);
+    final length = widget.length;
     final lead = switch (widget.state) {
       DraftIndicatorState.local => AppIcon(
         _cloud,
-        size: AppIconSize.inline,
+        size: AppIconSize.s16,
         color: color,
       ),
       DraftIndicatorState.saving => BreathingDots(
         color: color,
         animated: true,
         count: BreathingDots.standardCount,
-        size: DraftIndicator._dotSize,
-        gap: DraftIndicator._dotGap,
+        size: DraftIndicator.dotSize,
+        gap: DraftIndicator.dotGap,
       ),
       DraftIndicatorState.saved => AppIcon(
         _check,
-        size: AppIconSize.inline,
+        size: AppIconSize.s16,
         color: color,
       ),
     };
@@ -114,13 +136,28 @@ class _DraftIndicatorState extends State<DraftIndicator>
         prefs: MotionPrefs.of(context),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: DraftIndicator._gap,
           children: [
             lead,
-            Text(
-              widget.label,
-              style: tokens.typography.captionMd.copyWith(color: color),
+            const SizedBox(width: DraftIndicator.gap),
+            // 가운데 폭이 좁으면 상태 글자 끝을 말줄임하고 글자 수는 지킵니다.
+            Flexible(
+              child: Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style,
+              ),
             ),
+            if (length != null) ...[
+              const SizedBox(width: DraftIndicator.countGap),
+              Text(
+                AppLocalizations.of(context).diaryEditLengthCount(length),
+                maxLines: 1,
+                style: style.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
           ],
         ),
       ),

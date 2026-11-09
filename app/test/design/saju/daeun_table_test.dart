@@ -2,358 +2,289 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
-const _cell = OhaengCell(
-  element: FiveElement.metal,
-  hanja: '庚',
-  size: OhaengCellSize.mini,
+const _ganji = LuckGanji(
+  stemElement: FiveElement.metal,
+  stemHanja: '庚',
+  branchElement: FiveElement.water,
+  branchHanja: '子',
 );
+
+LuckLabel _label(String text, [void Function(String)? onTap]) =>
+    LuckLabel(text, onTap: onTap == null ? null : () => onTap(text));
 
 Widget _table({
   int? current = 3,
+  int thisYear = 2026,
   double width = 360,
-  bool knownYears = true,
   void Function(String term)? onTerm,
   LuckLabel? Function(int index)? stage,
-  int thisYear = 2026,
-  String nowLabel = '지금',
-  String thisYearLabel = '올해',
+  bool loading = false,
 }) => SizedBox(
   width: width,
-  child: DaeunTable(
-    daeun: [
-      for (var i = 0; i < 9; i++)
-        DaeunPillar(
-          age: 4 + i * 10,
-          startYear: knownYears ? 1993 + i * 10 : null,
-          stem: _cell,
-          branch: _cell,
-          ageSemanticLabel: '${4 + i * 10}세',
-          semanticLabel: '庚 경 庚 경',
-          yearSemanticLabel: knownYears ? '${1993 + i * 10}년' : null,
-          stemLabel: onTerm == null ? null : _term('대운$i-천간', onTerm),
-          branchLabel: onTerm == null ? null : _term('대운$i-지지', onTerm),
-          stageLabel: stage?.call(i),
-        ),
-    ],
-    seun: [
-      for (var year = 2023; year < 2033; year++)
-        SeunYear(
-          year: year,
-          stem: _cell,
-          branch: _cell,
-          yearSemanticLabel: '$year년',
-          semanticLabel: '庚 경 庚 경',
-          label: onTerm == null ? null : _term('세운$year', onTerm),
-        ),
-    ],
-    currentIndex: current,
-    thisYear: thisYear,
-    nowLabel: nowLabel,
-    thisYearLabel: thisYearLabel,
-    tableLabel: '대운 4세부터',
+  child: SingleChildScrollView(
+    child: loading
+        ? const DaeunTable.loading(
+            daeunTitle: '대운',
+            daeunDescription: '10년마다 바뀌는 큰 흐름이에요.',
+            seunTitle: '세운',
+            seunDescription: '해마다 들어오는 기운이에요.',
+            animated: false,
+          )
+        : DaeunTable(
+            daeun: [
+              for (var i = 0; i < 9; i++)
+                DaeunPillar(
+                  age: 4 + i * 10,
+                  startYear: 1993 + i * 10,
+                  pillar: _ganji,
+                  ageSemanticLabel: '대운 ${4 + i * 10}세부터',
+                  semanticLabel: '庚 경, 子 자',
+                  yearSemanticLabel: '${1993 + i * 10}년',
+                  stemLabel: _label('천간$i', onTerm),
+                  branchLabel: _label('지지$i', onTerm),
+                  stageLabel: stage?.call(i),
+                ),
+            ],
+            seun: [
+              for (var year = 2023; year < 2033; year++)
+                SeunYear(
+                  year: year,
+                  pillar: _ganji,
+                  yearSemanticLabel: '$year년',
+                  semanticLabel: '庚 경, 子 자',
+                  label: _label('세운$year', onTerm),
+                ),
+            ],
+            currentIndex: current,
+            thisYear: thisYear,
+            nowLabel: '지금',
+            thisYearLabel: '올해',
+            daeunTitle: '대운',
+            daeunDescription: '10년마다 바뀌는 큰 흐름이에요.',
+            seunTitle: '세운',
+            seunDescription: '해마다 들어오는 기운이에요.',
+          ),
   ),
 );
 
-/// 누르면 [onTerm]에 [text]를 알리는 용어 라벨.
-LuckLabel _term(String text, void Function(String term) onTerm) =>
-    LuckLabel(text, onTap: () => onTerm(text));
+Finder _daeun(int index) => find.byKey(DaeunTable.daeunKey(index));
+Finder _seun(int year) => find.byKey(DaeunTable.seunKey(year));
 
-bool _tagVisible(WidgetTester tester, Key pillar) => tester
-    .widget<Visibility>(
-      find.descendant(
-        of: find.byKey(pillar),
-        matching: find.byType(Visibility),
-      ),
-    )
-    .visible;
+/// [cell]이 [row] 줄의 보이는 폭 안에 다 들어오는지.
+bool _visibleIn(WidgetTester tester, Finder cell, Key row) {
+  final viewport = tester.getRect(find.byKey(row));
+  final rect = tester.getRect(cell);
+  return rect.left >= viewport.left - 0.5 && rect.right <= viewport.right + 0.5;
+}
 
 void main() {
-  testWidgets('대운 기둥은 너비 52, 사이 4, 나이와 시작 연도', (tester) async {
-    await tester.pumpWidget(inputApp(_table(current: 0)));
-    final first = tester.getRect(find.byKey(DaeunTable.daeunKey(0)));
-    final second = tester.getRect(find.byKey(DaeunTable.daeunKey(1)));
-    expect(first.width, DaeunTable.pillarWidth);
-    expect(second.left - first.right, DaeunTable.pillarGap);
-    expect(find.text('4'), findsOneWidget);
-    expect(find.text('1993'), findsOneWidget);
-  });
+  testWidgets('섹션 머리 둘(설명 늘 보임)과 줄마다 흰 카드, scroll-hint', (tester) async {
+    await tester.pumpWidget(inputApp(_table()));
+    final headers = tester
+        .widgetList<SectionHeader>(find.byType(SectionHeader))
+        .map((header) => (header.title, header.description))
+        .toList();
+    expect(headers, [('대운', '10년마다 바뀌는 큰 흐름이에요.'), ('세운', '해마다 들어오는 기운이에요.')]);
+    expect(find.byType(ScrollHint), findsNWidgets(2));
 
-  testWidgets('시작 연도를 모르면 그 줄을 비우고 나이는 그대로입니다', (tester) async {
-    await tester.pumpWidget(inputApp(_table(current: null, knownYears: false)));
-    expect(find.text('4'), findsOneWidget);
-    expect(find.text('1993'), findsNothing);
+    // 카드는 bg.sheet, radius.lg이고 위 space.12에서 줄이 시작합니다.
+    final card = find
+        .ancestor(
+          of: find.byKey(DaeunTable.daeunScrollKey),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is DecoratedBox &&
+                widget.decoration is BoxDecoration &&
+                (widget.decoration as BoxDecoration).borderRadius ==
+                    BorderRadius.circular(Radii.lg),
+          ),
+        )
+        .first;
+    final context = tester.element(card);
     expect(
-      tester.getSize(find.byKey(DaeunTable.daeunKey(0))).height,
-      greaterThan(0),
+      (tester.widget<DecoratedBox>(card).decoration as BoxDecoration).color,
+      context.tokens.colors.bgSheet,
+    );
+    expect(
+      tester.getTopLeft(find.byKey(DaeunTable.daeunScrollKey)).dy -
+          tester.getTopLeft(card).dy,
+      Space.s12,
     );
   });
 
-  testWidgets('current: 지금 대운만 바탕·굵은 나이·지금 꼬리표', (tester) async {
+  testWidgets('기둥은 luck-pillar column, 너비 52, 사이 4, 줄 앞 여백 12', (tester) async {
+    await tester.pumpWidget(inputApp(_table(current: null)));
+    expect(tester.getSize(_daeun(0)).width, LuckPillar.columnWidth);
+    expect(
+      tester.getTopLeft(_daeun(1)).dx - tester.getTopRight(_daeun(0)).dx,
+      DaeunTable.pillarGap,
+    );
+    expect(
+      tester.getTopLeft(_daeun(0)).dx -
+          tester.getTopLeft(find.byKey(DaeunTable.daeunScrollKey)).dx,
+      DaeunTable.rowPaddingX,
+    );
+    final first = tester.widget<LuckPillar>(_daeun(0));
+    expect(first.top, '4');
+    expect(first.startYear, '1993');
+    expect(first.twelveStage, isNull);
+  });
+
+  testWidgets('지금 대운, 올해 세운만 current이고 모든 기둥에 꼬리표 자리', (tester) async {
     await tester.pumpWidget(inputApp(_table()));
-    final colors = tester.element(find.byType(DaeunTable)).tokens.colors;
-    expect(_tagVisible(tester, DaeunTable.daeunKey(3)), isTrue);
-    expect(_tagVisible(tester, DaeunTable.daeunKey(2)), isFalse);
-    final age = tester.widget<Text>(find.text('34'));
-    expect(age.style?.color, colors.actionPrimary);
-    expect(age.style?.fontWeight, FontWeight.w700);
-    final box = tester.widget<DecoratedBox>(
+    final daeun = tester.widgetList<LuckPillar>(
+      find.descendant(
+        of: find.byKey(DaeunTable.daeunScrollKey),
+        matching: find.byType(LuckPillar),
+      ),
+    );
+    expect([for (final p in daeun) p.current].indexOf(true), 3);
+    expect(daeun.where((p) => p.current), hasLength(1));
+    expect(daeun.every((p) => p.currentTag == '지금'), isTrue);
+
+    final seun = tester.widgetList<LuckPillar>(
+      find.descendant(
+        of: find.byKey(DaeunTable.seunScrollKey),
+        matching: find.byType(LuckPillar),
+      ),
+    );
+    expect(seun.where((p) => p.current).single.top, '2026');
+    expect(seun.every((p) => p.currentTag == '올해'), isTrue);
+  });
+
+  testWidgets('세운 기둥은 연도, 천간 십성, 간지뿐(지지 십성, 12운성, 시작 연도 없음)', (tester) async {
+    await tester.pumpWidget(inputApp(_table()));
+    final seun = tester.widget<LuckPillar>(_seun(2024));
+    expect(seun.top, '2024');
+    expect(seun.tenGod?.text, '세운2024');
+    expect(seun.branchTenGod, isNull);
+    expect(seun.twelveStage, isNull);
+    expect(seun.startYear, isNull);
+  });
+
+  testWidgets('처음 열 때 지금 대운과 올해 세운이 움직임 없이 줄 안에 보입니다', (tester) async {
+    await tester.pumpWidget(inputApp(_table(current: 4, thisYear: 2027)));
+    final before = tester.getTopLeft(_daeun(4));
+    await tester.pumpAndSettle();
+    // 처음 위치에서 움직이지 않습니다.
+    expect(tester.getTopLeft(_daeun(4)), before);
+    expect(_visibleIn(tester, _daeun(4), DaeunTable.daeunScrollKey), isTrue);
+    expect(_visibleIn(tester, _daeun(0), DaeunTable.daeunScrollKey), isFalse);
+    expect(_visibleIn(tester, _seun(2027), DaeunTable.seunScrollKey), isTrue);
+    // 지금 칸은 줄 가운데 쪽입니다(양쪽에 더 있음).
+    final row = tester.getRect(find.byKey(DaeunTable.daeunScrollKey));
+    final cell = tester.getRect(_daeun(4));
+    expect(
+      (cell.center.dx - row.center.dx).abs(),
+      lessThan(LuckPillar.columnWidth),
+    );
+  });
+
+  testWidgets('지금 대운이 없으면 처음부터', (tester) async {
+    await tester.pumpWidget(inputApp(_table(current: null, thisYear: 1990)));
+    expect(_visibleIn(tester, _daeun(0), DaeunTable.daeunScrollKey), isTrue);
+    expect(_visibleIn(tester, _seun(2023), DaeunTable.seunScrollKey), isTrue);
+  });
+
+  testWidgets('두 줄 라벨이 하나 있으면 같은 줄 기둥의 간지 칸이 가로로 나란합니다', (tester) async {
+    await tester.pumpWidget(
+      inputApp(
+        _table(
+          current: null,
+          stage: (i) =>
+              i == 1 ? const LuckLabel('아주 긴 운성') : const LuckLabel('양'),
+        ),
+      ),
+    );
+    final first = tester.widget<LuckPillar>(_daeun(0));
+    expect(first.rowHeights, isNotNull);
+    final stems = [
+      for (var i = 0; i < 3; i++)
+        tester
+            .getTopLeft(
+              find
+                  .descendant(of: _daeun(i), matching: find.byType(OhaengCell))
+                  .first,
+            )
+            .dy,
+    ];
+    expect(stems.toSet(), hasLength(1));
+    final years = [
+      for (var i = 0; i < 3; i++)
+        tester.getTopLeft(find.text('${1993 + i * 10}')).dy,
+    ];
+    expect(years.toSet(), hasLength(1));
+  });
+
+  testWidgets('십성 칩을 누르면 그 라벨의 onTap', (tester) async {
+    final tapped = <String>[];
+    await tester.pumpWidget(inputApp(_table(onTerm: tapped.add)));
+    await tester.tap(find.text('천간3'));
+    await tester.tap(find.text('세운2026'));
+    expect(tapped, ['천간3', '세운2026']);
+  });
+
+  testWidgets('스크린리더: 줄마다 목록, 기둥 그룹 라벨에 누를 수 있는 칩 낱말은 없음', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      inputApp(_table(onTerm: (_) {}, stage: (_) => const LuckLabel('양'))),
+    );
+    final list = tester.getSemantics(
       find
           .descendant(
-            of: find.byKey(DaeunTable.daeunKey(3)),
-            matching: find.byKey(DaeunTable.highlightKey),
+            of: find.byKey(DaeunTable.daeunScrollKey),
+            matching: find.byWidgetPredicate(
+              (w) => w is Semantics && w.properties.role == SemanticsRole.list,
+            ),
           )
           .first,
     );
-    expect((box.decoration as BoxDecoration).color, colors.statusBg);
-  });
-
-  testWidgets('처음 열 때 지금 대운이 보이는 위치에서 움직임 없이 시작합니다', (tester) async {
-    await tester.pumpWidget(inputApp(_table(current: 7, width: 200)));
-    final viewport = tester.getRect(find.byKey(DaeunTable.daeunScrollKey));
-    final current = tester.getRect(find.byKey(DaeunTable.daeunKey(7)));
-    expect(current.left, greaterThanOrEqualTo(viewport.left));
-    expect(current.right, lessThanOrEqualTo(viewport.right));
-    expect(tester.hasRunningAnimations, isFalse);
-  });
-
-  testWidgets('thisYear: 세운 5열 2줄, 올해 칸만 꼬리표', (tester) async {
-    await tester.pumpWidget(inputApp(_table()));
-    final first = tester.getRect(find.byKey(DaeunTable.seunKey(2023)));
-    final fifth = tester.getRect(find.byKey(DaeunTable.seunKey(2027)));
-    final sixth = tester.getRect(find.byKey(DaeunTable.seunKey(2028)));
-    expect(fifth.top, first.top);
-    expect(sixth.top, greaterThan(first.bottom));
-    expect(sixth.left, first.left);
-    expect(_tagVisible(tester, DaeunTable.seunKey(2026)), isTrue);
-    expect(_tagVisible(tester, DaeunTable.seunKey(2025)), isFalse);
-    expect(find.byType(StatusTag), findsNWidgets(9 + 10));
-  });
-
-  group('꼬리표 폭(V53)', () {
-    Rect tagOf(WidgetTester tester, Key pillar) => tester.getRect(
-      find.descendant(of: find.byKey(pillar), matching: find.byType(StatusTag)),
-    );
-
-    testWidgets('기둥보다 넓은 꼬리표는 한 줄로 이웃 위에 넘치고 기둥 가운데에 놓입니다', (tester) async {
-      await tester.pumpWidget(inputApp(_table()));
-      final narrowHeight = tagOf(tester, DaeunTable.daeunKey(3)).height;
-      await tester.pumpWidget(inputApp(_table(nowLabel: 'Current')));
-      final pillar = tester.getRect(find.byKey(DaeunTable.daeunKey(3)));
-      final tag = tagOf(tester, DaeunTable.daeunKey(3));
-      expect(tag.width, greaterThan(DaeunTable.pillarWidth));
-      expect(
-        tag.width,
-        lessThanOrEqualTo(DaeunTable.pillarWidth * 2 + DaeunTable.pillarGap),
-      );
-      expect(tag.height, narrowHeight);
-      expect(tag.center.dx, moreOrLessEquals(pillar.center.dx));
-    });
-
-    testWidgets('첫 기둥과 끝 기둥에서는 표 밖으로 나가지 않게 그 끝에 맞춥니다', (tester) async {
-      await tester.pumpWidget(
-        inputApp(_table(current: 0, nowLabel: 'Current')),
-      );
-      final first = tester.getRect(find.byKey(DaeunTable.daeunKey(0)));
-      expect(tagOf(tester, DaeunTable.daeunKey(0)).left, first.left);
-
-      await tester.pumpWidget(
-        inputApp(_table(current: 8, nowLabel: 'Current')),
-      );
-      await tester.pumpAndSettle();
-      final last = tester.getRect(find.byKey(DaeunTable.daeunKey(8)));
-      expect(tagOf(tester, DaeunTable.daeunKey(8)).right, last.right);
-    });
-
-    testWidgets('기둥보다 좁은 꼬리표는 끝 기둥에서도 가운데입니다', (tester) async {
-      await tester.pumpWidget(inputApp(_table(current: 0)));
-      final first = tester.getRect(find.byKey(DaeunTable.daeunKey(0)));
-      final tag = tagOf(tester, DaeunTable.daeunKey(0));
-      expect(tag.width, lessThan(DaeunTable.pillarWidth));
-      expect(tag.center.dx, moreOrLessEquals(first.center.dx));
-    });
-
-    testWidgets('세운 칸도 칸 둘과 간격까지 넘치고, 줄 첫 칸과 끝 칸은 그 끝에 맞춥니다', (tester) async {
-      await tester.pumpWidget(
-        inputApp(_table(thisYear: 2023, thisYearLabel: 'This year')),
-      );
-      final firstCell = tester.getRect(find.byKey(DaeunTable.seunKey(2023)));
-      final first = tagOf(tester, DaeunTable.seunKey(2023));
-      expect(first.width, greaterThan(firstCell.width));
-      expect(first.left, firstCell.left);
-
-      await tester.pumpWidget(
-        inputApp(_table(thisYear: 2025, thisYearLabel: 'This year')),
-      );
-      final middleCell = tester.getRect(find.byKey(DaeunTable.seunKey(2025)));
-      expect(
-        tagOf(tester, DaeunTable.seunKey(2025)).center.dx,
-        moreOrLessEquals(middleCell.center.dx),
-      );
-
-      await tester.pumpWidget(
-        inputApp(_table(thisYear: 2027, thisYearLabel: 'This year')),
-      );
-      final lastCell = tester.getRect(find.byKey(DaeunTable.seunKey(2027)));
-      expect(tagOf(tester, DaeunTable.seunKey(2027)).right, lastCell.right);
-    });
-  });
-
-  testWidgets('십성 라벨: 대운은 천간 위·지지 아래, 세운은 천간 위이고 누르면 그 용어', (tester) async {
-    final handle = tester.ensureSemantics();
-    final tapped = <String>[];
-    // 라벨만큼 키가 커지므로 화면처럼 스크롤 안에 둡니다.
-    await tester.pumpWidget(
-      inputApp(SingleChildScrollView(child: _table(onTerm: tapped.add))),
-    );
-    final cells = find.descendant(
-      of: find.byKey(DaeunTable.daeunKey(3)),
-      matching: find.byType(OhaengCell),
-    );
+    expect(list.label, '대운');
     expect(
-      tester.getRect(find.text('대운3-천간')).bottom,
-      lessThanOrEqualTo(tester.getRect(cells.first).top),
+      find.bySemanticsLabel('대운 34세부터, 庚 경, 子 자, 양, 2023년, 지금'),
+      findsOneWidget,
     );
-    expect(
-      tester.getRect(find.text('대운3-지지')).top,
-      greaterThanOrEqualTo(tester.getRect(cells.last).bottom),
-    );
-    final seunCell = find.descendant(
-      of: find.byKey(DaeunTable.seunKey(2026)),
-      matching: find.byType(OhaengCell),
-    );
-    expect(
-      tester.getRect(find.text('세운2026')).bottom,
-      lessThanOrEqualTo(tester.getRect(seunCell.first).top),
-    );
-
-    await tester.tap(find.text('대운3-천간'));
-    await tester.tap(find.text('세운2026'));
-    expect(tapped, ['대운3-천간', '세운2026']);
-    // 라벨은 기둥 글과 따로 눌리는 자리로 읽힙니다.
-    expect(find.bySemanticsLabel(RegExp('^대운3-지지')), findsOneWidget);
-    expect(find.bySemanticsLabel('34세, 지금'), findsOneWidget);
+    expect(find.bySemanticsLabel('2026년, 庚 경, 子 자, 올해'), findsOneWidget);
     handle.dispose();
   });
 
-  testWidgets('12운성은 지지 십성 아래 2px이고, 두 줄 라벨이면 같은 줄 기둥이 그 높이를 따릅니다(V49)', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      inputApp(
-        SingleChildScrollView(
-          child: _table(
-            onTerm: (_) {},
-            // 1번 기둥만 낱말 두 개라 두 줄, 2번 기둥은 이름이 없어 자리만 남습니다.
-            stage: (i) => switch (i) {
-              1 => const LuckLabel('제왕 건록'),
-              2 => null,
-              _ => const LuckLabel('장생'),
-            },
-          ),
-        ),
-      ),
-    );
-    Rect cellsOf(int index) => tester.getRect(
-      find
-          .descendant(
-            of: find.byKey(DaeunTable.daeunKey(index)),
-            matching: find.byType(OhaengCell),
-          )
-          .last,
-    );
-    expect(
-      tester.getRect(find.text('대운0-지지')).bottom + 2,
-      tester.getRect(find.text('장생').first).top,
-    );
-    final twoLines = tester.getRect(find.text('제왕 건록'));
-    final oneLine = tester.getRect(find.text('장생').first);
-    expect(twoLines.height, greaterThan(oneLine.height * 1.5));
-    // 간지 칸과 시작 연도가 모든 기둥에서 나란합니다.
-    expect(cellsOf(1).top, cellsOf(0).top);
-    expect(cellsOf(2).top, cellsOf(0).top);
-    expect(
-      tester.getRect(find.text('1993')).top,
-      tester.getRect(find.text('2003')).top,
-    );
-    expect(
-      tester.getRect(find.text('2013')).top,
-      tester.getRect(find.text('2003')).top,
-    );
-  });
-
-  testWidgets('글자 크기 1.3배에서 낱말이 칸보다 넓으면 caption.sm으로 줄이고 말줄임이 없습니다', (
-    tester,
-  ) async {
+  testWidgets('글자 크기: 기둥 줄만 1.3배에서 멈추고 섹션 머리는 기기 배율을 따릅니다', (tester) async {
     await tester.pumpWidget(
       MediaQuery(
-        data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
-        child: inputApp(
-          SingleChildScrollView(
-            child: _table(stage: (i) => const LuckLabel('Prosperity')),
-          ),
-        ),
+        data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+        child: inputApp(_table()),
       ),
     );
-    final typography = tester
-        .element(find.byType(DaeunTable))
-        .tokens
-        .typography;
-    final text = tester.widget<Text>(find.text('Prosperity').first);
-    expect(text.style?.fontSize, typography.captionSm.fontSize);
-    expect(text.overflow, TextOverflow.clip);
+    final pillar = MediaQuery.textScalerOf(tester.element(_daeun(0)));
+    expect(pillar.scale(10), closeTo(13, 0.01));
+    final header = MediaQuery.textScalerOf(
+      tester.element(find.text('10년마다 바뀌는 큰 흐름이에요.')),
+    );
+    expect(header.scale(10), closeTo(20, 0.01));
+    expect(tester.takeException(), isNull);
   });
 
-  testWidgets('대운 기둥은 나이 → 천간 십성 → 간지 → 지지 십성 → 12운성 → 시작 연도 순서로 읽습니다', (
-    tester,
-  ) async {
-    final handle = tester.ensureSemantics();
-    await tester.pumpWidget(
-      inputApp(
-        SingleChildScrollView(
-          child: _table(
-            current: null,
-            onTerm: (_) {},
-            stage: (_) => const LuckLabel('장생'),
-          ),
-        ),
-      ),
-    );
-    final pillar = tester.getSemantics(find.byKey(DaeunTable.daeunKey(0)));
-    final labels = <String>[];
-    void collect(SemanticsNode node) {
-      if (node.label.isNotEmpty) labels.add(node.label);
-      node.visitChildren((child) {
-        collect(child);
-        return true;
-      });
+  testWidgets('loading: 섹션 머리는 그대로, 카드마다 보이는 수만큼 기둥 뼈', (tester) async {
+    await tester.pumpWidget(inputApp(_table(loading: true)));
+    expect(find.byType(SectionHeader), findsNWidgets(2));
+    expect(find.byType(LuckPillar), findsNothing);
+    expect(find.byType(StatusTag), findsNothing);
+    // 360 - 24 = 336, (336 + 4) / 56 = 6개씩 두 줄.
+    for (var i = 0; i < 6; i++) {
+      expect(find.byKey(DaeunTable.skeletonPillarKey(i)), findsNWidgets(2));
     }
-
-    collect(pillar);
-    expect(labels, hasLength(6));
-    expect(labels[0], '4세');
-    expect(labels[1], startsWith('대운0-천간'));
-    expect(labels[2], '庚 경 庚 경');
-    expect(labels[3], startsWith('대운0-지지'));
-    expect(labels[4], '장생');
-    expect(labels[5], '1993년');
-    handle.dispose();
-  });
-
-  testWidgets('표 이름과 지금·올해를 읽습니다', (tester) async {
-    final handle = tester.ensureSemantics();
-    await tester.pumpWidget(inputApp(_table()));
-    expect(find.bySemanticsLabel(RegExp('^대운 4세부터')), findsOneWidget);
-    expect(find.bySemanticsLabel('34세, 지금'), findsOneWidget);
-    expect(find.bySemanticsLabel('2026년, 올해'), findsOneWidget);
-    expect(find.bySemanticsLabel('2025년'), findsOneWidget);
-    handle.dispose();
+    expect(find.byKey(DaeunTable.skeletonPillarKey(6)), findsNothing);
   });
 }

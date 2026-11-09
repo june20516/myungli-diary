@@ -20,13 +20,13 @@ final class DaySheets {
   /// 그날 시트 본문.
   final DaySheetBodyBuilder body;
 
-  /// [date]의 그날 시트(half)를 엽니다. 시트 이름은 그 날짜입니다(제목 글자가 없는 시트라
-  /// loading·error에도 어느 날인지 알려지게, A38 `DateFormat`).
+  /// [date]의 그날 시트를 처음부터 full로 엽니다(펼침과 접힘 없음, V85). 시트 이름은 그 날짜입니다
+  /// (제목 글자가 없는 시트라 loading·error에도 어느 날인지 알려지게, A38 `DateFormat`).
   Future<void> open(BuildContext context, CalendarDate date) {
     final locale = Localizations.localeOf(context).toString();
     return showMyungliSheet<void>(
       context,
-      size: SheetSize.half,
+      size: SheetSize.full,
       semanticLabel: DateFormat.MMMMEEEEd(locale)
           .format(DateTime(date.year, date.month, date.day)),
       builder: (_) =>

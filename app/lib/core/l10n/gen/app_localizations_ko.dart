@@ -491,10 +491,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionClose => '닫기';
 
   @override
-  String get loginTitleHead => '로그인하고 풀이를 저장해요';
+  String get loginTitleHead => '명리일기';
 
   @override
-  String get loginTitleBody => '로그인하면 다른 기기에서도 내 사주와 일기를 볼 수 있어요.';
+  String get loginTitleBody => '로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요.';
 
   @override
   String get loginDiscardNotice => '이미 사주를 저장한 계정이면 방금 입력한 정보 대신 저장된 정보를 써요.';
@@ -596,17 +596,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get consentRequiredLabelPrivacy => '(필수) 개인정보 수집 및 이용';
 
   @override
-  String daySheetDiaryOpen(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count편',
-    );
-    return '이날 쓴 일기 $_temp0';
-  }
+  String get daySheetDiaryOpen => '일기';
 
   @override
-  String get daySheetDiaryWriteCta => '이날 일기 쓰기';
+  String daySheetDiaryWriteCta(String date) {
+    return '$date 일기 쓰기';
+  }
 
   @override
   String get daySheetEventAdd => '일정 추가';
@@ -618,7 +613,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get diaryEditBodyPlaceholder => '오늘 있었던 일을 적어 보세요';
 
   @override
-  String get diaryEditDraftStatusLocal => '기기에 임시 저장됨';
+  String get diaryEditDraftStatusLocal => '임시 저장';
 
   @override
   String get diaryEditDraftStatusSaving => '저장 중';
@@ -636,7 +631,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get diaryListEmptyBody => '아직 쓴 일기가 없어요. 오늘 하루부터 적어 볼까요?';
 
   @override
-  String get diaryListPickDateCta => '날짜 골라 쓰기';
+  String get diaryListPickDateCta => '일기 쓰기';
 
   @override
   String get diaryViewDeleteConfirm => '이 일기를 지울까요? 지우면 되돌릴 수 없습니다.';
@@ -781,7 +776,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get depthExplain => '풀이';
 
   @override
-  String get depthLinkEvidence => '근거 보기';
+  String depthLinkEvidence(String subject) {
+    return '$subject 근거 보기';
+  }
 
   @override
   String get todayLuckyColorName => '행운 색';
@@ -1214,7 +1211,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountMergeTitleHead => '다른 계정의 기록을 이 계정으로 가져올까요?';
 
   @override
-  String get daySheetDiaryWriteCtaWritten => '이날 새 일기 쓰기';
+  String daySheetDiaryWriteCtaWritten(String date) {
+    return '$date 새 일기 쓰기';
+  }
 
   @override
   String get daySheetDiaryWriteCtaFull => '이날은 충분히 썼어요';
@@ -1492,4 +1491,273 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsContactLabel => '문의하기';
+
+  @override
+  String get calendarLegendBodyVeryGood => '아주 잘 풀리는 날';
+
+  @override
+  String get calendarLegendBodyNeutral => '무난한 날';
+
+  @override
+  String get calendarLegendRuleLink => '길흉은 어떻게 정해지나요';
+
+  @override
+  String get colorRuleSheetRuleBody =>
+      '그 날에 들어오는 기운을 합산해서 정해요. 예를 들어 용신의 날이라도 부딪히는 기운이 있으면 무난한 날이 될 수 있어요.';
+
+  @override
+  String get colorRuleSheetSheetTitle => '길흉을 정하는 방법';
+
+  @override
+  String daySheetDateLunar(int month, int day) {
+    return '음력 $month월 $day일';
+  }
+
+  @override
+  String daySheetDateLunarLeap(int month, int day) {
+    return '음력 윤$month월 $day일';
+  }
+
+  @override
+  String daySheetDateSolar(String date) {
+    return '$date';
+  }
+
+  @override
+  String daySheetVerdictItemPlus(int count) {
+    return '좋은 쪽으로 $count';
+  }
+
+  @override
+  String daySheetVerdictItemMinus(int count) {
+    return '조심할 쪽으로 $count';
+  }
+
+  @override
+  String get daySheetVerdictTitle => '길흉판정';
+
+  @override
+  String diaryEditDateDay(String date) {
+    return '$date';
+  }
+
+  @override
+  String diaryEditDateIljin(String pillar) {
+    return '$pillar일';
+  }
+
+  @override
+  String diaryEditDateMonth(String date) {
+    return '$date';
+  }
+
+  @override
+  String diaryEditLengthCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count자',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String explainSheetTagDiaryLink(String tag) {
+    return '$tag 태그가 붙은 내 일기 보기';
+  }
+
+  @override
+  String get loginSaveNote => '로그인하시면 방금 본 풀이를 이어서 볼 수 있어요.';
+
+  @override
+  String get mySajuChartLink => '사주 표';
+
+  @override
+  String get mySajuChartTitle => '사주 원국';
+
+  @override
+  String get mySajuFlowLink => '대운 전체';
+
+  @override
+  String get mySajuFlowTitle => '올해와 지금';
+
+  @override
+  String get mySajuIlganTitle => '사주 성향 풀이';
+
+  @override
+  String get mySajuRecordFew => '일기가 몇 편 더 쌓이면 내 기록을 돌아볼 수 있어요.';
+
+  @override
+  String get mySajuRecordTitle => '명리일기 회고';
+
+  @override
+  String get mySajuYongsinTitle => '나를 돕는 기운';
+
+  @override
+  String get notifyAskTimeNote => '상황에 따라 알림이 최대 10분 지연될 수 있어요.';
+
+  @override
+  String get sajuChartDaeunDesc => '10년마다 바뀌는 큰 흐름이에요.';
+
+  @override
+  String get sajuChartDaeunTitle => '대운';
+
+  @override
+  String sajuChartHeadTitle(String nickname) {
+    return '$nickname님의 사주';
+  }
+
+  @override
+  String get sajuChartJijangganDesc =>
+      '지지 속에 숨어 있는 천간이에요. 겉으로 보이지 않아도 그 자리의 기운을 구성해요.';
+
+  @override
+  String sajuChartManseBasis(String stem) {
+    return '내 일간 $stem 기준';
+  }
+
+  @override
+  String get sajuChartOhaengDesc => '내 사주에 나무, 불, 흙, 쇠, 물 기운이 얼마나 있는지를 보여 줘요.';
+
+  @override
+  String get sajuChartOhaengTitle => '오행 분포';
+
+  @override
+  String get sajuChartPillarsDesc =>
+      '태어난 연, 월, 일, 시를 천간과 지지 한 쌍으로 나타낸 것이에요. 일간이 \'나\'예요.';
+
+  @override
+  String get sajuChartPillarsTitle => '사주';
+
+  @override
+  String get sajuChartSeunDesc => '해마다 들어오는 기운이에요.';
+
+  @override
+  String get sajuChartSeunTitle => '세운';
+
+  @override
+  String get sajuChartSinsalDesc => '특정 글자의 조합으로 생기는 고유 성질이에요. 없는 경우도 있어요.';
+
+  @override
+  String get sajuChartUnseongDesc => '일간의 기운이 그 자리에서 얼마나 힘을 쓰는지 열두 단계로 나타냅니다.';
+
+  @override
+  String get settingsNotifyTimeNote => '상황에 따라 알림이 최대 10분 지연될 수 있어요.';
+
+  @override
+  String tagSheetDiaryCta(String tag) {
+    return '$tag 태그가 붙은 내 일기 보기';
+  }
+
+  @override
+  String get tagSheetSentencesEmpty => '오늘은 이 기운으로 정해진 문장이 없어요.';
+
+  @override
+  String get tagSheetSentencesTitle => '이 기운에서 나온 오늘 문장';
+
+  @override
+  String todayDateIljin(String pillar) {
+    return '$pillar일';
+  }
+
+  @override
+  String todayDateLunar(int month, int day) {
+    return '음력 $month월 $day일';
+  }
+
+  @override
+  String todayDateLunarLeap(int month, int day) {
+    return '음력 윤$month월 $day일';
+  }
+
+  @override
+  String todayDateSolar(String date) {
+    return '$date';
+  }
+
+  @override
+  String get todayEventTitle => '일정';
+
+  @override
+  String get todayFeaturedEmpty => '오늘은 두드러진 사주 기운이 없어요.';
+
+  @override
+  String get todayFeaturedTitle => '사주 기운';
+
+  @override
+  String get todayFortuneTitle => '총운';
+
+  @override
+  String get todayGuideTitle => '오늘의 질문';
+
+  @override
+  String get todayLuckyTitle => '행운';
+
+  @override
+  String birthInfoHour(String branch) {
+    return '$branch시';
+  }
+
+  @override
+  String get diaryEditQuestionSwap => '질문 바꾸기';
+
+  @override
+  String get keyboardDismiss => '키보드 내리기';
+
+  @override
+  String mySajuRecordCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '편',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mySajuRecordDayKindHead => '쓴 날의 성격';
+
+  @override
+  String get mySajuRecordTagHead => '자주 붙은 태그';
+
+  @override
+  String get bandTableEmptyCell => '없음';
+
+  @override
+  String luckDaeunAgeRange(int startAge, int endAge) {
+    return '$startAge~$endAge세';
+  }
+
+  @override
+  String luckDaeunYearRange(int startYear, int endYear) {
+    return '$startYear~$endYear년';
+  }
+
+  @override
+  String luckSeunYear(int year) {
+    return '$year년';
+  }
+
+  @override
+  String luckSeunAge(int age) {
+    return '$age세';
+  }
+
+  @override
+  String get sajuStageMarkerHour => '시';
+
+  @override
+  String get sajuStageMarkerDay => '일';
+
+  @override
+  String get sajuStageMarkerMonth => '월';
+
+  @override
+  String get sajuStageMarkerYear => '연';
+
+  @override
+  String get tagSheetSentenceKindFortune => '총운';
+
+  @override
+  String get tagSheetSentenceKindGuide => '오늘의 질문';
 }
