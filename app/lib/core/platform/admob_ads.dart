@@ -106,7 +106,7 @@ abstract interface class AdMobApi {
   });
 }
 
-/// [width] 너비 적응형 배너(`getLargeAnchoredAdaptiveBannerAdSize`)의 크기.
+/// [width] 너비 일반 고정형 적응 배너의 크기(높이 50~90, 기기 높이의 15% 이하, A99).
 /// 정하지 못하면 null입니다.
 ///
 /// staging 모의 배너(D101 ③)가 실제 광고와 같은 크기를 쓰려고 함께 씁니다.
@@ -117,8 +117,13 @@ Future<Size?> adMobAdaptiveBannerSize(int width) async {
       : Size(size.width.toDouble(), size.height.toDouble());
 }
 
+/// 큰 고정형(높이 50~150, 기기 높이의 20% 이하)은 흔한 Android 폰에서 100dp를 넘어 탭 바와
+/// 함께 화면 아래를 너무 가리므로 일반 고정형을 씁니다(F-033, #895).
 Future<gma.AdSize?> _adaptiveSize(int width) =>
-    gma.AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
+    // 플러그인 9.2는 이 함수에 큰 고정형으로 옮기라는 표시만 붙였고 일반 고정형의 다른
+    // 함수는 없어, 표시를 알고 씁니다.
+    // ignore: deprecated_member_use
+    gma.AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(width);
 
 /// 실제 AdMob SDK를 부르는 경계(기본값).
 final class SdkAdMobApi implements AdMobApi {
