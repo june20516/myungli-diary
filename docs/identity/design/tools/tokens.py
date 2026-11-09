@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import pathlib
 
-from palette import SEAL_SOFT, WHITE, build_palette
+from palette import SEAL_SOFT, WHITE, build_palette, ohaeng_glyph_part
 
 DESIGN_DIR = pathlib.Path(__file__).resolve().parent.parent
 TOKENS_DIR = DESIGN_DIR / "tokens"
@@ -91,6 +91,11 @@ ALPHA_ROLES = {
     "skeleton.bone": ({"light": ("neutral", 900, 0.07), "dark": ("neutral", 100, 0.08)}, "skeleton 자리"),
 }
 SEAL_SOFT_DESCRIPTION = "옅은 낙관 도장 (달력 일기 쓴 날, 일기 목록, 질문 카드 버튼 뒤)"
+# 1.5.0 (결정 V98, #892)
+OHAENG_BORDER_DESCRIPTION = ("금, 수 칸의 1px 안쪽 테두리(ohaeng.cell, stem.chip, hanja-tag ganji 알약). "
+                             "칸이 화면 바탕과 가까운 모드에서만 보이고, 그 밖에는 칸 바탕과 같은 값(1.5.0)")
+OHAENG_GLYPH_DESCRIPTION = ("hanja-tag ganji 흰 원(bg.sheet) 안 한자색. 오행 글자가 bg.sheet에서 읽히면 글자색, "
+                            "아니면 알약 바탕색(V78과 같은 규칙, 1.5.0)")
 BLACK = "#000000"
 
 # 움직임 (V2 spec §5.1)
@@ -263,10 +268,20 @@ def _color_document(palette: dict, mode: str) -> dict:
     scale, step, alpha = SEAL_SOFT[mode]
     _place(document, "color.seal.soft", _token("color", color_value(brand[scale][step], alpha), SEAL_SOFT_DESCRIPTION))
     background, foreground = ("tint", "ink") if mode == "light" else ("tint_dark", "ink_dark")
+    border = "border" if mode == "light" else "border_dark"
+    sheet = palette["roles"][mode]["bg.sheet"]
     for element, colors in palette["ohaeng"].items():
         _place(document, f"color.ohaeng.{element}.bg", _token(
             "color", color_value(colors[background]), "원국표 칸처럼 글자가 얹히는 오행 바탕"))
         _place(document, f"color.ohaeng.{element}.fg", _token("color", color_value(colors[foreground]), "오행 글자"))
+        if border in colors:  # 금, 수 (1.5.0, V98)
+            value = ("{color.ohaeng." + element + ".bg}" if colors[border] == colors[background]
+                     else color_value(colors[border]))
+            _place(document, f"color.ohaeng.{element}.border", _token(
+                "color", value, OHAENG_BORDER_DESCRIPTION))
+        glyph_part = ohaeng_glyph_part(colors, mode, sheet)
+        _place(document, f"color.ohaeng.{element}.glyph", _token(
+            "color", "{color.ohaeng." + element + "." + glyph_part + "}", OHAENG_GLYPH_DESCRIPTION))
     stops = palette["gradient"][mode]
     _place(document, "gradient.today", _token(
         "gradient",

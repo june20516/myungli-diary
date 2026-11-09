@@ -442,11 +442,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.7059,
-              0.749,
-              0.7922
+              0.9725,
+              0.9804,
+              0.9922
             ],
-            "hex": "#b4bfca"
+            "hex": "#f8fafd"
           },
           "$description": "오행 견본: 색 자체를 보여주는 자리. 모드와 관계없이 같은 값이고 항상 swatch.border를 둡니다"
         }
@@ -457,11 +457,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.0824,
-              0.2431,
-              0.4706
+              0.0941,
+              0.1255,
+              0.1686
             ],
-            "hex": "#153e78"
+            "hex": "#18202b"
           },
           "$description": "오행 견본: 색 자체를 보여주는 자리. 모드와 관계없이 같은 값이고 항상 swatch.border를 둡니다"
         }

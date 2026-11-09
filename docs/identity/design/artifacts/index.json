@@ -937,6 +937,25 @@
     "note": "토큰 CSS(ds1/tokens.css)를 읽고 안 ①, ②만 강조 바탕을 primitive로 덮어씀(새 primitive 없음). 사용자 의견 2026-11-07(초록이 많아 태그가 갈리지 않음). 사용자 답(2026-11-07, #801): ③ neutral.50(다크 neutral.950) 권장안, 새 토큰 color.highlight.bg로 반영(V93). 칩과 거리 0.029(다크 0.162), sage 글자 대비 6.21:1(다크 10.34:1), 일주 열 0.35 옅게 깔기 없앰"
   },
   {
+    "id": "design-ohaeng-gold-water-questions",
+    "title": "오행 금과 수 색 관문 질문(#892): 라이트 수 색조(먹남, 순먹, 짙은 남), 다크 금과 수(금 밝은 칸 수 어두운 칸, 모두 어두운 칸)",
+    "kind": "concept",
+    "file": "2026-11-09-ohaeng-gold-water-questions.html",
+    "source": "2026-11-09-ohaeng-gold-water-questions.html",
+    "date": "2026-11-09",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "my-saju",
+      "today"
+    ],
+    "decisions": [
+      "V98"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)를 읽고 안마다 금과 수 변수만 덮어씀. '지금' 안은 바꾸기 전 값을 페이지에 직접 적음. 사용자 답(2026-11-09, #892): Q1 ① 먹남(지휘 시작값), Q2 A 다크도 금은 가장 밝은 칸, 수는 가장 어두운 칸. 토큰 1.5.0, 컴포넌트 6.1.0으로 반영(V98)"
+  },
+  {
     "id": "design-app-icon-questions",
     "title": "앱 아이콘 새 원본 관문 질문(#908): 홈 화면 크기별, 작은 원형 낙관 크기(그대로, 1.45배), 공유 이미지 로고(지금 SVG, 새 아이콘 가로 조합, 워드마크만)",
     "kind": "concept",

@@ -31,6 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-09, design 세션 작성)
+* **오행 금 흰색, 수 먹색 #892** (브랜치 `design/ohaeng-gold-water-892`, D114, 검수 회차2 F-032, 결정 V98, 토큰 부 버전과 컴포넌트 부 버전은 계약 목록): `palette.py` `OHAENG_FIXED`가 금과 수의 모든 값을 정함(라이트 수는 관문 Q1 ① 먹남, 다크도 금이 가장 밝고 수가 가장 어두운 칸 Q2 A). 새 토큰 `color.ohaeng.metal.border`, `water.border`(칸이 화면 바탕과 가까운 모드에서만 보이는 테두리, 그 밖은 칸 바탕 별칭)와 `color.ohaeng.<오행>.glyph`(간지 태그 흰 원 안 한자색, V78 규칙). 명세: `ohaeng.cell` `border`(지장간 칩도 따름), `hanja-tag` `ganji` `pill.border`와 `glyph.fg`, `ohaeng-bar` `bar.segmentBorder`. 1.4.0 토큰을 `tools/fixtures/*-1.4.0`으로 얼려 1.5.0 변경을 검사. 관문 페이지 `artifacts/2026-11-09-ohaeng-gold-water-questions.html`. writing #893(행운 색 이름 수 남색을 검정으로)은 따로 진행.
 * **앱 아이콘 래스터 원본 #908** (브랜치 `design/app-icon-raster-908`, 결정 V99, V7 개정, 컴포넌트 수 버전은 계약 목록): 사용자 제작 그림에서 떼어 낸 책 그림 둘(`logo/source/` 질감판, 평면판 2048 알파)로 `tools/app_icon.py`가 1024 PNG 마스터 넷(`icon-large`, `icon-small` 낙관 1.45배, `icon-android-foreground` 투명, `icon-android-background`)과 공유 이미지 가로 조합 `lockup.png`, `lockup-dark.png`(높이 288)를 만들고 `logo/app-icon.json`에 sha256과 Android 전경 안전 영역 측정값을 적음. `test_logo.py`가 표준 라이브러리로 대조하고 안전 영역은 PNG 픽셀로 다시 잼(CI 의존성 그대로). `share-image` `logo.asset`은 `logo/lockup.png`. 옛 도형판 SVG는 app #909 전환까지 남김. 관문 페이지 `artifacts/2026-11-09-app-icon-questions.html`(Q1 ②, Q2 ②).
 * **drift #859 따라잡기** (브랜치 `design/drift-859`, IA PR #856 D113, #860, #867, writing #861, #864, 결정 V96, V97, 컴포넌트 계약 주 버전): IA에서 빠진 `tag-chip`을 지우고 일기 쓰기와 보기의 태그를 `hanja-tag`로, `IA_REMOVAL_REQUESTED`를 비움(`score-scale`도 IA에서 빠짐). 일정 섹션 제목(`today.event.title`, `day-sheet.event.title`)과 대표 태그 꺾쇠 링크 슬롯(`explain-sheet.tag.diary-link`)을 배치에 넣고 상한을 잼. 회고 `diary-summary`는 `getDiaryStats`(S146) 세는 기준. 신강약 알약은 IA에서 다시 빠져 재지 않음.
 * **DS1 2단계 화면 결정 시안 #801·drift #815** (브랜치 `design/ds1-screens`, D105·D107·D108, IA v5, 결정 V69~V95, 컴포넌트 계약 주 버전과 토큰 부 버전은 계약 목록).
@@ -138,8 +139,8 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#908 마무리:** PR(`Closes #908`)이 병합되면 app #909가 래스터 원본(`logo/*.png`)과 공유 이미지 `lockup.png`로 옮깁니다. app이 옮긴 뒤 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`)와 그 검사(`test_logo.py` SVG 절, `logo_sheet.py`, `wordmark.py` 가로 조합)를 지우고, 낙관 도장 경로(V16) 대조를 컴포넌트 명세 값 기준으로 바꿉니다.
-2. **#892 PR #915와 판 맞추기:** 둘 다 컴포넌트 판을 올립니다(#892 6.1.0, #908 6.0.1). 뒤에 병합되는 쪽이 main을 받아 판을 이어 붙입니다(#908이 뒤면 6.1.1).
+1. **#892 마무리:** PR(`Closes #892`)이 병합되면 app은 토큰과 컴포넌트 drift로 금과 수 색, 테두리, 간지 태그 한자색을 맞춥니다.
+2. **#908 마무리:** PR(`Closes #908`)이 병합되면 app #909가 래스터 원본(`logo/*.png`)과 공유 이미지 `lockup.png`로 옮깁니다. app이 옮긴 뒤 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`)와 그 검사(`test_logo.py` SVG 절, `logo_sheet.py`, `wordmark.py` 가로 조합)를 지우고, 낙관 도장 경로(V16) 대조를 컴포넌트 명세 값 기준으로 바꿉니다.
 3. **탭 전환 효과 #900** (F-034, sev:3): `interaction.json`에 탭 전환 패턴(`page.push`와 구분, 짧고 방향 없음, 동작 줄이기 처리)을 더하고 계약 판을 올립니다.
 4. **2단계 후속:** app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지(#851) 봅니다.
 5. **#763 마무리:** writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다.

@@ -442,9 +442,9 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_6_0_1():
-    # #908: 공유 이미지 로고를 새 아이콘 PNG 가로 조합으로(값만, V99). 6.0.0은 #859 drift(V96)
-    assert VERSION == "6.0.1"
+def test_contract_version_is_6_1_1():
+    # #908: 공유 이미지 로고를 새 아이콘 PNG 가로 조합으로(값만, V99). 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
+    assert VERSION == "6.1.1"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1669,7 +1669,14 @@ def test_hanja_tag_component():
     assert "톤 테두리" in selected["note"]
     # 간지 글자는 사주 용어 17자 규칙 밖의 변형: 알약과 이름은 그 오행 색, 원은 흰 바탕에 오행 글자색 (리뷰 라운드 2)
     ganji = variants["ganji"]["parts"]
-    assert ganji["glyph"] == {"bg": "{color.bg.sheet}", "fg": "same-as-name", "decorative": True}
+    # V98: 한자색은 오행마다 glyph 토큰(라이트 수, 다크 금은 알약 바탕색. V78 규칙), 금과 수 알약은 테두리
+    elements_order = ("wood", "fire", "earth", "metal", "water")
+    assert {key: value for key, value in ganji["glyph"].items() if key != "note"} == {
+        "bg": "{color.bg.sheet}", "decorative": True,
+        "fg": {"byElement": {element: f"{{color.ohaeng.{element}.glyph}}" for element in elements_order}}}
+    assert "V78" in ganji["glyph"]["note"]
+    assert ganji["pill"]["border"]["byElement"] == {
+        element: f"{{color.ohaeng.{element}.border}}" for element in ("metal", "water")}
     assert ganji["tone"]["byElement"] == {
         element: {"bg": f"{{color.ohaeng.{element}.bg}}", "fg": f"{{color.ohaeng.{element}.fg}}"}
         for element in ("wood", "fire", "earth", "metal", "water")}
@@ -2737,6 +2744,8 @@ def test_contract_list_rows_name_current_versions():
     component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
     assert f"| {VERSION} |" in component_row and f"| {_token_contract_version()} |" in token_row
+    for name in ("color.ohaeng.metal.border", "color.ohaeng.water.border", "color.ohaeng.<오행>.glyph"):
+        assert name in token_row.split("1.5.0:", 1)[1], name
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     elements_count = len(documents["elements"]["elements"])
@@ -2838,7 +2847,6 @@ def test_tag_chip_removed_for_hanja_tag():
 
 
 def test_readme_records_6_0_removal():
-    readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     row = _readme_row("6.0.0")
     assert "`tag-chip`" in row.split("**지움**", 1)[1] and "V96" in row and "#859" in row
 
@@ -2850,15 +2858,39 @@ def test_time_unknown_notice_shares_saju_chart_key():
     assert "saju-chart.time-unknown.notice" in _md_section("today.md", "### today 화면 배치")
 
 
-# 6.0.1 (#908, 결정 V99): 공유 이미지 로고는 새 아이콘 PNG 가로 조합
+# 6.1.1 (#908, 결정 V99): 공유 이미지 로고는 새 아이콘 PNG 가로 조합
 def test_share_image_logo_is_raster_lockup():
     logo = component("today", "share-image")["parts"]["logo"]
     assert logo["asset"] == "logo/lockup.png"
     assert (DESIGN_DIR / logo["asset"]).exists()
-    row = _readme_row("6.0.1")
+    row = _readme_row("6.1.1")
     assert "V99" in row and "#908" in row and "`logo/lockup.png`" in row
 
 
 def test_readme_header_names_current_versions():
     readme = (COMPONENTS_DIR / "README.md").read_text(encoding="utf-8")
     assert f"컴포넌트 계약 {VERSION} · 토큰 계약 {_token_contract_version()} 이상을 기대합니다." in readme
+
+
+# 6.1.0 (#892, D114, 결정 V98): 금 흰색, 수 먹색
+def test_readme_records_6_1_ohaeng_borders():
+    row = _readme_row("6.1.0")
+    assert "V98" in row and "#892" in row and "**지움**" not in row
+    for name in ("`ohaeng.cell` `border`", "`pill.border`", "`bar.segmentBorder`", "color.ohaeng.<오행>.glyph"):
+        assert name in row, name
+
+
+def test_ohaeng_cell_border_only_for_metal_and_water():
+    cell = load_documents(COMPONENTS_DIR)["elements"]["elements"]["ohaeng.cell"]
+    assert cell["border"]["byElement"] == {
+        "metal": "{color.ohaeng.metal.border}", "water": "{color.ohaeng.water.border}"}
+    assert cell["border"]["width"] == {"value": 1, "unit": "px"} and cell["border"]["placement"] == "inside"
+    chip = load_documents(COMPONENTS_DIR)["elements"]["elements"]["stem.chip"]
+    assert "border" in chip["colorsRule"]  # 지장간 칩도 금과 수 테두리를 따름
+
+
+def test_ohaeng_bar_segments_have_swatch_border():
+    bar = component("saju", "ohaeng-bar")["parts"]["bar"]
+    assert bar["segmentBorder"]["color"] == "{color.swatch.border}"
+    assert any("swatch.border" in rule for rule in component("saju", "ohaeng-bar")["rules"])
+    assert "swatch.border" in _md_section("saju.md", "## ohaeng-bar")

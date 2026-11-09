@@ -54,11 +54,55 @@ def test_brand_scales_match_spec():
 def test_ohaeng_matches_spec():
     ohaeng = build_palette()["ohaeng"]
     assert ohaeng["wood"]["swatch"] == "#418e47"
-    assert ohaeng["water"]["swatch"] == "#153e78"
-    assert ohaeng["metal"]["tint"] == "#e8ebef"
-    assert ohaeng["metal"]["ink"] == "#454e58"
     assert ohaeng["fire"]["tint_dark"] == "#402623"
     assert ohaeng["earth"]["ink_dark"] == "#ead4b3"
+    # 금 흰색, 수 먹색 (D114, #892 관문 Q1 ① 먹남, Q2 A, 결정 V98)
+    assert ohaeng["metal"] == {
+        "swatch": "#f8fafd", "tint": "#f5f7f9", "ink": "#474e55", "tint_dark": "#d5d8db", "ink_dark": "#2d343a",
+        "border": "#b9bec4", "border_dark": "#d5d8db"}
+    assert ohaeng["water"] == {
+        "swatch": "#18202b", "tint": "#242e3d", "ink": "#eef2f9", "tint_dark": "#0a1018", "ink_dark": "#dadee5",
+        "border": "#242e3d", "border_dark": "#3c434d"}
+
+
+def _lightness(hex_color):
+    return palette.oklch_lightness_chroma(hex_color)[0]
+
+
+def test_metal_is_brightest_and_water_darkest_cell_in_both_modes():
+    # 관문 Q2 A: 모드와 관계없이 금은 가장 밝은 칸, 수는 가장 어두운 칸. 수는 반전(글자가 바탕보다 밝음)
+    ohaeng = build_palette()["ohaeng"]
+    for cell, ink in (("tint", "ink"), ("tint_dark", "ink_dark")):
+        lightness = {element: _lightness(colors[cell]) for element, colors in ohaeng.items()}
+        assert max(lightness, key=lightness.get) == "metal", cell
+        assert min(lightness, key=lightness.get) == "water", cell
+        assert _lightness(ohaeng["water"][ink]) > _lightness(ohaeng["water"][cell]), cell
+    assert _lightness(ohaeng["metal"]["swatch"]) > 0.95  # 견본 흰색
+    assert _lightness(ohaeng["water"]["swatch"]) < 0.3  # 견본 먹색
+
+
+def test_metal_and_water_cells_stand_apart_from_every_surface():
+    # 금, 수 칸은 바탕이나 테두리 중 하나가 칸이 놓이는 모든 면과 갈립니다: 카드(bg.sheet), 화면(bg.base),
+    # 현재 강조 바탕(highlight.bg, 지금 대운과 올해 세운 칸). 테두리가 필요 없는 모드는 칸 바탕과 같은 값
+    built = build_palette()
+    for mode, cell, border in (("light", "tint", "border"), ("dark", "tint_dark", "border_dark")):
+        for surface in ("bg.sheet", "bg.base", "highlight.bg"):
+            background = built["roles"][mode][surface]
+            for element in ("metal", "water"):
+                colors = built["ohaeng"][element]
+                edge = max(contrast_ratio(colors[cell], background), contrast_ratio(colors[border], background))
+                assert edge >= palette.MIN_OHAENG_EDGE_CONTRAST, (mode, surface, element, edge)
+    assert built["ohaeng"]["water"]["border"] == built["ohaeng"]["water"]["tint"]
+    assert built["ohaeng"]["metal"]["border_dark"] == built["ohaeng"]["metal"]["tint_dark"]
+
+
+def test_ganji_glyph_follows_v78_rule():
+    # 흰 원 안 한자: 오행 글자가 bg.sheet에서 읽히면 글자색, 아니면 알약 바탕색 (V78, V98)
+    built = build_palette()
+    parts = {mode: {element: palette.ohaeng_glyph_part(colors, mode, built["roles"][mode]["bg.sheet"])
+                    for element, colors in built["ohaeng"].items()} for mode in ("light", "dark")}
+    assert parts["light"] == {"wood": "fg", "fire": "fg", "earth": "fg", "metal": "fg", "water": "bg"}
+    assert parts["dark"] == {"wood": "fg", "fire": "fg", "earth": "fg", "metal": "bg", "water": "fg"}
 
 
 def test_gradient_matches_spec():
@@ -133,7 +177,8 @@ def test_v1_roles_follow_spec():
 def test_contrast_covers_v1_pairs():
     names = {result.name for result in check_contrast(build_palette())}
     # V1 52개 + V2 모드당 13개 + 옅은 도장 위 sage 글자 모드당 4개 + 달력 4단계 숫자 모드당 3개 + 강조 바탕 위 글자 모드당 2개(V93)
-    assert len(names) == 52 + 26 + 8 + 6 + 4
+    # + 간지 태그 흰 원 안 한자 모드당 5개(V98)
+    assert len(names) == 52 + 26 + 8 + 6 + 4 + 10
     for mode in ("light", "dark"):
         assert f"{mode} badge.gwiin" in names
         assert f"{mode} badge.gisin" in names

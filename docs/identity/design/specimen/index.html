@@ -23,8 +23,8 @@
     --ohaeng-wood-swatch: #418e47; --ohaeng-wood-tint: #dff1df; --ohaeng-wood-ink: #2f5831; --ohaeng-wood-tint_dark: #213321; --ohaeng-wood-ink_dark: #c4e1c4;
     --ohaeng-fire-swatch: #d24d45; --ohaeng-fire-tint: #ffe4e0; --ohaeng-fire-ink: #733a35; --ohaeng-fire-tint_dark: #402623; --ohaeng-fire-ink_dark: #f7ccc6;
     --ohaeng-earth-swatch: #dea645; --ohaeng-earth-tint: #f7e9d5; --ohaeng-earth-ink: #65470f; --ohaeng-earth-tint_dark: #392b16; --ohaeng-earth-ink_dark: #ead4b3;
-    --ohaeng-metal-swatch: #b4bfca; --ohaeng-metal-tint: #e8ebef; --ohaeng-metal-ink: #454e58; --ohaeng-metal-tint_dark: #2a2e33; --ohaeng-metal-ink_dark: #d3d8de;
-    --ohaeng-water-swatch: #153e78; --ohaeng-water-tint: #e0ecfe; --ohaeng-water-ink: #304d78; --ohaeng-water-tint_dark: #212e42; --ohaeng-water-ink_dark: #c4d9f9;
+    --ohaeng-metal-swatch: #f8fafd; --ohaeng-metal-tint: #f5f7f9; --ohaeng-metal-ink: #474e55; --ohaeng-metal-tint_dark: #d5d8db; --ohaeng-metal-ink_dark: #2d343a; --ohaeng-metal-border: #b9bec4; --ohaeng-metal-border_dark: #d5d8db;
+    --ohaeng-water-swatch: #18202b; --ohaeng-water-tint: #242e3d; --ohaeng-water-ink: #eef2f9; --ohaeng-water-tint_dark: #0a1018; --ohaeng-water-ink_dark: #dadee5; --ohaeng-water-border: #242e3d; --ohaeng-water-border_dark: #3c434d;
 
     --white: #ffffff;
     /* 달력 4단계 값 (토큰 1.4.0, OKLCH 규칙은 palette.py CALENDAR_LEVELS) */
@@ -348,7 +348,7 @@
         <div class="cell" style="background:var(--ohaeng-wood-tint);color:var(--ohaeng-wood-ink)">甲<small>목</small></div>
         <div class="cell" style="background:var(--ohaeng-fire-tint);color:var(--ohaeng-fire-ink)">丙<small>화</small></div>
         <div class="cell" style="background:var(--ohaeng-earth-tint);color:var(--ohaeng-earth-ink)">戊<small>토</small></div>
-        <div class="cell" style="background:var(--ohaeng-metal-tint);color:var(--ohaeng-metal-ink)">庚<small>금</small></div>
+        <div class="cell" style="background:var(--ohaeng-metal-tint);color:var(--ohaeng-metal-ink);box-shadow:inset 0 0 0 1px var(--ohaeng-metal-border)">庚<small>금</small></div>
         <div class="cell" style="background:var(--ohaeng-water-tint);color:var(--ohaeng-water-ink)">壬<small>수</small></div>
       </div>
     </div>
@@ -366,7 +366,7 @@
         <div class="cell" style="background:var(--ohaeng-fire-tint_dark);color:var(--ohaeng-fire-ink_dark)">丙<small>화</small></div>
         <div class="cell" style="background:var(--ohaeng-earth-tint_dark);color:var(--ohaeng-earth-ink_dark)">戊<small>토</small></div>
         <div class="cell" style="background:var(--ohaeng-metal-tint_dark);color:var(--ohaeng-metal-ink_dark)">庚<small>금</small></div>
-        <div class="cell" style="background:var(--ohaeng-water-tint_dark);color:var(--ohaeng-water-ink_dark)">壬<small>수</small></div>
+        <div class="cell" style="background:var(--ohaeng-water-tint_dark);color:var(--ohaeng-water-ink_dark);box-shadow:inset 0 0 0 1px var(--ohaeng-water-border_dark)">壬<small>수</small></div>
       </div>
     </div>
   </div>
@@ -469,13 +469,13 @@
       <div class="date">10월 10일 토요일</div>
       <span class="badge">좋은 날</span>
       <p class="message">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
-      <div class="chips"><span class="chip"><span class="dot" style="background:var(--ohaeng-water-swatch)"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+      <div class="chips"><span class="chip"><span class="dot" style="background:var(--ohaeng-water-swatch)"></span>검정</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
     </div></div>
     <div class="mode-dark"><div class="phone">
       <div class="date">10월 10일 토요일</div>
       <span class="badge">좋은 날</span>
       <p class="message">지윤님에게 필요한 <span class="term">수 기운</span>이 들어오는 날이에요. 미뤄 둔 연락을 하기 좋아요.</p>
-      <div class="chips"><span class="chip"><span class="dot" style="background:var(--ohaeng-water-swatch)"></span>남색</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
+      <div class="chips"><span class="chip"><span class="dot" style="background:var(--ohaeng-water-swatch)"></span>검정</span><span class="chip">북쪽</span><span class="chip">1 · 6</span></div>
     </div></div>
   </div>
 
