@@ -1,5 +1,5 @@
 {
-  "version": "6.0.0",
+  "version": "6.1.0",
   "group": "saju",
   "components": [
     {
@@ -36,7 +36,7 @@
       "summary": "오행 분포",
       "uses": ["ohaeng.swatch"],
       "parts": {
-        "bar": { "height": { "value": 10, "unit": "px" }, "radius": "{radius.full}", "segmentGap": { "value": 2, "unit": "px" }, "fill": "ohaeng.swatch 비례" },
+        "bar": { "height": { "value": 10, "unit": "px" }, "radius": "{radius.full}", "segmentGap": { "value": 2, "unit": "px" }, "fill": "ohaeng.swatch 비례", "segmentBorder": { "color": "{color.swatch.border}", "width": { "value": 1, "unit": "px" }, "placement": "inside", "note": "칸마다 견본 테두리. 흰 금 칸이 흰 카드에 묻히지 않게(결정 V98)" } },
         "legend": { "columns": 5, "marginTop": "{space.12}" },
         "swatch": { "element": "ohaeng.swatch", "size": { "value": 12, "unit": "px" }, "radius": "{radius.full}" },
         "name": { "type": "{type.caption.md}", "fg": "{color.text.primary}" },
@@ -47,7 +47,7 @@
       },
       "haptic": [],
       "a11y": { "role": "img", "label": "목 N, 화 N, 토 N, 금 N, 수 N" },
-      "rules": ["막대 순서는 목·화·토·금·수.", "0개인 오행은 막대에 칸이 없고 범례 견본만 흐리다."]
+      "rules": ["막대 순서는 목·화·토·금·수.", "0개인 오행은 막대에 칸이 없고 범례 견본만 흐리다.", "막대 칸과 범례 견본은 모두 swatch.border 테두리를 둔다(금 흰색, 수 먹색, V98)."]
     },
     {
       "id": "manse-table",

@@ -130,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.4.0" in readme
+    assert "계약 버전: 1.5.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -209,9 +209,54 @@ def test_tokens_1_3_0_additions_only():
     after = flatten(build_token_files()["primitive.tokens.json"])
 
     for name, token in before.items():
+        if name in TOKENS_1_5_0_CHANGED:  # 1.5.0에서 값만 바뀜(아래 test_tokens_1_5_0이 검사)
+            continue
         assert after.get(name) == token, name
     added = {name: (after[name]["$type"], after[name]["$value"]) for name in after.keys() - before.keys()}
     assert added == TOKENS_1_3_0_ADDED
+
+
+# 1.5.0 (D114, #892, 결정 V98): 금 흰색, 수 먹색. 금과 수의 견본, 바탕, 글자 값만 바뀌고(이름 그대로),
+# 금과 수 칸 테두리와 다섯 오행의 간지 태그 한자색이 추가됨. 나머지는 1.4.0과 같음
+TOKENS_1_5_0_CHANGED = {
+    f"color.ohaeng.{element}.{part}" for element in ("metal", "water") for part in ("swatch", "bg", "fg")}
+TOKENS_1_5_0_ADDED_COLOR = (
+    {f"color.ohaeng.{element}.border" for element in ("metal", "water")}
+    | {f"color.ohaeng.{element}.glyph" for element in ("wood", "fire", "earth", "metal", "water")})
+
+
+def test_tokens_1_5_0_changes_only_metal_and_water():
+    files = build_token_files()
+    palette_ohaeng = build_palette()["ohaeng"]
+    pairs = [("primitive.tokens.json", "primitive-1.4.0.tokens.json")]
+    pairs += [(f"color.{mode}.tokens.json", f"color.{mode}-1.4.0.tokens.json") for mode in ("light", "dark")]
+    for current, frozen in pairs:
+        before, after = _frozen(frozen), flatten(files[current])
+        for name, token in before.items():
+            if name in TOKENS_1_5_0_CHANGED:
+                assert after[name]["$type"] == token["$type"], name
+                assert after[name]["$value"] != token["$value"], name
+                continue
+            assert after.get(name) == token, (current, name)
+        added = after.keys() - before.keys()
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_5_0_ADDED_COLOR), current
+    for mode, cell in (("light", "tint"), ("dark", "tint_dark")):
+        tokens = flatten(files[f"color.{mode}.tokens.json"])
+        for element in ("metal", "water"):
+            assert tokens[f"color.ohaeng.{element}.bg"]["$value"]["hex"] == palette_ohaeng[element][cell]
+    light, dark = (flatten(files[f"color.{mode}.tokens.json"]) for mode in ("light", "dark"))
+    # 테두리가 필요 없는 모드는 칸 바탕을 가리키는 별칭
+    assert light["color.ohaeng.water.border"]["$value"] == "{color.ohaeng.water.bg}"
+    assert dark["color.ohaeng.metal.border"]["$value"] == "{color.ohaeng.metal.bg}"
+    assert light["color.ohaeng.metal.border"]["$value"]["hex"] == palette_ohaeng["metal"]["border"]
+    assert dark["color.ohaeng.water.border"]["$value"]["hex"] == palette_ohaeng["water"]["border_dark"]
+    # 간지 태그 한자색: 반전 칸(라이트 수, 다크 금)만 알약 바탕색
+    assert light["color.ohaeng.water.glyph"]["$value"] == "{color.ohaeng.water.bg}"
+    assert dark["color.ohaeng.metal.glyph"]["$value"] == "{color.ohaeng.metal.bg}"
+    for element in ("wood", "fire", "earth", "metal"):
+        assert light[f"color.ohaeng.{element}.glyph"]["$value"] == "{color.ohaeng." + element + ".fg}"
+    for element in ("wood", "fire", "earth", "water"):
+        assert dark[f"color.ohaeng.{element}.glyph"]["$value"] == "{color.ohaeng." + element + ".fg}"
 
 
 # DS1 spec(2026-11-05-ds1-screens-design.md) §3: 1.4.0은 추가만. 1.3.0 primitive와 색 두 파일을 얼려 둠
@@ -232,6 +277,8 @@ def test_tokens_1_4_0_additions_only():
     after_primitive = flatten(files["primitive.tokens.json"])
     before_primitive = _frozen("primitive-1.3.0.tokens.json")
     for name, token in before_primitive.items():
+        if name in TOKENS_1_5_0_CHANGED:
+            continue
         assert after_primitive.get(name) == token, name
     assert after_primitive.keys() == before_primitive.keys()  # primitive는 추가 없음
 
@@ -244,8 +291,10 @@ def test_tokens_1_4_0_additions_only():
                        {k: v for k, v in token.items() if k != "$description"}, (mode, name)
                 assert "태그 칩" not in after[name]["$description"], (mode, name)
                 continue
+            if name in TOKENS_1_5_0_CHANGED:
+                continue
             assert after.get(name) == token, (mode, name)
-        assert set(after.keys() - before.keys()) == TOKENS_1_4_0_ADDED_COLOR, mode
+        assert set(after.keys() - before.keys()) == TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR, mode
         # 기존 calendar.good.bg, calendar.caution.bg는 그대로(위 반복이 값까지 검사)
         assert "color.calendar.good.bg" in before and "color.calendar.caution.bg" in before
 

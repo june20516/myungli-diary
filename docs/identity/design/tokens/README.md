@@ -1,9 +1,9 @@
 # 명리일기 디자인 토큰
 
-계약 버전: 1.4.0
+계약 버전: 1.5.0
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
-* 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42·V57·V58·V67·V74·V84·V86·V93([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), [DS1 규칙 spec](../specs/2026-11-05-ds1-rules-design.md) §8(1.3.0), [DS1 화면 spec](../specs/2026-11-05-ds1-screens-design.md) §3(1.4.0), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
+* 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42·V57·V58·V67·V74·V84·V86·V93([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), [DS1 규칙 spec](../specs/2026-11-05-ds1-rules-design.md) §8(1.3.0), [DS1 화면 spec](../specs/2026-11-05-ds1-screens-design.md) §3(1.4.0), 결정 V98(1.5.0, 오행 금과 수), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
 * 컴포넌트 명세(`../components/`)가 이 토큰을 `{이름}`으로 가리킵니다.
 * 형식: [DTCG Format Module 2025.10](https://www.designtokens.org/tr/2025.10/format/)
 * 이 파일들은 생성기가 만듭니다. **손으로 고치지 않습니다.** 고칠 일은 GitHub Issue(`to:design`)로 보냅니다.
@@ -13,7 +13,7 @@
 | 파일 | 담는 것 |
 | --- | --- |
 | `primitive.tokens.json` | 모드와 무관한 값. 원시 팔레트 `color.sage.*`·`color.coral.*`·`color.neutral.*`, `color.white`, 오행 견본 `color.ohaeng.<오행>.swatch`, 간격 `space.*`, 반경 `radius.*`, 움직임 시간 `motion.duration.*`·곡선 `motion.easing.*`, 그림자 `shadow.*` |
-| `color.light.tokens.json` | 의미 역할 `color.*`(라이트: 바탕·글자·버튼·배지·달력·토스트·비활성·도장·태그·상태 꼬리표·덮개·탭 바·skeleton 등), 오행 바탕·글자 `color.ohaeng.<오행>.bg/.fg`, 그라데이션 `gradient.today` |
+| `color.light.tokens.json` | 의미 역할 `color.*`(라이트: 바탕·글자·버튼·배지·달력·토스트·비활성·도장·태그·상태 꼬리표·덮개·탭 바·skeleton 등), 오행 바탕·글자 `color.ohaeng.<오행>.bg/.fg`, 간지 태그 한자색 `color.ohaeng.<오행>.glyph`, 금과 수 칸 테두리 `color.ohaeng.metal.border`·`water.border`, 그라데이션 `gradient.today` |
 | `color.dark.tokens.json` | 위와 같은 이름, 다크 값 |
 | `typography.tokens.json` | 글꼴 묶음 `font.family.*`, 글자 스타일 `type.*` (한국어·영어) |
 | `typography.ja.tokens.json` | 위와 같은 이름, 일본어 값 |
@@ -67,7 +67,9 @@
   | `GISIN_DAY` | `color.badge.gisin.*` |
   | `ORDINARY_DAY` | `color.badge.ordinary.*` |
 
-* **오행 견본:** `color.ohaeng.*.swatch`에는 항상 `color.swatch.border` 테두리를 둡니다.
+* **오행 견본:** `color.ohaeng.*.swatch`에는 항상 `color.swatch.border` 테두리를 둡니다. 금 견본은 흰색, 수 견본은 먹색입니다(1.5.0).
+* **오행 칸 (1.5.0, V98):** 금은 모드와 관계없이 가장 밝은 칸, 수는 가장 어두운 칸입니다. 수는 진한 바탕에 밝은 글자(반전)입니다. 금과 수 칸에는 늘 `color.ohaeng.metal.border`·`water.border` 1px 안쪽 테두리를 그립니다. 칸이 화면 바탕과 가까운 모드(라이트 금, 다크 수)에서만 보이고, 그 밖에는 칸 바탕을 가리키는 별칭이라 보이지 않습니다.
+* **간지 태그 한자색 (1.5.0, V98):** `color.ohaeng.*.glyph`는 `hanja-tag` `ganji`의 흰 원(`bg.sheet`) 안 한자색입니다. 오행 글자가 `bg.sheet`에서 읽히면 글자색(`fg`), 아니면 알약 바탕색(`bg`)을 가리키는 별칭입니다(라이트 수, 다크 금이 `bg`).
 
 ## 버전
 
@@ -84,6 +86,7 @@
 | 1.2.0 | 2026-10-22 | 추가: `color.timeline.entry`(같은 날 일기 사이 점선, 결정 V42, #410) |
 | 1.3.0 | 2026-11-05 | 추가: `border.width.hairline`(목록 구분선 0.5px, V58), `size.icon.16`·`20`·`24`·`28`(아이콘 크기 단계, V57), `motion.duration.page`·`motion.easing.page`·`motion.offset.page`(화면 이동 `page.push`, V67) (DS1, #801) |
 | 1.4.0 | 2026-11-05 | 추가(색 두 파일만): `color.calendar.level.great`·`good`·`caution`(달력 4단계, 라이트는 아주 잘 풀리는 날과 잘 풀리는 날 모두 맑은 coral이고 아주 잘 풀리는 날이 더 진함(관문 답 2026-11-07, #801), 다크는 명도 같고 채도로 구분, 조심할 날은 회색으로 명도를 낮춤), `color.fill.soft`(흰 표면 위 옅은 채움, 확인 창 취소 등. V65 버그), `color.verdict.track`(길흉판정 위치 막대 그라데이션, 조심할 날에서 아주 잘 풀리는 날로). `color.highlight.bg`(현재 강조 바탕, 라이트 `neutral.50` 다크 `neutral.950`, 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드 위에서만, 관문 Q4 ③ 2026-11-07, V93). 기존 `color.calendar.good.bg`·`caution.bg`는 그대로 (DS1, #801) |
+| 1.5.0 | 2026-11-09 | 값 바뀜: 금 `color.ohaeng.metal.swatch`·`bg`·`fg`(흰색, 회색 글자), 수 `color.ohaeng.water.swatch`·`bg`·`fg`(먹색, 반전 칸: 진한 바탕에 밝은 글자). 다크도 금은 가장 밝은 칸, 수는 가장 어두운 칸(관문 Q1 ① 먹남, Q2 A). 추가(색 두 파일만): `color.ohaeng.metal.border`·`water.border`(칸 1px 안쪽 테두리), `color.ohaeng.<오행>.glyph` 다섯(간지 태그 흰 원 안 한자색, V78 규칙). 목, 화, 토와 요일 머리(일, 토)는 그대로 (D114, #892, V98) |
 
 주 버전 변경은 `docs/workflow.md` §5.1을 따릅니다. 순서는 `kind:notice` Issue로 공지 → 버전 올림 → app 대응 보고 뒤 이전 이름 제거입니다.
 

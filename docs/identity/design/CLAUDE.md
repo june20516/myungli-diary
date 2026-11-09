@@ -31,6 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-09, design 세션 작성)
+* **오행 금 흰색, 수 먹색 #892** (브랜치 `design/ohaeng-gold-water-892`, D114, 검수 회차2 F-032, 결정 V98, 토큰 부 버전과 컴포넌트 부 버전은 계약 목록): `palette.py` `OHAENG_FIXED`가 금과 수의 모든 값을 정함(라이트 수는 관문 Q1 ① 먹남, 다크도 금이 가장 밝고 수가 가장 어두운 칸 Q2 A). 새 토큰 `color.ohaeng.metal.border`, `water.border`(칸이 화면 바탕과 가까운 모드에서만 보이는 테두리, 그 밖은 칸 바탕 별칭)와 `color.ohaeng.<오행>.glyph`(간지 태그 흰 원 안 한자색, V78 규칙). 명세: `ohaeng.cell` `border`(지장간 칩도 따름), `hanja-tag` `ganji` `pill.border`와 `glyph.fg`, `ohaeng-bar` `bar.segmentBorder`. 1.4.0 토큰을 `tools/fixtures/*-1.4.0`으로 얼려 1.5.0 변경을 검사. 관문 페이지 `artifacts/2026-11-09-ohaeng-gold-water-questions.html`. writing #893(행운 색 이름 수 남색을 검정으로)은 따로 진행.
 * **drift #859 따라잡기** (브랜치 `design/drift-859`, IA PR #856 D113, #860, #867, writing #861, #864, 결정 V96, V97, 컴포넌트 계약 주 버전): IA에서 빠진 `tag-chip`을 지우고 일기 쓰기와 보기의 태그를 `hanja-tag`로, `IA_REMOVAL_REQUESTED`를 비움(`score-scale`도 IA에서 빠짐). 일정 섹션 제목(`today.event.title`, `day-sheet.event.title`)과 대표 태그 꺾쇠 링크 슬롯(`explain-sheet.tag.diary-link`)을 배치에 넣고 상한을 잼. 회고 `diary-summary`는 `getDiaryStats`(S146) 세는 기준. 신강약 알약은 IA에서 다시 빠져 재지 않음.
 * **DS1 2단계 화면 결정 시안 #801·drift #815** (브랜치 `design/ds1-screens`, D105·D107·D108, IA v5, 결정 V69~V95, 컴포넌트 계약 주 버전과 토큰 부 버전은 계약 목록).
   * IA v5 새 컴포넌트 14개를 명세로: `section-header`·`explain-sheet`·`scroll-hint`(frame), `hanja-tag`(sentence), `date-header`·`tag-sentence-list`(today), `fortune-verdict`·`score-row`(calendar), `date-block`·`diary-summary`(diary), `luck-pillar`·`birth-info-row`·`band-table`·`stage-strip`(saju). `score-scale`은 쓰지 않아 IA에 제거를 요청합니다(`tools/components.py` `IA_REMOVAL_REQUESTED`, V87). 대기 목록 `IA_PENDING_COMPONENTS`는 비었습니다.
@@ -136,11 +137,13 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **drift #859 마무리:** PR(`참고 #859`)이 병합되면 ci-gate가 #859를 닫습니다. writing은 새 상한 셋을 lengths drift로 받습니다.
-2. **2단계 후속:** app이 컴포넌트 주 버전(5.0.0, 이번 6.0.0)과 토큰 부 버전을 따라잡는지(#851) 봅니다.
-3. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
+1. **#892 마무리:** PR(`Closes #892`)이 병합되면 app은 토큰과 컴포넌트 drift로 금과 수 색, 테두리, 간지 태그 한자색을 맞춥니다.
+2. **앱 아이콘 원본 #908:** 사용자 애셋(`~/Downloads/myungli-app-icon/`)으로 `logo/` 원본을 래스터로 바꾸고 V7 갱신 결정, `visual-identity.md` 아이콘 표, 옛 SVG와 `lockup.svg` 처리, `test_logo.py`를 정합니다. 병합되면 app #909가 진행합니다.
+3. **탭 전환 효과 #900** (F-034, sev:3): `interaction.json`에 탭 전환 패턴(`page.push`와 구분, 짧고 방향 없음, 동작 줄이기 처리)을 더하고 계약 판을 올립니다.
+4. **2단계 후속:** app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지(#851) 봅니다.
+5. **#763 마무리:** writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-4. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-5. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-6. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+6. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+7. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+8. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
