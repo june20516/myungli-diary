@@ -971,5 +971,26 @@
     ],
     "status": "chosen",
     "note": "그림은 2026-11-09-app-icon/(360으로 줄인 마스터, 페이지 전용). 사용자 질문(낙관을 키워도 화질이 깨지지 않는지)에 2048 원본에서 키우고 원래 낙관을 지운 뒤 찍어 두 겹 가장자리를 없앤 그림으로 바꿔 다시 물음. 사용자 답(2026-11-09, #908): Q1 ② 낙관 1.45배, Q2 ② 새 아이콘 가로 조합 PNG(V99)"
+  },
+  {
+    "id": "design-review2-batch-questions",
+    "title": "검수 회차2 묶음 관문 질문: 질문 떼기와 다시 붙이기(#929), 일기 줄 태그 넘침(#934), 탭 전환(#900), 오류 아이콘(#923), 맨 아래 버튼 여백(#918)",
+    "kind": "concept",
+    "file": "2026-11-10-review2-batch-questions.html",
+    "source": "2026-11-10-review2-batch-questions.html",
+    "date": "2026-11-10",
+    "milestone": "DS1",
+    "screens": [
+      "diary-edit",
+      "diary-list",
+      "tag-diary",
+      "today",
+      "calendar",
+      "my-saju",
+      "notify-ask"
+    ],
+    "decisions": [],
+    "status": "draft",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 탭 전환은 Web Animations로 실제 길이와 곡선, 탭 도장 seal.stamp, seal.erase 값. 답을 받으면 결정 번호와 status를 채움"
   }
 ]

@@ -198,7 +198,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 | 선택 바뀜 | 스밈 이동 `select.seep-slide`: 거리의 15%만 미끄러짐 |
 | 불러오는 중 | 먹 숨쉬기 `loading.breathe`(skeleton). 스피너 없음 |
 | 기록됨 | 낙관 도장 찍힘 `seal.stamp` |
-| 시트 깊어짐 | 겹쳐 쌓기 `sheet.stack`. 뒤로·끌어내리기는 한 단계, 바깥 누르기는 모두 닫음 |
+| 시트 깊어짐 | 겹쳐 쌓기 `sheet.stack`. 뒤로, 끌어내리기, 바깥 누르기 모두 한 단계(V100) |
 | 입력 포커스 | 테두리 2px sage `focus.ring` |
 
 * 햅틱은 의미 있는 순간(선택 바뀜, 저장·완료, 반응, 되돌릴 수 없는 동작)에만.

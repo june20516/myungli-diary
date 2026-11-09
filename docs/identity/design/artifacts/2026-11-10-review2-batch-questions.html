@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>검수 회차2 묶음 관문 질문 (#929, #934, #900, #923, #918)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 색, 간격, 반경, 글자는 ds1/tokens.css 토큰입니다. 페이지 바탕과 설명 글만 페이지 전용 값입니다. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f2f1ee; color: #1f1f1e; font-family: var(--type-body-ui-family); font-size: 15px; line-height: 1.55; }
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 20px 72px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 56px 0 6px; padding-top: 16px; border-top: 1px solid #dcdad5; }
+  .intro, .note { color: #5b5b59; margin: 0 0 14px; max-width: 860px; }
+  .note b { color: #2b2b2a; }
+  .row { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .opt { width: 300px; }
+  .opt.wide { width: 375px; }
+  .opt.wide .phone { width: 375px; }
+  .opt.tall .sub { min-height: 96px; }
+  .opt .cap { font-size: 14px; font-weight: 700; color: var(--color-action-primary); }
+  .opt .sub { font-size: 12.5px; color: #5b5b59; margin: 2px 0 10px; min-height: 58px; }
+  .rec { display: inline-block; font-size: 11px; font-weight: 700; color: var(--color-tag-good-fg); background: var(--color-tag-good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 1px; }
+  .state { font-size: 11.5px; color: #77756f; margin: 10px 0 4px; }
+  .ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.14em; }
+  .ico svg { width: 100%; height: 100%; display: block; }
+
+  /* 휴대폰 조각 */
+  .phone { width: 300px; background: var(--color-bg-base); border-radius: 26px; border: 1px solid #d6d4cf; overflow: hidden; position: relative; }
+  .pad { padding: 16px 20px; }
+
+  /* Q1 일기 쓰기 */
+  .dateblock { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .dateblock .d { font-size: 34px; font-weight: 600; line-height: 1; color: var(--color-text-primary); }
+  .dateblock .m { font-size: 13px; color: var(--color-text-secondary); }
+  .dateblock .ij { font-size: 13px; color: var(--color-text-secondary); margin-left: auto; }
+  .paper { background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: 18px 16px 22px; min-height: 230px; }
+  .quote { display: flex; align-items: flex-start; }
+  .quote .q { flex: 1; border-left: 3px solid var(--color-term-bg); border-radius: 2px; padding-left: 12px; font-family: var(--type-sentence-body-family); font-size: 14px; line-height: var(--type-sentence-body-line-height); color: var(--color-text-secondary); }
+  .tap { width: 44px; height: 44px; margin: -10px -8px 0 0; display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: 20px; flex: none; border-radius: 22px; }
+  .tap + .tap { margin-left: -4px; }
+  .qactions { display: flex; gap: 16px; margin: 6px 0 0 15px; }
+  .qactions span { font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+  .body { margin-top: 16px; font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); line-height: var(--type-sentence-body-line-height); color: var(--color-text-secondary); }
+  .attach { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; margin: -12px 0 -12px; font-size: var(--type-caption-lg-size); color: var(--color-action-primary); }
+  .attach.quiet { color: var(--color-text-secondary); }
+
+  /* Q2 일기 줄 태그 */
+  .rowcard { display: flex; gap: 12px; }
+  .datecol { width: 44px; text-align: center; flex: none; }
+  .datecol .n { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .datecol .w { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+  .card { flex: 1; min-width: 0; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: 16px; overflow: hidden; }
+  .card .pv { font-family: var(--type-sentence-body-family); font-size: 14.5px; line-height: 1.6; color: var(--color-text-primary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 8px; }
+  .tags { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; scrollbar-width: none; }
+  .tags::-webkit-scrollbar { display: none; }
+  .tagwrap { position: relative; }
+  .tagwrap.fade::after { content: ""; position: absolute; right: 0; top: 12px; bottom: 0; width: 24px; background: linear-gradient(to right, transparent, var(--color-bg-sheet)); pointer-events: none; }
+  .tagwrap.bleed { margin-right: -16px; }
+  .tagwrap.bleed .tags { padding-right: 16px; }
+  .ht { flex: none; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px 0 4px; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); white-space: nowrap; }
+  .ht .g { width: 22px; height: 22px; border-radius: 50%; background: var(--color-bg-sheet); display: inline-flex; align-items: center; justify-content: center; font-family: 'Noto Serif KR', var(--font-family-hanja); font-size: 12px; font-weight: 700; }
+  .ht.term { background: var(--color-term-bg); color: var(--color-term-fg); }
+  .ht.good { background: var(--color-tag-good-bg); color: var(--color-tag-good-fg); }
+
+  /* Q3 탭 전환 */
+  .tabphone { height: 440px; display: flex; flex-direction: column; }
+  .stage { position: relative; flex: 1; overflow: hidden; }
+  .scr { position: absolute; inset: 0; padding: 18px 20px; will-change: opacity, transform, filter; }
+  .scr h4 { margin: 0 0 12px; font-size: 18px; font-weight: 700; }
+  .blk { background: var(--color-bg-sheet); border-radius: var(--radius-lg); margin-bottom: 10px; padding: 12px 14px; font-size: 12.5px; color: var(--color-text-secondary); }
+  .blk .ln { height: 8px; border-radius: 4px; background: var(--color-line); margin: 6px 0; }
+  .tabbar { height: 72px; background: var(--color-bar-bg); border-top: 0.5px solid var(--color-line); display: flex; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; user-select: none; position: relative; }
+  .tab .ic { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; position: relative; font-size: 24px; color: var(--color-text-secondary); }
+  .tab .seal { position: absolute; inset: 0; border-radius: 9px; background: var(--color-seal-fill); opacity: 0; }
+  .tab .ic .ico { position: relative; }
+  .tab .lb { font-size: var(--type-caption-sm-size); color: var(--color-text-secondary); }
+  .tab.on .ic { color: var(--color-action-on-primary); }
+  .tab.on .lb { color: var(--color-action-primary); font-weight: 600; }
+  .ctl { margin: 0 0 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
+  .ctl button { font: inherit; padding: 6px 14px; border-radius: 999px; border: 1px solid #c9c7c1; background: #fff; cursor: pointer; }
+
+  /* Q4 오류 */
+  .errstate { display: flex; flex-direction: column; align-items: center; padding: 34px 20px 26px; }
+  .circle { width: 56px; height: 56px; border-radius: 50%; background: var(--color-status-bg); color: var(--color-action-primary); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .errstate .s { font-family: var(--type-sentence-body-family); font-size: var(--type-sentence-body-size); color: var(--color-text-secondary); margin-top: 16px; text-align: center; }
+  .errstate .r { margin-top: 18px; color: var(--color-action-primary); font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
+  .banner { margin: 0 20px 16px; background: var(--color-bg-sheet); border-radius: var(--radius-md); padding: 12px; display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); }
+  .banner .ico { font-size: 16px; margin-top: 2px; flex: none; }
+  .errline { margin: 0 20px 16px; display: flex; gap: 6px; align-items: center; font-size: var(--type-caption-lg-size); color: var(--color-text-primary); }
+
+  /* Q5 아래 여백 */
+  .bottom { position: relative; height: 250px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .bottom .help { position: absolute; top: 16px; left: 20px; right: 20px; font-size: 12.5px; color: var(--color-text-secondary); }
+  .btn { height: 52px; margin: 0 20px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); }
+  .btn.filled { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+  .btn.quiet { color: var(--color-action-primary); }
+  .show-press .btn.quiet { background: color-mix(in srgb, var(--color-action-primary) 12%, transparent); }
+  .gap16 { height: 16px; }
+  .sysnav { background: #ecebe7; display: flex; align-items: center; justify-content: center; gap: 46px; color: #55534e; flex: none; }
+  .sysnav.three { height: 48px; }
+  .sysnav.gesture { height: 24px; }
+  .sysnav.gesture i { width: 108px; height: 4px; border-radius: 2px; background: #3b3a37; }
+  .sysnav.none { height: 0; }
+  .sysnav.ios { height: 34px; background: transparent; }
+  .sysnav.ios i { width: 120px; height: 5px; border-radius: 3px; background: #1f1f1e; margin-top: 12px; }
+  .tri { width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-right: 11px solid #55534e; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #55534e; }
+  .sq { width: 13px; height: 13px; border: 2px solid #55534e; border-radius: 2px; }
+  .meas { position: absolute; right: 6px; font-size: 10.5px; color: #b0412e; background: #fff8; padding: 0 3px; border-radius: 3px; }
+  .grid5 { display: grid; grid-template-columns: repeat(4, 240px); gap: 18px; }
+  .grid5 .phone { width: 240px; }
+  .grid5 .phone .btn { margin: 0 16px; }
+  .rowlabel { font-size: 13.5px; font-weight: 700; color: var(--color-action-primary); margin: 22px 0 4px; }
+  .collabel { font-size: 12px; color: #5b5b59; text-align: center; margin-bottom: 4px; }
+  @media (prefers-color-scheme: dark) { body { background: #f2f1ee; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>검수 회차2 묶음 관문 질문</h1>
+  <p class="intro">화면 모양을 골라야 하는 네 건(#929 질문 떼기, #934 일기 줄 태그, #900 탭 전환, #923 오류 아이콘)과 #918 맨 아래 여백을 한 장에 모았습니다. 답을 받으면 같은 PR에서 컴포넌트 판을 한 번만 올립니다. 규칙만 고치는 세 건(#920 겹친 시트 바깥 누르기, #917 신살 칸 빈 표시 세로 위치, #918 두 버튼 높이)은 관문 없이 함께 반영합니다.</p>
+
+  <h2>Q1. 일기 쓰기 질문 떼기와 다시 붙이기 (#929, D116)</h2>
+  <p class="note">지금 인용 질문 오른쪽 첫 줄에 질문 바꾸기(<span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,48V96a6,6,0,0,1-6,6H168a6,6,0,0,1,0-12h33.52L183.47,72a81.51,81.51,0,0,0-57.53-24h-.46A81.5,81.5,0,0,0,68.19,71.28a6,6,0,1,1-8.38-8.58,93.38,93.38,0,0,1,65.67-26.76H126a93.45,93.45,0,0,1,66,27.53l18,18V48a6,6,0,0,1,12,0ZM187.81,184.72a81.5,81.5,0,0,1-57.29,23.34h-.46a81.51,81.51,0,0,1-57.53-24L54.48,166H88a6,6,0,0,0,0-12H40a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V174.48l18,18.05a93.45,93.45,0,0,0,66,27.53h.52a93.38,93.38,0,0,0,65.67-26.76,6,6,0,1,0-8.38-8.58Z"/></svg></span>)가 있습니다. 떼기를 어디에 둘지와, 뗀 뒤 그 자리에 남는 다시 붙이기 링크 모양을 봅니다. 다시 붙이기를 누르면 그날 기본 질문이 붙습니다. 터치 영역은 모두 44입니다.</p>
+  <div class="row">
+    <div class="opt">
+      <div class="cap">①  아이콘 둘 (바꾸기, 떼기)<span class="rec">권장</span></div>
+      <div class="sub">바꾸기 옆에 같은 크기의 떼기 <span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M204.24,195.76a6,6,0,1,1-8.48,8.48L128,136.49,60.24,204.24a6,6,0,0,1-8.48-8.48L119.51,128,51.76,60.24a6,6,0,0,1,8.48-8.48L128,119.51l67.76-67.75a6,6,0,0,1,8.48,8.48L136.49,128Z"/></svg></span>를 둡니다. 지금 자리를 그대로 쓰고, 지우기 표시는 누구나 아는 모양입니다. 둘이 붙어 있어 잘못 누를 수 있지만 각 44 영역이 겹치지 않습니다.</div>
+      <div class="state">질문이 붙어 있음</div>
+      <div class="phone"><div class="pad">
+        <div class="dateblock"><span class="d">10</span><span class="m">11월 월요일</span><span class="ij">갑자일</span></div>
+        <div class="paper">
+          <div class="quote"><div class="q">오늘 누군가에게 먼저 건넨 말이 있었나요?</div><span class="tap"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,48V96a6,6,0,0,1-6,6H168a6,6,0,0,1,0-12h33.52L183.47,72a81.51,81.51,0,0,0-57.53-24h-.46A81.5,81.5,0,0,0,68.19,71.28a6,6,0,1,1-8.38-8.58,93.38,93.38,0,0,1,65.67-26.76H126a93.45,93.45,0,0,1,66,27.53l18,18V48a6,6,0,0,1,12,0ZM187.81,184.72a81.5,81.5,0,0,1-57.29,23.34h-.46a81.51,81.51,0,0,1-57.53-24L54.48,166H88a6,6,0,0,0,0-12H40a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V174.48l18,18.05a93.45,93.45,0,0,0,66,27.53h.52a93.38,93.38,0,0,0,65.67-26.76,6,6,0,1,0-8.38-8.58Z"/></svg></span></span><span class="tap"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M204.24,195.76a6,6,0,1,1-8.48,8.48L128,136.49,60.24,204.24a6,6,0,0,1-8.48-8.48L119.51,128,51.76,60.24a6,6,0,0,1,8.48-8.48L128,119.51l67.76-67.75a6,6,0,0,1,8.48,8.48L136.49,128Z"/></svg></span></span></div>
+          <div class="body">오늘 있었던 일을 적어 보세요</div>
+        </div>
+      </div></div>
+      <div class="state">뗀 뒤</div>
+      <div class="phone"><div class="pad">
+        <div class="dateblock"><span class="d">10</span><span class="m">11월 월요일</span><span class="ij">갑자일</span></div>
+        <div class="paper">
+          <span class="attach"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"/></svg></span>질문 붙이기</span>
+          <div class="body">오늘 있었던 일을 적어 보세요</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="opt">
+      <div class="cap">②  질문 아래 글자 버튼 줄</div>
+      <div class="sub">아이콘 대신 질문 아래에 "다른 질문", "질문 떼기" 글자 버튼을 둡니다. 뜻이 글자로 읽히지만 질문 칸이 한 줄 높아지고, 인용 질문보다 버튼 줄이 눈에 먼저 들어옵니다.</div>
+      <div class="state">질문이 붙어 있음</div>
+      <div class="phone"><div class="pad">
+        <div class="dateblock"><span class="d">10</span><span class="m">11월 월요일</span><span class="ij">갑자일</span></div>
+        <div class="paper">
+          <div class="quote"><div class="q">오늘 누군가에게 먼저 건넨 말이 있었나요?</div></div>
+          <div class="qactions"><span><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,48V96a6,6,0,0,1-6,6H168a6,6,0,0,1,0-12h33.52L183.47,72a81.51,81.51,0,0,0-57.53-24h-.46A81.5,81.5,0,0,0,68.19,71.28a6,6,0,1,1-8.38-8.58,93.38,93.38,0,0,1,65.67-26.76H126a93.45,93.45,0,0,1,66,27.53l18,18V48a6,6,0,0,1,12,0ZM187.81,184.72a81.5,81.5,0,0,1-57.29,23.34h-.46a81.51,81.51,0,0,1-57.53-24L54.48,166H88a6,6,0,0,0,0-12H40a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V174.48l18,18.05a93.45,93.45,0,0,0,66,27.53h.52a93.38,93.38,0,0,0,65.67-26.76,6,6,0,1,0-8.38-8.58Z"/></svg></span>다른 질문</span><span><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M204.24,195.76a6,6,0,1,1-8.48,8.48L128,136.49,60.24,204.24a6,6,0,0,1-8.48-8.48L119.51,128,51.76,60.24a6,6,0,0,1,8.48-8.48L128,119.51l67.76-67.75a6,6,0,0,1,8.48,8.48L136.49,128Z"/></svg></span>질문 떼기</span></div>
+          <div class="body">오늘 있었던 일을 적어 보세요</div>
+        </div>
+      </div></div>
+      <div class="state">뗀 뒤</div>
+      <div class="phone"><div class="pad">
+        <div class="dateblock"><span class="d">10</span><span class="m">11월 월요일</span><span class="ij">갑자일</span></div>
+        <div class="paper">
+          <span class="attach"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"/></svg></span>질문 붙이기</span>
+          <div class="body">오늘 있었던 일을 적어 보세요</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="opt">
+      <div class="cap">③  아이콘 둘 + 조용한 다시 붙이기</div>
+      <div class="sub">떼기는 ①과 같고, 뗀 뒤 링크를 초록 대신 보조 글자색으로 둡니다. 질문 없이 쓰기로 한 사람에게 링크가 덜 눈에 띄지만, 다시 붙일 수 있다는 것을 알아채기 어렵습니다.</div>
+      <div class="state">질문이 붙어 있음</div>
+      <div class="phone"><div class="pad">
+        <div class="dateblock"><span class="d">10</span><span class="m">11월 월요일</span><span class="ij">갑자일</span></div>
+        <div class="paper">
+          <div class="quote"><div class="q">오늘 누군가에게 먼저 건넨 말이 있었나요?</div><span class="tap"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,48V96a6,6,0,0,1-6,6H168a6,6,0,0,1,0-12h33.52L183.47,72a81.51,81.51,0,0,0-57.53-24h-.46A81.5,81.5,0,0,0,68.19,71.28a6,6,0,1,1-8.38-8.58,93.38,93.38,0,0,1,65.67-26.76H126a93.45,93.45,0,0,1,66,27.53l18,18V48a6,6,0,0,1,12,0ZM187.81,184.72a81.5,81.5,0,0,1-57.29,23.34h-.46a81.51,81.51,0,0,1-57.53-24L54.48,166H88a6,6,0,0,0,0-12H40a6,6,0,0,0-6,6v48a6,6,0,0,0,12,0V174.48l18,18.05a93.45,93.45,0,0,0,66,27.53h.52a93.38,93.38,0,0,0,65.67-26.76,6,6,0,1,0-8.38-8.58Z"/></svg></span></span><span class="tap"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M204.24,195.76a6,6,0,1,1-8.48,8.48L128,136.49,60.24,204.24a6,6,0,0,1-8.48-8.48L119.51,128,51.76,60.24a6,6,0,0,1,8.48-8.48L128,119.51l67.76-67.75a6,6,0,0,1,8.48,8.48L136.49,128Z"/></svg></span></span></div>
+          <div class="body">오늘 있었던 일을 적어 보세요</div>
+        </div>
+      </div></div>
+      <div class="state">뗀 뒤</div>
+      <div class="phone"><div class="pad">
+        <div class="dateblock"><span class="d">10</span><span class="m">11월 월요일</span><span class="ij">갑자일</span></div>
+        <div class="paper">
+          <span class="attach quiet"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"/></svg></span>질문 붙이기</span>
+          <div class="body">오늘 있었던 일을 적어 보세요</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <p class="note">"질문 붙이기", "다른 질문", "질문 떼기"는 가안이고 문구는 writing이 정합니다. 질문을 바꾸거나 떼고 붙여도 본문은 그대로입니다.</p>
+
+  <h2>Q2. 일기 줄 태그가 한 줄을 넘을 때 (#934, D115)</h2>
+  <p class="note">일기 줄 태그가 대표 태그 하나에서 그날 사주 기운 태그 전부로 바뀝니다. 한 줄을 넘으면 줄을 늘리지 않고 그 줄 안에서 가로로 밉니다. 아래 태그 줄은 실제로 옆으로 밀립니다. 넘칠 때 끝을 어떻게 보일지 고릅니다.</p>
+  <div class="row">
+    <div class="opt wide">
+      <div class="cap">①  끝 흐림 (대운 줄과 같은 방식)<span class="rec">권장</span></div>
+      <div class="sub">더 있는 쪽 끝 24를 카드 바탕색으로 흐립니다. 대운, 세운 가로 줄의 넘김 표시(V90)와 같은 규칙이라 앱 안에서 한 가지 언어로 읽힙니다. 끝까지 밀면 흐림이 사라집니다.</div>
+      <div class="phone"><div class="pad"><div class="rowcard"><div class="datecol"><div class="n">10</div><div class="w">월</div></div><div class="card"><span class="ht good"><span class="g">用</span>용신의 날</span><div class="pv">아침에 미뤄 둔 정리를 끝냈다. 오랜만에 친구에게 먼저 연락했더니 반가워했다.</div><div class="tagwrap fade"><div class="tags"><span class="ht term"><span class="g">官</span>관성</span><span class="ht term"><span class="g">合</span>합</span><span class="ht term"><span class="g">天</span>천을귀인</span><span class="ht term"><span class="g">驛</span>역마</span><span class="ht term"><span class="g">桃</span>도화</span></div></div></div></div></div></div>
+    </div>
+    <div class="opt wide">
+      <div class="cap">②  잘림만</div>
+      <div class="sub">흐림 없이 카드 안쪽 여백에서 태그가 잘립니다. 가장 단순하지만, 마지막 태그가 딱 맞게 끝나면 더 있는지 알 수 없습니다.</div>
+      <div class="phone"><div class="pad"><div class="rowcard"><div class="datecol"><div class="n">10</div><div class="w">월</div></div><div class="card"><span class="ht good"><span class="g">用</span>용신의 날</span><div class="pv">아침에 미뤄 둔 정리를 끝냈다. 오랜만에 친구에게 먼저 연락했더니 반가워했다.</div><div class="tagwrap"><div class="tags"><span class="ht term"><span class="g">官</span>관성</span><span class="ht term"><span class="g">合</span>합</span><span class="ht term"><span class="g">天</span>천을귀인</span><span class="ht term"><span class="g">驛</span>역마</span><span class="ht term"><span class="g">桃</span>도화</span></div></div></div></div></div></div>
+    </div>
+    <div class="opt wide">
+      <div class="cap">③  카드 끝까지 넘어감 + 흐림</div>
+      <div class="sub">태그 줄만 카드 오른쪽 안쪽 여백을 넘어 카드 모서리까지 밀리고 끝을 흐립니다. 한 번에 보이는 태그가 조금 늘지만, 카드 안 다른 줄과 오른쪽 끝선이 어긋납니다.</div>
+      <div class="phone"><div class="pad"><div class="rowcard"><div class="datecol"><div class="n">10</div><div class="w">월</div></div><div class="card"><span class="ht good"><span class="g">用</span>용신의 날</span><div class="pv">아침에 미뤄 둔 정리를 끝냈다. 오랜만에 친구에게 먼저 연락했더니 반가워했다.</div><div class="tagwrap fade bleed"><div class="tags"><span class="ht term"><span class="g">官</span>관성</span><span class="ht term"><span class="g">合</span>합</span><span class="ht term"><span class="g">天</span>천을귀인</span><span class="ht term"><span class="g">驛</span>역마</span><span class="ht term"><span class="g">桃</span>도화</span></div></div></div></div></div></div>
+    </div>
+  </div>
+  <p class="note">모아보기(tag-diary) 줄에서 모아 본 태그만 숨기는 규칙(D113 ①)은 그대로입니다. 스크린리더는 가로 밀기와 상관없이 태그를 차례로 읽습니다.</p>
+
+  <h2>Q3. 탭 바로 탭을 바꿀 때의 전환 (#900)</h2>
+  <p class="note">지금은 탭을 누르면 한 프레임에 화면이 바뀌고 탭 도장만 움직입니다. 안쪽 화면 이동(page.push, 오른쪽에서 24px, 320ms)과 구분되게 방향 이동 없이 짧게 둡니다. <b>아래 탭을 눌러 보세요.</b> 탭 도장(찍힘 520ms, 지워짐 200ms)도 실제 값으로 움직여 박자를 같이 볼 수 있습니다.</p>
+  <div class="ctl"><button type="button" id="cycle">네 안 함께 다음 탭으로</button><label><input type="checkbox" id="slow"> 4배 느리게 보기</label><label><input type="checkbox" id="reduce"> 동작 줄이기 켬</label></div>
+  <div class="row">
+    <div class="opt tall"><div class="cap">①  지금 (바로 바뀜)</div><div class="sub">전환 없음. 검수 회차2에서 효과가 없다고 지적받은 상태입니다.</div><div class="phone tabphone" data-mode="none"></div></div>
+    <div class="opt tall"><div class="cap">②  fade through 210ms<span class="rec">권장</span></div><div class="sub">앞 화면이 60ms에 빠르게 사라지고, 새 화면이 150ms 동안 0.96배에서 제 크기로 커지며 나타납니다(enter 곡선). Material 하단 탭 관습이고 page.push보다 짧고 방향이 없습니다.</div><div class="phone tabphone" data-mode="through"></div></div>
+    <div class="opt tall"><div class="cap">③  겹쳐 바뀜 200ms</div><div class="sub">두 화면이 200ms 동안 서로 겹치며 투명도만 바뀝니다. 가장 조용하지만, 내용이 많은 화면끼리는 잠깐 두 화면이 겹쳐 보입니다.</div><div class="phone tabphone" data-mode="cross"></div></div>
+    <div class="opt tall"><div class="cap">④  스밈 280ms</div><div class="sub">앞 화면이 80ms에 사라지고, 새 화면이 6px 흐림에서 또렷해지며 나타납니다(스밈 곡선, appear.seep 언어). 브랜드 느낌이 가장 크지만 길고, 화면 전체 흐림이라 저사양 기기에서는 투명도만 남깁니다.</div><div class="phone tabphone" data-mode="seep"></div></div>
+  </div>
+  <p class="note">동작 줄이기를 켜면 모든 안이 투명도만 남습니다(V14). 이미 선택된 탭을 다시 누르면 전환 없이 맨 위로 올라가는 지금 규칙은 그대로입니다.</p>
+
+  <h2>Q4. 오류 아이콘 (#923, V50)</h2>
+  <p class="note">오류 화면(error-state generic)과 오류 배너(notice-banner error)의 아이콘입니다. 연결 없음(<span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M138,204a10,10,0,1,1-10-10A10,10,0,0,1,138,204ZM52.44,36A6,6,0,0,0,43.56,44L61.33,63.58a169.41,169.41,0,0,0-41.14,25,6,6,0,1,0,7.62,9.27A157.58,157.58,0,0,1,69.91,73l26.48,29.13a122.21,122.21,0,0,0-44.12,22.19,6,6,0,0,0,7.46,9.41,110,110,0,0,1,45.87-21.47l31.13,34.25A74.4,74.4,0,0,0,128,146a73.44,73.44,0,0,0-43.53,14.15A6,6,0,0,0,88,171a5.93,5.93,0,0,0,3.53-1.15,62,62,0,0,1,59.76-7.31L203.56,220a6,6,0,0,0,8.88-8.08ZM235.81,88.55A170.32,170.32,0,0,0,128,50a173.45,173.45,0,0,0-21.76,1.38,6,6,0,1,0,1.52,11.9A160.58,160.58,0,0,1,128,62,158.26,158.26,0,0,1,228.19,97.82a6,6,0,1,0,7.62-9.27Zm-39.54,45.2A6,6,0,0,0,200,135a6,6,0,0,0,3.73-10.7,122.26,122.26,0,0,0-50.9-23.81,6,6,0,1,0-2.43,11.75A110,110,0,0,1,196.27,133.75Z"/></svg></span>)은 그대로입니다. 참고로 앱에는 이미 <b>채운 원 안 느낌표</b>가 주의 표시(mark.caution: 입력 오류 줄, 되돌릴 수 없는 확인 창 제목)로 쓰입니다.</p>
+  <div class="row">
+    <div class="opt"><div class="cap">①  지금 (구름 안 느낌표)</div><div class="sub">서버 쪽 문제라는 뜻이지만, 검수에서 오류로 잘 읽히지 않는다고 했습니다.</div><div class="phone"><div class="errstate"><div class="circle"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M160,42A86.11,86.11,0,0,0,82.43,90.88,62,62,0,1,0,72,214h88a86,86,0,0,0,0-172Zm0,160H72a50,50,0,0,1,0-100,50.67,50.67,0,0,1,5.91.35A85.61,85.61,0,0,0,74,128a6,6,0,0,0,12,0,74,74,0,1,1,74,74Zm-6-74V88a6,6,0,0,1,12,0v40a6,6,0,0,1-12,0Zm16,36a10,10,0,1,1-10-10A10,10,0,0,1,170,164Z"/></svg></span></div><div class="s">내용을 불러오지 못했어요.</div><div class="r">다시 시도</div></div><div class="banner"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M160,42A86.11,86.11,0,0,0,82.43,90.88,62,62,0,1,0,72,214h88a86,86,0,0,0,0-172Zm0,160H72a50,50,0,0,1,0-100,50.67,50.67,0,0,1,5.91.35A85.61,85.61,0,0,0,74,128a6,6,0,0,0,12,0,74,74,0,1,1,74,74Zm-6-74V88a6,6,0,0,1,12,0v40a6,6,0,0,1-12,0Zm16,36a10,10,0,1,1-10-10A10,10,0,0,1,170,164Z"/></svg></span><span>다시 계산하지 못했어요. 잠시 뒤 다시 저장해 주세요.</span></div><div class="errline"><span class="ico" style="font-size:14px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm-8,56a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm8,104a12,12,0,1,1,12-12A12,12,0,0,1,128,184Z"/></svg></span>참고: 주의 표시(입력 오류 줄)</div></div></div>
+    <div class="opt"><div class="cap">②  원 안 느낌표 (선)<span class="rec">권장</span></div><div class="sub">주의 표시와 같은 모양 갈래라 "무언가 잘못됨"이 앱 전체에서 한 모양으로 읽힙니다. 오류는 선, 주의 표시는 채움이라 크기와 굵기로 구분됩니다.</div><div class="phone"><div class="errstate"><div class="circle"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm0,192a90,90,0,1,1,90-90A90.1,90.1,0,0,1,128,218Zm-6-82V80a6,6,0,0,1,12,0v56a6,6,0,0,1-12,0Zm16,36a10,10,0,1,1-10-10A10,10,0,0,1,138,172Z"/></svg></span></div><div class="s">내용을 불러오지 못했어요.</div><div class="r">다시 시도</div></div><div class="banner"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm0,192a90,90,0,1,1,90-90A90.1,90.1,0,0,1,128,218Zm-6-82V80a6,6,0,0,1,12,0v56a6,6,0,0,1-12,0Zm16,36a10,10,0,1,1-10-10A10,10,0,0,1,138,172Z"/></svg></span><span>다시 계산하지 못했어요. 잠시 뒤 다시 저장해 주세요.</span></div><div class="errline"><span class="ico" style="font-size:14px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm-8,56a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm8,104a12,12,0,1,1,12-12A12,12,0,0,1,128,184Z"/></svg></span>참고: 주의 표시(입력 오류 줄)</div></div></div>
+    <div class="opt"><div class="cap">③  세모 경고</div><div class="sub">흔한 경고 모양입니다. 다만 앱의 다른 경고(주의 표시)는 원이라 모양이 둘로 갈립니다.</div><div class="phone"><div class="errstate"><div class="circle"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M235.07,189.09,147.61,37.22h0a22.75,22.75,0,0,0-39.22,0L20.93,189.09a21.53,21.53,0,0,0,0,21.72A22.35,22.35,0,0,0,40.55,222h174.9a22.35,22.35,0,0,0,19.6-11.19A21.53,21.53,0,0,0,235.07,189.09ZM224.66,204.8a10.46,10.46,0,0,1-9.21,5.2H40.55a10.46,10.46,0,0,1-9.21-5.2,9.51,9.51,0,0,1,0-9.72L118.79,43.21a10.75,10.75,0,0,1,18.42,0l87.46,151.87A9.51,9.51,0,0,1,224.66,204.8ZM122,144V104a6,6,0,0,1,12,0v40a6,6,0,0,1-12,0Zm16,36a10,10,0,1,1-10-10A10,10,0,0,1,138,180Z"/></svg></span></div><div class="s">내용을 불러오지 못했어요.</div><div class="r">다시 시도</div></div><div class="banner"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M235.07,189.09,147.61,37.22h0a22.75,22.75,0,0,0-39.22,0L20.93,189.09a21.53,21.53,0,0,0,0,21.72A22.35,22.35,0,0,0,40.55,222h174.9a22.35,22.35,0,0,0,19.6-11.19A21.53,21.53,0,0,0,235.07,189.09ZM224.66,204.8a10.46,10.46,0,0,1-9.21,5.2H40.55a10.46,10.46,0,0,1-9.21-5.2,9.51,9.51,0,0,1,0-9.72L118.79,43.21a10.75,10.75,0,0,1,18.42,0l87.46,151.87A9.51,9.51,0,0,1,224.66,204.8ZM122,144V104a6,6,0,0,1,12,0v40a6,6,0,0,1-12,0Zm16,36a10,10,0,1,1-10-10A10,10,0,0,1,138,180Z"/></svg></span><span>다시 계산하지 못했어요. 잠시 뒤 다시 저장해 주세요.</span></div><div class="errline"><span class="ico" style="font-size:14px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm-8,56a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm8,104a12,12,0,1,1,12-12A12,12,0,0,1,128,184Z"/></svg></span>참고: 주의 표시(입력 오류 줄)</div></div></div>
+  </div>
+
+  <h2>Q5. 맨 아래 버튼과 화면 아래 끝 사이 (#918 ②)</h2>
+  <p class="note">알림 허락 화면처럼 아래에 버튼이 붙은 화면입니다. 시스템 inset(Android 3버튼 48, 제스처 막대 24, 없음 0, iPhone 홈 막대 34) 위에 더하는 값을 고릅니다. 버튼 사이 간격(16)은 지금이 좋다고 하셔서 그대로입니다. 빨간 숫자는 '나중에' 버튼 면 아래 끝에서 시스템 영역까지입니다. 투명 버튼은 면이 보이지 않아 <label><input type="checkbox" id="press"> 눌린 면 보기</label>로 확인할 수 있습니다.</p>
+  <div id="q5"></div>
+  <p class="note">같은 값을 아래 고정 버튼 전체(input-step 아래 버튼, 버튼 하나뿐인 화면 포함)에 씁니다. 목록 위에 떠 있는 버튼과 toast는 이미 "아래 안전 영역 위 16"이라 ②를 고르면 앱 전체가 한 값이 됩니다. 키보드가 열리면 키보드 위 16입니다.</p>
+
+  <p class="note" style="margin-top: 48px">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Gowun Dodum, Noto Serif KR.</p>
+</div>
+<script>
+const ICONS = {"notebook-fill": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM80,208H48V48H80Zm96-56H112a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Zm0-32H112a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Z\"/></svg>", "calendar-blank-regular": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z\"/></svg>", "sun-fill": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm8,24a64,64,0,1,0,64,64A64.07,64.07,0,0,0,128,64ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z\"/></svg>", "user-regular": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z\"/></svg>", "sun-regular": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z\"/></svg>", "calendar-blank-fill": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,48H48V48H72v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24Z\"/></svg>", "user-light": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M229.19,213c-15.81-27.32-40.63-46.49-69.47-54.62a70,70,0,1,0-63.44,0C67.44,166.5,42.62,185.67,26.81,213a6,6,0,1,0,10.38,6C56.4,185.81,90.34,166,128,166s71.6,19.81,90.81,53a6,6,0,1,0,10.38-6ZM70,96a58,58,0,1,1,58,58A58.07,58.07,0,0,1,70,96Z\"/></svg>", "notebook-regular": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M184,112a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16h64A8,8,0,0,1,184,112Zm-8,24H112a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm48-88V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM48,208H72V48H48Zm160,0V48H88V208H208Z\"/></svg>", "notebook-light": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M182,112a6,6,0,0,1-6,6H112a6,6,0,0,1,0-12h64A6,6,0,0,1,182,112Zm-6,26H112a6,6,0,0,0,0,12h64a6,6,0,0,0,0-12Zm46-90V208a14,14,0,0,1-14,14H48a14,14,0,0,1-14-14V48A14,14,0,0,1,48,34H208A14,14,0,0,1,222,48ZM48,210H74V46H48a2,2,0,0,0-2,2V208A2,2,0,0,0,48,210ZM210,48a2,2,0,0,0-2-2H86V210H208a2,2,0,0,0,2-2Z\"/></svg>", "sun-light": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M122,40V16a6,6,0,0,1,12,0V40a6,6,0,0,1-12,0Zm68,88a62,62,0,1,1-62-62A62.07,62.07,0,0,1,190,128Zm-12,0a50,50,0,1,0-50,50A50.06,50.06,0,0,0,178,128ZM59.76,68.24a6,6,0,1,0,8.48-8.48l-16-16a6,6,0,0,0-8.48,8.48Zm0,119.52-16,16a6,6,0,1,0,8.48,8.48l16-16a6,6,0,1,0-8.48-8.48ZM192,70a6,6,0,0,0,4.24-1.76l16-16a6,6,0,0,0-8.48-8.48l-16,16A6,6,0,0,0,192,70Zm4.24,117.76a6,6,0,0,0-8.48,8.48l16,16a6,6,0,0,0,8.48-8.48ZM46,128a6,6,0,0,0-6-6H16a6,6,0,0,0,0,12H40A6,6,0,0,0,46,128Zm82,82a6,6,0,0,0-6,6v24a6,6,0,0,0,12,0V216A6,6,0,0,0,128,210Zm112-88H216a6,6,0,0,0,0,12h24a6,6,0,0,0,0-12Z\"/></svg>", "calendar-blank-light": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M208,34H182V24a6,6,0,0,0-12,0V34H86V24a6,6,0,0,0-12,0V34H48A14,14,0,0,0,34,48V208a14,14,0,0,0,14,14H208a14,14,0,0,0,14-14V48A14,14,0,0,0,208,34ZM48,46H74V56a6,6,0,0,0,12,0V46h84V56a6,6,0,0,0,12,0V46h26a2,2,0,0,1,2,2V82H46V48A2,2,0,0,1,48,46ZM208,210H48a2,2,0,0,1-2-2V94H210V208A2,2,0,0,1,208,210Z\"/></svg>", "user-fill": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M230.93,220a8,8,0,0,1-6.93,4H32a8,8,0,0,1-6.92-12c15.23-26.33,38.7-45.21,66.09-54.16a72,72,0,1,1,73.66,0c27.39,8.95,50.86,27.83,66.09,54.16A8,8,0,0,1,230.93,220Z\"/></svg>"};
+const TABS = [["today","오늘","sun"],["calendar","달력","calendar-blank"],["diary","일기","notebook"],["me","나","user"]];
+const SCREENS = {
+  today: ["오늘", ["총운", "오늘의 사주 기운", "행운"]],
+  calendar: ["달력", ["11월", "그날 일정"]],
+  diary: ["일기", ["11월 10일", "11월 9일", "11월 7일"]],
+  me: ["나", ["사주 원국", "성향 풀이", "나를 돕는 기운", "올해와 지금"]],
+};
+function icon(name, weight) { return `<span class="ico">${ICONS[name + "-" + weight]}</span>`; }
+function screenHtml(id) {
+  const [title, blocks] = SCREENS[id];
+  return `<h4>${title}</h4>` + blocks.map((b, i) => `<div class="blk">${b}<div class="ln" style="width:${88 - i * 9}%"></div><div class="ln" style="width:${62 + i * 7}%"></div></div>`).join("");
+}
+const speed = () => (document.getElementById("slow").checked ? 4 : 1);
+const reduce = () => document.getElementById("reduce").checked;
+const SEEP = "cubic-bezier(0.2, 0.7, 0.2, 1)", ENTER = "cubic-bezier(0.2, 0.8, 0.2, 1)", STANDARD = "cubic-bezier(0.4, 0, 0.2, 1)", PRESS = "cubic-bezier(0.5, 0, 0.9, 0.6)";
+function stamp(seal) {
+  if (reduce()) return seal.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 520 * speed(), easing: SEEP, fill: "forwards" });
+  seal.animate([
+    { offset: 0, transform: "scale(1.2)", opacity: 0, filter: "blur(3px)" },
+    { offset: 0.35, transform: "scale(1)", opacity: 0.55, filter: "blur(1.5px)", easing: SEEP },
+    { offset: 1, transform: "scale(1)", opacity: 1, filter: "blur(0)" },
+  ], { duration: 520 * speed(), easing: PRESS, fill: "forwards" });
+}
+function erase(seal) {
+  const kf = reduce() ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(5px)" }];
+  seal.animate(kf, { duration: 200 * speed(), easing: STANDARD, fill: "forwards" });
+}
+function transition(mode, oldEl, newEl) {
+  const s = speed();
+  const done = () => oldEl.remove();
+  if (mode === "none") { done(); return; }
+  if (reduce()) {
+    newEl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: (mode === "seep" ? 280 : mode === "through" ? 210 : 200) * s, easing: STANDARD, fill: "both" });
+    oldEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 60 * s, fill: "forwards" }).onfinish = done;
+    return;
+  }
+  if (mode === "through") {
+    oldEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 60 * s, easing: STANDARD, fill: "forwards" }).onfinish = done;
+    newEl.animate([{ opacity: 0, transform: "scale(0.96)" }, { opacity: 1, transform: "scale(1)" }], { duration: 150 * s, delay: 60 * s, easing: ENTER, fill: "both" });
+  } else if (mode === "cross") {
+    oldEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 * s, easing: STANDARD, fill: "forwards" }).onfinish = done;
+    newEl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 * s, easing: STANDARD, fill: "both" });
+  } else if (mode === "seep") {
+    oldEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 80 * s, easing: STANDARD, fill: "forwards" }).onfinish = done;
+    newEl.animate([{ opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0)" }], { duration: 200 * s, delay: 80 * s, easing: SEEP, fill: "both" });
+  }
+}
+function setupPhone(phone) {
+  const mode = phone.dataset.mode;
+  phone.innerHTML = `<div class="stage"></div><div class="tabbar">${TABS.map(([id, label, ic]) => `<div class="tab" data-id="${id}"><div class="ic"><span class="seal"></span><span class="w-light">${icon(ic, "light")}</span><span class="w-regular" style="display:none">${icon(ic, "regular")}</span></div><div class="lb">${label}</div></div>`).join("")}</div>`;
+  const stage = phone.querySelector(".stage");
+  let current = null;
+  function select(id, animate) {
+    if (id === current) return;
+    const tabs = phone.querySelectorAll(".tab");
+    tabs.forEach((t) => {
+      const on = t.dataset.id === id, was = t.dataset.id === current;
+      t.classList.toggle("on", on);
+      t.querySelector(".w-light").style.display = on ? "none" : "";
+      t.querySelector(".w-regular").style.display = on ? "" : "none";
+      const seal = t.querySelector(".seal");
+      if (on) { animate ? stamp(seal) : (seal.style.opacity = 1); }
+      if (was && animate) erase(seal);
+    });
+    const el = document.createElement("div");
+    el.className = "scr"; el.innerHTML = screenHtml(id);
+    const old = stage.querySelector(".scr:last-child");
+    stage.appendChild(el);
+    if (old) { animate ? transition(mode, old, el) : old.remove(); }
+    current = id;
+  }
+  phone.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => select(t.dataset.id, true)));
+  select("today", false);
+  phone.next = () => { const i = TABS.findIndex(([id]) => id === current); select(TABS[(i + 1) % 4][0], true); };
+}
+document.querySelectorAll(".tabphone").forEach(setupPhone);
+document.getElementById("cycle").addEventListener("click", () => document.querySelectorAll(".tabphone").forEach((p) => p.next()));
+
+const NAVS = [["three", "Android 3버튼 (48)", 48], ["gesture", "Android 제스처 막대 (24)", 24], ["none", "Android 없음 (0)", 0], ["ios", "iPhone 홈 막대 (34)", 34]];
+const NAV_HTML = { three: '<div class="tri"></div><div class="dot"></div><div class="sq"></div>', gesture: "<i></i>", none: "", ios: "<i></i>" };
+const ROWS = [[8, "①  지금 (inset + 8)", "app 지금 값. 3버튼과 제스처에서는 버튼이 시스템 영역에 붙어 보이고, 없음에서는 화면 끝에 8만 남습니다."], [16, "②  inset + 16 <span class=\"rec\">권장</span>", "목록 위 떠 있는 버튼, toast와 같은 16입니다. 모든 경우에 버튼 사이 간격과 아래 여백이 같아 보입니다."], [24, "③  inset + 24", "가장 여유 있지만 3버튼에서는 아래가 72로 커서 버튼이 떠 보이고, 본문 자리가 줄어듭니다."]];
+document.getElementById("q5").innerHTML = ROWS.map(([extra, label, sub]) => `<div class="rowlabel">${label}</div><p class="note" style="margin:0 0 8px">${sub}</p><div class="grid5">${NAVS.map(([nav, name, inset]) => `<div><div class="collabel">${name}</div><div class="phone"><div class="bottom"><div class="help">고른 시각부터 10분 안에 아침 알림이 도착해요.</div><div class="btn filled">알림 받기</div><div class="gap16"></div><div class="btn quiet">나중에</div><div style="height:${extra}px;position:relative"><span class="meas" style="bottom:${Math.max(extra / 2 - 8, -6)}px">${extra}</span></div><div class="sysnav ${nav}">${NAV_HTML[nav]}</div></div></div></div>`).join("")}</div>`).join("");
+document.getElementById("press").addEventListener("change", (e) => document.getElementById("q5").classList.toggle("show-press", e.target.checked));
+</script>
+</body>
+</html>

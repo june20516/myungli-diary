@@ -237,7 +237,7 @@
           "shinsal": { "component": "term-token", "variant": "label", "stack": { "direction": "vertical", "gap": "{space.4}" }, "source": "Chart.shinsal", "whenEmpty": "empty" }
         },
         "cell": { "align": "center", "verticalAlign": "top", "paddingTop": "{space.8}", "paddingBottom": "{space.12}", "rowHeight": "그 띠에서 가장 높은 칸", "note": "아래를 더 띄워 다음 띠 머리줄과 가름" },
-        "empty": { "shape": "line", "width": { "value": 12, "unit": "px" }, "height": { "value": 1, "unit": "px" }, "color": "{color.text.secondary}", "a11y": "writing 새 슬롯(없음)", "note": "글자 '-' 대신 짧은 가로선. 표 안에서 빈 칸임을 보임" },
+        "empty": { "shape": "line", "width": { "value": 12, "unit": "px" }, "height": { "value": 1, "unit": "px" }, "color": "{color.text.secondary}", "a11y": "writing 새 슬롯(없음)", "box": "그 띠 내용 한 줄의 높이(12운성, 신살: term-token label 칩 한 줄, 지장간: stem.chip 22)", "verticalAlign": "box-center", "note": "글자 '-' 대신 짧은 가로선. 표 안에서 빈 칸임을 보임. 칸 위 space.8 아래에 그 띠 한 줄 높이의 상자를 두고 선을 그 상자 세로 가운데에 둔다. 이웃 칸 첫 줄 글자와 같은 높이에 오고, 띠 줄 높이는 상자 높이 아래로 줄지 않는다(결정 V101)" },
         "label": { "maxWidth": "열 폭(지장간은 칩과 간격을 뺀 폭)", "maxLines": 2, "overflow": "낱말 단위로 두 줄까지 줄바꿈. 낱말 하나가 폭보다 넓으면 type.caption.sm 크기까지 줄임. 말줄임 없음(V49와 같음)" }
       },
       "states": {
