@@ -189,6 +189,22 @@ void main() {
       expect(await s.repository.cached(_key(_october)), isNull);
     });
 
+    test('scoreItems가 없는 앱 갱신 전 캐시는 없는 것으로 본다', () async {
+      final s = _setUp();
+      final legacy = _calendarJson(_october);
+      for (final day in legacy['days'] as List<dynamic>) {
+        (day as Map<String, dynamic>).remove('scoreItems');
+      }
+      await s.cache.write(
+        CacheKind.calendar,
+        _key(_october),
+        jsonEncode(legacy),
+        access: EvidenceAccess.locked,
+      );
+
+      expect(await s.repository.cached(_key(_october)), isNull);
+    });
+
     test('받은 rulesetVersion을 관찰해 옛 규칙의 다른 달 캐시를 버린다', () async {
       final s = _setUp();
       await s.cache.observeRulesetVersion('r0');

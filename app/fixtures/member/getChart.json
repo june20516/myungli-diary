@@ -184,7 +184,14 @@
       "gisin": "earth",
       "tonggwan": "metal",
       "method": "johu",
-      "johuStem": "im"
+      "johuStem": "im",
+      "basisPreview": {
+        "segments": [
+          {
+            "text": "태어난 계절의 온도를"
+          }
+        ]
+      }
     },
     "daeun": {
       "forward": false,
@@ -474,6 +481,750 @@
         ]
       },
       "reactable": false
-    }
+    },
+    "personalReadingPreviews": [
+      {
+        "kind": "day_master",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "year_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "month_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_stem",
+        "index": 0
+      },
+      {
+        "kind": "ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 2
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 2
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 1
+      },
+      {
+        "kind": "hidden_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 2
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "year_branch",
+        "index": 0
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "month_branch",
+        "index": 0
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0
+      },
+      {
+        "kind": "twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0
+      },
+      {
+        "kind": "shinsal",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "hour_branch",
+        "index": 0,
+        "shinsal": "cheoneul_gwiin"
+      },
+      {
+        "kind": "shinsal",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "position": "day_branch",
+        "index": 0,
+        "shinsal": "hwagae"
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 9
+      },
+      {
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 9
+      },
+      {
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 9
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 0
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 1
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 2
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 3
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 4
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 5
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 6
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 7
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 8
+      },
+      {
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주에서 이"
+            }
+          ]
+        },
+        "index": 9
+      }
+    ]
   }
 }

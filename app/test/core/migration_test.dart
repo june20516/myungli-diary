@@ -12,22 +12,32 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 덤프에서 v2로 올리면 v2 덤프와 일치한다', () async {
+  test('v2 덤프에서 v3로 올리면 v3 덤프와 일치한다', () async {
+    final connection = await verifier.startAt(2);
+    final database = AppDatabase.forExecutor(connection);
+    addTearDown(database.close);
+
+    await verifier.migrateAndValidate(database, 3);
+    expect(await database.select(database.diaryDrafts).get(), isEmpty);
+  });
+
+  // 이관은 늘 지금 코드의 판까지 한 번에 갑니다(중간 판 덤프와는 대조하지 않음).
+  test('v1 덤프에서 v3로 올리면 v3 덤프와 일치한다', () async {
     final connection = await verifier.startAt(1);
     final database = AppDatabase.forExecutor(connection);
     addTearDown(database.close);
 
-    await verifier.migrateAndValidate(database, 2);
+    await verifier.migrateAndValidate(database, 3);
     expect(await database.select(database.cachedResponses).get(), isEmpty);
     expect(await database.select(database.diaryDrafts).get(), isEmpty);
     expect(await database.select(database.onboardingInputs).get(), isEmpty);
     expect(await database.select(database.deviceFlags).get(), isEmpty);
   });
 
-  test('코드가 만든 스키마가 저장된 v2 덤프와 일치한다', () async {
+  test('코드가 만든 스키마가 저장된 v3 덤프와 일치한다', () async {
     final database = AppDatabase.forExecutor(NativeDatabase.memory());
     addTearDown(database.close);
 
-    await verifier.migrateAndValidate(database, 2);
+    await verifier.migrateAndValidate(database, 3);
   });
 }

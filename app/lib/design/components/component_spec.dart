@@ -8,8 +8,13 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
+import 'package:myungli_diary/design/components/calendar/score_row.dart';
+import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
+import 'package:myungli_diary/design/components/diary/date_block.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/dialog.dart';
@@ -20,6 +25,8 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
@@ -30,18 +37,25 @@ import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/input/text_field.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
+import 'package:myungli_diary/design/components/saju/birth_info_row.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/components/saju/stage_strip.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
+import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 
 /// 컴포넌트 하나가 따르는 명세 요약. 대조 테스트가 명세 JSON과 비교합니다.
 ///
@@ -61,10 +75,14 @@ final class ComponentSpec {
   final Set<String> states;
 }
 
-/// 구현을 마친 컴포넌트의 명세 목록. Task 17~19가 채웁니다.
+/// 구현을 마친 컴포넌트의 명세 목록. 아직 없는 계약 컴포넌트는 계약 대조 테스트의
+/// `knownPendingComponents`(test/contract/component_pending.dart)에 있고, 만들 때마다
+/// 여기에 올리고 그 목록에서 지웁니다.
 const List<ComponentSpec> implementedComponents = [
   MyungliTabBar.spec,
   MyungliAppBar.spec,
+  SectionHeader.spec,
+  ScrollHint.spec,
   MyungliSheetFrame.spec,
   AdBanner.spec,
   MyungliDialog.spec,
@@ -74,7 +92,9 @@ const List<ComponentSpec> implementedComponents = [
   EmptyState.spec,
   ErrorState.spec,
   SentenceBlock.spec,
+  ExplainSheetBody.spec,
   TermToken.spec,
+  HanjaTag.spec,
   DepthLink.spec,
   ReactionButton.spec,
   PrimaryButton.spec,
@@ -82,7 +102,11 @@ const List<ComponentSpec> implementedComponents = [
   SajuPillars.spec,
   OhaengBar.spec,
   ManseTable.spec,
+  BandTable.spec,
+  BirthInfoRow.spec,
+  StageStrip.spec,
   DaeunTable.spec,
+  LuckPillar.spec,
   InputStep.spec,
   MyungliTextField.spec,
   Segmented.spec,
@@ -93,6 +117,8 @@ const List<ComponentSpec> implementedComponents = [
   AccountChoice.spec,
   DayCharacter.spec,
   LuckyCardRow.spec,
+  DateHeader.spec,
+  TagSentenceList.spec,
   GuideQuestionCard.spec,
   ShareImage.spec,
   ShareButton.spec,
@@ -100,10 +126,14 @@ const List<ComponentSpec> implementedComponents = [
   OfferCard.spec,
   PurchaseRowGroup.spec,
   EventRow.spec,
+  FortuneVerdict.spec,
+  ScoreRow.spec,
   CalendarMonthView.spec,
   DayCell.spec,
   TagChip.spec,
   DiaryRow.spec,
+  DiarySummary.spec,
   DiaryEditor.spec,
   DraftIndicator.spec,
+  DateBlock.spec,
 ];

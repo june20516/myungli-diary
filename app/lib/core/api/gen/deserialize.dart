@@ -20,6 +20,7 @@ import 'package:myungli_diary/core/api/gen/model/daeun.dart';
 import 'package:myungli_diary/core/api/gen/model/daeun_period.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
+import 'package:myungli_diary/core/api/gen/model/day_kind_count.dart';
 import 'package:myungli_diary/core/api/gen/model/day_tags.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
@@ -27,17 +28,20 @@ import 'package:myungli_diary/core/api/gen/model/diary.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_body_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_list.dart';
+import 'package:myungli_diary/core/api/gen/model/diary_stats.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/api/gen/model/direction_card.dart';
 import 'package:myungli_diary/core/api/gen/model/element_weight.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/field_error.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_time_card.dart';
 import 'package:myungli_diary/core/api/gen/model/fortune.dart';
 import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/api/gen/model/google_login_request.dart';
+import 'package:myungli_diary/core/api/gen/model/guide_choice.dart';
 import 'package:myungli_diary/core/api/gen/model/health.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stem.dart';
 import 'package:myungli_diary/core/api/gen/model/hidden_stems_at.dart';
@@ -85,13 +89,16 @@ import 'package:myungli_diary/core/api/gen/model/schedule.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_input.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_list.dart';
 import 'package:myungli_diary/core/api/gen/model/schedule_patch.dart';
+import 'package:myungli_diary/core/api/gen/model/score_item.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/api/gen/model/server_version.dart';
 import 'package:myungli_diary/core/api/gen/model/seun_year.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_at.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/gen/model/solar_term.dart';
 import 'package:myungli_diary/core/api/gen/model/strength.dart';
 import 'package:myungli_diary/core/api/gen/model/tag.dart';
+import 'package:myungli_diary/core/api/gen/model/tag_count.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_at.dart';
 import 'package:myungli_diary/core/api/gen/model/token_pair.dart';
 import 'package:myungli_diary/core/api/gen/model/twelve_stage_at.dart';
@@ -171,6 +178,8 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'DailyCards':
       return DailyCards.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DayKind':
+    case 'DayKindCount':
+      return DayKindCount.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DayTags':
       return DayTags.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Device':
@@ -187,6 +196,8 @@ ReturnType deserialize<ReturnType, BaseType>(
       return DiaryInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DiaryList':
       return DiaryList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DiaryStats':
+      return DiaryStats.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DiarySummary':
       return DiarySummary.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Direction':
@@ -202,6 +213,9 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'Evidence':
       return Evidence.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'EvidenceAccess':
+    case 'EvidencePreview':
+      return EvidencePreview.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'FieldError':
       return FieldError.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'FiveElement':
@@ -217,6 +231,8 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'GoogleLoginRequest':
       return GoogleLoginRequest.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'GuideChoice':
+      return GuideChoice.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Health':
       return Health.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'HiddenStem':
@@ -340,8 +356,13 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'SchedulePatch':
       return SchedulePatch.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'ScoreItem':
+      return ScoreItem.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'Segment':
       return Segment.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ServerVersion':
+      return ServerVersion.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'SeunYear':
       return SeunYear.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ShinsalAt':
@@ -358,9 +379,12 @@ ReturnType deserialize<ReturnType, BaseType>(
     case 'StrengthLevel':
     case 'Tag':
       return Tag.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'TagCount':
+      return TagCount.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'TenGod':
     case 'TenGodAt':
       return TenGodAt.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'TenGodGroup':
     case 'TokenPair':
       return TokenPair.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'TwelveStage':

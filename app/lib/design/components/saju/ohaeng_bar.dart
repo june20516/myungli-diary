@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -45,7 +47,32 @@ class OhaengBar extends StatelessWidget {
   const new({required this.items, required this.semanticLabel, super.key});
 
   /// 명세 대조용 요약.
-  static const ComponentSpec spec = ComponentSpec('ohaeng-bar', {}, {'zero'});
+  static const ComponentSpec spec = ComponentSpec('ohaeng-bar', {}, {
+    'loading',
+    'zero',
+  });
+
+  /// 불러오는 중 뼈: 막대 전체 폭 알약([barHeight]) 아래 [Space.s12]에 범례 글줄 한 줄.
+  static Widget skeleton({int index = 0, bool animated = true}) => Builder(
+    builder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SkeletonBone(
+          height: barHeight,
+          borderRadius: Radii.full,
+          index: index,
+          animated: animated,
+        ),
+        const SizedBox(height: Space.s12),
+        SkeletonTextLines(
+          style: context.tokens.typography.captionMd,
+          index: index + 1,
+          animated: animated,
+        ),
+      ],
+    ),
+  );
 
   /// 막대 높이.
   static const double barHeight = 10;

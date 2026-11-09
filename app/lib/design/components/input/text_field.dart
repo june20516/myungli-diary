@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/input/field_error_line.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/keyboard_dismiss.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/line_height.dart';
@@ -85,6 +86,11 @@ class MyungliTextField extends StatefulWidget {
 
   static const double _minHeight = 52;
   static const double _fontSize = 17;
+
+  /// 앞 아이콘은 입력 글자 옆이라 `icon.adjacentText`로 고릅니다.
+  static final AppIconSize _leadingIconSize = AppIconSize.adjacentText(
+    _fontSize,
+  );
   static const double _clearTarget = 48;
   static const double _clearIconSize = 20;
 
@@ -261,6 +267,11 @@ class _MyungliTextFieldState extends State<MyungliTextField>
         final showClear =
             enabled && _focus.hasFocus && _controller.text.isNotEmpty;
         final leading = widget.leadingIcon;
+        final leadingIconSize = AppIcon.scaledSize(
+          context,
+          MyungliTextField._leadingIconSize.logical,
+          null,
+        );
         return Row(
           crossAxisAlignment: multiline
               ? CrossAxisAlignment.start
@@ -271,14 +282,16 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                 padding: EdgeInsetsDirectional.only(
                   // 여러 줄 칸에서도 아이콘은 첫 줄 가운데입니다.
                   top: multiline
-                      ? firstLineCenter - AppIconSize.inline.logical / 2
+                      ? math.max(0, firstLineCenter - leadingIconSize / 2)
                       : 0,
                   end: Space.s12,
                 ),
                 child: ExcludeSemantics(
                   child: AppIcon(
                     leading,
-                    size: AppIconSize.inline,
+                    size: MyungliTextField._leadingIconSize,
+                    scalesWithText: true,
+                    weight: AppIcon.weightFor(textStyle.fontWeight!),
                     color: enabled ? colors.textSecondary : colors.disabledFg,
                   ),
                 ),
@@ -292,6 +305,15 @@ class _MyungliTextFieldState extends State<MyungliTextField>
                   child: TextField(
                     controller: _controller,
                     focusNode: _focus,
+                    // 모바일 기본은 밖을 눌러도 초점이 남아 키보드를 내릴 수 없습니다(F-013).
+                    onTapOutside: (_) => _focus.unfocus(),
+                    // 커서 줄이 키보드 내리기 버튼에 가리지 않게 그 자리만큼 더 올립니다.
+                    scrollPadding: const EdgeInsets.fromLTRB(
+                      Space.s20,
+                      Space.s20,
+                      Space.s20,
+                      Space.s20 + KeyboardDismissPortal.reservedHeight,
+                    ),
                     enabled: enabled,
                     maxLength: widget.maxLength,
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
@@ -366,13 +388,17 @@ class _MyungliTextFieldState extends State<MyungliTextField>
 
     // 글자 한 줄만 TextField의 눌림 영역이라, 칸 전체(padding·최소 높이 포함, 48 이상)를
     // 눌러도 포커스가 가도록 감쌉니다. 지우기 버튼과 TextField는 안쪽에서 먼저 받습니다.
-    final tappable = enabled
-        ? GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _focus.requestFocus,
-            child: container,
-          )
-        : container;
+    // 칸 전체를 입력칸과 같은 누름 묶음에 넣어, 안쪽 여백을 눌러도 밖 누르기(초점 풀기)로
+    // 보지 않습니다(풀렸다 다시 잡히며 키보드가 깜빡이지 않게).
+    final tappable = TextFieldTapRegion(
+      child: enabled
+          ? GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _focus.requestFocus,
+              child: container,
+            )
+          : container,
+    );
 
     final Widget bordered;
     if (widget._hasError) {
@@ -405,64 +431,68 @@ class _MyungliTextFieldState extends State<MyungliTextField>
 
     final maxLength = widget.maxLength;
     final errorText = widget.errorText;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (widget.showLabel)
-          Padding(
-            padding: const EdgeInsets.only(bottom: Space.s8),
-            // 스크린리더는 칸 라벨로 읽으므로 이 글자는 따로 읽지 않습니다.
-            child: ExcludeSemantics(
-              child: Text(
-                widget.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: tokens.typography.labelMd.copyWith(
-                  color: colors.textPrimary,
+    // 초점이 있는 동안 키보드 위에 내리기 버튼(`focused` `keyboardDismiss`, V68).
+    return KeyboardDismissPortal(
+      focus: _focus,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.showLabel)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.s8),
+              // 스크린리더는 칸 라벨로 읽으므로 이 글자는 따로 읽지 않습니다.
+              child: ExcludeSemantics(
+                child: Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.typography.labelMd.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
               ),
             ),
-          ),
-        bordered,
-        if (errorText != null)
-          Padding(
-            padding: const EdgeInsets.only(top: Space.s8),
-            child: LiveAnnouncement(
-              label: errorText,
-              role: SemanticsRole.status,
-              identifier: widget.errorIdentifier,
-              child: FieldErrorLine(
-                key: MyungliTextField.errorLineKey,
-                text: errorText,
+          bordered,
+          if (errorText != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Space.s8),
+              child: LiveAnnouncement(
+                label: errorText,
+                role: SemanticsRole.status,
+                identifier: widget.errorIdentifier,
+                child: FieldErrorLine(
+                  key: MyungliTextField.errorLineKey,
+                  text: errorText,
+                ),
               ),
             ),
-          ),
-        if (maxLength != null)
-          Padding(
-            padding: const EdgeInsets.only(top: Space.s4),
-            child: ListenableBuilder(
-              listenable: _controller,
-              builder: (context, _) {
-                final length = _controller.text.characters.length;
-                // 스크린리더에는 "2/10" 대신 "글자 수 2/10"로 읽힙니다.
-                return Semantics(
-                  container: true,
-                  excludeSemantics: true,
-                  label: AppLocalizations.of(context)
-                      .textFieldCounter(length, maxLength),
-                  child: Text(
-                    '$length/$maxLength',
-                    textAlign: TextAlign.end,
-                    style: tokens.typography.captionMd.copyWith(
-                      color: colors.textSecondary,
+          if (maxLength != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Space.s4),
+              child: ListenableBuilder(
+                listenable: _controller,
+                builder: (context, _) {
+                  final length = _controller.text.characters.length;
+                  // 스크린리더에는 "2/10" 대신 "글자 수 2/10"로 읽힙니다.
+                  return Semantics(
+                    container: true,
+                    excludeSemantics: true,
+                    label: AppLocalizations.of(context)
+                        .textFieldCounter(length, maxLength),
+                    child: Text(
+                      '$length/$maxLength',
+                      textAlign: TextAlign.end,
+                      style: tokens.typography.captionMd.copyWith(
+                        color: colors.textSecondary,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -134,7 +134,7 @@ void main() {
       _ko.eventEditBarTitle,
     );
     expect(_id(SlotIds.eventEditCharacterHint), findsOneWidget);
-    expect(_richText('큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요.'), findsOneWidget);
+    expect(_richText('특별히 돕거나 막는 기운이 없는 보통의 날이에요.'), findsOneWidget);
     expect(_id(SlotIds.eventEditTitleHint), findsOneWidget);
     expect(_id(SlotIds.eventEditMemoHint), findsOneWidget);
 
@@ -164,6 +164,19 @@ void main() {
     expect(_saveEnabled(tester), isTrue);
   });
 
+  testWidgets('입력 중 스크롤을 끌면 키보드가 내려갑니다(F-013)', (tester) async {
+    await _open(tester);
+    final scroll = tester.widget<SingleChildScrollView>(
+      find
+          .descendant(of: _screen, matching: find.byType(SingleChildScrollView))
+          .first,
+    );
+    expect(
+      scroll.keyboardDismissBehavior,
+      ScrollViewKeyboardDismissBehavior.onDrag,
+    );
+  });
+
   testWidgets('날짜가 없으면 오늘(2026-10-13)의 새 일정입니다', (tester) async {
     await _open(tester, location: '/event-edit');
     final picker = tester.widget<BirthDatePicker>(find.byType(BirthDatePicker));
@@ -171,7 +184,7 @@ void main() {
       (picker.value.year, picker.value.month, picker.value.day),
       (2026, 10, 13),
     );
-    expect(_richText('내게 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.'), findsOneWidget);
+    expect(_richText('내 사주에 필요한 기운이 들어와 일이 잘 풀리기 쉬운 날이에요.'), findsOneWidget);
   });
 
   testWidgets('날짜를 바꾸면 그날 성격 한 줄도 그 날로 바뀝니다', (tester) async {
@@ -188,7 +201,7 @@ void main() {
         );
     await _waitCharacterLine(tester);
     expect(_richText('기운이 엇갈리기 쉬워 한 박자 쉬어 가면 좋은 날이에요.'), findsOneWidget);
-    expect(_richText('큰 기복 없이 평소 흐름대로 지내기 좋은 날이에요.'), findsNothing);
+    expect(_richText('특별히 돕거나 막는 기운이 없는 보통의 날이에요.'), findsNothing);
   });
 
   testWidgets('그날 성격을 기다리는 동안 skeleton입니다(loading)', (tester) async {

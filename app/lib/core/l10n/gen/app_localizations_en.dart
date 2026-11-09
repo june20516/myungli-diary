@@ -533,11 +533,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionClose => 'Close';
 
   @override
-  String get loginTitleHead => 'Sign in to save your reading';
+  String get loginTitleHead => 'Myungli Diary';
 
   @override
   String get loginTitleBody =>
-      'Once you sign in, your chart and diary are available on any device.';
+      'Sign in and we\'ll give you a daily reading matched to your chart.';
 
   @override
   String get loginDiscardNotice =>
@@ -649,18 +649,12 @@ class AppLocalizationsEn extends AppLocalizations {
       '(Required) Collection and use of personal information';
 
   @override
-  String daySheetDiaryOpen(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count entries this day',
-      one: '$count entry this day',
-    );
-    return '$_temp0';
-  }
+  String get daySheetDiaryOpen => 'Diary';
 
   @override
-  String get daySheetDiaryWriteCta => 'Write about this day';
+  String daySheetDiaryWriteCta(String date) {
+    return 'Write about $date';
+  }
 
   @override
   String get daySheetEventAdd => 'Add event';
@@ -672,7 +666,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diaryEditBodyPlaceholder => 'Write about your day';
 
   @override
-  String get diaryEditDraftStatusLocal => 'Draft saved on this device';
+  String get diaryEditDraftStatusLocal => 'Draft';
 
   @override
   String get diaryEditDraftStatusSaving => 'Saving';
@@ -692,7 +686,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No diary entries yet. Why not start with today?';
 
   @override
-  String get diaryListPickDateCta => 'Pick a date to write';
+  String get diaryListPickDateCta => 'Write in diary';
 
   @override
   String get diaryViewDeleteConfirm =>
@@ -842,7 +836,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get depthExplain => 'Reading';
 
   @override
-  String get depthLinkEvidence => 'See the basis';
+  String depthLinkEvidence(String subject) {
+    return 'See the basis for $subject';
+  }
 
   @override
   String get todayLuckyColorName => 'Lucky color';
@@ -1314,7 +1310,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Bring another account\'s records into this one?';
 
   @override
-  String get daySheetDiaryWriteCtaWritten => 'Write a new entry for this day';
+  String daySheetDiaryWriteCtaWritten(String date) {
+    return 'Write a new entry for $date';
+  }
 
   @override
   String get daySheetDiaryWriteCtaFull => 'You\'ve written enough for this day';
@@ -1611,4 +1609,282 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsContactLabel => 'Contact us';
+
+  @override
+  String get calendarLegendBodyVeryGood => 'Very smooth day';
+
+  @override
+  String get calendarLegendBodyNeutral => 'Steady day';
+
+  @override
+  String get calendarLegendRuleLink => 'How is luck decided?';
+
+  @override
+  String get colorRuleSheetRuleBody =>
+      'We add up the energies coming in that day. For example, even a day in your favor can become a steady day if a clashing energy comes in too.';
+
+  @override
+  String get colorRuleSheetSheetTitle => 'How luck is decided';
+
+  @override
+  String daySheetDateLunar(int month, int day) {
+    return 'Lunar month $month, day $day';
+  }
+
+  @override
+  String daySheetDateLunarLeap(int month, int day) {
+    return 'Lunar leap month $month, day $day';
+  }
+
+  @override
+  String daySheetDateSolar(String date) {
+    return '$date';
+  }
+
+  @override
+  String daySheetVerdictItemPlus(int count) {
+    return '$count toward good';
+  }
+
+  @override
+  String daySheetVerdictItemMinus(int count) {
+    return '$count toward caution';
+  }
+
+  @override
+  String get daySheetVerdictTitle => 'Luck verdict';
+
+  @override
+  String diaryEditDateDay(String date) {
+    return '$date';
+  }
+
+  @override
+  String diaryEditDateIljin(String pillar) {
+    return '$pillar day';
+  }
+
+  @override
+  String diaryEditDateMonth(String date) {
+    return '$date';
+  }
+
+  @override
+  String diaryEditLengthCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chars',
+      one: '$count char',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String explainSheetTagDiaryLink(String tag) {
+    return 'View entries tagged $tag';
+  }
+
+  @override
+  String get loginSaveNote =>
+      'Sign in to see the rest of the reading you just saw.';
+
+  @override
+  String get mySajuChartLink => 'Saju chart';
+
+  @override
+  String get mySajuChartTitle => 'Natal chart';
+
+  @override
+  String get mySajuFlowLink => 'All 10-year cycles';
+
+  @override
+  String get mySajuFlowTitle => 'This year and now';
+
+  @override
+  String get mySajuIlganTitle => 'Your nature';
+
+  @override
+  String get mySajuRecordFew =>
+      'Once a few more entries build up, you can look back on your record here.';
+
+  @override
+  String get mySajuRecordTitle => 'Looking back on your diary';
+
+  @override
+  String get mySajuYongsinTitle => 'Energy that helps you';
+
+  @override
+  String get notifyAskTimeNote =>
+      'Depending on conditions, notifications may arrive up to 10 minutes late.';
+
+  @override
+  String get sajuChartDaeunDesc => 'The big flow that changes every 10 years.';
+
+  @override
+  String get sajuChartDaeunTitle => '10-year cycles';
+
+  @override
+  String sajuChartHeadTitle(String nickname) {
+    return '$nickname\'s chart';
+  }
+
+  @override
+  String get sajuChartJijangganDesc =>
+      'Heavenly stems hidden inside an earthly branch. Even unseen, they make up the energy of that seat.';
+
+  @override
+  String sajuChartManseBasis(String stem) {
+    return 'Based on your day master $stem';
+  }
+
+  @override
+  String get sajuChartOhaengDesc =>
+      'Shows how much wood, fire, earth, metal, and water your chart holds.';
+
+  @override
+  String get sajuChartOhaengTitle => 'Five elements';
+
+  @override
+  String get sajuChartPillarsDesc =>
+      'Your birth year, month, day, and hour, each written as a pair of a heavenly stem and an earthly branch. The day master is you.';
+
+  @override
+  String get sajuChartPillarsTitle => 'Saju';
+
+  @override
+  String get sajuChartSeunDesc => 'The energy that comes in each year.';
+
+  @override
+  String get sajuChartSeunTitle => 'Yearly cycles';
+
+  @override
+  String get sajuChartSinsalDesc =>
+      'A distinct trait formed by certain combinations of characters. Some charts have none.';
+
+  @override
+  String get sajuChartUnseongDesc =>
+      'Shows in twelve stages how much strength your day master has in that seat.';
+
+  @override
+  String get settingsNotifyTimeNote =>
+      'Depending on conditions, notifications may arrive up to 10 minutes late.';
+
+  @override
+  String tagSheetDiaryCta(String tag) {
+    return 'View entries tagged $tag';
+  }
+
+  @override
+  String get tagSheetSentencesEmpty => 'No lines came from this energy today.';
+
+  @override
+  String get tagSheetSentencesTitle => 'Today\'s lines from this energy';
+
+  @override
+  String todayDateIljin(String pillar) {
+    return '$pillar day';
+  }
+
+  @override
+  String todayDateLunar(int month, int day) {
+    return 'Lunar month $month, day $day';
+  }
+
+  @override
+  String todayDateLunarLeap(int month, int day) {
+    return 'Lunar leap month $month, day $day';
+  }
+
+  @override
+  String todayDateSolar(String date) {
+    return '$date';
+  }
+
+  @override
+  String get todayEventTitle => 'Events';
+
+  @override
+  String get todayFeaturedEmpty => 'No standout chart energies today.';
+
+  @override
+  String get todayFeaturedTitle => 'Chart energies';
+
+  @override
+  String get todayFortuneTitle => 'Main reading';
+
+  @override
+  String get todayGuideTitle => 'Today\'s question';
+
+  @override
+  String get todayLuckyTitle => 'Luck';
+
+  @override
+  String birthInfoHour(String branch) {
+    return '$branch hour';
+  }
+
+  @override
+  String get diaryEditQuestionSwap => 'Change question';
+
+  @override
+  String get keyboardDismiss => 'Hide keyboard';
+
+  @override
+  String mySajuRecordCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'entries',
+      one: 'entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mySajuRecordDayKindHead => 'Kinds of days you wrote on';
+
+  @override
+  String get mySajuRecordTagHead => 'Frequent tags';
+
+  @override
+  String get bandTableEmptyCell => 'None';
+
+  @override
+  String luckDaeunAgeRange(int startAge, int endAge) {
+    return 'Ages $startAge to $endAge';
+  }
+
+  @override
+  String luckDaeunYearRange(int startYear, int endYear) {
+    return '$startYear to $endYear';
+  }
+
+  @override
+  String luckSeunYear(int year) {
+    return '$year';
+  }
+
+  @override
+  String luckSeunAge(int age) {
+    return 'Age $age';
+  }
+
+  @override
+  String get sajuStageMarkerHour => 'H';
+
+  @override
+  String get sajuStageMarkerDay => 'D';
+
+  @override
+  String get sajuStageMarkerMonth => 'M';
+
+  @override
+  String get sajuStageMarkerYear => 'Y';
+
+  @override
+  String get tagSheetSentenceKindFortune => 'Main reading';
+
+  @override
+  String get tagSheetSentenceKindGuide => 'Today\'s question';
 }

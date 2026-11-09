@@ -392,6 +392,21 @@ void main() {
       expect(_top(tester, _cta) - tester.getBottomLeft(notice).dy, Space.s32);
     });
 
+    testWidgets('overlap.notice: 글자 배율 2.0에서 check-circle이 16 x 2로 커짐', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await _pump(tester);
+      await _authenticate(tester);
+      final icon = find.descendant(
+        of: find.byKey(const ValueKey(SlotIds.accountMergeOverlapNotice)),
+        matching: find.byType(Icon),
+      );
+      expect(tester.widget<Icon>(icon).size, closeTo(32, 0.001));
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('overlap.notice: check-circle 16, 사이 space.8, caption.lg', (
       tester,
     ) async {
@@ -415,7 +430,7 @@ void main() {
       final glyph = tester.widget<AppIcon>(icon);
       expect(glyph.icon.light, PhosphorIconsLight.checkCircle);
       expect(glyph.weight, AppIconWeight.light);
-      expect(glyph.size, AppIconSize.inline);
+      expect(glyph.size, AppIconSize.s16);
       expect(glyph.color, tokens.colors.textSecondary);
       expect(
         tester.getTopLeft(notice).dx - tester.getTopRight(icon).dx,

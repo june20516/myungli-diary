@@ -33,6 +33,9 @@ class LaunchScreen extends ConsumerWidget {
           child: ScreenStateView<void>(
             value: value,
             onRetry: () => ref.read(entryStateProvider.notifier).refresh(),
+            // launch는 내용을 받아 그리는 컴포넌트가 없어 뼈가 없습니다. skeleton은 빈 자리로
+            // "불러오는 중"만 스크린리더에 알립니다(V66, IA launch components: skeleton).
+            skeleton: const SizedBox.expand(),
             data: (_) => const SizedBox.shrink(),
           ),
         ),

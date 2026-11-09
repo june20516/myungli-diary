@@ -120,7 +120,10 @@ final WidgetbookFolder feedbackDirectory = WidgetbookFolder(
           builder: (context) => const Stage(
             child: SizedBox(
               width: 360,
-              child: SkeletonBlock(delay: Duration.zero),
+              child: SkeletonBlock(
+                delay: Duration.zero,
+                child: SkeletonTextLines(lines: 3),
+              ),
             ),
           ),
         ),

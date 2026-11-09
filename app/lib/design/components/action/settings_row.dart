@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/interaction/haptics.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -13,6 +14,11 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 const AppGlyph _caretRight = AppGlyph(
   light: PhosphorIconsLight.caretRight,
   regular: PhosphorIconsRegular.caretRight,
+);
+
+const AppGlyph _check = AppGlyph(
+  light: PhosphorIconsLight.check,
+  regular: PhosphorIconsRegular.check,
 );
 
 /// [SettingsRow] 변형(`settings-row` `variants`).
@@ -26,7 +32,12 @@ enum SettingsRowVariant {
   /// 켜고 끔(스위치, 화살표 없음).
   toggle,
 
-  /// 로그아웃·계정 삭제(`mark.caution` + 굵은 글자, 화살표 없음, 빨간색 없음).
+  /// 시트 안에서 하나 고르기(언어 등). 누르면 바로 값이 바뀌고, 꺾쇠 없이 고른 줄 끝에 체크가
+  /// 붙습니다(V58).
+  select,
+
+  /// 로그아웃·계정 삭제. 경고 표시 없이 자기 앞 아이콘(Regular)과 600 글자로 구분하고
+  /// 화살표와 빨간색이 없습니다(V58).
   destructive,
 }
 
@@ -46,6 +57,8 @@ class SettingsRow extends StatelessWidget {
     required this.label,
     this.value,
     this.toggled = false,
+    this.selected = false,
+    this.leading,
     this.onTap,
     this.onToggle,
     this.identifier,
@@ -58,7 +71,7 @@ class SettingsRow extends StatelessWidget {
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'settings-row',
-    {'navigate', 'value', 'toggle', 'destructive'},
+    {'navigate', 'value', 'toggle', 'select', 'destructive'},
     {'pressed', 'disabled'},
   );
 
@@ -67,6 +80,12 @@ class SettingsRow extends StatelessWidget {
 
   /// 스위치를 찾는 테스트용 키.
   static const Key toggleKey = ValueKey('settings-row-toggle');
+
+  /// 고른 줄 끝 체크를 찾는 테스트용 키.
+  static const Key checkKey = ValueKey('settings-row-check');
+
+  /// 앞 아이콘을 찾는 테스트용 키.
+  static const Key leadingKey = ValueKey('settings-row-leading');
 
   /// 줄 최소 높이(`row.minHeight`).
   static const double minHeight = 52;
@@ -83,7 +102,15 @@ class SettingsRow extends StatelessWidget {
   /// `toggle` 변형의 켜짐.
   final bool toggled;
 
-  /// 눌렀을 때(`navigate`·`value`·`destructive`). null이면 disabled입니다.
+  /// `select` 변형에서 고른 줄이면 true: 끝에 체크가 붙고 스크린리더가 선택됨으로 읽습니다.
+  final bool selected;
+
+  /// 글자 앞 아이콘(`parts.leading`). 설정 화면 메뉴 줄에만 둡니다. 크기는 `size.icon.20`
+  /// 고정이라 글자 배율을 곱하지 않고, 굵기는 Light(destructive만 Regular), 색은
+  /// `text.primary`, 글자와 사이 `space.12`입니다. 꾸밈이라 스크린리더가 읽지 않습니다.
+  final AppGlyph? leading;
+
+  /// 눌렀을 때(`navigate`·`value`·`select`·`destructive`). null이면 disabled입니다.
   final VoidCallback? onTap;
 
   /// 켜고 끌 때 새 값을 줍니다(`toggle`). null이면 disabled입니다.
@@ -143,6 +170,7 @@ class SettingsRow extends StatelessWidget {
       onTap: onTap,
       identifier: identifier,
       inkColor: colors.textPrimary,
+      checked: variant == SettingsRowVariant.select ? selected : null,
       borderRadius: BorderRadius.zero,
       child: row,
     );
@@ -168,12 +196,17 @@ class SettingsRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              if (destructive) ...[
-                DefaultTextStyle.merge(
-                  style: labelStyle,
-                  child: const AppIcon.caution(),
+              if (leading != null) ...[
+                AppIcon(
+                  leading!,
+                  key: leadingKey,
+                  size: AppIconSize.s20,
+                  weight: destructive
+                      ? AppIconWeight.regular
+                      : AppIconWeight.light,
+                  color: enabled ? colors.textPrimary : colors.disabledFg,
                 ),
-                const SizedBox(width: Space.s4),
+                const SizedBox(width: Space.s12),
               ],
               Expanded(child: Text(label, style: labelStyle)),
               if (valueText != null) ...[
@@ -195,8 +228,18 @@ class SettingsRow extends StatelessWidget {
                 AppIcon(
                   _caretRight,
                   key: chevronKey,
-                  size: AppIconSize.inline,
+                  size: AppIconSize.s16,
                   color: colors.textSecondary,
+                ),
+              ],
+              if (variant == SettingsRowVariant.select && selected) ...[
+                const SizedBox(width: Space.s8),
+                AppIcon(
+                  _check,
+                  key: checkKey,
+                  size: AppIconSize.s20,
+                  weight: AppIconWeight.regular,
+                  color: colors.actionPrimary,
                 ),
               ],
               if (variant == SettingsRowVariant.toggle) ...[
@@ -267,7 +310,7 @@ class _Switch extends StatelessWidget {
 }
 
 /// 설정 줄 묶음 카드(`settings-row` `group`): `bg.sheet` `radius.md`, 줄 사이 1px
-/// `line`(안쪽 16), 아래로 20 띄움. [title]이 있으면 카드 위에 `caption.md`
+/// `line`(안쪽 16), 아래로 24 띄움. [title]이 있으면 카드 위에 `caption.md`
 /// `text.secondary` 묶음 제목이고, [note]가 있으면 같은 자리에 묶음 안내
 /// 문장(`groupNote`, 두 줄까지, V50)입니다.
 class SettingsGroup extends StatelessWidget {
@@ -302,7 +345,7 @@ class SettingsGroup extends StatelessWidget {
     final rows = <Widget>[];
     for (final (index, child) in children.indexed) {
       if (index > 0) {
-        rows.add(const SettingsGroupDivider());
+        rows.add(const ListDivider());
       }
       rows.add(child);
     }
@@ -310,7 +353,7 @@ class SettingsGroup extends StatelessWidget {
     final note = this.note;
     final noteIdentifier = this.noteIdentifier;
     return Padding(
-      padding: const EdgeInsets.only(bottom: Space.s20),
+      padding: const EdgeInsets.only(bottom: Space.s24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -370,19 +413,4 @@ class SettingsGroup extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 묶음 안 줄 사이 선: 1px `line`, 시작 쪽 16 안으로 들임.
-class SettingsGroupDivider extends StatelessWidget {
-  /// 선을 만듭니다.
-  const new({super.key});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsDirectional.only(start: Space.s16),
-    child: ColoredBox(
-      color: context.tokens.colors.line,
-      child: const SizedBox(height: 1, width: double.infinity),
-    ),
-  );
 }

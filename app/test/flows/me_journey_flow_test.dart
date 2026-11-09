@@ -30,6 +30,7 @@ import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
 import '../support/depth_link_finders.dart';
+import '../support/my_saju_finders.dart';
 import '../support/onboarding_steps.dart';
 
 // 나·설정 끝에서 끝 흐름(계획 6 Task 13). 화면별 세부는 각 화면 흐름 테스트에 있고,
@@ -223,7 +224,7 @@ void main() {
     await _openMySaju(tester);
 
     // 근거 보기 → 사주 표(원국부터).
-    final link = depthLinkTarget(of: _screen(ScreenIds.mySaju));
+    final link = mySajuChartLink(of: _screen(ScreenIds.mySaju));
     await tester.scrollUntilVisible(
       link,
       120,
@@ -357,17 +358,11 @@ void main() {
     expect(network.chartRequestsAfterSave, greaterThanOrEqualTo(1));
     // 일간 표지 칸이 새 일간(갑, 甲)입니다.
     expect(
-      find.descendant(
-        of: find.byKey(MySajuScreen.dayStemKey),
-        matching: find.text('甲'),
-      ),
+      find.descendant(of: find.byType(SajuPillars), matching: find.text('甲')),
       findsOneWidget,
     );
     expect(
-      find.descendant(
-        of: find.byKey(MySajuScreen.dayStemKey),
-        matching: find.text('갑'),
-      ),
+      find.descendant(of: find.byType(SajuPillars), matching: find.text('갑')),
       findsOneWidget,
     );
     // 정보 수정·설정은 스택에서 빠졌습니다(go).

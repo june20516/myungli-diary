@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
-import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/term_mark.dart';
@@ -57,17 +56,14 @@ void main() {
         ),
       );
       final icon = tester.widget<Icon>(find.byType(Icon));
-      expect(icon.size, closeTo(20 * 2 * AppIcon.capHeightRatio, 0.001));
+      expect(icon.size, closeTo(24 * 2, 0.001));
       expect(icon.color, const Color(0xFF123456));
       expect(icon.icon!.fontFamily, 'Phosphor-Fill');
       expect(icon.icon, PhosphorIconsFill.warningCircle);
     });
 
-    testWidgets('크기: tab·bar 24, inline 16, state 28', (tester) async {
-      expect(AppIconSize.tab.logical, 24);
-      expect(AppIconSize.bar.logical, 24);
-      expect(AppIconSize.inline.logical, 16);
-      expect(AppIconSize.state.logical, 28);
+    testWidgets('크기: 토큰 16·20·24·28 네 단계', (tester) async {
+      expect(AppIconSize.values.map((size) => size.logical), [16, 20, 24, 28]);
     });
   });
 
@@ -149,69 +145,6 @@ void main() {
         tester.getSize(find.byType(TermMark)).width,
         tester.getSize(find.text('식신')).width + 6,
       );
-    });
-  });
-
-  group('LockVeil', () {
-    test('lengthHint는 양수여야 합니다', () {
-      const hint = 0;
-      expect(
-        () => LockVeil(title: 't', semanticLabel: 't', lengthHint: hint),
-        throwsAssertionError,
-      );
-    });
-
-    testWidgets('제목은 또렷하고 본문은 흐리며 읽지 않습니다', (tester) async {
-      final semantics = tester.ensureSemantics();
-      await tester.pumpWidget(
-        _app(const LockVeil(title: '판정 근거', semanticLabel: '판정 근거, 잠김')),
-      );
-      expect(find.text('판정 근거'), findsOneWidget);
-      expect(find.bySemanticsLabel('판정 근거, 잠김'), findsOneWidget);
-      expect(find.byType(ImageFiltered), findsOneWidget);
-      final filtered = tester.widget<ImageFiltered>(find.byType(ImageFiltered));
-      expect(filtered.enabled, isTrue);
-      expect(
-        find.descendant(
-          of: find.byType(LockVeil),
-          matching: find.byType(SelectionContainer),
-        ),
-        findsWidgets,
-      );
-      semantics.dispose();
-    });
-
-    testWidgets('길이 힌트가 없으면 본문이 두 줄입니다', (tester) async {
-      await tester.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 200,
-            child: LockVeil(title: 't', semanticLabel: 't, 잠김'),
-          ),
-        ),
-      );
-      final body = find.byKey(LockVeil.bodyKey);
-      final text = tester.widget<Text>(
-        find.descendant(of: body, matching: find.byType(Text)),
-      );
-      expect(text.maxLines, 2);
-    });
-
-    testWidgets('길이 힌트가 있으면 그 글자 수만큼 채웁니다', (tester) async {
-      await tester.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 200,
-            child: LockVeil(title: 't', semanticLabel: 't, 잠김', lengthHint: 37),
-          ),
-        ),
-      );
-      final body = find.byKey(LockVeil.bodyKey);
-      final text = tester.widget<Text>(
-        find.descendant(of: body, matching: find.byType(Text)),
-      );
-      expect(text.data!.characters.length, 37);
-      expect(text.maxLines, isNull);
     });
   });
 }

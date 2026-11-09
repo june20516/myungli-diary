@@ -4,9 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
-import 'package:myungli_diary/design/components/diary/tag_chip.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -40,7 +39,7 @@ Widget _app(Widget child, {double textScale = 1}) => inputApp(
 
 Widget _group({
   List<DiaryEntryData>? entries,
-  TagChip? tag,
+  HanjaTag? tag,
   bool withBadge = true,
   bool isLast = false,
 }) => _app(
@@ -48,8 +47,9 @@ Widget _group({
     key: const ValueKey('group'),
     date: _date,
     entries: entries ?? _three(),
-    character: withBadge ? DayCharacterVariant.good : null,
-    characterLabel: withBadge ? '좋은 날' : null,
+    dayKind: withBadge
+        ? const HanjaTag(glyph: '用', label: '좋은 날', tone: HanjaTagTone.yongsin)
+        : null,
     tag: tag,
     isLast: isLast,
   ),
@@ -338,8 +338,8 @@ void main() {
             .colors
             .timelineEntry;
         expect(DiaryEntryLine.dividerWidth, 1);
-        expect(DiaryEntryLine.dividerDash, 4);
-        expect(DiaryEntryLine.dividerGap, 3);
+        expect(DiaryEntryLine.dividerDashLength, 4);
+        expect(DiaryEntryLine.dividerDashGap, 3);
         final painted = tester.renderObject(_dividers());
         expect(
           painted,
@@ -411,16 +411,12 @@ void main() {
       expect(tops, orderedEquals([...tops]..sort()));
     });
 
-    testWidgets('카드: 배지 → entry 줄들(배지 아래 4) → 태그(마지막 줄 아래 8), 미리보기 두 줄은 없습니다', (
+    testWidgets('카드: 날의 성격 → entry 줄들(아래 4) → 태그(마지막 줄 아래 8), 미리보기 두 줄은 없습니다', (
       tester,
     ) async {
       await tester.pumpWidget(
         _group(
-          tag: TagChip(
-            name: '천을귀인',
-            variant: TagChipVariant.good,
-            onTap: () {},
-          ),
+          tag: HanjaTag(glyph: '貴', label: '천을귀인', onTap: () {}),
         ),
       );
       final tokens = tester.element(find.byType(DiaryDayGroup)).tokens;
@@ -428,10 +424,11 @@ void main() {
       final decoration = card.decoration as BoxDecoration;
       expect(decoration.color, tokens.colors.bgSheet);
       expect(decoration.borderRadius, BorderRadius.circular(Radii.lg));
-      final badge = find.byType(DayCharacterBadge);
+      final badge = find.byType(HanjaTag).first;
       final lines = find.byType(DiaryEntryLine);
-      final chip = find.byType(TagChip);
+      final chip = find.byType(HanjaTag).last;
       expect(DiaryRow.entriesMarginTop, Space.s4);
+      expect(DiaryRow.groupDayKindMarginBottom, Space.s4);
       expect(DiaryRow.groupTagMarginTop, Space.s8);
       expect(
         tester.getTopLeft(lines.first).dy - tester.getBottomLeft(badge).dy,
@@ -453,8 +450,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(_group(withBadge: false));
-      expect(find.byType(DayCharacterBadge), findsNothing);
-      expect(find.byType(TagChip), findsNothing);
+      expect(find.byType(HanjaTag), findsNothing);
       expect(
         tester.getTopLeft(find.byType(DiaryEntryLine).first).dy -
             tester.getTopLeft(find.byKey(DiaryRow.cardKey)).dy,
@@ -513,6 +509,27 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('누를 수 있는 날의 성격 태그는 그룹 라벨과 겹쳐 읽히지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          DiaryDayGroup(
+            date: _date,
+            entries: _three(),
+            dayKind: HanjaTag(
+              glyph: '用',
+              label: '좋은 날',
+              tone: HanjaTagTone.yongsin,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('10월 12일 월요일'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('좋은 날')), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('줄마다 따로 눌립니다(눌린 줄의 onTap만)', (tester) async {
       final taps = [0, 0, 0];
       await tester.pumpWidget(
@@ -529,18 +546,14 @@ void main() {
       expect(taps, [1, 0, 1]);
     });
 
-    testWidgets('태그 칩은 따로 눌립니다', (tester) async {
+    testWidgets('대표 태그는 따로 눌립니다', (tester) async {
       var tags = 0;
       await tester.pumpWidget(
         _group(
-          tag: TagChip(
-            name: '천을귀인',
-            variant: TagChipVariant.good,
-            onTap: () => tags++,
-          ),
+          tag: HanjaTag(glyph: '貴', label: '천을귀인', onTap: () => tags++),
         ),
       );
-      await tester.tap(find.byType(TagChip));
+      await tester.tap(find.byType(HanjaTag).last);
       await tester.pumpAndSettle();
       expect(tags, 1);
     });
@@ -555,14 +568,11 @@ void main() {
     testWidgets('배지를 기다리는 동안은 배지 자리가 skeleton입니다', (tester) async {
       await tester.pumpWidget(
         _app(
-          DiaryDayGroup(date: _date, entries: _three(), characterPending: true),
+          DiaryDayGroup(date: _date, entries: _three(), dayKindPending: true),
         ),
       );
-      expect(find.byType(DayCharacterBadge), findsNothing);
-      expect(
-        tester.getSize(find.byType(SkeletonBone)).height,
-        DayCharacterBadge.minHeight,
-      );
+      expect(find.byType(HanjaTag), findsNothing);
+      expect(tester.getSize(find.byType(SkeletonBone)).height, HanjaTag.height);
     });
 
     testWidgets('몇 편이든 모두 보입니다(접지 않음)', (tester) async {
@@ -614,93 +624,30 @@ void main() {
       );
       // 날짜 열·배지·태그는 그리지 않습니다.
       expect(find.byKey(DiaryRow.dateColumnKey), findsNothing);
-      expect(find.byType(DayCharacterBadge), findsNothing);
-      expect(find.byType(TagChip), findsNothing);
+      expect(find.byType(HanjaTag), findsNothing);
       expect(_dividers(), findsNWidgets(2));
     });
 
-    testWidgets(
-      'plain: 그날 시트는 바탕 없이 줄만, 머리는 label.md text.secondary 위 16 아래 4입니다',
-      (tester) async {
-        await tester.pumpWidget(
-          _app(
-            DiaryEntries(
-              entries: _three(),
-              surface: DiaryEntriesSurface.plain,
-              head: '이날 일기 3편',
-            ),
-          ),
-        );
-        final tokens = tester.element(find.byType(DiaryEntries)).tokens;
-        expect(find.byKey(DiaryEntries.cardKey), findsNothing);
-        final head = tester.widget<Text>(find.text('이날 일기 3편'));
-        expect(head.style!.fontSize, tokens.typography.labelMd.fontSize);
-        expect(head.style!.fontWeight, tokens.typography.labelMd.fontWeight);
-        expect(head.style!.color, tokens.colors.textSecondary);
-        expect(DiaryEntries.headMarginTop, Space.s16);
-        expect(DiaryEntries.headMarginBottom, Space.s4);
-        final top = tester.getTopLeft(find.byType(DiaryEntries)).dy;
-        expect(tester.getTopLeft(find.text('이날 일기 3편')).dy - top, Space.s16);
-        expect(
-          tester.getTopLeft(find.byType(DiaryEntryLine).first).dy -
-              tester.getBottomLeft(find.text('이날 일기 3편')).dy,
-          Space.s4,
-        );
-        // 머리는 링크가 아니라 글자입니다(누르는 자리 없음).
-        final handle = tester.ensureSemantics();
-        final data = tester
-            .getSemantics(find.text('이날 일기 3편'))
-            .getSemanticsData();
-        expect(data.hasAction(SemanticsAction.tap), isFalse);
-        handle.dispose();
-      },
-    );
-
-    testWidgets('headIdentifier가 있으면 머리에 Semantics identifier로 붙습니다', (
-      tester,
-    ) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(
-        _app(
-          DiaryEntries(
-            entries: _three(),
-            surface: DiaryEntriesSurface.plain,
-            head: '이날 일기 3편',
-            headIdentifier: 'day-sheet.diary.open',
-          ),
-        ),
-      );
-      expect(
-        tester
-            .getSemantics(find.text('이날 일기 3편'))
-            .getSemanticsData()
-            .identifier,
-        'day-sheet.diary.open',
-      );
-      handle.dispose();
-    });
-
-    testWidgets('plain에서 head가 없으면 머리를 그리지 않습니다', (tester) async {
+    testWidgets('plain: 그날 시트는 바탕과 머리 없이 줄만 그립니다(V85)', (tester) async {
       await tester.pumpWidget(
         _app(
           DiaryEntries(entries: _three(), surface: DiaryEntriesSurface.plain),
         ),
       );
+      expect(find.byKey(DiaryEntries.cardKey), findsNothing);
+      expect(find.byType(DiaryEntryLine), findsNWidgets(3));
       expect(
         tester.getTopLeft(find.byType(DiaryEntryLine).first).dy,
         tester.getTopLeft(find.byType(DiaryEntries)).dy,
       );
     });
 
-    testWidgets('entries가 비면 아무것도 그리지 않습니다(머리도 바탕도)', (tester) async {
+    testWidgets('entries가 비면 아무것도 그리지 않습니다(바탕도)', (tester) async {
       for (final surface in DiaryEntriesSurface.values) {
         await tester.pumpWidget(
-          _app(
-            DiaryEntries(entries: const [], surface: surface, head: '이날 일기 0편'),
-          ),
+          _app(DiaryEntries(entries: const [], surface: surface)),
         );
         expect(tester.getSize(find.byType(DiaryEntries)).height, 0);
-        expect(find.text('이날 일기 0편'), findsNothing);
         expect(find.byKey(DiaryEntries.cardKey), findsNothing);
         expect(find.byType(DiaryEntryLine), findsNothing);
       }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -70,7 +71,7 @@ class SajuPillars extends StatelessWidget {
   static const Key meTagKey = ValueKey('saju-pillars-me');
 
   /// 열 사이(`columns.gap`).
-  static const double columnGap = 6;
+  static const double columnGap = Space.s8;
 
   /// 시주.
   final SajuPillarColumn hour;
@@ -92,11 +93,8 @@ class SajuPillars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scaler = MediaQuery.textScalerOf(context)
-        .clamp(maxScaleFactor: OhaengCell.textScaleMax);
     final columns = [hour, day, month, year];
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaler: scaler),
+    return _TableTextScale(
       child: Semantics(
         container: true,
         label: tableLabel,
@@ -120,6 +118,39 @@ class SajuPillars extends StatelessWidget {
   }
 }
 
+/// 원국표 글자 배율을 1.3배에서 멈춥니다([OhaengCell.textScaleMax]). 표 칸이 커지면 원국 배치가
+/// 무너지기 때문입니다. 표와 그 skeleton이 같은 상한을 씁니다.
+class _TableTextScale extends StatelessWidget {
+  const new({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => MediaQuery.withClampedTextScaling(
+    maxScaleFactor: OhaengCell.textScaleMax,
+    child: child,
+  );
+}
+
+/// 기둥 머리 글자(시주, 일주, 월주, 연주). 표와 그 skeleton이 함께 씁니다.
+class _PillarHeader extends StatelessWidget {
+  const new(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: tokens.typography.captionMd.copyWith(
+        color: tokens.colors.textSecondary,
+      ),
+    );
+  }
+}
+
 class _PillarColumn extends StatelessWidget {
   const new({
     required this.column,
@@ -136,7 +167,6 @@ class _PillarColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
     final stem = column.stem ?? const OhaengCell.empty();
     final branch = column.branch ?? const OhaengCell.empty();
     Widget label(Widget? child) => ConstrainedBox(
@@ -149,15 +179,7 @@ class _PillarColumn extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ExcludeSemantics(
-            child: Text(
-              column.header,
-              textAlign: TextAlign.center,
-              style: tokens.typography.captionMd.copyWith(
-                color: tokens.colors.textSecondary,
-              ),
-            ),
-          ),
+          ExcludeSemantics(child: _PillarHeader(column.header)),
           const SizedBox(height: Space.s4),
           label(column.stemLabel),
           const SizedBox(height: Space.s4),
@@ -165,7 +187,7 @@ class _PillarColumn extends StatelessWidget {
             _DayMaster(meLabel: meLabel, child: stem)
           else
             stem,
-          const SizedBox(height: 4),
+          const SizedBox(height: Space.s4),
           branch,
           const SizedBox(height: Space.s4),
           label(column.branchLabel),
@@ -218,7 +240,9 @@ class _DayMaster extends StatelessWidget {
   );
 }
 
-/// 원국표 `loading`: 칸 모양 skeleton(네 기둥 × 천간·지지 칸, 라벨 자리는 짧은 막대).
+/// 원국표 `loading`(`states.loading.skeleton` `cells`): 천간, 지지 칸 자리만 뼈입니다.
+/// 머리 글자(시주, 일주, 월주, 연주)는 UI 글자라 바로 그리고("머리 글자는 바로"), 십성 라벨 줄은
+/// 높이만 지켜 [SajuPillars]와 같은 자리에 칸이 놓입니다.
 ///
 /// [SkeletonBlock]의 `child`로 넣어 쓰면 지연·숨쉬기·스크린리더 라벨을 그대로 받습니다.
 class SajuPillarsSkeleton extends StatelessWidget {
@@ -229,40 +253,50 @@ class SajuPillarsSkeleton extends StatelessWidget {
   final bool animated;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      for (var i = 0; i < 4; i++) ...[
-        if (i > 0) const SizedBox(width: SajuPillars.columnGap),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: SkeletonBone(
-                  height: 12,
-                  width: 28,
-                  index: i,
-                  animated: animated,
-                ),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final headers = [
+      l10n.sajuPillarHour,
+      l10n.sajuPillarDay,
+      l10n.sajuPillarMonth,
+      l10n.sajuPillarYear,
+    ];
+    const labelRow = SizedBox(height: _PillarColumn._labelRow);
+    return _TableTextScale(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, header) in headers.indexed) ...[
+            if (i > 0) const SizedBox(width: SajuPillars.columnGap),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _PillarHeader(header),
+                  const SizedBox(height: Space.s4),
+                  labelRow,
+                  const SizedBox(height: Space.s4),
+                  SkeletonBone(
+                    height: OhaengCell.pillarHeight,
+                    borderRadius: Radii.sm,
+                    index: i,
+                    animated: animated,
+                  ),
+                  const SizedBox(height: Space.s4),
+                  SkeletonBone(
+                    height: OhaengCell.pillarHeight,
+                    borderRadius: Radii.sm,
+                    index: i + 1,
+                    animated: animated,
+                  ),
+                  const SizedBox(height: Space.s4),
+                  labelRow,
+                ],
               ),
-              const SizedBox(height: Space.s12),
-              SkeletonBone(
-                height: OhaengCell.pillarHeight,
-                borderRadius: Radii.sm,
-                index: i,
-                animated: animated,
-              ),
-              const SizedBox(height: 4),
-              SkeletonBone(
-                height: OhaengCell.pillarHeight,
-                borderRadius: Radii.sm,
-                index: i + 1,
-                animated: animated,
-              ),
-            ],
-          ),
-        ),
-      ],
-    ],
-  );
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }

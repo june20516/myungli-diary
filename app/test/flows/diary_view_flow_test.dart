@@ -10,12 +10,12 @@ import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/tag_chip.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
-import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/diary/presentation/diary_view_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -111,18 +111,34 @@ Future<ProviderContainer> _openView(
   return container;
 }
 
-/// 그날 성격 슬롯 안의 [DayCharacter] 이름.
-String _characterLabel(WidgetTester tester) => tester
-    .widget<DayCharacter>(
-      find.descendant(
-        of: find.byKey(const ValueKey(SlotIds.diaryViewCharacterLabel)),
-        matching: find.byType(DayCharacter),
-      ),
-    )
-    .label;
+/// 그날 성격 슬롯 안의 `hanja-tag`.
+Finder get _characterTag => find.descendant(
+  of: find.byKey(const ValueKey(SlotIds.diaryViewCharacterLabel)),
+  matching: find.byType(HanjaTag),
+);
 
-/// 그날 성격의 이유 문장(달 길흉 캐시의 `characterReason`).
-Finder get _reason => find.byType(SentenceBlock);
+/// member로 앱을 띄우고 2026-10-11에 새 일기를 써 그 일기 보기를 엽니다. 대역은 쓸 때 daily의
+/// 성격(용신일)과 기본 질문을 그 편에 기록합니다.
+Future<ProviderContainer> _openWrittenNow(WidgetTester tester) async {
+  final container = await pumpApp(tester, scenario: 'member');
+  final response = await tester.runAsync(
+    () => container
+        .read(dioProvider)
+        .post<Map<String, Object?>>(
+          '/v1/diaries',
+          data: {'date': '2026-10-11', 'body': '오랜만에 연락이 온 친구와 통화했다'},
+        ),
+  );
+  final id = response!.data!['id']! as String;
+  unawaited(
+    container
+        .read(routerProvider)
+        .push<void>(diaryPathOf(ScreenIds.diaryView, id)),
+  );
+  await pumpUntil(tester, () => _paper.evaluate().isNotEmpty);
+  await settleWithIo(tester);
+  return container;
+}
 
 /// 종이에 그려진 일기 본문.
 Finder get _paper => find.textContaining('오랜만에 연락이 온 친구');
@@ -134,56 +150,43 @@ FakeServerInterceptor _server(ProviderContainer container) => container
     .single;
 
 void main() {
-  testWidgets('받은 일기 날짜의 제목, 성격과 이유, 본문, 대표 태그 칩', (tester) async {
+  testWidgets('받은 일기 날짜의 제목, 본문, 대표 태그 칩. 성격을 기록하지 않은 일기는 성격 줄이 없습니다', (
+    tester,
+  ) async {
     await _openView(tester, _written);
     await expectAppBarTitle(
       tester,
       SlotIds.diaryViewBarTitle,
       _ko.diaryViewBarTitle('10월 12일'),
     );
-    expect(find.byType(DayCharacter), findsOneWidget);
-    // 시드 일기는 그날 성격을 기록하기 전(1.1.0 전)의 것이라 달 길흉 캐시의 성격과 이유입니다.
-    expect(_characterLabel(tester), _ko.dayKindGwiinDay);
-    expect(_reason, findsOneWidget);
+    // 시드 일기는 그날 성격을 기록하기 전(1.1.0 전)의 것이라 달 길흉으로 메우지 않습니다(D90 ①).
+    expect(
+      find.byKey(const ValueKey(SlotIds.diaryViewCharacterLabel)),
+      findsNothing,
+    );
+    expect(find.byType(SentenceBlock), findsNothing);
     expect(_paper, findsOneWidget);
     expect(find.byType(TagChip), findsWidgets);
     expect(find.byKey(DiaryViewScreen.editKey), findsOneWidget);
     expect(find.byKey(DiaryViewScreen.deleteKey), findsOneWidget);
   });
 
-  testWidgets('쓸 때 기록한 그날 성격이 지금 달 길흉과 다르면 기록한 성격만, 이유 없이', (tester) async {
-    // 대역은 쓸 때 daily의 성격(용신일)을 기록하고, 달 길흉에서 2026-10-11은 기신일입니다.
-    final container = await pumpApp(tester, scenario: 'member');
-    final response = await tester.runAsync(
-      () => container
-          .read(dioProvider)
-          .post<Map<String, Object?>>(
-            '/v1/diaries',
-            data: {'date': '2026-10-11', 'body': '오랜만에 연락이 온 친구와 통화했다'},
-          ),
-    );
-    final id = response!.data!['id']! as String;
-    unawaited(
-      container
-          .read(routerProvider)
-          .push<void>(diaryPathOf(ScreenIds.diaryView, id)),
-    );
-    await pumpUntil(tester, () => _paper.evaluate().isNotEmpty);
-    await settleWithIo(tester);
-
-    expect(_characterLabel(tester), _ko.dayKindYongsinDay);
-    expect(_reason, findsNothing);
+  testWidgets('쓸 때 기록한 그날 성격은 hanja-tag만, 이유 문장 없이. 쓸 때 질문은 인용형으로 바꾸기 없이', (
+    tester,
+  ) async {
+    await _openWrittenNow(tester);
+    expect(_characterTag, findsOneWidget);
+    expect(tester.widget<HanjaTag>(_characterTag).label, _ko.dayKindYongsinDay);
+    expect(find.byType(SentenceBlock), findsNothing);
+    expect(find.byKey(DiaryEditor.quoteLineKey), findsOneWidget);
+    expect(find.text('오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?'), findsOneWidget);
+    expect(find.byKey(DiaryEditor.swapKey), findsNothing);
   });
 
-  testWidgets('성격을 누르면 그 성격 용어의 풀이 시트', (tester) async {
+  testWidgets('성격 태그를 누르면 그 성격 용어의 뜻 시트', (tester) async {
     covers(const Covers(exits: ['diary-view>explain-sheet']));
-    await _openView(tester, _written);
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(const ValueKey(SlotIds.diaryViewCharacterLabel)),
-        matching: find.byType(PressInkTarget),
-      ),
-    );
+    await _openWrittenNow(tester);
+    await tester.tap(_characterTag);
     await settleWithIo(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
   });

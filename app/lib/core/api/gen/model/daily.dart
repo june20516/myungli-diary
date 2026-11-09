@@ -5,10 +5,13 @@
 // ignore_for_file: unused_element
 import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
 import 'package:myungli_diary/core/api/gen/model/relation.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/fortune.dart';
 import 'package:myungli_diary/core/api/gen/model/notice.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
+import 'package:myungli_diary/core/api/gen/model/ten_god.dart';
+import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/api/gen/model/day_tags.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
@@ -35,6 +38,12 @@ class Daily {
 
     required this.dayPillar,
 
+    this.lunar,
+
+    this.dayStemTenGod,
+
+    this.dayStemTenGodGroup,
+
     required this.dayKind,
 
     required this.characterReason,
@@ -42,6 +51,8 @@ class Daily {
     required this.fortune,
 
     required this.guide,
+
+    required this.guideCandidates,
 
     required this.cards,
 
@@ -64,6 +75,15 @@ class Daily {
   @JsonKey(name: r'dayPillar', required: true, includeIfNull: false)
   final Pillar dayPillar;
 
+  @JsonKey(name: r'lunar', required: false, includeIfNull: false)
+  final LunarDate? lunar;
+
+  @JsonKey(name: r'dayStemTenGod', required: false, includeIfNull: false)
+  final TenGod? dayStemTenGod;
+
+  @JsonKey(name: r'dayStemTenGodGroup', required: false, includeIfNull: false)
+  final TenGodGroup? dayStemTenGodGroup;
+
   @JsonKey(name: r'dayKind', required: true, includeIfNull: false)
   final DayKind dayKind;
 
@@ -75,6 +95,9 @@ class Daily {
 
   @JsonKey(name: r'guide', required: true, includeIfNull: false)
   final SlotText guide;
+
+  @JsonKey(name: r'guideCandidates', required: true, includeIfNull: false)
+  final List<SlotText> guideCandidates;
 
   @JsonKey(name: r'cards', required: true, includeIfNull: false)
   final DailyCards cards;
@@ -97,10 +120,14 @@ class Daily {
           other.rulesetVersion == rulesetVersion &&
           other.evidenceAccess == evidenceAccess &&
           other.dayPillar == dayPillar &&
+          other.lunar == lunar &&
+          other.dayStemTenGod == dayStemTenGod &&
+          other.dayStemTenGodGroup == dayStemTenGodGroup &&
           other.dayKind == dayKind &&
           other.characterReason == characterReason &&
           other.fortune == fortune &&
           other.guide == guide &&
+          other.guideCandidates == guideCandidates &&
           other.cards == cards &&
           other.tags == tags &&
           other.relations == relations &&
@@ -112,10 +139,14 @@ class Daily {
       rulesetVersion.hashCode +
       evidenceAccess.hashCode +
       dayPillar.hashCode +
+      lunar.hashCode +
+      dayStemTenGod.hashCode +
+      dayStemTenGodGroup.hashCode +
       dayKind.hashCode +
       characterReason.hashCode +
       fortune.hashCode +
       guide.hashCode +
+      guideCandidates.hashCode +
       cards.hashCode +
       tags.hashCode +
       relations.hashCode +

@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/input/date_picker.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
@@ -76,9 +77,16 @@ void main() {
       $.tester.element(_screen(ScreenIds.mySaju)),
     );
 
-    // 근거 보기 → 사주 표(원국부터).
-    await $(_depthLink(ScreenIds.mySaju)).scrollTo();
-    await $(_depthLink(ScreenIds.mySaju)).tap();
+    // "사주 원국" 섹션 머리의 "사주 표" 링크 → 사주 표(원국부터).
+    final chartLink = _inScreen(
+      ScreenIds.mySaju,
+      find.descendant(
+        of: find.byType(SectionHeader),
+        matching: find.text(l10n.mySajuChartLink),
+      ),
+    );
+    await $(chartLink).scrollTo();
+    await $(chartLink).tap();
     await expectScreen($, ScreenIds.sajuChart);
     await waitUntil(
       $,

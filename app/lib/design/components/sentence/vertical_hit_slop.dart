@@ -18,42 +18,74 @@ class VerticalHitSlop extends SingleChildRenderObjectWidget {
   const new({
     required super.child,
     this.minHeight = sentenceMinTarget,
+    this.minWidth = 0,
+    this.widenLeftOnly = false,
     super.key,
   });
 
   /// 눌림 영역의 최소 높이.
   final double minHeight;
 
+  /// 눌림 영역의 최소 폭. 자식이 더 좁으면 좌우로 넓힙니다(0이면 넓히지 않음).
+  final double minWidth;
+
+  /// true면 폭은 물리적 왼쪽으로만 넓힙니다(오른쪽 끝선 바깥은 부모 경계라 눌림이 닿지 않음. 방향 전환 없음).
+  final bool widenLeftOnly;
+
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderVerticalHitSlop(minHeight);
+      _RenderVerticalHitSlop(
+        minHeight: minHeight,
+        minWidth: minWidth,
+        widenLeftOnly: widenLeftOnly,
+      );
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) =>
-      (renderObject as _RenderVerticalHitSlop).minHeight = minHeight;
+      (renderObject as _RenderVerticalHitSlop)
+        ..minHeight = minHeight
+        ..minWidth = minWidth
+        ..widenLeftOnly = widenLeftOnly;
 }
 
 class _RenderVerticalHitSlop extends RenderProxyBox {
-  new(this._minHeight);
+  new({
+    required this._minHeight,
+    required this._minWidth,
+    required this._widenLeftOnly,
+  });
 
   double _minHeight;
+  double _minWidth;
+  bool _widenLeftOnly;
 
   // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
   // ignore: avoid_setters_without_getters
   set minHeight(double value) => _minHeight = value;
 
+  // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
+  // ignore: avoid_setters_without_getters
+  set minWidth(double value) => _minWidth = value;
+
+  // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
+  // ignore: avoid_setters_without_getters
+  set widenLeftOnly(bool value) => _widenLeftOnly = value;
+
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     final slop = math.max(0, (_minHeight - size.height) / 2);
+    final extra = math.max(0, _minWidth - size.width);
+    final slopStart = _widenLeftOnly ? extra : extra / 2;
+    final slopEnd = _widenLeftOnly ? 0 : extra / 2;
     final inside =
-        position.dx >= 0 &&
-        position.dx < size.width &&
+        position.dx >= -slopStart &&
+        position.dx < size.width + slopEnd &&
         position.dy >= -slop &&
         position.dy < size.height + slop;
     if (!inside) return false;
     // 자식의 판정은 자기 영역 안에서만 성립하므로, 넓힌 부분의 눌림은 가장자리로 모읍니다.
     final clamped = Offset(
-      position.dx,
+      position.dx.clamp(0, size.width - 0.01),
       position.dy.clamp(0, size.height - 0.01),
     );
     return result.addWithRawTransform(

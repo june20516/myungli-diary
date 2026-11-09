@@ -1,11 +1,34 @@
 import 'package:intl/intl.dart';
+import 'package:myungli_diary/core/api/gen/model/birth.dart';
+import 'package:myungli_diary/core/api/gen/model/branch.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 
 /// [locale]의 연월일 모양(`yMMMMd`, 예 "1990년 5월 15일")으로 쓰되, 날 칸은 [day] 숫자를
 /// 그대로 넣습니다.
 ///
 /// 음력 날은 양력 달력에 없는 날(2월 30일)일 수 있어 날짜 계산 없이 날 숫자를 씁니다.
-String formatBirthDay(String locale, int year, int month, int day) {
-  final pattern = DateFormat.yMMMMd(locale).pattern!;
+String formatBirthDay(String locale, int year, int month, int day) =>
+    _formatWithDay(
+      DateFormat.yMMMMd(locale).pattern!,
+      locale,
+      year,
+      month,
+      day,
+    );
+
+/// [locale]의 숫자 연월일 모양(`yMd`, 예 ko "1990. 5. 15.")입니다. 날 칸은
+/// [formatBirthDay]처럼 [day] 숫자를 그대로 넣습니다(사주 표 출생 정보 줄).
+String formatBirthDayNumeric(String locale, int year, int month, int day) =>
+    _formatWithDay(DateFormat.yMd(locale).pattern!, locale, year, month, day);
+
+String _formatWithDay(
+  String pattern,
+  String locale,
+  int year,
+  int month,
+  int day,
+) {
   final buffer = StringBuffer();
   var quoted = false;
   for (var i = 0; i < pattern.length; i++) {
@@ -34,4 +57,41 @@ String formatBirthClock(String locale, String value) {
   final minute = parts.length == 2 ? int.tryParse(parts.last) : null;
   if (hour == null || minute == null) return value;
   return DateFormat.jm(locale).format(DateTime(2000, 1, 1, hour, minute));
+}
+
+/// 지지 [branch]의 이름(ARB `branch*`, '시' 없이). 시진 확인 줄과 출생 정보 줄 시진 칸이
+/// 원고 틀(`{branch}시`)에 넣습니다.
+String branchName(AppLocalizations l10n, Branch branch) => switch (branch) {
+  Branch.ja => l10n.branchJa,
+  Branch.chuk => l10n.branchChuk,
+  Branch.in_ => l10n.branchIn,
+  Branch.myo => l10n.branchMyo,
+  Branch.jin => l10n.branchJin,
+  Branch.sa => l10n.branchSa,
+  Branch.o => l10n.branchO,
+  Branch.mi => l10n.branchMi,
+  Branch.shin => l10n.branchShin,
+  Branch.yu => l10n.branchYu,
+  Branch.sul => l10n.branchSul,
+  Branch.hae => l10n.branchHae,
+};
+
+/// 성별 글자(출생 정보 입력, 정보 수정, 사주 표 출생 정보 줄).
+String genderLabel(AppLocalizations l10n, BirthGenderEnum gender) =>
+    switch (gender) {
+      BirthGenderEnum.female => l10n.genderFemale,
+      BirthGenderEnum.male => l10n.genderMale,
+    };
+
+/// 출생 정보 줄의 달력 종류 꼬리표: "양력", "음력", 음력 윤달이면 "음력 윤달"(달력 종류 낱말과
+/// 윤달 낱말을 띄어 잇습니다, `birth-info-row` `calendarTag`).
+String birthCalendarTag(
+  AppLocalizations l10n, {
+  required CalendarType calendar,
+  required bool isLeapMonth,
+}) {
+  if (calendar != CalendarType.lunar) return l10n.calendarSolar;
+  return isLeapMonth
+      ? [l10n.calendarLunar, l10n.dayCellLeapMonth].join(' ')
+      : l10n.calendarLunar;
 }

@@ -138,6 +138,18 @@ enum InteractionPattern {
     LowEndRule.same,
   ),
 
+  /// 화면 이동: 새 화면이 오른쪽에서 조금 밀려 들어오며 나타남(V67).
+  ///
+  /// 화면 쌓기 이동(push, pop)에만 씁니다. 탭 사이 이동과 시트는 쓰지 않습니다.
+  /// route에서는 `PagePushTransitionsBuilder`(`page_push_transition.dart`)가 입힙니다.
+  pagePush(
+    'page.push',
+    Motion.pageDuration,
+    Motion.pageEasing,
+    ReduceMotionRule.opacityOnly,
+    LowEndRule.same,
+  ),
+
   /// 입력 포커스 테두리.
   focusRing(
     'focus.ring',
@@ -178,6 +190,9 @@ abstract final class PatternValues {
 
   /// `press.ink` 뗄 때 번지는 배율.
   static const double inkReleaseScale = 1.15;
+
+  /// 얼룩이 진하게 차는 반지름 비율(`press.ink.ink.solidUntil`).
+  static const double inkSolidUntil = 0.7;
 
   /// `press.ink` 뗄 때 시간·곡선.
   static const Duration releaseDuration = Motion.long;
@@ -365,6 +380,11 @@ Widget animate(
         InteractionPattern.sheetEnter => _sheetEnter(effect, child!),
         InteractionPattern.sheetExit => _sheetExit(effect, child!),
         InteractionPattern.sheetStack => _sheetStack(effect, options, child!),
+        InteractionPattern.pagePush => animatePagePush(
+          t: t,
+          prefs: prefs,
+          child: child!,
+        ),
         InteractionPattern.focusRing => _focusRing(
           context,
           effect,
@@ -627,6 +647,35 @@ Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
   );
 }
 
+/// `page.push`를 [t](0→1 선형 진행)에 입힙니다. 오른쪽 `motion.offset.page`(24)에서 0으로,
+/// 투명도 0에서 1로 움직이고 뒤 화면은 그대로입니다. 동작 줄이기는 투명도만 바꿉니다.
+///
+/// route 전환은 끝난 뒤에도 화면 위에 남으므로 [FadeTransition]과 [SlideTransition]으로
+/// 그립니다. 진행 1에서 `Opacity`나 `Transform`이 남지 않고, 위젯 구조는 늘 같아 화면
+/// 상태가 유지됩니다. 24px는 화면 폭에 대한 비율로 바꿉니다.
+Widget animatePagePush({
+  required Animation<double> t,
+  required MotionPrefs prefs,
+  required Widget child,
+}) {
+  const pattern = InteractionPattern.pagePush;
+  final eased = t.drive(CurveTween(curve: pattern.curve));
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      final slides =
+          !_Effect(pattern, prefs, t).opacityOnly &&
+          width.isFinite &&
+          width > 0;
+      final from = slides ? Offset(Motion.pageOffset / width, 0) : Offset.zero;
+      return SlideTransition(
+        position: eased.drive(Tween(begin: from, end: Offset.zero)),
+        child: FadeTransition(opacity: eased, child: child),
+      );
+    },
+  );
+}
+
 Widget _focusRing(
   BuildContext context,
   _Effect e,
@@ -681,6 +730,33 @@ Widget _pressInk(
   );
 }
 
+/// `press.ink` 얼룩 반지름(`interaction.json` `press.ink.ink.radius`).
+///
+/// 다 자란 반지름은 누른 자리에서 가장 먼 모서리 거리 ÷ [PatternValues.inkSolidUntil]이라,
+/// 진한 영역(0~0.7)이 그 모서리까지 닿습니다. 손을 떼면([release] 0~1) 덜 자랐어도
+/// 다 자란 크기(grow 1)까지 이어 자라고, 이어서 [PatternValues.inkReleaseScale]배까지 커집니다.
+@visibleForTesting
+double pressInkRadius({
+  required Size size,
+  required Alignment origin,
+  required double grow,
+  required double release,
+}) {
+  final bounds = Offset.zero & size;
+  final center = origin.alongSize(size);
+  final farthest = [
+    bounds.topLeft,
+    bounds.topRight,
+    bounds.bottomLeft,
+    bounds.bottomRight,
+  ].map((corner) => (corner - center).distance).reduce(math.max);
+  final fullRadius = farthest / PatternValues.inkSolidUntil;
+  final effectiveGrow = grow + (1 - grow) * release;
+  return fullRadius *
+      effectiveGrow *
+      (1 + (PatternValues.inkReleaseScale - 1) * release);
+}
+
 /// 누른 자리에서 번지는 원형 얼룩. 이 층 안에서만 자릅니다.
 class _InkPainter extends CustomPainter {
   new({
@@ -704,12 +780,6 @@ class _InkPainter extends CustomPainter {
     final bounds = Offset.zero & size;
     canvas.clipRRect(borderRadius.toRRect(bounds));
     final center = origin.alongSize(size);
-    final farthest = [
-      bounds.topLeft,
-      bounds.topRight,
-      bounds.bottomLeft,
-      bounds.bottomRight,
-    ].map((corner) => (corner - center).distance).reduce(math.max);
     final alpha = PatternValues.inkAlpha * (1 - release);
     if (alpha <= 0) return;
     if (fadeOnly) {
@@ -720,8 +790,12 @@ class _InkPainter extends CustomPainter {
       );
       return;
     }
-    final radius =
-        farthest * grow * (1 + (PatternValues.inkReleaseScale - 1) * release);
+    final radius = pressInkRadius(
+      size: size,
+      origin: origin,
+      grow: grow,
+      release: release,
+    );
     if (radius <= 0) return;
     final tint = color.withValues(alpha: alpha);
     canvas.drawCircle(
@@ -732,7 +806,7 @@ class _InkPainter extends CustomPainter {
           center,
           radius,
           [tint, tint, tint.withValues(alpha: 0)],
-          [0, 0.7, 1],
+          [0, PatternValues.inkSolidUntil, 1],
         ),
     );
   }

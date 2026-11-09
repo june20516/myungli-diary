@@ -25,18 +25,23 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
-import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
+import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
+import '../support/daily_fixture.dart';
 import '../support/depth_link_finders.dart';
 import '../support/onboarding_steps.dart' show pumpUntil;
 import '../support/sheet_close.dart';
@@ -44,7 +49,7 @@ import '../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
 
-final Finder _content = find.byType(DayCharacter);
+final Finder _content = find.byType(DateHeader);
 
 Future<void> _settleToday(WidgetTester tester) => pumpUntil(
   tester,
@@ -52,6 +57,19 @@ Future<void> _settleToday(WidgetTester tester) => pumpUntil(
       _content.evaluate().isNotEmpty ||
       find.byType(ErrorState).evaluate().isNotEmpty,
 );
+
+/// 사주 기운 섹션의 [rank] 대표 태그를 눌러 사주 기운 시트를 엽니다.
+Future<void> _openFeaturedTag(WidgetTester tester, int rank) async {
+  final featured = find.descendant(
+    of: find.byKey(TodayScreen.featuredCardKey),
+    matching: find.byType(HanjaTag),
+  );
+  await tester.ensureVisible(featured.at(rank));
+  await tester.pumpAndSettle();
+  await tester.tap(featured.at(rank));
+  await tester.pumpAndSettle();
+  expect(find.byKey(const Key(ScreenIds.tagSheet)), findsOneWidget);
+}
 
 Future<ProviderContainer> _openToday(
   WidgetTester tester, {
@@ -178,12 +196,14 @@ void main() {
     await tester.tap(find.byType(TermToken).first);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
-    // 첫 칩은 총운의 `element.wood`이고, 뜻은 member `getGlossary.json`의 meanings입니다.
+    // 첫 칩은 총운의 `ten_god_group.bigyeop`이고,
+    // 뜻은 member `getGlossary.json`의 meanings입니다.
     expect(
       find.descendant(
         of: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
         matching: find.text(
-          '자라고 뻗어 나가는 기운이에요. 새로 시작하고 키워 가는 일에서 드러나요.',
+          '비견과 겁재를 함께 부르는 이름으로, 나와 어깨를 나란히 하는 기운이에요. '
+          '나를 지키고 내 몫을 챙기려는 힘이 여기에 들어요.',
           findRichText: true,
         ),
       ),
@@ -210,41 +230,9 @@ void main() {
     await _closeSheet(tester);
     expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
 
-    // 날의 성격 이유 줄 끝의 근거 보기(`day-character` rules).
-    await tester.tap(depthLinkTarget(of: find.byKey(DayCharacter.reasonKey)));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
-    await _closeSheet(tester);
-    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
-
     await tester.tap(find.byType(ShareButton));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key(ScreenIds.sharePreview)), findsOneWidget);
-  });
-
-  testWidgets('member: 대표 태그 칩을 누르면 뜻 한 줄이 스미고 시트는 열리지 않습니다(D76)', (
-    tester,
-  ) async {
-    await _openToday(tester);
-
-    final tagChip = find.byKey(LuckyCardRow.tagChipKey('cheoneul_gwiin'));
-    await tester.ensureVisible(tagChip);
-    await tester.tap(tagChip);
-    await tester.pumpAndSettle();
-    expect(
-      find.bySemanticsIdentifier(SlotIds.todayLuckyTagBody),
-      findsOneWidget,
-    );
-    expect(
-      find.text('어려울 때 도와주는 사람이 곁에 오는 기운이에요.', findRichText: true),
-      findsOneWidget,
-    );
-    expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
-
-    // 다시 누르면 닫힙니다(행운 칩과 같은 동작).
-    await tester.tap(tagChip);
-    await tester.pumpAndSettle();
-    expect(find.bySemanticsIdentifier(SlotIds.todayLuckyTagBody), findsNothing);
   });
 
   testWidgets('evidence-unlocked: 용어 → 풀이 시트의 한자·오늘 그런 이유 → 근거 보기 → 판정 근거 문장', (
@@ -257,13 +245,13 @@ void main() {
     );
     await _openToday(tester, scenario: 'evidence-unlocked');
 
-    // 첫 칩은 총운의 `element.wood`입니다. 한자는 `getGlossary.json`의 hanja,
+    // 첫 칩은 총운의 `ten_god_group.bigyeop`입니다. 한자는 `getGlossary.json`의 hanja,
     // 오늘 그런 이유는 `getDaily.json` 총운 첫 문장의 todayReason입니다.
     await tester.tap(find.byType(TermToken).first);
     await tester.pumpAndSettle();
     final explain = find.byKey(const Key(ScreenIds.explainSheet));
     expect(
-      find.descendant(of: explain, matching: find.text('木')),
+      find.descendant(of: explain, matching: find.text('比劫')),
       findsOneWidget,
     );
     expect(
@@ -289,7 +277,7 @@ void main() {
       find.descendant(
         of: find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
         matching: find.text(
-          '일간을 돕는 오행이 부족해 그 오행을 용신으로 봤어요.',
+          '억부법으로 용신을 정했어요. 내 일간은 힘이 센 편이라, 그 힘을 고르게 맞추는 오행을 골랐어요.',
           findRichText: true,
         ),
       ),
@@ -355,10 +343,11 @@ void main() {
       overrides: [
         depthSheetsProvider.overrideWithValue(
           DepthSheets(
-            explainBody: (termId, origin) => ProviderScope(
+            explainBody: (content, {head, diaryLinkTag}) => ProviderScope(
               overrides: [
                 glossaryProvider.overrideWith((ref) {
                   if (++attempts == 1) return firstAttempt.future;
+                  final termId = (content as ExplainTerm).termId;
                   final dot = termId.indexOf('.');
                   return GlossaryNames({
                     termId.substring(0, dot): {
@@ -367,9 +356,9 @@ void main() {
                   });
                 }),
               ],
-              child: ExplainSheet(termId: termId, origin: origin),
+              child: ExplainSheet(content: content),
             ),
-            evidenceBody: (_, _) => const SizedBox.shrink(),
+            evidenceBody: (_, _, _) => const SizedBox.shrink(),
             shareBody: SizedBox.shrink,
           ),
         ),
@@ -400,6 +389,140 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('풀이 이름'), findsOneWidget);
     expect(find.byType(ErrorState), findsNothing);
+  });
+
+  testWidgets('member: 사주 기운 태그 → 사주 기운 시트(열린 동안 selected)', (tester) async {
+    covers(const Covers(exits: ['today>tag-sheet'], decisions: ['D108']));
+    await _openToday(tester);
+
+    final featured = find.descendant(
+      of: find.byKey(TodayScreen.featuredCardKey),
+      matching: find.byType(HanjaTag),
+    );
+    await tester.ensureVisible(featured.first);
+    await tester.pumpAndSettle();
+    await tester.tap(featured.first);
+    await tester.pumpAndSettle();
+
+    final sheet = find.byKey(const Key(ScreenIds.tagSheet));
+    expect(sheet, findsOneWidget);
+    // 1순위: 머리 태그, 보조 문장과 오늘의 질문 줄(A113).
+    expect(
+      tester
+          .widget<HanjaTag>(
+            find.descendant(of: sheet, matching: find.byType(HanjaTag)),
+          )
+          .label,
+      '합',
+    );
+    expect(
+      tester
+          .widget<TagSentenceList>(
+            find.descendant(of: sheet, matching: find.byType(TagSentenceList)),
+          )
+          .items,
+      hasLength(2),
+    );
+    expect(
+      tester.widget<HanjaTag>(featured.first).variant,
+      HanjaTagVariant.selected,
+    );
+
+    await tapSheetScrim(tester);
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
+    expect(
+      tester.widget<HanjaTag>(featured.first).variant,
+      HanjaTagVariant.normal,
+    );
+  });
+
+  testWidgets('member: 사주 기운 시트 근거 아이콘 → 그 태그를 머리로 한 근거 시트', (tester) async {
+    covers(
+      const Covers(exits: ['tag-sheet>evidence-sheet'], decisions: ['D108']),
+    );
+    await _openToday(tester);
+    await _openFeaturedTag(tester, 0);
+
+    final sheet = find.byKey(const Key(ScreenIds.tagSheet));
+    await tester.tap(depthLinkTarget(of: sheet));
+    await tester.pumpAndSettle();
+
+    final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+    expect(evidence, findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.descendant(
+          of: evidence,
+          matching: find.byKey(EvidenceSheetBody.targetTagsKey),
+        ),
+        matching: find.text('합'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: evidence,
+        matching: find.text('이야기나 약속이 잘 맞아떨어지는 날이에요.'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('member: 사주 기운 시트 일기 보기 → 그 태그의 tag-diary', (tester) async {
+    covers(const Covers(exits: ['tag-sheet>tag-diary'], decisions: ['D108']));
+    await _openToday(tester);
+    await _openFeaturedTag(tester, 0);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key(ScreenIds.tagSheet)),
+        matching: find.byKey(TagSentenceList.diaryLinkKey),
+      ),
+    );
+    await pumpUntil(
+      tester,
+      () =>
+          find.byKey(const ValueKey(ScreenIds.tagDiary)).evaluate().isNotEmpty,
+    );
+    expect(find.byKey(const Key(ScreenIds.tagSheet)), findsNothing);
+    expect(find.byKey(const ValueKey(ScreenIds.tagDiary)), findsOneWidget);
+  });
+
+  testWidgets('member: 대표 태그 2순위의 사주 기운 시트는 빈 안내(empty)', (tester) async {
+    covers(const Covers(states: ['tag-sheet:empty'], decisions: ['D108']));
+    final container = await _openToday(tester);
+    // 2순위 태그(역마)가 있는 날로 다시 받습니다.
+    final server = ScriptedDailyServer();
+    server.body['tags'] = {
+      'featured': [
+        {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+        {'key': 'yeokma', 'polarity': 'neutral'},
+      ],
+      'all': ['cheoneul_gwiin', 'yeokma', 'yongsin_day'],
+    };
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, server);
+    container.invalidate(dailyControllerProvider);
+    final featured = find.descendant(
+      of: find.byKey(TodayScreen.featuredCardKey),
+      matching: find.byType(HanjaTag),
+    );
+    await pumpUntil(tester, () => featured.evaluate().length == 2);
+
+    await _openFeaturedTag(tester, 1);
+    final sheet = find.byKey(const Key(ScreenIds.tagSheet));
+    expect(
+      find.descendant(
+        of: sheet,
+        matching: find.text(_ko.tagSheetSentencesEmpty),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: sheet, matching: find.byType(DepthLink)),
+      findsNothing,
+    );
   });
 
   testWidgets('member: 가이드 카드 → 오늘 새 일기 diary-edit', (tester) async {

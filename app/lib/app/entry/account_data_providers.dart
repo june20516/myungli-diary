@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
+import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 
 /// 계정 id는 그대로인 채 계정 데이터가 바뀌었을 때(계정 합치기) invalidate할 뿌리 provider.
@@ -11,6 +12,7 @@ import 'package:myungli_diary/features/schedule/application/schedule_providers.d
 ///
 /// * [cacheStoreProvider]: 오늘·달력·나의 사주·용어·프로필 사본(캐시를 거치는 것 모두).
 /// * [diaryRepositoryProvider]: 일기 목록·그날 일기·일기 도장·일기 한 편.
+/// * [diaryStatsRepositoryProvider]: 나 탭 회고 집계.
 /// * [scheduleRepositoryProvider]: 일정.
 /// * [diaryDraftStoreProvider]: 일기 초안(합친 뒤 지웠으므로 쓰는 중인 화면도 다시 읽게).
 ///
@@ -20,6 +22,7 @@ import 'package:myungli_diary/features/schedule/application/schedule_providers.d
 final List<ProviderOrFamily> accountDataProviders = [
   cacheStoreProvider,
   diaryRepositoryProvider,
+  diaryStatsRepositoryProvider,
   scheduleRepositoryProvider,
   diaryDraftStoreProvider,
 ];

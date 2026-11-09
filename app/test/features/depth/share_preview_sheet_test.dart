@@ -239,7 +239,51 @@ void main() {
       expect(_previewImage(tester).variant, ShareImageVariant.square);
     });
 
-    testWidgets('이미지 내용은 총운 문장(호칭 포함)·날짜·날의 성격·행운·footer입니다', (tester) async {
+    testWidgets('호칭 변주 총운 문장(호칭 포함)이 이미지 첫 조각입니다', (tester) async {
+      // fixture는 advice 변주라, 호칭 변주(yongsin_day.bigyeop state)는 대역 응답으로 만듭니다.
+      final json = memberDailyJson();
+      final fortune = Map<String, dynamic>.of(
+        json['fortune'] as Map<String, dynamic>,
+      );
+      fortune['head'] = {
+        ...fortune['head'] as Map<String, dynamic>,
+        'variant': 'state',
+        'text': {
+          'segments': [
+            {'text': '하늘님, 주변과 손발이 잘 맞는 날이에요.'},
+          ],
+        },
+      };
+      final daily = Daily.fromJson({...json, 'fortune': fortune});
+      await _pump(
+        tester,
+        _app(
+          renderer: _RecordingRenderer(),
+          share: FakeShareSheet(),
+          content: AsyncData(
+            TodayContent(
+              view: DailyView(
+                date: CalendarDate(2026, 10, 13),
+                daily: daily,
+                stale: false,
+                cacheKey: null,
+              ),
+              names: const GlossaryNames({
+                'color': {'wood': '초록'},
+              }),
+              diaries: const [],
+            ),
+          ),
+        ),
+      );
+      final image = _previewImage(tester);
+      expect(image.sentence.toJson(), daily.fortune.head.text.toJson());
+      expect(image.sentence.segments.first.text, startsWith('하늘님, '));
+    });
+
+    testWidgets('이미지 내용은 총운 문장(용어 조각 포함)·날짜·날의 성격·행운·footer입니다', (
+      tester,
+    ) async {
       await _pump(
         tester,
         _app(renderer: _RecordingRenderer(), share: FakeShareSheet()),
@@ -247,7 +291,8 @@ void main() {
       final image = _previewImage(tester);
       final daily = Daily.fromJson(memberDailyJson());
       expect(image.sentence.toJson(), daily.fortune.head.text.toJson());
-      expect(image.sentence.segments.first.text, '하늘님, ');
+      // 총운 문장은 용어 조각(비겁)으로 시작합니다.
+      expect(image.sentence.segments.first.text, '비겁');
       expect(image.date, '10월 13일 화요일');
       expect(image.dayKind, daily.dayKind);
       expect(image.dayKindLabel, _ko.dayKindYongsinDay);

@@ -5,8 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
     show AsyncNotifierProviderFamily, FutureProviderFamily;
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/guide_choice.dart';
+import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -20,6 +24,7 @@ import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/data/diary_draft_store.dart';
 import 'package:myungli_diary/features/diary/model/diary_draft_target.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
+import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:uuid/uuid.dart';
 
@@ -66,12 +71,20 @@ final class DiaryEditState {
     required this.date,
     required this.initialBody,
     required this.existing,
-    required this.question,
     required this.fromDraft,
+    this.candidates = const [],
+    this.questionIndex = 0,
+    this.savedQuestion,
+    this.dayPillar,
+    this.dayPillarPending = false,
     this.status,
     this.saving = false,
     this.offline = false,
-  });
+  }) : assert(
+         candidates.length == 0 ||
+             (questionIndex >= 0 && questionIndex < candidates.length),
+         'questionIndex는 후보 범위 안이어야 합니다',
+       );
 
   /// 일기 날짜. 새 일기는 열 때의 날짜, 고치기는 그 일기의 날짜입니다.
   final CalendarDate date;
@@ -82,8 +95,21 @@ final class DiaryEditState {
   /// 이미 저장된 일기. 새로 쓰면 null입니다.
   final Diary? existing;
 
-  /// 오늘의 질문. 받지 못했거나 빈 문장이면 null입니다(A47).
-  final RenderedText? question;
+  /// 그날 오늘의 질문 후보(`Daily.guideCandidates`, server 순서, 빈 문장은 뺌, A47·A115).
+  /// 고치기와 후보를 받지 못한 새 일기(오프라인)는 비어 있습니다.
+  final List<SlotText> candidates;
+
+  /// [candidates] 가운데 고른 후보의 순번.
+  final int questionIndex;
+
+  /// 고치는 일기에 저장된 질문(`Diary.guideQuestion`). 새 일기는 null입니다.
+  final RenderedText? savedQuestion;
+
+  /// 그날 일진(`Daily.dayPillar`, `date-block`). 받지 못했으면 null입니다.
+  final Pillar? dayPillar;
+
+  /// 일진을 아직 받는 중인지(고치기는 화면을 먼저 열고 일진을 뒤에서 받음).
+  final bool dayPillarPending;
 
   /// 기기에 남은 초안으로 시작했는지(IA `draft`).
   final bool fromDraft;
@@ -97,9 +123,24 @@ final class DiaryEditState {
   /// 마지막 받기·저장이 연결 오류로 실패했는지(IA `offline`, A49).
   final bool offline;
 
+  /// 보일 질문: 고른 후보, 없으면 저장된 질문. 둘 다 없으면 null입니다(질문 줄 없음).
+  RenderedText? get question =>
+      candidates.isEmpty ? savedQuestion : candidates[questionIndex].text;
+
+  /// 질문 바꾸기를 보일지: 새 일기이고 후보가 둘 이상일 때(A115, `swap.visibleWhen`).
+  bool get canSwapQuestion => existing == null && candidates.length >= 2;
+
+  /// 저장 요청에 실을 고른 질문. 후보를 받지 못했으면 null이고 필드를 뺍니다(A115).
+  GuideChoice? get guideChoice =>
+      candidates.isEmpty ? null : guideChoiceOf(candidates[questionIndex]);
+
   /// 값을 바꾼 상태.
   DiaryEditState copyWith({
     Diary? existing,
+    List<SlotText>? candidates,
+    int? questionIndex,
+    Pillar? dayPillar,
+    bool? dayPillarPending,
     DiaryDraftStatus? status,
     bool? saving,
     bool? offline,
@@ -107,20 +148,36 @@ final class DiaryEditState {
     date: date,
     initialBody: initialBody,
     existing: existing ?? this.existing,
-    question: question,
     fromDraft: fromDraft,
+    candidates: candidates ?? this.candidates,
+    questionIndex: questionIndex ?? this.questionIndex,
+    savedQuestion: savedQuestion,
+    dayPillar: dayPillar ?? this.dayPillar,
+    dayPillarPending: dayPillarPending ?? this.dayPillarPending,
     status: status ?? this.status,
     saving: saving ?? this.saving,
     offline: offline ?? this.offline,
   );
 }
 
+/// 후보 [candidate]의 고른 질문 값(`createDiary.guideQuestion`).
+GuideChoice guideChoiceOf(SlotText candidate) => GuideChoice(
+  messageKey: candidate.messageKey,
+  variant: candidate.variant.value,
+);
+
+/// [a]와 [b]가 같은 질문인지(둘 다 없음도 같음).
+bool sameGuideChoice(GuideChoice? a, GuideChoice? b) =>
+    a?.messageKey == b?.messageKey && a?.variant == b?.variant;
+
 /// 일기 쓰기(`diary-edit`)의 상태와 동작. family 값은 새 일기(날짜)이거나 고칠 일기(id)입니다.
 ///
-/// * 열 때 새 일기는 그날 새 일기 초안·가이드 질문을, 고치기는 그 일기와 그 일기 초안을 읽습니다
-///   (A47·A48). 새 일기에서 질문을 받지 못해도 쓰기를 막지 않고, 연결 오류면
-///   [DiaryEditState.offline]입니다. 고치는 일기를 받지 못하면 날짜를 몰라 오류로 엽니다(404는
-///   `diary.not_found`).
+/// * 열 때 새 일기는 그날 새 일기 초안과 오늘 풀이(질문 후보, 일진)를, 고치기는 그 일기와 그
+///   일기 초안, 일진을 읽습니다(A47·A48). 새 일기에서 풀이를 받지 못해도 쓰기를 막지 않고, 연결
+///   오류면 [DiaryEditState.offline]입니다. 고치는 일기를 받지 못하면 날짜를 몰라 오류로 엽니다
+///   (404는 `diary.not_found`).
+/// * 새 일기는 [DiaryEdit.swapQuestion]으로 그날 후보를 돌고, 고른 질문은 초안과 저장 요청에
+///   실립니다(A115).
 /// * `edit`는 입력이 멈추고 [diaryDraftDelay] 뒤 초안을 씁니다. 공백뿐이면 초안을 지웁니다.
 /// * `save`는 두 번 눌러도 요청 하나이고, 실패해도 초안을 남깁니다(A49). 새 일기는 `create`,
 ///   고치기는 `update`이며 새 일기를 저장한 뒤 같은 화면에서 다시 저장하면 `update`입니다.
@@ -156,9 +213,16 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   late DiaryDraftStore _drafts;
   late CrashReporter _crashReporter;
 
-  /// 새 일기 저장 요청의 본문과 `Idempotency-Key`. 실패 뒤 같은 본문을 다시 저장하면 같은
-  /// 키를 쓰고(시간 초과 뒤 일기가 두 편 생기지 않게), 성공하면 비웁니다.
-  ({String body, String key})? _pendingCreate;
+  /// 새 일기 저장 요청의 본문, 고른 질문, `Idempotency-Key`. 실패 뒤 같은 본문과 같은 질문을
+  /// 다시 저장하면 같은 키를 쓰고(시간 초과 뒤 일기가 두 편 생기지 않게), 성공하면 비웁니다.
+  ({String body, GuideChoice? guide, String key})? _pendingCreate;
+
+  /// 화면이 마지막으로 알려 준 본문. 질문만 바꿔도 초안을 다시 쓰는 데 씁니다.
+  String _latestBody = '';
+
+  /// 초안에 남길 고른 질문. dispose 안에서도 쓰려고 state 밖에 둡니다. 후보를 받지 못한
+  /// 동안은 초안에 있던 값을 그대로 지킵니다(보낼 때는 빼지만 다음에 열면 되살림).
+  GuideChoice? _draftGuide;
 
   @override
   Future<DiaryEditState> build() async {
@@ -179,21 +243,35 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       case NewDiaryEditTarget(:final date):
         final draftTarget = DiaryDraftTarget.newOn(date);
         _draftTarget = draftTarget;
-        final draft = await drafts.read(draftTarget);
+        final draft = await drafts.find(draftTarget);
         var offline = false;
-        final question = await _guideQuestion(
-          date,
-          onOffline: () => offline = true,
-        );
-        return DiaryEditState(
+        final daily = await _daily(date, onOffline: () => offline = true);
+        final candidates = _usableCandidates(daily);
+        final restored = draft?.guideMessageKey == null
+            ? null
+            : GuideChoice(
+                messageKey: draft!.guideMessageKey!,
+                variant: draft.guideVariant ?? '',
+              );
+        final index = restored == null
+            ? -1
+            : candidates.indexWhere(
+                (c) => sameGuideChoice(guideChoiceOf(c), restored),
+              );
+        final opened = DiaryEditState(
           date: date,
-          initialBody: draft ?? '',
+          initialBody: draft?.body ?? '',
           existing: null,
-          question: _usableQuestion(question),
+          candidates: candidates,
+          questionIndex: index < 0 ? 0 : index,
+          dayPillar: daily?.dayPillar,
           fromDraft: draft != null,
           status: draft != null ? DiaryDraftStatus.local : null,
           offline: offline,
         );
+        _latestBody = opened.initialBody;
+        _draftGuide = candidates.isEmpty ? restored : opened.guideChoice;
+        return opened;
       case ExistingDiaryEditTarget(:final id):
         final existing = await ref.watch(diaryRepositoryProvider).find(id);
         if (existing == null) {
@@ -208,18 +286,56 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
         final draftTarget = DiaryDraftTarget.existing(date: date, id: id);
         _draftTarget = draftTarget;
         final draft = await drafts.read(draftTarget);
-        return DiaryEditState(
+        final opened = DiaryEditState(
           date: date,
           initialBody: draft ?? existing.body,
           existing: existing,
-          question: _usableQuestion(existing.guideQuestion),
+          savedQuestion: _usableQuestion(existing.guideQuestion),
+          dayPillarPending: true,
           fromDraft: draft != null,
           status: draft != null
               ? DiaryDraftStatus.local
               : DiaryDraftStatus.saved,
         );
+        _latestBody = opened.initialBody;
+        // 일진만 쓰므로 기다리지 않고 열고, 받으면 날짜 블록에 채웁니다. 받지 못하면 일진 줄만
+        // 빠집니다(저장은 막지 않음).
+        unawaited(_fillDayPillar(date));
+        return opened;
     }
   }
+
+  /// 고치기 화면의 일진을 뒤에서 받아 채웁니다.
+  ///
+  /// 어떤 실패에서도 일진 줄만 빼고 [DiaryEditState.dayPillarPending]을 풉니다. 조용히 넘기는
+  /// 실패는 [recordUnlessAppError] 규칙(분류된 실패는 삼키고 예상 밖 오류만 비치명 기록)을
+  /// 따릅니다. 일진이 build보다 먼저 와도 build가 끝난 뒤([future])에 반영합니다.
+  Future<void> _fillDayPillar(CalendarDate date) async {
+    Pillar? pillar;
+    try {
+      pillar = (await _daily(date, onOffline: () {}))?.dayPillar;
+    } on Object catch (error, stackTrace) {
+      recordUnlessAppError(_crashReporter, error, stackTrace);
+    }
+    try {
+      await future;
+    } on Object {
+      // build가 실패했으면 채울 화면이 없습니다(오류는 build가 이미 상태로 남김).
+      return;
+    }
+    if (!ref.mounted) return;
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(
+      current.copyWith(dayPillar: pillar, dayPillarPending: false),
+    );
+  }
+
+  /// [daily]의 질문 후보 가운데 빈 문장이 아닌 것(A47). 받지 못했으면 빈 목록입니다.
+  List<SlotText> _usableCandidates(Daily? daily) => [
+    for (final candidate in daily?.guideCandidates ?? const <SlotText>[])
+      if (_usableQuestion(candidate.text) != null) candidate,
+  ];
 
   /// 빈 문장이면 질문이 없는 것으로 칩니다(A47).
   RenderedText? _usableQuestion(RenderedText? question) =>
@@ -227,13 +343,14 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       ? null
       : question;
 
-  /// 그날 `getDaily`의 가이드 질문(A47). 받지 못하면 null이고 쓰기를 막지 않습니다.
-  Future<RenderedText?> _guideQuestion(
+  /// 그날 오늘 풀이(`getDaily`, 질문 후보와 일진, A47). 받지 못하면 null이고 쓰기를 막지
+  /// 않습니다.
+  Future<Daily?> _daily(
     CalendarDate date, {
     required VoidCallback onOffline,
   }) async {
     try {
-      return (await ref.read(dailyRepositoryProvider).fetch(date)).guide.text;
+      return await ref.read(dailyRepositoryProvider).fetch(date);
     } on Object catch (error, stackTrace) {
       if (isConnectivityError(error)) {
         onOffline();
@@ -245,8 +362,26 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     }
   }
 
+  /// 다음 질문 후보로 바꿉니다(끝에서 처음으로, A115). 새 일기이고 후보가 둘 이상일 때만이고,
+  /// 본문은 그대로이며 쓴 글이 있으면 고른 질문을 초안에 다시 씁니다.
+  void swapQuestion() {
+    final current = state.value;
+    if (current == null || !current.canSwapQuestion || current.saving) {
+      return;
+    }
+    final next = current.copyWith(
+      questionIndex: (current.questionIndex + 1) % current.candidates.length,
+    );
+    state = AsyncData(next);
+    _draftGuide = next.guideChoice;
+    if (_latestBody.trim().isNotEmpty) {
+      edit(_latestBody);
+    }
+  }
+
   /// 본문이 [body]로 바뀌었습니다. 입력이 멈추면 초안을 씁니다(A48).
   void edit(String body) {
+    _latestBody = body;
     _pendingDraft = body;
     _draftTimer?.cancel();
     _draftTimer = Timer(diaryDraftDelay, () => unawaited(_flushDraft()));
@@ -298,6 +433,12 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     try {
       saved = await _send(current, body);
     } on Object catch (error) {
+      // 고른 질문이 그날 후보에 없으면 오늘 풀이를 다시 읽어 후보를 새로 받습니다(A115).
+      // 초안은 새 후보 기준의 질문으로 씁니다.
+      var refreshed = current;
+      if (error is ProblemError && error.code == 'diary.guide_invalid') {
+        refreshed = await _refreshCandidates(current);
+      }
       // 저장 중에 더 입력했다면 그 글이 최신입니다.
       final latest = _pendingDraft ?? body;
       _draftTimer?.cancel();
@@ -306,7 +447,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       _saving = false;
       if (ref.mounted) {
         state = AsyncData(
-          current.copyWith(
+          refreshed.copyWith(
             saving: false,
             status: DiaryDraftStatus.local,
             offline: isConnectivityError(error),
@@ -323,6 +464,8 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       id: saved.id,
     );
     _draftTarget = savedTarget;
+    // 저장한 일기의 초안에는 고른 질문을 남기지 않습니다(고치기는 질문을 바꾸지 않음).
+    _draftGuide = null;
     // 저장 중에 들어온 입력이 저장한 본문과 다르면 새 대상의 초안으로 남깁니다.
     final later = _pendingDraft;
     _draftTimer?.cancel();
@@ -333,7 +476,13 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     }
     _saving = false;
     if (ref.mounted) {
-      invalidateDiaryViews(ref, current.date, id: saved.id);
+      // 본문만 고친 저장은 편수와 날의 성격, 태그를 바꾸지 않습니다(새 일기만 집계가 바뀜).
+      invalidateDiaryViews(
+        ref,
+        current.date,
+        id: saved.id,
+        statsChanged: current.existing == null,
+      );
       state = AsyncData(
         current.copyWith(
           existing: saved,
@@ -358,23 +507,46 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     }
   }
 
+  /// 그날 오늘 풀이를 다시 받아 [current]의 후보를 바꿉니다. 고른 질문이 새 후보에도 있으면
+  /// 그 질문, 없으면 첫 후보입니다. 받지 못하면 후보를 비워 질문 없이 보냅니다.
+  Future<DiaryEditState> _refreshCandidates(DiaryEditState current) async {
+    final chosen = current.guideChoice;
+    final daily = await _daily(current.date, onOffline: () {});
+    // 다시 읽지 못하면 받아 둔 후보와 고른 질문을 그대로 둡니다.
+    if (daily == null) return current;
+    final candidates = _usableCandidates(daily);
+    final index = candidates.indexWhere(
+      (c) => sameGuideChoice(guideChoiceOf(c), chosen),
+    );
+    final refreshed = current.copyWith(
+      candidates: candidates,
+      questionIndex: index < 0 ? 0 : index,
+    );
+    _draftGuide = refreshed.guideChoice;
+    return refreshed;
+  }
+
   Future<Diary> _send(DiaryEditState current, String body) {
     final repository = ref.read(diaryRepositoryProvider);
     final existing = current.existing;
     if (existing != null) {
       return repository.update(existing.id, body);
     }
+    final guide = current.guideChoice;
     final pending = _pendingCreate;
-    final key = pending != null && pending.body == body
+    final key =
+        pending != null &&
+            pending.body == body &&
+            sameGuideChoice(pending.guide, guide)
         ? pending.key
         : _uuid.v4();
-    _pendingCreate = (body: body, key: key);
-    return repository.create(current.date, body, idempotencyKey: key).then((
-      created,
-    ) {
-      _pendingCreate = null;
-      return created;
-    });
+    _pendingCreate = (body: body, guide: guide, key: key);
+    return repository
+        .create(current.date, body, idempotencyKey: key, guideQuestion: guide)
+        .then((created) {
+          _pendingCreate = null;
+          return created;
+        });
   }
 
   Future<void> _writeDraft(
@@ -384,7 +556,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   ) => _guard(
     () => body.trim().isEmpty
         ? drafts.remove(draftTarget)
-        : drafts.write(draftTarget, body),
+        : drafts.write(draftTarget, body, guide: _draftGuide),
   );
 
   /// 초안 쓰기는 비치명입니다. 실패하면 요약만 남깁니다(D64: 본문은 싣지 않음).
@@ -441,17 +613,26 @@ final class DiaryDeleter extends Notifier<bool> {
           .read(crashReporterProvider)
           .record(CrashSummary.from(error), stackTrace);
     }
-    invalidateDiaryViews(ref, date, id: diary.id);
+    invalidateDiaryViews(ref, date, id: diary.id, statsChanged: true);
   }
 }
 
 /// [date] 일기가 바뀐 뒤 그 일기를 보이는 곳이 새 상태를 묻게 합니다: 일기 목록(모든 태그),
-/// 그날 일기 요약, 달력 도장, [id]가 있으면 그 일기 한 편.
-void invalidateDiaryViews(Ref ref, CalendarDate date, {String? id}) {
+/// 그날 일기 요약, 달력 도장, [id]가 있으면 그 일기 한 편. [statsChanged](새 일기 저장,
+/// 삭제)면 나 탭 회고 집계도 묻게 합니다(A119). 본문만 고친 저장은 집계가 같습니다.
+void invalidateDiaryViews(
+  Ref ref,
+  CalendarDate date, {
+  String? id,
+  bool statsChanged = false,
+}) {
   ref
     ..invalidate(diaryPagesProvider)
     ..invalidate(diariesOnProvider(date))
     ..invalidate(diaryDatesProvider);
+  if (statsChanged) {
+    ref.invalidate(diaryStatsProvider);
+  }
   if (id != null) {
     ref.invalidate(diaryProvider(id));
   }

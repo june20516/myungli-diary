@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/design/components/input/wheel.dart';
@@ -320,6 +321,39 @@ void main() {
         tester.getBottomLeft(find.byType(CheckRow)).dy,
         closeTo(tester.getBottomLeft(find.byType(TimePicker)).dy, 0.5),
       );
+    });
+
+    testWidgets('시진 확인 글자만 바뀌면 같은 줄이 이어져 다시 스며 나오지 않습니다(F-030)', (
+      tester,
+    ) async {
+      Widget host(String? sijin) => inputApp(
+        TimePicker(
+          variant: TimePickerVariant.birth,
+          value: const TimeOfDay(hour: 7, minute: 30),
+          onChanged: (_) {},
+          sijinConfirm: sijin,
+        ),
+      );
+      await tester.pumpWidget(host('사시 (09:30~11:30)'));
+      await tester.pumpAndSettle();
+      final before = tester.state(find.byType(SeepPresence).last);
+
+      await tester.pumpWidget(host('오시 (11:30~13:30)'));
+      // 바로 다음 프레임에 새 글자가 있고 투명도 1이며 State가 그대로입니다.
+      expect(find.text('오시 (11:30~13:30)'), findsOneWidget);
+      expect(find.text('사시 (09:30~11:30)'), findsNothing);
+      expect(tester.state(find.byType(SeepPresence).last), same(before));
+      final opacities = tester
+          .widgetList<Opacity>(
+            find.ancestor(
+              of: find.byKey(TimePicker.sijinConfirmKey),
+              matching: find.byType(Opacity),
+            ),
+          )
+          .map((widget) => widget.opacity)
+          .toList();
+      expect(opacities, isNotEmpty);
+      expect(opacities, everyElement(1.0));
     });
 
     testWidgets('오전·오후·시·분 휠이 각각 adjustable Semantics입니다', (tester) async {

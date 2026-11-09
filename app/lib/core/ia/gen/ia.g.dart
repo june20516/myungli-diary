@@ -21,11 +21,13 @@ abstract final class ScreenIds {
   static const String adConsent = 'ad-consent';
   static const String today = 'today';
   static const String explainSheet = 'explain-sheet';
+  static const String tagSheet = 'tag-sheet';
   static const String evidenceSheet = 'evidence-sheet';
   static const String sharePreview = 'share-preview';
   static const String systemShare = 'system-share';
   static const String calendar = 'calendar';
   static const String daySheet = 'day-sheet';
+  static const String colorRuleSheet = 'color-rule-sheet';
   static const String eventEdit = 'event-edit';
   static const String diaryList = 'diary-list';
   static const String diaryEdit = 'diary-edit';
@@ -91,6 +93,7 @@ abstract final class SlotIds {
   static const String loginBarTitle = 'login.bar.title';
   static const String loginTitleHead = 'login.title.head';
   static const String loginTitleBody = 'login.title.body';
+  static const String loginSaveNote = 'login.save.note';
   static const String loginDiscardNotice = 'login.discard.notice';
   static const String loginErrorBody = 'login.error.body';
   static const String consentBarTitle = 'consent.bar.title';
@@ -100,6 +103,7 @@ abstract final class SlotIds {
   static const String notifyAskBarTitle = 'notify-ask.bar.title';
   static const String notifyAskQuestionHead = 'notify-ask.question.head';
   static const String notifyAskWhyBody = 'notify-ask.why.body';
+  static const String notifyAskTimeNote = 'notify-ask.time.note';
   static const String notifyAskCtaAllow = 'notify-ask.cta.allow';
   static const String notifyAskCtaSkip = 'notify-ask.cta.skip';
   static const String systemPushMorningBody = 'system-push.morning.body';
@@ -113,22 +117,35 @@ abstract final class SlotIds {
   static const String systemAppleReturnPageInstall =
       'system-apple-return.page.install';
   static const String todayBarTitle = 'today.bar.title';
+  static const String todayDateSolar = 'today.date.solar';
+  static const String todayDateLunar = 'today.date.lunar';
+  static const String todayDateIljin = 'today.date.iljin';
+  static const String todayFortuneTitle = 'today.fortune.title';
   static const String todayCharacterLabel = 'today.character.label';
-  static const String todayCharacterReason = 'today.character.reason';
+  static const String todayTenGodLabel = 'today.ten-god.label';
   static const String todayFortuneHead = 'today.fortune.head';
   static const String todayFortuneBody = 'today.fortune.body';
+  static const String todayFeaturedTitle = 'today.featured.title';
+  static const String todayFeaturedEmpty = 'today.featured.empty';
+  static const String todayLuckyTitle = 'today.lucky.title';
   static const String todayLuckyColorBody = 'today.lucky-color.body';
   static const String todayLuckyDirectionBody = 'today.lucky-direction.body';
   static const String todayLuckyNumberBody = 'today.lucky-number.body';
   static const String todayLuckyTimeBody = 'today.lucky-time.body';
-  static const String todayLuckyTagBody = 'today.lucky-tag.body';
+  static const String todayEventTitle = 'today.event.title';
+  static const String todayGuideTitle = 'today.guide.title';
   static const String todayGuideQuestion = 'today.guide.question';
   static const String todayGuideCta = 'today.guide.cta';
   static const String todayEventSummary = 'today.event.summary';
   static const String todayReactionLabel = 'today.reaction.label';
-  static const String todayEvidenceLink = 'today.evidence.link';
   static const String explainSheetTermMeaning = 'explain-sheet.term.meaning';
   static const String explainSheetTodayReason = 'explain-sheet.today.reason';
+  static const String explainSheetTagDiaryLink = 'explain-sheet.tag.diary-link';
+  static const String tagSheetTagMeaning = 'tag-sheet.tag.meaning';
+  static const String tagSheetSentencesTitle = 'tag-sheet.sentences.title';
+  static const String tagSheetSentencesEmpty = 'tag-sheet.sentences.empty';
+  static const String tagSheetDiaryCta = 'tag-sheet.diary.cta';
+  static const String evidenceSheetTargetBody = 'evidence-sheet.target.body';
   static const String evidenceSheetBasisBody = 'evidence-sheet.basis.body';
   static const String evidenceSheetSourceQuote = 'evidence-sheet.source.quote';
   static const String evidenceSheetPersonalBody =
@@ -159,12 +176,19 @@ abstract final class SlotIds {
   static const String sharePreviewCtaShare = 'share-preview.cta.share';
   static const String calendarBarTitle = 'calendar.bar.title';
   static const String calendarLegendBody = 'calendar.legend.body';
+  static const String calendarLegendRuleLink = 'calendar.legend.rule-link';
+  static const String daySheetDateSolar = 'day-sheet.date.solar';
+  static const String daySheetDateLunar = 'day-sheet.date.lunar';
   static const String daySheetCharacterLabel = 'day-sheet.character.label';
-  static const String daySheetCharacterReason = 'day-sheet.character.reason';
+  static const String daySheetVerdictTitle = 'day-sheet.verdict.title';
+  static const String daySheetVerdictItem = 'day-sheet.verdict.item';
+  static const String daySheetEventTitle = 'day-sheet.event.title';
   static const String daySheetEventEmpty = 'day-sheet.event.empty';
   static const String daySheetEventAdd = 'day-sheet.event.add';
   static const String daySheetDiaryOpen = 'day-sheet.diary.open';
   static const String daySheetDiaryWriteCta = 'day-sheet.diary.write-cta';
+  static const String colorRuleSheetSheetTitle = 'color-rule-sheet.sheet.title';
+  static const String colorRuleSheetRuleBody = 'color-rule-sheet.rule.body';
   static const String eventEditBarTitle = 'event-edit.bar.title';
   static const String eventEditCharacterHint = 'event-edit.character.hint';
   static const String eventEditTitleHint = 'event-edit.title.hint';
@@ -179,9 +203,13 @@ abstract final class SlotIds {
   static const String diaryListPickDateCta = 'diary-list.pick-date.cta';
   static const String diaryListPickDateConfirm = 'diary-list.pick-date.confirm';
   static const String diaryEditBarTitle = 'diary-edit.bar.title';
+  static const String diaryEditDateDay = 'diary-edit.date.day';
+  static const String diaryEditDateMonth = 'diary-edit.date.month';
+  static const String diaryEditDateIljin = 'diary-edit.date.iljin';
   static const String diaryEditGuideQuestion = 'diary-edit.guide.question';
   static const String diaryEditBodyPlaceholder = 'diary-edit.body.placeholder';
   static const String diaryEditDraftStatus = 'diary-edit.draft.status';
+  static const String diaryEditLengthCount = 'diary-edit.length.count';
   static const String diaryEditOfflineNotice = 'diary-edit.offline.notice';
   static const String diaryEditSavedTags = 'diary-edit.saved.tags';
   static const String diaryEditSaveCta = 'diary-edit.save.cta';
@@ -193,20 +221,42 @@ abstract final class SlotIds {
   static const String tagDiaryTagMeaning = 'tag-diary.tag.meaning';
   static const String tagDiaryEmptyBody = 'tag-diary.empty.body';
   static const String mySajuBarTitle = 'my-saju.bar.title';
+  static const String mySajuChartTitle = 'my-saju.chart.title';
+  static const String mySajuChartLink = 'my-saju.chart.link';
+  static const String mySajuIlganTitle = 'my-saju.ilgan.title';
   static const String mySajuIlganHead = 'my-saju.ilgan.head';
   static const String mySajuIlganBody = 'my-saju.ilgan.body';
+  static const String mySajuYongsinTitle = 'my-saju.yongsin.title';
   static const String mySajuYongsinBody = 'my-saju.yongsin.body';
+  static const String mySajuFlowTitle = 'my-saju.flow.title';
+  static const String mySajuFlowLink = 'my-saju.flow.link';
+  static const String mySajuRecordTitle = 'my-saju.record.title';
+  static const String mySajuRecordFew = 'my-saju.record.few';
   static const String sajuChartBarTitle = 'saju-chart.bar.title';
+  static const String sajuChartHeadTitle = 'saju-chart.head.title';
+  static const String sajuChartPillarsTitle = 'saju-chart.pillars.title';
+  static const String sajuChartPillarsDesc = 'saju-chart.pillars.desc';
+  static const String sajuChartOhaengTitle = 'saju-chart.ohaeng.title';
+  static const String sajuChartOhaengDesc = 'saju-chart.ohaeng.desc';
   static const String sajuChartYongsinBasis = 'saju-chart.yongsin.basis';
   static const String sajuChartTimeUnknownNotice =
       'saju-chart.time-unknown.notice';
   static const String sajuChartYongsinOpen = 'saju-chart.yongsin.open';
   static const String sajuChartYongsinTitle = 'saju-chart.yongsin.title';
+  static const String sajuChartManseBasis = 'saju-chart.manse.basis';
+  static const String sajuChartJijangganDesc = 'saju-chart.jijanggan.desc';
+  static const String sajuChartUnseongDesc = 'saju-chart.unseong.desc';
+  static const String sajuChartSinsalDesc = 'saju-chart.sinsal.desc';
+  static const String sajuChartDaeunTitle = 'saju-chart.daeun.title';
+  static const String sajuChartDaeunDesc = 'saju-chart.daeun.desc';
+  static const String sajuChartSeunTitle = 'saju-chart.seun.title';
+  static const String sajuChartSeunDesc = 'saju-chart.seun.desc';
   static const String settingsBarTitle = 'settings.bar.title';
   static const String settingsLanguageBirthplaceNotice =
       'settings.language.birthplace-notice';
   static const String settingsLogoutConfirm = 'settings.logout.confirm';
   static const String settingsAdFreeLabel = 'settings.ad-free.label';
+  static const String settingsNotifyTimeNote = 'settings.notify-time.note';
   static const String contactBarTitle = 'contact.bar.title';
   static const String contactIntroBody = 'contact.intro.body';
   static const String contactMessageField = 'contact.message.field';
@@ -476,26 +526,36 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['loading', 'error', 'offline', 'time-unknown'],
     exits: [
-      IaExit(to: 'diary-edit', trigger: '가이드 질문 카드(새 일기)'),
+      IaExit(to: 'diary-edit', trigger: '가이드 질문 카드의 일기 쓰기(새 일기)'),
       IaExit(to: 'diary-view', trigger: '오늘 쓴 일기 줄'),
-      IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
-      IaExit(to: 'evidence-sheet', trigger: '근거 보기'),
+      IaExit(
+        to: 'explain-sheet',
+        trigger: '총운을 결정한 태그(날의 성격, 십성 묶음) 또는 문장 안 용어 토큰',
+      ),
+      IaExit(to: 'tag-sheet', trigger: '사주 기운 태그(사주 기운 섹션, 보조 문장 위 태그)'),
+      IaExit(
+        to: 'evidence-sheet',
+        trigger: '근거 진입점 아이콘(헤드라인, 보조 문장)(스크린리더 이름은 design 공통 ui.depth.evidence_link)',
+      ),
       IaExit(to: 'share-preview', trigger: '공유'),
       IaExit(to: 'day-sheet', trigger: '오늘 일정 한 줄'),
     ],
     components: [
       'app-bar',
       'tab-bar',
-      'day-character',
+      'date-header',
+      'section-header',
+      'hanja-tag',
       'sentence-block',
       'term-token',
       'reaction-button',
+      'depth-link',
       'lucky-card',
+      'explain-sheet',
+      'event-row',
       'guide-question-card',
       'diary-row',
-      'event-row',
       'share-button',
-      'depth-link',
       'ad-banner',
     ],
   ),
@@ -505,8 +565,38 @@ const List<IaScreen> iaScreens = [
     presentation: IaPresentation.halfSheet,
     auth: IaAuth.member,
     states: ['loading', 'error'],
-    exits: [IaExit(to: 'evidence-sheet', trigger: '근거 보기')],
-    components: ['sheet', 'sentence-block', 'depth-link'],
+    exits: [
+      IaExit(to: 'evidence-sheet', trigger: '근거 보기'),
+      IaExit(
+        to: 'tag-diary',
+        trigger: '대표 태그 시트의 "<태그>이 붙은 내 일기 보기" 꺾쇠 링크(page.push). 날의 성격 시트는 뜻만',
+      ),
+    ],
+    components: [
+      'sheet',
+      'sentence-block',
+      'depth-link',
+      'hanja-tag',
+      'stage-strip',
+    ],
+  ),
+  IaScreen(
+    id: 'tag-sheet',
+    tab: 'today',
+    presentation: IaPresentation.halfSheet,
+    auth: IaAuth.member,
+    states: ['empty'],
+    exits: [
+      IaExit(to: 'tag-diary', trigger: '그 태그가 붙은 내 일기 보기'),
+      IaExit(to: 'evidence-sheet', trigger: '머리의 근거 진입점 아이콘'),
+    ],
+    components: [
+      'sheet',
+      'hanja-tag',
+      'depth-link',
+      'sentence-block',
+      'tag-sentence-list',
+    ],
   ),
   IaScreen(
     id: 'evidence-sheet',
@@ -520,6 +610,7 @@ const List<IaScreen> iaScreens = [
     ],
     components: [
       'sheet',
+      'hanja-tag',
       'sentence-block',
       'saju-pillars',
       'primary-button',
@@ -553,6 +644,7 @@ const List<IaScreen> iaScreens = [
     exits: [
       IaExit(to: 'day-sheet', trigger: '날짜 누름'),
       IaExit(to: 'event-edit', trigger: '일정 추가'),
+      IaExit(to: 'color-rule-sheet', trigger: '범례 끝 "길흉은 어떻게 정해지나요"'),
     ],
     components: [
       'app-bar',
@@ -565,23 +657,35 @@ const List<IaScreen> iaScreens = [
   IaScreen(
     id: 'day-sheet',
     tab: 'calendar',
-    presentation: IaPresentation.halfSheet,
+    presentation: IaPresentation.fullSheet,
     auth: IaAuth.member,
     states: ['loading', 'empty', 'error'],
     exits: [
       IaExit(to: 'event-edit', trigger: '일정 추가 또는 일정 누름'),
       IaExit(to: 'diary-view', trigger: '그날 일기 줄 누름'),
-      IaExit(to: 'diary-edit', trigger: '이날 일기 쓰기(새 일기)'),
-      IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
+      IaExit(to: 'diary-edit', trigger: '<날짜> 일기 쓰기(새 일기)'),
+      IaExit(to: 'explain-sheet', trigger: '한자 아이콘 태그(날의 성격, 길흉판정 내역)'),
     ],
     components: [
       'sheet',
-      'day-character',
+      'date-header',
+      'hanja-tag',
+      'section-header',
+      'fortune-verdict',
+      'score-row',
       'event-row',
       'diary-row',
-      'term-token',
       'primary-button',
     ],
+  ),
+  IaScreen(
+    id: 'color-rule-sheet',
+    tab: 'calendar',
+    presentation: IaPresentation.halfSheet,
+    auth: IaAuth.member,
+    states: [],
+    exits: [],
+    components: ['sheet', 'hanja-tag', 'score-row'],
   ),
   IaScreen(
     id: 'event-edit',
@@ -609,15 +713,19 @@ const List<IaScreen> iaScreens = [
     states: ['loading', 'empty', 'error', 'offline'],
     exits: [
       IaExit(to: 'diary-view', trigger: '일기 누름'),
-      IaExit(to: 'diary-edit', trigger: '날짜 골라 쓰기(새 일기)'),
-      IaExit(to: 'tag-diary', trigger: '태그 칩'),
+      IaExit(to: 'diary-edit', trigger: '일기 쓰기 → 날짜 고르기(기본값 오늘) → 고른 날의 새 일기'),
+      IaExit(
+        to: 'explain-sheet',
+        trigger: '일기 줄의 태그(날의 성격 태그, 대표 태그) → 뜻 시트. 대표 태그 시트 안 꺾쇠 링크로 tag-diary(V73, V81)',
+      ),
     ],
     components: [
       'app-bar',
       'tab-bar',
       'diary-row',
-      'tag-chip',
+      'hanja-tag',
       'date-picker',
+      'primary-button',
       'empty-state',
       'ad-banner',
     ],
@@ -628,16 +736,16 @@ const List<IaScreen> iaScreens = [
     presentation: IaPresentation.page,
     auth: IaAuth.member,
     states: ['loading', 'error', 'offline', 'draft'],
-    exits: [IaExit(to: 'diary-view', trigger: '저장')],
+    exits: [IaExit(to: 'diary-view', trigger: '상단 바 저장')],
     components: [
       'app-bar',
+      'date-block',
       'sentence-block',
       'diary-editor',
       'draft-indicator',
       'notice-banner',
-      'tag-chip',
+      'hanja-tag',
       'toast',
-      'primary-button',
     ],
   ),
   IaScreen(
@@ -648,15 +756,17 @@ const List<IaScreen> iaScreens = [
     states: ['loading', 'error'],
     exits: [
       IaExit(to: 'diary-edit', trigger: '고치기'),
-      IaExit(to: 'tag-diary', trigger: '태그 칩'),
-      IaExit(to: 'explain-sheet', trigger: '날의 성격 누름'),
+      IaExit(
+        to: 'explain-sheet',
+        trigger: '태그 누름 → 뜻 시트(대표 태그 시트 안 꺾쇠 링크로 tag-diary, V73)',
+      ),
+      IaExit(to: 'explain-sheet', trigger: '날의 성격 태그 누름'),
     ],
     components: [
       'app-bar',
       'diary-editor',
-      'day-character',
+      'hanja-tag',
       'sentence-block',
-      'tag-chip',
       'dialog',
       'toast',
     ],
@@ -674,6 +784,7 @@ const List<IaScreen> iaScreens = [
     components: [
       'app-bar',
       'sentence-block',
+      'hanja-tag',
       'term-token',
       'diary-row',
       'empty-state',
@@ -686,16 +797,30 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['loading', 'error', 'time-unknown'],
     exits: [
-      IaExit(to: 'saju-chart', trigger: '근거 보기'),
-      IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
+      IaExit(to: 'saju-chart', trigger: '사주 원국 섹션의 "사주 표"(오른쪽 꺾쇠)'),
+      IaExit(
+        to: 'saju-chart',
+        trigger: '올해와 지금 섹션의 "대운 전체"(오른쪽 꺾쇠, 만세력과 대운 탭)',
+      ),
+      IaExit(to: 'explain-sheet', trigger: '용어 토큰, 십성 칩'),
       IaExit(to: 'settings', trigger: '상단 톱니'),
+      IaExit(
+        to: 'explain-sheet',
+        trigger: '명리일기 회고의 자주 붙은 태그 → 뜻 시트(대표 태그 시트 안 꺾쇠 링크로 tag-diary, V81)',
+      ),
     ],
     components: [
       'app-bar',
       'tab-bar',
+      'section-header',
+      'saju-pillars',
+      'ohaeng-bar',
       'sentence-block',
       'term-token',
       'lucky-card',
+      'luck-pillar',
+      'hanja-tag',
+      'diary-summary',
       'depth-link',
       'ad-banner',
     ],
@@ -707,19 +832,27 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['loading', 'error', 'time-unknown'],
     exits: [
-      IaExit(to: 'explain-sheet', trigger: '용어 토큰'),
+      IaExit(to: 'explain-sheet', trigger: '용어 토큰(표 칸의 십성 등)'),
       IaExit(to: 'evidence-sheet', trigger: '잠긴 근거 열기'),
     ],
     components: [
       'app-bar',
+      'segmented',
+      'birth-info-row',
+      'hanja-tag',
+      'section-header',
       'saju-pillars',
       'ohaeng-bar',
+      'sentence-block',
+      'band-table',
       'manse-table',
+      'explain-sheet',
+      'stage-strip',
       'daeun-table',
+      'luck-pillar',
+      'scroll-hint',
       'term-token',
       'notice-banner',
-      'segmented',
-      'sentence-block',
     ],
   ),
   IaScreen(

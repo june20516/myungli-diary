@@ -236,7 +236,7 @@ class ToastPill extends StatelessWidget {
               if (icon != null) ...[
                 AppIcon(
                   icon!,
-                  size: AppIconSize.inline,
+                  size: AppIconSize.s16,
                   weight: AppIconWeight.regular,
                   color: colors.inverseFg,
                 ),

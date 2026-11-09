@@ -4,10 +4,15 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_lookup.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
-import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
+import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// 콘텐츠 문장 덩어리의 변형.
 enum SentenceBlockVariant {
@@ -29,9 +34,10 @@ enum SentenceBlockVariant {
 /// 공유 이미지처럼 화면과 관계없이 일반 글자여야 하면 [TermStyle.plain]을 줍니다.
 ///
 /// 호칭은 server가 문장 안에 넣어 보내므로 굵게 하거나 색을 바꾸지 않고 그대로 그립니다.
-/// [locked]면 근거·해석 열람 권한이 없는 문장(D60)이라 본문을 그리지 않고, 흐린 한 줄
-/// (`lock.veil`)과 오른쪽 끝 "열기" 링크(화살표는 [DepthLink]가 그림)만 둡니다.
-/// 잠긴 내용은 server가 보내지 않으므로 [text]는 트리에도 스크린리더에도 들어가지 않습니다.
+/// [locked]면 근거·해석 열람 권한이 없는 문장(D60)이라 본문을 그리지 않고, server가 준 앞부분
+/// ([lockedLead], 앞 2~3 단어)을 또렷하게 둔 두 줄 `lock.veil`(없으면 자리값만, D106, V92)과
+/// 오른쪽 끝 자물쇠(`lock-simple` Regular) + `space.4` + "열기" 링크만 둡니다. 꺾쇠는 없습니다
+/// (V73). 잠긴 내용은 server가 보내지 않으므로 [text]는 트리에도 스크린리더에도 들어가지 않습니다.
 class SentenceBlock extends StatelessWidget {
   /// 문장 덩어리를 만듭니다.
   const new({
@@ -42,6 +48,7 @@ class SentenceBlock extends StatelessWidget {
     this.termStyle,
     this.onTerm,
     this.onOpenLocked,
+    this.lockedLead,
     this.trailing,
     this.color,
     this.maxLines,
@@ -57,8 +64,45 @@ class SentenceBlock extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'sentence-block',
     {'card', 'body', 'preview'},
-    {'locked'},
+    {'loading', 'locked'},
   );
+
+  /// 불러오는 중 뼈(`states.loading.skeleton` `text`): 변형의 글자 스타일로 글줄
+  /// card 2, body 3, preview 2줄입니다.
+  static Widget skeleton({
+    required SentenceBlockVariant variant,
+    int index = 0,
+    bool animated = true,
+  }) => Builder(
+    builder: (context) => SkeletonTextLines(
+      lines: skeletonLines(variant),
+      style: _styleOf(context, variant),
+      index: index,
+      animated: animated,
+    ),
+  );
+
+  /// 변형별 뼈 줄 수(`states.loading.skeleton` `text.lines`).
+  static int skeletonLines(SentenceBlockVariant variant) => switch (variant) {
+    SentenceBlockVariant.card => 2,
+    SentenceBlockVariant.body => 3,
+    SentenceBlockVariant.preview => 2,
+  };
+
+  /// 변형의 글자 스타일(색 제외). preview는 본문 글자를 14.5px로 줄입니다.
+  static TextStyle _styleOf(
+    BuildContext context,
+    SentenceBlockVariant variant,
+  ) {
+    final typography = context.tokens.typography;
+    return switch (variant) {
+      SentenceBlockVariant.card => typography.sentenceCard,
+      SentenceBlockVariant.body => typography.sentenceBody,
+      SentenceBlockVariant.preview => typography.sentenceBody.copyWith(
+        fontSize: _previewFontSize,
+      ),
+    };
+  }
 
   /// 잠김 라벨 앞부분(구역 이름) 슬롯(`a11y.lockedNameSlot`, 컴포넌트 2.2.0).
   /// 잠긴 문장은 지금 사주 표 용신 판정 근거에만 쓰여 이름이 하나입니다.
@@ -99,6 +143,9 @@ class SentenceBlock extends StatelessWidget {
   /// 잠긴 문장의 "열기" 링크를 눌렀을 때(근거 시트를 잠김 상태로 엽니다).
   final VoidCallback? onOpenLocked;
 
+  /// 잠긴 문장의 앞부분(`Yongsin.basisPreview`). 없으면 자리값만입니다.
+  final RenderedText? lockedLead;
+
   /// 문장 끝에 붙는 위젯(`depth-link` `inline-end`).
   final Widget? trailing;
 
@@ -125,12 +172,7 @@ class SentenceBlock extends StatelessWidget {
   }
 
   Widget _buildText(BuildContext context) {
-    final typography = context.tokens.typography;
-    final base = switch (variant) {
-      SentenceBlockVariant.card => typography.sentenceCard,
-      SentenceBlockVariant.body ||
-      SentenceBlockVariant.preview => typography.sentenceBody,
-    };
+    final base = _styleOf(context, variant);
     final preview = variant == SentenceBlockVariant.preview;
     final terms = _resolveTermStyle();
     assert(
@@ -143,7 +185,6 @@ class SentenceBlock extends StatelessWidget {
       text: text,
       style: base.copyWith(
         color: color ?? context.tokens.colors.textPrimary,
-        fontSize: preview ? _previewFontSize : null,
         fontFamilyFallback: fontFallback.isEmpty
             ? null
             : [...fontFallback, ...?base.fontFamilyFallback],
@@ -171,24 +212,26 @@ class SentenceBlock extends StatelessWidget {
 
   Widget _buildLocked(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final open = onOpenLocked;
+    // 위 맞춤과 veil, 열기 사이 space.12는 계약 값이 없어 시각 정렬용으로 둔 app 값입니다
+    // (열기가 첫 줄 높이에 오고 흐린 글줄에 붙지 않게).
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: LockVeil.line(
-            // 구역 이름 + "잠김"(컴포넌트 2.2.0).
-            semanticLabel: [
-              for (final textOf in lockedLabelTexts.values) textOf(l10n),
-            ].join(', '),
+          // 구역 이름 + 앞부분 + "잠김"(컴포넌트 2.2.0, lock.veil a11y).
+          child: LockVeil(
+            semanticTitle: lockedLabelTexts[lockedNameSlotId]!(l10n),
+            stateLabel: lockedLabelTexts[lockedLabelSlotId]!(l10n),
+            lines: LockVeilLines.sentenceBlock,
+            lead: lockedLead,
             a11ySlotId: lockedLabelSlotId,
           ),
         ),
-        if (onOpenLocked != null)
-          DepthLink(
-            variant: DepthLinkVariant.inlineEnd,
-            label: l10n.sajuChartYongsinOpen,
-            slotId: SlotIds.sajuChartYongsinOpen,
-            onTap: onOpenLocked!,
-          ),
+        if (open != null) ...[
+          const SizedBox(width: Space.s12),
+          _LockedOpenLink(label: l10n.sajuChartYongsinOpen, onTap: open),
+        ],
       ],
     );
   }
@@ -196,4 +239,57 @@ class SentenceBlock extends StatelessWidget {
   static const String _termTokenComponent = 'term-token';
   static const double _previewFontSize = 14.5;
   static const int _previewMaxLines = 2;
+}
+
+/// 잠긴 문장의 "열기"(`sentence-block` `locked` `open`, `lock.veil.open`).
+///
+/// 자물쇠 `lock-simple` Regular(글자 옆 크기, 링크 색, 장식) + `space.4` +
+/// `type.label.lg` `action.primary` 글자이고 꺾쇠가 없습니다(V73). 스크린리더는 link로
+/// 글자만 읽습니다.
+class _LockedOpenLink extends StatelessWidget {
+  const new({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  static const AppGlyph _lock = AppGlyph(
+    light: PhosphorIconsLight.lockSimple,
+    regular: PhosphorIconsRegular.lockSimple,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final color = tokens.colors.actionPrimary;
+    final style = tokens.typography.labelLg.copyWith(color: color);
+    return KeyedSubtree(
+      key: const ValueKey(SlotIds.sajuChartYongsinOpen),
+      child: VerticalHitSlop(
+        child: PressInkTarget(
+          link: true,
+          semanticLabel: label,
+          identifier: SlotIds.sajuChartYongsinOpen,
+          onTap: onTap,
+          borderRadius: const BorderRadius.all(Radius.circular(Radii.xs)),
+          inkColor: color,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: Space.s4,
+            children: [
+              ExcludeSemantics(
+                child: AppIcon(
+                  _lock,
+                  size: AppIconSize.adjacentText(style.fontSize ?? 15),
+                  weight: AppIconWeight.regular,
+                  color: color,
+                  scalesWithText: true,
+                ),
+              ),
+              Text(label, style: style),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

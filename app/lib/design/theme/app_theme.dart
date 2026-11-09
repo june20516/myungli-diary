@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/design/interaction/page_push_transition.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -38,6 +39,13 @@ ThemeData buildTheme({required Brightness brightness, required Locale locale}) {
       fontFamilyFallback: type.bodyUi.fontFamilyFallback,
       bodyColor: colors.textPrimary,
       displayColor: colors.textPrimary,
+    ),
+    // 화면 쌓기 이동은 두 플랫폼 모두 page.push 하나(A110).
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PagePushTransitionsBuilder(),
+        TargetPlatform.iOS: PagePushTransitionsBuilder(),
+      },
     ),
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,

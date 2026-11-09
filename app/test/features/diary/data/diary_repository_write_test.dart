@@ -43,7 +43,7 @@ void main() {
   test('page는 태그로 거릅니다', () async {
     final repository = await _repository('member');
     final tagged = await repository.page(tag: 'clash');
-    expect(tagged.items.map((item) => item.date), ['2026-10-02']);
+    expect(tagged.items.map((item) => item.date), ['2026-10-05']);
   });
 
   test('find는 있으면 일기, 404면 null입니다', () async {

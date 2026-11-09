@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/action/breathing_dots.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
@@ -16,6 +18,12 @@ const double appBarTarget = 44;
 
 /// 오른쪽 동작 최대 개수.
 const int appBarMaxActions = 2;
+
+/// 글자 버튼 최대 폭(px). `app-bar.parts.textAction.maxWidth`(동작 아이콘 둘 자리, V94).
+const double appBarTextActionMaxWidth = 88;
+
+/// 글자 버튼 점 지름(px). `app-bar.parts.textAction.dots.size`.
+const double _textActionDotSize = 6;
 
 const AppGlyph _caretLeft = AppGlyph(
   light: PhosphorIconsLight.caretLeft,
@@ -33,6 +41,7 @@ class MyungliAppBar extends StatelessWidget {
   }) : onBack = null,
        status = null,
        showBack = false,
+       textAction = null,
        _inner = false;
 
   /// 안쪽 화면용: 뒤로(caret-left) + 제목 왼쪽 정렬, 동작과 초안 상태.
@@ -47,7 +56,23 @@ class MyungliAppBar extends StatelessWidget {
     this.showBack = true,
     this.titleIdentifier,
     super.key,
-  }) : _inner = true;
+  }) : textAction = null,
+       _inner = true;
+
+  /// 일기 쓰기용(V82): 뒤로 + 가운데 제목 또는 초안 [status] + 오른쪽 글자 버튼 [textAction].
+  ///
+  /// 가운데는 양쪽에 같은 폭([appBarTextActionMaxWidth])을 비워 정중앙에 놓입니다.
+  /// [status]가 있으면 같은 자리의 제목을 `appear.seep`으로 바꿔 보입니다.
+  const new edit({
+    required VoidCallback this.onBack,
+    required this.title,
+    required AppBarTextAction this.textAction,
+    this.status,
+    this.titleIdentifier,
+    super.key,
+  }) : actions = const [],
+       showBack = true,
+       _inner = true;
 
   /// [context]의 route 아래에 돌아갈 화면이 있는지. 안쪽 화면이 [showBack]에 넘깁니다.
   ///
@@ -59,8 +84,8 @@ class MyungliAppBar extends StatelessWidget {
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'app-bar',
-    {'tab-root', 'inner'},
-    {'pressed'},
+    {'tab-root', 'inner', 'edit'},
+    {'pressed', 'textActionDisabled', 'textActionSaving'},
   );
 
   /// 화면 제목(한 줄, 넘치면 …).
@@ -81,10 +106,14 @@ class MyungliAppBar extends StatelessWidget {
   /// 초안 상태(draft-indicator) 같은 동작 왼쪽 표시.
   final Widget? status;
 
+  /// 오른쪽 글자 버튼. `edit`에서만 있습니다.
+  final AppBarTextAction? textAction;
+
   final bool _inner;
 
   @override
   Widget build(BuildContext context) {
+    if (textAction != null) return _buildEdit(context, textAction!);
     assert(actions.length <= appBarMaxActions, '동작은 두 개까지입니다.');
     final tokens = context.tokens;
     return SizedBox(
@@ -119,6 +148,184 @@ class MyungliAppBar extends StatelessWidget {
             ?status,
             ...actions,
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEdit(BuildContext context, AppBarTextAction action) {
+    final tokens = context.tokens;
+    final prefs = MotionPrefs.of(context);
+    // 지금 보여야 할 쪽(들어오는 쪽)의 키.
+    final centerKey = ValueKey(
+      status == null ? 'app-bar.center.title' : 'app-bar.center.status',
+    );
+    final titleNode = Semantics(
+      identifier: titleIdentifier,
+      header: true,
+      child: Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: tokens.typography.labelLg.copyWith(
+          color: tokens.colors.textPrimary,
+        ),
+      ),
+    );
+    return SizedBox(
+      height: appBarHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Space.s16),
+        child: Row(
+          children: [
+            // 양쪽에 같은 폭을 비워 가운데 폭이 정중앙에 놓입니다(360 기준 152).
+            SizedBox(
+              width: appBarTextActionMaxWidth,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: AppBarAction(
+                  key: const ValueKey('app-bar.back'),
+                  icon: _caretLeft,
+                  semanticLabel: AppLocalizations.of(context).appBarBack,
+                  onPressed: onBack!,
+                ),
+              ),
+            ),
+            Expanded(
+              // 머리 이름은 늘 화면 제목이고, 가운데 상태는 draft-indicator 의미를 따로 냅니다.
+              child: AnimatedSwitcher(
+                duration: prefs.reduceMotion
+                    ? Duration.zero
+                    : InteractionPattern.appearSeep.duration,
+                transitionBuilder: (child, animation) {
+                  final incoming = child.key == centerKey;
+                  return animate(
+                    incoming
+                        ? InteractionPattern.appearSeep
+                        : InteractionPattern.disappearSeep,
+                    // 나가는 쪽 animation은 1에서 0으로 가므로 뒤집어 0에서 1로 줍니다.
+                    t: incoming ? animation : ReverseAnimation(animation),
+                    prefs: prefs,
+                    child: child,
+                  );
+                },
+                child: status == null
+                    ? KeyedSubtree(
+                        key: const ValueKey('app-bar.center.title'),
+                        child: titleNode,
+                      )
+                    : KeyedSubtree(
+                        key: const ValueKey('app-bar.center.status'),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // 상태가 보여도 머리 이름은 화면 제목으로 남깁니다(그리지 않음).
+                            Visibility(
+                              visible: false,
+                              maintainSize: true,
+                              maintainAnimation: true,
+                              maintainState: true,
+                              maintainSemantics: true,
+                              child: titleNode,
+                            ),
+                            status!,
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+            SizedBox(
+              width: appBarTextActionMaxWidth,
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: action,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// `edit` 오른쪽 글자 버튼(`app-bar.parts.textAction`).
+///
+/// 글자는 `label.lg` `action.primary`, 좌우 8, 터치 최소 44, 최대 폭 88에 한 줄(넘치면 말줄임)입니다.
+/// [saving]이면 글자 자리에 점 셋을 두고 폭은 그대로이며 다시 누를 수 없습니다.
+@immutable
+class AppBarTextAction extends StatelessWidget {
+  /// 글자 버튼을 만듭니다.
+  const new({
+    required this.label,
+    required this.onTap,
+    this.enabled = true,
+    this.saving = false,
+    this.identifier,
+    super.key,
+  });
+
+  /// 버튼 글자(스크린리더도 그대로 읽음).
+  final String label;
+
+  /// 눌렀을 때.
+  final VoidCallback onTap;
+
+  /// false면 `disabled.fg`로 칠하고 누를 수 없습니다.
+  final bool enabled;
+
+  /// true면 점 셋(`loading.breathe`)이고 누를 수 없으며 스크린리더에는 처리 중으로 알립니다.
+  final bool saving;
+
+  /// IA 슬롯 id(`diary-edit.save.cta`).
+  final String? identifier;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.tokens.colors;
+    final color = enabled ? colors.actionPrimary : colors.disabledFg;
+    final style = context.tokens.typography.labelLg.copyWith(color: color);
+    final labelText = Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: appBarTarget,
+        minHeight: appBarTarget,
+        maxWidth: appBarTextActionMaxWidth,
+      ),
+      child: PressInkTarget(
+        semanticLabel: label,
+        hint: saving ? AppLocalizations.of(context).actionBusy : null,
+        identifier: identifier,
+        inkColor: color,
+        borderRadius: BorderRadius.circular(Radii.sm),
+        onTap: enabled && !saving ? onTap : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.s8),
+          child: Center(
+            widthFactor: 1,
+            child: saving
+                ? Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // 글자 자리를 그대로 두어 폭이 변하지 않습니다.
+                      Opacity(opacity: 0, child: labelText),
+                      BreathingDots(
+                        color: color,
+                        animated: !MotionPrefs.of(context).reduceMotion,
+                        count: BreathingDots.standardCount,
+                        // 계약 px: app-bar.parts.textAction.dots.size
+                        size: _textActionDotSize,
+                        gap: Space.s4,
+                      ),
+                    ],
+                  )
+                : labelText,
+          ),
         ),
       ),
     );

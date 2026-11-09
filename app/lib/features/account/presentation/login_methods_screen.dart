@@ -14,6 +14,7 @@ import 'package:myungli_diary/design/components/feedback/dialog.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -163,6 +164,10 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
                 child: ScreenStateView<List<SocialProvider>>(
                   value: methods,
                   onRetry: () => ref.invalidate(loginMethodsControllerProvider),
+                  skeleton: _LoginMethodsSkeleton(
+                    count: loginProviderOrder(Localizations.localeOf(context))
+                        .length,
+                  ),
                   data: _content,
                 ),
               ),
@@ -276,6 +281,44 @@ class _LoginMethodsScreenState extends ConsumerState<LoginMethodsScreen>
         (false, true) => () => _link(provider),
         _ => null,
       },
+    );
+  }
+}
+
+/// 연결 목록을 받는 동안: 본문과 같은 배치(좌우 20, 위 12)에 안내 문장(UI 글자라 그대로)과
+/// [count]개의 버튼 자리(`social-login-button` 높이, `radius.md`, 사이 [Space.s12])(V66).
+class _LoginMethodsSkeleton extends StatelessWidget {
+  const new({required this.count});
+
+  /// 제공자 버튼 수.
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(Space.s20, Space.s12, Space.s20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            AppLocalizations.of(context).loginMethodsIntroBody,
+            style: tokens.typography.bodyUi.copyWith(
+              color: tokens.colors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: Space.s20),
+          for (var i = 0; i < count; i++) ...[
+            if (i > 0) const SizedBox(height: Space.s12),
+            SkeletonBone(
+              height: SocialLoginButton.minHeight,
+              borderRadius: Radii.md,
+              index: i,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

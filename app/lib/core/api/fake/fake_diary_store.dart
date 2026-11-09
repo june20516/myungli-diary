@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myungli_diary/core/api/fake/fake_diary_list.dart';
+import 'package:myungli_diary/core/api/fake/fake_diary_stats.dart';
 import 'package:myungli_diary/core/api/fake/fake_problem.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:uuid/uuid.dart';
@@ -19,6 +20,9 @@ import 'package:uuid/uuid.dart';
 /// * 지운 일기는 목록·보기에서 사라집니다(404 `diary.not_found`). 되살리기는 대역이 구현하지
 ///   않습니다(앱이 부르지 않음).
 /// * 오늘(`today`) 이후 날짜는 422 `diary.future_date`입니다.
+/// * `guideQuestion`(고른 질문)을 보내면 `daily`의 `guideCandidates`에서 같은 `messageKey`와
+///   `variant`의 후보를 그 편의 질문으로 남기고, 후보에 없으면 422 `diary.guide_invalid`입니다
+///   (A115). 보내지 않으면 그날 기본 질문(`guide`)입니다.
 /// * 목록은 날짜 내림차순, 같은 날은 작성 순입니다. 요약의 `excerpt`는 본문 앞 100자,
 ///   `featuredTags`는 대표 태그이고, `tag`는 전체 태그(`tags.all`)로 거릅니다.
 final class FakeDiaryStore {
@@ -132,12 +136,15 @@ final class FakeDiaryStore {
         errors: [(field: '/date', code: 'diary.day_full')],
       );
     }
+    final chosen = _chosenGuideOf(input);
     final now = _nextCreatedAt().toIso8601String();
     final diary = <String, Object?>{
       'id': _uuid.v4(),
       'date': key,
       'body': text,
       ..._dayRecords.putIfAbsent(key, _newDayRecord),
+      // 고른 질문이 있으면 그 후보를 이 편의 질문으로 남깁니다(그날 기본 질문 대신).
+      'guideQuestion': ?chosen?['text'],
       'createdAt': now,
       'updatedAt': now,
     };
@@ -166,6 +173,25 @@ final class FakeDiaryStore {
     _diaries.remove(id);
   }
 
+  /// `getDiaryStats`: 살아 있는 일기 전부의 회고 집계(`DiaryStats` JSON, [FakeDiaryStats]).
+  Map<String, Object> stats() => FakeDiaryStats.compute([
+    for (final diary in _diaries.values) _summaryOf(diary),
+  ]);
+
+  /// [diary]의 목록 요약(`DiarySummary` JSON).
+  Map<String, Object?> _summaryOf(Map<String, Object?> diary) => {
+    // 날짜 기록의 값입니다. 기록에 없으면(1.2.0 전 날짜) 생략합니다.
+    if (_dayRecords[diary['date']]?['dayKind'] != null)
+      'dayKind': _dayRecords[diary['date']]!['dayKind'],
+    'id': diary['id'],
+    'date': diary['date'],
+    'createdAt': diary['createdAt'],
+    'excerpt': _excerptOf(diary['body']! as String),
+    'featuredTags':
+        (diary['tags']! as Map<String, Object?>)['featured'] ??
+        const <Object?>[],
+  };
+
   /// `listDiaries`: 요약 목록 한 쪽(`DiaryList` JSON). 범위·쪽 넘김은 [filterDiaryList]입니다.
   Map<String, Object?> list({
     Object? from,
@@ -178,18 +204,7 @@ final class FakeDiaryStore {
     final items = [
       for (final diary in _diaries.values)
         if (tagKey == null || _allTags(diary).contains(tagKey))
-          {
-            // 날짜 기록의 값입니다. 기록에 없으면(1.2.0 전 날짜) 생략합니다.
-            if (_dayRecords[diary['date']]?['dayKind'] != null)
-              'dayKind': _dayRecords[diary['date']]!['dayKind'],
-            'id': diary['id'],
-            'date': diary['date'],
-            'createdAt': diary['createdAt'],
-            'excerpt': _excerptOf(diary['body']! as String),
-            'featuredTags':
-                (diary['tags']! as Map<String, Object?>)['featured'] ??
-                const <Object?>[],
-          },
+          _summaryOf(diary),
     ];
     return filterDiaryList(
       {'items': items},
@@ -242,6 +257,35 @@ final class FakeDiaryStore {
       'rulesetVersion': _daily['rulesetVersion'] ?? 'fake',
       if (_daily['dayKind'] != null) 'dayKind': _daily['dayKind'],
     };
+  }
+
+  /// `DiaryInput.guideQuestion`이 고른 그날 후보(`SlotText` JSON). 보내지 않았으면 null이고,
+  /// 그날 후보(`daily`의 `guideCandidates`, 없으면 `guide` 하나)에 없는 조합이면 422
+  /// `diary.guide_invalid`입니다.
+  Map<String, Object?>? _chosenGuideOf(Map<String, Object?> input) {
+    final choice = input['guideQuestion'];
+    if (choice == null) {
+      return null;
+    }
+    final candidates = switch (_daily['guideCandidates']) {
+      final List<Object?> list => list,
+      _ => [?_daily['guide']],
+    };
+    if (choice is Map<String, Object?>) {
+      for (final candidate in candidates.whereType<Map<String, Object?>>()) {
+        if (candidate['messageKey'] == choice['messageKey'] &&
+            candidate['variant'] == choice['variant']) {
+          return candidate;
+        }
+      }
+    }
+    throw const FakeProblem(
+      422,
+      'diary.guide_invalid',
+      'Guide invalid',
+      '고른 질문이 그날 후보에 없습니다.',
+      errors: [(field: '/guideQuestion', code: 'diary.guide_invalid')],
+    );
   }
 
   /// 이미 내준 `createdAt`보다 늦은 지금 시각. 대역 시계는 멈춰 있을 수 있어 1ms씩 밀어

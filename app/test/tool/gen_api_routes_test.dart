@@ -87,13 +87,14 @@ void main() {
     // draft.13(D83)에서 일기 putDiary가 createDiary·updateDiary로 나뉘어 41개,
     // draft.14(D82)에서 로그인 수단·연결·합치기가 더해져 48개, draft.15에서 구매 내역
     // `listPurchases`가 더해져 1.0.0(S114)까지 49개, 1.3.0(S127)에서 `checkHealth`가
-    // 더해져 50개, 1.4.0(S134)에서 문의 `createInquiry`가 더해져 51개입니다
+    // 더해져 50개, 1.4.0(S134)에서 문의 `createInquiry`가 더해져 51개,
+    // 1.9.0에서 `getDiaryStats`(#862)와 `getServerVersion`이 더해져 53개입니다
     // (계약 `operationId` 수).
-    test('operation 51개가 route 표에 모두 있다', () {
-      expect(apiRoutes, hasLength(51));
+    test('operation 53개가 route 표에 모두 있다', () {
+      expect(apiRoutes, hasLength(53));
       expect(
         apiRoutes.map((route) => route.operationId).toSet(),
-        hasLength(51),
+        hasLength(53),
       );
     });
 

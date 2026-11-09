@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
@@ -30,11 +31,14 @@ import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
+import 'package:myungli_diary/features/me/presentation/natal_card.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -42,6 +46,7 @@ import '../support/app_bar_title.dart';
 import '../support/app_harness.dart';
 import '../support/chart_network.dart';
 import '../support/depth_link_finders.dart';
+import '../support/my_saju_finders.dart';
 import '../support/onboarding_steps.dart';
 import '../support/sheet_close.dart';
 import '../support/test_today.dart';
@@ -63,6 +68,13 @@ Finder _luckChip(Key cell, LuckLabel label) => find
 Finder _inChart(Finder matching) =>
     find.descendant(of: _chart, matching: matching);
 
+/// 만세력 표 안 띠 표.
+BandTable _band(ManseTable manse) => manse.table;
+
+/// 띠 표 안.
+Finder _inBand(Finder matching) =>
+    find.descendant(of: _inChart(find.byType(BandTable)), matching: matching);
+
 /// 용신 판정 근거 줄.
 final Finder _yongsinBasis = _inChart(
   find.byWidgetPredicate(
@@ -72,10 +84,29 @@ final Finder _yongsinBasis = _inChart(
   ),
 );
 
+/// 시간 모름 안내 배너.
+final Finder _timeUnknownBanner = _inChart(
+  find.byWidgetPredicate(
+    (widget) =>
+        widget is NoticeBanner &&
+        widget.variant == NoticeBannerVariant.timeUnknown,
+  ),
+);
+
 final Finder _evidenceSheet = find.byKey(const Key(ScreenIds.evidenceSheet));
 
 Finder _inEvidence(Finder matching) =>
     find.descendant(of: _evidenceSheet, matching: matching);
+
+/// 잠긴 용신 판정 근거의 "열기"를 화면에 들인 뒤 누릅니다.
+Future<void> _tapYongsinOpen(WidgetTester tester) async {
+  final open = _inChart(
+    find.bySemanticsIdentifier(SlotIds.sajuChartYongsinOpen),
+  );
+  await tester.ensureVisible(open);
+  await tester.pumpAndSettle();
+  await tester.tap(open);
+}
 
 /// 내용이 그려졌거나 오류가 보일 때까지 기다립니다.
 Future<void> _settleChart(WidgetTester tester) async {
@@ -107,7 +138,7 @@ Future<ProviderContainer> _openFromMySaju(
   await tester.tap(find.byKey(const ValueKey('tab-bar.tab.3')));
   await pumpUntilScreen(tester, ScreenIds.mySaju);
   await settleWithIo(tester);
-  final link = depthLinkTarget(
+  final link = mySajuChartLink(
     of: find.byKey(const ValueKey(ScreenIds.mySaju)),
   );
   await tester.scrollUntilVisible(
@@ -176,18 +207,31 @@ PersonalReadingKey? _personalKey(WidgetTester tester) =>
 Finder _personalText(String text) =>
     _inEvidence(find.textContaining(text, findRichText: true));
 
-/// member 사전에 12운성·신살 범주를 더한 사전(writing #331 원고가 온 뒤를 흉내 냄).
-Future<GlossaryNames> _glossaryWithStages() async {
+/// member 사전의 범주별 이름.
+Map<String, Map<String, String>> _memberGlossaryValues() {
   final json = jsonDecode(
     File('fixtures/member/getGlossary.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   final body = json['body'] as Map<String, dynamic>;
-  final values = {
+  return {
     for (final entry in (body['values'] as Map<String, dynamic>).entries)
       entry.key: Map<String, String>.from(entry.value as Map),
   };
+}
+
+/// 12운성·신살 이름을 일부만 둔 사전(이름이 없는 값은 한자 글자로 대신함, A65).
+Future<GlossaryNames> _glossaryWithStages() async {
+  final values = _memberGlossaryValues();
   values['twelve_stage'] = const {'yang': '양', 'mokyok': '목욕'};
   values['shinsal'] = const {'hwagae': '화개'};
+  return GlossaryNames(values);
+}
+
+/// 12운성·신살 범주가 없는 사전(server 시드가 이름을 넣기 전을 흉내 냄).
+Future<GlossaryNames> _glossaryWithoutStages() async {
+  final values = _memberGlossaryValues()
+    ..remove('twelve_stage')
+    ..remove('shinsal');
   return GlossaryNames(values);
 }
 
@@ -255,10 +299,10 @@ void main() {
     expect(pillars.hour.stem?.hanja, '癸');
     expect(pillars.year.stemLabel, isA<TermToken>());
     expect((pillars.year.stemLabel! as TermToken).label, '비견');
-    expect(
-      (pillars.day.stemLabel! as TermToken).label,
-      _ko.sajuPillarDayMaster,
-    );
+    // 일간 칩은 용어 role.day_master를 엽니다(F-019). member 사전에 그 이름(일간)이 있어
+    // 누를 수 있는 용어 칩입니다.
+    expect(pillars.day.stemLabel, isA<TermToken>());
+    expect((pillars.day.stemLabel! as TermToken).label, '일간');
     expect(pillars.tableLabel, _ko.sajuPillarsTableLabel);
 
     // 오행 분포: 목·화·토·금·수, 값은 소수 한 자리.
@@ -269,7 +313,7 @@ void main() {
     expect(counts[FiveElement.metal], '2.9');
     expect(bar.semanticLabel, startsWith('목 0.6, 화 3.3'));
 
-    // 잠긴 용신 판정 근거: 이름 + 흐린 한 줄 + "열기".
+    // 잠긴 용신 판정 근거: 이름 + 흐린 두 줄 + 자물쇠 "열기".
     expect(_inChart(find.text(_ko.sajuChartYongsinTitle)), findsOneWidget);
     final basis = tester.widget<SentenceBlock>(
       _inChart(find.byType(SentenceBlock)),
@@ -288,9 +332,10 @@ void main() {
     await _openLuckTab(tester);
 
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.year.hiddenStems.map((stem) => stem.hanja), ['丁', '己']);
-    expect(manse.day.stem?.hanja, '庚');
-    expect(manse.tableLabel, _ko.manseTableLabel);
+    final band = _band(manse);
+    expect(band.columns[3].hiddenStems.map((stem) => stem.hanja), ['丁', '己']);
+    expect(manse.basisGlyph, '庚');
+    expect(band.tableLabel, _ko.manseTableLabel);
 
     final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
     expect(daeun.daeun.map((pillar) => pillar.age).take(4), [4, 14, 24, 34]);
@@ -308,7 +353,7 @@ void main() {
     // 화면을 떠났다 오면 탭을 기억하지 않습니다(A57).
     container.read(routerProvider).pop();
     await tester.pumpAndSettle();
-    final link = depthLinkTarget(
+    final link = mySajuChartLink(
       of: find.byKey(const ValueKey(ScreenIds.mySaju)),
     );
     await tester.tap(link);
@@ -322,9 +367,7 @@ void main() {
       const Covers(exits: ['saju-chart>evidence-sheet'], decisions: ['D60']),
     );
     await _openFromMySaju(tester);
-    await tester.tap(
-      _inChart(find.bySemanticsIdentifier(SlotIds.sajuChartYongsinOpen)),
-    );
+    await _tapYongsinOpen(tester);
     await settleWithIo(tester);
     expect(_evidenceSheet, findsOneWidget);
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsOneWidget);
@@ -348,9 +391,7 @@ void main() {
       container.read(chartControllerProvider).value?.evidenceAccess,
       EvidenceAccess.locked,
     );
-    await tester.tap(
-      _inChart(find.bySemanticsIdentifier(SlotIds.sajuChartYongsinOpen)),
-    );
+    await _tapYongsinOpen(tester);
     final unlock = evidenceUnlockControllerProvider(
       const ChartEvidenceSubject(),
     );
@@ -414,21 +455,32 @@ void main() {
     expect(_inEvidence(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
   });
 
-  testWidgets('evidence-unlocked: 일간 → 일간(천간) 풀이 → 근거 보기 → 일간 개인 해석', (
+  testWidgets('evidence-unlocked: 일간 → 용어 "일간" 풀이(F-019) → 근거 보기 → 일간 개인 해석', (
     tester,
   ) async {
-    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      overrides: [
+        glossaryProvider.overrideWith((ref) async {
+          final names = await _glossaryWithStages();
+          return GlossaryNames({
+            ...names.values,
+            'role': {...?names.values['role'], 'day_master': '일간'},
+          });
+        }),
+      ],
+    );
     final pillars = tester.widget<SajuPillars>(
       _inChart(find.byType(SajuPillars)),
     );
     await _openPersonal(tester, find.byWidget(pillars.day.stemLabel!));
-    // 풀이 시트 제목은 일간(庚)의 이름입니다.
+    // 풀이 시트는 천간(庚)이 아니라 용어 "일간"입니다(F-019).
     expect(
-      find.descendant(
-        of: find.byKey(const Key(ScreenIds.explainSheet)),
-        matching: find.text('경'),
-      ),
-      findsWidgets,
+      (tester.widget<ExplainSheet>(find.byType(ExplainSheet)).content
+              as ExplainTerm)
+          .termId,
+      dayMasterTermId,
     );
     expect(
       _personalKey(tester),
@@ -443,18 +495,27 @@ void main() {
   testWidgets('evidence-unlocked: 지장간 십성 → 지장간 개인 해석(지지 자리·순서)', (
     tester,
   ) async {
-    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openFromMySaju(
+      tester,
+      scenario: 'evidence-unlocked',
+      overrides: [
+        glossaryProvider.overrideWith((ref) => _glossaryWithoutStages()),
+      ],
+    );
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
     // 연지 午의 지장간 丁(정관)·己(정인). 둘째(己)의 십성을 누릅니다.
-    final label = manse.year.hiddenStems[1].label;
-    expect(label, isA<TermToken>());
-    expect((label! as TermToken).label, '정인');
-    // 사전에 12운성·신살 이름이 없으면 칸을 비우고(A65) 줄 머리는 누를 수 없는 라벨입니다.
-    expect(manse.year.twelveStage, isNull);
-    expect(manse.hiddenStemsHeader.onTap, isNull);
+    final label = _band(manse).columns[3].hiddenStems[1].tenGod;
+    expect(label?.text, '정인');
+    // 사전에 12운성·신살 이름이 없으면 칸을 비웁니다(A65).
+    expect(_band(manse).columns[3].twelveStage, isNull);
 
-    await _openPersonal(tester, find.byWidget(label));
+    // 연주 열은 가장 오른쪽 열이라 같은 십성 가운데 가장 오른쪽 칩입니다.
+    final chips = _inBand(find.widgetWithText(TermToken, '정인'));
+    final rightmost = [
+      for (var i = 0; i < chips.evaluate().length; i++) chips.at(i),
+    ]..sort((a, b) => tester.getCenter(b).dx.compareTo(tester.getCenter(a).dx));
+    await _openPersonal(tester, rightmost.first);
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -542,10 +603,14 @@ void main() {
     );
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.day.twelveStage, isA<TermToken>());
-    expect((manse.day.shinsal.single as TermToken).label, '화개');
+    final dayColumn = _band(manse).columns[1];
+    expect(dayColumn.twelveStage?.onTap, isNotNull);
+    expect(dayColumn.shinsal.single.text, '화개');
 
-    await _openPersonal(tester, find.byWidget(manse.day.twelveStage!));
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, dayColumn.twelveStage!.text)),
+    );
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -558,12 +623,7 @@ void main() {
     // 근거 시트와 풀이 시트를 닫고 신살 칸을 누릅니다.
     await closeSheet(tester, _evidenceSheet);
     await closeSheet(tester, find.byKey(const Key(ScreenIds.explainSheet)));
-    final shinsal = tester
-        .widget<ManseTable>(_inChart(find.byType(ManseTable)))
-        .day
-        .shinsal
-        .single;
-    await _openPersonal(tester, find.byWidget(shinsal));
+    await _openPersonal(tester, _inBand(find.widgetWithText(TermToken, '화개')));
     expect(
       _personalKey(tester),
       const PersonalReadingKey(
@@ -596,8 +656,7 @@ void main() {
     );
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.day.shinsal, hasLength(1));
-    expect((manse.day.shinsal.single as TermToken).label, '화개');
+    expect(_band(manse).columns[1].shinsal.map((label) => label.text), ['화개']);
     expect(find.text('모르는 신살'), findsNothing);
   });
 
@@ -647,9 +706,8 @@ void main() {
   testWidgets('time-unknown: 시주 빈 칸과 안내', (tester) async {
     covers(const Covers(states: ['saju-chart:time-unknown']));
     await _openFromMySaju(tester, scenario: 'member-time-unknown');
-    final banner = tester.widget<NoticeBanner>(
-      _inChart(find.byType(NoticeBanner)),
-    );
+    // 오프라인 배너는 숨은 채(present: false) 자리만 있어 시간 모름 배너를 골라 봅니다.
+    final banner = tester.widget<NoticeBanner>(_timeUnknownBanner);
     expect(banner.variant, NoticeBannerVariant.timeUnknown);
     expect(banner.message, _ko.sajuChartTimeUnknownNotice);
     final pillars = tester.widget<SajuPillars>(
@@ -660,8 +718,8 @@ void main() {
 
     await _openLuckTab(tester);
     final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
-    expect(manse.hour.empty, isTrue);
-    expect(_inChart(find.byType(NoticeBanner)), findsOneWidget);
+    expect(_band(manse).columns[0].empty, isTrue);
+    expect(_timeUnknownBanner, findsOneWidget);
   });
 
   testWidgets('loading: 받는 동안 skeleton, 오면 내용', (tester) async {

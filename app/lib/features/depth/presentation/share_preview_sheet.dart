@@ -15,6 +15,7 @@ import 'package:myungli_diary/design/components/feedback/screen_state_view.dart'
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/share_render_host.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -115,6 +116,10 @@ class _SharePreviewSheetState extends ConsumerState<SharePreviewSheet> {
       value: content,
       onRetry: () =>
           unawaited(ref.read(dailyControllerProvider.notifier).reload()),
+      skeleton: _SharePreviewSkeleton(
+        variant: _variant,
+        maxHeight: _previewMaxHeight,
+      ),
       dataWithNotice: (value, notice) {
         final share = shareImageContentOf(
           date: value.view.date,
@@ -202,6 +207,57 @@ class _Preview extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// 오늘 풀이를 받는 동안: 비율 고르기(트랙 높이, 알약), 미리보기(고른 비율의 그림 자리,
+/// `radius.md`), 공유 버튼(52, `radius.md`) 자리를 시트 배치 그대로 둡니다(V66).
+class _SharePreviewSkeleton extends StatelessWidget {
+  const new({required this.variant, required this.maxHeight});
+
+  final ShareImageVariant variant;
+  final double maxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = ShareImage.logicalSize(variant);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Space.s24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SkeletonBone(
+            height: Segmented.trackHeight,
+            borderRadius: Radii.full,
+          ),
+          const SizedBox(height: Space.s16),
+          Flexible(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final height = constraints.maxHeight < maxHeight
+                    ? constraints.maxHeight
+                    : maxHeight;
+                return Center(
+                  child: SkeletonBone(
+                    width: height * size.width / size.height,
+                    height: height,
+                    borderRadius: Radii.md,
+                    index: 1,
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: Space.s24),
+          SkeletonBone(
+            height: PrimaryButtonVariant.filled.height,
+            borderRadius: Radii.md,
+            index: 2,
+          ),
+        ],
+      ),
     );
   }
 }

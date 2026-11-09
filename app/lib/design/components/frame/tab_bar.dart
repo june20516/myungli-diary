@@ -213,11 +213,7 @@ class _TabItemState extends State<_TabItem> with TickerProviderStateMixin {
     final prefs = MotionPrefs.of(context);
     final seal = Seal(
       size: tabSealSize,
-      child: AppIcon(
-        widget.glyph,
-        size: AppIconSize.tab,
-        weight: AppIconWeight.regular,
-      ),
+      child: AppIcon(widget.glyph, weight: AppIconWeight.regular),
     );
     final Widget? sealLayer;
     if (widget.selected) {
@@ -269,7 +265,6 @@ class _TabItemState extends State<_TabItem> with TickerProviderStateMixin {
                       if (!widget.selected)
                         AppIcon(
                           widget.glyph,
-                          size: AppIconSize.tab,
                           color: tokens.colors.textSecondary,
                         ),
                       ?sealLayer,

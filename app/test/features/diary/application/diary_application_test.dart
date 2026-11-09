@@ -239,7 +239,7 @@ void main() {
 
     test('태그 목록은 그 태그 일기만입니다', () async {
       final h = await _harness();
-      expect(_dates(await _pages(h, 'clash')), ['2026-10-02']);
+      expect(_dates(await _pages(h, 'clash')), ['2026-10-05']);
     });
 
     test('로그아웃하면 받아 둔 목록을 버립니다', () async {
@@ -267,7 +267,7 @@ void main() {
       expect(state.fromDraft, isFalse);
     });
 
-    test('고치기는 그 일기의 본문·날짜·저장됨 상태이고 daily를 묻지 않습니다', () async {
+    test('고치기는 그 일기의 본문·날짜·저장됨 상태이고 daily는 날짜 블록 일진만 묻습니다', () async {
       final h = await _harness();
       final id = await _idOn(h, CalendarDate(2026, 10, 12));
       final state = await _edit(h, DiaryEditTarget.existing(id));
@@ -275,7 +275,13 @@ void main() {
       expect(state.existing!.id, id);
       expect(state.initialBody, startsWith('오랜만에'));
       expect(state.status, DiaryDraftStatus.saved);
-      expect(h.calls('getDaily'), 0);
+      // 질문은 저장된 질문이고 후보는 쓰지 않습니다(A115). 일진(date-block)만 받습니다.
+      expect(state.candidates, isEmpty);
+      // 일진은 화면을 연 뒤 뒤에서 받습니다.
+      for (var i = 0; i < 50 && h.calls('getDaily') == 0; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(h.calls('getDaily'), 1);
     });
 
     test('없는 일기를 고치려 열면 diary.not_found ProblemError입니다', () async {

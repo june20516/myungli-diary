@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -111,23 +113,28 @@ final WidgetbookFolder elementsDirectory = WidgetbookFolder(
       name: 'lock.veil',
       useCases: [
         WidgetbookUseCase(
-          name: '길이 힌트 없음(두 줄)',
-          builder: (context) => const Stage(
-            child: SizedBox(
-              width: 300,
-              child: LockVeil(title: '판정 근거', semanticLabel: '판정 근거, 잠김'),
-            ),
-          ),
-        ),
-        WidgetbookUseCase(
-          name: '길이 힌트 60자',
+          name: '앞부분 없음(원전 두 줄)',
           builder: (context) => const Stage(
             child: SizedBox(
               width: 300,
               child: LockVeil(
-                title: '판정 근거',
-                semanticLabel: '판정 근거, 잠김',
-                lengthHint: 60,
+                sectionTitle: '원전',
+                stateLabel: '잠김',
+                lines: LockVeilLines.source,
+              ),
+            ),
+          ),
+        ),
+        WidgetbookUseCase(
+          name: '앞부분 있음(판정 근거 세 줄)',
+          builder: (context) => Stage(
+            child: SizedBox(
+              width: 300,
+              child: LockVeil(
+                sectionTitle: '판정 근거',
+                stateLabel: '잠김',
+                lines: LockVeilLines.basis,
+                lead: RenderedText(segments: [Segment(text: '오늘은 용신의')]),
               ),
             ),
           ),

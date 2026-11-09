@@ -59,9 +59,17 @@ Widget _month({required bool loading}) => Builder(
       onSelect: (_) {},
       onMonthChange: (_) {},
       legend: [
-        (swatch: colors.calendarGoodBg, label: ja ? '良い日' : '잘 풀리는 날'),
-        (swatch: colors.calendarCautionBg, label: ja ? '注意する日' : '조심할 날'),
+        (
+          swatch: colors.calendarLevelGreat,
+          label: ja ? 'とてもうまく運ぶ日' : '아주 잘 풀리는 날',
+        ),
+        (swatch: colors.calendarLevelGood, label: ja ? '良い日' : '잘 풀리는 날'),
+        (swatch: colors.calendarLevelCaution, label: ja ? '注意する日' : '조심할 날'),
       ],
+      ruleEntry: CalendarRuleEntry(
+        label: ja ? '吉凶はどう決まりますか' : '길흉은 어떻게 정해지나요',
+        onTap: () {},
+      ),
     );
   },
 );

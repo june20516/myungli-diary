@@ -15,6 +15,12 @@ abstract class _$DailyCWProxy {
 
   Daily dayPillar(Pillar dayPillar);
 
+  Daily lunar(LunarDate? lunar);
+
+  Daily dayStemTenGod(TenGod? dayStemTenGod);
+
+  Daily dayStemTenGodGroup(TenGodGroup? dayStemTenGodGroup);
+
   Daily dayKind(DayKind dayKind);
 
   Daily characterReason(SlotText characterReason);
@@ -22,6 +28,8 @@ abstract class _$DailyCWProxy {
   Daily fortune(Fortune fortune);
 
   Daily guide(SlotText guide);
+
+  Daily guideCandidates(List<SlotText> guideCandidates);
 
   Daily cards(DailyCards cards);
 
@@ -44,10 +52,14 @@ abstract class _$DailyCWProxy {
     String rulesetVersion,
     EvidenceAccess evidenceAccess,
     Pillar dayPillar,
+    LunarDate? lunar,
+    TenGod? dayStemTenGod,
+    TenGodGroup? dayStemTenGodGroup,
     DayKind dayKind,
     SlotText characterReason,
     Fortune fortune,
     SlotText guide,
+    List<SlotText> guideCandidates,
     DailyCards cards,
     DayTags tags,
     List<Relation> relations,
@@ -77,6 +89,17 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
   Daily dayPillar(Pillar dayPillar) => call(dayPillar: dayPillar);
 
   @override
+  Daily lunar(LunarDate? lunar) => call(lunar: lunar);
+
+  @override
+  Daily dayStemTenGod(TenGod? dayStemTenGod) =>
+      call(dayStemTenGod: dayStemTenGod);
+
+  @override
+  Daily dayStemTenGodGroup(TenGodGroup? dayStemTenGodGroup) =>
+      call(dayStemTenGodGroup: dayStemTenGodGroup);
+
+  @override
   Daily dayKind(DayKind dayKind) => call(dayKind: dayKind);
 
   @override
@@ -88,6 +111,10 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
 
   @override
   Daily guide(SlotText guide) => call(guide: guide);
+
+  @override
+  Daily guideCandidates(List<SlotText> guideCandidates) =>
+      call(guideCandidates: guideCandidates);
 
   @override
   Daily cards(DailyCards cards) => call(cards: cards);
@@ -115,10 +142,14 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
     Object? rulesetVersion = const $CopyWithPlaceholder(),
     Object? evidenceAccess = const $CopyWithPlaceholder(),
     Object? dayPillar = const $CopyWithPlaceholder(),
+    Object? lunar = const $CopyWithPlaceholder(),
+    Object? dayStemTenGod = const $CopyWithPlaceholder(),
+    Object? dayStemTenGodGroup = const $CopyWithPlaceholder(),
     Object? dayKind = const $CopyWithPlaceholder(),
     Object? characterReason = const $CopyWithPlaceholder(),
     Object? fortune = const $CopyWithPlaceholder(),
     Object? guide = const $CopyWithPlaceholder(),
+    Object? guideCandidates = const $CopyWithPlaceholder(),
     Object? cards = const $CopyWithPlaceholder(),
     Object? tags = const $CopyWithPlaceholder(),
     Object? relations = const $CopyWithPlaceholder(),
@@ -145,6 +176,18 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
           ? _value.dayPillar
           // ignore: cast_nullable_to_non_nullable
           : dayPillar as Pillar,
+      lunar: lunar == const $CopyWithPlaceholder()
+          ? _value.lunar
+          // ignore: cast_nullable_to_non_nullable
+          : lunar as LunarDate?,
+      dayStemTenGod: dayStemTenGod == const $CopyWithPlaceholder()
+          ? _value.dayStemTenGod
+          // ignore: cast_nullable_to_non_nullable
+          : dayStemTenGod as TenGod?,
+      dayStemTenGodGroup: dayStemTenGodGroup == const $CopyWithPlaceholder()
+          ? _value.dayStemTenGodGroup
+          // ignore: cast_nullable_to_non_nullable
+          : dayStemTenGodGroup as TenGodGroup?,
       dayKind: dayKind == const $CopyWithPlaceholder() || dayKind == null
           ? _value.dayKind
           // ignore: cast_nullable_to_non_nullable
@@ -163,6 +206,12 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
           ? _value.guide
           // ignore: cast_nullable_to_non_nullable
           : guide as SlotText,
+      guideCandidates:
+          guideCandidates == const $CopyWithPlaceholder() ||
+              guideCandidates == null
+          ? _value.guideCandidates
+          // ignore: cast_nullable_to_non_nullable
+          : guideCandidates as List<SlotText>,
       cards: cards == const $CopyWithPlaceholder() || cards == null
           ? _value.cards
           // ignore: cast_nullable_to_non_nullable
@@ -207,6 +256,7 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
           'characterReason',
           'fortune',
           'guide',
+          'guideCandidates',
           'cards',
           'tags',
           'relations',
@@ -224,6 +274,19 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
           'dayPillar',
           (v) => Pillar.fromJson(v as Map<String, dynamic>),
         ),
+        lunar: $checkedConvert(
+          'lunar',
+          (v) =>
+              v == null ? null : LunarDate.fromJson(v as Map<String, dynamic>),
+        ),
+        dayStemTenGod: $checkedConvert(
+          'dayStemTenGod',
+          (v) => $enumDecodeNullable(_$TenGodEnumMap, v),
+        ),
+        dayStemTenGodGroup: $checkedConvert(
+          'dayStemTenGodGroup',
+          (v) => $enumDecodeNullable(_$TenGodGroupEnumMap, v),
+        ),
         dayKind: $checkedConvert(
           'dayKind',
           (v) => $enumDecode(_$DayKindEnumMap, v),
@@ -239,6 +302,12 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
         guide: $checkedConvert(
           'guide',
           (v) => SlotText.fromJson(v as Map<String, dynamic>),
+        ),
+        guideCandidates: $checkedConvert(
+          'guideCandidates',
+          (v) => (v as List<dynamic>)
+              .map((e) => SlotText.fromJson(e as Map<String, dynamic>))
+              .toList(),
         ),
         cards: $checkedConvert(
           'cards',
@@ -269,10 +338,14 @@ Map<String, dynamic> _$DailyToJson(Daily instance) => <String, dynamic>{
   'rulesetVersion': instance.rulesetVersion,
   'evidenceAccess': _$EvidenceAccessEnumMap[instance.evidenceAccess]!,
   'dayPillar': instance.dayPillar.toJson(),
+  'lunar': ?instance.lunar?.toJson(),
+  'dayStemTenGod': ?_$TenGodEnumMap[instance.dayStemTenGod],
+  'dayStemTenGodGroup': ?_$TenGodGroupEnumMap[instance.dayStemTenGodGroup],
   'dayKind': _$DayKindEnumMap[instance.dayKind]!,
   'characterReason': instance.characterReason.toJson(),
   'fortune': instance.fortune.toJson(),
   'guide': instance.guide.toJson(),
+  'guideCandidates': instance.guideCandidates.map((e) => e.toJson()).toList(),
   'cards': instance.cards.toJson(),
   'tags': instance.tags.toJson(),
   'relations': instance.relations.map((e) => e.toJson()).toList(),
@@ -282,6 +355,27 @@ Map<String, dynamic> _$DailyToJson(Daily instance) => <String, dynamic>{
 const _$EvidenceAccessEnumMap = {
   EvidenceAccess.unlocked: 'unlocked',
   EvidenceAccess.locked: 'locked',
+};
+
+const _$TenGodEnumMap = {
+  TenGod.bigyeon: 'bigyeon',
+  TenGod.geopjae: 'geopjae',
+  TenGod.siksin: 'siksin',
+  TenGod.sanggwan: 'sanggwan',
+  TenGod.pyeonjae: 'pyeonjae',
+  TenGod.jeongjae: 'jeongjae',
+  TenGod.pyeongwan: 'pyeongwan',
+  TenGod.jeonggwan: 'jeonggwan',
+  TenGod.pyeonin: 'pyeonin',
+  TenGod.jeongin: 'jeongin',
+};
+
+const _$TenGodGroupEnumMap = {
+  TenGodGroup.bigyeop: 'bigyeop',
+  TenGodGroup.siksang: 'siksang',
+  TenGodGroup.jaeseong: 'jaeseong',
+  TenGodGroup.gwanseong: 'gwanseong',
+  TenGodGroup.inseong: 'inseong',
 };
 
 const _$DayKindEnumMap = {

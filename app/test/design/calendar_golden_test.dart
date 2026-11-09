@@ -67,11 +67,7 @@ Widget _list() => Builder(
           onTap: () {},
         ),
         const SizedBox(height: Space.s24),
-        EventRowListEmpty(
-          message: l10n.daySheetEventEmpty,
-          addLabel: l10n.daySheetEventAdd,
-          onAdd: () {},
-        ),
+        EventRowListEmpty(message: l10n.daySheetEventEmpty),
       ],
     );
   },

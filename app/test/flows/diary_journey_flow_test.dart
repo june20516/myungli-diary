@@ -49,8 +49,6 @@ void main() {
     await tester.tap(find.byKey(CalendarMonthView.cellKey(_day)));
     await tester.pump();
     final confirm = find.text(_ko.diaryListPickDateConfirm('10월 10일'));
-    await tester.ensureVisible(confirm);
-    await tester.pumpAndSettle();
     await tester.tap(confirm);
     await pumpUntil(tester, () => find.byType(TextField).evaluate().isNotEmpty);
     await settleWithIo(tester);
@@ -78,14 +76,18 @@ void main() {
     expect(saved.path, '/diary-view');
     expect(saved.queryParameters.keys, ['id']);
 
-    // 태그 칩 → 그 태그 모아보기에 방금 쓴 날이 있습니다.
+    // 태그 칩 → 뜻 시트 → 모아보기 링크: 그 태그 모아보기에 방금 쓴 날이 있습니다.
+    final chip = find
+        .descendant(
+          of: _screen(ScreenIds.diaryView),
+          matching: find.byType(TagChip),
+        )
+        .first;
+    final tagName = tester.widget<TagChip>(chip).name;
+    await tester.tap(chip);
+    await settleWithIo(tester);
     await tester.tap(
-      find
-          .descendant(
-            of: _screen(ScreenIds.diaryView),
-            matching: find.byType(TagChip),
-          )
-          .first,
+      find.textContaining(_ko.explainSheetTagDiaryLink(tagName)),
     );
     await pumpUntilScreen(tester, ScreenIds.tagDiary);
     await pumpUntil(tester, () => _rowOf(_day).evaluate().isNotEmpty);

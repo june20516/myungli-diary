@@ -39,9 +39,9 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
   const new({
     required this.value,
     required this.onRetry,
+    required this.skeleton,
     this.data,
     this.dataWithNotice,
-    this.skeleton,
     this.isEmpty,
     this.isStale,
     this.empty,
@@ -66,8 +66,9 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
   /// 값이 있을 때의 내용. `notice`를 내용의 첫 줄에 놓습니다.
   final Widget Function(T value, Widget notice)? dataWithNotice;
 
-  /// 실제 올 요소와 같은 모양의 skeleton. 없으면 글줄 skeleton.
-  final Widget? skeleton;
+  /// 그 화면 컴포넌트들의 `states.loading.skeleton` 뼈를 화면 배치대로 놓은 skeleton
+  /// (결정 V66). [SkeletonBlock]이 감싸 지연, 숨쉬기, 스크린리더 라벨을 줍니다.
+  final Widget skeleton;
 
   /// 값이 비었는지.
   final bool Function(T value)? isEmpty;

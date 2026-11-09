@@ -22,6 +22,8 @@ class PressInkTarget extends StatefulWidget {
     required Widget this.child,
     this.link = false,
     this.expanded,
+    this.checked,
+    this.autofocus = false,
     this.identifier,
     this.hint,
     this.inkColor,
@@ -42,6 +44,8 @@ class PressInkTarget extends StatefulWidget {
     this.customActions = const {},
     super.key,
   }) : child = null,
+       checked = null,
+       autofocus = false,
        borderRadius = BorderRadius.zero,
        inkColor = null;
 
@@ -66,6 +70,13 @@ class PressInkTarget extends StatefulWidget {
 
   /// 펼침 상태를 읽어 줍니다. 펼쳐지는 대상이 아니면 null(상태 없음)입니다.
   final bool? expanded;
+
+  /// 하나 고르기 줄의 고름 여부(`settings-row` `select`). 값이 있으면 버튼이 아니라
+  /// 라디오로 읽고 고른 줄은 선택됨으로 읽습니다. 고르는 대상이 아니면 null입니다.
+  final bool? checked;
+
+  /// 열릴 때 처음 초점을 받을지(확인 창 notice의 확인 버튼).
+  final bool autofocus;
 
   /// 얼룩 색(그 컴포넌트의 글자색). 없으면 `text.primary`.
   final Color? inkColor;
@@ -125,8 +136,10 @@ class _PressInkTargetState extends State<PressInkTarget>
     return Semantics(
       container: true,
       enabled: onTap != null,
-      button: !widget.link,
+      button: !widget.link && widget.checked == null,
       link: widget.link,
+      inMutuallyExclusiveGroup: widget.checked == null ? null : true,
+      checked: widget.checked,
       expanded: widget.expanded,
       identifier: widget.identifier,
       label: widget.semanticLabel,
@@ -138,6 +151,7 @@ class _PressInkTargetState extends State<PressInkTarget>
       child: ExcludeSemantics(
         child: FocusableActionDetector(
           enabled: onTap != null,
+          autofocus: widget.autofocus,
           mouseCursor: SystemMouseCursors.click,
           actions: {
             ActivateIntent: CallbackAction<ActivateIntent>(

@@ -493,7 +493,7 @@ void main() {
       expect(state.style!.color, context.tokens.colors.actionPrimary);
       final check = tester.widget<Icon>(find.byType(Icon));
       expect(check.icon, PhosphorIconsRegular.check);
-      expect(check.size, SocialLoginButton.connectedIconSize);
+      expect(check.size, SocialLoginButton.connectedIconSize.logical);
       // 로고는 제공자 색 배지 20px 안의 심볼 14px입니다.
       final badge = tester.getSize(find.byKey(SocialLoginButton.badgeKey));
       expect(badge, const Size.square(20));

@@ -1,245 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:myungli_diary/core/api/gen/model/five_element.dart';
-import 'package:myungli_diary/design/components/saju/luck_label.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
-import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
-ManseColumn _column(
-  String header, {
-  bool empty = false,
-  VoidCallback? onHiddenTenGod,
-}) => empty
-    ? ManseColumn(header: header)
-    : ManseColumn(
-        header: header,
-        stem: const OhaengCell(
-          element: FiveElement.metal,
-          hanja: '庚',
-          size: OhaengCellSize.mini,
-        ),
-        branch: const OhaengCell(
-          element: FiveElement.earth,
-          hanja: '辰',
-          size: OhaengCellSize.mini,
-        ),
-        hiddenStems: [
-          ManseHiddenStem(
-            hanja: '乙',
-            reading: '을',
-            label: onHiddenTenGod == null
-                ? null
-                : GestureDetector(
-                    onTap: onHiddenTenGod,
-                    child: Text('$header-정재'),
-                  ),
-          ),
-          const ManseHiddenStem(hanja: '癸', reading: '계'),
-        ],
-        twelveStage: Text('$header-운성'),
-        shinsal: [Text('$header-신살1'), Text('$header-신살2')],
-      );
-
-Widget _table({
-  bool hourUnknown = false,
-  VoidCallback? onHeader,
-  VoidCallback? onHiddenTenGod,
-  String hiddenStemsHeader = '지장간',
-  String shinsalHeader = '신살',
-}) => ManseTable(
-  hour: _column('시주', empty: hourUnknown),
-  day: _column('일주', onHiddenTenGod: onHiddenTenGod),
-  month: _column('월주'),
-  year: _column('연주'),
-  hiddenStemsHeader: LuckLabel(hiddenStemsHeader, onTap: onHeader),
-  twelveStageHeader: const LuckLabel('12운성'),
-  shinsalHeader: LuckLabel(shinsalHeader),
+BandTable _band({bool loading = false}) => BandTable(
+  columns: const [
+    BandColumn(header: '시주', empty: true),
+    BandColumn(header: '일주', isDay: true),
+    BandColumn(header: '월주'),
+    BandColumn(header: '연주'),
+  ],
+  bandLabels: const {
+    BandKind.hiddenStems: '지장간',
+    BandKind.twelveStages: '12운성',
+    BandKind.shinsal: '신살',
+  },
+  onBandTap: (_) {},
+  meLabel: '나',
+  emptyLabel: '없음',
   tableLabel: '만세력 표',
+  loading: loading,
+  animated: false,
 );
 
+Widget _table({
+  String basis = '내 일간 庚(경금) 기준',
+  String glyph = '庚',
+  bool loading = false,
+}) => SingleChildScrollView(
+  child: SizedBox(
+    width: 360,
+    child: ManseTable(
+      basis: basis,
+      basisGlyph: glyph,
+      table: _band(loading: loading),
+    ),
+  ),
+);
+
+TextSpan _basisSpan(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(ManseTable.basisKey)).textSpan! as TextSpan;
+
 void main() {
-  testWidgets('열 순서는 시·일·월·연, 줄 머리는 왼쪽 52 안', (tester) async {
-    await tester.pumpWidget(inputApp(SizedBox(width: 360, child: _table())));
-    final xs = [
-      for (final header in ['시주', '일주', '월주', '연주'])
-        tester.getCenter(find.text(header)).dx,
-    ];
-    expect(xs, orderedEquals([...xs]..sort()));
-    final tableLeft = tester.getTopLeft(find.byType(Table)).dx;
-    expect(
-      tester.getTopRight(find.text('지장간')).dx - tableLeft,
-      lessThanOrEqualTo(ManseTable.rowHeaderWidth),
-    );
-    expect(xs.first - tableLeft, greaterThan(ManseTable.rowHeaderWidth));
-  });
-
-  testWidgets('줄 머리는 52 칸 가운데, 낱말 단위 두 줄, 넓은 낱말은 caption.sm(V53)', (
+  testWidgets('기준 줄은 간 한자만 font.family.hanja이고 caption.lg text.secondary입니다', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      inputApp(
-        SizedBox(
-          width: 360,
-          child: _table(
-            hiddenStemsHeader: 'Hidden stems',
-            shinsalHeader: 'Spiritstars',
-          ),
-        ),
-      ),
-    );
-    final tableLeft = tester.getTopLeft(find.byType(Table)).dx;
-    final columnCenter = tableLeft + ManseTable.rowHeaderWidth / 2;
-    final hidden = find.text('Hidden stems', findRichText: true);
-    // 두 낱말이 44px 글자 폭에 한 줄로 들어가지 않아 두 줄이고, 가운데에 놓입니다.
-    final hiddenBox = tester.getRect(hidden);
-    expect(hiddenBox.center.dx, moreOrLessEquals(columnCenter, epsilon: 0.5));
-    final lineHeight = tester
-        .renderObject<RenderParagraph>(hidden)
-        .getFullHeightForCaret(const TextPosition(offset: 0));
-    expect(hiddenBox.height, greaterThan(lineHeight * 1.5));
-    expect(hiddenBox.width, lessThanOrEqualTo(ManseTable.rowHeaderWidth));
-    // 낱말 하나가 넓으면 글자를 caption.sm으로 줄이고 말줄임은 없습니다.
-    final shinsal = tester.widget<RichText>(
-      find.text('Spiritstars', findRichText: true),
-    );
+    await tester.pumpWidget(inputApp(_table()));
     final context = tester.element(find.byType(ManseTable));
-    expect(
-      shinsal.text.style!.fontSize,
-      context.tokens.typography.captionSm.fontSize,
-    );
-    expect(shinsal.overflow, isNot(TextOverflow.ellipsis));
-    // 폭에 들어가는 머리는 caption.md 그대로입니다.
-    await tester.pumpWidget(inputApp(SizedBox(width: 360, child: _table())));
-    final short = tester.widget<RichText>(find.text('신살', findRichText: true));
-    expect(
-      short.text.style!.fontSize,
-      tester
-          .element(find.byType(ManseTable))
-          .tokens
-          .typography
-          .captionMd
-          .fontSize,
-    );
-  });
-
-  testWidgets('지장간은 한자 글꼴과 독음(text.secondary), 신살은 여러 줄', (tester) async {
-    await tester.pumpWidget(inputApp(SizedBox(width: 360, child: _table())));
-    final context = tester.element(find.byType(ManseTable));
-    final rich = tester.widget<RichText>(
-      find
-          .byWidgetPredicate(
-            (w) => w is RichText && w.text.toPlainText() == '乙 을',
-          )
-          .first,
-    );
-    TextSpan? spanOf(String text) {
-      TextSpan? found;
-      rich.text.visitChildren((span) {
-        if (span is TextSpan && span.text == text) found = span;
-        return found == null;
-      });
-      return found;
-    }
-
-    expect(
-      spanOf('乙')?.style?.fontFamily,
-      context.tokens.typography.hanjaPillar.fontFamily,
-    );
-    expect(spanOf(' 을')?.style?.color, context.tokens.colors.textSecondary);
-    // 신살은 칸 안 여러 줄(위아래)입니다.
-    expect(
-      tester.getTopLeft(find.text('시주-신살2')).dy,
-      greaterThan(tester.getTopLeft(find.text('시주-신살1')).dy),
-    );
-    expect(find.text('일주-운성'), findsOneWidget);
-  });
-
-  testWidgets('값 칸(12운성·신살)은 받은 위젯에 값 글자(type.body.ui text.primary)를 줍니다', (
-    tester,
-  ) async {
-    await tester.pumpWidget(inputApp(SizedBox(width: 360, child: _table())));
-    final context = tester.element(find.text('일주-운성'));
-    final style = DefaultTextStyle.of(context).style;
     final tokens = context.tokens;
-    expect(style.fontSize, tokens.typography.bodyUi.fontSize);
-    expect(style.color, tokens.colors.textPrimary);
-  });
-
-  testWidgets('지장간은 늘 "한자와 독음 / 십성" 두 줄 묶음이고 묶음 사이는 space.4입니다(V49)', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      inputApp(SizedBox(width: 360, child: _table(onHiddenTenGod: () {}))),
-    );
-    final stem = tester.getRect(find.textContaining('乙').at(1));
-    final label = tester.getRect(find.text('일주-정재'));
-    final next = tester.getRect(find.textContaining('癸').at(1));
-    expect(label.top, stem.bottom + 2);
-    expect(next.top, label.bottom + Space.s4);
-  });
-
-  testWidgets('같은 줄 칸은 위로 맞춥니다(V49)', (tester) async {
-    await tester.pumpWidget(
-      inputApp(SizedBox(width: 360, child: _table(onHiddenTenGod: () {}))),
-    );
-    // 일주만 라벨이 있어 키가 커도 다른 열 지장간 첫 줄은 같은 높이에서 시작합니다.
+    final root = _basisSpan(tester);
+    expect(root.style?.color, tokens.colors.textSecondary);
+    expect(root.style?.fontSize, tokens.typography.captionLg.fontSize);
+    final children = root.children!.cast<TextSpan>();
+    expect(children.map((span) => span.text), ['내 일간 ', '庚', '(경금) 기준']);
     expect(
-      tester.getRect(find.textContaining('乙').at(0)).top,
-      tester.getRect(find.textContaining('乙').at(1)).top,
+      children[1].style?.fontFamily,
+      tokens.typography.hanjaPillar.fontFamily,
     );
+    expect(children[0].style, isNull);
+    expect(children[2].style, isNull);
   });
 
-  testWidgets('지장간 옆 용어 라벨을 누르면 그 콜백(지장간 십성 풀이)', (tester) async {
-    var taps = 0;
-    await tester.pumpWidget(
-      inputApp(
-        SizedBox(width: 360, child: _table(onHiddenTenGod: () => taps++)),
-      ),
-    );
-    await tester.tap(find.text('일주-정재'));
-    expect(taps, 1);
-    // 라벨이 없는 지장간은 한자·독음만입니다.
-    expect(find.text('시주-정재'), findsNothing);
+  testWidgets('basisGlyph가 문장에 없으면 한자 글꼴 없이 문장 그대로 그립니다', (tester) async {
+    await tester.pumpWidget(inputApp(_table(glyph: '辛')));
+    final root = _basisSpan(tester);
+    expect(root.text, '내 일간 庚(경금) 기준');
+    expect(root.children, isNull);
   });
 
-  testWidgets('time-unknown: 시주 열은 빈 칸', (tester) async {
-    await tester.pumpWidget(
-      inputApp(SizedBox(width: 360, child: _table(hourUnknown: true))),
-    );
-    expect(find.text('시주-운성'), findsNothing);
-    expect(
-      find.byWidgetPredicate((w) => w is OhaengCell && w.empty),
-      findsNWidgets(2),
-    );
+  testWidgets('기준 줄과 표 사이는 space.12입니다', (tester) async {
+    await tester.pumpWidget(inputApp(_table()));
+    final basis = tester.getRect(find.byKey(ManseTable.basisKey));
+    final table = tester.getRect(find.byType(BandTable));
+    expect(table.top - basis.bottom, Space.s12);
   });
 
-  testWidgets('줄 머리를 누르면 그 콜백(풀이)', (tester) async {
-    var taps = 0;
-    await tester.pumpWidget(
-      inputApp(SizedBox(width: 360, child: _table(onHeader: () => taps++))),
+  testWidgets('loading: 기준 줄 뼈(폭 50%)와 band-table 뼈를 그립니다', (tester) async {
+    await tester.pumpWidget(inputApp(_table(loading: true)));
+    expect(find.byKey(ManseTable.basisKey), findsNothing);
+    final bones = find.descendant(
+      of: find.byType(ManseTable),
+      matching: find.byType(SkeletonBone),
     );
-    await tester.tap(find.text('지장간'));
-    expect(taps, 1);
+    // 기준 줄 뼈 1 + 띠 칸 뼈 16((2 + 1 + 1) x 4열).
+    expect(bones, findsNWidgets(17));
+    final width = tester.getSize(bones.first).width;
+    expect(width, moreOrLessEquals(180, epsilon: 0.5));
   });
 
-  testWidgets('표 이름을 읽고 글자 크기는 1.3배에서 멈춥니다', (tester) async {
+  testWidgets('group semantics 묶음이고 글자 배율은 1.3에서 멈춥니다', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(
       inputApp(
         MediaQuery(
           data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-          child: SizedBox(width: 360, child: _table()),
+          child: _table(),
         ),
       ),
     );
-    expect(find.bySemanticsLabel(RegExp('^만세력 표')), findsOneWidget);
-    final context = tester.element(find.text('일주-운성'));
-    expect(MediaQuery.textScalerOf(context).scale(10), closeTo(13, 0.01));
+    expect(find.bySemanticsLabel('만세력 표'), findsOneWidget);
+    final context = tester.element(find.byKey(ManseTable.basisKey));
+    expect(MediaQuery.textScalerOf(context).scale(10), moreOrLessEquals(13));
+    // 기준 줄과 표는 한 묶음(group) 노드 안에 병합되지 않은 별도 자식입니다.
+    // 묶음(group) 노드가 기준 줄 글자를 라벨로 갖고, 표 노드는 그 안의 병합되지 않은
+    // 자식으로 남습니다(표 안 셀과 용어 칩이 표 노드 아래에서 따로 읽힘).
+    final table = tester.getSemantics(find.bySemanticsLabel('만세력 표'));
+    final group = table.parent!;
+    expect(group.label, '내 일간 庚(경금) 기준');
+    final children = <SemanticsNode>[];
+    group.visitChildren((child) {
+      children.add(child);
+      return true;
+    });
+    expect(children.map((child) => child.label), contains('만세력 표'));
+    expect(table.mergeAllDescendantsIntoThisNode, isFalse);
     handle.dispose();
   });
 }

@@ -358,7 +358,8 @@ class BirthDatePicker extends StatelessWidget {
             key: solarConfirmKey,
             padding: const EdgeInsets.only(top: Space.s8),
             child: confirm.loading
-                ? SkeletonBlock(lines: 1, lineStyle: confirmStyle)
+                // 확인 줄 글자(`confirmStyle`) 한 줄 자리의 글줄 뼈.
+                ? SkeletonBlock(child: SkeletonTextLines(style: confirmStyle))
                 : SeepPresence(
                     // 글자가 바뀔 때마다 새로 스밉니다.
                     key: ValueKey(confirm.text),

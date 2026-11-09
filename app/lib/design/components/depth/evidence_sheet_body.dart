@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
@@ -18,7 +19,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 근거 시트의 내용(`depth-link.evidenceSheet`). 시트 틀(`sheet` `full`) 안에 놓습니다.
 ///
-/// 제목 → 원국표 → 판정 근거 → 원전 → 내 사주에서는 순서이고, 제목과 원국표는 늘 보입니다.
+/// 제목 → 대상(그 문장을 정한 태그 줄과 대상 문장) → 원국표 → 판정 근거 → 원전 → 내 사주에서는
+/// 순서이고, 제목, 대상, 원국표는 늘 보입니다(잠기지 않음). 구역 제목 위는 `space.24`입니다.
 /// 표 칸 용어에서 연 시트([showJudgment]가 false)는 내 사주에서는 구역 하나입니다.
 /// 세 구역([showPersonal]이 false면 두 구역)은 [state]가 [DepthLinkState.unlocked]이면
 /// 본문, 아니면 같은 자리에 `lock.veil`로 그립니다. 구역 제목은 잠겨도 또렷합니다.
@@ -30,6 +32,10 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 구역(원고가 없어 server가 생략)은 제목도 자리도 그리지 않습니다(A22 남은 규칙, `depth-link`
 /// 규칙 2.3.0). 잠겼을 때의 `lock.veil`은 본문을 내려받지 않은 상태라 그대로 그립니다. 이 내용
 /// 높이는 부모가 정해 준 높이 안에서 스스로 스크롤합니다.
+///
+/// 잠긴 구역은 `lock.veil` G1입니다: server가 준 앞부분([basisLead], [sourceLead])이 있으면
+/// 또렷하게 두고 뒤는 흐린 자리값이며, 줄 수는 판정 근거 3, 원전 2, 내 사주에서는 3입니다
+/// ([LockVeilLines]). "내 사주에서는" 구역은 앞부분이 오지 않아 자리값만입니다.
 ///
 /// [loading]이면 구역 제목 아래 본문 자리가 skeleton입니다(권한이 생겨 응답을 다시 받는 중,
 /// IA `loading`). 안내 영역은 [state]대로 남습니다.
@@ -45,10 +51,14 @@ class EvidenceSheetBody extends StatefulWidget {
     required this.state,
     required this.title,
     this.titleSlotId,
+    this.targetTags = const [],
+    this.target,
     this.pillars,
     this.basis = const [],
     this.source = const [],
     this.personal,
+    this.basisLead,
+    this.sourceLead,
     this.showPersonal = false,
     this.showJudgment = true,
     this.personalEmpty,
@@ -73,6 +83,37 @@ class EvidenceSheetBody extends StatefulWidget {
   /// 시트 제목의 IA 슬롯 id(`evidence-sheet.sheet.title`). 있으면 Key와 Semantics
   /// `identifier`로 붙입니다.
   final String? titleSlotId;
+
+  /// 대상 태그 줄 위 간격(`evidenceSheet.target.marginTop`).
+  static const double targetGap = Space.s12;
+
+  /// 태그 줄과 대상 문장 사이(`evidenceSheet.target.sentence.marginTop`).
+  static const double targetSentenceGap = Space.s8;
+
+  /// 태그 사이(`evidenceSheet.target.tags.gap`).
+  static const double targetTagGap = Space.s8;
+
+  /// 대상 문장 줄 수 상한(`evidenceSheet.target.sentence.maxLines`).
+  static const int targetMaxLines = 3;
+
+  /// 구역 제목 위 간격(`evidenceSheet.sectionTitle.marginTop`).
+  static const double sectionGap = Space.s24;
+
+  /// 대상 태그 줄을 찾는 테스트용 키.
+  static const Key targetTagsKey = ValueKey('evidence-sheet.target.tags');
+
+  /// 그 문장을 정한 태그(누를 수 없는 `hanja-tag`). 비면 태그 줄이 없습니다.
+  final List<Widget> targetTags;
+
+  /// 대상 문장(`evidence-sheet.target.body`, `type.caption.lg` `text.secondary`,
+  /// 일반 글자, 세 줄 말줄임). 없거나 비면 문장 줄이 없습니다.
+  final RenderedText? target;
+
+  /// 잠긴 판정 근거의 앞부분(`evidencePreview.basis`). 열렸을 때는 쓰지 않습니다.
+  final RenderedText? basisLead;
+
+  /// 잠긴 원전의 앞부분(`evidencePreview.source`). 열렸을 때는 쓰지 않습니다.
+  final RenderedText? sourceLead;
 
   /// 원국표(`saju-pillars`). 표 데이터라 잠기지 않습니다.
   final Widget? pillars;
@@ -171,6 +212,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     ),
                   ),
                 ),
+                ..._target(context),
                 if (pillars != null)
                   Padding(
                     padding: const EdgeInsets.only(top: Space.s12),
@@ -183,6 +225,8 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     texts: widget.basis,
                     titleSlotId: SlotIds.evidenceSheetSectionBasis,
                     slotId: SlotIds.evidenceSheetBasisBody,
+                    lockedLines: LockVeilLines.basis,
+                    lead: widget.basisLead,
                   ),
                   _section(
                     context,
@@ -190,6 +234,8 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     texts: widget.source,
                     titleSlotId: SlotIds.evidenceSheetSectionSource,
                     slotId: SlotIds.evidenceSheetSourceQuote,
+                    lockedLines: LockVeilLines.source,
+                    lead: widget.sourceLead,
                     quote: true,
                   ),
                 ],
@@ -200,6 +246,7 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
                     texts: [?widget.personal],
                     titleSlotId: SlotIds.evidenceSheetSectionPersonal,
                     slotId: SlotIds.evidenceSheetPersonalBody,
+                    lockedLines: LockVeilLines.personal,
                     emptyText: widget.personalEmpty,
                   ),
               ],
@@ -228,6 +275,8 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     required List<RenderedText> texts,
     required String titleSlotId,
     required String slotId,
+    required int lockedLines,
+    RenderedText? lead,
     bool quote = false,
     String? emptyText,
   }) {
@@ -240,11 +289,15 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
         children: [
           _sectionTitle(context, title: title, titleSlotId: titleSlotId),
           const SizedBox(height: Space.s8),
+          // 구역 본문(`sentence-block` `body`) 자리의 글줄 두 줄.
           SkeletonBlock(
             key: EvidenceSheetBody.sectionSkeletonKey,
-            lines: 2,
             delay: Duration.zero,
-            animated: widget.animated,
+            child: SkeletonTextLines(
+              lines: 2,
+              style: tokens.typography.sentenceBody,
+              animated: widget.animated,
+            ),
           ),
         ],
       );
@@ -266,8 +319,11 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       return const SizedBox.shrink();
     } else if (!_unlocked) {
       content = LockVeil(
-        title: title,
-        semanticLabel: '$title, ${l10n.evidenceSheetA11yLocked}',
+        sectionTitle: title,
+        stateLabel: l10n.evidenceSheetA11yLocked,
+        lines: lockedLines,
+        lead: lead == null || isBlankText(lead) ? null : lead,
+        fontFallback: quote ? _quoteFontFallback(context) : const [],
         titleSlotId: titleSlotId,
         bodySlotId: slotId,
         a11ySlotId: SlotIds.evidenceSheetA11yLocked,
@@ -288,11 +344,65 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
       );
     }
     return Padding(
-      padding: const EdgeInsets.only(top: Space.s20),
+      padding: const EdgeInsets.only(top: EvidenceSheetBody.sectionGap),
       child: _justUnlocked
           ? SeepPresence(present: true, child: content)
           : content,
     );
+  }
+
+  /// 시트 위 대상: 제목 아래 [EvidenceSheetBody.targetGap]에 태그 줄(사이
+  /// [EvidenceSheetBody.targetTagGap], 넘치면 다음 줄), 그 아래
+  /// [EvidenceSheetBody.targetSentenceGap]에 대상 문장. 둘 다 없으면 아무것도
+  /// 두지 않습니다.
+  List<Widget> _target(BuildContext context) {
+    final tokens = context.tokens;
+    final tags = widget.targetTags;
+    final target = widget.target;
+    final sentence = target == null || isBlankText(target)
+        ? null
+        : plainTextOf(target);
+    return [
+      if (tags.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: EvidenceSheetBody.targetGap),
+          child: Wrap(
+            key: EvidenceSheetBody.targetTagsKey,
+            spacing: EvidenceSheetBody.targetTagGap,
+            runSpacing: EvidenceSheetBody.targetTagGap,
+            children: tags,
+          ),
+        ),
+      if (sentence != null)
+        Padding(
+          padding: EdgeInsets.only(
+            top: tags.isEmpty
+                ? EvidenceSheetBody.targetGap
+                : EvidenceSheetBody.targetSentenceGap,
+          ),
+          child: KeyedSubtree(
+            key: const ValueKey(SlotIds.evidenceSheetTargetBody),
+            child: Semantics(
+              identifier: SlotIds.evidenceSheetTargetBody,
+              child: Text(
+                sentence,
+                maxLines: EvidenceSheetBody.targetMaxLines,
+                overflow: TextOverflow.ellipsis,
+                style: tokens.typography.captionLg.copyWith(
+                  color: tokens.colors.textSecondary,
+                ),
+              ),
+            ),
+          ),
+        ),
+    ];
+  }
+
+  /// 원전 인용(열린 문단과 잠긴 앞부분)의 대체 글꼴. 한자는 문장 글꼴에 글리프가 없어
+  /// `font.family.hanja`로만 그립니다(한글은 그대로).
+  List<String> _quoteFontFallback(BuildContext context) {
+    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
+    return hanjaFamily == null ? const [] : [hanjaFamily];
   }
 
   /// 본문 한 문단. [quote]면 원전 인용 상자(`bg.base`, `radius.md`, 안쪽 `space.12`)에 담고
@@ -302,13 +412,11 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
     required String slotId,
     required bool quote,
   }) {
-    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
     final block = SentenceBlock(
       variant: SentenceBlockVariant.body,
       text: text,
       slotId: slotId,
-      // 원전의 한자는 문장 글꼴에 글리프가 없어 한자 글꼴로만 그립니다(한글은 그대로).
-      fontFallback: quote && hanjaFamily != null ? [hanjaFamily] : const [],
+      fontFallback: quote ? _quoteFontFallback(context) : const [],
     );
     if (!quote) {
       return block;

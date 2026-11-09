@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show immutable;
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
 import 'package:myungli_diary/core/api/gen/model/luck_level.dart';
-import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
@@ -55,6 +54,15 @@ final class CalendarDayView {
       Object.hash(date, luck, lunarText, lunarBold, semanticLabel);
 }
 
+/// 길흉 낱말. 달력 범례와 같은 네 이름입니다(`day-cell` `a11y.luckWordSlot`,
+/// `calendar.legend.body`). server `level.text`는 쓰지 않습니다.
+String _luckName(AppLocalizations l10n, LuckLevel level) => switch (level) {
+  LuckLevel.veryGood => l10n.calendarLegendBodyVeryGood,
+  LuckLevel.good => l10n.calendarLegendBodyGood,
+  LuckLevel.neutral => l10n.calendarLegendBodyNeutral,
+  LuckLevel.caution => l10n.calendarLegendBodyCaution,
+};
+
 /// [day]로 칸 재료를 만듭니다(A39·A40).
 ///
 /// * 음력 글자: 절기 날이고 [names]에 그 절기 이름이 있으면 이름을 굵게, 아니면 초하루는
@@ -62,9 +70,9 @@ final class CalendarDayView {
 ///   초하루는 윤달 표지를 붙인 `M.1`(`leapNewMoon`, 결정 V38, ARB `dayCellLeapNewMoon`)
 ///   입니다. 라벨은 윤달의 모든 날에 음력 뒤 윤달을 붙이고, 절기 날은 절기 이름만
 ///   읽습니다. 절기 시각(`SolarTerm.at`)은 쓰지 않습니다.
-/// * 라벨의 날짜·요일은 [locale]의 `DateFormat`(A38), 길흉 낱말은 server가 렌더한
-///   `CalendarDay.level.text`입니다(A39). 일기([diaryWritten])·일정([eventCount])·오늘
-///   ([isToday])은 해당할 때만 넣습니다.
+/// * 라벨의 날짜·요일은 [locale]의 `DateFormat`(A38), 길흉 낱말은 범례와 같은 네 이름
+///   (ARB `calendarLegendBody*`, V84)입니다(A39). 일기([diaryWritten])·일정
+///   ([eventCount])·오늘([isToday])은 해당할 때만 넣습니다.
 ///
 /// [locale]의 날짜 서식 데이터가 불려 있어야 합니다. 앱에서는 `GlobalMaterialLocalizations`가
 /// 불러 두고, 위젯 밖 테스트는 `initializeDateFormatting`으로 불러 둡니다.
@@ -104,7 +112,7 @@ CalendarDayView dayCellDataOf(
       l10n.dayCellLunar(lunar.month, lunar.day),
       if (lunar.isLeapMonth) l10n.dayCellLeapMonth,
     ],
-    plainTextOf(day.level.text),
+    _luckName(l10n, day.luckLevel),
     if (diaryWritten) l10n.dayCellDiaryWritten,
     if (eventCount > 0) l10n.dayCellEventCount(eventCount),
     if (isToday) l10n.dayCellToday,

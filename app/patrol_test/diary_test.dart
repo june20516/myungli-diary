@@ -34,7 +34,8 @@ void main() {
         exits: [
           'diary-list>diary-edit',
           'diary-edit>diary-view',
-          'diary-view>tag-diary',
+          'diary-view>explain-sheet',
+          'explain-sheet>tag-diary',
           'tag-diary>diary-view',
         ],
         states: ['diary-list:loading', 'diary-edit:loading'],
@@ -76,7 +77,6 @@ void main() {
     final confirm = find.text(
       l10n.diaryListPickDateConfirm(diaryPickDateLabel(day, locale)),
     );
-    await $(confirm).scrollTo();
     await $(confirm).tap();
     await expectScreen($, ScreenIds.diaryEdit);
 
@@ -91,15 +91,20 @@ void main() {
     );
     await expectScreen($, ScreenIds.diaryView);
 
-    // 태그 칩 → 태그 모아보기에 방금 쓴 날.
-    await $(
-      find
-          .descendant(
-            of: find.byKey(const ValueKey(ScreenIds.diaryView)),
-            matching: find.byType(TagChip),
-          )
-          .first,
-    ).tap();
+    // 태그 칩 → 뜻 시트 → 모아보기 링크: 태그 모아보기에 방금 쓴 날.
+    final chip = find
+        .descendant(
+          of: find.byKey(const ValueKey(ScreenIds.diaryView)),
+          matching: find.byType(TagChip),
+        )
+        .first;
+    final tagName = $.tester.widget<TagChip>(chip).name;
+    await $(chip).tap();
+    await waitUntil(
+      $,
+      () => find.byKey(const Key(ScreenIds.explainSheet)).evaluate().isNotEmpty,
+    );
+    await $(find.textContaining(l10n.explainSheetTagDiaryLink(tagName))).tap();
     await expectScreen($, ScreenIds.tagDiary);
     await waitUntil($, () => _rowOf(day).evaluate().isNotEmpty);
 

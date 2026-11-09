@@ -1,26 +1,30 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/semantics.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
+import 'package:myungli_diary/design/components/saju/tag_slot.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
-import 'package:myungli_diary/design/elements/status_tag.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 대운 기둥 하나.
 @immutable
 final class DaeunPillar {
-  /// [age](한국식 나이)에 시작하는 대운. 낭독 글은 칸마다 따로 받습니다(V49 읽는 순서).
+  /// [age](한국식 나이)에 시작하는 대운. 낭독 글은 칸마다 따로 받습니다.
   const new({
     required this.age,
     required this.startYear,
-    required this.stem,
-    required this.branch,
+    required this.pillar,
     required this.ageSemanticLabel,
     required this.semanticLabel,
-    this.yearSemanticLabel,
+    required this.yearSemanticLabel,
     this.stemLabel,
     this.branchLabel,
     this.stageLabel,
@@ -29,23 +33,20 @@ final class DaeunPillar {
   /// 시작 나이(한국식, core C22).
   final int age;
 
-  /// 시작 연도. 모르면(출생 연도를 모름) null이고 그 줄을 비웁니다.
-  final int? startYear;
+  /// 시작 연도(계약 `DaeunPeriod.startYear`).
+  final int startYear;
 
-  /// 천간 `mini` 칸.
-  final OhaengCell stem;
+  /// 간지.
+  final LuckGanji pillar;
 
-  /// 지지 `mini` 칸.
-  final OhaengCell branch;
-
-  /// 나이 칸 낭독 글.
+  /// 나이 낭독 글.
   final String ageSemanticLabel;
 
-  /// 간지 칸 낭독 글(천간·지지 한자와 독음).
+  /// 간지 낭독 글(천간, 지지 한자와 독음).
   final String semanticLabel;
 
-  /// 시작 연도 낭독 글. 연도를 모르면 null입니다.
-  final String? yearSemanticLabel;
+  /// 시작 연도 낭독 글.
+  final String yearSemanticLabel;
 
   /// 천간 위 십성(`term-token` `label`). 없으면 자리만 남깁니다.
   final LuckLabel? stemLabel;
@@ -57,14 +58,13 @@ final class DaeunPillar {
   final LuckLabel? stageLabel;
 }
 
-/// 세운(한 해) 칸.
+/// 세운(한 해) 기둥.
 @immutable
 final class SeunYear {
   /// [year]의 세운.
   const new({
     required this.year,
-    required this.stem,
-    required this.branch,
+    required this.pillar,
     required this.yearSemanticLabel,
     required this.semanticLabel,
     this.label,
@@ -73,41 +73,35 @@ final class SeunYear {
   /// 연도.
   final int year;
 
-  /// 천간 `mini` 칸.
-  final OhaengCell stem;
+  /// 간지.
+  final LuckGanji pillar;
 
-  /// 지지 `mini` 칸.
-  final OhaengCell branch;
-
-  /// 연도 칸 낭독 글.
+  /// 연도 낭독 글.
   final String yearSemanticLabel;
 
-  /// 간지 칸 낭독 글(천간·지지 한자와 독음).
+  /// 간지 낭독 글(천간, 지지 한자와 독음).
   final String semanticLabel;
 
   /// 천간 위 그 해의 천간 십성(`term-token` `label`). 없으면 자리만 남깁니다.
   final LuckLabel? label;
 }
 
-/// 대운·세운 표(`daeun-table`).
+/// 대운, 세운 줄(`daeun-table`, V90): 섹션 머리(`section-header` `plain`, 한 줄 설명 늘 보임)와
+/// 흰 카드 한 장씩에 `luck-pillar` `column` 기둥을 가로로 넘기는 줄 둘, 줄마다 `scroll-hint`.
 ///
-/// 대운은 가로로 넘기는 기둥 줄(너비 52, 사이 4)이고 기둥마다 위에서부터 한국식 나이 → 천간
-/// 십성 → 천간·지지 `ohaeng.cell` `mini` → 지지 십성(정기) → 12운성 → 시작 연도입니다(V49).
-/// 세운은 지금 대운 10년을 5열 2줄로 두고 칸마다 천간 위에 그 해 십성 하나입니다. 라벨은
-/// [LuckLabelView] 규칙(가운데, 낱말 단위 두 줄, 넘치면 글자 줄임)이고, 없는 기둥도 자리는
-/// 남깁니다. 라벨 줄은 기둥(세운은 같은 행 다섯 칸)마다 가장 높은 라벨에 맞춰 간지 칸이 가로로
-/// 나란합니다.
+/// 카드는 `bg.sheet`, `radius.lg`, 위아래 `space.12`이고 줄은 좌우 `space.12`, 기둥 사이
+/// `space.4`입니다. 대운 기둥은 나이, 천간 십성, 간지, 지지 십성, 12운성, 시작 연도이고 세운
+/// 기둥은 연도, 천간 십성, 간지뿐입니다(계약에 지지 십성, 12운성이 없음). 같은 줄의 기둥은 라벨
+/// 줄마다 가장 높은 라벨에 높이를 맞춰 간지 칸이 가로로 나란합니다.
 ///
-/// 지금 대운([currentIndex])은 `highlight.current`(바탕 `status.bg`,
-/// 나이 `action.primary` 굵게)와 위에 [nowLabel] 꼬리표(`tag.status`)입니다.
-/// 올해 세운([thisYear])도 같은 강조와 [thisYearLabel] 꼬리표입니다
-/// (`current`·`thisYear`). 낙관 윤곽은 쓰지 않습니다.
+/// 지금 대운([currentIndex])과 올해 세운([thisYear])은 `luck-pillar` `current`이고, 처음 열 때
+/// 그 칸이 줄 가운데 오도록(넘길 수 있는 범위 안) 움직임 없이 넘겨 둡니다. 두 줄은 따로 넘깁니다.
 ///
-/// 스크린리더는 기둥마다 나이 → 천간 십성 → 간지 → 지지 십성 → 12운성 → 시작 연도 순서로
-/// 읽습니다(세운은 연도 → 십성 → 간지). 처음 열 때 지금 대운이 보이게 가로 위치를 맞춰 두고
-/// 움직이지 않습니다. 글자 크기는 1.3배에서 멈춥니다.
+/// 스크린리더는 줄마다 목록(이름은 섹션 제목)이고 항목은 기둥 그룹입니다. 그룹 라벨은 나이 또는
+/// 연도, 누를 수 없는 라벨, 간지, 시작 연도이고 누를 수 있는 칩은 따로 초점을 받습니다. 기둥
+/// 줄의 글자 크기는 1.3배에서 멈추고, 섹션 머리는 기기 글자 배율을 그대로 따릅니다.
 class DaeunTable extends StatefulWidget {
-  /// 표를 만듭니다. [tableLabel]은 스크린리더 표 이름("대운 N세부터 …")입니다.
+  /// 두 줄을 만듭니다.
   const new({
     required this.daeun,
     required this.seun,
@@ -115,33 +109,63 @@ class DaeunTable extends StatefulWidget {
     required this.thisYear,
     required this.nowLabel,
     required this.thisYearLabel,
-    required this.tableLabel,
+    required this.daeunTitle,
+    required this.daeunDescription,
+    required this.seunTitle,
+    required this.seunDescription,
     super.key,
-  });
+  }) : loading = false,
+       animated = true;
+
+  /// 불러오는 중(`states.loading`): 섹션 머리는 그대로 두고 카드마다 보이는 기둥 수만큼
+  /// `luck-pillar` 뼈를 둡니다.
+  const new loading({
+    required this.daeunTitle,
+    required this.daeunDescription,
+    required this.seunTitle,
+    required this.seunDescription,
+    this.animated = true,
+    super.key,
+  }) : loading = true,
+       daeun = const [],
+       seun = const [],
+       currentIndex = null,
+       thisYear = null,
+       nowLabel = '',
+       thisYearLabel = '';
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('daeun-table', {}, {
-    'current',
-    'thisYear',
+    'loading',
   });
 
-  /// 대운 기둥 너비.
-  static const double pillarWidth = 52;
+  /// 기둥 사이(`row.gap` `space.4`).
+  static const double pillarGap = Space.s4;
 
-  /// 대운 기둥 사이.
-  static const double pillarGap = 4;
+  /// 줄 좌우 안쪽 여백(`row.paddingX` `space.12`).
+  static const double rowPaddingX = Space.s12;
 
-  /// 대운 줄을 찾는 테스트용 키.
+  /// 카드 위아래 안쪽 여백(`row.container.paddingY` `space.12`).
+  static const double cardPaddingY = Space.s12;
+
+  /// 기둥 줄의 글자 크기를 멈추는 배율(섹션 머리는 멈추지 않음).
+  static const double textScaleMax = 1.3;
+
+  /// 대운 줄(가로 스크롤)을 찾는 테스트용 키.
   static const Key daeunScrollKey = ValueKey('daeun-table-daeun');
+
+  /// 세운 줄(가로 스크롤)을 찾는 테스트용 키.
+  static const Key seunScrollKey = ValueKey('daeun-table-seun');
 
   /// [index] 대운 기둥을 찾는 테스트용 키.
   static Key daeunKey(int index) => ValueKey('daeun-table-daeun-$index');
 
-  /// 기둥 안 강조 바탕(`highlight.current`)을 찾는 테스트용 키.
-  static const Key highlightKey = ValueKey('daeun-table-highlight');
-
-  /// [year] 세운 칸을 찾는 테스트용 키.
+  /// [year] 세운 기둥을 찾는 테스트용 키.
   static Key seunKey(int year) => ValueKey('daeun-table-seun-$year');
+
+  /// [index]번째 기둥 뼈를 찾는 테스트용 키.
+  static Key skeletonPillarKey(int index) =>
+      ValueKey('daeun-table-skeleton-pillar-$index');
 
   /// 대운 기둥들(나이 순).
   final List<DaeunPillar> daeun;
@@ -161,103 +185,235 @@ class DaeunTable extends StatefulWidget {
   /// '올해' 꼬리표 글자.
   final String thisYearLabel;
 
-  /// 스크린리더 표 이름.
-  final String tableLabel;
+  /// 대운 섹션 제목(`saju-chart.daeun.title`).
+  final String daeunTitle;
+
+  /// 대운 섹션 한 줄 설명(`saju-chart.daeun.desc`).
+  final String daeunDescription;
+
+  /// 세운 섹션 제목(`saju-chart.seun.title`).
+  final String seunTitle;
+
+  /// 세운 섹션 한 줄 설명(`saju-chart.seun.desc`).
+  final String seunDescription;
+
+  /// 불러오는 중인지.
+  final bool loading;
+
+  /// false면 뼈가 움직이지 않습니다(golden 등).
+  final bool animated;
 
   @override
   State<DaeunTable> createState() => _DaeunTableState();
 }
 
 class _DaeunTableState extends State<DaeunTable> {
-  ScrollController? _scroll;
+  ScrollController? _daeunScroll;
+  ScrollController? _seunScroll;
 
   @override
   void dispose() {
-    _scroll?.dispose();
+    _daeunScroll?.dispose();
+    _seunScroll?.dispose();
     super.dispose();
   }
 
-  /// 지금 대운이 가운데 오는 처음 위치(넘길 수 있는 범위 안).
-  ScrollController _controllerFor(double viewport) {
-    final existing = _scroll;
-    if (existing != null) return existing;
-    const step = DaeunTable.pillarWidth + DaeunTable.pillarGap;
-    final count = widget.daeun.length;
-    final content = count * step - DaeunTable.pillarGap;
-    final index = widget.currentIndex ?? 0;
-    final centered = index * step - (viewport - DaeunTable.pillarWidth) / 2;
-    final offset = centered.clamp(0, math.max(0, content - viewport));
-    return _scroll = ScrollController(initialScrollOffset: offset.toDouble());
+  /// [current] 기둥이 줄 가운데 오는 처음 위치(넘길 수 있는 범위 안). 지금 칸이 없으면 처음.
+  static double _initialOffset({
+    required int count,
+    required int? current,
+    required double viewport,
+  }) {
+    if (current == null || count == 0) return 0;
+    const step = LuckPillar.columnWidth + DaeunTable.pillarGap;
+    final content =
+        DaeunTable.rowPaddingX * 2 + count * step - DaeunTable.pillarGap;
+    final center =
+        DaeunTable.rowPaddingX + current * step + LuckPillar.columnWidth / 2;
+    return (center - viewport / 2)
+        .clamp(0, math.max(0, content - viewport))
+        .toDouble();
+  }
+
+  ScrollController _daeunController(double viewport) =>
+      _daeunScroll ??= ScrollController(
+        initialScrollOffset: _initialOffset(
+          count: widget.daeun.length,
+          current: widget.currentIndex,
+          viewport: viewport,
+        ),
+      );
+
+  ScrollController _seunController(double viewport) {
+    final index = widget.seun.indexWhere((y) => y.year == widget.thisYear);
+    return _seunScroll ??= ScrollController(
+      initialScrollOffset: _initialOffset(
+        count: widget.seun.length,
+        current: index < 0 ? null : index,
+        viewport: viewport,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final scaler = MediaQuery.textScalerOf(context)
-        .clamp(maxScaleFactor: OhaengCell.textScaleMax);
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaler: scaler),
+    final widget = this.widget;
+    // 섹션 머리는 원국 탭 섹션 머리처럼 기기 글자 배율을 그대로 따르고, 기둥 줄만 1.3배에서
+    // 멈춥니다(a11y.textScaleMax는 기둥 줄 몫, controller 결정 B).
+    Widget card(Widget child) => MediaQuery.withClampedTextScaling(
+      maxScaleFactor: DaeunTable.textScaleMax,
+      child: _Card(child: child),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(
+          title: widget.daeunTitle,
+          description: widget.daeunDescription,
+        ),
+        const SizedBox(height: SectionHeader.contentGap),
+        card(
+          widget.loading
+              ? _SkeletonRow(animated: widget.animated)
+              : LayoutBuilder(
+                  builder: (context, constraints) => _row(
+                    context,
+                    scrollKey: DaeunTable.daeunScrollKey,
+                    controller: _daeunController(constraints.maxWidth),
+                    label: widget.daeunTitle,
+                    pillars: _daeunPillars(context),
+                  ),
+                ),
+        ),
+        const SizedBox(height: SectionHeader.sectionGap),
+        SectionHeader(
+          title: widget.seunTitle,
+          description: widget.seunDescription,
+        ),
+        const SizedBox(height: SectionHeader.contentGap),
+        card(
+          widget.loading
+              ? _SkeletonRow(animated: widget.animated)
+              : LayoutBuilder(
+                  builder: (context, constraints) => _row(
+                    context,
+                    scrollKey: DaeunTable.seunScrollKey,
+                    controller: _seunController(constraints.maxWidth),
+                    label: widget.seunTitle,
+                    pillars: _seunPillars(context),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  /// 가로로 넘기는 기둥 줄 하나와 그 `scroll-hint`. 스크린리더는 [label] 목록으로 읽습니다.
+  Widget _row(
+    BuildContext context, {
+    required Key scrollKey,
+    required ScrollController controller,
+    required String label,
+    required List<Widget> pillars,
+  }) => ScrollHint(
+    controller: controller,
+    child: SingleChildScrollView(
+      key: scrollKey,
+      controller: controller,
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: DaeunTable.rowPaddingX),
       child: Semantics(
         container: true,
-        label: widget.tableLabel,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        explicitChildNodes: true,
+        role: SemanticsRole.list,
+        label: label,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: DaeunTable.pillarGap,
           children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const width = DaeunTable.pillarWidth;
-                double rowOf(LuckLabel? Function(DaeunPillar) pick) =>
-                    _rowHeight(context, widget.daeun.map(pick), width);
-                final rows = _LabelRows(
-                  above: rowOf((pillar) => pillar.stemLabel),
-                  below: rowOf((pillar) => pillar.branchLabel),
-                  stage: rowOf((pillar) => pillar.stageLabel),
-                );
-                return SingleChildScrollView(
-                  key: DaeunTable.daeunScrollKey,
-                  controller: _controllerFor(constraints.maxWidth),
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final (index, pillar) in widget.daeun.indexed) ...[
-                        if (index > 0)
-                          const SizedBox(width: DaeunTable.pillarGap),
-                        _Pillar(
-                          key: DaeunTable.daeunKey(index),
-                          width: width,
-                          rows: rows,
-                          top: '${pillar.age}',
-                          topSemanticLabel: pillar.ageSemanticLabel,
-                          stem: pillar.stem,
-                          branch: pillar.branch,
-                          bottom: pillar.startYear?.toString() ?? '',
-                          bottomSemanticLabel: pillar.yearSemanticLabel,
-                          aboveLabel: pillar.stemLabel,
-                          belowLabel: pillar.branchLabel,
-                          stageLabel: pillar.stageLabel,
-                          current: index == widget.currentIndex,
-                          currentLabel: widget.nowLabel,
-                          semanticLabel: pillar.semanticLabel,
-                          tagMaxWidth: width * 2 + DaeunTable.pillarGap,
-                          tagEdge: _TagEdge.of(index, widget.daeun.length),
-                        ),
-                      ],
-                    ],
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: Space.s16),
-            _SeunGrid(
-              seun: widget.seun,
-              thisYear: widget.thisYear,
-              thisYearLabel: widget.thisYearLabel,
-            ),
+            for (final pillar in pillars)
+              Semantics(
+                container: true,
+                role: SemanticsRole.listItem,
+                child: pillar,
+              ),
           ],
         ),
       ),
+    ),
+  );
+
+  List<Widget> _daeunPillars(BuildContext context) {
+    final daeun = widget.daeun;
+    const width = LuckPillar.columnWidth - LuckPillar.columnPadding * 2;
+    double rowOf(LuckLabel? Function(DaeunPillar) pick) =>
+        _rowHeight(context, daeun.map(pick), width);
+    final rows = LuckPillarRowHeights(
+      tenGod: rowOf((p) => p.stemLabel),
+      branchTenGod: rowOf((p) => p.branchLabel),
+      twelveStage: rowOf((p) => p.stageLabel),
     );
+    return [
+      for (final (index, item) in daeun.indexed)
+        LuckPillar.column(
+          key: DaeunTable.daeunKey(index),
+          pillar: item.pillar,
+          top: '${item.age}',
+          tenGod: item.stemLabel,
+          branchTenGod: item.branchLabel,
+          twelveStage: item.stageLabel,
+          startYear: '${item.startYear}',
+          rowHeights: rows,
+          current: index == widget.currentIndex,
+          // 꼬리표 자리는 모든 기둥에 두어 줄 높이가 흔들리지 않게 합니다.
+          currentTag: widget.nowLabel,
+          tagEdge: TagEdge.of(index, daeun.length),
+          semanticLabel: _groupLabel(context, [
+            item.ageSemanticLabel,
+            _plain(item.stemLabel),
+            item.semanticLabel,
+            _plain(item.branchLabel),
+            _plain(item.stageLabel),
+            item.yearSemanticLabel,
+          ]),
+        ),
+    ];
   }
+
+  List<Widget> _seunPillars(BuildContext context) {
+    final seun = widget.seun;
+    const width = LuckPillar.columnWidth - LuckPillar.columnPadding * 2;
+    final rows = LuckPillarRowHeights(
+      tenGod: _rowHeight(context, seun.map((y) => y.label), width),
+    );
+    return [
+      for (final (index, item) in seun.indexed)
+        LuckPillar.column(
+          key: DaeunTable.seunKey(item.year),
+          pillar: item.pillar,
+          top: '${item.year}',
+          tenGod: item.label,
+          rowHeights: rows,
+          current: item.year == widget.thisYear,
+          currentTag: widget.thisYearLabel,
+          tagEdge: TagEdge.of(index, seun.length),
+          semanticLabel: _groupLabel(context, [
+            item.yearSemanticLabel,
+            _plain(item.label),
+            item.semanticLabel,
+          ]),
+        ),
+    ];
+  }
+
+  /// 누를 수 없는 라벨의 글자(그룹 라벨이 읽음). 누를 수 있으면 칩이 따로 읽으므로 null입니다.
+  static String? _plain(LuckLabel? label) =>
+      label == null || label.onTap != null ? null : label.text;
+
+  static String _groupLabel(BuildContext context, List<String?> parts) => parts
+      .nonNulls
+      .where((part) => part.isNotEmpty)
+      .join(AppLocalizations.of(context).a11yListSeparator);
 }
 
 /// [labels] 가운데 폭 [width] 칸에서 가장 높은 라벨의 높이. 라벨이 하나도 없으면 0입니다.
@@ -270,365 +426,80 @@ double _rowHeight(
   (highest, label) => math.max(highest, luckLabelHeight(context, label, width)),
 );
 
-/// 기둥 줄(대운) 또는 세운 한 행이 함께 쓰는 라벨 줄 높이. 0이면 그 줄을 두지 않습니다.
-@immutable
-final class _LabelRows {
-  const new({required this.above, this.below = 0, this.stage = 0});
+/// 줄을 담는 흰 카드(`row.container`).
+class _Card extends StatelessWidget {
+  const new({required this.child});
 
-  /// 천간 위 십성 줄.
-  final double above;
+  final Widget child;
 
-  /// 지지 아래 십성 줄(대운).
-  final double below;
-
-  /// 12운성 줄(대운).
-  final double stage;
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: context.tokens.colors.bgSheet,
+      borderRadius: BorderRadius.circular(Radii.lg),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: DaeunTable.cardPaddingY),
+      child: child,
+    ),
+  );
 }
 
-/// 세운 5열 격자(줄은 칸 수에 따라 늘어남, 10년이면 2줄).
-class _SeunGrid extends StatelessWidget {
-  const new({
-    required this.seun,
-    required this.thisYear,
-    required this.thisYearLabel,
-  });
+/// 불러오는 중 줄: 보이는 폭에 들어가는 수만큼 기둥 뼈(`luck-pillar` `loading`: 십성 칩과
+/// `ohaeng.cell` 칸 둘).
+class _SkeletonRow extends StatelessWidget {
+  const new({required this.animated});
 
-  final List<SeunYear> seun;
-  final int? thisYear;
-  final String thisYearLabel;
+  final bool animated;
 
-  static const int _columns = 5;
+  // 십성 칩 뼈 너비(luck-pillar states.loading skeleton tenGods width 36px).
+  static const double _chipWidth = 36;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final cellWidth =
-          (constraints.maxWidth - DaeunTable.pillarGap * (_columns - 1)) /
-          _columns;
-      final rows = <Widget>[];
-      for (var start = 0; start < seun.length; start += _columns) {
-        final slice = seun.sublist(
-          start,
-          math.min(start + _columns, seun.length),
-        );
-        final labelRows = _LabelRows(
-          above: _rowHeight(context, slice.map((y) => y.label), cellWidth),
-        );
-        rows.add(
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var i = 0; i < _columns; i++) ...[
-                if (i > 0) const SizedBox(width: DaeunTable.pillarGap),
-                Expanded(
-                  child: i < slice.length
-                      ? _Pillar(
-                          key: DaeunTable.seunKey(slice[i].year),
-                          width: cellWidth,
-                          rows: labelRows,
-                          top: '${slice[i].year}',
-                          topSemanticLabel: slice[i].yearSemanticLabel,
-                          stem: slice[i].stem,
-                          branch: slice[i].branch,
-                          aboveLabel: slice[i].label,
-                          current: slice[i].year == thisYear,
-                          currentLabel: thisYearLabel,
-                          semanticLabel: slice[i].semanticLabel,
-                          tagMaxWidth: cellWidth * 2 + DaeunTable.pillarGap,
-                          tagEdge: _TagEdge.of(i, _columns),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ],
-          ),
-        );
-      }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: Space.s8,
-        children: rows,
+      const step = LuckPillar.columnWidth + DaeunTable.pillarGap;
+      final inner = constraints.maxWidth - DaeunTable.rowPaddingX * 2;
+      final count = math.max(
+        1,
+        ((inner + DaeunTable.pillarGap) / step).floor(),
       );
-    },
-  );
-}
-
-/// 기둥 하나: 위 꼬리표 자리, 위 숫자, (십성) 천간·지지 칸 (십성) (12운성), 아래 숫자. 지금이면
-/// `highlight.current`.
-///
-/// 라벨 줄은 [rows] 높이로 두어 같은 줄 기둥끼리 칸이 나란하고, 라벨이 없는 기둥도 자리를
-/// 남깁니다. 칸 위 라벨은 칸 쪽(아래)에, 칸 아래 라벨은 칸 쪽(위)에 붙습니다. 스크린리더는 칸을
-/// 위에서 아래로 하나씩 읽고, 지금이면 위 숫자 뒤에 꼬리표를 읽습니다.
-class _Pillar extends StatelessWidget {
-  const new({
-    required this.width,
-    required this.rows,
-    required this.top,
-    required this.topSemanticLabel,
-    required this.stem,
-    required this.branch,
-    required this.current,
-    required this.currentLabel,
-    required this.semanticLabel,
-    required this.tagMaxWidth,
-    this.tagEdge = _TagEdge.none,
-    this.bottom,
-    this.bottomSemanticLabel,
-    this.aboveLabel,
-    this.belowLabel,
-    this.stageLabel,
-    super.key,
-  });
-
-  final double width;
-  final _LabelRows rows;
-  final String top;
-  final String topSemanticLabel;
-  final OhaengCell stem;
-  final OhaengCell branch;
-  final String? bottom;
-  final String? bottomSemanticLabel;
-  final LuckLabel? aboveLabel;
-  final LuckLabel? belowLabel;
-  final LuckLabel? stageLabel;
-  final bool current;
-  final String currentLabel;
-  final String semanticLabel;
-
-  /// 꼬리표 최대 폭(기둥 둘과 그 사이 간격, V53).
-  final double tagMaxWidth;
-
-  /// 이 기둥이 표 어느 끝인지. 넘친 꼬리표를 표 밖으로 내지 않게 맞춥니다.
-  final _TagEdge tagEdge;
-
-  /// 라벨 줄 하나. [height]가 0이면(그 줄에 라벨이 하나도 없음) 두지 않습니다.
-  List<Widget> _labelRow({
-    required LuckLabel? label,
-    required double height,
-    required double gapBefore,
-    required Alignment alignment,
-  }) {
-    if (height == 0) return const [];
-    return [
-      SizedBox(height: gapBefore),
-      SizedBox(
-        height: height,
-        child: Align(
-          alignment: alignment,
-          child: label == null
-              ? null
-              : Semantics(
-                  container: true,
-                  child: LuckLabelView(label: label, width: width),
-                ),
-        ),
-      ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final colors = tokens.colors;
-    final numberStyle = tokens.typography.numericTable.copyWith(
-      color: colors.textSecondary,
-    );
-    final topStyle = current
-        ? numberStyle.copyWith(
-            color: colors.actionPrimary,
-            fontWeight: FontWeight.w700,
-          )
-        : numberStyle;
-    final bottomText = bottom;
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      child: SizedBox(
-        width: width,
-        child: Column(
+      final chipHeight =
+          context.tokens.typography.captionMd.fontSize! *
+          context.tokens.typography.captionMd.height!;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: DaeunTable.rowPaddingX),
+        child: Row(
+          spacing: DaeunTable.pillarGap,
           children: [
-            // 꼬리표 자리는 모든 기둥이 같은 높이로 둡니다(줄이 흔들리지 않게). 꼬리표는 한 줄이고
-            // 기둥보다 넓으면 이웃 위 빈 자리로 넘칩니다(V53).
-            ExcludeSemantics(
-              child: _TagSlot(
-                maxWidth: tagMaxWidth,
-                edge: tagEdge,
-                child: Visibility.maintain(
-                  visible: current,
-                  child: StatusTag(currentLabel),
-                ),
-              ),
-            ),
-            const SizedBox(height: Space.s4),
-            DecoratedBox(
-              key: DaeunTable.highlightKey,
-              decoration: BoxDecoration(
-                color: current ? colors.statusBg : null,
-                borderRadius: BorderRadius.circular(Radii.sm),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: Space.s4),
+            for (var i = 0; i < count; i++)
+              SizedBox(
+                key: DaeunTable.skeletonPillarKey(i),
+                width: LuckPillar.columnWidth,
                 child: Column(
+                  spacing: Space.s4,
                   children: [
-                    Semantics(
-                      label: current
-                          ? '$topSemanticLabel, $currentLabel'
-                          : topSemanticLabel,
-                      child: ExcludeSemantics(
-                        child: Text(top, style: topStyle),
+                    SkeletonBone(
+                      width: _chipWidth,
+                      height: chipHeight,
+                      borderRadius: Radii.xs,
+                      index: i * 3,
+                      animated: animated,
+                    ),
+                    for (var cell = 0; cell < 2; cell++)
+                      SkeletonBone(
+                        width: OhaengCell.smallSide,
+                        height: OhaengCell.smallSide,
+                        borderRadius: Radii.sm,
+                        index: i * 3 + cell + 1,
+                        animated: animated,
                       ),
-                    ),
-                    ..._labelRow(
-                      label: aboveLabel,
-                      height: rows.above,
-                      gapBefore: Space.s4,
-                      alignment: Alignment.bottomCenter,
-                    ),
-                    const SizedBox(height: Space.s4),
-                    Semantics(
-                      label: semanticLabel,
-                      child: ExcludeSemantics(
-                        child: Column(
-                          children: [stem, const SizedBox(height: 2), branch],
-                        ),
-                      ),
-                    ),
-                    ..._labelRow(
-                      label: belowLabel,
-                      height: rows.below,
-                      gapBefore: Space.s4,
-                      alignment: Alignment.topCenter,
-                    ),
-                    ..._labelRow(
-                      label: stageLabel,
-                      height: rows.stage,
-                      gapBefore: 2,
-                      alignment: Alignment.topCenter,
-                    ),
-                    if (bottomText != null) ...[
-                      const SizedBox(height: Space.s4),
-                      Semantics(
-                        label: bottomSemanticLabel,
-                        child: ExcludeSemantics(
-                          child: Text(bottomText, style: numberStyle),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-            ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// 꼬리표가 놓인 기둥이 표의 어느 끝인지(`daeun-table` `currentLabel`, V53).
-enum _TagEdge {
-  /// 표 가운데 기둥. 넘친 꼬리표는 양쪽으로 고르게 넘칩니다.
-  none,
-
-  /// 표 시작 쪽 끝 기둥. 넘친 꼬리표를 시작 쪽 끝에 맞춥니다.
-  start,
-
-  /// 표 끝 쪽 끝 기둥. 넘친 꼬리표를 끝 쪽 끝에 맞춥니다.
-  end;
-
-  /// [count]개 줄에서 [index]번째 기둥의 끝. 기둥이 하나면 시작 쪽에 맞춥니다.
-  static _TagEdge of(int index, int count) {
-    if (index == 0) return start;
-    if (index == count - 1) return end;
-    return none;
-  }
-}
-
-/// 기둥 위 꼬리표 자리(`daeun-table` `currentLabel`, V53).
-///
-/// 자기 폭은 기둥 폭이고 높이는 꼬리표 높이입니다. 꼬리표는 [maxWidth]까지 한 줄로 넓어질 수
-/// 있고, 기둥보다 좁으면 가운데, 넓으면 이웃 위 빈 꼬리표 자리로 넘칩니다. 표 끝 기둥([edge])
-/// 에서는 표 밖으로 나가지 않게 그 끝에 맞춥니다. 꼬리표는 줄에 하나뿐이라 넘쳐도 겹칠 것이
-/// 없습니다.
-class _TagSlot extends SingleChildRenderObjectWidget {
-  /// 꼬리표 자리를 만듭니다.
-  const new({required this.maxWidth, required this.edge, required super.child});
-
-  /// 꼬리표 최대 폭.
-  final double maxWidth;
-
-  /// 표 끝 맞춤.
-  final _TagEdge edge;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderTagSlot(maxWidth, edge, Directionality.of(context));
-
-  @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderTagSlot)
-      ..maxWidth = maxWidth
-      ..edge = edge
-      ..textDirection = Directionality.of(context);
-  }
-}
-
-class _RenderTagSlot extends RenderShiftedBox {
-  new(this._maxWidth, this._edge, this._textDirection) : super(null);
-
-  double _maxWidth;
-
-  double get maxWidth => _maxWidth;
-
-  set maxWidth(double value) {
-    if (_maxWidth == value) return;
-    _maxWidth = value;
-    markNeedsLayout();
-  }
-
-  _TagEdge _edge;
-
-  _TagEdge get edge => _edge;
-
-  set edge(_TagEdge value) {
-    if (_edge == value) return;
-    _edge = value;
-    markNeedsLayout();
-  }
-
-  TextDirection _textDirection;
-
-  TextDirection get textDirection => _textDirection;
-
-  set textDirection(TextDirection value) {
-    if (_textDirection == value) return;
-    _textDirection = value;
-    markNeedsLayout();
-  }
-
-  @override
-  void performLayout() {
-    final child = this.child;
-    final width = constraints.maxWidth;
-    if (child == null) {
-      size = constraints.constrain(Size(width, 0));
-      return;
-    }
-    child.layout(BoxConstraints(maxWidth: _maxWidth), parentUsesSize: true);
-    size = constraints.constrain(Size(width, child.size.height));
-    final centered = (size.width - child.size.width) / 2;
-    final overflows = child.size.width > size.width;
-    // 시작 쪽 끝이면 왼쪽(LTR)에, 끝 쪽 끝이면 오른쪽(LTR)에 맞춥니다. RTL이면 반대입니다.
-    final alignLeft = switch (_edge) {
-      _TagEdge.none => null,
-      _TagEdge.start => _textDirection == TextDirection.ltr,
-      _TagEdge.end => _textDirection == TextDirection.rtl,
-    };
-    final dx = !overflows || alignLeft == null
-        ? centered
-        : alignLeft
-        ? 0.0
-        : size.width - child.size.width;
-    (child.parentData! as BoxParentData).offset = Offset(dx, 0);
-  }
+      );
+    },
+  );
 }

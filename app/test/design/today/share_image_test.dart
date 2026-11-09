@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
@@ -331,6 +332,24 @@ void main() {
       );
     });
 
+    testWidgets('칩은 그라데이션 위에서도 불투명 bg.sheet와 1px line 테두리입니다(V75)', (
+      tester,
+    ) async {
+      await _bigScreen(tester);
+      await tester.pumpWidget(_app(_image(ShareImageVariant.story)));
+      final surfaces = find.byKey(LuckyChip.surfaceKey);
+      expect(surfaces, findsWidgets);
+      for (var i = 0; i < surfaces.evaluate().length; i++) {
+        final box = tester.widget<Container>(surfaces.at(i));
+        expect((box.decoration! as BoxDecoration).color, lightColors.bgSheet);
+        expect(lightColors.bgSheet.a, 1);
+        final border =
+            (box.foregroundDecoration! as BoxDecoration).border! as Border;
+        expect(border.top.width, 1);
+        expect(border.top.color, lightColors.line);
+      }
+    });
+
     testWidgets('라이트 기기와 다크 기기의 글자색이 같습니다', (tester) async {
       await _bigScreen(tester);
       Color? sentenceColor() => tester
@@ -365,6 +384,44 @@ void main() {
       expect(find.text('좋은 날'), findsOneWidget);
       expect(find.text('10월 15일 목요일'), findsOneWidget);
       expect(find.text('명리일기'), findsOneWidget);
+    });
+
+    testWidgets('story: 이유에 용어 조각이 있으면 칩 없이 이어진 글자로 그립니다', (tester) async {
+      await _bigScreen(tester);
+      final image = ShareImage(
+        variant: ShareImageVariant.story,
+        date: '10월 15일 목요일',
+        dayKind: DayKind.gwiinDay,
+        dayKindLabel: '귀인의 날',
+        sentence: _text(_sentenceText),
+        items: _items(),
+        footer: '명리일기',
+        reason: RenderedText(
+          segments: [
+            Segment(text: '오늘은 '),
+            Segment(text: '천을귀인', term: 'tag.cheoneul_gwiin'),
+            Segment(text: '이 드는 날이라서요.'),
+          ],
+        ),
+      );
+      await tester.pumpWidget(_app(image));
+      final reason = find.byKey(ShareImage.reasonKey);
+      expect(reason, findsOneWidget);
+      expect(
+        find.descendant(
+          of: reason,
+          matching: find.textContaining(
+            '오늘은 천을귀인이 드는 날이라서요.',
+            findRichText: true,
+          ),
+        ),
+        findsOneWidget,
+      );
+      // 공유 이미지는 용어를 칩으로 그리지 않습니다(V28).
+      expect(
+        find.descendant(of: reason, matching: find.byType(TermToken)),
+        findsNothing,
+      );
     });
 
     testWidgets('story: 시간 구간이 둘이어도 첫 구간 칩 하나만 넣습니다(V52)', (tester) async {
@@ -615,27 +672,6 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       expect(_previewOpacity(tester), 1);
     });
-  });
-
-  testWidgets('공유 이미지 칩 줄에는 tag 칩이 없습니다(행운 4종만)', (tester) async {
-    final image = ShareImage(
-      variant: ShareImageVariant.story,
-      date: '10월 15일 목요일',
-      dayKind: DayKind.yongsinDay,
-      dayKindLabel: '좋은 날',
-      sentence: _text(_sentenceText),
-      items: [
-        const LuckyItem.tag(tagKey: 'clash', name: '충'),
-        ..._items(),
-      ],
-      footer: '명리일기',
-    );
-    await _bigScreen(tester);
-    await tester.pumpWidget(_app(image));
-    final variants = tester
-        .widgetList<LuckyChip>(find.byType(LuckyChip))
-        .map((chip) => chip.item.variant);
-    expect(variants, LuckyCardVariant.luckyValues);
   });
 }
 

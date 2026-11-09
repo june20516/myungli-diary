@@ -18,11 +18,11 @@ import 'package:myungli_diary/design/components/feedback/live_announcement.dart'
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
-import 'package:myungli_diary/design/components/feedback/text_action.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -163,6 +163,9 @@ Future<AsyncValue<String>> _afterFailedLoad(WidgetTester tester) async {
   return container.read(_failing);
 }
 
+/// 화면 상태 뷰 테스트의 skeleton(글줄 뼈 세 줄).
+const Widget _skeleton = SkeletonTextLines(lines: 3);
+
 Widget _view(
   AsyncValue<String> value, {
   bool Function(String)? isEmpty,
@@ -178,6 +181,7 @@ Widget _view(
     isEmpty: isEmpty,
     isStale: isStale,
     onStaleError: onStaleError,
+    skeleton: _skeleton,
     data: (v) => Center(child: Text('값:$v')),
   ),
 );
@@ -237,7 +241,9 @@ void main() {
       expect(results, [false]);
     });
 
-    testWidgets('destructive: 경고 표시가 제목 앞에 있고 빨간색이 없습니다', (tester) async {
+    testWidgets('destructive: 경고 표시는 제목 앞에만 있고 확정은 본문색 바탕 버튼입니다', (
+      tester,
+    ) async {
       await open(tester, DialogVariant.destructive);
       final icon = tester.widget<Icon>(
         find.descendant(
@@ -246,12 +252,126 @@ void main() {
         ),
       );
       expect(icon.icon, const AppIcon.caution().icon.light);
+      expect(icon.size, 20, reason: '제목 앞 경고 표시는 20 고정');
       final tokens = tester.element(find.byType(DialogCard)).tokens;
-      final confirm = tester.widget<Text>(find.text('지우기'));
-      expect(confirm.style!.color, tokens.colors.textPrimary);
-      expect(confirm.style!.fontWeight, FontWeight.w700);
-      final cancel = tester.widget<Text>(find.text('취소'));
-      expect(cancel.style!.color, tokens.colors.actionPrimary);
+      final confirm = tester.widget<PrimaryButton>(
+        find.byKey(DialogCard.confirmKey),
+      );
+      expect(confirm.variant, PrimaryButtonVariant.destructive);
+      expect(confirm.showCaution, isFalse, reason: '버튼 글자 앞에는 경고 표시 없음(V65)');
+      final face = tester.widget<DecoratedBox>(
+        find.descendant(
+          of: find.byKey(DialogCard.confirmKey),
+          matching: find.byType(DecoratedBox),
+        ),
+      );
+      expect(
+        (face.decoration as BoxDecoration).color,
+        tokens.colors.textPrimary,
+      );
+    });
+
+    testWidgets('ko: 두 버튼은 같은 폭, 높이 44, 사이 8, 취소가 왼쪽입니다', (tester) async {
+      await open(tester, DialogVariant.destructive);
+      final cancel = tester.getRect(find.byKey(DialogCard.cancelKey));
+      final confirm = tester.getRect(find.byKey(DialogCard.confirmKey));
+      expect(cancel.width, confirm.width);
+      expect(cancel.height, 44);
+      expect(confirm.height, 44);
+      expect(confirm.left - cancel.right, 8);
+      expect(cancel.top, confirm.top);
+      final card = tester.getRect(find.byType(DialogCard));
+      expect(cancel.left - card.left, Space.s24);
+      expect(card.right - confirm.right, Space.s24);
+      expect(card.left, Space.s24, reason: '좌우 바깥 여백 24');
+    });
+
+    testWidgets('취소 바탕은 fill.soft이고 다크에서는 라이트와 다른 값입니다', (tester) async {
+      for (final brightness in Brightness.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: _navigatorKey,
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: buildTheme(
+              brightness: brightness,
+              locale: const Locale('ko'),
+            ),
+            home: const Scaffold(body: SizedBox.expand()),
+          ),
+        );
+        unawaited(
+          showMyungliDialog(
+            _navigatorKey.currentContext!,
+            variant: DialogVariant.confirm,
+            title: '제목',
+            confirm: '확인',
+            cancel: '취소',
+          ),
+        );
+        await tester.pumpAndSettle();
+        final tokens = tester.element(find.byType(DialogCard)).tokens;
+        final bar = tester.widget<DecoratedBox>(
+          find.descendant(
+            of: find.byKey(DialogCard.cancelKey),
+            matching: find.byType(DecoratedBox),
+          ),
+        );
+        expect(
+          (bar.decoration as BoxDecoration).color,
+          tokens.colors.fillSoft,
+          reason: brightness.name,
+        );
+        await tester.tap(find.byKey(DialogCard.cancelKey));
+        await tester.pumpAndSettle();
+      }
+      expect(
+        buildTheme(
+          brightness: Brightness.dark,
+          locale: const Locale('ko'),
+        ).extension<MyungliTokens>()!.colors.fillSoft,
+        isNot(
+          buildTheme(
+            brightness: Brightness.light,
+            locale: const Locale('ko'),
+          ).extension<MyungliTokens>()!.colors.fillSoft,
+        ),
+      );
+    });
+
+    testWidgets('ja + 글자 배율 2.0: 세로로 쌓이고 확정이 위입니다(Review Focus 1)', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 844),
+            textScaler: TextScaler.linear(2),
+          ),
+          child: _app(const SizedBox.expand(), locale: const Locale('ja')),
+        ),
+      );
+      unawaited(
+        showMyungliDialog(
+          _navigatorKey.currentContext!,
+          variant: DialogVariant.destructive,
+          title: '日記を削除しますか?',
+          body: '削除すると元に戻せません。',
+          confirm: '削除する',
+          cancel: 'キャンセル',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final cancel = tester.getRect(find.byKey(DialogCard.cancelKey));
+      final confirm = tester.getRect(find.byKey(DialogCard.confirmKey));
+      expect(confirm.bottom + 8, cancel.top, reason: '확정이 위, 사이 8');
+      expect(confirm.left, cancel.left);
+      expect(confirm.width, cancel.width);
     });
 
     testWidgets('confirm에는 경고 표시가 없습니다', (tester) async {
@@ -356,34 +476,28 @@ void main() {
         return closed;
       }
 
-      testWidgets('확인 버튼 하나뿐이고 오른쪽 끝에 놓이며 처음 초점을 받습니다', (tester) async {
+      testWidgets('확인 버튼 하나뿐이고 폭 전체이며 처음 초점을 받습니다', (tester) async {
         await openNotice(tester);
         final card = find.byType(DialogCard);
-        expect(
-          find.descendant(of: card, matching: find.byType(FeedbackTextAction)),
-          findsOneWidget,
-        );
+        expect(find.byType(PrimaryButton), findsOneWidget);
+        expect(find.byKey(DialogCard.cancelKey), findsNothing);
         expect(
           Focus.of(tester.element(find.text('확인'))).hasPrimaryFocus,
           isTrue,
         );
-        // 확인 버튼은 카드 안쪽 여백(space.24)만큼 떨어진 오른쪽 끝입니다.
-        final confirmRight = tester
-            .getTopRight(
-              find
-                  .ancestor(
-                    of: find.text('확인'),
-                    matching: find.byType(FeedbackTextAction),
-                  )
-                  .first,
-            )
-            .dx;
-        expect(confirmRight, tester.getTopRight(card).dx - Space.s24);
-        // confirm과 같은 모양(action.primary, 굵게 하지 않음), 경고 표시 없음.
-        final tokens = tester.element(card).tokens;
-        final confirm = tester.widget<Text>(find.text('확인'));
-        expect(confirm.style!.color, tokens.colors.actionPrimary);
-        expect(confirm.style!.fontWeight, isNot(FontWeight.w700));
+        // 확인 버튼은 카드 안쪽 여백(space.24)을 뺀 폭 전체입니다.
+        final confirm = tester.getRect(find.byKey(DialogCard.confirmKey));
+        final cardRect = tester.getRect(card);
+        expect(confirm.left, cardRect.left + Space.s24);
+        expect(confirm.right, cardRect.right - Space.s24);
+        expect(confirm.height, 44);
+        // confirm의 확정 버튼과 같은 모양(filled), 경고 표시 없음.
+        expect(
+          tester
+              .widget<PrimaryButton>(find.byKey(DialogCard.confirmKey))
+              .variant,
+          PrimaryButtonVariant.filled,
+        );
         expect(
           find.descendant(of: card, matching: find.byType(Icon)),
           findsNothing,
@@ -837,19 +951,19 @@ void main() {
 
   group('skeleton', () {
     testWidgets('300ms 안에는 보이지 않고 그 뒤에 나타납니다', (tester) async {
-      await tester.pumpWidget(_app(const SkeletonBlock()));
+      await tester.pumpWidget(_app(const SkeletonBlock(child: _skeleton)));
       await tester.pump(const Duration(milliseconds: 299));
       expect(find.byType(SkeletonBone), findsNothing);
       await tester.pump(const Duration(milliseconds: 2));
       expect(find.byType(SkeletonBone), findsNWidgets(3));
     });
 
-    testWidgets('글줄 높이는 줄 높이의 60%, 마지막 줄은 너비 60%', (tester) async {
+    testWidgets('글줄 뼈 높이는 줄 높이의 60%이고 줄 가운데, 마지막 줄은 너비 60%', (tester) async {
       await tester.pumpWidget(
         _app(
           const SizedBox(
             width: 300,
-            child: SkeletonBlock(delay: Duration.zero),
+            child: SkeletonBlock(delay: Duration.zero, child: _skeleton),
           ),
         ),
       );
@@ -858,20 +972,116 @@ void main() {
           tester.getSize(find.byType(SkeletonBone).at(i)),
       ];
       expect(sizes[0].width, 300);
+      expect(sizes[1].width, 300);
       expect(sizes[2].width, closeTo(180, 0.01));
-      final tokens = tester.element(find.byType(SkeletonBlock)).tokens;
-      final style = tokens.typography.bodyUi;
-      expect(
-        sizes[0].height,
-        closeTo(style.fontSize! * style.height! * 0.6, 0.01),
+      final context = tester.element(find.byType(SkeletonTextLines));
+      final line = lineHeightOf(
+        SkeletonTextLines.defaultStyleOf(context),
+        MediaQuery.textScalerOf(context),
       );
+      expect(sizes[0].height, closeTo(line * 0.6, 0.01));
+      expect(
+        tester.getSize(find.byType(SkeletonTextLines)).height,
+        closeTo(line * 3, 0.01),
+      );
+      final firstTop = tester.getTopLeft(find.byType(SkeletonBone).first).dy;
+      final blockTop = tester.getTopLeft(find.byType(SkeletonTextLines)).dy;
+      expect(firstTop - blockTop, closeTo(line * 0.2, 0.01));
+    });
+
+    testWidgets('글줄 뼈에 폭 비율을 주면 모든 줄이 그 폭입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 300,
+            child: SkeletonTextLines(lines: 2, widthFactor: 0.4),
+          ),
+        ),
+      );
+      for (var i = 0; i < 2; i++) {
+        expect(
+          tester.getSize(find.byType(SkeletonBone).at(i)).width,
+          closeTo(120, 0.01),
+        );
+      }
+    });
+
+    testWidgets('글줄 뼈 줄 높이는 실제 글자 스타일과 글자 배율을 따릅니다', (tester) async {
+      late TextStyle style;
+      await tester.pumpWidget(
+        _app(
+          MediaQuery.withClampedTextScaling(
+            minScaleFactor: 2,
+            maxScaleFactor: 2,
+            child: Builder(
+              builder: (context) {
+                style = context.tokens.typography.sentenceBody;
+                return SkeletonTextLines(style: style);
+              },
+            ),
+          ),
+        ),
+      );
+      expect(
+        tester.getSize(find.byType(SkeletonTextLines)).height,
+        closeTo(lineHeightOf(style, const TextScaler.linear(2)), 0.01),
+      );
+    });
+
+    testWidgets('칩 뼈는 알약, 카드 뼈는 bg.sheet 바탕과 radius.lg입니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SkeletonCard(
+            padding: EdgeInsets.all(Space.s16),
+            child: SkeletonChip(width: 56, height: 26),
+          ),
+        ),
+      );
+      final colors = tester.element(find.byType(SkeletonCard)).tokens.colors;
+      final card =
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .descendant(
+                          of: find.byType(SkeletonCard),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+      expect(card.color, colors.bgSheet);
+      expect(
+        card.borderRadius,
+        const BorderRadius.all(Radius.circular(Radii.lg)),
+      );
+      final chip = tester.widget<SkeletonBone>(find.byType(SkeletonBone));
+      expect(chip.borderRadius, Radii.full);
+      expect(tester.getSize(find.byType(SkeletonBone)), const Size(56, 26));
     });
 
     testWidgets('읽어 주는 라벨은 불러오는 중이고 자식은 숨깁니다', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      await tester.pumpWidget(
+        _app(const SkeletonBlock(delay: Duration.zero, child: _skeleton)),
+      );
       expect(find.bySemanticsLabel('불러오는 중'), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('화면 상태 뷰는 받는 중에 화면이 준 skeleton을 그립니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          ScreenStateView<String>(
+            value: const AsyncLoading(),
+            onRetry: () {},
+            skeletonDelay: Duration.zero,
+            skeleton: const SizedBox(key: ValueKey('화면 뼈')),
+            data: Text.new,
+          ),
+        ),
+      );
+      expect(find.byKey(const ValueKey('화면 뼈')), findsOneWidget);
     });
   });
 
@@ -1107,6 +1317,7 @@ void main() {
           ScreenStateView<String>(
             value: await _states(tester, (p) => p.fail(const OfflineError())),
             onRetry: () {},
+            skeleton: _skeleton,
             dataWithNotice: (v, notice) =>
                 ListView(children: [notice, Text('값:$v')]),
           ),
@@ -1173,7 +1384,9 @@ void main() {
 
     testWidgets('skeleton: loadingSpinner', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(_app(const SkeletonBlock(delay: Duration.zero)));
+      await tester.pumpWidget(
+        _app(const SkeletonBlock(delay: Duration.zero, child: _skeleton)),
+      );
       expect(
         _roleOf(tester, find.byType(SkeletonBlock)),
         SemanticsRole.loadingSpinner,

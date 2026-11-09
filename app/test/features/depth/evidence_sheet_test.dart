@@ -19,8 +19,11 @@ import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
-import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
@@ -150,6 +153,30 @@ final List<Map<String, Object>> _threeEvidence = [
   },
 ];
 
+/// member 오늘 응답의 [slot] 문장(`head` 또는 `tag`)에 잠긴 근거 앞부분 [previews]를 담습니다.
+Daily _dailyWithPreview(
+  List<Map<String, Object>> previews, {
+  String slot = 'head',
+}) {
+  final json = memberDailyJson();
+  final fortune = Map<String, dynamic>.of(
+    json['fortune'] as Map<String, dynamic>,
+  );
+  fortune[slot] = {
+    ...fortune[slot] as Map<String, dynamic>,
+    'evidencePreview': previews,
+  };
+  return Daily.fromJson({...json, 'fortune': fortune});
+}
+
+/// [finder] 안 `lock.veil` 또렷한 층의 첫 조각 글자.
+String _clearHead(WidgetTester tester, Finder finder) {
+  final text = tester.widget<Text>(
+    find.descendant(of: finder, matching: find.byKey(LockVeil.clearKey)),
+  );
+  return ((text.textSpan! as TextSpan).children!.first as TextSpan).text!;
+}
+
 List<String> _plain(List<RenderedText> texts) => [
   for (final text in texts) text.segments.map((s) => s.text).join(),
 ];
@@ -173,15 +200,12 @@ Future<(ProviderContainer, _DailyGate)> _openSheet(
         dailyControllerProvider.overrideWith(() => _StubDaily(daily)),
     ],
   );
-  await pumpUntil(
-    tester,
-    () => find.byType(DayCharacter).evaluate().isNotEmpty,
-  );
+  await pumpUntil(tester, () => find.byType(DateHeader).evaluate().isNotEmpty);
   final gate = _DailyGate();
   final interceptors = container.read(dioProvider).interceptors;
   interceptors.insert(interceptors.length - 1, gate);
 
-  // 기본은 총운 끝의 근거 보기(날의 성격 이유 줄에도 같은 링크가 있습니다).
+  // 기본은 총운 헤드라인 끝의 근거 보기입니다.
   await tester.tap(
     depthLinkTarget(
       of: link ?? find.byKey(const Key(SlotIds.todayFortuneHead)),
@@ -351,23 +375,6 @@ void main() {
       expect(_sheet, findsOneWidget);
     });
 
-    testWidgets('권한이 있으면(unlocked) 본문 없는 구역은 제목도 그리지 않습니다(A22)', (
-      tester,
-    ) async {
-      // 날의 성격 이유 슬롯에는 근거 문장이 없습니다.
-      await _openSheet(
-        tester,
-        scenario: 'evidence-unlocked',
-        link: find.byKey(DayCharacter.reasonKey),
-      );
-
-      expect(_inSheet(find.text(_ko.evidenceSheetTitle)), findsOneWidget);
-      expect(_inSheet(find.byType(LockVeil)), findsNothing);
-      expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
-      expect(_inSheet(find.text(_ko.evidenceSheetSectionBasis)), findsNothing);
-      expect(_inSheet(find.text(_ko.evidenceSheetSectionSource)), findsNothing);
-    });
-
     testWidgets('unlocked면 evidence의 basis·source를 순서대로 문단으로 그립니다', (
       tester,
     ) async {
@@ -487,6 +494,197 @@ void main() {
       );
       expect(_inSheet(find.byType(ErrorState)), findsNothing);
       expect(_inSheet(find.text(_ko.evidenceSheetTitle)), findsOneWidget);
+    });
+
+    testWidgets('잠김 G1: 앞부분이 또렷하고 판정 근거 3줄, 원전은 앞부분이 없어 자리값만 2줄', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _openSheet(
+        tester,
+        daily: _dailyWithPreview([
+          // 첫 근거는 앞부분이 없고, 둘째 근거의 판정 근거 앞부분을 씁니다(근거 순서).
+          {},
+          {'basis': _sentence('오늘은 용신의')},
+          {'basis': _sentence('셋째 앞부분')},
+        ]),
+      );
+
+      final basis = _inSheet(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+      );
+      final source = _inSheet(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetSourceQuote)),
+      );
+      final veils = tester
+          .widgetList<LockVeil>(_inSheet(find.byType(LockVeil)))
+          .toList();
+      expect(
+        [for (final veil in veils) veil.lines],
+        [LockVeilLines.basis, LockVeilLines.source],
+      );
+      expect(_clearHead(tester, basis), startsWith('오늘은 용신의'));
+      expect(
+        _clearHead(tester, source),
+        startsWith(LockVeil.placeholderFor(const Locale('ko'))),
+      );
+      expect(
+        find.bySemanticsLabel(
+          '${_ko.evidenceSheetSectionBasis}, 오늘은 용신의, '
+          '${_ko.evidenceSheetA11yLocked}',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(
+          '${_ko.evidenceSheetSectionSource}, ${_ko.evidenceSheetA11yLocked}',
+        ),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('잠긴 원전 앞부분의 한자는 한자 글꼴로 그리고 판정 근거는 대체하지 않습니다', (tester) async {
+      await _openSheet(
+        tester,
+        daily: _dailyWithPreview([
+          {
+            'basis': _sentence('오늘은 용신의'),
+            'source': _sentence('궁통보감 「오행총론」\n以義推之'),
+          },
+        ]),
+      );
+      final hanja = tester
+          .element(_inSheet(find.byType(EvidenceSheetBody)))
+          .tokens
+          .typography
+          .hanjaPillar
+          .fontFamily;
+      final veils = tester
+          .widgetList<LockVeil>(_inSheet(find.byType(LockVeil)))
+          .toList();
+      expect(
+        [for (final veil in veils) veil.fontFallback],
+        [
+          const <String>[],
+          [hanja],
+        ],
+      );
+    });
+
+    testWidgets('evidencePreview가 없으면 두 구역 모두 자리값만입니다', (tester) async {
+      // member fixture의 총운 헤드라인에는 앞부분이 있어, 필드를 뺀 응답으로 엽니다.
+      final json = memberDailyJson();
+      final fortune = Map<String, dynamic>.of(
+        json['fortune'] as Map<String, dynamic>,
+      );
+      fortune['head'] = Map<String, dynamic>.of(
+        fortune['head'] as Map<String, dynamic>,
+      )..remove('evidencePreview');
+      await _openSheet(
+        tester,
+        daily: Daily.fromJson({...json, 'fortune': fortune}),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(body.basisLead, isNull);
+      expect(body.sourceLead, isNull);
+      for (final veil in tester.widgetList<LockVeil>(
+        _inSheet(find.byType(LockVeil)),
+      )) {
+        expect(veil.lead, isNull);
+      }
+    });
+
+    testWidgets('구역 제목 위는 space.24입니다', (tester) async {
+      await _openSheet(tester);
+
+      final basisTitle = tester.getRect(
+        _inSheet(find.byKey(const ValueKey(SlotIds.evidenceSheetSectionBasis))),
+      );
+      final sourceTitle = tester.getRect(
+        _inSheet(
+          find.byKey(const ValueKey(SlotIds.evidenceSheetSectionSource)),
+        ),
+      );
+      final basisBody = tester.getRect(
+        _inSheet(find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody))),
+      );
+      final target = tester.getRect(
+        _inSheet(find.byKey(const ValueKey(SlotIds.evidenceSheetTargetBody))),
+      );
+      expect(basisTitle.top - target.bottom, Space.s24);
+      expect(sourceTitle.top - basisBody.bottom, Space.s24);
+    });
+
+    testWidgets('헤드라인에서 열면 시트 위에 날의 성격 태그와 헤드라인 문장(잠겨도 보임)', (tester) async {
+      await _openSheet(tester);
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(body.state, DepthLinkState.locked);
+      final tags = [for (final tag in body.targetTags) tag as HanjaTag];
+      // member는 날의 성격과 십성 묶음(비겁) 둘입니다.
+      expect(tags, hasLength(2));
+      for (final tag in tags) {
+        expect(tag.onTap, isNull);
+        expect(tag.variant, HanjaTagVariant.normal);
+      }
+      final headText = Daily.fromJson(memberDailyJson())
+          .fortune
+          .head
+          .text
+          .segments
+          .map((segment) => segment.text)
+          .join();
+      expect(
+        _inSheet(find.text(headText)),
+        findsOneWidget,
+        reason: '대상 문장은 caption.lg 일반 글자 한 덩어리',
+      );
+      final title = tester.getRect(
+        _inSheet(find.byKey(const ValueKey(SlotIds.evidenceSheetSheetTitle))),
+      );
+      final tagRow = tester.getRect(
+        _inSheet(find.byKey(EvidenceSheetBody.targetTagsKey)),
+      );
+      final sentence = tester.getRect(
+        _inSheet(find.byKey(const ValueKey(SlotIds.evidenceSheetTargetBody))),
+      );
+      expect(tagRow.top - title.bottom, Space.s12);
+      expect(sentence.top - tagRow.bottom, Space.s8);
+      final text = tester.widget<Text>(
+        find.descendant(
+          of: _inSheet(
+            find.byKey(const ValueKey(SlotIds.evidenceSheetTargetBody)),
+          ),
+          matching: find.byType(Text),
+        ),
+      );
+      expect(text.maxLines, 3);
+      expect(text.overflow, TextOverflow.ellipsis);
+    });
+
+    testWidgets('보조 문장에서 열면 시트 위에 대표 태그 1순위와 보조 문장', (tester) async {
+      await _openSheet(
+        tester,
+        link: find.byKey(const Key(SlotIds.todayFortuneBody)),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(
+        [for (final tag in body.targetTags) (tag as HanjaTag).label],
+        ['합'],
+      );
+      expect(
+        body.target?.segments.map((s) => s.text).join(),
+        '이야기나 약속이 잘 맞아떨어지는 날이에요.',
+      );
     });
   });
 }

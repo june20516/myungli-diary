@@ -22,6 +22,7 @@ import 'package:myungli_diary/design/components/feedback/load_feedback.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/single_open_guard.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/contact/application/contact_controller.dart';
@@ -29,6 +30,51 @@ import 'package:myungli_diary/features/me/application/settings_controller.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/features/profile/application/profile_providers.dart';
 import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
+
+/// 설정 메뉴 줄 앞 아이콘(`settings-row` `parts.leading.icons`, 줄 이름 ARB 키 → Phosphor).
+abstract final class _SettingsIcons {
+  static const AppGlyph notify = AppGlyph(
+    light: PhosphorIconsLight.bell,
+    regular: PhosphorIconsRegular.bell,
+  );
+  static const AppGlyph adFree = AppGlyph(
+    light: PhosphorIconsLight.prohibit,
+    regular: PhosphorIconsRegular.prohibit,
+  );
+  static const AppGlyph language = AppGlyph(
+    light: PhosphorIconsLight.translate,
+    regular: PhosphorIconsRegular.translate,
+  );
+  static const AppGlyph profileEdit = AppGlyph(
+    light: PhosphorIconsLight.userCircle,
+    regular: PhosphorIconsRegular.userCircle,
+  );
+  static const AppGlyph calcBasis = AppGlyph(
+    light: PhosphorIconsLight.globeHemisphereEast,
+    regular: PhosphorIconsRegular.globeHemisphereEast,
+  );
+  static const AppGlyph loginMethods = AppGlyph(
+    light: PhosphorIconsLight.key,
+    regular: PhosphorIconsRegular.key,
+  );
+  static const AppGlyph legal = AppGlyph(
+    light: PhosphorIconsLight.fileText,
+    regular: PhosphorIconsRegular.fileText,
+  );
+  static const AppGlyph contact = AppGlyph(
+    light: PhosphorIconsLight.chatCircleText,
+    regular: PhosphorIconsRegular.chatCircleText,
+  );
+  static const AppGlyph logout = AppGlyph(
+    light: PhosphorIconsLight.signOut,
+    regular: PhosphorIconsRegular.signOut,
+  );
+  static const AppGlyph accountDelete = AppGlyph(
+    light: PhosphorIconsLight.trash,
+    regular: PhosphorIconsRegular.trash,
+  );
+}
 
 /// IA `settings`의 출구 대상. `welcome`은 로그아웃 뒤 진입이 다시 계산돼 라우터 redirect가
 /// 보내는 곳이고, `birthplace`는 언어 변경 뒤 출생지 안내에서 엽니다.
@@ -282,6 +328,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           key: SettingsScreen.notifyRowKey,
                           variant: SettingsRowVariant.value,
                           label: l10n.settingsNotifyLabel,
+                          leading: _SettingsIcons.notify,
                           value: profile == null
                               ? null
                               : notificationLabel(l10n, profile.notification),
@@ -294,6 +341,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           key: SettingsScreen.languageRowKey,
                           variant: SettingsRowVariant.value,
                           label: l10n.settingsLanguageLabel,
+                          leading: _SettingsIcons.language,
                           value: profile == null
                               ? null
                               : languageNameOf(profile.language),
@@ -313,6 +361,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                               ? SettingsRowVariant.navigate
                               : SettingsRowVariant.value,
                           label: l10n.settingsAdFreeLabel,
+                          leading: _SettingsIcons.adFree,
                           value: adFree,
                           onTap: whenIdle(() => _open(ScreenIds.adFree)),
                         ),
@@ -325,24 +374,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           key: SettingsScreen.loginMethodsRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.loginMethodsBarTitle,
+                          leading: _SettingsIcons.loginMethods,
                           onTap: whenIdle(() => _open(ScreenIds.loginMethods)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.profileEditRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.profileEditBarTitle,
+                          leading: _SettingsIcons.profileEdit,
                           onTap: whenIdle(() => _open(ScreenIds.profileEdit)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.calcBasisRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.calcBasisBarTitle,
+                          leading: _SettingsIcons.calcBasis,
                           onTap: whenIdle(() => _open(ScreenIds.calcBasis)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.legalRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.legalBarTitle,
+                          leading: _SettingsIcons.legal,
                           onTap: whenIdle(() => _open(ScreenIds.legal)),
                         ),
                         // 문의하기(D102). 줄 이름은 writing 원고
@@ -351,6 +404,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           key: SettingsScreen.contactRowKey,
                           variant: SettingsRowVariant.navigate,
                           label: l10n.settingsContactLabel,
+                          leading: _SettingsIcons.contact,
                           onTap: whenIdle(() => _open(ScreenIds.contact)),
                         ),
                       ],
@@ -361,12 +415,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           key: SettingsScreen.logoutRowKey,
                           variant: SettingsRowVariant.destructive,
                           label: l10n.settingsLogoutLabel,
+                          leading: _SettingsIcons.logout,
                           onTap: whenIdle(() => guardOpen(_logout)),
                         ),
                         SettingsRow(
                           key: SettingsScreen.accountDeleteRowKey,
                           variant: SettingsRowVariant.destructive,
                           label: l10n.accountDeleteBarTitle,
+                          leading: _SettingsIcons.accountDelete,
                           onTap: whenIdle(() => _open(ScreenIds.accountDelete)),
                         ),
                       ],

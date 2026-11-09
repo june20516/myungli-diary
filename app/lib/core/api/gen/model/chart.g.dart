@@ -43,6 +43,8 @@ abstract class _$ChartCWProxy {
 
   Chart personalReadings(List<PersonalReading>? personalReadings);
 
+  Chart personalReadingPreviews(List<PersonalReading>? personalReadingPreviews);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Chart(...).copyWith.fieldName(value)`.
@@ -70,6 +72,7 @@ abstract class _$ChartCWProxy {
     SlotText? ilganBody,
     SlotText? yongsinSummary,
     List<PersonalReading>? personalReadings,
+    List<PersonalReading>? personalReadingPreviews,
   });
 }
 
@@ -141,6 +144,11 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
   Chart personalReadings(List<PersonalReading>? personalReadings) =>
       call(personalReadings: personalReadings);
 
+  @override
+  Chart personalReadingPreviews(
+    List<PersonalReading>? personalReadingPreviews,
+  ) => call(personalReadingPreviews: personalReadingPreviews);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Chart(...).copyWith.fieldName(value)`.
@@ -169,6 +177,7 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
     Object? ilganBody = const $CopyWithPlaceholder(),
     Object? yongsinSummary = const $CopyWithPlaceholder(),
     Object? personalReadings = const $CopyWithPlaceholder(),
+    Object? personalReadingPreviews = const $CopyWithPlaceholder(),
   }) {
     return Chart(
       rulesetVersion:
@@ -251,6 +260,11 @@ class _$ChartCWProxyImpl implements _$ChartCWProxy {
           ? _value.personalReadings
           // ignore: cast_nullable_to_non_nullable
           : personalReadings as List<PersonalReading>?,
+      personalReadingPreviews:
+          personalReadingPreviews == const $CopyWithPlaceholder()
+          ? _value.personalReadingPreviews
+          // ignore: cast_nullable_to_non_nullable
+          : personalReadingPreviews as List<PersonalReading>?,
     );
   }
 }
@@ -378,6 +392,12 @@ Chart _$ChartFromJson(Map<String, dynamic> json) =>
               ?.map((e) => PersonalReading.fromJson(e as Map<String, dynamic>))
               .toList(),
         ),
+        personalReadingPreviews: $checkedConvert(
+          'personalReadingPreviews',
+          (v) => (v as List<dynamic>?)
+              ?.map((e) => PersonalReading.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
       );
       return val;
     });
@@ -401,6 +421,9 @@ Map<String, dynamic> _$ChartToJson(Chart instance) => <String, dynamic>{
   'ilganBody': ?instance.ilganBody?.toJson(),
   'yongsinSummary': ?instance.yongsinSummary?.toJson(),
   'personalReadings': ?instance.personalReadings
+      ?.map((e) => e.toJson())
+      .toList(),
+  'personalReadingPreviews': ?instance.personalReadingPreviews
       ?.map((e) => e.toJson())
       .toList(),
 };

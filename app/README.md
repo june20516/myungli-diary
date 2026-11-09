@@ -145,7 +145,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 
   `new-user`와 `profile-required`의 내 정보(getMe)는 호출 순서대로 바뀌며 **두 번째부터 "프로필 있음"**입니다(미리보기·동의 직후 프로필 저장을 흉내 냄). 그래서 fake 모드 수동 확인에서 `new-user`로 미리보기 없이 로그인·동의하거나 `profile-required`에서 저장 없이 진입을 다시 계산해도 프로필이 생긴 것처럼 진행됩니다. 미리보기 없이 로그인한 새 계정은 `new-user-signin`으로 확인합니다.
 
-  일기(`listDiaries`·`getDiary`·`putDiary`·`deleteDiary`)는 시나리오마다 새로 만드는 메모리 저장소가 답합니다(`lib/core/api/fake/fake_diary_store.dart`). 처음 내용은 시나리오의 `listDiaries`·`getDiary` 200 응답이고, 쓰면 목록과 그날 일기에 생기고 지우면 사라집니다. 새 일기의 태그·질문은 그날 `getDaily` fixture에서 가져오고, 오늘 뒤 날짜는 422 `diary.future_date`, 없는 일기는 404 `diary.not_found`입니다. 앱을 다시 띄우면 처음 내용으로 돌아갑니다.
+  일기(`listDiaries`·`getDiary`·`putDiary`·`deleteDiary`)는 시나리오마다 새로 만드는 메모리 저장소가 답합니다(`lib/core/api/fake/fake_diary_store.dart`). 처음 내용은 시나리오의 `listDiaries`·`getDiary` 200 응답이고, 쓰면 목록과 그날 일기에 생기고 지우면 사라집니다. 새 일기의 태그·질문은 그날 `getDaily` fixture에서 가져오고, 오늘 뒤 날짜는 422 `diary.future_date`, 없는 일기는 404 `diary.not_found`입니다. 앱을 다시 띄우면 처음 내용으로 돌아갑니다. 회고 집계(`getDiaryStats`)도 이 저장소의 살아 있는 일기로 server 규칙(S146, 편수는 편 단위, 날의 성격과 태그는 날짜 단위)대로 셉니다(`lib/core/api/fake/fake_diary_stats.dart`). `fixtures/member/getDiaryStats.json`은 스키마 검증용이고, 시나리오에 오류 응답 파일이 있으면 그 오류가 먼저입니다.
 
   프로필 저장(`updateProfile`)은 시나리오 파일이 200이면 보낸 필드만 그 응답의 프로필에 덮어 답하고(merge-patch) 다음 저장은 그 결과에서 이어 갑니다. 그래서 설정에서 언어·알림을 바꾸면 앱에 그대로 보입니다. 200이 아닌 파일(오류 시나리오)은 파일이 답합니다. 프로필 읽기(`getProfile`)는 파일이 없으면 마지막으로 저장한 프로필, 그것도 없으면 `updateProfile` 200 파일의 프로필입니다.
 

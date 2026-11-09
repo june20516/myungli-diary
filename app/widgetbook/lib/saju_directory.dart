@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
+import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -15,10 +17,6 @@ void _noop() {}
 
 TermToken _label(String text) =>
     TermToken(label: text, variant: TermTokenVariant.label, onTap: () {});
-
-/// 표 값 칸(12운성·신살)의 용어.
-TermToken _value(String text) =>
-    TermToken(label: text, variant: TermTokenVariant.inline, onTap: () {});
 
 SajuPillarColumn _column(
   String header,
@@ -96,66 +94,94 @@ Widget _ohaengBar(Map<FiveElement, double> values) => SizedBox(
   ),
 );
 
-OhaengCell _mini(FiveElement element, String hanja) =>
-    OhaengCell(element: element, hanja: hanja, size: OhaengCellSize.mini);
+/// 지장간 하나: 오행 색 칩 + 십성.
+BandHiddenStem _hidden(
+  FiveElement element,
+  String hanja,
+  String reading, [
+  String? tenGod,
+]) => BandHiddenStem(
+  element: element,
+  hanja: hanja,
+  semanticLabel: '$hanja $reading',
+  tenGod: tenGod == null ? null : LuckLabel(tenGod, onTap: _noop),
+);
 
 /// 만세력 예시. [hourUnknown]이면 시주 열이 빕니다.
 Widget _manse({bool hourUnknown = false}) => SizedBox(
   width: 360,
   child: ManseTable(
-    hour: hourUnknown
-        ? const ManseColumn(header: '시주')
-        : ManseColumn(
+    basis: '내 일간 庚(경금) 기준',
+    basisGlyph: '庚',
+    table: BandTable(
+      columns: [
+        if (hourUnknown)
+          const BandColumn(header: '시주', empty: true)
+        else
+          BandColumn(
             header: '시주',
-            stem: _mini(FiveElement.water, '癸'),
-            branch: _mini(FiveElement.earth, '未'),
             hiddenStems: [
-              ManseHiddenStem(hanja: '丁', reading: '정', label: _label('정관')),
-              ManseHiddenStem(hanja: '乙', reading: '을', label: _label('정재')),
-              ManseHiddenStem(hanja: '己', reading: '기', label: _label('정인')),
+              _hidden(FiveElement.fire, '丁', '정', '정관'),
+              _hidden(FiveElement.wood, '乙', '을', '정재'),
+              _hidden(FiveElement.earth, '己', '기', '정인'),
             ],
-            twelveStage: _value('관대'),
-            shinsal: [_value('천을귀인')],
+            twelveStage: const LuckLabel('관대', onTap: _noop),
+            shinsal: const [LuckLabel('천을귀인', onTap: _noop)],
           ),
-    day: ManseColumn(
-      header: '일주',
-      stem: _mini(FiveElement.metal, '庚'),
-      branch: _mini(FiveElement.earth, '辰'),
-      hiddenStems: const [
-        ManseHiddenStem(hanja: '乙', reading: '을'),
-        ManseHiddenStem(hanja: '癸', reading: '계'),
-        ManseHiddenStem(hanja: '戊', reading: '무'),
+        BandColumn(
+          header: '일주',
+          isDay: true,
+          hiddenStems: [
+            _hidden(FiveElement.wood, '乙', '을', '정재'),
+            _hidden(FiveElement.water, '癸', '계', '상관'),
+            _hidden(FiveElement.earth, '戊', '무', '편인'),
+          ],
+          twelveStage: const LuckLabel('양', onTap: _noop),
+          shinsal: const [LuckLabel('화개', onTap: _noop)],
+        ),
+        BandColumn(
+          header: '월주',
+          hiddenStems: [
+            _hidden(FiveElement.fire, '丙', '병', '편관'),
+            _hidden(FiveElement.metal, '庚', '경', '비견'),
+            _hidden(FiveElement.earth, '戊', '무', '편인'),
+          ],
+          twelveStage: const LuckLabel('장생', onTap: _noop),
+        ),
+        BandColumn(
+          header: '연주',
+          hiddenStems: [
+            _hidden(FiveElement.fire, '丁', '정', '정관'),
+            _hidden(FiveElement.earth, '己', '기', '정인'),
+          ],
+          // 사전에 이름이 없으면(A65) 누를 수 없는 글자입니다.
+          twelveStage: const LuckLabel('목욕'),
+        ),
       ],
-      twelveStage: _value('양'),
-      shinsal: [_value('화개')],
+      bandLabels: const {
+        BandKind.hiddenStems: '지장간',
+        BandKind.twelveStages: '12운성',
+        BandKind.shinsal: '신살',
+      },
+      onBandTap: (_) {},
+      meLabel: '나',
+      emptyLabel: '없음',
+      tableLabel: '만세력 표',
     ),
-    month: ManseColumn(
-      header: '월주',
-      stem: _mini(FiveElement.metal, '辛'),
-      branch: _mini(FiveElement.fire, '巳'),
-      hiddenStems: const [
-        ManseHiddenStem(hanja: '丙', reading: '병'),
-        ManseHiddenStem(hanja: '庚', reading: '경'),
-        ManseHiddenStem(hanja: '戊', reading: '무'),
-      ],
-      twelveStage: _value('장생'),
-    ),
-    year: ManseColumn(
-      header: '연주',
-      stem: _mini(FiveElement.metal, '庚'),
-      branch: _mini(FiveElement.fire, '午'),
-      hiddenStems: const [
-        ManseHiddenStem(hanja: '丁', reading: '정'),
-        ManseHiddenStem(hanja: '己', reading: '기'),
-      ],
-      twelveStage: _value('목욕'),
-    ),
-    // 줄 머리는 앱처럼 누를 수 없는 라벨입니다(V53).
-    hiddenStemsHeader: const LuckLabel('지장간'),
-    twelveStageHeader: const LuckLabel('12운성'),
-    shinsalHeader: const LuckLabel('신살'),
-    tableLabel: '만세력 표',
   ),
+);
+
+/// 대운, 세운 칸의 간지.
+LuckGanji _ganji(
+  FiveElement stemElement,
+  String stemHanja,
+  FiveElement branchElement,
+  String branchHanja,
+) => LuckGanji(
+  stemElement: stemElement,
+  stemHanja: stemHanja,
+  branchElement: branchElement,
+  branchHanja: branchHanja,
 );
 
 /// 대운 예시(지금 34세)와 세운(올해 2026). 칸 글자는 예시용 고정 값입니다.
@@ -188,8 +214,7 @@ Widget _daeun() {
           DaeunPillar(
             age: age,
             startYear: 1989 + age,
-            stem: _mini(se, sh),
-            branch: _mini(be, bh),
+            pillar: _ganji(se, sh, be, bh),
             ageSemanticLabel: '대운 $age세부터',
             semanticLabel: '$sh $bh',
             yearSemanticLabel: '${1989 + age}년',
@@ -202,8 +227,7 @@ Widget _daeun() {
         for (final (year, se, sh, be, bh) in seun)
           SeunYear(
             year: year,
-            stem: _mini(se, sh),
-            branch: _mini(be, bh),
+            pillar: _ganji(se, sh, be, bh),
             yearSemanticLabel: '$year년',
             semanticLabel: '$sh $bh',
             label: const LuckLabel('상관', onTap: _noop),
@@ -213,7 +237,10 @@ Widget _daeun() {
       thisYear: 2026,
       nowLabel: '지금',
       thisYearLabel: '올해',
-      tableLabel: '대운 4세부터',
+      daeunTitle: '대운',
+      daeunDescription: '10년마다 바뀌는 큰 흐름이에요.',
+      seunTitle: '세운',
+      seunDescription: '해마다 들어오는 기운이에요.',
     ),
   );
 }

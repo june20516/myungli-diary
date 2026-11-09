@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -79,7 +81,74 @@ class EventRow extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'event-row',
     {'summary', 'list'},
-    {'pressed'},
+    {'loading', 'pressed'},
+  );
+
+  /// `list` 뼈 줄 수(`states.loading.skeleton` `row.rows`).
+  static const int skeletonListRows = 2;
+
+  /// 불러오는 중 뼈. `summary`는 줄 높이([minHeight]) 안에 글줄 한 줄, `list`는 줄
+  /// [skeletonListRows]개(시각 칸 글줄 + 제목 글줄, 줄 사이 `list.divider`)입니다.
+  static Widget skeleton({
+    required EventRowVariant variant,
+    int index = 0,
+    bool animated = true,
+  }) => Builder(
+    builder: (context) {
+      final type = context.tokens.typography;
+      Widget row(Widget child) => ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: minHeight),
+        child: Align(alignment: AlignmentDirectional.centerStart, child: child),
+      );
+      return switch (variant) {
+        EventRowVariant.summary => row(
+          SkeletonTextLines(
+            style: type.bodyUi,
+            index: index,
+            animated: animated,
+          ),
+        ),
+        EventRowVariant.list => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < skeletonListRows; i++) ...[
+              if (i > 0) const ListDivider(),
+              row(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: Space.s8),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: timeColumnWidth,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            end: timeColumnGap,
+                          ),
+                          child: SkeletonTextLines(
+                            style: type.numericTable,
+                            widthFactor: 1,
+                            index: index + i * 2,
+                            animated: animated,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: SkeletonTextLines(
+                          style: type.bodyUi,
+                          index: index + i * 2 + 1,
+                          animated: animated,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      };
+    },
   );
 
   /// `list` 시각 칸 너비(`parts.timeColumn.width`).
@@ -91,8 +160,8 @@ class EventRow extends StatelessWidget {
   /// 줄 최소 높이(`parts.row.minHeight`, `a11y.minTarget`).
   static const double minHeight = 48;
 
-  /// `list` 구분선 두께(`parts.row.divider.width`).
-  static const double dividerWidth = 1;
+  /// `list` 구분선 두께(`list.divider` `width`).
+  static const double dividerWidth = BorderTokens.hairline;
 
   /// `list` 시각 칸을 찾는 테스트용 키.
   static const Key timeColumnKey = ValueKey('event-row-time-column');
@@ -179,11 +248,7 @@ class EventRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           content,
-          ColoredBox(
-            key: dividerKey,
-            color: context.tokens.colors.line,
-            child: const SizedBox(height: dividerWidth),
-          ),
+          const ListDivider(key: dividerKey),
         ],
       ),
     );
@@ -313,7 +378,7 @@ class EventRow extends StatelessWidget {
         const SizedBox(width: Space.s8),
         AppIcon(
           _caretRight,
-          size: AppIconSize.inline,
+          size: AppIconSize.s16,
           color: colors.textSecondary,
         ),
       ],
@@ -349,82 +414,50 @@ class EventRow extends StatelessWidget {
   }
 }
 
-/// 그날 일정이 없을 때의 목록 자리(`event-row` `list` `parts.empty`): 빈 문장 + `quiet` 버튼.
+/// 그날 일정이 없을 때의 목록 자리(`event-row` `list` `parts.empty`): 빈 문장 한 줄.
+///
+/// 일정 추가는 일정 섹션 머리 +(`section-header` `action`)가 맡아 버튼을 두지 않습니다(V85).
 class EventRowListEmpty extends StatelessWidget {
-  /// 빈 목록 자리를 만듭니다.
-  ///
-  /// [messageIdentifier]·[addIdentifier]는 IA 슬롯 id(예: `day-sheet.event.empty`·
-  /// `day-sheet.event.add`)입니다.
-  const new({
-    required this.message,
-    required this.addLabel,
-    required this.onAdd,
-    this.messageIdentifier,
-    this.addIdentifier,
-    super.key,
-  });
+  /// 빈 목록 자리를 만듭니다. [messageIdentifier]는 IA 슬롯 id(`day-sheet.event.empty`)입니다.
+  const new({required this.message, this.messageIdentifier, super.key});
 
   /// 빈 문장.
   final String message;
 
-  /// 일정 추가 버튼 글자.
-  final String addLabel;
-
-  /// 일정 추가를 눌렀을 때.
-  final VoidCallback onAdd;
-
   /// 빈 문장의 IA 슬롯 id.
   final String? messageIdentifier;
-
-  /// 일정 추가 버튼의 IA 슬롯 id.
-  final String? addIdentifier;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final messageIdentifier = this.messageIdentifier;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: Space.s4,
-      children: [
-        Semantics(
-          identifier: messageIdentifier,
-          child: Text(
-            message,
-            key: messageIdentifier == null
-                ? null
-                : ValueKey<String>(messageIdentifier),
-            textAlign: TextAlign.center,
-            style: tokens.typography.captionLg.copyWith(
-              color: tokens.colors.textSecondary,
-            ),
-          ),
+    return Semantics(
+      identifier: messageIdentifier,
+      child: Text(
+        message,
+        key: messageIdentifier == null
+            ? null
+            : ValueKey<String>(messageIdentifier),
+        textAlign: TextAlign.center,
+        style: tokens.typography.captionLg.copyWith(
+          color: tokens.colors.textSecondary,
         ),
-        PrimaryButton(
-          label: addLabel,
-          onPressed: onAdd,
-          variant: PrimaryButtonVariant.quiet,
-          identifier: addIdentifier,
-        ),
-      ],
+      ),
     );
   }
 }
 
 /// 날의 성격은 받았는데 일정 목록만 받지 못했을 때의 목록 자리(`event-row` `list`
-/// `parts.failed`): 오류 종류별 문구 한 줄 + `quiet` 다시 시도 + `quiet` 일정 추가.
+/// `parts.failed`): 오류 종류별 문구 한 줄 + `quiet` 다시 시도.
 ///
 /// 없는 일정을 없다고 말하지 않으려고 빈 문장 대신 씁니다. 시트 전체 `error`(`error-state`)는
-/// 날의 성격을 받지 못했을 때만입니다.
+/// 날의 성격을 받지 못했을 때만입니다. 일정 추가는 섹션 머리 +가 맡습니다(V85).
 class EventRowListFailed extends StatelessWidget {
-  /// 실패 자리를 만듭니다. [addIdentifier]는 일정 추가의 IA 슬롯 id(`day-sheet.event.add`)입니다.
+  /// 실패 자리를 만듭니다.
   const new({
     required this.message,
     required this.retryLabel,
     required this.onRetry,
-    required this.addLabel,
-    required this.onAdd,
-    this.addIdentifier,
     super.key,
   });
 
@@ -439,15 +472,6 @@ class EventRowListFailed extends StatelessWidget {
 
   /// 다시 시도를 눌렀을 때.
   final VoidCallback onRetry;
-
-  /// 일정 추가 버튼 글자.
-  final String addLabel;
-
-  /// 일정 추가를 눌렀을 때.
-  final VoidCallback onAdd;
-
-  /// 일정 추가 버튼의 IA 슬롯 id.
-  final String? addIdentifier;
 
   @override
   Widget build(BuildContext context) {
@@ -468,12 +492,6 @@ class EventRowListFailed extends StatelessWidget {
           label: retryLabel,
           onPressed: onRetry,
           variant: PrimaryButtonVariant.quiet,
-        ),
-        PrimaryButton(
-          label: addLabel,
-          onPressed: onAdd,
-          variant: PrimaryButtonVariant.quiet,
-          identifier: addIdentifier,
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:myungli_diary/core/api/gen/model/guide_choice.dart';
 import 'package:myungli_diary/core/storage/app_database.dart';
 import 'package:myungli_diary/features/diary/model/diary_draft_target.dart';
 
@@ -16,16 +17,22 @@ final class DiaryDraftStore {
   /// 소유 계정 id.
   final String accountId;
 
-  /// [target] 초안 본문. 없으면 null입니다.
-  Future<String?> read(DiaryDraftTarget target) async {
-    final row = await (_database.select(
-      _database.diaryDrafts,
-    )..where((t) => _matches(t, target))).getSingleOrNull();
-    return row?.body;
-  }
+  /// [target] 초안(본문과 고른 질문). 없으면 null입니다.
+  Future<DiaryDraft?> find(DiaryDraftTarget target) => (_database.select(
+    _database.diaryDrafts,
+  )..where((t) => _matches(t, target))).getSingleOrNull();
 
-  /// [target] 초안을 [body]로 씁니다(있으면 바꿈).
-  Future<void> write(DiaryDraftTarget target, String body) => _database
+  /// [target] 초안 본문. 없으면 null입니다.
+  Future<String?> read(DiaryDraftTarget target) async =>
+      (await find(target))?.body;
+
+  /// [target] 초안을 [body]와 고른 질문 [guide]로 씁니다(있으면 바꿈). [guide]가 없으면 고른
+  /// 질문을 비웁니다(A115).
+  Future<void> write(
+    DiaryDraftTarget target,
+    String body, {
+    GuideChoice? guide,
+  }) => _database
       .into(_database.diaryDrafts)
       .insertOnConflictUpdate(
         DiaryDraftsCompanion.insert(
@@ -33,6 +40,8 @@ final class DiaryDraftStore {
           date: target.date.toIso(),
           diaryId: Value(target.diaryId),
           body: body,
+          guideMessageKey: Value(guide?.messageKey),
+          guideVariant: Value(guide?.variant),
           updatedAt: _nowUtc(),
         ),
       );

@@ -6,7 +6,8 @@ core `compose_chart`를 기준일 2026-10-13(시나리오의 오늘)에 돌려 �
 
 시나리오
 * `member`: 근거 열람 권한 없음(`evidenceAccess: locked`). server처럼 잠긴 내용(용신 판정 문장
-  `yongsin.basis`, 원국 개인 해석 `personalReadings`)을 담지 않습니다(D60).
+  `yongsin.basis`, 원국 개인 해석 `personalReadings`)을 담지 않고, 그 앞부분만
+  `yongsin.basisPreview`, `personalReadingPreviews`로 담습니다(D106, server 규칙: ko 단어 3개).
 * `evidence-unlocked`: 권한 있음. 용신 판정 문장과 근거(엔진 `evidence`의 `ruleId`·`sourceRef`)와
   원국 개인 해석을 담습니다.
 * `member-time-unknown`: 태어난 시간을 모르는 같은 사람. 시주가 없고 안내 `time_unknown`이 있습니다(잠김).
@@ -90,6 +91,32 @@ def pillar(p) -> dict:
 
 def rendered(*segments) -> dict:
     return {"segments": list(segments)}
+
+
+def preview(segments: list[dict]) -> list[dict] | None:
+    """잠긴 문장의 앞부분(server `render.Preview` ko 규칙, D106).
+
+    띄어쓰기 단어 3개까지이고 한 단어 이상은 남깁니다. 자를 수 없을 만큼 짧으면 None입니다.
+    경계에 걸려 잘린 조각은 `term`을 빼고 글자만 담습니다.
+    """
+    text = "".join(s["text"] for s in segments)
+    ends = [m.end() for m in re.finditer(r"\S+", text)]
+    count = min(3, len(ends) - 1)
+    if count < 1:
+        return None
+    cut = len(text[: ends[count - 1]].encode("utf-8"))
+    out: list[dict] = []
+    offset = 0
+    for segment in segments:
+        raw = segment["text"].encode("utf-8")
+        if offset >= cut:
+            break
+        if offset + len(raw) <= cut:
+            out.append(segment)
+        else:
+            out.append({"text": raw[: cut - offset].decode("utf-8")})
+        offset += len(raw)
+    return out
 
 
 def notice_body(notice) -> dict:
@@ -177,11 +204,7 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
             "slot": "chart.yongsin_method",
             "messageKey": view.yongsin_judgment.message_key,
             "variant": "single",
-            "text": rendered(
-                {"text": METHOD_TEXT[method]},
-                {"text": "용신", "term": "role.yongsin"},
-                {"text": "을 정했어요."},
-            ),
+            "text": rendered(*unlocked_basis_segments(method)),
             "reactable": False,
             "evidence": [
                 {
@@ -193,7 +216,29 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
             ],
         }
         body["personalReadings"] = [personal(reading) for reading in view.personal_readings]
+    else:
+        # 잠긴 응답은 열린 응답의 문장 앞부분만 미리보기로 담습니다(D106, server S141).
+        basis = preview(unlocked_basis_segments(method))
+        if basis is not None:
+            body["yongsin"]["basisPreview"] = rendered(*basis)
+        previews = []
+        for reading in view.personal_readings:
+            item = personal(reading)
+            head = preview(item["text"]["segments"])
+            if head is not None:
+                previews.append({**item, "text": rendered(*head)})
+        if previews:
+            body["personalReadingPreviews"] = previews
     return body
+
+
+def unlocked_basis_segments(method: str) -> list[dict]:
+    """용신 판정 문장(열린 응답의 `yongsin.basis`)의 조각. 잠긴 응답의 미리보기도 이것을 자릅니다."""
+    return [
+        {"text": METHOD_TEXT[method]},
+        {"text": "용신", "term": "role.yongsin"},
+        {"text": "을 정했어요."},
+    ]
 
 
 def _chart_lines() -> dict[str, str]:
