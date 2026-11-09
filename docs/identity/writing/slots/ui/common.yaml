@@ -764,36 +764,6 @@
     truncation: "화면에 보이지 않습니다."
     screen_reader: "버튼 이름으로 읽습니다."
 
-- id: ui.tag-chip.label
-  where: "태그 칩: 보이는 글자 틀과 스크린리더 길흉 낱말(#275, D77 ② IA 밖). 스크린리더 라벨은 태그 이름 + 길흉 낱말입니다. IA는 일기 태그를 한자 아이콘 태그(hanja-tag)로 그립니다(#856)"
-  purpose: info
-  user_state: "태그 칩을 보거나 스크린리더로 듣습니다."
-  structure: "tagChipLabel은 태그 이름 앞에 `#`을 붙이는 틀입니다. 길흉 낱말은 명사구 하나이고 겁주는 말을 쓰지 않습니다(D72)."
-  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  key_max_length:
-    tagChipPolarityGood: {ko: unbounded, en: unbounded, ja: unbounded}
-    tagChipPolarityBad: {ko: unbounded, en: unbounded, ja: unbounded}
-    tagChipPolarityNeutral: {ko: unbounded, en: unbounded, ja: unbounded}
-  components: [hanja-tag]
-  keys:
-    - params: {tag: text}
-      keys: [tagChipLabel]
-    - tagChipPolarityGood
-    - tagChipPolarityBad
-    - tagChipPolarityNeutral
-  variants: {count: 1, rotation: "변주가 하나입니다"}
-  examples:
-    good:
-      - {lang: ko, key: tagChipPolarityBad, text: "조심할 흐름", why: "app 초안 그대로, 겁주지 않는 말", source: writing}
-      - {lang: ko, key: tagChipPolarityNeutral, text: "무난한 흐름", why: "역할 이름 \"무난한 기운\"(W31)과 같은 결", source: writing}
-    bad:
-      - {lang: ko, text: "흉", why: "한 글자 판정어라 겁을 줌(D72)", source: writing}
-  endings: []
-  a11y:
-    truncation: "칩 한 줄 안에 들어갑니다. 태그 이름 길이는 daily.tag_label 상한을 따릅니다."
-    screen_reader: "태그 이름 다음에 길흉 낱말을 이어 읽습니다."
-
 - id: ui.diary-list.pick-date-confirm
   where: "일기 목록 화면(diary-list) 날짜 시트(date-picker calendar)의 아래 버튼. 누르면 그날 새 일기 diary-edit로 갑니다(#294, D83 ③)"
   purpose: guide
