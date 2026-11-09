@@ -106,6 +106,10 @@ resource "google_cloud_run_v2_service" "server" {
     }
   }
 
+  # 최소 인스턴스가 있으면 갱신 때 새 리비전이 바로 떠서 DB에 붙습니다. load처럼 Cloud SQL을 새로 만드는 apply에서
+  # 인스턴스와 DB 사용자가 먼저 생기도록 기다립니다(환경 변수는 workflow가 넣어 Terraform이 이 관계를 모릅니다).
+  depends_on = [google_sql_database.main, google_sql_user.server]
+
   lifecycle {
     ignore_changes = [template[0].containers[0].image, template[0].containers[0].env, client, client_version]
   }
