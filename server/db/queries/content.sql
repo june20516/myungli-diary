@@ -24,6 +24,11 @@ WHERE seed_version = @seed_version AND lang = @lang;
 SELECT id, message_key, variant, seed_version FROM daily_selections
 WHERE account_id = @account_id AND date = @date AND slot = @slot AND birth_hash = @birth_hash;
 
+-- name: ListSelections :many
+-- 문장 선택 한 번(Select)이 요청한 슬롯의 기록을 한꺼번에 읽습니다. 슬롯마다 GetSelection을 부르지 않게 합니다(#817).
+SELECT slot, id, message_key, variant, seed_version FROM daily_selections
+WHERE account_id = @account_id AND date = @date AND birth_hash = @birth_hash AND slot = ANY(@slots::text[]);
+
 -- name: InsertSelection :one
 -- 동시 요청이 같은 행을 넣으면 하나만 남고, 진 쪽은 행을 돌려받지 못합니다(pgx.ErrNoRows).
 INSERT INTO daily_selections (account_id, date, slot, birth_hash, message_key, variant, seed_version)

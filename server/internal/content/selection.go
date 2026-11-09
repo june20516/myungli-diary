@@ -145,8 +145,13 @@ func (s *Store) Select(ctx context.Context, accountID uuid.UUID, date time.Time,
 			}
 		}
 		sel := selector{accountID: accountID, today: toDate(date), birthHash: birthHash[:], slots: slots, now: s.clock.Now()}
+		existing, err := sel.existingSelections(ctx, q, reqs)
+		if err != nil {
+			return err
+		}
 		for _, r := range reqs {
-			got, err := sel.selectSlot(ctx, q, version, r)
+			row, found := existing[r.Slot]
+			got, err := sel.selectSlot(ctx, q, version, r, row, found)
 			if err != nil {
 				return fmt.Errorf("슬롯 %s 선택: %w", r.Slot, err)
 			}
@@ -196,16 +201,31 @@ type selector struct {
 	now time.Time
 }
 
-// selectSlot은 슬롯 하나의 기록을 다시 쓰거나 새로 고릅니다.
-func (sel selector) selectSlot(ctx context.Context, q *contentdb.Queries, version string, r SlotRequest) (Selection, error) {
+// existingSelections는 reqs 슬롯의 기존 기록을 한 번에 읽어 슬롯별로 돌려줍니다. 기록이 없는 슬롯은 맵에 없습니다.
+// Select의 계정 lock 안에서 부르므로 슬롯을 처리하는 동안 다른 요청이 이 기록을 바꾸지 않습니다.
+func (sel selector) existingSelections(ctx context.Context, q *contentdb.Queries, reqs []SlotRequest) (map[string]contentdb.GetSelectionRow, error) {
+	slots := make([]string, len(reqs))
+	for i, r := range reqs {
+		slots[i] = r.Slot
+	}
+	rows, err := q.ListSelections(ctx, contentdb.ListSelectionsParams{
+		AccountID: sel.accountID, Date: sel.today, BirthHash: sel.birthHash, Slots: slots,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("기록 조회: %w", err)
+	}
+	out := make(map[string]contentdb.GetSelectionRow, len(rows))
+	for _, row := range rows {
+		out[row.Slot] = contentdb.GetSelectionRow{ID: row.ID, MessageKey: row.MessageKey, Variant: row.Variant, SeedVersion: row.SeedVersion}
+	}
+	return out, nil
+}
+
+// selectSlot은 슬롯 하나의 기록을 다시 쓰거나 새로 고릅니다. existing과 found는 existingSelections가 읽은 그 슬롯의 기록입니다.
+func (sel selector) selectSlot(ctx context.Context, q *contentdb.Queries, version string, r SlotRequest, existing contentdb.GetSelectionRow, found bool) (Selection, error) {
 	key := contentdb.GetSelectionParams{AccountID: sel.accountID, Date: sel.today, Slot: r.Slot, BirthHash: sel.birthHash}
-	existing, err := q.GetSelection(ctx, key)
-	found := err == nil
-	switch {
-	case found && existing.MessageKey == r.MessageKey:
+	if found && existing.MessageKey == r.MessageKey {
 		return selectionFromRow(r.Slot, existing), nil
-	case !found && !errors.Is(err, pgx.ErrNoRows):
-		return Selection{}, fmt.Errorf("기록 조회: %w", err)
 	}
 
 	variant, next, err := sel.choose(ctx, q, r)

@@ -1,7 +1,11 @@
 -- name: GetAccountAccess :one
-SELECT status, last_active_at
-FROM accounts
-WHERE id = @id;
+-- 요청마다 부르는 인증 단계 조회라 계정 상태와 동의한 (문서, 버전)을 한 번에 읽습니다(#817, query 횟수가 SQL CPU를 씀).
+-- consent_documents와 consent_versions는 같은 순서의 짝입니다.
+SELECT a.status, a.last_active_at,
+       ARRAY(SELECT c.document FROM consents c WHERE c.account_id = a.id ORDER BY c.document, c.version)::text[] AS consent_documents,
+       ARRAY(SELECT c.version FROM consents c WHERE c.account_id = a.id ORDER BY c.document, c.version)::text[] AS consent_versions
+FROM accounts a
+WHERE a.id = @id;
 
 -- TouchLastActive는 저장된 값보다 더 새 시각일 때만 갱신합니다. 하루 한 번으로 제한하는 일은 호출자가 지킵니다.
 -- 지운 계정의 껍데기는 갱신하지 않습니다.
@@ -9,12 +13,6 @@ WHERE id = @id;
 UPDATE accounts
 SET last_active_at = @last_active_at
 WHERE id = @id AND last_active_at < @last_active_at AND status <> 'deleted';
-
--- name: ListConsents :many
-SELECT document, version, agreed_at
-FROM consents
-WHERE account_id = @account_id
-ORDER BY agreed_at, document, version;
 
 -- name: InsertConsent :exec
 INSERT INTO consents (id, account_id, document, version, agreed_at)

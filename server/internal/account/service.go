@@ -102,7 +102,7 @@ func (s *Service) Access(ctx context.Context, id uuid.UUID) (Access, error) {
 			return Access{}, fmt.Errorf("last_active_at 갱신: %w", err)
 		}
 	}
-	missing, err := s.missingConsents(ctx, s.queries, id)
+	missing, err := missingConsents(row)
 	if err != nil {
 		return Access{}, err
 	}
@@ -115,7 +115,7 @@ func (s *Service) Me(ctx context.Context, id uuid.UUID) (Me, error) {
 	if err != nil {
 		return Me{}, notFoundOr(err, "계정 조회")
 	}
-	missing, err := s.missingConsents(ctx, s.queries, id)
+	missing, err := missingConsents(row)
 	if err != nil {
 		return Me{}, err
 	}
@@ -158,14 +158,14 @@ func (s *Service) AgreeConsents(ctx context.Context, id uuid.UUID, docs []Consen
 }
 
 // missingConsents는 현재 버전 문서 중 동의 기록이 없는 것을 문서 이름 순으로 돌려줍니다.
-func (s *Service) missingConsents(ctx context.Context, q *accountdb.Queries, id uuid.UUID) ([]ConsentDocument, error) {
-	rows, err := q.ListConsents(ctx, id)
-	if err != nil {
-		return nil, fmt.Errorf("동의 목록 조회: %w", err)
+// 동의 기록은 GetAccountAccess가 계정 상태와 함께 읽은 (문서, 버전) 짝입니다.
+func missingConsents(row accountdb.GetAccountAccessRow) ([]ConsentDocument, error) {
+	if len(row.ConsentDocuments) != len(row.ConsentVersions) {
+		return nil, fmt.Errorf("동의 목록 조회: 문서 %d개와 버전 %d개가 짝이 맞지 않습니다", len(row.ConsentDocuments), len(row.ConsentVersions))
 	}
-	agreed := make(map[ConsentDocument]bool, len(rows))
-	for _, r := range rows {
-		agreed[ConsentDocument{Document: Document(r.Document), Version: r.Version}] = true
+	agreed := make(map[ConsentDocument]bool, len(row.ConsentDocuments))
+	for i, doc := range row.ConsentDocuments {
+		agreed[ConsentDocument{Document: Document(doc), Version: row.ConsentVersions[i]}] = true
 	}
 	var missing []ConsentDocument
 	for doc, version := range CurrentDocuments {

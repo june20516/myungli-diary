@@ -38,9 +38,10 @@ type Querier interface {
 	DeleteRefreshTokensByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteRotationStateByAccount(ctx context.Context, accountID uuid.UUID) error
 	DeleteSchedulesByAccount(ctx context.Context, accountID uuid.UUID) error
+	// 요청마다 부르는 인증 단계 조회라 계정 상태와 동의한 (문서, 버전)을 한 번에 읽습니다(#817, query 횟수가 SQL CPU를 씀).
+	// consent_documents와 consent_versions는 같은 순서의 짝입니다.
 	GetAccountAccess(ctx context.Context, id uuid.UUID) (GetAccountAccessRow, error)
 	InsertConsent(ctx context.Context, arg InsertConsentParams) error
-	ListConsents(ctx context.Context, accountID uuid.UUID) ([]ListConsentsRow, error)
 	// 아래는 계정 삭제(DeleteAccountTx, S105)의 쿼리입니다. 지우는 순서는 FK 자식부터입니다(FK가 모두 ON DELETE RESTRICT).
 	// LockAccountForDelete는 계정 행을 잠그고 상태를 돌려줍니다. 같은 계정에 쓰는 요청은 이 잠금 뒤에서 기다립니다.
 	LockAccountForDelete(ctx context.Context, id uuid.UUID) (string, error)

@@ -138,7 +138,7 @@ type Store struct {
 	// pool은 선택 기록처럼 트랜잭션이 필요한 작업에 씁니다.
 	pool    *pgxpool.Pool
 	queries *contentdb.Queries
-	// clock은 반응 soft delete 시각처럼 DB에 남기는 시각을 정합니다.
+	// clock은 반응 soft delete 시각처럼 DB에 남기는 시각과 활성 시드 버전을 기억하는 시간을 정합니다.
 	clock clock.Clock
 	// log는 응답을 실패시키지 않는 콘텐츠 문제(명세에 없는 근거 슬롯, 렌더되지 않는 용어 사전 항목)를 남깁니다.
 	log *slog.Logger
@@ -152,6 +152,12 @@ type Store struct {
 	loads singleflight.Group
 	// onFlight는 테스트가 호출이 flight에 합류한 것을 관찰하는 hook입니다. 제품 코드에서는 nil입니다.
 	onFlight func(key string)
+
+	// activeMu는 activeVersion·activeAt만 지킵니다. 활성 시드 버전은 seed Job이 바꿀 때만 바뀌어
+	// activeSeedTTL 동안 메모리 값을 씁니다(#817, 요청마다 읽던 query 줄이기).
+	activeMu      sync.Mutex
+	activeVersion string
+	activeAt      time.Time
 
 	// glossaryMu는 glossaries 맵만 지킵니다.
 	glossaryMu sync.Mutex
@@ -167,8 +173,23 @@ func NewStore(pool *pgxpool.Pool, clk clock.Clock, log *slog.Logger) *Store {
 	}
 }
 
-// Active는 활성 시드 버전을 돌려줍니다. 없으면 ErrNoActiveSeed입니다.
+// activeSeedTTL은 Active가 읽은 활성 시드 버전을 다시 읽지 않고 쓰는 시간입니다.
+// 새 시드가 활성이 된 뒤 이만큼 옛 버전으로 응답할 수 있지만, 옛 버전의 행은 지우지 않으므로 그대로 그려집니다.
+// 문장 선택(Select)은 기록의 일관성을 위해 이 값을 쓰지 않고 트랜잭션 안에서 읽습니다.
+const activeSeedTTL = 30 * time.Second
+
+// Active는 활성 시드 버전을 돌려줍니다. 없으면 ErrNoActiveSeed입니다. activeSeedTTL 동안은 메모리 값을 씁니다.
+// 오류와 활성 시드 없음은 기억하지 않아 다음 호출이 다시 읽습니다.
 func (s *Store) Active(ctx context.Context) (string, error) {
+	now := s.clock.Now()
+	s.activeMu.Lock()
+	if s.activeVersion != "" && now.Sub(s.activeAt) < activeSeedTTL {
+		version := s.activeVersion
+		s.activeMu.Unlock()
+		return version, nil
+	}
+	s.activeMu.Unlock()
+
 	version, err := s.queries.GetActiveSeed(ctx)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", ErrNoActiveSeed
@@ -176,6 +197,9 @@ func (s *Store) Active(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("활성 시드 조회: %w", err)
 	}
+	s.activeMu.Lock()
+	s.activeVersion, s.activeAt = version, now
+	s.activeMu.Unlock()
 	return version, nil
 }
 

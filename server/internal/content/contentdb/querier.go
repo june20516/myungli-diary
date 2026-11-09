@@ -29,6 +29,8 @@ type Querier interface {
 	ListHanja(ctx context.Context, seedVersion string) ([]ListHanjaRow, error)
 	// 같은 (계정, 날짜, 슬롯)에서 지문이 다른 기록들이 쓴 variant입니다. 같은 날 다시 고를 때 이 유형을 피합니다.
 	ListOtherHashVariants(ctx context.Context, arg ListOtherHashVariantsParams) ([]string, error)
+	// 문장 선택 한 번(Select)이 요청한 슬롯의 기록을 한꺼번에 읽습니다. 슬롯마다 GetSelection을 부르지 않게 합니다(#817).
+	ListSelections(ctx context.Context, arg ListSelectionsParams) ([]ListSelectionsRow, error)
 	ListTemplates(ctx context.Context, arg ListTemplatesParams) ([]ListTemplatesRow, error)
 	// 한 선택 기록의 반응 변경을 차례로 하게 하는 행 lock입니다. 트랜잭션이 끝나면 풀립니다.
 	LockSelection(ctx context.Context, id int64) (int64, error)

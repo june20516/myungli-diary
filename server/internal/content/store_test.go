@@ -17,6 +17,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/seed"
 )
@@ -92,6 +93,33 @@ func TestApply_SameVersionReactivatesOldSeed(t *testing.T) {
 	version, err := content.NewStore(pool, clock.System{}, discardLog()).Active(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, old.Version, version, "옛 버전으로 되돌리면 그 버전이 활성")
+}
+
+// Active는 활성 시드 버전을 30초 동안 메모리에 두고, 그 뒤에 다시 읽습니다(#817).
+func TestStore_ActiveIsRememberedForTTL(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	old, next := testSeed(t, ""), testSeed(t, "!")
+	_, err := content.Apply(ctx, pool, old)
+	require.NoError(t, err)
+	clk := clocktest.New(time.Date(2026, 11, 9, 0, 0, 0, 0, time.UTC))
+	store := content.NewStore(pool, clk, discardLog())
+
+	version, err := store.Active(ctx)
+	require.NoError(t, err)
+	require.Equal(t, old.Version, version)
+
+	_, err = content.Apply(ctx, pool, next)
+	require.NoError(t, err)
+	clk.Advance(29 * time.Second)
+	version, err = store.Active(ctx)
+	require.NoError(t, err)
+	assert.Equal(t, old.Version, version, "30초 안에는 기억한 버전")
+
+	clk.Advance(time.Second)
+	version, err = store.Active(ctx)
+	require.NoError(t, err)
+	assert.Equal(t, next.Version, version, "30초가 지나면 다시 읽음")
 }
 
 func TestApply_NewVersionKeepsOldRows(t *testing.T) {
