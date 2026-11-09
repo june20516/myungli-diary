@@ -30,7 +30,8 @@
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
-## 현재 상태 (2026-11-07, design 세션 작성)
+## 현재 상태 (2026-11-09, design 세션 작성)
+* **drift #859 따라잡기** (브랜치 `design/drift-859`, IA PR #856 D113, #860, #867, writing #861, #864, 결정 V96, V97, 컴포넌트 계약 주 버전): IA에서 빠진 `tag-chip`을 지우고 일기 쓰기와 보기의 태그를 `hanja-tag`로, `IA_REMOVAL_REQUESTED`를 비움(`score-scale`도 IA에서 빠짐). 일정 섹션 제목(`today.event.title`, `day-sheet.event.title`)과 대표 태그 꺾쇠 링크 슬롯(`explain-sheet.tag.diary-link`)을 배치에 넣고 상한을 잼. 회고 `diary-summary`는 `getDiaryStats`(S146) 세는 기준. 신강약 알약은 IA에서 다시 빠져 재지 않음.
 * **DS1 2단계 화면 결정 시안 #801·drift #815** (브랜치 `design/ds1-screens`, D105·D107·D108, IA v5, 결정 V69~V95, 컴포넌트 계약 주 버전과 토큰 부 버전은 계약 목록).
   * IA v5 새 컴포넌트 14개를 명세로: `section-header`·`explain-sheet`·`scroll-hint`(frame), `hanja-tag`(sentence), `date-header`·`tag-sentence-list`(today), `fortune-verdict`·`score-row`(calendar), `date-block`·`diary-summary`(diary), `luck-pillar`·`birth-info-row`·`band-table`·`stage-strip`(saju). `score-scale`은 쓰지 않아 IA에 제거를 요청합니다(`tools/components.py` `IA_REMOVAL_REQUESTED`, V87). 대기 목록 `IA_PENDING_COMPONENTS`는 비었습니다.
   * 화면 묶음 B 나 탭(V76, V77), A 오늘과 G 잠긴 문장(V78~V80), F 일기 목록과 C 일기 쓰기(V81~V83), D 달력과 그날 시트, 색 규칙 시트(V84~V87), E 사주 표(V88~V93)를 묶음마다 사용자 관문으로 정했습니다. 시안은 `artifacts/2026-11-05-ds1-screen-*.html`(토큰 CSS), 질문 비교는 `artifacts/2026-11-0*-ds1-*-questions.html`.
@@ -135,8 +136,8 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#801 2단계 마무리:** 최종 리뷰 뒤 PR(`Closes #801`, `참고 #815`)을 냅니다. 요청 Issue(#850~#853)는 게시했고 결정 행 사용자 영향도 그 번호로 바꿨습니다.
-2. **2단계 후속:** writing이 새 슬롯을 만들고 상한을 넣는지(lengths drift), app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지, 지휘가 IA(`score-scale` 제거, 출구, 슬롯)를 고치는지 봅니다. IA에서 `score-scale`이 빠지면 `IA_REMOVAL_REQUESTED`를 비웁니다.
+1. **drift #859 마무리:** PR(`참고 #859`)이 병합되면 ci-gate가 #859를 닫습니다. writing은 새 상한 셋을 lengths drift로 받습니다.
+2. **2단계 후속:** app이 컴포넌트 주 버전(5.0.0, 이번 6.0.0)과 토큰 부 버전을 따라잡는지(#851) 봅니다.
 3. **#763 마무리:** PR 병합 뒤 writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다. app은 3.4.0 drift로 `text-field` `label`·`errorLine`·`email`과 문의 화면 배치를 맞춥니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.

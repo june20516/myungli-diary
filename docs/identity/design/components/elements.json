@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0",
+  "version": "6.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -49,7 +49,7 @@
       "border": { "color": "{color.swatch.border}", "width": { "value": 1, "unit": "px" } }
     },
     "tone": {
-      "summary": "길흉 톤: 배지·태그 칩·달력 칸이 같은 매핑을 씀 (결정 V8·V10, 달력 네 단계 V84)",
+      "summary": "길흉 톤: 배지·날의 성격 한자 태그·달력 칸이 같은 매핑을 씀 (결정 V8·V10, 달력 네 단계 V84)",
       "good": {
         "meaning": "좋음·귀인 (coral 계열)",
         "tag": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" },

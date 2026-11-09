@@ -52,6 +52,7 @@ CHIP_PADDING = 12  # day-character 배지, tag-chip, lucky-card 칩 좌우 안�
 LUCKY_CHIP_GAP = 4  # lucky-card 칩 안 아이콘과 글자 사이
 SEGMENTED_TRACK_PADDING = 4  # segmented 트랙 안쪽
 ICON_BESIDE_SMALL_TEXT = 16  # 14px 이하 글자 옆 아이콘 단계 (adjacent-text, 결정 V57)
+SECTION_TRAILING_TARGET = 44  # section-header 오른쪽 자리 터치 (action minTarget, 결정 V59)
 # DS1 2단계(#801) 명세 폭 (test_ds1_layout_constants_match_component_spec이 components/*.json과 대조)
 HANJA_TAG_CHROME = 4 + 22 + 4 + 12  # hanja-tag 앞 안쪽 4 + 한자 원 22 + 간격 4 + 뒤 안쪽 12 (결정 V70)
 APP_BAR_TEXT_ACTION_MAX = 2 * 44  # app-bar textAction 최대 폭: 동작 아이콘 둘 자리 (결정 V82, V94)
@@ -206,6 +207,13 @@ TARGETS = (
     # D112(#801) 대표 태그가 없는 날 사주 기운 카드 안 한 줄. tag-sentence-list empty와 같은 type.body.ui (결정 V95)
     Target(("today.featured.empty",), "today 사주 기운 카드 안 한 줄 (카드 안쪽 16, type.body.ui, 한 줄)",
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16, 1, False, None),
+    # #859 drift(D113): 일정 섹션 제목은 오늘 화면(plain)과 그날 시트(action, 오른쪽 + 터치 44)가 같은 키라 좁은 쪽으로 잼 (결정 V97)
+    Target(("today.event.title",), "section-header 제목 (day-sheet action이 가장 좁음: sheet 안쪽 24, 오른쪽 + 터치 44, label.lg 600)",
+           "ui-600", 14, -0.28, SHEET_CONTENT_WIDTH - SECTION_TRAILING_TARGET, 1, False, None),
+    # 대표 태그 시트의 모아보기 꺾쇠 링크. 뜻 시트와 사주 기운 시트가 같은 말이고 태그 이름까지 센 글자 수 (V73, V97)
+    Target(("explain-sheet.tag.diary-link", "tag-sheet.diary.cta"),
+           "대표 태그 시트 꺾쇠 링크 (sheet 안쪽 24, 꺾쇠 16 + 간격 2, 태그 이름 포함)",
+           "ui-600", 14, -0.28, SHEET_CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - 2, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
            "sentence", 17, 0, CONTENT_WIDTH, 2, True, None),
     # D82·D83 로그인 수단·계정 합치기 (#389, spec 2026-10-22 §6)

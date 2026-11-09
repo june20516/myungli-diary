@@ -8,7 +8,7 @@
 | `seal` 낙관 도장 | 로고 낙관 경로(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
 | `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 크기 `pillar`(66px 높이), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
-| `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, tag-chip, day-cell |
+| `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, hanja-tag 날의 성격, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
 | `tag.me` '나' 꼬리표 | sage 채움 작은 알약(10px 700), 칸 오른쪽 위 모서리에 겹침 | 원국표 일간 |
 | `highlight.current` 현재 강조 | 바탕 `highlight.bg`(옅은 회색, 카드 `bg.sheet` 위에서만) + 글자 `action.primary` 굵게 (V93) | 대운 지금, 세운 올해, 띠 표 일주 열 |
@@ -47,7 +47,7 @@
 
 ## 길흉 톤 `tone`
 
-| 톤 | 엔진 값 | 태그 칩 | 달력 칸 | 배지 |
+| 톤 | 엔진 값 | 태그(`hanja-tag` 날의 성격) | 달력 칸 | 배지 |
 | --- | --- | --- | --- | --- |
 | good | 좋음, `YONGSIN_DAY`, `GWIIN_DAY`, 잘 풀리는 날, 아주 잘 풀리는 날 | `tag.good.*` | `calendar.level.good`, 아주 잘 풀리는 날 `calendar.level.great`(V84) | `badge.good`·`badge.gwiin` |
 | bad | 나쁨, `GISIN_DAY`, 조심할 날 | `tag.bad.*` | `calendar.level.caution` | `badge.gisin` |

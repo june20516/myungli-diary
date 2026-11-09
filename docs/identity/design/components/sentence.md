@@ -110,7 +110,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 ## hanja-tag
 
-* 쓰는 화면: today, explain-sheet, tag-sheet, evidence-sheet, day-sheet, color-rule-sheet, diary-list, diary-view, my-saju, saju-chart
+* 쓰는 화면: today, explain-sheet, tag-sheet, evidence-sheet, day-sheet, color-rule-sheet, diary-list, diary-edit, diary-view, tag-diary, my-saju, saju-chart
 * D108 ②: 사주 용어(날의 성격, 십성 묶음, 합충형, 신살)는 어디서나 한자 아이콘 태그로 씁니다(결정 V70).
 * 알약 높이 30, 왼쪽 안쪽 `space.4`, 오른쪽 `space.12`. 왼쪽에 한자 원(지름 22, `bg.sheet` 바탕, 한자 `font.family.hanja` 12 700), 원과 이름 사이 `space.4`, 이름 `type.label.md` 한 줄.
 * **사주 용어 한자(D108 ②, 17자):** 사주 용어 태그(날의 성격, 십성 묶음, 합충형, 신살)의 글자입니다. 같은 글자는 옆 이름으로 구분합니다. 刑(형)은 D108 목록에서 빠져 있던 것을 사용자 결정(2026-11-07)으로 더했고, 사주 용어라 기본 `term` 초록 톤입니다(길흉 톤은 `fortune-verdict`, `score-row` 안 규칙 그대로).
@@ -146,6 +146,6 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
     | 금 `metal` | 庚 辛 | 申 酉 |
     | 수 `water` | 壬 癸 | 亥 子 |
 * 누르면 어디서나 시트입니다: `explain-sheet`(용어 뜻)나, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 `tag-sheet`(사주 기운 시트). 태그에서 바로 화면 이동하는 예외는 없습니다(V73, 관문 답 2026-11-06). 근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그(`score-row` `rule`), 사주 표 출생 정보 줄의 시진 태그(`birth-info-row` `hour`, `ganji`)는 누를 수 없는 표시입니다(`opens.notInteractiveIn`, 시트를 더 쌓지 않음. 색 규칙 시트는 IA에 출구가 없음. 시진은 뜻 원고가 없음, 결정 V88).
-* 일기 목록 줄, 일기 보기 태그 칩, 나 탭 회고의 태그도 뜻 시트를 엽니다. 그 태그의 일기 모아보기(`tag-diary`)는 대표 태그 시트 아래 꺾쇠 링크(`explain-sheet` `diaryLink`, 편수 없음)이고, 날의 성격 시트는 뜻만입니다(결정 V76, V81 개정).
+* 일기 목록 줄, 일기 쓰기와 보기의 태그, 나 탭 회고의 태그도 뜻 시트를 엽니다. 그 태그의 일기 모아보기(`tag-diary`)는 대표 태그 시트 아래 꺾쇠 링크(`explain-sheet` `diaryLink`, 편수 없음)이고, 날의 성격 시트는 뜻만입니다(결정 V76, V81 개정).
 * 스크린리더는 이름 글자만 읽습니다(한자 원은 장식). 길흉은 이름 낱말로 전하고 색만으로 전하지 않습니다. 터치 영역은 위아래로 넓혀 44입니다.
 * 불러오는 중에는 알약 모양 뼈(64px) 하나입니다.

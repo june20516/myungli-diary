@@ -17,7 +17,7 @@ from tokens import DESIGN_DIR, TOKENS_DIR
 
 COMPONENTS_DIR = DESIGN_DIR / "components"
 IA_PATH = DESIGN_DIR.parent.parent / "ia" / "screens.json"
-CONTRACT_VERSION = "5.0.0"
+CONTRACT_VERSION = "6.0.0"
 CONTRACT_LINE = f"컴포넌트 계약 {CONTRACT_VERSION}"
 
 GROUPS = ("frame", "feedback", "input", "action", "sentence", "today", "calendar", "diary", "saju")
@@ -39,8 +39,8 @@ EMBEDDED_REFERENCE = re.compile(r"\{[a-z][\w.-]*\}")
 IA_PENDING_COMPONENTS = frozenset()
 
 # IA에 있지만 쓰지 않기로 해 IA에서 빼 달라고 요청한 컴포넌트. 명세를 두지 않고 "명세가 없음" 문제에서만 빠집니다.
-# score-scale: 관문 답 2026-11-07 Q4(색 규칙 시트에 척도 그림을 두지 않음, #801)
-IA_REMOVAL_REQUESTED = frozenset({"score-scale"})
+# score-scale, tag-chip은 IA에서 빠져(D113, #852) 비었습니다. 새 요청이 생기면 다시 씁니다.
+IA_REMOVAL_REQUESTED = frozenset()
 
 # 테마 조합 이름 → (색 모드 파일, 글자 언어 파일). primitive는 모든 조합에 들어갑니다.
 THEMES = {

@@ -109,7 +109,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
    * 보조 문장(`today.fortune.body`): 태그 아래 `space.8`, `sentence-block` `body` + 끝에 `depth-link` `inline-end`.
 4. 사주 기운: `section-header` `plain`(`today.featured.title`). 카드 안에 대표 태그(`Daily.tags.featured`, 최대 둘) `hanja-tag` `default` 줄(사이 `space.8`). 누르면 `tag-sheet`, 열린 동안 `selected`. 대표 태그가 0개인 날은 섹션 제목을 그대로 두고 카드 안에 한 줄 안내(`today.featured.empty`)를 둡니다. 글자는 사주 기운 시트 빈 안내와 같은 `type.body.ui` `text.secondary`(`tag-sentence-list` `empty`와 같은 값, 새 값 없음)이고 누를 수 없습니다(D112 ②, 결정 V95).
 5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`, `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.body`입니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
-6. 오늘 일정(있는 날만): `event-row` `summary`(`today.event.summary`) 카드. IA에 제목 슬롯이 없어 `section-header` 없이 카드만 두고, 앞 섹션과 `space.32`. 누르면 `day-sheet`.
+6. 일정(있는 날만): `section-header` `plain`(`today.event.title`, 그날 시트 일정 제목과 같은 키). 아래 `event-row` `summary`(`today.event.summary`) 카드, 누르면 `day-sheet`. 일정이 없는 날은 제목까지 섹션째 그리지 않습니다(V97).
 7. 오늘의 질문: `section-header` `plain`(`today.guide.title`). `guide-question-card`(`today.guide.question`, 버튼 `today.guide.cta`). 섹션 제목이 같은 말을 하므로 카드의 `eyebrow`는 그리지 않습니다. 오늘 쓴 일기가 있으면 카드 아래 `space.8`에 `diary-row` `entries` 카드.
 8. `ad-banner`(탭 바 위), `tab-bar`.
 
