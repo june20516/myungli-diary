@@ -134,10 +134,10 @@ class FakeFonts:
         return None
 
 
-def test_free_width_subtracts_prefix_and_reserved_slot():
-    target = Target(("n",), "칸", "ui", 10, 0, 100, 1, False, 10, prefix="a", reserve_slot="v")
-    # 'a' 5px + 값 3자 × 10px
-    assert free_width(target, FAKE, {"v": 3}) == 65
+def test_free_width_subtracts_reserved_slot():
+    target = Target(("n",), "칸", "ui", 10, 0, 100, 1, False, 10, reserve_slot="v")
+    # 값 3자 × 10px
+    assert free_width(target, FAKE, {"v": 3}) == 70
 
 
 def test_measure_uses_earlier_final_for_reserved_width():
@@ -514,9 +514,14 @@ def test_ds1_layout_constants_match_component_spec():
 def test_issue_859_widths_follow_spec():
     by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
     sheet = lengths.SHEET_CONTENT_WIDTH
-    trailing = _component("frame", "section-header")["variants"]
-    action = next(v for v in trailing if v["id"] == "action")["parts"]["trailing"]
+    variants = _component("frame", "section-header")["variants"]
+    action = next(v for v in variants if v["id"] == "action")["parts"]["trailing"]
     assert lengths.SECTION_TRAILING_TARGET == action["minTarget"]
     assert by_slot["today.event.title"].width == sheet - action["minTarget"]  # 그날 시트 action이 가장 좁음
     assert by_slot["explain-sheet.tag.diary-link"] is by_slot["tag-sheet.diary.cta"]
-    assert by_slot["tag-sheet.diary.cta"].width == sheet - lengths.ICON_BESIDE_SMALL_TEXT - 2
+    chevron = _component("frame", "explain-sheet")["parts"]["diaryLink"]["chevron"]
+    assert chevron["size"] == "adjacent-text" and lengths.LINK_CHEVRON_GAP == _spec_px(chevron["gap"])
+    assert by_slot["tag-sheet.diary.cta"].width == sheet - lengths.ICON_BESIDE_SMALL_TEXT - lengths.LINK_CHEVRON_GAP
+    note = next(line for line in (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8").splitlines()
+                if line.startswith("  * `explain-sheet.tag.diary-link`"))
+    assert "`daily.tag_label`" in note and "보장하지 않습니다" in note  # I1: 태그 이름 상한 끝까지는 보장하지 않음

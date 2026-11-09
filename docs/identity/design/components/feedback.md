@@ -14,7 +14,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 | `error` | error-state 또는 notice-banner `error` | 보일 내용이 없으면 error-state `generic`. 화면 내용(바꾼 값 등)을 남긴 채 실패를 알릴 때는 notice-banner `error`(예 `profile-edit:error`, V50) |
 | `offline` | notice-banner `offline` | 받아둔 내용이 없으면 error-state `offline` |
 | `draft` | draft-indicator + notice-banner `draft` | 이어 쓸 초안 |
-| `time-unknown` | notice-banner `time-unknown` | 사주 표는 시주 칸을 비움 |
+| `time-unknown` | notice-banner `time-unknown` | 문구는 오늘, 나 탭, 사주 표 모두 `saju-chart.time-unknown.notice`(IA DS1). 사주 표는 시주 칸을 비움 |
 | `out-of-range` | input-step 오류 줄 | 지원 범위 1900-01-31~2099-12-31 밖 |
 
 ## dialog
@@ -46,7 +46,7 @@ IA 화면의 `states`에 나오는 상태 7종을 어떤 컴포넌트로 보여 
 
 * 쓰는 화면: launch, 그리고 IA `loading` 상태가 있는 모든 화면
 * **요소마다 만듭니다(결정 V66).** 내용을 받아 그리는 컴포넌트가 각자 `states.loading.skeleton`(뼈 목록)을 가지고, 실제 요소의 자리, 크기, 반경, 안쪽 여백을 그대로 따릅니다. 뼈 모양은 글줄(`textLine`, `radius.xs`), 카드(`card`, `radius.lg`), 칩(`chip`, 알약)입니다.
-* **화면의 skeleton은 조합입니다.** 그 화면이 쓰는 컴포넌트 skeleton을 그 화면의 실제 배치(화면 좌우 `space.20`, 섹션 제목, 섹션 사이 간격)대로 놓습니다. 그래서 화면마다 조합이 다릅니다. 예: 일기 목록은 달 머리 + `diary-row` 뼈(날짜 열, 카드 안 배지, 미리보기 두 줄, 태그 칩), 오늘은 배지 + 문장 카드 + 섹션 제목과 칩 줄입니다. 여백 없이 글줄만 쌓은 공용 skeleton은 쓰지 않습니다(F-011).
+* **화면의 skeleton은 조합입니다.** 그 화면이 쓰는 컴포넌트 skeleton을 그 화면의 실제 배치(화면 좌우 `space.20`, 섹션 제목, 섹션 사이 간격)대로 놓습니다. 그래서 화면마다 조합이 다릅니다. 예: 일기 목록은 달 머리 + `diary-row` 뼈(날짜 열, 카드 안 배지, 미리보기 두 줄, 태그 알약), 오늘은 배지 + 문장 카드 + 섹션 제목과 칩 줄입니다. 여백 없이 글줄만 쌓은 공용 skeleton은 쓰지 않습니다(F-011).
 * 뼈는 `loading.breathe`로 숨쉽니다(줄마다 150ms 어긋남).
 * 글줄 skeleton의 줄 높이는 실제 올 글자 스타일을 따릅니다(`textLine.type`, 기본 `type.body.ui`). 예: 문장 본문 자리는 `type.sentence.body`.
 * 300ms 안에 끝나는 불러오기에는 보이지 않습니다. 내용이 오면 내용이 `appear.seep`으로 나타납니다.

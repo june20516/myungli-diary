@@ -246,36 +246,36 @@
         "bg": {
           "$type": "color",
           "$value": "{color.coral.800}",
-          "$description": "좋은 태그 칩 바탕 (배지 귀인과 같은 톤)"
+          "$description": "좋은 날의 성격 한자 태그 바탕 (배지 귀인과 같은 톤, hanja-tag와 요소 tone)"
         },
         "fg": {
           "$type": "color",
           "$value": "{color.coral.200}",
-          "$description": "좋은 태그 칩 글자"
+          "$description": "좋은 날의 성격 한자 태그 글자"
         }
       },
       "bad": {
         "bg": {
           "$type": "color",
           "$value": "{color.neutral.800}",
-          "$description": "나쁜 태그 칩 바탕"
+          "$description": "나쁜 날의 성격 한자 태그 바탕"
         },
         "fg": {
           "$type": "color",
           "$value": "{color.neutral.200}",
-          "$description": "나쁜 태그 칩 글자"
+          "$description": "나쁜 날의 성격 한자 태그 글자"
         }
       },
       "neutral": {
         "border": {
           "$type": "color",
           "$value": "{color.neutral.700}",
-          "$description": "중립 태그 칩 테두리. 바탕은 없음"
+          "$description": "중립 길흉 톤 테두리. 바탕은 없음"
         },
         "fg": {
           "$type": "color",
           "$value": "{color.neutral.400}",
-          "$description": "중립 태그 칩 글자"
+          "$description": "중립 길흉 톤 글자"
         }
       }
     },

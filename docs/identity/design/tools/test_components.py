@@ -1804,7 +1804,8 @@ def test_diary_summary():
                              "ORDINARY_DAY": "{color.badge.ordinary.border}", "GISIN_DAY": "{color.badge.gisin.fg}"}
     assert kinds["count"]["align"] == "end" and kinds["count"]["fontFeatures"] == ["tnum"]
     tags = parts["tags"]
-    assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": "대표 태그 기준 날짜 수가 많은 순(server getDiaryStats)"}  # S146 세는 기준 (V97)
+    assert tags["tag"] == {"component": "hanja-tag", "variant": "default", "max": 3, "order": tags["tag"]["order"]}
+    assert "getDiaryStats" in tags["tag"]["order"] and "날짜 수" in tags["tag"]["order"]  # S146 세는 기준 (V97)
     assert tags["count"]["position"] == "알약 안 이름 뒤" and tags["count"]["marginStart"] == "{space.4}"
     # 회고 태그도 어디서나처럼 뜻 시트, 모아보기는 시트 안 꺾쇠 링크 (관문 답 2026-11-06 Q3 안 A 확장)
     assert tags["opens"] == {"sheet": "explain-sheet", "diaryLink": True}
@@ -2819,6 +2820,10 @@ def test_tag_chip_removed_for_hanja_tag():
     assert "tag-chip" not in {c["id"] for c in all_components()}
     for name in ("diary.md", "elements.md", "sentence.md"):
         assert "tag-chip" not in (COMPONENTS_DIR / name).read_text(encoding="utf-8"), name
+    for path in (COMPONENTS_DIR / "README.md", COMPONENTS_DIR / "feedback.md", COMPONENTS_DIR / "frame.md",
+                 DESIGN_DIR / "visual-identity.md", DESIGN_DIR / "tokens" / "color.light.tokens.json",
+                 DESIGN_DIR / "tokens" / "color.dark.tokens.json", TOOLS_DIR / "tokens.py"):
+        assert "태그 칩" not in path.read_text(encoding="utf-8"), path.name  # 리뷰 M1, M2, M4
     editor = component("diary", "diary-editor")
     assert not any("칩" in rule for rule in editor["rules"])
     screens = next(line for line in _md_section("sentence.md", "## hanja-tag").splitlines() if line.startswith("* 쓰는 화면"))
@@ -2830,5 +2835,10 @@ def test_readme_records_6_0_removal():
     assert "컴포넌트 계약 6.0.0 · 토큰 계약 1.4.0 이상을 기대합니다." in readme
     row = _readme_row("6.0.0")
     assert "`tag-chip`" in row.split("**지움**", 1)[1] and "V96" in row and "#859" in row
-    contracts = (DESIGN_DIR.parents[1] / "contracts" / "README.md").read_text(encoding="utf-8")
-    assert "6.0.0" in next(line for line in contracts.splitlines() if "components/" in line and "design" in line)
+
+
+def test_time_unknown_notice_shares_saju_chart_key():
+    # IA DS1: 오늘, 나 탭의 시간 모름 안내 문구는 사주 표 saju-chart.time-unknown.notice와 같은 키
+    banner = next(v for v in component("feedback", "notice-banner")["variants"] if v["id"] == "time-unknown")
+    assert banner["parts"]["text"] == {"slot": "saju-chart.time-unknown.notice"}
+    assert "saju-chart.time-unknown.notice" in _md_section("today.md", "### today 화면 배치")

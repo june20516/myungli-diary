@@ -116,7 +116,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
 * 빠진 것(D108): 맨 위 날의 성격 배지와 이유 한 줄(`day-character`). 날의 성격은 3번 태그 줄의 한자 태그입니다.
 * 대표 태그가 없는 날(D112, 결정 V95, 표본 약 7%): 화면 뼈대는 날마다 같습니다. 4번 사주 기운은 제목은 그대로 두고 카드 안에 `today.featured.empty` 한 줄, 3번 총운은 결정 태그 줄과 헤드라인만 두고 선(`list.divider`), 사주 기운 태그, 보조 문장을 그리지 않습니다. 빠지는 것은 보조 문장 블록이고, 결정 태그 줄은 날마다 있는 헤드라인 쪽 구성이라 남깁니다(근거: IA `today.fortune.body` role "대표 태그가 없는 날(엔진이 보조 문장을 내지 않음)은 선, 태그, 보조 문장을 모두 그리지 않고 헤드라인만 둠(D112)"는 보조 문장 슬롯의 role이고, 결정 태그 줄은 `today.character.label`, `today.ten-god.label`의 자리). 7번 오늘의 질문은 일진 십성 묶음 질문으로 대신합니다(core C30, 질문을 고르는 일은 server, 카드 모양은 그대로). 헤드라인의 근거 아이콘과 그 시트는 같습니다.
 * 불러오는 중(IA `loading`): 상단 바와 섹션 제목은 그대로, 날짜 머리는 음력과 일진 줄만 뼈, 카드마다 그 컴포넌트의 뼈(`hanja-tag` 알약, `sentence-block` 글줄, `lucky-card` 칩, `guide-question-card`)를 배치대로 둡니다(V66).
-* 시간 모름(IA `time-unknown`): 날짜 머리 아래 `notice-banner`(세 기둥으로 계산했다는 안내). 그 밖은 같습니다.
+* 시간 모름(IA `time-unknown`): 날짜 머리 아래 `notice-banner` `time-unknown`(세 기둥으로 계산했다는 안내, 문구는 사주 표와 같은 `saju-chart.time-unknown.notice`). 그 밖은 같습니다.
 
 ### tag-sheet 화면 배치
 

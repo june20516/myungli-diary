@@ -239,6 +239,11 @@ def test_tokens_1_4_0_additions_only():
         before = _frozen(f"color.{mode}-1.3.0.tokens.json")
         after = flatten(files[f"color.{mode}.tokens.json"])
         for name, token in before.items():
+            if name.startswith("color.tag."):  # V96: 설명만 지금 쓰임으로 고침. 값과 형식은 그대로
+                assert {k: v for k, v in after[name].items() if k != "$description"} == \
+                       {k: v for k, v in token.items() if k != "$description"}, (mode, name)
+                assert "태그 칩" not in after[name]["$description"], (mode, name)
+                continue
             assert after.get(name) == token, (mode, name)
         assert set(after.keys() - before.keys()) == TOKENS_1_4_0_ADDED_COLOR, mode
         # 기존 calendar.good.bg, calendar.caution.bg는 그대로(위 반복이 값까지 검사)

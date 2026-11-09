@@ -48,11 +48,12 @@ DIALOG_PADDING = 24  # dialog 안쪽 사방
 DIALOG_BUTTON_PADDING = 12  # dialog 두 버튼 좌우 안쪽
 DIALOG_CAUTION = 20 + 8  # destructive 제목 앞 mark.caution 20 + 간격 8
 BUTTON_PADDING = 20  # primary-button 좌우 안쪽
-CHIP_PADDING = 12  # day-character 배지, tag-chip, lucky-card 칩 좌우 안쪽 (결정 V56)
+CHIP_PADDING = 12  # day-character 배지, lucky-card 칩 좌우 안쪽 (결정 V56)
 LUCKY_CHIP_GAP = 4  # lucky-card 칩 안 아이콘과 글자 사이
 SEGMENTED_TRACK_PADDING = 4  # segmented 트랙 안쪽
 ICON_BESIDE_SMALL_TEXT = 16  # 14px 이하 글자 옆 아이콘 단계 (adjacent-text, 결정 V57)
 SECTION_TRAILING_TARGET = 44  # section-header 오른쪽 자리 터치 (action minTarget, 결정 V59)
+LINK_CHEVRON_GAP = 2  # 꺾쇠 링크 글자와 꺾쇠 사이 space.2 (explain-sheet diaryLink, V73)
 # DS1 2단계(#801) 명세 폭 (test_ds1_layout_constants_match_component_spec이 components/*.json과 대조)
 HANJA_TAG_CHROME = 4 + 22 + 4 + 12  # hanja-tag 앞 안쪽 4 + 한자 원 22 + 간격 4 + 뒤 안쪽 12 (결정 V70)
 APP_BAR_TEXT_ACTION_MAX = 2 * 44  # app-bar textAction 최대 폭: 동작 아이콘 둘 자리 (결정 V82, V94)
@@ -97,7 +98,6 @@ class Target:
     lines: int
     sentence: bool
     draft: int | None
-    prefix: str = ""  # 이름 앞에 늘 붙는 글자(예: 태그 칩의 '#'). 실제 폭만큼 칸에서 뺌
     reserve_slot: str | None = None  # 같은 줄 오른쪽 값 자리. 그 슬롯의 ko 확정 글자 수만큼 폭을 뺌
     trailing_link: str | None = None  # 문장 끝에 붙는 링크 슬롯. 그 원고 폭만큼 마지막 줄에서 뺌(언어별)
     trailing_icon: float = 0  # 문장 끝에 붙는 아이콘 폭(px). 앞 U+00A0과 함께 마지막 줄에서 뺌 (결정 V63)
@@ -213,7 +213,7 @@ TARGETS = (
     # 대표 태그 시트의 모아보기 꺾쇠 링크. 뜻 시트와 사주 기운 시트가 같은 말이고 태그 이름까지 센 글자 수 (V73, V97)
     Target(("explain-sheet.tag.diary-link", "tag-sheet.diary.cta"),
            "대표 태그 시트 꺾쇠 링크 (sheet 안쪽 24, 꺾쇠 16 + 간격 2, 태그 이름 포함)",
-           "ui-600", 14, -0.28, SHEET_CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - 2, 1, False, None),
+           "ui-600", 14, -0.28, SHEET_CONTENT_WIDTH - ICON_BESIDE_SMALL_TEXT - LINK_CHEVRON_GAP, 1, False, None),
     Target(("chart.ilgan_head",), "my-saju 일간 소개 첫 문장 sentence-block card (today 총운과 같은 칸)",
            "sentence", 17, 0, CONTENT_WIDTH, 2, True, None),
     # D82·D83 로그인 수단·계정 합치기 (#389, spec 2026-10-22 §6)
@@ -511,8 +511,8 @@ class Result:
 
 
 def free_width(target: Target, advances: dict[int, float], finals: dict[str, int]) -> float:
-    """앞에 붙는 글자와 오른쪽 값 자리를 뺀, 이름이 쓸 수 있는 폭."""
-    width = target.width - text_width(target.prefix, advances, target.size, target.tracking)
+    """오른쪽 값 자리를 뺀, 이름이 쓸 수 있는 폭."""
+    width = target.width
     if target.reserve_slot:
         width -= finals[target.reserve_slot] * (advances[ord("가")] * target.size + target.tracking)
     return round(width, 1)
@@ -525,7 +525,7 @@ def measure(fonts: Fonts, words: list[str], targets: tuple[Target, ...] = TARGET
     finals: dict[str, int] = {}
     for target in targets:
         ko_advances = fonts.ko(target.font)
-        target = replace(target, width=free_width(target, ko_advances, finals), prefix="", reserve_slot=None)
+        target = replace(target, width=free_width(target, ko_advances, finals), reserve_slot=None)
         if target.sentence:
             ko_line = ko_line_chars(words, ko_advances, target.size, target.tracking, target.width)
         else:
