@@ -78,3 +78,15 @@
 - {slot: term.meaning, key: term.role.day_master, text: "生まれた日の天干で、命式の中で「自分」自身を表します。まわりの字が自分にとってどんな気なのかは、すべて日干を基準に読みます。"}
 - {slot: term.meaning, key: term.luck.daeun, text: "人生の季節のように、10年ごとに巡ってくる大きな流れです。"}
 - {slot: term.meaning, key: term.luck.seun, text: "年ごとに変わる、一年の流れです。その年に入る気が命式とどう合うかを表します。"}
+- {slot: term.meaning, key: term.twelve_stage.jangsaeng, text: "気が育ち衰えていく十二段階の一番目で、新しく芽生えて育っていく時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.mokyok, text: "気が育ち衰えていく十二段階の二番目で、あれこれ試しながら感覚をつかんでいく時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.gwandae, text: "気が育ち衰えていく十二段階の三番目で、自信がついて前に出ていく時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.geonrok, text: "気が育ち衰えていく十二段階の四番目で、自分の足で立って自分の役目を担っていく時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.jewang, text: "気が育ち衰えていく十二段階の五番目で、力が最も強く満ちた時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.soe, text: "気が育ち衰えていく十二段階の六番目で、盛りを過ぎ、経験を生かして落ち着いて物事を進める時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.byeong, text: "気が育ち衰えていく十二段階の七番目で、外へ駆け出すより内側を見つめていたわる時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.sa, text: "気が育ち衰えていく十二段階の八番目で、動きは静まって考えが深まっていく時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.myo, text: "気が育ち衰えていく十二段階の九番目で、集めたものを蓄えて守る時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.jeol, text: "気が育ち衰えていく十二段階の十番目で、それまでの流れを断って方向を新しく切り替える時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.tae, text: "気が育ち衰えていく十二段階の十一番目で、新しい考えがちょうど生まれてくる時期です。"}
+- {slot: term.meaning, key: term.twelve_stage.yang, text: "気が育ち衰えていく十二段階の十二番目で、急がず内側でじっくり準備する時期です。"}

@@ -36,7 +36,7 @@
 - {slot: glossary.value_name, key: color.fire, text: "red"}
 - {slot: glossary.value_name, key: color.earth, text: "yellow"}
 - {slot: glossary.value_name, key: color.metal, text: "white"}
-- {slot: glossary.value_name, key: color.water, text: "navy"}
+- {slot: glossary.value_name, key: color.water, text: "black"}
 - {slot: glossary.value_name, key: place.year_stem, text: "year stem"}
 - {slot: glossary.value_name, key: place.year_branch, text: "year branch"}
 - {slot: glossary.value_name, key: place.month_stem, text: "month stem"}

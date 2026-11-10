@@ -80,7 +80,10 @@
 | day-sheet.diary.open | day-sheet.diary.open | info | - | 1 | 1 | - | ko 24, en 44, ja 20 |
 | day-sheet.diary.write-cta | day-sheet.diary.write-cta | guide | - | 1 | 3 | `date`: text | ko 23, en 40, ja 18 |
 | day-sheet.event.add | day-sheet.event.add | guide | - | 1 | 1 | - | ko 23, en 40, ja 18 |
+| day-sheet.event.all-day | day-sheet.event.all-day | info | - | 1 | 1 | - | ko 3, en 3, ja 1<br>`daySheetEventAllDay` ko 3, en 상한 없음, ja 상한 없음 |
 | day-sheet.event.empty | day-sheet.event.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
+| day-sheet.verdict.collapse | day-sheet.verdict.collapse | guide | - | 1 | 1 | - | ko 23, en 43, ja 19 |
+| day-sheet.verdict.expand | day-sheet.verdict.expand | guide | - | 1 | 1 | - | ko 23, en 43, ja 19 |
 | day-sheet.verdict.item | day-sheet.verdict.item | info | - | 1 | 2 | `count`: number | ko -, en -, ja - |
 | day-sheet.verdict.title | day-sheet.verdict.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.bar.title | diary-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -89,6 +92,8 @@
 | diary-edit.date.iljin | diary-edit.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | diary-edit.date.month | diary-edit.date.month | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | diary-edit.draft.status | diary-edit.draft.status | info | - | 1 | 3 | - | ko 5, en 8, ja 4 |
+| diary-edit.guide.attach | diary-edit.guide.attach | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| diary-edit.guide.remove | diary-edit.guide.remove | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.length.count | diary-edit.length.count | info | - | 1 | 1 | `count`: number | ko -, en -, ja - |
 | diary-edit.offline.notice | diary-edit.offline.notice | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |
 | diary-edit.saved.tags | diary-edit.saved.tags | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
@@ -113,6 +118,7 @@
 | evidence-sheet.section.personal | evidence-sheet.section.personal | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
 | evidence-sheet.section.source | evidence-sheet.section.source | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
 | evidence-sheet.unlock.failed | evidence-sheet.unlock.failed | guide | - | 1 | 1 | - | ko 48, en 78, ja 34 |
+| evidence-sheet.unlock.until | evidence-sheet.unlock.until | info | - | 1 | 2 | `date`: text | ko 27, en 49, ja 22 |
 | evidence.basis | evidence-sheet.basis.body | info | - | 1 | 36 | `breakdown`: none<br>`score`: number<br>`day_kind`: day_kind<br>`element`: element, color<br>`note`: none<br>`role`: role<br>`day_branch`: text<br>`direction`: direction8<br>`deity`: none<br>`picks`: none<br>`group`: ten_god_group<br>`ten_god`: ten_god, ten_god_group<br>`featured`: none<br>`basis`: none<br>`day_stem`: text<br>`number`: number<br>`parity`: none<br>`gisin`: element, color<br>`strength`: strength<br>`yongsin`: element, color<br>`current`: none<br>`luck`: luck<br>`part`: part<br>`place`: place<br>`group_count`: number<br>`all`: none<br>`shinsal`: shinsal<br>`natal_positions`: list:place<br>`relation_kind`: relation<br>`branch_ten_god`: ten_god, ten_god_group<br>`natal_count`: number<br>`stem_ten_god`: ten_god, ten_god_group<br>`strength_level`: strength<br>`strength_score`: none<br>`month_branch`: text<br>`share`: none<br>`threshold`: none | ko -, en -, ja - |
 | evidence.no_source | evidence-sheet.source.quote | info | - | 1 | 1 | - | ko -, en -, ja - |
 | evidence.source | evidence-sheet.source.quote | info | - | 1 | 134 | - | ko -, en -, ja - |
@@ -176,6 +182,8 @@
 | preview.cta.save | preview.cta.save | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | preview.restart.notice | preview.restart.notice | guide | - | 1 | 1 | - | ko 52, en 90, ja 38 |
 | preview.share.login-notice | preview.share.login-notice | guide | - | 1 | 3 | - | ko 8, en 13, ja 6<br>`previewShareLoginNotice` ko 34, en 60, ja 26 |
+| preview.used.input | preview.used.input | info | - | 1 | 7 | `calendar`: text<br>`date`: text | ko -, en -, ja - |
+| preview.used.notice | preview.used.notice | info | - | 1 | 1 | - | ko -, en -, ja - |
 | profile-edit.bar.title | profile-edit.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | profile-edit.recalc.confirm | profile-edit.recalc.confirm | guide | - | 1 | 4 | `before`: text<br>`after`: text | ko 8, en 13, ja 6<br>`profileEditRecalcConfirmTitle` ko 34, en 60, ja 26<br>`profileEditRecalcConfirmBody` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | profile-edit.recalc.notice | profile-edit.recalc.notice | info | - | 1 | 1 | - | ko 62, en 104, ja 46 |
@@ -216,7 +224,7 @@
 | tag-sheet.diary.cta | tag-sheet.diary.cta | guide | - | 1 | 1 | `tag`: text | ko 24, en 44, ja 20 |
 | tag-sheet.sentences.empty | tag-sheet.sentences.empty | info | - | 1 | 1 | - | ko -, en -, ja - |
 | tag-sheet.sentences.title | tag-sheet.sentences.title | info | - | 1 | 1 | - | ko -, en -, ja - |
-| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 79 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| term.meaning | explain-sheet.term.meaning<br>tag-diary.tag.meaning<br>tag-sheet.tag.meaning | info | - | 1 | 91 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | today.bar.title | today.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |

@@ -486,3 +486,18 @@
 - {slot: notify-ask.time.note, key: notifyAskTimeNote, text: "상황에 따라 알림이 최대 10분 지연될 수 있어요."}
 - {slot: settings.notify-time.note, key: settingsNotifyTimeNote, text: "상황에 따라 알림이 최대 10분 지연될 수 있어요."}
 - {slot: ui.birth-info.row, key: birthInfoHour, text: "{branch}시"}
+- {slot: preview.used.input, key: previewUsedInputName, text: "호칭"}
+- {slot: preview.used.input, key: previewUsedInputBirth, text: "생일"}
+- {slot: preview.used.input, key: previewUsedInputTime, text: "태어난 시간"}
+- {slot: preview.used.input, key: previewUsedInputGender, text: "성별"}
+- {slot: preview.used.input, key: previewUsedInputBirthplace, text: "출생지"}
+- {slot: preview.used.input, key: previewUsedInputBirthValue, text: "{calendar} {date}"}
+- {slot: preview.used.input, key: previewUsedInputBirthValueLeap, text: "{calendar} 윤달 {date}"}
+- {slot: preview.used.notice, key: previewUsedNotice, text: "첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요."}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilMidnight, text: "자정까지 열림"}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilDate, text: "{date}까지 열림"}
+- {slot: day-sheet.verdict.expand, key: daySheetVerdictExpand, text: "내역 보기"}
+- {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "접기"}
+- {slot: day-sheet.event.all-day, key: daySheetEventAllDay, text: "종일"}
+- {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "질문 없이 쓰기"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "질문 추가"}

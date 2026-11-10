@@ -78,3 +78,15 @@
 - {slot: term.meaning, key: term.role.day_master, text: "The heavenly stem of the day you were born, standing for you yourself in your chart. How the characters around it relate to you is all read from your day master."}
 - {slot: term.meaning, key: term.luck.daeun, text: "A big current that changes every 10 years, like the seasons of a life."}
 - {slot: term.meaning, key: term.luck.seun, text: "The current of a single year, changing each year. It shows how the energy coming in that year gets along with your chart."}
+- {slot: term.meaning, key: term.twelve_stage.jangsaeng, text: "The first of the twelve stages through which energy grows and fades, a time when something new sprouts and grows."}
+- {slot: term.meaning, key: term.twelve_stage.mokyok, text: "The second of the twelve stages through which energy grows and fades, a time for trying this and that to get a feel for things."}
+- {slot: term.meaning, key: term.twelve_stage.gwandae, text: "The third of the twelve stages through which energy grows and fades, a time when confidence builds and you step forward."}
+- {slot: term.meaning, key: term.twelve_stage.geonrok, text: "The fourth of the twelve stages through which energy grows and fades, a time when you stand on your own and carry your share."}
+- {slot: term.meaning, key: term.twelve_stage.jewang, text: "The fifth of the twelve stages through which energy grows and fades, a time when strength is at its fullest."}
+- {slot: term.meaning, key: term.twelve_stage.soe, text: "The sixth of the twelve stages through which energy grows and fades, a time past the peak, when you handle things calmly with experience."}
+- {slot: term.meaning, key: term.twelve_stage.byeong, text: "The seventh of the twelve stages through which energy grows and fades, a time for looking inward and caring for yourself rather than rushing out."}
+- {slot: term.meaning, key: term.twelve_stage.sa, text: "The eighth of the twelve stages through which energy grows and fades, a time when movement quiets down and thoughts grow deeper."}
+- {slot: term.meaning, key: term.twelve_stage.myo, text: "The ninth of the twelve stages through which energy grows and fades, a time for gathering and keeping what you have."}
+- {slot: term.meaning, key: term.twelve_stage.jeol, text: "The tenth of the twelve stages through which energy grows and fades, a time when an old current ends and a new direction opens."}
+- {slot: term.meaning, key: term.twelve_stage.tae, text: "The eleventh of the twelve stages through which energy grows and fades, a time when new ideas are just forming."}
+- {slot: term.meaning, key: term.twelve_stage.yang, text: "The twelfth of the twelve stages through which energy grows and fades, a time for getting ready step by step, without hurrying."}

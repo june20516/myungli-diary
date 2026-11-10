@@ -13,7 +13,7 @@
 - {slot: glossary.value_name, key: color.fire, text: "赤"}
 - {slot: glossary.value_name, key: color.earth, text: "黄色"}
 - {slot: glossary.value_name, key: color.metal, text: "白"}
-- {slot: glossary.value_name, key: color.water, text: "紺色"}
+- {slot: glossary.value_name, key: color.water, text: "黒"}
 - {slot: glossary.value_name, key: stem.gap, text: "甲"}
 - {slot: glossary.value_name, key: stem.eul, text: "乙"}
 - {slot: glossary.value_name, key: stem.byeong, text: "丙"}

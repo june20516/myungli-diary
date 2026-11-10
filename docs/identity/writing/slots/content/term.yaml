@@ -1,7 +1,7 @@
 # 콘텐츠 슬롯: 용어 뜻(term)
 #
 # 키는 `term.<용어 id>`입니다. 용어 id는 glossary 용어 범주의 `<범주>.<값>`과 태그 이름 키(`tag.*`)이고,
-# 검사기의 `term_ids`와 같습니다(79개). server는 문장 조각의 `term`에 용어 id를 넣고, 풀이 시트는 이 문장을 엽니다.
+# 검사기의 `term_ids`와 같습니다(91개). server는 문장 조각의 `term`에 용어 id를 넣고, 풀이 시트는 이 문장을 엽니다.
 
 - id: term.meaning
   where: 풀이 시트의 용어 뜻, 태그 모아보기의 태그 뜻, 오늘 화면 대표 태그 칩을 눌렀을 때 스미는 뜻 한 줄(D76)
@@ -78,6 +78,18 @@
     - term.role.day_master
     - term.luck.daeun
     - term.luck.seun
+    - term.twelve_stage.jangsaeng
+    - term.twelve_stage.mokyok
+    - term.twelve_stage.gwandae
+    - term.twelve_stage.geonrok
+    - term.twelve_stage.jewang
+    - term.twelve_stage.soe
+    - term.twelve_stage.byeong
+    - term.twelve_stage.sa
+    - term.twelve_stage.myo
+    - term.twelve_stage.jeol
+    - term.twelve_stage.tae
+    - term.twelve_stage.yang
     - term.tag.cheoneul_gwiin
     - term.tag.clash
     - term.tag.clash_day_branch
