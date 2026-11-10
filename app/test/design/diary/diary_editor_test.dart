@@ -72,7 +72,8 @@ void main() {
       );
     });
 
-    testWidgets('인용 질문: 왼쪽 3px term.bg 선(radius.full), 안쪽 12, sentence.body 14 '
+    testWidgets('인용 질문: 왼쪽 3px action.primary 선(radius.full, V102), 안쪽 12, '
+        'sentence.body 14 '
         'text.secondary', (tester) async {
       final controller = TextEditingController();
       addTearDown(controller.dispose);
@@ -95,7 +96,7 @@ void main() {
       final line = find.byKey(DiaryEditor.quoteLineKey);
       final lineBox =
           tester.widget<DecoratedBox>(line).decoration as BoxDecoration;
-      expect(lineBox.color, tokens.colors.termBg);
+      expect(lineBox.color, tokens.colors.actionPrimary);
       expect(
         lineBox.borderRadius,
         const BorderRadius.all(Radius.circular(Radii.full)),
@@ -282,6 +283,275 @@ void main() {
       );
       expect(question.flagsCollection.isLiveRegion, isTrue);
       handle.dispose();
+    });
+  });
+
+  group('diary-editor 질문 떼기와 뗀 자리(V102, D116)', () {
+    const questionText = '오늘 눈길이 갔던 장면을 적어 볼까요?';
+
+    /// 질문 상태를 바꿔 다시 그리는 쓰기 종이. [detached]를 바꾸면 `guideStates` 전환입니다.
+    Widget editor(
+      TextEditingController controller, {
+      bool detached = false,
+      bool swap = true,
+      VoidCallback? onDetach,
+      VoidCallback? onAttach,
+      RenderedText? question,
+      MotionPrefs prefs = const MotionPrefs(
+        reduceMotion: false,
+        reduceTransparency: false,
+        lowEnd: false,
+      ),
+    }) => MotionPrefsScope(
+      prefs: prefs,
+      child: _scroll(
+        DiaryEditor.edit(
+          date: _date,
+          controller: controller,
+          question: question ?? _question,
+          onSwapQuestion: swap && !detached ? () {} : null,
+          onDetachQuestion: detached ? null : (onDetach ?? () {}),
+          onAttachQuestion: onAttach ?? () {},
+          questionDetached: detached,
+        ),
+      ),
+    );
+
+    testWidgets('떼기 x는 바꾸기 바로 뒤 오른쪽 끝, Light 20 text.secondary, 터치 44', (
+      tester,
+    ) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller));
+      final tokens = tester.element(find.byType(DiaryEditor)).tokens;
+      final remove = find.byKey(DiaryEditor.removeKey);
+      final swap = find.byKey(DiaryEditor.swapKey);
+      expect(
+        tester.getSize(remove),
+        const Size.square(DiaryEditor.removeTarget),
+      );
+      expect(DiaryEditor.removeTarget, 44);
+      final icon = tester.widget<Icon>(
+        find.descendant(of: remove, matching: find.byType(Icon)),
+      );
+      expect(icon.icon, PhosphorIconsLight.x);
+      expect(icon.size, 20);
+      expect(icon.color, tokens.colors.textSecondary);
+      // 44 터치 영역끼리 붙여 둡니다(겹치지 않음).
+      expect(tester.getTopLeft(remove).dx, tester.getTopRight(swap).dx);
+      final paper = tester.getRect(find.byKey(DiaryEditor.paperKey));
+      expect(tester.getTopRight(remove).dx, paper.right - Space.s16);
+      // 아이콘은 질문 첫 줄 높이에 맞춥니다(`align: first-line`).
+      expect(
+        tester.getCenter(find.byIcon(PhosphorIconsLight.x)).dy,
+        moreOrLessEquals(
+          tester.getCenter(find.byIcon(PhosphorIconsLight.arrowsClockwise)).dy,
+        ),
+      );
+    });
+
+    testWidgets('바꾸기가 없으면(후보 하나) 떼기가 질문 글 바로 뒤(space.8) 오른쪽 끝입니다', (
+      tester,
+    ) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller, swap: false));
+      expect(find.byKey(DiaryEditor.swapKey), findsNothing);
+      final remove = find.byKey(DiaryEditor.removeKey);
+      final text = tester.getRect(find.text(questionText));
+      expect(
+        tester.getTopLeft(remove).dx - text.right,
+        greaterThanOrEqualTo(DiaryEditor.questionActionsGap),
+      );
+      final paper = tester.getRect(find.byKey(DiaryEditor.paperKey));
+      expect(tester.getTopRight(remove).dx, paper.right - Space.s16);
+    });
+
+    testWidgets('떼기를 누르면 콜백, 본문과 본문 초점(키보드)은 그대로입니다', (tester) async {
+      final controller = TextEditingController(text: '쓰던 글');
+      addTearDown(controller.dispose);
+      var detaches = 0;
+      await tester.pumpWidget(editor(controller, onDetach: () => detaches++));
+      await tester.showKeyboard(find.byType(TextField));
+      await tester.tap(find.byKey(DiaryEditor.removeKey));
+      await tester.pump();
+      expect(detaches, 1);
+      expect(controller.text, '쓰던 글');
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).focusNode!.hasFocus,
+        isTrue,
+      );
+    });
+
+    testWidgets('뗀 자리: 세로선 없이 본문과 같은 시작선, 권유 글자 14 invite.fg와 '
+        '뒤 space.4 말풍선(옆 글자 크기, 같은 색)', (tester) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller, detached: true));
+      final tokens = tester.element(find.byType(DiaryEditor)).tokens;
+      expect(find.byKey(DiaryEditor.quoteLineKey), findsNothing);
+      expect(find.text(questionText), findsNothing);
+      expect(find.byKey(DiaryEditor.swapKey), findsNothing);
+      expect(find.byKey(DiaryEditor.removeKey), findsNothing);
+
+      final label = find.text('질문 추가');
+      final style = tester.widget<Text>(label).style!;
+      expect(style.fontSize, DiaryEditor.questionFontSize);
+      expect(style.fontFamily, tokens.typography.sentenceBody.fontFamily);
+      expect(style.color, tokens.colors.inviteFg);
+      final body = tester.getRect(find.byType(TextField));
+      expect(tester.getTopLeft(label).dx, body.left);
+
+      final icon = tester.widget<Icon>(
+        find.descendant(
+          of: find.byKey(DiaryEditor.detachedIconKey),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(icon.icon, PhosphorIconsLight.chatTeardropDots);
+      expect(icon.size, AppIconSize.adjacentText(14).logical);
+      expect(icon.color, tokens.colors.inviteFg);
+      expect(
+        tester.getTopLeft(find.byKey(DiaryEditor.detachedIconKey)).dx -
+            tester.getTopRight(label).dx,
+        DiaryEditor.detachedIconGap,
+      );
+      expect(DiaryEditor.detachedIconGap, Space.s4);
+      final line = tester.getRect(find.byKey(DiaryEditor.detachedKey));
+      expect(line.height, greaterThanOrEqualTo(DiaryEditor.detachedMinHeight));
+      // 줄 전체가 버튼입니다.
+      expect(line.width, body.width);
+      expect(body.top - line.bottom, Space.s16);
+    });
+
+    testWidgets('권유 줄을 누르면 콜백, 본문과 본문 초점은 그대로입니다', (tester) async {
+      final controller = TextEditingController(text: '쓰던 글');
+      addTearDown(controller.dispose);
+      var attaches = 0;
+      await tester.pumpWidget(
+        editor(controller, detached: true, onAttach: () => attaches++),
+      );
+      await tester.showKeyboard(find.byType(TextField));
+      final line = tester.getRect(find.byKey(DiaryEditor.detachedKey));
+      // 글자 밖 줄 오른쪽 끝을 눌러도 됩니다(줄 전체가 버튼).
+      await tester.tapAt(line.centerRight - const Offset(4, 0));
+      await tester.pump();
+      expect(attaches, 1);
+      expect(controller.text, '쓰던 글');
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).focusNode!.hasFocus,
+        isTrue,
+      );
+    });
+
+    testWidgets('전환: 앞 상태 disappear.seep과 새 상태 appear.seep이 같은 자리에서 동시에, '
+        '자리 높이는 새 상태로 바로 바뀝니다', (tester) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller, detached: true));
+      final detachedBodyTop = tester.getTopLeft(find.byType(TextField)).dy;
+      await tester.pumpWidget(editor(controller));
+      final attachedBodyTop = tester.getTopLeft(find.byType(TextField)).dy;
+      await tester.pumpAndSettle();
+      expect(find.byKey(DiaryEditor.detachedKey), findsNothing);
+      expect(tester.getTopLeft(find.byType(TextField)).dy, attachedBodyTop);
+
+      await tester.pumpWidget(editor(controller, detached: true));
+      // 본문은 움직임 없이 새 높이 자리로 바로 옮겨 갑니다.
+      expect(tester.getTopLeft(find.byType(TextField)).dy, detachedBodyTop);
+      await tester.pump(const Duration(milliseconds: 100));
+      // 같은 자리에서 둘 다 그려지는 중(앞 상태는 사라지는 중, 새 상태는 나타나는 중)입니다.
+      expect(find.text(questionText), findsOneWidget);
+      expect(find.text('질문 추가'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.byKey(DiaryEditor.quoteLineKey)).dy,
+        tester.getTopLeft(find.byKey(DiaryEditor.detachedKey)).dy,
+      );
+      // 질문 안쪽 바꾸기 전환의 투명도까지 곱한 보이는 투명도입니다.
+      double opacityOf(Finder finder) => tester
+          .widgetList<Opacity>(
+            find.ancestor(of: finder, matching: find.byType(Opacity)),
+          )
+          .fold(1, (value, opacity) => value * opacity.opacity);
+      final outgoing = opacityOf(find.text(questionText));
+      final incoming = opacityOf(find.text('질문 추가'));
+      expect(outgoing, inExclusiveRange(0, 1));
+      expect(incoming, inExclusiveRange(0, 1));
+      // 사라짐(200ms)이 나타남(320ms)보다 먼저 끝납니다.
+      await tester.pump(const Duration(milliseconds: 110));
+      expect(find.text(questionText), findsNothing);
+      expect(find.text('질문 추가'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(opacityOf(find.text('질문 추가')), 1);
+    });
+
+    testWidgets('동작 줄이기: 전환은 투명도만(흐림 없음)입니다', (tester) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      const reduced = MotionPrefs(
+        reduceMotion: true,
+        reduceTransparency: false,
+        lowEnd: false,
+      );
+      await tester.pumpWidget(editor(controller, prefs: reduced));
+      await tester.pumpWidget(
+        editor(controller, detached: true, prefs: reduced),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      final filters = tester.widgetList<ImageFiltered>(
+        find.ancestor(
+          of: find.text('질문 추가'),
+          matching: find.byType(ImageFiltered),
+        ),
+      );
+      expect(filters.where((filter) => filter.enabled), isEmpty);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('스크린리더: 떼기는 "질문 없이 쓰기" 버튼, 권유 줄은 글자 그대로 읽는 버튼이고 '
+        '나타나면 polite로 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller));
+      final remove = tester.getSemantics(find.byKey(DiaryEditor.removeKey));
+      expect(remove.label, '질문 없이 쓰기');
+      expect(remove.flagsCollection.isButton, isTrue);
+
+      await tester.pumpWidget(editor(controller, detached: true));
+      await tester.pump(const Duration(milliseconds: 50));
+      // 사라지는 질문은 읽지 않습니다.
+      expect(find.bySemanticsLabel(questionText), findsNothing);
+      await tester.pumpAndSettle();
+      final attach = tester.getSemantics(find.byKey(DiaryEditor.detachedKey));
+      expect(attach.label, '질문 추가');
+      expect(attach.flagsCollection.isButton, isTrue);
+      expect(attach.flagsCollection.isLiveRegion, isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('붙일 질문이 없으면(whenNoQuestion) 뗀 상태여도 질문 자리 전체가 없습니다', (
+      tester,
+    ) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        _scroll(
+          DiaryEditor.edit(
+            date: _date,
+            controller: controller,
+            questionDetached: true,
+            onAttachQuestion: () {},
+          ),
+        ),
+      );
+      expect(find.byKey(DiaryEditor.detachedKey), findsNothing);
+      expect(find.byKey(DiaryEditor.questionKey), findsNothing);
+      final paper = tester.getRect(find.byKey(DiaryEditor.paperKey));
+      expect(
+        tester.getTopLeft(find.byType(TextField)).dy - paper.top,
+        Space.s16,
+      );
     });
   });
 

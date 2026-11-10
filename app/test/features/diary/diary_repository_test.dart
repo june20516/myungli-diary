@@ -116,6 +116,24 @@ void main() {
       expect(request.headers['Idempotency-Key'], 'key-1');
     });
 
+    test(
+      '질문을 떼면 withoutGuideQuestion true만 보내고 guideQuestion은 싣지 않습니다(D116)',
+      () async {
+        final server = _Server((_) => (201, _diaryJson()));
+        await _repository(server).create(
+          _date,
+          '일기',
+          idempotencyKey: 'key-1',
+          withoutGuideQuestion: true,
+        );
+        expect(jsonDecode(server.requests.single.data as String), {
+          'date': '2026-10-13',
+          'body': '일기',
+          'withoutGuideQuestion': true,
+        });
+      },
+    );
+
     test('422 diary.day_full은 ProblemError입니다', () async {
       final server = _Server((_) => _problem(422, 'diary.day_full'));
       await expectLater(

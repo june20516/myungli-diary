@@ -43,6 +43,7 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
@@ -1415,6 +1416,122 @@ void main() {
           File(ShareImage.logoAsset).readAsBytesSync(),
           original.readAsBytesSync(),
         );
+      },
+    );
+  });
+
+  group('일기 줄 태그 줄과 질문 떼기 (6.2.0, V102, V103, D115, D116)', () {
+    final specs = loadSpecComponents();
+
+    Map<String, Object?> editQuestion() => _map(
+      _map(
+        _map(
+          (specs['diary-editor']!['variants']! as List<Object?>)
+              .map(_map)
+              .firstWhere((v) => v['id'] == 'edit'),
+        )['parts'],
+      )['question'],
+    );
+
+    test('diary-row tag: 그날 태그 모두, 순위 순, 사이 space.8, 한 줄 가로 밀기와 흐림만', () {
+      final tag = _map(_map(specs['diary-row']!['parts'])['tag']);
+      expect(tag['component'], 'hanja-tag');
+      expect(tag['variant'], 'default');
+      expect(tag['count'], 'all');
+      expect(tag['order'], '대표 태그 순위');
+      expect(tag['gap'], '{space.8}');
+      expect(DiaryRow.tagsGap, Space.s8);
+      expect(tag['whenMissing'], 'hide');
+      final row = _map(tag['row']);
+      expect(row['lines'], 1);
+      expect(row['wrap'], false);
+      final hint = _map(row['hint']);
+      expect(hint['component'], 'scroll-hint');
+      expect(_map(_map(hint['parts'])['arrows'])['visible'], false);
+      expect(hint['fadeTo'], '{color.bg.sheet}');
+      final scrollHint = specs['scroll-hint']!;
+      final fade = _map(_map(scrollHint['parts'])['fade']);
+      expect(_px(fade['width']), ScrollHint.fadeWidth);
+      expect(fade['to'], hint['fadeTo']);
+      // 모아보기 안에서는 모아 본 그 태그만 숨깁니다.
+      expect(tag['hiddenIn'], ['tag-diary']);
+      expect(tag['hiddenScope'], startsWith('모아 본 그 태그만'));
+    });
+
+    test('diary-editor question: 인용 세로선은 action.primary(V102)', () {
+      final question = _map(_map(specs['diary-editor']!['parts'])['question']);
+      expect(_map(question['quoteLine'])['color'], '{color.action.primary}');
+      expect(
+        _px(_map(question['quoteLine'])['width']),
+        DiaryEditor.quoteLineWidth,
+      );
+      expect(question['marginBottom'], '{space.16}');
+    });
+
+    test(
+      'diary-editor edit remove: x Light 20 text.secondary, 터치 44, 바꾸기 바로 뒤',
+      () {
+        final question = editQuestion();
+        final swap = _map(question['swap']);
+        expect(swap['marginStart'], '{space.8}');
+        expect(DiaryEditor.questionActionsGap, Space.s8);
+        final remove = _map(question['remove']);
+        expect(remove['slot'], SlotIds.diaryEditGuideRemove);
+        expect(remove['icon'], 'x');
+        expect(remove['weight'], 'light');
+        expect(_iconSize(remove['size']), AppIconSize.s20);
+        expect(remove['color'], '{color.text.secondary}');
+        expect(remove['minTarget'], DiaryEditor.removeTarget);
+        expect(remove['align'], 'first-line');
+        expect(_map(remove['transition']), {
+          'out': InteractionPattern.disappearSeep.id,
+          'in': InteractionPattern.appearSeep.id,
+        });
+        expect(remove['keepsBody'], true);
+      },
+    );
+
+    test('diary-editor edit detached: 글꼴 14 invite.fg, 선 없음, 말풍선 4, 터치 44', () {
+      final detached = _map(editQuestion()['detached']);
+      expect(detached['slot'], SlotIds.diaryEditGuideAttach);
+      expect(detached['type'], '{type.sentence.body}');
+      expect(_px(detached['fontSize']), DiaryEditor.questionFontSize);
+      expect(detached['fg'], '{color.invite.fg}');
+      expect(_map(detached['quoteLine'])['visible'], false);
+      expect(detached['paddingStart'], 0);
+      final icon = _map(detached['trailingIcon']);
+      expect(icon['icon'], 'chat-teardrop-dots');
+      expect(icon['weight'], 'light');
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.invite.fg}');
+      expect(icon['gap'], '{space.4}');
+      expect(DiaryEditor.detachedIconGap, Space.s4);
+      expect(icon['decorative'], true);
+      expect(detached['minTarget'], DiaryEditor.detachedMinHeight);
+      expect(detached['pressable'], '줄 전체');
+    });
+
+    test(
+      'diary-editor guideStates: 붙음과 뗌 두 상태, 전환 두 개, 앞 disappear 새 appear',
+      () {
+        final states = _map(editQuestion()['guideStates']);
+        expect(states.keys, containsAll(['initial', 'attached', 'detached']));
+        expect(_map(states['detached'])['shows'], ['detached']);
+        expect(
+          (states['transitions']! as List<Object?>).map(
+            (t) => (_map(t)['from'], _map(t)['to']),
+          ),
+          [('attached', 'detached'), ('detached', 'attached')],
+        );
+        expect(
+          specs['diary-editor']!['uses'],
+          containsAll([
+            InteractionPattern.appearSeep.id,
+            InteractionPattern.disappearSeep.id,
+          ]),
+        );
+        expect(InteractionPattern.disappearSeep.duration.inMilliseconds, 200);
+        expect(InteractionPattern.appearSeep.duration.inMilliseconds, 320);
       },
     );
   });

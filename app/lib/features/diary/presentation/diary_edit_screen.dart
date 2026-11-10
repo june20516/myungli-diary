@@ -43,8 +43,9 @@ const Set<String> diaryEditExits = {ScreenIds.diaryView};
 /// 일기를 고치고, 아니면 `?date=`(없으면 오늘)의 새 일기입니다(A67, [diaryEditTargetOf]).
 ///
 /// * 위에서부터 `app-bar` `edit`(뒤로, 가운데 제목 또는 초안 상태, 오른쪽 저장 글자 버튼),
-///   큰 날짜 블록(`date-block`), 종이(`diary-editor` `edit`: 인용 질문과 질문 바꾸기, 본문)입니다.
-///   아래 고정 버튼은 없습니다(V82, IA v5).
+///   큰 날짜 블록(`date-block`), 종이(`diary-editor` `edit`: 인용 질문과 질문 바꾸기, 떼기, 본문)
+///   입니다. 질문을 떼면 그 자리에 다시 붙이는 권유 줄이 남고, 뗀 채 저장한 편에는 질문이 없습니다
+///   (D116, V102). 아래 고정 버튼은 없습니다(V82, IA v5).
 /// * 열 때 초안·고칠 일기·오늘 풀이를 읽는 동안 skeleton(`loading`), 고칠 일기를 읽지 못하면
 ///   오류와 다시 시도(`error`), 없으면(404) 찾지 못했다는 안내입니다. 기기에 남은 초안이
 ///   있으면 그 글과 고른 질문으로 시작합니다(`draft`, A48, A115).
@@ -311,8 +312,17 @@ class _DiaryEditBody extends ConsumerWidget {
             focusNode: focus,
             question: state.question,
             questionSlotId: SlotIds.diaryEditGuideQuestion,
+            removeSlotId: SlotIds.diaryEditGuideRemove,
+            attachSlotId: SlotIds.diaryEditGuideAttach,
             onSwapQuestion: state.canSwapQuestion
                 ? notifier.swapQuestion
+                : null,
+            questionDetached: state.guideDetached,
+            onDetachQuestion: state.canDetachQuestion && !state.guideDetached
+                ? notifier.detachQuestion
+                : null,
+            onAttachQuestion: state.canDetachQuestion
+                ? notifier.attachQuestion
                 : null,
             placeholder: l10n.diaryEditBodyPlaceholder,
             editorController: editor,

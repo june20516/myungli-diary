@@ -563,6 +563,21 @@ class $DiaryDraftsTable extends DiaryDrafts
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _guideDetachedMeta = const VerificationMeta(
+    'guideDetached',
+  );
+  @override
+  late final GeneratedColumn<bool> guideDetached = GeneratedColumn<bool>(
+    'guide_detached',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("guide_detached" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -582,6 +597,7 @@ class $DiaryDraftsTable extends DiaryDrafts
     body,
     guideMessageKey,
     guideVariant,
+    guideDetached,
     updatedAt,
   ];
   @override
@@ -644,6 +660,15 @@ class $DiaryDraftsTable extends DiaryDrafts
         ),
       );
     }
+    if (data.containsKey('guide_detached')) {
+      context.handle(
+        _guideDetachedMeta,
+        guideDetached.isAcceptableOrUnknown(
+          data['guide_detached']!,
+          _guideDetachedMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -685,6 +710,10 @@ class $DiaryDraftsTable extends DiaryDrafts
         DriftSqlType.string,
         data['${effectivePrefix}guide_variant'],
       ),
+      guideDetached: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}guide_detached'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -718,6 +747,10 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
   /// 고른 오늘의 질문 `variant`. [guideMessageKey]와 함께 있거나 함께 없습니다.
   final String? guideVariant;
 
+  /// 가이드 질문을 뗀 채 쓰는 초안인지(D116). true면 고른 질문 두 열은 비어 있고, 다시 열면
+  /// 질문을 뗀 상태로 시작합니다. v4 전 초안은 false입니다.
+  final bool guideDetached;
+
   /// 마지막 저장 시각(UTC).
   final DateTime updatedAt;
   const DiaryDraft({
@@ -727,6 +760,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     required this.body,
     this.guideMessageKey,
     this.guideVariant,
+    required this.guideDetached,
     required this.updatedAt,
   });
   @override
@@ -742,6 +776,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     if (!nullToAbsent || guideVariant != null) {
       map['guide_variant'] = Variable<String>(guideVariant);
     }
+    map['guide_detached'] = Variable<bool>(guideDetached);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -758,6 +793,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
       guideVariant: guideVariant == null && nullToAbsent
           ? const Value.absent()
           : Value(guideVariant),
+      guideDetached: Value(guideDetached),
       updatedAt: Value(updatedAt),
     );
   }
@@ -774,6 +810,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
       body: serializer.fromJson<String>(json['body']),
       guideMessageKey: serializer.fromJson<String?>(json['guideMessageKey']),
       guideVariant: serializer.fromJson<String?>(json['guideVariant']),
+      guideDetached: serializer.fromJson<bool>(json['guideDetached']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -787,6 +824,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
       'body': serializer.toJson<String>(body),
       'guideMessageKey': serializer.toJson<String?>(guideMessageKey),
       'guideVariant': serializer.toJson<String?>(guideVariant),
+      'guideDetached': serializer.toJson<bool>(guideDetached),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -798,6 +836,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     String? body,
     Value<String?> guideMessageKey = const Value.absent(),
     Value<String?> guideVariant = const Value.absent(),
+    bool? guideDetached,
     DateTime? updatedAt,
   }) => DiaryDraft(
     accountId: accountId ?? this.accountId,
@@ -808,6 +847,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
         ? guideMessageKey.value
         : this.guideMessageKey,
     guideVariant: guideVariant.present ? guideVariant.value : this.guideVariant,
+    guideDetached: guideDetached ?? this.guideDetached,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   DiaryDraft copyWithCompanion(DiaryDraftsCompanion data) {
@@ -822,6 +862,9 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
       guideVariant: data.guideVariant.present
           ? data.guideVariant.value
           : this.guideVariant,
+      guideDetached: data.guideDetached.present
+          ? data.guideDetached.value
+          : this.guideDetached,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -835,6 +878,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
           ..write('body: $body, ')
           ..write('guideMessageKey: $guideMessageKey, ')
           ..write('guideVariant: $guideVariant, ')
+          ..write('guideDetached: $guideDetached, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -848,6 +892,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
     body,
     guideMessageKey,
     guideVariant,
+    guideDetached,
     updatedAt,
   );
   @override
@@ -860,6 +905,7 @@ class DiaryDraft extends DataClass implements Insertable<DiaryDraft> {
           other.body == this.body &&
           other.guideMessageKey == this.guideMessageKey &&
           other.guideVariant == this.guideVariant &&
+          other.guideDetached == this.guideDetached &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -870,6 +916,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
   final Value<String> body;
   final Value<String?> guideMessageKey;
   final Value<String?> guideVariant;
+  final Value<bool> guideDetached;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const DiaryDraftsCompanion({
@@ -879,6 +926,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     this.body = const Value.absent(),
     this.guideMessageKey = const Value.absent(),
     this.guideVariant = const Value.absent(),
+    this.guideDetached = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -889,6 +937,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     required String body,
     this.guideMessageKey = const Value.absent(),
     this.guideVariant = const Value.absent(),
+    this.guideDetached = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : accountId = Value(accountId),
@@ -902,6 +951,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     Expression<String>? body,
     Expression<String>? guideMessageKey,
     Expression<String>? guideVariant,
+    Expression<bool>? guideDetached,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -912,6 +962,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
       if (body != null) 'body': body,
       if (guideMessageKey != null) 'guide_message_key': guideMessageKey,
       if (guideVariant != null) 'guide_variant': guideVariant,
+      if (guideDetached != null) 'guide_detached': guideDetached,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -924,6 +975,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     Value<String>? body,
     Value<String?>? guideMessageKey,
     Value<String?>? guideVariant,
+    Value<bool>? guideDetached,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -934,6 +986,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
       body: body ?? this.body,
       guideMessageKey: guideMessageKey ?? this.guideMessageKey,
       guideVariant: guideVariant ?? this.guideVariant,
+      guideDetached: guideDetached ?? this.guideDetached,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -960,6 +1013,9 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
     if (guideVariant.present) {
       map['guide_variant'] = Variable<String>(guideVariant.value);
     }
+    if (guideDetached.present) {
+      map['guide_detached'] = Variable<bool>(guideDetached.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -978,6 +1034,7 @@ class DiaryDraftsCompanion extends UpdateCompanion<DiaryDraft> {
           ..write('body: $body, ')
           ..write('guideMessageKey: $guideMessageKey, ')
           ..write('guideVariant: $guideVariant, ')
+          ..write('guideDetached: $guideDetached, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1735,6 +1792,7 @@ typedef $$DiaryDraftsTableCreateCompanionBuilder =
       required String body,
       Value<String?> guideMessageKey,
       Value<String?> guideVariant,
+      Value<bool> guideDetached,
       required DateTime updatedAt,
       Value<int> rowid,
     });
@@ -1746,6 +1804,7 @@ typedef $$DiaryDraftsTableUpdateCompanionBuilder =
       Value<String> body,
       Value<String?> guideMessageKey,
       Value<String?> guideVariant,
+      Value<bool> guideDetached,
       Value<DateTime> updatedAt,
       Value<int> rowid,
     });
@@ -1786,6 +1845,11 @@ class $$DiaryDraftsTableFilterComposer
 
   ColumnFilters<String> get guideVariant => $composableBuilder(
     column: $table.guideVariant,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get guideDetached => $composableBuilder(
+    column: $table.guideDetached,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1834,6 +1898,11 @@ class $$DiaryDraftsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get guideDetached => $composableBuilder(
+    column: $table.guideDetached,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -1868,6 +1937,11 @@ class $$DiaryDraftsTableAnnotationComposer
 
   GeneratedColumn<String> get guideVariant => $composableBuilder(
     column: $table.guideVariant,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get guideDetached => $composableBuilder(
+    column: $table.guideDetached,
     builder: (column) => column,
   );
 
@@ -1912,6 +1986,7 @@ class $$DiaryDraftsTableTableManager
                 Value<String> body = const Value.absent(),
                 Value<String?> guideMessageKey = const Value.absent(),
                 Value<String?> guideVariant = const Value.absent(),
+                Value<bool> guideDetached = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DiaryDraftsCompanion(
@@ -1921,6 +1996,7 @@ class $$DiaryDraftsTableTableManager
                 body: body,
                 guideMessageKey: guideMessageKey,
                 guideVariant: guideVariant,
+                guideDetached: guideDetached,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -1932,6 +2008,7 @@ class $$DiaryDraftsTableTableManager
                 required String body,
                 Value<String?> guideMessageKey = const Value.absent(),
                 Value<String?> guideVariant = const Value.absent(),
+                Value<bool> guideDetached = const Value.absent(),
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => DiaryDraftsCompanion.insert(
@@ -1941,6 +2018,7 @@ class $$DiaryDraftsTableTableManager
                 body: body,
                 guideMessageKey: guideMessageKey,
                 guideVariant: guideVariant,
+                guideDetached: guideDetached,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),

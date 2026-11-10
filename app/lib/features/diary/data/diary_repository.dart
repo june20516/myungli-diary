@@ -35,7 +35,9 @@ final class DiaryRepository {
   /// [date]에 [body]로 새 일기를 씁니다(하루 여러 편). 쓴 일기를 돌려줍니다.
   ///
   /// [guideQuestion]은 고른 오늘의 질문(`Daily.guideCandidates` 하나)이고, 없으면 보내지 않아
-  /// server가 그날 기본 질문을 남깁니다(A115). [idempotencyKey]가 같으면 server가 24시간 동안
+  /// server가 그날 기본 질문을 남깁니다(A115). [withoutGuideQuestion]이면 질문을 뗀 편이라
+  /// `withoutGuideQuestion: true`를 보내고 [guideQuestion]은 함께 보내지 않습니다(D116, 함께
+  /// 보내면 400 `request.invalid`). [idempotencyKey]가 같으면 server가 24시간 동안
   /// 같은 일기를 돌려주므로, 실패 뒤 같은 본문과 질문을 다시 저장할 때는 같은 키를 씁니다.
   /// 그날 일기가 이미 [diaryDayLimit]편이면 422 `diary.day_full`, 오늘 이후 날짜는 422
   /// `diary.future_date`, 고른 질문이 그날 후보에 없으면 422 `diary.guide_invalid`의
@@ -45,14 +47,20 @@ final class DiaryRepository {
     String body, {
     required String idempotencyKey,
     GuideChoice? guideQuestion,
+    bool withoutGuideQuestion = false,
   }) async {
+    assert(
+      !withoutGuideQuestion || guideQuestion == null,
+      '질문을 떼면 고른 질문을 함께 보내지 않습니다(D116).',
+    );
     final Diary? diary;
     try {
       diary = (await _api.createDiary(
         diaryInput: DiaryInput(
           date: date.toIso(),
           body: body,
-          guideQuestion: guideQuestion,
+          guideQuestion: withoutGuideQuestion ? null : guideQuestion,
+          withoutGuideQuestion: withoutGuideQuestion,
         ),
         idempotencyKey: idempotencyKey,
       )).data;

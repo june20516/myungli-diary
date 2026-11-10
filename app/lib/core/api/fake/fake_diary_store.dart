@@ -22,7 +22,10 @@ import 'package:uuid/uuid.dart';
 /// * 오늘(`today`) 이후 날짜는 422 `diary.future_date`입니다.
 /// * `guideQuestion`(고른 질문)을 보내면 `daily`의 `guideCandidates`에서 같은 `messageKey`와
 ///   `variant`의 후보를 그 편의 질문으로 남기고, 후보에 없으면 422 `diary.guide_invalid`입니다
-///   (A115). 보내지 않으면 그날 기본 질문(`guide`)입니다.
+///   (A115). 보내지 않으면 그날 기본 질문(`guide`)입니다. `withoutGuideQuestion`이
+///   true면 질문을 뗀 편이라 그 편에 `guideQuestion`이 없고, `guideQuestion`과 함께 오면
+///   400 `request.invalid`(field `withoutGuideQuestion`)입니다(D116). 날짜 기록의 기본
+///   질문은 그대로 남아 같은 날 다른 편에 쓰입니다.
 /// * 목록은 날짜 내림차순, 같은 날은 작성 순입니다. 요약의 `excerpt`는 본문 앞 100자,
 ///   `featuredTags`는 대표 태그, `allTags`는 대표 태그를 앞에 두고 나머지 전체 태그를 엔진 순서로
 ///   이은 것이고(D115), `tag`는 전체 태그(`tags.all`)로 거릅니다. 전체 태그 키에는 길흉이 없어
@@ -169,6 +172,7 @@ final class FakeDiaryStore {
         errors: [(field: '/date', code: 'diary.day_full')],
       );
     }
+    final without = _withoutGuideOf(input);
     final chosen = _chosenGuideOf(input);
     final now = _nextCreatedAt().toIso8601String();
     final diary = <String, Object?>{
@@ -181,6 +185,9 @@ final class FakeDiaryStore {
       'createdAt': now,
       'updatedAt': now,
     };
+    if (without) {
+      diary.remove('guideQuestion');
+    }
     _diaries[diary['id']! as String] = diary;
     if (idempotencyKey != null) {
       _idempotent[idempotencyKey] = (input: input, response: diary);
@@ -314,6 +321,28 @@ final class FakeDiaryStore {
       'rulesetVersion': _daily['rulesetVersion'] ?? 'fake',
       if (_daily['dayKind'] != null) 'dayKind': _daily['dayKind'],
     };
+  }
+
+  /// `DiaryInput.withoutGuideQuestion`(기본 false). 불리언이 아니면 400이고, true인데
+  /// `guideQuestion`도 오면 400 `request.invalid`(field `withoutGuideQuestion`,
+  /// D116)입니다.
+  static bool _withoutGuideOf(Map<String, Object?> input) {
+    final value = input['withoutGuideQuestion'] ?? false;
+    if (value is! bool) {
+      throw FakeProblem.invalid(
+        '/withoutGuideQuestion',
+        'type',
+        'withoutGuideQuestion은 불리언이어야 합니다.',
+      );
+    }
+    if (value && input['guideQuestion'] != null) {
+      throw FakeProblem.invalid(
+        '/withoutGuideQuestion',
+        'request.invalid',
+        '질문을 고르면서 뗄 수 없습니다.',
+      );
+    }
+    return value;
   }
 
   /// `DiaryInput.guideQuestion`이 고른 그날 후보(`SlotText` JSON). 보내지 않았으면 null이고,

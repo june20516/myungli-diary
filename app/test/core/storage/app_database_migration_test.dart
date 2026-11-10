@@ -102,4 +102,52 @@ void main() {
       'guide.harmony',
     );
   });
+
+  test('v3 초안은 v4에서 고른 질문을 지키고 질문을 뗀 표시는 false다', () async {
+    final day = CalendarDate(2026, 11, 10);
+    final database = AppDatabase.forExecutor(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute('''
+              CREATE TABLE diary_drafts (
+                account_id TEXT NOT NULL,
+                date TEXT NOT NULL,
+                diary_id TEXT NOT NULL DEFAULT '',
+                body TEXT NOT NULL,
+                guide_message_key TEXT NULL,
+                guide_variant TEXT NULL,
+                updated_at INTEGER NOT NULL,
+                PRIMARY KEY (account_id, date, diary_id)
+              )''')
+            ..execute('INSERT INTO diary_drafts VALUES (?, ?, ?, ?, ?, ?, ?)', [
+              'a',
+              day.toIso(),
+              '',
+              'v3 초안',
+              'guide.harmony',
+              '1',
+              1760000000,
+            ])
+            ..execute('PRAGMA user_version = 3');
+        },
+      ),
+    );
+    addTearDown(database.close);
+
+    final store = DiaryDraftStore(
+      database,
+      accountId: 'a',
+      nowUtc: DateTime.now,
+    );
+    final draft = await store.find(DiaryDraftTarget.newOn(day));
+    expect(draft!.body, 'v3 초안');
+    expect(draft.guideMessageKey, 'guide.harmony');
+    expect(draft.guideDetached, isFalse);
+
+    await store.write(DiaryDraftTarget.newOn(day), 'v4 초안', detached: true);
+    final detached = await store.find(DiaryDraftTarget.newOn(day));
+    expect(detached!.guideDetached, isTrue);
+    expect(detached.guideMessageKey, isNull);
+  });
 }

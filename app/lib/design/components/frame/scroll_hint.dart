@@ -24,9 +24,17 @@ const AppGlyph _doubleRight = AppGlyph(
 /// [child]는 [controller]를 쓰는 가로 스크롤 줄입니다. 화살표를 누르면 보이는 폭만큼 그쪽으로
 /// 넘기고(줄 안에서만), 더 없는 쪽의 흐림과 화살표는 없습니다. 화살표는 스크린리더에서 숨기고
 /// 줄 자체가 목록으로 읽힙니다.
+///
+/// [showArrows]가 false면 흐림만 두고 화살표 줄은 그리지 않습니다(카드 안 한 줄, 일기 줄 태그
+/// `diary-row.parts.tag.row.hint.parts.arrows.visible: false`, V103).
 class ScrollHint extends StatefulWidget {
   /// [child] 가로 스크롤 줄에 알림을 더합니다.
-  const new({required this.controller, required this.child, super.key});
+  const new({
+    required this.controller,
+    required this.child,
+    this.showArrows = true,
+    super.key,
+  });
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('scroll-hint', {}, {
@@ -50,6 +58,9 @@ class ScrollHint extends StatefulWidget {
 
   /// 가로 스크롤 줄.
   final Widget child;
+
+  /// 줄 아래 화살표 줄을 둘지. false면 흐림만입니다.
+  final bool showArrows;
 
   @override
   State<ScrollHint> createState() => _ScrollHintState();
@@ -167,7 +178,7 @@ class _ScrollHintState extends State<ScrollHint> {
               fade(visible: _moreAfter, start: false),
             ],
           ),
-          if (_moreBefore || _moreAfter)
+          if (widget.showArrows && (_moreBefore || _moreAfter))
             Padding(
               padding: const EdgeInsets.only(top: ScrollHint.arrowsGap),
               child: ExcludeSemantics(

@@ -162,12 +162,16 @@ String _locationOf(WidgetTester tester, String screenId) =>
         .toString();
 
 /// [index]번째 줄의 대표 태그(`hanja-tag`)와 날의 성격 태그를 찾습니다.
+/// [index] 번째 줄의 태그 줄에서 첫(대표 태그 1순위) 사주 기운 태그.
 Finder _rowTag(WidgetTester tester, int index) => find
     .descendant(
-      of: find.byType(DiaryRow).at(index),
+      of: find.descendant(
+        of: find.byType(DiaryRow).at(index),
+        matching: find.byKey(DiaryRow.tagsKey),
+      ),
       matching: find.byType(HanjaTag),
     )
-    .last;
+    .first;
 
 Finder _rowDayKind(WidgetTester tester, int index) => find
     .descendant(
@@ -182,7 +186,7 @@ List<CalendarDate> _rowDates(WidgetTester tester) => [
 ];
 
 void main() {
-  testWidgets('member: 달 머리 아래 일기 줄(날짜 내림차순)과 배지·대표 태그', (tester) async {
+  testWidgets('member: 달 머리 아래 일기 줄(날짜 내림차순)과 배지·사주 기운 태그 모두', (tester) async {
     covers(const Covers(decisions: ['D47', 'D48']));
     await _openDiaryList(tester);
     await expectAppBarTitle(
@@ -199,9 +203,19 @@ void main() {
     ]);
     final first = tester.widget<DiaryRow>(find.byType(DiaryRow).first);
     expect(first.dayKind, isNotNull);
-    expect(first.tag!.label, '합');
-    expect(first.tag!.tone, HanjaTagTone.term);
-    expect(first.tag!.variant, HanjaTagVariant.normal);
+    // `DiarySummary.allTags` 순서(대표 태그 순위 순) 그대로 모두입니다(D115).
+    expect(first.tags.map((tag) => tag.glyph), [
+      '合',
+      HanjaGlyphs.forTagKey('ten_god_rush.inseong'),
+    ]);
+    expect(first.tags.first.label, '합');
+    for (final tag in first.tags) {
+      expect(tag.tone, HanjaTagTone.term);
+      expect(tag.variant, HanjaTagVariant.normal);
+    }
+    // 대표 태그가 아닌 그날 태그(역마)도 줄에 있습니다.
+    final third = tester.widget<DiaryRow>(find.byType(DiaryRow).at(2));
+    expect(third.tags.map((tag) => tag.glyph), ['沖', '驛']);
     expect(tester.widget<DiaryRow>(find.byType(DiaryRow).last).isLast, isTrue);
   });
 
@@ -343,7 +357,9 @@ void main() {
     );
   });
 
-  testWidgets('tag-diary 안의 줄은 대표 태그를 그리지 않고 날의 성격은 그대로 보입니다', (tester) async {
+  testWidgets('tag-diary 안의 줄은 모아 본 태그만 빼고 그날 다른 태그와 날의 성격은 보입니다', (
+    tester,
+  ) async {
     covers(const Covers(exits: ['tag-diary>diary-view']));
     await _openDiaryList(tester);
     await tester.tap(_rowTag(tester, 0));
@@ -359,8 +375,14 @@ void main() {
     );
     expect(rows, isNotEmpty);
     for (final row in rows) {
-      expect(row.tag, isNull, reason: '${row.date}');
+      expect(
+        row.tags.map((tag) => tag.glyph),
+        isNot(contains('合')),
+        reason: '${row.date}',
+      );
     }
+    // 모아 본 태그(합) 밖의 그날 태그는 그대로 보입니다(`hiddenScope`, D113 ①, D115 ③).
+    expect(rows.any((row) => row.tags.isNotEmpty), isTrue);
     expect(rows.any((row) => row.dayKind != null), isTrue);
 
     // 줄을 누르면 그 일기의 diary-view입니다.

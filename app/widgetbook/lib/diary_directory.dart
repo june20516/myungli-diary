@@ -21,14 +21,24 @@ HanjaTag _dayKindTag() => HanjaTag(
   onTap: () {},
 );
 
-/// 대표 태그 `hanja-tag`(사주 용어 초록 `default`).
-HanjaTag _featuredTag() => HanjaTag(
-  glyph: HanjaGlyphs.forTagKey('cheoneul_gwiin')!,
-  label: '천을귀인',
-  onTap: () {},
-);
+/// 사주 기운 태그 `hanja-tag`(사주 용어 초록 `default`).
+HanjaTag _sajuTag(String key, String label) =>
+    HanjaTag(glyph: HanjaGlyphs.forTagKey(key)!, label: label, onTap: () {});
 
-/// diary-row 목록: 달 머리, 날의 성격과 대표 태그 줄, 성격 대기, 마지막 줄, skeleton.
+/// 그날 사주 기운 태그 모두(대표 태그 순위 순, D115). [many]면 한 줄을 넘어 가로로 밉니다.
+List<HanjaTag> _dayTags({bool many = false}) => [
+  _sajuTag('cheoneul_gwiin', '천을귀인'),
+  _sajuTag('harmony', '합'),
+  if (many) ...[
+    _sajuTag('dohwa', '도화'),
+    _sajuTag('yeokma', '역마'),
+    _sajuTag('hwagae', '화개'),
+    _sajuTag('gongmang', '공망'),
+  ],
+];
+
+/// diary-row 목록: 달 머리, 날의 성격과 사주 기운 태그 줄(넘치면 가로 밀기), 성격 대기, 마지막
+/// 줄, skeleton.
 class _DiaryRowDemo extends StatelessWidget {
   const new();
 
@@ -42,7 +52,14 @@ class _DiaryRowDemo extends StatelessWidget {
         date: CalendarDate(2026, 10, 12),
         excerpt: '오랜만에 연락이 온 친구와 점심을 먹었다. 이야기가 길어져 오후 일정이 밀렸지만 기분은 좋았다.',
         dayKind: _dayKindTag(),
-        tag: _featuredTag(),
+        tags: _dayTags(),
+        onTap: () {},
+      ),
+      DiaryRow(
+        date: CalendarDate(2026, 10, 10),
+        excerpt: '여러 기운이 겹친 날이었다.',
+        dayKind: _dayKindTag(),
+        tags: _dayTags(many: true),
         onTap: () {},
       ),
       DiaryRow(
@@ -75,7 +92,7 @@ class _DiaryGroupDemo extends StatelessWidget {
         date: CalendarDate(2026, 10, 12),
         dayKind: _dayKindTag(),
         entries: _entries(),
-        tag: _featuredTag(),
+        tags: _dayTags(many: true),
       ),
       DiaryRow(
         date: CalendarDate(2026, 10, 8),
@@ -112,8 +129,8 @@ const List<String> _questions = [
   '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?',
 ];
 
-/// diary-editor edit: 질문 바꾸기로 후보를 돌고, 저장 순간 버튼으로 도장·대표 태그 순서를
-/// 봅니다.
+/// diary-editor edit: 질문 바꾸기로 후보를 돌고, 떼기 `x`로 권유 줄로 바꿨다가 누르면 첫 질문을
+/// 다시 붙이며(D116), 저장 순간 버튼으로 도장·대표 태그 순서를 봅니다.
 class _EditorDemo extends StatefulWidget {
   const new();
 
@@ -125,6 +142,7 @@ class _EditorDemoState extends State<_EditorDemo> {
   final _controller = TextEditingController();
   final _editor = DiaryEditorController();
   int _question = 0;
+  bool _detached = false;
 
   @override
   void dispose() {
@@ -145,8 +163,19 @@ class _EditorDemoState extends State<_EditorDemo> {
         question: RenderedText(
           segments: [Segment(text: _questions[_question])],
         ),
-        onSwapQuestion: () =>
-            setState(() => _question = (_question + 1) % _questions.length),
+        questionDetached: _detached,
+        onSwapQuestion: _detached
+            ? null
+            : () => setState(
+                () => _question = (_question + 1) % _questions.length,
+              ),
+        onDetachQuestion: _detached
+            ? null
+            : () => setState(() => _detached = true),
+        onAttachQuestion: () => setState(() {
+          _detached = false;
+          _question = 0;
+        }),
         placeholder: '오늘 있었던 일을 적어 보세요',
       ),
       TextButton(

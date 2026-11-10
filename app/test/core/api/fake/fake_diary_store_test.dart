@@ -109,6 +109,51 @@ void main() {
     expect((items.single! as Map)['excerpt'], '새 일기');
   });
 
+  test('withoutGuideQuestion true면 그 편에 질문이 없고 같은 날 다음 편은 기본 질문입니다(D116)', () {
+    final store = _store();
+    final detached = store.create({
+      'date': '2026-10-11',
+      'body': '질문 없이',
+      'withoutGuideQuestion': true,
+    });
+    expect(detached, isNot(contains('guideQuestion')));
+    expect(
+      store.get(detached['id']! as String),
+      isNot(contains('guideQuestion')),
+    );
+    final next = store.create({
+      'date': '2026-10-11',
+      'body': '질문과 함께',
+      'withoutGuideQuestion': false,
+    });
+    expect(next['guideQuestion'], (_daily['guide']! as Map)['text']);
+  });
+
+  test(
+    'withoutGuideQuestion true와 guideQuestion을 함께 보내면 400 request.invalid입니다',
+    () {
+      final store = _store();
+      expect(
+        () => store.create({
+          'date': '2026-10-11',
+          'body': '둘 다',
+          'guideQuestion': {'messageKey': 'guide.a', 'variant': '1'},
+          'withoutGuideQuestion': true,
+        }),
+        throwsA(
+          allOf(
+            _problem(400, 'request.invalid'),
+            isA<FakeProblem>().having(
+              (p) => p.errors.single.field,
+              'field',
+              '/withoutGuideQuestion',
+            ),
+          ),
+        ),
+      );
+    },
+  );
+
   test('같은 날 둘째 편은 첫 편의 날짜 기록을 쓰고 작성 순으로 나옵니다', () {
     final store = _store();
     final first = store.create({'date': '2026-10-11', 'body': '첫째'});

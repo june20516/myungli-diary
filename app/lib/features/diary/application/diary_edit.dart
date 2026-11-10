@@ -74,6 +74,7 @@ final class DiaryEditState {
     required this.fromDraft,
     this.candidates = const [],
     this.questionIndex = 0,
+    this.guideDetached = false,
     this.savedQuestion,
     this.dayPillar,
     this.dayPillarPending = false,
@@ -102,6 +103,10 @@ final class DiaryEditState {
   /// [candidates] 가운데 고른 후보의 순번.
   final int questionIndex;
 
+  /// 새 일기에서 가이드 질문을 뗐는지(D116, `guideStates.detached`). 떼면 이 편에는 질문이
+  /// 붙지 않습니다. 이어 쓰기 초안이 뗀 채 남았으면 true로 시작합니다.
+  final bool guideDetached;
+
   /// 고치는 일기에 저장된 질문(`Diary.guideQuestion`). 새 일기는 null입니다.
   final RenderedText? savedQuestion;
 
@@ -127,18 +132,28 @@ final class DiaryEditState {
   RenderedText? get question =>
       candidates.isEmpty ? savedQuestion : candidates[questionIndex].text;
 
-  /// 질문 바꾸기를 보일지: 새 일기이고 후보가 둘 이상일 때(A115, `swap.visibleWhen`).
-  bool get canSwapQuestion => existing == null && candidates.length >= 2;
+  /// 질문 바꾸기를 보일지: 새 일기이고 질문이 붙어 있으며 후보가 둘 이상일 때(A115,
+  /// `swap.visibleWhen`, `guideStates.attached`).
+  bool get canSwapQuestion =>
+      existing == null && !guideDetached && candidates.length >= 2;
 
-  /// 저장 요청에 실을 고른 질문. 후보를 받지 못했으면 null이고 필드를 뺍니다(A115).
-  GuideChoice? get guideChoice =>
-      candidates.isEmpty ? null : guideChoiceOf(candidates[questionIndex]);
+  /// 질문 떼기와 다시 붙이기를 둘지: 새 일기이고 그날 질문 후보를 받았을 때(D116, A123).
+  /// 후보가 없으면 질문 자리 전체를 그리지 않아(`whenNoQuestion`) 둘 다 없습니다. 고치기는
+  /// 질문을 바꿀 수 없어(`updateDiary`) 없습니다.
+  bool get canDetachQuestion => existing == null && candidates.isNotEmpty;
+
+  /// 저장 요청에 실을 고른 질문. 질문을 뗐거나 후보를 받지 못했으면 null이고 필드를 뺍니다
+  /// (A115, D116).
+  GuideChoice? get guideChoice => guideDetached || candidates.isEmpty
+      ? null
+      : guideChoiceOf(candidates[questionIndex]);
 
   /// 값을 바꾼 상태.
   DiaryEditState copyWith({
     Diary? existing,
     List<SlotText>? candidates,
     int? questionIndex,
+    bool? guideDetached,
     Pillar? dayPillar,
     bool? dayPillarPending,
     DiaryDraftStatus? status,
@@ -151,6 +166,7 @@ final class DiaryEditState {
     fromDraft: fromDraft,
     candidates: candidates ?? this.candidates,
     questionIndex: questionIndex ?? this.questionIndex,
+    guideDetached: guideDetached ?? this.guideDetached,
     savedQuestion: savedQuestion,
     dayPillar: dayPillar ?? this.dayPillar,
     dayPillarPending: dayPillarPending ?? this.dayPillarPending,
@@ -177,7 +193,9 @@ bool sameGuideChoice(GuideChoice? a, GuideChoice? b) =>
 ///   오류면 [DiaryEditState.offline]입니다. 고치는 일기를 받지 못하면 날짜를 몰라 오류로 엽니다
 ///   (404는 `diary.not_found`).
 /// * 새 일기는 [DiaryEdit.swapQuestion]으로 그날 후보를 돌고, 고른 질문은 초안과 저장 요청에
-///   실립니다(A115).
+///   실립니다(A115). [DiaryEdit.detachQuestion]으로 질문을 떼면 초안에 뗀 상태가 남고 저장
+///   요청은 `withoutGuideQuestion: true`이며, [DiaryEdit.attachQuestion]은 그날 기본 질문(첫
+///   후보)을 다시 붙입니다(D116).
 /// * `edit`는 입력이 멈추고 [diaryDraftDelay] 뒤 초안을 씁니다. 공백뿐이면 초안을 지웁니다.
 /// * `save`는 두 번 눌러도 요청 하나이고, 실패해도 초안을 남깁니다(A49). 새 일기는 `create`,
 ///   고치기는 `update`이며 새 일기를 저장한 뒤 같은 화면에서 다시 저장하면 `update`입니다.
@@ -213,9 +231,11 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   late DiaryDraftStore _drafts;
   late CrashReporter _crashReporter;
 
-  /// 새 일기 저장 요청의 본문, 고른 질문, `Idempotency-Key`. 실패 뒤 같은 본문과 같은 질문을
-  /// 다시 저장하면 같은 키를 쓰고(시간 초과 뒤 일기가 두 편 생기지 않게), 성공하면 비웁니다.
-  ({String body, GuideChoice? guide, String key})? _pendingCreate;
+  /// 새 일기 저장 요청의 본문, 고른 질문, 질문 뗌, `Idempotency-Key`. 실패 뒤 같은 본문과 같은
+  /// 질문(뗌 포함)을 다시 저장하면 같은 키를 쓰고(시간 초과 뒤 일기가 두 편 생기지 않게),
+  /// 성공하면 비웁니다.
+  ({String body, GuideChoice? guide, bool detached, String key})?
+  _pendingCreate;
 
   /// 화면이 마지막으로 알려 준 본문. 질문만 바꿔도 초안을 다시 쓰는 데 씁니다.
   String _latestBody = '';
@@ -223,6 +243,9 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   /// 초안에 남길 고른 질문. dispose 안에서도 쓰려고 state 밖에 둡니다. 후보를 받지 못한
   /// 동안은 초안에 있던 값을 그대로 지킵니다(보낼 때는 빼지만 다음에 열면 되살림).
   GuideChoice? _draftGuide;
+
+  /// 초안에 남길 질문 뗌(D116). [_draftGuide]와 같은 까닭으로 state 밖에 둡니다.
+  bool _draftDetached = false;
 
   @override
   Future<DiaryEditState> build() async {
@@ -264,6 +287,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
           existing: null,
           candidates: candidates,
           questionIndex: index < 0 ? 0 : index,
+          guideDetached: draft?.guideDetached ?? false,
           dayPillar: daily?.dayPillar,
           fromDraft: draft != null,
           status: draft != null ? DiaryDraftStatus.local : null,
@@ -271,6 +295,7 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
         );
         _latestBody = opened.initialBody;
         _draftGuide = candidates.isEmpty ? restored : opened.guideChoice;
+        _draftDetached = opened.guideDetached;
         return opened;
       case ExistingDiaryEditTarget(:final id):
         final existing = await ref.watch(diaryRepositoryProvider).find(id);
@@ -372,8 +397,40 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
     final next = current.copyWith(
       questionIndex: (current.questionIndex + 1) % current.candidates.length,
     );
+    _changeGuide(next);
+  }
+
+  /// 질문을 뗍니다(D116 ①, `guideStates` attached → detached). 새 일기이고 후보를 받았을 때만
+  /// 이고, 본문은 그대로이며 쓴 글이 있으면 뗀 상태를 초안에 다시 씁니다.
+  void detachQuestion() {
+    final current = state.value;
+    if (current == null ||
+        !current.canDetachQuestion ||
+        current.guideDetached ||
+        current.saving) {
+      return;
+    }
+    _changeGuide(current.copyWith(guideDetached: true));
+  }
+
+  /// 뗀 질문 자리에 그날 기본 질문(server 후보 목록의 첫 질문)을 다시 붙입니다(D116 ②,
+  /// `guideStates` detached → attached). 질문 바꾸기 순서도 처음부터입니다.
+  void attachQuestion() {
+    final current = state.value;
+    if (current == null ||
+        !current.canDetachQuestion ||
+        !current.guideDetached ||
+        current.saving) {
+      return;
+    }
+    _changeGuide(current.copyWith(guideDetached: false, questionIndex: 0));
+  }
+
+  /// 질문 상태를 [next]로 바꾸고, 쓴 글이 있으면 고른 질문과 뗌을 초안에 다시 씁니다.
+  void _changeGuide(DiaryEditState next) {
     state = AsyncData(next);
     _draftGuide = next.guideChoice;
+    _draftDetached = next.guideDetached;
     if (_latestBody.trim().isNotEmpty) {
       edit(_latestBody);
     }
@@ -464,8 +521,9 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       id: saved.id,
     );
     _draftTarget = savedTarget;
-    // 저장한 일기의 초안에는 고른 질문을 남기지 않습니다(고치기는 질문을 바꾸지 않음).
+    // 저장한 일기의 초안에는 고른 질문과 뗌을 남기지 않습니다(고치기는 질문을 바꾸지 않음).
     _draftGuide = null;
+    _draftDetached = false;
     // 저장 중에 들어온 입력이 저장한 본문과 다르면 새 대상의 초안으로 남깁니다.
     final later = _pendingDraft;
     _draftTimer?.cancel();
@@ -533,16 +591,24 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
       return repository.update(existing.id, body);
     }
     final guide = current.guideChoice;
+    final detached = current.guideDetached;
     final pending = _pendingCreate;
     final key =
         pending != null &&
             pending.body == body &&
+            pending.detached == detached &&
             sameGuideChoice(pending.guide, guide)
         ? pending.key
         : _uuid.v4();
-    _pendingCreate = (body: body, guide: guide, key: key);
+    _pendingCreate = (body: body, guide: guide, detached: detached, key: key);
     return repository
-        .create(current.date, body, idempotencyKey: key, guideQuestion: guide)
+        .create(
+          current.date,
+          body,
+          idempotencyKey: key,
+          guideQuestion: guide,
+          withoutGuideQuestion: detached,
+        )
         .then((created) {
           _pendingCreate = null;
           return created;
@@ -556,7 +622,12 @@ final class DiaryEdit extends AsyncNotifier<DiaryEditState> {
   ) => _guard(
     () => body.trim().isEmpty
         ? drafts.remove(draftTarget)
-        : drafts.write(draftTarget, body, guide: _draftGuide),
+        : drafts.write(
+            draftTarget,
+            body,
+            guide: _draftGuide,
+            detached: _draftDetached,
+          ),
   );
 
   /// 초안 쓰기는 비치명입니다. 실패하면 요약만 남깁니다(D64: 본문은 싣지 않음).
