@@ -1743,4 +1743,56 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tagSheetSentenceKindGuide => '今日の質問';
+
+  @override
+  String get daySheetEventAllDay => '終日';
+
+  @override
+  String get daySheetVerdictCollapse => '閉じる';
+
+  @override
+  String get daySheetVerdictExpand => '内訳を見る';
+
+  @override
+  String get diaryEditGuideAttach => '質問を追加';
+
+  @override
+  String get diaryEditGuideRemove => '質問なしで書く';
+
+  @override
+  String get evidenceSheetUnlockUntilMidnight => '今夜0時まで閲覧可';
+
+  @override
+  String evidenceSheetUnlockUntilDate(String date) {
+    return '$dateまで閲覧可';
+  }
+
+  @override
+  String get previewUsedInputName => '呼び名';
+
+  @override
+  String get previewUsedInputBirth => '誕生日';
+
+  @override
+  String get previewUsedInputTime => '生まれた時刻';
+
+  @override
+  String get previewUsedInputGender => '性別';
+
+  @override
+  String get previewUsedInputBirthplace => '出生地';
+
+  @override
+  String previewUsedInputBirthValue(String calendar, String date) {
+    return '$calendar $date';
+  }
+
+  @override
+  String previewUsedInputBirthValueLeap(String calendar, String date) {
+    return '$calendar 閏月 $date';
+  }
+
+  @override
+  String get previewUsedNotice =>
+      '最初の読み解きは、この端末では一度だけ見られます。情報を変えるには、保存したあとマイページの「情報の変更」で変えてください。';
 }

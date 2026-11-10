@@ -9,8 +9,11 @@ import 'package:flutter/widgets.dart'
     show
         Border,
         BoxDecoration,
+        BoxShape,
+        Brightness,
         BuildContext,
         Builder,
+        Center,
         DecoratedBox,
         IconData,
         Locale,
@@ -19,6 +22,7 @@ import 'package:flutter/widgets.dart'
         Text,
         Widget;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -53,8 +57,10 @@ import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
+import 'package:myungli_diary/design/elements/stem_chip.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -1140,6 +1146,246 @@ void main() {
         await check(_map(emphasis['dayKind']), HanjaTagVariant.emphasis);
       },
     );
+  });
+
+  group('오행 금과 수 테두리와 간지 한자색 (6.1.0, V98)', () {
+    final elements = _elements();
+    final cell = _map(elements['ohaeng.cell']);
+    final cellBorder = _map(cell['border']);
+    final cellBorderByElement = _map(cellBorder['byElement']);
+    final specs = loadSpecComponents();
+
+    /// 오행 칸, 간지 태그, 견본이 쓰는 토큰 참조 → [c]의 값.
+    Color token(ColorTokens c, Object? ref) =>
+        switch (ref) {
+          '{color.ohaeng.wood.bg}' => c.ohaengWoodBg,
+          '{color.ohaeng.wood.fg}' => c.ohaengWoodFg,
+          '{color.ohaeng.wood.glyph}' => c.ohaengWoodGlyph,
+          '{color.ohaeng.fire.bg}' => c.ohaengFireBg,
+          '{color.ohaeng.fire.fg}' => c.ohaengFireFg,
+          '{color.ohaeng.fire.glyph}' => c.ohaengFireGlyph,
+          '{color.ohaeng.earth.bg}' => c.ohaengEarthBg,
+          '{color.ohaeng.earth.fg}' => c.ohaengEarthFg,
+          '{color.ohaeng.earth.glyph}' => c.ohaengEarthGlyph,
+          '{color.ohaeng.metal.bg}' => c.ohaengMetalBg,
+          '{color.ohaeng.metal.fg}' => c.ohaengMetalFg,
+          '{color.ohaeng.metal.border}' => c.ohaengMetalBorder,
+          '{color.ohaeng.metal.glyph}' => c.ohaengMetalGlyph,
+          '{color.ohaeng.water.bg}' => c.ohaengWaterBg,
+          '{color.ohaeng.water.fg}' => c.ohaengWaterFg,
+          '{color.ohaeng.water.border}' => c.ohaengWaterBorder,
+          '{color.ohaeng.water.glyph}' => c.ohaengWaterGlyph,
+          '{color.swatch.border}' => c.swatchBorder,
+          _ => null,
+        } ??
+        fail('모르는 토큰 $ref');
+
+    /// 계약 [ref]가 있으면 그 색의 1px 테두리, 없으면 테두리 없음.
+    Object expectedBorder(ColorTokens c, Object? ref) => ref == null
+        ? isNull
+        : Border.all(color: token(c, ref), width: _px(cellBorder['width']));
+
+    BoxDecoration decorationIn(WidgetTester tester, Finder of) =>
+        tester
+                .widget<DecoratedBox>(
+                  find.descendant(of: of, matching: find.byType(DecoratedBox)),
+                )
+                .decoration
+            as BoxDecoration;
+
+    test('ohaeng.cell border: 금과 수만, 1px 안쪽, 라이트와 다크 토큰과 같습니다', () {
+      expect(cellBorderByElement.keys, unorderedEquals(['metal', 'water']));
+      expect(_px(cellBorder['width']), ohaengCellBorderWidth);
+      expect(cellBorder['placement'], 'inside');
+      for (final colors in [lightColors, darkColors]) {
+        for (final element in FiveElement.values) {
+          final ref = cellBorderByElement[element.value];
+          expect(
+            ohaengCellBorderOf(colors, element),
+            ref == null ? isNull : token(colors, ref),
+            reason: '${element.value} $ref',
+          );
+        }
+      }
+      // stem.chip은 ohaeng.cell 색을 테두리까지 따릅니다.
+      expect(
+        _map(elements['stem.chip'])['colorsRule'],
+        contains('ohaeng.cell border'),
+      );
+    });
+
+    testWidgets('ohaeng.cell 두 크기와 stem.chip이 계약 바탕색과 금, 수 테두리를 그립니다', (
+      tester,
+    ) async {
+      final byElement = _map(cell['byElement']);
+      for (final brightness in Brightness.values) {
+        for (final element in FiveElement.values) {
+          final widgets = <Widget>[
+            OhaengCell(element: element, hanja: '甲', reading: '갑'),
+            OhaengCell(
+              element: element,
+              hanja: '甲',
+              size: OhaengCellSize.small,
+            ),
+            StemChip(element: element, hanja: '甲'),
+          ];
+          for (final widget in widgets) {
+            await tester.pumpWidget(
+              inputApp(Center(child: widget), brightness: brightness),
+            );
+            final of = find.byWidget(widget);
+            final c = tester.element(of).tokens.colors;
+            final box = decorationIn(tester, of);
+            final reason = '$brightness ${element.value} ${widget.runtimeType}';
+            expect(
+              box.color,
+              token(c, _map(byElement[element.value])['bg']),
+              reason: reason,
+            );
+            expect(
+              box.border,
+              expectedBorder(c, cellBorderByElement[element.value]),
+              reason: reason,
+            );
+          }
+        }
+      }
+    });
+
+    testWidgets(
+      'hanja-tag ganji: 알약은 오행 bg, fg와 금, 수 테두리, 한자 원은 오행 glyph 색입니다',
+      (tester) async {
+        final ganji = _map(
+          (specs['hanja-tag']!['variants']! as List<Object?>)
+              .map(_map)
+              .firstWhere((v) => v['id'] == 'ganji')['parts'],
+        );
+        final glyphFg = _map(_map(_map(ganji['glyph'])['fg'])['byElement']);
+        final pillBorder = _map(_map(ganji['pill'])['border']);
+        final pillBorderByElement = _map(pillBorder['byElement']);
+        final tone = _map(_map(ganji['tone'])['byElement']);
+        expect(_px(pillBorder['width']), ohaengCellBorderWidth);
+        expect(pillBorder['placement'], 'inside');
+        // 알약 테두리는 ohaeng.cell 테두리와 같은 토큰입니다.
+        expect(pillBorderByElement, cellBorderByElement);
+        final glyphs = _map(ganji['ganjiGlyphs']);
+        for (final brightness in Brightness.values) {
+          for (final group in glyphs.values) {
+            for (final MapEntry(key: hanja, value: element) in _map(
+              group,
+            ).entries) {
+              await tester.pumpWidget(
+                inputApp(
+                  HanjaTag(
+                    glyph: hanja,
+                    label: '이름',
+                    variant: HanjaTagVariant.ganji,
+                  ),
+                  brightness: brightness,
+                ),
+              );
+              final c = tester
+                  .element(find.byKey(HanjaTag.surfaceKey))
+                  .tokens
+                  .colors;
+              final box =
+                  tester
+                          .widget<DecoratedBox>(find.byKey(HanjaTag.surfaceKey))
+                          .decoration
+                      as BoxDecoration;
+              final reason = '$brightness $hanja $element';
+              final pill = _map(tone[element]);
+              expect(box.color, token(c, pill['bg']), reason: reason);
+              expect(
+                tester.widget<Text>(find.text('이름')).style!.color,
+                token(c, pill['fg']),
+                reason: reason,
+              );
+              expect(
+                tester.widget<Text>(find.text(hanja)).style!.color,
+                token(c, glyphFg[element]),
+                reason: reason,
+              );
+              expect(
+                box.border,
+                expectedBorder(c, pillBorderByElement[element]),
+                reason: reason,
+              );
+            }
+          }
+        }
+      },
+    );
+
+    testWidgets('ohaeng-bar: 막대 칸과 범례 견본에 1px 안쪽 swatch.border를 둡니다', (
+      tester,
+    ) async {
+      final parts = _map(specs['ohaeng-bar']!['parts']);
+      final segmentBorder = _map(_map(parts['bar'])['segmentBorder']);
+      expect(segmentBorder['color'], '{color.swatch.border}');
+      expect(_px(segmentBorder['width']), OhaengBar.segmentBorderWidth);
+      expect(segmentBorder['placement'], 'inside');
+      expect(_map(parts['swatch'])['element'], 'ohaeng.swatch');
+      final swatchBorder = _map(_map(elements['ohaeng.swatch'])['border']);
+      expect(swatchBorder['color'], '{color.swatch.border}');
+
+      for (final brightness in Brightness.values) {
+        await tester.pumpWidget(
+          inputApp(
+            OhaengBar(
+              items: [
+                for (final element in FiveElement.values)
+                  OhaengBarItem(
+                    element: element,
+                    name: element.value,
+                    value: 1,
+                    count: '1',
+                  ),
+              ],
+              semanticLabel: '오행',
+            ),
+            brightness: brightness,
+          ),
+        );
+        final c = tester.element(find.byType(OhaengBar)).tokens.colors;
+        final expected = Border.all(
+          color: token(c, segmentBorder['color']),
+          width: _px(segmentBorder['width']),
+        );
+        for (final element in FiveElement.values) {
+          final box =
+              tester
+                      .widget<DecoratedBox>(
+                        find.byKey(OhaengBar.segmentKey(element)),
+                      )
+                      .decoration
+                  as BoxDecoration;
+          expect(box.border, expected, reason: '$brightness ${element.value}');
+        }
+        final swatches = tester
+            .widgetList<DecoratedBox>(
+              find.descendant(
+                of: find.byType(OhaengBar),
+                matching: find.byType(DecoratedBox),
+              ),
+            )
+            .map((box) => box.decoration)
+            .whereType<BoxDecoration>()
+            .where((d) => d.shape == BoxShape.circle)
+            .toList();
+        expect(swatches, hasLength(FiveElement.values.length));
+        for (final swatch in swatches) {
+          expect(
+            swatch.border,
+            Border.all(
+              color: token(c, swatchBorder['color']),
+              width: _px(swatchBorder['width']),
+            ),
+            reason: '$brightness legend',
+          );
+        }
+      }
+    });
   });
 
   group('loading skeleton 뼈 대조 (6.0.0, V66)', () {

@@ -940,7 +940,7 @@ abstract class AppLocalizations {
   /// **'저장하고 계속하기'**
   String get previewCtaSave;
 
-  /// preview.cta.restart: 다시 입력 링크
+  /// preview.cta.restart: 다시 입력 링크. 미리보기를 처음 볼 때만(미리보기를 이미 쓴 화면에는 없음, D117)
   ///
   /// In ko, this message translates to:
   /// **'다시 입력하기'**
@@ -3131,6 +3131,96 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'오늘의 질문'**
   String get tagSheetSentenceKindGuide;
+
+  /// day-sheet.event.all-day: 일정 줄 시각 칸 안의 하루 종일 꼬리표. 칸 안에 들어가는 짧은 낱말(V107)
+  ///
+  /// In ko, this message translates to:
+  /// **'종일'**
+  String get daySheetEventAllDay;
+
+  /// day-sheet.verdict.collapse: 내역을 펼쳤을 때 같은 자리의 접기 안내(V108)
+  ///
+  /// In ko, this message translates to:
+  /// **'접기'**
+  String get daySheetVerdictCollapse;
+
+  /// day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)
+  ///
+  /// In ko, this message translates to:
+  /// **'내역 보기'**
+  String get daySheetVerdictExpand;
+
+  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)
+  ///
+  /// In ko, this message translates to:
+  /// **'질문 추가'**
+  String get diaryEditGuideAttach;
+
+  /// diary-edit.guide.remove: 질문 떼기 버튼(스크린리더 이름). 떼면 이 편에는 질문이 붙지 않음(D116)
+  ///
+  /// In ko, this message translates to:
+  /// **'질문 없이 쓰기'**
+  String get diaryEditGuideRemove;
+
+  /// evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)
+  ///
+  /// In ko, this message translates to:
+  /// **'자정까지 열림'**
+  String get evidenceSheetUnlockUntilMidnight;
+
+  /// evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}까지 열림'**
+  String evidenceSheetUnlockUntilDate(String date);
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'호칭'**
+  String get previewUsedInputName;
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'생일'**
+  String get previewUsedInputBirth;
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'태어난 시간'**
+  String get previewUsedInputTime;
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'성별'**
+  String get previewUsedInputGender;
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'출생지'**
+  String get previewUsedInputBirthplace;
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'{calendar} {date}'**
+  String previewUsedInputBirthValue(String calendar, String date);
+
+  /// preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'{calendar} 윤달 {date}'**
+  String previewUsedInputBirthValueLeap(String calendar, String date);
+
+  /// preview.used.notice: 미리보기를 이미 쓴 화면의 안내. 이 기기에서는 미리보기를 이미 봤고, 저장(로그인)한 뒤 나 탭 정보 수정에서 바꿀 수 있다는 말. 막는다는 말보다 권하는 말(D86 ⑤, D117)
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.'**
+  String get previewUsedNotice;
 }
 
 class _AppLocalizationsDelegate

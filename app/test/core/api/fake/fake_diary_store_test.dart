@@ -217,6 +217,37 @@ void main() {
     expect(store.create('{"date":"2026-10-10","body":"문자열 본문"}'), isNotEmpty);
   });
 
+  test('allTags는 대표 태그를 앞에, 나머지 전체 태그를 엔진 순서로 길흉과 함께 잇습니다 (D115)', () {
+    final store = _store(
+      summaries: [
+        {
+          ..._summary('a', '2026-10-05', '정리', [
+            {'key': 'clash', 'polarity': 'bad'},
+          ]),
+          'allTags': [
+            {'key': 'clash', 'polarity': 'bad'},
+            {'key': 'yeokma', 'polarity': 'neutral'},
+          ],
+        },
+      ],
+    )..create({'date': '2026-10-11', 'body': '새 일기'});
+    final items = {
+      for (final item in _items(store.list()))
+        (item! as Map)['id']: item as Map,
+    };
+    // fixture 요약의 allTags는 그대로입니다.
+    expect(items['a']!['allTags'], [
+      {'key': 'clash', 'polarity': 'bad'},
+      {'key': 'yeokma', 'polarity': 'neutral'},
+    ]);
+    // 새 일기는 daily 대표 태그 뒤에 나머지 키(yongsin_day)를 엔진 표의 길흉으로 붙입니다.
+    final created = items.values.singleWhere((i) => i['date'] == '2026-10-11');
+    expect(created['allTags'], [
+      {'key': 'cheoneul_gwiin', 'polarity': 'good'},
+      {'key': 'yongsin_day', 'polarity': 'good'},
+    ]);
+  });
+
   test('같은 Idempotency-Key는 같은 일기를, 다른 본문이면 422를 줍니다', () {
     final store = _store();
     final input = {'date': '2026-10-10', 'body': '일기'};

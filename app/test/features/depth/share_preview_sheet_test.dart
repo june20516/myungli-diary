@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
@@ -494,8 +493,10 @@ void main() {
       final renderer = _RecordingRenderer();
       final share = FakeShareSheet();
       final crash = FakeCrashReporter();
-      // 앞선 테스트가 읽어 둔 로고가 남지 않게 SVG 캐시를 비우고, 로고 읽기만 붙잡습니다.
-      svg.cache.clear();
+      // 앞선 테스트가 읽어 둔 로고가 남지 않게 이미지 캐시를 비우고, 로고 읽기만 붙잡습니다.
+      imageCache
+        ..clear()
+        ..clearLiveImages();
       await _pump(
         tester,
         DefaultAssetBundle(

@@ -16,6 +16,7 @@ enum OhaengCellSize {
 }
 
 /// 오행 칸(`ohaeng.cell`): 오행 바탕 + 오행 글자로 천간·지지 한 글자를 보입니다. `radius.sm`.
+/// 금과 수 칸은 1px 안쪽 테두리를 둡니다(`border`, V98).
 ///
 /// 글자 크기는 1.3배에서 멈춥니다(`textScaleMax`). 표 칸이 커지면 원국 배치가 무너지기 때문입니다.
 /// [OhaengCell.empty]는 시간 모름의 시주처럼 값이 없는 자리(점선 테두리 빈 칸)입니다.
@@ -104,7 +105,12 @@ class OhaengCell extends StatelessWidget {
         child: Container(
           width: width,
           height: height,
-          decoration: BoxDecoration(color: cell.bg, borderRadius: radius),
+          // 금과 수 칸은 1px 안쪽 테두리(V98). 안쪽에 그려 칸과 글자 크기는 그대로입니다.
+          decoration: BoxDecoration(
+            color: cell.bg,
+            borderRadius: radius,
+            border: ohaengCellBorder(colors, element!),
+          ),
           alignment: Alignment.center,
           child: Column(
             mainAxisSize: MainAxisSize.min,

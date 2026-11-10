@@ -218,6 +218,7 @@ final class ScheduleTestServer extends Interceptor {
                 'createdAt': '${date}T09:00:00Z',
                 'excerpt': '일기',
                 'featuredTags': <Object>[],
+                'allTags': <Object>[],
               },
           ],
         },

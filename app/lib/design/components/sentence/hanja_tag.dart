@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// `hanja-tag` 톤. 알약 바탕과 이름 글자색을 정합니다.
@@ -42,7 +44,7 @@ enum HanjaTagVariant {
   /// 고른 태그(`selected`). 둘레 1.5px `action.primary`.
   selected,
 
-  /// 간지 한 글자(`ganji`). 오행 색을 씁니다.
+  /// 간지 한 글자(`ganji`). 오행 색을 씁니다(금과 수 알약은 1px 안쪽 테두리, 한자는 오행 glyph 색).
   ganji,
 }
 
@@ -110,29 +112,29 @@ class HanjaTag extends StatelessWidget {
   static const double skeletonWidth = 64;
 
   /// 간지 한 글자 → 오행. 계약 `hanja-tag.variants.ganji.parts.ganjiGlyphs`.
-  static const Map<String, _Element> _ganjiElements = {
-    '甲': _Element.wood,
-    '乙': _Element.wood,
-    '丙': _Element.fire,
-    '丁': _Element.fire,
-    '戊': _Element.earth,
-    '己': _Element.earth,
-    '庚': _Element.metal,
-    '辛': _Element.metal,
-    '壬': _Element.water,
-    '癸': _Element.water,
-    '寅': _Element.wood,
-    '卯': _Element.wood,
-    '巳': _Element.fire,
-    '午': _Element.fire,
-    '辰': _Element.earth,
-    '戌': _Element.earth,
-    '丑': _Element.earth,
-    '未': _Element.earth,
-    '申': _Element.metal,
-    '酉': _Element.metal,
-    '亥': _Element.water,
-    '子': _Element.water,
+  static const Map<String, FiveElement> _ganjiElements = {
+    '甲': FiveElement.wood,
+    '乙': FiveElement.wood,
+    '丙': FiveElement.fire,
+    '丁': FiveElement.fire,
+    '戊': FiveElement.earth,
+    '己': FiveElement.earth,
+    '庚': FiveElement.metal,
+    '辛': FiveElement.metal,
+    '壬': FiveElement.water,
+    '癸': FiveElement.water,
+    '寅': FiveElement.wood,
+    '卯': FiveElement.wood,
+    '巳': FiveElement.fire,
+    '午': FiveElement.fire,
+    '辰': FiveElement.earth,
+    '戌': FiveElement.earth,
+    '丑': FiveElement.earth,
+    '未': FiveElement.earth,
+    '申': FiveElement.metal,
+    '酉': FiveElement.metal,
+    '亥': FiveElement.water,
+    '子': FiveElement.water,
   };
 
   /// 원 안 한자 한 글자.
@@ -169,14 +171,15 @@ class HanjaTag extends StatelessWidget {
     final element = _ganjiElements[glyph];
     // 알 수 없는 간지 글자는 release에서 죽지 않도록 term 톤으로 그립니다.
     if (variant == HanjaTagVariant.ganji && element != null) {
-      final (bg, fg) = switch (element) {
-        _Element.wood => (colors.ohaengWoodBg, colors.ohaengWoodFg),
-        _Element.fire => (colors.ohaengFireBg, colors.ohaengFireFg),
-        _Element.earth => (colors.ohaengEarthBg, colors.ohaengEarthFg),
-        _Element.metal => (colors.ohaengMetalBg, colors.ohaengMetalFg),
-        _Element.water => (colors.ohaengWaterBg, colors.ohaengWaterFg),
-      };
-      return _TagColors(bg: bg, fg: fg, glyph: fg);
+      // 알약 바탕과 이름은 오행 bg와 fg, 금과 수 알약은 ohaeng.cell과 같은 테두리,
+      // 흰 원 안 한자는 오행 glyph 색입니다(V98).
+      final cell = ohaengCellColorsOf(colors, element);
+      return _TagColors(
+        bg: cell.bg,
+        fg: cell.fg,
+        border: ohaengCellBorderOf(colors, element),
+        glyph: ohaengGlyphOf(colors, element),
+      );
     }
     if (variant == HanjaTagVariant.ganji) {
       return _TagColors(bg: colors.termBg, fg: colors.termFg);
@@ -290,9 +293,6 @@ class HanjaTag extends StatelessWidget {
   }
 }
 
-/// 간지 글자의 오행.
-enum _Element { wood, fire, earth, metal, water }
-
 /// 알약 색 묶음.
 class _TagColors {
   const new({required this.fg, this.bg, this.border, Color? glyph})
@@ -304,7 +304,7 @@ class _TagColors {
   /// 이름 글자색.
   final Color fg;
 
-  /// 톤 테두리(평범한 날).
+  /// 톤 테두리(평범한 날, `ganji` 금과 수 알약). 1px 안쪽입니다.
   final Color? border;
 
   /// 한자 글자색.

@@ -24,7 +24,10 @@ import 'package:uuid/uuid.dart';
 ///   `variant`의 후보를 그 편의 질문으로 남기고, 후보에 없으면 422 `diary.guide_invalid`입니다
 ///   (A115). 보내지 않으면 그날 기본 질문(`guide`)입니다.
 /// * 목록은 날짜 내림차순, 같은 날은 작성 순입니다. 요약의 `excerpt`는 본문 앞 100자,
-///   `featuredTags`는 대표 태그이고, `tag`는 전체 태그(`tags.all`)로 거릅니다.
+///   `featuredTags`는 대표 태그, `allTags`는 대표 태그를 앞에 두고 나머지 전체 태그를 엔진 순서로
+///   이은 것이고(D115), `tag`는 전체 태그(`tags.all`)로 거릅니다. 전체 태그 키에는 길흉이 없어
+///   받은 태그(요약의 `allTags`, 대표 태그)의 값을 먼저 쓰고, 처음 보는 키는 엔진 태그 표
+///   ([_enginePolarities])로 채웁니다.
 final class FakeDiaryStore {
   /// [summaries](`DiarySummary` JSON, `id`·`createdAt` 포함)와 [diaries](`Diary`
   /// JSON)로 시작합니다. 같은 id면 전체 일기가 앞섭니다. 요약만 있는 일기는 `excerpt`를
@@ -36,6 +39,11 @@ final class FakeDiaryStore {
     required this._today,
     required this._nowUtc,
   }) : _daily = daily ?? const {} {
+    for (final source in [_daily, ...diaries]) {
+      if (source['tags'] case {'featured': final List<Object?> featured}) {
+        featured.forEach(_rememberPolarity);
+      }
+    }
     // 전체 일기를 먼저 넣어, 그 날짜의 날짜 기록(태그 전체·가이드 질문)이 요약 기반 기록보다
     // 앞서게 합니다.
     diaries.forEach(_seed);
@@ -44,6 +52,8 @@ final class FakeDiaryStore {
         continue;
       }
       final featured = summary['featuredTags'] as List<Object?>? ?? const [];
+      final all = summary['allTags'] as List<Object?>? ?? featured;
+      [...featured, ...all].forEach(_rememberPolarity);
       final createdAt = summary['createdAt']! as String;
       _seed({
         'id': summary['id'],
@@ -51,7 +61,7 @@ final class FakeDiaryStore {
         'body': summary['excerpt'],
         'tags': {
           'featured': featured,
-          'all': [for (final tag in featured) (tag! as Map)['key']],
+          'all': [for (final tag in all) (tag! as Map)['key']],
         },
         'rulesetVersion': _daily['rulesetVersion'] ?? 'fake',
         'createdAt': createdAt,
@@ -79,6 +89,29 @@ final class FakeDiaryStore {
 
   /// id → 살아 있는 일기(`Diary` JSON).
   final _diaries = <String, Map<String, Object?>>{};
+
+  /// 태그 키 → 길흉(`Tag.polarity`). 받은 태그의 값이 엔진 표 값보다 앞섭니다.
+  final _polarities = Map<String, String>.of(_enginePolarities);
+
+  /// 엔진 태그 표의 길흉(엔진 spec §7.7). 대역이 전체 태그 키에 길흉을 붙일 때만 씁니다.
+  static const Map<String, String> _enginePolarities = {
+    'clash_day_branch': 'bad',
+    'clash_month_branch': 'bad',
+    'clash': 'bad',
+    'harmony': 'good',
+    'ten_god_rush.gwanseong': 'bad',
+    'ten_god_rush.jaeseong': 'good',
+    'ten_god_rush.inseong': 'good',
+    'ten_god_rush.siksang': 'good',
+    'ten_god_rush.bigyeop': 'neutral',
+    'cheoneul_gwiin': 'good',
+    'dohwa': 'good',
+    'yeokma': 'neutral',
+    'hwagae': 'neutral',
+    'gongmang': 'bad',
+    'yongsin_day': 'good',
+    'gwiin_day': 'good',
+  };
 
   /// 날짜(`YYYY-MM-DD`) → 날짜 기록(`tags`·`guideQuestion`·`rulesetVersion`·
   /// `dayKind`). 그날 일기를 다 지워도 남습니다.
@@ -190,7 +223,31 @@ final class FakeDiaryStore {
     'featuredTags':
         (diary['tags']! as Map<String, Object?>)['featured'] ??
         const <Object?>[],
+    'allTags': _allTagsOf(diary['tags']! as Map<String, Object?>),
   };
+
+  /// [tags](`DayTags` JSON)의 `allTags`: 대표 태그를 순위 순으로 앞에 두고, 나머지 키를
+  /// 엔진 순서대로 길흉과 함께 잇습니다(D115).
+  List<Map<String, Object?>> _allTagsOf(Map<String, Object?> tags) {
+    final featured = [
+      for (final tag in tags['featured'] as List<Object?>? ?? const [])
+        Map<String, Object?>.of(tag! as Map<String, Object?>),
+    ];
+    final featuredKeys = {for (final tag in featured) tag['key']};
+    return [
+      ...featured,
+      for (final key in tags['all'] as List<Object?>? ?? const [])
+        if (!featuredKeys.contains(key))
+          {'key': key, 'polarity': _polarities[key] ?? 'neutral'},
+    ];
+  }
+
+  /// 받은 태그 JSON([tag])의 길흉을 기억합니다.
+  void _rememberPolarity(Object? tag) {
+    if (tag case {'key': final String key, 'polarity': final String polarity}) {
+      _polarities[key] = polarity;
+    }
+  }
 
   /// `listDiaries`: 요약 목록 한 쪽(`DiaryList` JSON). 범위·쪽 넘김은 [filterDiaryList]입니다.
   Map<String, Object?> list({

@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
@@ -111,20 +112,41 @@ class ShareImage extends StatelessWidget {
   /// 로고를 찾는 테스트용 키.
   static const Key logoKey = ValueKey('share-image-logo');
 
-  /// 로고 자산(`parts.logo`).
-  static const String logoAsset = 'assets/brand/myungli/lockup.svg';
+  /// 로고 자산(`parts.logo` `logo/lockup.png`, V99). 아이콘과 워드마크 가로 조합 PNG(높이 288px)를
+  /// 줄여 그립니다. 공유 이미지는 라이트 고정이라 다크 판은 싣지 않습니다.
+  static const String logoAsset = 'assets/brand/myungli/lockup.png';
 
-  /// 로고를 미리 읽어 둡니다. 화면 밖에서 그리기 전에 부르면 로고가 비지 않은 채 캡처됩니다.
+  /// 로고를 미리 해독해 이미지 캐시에 둡니다. 화면 밖에서 그리기 전에 부르면 로고가 비지 않은 채
+  /// 캡처됩니다.
   ///
-  /// [context]가 있으면 그 자산 묶음(`DefaultAssetBundle`), 없으면 앱 묶음에서 읽습니다. 렌더와 같은 상한
-  /// ([offscreenRenderTimeout])을 넘으면 [OffscreenRenderTimeout]을 던집니다.
-  static Future<void> precache([BuildContext? context]) =>
-      const SvgAssetLoader(logoAsset)
-          .loadBytes(context)
-          .timeout(
-            offscreenRenderTimeout,
-            onTimeout: () => throw const OffscreenRenderTimeout(),
-          );
+  /// [context]가 있으면 그 자산 묶음(`DefaultAssetBundle`), 없으면 앱 묶음에서 읽습니다. 읽기나
+  /// 해독 오류는 그대로 던지고, 렌더와 같은 상한([offscreenRenderTimeout])을 넘으면
+  /// [OffscreenRenderTimeout]을 던집니다.
+  static Future<void> precache([BuildContext? context]) {
+    final bundle = context == null ? null : DefaultAssetBundle.of(context);
+    final stream = const AssetImage(logoAsset)
+        .resolve(ImageConfiguration(bundle: bundle));
+    final loaded = Completer<void>();
+    late final ImageStreamListener listener;
+    listener = ImageStreamListener(
+      (image, synchronousCall) {
+        stream.removeListener(listener);
+        if (!loaded.isCompleted) loaded.complete();
+      },
+      onError: (error, stackTrace) {
+        stream.removeListener(listener);
+        if (!loaded.isCompleted) loaded.completeError(error, stackTrace);
+      },
+    );
+    stream.addListener(listener);
+    return loaded.future.timeout(
+      offscreenRenderTimeout,
+      onTimeout: () {
+        stream.removeListener(listener);
+        throw const OffscreenRenderTimeout();
+      },
+    );
+  }
 
   static const double _width = 360;
   static const double _contentWidth = _width - Space.s24 * 2;
@@ -328,11 +350,7 @@ class ShareImage extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  SvgPicture.asset(
-                    logoAsset,
-                    key: logoKey,
-                    height: _logoHeight,
-                  ),
+                  Image.asset(logoAsset, key: logoKey, height: _logoHeight),
                   const Spacer(),
                   Text(
                     footer,

@@ -27,6 +27,7 @@ Map<String, Object> _summaryJson(String id, String date) => {
   'createdAt': '${date}T12:00:00Z',
   'excerpt': '일기',
   'featuredTags': <Object>[],
+  'allTags': <Object>[],
 };
 
 /// 요청을 남기고 [respond]가 정한 (status, 본문)으로 답합니다.
@@ -109,6 +110,8 @@ void main() {
       expect(jsonDecode(request.data as String), {
         'date': '2026-10-13',
         'body': '일기',
+        // 생성 모델이 기본값(false, REST 1.10.0)을 함께 싣습니다. 계약상 질문을 붙이는 것과 같습니다.
+        'withoutGuideQuestion': false,
       });
       expect(request.headers['Idempotency-Key'], 'key-1');
     });

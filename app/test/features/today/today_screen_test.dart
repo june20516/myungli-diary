@@ -693,6 +693,7 @@ void main() {
                   createdAt: DateTime.utc(2026, 10, 13, 9, i),
                   excerpt: '오늘 $i번째 일기',
                   featuredTags: const [],
+                  allTags: const [],
                 ),
             ],
           ),

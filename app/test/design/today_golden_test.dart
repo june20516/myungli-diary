@@ -192,7 +192,7 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
   },
 );
 
-/// 로고(SVG)가 비동기로 올라오는 것을 기다립니다.
+/// 로고 그림(PNG)이 비동기로 올라오는 것을 기다립니다.
 Future<void> _settleLogo(WidgetTester tester) async {
   await tester.pump();
   await tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 1)));

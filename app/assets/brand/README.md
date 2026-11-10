@@ -19,10 +19,7 @@
 
 출처·받은 날짜·변환은 각 디렉터리의 `SOURCE.md`에 있습니다(받은 날짜 2026-10-22). `SOURCE.md`가 번들에 들어가지 않도록 `pubspec.yaml`에는 이미지 파일만 적습니다.
 
-## 명리일기 로고 — `myungli/lockup.svg`
+## 명리일기 로고 — `myungli/lockup.png`
 
-* 출처: `docs/identity/design/logo/lockup.svg`(`share-image` `logo`). 라이트 고정이라 `lockup-dark.svg`는 싣지 않습니다.
-* 변환: flutter_svg가 중첩 `<svg>`를 그리지 않아, 원본의 중첩 `<svg>` 두 개를 같은 좌표 변환의 `<g transform>`으로 바꿨습니다. path·색·크기는 원본 그대로입니다. 원본이 바뀌면 같은 규칙으로 다시 만듭니다.
-  * 아이콘: `<svg x=0 y=0 width=150 height=150 viewBox="0 0 100 100">` -> `<g transform="scale(1.5)">`(150/100).
-  * 글자: `<svg x=187.5 y=25 width=357.4 height=100 viewBox="84.5 -840 3305.5 925">` -> `<g transform="translate(187.5 25) scale(S) translate(-84.5 840)">`. `S = min(357.4/3305.5, 100/925) = 0.108108108`(preserveAspectRatio meet 배율), 마지막 translate는 `-(viewBox x, y)`입니다.
-  * 닫는 `</svg>`는 `</g>`로 바꿉니다. 원본의 `<defs>`·`<title>`은 그대로 둡니다.
+* 출처: `docs/identity/design/logo/lockup.png`(`share-image` `logo.asset`, 컴포넌트 6.1.1, V99). 새 래스터 앱 아이콘과 워드마크의 가로 조합이고 높이 288px입니다. 바꾸지 않고 그대로 복사합니다. 원본이 바뀌면 다시 복사합니다.
+* 공유 이미지는 라이트 고정이라 `lockup-dark.png`는 싣지 않습니다.

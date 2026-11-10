@@ -1873,4 +1873,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tagSheetSentenceKindGuide => 'Today\'s question';
+
+  @override
+  String get daySheetEventAllDay => 'All day';
+
+  @override
+  String get daySheetVerdictCollapse => 'Hide details';
+
+  @override
+  String get daySheetVerdictExpand => 'Show details';
+
+  @override
+  String get diaryEditGuideAttach => 'Add a question';
+
+  @override
+  String get diaryEditGuideRemove => 'Write without a question';
+
+  @override
+  String get evidenceSheetUnlockUntilMidnight => 'Open until midnight';
+
+  @override
+  String evidenceSheetUnlockUntilDate(String date) {
+    return 'Open until $date';
+  }
+
+  @override
+  String get previewUsedInputName => 'Name';
+
+  @override
+  String get previewUsedInputBirth => 'Birthday';
+
+  @override
+  String get previewUsedInputTime => 'Birth time';
+
+  @override
+  String get previewUsedInputGender => 'Gender';
+
+  @override
+  String get previewUsedInputBirthplace => 'Birthplace';
+
+  @override
+  String previewUsedInputBirthValue(String calendar, String date) {
+    return '$calendar $date';
+  }
+
+  @override
+  String previewUsedInputBirthValueLeap(String calendar, String date) {
+    return '$calendar leap month $date';
+  }
+
+  @override
+  String get previewUsedNotice =>
+      'You can see your first reading only once on this device. To change your details, save first, then go to Edit details in the Me tab.';
 }

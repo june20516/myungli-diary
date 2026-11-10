@@ -33,8 +33,9 @@ final class OhaengBarItem {
 
 /// 오행 분포(`ohaeng-bar`): 비례 막대와 5열 범례.
 ///
-/// 막대는 높이 10, `radius.full`, 칸 사이 2이고 칸 길이는 [OhaengBarItem.value]에
-/// 비례합니다. 순서는 늘 목·화·토·금·수입니다(받은 순서와 상관없음).
+/// 막대는 높이 10, `radius.full`, 칸 사이 2이고 칸마다 1px 안쪽 `swatch.border`
+/// 테두리를 둡니다(V98). 칸 길이는 [OhaengBarItem.value]에 비례합니다.
+/// 순서는 늘 목·화·토·금·수입니다(받은 순서와 상관없음).
 ///
 /// 값이 0인 오행은 막대에 칸이 없고, 범례 견본이 흐리고(0.35)
 /// 개수가 `text.secondary`입니다(`zero`).
@@ -87,6 +88,10 @@ class OhaengBar extends StatelessWidget {
   /// 막대 칸 사이.
   static const double segmentGap = 2;
 
+  /// 막대 칸 테두리 굵기(`bar.segmentBorder.width`, 색은 `swatch.border`).
+  /// [Border.all] 기본 굵기와 같습니다.
+  static const double segmentBorderWidth = 1;
+
   /// 범례 견본 크기.
   static const double swatchSize = 12;
 
@@ -135,6 +140,8 @@ class OhaengBar extends StatelessWidget {
                       key: segmentKey(item.element),
                       decoration: BoxDecoration(
                         color: ohaengSwatchOf(colors, item.element),
+                        // 칸마다 1px 안쪽 견본 테두리. 흰 금 칸이 흰 카드에 묻히지 않게 합니다(V98).
+                        border: Border.all(color: colors.swatchBorder),
                         // 막대 전체가 알약(`radius.full`)이 되도록 양 끝 칸만 둥글게 합니다.
                         borderRadius: BorderRadiusDirectional.horizontal(
                           start: index == 0

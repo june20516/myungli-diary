@@ -233,6 +233,7 @@ List<DiarySummary> _diaries(CalendarDate date, int count) => [
       createdAt: DateTime.utc(date.year, date.month, date.day, 9, i),
       excerpt: '$i번째 일기',
       featuredTags: const [],
+      allTags: const [],
     ),
 ];
 

@@ -503,5 +503,20 @@
   "sajuStageMarkerMonth": "月",
   "sajuStageMarkerYear": "年",
   "tagSheetSentenceKindFortune": "総運",
-  "tagSheetSentenceKindGuide": "今日の質問"
+  "tagSheetSentenceKindGuide": "今日の質問",
+  "daySheetEventAllDay": "終日",
+  "daySheetVerdictCollapse": "閉じる",
+  "daySheetVerdictExpand": "内訳を見る",
+  "diaryEditGuideAttach": "質問を追加",
+  "diaryEditGuideRemove": "質問なしで書く",
+  "evidenceSheetUnlockUntilMidnight": "今夜0時まで閲覧可",
+  "evidenceSheetUnlockUntilDate": "{date}まで閲覧可",
+  "previewUsedInputName": "呼び名",
+  "previewUsedInputBirth": "誕生日",
+  "previewUsedInputTime": "生まれた時刻",
+  "previewUsedInputGender": "性別",
+  "previewUsedInputBirthplace": "出生地",
+  "previewUsedInputBirthValue": "{calendar} {date}",
+  "previewUsedInputBirthValueLeap": "{calendar} 閏月 {date}",
+  "previewUsedNotice": "最初の読み解きは、この端末では一度だけ見られます。情報を変えるには、保存したあとマイページの「情報の変更」で変えてください。"
 }

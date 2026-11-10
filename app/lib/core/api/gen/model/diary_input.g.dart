@@ -13,6 +13,8 @@ abstract class _$DiaryInputCWProxy {
 
   DiaryInput guideQuestion(GuideChoice? guideQuestion);
 
+  DiaryInput withoutGuideQuestion(bool? withoutGuideQuestion);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `DiaryInput(...).copyWith.fieldName(value)`.
@@ -21,7 +23,12 @@ abstract class _$DiaryInputCWProxy {
   /// ```dart
   /// DiaryInput(...).copyWith(id: 12, name: "My name")
   /// ```
-  DiaryInput call({String date, String body, GuideChoice? guideQuestion});
+  DiaryInput call({
+    String date,
+    String body,
+    GuideChoice? guideQuestion,
+    bool? withoutGuideQuestion,
+  });
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -41,6 +48,10 @@ class _$DiaryInputCWProxyImpl implements _$DiaryInputCWProxy {
   DiaryInput guideQuestion(GuideChoice? guideQuestion) =>
       call(guideQuestion: guideQuestion);
 
+  @override
+  DiaryInput withoutGuideQuestion(bool? withoutGuideQuestion) =>
+      call(withoutGuideQuestion: withoutGuideQuestion);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `DiaryInput(...).copyWith.fieldName(value)`.
@@ -54,6 +65,7 @@ class _$DiaryInputCWProxyImpl implements _$DiaryInputCWProxy {
     Object? date = const $CopyWithPlaceholder(),
     Object? body = const $CopyWithPlaceholder(),
     Object? guideQuestion = const $CopyWithPlaceholder(),
+    Object? withoutGuideQuestion = const $CopyWithPlaceholder(),
   }) {
     return DiaryInput(
       date: date == const $CopyWithPlaceholder() || date == null
@@ -68,6 +80,10 @@ class _$DiaryInputCWProxyImpl implements _$DiaryInputCWProxy {
           ? _value.guideQuestion
           // ignore: cast_nullable_to_non_nullable
           : guideQuestion as GuideChoice?,
+      withoutGuideQuestion: withoutGuideQuestion == const $CopyWithPlaceholder()
+          ? _value.withoutGuideQuestion
+          // ignore: cast_nullable_to_non_nullable
+          : withoutGuideQuestion as bool?,
     );
   }
 }
@@ -96,6 +112,10 @@ DiaryInput _$DiaryInputFromJson(Map<String, dynamic> json) => $checkedCreate(
         (v) =>
             v == null ? null : GuideChoice.fromJson(v as Map<String, dynamic>),
       ),
+      withoutGuideQuestion: $checkedConvert(
+        'withoutGuideQuestion',
+        (v) => v as bool? ?? false,
+      ),
     );
     return val;
   },
@@ -106,4 +126,5 @@ Map<String, dynamic> _$DiaryInputToJson(DiaryInput instance) =>
       'date': instance.date,
       'body': instance.body,
       'guideQuestion': ?instance.guideQuestion?.toJson(),
+      'withoutGuideQuestion': ?instance.withoutGuideQuestion,
     };

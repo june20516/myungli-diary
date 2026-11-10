@@ -89,6 +89,8 @@ abstract final class SlotIds {
   static const String previewCtaSave = 'preview.cta.save';
   static const String previewCtaRestart = 'preview.cta.restart';
   static const String previewRestartNotice = 'preview.restart.notice';
+  static const String previewUsedInput = 'preview.used.input';
+  static const String previewUsedNotice = 'preview.used.notice';
   static const String previewShareLoginNotice = 'preview.share.login-notice';
   static const String loginBarTitle = 'login.bar.title';
   static const String loginTitleHead = 'login.title.head';
@@ -162,6 +164,7 @@ abstract final class SlotIds {
       'evidence-sheet.section.source';
   static const String evidenceSheetSectionPersonal =
       'evidence-sheet.section.personal';
+  static const String evidenceSheetUnlockUntil = 'evidence-sheet.unlock.until';
   static const String evidenceSheetUnlockFailed =
       'evidence-sheet.unlock.failed';
   static const String evidenceSheetA11yLocked = 'evidence-sheet.a11y.locked';
@@ -182,9 +185,12 @@ abstract final class SlotIds {
   static const String daySheetCharacterLabel = 'day-sheet.character.label';
   static const String daySheetVerdictTitle = 'day-sheet.verdict.title';
   static const String daySheetVerdictItem = 'day-sheet.verdict.item';
+  static const String daySheetVerdictExpand = 'day-sheet.verdict.expand';
+  static const String daySheetVerdictCollapse = 'day-sheet.verdict.collapse';
   static const String daySheetEventTitle = 'day-sheet.event.title';
   static const String daySheetEventEmpty = 'day-sheet.event.empty';
   static const String daySheetEventAdd = 'day-sheet.event.add';
+  static const String daySheetEventAllDay = 'day-sheet.event.all-day';
   static const String daySheetDiaryOpen = 'day-sheet.diary.open';
   static const String daySheetDiaryWriteCta = 'day-sheet.diary.write-cta';
   static const String colorRuleSheetSheetTitle = 'color-rule-sheet.sheet.title';
@@ -207,6 +213,8 @@ abstract final class SlotIds {
   static const String diaryEditDateMonth = 'diary-edit.date.month';
   static const String diaryEditDateIljin = 'diary-edit.date.iljin';
   static const String diaryEditGuideQuestion = 'diary-edit.guide.question';
+  static const String diaryEditGuideRemove = 'diary-edit.guide.remove';
+  static const String diaryEditGuideAttach = 'diary-edit.guide.attach';
   static const String diaryEditBodyPlaceholder = 'diary-edit.body.placeholder';
   static const String diaryEditDraftStatus = 'diary-edit.draft.status';
   static const String diaryEditLengthCount = 'diary-edit.length.count';
