@@ -68,7 +68,9 @@ class PreviewScreen extends ConsumerWidget {
     final preview = ref.watch(previewProvider);
     // 이미 쓴 기기면 미리보기를 요청한 그 입력(로그인 저장 전까지 기기에 남는 초안)을 보입니다.
     final used = isPreviewUsedError(preview.error);
-    final usedDraft = used ? ref.watch(onboardingDraftProvider).value : null;
+    // 이미 쓴 기기면 그 입력(초안)을 읽는 상태를 따릅니다. 읽는 중은 skeleton, 실패는 오류 상태와
+    // 다시 시도(초안을 다시 읽음)입니다.
+    final usedDraft = used ? ref.watch(onboardingDraftProvider) : null;
     final save = PrimaryButton(
       key: const ValueKey(SlotIds.previewCtaSave),
       identifier: SlotIds.previewCtaSave,
@@ -89,16 +91,18 @@ class PreviewScreen extends ConsumerWidget {
                 showBack: MyungliAppBar.canGoBack(context),
               ),
               Expanded(
-                child: used
-                    // 초안을 아직 읽는 중이면 오류 상태 대신 자리를 지키는 skeleton입니다.
-                    ? usedDraft == null
-                          ? const _PreviewSkeleton()
-                          : _PreviewUsedBody(
-                              draft: usedDraft,
-                              deviceRegionIsKorea: ref.watch(
-                                deviceRegionIsKoreaProvider,
-                              ),
-                            )
+                child: usedDraft != null
+                    ? ScreenStateView<OnboardingDraft>(
+                        value: usedDraft,
+                        onRetry: () => ref.invalidate(onboardingDraftProvider),
+                        skeleton: const _PreviewSkeleton(),
+                        data: (draft) => _PreviewUsedBody(
+                          draft: draft,
+                          deviceRegionIsKorea: ref.watch(
+                            deviceRegionIsKoreaProvider,
+                          ),
+                        ),
+                      )
                     : ScreenStateView<Preview>(
                         value: preview,
                         onRetry: _retriable(preview.error)

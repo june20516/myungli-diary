@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
@@ -28,6 +29,7 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/application/preview_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
 import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
@@ -364,6 +366,44 @@ void main() {
     );
   });
 
+  testWidgets('preview-used: 입력을 읽지 못하면 오류 상태와 다시 시도, 다시 읽으면 입력 확인', (
+    tester,
+  ) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'preview-used',
+      locale: koreaLocale,
+      overrides: [
+        previewProvider.overrideWith(
+          (ref) => throw const ProblemError(
+            code: previewUsedErrorCode,
+            status: 403,
+            fieldErrors: [],
+            traceId: 'test',
+          ),
+        ),
+        onboardingDraftProvider.overrideWith(_FailOnceDraftController.new),
+      ],
+    );
+    unawaited(
+      container.read(routerProvider).push<void>(pathOf(ScreenIds.preview)),
+    );
+    await tester.pumpAndSettle();
+
+    // skeleton에 멈추지 않고 오류 상태와 다시 시도이고, 버튼은 저장하고 계속하기 하나입니다.
+    expect(find.byKey(const ValueKey('screen-state.loading')), findsNothing);
+    expect(find.byType(ErrorState), findsOneWidget);
+    expect(find.text(_ko.actionRetry), findsOneWidget);
+    expect(_slot(SlotIds.previewCtaRestart), findsNothing);
+    expect(_slot(SlotIds.previewCtaSave), findsOneWidget);
+
+    await tester.tap(find.text(_ko.actionRetry));
+    await tester.pumpAndSettle();
+    expect(find.byType(ErrorState), findsNothing);
+    expect(_slot(SlotIds.previewUsedInput), findsOneWidget);
+    expect(find.text('별님'), findsOneWidget);
+  });
+
   testWidgets('다시 입력 뒤 뒤로 가면 welcome이 남아 있습니다(앱이 닫히지 않음)', (tester) async {
     await openPreviewStep(tester);
     await tester.tap(_slot(SlotIds.previewCtaRestart));
@@ -375,4 +415,24 @@ void main() {
     expect(handled, isTrue);
     expect(find.byKey(const ValueKey(ScreenIds.welcome)), findsOneWidget);
   });
+}
+
+/// 처음 한 번은 입력을 읽지 못하고, 다시 읽으면 입력을 주는 초안.
+class _FailOnceDraftController extends OnboardingDraftController {
+  static var _builds = 0;
+
+  @override
+  Future<OnboardingDraft> build() async {
+    _builds++;
+    if (_builds == 1) {
+      throw StateError('초안을 읽지 못함');
+    }
+    return OnboardingDraft(
+      honorific: '별님',
+      calendar: CalendarType.solar,
+      date: LunarOrSolarDate(year: 1990, month: 3, day: 15),
+      time: BirthTime(status: BirthTimeStatusEnum.unknown),
+      gender: BirthGenderEnum.female,
+    );
+  }
 }
