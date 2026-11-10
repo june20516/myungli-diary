@@ -27,7 +27,7 @@ STATE_MAP_GROUP = "feedback"
 COMMON_FIELDS = {"interaction": {"version", "patterns", "haptics", "fallbacks"}, "elements": {"version", "elements"}}
 COMPONENT_FIELDS = {"id", "summary", "uses", "variants", "parts", "states", "motion", "haptic", "a11y", "rules"}
 PATTERN_REQUIRED = ("summary", "duration", "easing", "reduceMotion")
-REDUCE_MOTION_VALUES = ("opacity-only", "instant")
+REDUCE_MOTION_VALUES = ("opacity-only", "instant", "replace")  # replace는 reduceMotionAlternative가 대신 그림(V112)
 HAPTIC_STRENGTHS = ("selection", "light", "medium")
 # 시간·곡선 키: duration, easing, 그리고 drawDuration처럼 Duration·Easing으로 끝나는 키
 TIMING_KEY = re.compile(r"^(duration|easing)$|(Duration|Easing)$")
@@ -225,6 +225,8 @@ def _pattern_problems(documents: dict[str, dict]) -> list[str]:
         if "reduceMotion" in pattern and pattern["reduceMotion"] not in REDUCE_MOTION_VALUES:
             problems.append(f"interaction.json: {pattern_id}: reduceMotion {pattern['reduceMotion']!r}는 "
                             f"{', '.join(REDUCE_MOTION_VALUES)} 밖")
+        if pattern.get("reduceMotion") == "replace" and "reduceMotionAlternative" not in pattern:
+            problems.append(f"interaction.json: {pattern_id}: reduceMotion replace인데 reduceMotionAlternative 없음")
     return problems
 
 

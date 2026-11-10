@@ -3029,6 +3029,10 @@ def test_v110_sheet_stack_keeps_screen_size_and_peeks_lower_sheet():
     assert below["translateY"] == "peek" and below["scale"] == 1 and below["brightness"] == 0.92
     assert stack["peek"]["height"] == {"value": 14, "unit": "px"} and "V100" in stack["peek"]["tap"]
     assert "transform" not in stack["properties"] and stack["duration"] == "{motion.duration.long}"
+    peek = stack["peek"]
+    assert "최대 2" in peek["depth"] and "진행률" in peek["drag"] and "접근성 트리에서 뺌" in peek["a11y"]
+    assert "이동 없이" in peek["reduceMotion"] and "덮개를 더 깔지 않" in stack["screenBelow"]["note"]
+    assert "14px" in (COMPONENTS_DIR / "interaction.md").read_text(encoding="utf-8")
     assert any("V110" in rule and "14px" in rule for rule in component("frame", "sheet")["rules"])
     for name in ("interaction.md", "frame.md"):
         text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
@@ -3040,11 +3044,17 @@ def test_v112_unlocked_evidence_glints_and_marks():
     documents = load_documents(COMPONENTS_DIR)
     glint = documents["interaction"]["patterns"]["unlock.glint"]
     assert glint["duration"] == "{motion.duration.breathe}" and glint["interval"] == {"value": 15000, "unit": "ms"}
-    assert glint["band"]["fill"] == "{gradient.unlocked}" and glint["reduceMotion"] == "instant"
+    assert glint["band"]["fill"] == "{gradient.unlocked}" and glint["reduceMotion"] == "replace"
+    assert "한 번에" in glint["band"]["multiline"] and "닫을 때까지" in glint["stopWhen"]
+    primitive = json.loads((DESIGN_DIR / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
+    assert primitive["motion"]["duration"]["breathe"]["$value"] == {"value": 1800, "unit": "ms"}  # 시안 1.9초를 맞춘 값
+    interaction_md = (COMPONENTS_DIR / "interaction.md").read_text(encoding="utf-8")
+    assert "`breathe`(1800)" in interaction_md and "15000ms" in interaction_md and "`replace`" in interaction_md
     assert glint["reduceMotionAlternative"]["element"] == "unlock.mark"
     mark = documents["elements"]["elements"]["unlock.mark"]
     assert mark["title"]["fill"] == mark["rule"]["fill"] == "{gradient.unlocked}"
     assert mark["rule"]["width"] == {"value": 2, "unit": "px"}
+    assert len(mark["where"]) == 2 and "appear.seep" in mark["appear"] and mark["a11y"] == "읽지 않음. 장식"
     link = component("sentence", "depth-link")
     assert {"unlock.glint", "unlock.mark"} <= set(link["uses"])
     assert link["parts"]["icon"]["unlocked"]["fill"] == "{gradient.unlocked}"
@@ -3059,6 +3069,11 @@ def test_v112_unlocked_evidence_glints_and_marks():
     assert {"title", "unlockTag", "target", "pillars"} <= set(unlocked["glint"]["excludes"])
     assert unlocked["reduceMotion"]["element"] == "unlock.mark"
     assert "unlockTag" not in link["states"]["locked"]["parts"]["evidenceSheet"]
+    assert set(tag["copyByReason"]) == {"ad", "pass"} and "#952" in tag["reasonSource"]
+    assert "whenExpires" in link["parts"]["icon"]["unlocked"] and "날짜 맥락이 없는" in link["parts"]["icon"]["unlocked"]["when"]
+    # 화면 바탕 그라데이션 "하나" 규칙은 바탕으로 좁혀 씀 (V111). docs/identity/README.md는 지휘 몫(요청함)
+    design_claude = (DESIGN_DIR / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "토큰 하나로 묶어" not in design_claude or "gradient.unlocked" in design_claude
     block = component("sentence", "sentence-block")["states"]["unlocked"]["parts"]
     assert block["text"]["glint"] == "unlock.glint" and block["reduceMotion"]["part"] == "rule"
     sentence_md = (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
@@ -3084,4 +3099,6 @@ def test_v113_source_reads_meaning_quote_cite():
     assert source["quote"]["fg"] == "{color.text.secondary}" and source["quote"]["paddingStart"] == "{space.8}"
     assert source["quote"]["fontFallback"] == "{font.family.hanja}"
     assert source["cite"]["type"] == "{type.caption.md}" and source["cite"]["paddingStart"] == source["quote"]["paddingStart"]
-    assert "뜻의 앞 2~3 단어" in source["meaning"]["note"]
+    assert "ja 8글자" in source["meaning"]["note"] and source["radius"] == 0  # server #797 자른 값
+    locked = component("sentence", "depth-link")["states"]["locked"]["parts"]["evidenceSheet"]["source"]
+    assert locked["hidden"] == ["quote", "cite"] and locked["lines"] == 2

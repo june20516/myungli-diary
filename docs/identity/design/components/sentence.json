@@ -103,7 +103,7 @@
           "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "page.push" } } }
       ],
       "parts": {
-        "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48, "layoutWidth": "{size.icon.20}", "hitArea": "줄 배치 폭은 그림 20이고, 터치 영역 48은 배치 밖으로 넓힘(이웃 줄과 겹쳐도 됨)", "unlocked": { "fill": "{gradient.unlocked}", "angle": 135, "when": "그날 근거와 해석이 열려 있을 때(광고 한 편이든 광고 제거권이든). 선 색만 바뀌고 모양, 크기, 터치는 그대로", "note": "시트 밖에서도 열린 것이 보이게(D118 ②, 결정 V112, V63 개정). 열리는 순간 따로 움직이지 않고 다음에 그릴 때 바뀜" } },
+        "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48, "layoutWidth": "{size.icon.20}", "hitArea": "줄 배치 폭은 그림 20이고, 터치 영역 48은 배치 밖으로 넓힘(이웃 줄과 겹쳐도 됨)", "unlocked": { "fill": "{gradient.unlocked}", "angle": 135, "when": "지금 근거와 해석 열람 권한이 있을 때(오늘 광고 한 편으로 열었거나 광고 제거권 기간). 날짜 맥락이 없는 화면(나 탭, 사주 표, 만세력)도 같은 권한 기준. 선 색만 바뀌고 모양, 크기, 터치는 그대로", "whenExpires": "권한이 끝나면(자정, 기간 끝) 그 화면을 다시 그릴 때 action.primary로 돌아감. 보고 있던 근거 시트는 닫을 때까지 그대로", "note": "시트 밖에서도 열린 것이 보이게(D118 ②, 결정 V112, V63 개정). 열리는 순간 따로 움직이지 않고 다음에 그릴 때 바뀜" } },
         "evidenceSheet": {
           "container": { "component": "sheet", "variant": "full" },
           "order": ["title", "target", "pillars", "basisTitle", "basis", "sourceTitle", "source", "personalTitle", "personal", "personalEmpty"],
@@ -111,7 +111,10 @@
           "unlockTag": {
             "slot": "evidence-sheet.unlock.until",
             "params": ["date"],
-            "when": "unlocked일 때만. 광고 한 편이면 그날 자정까지 문구, 광고 제거권이면 기간 끝 날짜(D118 ①)",
+            "when": "unlocked일 때만(D118 ①)",
+            "copyByReason": { "ad": "광고 한 편으로 열림: 그날 자정까지 문구, 매개변수 없음", "pass": "광고 제거권 기간: 기간 끝 날짜 문구, date 씀" },
+            "reasonSource": "열린 이유와 끝 시각은 server 권한 응답(#952)이 줌. 자정의 기준 시간대도 server 값을 따름",
+            "lengthLimit": "두 문구 모두 lengths.md evidence-sheet.unlock.until 한 상한(date 넣은 뒤 길이)",
             "position": "제목 줄 오른쪽 끝, 제목 첫 줄 세로 가운데. 제목과 한 줄에 들어가지 않으면 제목 아래 space.8에 왼쪽 맞춤",
             "gapFromTitle": "{space.8}",
             "height": { "value": 24, "unit": "px" },
@@ -140,9 +143,9 @@
           "sourceTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.source" },
           "personalTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.personal", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
           "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body", "repeat": { "each": "paragraph", "gap": "{space.12}", "skipEmpty": true } },
-          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "fontFallback": "{font.family.hanja}", "repeat": { "each": "item", "gap": "{space.16}", "skipEmpty": true }, "bg": "transparent", "radius": "{radius.md}", "padding": 0,
+          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "fontFallback": "{font.family.hanja}", "repeat": { "each": "item", "gap": "{space.16}", "skipEmpty": true }, "bg": "transparent", "radius": 0, "padding": 0,
             "order": ["meaning", "quote", "cite"],
-            "meaning": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "note": "원전마다 뜻 한 줄(한글)을 먼저. 잠겼을 때 또렷한 앞부분은 이 뜻의 앞 2~3 단어(D118 ③)" },
+            "meaning": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "note": "원전마다 뜻 한 줄(한글)을 먼저. 잠겼을 때 또렷한 앞부분은 이 뜻의 앞부분(server가 자른 값 #797, ko와 en 단어 3개, ja 8글자, D118 ③)" },
             "quote": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "fontFallback": "{font.family.hanja}", "paddingStart": "{space.8}", "marginTop": "{space.4}", "note": "원문 한자 구절. 들여써서 뜻과 구분", "whenEmpty": "줄을 그리지 않음" },
             "cite": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingStart": "{space.8}", "marginTop": "{space.4}", "note": "출처(원전 이름과 대목)", "whenEmpty": "줄을 그리지 않음" },
             "note": "결정 V113(D118 ③): 상자 없이 뜻, 원문, 출처 순. 세 값은 writing 원고, server 응답이 나눠 줌(#951, #952, #953)" },
@@ -157,7 +160,7 @@
           "parts": {
             "evidenceSheet": {
               "basis": { "element": "lock.veil", "lines": 3 },
-              "source": { "element": "lock.veil", "lines": 2, "bg": "transparent", "padding": 0 },
+              "source": { "element": "lock.veil", "lines": 2, "bg": "transparent", "padding": 0, "lead": "첫 원전 뜻의 앞부분", "hidden": ["quote", "cite"], "repeat": "원전이 여럿이어도 veil 하나(2줄)만 그림", "note": "잠긴 원전은 원문 한자 구절과 출처 줄을 그리지 않음(결정 V113)" },
               "personal": { "element": "lock.veil", "lines": 3, "when": "열렸을 때와 같음(사주 표 계열에서 열었을 때만). 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘" },
               "contentPaddingBottom": "lock-panel-height",
               "lockPanel": {
