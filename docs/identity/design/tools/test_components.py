@@ -228,7 +228,8 @@ def test_common_files_define_spec_ids():
     assert set(docs["interaction"]["patterns"]) == {
         "press.ink", "appear.seep", "disappear.seep", "select.seep-slide", "loading.breathe", "seal.stamp",
         "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring",
-        "page.push"}  # DS1 V67
+        "page.push",  # DS1 V67
+        "tab.switch"}  # V104(#900)
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
@@ -442,9 +443,10 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_6_1_1():
-    # #908: 공유 이미지 로고를 새 아이콘 PNG 가로 조합으로(값만, V99). 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "6.1.1"
+def test_contract_version_is_6_2_0():
+    # 검수 회차2 묶음(V100~V106): tab.switch 패턴, 질문 떼기, 태그 줄 가로 밀기 등 추가라 부 버전.
+    # 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
+    assert VERSION == "6.2.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -553,6 +555,8 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
+# 그날 시트 하루 종일 꼬리표 (V107). IA 새 슬롯 요청 #946 대기
+SLOTS_OUTSIDE_IA |= {"day-sheet.event.all-day"}
 
 
 def _slot_values(node):
@@ -1185,7 +1189,9 @@ def test_feedback_error_banner_group_note_and_toast_position():
     by_id = components_by_id(("feedback", "action"))
     banner = by_id["notice-banner"]
     error = next(variant for variant in banner["variants"] if variant["id"] == "error")
-    assert error["parts"]["icon"]["name"] == "cloud-warning"
+    assert error["parts"]["icon"]["name"] == "warning-circle"  # V105(#923): cloud-warning에서 바꿈
+    states = {v["id"]: v["parts"]["icon"]["name"] for v in by_id["error-state"]["variants"]}
+    assert states == {"generic": "warning-circle", "offline": "wifi-slash"}
     assert "button" not in banner["parts"]
     note = by_id["settings-row"]["parts"]["groupNote"]
     assert note["slots"] == ["profile-edit.recalc.notice"] and note["maxLines"] == 2
@@ -1592,6 +1598,7 @@ def test_evidence_entry_names_its_subject():
 # 리뷰 I6: space.20은 쓰임표가 허용한 자리만
 SPACE_20_ALLOWED = {
     ("primary-button", "parts.container", "paddingX"), ("input-step", "parts.bottomAction", "paddingX"),
+    ("input-step", "parts.secondaryAction", "paddingX"),  # V106: 두 번째 버튼도 화면 좌우 여백
     ("skeleton", "parts.screen", "gutter"), ("guide-question-card", "parts.container", "padding"),
     ("offer-card", "parts.container", "padding"),
     ("section-header", "parts.startLine", "screen"),  # 화면 좌우 여백과 같은 시작선 (V69)
@@ -1887,7 +1894,10 @@ def test_date_header():
     assert iljin["slot"] == "today.date.iljin" and iljin["fontFallback"] == "{font.family.hanja}"
     variants = {variant["id"]: variant["parts"] for variant in header["variants"]}
     assert set(variants) == {"today", "day-sheet"}
-    assert variants["day-sheet"] == {"iljin": {"visible": False}}  # 그날 시트는 일진 없이
+    assert variants["day-sheet"]["iljin"] == {"visible": False}  # 그날 시트는 일진 없이
+    trailing = variants["day-sheet"]["trailing"]  # V109: 날의 성격은 날짜 머리 오른쪽, 두 줄 묶음 가운데
+    assert (trailing["component"], trailing["variant"], trailing["slot"]) == ("hanja-tag", "emphasis", "day-sheet.character.label")
+    assert "두 줄 묶음의 세로 가운데" in trailing["verticalAlign"] and "아래" in trailing["overflow"]
     assert [bone["bone"] for bone in header["states"]["loading"]["skeleton"]] == ["meta"]
     assert header["a11y"]["role"] == "header" and header["a11y"]["readsHanja"] is False
     # 음력과 일진이 모두 없으면 줄과 위 여백을 그리지 않음 (리뷰 Minor 5)
@@ -2072,11 +2082,12 @@ def test_diary_row_hanja_tag():
     assert kind["source"] == "DiarySummary.dayKind (D96)" and kind["whenMissing"] == "hide"
     assert kind["position"] == "card-top" and kind["opens"] == {"sheet": "explain-sheet", "diaryLink": False}
     tag = parts["tag"]
-    assert (tag["component"], tag["variant"], tag["count"]) == ("hanja-tag", "default", 1)
+    assert (tag["component"], tag["variant"], tag["count"]) == ("hanja-tag", "default", "all")  # D115, V103
     assert tag["marginTop"] == "{space.12}" and tag["whenMissing"] == "hide"
     assert tag["opens"] == {"sheet": "explain-sheet", "diaryLink": True}  # Q3 안 A: 시트, 모아보기는 시트 안 링크
     # Q2 ①: 모아보기 안 줄은 대표 태그만 숨김. 날의 성격은 줄마다 달라 보임 (controller Ruling)
-    assert "hiddenIn" not in kind and tag["hiddenIn"] == ["tag-diary"]
+    assert "hiddenIn" not in kind and tag["hiddenIn"] == ["tag-diary"]  # 이름은 그대로(지우면 주 버전)
+    assert "모아 본 그 태그만" in tag["hiddenScope"]  # D113 ①, D115 ③: 숨김 범위는 모아 본 태그만
     # 한 편 카드: 날의 성격이 있을 때만 그 아래 space.8 (리뷰 Minor 4)
     assert parts["preview"]["marginTop"] == "{space.8}" and "날의 성격이 있을 때만" in parts["preview"]["marginTopWhen"]
     assert "badge" not in parts and "tag-chip" not in json.dumps(row, ensure_ascii=False)
@@ -2196,7 +2207,7 @@ def test_quoted_question():
     view = variants["view"]["question"]
     assert view == {"source": "getDiary guideQuestion", "whenMissing": "hide"}
     assert "diary-edit." not in json.dumps(variants["view"], ensure_ascii=False)
-    assert question["quoteLine"] == {"width": {"value": 3, "unit": "px"}, "color": "{color.term.bg}", "radius": "{radius.full}"}
+    assert question["quoteLine"] == {"width": {"value": 3, "unit": "px"}, "color": "{color.action.primary}", "radius": "{radius.full}"}
     assert question["paddingStart"] == "{space.12}"
     swap = question["swap"]
     assert (swap["icon"], swap["weight"], swap["size"], swap["color"]) == (
@@ -2301,10 +2312,11 @@ def test_fortune_verdict():
     assert rows["divider"] == {"element": "list.divider"} and "#806" in rows["source"]
     assert any("요약 문장" in rule and "두지 않는다" in rule for rule in verdict["rules"])  # 리뷰 Minor 1
     # 리뷰 Minor 5: 내역 0개인 날은 noBreakdown과 같은 모양
-    assert verdict["states"]["noItems"]["parts"] == {"rows": {"visible": False}} and "noBreakdown" in verdict["states"]["noItems"]["note"]
+    hidden = {"rows": {"visible": False}, "toggle": {"visible": False}}  # V108: 내역이 없으면 안내 줄도 없음
+    assert verdict["states"]["noItems"]["parts"] == hidden and "noBreakdown" in verdict["states"]["noItems"]["note"]
     assert "움직이지 않" in verdict["motion"]["marker"]
-    assert [bone["bone"] for bone in verdict["states"]["loading"]["skeleton"]] == ["track", "rows"]
-    assert verdict["states"]["noBreakdown"]["parts"] == {"rows": {"visible": False}}
+    assert [bone["bone"] for bone in verdict["states"]["loading"]["skeleton"]] == ["track"]  # V108: 처음엔 접힘
+    assert verdict["states"]["noBreakdown"]["parts"] == hidden and verdict["states"]["noBreakdown"]["pressable"] is False
     assert verdict["a11y"]["role"] == "group" and verdict["a11y"]["readsScore"] is False
     assert "fortune-verdict" not in components.IA_PENDING_COMPONENTS and "fortune-verdict" in CONTENT_COMPONENTS
 
@@ -2894,3 +2906,115 @@ def test_ohaeng_bar_segments_have_swatch_border():
     assert bar["segmentBorder"]["color"] == "{color.swatch.border}"
     assert any("swatch.border" in rule for rule in component("saju", "ohaeng-bar")["rules"])
     assert "swatch.border" in _md_section("saju.md", "## ohaeng-bar")
+
+
+# 6.2.0 검수 회차2 묶음 (결정 V100~V106)
+def test_v100_outside_tap_closes_one_sheet():
+    rules = component("frame", "sheet")["rules"]
+    assert any("바깥 누르기는 모두 맨 위 시트 하나만" in rule and "V100" in rule for rule in rules)
+    assert not any("모두 닫는다" in rule for rule in rules)
+    assert "쌓인 시트 모두 닫힘" not in (COMPONENTS_DIR / "frame.md").read_text(encoding="utf-8")
+
+
+def test_v101_band_table_empty_line_centers_in_line_box():
+    empty = component("saju", "band-table")["parts"]["empty"]
+    assert (empty["width"], empty["height"]) == ({"value": 12, "unit": "px"}, {"value": 1, "unit": "px"})
+    assert empty["verticalAlign"] == "box-center" and empty["box"]["offsetTop"] == "{space.8}"
+    heights = empty["box"]["heightByBand"]
+    assert set(heights) == {"twelveStages", "shinsal", "hiddenStems"}
+    assert heights["hiddenStems"]["value"] == 22 and "label" in heights["shinsal"] and "label" in heights["twelveStages"]
+    assert "V101" in empty["note"]
+
+
+def test_v102_guide_question_remove_and_detached_prompt():
+    editor = component("diary", "diary-editor")
+    assert editor["parts"]["question"]["quoteLine"]["color"] == "{color.action.primary}"
+    question = next(v for v in editor["variants"] if v["id"] == "edit")["parts"]["question"]
+    remove, detached = question["remove"], question["detached"]
+    assert (remove["slot"], remove["icon"], remove["weight"], remove["minTarget"]) == (
+        "diary-edit.guide.remove", "x", "light", 44)
+    assert detached["slot"] == "diary-edit.guide.attach" and detached["fg"] == "{color.invite.fg}"
+    assert detached["quoteLine"] == {"visible": False} and detached["paddingStart"] == 0
+    assert detached["trailingIcon"]["icon"] == "chat-teardrop-dots"
+    assert detached["trailingIcon"]["color"] == "{color.invite.fg}" and detached["trailingIcon"]["decorative"] is True
+    assert detached["fontSize"] == {"value": 14, "unit": "px"} and detached["trailingIcon"]["gap"] == "{space.4}"
+    assert detached["minTarget"] == 44 and detached["transition"] == {"out": "disappear.seep", "in": "appear.seep"}
+    assert (remove["size"], remove["color"]) == ("{size.icon.20}", "{color.text.secondary}")
+    states = question["guideStates"]
+    assert [(t["from"], t["to"]) for t in states["transitions"]] == [("attached", "detached"), ("detached", "attached")]
+    assert "그리지 않는다" in states["whenNoQuestion"] and "키보드는 그대로" in states["focus"]
+    # 옛 세로선 표현이 규칙 문장에 다시 들어오지 않게
+    assert "term.bg 선" not in json.dumps(editor, ensure_ascii=False)
+    assert "disappear.seep" in editor["uses"]
+    for name in ("x", "chat-teardrop-dots", "warning-circle"):
+        assert name in (TOOLS_DIR / "phosphor_names.txt").read_text(encoding="utf-8").split(), name
+
+
+def test_v103_diary_row_shows_all_tags_in_one_scrolling_line():
+    tag = component("diary", "diary-row")["parts"]["tag"]
+    assert tag["count"] == "all" and tag["row"]["lines"] == 1 and tag["row"]["wrap"] is False
+    hint = tag["row"]["hint"]
+    assert (hint["component"], hint["parts"], hint["fadeTo"]) == (
+        "scroll-hint", {"arrows": {"visible": False}}, "{color.bg.sheet}")
+    assert "scroll-hint.parts.fade.width" in hint["note"]
+    assert "#933" in tag["source"] and tag["gap"] == "{space.8}" and tag["order"] == "대표 태그 순위"
+    row_text = json.dumps(component("diary", "diary-row"), ensure_ascii=False)
+    assert "대표 태그 하나" not in row_text
+    diary_md = (COMPONENTS_DIR / "diary.md").read_text(encoding="utf-8")
+    assert "`hiddenScope`" in diary_md and "그 줄 안에서 가로로 밀고" in diary_md
+
+
+def test_v104_tab_switch_is_short_cross_fade():
+    pattern = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["tab.switch"]
+    assert (pattern["duration"], pattern["easing"]) == ("{motion.duration.short}", "{motion.easing.standard}")
+    assert pattern["outgoing"] == {"opacity": [1, 0]} and pattern["incoming"] == {"opacity": [0, 1]}
+    assert pattern["together"] is True and pattern["movement"] == "none"
+    assert (pattern["reduceMotion"], pattern["lowEnd"]) == ("opacity-only", "same")
+    assert "새 화면만" in pattern["inputDuring"] and "다시 200ms" in pattern["interrupt"]
+    primitive = json.loads((DESIGN_DIR / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
+    assert primitive["motion"]["duration"]["short"]["$value"] == {"value": 200, "unit": "ms"}
+    tab_bar = component("frame", "tab-bar")
+    assert "tab.switch" in tab_bar["uses"] and any("V104" in rule for rule in tab_bar["rules"])
+    page_push = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["page.push"]
+    assert "tab.switch" in page_push["scope"]
+
+
+def test_v106_bottom_buttons_sit_16_above_system_inset():
+    step = component("input", "input-step")["parts"]
+    assert step["bottomAction"]["paddingBottom"] == "{space.16}" and "inset" in step["bottomAction"]["paddingBottomFrom"]
+    secondary = step["secondaryAction"]
+    assert (secondary["component"], secondary["variant"], secondary["marginTop"]) == (
+        "primary-button", "quiet", "{space.16}")
+    assert any("V106" in rule for rule in component("action", "primary-button")["rules"])
+    assert "secondaryAction 아래" in step["bottomAction"]["paddingBottomAppliesTo"]
+    assert secondary["paddingX"] == step["bottomAction"]["paddingX"] == "{space.20}"
+
+
+# #932 그날 시트 (결정 V107~V109)
+def test_v107_event_row_list_bold_time_all_day_tag_and_memo():
+    parts = next(v for v in component("calendar", "event-row")["variants"] if v["id"] == "list")["parts"]
+    assert parts["timeColumn"]["fg"] == "{color.text.primary}" and parts["timeColumn"]["fontWeight"] == 700
+    assert parts["allDay"]["element"] == "tag.status" and parts["allDay"]["slot"] == "day-sheet.event.all-day"
+    memo = parts["memo"]
+    assert (memo["source"], memo["maxLines"], memo["whenEmpty"], memo["fg"]) == (
+        "Schedule.memo", 1, "hide", "{color.text.secondary}")
+    assert parts["row"]["align"] == "first-line" and parts["row"]["paddingY"] == "{space.12}"
+
+
+def test_v108_fortune_verdict_collapses_and_whole_card_toggles():
+    verdict = component("calendar", "fortune-verdict")
+    assert verdict["states"]["collapsed"]["initial"] is True
+    assert verdict["states"]["collapsed"]["parts"]["rows"] == {"visible": False}
+    assert verdict["states"]["expanded"]["parts"]["rows"] == {"visible": True}
+    press = verdict["parts"]["card"]["pressable"]
+    assert press["target"] == "카드 전체" and "V61" in press["innerWins"] and press["pattern"] == "press.ink"
+    toggle = verdict["parts"]["toggle"]
+    assert toggle["minHeight"] == 44 and toggle["icon"]["collapsed"] == "caret-down" and toggle["icon"]["expanded"] == "caret-up"
+    assert "#946" in toggle["label"]["collapsed"] and "#946" in toggle["label"]["expanded"]
+    assert {"press.ink", "appear.seep", "disappear.seep"} <= set(verdict["uses"])
+
+
+def test_v109_sheet_content_scrolls_when_taller_than_sheet():
+    rules = component("frame", "sheet")["rules"]
+    assert any("세로로 스크롤" in rule and "핸들 자리" in rule for rule in rules)
+    assert "세로로 스크롤" in (COMPONENTS_DIR / "frame.md").read_text(encoding="utf-8")

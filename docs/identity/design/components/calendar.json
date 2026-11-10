@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "calendar",
   "components": [
     {
@@ -136,10 +136,12 @@
           "id": "list",
           "when": "그날 시트의 일정 목록",
           "parts": {
-            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.secondary}", "format": "HH:mm", "hourCycle": "h23", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
+            "timeColumn": { "width": { "value": 58, "unit": "px" }, "type": "{type.numeric.table}", "fg": "{color.text.primary}", "fontWeight": 700, "note": "시각을 본문색 굵게(결정 V107, #932 관문 ②)", "format": "HH:mm", "hourCycle": "h23", "overflow": { "when": "시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가지 않을 때", "lines": [["time"], ["title", "chevron"]] } },
             "title": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "maxLines": 2 },
+          "allDay": { "element": "tag.status", "slot": "day-sheet.event.all-day", "copy": "가안 \"종일\". writing 새 슬롯(IA 요청 #946). 시각 칸 58 안에 들어가는 짧은 낱말", "position": "시각 칸 안 왼쪽, 제목 첫 줄 세로 가운데" },
+          "memo": { "source": "Schedule.memo", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "maxLines": 1, "overflow": "ellipsis", "marginTop": "{space.2}", "whenEmpty": "hide", "note": "제목 아래 한 줄(V107)" },
             "chevron": { "icon": "caret-right", "weight": "light", "size": "{size.icon.16}", "color": "{color.text.secondary}" },
-            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "element": "list.divider" } },
+            "row": { "minHeight": { "value": 48, "unit": "px" }, "divider": { "element": "list.divider" }, "align": "first-line", "paddingY": "{space.12}", "note": "시각, 종일 꼬리표, 꺾쇠는 제목 첫 줄 세로 가운데(V107)" },
             "empty": { "slot": "day-sheet.event.empty", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "note": "버튼 없이 문장 한 줄. 추가는 섹션 머리 +(결정 V85)" },
             "add": { "component": "section-header", "variant": "action", "slot": "day-sheet.event.add", "position": "section-header-trailing" },
             "failed": { "when": "일정 목록만 받지 못함(날의 성격은 받음)", "message": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "align": "center", "text": "오류 종류별 기존 문구 한 줄" }, "retry": { "component": "primary-button", "variant": "quiet" } }
@@ -158,7 +160,7 @@
         "list의 시각은 줄이지 않는다. 커진 시각이 칸에 들어가지 않으면 [시각] / [제목·화살표] 두 줄로 내린다.",
         "진행 중·다음 일정 말고도 일정이 더 있으면 '외 N개'를 붙인다.",
         "그날 일정이 모두 지났으면 개수 문장 한 줄만 보인다.",
-        "list의 시각 칸에는 하루 종일도 같은 폭으로 들어간다.",
+        "list의 시각 칸에는 하루 종일도 같은 폭으로 들어가고, 시각 대신 tag.status 꼬리표(day-sheet.event.all-day)다. 시각은 본문색 굵게, 메모가 있으면 제목 아래 한 줄 보조 글자이고, 시각과 꺾쇠는 제목 첫 줄에 맞춘다(V107).",
         "일정 추가는 그날 시트 일정 섹션 머리의 + 하나(section-header action, 스크린리더 이름 day-sheet.event.add)다. 일정이 없으면 빈 문장 한 줄만 둔다(결정 V85).",
         "일정 목록만 받지 못하면 빈 문장 대신 failed(문구 한 줄 + '다시 시도', 가운데 정렬)를 둔다. 없는 일정을 없다고 말하지 않는다. 시트 전체 error는 날의 성격을 받지 못했을 때만이다."
       ]
@@ -166,9 +168,9 @@
     {
       "id": "fortune-verdict",
       "summary": "길흉판정: 위치 막대, 세 이름, 그 아래 내역 score-row 줄 (결정 V86)",
-      "uses": ["list.divider"],
+      "uses": ["list.divider", "press.ink", "appear.seep", "disappear.seep", "icon"],
       "parts": {
-        "card": { "bg": "{color.bg.base}", "radius": "{radius.lg}", "padding": "{space.16}", "note": "시트(bg.sheet) 안이라 바탕색 카드로 묶음" },
+        "card": { "bg": "{color.bg.base}", "radius": "{radius.lg}", "padding": "{space.16}", "note": "시트(bg.sheet) 안이라 바탕색 카드로 묶음", "pressable": { "target": "카드 전체", "action": "접힘과 펼침을 바꿈", "pattern": "press.ink", "innerWins": "펼친 내역 줄의 태그(score-row verdict, 누르면 explain-sheet)는 안쪽 요소라 그 태그를 누르면 뜻 시트만 열리고 카드는 접히지 않음(V61 눌림 규칙)", "minTarget": 44 } },
         "track": { "height": { "value": 4, "unit": "px" }, "radius": "{radius.full}", "gradient": "{color.verdict.track}", "direction": "caution-to-great", "endInset": "marker-radius", "note": "양끝을 위치 표시 반지름만큼 들여 표시가 카드 밖으로 나가지 않음" },
         "marker": {
           "size": { "value": 18, "unit": "px" },
@@ -179,21 +181,25 @@
           "decorative": true
         },
         "names": { "order": ["caution", "neutral", "good"], "align": ["start", "center", "end"], "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "copy": "달력 범례와 같은 단계 이름(calendar.legend.body 낱말). day-sheet에는 이름 슬롯이 없어 IA에 요청" },
-        "rows": { "component": "score-row", "variant": "verdict", "marginTop": "{space.12}", "divider": { "element": "list.divider" }, "dividerBefore": "every-row", "order": "더함 먼저, 뺌 다음(같은 부호 안은 server 순서)", "source": "server #806 길흉 내역(엔진 점수 구성)" }
+        "rows": { "component": "score-row", "variant": "verdict", "marginTop": "{space.12}", "visibleWhen": "expanded", "divider": { "element": "list.divider" }, "dividerBefore": "every-row", "order": "더함 먼저, 뺌 다음(같은 부호 안은 server 순서)", "source": "server #806 길흉 내역(엔진 점수 구성)" },
+        "toggle": { "label": { "collapsed": "IA 새 슬롯 #946 day-sheet.verdict.expand(가안 \"내역 N개 보기\", 매개변수 count)", "expanded": "IA 새 슬롯 #946 day-sheet.verdict.collapse(가안 \"접기\")" }, "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "icon": { "collapsed": "caret-down", "expanded": "caret-up", "weight": "regular", "size": "adjacent-text", "color": "{color.text.secondary}", "gap": "{space.4}" }, "align": "center", "minHeight": 44, "marginTop": "{space.8}", "dividerBefore": { "element": "list.divider" }, "role": "카드 전체가 버튼이라는 표시. 이 줄만 따로 누르는 자리가 아님", "note": "카드 안쪽 아래 여백 대신 이 줄이 맨 아래(결정 V108)" }
       },
       "states": {
-        "loading": { "skeleton": [{ "bone": "track", "shape": "textLine", "note": "막대 자리 한 줄, 이름 셋은 UI 글자라 바로 그림" }, { "bone": "rows", "shape": "score-row 뼈", "rows": 2 }] },
-        "noBreakdown": { "when": "내역이 계약에 없음(server #806 전)", "parts": { "rows": { "visible": false } }, "note": "막대와 이름만. 합한 점은 달력의 score로 그림" },
-        "noItems": { "when": "내역은 받았으나 항목이 0개(더하고 뺄 기운이 없는 날, 합 0)", "parts": { "rows": { "visible": false } }, "note": "noBreakdown과 같은 모양: 막대 가운데 표시와 세 이름만. 빈 안내 문장은 두지 않음" }
+        "loading": { "skeleton": [{ "bone": "track", "shape": "textLine", "note": "막대 자리 한 줄, 이름 셋은 UI 글자라 바로 그림. 처음에는 접혀 있어 내역 뼈는 두지 않음(V108)" }], "parts": { "toggle": { "visible": false } } },
+        "collapsed": { "initial": true, "parts": { "rows": { "visible": false }, "toggle": { "label": "collapsed" } }, "note": "시트를 열 때마다 늘 접힘" },
+        "expanded": { "parts": { "rows": { "visible": true }, "toggle": { "label": "expanded" } } },
+        "noBreakdown": { "when": "내역이 계약에 없음(server #806 전)", "parts": { "rows": { "visible": false }, "toggle": { "visible": false } }, "pressable": false, "note": "막대와 이름만. 펼칠 것이 없어 카드는 누를 수 없고 안내 줄도 없음. 합한 점은 달력의 score로 그림" },
+        "noItems": { "when": "내역은 받았으나 항목이 0개(더하고 뺄 기운이 없는 날, 합 0)", "parts": { "rows": { "visible": false }, "toggle": { "visible": false } }, "pressable": false, "note": "noBreakdown과 같은 모양: 막대 가운데 표시와 세 이름만. 빈 안내 문장은 두지 않음" }
       },
-      "motion": { "marker": "움직이지 않음. 시트가 열릴 때 처음부터 제자리에 그리고, 동작 줄이기와 상관없이 같음" },
+      "motion": { "marker": "움직이지 않음. 시트가 열릴 때 처음부터 제자리에 그리고, 동작 줄이기와 상관없이 같음", "expand": "내역 줄이 appear.seep으로 나타나고 카드 높이와 아래 내용은 움직임 없이 바로 늘어남. 접을 때는 disappear.seep 뒤 줄어듦. 동작 줄이기에서는 투명도만" },
       "haptic": [],
-      "a11y": { "role": "group", "label": "섹션 제목 + 단계 이름(예: 길흉판정, 무난한 날)", "readsScore": false, "rowsFollow": "score-row 줄마다 이어 읽음" },
+      "a11y": { "role": "group", "label": "섹션 제목 + 단계 이름(예: 길흉판정, 무난한 날)", "readsScore": false, "rowsFollow": "score-row 줄마다 이어 읽음(펼쳤을 때)", "toggle": { "role": "button", "expandedState": true, "label": "toggle 글자 그대로" } },
       "rules": [
         "위치 막대 하나와 그 아래 내역뿐이다. 한 줄 요약 문장이나 이유 문장을 두지 않는다(IA day-sheet).",
         "막대는 왼쪽 조심할 날(level.caution)에서 오른쪽 아주 잘 풀리는 날(level.great)로 이어지는 그라데이션이고, 이름은 셋(조심할 날, 무난한 날, 잘 풀리는 날)이다. 3 이상은 오른쪽 끝이다.",
         "숫자를 보이지 않는다. 내역의 크기는 score-row 점으로만 보인다.",
-        "위치 표시는 움직이지 않는다(처음부터 제자리, 동작 줄이기에서도 같음)."
+        "위치 표시는 움직이지 않는다(처음부터 제자리, 동작 줄이기에서도 같음).",
+        "처음에는 막대와 세 이름, 안내 줄만 보인다. 카드 전체를 누르면 내역 줄이 펼쳐지고 다시 누르면 접힌다. 펼친 내역의 태그를 누르면 뜻 시트만 열린다. 시트를 다시 열면 늘 접힘이다(결정 V108)."
       ]
     },
     {

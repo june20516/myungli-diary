@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "today",
   "components": [
     {
@@ -8,7 +8,7 @@
       "uses": [],
       "variants": [
         { "id": "today", "when": "오늘 화면: 날짜, 음력, 일진", "parts": { "iljin": { "visible": true } } },
-        { "id": "day-sheet", "when": "그날 시트 머리: 날짜와 음력", "parts": { "iljin": { "visible": false } } }
+        { "id": "day-sheet", "when": "그날 시트 머리: 날짜와 음력, 오른쪽에 날의 성격", "parts": { "iljin": { "visible": false }, "trailing": { "component": "hanja-tag", "variant": "emphasis", "slot": "day-sheet.character.label", "position": "날짜 머리 오른쪽 끝", "verticalAlign": "날짜와 음력 두 줄 묶음의 세로 가운데(음력이 없으면 날짜 줄 가운데)", "gapStart": "{space.12}", "overflow": "날짜 글자와 space.12와 태그가 한 줄 폭에 들어가지 않으면(큰 글자 배율) 태그를 날짜 머리 아래 space.12 왼쪽 줄로 내림", "opens": { "sheet": "explain-sheet", "diaryLink": false }, "note": "결정 V109(#932 ③). 전에는 날짜 머리 아래 따로 한 줄" } } }
       ],
       "parts": {
         "solar": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "today.date.solar", "daySheetSlot": "day-sheet.date.solar", "source": "기기 날짜(프로필 시간대)" },

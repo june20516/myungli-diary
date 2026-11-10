@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -78,7 +78,7 @@
         { "id": "offline", "when": "연결 없음, 받아둔 내용을 보여 줄 때", "parts": { "icon": { "name": "wifi-slash" } } },
         { "id": "time-unknown", "when": "출생 시간을 모름(시주 없음)", "parts": { "icon": { "name": "clock" }, "text": { "slot": "saju-chart.time-unknown.notice" } }, "note": "오늘, 나 탭, 사주 표가 같은 문구 키(IA DS1)" },
         { "id": "draft", "when": "이어 쓸 초안이 있음", "parts": { "icon": { "name": "note-pencil" } } },
-        { "id": "error", "when": "연결은 있지만 요청이 실패함(server 오류, 다시 계산 실패 등 IA error 상태를 화면 내용과 함께 보일 때, 예 profile-edit:error)", "parts": { "icon": { "name": "cloud-warning" } } }
+        { "id": "error", "when": "연결은 있지만 요청이 실패함(server 오류, 다시 계산 실패 등 IA error 상태를 화면 내용과 함께 보일 때, 예 profile-edit:error)", "parts": { "icon": { "name": "warning-circle" } } }
       ],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.md}", "padding": "{space.12}", "gap": "{space.8}", "marginBottom": "{space.16}" },
@@ -140,7 +140,7 @@
       "summary": "오류일 때: sage 원 안 아이콘 + 문장 + 다시 시도",
       "uses": ["icon"],
       "variants": [
-        { "id": "generic", "when": "불러오기 실패", "parts": { "icon": { "name": "cloud-warning" } } },
+        { "id": "generic", "when": "불러오기 실패", "parts": { "icon": { "name": "warning-circle" } } },
         { "id": "offline", "when": "연결 없음 + 받아둔 내용도 없음", "parts": { "icon": { "name": "wifi-slash" } } }
       ],
       "parts": {

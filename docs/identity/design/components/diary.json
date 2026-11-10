@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "diary",
   "components": [
     {
@@ -62,10 +62,13 @@
         },
         "preview": { "component": "sentence-block", "variant": "preview", "marginTop": "{space.8}", "marginTopWhen": "날의 성격이 있을 때만 그 아래 space.8. 없으면 카드 안쪽 위에서 바로 시작" },
         "tag": {
-          "component": "hanja-tag", "variant": "default", "count": 1, "marginTop": "{space.12}", "whenMissing": "hide",
+          "component": "hanja-tag", "variant": "default", "count": "all", "order": "대표 태그 순위", "gap": "{space.8}", "marginTop": "{space.12}", "whenMissing": "hide",
+          "source": "그날 사주 기운 태그 전부(D115 ④, 필드는 server #933이 정함)",
+          "row": { "lines": 1, "wrap": false, "overflow": "가로로 밈(줄을 늘리지 않음)", "hint": { "component": "scroll-hint", "parts": { "arrows": { "visible": false } }, "fadeTo": "{color.bg.sheet}", "note": "흐림 너비 24는 scroll-hint.parts.fade.width" } },
           "opens": { "sheet": "explain-sheet", "diaryLink": true },
           "hiddenIn": ["tag-diary"],
-          "note": "그날 대표 태그 하나(엔진이 일진으로 정함, D108 ①. 사주 용어라 term 초록). 없으면 그리지 않음. 누르면 뜻 시트이고 시트 아래 꺾쇠 링크로 그 태그의 모아보기(tag-diary)"
+          "hiddenScope": "모아 본 그 태그만(D113 ①, D115 ③). tag-diary 안에서도 그날의 다른 사주 기운 태그는 그대로 보임",
+          "note": "그날 사주 기운 태그 모두(엔진이 일진으로 정함, D108 ①, D115. 사주 용어라 term 초록). 하나도 없으면 줄을 그리지 않음. 한 줄을 넘으면 그 줄 안에서 가로로 밀고, 더 있는 쪽 끝 24만 카드 바탕(bg.sheet)으로 흐림(scroll-hint의 흐림만, 화살표 줄 없음, 결정 V103). 누르면 뜻 시트이고 시트 아래 꺾쇠 링크로 그 태그의 모아보기(tag-diary)"
         },
         "entry": {
           "time": { "source": "createdAt", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "wrap": false, "format": "HH:mm", "hourCycle": "h23", "note": "event-row와 같은 24시간제, 앞 0 채움(V46, #475). writing 슬롯 없음" },
@@ -96,7 +99,7 @@
         "같은 날 일기는 몇 편이든 모두 보인다. 접거나 더 보기를 두지 않는다(계정을 합친 날은 상한보다 많을 수 있음).",
         "entry 줄 사이에만 점선을 긋는다. 첫 줄 위와 끝 줄 아래에는 없다. 날짜 사이는 흐름 줄(실선), 같은 날 안은 점선이다.",
         "묶음 카드에서도 흐름 줄은 카드 높이만큼 이어져 다음 날짜까지 간다.",
-        "카드 맨 위에 날의 성격 hanja-tag(길흉 톤, DiarySummary.dayKind)를, 맨 아래에 그날 대표 태그 하나를 hanja-tag default(term 초록)로 둔다. 값이 없으면 그 태그만 그리지 않는다(V81).",
+        "카드 맨 위에 날의 성격 hanja-tag(길흉 톤, DiarySummary.dayKind)를, 맨 아래에 그날 사주 기운 태그 모두를 hanja-tag default(term 초록) 한 줄로 둔다. 넘치면 그 줄 안에서 가로로 밀고 더 있는 쪽 끝만 흐린다. 값이 없으면 그 태그(줄)만 그리지 않는다(V81, V103).",
         "두 태그 모두 누르면 뜻 시트(explain-sheet)다. 대표 태그 시트에만 그 태그의 모아보기(tag-diary) 꺾쇠 링크가 있다. 줄에서 바로 화면 이동하지 않는다(V73).",
         "tag-diary 안의 줄은 대표 태그를 그리지 않는다. 모든 줄이 같은 태그이고 화면 위에 그 태그 이름과 뜻이 있다(관문 답 2026-11-06 Q2 ①). 날의 성격은 줄마다 달라 그대로 보인다."
       ]
@@ -104,7 +107,7 @@
     {
       "id": "diary-editor",
       "summary": "일기 본문 입력과 보기 (종이). 쓰기에서는 인용 질문과 질문 바꾸기",
-      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "icon", "keyboard.dismiss"],
+      "uses": ["surface.paper", "seal", "seal.stamp", "loading.breathe", "appear.seep", "disappear.seep", "icon", "keyboard.dismiss"],
       "variants": [
         { "id": "edit", "when": "쓰기·고치기(diary-edit). 날짜는 종이 위 date-block이 보임",
           "parts": {
@@ -122,6 +125,45 @@
                 "keepsBody": true,
                 "a11y": { "role": "button", "label": "질문 바꾸기 이름(writing 새 슬롯, IA 자리 없음)", "changedAnnounced": "새 질문을 polite로 읽음" },
                 "note": "질문 글은 아이콘 앞에서 줄바꿈한다. 본문은 건드리지 않는다"
+              },
+              "remove": {
+                "slot": "diary-edit.guide.remove",
+                "icon": "x", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}",
+                "minTarget": 44, "align": "first-line", "position": "swap 바로 뒤(오른쪽 끝). swap이 없으면 질문 글 바로 뒤", "gap": "44 터치 영역끼리 붙여 둠(겹치지 않음)",
+                "visibleWhen": "질문이 붙어 있을 때 늘",
+                "result": "질문 자리가 detached로 바뀌고, 이 편을 저장하면 질문이 붙지 않는다(D116 ①, 일기 보기와 목록에도 없음)",
+                "transition": { "out": "disappear.seep", "in": "appear.seep" },
+                "keepsBody": true,
+                "a11y": { "role": "button", "label": "diary-edit.guide.remove", "changedAnnounced": "detached 문구를 polite로 읽음" },
+                "note": "결정 V102(#929 관문 답: 바꾸기 옆 x)"
+              },
+              "detached": {
+                "slot": "diary-edit.guide.attach",
+                "copy": "가안 \"무엇을 쓸지 고민인가요?\". 문구는 writing",
+                "type": "{type.sentence.body}", "fontSize": { "value": 14, "unit": "px" }, "fg": "{color.invite.fg}",
+                "quoteLine": { "visible": false },
+                "paddingStart": 0,
+                "trailingIcon": { "icon": "chat-teardrop-dots", "weight": "light", "size": "adjacent-text", "color": "{color.invite.fg}", "gap": "{space.4}", "decorative": true },
+                "minTarget": 44, "pressable": "줄 전체",
+                "action": "그날 기본 질문을 붙인다(D116 ②, server 후보 목록의 첫 질문). 질문 바꾸기 순서도 처음부터",
+                "transition": { "out": "disappear.seep", "in": "appear.seep" },
+                "keepsBody": true,
+                "marginBottom": "question.marginBottom과 같음(space.16)",
+                "a11y": { "role": "button", "label": "diary-edit.guide.attach 글자 그대로(말풍선은 읽지 않음)" },
+                "note": "질문이 붙은 상태(진한 세로선 + 질문 + 아이콘 둘)와 선 없는 권유 글자로 구분한다. 본문 글자와 같은 시작선(결정 V102)"
+              },
+              "guideStates": {
+                "initial": "attached(그날 기본 질문). 이어 쓰기 초안이 질문을 뗀 채 남았으면 detached",
+                "attached": { "shows": ["quoteLine", "question", "swap(후보 둘 이상)", "remove"] },
+                "detached": { "shows": ["detached"] },
+                "transitions": [
+                  { "from": "attached", "on": "remove 누름", "to": "detached" },
+                  { "from": "detached", "on": "detached 줄 누름", "to": "attached", "question": "그날 기본 질문(server 후보 목록의 첫 질문), swap 순서도 처음부터" }
+                ],
+                "motion": "앞 상태 disappear.seep(200ms)와 새 상태 appear.seep(320ms)를 같은 자리에서 동시에 시작한다. 자리 높이는 새 상태 높이로 바로 바뀌고 본문은 그만큼 움직임 없이 옮겨 간다. 동작 줄이기에서는 투명도만",
+                "focus": "본문 입력 초점과 키보드는 그대로다. 스크린리더 초점은 새 상태의 첫 요소(attached는 질문, detached는 권유 줄)로 옮긴다",
+                "whenNoQuestion": "그날 질문을 받지 못했으면(불러오기 실패, 후보 없음) 질문 자리 전체를 그리지 않는다. detached 줄도 두지 않는다(붙일 질문이 없음). 불러오는 중은 질문 글줄 뼈",
+                "saving": "detached로 저장하면 그 편에는 질문이 없다(D116 ①). 질문 없이 쓴 편을 server에 보내는 방법은 server가 정함(D116)"
               }
             }
           } },
@@ -133,7 +175,7 @@
         "question": {
           "optional": true,
           "type": "{type.sentence.body}", "fontSize": { "value": 14, "unit": "px" }, "fg": "{color.text.secondary}",
-          "quoteLine": { "width": { "value": 3, "unit": "px" }, "color": "{color.term.bg}", "radius": "{radius.full}" },
+          "quoteLine": { "width": { "value": 3, "unit": "px" }, "color": "{color.action.primary}", "radius": "{radius.full}" },
           "paddingStart": "{space.12}", "marginBottom": "{space.16}",
           "note": "왼쪽 3px 선의 인용형 모양. 글자는 본문(15)보다 작은 14: 문장 글꼴 14 토큰이 없어 sentence.body에 크기만 덮어씀(sentence-block preview 14.5와 같은 방식). 슬롯과 질문 바꾸기는 edit 변형. view는 저장된 질문(getDiary guideQuestion)을 같은 모양으로, 바꾸기 없이"
         },
@@ -165,7 +207,8 @@
         "해시태그를 쓰는 입력이 없다. 태그는 저장할 때 엔진이 붙인다.",
         "저장 순서: 상단 바 저장 글자 점 숨쉬기 → 종이 맨 아래로 스크롤 → 날짜 도장 찍힘 → 태그(hanja-tag) 스밈 → 토스트.",
         "보기(view)는 그 일기를 쓸 때의 질문(getDiary guideQuestion)을 같은 인용 모양으로 보이고 바꾸기 버튼은 없다. 질문이 없으면 그리지 않는다.",
-        "쓰기에서 질문은 종이 안 맨 위의 인용형(왼쪽 3px term.bg 선, type.sentence.body 크기 14 text.secondary)이고, 오른쪽 질문 바꾸기 아이콘은 그날 후보가 둘 이상일 때만 보인다. 바꿔도 본문은 그대로다.",
+        "쓰기에서 질문은 종이 안 맨 위의 인용형(왼쪽 3px action.primary 선, type.sentence.body 크기 14 text.secondary)이고, 오른쪽 질문 바꾸기 아이콘은 그날 후보가 둘 이상일 때만 보인다. 바꿔도 본문은 그대로다.",
+        "질문 끝에는 떼기 x가 늘 있고, 떼면 그 자리가 세로선 없는 권유 글자(invite.fg)와 말풍선으로 바뀐다. 권유 글자를 누르면 그날 기본 질문이 다시 붙는다. 떼고 붙여도 본문, 초점, 키보드는 그대로다(V102).",
         "본문에 초점이 있는 동안 text-field와 같은 키보드 내리기 버튼을 키보드 inset(OS 자동완성과 추천 줄 포함) 위 space.12에 띄운다. 본문 스크롤 아래 여백은 그 버튼 자리까지 둔다.",
         "저장 응답이 오기 전에는 도장을 찍지 않는다. 실패하면 버튼이 돌아오고 오류 토스트.",
         "보기 화면은 같은 종이에 도장이 이미 찍힌 채로, 아래 태그(hanja-tag)."

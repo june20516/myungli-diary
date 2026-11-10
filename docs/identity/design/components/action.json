@@ -1,5 +1,5 @@
 {
-  "version": "6.1.1",
+  "version": "6.2.0",
   "group": "action",
   "components": [
     {
@@ -41,6 +41,7 @@
       "a11y": { "role": "button", "label": "글자 그대로", "busyAnnounced": "처리 중", "minTarget": 48, "leadingIconAnnounced": false },
       "rules": [
         "스피너를 쓰지 않는다. 처리 중은 점 숨쉬기가 유일한 대체다.",
+        "화면 아래에 붙는 버튼(input-step 아래 버튼, 버튼만 있는 화면의 맨 아래 버튼)은 맨 아래 버튼 면의 아래 끝을 아래 시스템 inset 위 space.16에 둔다. inset이 0이어도 16, 키보드가 열리면 키보드 위 16(결정 V106). floating과 같은 기준이다.",
         "처리 중에는 다시 누를 수 없다.",
         "quiet 변형은 disabled에서 바탕 없이 글자만 color.disabled.fg다.",
         "leadingIcon은 글자 앞 space.8, 크기는 옆 글자 단계(adjacent-text), 색은 글자와 같다. 처리 중에는 아이콘도 숨기고 점 셋만 보인다.",

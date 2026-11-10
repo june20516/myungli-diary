@@ -177,8 +177,9 @@ def test_v1_roles_follow_spec():
 def test_contrast_covers_v1_pairs():
     names = {result.name for result in check_contrast(build_palette())}
     # V1 52개 + V2 모드당 13개 + 옅은 도장 위 sage 글자 모드당 4개 + 달력 4단계 숫자 모드당 3개 + 강조 바탕 위 글자 모드당 2개(V93)
-    # + 간지 태그 흰 원 안 한자 모드당 5개(V98)
-    assert len(names) == 52 + 26 + 8 + 6 + 4 + 10
+    # + 간지 태그 흰 원 안 한자 모드당 5개(V98) + 종이 위 권유 글자 모드당 1개(V102)
+    assert len(names) == 52 + 26 + 8 + 6 + 4 + 10 + 2
+    assert {"light invite.fg on bg.sheet", "dark invite.fg on bg.sheet"} <= names
     for mode in ("light", "dark"):
         assert f"{mode} badge.gwiin" in names
         assert f"{mode} badge.gisin" in names

@@ -130,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.5.0" in readme
+    assert "계약 버전: 1.6.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -239,7 +239,8 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
                 continue
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_5_0_ADDED_COLOR), current
+        expected = TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR
+        assert added == (set() if current.startswith("primitive") else expected), current
     for mode, cell in (("light", "tint"), ("dark", "tint_dark")):
         tokens = flatten(files[f"color.{mode}.tokens.json"])
         for element in ("metal", "water"):
@@ -257,6 +258,24 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
         assert light[f"color.ohaeng.{element}.glyph"]["$value"] == "{color.ohaeng." + element + ".fg}"
     for element in ("wood", "fire", "earth", "water"):
         assert dark[f"color.ohaeng.{element}.glyph"]["$value"] == "{color.ohaeng." + element + ".fg}"
+
+
+# 1.6.0 (#929, D116, 결정 V102): 권유 글자 color.invite.fg(라이트 sage 600, 다크 sage 400) 추가만
+TOKENS_1_6_0_ADDED_COLOR = {"color.invite.fg"}
+
+
+def test_tokens_1_6_0_adds_only_invite_fg():
+    files = build_token_files()
+    for current, frozen in [("primitive.tokens.json", "primitive-1.5.0.tokens.json")] + [
+            (f"color.{mode}.tokens.json", f"color.{mode}-1.5.0.tokens.json") for mode in ("light", "dark")]:
+        before, after = _frozen(frozen), flatten(files[current])
+        for name, token in before.items():
+            assert after.get(name) == token, (current, name)
+        added = after.keys() - before.keys()
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR), current
+    light, dark = (flatten(files[f"color.{mode}.tokens.json"]) for mode in ("light", "dark"))
+    assert light["color.invite.fg"]["$value"] == "{color.sage.600}"
+    assert dark["color.invite.fg"]["$value"] == "{color.sage.400}"
 
 
 # DS1 spec(2026-11-05-ds1-screens-design.md) §3: 1.4.0은 추가만. 1.3.0 primitive와 색 두 파일을 얼려 둠
@@ -294,7 +313,8 @@ def test_tokens_1_4_0_additions_only():
             if name in TOKENS_1_5_0_CHANGED:
                 continue
             assert after.get(name) == token, (mode, name)
-        assert set(after.keys() - before.keys()) == TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR, mode
+        assert set(after.keys() - before.keys()) == (
+            TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR), mode
         # 기존 calendar.good.bg, calendar.caution.bg는 그대로(위 반복이 값까지 검사)
         assert "color.calendar.good.bg" in before and "color.calendar.caution.bg" in before
 

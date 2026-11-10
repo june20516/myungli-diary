@@ -9,6 +9,7 @@
 * 위에서부터: 진행 막대(온보딩만, 3px) → 질문(`type.title`) → 머리말(`preface`, 있을 때만) → 입력 → 도움말(`type.caption.lg`) → 오류 줄 → 아래 고정 주 버튼(키보드 위에 붙음).
 * 오류 줄(`out-of-range` 등)은 빨간색 없이 `mark.caution` + 본문색입니다. 오류가 있으면 아래 버튼은 disabled.
 * 고르면 바로 다음으로 넘어가는 단계(지금은 `birthplace`의 도시 결과 줄)에는 아래 버튼을 두지 않습니다(`bottomAction.omitWhen`). 비활성 버튼이 늘 떠 있으면 "무언가 더 해야 한다"로 읽히기 때문입니다.
+* **아래 버튼 자리(결정 V106, #918):** 맨 아래 버튼 면의 아래 끝은 아래 시스템 inset(Android 3버튼 내비게이션 48, 제스처 막대, 없음 0, iPhone 홈 막대 34) 위 `space.16`입니다. inset이 0이어도 16이고, 키보드가 열리면 키보드 위 16입니다. 건너뛸 수 있는 단계(`notify-ask`의 "나중에")는 주 버튼 아래 `space.16`에 `quiet` 두 번째 버튼(`secondaryAction`)을 두고, 그 버튼이 맨 아래 버튼입니다. 두 버튼은 모두 높이 52이고(V60), `quiet`는 바탕이 없어 눌렀을 때만 면이 보입니다. 떠 있는 버튼(`floating`)과 toast의 "아래 안전 영역 위 16"과 같은 값이라 앱 전체 아래 여백이 하나입니다.
 * 머리말(`preface`): 질문과 입력 사이 안내입니다(지금은 `birthplace`의 한국 표준 소개 `birthplace.standard.note` + `depth-link` `navigate`). 글자는 도움말과 같은 스타일이고, 위(질문 아래)·아래(입력 위) 모두 `space.24`입니다.
 
 ## text-field

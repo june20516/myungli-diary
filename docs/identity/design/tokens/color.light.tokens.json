@@ -53,6 +53,13 @@
         "$description": "용어 토큰 글자"
       }
     },
+    "invite": {
+      "fg": {
+        "$type": "color",
+        "$value": "{color.sage.600}",
+        "$description": "권유 글자: 고르지 않은 자리에서 해 보라고 권하는 옅은 초록 글자와 아이콘(일기 쓰기 질문 뗀 자리, V102). 글자 대비 4.5 이상인 가장 옅은 sage"
+      }
+    },
     "badge": {
       "good": {
         "bg": {
