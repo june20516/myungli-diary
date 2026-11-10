@@ -1,25 +1,37 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
+import 'package:myungli_diary/core/api/gen/model/birth.dart';
+import 'package:myungli_diary/core/api/gen/model/birth_time.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
+import 'package:myungli_diary/core/api/gen/model/city.dart';
+import 'package:myungli_diary/core/api/gen/model/lunar_or_solar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/preview.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/application/preview_providers.dart';
 import 'package:myungli_diary/features/onboarding/data/onboarding_draft_store.dart';
+import 'package:myungli_diary/features/onboarding/presentation/preview_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
+import '../support/app_harness.dart';
 import '../support/onboarding_steps.dart';
 
 final _ko = AppLocalizationsKo();
@@ -249,18 +261,118 @@ void main() {
     expect(draft.gender, isNotNull);
   });
 
-  testWidgets('preview-used: 오류 문구를 보이되 저장하고 계속하기로 login에 갈 수 있습니다', (
+  testWidgets('preview-used: 풀이 대신 입력 확인과 안내, 버튼은 저장하고 계속하기 하나 → login', (
     tester,
   ) async {
+    covers(const Covers(exits: ['preview>login'], decisions: ['D117']));
     final container = await openPreviewStep(tester, scenario: 'preview-used');
-    expect(find.byType(ErrorState), findsOneWidget);
-    expect(find.text(_ko.errorPreviewUsed), findsOneWidget);
-    expect(find.text(_ko.actionRetry), findsNothing);
     expect(_fake(container).callCountOf('createPreview'), 1);
 
+    // 오류 상태와 다시 시도 대신 이 기기에서 이미 봤다는 안내와 입력 확인입니다.
+    expect(find.byType(ErrorState), findsNothing);
+    expect(find.text(_ko.errorPreviewUsed), findsNothing);
+    expect(find.text(_ko.actionRetry), findsNothing);
+    expect(find.byType(DayCharacter), findsNothing);
+    expect(_slot(SlotIds.previewUsedNotice), findsOneWidget);
+    expect(find.text(_ko.previewUsedNotice), findsOneWidget);
+    expect(_slot(SlotIds.previewUsedInput), findsOneWidget);
+
+    final draft = (await tester.runAsync(
+      () => container.read(onboardingDraftStoreProvider).read(),
+    ))!;
+    final date = draft.date!;
+    final birthDay = formatBirthDay('ko', date.year, date.month, date.day);
+    final time = draft.time!;
+    final expectedRows = {
+      _ko.previewUsedInputName: '별님',
+      _ko.previewUsedInputBirth: _ko.previewUsedInputBirthValue(
+        draft.calendar == CalendarType.lunar
+            ? _ko.calendarLunar
+            : _ko.calendarSolar,
+        birthDay,
+      ),
+      _ko.previewUsedInputTime: time.status == BirthTimeStatusEnum.known
+          ? formatBirthClock('ko', time.value!)
+          : _ko.timeUnknownLabel,
+      _ko.previewUsedInputGender: _ko.genderFemale,
+      _ko.previewUsedInputBirthplace: _ko.profileEditBirthplaceKorea,
+    };
+    final rows = find.descendant(
+      of: _slot(SlotIds.previewUsedInput),
+      matching: find.byType(PreviewUsedInputRow),
+    );
+    expect({
+      for (final row in tester.widgetList<PreviewUsedInputRow>(rows))
+        row.label: row.value,
+    }, expectedRows);
+    // 줄은 항목 이름 다음에 값을 이어 읽고, 누를 수 없습니다.
+    final first = tester.getSemantics(rows.first);
+    expect(first.label, '${_ko.previewUsedInputName}, 별님');
+    expect(first.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+
+    // 다시 입력 링크는 없고 버튼은 하나입니다(D117).
+    expect(_slot(SlotIds.previewCtaRestart), findsNothing);
+    expect(find.byType(PrimaryButton), findsOneWidget);
     await tester.tap(_slot(SlotIds.previewCtaSave));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey(ScreenIds.login)), findsOneWidget);
+  });
+
+  testWidgets('preview-used: 음력 윤달 생일, 아는 시간, 한국 밖 도시를 그대로 보입니다', (
+    tester,
+  ) async {
+    final container = await pumpApp(
+      tester,
+      scenario: 'preview-used',
+      locale: const Locale('ko', 'US'),
+    );
+    await tester.runAsync(
+      () => container
+          .read(onboardingDraftProvider.notifier)
+          .update(
+            (d) => d.copyWith(
+              honorific: '달님',
+              calendar: CalendarType.lunar,
+              date: LunarOrSolarDate(year: 1990, month: 5, day: 30),
+              isLeapMonth: true,
+              time: BirthTime(
+                status: BirthTimeStatusEnum.known,
+                value: '14:30',
+              ),
+              gender: BirthGenderEnum.male,
+              city: City(
+                id: '5128581',
+                name: '뉴욕',
+                country: 'US',
+                countryName: '미국',
+                timezone: 'America/New_York',
+                longitude: -74.006,
+              ),
+            ),
+          ),
+    );
+    unawaited(
+      container.read(routerProvider).push<void>(pathOf(ScreenIds.preview)),
+    );
+    await tester.pumpAndSettle();
+    await settlePreview(tester);
+
+    final rows = tester.widgetList<PreviewUsedInputRow>(
+      find.byType(PreviewUsedInputRow),
+    );
+    expect(
+      {for (final row in rows) row.label: row.value},
+      {
+        _ko.previewUsedInputName: '달님',
+        _ko.previewUsedInputBirth: _ko.previewUsedInputBirthValueLeap(
+          _ko.calendarLunar,
+          formatBirthDay('ko', 1990, 5, 30),
+        ),
+        _ko.previewUsedInputTime: formatBirthClock('ko', '14:30'),
+        _ko.previewUsedInputGender: _ko.genderMale,
+        _ko.previewUsedInputBirthplace: '뉴욕, 미국',
+      },
+    );
   });
 
   testWidgets('다시 입력 뒤 뒤로 가면 welcome이 남아 있습니다(앱이 닫히지 않음)', (tester) async {
