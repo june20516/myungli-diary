@@ -49,6 +49,13 @@ type Entry struct {
 	UpdatedAt      time.Time
 }
 
+// Guide는 일기 한 편을 만들 때 그 편의 가이드 질문을 어떻게 남길지입니다. 빈 값이면 날짜 기록의 기본 질문을 씁니다.
+// Chosen은 이 편에서 고른 오늘의 질문(S140)이고, Removed는 질문을 뗀 편(D116, S149)입니다. 둘을 함께 두지 않습니다.
+type Guide struct {
+	Chosen  []render.Segment
+	Removed bool
+}
+
 // Cursor는 목록 keyset의 위치입니다. 마지막으로 본 일기의 (날짜, 작성 시각, id)입니다.
 type Cursor struct {
 	Date      profile.LocalDate
@@ -88,13 +95,16 @@ func (s *Store) DayExists(ctx context.Context, accountID uuid.UUID, date profile
 // CreateEntry는 date에 일기를 한 편 만듭니다. 한 트랜잭션에서 날짜 기록 넣기, 날짜 잠금, 편수 확인, 일기 넣기 순으로 처리합니다(spec §2.4).
 // record가 있으면 날짜 기록이 없을 때 그것을 적고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
 // record가 nil인데 날짜 기록이 없으면 ErrDayRecordMissing, 그 날짜에 살아 있는 일기가 이미 MaxEntriesPerDay편이면 ErrDayFull입니다.
-// guide는 이 편에서 고른 오늘의 질문이고, nil이면 이 편의 질문을 비워 날짜 기록의 질문을 씁니다(S140).
-func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, guide []render.Segment, record *fortune.DayRecord) (Entry, error) {
+// guide가 빈 값이면 이 편의 질문을 비워 날짜 기록의 질문을 씁니다(S140). 질문을 뗀 편(guide.Removed)은 질문 없이 남습니다(S149).
+func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profile.LocalDate, body string, guide Guide, record *fortune.DayRecord) (Entry, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return Entry{}, fmt.Errorf("일기 ID 생성: %w", err)
 	}
-	guideJSON, err := encodeSegments(guide)
+	if guide.Removed && guide.Chosen != nil {
+		return Entry{}, errors.New("고른 질문과 질문 떼기를 함께 둘 수 없습니다")
+	}
+	guideJSON, err := encodeSegments(guide.Chosen)
 	if err != nil {
 		return Entry{}, err
 	}
@@ -114,7 +124,9 @@ func (s *Store) CreateEntry(ctx context.Context, accountID uuid.UUID, date profi
 		if err := lockAndCheckRoom(ctx, q, accountID, pgDate); err != nil {
 			return err
 		}
-		row, err := q.InsertDiary(ctx, diarydb.InsertDiaryParams{ID: id, AccountID: accountID, Date: pgDate, Body: body, GuideQuestion: guideJSON})
+		row, err := q.InsertDiary(ctx, diarydb.InsertDiaryParams{
+			ID: id, AccountID: accountID, Date: pgDate, Body: body, GuideQuestion: guideJSON, GuideQuestionRemoved: guide.Removed,
+		})
 		if err != nil {
 			return fmt.Errorf("일기 저장: %w", err)
 		}

@@ -90,7 +90,7 @@ func (q *Queries) DiaryStatsCounts(ctx context.Context, accountID uuid.UUID) (Di
 }
 
 const getDiary = `-- name: GetDiary :one
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, COALESCE(d.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, (CASE WHEN d.guide_question_removed THEN NULL ELSE COALESCE(d.guide_question, dd.guide_question) END)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.id = $1 AND d.account_id = $2 AND d.deleted_at IS NULL
@@ -169,21 +169,22 @@ func (q *Queries) GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (G
 
 const insertDiary = `-- name: InsertDiary :one
 WITH inserted AS (
-    INSERT INTO diaries (id, account_id, date, body, guide_question)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, account_id, date, body, guide_question, created_at, updated_at
+    INSERT INTO diaries (id, account_id, date, body, guide_question, guide_question_removed)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, account_id, date, body, guide_question, guide_question_removed, created_at, updated_at
 )
-SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, COALESCE(i.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
+SELECT i.id, i.account_id, i.date, i.body, dd.all_tags, dd.featured_tags, (CASE WHEN i.guide_question_removed THEN NULL ELSE COALESCE(i.guide_question, dd.guide_question) END)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, i.created_at, i.updated_at
 FROM inserted i
 JOIN diary_days dd ON dd.account_id = i.account_id AND dd.date = i.date
 `
 
 type InsertDiaryParams struct {
-	ID            uuid.UUID
-	AccountID     uuid.UUID
-	Date          pgtype.Date
-	Body          string
-	GuideQuestion []byte
+	ID                   uuid.UUID
+	AccountID            uuid.UUID
+	Date                 pgtype.Date
+	Body                 string
+	GuideQuestion        []byte
+	GuideQuestionRemoved bool
 }
 
 type InsertDiaryRow struct {
@@ -201,6 +202,7 @@ type InsertDiaryRow struct {
 }
 
 // guide_question은 그 편에서 고른 오늘의 질문이고, 고르지 않았으면 NULL이라 날짜 기록의 질문을 돌려줍니다(S140).
+// guide_question_removed가 true면 질문을 뗀 편이라 질문 없이 돌려줍니다(D116, S149).
 func (q *Queries) InsertDiary(ctx context.Context, arg InsertDiaryParams) (InsertDiaryRow, error) {
 	row := q.db.QueryRow(ctx, insertDiary,
 		arg.ID,
@@ -208,6 +210,7 @@ func (q *Queries) InsertDiary(ctx context.Context, arg InsertDiaryParams) (Inser
 		arg.Date,
 		arg.Body,
 		arg.GuideQuestion,
+		arg.GuideQuestionRemoved,
 	)
 	var i InsertDiaryRow
 	err := row.Scan(
@@ -257,7 +260,7 @@ func (q *Queries) InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) 
 }
 
 const listDiaries = `-- name: ListDiaries :many
-SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, COALESCE(d.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
+SELECT d.id, d.account_id, d.date, d.body, dd.all_tags, dd.featured_tags, (CASE WHEN d.guide_question_removed THEN NULL ELSE COALESCE(d.guide_question, dd.guide_question) END)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, d.created_at, d.updated_at
 FROM diaries d
 JOIN diary_days dd ON dd.account_id = d.account_id AND dd.date = d.date
 WHERE d.account_id = $1 AND d.deleted_at IS NULL
@@ -444,9 +447,9 @@ const updateDiaryBody = `-- name: UpdateDiaryBody :one
 WITH changed AS (
     UPDATE diaries SET body = $1, updated_at = now()
     WHERE diaries.id = $2 AND diaries.account_id = $3 AND diaries.deleted_at IS NULL
-    RETURNING id, account_id, date, body, guide_question, created_at, updated_at
+    RETURNING id, account_id, date, body, guide_question, guide_question_removed, created_at, updated_at
 )
-SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, COALESCE(u.guide_question, dd.guide_question)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
+SELECT u.id, u.account_id, u.date, u.body, dd.all_tags, dd.featured_tags, (CASE WHEN u.guide_question_removed THEN NULL ELSE COALESCE(u.guide_question, dd.guide_question) END)::jsonb AS guide_question, dd.ruleset_version, dd.day_kind, u.created_at, u.updated_at
 FROM changed u
 JOIN diary_days dd ON (dd.account_id, dd.date) = (u.account_id, u.date)
 `

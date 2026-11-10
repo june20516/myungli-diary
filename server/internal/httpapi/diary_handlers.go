@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,9 +28,11 @@ const (
 // 일기 operation 오류가 가리키는 field입니다(계약 FieldError.field).
 // date는 createDiary의 요청 본문 필드라 JSON Pointer이고, cursor는 쿼리 parameter 이름입니다.
 const (
-	fieldDiaryDate   = "/date"
-	fieldDiaryGuide  = "/guideQuestion"
-	fieldDiaryCursor = "cursor"
+	fieldDiaryDate  = "/date"
+	fieldDiaryGuide = "/guideQuestion"
+	// fieldDiaryWithoutGuide는 질문 떼기 필드입니다. guideQuestion과 함께 오면 400 request.invalid가 이 필드를 가리킵니다(S149).
+	fieldDiaryWithoutGuide = "/withoutGuideQuestion"
+	fieldDiaryCursor       = "cursor"
 )
 
 // CreateDiary는 일기를 한 편 더 씁니다. 한 날짜에 10편까지이고, 넘으면 422 diary.day_full입니다.
@@ -44,7 +47,7 @@ func (a *API) CreateDiary(ctx context.Context, req gen.CreateDiaryRequestObject)
 	if err != nil {
 		return nil, err
 	}
-	entry, err := a.Diaries.Create(ctx, accountID, p, localDateOf(req.Body.Date), req.Body.Body, guideChoiceOf(req.Body.GuideQuestion))
+	entry, err := a.Diaries.Create(ctx, accountID, p, localDateOf(req.Body.Date), req.Body.Body, guideRequestOf(req.Body))
 	if err != nil {
 		return nil, createDiaryError(err)
 	}
@@ -59,16 +62,18 @@ func (a *API) CreateDiary(ctx context.Context, req gen.CreateDiaryRequestObject)
 	}, nil
 }
 
-// guideChoiceOf는 요청의 고른 오늘의 질문을 옮깁니다. 보내지 않았으면 nil입니다.
-func guideChoiceOf(in *gen.GuideChoice) *diary.GuideChoice {
-	if in == nil {
-		return nil
+// guideRequestOf는 요청의 고른 오늘의 질문과 질문 떼기(D116)를 옮깁니다. 둘 다 보내지 않았으면 그날 기본 질문입니다.
+func guideRequestOf(in *gen.DiaryInput) diary.GuideRequest {
+	out := diary.GuideRequest{Without: in.WithoutGuideQuestion != nil && *in.WithoutGuideQuestion}
+	if in.GuideQuestion != nil {
+		out.Choice = &diary.GuideChoice{MessageKey: in.GuideQuestion.MessageKey, Variant: in.GuideQuestion.Variant}
 	}
-	return &diary.GuideChoice{MessageKey: in.MessageKey, Variant: in.Variant}
+	return out
 }
 
 // createDiaryError는 createDiary의 도메인 오류를 본문 date를 가리키는 422로 바꿉니다.
 // 고른 질문이 그날 후보에 없으면 본문 guideQuestion을 가리키는 422입니다(S140).
+// 질문을 고르면서 떼면 본문 withoutGuideQuestion을 가리키는 400 request.invalid입니다(S149).
 // 같은 sentinel이라도 restoreDiary는 요청에 date가 없어 errors[] 없이 domainErrors 표로 나갑니다.
 func createDiaryError(err error) error {
 	switch {
@@ -76,6 +81,8 @@ func createDiaryError(err error) error {
 		return dateFieldError(problem.DiaryFutureDate, "Diary date in the future")
 	case errors.Is(err, diary.ErrDayFull):
 		return dateFieldError(problem.DiaryDayFull, "Diary day full")
+	case errors.Is(err, diary.ErrGuideConflict):
+		return fieldError(problem.RequestInvalid, fieldDiaryWithoutGuide)
 	case errors.Is(err, diary.ErrGuideChoiceInvalid):
 		e := newError(problem.DiaryGuideInvalid, "Guide question is not a candidate of the day")
 		e.Errors = []problem.FieldError{{Field: fieldDiaryGuide, Code: problem.DiaryGuideInvalid.Value}}
@@ -345,6 +352,7 @@ func toDiarySummary(e diary.Entry) (gen.DiarySummary, error) {
 		DayKind:      optionalDayKind(e.DayKind),
 		Excerpt:      excerpt(e.Body),
 		FeaturedTags: featuredTags(c, e),
+		AllTags:      allTags(c, e),
 		Id:           e.ID,
 	}
 	if c.err != nil {
@@ -367,6 +375,22 @@ func featuredTags(c *converter, e diary.Entry) []gen.Tag {
 	return convertAll(e.Featured, func(t fortune.FeaturedTag) gen.Tag {
 		return gen.Tag{Key: t.Key, Polarity: contractValue[gen.TagPolarity](c, "Tag.polarity", string(t.Polarity))}
 	})
+}
+
+// allTags는 그날 태그 전부를 계약 Tag로 옮깁니다(D115, S150). 대표 태그를 그 순서대로 앞에 두고, 나머지는 날짜 기록(엔진이 낸) 순서입니다.
+// 지금 엔진은 전체 태그의 앞부분을 대표 태그로 고르므로 결과는 전체 태그 순서와 같지만, 그 사실은 엔진 계약이 아니라 여기서 정합니다.
+// 길흉 표에 없는 키면 c에 오류를 남깁니다(저장할 때 확인하므로 저장된 값이 깨진 경우).
+func allTags(c *converter, e diary.Entry) []gen.Tag {
+	ordered := make([]string, 0, len(e.AllTags))
+	for _, t := range e.Featured {
+		ordered = append(ordered, t.Key)
+	}
+	for _, key := range e.AllTags {
+		if !slices.Contains(ordered, key) {
+			ordered = append(ordered, key)
+		}
+	}
+	return convertAll(ordered, func(key string) gen.Tag { return c.tag(fortune.TagPrefix + key) })
 }
 
 // excerpt는 본문 앞 100 code point를 NFC로 합쳐 돌려줍니다.

@@ -44,7 +44,7 @@ const (
 // glossary.value_name에는 방향처럼 용어가 아닌 범주도 있어 이름 사전에는 이 범주만 넣습니다.
 var termCategories = map[string]bool{
 	"element": true, "stem": true, "branch": true, "ten_god": true, "ten_god_group": true,
-	"shinsal": true, "day_kind": true, "relation": true, "role": true, "luck": true,
+	"shinsal": true, "day_kind": true, "relation": true, "role": true, "luck": true, "twelve_stage": true,
 }
 
 // supportedLangs는 원고 디렉터리로 받는 언어입니다. 그 밖 디렉터리는 오타일 가능성이 커서 오류로 봅니다.
