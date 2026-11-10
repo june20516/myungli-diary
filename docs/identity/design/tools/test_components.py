@@ -229,14 +229,16 @@ def test_common_files_define_spec_ids():
         "press.ink", "appear.seep", "disappear.seep", "select.seep-slide", "loading.breathe", "seal.stamp",
         "seal.erase", "mark.underline-grow", "sheet.enter", "sheet.exit", "sheet.stack", "focus.ring",
         "page.push",  # DS1 V67
-        "tab.switch"}  # V104(#900)
+        "tab.switch",  # V104(#900)
+        "unlock.glint"}  # V112(#950)
     assert set(docs["elements"]["elements"]) == {
         "seal", "ohaeng.cell", "ohaeng.swatch", "tone", "tag.status", "tag.me", "highlight.current",
         "mark.underline-grow", "mark.caution", "surface.paper", "rail.timeline", "term",  # link.inline-nowrap은 V63으로 지움
         "skeleton.bone", "icon", "lock.veil",
         "list.divider", "button.pair",  # DS1 V58·V60. section.header·explain.sheet는 컴포넌트로 옮김(V69·V71)
         "stem.chip",  # DS1 2단계 V72
-        "keyboard.dismiss"}  # 5.0.0: text-field와 diary-editor에 겹친 값을 뺌(V68, V83)
+        "keyboard.dismiss",  # 5.0.0: text-field와 diary-editor에 겹친 값을 뺌(V68, V83)
+        "unlock.mark"}  # V112(#950) 동작 줄이기 때 열린 구역 표시
 
 
 def test_seal_element_matches_logo():
@@ -443,10 +445,10 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_6_2_0():
-    # 검수 회차2 묶음(V100~V106): tab.switch 패턴, 질문 떼기, 태그 줄 가로 밀기 등 추가라 부 버전.
-    # 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "6.2.0"
+def test_contract_version_is_6_3_0():
+    # 시트 겹침 표시와 열린 근거 표시(V110~V113): unlock.glint 패턴, unlock.mark 요소, 열림 꼬리표 등 추가라 부 버전.
+    # 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
+    assert VERSION == "6.3.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -823,7 +825,7 @@ def test_evidence_sheet_stacks_many_items_and_hanja_font():
     by_id = {c["id"]: c for c in sentence["components"]}
     sheet = by_id["depth-link"]["parts"]["evidenceSheet"]
     assert sheet["basis"]["repeat"] == {"each": "paragraph", "gap": "{space.12}", "skipEmpty": True}
-    assert sheet["source"]["repeat"] == {"each": "box", "gap": "{space.12}", "skipEmpty": True}
+    assert sheet["source"]["repeat"] == {"each": "item", "gap": "{space.16}", "skipEmpty": True}  # V113 상자 없이 원전 묶음
     assert sheet["source"]["fontFallback"] == "{font.family.hanja}"
     assert by_id["term-token"]["parts"]["explainSheet"]["hanja"]["fontFamily"] == "{font.family.hanja}"
 
@@ -3017,3 +3019,86 @@ def test_v109_sheet_content_scrolls_when_taller_than_sheet():
     rules = component("frame", "sheet")["rules"]
     assert any("세로로 스크롤" in rule and "핸들 자리" in rule for rule in rules)
     assert "세로로 스크롤" in (COMPONENTS_DIR / "frame.md").read_text(encoding="utf-8")
+
+
+# 결정 V110 (#958): 겹친 시트는 뒤 앱 화면을 줄이지 않고 아래 시트 머리 14px를 보임
+def test_v110_sheet_stack_keeps_screen_size_and_peeks_lower_sheet():
+    stack = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["sheet.stack"]
+    assert stack["screenBelow"]["scale"] == 1 and stack["screenBelow"]["brightness"] == 1
+    below = stack["sheetBelow"]
+    assert below["translateY"] == "peek" and below["scale"] == 1 and below["brightness"] == 0.92
+    assert stack["peek"]["height"] == {"value": 14, "unit": "px"} and "V100" in stack["peek"]["tap"]
+    assert "transform" not in stack["properties"] and stack["duration"] == "{motion.duration.long}"
+    peek = stack["peek"]
+    assert "최대 2" in peek["depth"] and "진행률" in peek["drag"] and "접근성 트리에서 뺌" in peek["a11y"]
+    assert "이동 없이" in peek["reduceMotion"] and "덮개를 더 깔지 않" in stack["screenBelow"]["note"]
+    assert "14px" in (COMPONENTS_DIR / "interaction.md").read_text(encoding="utf-8")
+    assert any("V110" in rule and "14px" in rule for rule in component("frame", "sheet")["rules"])
+    for name in ("interaction.md", "frame.md"):
+        text = (COMPONENTS_DIR / name).read_text(encoding="utf-8")
+        assert "V110" in text and "0.92·밝기 0.9" not in text and "아래 층이 작아지며" not in text
+
+
+# 결정 V111, V112 (#950, D118): 열린 근거 반짝임, 동작 줄이기 대체, 열림 꼬리표, 열린 날 근거 아이콘
+def test_v112_unlocked_evidence_glints_and_marks():
+    documents = load_documents(COMPONENTS_DIR)
+    glint = documents["interaction"]["patterns"]["unlock.glint"]
+    assert glint["duration"] == "{motion.duration.breathe}" and glint["interval"] == {"value": 15000, "unit": "ms"}
+    assert glint["band"]["fill"] == "{gradient.unlocked}" and glint["reduceMotion"] == "replace"
+    assert "한 번에" in glint["band"]["multiline"] and "닫을 때까지" in glint["stopWhen"]
+    primitive = json.loads((DESIGN_DIR / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
+    assert primitive["motion"]["duration"]["breathe"]["$value"] == {"value": 1800, "unit": "ms"}  # 시안 1.9초를 맞춘 값
+    interaction_md = (COMPONENTS_DIR / "interaction.md").read_text(encoding="utf-8")
+    assert "`breathe`(1800)" in interaction_md and "15000ms" in interaction_md and "`replace`" in interaction_md
+    assert glint["reduceMotionAlternative"]["element"] == "unlock.mark"
+    mark = documents["elements"]["elements"]["unlock.mark"]
+    assert mark["title"]["fill"] == mark["rule"]["fill"] == "{gradient.unlocked}"
+    assert mark["rule"]["width"] == {"value": 2, "unit": "px"}
+    assert len(mark["where"]) == 2 and "appear.seep" in mark["appear"] and mark["a11y"] == "읽지 않음. 장식"
+    link = component("sentence", "depth-link")
+    assert {"unlock.glint", "unlock.mark"} <= set(link["uses"])
+    assert link["parts"]["icon"]["unlocked"]["fill"] == "{gradient.unlocked}"
+    assert link["parts"]["icon"]["color"] == "{color.action.primary}"  # 잠긴 날은 그대로 (V63)
+    tag = link["parts"]["evidenceSheet"]["unlockTag"]
+    assert tag["slot"] == "evidence-sheet.unlock.until" and tag["params"] == ["date"]
+    assert tag["border"]["fill"] == "{gradient.unlocked}" and tag["icon"]["icon"] == "clock" and tag["glint"] is False
+    assert "evidence-sheet.unlock.until" in ia_slot_ids("evidence-sheet")
+    unlocked = link["states"]["unlocked"]["parts"]["evidenceSheet"]
+    assert unlocked["unlockTag"] == {"visible": True}
+    assert set(unlocked["glint"]["targets"]) == {"basisTitle", "basis", "sourceTitle", "source", "personalTitle", "personal"}
+    assert {"title", "unlockTag", "target", "pillars"} <= set(unlocked["glint"]["excludes"])
+    assert unlocked["reduceMotion"]["element"] == "unlock.mark"
+    assert "unlockTag" not in link["states"]["locked"]["parts"]["evidenceSheet"]
+    assert set(tag["copyByReason"]) == {"ad", "pass"} and "#952" in tag["reasonSource"]
+    assert "whenExpires" in link["parts"]["icon"]["unlocked"] and "날짜 맥락이 없는" in link["parts"]["icon"]["unlocked"]["when"]
+    # 화면 바탕 그라데이션 "하나" 규칙은 바탕으로 좁혀 씀 (V111). docs/identity/README.md는 지휘 몫(요청함)
+    design_claude = (DESIGN_DIR / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "토큰 하나로 묶어" not in design_claude or "gradient.unlocked" in design_claude
+    block = component("sentence", "sentence-block")["states"]["unlocked"]["parts"]
+    assert block["text"]["glint"] == "unlock.glint" and block["reduceMotion"]["part"] == "rule"
+    sentence_md = (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
+    assert "### 열린 근거 표시" in sentence_md and "D118 ⑤" in sentence_md
+
+
+def test_v111_unlocked_gradient_stops_read_as_text():
+    from palette import MIN_TEXT_CONTRAST, build_palette, contrast_ratio
+    palette = build_palette()
+    for mode, stops in palette["unlocked"].items():
+        assert len(stops) == 3
+        for stop in stops:
+            for background in ("bg.base", "bg.sheet"):
+                assert contrast_ratio(stop, palette["roles"][mode][background]) >= MIN_TEXT_CONTRAST, (mode, stop)
+
+
+# 결정 V113 (#950, D118 ③): 원전은 상자 없이 뜻, 원문, 출처 순
+def test_v113_source_reads_meaning_quote_cite():
+    source = component("sentence", "depth-link")["parts"]["evidenceSheet"]["source"]
+    assert source["order"] == ["meaning", "quote", "cite"]
+    assert source["bg"] == "transparent" and source["padding"] == 0
+    assert source["meaning"]["fg"] == "{color.text.primary}"
+    assert source["quote"]["fg"] == "{color.text.secondary}" and source["quote"]["paddingStart"] == "{space.8}"
+    assert source["quote"]["fontFallback"] == "{font.family.hanja}"
+    assert source["cite"]["type"] == "{type.caption.md}" and source["cite"]["paddingStart"] == source["quote"]["paddingStart"]
+    assert "ja 8글자" in source["meaning"]["note"] and source["radius"] == 0  # server #797 자른 값
+    locked = component("sentence", "depth-link")["states"]["locked"]["parts"]["evidenceSheet"]["source"]
+    assert locked["hidden"] == ["quote", "cite"] and locked["lines"] == 2

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시트 겹침 표시 관문 질문 (#958): 뒤 화면 축소 대신 쓸 표시</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="ds1/tokens.css">
+<style>
+  /* 색, 간격, 반경, 글자는 ds1/tokens.css 토큰입니다. 페이지 바탕과 설명 글만 페이지 전용 값입니다. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f2f1ee; color: #1f1f1e; font-family: var(--type-body-ui-family); font-size: 15px; line-height: 1.55; }
+  .page { max-width: 1320px; margin: 0 auto; padding: 32px 20px 72px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 52px 0 6px; padding-top: 16px; border-top: 1px solid #dcdad5; }
+  .intro, .note { color: #5b5b59; margin: 0 0 14px; max-width: 880px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .opt { width: 375px; }
+  .opt .cap { font-size: 14px; font-weight: 700; color: var(--color-action-primary); margin-bottom: 8px; }
+  .rec { display: inline-block; font-size: 11px; font-weight: 700; color: var(--color-tag-good-fg); background: var(--color-tag-good-bg); border-radius: 999px; padding: 0 8px; margin-left: 8px; vertical-align: 2px; }
+  .ico { display: inline-flex; width: 18px; height: 18px; color: var(--color-text-secondary); flex: none; }
+  .ico svg { width: 100%; height: 100%; }
+
+  .phone { position: relative; width: 375px; border-radius: 26px; overflow: hidden; border: 1px solid #d6d4cf; background: #1f1f1e; }
+  .scr { position: absolute; inset: 0; background: var(--color-bg-base); overflow: hidden; }
+  .scrim { position: absolute; inset: 0; background: #000; z-index: 1; }
+  .screen { padding: 48px 24px 0; }
+  .topbar { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: var(--color-text-primary); }
+  .topbar .ico { color: var(--color-text-primary); }
+  .ptitle { font-size: 22px; font-weight: 700; margin: 20px 0 6px; color: var(--color-text-primary); }
+  .ptitle.small { font-size: 18px; margin-top: 4px; }
+  .pmeta { font-size: 14px; color: var(--color-text-secondary); }
+  .seg { display: flex; margin: 16px 0; border: 1px solid var(--color-line); border-radius: 999px; padding: 3px; font-size: 14px; }
+  .seg span { flex: 1; text-align: center; padding: 7px 0; border-radius: 999px; color: var(--color-text-secondary); }
+  .seg .on { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: 12px; margin-bottom: 12px; text-align: center; font-family: 'Noto Serif KR', var(--font-family-hanja); }
+  .grid i { font-style: normal; font-size: 13px; color: var(--color-text-secondary); }
+  .grid b { font-size: 16px; padding: 6px 0; background: var(--color-bg-base); border-radius: 8px; }
+  .grid.two b { font-family: var(--type-body-ui-family); font-size: 13px; font-weight: 500; min-height: 30px; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 16px; }
+  .cal b { height: 64px; border-radius: 10px; background: var(--color-bg-sheet); font-size: 13px; font-weight: 500; padding: 4px 6px; color: var(--color-text-primary); }
+
+  .sh { position: absolute; left: 0; right: 0; background: var(--color-bg-sheet); border-radius: 28px 28px 0 0; padding: 0 24px; overflow: hidden; }
+  .handle { width: 36px; height: 4px; border-radius: 2px; background: var(--color-line); margin: 10px auto 18px; }
+  .veil { position: absolute; inset: 0; background: #000; pointer-events: none; }
+  .backrow { display: flex; align-items: center; gap: 4px; min-height: 44px; margin: -12px 0 4px -6px; font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); }
+  .stitle { font-size: 21px; font-weight: 700; color: var(--color-text-primary); line-height: 1.35; }
+  .slabel { font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); margin-top: 14px; }
+  .row-between .slabel { margin-top: 2px; }
+  .sbody { font-family: var(--type-sentence-body-family); font-size: 16px; line-height: 1.75; color: var(--color-text-primary); margin-top: 8px; }
+  .sline { margin-top: 14px; }
+  .sline .ico { width: 24px; height: 24px; color: var(--color-text-primary); }
+  .row-between { display: flex; justify-content: space-between; align-items: center; }
+  .ht { flex: none; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px 0 4px; font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); white-space: nowrap; }
+  .ht .g { width: 22px; height: 22px; border-radius: 50%; background: var(--color-bg-sheet); display: inline-flex; align-items: center; justify-content: center; font-family: 'Noto Serif KR', var(--font-family-hanja); font-size: 12px; font-weight: 700; }
+  .ht.emph { background: var(--color-badge-good-bg); color: var(--color-badge-good-fg); }
+  .ht.emph .g { color: var(--color-badge-good-bg); }
+  .sech { font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 28px 0 12px; }
+  .vcard { height: 120px; background: var(--color-bg-base); border-radius: var(--radius-lg); }
+  .vline { height: 44px; border-bottom: 0.5px solid var(--color-line); }
+
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>시트 겹침 표시 관문 질문 (#958)</h1>
+  <p class="intro">시트 위에 시트가 하나 더 열릴 때(예: 사주 표의 12운성 뜻 시트에서 "풀이의 근거"를 열 때) 뒤 앱 화면이 작아지는 지금 방식(V17)을 빼고, 시트가 겹쳐 있다는 것을 알리는 다른 방법을 고릅니다. 안마다 두 장면을 보입니다. 왼쪽은 원요청 장면처럼 아래 시트가 위 시트보다 짧은 경우, 오른쪽은 큰 그날 시트 위에 태그 뜻 시트가 열린 경우입니다. 어느 안이든 닫기 규칙(뒤로, 끌어내리기, 바깥 누르기 모두 한 단계, V100)은 그대로입니다.</p>
+
+<h2>지금 (V17 겹쳐 쌓기, 참고)</h2><p class="note">뒤 앱 화면이 0.92로 작아지고, 아래 시트는 위로 30 올라가며 0.94로 작아집니다. 아래 시트가 위 시트보다 짧으면(왼쪽) 위 시트 뒤에 완전히 가려져, 시트가 두 장이라는 표시는 앱 화면 축소뿐입니다.</p><div class="row">
+<div class="opt"><div class="cap">짧은 아래 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="transform:scale(.92);transform-origin:50% 30%;border-radius:18px;">
+<div class="screen">
+  <div class="topbar"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>사주 표</span></div>
+  <div class="ptitle">지수님의 사주</div>
+  <div class="pmeta">양력 1990. 5. 12.  오후 2:30</div>
+  <div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div>
+  <div class="grid"><i>時</i><i>日</i><i>月</i><i>年</i><b>己</b><b>壬</b><b>戊</b><b>丙</b><b>丁</b><b>甲</b><b>乙</b><b>庚</b><b>乙</b><b> </b><b>癸</b><b>戊</b></div>
+  <div class="grid two"><b>쇠</b><b>목욕</b><b>묘</b><b>사</b><b>화개</b><b>역마</b><b></b><b>역마</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:460px;height:260px;z-index:2"><div class="handle"></div><div class="stitle">목욕</div><div class="sline"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,50H160a38,38,0,0,0-32,17.55A38,38,0,0,0,96,50H24a6,6,0,0,0-6,6V200a6,6,0,0,0,6,6H96a26,26,0,0,1,26,26,6,6,0,0,0,12,0,26,26,0,0,1,26-26h72a6,6,0,0,0,6-6V56A6,6,0,0,0,232,50ZM96,194H30V62H96a26,26,0,0,1,26,26V204.31A37.86,37.86,0,0,0,96,194Zm130,0H160a37.87,37.87,0,0,0-26,10.32V88a26,26,0,0,1,26-26h66Z"/></svg></span></div><div class="veil" style="opacity:0.05"></div></div><div class="sh" style="top:390px;height:330px;z-index:3"><div class="handle"></div><div class="stitle">풀이의 근거</div><div class="slabel">내 사주에서는</div><div class="sbody">태어난 날의 지지에서 내 기운은 목욕 단계라, 이것저것 해 보며 감을 잡아 가는 자리예요.</div></div></div></div>
+<div class="opt"><div class="cap">그날 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="transform:scale(.92);transform-origin:50% 30%;border-radius:18px;">
+<div class="screen">
+  <div class="ptitle small">달력</div>
+  <div class="cal"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b>10</b><b>11</b><b>12</b><b>13</b><b>14</b><b>15</b><b>16</b><b>17</b><b>18</b><b>19</b><b>20</b><b>21</b><b>22</b><b>23</b><b>24</b><b>25</b><b>26</b><b>27</b><b>28</b><b>29</b><b>30</b><b>31</b><b>32</b><b>33</b><b>34</b><b>35</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:26px;height:694px;z-index:2"><div class="handle"></div><div class="row-between"><div><div class="stitle">11월 12일 수요일</div><div class="slabel">음력 9월 23일</div></div><span class="ht emph"><span class="g">用</span>용신의 날</span></div><div class="sech">길흉판정</div><div class="vcard"></div><div class="sech">일정</div><div class="vline"></div><div class="vline"></div><div class="veil" style="opacity:0.05"></div></div><div class="sh" style="top:420px;height:300px;z-index:3"><div class="handle"></div><div class="stitle">용신</div><div class="sbody">내 사주에 가장 필요한 기운이에요. 이 기운이 들어오는 날은 일이 수월하게 풀리기 쉬워요.</div></div></div></div>
+</div>
+<h2>A  아래 시트 머리가 보임<span class="rec">권장</span></h2><p class="note">뒤 화면 크기는 그대로. 아래 시트가 위 시트보다 짧으면 위로 올라가(이동만, 크기 그대로) 위 시트 위로 머리 14px가 보이고, 조금 어두워집니다. 아래 시트가 원래 더 크면(오른쪽) 움직이지 않고 어두워지기만 합니다. 글자 없이 모양만으로 두 장임을 보입니다.</p><div class="row">
+<div class="opt"><div class="cap">짧은 아래 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="topbar"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>사주 표</span></div>
+  <div class="ptitle">지수님의 사주</div>
+  <div class="pmeta">양력 1990. 5. 12.  오후 2:30</div>
+  <div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div>
+  <div class="grid"><i>時</i><i>日</i><i>月</i><i>年</i><b>己</b><b>壬</b><b>戊</b><b>丙</b><b>丁</b><b>甲</b><b>乙</b><b>庚</b><b>乙</b><b> </b><b>癸</b><b>戊</b></div>
+  <div class="grid two"><b>쇠</b><b>목욕</b><b>묘</b><b>사</b><b>화개</b><b>역마</b><b></b><b>역마</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:376px;height:344px;z-index:2"><div class="handle"></div><div class="stitle">목욕</div><div class="sline"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,50H160a38,38,0,0,0-32,17.55A38,38,0,0,0,96,50H24a6,6,0,0,0-6,6V200a6,6,0,0,0,6,6H96a26,26,0,0,1,26,26,6,6,0,0,0,12,0,26,26,0,0,1,26-26h72a6,6,0,0,0,6-6V56A6,6,0,0,0,232,50ZM96,194H30V62H96a26,26,0,0,1,26,26V204.31A37.86,37.86,0,0,0,96,194Zm130,0H160a37.87,37.87,0,0,0-26,10.32V88a26,26,0,0,1,26-26h66Z"/></svg></span></div><div class="veil" style="opacity:0.08"></div></div><div class="sh" style="top:390px;height:330px;z-index:3"><div class="handle"></div><div class="stitle">풀이의 근거</div><div class="slabel">내 사주에서는</div><div class="sbody">태어난 날의 지지에서 내 기운은 목욕 단계라, 이것저것 해 보며 감을 잡아 가는 자리예요.</div></div></div></div>
+<div class="opt"><div class="cap">그날 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="ptitle small">달력</div>
+  <div class="cal"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b>10</b><b>11</b><b>12</b><b>13</b><b>14</b><b>15</b><b>16</b><b>17</b><b>18</b><b>19</b><b>20</b><b>21</b><b>22</b><b>23</b><b>24</b><b>25</b><b>26</b><b>27</b><b>28</b><b>29</b><b>30</b><b>31</b><b>32</b><b>33</b><b>34</b><b>35</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:56px;height:664px;z-index:2"><div class="handle"></div><div class="row-between"><div><div class="stitle">11월 12일 수요일</div><div class="slabel">음력 9월 23일</div></div><span class="ht emph"><span class="g">用</span>용신의 날</span></div><div class="sech">길흉판정</div><div class="vcard"></div><div class="sech">일정</div><div class="vline"></div><div class="vline"></div><div class="veil" style="opacity:0.08"></div></div><div class="sh" style="top:420px;height:300px;z-index:3"><div class="handle"></div><div class="stitle">용신</div><div class="sbody">내 사주에 가장 필요한 기운이에요. 이 기운이 들어오는 날은 일이 수월하게 풀리기 쉬워요.</div></div></div></div>
+</div>
+<h2>B  위 시트 머리에 뒤로와 아래 시트 이름</h2><p class="note">뒤 화면 크기는 그대로. 위 시트 핸들 아래에 '‹ 목욕'처럼 아래 시트 제목과 왼쪽 꺾쇠를 두고, 누르면 한 단계 닫힙니다. 아래 시트는 지금처럼 가려질 수 있고, 위 시트 머리 한 줄(44)만큼 내용이 내려갑니다.</p><div class="row">
+<div class="opt"><div class="cap">짧은 아래 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="topbar"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>사주 표</span></div>
+  <div class="ptitle">지수님의 사주</div>
+  <div class="pmeta">양력 1990. 5. 12.  오후 2:30</div>
+  <div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div>
+  <div class="grid"><i>時</i><i>日</i><i>月</i><i>年</i><b>己</b><b>壬</b><b>戊</b><b>丙</b><b>丁</b><b>甲</b><b>乙</b><b>庚</b><b>乙</b><b> </b><b>癸</b><b>戊</b></div>
+  <div class="grid two"><b>쇠</b><b>목욕</b><b>묘</b><b>사</b><b>화개</b><b>역마</b><b></b><b>역마</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:490px;height:230px;z-index:2"><div class="handle"></div><div class="stitle">목욕</div><div class="sline"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,50H160a38,38,0,0,0-32,17.55A38,38,0,0,0,96,50H24a6,6,0,0,0-6,6V200a6,6,0,0,0,6,6H96a26,26,0,0,1,26,26,6,6,0,0,0,12,0,26,26,0,0,1,26-26h72a6,6,0,0,0,6-6V56A6,6,0,0,0,232,50ZM96,194H30V62H96a26,26,0,0,1,26,26V204.31A37.86,37.86,0,0,0,96,194Zm130,0H160a37.87,37.87,0,0,0-26,10.32V88a26,26,0,0,1,26-26h66Z"/></svg></span></div><div class="veil" style="opacity:0.08"></div></div><div class="sh" style="top:390px;height:330px;z-index:3"><div class="handle"></div><div class="backrow"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>목욕</span></div><div class="stitle">풀이의 근거</div><div class="slabel">내 사주에서는</div><div class="sbody">태어난 날의 지지에서 내 기운은 목욕 단계라, 이것저것 해 보며 감을 잡아 가는 자리예요.</div></div></div></div>
+<div class="opt"><div class="cap">그날 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="ptitle small">달력</div>
+  <div class="cal"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b>10</b><b>11</b><b>12</b><b>13</b><b>14</b><b>15</b><b>16</b><b>17</b><b>18</b><b>19</b><b>20</b><b>21</b><b>22</b><b>23</b><b>24</b><b>25</b><b>26</b><b>27</b><b>28</b><b>29</b><b>30</b><b>31</b><b>32</b><b>33</b><b>34</b><b>35</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:56px;height:664px;z-index:2"><div class="handle"></div><div class="row-between"><div><div class="stitle">11월 12일 수요일</div><div class="slabel">음력 9월 23일</div></div><span class="ht emph"><span class="g">用</span>용신의 날</span></div><div class="sech">길흉판정</div><div class="vcard"></div><div class="sech">일정</div><div class="vline"></div><div class="vline"></div><div class="veil" style="opacity:0.08"></div></div><div class="sh" style="top:420px;height:300px;z-index:3"><div class="handle"></div><div class="backrow"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>11월 12일</span></div><div class="stitle">용신</div><div class="sbody">내 사주에 가장 필요한 기운이에요. 이 기운이 들어오는 날은 일이 수월하게 풀리기 쉬워요.</div></div></div></div>
+</div>
+<h2>C  아래 층만 더 어둡게</h2><p class="note">뒤 화면 크기는 그대로. 겹칠 때 덮개와 아래 시트가 한 단계 더 어두워집니다. 아래 시트가 위 시트보다 짧으면(왼쪽) 여전히 가려져, 어두워진 정도 말고는 단서가 없습니다.</p><div class="row">
+<div class="opt"><div class="cap">짧은 아래 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="topbar"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>사주 표</span></div>
+  <div class="ptitle">지수님의 사주</div>
+  <div class="pmeta">양력 1990. 5. 12.  오후 2:30</div>
+  <div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div>
+  <div class="grid"><i>時</i><i>日</i><i>月</i><i>年</i><b>己</b><b>壬</b><b>戊</b><b>丙</b><b>丁</b><b>甲</b><b>乙</b><b>庚</b><b>乙</b><b> </b><b>癸</b><b>戊</b></div>
+  <div class="grid two"><b>쇠</b><b>목욕</b><b>묘</b><b>사</b><b>화개</b><b>역마</b><b></b><b>역마</b></div>
+</div></div><div class="scrim" style="opacity:0.55"></div><div class="sh" style="top:490px;height:230px;z-index:2"><div class="handle"></div><div class="stitle">목욕</div><div class="sline"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,50H160a38,38,0,0,0-32,17.55A38,38,0,0,0,96,50H24a6,6,0,0,0-6,6V200a6,6,0,0,0,6,6H96a26,26,0,0,1,26,26,6,6,0,0,0,12,0,26,26,0,0,1,26-26h72a6,6,0,0,0,6-6V56A6,6,0,0,0,232,50ZM96,194H30V62H96a26,26,0,0,1,26,26V204.31A37.86,37.86,0,0,0,96,194Zm130,0H160a37.87,37.87,0,0,0-26,10.32V88a26,26,0,0,1,26-26h66Z"/></svg></span></div><div class="veil" style="opacity:0.18"></div></div><div class="sh" style="top:390px;height:330px;z-index:3"><div class="handle"></div><div class="stitle">풀이의 근거</div><div class="slabel">내 사주에서는</div><div class="sbody">태어난 날의 지지에서 내 기운은 목욕 단계라, 이것저것 해 보며 감을 잡아 가는 자리예요.</div></div></div></div>
+<div class="opt"><div class="cap">그날 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="ptitle small">달력</div>
+  <div class="cal"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b>10</b><b>11</b><b>12</b><b>13</b><b>14</b><b>15</b><b>16</b><b>17</b><b>18</b><b>19</b><b>20</b><b>21</b><b>22</b><b>23</b><b>24</b><b>25</b><b>26</b><b>27</b><b>28</b><b>29</b><b>30</b><b>31</b><b>32</b><b>33</b><b>34</b><b>35</b></div>
+</div></div><div class="scrim" style="opacity:0.55"></div><div class="sh" style="top:56px;height:664px;z-index:2"><div class="handle"></div><div class="row-between"><div><div class="stitle">11월 12일 수요일</div><div class="slabel">음력 9월 23일</div></div><span class="ht emph"><span class="g">用</span>용신의 날</span></div><div class="sech">길흉판정</div><div class="vcard"></div><div class="sech">일정</div><div class="vline"></div><div class="vline"></div><div class="veil" style="opacity:0.18"></div></div><div class="sh" style="top:420px;height:300px;z-index:3"><div class="handle"></div><div class="stitle">용신</div><div class="sbody">내 사주에 가장 필요한 기운이에요. 이 기운이 들어오는 날은 일이 수월하게 풀리기 쉬워요.</div></div></div></div>
+</div>
+<h2>D  A와 B를 함께</h2><p class="note">아래 시트 머리가 보이고, 위 시트 머리에 뒤로와 아래 시트 이름도 둡니다. 가장 분명하지만 표시가 둘이라 시트 머리가 무거워집니다.</p><div class="row">
+<div class="opt"><div class="cap">짧은 아래 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="topbar"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>사주 표</span></div>
+  <div class="ptitle">지수님의 사주</div>
+  <div class="pmeta">양력 1990. 5. 12.  오후 2:30</div>
+  <div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div>
+  <div class="grid"><i>時</i><i>日</i><i>月</i><i>年</i><b>己</b><b>壬</b><b>戊</b><b>丙</b><b>丁</b><b>甲</b><b>乙</b><b>庚</b><b>乙</b><b> </b><b>癸</b><b>戊</b></div>
+  <div class="grid two"><b>쇠</b><b>목욕</b><b>묘</b><b>사</b><b>화개</b><b>역마</b><b></b><b>역마</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:376px;height:344px;z-index:2"><div class="handle"></div><div class="stitle">목욕</div><div class="sline"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,50H160a38,38,0,0,0-32,17.55A38,38,0,0,0,96,50H24a6,6,0,0,0-6,6V200a6,6,0,0,0,6,6H96a26,26,0,0,1,26,26,6,6,0,0,0,12,0,26,26,0,0,1,26-26h72a6,6,0,0,0,6-6V56A6,6,0,0,0,232,50ZM96,194H30V62H96a26,26,0,0,1,26,26V204.31A37.86,37.86,0,0,0,96,194Zm130,0H160a37.87,37.87,0,0,0-26,10.32V88a26,26,0,0,1,26-26h66Z"/></svg></span></div><div class="veil" style="opacity:0.08"></div></div><div class="sh" style="top:390px;height:330px;z-index:3"><div class="handle"></div><div class="backrow"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>목욕</span></div><div class="stitle">풀이의 근거</div><div class="slabel">내 사주에서는</div><div class="sbody">태어난 날의 지지에서 내 기운은 목욕 단계라, 이것저것 해 보며 감을 잡아 가는 자리예요.</div></div></div></div>
+<div class="opt"><div class="cap">그날 시트 위에</div><div class="phone" style="height:720px"><div class="scr" style="">
+<div class="screen">
+  <div class="ptitle small">달력</div>
+  <div class="cal"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>9</b><b>10</b><b>11</b><b>12</b><b>13</b><b>14</b><b>15</b><b>16</b><b>17</b><b>18</b><b>19</b><b>20</b><b>21</b><b>22</b><b>23</b><b>24</b><b>25</b><b>26</b><b>27</b><b>28</b><b>29</b><b>30</b><b>31</b><b>32</b><b>33</b><b>34</b><b>35</b></div>
+</div></div><div class="scrim" style="opacity:0.4"></div><div class="sh" style="top:56px;height:664px;z-index:2"><div class="handle"></div><div class="row-between"><div><div class="stitle">11월 12일 수요일</div><div class="slabel">음력 9월 23일</div></div><span class="ht emph"><span class="g">用</span>용신의 날</span></div><div class="sech">길흉판정</div><div class="vcard"></div><div class="sech">일정</div><div class="vline"></div><div class="vline"></div><div class="veil" style="opacity:0.08"></div></div><div class="sh" style="top:420px;height:300px;z-index:3"><div class="handle"></div><div class="backrow"><span class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg></span><span>11월 12일</span></div><div class="stitle">용신</div><div class="sbody">내 사주에 가장 필요한 기운이에요. 이 기운이 들어오는 날은 일이 수월하게 풀리기 쉬워요.</div></div></div></div>
+</div>
+
+  <h2>A를 고르면 함께 정할 것 (design 제안)</h2>
+  <p class="note">움직임은 지금 겹쳐 쌓기와 같은 420ms(enter 곡선)에 아래 시트는 위로 이동만, 덮개 투명도만 바뀝니다. 위 시트를 닫으면 아래 시트가 제자리로 내려옵니다. 동작 줄이기에서는 이동 없이 바로 그 자리에 놓이고 투명도만 바뀝니다. 위 시트가 너무 커서 아래 시트가 올라갈 자리가 없으면 위 시트 높이를 머리 14px만큼 줄여 늘 보이게 합니다. 위 시트를 끌어 내리는 동안 아래 시트는 그만큼 따라 내려옵니다. 시트 깊이는 최대 둘이라 보이는 머리는 하나뿐입니다.</p>
+  <p class="note" style="margin-top: 48px">아이콘: Phosphor Icons 2.1.1 (MIT). 글꼴: Pretendard, Gowun Dodum, Noto Serif KR. 예시 이름과 문장은 가안입니다.</p>
+</div>
+</body>
+</html>

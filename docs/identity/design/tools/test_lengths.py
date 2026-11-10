@@ -77,6 +77,9 @@ DS1_SCREENS = {"ui.birth-info.row", "ui.saju.stage-marker", "diary-edit.draft.st
                "today.featured.empty"}  # D112 대표 태그 없는 날 한 줄
 # #859 drift(D113): IA 새 슬롯 일정 섹션 제목과 대표 태그 시트 꺾쇠 링크(같은 말인 tag-sheet.diary.cta 포함, V97)
 ISSUE_859 = {"today.event.title", "explain-sheet.tag.diary-link", "tag-sheet.diary.cta"}
+# 검수 회차2 그날 시트 새 슬롯(#946, V107, V108)과 D118 열림 꼬리표(#950, V112)
+ISSUE_946_950 = {"day-sheet.event.all-day", "day-sheet.verdict.expand", "day-sheet.verdict.collapse",
+                 "evidence-sheet.unlock.until"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -200,7 +203,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
     requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
-                 | ISSUE_763 | DS1_SCREENS | ISSUE_859)
+                 | ISSUE_763 | DS1_SCREENS | ISSUE_859 | ISSUE_946_950)
     slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표

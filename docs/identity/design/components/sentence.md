@@ -62,18 +62,18 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 | 순서 | 구성 | 잠김 |
 | --- | --- | --- |
-| 1 | 제목(`type.title`, `evidence-sheet.sheet.title`) | 무료 |
+| 1 | 제목(`type.title`, `evidence-sheet.sheet.title`). `unlocked`면 같은 줄 오른쪽 끝에 열림 꼬리표(`evidence-sheet.unlock.until`) | 무료 |
 | 2 | 대상(`target`): 그 문장을 정한 `hanja-tag` 줄 + 대상 문장(`evidence-sheet.target.body`) | 무료 |
 | 3 | 원국표(`saju-pillars`) | 무료(표 데이터) |
 | 4 | 판정 근거(제목 `evidence-sheet.section.basis`, 본문 `evidence-sheet.basis.body`) | 본문만 잠김 |
-| 5 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, `bg.base` 상자) | 본문만 잠김 |
+| 5 | 원전(제목 `evidence-sheet.section.source`, 본문 `evidence-sheet.source.quote`, 원전마다 뜻, 원문, 출처 순, 결정 V113) | 본문만 잠김 |
 | 6 | 내 사주에서는(제목 `evidence-sheet.section.personal`, 본문 `evidence-sheet.personal.body`, 사주 표·만세력·대운 표의 용어에서 열었을 때만) | 본문만 잠김 |
 
 **시트 위 대상(결정 V80, D108):** 제목 아래 `space.12`에 그 문장을 정한 태그 줄(`hanja-tag` `default`, 사이 `space.8`, 넘치면 다음 줄)을 두고, 그 아래 `space.8`에 대상 문장(`type.caption.lg` `text.secondary`, 일반 글자, 세 줄까지)을 둡니다. 총운 헤드라인에서 열면 날의 성격과 십성 묶음, 보조 문장에서 열면 대표 태그 1순위, 사주 기운 시트에서 열면 그 태그입니다. 시트 안의 태그는 누를 수 없는 표시입니다(시트를 더 쌓지 않음). 태그나 문장이 없는 자리(용어 풀이 시트, 사주 표 계열에서 연 시트)는 그 줄을 그리지 않습니다. 대상은 잠기지 않습니다.
 
 구역 제목은 `type.label.md` `text.secondary`, 구역 사이 `space.20`입니다(`sectionTitle` 스타일, 구역마다 `basisTitle`·`sourceTitle`·`personalTitle`). **구역 제목은 잠겨도 또렷하게 보입니다.** `lock.veil`은 본문에만 씌웁니다.
 
-**근거가 여럿일 때(#218, app A42):** 한 슬롯의 `evidence[]`가 여러 개면 판정 근거는 항목마다 `sentence-block` `body` 문단으로 순서대로 쌓고, 원전 인용은 항목마다 `bg.base` 상자를 따로 둡니다. 문단·상자 사이는 `space.12`(풀이 시트 `todayReason`과 같은 값)이고, 문장이 없는 항목은 건너뜁니다(`repeat`). 원전마다 출처가 달라 상자 하나에 모으지 않습니다.
+**근거가 여럿일 때(#218, app A42):** 한 슬롯의 `evidence[]`가 여러 개면 판정 근거는 항목마다 `sentence-block` `body` 문단으로 순서대로 쌓고, 원전 인용은 항목마다 뜻, 원문, 출처 묶음을 따로 둡니다(결정 V113 전에는 `bg.base` 상자). 판정 근거 문단 사이는 `space.12`(풀이 시트 `todayReason`과 같은 값), 원전 묶음 사이는 `space.16`이고, 문장이 없는 항목은 건너뜁니다(`repeat`). 원전마다 출처가 달라 한 묶음에 모으지 않습니다.
 
 **원전 인용의 한자:** 문장 글꼴(고운돋움)에는 한자 글리프가 없습니다. 한글은 문장 글꼴 그대로 두고 한자만 `font.family.hanja`로 그립니다(`fontFallback`, Flutter `fontFamilyFallback`). ja 문장 글꼴(Zen Maru Gothic)은 한자가 있어 그대로입니다.
 
@@ -88,7 +88,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 | `locked` | 권한 없음, 광고 준비됨 | 세 구역을 같은 자리에 `lock.veil`로(앞 2~3 단어 또렷 + 흐린 자리값, 판정 근거 3줄, 원전 2줄, 내 사주에서는 3줄). 시트 아래 고정 안내 영역(위 1px `line`, `bg.sheet`): 자물쇠 + `lock.head` → `lock.reward`(보상 고지, 버튼보다 먼저) → `primary-button` `filled`(`lock.cta`) → `lock.pass` 링크(→ `ad-free`) |
 | `lockedNoAd` | 권한 없음, 광고 준비 안 됨 | 버튼 `disabled` + 아래 `lock.unavailable`. 광고가 준비되면 `locked`(`appear.seep`) |
 | `unlocking` | 광고를 끝까지 보고 돌아와 server 확인(SSV)을 기다림 | 버튼 `loading`(점 숨쉬기). 스크린리더 "확인 중" |
-| `unlocked` | 권한 있음 | 안내 영역 없음, 세 구역 본문 |
+| `unlocked` | 권한 있음 | 안내 영역 없음, 세 구역 본문, 제목 옆 열림 꼬리표, 열린 글자 반짝임(`unlock.glint`, 동작 줄이기면 `unlock.mark`) |
 
 * **광고를 끝까지 보고 돌아옴**: `unlocking` → 권한이 오면 안내 영역 `disappear.seep`, 세 구역 skeleton → 내용 `appear.seep`, 햅틱 light, 스크린리더에 열렸다고 한 번 알림.
 * **확인이 오지 않음**(대기 시간은 app이 server 확인 흐름에 맞춰 정함): `locked`로 돌아가고 `toast`로 알립니다(`failedToast`, 문구 슬롯 `evidence-sheet.unlock.failed`).
@@ -100,6 +100,19 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 * "내 사주에서는"은 열렸을 때처럼 사주 표 계열에서 열었을 때만 있습니다. 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘이고, 안내 문구와 버튼은 같습니다(보상은 그날 근거·해석 전부).
 * 시트 불러오는 중(IA `loading`)은 잠김 여부를 알기 전이라 시트 전체 skeleton, 불러오지 못함(IA `error`)은 `error-state`입니다. 잠김 상태는 불러온 뒤에 정해집니다.
 * 고르지 않은 시안: A(안내 카드 하나 + 아래로 흐려짐), C(흐린 본문 위 겹친 안내).
+
+### 열린 근거 표시 (D118, 결정 V111~V113)
+
+열어 본 값이 눈에 보이게 합니다. 광고 한 편으로 열렸든 광고 제거권 기간이든 같습니다.
+
+* **열림 꼬리표(`unlockTag`):** 시트 제목 줄 오른쪽 끝, 제목 첫 줄 세로 가운데에 높이 24 알약을 둡니다. `bg.sheet` 바탕에 1px `gradient.unlocked` 테두리, 앞에 `clock` Regular(옆 글자 단계, `text.secondary`, 사이 `space.4`), 글자 `type.caption.md` `text.secondary`, 좌우 `space.8`. 문구는 `evidence-sheet.unlock.until`의 두 문구로, 열린 이유에 따라 고릅니다(광고 한 편이면 그날 자정까지 매개변수 없이, 광고 제거권이면 기간 끝 날짜 `date`). 이유와 끝 시각, 자정의 시간대는 server 권한 응답(#952)을 따르고, 상한(`lengths.md`)은 두 문구에 같이 씁니다. 제목과 한 줄에 들어가지 않으면 제목 아래 `space.8`에 왼쪽 맞춤으로 내립니다. 누를 수 없고 반짝이지 않습니다. 스크린리더는 제목 다음에 이어 읽습니다.
+* **반짝임(`unlock.glint`):** 열려서 보이게 된 글자, 곧 세 구역 제목과 본문(판정 근거, 원전, 내 사주에서는)에 15초마다 한 번 금빛 띠가 지나갑니다(1800ms). 열린 내용이 `appear.seep`으로 나타난 직후 한 번, 그 뒤 15초마다 한 시트 안 대상이 함께 지나갑니다. 시트 제목, 열림 꼬리표, 대상 문장과 태그, 원국표, 빈 해석 안내는 반짝이지 않습니다. 부정 신호(기신, 충, 공망 등)가 든 문장도 같습니다(D118 ⑤).
+* **동작 줄이기:** 반짝임 대신 `unlock.mark`입니다. 구역 제목 글자를 그라데이션으로 칠하고, 구역 왼쪽 밖 12에 2px 세로선을 둡니다. 글자 배치는 움직이지 않습니다.
+* **근거 아이콘(V63 개정):** 지금 열람 권한이 있으면(오늘 광고로 열었거나 광고 제거권 기간) `book-open-text` 선을 `gradient.unlocked`(135°)로 칠합니다. 날짜 맥락이 없는 화면(나 탭, 사주 표, 만세력)도 같은 권한 기준입니다. 모양, 크기, 터치는 그대로라 시트 밖에서도 열린 것이 보입니다. 열리는 순간 따로 움직이지 않고, 권한이 끝나면 화면을 다시 그릴 때 `action.primary`로 돌아갑니다.
+* **보는 중 권한이 끝나면:** 열린 시트는 닫을 때까지 꼬리표와 반짝임이 그대로이고, 다음에 여는 시트부터 `locked`입니다(자정 규칙과 같음).
+* **원전 배치(결정 V113, D118 ③):** 상자 없이 원전마다 ① 뜻 한 줄(`type.sentence.body`, 본문색) ② 원문 한자 구절(`type.body.ui`, `text.secondary`, `space.8` 들여쓰기, 한자는 `font.family.hanja`) ③ 출처(`type.caption.md`, `text.secondary`, 같은 들여쓰기) 순, 줄 사이 `space.4`, 원전 사이 `space.16`입니다. 잠겼을 때는 원전이 여럿이어도 `lock.veil` 하나(2줄)만 그리고, 또렷한 앞부분은 첫 원전 뜻의 앞부분(server가 자른 값 #797, ko와 en 단어 3개, ja 8글자)이며 원문과 출처 줄은 그리지 않습니다. 열렸을 때 원문이나 출처가 없으면 그 줄을 그리지 않습니다.
+* **사주 표 용신 판정 근거(`sentence-block` `unlocked`):** 같은 반짝임이 지나가고, 동작 줄이기면 문장 왼쪽 세로선만 둡니다(구역 제목이 없음).
+* 시안: 비공개 페이지 "잠금 해제 효과 시안"(지휘가 사용자와 고름). 색과 시간 가안은 design이 정식 값으로 바꿨습니다(금빛과 산호 명도를 낮춰 글자 대비 4.5:1, 1.9초 → `breathe` 1800ms).
 
 ## reaction-button
 

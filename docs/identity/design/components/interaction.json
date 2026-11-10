@@ -1,5 +1,5 @@
 {
-  "version": "6.2.0",
+  "version": "6.3.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
@@ -163,10 +163,39 @@
       "duration": "{motion.duration.long}",
       "easing": "{motion.easing.enter}",
       "incoming": "sheet.enter",
-      "screenBelow": { "scale": 0.92, "brightness": 0.9 },
-      "sheetBelow": { "translateY": { "value": -30, "unit": "px" }, "scale": 0.94, "brightness": 0.95 },
-      "properties": ["transform", "brightness-overlay"],
+      "screenBelow": { "scale": 1, "brightness": 1, "note": "뒤 앱 화면은 크기가 그대로이고, 첫 시트가 열릴 때 깐 덮개(sheet.enter scrim)도 농도 그대로. 두 번째 시트는 앱 화면 위에 덮개를 더 깔지 않고 아래 시트에만 sheetBelow 덮개를 씌움(결정 V110, V17 개정)" },
+      "sheetBelow": { "translateY": "peek", "scale": 1, "brightness": 0.92, "note": "translateY는 수치가 아니라 peek 규칙으로 정함(6.3.0에서 수치 객체 → 문자열). brightness 0.92는 아래 시트 위 검은 덮개 0.08" },
+      "peek": {
+        "height": { "value": 14, "unit": "px" },
+        "rule": "아래 시트 윗변이 위 시트 윗변보다 14px 위에 오게 아래 시트를 올림(이동만). 아래 시트가 원래 그보다 위에 있으면 움직이지 않고 어두워지기만 함",
+        "shows": "아래 시트의 둥근 윗변과 핸들",
+        "whenNoRoom": "아래 시트가 올라갈 자리가 없으면(윗변이 위쪽 안전 영역 + 12에 닿음) 위 시트 높이를 줄여 14px를 남김",
+        "tap": "보이는 머리 띠는 바깥이라 누르면 맨 위 시트 하나만 닫힘(V100)",
+        "depth": "시트 깊이는 최대 2라(frame sheet 규칙) 보이는 머리는 바로 아래 시트 하나뿐",
+        "drag": "위 시트를 끌어 내리는 동안 아래 시트는 끌기 진행률만큼 제자리 쪽으로 내려오고 덮개도 그만큼 걷힘. 놓아서 제자리로 돌아오면 다시 올라감",
+        "a11y": "머리 띠는 접근성 트리에서 뺌(아래 시트 내용은 위 시트가 열린 동안 숨김, sheet a11y modal)",
+        "whenNoRoomTiming": "위 시트 높이는 열기 전에 정하고 열리는 동안 바뀌지 않음. 줄어든 높이에 다 들어가지 않는 내용은 시트 안에서 세로로 스크롤(V109)",
+        "reduceMotion": "동작 줄이기면 아래 시트는 이동 없이 바로 올라간 자리에 놓이고 덮개 투명도만 바뀜"
+      },
+      "properties": ["translateY", "brightness-overlay"],
       "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "unlock.glint": {
+      "summary": "열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(D118 ②, 결정 V112)",
+      "duration": "{motion.duration.breathe}",
+      "easing": "{motion.easing.standard}",
+      "interval": { "value": 15000, "unit": "ms" },
+      "first": "열린 내용이 appear.seep으로 다 나타난 직후 한 번, 그 뒤 앞 반짝임 시작에서 15초마다",
+      "band": { "fill": "{gradient.unlocked}", "width": "글자 상자 너비의 30%", "angle": 100, "path": "글자 상자 왼쪽 밖에서 오른쪽 밖으로", "edge": "띠 양 끝은 글자 기본색으로 부드럽게 이어짐", "multiline": "여러 줄 문단은 문단 상자 전체를 한 띠가 한 번에 비스듬히 지나감(줄마다 따로 돌리거나 시차를 두지 않음)" },
+      "base": "글자 기본색(그 자리 fg)은 그대로이고 띠는 글자 모양 안에만 칠함(text mask)",
+      "together": "한 시트 안 대상 글자 모두 같은 때에 지나감",
+      "pauseWhen": ["앱이 배경으로 감", "시트가 위 시트에 덮임(sheet.stack 아래 층)", "대상이 화면 밖으로 스크롤됨"],
+      "stopWhen": "시트가 닫힐 때. 보는 중에 권한이 끝나도(자정, 광고 제거권 기간 끝) 그 시트는 닫을 때까지 그대로 반짝이고, 다음에 여는 시트부터 locked(근거 시트 자정 규칙과 같음)",
+      "properties": ["text-fill"],
+      "reduceMotion": "replace",
+      "reduceMotionAlternative": { "element": "unlock.mark", "note": "동작 줄이기면 띠를 전혀 그리지 않고 구역 제목 그라데이션 글자와 왼쪽 가는 선으로 대신함(D118 ②)" },
+      "a11y": "읽지 않음. 장식",
       "lowEnd": "same"
     },
     "focus.ring": {

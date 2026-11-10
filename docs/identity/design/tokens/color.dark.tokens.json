@@ -646,6 +646,53 @@
           "angle": 160
         }
       }
+    },
+    "unlocked": {
+      "$type": "gradient",
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.5882,
+              0.7059,
+              0.6078
+            ],
+            "hex": "#96b49b"
+          },
+          "position": 0.0
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8824,
+              0.7137,
+              0.4235
+            ],
+            "hex": "#e1b66c"
+          },
+          "position": 0.5
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8431,
+              0.6,
+              0.5647
+            ],
+            "hex": "#d79990"
+          },
+          "position": 1.0
+        }
+      ],
+      "$description": "열린 근거 표시(D118, V111): 반짝임 띠, 모션 줄이기 때 구역 제목 글자와 왼쪽 선, 열린 날 근거 아이콘, 열림 꼬리표 테두리. 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1 이상(1.7.0)",
+      "$extensions": {
+        "io.github.june20516.myungli-diary": {
+          "angle": 90
+        }
+      }
     }
   }
 }

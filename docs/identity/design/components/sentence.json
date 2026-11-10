@@ -1,5 +1,5 @@
 {
-  "version": "6.2.0",
+  "version": "6.3.0",
   "group": "sentence",
   "components": [
     {
@@ -35,6 +35,13 @@
           "parts": {
             "text": { "element": "lock.veil", "lines": 2, "note": "사주 표 용신 판정 근거 카드. 앞 2~3 단어 뒤 자리값이 두 줄을 채움(origin, 관문 질문 Q2, 결정 V92)" },
             "open": { "lock": { "element": "lock.veil", "part": "open" }, "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}" }, "note": "자물쇠 값은 요소 lock.veil open이 원본(결정 V73)", "align": "end", "target": "evidence-sheet", "openState": "locked", "slot": "saju-chart.yongsin.open" }
+          }
+        },
+        "unlocked": {
+          "note": "그날 근거와 해석이 열려 있을 때의 사주 표 용신 판정 근거(saju-chart.yongsin.basis). 보통 문장과 같고 반짝임만 더함(D118 ②, 결정 V112)",
+          "parts": {
+            "text": { "glint": "unlock.glint", "note": "열린 내용이 나타난 직후 한 번, 그 뒤 15초마다" },
+            "reduceMotion": { "element": "unlock.mark", "part": "rule", "note": "동작 줄이기면 반짝임 대신 문장 왼쪽 세로선만(이 카드는 구역 제목이 없음)" }
           }
         }
       },
@@ -85,7 +92,7 @@
     {
       "id": "depth-link",
       "summary": "한 단계 깊이로 가는 근거 진입점(primary 아이콘 하나, 결정 V63), 또는 다른 페이지로 가는 글자 링크(navigate)",
-      "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe", "page.push"],
+      "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe", "page.push", "unlock.glint", "unlock.mark"],
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "parts": { "icon": { "joinBefore": "U+00A0", "wrap": "with-last-word", "note": "문장 마지막 낱말과 줄바꿈 없이 붙음. 아이콘이 다음 줄로 혼자 넘어가지 않음" } } },
         { "id": "block", "when": "나 탭·풀이 시트처럼 문단 아래 따로 놓임", "parts": { "icon": { "align": "start" }, "container": { "marginTop": "{space.12}" } } },
@@ -96,11 +103,34 @@
           "container": { "marginTop": "{space.12}" }, "target": { "presentation": "page", "transition": "page.push" } } }
       ],
       "parts": {
-        "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48, "layoutWidth": "{size.icon.20}", "hitArea": "줄 배치 폭은 그림 20이고, 터치 영역 48은 배치 밖으로 넓힘(이웃 줄과 겹쳐도 됨)" },
+        "icon": { "icon": "book-open-text", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "minTarget": 48, "layoutWidth": "{size.icon.20}", "hitArea": "줄 배치 폭은 그림 20이고, 터치 영역 48은 배치 밖으로 넓힘(이웃 줄과 겹쳐도 됨)", "unlocked": { "fill": "{gradient.unlocked}", "angle": 135, "when": "지금 근거와 해석 열람 권한이 있을 때(오늘 광고 한 편으로 열었거나 광고 제거권 기간). 날짜 맥락이 없는 화면(나 탭, 사주 표, 만세력)도 같은 권한 기준. 선 색만 바뀌고 모양, 크기, 터치는 그대로", "whenExpires": "권한이 끝나면(자정, 기간 끝) 그 화면을 다시 그릴 때 action.primary로 돌아감. 보고 있던 근거 시트는 닫을 때까지 그대로", "note": "시트 밖에서도 열린 것이 보이게(D118 ②, 결정 V112, V63 개정). 열리는 순간 따로 움직이지 않고 다음에 그릴 때 바뀜" } },
         "evidenceSheet": {
           "container": { "component": "sheet", "variant": "full" },
           "order": ["title", "target", "pillars", "basisTitle", "basis", "sourceTitle", "source", "personalTitle", "personal", "personalEmpty"],
           "title": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "evidence-sheet.sheet.title" },
+          "unlockTag": {
+            "slot": "evidence-sheet.unlock.until",
+            "params": ["date"],
+            "when": "unlocked일 때만(D118 ①)",
+            "copyByReason": { "ad": "광고 한 편으로 열림: 그날 자정까지 문구, 매개변수 없음", "pass": "광고 제거권 기간: 기간 끝 날짜 문구, date 씀" },
+            "reasonSource": "열린 이유와 끝 시각은 server 권한 응답(#952)이 줌. 자정의 기준 시간대도 server 값을 따름",
+            "lengthLimit": "두 문구 모두 lengths.md evidence-sheet.unlock.until 한 상한(date 넣은 뒤 길이)",
+            "position": "제목 줄 오른쪽 끝, 제목 첫 줄 세로 가운데. 제목과 한 줄에 들어가지 않으면 제목 아래 space.8에 왼쪽 맞춤",
+            "gapFromTitle": "{space.8}",
+            "height": { "value": 24, "unit": "px" },
+            "paddingStart": "{space.8}",
+            "paddingEnd": "{space.8}",
+            "radius": "{radius.full}",
+            "bg": "{color.bg.sheet}",
+            "border": { "fill": "{gradient.unlocked}", "angle": 90, "width": { "value": 1, "unit": "px" } },
+            "icon": { "icon": "clock", "weight": "regular", "size": "adjacent-text", "color": "{color.text.secondary}", "gap": "{space.4}", "decorative": true },
+            "type": "{type.caption.md}",
+            "fg": "{color.text.secondary}",
+            "maxLines": 1,
+            "interactive": false,
+            "glint": false,
+            "note": "꼬리표 글자는 반짝이지 않음. 테두리만 그라데이션(결정 V112)"
+          },
           "target": {
             "marginTop": "{space.12}",
             "note": "그 문장을 정한 태그와 대상 문장(D108, 결정 V80). 늘 보이고 잠기지 않음",
@@ -113,7 +143,12 @@
           "sourceTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.source" },
           "personalTitle": { "style": "sectionTitle", "slot": "evidence-sheet.section.personal", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
           "basis": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.basis.body", "repeat": { "each": "paragraph", "gap": "{space.12}", "skipEmpty": true } },
-          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "fontFallback": "{font.family.hanja}", "repeat": { "each": "box", "gap": "{space.12}", "skipEmpty": true }, "bg": "{color.bg.base}", "radius": "{radius.md}", "padding": "{space.12}" },
+          "source": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.source.quote", "fontFallback": "{font.family.hanja}", "repeat": { "each": "item", "gap": "{space.16}", "skipEmpty": true }, "bg": "transparent", "radius": 0, "padding": 0,
+            "order": ["meaning", "quote", "cite"],
+            "meaning": { "type": "{type.sentence.body}", "fg": "{color.text.primary}", "note": "원전마다 뜻 한 줄(한글)을 먼저. 잠겼을 때 또렷한 앞부분은 이 뜻의 앞부분(server가 자른 값 #797, ko와 en 단어 3개, ja 8글자, D118 ③)" },
+            "quote": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "fontFallback": "{font.family.hanja}", "paddingStart": "{space.8}", "marginTop": "{space.4}", "note": "원문 한자 구절. 들여써서 뜻과 구분", "whenEmpty": "줄을 그리지 않음" },
+            "cite": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "paddingStart": "{space.8}", "marginTop": "{space.4}", "note": "출처(원전 이름과 대목)", "whenEmpty": "줄을 그리지 않음" },
+            "note": "결정 V113(D118 ③): 상자 없이 뜻, 원문, 출처 순. 세 값은 writing 원고, server 응답이 나눠 줌(#951, #952, #953)" },
           "personal": { "component": "sentence-block", "variant": "body", "slot": "evidence-sheet.personal.body", "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만" },
           "personalEmpty": { "slot": "ui.evidence.personal-empty", "type": "{type.body.ui}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "maxLines": 2, "when": "사주 표·만세력·대운 표의 용어에서 열었을 때만, 열렸는데 그 자리 해석이 없을 때", "note": "제목(personalTitle) 아래 personal 자리에 놓임. 빈 구역 생략 규칙의 예외(결정 V54)" }
         }
@@ -125,7 +160,7 @@
           "parts": {
             "evidenceSheet": {
               "basis": { "element": "lock.veil", "lines": 3 },
-              "source": { "element": "lock.veil", "lines": 2, "bg": "transparent", "padding": 0 },
+              "source": { "element": "lock.veil", "lines": 2, "bg": "transparent", "padding": 0, "lead": "첫 원전 뜻의 앞부분", "hidden": ["quote", "cite"], "repeat": "원전이 여럿이어도 veil 하나(2줄)만 그림", "note": "잠긴 원전은 원문 한자 구절과 출처 줄을 그리지 않음(결정 V113)" },
               "personal": { "element": "lock.veil", "lines": 3, "when": "열렸을 때와 같음(사주 표 계열에서 열었을 때만). 오늘 화면에서 연 근거 시트는 잠긴 구역이 둘" },
               "contentPaddingBottom": "lock-panel-height",
               "lockPanel": {
@@ -162,13 +197,21 @@
         "unlocked": {
           "pattern": "appear.seep",
           "note": "권한 있음. locked에서 바뀔 때: 잠금 안내 영역 disappear.seep, 세 구역 skeleton(loading.breathe) → 내용 appear.seep. 처음부터 권한이 있으면 이 상태로 열림",
-          "parts": { "evidenceSheet": { "lockPanel": { "visible": false } } }
+          "parts": { "evidenceSheet": {
+            "lockPanel": { "visible": false },
+            "unlockTag": { "visible": true },
+            "glint": { "pattern": "unlock.glint", "targets": ["basisTitle", "basis", "sourceTitle", "source", "personalTitle", "personal"], "excludes": ["title", "unlockTag", "target", "pillars", "personalEmpty"], "note": "열려서 보이게 된 글자만(D118 ②). 부정 신호가 든 문장도 같음(D118 ⑤)" },
+            "reduceMotion": { "element": "unlock.mark", "targets": ["basisTitle", "sourceTitle", "personalTitle"], "note": "구역 제목 그라데이션 글자와 그 구역 왼쪽 세로선" }
+          } }
         }
       },
       "haptic": [{ "when": "locked → unlocked 전환(광고 시청 뒤 열림)", "strength": "light" }],
-      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "block": "그 시트 제목(용어 이름) 또는 구역 이름" }, "navigateRole": "link", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 제목 + 앞부분 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
+      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "block": "그 시트 제목(용어 이름) 또는 구역 이름" }, "navigateRole": "link", "unlockTagRead": "열림 꼬리표는 시트 제목 다음에 이어 읽음(장식 시계 아이콘은 읽지 않음). 반짝임과 unlock.mark는 읽지 않음", "unlockedIconLabel": "열린 날에도 근거 아이콘 이름은 같음", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 제목 + 앞부분 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
       "rules": [
         "근거 진입점(inline-end, block)은 primary 아이콘 book-open-text 하나이고 글자를 쓰지 않는다. 모든 곳이 같은 모양이다(결정 V63).",
+        "그날 근거와 해석이 열려 있으면 근거 아이콘 선을 gradient.unlocked로 칠한다. 모양, 크기, 터치는 그대로다(결정 V112, V63 개정).",
+        "unlocked 근거 시트는 제목 줄 오른쪽에 열림 꼬리표(evidence-sheet.unlock.until)를 두고, 열려서 보이게 된 구역 제목과 본문에 unlock.glint가 지나간다. 동작 줄이기면 빛 대신 unlock.mark(구역 제목 그라데이션 글자와 왼쪽 세로선)다. 부정 신호가 든 문장도 같다(D118, 결정 V112).",
+        "원전은 상자 없이 원전마다 뜻 한 줄, 들여쓴 원문 한자 구절(text.secondary), 출처(caption.md) 순이다. 원전 사이는 space.16이다(결정 V113, D118 ③).",
         "inline-end 아이콘은 문장 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 붙는다. 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어간다.",
         "inline-end·block은 누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack).",
         "navigate는 시트를 열지 않고 페이지로 이동한다(page.push, 결정 V67). sheet.enter·sheet.stack을 쓰지 않는다.",

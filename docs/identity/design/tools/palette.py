@@ -74,6 +74,13 @@ MIN_OHAENG_EDGE_CONTRAST = 1.4
 
 GRADIENT_LIGHT = ["#eef4ef", "#fbefee"]
 GRADIENT_DARK_OKLCH = [(0.23, 0.022, 150), (0.23, 0.024, 20)]
+# 열린 근거 표시 그라데이션(D118, 결정 V111, 토큰 1.7.0): 세이지 → 금빛 → 산호. 구역 제목 글자와 반짝임 띠로도
+# 쓰여 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1을 넘깁니다. 세이지와 산호는 브랜드 단계, 금빛만 OKLCH 값.
+# 시안 가안(라이트 #b08a3e, #c4776c)은 흰 바탕에서 3.0~3.4:1이라 같은 색상에서 명도를 낮춤.
+UNLOCKED_GRADIENT = {
+    "light": [("sage", 700), (0.53, 0.105, 80), ("coral", 600)],
+    "dark": [("sage", 400), (0.80, 0.105, 80), ("coral", 400)],
+}
 
 # 달력 4단계 (DS1 spec 2026-11-05-ds1-screens-design.md §3, 토큰 1.4.0): 모드 → 단계 → (명도, 채도, hue).
 # 라이트(CLEAR_LEVEL_MODES)는 잘 풀리는 날 둘을 모두 맑게 둡니다: 채도를 sRGB 끝까지 올려(oklch_to_hex가 경계로 자름)
@@ -337,6 +344,10 @@ def build_palette() -> dict:
             "dark": [oklch_to_hex(*stop) for stop in GRADIENT_DARK_OKLCH],
         },
         "roles": _roles(brand),
+        "unlocked": {
+            mode: [brand[stop[0]][stop[1]] if isinstance(stop[0], str) else oklch_to_hex(*stop) for stop in stops]
+            for mode, stops in UNLOCKED_GRADIENT.items()
+        },
     }
 
 
@@ -353,6 +364,10 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
         pairs.append((f"{mode} term", roles["term.fg"], roles["term.bg"]))
         # 권유 글자(일기 쓰기 질문 뗀 자리 "무엇을 쓸지 고민인가요?", V102)는 종이(bg.sheet) 위에만 놓임
         pairs.append((f"{mode} invite.fg on bg.sheet", roles["invite.fg"], roles["bg.sheet"]))
+        # 열린 근거 그라데이션(V111)은 구역 제목 글자와 반짝임 띠라 멈춤 색마다 두 바탕에서 글자 대비
+        for index, stop in enumerate(palette["unlocked"][mode]):
+            for background_role in ("bg.base", "bg.sheet"):
+                pairs.append((f"{mode} unlocked[{index}] on {background_role}", stop, roles[background_role]))
         pairs.append((f"{mode} badge.good", roles["badge.good.fg"], roles["badge.good.bg"]))
         pairs.append((f"{mode} badge.gwiin", roles["badge.gwiin.fg"], roles["badge.gwiin.bg"]))
         pairs.append((f"{mode} badge.gisin", roles["badge.gisin.fg"], roles["badge.gisin.bg"]))
