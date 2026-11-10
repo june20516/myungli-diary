@@ -639,3 +639,62 @@
   a11y:
     truncation: "design 상한 측정 전입니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: day-sheet.verdict.expand
+  where: "그날 시트 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(V108, #946). 카드 전체를 누르면 내역이 펼쳐집니다. 내역 수는 넣지 않습니다(R36-4 사용자 결정, IA 역할의 매개변수 `count`는 쓰지 않음)"
+  purpose: guide
+  user_state: "카드를 눌러 판정 내역을 보려 합니다."
+  structure: "동사구 하나. 무엇이 펼쳐지는지만 말하고 개수는 넣지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 43, ja: 19}
+  keys:
+    - daySheetVerdictExpand
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: daySheetVerdictExpand, text: "내역 보기", why: "무엇이 펼쳐지는지만, 개수 없이", source: round-R36-4}
+    bad:
+      - {lang: ko, key: daySheetVerdictExpand, text: "내역 3개 보기", why: "개수를 넣지 않기로 함(사용자 결정)", source: round-R36-4}
+  a11y:
+    truncation: "한 줄에 들어갑니다."
+    screen_reader: "카드를 펼침 상태가 있는 버튼으로 읽고 이 안내를 이름으로 씁니다."
+
+- id: day-sheet.verdict.collapse
+  where: "그날 시트 길흉판정 카드를 펼쳤을 때 같은 자리의 접기 안내(V108, #946)"
+  purpose: guide
+  user_state: "펼친 내역을 접으려 합니다."
+  structure: "동사 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 23, en: 43, ja: 19}
+  keys:
+    - daySheetVerdictCollapse
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: daySheetVerdictCollapse, text: "접기", why: "짧은 동작 이름", source: writing}
+    bad:
+      - {lang: ko, key: daySheetVerdictCollapse, text: "내역 숨기기", why: "숨긴다는 말이 무언가 감추는 것처럼 읽힘", source: writing}
+  a11y:
+    truncation: "잘리지 않습니다."
+    screen_reader: "카드를 펼친 상태의 버튼으로 읽고 이 이름을 씁니다."
+
+- id: day-sheet.event.all-day
+  where: "그날 시트 일정 줄 시각 칸 안의 하루 종일 꼬리표(V107, #946). 칸 안에 들지 않는 말(ja, en)은 시각이 넘칠 때와 같이 제목 위 한 줄로 올립니다(event-row allDay.overflow)"
+  purpose: info
+  user_state: "그날 일정을 훑어봅니다."
+  structure: "짧은 낱말 하나. 일정 편집의 하루 종일과 같은 말을 쓰되 ko는 칸에 맞춰 줄입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 3, en: 3, ja: 1}
+  key_max_length:
+    daySheetEventAllDay: {ko: 3, en: unbounded, ja: unbounded}
+  keys:
+    - daySheetEventAllDay
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: daySheetEventAllDay, text: "종일", why: "칸 안에 드는 같은 뜻의 낱말", source: writing}
+    bad:
+      - {lang: ko, key: daySheetEventAllDay, text: "All", why: "다른 언어 낱말", source: writing}
+  a11y:
+    truncation: "ko는 칸 안, en과 ja는 제목 위 한 줄로 올라가 잘리지 않습니다."
+    screen_reader: "일정 제목 앞에 읽습니다."

@@ -32,6 +32,7 @@ TERM_CATEGORIES: tuple[str, ...] = (
     "relation",
     "role",
     "luck",
+    "twelve_stage",
 )
 
 

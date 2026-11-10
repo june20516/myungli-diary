@@ -140,7 +140,7 @@
   select: "Evidence.source_ref s → 키 source.<s>"
   purpose: info
   user_state: 판정 근거가 어느 고전의 어떤 대목인지 보고 싶습니다.
-  structure: 원전 이름과 대목을 옮기고, 그 뜻을 한 문장으로 덧붙입니다. 원문 표기 방식은 core 목록이 온 뒤 정합니다.
+  structure: "세 줄을 줄바꿈으로 나눕니다: ① 뜻 한 문장 ② 원문 한자 구절(core quote를 정자로, W62) ③ 출처(원전 이름과 「대목」). 뜻이 먼저입니다(D118 ③, V113, #951). server와 app은 줄 순서로 뜻, 원문, 출처를 나눕니다."
   tone: {진지: 4, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -282,7 +282,7 @@
   examples: {good: [], bad: []}
   a11y:
     truncation: 잘리지 않게 씁니다.
-    screen_reader: 원전 이름, 대목, 뜻 순서로 읽습니다.
+    screen_reader: 뜻, 원문, 출처 순서로 읽습니다.
 
 - id: evidence.no_source
   where: 근거 시트의 원전 인용 상자(원전이 없는 근거)

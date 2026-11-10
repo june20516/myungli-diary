@@ -420,9 +420,21 @@
   "@daySheetEventAdd": {
     "description": "day-sheet.event.add: 일정 추가 버튼"
   },
+  "daySheetEventAllDay": "종일",
+  "@daySheetEventAllDay": {
+    "description": "day-sheet.event.all-day: 일정 줄 시각 칸 안의 하루 종일 꼬리표. 칸 안에 들어가는 짧은 낱말(V107)"
+  },
   "daySheetEventEmpty": "이날은 일정이 없어요.",
   "@daySheetEventEmpty": {
     "description": "day-sheet.event.empty: 일정이 없을 때 안내"
+  },
+  "daySheetVerdictCollapse": "접기",
+  "@daySheetVerdictCollapse": {
+    "description": "day-sheet.verdict.collapse: 내역을 펼쳤을 때 같은 자리의 접기 안내(V108)"
+  },
+  "daySheetVerdictExpand": "내역 보기",
+  "@daySheetVerdictExpand": {
+    "description": "day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
   },
   "daySheetVerdictItemPlus": "좋은 쪽으로 {count}",
   "@daySheetVerdictItemPlus": {
@@ -492,6 +504,14 @@
   "diaryEditDraftStatusSaved": "저장됨",
   "@diaryEditDraftStatusSaved": {
     "description": "diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
+  },
+  "diaryEditGuideAttach": "질문 추가",
+  "@diaryEditGuideAttach": {
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
+  },
+  "diaryEditGuideRemove": "질문 없이 쓰기",
+  "@diaryEditGuideRemove": {
+    "description": "diary-edit.guide.remove: 질문 떼기 버튼(스크린리더 이름). 떼면 이 편에는 질문이 붙지 않음(D116)"
   },
   "diaryEditLengthCount": "{count, plural, other{{count}자}}",
   "@diaryEditLengthCount": {
@@ -618,6 +638,19 @@
   "evidenceSheetUnlockFailed": "광고 확인이 늦어지고 있어요. 잠시 뒤에 다시 열어 주세요.",
   "@evidenceSheetUnlockFailed": {
     "description": "evidence-sheet.unlock.failed: 광고를 끝까지 봤는데 server 확인(SSV)이 오지 않을 때의 toast"
+  },
+  "evidenceSheetUnlockUntilMidnight": "자정까지 열림",
+  "@evidenceSheetUnlockUntilMidnight": {
+    "description": "evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)"
+  },
+  "evidenceSheetUnlockUntilDate": "{date}까지 열림",
+  "@evidenceSheetUnlockUntilDate": {
+    "description": "evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "explainSheetTagDiaryLink": "{tag} 태그가 붙은 내 일기 보기",
   "@explainSheetTagDiaryLink": {
@@ -858,7 +891,7 @@
   },
   "previewCtaRestart": "다시 입력하기",
   "@previewCtaRestart": {
-    "description": "preview.cta.restart: 다시 입력 링크"
+    "description": "preview.cta.restart: 다시 입력 링크. 미리보기를 처음 볼 때만(미리보기를 이미 쓴 화면에는 없음, D117)"
   },
   "previewCtaSave": "저장하고 계속하기",
   "@previewCtaSave": {
@@ -879,6 +912,54 @@
   "previewShareLoginNoticeCancel": "닫기",
   "@previewShareLoginNoticeCancel": {
     "description": "preview.share.login-notice: 로그인하면 공유할 수 있다는 안내 창"
+  },
+  "previewUsedInputName": "호칭",
+  "@previewUsedInputName": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)"
+  },
+  "previewUsedInputBirth": "생일",
+  "@previewUsedInputBirth": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)"
+  },
+  "previewUsedInputTime": "태어난 시간",
+  "@previewUsedInputTime": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)"
+  },
+  "previewUsedInputGender": "성별",
+  "@previewUsedInputGender": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)"
+  },
+  "previewUsedInputBirthplace": "출생지",
+  "@previewUsedInputBirthplace": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)"
+  },
+  "previewUsedInputBirthValue": "{calendar} {date}",
+  "@previewUsedInputBirthValue": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)",
+    "placeholders": {
+      "calendar": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "previewUsedInputBirthValueLeap": "{calendar} 윤달 {date}",
+  "@previewUsedInputBirthValueLeap": {
+    "description": "preview.used.input: 미리보기를 이미 쓴 화면에서 입력한 정보 요약(호칭, 생일, 태어난 시간, 성별, 출생지 기준) 읽기 전용 목록의 항목 이름과 값 틀(D117)",
+    "placeholders": {
+      "calendar": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "previewUsedNotice": "첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.",
+  "@previewUsedNotice": {
+    "description": "preview.used.notice: 미리보기를 이미 쓴 화면의 안내. 이 기기에서는 미리보기를 이미 봤고, 저장(로그인)한 뒤 나 탭 정보 수정에서 바꿀 수 있다는 말. 막는다는 말보다 권하는 말(D86 ⑤, D117)"
   },
   "profileEditBarTitle": "정보 수정",
   "@profileEditBarTitle": {

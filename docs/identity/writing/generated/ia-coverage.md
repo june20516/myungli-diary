@@ -43,6 +43,8 @@
 | preview.cta.save | ui | preview.cta.save |
 | preview.cta.restart | ui | preview.cta.restart |
 | preview.restart.notice | ui | preview.restart.notice |
+| preview.used.input | ui | preview.used.input |
+| preview.used.notice | ui | preview.used.notice |
 | preview.share.login-notice | ui | preview.share.login-notice |
 | login.bar.title | ui | login.bar.title |
 | login.title.head | ui | login.title.head |
@@ -107,6 +109,7 @@
 | evidence-sheet.section.basis | ui | evidence-sheet.section.basis |
 | evidence-sheet.section.source | ui | evidence-sheet.section.source |
 | evidence-sheet.section.personal | ui | evidence-sheet.section.personal |
+| evidence-sheet.unlock.until | ui | evidence-sheet.unlock.until |
 | evidence-sheet.unlock.failed | ui | evidence-sheet.unlock.failed |
 | evidence-sheet.a11y.locked | ui | evidence-sheet.a11y.locked |
 | evidence-sheet.a11y.checking | ui | evidence-sheet.a11y.checking |
@@ -124,9 +127,12 @@
 | day-sheet.character.label | content | glossary.value_name |
 | day-sheet.verdict.title | ui | day-sheet.verdict.title |
 | day-sheet.verdict.item | ui | day-sheet.verdict.item |
+| day-sheet.verdict.expand | ui | day-sheet.verdict.expand |
+| day-sheet.verdict.collapse | ui | day-sheet.verdict.collapse |
 | day-sheet.event.title | ui | today.event.title |
 | day-sheet.event.empty | ui | day-sheet.event.empty |
 | day-sheet.event.add | ui | day-sheet.event.add |
+| day-sheet.event.all-day | ui | day-sheet.event.all-day |
 | day-sheet.diary.open | ui | day-sheet.diary.open |
 | day-sheet.diary.write-cta | ui | day-sheet.diary.write-cta |
 | color-rule-sheet.sheet.title | ui | color-rule-sheet.sheet.title |
@@ -149,6 +155,8 @@
 | diary-edit.date.month | ui | diary-edit.date.month |
 | diary-edit.date.iljin | ui | diary-edit.date.iljin |
 | diary-edit.guide.question | content | daily.guide |
+| diary-edit.guide.remove | ui | diary-edit.guide.remove |
+| diary-edit.guide.attach | ui | diary-edit.guide.attach |
 | diary-edit.body.placeholder | ui | diary-edit.body.placeholder |
 | diary-edit.draft.status | ui | diary-edit.draft.status |
 | diary-edit.length.count | ui | diary-edit.length.count |

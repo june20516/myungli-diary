@@ -78,3 +78,15 @@
 - {slot: term.meaning, key: term.role.day_master, text: "태어난 날의 천간으로, 사주에서 '나' 자신을 나타내요. 옆 글자들이 나에게 어떤 기운인지는 모두 일간을 기준으로 읽어요."}
 - {slot: term.meaning, key: term.luck.daeun, text: "인생의 계절처럼 10년 단위로 찾아오는 큰 흐름이에요."}
 - {slot: term.meaning, key: term.luck.seun, text: "해마다 바뀌는 한 해의 흐름이에요. 그해에 들어오는 기운이 내 사주와 어떻게 어울리는지 보여 줘요."}
+- {slot: term.meaning, key: term.twelve_stage.jangsaeng, text: "기운이 자라고 잦아드는 열두 단계 가운데 첫째로, 새로 싹트고 자라나는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.mokyok, text: "기운이 자라고 잦아드는 열두 단계 가운데 둘째로, 이것저것 해 보며 감을 잡아 가는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.gwandae, text: "기운이 자라고 잦아드는 열두 단계 가운데 셋째로, 자신감이 붙어 앞으로 나서는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.geonrok, text: "기운이 자라고 잦아드는 열두 단계 가운데 넷째로, 스스로 서서 제 몫을 꾸려 가는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.jewang, text: "기운이 자라고 잦아드는 열두 단계 가운데 다섯째로, 힘이 가장 세게 차오른 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.soe, text: "기운이 자라고 잦아드는 열두 단계 가운데 여섯째로, 한창때를 지나 경험으로 차분하게 다루는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.byeong, text: "기운이 자라고 잦아드는 열두 단계 가운데 일곱째로, 밖으로 내달리기보다 안을 살피고 돌보는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.sa, text: "기운이 자라고 잦아드는 열두 단계 가운데 여덟째로, 움직임은 잦아들고 생각이 깊어지는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.myo, text: "기운이 자라고 잦아드는 열두 단계 가운데 아홉째로, 모아 두고 지키는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.jeol, text: "기운이 자라고 잦아드는 열두 단계 가운데 열째로, 앞의 흐름을 끊고 방향을 새로 트는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.tae, text: "기운이 자라고 잦아드는 열두 단계 가운데 열한째로, 새 생각이 막 생겨나는 때예요."}
+- {slot: term.meaning, key: term.twelve_stage.yang, text: "기운이 자라고 잦아드는 열두 단계 가운데 열두째로, 서두르지 않고 안에서 차근차근 준비하는 때예요."}

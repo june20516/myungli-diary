@@ -174,8 +174,8 @@
   purpose: info
   user_state: 옷이나 소품을 고르기 전에 훑어봅니다.
   structure: >-
-    한두 문장. 단순형("오늘은 남색이 잘 맞아요"), 쓰임새형("옷이나 소품을 고른다면 남색이 좋아요"),
-    두 문장형("오늘은 남색이 잘 맞아요. 옷이나 소품으로 챙겨 보세요") 중 하나입니다.
+    한두 문장. 단순형("오늘은 검정이 잘 맞아요"), 쓰임새형("옷이나 소품을 고른다면 검정이 좋아요"),
+    두 문장형("오늘은 검정이 잘 맞아요. 옷이나 소품으로 챙겨 보세요") 중 하나입니다.
     같은 화면의 다른 카드와 같은 틀을 쓰지 않습니다(W7, limit.L5). 색이 왜 맞는지는 풀이에서 씁니다.
   depth:
     explain: 색과 오행의 관계, 오늘 그 색인 이유
@@ -194,12 +194,12 @@
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, text: "오늘은 남색이 잘 맞아요.", why: "단순형", source: round-R1-1}
-      - {lang: ko, text: "옷이나 소품을 고른다면 남색이 좋아요.", why: "쓰임새형", source: round-R2-4}
-      - {lang: ko, text: "오늘은 남색이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.", why: "두 문장형, 같은 틀 반복을 피할 때", source: round-R2-4}
+      - {lang: ko, text: "오늘은 검정이 잘 맞아요.", why: "단순형", source: round-R1-1}
+      - {lang: ko, text: "옷이나 소품을 고른다면 검정이 좋아요.", why: "쓰임새형", source: round-R2-4}
+      - {lang: ko, text: "오늘은 검정이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.", why: "두 문장형, 같은 틀 반복을 피할 때", source: round-R2-4}
     bad:
-      - {lang: ko, text: "남색, 오늘 당신을 지켜 줄 색이에요.", why: "사물 주어 slop.P3, 당신", source: round-R1-1}
-      - {lang: ko, text: "남색은 차분하게 가라앉은 물의 기운을 끌어당기는 색이에요.", why: "카드에는 과한 효능 설명, 풀이로", source: round-R1-1}
+      - {lang: ko, text: "검정, 오늘 당신을 지켜 줄 색이에요.", why: "사물 주어 slop.P3, 당신", source: round-R1-1}
+      - {lang: ko, text: "검정은 차분하게 가라앉은 물의 기운을 끌어당기는 색이에요.", why: "카드에는 과한 효능 설명, 풀이로", source: round-R1-1}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 색 견본 칩은 app이 색 이름으로 읽습니다. 문장은 그대로 읽습니다.

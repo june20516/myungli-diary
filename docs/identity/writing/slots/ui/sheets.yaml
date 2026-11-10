@@ -394,3 +394,25 @@
   a11y:
     truncation: "design 상한 측정 전입니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: evidence-sheet.unlock.until
+  where: "근거 시트 제목 줄 오른쪽 열림 꼬리표(D118 ①, V112). 넘치면 제목 아래 한 줄. 열린 이유로 고릅니다: 광고 한 편이면 Midnight, 광고 제거권이면 Date"
+  select: "열린 이유가 광고 한 편 → evidenceSheetUnlockUntilMidnight, 광고 제거권 → evidenceSheetUnlockUntilDate({date}: 기간 끝 날짜)"
+  purpose: info
+  user_state: "근거와 해석을 연 뒤 시트를 봅니다. 언제까지 볼 수 있는지 알고 싶습니다."
+  structure: "명사형 꼬리표 하나. 언제까지 열려 있는지만 알립니다. 재구매나 연장을 권하지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 27, en: 49, ja: 22}
+  keys:
+    - evidenceSheetUnlockUntilMidnight
+    - params: {date: text}
+      keys: [evidenceSheetUnlockUntilDate]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: evidenceSheetUnlockUntilMidnight, text: "자정까지 열림", why: "상태만 짧게", source: round-R36-3}
+    bad:
+      - {lang: ko, key: evidenceSheetUnlockUntilMidnight, text: "프리미엄 해제 완료! 자정까지", why: "과장 slop.P8, 구매 축하처럼 읽힘", source: round-R36-3}
+  a11y:
+    truncation: "한 줄에 들어갑니다(날짜 포함)."
+    screen_reader: "시트 제목 다음에 읽습니다."
