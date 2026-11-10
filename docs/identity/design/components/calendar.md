@@ -46,7 +46,7 @@
   * **두 줄(`twoLines`):** 상태·시각·"외 N개"를 뺀 제목 자리가 본문 글자 4개 폭(`type.body.ui` 글자 크기 × 4)보다 좁으면 [상태·시각] / [제목·외 N개] 두 줄로 내립니다. 폭은 글자 크기로 어림하므로 글자가 좁은 en에서는 4자보다 많이 들어갑니다.
 * 시각은 24시간제 `HH:mm`(앞 0 채움)입니다. 일기 줄(`diary-row` `entry`)도 같은 형식입니다(결정 V46).
 * `list` — 시각 칸 58px(하루 종일도 같은 폭) + 제목(두 줄까지) + 화살표, 줄 사이 `list.divider`(V58).
-  * **가독성(결정 V107, #932 관문 ②):** 시각은 본문색 700 굵게(`type.numeric.table`), 하루 종일은 시각 대신 `tag.status` 꼬리표(새 슬롯 `day-sheet.event.all-day`, 가안 "종일", 58 칸 안에 들어가는 짧은 낱말, IA 요청 #946). 메모(`Schedule.memo`)가 있으면 제목 아래 `space.2`에 한 줄(`type.caption.lg` `text.secondary`, 말줄임). 줄 위아래 `space.12`, 시각과 꼬리표와 꺾쇠는 제목 첫 줄 세로 가운데에 맞춥니다.
+  * **가독성(결정 V107, #932 관문 ②):** 시각은 본문색 700 굵게(`type.numeric.table`), 하루 종일은 시각 대신 `tag.status` 꼬리표(새 슬롯 `day-sheet.event.all-day`, 가안 "종일", 58 칸 안에 들어가는 짧은 낱말). 메모(`Schedule.memo`)가 있으면 제목 아래 `space.2`에 한 줄(`type.caption.lg` `text.secondary`, 말줄임). 줄 위아래 `space.12`, 시각과 꼬리표와 꺾쇠는 제목 첫 줄 세로 가운데에 맞춥니다.
   * 시각 글자는 줄이지 않습니다. 시스템 배율을 그대로 적용한 시각이 58 − 8px에 들어가면 58 칸에 두고(1.0은 그대로), 들어가지 않으면 [시각] / [제목·화살표] 두 줄로 내립니다(`timeColumn.overflow`).
   * **일정 추가(결정 V85):** 그날 시트 일정 섹션 머리의 + 하나(`section-header` `action`, 스크린리더 이름 `day-sheet.event.add`)입니다. 일정이 없으면 빈 문장 한 줄(`day-sheet.event.empty`)만 두고 버튼을 두지 않습니다. 머리의 +가 늘 보이므로 목록 아래 추가 버튼도 두지 않습니다(origin D, IA "일정(+로 추가)").
   * **일정만 받지 못함(`failed`):** 날의 성격은 받았는데 일정 목록만 실패하면, 빈 문장 대신 오류 종류별 기존 문구 한 줄(`type.caption.lg`, `text.secondary`) + "다시 시도" quiet를 가운데 정렬로 둡니다. 없는 일정을 없다고 말하지 않기 위해서입니다. 시트 전체 `error`(`error-state`)는 날의 성격을 받지 못했을 때만입니다. 시트의 한 구역이라 `error-state`(원 56px + 문장)는 크기가 맞지 않습니다.
@@ -61,7 +61,7 @@
 * **세 이름:** 막대 아래 `space.8`, 조심할 날(왼쪽), 무난한 날(가운데), 잘 풀리는 날(오른쪽), `type.caption.md` `text.secondary`. 낱말은 달력 범례와 같습니다. 그날 시트에 이름 슬롯이 없어 IA에 요청합니다.
 * **내역:** 이름 아래 `space.12`부터 `score-row` `verdict` 줄들, 줄마다 위에 `list.divider`. 더함 먼저, 뺌 다음입니다. 내역은 server #806(엔진 점수 구성)이고, 계약에 없으면(`noBreakdown`) 막대와 이름만 그립니다. 내역은 왔지만 항목이 0개인 날(`noItems`, 합 0)도 같은 모양이고 빈 안내 문장은 두지 않습니다.
 * 숫자, 한 줄 요약 문장, 이유 문장을 두지 않습니다(IA day-sheet).
-* **접힘과 펼침(결정 V108, #932 ②):** 처음에는 막대와 세 이름, 맨 아래 안내 줄(`list.divider` 아래, 터치 44, `type.caption.lg` `text.secondary` 가운데, 가안 "내역 N개 보기" + `caret-down`)만 보입니다. 카드 전체가 버튼이고(`press.ink`) 누르면 내역 줄이 `appear.seep`으로 펼쳐지며 안내 줄은 "접기" + `caret-up`이 됩니다. 펼친 내역 줄의 태그는 안쪽 요소라 누르면 뜻 시트만 열리고 카드는 접히지 않습니다(V61 눌림 규칙). 시트를 다시 열면 늘 접힘이고, 내역이 없는 날(`noBreakdown`, `noItems`)은 카드를 누를 수 없고 안내 줄도 없습니다. 안내 줄 문구는 writing 새 슬롯(`day-sheet.verdict.expand`, `day-sheet.verdict.collapse`, IA 요청 #946). 스크린리더는 안내 줄을 펼침 상태가 있는 버튼으로 읽습니다.
+* **접힘과 펼침(결정 V108, #932 ②):** 처음에는 막대와 세 이름, 맨 아래 안내 줄(`list.divider` 아래, 터치 44, `type.caption.lg` `text.secondary` 가운데, 가안 "내역 N개 보기" + `caret-down`)만 보입니다. 카드 전체가 버튼이고(`press.ink`) 누르면 내역 줄이 `appear.seep`으로 펼쳐지며 안내 줄은 "접기" + `caret-up`이 됩니다. 펼친 내역 줄의 태그는 안쪽 요소라 누르면 뜻 시트만 열리고 카드는 접히지 않습니다(V61 눌림 규칙). 시트를 다시 열면 늘 접힘이고, 내역이 없는 날(`noBreakdown`, `noItems`)은 카드를 누를 수 없고 안내 줄도 없습니다. 안내 줄 문구는 writing 슬롯 `day-sheet.verdict.expand`, `day-sheet.verdict.collapse`. 스크린리더는 안내 줄을 펼침 상태가 있는 버튼으로 읽습니다.
 * 불러오는 중: 막대 자리 글줄 하나. 처음에는 접혀 있어 내역 뼈는 두지 않습니다(V108). 세 이름은 UI 글자라 바로 그립니다.
 * 스크린리더: 묶음 하나로 "길흉판정, 무난한 날"처럼 섹션 제목과 단계 이름을 읽고, 점수 숫자는 읽지 않습니다. 이어서 내역 줄을 읽습니다.
 
@@ -96,8 +96,8 @@ IA v5 `calendar`. 위에서부터입니다.
 
 1. `date-header` `day-sheet`: 날짜와 요일(`day-sheet.date.solar`), 아래 `space.2`에 음력(`day-sheet.date.lunar`). 일진은 없습니다. 음력이 없으면 줄과 여백을 그리지 않습니다. 핸들 자리 아래 `space.8`. 오른쪽 끝에 날의 성격(아래 2)을 둡니다.
 2. 날의 성격(결정 V109, #932 ③): 날짜 머리 오른쪽 끝, 날짜와 음력 두 줄 묶음의 세로 가운데(음력이 없으면 날짜 줄 가운데), 날짜 글자와 사이 `space.12` 이상. 큰 글자 배율로 한 줄에 들어가지 않으면 날짜 머리 아래 `space.12` 왼쪽 줄로 내립니다. `hanja-tag` `emphasis`(`day-sheet.character.label`, 용신의 날만 진한 채움, 원 안 한자는 알약 바탕색). 누르면 `explain-sheet` 뜻. 이유 한 줄은 두지 않습니다.
-3. 길흉판정: 날짜 머리(태그를 아래 줄로 내렸으면 그 줄)와 `space.32`, `section-header` `plain`(`day-sheet.verdict.title`), 아래 `space.12`에 `fortune-verdict` 카드. 내역 줄은 `score-row` `verdict`(`day-sheet.verdict.item`)이고 태그를 누르면 `explain-sheet`.
-4. 일정: `section-header` `action`(`day-sheet.event.title`, 오늘 화면 `today.event.title`과 같은 키, V97), 오른쪽 +(`day-sheet.event.add`, → `event-edit`). 아래 `event-row` `list`(줄 사이 `list.divider`), 없으면 빈 문장(`day-sheet.event.empty`).
+3. 길흉판정: 날짜 머리(태그를 아래 줄로 내렸으면 그 줄)와 `space.32`, `section-header` `plain`(`day-sheet.verdict.title`), 아래 `space.12`에 `fortune-verdict` 카드. 맨 아래 안내 줄은 접혔을 때 `day-sheet.verdict.expand`, 펼쳤을 때 `day-sheet.verdict.collapse`(V108). 내역 줄은 `score-row` `verdict`(`day-sheet.verdict.item`)이고 태그를 누르면 `explain-sheet`.
+4. 일정: `section-header` `action`(`day-sheet.event.title`, 오늘 화면 `today.event.title`과 같은 키, V97), 오른쪽 +(`day-sheet.event.add`, → `event-edit`). 아래 `event-row` `list`(줄 사이 `list.divider`, 하루 종일 일정은 시각 칸에 `day-sheet.event.all-day` 꼬리표, V107), 없으면 빈 문장(`day-sheet.event.empty`).
 5. 일기: `section-header` `plain`(`day-sheet.diary.open`, 그날 쓴 일기 머리. 쓴 일기가 없어도 섹션 제목으로 보임). 아래 `diary-row` `entries`(작성 순, 누르면 `diary-view`, V42), 그 아래 `space.12`에 쓰기 버튼 `primary-button` `filled`(`day-sheet.diary.write-cta`, "<날짜> 일기 쓰기", 상한을 채운 날은 `disabled`, V43).
 
 * 빠진 것(D108): 맨 위 날의 성격 배지와 이유 한 줄. 길흉판정에는 한 줄 요약 문장을 두지 않습니다.

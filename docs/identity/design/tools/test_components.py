@@ -555,8 +555,6 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
-# 그날 시트 하루 종일 꼬리표 (V107). IA 새 슬롯 요청 #946 대기
-SLOTS_OUTSIDE_IA |= {"day-sheet.event.all-day"}
 
 
 def _slot_values(node):
@@ -3010,7 +3008,8 @@ def test_v108_fortune_verdict_collapses_and_whole_card_toggles():
     assert press["target"] == "카드 전체" and "V61" in press["innerWins"] and press["pattern"] == "press.ink"
     toggle = verdict["parts"]["toggle"]
     assert toggle["minHeight"] == 44 and toggle["icon"]["collapsed"] == "caret-down" and toggle["icon"]["expanded"] == "caret-up"
-    assert "#946" in toggle["label"]["collapsed"] and "#946" in toggle["label"]["expanded"]
+    assert "day-sheet.verdict.expand" in toggle["label"]["collapsed"] and "day-sheet.verdict.collapse" in toggle["label"]["expanded"]
+    assert {"day-sheet.verdict.expand", "day-sheet.verdict.collapse"} <= ia_slot_ids("day-sheet")  # IA 반영 #946
     assert {"press.ink", "appear.seep", "disappear.seep"} <= set(verdict["uses"])
 
 
