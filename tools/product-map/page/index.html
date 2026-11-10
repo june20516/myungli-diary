@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* 레이아웃: 탭 여섯 개(노선도 기본). 역·화면 상세는 시트(휴대폰 아래, 넓은 화면 오른쪽). 톤은 브랜드 기반(파스텔 그라데이션 + 둥근 고딕) */
+/* 레이아웃: 탭 여덟 개(노선도 기본). 역·화면 상세는 시트(휴대폰 아래, 넓은 화면 오른쪽). 톤은 브랜드 기반(파스텔 그라데이션 + 둥근 고딕) */
 :root {
   --bg: #f3f5f1; --bg-grad-a: #eef4ef; --bg-grad-b: #fbefee;
   --surface: #ffffffd9; --surface-solid: #ffffff; --line: #2f31331a;
@@ -56,6 +56,41 @@ h3 { font-size: .95rem; margin: 0 0 4px; font-weight: 600; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 button.chip { font: inherit; font-size: .8rem; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
 button.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* 계산 규칙 (core rules_map.json, #988) */
+.rules-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.src { display: inline-block; font-size: .72rem; font-weight: 500; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.src.source { background: var(--term-soft); color: var(--term); }
+.src.interpretation { background: #f3e7cf; color: #85601d; }
+.src.none { background: var(--line); color: var(--muted); }
+.steps-bg details { border-top: 1px solid var(--line); padding: 8px 0; }
+.steps-bg summary { cursor: pointer; font-weight: 600; list-style-position: outside; }
+.steps-bg .n { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: .72rem; align-items: center; justify-content: center; margin-right: 8px; vertical-align: 1px; }
+.steps-bg p { margin: 6px 0 2px 30px; }
+.flow { display: flex; flex-wrap: wrap; gap: 8px; }
+.flow .st { flex: 1 1 170px; background: var(--surface-solid); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--line); font-size: .85rem; }
+.flow .st b { display: block; font-size: .92rem; margin-bottom: 2px; }
+.ritem { border-top: 1px solid var(--line); padding: 14px 0 6px; scroll-margin-top: 64px; }
+.ritem h3 { display: flex; gap: 6px 8px; align-items: center; flex-wrap: wrap; font-size: 1.02rem; }
+.ritem .sum { margin: 4px 0 8px; }
+.stepgrid { display: grid; grid-template-columns: 112px 1fr; gap: 4px 12px; font-size: .86rem; margin: 0 0 10px; }
+.stepgrid dt { color: var(--muted); }
+.stepgrid dd { margin: 0; }
+.rrule { display: grid; grid-template-columns: 92px 1fr; gap: 2px 10px; font-size: .86rem; padding: 8px 0; border-top: 1px dashed var(--line); }
+.rrule .why { color: var(--muted); }
+.kind { font-size: .72rem; padding: 1px 8px; border-radius: 999px; background: var(--line); align-self: start; text-align: center; }
+.kind.added { background: var(--accent-soft); color: var(--accent); }
+.kind.removed { background: #e6e1f3; color: #5b4f8f; }
+.srcref { margin: 6px 0; font-size: .86rem; }
+.srcref summary { cursor: pointer; }
+.srcref .q { font-family: 'Noto Serif KR', 'Apple SD Gothic Neo', serif; margin: 6px 0 4px 16px; line-height: 1.8; }
+.srcref .m { margin: 0 0 4px 16px; }
+.srcref .i { margin: 0 0 4px 16px; color: var(--muted); }
+details.dev { font-size: .78rem; color: var(--muted); margin: 6px 0 4px; }
+details.dev summary { cursor: pointer; }
+details.dev code { font-size: .76rem; }
+.incon li { margin: 8px 0; }
+.incon a { color: var(--term); }
 
 /* 노선도 */
 .metro-scroll { overflow-x: auto; }
@@ -146,6 +181,7 @@ img.zoomable { cursor: zoom-in; }
     <a href="#screens" data-tab="screens">화면</a>
     <a href="#identity" data-tab="identity">정체성</a>
     <a href="#logic" data-tab="logic">로직</a>
+    <a href="#rules" data-tab="rules">계산 규칙</a>
     <a href="#gallery" data-tab="gallery">산출물</a>
     <a href="#ideas" data-tab="ideas">아이디어</a>
     <a href="#decisions" data-tab="decisions">결정</a>
@@ -197,6 +233,14 @@ flowchart LR
     </div>
   </section>
 
+  <section class="panel" id="tab-rules" hidden>
+    <div class="box" id="rules-head"></div>
+    <div class="box steps-bg" id="rules-bg"></div>
+    <div class="box" id="rules-flow"></div>
+    <div id="rules-groups" style="display:flex;flex-direction:column;gap:14px"></div>
+    <div class="box" id="rules-incon"></div>
+  </section>
+
   <section class="panel" id="tab-gallery" hidden>
     <div class="box"><div class="chips" id="gallery-filters" role="group" aria-label="산출물 거르기"></div></div>
     <div class="cards" id="gallery"></div>
@@ -233,6 +277,8 @@ flowchart LR
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
 <script>
+// mermaid는 기본으로 페이지를 열 때 흐름도를 그립니다. 숨은 로직 탭에서 그리면 크기가 깨지므로 끄고, 탭을 열 때 그립니다.
+if (window.mermaid) window.mermaid.initialize({ startOnLoad: false });
 const LINES = [
   { key: "root", name: "지휘", color: "--l-root" },
   { key: "core", name: "core", color: "--l-core" },
@@ -693,7 +739,80 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "-") stepZoom(-1);
 });
 
-const TABS = ["route", "screens", "identity", "logic", "gallery", "ideas", "decisions"];
+// 계산 규칙 탭: core 규칙 지도(core/rules_map.json, #988)를 사람이 읽게 그립니다.
+// 바탕지식(단계별 펼침) → 공통 틀 → 그룹별 항목(단계, 규칙, 원전) → 불일치 목록 순입니다.
+// 원전은 책과 편까지만 보이고, 펼치면 원문, 뜻, 명리일기 해석이 나옵니다.
+function renderRules() {
+  const R = DATA.rules_map;
+  const head = document.getElementById("rules-head");
+  const parts = ["rules-bg", "rules-flow", "rules-groups", "rules-incon"].map((id) => document.getElementById(id));
+  if (!R) {
+    head.innerHTML = '<h2>계산 규칙</h2><p class="muted" style="margin:0">core 계산 규칙 지도(core/rules_map.json)가 아직 없습니다.</p>';
+    parts.forEach((el) => { el.hidden = true; });
+    return;
+  }
+  parts.forEach((el) => { el.hidden = false; });
+  const SL = R.meta.source_status_labels || {};
+  const KL = R.meta.rule_kind_labels || {};
+  const byOrder = (a, b) => (a.order ?? 0) - (b.order ?? 0);
+  const framework = [...R.framework].sort(byOrder);
+  const itemName = Object.fromEntries(R.items.map((it) => [it.id, it.name]));
+  const decisionText = Object.fromEntries((DATA.decisions || []).map((d) => [d.id, d.text]));
+  const src = (s) => `<span class="src ${esc(s)}">${esc(SL[s] || s)}</span>`;
+  const decs = (list) => (list || []).map((id) => `<span class="pill" title="${esc(decisionText[id] || "")}">${esc(id)}</span>`).join(" ");
+
+  head.innerHTML = `<h2>${esc(R.meta.title)}</h2><p class="muted" style="margin:0">${esc(R.meta.description)}</p>`
+    + `<div class="rules-legend">${Object.keys(SL).map(src).join("")}</div>`
+    + `<p class="muted" style="margin:8px 0 0;font-size:.8rem">갱신 ${esc(R.meta.updated)}, 원본 core/docs/rules-map/rules_map.toml. 결정 번호에 마우스를 올리면 결정 내용이 보입니다.</p>`;
+
+  const bg = [...R.background].sort(byOrder);
+  document.getElementById("rules-bg").innerHTML = `<div class="box-head"><h2>먼저 알아 둘 것</h2><button class="zoom-btn" type="button" id="rules-bg-all">모두 펼치기</button></div>`
+    + '<p class="muted" style="margin:0 0 6px">위에서부터 차례로 읽으면 아래 규칙을 이해할 수 있습니다. 뒤 단계는 앞 단계를 안다고 보고 씁니다.</p>'
+    + bg.map((b, i) => `<details${i === 0 ? " open" : ""}><summary><span class="n">${i + 1}</span>${esc(b.title)}</summary><p>${esc(b.body)}</p></details>`).join("");
+  document.getElementById("rules-bg-all").addEventListener("click", (e) => {
+    const all = [...document.querySelectorAll("#rules-bg details")];
+    const open = !all.every((d) => d.open);
+    all.forEach((d) => { d.open = open; });
+    e.currentTarget.textContent = open ? "모두 접기" : "모두 펼치기";
+  });
+
+  document.getElementById("rules-flow").innerHTML = "<h2>공통 틀</h2>"
+    + '<p class="muted" style="margin:0 0 8px">모든 계산 값은 이 다섯 단계를 거칩니다. 항목마다 단계를 그대로 쓰거나(공통 틀 그대로), 규칙을 더하거나(더한 규칙), 단계를 뺍니다(뺀 단계).</p>'
+    + `<div class="flow">${framework.map((f, i) => `<div class="st"><b>${i + 1}. ${esc(f.name)}</b><span class="muted">${esc(f.description)}</span></div>`).join("")}</div>`;
+
+  const itemHtml = (it) => {
+    const steps = framework.map((f) => `<dt>${esc(f.name)}</dt><dd>${esc((it.steps || {})[f.id] || "")}</dd>`).join("");
+    const rules = (it.rules || []).map((r) => `<div class="rrule"><span class="kind ${esc(r.kind)}">${esc(KL[r.kind] || r.kind)}</span><div>${esc(r.text)}`
+      + `<div class="why">이유: ${esc(r.reason)}</div><div class="why">적용: ${esc(r.when)}</div>`
+      + `<div style="margin-top:2px">${src(r.source_status)} ${decs(r.decisions)}</div></div></div>`).join("");
+    const sources = (it.sources || []).map((s) => `<details class="srcref"><summary>『${esc(s.work)}』 「${esc(s.section)}」</summary>`
+      + `<div class="q">${esc(s.quote)}</div><div class="m">뜻: ${esc(s.meaning)}</div>`
+      + (s.interpretation ? `<div class="i">명리일기 해석: ${esc(s.interpretation)}</div>` : "") + "</details>").join("");
+    const list = (xs) => (xs || []).length ? xs.map((x) => `<code>${esc(x)}</code>`).join(", ") : "없음";
+    return `<div class="ritem" id="rule-${esc(it.id)}"><h3>${esc(it.name)} ${src(it.source_status)} ${decs(it.decisions)}</h3>`
+      + `<p class="sum">${esc(it.summary)}</p><dl class="stepgrid">${steps}</dl>`
+      + `<div class="label">규칙</div>${rules}`
+      + (sources ? `<div class="label" style="margin-top:8px">원전</div>${sources}` : "")
+      + `<details class="dev"><summary>개발 정보</summary>코드: ${list(it.code)}<br>근거 규칙: ${list(it.evidence_rules)}<br>메시지 키: ${list(it.message_keys)}</details></div>`;
+  };
+  document.getElementById("rules-groups").innerHTML = [...R.groups].sort(byOrder).map((g) => {
+    const items = R.items.filter((it) => it.group === g.id);
+    return `<div class="box"><h2>${esc(g.name)}</h2><p class="muted" style="margin:0">${esc(g.description)}</p>${items.map(itemHtml).join("")}</div>`;
+  }).join("");
+
+  document.getElementById("rules-incon").innerHTML = "<h2>불일치 목록</h2>"
+    + '<p class="muted" style="margin:0">공통 틀이나 같은 그룹의 다른 항목과 어긋나는 곳입니다. 정리할지는 원전 유무를 기준으로 사용자가 정합니다.</p>'
+    + `<ul class="incon">${R.inconsistencies.map((x) => `<li>${(x.items || []).map((id) => `<a href="#rules" data-rule="${esc(id)}">${esc(itemName[id] || id)}</a>`).join(", ")}: ${esc(x.text)}${x.issue ? ` <span class="muted">(${esc(x.issue)})</span>` : ""}</li>`).join("")}</ul>`;
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-rule]");
+  if (!a) return;
+  e.preventDefault();
+  const el = document.getElementById("rule-" + a.dataset.rule);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+const TABS = ["route", "screens", "identity", "logic", "rules", "gallery", "ideas", "decisions"];
 function showTab() {
   const current = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "route";
   TABS.forEach((t) => { document.getElementById("tab-" + t).hidden = t !== current; });
@@ -730,7 +849,7 @@ fetch("data.json").then((r) => r.json()).then((data) => {
   document.getElementById("concept").textContent = data.identity.concept || "";
   const when = new Date(data.generated_at);
   document.getElementById("stamp").textContent = "갱신 " + when.toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
-  renderRoute(); renderScreens(); renderIdentity(); renderGallery(); renderIdeas(); renderDecisions();
+  renderRoute(); renderScreens(); renderIdentity(); renderRules(); renderGallery(); renderIdeas(); renderDecisions();
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderMetro);
   new MutationObserver(renderMetro).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 }).catch(() => {
