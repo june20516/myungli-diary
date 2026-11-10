@@ -207,6 +207,48 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('빈 칸 선은 칸 위 space.8 아래 한 줄 상자 가운데, 이웃 칸 첫 줄과 같은 높이입니다(V101)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(inputApp(_wrap(_table(shinsalOnDay: false))));
+    final box = tester.getRect(find.byKey(BandTable.emptyBoxKey));
+    final line = tester.getRect(find.byKey(BandTable.emptyLineKey));
+    expect(line.center.dy, closeTo(box.center.dy, 0.01));
+    // 이웃 칸(월주) 신살 칩 첫 줄과 같은 높이에서 시작하고 같은 가운데입니다.
+    final neighbor = tester.getRect(find.text('월주-신살'));
+    expect(box.top, closeTo(neighbor.top, 0.01));
+    expect(line.center.dy, closeTo(neighbor.center.dy, 0.5));
+    final context = tester.element(find.byKey(BandTable.emptyBoxKey));
+    expect(
+      box.height,
+      closeTo(
+        BandTable.emptyBoxHeightOf(
+          BandKind.shinsal,
+          context.tokens.typography.captionMd,
+          MediaQuery.textScalerOf(context),
+        ),
+        0.01,
+      ),
+    );
+  });
+
+  testWidgets('시간 모름 지장간 빈 칸 상자는 stem.chip 22, 선은 이웃 칩 가운데 높이입니다', (
+    tester,
+  ) async {
+    // 이웃 칸 십성 라벨이 한 줄인 폭(칩 줄 높이 = 칩 22)에서 잽니다.
+    await tester.pumpWidget(
+      inputApp(_wrap(_table(hourUnknown: true), width: 600)),
+    );
+    final boxes = find.byKey(BandTable.emptyBoxKey);
+    final stemBox = tester.getRect(boxes.first);
+    expect(stemBox.height, StemChip.side);
+    expect(BandTable.emptyBoxStemHeight, StemChip.side);
+    final neighborChip = tester.getRect(find.byType(StemChip).first);
+    expect(stemBox.top, closeTo(neighborChip.top, 0.01));
+    final line = tester.getRect(find.byKey(BandTable.emptyLineKey).first);
+    expect(line.center.dy, closeTo(neighborChip.center.dy, 0.01));
+  });
+
   testWidgets('시간 모름이면 시주 열은 머리만 두고 모든 띠가 빈 칸입니다', (tester) async {
     await tester.pumpWidget(inputApp(_wrap(_table(hourUnknown: true))));
     expect(find.text('시주'), findsOneWidget);

@@ -46,7 +46,7 @@ Widget _summary() => Builder(
   },
 );
 
-/// event-row list: 하루 종일·긴 제목(두 줄)·시각 줄 + 빈 목록(ARB 문구).
+/// event-row list: 하루 종일(꼬리표)·긴 제목(두 줄)과 메모·시각 줄 + 빈 목록(ARB 문구, V107).
 Widget _list() => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
@@ -58,6 +58,7 @@ Widget _list() => Builder(
         EventRow.list(
           time: '09:30',
           title: ja ? _longTitleJa : _longTitleKo,
+          memo: ja ? 'ケーキを受け取る' : '케이크 찾아가기',
           onTap: () {},
         ),
         EventRow.list(

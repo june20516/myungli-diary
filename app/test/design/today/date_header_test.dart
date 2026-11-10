@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
@@ -160,6 +161,77 @@ void main() {
       expect(lines.lines, 1);
       expect(lines.widthFactor, DateHeader.skeletonWidthFactor);
       expect(DateHeader.skeletonWidthFactor, 0.5);
+    });
+
+    group('day-sheet trailing (V109)', () {
+      const trailingKey = ValueKey('trailing');
+      const trailing = SizedBox(key: trailingKey, width: 96, height: 30);
+
+      Widget app({String? lunar = _lunar, double width = 360}) => inputApp(
+        Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: width,
+            child: DateHeader(solar: _solar, lunar: lunar, trailing: trailing),
+          ),
+        ),
+      );
+
+      testWidgets('오른쪽 끝, 날짜와 음력 두 줄 묶음의 세로 가운데입니다', (tester) async {
+        await tester.pumpWidget(app());
+        final dates = tester.getRect(find.byKey(DateHeader.datesKey));
+        final tag = tester.getRect(find.byKey(trailingKey));
+        expect(tag.right, 360);
+        expect(tag.center.dy, closeTo(dates.center.dy, 0.01));
+        expect(
+          dates.bottom,
+          greaterThan(tester.getRect(find.text(_solar)).bottom),
+        );
+        expect(
+          tag.left - dates.right,
+          greaterThanOrEqualTo(DateHeader.trailingGap),
+        );
+        expect(DateHeader.trailingGap, Space.s12);
+      });
+
+      testWidgets('음력이 없으면 날짜 줄 가운데입니다', (tester) async {
+        await tester.pumpWidget(app(lunar: null));
+        final solar = tester.getRect(find.text(_solar));
+        final tag = tester.getRect(find.byKey(trailingKey));
+        expect(tag.center.dy, closeTo(solar.center.dy, 0.01));
+      });
+
+      testWidgets('날짜 글자, space.12, 태그가 한 줄에 못 들어가면 아래 space.12 왼쪽 줄로 내립니다', (
+        tester,
+      ) async {
+        tester.platformDispatcher.textScaleFactorTestValue = 2;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await tester.pumpWidget(app());
+        expect(tester.takeException(), isNull);
+        final dates = tester.getRect(find.byKey(DateHeader.datesKey));
+        final tag = tester.getRect(find.byKey(trailingKey));
+        expect(tag.left, 0);
+        expect(tag.top - dates.bottom, closeTo(Space.s12, 0.01));
+      });
+
+      testWidgets('loading: trailing 뼈도 같은 자리입니다', (tester) async {
+        await tester.pumpWidget(
+          inputApp(
+            Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 360,
+                child: DateHeader.skeleton(
+                  solar: _solar,
+                  trailing: trailing,
+                  animated: false,
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(tester.getRect(find.byKey(trailingKey)).right, 360);
+      });
     });
 
     test('ComponentSpec은 변형 today, day-sheet와 loading을 가집니다', () {

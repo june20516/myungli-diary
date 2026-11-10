@@ -288,39 +288,120 @@ void main() {
     Widget list({
       String? time = '14:00',
       String title = '회의',
+      String? memo,
       bool showDivider = true,
       VoidCallback? onTap,
     }) => EventRow.list(
       time: time,
       title: title,
+      memo: memo,
       showDivider: showDivider,
       onTap: onTap,
     );
+
+    /// 제목 [title]의 첫 줄 세로 가운데.
+    double firstLineCenter(WidgetTester tester, String title) {
+      final tokens = _context(tester).tokens;
+      final scale = MediaQuery.textScalerOf(_context(tester));
+      final lineHeight =
+          scale.scale(tokens.typography.bodyUi.fontSize!) *
+          tokens.typography.bodyUi.height!;
+      return tester.getRect(find.text(title)).top + lineHeight / 2;
+    }
 
     testWidgets('1.0: 시각 칸은 58 고정이고 하루 종일도 같은 폭입니다', (tester) async {
       expect(EventRow.timeColumnWidth, 58);
       for (final time in ['14:00', null]) {
         await tester.pumpWidget(_app(list(time: time)));
-        final timeText = time ?? _l10n(tester).eventRowAllDay;
         expect(
           tester.getSize(find.byKey(EventRow.timeColumnKey)).width,
           58,
-          reason: timeText,
+          reason: '$time',
         );
-        final tokens = _context(tester).tokens;
-        final style = _text(tester, timeText).style!;
-        expect(style.fontSize, tokens.typography.numericTable.fontSize);
-        expect(style.color, tokens.colors.textSecondary);
+      }
+    });
+
+    testWidgets('시각은 numericTable 본문색 700(tnum)입니다(V107)', (tester) async {
+      await tester.pumpWidget(_app(list()));
+      final tokens = _context(tester).tokens;
+      final style = _text(tester, '14:00').style!;
+      expect(style.fontSize, tokens.typography.numericTable.fontSize);
+      expect(style.color, tokens.colors.textPrimary);
+      expect(style.fontWeight, FontWeight.w700);
+      expect(EventRow.listTimeWeight, FontWeight.w700);
+      expect(style.fontFeatures, contains(const FontFeature.tabularFigures()));
+    });
+
+    testWidgets('하루 종일은 시각 칸 안 tag.status 꼬리표(daySheetEventAllDay)입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(list(time: null)));
+      final l10n = _l10n(tester);
+      final tag = find.byKey(EventRow.allDayKey);
+      expect(tag, findsOneWidget);
+      expect(tester.widget<StatusTag>(tag).label, l10n.daySheetEventAllDay);
+      expect(find.text(l10n.eventRowAllDay), findsNothing);
+      final column = tester.getRect(find.byKey(EventRow.timeColumnKey));
+      final tagRect = tester.getRect(tag);
+      expect(tagRect.left, column.left);
+      expect(tagRect.right, lessThanOrEqualTo(column.right - Space.s8));
+    });
+
+    testWidgets('시각, 꼬리표, 꺾쇠는 제목 첫 줄 세로 가운데에 맞춥니다', (tester) async {
+      for (final time in ['14:00', null]) {
+        await tester.pumpWidget(_app(list(time: time, title: _longTitle)));
+        final center = firstLineCenter(tester, _longTitle);
+        final lead = time == null
+            ? find.byKey(EventRow.allDayKey)
+            : find.text(time);
+        expect(tester.getCenter(lead).dy, closeTo(center, 1), reason: '$time');
         expect(
-          style.fontFeatures,
-          contains(const FontFeature.tabularFigures()),
+          tester.getCenter(find.byType(Icon)).dy,
+          closeTo(center, 1),
+          reason: '$time',
         );
-        // 한 줄: 시각과 제목의 세로 가운데가 같습니다.
+        // 제목은 두 줄이라 첫 줄 가운데가 제목 가운데보다 위입니다.
         expect(
-          tester.getCenter(find.text(timeText)).dy,
-          closeTo(tester.getCenter(find.text('회의')).dy, 1),
-          reason: timeText,
+          center,
+          lessThan(tester.getCenter(find.text(_longTitle)).dy - 1),
         );
+      }
+    });
+
+    testWidgets('줄 위아래 여백은 space.12입니다', (tester) async {
+      // 구분선이 있는 줄은 Column 안이라 내용 높이만큼만 차지합니다.
+      await tester.pumpWidget(_app(list(title: _longTitle)));
+      expect(EventRow.rowPaddingY, Space.s12);
+      final content = tester.getRect(find.byKey(EventRow.contentKey));
+      final title = tester.getRect(find.text(_longTitle));
+      expect(title.top - content.top, closeTo(Space.s12, 0.01));
+      expect(content.bottom - title.bottom, closeTo(Space.s12, 0.01));
+    });
+
+    testWidgets('메모가 있으면 제목 아래 space.2에 caption.lg text.secondary 한 줄입니다', (
+      tester,
+    ) async {
+      const memo = '케이크 찾아가기, 그리고 아주 긴 메모가 이어져 한 줄을 넘어가면 말줄임으로 자릅니다';
+      await tester.pumpWidget(_app(list(memo: memo)));
+      final tokens = _context(tester).tokens;
+      final text = tester.widget<Text>(find.byKey(EventRow.memoKey));
+      expect(text.data, memo);
+      expect(text.maxLines, 1);
+      expect(text.overflow, TextOverflow.ellipsis);
+      expect(text.style!.fontSize, tokens.typography.captionLg.fontSize);
+      expect(text.style!.color, tokens.colors.textSecondary);
+      expect(
+        tester.getRect(find.byKey(EventRow.memoKey)).top -
+            tester.getRect(find.text('회의')).bottom,
+        closeTo(EventRow.memoGap, 0.01),
+      );
+      expect(EventRow.memoGap, Space.s2);
+    });
+
+    testWidgets('메모가 없거나 비어 있으면 그리지 않습니다', (tester) async {
+      for (final memo in [null, '', '  ']) {
+        await tester.pumpWidget(_app(list(memo: memo)));
+        expect(find.byKey(EventRow.memoKey), findsNothing, reason: '$memo');
       }
     });
 
@@ -372,7 +453,7 @@ void main() {
       await tester.pumpWidget(_app(list(onTap: () {})));
       _expectNode(tester, '14:00 회의');
       await tester.pumpWidget(_app(list(time: null, onTap: () {})));
-      _expectNode(tester, '하루 종일 회의');
+      _expectNode(tester, '${_l10n(tester).daySheetEventAllDay} 회의');
       handle.dispose();
     });
 
@@ -392,17 +473,19 @@ void main() {
       expect(taps, 1);
     });
 
-    testWidgets('2.0: 시각 글자는 numericTable × 2.0 그대로, 시각 / 제목·화살표 두 줄', (
+    testWidgets('2.0: 시각 글자와 꼬리표는 배율 그대로, 시각(꼬리표) / 제목·화살표 두 줄', (
       tester,
     ) async {
       for (final time in ['14:00', null]) {
         await tester.pumpWidget(
           _app(list(time: time, title: _longTitle), textScale: 2),
         );
-        final timeText = time ?? _l10n(tester).eventRowAllDay;
+        final timeText = time ?? _l10n(tester).daySheetEventAllDay;
         expect(tester.takeException(), isNull, reason: timeText);
         final tokens = _context(tester).tokens;
-        final fontSize = tokens.typography.numericTable.fontSize!;
+        final fontSize = time == null
+            ? tokens.typography.labelMd.fontSize!
+            : tokens.typography.numericTable.fontSize!;
         expect(
           _renderedFontSize(tester, timeText, fontSize),
           fontSize * 2,

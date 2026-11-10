@@ -20,8 +20,8 @@ enum ErrorStateVariant {
   /// 불러오기 실패.
   generic(
     AppGlyph(
-      light: PhosphorIconsLight.cloudWarning,
-      regular: PhosphorIconsRegular.cloudWarning,
+      light: PhosphorIconsLight.warningCircle,
+      regular: PhosphorIconsRegular.warningCircle,
     ),
   ),
 

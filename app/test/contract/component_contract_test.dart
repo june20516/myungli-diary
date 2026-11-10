@@ -15,6 +15,7 @@ import 'package:flutter/widgets.dart'
         Builder,
         Center,
         DecoratedBox,
+        Icon,
         IconData,
         Locale,
         SingleChildScrollView,
@@ -23,7 +24,9 @@ import 'package:flutter/widgets.dart'
         Widget;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/score_item.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
@@ -33,14 +36,18 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
@@ -48,6 +55,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
@@ -1409,6 +1417,206 @@ void main() {
         );
       },
     );
+  });
+
+  group('그날 시트와 피드백 아이콘 (6.2.0, V101, V105, V107~V109)', () {
+    final specs = loadSpecComponents();
+
+    /// [id]의 변형 [variant] parts.
+    Map<String, Object?> variantParts(String id, String variant) => _map(
+      (specs[id]!['variants']! as List<Object?>)
+          .map(_map)
+          .singleWhere((v) => v['id'] == variant)['parts'],
+    );
+
+    test(
+      'event-row list: 시각 본문색 700, 줄 위아래 space.12, 메모 한 줄, 종일 꼬리표(V107)',
+      () {
+        final list = variantParts('event-row', 'list');
+        final time = _map(list['timeColumn']);
+        expect(time['fg'], '{color.text.primary}');
+        expect(_num(time['fontWeight']).toInt(), EventRow.listTimeWeight.value);
+        final row = _map(list['row']);
+        expect(row['paddingY'], '{space.12}');
+        expect(EventRow.rowPaddingY, Space.s12);
+        expect(row['align'], 'first-line');
+        final memo = _map(list['memo']);
+        expect(memo['source'], 'Schedule.memo');
+        expect(memo['type'], '{type.caption.lg}');
+        expect(memo['fg'], '{color.text.secondary}');
+        expect(memo['maxLines'], 1);
+        expect(memo['overflow'], 'ellipsis');
+        expect(memo['marginTop'], '{space.2}');
+        expect(EventRow.memoGap, Space.s2);
+        expect(memo['whenEmpty'], 'hide');
+        final allDay = _map(list['allDay']);
+        expect(allDay['element'], 'tag.status');
+        expect(allDay['slot'], SlotIds.daySheetEventAllDay);
+      },
+    );
+
+    test('fortune-verdict: 카드 누름, 안내 줄, 접힘과 펼침 상태 값(V108)', () {
+      final verdict = specs['fortune-verdict']!;
+      expect(
+        verdict['uses'],
+        containsAll(['press.ink', 'appear.seep', 'disappear.seep']),
+      );
+      final parts = _map(verdict['parts']);
+      final pressable = _map(_map(parts['card'])['pressable']);
+      expect(pressable['pattern'], 'press.ink');
+      expect(_num(pressable['minTarget']), FortuneVerdict.toggleMinHeight);
+      final rows = _map(parts['rows']);
+      expect(rows['marginTop'], '{space.12}');
+      expect(FortuneVerdict.rowsGap, Space.s12);
+      expect(rows['visibleWhen'], 'expanded');
+      final toggle = _map(parts['toggle']);
+      final label = _map(toggle['label']);
+      expect(label['collapsed'], contains(SlotIds.daySheetVerdictExpand));
+      expect(label['expanded'], contains(SlotIds.daySheetVerdictCollapse));
+      expect(toggle['type'], '{type.caption.lg}');
+      expect(toggle['fg'], '{color.text.secondary}');
+      expect(_num(toggle['minHeight']), FortuneVerdict.toggleMinHeight);
+      expect(toggle['marginTop'], '{space.8}');
+      expect(FortuneVerdict.toggleGap, Space.s8);
+      expect(_map(toggle['dividerBefore'])['element'], 'list.divider');
+      final icon = _map(toggle['icon']);
+      expect(icon['collapsed'], 'caret-down');
+      expect(icon['expanded'], 'caret-up');
+      expect(icon['weight'], 'regular');
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.text.secondary}');
+      expect(icon['gap'], '{space.4}');
+      expect(FortuneVerdict.toggleIconGap, Space.s4);
+
+      final states = _map(verdict['states']);
+      expect(_map(states['collapsed'])['initial'], isTrue);
+      for (final id in ['noBreakdown', 'noItems']) {
+        final state = _map(states[id]);
+        expect(state['pressable'], isFalse, reason: id);
+        expect(
+          _map(_map(state['parts'])['toggle'])['visible'],
+          isFalse,
+          reason: id,
+        );
+      }
+      final loading = _map(states['loading']);
+      final bones = [
+        for (final bone in loading['skeleton']! as List<Object?>)
+          _map(bone)['bone'],
+      ];
+      expect(bones, ['track']);
+      expect(_map(_map(loading['parts'])['toggle'])['visible'], isFalse);
+      final a11y = _map(_map(verdict['a11y'])['toggle']);
+      expect(a11y['role'], 'button');
+      expect(a11y['expandedState'], isTrue);
+    });
+
+    testWidgets('fortune-verdict: 안내 줄 꺾쇠 글리프와 크기가 계약과 같습니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          SizedBox(
+            width: 360,
+            child: FortuneVerdict(
+              score: 1,
+              items: [ScoreItem(id: 'hap', score: 1)],
+              nameOf: (_) => '합',
+              meaningOf: (_) => null,
+            ),
+          ),
+        ),
+      );
+      Icon toggleIcon() => tester.widget<Icon>(
+        find.descendant(
+          of: find.byKey(FortuneVerdict.toggleKey),
+          matching: find.byType(Icon),
+        ),
+      );
+      final type = tester
+          .element(find.byType(FortuneVerdict))
+          .tokens
+          .typography;
+      expect(toggleIcon().icon, PhosphorIconsRegular.caretDown);
+      expect(
+        toggleIcon().size,
+        AppIconSize.adjacentText(type.captionLg.fontSize!).logical,
+      );
+      await tester.tap(find.byKey(FortuneVerdict.toggleKey));
+      await tester.pumpAndSettle();
+      expect(toggleIcon().icon, PhosphorIconsRegular.caretUp);
+    });
+
+    test(
+      'date-header day-sheet trailing: hanja-tag emphasis, space.12(V109)',
+      () {
+        final trailing = _map(
+          variantParts('date-header', 'day-sheet')['trailing'],
+        );
+        expect(trailing['component'], 'hanja-tag');
+        expect(trailing['variant'], 'emphasis');
+        expect(trailing['slot'], SlotIds.daySheetCharacterLabel);
+        expect(trailing['gapStart'], '{space.12}');
+        expect(DateHeader.trailingGap, Space.s12);
+      },
+    );
+
+    test('band-table 빈 칸 선 상자: 위 space.8, 지장간 22, 상자 가운데(V101)', () {
+      final parts = _map(specs['band-table']!['parts']);
+      final cell = _map(parts['cell']);
+      expect(cell['paddingTop'], '{space.8}');
+      expect(cell['paddingBottom'], '{space.12}');
+      expect(BandTable.cellPaddingTop, Space.s8);
+      expect(BandTable.cellPaddingBottom, Space.s12);
+      final empty = _map(parts['empty']);
+      expect(_px(empty['width']), BandTable.emptyLineWidth);
+      expect(_px(empty['height']), BandTable.emptyLineHeight);
+      expect(empty['verticalAlign'], 'box-center');
+      final box = _map(empty['box']);
+      expect(box['offsetTop'], '{space.8}');
+      final heights = _map(box['heightByBand']);
+      expect(_px(heights['hiddenStems']), BandTable.emptyBoxStemHeight);
+      expect(
+        heights.keys,
+        unorderedEquals([for (final kind in BandKind.values) kind.name]),
+      );
+    });
+
+    test('error-state, notice-banner 변형 아이콘이 계약 이름과 같습니다(V105)', () {
+      const lightIcons = <String, IconData>{
+        'warning-circle': PhosphorIconsLight.warningCircle,
+        'wifi-slash': PhosphorIconsLight.wifiSlash,
+        'clock': PhosphorIconsLight.clock,
+        'note-pencil': PhosphorIconsLight.notePencil,
+      };
+      Map<String, String> iconNames(String id) => {
+        for (final variant in (specs[id]!['variants']! as List<Object?>).map(
+          _map,
+        ))
+          variant['id']! as String:
+              _map(_map(variant['parts'])['icon'])['name']! as String,
+      };
+      final errorState = iconNames('error-state');
+      expect(errorState['generic'], 'warning-circle');
+      for (final variant in ErrorStateVariant.values) {
+        expect(
+          variant.glyph.light,
+          lightIcons[errorState[variant.name]],
+          reason: 'error-state ${variant.name}',
+        );
+      }
+      final banner = iconNames('notice-banner');
+      expect(banner['error'], 'warning-circle');
+      for (final variant in NoticeBannerVariant.values) {
+        final contractId = switch (variant) {
+          NoticeBannerVariant.timeUnknown => 'time-unknown',
+          _ => variant.name,
+        };
+        expect(
+          variant.glyph.light,
+          lightIcons[banner[contractId]],
+          reason: 'notice-banner $contractId',
+        );
+      }
+    });
   });
 
   group('loading skeleton 뼈 대조 (6.0.0, V66)', () {

@@ -12,14 +12,26 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 두 칸은 쉼표나 기호 없이 [Space.s8] 간격으로만 나누고, 칸 하나는 끊지 않고 다음 줄로
 /// 넘깁니다. 누를 수 없는 표시라 눌림이 없습니다.
 ///
+/// 그날 시트는 오른쪽 끝에 날의 성격 태그([trailing])를 둡니다(`parts.trailing`, V109).
+/// 태그는 날짜와 음력 두 줄 묶음의 세로 가운데(음력이 없으면 날짜 줄 가운데)에 날짜 글자와
+/// [trailingGap] 이상 떨어져 놓이고, 큰 글자 배율로 한 줄에 들어가지 않으면 날짜 머리 아래
+/// [trailingGap]의 왼쪽 줄로 내려갑니다.
+///
 /// 스크린리더는 날짜, 음력, 일진을 한 덩어리로 읽고, 일진은 한글 독음만 읽습니다(한자는
-/// 읽지 않음, 예: 경신일).
+/// 읽지 않음, 예: 경신일). [trailing]은 그 뒤에 따로 읽힙니다.
 class DateHeader extends StatelessWidget {
   /// 날짜 머리를 만듭니다.
   ///
   /// [solar]는 날짜와 요일 글자, [lunar]는 음력 글자, [iljin]은 한자를 품은 일진 글자
-  /// (예: `癸未(계미)일`)이며 한자는 `font.family.hanja`로 그립니다.
-  const new({required this.solar, this.lunar, this.iljin, super.key});
+  /// (예: `癸未(계미)일`)이며 한자는 `font.family.hanja`로 그립니다. [trailing]은 그날
+  /// 시트의 날의 성격 태그입니다.
+  const new({
+    required this.solar,
+    this.lunar,
+    this.iljin,
+    this.trailing,
+    super.key,
+  });
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
@@ -30,6 +42,13 @@ class DateHeader extends StatelessWidget {
 
   /// 날짜 줄 아래 음력, 일진 줄까지의 간격(`parts.meta.marginTop` `space.2`).
   static const double metaGap = Space.s2;
+
+  /// 날짜 글자와 [trailing] 사이 최소 간격이자, 아래 줄로 내렸을 때의 위 간격
+  /// (`variants.day-sheet.parts.trailing.gapStart` `space.12`).
+  static const double trailingGap = Space.s12;
+
+  /// 날짜와 음력(일진) 묶음을 찾는 테스트용 키.
+  static const Key datesKey = ValueKey('date-header-dates');
 
   /// 뼈 폭 비율(`states.loading.skeleton` `width` 50%).
   static const double skeletonWidthFactor = 0.5;
@@ -42,15 +61,18 @@ class DateHeader extends StatelessWidget {
 
   /// 불러오는 중: 날짜 줄은 기기 날짜라 [solar]를 바로 그리고, server 값인 음력과 일진 줄만
   /// 뼈(한 줄, 50%)로 둡니다. [solar]를 주지 않으면 날짜 줄도 같은 높이 뼈입니다.
+  ///
+  /// [trailing]을 주면(그날 시트의 날의 성격 뼈) 본문과 같은 자리에 둡니다.
   static Widget skeleton({
     String? solar,
+    Widget? trailing,
     int index = 0,
     bool animated = true,
   }) => Builder(
     builder: (context) {
       final typography = context.tokens.typography;
       final colors = context.tokens.colors;
-      return Column(
+      final dates = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -75,7 +97,21 @@ class DateHeader extends StatelessWidget {
           ),
         ],
       );
+      return trailing == null ? dates : _withTrailing(dates, trailing);
     },
+  );
+
+  /// [dates] 오른쪽 끝에 [trailing]을 세로 가운데로 두고, 한 줄에 들어가지 않으면 아래
+  /// [trailingGap]의 왼쪽 줄로 내립니다.
+  static Widget _withTrailing(Widget dates, Widget trailing) => SizedBox(
+    width: double.infinity,
+    child: Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: trailingGap,
+      runSpacing: trailingGap,
+      children: [dates, trailing],
+    ),
   );
 
   /// 날짜와 요일.
@@ -86,6 +122,9 @@ class DateHeader extends StatelessWidget {
 
   /// 한자를 품은 일진. 없으면(그날 시트) 그 칸만 뺍니다.
   final String? iljin;
+
+  /// 오른쪽 끝 날의 성격 태그(그날 시트). 없으면 날짜 묶음만입니다.
+  final Widget? trailing;
 
   static final RegExp _hanjaRun = RegExp(
     '[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]+',
@@ -121,7 +160,8 @@ class DateHeader extends StatelessWidget {
       color: colors.textSecondary,
     );
     final spoken = [solar, ?lunar, if (iljin != null) spokenIljinOf(iljin)];
-    return Semantics(
+    final dates = Semantics(
+      key: datesKey,
       container: true,
       header: true,
       label: spoken.join(', '),
@@ -168,5 +208,7 @@ class DateHeader extends StatelessWidget {
         ),
       ),
     );
+    final trailing = this.trailing;
+    return trailing == null ? dates : _withTrailing(dates, trailing);
   }
 }

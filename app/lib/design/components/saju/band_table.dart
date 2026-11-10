@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/elements/highlight_current.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/stem_chip.dart';
 import 'package:myungli_diary/design/elements/tag_me.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -84,7 +85,9 @@ final class BandColumn {
 ///
 /// 흰 카드(`bg.sheet`, `radius.lg`, 좌우 `space.12`, 위아래 `space.4`) 안에서 네 열은 같은
 /// 폭입니다. 띠 이름은 가운데 `term-token` `label`이고 누르면 [onBandTap](설명 시트)입니다.
-/// 값이 없는 칸은 12 × 1 가로선이고 스크린리더는 [emptyLabel]을 읽습니다. 불러오는 중
+/// 값이 없는 칸은 12 × 1 가로선이고 스크린리더는 [emptyLabel]을 읽습니다. 선은 칸 위
+/// `space.8` 아래 그 띠 내용 한 줄 높이의 상자([emptyBoxHeightOf]) 세로 가운데에 놓여 이웃
+/// 칸 첫 줄 글자와 같은 높이에 옵니다(`parts.empty.box`, V101). 불러오는 중
 /// ([loading])에는 열 머리, 띠 머리줄, 열 구분선, 일주 열 바탕은 그대로 두고 칸마다 칩 모양
 /// 뼈를 그립니다. 글자 배율은 1.3배에서 멈춥니다(`textScaleMax`).
 class BandTable extends StatelessWidget {
@@ -124,6 +127,34 @@ class BandTable extends StatelessWidget {
 
   /// 값이 없는 칸의 가로선 두께. 계약 `band-table.parts.empty.height`.
   static const double emptyLineHeight = 1;
+
+  /// 값이 없는 칸의 선 상자를 찾는 테스트용 키.
+  static const Key emptyBoxKey = ValueKey('band-table-empty-box');
+
+  /// 칸 위 여백이자 빈 칸 선 상자의 시작 자리. 계약 `parts.cell.paddingTop`,
+  /// `parts.empty.box.offsetTop`(둘 다 `space.8`).
+  static const double cellPaddingTop = Space.s8;
+
+  /// 칸 아래 여백. 계약 `parts.cell.paddingBottom`.
+  static const double cellPaddingBottom = Space.s12;
+
+  /// 지장간 띠 빈 칸 선 상자 높이(`stem.chip` 크기).
+  ///
+  /// 계약 `empty.box.heightByBand.hiddenStems`.
+  static const double emptyBoxStemHeight = StemChip.side;
+
+  /// [kind] 띠 빈 칸 선 상자 높이(`parts.empty.box.heightByBand`): 지장간은 `stem.chip` 22,
+  /// 12운성과 신살은 `term-token` `label` 칩 한 줄(위아래 여백 없는 `type.caption.md` 한 줄)
+  /// 높이입니다. 칩 글자와 같은 배율([scaler])을 씁니다.
+  static double emptyBoxHeightOf(
+    BandKind kind,
+    TextStyle labelStyle,
+    TextScaler scaler,
+  ) => switch (kind) {
+    BandKind.hiddenStems => emptyBoxStemHeight,
+    BandKind.twelveStages ||
+    BandKind.shinsal => lineHeightOf(labelStyle, scaler),
+  };
 
   /// 글자 크기를 멈추는 배율.
   static const double textScaleMax = 1.3;
@@ -286,7 +317,10 @@ class BandTable extends StatelessWidget {
   Widget _bandRow(BuildContext context, BandKind kind, int bandIndex) => _row([
     for (final (index, column) in columns.indexed)
       Padding(
-        padding: const EdgeInsets.only(top: Space.s8, bottom: Space.s12),
+        padding: const EdgeInsets.only(
+          top: cellPaddingTop,
+          bottom: cellPaddingBottom,
+        ),
         child: Align(
           alignment: Alignment.topCenter,
           child: _Cell(
@@ -371,11 +405,23 @@ class _Cell extends StatelessWidget {
         role: SemanticsRole.cell,
         label: [...prefix, table.emptyLabel].join(', '),
         child: ExcludeSemantics(
+          // 칸 위 space.8(칸 여백) 아래 그 띠 한 줄 높이 상자의 세로 가운데에 선을 둡니다.
           child: SizedBox(
-            key: BandTable.emptyLineKey,
-            width: BandTable.emptyLineWidth,
-            height: BandTable.emptyLineHeight,
-            child: ColoredBox(color: context.tokens.colors.textSecondary),
+            key: BandTable.emptyBoxKey,
+            height: BandTable.emptyBoxHeightOf(
+              kind,
+              context.tokens.typography.captionMd,
+              MediaQuery.textScalerOf(context),
+            ),
+            child: Center(
+              widthFactor: 1,
+              child: SizedBox(
+                key: BandTable.emptyLineKey,
+                width: BandTable.emptyLineWidth,
+                height: BandTable.emptyLineHeight,
+                child: ColoredBox(color: context.tokens.colors.textSecondary),
+              ),
+            ),
           ),
         ),
       );
