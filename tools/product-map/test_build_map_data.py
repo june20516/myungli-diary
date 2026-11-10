@@ -114,6 +114,21 @@ class RepoTests(unittest.TestCase):
         with contextlib.redirect_stderr(io.StringIO()):
             self.assertIsNone(build_map_data.collect_e2e(self.root))
 
+    def test_collect_rules_map_passes_core_data(self) -> None:
+        data = {key: [] for key in build_map_data.RULES_MAP_KEYS}
+        data["meta"] = {"title": "지도"}
+        data["extra"] = "버림"
+        write(self.root, build_map_data.RULES_MAP_PATH, json.dumps(data, ensure_ascii=False))
+        rules = build_map_data.collect_rules_map(self.root)
+        self.assertEqual(rules["meta"], {"title": "지도"})
+        self.assertNotIn("extra", rules)
+
+    def test_collect_rules_map_without_file_or_with_bad_file_is_none(self) -> None:
+        self.assertIsNone(build_map_data.collect_rules_map(self.root))
+        write(self.root, build_map_data.RULES_MAP_PATH, json.dumps({"meta": {}}))
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertIsNone(build_map_data.collect_rules_map(self.root))
+
     def test_collect_issues_without_gh_returns_empty(self) -> None:
         with mock.patch.dict(os.environ, {"PATH": ""}):
             self.assertIsNone(build_map_data.collect_issues(self.root))

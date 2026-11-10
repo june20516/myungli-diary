@@ -27,6 +27,8 @@ IA_PATH = "docs/ia/screens.json"
 # app E2E가 IA 경로·상태·결정을 얼마나 덮는지 내는 보고서입니다(app 결정 A13, #87).
 E2E_COVERAGE_PATH = "app/docs/artifacts/e2e-coverage.json"
 E2E_KINDS = ("exits", "states", "decisions")
+RULES_MAP_PATH = "core/rules_map.json"
+RULES_MAP_KEYS = ("meta", "framework", "groups", "items", "background", "inconsistencies")
 # 아이디어 함은 비공개 내부 저장소(myungli-diary-internal)의 ideas.md에 있습니다(D74). 지휘가 로컬에서 세 번째 인자로 넘깁니다.
 # 표 파싱 규칙은 tools/docs-check/docs_check.py와 같습니다. 바꾸면 그쪽도 바꿉니다.
 IDEAS_PATH = "docs/ideas.md"
@@ -196,6 +198,22 @@ def collect_e2e(root: Path) -> dict[str, object] | None:
     }
 
 
+def collect_rules_map(root: Path) -> dict[str, object] | None:
+    """core 계산 규칙 지도(#988)를 그대로 넘깁니다. 없거나 형식이 틀리면 None이고 탭은 안내만 보입니다."""
+    path = root / RULES_MAP_PATH
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        print(f"건너뜀: {RULES_MAP_PATH} JSON 형식 오류", file=sys.stderr)
+        return None
+    if not isinstance(data, dict) or any(key not in data for key in RULES_MAP_KEYS):
+        print(f"건너뜀: {RULES_MAP_PATH}에 {', '.join(RULES_MAP_KEYS)} 중 빠진 것이 있음", file=sys.stderr)
+        return None
+    return {key: data[key] for key in RULES_MAP_KEYS}
+
+
 def collect_issues(root: Path) -> list[dict[str, object]] | None:
     """열린 Issue 목록. gh가 없거나 실패하면 None(0건과 구분)."""
     command = ["gh", "issue", "list", "--state", "open", "--limit", "200",
@@ -345,6 +363,7 @@ def build(root: Path, internal: Path | None = None) -> dict[str, object]:
         "idea_reviews": idea_reviews,
         "artifacts": collect_artifacts(root) + (collect_artifacts(internal, private=True) if internal else []),
         "e2e": collect_e2e(root),
+        "rules_map": collect_rules_map(root),
         "decisions": decisions,
         "issues": issues or [],
         "issues_available": issues is not None,
