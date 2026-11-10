@@ -1017,5 +1017,25 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 예시 일정은 하루 종일 하나, 시각 일정 둘(제목 두 줄 하나), 메모 둘(REST Schedule.memo). 사용자 답(2026-11-10): Q1 ② 시각 굵게 + 메모(V107), Q2 카드 전체를 눌러 펼침(안내 줄 따로 누르는 안 대신, 내역 태그는 V61 안쪽 우선, V108), Q3 날짜와 음력 두 줄의 가운데(V109). 같은 때 시트 내용 세로 스크롤 규칙을 명세에 분명히 적음(app은 이미 SingleChildScrollView)"
+  },
+  {
+    "id": "design-sheet-stack-questions",
+    "title": "시트 겹침 표시 관문 질문(#958): 뒤 화면 축소 대신 아래 시트 머리 보임, 위 시트 머리 뒤로와 이름, 아래 층만 어둡게, 둘 함께",
+    "kind": "concept",
+    "file": "2026-11-10-sheet-stack-questions.html",
+    "source": "2026-11-10-sheet-stack-questions.html",
+    "date": "2026-11-10",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "day-sheet",
+      "evidence-sheet",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "V110"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 안마다 두 장면(짧은 아래 시트 위 근거 시트, 그날 시트 위 뜻 시트). 사용자 답(2026-11-10): A 아래 시트 머리 보임(V110)"
   }
 ]

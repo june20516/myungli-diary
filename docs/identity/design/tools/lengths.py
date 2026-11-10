@@ -276,6 +276,15 @@ TARGETS = (
            "ui-400", 13, -0.26, CONTENT_WIDTH, 3, True, None),
     Target(("contact.address.note",), "contact 주소 안내 문장 (본문 폭, 두 줄. 다음 줄 주소 {email}은 E14 고정값이라 뺌)",
            "ui-400", 13, -0.26, CONTENT_WIDTH, 2, True, None),
+    # 검수 회차2 #932 그날 시트 새 슬롯 (#946, 결정 V107, V108)
+    Target(("day-sheet.event.all-day",), "event-row list 시각 칸 종일 꼬리표 tag.status (칸 58 − 간격 8, 좌우 8)",
+           "ui-500", 13, -0.26, 58 - 8 - 2 * 8, 1, False, None),
+    Target(("day-sheet.verdict.expand", "day-sheet.verdict.collapse"),
+           "fortune-verdict 안내 줄 (카드 안쪽 16, 꺾쇠 16 + 간격 4, 가운데)",
+           "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH - 2 * 16 - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
+    # D118 열림 꼬리표 (#950, 결정 V112). 제목과 한 줄에 안 들어가면 제목 아래로 내려 혼자 한 줄
+    Target(("evidence-sheet.unlock.until",), "evidence-sheet 열림 꼬리표 (제목 아래 혼자 한 줄, 좌우 8, 시계 16 + 간격 4)",
+           "ui-500", 12, -0.24, SHEET_CONTENT_WIDTH - 2 * 8 - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)

@@ -1,6 +1,6 @@
 # 명리일기 디자인 토큰
 
-계약 버전: 1.6.0
+계약 버전: 1.7.0
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42·V57·V58·V67·V74·V84·V86·V93·V102([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), [DS1 규칙 spec](../specs/2026-11-05-ds1-rules-design.md) §8(1.3.0), [DS1 화면 spec](../specs/2026-11-05-ds1-screens-design.md) §3(1.4.0), 결정 V98(1.5.0, 오행 금과 수), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
@@ -88,6 +88,7 @@
 | 1.4.0 | 2026-11-05 | 추가(색 두 파일만): `color.calendar.level.great`·`good`·`caution`(달력 4단계, 라이트는 아주 잘 풀리는 날과 잘 풀리는 날 모두 맑은 coral이고 아주 잘 풀리는 날이 더 진함(관문 답 2026-11-07, #801), 다크는 명도 같고 채도로 구분, 조심할 날은 회색으로 명도를 낮춤), `color.fill.soft`(흰 표면 위 옅은 채움, 확인 창 취소 등. V65 버그), `color.verdict.track`(길흉판정 위치 막대 그라데이션, 조심할 날에서 아주 잘 풀리는 날로). `color.highlight.bg`(현재 강조 바탕, 라이트 `neutral.50` 다크 `neutral.950`, 회색이라 sage 꼬리표와 용어 칩이 묻히지 않음. 카드 위에서만, 관문 Q4 ③ 2026-11-07, V93). 기존 `color.calendar.good.bg`·`caution.bg`는 그대로 (DS1, #801) |
 | 1.5.0 | 2026-11-09 | 값 바뀜: 금 `color.ohaeng.metal.swatch`·`bg`·`fg`(흰색, 회색 글자), 수 `color.ohaeng.water.swatch`·`bg`·`fg`(먹색, 반전 칸: 진한 바탕에 밝은 글자). 다크도 금은 가장 밝은 칸, 수는 가장 어두운 칸(관문 Q1 ① 먹남, Q2 A). 추가(색 두 파일만): `color.ohaeng.metal.border`·`water.border`(칸 1px 안쪽 테두리), `color.ohaeng.<오행>.glyph` 다섯(간지 태그 흰 원 안 한자색, V78 규칙). 목, 화, 토와 요일 머리(일, 토)는 그대로 (D114, #892, V98) |
 | 1.6.0 | 2026-11-10 | 추가(색 두 파일만): `color.invite.fg`(권유 글자, 라이트 `{color.sage.600}`, 다크 `{color.sage.400}`). 일기 쓰기에서 질문을 뗀 자리의 "무엇을 쓸지 고민인가요?"와 말풍선 아이콘(#929, D116, 결정 V102). 종이(`bg.sheet`) 위 글자 대비 4.5 이상인 가장 옅은 sage(라이트 4.53:1, 다크 6.28:1). 추가만이라 부 버전 |
+| 1.7.0 | 2026-11-10 | 추가(색 두 파일만): `gradient.unlocked`(열린 근거 표시, 90°, 라이트 `sage.700` #47634c → 금빛 #8b640f → `coral.600` #a75c53, 다크 `sage.400` #96b49b → 금빛 #e1b66c → `coral.400` #d79990, #950, D118, 결정 V111). 반짝임 띠, 동작 줄이기 때 구역 제목 글자와 왼쪽 선, 열린 날 근거 아이콘, 열림 꼬리표 테두리에 씁니다. 구역 제목 글자로도 쓰여 멈춤 색마다 `bg.base`, `bg.sheet` 위 글자 대비 4.5:1 이상(시안 가안 금빛과 산호는 3.0~3.4:1이라 명도를 낮춤). 기존 토큰은 그대로 |
 
 주 버전 변경은 `docs/workflow.md` §5.1을 따릅니다. 순서는 `kind:notice` Issue로 공지 → 버전 올림 → app 대응 보고 뒤 이전 이름 제거입니다.
 

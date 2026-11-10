@@ -144,6 +144,7 @@
   --color-ohaeng-water-glyph: var(--color-ohaeng-water-bg);
   --color-verdict-track: #d4d4d3 0%, #ffd2ca 100%;
   --gradient-today: #eef4ef 0%, #fbefee 100%;
+  --gradient-unlocked: #47634c 0%, #8b640f 50%, #a75c53 100%;
   --font-family-sentence: "Gowun Dodum", "Pretendard", sans-serif;
   --font-family-ui: "Pretendard", sans-serif;
   --font-family-hanja: "Pretendard JP", sans-serif;
@@ -289,6 +290,7 @@
   --color-ohaeng-water-glyph: var(--color-ohaeng-water-fg);
   --color-verdict-track: #2a2a29 0%, #582720 100%;
   --gradient-today: #162017 0%, #271818 100%;
+  --gradient-unlocked: #96b49b 0%, #e1b66c 50%, #d79990 100%;
 }
 
 :lang(ja) {

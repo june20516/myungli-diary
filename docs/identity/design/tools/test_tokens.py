@@ -130,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.6.0" in readme
+    assert "계약 버전: 1.7.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -239,7 +239,7 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
                 continue
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        expected = TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR
+        expected = TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED
         assert added == (set() if current.startswith("primitive") else expected), current
     for mode, cell in (("light", "tint"), ("dark", "tint_dark")):
         tokens = flatten(files[f"color.{mode}.tokens.json"])
@@ -260,6 +260,33 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
         assert dark[f"color.ohaeng.{element}.glyph"]["$value"] == "{color.ohaeng." + element + ".fg}"
 
 
+# 1.7.0 (#950, D118, 결정 V111): 열린 근거 표시 그라데이션 gradient.unlocked 추가만
+TOKENS_1_7_0_ADDED = {"gradient.unlocked"}
+
+
+def test_tokens_1_7_0_adds_only_unlocked_gradient():
+    from palette import build_palette
+    files = build_token_files()
+    palette = build_palette()
+    for current, frozen in [("primitive.tokens.json", "primitive-1.6.0.tokens.json")] + [
+            (f"color.{mode}.tokens.json", f"color.{mode}-1.6.0.tokens.json") for mode in ("light", "dark")]:
+        before, after = _frozen(frozen), flatten(files[current])
+        for name, token in before.items():
+            assert after.get(name) == token, (current, name)
+        added = after.keys() - before.keys()
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_7_0_ADDED), current
+    for mode in ("light", "dark"):
+        token = flatten(files[f"color.{mode}.tokens.json"])["gradient.unlocked"]
+        assert token["$type"] == "gradient"
+        assert [stop["color"]["hex"] for stop in token["$value"]] == palette["unlocked"][mode]
+        assert [stop["position"] for stop in token["$value"]] == [0.0, 0.5, 1.0]
+        assert token["$extensions"] == {"io.github.june20516.myungli-diary": {"angle": 90}}
+    brand = palette["brand"]
+    # 세이지와 산호 끝은 브랜드 단계, 가운데만 금빛
+    assert palette["unlocked"]["light"][0] == brand["sage"][700] and palette["unlocked"]["light"][2] == brand["coral"][600]
+    assert palette["unlocked"]["dark"][0] == brand["sage"][400] and palette["unlocked"]["dark"][2] == brand["coral"][400]
+
+
 # 1.6.0 (#929, D116, 결정 V102): 권유 글자 color.invite.fg(라이트 sage 600, 다크 sage 400) 추가만
 TOKENS_1_6_0_ADDED_COLOR = {"color.invite.fg"}
 
@@ -272,7 +299,7 @@ def test_tokens_1_6_0_adds_only_invite_fg():
         for name, token in before.items():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR), current
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED), current
     light, dark = (flatten(files[f"color.{mode}.tokens.json"]) for mode in ("light", "dark"))
     assert light["color.invite.fg"]["$value"] == "{color.sage.600}"
     assert dark["color.invite.fg"]["$value"] == "{color.sage.400}"
@@ -314,7 +341,7 @@ def test_tokens_1_4_0_additions_only():
                 continue
             assert after.get(name) == token, (mode, name)
         assert set(after.keys() - before.keys()) == (
-            TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR), mode
+            TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED), mode
         # 기존 calendar.good.bg, calendar.caution.bg는 그대로(위 반복이 값까지 검사)
         assert "color.calendar.good.bg" in before and "color.calendar.caution.bg" in before
 

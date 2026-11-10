@@ -1,5 +1,5 @@
 {
-  "version": "6.2.0",
+  "version": "6.3.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
@@ -163,10 +163,34 @@
       "duration": "{motion.duration.long}",
       "easing": "{motion.easing.enter}",
       "incoming": "sheet.enter",
-      "screenBelow": { "scale": 0.92, "brightness": 0.9 },
-      "sheetBelow": { "translateY": { "value": -30, "unit": "px" }, "scale": 0.94, "brightness": 0.95 },
-      "properties": ["transform", "brightness-overlay"],
+      "screenBelow": { "scale": 1, "brightness": 1, "note": "뒤 앱 화면은 크기와 밝기가 그대로이고 덮개(sheet.enter scrim)만 있음(결정 V110, V17 개정)" },
+      "sheetBelow": { "translateY": "peek", "scale": 1, "brightness": 0.92 },
+      "peek": {
+        "height": { "value": 14, "unit": "px" },
+        "rule": "아래 시트 윗변이 위 시트 윗변보다 14px 위에 오게 아래 시트를 올림(이동만). 아래 시트가 원래 그보다 위에 있으면 움직이지 않고 어두워지기만 함",
+        "shows": "아래 시트의 둥근 윗변과 핸들",
+        "whenNoRoom": "아래 시트가 올라갈 자리가 없으면(윗변이 위쪽 안전 영역 + 12에 닿음) 위 시트 높이를 줄여 14px를 남김",
+        "tap": "보이는 머리 띠는 바깥이라 누르면 맨 위 시트 하나만 닫힘(V100)"
+      },
+      "properties": ["translateY", "brightness-overlay"],
       "reduceMotion": "opacity-only",
+      "lowEnd": "same"
+    },
+    "unlock.glint": {
+      "summary": "열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(D118 ②, 결정 V112)",
+      "duration": "{motion.duration.breathe}",
+      "easing": "{motion.easing.standard}",
+      "interval": { "value": 15000, "unit": "ms" },
+      "first": "열린 내용이 appear.seep으로 다 나타난 직후 한 번, 그 뒤 앞 반짝임 시작에서 15초마다",
+      "band": { "fill": "{gradient.unlocked}", "width": "글자 상자 너비의 30%", "angle": 100, "path": "글자 상자 왼쪽 밖에서 오른쪽 밖으로", "edge": "띠 양 끝은 글자 기본색으로 부드럽게 이어짐" },
+      "base": "글자 기본색(그 자리 fg)은 그대로이고 띠는 글자 모양 안에만 칠함(text mask)",
+      "together": "한 시트 안 대상 글자 모두 같은 때에 지나감",
+      "pauseWhen": ["앱이 배경으로 감", "시트가 위 시트에 덮임(sheet.stack 아래 층)", "대상이 화면 밖으로 스크롤됨"],
+      "stopWhen": "시트가 닫히거나 권한이 끝나 다음에 연 시트가 locked",
+      "properties": ["text-fill"],
+      "reduceMotion": "instant",
+      "reduceMotionAlternative": { "element": "unlock.mark", "note": "동작 줄이기면 빛 대신 구역 제목 그라데이션 글자와 왼쪽 가는 선(D118 ②)" },
+      "a11y": "읽지 않음. 장식",
       "lowEnd": "same"
     },
     "focus.ring": {

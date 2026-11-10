@@ -31,6 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-10, design 세션 작성)
+* **시트 겹침 표시와 열린 근거 표시** (브랜치 `design/review2-extend`, #958, #950, D118, 결정 V110~V113, 컴포넌트 부 버전과 토큰 부 버전은 계약 목록, 관문 시안 `artifacts/2026-11-10-sheet-stack-questions.html`): #958 겹친 시트는 뒤 앱 화면 크기 변화를 빼고 아래 시트 둥근 윗변과 핸들을 위 시트 위로 14px 보임(`sheet.stack` `peek`, 관문 A, V110, V17 개정). #950 새 토큰 `gradient.unlocked`(세이지, 금빛, 산호, 멈춤 색마다 글자 대비 4.5:1, V111, V5 개정), 새 패턴 `unlock.glint`(열린 구역 제목과 본문, 용신 판정 근거에 1800ms 띠, 15초마다)와 동작 줄이기 대체 요소 `unlock.mark`, 근거 시트 열림 꼬리표 `unlockTag`, 열린 날 근거 아이콘 그라데이션(V112, V63 개정), 원전 뜻, 원문, 출처 순(V113). 글자 수 상한에 `evidence-sheet.unlock.until`과 #946 그날 시트 슬롯 셋을 더함. 1.6.0 토큰을 `tools/fixtures/*-1.6.0`으로 얼림. 같은 결정의 writing #951, server #952, app #953은 지휘가 보냄.
 * **검수 회차2 묶음** (브랜치 `design/review2-batch`, 결정 V100~V109, 컴포넌트 부 버전과 토큰 부 버전은 계약 목록, 관문 시안 `artifacts/2026-11-10-review2-batch-questions.html`, `2026-11-10-day-sheet-questions.html`): 규칙만 고친 셋은 #920 겹친 시트 바깥 누르기 한 단계(V100, V17 개정), #917 `band-table` 빈 칸 선을 띠 한 줄 높이 상자 가운데에(V101), #918 ① 두 버튼 높이는 명세상 모두 52(app 확인 몫). 관문으로 정한 넷과 하나: #929 질문 떼기 `x`와 뗀 자리 권유 글자 + 말풍선, 붙은 질문 세로선 `action.primary`, 새 토큰 `color.invite.fg`(V102), #934 일기 줄 사주 기운 태그 모두 한 줄 가로 밀기와 끝 흐림(V103, 데이터는 server #933), #900 새 패턴 `tab.switch` 겹쳐 투명도만 200ms(V104), #923 오류 아이콘 `warning-circle`(V105), #918 ② 아래 버튼은 시스템 inset 위 16과 `input-step` `secondaryAction`(V106). #932 그날 시트: 일정 줄 시각 굵게, 종일 꼬리표, 메모 한 줄(V107), 길흉판정 카드 전체 눌러 내역 펼침(V108), 날의 성격 태그 날짜 머리 오른쪽 두 줄 가운데와 시트 내용 세로 스크롤 규칙(V109). 새 IA 슬롯 셋은 #946에서 IA에 들어감(PR #947). drift #941(#938 IA 보충의 `diary-edit.guide.remove`, `attach`)은 #942에서 슬롯 이름을 적었고 여기서 모양까지 정함.
 * **오행 금 흰색, 수 먹색 #892** (브랜치 `design/ohaeng-gold-water-892`, D114, 검수 회차2 F-032, 결정 V98, 토큰 부 버전과 컴포넌트 부 버전은 계약 목록): `palette.py` `OHAENG_FIXED`가 금과 수의 모든 값을 정함(라이트 수는 관문 Q1 ① 먹남, 다크도 금이 가장 밝고 수가 가장 어두운 칸 Q2 A). 새 토큰 `color.ohaeng.metal.border`, `water.border`(칸이 화면 바탕과 가까운 모드에서만 보이는 테두리, 그 밖은 칸 바탕 별칭)와 `color.ohaeng.<오행>.glyph`(간지 태그 흰 원 안 한자색, V78 규칙). 명세: `ohaeng.cell` `border`(지장간 칩도 따름), `hanja-tag` `ganji` `pill.border`와 `glyph.fg`, `ohaeng-bar` `bar.segmentBorder`. 1.4.0 토큰을 `tools/fixtures/*-1.4.0`으로 얼려 1.5.0 변경을 검사. 관문 페이지 `artifacts/2026-11-09-ohaeng-gold-water-questions.html`. writing #893(행운 색 이름 수 남색을 검정으로)은 따로 진행.
 * **앱 아이콘 래스터 원본 #908** (브랜치 `design/app-icon-raster-908`, 결정 V99, V7 개정, 컴포넌트 수 버전은 계약 목록): 사용자 제작 그림에서 떼어 낸 책 그림 둘(`logo/source/` 질감판, 평면판 2048 알파)로 `tools/app_icon.py`가 1024 PNG 마스터 넷(`icon-large`, `icon-small` 낙관 1.45배, `icon-android-foreground` 투명, `icon-android-background`)과 공유 이미지 가로 조합 `lockup.png`, `lockup-dark.png`(높이 288)를 만들고 `logo/app-icon.json`에 sha256과 Android 전경 안전 영역 측정값을 적음. `test_logo.py`가 표준 라이브러리로 대조하고 안전 영역은 PNG 픽셀로 다시 잼(CI 의존성 그대로). `share-image` `logo.asset`은 `logo/lockup.png`. 옛 도형판 SVG는 app #909 전환까지 남김. 관문 페이지 `artifacts/2026-11-09-app-icon-questions.html`(Q1 ②, Q2 ②).
@@ -140,13 +141,12 @@
   2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
 
 ## 다음 할 일
-1. **#958 시트 겹침 표시 관문(V17 개정):** 겹친 시트 때 뒤 화면 축소를 빼고 겹쳐 있음을 알리는 다른 방법을 안별 비교 페이지로 내고 사용자가 고르게 합니다.
-2. **#950 열린 근거 표시(D118):** 세이지에서 금빛 그라데이션 토큰(V5 개정), 열린 글자 반짝임 패턴과 모션 줄이기 대체, 근거 시트 열림 꼬리표(`evidence-sheet.unlock.until`), 열린 날 근거 아이콘(V63), 원전 배치(뜻, 원문, 출처). 이 PR에서 `event-row` `allDay`, `fortune-verdict` `toggle`에 남은 "IA 요청 #946" 문구도 지웁니다.
-3. **#908 마무리:** #942가 병합되어 app #909가 래스터 원본(`logo/*.png`)과 공유 이미지 `lockup.png`로 옮깁니다. app이 옮긴 뒤 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`)와 그 검사(`test_logo.py` SVG 절, `logo_sheet.py`, `wordmark.py` 가로 조합)를 지우고, 낙관 도장 경로(V16) 대조를 컴포넌트 명세 값 기준으로 바꿉니다.
-4. **2단계 후속:** app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지(#851) 봅니다.
-5. **#763 마무리:** writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다.
+1. **회차2 덧붙임 마무리:** PR(`Closes #958 #950`)이 병합되면 app은 컴포넌트, 토큰 drift와 #953으로 따라잡습니다. writing #951이 열림 꼬리표 문구를 쓰면 상한(27, 22, 49) 안인지 봅니다.
+2. **#908 마무리:** #942가 병합되어 app #909가 래스터 원본(`logo/*.png`)과 공유 이미지 `lockup.png`로 옮깁니다. app이 옮긴 뒤 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`)와 그 검사(`test_logo.py` SVG 절, `logo_sheet.py`, `wordmark.py` 가로 조합)를 지우고, 낙관 도장 경로(V16) 대조를 컴포넌트 명세 값 기준으로 바꿉니다.
+3. **2단계 후속:** app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지(#851) 봅니다.
+4. **#763 마무리:** writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
-6. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
-7. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
-8. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+5. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다. notice는 #82입니다.
+6. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
+7. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
