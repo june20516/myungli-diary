@@ -555,6 +555,8 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
+# 그날 시트 하루 종일 꼬리표 (V107). IA 새 슬롯 요청 #946 대기
+SLOTS_OUTSIDE_IA |= {"day-sheet.event.all-day"}
 
 
 def _slot_values(node):
@@ -1892,7 +1894,10 @@ def test_date_header():
     assert iljin["slot"] == "today.date.iljin" and iljin["fontFallback"] == "{font.family.hanja}"
     variants = {variant["id"]: variant["parts"] for variant in header["variants"]}
     assert set(variants) == {"today", "day-sheet"}
-    assert variants["day-sheet"] == {"iljin": {"visible": False}}  # 그날 시트는 일진 없이
+    assert variants["day-sheet"]["iljin"] == {"visible": False}  # 그날 시트는 일진 없이
+    trailing = variants["day-sheet"]["trailing"]  # V109: 날의 성격은 날짜 머리 오른쪽, 두 줄 묶음 가운데
+    assert (trailing["component"], trailing["variant"], trailing["slot"]) == ("hanja-tag", "emphasis", "day-sheet.character.label")
+    assert "두 줄 묶음의 세로 가운데" in trailing["verticalAlign"] and "아래" in trailing["overflow"]
     assert [bone["bone"] for bone in header["states"]["loading"]["skeleton"]] == ["meta"]
     assert header["a11y"]["role"] == "header" and header["a11y"]["readsHanja"] is False
     # 음력과 일진이 모두 없으면 줄과 위 여백을 그리지 않음 (리뷰 Minor 5)
@@ -2307,10 +2312,11 @@ def test_fortune_verdict():
     assert rows["divider"] == {"element": "list.divider"} and "#806" in rows["source"]
     assert any("요약 문장" in rule and "두지 않는다" in rule for rule in verdict["rules"])  # 리뷰 Minor 1
     # 리뷰 Minor 5: 내역 0개인 날은 noBreakdown과 같은 모양
-    assert verdict["states"]["noItems"]["parts"] == {"rows": {"visible": False}} and "noBreakdown" in verdict["states"]["noItems"]["note"]
+    hidden = {"rows": {"visible": False}, "toggle": {"visible": False}}  # V108: 내역이 없으면 안내 줄도 없음
+    assert verdict["states"]["noItems"]["parts"] == hidden and "noBreakdown" in verdict["states"]["noItems"]["note"]
     assert "움직이지 않" in verdict["motion"]["marker"]
-    assert [bone["bone"] for bone in verdict["states"]["loading"]["skeleton"]] == ["track", "rows"]
-    assert verdict["states"]["noBreakdown"]["parts"] == {"rows": {"visible": False}}
+    assert [bone["bone"] for bone in verdict["states"]["loading"]["skeleton"]] == ["track"]  # V108: 처음엔 접힘
+    assert verdict["states"]["noBreakdown"]["parts"] == hidden and verdict["states"]["noBreakdown"]["pressable"] is False
     assert verdict["a11y"]["role"] == "group" and verdict["a11y"]["readsScore"] is False
     assert "fortune-verdict" not in components.IA_PENDING_COMPONENTS and "fortune-verdict" in CONTENT_COMPONENTS
 
@@ -2982,3 +2988,33 @@ def test_v106_bottom_buttons_sit_16_above_system_inset():
     assert any("V106" in rule for rule in component("action", "primary-button")["rules"])
     assert "secondaryAction 아래" in step["bottomAction"]["paddingBottomAppliesTo"]
     assert secondary["paddingX"] == step["bottomAction"]["paddingX"] == "{space.20}"
+
+
+# #932 그날 시트 (결정 V107~V109)
+def test_v107_event_row_list_bold_time_all_day_tag_and_memo():
+    parts = next(v for v in component("calendar", "event-row")["variants"] if v["id"] == "list")["parts"]
+    assert parts["timeColumn"]["fg"] == "{color.text.primary}" and parts["timeColumn"]["fontWeight"] == 700
+    assert parts["allDay"]["element"] == "tag.status" and parts["allDay"]["slot"] == "day-sheet.event.all-day"
+    memo = parts["memo"]
+    assert (memo["source"], memo["maxLines"], memo["whenEmpty"], memo["fg"]) == (
+        "Schedule.memo", 1, "hide", "{color.text.secondary}")
+    assert parts["row"]["align"] == "first-line" and parts["row"]["paddingY"] == "{space.12}"
+
+
+def test_v108_fortune_verdict_collapses_and_whole_card_toggles():
+    verdict = component("calendar", "fortune-verdict")
+    assert verdict["states"]["collapsed"]["initial"] is True
+    assert verdict["states"]["collapsed"]["parts"]["rows"] == {"visible": False}
+    assert verdict["states"]["expanded"]["parts"]["rows"] == {"visible": True}
+    press = verdict["parts"]["card"]["pressable"]
+    assert press["target"] == "카드 전체" and "V61" in press["innerWins"] and press["pattern"] == "press.ink"
+    toggle = verdict["parts"]["toggle"]
+    assert toggle["minHeight"] == 44 and toggle["icon"]["collapsed"] == "caret-down" and toggle["icon"]["expanded"] == "caret-up"
+    assert "#946" in toggle["label"]["collapsed"] and "#946" in toggle["label"]["expanded"]
+    assert {"press.ink", "appear.seep", "disappear.seep"} <= set(verdict["uses"])
+
+
+def test_v109_sheet_content_scrolls_when_taller_than_sheet():
+    rules = component("frame", "sheet")["rules"]
+    assert any("세로로 스크롤" in rule and "핸들 자리" in rule for rule in rules)
+    assert "세로로 스크롤" in (COMPONENTS_DIR / "frame.md").read_text(encoding="utf-8")

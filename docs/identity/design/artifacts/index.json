@@ -998,5 +998,24 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 탭 전환은 Web Animations로 실제 길이와 곡선, 탭 도장 seal.stamp, seal.erase 값. 사용자 답(2026-11-10): Q1 첫 판에 사용자 의견(뗀 자리 \"무엇을 쓸지 고민인가요?\" + 말풍선, 권유 톤 옅은 색, 세로선으로 상태 구분)을 받아 다시 그려 물음, A 진한 선/선 없음, 떼기 x(V102). Q2 ① 끝 흐림(V103), Q3 ③ 겹쳐 바뀜 200ms(V104), Q4 ② warning-circle(V105), Q5 ② inset + 16(V106). Q4와 Q5를 한 질문으로 묶어 물은 것은 사용자 지적으로 따로 묻기로 함"
+  },
+  {
+    "id": "design-day-sheet-questions",
+    "title": "그날 시트 관문 질문(#932): 일정 블록 다섯 안(지금, 시각 굵게 + 메모, 카드 묶음 + 시각 칩, 시간 흐름 줄, 일정마다 카드), 길흉 상세 접기, 날의 성격 태그 날짜 줄 오른쪽",
+    "kind": "concept",
+    "file": "2026-11-10-day-sheet-questions.html",
+    "source": "2026-11-10-day-sheet-questions.html",
+    "date": "2026-11-10",
+    "milestone": "DS1",
+    "screens": [
+      "day-sheet"
+    ],
+    "decisions": [
+      "V107",
+      "V108",
+      "V109"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 예시 일정은 하루 종일 하나, 시각 일정 둘(제목 두 줄 하나), 메모 둘(REST Schedule.memo). 사용자 답(2026-11-10): Q1 ② 시각 굵게 + 메모(V107), Q2 카드 전체를 눌러 펼침(안내 줄 따로 누르는 안 대신, 내역 태그는 V61 안쪽 우선, V108), Q3 날짜와 음력 두 줄의 가운데(V109). 같은 때 시트 내용 세로 스크롤 규칙을 명세에 분명히 적음(app은 이미 SingleChildScrollView)"
   }
 ]
