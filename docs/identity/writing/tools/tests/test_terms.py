@@ -60,7 +60,7 @@ def test_term_ids_count() -> None:
     message_keys = json.loads(MESSAGE_KEYS_FILE.read_text(encoding="utf-8"))
     tags = [key for key in message_keys if key.startswith("tag.")]
     ids = term_ids(tags)
-    assert len(ids) == 79
+    assert len(ids) == 91
     assert "ten_god.pyeongwan" in ids and "tag.dohwa" in ids and "role.yongsin" in ids
     assert not any(term.startswith(("color.", "direction8.", "place.")) for term in ids)
 

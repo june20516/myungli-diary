@@ -18,7 +18,7 @@
   purpose: info
   user_state: 문장 안에 들어간 값(색, 방향, 십성 이름)을 읽습니다.
   structure: >-
-    값 이름 하나. 색은 일상에서 쓰는 색 이름(남색, 초록), 방향은 동·서·남·북과 북동 같은 8방위, 명리 용어는 한글 이름을 씁니다.
+    값 이름 하나. 색은 일상에서 쓰는 색 이름(검정, 초록), 방향은 동·서·남·북과 북동 같은 8방위, 명리 용어는 한글 이름을 씁니다.
     개인 해석 조각(W16)은 문장 안에 끼워 읽히는 명사구로 씁니다. place는 "태어난 달의 천간"처럼 자리를 풀어 쓰고,
     role은 "나와 잘 맞는 기운"처럼 역할을(R10-8), strength·luck·part는 "힘이 센 편"·"대운"·"천간"처럼 씁니다.
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
@@ -136,7 +136,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: color.water, text: "남색", why: "일상 색 이름", source: writing}
+      - {lang: ko, key: color.water, text: "검정", why: "일상 색 이름(D114 오방색 水黑)", source: writing}
       - {lang: ko, key: ten_god_group.inseong, text: "인성", why: "명리 용어는 한글 이름", source: writing}
     bad:
       - {lang: ko, key: color.water, text: "수(水) 계열 블루", why: "괄호 병기, 외래어 섞음", source: writing}

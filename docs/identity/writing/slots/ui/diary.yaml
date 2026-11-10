@@ -245,3 +245,41 @@
   a11y:
     truncation: "가장 넓은 en \"9,999 chars\"가 64px 자리에 들어갑니다(design 5.0.0)."
     screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: diary-edit.guide.remove
+  where: "일기 쓰기 가이드 질문 옆 떼기 버튼(x 아이콘)의 스크린리더 이름(D116, #928). 떼면 이 편에는 질문이 붙지 않습니다"
+  purpose: guide
+  user_state: "오늘은 질문 없이 쓰고 싶습니다."
+  structure: "동사구 하나. 떼고 나서 어떻게 쓰는지를 말합니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - diaryEditGuideRemove
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryEditGuideRemove, text: "질문 없이 쓰기", why: "누른 뒤의 상태를 말함(사용자 문구)", source: round-R36-2}
+    bad:
+      - {lang: ko, key: diaryEditGuideRemove, text: "닫기", why: "질문만 닫는지 화면을 닫는지 알 수 없음", source: writing}
+  a11y:
+    truncation: "화면에 글자가 없는 스크린리더 이름입니다."
+    screen_reader: "버튼 이름으로 읽습니다."
+
+- id: diary-edit.guide.attach
+  where: "가이드 질문을 뗀 뒤 그 자리에 남는 링크(D116, #928). 누르면 그날 기본 질문이 붙습니다"
+  purpose: guide
+  user_state: "질문을 뗐다가 다시 쓰고 싶어졌습니다."
+  structure: "동사구 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - diaryEditGuideAttach
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: diaryEditGuideAttach, text: "질문 추가", why: "짧은 동작 이름(사용자 문구)", source: round-R36-2}
+    bad:
+      - {lang: ko, key: diaryEditGuideAttach, text: "질문이 필요하신가요?", why: "되묻는 권유, 링크 이름이 아님", source: writing}
+  a11y:
+    truncation: "한 줄에 들어갑니다."
+    screen_reader: "링크 이름으로 읽습니다."

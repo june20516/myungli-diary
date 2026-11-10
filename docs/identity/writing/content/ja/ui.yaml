@@ -486,3 +486,18 @@
 - {slot: notify-ask.time.note, key: notifyAskTimeNote, text: "状況により、通知が最大10分遅れることがあります。"}
 - {slot: settings.notify-time.note, key: settingsNotifyTimeNote, text: "状況により、通知が最大10分遅れることがあります。"}
 - {slot: ui.birth-info.row, key: birthInfoHour, text: "{branch}の刻"}
+- {slot: preview.used.input, key: previewUsedInputName, text: "呼び名"}
+- {slot: preview.used.input, key: previewUsedInputBirth, text: "誕生日"}
+- {slot: preview.used.input, key: previewUsedInputTime, text: "生まれた時刻"}
+- {slot: preview.used.input, key: previewUsedInputGender, text: "性別"}
+- {slot: preview.used.input, key: previewUsedInputBirthplace, text: "出生地"}
+- {slot: preview.used.input, key: previewUsedInputBirthValue, text: "{calendar} {date}"}
+- {slot: preview.used.input, key: previewUsedInputBirthValueLeap, text: "{calendar} 閏月 {date}"}
+- {slot: preview.used.notice, key: previewUsedNotice, text: "最初の読み解きは、この端末では一度だけ見られます。情報を変えるには、保存したあとマイページの「情報の変更」で変えてください。"}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilMidnight, text: "今夜0時まで閲覧可"}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilDate, text: "{date}まで閲覧可"}
+- {slot: day-sheet.verdict.expand, key: daySheetVerdictExpand, text: "内訳を見る"}
+- {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "閉じる"}
+- {slot: day-sheet.event.all-day, key: daySheetEventAllDay, text: "終日"}
+- {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "質問なしで書く"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "質問を追加"}

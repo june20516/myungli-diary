@@ -486,3 +486,18 @@
 - {slot: notify-ask.time.note, key: notifyAskTimeNote, text: "Depending on conditions, notifications may arrive up to 10 minutes late."}
 - {slot: settings.notify-time.note, key: settingsNotifyTimeNote, text: "Depending on conditions, notifications may arrive up to 10 minutes late."}
 - {slot: ui.birth-info.row, key: birthInfoHour, text: "{branch} hour"}
+- {slot: preview.used.input, key: previewUsedInputName, text: "Name"}
+- {slot: preview.used.input, key: previewUsedInputBirth, text: "Birthday"}
+- {slot: preview.used.input, key: previewUsedInputTime, text: "Birth time"}
+- {slot: preview.used.input, key: previewUsedInputGender, text: "Gender"}
+- {slot: preview.used.input, key: previewUsedInputBirthplace, text: "Birthplace"}
+- {slot: preview.used.input, key: previewUsedInputBirthValue, text: "{calendar} {date}"}
+- {slot: preview.used.input, key: previewUsedInputBirthValueLeap, text: "{calendar} leap month {date}"}
+- {slot: preview.used.notice, key: previewUsedNotice, text: "You can see your first reading only once on this device. To change your details, save first, then go to Edit details in the Me tab."}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilMidnight, text: "Open until midnight"}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilDate, text: "Open until {date}"}
+- {slot: day-sheet.verdict.expand, key: daySheetVerdictExpand, text: "Show details"}
+- {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "Hide details"}
+- {slot: day-sheet.event.all-day, key: daySheetEventAllDay, text: "All day"}
+- {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "Write without a question"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "Add a question"}

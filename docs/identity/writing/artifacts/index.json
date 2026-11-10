@@ -609,5 +609,25 @@
     ],
     "status": "chosen",
     "note": "일간은 나를 나타내는 기준 글자, 키는 role.day_master"
+  },
+  {
+    "id": "round-R36",
+    "title": "라운드 R36: 검수 회차2 새 슬롯, 12운성 뜻 (W64)",
+    "kind": "copy-sample",
+    "file": "2026-11-10-round-R36.md",
+    "date": "2026-11-10",
+    "milestone": "A2",
+    "screens": [
+      "preview",
+      "evidence-sheet",
+      "day-sheet",
+      "diary-edit",
+      "saju-chart"
+    ],
+    "decisions": [
+      "W64"
+    ],
+    "status": "chosen",
+    "note": "화면 비교 뒤 고름, 내역 안내 줄은 개수 없이"
   }
 ]

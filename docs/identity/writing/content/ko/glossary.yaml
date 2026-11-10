@@ -35,7 +35,7 @@
 - {slot: glossary.value_name, key: color.fire, text: "빨강"}
 - {slot: glossary.value_name, key: color.earth, text: "노랑"}
 - {slot: glossary.value_name, key: color.metal, text: "흰색"}
-- {slot: glossary.value_name, key: color.water, text: "남색"}
+- {slot: glossary.value_name, key: color.water, text: "검정"}
 - {slot: glossary.value_name, key: place.year_stem, text: "태어난 해의 천간"}
 - {slot: glossary.value_name, key: place.year_branch, text: "태어난 해의 지지"}
 - {slot: glossary.value_name, key: place.month_stem, text: "태어난 달의 천간"}
