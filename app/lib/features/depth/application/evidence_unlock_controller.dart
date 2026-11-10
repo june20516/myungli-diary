@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
-    show NotifierProviderFamily, ProviderListenable;
+    show NotifierProviderFamily, ProviderException, ProviderListenable;
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
@@ -287,6 +287,7 @@ typedef _InsightAnswer = ({bool active, UnexpectedError? failure});
 ///   마감이 지나면 [UnlockTimedOut]과 `locked`입니다. 닫으면 그대로 `locked`, 표시 실패나
 ///   이용권 확인의 예상 밖 오류는 [UnlockFailed]와 `locked`이며 광고를 다시 불러 둡니다.
 /// * 다시 받기가 실패하면 `refreshError`이고 [retry]로 다시 받습니다.
+/// * 한 번 열리면 응답이 다시 잠겨도 시트를 닫을 때까지 열린 채입니다([_onAccess]).
 ///
 /// 시트가 닫혀 버려지면(autoDispose) 묻기와 기다림을 멈추고 이벤트를 내지 않습니다.
 /// 권한은 server만 부여합니다. 열림은 응답의 `evidenceAccess`로만 정합니다.
@@ -584,8 +585,13 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     await _loadAd(flow);
   }
 
-  /// 응답이 다른 길(오늘 화면의 다시 받기, 자정 넘김)로 바뀌면 따라갑니다.
-  /// 다시 받는 중이면 그 결과는 [_refresh]가 정합니다.
+  /// 응답이 다른 길(오늘 화면의 다시 받기)로 열리면 따라갑니다. 다시 받는 중이면 그 결과는
+  /// [_refresh]가 정합니다.
+  ///
+  /// 한 번 열린 시트는 응답이 다시 잠겨도(자정 뒤 새 날 응답, 광고 제거권 기간 끝) 닫을
+  /// 때까지 [DepthLinkState.unlocked]로 둡니다(`depth-link` 자정 규칙, `unlock.glint`
+  /// `stopWhen`). 이 흐름은 시트마다 있고 닫히면 버려지므로, 다음에 여는 시트부터 응답대로
+  /// `locked`입니다.
   void _onAccess(
     AsyncValue<EvidenceAccess>? previous,
     AsyncValue<EvidenceAccess> next,
@@ -593,18 +599,12 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     if (state.refreshing) {
       return;
     }
-    final access = next.value;
-    if (access == EvidenceAccess.unlocked &&
+    if (next.value == EvidenceAccess.unlocked &&
         state.link != DepthLinkState.unlocked) {
       // 확인 중이었으면 멈춰 [watchAd]도 끝나게 합니다.
       _stopGrant(_GrantStop.cancelled);
       state = const EvidenceUnlockState(link: DepthLinkState.unlocked);
       _forgetLockedCalendars();
-    } else if (access == EvidenceAccess.locked &&
-        state.link == DepthLinkState.unlocked) {
-      // 새 날짜의 응답처럼 다시 잠기면 처음처럼 준비합니다.
-      state = const EvidenceUnlockState(link: DepthLinkState.locked);
-      unawaited(_prepare());
     }
   }
 
@@ -638,12 +638,21 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     }
   }
 
-  /// 받은 권한을 지금 계정의 것으로 남깁니다. 계정 id가 없으면(로그아웃 직후) 남기지 않습니다.
+  /// 받은 권한을 지금 계정의 것으로 남깁니다. 계정 id가 없으면 남기지 않습니다.
+  ///
+  /// 계정 id provider는 로그아웃 상태에서 `StateError`를 던지고(`entryOverrides`), override가
+  /// 없으면(계정 범위 밖 테스트) `UnimplementedError`를 던집니다. Riverpod은 둘을
+  /// [ProviderException]으로 감싸므로 그 두 경우만 "계정 없음"으로 보고, 다른 오류는 그대로
+  /// 올립니다.
   void _recordGrant(Insight insight) {
     final String accountId;
     try {
       accountId = ref.read(currentAccountIdProvider);
-    } on Object {
+    } on ProviderException catch (error) {
+      final noAccount =
+          error.exception is StateError ||
+          error.exception is UnimplementedError;
+      if (!noAccount) rethrow;
       return;
     }
     ref.read(latestInsightGrantProvider.notifier).record(accountId, insight);

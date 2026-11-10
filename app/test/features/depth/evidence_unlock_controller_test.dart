@@ -895,32 +895,45 @@ void main() {
       expect(api.calls, 2, reason: '실패 뒤 더 묻지 않음');
     });
 
-    testWidgets('이미 불러 둔 광고가 있으면 다시 준비할 때 또 부르지 않습니다', (tester) async {
-      final ads = FakeAds();
-      final container = await _boot(
-        tester,
-        overrides: [
-          adsProvider.overrideWithValue(ads),
-          entitlementsRepositoryProvider.overrideWithValue(
-            EntitlementsRepository(_ScriptedApi([_inactive])),
-          ),
-        ],
-      );
-      container.listen(_testProvider, (_, _) {});
-      await _until(tester, () => container.read(_testProvider).adReady);
-      expect(ads.rewardedUserIds, hasLength(1));
+    testWidgets(
+      '열린 흐름은 응답이 다시 잠겨도(자정 뒤 새 날) 닫을 때까지 unlocked이고, 다시 열면 locked입니다',
+      (tester) async {
+        final ads = FakeAds();
+        final container = await _boot(
+          tester,
+          overrides: [
+            adsProvider.overrideWithValue(ads),
+            entitlementsRepositoryProvider.overrideWithValue(
+              EntitlementsRepository(_ScriptedApi([_inactive])),
+            ),
+          ],
+        );
+        final opened = container.listen(_testProvider, (_, _) {});
+        await _until(tester, () => container.read(_testProvider).adReady);
+        expect(ads.rewardedUserIds, hasLength(1));
 
-      // 다른 길로 열렸다가(광고는 그대로 쥐고 있음) 새 날짜처럼 다시 잠깁니다.
-      container.read(_accessProvider.notifier).change(EvidenceAccess.unlocked);
-      expect(container.read(_testProvider).link, DepthLinkState.unlocked);
-      container.read(_accessProvider.notifier).change(EvidenceAccess.locked);
-      await _until(tester, () => container.read(_testProvider).adReady);
-      for (var i = 0; i < 3; i++) {
+        // 다른 길로 열렸다가 새 날 응답처럼 다시 잠겨도 보던 흐름은 그대로입니다
+        // (depth-link 자정 규칙, unlock.glint stopWhen). 광고를 다시 준비하지 않습니다.
+        container
+            .read(_accessProvider.notifier)
+            .change(EvidenceAccess.unlocked);
+        expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+        container.read(_accessProvider.notifier).change(EvidenceAccess.locked);
+        for (var i = 0; i < 3; i++) {
+          await _spin(tester);
+        }
+        expect(container.read(_testProvider).link, DepthLinkState.unlocked);
+        expect(ads.rewardedUserIds, hasLength(1));
+
+        // 닫으면(흐름 버려짐) 다음에 여는 흐름은 응답대로 locked입니다.
+        opened.close();
         await _spin(tester);
-      }
-
-      expect(ads.rewardedUserIds, hasLength(1));
-    });
+        expect(container.exists(_testProvider), isFalse);
+        container.listen(_testProvider, (_, _) {});
+        expect(container.read(_testProvider).link, DepthLinkState.locked);
+        await _until(tester, () => container.read(_testProvider).adReady);
+      },
+    );
 
     testWidgets('확인 중에 다른 길로 열리면 watchAd도 끝납니다', (tester) async {
       final container = await _boot(

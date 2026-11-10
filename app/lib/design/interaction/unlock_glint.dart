@@ -206,6 +206,9 @@ class _UnlockGlintState extends State<UnlockGlint> {
   _UnlockGlintScopeState? _owner;
   ScrollPosition? _position;
 
+  /// 다음 프레임 뒤 보이는지 보기가 이미 잡혔는지(한 프레임에 한 번).
+  bool _checkScheduled = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -254,8 +257,16 @@ class _UnlockGlintState extends State<UnlockGlint> {
     if (owner == null || owner._replaced) {
       return widget.child;
     }
-    // 배치가 바뀔 수 있으므로 그린 뒤마다 보이는지 다시 봅니다.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisible());
+    // 보이는지는 스크롤할 때([_position] listener)와 다시 build된 프레임 뒤에 봅니다. 스크롤도
+    // build도 없이 배치만 바뀌는 경우(시트 높이 변화)는 다시 보지 않습니다. 대상이 스크롤
+    // 영역과 겹치는지는 그런 변화로 바뀌지 않기 때문입니다.
+    if (!_checkScheduled) {
+      _checkScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkScheduled = false;
+        _checkVisible();
+      });
+    }
     return _GlintMask(
       sweep: owner._sweep,
       colors: context.tokens.gradients.unlocked.colors,

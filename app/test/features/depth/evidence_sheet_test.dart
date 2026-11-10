@@ -115,6 +115,32 @@ final class _StubDaily extends DailyController {
   );
 }
 
+/// 처음에는 [daily]이고 [nextDay]로 자정 뒤 새 날 응답으로 바뀌는 대역.
+final class _MidnightDaily extends DailyController {
+  new(this.daily);
+
+  final Daily daily;
+
+  @override
+  Future<DailyView> build() async => DailyView(
+    date: CalendarDate(2026, 10, 13),
+    daily: daily,
+    stale: false,
+    cacheKey: null,
+  );
+
+  /// 자정이 지나 새 날 응답 [next]를 받은 것처럼 바꿉니다. 화면 날짜는 시계를 움직이지 않는
+  /// 대역이라 그대로 두고 응답만 바꿉니다(열람 상태가 잠긴 응답).
+  void nextDay(Daily next) => state = AsyncData(
+    DailyView(
+      date: CalendarDate(2026, 10, 13),
+      daily: next,
+      stale: false,
+      cacheKey: null,
+    ),
+  );
+}
+
 /// member 오늘 응답의 열람 상태를 [access]로 두고 총운 첫 문장에 [evidence]를 담습니다.
 Daily _dailyWithEvidence(
   EvidenceAccess access,
@@ -804,5 +830,101 @@ void main() {
       );
       expect(expected, contains('12'));
     });
+
+    testWidgets(
+      '열어 둔 채 자정이 지나 새 날 응답이 잠겨도 닫을 때까지 근거, 꼬리표, 반짝임이 그대로이고 다시 열면 잠깁니다',
+      (tester) async {
+        final container = await pumpApp(
+          tester,
+          scenario: 'member',
+          overrides: [
+            dailyControllerProvider.overrideWith(
+              () => _MidnightDaily(
+                _dailyWithEvidence(EvidenceAccess.unlocked, _threeEvidence),
+              ),
+            ),
+            unlockTagInsightProvider.overrideWith(
+              (ref) async => Insight(
+                active: true,
+                expiresAt: DateTime.utc(2026, 10, 13, 15),
+                source_: InsightSource_Enum.rewardedAd,
+              ),
+            ),
+          ],
+        );
+        await pumpUntil(
+          tester,
+          () => find.byType(DateHeader).evaluate().isNotEmpty,
+        );
+        final link = depthLinkTarget(
+          of: find.byKey(const Key(SlotIds.todayFortuneHead)),
+        );
+        await tester.tap(link);
+        await pumpUntil(
+          tester,
+          () =>
+              _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
+                  .evaluate()
+                  .isNotEmpty,
+        );
+        expect(
+          _inSheet(find.text('첫째 근거', findRichText: true)),
+          findsOneWidget,
+        );
+
+        (container.read(dailyControllerProvider.notifier) as _MidnightDaily)
+            .nextDay(
+              _dailyWithEvidence(EvidenceAccess.locked, [
+                {
+                  'ruleId': 'fortune/day_kind',
+                  'sourceRef': 'gungtong-bogam/five_elements#balance_principle',
+                  'basis': _sentence('새 날 근거'),
+                },
+              ]),
+            );
+        for (var i = 0; i < 3; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+
+        expect(container.read(_provider).link, DepthLinkState.unlocked);
+        expect(
+          _inSheet(find.text('첫째 근거', findRichText: true)),
+          findsOneWidget,
+        );
+        expect(
+          _inSheet(find.text('첫째 원전', findRichText: true)),
+          findsOneWidget,
+        );
+        expect(
+          _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
+          findsOneWidget,
+        );
+        expect(_inSheet(find.text('새 날 근거', findRichText: true)), findsNothing);
+        expect(_inSheet(find.byType(UnlockGlint)), findsWidgets);
+        expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
+        expect(_inSheet(find.byType(LockVeil)), findsNothing);
+
+        // 뒤 오늘 화면은 새 날 응답이라 움직임이 남을 수 있어 settle 대신 몇 프레임만 넘깁니다.
+        await closeSheet(
+          tester,
+          _sheet,
+          settle: (t) async {
+            for (var i = 0; i < 10; i++) {
+              await t.pump(const Duration(milliseconds: 100));
+            }
+          },
+        );
+        await tester.tap(link);
+        await pumpUntil(
+          tester,
+          () => _inSheet(find.byType(LockVeil)).evaluate().isNotEmpty,
+        );
+        expect(container.read(_provider).link, isNot(DepthLinkState.unlocked));
+        expect(
+          _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
+          findsNothing,
+        );
+      },
+    );
   });
 }

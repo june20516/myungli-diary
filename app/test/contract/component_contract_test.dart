@@ -2095,7 +2095,19 @@ void main() {
       expect(glint['properties'], ['text-fill']);
       expect(glint['reduceMotion'], ReduceMotionRule.replace.json);
       expect(_map(glint['reduceMotionAlternative'])['element'], 'unlock.mark');
-      expect(glint['pauseWhen'], hasLength(3));
+      // 문장 계약이라 구현 상수가 없지만, 항목이 바뀌면 알 수 있게 낱말로 대조합니다.
+      final pauseWhen = (glint['pauseWhen']! as List<Object?>).cast<String>();
+      expect(pauseWhen, hasLength(3));
+      expect(pauseWhen[0], contains('배경'));
+      expect(pauseWhen[1], contains('덮임'));
+      expect(pauseWhen[2], contains('스크롤'));
+      expect(glint['stopWhen'], contains('닫힐 때'));
+      expect(glint['stopWhen'], contains('그대로'));
+      expect(glint['first'], contains('15초마다'));
+      expect(glint['together'], contains('같은 때'));
+      expect(band['edge'], contains('부드럽게'));
+      expect(band['multiline'], contains('한 띠'));
+      expect(glint['base'], contains('text mask'));
     });
 
     test('unlock.mark: 세로선 굵기, 자리, 각도와 제목 칠이 구현 상수와 같습니다', () {

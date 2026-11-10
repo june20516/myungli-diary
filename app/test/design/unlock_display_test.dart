@@ -119,6 +119,8 @@ void main() {
       for (final sheet in [
         _sheet(state: DepthLinkState.locked),
         _sheet(state: DepthLinkState.unlocking, loading: true),
+        // 열린 채 응답을 다시 받는 중(구역 skeleton)에도 꼬리표를 두지 않습니다.
+        _sheet(loading: true),
         _sheet(unlockTag: null),
       ]) {
         await tester.pumpWidget(_app(sheet));
@@ -192,6 +194,8 @@ void main() {
       for (final sheet in [
         _sheet(state: DepthLinkState.locked),
         _sheet(state: DepthLinkState.unlocking, loading: true),
+        _sheet(loading: true),
+        _sheet(loading: true, personal: _text('내 사주 해석')),
       ]) {
         await tester.pumpWidget(_app(sheet));
         await tester.pump();
