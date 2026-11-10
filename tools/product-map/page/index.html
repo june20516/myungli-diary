@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
 <title>명리일기 지도</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
@@ -229,6 +231,7 @@ flowchart LR
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
 <script>
 const LINES = [
   { key: "root", name: "지휘", color: "--l-root" },
@@ -697,6 +700,24 @@ function showTab() {
   document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === current ? "page" : "false"));
   closeViewer();
   closeSheet();
+  if (current === "logic") renderLogicDiagram();
+}
+
+// 로직 탭 흐름도(mermaid)는 탭이 보일 때 한 번 그립니다. 숨은 탭에서 그리면 크기가 0으로 잡힙니다.
+// 스크립트를 못 불러오면 흐름도 글자가 그대로 남습니다.
+let logicDrawn = false;
+async function renderLogicDiagram() {
+  if (logicDrawn || !window.mermaid) return;
+  logicDrawn = true;
+  const dark = document.documentElement.dataset.theme === "dark"
+    || (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  window.mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+  try {
+    await window.mermaid.run({ nodes: document.querySelectorAll("#logic-diagram .mermaid") });
+  } catch (err) {
+    logicDrawn = false;
+    console.error("로직 흐름도를 그리지 못했습니다", err);
+  }
 }
 
 document.getElementById("sheet-back").addEventListener("click", closeSheet);
