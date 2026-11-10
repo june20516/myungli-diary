@@ -30,12 +30,21 @@ Future<void> tapSheetScrim(WidgetTester tester) async {
 
 /// 시트 바깥을 덮개가 모두 사라질 때까지 눌러 쌓인 시트를 한 단계씩 모두 닫습니다.
 ///
-/// 시트 깊이는 최대 2라 두 번이면 되지만, 넉넉하게 시도하고 그래도 남으면 실패로 알립니다.
+/// 시트 깊이는 최대 [_maxSheetDepth]라 그만큼 누르면 되지만, 두 배까지 시도하고 그래도
+/// 남으면 실패로 알립니다.
 Future<void> tapSheetScrimUntilClosed(WidgetTester tester) async {
   final scrim = find.byKey(const ValueKey('sheet.scrim'));
-  for (var attempt = 0; attempt < 4 && scrim.evaluate().isNotEmpty; attempt++) {
+  for (
+    var attempt = 0;
+    attempt < _maxSheetDepth * 2 && scrim.evaluate().isNotEmpty;
+    attempt++
+  ) {
     await tapSheetScrim(tester);
     await tester.pumpAndSettle();
   }
   expect(scrim, findsNothing, reason: '열린 시트가 모두 닫혀야 합니다');
 }
+
+/// 시트를 겹칠 수 있는 최대 깊이(`interaction.json` `sheet.stack.peek.depth`,
+/// frame `sheet` 규칙).
+const int _maxSheetDepth = 2;

@@ -14,7 +14,8 @@ import 'package:myungli_diary/design/interaction/patterns.dart';
 /// * 새 화면([index])만 터치를 받고 스크린리더에 보입니다. 앞 화면은 사라지는 동안에도
 ///   누를 수 없고 읽히지 않습니다.
 /// * 보이지 않는 화면은 `Offstage`·`TickerMode` 꺼짐으로 상태(스크롤 위치 등)만 들고
-///   있습니다(go_router `indexedStack`과 같음).
+///   있습니다(go_router `indexedStack`과 같음). 사라지는 동안(투명도가 0보다 큼)은 앞 화면의
+///   애니메이션도 계속 움직여, 멈춘 프레임이 흐려지지 않게 합니다.
 ///
 /// 같은 [index]로 다시 그리면 아무 일도 없습니다(이미 선택된 탭 다시 누름은 탭 바가 맨
 /// 위로 올리기만 합니다).
@@ -92,7 +93,7 @@ class _TabSwitchStackState extends State<TabSwitchStack>
     return Offstage(
       offstage: !current && opacity == 0,
       child: TickerMode(
-        enabled: current,
+        enabled: current || opacity > 0,
         child: IgnorePointer(
           ignoring: !current,
           child: ExcludeSemantics(

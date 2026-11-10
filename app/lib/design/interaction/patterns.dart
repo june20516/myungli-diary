@@ -407,6 +407,8 @@ Widget animate(
         InteractionPattern.sheetEnter => _sheetEnter(effect, child!),
         InteractionPattern.sheetExit => _sheetExit(effect, child!),
         InteractionPattern.sheetStack => _sheetStack(effect, options, child!),
+        // 한 화면의 투명도만 그리는 기본 식입니다(패턴 행렬 테스트가 씀). 탭 셸은 중간 끊기와
+        // 입력 규칙까지 맡는 TabSwitchStack이 같은 곡선으로 직접 계산합니다.
         InteractionPattern.tabSwitch => _fade(
           options.outgoing ? 1 - effect.eased : effect.eased,
           child!,
@@ -661,6 +663,8 @@ Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
       ),
     ],
   );
+  // 동작 줄이기면 아래 시트는 이동하지 않습니다(`peek.reduceMotion`). 위 시트를 끄는 동안에도
+  // 올라간 자리에 남고, 끌기 비율은 덮개(veil)에만 들어갑니다.
   final lift = e.opacityOnly
       ? (e.progress > 0 ? o.stackLift : 0.0)
       : o.stackLift * v;

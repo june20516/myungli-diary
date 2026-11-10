@@ -264,6 +264,27 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('사라지는 동안 앞 화면의 애니메이션은 계속 움직이고 끝나면 멈춥니다', (tester) async {
+      await _pump(tester);
+      bool tickerOn(int i) =>
+          TickerMode.valuesOf(tester.element(find.byKey(ValueKey('screen-$i'))))
+              .enabled;
+      await _tapTab(tester, 1);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tickerOn(0), isTrue, reason: '흐려지는 중');
+      expect(tickerOn(1), isTrue);
+      await tester.pumpAndSettle();
+      expect(
+        TickerMode.valuesOf(
+          tester.element(
+            find.byKey(const ValueKey('screen-0'), skipOffstage: false),
+          ),
+        ).enabled,
+        isFalse,
+        reason: '끝나면 offstage에서 멈춤',
+      );
+    });
+
     testWidgets('앞 탭의 스크롤 위치는 다녀와도 그대로입니다', (tester) async {
       final controller = ScrollController();
       addTearDown(controller.dispose);
