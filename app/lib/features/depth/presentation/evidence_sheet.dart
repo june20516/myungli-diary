@@ -146,11 +146,17 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     if (state.link != DepthLinkState.unlocked || state.refreshing) return;
     _everOpened = true;
     if (_tagInsight != null || _tagSubscription != null) return;
-    _tagSubscription = ref.listenManual(
+    final subscription = ref.listenManual(
       unlockTagInsightProvider,
       (_, next) => _onTagInsight(next.value),
       fireImmediately: true,
     );
+    // 이미 받은 값이면 첫 알림(fireImmediately)에서 동기로 알게 되므로, 그때는 여기서 닫습니다.
+    if (_tagInsight != null) {
+      subscription.close();
+    } else {
+      _tagSubscription = subscription;
+    }
   }
 
   void _onTagInsight(Insight? insight) {

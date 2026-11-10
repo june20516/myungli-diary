@@ -4,11 +4,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
+import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -926,5 +930,71 @@ void main() {
         );
       },
     );
+
+    testWidgets('꼬리표 권한이 이미 받아져 있어 동기로 오면 구독을 바로 닫고 이용권을 다시 묻지 않습니다', (
+      tester,
+    ) async {
+      // 진입 때 내 정보에는 권한이 없어(광고를 본 뒤 열린 날) 꼬리표 권한은 이용권으로 압니다.
+      final container = await pumpApp(
+        tester,
+        scenario: 'evidence-unlocked',
+        overrides: [
+          meProvider.overrideWithValue(
+            Me(
+              accountId: '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
+              consentRequired: false,
+              requiredConsents: const [],
+              hasProfile: true,
+              adFree: AdFree(active: false),
+              insight: Insight(active: false),
+            ),
+          ),
+        ],
+      );
+      await pumpUntil(
+        tester,
+        () => find.byType(DateHeader).evaluate().isNotEmpty,
+      );
+      final fake =
+          container.read(fakeServerInterceptorProvider)!
+              as FakeServerInterceptor;
+      // 다른 곳이 먼저 받아 둔 상태를 만듭니다(시트가 구독할 때 값이 동기로 옴).
+      final early = container.listen(unlockTagInsightProvider, (_, _) {});
+      await pumpUntil(
+        tester,
+        () => container.read(unlockTagInsightProvider).value != null,
+      );
+      final asked = fake.callCountOf('getEntitlements');
+      expect(asked, 1);
+
+      await tester.tap(
+        depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+      );
+      await pumpUntil(
+        tester,
+        () =>
+            _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
+                .evaluate()
+                .isNotEmpty,
+      );
+      early.close();
+      await tester.pump();
+      expect(
+        container.exists(unlockTagInsightProvider),
+        isFalse,
+        reason: '시트가 구독을 닫아 provider가 버려짐',
+      );
+
+      // 알던 권한을 잊어도(보는 중 권한이 끝난 것과 같음) 시트는 다시 묻지 않습니다.
+      container.invalidate(latestInsightGrantProvider);
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(fake.callCountOf('getEntitlements'), asked);
+      expect(
+        _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
+        findsOneWidget,
+      );
+    });
   });
 }
