@@ -1786,7 +1786,7 @@
     {
      "id": "day-sheet.verdict.expand",
      "source": "ui",
-     "role": "길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
+     "role": "길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 없음, 사용자 결정 \"내역 보기\", writing R36). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
     },
     {
      "id": "day-sheet.verdict.collapse",
