@@ -39,18 +39,18 @@ type fakeDiaries struct {
 	gotProfile   profile.Profile
 	gotDate      profile.LocalDate
 	gotBody      string
-	gotChoice    *diary.GuideChoice
+	gotGuide     diary.GuideRequest
 	gotQuery     diary.ListQuery
 	createCalls  int
 	listCalls    int
 	deleteCalled bool
 }
 
-func (f *fakeDiaries) Create(_ context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, choice *diary.GuideChoice) (diary.Entry, error) {
+func (f *fakeDiaries) Create(_ context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, guide diary.GuideRequest) (diary.Entry, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.createCalls++
-	f.gotAccount, f.gotProfile, f.gotDate, f.gotBody, f.gotChoice = accountID, p, date, body, choice
+	f.gotAccount, f.gotProfile, f.gotDate, f.gotBody, f.gotGuide = accountID, p, date, body, guide
 	return f.entry, f.err
 }
 
@@ -96,8 +96,8 @@ func sampleEntry() diary.Entry {
 		ID:             sampleDiaryID,
 		Date:           profile.LocalDate{Year: 2026, Month: 10, Day: 13},
 		Body:           "오늘의 일기",
-		AllTags:        []string{"tag.a", "tag.b"},
-		Featured:       []fortune.FeaturedTag{{Key: "tag.a", Polarity: fortune.Polarity("good")}},
+		AllTags:        []string{"clash_day_branch", "yeokma"},
+		Featured:       []fortune.FeaturedTag{{Key: "clash_day_branch", Polarity: fortune.PolarityBad}},
 		GuideQuestion:  []render.Segment{{Text: "오늘은 "}, {Text: "비견", Term: "ten_god.bigyeon"}},
 		RulesetVersion: "v1",
 		DayKind:        "yongsin_day",
@@ -137,8 +137,8 @@ func TestCreateDiary_Returns201WithLocation(t *testing.T) {
 	assert.Equal(t, "yongsin_day", body["dayKind"])
 	tags, ok := body["tags"].(map[string]any)
 	require.True(t, ok)
-	assert.Equal(t, []any{"tag.a", "tag.b"}, tags["all"])
-	assert.Equal(t, []any{map[string]any{"key": "tag.a", "polarity": "good"}}, tags["featured"])
+	assert.Equal(t, []any{"clash_day_branch", "yeokma"}, tags["all"])
+	assert.Equal(t, []any{map[string]any{"key": "clash_day_branch", "polarity": "bad"}}, tags["featured"])
 	guide, ok := body["guideQuestion"].(map[string]any)
 	require.True(t, ok)
 	assert.Equal(t, []any{
@@ -193,14 +193,33 @@ func TestCreateDiary_GuideChoice(t *testing.T) {
 
 		require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
 		expectFortuneContract(t, req, rec)
-		assert.Equal(t, &diary.GuideChoice{MessageKey: "guide.yeokma", Variant: "1"}, diaries.gotChoice)
+		assert.Equal(t, diary.GuideRequest{Choice: &diary.GuideChoice{MessageKey: "guide.yeokma", Variant: "1"}}, diaries.gotGuide)
 	})
-	t.Run("보내지 않으면 nil", func(t *testing.T) {
+	t.Run("보내지 않으면 빈 값(그날 기본 질문)", func(t *testing.T) {
 		diaries := &fakeDiaries{entry: sampleEntry()}
 		_, rec := sendRequest(t, diaryAPI(diaries), http.MethodPost, diariesTarget, createDiaryJS)
 
 		require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
-		assert.Nil(t, diaries.gotChoice)
+		assert.Equal(t, diary.GuideRequest{}, diaries.gotGuide)
+	})
+	t.Run("질문 떼기를 넘김(D116)", func(t *testing.T) {
+		diaries := &fakeDiaries{entry: sampleEntry()}
+		req, rec := sendRequest(t, diaryAPI(diaries), http.MethodPost, diariesTarget,
+			`{"date":"2026-10-13","body":"오늘의 일기","withoutGuideQuestion":true}`)
+
+		require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+		expectFortuneContract(t, req, rec)
+		assert.Equal(t, diary.GuideRequest{Without: true}, diaries.gotGuide)
+	})
+	t.Run("고르면서 떼면 400(S149)", func(t *testing.T) {
+		req, rec := sendRequest(t, diaryAPI(&fakeDiaries{err: diary.ErrGuideConflict}), http.MethodPost, diariesTarget,
+			`{"date":"2026-10-13","body":"오늘의 일기","withoutGuideQuestion":true,"guideQuestion":{"messageKey":"guide.yeokma","variant":"1"}}`)
+
+		require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
+		p := decodeProblem(t, rec)
+		assert.Equal(t, "request.invalid", p.Code)
+		assert.Equal(t, []string{"/withoutGuideQuestion"}, fieldsOf(p))
+		expectFortuneContract(t, req, rec)
 	})
 	t.Run("후보에 없으면 422", func(t *testing.T) {
 		req, rec := sendRequest(t, diaryAPI(&fakeDiaries{err: diary.ErrGuideChoiceInvalid}), http.MethodPost, diariesTarget,
@@ -357,7 +376,8 @@ func listEntries(n int) []diary.Entry {
 			ID:        uuid.MustParse(fmt.Sprintf("0198a000-0000-7000-8000-%012d", 100+i)),
 			Date:      profile.LocalDate{Year: day.Year(), Month: int(day.Month()), Day: day.Day()},
 			Body:      "본문",
-			Featured:  []fortune.FeaturedTag{{Key: "tag.a", Polarity: fortune.Polarity("good")}},
+			AllTags:   []string{"dohwa"},
+			Featured:  []fortune.FeaturedTag{{Key: "dohwa", Polarity: fortune.PolarityGood}},
 			CreatedAt: time.Date(day.Year(), day.Month(), day.Day(), 1, 2, 3, 456789000, time.UTC),
 		}
 	}
@@ -435,6 +455,29 @@ func TestListDiaries_SummaryHasIDAndCreatedAt(t *testing.T) {
 	require.True(t, ok)
 	assert.Equal(t, entries[0].ID.String(), item["id"])
 	assert.Equal(t, "2026-10-20T01:02:03.456789Z", item["createdAt"])
+}
+
+// 목록 요약의 allTags는 그날 태그 전부이고, 대표 태그가 그 순서대로 앞에 옵니다. 태그가 없는 날은 빈 배열입니다. (D115, S150)
+func TestListDiaries_SummaryAllTags(t *testing.T) {
+	entries := listEntries(2)
+	entries[0].AllTags = []string{"yeokma", "dohwa", "clash_day_branch"}
+	entries[0].Featured = []fortune.FeaturedTag{
+		{Key: "clash_day_branch", Polarity: fortune.PolarityBad},
+		{Key: "dohwa", Polarity: fortune.PolarityGood},
+	}
+	entries[1].AllTags, entries[1].Featured = nil, nil
+	req, rec := sendRequest(t, diaryAPI(&fakeDiaries{list: entries}), http.MethodGet, diariesTarget, "")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	items := decodeMap(t, rec)["items"].([]any)
+	require.Len(t, items, 2)
+	assert.Equal(t, []any{
+		map[string]any{"key": "clash_day_branch", "polarity": "bad"},
+		map[string]any{"key": "dohwa", "polarity": "good"},
+		map[string]any{"key": "yeokma", "polarity": "neutral"},
+	}, items[0].(map[string]any)["allTags"])
+	assert.Equal(t, []any{}, items[1].(map[string]any)["allTags"])
 }
 
 // 목록 요약의 그날 성격은 일기를 쓸 때 기록한 값이고, 기록이 없는 날은 생략합니다. (D96)

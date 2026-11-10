@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.9.0
+  version: 1.10.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -1198,6 +1198,9 @@ paths:
         일기를 한 편 씁니다. 하루에 살아 있는 일기는 10편까지입니다. 그날 첫 편이면 날짜 기록(태그·`rulesetVersion`·가이드 질문)을 함께 만듭니다.
         `guideQuestion`에 그날 오늘의 질문 후보(`Daily.guideCandidates`) 하나의 `messageKey`와 `variant`를 보내면, server가 그 질문을 다시 렌더해 이 편의 `Diary.guideQuestion`으로 남깁니다(1.6.0에서 더함).
         보내지 않으면 지금처럼 그날 기본 질문입니다. 그날 후보에 없는 조합이면 422 `diary.guide_invalid`(field `guideQuestion`)입니다.
+        `withoutGuideQuestion`을 true로 보내면 질문을 뗀 편이라 이 편의 `Diary.guideQuestion`이 없습니다(D116, 1.10.0에서 더함).
+        `guideQuestion`과 `withoutGuideQuestion: true`를 함께 보내면 400 `request.invalid`(field `withoutGuideQuestion`)입니다.
+        질문은 쓸 때만 정하고 `updateDiary`로는 바꾸지 않습니다(질문 고르기, 떼기 모두).
         같은 `Idempotency-Key`로 다시 보내면 24시간 동안 같은 응답입니다.
         그날 살아 있는 일기가 이미 10편이면 422 `diary.day_full`, 오늘 이후 날짜는 422 `diary.future_date`, 지원 범위(D41) 밖 날짜는 422 `date.out_of_range`입니다.
         프로필이 없으면 409 `profile.required`입니다.
@@ -3810,6 +3813,10 @@ components:
           maxLength: 10000
         guideQuestion:
           $ref: '#/components/schemas/GuideChoice'
+        withoutGuideQuestion:
+          type: boolean
+          default: false
+          description: true면 이 편에 가이드 질문을 붙이지 않습니다(D116, 1.10.0에서 더함). `guideQuestion`과 함께 보내지 않습니다.
     GuideChoice:
       type: object
       description: 일기를 쓸 때 고른 오늘의 질문입니다. `Daily.guideCandidates` 항목의 `messageKey`와 `variant`를 그대로 보냅니다(1.6.0에서 더함).
@@ -3835,7 +3842,7 @@ components:
       type: object
       description: |
         `guideQuestion`은 이 편을 쓸 때 고른 오늘의 질문(`createDiary`의 `guideQuestion`)의 렌더된 원문입니다. 고르지 않고 쓴 편과 1.6.0 전에 쓴 편은
-        그날 첫 편을 쓸 때 보인 기본 질문이고, 그날 가이드 질문이 없었으면 생략합니다.
+        그날 첫 편을 쓸 때 보인 기본 질문이고, 그날 가이드 질문이 없었거나 질문을 떼고 쓴 편(`withoutGuideQuestion`, D116)이면 생략합니다.
         `tags`·`rulesetVersion`·`dayKind`는 그날 첫 편을 쓸 때 기록한 날짜 기록이고 같은 날 일기에 똑같이 붙습니다.
         `dayKind`는 그때 본 날의 성격이며 사주 정보를 고쳐도 바뀌지 않습니다(D90 ①). 이름은 용어 사전 `day_kind.*`에서 찾습니다.
         1.1.0 전에 만든 날짜 기록에는 값이 없어 생략합니다(1.1.0에서 더함).
@@ -3879,7 +3886,9 @@ components:
       description: |
         `dayKind`는 `Diary.dayKind`와 같은 날짜 기록 값입니다. 일기를 쓸 때 본 날의 성격이며 사주 정보를 고쳐도 바뀌지 않습니다(D96).
         1.1.0 전에 만든 날짜 기록에는 값이 없어 생략합니다(1.2.0에서 더함).
-      required: [id, date, createdAt, excerpt, featuredTags]
+        `allTags`는 그날 사주 기운 태그 전부입니다(D115, 1.10.0에서 더함). 대표 태그(`featuredTags`)가 순위 순으로 앞에 오고, 나머지는 엔진이 낸 순서입니다.
+        `dayKind`, `featuredTags`와 같이 그날 첫 편을 쓸 때 기록한 값이라 사주 정보를 고쳐도 바뀌지 않습니다(D90 ①, D96). 태그가 없는 날은 빈 배열입니다.
+      required: [id, date, createdAt, excerpt, featuredTags, allTags]
       properties:
         id:
           type: string
@@ -3894,6 +3903,10 @@ components:
           type: string
           description: 본문 앞 100자
         featuredTags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        allTags:
           type: array
           items:
             $ref: '#/components/schemas/Tag'

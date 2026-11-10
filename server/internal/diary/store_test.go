@@ -48,7 +48,7 @@ func setup(t *testing.T) (*diary.Store, uuid.UUID, *pgxpool.Pool) {
 // mustCreate는 date에 일기를 한 편 만듭니다. 그날 첫 편이면 record를 적습니다.
 func mustCreate(t *testing.T, store *diary.Store, acc uuid.UUID, d int, body string, rec *fortune.DayRecord) diary.Entry {
 	t.Helper()
-	e, err := store.CreateEntry(context.Background(), acc, day(d), body, nil, rec)
+	e, err := store.CreateEntry(context.Background(), acc, day(d), body, diary.Guide{}, rec)
 	require.NoError(t, err)
 	return e
 }
@@ -95,6 +95,40 @@ func TestStore_CreateWithoutGuideQuestion(t *testing.T) {
 	assert.Empty(t, got.Featured)
 }
 
+// 질문을 뗀 편은 날짜 기록에 기본 질문이 있어도 만들기, 조회, 본문 수정, 목록 모두 질문이 없습니다. 같은 날 다른 편은 그대로입니다. (D116, S149)
+func TestStore_RemovedGuideHasNoQuestion(t *testing.T) {
+	ctx := context.Background()
+	store, acc, _ := setup(t)
+	first := mustCreate(t, store, acc, 10, "첫째", record("dohwa"))
+	require.NotEmpty(t, first.GuideQuestion)
+
+	removed, err := store.CreateEntry(ctx, acc, day(10), "둘째", diary.Guide{Removed: true}, nil)
+	require.NoError(t, err)
+	assert.Empty(t, removed.GuideQuestion)
+
+	got, err := store.Get(ctx, acc, removed.ID)
+	require.NoError(t, err)
+	assert.Empty(t, got.GuideQuestion)
+	updated, err := store.UpdateBody(ctx, acc, removed.ID, "고친 둘째")
+	require.NoError(t, err)
+	assert.Empty(t, updated.GuideQuestion)
+
+	list, err := store.List(ctx, acc, diary.ListQuery{Limit: 10})
+	require.NoError(t, err)
+	require.Len(t, list, 2)
+	assert.Equal(t, first.GuideQuestion, list[0].GuideQuestion)
+	assert.Empty(t, list[1].GuideQuestion)
+}
+
+// 고른 질문과 질문 떼기를 함께 두면 저장하지 않습니다(DB CHECK에 닿기 전에 막음).
+func TestStore_ChosenAndRemovedIsError(t *testing.T) {
+	store, acc, pool := setup(t)
+	guide := diary.Guide{Chosen: []render.Segment{{Text: "질문"}}, Removed: true}
+	_, err := store.CreateEntry(context.Background(), acc, day(10), "본문", guide, record("dohwa"))
+	require.Error(t, err)
+	assert.Zero(t, countLive(t, pool, acc, 10))
+}
+
 func TestStore_SecondEntryReusesDayRecord(t *testing.T) {
 	store, acc, _ := setup(t)
 	first := mustCreate(t, store, acc, 10, "첫째", record("a"))
@@ -114,7 +148,7 @@ func TestStore_SecondRecordIsIgnored(t *testing.T) {
 
 func TestStore_CreateWithoutRecordWhenDayMissing(t *testing.T) {
 	store, acc, pool := setup(t)
-	_, err := store.CreateEntry(context.Background(), acc, day(10), "본문", nil, nil)
+	_, err := store.CreateEntry(context.Background(), acc, day(10), "본문", diary.Guide{}, nil)
 	assert.ErrorIs(t, err, diary.ErrDayRecordMissing)
 	assert.Equal(t, 0, countLive(t, pool, acc, 10))
 }
@@ -130,7 +164,7 @@ func TestStore_ConcurrentCreatesStopAtTen(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, errs[i] = store.CreateEntry(ctx, acc, day(10), "본문", nil, record("a"))
+			_, errs[i] = store.CreateEntry(ctx, acc, day(10), "본문", diary.Guide{}, record("a"))
 		}()
 	}
 	wg.Wait()
@@ -170,11 +204,11 @@ func TestStore_DeletedEntriesDoNotCount(t *testing.T) {
 	ctx := context.Background()
 	store, acc, _ := setup(t)
 	ids := fillDay(t, store, acc, 10, diary.MaxEntriesPerDay)
-	_, err := store.CreateEntry(ctx, acc, day(10), "열한째", nil, nil)
+	_, err := store.CreateEntry(ctx, acc, day(10), "열한째", diary.Guide{}, nil)
 	require.ErrorIs(t, err, diary.ErrDayFull)
 
 	require.NoError(t, store.Delete(ctx, acc, ids[0]))
-	_, err = store.CreateEntry(ctx, acc, day(10), "열한째", nil, nil)
+	_, err = store.CreateEntry(ctx, acc, day(10), "열한째", diary.Guide{}, nil)
 	assert.NoError(t, err)
 }
 

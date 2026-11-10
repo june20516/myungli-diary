@@ -148,7 +148,7 @@ var _ RevenueCatWebhooks = (*billing.Webhooks)(nil)
 
 // DiaryService는 일기 operation이 쓰는 서비스입니다. *diary.Service가 만족합니다.
 type DiaryService interface {
-	Create(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, choice *diary.GuideChoice) (diary.Entry, error)
+	Create(ctx context.Context, accountID uuid.UUID, p profile.Profile, date profile.LocalDate, body string, guide diary.GuideRequest) (diary.Entry, error)
 	Get(ctx context.Context, accountID, id uuid.UUID) (diary.Entry, error)
 	UpdateBody(ctx context.Context, accountID, id uuid.UUID, body string) (diary.Entry, error)
 	Delete(ctx context.Context, accountID, id uuid.UUID) error

@@ -692,8 +692,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.9.0" {
-		t.Errorf("info.version = %q, want 1.9.0", doc.Info.Version)
+	if doc.Info.Version != "1.10.0" {
+		t.Errorf("info.version = %q, want 1.10.0", doc.Info.Version)
 	}
 }
 
@@ -1392,7 +1392,7 @@ func TestContract_Draft13DiaryEntries(t *testing.T) {
 				t.Errorf("%s.required = %v, want %v", name, got, want)
 			}
 		}
-		sameSet("DiarySummary", []string{"id", "date", "createdAt", "excerpt", "featuredTags"})
+		sameSet("DiarySummary", []string{"id", "date", "createdAt", "excerpt", "featuredTags", "allTags"})
 		sameSet("DiaryInput", []string{"date", "body"})
 		sameSet("DiaryBodyInput", []string{"body"})
 	})
@@ -1925,6 +1925,39 @@ func TestContract_1_2DiarySummaryDayKind(t *testing.T) {
 	}
 	for _, text := range []string{"`Diary.dayKind`와 같은 날짜 기록 값", "D96", "1.2.0"} {
 		if !strings.Contains(s.Description, text) {
+			t.Errorf("DiarySummary 설명에 %q가 없음", text)
+		}
+	}
+}
+
+// TestContract_1_10DiaryGuideAndTags는 1.10.0의 질문 떼기와 목록 요약의 전체 태그를 고정합니다. (D115, D116, S149, S150)
+func TestContract_1_10DiaryGuideAndTags(t *testing.T) {
+	doc := loadDoc(t)
+	input := doc.Components.Schemas["DiaryInput"].Value
+	without := input.Properties["withoutGuideQuestion"]
+	if without == nil || !without.Value.Type.Is("boolean") {
+		t.Fatal("DiaryInput.withoutGuideQuestion이 boolean이 아님")
+	}
+	if without.Value.Default != false {
+		t.Errorf("DiaryInput.withoutGuideQuestion 기본값 = %v, want false", without.Value.Default)
+	}
+	if slices.Contains(input.Required, "withoutGuideQuestion") {
+		t.Error("DiaryInput.withoutGuideQuestion은 선택 필드여야 함")
+	}
+	create := doc.Paths.Find("/v1/diaries").Post
+	for _, text := range []string{"withoutGuideQuestion", "400 `request.invalid`", "`updateDiary`로는 바꾸지 않습니다"} {
+		if !strings.Contains(create.Description, text) {
+			t.Errorf("createDiary 설명에 %q가 없음", text)
+		}
+	}
+
+	summary := doc.Components.Schemas["DiarySummary"].Value
+	all := summary.Properties["allTags"]
+	if all == nil || !all.Value.Type.Is("array") || all.Value.Items.Ref != "#/components/schemas/Tag" {
+		t.Fatal("DiarySummary.allTags가 Tag 배열이 아님")
+	}
+	for _, text := range []string{"대표 태그(`featuredTags`)가 순위 순으로 앞", "D115", "1.10.0"} {
+		if !strings.Contains(summary.Description, text) {
 			t.Errorf("DiarySummary 설명에 %q가 없음", text)
 		}
 	}

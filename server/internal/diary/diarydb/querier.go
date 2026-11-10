@@ -22,6 +22,7 @@ type Querier interface {
 	// 잠금 순서는 diaries 행 다음 diary_days 행입니다(만들기는 diary_days 행 다음 새 행이라 순환이 없습니다). 없으면 행을 돌려받지 못합니다(pgx.ErrNoRows).
 	GetDiaryState(ctx context.Context, arg GetDiaryStateParams) (GetDiaryStateRow, error)
 	// guide_question은 그 편에서 고른 오늘의 질문이고, 고르지 않았으면 NULL이라 날짜 기록의 질문을 돌려줍니다(S140).
+	// guide_question_removed가 true면 질문을 뗀 편이라 질문 없이 돌려줍니다(D116, S149).
 	InsertDiary(ctx context.Context, arg InsertDiaryParams) (InsertDiaryRow, error)
 	// 그날 첫 편이면 날짜 기록을 만들고, 이미 있으면 먼저 넣은 기록을 그대로 둡니다.
 	InsertDiaryDay(ctx context.Context, arg InsertDiaryDayParams) error

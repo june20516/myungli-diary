@@ -143,15 +143,16 @@ type Device struct {
 }
 
 type Diary struct {
-	ID              uuid.UUID
-	AccountID       uuid.UUID
-	Date            pgtype.Date
-	Body            string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	DeletedAt       *time.Time
-	ContentPurgedAt *time.Time
-	GuideQuestion   []byte
+	ID                   uuid.UUID
+	AccountID            uuid.UUID
+	Date                 pgtype.Date
+	Body                 string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+	DeletedAt            *time.Time
+	ContentPurgedAt      *time.Time
+	GuideQuestion        []byte
+	GuideQuestionRemoved bool
 }
 
 type DiaryDay struct {
