@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart'
+    show HitTestResult, RenderPointerListener;
 import 'package:myungli_diary/core/api/gen/model/score_item.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -168,11 +170,52 @@ class _FortuneVerdictState extends State<FortuneVerdict>
   /// 내역을 펼쳤는지. 시트를 열 때마다 새 상태라 처음에는 늘 접힘입니다.
   bool _expanded = false;
 
+  /// 이번 누름에서 카드 잉크를 시작했는지.
+  bool _inked = false;
+
   void _toggle() => setState(() => _expanded = !_expanded);
 
-  void _tapUp(TapUpDetails details) {
+  /// 카드 잉크를 시작합니다. 안쪽 누르는 자리(내역 태그)를 눌렀으면 그 안에만 번지도록
+  /// 카드 잉크는 시작하지 않습니다(V61). 안쪽이 이기는지는 손을 뗄 때 정해지는데, 길게
+  /// 누르면 바깥 `onTapDown`도 먼저 불리기 때문입니다.
+  void _tapDown(TapDownDetails details) {
+    if (_pressesInner(details.globalPosition)) return;
+    _inked = true;
+    pressInkDown(details);
+  }
+
+  void _releaseInk() {
+    if (!_inked) return;
+    _inked = false;
     pressInkUp();
+  }
+
+  void _tapUp(TapUpDetails details) {
+    _releaseInk();
     _toggle();
+  }
+
+  /// [position]의 hit test 경로에서 이 카드보다 안쪽에 포인터를 받는 자리
+  /// (`GestureDetector`의 `RenderPointerListener`)가 카드 자신 말고 더 있는지.
+  bool _pressesInner(Offset position) {
+    final root = context.findRenderObject();
+    final result = HitTestResult();
+    WidgetsBinding.instance.hitTestInView(
+      result,
+      position,
+      View.of(context).viewId,
+    );
+    var listeners = 0;
+    // 경로는 깊은 쪽부터라 이 위젯의 뿌리에 닿을 때까지가 카드 안쪽입니다.
+    for (final entry in result.path) {
+      final target = entry.target;
+      if (identical(target, root)) break;
+      if (target is RenderPointerListener && target.onPointerDown != null) {
+        listeners++;
+      }
+    }
+    // 하나는 카드 자신의 GestureDetector입니다.
+    return listeners > 1;
   }
 
   @override
@@ -227,6 +270,8 @@ class _FortuneVerdictState extends State<FortuneVerdict>
     return Semantics(
       container: true,
       label: label,
+      // 키보드 포커스와 확정은 다른 press.ink 대상(PressInkTarget)과 같습니다. 포커스 테두리
+      // (`focus.ring`)는 입력 칸의 패턴이라 두지 않습니다.
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
         actions: {
@@ -242,9 +287,9 @@ class _FortuneVerdictState extends State<FortuneVerdict>
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           excludeFromSemantics: true,
-          onTapDown: pressInkDown,
+          onTapDown: _tapDown,
           onTapUp: _tapUp,
-          onTapCancel: pressInkUp,
+          onTapCancel: _releaseInk,
           child: animate(
             InteractionPattern.pressInk,
             t: pressInk,

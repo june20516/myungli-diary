@@ -401,6 +401,8 @@ class EventRow extends StatelessWidget {
     );
     final titleStyle = type.bodyUi.copyWith(color: colors.textPrimary);
     // 시각, 종일 꼬리표, 꺾쇠는 제목 첫 줄 높이 안에서 세로 가운데입니다(`row.align` first-line).
+    // 첫 줄 높이를 최소 높이로 준 상자 안에서 Align(widthFactor, heightFactor 1)이 자식 크기로
+    // 줄어든 뒤 그 높이까지 늘어나므로, 자식이 첫 줄 높이 가운데에 놓입니다(더 크면 자식 크기).
     final firstLineHeight = lineHeightOf(titleStyle, scaler);
     Widget onFirstLine(Widget child) => ConstrainedBox(
       constraints: BoxConstraints(minHeight: firstLineHeight),

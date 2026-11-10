@@ -347,6 +347,28 @@ void main() {
       expect(find.byType(ScoreRow), findsNWidgets(2));
     });
 
+    testWidgets('안쪽 태그를 누르는 동안 카드 잉크는 번지지 않고 태그 안에만 번짐(V61)', (tester) async {
+      await tester.pumpWidget(
+        _app(_verdict(items: _twoItems, onItemTap: (_) {})),
+      );
+      await _toggle(tester);
+      final layers = inkLayer(find.byType(FortuneVerdict));
+      // 카드 잉크 층은 카드 내용 뒤(Stack 마지막)라 트리 순서상 마지막입니다.
+      final cardLayer = layers.last;
+      final tagLayer = inkLayer(find.widgetWithText(ScoreRow, '합')).first;
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('합').first),
+      );
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(paintsInk(tester, tagLayer), isTrue);
+      expect(paintsInk(tester, cardLayer), isFalse);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      // 태그만 눌렸고 카드는 펼친 그대로입니다.
+      expect(find.byType(ScoreRow), findsNWidgets(2));
+    });
+
     testWidgets('카드 누름은 press.ink(카드 radius.lg)', (tester) async {
       await tester.pumpWidget(_app(_verdict(items: _twoItems)));
       final layer = inkLayer(find.byType(FortuneVerdict)).first;
