@@ -41,8 +41,9 @@ python3 -I core/docs/references/gungtong-bogam/tools/build_evidence.py
 | 파일 | 내용 |
 | --- | --- |
 | `sammyeong-tonghoe/vol2.wikitext`, `vol3.wikitext` | 『三命通會』 卷二, 卷三 원문 (수집 원본, 수정 금지, 간체) |
-| `sammyeong-tonghoe/skqs-vol01.wikitext` | 『三命通會』 四庫全書本 卷一 원문 (수집 원본, 수정 금지, 번체, 구두점 없음). 오행 색 金=白 대조용(#937) |
+| `sammyeong-tonghoe/skqs-vol01.wikitext` | 『三命通會』 四庫全書本 卷一 원문 (수집 원본, 수정 금지, 번체, 구두점 없음). 오행 색 金=白 대조와 색 변역 원전(#937) |
 | `jeokcheonsu/ch03.wikitext`, `ch17.wikitext` | 『滴天髓』 「地支論」, 「月令論」 원문 (수집 원본, 수정 금지, 번체) |
+| `sammyeong-tonghoe/skqs-vol01.wikitext` → `core/src/myungli_engine/references/data/sammyeong_tonghoe/five_elements.json` | 행운 색 변역(變易) 원전 `color_change`: 「論五行」 본문(`quote`, 작은 주 뺌)과 작은 주를 괄호에 넣은 문단(`passage`), 명리일기 해석 `note`(#937, core C33). 생성기 `tools/build_color_source.py` |
 | `tools/build_tag_sources.py` | 조목 문단을 뽑아 `core/src/myungli_engine/references/data/<자료>/tags.json`을 만드는 생성기. 인용이 원문 문단에 없으면 멈춤 |
 
 다시 생성하려면 저장소 루트에서 다음을 실행합니다.

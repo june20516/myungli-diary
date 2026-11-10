@@ -9,6 +9,13 @@
     "note",
     "role"
   ],
+  "color/shift": [
+    "base_element",
+    "day_branch",
+    "element",
+    "shift",
+    "twelve_stage"
+  ],
   "direction/gwiin_branch": [
     "day_branch",
     "day_kind",
