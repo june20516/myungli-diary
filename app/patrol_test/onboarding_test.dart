@@ -5,7 +5,6 @@ import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
-import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
@@ -76,10 +75,12 @@ void main() {
     ).tap();
 
     await expectScreen($, ScreenIds.notifyAsk);
+    // 같은 틀 안에 건너뛰기(secondaryAction)도 있어 허락 슬롯으로 찾습니다.
     await $(
-      find.descendant(
-        of: find.byType(InputStep),
-        matching: find.byType(PrimaryButton),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is PrimaryButton &&
+            widget.identifier == SlotIds.notifyAskCtaAllow,
       ),
     ).tap();
 

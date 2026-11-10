@@ -16,13 +16,26 @@ Future<void> closeSheet(
   expect(sheet, findsNothing);
 }
 
-/// 시트 바깥(scrim)을 누릅니다. 바깥 누르기 동작 자체를 볼 때 씁니다.
+/// 시트 바깥(scrim)을 한 번 누릅니다. 바깥 누르기 동작 자체를 볼 때 씁니다.
 ///
 /// 덮개(`sheet.scrim`)의 왼쪽 위 모서리 안쪽을 누릅니다(고정 좌표가 아님). 시트는 아래에서
-/// 올라오므로 그 자리는 늘 바깥이고, 시트가 쌓였으면 맨 위 층의 바깥 누르기가 받습니다.
-/// Patrol의 `closeSheets`(patrol_test/support/e2e_app.dart)와 같은 자리입니다.
+/// 올라오므로 그 자리는 늘 바깥이고, 시트가 쌓였으면 맨 위 층의 바깥 누르기가 받아 맨 위
+/// 시트 하나만 닫습니다(V100). Patrol의 `closeSheets`(patrol_test/support/e2e_app.dart)와
+/// 같은 자리입니다.
 Future<void> tapSheetScrim(WidgetTester tester) async {
   final scrim = find.byKey(const ValueKey('sheet.scrim'));
   expect(scrim, findsWidgets);
   await tester.tapAt(tester.getTopLeft(scrim.last) + const Offset(10, 10));
+}
+
+/// 시트 바깥을 덮개가 모두 사라질 때까지 눌러 쌓인 시트를 한 단계씩 모두 닫습니다.
+///
+/// 시트 깊이는 최대 2라 두 번이면 되지만, 넉넉하게 시도하고 그래도 남으면 실패로 알립니다.
+Future<void> tapSheetScrimUntilClosed(WidgetTester tester) async {
+  final scrim = find.byKey(const ValueKey('sheet.scrim'));
+  for (var attempt = 0; attempt < 4 && scrim.evaluate().isNotEmpty; attempt++) {
+    await tapSheetScrim(tester);
+    await tester.pumpAndSettle();
+  }
+  expect(scrim, findsNothing, reason: '열린 시트가 모두 닫혀야 합니다');
 }

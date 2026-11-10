@@ -1968,9 +1968,19 @@ void main() {
       expect(_num(screen['scale']), PatternValues.stackScreenScale);
       expect(_num(screen['brightness']), PatternValues.stackScreenBrightness);
       final sheet = _map(stack['sheetBelow']);
-      expect(_px(sheet['translateY']), PatternValues.stackSheetTranslateY);
+      // 6.3.0: 아래 시트 이동은 수치가 아니라 peek 규칙(머리 14px)입니다.
+      expect(sheet['translateY'], 'peek');
+      expect(_px(_map(stack['peek'])['height']), PatternValues.stackPeekHeight);
       expect(_num(sheet['scale']), PatternValues.stackSheetScale);
       expect(_num(sheet['brightness']), PatternValues.stackSheetBrightness);
+      expect(stack['properties'], ['translateY', 'brightness-overlay']);
+
+      // tab.switch: 겹쳐 투명도만(이동 없음), 앞 1→0, 새 0→1(V104).
+      final tab = p('tab.switch');
+      expect(_map(tab['outgoing'])['opacity'], [1, 0]);
+      expect(_map(tab['incoming'])['opacity'], [0, 1]);
+      expect(tab['together'], isTrue);
+      expect(tab['movement'], 'none');
 
       final push = p('page.push');
       final enter = _map(push['enter']);

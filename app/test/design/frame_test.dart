@@ -17,6 +17,7 @@ import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/frame/ad_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
+import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
@@ -24,6 +25,7 @@ import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
+import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -573,24 +575,23 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final before = tester.getSize(find.byKey(const ValueKey('sheet-a')));
+      final a = find.byKey(const ValueKey('sheet-a'));
+      final before = tester.getRect(a);
       await tester.tap(find.text('깊이'));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('sheet-b')), findsOneWidget);
-      // 아래 층은 0.94배로 물러납니다.
-      final a = find.byKey(const ValueKey('sheet-a'));
-      final scaled = tester.getBottomRight(a).dx - tester.getTopLeft(a).dx;
-      expect(scaled, closeTo(before.width * 0.94, 0.5));
+      // 아래 층은 크기 그대로 머리 14px만큼 위로 올라갑니다(V110).
+      expect(tester.getRect(a).width, closeTo(before.width, 0.01));
+      expect(tester.getRect(a).top, closeTo(before.top - 14, 0.01));
 
       _navigatorKey.currentState!.pop();
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('sheet-b')), findsNothing);
       expect(find.byKey(const ValueKey('sheet-a')), findsOneWidget);
-      final restored = tester.getBottomRight(a).dx - tester.getTopLeft(a).dx;
-      expect(restored, closeTo(before.width, 0.5));
+      expect(tester.getRect(a), before);
     });
 
-    testWidgets('덮개를 누르면 쌓인 시트가 모두 닫힙니다', (tester) async {
+    testWidgets('바깥을 누르면 맨 위 시트 하나씩 닫힙니다(V100)', (tester) async {
       tester.view
         ..physicalSize = const Size(400, 900)
         ..devicePixelRatio = 1;
@@ -615,6 +616,11 @@ void main() {
       await tester.tap(find.text('깊이'));
       await tester.pumpAndSettle();
       expect(find.byType(MyungliSheetFrame), findsNWidgets(2));
+      await tester.tapAt(const Offset(200, 20));
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      expect(find.byKey(const ValueKey('sheet-b')), findsNothing);
+      expect(find.text('깊이'), findsOneWidget);
       await tester.tapAt(const Offset(200, 20));
       await tester.pumpAndSettle();
       expect(find.byType(MyungliSheetFrame), findsNothing);
@@ -1514,7 +1520,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('쌓여도 덮개는 하나이고 아래 화면이 0.92배로 물러납니다', (tester) async {
+    testWidgets('쌓여도 덮개는 하나이고 뒤 화면은 크기 그대로입니다(V110)', (tester) async {
       tester.view
         ..physicalSize = const Size(400, 900)
         ..devicePixelRatio = 1;
@@ -1549,17 +1555,24 @@ void main() {
       await tester.tap(find.text('깊이'));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('sheet.scrim')), findsOneWidget);
-      expect(width(), closeTo(400 * 0.92, 0.5));
+      expect(width(), 400);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('screen')),
+          matching: find.byType(Transform),
+        ),
+        findsNothing,
+      );
       _navigatorKey.currentState!.pop();
       await tester.pumpAndSettle();
       expect(width(), closeTo(400, 0.5));
     });
 
-    testWidgets('화면 셸 안쪽 navigator에서 열어도 쌓인 시트의 바깥을 누르면 모두 닫힙니다', (
+    testWidgets('화면 셸 안쪽 navigator에서 열어도 셸 바깥에 쌓이고 바깥 누르기는 한 단계씩 닫습니다', (
       tester,
     ) async {
-      // 탭 화면처럼 SheetScreenBelow 안쪽에 navigator가 있어도, 시트가 그 안에 갇혀
-      // 0.92배로 줄어든 덮개가 화면 모서리를 놓치지 않아야 합니다.
+      // 탭 화면처럼 SheetScreenBelow 안쪽에 navigator가 있어도, 시트는 셸 바깥 navigator에
+      // 쌓여 덮개가 화면 전체(탭 바 포함)를 덮습니다.
       tester.view
         ..physicalSize = const Size(400, 900)
         ..devicePixelRatio = 1;
@@ -1597,10 +1610,18 @@ void main() {
       await tester.tap(find.text('깊이'));
       await tester.pumpAndSettle();
       expect(find.byType(MyungliSheetFrame), findsNWidgets(2));
+      expect(Navigator.of(inner).canPop(), isFalse, reason: '셸 바깥에 쌓임');
+      expect(
+        tester.getRect(find.byKey(const ValueKey('sheet.scrim'))),
+        const Rect.fromLTWH(0, 0, 400, 900),
+      );
 
       await tapSheetScrim(tester);
       await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsOneWidget);
 
+      await tapSheetScrim(tester);
+      await tester.pumpAndSettle();
       expect(find.byType(MyungliSheetFrame), findsNothing);
     });
 
@@ -1653,6 +1674,390 @@ void main() {
       expect(Navigator.of(outer).canPop(), isFalse);
     });
   });
+  group('sheet.stack peek (V110)', () {
+    const lowerKey = ValueKey('lower');
+    const upperKey = ValueKey('upper');
+
+    /// 아래 시트([lower] 크기, 내용 높이 [lowerHeight])를 열고 그 안에서 위 시트를 엽니다.
+    /// [settle]이 false면 위 시트를 연 첫 프레임에서 멈춥니다.
+    Future<void> openStack(
+      WidgetTester tester, {
+      required SheetSize lower,
+      required double lowerHeight,
+      required SheetSize upper,
+      required double upperHeight,
+      bool reduceMotion = false,
+      bool settle = true,
+      bool upperBlocksPop = false,
+    }) async {
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      // 시트는 home 바깥 navigator에 쌓이므로 기기 설정(MediaQuery)으로 동작 줄이기를 줍니다.
+      if (reduceMotion) {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(disableAnimations: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+      }
+      await tester.pumpWidget(_app(const SizedBox.expand()));
+      unawaited(
+        showMyungliSheet<void>(
+          _navigatorKey.currentContext!,
+          size: lower,
+          semanticLabel: '아래 시트',
+          builder: (context) => SingleChildScrollView(
+            child: SizedBox(
+              key: lowerKey,
+              height: lowerHeight,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: TextButton(
+                  onPressed: () => showMyungliSheet<void>(
+                    context,
+                    size: upper,
+                    builder: (_) => PopScope(
+                      canPop: !upperBlocksPop,
+                      child: SingleChildScrollView(
+                        child: SizedBox(key: upperKey, height: upperHeight),
+                      ),
+                    ),
+                  ),
+                  child: const Text('깊이'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('깊이'));
+      if (settle) await tester.pumpAndSettle();
+    }
+
+    Finder frameOf(Key key) => find.ancestor(
+      of: find.byKey(key),
+      matching: find.byType(MyungliSheetFrame),
+    );
+
+    // sheet.stack 덮개는 누르기를 받지 않는(IgnorePointer) 검은 ColoredBox입니다.
+    double veilAlpha(WidgetTester tester) => tester
+        .widgetList<ColoredBox>(
+          find.descendant(
+            of: find.byType(IgnorePointer),
+            matching: find.byType(ColoredBox),
+          ),
+        )
+        .map((box) => box.color)
+        .where((color) => color.r == 0 && color.g == 0 && color.b == 0)
+        .map((color) => color.a)
+        .fold(0, (a, b) => a > b ? a : b);
+
+    test('올라갈 거리는 위 시트 높이 + 14 - 아래 시트 높이이고 음수면 0입니다', () {
+      expect(sheetStackLift(below: 200, above: 540), 354);
+      expect(sheetStackLift(below: 554, above: 540), 0);
+      expect(sheetStackLift(below: 888, above: 540), 0);
+    });
+
+    testWidgets('아래 시트가 짧으면 머리 14px가 보이게 올라가고 밝기 0.92, 크기는 그대로', (
+      tester,
+    ) async {
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 4000,
+      );
+      final lower = tester.getRect(frameOf(lowerKey));
+      final upper = tester.getRect(frameOf(upperKey));
+      expect(upper.height, closeTo(540, 0.01));
+      expect(
+        lower.top,
+        closeTo(upper.top - PatternValues.stackPeekHeight, 0.01),
+      );
+      expect(lower.width, 400, reason: '크기 그대로');
+      expect(veilAlpha(tester), closeTo(1 - 0.92, 0.001));
+    });
+
+    testWidgets('아래 시트가 이미 더 크면 움직이지 않고 어두워지기만 합니다', (tester) async {
+      await openStack(
+        tester,
+        lower: SheetSize.full,
+        lowerHeight: 4000,
+        upper: SheetSize.half,
+        upperHeight: 4000,
+      );
+      expect(
+        tester.getRect(frameOf(lowerKey)).top,
+        closeTo(sheetFullTopGap, 0.01),
+      );
+      expect(veilAlpha(tester), closeTo(0.08, 0.001));
+    });
+
+    testWidgets('올라갈 자리가 없으면 위 시트 높이를 줄여 14px를 남기고 위 시트 안이 스크롤됩니다', (
+      tester,
+    ) async {
+      await openStack(
+        tester,
+        lower: SheetSize.full,
+        lowerHeight: 4000,
+        upper: SheetSize.full,
+        upperHeight: 4000,
+      );
+      final lower = tester.getRect(frameOf(lowerKey));
+      final upper = tester.getRect(frameOf(upperKey));
+      expect(lower.top, closeTo(sheetFullTopGap, 0.01));
+      expect(upper.height, closeTo(900 - sheetFullTopGap - 14, 0.01));
+      expect(upper.top - lower.top, closeTo(14, 0.01));
+      // 줄어든 높이에 들어가지 않는 내용은 위 시트 안에서 스크롤됩니다.
+      final scroll = find.ancestor(
+        of: find.byKey(upperKey),
+        matching: find.byType(Scrollable),
+      );
+      final position = tester.state<ScrollableState>(scroll.first).position;
+      expect(position.maxScrollExtent, greaterThan(0));
+    });
+
+    testWidgets('보이는 머리 띠를 누르면 맨 위 시트 하나만 닫힙니다', (tester) async {
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 4000,
+      );
+      final upper = tester.getRect(frameOf(upperKey));
+      await tester.tapAt(Offset(200, upper.top - 7));
+      await tester.pumpAndSettle();
+      expect(find.byKey(upperKey), findsNothing);
+      expect(find.byKey(lowerKey), findsOneWidget);
+      // 아래 시트는 제자리로 내려오고 덮개가 걷힙니다.
+      expect(tester.getRect(frameOf(lowerKey)).bottom, 900);
+      expect(veilAlpha(tester), 0);
+    });
+
+    testWidgets('바깥 누르기도 PopScope가 막으면 닫지 않습니다', (tester) async {
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 100,
+        upperBlocksPop: true,
+      );
+      await tester.tapAt(const Offset(200, 20));
+      await tester.pumpAndSettle();
+      expect(find.byKey(upperKey), findsOneWidget);
+    });
+
+    testWidgets('위 시트를 끌어 내리는 동안 아래 시트가 그 비율만큼 내려오고 덮개도 걷힙니다', (tester) async {
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 4000,
+      );
+      const restingTop = 900 - (24 + 200 + 24.0);
+      final liftedTop = tester.getRect(frameOf(lowerKey)).top;
+      final lift = restingTop - liftedTop;
+      final upperHeight = tester.getRect(frameOf(upperKey)).height;
+
+      final handle = tester.getRect(frameOf(upperKey)).topCenter;
+      final gesture = await tester.startGesture(handle + const Offset(0, 10));
+      await gesture.moveBy(const Offset(0, 20));
+      await gesture.moveBy(const Offset(0, 100));
+      await tester.pump();
+      final dragged =
+          tester.getRect(frameOf(upperKey)).top - (900 - upperHeight);
+      final release = dragged / upperHeight;
+      expect(release, greaterThan(0));
+      expect(
+        tester.getRect(frameOf(lowerKey)).top,
+        closeTo(restingTop - lift * (1 - release), 0.5),
+      );
+      expect(veilAlpha(tester), closeTo(0.08 * (1 - release), 0.001));
+
+      // 놓아서 제자리로 돌아오면 다시 올라갑니다.
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(tester.getRect(frameOf(lowerKey)).top, closeTo(liftedTop, 0.01));
+    });
+
+    testWidgets('기본: 아래 시트는 sheet.stack 동안 올라갑니다(중간 프레임은 사이 값)', (
+      tester,
+    ) async {
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 4000,
+        settle: false,
+      );
+      const restingTop = 900 - (24 + 200 + 24.0);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final mid = tester.getRect(frameOf(lowerKey)).top;
+      await tester.pumpAndSettle();
+      final end = tester.getRect(frameOf(lowerKey)).top;
+      expect(mid, lessThan(restingTop));
+      expect(mid, greaterThan(end));
+    });
+
+    testWidgets('동작 줄이기: 아래 시트는 이동 없이 바로 올라간 자리이고 덮개 투명도만 바뀝니다', (
+      tester,
+    ) async {
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 4000,
+        reduceMotion: true,
+        settle: false,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final upperTop = 900 - tester.getRect(frameOf(upperKey)).height;
+      expect(
+        tester.getRect(frameOf(lowerKey)).top,
+        closeTo(upperTop - 14, 0.01),
+        reason: '중간 프레임에서도 이미 올라간 자리',
+      );
+      final midVeil = veilAlpha(tester);
+      expect(midVeil, greaterThan(0));
+      expect(midVeil, lessThan(0.08));
+      await tester.pumpAndSettle();
+      expect(veilAlpha(tester), closeTo(0.08, 0.001));
+    });
+
+    testWidgets('위 시트가 열린 동안 아래 시트(머리 띠 포함)는 스크린리더에서 숨습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 100,
+      );
+      expect(find.semantics.byLabel('아래 시트'), findsNothing);
+      expect(find.semantics.byLabel('깊이'), findsNothing);
+      // 닫기(바깥) 동작은 맨 위 시트의 것 하나만 보입니다. 누르면 맨 위 시트만 닫힙니다.
+      expect(find.semantics.byLabel('닫기'), findsOneWidget);
+      tester.semantics.tap(find.semantics.byLabel('닫기'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(upperKey), findsNothing);
+      expect(find.byKey(lowerKey), findsOneWidget);
+      expect(find.semantics.byLabel('아래 시트'), findsOneWidget);
+      expect(find.semantics.byLabel('닫기'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('pop으로 위 시트를 닫으면 아래 시트가 다시 스크린리더에 보입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await openStack(
+        tester,
+        lower: SheetSize.half,
+        lowerHeight: 200,
+        upper: SheetSize.half,
+        upperHeight: 100,
+      );
+      expect(find.semantics.byLabel('아래 시트'), findsNothing);
+      _navigatorKey.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(find.semantics.byLabel('아래 시트'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('내용이 최대 높이를 넘으면 시트 안이 스크롤되고 핸들 자리는 맨 위에 남습니다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 900)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const SizedBox.expand()));
+      unawaited(
+        showMyungliSheet<void>(
+          _navigatorKey.currentContext!,
+          size: SheetSize.half,
+          builder: (_) => const SingleChildScrollView(
+            key: ValueKey('body'),
+            child: Column(
+              children: [
+                SizedBox(height: 2000),
+                SizedBox(key: ValueKey('last'), height: 40),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final frame = tester.getRect(find.byType(MyungliSheetFrame));
+      expect(frame.height, closeTo(540, 0.01));
+      await tester.drag(
+        find.byKey(const ValueKey('body')),
+        const Offset(0, -3000),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(MyungliSheetFrame), findsOneWidget);
+      expect(
+        tester.getRect(find.byKey(const ValueKey('sheet.handle'))).center.dy,
+        frame.top + 12,
+        reason: '핸들 자리는 스크롤되지 않음',
+      );
+      expect(
+        tester.getRect(find.byKey(const ValueKey('last'))).bottom,
+        closeTo(frame.bottom - Space.s24, 0.01),
+        reason: '맨 아래 내용 뒤 space.24',
+      );
+    });
+  });
+
+  group('onboarding-page-layout', () {
+    for (final inset in [0.0, 34.0, 48.0]) {
+      testWidgets(
+        'inset $inset: 버튼만 있는 화면의 맨 아래 버튼은 inset 위 space.16입니다(V106)',
+        (tester) async {
+          tester.view
+            ..physicalSize = const Size(400, 800)
+            ..devicePixelRatio = 1
+            ..padding = FakeViewPadding(bottom: inset)
+            ..viewPadding = FakeViewPadding(bottom: inset);
+          addTearDown(() {
+            tester.view
+              ..reset()
+              ..resetPadding()
+              ..resetViewPadding();
+          });
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: buildTheme(
+                brightness: Brightness.light,
+                locale: const Locale('ko'),
+              ),
+              home: const Scaffold(
+                body: SafeArea(
+                  child: OnboardingPageLayout(
+                    body: [Text('안내')],
+                    actions: [SizedBox(key: ValueKey('last'), height: 52)],
+                  ),
+                ),
+              ),
+            ),
+          );
+          expect(
+            tester.getBottomLeft(find.byKey(const ValueKey('last'))).dy,
+            800 - inset - OnboardingPageLayout.bottomGap,
+          );
+          expect(OnboardingPageLayout.bottomGap, Space.s16);
+        },
+      );
+    }
+  });
+
   group('section-header', () {
     Widget host(
       Widget child, {

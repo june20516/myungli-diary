@@ -31,6 +31,7 @@ import 'package:myungli_diary/core/storage/secure_store.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/frame/onboarding_page_layout.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
@@ -375,9 +376,10 @@ void main() {
       expect(_top(tester, body) - tester.getBottomLeft(title).dy, Space.s8);
       final screenBottom =
           tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      // 맨 아래 버튼 아래는 아래 시스템 inset 위 space.16입니다(V106).
       expect(
         tester.getBottomLeft(_cta).dy,
-        moreOrLessEquals(screenBottom - Space.s24),
+        moreOrLessEquals(screenBottom - OnboardingPageLayout.bottomGap),
       );
     });
 

@@ -144,9 +144,7 @@ Widget _sheetScene({required SheetSize size, bool stacked = false}) {
                       InteractionPattern.sheetStack,
                       t: const AlwaysStoppedAnimation(1),
                       prefs: MotionPrefs.of(context),
-                      options: const PatternOptions(
-                        stackLayer: StackLayer.sheet,
-                      ),
+                      // 아래 시트가 이미 더 큰 경우(이동 없이 밝기 0.92만, V110).
                       child: frame(),
                     )
                   : frame(),

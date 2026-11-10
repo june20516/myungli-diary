@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/frame/tab_switch_stack.dart';
 import 'package:myungli_diary/features/auth/application/login_completing.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
 import 'package:myungli_diary/features/onboarding/presentation/onboarding_step_mode.dart';
@@ -275,9 +276,12 @@ GoRouter buildRouter(Ref ref) {
     onException: (context, state, router) =>
         router.go(unknownPathTarget(ref.read(entryProvider))),
     routes: [
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, shell) =>
             TabShell(shell, path: state.uri.path),
+        // 탭 사이 이동은 tab.switch(겹쳐 투명도만, V104)입니다.
+        navigatorContainerBuilder: (context, shell, children) =>
+            TabSwitchStack(index: shell.currentIndex, children: children),
         branches: [
           for (final id in tabRoots)
             StatefulShellBranch(routes: [_routeOf(id)]),

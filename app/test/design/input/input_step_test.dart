@@ -297,6 +297,135 @@ void main() {
       expect(tester.widget<Text>(find.text('도움말')).style, shared);
     });
 
+    group('맨 아래 버튼 자리(V106)', () {
+      /// 아래 시스템 inset [inset](Android 3버튼 48, 제스처 막대, 없음 0, iPhone 34)과
+      /// 키보드 [keyboard]를 띄운 400x800 화면.
+      void device(
+        WidgetTester tester, {
+        double inset = 0,
+        double keyboard = 0,
+      }) {
+        tester.view
+          ..physicalSize = const Size(400, 800)
+          ..devicePixelRatio = 1
+          // 기기는 키보드가 열리면 padding(가려진 몫)을 줄여 알립니다(viewPadding은 그대로).
+          ..padding = FakeViewPadding(
+            bottom: keyboard >= inset ? 0 : inset - keyboard,
+          )
+          ..viewPadding = FakeViewPadding(bottom: inset)
+          ..viewInsets = FakeViewPadding(bottom: keyboard);
+        addTearDown(() {
+          tester.view
+            ..reset()
+            ..resetPadding()
+            ..resetViewPadding()
+            ..resetViewInsets();
+        });
+      }
+
+      const skipKey = ValueKey('skip');
+      InputStep twoButtons({VoidCallback? onSkip}) => InputStep(
+        screenId: 'notify-ask',
+        variant: InputStepVariant.standalone,
+        question: '알림을 받을까요?',
+        input: const SizedBox(height: 52),
+        actionLabel: '알림 받기',
+        onAction: () {},
+        secondaryActionLabel: '나중에',
+        secondaryActionKey: skipKey,
+        onSecondaryAction: onSkip ?? () {},
+      );
+
+      for (final inset in [0.0, 24.0, 34.0, 48.0]) {
+        testWidgets('inset $inset: 버튼 아래 끝은 inset 위 space.16입니다', (
+          tester,
+        ) async {
+          device(tester, inset: inset);
+          await tester.pumpWidget(inputApp(_step()));
+          await tester.pumpAndSettle();
+          expect(
+            tester.getBottomLeft(find.byType(PrimaryButton)).dy,
+            800 - inset - InputStep.bottomGap,
+          );
+        });
+
+        testWidgets('inset $inset: SafeArea가 inset을 비운 화면에서도 같습니다', (
+          tester,
+        ) async {
+          device(tester, inset: inset);
+          await tester.pumpWidget(inputApp(SafeArea(child: _step())));
+          await tester.pumpAndSettle();
+          expect(
+            tester.getBottomLeft(find.byType(PrimaryButton)).dy,
+            800 - inset - InputStep.bottomGap,
+          );
+        });
+
+        testWidgets('inset $inset: 두 번째 버튼이 맨 아래 버튼이고 두 버튼 사이는 space.16입니다', (
+          tester,
+        ) async {
+          device(tester, inset: inset);
+          await tester.pumpWidget(inputApp(SafeArea(child: twoButtons())));
+          await tester.pumpAndSettle();
+          final primary = tester.getRect(
+            find.widgetWithText(PrimaryButton, '알림 받기'),
+          );
+          final skip = tester.getRect(find.byKey(skipKey));
+          expect(skip.bottom, 800 - inset - InputStep.bottomGap);
+          expect(skip.top - primary.bottom, InputStep.secondaryActionGap);
+          expect(primary.height, 52);
+          expect(skip.height, 52, reason: '두 버튼 높이 모두 52(V60)');
+          expect(skip.left, Space.s20);
+          expect(skip.right, 400 - Space.s20);
+        });
+      }
+
+      testWidgets('키보드가 열리면 inset과 상관없이 두 버튼이 함께 키보드 위 space.16에 붙습니다', (
+        tester,
+      ) async {
+        device(tester, inset: 48, keyboard: 300);
+        await tester.pumpWidget(inputApp(SafeArea(child: twoButtons())));
+        await tester.pumpAndSettle();
+        final primary = tester.getRect(
+          find.widgetWithText(PrimaryButton, '알림 받기'),
+        );
+        final skip = tester.getRect(find.byKey(skipKey));
+        expect(skip.bottom, 800 - 300 - InputStep.bottomGap);
+        expect(skip.top - primary.bottom, InputStep.secondaryActionGap);
+      });
+
+      testWidgets('두 번째 버튼은 quiet이고 누르면 onSecondaryAction, null이면 disabled', (
+        tester,
+      ) async {
+        var skipped = 0;
+        await tester.pumpWidget(inputApp(twoButtons(onSkip: () => skipped++)));
+        await tester.pumpAndSettle();
+        final skip = tester.widget<PrimaryButton>(find.byKey(skipKey));
+        expect(skip.variant, PrimaryButtonVariant.quiet);
+        await tester.tap(find.byKey(skipKey));
+        expect(skipped, 1);
+
+        await tester.pumpWidget(
+          inputApp(
+            const InputStep(
+              screenId: 'notify-ask',
+              variant: InputStepVariant.standalone,
+              question: '질문',
+              input: SizedBox(),
+              actionLabel: '알림 받기',
+              onAction: null,
+              secondaryActionLabel: '나중에',
+              secondaryActionKey: skipKey,
+            ),
+          ),
+        );
+        expect(
+          tester.widget<PrimaryButton>(find.byKey(skipKey)).onPressed,
+          isNull,
+        );
+      });
+    });
+
     testWidgets('글자 3.0배에서도 overflow 없이 스크롤됩니다', (tester) async {
       tester.view
         ..physicalSize = const Size(360, 640)
