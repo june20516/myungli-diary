@@ -1732,7 +1732,7 @@
    "tab": "calendar",
    "presentation": "full-sheet",
    "auth": "member",
-   "purpose": "펼침, 접힘 없이 처음부터 큰 시트로 그날을 보여줍니다. 위에서부터 날짜와 음력 → 날의 성격 한자 아이콘 태그 → 길흉판정(위치 막대와 내역) → 일정(+로 추가) → 그날 쓴 일기 줄과 일기 쓰기 입구(D108)",
+   "purpose": "펼침, 접힘 없이 처음부터 큰 시트로 그날을 보여줍니다. 위에서부터 날짜와 음력 → 날의 성격 한자 아이콘 태그 → 길흉판정(위치 막대와 세 이름, 내역은 카드를 눌러 펼침) → 일정(+로 추가) → 그날 쓴 일기 줄과 일기 쓰기 입구(D108)",
    "depths": [
     "surface",
     "explain"
@@ -1778,6 +1778,16 @@
      "role": "내역 한 줄 틀: 한자 아이콘 태그, 짧은 뜻, 점과 더함 또는 뺌(예: 用 용신의 날, 점 둘, 더함). 숫자 대신 점, 한 줄 요약 문장 없음"
     },
     {
+     "id": "day-sheet.verdict.expand",
+     "source": "ui",
+     "role": "길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
+    },
+    {
+     "id": "day-sheet.verdict.collapse",
+     "source": "ui",
+     "role": "내역을 펼쳤을 때 같은 자리의 접기 안내(V108)"
+    },
+    {
      "id": "day-sheet.event.title",
      "source": "ui",
      "role": "일정 섹션 제목 \"일정\"(오늘 화면 `today.event.title`과 같은 키, 사용자 결정 2026-11-07, 문구 writing)"
@@ -1791,6 +1801,11 @@
      "id": "day-sheet.event.add",
      "source": "ui",
      "role": "일정 추가 버튼"
+    },
+    {
+     "id": "day-sheet.event.all-day",
+     "source": "ui",
+     "role": "일정 줄 시각 칸 안의 하루 종일 꼬리표. 칸 안에 들어가는 짧은 낱말(V107)"
     },
     {
      "id": "day-sheet.diary.open",
