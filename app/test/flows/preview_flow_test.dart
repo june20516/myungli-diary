@@ -277,25 +277,14 @@ void main() {
     expect(find.text(_ko.previewUsedNotice), findsOneWidget);
     expect(_slot(SlotIds.previewUsedInput), findsOneWidget);
 
-    final draft = (await tester.runAsync(
-      () => container.read(onboardingDraftStoreProvider).read(),
-    ))!;
-    final date = draft.date!;
-    final birthDay = formatBirthDay('ko', date.year, date.month, date.day);
-    final time = draft.time!;
-    final expectedRows = {
-      _ko.previewUsedInputName: '별님',
-      _ko.previewUsedInputBirth: _ko.previewUsedInputBirthValue(
-        draft.calendar == CalendarType.lunar
-            ? _ko.calendarLunar
-            : _ko.calendarSolar,
-        birthDay,
-      ),
-      _ko.previewUsedInputTime: time.status == BirthTimeStatusEnum.known
-          ? formatBirthClock('ko', time.value!)
-          : _ko.timeUnknownLabel,
-      _ko.previewUsedInputGender: _ko.genderFemale,
-      _ko.previewUsedInputBirthplace: _ko.profileEditBirthplaceKorea,
+    // openPreviewStep이 넣는 입력: 별님, 양력 1990-03-15(생일 기본값), 12:00(시간 기본값), 여성,
+    // 한국 기기.
+    const expectedRows = {
+      '호칭': '별님',
+      '생일': '양력 1990년 3월 15일',
+      '태어난 시간': '오후 12:00',
+      '성별': '여성',
+      '출생지': '한국 기준',
     };
     final rows = find.descendant(
       of: _slot(SlotIds.previewUsedInput),

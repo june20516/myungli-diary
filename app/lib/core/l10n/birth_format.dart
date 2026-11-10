@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/birth.dart';
 import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_type.dart';
+import 'package:myungli_diary/core/api/gen/model/city.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 
 /// [locale]의 연월일 모양(`yMMMMd`, 예 "1990년 5월 15일")으로 쓰되, 날 칸은 [day] 숫자를
@@ -95,3 +96,6 @@ String birthCalendarTag(
       ? [l10n.calendarLunar, l10n.dayCellLeapMonth].join(' ')
       : l10n.calendarLunar;
 }
+
+/// 출생지 도시 글자: "도시, 나라"(정보 수정 출생지 줄, 미리보기 입력 확인 줄).
+String birthCityLabel(City city) => '${city.name}, ${city.countryName}';

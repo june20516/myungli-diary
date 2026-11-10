@@ -67,9 +67,8 @@ class PreviewScreen extends ConsumerWidget {
     });
     final preview = ref.watch(previewProvider);
     // 이미 쓴 기기면 미리보기를 요청한 그 입력(로그인 저장 전까지 기기에 남는 초안)을 보입니다.
-    final usedDraft = isPreviewUsedError(preview.error)
-        ? ref.watch(onboardingDraftProvider).value
-        : null;
+    final used = isPreviewUsedError(preview.error);
+    final usedDraft = used ? ref.watch(onboardingDraftProvider).value : null;
     final save = PrimaryButton(
       key: const ValueKey(SlotIds.previewCtaSave),
       identifier: SlotIds.previewCtaSave,
@@ -90,13 +89,16 @@ class PreviewScreen extends ConsumerWidget {
                 showBack: MyungliAppBar.canGoBack(context),
               ),
               Expanded(
-                child: usedDraft != null
-                    ? _PreviewUsedBody(
-                        draft: usedDraft,
-                        deviceRegionIsKorea: ref.watch(
-                          deviceRegionIsKoreaProvider,
-                        ),
-                      )
+                child: used
+                    // 초안을 아직 읽는 중이면 오류 상태 대신 자리를 지키는 skeleton입니다.
+                    ? usedDraft == null
+                          ? const _PreviewSkeleton()
+                          : _PreviewUsedBody(
+                              draft: usedDraft,
+                              deviceRegionIsKorea: ref.watch(
+                                deviceRegionIsKoreaProvider,
+                              ),
+                            )
                     : ScreenStateView<Preview>(
                         value: preview,
                         onRetry: _retriable(preview.error)
@@ -119,7 +121,7 @@ class PreviewScreen extends ConsumerWidget {
                 ),
                 child: ToastAnchor(
                   // 이미 쓴 기기는 다시 입력해도 미리보기가 열리지 않아 다시 입력 링크가 없습니다(D117 ①③).
-                  child: usedDraft != null
+                  child: used
                       ? save
                       : ButtonPair(
                           filled: save,
@@ -302,6 +304,8 @@ class _PreviewUsedBody extends StatelessWidget {
     final gender = draft.gender;
     final city = deviceRegionIsKorea ? null : draft.city;
     final rows = [
+      // 미리보기는 호칭까지 다 받은 입력으로만 요청하므로(`isCompleteFor`) 여기서 호칭은 늘 있습니다.
+      // 그래서 빈 호칭의 대체 문구는 두지 않습니다.
       (l10n.previewUsedInputName, draft.honorific?.trim() ?? ''),
       if (calendar != null && date != null)
         (
@@ -321,9 +325,7 @@ class _PreviewUsedBody extends StatelessWidget {
       (
         l10n.previewUsedInputBirthplace,
         // 정보 수정의 출생지 줄과 같은 글자입니다(도시면 "도시, 나라").
-        city == null
-            ? l10n.profileEditBirthplaceKorea
-            : '${city.name}, ${city.countryName}',
+        city == null ? l10n.profileEditBirthplaceKorea : birthCityLabel(city),
       ),
     ];
     return SingleChildScrollView(
