@@ -110,29 +110,35 @@ Widget _appBars() => Column(
   ],
 );
 
+const double _sheetSceneHeight = 320;
+
+/// 장면 높이를 화면 높이로 보고 half(60%)·full(위 안전 영역 0 + 12)을 같은 식으로 구합니다.
+double _sceneSheetMaxHeight(SheetSize size) => switch (size) {
+  SheetSize.half => _sheetSceneHeight * sheetHalfFraction,
+  SheetSize.full => _sheetSceneHeight - sheetFullTopGap,
+};
+
+/// 내용이 넘쳐 [maxHeight]까지 차는 시트 틀.
+Widget _filledSheetFrame(double maxHeight) => MyungliSheetFrame(
+  maxHeight: maxHeight,
+  semanticLabel: '풀이',
+  child: Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    child: Text(
+      '오늘은 힘을 얻는 날입니다. 서두르지 말고 한 가지에 집중해 보세요. ' * 6,
+      overflow: TextOverflow.clip,
+    ),
+  ),
+);
+
 Widget _sheetScene({required SheetSize size, bool stacked = false}) {
-  const sceneHeight = 320.0;
-  // 장면 높이를 화면 높이로 보고 half(60%)·full(위 안전 영역 0 + 12)을 같은 식으로 구합니다.
-  final maxHeight = switch (size) {
-    SheetSize.half => sceneHeight * sheetHalfFraction,
-    SheetSize.full => sceneHeight - sheetFullTopGap,
-  };
+  final maxHeight = _sceneSheetMaxHeight(size);
   return Builder(
     builder: (context) {
       final colors = context.tokens.colors;
-      Widget frame() => MyungliSheetFrame(
-        maxHeight: maxHeight,
-        semanticLabel: '풀이',
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            '오늘은 힘을 얻는 날입니다. 서두르지 말고 한 가지에 집중해 보세요. ' * 6,
-            overflow: TextOverflow.clip,
-          ),
-        ),
-      );
+      Widget frame() => _filledSheetFrame(maxHeight);
       return SizedBox(
-        height: sceneHeight,
+        height: _sheetSceneHeight,
         child: Stack(
           children: [
             Positioned.fill(child: ColoredBox(color: colors.bgBase)),
@@ -156,6 +162,46 @@ Widget _sheetScene({required SheetSize size, bool stacked = false}) {
   );
 }
 
+/// 짧은 아래 시트 위에 half 시트가 쌓인 장면(`sheet.stack.peek`). 아래 시트가 위 시트보다
+/// 낮아 머리 14px가 위 시트 윗변 위로 보이도록 올라갑니다.
+Widget _sheetPeekScene() {
+  const belowHeight = 100.0;
+  final aboveHeight = _sceneSheetMaxHeight(SheetSize.half);
+  return Builder(
+    builder: (context) {
+      final colors = context.tokens.colors;
+      return SizedBox(
+        height: _sheetSceneHeight,
+        child: Stack(
+          children: [
+            Positioned.fill(child: ColoredBox(color: colors.bgBase)),
+            Positioned.fill(child: ColoredBox(color: colors.scrim)),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: animate(
+                InteractionPattern.sheetStack,
+                t: const AlwaysStoppedAnimation(1),
+                prefs: MotionPrefs.of(context),
+                options: PatternOptions(
+                  stackLift: sheetStackLift(
+                    below: belowHeight,
+                    above: aboveHeight,
+                  ),
+                ),
+                child: _filledSheetFrame(belowHeight),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: _filledSheetFrame(aboveHeight),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 Widget _sheets() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
   spacing: 12,
@@ -163,6 +209,7 @@ Widget _sheets() => Column(
     _sheetScene(size: SheetSize.half),
     _sheetScene(size: SheetSize.full),
     _sheetScene(size: SheetSize.half, stacked: true),
+    _sheetPeekScene(),
   ],
 );
 

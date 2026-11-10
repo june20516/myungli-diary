@@ -54,8 +54,16 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-09, app 세션 갱신)
-* **drift #883(컴포넌트 6.0.0, design PR #882) 따라잡기**, 브랜치 `app/drift-883`. `tag-chip`이 지워져 일기 쓰기와 보기 종이 아래 대표 태그를 `hanja-tag` `default`로 그립니다(`DiaryEditor.tags`는 `List<HanjaTag>`, 줄 키 `DiaryEditor.tagsKey`, 간격 `tagsGap`·`tagsMarginTop`을 계약 대조). 태그 만들기는 목록 줄과 같은 `diaryFeaturedHanjaTagWith`(`diary_row_tags.dart`) 하나입니다. 6.0.0의 나머지(꺾쇠 링크 슬롯, 일정 섹션 제목, 시간 모름 문구 키)는 DS1 PR에서 이미 맞았습니다. 쓰는 곳이 없어진 ARB `tagChip*` 넷은 writing이 원고에서 지워(#886, PR #887, W63) app ARB에서도 지웠습니다.
+## 현재 상태 (2026-11-11, app 세션 갱신)
+* **drift #916(design PR #915 계약 변경) 따라잡기**, 브랜치 `app/drift-916`. 계획 [`docs/plans/2026-11-10-drift-916.md`](docs/plans/2026-11-10-drift-916.md), 결정 A122~A125. 함께 닫는 요청 #921(겹친 시트 바깥 누르기 한 단계씩), #959(시트 겹침 뒤 축소 없앰), #919(notify-ask 맨 아래 버튼 여백), #935(일기 줄 태그 모두, D115), #930(질문 떼기, D116), #953(열린 근거 표시, D118), #926(미리보기를 이미 쓴 기기, D117).
+  * 토큰과 자산: 오행 금과 수 색, 테두리, glyph, 공유 이미지 로고 PNG. 생성 코드와 fixture를 새 계약으로 다시 만들었습니다.
+  * 그날 시트와 피드백: 일정 줄 시각 굵게, 종일 꼬리표, 메모 줄, 길흉판정 접힘, 안쪽 태그를 눌러도 카드 잉크가 번지지 않음. error-state 기본 아이콘과 notice-banner error 아이콘.
+  * 화면 틀: `tab.switch`(중간 끊기에서 앞 탭으로 돌아가면 지금 투명도에서 이어 올림, A122, design 확인 #969), 시트 바깥 누르기는 한 단계씩 닫고 아래 시트는 축소 없이 밝기만 낮추며 짧으면 머리 14px가 보이게 올라감(peek), input-step 맨 아래 버튼 자리.
+  * 일기: 줄 태그를 모두 한 줄에 두고 넘치면 가로로 밀기(D115). 새 일기의 질문 떼기와 "질문 추가"로 다시 붙이기(D116, A123), 초안 drift schema v4 `guideDetached`, 저장은 `withoutGuideQuestion`. 고치기에는 떼기가 없습니다(REST `updateDiary`가 질문을 바꾸지 않음, design 문구 확인 #986).
+  * 근거: 열린 근거 꼬리표(자정까지, 또는 기간 끝 날짜), 15초 반짝임 띠(동작 줄이기면 구역 세로선), 열린 날 근거 아이콘 그라데이션, 원전 새 배치(뜻, 원문, 출처 세 줄, 상자 없음). 열린 이유는 권한 응답 `insight`로 정하고 보는 중 만료돼도 열린 시트는 다시 잠그지 않습니다(A124).
+  * 온보딩: server가 `preview.used`로 답하면 오류 대신 안내와 입력한 정보 읽기 전용 목록, 버튼은 저장하고 계속하기 하나(A125). 값은 기기에 남은 온보딩 초안에서 읽습니다. 읽기 전용 줄은 계약 변형이 없어 화면 안 임시 줄이고 design에 요청했습니다(#986).
+  * 산출물: golden 전체를 다시 만들었고(frame에 peek 장면 추가), 화면 스크린샷에 `preview` `default`·`used`, `diary-edit` `detached`, `evidence-sheet` `unlocked-glint` 사례를 더했습니다.
+* **drift #883(컴포넌트 6.0.0, design PR #882) 따라잡기(PR #888 병합)**, 브랜치 `app/drift-883`. `tag-chip`이 지워져 일기 쓰기와 보기 종이 아래 대표 태그를 `hanja-tag` `default`로 그립니다(`DiaryEditor.tags`는 `List<HanjaTag>`, 줄 키 `DiaryEditor.tagsKey`, 간격 `tagsGap`·`tagsMarginTop`을 계약 대조). 태그 만들기는 목록 줄과 같은 `diaryFeaturedHanjaTagWith`(`diary_row_tags.dart`) 하나입니다. 6.0.0의 나머지(꺾쇠 링크 슬롯, 일정 섹션 제목, 시간 모름 문구 키)는 DS1 PR에서 이미 맞았습니다. 쓰는 곳이 없어진 ARB `tagChip*` 넷은 writing이 원고에서 지워(#886, PR #887, W63) app ARB에서도 지웠습니다.
 * **DS1 화면 따라잡기(PR #872 병합)**, 브랜치 `app/ds1-screens`. spec [`docs/specs/2026-11-08-ds1-screens-design.md`](docs/specs/2026-11-08-ds1-screens-design.md), 결정 A109~A121. drift #810(PR #809~#867 계약 변경), #808(컴포넌트 4.0.0, 토큰 1.3.0), #851(컴포넌트 5.0.0, 토큰 1.4.0, fixture 명리), #833(REST 1.5.0~1.8.0), #796(검수 회차1 버그 다섯 건)을 한 브랜치에서 맞췄습니다.
   * 계약: 컴포넌트 5.0.0, 토큰 1.4.0, IA v5, REST 1.9.0(`getDiaryStats`, #862), writing ARB R35. `ia_pending.dart`, `component_pending.dart`가 모두 비었습니다. 새 화면 `tag-sheet`, `color-rule-sheet`.
   * 화면: 나 탭 다섯 섹션(사주 원국, 성향 풀이, 나를 돕는 기운, 올해와 지금, 명리일기 회고), 오늘(`date-header`, 총운 결정 태그와 보조 문장, 사주 기운, 행운 칩, 일정, 오늘의 질문), 근거 잠김 G1(앞부분 + 흐린 자리값), 일기 목록과 쓰기(`date-block`, 인용 질문과 바꾸기, `app-bar` `edit` 가운데 초안 상태), 달력 네 단계와 범례 입구, 그날 시트 길흉판정, 사주 표 머리와 `band-table`, 대운과 세운 `luck-pillar` `column`, 12운성 `stage-strip` 시트.
@@ -182,7 +190,12 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-0. **drift #883 PR(#888) 병합 대기(`app/drift-883`).** DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.
+0. **drift #916 PR 병합 대기(`app/drift-916`).** design 답(#969 탭 전환 끊기 범위, #986 미리보기 읽기 전용 줄과 떼기 범위 문구)이 오면 drift로 따라갑니다. 그 다음 남은 요청:
+   * #922(sev:1, 설정 > 광고 제거 화면이 오류로 열리고 다시 시도가 반응 없음) 원인 찾기부터.
+   * #924(오늘 총운 근거 시트에 원전 블록이 두 번), #931(사주 표 용신 근거 시트가 빔), #957(12운성 설명 시트가 비고 띠 없음), #936(my-saju 스크롤 끝 회고가 배너에 가림) 원인 찾기.
+   * #909 앱 아이콘을 design 새 원본으로 다시 만들기.
+   * #944(Play 내부 테스트 업로드 자동화)는 사용자 지시로 보류합니다.
+   * DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.
 1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
    * Task 1·2·4~7 코드는 `app/real-login-a2`에서 끝났습니다(위 현재 상태).
    * **로컬 실제 로그인(카카오):** 로컬 server(README "로컬 server")와 에뮬레이터 http 모드로 `getAppConfig` 200, welcome, 카카오 계정 로그인 페이지 열림까지 확인했습니다(debug 전용 localhost 평문 허용). 남은 것: 카카오 콘솔 Android 플랫폼에 debug 키 해시(#311 코멘트) 등록, 사용자 카카오 계정으로 로그인한 뒤 약관 동의 → 온보딩 → 프로필 저장 → 로그인 뒤 화면을 실제 REST로 확인. 미리보기, 시진 확인, 음력 변환은 App Check라 Firebase(E5, #605) 뒤입니다.
