@@ -51,6 +51,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
@@ -1386,6 +1387,28 @@ void main() {
         }
       }
     });
+  });
+
+  group('share-image 로고 애셋 (6.1.1, V99)', () {
+    test(
+      'logo.asset의 파일명이 ShareImage.logoAsset과 같고 앱 애셋이 design 원본과 같은 바이트입니다',
+      () {
+        final shareImage = loadSpecComponents()['share-image']!;
+        final asset =
+            _map(_map(shareImage['parts'])['logo'])['asset']! as String;
+        expect(asset, endsWith('.png'));
+        final contractName = asset.split('/').last;
+        expect(ShareImage.logoAsset.split('/').last, contractName);
+        expect(ShareImage.logoAsset, endsWith('myungli/$contractName'));
+        // 계약 경로는 design 디렉터리 기준(`logo/lockup.png`)입니다.
+        final original = File('$componentsDir/../$asset');
+        expect(original.existsSync(), isTrue, reason: original.path);
+        expect(
+          File(ShareImage.logoAsset).readAsBytesSync(),
+          original.readAsBytesSync(),
+        );
+      },
+    );
   });
 
   group('loading skeleton 뼈 대조 (6.0.0, V66)', () {

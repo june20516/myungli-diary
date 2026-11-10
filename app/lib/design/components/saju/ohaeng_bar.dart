@@ -89,7 +89,6 @@ class OhaengBar extends StatelessWidget {
   static const double segmentGap = 2;
 
   /// 막대 칸 테두리 굵기(`bar.segmentBorder.width`, 색은 `swatch.border`).
-  /// [Border.all] 기본 굵기와 같습니다.
   static const double segmentBorderWidth = 1;
 
   /// 범례 견본 크기.
@@ -141,7 +140,12 @@ class OhaengBar extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: ohaengSwatchOf(colors, item.element),
                         // 칸마다 1px 안쪽 견본 테두리. 흰 금 칸이 흰 카드에 묻히지 않게 합니다(V98).
-                        border: Border.all(color: colors.swatchBorder),
+                        border: Border.all(
+                          color: colors.swatchBorder,
+                          // 굵기 상수와 렌더링이 한 값이 되도록 기본값(1)이어도 적습니다.
+                          // ignore: avoid_redundant_argument_values
+                          width: segmentBorderWidth,
+                        ),
                         // 막대 전체가 알약(`radius.full`)이 되도록 양 끝 칸만 둥글게 합니다.
                         borderRadius: BorderRadiusDirectional.horizontal(
                           start: index == 0

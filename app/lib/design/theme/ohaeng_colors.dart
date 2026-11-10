@@ -36,13 +36,15 @@ Color? ohaengCellBorderOf(ColorTokens colors, FiveElement element) =>
       FiveElement.wood || FiveElement.fire || FiveElement.earth => null,
     };
 
-/// 오행 칸 테두리 굵기(`ohaeng.cell` `border.width`). [Border.all] 기본 굵기와 같습니다.
+/// 오행 칸 테두리 굵기(`ohaeng.cell` `border.width`).
 const double ohaengCellBorderWidth = 1;
 
 /// 오행 [element]의 칸 [Border](안쪽). 금과 수만 있고 나머지는 null입니다.
 Border? ohaengCellBorder(ColorTokens colors, FiveElement element) =>
     switch (ohaengCellBorderOf(colors, element)) {
-      final color? => Border.all(color: color),
+      // 굵기 상수와 렌더링이 한 값이 되도록 기본값(1)이어도 적습니다.
+      // ignore: avoid_redundant_argument_values
+      final color? => Border.all(color: color, width: ohaengCellBorderWidth),
       null => null,
     };
 
