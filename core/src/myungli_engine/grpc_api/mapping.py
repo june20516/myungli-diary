@@ -48,6 +48,7 @@ _PREFIX_LUCK_LEVEL = "LUCK_LEVEL"
 _PREFIX_NOTICE_CODE = "NOTICE_CODE"
 _PREFIX_RELATION_KIND = "RELATION_KIND"
 _PREFIX_ELEMENT_ROLE = "ELEMENT_ROLE"
+_PREFIX_COLOR_SHIFT = "COLOR_SHIFT"
 _PREFIX_CALENDAR_TYPE = "CALENDAR_TYPE"
 _PREFIX_GENDER = "GENDER"
 _PREFIX_SOLAR_TERM_KIND = "SOLAR_TERM_KIND"
@@ -217,6 +218,9 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
             judgment=_judgment(color_judgment),
             element=_name(_PREFIX_ELEMENT, color.element),
             role=_name(_PREFIX_ELEMENT_ROLE, color.role),
+            base_element=_name(_PREFIX_ELEMENT, color.base_element),
+            twelve_stage=_name(_PREFIX_TWELVE_STAGE, color.stage),
+            shift=_name(_PREFIX_COLOR_SHIFT, color.shift),
         ),
         direction=pb.DirectionCard(
             judgment=_judgment(direction_judgment),

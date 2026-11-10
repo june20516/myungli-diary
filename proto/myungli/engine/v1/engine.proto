@@ -236,11 +236,22 @@ enum RelationKind {
   RELATION_KIND_HYEONG = 4;
 }
 
-// 행운 컬러·숫자 오행의 역할 (spec §7.2).
+// 행운 컬러 바탕 오행과 숫자 오행의 역할 (spec §7.2).
 enum ElementRole {
   ELEMENT_ROLE_UNSPECIFIED = 0;
   ELEMENT_ROLE_YONGSIN = 1;
   ELEMENT_ROLE_TONGGWAN = 2;
+}
+
+// 행운 색 변역(變易): 바탕 오행이 그날 일지의 12운성 자리에 따라 따르는 색 (core C33).
+// 『三命通會』 「論五行」 生旺從正色，死絶從母色，成形冠帶從妻色，病敗從鬼色，旺墓從子色.
+enum ColorShift {
+  COLOR_SHIFT_UNSPECIFIED = 0;
+  COLOR_SHIFT_JEONG = 1; // 正色: 제 색
+  COLOR_SHIFT_MO = 2; // 母色: 나를 생하는 오행의 색
+  COLOR_SHIFT_CHEO = 3; // 妻色: 내가 극하는 오행의 색
+  COLOR_SHIFT_GWI = 4; // 鬼色: 나를 극하는 오행의 색
+  COLOR_SHIFT_JA = 5; // 子色: 내가 생하는 오행의 색
 }
 
 // 24절기. 번호는 양력 1월의 소한(1)부터 12월의 동지(24)까지 한 해 순서입니다.
@@ -526,10 +537,16 @@ message DailyResponse {
 }
 
 // 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
+// element는 행운 색 오행(변역 뒤)이고, role은 바탕 오행(base_element)의 역할입니다(core C33).
 message ColorCard {
   Judgment judgment = 1;
   Element element = 2;
   ElementRole role = 3;
+  // 날의 성격으로 고른 바탕 오행. 기신의 날은 통관 오행, 그 밖은 용신 오행.
+  Element base_element = 4;
+  // 바탕 오행이 그날 일지에서 놓인 12운성 자리(오행의 양간 기준).
+  TwelveStage twelve_stage = 5;
+  ColorShift shift = 6;
 }
 
 // 행운 방향. rule_id는 적용한 규칙 식별자입니다.

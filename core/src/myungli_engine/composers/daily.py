@@ -56,9 +56,9 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
 
     day = lunar_adapter.day_pillar(target)
     kind = classify_day(day, yongsin, natal.gwiin)
-    color = lucky_element(kind, yongsin)
+    color = lucky_element(kind, yongsin, day)
     direction = lucky_direction(kind, day, yongsin, lunar_adapter.deity_directions(target))
-    number = lucky_number(color.element, day.stem)
+    number = lucky_number(color.base_element, day.stem)
     focus = pick_focus_times(
         lunar_adapter.hour_slots(target, current_timezone), natal_pillars, yongsin, natal.gwiin
     )
@@ -78,7 +78,7 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         date=target,
         day=day,
         kind=kind,
-        color=(color, _color_judgment(kind, color)),
+        color=(color, _color_judgment(kind, color, day)),
         direction=(direction, _direction_judgment(kind, direction)),
         number=(number, _number_judgment(kind, number, color, day)),
         focus=(focus, _focus_judgment(focus)),
@@ -99,8 +99,15 @@ def _kind_key(kind: DayKind) -> str:
     return kind.name.lower()
 
 
-def _color_judgment(kind: DayKind, pick: ElementPick) -> Judgment:
-    params = {"element": pick.element.name, "role": pick.role.name}
+def _color_judgment(kind: DayKind, pick: ElementPick, day: Pillar) -> Judgment:
+    params = {
+        "element": pick.element.name,
+        "role": pick.role.name,
+        "base_element": pick.base_element.name,
+        "day_branch": day.branch.name,
+        "shift": pick.shift.name,
+        "twelve_stage": pick.stage.name,
+    }
     return Judgment(
         message_key=require(f"color.{_kind_key(kind)}", params),
         params=params,
@@ -118,18 +125,18 @@ def _direction_judgment(kind: DayKind, pick: DirectionPick) -> Judgment:
 
 
 def _number_judgment(kind: DayKind, number: int, color: ElementPick, day: Pillar) -> Judgment:
-    """숫자 오행은 컬러와 같고, 홀짝은 오늘 일진 천간의 음양으로 정한다 (spec 7.4)."""
+    """숫자 오행은 컬러의 바탕 오행(변역 전)이고, 홀짝은 오늘 일진 천간의 음양으로 정한다 (spec 7.4, C33)."""
     evidence = Evidence(
         rule_id="number/hado",
         source_ref=FIVE_ELEMENTS_REF["number"],
         detail={
             "number": str(number),
-            "element": color.element.name,
+            "element": color.base_element.name,
             "day_stem": day.stem.hanja,
             "parity": "odd" if day.stem.is_yang else "even",
         },
     )
-    params: dict[str, str | int | float | bool] = {"number": number, "element": color.element.name}
+    params: dict[str, str | int | float | bool] = {"number": number, "element": color.base_element.name}
     return Judgment(
         message_key=require(f"number.{_kind_key(kind)}", params),
         params=params,

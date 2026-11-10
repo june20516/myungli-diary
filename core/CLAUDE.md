@@ -35,7 +35,7 @@
 | 원국 개인 해석 구현 계획 | `core/docs/plans/2026-10-11-personal-reading.md` |
 | 태그 근거 다시 세우기 계획 (#804) | `core/docs/plans/2026-11-05-tag-evidence.md` |
 | 원전 근거 자료 | `core/docs/references/` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C31, 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C33, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108 |
 

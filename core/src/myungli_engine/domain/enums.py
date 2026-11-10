@@ -236,6 +236,16 @@ class TwelveStage(Enum):
     YANG = auto()
 
 
+class ColorShift(Enum):
+    """행운 색 변역(變易): 오행이 12운성 자리에 따라 따르는 색 (#937, C33). 정의 순서는 원문 순서."""
+
+    JEONG = auto()  # 正色: 제 색
+    MO = auto()  # 母色: 나를 생하는 오행의 색
+    CHEO = auto()  # 妻色: 내가 극하는 오행의 색
+    GWI = auto()  # 鬼色: 나를 극하는 오행의 색
+    JA = auto()  # 子色: 내가 생하는 오행의 색
+
+
 class SolarTermKind(Enum):
     """24절기. 양력 1월의 소한부터 12월의 동지까지 한 해 순서다. 이름은 한국어 로마자 표기."""
 

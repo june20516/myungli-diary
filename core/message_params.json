@@ -12,20 +12,36 @@
     "score"
   ],
   "color.gisin_day": [
+    "base_element",
+    "day_branch",
     "element",
-    "role"
+    "role",
+    "shift",
+    "twelve_stage"
   ],
   "color.gwiin_day": [
+    "base_element",
+    "day_branch",
     "element",
-    "role"
+    "role",
+    "shift",
+    "twelve_stage"
   ],
   "color.ordinary_day": [
+    "base_element",
+    "day_branch",
     "element",
-    "role"
+    "role",
+    "shift",
+    "twelve_stage"
   ],
   "color.yongsin_day": [
+    "base_element",
+    "day_branch",
     "element",
-    "role"
+    "role",
+    "shift",
+    "twelve_stage"
   ],
   "direction.day_kind.gisin": [
     "direction",
