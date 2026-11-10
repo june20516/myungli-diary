@@ -254,6 +254,13 @@ enum ColorShift {
   COLOR_SHIFT_JA = 5; // 子色: 내가 생하는 오행의 색
 }
 
+// 행운 색 카드의 계산 기준 (D119, core C34).
+enum ColorBasis {
+  COLOR_BASIS_UNSPECIFIED = 0;
+  COLOR_BASIS_SOURCE = 1; // 원전 기준: 변역 뒤 색
+  COLOR_BASIS_BALANCE = 2; // 내 균형 기준: 바탕 오행의 제 색(변역 없음)
+}
+
 // 24절기. 번호는 양력 1월의 소한(1)부터 12월의 동지(24)까지 한 해 순서입니다.
 // 값 이름은 한국어 이름의 로마자 표기입니다.
 enum SolarTermKind {
@@ -513,6 +520,7 @@ message YearLuck {
 message DailyResponse {
   Pillar day = 1; // 일진 (그 날짜 정오 기준)
   DayKind kind = 2;
+  // 첫째 색 카드. 숫자 오행과 공유 이미지 색은 이 카드를 따릅니다(D119).
   ColorCard color = 3;
   DirectionCard direction = 4;
   NumberCard number = 5;
@@ -534,10 +542,13 @@ message DailyResponse {
   int32 lunar_month = 17;
   int32 lunar_day = 18;
   bool is_leap_month = 19;
+  // 둘째 색 카드. 원전 기준 색이 기신의 색인 날만 있고, 그날 color는 내 균형 기준, second_color는 원전 기준입니다(D119).
+  optional ColorCard second_color = 20;
 }
 
 // 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
-// element는 행운 색 오행(변역 뒤)이고, role은 바탕 오행(base_element)의 역할입니다(core C33).
+// element는 이 카드의 색 오행입니다. 원전 기준(SOURCE)은 변역 뒤 색, 내 균형 기준(BALANCE)은 바탕 오행과 같습니다.
+// role은 바탕 오행(base_element)의 역할이고, twelve_stage와 shift는 두 카드 모두 그날 계산한 변역입니다(core C33, C34).
 message ColorCard {
   Judgment judgment = 1;
   Element element = 2;
@@ -547,6 +558,7 @@ message ColorCard {
   // 바탕 오행이 그날 일지에서 놓인 12운성 자리(오행의 양간 기준).
   TwelveStage twelve_stage = 5;
   ColorShift shift = 6;
+  ColorBasis basis = 7;
 }
 
 // 행운 방향. rule_id는 적용한 규칙 식별자입니다.

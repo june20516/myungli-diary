@@ -7,7 +7,7 @@ from myungli_engine.domain.enums import Branch, DayKind, Direction8, Element
 from myungli_engine.domain.models import Pillar
 from myungli_engine.references import loader
 from myungli_engine.rules.day_kind import classify_day
-from myungli_engine.rules.direction import lucky_direction
+from myungli_engine.rules.direction import ROLE_HUISIN, ROLE_TONGGWAN, ROLE_YONGSIN, lucky_direction
 from myungli_engine.rules.yongsin import YongsinResult
 
 D = Direction8
@@ -100,3 +100,20 @@ def test_ordinary_fallback_to_yongsin(winter_gap: YongsinResult, pillar_of: Call
     deities = ((DeityKind.XI, D.N), (DeityKind.FU, D.W), (DeityKind.CAI, D.NW))
     pick = lucky_direction(DayKind.ORDINARY_DAY, pillar_of("庚申"), winter_gap, deities)
     assert (pick.direction, pick.rule_id) == (D.S, "direction/ordinary_fallback")
+
+
+def test_pick_keeps_element_role_and_deity(
+    winter_gap: YongsinResult, pillar_of: Callable[[str], Pillar]
+) -> None:
+    day = pillar_of("庚申")
+    gwiin = lucky_direction(DayKind.GWIIN_DAY, day, winter_gap, ())
+    assert (gwiin.element, gwiin.role, gwiin.deity) == (None, None, None)
+    yongsin = lucky_direction(DayKind.YONGSIN_DAY, day, winter_gap, ())
+    assert (yongsin.element, yongsin.role, yongsin.deity) == (Element.FIRE, ROLE_YONGSIN, None)
+    gisin = lucky_direction(DayKind.GISIN_DAY, day, winter_gap, ())
+    assert (gisin.element, gisin.role) == (Element.WOOD, ROLE_TONGGWAN)
+    deities = ((DeityKind.XI, D.N), (DeityKind.FU, D.SE), (DeityKind.CAI, D.E))
+    huisin = lucky_direction(DayKind.ORDINARY_DAY, day, winter_gap, deities)
+    assert (huisin.element, huisin.role, huisin.deity) == (Element.WOOD, ROLE_HUISIN, DeityKind.FU)
+    fallback = lucky_direction(DayKind.ORDINARY_DAY, day, winter_gap, ((DeityKind.XI, D.N),))
+    assert (fallback.element, fallback.role, fallback.deity) == (Element.FIRE, ROLE_YONGSIN, None)

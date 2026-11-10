@@ -33,6 +33,7 @@ class ScoredSlot:
     slot: HourSlot
     score: int
     reasons: tuple[str, ...]
+    hap_branch: Branch | None = None  # 육합하는 원국 지지(처음 찾은 것), 없으면 None
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,10 +71,13 @@ def score_slot(
     if yongsin.huisin in slot_elements:
         score += HUISIN_SCORE
         reasons.append(REASON_HUISIN)
-    if any(frozenset({slot.branch, branch}) in BRANCH_HAP for branch in _natal_branches(natal)):
+    hap_branch = next(
+        (branch for branch in _natal_branches(natal) if frozenset({slot.branch, branch}) in BRANCH_HAP), None
+    )
+    if hap_branch is not None:
         score += HAP_SCORE
         reasons.append(REASON_HAP)
-    return ScoredSlot(slot=slot, score=score, reasons=tuple(reasons))
+    return ScoredSlot(slot=slot, score=score, reasons=tuple(reasons), hap_branch=hap_branch)
 
 
 def _evidence(picks: tuple[ScoredSlot, ...], *, fallback: bool) -> Evidence:

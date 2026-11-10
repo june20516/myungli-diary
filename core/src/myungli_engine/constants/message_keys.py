@@ -13,7 +13,7 @@ import sys
 from collections.abc import Iterable, Mapping
 from enum import Enum
 
-from myungli_engine.domain.enums import DayKind, Shinsal, Stem, TenGod, TenGodGroup, TwelveStage
+from myungli_engine.domain.enums import ColorBasis, DayKind, Shinsal, Stem, TenGod, TenGodGroup, TwelveStage
 
 
 def _lower(member: Enum) -> str:
@@ -21,6 +21,7 @@ def _lower(member: Enum) -> str:
 
 
 _DAY_KINDS = tuple(_lower(kind) for kind in DayKind)
+_COLOR_BASES = tuple(_lower(basis) for basis in ColorBasis)
 _GROUPS = tuple(_lower(group) for group in TenGodGroup)
 _STEMS = tuple(_lower(stem) for stem in Stem)
 _TEN_GODS = tuple(_lower(god) for god in TenGod)
@@ -57,20 +58,26 @@ def _declare(keys: Iterable[str], params: tuple[str, ...]) -> dict[str, tuple[st
     return dict.fromkeys(keys, params)
 
 
+_COLOR_PARAMS = ("base_element", "day_branch", "element", "role", "shift", "twelve_stage")
+_DIRECTION_PARAMS = ("direction", "rule_id")
+_FOCUS_PARAMS = ("branches", "score", "hour_branch")
+
 KEY_PARAMS: dict[str, tuple[str, ...]] = {
+    # 색 카드가 하나인 날은 color.<날의 성격>, 둘인 날은 color.balance.*(첫째)와 color.source.*(둘째) (D119)
+    **_declare((f"color.{kind}" for kind in _DAY_KINDS), _COLOR_PARAMS),
+    **_declare((f"color.{basis}.{kind}" for basis in _COLOR_BASES for kind in _DAY_KINDS), _COLOR_PARAMS),
     **_declare(
-        (f"color.{kind}" for kind in _DAY_KINDS),
-        ("base_element", "day_branch", "element", "role", "shift", "twelve_stage"),
+        (f"number.{kind}" for kind in _DAY_KINDS), ("number", "element", "day_stem", "parity", "pair")
     ),
-    **_declare((f"number.{kind}" for kind in _DAY_KINDS), ("number", "element")),
+    "direction.day_kind.gwiin": (*_DIRECTION_PARAMS, "day_branch"),
     **_declare(
-        (f"direction.day_kind.{kind}" for kind in ("gwiin", "yongsin", "gisin", "ordinary")),
-        ("direction", "rule_id"),
+        (f"direction.day_kind.{kind}" for kind in ("yongsin", "gisin")),
+        (*_DIRECTION_PARAMS, "element", "role"),
     ),
-    **_declare(
-        (f"focus_time.{reason}" for reason in ("gwiin", "yongsin", "huisin", "hap", "fallback")),
-        ("branches", "score"),
-    ),
+    "direction.day_kind.ordinary": (*_DIRECTION_PARAMS, "element", "role", "deity"),
+    **_declare((f"focus_time.{reason}" for reason in ("gwiin", "fallback")), _FOCUS_PARAMS),
+    **_declare((f"focus_time.{reason}" for reason in ("yongsin", "huisin")), (*_FOCUS_PARAMS, "element")),
+    "focus_time.hap": (*_FOCUS_PARAMS, "natal_branch"),
     **_declare(TAG_KEYS, ()),
     **_declare((f"fortune.{kind}.{group}" for kind in _DAY_KINDS for group in _GROUPS), _FORTUNE_PARAMS),
     **_declare((f"fortune.tag.{_strip_tag_prefix(tag)}" for tag in TAG_KEYS), _FORTUNE_PARAMS),
