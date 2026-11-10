@@ -58,6 +58,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -446,6 +447,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -804,6 +806,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -1227,6 +1230,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -1540,6 +1544,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -1932,6 +1937,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -2321,6 +2327,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -2714,6 +2721,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -3142,6 +3150,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -3545,6 +3554,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -3947,6 +3957,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -4305,6 +4316,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -4721,6 +4733,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -5138,6 +5151,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -5545,6 +5559,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -5937,6 +5952,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -6295,6 +6311,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -6686,6 +6703,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -7092,6 +7110,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -7472,6 +7491,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -7859,6 +7879,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -8274,6 +8295,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -8675,6 +8697,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -9050,6 +9073,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -9471,6 +9495,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'MO',
@@ -9825,6 +9850,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -10216,6 +10242,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -10607,6 +10634,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -10982,6 +11010,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -11390,6 +11419,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -11753,6 +11783,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -12136,6 +12167,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -12515,6 +12547,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -12886,6 +12919,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'HAE',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -13241,6 +13275,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JA',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -13591,6 +13626,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -14011,6 +14047,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -14417,6 +14454,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MYO',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -14764,6 +14802,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'JIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -15114,6 +15153,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -15508,6 +15548,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'O',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -15886,6 +15927,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -16269,6 +16311,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -16653,6 +16696,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -17046,6 +17090,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -17354,6 +17399,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'HAE',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -17649,6 +17695,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JA',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -18035,6 +18082,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -18454,6 +18502,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -18842,6 +18891,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MYO',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -19190,6 +19240,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -19587,6 +19638,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -19982,6 +20034,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'O',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -20361,6 +20414,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -20744,6 +20798,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -21094,6 +21149,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -21472,6 +21528,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -21845,6 +21902,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'HAE',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -22139,6 +22197,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -22487,6 +22546,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -22907,6 +22967,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -23310,6 +23371,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -23703,6 +23765,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -24102,6 +24165,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -24477,6 +24541,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -24842,6 +24907,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'CHUK',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -25148,6 +25214,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -25550,6 +25617,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -25952,6 +26020,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -26365,6 +26434,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -26802,6 +26872,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -27164,6 +27235,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -27516,6 +27588,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -27932,6 +28005,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -28344,6 +28418,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -28740,6 +28815,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -29143,6 +29219,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -29433,6 +29510,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -29740,6 +29818,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -30161,6 +30240,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -30570,6 +30650,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -30968,6 +31049,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -31384,6 +31466,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -31747,6 +31830,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -32057,6 +32141,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'MO',
@@ -32458,6 +32543,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -32854,6 +32940,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -33234,6 +33321,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -33608,6 +33696,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -33978,6 +34067,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -34355,6 +34445,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -34728,6 +34819,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -35124,6 +35216,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -35519,6 +35612,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -35896,6 +35990,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -36250,6 +36345,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -36639,6 +36735,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -36987,6 +37084,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -37390,6 +37488,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -37744,6 +37843,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -38090,6 +38190,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -38466,6 +38567,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -38857,6 +38959,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -39247,6 +39350,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -39646,6 +39750,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -40036,6 +40141,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -40379,6 +40485,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -40732,6 +40839,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -41138,6 +41246,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -41481,6 +41590,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -41868,6 +41978,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -42253,6 +42364,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -42601,6 +42713,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -42994,6 +43107,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -43374,6 +43488,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'MO',
@@ -43761,6 +43876,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -44142,6 +44258,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -44531,6 +44648,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -44891,6 +45009,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -45184,6 +45303,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -45578,6 +45698,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -45885,6 +46006,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -46279,6 +46401,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -46670,6 +46793,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -47015,6 +47139,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -47370,6 +47495,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -47792,6 +47918,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -48233,6 +48360,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -48624,6 +48752,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -48969,6 +49098,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -49324,6 +49454,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -49718,6 +49849,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -50127,6 +50259,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -50495,6 +50628,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'YU',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -50875,6 +51009,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -51235,6 +51370,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -51629,6 +51765,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -52018,6 +52155,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -52425,6 +52563,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'IN',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -52818,6 +52957,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MYO',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -53163,6 +53303,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'JIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -53556,6 +53697,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SA',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -53927,6 +54069,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -54334,6 +54477,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'MI',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -54715,6 +54859,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'MO',
@@ -55004,6 +55149,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -55413,6 +55559,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -55807,6 +55954,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -56168,6 +56316,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -56523,6 +56672,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'FIRE',
+            'day_branch': 'CHUK',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -56918,6 +57068,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -57315,6 +57466,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -57672,6 +57824,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -58026,6 +58179,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -58428,6 +58582,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -58820,6 +58975,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JA',
@@ -59174,6 +59330,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -59536,6 +59693,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MYO',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -59899,6 +60057,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -60271,6 +60430,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -60669,6 +60829,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -61020,6 +61181,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -61375,6 +61537,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -61795,6 +61958,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -62198,6 +62362,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -62552,6 +62717,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -62939,6 +63105,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -63317,6 +63484,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JA',
@@ -63671,6 +63839,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -64045,6 +64214,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MYO',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -64408,6 +64578,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -64769,6 +64940,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -65152,6 +65324,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -65538,6 +65711,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -65925,6 +66099,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -66333,6 +66508,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -66689,6 +66865,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -66982,6 +67159,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -67369,6 +67547,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -67761,6 +67940,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JA',
@@ -68121,6 +68301,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -68530,6 +68711,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -68923,6 +69105,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -69301,6 +69484,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'HAE',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -69720,6 +69904,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JA',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -70137,6 +70322,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -70510,6 +70696,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -70879,6 +71066,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MYO',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -71260,6 +71448,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'JIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -71574,6 +71763,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -71984,6 +72174,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'O',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -72403,6 +72594,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -72788,6 +72980,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -73176,6 +73369,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -73585,6 +73779,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -73982,6 +74177,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'HAE',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -74403,6 +74599,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JA',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -74770,6 +74967,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -75125,6 +75323,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -75449,6 +75648,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MYO',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -75821,6 +76021,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -76204,6 +76405,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -76583,6 +76785,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'O',
             'element': 'EARTH',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -76981,6 +77184,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -77380,6 +77584,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -77787,6 +77992,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -78196,6 +78402,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -78563,6 +78770,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'HAE',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -78966,6 +79174,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -79345,6 +79554,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'EARTH',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -79721,6 +79931,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -80073,6 +80284,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -80429,6 +80641,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SUL',
             'element': 'FIRE',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -80787,6 +81000,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -81183,6 +81397,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -81592,6 +81807,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'CHUK',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -81999,6 +82215,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'IN',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -82357,6 +82574,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'MYO',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -82743,6 +82961,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JIN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -83145,6 +83364,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -83516,6 +83736,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'O',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -83908,6 +84129,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'MI',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'JA',
@@ -84298,6 +84520,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -84651,6 +84874,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -85024,6 +85248,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -85433,6 +85658,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -85826,6 +86052,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -86217,6 +86444,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'CHUK',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -86608,6 +86836,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'IN',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -86977,6 +87206,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'MYO',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -87379,6 +87609,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JIN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -87778,6 +88009,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -88133,6 +88365,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -88524,6 +88757,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MI',
             'element': 'FIRE',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -88899,6 +89133,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -89301,6 +89536,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -89689,6 +89925,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'SUL',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -90080,6 +90317,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'HAE',
             'element': 'WOOD',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -90459,6 +90697,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'JA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -90833,6 +91072,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WOOD',
+            'day_branch': 'CHUK',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -91248,6 +91488,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -91647,6 +91888,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -92029,6 +92271,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -92439,6 +92682,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -92849,6 +93093,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -93220,6 +93465,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JA',
@@ -93583,6 +93829,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -93941,6 +94188,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MYO',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -94358,6 +94606,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -94760,6 +95009,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -95072,6 +95322,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -95455,6 +95706,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -95844,6 +96096,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -96260,6 +96513,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -96672,6 +96926,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -97070,6 +97325,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -97464,6 +97720,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -97819,6 +98076,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JA',
@@ -98136,6 +98394,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -98450,6 +98709,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MYO',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -98857,6 +99117,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -99272,6 +99533,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -99564,6 +99826,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -99965,6 +100228,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'MI',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -100372,6 +100636,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -100775,6 +101040,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -101171,6 +101437,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -101553,6 +101820,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -101947,6 +102215,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -102317,6 +102586,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'CHUK',
             'element': 'WATER',
             'role': 'TONGGWAN',
             'shift': 'JA',
@@ -102641,6 +102911,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SHIN',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -103048,6 +103319,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'YU',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -103451,6 +103723,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -103842,6 +104115,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -104237,6 +104511,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -104599,6 +104874,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'CHUK',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -104987,6 +105263,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -105352,6 +105629,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MYO',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -105757,6 +106035,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -106152,6 +106431,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -106515,6 +106795,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'TONGGWAN',
             'shift': 'GWI',
@@ -106882,6 +107163,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MI',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -107271,6 +107553,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -107691,6 +107974,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -108120,6 +108404,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -108510,6 +108795,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -108872,6 +109158,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -109235,6 +109522,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'CHUK',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -109642,6 +109930,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'IN',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -110039,6 +110328,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MYO',
             'element': 'METAL',
             'role': 'YONGSIN',
             'shift': 'MO',
@@ -110405,6 +110695,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'JIN',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -110769,6 +111060,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SA',
             'element': 'METAL',
             'role': 'TONGGWAN',
             'shift': 'JEONG',
@@ -111069,6 +111361,7 @@
           'message_key': 'color.ordinary_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'O',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -111439,6 +111732,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'MI',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',
@@ -111840,6 +112134,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'SHIN',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -112245,6 +112540,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'YU',
             'element': 'EARTH',
             'role': 'YONGSIN',
             'shift': 'GWI',
@@ -112647,6 +112943,7 @@
           'message_key': 'color.gisin_day',
           'params': dict({
             'base_element': 'METAL',
+            'day_branch': 'SUL',
             'element': 'WOOD',
             'role': 'TONGGWAN',
             'shift': 'CHEO',
@@ -113038,6 +113335,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'HAE',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -113439,6 +113737,7 @@
           'message_key': 'color.yongsin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'JA',
             'element': 'WATER',
             'role': 'YONGSIN',
             'shift': 'JEONG',
@@ -113834,6 +114133,7 @@
           'message_key': 'color.gwiin_day',
           'params': dict({
             'base_element': 'WATER',
+            'day_branch': 'CHUK',
             'element': 'FIRE',
             'role': 'YONGSIN',
             'shift': 'CHEO',

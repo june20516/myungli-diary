@@ -78,7 +78,7 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         date=target,
         day=day,
         kind=kind,
-        color=(color, _color_judgment(kind, color)),
+        color=(color, _color_judgment(kind, color, day)),
         direction=(direction, _direction_judgment(kind, direction)),
         number=(number, _number_judgment(kind, number, color, day)),
         focus=(focus, _focus_judgment(focus)),
@@ -99,11 +99,12 @@ def _kind_key(kind: DayKind) -> str:
     return kind.name.lower()
 
 
-def _color_judgment(kind: DayKind, pick: ElementPick) -> Judgment:
+def _color_judgment(kind: DayKind, pick: ElementPick, day: Pillar) -> Judgment:
     params = {
         "element": pick.element.name,
         "role": pick.role.name,
         "base_element": pick.base_element.name,
+        "day_branch": day.branch.name,
         "shift": pick.shift.name,
         "twelve_stage": pick.stage.name,
     }

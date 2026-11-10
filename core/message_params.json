@@ -13,6 +13,7 @@
   ],
   "color.gisin_day": [
     "base_element",
+    "day_branch",
     "element",
     "role",
     "shift",
@@ -20,6 +21,7 @@
   ],
   "color.gwiin_day": [
     "base_element",
+    "day_branch",
     "element",
     "role",
     "shift",
@@ -27,6 +29,7 @@
   ],
   "color.ordinary_day": [
     "base_element",
+    "day_branch",
     "element",
     "role",
     "shift",
@@ -34,6 +37,7 @@
   ],
   "color.yongsin_day": [
     "base_element",
+    "day_branch",
     "element",
     "role",
     "shift",

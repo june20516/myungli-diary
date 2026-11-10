@@ -59,7 +59,8 @@ def _declare(keys: Iterable[str], params: tuple[str, ...]) -> dict[str, tuple[st
 
 KEY_PARAMS: dict[str, tuple[str, ...]] = {
     **_declare(
-        (f"color.{kind}" for kind in _DAY_KINDS), ("base_element", "element", "role", "shift", "twelve_stage")
+        (f"color.{kind}" for kind in _DAY_KINDS),
+        ("base_element", "day_branch", "element", "role", "shift", "twelve_stage"),
     ),
     **_declare((f"number.{kind}" for kind in _DAY_KINDS), ("number", "element")),
     **_declare(
