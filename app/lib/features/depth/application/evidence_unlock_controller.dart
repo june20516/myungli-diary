@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
+import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -20,6 +21,7 @@ import 'package:myungli_diary/features/calendar/application/calendar_providers.d
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/me/application/chart_providers.dart';
 import 'package:myungli_diary/features/monetization/application/entitlements_providers.dart';
+import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 import 'package:myungli_diary/features/monetization/application/staging_reward_providers.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
@@ -615,15 +617,18 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
     unawaited(refreshLockedDaily(ref));
   }
 
-  /// 근거 열람 권한을 한 번 묻습니다.
+  /// 근거 열람 권한을 한 번 묻습니다. 활성이면 열림 꼬리표와 근거 아이콘이 쓰도록 남깁니다
+  /// ([latestInsightGrantProvider]).
   ///
   /// 통신 실패([AppError])는 "아직 없음"으로 보고 다음 차례에 다시 묻습니다. 그 밖의 예외는
   /// 비정상 종료 보고에 요약을 남기고 `failure`로 돌려줍니다.
   Future<_InsightAnswer> _askInsight() async {
+    final flow = ref;
     final repository = ref.read(entitlementsRepositoryProvider);
     final reporter = ref.read(crashReporterProvider);
     try {
       final entitlements = await repository.fetch();
+      if (flow.mounted) _recordGrant(entitlements.insight);
       return (active: entitlements.insight.active, failure: null);
     } on AppError {
       return (active: false, failure: null);
@@ -631,6 +636,17 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
       reporter.record(CrashSummary.from(error), stack);
       return (active: false, failure: UnexpectedError(error));
     }
+  }
+
+  /// 받은 권한을 지금 계정의 것으로 남깁니다. 계정 id가 없으면(로그아웃 직후) 남기지 않습니다.
+  void _recordGrant(Insight insight) {
+    final String accountId;
+    try {
+      accountId = ref.read(currentAccountIdProvider);
+    } on Object {
+      return;
+    }
+    ref.read(latestInsightGrantProvider.notifier).record(accountId, insight);
   }
 
   /// [duration]만큼 기다립니다. 확인이 멈추면 Timer를 취소합니다(끝나지 않음).

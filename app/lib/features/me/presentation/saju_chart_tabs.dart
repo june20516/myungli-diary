@@ -83,7 +83,8 @@ class SajuChartNatalTab extends ConsumerWidget {
 /// 열렸으면 문장이고 그 안 용어는 풀이 시트(→ 이 슬롯의 근거)를 엽니다. 잠겼으면 앞부분
 /// (`Yongsin.basisPreview`, 없으면 자리값만)과 흐린 자리값 두 줄, 오른쪽 자물쇠 "열기"이고, 누르면
 /// 근거 시트가 잠긴 채 열려 잠금 해제 흐름(A26)으로 이어집니다(D60, D106). 잠금이 풀리면 차트를
-/// 다시 받아 문장으로 바뀝니다. 열렸는데 문장이 없으면(원고 없음) 섹션을 그리지 않습니다.
+/// 다시 받아 문장으로 바뀌고, 열린 문장에는 `unlock.glint`가 지나갑니다(`sentence-block`
+/// `unlocked`, D118 ②). 열렸는데 문장이 없으면(원고 없음) 섹션을 그리지 않습니다.
 class _YongsinBasis extends StatelessWidget {
   const new({required this.chart, required this.text});
 
@@ -118,6 +119,8 @@ class _YongsinBasis extends StatelessWidget {
               variant: SentenceBlockVariant.body,
               text: basis ?? RenderedText(segments: const []),
               locked: locked,
+              // 열려서 보이게 된 판정 근거는 반짝입니다(D118 ②).
+              unlocked: !locked,
               lockedLead: chart.yongsin.basisPreview,
               slotId: SlotIds.sajuChartYongsinBasis,
               onTerm: (termId) => sheets.openExplain(

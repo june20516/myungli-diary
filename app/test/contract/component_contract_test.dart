@@ -41,6 +41,7 @@ import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -55,6 +56,7 @@ import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
@@ -71,9 +73,11 @@ import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/elements/stem_chip.dart';
+import 'package:myungli_diary/design/elements/unlock_mark.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
+import 'package:myungli_diary/design/tokens/css_gradient.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -2068,6 +2072,171 @@ void main() {
           reason: variant.name,
         );
       }
+    });
+  });
+
+  group('열린 근거 표시 (6.3.0, D118, V111~V113)', () {
+    final specs = loadSpecComponents();
+    final depthLink = specs['depth-link']!;
+    final parts = _map(depthLink['parts']);
+    final sheet = _map(parts['evidenceSheet']);
+
+    test('unlock.glint: 띠, 박자, 동작 줄이기 대체가 구현 상수와 같습니다', () {
+      final glint = _map(_map(_interaction()['patterns'])['unlock.glint']);
+      expect(
+        Duration(milliseconds: _px(glint['interval']).round()),
+        PatternValues.glintInterval,
+      );
+      final band = _map(glint['band']);
+      expect(band['fill'], '{gradient.unlocked}');
+      expect(_num(band['angle']), PatternValues.glintBandAngle);
+      expect(band['width'], contains('30%'));
+      expect(PatternValues.glintBandWidth, 0.3);
+      expect(glint['properties'], ['text-fill']);
+      expect(glint['reduceMotion'], ReduceMotionRule.replace.json);
+      expect(_map(glint['reduceMotionAlternative'])['element'], 'unlock.mark');
+      expect(glint['pauseWhen'], hasLength(3));
+    });
+
+    test('unlock.mark: 세로선 굵기, 자리, 각도와 제목 칠이 구현 상수와 같습니다', () {
+      final mark = _map(_elements()['unlock.mark']);
+      expect(_map(mark['title'])['fill'], '{gradient.unlocked}');
+      final rule = _map(mark['rule']);
+      expect(rule['fill'], '{gradient.unlocked}');
+      expect(_num(rule['angle']), UnlockMark.ruleAngle);
+      expect(_px(rule['width']), UnlockMark.ruleWidth);
+      expect(_px(rule['offsetStart']), UnlockMark.ruleOffsetStart);
+      expect(rule['radius'], '{radius.full}');
+    });
+
+    test('depth-link icon.unlocked: gradient.unlocked 135°', () {
+      final unlocked = _map(_map(parts['icon'])['unlocked']);
+      expect(unlocked['fill'], '{gradient.unlocked}');
+      expect(_num(unlocked['angle']), DepthLink.unlockedIconAngle);
+    });
+
+    test('evidenceSheet.unlockTag: 슬롯, 알약 치수, 테두리, 아이콘, 글자가 구현과 같습니다', () {
+      final tag = _map(sheet['unlockTag']);
+      expect(tag['slot'], SlotIds.evidenceSheetUnlockUntil);
+      expect(tag['params'], ['date']);
+      expect(_px(tag['height']), EvidenceSheetBody.unlockTagHeight);
+      expect(tag['paddingStart'], '{space.8}');
+      expect(tag['paddingEnd'], '{space.8}');
+      expect(EvidenceSheetBody.unlockTagPadding, Space.s8);
+      expect(tag['gapFromTitle'], '{space.8}');
+      expect(EvidenceSheetBody.unlockTagGap, Space.s8);
+      expect(tag['radius'], '{radius.full}');
+      expect(tag['bg'], '{color.bg.sheet}');
+      final border = _map(tag['border']);
+      expect(border['fill'], '{gradient.unlocked}');
+      expect(_px(border['width']), EvidenceSheetBody.unlockTagBorderWidth);
+      // 테두리 각도 90°는 토큰 그대로입니다(구현은 토큰 그라데이션을 씀).
+      for (final gradients in [lightGradients, darkGradients]) {
+        expect(
+          gradients.unlocked.transform,
+          CssAngleGradientTransform(_num(border['angle'])),
+        );
+      }
+      final icon = _map(tag['icon']);
+      expect(icon['icon'], 'clock');
+      expect(icon['weight'], 'regular');
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.text.secondary}');
+      expect(icon['gap'], '{space.4}');
+      expect(EvidenceSheetBody.unlockTagIconGap, Space.s4);
+      expect(icon['decorative'], isTrue);
+      expect(
+        EvidenceSheetBody.unlockTagGlyph.regular,
+        PhosphorIconsRegular.clock,
+      );
+      expect(tag['type'], '{type.caption.md}');
+      expect(tag['fg'], '{color.text.secondary}');
+      expect(tag['maxLines'], 1);
+      expect(tag['interactive'], isFalse);
+      expect(tag['glint'], isFalse);
+      expect(_map(depthLink['a11y'])['unlockTagRead'], contains('시트 제목 다음'));
+    });
+
+    test('evidenceSheet.source: 상자 없이 뜻, 원문, 출처 순과 간격이 구현과 같습니다(V113)', () {
+      final source = _map(sheet['source']);
+      expect(source['order'], ['meaning', 'quote', 'cite']);
+      expect(source['bg'], 'transparent');
+      expect(source['radius'], 0);
+      expect(source['padding'], 0);
+      final repeat = _map(source['repeat']);
+      expect(repeat['each'], 'item');
+      expect(repeat['gap'], '{space.16}');
+      expect(EvidenceSheetBody.sourceGap, Space.s16);
+      final basisRepeat = _map(_map(sheet['basis'])['repeat']);
+      expect(basisRepeat['gap'], '{space.12}');
+      expect(EvidenceSheetBody.basisGap, Space.s12);
+      final meaning = _map(source['meaning']);
+      expect(meaning['type'], '{type.sentence.body}');
+      expect(meaning['fg'], '{color.text.primary}');
+      for (final (name, type) in [
+        ('quote', '{type.body.ui}'),
+        ('cite', '{type.caption.md}'),
+      ]) {
+        final line = _map(source[name]);
+        expect(line['type'], type, reason: name);
+        expect(line['fg'], '{color.text.secondary}', reason: name);
+        expect(line['paddingStart'], '{space.8}', reason: name);
+        expect(line['marginTop'], '{space.4}', reason: name);
+        expect(line['whenEmpty'], '줄을 그리지 않음', reason: name);
+      }
+      expect(EvidenceSheetBody.sourceIndent, Space.s8);
+      expect(EvidenceSheetBody.sourceLineGap, Space.s4);
+      expect(_map(source['quote'])['fontFallback'], '{font.family.hanja}');
+
+      final locked = _map(
+        _map(
+          _map(_map(depthLink['states'])['locked'])['parts'],
+        )['evidenceSheet'],
+      );
+      final lockedSource = _map(locked['source']);
+      expect(lockedSource['hidden'], ['quote', 'cite']);
+      expect(lockedSource['lines'], 2);
+    });
+
+    test('depth-link unlocked: 꼬리표, 반짝임 대상과 제외, 동작 줄이기 대상', () {
+      final unlocked = _map(
+        _map(
+          _map(_map(depthLink['states'])['unlocked'])['parts'],
+        )['evidenceSheet'],
+      );
+      expect(_map(unlocked['unlockTag'])['visible'], isTrue);
+      final glint = _map(unlocked['glint']);
+      expect(glint['pattern'], 'unlock.glint');
+      // 대상과 제외는 위젯 테스트(unlock_display_test)가 그린 결과로 확인합니다.
+      expect(glint['targets'], [
+        'basisTitle',
+        'basis',
+        'sourceTitle',
+        'source',
+        'personalTitle',
+        'personal',
+      ]);
+      expect(glint['excludes'], [
+        'title',
+        'unlockTag',
+        'target',
+        'pillars',
+        'personalEmpty',
+      ]);
+      final reduce = _map(unlocked['reduceMotion']);
+      expect(reduce['element'], 'unlock.mark');
+      expect(reduce['targets'], ['basisTitle', 'sourceTitle', 'personalTitle']);
+      expect(depthLink['uses'], containsAll(['unlock.glint', 'unlock.mark']));
+    });
+
+    test('sentence-block unlocked: 반짝임, 동작 줄이기면 세로선만', () {
+      final unlocked = _map(
+        _map(_map(specs['sentence-block']!['states'])['unlocked'])['parts'],
+      );
+      expect(_map(unlocked['text'])['glint'], 'unlock.glint');
+      final reduce = _map(unlocked['reduceMotion']);
+      expect(reduce['element'], 'unlock.mark');
+      expect(reduce['part'], 'rule');
     });
   });
 

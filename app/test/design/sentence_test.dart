@@ -1292,22 +1292,22 @@ void main() {
         lessThan(tester.getTopLeft(find.text('둘째 근거', findRichText: true)).dy),
       );
       expect(second.top - first.bottom, Space.s12);
-      // 원전은 인용마다 bg.base 상자이고 상자 사이도 space.12입니다.
-      final quotes = find.ancestor(
-        of: find.byKey(const ValueKey(SlotIds.evidenceSheetSourceQuote)),
-        matching: find.descendant(
-          of: find.byType(EvidenceSheetBody),
-          matching: find.byType(DecoratedBox),
-        ),
+      // 원전은 상자 없이 묶음마다 쌓고 묶음 사이는 space.16입니다(V113).
+      final sources = find.byKey(
+        const ValueKey(SlotIds.evidenceSheetSourceQuote),
       );
-      expect(quotes, findsNWidgets(2));
       expect(
-        tester.getRect(quotes.at(1)).top - tester.getRect(quotes.at(0)).bottom,
-        Space.s12,
+        find.descendant(of: sources, matching: find.byType(DecoratedBox)),
+        findsNothing,
+      );
+      expect(
+        tester.getRect(sources.at(1)).top -
+            tester.getRect(sources.at(0)).bottom,
+        Space.s16,
       );
     });
 
-    testWidgets('원전 인용은 한자만 font.family.hanja(대체 글꼴 맨 앞)이고 판정 근거는 그대로입니다', (
+    testWidgets('원전 세 줄은 한자만 font.family.hanja(대체 글꼴 맨 앞)이고 판정 근거는 그대로입니다', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -1322,7 +1322,7 @@ void main() {
                 _text([Segment(text: '근거')]),
               ],
               source: [
-                _text([Segment(text: '用神 원전')]),
+                _text([Segment(text: '뜻 한 줄\n以義推之\n궁통보감 「오행총론」')]),
               ],
             ),
           ),
@@ -1331,14 +1331,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Text.rich의 바깥 span은 DefaultTextStyle이고, 문장 스타일은 그 안 첫 span입니다.
-      TextStyle rootStyle(String slotId) {
+      TextStyle rootStyle(Finder of) {
         final rich = tester.widget<RichText>(
-          find
-              .descendant(
-                of: find.byKey(ValueKey(slotId)),
-                matching: find.byType(RichText),
-              )
-              .first,
+          find.descendant(of: of, matching: find.byType(RichText)).first,
         );
         final outer = rich.text as TextSpan;
         return (outer.children!.first as TextSpan).style!;
@@ -1349,17 +1344,150 @@ void main() {
           .tokens
           .typography;
       final hanja = typography.hanjaPillar.fontFamily;
-      final quote = rootStyle(SlotIds.evidenceSheetSourceQuote);
-      expect(quote.fontFamily, typography.sentenceBody.fontFamily);
+      // 원문 줄(type.body.ui)의 한자가 한자 글꼴로 그려집니다. 뜻과 출처 줄도 같은 대체입니다.
+      final quote = rootStyle(find.byKey(EvidenceSheetBody.sourceQuoteKey));
+      expect(quote.fontFamily, typography.bodyUi.fontFamily);
       expect(quote.fontFamilyFallback, [
         hanja,
-        ...?typography.sentenceBody.fontFamilyFallback,
+        ...?typography.bodyUi.fontFamilyFallback,
       ]);
-      final basis = rootStyle(SlotIds.evidenceSheetBasisBody);
+      final meaning = rootStyle(find.byKey(EvidenceSheetBody.sourceMeaningKey));
+      expect(meaning.fontFamily, typography.sentenceBody.fontFamily);
+      expect(meaning.fontFamilyFallback?.first, hanja);
+      final cite = rootStyle(find.byKey(EvidenceSheetBody.sourceCiteKey));
+      expect(cite.fontFamilyFallback?.first, hanja);
+      final basis = rootStyle(
+        find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+      );
       expect(
         basis.fontFamilyFallback,
         typography.sentenceBody.fontFamilyFallback,
       );
+    });
+
+    testWidgets('원전은 상자 없이 뜻, 들여쓴 원문, 출처 순이고 줄 사이 space.4입니다(V113)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '오늘 풀이의 근거',
+              source: [
+                _text([
+                  Segment(text: '넘치는 것은 덜고\n'),
+                  Segment(text: '以義推之'),
+                  Segment(text: '\n궁통보감 「오행총론」'),
+                ]),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final meaning = find.byKey(EvidenceSheetBody.sourceMeaningKey);
+      final quote = find.byKey(EvidenceSheetBody.sourceQuoteKey);
+      final cite = find.byKey(EvidenceSheetBody.sourceCiteKey);
+      expect(find.text('넘치는 것은 덜고', findRichText: true), findsOneWidget);
+      expect(find.text('以義推之', findRichText: true), findsOneWidget);
+      expect(find.text('궁통보감 「오행총론」', findRichText: true), findsOneWidget);
+      // 줄 상자(Padding 안 글자) 사이가 space.4입니다.
+      Rect lineRect(Finder line) => tester.getRect(
+        find.descendant(of: line, matching: find.byType(RichText)).first,
+      );
+      expect(lineRect(quote).top - lineRect(meaning).bottom, Space.s4);
+      expect(lineRect(cite).top - lineRect(quote).bottom, Space.s4);
+      // 원문과 출처는 space.8 들여씁니다(줄 상자의 글자 시작).
+      final meaningLeft = tester.getTopLeft(
+        find.descendant(of: meaning, matching: find.byType(RichText)).first,
+      );
+      for (final line in [quote, cite]) {
+        final left = tester.getTopLeft(
+          find.descendant(of: line, matching: find.byType(RichText)).first,
+        );
+        expect(left.dx - meaningLeft.dx, Space.s8);
+      }
+      final colors = tester
+          .element(find.byType(EvidenceSheetBody))
+          .tokens
+          .colors;
+      TextStyle styleOf(Finder line) =>
+          ((tester
+                              .widget<RichText>(
+                                find
+                                    .descendant(
+                                      of: line,
+                                      matching: find.byType(RichText),
+                                    )
+                                    .first,
+                              )
+                              .text
+                          as TextSpan)
+                      .children!
+                      .first
+                  as TextSpan)
+              .style!;
+      expect(styleOf(meaning).color, colors.textPrimary);
+      expect(styleOf(quote).color, colors.textSecondary);
+      expect(styleOf(cite).color, colors.textSecondary);
+    });
+
+    testWidgets('원문이나 출처가 비면 그 줄을 그리지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.unlocked,
+              title: '오늘 풀이의 근거',
+              source: [
+                _text([Segment(text: '뜻만 있는 원전')]),
+                _text([Segment(text: '뜻\n \n출처만')]),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(EvidenceSheetBody.sourceMeaningKey), findsNWidgets(2));
+      expect(find.byKey(EvidenceSheetBody.sourceQuoteKey), findsNothing);
+      expect(find.byKey(EvidenceSheetBody.sourceCiteKey), findsOneWidget);
+    });
+
+    testWidgets('잠긴 원전은 veil 하나에 첫 원전 뜻 줄만 앞부분이고 원문, 출처 줄은 없습니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SizedBox(
+            width: 360,
+            height: 640,
+            child: EvidenceSheetBody(
+              state: DepthLinkState.locked,
+              title: '오늘 풀이의 근거',
+              sourceLead: _text([Segment(text: '넘치는 것은 덜고\n以義推之')]),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final veil = tester.widget<LockVeil>(
+        find.ancestor(
+          of: find.byKey(const ValueKey(SlotIds.evidenceSheetSourceQuote)),
+          matching: find.byType(LockVeil),
+        ),
+      );
+      expect(veil.lines, LockVeilLines.source);
+      expect(veil.lead?.segments.map((s) => s.text).join(), '넘치는 것은 덜고');
+      expect(find.byKey(EvidenceSheetBody.sourceQuoteKey), findsNothing);
+      expect(find.byKey(EvidenceSheetBody.sourceCiteKey), findsNothing);
     });
 
     testWidgets('locked면 넘어온 문장이 있어도 그리지 않습니다(D60)', (tester) async {

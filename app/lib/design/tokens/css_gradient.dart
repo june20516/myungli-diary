@@ -52,3 +52,16 @@ class CssAngleGradientTransform extends GradientTransform {
   @override
   int get hashCode => degrees.hashCode;
 }
+
+/// 토큰 그라데이션을 계약이 자리마다 정한 다른 CSS 각도로 그립니다.
+///
+/// 멈춤 색과 위치는 토큰 그대로이고 각도만 바꿉니다(예: `gradient.unlocked`는 토큰 90°,
+/// 근거 아이콘 135°, `unlock.mark` 세로선 180°).
+extension CssAngleGradient on LinearGradient {
+  /// 같은 멈춤으로 [degrees] 각도의 그라데이션을 만듭니다.
+  LinearGradient atCssAngle(double degrees) => LinearGradient(
+    colors: colors,
+    stops: stops,
+    transform: CssAngleGradientTransform(degrees),
+  );
+}

@@ -11,6 +11,14 @@ String? adFreeExpiryDate(String localeName, AdFree? adFree, String timezone) {
   if (adFree == null || !adFree.active || expiresAt == null) {
     return null;
   }
+  return expiryDate(localeName, expiresAt, timezone);
+}
+
+/// 이용권 끝 시각 [expiresAt](UTC)을 프로필 시간대([timezone])의 짧은 날짜(yMMMd)로 씁니다.
+///
+/// 광고 제거권 만료일([adFreeExpiryDate])과 근거 시트 열림 꼬리표의 기간 끝 날짜가 같은 글자를
+/// 쓰도록 이 함수 하나를 씁니다.
+String expiryDate(String localeName, DateTime expiresAt, String timezone) {
   final local = localTimeIn(expiresAt, timezone);
   return DateFormat.yMMMd(localeName)
       .format(DateTime(local.year, local.month, local.day));

@@ -325,7 +325,7 @@
     "timezone": "Asia/Seoul",
     "network": "online",
     "signedIn": true,
-    "description": "로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)과 나의 사주(getChart)가 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다."
+    "description": "로그인한 회원. 근거 열람 권한이 있어(getMe와 getEntitlements insight 활성, 광고 한 편으로 열려 그날 자정까지) 오늘(getDaily)과 나의 사주(getChart)가 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다."
   },
   {
     "id": "reward-unlock",

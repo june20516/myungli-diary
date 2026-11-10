@@ -10,6 +10,8 @@ import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
+import 'package:myungli_diary/design/elements/unlock_mark.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -38,12 +40,17 @@ enum SentenceBlockVariant {
 /// ([lockedLead], 앞 2~3 단어)을 또렷하게 둔 두 줄 `lock.veil`(없으면 자리값만, D106, V92)과
 /// 오른쪽 끝 자물쇠(`lock-simple` Regular) + `space.4` + "열기" 링크만 둡니다. 꺾쇠는 없습니다
 /// (V73). 잠긴 내용은 server가 보내지 않으므로 [text]는 트리에도 스크린리더에도 들어가지 않습니다.
+///
+/// [unlocked]면 열람 권한이 있어 보이게 된 문장(사주 표 용신 판정 근거, D118 ②, V112)이라
+/// 보통 문장에 `unlock.glint`를 더합니다(나타난 직후 한 번, 그 뒤 15초마다). 동작 줄이기면
+/// 반짝임 대신 문장 왼쪽 밖 `unlock.mark` 세로선만 둡니다(구역 제목이 없음).
 class SentenceBlock extends StatelessWidget {
   /// 문장 덩어리를 만듭니다.
   const new({
     required this.variant,
     required this.text,
     this.locked = false,
+    this.unlocked = false,
     this.slotId,
     this.termStyle,
     this.onTerm,
@@ -64,7 +71,7 @@ class SentenceBlock extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'sentence-block',
     {'card', 'body', 'preview'},
-    {'loading', 'locked'},
+    {'loading', 'locked', 'unlocked'},
   );
 
   /// 불러오는 중 뼈(`states.loading.skeleton` `text`): 변형의 글자 스타일로 글줄
@@ -130,6 +137,9 @@ class SentenceBlock extends StatelessWidget {
   /// 근거·해석 열람 권한이 없는 잠긴 문장인지.
   final bool locked;
 
+  /// 열람 권한이 있어 보이게 된 문장인지(`unlocked`, 반짝임). [locked]면 쓰지 않습니다.
+  final bool unlocked;
+
   /// 이 문장이 채우는 IA 슬롯 id(`SlotIds`). 있으면 Key와 Semantics `identifier`로 붙습니다.
   final String? slotId;
 
@@ -162,7 +172,11 @@ class SentenceBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = locked ? _buildLocked(context) : _buildText(context);
+    final content = locked
+        ? _buildLocked(context)
+        : unlocked
+        ? _unlockedText(_buildText(context))
+        : _buildText(context);
     final id = slotId;
     if (id == null) return content;
     return KeyedSubtree(
@@ -198,6 +212,15 @@ class SentenceBlock extends StatelessWidget {
           : TextOverflow.clip,
     );
   }
+
+  /// 열린 문장: 박자 하나에 반짝임, 동작 줄이기면 왼쪽 세로선만입니다.
+  static Widget _unlockedText(Widget text) => UnlockGlintScope(
+    child: Builder(
+      builder: (context) => UnlockGlintScope.replacedOf(context)
+          ? UnlockMarkRule(child: text)
+          : UnlockGlint(child: text),
+    ),
+  );
 
   TermStyle _resolveTermStyle() {
     if (variant == SentenceBlockVariant.preview) return TermStyle.plain;

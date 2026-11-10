@@ -7,8 +7,10 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
+import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -19,6 +21,8 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
+import 'package:myungli_diary/features/depth/presentation/unlock_until_text.dart';
+import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 
 /// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
 ///
@@ -38,6 +42,10 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 /// 잠겼을 때(다시 받는 중 아님)는 [slotId] 슬롯의 앞부분(`evidencePreview`)을 읽어 판정 근거와
 /// 원전 `lock.veil`의 또렷한 앞부분으로 넘깁니다(근거 순서에서 처음 있는 문장, D106). 미리보기가
 /// 없으면 자리값만입니다. 시트 위 대상([target])은 잠기지 않고 늘 보입니다.
+///
+/// 열렸을 때는 제목 옆 열림 꼬리표에 열린 이유와 끝 시각(server 권한 응답 `insight`의
+/// `source`, `expiresAt`, #952)으로 고른 문구를 넘깁니다([unlockUntilText]). 권한은 알고 있는
+/// 것을 먼저 쓰고 없으면 이용권을 한 번 묻습니다([unlockTagInsightProvider]).
 ///
 /// 상태: 응답이 아직 없으면 skeleton(`loading`), 받지 못했거나 잠금 해제 뒤 다시 받기에
 /// 실패하면 오류 화면과 다시 시도(`error`), 권한이 생겨 다시 받는 동안은 구역 skeleton입니다.
@@ -70,6 +78,10 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
   );
 
   StreamSubscription<UnlockEvent>? _events;
+
+  /// 열림 꼬리표에 보인 권한. 보는 중에 권한이 끝나도(자정, 기간 끝) 시트를 닫을 때까지 그대로
+  /// 둡니다(`unlock.glint` `stopWhen`, 자정 규칙과 같음).
+  Insight? _tagInsight;
 
   @override
   void initState() {
@@ -133,6 +145,12 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         ? ref.watch(_subject.previewOf(widget.slotId))
         : const <EvidencePreview>[];
     final target = widget.target;
+    if (opened) {
+      _tagInsight = ref.watch(unlockTagInsightProvider).value ?? _tagInsight;
+    }
+    final unlockTag = opened
+        ? unlockUntilText(l10n, _tagInsight, ref.watch(profileTimezoneProvider))
+        : null;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
       onRetry: () => unawaited(controller.retry()),
@@ -167,6 +185,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
             ? null
             : l10n.evidenceSheetPersonalEmpty,
         loading: state.refreshing,
+        unlockTag: unlockTag,
         onWatchAd: state.adReady ? () => unawaited(controller.watchAd()) : null,
         onPass: _openAdFree,
       ),

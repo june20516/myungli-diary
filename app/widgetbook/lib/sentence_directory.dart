@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -100,18 +101,38 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
                       _line('일간을 돕는 기운이라 용신으로 판정했어요.'),
                     ],
                   ],
+                  // 원전은 상자 없이 뜻, 원문, 출처 줄 묶음입니다(V113).
                   source: [
                     if (state == DepthLinkState.unlocked) ...[
-                      _line('食神制殺, 福壽綿長.'),
-                      _line('推其形色，則水黑、火赤、木青、土黄，此正色也。'),
+                      _line(
+                        '식신이 살을 다스리면 복과 수명이 길다는 뜻이에요.\n'
+                        '食神制殺, 福壽綿長.\n원전 「대목」',
+                      ),
+                      _line(
+                        '오행마다 바른 빛깔이 있다는 뜻이에요.\n'
+                        '推其形色，則水黑、火赤、木青、土黄，此正色也。\n'
+                        '원전 「대목」',
+                      ),
                     ],
                   ],
+                  // 열리면 제목 옆 꼬리표와 반짝임(D118, V112).
+                  unlockTag: AppLocalizations.of(context)
+                      .evidenceSheetUnlockUntilMidnight,
                   onWatchAd: () {},
                   onPass: () {},
                 ),
               ),
             ),
           ),
+        WidgetbookUseCase(
+          name: '근거 아이콘 열린 날(icon.unlocked)',
+          builder: (context) => Stage(
+            child: EvidenceUnlockedScope(
+              unlocked: true,
+              child: DepthLink.evidence(subject: '총운', onTap: () {}),
+            ),
+          ),
+        ),
         WidgetbookUseCase(
           name: '근거 시트 다시 받는 중(loading)',
           builder: (context) => Stage(
