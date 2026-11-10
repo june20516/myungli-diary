@@ -103,7 +103,7 @@ func TestRun_MigrateUnreachableDatabase_FailsFastWithCauseWithoutPassword(t *tes
 }
 
 // migrationFileCount는 migration 디렉터리의 파일 수입니다. migration을 더하면 함께 올립니다.
-const migrationFileCount = 25
+const migrationFileCount = 26
 
 func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	ctx := context.Background()
