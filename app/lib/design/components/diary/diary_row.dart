@@ -38,7 +38,7 @@ String _dateLabel(BuildContext context, CalendarDate date) {
 /// 왼쪽 날짜 열(44)에 숫자(옅은 도장 34 가운데)와 요일을 두고, 요일 아래에서 줄 끝까지
 /// `rail.timeline`이 이어져 다음 줄 날짜와 만납니다([isLast]면 없음). 오른쪽 카드에는
 /// 날의 성격 `hanja-tag`([dayKind], 없으면 그리지 않음) → 미리보기 두 줄 → 그날 사주 기운
-/// 태그 줄([tags], 한 줄 가로 밀기, [DiaryRowTags])을 둡니다(V81, V103).
+/// 태그 줄([tags], 한 줄 가로 밀기, [DiaryRowTagLine])을 둡니다(V81, V103).
 ///
 /// 카드 전체가 버튼([onTap])이고 스크린리더는 "날짜 요일, 날의 성격, 미리보기, 사주 기운
 /// 태그들" 한 덩어리로 읽습니다. 카드 안 태그는 손가락으로는 따로 눌리고(뜻 시트), 스크린리더
@@ -170,7 +170,7 @@ class DiaryRow extends StatelessWidget {
             ),
             if (tags.isNotEmpty) ...[
               const SizedBox(height: tagMarginTop),
-              DiaryRowTags(tags: tags),
+              DiaryRowTagLine(tags: tags),
             ],
           ],
         ),
@@ -249,7 +249,7 @@ class DiaryDayGroup extends StatelessWidget {
             _EntryLines(entries: entries),
             if (tags.isNotEmpty) ...[
               const SizedBox(height: DiaryRow.groupTagMarginTop),
-              DiaryRowTags(tags: tags),
+              DiaryRowTagLine(tags: tags),
             ],
           ],
         ),
@@ -324,7 +324,7 @@ class _DayFrame extends StatelessWidget {
 /// 넘치면 그 줄 안에서 가로로 밀며, 더 있는 쪽 끝 24만 카드 바탕(`bg.sheet`)으로 흐립니다
 /// (`scroll-hint`의 흐림만, 화살표 줄 없음). 스크린리더는 가로 밀기와 상관없이 태그를 목록으로
 /// 차례로 읽습니다(한 편 카드에서는 카드 라벨이 이름을 읽고 태그는 카드의 추가 동작).
-class DiaryRowTags extends StatefulWidget {
+class DiaryRowTagLine extends StatefulWidget {
   /// 태그 줄을 만듭니다. [tags]가 비면 아무것도 그리지 않습니다.
   const new({required this.tags, super.key});
 
@@ -332,10 +332,10 @@ class DiaryRowTags extends StatefulWidget {
   final List<HanjaTag> tags;
 
   @override
-  State<DiaryRowTags> createState() => _DiaryRowTagsState();
+  State<DiaryRowTagLine> createState() => _DiaryRowTagLineState();
 }
 
-class _DiaryRowTagsState extends State<DiaryRowTags> {
+class _DiaryRowTagLineState extends State<DiaryRowTagLine> {
   final ScrollController _scroll = ScrollController();
 
   @override

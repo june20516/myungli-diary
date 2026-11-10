@@ -320,6 +320,7 @@ final class PatternOptions {
     this.index = 0,
     this.stackLift = 0,
     this.stackRelease = 0,
+    this.keepSemantics = false,
   });
 
   /// `press.ink`: 누른 자리.
@@ -353,6 +354,10 @@ final class PatternOptions {
   /// `sheet.stack`: 위 시트를 끌어 내린 비율(0~1). 아래 시트는 이만큼 제자리 쪽으로 내려오고
   /// 덮개도 그만큼 걷힙니다(`peek.drag`).
   final double stackRelease;
+
+  /// `appear.seep`: true면 투명도 0에서 시작하는 동안에도 스크린리더 의미를 남깁니다. 나타나는
+  /// 순간 스크린리더 초점을 받아야 하는 자리(`diary-editor` `guideStates.focus`)에 씁니다.
+  final bool keepSemantics;
 }
 
 /// 컨트롤러에 줄 시간. 동작 줄이기에서 `instant` 패턴이면 0입니다.
@@ -388,7 +393,7 @@ Widget animate(
           options,
           child!,
         ),
-        InteractionPattern.appearSeep => _appearSeep(effect, child!),
+        InteractionPattern.appearSeep => _appearSeep(effect, options, child!),
         InteractionPattern.disappearSeep => _disappearSeep(effect, child!),
         InteractionPattern.selectSeepSlide => _selectSlide(
           effect,
@@ -512,15 +517,22 @@ Widget _blurSelf(double sigma, Widget child) => ImageFiltered(
   child: child,
 );
 
-Widget _fade(double opacity, Widget child) =>
-    Opacity(opacity: opacity.clamp(0, 1), child: child);
+Widget _fade(
+  double opacity,
+  Widget child, {
+  bool alwaysIncludeSemantics = false,
+}) => Opacity(
+  opacity: opacity.clamp(0, 1),
+  alwaysIncludeSemantics: alwaysIncludeSemantics,
+  child: child,
+);
 
-Widget _appearSeep(_Effect e, Widget child) {
+Widget _appearSeep(_Effect e, PatternOptions o, Widget child) {
   final v = e.eased;
   final body = e.noBlur
       ? child
       : _blurSelf(PatternValues.appearBlur * (1 - v), child);
-  return _fade(v, body);
+  return _fade(v, body, alwaysIncludeSemantics: o.keepSemantics);
 }
 
 Widget _disappearSeep(_Effect e, Widget child) {

@@ -1,4 +1,7 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
@@ -508,8 +511,32 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('스크린리더: 떼기는 "질문 없이 쓰기" 버튼, 권유 줄은 글자 그대로 읽는 버튼이고 '
-        '나타나면 polite로 읽습니다', (tester) async {
+    /// 접근성 채널로 나가는 이벤트(`{'type': 'focus', 'nodeId': ...}` 등)를 모읍니다.
+    List<Map<Object?, Object?>> captureA11yEvents(WidgetTester tester) {
+      final events = <Map<Object?, Object?>>[];
+      tester.binding.defaultBinaryMessenger
+          .setMockDecodedMessageHandler<Object?>(SystemChannels.accessibility, (
+            message,
+          ) async {
+            events.add(message! as Map<Object?, Object?>);
+            return null;
+          });
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(
+              SystemChannels.accessibility,
+              null,
+            ),
+      );
+      return events;
+    }
+
+    List<Object?> focusedNodes(List<Map<Object?, Object?>> events) => [
+      for (final event in events)
+        if (event['type'] == 'focus') event['nodeId'],
+    ];
+
+    testWidgets('스크린리더: 떼기는 "질문 없이 쓰기" 버튼, 권유 줄은 글자 그대로 읽는 버튼', (tester) async {
       final handle = tester.ensureSemantics();
       final controller = TextEditingController();
       addTearDown(controller.dispose);
@@ -520,13 +547,124 @@ void main() {
 
       await tester.pumpWidget(editor(controller, detached: true));
       await tester.pump(const Duration(milliseconds: 50));
-      // 사라지는 질문은 읽지 않습니다.
-      expect(find.bySemanticsLabel(questionText), findsNothing);
+      // 사라지는 질문은 읽지 않습니다(지금 의미 트리 기준).
+      expect(find.semantics.byLabel(questionText), findsNothing);
       await tester.pumpAndSettle();
       final attach = tester.getSemantics(find.byKey(DiaryEditor.detachedKey));
       expect(attach.label, '질문 추가');
       expect(attach.flagsCollection.isButton, isTrue);
-      expect(attach.flagsCollection.isLiveRegion, isTrue);
+      expect(attach.flagsCollection.isEnabled, Tristate.isTrue);
+      // 초점 이동이 읽으므로 live region은 두지 않습니다(두 번 읽지 않게).
+      expect(attach.flagsCollection.isLiveRegion, isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('떼면 스크린리더 초점이 권유 줄로 옮겨 가고 본문 입력 초점은 그대로입니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController(text: '쓰던 글');
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller));
+      await tester.showKeyboard(find.byType(TextField));
+      final events = captureA11yEvents(tester);
+      await tester.pumpWidget(editor(controller, detached: true));
+      await tester.pump();
+      final line = tester.getSemantics(find.byKey(DiaryEditor.detachedKey));
+      expect(focusedNodes(events), [line.id]);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).focusNode!.hasFocus,
+        isTrue,
+      );
+      await tester.pumpAndSettle();
+      handle.dispose();
+    });
+
+    testWidgets('다시 붙이면 스크린리더 초점이 질문으로 가고, 그때는 알림을 끄며 바꾸면 다시 켭니다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(editor(controller, detached: true));
+      final events = captureA11yEvents(tester);
+      await tester.pumpWidget(editor(controller));
+      await tester.pump();
+      final question = tester.getSemantics(find.bySemanticsLabel(questionText));
+      expect(focusedNodes(events), [question.id]);
+      // 초점 이동이 질문을 읽으므로 같은 글을 live region으로 또 읽지 않습니다.
+      expect(question.flagsCollection.isLiveRegion, isFalse);
+      await tester.pumpAndSettle();
+
+      const swapped = '오늘 들은 말 중에 기억에 남는 게 있나요?';
+      await tester.pumpWidget(
+        editor(
+          controller,
+          question: RenderedText(segments: [Segment(text: swapped)]),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel(swapped))
+            .flagsCollection
+            .isLiveRegion,
+        isTrue,
+      );
+      // 바꾸기는 초점을 옮기지 않습니다(바꾸기 버튼에 남음).
+      expect(focusedNodes(events), hasLength(1));
+      handle.dispose();
+    });
+
+    testWidgets('처음 열 때는 스크린리더 초점을 옮기지 않습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      final events = captureA11yEvents(tester);
+      await tester.pumpWidget(editor(controller, detached: true));
+      await tester.pump();
+      expect(focusedNodes(events), isEmpty);
+      handle.dispose();
+    });
+
+    testWidgets('떼고 바로 붙여도(사라지는 중) 질문과 떼기는 하나씩만 읽히고 눌립니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      var detaches = 0;
+      await tester.pumpWidget(editor(controller, onDetach: () => detaches++));
+      await tester.pumpWidget(editor(controller, detached: true));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpWidget(editor(controller, onDetach: () => detaches++));
+      await tester.pump(const Duration(milliseconds: 50));
+      // 옛 질문(사라지는 중)과 새 질문이 함께 그려지지만 읽히고 눌리는 것은 새 것 하나입니다.
+      expect(find.text(questionText), findsNWidgets(2));
+      expect(find.semantics.byLabel(questionText), findsOne);
+      expect(find.semantics.byLabel('질문 없이 쓰기'), findsOne);
+      // 두 x가 같은 자리에 있어도 사라지는 쪽은 누를 수 없어 한 번만 불립니다.
+      await tester.tapAt(
+        tester.getCenter(find.byKey(DiaryEditor.removeKey).last),
+      );
+      expect(detaches, 1);
+      await tester.pumpAndSettle();
+      expect(find.text(questionText), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('누를 곳이 없으면(저장 뒤) 권유 줄은 꺼진 버튼으로 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        _scroll(
+          DiaryEditor.edit(
+            date: _date,
+            controller: controller,
+            question: _question,
+            questionDetached: true,
+          ),
+        ),
+      );
+      final line = tester.getSemantics(find.byKey(DiaryEditor.detachedKey));
+      expect(line.flagsCollection.isEnabled, Tristate.isFalse);
       handle.dispose();
     });
 

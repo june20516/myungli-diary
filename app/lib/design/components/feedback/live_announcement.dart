@@ -14,6 +14,7 @@ class LiveAnnouncement extends StatelessWidget {
     required this.role,
     required this.child,
     this.identifier,
+    this.liveRegion = true,
     super.key,
   });
 
@@ -29,10 +30,14 @@ class LiveAnnouncement extends StatelessWidget {
   /// 시각 내용.
   final Widget child;
 
+  /// false면 알림 없이 [label]만 읽는 노드입니다. 스크린리더 초점을 이 노드로 옮겨 읽게 하는
+  /// 순간처럼 같은 글을 두 번 읽지 않게 할 때 잠시 끕니다(`diary-editor` `guideStates.focus`).
+  final bool liveRegion;
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      liveRegion: true,
+      liveRegion: liveRegion,
       identifier: identifier,
       label: label,
       child: Semantics(

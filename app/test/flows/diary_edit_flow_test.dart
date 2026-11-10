@@ -48,6 +48,9 @@ final class _Network extends Interceptor {
   /// 있으면 `getDaily` 응답의 `guideCandidates`를 이 목록으로 바꿉니다.
   List<Map<String, Object?>>? candidates;
 
+  /// 보낸 `createDiary` 요청 본문들.
+  final createBodies = <Map<String, Object?>>[];
+
   @override
   void onResponse(
     Response<Object?> response,
@@ -67,6 +70,14 @@ final class _Network extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method == 'POST' && options.path == '/v1/diaries') {
+      final data = options.data;
+      createBodies.add(
+        Map<String, Object?>.from(
+          (data is String ? jsonDecode(data) : data)! as Map,
+        ),
+      );
+    }
     final hold = holdCreate;
     if (hold != null &&
         options.method == 'POST' &&
@@ -501,7 +512,8 @@ void main() {
   testWidgets('질문 떼기: 권유 줄로 바뀌고 다시 붙이면 첫 질문, 뗀 채 저장하면 diary-view에 질문이 없습니다', (
     tester,
   ) async {
-    final container = await _openEdit(tester, _today);
+    final network = _Network();
+    final container = await _openEdit(tester, _today, network: network);
     const first = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
     const second = '오늘 함께해서 좋았던 사람이 있었나요?';
     await tester.tap(find.byKey(DiaryEditor.swapKey));
@@ -531,6 +543,10 @@ void main() {
       () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
     );
     expect(_server(container).callCountOf('createDiary'), 1);
+    // 뗀 채 저장하면 withoutGuideQuestion true만 보내고 고른 질문은 싣지 않습니다(D116).
+    final body = network.createBodies.single;
+    expect(body['withoutGuideQuestion'], isTrue);
+    expect(body.containsKey('guideQuestion'), isFalse);
     await pumpUntilScreen(tester, ScreenIds.diaryView);
     await pumpUntil(
       tester,

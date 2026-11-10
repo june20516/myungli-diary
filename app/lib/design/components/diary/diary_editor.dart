@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart' show SemanticsRole;
+import 'package:flutter/semantics.dart' show FocusSemanticEvent, SemanticsRole;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
@@ -317,6 +317,14 @@ class _DiaryEditorState extends State<DiaryEditor>
   late List<HanjaTag> _tags = widget.tags;
   FocusNode? _ownFocus;
 
+  /// 쓰기 질문 자리에서 지금 상태의 첫 요소(붙음은 질문, 뗌은 권유 줄)를 찾는 key. 상태가
+  /// 바뀔 때마다 새로 만들어, 사라지는 중인 앞 상태(옛 key)와 겹치지 않습니다.
+  GlobalKey _guideFocusKey = GlobalKey(debugLabel: 'diary-editor-guide');
+
+  /// 붙은 질문의 live region을 켤지. 다시 붙인 순간에는 스크린리더 초점 이동이 질문을 읽으므로
+  /// 끄고(두 번 읽지 않게), 질문을 바꾸면 다시 켜 새 질문을 polite로 읽습니다.
+  bool _questionLive = true;
+
   FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
 
   bool get _viewing => widget.variant == DiaryEditorVariant.view;
@@ -336,7 +344,35 @@ class _DiaryEditorState extends State<DiaryEditor>
     }
     if (_viewing) {
       _tags = widget.tags;
+      return;
     }
+    if (oldWidget.questionDetached != widget.questionDetached) {
+      _onGuideStateChanged();
+    } else if (_plainQuestion(oldWidget.question) !=
+        _plainQuestion(widget.question)) {
+      _questionLive = true;
+    }
+  }
+
+  static String _plainQuestion(RenderedText? question) =>
+      question == null ? '' : plainTextOf(question).trim();
+
+  /// 질문 자리가 붙음과 뗌 사이에서 바뀌었습니다(`guideStates.transitions`).
+  ///
+  /// 그린 뒤 스크린리더 초점을 새 상태의 첫 요소로 옮깁니다(`guideStates.focus`). 누른 버튼이
+  /// 사라져 초점이 갈 곳을 잃지 않게 하려는 것이고, 본문 입력 초점과 키보드는 그대로입니다
+  /// ([FocusSemanticEvent]는 iOS VoiceOver 커서와 Android 접근성 초점만 옮김). 초점을 받은
+  /// 노드는 그때 읽히므로, 다시 붙인 질문의 live region은 다음 바꾸기 전까지 끕니다. 처음 열 때는
+  /// 옮기지 않습니다.
+  void _onGuideStateChanged() {
+    _guideFocusKey = GlobalKey(debugLabel: 'diary-editor-guide');
+    _questionLive = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _guideFocusKey.currentContext?.findRenderObject()?.sendSemanticsEvent(
+        const FocusSemanticEvent(),
+      );
+    });
   }
 
   @override
@@ -478,11 +514,18 @@ class _DiaryEditorState extends State<DiaryEditor>
       duration: InteractionPattern.appearSeep.duration,
       reverseDuration: InteractionPattern.disappearSeep.duration,
       transitionBuilder: (child, animation) {
-        if (child.key == currentKey) {
+        // 빨리 다시 바꾸면(떼고 바로 붙임) 사라지는 중인 같은 상태가 새 상태와 같은 key를
+        // 가집니다. 거꾸로 도는 animation이면 그 key여도 나가는 상태입니다.
+        final leaving =
+            child.key != currentKey ||
+            animation.status == AnimationStatus.reverse;
+        if (!leaving) {
+          // 나타나는 첫 프레임(투명도 0)에도 스크린리더 초점을 받을 수 있게 의미를 남깁니다.
           return animate(
             InteractionPattern.appearSeep,
             t: animation,
             prefs: prefs,
+            options: const PatternOptions(keepSemantics: true),
             child: child,
           );
         }
@@ -498,7 +541,9 @@ class _DiaryEditorState extends State<DiaryEditor>
           ),
         );
       },
-      // 앞 상태는 새 상태 높이 안에서 잘립니다(Stack 기본 Clip.hardEdge).
+      // 앞 상태는 새 상태 높이 안에서 잘립니다(Stack 기본 Clip.hardEdge). 앞 상태는
+      // Positioned로 부모가 바뀌어 다시 mount됩니다. 두 상태 모두 상태(State)를 들지 않는다는
+      // 전제이고, 질문 쪽에 상태를 넣으면 이 배치를 다시 봐야 합니다.
       layoutBuilder: (current, previous) => Stack(
         children: [
           for (final child in previous)
@@ -512,6 +557,7 @@ class _DiaryEditorState extends State<DiaryEditor>
             ? _DetachedLine(
                 onTap: widget.onAttachQuestion,
                 identifier: widget.attachSlotId,
+                focusKey: _guideFocusKey,
               )
             : _quote(context, questionText),
       ),
@@ -542,24 +588,32 @@ class _DiaryEditorState extends State<DiaryEditor>
     final textNode = Text(text, key: DiaryEditor.questionKey, style: style);
     final shown = _viewing
         ? Semantics(identifier: widget.questionSlotId, child: textNode)
-        // 바꾸면 새 질문을 polite로 읽습니다(`swap.a11y.changedAnnounced`).
-        : LiveAnnouncement(
-            label: text,
-            role: SemanticsRole.status,
-            identifier: widget.questionSlotId,
-            child: AnimatedSwitcher(
-              duration: prefs.reduceMotion
-                  ? Duration.zero
-                  : InteractionPattern.appearSeep.duration,
-              transitionBuilder: (child, animation) => animate(
-                InteractionPattern.appearSeep,
-                t: animation,
-                prefs: prefs,
-                child: child,
+        // 바꾸면 새 질문을 polite로 읽습니다(`swap.a11y.changedAnnounced`). 질문 노드는 따로
+        // 두어(container) 다시 붙일 때 스크린리더 초점을 받는 자리입니다([_guideFocusKey]).
+        : KeyedSubtree(
+            key: _guideFocusKey,
+            child: Semantics(
+              container: true,
+              child: LiveAnnouncement(
+                label: text,
+                role: SemanticsRole.status,
+                identifier: widget.questionSlotId,
+                liveRegion: _questionLive,
+                child: AnimatedSwitcher(
+                  duration: prefs.reduceMotion
+                      ? Duration.zero
+                      : InteractionPattern.appearSeep.duration,
+                  transitionBuilder: (child, animation) => animate(
+                    InteractionPattern.appearSeep,
+                    t: animation,
+                    prefs: prefs,
+                    child: child,
+                  ),
+                  layoutBuilder: (current, previous) =>
+                      Stack(children: [...previous, ?current]),
+                  child: KeyedSubtree(key: ValueKey(text), child: textNode),
+                ),
               ),
-              layoutBuilder: (current, previous) =>
-                  Stack(children: [...previous, ?current]),
-              child: KeyedSubtree(key: ValueKey(text), child: textNode),
             ),
           );
     final quote = IntrinsicHeight(
@@ -744,13 +798,18 @@ class _QuestionAction extends StatelessWidget {
 /// `chat-teardrop-dots` Light(옆 글자 크기, 같은 색, 장식)입니다.
 ///
 /// 줄 전체가 버튼(높이 44 이상)이고 누르면 [onTap](그날 기본 질문을 다시 붙임)입니다. 본문
-/// 초점과 키보드는 그대로입니다. 스크린리더는 글자 그대로 읽고(말풍선은 읽지 않음), 나타날 때
-/// polite로 읽습니다(`remove.a11y.changedAnnounced`).
+/// 초점과 키보드는 그대로입니다. 스크린리더는 글자 그대로 읽고(말풍선은 읽지 않음), 질문을 뗀
+/// 순간 스크린리더 초점이 이 줄로 와서 읽습니다(`guideStates.focus`,
+/// `remove.a11y.changedAnnounced`). 초점 이동이 읽으므로 live region은 두지 않습니다(두 번
+/// 읽지 않게).
 class _DetachedLine extends StatelessWidget {
-  const new({required this.onTap, this.identifier});
+  const new({required this.onTap, required this.focusKey, this.identifier});
 
   final VoidCallback? onTap;
   final String? identifier;
+
+  /// 질문을 뗀 순간 스크린리더 초점을 받는 노드의 key(`guideStates.focus`).
+  final Key focusKey;
 
   static const double _fontSize = DiaryEditor.questionFontSize;
 
@@ -761,45 +820,49 @@ class _DetachedLine extends StatelessWidget {
     final color = tokens.colors.inviteFg;
     final onTap = this.onTap;
     return TextFieldTapRegion(
-      child: Semantics(
-        key: DiaryEditor.detachedKey,
-        container: true,
-        liveRegion: true,
-        button: true,
-        label: label,
-        identifier: identifier,
-        onTap: onTap,
-        excludeSemantics: true,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+      child: KeyedSubtree(
+        key: focusKey,
+        child: Semantics(
+          key: DiaryEditor.detachedKey,
+          container: true,
+          button: true,
+          // 저장한 뒤(누를 곳 없음)에는 꺼진 버튼으로 읽습니다.
+          enabled: onTap != null,
+          label: label,
+          identifier: identifier,
           onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: DiaryEditor.detachedMinHeight,
-              minWidth: double.infinity,
-            ),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: tokens.typography.sentenceBody.copyWith(
-                        fontSize: _fontSize,
-                        color: color,
+          excludeSemantics: true,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: DiaryEditor.detachedMinHeight,
+                minWidth: double.infinity,
+              ),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: tokens.typography.sentenceBody.copyWith(
+                          fontSize: _fontSize,
+                          color: color,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: DiaryEditor.detachedIconGap),
-                  AppIcon(
-                    _chatTeardropDots,
-                    key: DiaryEditor.detachedIconKey,
-                    size: AppIconSize.adjacentText(_fontSize),
-                    color: color,
-                  ),
-                ],
+                    const SizedBox(width: DiaryEditor.detachedIconGap),
+                    AppIcon(
+                      _chatTeardropDots,
+                      key: DiaryEditor.detachedIconKey,
+                      size: AppIconSize.adjacentText(_fontSize),
+                      color: color,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

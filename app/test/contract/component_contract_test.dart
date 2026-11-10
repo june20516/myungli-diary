@@ -21,10 +21,13 @@ import 'package:flutter/widgets.dart'
         SingleChildScrollView,
         SizedBox,
         Text,
+        TextEditingController,
         Widget;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/score_item.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
@@ -1456,6 +1459,95 @@ void main() {
       // 모아보기 안에서는 모아 본 그 태그만 숨깁니다.
       expect(tag['hiddenIn'], ['tag-diary']);
       expect(tag['hiddenScope'], startsWith('모아 본 그 태그만'));
+    });
+
+    testWidgets('diary-row tag count all, order: 받은 태그 모두를 받은 순서대로 그립니다', (
+      tester,
+    ) async {
+      final tag = _map(_map(specs['diary-row']!['parts'])['tag']);
+      expect((tag['count'], tag['order']), ('all', '대표 태그 순위'));
+      const labels = ['천을귀인', '합', '도화', '역마', '화개', '공망'];
+      const glyphs = ['貴', '合', '桃', '驛', '華', '空'];
+      await _contractCheckWidgets('diary-row tag count', () async {
+        await tester.pumpWidget(
+          inputApp(
+            SizedBox(
+              width: 360,
+              child: DiaryRow(
+                date: CalendarDate(2026, 10, 12),
+                excerpt: '글',
+                tags: [
+                  for (var i = 0; i < labels.length; i++)
+                    HanjaTag(glyph: glyphs[i], label: labels[i]),
+                ],
+                onTap: () {},
+              ),
+            ),
+          ),
+        );
+        final drawn = tester.widgetList<HanjaTag>(
+          find.descendant(
+            of: find.byKey(DiaryRow.tagsKey),
+            matching: find.byType(HanjaTag),
+          ),
+        );
+        expect(drawn.map((t) => t.label), labels);
+      });
+    });
+
+    testWidgets('diary-editor remove, detached 아이콘 이름과 굵기, 크기가 그린 글리프와 같습니다', (
+      tester,
+    ) async {
+      final question = editQuestion();
+      final remove = _map(question['remove']);
+      final icon = _map(_map(question['detached'])['trailingIcon']);
+      // 명세 이름과 굵기(light) → 그린 Phosphor Light 글리프.
+      const lightGlyphs = {
+        'x': PhosphorIconsLight.x,
+        'chat-teardrop-dots': PhosphorIconsLight.chatTeardropDots,
+      };
+      expect((remove['weight'], icon['weight']), ('light', 'light'));
+      await _contractCheckWidgets('diary-editor guide icons', () async {
+        final controller = TextEditingController();
+        addTearDown(controller.dispose);
+        Widget editor({required bool detached}) => inputApp(
+          SingleChildScrollView(
+            child: DiaryEditor.edit(
+              date: CalendarDate(2026, 10, 13),
+              controller: controller,
+              question: RenderedText(segments: [Segment(text: '질문')]),
+              questionDetached: detached,
+              onDetachQuestion: () {},
+              onAttachQuestion: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(editor(detached: false));
+        final x = tester.widget<Icon>(
+          find.descendant(
+            of: find.byKey(DiaryEditor.removeKey),
+            matching: find.byType(Icon),
+          ),
+        );
+        expect(x.icon, lightGlyphs[remove['icon']]);
+        expect(x.size, _iconSize(remove['size']).logical);
+
+        await tester.pumpWidget(editor(detached: true));
+        await tester.pumpAndSettle();
+        final bubble = tester.widget<Icon>(
+          find.descendant(
+            of: find.byKey(DiaryEditor.detachedIconKey),
+            matching: find.byType(Icon),
+          ),
+        );
+        expect(bubble.icon, lightGlyphs[icon['icon']]);
+        expect(icon['size'], 'adjacent-text');
+        expect(
+          bubble.size,
+          AppIconSize.adjacentText(_px(_map(question['detached'])['fontSize']))
+              .logical,
+        );
+      });
     });
 
     test('diary-editor question: 인용 세로선은 action.primary(V102)', () {
