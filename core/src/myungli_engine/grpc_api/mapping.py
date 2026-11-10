@@ -24,6 +24,7 @@ from myungli_engine.constants.evidence_rules import require_rule
 from myungli_engine.domain.enums import CalendarType, Gender
 from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.domain.models import Evidence, FourPillars, Judgment, Notice, Pillar
+from myungli_engine.rules.color import ElementPick
 from myungli_engine.rules.focus_time import ScoredSlot
 from myungli_engine.rules.relations import Relation
 from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
@@ -49,6 +50,7 @@ _PREFIX_NOTICE_CODE = "NOTICE_CODE"
 _PREFIX_RELATION_KIND = "RELATION_KIND"
 _PREFIX_ELEMENT_ROLE = "ELEMENT_ROLE"
 _PREFIX_COLOR_SHIFT = "COLOR_SHIFT"
+_PREFIX_COLOR_BASIS = "COLOR_BASIS"
 _PREFIX_CALENDAR_TYPE = "CALENDAR_TYPE"
 _PREFIX_GENDER = "GENDER"
 _PREFIX_SOLAR_TERM_KIND = "SOLAR_TERM_KIND"
@@ -206,22 +208,28 @@ def chart_to_proto(view: ChartView) -> pb.ChartResponse:
     )
 
 
+def _color_card(pick: ElementPick, judgment: Judgment) -> pb.ColorCard:
+    return pb.ColorCard(
+        judgment=_judgment(judgment),
+        element=_name(_PREFIX_ELEMENT, pick.element),
+        role=_name(_PREFIX_ELEMENT_ROLE, pick.role),
+        base_element=_name(_PREFIX_ELEMENT, pick.base_element),
+        twelve_stage=_name(_PREFIX_TWELVE_STAGE, pick.stage),
+        shift=_name(_PREFIX_COLOR_SHIFT, pick.shift),
+        basis=_name(_PREFIX_COLOR_BASIS, pick.basis),
+    )
+
+
 def daily_to_proto(view: DailyView) -> pb.DailyResponse:
-    color, color_judgment = view.color
+    first_color, *other_colors = view.colors
     direction, direction_judgment = view.direction
     number, number_judgment = view.number
     focus, focus_judgment = view.focus
     return pb.DailyResponse(
         day=_pillar(view.day),
         kind=_name(_PREFIX_DAY_KIND, view.kind),
-        color=pb.ColorCard(
-            judgment=_judgment(color_judgment),
-            element=_name(_PREFIX_ELEMENT, color.element),
-            role=_name(_PREFIX_ELEMENT_ROLE, color.role),
-            base_element=_name(_PREFIX_ELEMENT, color.base_element),
-            twelve_stage=_name(_PREFIX_TWELVE_STAGE, color.stage),
-            shift=_name(_PREFIX_COLOR_SHIFT, color.shift),
-        ),
+        color=_color_card(*first_color),
+        second_color=_color_card(*other_colors[0]) if other_colors else None,
         direction=pb.DirectionCard(
             judgment=_judgment(direction_judgment),
             direction=_name(_PREFIX_DIRECTION8, direction.direction),

@@ -11,6 +11,38 @@
   "calendar.very_good": [
     "score"
   ],
+  "color.balance.gisin_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
+  "color.balance.gwiin_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
+  "color.balance.ordinary_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
+  "color.balance.yongsin_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
   "color.gisin_day": [
     "base_element",
     "day_branch",
@@ -35,6 +67,38 @@
     "shift",
     "twelve_stage"
   ],
+  "color.source.gisin_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
+  "color.source.gwiin_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
+  "color.source.ordinary_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
+  "color.source.yongsin_day": [
+    "base_element",
+    "day_branch",
+    "element",
+    "role",
+    "shift",
+    "twelve_stage"
+  ],
   "color.yongsin_day": [
     "base_element",
     "day_branch",
@@ -45,39 +109,55 @@
   ],
   "direction.day_kind.gisin": [
     "direction",
-    "rule_id"
+    "rule_id",
+    "element",
+    "role"
   ],
   "direction.day_kind.gwiin": [
     "direction",
-    "rule_id"
+    "rule_id",
+    "day_branch"
   ],
   "direction.day_kind.ordinary": [
     "direction",
-    "rule_id"
+    "rule_id",
+    "element",
+    "role",
+    "deity"
   ],
   "direction.day_kind.yongsin": [
     "direction",
-    "rule_id"
+    "rule_id",
+    "element",
+    "role"
   ],
   "focus_time.fallback": [
     "branches",
-    "score"
+    "score",
+    "hour_branch"
   ],
   "focus_time.gwiin": [
     "branches",
-    "score"
+    "score",
+    "hour_branch"
   ],
   "focus_time.hap": [
     "branches",
-    "score"
+    "score",
+    "hour_branch",
+    "natal_branch"
   ],
   "focus_time.huisin": [
     "branches",
-    "score"
+    "score",
+    "hour_branch",
+    "element"
   ],
   "focus_time.yongsin": [
     "branches",
-    "score"
+    "score",
+    "hour_branch",
+    "element"
   ],
   "fortune.gisin_day.bigyeop": [
     "day_kind",
@@ -381,19 +461,31 @@
   ],
   "number.gisin_day": [
     "number",
-    "element"
+    "element",
+    "day_stem",
+    "parity",
+    "pair"
   ],
   "number.gwiin_day": [
     "number",
-    "element"
+    "element",
+    "day_stem",
+    "parity",
+    "pair"
   ],
   "number.ordinary_day": [
     "number",
-    "element"
+    "element",
+    "day_stem",
+    "parity",
+    "pair"
   ],
   "number.yongsin_day": [
     "number",
-    "element"
+    "element",
+    "day_stem",
+    "parity",
+    "pair"
   ],
   "personal.day_master.byeong": [
     "strength",

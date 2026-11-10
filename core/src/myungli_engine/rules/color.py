@@ -2,19 +2,20 @@
 
 1. 바탕 오행: 기신의 날은 통관 오행, 그 밖은 용신 오행(D19).
 2. 변역(變易): 바탕 오행이 그날 일지에서 놓인 12운성 자리에 따라 제 색, 母色, 妻色, 鬼色, 子色 중
-   하나를 따른다(『三命通會』 「論五行」, #937, C33). 최종 색 오행이 행운 색이다.
+   하나를 따른다(『三命通會』 「論五行」, #937, C33). 변역 뒤 색 오행이 원전 기준 행운 색이다.
+3. 원전 기준 색이 기신의 색이면 내 균형 기준(바탕 오행의 제 색) 카드를 앞에 두어 둘을 낸다(D119, C34).
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum, auto
 from typing import Final
 
 from myungli_engine.calendar_core import lunar_adapter
 from myungli_engine.domain.elements import controlled_by, controls, generated_by, generates
-from myungli_engine.domain.enums import ColorShift, DayKind, Element, Stem, TwelveStage
+from myungli_engine.domain.enums import ColorBasis, ColorShift, DayKind, Element, Stem, TwelveStage
 from myungli_engine.domain.models import Evidence, Pillar
 from myungli_engine.references import loader
 from myungli_engine.references.loader import COLOR_SHIFT_REF, FIVE_ELEMENTS_REF
@@ -63,13 +64,17 @@ _SHIFTED: Final[dict[ColorShift, Callable[[Element], Element]]] = {
 
 @dataclass(frozen=True, slots=True)
 class ElementPick:
-    """element는 행운 색 오행(변역 뒤), base_element는 날의 성격으로 고른 바탕 오행."""
+    """색 카드 하나. element는 이 카드의 색 오행이고, base_element는 날의 성격으로 고른 바탕 오행.
+
+    stage와 shift는 그날 계산한 변역이다. BALANCE 카드도 같은 값을 가지며, element만 바탕 오행이다.
+    """
 
     element: Element
     role: ElementRole
     base_element: Element
     stage: TwelveStage
     shift: ColorShift
+    basis: ColorBasis
     evidence: tuple[Evidence, ...]
 
 
@@ -93,6 +98,7 @@ def element_stage(element: Element, day: Pillar) -> TwelveStage:
 
 
 def lucky_element(kind: DayKind, yongsin: YongsinResult, day: Pillar) -> ElementPick:
+    """원전 기준 카드: 바탕 오행을 변역한 색."""
     base, role = base_element(kind, yongsin)
     stage = element_stage(base, day)
     shift = SHIFT_BY_STAGE[stage]
@@ -113,5 +119,38 @@ def lucky_element(kind: DayKind, yongsin: YongsinResult, day: Pillar) -> Element
         Evidence(rule_id="color/shift", source_ref=COLOR_SHIFT_REF, detail=shift_detail),
     )
     return ElementPick(
-        element=element, role=role, base_element=base, stage=stage, shift=shift, evidence=evidence
+        element=element,
+        role=role,
+        base_element=base,
+        stage=stage,
+        shift=shift,
+        basis=ColorBasis.SOURCE,
+        evidence=evidence,
     )
+
+
+def _balance_pick(source: ElementPick, yongsin: YongsinResult) -> ElementPick:
+    """내 균형 기준 카드: 원전 기준 색이 기신이라 바탕 오행의 제 색을 그대로 둔다."""
+    balance = Evidence(
+        rule_id="color/balance",
+        source_ref=yongsin.evidence[0].source_ref,
+        detail={
+            "element": source.base_element.name,
+            "shifted_element": source.element.name,
+            "gisin": yongsin.gisin.name,
+        },
+    )
+    return replace(
+        source,
+        element=source.base_element,
+        basis=ColorBasis.BALANCE,
+        evidence=(*source.evidence, balance),
+    )
+
+
+def lucky_colors(kind: DayKind, yongsin: YongsinResult, day: Pillar) -> tuple[ElementPick, ...]:
+    """행운 색 카드 1~2장. 원전 기준 색이 기신이면 (내 균형 기준, 원전 기준), 아니면 (원전 기준,)."""
+    source = lucky_element(kind, yongsin, day)
+    if source.element is not yongsin.gisin:
+        return (source,)
+    return (_balance_pick(source, yongsin), source)

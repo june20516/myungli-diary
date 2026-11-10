@@ -1,7 +1,7 @@
 import pytest
 
 from myungli_engine.domain.enums import Element, Stem
-from myungli_engine.rules.number import lucky_number
+from myungli_engine.rules.number import hado_pair, lucky_number
 
 
 @pytest.mark.parametrize(
@@ -17,3 +17,10 @@ from myungli_engine.rules.number import lucky_number
 )
 def test_lucky_number(element: Element, stem: Stem, expected: int) -> None:
     assert lucky_number(element, stem) == expected
+
+
+@pytest.mark.parametrize(
+    ("element", "number", "pair"), [(Element.FIRE, 7, 2), (Element.FIRE, 2, 7), (Element.EARTH, 10, 5)]
+)
+def test_hado_pair(element: Element, number: int, pair: int) -> None:
+    assert hado_pair(element, number) == pair

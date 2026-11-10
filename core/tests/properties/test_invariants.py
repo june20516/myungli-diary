@@ -53,7 +53,7 @@ def _cycle_index(pillar: Pillar) -> int:
 
 def _judgments(view: DailyView) -> list[Judgment]:
     return [
-        view.color[1],
+        *(judgment for _, judgment in view.colors),
         view.direction[1],
         view.number[1],
         view.focus[1],
@@ -116,7 +116,7 @@ def _evidence_fingerprint(view: DailyView) -> tuple[object, ...]:
         for judgment in _judgments(view)
         for e in judgment.evidence
     )
-    return (view.kind, view.color[0].element, view.direction[0].direction, view.tags.all_keys, evidence)
+    return (view.kind, view.colors[0][0].element, view.direction[0].direction, view.tags.all_keys, evidence)
 
 
 def _solar(d: date, t: time | None, gender: Gender) -> BirthInput:

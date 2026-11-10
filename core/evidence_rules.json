@@ -3,6 +3,11 @@
     "breakdown",
     "score"
   ],
+  "color/balance": [
+    "element",
+    "gisin",
+    "shifted_element"
+  ],
   "color/lucky_element": [
     "day_kind",
     "element",
