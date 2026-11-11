@@ -12,10 +12,10 @@ from myungli_engine.chart.pillars import build_chart
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.composers.daily import DailyView, compose_daily
 from myungli_engine.constants.message_keys import ALL_KEYS, require
-from myungli_engine.domain.enums import Branch, CalendarType, Gender
+from myungli_engine.domain.enums import Branch, CalendarType, Gender, TenGodGroup
 from myungli_engine.domain.models import Judgment, Pillar
 from myungli_engine.references import loader
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references.loader import ten_god_group_ref
 
 SEOUL = "Asia/Seoul"
 CYCLE_LENGTH = 60
@@ -85,14 +85,15 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
 
 @given(birth=birth_inputs, target=daily_dates)
 def test_tag_based_judgments_cite_their_tag_source(birth: BirthInput, target: date) -> None:
-    """총운 보조 문장과 태그 질문은 그 태그의 근거를, 십성 묶음 질문은 공통 근거를 쓴다(C8, C28)."""
+    """총운 보조 문장과 태그 질문은 그 태그의 근거를, 십성 묶음 질문은 그 묶음의 조목을 쓴다(C28, #998)."""
     view = compose_daily(birth, target, SEOUL)
     for sentence in view.fortune[1:]:
         evidence = sentence.evidence[0]
         assert evidence.source_ref == view.tags.source_refs[evidence.detail["featured"]]
     for candidate in view.guide_candidates:
         evidence = candidate.evidence[0]
-        expected = view.tags.source_refs.get(evidence.detail["basis"], FIVE_ELEMENTS_REF["balance_principle"])
+        basis = evidence.detail["basis"]
+        expected = view.tags.source_refs[basis] if basis.startswith("tag.") else ten_god_group_ref(TenGodGroup[basis])
         assert evidence.source_ref == expected
 
 

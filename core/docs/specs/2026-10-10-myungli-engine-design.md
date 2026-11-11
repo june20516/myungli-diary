@@ -382,7 +382,7 @@ message ResponseMeta {
 ## 11. 근거(`source_ref`) 규칙
 * 형식: `<자료 디렉터리>/<파일 이름(확장자 제외)>#<키 경로>`. 예: `gungtong-bogam/johu_evidence#甲.子`, `gungtong-bogam/five_elements#direction`.
 * 근거 데이터 파일은 엔진 패키지에 함께 넣고, 시작할 때 한 번 읽어 검증합니다. 키가 없으면 엔진이 시작되지 않습니다.
-* **원전 없음(C28):** 원전이 없는 근거는 `source_ref`가 빈 문자열입니다. `constants/evidence_rules.py`의 `RULES_WITHOUT_SOURCE`(`tags/select`, `tags/ten_god_rush`, `fortune/tag`, `guide/question`)만 빈 값을 낼 수 있고, 계산 내역은 `detail`에 있습니다.
+* **원전 없음(C28):** 원전이 없는 근거는 `source_ref`가 빈 문자열입니다. `constants/evidence_rules.py`의 `RULES_WITHOUT_SOURCE`(`tags/select`, `tags/ten_god_rush`, `fortune/tag`, `guide/question`, `calendar/score`)만 빈 값을 낼 수 있고, 계산 내역은 `detail`에 있습니다. 달력 길흉은 원전 개념(날의 성격, 합충형)의 점수 합이라 늘 빈 값입니다(#998, C35).
 
 ---
 

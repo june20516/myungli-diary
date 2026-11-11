@@ -1615,6 +1615,17 @@
     "evidence_level": "month",
     "note": null
   },
+  "jeokcheonsu/personal#day_master": {
+    "work": "滴天髓",
+    "section": "衰旺論",
+    "quote": "旺則宜洩宜傷，衰則喜幫喜助，子平之理也",
+    "passage": [
+      "能知衰旺之真機，其於立命之奧，思過半矣。",
+      "旺則宜洩宜傷，衰則喜幫喜助，子平之理也，然旺中有衰者存，不可損也。衰中有旺者存，不可益也。旺之極者不可損，以損在其中矣，衰之極者不可益，以在其中矣。至於所當損者而損之反凶，所當益者而益之反害，此中真機皆能知之，何難於立命之微奧乎。"
+    ],
+    "evidence_level": null,
+    "note": "본문 줄(能知衰旺之真機…)과 그 주석 줄이 passage이고, 인용은 주석 줄의 첫 문장이다."
+  },
   "jeokcheonsu/tags#clash_month_branch": {
     "work": "滴天髓",
     "section": "月令論",
@@ -1635,6 +1646,176 @@
     ],
     "evidence_level": null,
     "note": "四庫全書本은 구두점이 없고 작은 주가 본문 사이에 있다. 원문은 12운성 열둘을 다 적지 않았다. 명리일기는 長生, 臨官, 帝旺을 正色, 死와 絶을 母色, 胎, 養(成形), 冠帶, 衰를 妻色, 沐浴(敗)과 病을 鬼色, 墓를 子色으로 본다. 臨官과 胎는 원문에 없어 명리일기가 정했고, 衰는 주의 \"衰老之際\"를 따랐으며, 帝旺은 生旺과 旺墓에 함께 걸려 生旺 쪽으로 읽었다. 오행의 12운성은 양간(甲丙戊庚壬)으로 보고, 土는 火와 같이 본다. 같은 대목이 『五行精紀』(출처 표시 『燭神經』), 『古今圖書集成』 藝術典 595권, 『窮通寶鑑』 「五行總論」(주 없음)에도 있다."
+  },
+  "sammyeong-tonghoe/personal#luck.ten_god": {
+    "work": "三命通會",
+    "section": "論大運",
+    "quote": "官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運刼印欲運旺不欲運衰食欲運生不欲運梟絶",
+    "passage": [
+      "官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運刼印欲運旺不欲運衰食欲運生不欲運梟絶"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#luck.twelve_stage": {
+    "work": "三命通會",
+    "section": "論大運",
+    "quote": "凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財",
+    "passage": [
+      "凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.geonrok": {
+    "work": "三命通會",
+    "section": "論建禄",
+    "quote": "余按陽刃比肩敗財建禄名雖不同實一家同氣之神",
+    "passage": [
+      "余按陽刃比肩敗財建禄名雖不同實一家同氣之神"
+    ],
+    "evidence_level": null,
+    "note": "比肩과 劫財(敗財)는 따로 다룬 조목이 없고, 陽刃, 建禄과 같은 기운으로 묶어 말한다. 명리일기는 比肩, 劫財 둘에 이 조목을 쓴다."
+  },
+  "sammyeong-tonghoe/personal#ten_god.jeonggwan": {
+    "work": "三命通會",
+    "section": "論正官",
+    "quote": "正官者乃甲見辛乙見庚之例隂陽配合相制有用成其道也",
+    "passage": [
+      "正官者乃甲見辛乙見庚之例隂陽配合相制有用成其道也"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.jeongin": {
+    "work": "三命通會",
+    "section": "論印綬",
+    "quote": "此格主聰明多智慧性慈恵語善良遲訥體貎豐厚",
+    "passage": [
+      "此格主聰明多智慧性慈恵語善良遲訥體貎豐厚"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.jeongjae": {
+    "work": "三命通會",
+    "section": "論正財",
+    "quote": "正財之格主人誠實行事儉約賦性聰明惟有慳吝",
+    "passage": [
+      "正財之格主人誠實行事儉約賦性聰明惟有慳吝"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.pyeongwan": {
+    "work": "三命通會",
+    "section": "論偏官",
+    "quote": "故有制謂之偏官無制謂之七煞",
+    "passage": [
+      "故有制謂之偏官無制謂之七煞"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.pyeonin": {
+    "work": "三命通會",
+    "section": "論倒食",
+    "quote": "倒食即偏印之謂一名吞啖煞食神最忌見之",
+    "passage": [
+      "倒食即偏印之謂一名吞啖煞食神最忌見之"
+    ],
+    "evidence_level": null,
+    "note": "원문은 偏印을 倒食(吞啖煞)이라는 이름으로 다룬다."
+  },
+  "sammyeong-tonghoe/personal#ten_god.pyeonjae": {
+    "work": "三命通會",
+    "section": "論偏財",
+    "quote": "偏財格主人慷慨不甚吝財與人有情而多詐",
+    "passage": [
+      "偏財格主人慷慨不甚吝財與人有情而多詐"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.sanggwan": {
+    "work": "三命通會",
+    "section": "論傷官",
+    "quote": "此格主多材藝傲物氣髙心險無忌憚多謀少遂弄巧成拙",
+    "passage": [
+      "此格主多材藝傲物氣髙心險無忌憚多謀少遂弄巧成拙"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god.siksin": {
+    "work": "三命通會",
+    "section": "論食神",
+    "quote": "主人財厚食豐福量寛𢎞肌體肥大優游自足有子息有夀考",
+    "passage": [
+      "主人財厚食豐福量寛𢎞肌體肥大優游自足有子息有夀考"
+    ],
+    "evidence_level": null,
+    "note": "四庫全書本 수집본은 論食神에 조목 표지(anchor)가 없고 본문 제목 글자만 있다."
+  },
+  "sammyeong-tonghoe/personal#ten_god_group.gwanseong": {
+    "work": "三命通會",
+    "section": "論古人立印食官財名義",
+    "quote": "尅我者我受制於人之義故立名官煞",
+    "passage": [
+      "尅我者我受制於人之義故立名官煞"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god_group.inseong": {
+    "work": "三命通會",
+    "section": "論古人立印食官財名義",
+    "quote": "生我者有父母之義故立名印綬",
+    "passage": [
+      "生我者有父母之義故立名印綬"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god_group.jaeseong": {
+    "work": "三命通會",
+    "section": "論古人立印食官財名義",
+    "quote": "我尅者是人受制於我之義故立名妻財",
+    "passage": [
+      "我尅者是人受制於我之義故立名妻財"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#ten_god_group.siksang": {
+    "work": "三命通會",
+    "section": "論古人立印食官財名義",
+    "quote": "我生者有子孫之義故立名食神",
+    "passage": [
+      "我生者有子孫之義故立名食神"
+    ],
+    "evidence_level": null,
+    "note": null
+  },
+  "sammyeong-tonghoe/personal#twelve_stage": {
+    "work": "三命通會",
+    "section": "論五行旺相休囚死並寄生十二宫",
+    "quote": "夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎飬循環無端週而復始造物大體與人相似循環十二宫亦若人世輪迴也",
+    "passage": [
+      "夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎飬循環無端週而復始造物大體與人相似循環十二宫亦若人世輪迴也"
+    ],
+    "evidence_level": null,
+    "note": "원문은 十二宫을 이 문장에서 十二官으로 적었다(수집본 그대로). 같은 조목이 이어서 단계마다 사람의 일생에 빗댄 뜻을 적는다."
+  },
+  "sammyeong-tonghoe/personal#yangin": {
+    "work": "三命通會",
+    "section": "論羊刃",
+    "quote": "羊言剛也刃者取宰割之義祿過則刃生",
+    "passage": [
+      "羊言剛也刃者取宰割之義祿過則刃生"
+    ],
+    "evidence_level": null,
+    "note": null
   },
   "sammyeong-tonghoe/tags#branch_hap": {
     "work": "三命通會",

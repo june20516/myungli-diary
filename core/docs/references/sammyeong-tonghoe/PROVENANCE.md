@@ -8,5 +8,7 @@
 | `skqs-vol01.wikitext` | [三命通會 (四庫全書本)/卷01](https://zh.wikisource.org/wiki/%E4%B8%89%E5%91%BD%E9%80%9A%E6%9C%83_(%E5%9B%9B%E5%BA%AB%E5%85%A8%E6%9B%B8%E6%9C%AC)/%E5%8D%B701) | 657365 | 2016-10-15T11:19:00Z | 2026-11-10 |
 | `vol3.wikitext` | [三命通會/卷三](https://zh.wikisource.org/wiki/%E4%B8%89%E5%91%BD%E9%80%9A%E6%9C%83/%E5%8D%B7%E4%B8%89) | 2184219 | 2022-10-03T21:50:57Z | 2026-11-05 |
 | `skqs-vol03.wikitext` | [三命通會 (四庫全書本)/卷03](https://zh.wikisource.org/wiki/%E4%B8%89%E5%91%BD%E9%80%9A%E6%9C%83_%28%E5%9B%9B%E5%BA%AB%E5%85%A8%E6%9B%B8%E6%9C%AC%29/%E5%8D%B703) | 657369 | 2016-10-15T11:19:00Z | 2026-11-11 |
+| `skqs-vol02.wikitext` | [三命通會 (四庫全書本)/卷02](https://zh.wikisource.org/wiki/%E4%B8%89%E5%91%BD%E9%80%9A%E6%9C%83_%28%E5%9B%9B%E5%BA%AB%E5%85%A8%E6%9B%B8%E6%9C%AC%29/%E5%8D%B702) | 761691 | 2016-10-24T13:12:21Z | 2026-11-11 |
+| `skqs-vol05.wikitext` | [三命通會 (四庫全書本)/卷05](https://zh.wikisource.org/wiki/%E4%B8%89%E5%91%BD%E9%80%9A%E6%9C%83_%28%E5%9B%9B%E5%BA%AB%E5%85%A8%E6%9B%B8%E6%9C%AC%29/%E5%8D%B705) | 2082207 | 2021-10-11T09:03:34Z | 2026-11-11 |
 
-`vol2`, `vol3`은 간체 전사이고 판본(底本) 표기가 없습니다. `skqs-vol01`, `skqs-vol03`은 四庫全書 영인본을 옮긴 번체 원문이고(明 萬民英 撰), 구두점이 없으며 작은 주는 `{{SKnotes|…}}` 틀에 있습니다. 위키문헌 목차 문서에는 卷十~卷十二가 빠져 있습니다.
+`vol2`, `vol3`은 간체 전사이고 판본(底本) 표기가 없습니다. `skqs-vol01`, `skqs-vol02`, `skqs-vol03`, `skqs-vol05`는 四庫全書 영인본을 옮긴 번체 원문이고(明 萬民英 撰), 구두점이 없으며 작은 주는 `{{SKnotes|…}}` 틀에 있습니다. 위키문헌 목차 문서에는 卷十~卷十二가 빠져 있습니다.

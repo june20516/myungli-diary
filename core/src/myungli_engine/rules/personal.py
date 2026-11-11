@@ -13,7 +13,7 @@ from myungli_engine.chart.positions import Position
 from myungli_engine.constants.message_keys import require
 from myungli_engine.domain.enums import Branch, Element, Shinsal, Stem, TenGod, TwelveStage
 from myungli_engine.domain.models import Evidence, FourPillars, Judgment
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references import loader
 from myungli_engine.rules.group_count import natal_group_count
 from myungli_engine.rules.strength import StrengthResult
 from myungli_engine.rules.yongsin import YongsinResult
@@ -53,13 +53,17 @@ def _detail_text(value: str | float | bool) -> str:
     return str(value).lower() if isinstance(value, bool) else str(value)
 
 
-def _judgment(bundle: str, key: str, params: _Params, yongsin: YongsinResult) -> Judgment:
+def shinsal_ref(kind: Shinsal) -> str:
+    """신살의 뜻을 다룬 원전. 양인은 개인 해석 원전, 나머지는 태그와 같은 조목(#998)."""
+    if kind is Shinsal.YANGIN:
+        return loader.PERSONAL_YANGIN_REF
+    return loader.TAG_SOURCE_REF[kind.name.lower()]
+
+
+def _judgment(bundle: str, key: str, params: _Params, yongsin: YongsinResult, source_ref: str) -> Judgment:
+    """규칙 근거의 원전은 그 용어의 뜻을 다룬 조목이다(#998). 자리와 역할의 원전은 규칙 지도에 적는다."""
     detail: Mapping[str, str] = {name: _detail_text(value) for name, value in params.items()}
-    rule_evidence = Evidence(
-        rule_id=f"personal/{bundle}",
-        source_ref=FIVE_ELEMENTS_REF["balance_principle"],
-        detail=detail,
-    )
+    rule_evidence = Evidence(rule_id=f"personal/{bundle}", source_ref=source_ref, detail=detail)
     return Judgment(
         message_key=require(key, params), params=params, evidence=(rule_evidence, *yongsin.evidence)
     )
@@ -71,7 +75,8 @@ def day_master_reading(stem: Stem, strength: StrengthResult, yongsin: YongsinRes
         "yongsin": yongsin.yongsin.name,
         "gisin": yongsin.gisin.name,
     }
-    return _judgment("day_master", f"personal.day_master.{stem.name.lower()}", params, yongsin)
+    key = f"personal.day_master.{stem.name.lower()}"
+    return _judgment("day_master", key, params, yongsin, loader.PERSONAL_DAY_MASTER_REF)
 
 
 def ten_god_reading(
@@ -91,7 +96,8 @@ def ten_god_reading(
         "group_count": natal_group_count(natal, god.group),
         "strength": strength.level.name,
     }
-    return _judgment("ten_god", f"personal.ten_god.{god.name.lower()}", params, yongsin)
+    key = f"personal.ten_god.{god.name.lower()}"
+    return _judgment("ten_god", key, params, yongsin, loader.ten_god_ref(god))
 
 
 def twelve_stage_reading(
@@ -107,7 +113,8 @@ def twelve_stage_reading(
         "role": element_role(branch.element, yongsin).name,
         "strength": strength.level.name,
     }
-    return _judgment("twelve_stage", f"personal.twelve_stage.{stage.name.lower()}", params, yongsin)
+    key = f"personal.twelve_stage.{stage.name.lower()}"
+    return _judgment("twelve_stage", key, params, yongsin, loader.PERSONAL_TWELVE_STAGE_REF)
 
 
 def shinsal_reading(kind: Shinsal, position: Position, branch: Branch, yongsin: YongsinResult) -> Judgment:
@@ -116,7 +123,7 @@ def shinsal_reading(kind: Shinsal, position: Position, branch: Branch, yongsin: 
         "element": branch.element.name,
         "role": element_role(branch.element, yongsin).name,
     }
-    return _judgment("shinsal", f"personal.shinsal.{kind.name.lower()}", params, yongsin)
+    return _judgment("shinsal", f"personal.shinsal.{kind.name.lower()}", params, yongsin, shinsal_ref(kind))
 
 
 def luck_ten_god_reading(
@@ -135,7 +142,8 @@ def luck_ten_god_reading(
         "role": element_role(stem.element, yongsin).name,
         "current": current,
     }
-    return _judgment("luck_ten_god", f"personal.luck.ten_god.{god.name.lower()}", params, yongsin)
+    key = f"personal.luck.ten_god.{god.name.lower()}"
+    return _judgment("luck_ten_god", key, params, yongsin, loader.LUCK_TEN_GOD_REF)
 
 
 def luck_twelve_stage_reading(
@@ -146,4 +154,5 @@ def luck_twelve_stage_reading(
         "role": element_role(branch.element, yongsin).name,
         "current": current,
     }
-    return _judgment("luck_twelve_stage", f"personal.luck.twelve_stage.{stage.name.lower()}", params, yongsin)
+    key = f"personal.luck.twelve_stage.{stage.name.lower()}"
+    return _judgment("luck_twelve_stage", key, params, yongsin, loader.LUCK_TWELVE_STAGE_REF)

@@ -9,18 +9,14 @@ from myungli_engine.constants.message_keys import require
 from myungli_engine.domain.enums import DayKind, Stem
 from myungli_engine.domain.models import Evidence, Judgment, Pillar
 from myungli_engine.domain.ten_gods import ten_god
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references.loader import ten_god_group_ref
 from myungli_engine.rules.yongsin import YongsinResult
 
 EMPHASIS_POSITIVE: Final = "POSITIVE"
 EMPHASIS_NONE: Final = "NONE"
 
 
-# 태그가 아닌 판정(날의 성격, 십성 묶음)의 공통 근거 (C8)
-COMMON_REF: Final = FIVE_ELEMENTS_REF["balance_principle"]
-
-
-def _evidence(rule_id: str, detail: Mapping[str, str], source_ref: str = COMMON_REF) -> Evidence:
+def _evidence(rule_id: str, detail: Mapping[str, str], source_ref: str) -> Evidence:
     return Evidence(rule_id=rule_id, source_ref=source_ref, detail=detail)
 
 
@@ -39,7 +35,7 @@ def fortune(
 ) -> tuple[Judgment, ...]:
     """첫 항목이 헤드라인이다. 대표 태그가 있으면 둘째로 보조 문장 키를 붙인다.
 
-    보조 문장의 근거는 그 태그의 원전이다(`tag_sources`, C28).
+    헤드라인의 근거는 오늘 천간의 십성 묶음을 다룬 조목(#998), 보조 문장은 그 태그의 원전이다(`tag_sources`, C28).
     """
     god = ten_god(natal_day_stem, day.stem)
     params: dict[str, str | int | float | bool] = {
@@ -52,7 +48,7 @@ def fortune(
     head = Judgment(
         message_key=require(f"fortune.{kind.name.lower()}.{god.group.name.lower()}", params),
         params=params,
-        evidence=(_evidence("fortune/day_kind", detail), *yongsin.evidence),
+        evidence=(_evidence("fortune/day_kind", detail, ten_god_group_ref(god.group)), *yongsin.evidence),
     )
     if not featured:
         return (head,)
@@ -78,12 +74,12 @@ def guide_candidates(
     """그날 근거가 있는 질문 후보(C30). 순서는 대표 태그 1순위, 2순위, 일진 십성 묶음이고 키는 겹치지 않는다.
 
     첫 항목이 기본 질문이다. 같은 키의 원고 변주는 콘텐츠 쪽이 펼친다.
-    태그 질문의 근거는 그 태그의 원전, 십성 묶음 질문은 공통 근거(C8)다.
+    태그 질문의 근거는 그 태그의 원전, 십성 묶음 질문은 그 묶음을 다룬 조목(#998)이다.
     """
     god = ten_god(natal_day_stem, day.stem)
     params = {"ten_god": god.name, "element": day.stem.element.name}
     bases = [(f"guide.{_tag_suffix(tag)}", tag, tag_sources[tag]) for tag in featured]
-    bases.append((f"guide.ten_god.{god.group.name.lower()}", god.group.name, COMMON_REF))
+    bases.append((f"guide.ten_god.{god.group.name.lower()}", god.group.name, ten_god_group_ref(god.group)))
     candidates: list[Judgment] = []
     seen: set[str] = set()
     for key, basis, source_ref in bases:
