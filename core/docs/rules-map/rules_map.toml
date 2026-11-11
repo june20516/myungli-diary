@@ -1,0 +1,887 @@
+# 계산 규칙 지도 (#988). 엔진이 계산하는 값을 공통 틀, 그룹, 항목으로 정리한 원본이다.
+# 이 파일을 고친 뒤 `uv run python tools/rules_map.py`로 `core/rules_map.json`을 다시 만든다(core 디렉터리에서).
+# 규칙을 바꾸는 PR은 이 지도도 함께 고친다. 빠진 근거 규칙 id, 메시지 키, 규칙 모듈은 테스트가 잡는다
+# (tests/unit/test_rules_map.py).
+#
+# 필드 뜻
+# * source_status: source(원전 조목 그대로), interpretation(원전은 있고 명리일기 해석이 섞임), none(원전 없음, 명리일기 규칙)
+# * rules[].kind: base(공통 틀을 그대로 씀), added(공통 틀에 더한 규칙), removed(공통 틀에서 뺀 단계)
+# * code: core/src/myungli_engine/ 아래 경로
+# * message_keys: 메시지 키 패턴(* 는 아무 글자)
+# * sources[].ref: 근거 원전 목록(core/evidence_sources.json)의 source_ref. 패턴(*)이면 칸마다 하나
+
+[meta]
+title = "명리일기 계산 규칙 지도"
+version = 1
+updated = "2026-11-11"
+owner = "core"
+description = """엔진이 계산하는 값(행운 색, 방향, 숫자, 집중 시간, 날의 성격, 달력 길흉, 태그, 용신, 신강약, 개인 해석 등)을 \
+하나의 공통 틀에 놓고, 항목마다 더하거나 뺀 규칙과 그 이유, 원전을 적습니다. 지금 규칙을 있는 그대로 옮긴 것이며, \
+규칙의 기준 문서는 엔진 spec(core/docs/specs/2026-10-10-myungli-engine-design.md)과 결정 로그입니다."""
+
+[meta.source_status_labels]
+source = "원전 있음"
+interpretation = "원전 + 명리일기 해석"
+none = "원전 없음 (명리일기 규칙)"
+
+[meta.rule_kind_labels]
+base = "공통 틀 그대로"
+added = "더한 규칙"
+removed = "뺀 단계"
+
+# ---------------------------------------------------------------------------
+# 공통 틀: 계산 값이 거치는 단계
+# ---------------------------------------------------------------------------
+
+[[framework]]
+id = "basis"
+order = 1
+name = "기준 고르기"
+description = """원국(태어난 때의 사주)에서 그 사람의 기준을 정합니다. 일간, 신강약, 용신, 희신, 기신, 통관 오행, \
+천을귀인 지지처럼 평생 바뀌지 않는 값입니다."""
+
+[[framework]]
+id = "today"
+order = 2
+name = "오늘과의 관계"
+description = """그날의 일진(모두에게 같음)과 원국(사람마다 다름)의 관계를 봅니다(D13). 날의 성격, 합충형, 신살 발동, \
+그날 일지에서의 12운성이 여기에 속합니다. 원국 해석처럼 오늘을 보지 않는 항목은 이 단계를 뺍니다."""
+
+[[framework]]
+id = "output"
+order = 3
+name = "출력 바꾸기"
+description = """앞 단계에서 나온 오행이나 판정을 화면에 보일 값으로 바꿉니다. 오행을 색, 방위, 수로, 점수를 수준으로, \
+관계를 태그로 바꾸는 단계입니다."""
+
+[[framework]]
+id = "evidence"
+order = 4
+name = "근거"
+description = """판정마다 근거 규칙 id(rule_id)와 계산 내역(detail), 원전 위치(source_ref)를 붙입니다. \
+원전이 없으면 공통 근거(C8) 또는 빈 값(C28)입니다."""
+
+[[framework]]
+id = "params"
+order = 5
+name = "문구 매개변수"
+description = """엔진은 문장을 만들지 않고 메시지 키와 매개변수만 냅니다(D27). 문장은 writing이 키마다 씁니다."""
+
+# ---------------------------------------------------------------------------
+# 그룹
+# ---------------------------------------------------------------------------
+
+[[groups]]
+id = "natal"
+order = 1
+name = "원국 해석"
+description = "태어난 때만으로 정해지는 값입니다. 신강약, 용신, 원국 신살, 개인 해석."
+
+[[groups]]
+id = "day_judgment"
+order = 2
+name = "날 판정"
+description = "일진과 원국의 관계로 그날의 성격과 길흉을 정합니다. 날의 성격, 합충형, 달력 길흉."
+
+[[groups]]
+id = "tags_messages"
+order = 3
+name = "태그와 문장"
+description = "그날 두드러진 관계를 태그로 고르고, 총운과 가이드 질문의 메시지 키를 정합니다."
+
+[[groups]]
+id = "element_luck"
+order = 4
+name = "오행 행운 값"
+description = """날의 성격으로 고른 오행 하나를 색, 방위, 수로 바꾸는 값입니다. \
+바탕 오행은 셋이 같고(기신의 날 통관, 그 밖 용신), 그 뒤 바꾸는 규칙이 항목마다 다릅니다."""
+
+[[groups]]
+id = "hour"
+order = 5
+name = "시진 값"
+description = "하루 열두 시진 가운데 하나를 고르는 값입니다. 오행 하나가 아니라 시진마다 점수를 매깁니다."
+
+# ---------------------------------------------------------------------------
+# 항목: 원국 해석
+# ---------------------------------------------------------------------------
+
+[[items]]
+id = "strength"
+group = "natal"
+name = "신강약"
+summary = "일간을 돕는 오행이 원국에서 얼마나 많은지를 점수로 매기고 다섯 등급으로 나눕니다."
+source_status = "none"
+decisions = ["D7", "C21", "C31"]
+code = ["rules/strength.py", "constants/calibration.py"]
+evidence_rules = []
+message_keys = []
+
+[items.steps]
+basis = "원국 여덟 글자(시간 모름이면 여섯 글자)에서 일간을 뺀 자리를 봅니다."
+today = "쓰지 않습니다."
+output = "점수(0~100)와 등급(VERY_WEAK, WEAK, NEUTRAL, STRONG, VERY_STRONG), 오행별 가중 합."
+evidence = "따로 근거를 내지 않고, 억부 용신 근거(yongsin/eokbu)의 detail에 점수와 등급이 들어갑니다."
+params = "개인 해석(day_master, ten_god, twelve_stage)의 strength 매개변수로 쓰입니다. 용신 문구(yongsin.method.*)에는 매개변수로 가지 않고 억부 근거 detail에만 들어갑니다."
+
+[[items.rules]]
+kind = "base"
+text = "자리 가중치: 월지 3, 그 밖의 지지 1.5, 천간 1. 지지는 지장간 비율(3개 0.6/0.3/0.1, 2개 0.7/0.3, 1개 1.0)로 오행에 나눕니다."
+reason = "월지가 계절을 정해 가장 힘이 세다는 일반 원리를 숫자로 옮겼습니다."
+when = "모든 원국."
+decisions = ["C31"]
+source_status = "none"
+
+[[items.rules]]
+kind = "base"
+text = "점수 = 일간을 돕는 오행(비겁 + 인성)의 가중 합 / 전체 가중 합 x 100. 등급 경계는 무작위 출생 2만 건 분포의 15, 40, 60, 85 백분위입니다."
+reason = "등급이 한쪽에 몰리지 않게 실제 분포로 경계를 정했습니다."
+when = "모든 원국. 시간 모름 원국도 같은 경계를 씁니다(C21)."
+decisions = ["C21"]
+source_status = "none"
+
+[[items]]
+id = "yongsin"
+group = "natal"
+name = "용신, 희신, 기신, 통관"
+summary = "그 사람에게 가장 필요한 오행(용신)을 정하고, 거기서 희신, 기신, 통관 오행을 끌어냅니다."
+source_status = "interpretation"
+decisions = ["D7", "D32", "C8"]
+code = ["rules/yongsin.py", "constants/johu.py"]
+evidence_rules = ["yongsin/johu", "yongsin/johu_neutral", "yongsin/eokbu"]
+message_keys = ["yongsin.method.*"]
+
+[items.steps]
+basis = "이 항목이 기준 자체입니다. 일간, 월지, 신강약 등급, 오행 분포를 씁니다."
+today = "쓰지 않습니다."
+output = "용신, 희신(용신을 생하는 오행), 기신(용신을 극하는 오행), 통관(기신이 생하고 용신을 생하는 오행, 희신과 같음)."
+evidence = "조후는 그 일간과 월지의 窮通寶鑑 조후 칸, 억부는 五行總論의 억부 원리(balance_principle)."
+params = "yongsin.method.<방식>에 yongsin, huisin, gisin, tonggwan."
+
+[[items.rules]]
+kind = "base"
+text = "조후 우선: 월지가 巳午未이고 화 비중이 기준 이상, 또는 월지가 亥子丑이고 수 비중이 기준 이상이면 조후표(窮通寶鑑) 첫 글자의 오행이 용신입니다(JOHU)."
+reason = "너무 덥거나 추운 계절에 난 사주는 기후를 먼저 맞춘다는 조후 원리입니다. 기준(같은 계절 표본의 상위 40%)은 명리일기가 정했습니다."
+when = "여름, 겨울 태생이고 그 계절 오행이 많을 때."
+decisions = ["D7"]
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "base"
+text = "중화: 신강약이 NEUTRAL이면 조후표 첫 글자를 씁니다(JOHU_NEUTRAL)."
+reason = "억부로 덜거나 더할 쪽이 없으니 조후표를 따릅니다."
+when = "조후 우선이 아니고 신강약이 중간일 때."
+decisions = ["D32"]
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "base"
+text = "억부: WEAK 이하는 인성 오행, STRONG 이상은 식상, 재성, 관성 중 오행 분포가 가장 약한 오행(동점이면 식상, 재성, 관성 순)이 용신입니다(EOKBU)."
+reason = "넘치면 덜고 모자라면 더한다는 억부 원리(五行總論)입니다. 어느 오행으로 덜지는 명리일기가 정했습니다."
+when = "위 둘이 아닐 때."
+decisions = ["D7"]
+source_status = "interpretation"
+
+[[items.sources]]
+ref = "gungtong-bogam/johu_evidence#*"
+work = "窮通寶鑑"
+section = "일간과 달마다의 조후 항목(예: 正月甲, 三冬丁)"
+quote = "칸마다 다릅니다(120칸, core/evidence_sources.json)."
+meaning = "그 일간이 그 달에 났을 때 먼저 쓸 글자를 적은 표입니다."
+interpretation = "표의 첫 글자만 쓰고, 둘째 이하 글자는 쓰지 않습니다. 일부 칸은 그 달 항목이 없어 계절 총론으로 대신합니다(evidence_level season). 용신 순서와 인용이 어긋나는 칸은 #625에서 봅니다."
+
+[[items.sources]]
+ref = "gungtong-bogam/five_elements#balance_principle"
+work = "窮通寶鑑"
+section = "五行總論"
+quote = "高者抑之使平，下者举之使崇，或益其不及，或损其太过。所以贵在折衷，归於中道"
+meaning = "높은 것은 눌러 고르게 하고 낮은 것은 들어 올려, 모자라면 더하고 넘치면 덜어 가운데로 돌린다."
+interpretation = "어느 오행으로 덜고 더할지(인성, 식상, 재성, 관성 중 가장 약한 것)는 원문에 없고 명리일기가 정했습니다."
+
+[[items]]
+id = "natal_shinsal"
+group = "natal"
+name = "원국 신살"
+summary = "원국 안에 있는 신살(천을귀인, 도화, 역마, 화개, 양인, 공망)을 찾고, 그 지지를 데일리 발동 판정에 넘깁니다."
+source_status = "source"
+decisions = ["D13", "C24"]
+code = ["chart/shinsal.py", "constants/shinsal.py", "constants/gwiin.py"]
+evidence_rules = []
+message_keys = []
+
+[items.steps]
+basis = "천을귀인과 양인은 일간, 도화, 역마, 화개는 연지와 일지 각각, 공망은 일주로 신살 지지를 정합니다."
+today = "원국 표에서는 쓰지 않습니다. 데일리는 오늘 지지가 신살 지지면 발동으로 봅니다(태그 항목)."
+output = "원국 자리별 신살 목록과 신살 지지 집합."
+evidence = "원국 표에는 근거를 따로 내지 않습니다. 발동 태그와 개인 해석에서 근거가 붙습니다."
+params = "개인 해석 personal.shinsal.*의 키가 됩니다."
+
+[[items.rules]]
+kind = "base"
+text = "천을귀인: 甲戊庚 丑未, 乙己 子申, 丙丁 亥酉, 辛 寅午, 壬癸 巳卯. 도화, 역마, 화개는 삼합 그룹으로, 공망은 일주가 속한 순으로 정합니다."
+reason = "신살 표 그대로입니다."
+when = "모든 원국. 시간 모름이면 시지는 뺍니다."
+decisions = ["C24"]
+source_status = "source"
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#cheoneul_gwiin"
+work = "三命通會"
+section = "论天乙贵人"
+quote = "其神最尊贵，所至之处，一切凶煞隐然而避。"
+meaning = "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다."
+interpretation = ""
+
+[[items]]
+id = "personal_reading"
+group = "natal"
+name = "원국 개인 해석"
+summary = "원국의 용어(일간, 십성, 12운성, 신살, 대운과 세운)를 그 사람의 용신 체계 안 역할과 자리로 풀 매개변수를 냅니다."
+source_status = "none"
+decisions = ["D60", "C27", "C8"]
+code = ["rules/personal.py", "rules/group_count.py", "chart/personal_target.py"]
+evidence_rules = [
+  "personal/day_master",
+  "personal/ten_god",
+  "personal/twelve_stage",
+  "personal/shinsal",
+  "personal/luck_ten_god",
+  "personal/luck_twelve_stage",
+]
+message_keys = ["personal.*"]
+
+[items.steps]
+basis = "용신, 희신, 기신으로 그 글자 오행의 역할(YONGSIN, HUISIN, GISIN, NEUTRAL)을 정합니다."
+today = "쓰지 않습니다. 대운과 세운은 기준 날짜(as_of)에 지금인지(current)만 봅니다."
+output = "용어마다 판정 하나(키 + 매개변수)."
+evidence = "규칙 근거(공통 근거 balance_principle, C8)와 그 사람의 용신 근거."
+params = "place, element, role, group_count, strength, luck, part, current 등(키 묶음마다 다름)."
+
+[[items.rules]]
+kind = "base"
+text = "역할은 용신, 희신, 기신 순으로 먼저 맞는 것 하나이고, 어디에도 맞지 않으면 NEUTRAL입니다. 통관은 희신과 같은 오행이라 따로 두지 않습니다."
+reason = "같은 용어라도 내 원국에서 맡는 역할에 따라 풀이가 달라야 해서입니다(D60)."
+when = "모든 개인 해석."
+decisions = ["D60"]
+source_status = "none"
+
+[[items.rules]]
+kind = "added"
+text = "group_count: 원국(일간 제외 천간 + 지지 정기)에 같은 십성 묶음이 몇 개인지. 태그의 십성 쏠림과 같은 계산입니다."
+reason = "많고 적음에 따라 풀이가 달라지는 십성 해석에 씁니다."
+when = "personal.ten_god.*"
+decisions = ["C27"]
+source_status = "none"
+
+[[items.rules]]
+kind = "removed"
+text = "오늘과의 관계 단계를 쓰지 않습니다."
+reason = "타고난 바탕을 푸는 값이라 날마다 바뀌지 않습니다."
+when = "모든 개인 해석."
+decisions = ["D60"]
+source_status = "none"
+
+# ---------------------------------------------------------------------------
+# 항목: 날 판정
+# ---------------------------------------------------------------------------
+
+[[items]]
+id = "day_kind"
+group = "day_judgment"
+name = "날의 성격"
+summary = "오늘이 귀인의 날, 용신의 날, 기신의 날, 평범한 날 중 무엇인지 정합니다. 행운 값과 총운, 달력 점수가 모두 이 값에서 시작합니다."
+source_status = "interpretation"
+decisions = ["D19", "D13", "D20"]
+code = ["rules/day_kind.py"]
+evidence_rules = []
+message_keys = []
+
+[items.steps]
+basis = "천을귀인 지지, 용신, 기신."
+today = "오늘 일진의 지지와, 천간 오행과 지지(정기) 오행 두 개를 봅니다."
+output = "GWIIN_DAY, YONGSIN_DAY, GISIN_DAY, ORDINARY_DAY 넷 중 하나."
+evidence = "따로 내지 않고, 이 값을 쓰는 판정(총운, 태그, 행운 값)의 detail에 day_kind로 들어갑니다."
+params = "키 이름(color.<날의 성격>, fortune.<날의 성격>.* 등)에 들어갑니다."
+
+[[items.rules]]
+kind = "base"
+text = "위에서부터 처음 맞는 것: ① 오늘 지지가 내 천을귀인 지지 ② 일진 오행에 기신이 있음 → 기신의 날 ③ 일진 오행에 용신이 있음(기신 없음) → 용신의 날 ④ 그 밖 평범한 날."
+reason = "귀인을 가장 앞에 두고, 기신이 섞인 날은 용신이 있어도 기신의 날로 봅니다."
+when = "모든 날."
+decisions = ["D19"]
+source_status = "interpretation"
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#cheoneul_gwiin"
+work = "三命通會"
+section = "论天乙贵人"
+quote = "其神最尊贵，所至之处，一切凶煞隐然而避。"
+meaning = "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다."
+interpretation = "귀인 지지를 날의 성격 1순위로 두는 4단계 순서는 명리일기 규칙입니다(D19)."
+
+[[items]]
+id = "relations"
+group = "day_judgment"
+name = "합충형"
+summary = "오늘 일진과 원국 사이의 천간합, 지지육합, 지지충, 지지형을 찾습니다. 탐합망충으로 무효가 된 충도 기록합니다."
+source_status = "source"
+decisions = ["D13"]
+code = ["rules/relations.py", "constants/relations.py"]
+evidence_rules = []
+message_keys = []
+
+[items.steps]
+basis = "원국 천간과 지지(시간 모름이면 시주 제외)."
+today = "오늘 일진 천간, 지지와 원국 글자의 관계."
+output = "관계 목록(종류, 원국 자리, 무효 여부)."
+evidence = "합충 자체에는 근거를 내지 않고, 이 목록을 쓰는 태그(tags/*)와 달력 점수(calendar/score)가 근거를 냅니다."
+params = "없음(태그 키와 달력 점수 내역으로 드러남)."
+
+[[items.rules]]
+kind = "base"
+text = "탐합망충: 오늘 지지가 원국의 한 지지와 합하면서 다른 원국 지지와 충하면, 합만 남기고 충은 무효(suppressed_by HAP)로 둡니다."
+reason = "합을 탐하면 충을 잊는다는 원리(위키 4.1)입니다."
+when = "합과 충이 함께 걸린 날."
+decisions = []
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "removed"
+text = "합화(합해서 오행이 바뀜)는 판정하지 않습니다. 합의 존재만 씁니다."
+reason = "MVP 범위 밖(spec 15, Phase 2)."
+when = "모든 합."
+decisions = []
+source_status = "none"
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#clash"
+work = "三命通會"
+section = "论冲击"
+quote = "相冲者，十二支战击之神，大概为凶。"
+meaning = "서로 충하는 것은 열두 지지가 싸워 부딪치는 것이라 대개 흉하다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#branch_hap"
+work = "三命通會"
+section = "论支元六合"
+quote = "夫合者，和也，乃阴阳相和，其气自合。"
+meaning = "합은 화합이니 음양이 서로 어울려 그 기운이 저절로 합한다."
+interpretation = ""
+
+[[items]]
+id = "calendar_luck"
+group = "day_judgment"
+name = "달력 길흉"
+summary = "월간 달력의 날짜마다 점수를 더해 아주 좋음, 좋음, 보통, 주의 넷으로 나눕니다."
+source_status = "none"
+decisions = ["C8", "C11", "C12", "C13"]
+code = ["rules/calendar_luck.py", "composers/month.py"]
+evidence_rules = ["calendar/score"]
+message_keys = ["calendar.*"]
+
+[items.steps]
+basis = "날의 성격(귀인, 용신, 기신)과 원국 자리."
+today = "날의 성격과 합충형(탐합망충 반영)."
+output = "점수 합과 수준(VERY_GOOD +3 이상, GOOD +2, CAUTION -2 이하, 그 밖 NEUTRAL)."
+evidence = "calendar/score(점수 내역), 공통 근거 balance_principle(C8)."
+params = "calendar.<수준>에 score."
+
+[[items.rules]]
+kind = "base"
+text = "귀인의 날 +2, 용신의 날 +2, 합 +1, 기신의 날 -1, 일지 또는 월지 충 -2, 그 밖의 충 -1, 형 -1. 항목마다 한 번만 더합니다."
+reason = "날의 성격과 합충을 한눈에 보는 점수로 묶었습니다. 점수 값은 명리일기가 정했습니다."
+when = "월간 달력의 모든 날."
+decisions = ["C11"]
+source_status = "none"
+
+# ---------------------------------------------------------------------------
+# 항목: 태그와 문장
+# ---------------------------------------------------------------------------
+
+[[items]]
+id = "tags"
+group = "tags_messages"
+name = "사주 기운 태그"
+summary = "오늘 일진과 원국의 합충, 십성 쏠림, 신살 발동을 태그로 고르고 앞의 1~2개를 대표로 둡니다."
+source_status = "interpretation"
+decisions = ["D108", "C9", "C10", "C28", "C29"]
+code = ["rules/tags.py", "chart/shinsal.py"]
+evidence_rules = [
+  "tags/select",
+  "tags/clash_day_branch",
+  "tags/clash_month_branch",
+  "tags/clash",
+  "tags/harmony",
+  "tags/ten_god_rush",
+  "tags/gongmang",
+  "tags/yeokma",
+  "tags/hwagae",
+  "tags/dohwa",
+  "tags/cheoneul_gwiin",
+  "tags/gwiin_day",
+  "tags/yongsin_day",
+]
+message_keys = ["tag.*"]
+
+[items.steps]
+basis = "원국 지지 자리, 원국 십성 묶음 개수, 원국 신살 지지."
+today = "합충형(탐합망충 반영), 오늘 천간과 지지 정기의 십성, 오늘 지지의 신살 발동."
+output = "전체 태그 목록(일기에 저장)과 대표 태그 1~2개(화면)."
+evidence = "첫째 tags/select(선택 결과, 원전 없음), 그 뒤 태그마다 하나(합은 합 종류마다). 원전이 없는 태그는 source_ref가 빈 값입니다(C28)."
+params = "태그 키에는 매개변수가 없습니다."
+
+[[items.rules]]
+kind = "base"
+text = "그룹 순서: ① 합충(일지 충, 월지 충, 그 밖 충, 합) ② 십성 쏠림 ③ 신살(공망, 역마, 화개, 도화, 천을귀인). 앞에서 두 개를 대표로 둡니다."
+reason = "흉한 관계를 먼저 알려 피하게 한다는 추길피흉을 순서로 정했습니다(C9)."
+when = "모든 날."
+decisions = ["C9", "C29"]
+source_status = "none"
+
+[[items.rules]]
+kind = "added"
+text = "십성 쏠림: 오늘 천간과 지지 정기의 십성 묶음이 같고, 그 묶음이 원국에도 2개 이상이면 tag.ten_god_rush.<묶음>."
+reason = "그날 한 기운이 겹쳐 들어오는 날을 알려 주려는 명리일기 규칙입니다. 원전이 없어 근거에 원전 없음을 밝힙니다(D108 ④)."
+when = "조건이 맞는 날."
+decisions = ["D108", "C28"]
+source_status = "none"
+
+[[items.rules]]
+kind = "added"
+text = "보조 태그: ①~③ 그룹 태그가 하나도 없을 때만 귀인의 날, 용신의 날 태그를 둡니다."
+reason = "빈 날에도 그날의 성격을 태그로 보여 주려고 합니다. 귀인의 날은 늘 천을귀인 신살 태그가 함께 붙어 tag.gwiin_day는 실제로 나오지 않습니다."
+when = "다른 태그가 없는 귀인의 날, 용신의 날."
+decisions = ["C10"]
+source_status = "interpretation"
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#clash_day_branch"
+work = "三命通會"
+section = "论年月日时"
+quote = "伤日不利己身，名折腰煞"
+meaning = "일주가 상하면 나 자신에게 이롭지 않으니 절요살이라 한다."
+interpretation = "원문은 충이 아니라 상함(伤)을 씁니다. 일지 충을 일주가 상하는 것으로 읽은 것은 명리일기 해석입니다."
+
+[[items.sources]]
+ref = "jeokcheonsu/tags#clash_month_branch"
+work = "滴天髓"
+section = "月令論"
+quote = "月令提綱，譬之宅也，人元用事之神，宅之向也，不可以不卜。"
+meaning = "월령은 집과 같아서 그 방향을 살피지 않을 수 없다."
+interpretation = "충을 직접 말한 조목이 아니라 월지가 가장 중요한 자리라는 원문이고, 월지 충을 따로 알리는 근거로 씁니다."
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#clash"
+work = "三命通會"
+section = "论冲击"
+quote = "相冲者，十二支战击之神，大概为凶。"
+meaning = "서로 충하는 것은 열두 지지가 싸워 부딪치는 것이라 대개 흉하다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#stem_hap"
+work = "三命通會"
+section = "论十干合"
+quote = "唯阴见阳，阳见阴为合，亦如男女相合而成夫妇之道。"
+meaning = "음이 양을, 양이 음을 만나야 합이 되니 남녀가 만나 부부가 되는 것과 같다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#branch_hap"
+work = "三命通會"
+section = "论支元六合"
+quote = "夫合者，和也，乃阴阳相和，其气自合。"
+meaning = "합은 화합이니 음양이 서로 어울려 그 기운이 저절로 합한다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#gongmang"
+work = "三命通會"
+section = "论空亡"
+quote = "故以甲旬尽处曰空亡，盖有是位而无禄，曰空；有支而无干，曰亡。"
+meaning = "갑으로 시작하는 순이 끝나는 곳을 공망이라 하니, 자리는 있으나 녹이 없어 공, 지지는 있으나 천간이 없어 망이다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#yeokma"
+work = "三命通會"
+section = "论驿马"
+quote = "所谓驿马者，乃先天三合数也"
+meaning = "역마는 선천 삼합의 수에서 나온다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#hwagae"
+work = "三命通會"
+section = "论将星华盖"
+quote = "故以三合底处得库谓之华盖。"
+meaning = "삼합의 끝자리에서 고(庫)를 얻으니 화개라 한다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#dohwa"
+work = "三命通會"
+section = "论咸池"
+quote = "寅午戌卯、已酉丑午、申子辰酉、亥卯未子即长生第二位沐浴之宫是也。一名败神，一名桃花煞"
+meaning = "삼합마다 장생 다음 자리인 목욕궁이 함지이니, 패신 또는 도화살이라고도 한다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/tags#cheoneul_gwiin"
+work = "三命通會"
+section = "论天乙贵人"
+quote = "其神最尊贵，所至之处，一切凶煞隐然而避。"
+meaning = "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다."
+interpretation = ""
+
+[[items]]
+id = "fortune_guide"
+group = "tags_messages"
+name = "총운과 가이드 질문"
+summary = "총운 본문은 날의 성격과 오늘 천간의 십성 묶음으로, 보조 문장과 가이드 질문은 대표 태그로 키를 정합니다."
+source_status = "none"
+decisions = ["D22", "D24", "D20", "C6", "C8", "C10", "C28", "C30"]
+code = ["rules/messages.py"]
+evidence_rules = ["fortune/day_kind", "fortune/tag", "guide/question"]
+message_keys = ["fortune.*", "guide.*"]
+
+[items.steps]
+basis = "원국 일간(십성 기준)과 용신 체계."
+today = "날의 성격, 오늘 천간의 십성 묶음, 대표 태그."
+output = "총운 판정 1~2개(본문 + 대표 태그 1순위의 보조 문장), 가이드 질문 후보(대표 태그 1, 2순위와 십성 묶음, 키가 겹치지 않게)."
+evidence = "본문과 십성 묶음 질문은 공통 근거(C8), 태그 문장과 태그 질문은 그 태그의 근거(C28)."
+params = "day_kind, ten_god, element, emphasis(용신의 날 POSITIVE, D20) / 가이드는 ten_god, element."
+
+[[items.rules]]
+kind = "base"
+text = "총운 키 fortune.<날의 성격>.<십성 묶음>(20개), 보조 문장 fortune.tag.<태그 이름>. 가이드 질문 guide.<태그 이름>, 대표 태그가 없으면 guide.ten_god.<십성 묶음>."
+reason = "문장은 템플릿 조합으로 만들고 명리 내용을 지어내지 않게 합니다(D24)."
+when = "모든 날."
+decisions = ["D24", "C6", "C30"]
+source_status = "none"
+
+# ---------------------------------------------------------------------------
+# 항목: 오행 행운 값
+# ---------------------------------------------------------------------------
+
+[[items]]
+id = "color"
+group = "element_luck"
+name = "행운 색"
+summary = "바탕 오행을 그날 일지의 12운성 자리에 따라 변역(變易)한 색이고, 그 색이 기신이면 내 균형 기준 색을 앞에 두어 둘을 냅니다."
+source_status = "interpretation"
+decisions = ["D14", "D19", "D114", "D119", "C32", "C33", "C34"]
+code = ["rules/color.py"]
+evidence_rules = ["color/lucky_element", "color/shift", "color/balance"]
+message_keys = ["color.*"]
+
+[items.steps]
+basis = "바탕 오행: 기신의 날은 통관, 그 밖은 용신(D19)."
+today = "바탕 오행(양간 기준, 土는 戊)이 오늘 일지에서 놓인 12운성 자리."
+output = "12운성 자리로 변역해 색 오행을 정하고, 오방색(목 청, 화 적, 토 황, 금 백, 수 흑, D114)으로 보입니다. 색 이름과 값은 design."
+evidence = "color/lucky_element(바탕 오행, 五行總論 색 대응), color/shift(변역, 三命通會 論五行), 균형 카드는 color/balance(용신 근거 원전)."
+params = "color.<날의 성격>(카드 하나), color.balance.*와 color.source.*(카드 둘)에 element, base_element, role, day_branch, twelve_stage, shift."
+
+[[items.rules]]
+kind = "added"
+text = "변역: 長生, 臨官, 帝旺 正色(제 색) / 死, 絶 母色(나를 생하는 오행) / 胎, 養, 冠帶, 衰 妻色(내가 극하는 오행) / 沐浴, 病 鬼色(나를 극하는 오행) / 墓 子色(내가 생하는 오행)."
+reason = "원전이 색은 생왕사절에 따라 바뀐다고 적고 있고, 바탕 오행 하나로는 1년 내내 같은 색이라서입니다(#937, 1년 2색 → 5색)."
+when = "모든 날."
+decisions = ["D119", "C33"]
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "added"
+text = "카드 둘: 변역 색이 기신 오행이면 첫째 내 균형 기준(바탕 오행의 제 색), 둘째 원전 기준(변역 색). 숫자와 공유 이미지는 첫째를 따릅니다."
+reason = "원전대로면 기신 색이 나오는 날, 균형 기준과 원전 기준이 갈렸다고 함께 보여 주려는 사용자 결정입니다."
+when = "변역 색이 기신인 날(약 15%)."
+decisions = ["D119", "C34"]
+source_status = "interpretation"
+
+[[items.sources]]
+ref = "gungtong-bogam/five_elements#color"
+work = "窮通寶鑑"
+section = "五行總論"
+quote = "推其形色，则水黑、火赤、木青、土黄，此正色也。"
+meaning = "형색을 미루어 보면 수는 검고, 화는 붉고, 목은 푸르고, 토는 누르니 이것이 정색이다."
+interpretation = "수집본에는 金白이 빠져 있고, 같은 문장을 실은 다른 판본은 모두 金白입니다(C32)."
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/five_elements#color_change"
+work = "三命通會"
+section = "論五行"
+quote = "及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色"
+meaning = "변역하면 그렇지 않으니, 생왕이면 정색, 사절이면 모색, 성형과 관대면 처색, 병패면 귀색, 왕묘면 자색을 따른다."
+interpretation = "원문은 12운성 열둘을 다 적지 않았습니다. 臨官과 胎의 자리, 帝旺을 生旺으로 본 것, 衰를 주의 衰老之際로 妻色에 둔 것, 오행의 12운성을 양간으로 본 것은 명리일기 해석입니다."
+
+[[items]]
+id = "direction"
+group = "element_luck"
+name = "행운 방향"
+summary = "날의 성격으로 오행이나 지지를 고르고 8방위로 바꿉니다. 평범한 날은 그날의 길신 방위를 씁니다."
+source_status = "interpretation"
+decisions = ["D19", "C34"]
+code = ["rules/direction.py", "constants/directions.py"]
+evidence_rules = [
+  "direction/gwiin_branch",
+  "direction/yongsin",
+  "direction/tonggwan",
+  "direction/ordinary_deity_yongsin",
+  "direction/ordinary_deity_huisin",
+  "direction/ordinary_fallback",
+]
+message_keys = ["direction.*"]
+
+[items.steps]
+basis = "귀인의 날은 오늘 지지(귀인 지지), 용신의 날 용신, 기신의 날 통관, 평범한 날 용신 다음 희신."
+today = "날의 성격, 오늘 지지(토의 방위와 귀인 방위), 그날의 길신 방위(희신, 복신, 재신, 양귀, 음귀, lunar-python)."
+output = "8방위. 오행 대표 방위는 수 북, 화 남, 목 동, 금 서이고, 토는 오늘 지지와의 충으로 북동과 남서 중에서 고릅니다. 지지 방위는 子 북, 丑寅 북동, 卯 동, 辰巳 남동, 午 남, 未申 남서, 酉 서, 戌亥 북서."
+evidence = "적용한 규칙 id(direction/*)와 五行總論 방위 대목."
+params = "direction, rule_id, 그리고 날의 성격에 따라 day_branch 또는 element, role(YONGSIN, TONGGWAN, HUISIN), deity."
+
+[[items.rules]]
+kind = "base"
+text = "귀인의 날 귀인 지지 방위, 용신의 날 용신 방위, 기신의 날 통관 방위."
+reason = "D19 4단계 규칙을 방향에 그대로 씁니다."
+when = "귀인, 용신, 기신의 날."
+decisions = ["D19"]
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "added"
+text = "평범한 날: 그날 길신 방위 중 오행(후천팔괘)이 용신인 첫 방위, 없으면 희신인 첫 방위, 없으면 용신 대표 방위."
+reason = "평범한 날도 날마다 다른 방위가 나오게 그날의 길신 방위를 씁니다."
+when = "평범한 날."
+decisions = ["D19"]
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "removed"
+text = "변역(12운성으로 오행 바꾸기)은 쓰지 않습니다."
+reason = "방위에 대한 변역 원문을 찾지 않았습니다. 같은 그룹의 색과 다릅니다(불일치 목록)."
+when = "모든 날."
+decisions = ["D119"]
+source_status = "none"
+
+[[items.sources]]
+ref = "gungtong-bogam/five_elements#direction"
+work = "窮通寶鑑"
+section = "五行總論"
+quote = "北方阴极而生寒，寒生水。南方阳极而生热，热生火。东方阳散以泄而生风，风生木。西方阴止以收而生燥，燥生金。中央阴阳交而生温，温生土。"
+meaning = "북은 수, 남은 화, 동은 목, 서는 금, 가운데는 토에 응한다."
+interpretation = "원문은 토를 가운데에 두어 8방위가 없습니다. 토를 북동, 남서로 보는 것과 지지 방위표, 길신 방위 쓰임은 명리일기 규칙입니다."
+
+[[items]]
+id = "number"
+group = "element_luck"
+name = "행운 숫자"
+summary = "첫째 행운 색의 오행이 가진 하도(河圖) 수 한 쌍에서, 오늘 천간이 양이면 홀수, 음이면 짝수를 고릅니다."
+source_status = "interpretation"
+decisions = ["D25", "D119", "C34"]
+code = ["rules/number.py", "constants/numbers.py"]
+evidence_rules = ["number/hado"]
+message_keys = ["number.*"]
+
+[items.steps]
+basis = "색과 같습니다(바탕 오행)."
+today = "색과 같습니다(변역). 둘인 날은 첫째 카드(내 균형 기준) 오행."
+output = "하도 수 한 쌍(수 1, 6, 화 2, 7, 목 3, 8, 금 4, 9, 토 5, 10)에서 오늘 천간 음양으로 하나."
+evidence = "number/hado, 五行總論 수 대목."
+params = "number, element, day_stem, parity(ODD, EVEN), pair."
+
+[[items.rules]]
+kind = "base"
+text = "숫자 오행은 첫째 색 카드의 오행입니다."
+reason = "숫자는 색과 같은 오행이라는 원칙(D25 개정)."
+when = "모든 날."
+decisions = ["D25", "D119"]
+source_status = "interpretation"
+
+[[items.rules]]
+kind = "added"
+text = "양간 날 홀수(생수 쪽), 음간 날 짝수(성수 쪽)."
+reason = "한 오행에 수가 둘이라 오늘 천간 음양으로 고릅니다. 명리일기 규칙입니다."
+when = "모든 날."
+decisions = ["D25"]
+source_status = "none"
+
+[[items.sources]]
+ref = "gungtong-bogam/five_elements#number"
+work = "窮通寶鑑"
+section = "五行總論"
+quote = "其数则水一、火二、木三、金四、土五。生旺加倍，死绝减半。"
+meaning = "그 수는 수 1, 화 2, 목 3, 금 4, 토 5이고, 생왕이면 배로, 사절이면 반으로 한다."
+interpretation = "원문은 생수 1~5만 적었고, 성수 6~10(하도 짝)과 홀짝 고르기는 명리일기 규칙입니다. 생왕가배 사절감반은 쓰지 않습니다."
+
+# ---------------------------------------------------------------------------
+# 항목: 시진 값
+# ---------------------------------------------------------------------------
+
+[[items]]
+id = "focus_time"
+group = "hour"
+name = "집중하기 좋은 시간"
+summary = "진시~술시 일곱 시진 중 원국과 충하지 않는 시진에 점수를 매겨 1등(동점이면 2개)을 고릅니다."
+source_status = "none"
+decisions = ["D21", "C8", "C15", "C23"]
+code = ["rules/focus_time.py"]
+evidence_rules = ["focus_time/score", "focus_time/fallback"]
+message_keys = ["focus_time.*"]
+
+[items.steps]
+basis = "천을귀인 지지, 용신, 희신, 원국 지지."
+today = "그날의 시진 간지(천간이 날마다 바뀜)와 황도길시."
+output = "시진 1~2개와 시각 범위(현재 시간대로 바꿈)."
+evidence = "focus_time/score(시진별 점수와 사유)와 용신 근거. 원전이 없어 공통 근거 balance_principle(C8)."
+params = "branches, score, hour_branch, 그리고 사유별 element(yongsin, huisin) 또는 natal_branch(hap)."
+
+[[items.rules]]
+kind = "base"
+text = "후보는 진시~술시, 원국 지지와 충인 시진은 뺍니다."
+reason = "활동 시간대만 보고, 원국과 부딪치는 시간은 피합니다(D21)."
+when = "모든 날."
+decisions = ["D21"]
+source_status = "none"
+
+[[items.rules]]
+kind = "added"
+text = "점수: 내 천을귀인 시진 +3, 시진 천간이나 지지 오행이 용신 +2, 희신 +1, 원국 지지와 육합 +1. 동점이면 황도길시, 그다음 이른 시진."
+reason = "D21의 가점 항목에 명리일기가 가중치를 매겼습니다. 가중치 원전은 없습니다."
+when = "모든 날."
+decisions = ["D21", "C15"]
+source_status = "none"
+
+[[items.rules]]
+kind = "base"
+text = "모든 후보가 원국과 충이면 제외 전 후보 중 황도길시 첫 시진을 내고 FOCUS_TIME_FALLBACK을 붙입니다(focus_time/fallback)."
+reason = "방어 규칙입니다. 지지 하나는 한 지지하고만 충해 일곱 후보 중 많아야 넷이 빠지므로 지금 규칙에서는 나오지 않습니다(C23)."
+when = "현재 규칙에서는 도달하지 않음."
+decisions = ["C23"]
+source_status = "none"
+
+[[items.rules]]
+kind = "removed"
+text = "공통 틀의 바탕 오행 하나(용신 또는 통관)를 쓰지 않고, 날의 성격도 보지 않습니다."
+reason = "시진마다 점수를 매기는 별도 체계라서입니다(불일치 목록, #980)."
+when = "모든 날."
+decisions = ["D21"]
+source_status = "none"
+
+# ---------------------------------------------------------------------------
+# 바탕지식: 앞 단계를 전제로 차례대로
+# ---------------------------------------------------------------------------
+
+[[background]]
+order = 1
+title = "천간과 지지"
+body = """시간을 적는 두 가지 글자입니다. 천간은 열 개(甲乙丙丁戊己庚辛壬癸), 지지는 열두 개(子丑寅卯辰巳午未申酉戌亥)입니다. \
+천간 하나와 지지 하나를 짝지은 것을 간지라 하고, 해, 달, 날, 시를 모두 간지로 적습니다. 그날의 간지를 일진이라고 합니다."""
+
+[[background]]
+order = 2
+title = "오행"
+body = """모든 글자는 다섯 기운(오행) 중 하나에 속합니다. 목(나무), 화(불), 토(흙), 금(쇠), 수(물)입니다. \
+천간과 지지는 다시 양과 음으로 나뉩니다(예: 甲은 양의 목, 乙은 음의 목). 지지 안에는 천간 몇 개가 숨어 있고(지장간), 그중 대표가 정기입니다."""
+
+[[background]]
+order = 3
+title = "상생과 상극"
+body = """오행은 서로 돕거나 누릅니다. 돕는 순서(상생)는 목 → 화 → 토 → 금 → 수 → 목, 누르는 순서(상극)는 목 → 토 → 수 → 화 → 금 → 목입니다. \
+이 지도에서 "나를 생하는 오행", "내가 극하는 오행" 같은 말은 이 두 순서를 가리킵니다."""
+
+[[background]]
+order = 4
+title = "원국과 일간"
+body = """태어난 해, 달, 날, 시의 간지 여덟 글자가 원국(사주팔자)입니다. 평생 바뀌지 않습니다. \
+그중 태어난 날의 천간이 일간이고, "나"를 뜻합니다. 다른 글자는 모두 일간과의 관계로 읽습니다. 시간을 모르면 시의 두 글자를 빼고 여섯 글자로 봅니다."""
+
+[[background]]
+order = 5
+title = "십성"
+body = """다른 글자가 일간과 어떤 관계인지에 붙인 이름 열 가지입니다. 같은 오행은 비겁, 내가 생하면 식상, 내가 극하면 재성, \
+나를 극하면 관성, 나를 생하면 인성이고, 음양이 같은지 다른지로 다시 둘씩 나뉩니다. 다섯 묶음은 태그와 총운에서 그대로 씁니다."""
+
+[[background]]
+order = 6
+title = "신강과 신약"
+body = """원국에 일간을 돕는 기운(비겁과 인성)이 많으면 신강, 적으면 신약입니다. 명리일기는 자리마다 무게를 달리해(월지가 가장 무거움) \
+점수를 매기고 다섯 등급으로 나눕니다."""
+
+[[background]]
+order = 7
+title = "용신, 희신, 기신, 통관"
+body = """원국의 치우침을 바로잡는 데 가장 필요한 오행이 용신입니다. 용신을 생해 돕는 오행이 희신, 용신을 극해 해치는 오행이 기신입니다. \
+기신과 용신 사이를 이어 주는 오행(기신이 생하고 용신을 생함)이 통관이고, 정의상 희신과 같은 오행입니다. \
+명리일기는 여름과 겨울 태생은 기후(조후)를 먼저 보고, 그 밖은 강약을 덜고 더하는 억부로 용신을 정합니다."""
+
+[[background]]
+order = 8
+title = "일진과 날의 성격"
+body = """일진은 모두에게 같지만, 원국과 맞대 보면 사람마다 다른 날이 됩니다(D13). 오늘 지지가 내 천을귀인이면 귀인의 날, \
+일진에 기신 오행이 있으면 기신의 날, 용신 오행만 있으면 용신의 날, 그 밖은 평범한 날입니다. 행운 값과 총운은 대부분 이 성격에서 시작합니다."""
+
+[[background]]
+order = 9
+title = "12운성"
+body = """천간의 기운이 열두 지지를 지나며 태어나고 자라고 늙고 사라지는 단계를 열둘로 나눈 것입니다. \
+長生, 沐浴, 冠帶, 臨官, 帝旺, 衰, 病, 死, 墓, 絶, 胎, 養 순입니다. 원국에서는 일간 기준으로, 행운 색에서는 바탕 오행의 양간 기준으로 오늘 일지의 자리를 봅니다."""
+
+[[background]]
+order = 10
+title = "합, 충, 형"
+body = """글자끼리 맺는 관계입니다. 합은 서로 끌어 묶이는 관계(천간합 다섯, 지지육합 여섯), 충은 정면으로 부딪치는 관계(지지충 여섯, 예: 子午), \
+형은 서로 해치는 관계입니다. 오늘 지지가 한 글자와 합하면서 다른 글자와 충하면 합에 끌려 충을 잊는다고 보아 충을 무효로 둡니다(탐합망충)."""
+
+[[background]]
+order = 11
+title = "신살"
+body = """특정 글자 조합에 붙은 별칭입니다. 천을귀인(귀한 도움), 도화(사람을 끄는 기운), 역마(움직임), 화개(혼자 깊어짐), 양인(날카로움), 공망(비어 있음) 등이 있습니다. \
+원국에 있는 신살은 원국 표에, 오늘 지지가 내 신살 지지와 같으면 그날 발동한 태그로 보입니다."""
+
+[[background]]
+order = 12
+title = "원전과 명리일기 해석"
+body = """원전은 窮通寶鑑, 三命通會, 滴天髓 같은 옛 명리 책의 조목입니다. 지도의 원전 상태는 셋입니다. \
+원전 있음은 조목을 그대로 따른 규칙, 원전 + 해석은 원전이 있지만 원문에 없는 부분을 명리일기가 정한 규칙, \
+원전 없음은 명리일기가 정한 규칙(가중치, 순서 등)입니다. 원전이 없으면 근거 화면에서 그렇다고 밝힙니다(D108 ④)."""
+
+# ---------------------------------------------------------------------------
+# 불일치 목록: 공통 틀이나 같은 그룹의 다른 항목과 어긋나는 곳. 판단은 사용자 몫.
+# ---------------------------------------------------------------------------
+
+[[inconsistencies]]
+id = "direction_no_shift"
+items = ["direction", "color", "number"]
+text = "같은 오행 행운 값인데 색은 12운성 변역을 하고 숫자는 색을 따르지만, 방향은 바탕 오행 그대로입니다(평범한 날은 길신 방위)."
+issue = "#988"
+
+[[inconsistencies]]
+id = "focus_time_separate_scoring"
+items = ["focus_time"]
+text = "집중 시간은 바탕 오행 하나와 날의 성격을 쓰지 않고, 원전 없는 가중치로 시진마다 점수를 매깁니다. 1년 내내 같은 시간인 사람이 있습니다."
+issue = "#980"
+
+[[inconsistencies]]
+id = "role_value_sets"
+items = ["color", "direction", "personal_reading"]
+text = "오행 역할 값 집합이 자리마다 다릅니다. 색은 YONGSIN, TONGGWAN, 방향은 YONGSIN, TONGGWAN, HUISIN, 개인 해석은 YONGSIN, HUISIN, GISIN, NEUTRAL입니다. 통관과 희신은 같은 오행인데 이름이 갈립니다."
+issue = "#988"
+
+[[inconsistencies]]
+id = "no_source_marking"
+items = ["focus_time", "calendar_luck", "fortune_guide", "personal_reading", "tags"]
+text = "원전이 없는 판정을 표시하는 방식이 둘입니다. 태그는 source_ref를 빈 값으로 두고(C28, D108 ④), 집중 시간, 달력 길흉, 총운 본문, 개인 해석은 공통 근거 balance_principle을 붙입니다(C8)."
+issue = "#988"
+
+[[inconsistencies]]
+id = "number_source_unused"
+items = ["number"]
+text = "숫자 원전 대목의 生旺加倍，死绝减半(생왕이면 배, 사절이면 반)은 쓰지 않고, 같은 생왕사절을 색에서는 변역으로 씁니다."
+issue = "#979"
+
+[[inconsistencies]]
+id = "day_element_reading"
+items = ["day_kind", "tags", "fortune_guide"]
+text = "오늘 일진을 읽는 범위가 다릅니다. 날의 성격은 천간 오행과 지지 정기 오행 둘, 십성 쏠림 태그는 천간과 지지 정기의 십성, 총운과 가이드 질문은 천간의 십성만 봅니다."
+issue = "#988"

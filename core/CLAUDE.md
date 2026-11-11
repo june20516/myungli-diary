@@ -12,7 +12,7 @@
 ## 계약을 바꿀 때
 공개 저장소(D74)·세션 시작 시 drift 우선·병합 주체는 루트 `CLAUDE.md` 공통 규칙을 따릅니다. core에 해당하는 것만 적습니다.
 * core는 계약을 **주는 쪽**입니다(`ci-gate`의 core 검사는 받는 계약이 없어 `own`(또는 `ci-gate.yml`만 바뀐 PR에서 `gate`)으로만 돌고, `drift`는 없습니다). 계약만 바꾼 PR은 받는 쪽(server·writing) 검사가 실패해도 경고로 병합되고, `ci-gate`가 받는 쪽 앞으로 `drift` Issue를 엽니다(D73, `docs/workflow.md` §6.1). 하위 호환을 깨는 변경은 `kind:notice`로 따로 알립니다.
-* 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수, 근거 규칙 목록, 근거 원전 목록)을 직접 고칩니다.
+* 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수, 근거 규칙 목록, 근거 원전 목록, 계산 규칙 지도)을 직접 고칩니다.
 
 ## 계약
 | 계약 | 역할 | 사용하는 쪽 |
@@ -24,6 +24,7 @@
 | 엔진 버전 표기 (`engine_version`, `ruleset_version`, spec §12) | **제공** | server (일기 태그 기록, 캐시 키) |
 | `core/evidence_rules.json` (`rule_id`별 `detail` 키) | **제공** | writing (`basis.<rule_id>`·`reason.<rule_id>` 키), server |
 | `core/evidence_sources.json` (`source_ref`별 원전 이름·원문) | **제공** | writing (`source.<source_ref>` 키), server |
+| `core/rules_map.json` (계산 규칙 지도, 원본 `core/docs/rules-map/rules_map.toml`) | **제공** | root (제품 지도 "계산 규칙" 탭) |
 
 ## 문서
 | 문서 | 위치 |
@@ -35,6 +36,7 @@
 | 원국 개인 해석 구현 계획 | `core/docs/plans/2026-10-11-personal-reading.md` |
 | 태그 근거 다시 세우기 계획 (#804) | `core/docs/plans/2026-11-05-tag-evidence.md` |
 | 원전 근거 자료 | `core/docs/references/` |
+| 계산 규칙 지도 (#988, 규칙을 바꾸면 함께 고침) | `core/docs/rules-map/rules_map.toml` → `core/rules_map.json` |
 | core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C34, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108 |

@@ -86,6 +86,15 @@ uv run python -m myungli_engine.constants.evidence_rules > evidence_rules.json
 uv run python -m myungli_engine.references.sources > evidence_sources.json
 ```
 
+## 계산 규칙 지도
+
+엔진이 계산하는 값을 공통 틀, 그룹, 항목으로 정리한 지도(#988)입니다. 원본은 `docs/rules-map/rules_map.toml`이고, 지휘의 제품 지도 "계산 규칙" 탭이 읽는 `rules_map.json`을 여기서 만듭니다.
+규칙(`rules/*.py`), 근거 규칙 id, 메시지 키를 더하거나 바꾸는 PR은 지도도 함께 고칩니다. 빠진 근거 규칙, 메시지 키, 규칙 모듈과 없는 결정 번호, 원전 위치는 `tests/unit/test_rules_map.py`가 잡습니다.
+
+```bash
+uv run python tools/rules_map.py   # rules_map.toml → rules_map.json
+```
+
 ## 강약 보정 상수
 
 `constants/calibration.py`의 신강·신약 경계값과 조후 기준값은 무작위 출생 분포(난수 시드 고정)에서 산출합니다.
