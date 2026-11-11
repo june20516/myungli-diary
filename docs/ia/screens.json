@@ -1224,7 +1224,17 @@
     {
      "id": "today.lucky-color.body",
      "source": "content",
-     "role": "행운 색 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
+     "role": "행운 색 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문. 색이 둘인 날(D119)은 시트에 두 색을 함께 두고 이 슬롯이 첫째 색 풀이. 아래에 그 색의 근거 보기(D123 ②)"
+    },
+    {
+     "id": "today.lucky-color.pair.intro",
+     "source": "ui",
+     "role": "색이 둘인 날(D119) 행운 색 시트 맨 위 한 줄(가안 \"오늘은 추천 색이 두 개예요\"). 계산 기준이 갈렸다거나 기준 이름(내 균형, 원전)을 쓰지 않고 추천이 두 개라고만 함(D123 ①)"
+    },
+    {
+     "id": "today.lucky-color.second.body",
+     "source": "content",
+     "role": "색이 둘인 날 행운 색 시트의 둘째 색 풀이. 어느 칸을 눌러도 같은 시트. 아래에 그 색의 근거 보기(D123 ②)"
     },
     {
      "id": "today.lucky-direction.body",
@@ -1237,9 +1247,59 @@
      "role": "행운 숫자 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
     },
     {
-     "id": "today.lucky-time.body",
+     "id": "today.lucky-time.day.title",
+     "source": "ui",
+     "role": "낮 시간 칩 시트 제목(가안 \"낮 집중 시간\", D122 ⑤)"
+    },
+    {
+     "id": "today.lucky-time.day.body",
      "source": "content",
-     "role": "집중하기 좋은 시간 설명 한 줄. 칩 아래가 아니라 칩을 누르면 여는 설명 시트(explain-sheet 컴포넌트)의 본문"
+     "role": "낮 시간 칩(진시~술시 1등)을 누르면 여는 설명 시트 본문. 앱 근거 수준은 D121(오늘 일진과 내 태어난 해를 보고 고른 시간)"
+    },
+    {
+     "id": "today.lucky-time.night.title",
+     "source": "ui",
+     "role": "밤 시간 칩 시트 제목(가안 \"밤 집중 시간\", D122 ⑤)"
+    },
+    {
+     "id": "today.lucky-time.night.body",
+     "source": "content",
+     "role": "밤 시간 칩(그날 해시 ~ 다음 날 묘시 1등, D122 ⑦)을 누르면 여는 설명 시트 본문"
+    },
+    {
+     "id": "today.lucky-time.night.dawn",
+     "source": "ui",
+     "role": "밤 칩 값 앞 때 낱말, 0:00~07:29에 볼 때(지금 진행 중인 밤, 가안 \"새벽\", D123 ④)"
+    },
+    {
+     "id": "today.lucky-time.night.tonight",
+     "source": "ui",
+     "role": "밤 칩 값 앞 때 낱말, 07:30부터 볼 때(오늘 밤, 가안 \"오늘 밤\", D123 ④)"
+    },
+    {
+     "id": "today.lucky-time.band.day",
+     "source": "ui",
+     "role": "시간 칩 시트 24시간 띠의 낮 구간 머리 낱말(가안 \"낮\", D123 ⑤)"
+    },
+    {
+     "id": "today.lucky-time.band.night",
+     "source": "ui",
+     "role": "24시간 띠의 밤 구간 머리 낱말(가안 \"밤\")"
+    },
+    {
+     "id": "today.lucky-time.band.now",
+     "source": "ui",
+     "role": "24시간 띠의 지금 줄 꼬리표(매개변수 time, 가안 \"지금 {time}\")"
+    },
+    {
+     "id": "today.lucky-time.band.yesterday",
+     "source": "ui",
+     "role": "24시간 띠 끝 눈금의 날 낱말, 띠가 전날 21:30에서 시작할 때(가안 \"어제\")"
+    },
+    {
+     "id": "today.lucky-time.band.tomorrow",
+     "source": "ui",
+     "role": "24시간 띠 끝 눈금의 날 낱말, 띠가 다음 날 07:30에서 끝날 때(가안 \"내일\"). 띠 칸 시진 이름은 writing 기존 시진 이름"
     },
     {
      "id": "today.event.title",
@@ -1334,7 +1394,10 @@
     "D53",
     "D83",
     "D105",
-    "D108"
+    "D108",
+    "D119",
+    "D122",
+    "D123"
    ]
   },
   {
@@ -1384,7 +1447,7 @@
    "exits": [
     {
      "to": "evidence-sheet",
-     "trigger": "근거 보기"
+     "trigger": "근거 보기(행운 색 시트는 색마다, 행운 시간 시트는 낮과 밤마다 자기 근거, D123 ②)"
     },
     {
      "to": "tag-diary",
