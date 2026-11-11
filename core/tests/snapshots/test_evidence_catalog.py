@@ -35,7 +35,7 @@ def _sample_evidence() -> Iterator[Evidence]:
             yield from daily.tags.evidence
             yield from daily.direction[0].evidence
             for judgment in (
-                daily.color[1],
+                *(judgment for _, judgment in daily.colors),
                 daily.direction[1],
                 daily.number[1],
                 daily.focus[1],

@@ -67,6 +67,8 @@ def test_scores(winter_gap: YongsinResult, gwiin_branches: frozenset[Branch], pi
     # 酉: 원국 辰과 육합 +1 (庚·酉는 모두 금이라 용신·희신 아님)
     hap = score_slot(make_slot(pillar_of, "庚酉"), natal, winter_gap, gwiin_branches)
     assert (hap.score, hap.reasons) == (1, ("hap",))
+    assert hap.hap_branch is Branch.JIN
+    assert only_yongsin.hap_branch is None
     none = score_slot(make_slot(pillar_of, "戊戌"), natal, winter_gap, gwiin_branches)
     assert (none.score, none.reasons) == (0, ())
 

@@ -25,6 +25,9 @@ FIVE_ELEMENTS_REF: Final[Mapping[str, str]] = {
     key: f"gungtong-bogam/five_elements#{key}" for key in ("color", "direction", "number", "balance_principle")
 }
 
+# 행운 색 변역(變易) 원전 (#937, C33). 『三命通會』 四庫全書本 卷一 「論五行」
+COLOR_SHIFT_REF: Final[str] = "sammyeong-tonghoe/five_elements#color_change"
+
 
 # 태그 판정 원전 (#804, C28). 키는 원전 항목 이름이고, 원전이 없는 태그는 여기 없다.
 # 원문 대조 기록: core/docs/references/tag-sources-survey.md
@@ -52,9 +55,10 @@ def johu_ref(stem: Stem, branch: Branch) -> str:
 
 
 def all_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 태그 원전 전부."""
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전 전부."""
     yield from (johu_ref(stem, branch) for stem in Stem for branch in Branch)
     yield from FIVE_ELEMENTS_REF.values()
+    yield COLOR_SHIFT_REF
     yield from TAG_SOURCE_REF.values()
 
 

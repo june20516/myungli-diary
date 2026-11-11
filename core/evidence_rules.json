@@ -3,11 +3,23 @@
     "breakdown",
     "score"
   ],
+  "color/balance": [
+    "element",
+    "gisin",
+    "shifted_element"
+  ],
   "color/lucky_element": [
     "day_kind",
     "element",
     "note",
     "role"
+  ],
+  "color/shift": [
+    "base_element",
+    "day_branch",
+    "element",
+    "shift",
+    "twelve_stage"
   ],
   "direction/gwiin_branch": [
     "day_branch",

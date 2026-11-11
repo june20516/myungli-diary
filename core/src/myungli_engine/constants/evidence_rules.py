@@ -21,6 +21,8 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "calendar/score": ("breakdown", "score"),
     # 데일리 카드 (spec 7.3~7.6)
     "color/lucky_element": ("day_kind", "element", "note", "role"),
+    "color/balance": ("element", "gisin", "shifted_element"),
+    "color/shift": ("base_element", "day_branch", "element", "shift", "twelve_stage"),
     "direction/gwiin_branch": ("day_branch", "day_kind", "direction"),
     "direction/ordinary_deity_huisin": _DIRECTION_DEITY_DETAIL,
     "direction/ordinary_deity_yongsin": _DIRECTION_DEITY_DETAIL,

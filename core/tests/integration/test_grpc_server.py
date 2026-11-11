@@ -56,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.1"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.3"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -173,6 +173,10 @@ def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> N
         assert card.judgment.message_key
         assert len(card.judgment.evidence) >= 1
     assert response.color.element != pb.ELEMENT_UNSPECIFIED
+    assert response.color.base_element != pb.ELEMENT_UNSPECIFIED
+    assert response.color.twelve_stage != pb.TWELVE_STAGE_UNSPECIFIED
+    assert response.color.shift != pb.COLOR_SHIFT_UNSPECIFIED
+    assert response.color.basis != pb.COLOR_BASIS_UNSPECIFIED
     assert response.direction.direction != pb.DIRECTION8_UNSPECIFIED
     assert 1 <= response.number.number <= 10
     assert response.number.judgment.params["number"].integer == response.number.number
@@ -185,6 +189,28 @@ def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> N
     assert set(response.featured_tags) <= set(response.all_tags)
     assert len(response.fortune) >= 1
     assert response.guide.message_key
+
+
+def test_get_daily_second_color_only_on_split_days(stub: pb_grpc.MyungliEngineStub) -> None:
+    """원전 기준 색이 기신인 날만 second_color가 있고, 그날 color는 내 균형 기준이다(D119)."""
+    split_seen = False
+    for day in range(1, 32):
+        response = stub.GetDaily(
+            pb.DailyRequest(
+                birth=solar_birth(1985, 3, 10),
+                date=pb.LocalDate(year=2026, month=10, day=day),
+                current_timezone=SEOUL,
+            )
+        )
+        if response.HasField("second_color"):
+            split_seen = True
+            assert response.color.basis == pb.COLOR_BASIS_BALANCE
+            assert response.second_color.basis == pb.COLOR_BASIS_SOURCE
+            assert response.color.element == response.color.base_element
+            assert response.second_color.judgment.message_key.startswith("color.source.")
+        else:
+            assert response.color.basis == pb.COLOR_BASIS_SOURCE
+    assert split_seen
 
 
 def test_get_month_calendar_day_count(stub: pb_grpc.MyungliEngineStub) -> None:
