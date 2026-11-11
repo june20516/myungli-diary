@@ -12,15 +12,15 @@ from myungli_engine.chart.pillars import build_chart
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.composers.daily import DailyView, compose_daily
 from myungli_engine.constants.message_keys import ALL_KEYS, require
-from myungli_engine.domain.enums import Branch, CalendarType, Gender
+from myungli_engine.domain.enums import CalendarType, Gender, TenGodGroup
 from myungli_engine.domain.models import Judgment, Pillar
 from myungli_engine.references import loader
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references.loader import ten_god_group_ref
+from myungli_engine.rules.focus_time import PERIOD_BRANCHES, FocusPeriod
 
 SEOUL = "Asia/Seoul"
 CYCLE_LENGTH = 60
 # 진시~술시 (spec 7.5). 구현 상수를 재사용하지 않고 독립적으로 적는다.
-FOCUS_CANDIDATES = frozenset({Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL})
 
 birth_dates = st.dates(min_value=date(1900, 2, 1), max_value=date(2099, 12, 31))
 daily_dates = st.dates(min_value=date(1950, 1, 1), max_value=date(2090, 12, 31))
@@ -56,7 +56,7 @@ def _judgments(view: DailyView) -> list[Judgment]:
         *(judgment for _, judgment in view.colors),
         view.direction[1],
         view.number[1],
-        view.focus[1],
+        *(judgment for _, judgment in view.focus),
         *view.fortune,
         view.guide,
         *view.guide_candidates,
@@ -85,14 +85,19 @@ def test_all_judgments_have_evidence(birth: BirthInput, target: date) -> None:
 
 @given(birth=birth_inputs, target=daily_dates)
 def test_tag_based_judgments_cite_their_tag_source(birth: BirthInput, target: date) -> None:
-    """총운 보조 문장과 태그 질문은 그 태그의 근거를, 십성 묶음 질문은 공통 근거를 쓴다(C8, C28)."""
+    """총운 보조 문장과 태그 질문은 그 태그의 근거를, 십성 묶음 질문은 그 묶음의 조목을 쓴다(C28, #998)."""
     view = compose_daily(birth, target, SEOUL)
     for sentence in view.fortune[1:]:
         evidence = sentence.evidence[0]
         assert evidence.source_ref == view.tags.source_refs[evidence.detail["featured"]]
     for candidate in view.guide_candidates:
         evidence = candidate.evidence[0]
-        expected = view.tags.source_refs.get(evidence.detail["basis"], FIVE_ELEMENTS_REF["balance_principle"])
+        basis = evidence.detail["basis"]
+        expected = (
+            view.tags.source_refs[basis]
+            if basis.startswith("tag.")
+            else ten_god_group_ref(TenGodGroup[basis])
+        )
         assert evidence.source_ref == expected
 
 
@@ -145,6 +150,7 @@ def test_daily_not_determined_by_day_alone(pair: tuple[BirthInput, BirthInput], 
 
 @given(birth=birth_inputs, target=daily_dates)
 def test_focus_slots_within_candidates(birth: BirthInput, target: date) -> None:
-    focus = compose_daily(birth, target, SEOUL).focus[0]
-    assert focus.picks
-    assert {pick.slot.branch for pick in focus.picks} <= FOCUS_CANDIDATES
+    focus = compose_daily(birth, target, SEOUL).focus
+    assert [pick.period for pick, _ in focus] == [FocusPeriod.DAY, FocusPeriod.NIGHT]
+    for pick, _ in focus:
+        assert pick.grade.slot.branch in PERIOD_BRANCHES[pick.period]

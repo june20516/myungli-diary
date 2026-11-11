@@ -104,7 +104,13 @@ message ChartResponse {
 * 각 Judgment의 근거는 두 가지입니다.
   * 규칙 근거: `rule_id`는 `personal/<묶음>` 형식입니다(예: `personal/ten_god`, `personal/luck_ten_god`). `detail`에는 그 Judgment의 매개변수 값(자리·오행·역할 등)을 문자열로 담습니다. 용어는 메시지 키에 들어 있습니다.
   * 역할 판정 근거: 용신 판정의 근거(`yongsin.evidence`)를 그대로 붙입니다.
-* 자리 의미(궁위)를 다룬 원전 자료는 아직 없습니다. 그래서 C8처럼 `gungtong-bogam/five_elements#balance_principle`을 `source_ref`로 씁니다. 궁위 원전이 들어오면 규칙 근거만 바꿉니다(출력이 바뀌므로 그때 `ruleset_version`을 올림).
+* 규칙 근거의 `source_ref`는 그 용어의 뜻을 다룬 원전 조목입니다(#998, core C35, ruleset 2026.11.4). 2026-11-11 전에는 궁위 원전이 없어 `gungtong-bogam/five_elements#balance_principle`(C8)을 임시로 썼습니다.
+  * 일간: 『滴天髓』 「衰旺論」(`jeokcheonsu/personal#day_master`)
+  * 십성: 『三命通會』 四庫본 卷五 십성별 조목(`sammyeong-tonghoe/personal#ten_god.<십성>`, 比肩과 劫財는 「論建禄」 `ten_god.geonrok`)
+  * 12운성: 卷二 「論五行旺相休囚死並寄生十二宫」(`#twelve_stage`)
+  * 신살: 양인은 卷三 「論羊刃」(`#yangin`), 나머지는 태그와 같은 조목(`sammyeong-tonghoe/tags#*`)
+  * 대운과 세운: 卷二 「論大運」(`#luck.ten_god`, `#luck.twelve_stage`)
+* 자리(궁위)와 역할(용신, 희신, 기신)의 원전은 매개변수로 넘기는 값의 원전이라 근거에 따로 붙이지 않고, 규칙 지도(`core/docs/rules-map/`)에 적습니다.
 
 ### 2.5 구조
 

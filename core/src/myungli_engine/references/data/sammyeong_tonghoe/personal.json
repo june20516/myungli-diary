@@ -1,0 +1,178 @@
+{
+  "ten_god": {
+    "jeonggwan": {
+      "work": "三命通會",
+      "section": "論正官",
+      "quote": "正官者乃甲見辛乙見庚之例隂陽配合相制有用成其道也",
+      "passage": [
+        "正官者乃甲見辛乙見庚之例隂陽配合相制有用成其道也"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "pyeongwan": {
+      "work": "三命通會",
+      "section": "論偏官",
+      "quote": "故有制謂之偏官無制謂之七煞",
+      "passage": [
+        "故有制謂之偏官無制謂之七煞"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "jeongjae": {
+      "work": "三命通會",
+      "section": "論正財",
+      "quote": "正財之格主人誠實行事儉約賦性聰明惟有慳吝",
+      "passage": [
+        "正財之格主人誠實行事儉約賦性聰明惟有慳吝"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "pyeonjae": {
+      "work": "三命通會",
+      "section": "論偏財",
+      "quote": "偏財格主人慷慨不甚吝財與人有情而多詐",
+      "passage": [
+        "偏財格主人慷慨不甚吝財與人有情而多詐"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "jeongin": {
+      "work": "三命通會",
+      "section": "論印綬",
+      "quote": "此格主聰明多智慧性慈恵語善良遲訥體貎豐厚",
+      "passage": [
+        "此格主聰明多智慧性慈恵語善良遲訥體貎豐厚"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "pyeonin": {
+      "work": "三命通會",
+      "section": "論倒食",
+      "quote": "倒食即偏印之謂一名吞啖煞食神最忌見之",
+      "passage": [
+        "倒食即偏印之謂一名吞啖煞食神最忌見之"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": "원문은 偏印을 倒食(吞啖煞)이라는 이름으로 다룬다."
+    },
+    "sanggwan": {
+      "work": "三命通會",
+      "section": "論傷官",
+      "quote": "此格主多材藝傲物氣髙心險無忌憚多謀少遂弄巧成拙",
+      "passage": [
+        "此格主多材藝傲物氣髙心險無忌憚多謀少遂弄巧成拙"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "siksin": {
+      "work": "三命通會",
+      "section": "論食神",
+      "quote": "主人財厚食豐福量寛𢎞肌體肥大優游自足有子息有夀考",
+      "passage": [
+        "主人財厚食豐福量寛𢎞肌體肥大優游自足有子息有夀考"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": "四庫全書本 수집본은 論食神에 조목 표지(anchor)가 없고 본문 제목 글자만 있다."
+    },
+    "geonrok": {
+      "work": "三命通會",
+      "section": "論建禄",
+      "quote": "余按陽刃比肩敗財建禄名雖不同實一家同氣之神",
+      "passage": [
+        "余按陽刃比肩敗財建禄名雖不同實一家同氣之神"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": "比肩과 劫財(敗財)는 따로 다룬 조목이 없고, 陽刃, 建禄과 같은 기운으로 묶어 말한다. 명리일기는 比肩, 劫財 둘에 이 조목을 쓴다."
+    }
+  },
+  "ten_god_group": {
+    "inseong": {
+      "work": "三命通會",
+      "section": "論古人立印食官財名義",
+      "quote": "生我者有父母之義故立名印綬",
+      "passage": [
+        "生我者有父母之義故立名印綬"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "siksang": {
+      "work": "三命通會",
+      "section": "論古人立印食官財名義",
+      "quote": "我生者有子孫之義故立名食神",
+      "passage": [
+        "我生者有子孫之義故立名食神"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "gwanseong": {
+      "work": "三命通會",
+      "section": "論古人立印食官財名義",
+      "quote": "尅我者我受制於人之義故立名官煞",
+      "passage": [
+        "尅我者我受制於人之義故立名官煞"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    },
+    "jaeseong": {
+      "work": "三命通會",
+      "section": "論古人立印食官財名義",
+      "quote": "我尅者是人受制於我之義故立名妻財",
+      "passage": [
+        "我尅者是人受制於我之義故立名妻財"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol05.wikitext",
+      "note": null
+    }
+  },
+  "twelve_stage": {
+    "work": "三命通會",
+    "section": "論五行旺相休囚死並寄生十二宫",
+    "quote": "夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎飬循環無端週而復始造物大體與人相似循環十二宫亦若人世輪迴也",
+    "passage": [
+      "夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎飬循環無端週而復始造物大體與人相似循環十二宫亦若人世輪迴也"
+    ],
+    "source_file": "sammyeong-tonghoe/skqs-vol02.wikitext",
+    "note": "원문은 十二宫을 이 문장에서 十二官으로 적었다(수집본 그대로). 같은 조목이 이어서 단계마다 사람의 일생에 빗댄 뜻을 적는다."
+  },
+  "yangin": {
+    "work": "三命通會",
+    "section": "論羊刃",
+    "quote": "羊言剛也刃者取宰割之義祿過則刃生",
+    "passage": [
+      "羊言剛也刃者取宰割之義祿過則刃生"
+    ],
+    "source_file": "sammyeong-tonghoe/skqs-vol03.wikitext",
+    "note": null
+  },
+  "luck": {
+    "ten_god": {
+      "work": "三命通會",
+      "section": "論大運",
+      "quote": "官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運刼印欲運旺不欲運衰食欲運生不欲運梟絶",
+      "passage": [
+        "官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運刼印欲運旺不欲運衰食欲運生不欲運梟絶"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol02.wikitext",
+      "note": null
+    },
+    "twelve_stage": {
+      "work": "三命通會",
+      "section": "論大運",
+      "quote": "凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財",
+      "passage": [
+        "凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財"
+      ],
+      "source_file": "sammyeong-tonghoe/skqs-vol02.wikitext",
+      "note": null
+    }
+  }
+}

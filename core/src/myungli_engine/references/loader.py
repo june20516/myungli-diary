@@ -9,7 +9,7 @@ from importlib import resources
 from typing import Final
 
 from myungli_engine.constants.evidence_rules import RULES_WITHOUT_SOURCE
-from myungli_engine.domain.enums import Branch, Stem
+from myungli_engine.domain.enums import Branch, Stem, TenGod, TenGodGroup
 from myungli_engine.domain.models import Evidence
 
 # source_ref 접두어(자료 디렉터리 이름) → 패키지 데이터 디렉터리 이름
@@ -17,6 +17,7 @@ _DATA_PACKAGES: Final[Mapping[str, str]] = {
     "gungtong-bogam": "gungtong_bogam",
     "sammyeong-tonghoe": "sammyeong_tonghoe",
     "jeokcheonsu": "jeokcheonsu",
+    "xieji-bianfang": "xieji_bianfang",
 }
 # 파일 이름 → JSON 안에서 키 경로가 시작되는 위치
 _ROOT_KEYS: Final[Mapping[str, str]] = {"johu_evidence": "cells"}
@@ -50,16 +51,59 @@ TAG_SOURCE_REF: Final[Mapping[str, str]] = {
 }
 
 
+# 원국 개인 해석과 십성 묶음 문장의 원전 (#998). 원문 대조 기록: core/docs/references/README.md
+# 比肩과 劫財는 따로 다룬 조목이 없어 『三命通會』 「論建禄」을 함께 쓴다.
+_GEONROK_REF: Final = "sammyeong-tonghoe/personal#ten_god.geonrok"
+PERSONAL_DAY_MASTER_REF: Final = "jeokcheonsu/personal#day_master"
+PERSONAL_TWELVE_STAGE_REF: Final = "sammyeong-tonghoe/personal#twelve_stage"
+PERSONAL_YANGIN_REF: Final = "sammyeong-tonghoe/personal#yangin"
+LUCK_TEN_GOD_REF: Final = "sammyeong-tonghoe/personal#luck.ten_god"
+LUCK_TWELVE_STAGE_REF: Final = "sammyeong-tonghoe/personal#luck.twelve_stage"
+
+
+# 집중 시간(시진 고르기) 원전 (#980, D122). 『欽定協紀辨方書』 四庫全書本. 원문 대조: core/docs/references/hour-sources-survey.md
+FOCUS_TIME_REF: Final[Mapping[str, str]] = {
+    key: f"xieji-bianfang/hours#{key}" for key in ("use_hour", "birth_year", "huangdao")
+}
+
+
+def ten_god_ref(god: TenGod) -> str:
+    if god in (TenGod.BIGYEON, TenGod.GEOPJAE):
+        return _GEONROK_REF
+    return f"sammyeong-tonghoe/personal#ten_god.{god.name.lower()}"
+
+
+def ten_god_group_ref(group: TenGodGroup) -> str:
+    if group is TenGodGroup.BIGYEOP:
+        return _GEONROK_REF
+    return f"sammyeong-tonghoe/personal#ten_god_group.{group.name.lower()}"
+
+
+def personal_refs() -> Iterator[str]:
+    """개인 해석과 십성 묶음 문장이 낼 수 있는 원전(중복 없이)."""
+    refs = {ten_god_ref(god) for god in TenGod} | {ten_god_group_ref(group) for group in TenGodGroup}
+    refs |= {
+        PERSONAL_DAY_MASTER_REF,
+        PERSONAL_TWELVE_STAGE_REF,
+        PERSONAL_YANGIN_REF,
+        LUCK_TEN_GOD_REF,
+        LUCK_TWELVE_STAGE_REF,
+    }
+    yield from sorted(refs)
+
+
 def johu_ref(stem: Stem, branch: Branch) -> str:
     return f"gungtong-bogam/johu_evidence#{stem.hanja}.{branch.hanja}"
 
 
 def all_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전 전부."""
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전, 개인 해석 원전, 시진 원전 전부."""
     yield from (johu_ref(stem, branch) for stem in Stem for branch in Branch)
     yield from FIVE_ELEMENTS_REF.values()
     yield COLOR_SHIFT_REF
     yield from TAG_SOURCE_REF.values()
+    yield from personal_refs()
+    yield from FOCUS_TIME_REF.values()
 
 
 @cache

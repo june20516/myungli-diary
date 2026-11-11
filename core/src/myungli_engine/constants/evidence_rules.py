@@ -30,8 +30,10 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "direction/tonggwan": _DIRECTION_DETAIL,
     "direction/yongsin": _DIRECTION_DETAIL,
     "number/hado": ("day_stem", "element", "number", "parity"),
-    "focus_time/score": ("picks",),
-    "focus_time/fallback": ("picks",),
+    # 집중 시간(D122): 등급과 순서는 detail에 넣지 않는다(D121, 규칙 지도에 적음)
+    "focus_time/day_relation": ("day_pillar", "hour_branch", "period"),
+    "focus_time/birth_year": ("birth_year", "hour_branch", "period"),
+    "focus_time/huangdao": ("hour_branch", "huangdao", "period"),
     # 태그·총운·가이드 질문 (spec 7.7~7.8)
     "tags/select": ("all", "day_kind", "featured"),
     # 태그마다 하나 (C28). 원전이 없는 태그는 source_ref가 빈 문자열이다
@@ -66,8 +68,9 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
 
 # source_ref가 빈 문자열(원전 없음)일 수 있는 규칙 (C28). 그 밖의 규칙은 늘 근거 원전 목록에 있는 source_ref를 낸다.
 # 태그 선택 순서와 십성 몰림은 명리일기가 정한 규칙이고, 총운 보조 문장과 가이드 질문은 근거로 삼은 태그를 따른다.
+# 달력 길흉은 원전 개념(날의 성격, 합충형)의 점수 합이라 원전 조목 하나로 대지 않는다(#998, D121).
 RULES_WITHOUT_SOURCE: Final[frozenset[str]] = frozenset(
-    {"tags/select", "tags/ten_god_rush", "fortune/tag", "guide/question"}
+    {"tags/select", "tags/ten_god_rush", "fortune/tag", "guide/question", "calendar/score"}
 )
 
 

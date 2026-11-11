@@ -16,11 +16,10 @@ from myungli_engine.constants.message_keys import require
 from myungli_engine.domain.enums import DayKind
 from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungli_engine.domain.models import Evidence, Judgment, Notice
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
 from myungli_engine.rules.calendar_luck import LuckScore, score_day
 from myungli_engine.rules.day_kind import classify_day
 from myungli_engine.rules.relations import find_relations
-from myungli_engine.rules.tags import select_tags
+from myungli_engine.rules.tags import NO_SOURCE, select_tags
 
 FIRST_MONTH = 1
 LAST_MONTH = 12
@@ -87,7 +86,7 @@ def _luck_judgment(luck: LuckScore) -> Judgment:
     breakdown = ",".join(f"{name}:{points:+d}" for name, points in luck.breakdown)
     evidence = Evidence(
         rule_id="calendar/score",
-        source_ref=FIVE_ELEMENTS_REF["balance_principle"],
+        source_ref=NO_SOURCE,  # 원전 개념(날의 성격, 합충형)의 점수 합이라 원전 조목 하나로 대지 않는다(#998, D121)
         detail={"breakdown": breakdown, "score": str(luck.score)},
     )
     params = {"score": luck.score}

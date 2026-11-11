@@ -1,120 +1,169 @@
-"""집중하기 좋은 시간 (spec 7.5). 진시~술시 중 원국과 충하지 않는 시진을 점수로 고른다."""
+"""집중하기 좋은 시간 (spec 7.5, D122). 12시진을 원문 등급으로 줄 세워 낮과 밤 각각 1등을 고른다.
+
+원전은 『欽定協紀辨方書』 卷三十四 「用時法」(그날 일진을 돕는 시), 卷三十三 「論相主」(태어난 해 기준),
+卷七 「黄道黒道」(동점)이다. 등급 사이 순서와 길끼리 같은 무게는 원문이 정하지 않아 명리일기가 정했다
+(규칙 지도, core C36). 가중치 점수는 쓰지 않는다.
+
+1. 時破(시지가 일지와 충, 大凶)는 뺀다.
+2. 次凶(時刑, 五不遇)이 없는 시가 앞선다.
+3. 길이 많은 시가 앞선다. 그날 기준: 建, 일지와 삼합, 육합, 일간의 귀인, 녹, 일지의 역마.
+   태어난 해 기준: 연간과 천간합(合官, 合財), 比肩, 正印(印綬), 연간의 長生, 녹, 귀인, 연지의 역마.
+4. 가벼운 흉(衝命: 연지와 충, 尅命: 시간이 연간의 七殺)이 적은 시가 앞선다.
+5. 황도길시가 앞선다.
+6. 그래도 같으면 이른 시진. 낮은 진시부터, 밤은 해시부터 센다.
+"""
 
 from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from enum import Enum, auto
 from typing import Final
 
-from myungli_engine.calendar_core.lunar_adapter import HourSlot
-from myungli_engine.constants.relations import BRANCH_CHUNG, BRANCH_HAP
-from myungli_engine.domain.enums import Branch
-from myungli_engine.domain.models import Evidence, FourPillars
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
-from myungli_engine.rules.yongsin import YongsinResult
-
-CANDIDATE_BRANCHES: Final[frozenset[Branch]] = frozenset(
-    {Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL}
+from myungli_engine.calendar_core.lunar_adapter import HourSlot, twelve_stage
+from myungli_engine.constants.gwiin import CHEONEUL_GWIIN
+from myungli_engine.constants.relations import (
+    BRANCH_CHUNG,
+    BRANCH_HAP,
+    BRANCH_HYEONG_GROUPS,
+    BRANCH_HYEONG_PAIRS,
+    SELF_HYEONG,
+    STEM_HAP,
 )
-MAX_PICKS: Final = 2
-GWIIN_SCORE: Final = 3
-YONGSIN_SCORE: Final = 2
-HUISIN_SCORE: Final = 1
-HAP_SCORE: Final = 1
+from myungli_engine.constants.shinsal import YEOKMA
+from myungli_engine.domain.elements import controls, generates
+from myungli_engine.domain.enums import Branch, Stem, TenGod, TwelveStage
+from myungli_engine.domain.models import Pillar
+from myungli_engine.domain.ten_gods import ten_god
 
-REASON_GWIIN: Final = "gwiin"
-REASON_YONGSIN: Final = "yongsin"
-REASON_HUISIN: Final = "huisin"
-REASON_HAP: Final = "hap"
+
+class FocusPeriod(Enum):
+    DAY = auto()  # 진시~술시 (D21 ① 활동 시간대)
+    NIGHT = auto()  # 해시~묘시
+
+
+# 마지막 동점은 이 순서로 이른 시진이 앞선다(D122).
+PERIOD_BRANCHES: Final[dict[FocusPeriod, tuple[Branch, ...]]] = {
+    FocusPeriod.DAY: (Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL),
+    FocusPeriod.NIGHT: (Branch.HAE, Branch.JA, Branch.CHUK, Branch.IN, Branch.MYO),
+}
+
+# 녹(祿): 천간이 臨官하는 지지.
+ROK: Final[dict[Stem, Branch]] = {
+    Stem.GAP: Branch.IN,
+    Stem.EUL: Branch.MYO,
+    Stem.BYEONG: Branch.SA,
+    Stem.JEONG: Branch.O,
+    Stem.MU: Branch.SA,
+    Stem.GI: Branch.O,
+    Stem.GYEONG: Branch.SHIN,
+    Stem.SIN: Branch.YU,
+    Stem.IM: Branch.HAE,
+    Stem.GYE: Branch.JA,
+}
+_SAMHAP: Final = (
+    frozenset({Branch.SHIN, Branch.JA, Branch.JIN}),
+    frozenset({Branch.IN, Branch.O, Branch.SUL}),
+    frozenset({Branch.SA, Branch.YU, Branch.CHUK}),
+    frozenset({Branch.HAE, Branch.MYO, Branch.MI}),
+)
 
 
 @dataclass(frozen=True, slots=True)
-class ScoredSlot:
+class HourGrade:
+    """시진 하나의 등급. 키가 작을수록 앞선다."""
+
     slot: HourSlot
-    score: int
-    reasons: tuple[str, ...]
-    hap_branch: Branch | None = None  # 육합하는 원국 지지(처음 찾은 것), 없으면 None
+    day_goods: tuple[str, ...]  # 그날 기준 길: build, samhap, yukhap, gwiin, rok, ma
+    year_goods: tuple[str, ...]  # 태어난 해 기준 길: stem_hap, bigyeon, jeongin, jangsaeng, rok, gwiin, ma
+    second_bads: tuple[str, ...]  # 次凶: hyeong, obulu
+    light_bads: tuple[str, ...]  # 가벼운 흉: chung_myeong, geuk_myeong
 
-
-@dataclass(frozen=True, slots=True)
-class FocusResult:
-    picks: tuple[ScoredSlot, ...]
-    fallback: bool
-    evidence: tuple[Evidence, ...]
-
-
-def _natal_branches(natal: FourPillars) -> tuple[Branch, ...]:
-    """시간 모름이면 시지를 뺀다."""
-    pillars = [natal.year, natal.month, natal.day]
-    if natal.hour is not None:
-        pillars.append(natal.hour)
-    return tuple(pillar.branch for pillar in pillars)
-
-
-def _clashes_with_natal(slot: HourSlot, natal: FourPillars) -> bool:
-    return any(frozenset({slot.branch, branch}) in BRANCH_CHUNG for branch in _natal_branches(natal))
-
-
-def score_slot(
-    slot: HourSlot, natal: FourPillars, yongsin: YongsinResult, gwiin: frozenset[Branch]
-) -> ScoredSlot:
-    """귀인 +3, 용신 +2, 희신 +1, 원국과 육합 +1. 이유는 이 순서로 담는다."""
-    slot_elements = {slot.pillar.stem.element, slot.pillar.branch.element}
-    score = 0
-    reasons: list[str] = []
-    if slot.branch in gwiin:
-        score += GWIIN_SCORE
-        reasons.append(REASON_GWIIN)
-    if yongsin.yongsin in slot_elements:
-        score += YONGSIN_SCORE
-        reasons.append(REASON_YONGSIN)
-    if yongsin.huisin in slot_elements:
-        score += HUISIN_SCORE
-        reasons.append(REASON_HUISIN)
-    hap_branch = next(
-        (branch for branch in _natal_branches(natal) if frozenset({slot.branch, branch}) in BRANCH_HAP), None
-    )
-    if hap_branch is not None:
-        score += HAP_SCORE
-        reasons.append(REASON_HAP)
-    return ScoredSlot(slot=slot, score=score, reasons=tuple(reasons), hap_branch=hap_branch)
-
-
-def _evidence(picks: tuple[ScoredSlot, ...], *, fallback: bool) -> Evidence:
-    summary = ";".join(f"{pick.slot.branch.name}:{pick.score}:{'+'.join(pick.reasons)}" for pick in picks)
-    return Evidence(
-        rule_id="focus_time/fallback" if fallback else "focus_time/score",
-        source_ref=FIVE_ELEMENTS_REF["balance_principle"],
-        detail={"picks": summary},
-    )
-
-
-def pick_focus_times(
-    slots: Sequence[HourSlot], natal: FourPillars, yongsin: YongsinResult, gwiin: frozenset[Branch]
-) -> FocusResult:
-    """점수 1등 시진 1개를 고르되, 2등이 같은 점수면 2개까지 낸다.
-
-    모든 후보가 원국과 충이면 제외 전 후보 중 황도길시 첫 시진(없으면 첫 후보)을 fallback으로 낸다.
-    """
-    candidates = [
-        score_slot(slot, natal, yongsin, gwiin) for slot in slots if slot.branch in CANDIDATE_BRANCHES
-    ]
-    if not candidates:
-        raise ValueError("진시~술시 시진이 하나도 없습니다")
-
-    allowed = [scored for scored in candidates if not _clashes_with_natal(scored.slot, natal)]
-    if not allowed:
-        first_lucky = next((scored for scored in candidates if scored.slot.huangdao_lucky), candidates[0])
-        picks: tuple[ScoredSlot, ...] = (first_lucky,)
-        return FocusResult(
-            picks=picks, fallback=True, evidence=(_evidence(picks, fallback=True), *yongsin.evidence)
+    def key(self, order: tuple[Branch, ...]) -> tuple[bool, int, int, bool, int]:
+        return (
+            bool(self.second_bads),
+            -(len(self.day_goods) + len(self.year_goods)),
+            len(self.light_bads),
+            not self.slot.huangdao_lucky,
+            order.index(self.slot.branch),
         )
 
-    # sorted는 안정 정렬이므로 같은 키에서는 입력 순서(이른 시진)가 유지된다.
-    ranked = sorted(allowed, key=lambda scored: (-scored.score, not scored.slot.huangdao_lucky))
-    picks = (
-        tuple(ranked[:MAX_PICKS]) if len(ranked) > 1 and ranked[1].score == ranked[0].score else (ranked[0],)
+
+@dataclass(frozen=True, slots=True)
+class FocusPick:
+    period: FocusPeriod
+    grade: HourGrade
+
+
+def _pair(first: Branch, second: Branch) -> frozenset[Branch]:
+    return frozenset({first, second})
+
+
+def _hyeong(day_branch: Branch, hour_branch: Branch) -> bool:
+    if day_branch is hour_branch:
+        return day_branch in SELF_HYEONG
+    pair = _pair(day_branch, hour_branch)
+    return pair in BRANCH_HYEONG_PAIRS or any(pair <= group for group in BRANCH_HYEONG_GROUPS)
+
+
+def _samhap(day_branch: Branch, hour_branch: Branch) -> bool:
+    return day_branch is not hour_branch and any(_pair(day_branch, hour_branch) <= group for group in _SAMHAP)
+
+
+def _obulu(day: Pillar, hour: Pillar) -> bool:
+    """五不遇: 시간이 일간을 극한다. 시지가 일간이나 일지를 생하면 五不遇가 아니다(卷七 按語).
+
+    시지는 정기 오행으로 본다(지장간을 보지 않는 것은 명리일기 해석).
+    """
+    if controls(hour.stem.element) is not day.stem.element:
+        return False
+    return generates(hour.branch.element) not in (day.stem.element, day.branch.element)
+
+
+def grade_hour(slot: HourSlot, day: Pillar, birth_year: Pillar) -> HourGrade | None:
+    """時破면 None(후보에서 뺌)."""
+    hour = slot.pillar
+    if _pair(day.branch, hour.branch) in BRANCH_CHUNG:
+        return None
+    day_goods = (
+        ("build", hour.branch is day.branch),
+        ("samhap", _samhap(day.branch, hour.branch)),
+        ("yukhap", _pair(day.branch, hour.branch) in BRANCH_HAP),
+        ("gwiin", hour.branch in CHEONEUL_GWIIN[day.stem]),
+        ("rok", hour.branch is ROK[day.stem]),
+        ("ma", hour.branch is YEOKMA[day.branch]),
     )
-    return FocusResult(
-        picks=picks, fallback=False, evidence=(_evidence(picks, fallback=False), *yongsin.evidence)
+    god = ten_god(birth_year.stem, hour.stem)
+    year_goods = (
+        ("stem_hap", frozenset({birth_year.stem, hour.stem}) in STEM_HAP),
+        ("bigyeon", god is TenGod.BIGYEON),
+        ("jeongin", god is TenGod.JEONGIN),
+        ("jangsaeng", twelve_stage(birth_year.stem, hour.branch) is TwelveStage.JANGSAENG),
+        ("rok", hour.branch is ROK[birth_year.stem]),
+        ("gwiin", hour.branch in CHEONEUL_GWIIN[birth_year.stem]),
+        ("ma", hour.branch is YEOKMA[birth_year.branch]),
     )
+    second_bads = (("hyeong", _hyeong(day.branch, hour.branch)), ("obulu", _obulu(day, hour)))
+    light_bads = (
+        ("chung_myeong", _pair(birth_year.branch, hour.branch) in BRANCH_CHUNG),
+        ("geuk_myeong", god is TenGod.PYEONGWAN),
+    )
+    return HourGrade(
+        slot=slot,
+        day_goods=tuple(name for name, hit in day_goods if hit),
+        year_goods=tuple(name for name, hit in year_goods if hit),
+        second_bads=tuple(name for name, hit in second_bads if hit),
+        light_bads=tuple(name for name, hit in light_bads if hit),
+    )
+
+
+def pick_focus_times(slots: Sequence[HourSlot], day: Pillar, birth_year: Pillar) -> tuple[FocusPick, ...]:
+    """(낮 1등, 밤 1등). 時破는 시진 하나만 빼므로 두 구간 모두 후보가 남는다."""
+    picks: list[FocusPick] = []
+    for period, order in PERIOD_BRANCHES.items():
+        grades = [grade_hour(slot, day, birth_year) for slot in slots if slot.branch in order]
+        candidates = [grade for grade in grades if grade is not None]
+        if not candidates:
+            raise ValueError(f"{period.name} 시진 후보가 없습니다")
+        picks.append(FocusPick(period, min(candidates, key=lambda grade: grade.key(order))))
+    return tuple(picks)
