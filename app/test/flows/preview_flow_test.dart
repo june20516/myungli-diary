@@ -382,7 +382,9 @@ void main() {
             traceId: 'test',
           ),
         ),
-        onboardingDraftProvider.overrideWith(_FailOnceDraftController.new),
+        onboardingDraftProvider.overrideWith(
+          () => _FailOnceDraftController(failures: 1),
+        ),
       ],
     );
     unawaited(
@@ -419,12 +421,15 @@ void main() {
 
 /// 처음 한 번은 입력을 읽지 못하고, 다시 읽으면 입력을 주는 초안.
 class _FailOnceDraftController extends OnboardingDraftController {
-  static var _builds = 0;
+  new({required int failures}) : _failuresLeft = failures;
+
+  /// 앞으로 더 실패할 횟수.
+  int _failuresLeft;
 
   @override
   Future<OnboardingDraft> build() async {
-    _builds++;
-    if (_builds == 1) {
+    if (_failuresLeft > 0) {
+      _failuresLeft--;
       throw StateError('초안을 읽지 못함');
     }
     return OnboardingDraft(

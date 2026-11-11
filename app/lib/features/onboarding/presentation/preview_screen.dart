@@ -71,6 +71,7 @@ class PreviewScreen extends ConsumerWidget {
     // 이미 쓴 기기면 그 입력(초안)을 읽는 상태를 따릅니다. 읽는 중은 skeleton, 실패는 오류 상태와
     // 다시 시도(초안을 다시 읽음)입니다.
     final usedDraft = used ? ref.watch(onboardingDraftProvider) : null;
+    final deviceRegionIsKorea = used && ref.watch(deviceRegionIsKoreaProvider);
     final save = PrimaryButton(
       key: const ValueKey(SlotIds.previewCtaSave),
       identifier: SlotIds.previewCtaSave,
@@ -98,9 +99,7 @@ class PreviewScreen extends ConsumerWidget {
                         skeleton: const _PreviewSkeleton(),
                         data: (draft) => _PreviewUsedBody(
                           draft: draft,
-                          deviceRegionIsKorea: ref.watch(
-                            deviceRegionIsKoreaProvider,
-                          ),
+                          deviceRegionIsKorea: deviceRegionIsKorea,
                         ),
                       )
                     : ScreenStateView<Preview>(

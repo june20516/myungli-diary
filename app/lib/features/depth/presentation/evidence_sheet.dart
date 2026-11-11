@@ -152,6 +152,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       fireImmediately: true,
     );
     // 이미 받은 값이면 첫 알림(fireImmediately)에서 동기로 알게 되므로, 그때는 여기서 닫습니다.
+    // 권한 없음(null)이 동기로 와도 아직 값을 받기 전이라 구독을 열어 두고 기다립니다.
     if (_tagInsight != null) {
       subscription.close();
     } else {

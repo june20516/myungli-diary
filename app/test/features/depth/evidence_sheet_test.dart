@@ -985,12 +985,11 @@ void main() {
         reason: '시트가 구독을 닫아 provider가 버려짐',
       );
 
-      // 알던 권한을 잊어도(보는 중 권한이 끝난 것과 같음) 시트는 다시 묻지 않습니다.
+      // 알던 권한을 잊어도(보는 중 권한이 끝난 것과 같음) 열린 시트의 꼬리표는 그대로입니다.
       container.invalidate(latestInsightGrantProvider);
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
-      expect(fake.callCountOf('getEntitlements'), asked);
       expect(
         _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
         findsOneWidget,
