@@ -92,7 +92,7 @@
 | diary-edit.date.iljin | diary-edit.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | diary-edit.date.month | diary-edit.date.month | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
 | diary-edit.draft.status | diary-edit.draft.status | info | - | 1 | 3 | - | ko 5, en 8, ja 4 |
-| diary-edit.guide.attach | diary-edit.guide.attach | guide | - | 1 | 1 | - | ko -, en -, ja - |
+| diary-edit.guide.attach | diary-edit.guide.attach | guide | - | 1 | 2 | - | ko -, en -, ja - |
 | diary-edit.guide.remove | diary-edit.guide.remove | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | diary-edit.length.count | diary-edit.length.count | info | - | 1 | 1 | `count`: number | ko -, en -, ja - |
 | diary-edit.offline.notice | diary-edit.offline.notice | info | - | 1 | 1 | - | ko 52, en 90, ja 38 |

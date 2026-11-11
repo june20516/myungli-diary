@@ -500,4 +500,5 @@
 - {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "접기"}
 - {slot: day-sheet.event.all-day, key: daySheetEventAllDay, text: "종일"}
 - {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "질문 없이 쓰기"}
-- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "질문 추가"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "무엇을 쓸지 고민인가요?"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttachHint, text: "질문 추가"}

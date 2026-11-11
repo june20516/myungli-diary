@@ -500,4 +500,5 @@
 - {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "閉じる"}
 - {slot: day-sheet.event.all-day, key: daySheetEventAllDay, text: "終日"}
 - {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "質問なしで書く"}
-- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "質問を追加"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "何を書くか迷っていますか?"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttachHint, text: "質問を追加"}

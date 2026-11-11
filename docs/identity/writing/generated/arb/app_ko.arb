@@ -505,8 +505,12 @@
   "@diaryEditDraftStatusSaved": {
     "description": "diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
   },
-  "diaryEditGuideAttach": "질문 추가",
+  "diaryEditGuideAttach": "무엇을 쓸지 고민인가요?",
   "@diaryEditGuideAttach": {
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
+  },
+  "diaryEditGuideAttachHint": "질문 추가",
+  "@diaryEditGuideAttachHint": {
     "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
   },
   "diaryEditGuideRemove": "질문 없이 쓰기",
