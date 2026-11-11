@@ -52,6 +52,7 @@
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
 * **검수 회차2 새 슬롯, 12운성 뜻, 행운 색, 원전 순서**(drift #940, #893, #925, #928, #946, #951, #955, 라운드 R36 `artifacts/2026-11-10-round-R36.md`, W64): IA 새 ui 슬롯 8자리 원고, 행운 색 수 "검정", 12운성 뜻 12개(용어 범주 `twelve_stage`), 원전 줄 순서 뜻, 원문, 출처. 미리보기 입력 확인과 질문 떼기 슬롯 상한은 design 측정 전이라 `null`입니다. server는 용어 범주와 시드(Issue), 원전 순서(#952).
+* **질문 뗀 자리 권유 글자 정정**(W65): `diaryEditGuideAttach` "무엇을 쓸지 고민인가요?"(design V102 사용자 문구), "질문 추가"는 스크린리더 hint 키 `diaryEditGuideAttachHint`로.
 * **태그 칩 문구 삭제**(#886, W63): 컴포넌트 6.0.0에서 `tag-chip`이 빠져 `ui.tag-chip.label`과 키 넷을 지움.
 * **원전 원문 정자, 억부 근거 틀**(#871, #870, W62): `evidence.source` 원문 134구절을 정자로(앱 한자 글꼴 안), ko `basis.yongsin/eokbu` "힘이" 겹침 고침.
 * **용어 "일간" 뜻**(#863, F-019, 라운드 R35 `artifacts/2026-11-08-round-R35.md`, W61): 용어 id `role.day_master`의 값 이름, 한자, 뜻 3개 언어 원고. server 시드 반영은 server 몫입니다.

@@ -266,20 +266,22 @@
     screen_reader: "버튼 이름으로 읽습니다."
 
 - id: diary-edit.guide.attach
-  where: "가이드 질문을 뗀 뒤 그 자리에 남는 링크(D116, #928). 누르면 그날 기본 질문이 붙습니다"
+  where: "가이드 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄(D116, #928, design V102). 옅은 초록 글자 뒤에 말풍선 아이콘이 붙고, 줄 전체가 버튼이라 누르면 그날 기본 질문이 붙습니다"
   purpose: guide
-  user_state: "질문을 뗐다가 다시 쓰고 싶어졌습니다."
-  structure: "동사구 하나."
-  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  user_state: "질문을 뗐다가, 무엇을 쓸지 막막해졌습니다."
+  structure: "화면 글자는 말을 거는 물음 한 문장(사용자 문구, design V102). 스크린리더에는 같은 글자를 버튼 이름으로 읽고, 누르면 무엇이 되는지를 hint 키로 덧붙입니다(동작 이름 하나)."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 4}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - diaryEditGuideAttach
+    - diaryEditGuideAttachHint
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: diaryEditGuideAttach, text: "질문 추가", why: "짧은 동작 이름(사용자 문구)", source: round-R36-2}
+      - {lang: ko, key: diaryEditGuideAttach, text: "무엇을 쓸지 고민인가요?", why: "막막한 순간에 말을 거는 권유(사용자 문구, design #929 관문)", source: round-R36-2}
+      - {lang: ko, key: diaryEditGuideAttachHint, text: "질문 추가", why: "누르면 무엇이 되는지 알리는 스크린리더 안내(사용자 문구)", source: round-R36-2}
     bad:
-      - {lang: ko, key: diaryEditGuideAttach, text: "질문이 필요하신가요?", why: "되묻는 권유, 링크 이름이 아님", source: writing}
+      - {lang: ko, key: diaryEditGuideAttach, text: "질문 추가", why: "화면 글자로는 딱딱한 버튼 이름이라 권유 톤이 아님(R36-2 정정)", source: round-R36-2}
   a11y:
     truncation: "한 줄에 들어갑니다."
-    screen_reader: "링크 이름으로 읽습니다."
+    screen_reader: "`diaryEditGuideAttach`를 버튼 이름으로 읽고 `diaryEditGuideAttachHint`를 hint로 읽습니다. 말풍선 아이콘은 읽지 않습니다."

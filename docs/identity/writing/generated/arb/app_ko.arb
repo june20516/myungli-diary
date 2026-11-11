@@ -434,7 +434,7 @@
   },
   "daySheetVerdictExpand": "내역 보기",
   "@daySheetVerdictExpand": {
-    "description": "day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
+    "description": "day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 없음, 사용자 결정 \"내역 보기\", writing R36). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
   },
   "daySheetVerdictItemPlus": "좋은 쪽으로 {count}",
   "@daySheetVerdictItemPlus": {
@@ -505,8 +505,12 @@
   "@diaryEditDraftStatusSaved": {
     "description": "diary-edit.draft.status: 임시 저장 상태. 상단 바 가운데에 작게, 쓰는 중에만(키보드 위는 비움)"
   },
-  "diaryEditGuideAttach": "질문 추가",
+  "diaryEditGuideAttach": "무엇을 쓸지 고민인가요?",
   "@diaryEditGuideAttach": {
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
+  },
+  "diaryEditGuideAttachHint": "질문 추가",
+  "@diaryEditGuideAttachHint": {
     "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
   },
   "diaryEditGuideRemove": "질문 없이 쓰기",

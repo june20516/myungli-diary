@@ -500,4 +500,5 @@
 - {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "Hide details"}
 - {slot: day-sheet.event.all-day, key: daySheetEventAllDay, text: "All day"}
 - {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "Write without a question"}
-- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "Add a question"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "Not sure what to write?"}
+- {slot: diary-edit.guide.attach, key: diaryEditGuideAttachHint, text: "Add a question"}
