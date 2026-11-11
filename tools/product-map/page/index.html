@@ -700,7 +700,15 @@ function zoomSvgFrom(container, title) {
   const viewBox = (svg.getAttribute("viewBox") || "").split(/[\s,]+/).map(Number);
   const base = viewBox.length === 4 && viewBox[2] > 0 ? viewBox[2] : svg.getBoundingClientRect().width;
   clone.removeAttribute("style");
-  clone.removeAttribute("id");
+  // mermaid 그림은 글꼴, 색, 선을 svg id에 묶인 내부 스타일(#id .node {...})로 정합니다.
+  // id를 지우면 스타일이 모두 빠지므로, 사본에는 새 id를 주고 내부 스타일도 그 id로 바꿉니다.
+  if (svg.id && svg.querySelector("style")) {
+    const zoomId = svg.id + "-zoom";
+    clone.id = zoomId;
+    clone.querySelectorAll("style").forEach((s) => { s.textContent = s.textContent.split("#" + svg.id).join("#" + zoomId); });
+  } else {
+    clone.removeAttribute("id");
+  }
   if (svg.id === "metro") {
     // 사본은 이벤트를 물려받지 않으므로 다시 붙입니다. 시트는 크게 보기 창 아래 층이라 창을 닫고 엽니다.
     clone.classList.remove("focused");
