@@ -161,11 +161,14 @@
 - {slot: daily.color, key: color.gwiin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
 - {slot: daily.color, key: color.ordinary_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
 - {slot: daily.color, key: color.yongsin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
-- {slot: daily.focus_time, key: focus_time.fallback, text: "오늘은 이 시간에 집중이 잘 돼요."}
-- {slot: daily.focus_time, key: focus_time.gwiin, text: "이 시간에는 도움을 청하면 잘 통해요."}
-- {slot: daily.focus_time, key: focus_time.hap, text: "이 시간에는 사람을 만나 이야기하기 좋아요."}
-- {slot: daily.focus_time, key: focus_time.huisin, text: "이 시간에는 미뤄 둔 일을 이어 가기 좋아요."}
-- {slot: daily.focus_time, key: focus_time.yongsin, text: "이 시간에는 중요한 일을 하면 잘 돼요."}
+- {slot: daily.color, key: color.balance.gisin_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.balance.gwiin_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.balance.ordinary_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.balance.yongsin_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.source.gisin_day, text: "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."}
+- {slot: daily.color, key: color.source.gwiin_day, text: "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."}
+- {slot: daily.color, key: color.source.ordinary_day, text: "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."}
+- {slot: daily.color, key: color.source.yongsin_day, text: "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "천을귀인"}
 - {slot: daily.tag_label, key: tag.clash, text: "충"}
 - {slot: daily.tag_label, key: tag.clash_day_branch, text: "일지 충"}
@@ -197,8 +200,6 @@
 - {slot: explain.today_reason, key: "reason.direction/ordinary_fallback", text: "달력의 길한 방위가 맞지 않아, 내 사주를 돕는 기운의 방향을 골라서 그래요."}
 - {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "부딪히는 두 기운 사이를 이어 주는 기운의 방향을 골라서 그래요."}
 - {slot: explain.today_reason, key: "reason.direction/yongsin", text: "오늘 힘을 얻은, 내 사주를 돕는 기운의 방향을 골라서 그래요."}
-- {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "후보 시간이 모두 내 사주와 부딪혀, 그날 달력의 길한 시간을 골라서 그래요."}
-- {slot: explain.today_reason, key: "reason.focus_time/score", text: "내 사주와 부딪히지 않는 시간 가운데 귀인, 용신, 합이 많이 겹치는 때를 골라서 그래요."}
 - {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "오늘의 천간이 내 일간과 만나는 관계가 이 기운이라 그래요."}
 - {slot: explain.today_reason, key: "reason.fortune/tag", text: "오늘 일진과 내 사주가 만나 이 태그가 함께 들어서 그래요."}
 - {slot: explain.today_reason, key: "reason.number/hado", text: "오늘의 색과 같은 기운의 수 가운데, 오늘 천간의 음양에 맞는 수를 골라서 그래요."}
@@ -214,3 +215,5 @@
 - {slot: calendar.score_item, key: chung_day_or_month, text: "일지나 월지와의 충"}
 - {slot: calendar.score_item, key: chung_other, text: "다른 자리와의 충"}
 - {slot: calendar.score_item, key: hyeong, text: "형"}
+- {slot: daily.focus_time, key: focus_time.day, text: "중요한 일은 이 시간에 하면 좋아요."}
+- {slot: daily.focus_time, key: focus_time.night, text: "밤에 할 일이 있다면 이 시간이 좋아요."}

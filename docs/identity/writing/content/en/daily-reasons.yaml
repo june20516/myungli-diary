@@ -11,8 +11,6 @@
 - {slot: explain.today_reason, key: "reason.direction/ordinary_fallback", text: "None of the calendar's lucky directions fit, so we chose the direction of the energy that supports your chart."}
 - {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "We chose the direction of the energy that links two clashing energies."}
 - {slot: explain.today_reason, key: "reason.direction/yongsin", text: "We chose the direction of the energy that supports your chart, which gains strength today."}
-- {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "Every candidate hour clashed with your chart, so we chose a lucky hour from that day's calendar."}
-- {slot: explain.today_reason, key: "reason.focus_time/score", text: "Of the hours that don't clash with your chart, we chose the one where helpers, Yongsin, and Hap overlap the most."}
 - {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "This energy comes from how today's heavenly stem relates to your Day Master."}
 - {slot: explain.today_reason, key: "reason.fortune/tag", text: "Today's day pillar meets your chart, and this tag comes in with it."}
 - {slot: explain.today_reason, key: "reason.number/hado", text: "Of the numbers that share today's color energy, we chose the one that matches the yin or yang of today's heavenly stem."}

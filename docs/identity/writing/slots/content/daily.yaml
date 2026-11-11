@@ -184,12 +184,25 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-color.body]
   keys:
-    - params: {element: [element, color], role: none}
+    # 카드 하나인 날은 color.<날의 성격>, 색이 둘인 날(D119 ②)은 첫째 카드 color.balance.*(내 균형 기준), 둘째 카드 color.source.*(원전 기준)입니다.
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
       keys:
         - color.gisin_day
         - color.gwiin_day
         - color.ordinary_day
         - color.yongsin_day
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
+      keys:
+        - color.balance.gisin_day
+        - color.balance.gwiin_day
+        - color.balance.ordinary_day
+        - color.balance.yongsin_day
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
+      keys:
+        - color.source.gisin_day
+        - color.source.gwiin_day
+        - color.source.ordinary_day
+        - color.source.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
@@ -197,9 +210,12 @@
       - {lang: ko, text: "오늘은 검정이 잘 맞아요.", why: "단순형", source: round-R1-1}
       - {lang: ko, text: "옷이나 소품을 고른다면 검정이 좋아요.", why: "쓰임새형", source: round-R2-4}
       - {lang: ko, text: "오늘은 검정이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.", why: "두 문장형, 같은 틀 반복을 피할 때", source: round-R2-4}
+      - {lang: ko, key: color.balance.yongsin_day, text: "내 사주의 균형으로 보면 검정이 잘 맞아요.", why: "색이 둘인 날 첫째 칩, 내 균형 기준임을 밝힘", source: round-R37-1}
+      - {lang: ko, key: color.source.yongsin_day, text: "원전의 해석에 따르면 오늘은 흰색도 어울려요.", why: "둘째 칩, 기준이 갈렸음을 '원전'과 '~도'로 알림(사용자 문구)", source: round-R37-2}
     bad:
       - {lang: ko, text: "검정, 오늘 당신을 지켜 줄 색이에요.", why: "사물 주어 slop.P3, 당신", source: round-R1-1}
       - {lang: ko, text: "검정은 차분하게 가라앉은 물의 기운을 끌어당기는 색이에요.", why: "카드에는 과한 효능 설명, 풀이로", source: round-R1-1}
+      - {lang: ko, key: color.source.yongsin_day, text: "옛 책의 기준으로는 흰색이 잘 맞아요.", why: "'옛 책'은 어설픈 번역, 한자어 '원전'을 그대로 씀", source: round-R37-2}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 색 견본 칩은 app이 색 이름으로 읽습니다. 문장은 그대로 읽습니다.
@@ -216,12 +232,16 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-direction.body]
   keys:
-    - params: {direction: [direction8], rule_id: none}
+    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none}
       keys:
         - direction.day_kind.gisin
-        - direction.day_kind.gwiin
-        - direction.day_kind.ordinary
         - direction.day_kind.yongsin
+    - params: {direction: [direction8], rule_id: none, day_branch: none}
+      keys:
+        - direction.day_kind.gwiin
+    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, deity: none}
+      keys:
+        - direction.day_kind.ordinary
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
@@ -247,7 +267,7 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-number.body]
   keys:
-    - params: {number: number, element: [element, color]}
+    - params: {number: number, element: [element, color], day_stem: none, parity: none, pair: none}
       keys:
         - number.gisin_day
         - number.gwiin_day
@@ -269,7 +289,9 @@
   where: 오늘 화면 집중하기 좋은 시간 카드
   purpose: info
   user_state: 중요한 일을 언제 할지 정할 때 봅니다.
-  structure: 한 문장. 시간대 표시(시진, 시각)는 app이 칩으로 보여 주고, 문장은 그 시간에 무엇이 좋은지만 말합니다.
+  structure: >-
+    한 문장. 시간대 표시(시진, 시각)는 app이 칩으로 보여 주고, 문장은 그 시간을 무엇에 쓰면 좋은지만 말합니다.
+    원전(用時法, 論相主, 黃道)은 일을 벌이기에 길한 시간만 말하므로 집중, 대화 같은 성질을 붙이지 않습니다(R37-4, W66).
   depth:
     explain: 고른 시진과 가점 사유(daily.focus_reason)
   endings: ["~좋아요", "~잘 돼요"]
@@ -277,21 +299,20 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-time.body]
   keys:
-    - params: {branches: list:branch, score: number}
+    # 낮 칩(진시~술시)과 밤 칩(해시~묘시)마다 1등 시간 하나(D122). 칩 앞 해와 달 아이콘으로 구분합니다.
+    - params: {hour_branch: none}
       keys:
-        - focus_time.fallback
-        - focus_time.gwiin
-        - focus_time.hap
-        - focus_time.huisin
-        - focus_time.yongsin
+        - focus_time.day
+        - focus_time.night
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, key: focus_time.gwiin, text: "이 시간에는 도움을 청하면 잘 통해요.", why: "그 시간에 좋은 일이 구체적", source: writing}
-      - {lang: ko, key: focus_time.fallback, text: "오늘은 이 시간에 집중이 잘 돼요.", why: "특별한 사유가 없을 때의 담백한 형태", source: writing}
+      - {lang: ko, key: focus_time.day, text: "중요한 일은 이 시간에 하면 좋아요.", why: "일을 벌일 때를 고르는 택일의 뜻 그대로", source: round-R37-3}
+      - {lang: ko, key: focus_time.night, text: "밤에 할 일이 있다면 이 시간이 좋아요.", why: "잠자는 시간도 포함한 밤 범위라 조건을 붙임", source: round-R37-4}
     bad:
       - {lang: ko, text: "시간의 흐름이 당신 편이 되는 순간이에요.", why: "추상 slop.P1, 사물 주어 slop.P3, 당신", source: writing}
+      - {lang: ko, key: focus_time.day, text: "낮에는 이 시간에 집중이 잘 돼요.", why: "원전에 없는 성질(집중)을 붙인 포장", source: round-R37-3}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 시간 칩을 먼저, 문장을 다음에 읽습니다(app).

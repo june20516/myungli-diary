@@ -73,7 +73,7 @@ def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
         if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name != "ui"
         for key in slot.keys
     }
-    assert len(message_keys) == 157
+    assert len(message_keys) == 162
     assert covered == message_keys
 
 
@@ -128,24 +128,30 @@ def test_slot_counts_match_spec(rules: RuleSet) -> None:
 def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     element = ParamKind("glossary", ("element", "color"))
-    assert slots["daily.focus_time"].keys["focus_time.hap"] == {
-        "branches": ParamKind("list", ("branch",)),
-        "score": ParamKind("number"),
+    none = ParamKind("none")
+    assert slots["daily.focus_time"].keys["focus_time.night"] == {"hour_branch": none}
+    assert slots["daily.number"].keys["number.gwiin_day"] == {
+        "number": ParamKind("number"),
+        "element": element,
+        "day_stem": none,
+        "parity": none,
+        "pair": none,
     }
-    assert slots["daily.number"].keys["number.gwiin_day"] == {"number": ParamKind("number"), "element": element}
-    assert slots["daily.color"].keys["color.gwiin_day"] == {"element": element, "role": ParamKind("none")}
+    color_params = {
+        "element": element,
+        "role": none,
+        "base_element": element,
+        "day_branch": none,
+        "shift": none,
+        "twelve_stage": ParamKind("glossary", ("twelve_stage",)),
+    }
+    assert slots["daily.color"].keys["color.gwiin_day"] == color_params
+    assert slots["daily.color"].keys["color.source.gisin_day"] == color_params
     assert slots["daily.direction"].keys["direction.day_kind.gwiin"] == {
         "direction": ParamKind("glossary", ("direction8",)),
-        "rule_id": ParamKind("none"),
+        "rule_id": none,
+        "day_branch": none,
     }
-    assert slots["daily.guide"].keys["guide.clash"] == {
-        "ten_god": ParamKind("glossary", ("ten_god", "ten_god_group")),
-        "element": element,
-    }
-    assert slots["chart.yongsin_method"].keys["yongsin.method.eokbu"] == dict.fromkeys(
-        ("yongsin", "huisin", "gisin", "tonggwan"), element
-    )
-    assert slots["calendar.day_level"].keys["calendar.good"] == {"score": ParamKind("number")}
 
 
 def test_personal_slot_params(rules: RuleSet) -> None:

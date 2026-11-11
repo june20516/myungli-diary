@@ -58,9 +58,9 @@ def test_slot_doc_lists_every_slot(rules: RuleSet, slots: dict[str, Slot], docs:
 
 def test_slot_doc_shows_param_kinds(rules: RuleSet, slots: dict[str, Slot], docs: dict[str, str]) -> None:
     lines = docs["slot-catalog.md"].splitlines()
-    [focus] = [line for line in lines if line.startswith("| daily.focus_time |")]
-    assert "`branches`: list:branch" in focus
-    assert "`score`: number" in focus
+    [basis] = [line for line in lines if line.startswith("| evidence.basis |")]
+    assert "`natal_positions`: list:place" in basis
+    assert "`score`: number" in basis
     [color] = [line for line in lines if line.startswith("| daily.color |")]
     assert "`element`: element, color" in color
     assert "`role`: none" in color

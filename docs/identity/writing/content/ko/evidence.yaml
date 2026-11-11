@@ -1,14 +1,14 @@
 # 근거 문장(evidence.basis) 원고(ko). W1-3b, 매개변수 종류는 slots/content/evidence.yaml.
 - {slot: evidence.basis, key: "basis.calendar/score", text: "그날이 귀인의 날이나 용신의 날이면 점수를 더하고, 기신의 날이거나 내 사주와 [[충|relation.chung]]이나 [[형|relation.hyeong]]이 생기면 빼서 등급을 매겼어요."}
-- {slot: evidence.basis, key: "basis.color/lucky_element", text: "기신의 날에는 막힌 흐름을 이어 주는 오행을, 그 밖의 날에는 내 [[용신|role.yongsin]] 오행을 행운 색으로 봤어요. 오늘은 {element} 기운의 색이에요."}
+- {slot: evidence.basis, key: "basis.color/lucky_element", text: "기신의 날에는 막힌 흐름을 이어 주는 오행을, 그 밖의 날에는 내 [[용신|role.yongsin]] 오행을 행운 색의 바탕으로 봤어요. 행운 방향도 이 바탕 오행을 그대로 따라요."}
+- {slot: evidence.basis, key: "basis.color/shift", text: "원전은 오행의 색이 그날 놓인 자리에 따라 바뀐다고 봐요. 오늘 {base_element} 기운은 지지 {day_branch}에서 {twelve_stage} 자리라 {element:color}(을)를 골랐어요. 방향은 이렇게 바뀌지 않고 바탕 오행을 따라요."}
+- {slot: evidence.basis, key: "basis.color/balance", text: "원전의 해석에 따르면 오늘 색은 {shifted_element:color} 쪽이지만, 그 기운은 내 사주의 균형과 반대쪽이라 내 균형을 기준으로 한 {element:color}(을)를 첫째 색으로 함께 보여요."}
 - {slot: evidence.basis, key: "basis.direction/gwiin_branch", text: "귀인의 날이라 오늘 지지 {day_branch}의 방위인 {direction}쪽을 행운 방향으로 봤어요."}
 - {slot: evidence.basis, key: "basis.direction/yongsin", text: "용신의 날이라 내 [[용신|role.yongsin]] 오행인 {element}에 맞는 방위, {direction}쪽을 행운 방향으로 봤어요."}
 - {slot: evidence.basis, key: "basis.direction/tonggwan", text: "기신의 날이라 막힌 흐름을 이어 주는 오행인 {element}에 맞는 방위, {direction}쪽을 행운 방향으로 봤어요."}
 - {slot: evidence.basis, key: "basis.direction/ordinary_deity_yongsin", text: "평범한 날이라 이날 길한 방위 가운데 내 [[용신|role.yongsin]] 오행인 {element}에 맞는 {direction}쪽을 골랐어요."}
 - {slot: evidence.basis, key: "basis.direction/ordinary_deity_huisin", text: "평범한 날이라 이날 길한 방위 가운데 [[희신|role.huisin]] 오행인 {element}에 맞는 {direction}쪽을 골랐어요."}
 - {slot: evidence.basis, key: "basis.direction/ordinary_fallback", text: "평범한 날인데 이날 길한 방위 가운데 맞는 오행이 없어서, 내 [[용신|role.yongsin]] 오행인 {element}에 맞는 방위, {direction}쪽을 골랐어요."}
-- {slot: evidence.basis, key: "basis.focus_time/score", text: "귀인이 드는 시간, 용신이나 희신이 드는 시간, 내 사주와 합이 되는 시간에 점수를 주고, 내 사주와 [[충|relation.chung]]이 되는 시간은 빼서 가장 높은 시간을 골랐어요."}
-- {slot: evidence.basis, key: "basis.focus_time/fallback", text: "오늘은 모든 후보 시간이 내 사주와 [[충|relation.chung]]이 되어, 예부터 길하다고 본 시간 가운데 가장 이른 때를 골랐어요."}
 - {slot: evidence.basis, key: "basis.fortune/day_kind", text: "오늘은 {day_kind}이고 오늘 천간이 내 일간에게 {ten_god}에 해당해서, 이 둘을 바탕으로 총운을 골랐어요."}
 - {slot: evidence.basis, key: "basis.fortune/tag", text: "오늘 붙은 태그 가운데 가장 앞선 것을 바탕으로 총운 아래 문장을 골랐어요."}
 - {slot: evidence.basis, key: "basis.guide/question", text: "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 {ten_god:ten_god_group}(으)로 가이드 질문을 골랐어요."}
@@ -36,3 +36,6 @@
 - {slot: evidence.basis, key: "basis.yongsin/johu", text: "여름이나 겨울에 태어나 더위나 추위가 지나친 사주라, 온도를 맞추는 조후법으로 [[용신|role.yongsin]]을 정했어요. {month_branch}월의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."}
 - {slot: evidence.basis, key: "basis.yongsin/johu_neutral", text: "내 일간의 힘이 고른 편이라 억부법 대신 조후법으로 [[용신|role.yongsin]]을 정했어요. 태어난 달의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."}
 - {slot: evidence.no_source, key: "no_source.tags/ten_god_rush", text: "원전에 나오는 규칙은 아니지만, 같은 십성 묶음이 오늘 천간과 지지에 함께 들고 내 사주에도 많으니 그 기운이 증폭된다고 해석했어요."}
+- {slot: evidence.basis, key: "basis.focus_time/day_relation", text: "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."}
+- {slot: evidence.basis, key: "basis.focus_time/birth_year", text: "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."}
+- {slot: evidence.basis, key: "basis.focus_time/huangdao", text: "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."}

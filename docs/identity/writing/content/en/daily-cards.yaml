@@ -46,6 +46,14 @@
 - {slot: daily.color, key: color.gwiin_day, text: "Today, {element:color} suits you well."}
 - {slot: daily.color, key: color.ordinary_day, text: "Today, {element:color} suits you well."}
 - {slot: daily.color, key: color.yongsin_day, text: "Today, {element:color} suits you well."}
+- {slot: daily.color, key: color.balance.gisin_day, text: "By your chart's balance, {element:color} suits you well."}
+- {slot: daily.color, key: color.balance.gwiin_day, text: "By your chart's balance, {element:color} suits you well."}
+- {slot: daily.color, key: color.balance.ordinary_day, text: "By your chart's balance, {element:color} suits you well."}
+- {slot: daily.color, key: color.balance.yongsin_day, text: "By your chart's balance, {element:color} suits you well."}
+- {slot: daily.color, key: color.source.gisin_day, text: "According to the classics, {element:color} suits you today too."}
+- {slot: daily.color, key: color.source.gwiin_day, text: "According to the classics, {element:color} suits you today too."}
+- {slot: daily.color, key: color.source.ordinary_day, text: "According to the classics, {element:color} suits you today too."}
+- {slot: daily.color, key: color.source.yongsin_day, text: "According to the classics, {element:color} suits you today too."}
 - {slot: daily.direction, key: direction.day_kind.gisin, text: "If you need to head out today, {direction} is a good way to go."}
 - {slot: daily.direction, key: direction.day_kind.gwiin, text: "If you're choosing where to meet someone, {direction} is good."}
 - {slot: daily.direction, key: direction.day_kind.ordinary, text: "If you're picking a place to meet up, {direction} is good."}
@@ -54,11 +62,6 @@
 - {slot: daily.number, key: number.gwiin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
 - {slot: daily.number, key: number.ordinary_day, text: "{number} is a good fit today. Try it when picking a number or order."}
 - {slot: daily.number, key: number.yongsin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
-- {slot: daily.focus_time, key: focus_time.fallback, text: "This is a good time to focus today."}
-- {slot: daily.focus_time, key: focus_time.gwiin, text: "Asking for help tends to go well at this time."}
-- {slot: daily.focus_time, key: focus_time.hap, text: "This is a good time to meet people and talk."}
-- {slot: daily.focus_time, key: focus_time.huisin, text: "This is a good time to pick up tasks you've put off."}
-- {slot: daily.focus_time, key: focus_time.yongsin, text: "Important work tends to go well at this time."}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "Noble helper"}
 - {slot: daily.tag_label, key: tag.clash, text: "Clash"}
 - {slot: daily.tag_label, key: tag.clash_day_branch, text: "Day branch clash"}
@@ -79,3 +82,5 @@
 - {slot: daily.focus_reason, key: yongsin, text: "Favorable time"}
 - {slot: daily.focus_reason, key: huisin, text: "Supportive time"}
 - {slot: daily.focus_reason, key: hap, text: "Harmony time"}
+- {slot: daily.focus_time, key: focus_time.day, text: "This is a good time for important things."}
+- {slot: daily.focus_time, key: focus_time.night, text: "If you have something to do at night, this is a good time."}
