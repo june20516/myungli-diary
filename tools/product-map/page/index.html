@@ -58,11 +58,17 @@ button.chip { font: inherit; font-size: .8rem; border: 1px solid var(--line); ba
 button.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 
 /* 계산 규칙 (core rules_map.json, #988) */
-.rules-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .src { display: inline-block; font-size: .72rem; font-weight: 500; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
 .src.source { background: var(--term-soft); color: var(--term); }
-.src.interpretation { background: #f3e7cf; color: #85601d; }
-.src.none { background: var(--line); color: var(--muted); }
+.src.concept_quantified { background: #e6efe0; color: #4d6b35; }
+.src.principle_selected { background: #f3e7cf; color: #85601d; }
+.src.product { background: var(--line); color: var(--muted); }
+.src.no_source { background: #f6dede; color: #9b3b3b; }
+.legend-list { margin: 8px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; font-size: .82rem; align-items: baseline; }
+.legend-list dd { margin: 0; color: var(--muted); }
+.incon-meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 10px; margin: 4px 0 0; font-size: .82rem; }
+.incon-meta dt { color: var(--muted); }
+.incon-meta dd { margin: 0; }
 .steps-bg details { border-top: 1px solid var(--line); padding: 8px 0; }
 .steps-bg summary { cursor: pointer; font-weight: 600; list-style-position: outside; }
 .steps-bg .n { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: .72rem; align-items: center; justify-content: center; margin-right: 8px; vertical-align: 1px; }
@@ -736,15 +742,22 @@ function renderRules() {
   parts.forEach((el) => { el.hidden = false; });
   const SL = R.meta.source_status_labels || {};
   const KL = R.meta.rule_kind_labels || {};
+  const SD = R.meta.source_status_descriptions || {};
+  const IL = R.meta.inconsistency_intent_labels || {};
+  const HL = R.meta.inconsistency_handling_labels || {};
   const byOrder = (a, b) => (a.order ?? 0) - (b.order ?? 0);
   const framework = [...R.framework].sort(byOrder);
   const itemName = Object.fromEntries(R.items.map((it) => [it.id, it.name]));
   const decisionText = Object.fromEntries((DATA.decisions || []).map((d) => [d.id, d.text]));
-  const src = (s) => `<span class="src ${esc(s)}">${esc(SL[s] || s)}</span>`;
+  const src = (s, n) => `<span class="src ${esc(s)}" title="${esc(SD[s] || "")}">${esc(SL[s] || s)}${n ? ` ${n}` : ""}</span>`;
+  // 항목의 원전 상태는 규칙 줄마다 매기고, 항목 제목에는 상태별 줄 수를 범례 순서로 보입니다.
+  const counts = (c) => Object.keys(SL).filter((k) => (c || {})[k]).map((k) => src(k, c[k])).join(" ");
+  const valueText = (v) => (Array.isArray(v) ? v.join(", ") : typeof v === "object" && v !== null ? JSON.stringify(v) : String(v));
   const decs = (list) => (list || []).map((id) => `<span class="pill" title="${esc(decisionText[id] || "")}">${esc(id)}</span>`).join(" ");
 
   head.innerHTML = `<h2>${esc(R.meta.title)}</h2><p class="muted" style="margin:0">${esc(R.meta.description)}</p>`
-    + `<div class="rules-legend">${Object.keys(SL).map(src).join("")}</div>`
+    + `<dl class="legend-list">${Object.keys(SL).map((k) => `<dt>${src(k)}</dt><dd>${esc(SD[k] || "")}</dd>`).join("")}</dl>`
+    + '<p class="muted" style="margin:6px 0 0;font-size:.8rem">원전 상태는 규칙 줄마다 매깁니다. 항목 제목 옆 숫자는 상태별 줄 수입니다.</p>'
     + `<p class="muted" style="margin:8px 0 0;font-size:.8rem">갱신 ${esc(R.meta.updated)}, 원본 core/docs/rules-map/rules_map.toml. 결정 번호에 마우스를 올리면 결정 내용이 보입니다.</p>`;
 
   const bg = [...R.background].sort(byOrder);
@@ -771,11 +784,13 @@ function renderRules() {
       + `<div class="q">${esc(s.quote)}</div><div class="m">뜻: ${esc(s.meaning)}</div>`
       + (s.interpretation ? `<div class="i">명리일기 해석: ${esc(s.interpretation)}</div>` : "") + "</details>").join("");
     const list = (xs) => (xs || []).length ? xs.map((x) => `<code>${esc(x)}</code>`).join(", ") : "없음";
-    return `<div class="ritem" id="rule-${esc(it.id)}"><h3>${esc(it.name)} ${src(it.source_status)} ${decs(it.decisions)}</h3>`
+    return `<div class="ritem" id="rule-${esc(it.id)}"><h3>${esc(it.name)} ${counts(it.source_status_counts)} ${decs(it.decisions)}</h3>`
       + `<p class="sum">${esc(it.summary)}</p><dl class="stepgrid">${steps}</dl>`
       + `<div class="label">규칙</div>${rules}`
       + (sources ? `<div class="label" style="margin-top:8px">원전</div>${sources}` : "")
-      + `<details class="dev"><summary>개발 정보</summary>코드: ${list(it.code)}<br>근거 규칙: ${list(it.evidence_rules)}<br>메시지 키: ${list(it.message_keys)}</details></div>`;
+      + `<details class="dev"><summary>개발 정보</summary>코드: ${list(it.code)}<br>근거 규칙: ${list(it.evidence_rules)}<br>메시지 키: ${list(it.message_keys)}`
+      + ((it.values || []).length ? `<br>기준값: ${it.values.map((v) => `<code>${esc(v.name)} = ${esc(valueText(v.value))}</code>`).join(", ")}` : "")
+      + "</details></div>";
   };
   document.getElementById("rules-groups").innerHTML = [...R.groups].sort(byOrder).map((g) => {
     const items = R.items.filter((it) => it.group === g.id);
@@ -784,7 +799,17 @@ function renderRules() {
 
   document.getElementById("rules-incon").innerHTML = "<h2>불일치 목록</h2>"
     + '<p class="muted" style="margin:0">공통 틀이나 같은 그룹의 다른 항목과 어긋나는 곳입니다. 정리할지는 원전 유무를 기준으로 사용자가 정합니다.</p>'
-    + `<ul class="incon">${R.inconsistencies.map((x) => `<li>${(x.items || []).map((id) => `<a href="#rules" data-rule="${esc(id)}">${esc(itemName[id] || id)}</a>`).join(", ")}: ${esc(x.text)}${x.issue ? ` <span class="muted">(${esc(x.issue)})</span>` : ""}</li>`).join("")}</ul>`;
+    + `<ul class="incon">${R.inconsistencies.map((x) => {
+      const rows = [
+        ["의도", x.intent_note || IL[x.intent] || x.intent],
+        ["연속성", x.continuity],
+        ["근거 제공", x.disclosure],
+        ["처리", x.handling_note || HL[x.handling] || x.handling],
+        ["Issue", (x.issues || []).join(", ")],
+      ].filter(([, v]) => v);
+      return `<li>${(x.items || []).map((id) => `<a href="#rules" data-rule="${esc(id)}">${esc(itemName[id] || id)}</a>`).join(", ")}: ${esc(x.text)}`
+        + `<dl class="incon-meta">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl></li>`;
+    }).join("")}</ul>`;
 }
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[data-rule]");
