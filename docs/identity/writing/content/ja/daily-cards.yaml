@@ -47,6 +47,14 @@
 - {slot: daily.color, key: color.gwiin_day, text: "今日は{element:color}がよく合います。"}
 - {slot: daily.color, key: color.ordinary_day, text: "今日は{element:color}がよく合います。"}
 - {slot: daily.color, key: color.yongsin_day, text: "今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.balance.gisin_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
+- {slot: daily.color, key: color.balance.gwiin_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
+- {slot: daily.color, key: color.balance.ordinary_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
+- {slot: daily.color, key: color.balance.yongsin_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
+- {slot: daily.color, key: color.source.gisin_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
+- {slot: daily.color, key: color.source.gwiin_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
+- {slot: daily.color, key: color.source.ordinary_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
+- {slot: daily.color, key: color.source.yongsin_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
 - {slot: daily.direction, key: direction.day_kind.gisin, text: "今日出かけるなら、{direction}の方角がおすすめです。"}
 - {slot: daily.direction, key: direction.day_kind.gwiin, text: "人と会う場所を選ぶなら、{direction}の方角がよいです。"}
 - {slot: daily.direction, key: direction.day_kind.ordinary, text: "待ち合わせ場所を選ぶなら、{direction}の方角がよいです。"}
@@ -55,11 +63,6 @@
 - {slot: daily.number, key: number.gwiin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
 - {slot: daily.number, key: number.ordinary_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
 - {slot: daily.number, key: number.yongsin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
-- {slot: daily.focus_time, key: focus_time.fallback, text: "今日はこの時間に集中しやすいです。"}
-- {slot: daily.focus_time, key: focus_time.gwiin, text: "この時間は、助けを頼むと通じやすいです。"}
-- {slot: daily.focus_time, key: focus_time.hap, text: "この時間は、人と会って話すのに向いています。"}
-- {slot: daily.focus_time, key: focus_time.huisin, text: "この時間は、後回しにしたことを進めるのに向いています。"}
-- {slot: daily.focus_time, key: focus_time.yongsin, text: "この時間は、大事なことに取り組むとうまくいきます。"}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "天乙貴人"}
 - {slot: daily.tag_label, key: tag.clash, text: "冲"}
 - {slot: daily.tag_label, key: tag.clash_day_branch, text: "日支冲"}
@@ -80,3 +83,5 @@
 - {slot: daily.focus_reason, key: yongsin, text: "用神の時間"}
 - {slot: daily.focus_reason, key: huisin, text: "喜神の時間"}
 - {slot: daily.focus_reason, key: hap, text: "合のある時間"}
+- {slot: daily.focus_time, key: focus_time.day, text: "大事なことはこの時間にするとよいです。"}
+- {slot: daily.focus_time, key: focus_time.night, text: "夜にすることがあるなら、この時間がよいです。"}

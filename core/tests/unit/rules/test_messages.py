@@ -6,7 +6,7 @@ from myungli_engine.constants.evidence_rules import RULES_WITHOUT_SOURCE
 from myungli_engine.constants.message_keys import ALL_KEYS, TAG_KEYS
 from myungli_engine.domain.enums import Branch, DayKind, Element, Stem, TenGodGroup
 from myungli_engine.domain.models import FourPillars, Judgment, Pillar
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF, TAG_SOURCE_REF
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF, TAG_SOURCE_REF, ten_god_group_ref
 from myungli_engine.rules.messages import fortune, guide_candidates, guide_question
 from myungli_engine.rules.relations import find_relations
 from myungli_engine.rules.tags import select_tags
@@ -114,7 +114,8 @@ def test_fortune_tag_sentence_uses_tag_source(pillar_of: PillarOf, winter_gap: Y
     )
     assert tag_sentence.evidence[0].rule_id == "fortune/tag"
     assert tag_sentence.evidence[0].source_ref == TAG_SOURCE_REF["clash"]
-    assert head.evidence[0].source_ref == FIVE_ELEMENTS_REF["balance_principle"]
+    # 癸 일진, 甲 일간: 정인(인성 묶음)
+    assert head.evidence[0].source_ref == ten_god_group_ref(TenGodGroup.INSEONG)
 
 
 def test_guide_on_rush_tag_has_no_source(pillar_of: PillarOf) -> None:
@@ -127,9 +128,9 @@ def test_guide_on_tag_uses_tag_source(pillar_of: PillarOf) -> None:
     assert judgment.evidence[0].source_ref == TAG_SOURCE_REF["dohwa"]
 
 
-def test_guide_on_ten_god_group_keeps_common_source(pillar_of: PillarOf) -> None:
+def test_guide_on_ten_god_group_cites_group_source(pillar_of: PillarOf) -> None:
     judgment = guide_question(pillar_of("癸卯"), Stem.GAP, (), tag_sources=TAG_SOURCES)
-    assert judgment.evidence[0].source_ref == FIVE_ELEMENTS_REF["balance_principle"]
+    assert judgment.evidence[0].source_ref == ten_god_group_ref(TenGodGroup.INSEONG)
 
 
 def _keys(judgments: tuple[Judgment, ...]) -> list[str]:
@@ -142,7 +143,7 @@ def test_candidates_order_tag1_tag2_group(pillar_of: PillarOf) -> None:
     assert [c.evidence[0].source_ref for c in candidates] == [
         TAG_SOURCE_REF["clash"],
         TAG_SOURCE_REF["dohwa"],
-        FIVE_ELEMENTS_REF["balance_principle"],
+        ten_god_group_ref(TenGodGroup.INSEONG),
     ]
 
 

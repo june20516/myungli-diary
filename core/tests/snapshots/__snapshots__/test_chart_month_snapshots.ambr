@@ -352,7 +352,7 @@
                 'yongsin': 'FIRE',
               }),
               'rule_id': 'personal/day_master',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'jeokcheonsu/personal#day_master',
             }),
             dict({
               'detail': dict({
@@ -386,7 +386,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongjae',
             }),
             dict({
               'detail': dict({
@@ -422,7 +422,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -458,7 +458,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -494,7 +494,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongin',
             }),
             dict({
               'detail': dict({
@@ -530,7 +530,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonjae',
             }),
             dict({
               'detail': dict({
@@ -566,7 +566,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.sanggwan',
             }),
             dict({
               'detail': dict({
@@ -602,7 +602,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -638,7 +638,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -674,7 +674,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongin',
             }),
             dict({
               'detail': dict({
@@ -710,7 +710,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonjae',
             }),
             dict({
               'detail': dict({
@@ -746,7 +746,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -782,7 +782,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.sanggwan',
             }),
             dict({
               'detail': dict({
@@ -818,7 +818,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -853,7 +853,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -887,7 +887,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -921,7 +921,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -955,7 +955,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -988,7 +988,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#dohwa',
             }),
             dict({
               'detail': dict({
@@ -1020,7 +1020,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#hwagae',
             }),
             dict({
               'detail': dict({
@@ -1052,7 +1052,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#yangin',
             }),
             dict({
               'detail': dict({
@@ -1084,7 +1084,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#gongmang',
             }),
             dict({
               'detail': dict({
@@ -1118,7 +1118,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1154,7 +1154,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1188,7 +1188,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1222,7 +1222,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1258,7 +1258,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1292,7 +1292,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1326,7 +1326,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1362,7 +1362,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1396,7 +1396,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1430,7 +1430,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1466,7 +1466,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1500,7 +1500,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1534,7 +1534,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1570,7 +1570,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1604,7 +1604,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1638,7 +1638,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1674,7 +1674,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1708,7 +1708,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1742,7 +1742,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1778,7 +1778,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1812,7 +1812,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1846,7 +1846,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1882,7 +1882,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1916,7 +1916,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -1950,7 +1950,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -1986,7 +1986,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2020,7 +2020,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -2054,7 +2054,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2090,7 +2090,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2124,7 +2124,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -2158,7 +2158,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2194,7 +2194,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2230,7 +2230,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2266,7 +2266,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2302,7 +2302,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2338,7 +2338,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2374,7 +2374,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2410,7 +2410,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2446,7 +2446,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2482,7 +2482,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -2925,7 +2925,7 @@
                 'yongsin': 'FIRE',
               }),
               'rule_id': 'personal/day_master',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'jeokcheonsu/personal#day_master',
             }),
             dict({
               'detail': dict({
@@ -2959,7 +2959,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -2995,7 +2995,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3031,7 +3031,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3067,7 +3067,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -3103,7 +3103,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -3139,7 +3139,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3175,7 +3175,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3211,7 +3211,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3247,7 +3247,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongjae',
             }),
             dict({
               'detail': dict({
@@ -3283,7 +3283,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.sanggwan',
             }),
             dict({
               'detail': dict({
@@ -3319,7 +3319,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -3355,7 +3355,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -3391,7 +3391,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonjae',
             }),
             dict({
               'detail': dict({
@@ -3427,7 +3427,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3463,7 +3463,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -3499,7 +3499,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongin',
             }),
             dict({
               'detail': dict({
@@ -3535,7 +3535,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -3570,7 +3570,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -3604,7 +3604,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -3638,7 +3638,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -3672,7 +3672,7 @@
                 'strength': 'NEUTRAL',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -3705,7 +3705,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -3737,7 +3737,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -3769,7 +3769,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#hwagae',
             }),
             dict({
               'detail': dict({
@@ -3801,7 +3801,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#gongmang',
             }),
             dict({
               'detail': dict({
@@ -3835,7 +3835,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -3871,7 +3871,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -3905,7 +3905,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -3939,7 +3939,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -3975,7 +3975,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4009,7 +4009,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4043,7 +4043,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4079,7 +4079,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4113,7 +4113,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4147,7 +4147,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4183,7 +4183,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4217,7 +4217,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4251,7 +4251,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4287,7 +4287,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4321,7 +4321,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4355,7 +4355,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4391,7 +4391,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4425,7 +4425,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4459,7 +4459,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4495,7 +4495,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4529,7 +4529,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4563,7 +4563,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4599,7 +4599,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4633,7 +4633,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4667,7 +4667,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4703,7 +4703,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4737,7 +4737,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4771,7 +4771,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4807,7 +4807,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4841,7 +4841,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -4875,7 +4875,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4911,7 +4911,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4947,7 +4947,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -4983,7 +4983,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5019,7 +5019,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5055,7 +5055,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5091,7 +5091,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5127,7 +5127,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5163,7 +5163,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5199,7 +5199,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -5646,7 +5646,7 @@
                 'yongsin': 'METAL',
               }),
               'rule_id': 'personal/day_master',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'jeokcheonsu/personal#day_master',
             }),
             dict({
               'detail': dict({
@@ -5681,7 +5681,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -5718,7 +5718,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -5755,7 +5755,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -5792,7 +5792,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -5829,7 +5829,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongjae',
             }),
             dict({
               'detail': dict({
@@ -5866,7 +5866,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonjae',
             }),
             dict({
               'detail': dict({
@@ -5903,7 +5903,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongjae',
             }),
             dict({
               'detail': dict({
@@ -5940,7 +5940,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -5977,7 +5977,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -6014,7 +6014,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongjae',
             }),
             dict({
               'detail': dict({
@@ -6051,7 +6051,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongin',
             }),
             dict({
               'detail': dict({
@@ -6088,7 +6088,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -6125,7 +6125,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongjae',
             }),
             dict({
               'detail': dict({
@@ -6162,7 +6162,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeongin',
             }),
             dict({
               'detail': dict({
@@ -6199,7 +6199,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.jeonggwan',
             }),
             dict({
               'detail': dict({
@@ -6235,7 +6235,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6270,7 +6270,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6305,7 +6305,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6340,7 +6340,7 @@
                 'strength': 'VERY_WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6374,7 +6374,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -6407,7 +6407,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -6440,7 +6440,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -6473,7 +6473,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -6506,7 +6506,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#yeokma',
             }),
             dict({
               'detail': dict({
@@ -6539,7 +6539,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#yeokma',
             }),
             dict({
               'detail': dict({
@@ -6574,7 +6574,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6611,7 +6611,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6646,7 +6646,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6681,7 +6681,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6718,7 +6718,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6753,7 +6753,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6788,7 +6788,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6825,7 +6825,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6860,7 +6860,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -6895,7 +6895,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6932,7 +6932,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -6967,7 +6967,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7002,7 +7002,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7039,7 +7039,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7074,7 +7074,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7109,7 +7109,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7146,7 +7146,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7181,7 +7181,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7216,7 +7216,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7253,7 +7253,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7288,7 +7288,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7323,7 +7323,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7360,7 +7360,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7395,7 +7395,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7430,7 +7430,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7467,7 +7467,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7502,7 +7502,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7537,7 +7537,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7574,7 +7574,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7609,7 +7609,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -7644,7 +7644,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7681,7 +7681,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7718,7 +7718,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7755,7 +7755,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7792,7 +7792,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7829,7 +7829,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7866,7 +7866,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7903,7 +7903,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7940,7 +7940,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -7977,7 +7977,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -8408,7 +8408,7 @@
                 'yongsin': 'WOOD',
               }),
               'rule_id': 'personal/day_master',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'jeokcheonsu/personal#day_master',
             }),
             dict({
               'detail': dict({
@@ -8443,7 +8443,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.sanggwan',
             }),
             dict({
               'detail': dict({
@@ -8480,7 +8480,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -8517,7 +8517,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -8554,7 +8554,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -8591,7 +8591,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonjae',
             }),
             dict({
               'detail': dict({
@@ -8628,7 +8628,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -8665,7 +8665,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -8702,7 +8702,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.siksin',
             }),
             dict({
               'detail': dict({
@@ -8739,7 +8739,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.geonrok',
             }),
             dict({
               'detail': dict({
@@ -8776,7 +8776,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonin',
             }),
             dict({
               'detail': dict({
@@ -8813,7 +8813,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#ten_god.pyeonjae',
             }),
             dict({
               'detail': dict({
@@ -8849,7 +8849,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -8884,7 +8884,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -8919,7 +8919,7 @@
                 'strength': 'WEAK',
               }),
               'rule_id': 'personal/twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -8953,7 +8953,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#cheoneul_gwiin',
             }),
             dict({
               'detail': dict({
@@ -8986,7 +8986,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/shinsal',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/tags#dohwa',
             }),
             dict({
               'detail': dict({
@@ -9021,7 +9021,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9058,7 +9058,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9093,7 +9093,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9128,7 +9128,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9165,7 +9165,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9200,7 +9200,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9235,7 +9235,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9272,7 +9272,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9307,7 +9307,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9342,7 +9342,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9379,7 +9379,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9414,7 +9414,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9449,7 +9449,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9486,7 +9486,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9521,7 +9521,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9556,7 +9556,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9593,7 +9593,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9628,7 +9628,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9663,7 +9663,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9700,7 +9700,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9735,7 +9735,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9770,7 +9770,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9807,7 +9807,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9842,7 +9842,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9877,7 +9877,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9914,7 +9914,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -9949,7 +9949,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -9984,7 +9984,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10021,7 +10021,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10056,7 +10056,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_twelve_stage',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.twelve_stage',
             }),
             dict({
               'detail': dict({
@@ -10091,7 +10091,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10128,7 +10128,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10165,7 +10165,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10202,7 +10202,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10239,7 +10239,7 @@
                 'role': 'GISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10276,7 +10276,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10313,7 +10313,7 @@
                 'role': 'HUISIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10350,7 +10350,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10387,7 +10387,7 @@
                 'role': 'YONGSIN',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10424,7 +10424,7 @@
                 'role': 'NEUTRAL',
               }),
               'rule_id': 'personal/luck_ten_god',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': 'sammyeong-tonghoe/personal#luck.ten_god',
             }),
             dict({
               'detail': dict({
@@ -10523,7 +10523,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10560,7 +10560,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10609,7 +10609,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10650,7 +10650,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10695,7 +10695,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10744,7 +10744,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -10793,7 +10793,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10838,7 +10838,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -10883,7 +10883,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -10928,7 +10928,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -10969,7 +10969,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11014,7 +11014,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -11063,7 +11063,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11100,7 +11100,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11149,7 +11149,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11194,7 +11194,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11235,7 +11235,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11284,7 +11284,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -11333,7 +11333,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -11374,7 +11374,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -11423,7 +11423,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11464,7 +11464,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -11513,7 +11513,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11558,7 +11558,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -11607,7 +11607,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11652,7 +11652,7 @@
                 'score': '-3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -11701,7 +11701,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11742,7 +11742,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11783,7 +11783,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -11828,7 +11828,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -11877,7 +11877,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11922,7 +11922,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -11959,7 +11959,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -12000,7 +12000,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12045,7 +12045,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12086,7 +12086,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12135,7 +12135,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12188,7 +12188,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -12241,7 +12241,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12278,7 +12278,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -12319,7 +12319,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -12368,7 +12368,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -12413,7 +12413,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12462,7 +12462,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12503,7 +12503,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -12544,7 +12544,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12593,7 +12593,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12638,7 +12638,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12687,7 +12687,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12736,7 +12736,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12785,7 +12785,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -12826,7 +12826,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -12863,7 +12863,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -12916,7 +12916,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -12961,7 +12961,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13010,7 +13010,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13051,7 +13051,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -13100,7 +13100,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13145,7 +13145,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13186,7 +13186,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13235,7 +13235,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13284,7 +13284,7 @@
                 'score': '-3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -13337,7 +13337,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -13386,7 +13386,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13435,7 +13435,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -13480,7 +13480,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13529,7 +13529,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13574,7 +13574,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13611,7 +13611,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13656,7 +13656,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -13697,7 +13697,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13738,7 +13738,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -13779,7 +13779,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13824,7 +13824,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13861,7 +13861,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -13910,7 +13910,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -13959,7 +13959,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14000,7 +14000,7 @@
                 'score': '-3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -14045,7 +14045,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14086,7 +14086,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14123,7 +14123,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -14168,7 +14168,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -14209,7 +14209,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14250,7 +14250,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -14295,7 +14295,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14340,7 +14340,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -14381,7 +14381,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -14430,7 +14430,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14479,7 +14479,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14520,7 +14520,7 @@
                 'score': '-3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -14565,7 +14565,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -14610,7 +14610,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14651,7 +14651,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14709,7 +14709,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14750,7 +14750,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14795,7 +14795,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -14840,7 +14840,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -14881,7 +14881,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -14926,7 +14926,7 @@
                 'score': '-2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -14975,7 +14975,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -15024,7 +15024,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15069,7 +15069,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15110,7 +15110,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15147,7 +15147,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15192,7 +15192,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15233,7 +15233,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15274,7 +15274,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15319,7 +15319,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15364,7 +15364,7 @@
                 'score': '3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.very_good',
@@ -15409,7 +15409,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -15458,7 +15458,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15507,7 +15507,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -15548,7 +15548,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15593,7 +15593,7 @@
                 'score': '1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15634,7 +15634,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15675,7 +15675,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15724,7 +15724,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15769,7 +15769,7 @@
                 'score': '0',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15814,7 +15814,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -15863,7 +15863,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -15912,7 +15912,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',
@@ -15953,7 +15953,7 @@
                 'score': '-1',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.neutral',
@@ -15994,7 +15994,7 @@
                 'score': '-3',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.caution',
@@ -16039,7 +16039,7 @@
                 'score': '2',
               }),
               'rule_id': 'calendar/score',
-              'source_ref': 'gungtong-bogam/five_elements#balance_principle',
+              'source_ref': '',
             }),
           ]),
           'message_key': 'calendar.good',

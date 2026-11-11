@@ -507,11 +507,11 @@
   },
   "diaryEditGuideAttach": "무엇을 쓸지 고민인가요?",
   "@diaryEditGuideAttach": {
-    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
   },
   "diaryEditGuideAttachHint": "질문 추가",
   "@diaryEditGuideAttachHint": {
-    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
   },
   "diaryEditGuideRemove": "질문 없이 쓰기",
   "@diaryEditGuideRemove": {

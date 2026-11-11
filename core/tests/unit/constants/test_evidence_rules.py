@@ -13,7 +13,7 @@ CORE_DIR = Path(__file__).resolve().parents[3]
 
 def test_rule_detail_keys_declared_per_rule() -> None:
     assert evidence_rules.RULE_DETAIL_KEYS["yongsin/johu"] == ("month_branch", "share", "threshold")
-    assert evidence_rules.RULE_DETAIL_KEYS["focus_time/fallback"] == ("picks",)
+    assert evidence_rules.RULE_DETAIL_KEYS["focus_time/birth_year"] == ("birth_year", "hour_branch", "period")
     assert evidence_rules.RULE_DETAIL_KEYS["personal/luck_ten_god"] == (
         "current",
         "element",
@@ -22,7 +22,7 @@ def test_rule_detail_keys_declared_per_rule() -> None:
         "role",
     )
     assert evidence_rules.RULE_DETAIL_KEYS["tags/clash_day_branch"] == ("day_branch", "natal_positions")
-    assert len(evidence_rules.RULE_DETAIL_KEYS) == 38
+    assert len(evidence_rules.RULE_DETAIL_KEYS) == 39
 
 
 def test_require_rule_accepts_declared_detail_subset() -> None:

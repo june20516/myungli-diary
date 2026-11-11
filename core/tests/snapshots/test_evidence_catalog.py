@@ -15,9 +15,8 @@ from myungli_engine.references.sources import source_catalog
 
 pytestmark = pytest.mark.contract
 
-# focus_time/fallback: 모든 후보가 원국과 충일 때만 나와 샘플에 없다. tests/unit/rules/test_focus_time.py가 다룬다.
 # tags/gwiin_day: 귀인의 날은 천을귀인 신살 태그가 늘 함께 붙어 보조 태그가 나오지 않는다. tests/unit/rules/test_tags.py가 다룬다.
-RULES_NOT_IN_SAMPLES = frozenset({"focus_time/fallback", "tags/gwiin_day"})
+RULES_NOT_IN_SAMPLES = frozenset({"tags/gwiin_day"})
 AS_OF = date(2026, 10, 10)
 DAILY_START = date(2026, 1, 1)
 DAILY_DAYS = 20  # 데일리 규칙은 15일 안에 모두 나온다(tags/ten_god_rush가 마지막, 2026-11-05 측정). 여유를 둔다
@@ -38,7 +37,7 @@ def _sample_evidence() -> Iterator[Evidence]:
                 *(judgment for _, judgment in daily.colors),
                 daily.direction[1],
                 daily.number[1],
-                daily.focus[1],
+                *(judgment for _, judgment in daily.focus),
                 *daily.fortune,
                 daily.guide,
                 *daily.guide_candidates,

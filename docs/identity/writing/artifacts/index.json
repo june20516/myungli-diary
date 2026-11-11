@@ -629,5 +629,23 @@
     ],
     "status": "chosen",
     "note": "화면 비교 뒤 고름, 내역 안내 줄은 개수 없이"
+  },
+  {
+    "id": "round-R37",
+    "title": "라운드 R37: 행운 색 둘인 날, 집중 시간 낮과 밤 (W65)",
+    "kind": "copy-sample",
+    "file": "2026-11-11-round-R37.md",
+    "date": "2026-11-11",
+    "milestone": "A2",
+    "screens": [
+      "today",
+      "explain-sheet",
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "W65"
+    ],
+    "status": "chosen",
+    "note": "'옛 책' 대신 '원전', 집중 시간은 원전에 없는 성질을 붙이지 않음"
   }
 ]

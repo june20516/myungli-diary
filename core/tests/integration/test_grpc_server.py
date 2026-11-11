@@ -56,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.3"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.6"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -180,8 +180,17 @@ def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> N
     assert response.direction.direction != pb.DIRECTION8_UNSPECIFIED
     assert 1 <= response.number.number <= 10
     assert response.number.judgment.params["number"].integer == response.number.number
-    assert 1 <= len(response.focus_time.picks) <= 2
-    for pick in response.focus_time.picks:
+    assert response.night_focus_time.judgment.message_key == "focus_time.night"
+    assert (response.focus_time.period, response.night_focus_time.period) == (
+        pb.FOCUS_PERIOD_DAY,
+        pb.FOCUS_PERIOD_NIGHT,
+    )
+    assert len(response.focus_time.picks) == len(response.night_focus_time.picks) == 1
+    assert (response.focus_time.picks[0].day_date.month, response.focus_time.picks[0].day_date.day) == (10, 10)
+    night = response.night_focus_time.picks[0]
+    expected_day = 10 if night.branch == pb.BRANCH_HAE else 11  # 밤은 그날 해시와 다음 날 자시~묘시(#1008)
+    assert (night.day_date.month, night.day_date.day) == (10, expected_day)
+    for pick in (*response.focus_time.picks, *response.night_focus_time.picks):
         assert pick.branch == pick.pillar.branch != pb.BRANCH_UNSPECIFIED
         assert pick.end.ToDatetime() > pick.start.ToDatetime()
     assert response.kind != pb.DAY_KIND_UNSPECIFIED

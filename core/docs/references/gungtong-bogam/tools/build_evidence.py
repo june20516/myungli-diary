@@ -6,6 +6,7 @@
   core/docs/references/gungtong-bogam/source.wikitext   위키문헌 원문 (raw wikitext)
   core/src/myungli_engine/references/data/gungtong_bogam/corrections.json  원문 대조로 바로잡은 칸
   core/src/myungli_engine/constants/johu.py  JOHU_TABLE_HANJA 한자 표 (정정 반영본)
+  core/docs/references/gungtong-bogam/quote-choices.json  첫 문장 대신 고른 인용 문장 (#625)
 출력 (core/docs/references/gungtong-bogam/)
   entries.json              일간 → 계절 → 월 항목(원문 문단·예시 명조) 전체 구조
   verification-report.md    조후표 ↔ 원문 대조 결과
@@ -61,8 +62,26 @@ def stems_in_order(text: str, exclude: str) -> list[str]:
     return seen
 
 
-def build_johu_evidence(month_index: dict, table: dict, corrections: list[dict]) -> dict:
+def chosen_quote(month_index: dict, stem: str, branch: str, choice: dict | None) -> str:
+    """고른 인용이 있으면 원문 문단에 글자 그대로 있는지 확인하고 쓴다. 없으면 첫 문장.
+
+    다른 달 항목에서 빌린 인용(borrowed_from_branch)은 그 달 항목의 문단에서 확인한다.
+    """
+    paragraphs = month_index[stem][branch][0]["paragraphs"]
+    if choice is None:
+        return first_sentence(paragraphs[0])
+    source_branch = choice.get("borrowed_from_branch", branch)
+    source_paragraphs = month_index[stem][source_branch][0]["paragraphs"]
+    if choice["quote"] not in "".join(source_paragraphs):
+        raise ValueError(f"{stem}{branch}: 고른 인용이 원문 문단에 없습니다: {choice['quote']}")
+    return choice["quote"]
+
+
+def build_johu_evidence(
+    month_index: dict, table: dict, corrections: list[dict], quote_choices: list[dict]
+) -> dict:
     corrected_cells = {(c["stem"], c["branch"]): c for c in corrections}
+    chosen = {(c["stem"], c["branch"]): c for c in quote_choices}
     evidence = {}
     for stem in STEMS:
         evidence[stem] = {}
@@ -75,7 +94,8 @@ def build_johu_evidence(month_index: dict, table: dict, corrections: list[dict])
                 "yongsin_elements": [STEM_ELEMENT[s] for s in table[stem][branch]],
                 "evidence_level": primary["level"],
                 "heading": primary["heading"],
-                "key_sentence": first_sentence(primary["paragraphs"][0]),
+                "key_sentence": chosen_quote(month_index, stem, branch, chosen.get((stem, branch))),
+                "quote_note": (chosen.get((stem, branch)) or {}).get("note"),
                 "paragraphs": primary["paragraphs"],
                 "related_headings": [e["heading"] for e in entries[1:]],
                 "examples": primary.get("examples", []),
@@ -149,10 +169,11 @@ def build_report(evidence: dict) -> tuple[str, list[str]]:
         "* `REVIEWED`: 기계 판정은 불일치지만 사람이 원문을 읽고 확인한 칸. 대부분 '丙火司權', '忌壬水'처럼 용신이 아닌 천간이 먼저 언급된 경우입니다.",
         "* `정정`: 통용 정리표와 원문이 달라 원문 기준으로 바꾼 칸 (`corrections.json`).",
         "* 근거 수준 `season`: 원문에 해당 월 항목이 없어 계절 총론을 근거로 쓴 칸.",
+        "* 인용 문장: 첫 문장, 또는 용신을 말하는 문장으로 고른 문장(`quote-choices.json`, #625).",
         "",
         f"* 결과: 120칸 중 OK {120 - len(flagged)} / REVIEWED {len(flagged)}",
         "",
-        "| 일간 | 월지 | 조후용신 | 원문 첫 문단 천간 순서 | 근거에 없는 글자 | 근거 수준 | 판정 | 정정 | 원문 첫 문장 |",
+        "| 일간 | 월지 | 조후용신 | 원문 첫 문단 천간 순서 | 근거에 없는 글자 | 근거 수준 | 판정 | 정정 | 인용 문장 |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     return "\n".join(header + rows) + "\n", flagged
@@ -165,11 +186,12 @@ def write_json(path: Path, data: dict) -> None:
 def main() -> None:
     raw = (REFERENCE_DIR / "source.wikitext").read_text(encoding="utf-8")
     corrections = json.loads((DATA_DIR / "corrections.json").read_text(encoding="utf-8"))["corrections"]
+    quote_choices = json.loads((REFERENCE_DIR / "quote-choices.json").read_text(encoding="utf-8"))["choices"]
     parsed = parse(raw)
     month_index = build_month_index(parsed)
     table = load_johu_table()
 
-    evidence = build_johu_evidence(month_index, table, corrections)
+    evidence = build_johu_evidence(month_index, table, corrections, quote_choices)
     report, flagged = build_report(evidence)
 
     write_json(REFERENCE_DIR / "entries.json", parsed)

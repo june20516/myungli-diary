@@ -25,7 +25,7 @@ from myungli_engine.domain.enums import CalendarType, Gender
 from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.domain.models import Evidence, FourPillars, Judgment, Notice, Pillar
 from myungli_engine.rules.color import ElementPick
-from myungli_engine.rules.focus_time import ScoredSlot
+from myungli_engine.rules.focus_time import FocusPick
 from myungli_engine.rules.relations import Relation
 from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
 
@@ -51,6 +51,7 @@ _PREFIX_RELATION_KIND = "RELATION_KIND"
 _PREFIX_ELEMENT_ROLE = "ELEMENT_ROLE"
 _PREFIX_COLOR_SHIFT = "COLOR_SHIFT"
 _PREFIX_COLOR_BASIS = "COLOR_BASIS"
+_PREFIX_FOCUS_PERIOD = "FOCUS_PERIOD"
 _PREFIX_CALENDAR_TYPE = "CALENDAR_TYPE"
 _PREFIX_GENDER = "GENDER"
 _PREFIX_SOLAR_TERM_KIND = "SOLAR_TERM_KIND"
@@ -224,7 +225,7 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
     first_color, *other_colors = view.colors
     direction, direction_judgment = view.direction
     number, number_judgment = view.number
-    focus, focus_judgment = view.focus
+    (day_focus, day_focus_judgment), (night_focus, night_focus_judgment) = view.focus
     return pb.DailyResponse(
         day=_pillar(view.day),
         kind=_name(_PREFIX_DAY_KIND, view.kind),
@@ -236,11 +237,8 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
             rule_id=direction.rule_id,
         ),
         number=pb.NumberCard(judgment=_judgment(number_judgment), number=number),
-        focus_time=pb.FocusTimeCard(
-            judgment=_judgment(focus_judgment),
-            picks=[_focus_slot(pick) for pick in focus.picks],
-            fallback=focus.fallback,
-        ),
+        focus_time=_focus_card(day_focus, day_focus_judgment),
+        night_focus_time=_focus_card(night_focus, night_focus_judgment),
         relations=[_relation(relation) for relation in view.relations],
         featured_tags=view.tags.featured,
         all_tags=view.tags.all_keys,
@@ -306,16 +304,25 @@ def _month_day(day: MonthDay) -> pb.MonthDay:
     return message
 
 
-def _focus_slot(pick: ScoredSlot) -> pb.FocusSlot:
-    slot = pick.slot
-    return pb.FocusSlot(
-        branch=_name(_PREFIX_BRANCH, slot.branch),
-        pillar=_pillar(slot.pillar),
-        start=_timestamp(slot.start),
-        end=_timestamp(slot.end),
-        huangdao_lucky=slot.huangdao_lucky,
-        score=pick.score,
-        reasons=pick.reasons,
+def _focus_card(pick: FocusPick, judgment: Judgment) -> pb.FocusTimeCard:
+    """구간마다 시진 하나 (D122). FocusSlot의 score, reasons는 더 쓰지 않는다."""
+    slot = pick.grade.slot
+    return pb.FocusTimeCard(
+        judgment=_judgment(judgment),
+        picks=[
+            pb.FocusSlot(
+                branch=_name(_PREFIX_BRANCH, slot.branch),
+                pillar=_pillar(slot.pillar),
+                start=_timestamp(slot.start),
+                end=_timestamp(slot.end),
+                huangdao_lucky=slot.huangdao_lucky,
+                day_date=pb.LocalDate(
+                    year=pick.grade.day_date.year, month=pick.grade.day_date.month, day=pick.grade.day_date.day
+                ),
+                day_pillar=_pillar(pick.grade.day),
+            )
+        ],
+        period=_name(_PREFIX_FOCUS_PERIOD, pick.period),
     )
 
 

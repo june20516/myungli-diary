@@ -224,7 +224,7 @@ enum NoticeCode {
   NOTICE_CODE_TIME_UNKNOWN = 4;
   NOTICE_CODE_NEAR_SOLAR_TERM = 5;
   NOTICE_CODE_DAYUN_START_APPROXIMATE = 6;
-  NOTICE_CODE_FOCUS_TIME_FALLBACK = 7;
+  NOTICE_CODE_FOCUS_TIME_FALLBACK = 7; // ruleset 2026.11.4부터 나오지 않습니다(D122, 집중 시간 대체가 없어짐)
 }
 
 // 합·충·형 종류 (spec §7.6).
@@ -255,6 +255,13 @@ enum ColorShift {
 }
 
 // 행운 색 카드의 계산 기준 (D119, core C34).
+// 집중 시간 카드의 구간 (D122). 낮은 그날 진시~술시, 밤은 그날 해시와 다음 날 자시~묘시입니다(#1008).
+enum FocusPeriod {
+  FOCUS_PERIOD_UNSPECIFIED = 0;
+  FOCUS_PERIOD_DAY = 1;
+  FOCUS_PERIOD_NIGHT = 2;
+}
+
 enum ColorBasis {
   COLOR_BASIS_UNSPECIFIED = 0;
   COLOR_BASIS_SOURCE = 1; // 원전 기준: 변역 뒤 색
@@ -524,7 +531,7 @@ message DailyResponse {
   ColorCard color = 3;
   DirectionCard direction = 4;
   NumberCard number = 5;
-  FocusTimeCard focus_time = 6;
+  FocusTimeCard focus_time = 6; // 낮(진시~술시)의 1등 시진 (D122)
   repeated Relation relations = 7; // 일진 × 원국. 탐합망충으로 무효가 된 충도 포함
   repeated string featured_tags = 8; // 대표 태그 키 0~2개 (화면 표시용)
   repeated string all_tags = 9; // 전체 태그 키 (일기 저장용)
@@ -544,6 +551,9 @@ message DailyResponse {
   bool is_leap_month = 19;
   // 둘째 색 카드. 원전 기준 색이 기신의 색인 날만 있고, 그날 color는 내 균형 기준, second_color는 원전 기준입니다(D119).
   optional ColorCard second_color = 20;
+  // 밤의 1등 시진 (D122, #1008). 그날 해시(서울 21:30~23:29)와 다음 날 자시~묘시(그날 23:30 ~ 다음 날 07:29)
+  // 중에서 고릅니다. 시진이 속한 날짜는 FocusSlot.day_date입니다.
+  FocusTimeCard night_focus_time = 21;
 }
 
 // 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
@@ -573,11 +583,13 @@ message NumberCard {
   int32 number = 2;
 }
 
-// 집중하기 좋은 시간. fallback이면 모든 후보가 제외되어 황도길시로 대신한 결과입니다.
+// 집중하기 좋은 시간 (D122). 12시진을 원전(協紀辨方書 用時法, 論相主, 黃道黑道) 등급으로 줄 세워
+// 구간(period)마다 1등 하나를 냅니다. 근거 규칙은 focus_time/day_relation, birth_year, huangdao입니다.
 message FocusTimeCard {
   Judgment judgment = 1;
-  repeated FocusSlot picks = 2; // 1~2개
-  bool fallback = 3;
+  repeated FocusSlot picks = 2; // 늘 1개 (ruleset 2026.11.4부터, 전에는 1~2개)
+  bool fallback = 3; // ruleset 2026.11.4부터 늘 false
+  FocusPeriod period = 4;
 }
 
 // 시진 하나. start(포함)·end(제외)는 절대 시각이며, 요청의 current_timezone으로 바꿔 표시합니다.
@@ -587,8 +599,11 @@ message FocusSlot {
   google.protobuf.Timestamp start = 3;
   google.protobuf.Timestamp end = 4;
   bool huangdao_lucky = 5; // 황도길시
-  int32 score = 6;
-  repeated string reasons = 7; // 가점 사유 식별자: gwiin, yongsin, huisin, hap
+  int32 score = 6; // ruleset 2026.11.4부터 쓰지 않음(0). 가중치 점수가 없어짐(D122)
+  repeated string reasons = 7; // ruleset 2026.11.4부터 쓰지 않음(빈 목록)
+  // 이 시진이 속한 일진의 날짜와 일진 (#1008). 밤의 자시~묘시는 요청 날짜의 다음 날입니다.
+  LocalDate day_date = 8;
+  Pillar day_pillar = 9;
 }
 
 // 일진과 원국 한 자리 사이의 관계. suppressed_by가 UNSPECIFIED가 아니면 무효가 된 관계입니다.

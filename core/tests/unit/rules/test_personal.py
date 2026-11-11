@@ -13,7 +13,7 @@ from myungli_engine.domain.enums import (
     YongsinMethod,
 )
 from myungli_engine.domain.models import Evidence, FourPillars, Pillar
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references import loader
 from myungli_engine.rules.personal import (
     PersonalRole,
     _judgment,
@@ -166,10 +166,18 @@ def test_every_reading_has_balance_and_yongsin_evidence():
         "luck_ten_god": luck_ten_god_reading(TenGod.PYEONGWAN, "SEUN", "BRANCH", Stem.GYEONG, True, yongsin),
         "luck_twelve_stage": luck_twelve_stage_reading(TwelveStage.MYO, Branch.SUL, False, yongsin),
     }
+    expected_refs = {
+        "day_master": loader.PERSONAL_DAY_MASTER_REF,
+        "ten_god": loader.ten_god_ref(TenGod.SIKSIN),
+        "twelve_stage": loader.PERSONAL_TWELVE_STAGE_REF,
+        "shinsal": loader.TAG_SOURCE_REF["dohwa"],
+        "luck_ten_god": loader.LUCK_TEN_GOD_REF,
+        "luck_twelve_stage": loader.LUCK_TWELVE_STAGE_REF,
+    }
     for bundle, judgment in readings.items():
         first = judgment.evidence[0]
         assert first.rule_id == f"personal/{bundle}"
-        assert first.source_ref == FIVE_ELEMENTS_REF["balance_principle"]
+        assert first.source_ref == expected_refs[bundle]
         assert dict(first.detail) == {
             k: str(v).lower() if isinstance(v, bool) else str(v) for k, v in judgment.params.items()
         }
@@ -178,7 +186,9 @@ def test_every_reading_has_balance_and_yongsin_evidence():
 
 def test_judgment_rejects_params_differing_from_declaration():
     with pytest.raises(KeyError):
-        _judgment("day_master", "personal.day_master.gap", {"strength": "STRONG"}, make_yongsin())
+        _judgment(
+            "day_master", "personal.day_master.gap", {"strength": "STRONG"}, make_yongsin(), loader.PERSONAL_DAY_MASTER_REF
+        )
 
 
 def test_day_master_reading_passes_non_strong_level_name():

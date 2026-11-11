@@ -60,7 +60,6 @@ def _declare(keys: Iterable[str], params: tuple[str, ...]) -> dict[str, tuple[st
 
 _COLOR_PARAMS = ("base_element", "day_branch", "element", "role", "shift", "twelve_stage")
 _DIRECTION_PARAMS = ("direction", "rule_id")
-_FOCUS_PARAMS = ("branches", "score", "hour_branch")
 
 KEY_PARAMS: dict[str, tuple[str, ...]] = {
     # 색 카드가 하나인 날은 color.<날의 성격>, 둘인 날은 color.balance.*(첫째)와 color.source.*(둘째) (D119)
@@ -75,9 +74,8 @@ KEY_PARAMS: dict[str, tuple[str, ...]] = {
         (*_DIRECTION_PARAMS, "element", "role"),
     ),
     "direction.day_kind.ordinary": (*_DIRECTION_PARAMS, "element", "role", "deity"),
-    **_declare((f"focus_time.{reason}" for reason in ("gwiin", "fallback")), _FOCUS_PARAMS),
-    **_declare((f"focus_time.{reason}" for reason in ("yongsin", "huisin")), (*_FOCUS_PARAMS, "element")),
-    "focus_time.hap": (*_FOCUS_PARAMS, "natal_branch"),
+    # 집중 시간은 낮과 밤 각각 하나(D122). 이유는 "오늘 일진과 태어난 해를 보고 고른 시간" 수준까지(D121)
+    **_declare((f"focus_time.{period}" for period in ("day", "night")), ("hour_branch",)),
     **_declare(TAG_KEYS, ()),
     **_declare((f"fortune.{kind}.{group}" for kind in _DAY_KINDS for group in _GROUPS), _FORTUNE_PARAMS),
     **_declare((f"fortune.tag.{_strip_tag_prefix(tag)}" for tag in TAG_KEYS), _FORTUNE_PARAMS),

@@ -58,11 +58,20 @@
     "direction",
     "element"
   ],
-  "focus_time/fallback": [
-    "picks"
+  "focus_time/birth_year": [
+    "birth_year",
+    "hour_branch",
+    "period"
   ],
-  "focus_time/score": [
-    "picks"
+  "focus_time/day_relation": [
+    "day_pillar",
+    "hour_branch",
+    "period"
+  ],
+  "focus_time/huangdao": [
+    "hour_branch",
+    "huangdao",
+    "period"
   ],
   "fortune/day_kind": [
     "day_kind",

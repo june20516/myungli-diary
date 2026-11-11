@@ -3,36 +3,28 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
 from myungli_engine.calendar_core import korean_lunar, lunar_adapter
 from myungli_engine.calendar_core.birth import BirthInput, validate_civil_date
 from myungli_engine.calendar_core.korean_lunar import KoreanLunarDate
 from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
-from myungli_engine.composers.chart import merge_notices, prepare_natal
+from myungli_engine.composers.chart import prepare_natal
 from myungli_engine.constants.message_keys import require
-from myungli_engine.domain.enums import DayKind, NoticeCode, TenGod
+from myungli_engine.domain.enums import DayKind, TenGod
 from myungli_engine.domain.models import Evidence, Judgment, Notice, Pillar
 from myungli_engine.domain.ten_gods import ten_god
-from myungli_engine.references.loader import FIVE_ELEMENTS_REF
+from myungli_engine.references.loader import FIVE_ELEMENTS_REF, FOCUS_TIME_REF
 from myungli_engine.rules import messages
 from myungli_engine.rules.color import ElementPick, lucky_colors
 from myungli_engine.rules.day_kind import classify_day
 from myungli_engine.rules.direction import DirectionPick, lucky_direction
-from myungli_engine.rules.focus_time import (
-    REASON_HAP,
-    REASON_HUISIN,
-    REASON_YONGSIN,
-    FocusResult,
-    pick_focus_times,
-)
+from myungli_engine.rules.focus_time import DayHours, FocusPick, pick_focus_times
 from myungli_engine.rules.number import hado_pair, lucky_number
 from myungli_engine.rules.relations import Relation, find_relations
 from myungli_engine.rules.tags import TagResult, select_tags
-from myungli_engine.rules.yongsin import YongsinResult
 
-FOCUS_FALLBACK_REASON = "fallback"
 DEITY_NONE = "NONE"
 
 
@@ -44,7 +36,7 @@ class DailyView:
     colors: tuple[tuple[ElementPick, Judgment], ...]  # 1~2장. 둘이면 (내 균형 기준, 원전 기준) (D119)
     direction: tuple[DirectionPick, Judgment]
     number: tuple[int, Judgment]
-    focus: tuple[FocusResult, Judgment]
+    focus: tuple[tuple[FocusPick, Judgment], ...]  # (낮, 밤) 1등 시진 (D122)
     relations: tuple[Relation, ...]
     tags: TagResult
     fortune: tuple[Judgment, ...]
@@ -68,7 +60,9 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
     direction = lucky_direction(kind, day, yongsin, lunar_adapter.deity_directions(target))
     number = lucky_number(colors[0].element, day.stem)
     focus = pick_focus_times(
-        lunar_adapter.hour_slots(target, current_timezone), natal_pillars, yongsin, natal.gwiin
+        _day_hours(target, current_timezone),
+        _day_hours(target + timedelta(days=1), current_timezone),
+        natal_pillars.year,
     )
     relations = find_relations(natal_pillars, day)
     tags = select_tags(
@@ -80,7 +74,6 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         yongsin_ref=yongsin.evidence[0].source_ref,
     )
 
-    fallback_notices = (Notice(NoticeCode.FOCUS_TIME_FALLBACK),) if focus.fallback else ()
     guides = messages.guide_candidates(
         day, natal_pillars.day.stem, tags.featured, tag_sources=tags.source_refs
     )
@@ -91,14 +84,14 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         colors=tuple((pick, _color_judgment(kind, pick, day, split=len(colors) > 1)) for pick in colors),
         direction=(direction, _direction_judgment(kind, direction, day)),
         number=(number, _number_judgment(kind, number, colors[0], day)),
-        focus=(focus, _focus_judgment(focus, yongsin)),
+        focus=tuple((pick, _focus_judgment(pick, natal_pillars.year)) for pick in focus),
         relations=relations,
         tags=tags,
         fortune=messages.fortune(
             kind, day, natal_pillars.day.stem, tags.featured, yongsin, tag_sources=tags.source_refs
         ),
         guide=guides[0],
-        notices=merge_notices(natal.chart.notices, fallback_notices),
+        notices=natal.chart.notices,
         day_stem_ten_god=ten_god(natal_pillars.day.stem, day.stem),
         guide_candidates=guides,
         lunar=korean_lunar.solar_to_lunar(target),
@@ -171,28 +164,49 @@ def _number_judgment(kind: DayKind, number: int, color: ElementPick, day: Pillar
     )
 
 
-def _focus_judgment(focus: FocusResult, yongsin: YongsinResult) -> Judgment:
-    """fallback이거나 1등 시진에 가점 사유가 없으면 fallback 키, 아니면 1등의 첫 사유 키.
+def _hanja(pillar: Pillar) -> str:
+    return f"{pillar.stem.hanja}{pillar.branch.hanja}"
 
-    매개변수(#970): hour_branch는 1등 시진, 사유가 yongsin, huisin이면 그 오행, hap이면 합하는 원국 지지.
+
+def _day_hours(civil_date: date, current_timezone: str) -> DayHours:
+    return DayHours(
+        date=civil_date,
+        pillar=lunar_adapter.day_pillar(civil_date),
+        slots=lunar_adapter.hour_slots(civil_date, current_timezone),
+    )
+
+
+def _focus_judgment(pick: FocusPick, birth_year: Pillar) -> Judgment:
+    """낮이나 밤의 1등 시진 하나 (D122). 근거는 用時法(그날), 論相主(태어난 해), 黃道黑道(동점) 조목이다.
+
+    매개변수와 detail에는 고른 시진, 그 시진이 속한 날의 일진, 태어난 해만 둔다. 등급과 순서는 내지 않는다(D121).
+    밤의 자시~묘시는 다음 날 일진이다(#1008).
     """
-    top = focus.picks[0]
-    reason = FOCUS_FALLBACK_REASON if focus.fallback or not top.reasons else top.reasons[0]
-    params: dict[str, str | int | float | bool] = {
-        "branches": ",".join(pick.slot.branch.name for pick in focus.picks),
-        "score": top.score,
-        "hour_branch": top.slot.branch.name,
-    }
-    if reason == REASON_YONGSIN:
-        params["element"] = yongsin.yongsin.name
-    elif reason == REASON_HUISIN:
-        params["element"] = yongsin.huisin.name
-    elif reason == REASON_HAP:
-        if top.hap_branch is None:
-            raise ValueError("합 사유인데 합하는 원국 지지가 없습니다")
-        params["natal_branch"] = top.hap_branch.name
+    day = pick.grade.day
+    hour_branch = pick.grade.slot.branch.name
+    period = pick.period.name
+    params: dict[str, str | int | float | bool] = {"hour_branch": hour_branch}
+    evidence = (
+        Evidence(
+            rule_id="focus_time/day_relation",
+            source_ref=FOCUS_TIME_REF["use_hour"],
+            detail={"period": period, "hour_branch": hour_branch, "day_pillar": _hanja(day)},
+        ),
+        Evidence(
+            rule_id="focus_time/birth_year",
+            source_ref=FOCUS_TIME_REF["birth_year"],
+            detail={"period": period, "hour_branch": hour_branch, "birth_year": _hanja(birth_year)},
+        ),
+        Evidence(
+            rule_id="focus_time/huangdao",
+            source_ref=FOCUS_TIME_REF["huangdao"],
+            detail={
+                "period": period,
+                "hour_branch": hour_branch,
+                "huangdao": "true" if pick.grade.slot.huangdao_lucky else "false",
+            },
+        ),
+    )
     return Judgment(
-        message_key=require(f"focus_time.{reason}", params),
-        params=params,
-        evidence=focus.evidence,
+        message_key=require(f"focus_time.{period.lower()}", params), params=params, evidence=evidence
     )

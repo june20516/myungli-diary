@@ -76,4 +76,6 @@ def test_empty_source_ref_is_allowed_only_for_declared_rules() -> None:
     assert RULES_WITHOUT_SOURCE <= set(RULE_DETAIL_KEYS)
     assert "tags/ten_god_rush" in RULES_WITHOUT_SOURCE
     assert "tags/clash" not in RULES_WITHOUT_SOURCE
-    assert all(rule.startswith(("tags/", "fortune/tag", "guide/question")) for rule in RULES_WITHOUT_SOURCE)
+    assert all(
+        rule.startswith(("tags/", "fortune/tag", "guide/question", "calendar/score")) for rule in RULES_WITHOUT_SOURCE
+    )

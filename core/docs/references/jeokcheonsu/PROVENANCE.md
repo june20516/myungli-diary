@@ -6,5 +6,6 @@
 | --- | --- | --- | --- | --- |
 | `ch03.wikitext` | [滴天髓/03](https://zh.wikisource.org/wiki/%E6%BB%B4%E5%A4%A9%E9%AB%93/03) (地支論) | 844351 | 2017-03-23T15:43:27Z | 2026-11-05 |
 | `ch17.wikitext` | [滴天髓/17](https://zh.wikisource.org/wiki/%E6%BB%B4%E5%A4%A9%E9%AB%93/17) (月令論) | 844366 | 2017-03-23T15:45:47Z | 2026-11-05 |
+| `ch12.wikitext` | [滴天髓/12](https://zh.wikisource.org/wiki/%E6%BB%B4%E5%A4%A9%E9%AB%93/12) (衰旺論) | 844360 | 2017-03-23T15:44:57Z | 2026-11-11 |
 
 번체 수집본입니다. 붉은 글씨 틀(`{{color|red|...}}`) 줄이 본문, `:` 줄이 주석입니다.

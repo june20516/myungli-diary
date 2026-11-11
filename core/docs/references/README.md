@@ -20,6 +20,7 @@
 | `core/src/myungli_engine/references/data/gungtong_bogam/five_elements.json` | 「五行總論」의 오행별 방위·색·수·성정, 억부 원리 | 행운의 컬러·숫자·방향 근거, 감성 코멘트 |
 | `core/src/myungli_engine/references/data/gungtong_bogam/corrections.json` | 통용 정리표를 원문 기준으로 정정한 11칸과 근거 문장 | - |
 | `verification-report.md` | 조후표 ↔ 원문 120칸 대조 결과 (자동 생성) | - |
+| `quote-choices.json` | 첫 문장 대신 용신을 말하는 문장으로 고른 인용 24칸(#625, core C37, C39). 丁酉는 같은 계절 七月丁 문장을 빌림(`borrowed_from_branch`, 근거 `note`로 밝힘). 생성기가 원문 문단에 있는지 확인 | 근거 시트의 원전 인용 |
 | `tools/parse_source.py` | 원문 파서 | - |
 | `tools/build_evidence.py` | 위 JSON과 리포트 생성기 | - |
 
@@ -54,9 +55,29 @@ python3 -I core/docs/references/tools/build_tag_sources.py
 * **문단:** 『三命通會』 수집본은 문장 중간에서 줄을 바꿔 두었으므로 빈 줄로 나뉜 덩어리를 한 문단으로 보고 줄을 구분자 없이 잇습니다. 『滴天髓』은 본문 줄과 주석 줄이 각각 한 문단입니다. 글자는 바꾸지 않습니다(수집본의 已·化盖 같은 표기도 그대로, `note`에 밝힘).
 * **원전 없음:** 십성 쏠림 태그는 명리일기가 정한 규칙이라 원전이 없습니다. 근거의 `source_ref`가 빈 문자열입니다(core C28).
 
+## 개인 해석과 십성 묶음 원전 (#998)
+
+원국 개인 해석(일간, 십성, 12운성, 양인, 대운과 세운)과 총운 본문, 십성 묶음 가이드 질문의 근거입니다. 위키문헌 원문을 글자 그대로 저장했고 출처는 각 디렉터리의 `PROVENANCE.md`에 있습니다(core C35).
+
+| 파일 | 내용 |
+| --- | --- |
+| `sammyeong-tonghoe/skqs-vol02.wikitext` | 『三命通會』 四庫全書本 卷二: 「論五行旺相休囚死並寄生十二宫」(12운성), 「論年月日時」(궁위), 「論大運」 |
+| `sammyeong-tonghoe/skqs-vol05.wikitext` | 같은 책 卷五: 「論古人立印食官財名義」, 십성별 조목(論正官 ~ 論建禄) |
+| `sammyeong-tonghoe/skqs-vol03.wikitext` | 같은 책 卷三: 「論羊刃」(양인), 截路空亡 |
+| `jeokcheonsu/ch12.wikitext` | 『滴天髓』 「衰旺論」(일간 강약과 덜고 더하기) |
+| `tools/build_quoted_sources.py` → `core/src/myungli_engine/references/data/sammyeong_tonghoe/personal.json`, `.../jeokcheonsu/personal.json` | 조목의 대표 문장을 원문에서 뽑아 근거 JSON을 만드는 생성기. 인용이나 조목 이름이 원문에 없으면 멈춤 |
+
+다시 생성하려면 저장소 루트에서 다음을 실행합니다.
+```bash
+python3 -I core/docs/references/tools/build_quoted_sources.py
+```
+
+* 자리(궁위)와 역할(용신, 희신, 기신)의 원문(『三命通會』 「論年月日時」, 『淵海子平』 「六親總篇」, 『滴天髓』 「閒神論」 등)은 근거에 붙이지 않고 규칙 지도에 적습니다.
+* 『子平眞詮』은 위키문헌에 없어 쓰지 않았습니다. 『淵海子平』은 위키문헌 수집본에 底本 표시가 없어 근거로 쓰지 않았습니다.
+
 ## 시진 고르기 원전: 『協紀辨方書』 `xieji-bianfang/` (#980)
 
-집중 시간(시진 고르기)의 원전 후보입니다. 위키문헌 四庫全書本 원문을 글자 그대로 저장했고 출처와 revision은 `xieji-bianfang/PROVENANCE.md`에 있습니다. 조목별 대조, 지금 규칙과의 대조, 원전만으로 짠 안의 측정은 [`hour-sources-survey.md`](hour-sources-survey.md)에 있습니다. 엔진은 아직 이 원문을 쓰지 않습니다(규칙은 사용자 결정 뒤).
+집중 시간(시진 고르기)의 원전 후보입니다. 위키문헌 四庫全書本 원문을 글자 그대로 저장했고 출처와 revision은 `xieji-bianfang/PROVENANCE.md`에 있습니다. 조목별 대조, 지금 규칙과의 대조, 원전만으로 짠 안의 측정은 [`hour-sources-survey.md`](hour-sources-survey.md)에 있습니다. 엔진은 卷三十四 「用時法」, 卷三十三 「論相主」, 卷七 「黄道黒道」를 집중 시간 근거로 씁니다(`xieji-bianfang/hours#*`, `tools/build_quoted_sources.py`가 만듦, D122, core C36).
 
 | 파일 | 내용 |
 | --- | --- |

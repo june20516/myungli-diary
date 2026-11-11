@@ -2126,7 +2126,7 @@
     {
      "id": "diary-edit.guide.attach",
      "source": "ui",
-     "role": "질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
+     "role": "질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
     },
     {
      "id": "diary-edit.body.placeholder",
