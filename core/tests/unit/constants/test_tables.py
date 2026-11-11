@@ -106,9 +106,8 @@ def test_exported_key_list_up_to_date():
 
 
 def test_message_params_declared_per_key():
-    assert message_keys.KEY_PARAMS["focus_time.hap"] == ("branches", "score", "hour_branch", "natal_branch")
-    assert message_keys.KEY_PARAMS["focus_time.yongsin"] == ("branches", "score", "hour_branch", "element")
-    assert message_keys.KEY_PARAMS["focus_time.fallback"] == ("branches", "score", "hour_branch")
+    assert message_keys.KEY_PARAMS["focus_time.day"] == ("hour_branch",)
+    assert message_keys.KEY_PARAMS["focus_time.night"] == ("hour_branch",)
     assert message_keys.KEY_PARAMS["direction.day_kind.gwiin"] == ("direction", "rule_id", "day_branch")
     assert message_keys.KEY_PARAMS["direction.day_kind.ordinary"] == (
         "direction",
@@ -154,7 +153,7 @@ def test_exported_param_keys_match_key_list():
 def test_personal_keys_registered():
     personal = [key for key in message_keys.ALL_KEYS if key.startswith("personal.")]
     assert len(personal) == 60
-    assert len(message_keys.ALL_KEYS) == 165
+    assert len(message_keys.ALL_KEYS) == 162
     assert message_keys.KEY_PARAMS["personal.ten_god.siksin"] == (
         "place",
         "element",

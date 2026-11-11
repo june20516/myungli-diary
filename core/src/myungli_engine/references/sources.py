@@ -32,7 +32,7 @@ def source_catalog() -> dict[str, SourceEntry]:
     for ref in loader.FIVE_ELEMENTS_REF.values():
         catalog[ref] = _five_elements_entry(_as_dict(loader.resolve(ref)))
     catalog[loader.COLOR_SHIFT_REF] = _quoted_entry(_as_dict(loader.resolve(loader.COLOR_SHIFT_REF)))
-    for ref in (*loader.TAG_SOURCE_REF.values(), *loader.personal_refs()):
+    for ref in (*loader.TAG_SOURCE_REF.values(), *loader.personal_refs(), *loader.FOCUS_TIME_REF.values()):
         catalog[ref] = _quoted_entry(_as_dict(loader.resolve(ref)))
     return catalog
 

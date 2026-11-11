@@ -13,7 +13,8 @@ from myungli_engine.domain.enums import NoticeCode
 from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungli_engine.domain.models import Judgment
 from myungli_engine.references import loader
-from myungli_engine.rules import focus_time
+from myungli_engine.references.loader import FOCUS_TIME_REF
+from myungli_engine.rules.focus_time import FocusPeriod
 
 TARGET = date(2026, 10, 10)
 SEOUL = "Asia/Seoul"
@@ -24,7 +25,7 @@ def _daily_judgments(view: DailyView) -> list[Judgment]:
         *(judgment for _, judgment in view.colors),
         view.direction[1],
         view.number[1],
-        view.focus[1],
+        *(judgment for _, judgment in view.focus),
         *view.fortune,
         view.guide,
     ]
@@ -69,21 +70,19 @@ def test_daily_cards_follow_day_kind(spring_birth: BirthInput) -> None:
     assert view.number[1].params["number"] == view.number[0]
 
 
-def test_daily_focus_key_is_top_reason_or_fallback(spring_birth: BirthInput) -> None:
+def test_daily_focus_day_and_night(spring_birth: BirthInput) -> None:
+    """낮과 밤 각각 1등 하나, 근거는 用時法, 論相主, 黃道黑道 조목(D122)."""
     view = compose_daily(spring_birth, TARGET, SEOUL)
-    result, judgment = view.focus
-    top_reasons = result.picks[0].reasons
-    expected = "fallback" if result.fallback or not top_reasons else top_reasons[0]
-    assert judgment.message_key == f"focus_time.{expected}"
-    assert judgment.evidence == result.evidence
-
-
-def test_daily_focus_fallback_adds_notice(spring_birth: BirthInput, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(focus_time, "_clashes_with_natal", lambda slot, natal: True)
-    view = compose_daily(spring_birth, TARGET, SEOUL)
-    assert view.focus[0].fallback
-    assert view.focus[1].message_key == "focus_time.fallback"
-    assert NoticeCode.FOCUS_TIME_FALLBACK in {notice.code for notice in view.notices}
+    assert [pick.period for pick, _ in view.focus] == [FocusPeriod.DAY, FocusPeriod.NIGHT]
+    for pick, judgment in view.focus:
+        assert judgment.message_key == f"focus_time.{pick.period.name.lower()}"
+        assert judgment.params == {"hour_branch": pick.grade.slot.branch.name}
+        assert [e.source_ref for e in judgment.evidence] == [
+            FOCUS_TIME_REF["use_hour"],
+            FOCUS_TIME_REF["birth_year"],
+            FOCUS_TIME_REF["huangdao"],
+        ]
+    assert NoticeCode.FOCUS_TIME_FALLBACK not in {notice.code for notice in view.notices}
 
 
 def test_daily_inherits_chart_notices(zi_hour_birth: BirthInput) -> None:

@@ -908,8 +908,9 @@
         "rules/focus_time.py"
       ],
       "evidence_rules": [
-        "focus_time/score",
-        "focus_time/fallback"
+        "focus_time/day_relation",
+        "focus_time/birth_year",
+        "focus_time/huangdao"
       ],
       "message_keys": [
         "focus_time.*"

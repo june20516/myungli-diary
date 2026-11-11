@@ -30,8 +30,10 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "direction/tonggwan": _DIRECTION_DETAIL,
     "direction/yongsin": _DIRECTION_DETAIL,
     "number/hado": ("day_stem", "element", "number", "parity"),
-    "focus_time/score": ("picks",),
-    "focus_time/fallback": ("picks",),
+    # 집중 시간(D122): 등급과 순서는 detail에 넣지 않는다(D121, 규칙 지도에 적음)
+    "focus_time/day_relation": ("day_pillar", "hour_branch", "period"),
+    "focus_time/birth_year": ("birth_year", "hour_branch", "period"),
+    "focus_time/huangdao": ("hour_branch", "huangdao", "period"),
     # 태그·총운·가이드 질문 (spec 7.7~7.8)
     "tags/select": ("all", "day_kind", "featured"),
     # 태그마다 하나 (C28). 원전이 없는 태그는 source_ref가 빈 문자열이다

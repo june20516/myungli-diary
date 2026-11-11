@@ -131,33 +131,11 @@
     "element",
     "role"
   ],
-  "focus_time.fallback": [
-    "branches",
-    "score",
+  "focus_time.day": [
     "hour_branch"
   ],
-  "focus_time.gwiin": [
-    "branches",
-    "score",
+  "focus_time.night": [
     "hour_branch"
-  ],
-  "focus_time.hap": [
-    "branches",
-    "score",
-    "hour_branch",
-    "natal_branch"
-  ],
-  "focus_time.huisin": [
-    "branches",
-    "score",
-    "hour_branch",
-    "element"
-  ],
-  "focus_time.yongsin": [
-    "branches",
-    "score",
-    "hour_branch",
-    "element"
   ],
   "fortune.gisin_day.bigyeop": [
     "day_kind",

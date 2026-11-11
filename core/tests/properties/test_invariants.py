@@ -12,15 +12,15 @@ from myungli_engine.chart.pillars import build_chart
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.composers.daily import DailyView, compose_daily
 from myungli_engine.constants.message_keys import ALL_KEYS, require
-from myungli_engine.domain.enums import Branch, CalendarType, Gender, TenGodGroup
+from myungli_engine.domain.enums import CalendarType, Gender, TenGodGroup
 from myungli_engine.domain.models import Judgment, Pillar
 from myungli_engine.references import loader
 from myungli_engine.references.loader import ten_god_group_ref
+from myungli_engine.rules.focus_time import PERIOD_BRANCHES, FocusPeriod
 
 SEOUL = "Asia/Seoul"
 CYCLE_LENGTH = 60
 # 진시~술시 (spec 7.5). 구현 상수를 재사용하지 않고 독립적으로 적는다.
-FOCUS_CANDIDATES = frozenset({Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL})
 
 birth_dates = st.dates(min_value=date(1900, 2, 1), max_value=date(2099, 12, 31))
 daily_dates = st.dates(min_value=date(1950, 1, 1), max_value=date(2090, 12, 31))
@@ -56,7 +56,7 @@ def _judgments(view: DailyView) -> list[Judgment]:
         *(judgment for _, judgment in view.colors),
         view.direction[1],
         view.number[1],
-        view.focus[1],
+        *(judgment for _, judgment in view.focus),
         *view.fortune,
         view.guide,
         *view.guide_candidates,
@@ -93,7 +93,11 @@ def test_tag_based_judgments_cite_their_tag_source(birth: BirthInput, target: da
     for candidate in view.guide_candidates:
         evidence = candidate.evidence[0]
         basis = evidence.detail["basis"]
-        expected = view.tags.source_refs[basis] if basis.startswith("tag.") else ten_god_group_ref(TenGodGroup[basis])
+        expected = (
+            view.tags.source_refs[basis]
+            if basis.startswith("tag.")
+            else ten_god_group_ref(TenGodGroup[basis])
+        )
         assert evidence.source_ref == expected
 
 
@@ -146,6 +150,7 @@ def test_daily_not_determined_by_day_alone(pair: tuple[BirthInput, BirthInput], 
 
 @given(birth=birth_inputs, target=daily_dates)
 def test_focus_slots_within_candidates(birth: BirthInput, target: date) -> None:
-    focus = compose_daily(birth, target, SEOUL).focus[0]
-    assert focus.picks
-    assert {pick.slot.branch for pick in focus.picks} <= FOCUS_CANDIDATES
+    focus = compose_daily(birth, target, SEOUL).focus
+    assert [pick.period for pick, _ in focus] == [FocusPeriod.DAY, FocusPeriod.NIGHT]
+    for pick, _ in focus:
+        assert pick.grade.slot.branch in PERIOD_BRANCHES[pick.period]

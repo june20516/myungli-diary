@@ -14,8 +14,8 @@ DATA = REFERENCES.parents[1] / "src" / "myungli_engine" / "references" / "data"
 
 
 def _builder() -> ModuleType:
-    path = REFERENCES / "tools" / "build_personal_sources.py"
-    spec = importlib.util.spec_from_file_location("build_personal_sources", path)
+    path = REFERENCES / "tools" / "build_quoted_sources.py"
+    spec = importlib.util.spec_from_file_location("build_quoted_sources", path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -28,15 +28,15 @@ def _flat(text: str) -> str:
 
 
 def test_data_matches_builder() -> None:
-    """원문이나 생성기를 고친 뒤 `python3 -I core/docs/references/tools/build_personal_sources.py`로 다시 만든다."""
-    for directory, data in _builder().build().items():
-        stored = json.loads((DATA / directory / "personal.json").read_text(encoding="utf-8"))
+    """원문이나 생성기를 고친 뒤 `python3 -I core/docs/references/tools/build_quoted_sources.py`로 다시 만든다."""
+    for path, data in _builder().build().items():
+        stored = json.loads((DATA / path).read_text(encoding="utf-8"))
         assert stored == data
 
 
 def test_quotes_are_in_saved_source_files() -> None:
     catalog = sources.source_catalog()
-    for ref in loader.personal_refs():
+    for ref in (*loader.personal_refs(), *loader.FOCUS_TIME_REF.values()):
         entry = loader.resolve(ref)
         assert isinstance(entry, dict)
         text = _flat((REFERENCES / str(entry["source_file"])).read_text(encoding="utf-8"))

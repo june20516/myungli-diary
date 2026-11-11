@@ -17,6 +17,7 @@ _DATA_PACKAGES: Final[Mapping[str, str]] = {
     "gungtong-bogam": "gungtong_bogam",
     "sammyeong-tonghoe": "sammyeong_tonghoe",
     "jeokcheonsu": "jeokcheonsu",
+    "xieji-bianfang": "xieji_bianfang",
 }
 # 파일 이름 → JSON 안에서 키 경로가 시작되는 위치
 _ROOT_KEYS: Final[Mapping[str, str]] = {"johu_evidence": "cells"}
@@ -60,6 +61,12 @@ LUCK_TEN_GOD_REF: Final = "sammyeong-tonghoe/personal#luck.ten_god"
 LUCK_TWELVE_STAGE_REF: Final = "sammyeong-tonghoe/personal#luck.twelve_stage"
 
 
+# 집중 시간(시진 고르기) 원전 (#980, D122). 『欽定協紀辨方書』 四庫全書本. 원문 대조: core/docs/references/hour-sources-survey.md
+FOCUS_TIME_REF: Final[Mapping[str, str]] = {
+    key: f"xieji-bianfang/hours#{key}" for key in ("use_hour", "birth_year", "huangdao")
+}
+
+
 def ten_god_ref(god: TenGod) -> str:
     if god in (TenGod.BIGYEON, TenGod.GEOPJAE):
         return _GEONROK_REF
@@ -90,12 +97,13 @@ def johu_ref(stem: Stem, branch: Branch) -> str:
 
 
 def all_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전, 개인 해석 원전 전부."""
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전, 개인 해석 원전, 시진 원전 전부."""
     yield from (johu_ref(stem, branch) for stem in Stem for branch in Branch)
     yield from FIVE_ELEMENTS_REF.values()
     yield COLOR_SHIFT_REF
     yield from TAG_SOURCE_REF.values()
     yield from personal_refs()
+    yield from FOCUS_TIME_REF.values()
 
 
 @cache

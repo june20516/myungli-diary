@@ -1,8 +1,9 @@
-"""원국 개인 해석과 십성 묶음 문장의 원전 근거 JSON 생성기 (#998).
+"""조목 인용 원전 근거 JSON 생성기: 개인 해석과 십성 묶음(#998), 집중 시간(#980, D122).
 
-저장한 위키문헌 원문(수정 금지)에서 조목의 대표 문장을 뽑아 다음 두 파일을 만든다.
+저장한 위키문헌 원문(수정 금지)에서 조목의 대표 문장을 뽑아 다음 파일을 만든다.
 * `core/src/myungli_engine/references/data/sammyeong_tonghoe/personal.json` (『三命通會』 四庫全書本)
 * `core/src/myungli_engine/references/data/jeokcheonsu/personal.json` (『滴天髓』)
+* `core/src/myungli_engine/references/data/xieji_bianfang/hours.json` (『欽定協紀辨方書』 四庫全書本)
 
 * 四庫全書本: 공백을 지운 원문에서 start부터 end_after까지를 인용(quote)으로 둔다. 작은 주(`{{SKnotes|…}}`)는 뺀다.
   조목 이름(section)은 `{{SK anchor|…}}`가 없는 조목도 있어 항목마다 적고, 원문에서 인용보다 앞에 있어야 한다.
@@ -10,7 +11,7 @@
 원문 글자는 바꾸지 않는다(오자도 그대로 두고 note에 밝힌다).
 
 저장소 루트에서 실행한다.
-    python3 -I core/docs/references/tools/build_personal_sources.py
+    python3 -I core/docs/references/tools/build_quoted_sources.py
 """
 
 from __future__ import annotations
@@ -36,6 +37,7 @@ class Entry:
     start: str
     end_after: str
     note: str | None = None
+    work: str = "三命通會"
 
 
 SAMMYEONG: tuple[Entry, ...] = (
@@ -79,6 +81,18 @@ SAMMYEONG: tuple[Entry, ...] = (
           "凡行運長生主有創建", "發福進財"),
 )
 
+XIEJI = "欽定協紀辨方書"
+XIEJI_BIANFANG: tuple[Entry, ...] = (
+    Entry("use_hour", "xieji-bianfang/skqs-vol34.wikitext", "用時法",
+          "時者日之用也", "惟貴人禄馬為吉", work=XIEJI,
+          note="같은 조목이 이어서 時破(일지와 충)를 大凶, 時刑과 五不遇를 次凶으로 둔다. 卷三十二 「日表」는 \"時由日筦選時必根扵日\"(시는 날이 맡는다)이라 한다."),
+    Entry("birth_year", "xieji-bianfang/skqs-vol33.wikitext", "論相主",
+          "古人皆論生年之天干", "不衝命尅命", work=XIEJI,
+          note="택일에서 고른 사주를 주인의 명에 맞추는(相主) 조목이다. 같은 조목은 사람 기준을 生年으로 본다(從來皆論生年不論生日)."),
+    Entry("huangdao", "xieji-bianfang/skqs-vol07.wikitext", "黄道黒道",
+          "日起時則子日申時起青龍", "依次順數", work=XIEJI),
+)
+
 JEOKCHEONSU: tuple[Entry, ...] = (
     Entry("day_master", "jeokcheonsu/ch12.wikitext", "衰旺論",
           "旺則宜洩宜傷", "子平之理也",
@@ -98,7 +112,7 @@ def _skqs(entry: Entry) -> dict[str, object]:
     section_at = text.rfind(entry.section, 0, start)
     if section_at < 0:
         raise ValueError(f"{entry.key}: 인용 앞에 조목 이름 {entry.section}이 없습니다")
-    return {"work": "三命通會", "section": entry.section, "quote": quote, "passage": [quote],
+    return {"work": entry.work, "section": entry.section, "quote": quote, "passage": [quote],
             "source_file": entry.file, "note": entry.note}
 
 
@@ -130,15 +144,18 @@ def _nest(items: dict[str, dict[str, object]]) -> dict[str, object]:
 
 
 def build() -> dict[str, dict[str, object]]:
+    """패키지 데이터 기준 경로(`<디렉터리>/<파일>.json`) → 내용."""
     return {
-        "sammyeong_tonghoe": _nest({entry.key: _skqs(entry) for entry in SAMMYEONG}),
-        "jeokcheonsu": _nest({entry.key: _jeokcheonsu(entry) for entry in JEOKCHEONSU}),
+        "sammyeong_tonghoe/personal.json": _nest({entry.key: _skqs(entry) for entry in SAMMYEONG}),
+        "jeokcheonsu/personal.json": _nest({entry.key: _jeokcheonsu(entry) for entry in JEOKCHEONSU}),
+        "xieji_bianfang/hours.json": _nest({entry.key: _skqs(entry) for entry in XIEJI_BIANFANG}),
     }
 
 
 def main() -> None:
-    for directory, data in build().items():
-        out = DATA / directory / "personal.json"
+    for path, data in build().items():
+        out = DATA / path
+        out.parent.mkdir(exist_ok=True)
         out.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(out.relative_to(REFERENCES.parents[2]))
 

@@ -726,7 +726,7 @@ summary = "진시~술시 일곱 시진 중 원국과 충하지 않는 시진에 
 source_status = "none"
 decisions = ["D21", "C8", "C15", "C23"]
 code = ["rules/focus_time.py"]
-evidence_rules = ["focus_time/score", "focus_time/fallback"]
+evidence_rules = ["focus_time/day_relation", "focus_time/birth_year", "focus_time/huangdao"]
 message_keys = ["focus_time.*"]
 
 [items.steps]

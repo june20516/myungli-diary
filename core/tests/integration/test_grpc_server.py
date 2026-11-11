@@ -180,8 +180,13 @@ def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> N
     assert response.direction.direction != pb.DIRECTION8_UNSPECIFIED
     assert 1 <= response.number.number <= 10
     assert response.number.judgment.params["number"].integer == response.number.number
-    assert 1 <= len(response.focus_time.picks) <= 2
-    for pick in response.focus_time.picks:
+    assert response.night_focus_time.judgment.message_key == "focus_time.night"
+    assert (response.focus_time.period, response.night_focus_time.period) == (
+        pb.FOCUS_PERIOD_DAY,
+        pb.FOCUS_PERIOD_NIGHT,
+    )
+    assert len(response.focus_time.picks) == len(response.night_focus_time.picks) == 1
+    for pick in (*response.focus_time.picks, *response.night_focus_time.picks):
         assert pick.branch == pick.pillar.branch != pb.BRANCH_UNSPECIFIED
         assert pick.end.ToDatetime() > pick.start.ToDatetime()
     assert response.kind != pb.DAY_KIND_UNSPECIFIED
