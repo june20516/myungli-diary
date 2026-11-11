@@ -1,14 +1,34 @@
 {
   "meta": {
     "title": "명리일기 계산 규칙 지도",
-    "version": 1,
+    "version": 2,
     "updated": "2026-11-11",
     "owner": "core",
     "description": "엔진이 계산하는 값(행운 색, 방향, 숫자, 집중 시간, 날의 성격, 달력 길흉, 태그, 용신, 신강약, 개인 해석 등)을 하나의 공통 틀에 놓고, 항목마다 더하거나 뺀 규칙과 그 이유, 원전을 적습니다. 지금 규칙을 있는 그대로 옮긴 것이며, 규칙의 기준 문서는 엔진 spec(core/docs/specs/2026-10-10-myungli-engine-design.md)과 결정 로그입니다.",
     "source_status_labels": {
-      "source": "원전 있음",
-      "interpretation": "원전 + 명리일기 해석",
-      "none": "원전 없음 (명리일기 규칙)"
+      "source": "원전",
+      "concept_quantified": "원전 개념 + 명리일기 수치화",
+      "principle_selected": "원전 원리 + 명리일기 선택",
+      "product": "제품 규칙",
+      "no_source": "원전 없음"
+    },
+    "source_status_descriptions": {
+      "source": "규칙이 원문 조목에 있습니다.",
+      "concept_quantified": "개념은 원전에 있고, 가중치, 점수, 경계값 같은 수치만 명리일기가 정했습니다.",
+      "principle_selected": "원전 원리를 따르되, 원문이 정하지 않은 고르는 법이나 순서를 명리일기가 정했습니다.",
+      "product": "명리에 대한 주장이 아니라 앱 설계라 원전 대상이 아닙니다.",
+      "no_source": "명리에 대한 주장인데 근거 원문이 없습니다. 앱 근거에 원전 없음을 밝힙니다(D108 ④)."
+    },
+    "inconsistency_intent_labels": {
+      "intended": "의도",
+      "partly": "반쯤 의도",
+      "missing": "누락"
+    },
+    "inconsistency_handling_labels": {
+      "keep": "그대로 둠",
+      "keep_and_disclose": "그대로 두고 문구로 밝힘",
+      "merge": "합침",
+      "pending": "결정 대기"
     },
     "rule_kind_labels": {
       "base": "공통 틀 그대로",
@@ -85,8 +105,7 @@
       "id": "strength",
       "group": "natal",
       "name": "신강약",
-      "summary": "일간을 돕는 오행이 원국에서 얼마나 많은지를 점수로 매기고 다섯 등급으로 나눕니다.",
-      "source_status": "none",
+      "summary": "일간을 돕는 오행이 원국에서 얼마나 많은지를 점수로 매기고 다섯 등급으로 나눕니다. 일간의 旺衰(신강, 신약)는 원전 개념이고, 점수로 바꾸는 방식이 명리일기 것입니다.",
       "decisions": [
         "D7",
         "C21",
@@ -98,6 +117,33 @@
       ],
       "evidence_rules": [],
       "message_keys": [],
+      "values": [
+        {
+          "name": "MONTH_BRANCH_WEIGHT",
+          "module": "rules/strength.py",
+          "value": 3.0
+        },
+        {
+          "name": "BRANCH_WEIGHT",
+          "module": "rules/strength.py",
+          "value": 1.5
+        },
+        {
+          "name": "STEM_WEIGHT",
+          "module": "rules/strength.py",
+          "value": 1.0
+        },
+        {
+          "name": "STRENGTH_THRESHOLDS",
+          "module": "constants/calibration.py",
+          "value": [
+            22.381,
+            35.2381,
+            43.8095,
+            57.619
+          ]
+        }
+      ],
       "steps": {
         "basis": "원국 여덟 글자(시간 모름이면 여섯 글자)에서 일간을 뺀 자리를 봅니다.",
         "today": "쓰지 않습니다.",
@@ -109,31 +155,51 @@
         {
           "kind": "base",
           "text": "자리 가중치: 월지 3, 그 밖의 지지 1.5, 천간 1. 지지는 지장간 비율(3개 0.6/0.3/0.1, 2개 0.7/0.3, 1개 1.0)로 오행에 나눕니다.",
-          "reason": "월지가 계절을 정해 가장 힘이 세다는 일반 원리를 숫자로 옮겼습니다.",
+          "reason": "계절(월령)을 얻으면 왕하다는 旺相休囚 원리(三命通會)를 따라 월지를 가장 무겁게 봅니다. 3, 1.5, 1과 지장간 비율은 명리일기 수치입니다.",
           "when": "모든 원국.",
           "decisions": [
             "C31"
           ],
-          "source_status": "none"
+          "source_status": "concept_quantified"
         },
         {
           "kind": "base",
-          "text": "점수 = 일간을 돕는 오행(비겁 + 인성)의 가중 합 / 전체 가중 합 x 100. 등급 경계는 무작위 출생 2만 건 분포의 15, 40, 60, 85 백분위입니다.",
-          "reason": "등급이 한쪽에 몰리지 않게 실제 분포로 경계를 정했습니다.",
+          "text": "점수 = 일간을 돕는 오행(비겁 + 인성)의 가중 합 / 전체 가중 합 x 100. 등급 경계는 점수 22.381, 35.2381, 43.8095, 57.619(무작위 출생 2만 건 분포의 15, 40, 60, 85 백분위)입니다.",
+          "reason": "돕는 기운이 많고 적음으로 강약을 본다는 억부의 전제(五行總論)는 원전이고, 등급이 한쪽에 몰리지 않게 실제 분포로 경계를 정한 것은 명리일기입니다.",
           "when": "모든 원국. 시간 모름 원국도 같은 경계를 씁니다(C21).",
           "decisions": [
             "C21"
           ],
-          "source_status": "none"
+          "source_status": "concept_quantified"
         }
-      ]
+      ],
+      "sources": [
+        {
+          "file": "sammyeong-tonghoe/vol2.wikitext",
+          "work": "三命通會",
+          "section": "论五行旺相休囚死并寄生十二宫",
+          "quote": "盛德乘时曰旺。如春木旺",
+          "meaning": "때를 얻어 덕이 성한 것을 왕이라 한다. 봄의 목이 왕한 것과 같다.",
+          "interpretation": "계절(월령)을 얻은 오행이 왕하다는 개념입니다. 자리 가중치와 점수, 등급 경계는 원문에 없습니다."
+        },
+        {
+          "ref": "gungtong-bogam/five_elements#balance_principle",
+          "work": "窮通寶鑑",
+          "section": "五行總論",
+          "quote": "高者抑之使平，下者举之使崇，或益其不及，或损其太过。所以贵在折衷，归於中道",
+          "meaning": "높은 것은 눌러 고르게 하고 낮은 것은 들어 올려, 모자라면 더하고 넘치면 덜어 가운데로 돌린다.",
+          "interpretation": "넘치고 모자람(강약)을 보고 덜거나 더한다는 원리입니다. 강약을 재는 점수 방식은 원문에 없습니다."
+        }
+      ],
+      "source_status_counts": {
+        "concept_quantified": 2
+      }
     },
     {
       "id": "yongsin",
       "group": "natal",
       "name": "용신, 희신, 기신, 통관",
       "summary": "그 사람에게 가장 필요한 오행(용신)을 정하고, 거기서 희신, 기신, 통관 오행을 끌어냅니다.",
-      "source_status": "interpretation",
       "decisions": [
         "D7",
         "D32",
@@ -151,6 +217,18 @@
       "message_keys": [
         "yongsin.method.*"
       ],
+      "values": [
+        {
+          "name": "JOHU_SUMMER_FIRE_SHARE",
+          "module": "constants/calibration.py",
+          "value": 0.3
+        },
+        {
+          "name": "JOHU_WINTER_WATER_SHARE",
+          "module": "constants/calibration.py",
+          "value": 0.3571
+        }
+      ],
       "steps": {
         "basis": "이 항목이 기준 자체입니다. 일간, 월지, 신강약 등급, 오행 분포를 씁니다.",
         "today": "쓰지 않습니다.",
@@ -161,13 +239,13 @@
       "rules": [
         {
           "kind": "base",
-          "text": "조후 우선: 월지가 巳午未이고 화 비중이 기준 이상, 또는 월지가 亥子丑이고 수 비중이 기준 이상이면 조후표(窮通寶鑑) 첫 글자의 오행이 용신입니다(JOHU).",
-          "reason": "너무 덥거나 추운 계절에 난 사주는 기후를 먼저 맞춘다는 조후 원리입니다. 기준(같은 계절 표본의 상위 40%)은 명리일기가 정했습니다.",
+          "text": "조후 우선: 월지가 巳午未이고 화 비중이 0.3 이상, 또는 월지가 亥子丑이고 수 비중이 0.3571 이상이면 조후표(窮通寶鑑) 첫 글자의 오행이 용신입니다(JOHU). 비중은 신강약의 오행별 가중 합에서 그 오행이 차지하는 몫입니다.",
+          "reason": "너무 덥거나 추운 계절에 난 사주는 기후를 먼저 맞춘다는 조후 원리(窮通寶鑑)입니다. 기준값(같은 계절 무작위 표본의 상위 40% 경계)은 명리일기가 정했습니다.",
           "when": "여름, 겨울 태생이고 그 계절 오행이 많을 때.",
           "decisions": [
             "D7"
           ],
-          "source_status": "interpretation"
+          "source_status": "concept_quantified"
         },
         {
           "kind": "base",
@@ -177,7 +255,7 @@
           "decisions": [
             "D32"
           ],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         },
         {
           "kind": "base",
@@ -187,7 +265,7 @@
           "decisions": [
             "D7"
           ],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         }
       ],
       "sources": [
@@ -207,14 +285,17 @@
           "meaning": "높은 것은 눌러 고르게 하고 낮은 것은 들어 올려, 모자라면 더하고 넘치면 덜어 가운데로 돌린다.",
           "interpretation": "어느 오행으로 덜고 더할지(인성, 식상, 재성, 관성 중 가장 약한 것)는 원문에 없고 명리일기가 정했습니다."
         }
-      ]
+      ],
+      "source_status_counts": {
+        "concept_quantified": 1,
+        "principle_selected": 2
+      }
     },
     {
       "id": "natal_shinsal",
       "group": "natal",
       "name": "원국 신살",
       "summary": "원국 안에 있는 신살(천을귀인, 도화, 역마, 화개, 양인, 공망)을 찾고, 그 지지를 데일리 발동 판정에 넘깁니다.",
-      "source_status": "source",
       "decisions": [
         "D13",
         "C24"
@@ -254,14 +335,16 @@
           "meaning": "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다.",
           "interpretation": ""
         }
-      ]
+      ],
+      "source_status_counts": {
+        "source": 1
+      }
     },
     {
       "id": "personal_reading",
       "group": "natal",
       "name": "원국 개인 해석",
-      "summary": "원국의 용어(일간, 십성, 12운성, 신살, 대운과 세운)를 그 사람의 용신 체계 안 역할과 자리로 풀 매개변수를 냅니다.",
-      "source_status": "none",
+      "summary": "원국의 용어(일간, 십성, 12운성, 신살, 대운과 세운)를 그 사람의 용신 체계 안 역할과 자리로 풀 매개변수를 냅니다. 재료(궁위, 십성, 12운성, 신살의 뜻, 용신 체계의 역할)는 원전 개념이고, 역할 우선순위, group_count로 나누는 방식, 문장 틀이 명리일기 것입니다.",
       "decisions": [
         "D60",
         "C27",
@@ -287,29 +370,29 @@
         "basis": "용신, 희신, 기신으로 그 글자 오행의 역할(YONGSIN, HUISIN, GISIN, NEUTRAL)을 정합니다.",
         "today": "쓰지 않습니다. 대운과 세운은 기준 날짜(as_of)에 지금인지(current)만 봅니다.",
         "output": "용어마다 판정 하나(키 + 매개변수).",
-        "evidence": "규칙 근거(공통 근거 balance_principle, C8)와 그 사람의 용신 근거.",
+        "evidence": "규칙 근거와 그 사람의 용신 근거. 지금 규칙 근거의 source_ref는 임시값입니다. 궁위 원전 자료가 없어 공통 근거 balance_principle(五行總論 균형 원리, C8, personal-reading spec 2.4)을 쓰고 있고, 실제 조목으로 바꾸는 일은 #998에서 합니다.",
         "params": "place, element, role, group_count, strength, luck, part, current 등(키 묶음마다 다름)."
       },
       "rules": [
         {
           "kind": "base",
           "text": "역할은 용신, 희신, 기신 순으로 먼저 맞는 것 하나이고, 어디에도 맞지 않으면 NEUTRAL입니다. 통관은 희신과 같은 오행이라 따로 두지 않습니다.",
-          "reason": "같은 용어라도 내 원국에서 맡는 역할에 따라 풀이가 달라야 해서입니다(D60).",
+          "reason": "용신, 희신, 기신은 원전 개념입니다. 한 오행이 여러 역할에 맞을 때 용신, 희신, 기신 순으로 하나만 고르는 우선순위는 명리일기가 정했습니다(D60).",
           "when": "모든 개인 해석.",
           "decisions": [
             "D60"
           ],
-          "source_status": "none"
+          "source_status": "concept_quantified"
         },
         {
           "kind": "added",
           "text": "group_count: 원국(일간 제외 천간 + 지지 정기)에 같은 십성 묶음이 몇 개인지. 태그의 십성 쏠림과 같은 계산입니다.",
-          "reason": "많고 적음에 따라 풀이가 달라지는 십성 해석에 씁니다.",
+          "reason": "십성의 많고 적음을 보는 것은 원전 개념이고, 개수를 세어 풀이를 나누는 방식은 명리일기가 정했습니다.",
           "when": "personal.ten_god.*",
           "decisions": [
             "C27"
           ],
-          "source_status": "none"
+          "source_status": "concept_quantified"
         },
         {
           "kind": "removed",
@@ -319,16 +402,19 @@
           "decisions": [
             "D60"
           ],
-          "source_status": "none"
+          "source_status": "product"
         }
-      ]
+      ],
+      "source_status_counts": {
+        "concept_quantified": 2,
+        "product": 1
+      }
     },
     {
       "id": "day_kind",
       "group": "day_judgment",
       "name": "날의 성격",
       "summary": "오늘이 귀인의 날, 용신의 날, 기신의 날, 평범한 날 중 무엇인지 정합니다. 행운 값과 총운, 달력 점수가 모두 이 값에서 시작합니다.",
-      "source_status": "interpretation",
       "decisions": [
         "D19",
         "D13",
@@ -355,7 +441,7 @@
           "decisions": [
             "D19"
           ],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         }
       ],
       "sources": [
@@ -367,14 +453,16 @@
           "meaning": "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다.",
           "interpretation": "귀인 지지를 날의 성격 1순위로 두는 4단계 순서는 명리일기 규칙입니다(D19)."
         }
-      ]
+      ],
+      "source_status_counts": {
+        "principle_selected": 1
+      }
     },
     {
       "id": "relations",
       "group": "day_judgment",
       "name": "합충형",
       "summary": "오늘 일진과 원국 사이의 천간합, 지지육합, 지지충, 지지형을 찾습니다. 탐합망충으로 무효가 된 충도 기록합니다.",
-      "source_status": "source",
       "decisions": [
         "D13"
       ],
@@ -398,7 +486,7 @@
           "reason": "합을 탐하면 충을 잊는다는 원리(위키 4.1)입니다.",
           "when": "합과 충이 함께 걸린 날.",
           "decisions": [],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         },
         {
           "kind": "removed",
@@ -406,7 +494,7 @@
           "reason": "MVP 범위 밖(spec 15, Phase 2).",
           "when": "모든 합.",
           "decisions": [],
-          "source_status": "none"
+          "source_status": "product"
         }
       ],
       "sources": [
@@ -426,14 +514,17 @@
           "meaning": "합은 화합이니 음양이 서로 어울려 그 기운이 저절로 합한다.",
           "interpretation": ""
         }
-      ]
+      ],
+      "source_status_counts": {
+        "principle_selected": 1,
+        "product": 1
+      }
     },
     {
       "id": "calendar_luck",
       "group": "day_judgment",
       "name": "달력 길흉",
       "summary": "월간 달력의 날짜마다 점수를 더해 아주 좋음, 좋음, 보통, 주의 넷으로 나눕니다.",
-      "source_status": "none",
       "decisions": [
         "C8",
         "C11",
@@ -450,6 +541,43 @@
       "message_keys": [
         "calendar.*"
       ],
+      "values": [
+        {
+          "name": "HAP_SCORE",
+          "module": "rules/calendar_luck.py",
+          "value": 1
+        },
+        {
+          "name": "CHUNG_DAY_OR_MONTH_SCORE",
+          "module": "rules/calendar_luck.py",
+          "value": -2
+        },
+        {
+          "name": "CHUNG_OTHER_SCORE",
+          "module": "rules/calendar_luck.py",
+          "value": -1
+        },
+        {
+          "name": "HYEONG_SCORE",
+          "module": "rules/calendar_luck.py",
+          "value": -1
+        },
+        {
+          "name": "VERY_GOOD_THRESHOLD",
+          "module": "rules/calendar_luck.py",
+          "value": 3
+        },
+        {
+          "name": "GOOD_THRESHOLD",
+          "module": "rules/calendar_luck.py",
+          "value": 2
+        },
+        {
+          "name": "CAUTION_THRESHOLD",
+          "module": "rules/calendar_luck.py",
+          "value": -2
+        }
+      ],
       "steps": {
         "basis": "날의 성격(귀인, 용신, 기신)과 원국 자리.",
         "today": "날의 성격과 합충형(탐합망충 반영).",
@@ -461,21 +589,23 @@
         {
           "kind": "base",
           "text": "귀인의 날 +2, 용신의 날 +2, 합 +1, 기신의 날 -1, 일지 또는 월지 충 -2, 그 밖의 충 -1, 형 -1. 항목마다 한 번만 더합니다.",
-          "reason": "날의 성격과 합충을 한눈에 보는 점수로 묶었습니다. 점수 값은 명리일기가 정했습니다.",
+          "reason": "귀인, 용신, 기신, 합, 충, 형의 길흉은 원전 개념이고, 한눈에 보는 점수로 묶은 값과 수준 경계는 명리일기가 정했습니다.",
           "when": "월간 달력의 모든 날.",
           "decisions": [
             "C11"
           ],
-          "source_status": "none"
+          "source_status": "concept_quantified"
         }
-      ]
+      ],
+      "source_status_counts": {
+        "concept_quantified": 1
+      }
     },
     {
       "id": "tags",
       "group": "tags_messages",
       "name": "사주 기운 태그",
       "summary": "오늘 일진과 원국의 합충, 십성 쏠림, 신살 발동을 태그로 고르고 앞의 1~2개를 대표로 둡니다.",
-      "source_status": "interpretation",
       "decisions": [
         "D108",
         "C9",
@@ -486,6 +616,18 @@
       "code": [
         "rules/tags.py",
         "chart/shinsal.py"
+      ],
+      "values": [
+        {
+          "name": "MAX_FEATURED",
+          "module": "rules/tags.py",
+          "value": 2
+        },
+        {
+          "name": "RUSH_MIN_NATAL_COUNT",
+          "module": "rules/tags.py",
+          "value": 2
+        }
       ],
       "evidence_rules": [
         "tags/select",
@@ -522,7 +664,7 @@
             "C9",
             "C29"
           ],
-          "source_status": "none"
+          "source_status": "principle_selected"
         },
         {
           "kind": "added",
@@ -533,7 +675,7 @@
             "D108",
             "C28"
           ],
-          "source_status": "none"
+          "source_status": "no_source"
         },
         {
           "kind": "added",
@@ -543,7 +685,7 @@
           "decisions": [
             "C10"
           ],
-          "source_status": "interpretation"
+          "source_status": "product"
         }
       ],
       "sources": [
@@ -627,14 +769,18 @@
           "meaning": "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다.",
           "interpretation": ""
         }
-      ]
+      ],
+      "source_status_counts": {
+        "principle_selected": 1,
+        "product": 1,
+        "no_source": 1
+      }
     },
     {
       "id": "fortune_guide",
       "group": "tags_messages",
       "name": "총운과 가이드 질문",
       "summary": "총운 본문은 날의 성격과 오늘 천간의 십성 묶음으로, 보조 문장과 가이드 질문은 대표 태그로 키를 정합니다.",
-      "source_status": "none",
       "decisions": [
         "D22",
         "D24",
@@ -675,16 +821,18 @@
             "C6",
             "C30"
           ],
-          "source_status": "none"
+          "source_status": "product"
         }
-      ]
+      ],
+      "source_status_counts": {
+        "product": 1
+      }
     },
     {
       "id": "color",
       "group": "element_luck",
       "name": "행운 색",
       "summary": "바탕 오행을 그날 일지의 12운성 자리에 따라 변역(變易)한 색이고, 그 색이 기신이면 내 균형 기준 색을 앞에 두어 둘을 냅니다.",
-      "source_status": "interpretation",
       "decisions": [
         "D14",
         "D19",
@@ -722,7 +870,7 @@
             "D119",
             "C33"
           ],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         },
         {
           "kind": "added",
@@ -733,7 +881,7 @@
             "D119",
             "C34"
           ],
-          "source_status": "interpretation"
+          "source_status": "product"
         }
       ],
       "sources": [
@@ -753,14 +901,17 @@
           "meaning": "변역하면 그렇지 않으니, 생왕이면 정색, 사절이면 모색, 성형과 관대면 처색, 병패면 귀색, 왕묘면 자색을 따른다.",
           "interpretation": "원문은 12운성 열둘을 다 적지 않았습니다. 臨官과 胎의 자리, 帝旺을 生旺으로 본 것, 衰를 주의 衰老之際로 妻色에 둔 것, 오행의 12운성을 양간으로 본 것은 명리일기 해석입니다."
         }
-      ]
+      ],
+      "source_status_counts": {
+        "principle_selected": 1,
+        "product": 1
+      }
     },
     {
       "id": "direction",
       "group": "element_luck",
       "name": "행운 방향",
       "summary": "날의 성격으로 오행이나 지지를 고르고 8방위로 바꿉니다. 평범한 날은 그날의 길신 방위를 씁니다.",
-      "source_status": "interpretation",
       "decisions": [
         "D19",
         "C34"
@@ -796,7 +947,7 @@
           "decisions": [
             "D19"
           ],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         },
         {
           "kind": "added",
@@ -806,7 +957,7 @@
           "decisions": [
             "D19"
           ],
-          "source_status": "interpretation"
+          "source_status": "principle_selected"
         },
         {
           "kind": "removed",
@@ -816,7 +967,7 @@
           "decisions": [
             "D119"
           ],
-          "source_status": "none"
+          "source_status": "product"
         }
       ],
       "sources": [
@@ -828,14 +979,17 @@
           "meaning": "북은 수, 남은 화, 동은 목, 서는 금, 가운데는 토에 응한다.",
           "interpretation": "원문은 토를 가운데에 두어 8방위가 없습니다. 토를 북동, 남서로 보는 것과 지지 방위표, 길신 방위 쓰임은 명리일기 규칙입니다."
         }
-      ]
+      ],
+      "source_status_counts": {
+        "principle_selected": 2,
+        "product": 1
+      }
     },
     {
       "id": "number",
       "group": "element_luck",
       "name": "행운 숫자",
       "summary": "첫째 행운 색의 오행이 가진 하도(河圖) 수 한 쌍에서, 오늘 천간이 양이면 홀수, 음이면 짝수를 고릅니다.",
-      "source_status": "interpretation",
       "decisions": [
         "D25",
         "D119",
@@ -868,7 +1022,7 @@
             "D25",
             "D119"
           ],
-          "source_status": "interpretation"
+          "source_status": "product"
         },
         {
           "kind": "added",
@@ -878,7 +1032,7 @@
           "decisions": [
             "D25"
           ],
-          "source_status": "none"
+          "source_status": "principle_selected"
         }
       ],
       "sources": [
@@ -890,14 +1044,17 @@
           "meaning": "그 수는 수 1, 화 2, 목 3, 금 4, 토 5이고, 생왕이면 배로, 사절이면 반으로 한다.",
           "interpretation": "원문은 생수 1~5만 적었고, 성수 6~10(하도 짝)과 홀짝 고르기는 명리일기 규칙입니다. 생왕가배 사절감반은 쓰지 않습니다."
         }
-      ]
+      ],
+      "source_status_counts": {
+        "principle_selected": 1,
+        "product": 1
+      }
     },
     {
       "id": "focus_time",
       "group": "hour",
       "name": "집중하기 좋은 시간",
       "summary": "진시~술시 일곱 시진 중 원국과 충하지 않는 시진에 점수를 매겨 1등(동점이면 2개)을 고릅니다.",
-      "source_status": "none",
       "decisions": [
         "D21",
         "C8",
@@ -915,6 +1072,33 @@
       "message_keys": [
         "focus_time.*"
       ],
+      "values": [
+        {
+          "name": "GWIIN_SCORE",
+          "module": "rules/focus_time.py",
+          "value": 3
+        },
+        {
+          "name": "YONGSIN_SCORE",
+          "module": "rules/focus_time.py",
+          "value": 2
+        },
+        {
+          "name": "HUISIN_SCORE",
+          "module": "rules/focus_time.py",
+          "value": 1
+        },
+        {
+          "name": "HAP_SCORE",
+          "module": "rules/focus_time.py",
+          "value": 1
+        },
+        {
+          "name": "MAX_PICKS",
+          "module": "rules/focus_time.py",
+          "value": 2
+        }
+      ],
       "steps": {
         "basis": "천을귀인 지지, 용신, 희신, 원국 지지.",
         "today": "그날의 시진 간지(천간이 날마다 바뀜)와 황도길시.",
@@ -925,24 +1109,44 @@
       "rules": [
         {
           "kind": "base",
-          "text": "후보는 진시~술시, 원국 지지와 충인 시진은 뺍니다.",
-          "reason": "활동 시간대만 보고, 원국과 부딪치는 시간은 피합니다(D21).",
+          "text": "후보는 진시~술시 일곱 시진입니다.",
+          "reason": "활동 시간대만 봅니다(D21 ①). 명리 주장이 아닌 제품 설계입니다.",
           "when": "모든 날.",
           "decisions": [
             "D21"
           ],
-          "source_status": "none"
+          "source_status": "product"
+        },
+        {
+          "kind": "base",
+          "text": "원국 지지(연, 월, 일, 시) 중 하나와 충인 시진은 뺍니다.",
+          "reason": "원국과 부딪치는 시간은 피합니다(D21 ②). 충은 원전 개념이지만, 시 고르기 원문(協紀辨方書 論相主)은 生年 지지 충만 가볍게 꺼리고, 원국 전체로 넓혀 빼는 것은 명리일기가 정했습니다.",
+          "when": "모든 날.",
+          "decisions": [
+            "D21"
+          ],
+          "source_status": "principle_selected"
         },
         {
           "kind": "added",
-          "text": "점수: 내 천을귀인 시진 +3, 시진 천간이나 지지 오행이 용신 +2, 희신 +1, 원국 지지와 육합 +1. 동점이면 황도길시, 그다음 이른 시진.",
-          "reason": "D21의 가점 항목에 명리일기가 가중치를 매겼습니다. 가중치 원전은 없습니다.",
+          "text": "점수: 내 천을귀인 시진 +3, 시진 천간이나 지지 오행이 용신 +2, 희신 +1, 원국 지지와 육합 +1.",
+          "reason": "D21의 가점 항목(귀인, 용신, 희신, 합은 원전 개념)에 명리일기가 가중치를 매겼습니다. 원국 일간, 용신으로 시를 고르는 원문 조목은 찾지 못했습니다(hour-sources-survey.md, #980).",
           "when": "모든 날.",
           "decisions": [
             "D21",
             "C15"
           ],
-          "source_status": "none"
+          "source_status": "concept_quantified"
+        },
+        {
+          "kind": "added",
+          "text": "동점이면 황도길시(lunar-python 시진 12신의 黃道), 그다음 이른 시진입니다.",
+          "reason": "황도흑도 시는 택일 원문 조목이 있고, lunar-python 계산은 그 규칙과 12일지 x 12시가 모두 같습니다. 이른 시진은 명리일기가 정한 마지막 순서입니다.",
+          "when": "점수가 같은 시진이 있을 때.",
+          "decisions": [
+            "D21"
+          ],
+          "source_status": "source"
         },
         {
           "kind": "base",
@@ -952,7 +1156,7 @@
           "decisions": [
             "C23"
           ],
-          "source_status": "none"
+          "source_status": "product"
         },
         {
           "kind": "removed",
@@ -962,9 +1166,33 @@
           "decisions": [
             "D21"
           ],
-          "source_status": "none"
+          "source_status": "product"
         }
-      ]
+      ],
+      "sources": [
+        {
+          "file": "xieji-bianfang/skqs-vol07.wikitext",
+          "work": "欽定協紀辨方書",
+          "section": "黄道黒道",
+          "quote": "日起時則子日申時起青龍酉時為明堂依次順數",
+          "meaning": "날로 시를 잡으면, 子일은 申시에서 青龍이 시작하고 酉시가 明堂이며 차례로 센다.",
+          "interpretation": "동점 처리에만 씁니다. 같은 책 卷三十四 用時法은 시의 길흉신에 다 얽매일 필요는 없다고 합니다."
+        },
+        {
+          "file": "xieji-bianfang/skqs-vol33.wikitext",
+          "work": "欽定協紀辨方書",
+          "section": "論相主",
+          "quote": "從來皆論生年不論生日有論生日者非古法也",
+          "meaning": "예부터 모두 태어난 해로 논하고 태어난 날로 논하지 않으니, 태어난 날로 논하는 것은 옛 법이 아니다.",
+          "interpretation": "택일에서 고른 사주를 주인의 명에 맞추는(相主) 맥락의 말이라, 그 맥락의 사람 기준이 生年이라는 뜻입니다. 명리(추명)에서 일간을 나로 보는 것을 부정한 말은 아닙니다. 지금 규칙(원국 일간 귀인, 용신)은 이 조목을 따르지 않으며, 원전 안의 비교는 #980에 있습니다."
+        }
+      ],
+      "source_status_counts": {
+        "source": 1,
+        "concept_quantified": 1,
+        "principle_selected": 1,
+        "product": 3
+      }
     }
   ],
   "background": [
@@ -1005,28 +1233,33 @@
     },
     {
       "order": 8,
+      "title": "억부와 조후",
+      "body": "용신을 고르는 두 가지 법입니다. 억부(抑扶)는 일간이 강하면 덜어 내는 오행을, 약하면 돕는 오행을 용신으로 삼는 법이고, 그래서 신강약을 먼저 잽니다(원전 窮通寶鑑 五行總論 \"넘치면 덜고 모자라면 더한다\"). 조후(調候)는 계절 온도를 맞추는 법으로, 여름생은 식히고 겨울생은 데우는 오행을 먼저 씁니다. 명리일기는 여름과 겨울 태생이면서 그 계절 기운이 지나치면 조후를 먼저 보고(窮通寶鑑 조후표의 첫 글자), 강약이 중간이어도 조후표를 따릅니다. 그 밖에는 억부로, 약하면 인성(나를 생하는 오행), 강하면 식상, 재성, 관성 중 원국에 가장 적은 오행을 용신으로 씁니다."
+    },
+    {
+      "order": 9,
       "title": "일진과 날의 성격",
       "body": "일진은 모두에게 같지만, 원국과 맞대 보면 사람마다 다른 날이 됩니다(D13). 오늘 지지가 내 천을귀인이면 귀인의 날, 일진에 기신 오행이 있으면 기신의 날, 용신 오행만 있으면 용신의 날, 그 밖은 평범한 날입니다. 행운 값과 총운은 대부분 이 성격에서 시작합니다."
     },
     {
-      "order": 9,
+      "order": 10,
       "title": "12운성",
       "body": "천간의 기운이 열두 지지를 지나며 태어나고 자라고 늙고 사라지는 단계를 열둘로 나눈 것입니다. 長生, 沐浴, 冠帶, 臨官, 帝旺, 衰, 病, 死, 墓, 絶, 胎, 養 순입니다. 원국에서는 일간 기준으로, 행운 색에서는 바탕 오행의 양간 기준으로 오늘 일지의 자리를 봅니다."
     },
     {
-      "order": 10,
+      "order": 11,
       "title": "합, 충, 형",
       "body": "글자끼리 맺는 관계입니다. 합은 서로 끌어 묶이는 관계(천간합 다섯, 지지육합 여섯), 충은 정면으로 부딪치는 관계(지지충 여섯, 예: 子午), 형은 서로 해치는 관계입니다. 오늘 지지가 한 글자와 합하면서 다른 글자와 충하면 합에 끌려 충을 잊는다고 보아 충을 무효로 둡니다(탐합망충)."
     },
     {
-      "order": 11,
+      "order": 12,
       "title": "신살",
       "body": "특정 글자 조합에 붙은 별칭입니다. 천을귀인(귀한 도움), 도화(사람을 끄는 기운), 역마(움직임), 화개(혼자 깊어짐), 양인(날카로움), 공망(비어 있음) 등이 있습니다. 원국에 있는 신살은 원국 표에, 오늘 지지가 내 신살 지지와 같으면 그날 발동한 태그로 보입니다."
     },
     {
-      "order": 12,
+      "order": 13,
       "title": "원전과 명리일기 해석",
-      "body": "원전은 窮通寶鑑, 三命通會, 滴天髓 같은 옛 명리 책의 조목입니다. 지도의 원전 상태는 셋입니다. 원전 있음은 조목을 그대로 따른 규칙, 원전 + 해석은 원전이 있지만 원문에 없는 부분을 명리일기가 정한 규칙, 원전 없음은 명리일기가 정한 규칙(가중치, 순서 등)입니다. 원전이 없으면 근거 화면에서 그렇다고 밝힙니다(D108 ④)."
+      "body": "원전은 窮通寶鑑, 三命通會, 滴天髓, 協紀辨方書 같은 옛 책의 조목입니다. 지도는 규칙 줄마다 원전 상태를 다섯으로 나눕니다. 원전(규칙이 원문에 있음), 원전 개념 + 명리일기 수치화(개념은 원문, 가중치와 경계값은 명리일기), 원전 원리 + 명리일기 선택(원리는 원문, 원문이 정하지 않은 고르는 법은 명리일기), 제품 규칙(명리 주장이 아닌 앱 설계), 원전 없음(명리 주장인데 원문이 없음, 십성 쏠림 태그)입니다. 이 분류는 내부 기록이고, 앱 근거는 의혹이 없을 만큼만 밝힙니다(D121)."
     }
   ],
   "inconsistencies": [
@@ -1038,7 +1271,16 @@
         "number"
       ],
       "text": "같은 오행 행운 값인데 색은 12운성 변역을 하고 숫자는 색을 따르지만, 방향은 바탕 오행 그대로입니다(평범한 날은 길신 방위).",
-      "issue": "#988"
+      "intent": "intended",
+      "intent_note": "의도. 변역 원문은 색(形色)만 말합니다.",
+      "continuity": "있음. 같은 행운 칩 줄이라 같은 방식을 기대할 수 있습니다.",
+      "disclosure": "부족. 색 근거 문장이 옛 \"용신 오행\" 문장입니다.",
+      "handling": "keep_and_disclose",
+      "handling_note": "그대로 두고, writing 원고에서 \"색만 원전 변역, 방향은 용신 그대로\"를 밝힙니다.",
+      "issues": [
+        "#978",
+        "#971"
+      ]
     },
     {
       "id": "focus_time_separate_scoring",
@@ -1046,7 +1288,15 @@
         "focus_time"
       ],
       "text": "집중 시간은 바탕 오행 하나와 날의 성격을 쓰지 않고, 원전 없는 가중치로 시진마다 점수를 매깁니다. 1년 내내 같은 시간인 사람이 있습니다.",
-      "issue": "#980"
+      "intent": "intended",
+      "intent_note": "의도. 시 고르기도 원문(協紀辨方書 用時法)에서 별도 법입니다.",
+      "continuity": "약함. 시간은 다른 항목으로 읽힙니다.",
+      "disclosure": "있음.",
+      "handling": "pending",
+      "handling_note": "#980 결정으로 정리합니다.",
+      "issues": [
+        "#980"
+      ]
     },
     {
       "id": "role_value_sets",
@@ -1056,7 +1306,15 @@
         "personal_reading"
       ],
       "text": "오행 역할 값 집합이 자리마다 다릅니다. 색은 YONGSIN, TONGGWAN, 방향은 YONGSIN, TONGGWAN, HUISIN, 개인 해석은 YONGSIN, HUISIN, GISIN, NEUTRAL입니다. 통관과 희신은 같은 오행인데 이름이 갈립니다.",
-      "issue": "#988"
+      "intent": "intended",
+      "intent_note": "의도. 통관은 기신의 날에만 쓰는 역할입니다.",
+      "continuity": "약함. 앱은 \"이어 주는 오행\"으로 풀어 씁니다.",
+      "disclosure": "있음.",
+      "handling": "keep",
+      "handling_note": "그대로 둡니다.",
+      "issues": [
+        "#988"
+      ]
     },
     {
       "id": "no_source_marking",
@@ -1068,7 +1326,15 @@
         "tags"
       ],
       "text": "원전이 없는 판정을 표시하는 방식이 둘입니다. 태그는 source_ref를 빈 값으로 두고(C28, D108 ④), 집중 시간, 달력 길흉, 총운 본문, 개인 해석은 공통 근거 balance_principle을 붙입니다(C8).",
-      "issue": "#988"
+      "intent": "missing",
+      "intent_note": "누락.",
+      "continuity": "있음. 같은 근거 시트에 나옵니다.",
+      "disclosure": "없음. 관련이 적은 임시 원전(五行總論 균형 원리)이 나옵니다.",
+      "handling": "merge",
+      "handling_note": "임시 원전을 없애고 하나의 방식으로 합칩니다.",
+      "issues": [
+        "#998"
+      ]
     },
     {
       "id": "number_source_unused",
@@ -1076,7 +1342,15 @@
         "number"
       ],
       "text": "숫자 원전 대목의 生旺加倍，死绝减半(생왕이면 배, 사절이면 반)은 쓰지 않고, 같은 생왕사절을 색에서는 변역으로 씁니다.",
-      "issue": "#979"
+      "intent": "intended",
+      "intent_note": "의도(D119 ③, #979).",
+      "continuity": "있음. 같은 오행이라 맞아 보입니다.",
+      "disclosure": "있음. 숫자 근거가 색과 같은 오행이라고 밝힙니다.",
+      "handling": "keep",
+      "handling_note": "그대로 둡니다.",
+      "issues": [
+        "#979"
+      ]
     },
     {
       "id": "day_element_reading",
@@ -1086,7 +1360,15 @@
         "fortune_guide"
       ],
       "text": "오늘 일진을 읽는 범위가 다릅니다. 날의 성격은 천간 오행과 지지 정기 오행 둘, 십성 쏠림 태그는 천간과 지지 정기의 십성, 총운과 가이드 질문은 천간의 십성만 봅니다.",
-      "issue": "#988"
+      "intent": "partly",
+      "intent_note": "반쯤 의도. 총운 틀 20개를 단순하게 두려고 천간만 봅니다.",
+      "continuity": "있음. 같은 오늘 화면입니다.",
+      "disclosure": "있음. 총운 근거가 천간 십성이라고 밝힙니다.",
+      "handling": "keep",
+      "handling_note": "그대로 둡니다.",
+      "issues": [
+        "#988"
+      ]
     }
   ]
 }
