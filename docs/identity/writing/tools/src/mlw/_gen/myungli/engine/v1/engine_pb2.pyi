@@ -191,6 +191,27 @@ class ElementRole(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     ELEMENT_ROLE_YONGSIN: _ClassVar[ElementRole]
     ELEMENT_ROLE_TONGGWAN: _ClassVar[ElementRole]
 
+class ColorShift(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    COLOR_SHIFT_UNSPECIFIED: _ClassVar[ColorShift]
+    COLOR_SHIFT_JEONG: _ClassVar[ColorShift]
+    COLOR_SHIFT_MO: _ClassVar[ColorShift]
+    COLOR_SHIFT_CHEO: _ClassVar[ColorShift]
+    COLOR_SHIFT_GWI: _ClassVar[ColorShift]
+    COLOR_SHIFT_JA: _ClassVar[ColorShift]
+
+class FocusPeriod(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    FOCUS_PERIOD_UNSPECIFIED: _ClassVar[FocusPeriod]
+    FOCUS_PERIOD_DAY: _ClassVar[FocusPeriod]
+    FOCUS_PERIOD_NIGHT: _ClassVar[FocusPeriod]
+
+class ColorBasis(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    COLOR_BASIS_UNSPECIFIED: _ClassVar[ColorBasis]
+    COLOR_BASIS_SOURCE: _ClassVar[ColorBasis]
+    COLOR_BASIS_BALANCE: _ClassVar[ColorBasis]
+
 class SolarTermKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     SOLAR_TERM_KIND_UNSPECIFIED: _ClassVar[SolarTermKind]
@@ -358,6 +379,18 @@ RELATION_KIND_HYEONG: RelationKind
 ELEMENT_ROLE_UNSPECIFIED: ElementRole
 ELEMENT_ROLE_YONGSIN: ElementRole
 ELEMENT_ROLE_TONGGWAN: ElementRole
+COLOR_SHIFT_UNSPECIFIED: ColorShift
+COLOR_SHIFT_JEONG: ColorShift
+COLOR_SHIFT_MO: ColorShift
+COLOR_SHIFT_CHEO: ColorShift
+COLOR_SHIFT_GWI: ColorShift
+COLOR_SHIFT_JA: ColorShift
+FOCUS_PERIOD_UNSPECIFIED: FocusPeriod
+FOCUS_PERIOD_DAY: FocusPeriod
+FOCUS_PERIOD_NIGHT: FocusPeriod
+COLOR_BASIS_UNSPECIFIED: ColorBasis
+COLOR_BASIS_SOURCE: ColorBasis
+COLOR_BASIS_BALANCE: ColorBasis
 SOLAR_TERM_KIND_UNSPECIFIED: SolarTermKind
 SOLAR_TERM_KIND_SOHAN: SolarTermKind
 SOLAR_TERM_KIND_DAEHAN: SolarTermKind
@@ -712,7 +745,7 @@ class YearLuck(_message.Message):
     def __init__(self, year: _Optional[int] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., ten_god: _Optional[_Union[TenGod, str]] = ..., relations_with_natal: _Optional[_Iterable[_Union[RelationKind, str]]] = ...) -> None: ...
 
 class DailyResponse(_message.Message):
-    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates", "lunar_month", "lunar_day", "is_leap_month")
+    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates", "lunar_month", "lunar_day", "is_leap_month", "second_color", "night_focus_time")
     DAY_FIELD_NUMBER: _ClassVar[int]
     KIND_FIELD_NUMBER: _ClassVar[int]
     COLOR_FIELD_NUMBER: _ClassVar[int]
@@ -732,6 +765,8 @@ class DailyResponse(_message.Message):
     LUNAR_MONTH_FIELD_NUMBER: _ClassVar[int]
     LUNAR_DAY_FIELD_NUMBER: _ClassVar[int]
     IS_LEAP_MONTH_FIELD_NUMBER: _ClassVar[int]
+    SECOND_COLOR_FIELD_NUMBER: _ClassVar[int]
+    NIGHT_FOCUS_TIME_FIELD_NUMBER: _ClassVar[int]
     day: Pillar
     kind: DayKind
     color: ColorCard
@@ -751,17 +786,27 @@ class DailyResponse(_message.Message):
     lunar_month: int
     lunar_day: int
     is_leap_month: bool
-    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ...) -> None: ...
+    second_color: ColorCard
+    night_focus_time: FocusTimeCard
+    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., second_color: _Optional[_Union[ColorCard, _Mapping]] = ..., night_focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ...) -> None: ...
 
 class ColorCard(_message.Message):
-    __slots__ = ("judgment", "element", "role")
+    __slots__ = ("judgment", "element", "role", "base_element", "twelve_stage", "shift", "basis")
     JUDGMENT_FIELD_NUMBER: _ClassVar[int]
     ELEMENT_FIELD_NUMBER: _ClassVar[int]
     ROLE_FIELD_NUMBER: _ClassVar[int]
+    BASE_ELEMENT_FIELD_NUMBER: _ClassVar[int]
+    TWELVE_STAGE_FIELD_NUMBER: _ClassVar[int]
+    SHIFT_FIELD_NUMBER: _ClassVar[int]
+    BASIS_FIELD_NUMBER: _ClassVar[int]
     judgment: Judgment
     element: Element
     role: ElementRole
-    def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., element: _Optional[_Union[Element, str]] = ..., role: _Optional[_Union[ElementRole, str]] = ...) -> None: ...
+    base_element: Element
+    twelve_stage: TwelveStage
+    shift: ColorShift
+    basis: ColorBasis
+    def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., element: _Optional[_Union[Element, str]] = ..., role: _Optional[_Union[ElementRole, str]] = ..., base_element: _Optional[_Union[Element, str]] = ..., twelve_stage: _Optional[_Union[TwelveStage, str]] = ..., shift: _Optional[_Union[ColorShift, str]] = ..., basis: _Optional[_Union[ColorBasis, str]] = ...) -> None: ...
 
 class DirectionCard(_message.Message):
     __slots__ = ("judgment", "direction", "rule_id")
@@ -782,14 +827,16 @@ class NumberCard(_message.Message):
     def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., number: _Optional[int] = ...) -> None: ...
 
 class FocusTimeCard(_message.Message):
-    __slots__ = ("judgment", "picks", "fallback")
+    __slots__ = ("judgment", "picks", "fallback", "period")
     JUDGMENT_FIELD_NUMBER: _ClassVar[int]
     PICKS_FIELD_NUMBER: _ClassVar[int]
     FALLBACK_FIELD_NUMBER: _ClassVar[int]
+    PERIOD_FIELD_NUMBER: _ClassVar[int]
     judgment: Judgment
     picks: _containers.RepeatedCompositeFieldContainer[FocusSlot]
     fallback: bool
-    def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., picks: _Optional[_Iterable[_Union[FocusSlot, _Mapping]]] = ..., fallback: _Optional[bool] = ...) -> None: ...
+    period: FocusPeriod
+    def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., picks: _Optional[_Iterable[_Union[FocusSlot, _Mapping]]] = ..., fallback: _Optional[bool] = ..., period: _Optional[_Union[FocusPeriod, str]] = ...) -> None: ...
 
 class FocusSlot(_message.Message):
     __slots__ = ("branch", "pillar", "start", "end", "huangdao_lucky", "score", "reasons")

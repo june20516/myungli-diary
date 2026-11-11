@@ -54,7 +54,7 @@
     # 행운 색의 role 값은 YONGSIN·TONGGWAN이라 glossary role에 TONGGWAN이 없습니다. 종류는 같은 슬롯의 role과 맞추되 문장에 쓰지 않습니다(W48).
     - params: {day_kind: [day_kind], element: [element, color], note: none, role: [role]}
       keys: ["basis.color/lucky_element"]
-    - params: {element: [element, color], gisin: none, shifted_element: [element, color]}
+    - params: {element: [element, color], gisin: [element, color], shifted_element: [element, color]}
       keys: ["basis.color/balance"]
     - params: {base_element: [element, color], day_branch: text, element: [element, color], shift: none, twelve_stage: [twelve_stage]}
       keys: ["basis.color/shift"]
