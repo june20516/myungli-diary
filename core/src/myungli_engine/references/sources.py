@@ -44,7 +44,7 @@ def _johu_entry(cell: dict[str, object]) -> SourceEntry:
         "quote": str(cell["key_sentence"]),
         "passage": [str(paragraph) for paragraph in _as_list(cell["paragraphs"])],
         "evidence_level": str(cell["evidence_level"]),
-        "note": None,
+        "note": None if cell.get("quote_note") is None else str(cell["quote_note"]),
     }
 
 

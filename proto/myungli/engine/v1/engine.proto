@@ -255,7 +255,7 @@ enum ColorShift {
 }
 
 // 행운 색 카드의 계산 기준 (D119, core C34).
-// 집중 시간 카드의 구간 (D122). 낮은 진시~술시, 밤은 해시~묘시입니다.
+// 집중 시간 카드의 구간 (D122). 낮은 그날 진시~술시, 밤은 그날 해시와 다음 날 자시~묘시입니다(#1008).
 enum FocusPeriod {
   FOCUS_PERIOD_UNSPECIFIED = 0;
   FOCUS_PERIOD_DAY = 1;
@@ -551,7 +551,8 @@ message DailyResponse {
   bool is_leap_month = 19;
   // 둘째 색 카드. 원전 기준 색이 기신의 색인 날만 있고, 그날 color는 내 균형 기준, second_color는 원전 기준입니다(D119).
   optional ColorCard second_color = 20;
-  // 밤(해시~묘시)의 1등 시진 (D122). 그날 일진의 자시~묘시는 그날 새벽, 해시는 그날 밤입니다.
+  // 밤의 1등 시진 (D122, #1008). 그날 해시(서울 21:30~23:29)와 다음 날 자시~묘시(그날 23:30 ~ 다음 날 07:29)
+  // 중에서 고릅니다. 시진이 속한 날짜는 FocusSlot.day_date입니다.
   FocusTimeCard night_focus_time = 21;
 }
 
@@ -600,6 +601,9 @@ message FocusSlot {
   bool huangdao_lucky = 5; // 황도길시
   int32 score = 6; // ruleset 2026.11.4부터 쓰지 않음(0). 가중치 점수가 없어짐(D122)
   repeated string reasons = 7; // ruleset 2026.11.4부터 쓰지 않음(빈 목록)
+  // 이 시진이 속한 일진의 날짜와 일진 (#1008). 밤의 자시~묘시는 요청 날짜의 다음 날입니다.
+  LocalDate day_date = 8;
+  Pillar day_pillar = 9;
 }
 
 // 일진과 원국 한 자리 사이의 관계. suppressed_by가 UNSPECIFIED가 아니면 무효가 된 관계입니다.
