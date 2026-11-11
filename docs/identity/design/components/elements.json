@@ -1,5 +1,5 @@
 {
-  "version": "6.3.0",
+  "version": "7.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -192,9 +192,9 @@
     "icon": {
       "summary": "아이콘: Phosphor (결정 V15, V57)",
       "set": { "name": "Phosphor", "version": "2.1.2", "license": "MIT", "flutter": "phosphor_glyphs", "flutterVersion": "2.1.2+1", "names": "tools/phosphor_names.txt" },
-      "weights": { "default": "light", "selected": "regular", "caution": "fill" },
+      "weights": { "default": "light", "selected": "regular", "caution": "fill", "timeOfDay": "fill" },
       "adjacentTextWeight": { "rule": "글자 옆 아이콘은 옆 글자 굵기와 짝", "400-500": "light", "600+": "regular" },
-      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시 밖)", "직접 그린 아이콘"],
+      "forbidden": ["bold", "duotone", "thin", "fill (경고 표시와 집중 시간 해, 달 밖)", "직접 그린 아이콘"],
       "scale": ["{size.icon.16}", "{size.icon.20}", "{size.icon.24}", "{size.icon.28}"],
       "adjacentText": [
         { "maxFontSize": 14, "size": "{size.icon.16}" },

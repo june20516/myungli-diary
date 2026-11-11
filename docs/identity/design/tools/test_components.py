@@ -445,10 +445,10 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_6_3_0():
+def test_contract_version_is_7_0_0():
     # 시트 겹침 표시와 열린 근거 표시(V110~V113): unlock.glint 패턴, unlock.mark 요소, 열림 꼬리표 등 추가라 부 버전.
     # 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "6.3.0"
+    assert VERSION == "7.0.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -557,6 +557,9 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
+# 행운 색 시트와 집중 시간 낮, 밤 시트 (#982, #1003, 결정 V114~V117). IA 슬롯 요청 #1014
+SLOTS_OUTSIDE_IA |= {"today.lucky-color.pair.intro", "today.lucky-color.second.body", "today.lucky-time.day.body",
+                     "today.lucky-time.night.body", "today.lucky-time.band.now"}
 
 
 def _slot_values(node):
@@ -698,7 +701,8 @@ def test_lucky_time_value_format():
         "format": {"ko": "HH:mm~HH:mm", "ja": "HH:mm〜HH:mm", "en": "HH:mm to HH:mm"},
         "clock": "24h", "timeZone": "profile", "fontFeatures": ["tnum"],
     }
-    assert time["repeat"] == {"each": "FocusTimeCard.picks", "max": 2}
+    # 7.0.0(D122, V115): 구간 반복(repeat) 대신 낮 하나, 밤 하나
+    assert "repeat" not in time and [period["id"] for period in time["periods"]] == ["day", "night"]
 
 
 def test_lucky_card_has_no_banned_punctuation():
@@ -707,7 +711,7 @@ def test_lucky_card_has_no_banned_punctuation():
     text = json.dumps(time, ensure_ascii=False)
     assert "–" not in text and "·" not in text and "—" not in text
     rules = " ".join(component("today", "lucky-card")["rules"])
-    assert "최대 5개" in rules and "첫 구간" in rules  # today 칩 줄은 행운 4종(시간 최대 2), V78
+    assert "최대 5개" in rules and "낮 칩 하나만" in rules  # today 칩 줄은 행운 4종(시간 낮, 밤), 공유는 낮 칩 (V78, V116)
 
 
 def test_element_values_from_app_feedback():
@@ -3102,3 +3106,56 @@ def test_v113_source_reads_meaning_quote_cite():
     assert "ja 8글자" in source["meaning"]["note"] and source["radius"] == 0  # server #797 자른 값
     locked = component("sentence", "depth-link")["states"]["locked"]["parts"]["evidenceSheet"]["source"]
     assert locked["hidden"] == ["quote", "cite"] and locked["lines"] == 2
+
+
+# 행운 색 둘(#982, D119, 결정 V114): 한 알약 두 칸, 이름표 없음, 어느 칸이든 같은 행운 색 시트
+def test_v114_color_pair_pill_and_sheet():
+    card = component("today", "lucky-card")
+    color = next(v for v in card["variants"] if v["id"] == "color")
+    pair = color["parts"]["pair"]
+    assert pair["source"] == ["DailyResponse.color", "DailyResponse.second_color"]
+    assert pair["basisLabel"] is False and pair["half"]["minTarget"] == 44
+    assert pair["divider"]["color"] == "{color.line}"
+    sheet = card["parts"]["colorPairSheet"]
+    assert sheet["component"] == "explain-sheet" and sheet["intro"]["slot"] == "today.lucky-color.pair.intro"
+    assert [section["bodySlot"] for section in sheet["sections"]] == ["today.lucky-color.body", "today.lucky-color.second.body"]
+    assert sheet["section"]["head"]["basisLabel"] is False
+    rules = " ".join(card["rules"])
+    assert "갈렸다고 쓰지 않는다" in rules and "알약 전체" in rules
+    md = _md_section("today.md", "## lucky-card")
+    assert "colorPairSheet" in md and "이름표" in md
+
+
+# 집중 시간 해와 달(#1003, D122, 결정 V115, 토큰 1.8.0): 채운 아이콘, 모드별 아이콘 전용 색
+def test_v115_time_periods_fill_icons():
+    time = next(v for v in component("today", "lucky-card")["variants"] if v["id"] == "time")
+    day, night = time["periods"]
+    assert (day["source"], night["source"]) == ("DailyResponse.focus_time", "DailyResponse.night_focus_time")
+    assert day["lead"] == {"icon": "sun", "iconWeight": "fill", "iconColor": "{color.time.day}"}
+    assert night["lead"] == {"icon": "moon", "iconWeight": "fill", "iconColor": "{color.time.night}"}
+    assert all(period["lead"]["icon"] != "clock" for period in time["periods"]) and time["screens"] == ["today"]
+    icon = load_documents(COMPONENTS_DIR)["elements"]["elements"]["icon"]
+    assert icon["weights"]["timeOfDay"] == "fill"
+    assert "fill (경고 표시와 집중 시간 해, 달 밖)" in icon["forbidden"]
+
+
+# 밤 칩 때 낱말(D122 ⑦, 결정 V116): 07:30에 값과 함께 바뀜, 낮 칩에는 없음. 공유 이미지는 낮 칩 하나
+def test_v116_night_word_switches_at_day_start():
+    card = component("today", "lucky-card")
+    time = next(v for v in card["variants"] if v["id"] == "time")
+    day, night = time["periods"]
+    assert "word" not in day
+    assert night["word"]["slots"] == {"dawn": "today.lucky-time.night.dawn", "tonight": "today.lucky-time.night.tonight"}
+    assert "07:30" in night["word"]["switch"]
+    share = component("today", "share-image")
+    assert any("낮 칩 하나만" in rule for rule in share["rules"])
+
+
+# 시간 시트 24시간 띠(결정 V117): 시진 12칸, 07:30 전에는 밤이 앞
+def test_v117_time_band():
+    band = component("today", "lucky-card")["parts"]["timeBand"]
+    assert band["cells"]["count"] == 12 and band["cells"]["gap"] == "{space.2}"
+    assert band["order"]["beforeDayStart"][0].startswith("night") and band["order"]["fromDayStart"][0].startswith("day")
+    assert band["cells"]["day"]["bg"] == "{color.ohaeng.earth.bg}" and band["cells"]["night"]["bg"] == "{color.ohaeng.water.bg}"
+    assert band["now"]["tag"]["slot"] == "today.lucky-time.band.now"
+    assert band["now"]["tag"]["bg"] == "{color.inverse.bg}"

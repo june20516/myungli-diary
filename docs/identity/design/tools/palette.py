@@ -19,6 +19,8 @@ from dataclasses import dataclass
 MIN_TEXT_CONTRAST = 4.5
 # 비활성 글자는 WCAG 1.4.3 예외지만 3:1은 지킵니다 (V2 spec §5.3)
 MIN_DISABLED_CONTRAST = 3.0
+# 뜻을 전하는 그림(집중 시간 해와 달 아이콘, V115)은 WCAG 1.4.11 비텍스트 대비 3:1
+MIN_ICON_CONTRAST = 3.0
 # 옅은 낙관 도장: 모드 → (팔레트, 단계, 알파) (V2 spec §5.3)
 SEAL_SOFT = {"light": ("sage", 700, 0.22), "dark": ("sage", 200, 0.28)}
 
@@ -285,6 +287,10 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "tag.neutral.border": neutral[300],
             "tag.neutral.fg": neutral[700],
             "timeline.entry": neutral[300],
+            # 집중 시간 칩 앞 채운 해와 달(D122, 결정 V115, 토큰 1.8.0). 토 견본 노랑(#dea645)은 흰 칩 위 2.2:1이라
+            # 같은 색상에서 명도를 낮춘 진한 노랑, 수 견본 먹남은 거의 검정이라 푸르게 보이는 남색
+            "time.day": "#b8811a",
+            "time.night": "#355a8f",
         },
         "dark": {
             "bg.base": neutral[950],
@@ -322,6 +328,9 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "tag.neutral.border": neutral[700],
             "tag.neutral.fg": neutral[400],
             "timeline.entry": neutral[700],
+            # 다크: 해는 토 견본 노랑 그대로, 먹남 달은 다크 칩 위 1.2:1로 사라져 밝은 남색(V115)
+            "time.day": "#dea645",
+            "time.night": "#8fa9d1",
         },
     }
     for mode, levels in CALENDAR_LEVELS.items():
@@ -364,6 +373,9 @@ def _text_pairs(palette: dict) -> list[tuple[str, str, str]]:
         pairs.append((f"{mode} term", roles["term.fg"], roles["term.bg"]))
         # 권유 글자(일기 쓰기 질문 뗀 자리 "무엇을 쓸지 고민인가요?", V102)는 종이(bg.sheet) 위에만 놓임
         pairs.append((f"{mode} invite.fg on bg.sheet", roles["invite.fg"], roles["bg.sheet"]))
+        # 집중 시간 해와 달 아이콘(V115)은 칩 바탕(bg.sheet) 위 그림이라 3:1
+        for part in ("day", "night"):
+            pairs.append((f"{mode} time.{part} on bg.sheet icon", roles[f"time.{part}"], roles["bg.sheet"]))
         # 열린 근거 그라데이션(V111)은 구역 제목 글자와 반짝임 띠라 멈춤 색마다 두 바탕에서 글자 대비
         for index, stop in enumerate(palette["unlocked"][mode]):
             for background_role in ("bg.base", "bg.sheet"):
@@ -429,7 +441,12 @@ def check_contrast(palette: dict) -> list[ContrastResult]:
     results = []
     for name, foreground, background in _text_pairs(palette):
         ratio = _unrounded_contrast(foreground, background)
-        minimum = MIN_DISABLED_CONTRAST if name.endswith(" disabled") else MIN_TEXT_CONTRAST
+        if name.endswith(" disabled"):
+            minimum = MIN_DISABLED_CONTRAST
+        elif name.endswith(" icon"):
+            minimum = MIN_ICON_CONTRAST
+        else:
+            minimum = MIN_TEXT_CONTRAST
         results.append(ContrastResult(name, foreground, background, ratio, ratio >= minimum))
     return results
 
@@ -446,7 +463,7 @@ def main(argv: list[str]) -> int:
         print(f"{mark} {result.ratio:>5.2f}  {result.name}  ({result.foreground} on {result.background})")
     failures = [result for result in results if not result.passed]
     print(f"\n{len(results) - len(failures)}/{len(results)} 조합 통과 "
-          f"(기준 {MIN_TEXT_CONTRAST}:1, 비활성 글자 {MIN_DISABLED_CONTRAST}:1)")
+          f"(기준 {MIN_TEXT_CONTRAST}:1, 비활성 글자 {MIN_DISABLED_CONTRAST}:1, 아이콘 {MIN_ICON_CONTRAST}:1)")
     return 1 if failures else 0
 
 

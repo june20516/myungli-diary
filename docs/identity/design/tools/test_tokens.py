@@ -130,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.7.0" in readme
+    assert "계약 버전: 1.8.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -239,7 +239,7 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
                 continue
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        expected = TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED
+        expected = TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED
         assert added == (set() if current.startswith("primitive") else expected), current
     for mode, cell in (("light", "tint"), ("dark", "tint_dark")):
         tokens = flatten(files[f"color.{mode}.tokens.json"])
@@ -260,6 +260,31 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
         assert dark[f"color.ohaeng.{element}.glyph"]["$value"] == "{color.ohaeng." + element + ".fg}"
 
 
+# 1.8.0 (#1003, D122, 결정 V115): 집중 시간 해와 달 아이콘 color.time.day, color.time.night 추가만
+TOKENS_1_8_0_ADDED = {"color.time.day", "color.time.night"}
+
+
+def test_tokens_1_8_0_adds_only_time_icons():
+    from palette import build_palette, contrast_ratio
+    files = build_token_files()
+    roles = build_palette()["roles"]
+    for current, frozen in [("primitive.tokens.json", "primitive-1.7.0.tokens.json")] + [
+            (f"color.{mode}.tokens.json", f"color.{mode}-1.7.0.tokens.json") for mode in ("light", "dark")]:
+        before, after = _frozen(frozen), flatten(files[current])
+        for name, token in before.items():
+            assert after.get(name) == token, (current, name)
+        added = after.keys() - before.keys()
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_8_0_ADDED), current
+    expected = {"light": ("#b8811a", "#355a8f"), "dark": ("#dea645", "#8fa9d1")}
+    for mode, (day, night) in expected.items():
+        tokens = flatten(files[f"color.{mode}.tokens.json"])
+        assert tokens["color.time.day"]["$value"]["hex"] == day
+        assert tokens["color.time.night"]["$value"]["hex"] == night
+        for part in ("day", "night"):
+            # 칩 바탕 위 비텍스트 대비 3:1 (V115)
+            assert contrast_ratio(roles[mode][f"time.{part}"], roles[mode]["bg.sheet"]) >= 3.0
+
+
 # 1.7.0 (#950, D118, 결정 V111): 열린 근거 표시 그라데이션 gradient.unlocked 추가만
 TOKENS_1_7_0_ADDED = {"gradient.unlocked"}
 
@@ -274,7 +299,7 @@ def test_tokens_1_7_0_adds_only_unlocked_gradient():
         for name, token in before.items():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_7_0_ADDED), current
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), current
     for mode in ("light", "dark"):
         token = flatten(files[f"color.{mode}.tokens.json"])["gradient.unlocked"]
         assert token["$type"] == "gradient"
@@ -299,7 +324,7 @@ def test_tokens_1_6_0_adds_only_invite_fg():
         for name, token in before.items():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED), current
+        assert added == (set() if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), current
     light, dark = (flatten(files[f"color.{mode}.tokens.json"]) for mode in ("light", "dark"))
     assert light["color.invite.fg"]["$value"] == "{color.sage.600}"
     assert dark["color.invite.fg"]["$value"] == "{color.sage.400}"
@@ -341,7 +366,7 @@ def test_tokens_1_4_0_additions_only():
                 continue
             assert after.get(name) == token, (mode, name)
         assert set(after.keys() - before.keys()) == (
-            TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED), mode
+            TOKENS_1_4_0_ADDED_COLOR | TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), mode
         # 기존 calendar.good.bg, calendar.caution.bg는 그대로(위 반복이 값까지 검사)
         assert "color.calendar.good.bg" in before and "color.calendar.caution.bg" in before
 

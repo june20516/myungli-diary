@@ -1,5 +1,5 @@
 {
-  "version": "6.3.0",
+  "version": "7.0.0",
   "group": "today",
   "components": [
     {
@@ -51,17 +51,37 @@
       "summary": "행운 항목 칩. 누르면 짧은 설명 시트(explain-sheet)가 열림",
       "uses": ["press.ink", "icon", "sheet.enter", "sheet.exit"],
       "variants": [
-        { "id": "color", "when": "행운 색", "uses": ["ohaeng.swatch"], "parts": { "lead": { "swatch": { "size": { "value": 14, "unit": "px" }, "radius": "{radius.full}" } } } },
+        { "id": "color", "when": "행운 색", "uses": ["ohaeng.swatch"], "parts": { "lead": { "swatch": { "size": { "value": 14, "unit": "px" }, "radius": "{radius.full}" } },
+          "pair": { "when": "DailyResponse.second_color가 있는 날(D119 ②). 색 둘을 한 알약 두 칸으로 (결정 V114)", "source": ["DailyResponse.color", "DailyResponse.second_color"], "order": "color(내 균형 기준) 다음 second_color(원전 기준)", "half": { "paddingX": "{space.12}", "gap": "{space.4}", "minTarget": 44 }, "divider": { "color": "{color.line}", "width": { "value": 1, "unit": "px" }, "height": { "value": 18, "unit": "px" } }, "basisLabel": false, "press": "칸마다 누름 자리이지만 어느 칸이든 같은 색 시트(colorPairSheet)를 연다", "open": "열림 테두리는 알약 전체" } } },
         { "id": "direction", "when": "행운 방향", "parts": { "lead": { "icon": "compass" } } },
-        { "id": "number", "when": "행운 숫자", "parts": { "lead": { "icon": "hash" } } },
-        { "id": "time", "when": "행운 시간 (구간마다 칩 하나, 결정 V52)", "repeat": { "each": "FocusTimeCard.picks", "max": 2 }, "parts": { "lead": { "icon": "clock" }, "value": { "format": { "ko": "HH:mm~HH:mm", "ja": "HH:mm〜HH:mm", "en": "HH:mm to HH:mm" }, "clock": "24h", "timeZone": "profile", "fontFeatures": ["tnum"] } } }
+        { "id": "number", "when": "행운 숫자 (색이 둘인 날은 첫째 색의 오행, D119 ③)", "parts": { "lead": { "icon": "hash" } } },
+        { "id": "time", "when": "집중 시간. 낮 칩 하나, 밤 칩 하나 (D122, 결정 V115, V116)", "screens": ["today"], "periods": [
+            { "id": "day", "source": "DailyResponse.focus_time", "lead": { "icon": "sun", "iconWeight": "fill", "iconColor": "{color.time.day}" }, "sheetBodySlot": "today.lucky-time.day.body" },
+            { "id": "night", "source": "DailyResponse.night_focus_time", "lead": { "icon": "moon", "iconWeight": "fill", "iconColor": "{color.time.night}" }, "sheetBodySlot": "today.lucky-time.night.body",
+              "word": { "position": "값 앞, 간격 space.4", "type": "{type.label.md}", "fg": "{color.text.primary}", "slots": { "dawn": "today.lucky-time.night.dawn", "tonight": "today.lucky-time.night.tonight" }, "switch": "프로필 시간대 07:30 전에는 dawn(지금 이어지는 전날 밤), 07:30부터는 tonight(오늘 밤). 값과 낱말이 함께 바뀐다(D122 ⑦)" } }
+          ],
+          "parts": { "value": { "format": { "ko": "HH:mm~HH:mm", "ja": "HH:mm〜HH:mm", "en": "HH:mm to HH:mm" }, "clock": "24h", "timeZone": "profile", "fontFeatures": ["tnum"] } } }
       ],
       "parts": {
         "chip": { "bg": "{color.bg.sheet}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" }, "placement": "inside" }, "radius": "{radius.full}", "height": { "value": 34, "unit": "px" }, "paddingX": "{space.12}", "gap": "{space.4}" },
-        "lead": { "iconWeight": "regular", "iconSize": "adjacent-text", "iconColor": "{color.text.secondary}" },
+        "lead": { "iconWeight": "regular", "iconSize": "adjacent-text", "iconColor": "{color.text.secondary}", "note": "time 칩의 해와 달은 periods의 lead가 굵기(fill)와 색을 덮어씀(V115)" },
         "value": { "type": "{type.label.md}", "fg": "{color.text.primary}" },
-        "row": { "gap": "{space.8}", "wrap": true },
-        "explain": { "component": "explain-sheet", "title": { "source": "항목 이름(칩 스크린리더 라벨의 항목 이름과 같은 낱말)" }, "body": { "segments": "sentence-block" } }
+        "row": { "gap": "{space.8}", "wrap": true, "order": ["color", "direction", "number", "time.day", "time.night"] },
+        "explain": { "component": "explain-sheet", "title": { "source": "항목 이름(칩 스크린리더 라벨의 항목 이름과 같은 낱말)" }, "body": { "segments": "sentence-block" } },
+        "colorPairSheet": { "when": "pair 알약의 어느 칸이든 누름", "component": "explain-sheet", "title": { "source": "항목 이름(행운 색)" },
+          "intro": { "slot": "today.lucky-color.pair.intro", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "gapBelow": "{space.12}", "note": "추천 색이 둘이라는 것만 알림. 두 기준이 갈렸다고 쓰지 않음(사용자 결정 2026-11-11)" },
+          "section": { "head": { "swatch": "ohaeng.swatch 14", "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}" }, "gap": "{space.4}", "basisLabel": false }, "body": { "segments": "sentence-block", "gapAbove": "{space.8}" } },
+          "sections": [{ "source": "DailyResponse.color", "bodySlot": "today.lucky-color.body" }, { "source": "DailyResponse.second_color", "bodySlot": "today.lucky-color.second.body" }],
+          "between": { "divider": "list.divider", "gap": "{space.16}" } },
+        "timeBand": { "when": "time 칩 시트(낮, 밤 모두) 본문 아래 space.20", "summary": "지금 보이는 낮, 밤 두 칩이 가리키는 24시간 (결정 V117)",
+          "order": { "beforeDayStart": ["night(전날 밤)", "day(오늘 낮)"], "fromDayStart": ["day(오늘 낮)", "night(오늘 밤)"] },
+          "heads": { "height": { "value": 24, "unit": "px" }, "iconSource": "periods의 lead 아이콘, size.icon.16", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slots": { "day": "today.lucky-time.band.day", "night": "today.lucky-time.band.night" }, "gapBelow": "{space.16}" },
+          "cells": { "count": 12, "unit": "시진 하나(2시간)", "gap": "{space.2}", "height": { "value": 30, "unit": "px" }, "radius": "{radius.xs}", "label": { "source": "시진 지지 이름(writing)", "type": "{type.caption.sm}" },
+            "day": { "bg": "{color.ohaeng.earth.bg}", "fg": "{color.ohaeng.earth.fg}" }, "night": { "bg": "{color.ohaeng.water.bg}", "fg": "{color.ohaeng.water.fg}" },
+            "pick": { "ring": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": 700, "note": "두 칩의 고른 시진 둘 모두 고리. 연 칩의 시진이 강조 대상" } },
+          "now": { "line": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" }, "overhang": { "value": 6, "unit": "px" } }, "tag": { "slot": "today.lucky-time.band.now", "bg": "{color.inverse.bg}", "fg": "{color.inverse.fg}", "type": "{type.caption.sm}", "radius": "{radius.full}", "paddingX": "{space.4}" }, "position": "지금 시각 비례", "update": "시트가 열려 있는 동안 1분마다" },
+          "ticks": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "at": ["띠 시작", "낮과 밤 경계", "띠 끝"], "dayWords": { "yesterday": "today.lucky-time.band.yesterday", "tomorrow": "today.lucky-time.band.tomorrow" }, "gapAbove": "{space.8}" },
+          "a11y": { "role": "image", "label": "띠는 그림으로 숨기고 시트 본문과 칩 라벨이 같은 정보를 말함" } }
       },
       "states": { "loading": { "skeleton": [{ "bone": "chip", "shape": "chip", "count": 3, "widths": ["72px", "56px", "64px"], "gap": "{space.8}" }] },
         "pressed": { "pattern": "press.ink" },
@@ -69,14 +89,18 @@
         "closed": { "pattern": "sheet.exit", "parts": { "explain": { "visible": false } } }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "항목 이름 + 값", "opensSheet": true, "minTarget": 44 },
+      "a11y": { "role": "button", "label": "항목 이름 + 값", "pairLabel": "칸마다 항목 이름 + 값 + 두 개 중 몇째", "nightLabel": "항목 이름 + 때 낱말 + 값", "opensSheet": true, "minTarget": 44 },
       "rules": [
         "설명은 explain-sheet로 열고 칩 줄 아래에 끼워 넣지 않는다. 시트가 열린 동안 연 칩의 테두리가 1.5px action.primary로 바뀐다(결정 V62, V75).",
         "칩은 bg.sheet 바탕 + 1px line 테두리다. 반투명 chip.bg를 쓰지 않아 오늘 카드, 나 탭 카드, 공유 이미지 그라데이션, 다크 모드 어디서나 테두리로 구분된다. 테두리는 칩 크기 안쪽에 그려 열려도 크기가 그대로다(Q5 ①, 결정 V75).",
-        "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음).",
-        "today 칩 줄은 행운 4종(color·direction·number·time)뿐이고 tag 칩을 두지 않는다(IA v5, D108, 결정 V78). 대표 태그는 사주 기운 섹션의 hanja-tag다. 옛 변형 tag(V35)는 계약 5.0.0에서 지웠다. 칩 줄 전체 최대 5개(색, 방향, 숫자 3 + 시간 2).",
-        "share-image의 칩 줄도 행운 4종만이다. time 칩은 첫 구간 하나만 넣는다(칩 수 표 그대로).",
-        "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간이 둘이면 구간마다 time 칩 하나를 계약 순서대로 나란히 두고, 구간을 글자로 잇지 않는다(D93, 결정 V52).", "time 칩이 둘이면 어느 쪽을 눌러도 같은 설명(daily.focus_time) 시트가 열리고, 열림 테두리는 누른 칩에만 생긴다. 스크린리더 라벨은 칩마다 항목 이름 + 그 구간."
+        "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음). 시간 칩을 새 줄로 떼지 않는다(관문 답 5A, 결정 V114).",
+        "today 칩 줄은 행운 4종(color·direction·number·time)뿐이고 tag 칩을 두지 않는다(IA v5, D108, 결정 V78). 대표 태그는 사주 기운 섹션의 hanja-tag다. 옛 변형 tag(V35)는 계약 5.0.0에서 지웠다. 칩 줄 전체 최대 5개(색, 방향, 숫자 3 + 시간 2). 색이 둘인 날도 한 알약이라 개수는 같다.",
+        "색이 둘인 날(second_color)은 color 칩 하나를 세로선으로 나눈 두 칸 알약으로 그린다. 이름표(내 균형 기준, 원전 기준)를 두지 않고 순서는 color, second_color. 어느 칸을 눌러도 같은 행운 색 시트(colorPairSheet)가 열리고 열림 테두리는 알약 전체다. 시트는 추천 색이 둘이라는 한 줄, 첫째 색, 구분선, 둘째 색 순서이고 두 기준이 갈렸다고 쓰지 않는다(D119 ②, 결정 V114).",
+        "share-image의 칩 줄도 행운 4종만이다. 색은 첫째 색 칸 하나(D119 ④), 시간은 낮 칩 하나만 넣는다(칩 수 표 그대로, 결정 V116).",
+        "time 칩은 낮(focus_time) 하나와 밤(night_focus_time) 하나다. 앞 아이콘은 채운 해(sun Fill, color.time.day)와 채운 달(moon Fill, color.time.night)이고 Fill을 쓰는 경고 표시 밖의 유일한 자리다(elements icon timeOfDay, 결정 V115).",
+        "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간을 글자로 잇지 않는다(D93, 결정 V52).",
+        "밤 칩 값 앞에는 때 낱말이 붙는다. 프로필 시간대 07:30 전에는 dawn(지금 이어지는 전날 밤), 07:30부터는 tonight(오늘 밤)이고 값과 함께 바뀐다. 낮 칩에는 낱말이 없다(D122 ⑦, 결정 V116).",
+        "낮 칩과 밤 칩은 각자 시트를 연다(본문 today.lucky-time.day.body, night.body). 두 시트 모두 본문 아래 timeBand를 둔다: 지금 보이는 두 칩의 24시간을 시진 12칸으로, 07:30 전에는 밤이 앞, 07:30부터는 낮이 앞. 고른 시진 고리와 지금 줄(결정 V117)."
       ]
     },
     {
@@ -187,7 +211,7 @@
       "rules": [
         "다크 모드에서도 라이트 토큰으로 그린다(결정 V5).",
         "비율은 공유 미리보기 시트 위 segmented로 사용자가 고른다.",
-        "그림 크기는 1080px 폭 기준. 화면 미리보기는 이를 줄여 보인다.", "행운 칩의 time은 구간이 둘이어도 첫 구간 칩 하나만 넣는다. 칩 수는 변형 표 그대로(결정 V52)."
+        "그림 크기는 1080px 폭 기준. 화면 미리보기는 이를 줄여 보인다.", "행운 칩의 색은 첫째 색 하나(D119 ④), 시간은 낮 칩 하나만 넣는다. 칩 수는 변형 표 그대로(결정 V52, V116)."
       ]
     }
   ]

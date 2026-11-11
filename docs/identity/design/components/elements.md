@@ -82,7 +82,7 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 ## 아이콘 `icon`
 
 * Phosphor 2.1.2(MIT), Flutter `phosphor_glyphs` 2.1.2+1. `phosphor_flutter` 2.1.0은 Flutter 3.47에서 컴파일되지 않아 같은 세트·버전을 담은 패키지로 바꿨습니다.
-* 평소·미선택 Light, 선택 Regular. Bold·Thin·Duotone은 쓰지 않고, Fill은 경고 표시만.
+* 평소·미선택 Light, 선택 Regular. Bold·Thin·Duotone은 쓰지 않고, Fill은 경고 표시와 집중 시간 칩의 해, 달(`timeOfDay`, 색 `color.time.day`·`night`, 결정 V115)만.
 * 글자 옆 아이콘의 굵기는 옆 글자와 짝입니다: 400~500 글자 옆 Light, 600 이상 옆 Regular(결정 V57).
 * 크기는 `size.icon.16`·`20`·`24`·`28` 네 단계뿐입니다. 부품의 `size`(또는 `iconSize`)는 이 토큰이거나 `adjacent-text`입니다.
   * `adjacent-text`: 옆 글자 크기로 고릅니다. 14px 이하 16, 15~18px 20, 19~22px 24, 23px 이상 28(경계는 단계 × 0.81 ÷ 0.882). Phosphor 그림은 상자의 약 0.81(208/256)이고 Pretendard 한글은 글자 크기의 0.861~0.882배라, 그림이 한글 높이 이상이 되는 가장 작은 단계입니다.

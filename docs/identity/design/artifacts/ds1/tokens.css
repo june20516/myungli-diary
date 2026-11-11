@@ -118,6 +118,8 @@
   --color-tag-neutral-fg: var(--color-neutral-700);
   --color-timeline-entry: var(--color-neutral-300);
   --color-timeline-line: var(--color-line);
+  --color-time-day: #b8811a;
+  --color-time-night: #355a8f;
   --color-chip-bg: rgba(255, 255, 255, 0.7);
   --color-swatch-border: rgba(43, 43, 42, 0.18);
   --color-status-bg: var(--color-term-bg);
@@ -264,6 +266,8 @@
   --color-tag-neutral-fg: var(--color-neutral-400);
   --color-timeline-entry: var(--color-neutral-700);
   --color-timeline-line: var(--color-line);
+  --color-time-day: #dea645;
+  --color-time-night: #8fa9d1;
   --color-chip-bg: rgba(255, 255, 255, 0.08);
   --color-swatch-border: rgba(238, 238, 237, 0.28);
   --color-status-bg: var(--color-term-bg);
