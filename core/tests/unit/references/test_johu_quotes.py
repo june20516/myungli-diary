@@ -19,6 +19,11 @@ def test_chosen_quotes_are_the_cell_quotes() -> None:
         )
         assert isinstance(cell, dict)
         assert cell["key_sentence"] == choice["quote"]
-        assert choice["quote"] in "".join(cell["paragraphs"])
+        source_branch = choice.get("borrowed_from_branch", choice["branch"])
+        source = loader.resolve(loader.johu_ref(Stem.from_hanja(choice["stem"]), Branch.from_hanja(source_branch)))
+        assert isinstance(source, dict)
+        assert choice["quote"] in "".join(source["paragraphs"])
+        # 다른 달 문장을 빌린 인용은 근거 note로 그 사실을 밝힌다(writing 뜻 문장용)
+        assert (cell["quote_note"] is not None) == ("borrowed_from_branch" in choice)
     chosen = {(c["stem"], c["branch"]) for c in data["choices"]}
     assert not chosen & {(u["stem"], u["branch"]) for u in data["unresolved"]}

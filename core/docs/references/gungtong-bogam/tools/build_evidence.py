@@ -62,12 +62,18 @@ def stems_in_order(text: str, exclude: str) -> list[str]:
     return seen
 
 
-def chosen_quote(cell: dict, paragraphs: list[str], choice: dict | None) -> str:
-    """고른 인용이 있으면 원문 문단에 글자 그대로 있는지 확인하고 쓴다. 없으면 첫 문장."""
+def chosen_quote(month_index: dict, stem: str, branch: str, choice: dict | None) -> str:
+    """고른 인용이 있으면 원문 문단에 글자 그대로 있는지 확인하고 쓴다. 없으면 첫 문장.
+
+    다른 달 항목에서 빌린 인용(borrowed_from_branch)은 그 달 항목의 문단에서 확인한다.
+    """
+    paragraphs = month_index[stem][branch][0]["paragraphs"]
     if choice is None:
         return first_sentence(paragraphs[0])
-    if choice["quote"] not in "".join(paragraphs):
-        raise ValueError(f"{choice['stem']}{choice['branch']}: 고른 인용이 원문 문단에 없습니다: {choice['quote']}")
+    source_branch = choice.get("borrowed_from_branch", branch)
+    source_paragraphs = month_index[stem][source_branch][0]["paragraphs"]
+    if choice["quote"] not in "".join(source_paragraphs):
+        raise ValueError(f"{stem}{branch}: 고른 인용이 원문 문단에 없습니다: {choice['quote']}")
     return choice["quote"]
 
 
@@ -88,7 +94,8 @@ def build_johu_evidence(
                 "yongsin_elements": [STEM_ELEMENT[s] for s in table[stem][branch]],
                 "evidence_level": primary["level"],
                 "heading": primary["heading"],
-                "key_sentence": chosen_quote(primary, primary["paragraphs"], chosen.get((stem, branch))),
+                "key_sentence": chosen_quote(month_index, stem, branch, chosen.get((stem, branch))),
+                "quote_note": (chosen.get((stem, branch)) or {}).get("note"),
                 "paragraphs": primary["paragraphs"],
                 "related_headings": [e["heading"] for e in entries[1:]],
                 "examples": primary.get("examples", []),
