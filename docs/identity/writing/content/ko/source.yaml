@@ -3,18 +3,18 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/five_elements#color", text: "오행마다 바른 색이 있어 수는 검정, 화는 빨강, 목은 푸른색, 토는 노랑이라는 뜻이에요.\n推其形色，則水黑、火赤、木青、土黃，此正色也。及其變易，則不然。常以生旺從正色，死絶從母色，成形冠帶從妻色，病敗從鬼色，旺墓從子色。\n궁통보감 「오행총론」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/five_elements#direction", text: "북쪽은 수, 남쪽은 화, 동쪽은 목, 서쪽은 금, 가운데는 토를 낳는다는 뜻이에요.\n北方陰極而生寒，寒生水。南方陽極而生熱，熱生火。東方陽散以泄而生風，風生木。西方陰止以收而生燥，燥生金。中央陰陽交而生溫，溫生土。其相生也所以相維，其相剋也所以相制，此之謂有倫。\n궁통보감 「오행총론」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/five_elements#number", text: "오행마다 수가 있어 수는 1, 화는 2, 목은 3, 금은 4, 토는 5라는 뜻이에요.\n其數則水一、火二、木三、金四、土五。生旺加倍，死絶減半。\n궁통보감 「오행총론」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.丑", text: "12월에 태어난 정화 일간에게는 경금과 갑목을 쓴다는 뜻이에요.\n三冬丁火微寒，專用庚甲。\n궁통보감 「삼동정」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.亥", text: "10월에 태어난 정화 일간에게는 경금과 갑목을 쓴다는 뜻이에요.\n三冬丁火微寒，專用庚甲。\n궁통보감 「삼동정」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.午", text: "5월의 정화는 스스로 힘이 강한 때라 갑목을 함부로 쓰면 안 된다는 뜻이에요.\n五月丁火，時歸建祿，不宜亂用甲木。\n궁통보감 「오월정」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.丑", text: "겨울 석 달에 태어난 정화 일간에게는 갑목이 으뜸이고 경금이 도우며, 계수와 무토는 형편에 맞게 쓴다는 뜻이에요.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n궁통보감 「삼동정」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.亥", text: "겨울 석 달에 태어난 정화 일간에게는 갑목이 으뜸이고 경금이 도우며, 계수와 무토는 형편에 맞게 쓴다는 뜻이에요.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n궁통보감 「삼동정」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.午", text: "5월에 태어난 정화 일간이 지지에 화국을 이루고 천간에 화가 드러났을 때, 경금과 임수가 함께 드러나면 과거에 반드시 붙는다는 뜻이에요.\n或支成火局，干見火出，得庚壬兩透者，科甲定然。\n궁통보감 「오월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.卯", text: "2월에 태어난 정화 일간에게는 경금이 먼저, 그다음 갑목이 필요하다는 뜻이에요.\n二月丁火，濕乙傷丁，先庚後甲，非庚不能去乙，非甲不能引丁。\n궁통보감 「이월정」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.子", text: "11월의 정화는 물이 넘치고 도울 기운이 없으면 누르는 힘을 따르는 사주가 되어 다른 길로 이름을 낸다는 뜻이에요.\n十一月丁火，或仲冬水多癸旺，全無比印，此作棄命從殺，亦有異途功名。\n궁통보감 「십일월정」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.子", text: "겨울 석 달에 태어난 정화 일간에게는 갑목이 으뜸이고 경금이 도우며, 계수와 무토는 형편에 맞게 쓴다는 뜻이에요.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n궁통보감 「십일월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.寅", text: "정월에 태어난 정화 일간에게는 힘이 센 갑목을 쪼갤 경금을 쓴다는 뜻이에요.\n正月丁火，甲木當權，乃爲母旺，非庚不能劈甲，何以引丁，姑用庚金。\n궁통보감 「정월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.巳", text: "4월에 태어난 정화 일간에게는 갑목을 쓰되 반드시 경금으로 갑목을 쪼개야 한다는 뜻이에요.\n四月丁火乘旺，雖取甲引丁，必用庚劈甲。\n궁통보감 「사월정」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.戌", text: "9월의 정화는 무토가 가득해 불기운을 빼앗고 갑목이 없으면 오히려 남다른 사주가 된다는 뜻이에요.\n或九月一派戊土，洩丁火之氣，不見甲木，爲傷官傷盡，非尋常可比。\n궁통보감 「구월정」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.戌", text: "9월에 태어난 정화 일간이 갑목을 쓸 때는 경금이 빠질 수 없다는 뜻이에요.\n用甲者，庚不可少。\n궁통보감 「구월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.未", text: "6월에 태어난 정화 일간에게는 갑목이 먼저, 그다음 임수가 필요하다는 뜻이에요.\n六月之丁，陰柔退氣，但値三伏生寒，丁弱極矣，專取甲木，壬水次之。\n궁통보감 「유월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.申", text: "7월에 태어난 정화 일간에게는 갑목이 먼저, 그다음 갑목을 쪼갤 경금이 필요하고 병화를 빌릴 수도 있다는 뜻이에요.\n七月丁火，退氣柔弱，端用甲木，金雖乘旺司權，無傷丁之理，仍取庚劈甲，爲引火之物，或借丙暖金晒甲，不慮丙奪丁光，凡兩丙夾丁者，夏月忌之，餘月不忌，但此格少年困苦刑剋中年富貴，必要地支見水制丙，方妙。\n궁통보감 「칠월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.辰", text: "3월에 태어난 정화 일간에게는 갑목이 먼저, 그다음 경금이 필요하다는 뜻이에요.\n三月丁火，戊土司令，洩弱丁氣，先用甲木引丁制土，次看庚金。\n궁통보감 「삼월정」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.酉", text: "8월의 정화는 신금이 가득하고 경금도 도울 불도 없으면 재물을 따르는 사주가 되어 부유하고 귀하다는 뜻이에요.\n或八月一派辛金，不見庚金，又無比劫，此棄命從財，富而且貴，雖不科甲，亦有異途。\n궁통보감 「팔월정」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丁.酉", text: "8월 항목에는 쓸 기운을 말한 문장이 없어 같은 가을 7월의 문장으로, 정화는 기운이 물러나 약하니 갑목을 쓰고 경금으로 갑목을 쪼개 불을 붙인다는 뜻이에요.\n七月丁火，退氣柔弱，端用甲木，金雖乘旺司權，無傷丁之理，仍取庚劈甲，爲引火之物\n궁통보감 「팔월정」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.丑", text: "12월에 태어난 병화 일간에게는 임수가 먼저 필요하다는 뜻이에요.\n十二月丙火，氣進二陽，侮雪欺霜，喜壬爲用。\n궁통보감 「십이월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.亥", text: "10월에 태어난 병화 일간은 갑목, 무토, 경금이 드러나면 시험에 붙어 이름을 낸다는 뜻이에요.\n十月丙火，太陽失令，得見甲戊庚出干，可云科甲，主爲人性好清高，斯文領袖。\n궁통보감 「시월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.午", text: "5월에 태어난 병화 일간은 임수가 높이 드러나야 좋은 사주가 된다는 뜻이에요.\n五月丙火，得壬高透，方爲上命。\n궁통보감 「오월병」"}
@@ -24,21 +24,21 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.巳", text: "4월에 태어난 병화 일간에게는 임수를 으뜸으로 쓰고 금 기운이 돕는다는 뜻이에요.\n四月專用壬水，金爲佐。\n궁통보감 「사월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.戌", text: "9월에 태어난 병화 일간에게는 갑목이 먼저, 그다음 임수가 필요하다는 뜻이에요.\n九月丙火，火氣愈退，所忌土晦光火，必須先用甲木，次取壬水。\n궁통보감 「구월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.未", text: "6월에 태어난 병화 일간에게는 임수가 먼저, 그다음 경금이 필요하다는 뜻이에요.\n六月丙火退氣，三伏生寒，壬水爲用，取庚輔佐。\n궁통보감 「유월병」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.申", text: "7월의 병화는 해가 서쪽으로 기울어 기운이 약해진다는 뜻이에요.\n七月丙火，太陽轉西，陽氣衰矣。\n궁통보감 「칠월병」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.申", text: "7월의 병화는 서산에 가까운 해라 토를 만나면 빛이 흐려지고, 호수와 바다를 비추면 밤하늘까지 밝히니 그대로 임수를 써서 빛을 돋운다는 뜻이에요.\n日近西山，見土皆晦，惟日照湖海，暮夜光天，故仍用壬水，輔映光輝。\n궁통보감 「칠월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.辰", text: "3월에 태어난 병화 일간에게는 임수가 먼저 필요하다는 뜻이에요.\n三月丙火，氣漸炎升，用壬水。\n궁통보감 「삼월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#丙.酉", text: "8월에 태어난 병화 일간에게는 저무는 빛을 비춰 줄 임수가 여전히 필요하다는 뜻이에요.\n八月丙火，日近黃昏，丙火之餘光，存於光湖，仍用壬水輔映。\n궁통보감 「팔월병」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.丑", text: "12월에 태어난 을목 일간에게는 무토가 아니라 병화만 쓴다는 뜻이에요.\n冬月之木，雖取戊制水，不可作用，專取丙火則可。\n궁통보감 「삼동을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.亥", text: "10월에 태어난 을목 일간에게는 병화가 먼저, 그다음 무토가 필요하다는 뜻이에요.\n十月乙木，木不受氣，而壬水司令，取丙爲用，戊土次之。\n궁통보감 「시월을」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.午", text: "5월의 을목은 정화가 힘을 쥐어 곡식이 모두 가문 때라는 뜻이에요.\n五月乙木，丁火司權，禾稼俱旱。\n궁통보감 「오월을」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.午", text: "5월에 태어난 을목 일간에게는 사주에 금과 수가 많으면 병화를 먼저 쓰고, 그 밖에는 모두 계수를 먼저 쓴다는 뜻이에요.\n柱多金水，丙火爲先，餘皆用癸水爲先。\n궁통보감 「오월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.卯", text: "2월에 태어난 을목 일간에게는 병화가 먼저, 그다음 계수가 필요하다는 뜻이에요.\n二月乙木，陽氣漸升，木不寒矣，以丙爲君，癸爲臣，丙癸兩透，不透庚金，大富大貴。\n궁통보감 「이월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.子", text: "11월에 태어난 을목 일간에게는 병화만 쓰고 계수는 쓰지 않는다는 뜻이에요.\n十一月乙木，花木寒凍，一陽來復，喜用丙火解凍，則花木有向陽之意，不宜用癸以凍花木，故專用丙火。\n궁통보감 「십일월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.寅", text: "정월에 태어난 을목 일간에게는 병화가 먼저, 그다음 계수가 필요하다는 뜻이에요.\n正月乙木，必須用丙，因天氣尤有餘寒，非丙不暖，雖有癸水，恐凝寒氣，故以丙火爲先，癸水次之。\n궁통보감 「정월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.巳", text: "4월에 태어난 을목 일간에게는 계수가 먼저 필요하다는 뜻이에요.\n四月乙木，自有丙火，專取癸水爲尊。\n궁통보감 「사월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.戌", text: "9월에 태어난 을목 일간은 뿌리가 마르고 잎이 져서 계수가 꼭 필요하다는 뜻이에요.\n九月乙木，根枯葉落，必賴癸水滋養。\n궁통보감 「구월을」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.未", text: "6월에 태어난 을목 일간은 사주에 금과 물이 많으면 병화가 먼저 필요하다는 뜻이에요.\n六月乙木，木性且寒，柱多金水，丙火爲尊。\n궁통보감 「유월을」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.申", text: "7월의 을목은 경금이 힘을 쥐고 을목에 끌리지만, 땅속의 쇠와는 합하기 어렵다는 뜻이에요.\n七月乙木，庚金乘令，庚雖輸情於乙妹，怎奈干乙難合支金。\n궁통보감 「칠월을」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.未", text: "여름에 태어난 을목 일간에게는 오로지 계수를 쓰고 병화는 형편에 맞게 쓰며, 경금과 신금은 그다음이라는 뜻이에요.\n總之夏月之乙木，專用癸水，丙火酌用，庚辛次之。\n궁통보감 「유월을」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.申", text: "7월에 태어난 을목 일간에게는 기토를 쓰는 것이 좋고, 병화와 계수가 보이지 않아도 된다는 뜻이에요.\n七月喜己土爲用，或不見丙癸。\n궁통보감 「칠월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.辰", text: "3월에 태어난 을목 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요.\n三月乙木，陽氣愈熾，先癸後丙。\n궁통보감 「삼월을」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.酉", text: "8월의 을목은 꽃과 곡식이 모두 기운이 물러간 때라는 뜻이에요.\n八月乙木，芝蘭禾稼均退。\n궁통보감 「팔월을」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#乙.酉", text: "8월 백로 뒤의 을목은 목서 꽃이 아직 피지 않은 때라, 오로지 계수를 써서 꽃받침을 적신다는 뜻이에요.\n在白露之後，桂蕊未開，專用癸水以滋桂萼。\n궁통보감 「팔월을」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#壬.丑", text: "12월에 태어난 임수 일간은 달 초반에 기운이 세므로 병화만 쓴다는 뜻이에요.\n十二月壬水，旺極復衰，何也？上半月癸辛主事，故旺，專用丙火。\n궁통보감 「십이월임」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#壬.亥", text: "10월에 태어난 임수 일간에게는 무토가 먼저 필요하고, 경금까지 함께 갖추면 크게 귀해진다는 뜻이에요.\n十月壬水司權，至旺之極，取戊爲用，若生辰日干，又見辰時，必須戊透，又須庚制甲，不傷戊土，戊庚兩全，定主登科乃第，位顯權高。\n궁통보감 「시월임」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#壬.午", text: "5월에 태어난 임수 일간에게는 계수가 먼저 필요하고 경금이 돕는다는 뜻이에요.\n五月壬水，丁旺壬弱，取癸爲用，取庚爲佐。\n궁통보감 「오월임」"}
@@ -58,21 +58,21 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.子", text: "11월에 태어난 기토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요.\n三冬己土，濕泥寒凍，非丙暖不生，取丙爲尊，甲木參酌。\n궁통보감 「삼동기」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.寅", text: "정월에 태어난 기토 일간에게는 병화가 먼저 필요하다는 뜻이에요.\n正月己土，田園猶凍，蓋因臘氣未除，餘寒未退，故丙爲尊。\n궁통보감 「정월기」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.巳", text: "4월에 태어난 기토 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요.\n三夏己土，雜氣才官，禾稼在田，最喜甘沛，取癸爲要，次用丙火。\n궁통보감 「삼하기」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.戌", text: "9월에 태어난 기토 일간에게는 따뜻하게 할 병화와 적셔 줄 계수를 쓴다는 뜻이에요.\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\n궁통보감 「삼추기」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.戌", text: "가을 석 달에 태어난 기토 일간에게는 계수가 먼저, 병화가 그다음이고, 신금으로 계수를 돕는다는 뜻이에요.\n總之，三秋己土，先癸後丙，取辛輔癸。\n궁통보감 「삼추기」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.未", text: "6월에 태어난 기토 일간에게는 계수가 먼저, 그다음 병화가 필요하다는 뜻이에요.\n三夏己土，雜氣才官，禾稼在田，最喜甘沛，取癸爲要，次用丙火。\n궁통보감 「삼하기」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.申", text: "7월에 태어난 기토 일간에게는 따뜻하게 할 병화와 적셔 줄 계수를 쓴다는 뜻이에요.\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\n궁통보감 「삼추기」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.申", text: "가을 석 달에 태어난 기토 일간에게는 계수가 먼저, 병화가 그다음이고, 신금으로 계수를 돕는다는 뜻이에요.\n總之，三秋己土，先癸後丙，取辛輔癸。\n궁통보감 「삼추기」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.辰", text: "3월에 태어난 기토 일간에게는 병화가 먼저, 그다음 계수, 이어서 갑목이 필요하다는 뜻이에요.\n三月己土，正栽培禾稼之時，先丙後癸，土暖而潤，隨用甲疏，三者俱透天干，必官居黃閣。\n궁통보감 「삼월기」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.酉", text: "8월의 기토는 땅에 쇠 기운이 뭉쳤는데 병화나 정화가 구해 주지 않으면 외롭고 고생한다는 뜻이에요.\n八月支成金局，無丙丁出救，此人零丁孤苦。\n궁통보감 「팔월기」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#己.酉", text: "가을 석 달에 태어난 기토 일간에게는 계수가 먼저, 병화가 그다음이고, 신금으로 계수를 돕는다는 뜻이에요.\n總之，三秋己土，先癸後丙，取辛輔癸。\n궁통보감 「팔월기」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.丑", text: "12월에 태어난 경금 일간에게는 병화가 먼저, 그다음 정화가 필요하고 갑목도 빠질 수 없다는 뜻이에요.\n十二月庚金，寒氣太重，且多濕泥，愈寒愈凍，先取丙火解凍，次取丁火煉金，甲亦不可少。\n궁통보감 「십이월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.亥", text: "10월에 태어난 경금 일간에게는 다듬을 정화와 데울 병화를 쓴다는 뜻이에요.\n十月庚金，水冷性寒，非丁莫造，非丙不暖。\n궁통보감 「시월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.午", text: "5월에 태어난 경금 일간에게는 임수가 먼저, 그다음 계수가 필요하다는 뜻이에요.\n五月庚金，丁火旺烈，庚金敗地，專用壬水，癸又次之。\n궁통보감 「오월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.卯", text: "2월에 태어난 경금 일간에게는 정화가 먼저, 그다음 정화를 살릴 갑목과 갑목을 쪼갤 경금이 필요하다는 뜻이에요.\n二月庚金，柱中自然有乙，當令之乙，見庚必輸情於乙，此金有暗強之勢，如秋金一理，故二月庚金，專用丁火，借甲引丁，借庚劈甲。\n궁통보감 「이월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.子", text: "11월에 태어난 경금 일간에게는 정화와 갑목이 먼저, 그다음 병화가 필요하다는 뜻이에요.\n十一月庚金，天氣嚴寒，仍取丁甲，次取丙火照暖。\n궁통보감 「십일월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.寅", text: "정월에 태어난 경금 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요.\n正月庚金，木旺之際，有土皆死，不能生金，且金之寒氣未除，先用丙暖庚性，又慮土厚埋金，須甲疏洩。\n궁통보감 「정월경」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.巳", text: "4월의 경금은 이 달에 처음 힘을 받고, 달 안에 무토가 숨어 있다는 뜻이에요.\n四月庚金，長生於巳，巳內有戊。\n궁통보감 「사월경」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.巳", text: "4월에 태어난 경금 일간에게 병화는 금을 녹이지 않아 불길을 두려워하지 않고 병화도 쓸 수 있지만, 임수를 먼저 써야 중화를 이루니, 여름에 난 금은 토를 반긴다는 뜻이에요.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n궁통보감 「사월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.戌", text: "9월에 태어난 경금 일간에게는 갑목이 먼저, 그다음 임수가 필요하다는 뜻이에요.\n九月庚金，戊土司令，最怕土厚埋金，宜先用甲疏，後用壬洗，則金自出矣。\n궁통보감 「구월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.未", text: "6월에 태어난 경금 일간에게는 정화가 먼저, 그다음 갑목이 필요하다는 뜻이에요.\n六月庚金，三伏生寒，頑鈍極矣，先用丁火，次取甲木。\n궁통보감 「유월경」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.申", text: "7월의 경금은 단단하고 날카로움이 가장 강하다는 뜻이에요.\n七月庚金，剛銳極矣。\n궁통보감 「칠월경」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.申", text: "7월에 태어난 경금 일간에게는 오로지 정화로 단련하고, 그다음 갑목으로 정화를 이끈다는 뜻이에요.\n專用丁火鍛煉，次取甲木引丁\n궁통보감 「칠월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.辰", text: "3월에 태어난 경금 일간에게는 갑목이 먼저, 그다음 정화가 필요하다는 뜻이에요.\n三月庚金，戊土司令，無生金之理，有埋金之憂，故先甲後丁，不用庚劈甲。\n궁통보감 「삼월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#庚.酉", text: "8월에 태어난 경금 일간에게는 정화와 갑목을 쓰고 병화도 빠질 수 없다는 뜻이에요.\n八月庚金，剛銳未退，用丁用甲，丙不可少。\n궁통보감 「팔월경」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#戊.丑", text: "12월에 태어난 무토 일간에게는 병화가 먼저, 그다음 갑목이 필요하다는 뜻이에요.\n十一二月嚴寒冰凍，丙火爲專，甲木爲佐。\n궁통보감 「십일이월무」"}
@@ -89,16 +89,16 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#戊.酉", text: "8월에 태어난 무토 일간에게는 병화가 먼저, 그다음 계수가 필요하고 나무는 필요 없다는 뜻이에요.\n八月戊土，金洩身寒，賴丙照暖，喜水滋潤，先丙後癸，不必木疏。\n궁통보감 「팔월무」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.丑", text: "12월에 태어난 갑목 일간에게는 경금이 먼저, 그다음 정화가 필요하다는 뜻이에요.\n十二月甲木，天寒氣凍，木性極寒，無生發之象，先用庚劈甲，方引丁火始得木火有通明之象，故丁次之。\n궁통보감 「십이월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.亥", text: "10월에 태어난 갑목 일간에게는 경금과 정화가 먼저, 그다음 병화가 필요하다는 뜻이에요.\n十月甲木，庚丁爲要，丙火次之。\n궁통보감 「시월갑」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.午", text: "5월의 갑목은 나무가 속이 비고 말라 있어 6월과 같은 이치로 본다는 뜻이에요.\n五六月甲木，木性虛焦，一理共推。\n궁통보감 「오뉴월갑」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.午", text: "5월에 태어난 갑목 일간에게는 계수가 먼저, 정화가 그다음이고 경금은 그 뒤라는 뜻이에요.\n五月先癸後丁庚金次之。\n궁통보감 「오뉴월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.卯", text: "2월의 갑목은 경금이 제자리를 잡으면 조금 귀해지고 다른 길로 이름을 내지만, 재물의 뒷받침이 필요하다는 뜻이에요.\n二月甲木，庚金得所，名陽刃駕殺，可云小貴，異途顯達，或主武職，但要財資之。\n궁통보감 「이월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.子", text: "11월에 태어난 갑목 일간에게는 정화가 먼저, 그다음 경금이 필요하고 병화가 돕는다는 뜻이에요.\n十一月甲木，木性生寒，丁先庚後，丙火佐之。\n궁통보감 「십일월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.寅", text: "정월에 태어난 갑목 일간은 아직 추위가 남아 병화와 계수를 만나면 부와 명예를 함께 얻는다는 뜻이에요.\n正月甲木，初春尚有餘寒，得丙癸逢，富貴雙全。\n궁통보감 「정월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.巳", text: "4월에 태어난 갑목 일간에게는 계수가 먼저, 그다음 정화가 필요하다는 뜻이에요.\n四月甲木退氣，丙火司權，先癸後丁。\n궁통보감 「사월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.戌", text: "9월에 태어난 갑목 일간에게는 정화가 먼저, 그다음 임수와 계수가 필요하다는 뜻이에요.\n九月甲木，木星凋零，獨愛丁火，壬癸滋扶，丁壬癸透，戊己亦透，此命配得中和，可許一榜。\n궁통보감 「구월갑」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.未", text: "6월의 갑목은 나무가 속이 비고 말라 있어 5월과 같은 이치로 본다는 뜻이에요.\n五六月甲木，木性虛焦，一理共推。\n궁통보감 「오뉴월갑」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.未", text: "6월에 태어난 갑목 일간에게는 정화가 먼저, 경금이 그다음이고 계수는 없어도 된다는 뜻이에요.\n先丁後庚，無癸亦可。\n궁통보감 「오뉴월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.申", text: "7월에 태어난 갑목 일간에게는 정화가 먼저, 그다음 경금이 필요하고 경금은 빠질 수 없다는 뜻이에요.\n七月甲木，丁火爲尊，庚金次之，庚金不可少。\n궁통보감 「칠월갑」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.辰", text: "3월의 갑목은 나무의 기운이 다해 간다는 뜻이에요.\n三月甲木，木氣相竭。\n궁통보감 「삼월갑」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.酉", text: "8월의 갑목은 나무 기운이 갇히고 쇠 기운이 강하다는 뜻이에요.\n八月甲木，木囚金旺。\n궁통보감 「팔월갑」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.辰", text: "3월에 태어난 갑목 일간에게는 경금을 먼저 쓰고 임수를 그다음에 쓴다는 뜻이에요.\n先取庚金，次用壬水。\n궁통보감 「삼월갑」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#甲.酉", text: "8월에 태어난 갑목 일간에게는 정화가 먼저, 병화가 그다음, 경금이 그 뒤라는 뜻이에요.\n丁火爲先，次用丙火，庚金再次。\n궁통보감 「팔월갑」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.丑", text: "12월에 태어난 계수 일간에게는 병화가 먼저 필요하다는 뜻이에요.\n十二月癸水，寒極成冰，萬物不能舒泰，宜丙火解凍。\n궁통보감 「십이월계」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.亥", text: "10월에 태어난 계수 일간에게는 경금과 신금을 쓴다는 뜻이에요.\n十月癸水，旺中有弱，何也？因亥搖木，洩散元神，宜用庚辛爲妙。\n궁통보감 「시월계」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.午", text: "5월에 태어난 계수 일간에게는 경금과 신금이 필요하고, 같은 물 기운이 있어야 제대로 쓸 수 있다는 뜻이에요.\n五月癸水，至弱無根，必須庚辛爲生身之本，但丁火司權，金難敵火，安能滋養癸水，宜見比劫，方得辛金之用。\n궁통보감 「오월계」"}
@@ -107,15 +107,15 @@
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.寅", text: "정월에 태어난 계수 일간에게는 신금이 먼저, 그다음 병화가 필요하다는 뜻이에요.\n正月癸水，値三陽之候，雨露之精，其性至柔，先用辛金，生癸水之源，次用丙火照暖，名陰陽和合，萬物發生。\n궁통보감 「정월계」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.巳", text: "4월에 태어난 계수 일간에게는 신금을 쓰고, 신금이 없으면 경금을 쓴다는 뜻이에요.\n四月癸水，喜辛金爲用，無辛用庚。\n궁통보감 「사월계」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.戌", text: "9월에 태어난 계수 일간에게는 신금이 먼저 필요하고, 같은 계수가 갑목을 키워 무토를 눌러야 좋다는 뜻이에요.\n九月癸水，失令無根，戊土司權，剋制太過，專用辛金發水之源，要比肩滋甲制戊方妙。\n궁통보감 「구월계」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.未", text: "6월의 계수는 달 초반과 후반을 나눠서 본다는 뜻이에요.\n六月癸水，有上下月之分。\n궁통보감 「유월계」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.申", text: "7월의 계수는 약해 보여도 이 달 안의 경금이 살려 주어 오히려 강해진다는 뜻이에요.\n七月癸水，正母旺子相之時，癸雖死申，殊不知申中有庚生之，名死處逢生，弱中復強，即運行西北，亦不死也。\n궁통보감 「칠월계」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.辰", text: "3월의 계수는 청명 무렵인지 곡우 무렵인지 나눠서 본다는 뜻이에요.\n三月癸水，要分清明穀雨。\n궁통보감 「삼월계」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.未", text: "6월에 태어난 계수 일간은 미 안에 을목과 기토가 함께 있어 깨질 듯 깨지지 않으니 칠살을 따를 수 없어, 오로지 경금과 신금을 쓴다는 뜻이에요.\n因未中有乙己同宮，破而不破，故癸水不能從殺，所以專用庚辛。\n궁통보감 「유월계」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.申", text: "7월에 태어난 계수 일간은 경금이 때를 맡아 몹시 굳세고 날카로우니, 반드시 정화를 쓴다는 뜻이에요.\n但庚司令剛銳極矣，必取丁火爲用。\n궁통보감 「칠월계」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.辰", text: "3월 청명 뒤에 태어난 계수 일간은 아직 불기운이 세지 않아, 오로지 병화를 써서 음양을 어울리게 한다는 뜻이에요.\n清明後、火氣未熾，專用丙火，爲陰陽合諧。\n궁통보감 「삼월계」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#癸.酉", text: "8월에 태어난 계수 일간에게는 신금이 먼저, 그다음 병화가 필요하다는 뜻이에요.\n八月癸水，辛金虛靈，非頑金可比，正金白水清，故取辛金爲用，丙火佐之。\n궁통보감 「팔월계」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.丑", text: "12월에 태어난 신금 일간에게는 병화가 먼저, 그다음 임수가 필요하다는 뜻이에요.\n十二月辛金，寒凍之極，先丙後壬，無丙不能解凍，無壬不能洗淘。\n궁통보감 「십이월신」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.亥", text: "10월에 태어난 신금 일간에게는 임수가 먼저, 그다음 병화가 필요하다는 뜻이에요.\n十月辛金，時値小陽，陽氣漸升，寒氣將降，先用壬水，次取丙火，壬丙兩透，金榜題名，何也？蓋辛金有壬水丙火，名金白水清，又在亥月故發。\n궁통보감 「시월신」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.午", text: "5월에 태어난 신금 일간에게는 기토와 임수를 함께 쓴다는 뜻이에요.\n五月辛金，丁火司權，辛金失令，陰柔之極，不宜鍛煉，須己壬兼用，何也？己爲泥沙，壬爲湖海，己無壬不濕，辛無己不生，故壬己並用。\n궁통보감 「오월신」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.卯", text: "2월에 태어난 신금 일간에게는 임수가 먼저 필요하고 무토와 기토는 해롭다는 뜻이에요.\n二月辛金，陽和之際，壬水爲尊，見戊己爲病。\n궁통보감 「이월신」"}
-- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.子", text: "11월에 태어난 신금 일간은 계수가 드러나면 꺼리고, 임수와 병화가 함께 드러나면 크게 귀해진다는 뜻이에요.\n十一月辛金，癸水司令，爲寒冬雨露，切忌癸出凍金，而困丙火，壬丙兩透，不見戊癸，衣錦腰金。\n궁통보감 「십일월신」"}
+- {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.子", text: "겨울에 태어난 신금 일간에게는 병화로 따뜻하게 해야 좋다는 뜻이에요.\n冬月辛金，須丙溫暖方妙。\n궁통보감 「십일월신」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.寅", text: "정월에 태어난 신금 일간에게는 기토와 임수를 쓰고, 경금이 갑목을 눌러 주면 좋다는 뜻이에요.\n正月辛金，陽氣舒而寒氣未除，不知正月建寅，中有長生之丙，解去寒氣，忌甲木司權，辛金失令，取己土爲生身之本，欲得辛金發現，全賴壬水之功，己壬兩透，支見庚制甲，科甲定然。\n궁통보감 「정월신」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.巳", text: "4월에 태어난 신금 일간에게는 씻어 줄 임수가 필요하고 뜨거운 병화는 꺼린다는 뜻이에요.\n四月辛金，時逢首夏，忌丙火之燥烈，喜壬水之洗淘。\n궁통보감 「사월신」"}
 - {slot: evidence.source, key: "source.gungtong-bogam/johu_evidence#辛.戌", text: "9월에 태어난 신금 일간에게는 임수가 먼저, 그다음 갑목이 필요하다는 뜻이에요.\n九月辛金，戊土司令，母旺子相，須甲疏土，壬洩旺金，先壬後甲。\n궁통보감 「구월신」"}
