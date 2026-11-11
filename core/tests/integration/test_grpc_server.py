@@ -56,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.5"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.6"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
