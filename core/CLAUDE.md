@@ -37,7 +37,7 @@
 | 태그 근거 다시 세우기 계획 (#804) | `core/docs/plans/2026-11-05-tag-evidence.md` |
 | 원전 근거 자료 | `core/docs/references/` |
 | 계산 규칙 지도 (#988, 규칙을 바꾸면 함께 고침) | `core/docs/rules-map/rules_map.toml` → `core/rules_map.json` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C36, 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C38, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108 |
 

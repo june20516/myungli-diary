@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
 from myungli_engine.calendar_core import korean_lunar, lunar_adapter
 from myungli_engine.calendar_core.birth import BirthInput, validate_civil_date
@@ -20,7 +20,7 @@ from myungli_engine.rules import messages
 from myungli_engine.rules.color import ElementPick, lucky_colors
 from myungli_engine.rules.day_kind import classify_day
 from myungli_engine.rules.direction import DirectionPick, lucky_direction
-from myungli_engine.rules.focus_time import FocusPick, pick_focus_times
+from myungli_engine.rules.focus_time import DayHours, FocusPick, pick_focus_times
 from myungli_engine.rules.number import hado_pair, lucky_number
 from myungli_engine.rules.relations import Relation, find_relations
 from myungli_engine.rules.tags import TagResult, select_tags
@@ -59,7 +59,11 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
     colors = lucky_colors(kind, yongsin, day)
     direction = lucky_direction(kind, day, yongsin, lunar_adapter.deity_directions(target))
     number = lucky_number(colors[0].element, day.stem)
-    focus = pick_focus_times(lunar_adapter.hour_slots(target, current_timezone), day, natal_pillars.year)
+    focus = pick_focus_times(
+        _day_hours(target, current_timezone),
+        _day_hours(target + timedelta(days=1), current_timezone),
+        natal_pillars.year,
+    )
     relations = find_relations(natal_pillars, day)
     tags = select_tags(
         natal_pillars,
@@ -80,7 +84,7 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         colors=tuple((pick, _color_judgment(kind, pick, day, split=len(colors) > 1)) for pick in colors),
         direction=(direction, _direction_judgment(kind, direction, day)),
         number=(number, _number_judgment(kind, number, colors[0], day)),
-        focus=tuple((pick, _focus_judgment(pick, day, natal_pillars.year)) for pick in focus),
+        focus=tuple((pick, _focus_judgment(pick, natal_pillars.year)) for pick in focus),
         relations=relations,
         tags=tags,
         fortune=messages.fortune(
@@ -164,11 +168,21 @@ def _hanja(pillar: Pillar) -> str:
     return f"{pillar.stem.hanja}{pillar.branch.hanja}"
 
 
-def _focus_judgment(pick: FocusPick, day: Pillar, birth_year: Pillar) -> Judgment:
+def _day_hours(civil_date: date, current_timezone: str) -> DayHours:
+    return DayHours(
+        date=civil_date,
+        pillar=lunar_adapter.day_pillar(civil_date),
+        slots=lunar_adapter.hour_slots(civil_date, current_timezone),
+    )
+
+
+def _focus_judgment(pick: FocusPick, birth_year: Pillar) -> Judgment:
     """낮이나 밤의 1등 시진 하나 (D122). 근거는 用時法(그날), 論相主(태어난 해), 黃道黑道(동점) 조목이다.
 
-    매개변수와 detail에는 고른 시진, 오늘 일진, 태어난 해만 둔다. 등급과 순서는 내지 않는다(D121).
+    매개변수와 detail에는 고른 시진, 그 시진이 속한 날의 일진, 태어난 해만 둔다. 등급과 순서는 내지 않는다(D121).
+    밤의 자시~묘시는 다음 날 일진이다(#1008).
     """
+    day = pick.grade.day
     hour_branch = pick.grade.slot.branch.name
     period = pick.period.name
     params: dict[str, str | int | float | bool] = {"hour_branch": hour_branch}
