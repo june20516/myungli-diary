@@ -23,7 +23,7 @@
 | `docs/identity/README.md` | 정체성, 머리글 컨셉 문장 |
 | `docs/ia/screens.json` (IA, 없으면 MVP 임시 화면 목록) | 화면(탭별 묶음, 슬롯·컴포넌트·상태·경로 상세) |
 | 비공개 내부 저장소의 `ideas.md`, 그 `검토` 상태가 가리키는 문서의 첫 제목·`상태:` 줄(세 번째 인자로 내부 저장소를 넘길 때만, D74) | 아이디어(흐름 보드: 대기 → 검토 중 → 채택 → 보류·기각) |
-| `core/rules_map.json` (core 계산 규칙 지도, #988, 원본 `core/docs/rules-map/rules_map.toml`. 없으면 안내만) | 계산 규칙(바탕지식, 공통 틀, 그룹별 항목과 원전, 불일치 목록) |
+| `core/rules_map.json` (core 계산 규칙 지도, #988, 원본 `core/docs/rules-map/rules_map.toml`. 없으면 안내만) | 계산 규칙(바탕지식, 공통 틀, 그룹별 항목과 원전, 규칙 줄마다 원전 상태 다섯 단계, 기준값, 불일치 목록과 판정) |
 | `gh issue list` (실패하면 빈 목록) | 열린 Issue, 역 상세 |
 | `app/docs/artifacts/e2e-coverage.json` (app E2E 커버리지, app 결정 A13, 없으면 표시 안 함) | 화면 탭 머리의 전체 커버리지, 화면 카드·상세의 경로·상태 커버리지와 덮지 못한 항목(#87) |
 
