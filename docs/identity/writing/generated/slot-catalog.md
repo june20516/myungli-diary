@@ -66,14 +66,14 @@
 | contact.message.field | contact.message.field | guide | - | 1 | 2 | - | ko 29, en 53, ja 23<br>`contactMessageFieldHint` ko 34, en 62, ja 28 |
 | contact.send.cta | contact.send.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | contact.sent.toast | contact.sent.toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
-| daily.color | today.lucky-color.body | info | - | 1 | 4 | `element`: element, color<br>`role`: none | ko 36, en 64, ja 36 |
-| daily.direction | today.lucky-direction.body | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none | ko 36, en 64, ja 36 |
+| daily.color | today.lucky-color.body | info | - | 1 | 12 | `element`: element, color<br>`role`: none<br>`base_element`: element, color<br>`day_branch`: none<br>`shift`: none<br>`twelve_stage`: twelve_stage | ko 36, en 64, ja 36 |
+| daily.direction | today.lucky-direction.body | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none<br>`element`: element, color<br>`role`: none<br>`day_branch`: none<br>`deity`: none | ko 36, en 64, ja 36 |
 | daily.focus_reason | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 10, en 18, ja 10 |
-| daily.focus_time | today.lucky-time.body | info | - | 1 | 5 | `branches`: list:branch<br>`score`: number | ko 36, en 64, ja 36 |
+| daily.focus_time | today.lucky-time.body | info | - | 1 | 2 | `hour_branch`: none | ko 36, en 64, ja 36 |
 | daily.fortune.head | today.fortune.head<br>preview.fortune.head<br>system-push.morning.body<br>evidence-sheet.target.body | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.fortune.tag | today.fortune.body<br>preview.fortune.body | info | advice, state, care | 1 | 16 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 21 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
-| daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color | ko 36, en 64, ja 36 |
+| daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color<br>`day_stem`: none<br>`parity`: none<br>`pair`: none | ko 36, en 64, ja 36 |
 | daily.tag_label | 컴포넌트 hanja-tag<br>컴포넌트 lucky-card | info | - | 1 | 16 | - | ko 10, en 18, ja 10 |
 | day-sheet.date.lunar | day-sheet.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | day-sheet.date.solar | day-sheet.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
@@ -119,11 +119,11 @@
 | evidence-sheet.section.source | evidence-sheet.section.source | info | - | 1 | 1 | - | ko 26, en 48, ja 21 |
 | evidence-sheet.unlock.failed | evidence-sheet.unlock.failed | guide | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | evidence-sheet.unlock.until | evidence-sheet.unlock.until | info | - | 1 | 2 | `date`: text | ko 27, en 49, ja 22 |
-| evidence.basis | evidence-sheet.basis.body | info | - | 1 | 36 | `breakdown`: none<br>`score`: number<br>`day_kind`: day_kind<br>`element`: element, color<br>`note`: none<br>`role`: role<br>`day_branch`: text<br>`direction`: direction8<br>`deity`: none<br>`picks`: none<br>`group`: ten_god_group<br>`ten_god`: ten_god, ten_god_group<br>`featured`: none<br>`basis`: none<br>`day_stem`: text<br>`number`: number<br>`parity`: none<br>`gisin`: element, color<br>`strength`: strength<br>`yongsin`: element, color<br>`current`: none<br>`luck`: luck<br>`part`: part<br>`place`: place<br>`group_count`: number<br>`all`: none<br>`shinsal`: shinsal<br>`natal_positions`: list:place<br>`relation_kind`: relation<br>`branch_ten_god`: ten_god, ten_god_group<br>`natal_count`: number<br>`stem_ten_god`: ten_god, ten_god_group<br>`strength_level`: strength<br>`strength_score`: none<br>`month_branch`: text<br>`share`: none<br>`threshold`: none | ko -, en -, ja - |
+| evidence.basis | evidence-sheet.basis.body | info | - | 1 | 39 | `breakdown`: none<br>`score`: number<br>`day_kind`: day_kind<br>`element`: element, color<br>`note`: none<br>`role`: role<br>`gisin`: none<br>`shifted_element`: element, color<br>`base_element`: element, color<br>`day_branch`: text<br>`shift`: none<br>`twelve_stage`: twelve_stage<br>`direction`: direction8<br>`deity`: none<br>`birth_year`: none<br>`hour_branch`: none<br>`period`: none<br>`day_pillar`: none<br>`huangdao`: none<br>`group`: ten_god_group<br>`ten_god`: ten_god, ten_god_group<br>`featured`: none<br>`basis`: none<br>`day_stem`: text<br>`number`: number<br>`parity`: none<br>`strength`: strength<br>`yongsin`: element, color<br>`current`: none<br>`luck`: luck<br>`part`: part<br>`place`: place<br>`group_count`: number<br>`all`: none<br>`shinsal`: shinsal<br>`natal_positions`: list:place<br>`relation_kind`: relation<br>`branch_ten_god`: ten_god, ten_god_group<br>`natal_count`: number<br>`stem_ten_god`: ten_god, ten_god_group<br>`strength_level`: strength<br>`strength_score`: none<br>`month_branch`: text<br>`share`: none<br>`threshold`: none | ko -, en -, ja - |
 | evidence.no_source | evidence-sheet.source.quote | info | - | 1 | 1 | - | ko -, en -, ja - |
-| evidence.source | evidence-sheet.source.quote | info | - | 1 | 134 | - | ko -, en -, ja - |
+| evidence.source | evidence-sheet.source.quote | info | - | 1 | 156 | - | ko -, en -, ja - |
 | explain-sheet.tag.diary-link | explain-sheet.tag.diary-link | guide | - | 1 | 1 | `tag`: text | ko 24, en 44, ja 20 |
-| explain.today_reason | explain-sheet.today.reason | info | - | 1 | 13 | - | ko -, en -, ja - |
+| explain.today_reason | explain-sheet.today.reason | info | - | 1 | 11 | - | ko -, en -, ja - |
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |

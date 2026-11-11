@@ -25,8 +25,6 @@
     - "reason.direction/ordinary_fallback"
     - "reason.direction/tonggwan"
     - "reason.direction/yongsin"
-    - "reason.focus_time/fallback"
-    - "reason.focus_time/score"
     - "reason.fortune/day_kind"
     - "reason.fortune/tag"
     - "reason.number/hado"
@@ -56,6 +54,10 @@
     # 행운 색의 role 값은 YONGSIN·TONGGWAN이라 glossary role에 TONGGWAN이 없습니다. 종류는 같은 슬롯의 role과 맞추되 문장에 쓰지 않습니다(W48).
     - params: {day_kind: [day_kind], element: [element, color], note: none, role: [role]}
       keys: ["basis.color/lucky_element"]
+    - params: {element: [element, color], gisin: none, shifted_element: [element, color]}
+      keys: ["basis.color/balance"]
+    - params: {base_element: [element, color], day_branch: text, element: [element, color], shift: none, twelve_stage: [twelve_stage]}
+      keys: ["basis.color/shift"]
     - params: {day_branch: text, day_kind: [day_kind], direction: [direction8]}
       keys: ["basis.direction/gwiin_branch"]
     - params: {day_branch: text, day_kind: [day_kind], deity: none, direction: [direction8], element: [element, color]}
@@ -68,10 +70,12 @@
       keys: ["basis.direction/tonggwan"]
     - params: {day_branch: text, day_kind: [day_kind], direction: [direction8], element: [element, color]}
       keys: ["basis.direction/yongsin"]
-    - params: {picks: none}
-      keys: ["basis.focus_time/fallback"]
-    - params: {picks: none}
-      keys: ["basis.focus_time/score"]
+    - params: {birth_year: none, hour_branch: none, period: none}
+      keys: ["basis.focus_time/birth_year"]
+    - params: {day_pillar: none, hour_branch: none, period: none}
+      keys: ["basis.focus_time/day_relation"]
+    - params: {hour_branch: none, huangdao: none, period: none}
+      keys: ["basis.focus_time/huangdao"]
     - params: {day_kind: [day_kind], group: [ten_god_group], ten_god: [ten_god, ten_god_group]}
       keys: ["basis.fortune/day_kind"]
     - params: {day_kind: [day_kind], featured: none, group: [ten_god_group], ten_god: [ten_god, ten_god_group]}
@@ -268,7 +272,26 @@
     - "source.gungtong-bogam/johu_evidence#辛.申"
     - "source.gungtong-bogam/johu_evidence#辛.辰"
     - "source.gungtong-bogam/johu_evidence#辛.酉"
+    - "source.jeokcheonsu/personal#day_master"
     - "source.jeokcheonsu/tags#clash_month_branch"
+    - "source.sammyeong-tonghoe/five_elements#color_change"
+    - "source.sammyeong-tonghoe/personal#luck.ten_god"
+    - "source.sammyeong-tonghoe/personal#luck.twelve_stage"
+    - "source.sammyeong-tonghoe/personal#ten_god.geonrok"
+    - "source.sammyeong-tonghoe/personal#ten_god.jeonggwan"
+    - "source.sammyeong-tonghoe/personal#ten_god.jeongin"
+    - "source.sammyeong-tonghoe/personal#ten_god.jeongjae"
+    - "source.sammyeong-tonghoe/personal#ten_god.pyeongwan"
+    - "source.sammyeong-tonghoe/personal#ten_god.pyeonin"
+    - "source.sammyeong-tonghoe/personal#ten_god.pyeonjae"
+    - "source.sammyeong-tonghoe/personal#ten_god.sanggwan"
+    - "source.sammyeong-tonghoe/personal#ten_god.siksin"
+    - "source.sammyeong-tonghoe/personal#ten_god_group.gwanseong"
+    - "source.sammyeong-tonghoe/personal#ten_god_group.inseong"
+    - "source.sammyeong-tonghoe/personal#ten_god_group.jaeseong"
+    - "source.sammyeong-tonghoe/personal#ten_god_group.siksang"
+    - "source.sammyeong-tonghoe/personal#twelve_stage"
+    - "source.sammyeong-tonghoe/personal#yangin"
     - "source.sammyeong-tonghoe/tags#branch_hap"
     - "source.sammyeong-tonghoe/tags#cheoneul_gwiin"
     - "source.sammyeong-tonghoe/tags#clash"
@@ -278,6 +301,9 @@
     - "source.sammyeong-tonghoe/tags#hwagae"
     - "source.sammyeong-tonghoe/tags#stem_hap"
     - "source.sammyeong-tonghoe/tags#yeokma"
+    - "source.xieji-bianfang/hours#birth_year"
+    - "source.xieji-bianfang/hours#huangdao"
+    - "source.xieji-bianfang/hours#use_hour"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
   a11y:

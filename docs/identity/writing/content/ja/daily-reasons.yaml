@@ -11,8 +11,6 @@
 - {slot: explain.today_reason, key: "reason.direction/ordinary_fallback", text: "暦の吉方位が合わないので、あなたの命式を助ける気の方位を選んだからです。"}
 - {slot: explain.today_reason, key: "reason.direction/tonggwan", text: "ぶつかり合う二つの気をつなぐ気の方位を選んだからです。"}
 - {slot: explain.today_reason, key: "reason.direction/yongsin", text: "今日力を得た、あなたの命式を助ける気の方位を選んだからです。"}
-- {slot: explain.today_reason, key: "reason.focus_time/fallback", text: "候補の時間がすべて命式とぶつかるので、その日の暦で吉とされる時間を選んだからです。"}
-- {slot: explain.today_reason, key: "reason.focus_time/score", text: "命式とぶつからない時間のうち、貴人・用神・合が多く重なる時を選んだからです。"}
 - {slot: explain.today_reason, key: "reason.fortune/day_kind", text: "今日の天干があなたの日干と出会う関係が、この気にあたるからです。"}
 - {slot: explain.today_reason, key: "reason.fortune/tag", text: "今日の干支があなたの命式と出会い、このタグが一緒に入ったからです。"}
 - {slot: explain.today_reason, key: "reason.number/hado", text: "今日の色と同じ気の数のうち、今日の天干の陰陽に合う数を選んだからです。"}

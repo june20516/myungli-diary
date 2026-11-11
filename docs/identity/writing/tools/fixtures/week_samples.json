@@ -1,6 +1,6 @@
 {
   "engine_version": "0.1.0",
-  "ruleset_version": "2026.11.0",
+  "ruleset_version": "2026.11.4",
   "start": "2026-11-02",
   "samples": [
     {
@@ -13,7 +13,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -23,7 +23,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -33,7 +33,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -43,7 +43,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -53,7 +53,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -63,7 +63,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -73,17 +73,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.clash_day_branch",
           "guide": "guide.clash_day_branch",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -93,7 +93,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -103,7 +103,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.gwanseong"
         },
         {
@@ -113,7 +113,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -123,7 +123,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -133,7 +133,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -143,7 +143,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -153,7 +153,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -163,7 +163,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -173,17 +173,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -193,17 +193,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.ordinary_day.gwanseong",
           "tag_sentence": "fortune.tag.clash_day_branch",
           "guide": "guide.clash_day_branch",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -213,7 +213,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -223,7 +223,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -233,7 +233,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -243,7 +243,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -253,7 +253,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -263,7 +263,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -273,7 +273,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.jaeseong"
         },
         {
@@ -283,7 +283,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         }
       ]
@@ -298,7 +298,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -308,7 +308,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -318,7 +318,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -328,7 +328,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         },
         {
@@ -338,17 +338,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
           "head": "fortune.gwiin_day.inseong",
           "tag_sentence": "fortune.tag.cheoneul_gwiin",
           "guide": "guide.cheoneul_gwiin",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -358,7 +358,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -368,17 +368,17 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.siksang",
           "tag_sentence": "fortune.tag.dohwa",
           "guide": "guide.dohwa",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.dohwa"
         },
         {
@@ -388,17 +388,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
           "head": "fortune.ordinary_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -408,7 +408,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -418,7 +418,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -428,7 +428,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -438,7 +438,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -448,7 +448,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         },
         {
@@ -458,17 +458,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
           "head": "fortune.gwiin_day.bigyeop",
           "tag_sentence": "fortune.tag.cheoneul_gwiin",
           "guide": "guide.cheoneul_gwiin",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -478,7 +478,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.siksang"
         },
         {
@@ -488,7 +488,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -498,7 +498,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.dohwa"
         },
         {
@@ -508,17 +508,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
           "head": "fortune.yongsin_day.gwanseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.yongsin_day",
+          "color": "color.balance.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -528,7 +528,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -538,7 +538,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -548,7 +548,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -558,7 +558,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -568,7 +568,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         }
       ]
@@ -583,7 +583,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -593,7 +593,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -603,7 +603,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -613,7 +613,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -623,17 +623,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
           "head": "fortune.ordinary_day.bigyeop",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -643,7 +643,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         },
         {
@@ -653,17 +653,17 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.clash_month_branch",
           "guide": "guide.clash_month_branch",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -673,17 +673,17 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.ordinary_day.gwanseong",
           "tag_sentence": null,
           "guide": "guide.ten_god.gwanseong",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -693,7 +693,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.dohwa"
         },
         {
@@ -703,7 +703,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -713,7 +713,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -723,7 +723,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -733,7 +733,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -743,17 +743,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
           "head": "fortune.ordinary_day.siksang",
           "tag_sentence": null,
           "guide": "guide.ten_god.siksang",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -763,7 +763,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.jaeseong"
         },
         {
@@ -773,7 +773,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -783,7 +783,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -793,17 +793,17 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
           "head": "fortune.yongsin_day.inseong",
           "tag_sentence": "fortune.tag.yongsin_day",
           "guide": "guide.yongsin_day",
-          "color": "color.yongsin_day",
+          "color": "color.balance.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -813,7 +813,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -823,7 +823,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -833,7 +833,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -843,7 +843,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.siksang"
         },
         {
@@ -853,7 +853,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         }
       ]
@@ -868,7 +868,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -878,17 +878,17 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
           "head": "fortune.gisin_day.bigyeop",
           "tag_sentence": "fortune.tag.gongmang",
           "guide": "guide.gongmang",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -898,17 +898,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
           "head": "fortune.ordinary_day.siksang",
           "tag_sentence": "fortune.tag.clash",
           "guide": "guide.clash",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -918,7 +918,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -928,7 +928,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -938,7 +938,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -948,7 +948,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -958,7 +958,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.gwanseong"
         },
         {
@@ -968,17 +968,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
           "head": "fortune.gwiin_day.inseong",
           "tag_sentence": "fortune.tag.clash",
           "guide": "guide.clash",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -988,7 +988,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -998,7 +998,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -1008,7 +1008,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -1018,17 +1018,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
           "head": "fortune.yongsin_day.jaeseong",
           "tag_sentence": "fortune.tag.clash",
           "guide": "guide.clash",
-          "color": "color.yongsin_day",
+          "color": "color.balance.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1038,7 +1038,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1048,7 +1048,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -1058,7 +1058,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1068,7 +1068,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1078,7 +1078,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         },
         {
@@ -1088,17 +1088,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
           "head": "fortune.gwiin_day.bigyeop",
           "tag_sentence": "fortune.tag.clash",
           "guide": "guide.clash",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1108,7 +1108,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1118,7 +1118,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -1128,7 +1128,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1138,7 +1138,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         }
       ]
@@ -1153,17 +1153,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1173,7 +1173,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1183,7 +1183,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -1193,7 +1193,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1203,7 +1203,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -1213,7 +1213,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         },
         {
@@ -1223,17 +1223,17 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.ordinary_day.siksang",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1243,7 +1243,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.siksang"
         },
         {
@@ -1253,17 +1253,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.clash_month_branch",
           "guide": "guide.clash_month_branch",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1273,17 +1273,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.ordinary_day.gwanseong",
           "tag_sentence": null,
           "guide": "guide.ten_god.gwanseong",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -1293,7 +1293,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1303,7 +1303,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -1313,7 +1313,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1323,7 +1323,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -1333,7 +1333,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.siksang"
         },
         {
@@ -1343,7 +1343,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1353,7 +1353,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1363,7 +1363,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1373,7 +1373,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1383,7 +1383,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1393,17 +1393,17 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.yongsin_day.inseong",
           "tag_sentence": "fortune.tag.yongsin_day",
           "guide": "guide.yongsin_day",
-          "color": "color.yongsin_day",
+          "color": "color.balance.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -1413,7 +1413,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.bigyeop"
         },
         {
@@ -1423,7 +1423,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         }
       ]
@@ -1438,17 +1438,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
           "head": "fortune.gisin_day.bigyeop",
           "tag_sentence": "fortune.tag.gongmang",
           "guide": "guide.gongmang",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -1458,7 +1458,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -1468,7 +1468,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1478,7 +1478,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -1488,7 +1488,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1498,7 +1498,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1508,17 +1508,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
           "head": "fortune.ordinary_day.inseong",
           "tag_sentence": "fortune.tag.clash",
           "guide": "guide.clash",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1528,7 +1528,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1538,17 +1538,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
           "head": "fortune.gisin_day.bigyeop",
           "tag_sentence": "fortune.tag.dohwa",
           "guide": "guide.dohwa",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.dohwa"
         },
         {
@@ -1558,17 +1558,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
           "head": "fortune.ordinary_day.siksang",
           "tag_sentence": "fortune.tag.gongmang",
           "guide": "guide.gongmang",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -1578,7 +1578,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -1588,7 +1588,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1598,7 +1598,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -1608,7 +1608,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1618,7 +1618,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1628,7 +1628,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -1638,7 +1638,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1648,7 +1648,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1658,7 +1658,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -1668,7 +1668,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.dohwa"
         },
         {
@@ -1678,17 +1678,17 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
           "head": "fortune.yongsin_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.yongsin_day",
+          "color": "color.balance.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1698,7 +1698,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -1708,7 +1708,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         }
       ]
@@ -1723,7 +1723,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1733,17 +1733,17 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.inseong",
           "tag_sentence": "fortune.tag.clash_month_branch",
           "guide": "guide.clash_month_branch",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1753,17 +1753,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
           "head": "fortune.gwiin_day.bigyeop",
           "tag_sentence": "fortune.tag.yeokma",
           "guide": "guide.yeokma",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -1773,7 +1773,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1783,7 +1783,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1793,7 +1793,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -1803,7 +1803,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -1813,7 +1813,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1823,17 +1823,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.ordinary_day.gwanseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1843,7 +1843,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1853,7 +1853,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -1863,7 +1863,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1873,17 +1873,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gwiin_day.siksang",
           "tag_sentence": "fortune.tag.yeokma",
           "guide": "guide.yeokma",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -1893,7 +1893,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1903,7 +1903,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -1913,7 +1913,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1923,7 +1923,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1933,7 +1933,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1943,7 +1943,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -1953,7 +1953,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1963,7 +1963,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1973,7 +1973,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -1983,7 +1983,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -1993,7 +1993,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         }
       ]
@@ -2008,17 +2008,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
           "head": "fortune.gisin_day.bigyeop",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2028,7 +2028,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2038,7 +2038,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -2048,7 +2048,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
@@ -2058,7 +2058,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -2068,7 +2068,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2078,17 +2078,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
           "head": "fortune.ordinary_day.inseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2098,7 +2098,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.ten_god_rush.inseong"
         },
         {
@@ -2108,17 +2108,17 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
           "head": "fortune.gisin_day.bigyeop",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2128,17 +2128,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.ordinary_day.siksang",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2148,7 +2148,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -2158,7 +2158,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -2168,7 +2168,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2178,7 +2178,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -2188,7 +2188,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2198,7 +2198,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -2208,7 +2208,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2218,7 +2218,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2228,7 +2228,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -2238,7 +2238,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2248,17 +2248,17 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
           "head": "fortune.yongsin_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.yongsin_day",
+          "color": "color.balance.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2268,7 +2268,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2278,7 +2278,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         }
       ]
@@ -2293,7 +2293,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -2303,7 +2303,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -2313,7 +2313,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -2323,7 +2323,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -2333,17 +2333,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
           "head": "fortune.gisin_day.siksang",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2353,7 +2353,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2363,7 +2363,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2373,7 +2373,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -2383,7 +2383,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2393,17 +2393,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
           "head": "fortune.gwiin_day.inseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2413,7 +2413,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -2423,7 +2423,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -2433,7 +2433,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -2443,7 +2443,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
+          "tag_label": "tag.harmony"
+        },
+        {
+          "head": "fortune.ordinary_day.jaeseong",
+          "tag_sentence": "fortune.tag.harmony",
+          "guide": "guide.harmony",
+          "color": "color.balance.ordinary_day",
+          "direction": "direction.day_kind.ordinary",
+          "number": "number.ordinary_day",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2453,17 +2463,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
-          "tag_label": "tag.harmony"
-        },
-        {
-          "head": "fortune.ordinary_day.jaeseong",
-          "tag_sentence": "fortune.tag.harmony",
-          "guide": "guide.harmony",
-          "color": "color.ordinary_day",
-          "direction": "direction.day_kind.ordinary",
-          "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2473,7 +2473,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.hwagae"
         },
         {
@@ -2483,7 +2483,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2493,7 +2493,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -2503,7 +2503,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2513,17 +2513,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
           "head": "fortune.gwiin_day.bigyeop",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gwiin_day",
+          "color": "color.balance.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2533,7 +2533,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
@@ -2543,7 +2543,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2553,7 +2553,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash"
         },
         {
@@ -2563,7 +2563,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         }
       ]
@@ -2578,7 +2578,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2588,7 +2588,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -2598,7 +2598,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2608,7 +2608,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.gongmang"
         },
         {
@@ -2618,7 +2618,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yongsin_day"
         },
         {
@@ -2628,7 +2628,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2638,17 +2638,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2658,7 +2658,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2668,7 +2668,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -2678,7 +2678,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2688,7 +2688,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2698,7 +2698,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2708,7 +2708,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.cheoneul_gwiin"
         },
         {
@@ -2718,7 +2718,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2728,7 +2728,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2738,17 +2738,17 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": null
         },
         {
           "head": "fortune.gisin_day.jaeseong",
           "tag_sentence": "fortune.tag.harmony",
           "guide": "guide.harmony",
-          "color": "color.gisin_day",
+          "color": "color.balance.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2758,17 +2758,17 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_day_branch"
         },
         {
           "head": "fortune.ordinary_day.gwanseong",
           "tag_sentence": "fortune.tag.yeokma",
           "guide": "guide.yeokma",
-          "color": "color.ordinary_day",
+          "color": "color.balance.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -2778,7 +2778,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2788,7 +2788,7 @@
           "color": "color.yongsin_day",
           "direction": "direction.day_kind.yongsin",
           "number": "number.yongsin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.clash_month_branch"
         },
         {
@@ -2798,7 +2798,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.yeokma"
         },
         {
@@ -2808,7 +2808,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2818,7 +2818,7 @@
           "color": "color.ordinary_day",
           "direction": "direction.day_kind.ordinary",
           "number": "number.ordinary_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2828,7 +2828,7 @@
           "color": "color.gwiin_day",
           "direction": "direction.day_kind.gwiin",
           "number": "number.gwiin_day",
-          "focus": "focus_time.gwiin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2838,7 +2838,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         },
         {
@@ -2848,7 +2848,7 @@
           "color": "color.gisin_day",
           "direction": "direction.day_kind.gisin",
           "number": "number.gisin_day",
-          "focus": "focus_time.yongsin",
+          "focus": "focus_time.day",
           "tag_label": "tag.harmony"
         }
       ]
