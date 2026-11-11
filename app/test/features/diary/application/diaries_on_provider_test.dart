@@ -31,6 +31,7 @@ void _twoDiariesNotSorted(
     'createdAt': createdAt,
     'excerpt': '본문',
     'featuredTags': <Object?>[],
+    'allTags': <Object?>[],
   };
   handler.resolve(
     Response<Object?>(

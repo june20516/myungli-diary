@@ -1746,4 +1746,56 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get tagSheetSentenceKindGuide => '오늘의 질문';
+
+  @override
+  String get daySheetEventAllDay => '종일';
+
+  @override
+  String get daySheetVerdictCollapse => '접기';
+
+  @override
+  String get daySheetVerdictExpand => '내역 보기';
+
+  @override
+  String get diaryEditGuideAttach => '질문 추가';
+
+  @override
+  String get diaryEditGuideRemove => '질문 없이 쓰기';
+
+  @override
+  String get evidenceSheetUnlockUntilMidnight => '자정까지 열림';
+
+  @override
+  String evidenceSheetUnlockUntilDate(String date) {
+    return '$date까지 열림';
+  }
+
+  @override
+  String get previewUsedInputName => '호칭';
+
+  @override
+  String get previewUsedInputBirth => '생일';
+
+  @override
+  String get previewUsedInputTime => '태어난 시간';
+
+  @override
+  String get previewUsedInputGender => '성별';
+
+  @override
+  String get previewUsedInputBirthplace => '출생지';
+
+  @override
+  String previewUsedInputBirthValue(String calendar, String date) {
+    return '$calendar $date';
+  }
+
+  @override
+  String previewUsedInputBirthValueLeap(String calendar, String date) {
+    return '$calendar 윤달 $date';
+  }
+
+  @override
+  String get previewUsedNotice =>
+      '첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.';
 }

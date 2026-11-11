@@ -17,6 +17,8 @@ abstract class _$DiarySummaryCWProxy {
 
   DiarySummary featuredTags(List<Tag> featuredTags);
 
+  DiarySummary allTags(List<Tag> allTags);
+
   DiarySummary dayKind(DayKind? dayKind);
 
   /// Creates a new instance with the provided field values.
@@ -33,6 +35,7 @@ abstract class _$DiarySummaryCWProxy {
     DateTime createdAt,
     String excerpt,
     List<Tag> featuredTags,
+    List<Tag> allTags,
     DayKind? dayKind,
   });
 }
@@ -61,6 +64,9 @@ class _$DiarySummaryCWProxyImpl implements _$DiarySummaryCWProxy {
       call(featuredTags: featuredTags);
 
   @override
+  DiarySummary allTags(List<Tag> allTags) => call(allTags: allTags);
+
+  @override
   DiarySummary dayKind(DayKind? dayKind) => call(dayKind: dayKind);
 
   /// Creates a new instance with the provided field values.
@@ -78,6 +84,7 @@ class _$DiarySummaryCWProxyImpl implements _$DiarySummaryCWProxy {
     Object? createdAt = const $CopyWithPlaceholder(),
     Object? excerpt = const $CopyWithPlaceholder(),
     Object? featuredTags = const $CopyWithPlaceholder(),
+    Object? allTags = const $CopyWithPlaceholder(),
     Object? dayKind = const $CopyWithPlaceholder(),
   }) {
     return DiarySummary(
@@ -102,6 +109,10 @@ class _$DiarySummaryCWProxyImpl implements _$DiarySummaryCWProxy {
           ? _value.featuredTags
           // ignore: cast_nullable_to_non_nullable
           : featuredTags as List<Tag>,
+      allTags: allTags == const $CopyWithPlaceholder() || allTags == null
+          ? _value.allTags
+          // ignore: cast_nullable_to_non_nullable
+          : allTags as List<Tag>,
       dayKind: dayKind == const $CopyWithPlaceholder()
           ? _value.dayKind
           // ignore: cast_nullable_to_non_nullable
@@ -121,31 +132,46 @@ extension $DiarySummaryCopyWith on DiarySummary {
 // JsonSerializableGenerator
 // **************************************************************************
 
-DiarySummary _$DiarySummaryFromJson(
-  Map<String, dynamic> json,
-) => $checkedCreate('DiarySummary', json, ($checkedConvert) {
-  $checkKeys(
-    json,
-    requiredKeys: const ['id', 'date', 'createdAt', 'excerpt', 'featuredTags'],
-  );
-  final val = DiarySummary(
-    id: $checkedConvert('id', (v) => v as String),
-    date: $checkedConvert('date', (v) => v as String),
-    createdAt: $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
-    excerpt: $checkedConvert('excerpt', (v) => v as String),
-    featuredTags: $checkedConvert(
-      'featuredTags',
-      (v) => (v as List<dynamic>)
-          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    ),
-    dayKind: $checkedConvert(
-      'dayKind',
-      (v) => $enumDecodeNullable(_$DayKindEnumMap, v),
-    ),
-  );
-  return val;
-});
+DiarySummary _$DiarySummaryFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('DiarySummary', json, ($checkedConvert) {
+      $checkKeys(
+        json,
+        requiredKeys: const [
+          'id',
+          'date',
+          'createdAt',
+          'excerpt',
+          'featuredTags',
+          'allTags',
+        ],
+      );
+      final val = DiarySummary(
+        id: $checkedConvert('id', (v) => v as String),
+        date: $checkedConvert('date', (v) => v as String),
+        createdAt: $checkedConvert(
+          'createdAt',
+          (v) => DateTime.parse(v as String),
+        ),
+        excerpt: $checkedConvert('excerpt', (v) => v as String),
+        featuredTags: $checkedConvert(
+          'featuredTags',
+          (v) => (v as List<dynamic>)
+              .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
+        allTags: $checkedConvert(
+          'allTags',
+          (v) => (v as List<dynamic>)
+              .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
+        dayKind: $checkedConvert(
+          'dayKind',
+          (v) => $enumDecodeNullable(_$DayKindEnumMap, v),
+        ),
+      );
+      return val;
+    });
 
 Map<String, dynamic> _$DiarySummaryToJson(DiarySummary instance) =>
     <String, dynamic>{
@@ -154,6 +180,7 @@ Map<String, dynamic> _$DiarySummaryToJson(DiarySummary instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'excerpt': instance.excerpt,
       'featuredTags': instance.featuredTags.map((e) => e.toJson()).toList(),
+      'allTags': instance.allTags.map((e) => e.toJson()).toList(),
       'dayKind': ?_$DayKindEnumMap[instance.dayKind],
     };
 

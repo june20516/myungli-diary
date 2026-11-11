@@ -49,17 +49,18 @@ const AppGlyph _plus = AppGlyph(
   regular: PhosphorIconsRegular.plus,
 );
 
-/// 그날 시트(`day-sheet`) 본문(V85, V86): 위에서부터 날짜 머리, 날의 성격, 길흉판정, 일정,
-/// 일기입니다. 섹션 사이는 [SectionHeader.sectionGap], 제목과 내용 사이는
+/// 그날 시트(`day-sheet`) 본문(V85, V86): 위에서부터 날짜 머리(오른쪽 끝에 날의 성격, V109),
+/// 길흉판정, 일정, 일기입니다. 섹션 사이는 [SectionHeader.sectionGap], 제목과 내용 사이는
 /// [SectionHeader.contentGap]입니다.
 ///
 /// * 날의 성격은 달 길흉의 그 날([calendarDayProvider])입니다(getDaily를 부르지 않음).
 ///   기다리는 동안 skeleton(`loading`), 받지 못하면 오류 화면과 다시 시도(`error`)입니다.
 ///   지원 범위 밖 달이면 다시 시도 없는 범위 안내입니다(A44). 이유 문장은 두지 않습니다.
+/// * 길흉판정 내역은 처음에 접혀 있고 카드를 누르면 펼칩니다(V108).
 /// * 날의 성격 태그와 길흉판정 내역 태그는 누르면 그 용어의 뜻 시트(`explain-sheet`)입니다.
 ///   day-sheet의 깊이는 `surface`·`explain`까지라 그 풀이 시트에는 근거 보기가 없습니다.
-/// * 일정은 [schedulesOnDateProvider]의 하루 일정(하루 종일 먼저, 시각순)이고 추가는 섹션 머리
-///   +입니다. 없으면 빈 문장만, 받지 못하면 조용한 오류 한 줄과 다시 시도입니다.
+/// * 일정은 [schedulesOnDateProvider]의 하루 일정(하루 종일 먼저, 시각순, 메모 한 줄)이고
+///   추가는 섹션 머리 +입니다. 없으면 빈 문장만, 받지 못하면 조용한 오류 한 줄과 다시 시도입니다.
 /// * 일기 섹션은 오늘·지난 날만이고(D49) 쓴 일기가 없어도 제목이 보입니다. 0편이면 제목 아래
 ///   쓰기 버튼만입니다(A69). 미래 날은 묻지도 그리지도 않습니다. 시트에는 광고 배너가 없습니다(D53).
 class DaySheetBody extends ConsumerWidget {
@@ -123,10 +124,9 @@ class _DaySheetContent extends ConsumerWidget {
               lunar: lunar.isLeapMonth
                   ? l10n.daySheetDateLunarLeap(lunar.month, lunar.day)
                   : l10n.daySheetDateLunar(lunar.month, lunar.day),
+              trailing: _DayKindTag(dayKind: day.dayKind),
             ),
           ),
-          const SizedBox(height: Space.s12),
-          _DayKindTag(dayKind: day.dayKind),
           const SizedBox(height: SectionHeader.sectionGap),
           _VerdictSection(day: day),
           const SizedBox(height: SectionHeader.sectionGap),
@@ -141,7 +141,8 @@ class _DaySheetContent extends ConsumerWidget {
   }
 }
 
-/// 날의 성격 `hanja-tag` `emphasis`(`day-sheet.character.label`). 누르면 뜻 시트입니다.
+/// 날의 성격 `hanja-tag` `emphasis`(`day-sheet.character.label`). 날짜 머리 오른쪽 끝에
+/// 놓이고(`date-header` `trailing`, V109) 누르면 뜻 시트입니다.
 class _DayKindTag extends ConsumerWidget {
   const new({required this.dayKind});
 
@@ -161,18 +162,15 @@ class _DayKindTag extends ConsumerWidget {
       container: true,
       child: KeyedSubtree(
         key: const ValueKey(SlotIds.daySheetCharacterLabel),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: tag(
-            onTap: () => unawaited(
-              ref
-                  .read(depthSheetsProvider)
-                  .openExplain(
-                    context,
-                    ExplainTerm('day_kind.${dayKind.value}'),
-                    head: tag(),
-                  ),
-            ),
+        child: tag(
+          onTap: () => unawaited(
+            ref
+                .read(depthSheetsProvider)
+                .openExplain(
+                  context,
+                  ExplainTerm('day_kind.${dayKind.value}'),
+                  head: tag(),
+                ),
           ),
         ),
       ),
@@ -336,6 +334,7 @@ class _ScheduleSection extends ConsumerWidget {
           EventRow.list(
             time: schedule.allDay ? null : schedule.time,
             title: schedule.title,
+            memo: schedule.memo,
             showDivider: index < list.length - 1,
             onTap: () =>
                 _push(context, pathOf(ScreenIds.eventEdit), extra: schedule),
@@ -456,8 +455,9 @@ abstract final class DaySheetSkeletonKeys {
   static const Key schedule = ValueKey('day-sheet.skeleton.schedule');
 }
 
-/// 그날 시트 skeleton(V66): 날짜와 요일은 바로, 음력 줄, 날의 성격 알약, `fortune-verdict`, 일정
-/// 줄, 일기 줄은 각자 뼈이고 섹션 제목은 그대로입니다. 배치는 본문과 같습니다.
+/// 그날 시트 skeleton(V66): 날짜와 요일은 바로, 음력 줄, 날의 성격 알약(날짜 머리 오른쪽),
+/// `fortune-verdict`, 일정 줄, 일기 줄은 각자 뼈이고 섹션 제목은 그대로입니다. 배치는 본문과
+/// 같습니다.
 class _DaySheetSkeleton extends ConsumerWidget {
   const new({required this.date});
 
@@ -476,13 +476,11 @@ class _DaySheetSkeleton extends ConsumerWidget {
           SheetHeading(
             child: KeyedSubtree(
               key: DaySheetSkeletonKeys.date,
-              child: DateHeader.skeleton(solar: _solarTextOf(l10n, date)),
+              child: DateHeader.skeleton(
+                solar: _solarTextOf(l10n, date),
+                trailing: HanjaTag.skeleton(index: 2),
+              ),
             ),
-          ),
-          const SizedBox(height: Space.s12),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: HanjaTag.skeleton(index: 2),
           ),
           const SizedBox(height: SectionHeader.sectionGap),
           SectionHeader(title: l10n.daySheetVerdictTitle),

@@ -57,6 +57,11 @@ class DiaryDrafts extends Table {
   /// 고른 오늘의 질문 `variant`. [guideMessageKey]와 함께 있거나 함께 없습니다.
   TextColumn get guideVariant => text().nullable()();
 
+  /// 가이드 질문을 뗀 채 쓰는 초안인지(D116). true면 고른 질문 두 열은 비어 있고, 다시 열면
+  /// 질문을 뗀 상태로 시작합니다. v4 전 초안은 false입니다.
+  BoolColumn get guideDetached =>
+      boolean().withDefault(const Constant(false))();
+
   /// 마지막 저장 시각(UTC).
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -119,14 +124,14 @@ class AppDatabase extends _$AppDatabase {
   new forExecutor(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) {
-        // v1 날짜 초안은 기본값 id `''`가 되어 그날 새 일기 초안으로 남습니다. 표를 지금(v3)
-        // 정의로 다시 만들므로 v3 열(고른 질문)도 여기서 null로 더합니다.
+        // v1 날짜 초안은 기본값 id `''`가 되어 그날 새 일기 초안으로 남습니다. 표를 지금(v4)
+        // 정의로 다시 만들므로 v3 열(고른 질문)과 v4 열(질문 뗌)도 여기서 기본값으로 더합니다.
         await m.alterTable(
           TableMigration(
             diaryDrafts,
@@ -134,13 +139,20 @@ class AppDatabase extends _$AppDatabase {
               diaryDrafts.diaryId,
               diaryDrafts.guideMessageKey,
               diaryDrafts.guideVariant,
+              diaryDrafts.guideDetached,
             ],
           ),
         );
-      } else if (from < 3) {
+        return;
+      }
+      if (from < 3) {
         // v2 초안은 고른 질문 없이(null) 남고, 다시 열면 그날 첫 후보로 시작합니다(A115).
         await m.addColumn(diaryDrafts, diaryDrafts.guideMessageKey);
         await m.addColumn(diaryDrafts, diaryDrafts.guideVariant);
+      }
+      if (from < 4) {
+        // v3 전 초안은 질문을 붙인 채(false) 남습니다(D116).
+        await m.addColumn(diaryDrafts, diaryDrafts.guideDetached);
       }
     },
   );

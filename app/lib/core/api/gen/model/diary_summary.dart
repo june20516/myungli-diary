@@ -30,6 +30,8 @@ class DiarySummary {
 
     required this.featuredTags,
 
+    required this.allTags,
+
     this.dayKind,
   });
 
@@ -49,6 +51,9 @@ class DiarySummary {
   @JsonKey(name: r'featuredTags', required: true, includeIfNull: false)
   final List<Tag> featuredTags;
 
+  @JsonKey(name: r'allTags', required: true, includeIfNull: false)
+  final List<Tag> allTags;
+
   @JsonKey(name: r'dayKind', required: false, includeIfNull: false)
   final DayKind? dayKind;
 
@@ -61,6 +66,7 @@ class DiarySummary {
           other.createdAt == createdAt &&
           other.excerpt == excerpt &&
           other.featuredTags == featuredTags &&
+          other.allTags == allTags &&
           other.dayKind == dayKind;
 
   @override
@@ -70,6 +76,7 @@ class DiarySummary {
       createdAt.hashCode +
       excerpt.hashCode +
       featuredTags.hashCode +
+      allTags.hashCode +
       dayKind.hashCode;
 
   factory DiarySummary.fromJson(Map<String, dynamic> json) =>

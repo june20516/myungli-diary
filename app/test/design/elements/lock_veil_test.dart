@@ -120,13 +120,14 @@ void main() {
     });
 
     testWidgets('fontFallback을 주면 앞부분 글꼴 대체에 먼저 넣습니다(원전 한자)', (tester) async {
+      // 잠긴 원전의 앞부분은 첫 원전 뜻 줄입니다(V113). 뜻에 든 한자도 같은 대체를 씁니다.
       await tester.pumpWidget(
         _app(
           LockVeil(
             sectionTitle: '원전',
             stateLabel: '잠김',
             lines: LockVeilLines.source,
-            lead: _text('궁통보감 「오행총론」\n以義推之'),
+            lead: _text('넘치는 것은 덜고 中道로'),
             fontFallback: const ['Hanja Test'],
           ),
         ),

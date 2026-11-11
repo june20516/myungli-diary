@@ -8,6 +8,7 @@ DiarySummary _diary(String id, String date) => DiarySummary(
   createdAt: DateTime.utc(2026, 10, 1, 9),
   excerpt: id,
   featuredTags: const [],
+  allTags: const [],
 );
 
 List<List<String>> _ids(List<List<DiarySummary>> groups) => [

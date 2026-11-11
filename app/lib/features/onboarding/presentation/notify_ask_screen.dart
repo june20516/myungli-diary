@@ -5,7 +5,6 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
-import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/live_announcement.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
@@ -123,21 +122,14 @@ class _NotifyAskScreenState extends ConsumerState<NotifyAskScreen> {
                   actionIdentifier: SlotIds.notifyAskCtaAllow,
                   actionLoading: _busy,
                   onAction: () => _submit((c) => c.allow(_time)),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Space.s20,
-                  0,
-                  Space.s20,
-                  Space.s8,
-                ),
-                child: PrimaryButton(
-                  key: notifyAskSkipKey,
-                  variant: PrimaryButtonVariant.quiet,
-                  label: l10n.notifyAskCtaSkip,
-                  identifier: SlotIds.notifyAskCtaSkip,
-                  onPressed: _busy ? null : () => _submit((c) => c.skip()),
+                  // 건너뛰기는 input-step secondaryAction(quiet, 주 버튼 아래 space.16)이고
+                  // 맨 아래 버튼이라 아래 inset 위 space.16에 놓입니다(V106).
+                  secondaryActionLabel: l10n.notifyAskCtaSkip,
+                  secondaryActionIdentifier: SlotIds.notifyAskCtaSkip,
+                  secondaryActionKey: notifyAskSkipKey,
+                  onSecondaryAction: _busy
+                      ? null
+                      : () => _submit((c) => c.skip()),
                 ),
               ),
             ],

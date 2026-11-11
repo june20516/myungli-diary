@@ -9,17 +9,27 @@ import 'package:flutter/widgets.dart'
     show
         Border,
         BoxDecoration,
+        BoxShape,
+        Brightness,
         BuildContext,
         Builder,
+        Center,
         DecoratedBox,
+        Icon,
         IconData,
         Locale,
         SingleChildScrollView,
         SizedBox,
         Text,
+        TextEditingController,
         Widget;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/score_item.dart';
+import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
@@ -29,32 +39,45 @@ import 'package:myungli_diary/design/components/action/social_login_button.dart'
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
+import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
+import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
 import 'package:myungli_diary/design/components/frame/tab_bar.dart';
 import 'package:myungli_diary/design/components/input/account_choice.dart';
 import 'package:myungli_diary/design/components/input/city_search.dart';
 import 'package:myungli_diary/design/components/input/input_step.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
+import 'package:myungli_diary/design/elements/stem_chip.dart';
+import 'package:myungli_diary/design/elements/unlock_mark.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
+import 'package:myungli_diary/design/tokens/css_gradient.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -1142,6 +1165,673 @@ void main() {
     );
   });
 
+  group('오행 금과 수 테두리와 간지 한자색 (6.1.0, V98)', () {
+    final elements = _elements();
+    final cell = _map(elements['ohaeng.cell']);
+    final cellBorder = _map(cell['border']);
+    final cellBorderByElement = _map(cellBorder['byElement']);
+    final specs = loadSpecComponents();
+
+    /// 오행 칸, 간지 태그, 견본이 쓰는 토큰 참조 → [c]의 값.
+    Color token(ColorTokens c, Object? ref) =>
+        switch (ref) {
+          '{color.ohaeng.wood.bg}' => c.ohaengWoodBg,
+          '{color.ohaeng.wood.fg}' => c.ohaengWoodFg,
+          '{color.ohaeng.wood.glyph}' => c.ohaengWoodGlyph,
+          '{color.ohaeng.fire.bg}' => c.ohaengFireBg,
+          '{color.ohaeng.fire.fg}' => c.ohaengFireFg,
+          '{color.ohaeng.fire.glyph}' => c.ohaengFireGlyph,
+          '{color.ohaeng.earth.bg}' => c.ohaengEarthBg,
+          '{color.ohaeng.earth.fg}' => c.ohaengEarthFg,
+          '{color.ohaeng.earth.glyph}' => c.ohaengEarthGlyph,
+          '{color.ohaeng.metal.bg}' => c.ohaengMetalBg,
+          '{color.ohaeng.metal.fg}' => c.ohaengMetalFg,
+          '{color.ohaeng.metal.border}' => c.ohaengMetalBorder,
+          '{color.ohaeng.metal.glyph}' => c.ohaengMetalGlyph,
+          '{color.ohaeng.water.bg}' => c.ohaengWaterBg,
+          '{color.ohaeng.water.fg}' => c.ohaengWaterFg,
+          '{color.ohaeng.water.border}' => c.ohaengWaterBorder,
+          '{color.ohaeng.water.glyph}' => c.ohaengWaterGlyph,
+          '{color.swatch.border}' => c.swatchBorder,
+          _ => null,
+        } ??
+        fail('모르는 토큰 $ref');
+
+    /// 계약 [ref]가 있으면 그 색의 1px 테두리, 없으면 테두리 없음.
+    Object expectedBorder(ColorTokens c, Object? ref) => ref == null
+        ? isNull
+        : Border.all(color: token(c, ref), width: _px(cellBorder['width']));
+
+    BoxDecoration decorationIn(WidgetTester tester, Finder of) =>
+        tester
+                .widget<DecoratedBox>(
+                  find.descendant(of: of, matching: find.byType(DecoratedBox)),
+                )
+                .decoration
+            as BoxDecoration;
+
+    test('ohaeng.cell border: 금과 수만, 1px 안쪽, 라이트와 다크 토큰과 같습니다', () {
+      expect(cellBorderByElement.keys, unorderedEquals(['metal', 'water']));
+      expect(_px(cellBorder['width']), ohaengCellBorderWidth);
+      expect(cellBorder['placement'], 'inside');
+      for (final colors in [lightColors, darkColors]) {
+        for (final element in FiveElement.values) {
+          final ref = cellBorderByElement[element.value];
+          expect(
+            ohaengCellBorderOf(colors, element),
+            ref == null ? isNull : token(colors, ref),
+            reason: '${element.value} $ref',
+          );
+        }
+      }
+      // stem.chip은 ohaeng.cell 색을 테두리까지 따릅니다.
+      expect(
+        _map(elements['stem.chip'])['colorsRule'],
+        contains('ohaeng.cell border'),
+      );
+    });
+
+    testWidgets('ohaeng.cell 두 크기와 stem.chip이 계약 바탕색과 금, 수 테두리를 그립니다', (
+      tester,
+    ) async {
+      final byElement = _map(cell['byElement']);
+      for (final brightness in Brightness.values) {
+        for (final element in FiveElement.values) {
+          final widgets = <Widget>[
+            OhaengCell(element: element, hanja: '甲', reading: '갑'),
+            OhaengCell(
+              element: element,
+              hanja: '甲',
+              size: OhaengCellSize.small,
+            ),
+            StemChip(element: element, hanja: '甲'),
+          ];
+          for (final widget in widgets) {
+            await tester.pumpWidget(
+              inputApp(Center(child: widget), brightness: brightness),
+            );
+            final of = find.byWidget(widget);
+            final c = tester.element(of).tokens.colors;
+            final box = decorationIn(tester, of);
+            final reason = '$brightness ${element.value} ${widget.runtimeType}';
+            expect(
+              box.color,
+              token(c, _map(byElement[element.value])['bg']),
+              reason: reason,
+            );
+            expect(
+              box.border,
+              expectedBorder(c, cellBorderByElement[element.value]),
+              reason: reason,
+            );
+          }
+        }
+      }
+    });
+
+    testWidgets(
+      'hanja-tag ganji: 알약은 오행 bg, fg와 금, 수 테두리, 한자 원은 오행 glyph 색입니다',
+      (tester) async {
+        final ganji = _map(
+          (specs['hanja-tag']!['variants']! as List<Object?>)
+              .map(_map)
+              .firstWhere((v) => v['id'] == 'ganji')['parts'],
+        );
+        final glyphFg = _map(_map(_map(ganji['glyph'])['fg'])['byElement']);
+        final pillBorder = _map(_map(ganji['pill'])['border']);
+        final pillBorderByElement = _map(pillBorder['byElement']);
+        final tone = _map(_map(ganji['tone'])['byElement']);
+        expect(_px(pillBorder['width']), ohaengCellBorderWidth);
+        expect(pillBorder['placement'], 'inside');
+        // 알약 테두리는 ohaeng.cell 테두리와 같은 토큰입니다.
+        expect(pillBorderByElement, cellBorderByElement);
+        final glyphs = _map(ganji['ganjiGlyphs']);
+        for (final brightness in Brightness.values) {
+          for (final group in glyphs.values) {
+            for (final MapEntry(key: hanja, value: element) in _map(
+              group,
+            ).entries) {
+              await tester.pumpWidget(
+                inputApp(
+                  HanjaTag(
+                    glyph: hanja,
+                    label: '이름',
+                    variant: HanjaTagVariant.ganji,
+                  ),
+                  brightness: brightness,
+                ),
+              );
+              final c = tester
+                  .element(find.byKey(HanjaTag.surfaceKey))
+                  .tokens
+                  .colors;
+              final box =
+                  tester
+                          .widget<DecoratedBox>(find.byKey(HanjaTag.surfaceKey))
+                          .decoration
+                      as BoxDecoration;
+              final reason = '$brightness $hanja $element';
+              final pill = _map(tone[element]);
+              expect(box.color, token(c, pill['bg']), reason: reason);
+              expect(
+                tester.widget<Text>(find.text('이름')).style!.color,
+                token(c, pill['fg']),
+                reason: reason,
+              );
+              expect(
+                tester.widget<Text>(find.text(hanja)).style!.color,
+                token(c, glyphFg[element]),
+                reason: reason,
+              );
+              expect(
+                box.border,
+                expectedBorder(c, pillBorderByElement[element]),
+                reason: reason,
+              );
+            }
+          }
+        }
+      },
+    );
+
+    testWidgets('ohaeng-bar: 막대 칸과 범례 견본에 1px 안쪽 swatch.border를 둡니다', (
+      tester,
+    ) async {
+      final parts = _map(specs['ohaeng-bar']!['parts']);
+      final segmentBorder = _map(_map(parts['bar'])['segmentBorder']);
+      expect(segmentBorder['color'], '{color.swatch.border}');
+      expect(_px(segmentBorder['width']), OhaengBar.segmentBorderWidth);
+      expect(segmentBorder['placement'], 'inside');
+      expect(_map(parts['swatch'])['element'], 'ohaeng.swatch');
+      final swatchBorder = _map(_map(elements['ohaeng.swatch'])['border']);
+      expect(swatchBorder['color'], '{color.swatch.border}');
+
+      for (final brightness in Brightness.values) {
+        await tester.pumpWidget(
+          inputApp(
+            OhaengBar(
+              items: [
+                for (final element in FiveElement.values)
+                  OhaengBarItem(
+                    element: element,
+                    name: element.value,
+                    value: 1,
+                    count: '1',
+                  ),
+              ],
+              semanticLabel: '오행',
+            ),
+            brightness: brightness,
+          ),
+        );
+        final c = tester.element(find.byType(OhaengBar)).tokens.colors;
+        final expected = Border.all(
+          color: token(c, segmentBorder['color']),
+          width: _px(segmentBorder['width']),
+        );
+        for (final element in FiveElement.values) {
+          final box =
+              tester
+                      .widget<DecoratedBox>(
+                        find.byKey(OhaengBar.segmentKey(element)),
+                      )
+                      .decoration
+                  as BoxDecoration;
+          expect(box.border, expected, reason: '$brightness ${element.value}');
+        }
+        final swatches = tester
+            .widgetList<DecoratedBox>(
+              find.descendant(
+                of: find.byType(OhaengBar),
+                matching: find.byType(DecoratedBox),
+              ),
+            )
+            .map((box) => box.decoration)
+            .whereType<BoxDecoration>()
+            .where((d) => d.shape == BoxShape.circle)
+            .toList();
+        expect(swatches, hasLength(FiveElement.values.length));
+        for (final swatch in swatches) {
+          expect(
+            swatch.border,
+            Border.all(
+              color: token(c, swatchBorder['color']),
+              width: _px(swatchBorder['width']),
+            ),
+            reason: '$brightness legend',
+          );
+        }
+      }
+    });
+  });
+
+  group('share-image 로고 애셋 (6.1.1, V99)', () {
+    test(
+      'logo.asset의 파일명이 ShareImage.logoAsset과 같고 앱 애셋이 design 원본과 같은 바이트입니다',
+      () {
+        final shareImage = loadSpecComponents()['share-image']!;
+        final asset =
+            _map(_map(shareImage['parts'])['logo'])['asset']! as String;
+        expect(asset, endsWith('.png'));
+        final contractName = asset.split('/').last;
+        expect(ShareImage.logoAsset.split('/').last, contractName);
+        expect(ShareImage.logoAsset, endsWith('myungli/$contractName'));
+        // 계약 경로는 design 디렉터리 기준(`logo/lockup.png`)입니다.
+        final original = File('$componentsDir/../$asset');
+        expect(original.existsSync(), isTrue, reason: original.path);
+        expect(
+          File(ShareImage.logoAsset).readAsBytesSync(),
+          original.readAsBytesSync(),
+        );
+      },
+    );
+  });
+
+  group('일기 줄 태그 줄과 질문 떼기 (6.2.0, V102, V103, D115, D116)', () {
+    final specs = loadSpecComponents();
+
+    Map<String, Object?> editQuestion() => _map(
+      _map(
+        _map(
+          (specs['diary-editor']!['variants']! as List<Object?>)
+              .map(_map)
+              .firstWhere((v) => v['id'] == 'edit'),
+        )['parts'],
+      )['question'],
+    );
+
+    test('diary-row tag: 그날 태그 모두, 순위 순, 사이 space.8, 한 줄 가로 밀기와 흐림만', () {
+      final tag = _map(_map(specs['diary-row']!['parts'])['tag']);
+      expect(tag['component'], 'hanja-tag');
+      expect(tag['variant'], 'default');
+      expect(tag['count'], 'all');
+      expect(tag['order'], '대표 태그 순위');
+      expect(tag['gap'], '{space.8}');
+      expect(DiaryRow.tagsGap, Space.s8);
+      expect(tag['whenMissing'], 'hide');
+      final row = _map(tag['row']);
+      expect(row['lines'], 1);
+      expect(row['wrap'], false);
+      final hint = _map(row['hint']);
+      expect(hint['component'], 'scroll-hint');
+      expect(_map(_map(hint['parts'])['arrows'])['visible'], false);
+      expect(hint['fadeTo'], '{color.bg.sheet}');
+      final scrollHint = specs['scroll-hint']!;
+      final fade = _map(_map(scrollHint['parts'])['fade']);
+      expect(_px(fade['width']), ScrollHint.fadeWidth);
+      expect(fade['to'], hint['fadeTo']);
+      // 모아보기 안에서는 모아 본 그 태그만 숨깁니다.
+      expect(tag['hiddenIn'], ['tag-diary']);
+      expect(tag['hiddenScope'], startsWith('모아 본 그 태그만'));
+    });
+
+    testWidgets('diary-row tag count all, order: 받은 태그 모두를 받은 순서대로 그립니다', (
+      tester,
+    ) async {
+      final tag = _map(_map(specs['diary-row']!['parts'])['tag']);
+      expect((tag['count'], tag['order']), ('all', '대표 태그 순위'));
+      const labels = ['천을귀인', '합', '도화', '역마', '화개', '공망'];
+      const glyphs = ['貴', '合', '桃', '驛', '華', '空'];
+      await _contractCheckWidgets('diary-row tag count', () async {
+        await tester.pumpWidget(
+          inputApp(
+            SizedBox(
+              width: 360,
+              child: DiaryRow(
+                date: CalendarDate(2026, 10, 12),
+                excerpt: '글',
+                tags: [
+                  for (var i = 0; i < labels.length; i++)
+                    HanjaTag(glyph: glyphs[i], label: labels[i]),
+                ],
+                onTap: () {},
+              ),
+            ),
+          ),
+        );
+        final drawn = tester.widgetList<HanjaTag>(
+          find.descendant(
+            of: find.byKey(DiaryRow.tagsKey),
+            matching: find.byType(HanjaTag),
+          ),
+        );
+        expect(drawn.map((t) => t.label), labels);
+      });
+    });
+
+    testWidgets('diary-editor remove, detached 아이콘 이름과 굵기, 크기가 그린 글리프와 같습니다', (
+      tester,
+    ) async {
+      final question = editQuestion();
+      final remove = _map(question['remove']);
+      final icon = _map(_map(question['detached'])['trailingIcon']);
+      // 명세 이름과 굵기(light) → 그린 Phosphor Light 글리프.
+      const lightGlyphs = {
+        'x': PhosphorIconsLight.x,
+        'chat-teardrop-dots': PhosphorIconsLight.chatTeardropDots,
+      };
+      expect((remove['weight'], icon['weight']), ('light', 'light'));
+      await _contractCheckWidgets('diary-editor guide icons', () async {
+        final controller = TextEditingController();
+        addTearDown(controller.dispose);
+        Widget editor({required bool detached}) => inputApp(
+          SingleChildScrollView(
+            child: DiaryEditor.edit(
+              date: CalendarDate(2026, 10, 13),
+              controller: controller,
+              question: RenderedText(segments: [Segment(text: '질문')]),
+              questionDetached: detached,
+              onDetachQuestion: () {},
+              onAttachQuestion: () {},
+            ),
+          ),
+        );
+        await tester.pumpWidget(editor(detached: false));
+        final x = tester.widget<Icon>(
+          find.descendant(
+            of: find.byKey(DiaryEditor.removeKey),
+            matching: find.byType(Icon),
+          ),
+        );
+        expect(x.icon, lightGlyphs[remove['icon']]);
+        expect(x.size, _iconSize(remove['size']).logical);
+
+        await tester.pumpWidget(editor(detached: true));
+        await tester.pumpAndSettle();
+        final bubble = tester.widget<Icon>(
+          find.descendant(
+            of: find.byKey(DiaryEditor.detachedIconKey),
+            matching: find.byType(Icon),
+          ),
+        );
+        expect(bubble.icon, lightGlyphs[icon['icon']]);
+        expect(icon['size'], 'adjacent-text');
+        expect(
+          bubble.size,
+          AppIconSize.adjacentText(_px(_map(question['detached'])['fontSize']))
+              .logical,
+        );
+      });
+    });
+
+    test('diary-editor question: 인용 세로선은 action.primary(V102)', () {
+      final question = _map(_map(specs['diary-editor']!['parts'])['question']);
+      expect(_map(question['quoteLine'])['color'], '{color.action.primary}');
+      expect(
+        _px(_map(question['quoteLine'])['width']),
+        DiaryEditor.quoteLineWidth,
+      );
+      expect(question['marginBottom'], '{space.16}');
+    });
+
+    test(
+      'diary-editor edit remove: x Light 20 text.secondary, 터치 44, 바꾸기 바로 뒤',
+      () {
+        final question = editQuestion();
+        final swap = _map(question['swap']);
+        expect(swap['marginStart'], '{space.8}');
+        expect(DiaryEditor.questionActionsGap, Space.s8);
+        final remove = _map(question['remove']);
+        expect(remove['slot'], SlotIds.diaryEditGuideRemove);
+        expect(remove['icon'], 'x');
+        expect(remove['weight'], 'light');
+        expect(_iconSize(remove['size']), AppIconSize.s20);
+        expect(remove['color'], '{color.text.secondary}');
+        expect(remove['minTarget'], DiaryEditor.removeTarget);
+        expect(remove['align'], 'first-line');
+        expect(_map(remove['transition']), {
+          'out': InteractionPattern.disappearSeep.id,
+          'in': InteractionPattern.appearSeep.id,
+        });
+        expect(remove['keepsBody'], true);
+      },
+    );
+
+    test('diary-editor edit detached: 글꼴 14 invite.fg, 선 없음, 말풍선 4, 터치 44', () {
+      final detached = _map(editQuestion()['detached']);
+      expect(detached['slot'], SlotIds.diaryEditGuideAttach);
+      expect(detached['type'], '{type.sentence.body}');
+      expect(_px(detached['fontSize']), DiaryEditor.questionFontSize);
+      expect(detached['fg'], '{color.invite.fg}');
+      expect(_map(detached['quoteLine'])['visible'], false);
+      expect(detached['paddingStart'], 0);
+      final icon = _map(detached['trailingIcon']);
+      expect(icon['icon'], 'chat-teardrop-dots');
+      expect(icon['weight'], 'light');
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.invite.fg}');
+      expect(icon['gap'], '{space.4}');
+      expect(DiaryEditor.detachedIconGap, Space.s4);
+      expect(icon['decorative'], true);
+      expect(detached['minTarget'], DiaryEditor.detachedMinHeight);
+      expect(detached['pressable'], '줄 전체');
+    });
+
+    test(
+      'diary-editor guideStates: 붙음과 뗌 두 상태, 전환 두 개, 앞 disappear 새 appear',
+      () {
+        final states = _map(editQuestion()['guideStates']);
+        expect(states.keys, containsAll(['initial', 'attached', 'detached']));
+        expect(_map(states['detached'])['shows'], ['detached']);
+        expect(
+          (states['transitions']! as List<Object?>).map(
+            (t) => (_map(t)['from'], _map(t)['to']),
+          ),
+          [('attached', 'detached'), ('detached', 'attached')],
+        );
+        expect(
+          specs['diary-editor']!['uses'],
+          containsAll([
+            InteractionPattern.appearSeep.id,
+            InteractionPattern.disappearSeep.id,
+          ]),
+        );
+        expect(InteractionPattern.disappearSeep.duration.inMilliseconds, 200);
+        expect(InteractionPattern.appearSeep.duration.inMilliseconds, 320);
+      },
+    );
+  });
+
+  group('그날 시트와 피드백 아이콘 (6.2.0, V101, V105, V107~V109)', () {
+    final specs = loadSpecComponents();
+
+    /// [id]의 변형 [variant] parts.
+    Map<String, Object?> variantParts(String id, String variant) => _map(
+      (specs[id]!['variants']! as List<Object?>)
+          .map(_map)
+          .singleWhere((v) => v['id'] == variant)['parts'],
+    );
+
+    test(
+      'event-row list: 시각 본문색 700, 줄 위아래 space.12, 메모 한 줄, 종일 꼬리표(V107)',
+      () {
+        final list = variantParts('event-row', 'list');
+        final time = _map(list['timeColumn']);
+        expect(time['fg'], '{color.text.primary}');
+        expect(_num(time['fontWeight']).toInt(), EventRow.listTimeWeight.value);
+        final row = _map(list['row']);
+        expect(row['paddingY'], '{space.12}');
+        expect(EventRow.rowPaddingY, Space.s12);
+        expect(row['align'], 'first-line');
+        final memo = _map(list['memo']);
+        expect(memo['source'], 'Schedule.memo');
+        expect(memo['type'], '{type.caption.lg}');
+        expect(memo['fg'], '{color.text.secondary}');
+        expect(memo['maxLines'], 1);
+        expect(memo['overflow'], 'ellipsis');
+        expect(memo['marginTop'], '{space.2}');
+        expect(EventRow.memoGap, Space.s2);
+        expect(memo['whenEmpty'], 'hide');
+        final allDay = _map(list['allDay']);
+        expect(allDay['element'], 'tag.status');
+        expect(allDay['slot'], SlotIds.daySheetEventAllDay);
+      },
+    );
+
+    test('fortune-verdict: 카드 누름, 안내 줄, 접힘과 펼침 상태 값(V108)', () {
+      final verdict = specs['fortune-verdict']!;
+      expect(
+        verdict['uses'],
+        containsAll(['press.ink', 'appear.seep', 'disappear.seep']),
+      );
+      final parts = _map(verdict['parts']);
+      final pressable = _map(_map(parts['card'])['pressable']);
+      expect(pressable['pattern'], 'press.ink');
+      expect(_num(pressable['minTarget']), FortuneVerdict.toggleMinHeight);
+      final rows = _map(parts['rows']);
+      expect(rows['marginTop'], '{space.12}');
+      expect(FortuneVerdict.rowsGap, Space.s12);
+      expect(rows['visibleWhen'], 'expanded');
+      final toggle = _map(parts['toggle']);
+      final label = _map(toggle['label']);
+      expect(label['collapsed'], contains(SlotIds.daySheetVerdictExpand));
+      expect(label['expanded'], contains(SlotIds.daySheetVerdictCollapse));
+      expect(toggle['type'], '{type.caption.lg}');
+      expect(toggle['fg'], '{color.text.secondary}');
+      expect(_num(toggle['minHeight']), FortuneVerdict.toggleMinHeight);
+      expect(toggle['marginTop'], '{space.8}');
+      expect(FortuneVerdict.toggleGap, Space.s8);
+      expect(_map(toggle['dividerBefore'])['element'], 'list.divider');
+      final icon = _map(toggle['icon']);
+      expect(icon['collapsed'], 'caret-down');
+      expect(icon['expanded'], 'caret-up');
+      expect(icon['weight'], 'regular');
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.text.secondary}');
+      expect(icon['gap'], '{space.4}');
+      expect(FortuneVerdict.toggleIconGap, Space.s4);
+
+      final states = _map(verdict['states']);
+      expect(_map(states['collapsed'])['initial'], isTrue);
+      for (final id in ['noBreakdown', 'noItems']) {
+        final state = _map(states[id]);
+        expect(state['pressable'], isFalse, reason: id);
+        expect(
+          _map(_map(state['parts'])['toggle'])['visible'],
+          isFalse,
+          reason: id,
+        );
+      }
+      final loading = _map(states['loading']);
+      final bones = [
+        for (final bone in loading['skeleton']! as List<Object?>)
+          _map(bone)['bone'],
+      ];
+      expect(bones, ['track']);
+      expect(_map(_map(loading['parts'])['toggle'])['visible'], isFalse);
+      final a11y = _map(_map(verdict['a11y'])['toggle']);
+      expect(a11y['role'], 'button');
+      expect(a11y['expandedState'], isTrue);
+    });
+
+    testWidgets('fortune-verdict: 안내 줄 꺾쇠 글리프와 크기가 계약과 같습니다', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          SizedBox(
+            width: 360,
+            child: FortuneVerdict(
+              score: 1,
+              items: [ScoreItem(id: 'hap', score: 1)],
+              nameOf: (_) => '합',
+              meaningOf: (_) => null,
+            ),
+          ),
+        ),
+      );
+      Icon toggleIcon() => tester.widget<Icon>(
+        find.descendant(
+          of: find.byKey(FortuneVerdict.toggleKey),
+          matching: find.byType(Icon),
+        ),
+      );
+      final type = tester
+          .element(find.byType(FortuneVerdict))
+          .tokens
+          .typography;
+      expect(toggleIcon().icon, PhosphorIconsRegular.caretDown);
+      expect(
+        toggleIcon().size,
+        AppIconSize.adjacentText(type.captionLg.fontSize!).logical,
+      );
+      await tester.tap(find.byKey(FortuneVerdict.toggleKey));
+      await tester.pumpAndSettle();
+      expect(toggleIcon().icon, PhosphorIconsRegular.caretUp);
+    });
+
+    test(
+      'date-header day-sheet trailing: hanja-tag emphasis, space.12(V109)',
+      () {
+        final trailing = _map(
+          variantParts('date-header', 'day-sheet')['trailing'],
+        );
+        expect(trailing['component'], 'hanja-tag');
+        expect(trailing['variant'], 'emphasis');
+        expect(trailing['slot'], SlotIds.daySheetCharacterLabel);
+        expect(trailing['gapStart'], '{space.12}');
+        expect(DateHeader.trailingGap, Space.s12);
+      },
+    );
+
+    test('band-table 빈 칸 선 상자: 위 space.8, 지장간 22, 상자 가운데(V101)', () {
+      final parts = _map(specs['band-table']!['parts']);
+      final cell = _map(parts['cell']);
+      expect(cell['paddingTop'], '{space.8}');
+      expect(cell['paddingBottom'], '{space.12}');
+      expect(BandTable.cellPaddingTop, Space.s8);
+      expect(BandTable.cellPaddingBottom, Space.s12);
+      final empty = _map(parts['empty']);
+      expect(_px(empty['width']), BandTable.emptyLineWidth);
+      expect(_px(empty['height']), BandTable.emptyLineHeight);
+      expect(empty['verticalAlign'], 'box-center');
+      final box = _map(empty['box']);
+      expect(box['offsetTop'], '{space.8}');
+      final heights = _map(box['heightByBand']);
+      expect(_px(heights['hiddenStems']), BandTable.emptyBoxStemHeight);
+      expect(
+        heights.keys,
+        unorderedEquals([for (final kind in BandKind.values) kind.name]),
+      );
+    });
+
+    test('error-state, notice-banner 변형 아이콘이 계약 이름과 같습니다(V105)', () {
+      const lightIcons = <String, IconData>{
+        'warning-circle': PhosphorIconsLight.warningCircle,
+        'wifi-slash': PhosphorIconsLight.wifiSlash,
+        'clock': PhosphorIconsLight.clock,
+        'note-pencil': PhosphorIconsLight.notePencil,
+      };
+      Map<String, String> iconNames(String id) => {
+        for (final variant in (specs[id]!['variants']! as List<Object?>).map(
+          _map,
+        ))
+          variant['id']! as String:
+              _map(_map(variant['parts'])['icon'])['name']! as String,
+      };
+      final errorState = iconNames('error-state');
+      expect(errorState['generic'], 'warning-circle');
+      for (final variant in ErrorStateVariant.values) {
+        expect(
+          variant.glyph.light,
+          lightIcons[errorState[variant.name]],
+          reason: 'error-state ${variant.name}',
+        );
+      }
+      final banner = iconNames('notice-banner');
+      expect(banner['error'], 'warning-circle');
+      for (final variant in NoticeBannerVariant.values) {
+        final contractId = switch (variant) {
+          NoticeBannerVariant.timeUnknown => 'time-unknown',
+          _ => variant.name,
+        };
+        expect(
+          variant.glyph.light,
+          lightIcons[banner[contractId]],
+          reason: 'notice-banner $contractId',
+        );
+      }
+    });
+  });
+
   group('loading skeleton 뼈 대조 (6.0.0, V66)', () {
     final specs = loadSpecComponents();
 
@@ -1385,6 +2075,183 @@ void main() {
     });
   });
 
+  group('열린 근거 표시 (6.3.0, D118, V111~V113)', () {
+    final specs = loadSpecComponents();
+    final depthLink = specs['depth-link']!;
+    final parts = _map(depthLink['parts']);
+    final sheet = _map(parts['evidenceSheet']);
+
+    test('unlock.glint: 띠, 박자, 동작 줄이기 대체가 구현 상수와 같습니다', () {
+      final glint = _map(_map(_interaction()['patterns'])['unlock.glint']);
+      expect(
+        Duration(milliseconds: _px(glint['interval']).round()),
+        PatternValues.glintInterval,
+      );
+      final band = _map(glint['band']);
+      expect(band['fill'], '{gradient.unlocked}');
+      expect(_num(band['angle']), PatternValues.glintBandAngle);
+      expect(band['width'], contains('30%'));
+      expect(PatternValues.glintBandWidth, 0.3);
+      expect(glint['properties'], ['text-fill']);
+      expect(glint['reduceMotion'], ReduceMotionRule.replace.json);
+      expect(_map(glint['reduceMotionAlternative'])['element'], 'unlock.mark');
+      // 문장 계약이라 구현 상수가 없지만, 항목이 바뀌면 알 수 있게 낱말로 대조합니다.
+      final pauseWhen = (glint['pauseWhen']! as List<Object?>).cast<String>();
+      expect(pauseWhen, hasLength(3));
+      expect(pauseWhen[0], contains('배경'));
+      expect(pauseWhen[1], contains('덮임'));
+      expect(pauseWhen[2], contains('스크롤'));
+      expect(glint['stopWhen'], contains('닫힐 때'));
+      expect(glint['stopWhen'], contains('그대로'));
+      expect(glint['first'], contains('15초마다'));
+      expect(glint['together'], contains('같은 때'));
+      expect(band['edge'], contains('부드럽게'));
+      expect(band['multiline'], contains('한 띠'));
+      expect(glint['base'], contains('text mask'));
+    });
+
+    test('unlock.mark: 세로선 굵기, 자리, 각도와 제목 칠이 구현 상수와 같습니다', () {
+      final mark = _map(_elements()['unlock.mark']);
+      expect(_map(mark['title'])['fill'], '{gradient.unlocked}');
+      final rule = _map(mark['rule']);
+      expect(rule['fill'], '{gradient.unlocked}');
+      expect(_num(rule['angle']), UnlockMark.ruleAngle);
+      expect(_px(rule['width']), UnlockMark.ruleWidth);
+      expect(_px(rule['offsetStart']), UnlockMark.ruleOffsetStart);
+      expect(rule['radius'], '{radius.full}');
+    });
+
+    test('depth-link icon.unlocked: gradient.unlocked 135°', () {
+      final unlocked = _map(_map(parts['icon'])['unlocked']);
+      expect(unlocked['fill'], '{gradient.unlocked}');
+      expect(_num(unlocked['angle']), DepthLink.unlockedIconAngle);
+    });
+
+    test('evidenceSheet.unlockTag: 슬롯, 알약 치수, 테두리, 아이콘, 글자가 구현과 같습니다', () {
+      final tag = _map(sheet['unlockTag']);
+      expect(tag['slot'], SlotIds.evidenceSheetUnlockUntil);
+      expect(tag['params'], ['date']);
+      expect(_px(tag['height']), EvidenceSheetBody.unlockTagHeight);
+      expect(tag['paddingStart'], '{space.8}');
+      expect(tag['paddingEnd'], '{space.8}');
+      expect(EvidenceSheetBody.unlockTagPadding, Space.s8);
+      expect(tag['gapFromTitle'], '{space.8}');
+      expect(EvidenceSheetBody.unlockTagGap, Space.s8);
+      expect(tag['radius'], '{radius.full}');
+      expect(tag['bg'], '{color.bg.sheet}');
+      final border = _map(tag['border']);
+      expect(border['fill'], '{gradient.unlocked}');
+      expect(_px(border['width']), EvidenceSheetBody.unlockTagBorderWidth);
+      // 테두리 각도 90°는 토큰 그대로입니다(구현은 토큰 그라데이션을 씀).
+      for (final gradients in [lightGradients, darkGradients]) {
+        expect(
+          gradients.unlocked.transform,
+          CssAngleGradientTransform(_num(border['angle'])),
+        );
+      }
+      final icon = _map(tag['icon']);
+      expect(icon['icon'], 'clock');
+      expect(icon['weight'], 'regular');
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.text.secondary}');
+      expect(icon['gap'], '{space.4}');
+      expect(EvidenceSheetBody.unlockTagIconGap, Space.s4);
+      expect(icon['decorative'], isTrue);
+      expect(
+        EvidenceSheetBody.unlockTagGlyph.regular,
+        PhosphorIconsRegular.clock,
+      );
+      expect(tag['type'], '{type.caption.md}');
+      expect(tag['fg'], '{color.text.secondary}');
+      expect(tag['maxLines'], 1);
+      expect(tag['interactive'], isFalse);
+      expect(tag['glint'], isFalse);
+      expect(_map(depthLink['a11y'])['unlockTagRead'], contains('시트 제목 다음'));
+    });
+
+    test('evidenceSheet.source: 상자 없이 뜻, 원문, 출처 순과 간격이 구현과 같습니다(V113)', () {
+      final source = _map(sheet['source']);
+      expect(source['order'], ['meaning', 'quote', 'cite']);
+      expect(source['bg'], 'transparent');
+      expect(source['radius'], 0);
+      expect(source['padding'], 0);
+      final repeat = _map(source['repeat']);
+      expect(repeat['each'], 'item');
+      expect(repeat['gap'], '{space.16}');
+      expect(EvidenceSheetBody.sourceGap, Space.s16);
+      final basisRepeat = _map(_map(sheet['basis'])['repeat']);
+      expect(basisRepeat['gap'], '{space.12}');
+      expect(EvidenceSheetBody.basisGap, Space.s12);
+      final meaning = _map(source['meaning']);
+      expect(meaning['type'], '{type.sentence.body}');
+      expect(meaning['fg'], '{color.text.primary}');
+      for (final (name, type) in [
+        ('quote', '{type.body.ui}'),
+        ('cite', '{type.caption.md}'),
+      ]) {
+        final line = _map(source[name]);
+        expect(line['type'], type, reason: name);
+        expect(line['fg'], '{color.text.secondary}', reason: name);
+        expect(line['paddingStart'], '{space.8}', reason: name);
+        expect(line['marginTop'], '{space.4}', reason: name);
+        expect(line['whenEmpty'], '줄을 그리지 않음', reason: name);
+      }
+      expect(EvidenceSheetBody.sourceIndent, Space.s8);
+      expect(EvidenceSheetBody.sourceLineGap, Space.s4);
+      expect(_map(source['quote'])['fontFallback'], '{font.family.hanja}');
+
+      final locked = _map(
+        _map(
+          _map(_map(depthLink['states'])['locked'])['parts'],
+        )['evidenceSheet'],
+      );
+      final lockedSource = _map(locked['source']);
+      expect(lockedSource['hidden'], ['quote', 'cite']);
+      expect(lockedSource['lines'], 2);
+    });
+
+    test('depth-link unlocked: 꼬리표, 반짝임 대상과 제외, 동작 줄이기 대상', () {
+      final unlocked = _map(
+        _map(
+          _map(_map(depthLink['states'])['unlocked'])['parts'],
+        )['evidenceSheet'],
+      );
+      expect(_map(unlocked['unlockTag'])['visible'], isTrue);
+      final glint = _map(unlocked['glint']);
+      expect(glint['pattern'], 'unlock.glint');
+      // 대상과 제외는 위젯 테스트(unlock_display_test)가 그린 결과로 확인합니다.
+      expect(glint['targets'], [
+        'basisTitle',
+        'basis',
+        'sourceTitle',
+        'source',
+        'personalTitle',
+        'personal',
+      ]);
+      expect(glint['excludes'], [
+        'title',
+        'unlockTag',
+        'target',
+        'pillars',
+        'personalEmpty',
+      ]);
+      final reduce = _map(unlocked['reduceMotion']);
+      expect(reduce['element'], 'unlock.mark');
+      expect(reduce['targets'], ['basisTitle', 'sourceTitle', 'personalTitle']);
+      expect(depthLink['uses'], containsAll(['unlock.glint', 'unlock.mark']));
+    });
+
+    test('sentence-block unlocked: 반짝임, 동작 줄이기면 세로선만', () {
+      final unlocked = _map(
+        _map(_map(specs['sentence-block']!['states'])['unlocked'])['parts'],
+      );
+      expect(_map(unlocked['text'])['glint'], 'unlock.glint');
+      final reduce = _map(unlocked['reduceMotion']);
+      expect(reduce['element'], 'unlock.mark');
+      expect(reduce['part'], 'rule');
+    });
+  });
+
   group('InteractionPattern 대조', () {
     final patterns = _map(_interaction()['patterns']);
 
@@ -1491,9 +2358,19 @@ void main() {
       expect(_num(screen['scale']), PatternValues.stackScreenScale);
       expect(_num(screen['brightness']), PatternValues.stackScreenBrightness);
       final sheet = _map(stack['sheetBelow']);
-      expect(_px(sheet['translateY']), PatternValues.stackSheetTranslateY);
+      // 6.3.0: 아래 시트 이동은 수치가 아니라 peek 규칙(머리 14px)입니다.
+      expect(sheet['translateY'], 'peek');
+      expect(_px(_map(stack['peek'])['height']), PatternValues.stackPeekHeight);
       expect(_num(sheet['scale']), PatternValues.stackSheetScale);
       expect(_num(sheet['brightness']), PatternValues.stackSheetBrightness);
+      expect(stack['properties'], ['translateY', 'brightness-overlay']);
+
+      // tab.switch: 겹쳐 투명도만(이동 없음), 앞 1→0, 새 0→1(V104).
+      final tab = p('tab.switch');
+      expect(_map(tab['outgoing'])['opacity'], [1, 0]);
+      expect(_map(tab['incoming'])['opacity'], [0, 1]);
+      expect(tab['together'], isTrue);
+      expect(tab['movement'], 'none');
 
       final push = p('page.push');
       final enter = _map(push['enter']);

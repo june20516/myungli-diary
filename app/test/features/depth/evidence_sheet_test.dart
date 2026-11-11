@@ -4,10 +4,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/app/entry/entry_providers.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/fake/fake_server.dart';
+import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/insight.dart';
+import 'package:myungli_diary/core/api/gen/model/me.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -22,9 +27,12 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
+import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
@@ -108,6 +116,32 @@ final class _StubDaily extends DailyController {
     daily: daily,
     stale: false,
     cacheKey: null,
+  );
+}
+
+/// 처음에는 [daily]이고 [nextDay]로 자정 뒤 새 날 응답으로 바뀌는 대역.
+final class _MidnightDaily extends DailyController {
+  new(this.daily);
+
+  final Daily daily;
+
+  @override
+  Future<DailyView> build() async => DailyView(
+    date: CalendarDate(2026, 10, 13),
+    daily: daily,
+    stale: false,
+    cacheKey: null,
+  );
+
+  /// 자정이 지나 새 날 응답 [next]를 받은 것처럼 바꿉니다. 화면 날짜는 시계를 움직이지 않는
+  /// 대역이라 그대로 두고 응답만 바꿉니다(열람 상태가 잠긴 응답).
+  void nextDay(Daily next) => state = AsyncData(
+    DailyView(
+      date: CalendarDate(2026, 10, 13),
+      daily: next,
+      stale: false,
+      cacheKey: null,
+    ),
   );
 }
 
@@ -544,13 +578,17 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('잠긴 원전 앞부분의 한자는 한자 글꼴로 그리고 판정 근거는 대체하지 않습니다', (tester) async {
+    testWidgets('잠긴 원전 앞부분은 첫 원전 뜻 줄이고 원전 대체 글꼴을 쓰며 판정 근거는 대체하지 않습니다', (
+      tester,
+    ) async {
+      // 미리보기는 새 순서(뜻, 원문)의 앞 두 줄입니다. 원문 줄의 한자 글꼴은 열린 시트의
+      // 원문 줄이 확인합니다(sentence_test 원전 세 줄).
       await _openSheet(
         tester,
         daily: _dailyWithPreview([
           {
             'basis': _sentence('오늘은 용신의'),
-            'source': _sentence('궁통보감 「오행총론」\n以義推之'),
+            'source': _sentence('넘치는 것은 덜고\n以義推之'),
           },
         ]),
       );
@@ -570,6 +608,12 @@ void main() {
           [hanja],
         ],
       );
+      expect(
+        veils.last.lead?.segments.map((segment) => segment.text).join(),
+        '넘치는 것은 덜고',
+        reason: '원문 줄은 그리지 않음',
+      );
+      expect(_inSheet(find.textContaining('以義推之')), findsNothing);
     });
 
     testWidgets('evidencePreview가 없으면 두 구역 모두 자리값만입니다', (tester) async {
@@ -684,6 +728,271 @@ void main() {
       expect(
         body.target?.segments.map((s) => s.text).join(),
         '이야기나 약속이 잘 맞아떨어지는 날이에요.',
+      );
+    });
+
+    testWidgets(
+      'evidence-unlocked: 광고 한 편으로 열린 날은 근거 아이콘이 그라데이션이고 시트 제목 옆 "자정까지 열림"',
+      (tester) async {
+        await pumpApp(tester, scenario: 'evidence-unlocked');
+        await pumpUntil(
+          tester,
+          () => find.byType(DateHeader).evaluate().isNotEmpty,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(DepthLink),
+            matching: find.byType(ShaderMask),
+          ),
+          findsWidgets,
+          reason: '시트 밖에서도 열린 것이 보임(icon.unlocked)',
+        );
+
+        await tester.tap(
+          depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+        );
+        await pumpUntil(
+          tester,
+          () =>
+              _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
+                  .evaluate()
+                  .isNotEmpty,
+        );
+        expect(_inSheet(find.byType(UnlockGlintScope)), findsOneWidget);
+      },
+    );
+
+    testWidgets('reward-unlock: 광고로 열리면 받은 권한으로 "자정까지 열림"이고 시트 밖 아이콘도 바뀝니다', (
+      tester,
+    ) async {
+      final (container, _) = await _openSheet(
+        tester,
+        scenario: 'reward-unlock',
+      );
+      expect(
+        find.descendant(
+          of: find.byType(DepthLink),
+          matching: find.byType(ShaderMask),
+        ),
+        findsNothing,
+      );
+      await _tapCta(tester);
+      await pumpUntil(
+        tester,
+        () => container.read(_provider).link == DepthLinkState.unlocked,
+      );
+      await pumpUntil(
+        tester,
+        () =>
+            _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
+                .evaluate()
+                .isNotEmpty,
+      );
+      await closeSheet(tester, _sheet);
+      expect(
+        find.descendant(
+          of: find.byType(DepthLink),
+          matching: find.byType(ShaderMask),
+        ),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('광고 제거권으로 열렸으면 꼬리표는 기간 끝 날짜입니다', (tester) async {
+      final end = DateTime.utc(2026, 11, 12, 3);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyControllerProvider.overrideWith(
+            () => _StubDaily(
+              _dailyWithEvidence(EvidenceAccess.unlocked, _threeEvidence),
+            ),
+          ),
+          unlockTagInsightProvider.overrideWith(
+            (ref) async => Insight(
+              active: true,
+              expiresAt: end,
+              source_: InsightSource_Enum.adFreePass,
+            ),
+          ),
+        ],
+      );
+      await pumpUntil(
+        tester,
+        () => find.byType(DateHeader).evaluate().isNotEmpty,
+      );
+      await tester.tap(
+        depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+      );
+      final expected = _ko.evidenceSheetUnlockUntilDate(
+        expiryDate('ko', end, 'Asia/Seoul'),
+      );
+      await pumpUntil(
+        tester,
+        () => _inSheet(find.text(expected)).evaluate().isNotEmpty,
+      );
+      expect(expected, contains('12'));
+    });
+
+    testWidgets(
+      '열어 둔 채 자정이 지나 새 날 응답이 잠겨도 닫을 때까지 근거, 꼬리표, 반짝임이 그대로이고 다시 열면 잠깁니다',
+      (tester) async {
+        final container = await pumpApp(
+          tester,
+          scenario: 'member',
+          overrides: [
+            dailyControllerProvider.overrideWith(
+              () => _MidnightDaily(
+                _dailyWithEvidence(EvidenceAccess.unlocked, _threeEvidence),
+              ),
+            ),
+            unlockTagInsightProvider.overrideWith(
+              (ref) async => Insight(
+                active: true,
+                expiresAt: DateTime.utc(2026, 10, 13, 15),
+                source_: InsightSource_Enum.rewardedAd,
+              ),
+            ),
+          ],
+        );
+        await pumpUntil(
+          tester,
+          () => find.byType(DateHeader).evaluate().isNotEmpty,
+        );
+        final link = depthLinkTarget(
+          of: find.byKey(const Key(SlotIds.todayFortuneHead)),
+        );
+        await tester.tap(link);
+        await pumpUntil(
+          tester,
+          () =>
+              _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
+                  .evaluate()
+                  .isNotEmpty,
+        );
+        expect(
+          _inSheet(find.text('첫째 근거', findRichText: true)),
+          findsOneWidget,
+        );
+
+        (container.read(dailyControllerProvider.notifier) as _MidnightDaily)
+            .nextDay(
+              _dailyWithEvidence(EvidenceAccess.locked, [
+                {
+                  'ruleId': 'fortune/day_kind',
+                  'sourceRef': 'gungtong-bogam/five_elements#balance_principle',
+                  'basis': _sentence('새 날 근거'),
+                },
+              ]),
+            );
+        for (var i = 0; i < 3; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+
+        expect(container.read(_provider).link, DepthLinkState.unlocked);
+        expect(
+          _inSheet(find.text('첫째 근거', findRichText: true)),
+          findsOneWidget,
+        );
+        expect(
+          _inSheet(find.text('첫째 원전', findRichText: true)),
+          findsOneWidget,
+        );
+        expect(
+          _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
+          findsOneWidget,
+        );
+        expect(_inSheet(find.text('새 날 근거', findRichText: true)), findsNothing);
+        expect(_inSheet(find.byType(UnlockGlint)), findsWidgets);
+        expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
+        expect(_inSheet(find.byType(LockVeil)), findsNothing);
+
+        // 뒤 오늘 화면은 새 날 응답이라 움직임이 남을 수 있어 settle 대신 몇 프레임만 넘깁니다.
+        await closeSheet(
+          tester,
+          _sheet,
+          settle: (t) async {
+            for (var i = 0; i < 10; i++) {
+              await t.pump(const Duration(milliseconds: 100));
+            }
+          },
+        );
+        await tester.tap(link);
+        await pumpUntil(
+          tester,
+          () => _inSheet(find.byType(LockVeil)).evaluate().isNotEmpty,
+        );
+        expect(container.read(_provider).link, isNot(DepthLinkState.unlocked));
+        expect(
+          _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets('꼬리표 권한이 이미 받아져 있어 동기로 오면 구독을 바로 닫고 이용권을 다시 묻지 않습니다', (
+      tester,
+    ) async {
+      // 진입 때 내 정보에는 권한이 없어(광고를 본 뒤 열린 날) 꼬리표 권한은 이용권으로 압니다.
+      final container = await pumpApp(
+        tester,
+        scenario: 'evidence-unlocked',
+        overrides: [
+          meProvider.overrideWithValue(
+            Me(
+              accountId: '0b3f6a9e-6c1d-4f43-9a52-3c1e7d2b8a10',
+              consentRequired: false,
+              requiredConsents: const [],
+              hasProfile: true,
+              adFree: AdFree(active: false),
+              insight: Insight(active: false),
+            ),
+          ),
+        ],
+      );
+      await pumpUntil(
+        tester,
+        () => find.byType(DateHeader).evaluate().isNotEmpty,
+      );
+      final fake =
+          container.read(fakeServerInterceptorProvider)!
+              as FakeServerInterceptor;
+      // 다른 곳이 먼저 받아 둔 상태를 만듭니다(시트가 구독할 때 값이 동기로 옴).
+      final early = container.listen(unlockTagInsightProvider, (_, _) {});
+      await pumpUntil(
+        tester,
+        () => container.read(unlockTagInsightProvider).value != null,
+      );
+      final asked = fake.callCountOf('getEntitlements');
+      expect(asked, 1);
+
+      await tester.tap(
+        depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+      );
+      await pumpUntil(
+        tester,
+        () =>
+            _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
+                .evaluate()
+                .isNotEmpty,
+      );
+      early.close();
+      await tester.pump();
+      expect(
+        container.exists(unlockTagInsightProvider),
+        isFalse,
+        reason: '시트가 구독을 닫아 provider가 버려짐',
+      );
+
+      // 알던 권한을 잊어도(보는 중 권한이 끝난 것과 같음) 열린 시트의 꼬리표는 그대로입니다.
+      container.invalidate(latestInsightGrantProvider);
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(
+        _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
+        findsOneWidget,
       );
     });
   });

@@ -16,6 +16,16 @@
             "key": "ten_god_rush.inseong",
             "polarity": "good"
           }
+        ],
+        "allTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "ten_god_rush.inseong",
+            "polarity": "good"
+          }
         ]
       },
       {
@@ -24,6 +34,16 @@
         "createdAt": "2026-10-08T22:15:00Z",
         "excerpt": "아침 공기가 갑자기 차가워졌다. 겉옷을 하나 더 챙겼다.",
         "featuredTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "dohwa",
+            "polarity": "good"
+          }
+        ],
+        "allTags": [
           {
             "key": "harmony",
             "polarity": "good"
@@ -44,6 +64,16 @@
             "key": "clash",
             "polarity": "bad"
           }
+        ],
+        "allTags": [
+          {
+            "key": "clash",
+            "polarity": "bad"
+          },
+          {
+            "key": "yeokma",
+            "polarity": "neutral"
+          }
         ]
       },
       {
@@ -52,6 +82,16 @@
         "createdAt": "2026-10-02T10:30:00Z",
         "excerpt": "회의에서 의견이 엇갈렸다. 한 번 더 생각해 보고 내일 다시 말하기로 했다.",
         "featuredTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "gongmang",
+            "polarity": "bad"
+          }
+        ],
+        "allTags": [
           {
             "key": "harmony",
             "polarity": "good"

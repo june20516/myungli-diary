@@ -6,6 +6,7 @@ import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/css_gradient.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -59,12 +60,38 @@ enum DepthLinkPlacement {
   final DepthLinkVariant variant;
 }
 
+/// 지금 근거와 해석 열람 권한이 있는지 하위 근거 진입점에 알립니다(`depth-link`
+/// `icon.unlocked`, D118 ②, V112).
+///
+/// 오늘 광고 한 편으로 열었거나 광고 제거권 기간이면 true입니다. 날짜 맥락이 없는 화면(나 탭,
+/// 사주 표, 만세력)도 같은 권한 기준이라 앱 루트가 한 번 둡니다. 없으면 잠긴 모습입니다.
+class EvidenceUnlockedScope extends InheritedWidget {
+  /// [unlocked] 권한을 하위에 알립니다.
+  const new({required this.unlocked, required super.child, super.key});
+
+  /// 지금 열람 권한이 있는지.
+  final bool unlocked;
+
+  /// 위 범위의 권한. 범위가 없으면 false입니다.
+  static bool of(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<EvidenceUnlockedScope>()
+          ?.unlocked ??
+      false;
+
+  @override
+  bool updateShouldNotify(EvidenceUnlockedScope oldWidget) =>
+      unlocked != oldWidget.unlocked;
+}
+
 /// 한 단계 깊이로 가는 근거 진입점([DepthLink.evidence])과, 다른 페이지로 가는 글자 링크
 /// ([DepthLinkVariant.navigate], 기본 생성자).
 ///
 /// 근거 진입점은 글자 없이 `book-open-text` Regular 20 `action.primary` 아이콘 하나입니다
 /// (결정 V63). 줄에 차지하는 폭은 그림 20이고, 터치 48은 배치 밖으로 넓힙니다(이웃 줄과
 /// 겹쳐도 됩니다). 스크린리더는 버튼으로 읽고 이름은 `depthLinkEvidence(subject)`입니다.
+/// 위 [EvidenceUnlockedScope]가 열람 권한이 있다고 하면 아이콘 선을 `gradient.unlocked`
+/// ([unlockedIconAngle]°)로 칠하고, 모양, 크기, 터치, 이름은 그대로입니다(V112, V63 개정).
 /// [DepthLinkVariant.inlineEnd]는 문장 끝 `WidgetSpan` 하나에 담겨 마지막 낱말과 함께 줄을
 /// 바꾸고, 터치는 물리적 왼쪽으로만 넓혀 오른쪽 부모 경계를 넘지 않습니다.
 ///
@@ -119,6 +146,9 @@ class DepthLink extends StatelessWidget {
   /// 근거 진입점의 터치 크기(px). 계약 `depth-link.parts.icon.minTarget`.
   static const double minTarget = 48;
 
+  /// 열린 날 근거 아이콘 그라데이션 각도(`parts.icon.unlocked.angle`, CSS 도).
+  static const double unlockedIconAngle = 135;
+
   /// 근거 진입점 아이콘 글리프(`book-open-text`).
   static const AppGlyph evidenceGlyph = AppGlyph(
     light: PhosphorIconsLight.bookOpenText,
@@ -170,6 +200,12 @@ class DepthLink extends StatelessWidget {
     final tokens = context.tokens;
     const radius = BorderRadius.all(Radius.circular(Radii.xs));
     final size = iconSize.logical;
+    final icon = AppIcon(
+      evidenceGlyph,
+      size: iconSize,
+      weight: AppIconWeight.regular,
+      color: tokens.colors.actionPrimary,
+    );
     return VerticalHitSlop(
       minHeight: minTarget,
       minWidth: minTarget,
@@ -184,12 +220,15 @@ class DepthLink extends StatelessWidget {
         child: SizedBox(
           width: size,
           height: size,
-          child: AppIcon(
-            evidenceGlyph,
-            size: iconSize,
-            weight: AppIconWeight.regular,
-            color: tokens.colors.actionPrimary,
-          ),
+          child: EvidenceUnlockedScope.of(context)
+              ? ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: tokens.gradients.unlocked
+                      .atCssAngle(unlockedIconAngle)
+                      .createShader,
+                  child: icon,
+                )
+              : icon,
         ),
       ),
     );

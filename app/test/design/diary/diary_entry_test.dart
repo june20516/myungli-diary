@@ -50,7 +50,7 @@ Widget _group({
     dayKind: withBadge
         ? const HanjaTag(glyph: '用', label: '좋은 날', tone: HanjaTagTone.yongsin)
         : null,
-    tag: tag,
+    tags: [?tag],
     isLast: isLast,
   ),
 );

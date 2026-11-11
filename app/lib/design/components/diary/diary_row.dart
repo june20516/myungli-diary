@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart' show CustomSemanticsAction;
+import 'package:flutter/semantics.dart'
+    show CustomSemanticsAction, SemanticsRole;
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
@@ -7,6 +8,7 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -35,12 +37,12 @@ String _dateLabel(BuildContext context, CalendarDate date) {
 ///
 /// 왼쪽 날짜 열(44)에 숫자(옅은 도장 34 가운데)와 요일을 두고, 요일 아래에서 줄 끝까지
 /// `rail.timeline`이 이어져 다음 줄 날짜와 만납니다([isLast]면 없음). 오른쪽 카드에는
-/// 날의 성격 `hanja-tag`([dayKind], 없으면 그리지 않음) → 미리보기 두 줄 → 대표 태그
-/// `hanja-tag` 하나([tag])를 둡니다(V81).
+/// 날의 성격 `hanja-tag`([dayKind], 없으면 그리지 않음) → 미리보기 두 줄 → 그날 사주 기운
+/// 태그 줄([tags], 한 줄 가로 밀기, [DiaryRowTagLine])을 둡니다(V81, V103).
 ///
-/// 카드 전체가 버튼([onTap])이고 스크린리더는 "날짜 요일, 날의 성격, 미리보기, 태그" 한
-/// 덩어리로 읽습니다. 카드 안 두 태그는 손가락으로는 따로 눌리고(뜻 시트), 스크린리더에서는
-/// 카드의 추가 동작(태그 이름)으로 닿습니다.
+/// 카드 전체가 버튼([onTap])이고 스크린리더는 "날짜 요일, 날의 성격, 미리보기, 사주 기운
+/// 태그들" 한 덩어리로 읽습니다. 카드 안 태그는 손가락으로는 따로 눌리고(뜻 시트), 스크린리더
+/// 에서는 카드의 추가 동작(태그 이름)으로 닿습니다.
 class DiaryRow extends StatelessWidget {
   /// 한 줄을 만듭니다. [excerpt]는 본문 앞부분(`DiarySummary.excerpt`)입니다.
   const new({
@@ -49,7 +51,7 @@ class DiaryRow extends StatelessWidget {
     required this.onTap,
     this.dayKind,
     this.dayKindPending = false,
-    this.tag,
+    this.tags = const [],
     this.isLast = false,
     this.identifier,
     super.key,
@@ -90,9 +92,15 @@ class DiaryRow extends StatelessWidget {
   /// 묶음 카드에서 마지막 줄 아래 태그 칩까지의 간격(`day.parts.group.tag.marginTop`).
   static const double groupTagMarginTop = Space.s8;
 
-  /// 한 편 카드에서 미리보기와 대표 태그 사이(`parts.tag.marginTop`, `space.12`).
+  /// 한 편 카드에서 미리보기와 태그 줄 사이(`parts.tag.marginTop`, `space.12`).
   /// 두 편 이상 묶음 카드는 [groupTagMarginTop]으로 덮어씁니다.
   static const double tagMarginTop = Space.s12;
+
+  /// 태그 줄의 태그 사이(`parts.tag.gap`, `space.8`).
+  static const double tagsGap = Space.s8;
+
+  /// 태그 줄(가로로 미는 줄)을 찾는 테스트용 키.
+  static const Key tagsKey = ValueKey('diary-row-tags');
 
   static const double _numberSize = 18;
   static const double _weekdayGap = 4;
@@ -110,8 +118,9 @@ class DiaryRow extends StatelessWidget {
   /// 그날 성격을 아직 받는 중이면 true. 태그 자리를 skeleton으로 잡아 둡니다(A46).
   final bool dayKindPending;
 
-  /// 대표 태그 `hanja-tag`. null이면 그리지 않습니다(`tag-diary` 안에서도 null).
-  final HanjaTag? tag;
+  /// 그날 사주 기운 태그들(`hanja-tag` `default`, 대표 태그 순위 순, D115). 비면 줄을 그리지
+  /// 않습니다(`tag-diary` 안에서는 모아 본 태그만 빠짐).
+  final List<HanjaTag> tags;
 
   /// 목록 마지막 줄이면 흐름 줄을 긋지 않습니다.
   final bool isLast;
@@ -127,14 +136,13 @@ class DiaryRow extends StatelessWidget {
       _dateLabel(context, date),
       ?dayKind?.label,
       excerpt,
-      ?tag?.label,
+      for (final tag in tags) tag.label,
     ].join(l10n.a11yListSeparator);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tag = this.tag;
     final dayKind = this.dayKind;
     return _DayFrame(
       date: date,
@@ -146,7 +154,7 @@ class DiaryRow extends StatelessWidget {
         inkColor: context.tokens.colors.textPrimary,
         borderRadius: const BorderRadius.all(Radius.circular(Radii.lg)),
         customActions: {
-          for (final pill in [?dayKind, ?tag])
+          for (final pill in [?dayKind, ...tags])
             CustomSemanticsAction(label: pill.label): ?pill.onTap,
         },
         child: _DiaryCard(
@@ -160,9 +168,9 @@ class DiaryRow extends StatelessWidget {
               variant: SentenceBlockVariant.preview,
               text: RenderedText(segments: [Segment(text: excerpt)]),
             ),
-            if (tag != null) ...[
+            if (tags.isNotEmpty) ...[
               const SizedBox(height: tagMarginTop),
-              Align(alignment: AlignmentDirectional.centerStart, child: tag),
+              DiaryRowTagLine(tags: tags),
             ],
           ],
         ),
@@ -174,7 +182,8 @@ class DiaryRow extends StatelessWidget {
 /// 같은 날 일기가 두 편 이상인 날의 묶음 카드(`diary-row` `day` 묶음).
 ///
 /// 날짜 열·흐름 줄·카드 바탕은 [DiaryRow]와 같고, 카드 안은 날의 성격 `hanja-tag`(한 번,
-/// 아래 `space.4`) → [entries] 줄들 → 대표 태그(한 번, 마지막 줄 아래 `space.8`)입니다.
+/// 아래 `space.4`) → [entries] 줄들 → 사주 기운 태그 줄(한 번, 마지막 줄 아래 `space.8`)
+/// 입니다.
 /// 카드 전체는 버튼이 아닙니다. 스크린리더는 "날짜 요일, 날의 성격" 그룹으로 읽고, 누를 곳은
 /// 줄마다([DiaryEntryData.onTap])와 두 태그입니다. 흐름 줄은 카드 높이만큼 이어집니다.
 ///
@@ -188,7 +197,7 @@ class DiaryDayGroup extends StatelessWidget {
     required this.entries,
     this.dayKind,
     this.dayKindPending = false,
-    this.tag,
+    this.tags = const [],
     this.isLast = false,
     super.key,
   }) : assert(entries.length >= 2, '한 편인 날은 DiaryRow를 씁니다.');
@@ -205,8 +214,8 @@ class DiaryDayGroup extends StatelessWidget {
   /// 그날 성격을 아직 받는 중이면 true(태그 자리 skeleton).
   final bool dayKindPending;
 
-  /// 대표 태그 `hanja-tag`. null이면 그리지 않습니다.
-  final HanjaTag? tag;
+  /// 그날 사주 기운 태그들([DiaryRow.tags]와 같음). 비면 줄을 그리지 않습니다.
+  final List<HanjaTag> tags;
 
   /// 목록 마지막 줄이면 흐름 줄을 긋지 않습니다.
   final bool isLast;
@@ -214,7 +223,6 @@ class DiaryDayGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final tag = this.tag;
     // 날의 성격 태그를 누를 수 있으면 자식 버튼 노드가 이름을 따로 읽으므로 그룹 라벨에서는
     // 뺍니다(같은 낱말을 두 번 읽지 않게). 누를 수 없으면 제외된 자식 대신 그룹이 읽습니다.
     final label = [
@@ -239,9 +247,9 @@ class DiaryDayGroup extends StatelessWidget {
               excludeInertSemantics: true,
             ),
             _EntryLines(entries: entries),
-            if (tag != null) ...[
+            if (tags.isNotEmpty) ...[
               const SizedBox(height: DiaryRow.groupTagMarginTop),
-              Align(alignment: AlignmentDirectional.centerStart, child: tag),
+              DiaryRowTagLine(tags: tags),
             ],
           ],
         ),
@@ -303,6 +311,64 @@ class _DayFrame extends StatelessWidget {
           DateFormat.E(locale).format(_day),
           style: tokens.typography.captionMd.copyWith(
             color: tokens.colors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 일기 줄 카드 아래 사주 기운 태그 줄(`diary-row.parts.tag`, D115, V103).
+///
+/// [tags]를 받은 순서(대표 태그 순위)대로 `space.8` 간격 한 줄에 둡니다. 줄을 늘리지 않고
+/// 넘치면 그 줄 안에서 가로로 밀며, 더 있는 쪽 끝 24만 카드 바탕(`bg.sheet`)으로 흐립니다
+/// (`scroll-hint`의 흐림만, 화살표 줄 없음). 스크린리더는 가로 밀기와 상관없이 태그를 목록으로
+/// 차례로 읽습니다(한 편 카드에서는 카드 라벨이 이름을 읽고 태그는 카드의 추가 동작).
+class DiaryRowTagLine extends StatefulWidget {
+  /// 태그 줄을 만듭니다. [tags]가 비면 아무것도 그리지 않습니다.
+  const new({required this.tags, super.key});
+
+  /// 그날 사주 기운 태그들(순서 그대로).
+  final List<HanjaTag> tags;
+
+  @override
+  State<DiaryRowTagLine> createState() => _DiaryRowTagLineState();
+}
+
+class _DiaryRowTagLineState extends State<DiaryRowTagLine> {
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tags = widget.tags;
+    if (tags.isEmpty) return const SizedBox.shrink();
+    return ScrollHint(
+      controller: _scroll,
+      showArrows: false,
+      child: SingleChildScrollView(
+        key: DiaryRow.tagsKey,
+        controller: _scroll,
+        scrollDirection: Axis.horizontal,
+        child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          role: SemanticsRole.list,
+          child: Row(
+            spacing: DiaryRow.tagsGap,
+            children: [
+              for (final tag in tags)
+                Semantics(
+                  container: true,
+                  role: SemanticsRole.listItem,
+                  child: tag,
+                ),
+            ],
           ),
         ),
       ),
@@ -449,7 +515,7 @@ class _DateColumn extends StatelessWidget {
 }
 
 /// 일기 목록을 받는 동안의 한 줄(`diary-row` `day` `loading`): 날짜 열은 도장 자리와 요일
-/// 글줄 뼈, 카드는 날의 성격 칩(88), 미리보기 글줄 두 줄, 대표 태그 칩(72) 뼈입니다.
+/// 글줄 뼈, 카드는 날의 성격 칩(88), 미리보기 글줄 두 줄, 태그 칩(72) 뼈입니다.
 /// 스크린리더는 읽지 않습니다.
 class DiaryRowSkeleton extends StatelessWidget {
   /// skeleton 줄을 만듭니다. [index]는 숨쉬기 순서입니다.

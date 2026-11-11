@@ -233,6 +233,7 @@ List<DiarySummary> _diaries(CalendarDate date, int count) => [
       createdAt: DateTime.utc(date.year, date.month, date.day, 9, i),
       excerpt: '$i번째 일기',
       featuredTags: const [],
+      allTags: const [],
     ),
 ];
 
@@ -254,6 +255,15 @@ List<String> _rowTitles(WidgetTester tester) => [
   for (final row in tester.widgetList<EventRow>(find.byType(EventRow)))
     row.title,
 ];
+
+/// 길흉판정 카드를 눌러 내역을 펼칩니다(V108).
+Future<void> _expandVerdict(WidgetTester tester) async {
+  final toggle = find.byKey(FortuneVerdict.toggleKey);
+  await tester.ensureVisible(toggle);
+  await tester.pumpAndSettle();
+  await tester.tap(toggle);
+  await tester.pumpAndSettle();
+}
 
 void main() {
   setUpAll(loadBundledFonts);
@@ -296,23 +306,67 @@ void main() {
       expect(header.iljin, isNull);
     });
 
-    testWidgets('날의 성격은 날짜 머리 아래 space.12의 hanja-tag emphasis입니다', (
+    testWidgets(
+      '날의 성격은 날짜 머리 오른쪽 끝, 날짜와 음력 묶음 세로 가운데의 hanja-tag emphasis입니다(V109)',
+      (tester) async {
+        await _open(tester, CalendarDate(2026, 10, 12));
+
+        final label = find.byKey(
+          const ValueKey(SlotIds.daySheetCharacterLabel),
+        );
+        final tag = tester.widget<HanjaTag>(
+          find.descendant(of: label, matching: find.byType(HanjaTag)),
+        );
+        expect(tag.variant, HanjaTagVariant.emphasis);
+        expect(tag.label, _ko.dayKindGwiinDay);
+        expect(tag.glyph, '貴');
+        expect(
+          tester.widget<DateHeader>(find.byType(DateHeader)).trailing,
+          isNotNull,
+        );
+        final header = tester.getRect(find.byType(DateHeader));
+        final dates = tester.getRect(find.byKey(DateHeader.datesKey));
+        final tagRect = tester.getRect(label);
+        expect(tagRect.right, closeTo(header.right, 0.01));
+        expect(tagRect.center.dy, closeTo(dates.center.dy, 0.5));
+        expect(tagRect.left - dates.right, greaterThanOrEqualTo(Space.s12));
+      },
+    );
+
+    testWidgets('스크린리더: 날짜 묶음은 제목(header), 날의 성격 태그는 제목이 아닌 버튼입니다', (
       tester,
     ) async {
+      final handle = tester.ensureSemantics();
       await _open(tester, CalendarDate(2026, 10, 12));
 
-      final label = find.byKey(const ValueKey(SlotIds.daySheetCharacterLabel));
-      final tag = tester.widget<HanjaTag>(
-        find.descendant(of: label, matching: find.byType(HanjaTag)),
-      );
-      expect(tag.variant, HanjaTagVariant.emphasis);
-      expect(tag.label, _ko.dayKindGwiinDay);
-      expect(tag.glyph, '貴');
       expect(
-        tester.getTopLeft(label).dy -
-            tester.getBottomLeft(find.byType(DateHeader)).dy,
-        Space.s12,
+        tester.getSemantics(find.byKey(DateHeader.datesKey)),
+        isSemantics(isHeader: true),
       );
+      final slot = tester.getSemantics(
+        find.bySemanticsIdentifier(SlotIds.daySheetCharacterLabel),
+      );
+      expect(slot, isSemantics(isHeader: false));
+      final children = <SemanticsNode>[];
+      slot.visitChildren((child) {
+        children.add(child);
+        return true;
+      });
+      final tag = children.single;
+      expect(tag, isSemantics(isButton: true, isHeader: false));
+      handle.dispose();
+    });
+
+    testWidgets('큰 글자에서 한 줄에 못 들어가면 날의 성격은 날짜 머리 아래 space.12 왼쪽 줄입니다', (
+      tester,
+    ) async {
+      await _open(tester, CalendarDate(2026, 10, 12), textScale: 2);
+
+      final label = find.byKey(const ValueKey(SlotIds.daySheetCharacterLabel));
+      final dates = tester.getRect(find.byKey(DateHeader.datesKey));
+      final tagRect = tester.getRect(label);
+      expect(tagRect.left, closeTo(dates.left, 0.01));
+      expect(tagRect.top - dates.bottom, closeTo(Space.s12, 0.01));
     });
 
     testWidgets('이유 문장은 없습니다(용어 칩도 없음)', (tester) async {
@@ -354,8 +408,25 @@ void main() {
       );
     });
 
+    testWidgets('길흉판정: 처음에는 접힘이고 카드를 누르면 내역을 펼칩니다(V108)', (tester) async {
+      await _open(tester, CalendarDate(2026, 10, 13));
+
+      expect(find.byType(ScoreRow), findsNothing);
+      expect(
+        find.bySemanticsIdentifier(SlotIds.daySheetVerdictExpand),
+        findsOneWidget,
+      );
+      await _expandVerdict(tester);
+      expect(find.byType(ScoreRow), findsNWidgets(3));
+      expect(
+        find.bySemanticsIdentifier(SlotIds.daySheetVerdictCollapse),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('길흉판정: 태그 이름은 용어 이름, 뜻이 이름과 같으면 생략합니다', (tester) async {
       await _open(tester, CalendarDate(2026, 10, 13));
+      await _expandVerdict(tester);
 
       final verdict = tester.widget<FortuneVerdict>(
         find.byType(FortuneVerdict),
@@ -370,6 +441,7 @@ void main() {
 
     testWidgets('길흉판정 태그를 누르면 매핑된 용어의 뜻 시트입니다', (tester) async {
       final harness = await _open(tester, CalendarDate(2026, 10, 13));
+      await _expandVerdict(tester);
 
       for (final name in ['육합', '형']) {
         await tester.tap(find.widgetWithText(HanjaTag, name));
@@ -389,6 +461,8 @@ void main() {
       expect(find.byType(FortuneVerdict), findsOneWidget);
       expect(find.byKey(FortuneVerdict.trackKey), findsOneWidget);
       expect(find.byType(ScoreRow), findsNothing);
+      // 펼칠 내역이 없으면 안내 줄도 없습니다.
+      expect(find.byKey(FortuneVerdict.toggleKey), findsNothing);
       expect(find.text(_ko.todayEventTitle), findsOneWidget);
     });
 
@@ -401,6 +475,9 @@ void main() {
         }),
       );
       await tester.pumpAndSettle();
+      // 접힌 채로도 기록합니다.
+      expect(harness.crash.errors, hasLength(1));
+      await _expandVerdict(tester);
 
       final rows = tester.widgetList<ScoreRow>(find.byType(ScoreRow)).toList();
       expect(rows.map((row) => row.name), ['귀인의 날']);
@@ -422,8 +499,10 @@ void main() {
               locale: locale,
               glossary: locale.languageCode == 'ja' ? _glossaryJa : _glossaryEn,
             );
+            await _expandVerdict(tester);
 
             expect(tester.takeException(), isNull);
+            expect(find.byKey(ScoreRow.meaningKey), findsWidgets);
             for (final meaning in tester.widgetList<Text>(
               find.byKey(ScoreRow.meaningKey),
             )) {
@@ -447,7 +526,18 @@ void main() {
       expect(_rowTitles(tester), ['엄마 생신', '팀 주간 회의', '요가 수업']);
       final rows = tester.widgetList<EventRow>(find.byType(EventRow)).toList();
       expect(rows.map((row) => row.time), [null, '09:07', '19:00']);
+      expect(rows.map((row) => row.memo), [null, '안건 정리', null]);
       expect(rows.map((row) => row.showDivider), [true, true, false]);
+      // 하루 종일은 시각 칸 안 꼬리표(V107), 메모는 제목 아래 한 줄입니다.
+      expect(
+        find.descendant(
+          of: find.widgetWithText(EventRow, '엄마 생신'),
+          matching: find.byKey(EventRow.allDayKey),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(_ko.daySheetEventAllDay), findsOneWidget);
+      expect(find.text('안건 정리'), findsOneWidget);
       expect(find.byType(EventRowListEmpty), findsNothing);
     });
 

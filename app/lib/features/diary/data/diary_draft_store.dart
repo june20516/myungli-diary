@@ -27,11 +27,12 @@ final class DiaryDraftStore {
       (await find(target))?.body;
 
   /// [target] 초안을 [body]와 고른 질문 [guide]로 씁니다(있으면 바꿈). [guide]가 없으면 고른
-  /// 질문을 비웁니다(A115).
+  /// 질문을 비웁니다(A115). [detached]면 질문을 뗀 초안이고 [guide]는 남기지 않습니다(D116).
   Future<void> write(
     DiaryDraftTarget target,
     String body, {
     GuideChoice? guide,
+    bool detached = false,
   }) => _database
       .into(_database.diaryDrafts)
       .insertOnConflictUpdate(
@@ -40,8 +41,9 @@ final class DiaryDraftStore {
           date: target.date.toIso(),
           diaryId: Value(target.diaryId),
           body: body,
-          guideMessageKey: Value(guide?.messageKey),
-          guideVariant: Value(guide?.variant),
+          guideMessageKey: Value(detached ? null : guide?.messageKey),
+          guideVariant: Value(detached ? null : guide?.variant),
+          guideDetached: Value(detached),
           updatedAt: _nowUtc(),
         ),
       );

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -203,8 +204,9 @@ class MyungliSheetFrame extends StatelessWidget {
 
 /// 하프·풀 시트를 새 route로 엽니다.
 ///
-/// 시트 안에서 다시 열면 `sheet.stack`으로 위에 쌓이고 아래 층이 물러납니다.
-/// 뒤로 가기·끌어내리기는 맨 위 시트 하나만, 바깥(덮개)은 쌓인 시트 모두 닫습니다.
+/// 시트 안에서 다시 열면 `sheet.stack`으로 위에 쌓입니다. 아래 시트는 둥근 윗변과 핸들이 위
+/// 시트 위로 14px 보이게 올라가고 조금 어두워지며, 뒤 앱 화면은 그대로입니다(V110).
+/// 뒤로 가기, 끌어내리기, 바깥 누르기는 모두 맨 위 시트 하나만 닫습니다(V100).
 Future<T?> showMyungliSheet<T>(
   BuildContext context, {
   required SheetSize size,
@@ -212,23 +214,41 @@ Future<T?> showMyungliSheet<T>(
   String? semanticLabel,
 }) {
   // 시트 안에서 여는 시트는 아래 시트의 덮개를 그대로 쓰고 자기 덮개는 더하지 않습니다.
-  final underSheet = ModalRoute.of(context) is _SheetRoute;
+  final below = ModalRoute.of(context);
   return overlayNavigatorOf(context).push<T>(
     _SheetRoute<T>(
       size: size,
       builder: builder,
       semanticLabel: semanticLabel,
-      underSheet: underSheet,
+      below: below is _SheetRoute ? below : null,
     ),
   );
 }
 
+/// 위 시트가 쌓인 동안 아래 시트가 지닐 수 있는 최대 높이. [size]의 최대 높이에서, 아래 시트
+/// 머리 14px(`sheet.stack.peek`)가 full 시트 윗변(위 안전 영역 + 12) 아래에 남도록 줄입니다.
+///
+/// 위 시트 높이는 열기 전에 정하고 열리는 동안 바뀌지 않습니다. 줄어든 높이에 다 들어가지
+/// 않는 내용은 시트 안에서 세로로 스크롤합니다(V109).
+double sheetStackedMaxHeight(BuildContext context, SheetSize size) => math.min(
+  sheetMaxHeight(context, size),
+  sheetMaxHeight(context, SheetSize.full) - PatternValues.stackPeekHeight,
+);
+
+/// 아래 시트가 다 쌓였을 때 올라갈 거리(`sheet.stack.peek.rule`).
+///
+/// 아래 시트 윗변이 위 시트 윗변보다 14px 위에 오게 올립니다. 두 시트는 모두 화면 아래에
+/// 붙으므로 거리는 두 높이로 정해지고, 아래 시트가 이미 더 크면(머리가 이미 보이면) 0입니다.
+@visibleForTesting
+double sheetStackLift({required double below, required double above}) =>
+    math.max(0, above + PatternValues.stackPeekHeight - below);
+
 /// 시트·확인 창처럼 화면 위에 덮는 route를 쌓을 navigator. 화면 셸([SheetScreenBelow]) 범위
 /// 밖에서 가장 가까운 것입니다.
 ///
-/// 셸 안쪽 navigator(탭 화면의 branch)에 쌓으면 덮는 route도 셸과 함께 0.92배로 줄어, 덮개가
-/// 화면 모서리를 놓쳐 바깥 누르기가 닫지 못합니다. 그렇다고 root navigator를 고르면 앱 안의
-/// 앱(Widgetbook의 미리보기 MaterialApp)에서 바깥 navigator에 쌓여 테마를 잃습니다.
+/// 셸 안쪽 navigator(탭 화면의 branch)에 쌓으면 덮는 route가 탭 바 아래에 깔려 덮개가 탭 바를
+/// 덮지 못합니다. 그렇다고 root navigator를 고르면 앱 안의 앱(Widgetbook의 미리보기
+/// MaterialApp)에서 바깥 navigator에 쌓여 테마를 잃습니다.
 /// 범위 안이 아니면 가장 가까운 navigator 그대로입니다.
 NavigatorState overlayNavigatorOf(BuildContext context) {
   var navigator = Navigator.of(context);
@@ -250,13 +270,12 @@ class _ScreenShellScope extends InheritedWidget {
   bool updateShouldNotify(_ScreenShellScope oldWidget) => false;
 }
 
-/// 시트가 시트 위에 쌓이는 동안 아래 화면에 걸 `sheet.stack` 진행(`screenBelow`).
-final ValueNotifier<Animation<double>> _screenBelowProgress =
-    ValueNotifier<Animation<double>>(kAlwaysDismissedAnimation);
-
-/// 화면 셸이 화면 내용을 감싸 두면, 시트가 시트 위에 쌓일 때 화면이 0.92배·밝기 0.9로 물러납니다.
+/// 화면 셸의 범위 표지. 이 안쪽에서 연 시트와 확인 창은 셸 바깥 navigator에 쌓입니다
+/// ([overlayNavigatorOf]).
 ///
-/// 구조는 항상 같고(내용의 상태가 유지됨) 쌓이지 않을 때는 진행 0이라 아무것도 바꾸지 않습니다.
+/// 탭 화면의 갈래 navigator에 쌓으면 시트가 탭 바 아래에 깔리므로 셸 바깥에 쌓습니다. 시트가
+/// 겹쳐도 뒤 앱 화면은 크기와 밝기가 그대로라(`sheet.stack.screenBelow`, V110) 화면 자체에는
+/// 아무것도 입히지 않습니다.
 class SheetScreenBelow extends StatelessWidget {
   /// 화면 내용을 감쌉니다.
   const new({required this.child, super.key});
@@ -265,18 +284,7 @@ class SheetScreenBelow extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<Animation<double>>(
-      valueListenable: _screenBelowProgress,
-      builder: (context, progress, child) => animate(
-        InteractionPattern.sheetStack,
-        t: progress,
-        prefs: MotionPrefs.of(context),
-        child: child!,
-      ),
-      child: _ScreenShellScope(child: child),
-    );
-  }
+  Widget build(BuildContext context) => _ScreenShellScope(child: child);
 }
 
 /// 시트 안 첫 제목. 시트가 열리면 스크린리더 초점이 여기로 옵니다(`focusOnOpen: first-heading`).
@@ -337,33 +345,44 @@ class _HeadingClaimScope extends InheritedWidget {
   bool updateShouldNotify(_HeadingClaimScope oldWidget) => false;
 }
 
+/// 위에 쌓인 시트가 아래 시트에 알리는 값: 위 시트 높이와 끌어 내린 비율(0~1).
+typedef _AboveSheet = ({double height, double release});
+
+const _AboveSheet _noSheetAbove = (height: 0, release: 0);
+
 class _SheetRoute<T> extends PopupRoute<T> {
   new({
     required this.size,
     required this.builder,
-    required this.underSheet,
+    required this.below,
     this.semanticLabel,
   });
 
   final SheetSize size;
-  final bool underSheet;
   final WidgetBuilder builder;
   final String? semanticLabel;
 
-  @override
-  void install() {
-    super.install();
-    if (underSheet) _screenBelowProgress.value = animation!;
+  /// 이 시트 바로 아래의 시트. 없으면 첫 시트입니다.
+  final _SheetRoute<dynamic>? below;
+
+  /// 이 시트 위에 쌓인 시트의 높이와 끌기 비율. 아래 시트 머리(`peek`) 계산에 씁니다.
+  final ValueNotifier<_AboveSheet> above = ValueNotifier(_noSheetAbove);
+
+  bool _disposed = false;
+
+  /// 시트 안에서 연 시트인지. 아래 시트의 덮개를 그대로 씁니다.
+  bool get underSheet => below != null;
+
+  /// 위 시트가 높이나 끌기 비율을 알립니다. 이미 닫힌 시트면 무시합니다.
+  void reportAbove(_AboveSheet value) {
+    if (!_disposed) above.value = value;
   }
 
   @override
   void dispose() {
-    final progress = animation;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (identical(_screenBelowProgress.value, progress)) {
-        _screenBelowProgress.value = kAlwaysDismissedAnimation;
-      }
-    });
+    below?.reportAbove(_noSheetAbove);
+    _disposed = true;
+    above.dispose();
     super.dispose();
   }
 
@@ -433,8 +452,18 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     duration: Motion.short,
   )..addListener(() => setState(() => _drag = _dragFrom * (1 - _snapCurve)));
 
-  double _drag = 0;
+  /// 손가락을 따라 시트가 내려간 거리. 바뀌면 아래 시트에 끌기 비율을 알립니다(`peek.drag`).
+  double get _drag => _dragValue;
+  set _drag(double value) {
+    _dragValue = value;
+    _reportToBelow();
+  }
+
+  double _dragValue = 0;
   double _dragFrom = 0;
+
+  /// 이 시트 틀의 높이. 첫 레이아웃 뒤에 알게 됩니다.
+  double _frameHeight = 0;
 
   /// iOS 같은 Bouncing 본문이 맨 위에서 밀려난 양. 시트가 그만큼 따라 내려가므로 본문은
   /// 같은 양만큼 되올려 이중으로 움직여 보이지 않게 합니다.
@@ -452,6 +481,22 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
   final _HeadingClaim _headingClaim = _HeadingClaim();
 
   double get _snapCurve => Curves.easeOut.transform(_snap.value);
+
+  /// 아래 시트에 이 시트 높이와 끌어 내린 비율을 알립니다.
+  void _reportToBelow() {
+    final below = widget.route.below;
+    if (below == null || _frameHeight <= 0) return;
+    below.reportAbove((
+      height: _frameHeight,
+      release: (_dragValue / _frameHeight).clamp(0, 1).toDouble(),
+    ));
+  }
+
+  void _onFrameSize(Size size) {
+    if (!mounted || size.height == _frameHeight) return;
+    setState(() => _frameHeight = size.height);
+    _reportToBelow();
+  }
 
   @override
   void dispose() {
@@ -620,14 +665,17 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
     if (_bounce == 0) _settleBack();
   }
 
-  void _dismissAll() {
-    Navigator.of(context).popUntil((route) => route is! _SheetRoute);
-  }
+  /// 바깥 누르기: 맨 위 시트인 이 시트 하나만 닫습니다(V100). 입력이 있는 시트의 확인
+  /// (`PopScope`)도 끌어 닫기와 같이 거칩니다.
+  void _onTapOutside() => unawaited(_dismiss());
 
   @override
   Widget build(BuildContext context) {
     final prefs = MotionPrefs.of(context);
-    final maxHeight = sheetMaxHeight(context, widget.route.size);
+    final route = widget.route;
+    final maxHeight = route.underSheet
+        ? sheetStackedMaxHeight(context, route.size)
+        : sheetMaxHeight(context, route.size);
     final l10n = AppLocalizations.of(context);
     return AnimatedBuilder(
       animation: widget.animation,
@@ -637,61 +685,61 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
             ? InteractionPattern.sheetExit
             : InteractionPattern.sheetEnter;
         final t = exiting ? _exit : widget.animation;
-        final frame = MyungliSheetFrame(
-          key: _frameKey,
-          maxHeight: maxHeight,
-          semanticLabel: widget.route.semanticLabel,
-          onDragUpdate: _onDragUpdate,
-          onDragEnd: _onDragEnd,
-          onDragCancel: _onDragCancel,
-          child: _HeadingClaimScope(
-            claim: _headingClaim,
-            child: NotificationListener<ScrollNotification>(
-              onNotification: _onScroll,
-              // Bouncing 본문이 밀려난 만큼 되올려, 시트 이동과 이중으로 보이지 않게 합니다.
-              child: _BounceCompensation(
-                bounce: _bounce,
-                child: Builder(builder: widget.route.builder),
+        final frame = _SizeReporter(
+          onSize: _onFrameSize,
+          child: MyungliSheetFrame(
+            key: _frameKey,
+            maxHeight: maxHeight,
+            semanticLabel: route.semanticLabel,
+            onDragUpdate: _onDragUpdate,
+            onDragEnd: _onDragEnd,
+            onDragCancel: _onDragCancel,
+            child: _HeadingClaimScope(
+              claim: _headingClaim,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: _onScroll,
+                // Bouncing 본문이 밀려난 만큼 되올려, 시트 이동과 이중으로 보이지 않게 합니다.
+                child: _BounceCompensation(
+                  bounce: _bounce,
+                  child: Builder(builder: route.builder),
+                ),
               ),
             ),
           ),
         );
-        final sheet = animate(
-          InteractionPattern.sheetStack,
-          t: widget.secondaryAnimation,
+        final sheet = _StackedBelow(
+          above: route.above,
+          secondaryAnimation: widget.secondaryAnimation,
+          frameHeight: _frameHeight,
           prefs: prefs,
-          options: const PatternOptions(stackLayer: StackLayer.sheet),
           child: frame,
         );
-        return Stack(
-          children: [
-            if (widget.route.underSheet)
-              // 덮개는 아래 시트의 것을 쓰고, 바깥 누르기만 이 층에서 받습니다.
-              Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _dismissAll,
-                  child: const SizedBox.expand(),
-                ),
-              )
-            else
-              Positioned.fill(
-                child: Semantics(
-                  button: true,
-                  label: l10n.sheetDismiss,
-                  onTap: _dismissAll,
-                  child: ExcludeSemantics(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: _dismissAll,
-                      child: KeyedSubtree(
+        // 바깥은 맨 위 시트 밖 전부입니다(덮개와 아래 시트의 보이는 머리). 시트 안에서 연
+        // 시트는 아래 시트의 덮개를 그대로 쓰고 누르기만 이 층에서 받습니다. 위에 시트가
+        // 쌓이면 이 시트의 닫기 동작은 스크린리더에서 숨겨 맨 위 시트의 것 하나만 남깁니다.
+        final outside = _HiddenWhileCovered(
+          secondaryAnimation: widget.secondaryAnimation,
+          child: Semantics(
+            button: true,
+            label: l10n.sheetDismiss,
+            onTap: _onTapOutside,
+            child: ExcludeSemantics(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _onTapOutside,
+                child: route.underSheet
+                    ? const SizedBox.expand()
+                    : KeyedSubtree(
                         key: const ValueKey('sheet.scrim'),
                         child: animateScrim(pattern, t: t, prefs: prefs),
                       ),
-                    ),
-                  ),
-                ),
               ),
+            ),
+          ),
+        );
+        return Stack(
+          children: [
+            Positioned.fill(child: outside),
             Align(
               alignment: Alignment.bottomCenter,
               child: Transform.translate(
@@ -704,6 +752,104 @@ class _SheetPageState<T> extends State<_SheetPage<T>>
         );
       },
     );
+  }
+}
+
+/// 위에 시트가 쌓인 동안의 아래 시트(`sheet.stack` `sheetBelow`, V110).
+///
+/// 위 시트 높이를 안 뒤 올라갈 거리([sheetStackLift])를 정하고, 위 시트를 끌어 내리는 동안은
+/// 그 비율만큼 제자리 쪽으로 내려옵니다. 위 시트가 열린 동안 아래 시트(보이는 머리 포함)는
+/// 스크린리더에서 숨깁니다(`peek.a11y`, [_HiddenWhileCovered]).
+class _StackedBelow extends StatelessWidget {
+  const new({
+    required this.above,
+    required this.secondaryAnimation,
+    required this.frameHeight,
+    required this.prefs,
+    required this.child,
+  });
+
+  final ValueListenable<_AboveSheet> above;
+  final Animation<double> secondaryAnimation;
+  final double frameHeight;
+  final MotionPrefs prefs;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([above, secondaryAnimation]),
+      child: child,
+      builder: (context, child) {
+        final value = above.value;
+        return _HiddenWhileCovered(
+          secondaryAnimation: secondaryAnimation,
+          child: animate(
+            InteractionPattern.sheetStack,
+            t: secondaryAnimation,
+            prefs: prefs,
+            options: PatternOptions(
+              stackLift: value.height > 0
+                  ? sheetStackLift(below: frameHeight, above: value.height)
+                  : 0,
+              stackRelease: value.release,
+            ),
+            child: child!,
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// 위에 시트가 쌓여 있는 동안(열리고 닫히는 중 포함) [child]를 스크린리더에서 숨깁니다.
+class _HiddenWhileCovered extends StatelessWidget {
+  const new({required this.secondaryAnimation, required this.child});
+
+  final Animation<double> secondaryAnimation;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: secondaryAnimation,
+    child: child,
+    builder: (context, child) => ExcludeSemantics(
+      excluding: secondaryAnimation.status != AnimationStatus.dismissed,
+      child: child,
+    ),
+  );
+}
+
+/// 레이아웃이 끝나면 자기 크기를 [onSize]로 알립니다(크기가 바뀐 때만, 프레임 뒤에).
+class _SizeReporter extends SingleChildRenderObjectWidget {
+  const new({required this.onSize, super.child});
+
+  final ValueChanged<Size> onSize;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSizeReporter(onSize);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderSizeReporter renderObject,
+  ) => renderObject.onSize = onSize;
+}
+
+class _RenderSizeReporter extends RenderProxyBox {
+  new(this.onSize);
+
+  ValueChanged<Size> onSize;
+  Size? _reported;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size == _reported) return;
+    final reported = _reported = size;
+    // 레이아웃 중에는 상태를 바꿀 수 없으므로 프레임 뒤에 알립니다.
+    SchedulerBinding.instance.addPostFrameCallback((_) => onSize(reported));
   }
 }
 

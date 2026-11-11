@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart' show WidgetTester;
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -112,12 +113,23 @@ Widget _evidence(DepthLinkState state, {bool loading = false}) {
             _text([Segment(text: '일간을 돕는 기운이라 용신으로 판정했어요.')]),
           ],
         ],
+        // 원전은 상자 없이 뜻, 원문, 출처 줄 묶음입니다(V113).
         source: [
           if (unlocked) ...[
-            _text([Segment(text: '食神制殺, 福壽綿長.')]),
-            _text([Segment(text: '推其形色，則水黑、火赤、木青、土黄，此正色也。')]),
+            _text([
+              Segment(text: '식신이 살을 다스리면 복과 수명이 길다는 뜻이에요.\n'),
+              Segment(text: '食神制殺, 福壽綿長.\n원전 「대목」'),
+            ]),
+            _text([
+              Segment(text: '오행마다 바른 빛깔이 있다는 뜻이에요.\n'),
+              Segment(text: '推其形色，則水黑、火赤、木青、土黄，此正色也。\n원전 「대목」'),
+            ]),
           ],
         ],
+        // 열리면 제목 옆 꼬리표(D118 ①). 반짝임은 박자가 끝난 뒤(띠 없음)를 찍습니다.
+        unlockTag: unlocked
+            ? AppLocalizationsKo().evidenceSheetUnlockUntilMidnight
+            : null,
         personal: unlocked
             ? _text([Segment(text: '내 사주에서는 월지에 있어 힘이 커요.')])
             : null,

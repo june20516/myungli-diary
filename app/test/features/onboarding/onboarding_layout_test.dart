@@ -171,8 +171,14 @@ void main() {
     }
   }
 
-  // 미리보기: 풀이가 보이는 상태와 오류 상태 모두에서 넘치지 않고 아래 버튼 둘에 닿습니다.
-  for (final scenario in ['new-user', 'preview-used']) {
+  // 미리보기: 풀이가 보이는 상태(버튼 둘)와 이미 쓴 기기의 입력 확인(버튼 하나, D117) 모두에서
+  // 넘치지 않고 아래 버튼에 닿습니다.
+  final previewButtons = {
+    'new-user': [SlotIds.previewCtaSave, SlotIds.previewCtaRestart],
+    'preview-used': [SlotIds.previewCtaSave],
+  };
+  for (final MapEntry(key: scenario, value: buttons)
+      in previewButtons.entries) {
     for (final scale in [1.0, 2.0, 3.0]) {
       testWidgets('preview($scenario): 글자 $scale배에서 넘치지 않고 버튼에 닿습니다', (
         tester,
@@ -205,10 +211,7 @@ void main() {
         await settlePreview(tester);
 
         expect(tester.takeException(), isNull);
-        for (final slot in [
-          SlotIds.previewCtaSave,
-          SlotIds.previewCtaRestart,
-        ]) {
+        for (final slot in buttons) {
           final box = tester.getRect(find.byKey(ValueKey(slot)));
           expect(box.bottom, lessThanOrEqualTo(568));
           expect(box.top, greaterThanOrEqualTo(0));

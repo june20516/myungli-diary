@@ -19,7 +19,9 @@ import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/device_locale.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 
 /// 앱 루트: 라우터, 라이트·다크 테마(기기 설정), 로케일(ko·en·ja)을 엮습니다.
@@ -52,7 +54,13 @@ class MyungliApp extends ConsumerWidget {
       builder: (context, child) {
         final content = child ?? const SizedBox.shrink();
         return AppLifecycleHooks(
-          child: showDevMenu ? DevMenuTrigger(child: content) : content,
+          // 근거 아이콘은 어느 화면, 시트에서든 지금 열람 권한이 있으면 그라데이션입니다(V112).
+          child: Consumer(
+            builder: (context, ref, _) => EvidenceUnlockedScope(
+              unlocked: ref.watch(insightOpenProvider),
+              child: showDevMenu ? DevMenuTrigger(child: content) : content,
+            ),
+          ),
         );
       },
     );

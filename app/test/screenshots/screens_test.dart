@@ -24,9 +24,11 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
+import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
@@ -61,7 +63,8 @@ typedef _Open = Future<void> Function(
 
 /// 사례 하나: [screen] 화면의 [state] 상태를 [scenario]로 띄워 [open]으로 엽니다.
 ///
-/// [overrides]는 앱을 띄울 때 더하는 provider override입니다.
+/// [overrides]는 앱을 띄울 때 더하는 provider override이고, [locale]은 기기 언어입니다(지역이
+/// 없으면 한국 밖 기기로 보아 온보딩에 출생지 단계가 들어갑니다, D29).
 final class _Shot {
   const new(
     this.screen,
@@ -69,6 +72,7 @@ final class _Shot {
     this.scenario,
     this.open, {
     this.overrides = const [],
+    this.locale = const Locale('ko'),
   });
 
   final String screen;
@@ -76,6 +80,7 @@ final class _Shot {
   final String scenario;
   final _Open open;
   final List<Override> overrides;
+  final Locale locale;
 }
 
 /// 렌더 환경에는 플랫폼 시스템 글꼴이 없어 Apple·Google 버튼 글자가 상자로 그려집니다. golden
@@ -128,6 +133,34 @@ Future<void> _todayEvidence(WidgetTester tester, ProviderContainer _) async {
   await tester.tap(link);
   await settleWithIo(tester, allowOngoing: true);
   await tester.pump(const Duration(seconds: 1));
+}
+
+/// 열린 근거 시트를 열고 반짝임 띠가 글자 가운데쯤 지나는 순간에 멈춥니다(`unlock.glint`).
+///
+/// 첫 반짝임은 시트가 다 들어온 직후라 받는 중과 겹칠 수 있어, 다음 박자(15초 간격)까지
+/// 가짜 시계로 나아가며 띠 진행이 절반쯤인 프레임을 찾습니다.
+Future<void> _todayEvidenceGlint(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  await _todayEvidence(tester, container);
+  bool midSweep() => tester.allRenderObjects.whereType<RenderUnlockGlint>().any(
+    (glint) => glint.glinting && glint.sweep.value >= 0.45,
+  );
+  for (var i = 0; i < 400 && !midSweep(); i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+  expect(midSweep(), isTrue, reason: '반짝임 띠가 지나는 프레임을 찾지 못했습니다');
+}
+
+/// 한국 기기에서 온보딩을 성별까지 마치고 preview 응답을 받습니다.
+Future<void> _preview(WidgetTester tester, ProviderContainer container) async {
+  await _onboarding(3)(tester, container);
+  await tester.tap(find.text(AppLocalizationsKo().genderFemale));
+  await tester.pumpAndSettle();
+  await tapNext(tester);
+  await pumpUntilScreen(tester, ScreenIds.preview);
+  await settlePreview(tester);
 }
 
 Future<void> _todayShare(WidgetTester tester, ProviderContainer _) async {
@@ -224,6 +257,20 @@ _Open _diaryTyping(CalendarDate date) => (tester, container) async {
   // 초안 저장(입력이 멈추고 diaryDraftDelay 뒤)이 끝나 가운데 상태가 "기기에 저장됨"이 됩니다.
   await tester.pump(diaryDraftDelay + const Duration(milliseconds: 100));
   await settleWithIo(tester, allowOngoing: true);
+};
+
+/// [date]의 새 일기 쓰기를 열고 질문을 뗍니다(D116, 권유 줄 "질문 추가").
+_Open _diaryDetached(CalendarDate date) => (tester, container) async {
+  unawaited(
+    container
+        .read(routerProvider)
+        .push<void>(datedPathOf(ScreenIds.diaryEdit, date)),
+  );
+  await pumpUntilScreen(tester, ScreenIds.diaryEdit);
+  await settleWithIo(tester);
+  await tester.tap(find.byKey(DiaryEditor.removeKey));
+  await settleWithIo(tester, allowOngoing: true);
+  expect(find.text(AppLocalizationsKo().diaryEditGuideAttach), findsOneWidget);
 };
 
 /// 설정을 열고 [after]로 화면 안을 더 조작합니다.
@@ -437,6 +484,8 @@ final List<_Shot> _shots = [
   _Shot('notify-ask', 'default', 'member', (tester, _) async {
     // openNotifyAsk가 앱을 다시 띄우므로 여기서는 이미 띄운 앱을 쓰지 않습니다.
   }),
+  const _Shot('preview', 'default', 'new-user', _preview, locale: koreaLocale),
+  const _Shot('preview', 'used', 'preview-used', _preview, locale: koreaLocale),
   _Shot(
     'calc-basis',
     'default',
@@ -456,6 +505,12 @@ final List<_Shot> _shots = [
     'unlocked',
     'evidence-unlocked',
     _todayEvidence,
+  ),
+  const _Shot(
+    'evidence-sheet',
+    'unlocked-glint',
+    'evidence-unlocked',
+    _todayEvidenceGlint,
   ),
   const _Shot('share-preview', 'default', 'member', _todayShare),
   // 계획 4: 달력·일정
@@ -491,6 +546,12 @@ final List<_Shot> _shots = [
     'typing',
     'member',
     _diaryTyping(CalendarDate(2026, 10, 13)),
+  ),
+  _Shot(
+    'diary-edit',
+    'detached',
+    'member',
+    _diaryDetached(CalendarDate(2026, 10, 13)),
   ),
   _Shot(
     'diary-view',
@@ -761,6 +822,7 @@ void main() {
           tester,
           scenario: shot.scenario,
           overrides: shot.overrides,
+          locale: shot.locale,
           wrap: _withSystemFontStandIn,
         );
         await shot.open(tester, container);

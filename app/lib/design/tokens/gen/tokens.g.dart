@@ -23,6 +23,7 @@ final class ColorTokens {
     required this.actionOnPrimary,
     required this.termBg,
     required this.termFg,
+    required this.inviteFg,
     required this.badgeGoodBg,
     required this.badgeGoodFg,
     required this.badgeGwiinBg,
@@ -67,12 +68,19 @@ final class ColorTokens {
     required this.skeletonBone,
     required this.ohaengWoodBg,
     required this.ohaengWoodFg,
+    required this.ohaengWoodGlyph,
     required this.ohaengFireBg,
+    required this.ohaengFireGlyph,
     required this.ohaengEarthBg,
+    required this.ohaengEarthGlyph,
     required this.ohaengMetalBg,
     required this.ohaengMetalFg,
+    required this.ohaengMetalBorder,
+    required this.ohaengMetalGlyph,
     required this.ohaengWaterBg,
     required this.ohaengWaterFg,
+    required this.ohaengWaterBorder,
+    required this.ohaengWaterGlyph,
   });
 
   /// 오행 견본: 색 자체를 보여주는 자리. 모드와 관계없이 같은 값이고 항상 swatch.border를 둡니다
@@ -116,6 +124,9 @@ final class ColorTokens {
 
   /// 용어 토큰 글자
   final Color termFg;
+
+  /// 권유 글자: 고르지 않은 자리에서 해 보라고 권하는 옅은 초록 글자와 아이콘(일기 쓰기 질문 뗀 자리, V102). 글자 대비 4.5 이상인 가장 옅은 sage
+  final Color inviteFg;
 
   /// 좋은 날(YONGSIN_DAY) 배지 바탕
   final Color badgeGoodBg;
@@ -249,11 +260,20 @@ final class ColorTokens {
   /// 오행 글자
   final Color ohaengWoodFg;
 
+  /// hanja-tag ganji 흰 원(bg.sheet) 안 한자색. 오행 글자가 bg.sheet에서 읽히면 글자색, 아니면 알약 바탕색(V78과 같은 규칙, 1.5.0)
+  final Color ohaengWoodGlyph;
+
   /// 원국표 칸처럼 글자가 얹히는 오행 바탕
   final Color ohaengFireBg;
 
+  /// hanja-tag ganji 흰 원(bg.sheet) 안 한자색. 오행 글자가 bg.sheet에서 읽히면 글자색, 아니면 알약 바탕색(V78과 같은 규칙, 1.5.0)
+  final Color ohaengFireGlyph;
+
   /// 원국표 칸처럼 글자가 얹히는 오행 바탕
   final Color ohaengEarthBg;
+
+  /// hanja-tag ganji 흰 원(bg.sheet) 안 한자색. 오행 글자가 bg.sheet에서 읽히면 글자색, 아니면 알약 바탕색(V78과 같은 규칙, 1.5.0)
+  final Color ohaengEarthGlyph;
 
   /// 원국표 칸처럼 글자가 얹히는 오행 바탕
   final Color ohaengMetalBg;
@@ -261,19 +281,31 @@ final class ColorTokens {
   /// 오행 글자
   final Color ohaengMetalFg;
 
+  /// 금, 수 칸의 1px 안쪽 테두리(ohaeng.cell, stem.chip, hanja-tag ganji 알약). 칸이 화면 바탕과 가까운 모드에서만 보이고, 그 밖에는 칸 바탕과 같은 값(1.5.0)
+  final Color ohaengMetalBorder;
+
+  /// hanja-tag ganji 흰 원(bg.sheet) 안 한자색. 오행 글자가 bg.sheet에서 읽히면 글자색, 아니면 알약 바탕색(V78과 같은 규칙, 1.5.0)
+  final Color ohaengMetalGlyph;
+
   /// 원국표 칸처럼 글자가 얹히는 오행 바탕
   final Color ohaengWaterBg;
 
   /// 오행 글자
   final Color ohaengWaterFg;
+
+  /// 금, 수 칸의 1px 안쪽 테두리(ohaeng.cell, stem.chip, hanja-tag ganji 알약). 칸이 화면 바탕과 가까운 모드에서만 보이고, 그 밖에는 칸 바탕과 같은 값(1.5.0)
+  final Color ohaengWaterBorder;
+
+  /// hanja-tag ganji 흰 원(bg.sheet) 안 한자색. 오행 글자가 bg.sheet에서 읽히면 글자색, 아니면 알약 바탕색(V78과 같은 규칙, 1.5.0)
+  final Color ohaengWaterGlyph;
 }
 
 const lightColors = ColorTokens(
   ohaengWoodSwatch: Color(0xFF418E47),
   ohaengFireSwatch: Color(0xFFD24D45),
   ohaengEarthSwatch: Color(0xFFDEA645),
-  ohaengMetalSwatch: Color(0xFFB4BFCA),
-  ohaengWaterSwatch: Color(0xFF153E78),
+  ohaengMetalSwatch: Color(0xFFF8FAFD),
+  ohaengWaterSwatch: Color(0xFF18202B),
   bgBase: Color(0xFFF7F7F6),
   bgSheet: Color(0xFFFFFFFF),
   textPrimary: Color(0xFF2B2B2A),
@@ -283,6 +315,7 @@ const lightColors = ColorTokens(
   actionOnPrimary: Color(0xFFFFFFFF),
   termBg: Color(0xFFE8F2E9),
   termFg: Color(0xFF47634C),
+  inviteFg: Color(0xFF597F61),
   badgeGoodBg: Color(0xFFA75C53),
   badgeGoodFg: Color(0xFFFFFFFF),
   badgeGwiinBg: Color(0xFFFFE9E5),
@@ -357,20 +390,27 @@ const lightColors = ColorTokens(
   ),
   ohaengWoodBg: Color(0xFFDFF1DF),
   ohaengWoodFg: Color(0xFF2F5831),
+  ohaengWoodGlyph: Color(0xFF2F5831),
   ohaengFireBg: Color(0xFFFFE4E0),
+  ohaengFireGlyph: Color(0xFF733A35),
   ohaengEarthBg: Color(0xFFF7E9D5),
-  ohaengMetalBg: Color(0xFFE8EBEF),
-  ohaengMetalFg: Color(0xFF454E58),
-  ohaengWaterBg: Color(0xFFE0ECFE),
-  ohaengWaterFg: Color(0xFF304D78),
+  ohaengEarthGlyph: Color(0xFF65470F),
+  ohaengMetalBg: Color(0xFFF5F7F9),
+  ohaengMetalFg: Color(0xFF474E55),
+  ohaengMetalBorder: Color(0xFFB9BEC4),
+  ohaengMetalGlyph: Color(0xFF474E55),
+  ohaengWaterBg: Color(0xFF242E3D),
+  ohaengWaterFg: Color(0xFFEEF2F9),
+  ohaengWaterBorder: Color(0xFF242E3D),
+  ohaengWaterGlyph: Color(0xFF242E3D),
 );
 
 const darkColors = ColorTokens(
   ohaengWoodSwatch: Color(0xFF418E47),
   ohaengFireSwatch: Color(0xFFD24D45),
   ohaengEarthSwatch: Color(0xFFDEA645),
-  ohaengMetalSwatch: Color(0xFFB4BFCA),
-  ohaengWaterSwatch: Color(0xFF153E78),
+  ohaengMetalSwatch: Color(0xFFF8FAFD),
+  ohaengWaterSwatch: Color(0xFF18202B),
   bgBase: Color(0xFF1B1B1A),
   bgSheet: Color(0xFF2B2B2A),
   textPrimary: Color(0xFFEEEEED),
@@ -380,6 +420,7 @@ const darkColors = ColorTokens(
   actionOnPrimary: Color(0xFF1B1B1A),
   termBg: Color(0xFF354838),
   termFg: Color(0xFFD4E3D6),
+  inviteFg: Color(0xFF96B49B),
   badgeGoodBg: Color(0xFFE8BBB4),
   badgeGoodFg: Color(0xFF2B2B2A),
   badgeGwiinBg: Color(0xFF5D3631),
@@ -454,12 +495,19 @@ const darkColors = ColorTokens(
   ),
   ohaengWoodBg: Color(0xFF213321),
   ohaengWoodFg: Color(0xFFC4E1C4),
+  ohaengWoodGlyph: Color(0xFFC4E1C4),
   ohaengFireBg: Color(0xFF402623),
+  ohaengFireGlyph: Color(0xFFF7CCC6),
   ohaengEarthBg: Color(0xFF392B16),
-  ohaengMetalBg: Color(0xFF2A2E33),
-  ohaengMetalFg: Color(0xFFD3D8DE),
-  ohaengWaterBg: Color(0xFF212E42),
-  ohaengWaterFg: Color(0xFFC4D9F9),
+  ohaengEarthGlyph: Color(0xFFEAD4B3),
+  ohaengMetalBg: Color(0xFFD5D8DB),
+  ohaengMetalFg: Color(0xFF2D343A),
+  ohaengMetalBorder: Color(0xFFD5D8DB),
+  ohaengMetalGlyph: Color(0xFFD5D8DB),
+  ohaengWaterBg: Color(0xFF0A1018),
+  ohaengWaterFg: Color(0xFFDADEE5),
+  ohaengWaterBorder: Color(0xFF3C434D),
+  ohaengWaterGlyph: Color(0xFFDADEE5),
 );
 
 /// 글자 스타일. 언어마다 글꼴과 행간·자간이 다릅니다.
@@ -760,13 +808,20 @@ const jaType = TypeTokens(
 
 /// 그라데이션. 각도는 CSS 기준(0°=위쪽, 시계 방향)이며 박스 크기에 맞춰 변환됩니다.
 final class GradientTokens {
-  const GradientTokens({required this.verdictTrack, required this.today});
+  const GradientTokens({
+    required this.verdictTrack,
+    required this.today,
+    required this.unlocked,
+  });
 
   /// 길흉판정 위치 막대(fortune-verdict). 왼쪽 조심할 날에서 오른쪽 잘 풀리는 날로(1.4.0)
   final LinearGradient verdictTrack;
 
   /// 데일리 카드·온보딩·공유 이미지에만 씁니다. 단색으로 바뀌어도 깨지지 않게 씁니다
   final LinearGradient today;
+
+  /// 열린 근거 표시(D118, V111): 반짝임 띠, 모션 줄이기 때 구역 제목 글자와 왼쪽 선, 열린 날 근거 아이콘, 열림 꼬리표 테두리. 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1 이상(1.7.0)
+  final LinearGradient unlocked;
 }
 
 const lightGradients = GradientTokens(
@@ -784,6 +839,13 @@ const lightGradients = GradientTokens(
     stops: [0, 1],
     transform: CssAngleGradientTransform(160),
   ),
+  unlocked: LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF47634C), Color(0xFF8B640F), Color(0xFFA75C53)],
+    stops: [0, 0.5, 1],
+    transform: CssAngleGradientTransform(90),
+  ),
 );
 
 const darkGradients = GradientTokens(
@@ -800,6 +862,13 @@ const darkGradients = GradientTokens(
     colors: [Color(0xFF162017), Color(0xFF271818)],
     stops: [0, 1],
     transform: CssAngleGradientTransform(160),
+  ),
+  unlocked: LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF96B49B), Color(0xFFE1B66C), Color(0xFFD79990)],
+    stops: [0, 0.5, 1],
+    transform: CssAngleGradientTransform(90),
   ),
 );
 

@@ -48,6 +48,9 @@ final class _Network extends Interceptor {
   /// 있으면 `getDaily` 응답의 `guideCandidates`를 이 목록으로 바꿉니다.
   List<Map<String, Object?>>? candidates;
 
+  /// 보낸 `createDiary` 요청 본문들.
+  final createBodies = <Map<String, Object?>>[];
+
   @override
   void onResponse(
     Response<Object?> response,
@@ -67,6 +70,14 @@ final class _Network extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method == 'POST' && options.path == '/v1/diaries') {
+      final data = options.data;
+      createBodies.add(
+        Map<String, Object?>.from(
+          (data is String ? jsonDecode(data) : data)! as Map,
+        ),
+      );
+    }
     final hold = holdCreate;
     if (hold != null &&
         options.method == 'POST' &&
@@ -498,6 +509,55 @@ void main() {
     }
   });
 
+  testWidgets('질문 떼기: 권유 줄로 바뀌고 다시 붙이면 첫 질문, 뗀 채 저장하면 diary-view에 질문이 없습니다', (
+    tester,
+  ) async {
+    final network = _Network();
+    final container = await _openEdit(tester, _today, network: network);
+    const first = '오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?';
+    const second = '오늘 함께해서 좋았던 사람이 있었나요?';
+    await tester.tap(find.byKey(DiaryEditor.swapKey));
+    await tester.pumpAndSettle();
+    expect(find.text(second), findsOneWidget);
+
+    await tester.tap(find.byKey(DiaryEditor.removeKey));
+    await tester.pumpAndSettle();
+    expect(find.text(second), findsNothing);
+    expect(find.byKey(DiaryEditor.quoteLineKey), findsNothing);
+    expect(find.byKey(DiaryEditor.swapKey), findsNothing);
+    expect(find.text(_ko.diaryEditGuideAttach), findsOneWidget);
+
+    // 다시 붙이면 그날 기본 질문(첫 후보)입니다.
+    await tester.tap(find.text(_ko.diaryEditGuideAttach));
+    await tester.pumpAndSettle();
+    expect(find.text(first), findsOneWidget);
+    expect(find.byKey(DiaryEditor.removeKey), findsOneWidget);
+
+    await tester.tap(find.byKey(DiaryEditor.removeKey));
+    await tester.pumpAndSettle();
+    await tester.enterText(_body, '질문 없이 적었다.');
+    await tester.pump();
+    await tester.tap(find.text(_ko.diaryEditSave));
+    await pumpUntil(
+      tester,
+      () => find.text(_ko.diaryEditSavedTags).evaluate().isNotEmpty,
+    );
+    expect(_server(container).callCountOf('createDiary'), 1);
+    // 뗀 채 저장하면 withoutGuideQuestion true만 보내고 고른 질문은 싣지 않습니다(D116).
+    final body = network.createBodies.single;
+    expect(body['withoutGuideQuestion'], isTrue);
+    expect(body.containsKey('guideQuestion'), isFalse);
+    await pumpUntilScreen(tester, ScreenIds.diaryView);
+    await pumpUntil(
+      tester,
+      () => find.text('질문 없이 적었다.').evaluate().isNotEmpty,
+    );
+    expect(find.byKey(DiaryEditor.quoteLineKey), findsNothing);
+    expect(find.text(first), findsNothing);
+    await tester.pump(const Duration(seconds: 3));
+    await settleWithIo(tester);
+  });
+
   testWidgets('이미 쓴 날도 ?date=는 빈 새 일기입니다', (tester) async {
     await _openEdit(tester, CalendarDate(2026, 10, 12));
     expect(tester.widget<TextField>(_body).controller!.text, isEmpty);
@@ -511,6 +571,8 @@ void main() {
       startsWith('오랜만에'),
     );
     expect(find.byKey(DiaryEditor.swapKey), findsNothing);
+    // 질문은 쓸 때만 정해 고치기에서는 뗄 수도 없습니다(D116, `updateDiary`).
+    expect(find.byKey(DiaryEditor.removeKey), findsNothing);
     // 초점 전에는 제목, 쓰기 시작하면 저장됨 상태입니다.
     expect(find.byType(DraftIndicator), findsNothing);
     await _focusBody(tester);

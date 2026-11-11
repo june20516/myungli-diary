@@ -9,7 +9,8 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 스크롤로 닿습니다. 기본은 [body]를 세로 가운데에 두고, [OnboardingPageLayout.top]은
 /// 위에 붙입니다(제목 자리가 단계마다 같아야 하는 화면, 예 `account-merge`).
 ///
-/// 입력 단계 화면은 `InputStep`을 씁니다(키보드 인셋 처리).
+/// 맨 아래 버튼 아래는 [bottomGap](`space.16`)이고, 아래 시스템 inset은 쓰는 화면의
+/// `SafeArea`가 비웁니다(V106). 입력 단계 화면은 `InputStep`을 씁니다(키보드 인셋 처리).
 class OnboardingPageLayout extends StatelessWidget {
   /// 골격을 만듭니다.
   const new({required this.body, required this.actions, super.key})
@@ -27,6 +28,10 @@ class OnboardingPageLayout extends StatelessWidget {
 
   /// 바닥에 놓이는 버튼들. 토스트는 이 묶음 위에 뜹니다([ToastAnchor]).
   final List<Widget> actions;
+
+  /// 맨 아래 버튼과 아래 시스템 inset 사이(`primary-button` 화면 아래 버튼 규칙, V106).
+  /// `input-step`의 아래 버튼과 같은 값입니다.
+  static const double bottomGap = Space.s16;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +55,9 @@ class OnboardingPageLayout extends StatelessWidget {
                     children: actions,
                   ),
                 ),
-                const SizedBox(height: Space.s24),
+                // 맨 아래 버튼 면 아래 끝은 아래 시스템 inset 위 space.16입니다(V106). inset은
+                // 쓰는 화면의 SafeArea가 비우므로 여기서는 16만 둡니다.
+                const SizedBox(height: OnboardingPageLayout.bottomGap),
               ],
             ),
           ),

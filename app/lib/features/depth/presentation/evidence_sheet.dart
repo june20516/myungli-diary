@@ -7,8 +7,10 @@ import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
+import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/error_messages.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -19,6 +21,8 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
+import 'package:myungli_diary/features/depth/presentation/unlock_until_text.dart';
+import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 
 /// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
 ///
@@ -38,6 +42,10 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 /// 잠겼을 때(다시 받는 중 아님)는 [slotId] 슬롯의 앞부분(`evidencePreview`)을 읽어 판정 근거와
 /// 원전 `lock.veil`의 또렷한 앞부분으로 넘깁니다(근거 순서에서 처음 있는 문장, D106). 미리보기가
 /// 없으면 자리값만입니다. 시트 위 대상([target])은 잠기지 않고 늘 보입니다.
+///
+/// 열렸을 때는 제목 옆 열림 꼬리표에 열린 이유와 끝 시각(server 권한 응답 `insight`의
+/// `source`, `expiresAt`, #952)으로 고른 문구를 넘깁니다([unlockUntilText]). 권한은 알고 있는
+/// 것을 먼저 쓰고 없으면 이용권을 한 번 묻습니다([unlockTagInsightProvider]).
 ///
 /// 상태: 응답이 아직 없으면 skeleton(`loading`), 받지 못했거나 잠금 해제 뒤 다시 받기에
 /// 실패하면 오류 화면과 다시 시도(`error`), 권한이 생겨 다시 받는 동안은 구역 skeleton입니다.
@@ -71,9 +79,45 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
 
   StreamSubscription<UnlockEvent>? _events;
 
+  /// 이 시트가 한 번이라도 열렸는지. 열린 뒤에는 응답이 다시 받는 중이거나 실패해도 시트를
+  /// 그대로 둡니다.
+  bool _everOpened = false;
+
+  /// 응답이 열려 있을 때 받은 마지막 근거와 원국 개인 해석. 보는 중에 응답이 다시 잠기면
+  /// (자정 뒤 새 날 응답, 기간 끝) 이것을 시트를 닫을 때까지 그립니다(`depth-link` 자정 규칙,
+  /// `unlock.glint` `stopWhen`). 다음에 여는 시트는 새 흐름이라 응답대로 잠깁니다.
+  List<Evidence> _heldEvidence = const [];
+  RenderedText? _heldPersonal;
+
+  /// 열림 꼬리표에 보인 권한. 한 번 알면 시트를 닫을 때까지 그대로 두고 다시 묻지 않습니다.
+  Insight? _tagInsight;
+
+  /// initState가 끝났는지. 그 전(구독의 첫 알림)에는 setState 없이 값만 둡니다.
+  bool _initialized = false;
+
+  /// 꼬리표 권한을 기다리는 구독. 권한을 알면 닫습니다.
+  ProviderSubscription<AsyncValue<Insight?>>? _tagSubscription;
+
   @override
   void initState() {
     super.initState();
+    // 응답이 열려 있는 동안 받은 근거를 붙잡아 둡니다. 다시 잠긴 응답의 빈 근거는 버립니다.
+    ref.listenManual(_subject.evidenceOf(widget.slotId), (_, next) {
+      final evidence = next.value;
+      if (evidence != null && _accessUnlocked) _heldEvidence = evidence;
+    }, fireImmediately: true);
+    final personalKey = widget.personal;
+    if (personalKey != null) {
+      ref.listenManual(_subject.personalOf(personalKey), (_, next) {
+        if (next.hasValue && _accessUnlocked) _heldPersonal = next.value;
+      }, fireImmediately: true);
+    }
+    // 열리면 꼬리표 권한을 한 번 구합니다.
+    ref.listenManual(
+      evidenceUnlockControllerProvider(_subject),
+      (_, next) => _onUnlockState(next),
+      fireImmediately: true,
+    );
     // 흐름(notifier)이 바뀌면 새 흐름의 이벤트를 다시 구독합니다. 구독이 흐름을 붙잡아 두므로
     // 시트가 열려 있는 동안 버려지지 않습니다.
     ref.listenManual(evidenceUnlockControllerProvider(_subject).notifier, (
@@ -83,12 +127,47 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       unawaited(_events?.cancel());
       _events = controller.watchEvents().listen(_onEvent);
     }, fireImmediately: true);
+    _initialized = true;
   }
 
   @override
   void dispose() {
     unawaited(_events?.cancel());
+    _tagSubscription?.close();
     super.dispose();
+  }
+
+  /// 지금 응답이 열려 있는지.
+  bool get _accessUnlocked =>
+      ref.read(_subject.access).value == EvidenceAccess.unlocked;
+
+  /// 시트가 열리면(다시 받는 중이 아님) 꼬리표 권한을 구독합니다. 이미 알면 묻지 않습니다.
+  void _onUnlockState(EvidenceUnlockState state) {
+    if (state.link != DepthLinkState.unlocked || state.refreshing) return;
+    _everOpened = true;
+    if (_tagInsight != null || _tagSubscription != null) return;
+    final subscription = ref.listenManual(
+      unlockTagInsightProvider,
+      (_, next) => _onTagInsight(next.value),
+      fireImmediately: true,
+    );
+    // 이미 받은 값이면 첫 알림(fireImmediately)에서 동기로 알게 되므로, 그때는 여기서 닫습니다.
+    // 권한 없음(null)이 동기로 와도 아직 값을 받기 전이라 구독을 열어 두고 기다립니다.
+    if (_tagInsight != null) {
+      subscription.close();
+    } else {
+      _tagSubscription = subscription;
+    }
+  }
+
+  void _onTagInsight(Insight? insight) {
+    if (insight == null || _tagInsight != null) return;
+    _tagInsight = insight;
+    // 권한을 알았으니 더 묻지 않습니다(보는 중에 권한이 끝나도 꼬리표는 그대로).
+    final subscription = _tagSubscription;
+    _tagSubscription = null;
+    scheduleMicrotask(() => subscription?.close());
+    if (mounted && _initialized) setState(() {});
   }
 
   /// 확인 시간 초과·광고 표시 실패를 toast로 알립니다. 시트가 닫혔으면 알리지 않습니다.
@@ -116,14 +195,19 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     final controller = ref.read(provider.notifier);
     final l10n = AppLocalizations.of(context);
     final opened = unlock.link == DepthLinkState.unlocked && !unlock.refreshing;
-    final evidence = opened
-        ? ref.watch(_subject.evidenceOf(widget.slotId)).value ??
-              const <Evidence>[]
-        : const <Evidence>[];
+    // 응답이 다시 잠겨도 열린 시트는 붙잡아 둔 근거를 그립니다.
+    final live = access.value == EvidenceAccess.unlocked;
+    final evidence = !opened
+        ? const <Evidence>[]
+        : live
+        ? ref.watch(_subject.evidenceOf(widget.slotId)).value ?? _heldEvidence
+        : _heldEvidence;
     final personalKey = widget.personal;
-    final personal = opened && personalKey != null
+    final personal = !opened || personalKey == null
+        ? null
+        : live
         ? ref.watch(_subject.personalOf(personalKey)).value
-        : null;
+        : _heldPersonal;
     // 잠겼을 때만 앞부분을 읽습니다(열리면 본문을 그리고, 표 칸의 시트는 미리보기가 없음).
     final locked =
         unlock.link != DepthLinkState.unlocked &&
@@ -133,6 +217,9 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         ? ref.watch(_subject.previewOf(widget.slotId))
         : const <EvidencePreview>[];
     final target = widget.target;
+    final unlockTag = opened
+        ? unlockUntilText(l10n, _tagInsight, ref.watch(profileTimezoneProvider))
+        : null;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
       onRetry: () => unawaited(controller.retry()),
@@ -167,6 +254,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
             ? null
             : l10n.evidenceSheetPersonalEmpty,
         loading: state.refreshing,
+        unlockTag: unlockTag,
         onWatchAd: state.adReady ? () => unawaited(controller.watchAd()) : null,
         onPass: _openAdFree,
       ),
@@ -179,7 +267,8 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       if (text != null && !isBlankText(text)) text,
   ];
 
-  /// 시트 상태. 다시 받기 실패가 먼저이고, 응답이 아직 없으면 응답의 상태를 따릅니다.
+  /// 시트 상태. 다시 받기 실패가 먼저이고, 응답이 아직 없으면 응답의 상태를 따릅니다. 한 번
+  /// 열린 시트는 응답을 다시 받는 중이거나 실패해도 붙잡은 내용을 그대로 그립니다.
   AsyncValue<EvidenceUnlockState> _valueOf(
     AsyncValue<EvidenceAccess> access,
     EvidenceUnlockState unlock,
@@ -188,7 +277,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     if (refreshError != null) {
       return AsyncError(refreshError, StackTrace.current);
     }
-    if (!access.hasValue) {
+    if (!access.hasValue && !_everOpened) {
       final error = access.error;
       return error == null
           ? const AsyncLoading()

@@ -503,5 +503,20 @@
   "sajuStageMarkerMonth": "M",
   "sajuStageMarkerYear": "Y",
   "tagSheetSentenceKindFortune": "Main reading",
-  "tagSheetSentenceKindGuide": "Today's question"
+  "tagSheetSentenceKindGuide": "Today's question",
+  "daySheetEventAllDay": "All day",
+  "daySheetVerdictCollapse": "Hide details",
+  "daySheetVerdictExpand": "Show details",
+  "diaryEditGuideAttach": "Add a question",
+  "diaryEditGuideRemove": "Write without a question",
+  "evidenceSheetUnlockUntilMidnight": "Open until midnight",
+  "evidenceSheetUnlockUntilDate": "Open until {date}",
+  "previewUsedInputName": "Name",
+  "previewUsedInputBirth": "Birthday",
+  "previewUsedInputTime": "Birth time",
+  "previewUsedInputGender": "Gender",
+  "previewUsedInputBirthplace": "Birthplace",
+  "previewUsedInputBirthValue": "{calendar} {date}",
+  "previewUsedInputBirthValueLeap": "{calendar} leap month {date}",
+  "previewUsedNotice": "You can see your first reading only once on this device. To change your details, save first, then go to Edit details in the Me tab."
 }

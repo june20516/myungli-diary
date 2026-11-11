@@ -274,7 +274,7 @@ void main() {
       );
     });
 
-    testWidgets('ganji는 그 글자 오행의 bg, fg이고 원은 bg.sheet 위 같은 fg입니다', (
+    testWidgets('ganji는 그 글자 오행의 bg, fg이고 원은 bg.sheet 위 오행 glyph 색입니다', (
       tester,
     ) async {
       await pump(
@@ -292,7 +292,47 @@ void main() {
       );
       expect(
         tester.widget<Text>(find.text('未')).style!.color,
-        colors.ohaengEarthFg,
+        colors.ohaengEarthGlyph,
+      );
+      expect(_decoration(tester).border, isNull);
+    });
+
+    testWidgets('ganji 금과 수 알약은 1px 안쪽 테두리, 다크 금 한자는 알약 바탕색입니다 (V98)', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        const HanjaTag(glyph: '亥', label: '해시', variant: HanjaTagVariant.ganji),
+      );
+      final light = tester
+          .element(find.byKey(HanjaTag.surfaceKey))
+          .tokens
+          .colors;
+      expect(
+        _decoration(tester).border,
+        Border.all(color: light.ohaengWaterBorder),
+      );
+      expect(
+        tester.widget<Text>(find.text('亥')).style!.color,
+        light.ohaengWaterGlyph,
+      );
+
+      await pump(
+        tester,
+        const HanjaTag(glyph: '申', label: '신시', variant: HanjaTagVariant.ganji),
+        brightness: Brightness.dark,
+      );
+      final dark = tester
+          .element(find.byKey(HanjaTag.surfaceKey))
+          .tokens
+          .colors;
+      expect(
+        _decoration(tester).border,
+        Border.all(color: dark.ohaengMetalBorder),
+      );
+      expect(
+        tester.widget<Text>(find.text('申')).style!.color,
+        dark.ohaengMetalGlyph,
       );
     });
 

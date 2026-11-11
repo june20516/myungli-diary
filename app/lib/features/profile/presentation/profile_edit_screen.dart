@@ -72,7 +72,7 @@ String birthTimeLabel(AppLocalizations l10n, BirthTime time) {
 String? birthplaceLabel(AppLocalizations l10n, BirthplaceValue place) {
   if (place.cityId == null) return l10n.profileEditBirthplaceKorea;
   final city = place.city;
-  return city == null ? null : '${city.name}, ${city.countryName}';
+  return city == null ? null : birthCityLabel(city);
 }
 
 /// [values]의 [field] 글자입니다. 모르는 값(도시 이름)은 빈 글자입니다.

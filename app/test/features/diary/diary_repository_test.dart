@@ -27,6 +27,7 @@ Map<String, Object> _summaryJson(String id, String date) => {
   'createdAt': '${date}T12:00:00Z',
   'excerpt': '일기',
   'featuredTags': <Object>[],
+  'allTags': <Object>[],
 };
 
 /// 요청을 남기고 [respond]가 정한 (status, 본문)으로 답합니다.
@@ -109,9 +110,29 @@ void main() {
       expect(jsonDecode(request.data as String), {
         'date': '2026-10-13',
         'body': '일기',
+        // 생성 모델이 기본값(false, REST 1.10.0)을 함께 싣습니다. 계약상 질문을 붙이는 것과 같습니다.
+        'withoutGuideQuestion': false,
       });
       expect(request.headers['Idempotency-Key'], 'key-1');
     });
+
+    test(
+      '질문을 떼면 withoutGuideQuestion true만 보내고 guideQuestion은 싣지 않습니다(D116)',
+      () async {
+        final server = _Server((_) => (201, _diaryJson()));
+        await _repository(server).create(
+          _date,
+          '일기',
+          idempotencyKey: 'key-1',
+          withoutGuideQuestion: true,
+        );
+        expect(jsonDecode(server.requests.single.data as String), {
+          'date': '2026-10-13',
+          'body': '일기',
+          'withoutGuideQuestion': true,
+        });
+      },
+    );
 
     test('422 diary.day_full은 ProblemError입니다', () async {
       final server = _Server((_) => _problem(422, 'diary.day_full'));

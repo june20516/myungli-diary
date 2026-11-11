@@ -8,7 +8,6 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/input/check_row.dart';
-import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/features/auth/presentation/consent_screen.dart';
 import 'package:myungli_diary/features/onboarding/application/onboarding_providers.dart';
 import 'package:myungli_diary/features/onboarding/model/onboarding_draft.dart';
@@ -114,9 +113,10 @@ void main() {
     );
     await pumpUntilScreen(tester, ScreenIds.notifyAsk);
     await tester.tap(
-      find.descendant(
-        of: find.byType(InputStep),
-        matching: find.byType(PrimaryButton),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is PrimaryButton &&
+            widget.identifier == SlotIds.notifyAskCtaAllow,
       ),
     );
     await pumpUntilScreen(tester, ScreenIds.today);

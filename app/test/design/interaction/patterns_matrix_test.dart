@@ -137,21 +137,23 @@ const _rows = <_Row>[
     endOpacityReduce: 0,
   ),
   _Row(
-    'sheetStack screen',
-    InteractionPattern.sheetStack,
+    'tabSwitch incoming',
+    InteractionPattern.tabSwitch,
     blurNormal: false,
-    motionNormal: true,
+    motionNormal: false,
     blurLowEnd: false,
-    motionLowEnd: true,
+    motionLowEnd: false,
   ),
   _Row(
-    'sheetStack sheet',
-    InteractionPattern.sheetStack,
+    'tabSwitch outgoing',
+    InteractionPattern.tabSwitch,
     blurNormal: false,
-    motionNormal: true,
+    motionNormal: false,
     blurLowEnd: false,
-    motionLowEnd: true,
-    options: PatternOptions(stackLayer: StackLayer.sheet),
+    motionLowEnd: false,
+    endOpacityNormal: 0,
+    endOpacityReduce: 0,
+    options: PatternOptions(outgoing: true),
   ),
 ];
 
@@ -261,44 +263,85 @@ void main() {
     });
   });
 
-  group('sheetStack 덮개 밝기', () {
-    for (final (layer, brightness) in [
-      (StackLayer.screen, PatternValues.stackScreenBrightness),
-      (StackLayer.sheet, PatternValues.stackSheetBrightness),
-    ]) {
-      testWidgets('$layer: 끝에서 덮개 알파가 1 - 밝기', (tester) async {
-        final c = await _pump(
-          tester,
-          InteractionPattern.sheetStack,
-          _normal,
-          PatternOptions(stackLayer: layer),
-        );
-        c.value = 1;
-        await tester.pump();
-        final veil = tester
-            .widgetList<ColoredBox>(_within(find.byType(ColoredBox)))
-            .single;
-        expect(veil.color.a, closeTo(1 - brightness, 0.001));
-      });
+  group('sheetStack 아래 시트(V110)', () {
+    Matrix4? translation(WidgetTester tester) {
+      final transforms = _within(find.byType(Transform));
+      if (transforms.evaluate().isEmpty) return null;
+      return tester.widget<Transform>(transforms).transform;
     }
 
-    testWidgets('sheet 층은 위로 30px, 크기 0.94', (tester) async {
+    double veil(WidgetTester tester) => tester
+        .widgetList<ColoredBox>(_within(find.byType(ColoredBox)))
+        .single
+        .color
+        .a;
+
+    testWidgets('끝에서 덮개 알파가 1 - 0.92이고 크기는 그대로, 위로 stackLift만큼만', (
+      tester,
+    ) async {
       final c = await _pump(
         tester,
         InteractionPattern.sheetStack,
         _normal,
-        const PatternOptions(stackLayer: StackLayer.sheet),
+        const PatternOptions(stackLift: 40),
       );
       c.value = 1;
       await tester.pump();
-      final matrix = tester
-          .widget<Transform>(_within(find.byType(Transform)))
-          .transform;
-      expect(matrix.getTranslation().y, closeTo(-30, 0.001));
-      expect(matrix.storage[0], closeTo(0.94, 0.001));
+      expect(
+        veil(tester),
+        closeTo(1 - PatternValues.stackSheetBrightness, 0.001),
+      );
+      final matrix = translation(tester)!;
+      expect(matrix.getTranslation().y, closeTo(-40, 0.001));
+      expect(matrix.storage[0], 1, reason: '크기 변화 없음');
     });
 
-    testWidgets('screen 층은 크기 0.92', (tester) async {
+    testWidgets('중간에는 곡선을 입힌 진행만큼 올라갑니다', (tester) async {
+      final c = await _pump(
+        tester,
+        InteractionPattern.sheetStack,
+        _normal,
+        const PatternOptions(stackLift: 40),
+      );
+      c.value = 0.5;
+      await tester.pump();
+      final v = InteractionPattern.sheetStack.curve.transform(0.5);
+      expect(translation(tester)!.getTranslation().y, closeTo(-40 * v, 0.001));
+      expect(veil(tester), closeTo(0.08 * v, 0.001));
+    });
+
+    testWidgets('stackRelease만큼 제자리 쪽으로 내려오고 덮개도 걷힙니다', (tester) async {
+      final c = await _pump(
+        tester,
+        InteractionPattern.sheetStack,
+        _normal,
+        const PatternOptions(stackLift: 40, stackRelease: 0.25),
+      );
+      c.value = 1;
+      await tester.pump();
+      expect(translation(tester)!.getTranslation().y, closeTo(-30, 0.001));
+      expect(veil(tester), closeTo(0.08 * 0.75, 0.001));
+    });
+
+    testWidgets('동작 줄이기: 진행이 0보다 크면 바로 올라간 자리, 덮개만 진행을 따름', (tester) async {
+      final c = await _pump(
+        tester,
+        InteractionPattern.sheetStack,
+        _reduce,
+        const PatternOptions(stackLift: 40),
+      );
+      c.value = 0;
+      await tester.pump();
+      expect(translation(tester), isNull);
+      c.value = 0.1;
+      await tester.pump();
+      expect(translation(tester)!.getTranslation().y, closeTo(-40, 0.001));
+      expect(veil(tester), lessThan(0.08));
+    });
+
+    testWidgets('stackLift가 0이면(아래 시트가 이미 더 큼) 움직이지 않고 어두워지기만 합니다', (
+      tester,
+    ) async {
       final c = await _pump(
         tester,
         InteractionPattern.sheetStack,
@@ -307,10 +350,39 @@ void main() {
       );
       c.value = 1;
       await tester.pump();
-      final matrix = tester
-          .widget<Transform>(_within(find.byType(Transform)))
-          .transform;
-      expect(matrix.storage[0], closeTo(0.92, 0.001));
+      expect(translation(tester), isNull);
+      expect(veil(tester), closeTo(0.08, 0.001));
+    });
+  });
+
+  group('tabSwitch', () {
+    testWidgets('투명도만 standard 곡선으로 바뀌고 동작 줄이기에서도 시간이 그대로입니다', (tester) async {
+      expect(
+        patternDuration(InteractionPattern.tabSwitch, _reduce),
+        const Duration(milliseconds: 200),
+      );
+      final c = await _pump(
+        tester,
+        InteractionPattern.tabSwitch,
+        _reduce,
+        const PatternOptions(),
+      );
+      c.value = 0.5;
+      await tester.pump();
+      expect(
+        _opacity(tester),
+        closeTo(InteractionPattern.tabSwitch.curve.transform(0.5), 0.001),
+      );
+    });
+  });
+
+  group('unlockGlint', () {
+    test('동작 줄이기 규칙은 replace(대체 요소로 바꿈)입니다', () {
+      expect(
+        InteractionPattern.unlockGlint.reduceMotion,
+        ReduceMotionRule.replace,
+      );
+      expect(ReduceMotionRule.replace.json, 'replace');
     });
   });
 

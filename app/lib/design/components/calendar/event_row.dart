@@ -7,6 +7,7 @@ import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
+import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -42,8 +43,9 @@ const int _summaryTitleMinChars = 4;
 /// 일정 한 줄(`event-row`).
 ///
 /// [EventRow.summary]는 오늘 화면 요약(상태 꼬리표·시각·제목·'외 N개' 또는 개수 문장 한 줄),
-/// [EventRow.list]는 그날 시트 목록(시각 칸 58px·제목 두 줄·화살표·구분선)입니다.
-/// 시각이 null이면 하루 종일 일정이고 '하루 종일' 글자는 이 컴포넌트가 ARB에서 고릅니다.
+/// [EventRow.list]는 그날 시트 목록(시각 칸 58px·제목 두 줄·메모 한 줄·화살표·구분선)입니다.
+/// 시각이 null이면 하루 종일 일정이고 그 글자는 이 컴포넌트가 ARB에서 고릅니다(`summary`는
+/// 시각 자리 글자, `list`는 시각 칸 안 `tag.status` 꼬리표 `day-sheet.event.all-day`, V107).
 /// 눌림은 `press.ink`이고 [onTap]이 null이면 누를 수 없는 표시 줄입니다. 스크린리더는
 /// "상태 시각 제목"(+ '외 N개') 한 덩어리로 읽습니다.
 class EventRow extends StatelessWidget {
@@ -60,14 +62,17 @@ class EventRow extends StatelessWidget {
     this.identifier,
     super.key,
   }) : variant = EventRowVariant.summary,
+       memo = null,
        showDivider = false;
 
   /// 그날 시트 목록 한 줄. [time]은 'HH:mm'이고 null이면 하루 종일 일정입니다.
   ///
-  /// [showDivider]가 true면 줄 아래에 1px 구분선을 긋습니다(마지막 줄은 쓰는 쪽이 끔).
+  /// [memo]가 비어 있지 않으면 제목 아래 한 줄로 보입니다(V107). [showDivider]가 true면 줄
+  /// 아래에 구분선을 긋습니다(마지막 줄은 쓰는 쪽이 끔).
   const new list({
     required this.time,
     required this.title,
+    this.memo,
     this.showDivider = true,
     this.onTap,
     this.identifier,
@@ -116,7 +121,7 @@ class EventRow extends StatelessWidget {
               if (i > 0) const ListDivider(),
               row(
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: Space.s8),
+                  padding: const EdgeInsets.symmetric(vertical: rowPaddingY),
                   child: Row(
                     children: [
                       SizedBox(
@@ -160,6 +165,21 @@ class EventRow extends StatelessWidget {
   /// 줄 최소 높이(`parts.row.minHeight`, `a11y.minTarget`).
   static const double minHeight = 48;
 
+  /// `list` 줄 위아래 여백(`parts.row.paddingY` `space.12`, V107).
+  static const double rowPaddingY = Space.s12;
+
+  /// `list` 제목 아래 메모까지의 간격(`parts.memo.marginTop` `space.2`).
+  static const double memoGap = Space.s2;
+
+  /// `list` 시각 글자 굵기(`parts.timeColumn.fontWeight` 700, V107).
+  static const FontWeight listTimeWeight = FontWeight.w700;
+
+  /// `list` 하루 종일 꼬리표를 찾는 테스트용 키(슬롯 `day-sheet.event.all-day`).
+  static const Key allDayKey = ValueKey('event-row-all-day');
+
+  /// `list` 메모를 찾는 테스트용 키.
+  static const Key memoKey = ValueKey('event-row-memo');
+
   /// `list` 구분선 두께(`list.divider` `width`).
   static const double dividerWidth = BorderTokens.hairline;
 
@@ -184,6 +204,9 @@ class EventRow extends StatelessWidget {
   /// 일정 제목.
   final String title;
 
+  /// `list` 메모(`Schedule.memo`). 비어 있으면 그리지 않습니다.
+  final String? memo;
+
   /// 첫 일정 말고 더 있는 일정 수. 0이면 '외 N개'를 붙이지 않습니다.
   final int moreCount;
 
@@ -205,7 +228,13 @@ class EventRow extends StatelessWidget {
     null => null,
   };
 
-  String _timeText(AppLocalizations l10n) => time ?? l10n.eventRowAllDay;
+  /// 시각 글자. 하루 종일이면 `summary`는 시각 자리 글자, `list`는 시각 칸 꼬리표 글자입니다.
+  String _timeText(AppLocalizations l10n) =>
+      time ??
+      switch (variant) {
+        EventRowVariant.summary => l10n.eventRowAllDay,
+        EventRowVariant.list => l10n.daySheetEventAllDay,
+      };
 
   String? _moreText(AppLocalizations l10n) =>
       moreCount > 0 ? l10n.eventRowMore(moreCount) : null;
@@ -363,41 +392,87 @@ class EventRow extends StatelessWidget {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final type = tokens.typography;
+    final scaler = MediaQuery.textScalerOf(context);
     final timeText = _timeText(l10n);
-    final timeStyle = type.numericTable.copyWith(color: colors.textSecondary);
+    final allDay = time == null;
+    final timeStyle = type.numericTable.copyWith(
+      color: colors.textPrimary,
+      fontWeight: listTimeWeight,
+    );
+    final titleStyle = type.bodyUi.copyWith(color: colors.textPrimary);
+    // 시각, 종일 꼬리표, 꺾쇠는 제목 첫 줄 높이 안에서 세로 가운데입니다(`row.align` first-line).
+    // 첫 줄 높이를 최소 높이로 준 상자 안에서 Align(widthFactor, heightFactor 1)이 자식 크기로
+    // 줄어든 뒤 그 높이까지 늘어나므로, 자식이 첫 줄 높이 가운데에 놓입니다(더 크면 자식 크기).
+    final firstLineHeight = lineHeightOf(titleStyle, scaler);
+    Widget onFirstLine(Widget child) => ConstrainedBox(
+      constraints: BoxConstraints(minHeight: firstLineHeight),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        widthFactor: 1,
+        heightFactor: 1,
+        child: child,
+      ),
+    );
+    final memo = this.memo;
+    final hasMemo = memo != null && memo.trim().isNotEmpty;
     final titleAndChevron = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: type.bodyUi.copyWith(color: colors.textPrimary),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: titleStyle,
+              ),
+              if (hasMemo) ...[
+                const SizedBox(height: memoGap),
+                Text(
+                  memo,
+                  key: memoKey,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: type.captionLg.copyWith(color: colors.textSecondary),
+                ),
+              ],
+            ],
           ),
         ),
         const SizedBox(width: Space.s8),
-        AppIcon(
-          _caretRight,
-          size: AppIconSize.s16,
-          color: colors.textSecondary,
+        onFirstLine(
+          AppIcon(
+            _caretRight,
+            size: AppIconSize.s16,
+            color: colors.textSecondary,
+          ),
         ),
       ],
     );
-    // 시각 글자는 줄이지 않습니다. 배율 그대로 칸에 들어가면 58 고정 칸(하루 종일도
-    // 같은 폭), 들어가지 않으면 시각 / 제목·화살표 두 줄로 내립니다(`timeColumn.overflow`).
+    final Widget lead = allDay
+        ? StatusTag(timeText, key: allDayKey)
+        : Text(timeText, maxLines: 1, style: timeStyle);
+    // 시각 글자와 꼬리표는 줄이지 않습니다. 배율 그대로 칸에 들어가면 58 고정 칸, 들어가지
+    // 않으면 시각(꼬리표) / 제목·화살표 두 줄로 내립니다(`timeColumn.overflow`, `allDay.overflow`).
     // 판정은 칸 폭(고정값)과 글자 폭만 보므로 부모 제약이 필요 없습니다.
-    final timeFits =
-        _textWidth(context, timeText, timeStyle) <=
-        timeColumnWidth - timeColumnGap;
+    final leadWidth = allDay
+        ? _textWidth(context, timeText, type.labelMd) +
+              StatusTag.padding.horizontal
+        : _textWidth(context, timeText, timeStyle);
+    final leadFits = leadWidth <= timeColumnWidth - timeColumnGap;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Space.s8),
-      child: timeFits
+      padding: const EdgeInsets.symmetric(vertical: rowPaddingY),
+      child: leadFits
           ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   key: timeColumnKey,
                   width: timeColumnWidth,
-                  child: Text(timeText, maxLines: 1, style: timeStyle),
+                  child: onFirstLine(lead),
                 ),
                 Expanded(child: titleAndChevron),
               ],
@@ -406,7 +481,11 @@ class EventRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: Space.s4,
               children: [
-                Text(timeText, key: timeColumnKey, style: timeStyle),
+                Align(
+                  key: timeColumnKey,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: lead,
+                ),
                 titleAndChevron,
               ],
             ),

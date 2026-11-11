@@ -38,8 +38,8 @@ enum NoticeBannerVariant {
   /// 다르고, 다시 시도는 화면의 원래 동작 버튼이 맡습니다.
   error(
     AppGlyph(
-      light: PhosphorIconsLight.cloudWarning,
-      regular: PhosphorIconsRegular.cloudWarning,
+      light: PhosphorIconsLight.warningCircle,
+      regular: PhosphorIconsRegular.warningCircle,
     ),
   );
 

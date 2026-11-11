@@ -148,6 +148,16 @@ void main() {
     final verdict = _inSheet(find.byType(FortuneVerdict));
     expect(verdict, findsOneWidget);
     final tag = find.descendant(of: verdict, matching: find.byType(HanjaTag));
+    // 내역은 처음에 접혀 있고 카드를 누르면 펼칩니다(V108).
+    expect(tag, findsNothing);
+    final toggle = find.descendant(
+      of: verdict,
+      matching: find.byKey(FortuneVerdict.toggleKey),
+    );
+    await tester.ensureVisible(toggle);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
     expect(tag, findsWidgets);
     await tester.ensureVisible(tag.first);
     await tester.pumpAndSettle();

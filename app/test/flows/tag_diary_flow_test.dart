@@ -156,12 +156,15 @@ void main() {
     );
     expect(find.text(_meaning), findsOneWidget);
     expect(find.byType(DiaryRow), findsWidgets);
-    // 모든 줄이 같은 태그이고 화면 위에 그 이름과 뜻이 있어 줄은 대표 태그를 그리지 않습니다
-    // (`diary-row` `hiddenIn`). 날의 성격 태그는 줄마다 달라 그대로 보입니다.
+    // 모든 줄에 모아 본 태그가 있고 화면 위에 그 이름과 뜻이 있어 줄은 그 태그만 그리지 않습니다
+    // (`diary-row` `hiddenScope`). 그날의 다른 태그와 날의 성격 태그는 그대로 보입니다.
     final rows = tester.widgetList<DiaryRow>(
       find.descendant(of: _screen, matching: find.byType(DiaryRow)),
     );
-    expect(rows.every((row) => row.tag == null), isTrue);
+    expect(
+      rows.every((row) => row.tags.every((tag) => tag.label != '합')),
+      isTrue,
+    );
     expect(rows.any((row) => row.dayKind != null), isTrue);
   });
 

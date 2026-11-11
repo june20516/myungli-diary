@@ -12,7 +12,10 @@ enum ReduceMotionRule {
   opacityOnly('opacity-only'),
 
   /// 시간 0으로 바로 바뀝니다.
-  instant('instant');
+  instant('instant'),
+
+  /// 그리지 않고 명세의 `reduceMotionAlternative` 요소로 대신합니다(`unlock.glint`).
+  replace('replace');
 
   new(this.json);
 
@@ -37,7 +40,7 @@ enum LowEndRule {
   final String json;
 }
 
-/// 공통 상호작용 패턴 12개. 이름은 `interaction.json` id의 lowerCamelCase입니다.
+/// 공통 상호작용 패턴 15개. 이름은 `interaction.json` id의 lowerCamelCase입니다.
 enum InteractionPattern {
   /// 먹 번짐: 모든 눌림.
   pressInk(
@@ -140,13 +143,38 @@ enum InteractionPattern {
 
   /// 화면 이동: 새 화면이 오른쪽에서 조금 밀려 들어오며 나타남(V67).
   ///
-  /// 화면 쌓기 이동(push, pop)에만 씁니다. 탭 사이 이동과 시트는 쓰지 않습니다.
+  /// 화면 쌓기 이동(push, pop)에만 씁니다. 탭 사이 이동(`tab.switch`)과 시트는 쓰지 않습니다.
   /// route에서는 `PagePushTransitionsBuilder`(`page_push_transition.dart`)가 입힙니다.
   pagePush(
     'page.push',
     Motion.pageDuration,
     Motion.pageEasing,
     ReduceMotionRule.opacityOnly,
+    LowEndRule.same,
+  ),
+
+  /// 탭 바로 탭을 바꿈: 앞 화면과 새 화면이 겹치며 투명도만 바뀝니다(V104).
+  ///
+  /// 이동과 크기 변화가 없어 동작 줄이기에서도 같습니다. 탭 셸에서는 `TabSwitchStack`
+  /// (`tab_switch_stack.dart`)이 중간 끊기와 입력 규칙까지 입힙니다.
+  tabSwitch(
+    'tab.switch',
+    Motion.short,
+    Motion.standard,
+    ReduceMotionRule.opacityOnly,
+    LowEndRule.same,
+  ),
+
+  /// 열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(V112).
+  ///
+  /// 띠 그리기와 15초 박자, 멈춤, 동작 줄이기 대체(`unlock.mark`)는 `UnlockGlintScope`와
+  /// `UnlockGlint`(`unlock_glint.dart`)가 맡습니다. 한 번 지나가는 진행이 아니라 박자가 있는
+  /// 반복이라 [animate]는 이 패턴에서 받은 위젯을 그대로 둡니다.
+  unlockGlint(
+    'unlock.glint',
+    Motion.breathe,
+    Motion.standard,
+    ReduceMotionRule.replace,
     LowEndRule.same,
   ),
 
@@ -257,35 +285,35 @@ abstract final class PatternValues {
   /// `sheet.enter`·`sheet.exit` 덮개 시간·곡선 값.
   static const Cubic scrimEasing = Motion.standard;
 
-  /// `sheet.stack` 아래 화면.
-  static const double stackScreenScale = 0.92;
+  /// `sheet.stack` 뒤 앱 화면 크기와 밝기(`screenBelow`). 6.3.0부터 그대로(1)입니다(V110).
+  static const double stackScreenScale = 1;
 
-  /// `sheet.stack` 아래 화면 값.
-  static const double stackScreenBrightness = 0.9;
+  /// `sheet.stack` 뒤 앱 화면 크기와 밝기 값.
+  static const double stackScreenBrightness = 1;
 
-  /// `sheet.stack` 아래 시트.
-  static const double stackSheetTranslateY = -30;
+  /// `sheet.stack` 아래 시트 크기(`sheetBelow.scale`). 이동만 하고 크기는 그대로입니다.
+  static const double stackSheetScale = 1;
 
-  /// `sheet.stack` 아래 시트 값.
-  static const double stackSheetScale = 0.94;
+  /// `sheet.stack` 아래 시트 밝기(`sheetBelow.brightness`). 검은 덮개 0.08로 냅니다.
+  static const double stackSheetBrightness = 0.92;
 
-  /// `sheet.stack` 아래 시트 값.
-  static const double stackSheetBrightness = 0.95;
+  /// `sheet.stack` 아래 시트 머리가 위 시트 위로 보이는 높이(`peek.height`, px).
+  static const double stackPeekHeight = 14;
+
+  /// `unlock.glint` 박자(`interval`): 앞 반짝임 시작에서 다음 반짝임 시작까지.
+  static const Duration glintInterval = Duration(milliseconds: 15000);
+
+  /// `unlock.glint` 띠 너비(`band.width`): 글자 상자 너비에 대한 비율(30%).
+  static const double glintBandWidth = 0.3;
+
+  /// `unlock.glint` 띠 각도(`band.angle`, CSS 도: 0°=위쪽, 시계 방향).
+  static const double glintBandAngle = 100;
 
   /// `focus.ring` 테두리 두께(px).
   static const double focusFromWidth = 1;
 
   /// `focus.ring` 테두리 두께(px) 값.
   static const double focusToWidth = 2;
-}
-
-/// `sheet.stack`에서 물러나는 층의 종류.
-enum StackLayer {
-  /// 아래 화면: 크기 0.92, 밝기 0.9.
-  screen,
-
-  /// 아래 시트: 위로 30px, 크기 0.94, 밝기 0.95.
-  sheet,
 }
 
 /// 패턴 몇 가지만 쓰는 추가 입력.
@@ -300,7 +328,9 @@ final class PatternOptions {
     this.outgoing = false,
     this.previousSide = const Offset(-1, 0),
     this.index = 0,
-    this.stackLayer = StackLayer.screen,
+    this.stackLift = 0,
+    this.stackRelease = 0,
+    this.keepSemantics = false,
   });
 
   /// `press.ink`: 누른 자리.
@@ -315,7 +345,8 @@ final class PatternOptions {
   /// `press.ink` 얼룩을 자를 모서리, `focus.ring` 테두리 모서리.
   final BorderRadius borderRadius;
 
-  /// `select.seep-slide`: true면 사라지는 이전 표시를 그립니다.
+  /// `select.seep-slide`: true면 사라지는 이전 표시를, `tab.switch`: true면 사라지는 앞
+  /// 화면(투명도 1→0)을 그립니다.
   final bool outgoing;
 
   /// `select.seep-slide`: 이전 표시가 있던 쪽(-1 왼쪽, 1 오른쪽).
@@ -324,8 +355,19 @@ final class PatternOptions {
   /// `loading.breathe`: 줄 순서. 줄마다 150ms씩 어긋납니다.
   final int index;
 
-  /// `sheet.stack`: 물러나는 층.
-  final StackLayer stackLayer;
+  /// `sheet.stack`: 아래 시트가 다 쌓였을 때 위로 올라가는 거리(px, 0 이상, `peek` 규칙).
+  ///
+  /// 아래 시트 윗변이 위 시트 윗변보다 [PatternValues.stackPeekHeight] 위에 오게 하는 거리이고,
+  /// 아래 시트가 이미 그보다 위에 있으면 0입니다. 시트 route가 두 시트 높이로 정합니다.
+  final double stackLift;
+
+  /// `sheet.stack`: 위 시트를 끌어 내린 비율(0~1). 아래 시트는 이만큼 제자리 쪽으로 내려오고
+  /// 덮개도 그만큼 걷힙니다(`peek.drag`).
+  final double stackRelease;
+
+  /// `appear.seep`: true면 투명도 0에서 시작하는 동안에도 스크린리더 의미를 남깁니다. 나타나는
+  /// 순간 스크린리더 초점을 받아야 하는 자리(`diary-editor` `guideStates.focus`)에 씁니다.
+  final bool keepSemantics;
 }
 
 /// 컨트롤러에 줄 시간. 동작 줄이기에서 `instant` 패턴이면 0입니다.
@@ -361,7 +403,7 @@ Widget animate(
           options,
           child!,
         ),
-        InteractionPattern.appearSeep => _appearSeep(effect, child!),
+        InteractionPattern.appearSeep => _appearSeep(effect, options, child!),
         InteractionPattern.disappearSeep => _disappearSeep(effect, child!),
         InteractionPattern.selectSeepSlide => _selectSlide(
           effect,
@@ -380,6 +422,13 @@ Widget animate(
         InteractionPattern.sheetEnter => _sheetEnter(effect, child!),
         InteractionPattern.sheetExit => _sheetExit(effect, child!),
         InteractionPattern.sheetStack => _sheetStack(effect, options, child!),
+        // 한 화면의 투명도만 그리는 기본 식입니다(패턴 행렬 테스트가 씀). 탭 셸은 중간 끊기와
+        // 입력 규칙까지 맡는 TabSwitchStack이 같은 곡선으로 직접 계산합니다.
+        InteractionPattern.tabSwitch => _fade(
+          options.outgoing ? 1 - effect.eased : effect.eased,
+          child!,
+        ),
+        InteractionPattern.unlockGlint => child!,
         InteractionPattern.pagePush => animatePagePush(
           t: t,
           prefs: prefs,
@@ -478,15 +527,22 @@ Widget _blurSelf(double sigma, Widget child) => ImageFiltered(
   child: child,
 );
 
-Widget _fade(double opacity, Widget child) =>
-    Opacity(opacity: opacity.clamp(0, 1), child: child);
+Widget _fade(
+  double opacity,
+  Widget child, {
+  bool alwaysIncludeSemantics = false,
+}) => Opacity(
+  opacity: opacity.clamp(0, 1),
+  alwaysIncludeSemantics: alwaysIncludeSemantics,
+  child: child,
+);
 
-Widget _appearSeep(_Effect e, Widget child) {
+Widget _appearSeep(_Effect e, PatternOptions o, Widget child) {
   final v = e.eased;
   final body = e.noBlur
       ? child
       : _blurSelf(PatternValues.appearBlur * (1 - v), child);
-  return _fade(v, body);
+  return _fade(v, body, alwaysIncludeSemantics: o.keepSemantics);
 }
 
 Widget _disappearSeep(_Effect e, Widget child) {
@@ -608,14 +664,15 @@ Widget _sheetExit(_Effect e, Widget child) {
   return FractionalTranslation(translation: Offset(0, v), child: child);
 }
 
+/// `sheet.stack`의 아래 시트: 위로 [PatternOptions.stackLift]만큼 이동만 하고(크기 그대로),
+/// 검은 덮개로 밝기 0.92가 됩니다(V110). 뒤 앱 화면에는 쓰지 않습니다.
+///
+/// 동작 줄이기면 이동 없이 바로 올라간 자리에 놓이고 덮개 투명도만 바뀝니다. 끌기 비율
+/// [PatternOptions.stackRelease]는 곡선을 입힌 진행에 곱합니다(손가락을 그대로 따름).
 Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
-  final v = e.eased;
-  final isSheet = o.stackLayer == StackLayer.sheet;
-  // 밝기는 필터가 아니라 검은 덮개의 투명도로 냅니다(밝기 0.9 → 덮개 0.1).
-  final brightness = isSheet
-      ? PatternValues.stackSheetBrightness
-      : PatternValues.stackScreenBrightness;
-  final veil = (1 - brightness) * v;
+  final v = e.eased * (1 - o.stackRelease.clamp(0, 1));
+  // 밝기는 필터가 아니라 검은 덮개의 투명도로 냅니다(밝기 0.92 → 덮개 0.08).
+  final veil = (1 - PatternValues.stackSheetBrightness) * v;
   final dimmed = Stack(
     children: [
       child,
@@ -628,23 +685,13 @@ Widget _sheetStack(_Effect e, PatternOptions o, Widget child) {
       ),
     ],
   );
-  if (e.opacityOnly) return dimmed;
-  final scale =
-      1 -
-      (1 -
-              (isSheet
-                  ? PatternValues.stackSheetScale
-                  : PatternValues.stackScreenScale)) *
-          v;
-  return Transform(
-    alignment: Alignment.center,
-    transform: Matrix4.translationValues(
-      0,
-      isSheet ? PatternValues.stackSheetTranslateY * v : 0,
-      0,
-    )..scaleByDouble(scale, scale, 1, 1),
-    child: dimmed,
-  );
+  // 동작 줄이기면 아래 시트는 이동하지 않습니다(`peek.reduceMotion`). 위 시트를 끄는 동안에도
+  // 올라간 자리에 남고, 끌기 비율은 덮개(veil)에만 들어갑니다.
+  final lift = e.opacityOnly
+      ? (e.progress > 0 ? o.stackLift : 0.0)
+      : o.stackLift * v;
+  if (lift == 0) return dimmed;
+  return Transform.translate(offset: Offset(0, -lift), child: dimmed);
 }
 
 /// `page.push`를 [t](0→1 선형 진행)에 입힙니다. 오른쪽 `motion.offset.page`(24)에서 0으로,

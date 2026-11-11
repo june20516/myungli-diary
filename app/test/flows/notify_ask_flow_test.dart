@@ -14,7 +14,6 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push.dart';
 import 'package:myungli_diary/core/storage/device_flags.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
-import 'package:myungli_diary/design/components/input/input_step.dart';
 import 'package:myungli_diary/design/components/input/time_picker.dart';
 import 'package:myungli_diary/features/onboarding/presentation/notify_ask_screen.dart';
 import 'package:myungli_diary/testing/covers.dart';
@@ -56,9 +55,10 @@ class _CountingAdConsent implements AdConsent {
   }
 }
 
-Finder get _allowButton => find.descendant(
-  of: find.byType(InputStep),
-  matching: find.byType(PrimaryButton),
+/// 허락 버튼(input-step 주 버튼). 같은 틀 안에 건너뛰기(secondaryAction)도 있어 슬롯으로 찾습니다.
+Finder get _allowButton => find.byWidgetPredicate(
+  (widget) =>
+      widget is PrimaryButton && widget.identifier == SlotIds.notifyAskCtaAllow,
 );
 Finder get _skipButton => find.byKey(notifyAskSkipKey);
 

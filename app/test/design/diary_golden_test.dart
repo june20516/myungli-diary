@@ -30,7 +30,10 @@ Widget _diaryRows() => Builder(
             tone: HanjaTagTone.yongsin,
             onTap: () {},
           ),
-          tag: HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
+          tags: [
+            HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
+            HanjaTag(glyph: '合', label: ja ? '合' : '합', onTap: () {}),
+          ],
           onTap: () {},
         ),
         DiaryRow(
@@ -48,7 +51,7 @@ Widget _diaryRows() => Builder(
             tone: HanjaTagTone.gisin,
             onTap: () {},
           ),
-          tag: HanjaTag(glyph: '沖', label: ja ? '沖' : '충', onTap: () {}),
+          tags: [HanjaTag(glyph: '沖', label: ja ? '沖' : '충', onTap: () {})],
           isLast: true,
           onTap: () {},
         ),
@@ -93,7 +96,14 @@ Widget _diaryRowGroups() => Builder(
               onTap: () {},
             ),
           ],
-          tag: HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
+          // 한 줄을 넘는 날: 그 줄 안에서 가로로 밀고 끝 24만 흐립니다(V103).
+          tags: [
+            HanjaTag(glyph: '貴', label: ja ? '天乙貴人' : '천을귀인', onTap: () {}),
+            HanjaTag(glyph: '合', label: ja ? '合' : '합', onTap: () {}),
+            HanjaTag(glyph: '桃', label: ja ? '桃花' : '도화', onTap: () {}),
+            HanjaTag(glyph: '驛', label: ja ? '駅馬' : '역마', onTap: () {}),
+            HanjaTag(glyph: '華', label: ja ? '華蓋' : '화개', onTap: () {}),
+          ],
         ),
         DiaryRow(
           date: CalendarDate(2026, 10, 8),

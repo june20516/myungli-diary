@@ -167,10 +167,9 @@ final class _UnlockRefetch extends Interceptor {
 final NotifierProvider<TestToday, CalendarDate> _testTodayProvider =
     testTodayProvider(CalendarDate(2026, 10, 13));
 
-/// 열린 시트를 바깥(scrim)을 눌러 모두 닫고 사라졌는지 확인합니다.
+/// 열린 시트를 바깥(scrim)을 눌러 한 단계씩 모두 닫고 사라졌는지 확인합니다(V100).
 Future<void> _closeSheet(WidgetTester tester) async {
-  await tapSheetScrim(tester);
-  await tester.pumpAndSettle();
+  await tapSheetScrimUntilClosed(tester);
   expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsNothing);
   expect(find.byKey(const Key(ScreenIds.explainSheet)), findsNothing);
 }

@@ -37,9 +37,10 @@ HanjaTag diaryDayKindTagOf(BuildContext context, WidgetRef ref, DayKind kind) {
   );
 }
 
-/// 일기 줄의 대표 태그 `hanja-tag`(사주 용어 초록 `default`). 이름이 사전에 없거나 한자 글자표
-/// (A112)에 없으면 그리지 않고 null이며, 사전을 받은 뒤에는 그 빈칸을 한 번만 비치명으로
-/// 기록합니다.
+/// 일기의 사주 기운 태그 `hanja-tag`(사주 용어 초록 `default`) 하나. 이름의 "featured"는 옛
+/// 대표 태그에서 왔고, 지금은 대표 태그가 아닌 그날 태그(`DiarySummary.allTags`, D115)에도 같은
+/// 모양과 동작으로 씁니다. 이름이 사전에 없거나 한자 글자표(A112)에 없으면 그리지 않고 null
+/// 이며, 사전을 받은 뒤에는 그 빈칸을 한 번만 비치명으로 기록합니다.
 ///
 /// 누르면 뜻 시트(`explain-sheet`, `tag.<키>`)이고, 시트 본문 아래에 그 태그의 모아보기
 /// 링크(`tag-diary`)가 있습니다(V73). build에서 부르고 `glossaryProvider`를 구독합니다.

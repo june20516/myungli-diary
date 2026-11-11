@@ -31,7 +31,15 @@ enum InputStepVariant {
 /// 배치 그대로입니다. 머리말 위·아래 간격은 `space.24`입니다([prefaceGap], 명세 2.4.0
 /// `parts.preface`).
 ///
-/// 키보드가 열리면 버튼이 키보드 위 `space.16`에 붙고 위쪽 내용은 스크롤됩니다.
+/// 맨 아래 버튼 면의 아래 끝은 아래 시스템 inset(Android 3버튼 내비게이션, 제스처 막대,
+/// 없음 0, iPhone 홈 막대) 위 `space.16`입니다. inset이 0이어도 16이고, 키보드가 열리면
+/// 버튼이 키보드 위 `space.16`에 붙고 위쪽 내용은 스크롤됩니다(V106). inset은 이 위젯이
+/// 받은 `MediaQuery.padding`으로 읽으므로, 쓰는 화면이 `SafeArea`로 이미 비웠으면 더하지
+/// 않습니다.
+///
+/// 건너뛸 수 있는 단계는 두 번째 버튼([secondaryActionLabel], `quiet`)을 주 버튼 아래
+/// `space.16`에 둡니다(`secondaryAction`, 예 `notify-ask` "나중에"). 그때는 두 번째 버튼이
+/// 맨 아래 버튼이라 inset 위 `space.16`이 그 버튼 아래로 옮겨 옵니다.
 ///
 /// [error]가 있으면 `out-of-range` 상태입니다. 오류 줄이 `appear.seep`으로 나타나고(빨간색
 /// 없이 `mark.caution` + 본문색), 스크린리더가 바로 읽으며(assertive 알림), 버튼은
@@ -65,6 +73,10 @@ class InputStep extends StatefulWidget {
     String? helpIdentifier,
     String? errorIdentifier,
     String? actionIdentifier,
+    String? secondaryActionLabel,
+    VoidCallback? onSecondaryAction,
+    String? secondaryActionIdentifier,
+    Key? secondaryActionKey,
     Key? key,
   }) : this._(
          screenId: screenId,
@@ -82,6 +94,10 @@ class InputStep extends StatefulWidget {
          helpIdentifier: helpIdentifier,
          errorIdentifier: errorIdentifier,
          actionIdentifier: actionIdentifier,
+         secondaryActionLabel: secondaryActionLabel,
+         onSecondaryAction: onSecondaryAction,
+         secondaryActionIdentifier: secondaryActionIdentifier,
+         secondaryActionKey: secondaryActionKey,
          key: key,
        );
 
@@ -116,6 +132,10 @@ class InputStep extends StatefulWidget {
          helpIdentifier: helpIdentifier,
          errorIdentifier: errorIdentifier,
          actionIdentifier: null,
+         secondaryActionLabel: null,
+         onSecondaryAction: null,
+         secondaryActionIdentifier: null,
+         secondaryActionKey: null,
          key: key,
        );
 
@@ -136,6 +156,10 @@ class InputStep extends StatefulWidget {
     required this.helpIdentifier,
     required this.errorIdentifier,
     required this.actionIdentifier,
+    required this.secondaryActionLabel,
+    required this.onSecondaryAction,
+    required this.secondaryActionIdentifier,
+    required this.secondaryActionKey,
     super.key,
   }) : assert(
          variant != InputStepVariant.onboarding ||
@@ -222,6 +246,24 @@ class InputStep extends StatefulWidget {
   /// 아래 버튼의 IA 슬롯 id.
   final String? actionIdentifier;
 
+  /// 두 번째 버튼(`secondaryAction`, `quiet`) 글자. null이면 두 번째 버튼이 없습니다.
+  final String? secondaryActionLabel;
+
+  /// 두 번째 버튼을 눌렀을 때. null이면 disabled.
+  final VoidCallback? onSecondaryAction;
+
+  /// 두 번째 버튼의 IA 슬롯 id.
+  final String? secondaryActionIdentifier;
+
+  /// 두 번째 버튼 위젯 key(테스트에서 찾을 때).
+  final Key? secondaryActionKey;
+
+  /// 맨 아래 버튼 면 아래 끝과 아래 시스템 inset(또는 키보드) 사이(`bottomAction.paddingBottom`).
+  static const double bottomGap = Space.s16;
+
+  /// 주 버튼과 두 번째 버튼 사이(`secondaryAction.marginTop`).
+  static const double secondaryActionGap = Space.s16;
+
   @override
   State<InputStep> createState() => _InputStepState();
 }
@@ -235,11 +277,12 @@ class _InputStepState extends State<InputStep> {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final media = MediaQuery.of(context);
-    // 키보드가 열리면 키보드 위, 아니면 아래 안전 영역 위에 space.16을 둡니다.
+    // 키보드가 열리면 키보드 위, 아니면 아래 시스템 inset(없으면 0) 위에 space.16을 둡니다.
     // Scaffold가 키보드만큼 이미 줄였다면 viewInsets가 0이라 이중으로 띄우지 않습니다.
     final bottomInset = math.max(media.viewInsets.bottom, media.padding.bottom);
     final error = widget.error;
     final actionLabel = widget.actionLabel;
+    final secondaryLabel = widget.secondaryActionLabel;
     if (error != null) _shownError = error;
     final help = widget.help;
     final preface = widget.preface;
@@ -308,7 +351,7 @@ class _InputStepState extends State<InputStep> {
                 Space.s20,
                 0,
                 Space.s20,
-                actionLabel == null ? Space.s16 + bottomInset : 0,
+                actionLabel == null ? InputStep.bottomGap + bottomInset : 0,
               ),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Column(
@@ -323,14 +366,31 @@ class _InputStepState extends State<InputStep> {
                 Space.s20,
                 Space.s8,
                 Space.s20,
-                Space.s16 + bottomInset,
+                InputStep.bottomGap + bottomInset,
               ),
+              // 키보드가 열리면 두 버튼이 함께 키보드 위에 붙고, 토스트는 묶음 위에 뜹니다.
               child: ToastAnchor(
-                child: PrimaryButton(
-                  label: actionLabel,
-                  loading: widget.actionLoading,
-                  identifier: widget.actionIdentifier,
-                  onPressed: error == null ? widget.onAction : null,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    PrimaryButton(
+                      label: actionLabel,
+                      loading: widget.actionLoading,
+                      identifier: widget.actionIdentifier,
+                      onPressed: error == null ? widget.onAction : null,
+                    ),
+                    if (secondaryLabel != null) ...[
+                      const SizedBox(height: InputStep.secondaryActionGap),
+                      PrimaryButton(
+                        key: widget.secondaryActionKey,
+                        variant: PrimaryButtonVariant.quiet,
+                        label: secondaryLabel,
+                        identifier: widget.secondaryActionIdentifier,
+                        onPressed: widget.onSecondaryAction,
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),

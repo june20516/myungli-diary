@@ -6,7 +6,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 천간 한 글자 오행 색 칩(`stem.chip`, V72): band-table 지장간 칸에 씁니다.
 ///
-/// 22 정사각 칸, `radius.sm`, 바탕과 글자 색은 [element]의 `ohaeng.cell` 색입니다.
+/// 22 정사각 칸, `radius.sm`, 바탕과 글자 색은 [element]의 `ohaeng.cell` 색입니다(금과 수는 테두리까지).
 /// 한자는 `font.family.hanja` 13 700이고 글자 배율은 1.3배에서 멈춥니다(`textScaleMax`).
 /// 원국 칸과 대운, 세운 칸은 `ohaeng.cell` 자체이므로 이 칩을 쓰지 않습니다(V89).
 /// 스크린리더 라벨은 칩이 놓인 표가 붙입니다.
@@ -43,6 +43,8 @@ class StemChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: cell.bg,
           borderRadius: const BorderRadius.all(Radius.circular(Radii.sm)),
+          // 금과 수는 `ohaeng.cell`과 같은 1px 안쪽 테두리(V98).
+          border: ohaengCellBorder(tokens.colors, element),
         ),
         child: Text(
           hanja,

@@ -416,6 +416,152 @@ void main() {
     });
   });
 
+  group('질문 떼기와 다시 붙이기(D116)', () {
+    test('떼면 detached, 바꾸기는 숨고 저장은 withoutGuideQuestion true만 보냅니다', () async {
+      final h = await _harness();
+      final opened = await _open(h, _newToday);
+      expect(opened.canDetachQuestion, isTrue);
+      expect(opened.guideDetached, isFalse);
+      h.notifier(_newToday).detachQuestion();
+      final detached = h.state(_newToday);
+      expect(detached.guideDetached, isTrue);
+      expect(detached.canSwapQuestion, isFalse);
+      expect(detached.guideChoice, isNull);
+
+      final saved = await h.notifier(_newToday).save('질문 없이 쓴 글');
+      final body = h.network.creates.single.body;
+      expect(body['withoutGuideQuestion'], isTrue);
+      expect(body.containsKey('guideQuestion'), isFalse);
+      // 대역 서버도 질문 없이 남깁니다(일기 보기와 목록에도 없음).
+      expect(saved!.guideQuestion, isNull);
+    });
+
+    test('떼었다 붙이면 그날 기본 질문(첫 후보)이고 바꾸기 순서도 처음부터입니다', () async {
+      final h = await _harness();
+      h.network.candidates = [
+        _candidate('guide.harmony', '1', _first),
+        _candidate('guide.harmony', '2', _second),
+        _candidate('guide.gongmang', '1', _third),
+      ];
+      await _open(h, _newToday);
+      final notifier = h.notifier(_newToday)
+        ..swapQuestion()
+        ..swapQuestion();
+      expect(_questionText(h.state(_newToday)), _third);
+      notifier
+        ..detachQuestion()
+        ..attachQuestion();
+      final attached = h.state(_newToday);
+      expect(attached.guideDetached, isFalse);
+      expect(attached.questionIndex, 0);
+      expect(_questionText(attached), _first);
+      notifier.swapQuestion();
+      expect(_questionText(h.state(_newToday)), _second);
+      await notifier.save('다시 붙인 글');
+      final body = h.network.creates.single.body;
+      expect(body['withoutGuideQuestion'], isFalse);
+      expect(body['guideQuestion'], {
+        'messageKey': 'guide.harmony',
+        'variant': '2',
+      });
+    });
+
+    test('실패 뒤 질문만 떼고 같은 본문을 다시 보내면 새 Idempotency-Key입니다', () async {
+      final h = await _harness();
+      await _open(h, _newToday);
+      final notifier = h.notifier(_newToday);
+      h.network.timeoutNextCreate = true;
+      await expectLater(notifier.save('같은 글'), throwsA(isA<TimeoutError>()));
+      notifier.detachQuestion();
+      expect(await notifier.save('같은 글'), isNotNull);
+      expect(h.network.creates.last.key, isNot(h.network.creates.first.key));
+    });
+
+    test('실패 뒤 뗀 채 같은 본문을 다시 보내면 같은 Idempotency-Key입니다', () async {
+      final h = await _harness();
+      await _open(h, _newToday);
+      final notifier = h.notifier(_newToday)..detachQuestion();
+      h.network.timeoutNextCreate = true;
+      await expectLater(notifier.save('같은 글'), throwsA(isA<TimeoutError>()));
+      expect(await notifier.save('같은 글'), isNotNull);
+      expect(h.network.creates.last.key, h.network.creates.first.key);
+    });
+
+    test('뗀 상태는 초안에 남고 이어 쓰기는 뗀 채로 시작합니다', () async {
+      final h = await _harness();
+      await _open(h, _newToday);
+      h.notifier(_newToday)
+        ..edit('쓰는 중')
+        ..detachQuestion();
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 50),
+      );
+      final draft = await h.container
+          .read(diaryDraftStoreProvider)
+          .find(_draftToday);
+      expect(draft!.body, '쓰는 중');
+      expect(draft.guideDetached, isTrue);
+      expect(draft.guideMessageKey, isNull);
+
+      h.container.invalidate(diaryEditProvider(_newToday));
+      final reopened = await _open(h, _newToday);
+      expect(reopened.fromDraft, isTrue);
+      expect(reopened.guideDetached, isTrue);
+      expect(reopened.canDetachQuestion, isTrue);
+    });
+
+    test('다시 붙이면 초안의 뗀 표시도 풀립니다', () async {
+      final h = await _harness();
+      await h.container
+          .read(diaryDraftStoreProvider)
+          .write(_draftToday, '이어 쓸 글', detached: true);
+      await _open(h, _newToday);
+      h.notifier(_newToday).attachQuestion();
+      await Future<void>.delayed(
+        diaryDraftDelay + const Duration(milliseconds: 50),
+      );
+      final draft = await h.container
+          .read(diaryDraftStoreProvider)
+          .find(_draftToday);
+      expect(draft!.guideDetached, isFalse);
+      expect(draft.guideMessageKey, 'guide.harmony');
+      expect(draft.guideVariant, '1');
+    });
+
+    test('고치기와 후보를 받지 못한 새 일기는 뗄 수 없습니다', () async {
+      final h = await _harness();
+      final id =
+          (await h.container
+                  .read(diaryRepositoryProvider)
+                  .diariesOn(CalendarDate(2026, 10, 12)))
+              .first
+              .id;
+      final existing = DiaryEditTarget.existing(id);
+      expect((await _open(h, existing)).canDetachQuestion, isFalse);
+      h.notifier(existing).detachQuestion();
+      expect(h.state(existing).guideDetached, isFalse);
+
+      h.network.dailyOffline = true;
+      final offline = await _open(h, _newToday);
+      expect(offline.candidates, isEmpty);
+      expect(offline.canDetachQuestion, isFalse);
+    });
+
+    test('후보를 받지 못해도 뗀 채 남은 초안은 뗀 대로 보냅니다', () async {
+      final h = await _harness();
+      await h.container
+          .read(diaryDraftStoreProvider)
+          .write(_draftToday, '뗀 채 쓴 글', detached: true);
+      h.network.dailyOffline = true;
+      final opened = await _open(h, _newToday);
+      expect(opened.guideDetached, isTrue);
+      await h.notifier(_newToday).save('뗀 채 쓴 글');
+      final body = h.network.creates.single.body;
+      expect(body['withoutGuideQuestion'], isTrue);
+      expect(body.containsKey('guideQuestion'), isFalse);
+    });
+  });
+
   group('날짜 블록 일진', () {
     Future<String> writtenId(_Harness h) async =>
         (await h.container

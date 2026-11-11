@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart'
-    show Finder, expect, find, findsNothing, findsOneWidget;
+    show Finder, contains, expect, find, findsNothing, findsOneWidget, isNot;
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -29,7 +29,9 @@ Finder _rowOf(CalendarDate date) =>
     find.byWidgetPredicate((w) => w is DiaryRow && w.date == date);
 
 void main() {
-  patrolTest('member: 날짜 골라 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다', ($) async {
+  patrolTest('member: 날짜 골라 질문 떼고 쓰고 저장 → 보기 → 태그 모아보기 → 다시 보기에서 지웁니다', (
+    $,
+  ) async {
     covers(
       const Covers(
         exits: [
@@ -81,7 +83,20 @@ void main() {
     await $(confirm).tap();
     await expectScreen($, ScreenIds.diaryEdit);
 
-    // 쓰고 저장 → 저장 순간 뒤 그날 보기.
+    // 질문 떼기(D116): 떼면 권유 줄, 누르면 그날 기본 질문이 다시 붙고, 다시 떼어 질문 없이 씁니다.
+    await waitUntil(
+      $,
+      () => find.byKey(DiaryEditor.removeKey).evaluate().isNotEmpty,
+    );
+    await $(find.byKey(DiaryEditor.removeKey)).tap();
+    await $(find.text(l10n.diaryEditGuideAttach)).waitUntilVisible();
+    expect(find.byKey(DiaryEditor.quoteLineKey), findsNothing);
+    await $(find.text(l10n.diaryEditGuideAttach)).tap();
+    await $(find.byKey(DiaryEditor.quoteLineKey)).waitUntilVisible();
+    await $(find.byKey(DiaryEditor.removeKey)).tap();
+    await $(find.text(l10n.diaryEditGuideAttach)).waitUntilVisible();
+
+    // 쓰고 저장 → 저장 순간 뒤 그날 보기. 뗀 채 저장한 편에는 질문이 없습니다.
     await $(find.byType(EditableText)).enterText(_body);
     await $(find.text(l10n.diaryEditSave)).tap();
     await waitUntil(
@@ -91,6 +106,7 @@ void main() {
           find.byKey(const ValueKey(ScreenIds.diaryEdit)).evaluate().isEmpty,
     );
     await expectScreen($, ScreenIds.diaryView);
+    expect(find.byKey(DiaryEditor.quoteLineKey), findsNothing);
 
     // 대표 태그 → 뜻 시트 → 모아보기 링크: 태그 모아보기에 방금 쓴 날.
     final chip = find
@@ -111,6 +127,11 @@ void main() {
     await $(find.textContaining(l10n.explainSheetTagDiaryLink(tagName))).tap();
     await expectScreen($, ScreenIds.tagDiary);
     await waitUntil($, () => _rowOf(day).evaluate().isNotEmpty);
+    // 모아보기 줄은 모아 본 그 태그만 빼고 그날 다른 사주 기운 태그를 둡니다(D115, V103).
+    expect(
+      $.tester.widget<DiaryRow>(_rowOf(day)).tags.map((tag) => tag.label),
+      isNot(contains(tagName)),
+    );
 
     // 그 줄 → 보기 → 지우기 → 확인 창에서 지우기.
     await $(_rowOf(day)).tap();
