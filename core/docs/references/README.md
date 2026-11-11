@@ -20,6 +20,7 @@
 | `core/src/myungli_engine/references/data/gungtong_bogam/five_elements.json` | 「五行總論」의 오행별 방위·색·수·성정, 억부 원리 | 행운의 컬러·숫자·방향 근거, 감성 코멘트 |
 | `core/src/myungli_engine/references/data/gungtong_bogam/corrections.json` | 통용 정리표를 원문 기준으로 정정한 11칸과 근거 문장 | - |
 | `verification-report.md` | 조후표 ↔ 원문 120칸 대조 결과 (자동 생성) | - |
+| `quote-choices.json` | 첫 문장 대신 용신을 말하는 문장으로 고른 인용 22칸과 결정 대기 2칸(#625, core C37). 생성기가 원문 문단에 있는지 확인 | 근거 시트의 원전 인용 |
 | `tools/parse_source.py` | 원문 파서 | - |
 | `tools/build_evidence.py` | 위 JSON과 리포트 생성기 | - |
 

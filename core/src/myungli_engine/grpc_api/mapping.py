@@ -316,6 +316,10 @@ def _focus_card(pick: FocusPick, judgment: Judgment) -> pb.FocusTimeCard:
                 start=_timestamp(slot.start),
                 end=_timestamp(slot.end),
                 huangdao_lucky=slot.huangdao_lucky,
+                day_date=pb.LocalDate(
+                    year=pick.grade.day_date.year, month=pick.grade.day_date.month, day=pick.grade.day_date.day
+                ),
+                day_pillar=_pillar(pick.grade.day),
             )
         ],
         period=_name(_PREFIX_FOCUS_PERIOD, pick.period),

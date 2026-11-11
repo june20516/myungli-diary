@@ -1,4 +1,7 @@
-"""집중하기 좋은 시간 (spec 7.5, D122). 12시진을 원문 등급으로 줄 세워 낮과 밤 각각 1등을 고른다.
+"""집중하기 좋은 시간 (spec 7.5, D122). 시진을 원문 등급으로 줄 세워 낮과 밤 각각 1등을 고른다.
+
+날짜 d의 낮은 d 일진의 진시~술시, 밤은 d 일진의 해시와 d+1 일진의 자시~묘시(d 저녁부터 d+1 아침까지,
+#1008)다. 시진마다 자기 날의 일진으로 판정한다.
 
 원전은 『欽定協紀辨方書』 卷三十四 「用時法」(그날 일진을 돕는 시), 卷三十三 「論相主」(태어난 해 기준),
 卷七 「黄道黒道」(동점)이다. 등급 사이 순서와 길끼리 같은 무게는 원문이 정하지 않아 명리일기가 정했다
@@ -15,8 +18,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 from enum import Enum, auto
 from typing import Final
 
@@ -38,8 +41,8 @@ from myungli_engine.domain.ten_gods import ten_god
 
 
 class FocusPeriod(Enum):
-    DAY = auto()  # 진시~술시 (D21 ① 활동 시간대)
-    NIGHT = auto()  # 해시~묘시
+    DAY = auto()  # d 진시~술시 (D21 ① 활동 시간대)
+    NIGHT = auto()  # d 해시 + d+1 자시~묘시 (#1008)
 
 
 # 마지막 동점은 이 순서로 이른 시진이 앞선다(D122).
@@ -47,6 +50,17 @@ PERIOD_BRANCHES: Final[dict[FocusPeriod, tuple[Branch, ...]]] = {
     FocusPeriod.DAY: (Branch.JIN, Branch.SA, Branch.O, Branch.MI, Branch.SHIN, Branch.YU, Branch.SUL),
     FocusPeriod.NIGHT: (Branch.HAE, Branch.JA, Branch.CHUK, Branch.IN, Branch.MYO),
 }
+# 밤 가운데 다음 날(d+1) 일진에 속하는 시진. 해시만 그날(d) 일진이다.
+NEXT_DAY_NIGHT_BRANCHES: Final = frozenset({Branch.JA, Branch.CHUK, Branch.IN, Branch.MYO})
+
+
+@dataclass(frozen=True, slots=True)
+class DayHours:
+    """하루 일진과 그날의 12시진."""
+
+    date: date
+    pillar: Pillar
+    slots: tuple[HourSlot, ...]
 
 # 녹(祿): 천간이 臨官하는 지지.
 ROK: Final[dict[Stem, Branch]] = {
@@ -74,6 +88,8 @@ class HourGrade:
     """시진 하나의 등급. 키가 작을수록 앞선다."""
 
     slot: HourSlot
+    day_date: date  # 이 시진이 속한 일진의 날짜
+    day: Pillar  # 이 시진을 판정한 일진
     day_goods: tuple[str, ...]  # 그날 기준 길: build, samhap, yukhap, gwiin, rok, ma
     year_goods: tuple[str, ...]  # 태어난 해 기준 길: stem_hap, bigyeon, jeongin, jangsaeng, rok, gwiin, ma
     second_bads: tuple[str, ...]  # 次凶: hyeong, obulu
@@ -120,8 +136,8 @@ def _obulu(day: Pillar, hour: Pillar) -> bool:
     return generates(hour.branch.element) not in (day.stem.element, day.branch.element)
 
 
-def grade_hour(slot: HourSlot, day: Pillar, birth_year: Pillar) -> HourGrade | None:
-    """時破면 None(후보에서 뺌)."""
+def grade_hour(slot: HourSlot, day: Pillar, birth_year: Pillar, day_date: date) -> HourGrade | None:
+    """時破면 None(후보에서 뺌). day는 이 시진이 속한 날의 일진이다."""
     hour = slot.pillar
     if _pair(day.branch, hour.branch) in BRANCH_CHUNG:
         return None
@@ -150,6 +166,8 @@ def grade_hour(slot: HourSlot, day: Pillar, birth_year: Pillar) -> HourGrade | N
     )
     return HourGrade(
         slot=slot,
+        day_date=day_date,
+        day=day,
         day_goods=tuple(name for name, hit in day_goods if hit),
         year_goods=tuple(name for name, hit in year_goods if hit),
         second_bads=tuple(name for name, hit in second_bads if hit),
@@ -157,11 +175,22 @@ def grade_hour(slot: HourSlot, day: Pillar, birth_year: Pillar) -> HourGrade | N
     )
 
 
-def pick_focus_times(slots: Sequence[HourSlot], day: Pillar, birth_year: Pillar) -> tuple[FocusPick, ...]:
-    """(낮 1등, 밤 1등). 時破는 시진 하나만 빼므로 두 구간 모두 후보가 남는다."""
+def _candidates(period: FocusPeriod, today: DayHours, tomorrow: DayHours) -> list[tuple[HourSlot, DayHours]]:
+    order = PERIOD_BRANCHES[period]
+    if period is FocusPeriod.DAY:
+        return [(slot, today) for slot in today.slots if slot.branch in order]
+    tonight = [(slot, today) for slot in today.slots if slot.branch is Branch.HAE]
+    return tonight + [(slot, tomorrow) for slot in tomorrow.slots if slot.branch in NEXT_DAY_NIGHT_BRANCHES]
+
+
+def pick_focus_times(today: DayHours, tomorrow: DayHours, birth_year: Pillar) -> tuple[FocusPick, ...]:
+    """(낮 1등, 밤 1등). tomorrow는 today 다음 날이다. 時破는 날마다 시진 하나만 빼므로 두 구간 모두 후보가 남는다."""
     picks: list[FocusPick] = []
     for period, order in PERIOD_BRANCHES.items():
-        grades = [grade_hour(slot, day, birth_year) for slot in slots if slot.branch in order]
+        grades = [
+            grade_hour(slot, hours.pillar, birth_year, hours.date)
+            for slot, hours in _candidates(period, today, tomorrow)
+        ]
         candidates = [grade for grade in grades if grade is not None]
         if not candidates:
             raise ValueError(f"{period.name} 시진 후보가 없습니다")

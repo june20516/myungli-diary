@@ -839,7 +839,7 @@ class FocusTimeCard(_message.Message):
     def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., picks: _Optional[_Iterable[_Union[FocusSlot, _Mapping]]] = ..., fallback: _Optional[bool] = ..., period: _Optional[_Union[FocusPeriod, str]] = ...) -> None: ...
 
 class FocusSlot(_message.Message):
-    __slots__ = ("branch", "pillar", "start", "end", "huangdao_lucky", "score", "reasons")
+    __slots__ = ("branch", "pillar", "start", "end", "huangdao_lucky", "score", "reasons", "day_date", "day_pillar")
     BRANCH_FIELD_NUMBER: _ClassVar[int]
     PILLAR_FIELD_NUMBER: _ClassVar[int]
     START_FIELD_NUMBER: _ClassVar[int]
@@ -847,6 +847,8 @@ class FocusSlot(_message.Message):
     HUANGDAO_LUCKY_FIELD_NUMBER: _ClassVar[int]
     SCORE_FIELD_NUMBER: _ClassVar[int]
     REASONS_FIELD_NUMBER: _ClassVar[int]
+    DAY_DATE_FIELD_NUMBER: _ClassVar[int]
+    DAY_PILLAR_FIELD_NUMBER: _ClassVar[int]
     branch: Branch
     pillar: Pillar
     start: _timestamp_pb2.Timestamp
@@ -854,7 +856,9 @@ class FocusSlot(_message.Message):
     huangdao_lucky: bool
     score: int
     reasons: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, branch: _Optional[_Union[Branch, str]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., start: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., end: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., huangdao_lucky: _Optional[bool] = ..., score: _Optional[int] = ..., reasons: _Optional[_Iterable[str]] = ...) -> None: ...
+    day_date: LocalDate
+    day_pillar: Pillar
+    def __init__(self, branch: _Optional[_Union[Branch, str]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., start: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., end: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., huangdao_lucky: _Optional[bool] = ..., score: _Optional[int] = ..., reasons: _Optional[_Iterable[str]] = ..., day_date: _Optional[_Union[LocalDate, _Mapping]] = ..., day_pillar: _Optional[_Union[Pillar, _Mapping]] = ...) -> None: ...
 
 class Relation(_message.Message):
     __slots__ = ("kind", "natal_position", "suppressed_by")
