@@ -53,3 +53,13 @@ python3 -I core/docs/references/tools/build_tag_sources.py
 
 * **문단:** 『三命通會』 수집본은 문장 중간에서 줄을 바꿔 두었으므로 빈 줄로 나뉜 덩어리를 한 문단으로 보고 줄을 구분자 없이 잇습니다. 『滴天髓』은 본문 줄과 주석 줄이 각각 한 문단입니다. 글자는 바꾸지 않습니다(수집본의 已·化盖 같은 표기도 그대로, `note`에 밝힘).
 * **원전 없음:** 십성 쏠림 태그는 명리일기가 정한 규칙이라 원전이 없습니다. 근거의 `source_ref`가 빈 문자열입니다(core C28).
+
+## 시진 고르기 원전: 『協紀辨方書』 `xieji-bianfang/` (#980)
+
+집중 시간(시진 고르기)의 원전 후보입니다. 위키문헌 四庫全書本 원문을 글자 그대로 저장했고 출처와 revision은 `xieji-bianfang/PROVENANCE.md`에 있습니다. 조목별 대조, 지금 규칙과의 대조, 원전만으로 짠 안의 측정은 [`hour-sources-survey.md`](hour-sources-survey.md)에 있습니다. 엔진은 아직 이 원문을 쓰지 않습니다(규칙은 사용자 결정 뒤).
+
+| 파일 | 내용 |
+| --- | --- |
+| `xieji-bianfang/skqs-vol07.wikitext` ~ `skqs-vol36.wikitext` (8권) | 『欽定協紀辨方書』 卷七, 九, 十, 三十二~三十六 원문 (수집 원본, 수정 금지, 번체, 구두점 없음) |
+| `sammyeong-tonghoe/skqs-vol03.wikitext` | 『三命通會』 四庫全書本 卷三 원문 (截路空亡 조목) |
+
