@@ -268,8 +268,7 @@ _Open _diaryDetached(CalendarDate date) => (tester, container) async {
   );
   await pumpUntilScreen(tester, ScreenIds.diaryEdit);
   await settleWithIo(tester);
-  // 키는 버튼 안 44 상자에 있고 누름은 감싼 버튼이 받습니다.
-  await tester.tap(find.byKey(DiaryEditor.removeKey), warnIfMissed: false);
+  await tester.tap(find.byKey(DiaryEditor.removeKey));
   await settleWithIo(tester, allowOngoing: true);
   expect(find.text(AppLocalizationsKo().diaryEditGuideAttach), findsOneWidget);
 };

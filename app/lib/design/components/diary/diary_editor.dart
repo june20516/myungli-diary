@@ -768,12 +768,14 @@ class _QuestionAction extends StatelessWidget {
         identifier: identifier,
         onTap: onTap,
         excludeSemantics: true,
+        // key는 누름을 받는 쪽에 둡니다. 안쪽 상자는 아이콘 밖에서 hit test를 통과하지 못해
+        // 기기 E2E(Patrol)가 누를 수 없는 위젯으로 봅니다.
         child: GestureDetector(
+          key: targetKey,
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           // 바꾸기와 떼기는 같은 44 터치 영역입니다(`swap.minTarget`, `remove.minTarget`).
           child: SizedBox.square(
-            key: targetKey,
             dimension: DiaryEditor.swapTarget,
             child: Align(
               alignment: Alignment.topCenter,
