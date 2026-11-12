@@ -84,3 +84,14 @@ python3 -I core/docs/references/tools/build_quoted_sources.py
 | `xieji-bianfang/skqs-vol07.wikitext` ~ `skqs-vol36.wikitext` (8권) | 『欽定協紀辨方書』 卷七, 九, 十, 三十二~三十六 원문 (수집 원본, 수정 금지, 번체, 구두점 없음) |
 | `sammyeong-tonghoe/skqs-vol03.wikitext` | 『三命通會』 四庫全書本 卷三 원문 (截路空亡 조목) |
 
+
+## 신살 확장 검토 원전 (#1021)
+
+신살 후보 34개의 원전, 기준, 길흉, 빈도 조사입니다. 구현하지 않았고, 도입 여부는 사용자가 정합니다. 결과는 [`shinsal-sources-survey.md`](shinsal-sources-survey.md)에 있습니다.
+
+| 파일 | 내용 |
+| --- | --- |
+| `sammyeong-tonghoe/skqs-vol06.wikitext` | 『三命通會』 四庫全書本 卷六 (魁罡) |
+| `xingxue-dacheng/skqs-vol02.wikitext` | 『星學大成』 四庫全書本 卷二 (定驛馬十二位, 暗祿) |
+| `xieji-bianfang/skqs-vol03.wikitext` ~ `skqs-vol05.wikitext` | 『協紀辨方書』 卷三~五 (天德 전체표, 天醫 등) |
+| `shinsal-sources/` | 『雲麓漫抄』, 『三命指迷賦』, 『古今圖書集成』 藝術典 557卷, 630卷 쪽 원문과 계산용 정의표 `definitions.json` |
