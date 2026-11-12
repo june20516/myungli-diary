@@ -515,7 +515,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                   child: DateHeader(
                     solar: _solarTextOf(context, date),
                     lunar: display.lunarText,
-                    iljin: display.iljinText,
+                    iljin: display.iljin,
                     virtues: [
                       for (final virtue in display.virtues)
                         DateHeaderVirtue(

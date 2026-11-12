@@ -26,6 +26,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/day_kind_names.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
@@ -525,7 +526,7 @@ final class TodayDisplay {
   /// 오늘 화면 값을 만듭니다.
   const new({
     required this.lunarText,
-    required this.iljinText,
+    required this.iljin,
     required this.virtues,
     required this.dayKind,
     required this.dayKindLabel,
@@ -544,8 +545,8 @@ final class TodayDisplay {
   /// 날짜 머리의 음력 글자(`today.date.lunar`). 응답에 음력이 없으면 null입니다.
   final String? lunarText;
 
-  /// 날짜 머리의 일진 글자(`today.date.iljin`, 예 `庚申(경신)일`).
-  final String iljinText;
+  /// 날짜 머리의 일진 글자(`today.date.iljin`, 화면 `庚申(경신)일`, 스크린리더 `경신일`).
+  final IljinText iljin;
 
   /// 날짜 머리의 덕일 알약(`today.date.virtue`, 천덕일, 월덕일 순서, [dayVirtuesOf]). 덕일이 아닌 날은
   /// 비어 있습니다.
@@ -597,7 +598,8 @@ final class TodayDisplay {
   /// 동등성에 쓰는 필드 목록. 화면에 그리는 필드는 모두 여기에 있습니다.
   List<Object?> get _props => [
     lunarText,
-    iljinText,
+    iljin.shown,
+    iljin.spoken,
     virtues,
     dayKind,
     dayKindLabel,
@@ -734,21 +736,27 @@ DayVirtueContent? _dayVirtueContentOf(DayVirtue virtue, AppLocalizations l10n) {
   );
 }
 
-/// [daily]의 일진 글자(`todayDateIljin`). 간지 글자는 [pillarTextOf]입니다.
-String iljinTextOf(Daily daily, GlossaryNames names, AppLocalizations l10n) =>
-    l10n.todayDateIljin(pillarTextOf(daily.dayPillar, names));
-
-/// [pillar]의 간지 글자: 한자 뒤 괄호에 독음을 붙이고(`庚申(경신)`), 천간이나 지지 독음이
-/// 없으면 한자만 씁니다(오늘 날짜 머리, 일기 쓰기 날짜 블록). 독음 원천은 [GanjiReading](A133)이고
-/// #1069 전에는 없어 한자만입니다.
-String pillarTextOf(Pillar pillar, GlossaryNames? names) {
-  final hanja = '${stemHanja(pillar.stem)}${branchHanja(pillar.branch)}';
-  final stemReading = GanjiReading.stem(pillar.stem, names);
-  final branchReading = GanjiReading.branch(pillar.branch, names);
-  return stemReading == null || branchReading == null
-      ? hanja
-      : '$hanja($stemReading$branchReading)';
+/// [daily]의 일진 글자(`todayDateIljin`). 간지 글자는 [ganjiTextOf]입니다.
+IljinText iljinTextOf(Daily daily, AppLocalizations l10n) {
+  final pillar = ganjiTextOf(daily.dayPillar, l10n);
+  return IljinText(
+    shown: l10n.todayDateIljin(pillar.shown),
+    spoken: l10n.todayDateIljin(pillar.spoken),
+  );
 }
+
+/// [pillar]의 간지 글자(W72, A133). 화면 글자 `shown`은 한자 뒤 괄호 독음(`庚申(경신)`,
+/// en `庚申 (Gyeong Sin)`, ja `庚申（かのえさる）`, 틀 `ganjiReadingSuffix`)이고, 스크린리더 글자
+/// `spoken`은 독음만(`경신`, 틀 `ganjiReading`)입니다. 한자는 틀에 넣지 않고 앞에 붙여,
+/// 그리는 컴포넌트가 한자 덩어리를 한자 글꼴로 바꿉니다(오늘 날짜 머리, 일기 쓰기 날짜 블록).
+GanjiText ganjiTextOf(Pillar pillar, AppLocalizations l10n) {
+  final hanja = '${stemHanja(pillar.stem)}${branchHanja(pillar.branch)}';
+  final reading = GanjiReading.pillar(pillar.stem, pillar.branch, l10n);
+  return (shown: '$hanja${l10n.ganjiReadingSuffix(reading)}', spoken: reading);
+}
+
+/// 간지 글자: 화면 글자(한자 + 괄호 독음)와 스크린리더 글자(독음).
+typedef GanjiText = ({String shown, String spoken});
 
 /// [daily]를 오늘 화면 값으로 바꿉니다. 이름은 [names]·[l10n], 시각은 [timezone](프로필 시간대)이고,
 /// [beforeDayStart]([isBeforeDayStart])가 밤 칩을 고릅니다.
@@ -768,7 +776,7 @@ TodayDisplay todayDisplayOf(
       : SentenceLine(text: tag.text, slot: tag.slot);
   return TodayDisplay(
     lunarText: lunarTextOf(daily, l10n),
-    iljinText: iljinTextOf(daily, names, l10n),
+    iljin: iljinTextOf(daily, l10n),
     virtues: dayVirtuesOf(daily, l10n),
     dayKind: daily.dayKind,
     dayKindLabel: dayKindName(l10n, daily.dayKind),

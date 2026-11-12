@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
@@ -11,6 +12,7 @@ import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/gen/model/stem.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -19,6 +21,7 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/features/glossary/model/ganji_reading.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -875,11 +878,42 @@ void main() {
       );
     });
 
-    test('일진은 사전 값 이름을 독음으로 쓰지 않아 한자만입니다(A133, #1069 전)', () {
+    test('일진은 한자 뒤 괄호 독음이고 스크린리더는 독음만 읽습니다(W72, #1069)', () {
       final daily = Daily.fromJson(memberDailyJson());
-      // 사전에 천간, 지지 이름이 있어도 독음 자리에 쓰지 않습니다.
-      expect(displayOf(daily).iljinText, _l10n.todayDateIljin('庚申'));
-      expect(displayOf(daily, _names).iljinText, _l10n.todayDateIljin('庚申'));
+      final iljin = displayOf(daily).iljin;
+      expect(iljin.shown, '庚申(경신)일');
+      expect(iljin.spoken, '경신일');
+      // 독음은 사전 값 이름(경금)이 아니라 원고 독음(ARB stemReading*, branchReading*)입니다.
+      expect(displayOf(daily, _names).iljin.shown, '庚申(경신)일');
+    });
+
+    for (final (locale, shown, spoken) in [
+      ('en', '庚申 (Gyeong Sin) day', 'Gyeong Sin day'),
+      ('ja', '庚申（かのえさる）日', 'かのえさる日'),
+    ]) {
+      test('일진 독음 틀은 언어마다 원고 그대로입니다($locale)', () async {
+        final l10n = await AppLocalizations.delegate.load(Locale(locale));
+        final daily = Daily.fromJson(memberDailyJson());
+        final iljin = iljinTextOf(daily, l10n);
+        expect(iljin.shown, shown);
+        expect(iljin.spoken, spoken);
+      });
+    }
+
+    test('간지 독음은 천간 열, 지지 열둘 모두 원고에 있습니다', () {
+      for (final stem in Stem.values) {
+        expect(GanjiReading.stem(stem, _l10n), isNotEmpty, reason: stem.value);
+      }
+      for (final branch in Branch.values) {
+        expect(
+          GanjiReading.branch(branch, _l10n),
+          isNotEmpty,
+          reason: branch.value,
+        );
+      }
+      expect(GanjiReading.stem(Stem.gyeong, _l10n), '경');
+      expect(GanjiReading.branch(Branch.in_, _l10n), '인');
+      expect(GanjiReading.pillar(Stem.gap, Branch.ja, _l10n), '갑자');
     });
 
     test('날의 성격은 enum과 ARB 이름, 십성 묶음은 enum과 사전 이름입니다', () {

@@ -377,6 +377,8 @@ void main() {
     final band = _band(manse);
     expect(band.columns[3].hiddenStems.map((stem) => stem.hanja), ['丁', '己']);
     expect(manse.basisGlyph, '庚');
+    // "<간>(<이름>)": 한자 뒤 괄호에 사전 천간 이름(A139).
+    expect(manse.basis, _ko.sajuChartManseBasis('庚(경금)'));
     expect(band.tableLabel, _ko.manseTableLabel);
 
     final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
@@ -790,11 +792,11 @@ void main() {
     );
     expect(_personalText('괴강이 있어 기운이 세고'), findsOneWidget);
     await closeSheet(tester, _evidenceSheet);
-    // 흉 신살이 아닌 괴강의 풀이 시트에는 마무리 한 줄이 없습니다.
+    // 괴강은 마무리 한 줄 대상이라(7.6.0 targets, V125) 풀이 시트 뜻 아래에 상자가 있습니다.
     final explain = find.byKey(const Key(ScreenIds.explainSheet));
     expect(
       find.descendant(of: explain, matching: find.byKey(WeighingNote.boxKey)),
-      findsNothing,
+      findsOneWidget,
     );
     await closeSheet(tester, explain);
 

@@ -6,6 +6,24 @@ import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart'
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
+/// 일진 글자(`today.date.iljin`, `diary-edit.date.iljin`, W72): 화면 글자와 스크린리더 글자.
+///
+/// [shown]은 간지 한자 뒤 괄호 독음을 품은 글자(예 `庚申(경신)일`, ja `庚申（かのえさる）日`)이고
+/// 한자 덩어리는 그리는 컴포넌트가 `font.family.hanja`로 바꿉니다. [spoken]은 한자 없이 독음만
+/// 넣은 같은 틀(예 `경신일`)입니다. 두 글자는 만드는 쪽이 원고 틀(`ganjiReading`,
+/// `ganjiReadingSuffix`)로 만듭니다.
+@immutable
+final class IljinText {
+  /// [shown]을 그리고 [spoken]을 읽습니다.
+  const new({required this.shown, required this.spoken});
+
+  /// 화면 글자(한자 + 괄호 독음).
+  final String shown;
+
+  /// 스크린리더 글자(독음만).
+  final String spoken;
+}
+
 /// 날짜 머리(`date-header`, D108, V78): 날짜 줄과 그 아래 음력, 일진, 덕일 한 줄.
 ///
 /// 오늘 화면(`today`)은 날짜, 음력, 일진, 덕일([virtues], 있는 날만)을 보이고 그날 시트
@@ -34,9 +52,9 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 class DateHeader extends StatelessWidget {
   /// 날짜 머리를 만듭니다.
   ///
-  /// [solar]는 날짜와 요일 글자, [lunar]는 음력 글자, [iljin]은 한자를 품은 일진 글자
-  /// (예: `癸未(계미)일`)이며 한자는 `font.family.hanja`로 그립니다. [trailing]은 그날
-  /// 시트의 날의 성격 태그입니다. [virtues]는 오늘 화면의 덕일 알약(그릴 순서)입니다.
+  /// [solar]는 날짜와 요일 글자, [lunar]는 음력 글자, [iljin]은 일진 글자([IljinText],
+  /// 화면은 `癸未(계미)일`, 스크린리더는 `계미일`)이며 한자는 `font.family.hanja`로 그립니다.
+  /// [trailing]은 그날 시트의 날의 성격 태그입니다. [virtues]는 오늘 화면의 덕일 알약(그릴 순서)입니다.
   const new({
     required this.solar,
     this.lunar,
@@ -138,8 +156,8 @@ class DateHeader extends StatelessWidget {
   /// 음력. 없으면 그 칸만 뺍니다.
   final String? lunar;
 
-  /// 한자를 품은 일진. 없으면(그날 시트) 그 칸만 뺍니다.
-  final String? iljin;
+  /// 일진. 없으면(그날 시트) 그 칸만 뺍니다.
+  final IljinText? iljin;
 
   /// 덕일 알약(오늘 화면, 그릴 순서). 비면 칸째 없습니다.
   final List<DateHeaderVirtue> virtues;
@@ -166,10 +184,6 @@ class DateHeader extends StatelessWidget {
     return spans;
   }
 
-  /// 스크린리더가 읽는 일진: 한자와 괄호를 빼고 한글 독음만 남깁니다(`癸未(계미)일` → `계미일`).
-  static String spokenIljinOf(String iljin) =>
-      iljin.replaceAll(_hanjaRun, '').replaceAll(RegExp('[()]'), '').trim();
-
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
@@ -181,7 +195,7 @@ class DateHeader extends StatelessWidget {
     final metaStyle = tokens.typography.captionLg.copyWith(
       color: colors.textSecondary,
     );
-    final spoken = [solar, ?lunar, if (iljin != null) spokenIljinOf(iljin)];
+    final spoken = [solar, ?lunar, ?iljin?.spoken];
     Widget meta = Wrap(
       key: metaKey,
       spacing: Space.s8,
@@ -197,7 +211,7 @@ class DateHeader extends StatelessWidget {
               TextSpan(
                 style: metaStyle,
                 children: hanjaSpansOf(
-                  iljin,
+                  iljin.shown,
                   metaStyle.copyWith(
                     fontFamily: tokens.typography.hanjaPillar.fontFamily,
                     fontFamilyFallback:

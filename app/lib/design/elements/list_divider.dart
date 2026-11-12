@@ -10,11 +10,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 사이, 사주 기운 시트 문장 목록)은 [ListDivider.inSheet]로 들임 없이 긋습니다(V124).
 class ListDivider extends StatelessWidget {
   /// 구분선을 만듭니다. 들임은 읽는 방향 기준 시작, 끝입니다.
-  const new({
-    this.indentStart = insetX,
-    this.indentEnd = insetX,
-    super.key,
-  });
+  const new({this.indentStart = insetX, this.indentEnd = insetX, super.key});
 
   /// 시트 본문에 바로 놓인 목록과 구역의 구분선(`list.divider` `inSheet`, 들임 [inSheetInsetX]).
   const new inSheet({super.key})

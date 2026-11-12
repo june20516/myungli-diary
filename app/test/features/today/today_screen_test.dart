@@ -257,11 +257,13 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
     expect(_id(ScreenIds.today), findsOneWidget);
 
-    // 날짜 머리: 양력과 요일, 음력, 일진. 독음 원천이 오기 전(#1069)이라 한자만입니다(A133).
+    // 날짜 머리: 양력과 요일, 음력, 일진. 일진은 한자 뒤 괄호 독음이고 스크린리더는 독음만입니다
+    // (W72, A133).
     final header = tester.widget<DateHeader>(_content);
     expect(header.solar, _ko.todayDateSolar('10월 13일 화요일'));
     expect(header.lunar, _ko.todayDateLunar(9, 3));
-    expect(header.iljin, _ko.todayDateIljin('庚申'));
+    expect(header.iljin?.shown, _ko.todayDateIljin('庚申(경신)'));
+    expect(header.iljin?.spoken, _ko.todayDateIljin('경신'));
 
     // 섹션 제목은 위에서부터 총운, 사주 기운, 행운, 일정(있는 날), 오늘의 질문입니다.
     final titles = [

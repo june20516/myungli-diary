@@ -12,11 +12,11 @@ import '../input/input_harness.dart';
 
 const _solar = '10월 13일 화요일';
 const _lunar = '음력 8월 24일';
-const _iljin = '癸未(계미)일';
+const _iljin = IljinText(shown: '癸未(계미)일', spoken: '계미일');
 
 Widget _app({
   String? lunar,
-  String? iljin,
+  IljinText? iljin,
   List<DateHeaderVirtue> virtues = const [],
   double width = 360,
 }) => inputApp(
@@ -131,10 +131,17 @@ void main() {
       expect(spans[1].style, isNull);
     });
 
-    test('스크린리더 일진은 한글 독음만 남깁니다', () {
-      expect(DateHeader.spokenIljinOf('癸未(계미)일'), '계미일');
-      expect(DateHeader.spokenIljinOf('庚申(경신)日'), '경신');
-      expect(DateHeader.spokenIljinOf('경신일'), '경신일');
+    testWidgets('ja 전각 괄호 독음도 한자만 hanja 글꼴입니다(W72)', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          iljin: const IljinText(shown: '庚申（かのえさる）日', spoken: 'かのえさる日'),
+        ),
+      );
+      final root = tester
+          .widget<Text>(find.byKey(DateHeader.iljinKey))
+          .textSpan!;
+      final spans = (root as TextSpan).children!.cast<TextSpan>();
+      expect(spans.map((s) => s.text), ['庚申', '（かのえさる）', '日']);
     });
 
     testWidgets('한 덩어리 header로 읽히고 일진은 독음만 읽습니다', (tester) async {

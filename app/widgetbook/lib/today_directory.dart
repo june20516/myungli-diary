@@ -209,7 +209,7 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 const DateHeader(
                   solar: '10월 13일 화요일',
                   lunar: '음력 8월 24일',
-                  iljin: '癸未(계미)일',
+                  iljin: IljinText(shown: '癸未(계미)일', spoken: '계미일'),
                 ),
               ),
             ),
@@ -219,7 +219,7 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 DateHeader(
                   solar: '10월 19일 월요일',
                   lunar: '음력 8월 30일',
-                  iljin: '丙寅(병인)일',
+                  iljin: const IljinText(shown: '丙寅(병인)일', spoken: '병인일'),
                   virtues: [
                     DateHeaderVirtue(glyph: '德', label: '천덕일', onTap: () {}),
                     DateHeaderVirtue(
@@ -241,7 +241,10 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
             WidgetbookUseCase(
               name: '음력 없음',
               builder: (context) => _stage360(
-                const DateHeader(solar: '10월 13일 화요일', iljin: '癸未(계미)일'),
+                const DateHeader(
+                  solar: '10월 13일 화요일',
+                  iljin: IljinText(shown: '癸未(계미)일', spoken: '계미일'),
+                ),
               ),
             ),
             WidgetbookUseCase(

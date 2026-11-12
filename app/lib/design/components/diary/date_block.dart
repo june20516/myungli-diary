@@ -16,8 +16,9 @@ class DateBlock extends StatelessWidget {
   /// 날짜 블록을 만듭니다.
   ///
   /// [day]는 일 숫자 글자(`diary-edit.date.day`), [monthWeekday]는 월과 요일 글자
-  /// (`diary-edit.date.month`)이고 둘 다 기기 값이라 늘 보입니다. [iljin]은 한자를 품은 일진
-  /// 글자(`diary-edit.date.iljin`, 예 `癸未(계미)일`)이고 없으면 그 줄을 그리지 않습니다.
+  /// (`diary-edit.date.month`)이고 둘 다 기기 값이라 늘 보입니다. [iljin]은 일진 글자
+  /// (`diary-edit.date.iljin`, [IljinText], 화면 `癸未(계미)일`, 스크린리더 `계미일`)이고 없으면
+  /// 그 줄을 그리지 않습니다.
   /// [iljinLoading]이면 일진 자리에 글줄 뼈 하나(64)를 둡니다.
   const new({
     required this.day,
@@ -53,8 +54,8 @@ class DateBlock extends StatelessWidget {
   /// 월과 요일 글자.
   final String monthWeekday;
 
-  /// 한자를 품은 일진 글자. 없으면 그 줄을 그리지 않습니다.
-  final String? iljin;
+  /// 일진 글자(화면은 한자와 괄호 독음, 스크린리더는 독음). 없으면 그 줄을 그리지 않습니다.
+  final IljinText? iljin;
 
   /// 일진을 불러오는 중인지.
   final bool iljinLoading;
@@ -68,10 +69,7 @@ class DateBlock extends StatelessWidget {
     final iljinStyle = typography.captionMd.copyWith(
       color: colors.textSecondary,
     );
-    final spoken = [
-      '$monthWeekday $day',
-      if (iljin != null) DateHeader.spokenIljinOf(iljin),
-    ];
+    final spoken = ['$monthWeekday $day', ?iljin?.spoken];
     return Semantics(
       container: true,
       header: true,
@@ -111,7 +109,7 @@ class DateBlock extends StatelessWidget {
                       TextSpan(
                         style: iljinStyle,
                         children: DateHeader.hanjaSpansOf(
-                          iljin,
+                          iljin.shown,
                           iljinStyle.copyWith(
                             fontFamily: typography.hanjaPillar.fontFamily,
                             fontFamilyFallback:

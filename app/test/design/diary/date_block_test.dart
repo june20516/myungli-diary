@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/diary/date_block.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../input/input_harness.dart';
 
-Widget _block({String? iljin = '癸未(계미)일', bool iljinLoading = false}) =>
-    inputApp(
-      Align(
-        alignment: Alignment.topLeft,
-        child: DateBlock(
-          day: '5',
-          monthWeekday: '11월 목요일',
-          iljin: iljin,
-          iljinLoading: iljinLoading,
-        ),
-      ),
-    );
+Widget _block({
+  IljinText? iljin = const IljinText(shown: '癸未(계미)일', spoken: '계미일'),
+  bool iljinLoading = false,
+}) => inputApp(
+  Align(
+    alignment: Alignment.topLeft,
+    child: DateBlock(
+      day: '5',
+      monthWeekday: '11월 목요일',
+      iljin: iljin,
+      iljinLoading: iljinLoading,
+    ),
+  ),
+);
 
 void main() {
   group('date-block', () {

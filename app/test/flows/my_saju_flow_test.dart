@@ -264,6 +264,10 @@ void main() {
       find.descendant(of: find.byType(SajuPillars), matching: find.text('庚')),
       findsWidgets,
     );
+    // 일주(庚) 칸 아래 원고 독음(경)이고, 스크린리더는 한자와 독음을 읽습니다(A133, W72).
+    final day = tester.widget<SajuPillars>(find.byType(SajuPillars)).day;
+    expect(day.stem?.reading, '경');
+    expect(day.semanticLabel, contains('庚 경'));
     expect(find.text('나와 잘 맞는 기운'), findsOneWidget);
     expect(find.text('수'), findsWidgets);
     final chip = tester.widget<LuckyChip>(find.byType(LuckyChip));
