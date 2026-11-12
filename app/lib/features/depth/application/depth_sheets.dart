@@ -84,7 +84,7 @@ final class DepthSheets {
   /// 사주 기운 시트 본문.
   final TagBodyBuilder tagBody;
 
-  /// 용어 풀이 시트에 보일 본문(뜻이나 오늘 그런 이유)이 있는지. 모르면 true입니다(A130).
+  /// 용어 풀이 시트를 열지(true), 근거 시트를 바로 열지(false). 모르면 true입니다(A130).
   final TermBodyCheck termHasBody;
 
   /// 풀이 시트(half)를 엽니다. [content]는 풀이할 내용입니다([ExplainTerm]은 용어가 들어 있던
@@ -97,7 +97,8 @@ final class DepthSheets {
   ///
   /// 용어([ExplainTerm])에 뜻도 오늘 그런 이유도 없고([termHasBody]가 false) 근거 출처가 있으면,
   /// 이름과 근거 아이콘만 남는 풀이 시트 대신 그 근거 시트를 바로 엽니다(A130, #957). 시트를 열기
-  /// 전에 정하므로 시트가 겹치지 않습니다. 출처가 없으면 갈 곳이 없어 풀이 시트(이름만)입니다.
+  /// 전에 정하므로 시트가 겹치지 않습니다. 출처도 없으면 풀이 시트를 열고 제목과 한자 아래 빈
+  /// 안내를 둡니다(V123). 두 갈래 모두 [termSheetKindOf]가 정합니다.
   Future<void> openExplain(
     BuildContext context,
     ExplainContent content, {
@@ -234,18 +235,47 @@ typedef TermBodyCheck = bool Function(ExplainTerm term);
 
 bool _alwaysHasBody(ExplainTerm _) => true;
 
-/// [term]의 풀이 시트에 뜻이나 오늘 그런 이유가 있는지. 사전을 아직 받지 못했으면(뜻을 모름)
-/// true라 풀이 시트가 받는 동안 skeleton을 보입니다. 사전 뜻(`Glossary.meanings`)과 오늘 그런
-/// 이유(`SlotText.todayReason`)는 계약상 비어 있을 수 있습니다.
+/// 용어 풀이 시트가 보일 것(A130, V123). [termSheetKindOf]가 정합니다.
+enum TermSheetKind {
+  /// 뜻이나 오늘 그런 이유가 있어 풀이 시트를 엽니다.
+  body,
+
+  /// 뜻도 이유도 없고 근거 출처가 있어 풀이 시트 대신 그 근거 시트를 엽니다(A130).
+  evidence,
+
+  /// 뜻도 이유도 근거 출처도 없어 풀이 시트에 빈 안내(`emptyNote`)를 둡니다(V123).
+  empty,
+}
+
+/// 용어 풀이 시트에 무엇을 보일지 정하는 한 곳입니다(`term-token` `explainSheet.emptyNote.when`).
+///
+/// [meaning](사전 뜻)과 [todayReason](오늘 그런 이유)은 계약상 비어 있을 수 있고, 빈 문장도 없는
+/// 것으로 봅니다. [hasOrigin]은 근거로 넘길 출처(`TermOrigin`)가 있는지입니다.
+TermSheetKind termSheetKindOf({
+  required RenderedText? meaning,
+  required RenderedText? todayReason,
+  required bool hasOrigin,
+}) {
+  bool present(RenderedText? text) => text != null && !isBlankText(text);
+  if (present(meaning) || present(todayReason)) return TermSheetKind.body;
+  return hasOrigin ? TermSheetKind.evidence : TermSheetKind.empty;
+}
+
+/// [term]의 풀이 시트를 열지(true), 근거 시트를 바로 열지(false). 사전을 아직 받지 못했으면(뜻을
+/// 모름) true라 풀이 시트가 받는 동안 skeleton을 보입니다. 판단은 [termSheetKindOf]입니다.
 bool termHasBodyIn(
   T Function<T>(ProviderListenable<T> provider) read,
   ExplainTerm term,
 ) {
   final names = read(glossaryProvider).value;
   if (names == null) return true;
-  final meaning = names.meaningOf(term.termId);
-  if (meaning != null && !isBlankText(meaning)) return true;
   final origin = term.origin;
-  if (origin == null) return true;
-  return read(origin.subject.todayReasonOf(origin.slotId)) != null;
+  final kind = termSheetKindOf(
+    meaning: names.meaningOf(term.termId),
+    todayReason: origin == null
+        ? null
+        : read(origin.subject.todayReasonOf(origin.slotId)),
+    hasOrigin: origin != null,
+  );
+  return kind != TermSheetKind.evidence;
 }

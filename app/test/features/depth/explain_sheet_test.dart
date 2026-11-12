@@ -420,6 +420,105 @@ void main() {
       expect(find.byType(DepthLink), findsNothing);
     });
 
+    group('빈 풀이(emptyNote, V123, #957)', () {
+      testWidgets('뜻도 이유도 출처도 없으면 제목과 한자 아래 12에 빈 안내 한 줄이고 근거 진입점은 없습니다', (
+        tester,
+      ) async {
+        final names = GlossaryNames(
+          _names.values,
+          hanja: const {'ten_god.siksin': '食神'},
+        );
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
+            glossary: () async => names,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final note = find.byKey(ExplainSheetBody.emptyNoteKey);
+        expect(tester.widget<Text>(note).data, _ko.explainSheetTermEmpty);
+        final tokens = tester.element(note).tokens;
+        final style = tester.widget<Text>(note).style!;
+        expect(style.fontSize, tokens.typography.bodyUi.fontSize);
+        expect(style.color, tokens.colors.textSecondary);
+        expect(
+          tester.getTopLeft(note).dy -
+              tester.getBottomLeft(find.byKey(ExplainSheetBody.hanjaKey)).dy,
+          ExplainSheetBody.emptyNoteGap,
+        );
+        expect(find.byType(DepthLink), findsNothing);
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('뜻이 있거나 빈 문장이 아니면 빈 안내가 없습니다', (tester) async {
+        final names = GlossaryNames(
+          _names.values,
+          meanings: {
+            'ten_god.siksin': RenderedText(segments: [Segment(text: '뜻')]),
+          },
+        );
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
+            glossary: () async => names,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsNothing);
+      });
+
+      testWidgets('뜻이 빈 문장이고 출처가 없으면 빈 안내입니다', (tester) async {
+        final names = GlossaryNames(
+          _names.values,
+          meanings: {
+            'ten_god.siksin': RenderedText(segments: [Segment(text: ' ')]),
+          },
+        );
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
+            glossary: () async => names,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsOneWidget);
+      });
+
+      testWidgets('출처가 있으면(근거로 넘길 곳이 있음) 빈 안내 대신 근거 진입점입니다', (tester) async {
+        await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
+        await tester.pumpAndSettle();
+        expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsNothing);
+        expect(find.byType(DepthLink), findsOneWidget);
+      });
+    });
+
+    group('termSheetKindOf(A130, V123)', () {
+      final meaning = RenderedText(segments: [Segment(text: '뜻')]);
+      final blank = RenderedText(segments: [Segment(text: '')]);
+      test('뜻이나 이유가 있으면 풀이, 없고 출처가 있으면 근거, 출처도 없으면 빈 안내', () {
+        expect(
+          termSheetKindOf(meaning: meaning, todayReason: null, hasOrigin: true),
+          TermSheetKind.body,
+        );
+        expect(
+          termSheetKindOf(meaning: null, todayReason: meaning, hasOrigin: true),
+          TermSheetKind.body,
+        );
+        expect(
+          termSheetKindOf(meaning: blank, todayReason: null, hasOrigin: true),
+          TermSheetKind.evidence,
+        );
+        expect(
+          termSheetKindOf(meaning: null, todayReason: blank, hasOrigin: false),
+          TermSheetKind.empty,
+        );
+      });
+    });
+
     testWidgets('loading: 사전을 받는 동안 skeleton이고 끝나면 내용입니다', (tester) async {
       final completer = Completer<GlossaryNames>();
       await tester.pumpWidget(_app(_sheet, glossary: () => completer.future));

@@ -28,7 +28,8 @@ typedef _TermText = ({String title, String? hanja, RenderedText? meaning});
 ///   `Glossary.meanings`, 한자는 draft.4 `Glossary.hanja`에서 옵니다. 오늘 그런 이유
 ///   (`explain.today_reason`)는 여는 화면이 넘긴 출처([ExplainTerm.origin])의 응답에서만 읽습니다
 ///   (`EvidenceSubject.todayReasonOf`, 오늘 화면에서 열었을 때만). 출처가 없으면 응답을 보지
-///   않습니다. 사전·응답에 값이 없으면 그 자리를 그리지 않습니다(A22 남은 규칙). 사전을 받는
+///   않습니다. 사전·응답에 값이 없으면 그 자리를 그리지 않고, 뜻도 이유도 근거 출처도 없으면
+///   빈 안내 한 줄입니다(V123). 사전을 받는
 ///   동안은 skeleton, 실패하거나 사전에 없는 용어면 오류 화면과 다시 시도입니다. 흉 신살
 ///   용어(`hasWeighingNote`)면 뜻 아래 마무리 한 줄을 둡니다(V120, A137).
 /// * [ExplainUiText], [ExplainLucky]: 사전을 보지 않고 받은 제목과 본문을 그립니다.
@@ -146,6 +147,16 @@ class ExplainSheet extends ConsumerWidget {
         hanja: text.hanja,
         meaning: text.meaning,
         meaningSlotId: SlotIds.explainSheetTermMeaning,
+        // 뜻도 이유도 근거 출처도 없으면 빈 안내 한 줄입니다(V123, 판단은 termSheetKindOf).
+        emptyNote:
+            termSheetKindOf(
+                  meaning: text.meaning,
+                  todayReason: todayReason,
+                  hasOrigin: origin != null,
+                ) ==
+                TermSheetKind.empty
+            ? AppLocalizations.of(context).explainSheetTermEmpty
+            : null,
         weighingNote: hasWeighingNote(term.termId)
             ? AppLocalizations.of(context).shinsalWeighingNote
             : null,
@@ -164,6 +175,7 @@ class ExplainSheet extends ConsumerWidget {
     String? hanja,
     RenderedText? meaning,
     String? meaningSlotId,
+    String? emptyNote,
     String? weighingNote,
     RenderedText? todayReason,
     Widget? attachment,
@@ -182,6 +194,7 @@ class ExplainSheet extends ConsumerWidget {
       hanja: hanja,
       meaning: meaning,
       meaningSlotId: meaningSlotId,
+      emptyNote: emptyNote,
       weighingNote: weighingNote,
       todayReason: todayReason,
       attachment: attachment,

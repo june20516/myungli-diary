@@ -45,6 +45,7 @@ import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
@@ -2845,6 +2846,29 @@ void main() {
       // 도화는 오늘 태그로도 붙습니다(W74).
       expect(hasWeighingNote('tag.dohwa'), isTrue);
       expect(hasWeighingNote('gongmang'), isFalse);
+    });
+  });
+
+  group('빈 풀이 시트 (7.4.0, V123, #957)', () {
+    test('term-token 풀이 시트 emptyNote: 글자, 간격, 줄 수와 나오는 조건', () {
+      final explain = _map(
+        _map(loadSpecComponents()['term-token']!['parts'])['explainSheet'],
+      );
+      final note = _map(explain['emptyNote']);
+      expect(note['type'], '{type.body.ui}');
+      expect(note['fg'], '{color.text.secondary}');
+      expect(note['slot'], 'ui.explain.term-empty');
+      expect(note['marginTop'], '{space.12}');
+      expect(ExplainSheetBody.emptyNoteGap, Space.s12);
+      expect(note['maxLines'], ExplainSheetBody.emptyNoteMaxLines);
+      expect(note['interactive'], isFalse);
+      // 판단은 termSheetKindOf 한 곳입니다(A130).
+      expect(
+        note['when'],
+        '용어 뜻과 오늘 이유가 모두 없고 근거로 넘길 출처도 없을 때만 일반 뜻 자리에. '
+        '이때 근거 진입점은 그리지 않음. 뜻이나 이유가 없고 출처만 있으면 시트 대신 근거 시트를 '
+        '바로 엶(app A130)',
+      );
     });
   });
 

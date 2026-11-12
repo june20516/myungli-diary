@@ -23,9 +23,9 @@ enum ExplainTitleSize {
 
 /// 풀이 시트의 내용(`explain-sheet`). 시트 틀(`sheet` `half`) 안에 놓습니다.
 ///
-/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) → 흉 신살 마무리 한 줄
-/// ([weighingNote]) → 오늘 그런 이유 → [attachment](`stage-strip` 등) → 근거 진입점 아이콘
-/// → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에 본문이 오고, [onEvidence]가 null이면
+/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) 또는 빈 안내([emptyNote]) →
+/// 흉 신살 마무리 한 줄([weighingNote]) → 오늘 그런 이유 → [attachment](`stage-strip` 등) →
+/// 근거 진입점 아이콘 → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에 본문이 오고, [onEvidence]가 null이면
 /// 근거 진입점을 그리지 않습니다(그날 시트처럼 근거 시트로 이어지지 않는 곳에서 열었을 때).
 /// [onDiaryLink]가 null이면 모아보기 링크를 그리지 않습니다(대표 태그의 뜻 시트에만 있습니다).
 ///
@@ -45,6 +45,7 @@ class ExplainSheetBody extends StatelessWidget {
     this.evidenceSubject,
     this.meaning,
     this.meaningSlotId = SlotIds.explainSheetTermMeaning,
+    this.emptyNote,
     this.weighingNote,
     this.todayReason,
     this.attachment,
@@ -71,6 +72,17 @@ class ExplainSheetBody extends StatelessWidget {
   /// 일기 모아보기 링크 위 간격. 계약 `explain-sheet.parts.diaryLink.marginTop`(`space.16`).
   static const double diaryLinkGap = Space.s16;
 
+  /// 제목(과 한자) 아래 빈 안내까지. 계약 `term-token.parts.explainSheet.emptyNote.marginTop`
+  /// (`space.12`).
+  static const double emptyNoteGap = Space.s12;
+
+  /// 빈 안내 줄 수(`emptyNote.maxLines`). 배율 1.0에서 원고 글자 수 상한을 잰 줄 수이고, 큰
+  /// 글자에서는 자르지 않고 줄이 늡니다(A137 ④와 같은 읽기, A139).
+  static const int emptyNoteMaxLines = 2;
+
+  /// 빈 안내를 찾는 테스트용 키(IA 밖 슬롯 `ui.explain.term-empty`).
+  static const Key emptyNoteKey = ValueKey('explain-sheet-empty-note');
+
   /// 시트 제목(누른 항목의 이름).
   final String title;
 
@@ -89,6 +101,10 @@ class ExplainSheetBody extends StatelessWidget {
 
   /// [meaning]이 그리는 IA 슬롯 id. 용어 뜻이 아니면 null로 줍니다.
   final String? meaningSlotId;
+
+  /// 뜻도 오늘 그런 이유도 근거 출처도 없는 용어의 빈 안내(`term-token` `explainSheet.emptyNote`,
+  /// V123). 있으면 뜻 자리(제목 아래 [emptyNoteGap])에 두고 근거 진입점은 그리지 않습니다.
+  final String? emptyNote;
 
   /// 뜻 바로 아래 흉 신살 마무리 한 줄([WeighingNote], D124 ⑦, V120). 대상 신살의 용어 풀이만
   /// 주고, 뜻([meaning])이 없거나 빈 문장이면 그리지 않습니다. 다음 문장 간격은 이 상자에서 셉니다.
@@ -157,6 +173,7 @@ class ExplainSheetBody extends StatelessWidget {
     final meaning = this.meaning;
     final todayReason = this.todayReason;
     final weighingNote = this.weighingNote;
+    final emptyNote = this.emptyNote;
     final attachment = this.attachment;
     final onEvidence = this.onEvidence;
     final diaryLinkLabel = this.diaryLinkLabel;
@@ -183,6 +200,17 @@ class ExplainSheetBody extends StatelessWidget {
                     child: head,
                   ),
           ),
+          if (emptyNote != null)
+            Padding(
+              padding: const EdgeInsets.only(top: emptyNoteGap),
+              child: Text(
+                emptyNote,
+                key: emptyNoteKey,
+                style: tokens.typography.bodyUi.copyWith(
+                  color: tokens.colors.textSecondary,
+                ),
+              ),
+            ),
           if (meaning != null)
             Padding(
               padding: EdgeInsets.only(top: gap()),
@@ -209,7 +237,8 @@ class ExplainSheetBody extends StatelessWidget {
               padding: EdgeInsets.only(top: attachmentGap),
               child: attachment,
             ),
-          if (onEvidence != null)
+          // 빈 안내가 있으면 근거 진입점 아이콘만 남기지 않습니다(V123).
+          if (onEvidence != null && emptyNote == null)
             DepthLink.evidence(
               subject: evidenceSubject ?? title,
               onTap: onEvidence,
