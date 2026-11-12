@@ -663,5 +663,21 @@
     ],
     "status": "chosen",
     "note": "화면 비교 뒤 고름, 시간 시트 제목은 사용자 문구 '밤의 길한 시간'"
+  },
+  {
+    "id": "round-R39",
+    "title": "라운드 R39: 행운 칩 시트 본문에 내 값과 오늘 값 (W68)",
+    "kind": "copy-sample",
+    "file": "2026-11-12-round-R39.md",
+    "date": "2026-11-12",
+    "milestone": "A2",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "W68"
+    ],
+    "status": "chosen",
+    "note": "방향은 사용자 문구, 시간과 색 둘인 날은 R37 그대로"
   }
 ]
