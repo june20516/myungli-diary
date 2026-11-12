@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -309,63 +310,66 @@ class _CalendarBody extends StatelessWidget {
     final locale = Localizations.localeOf(context).toString();
     final failure = this.failure;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        Space.s20,
-        Space.s8,
-        Space.s20,
-        bottomInset + Space.s32,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          NoticeBanner(
-            variant: NoticeBannerVariant.offline,
-            message: l10n.noticeOffline,
-            present: offline,
-          ),
-          // 오류는 격자 위에 둬 작은 화면에서도 스크롤 없이 보이게 합니다.
-          if (failure != null) ...[
-            ErrorState(
-              error: failure is AppError ? failure : UnexpectedError(failure),
-              // 범위 밖 달은 다시 받아도 같은 답이라 다시 시도를 두지 않습니다(A44).
-              onRetry: isCalendarOutOfRange(failure) ? null : onRetry,
+    // 끝에 닿은 채 하단 배너가 늦게 자라도 끝에 붙어 있습니다(#936).
+    return StickToEndOnGrow(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          Space.s20,
+          Space.s8,
+          Space.s20,
+          bottomInset + Space.s32,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            NoticeBanner(
+              variant: NoticeBannerVariant.offline,
+              message: l10n.noticeOffline,
+              present: offline,
             ),
-            const SizedBox(height: Space.s24),
-          ],
-          CalendarMonthView(
-            month: month,
-            title: calendarMonthTitle(locale, month),
-            weekdayLabels: calendarWeekdayLabels(locale),
-            cellOf: cellOf,
-            loading: loading,
-            today: today,
-            selected: selected,
-            onSelect: onSelect,
-            onMonthChange: onMonthChange,
-            // 범례와 규칙 입구는 늘 보입니다. 오류와 받는 중에도 같은 자리입니다(V84).
-            legend: [
-              (
-                swatch: colors.calendarLevelGreat,
-                label: l10n.calendarLegendBodyVeryGood,
+            // 오류는 격자 위에 둬 작은 화면에서도 스크롤 없이 보이게 합니다.
+            if (failure != null) ...[
+              ErrorState(
+                error: failure is AppError ? failure : UnexpectedError(failure),
+                // 범위 밖 달은 다시 받아도 같은 답이라 다시 시도를 두지 않습니다(A44).
+                onRetry: isCalendarOutOfRange(failure) ? null : onRetry,
               ),
-              (
-                swatch: colors.calendarLevelGood,
-                label: l10n.calendarLegendBodyGood,
-              ),
-              (
-                swatch: colors.calendarLevelCaution,
-                label: l10n.calendarLegendBodyCaution,
-              ),
+              const SizedBox(height: Space.s24),
             ],
-            legendIdentifier: SlotIds.calendarLegendBody,
-            ruleEntry: CalendarRuleEntry(
-              label: l10n.calendarLegendRuleLink,
-              onTap: onRuleEntry,
+            CalendarMonthView(
+              month: month,
+              title: calendarMonthTitle(locale, month),
+              weekdayLabels: calendarWeekdayLabels(locale),
+              cellOf: cellOf,
+              loading: loading,
+              today: today,
+              selected: selected,
+              onSelect: onSelect,
+              onMonthChange: onMonthChange,
+              // 범례와 규칙 입구는 늘 보입니다. 오류와 받는 중에도 같은 자리입니다(V84).
+              legend: [
+                (
+                  swatch: colors.calendarLevelGreat,
+                  label: l10n.calendarLegendBodyVeryGood,
+                ),
+                (
+                  swatch: colors.calendarLevelGood,
+                  label: l10n.calendarLegendBodyGood,
+                ),
+                (
+                  swatch: colors.calendarLevelCaution,
+                  label: l10n.calendarLegendBodyCaution,
+                ),
+              ],
+              legendIdentifier: SlotIds.calendarLegendBody,
+              ruleEntry: CalendarRuleEntry(
+                label: l10n.calendarLegendRuleLink,
+                onTap: onRuleEntry,
+              ),
+              ruleEntryIdentifier: SlotIds.calendarLegendRuleLink,
             ),
-            ruleEntryIdentifier: SlotIds.calendarLegendRuleLink,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

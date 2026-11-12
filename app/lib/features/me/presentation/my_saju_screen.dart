@@ -93,9 +93,7 @@ class MySajuScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final chart = ref.watch(chartControllerProvider);
-    // 회고 집계는 화면을 열 때 받고 화면이 있는 동안 붙잡아 둡니다. 끝 섹션이 스크롤로 버려졌다
-    // 다시 지어져도 다시 받지 않고, 끝에 닿은 뒤에야 받기 시작해 자리가 자라지 않게 합니다(#936).
-    ref.listen(diaryStatsProvider, (_, _) {});
+    _keepDiaryStats(ref);
     return Semantics(
       identifier: ScreenIds.mySaju,
       child: Scaffold(
@@ -134,6 +132,13 @@ class MySajuScreen extends ConsumerWidget {
     );
   }
 }
+
+/// 회고 집계(`diaryStatsProvider`)를 화면을 열 때 받기 시작하고 화면이 있는 동안 붙잡아 둡니다
+/// (#936, A131). 값은 회고 섹션이 읽습니다. 끝 섹션이 스크롤로 버려졌다 다시 지어져도 다시 받지
+/// 않고, 끝에 닿은 뒤에야 받기 시작해 자리가 자라는 일이 없습니다. 차트가 오류이거나 오프라인이어도
+/// 탭을 열 때마다 받습니다(A119, 캐시 없음).
+void _keepDiaryStats(WidgetRef ref) =>
+    ref.listen(diaryStatsProvider, (_, _) {});
 
 class _MySajuBody extends ConsumerWidget {
   const new({required this.chart, required this.offlineNotice});

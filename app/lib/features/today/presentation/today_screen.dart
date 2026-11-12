@@ -35,6 +35,7 @@ import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
+import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
@@ -367,116 +368,119 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     final showReaction = !display.head.isBlank && display.headReactable;
     return SeepOnChange(
       changeKey: display,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          Space.s20,
-          Space.s8,
-          Space.s20,
-          bottomInset + Space.s32,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            widget.offlineNotice,
-            Semantics(
-              identifier: SlotIds.todayDateSolar,
-              container: true,
-              child: DateHeader(
-                solar: _solarTextOf(context, date),
-                lunar: display.lunarText,
-                iljin: display.iljinText,
+      // 끝에 닿은 채 하단 배너가 늦게 자라도 끝에 붙어 있습니다(#936).
+      child: StickToEndOnGrow(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            Space.s20,
+            Space.s8,
+            Space.s20,
+            bottomInset + Space.s32,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              widget.offlineNotice,
+              Semantics(
+                identifier: SlotIds.todayDateSolar,
+                container: true,
+                child: DateHeader(
+                  solar: _solarTextOf(context, date),
+                  lunar: display.lunarText,
+                  iljin: display.iljinText,
+                ),
               ),
-            ),
-            if (display.timeUnknown) ...[
-              const SizedBox(height: Space.s16),
-              // 배너는 아래에 `space.16`을 품으므로 섹션 사이 간격에서 그만큼 뺍니다.
-              NoticeBanner(
-                key: const ValueKey('today.time-unknown'),
-                variant: NoticeBannerVariant.timeUnknown,
-                message: l10n.sajuChartTimeUnknownNotice,
-              ),
-              const SizedBox(height: SectionHeader.sectionGap - Space.s16),
-            ] else
-              const SizedBox(height: SectionHeader.sectionGap),
-            SectionHeader(
-              title: l10n.todayFortuneTitle,
-              titleIdentifier: SlotIds.todayFortuneTitle,
-              trailing: showReaction
-                  ? SectionHeaderActionWidget(
-                      ReactionButton(
-                        on: headLiked,
-                        semanticsLabel: headLiked
-                            ? l10n.todayReactionLabelSelected
-                            : l10n.todayReactionLabel,
-                        onChanged: (_) => unawaited(
-                          _toggleReaction(daily.fortune.head, date),
+              if (display.timeUnknown) ...[
+                const SizedBox(height: Space.s16),
+                // 배너는 아래에 `space.16`을 품으므로 섹션 사이 간격에서 그만큼 뺍니다.
+                NoticeBanner(
+                  key: const ValueKey('today.time-unknown'),
+                  variant: NoticeBannerVariant.timeUnknown,
+                  message: l10n.sajuChartTimeUnknownNotice,
+                ),
+                const SizedBox(height: SectionHeader.sectionGap - Space.s16),
+              ] else
+                const SizedBox(height: SectionHeader.sectionGap),
+              SectionHeader(
+                title: l10n.todayFortuneTitle,
+                titleIdentifier: SlotIds.todayFortuneTitle,
+                trailing: showReaction
+                    ? SectionHeaderActionWidget(
+                        ReactionButton(
+                          on: headLiked,
+                          semanticsLabel: headLiked
+                              ? l10n.todayReactionLabelSelected
+                              : l10n.todayReactionLabel,
+                          onChanged: (_) => unawaited(
+                            _toggleReaction(daily.fortune.head, date),
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(height: SectionHeader.contentGap),
-            SectionCard(child: _fortuneCard(l10n, display)),
-            // 태그가 왔지만 하나도 그릴 수 없는 날은 D112가 아니라 섹션째 두지 않습니다
-            // (빈 안내는 server 대표 태그가 실제로 빈 날만).
-            if (display.featuredEmpty || display.featured.isNotEmpty) ...[
+                      )
+                    : null,
+              ),
+              const SizedBox(height: SectionHeader.contentGap),
+              SectionCard(child: _fortuneCard(l10n, display)),
+              // 태그가 왔지만 하나도 그릴 수 없는 날은 D112가 아니라 섹션째 두지 않습니다
+              // (빈 안내는 server 대표 태그가 실제로 빈 날만).
+              if (display.featuredEmpty || display.featured.isNotEmpty) ...[
+                const SizedBox(height: SectionHeader.sectionGap),
+                SectionHeader(
+                  title: l10n.todayFeaturedTitle,
+                  titleIdentifier: SlotIds.todayFeaturedTitle,
+                ),
+                const SizedBox(height: SectionHeader.contentGap),
+                SectionCard(
+                  key: TodayScreen.featuredCardKey,
+                  child: _featuredSection(l10n, display),
+                ),
+              ],
               const SizedBox(height: SectionHeader.sectionGap),
               SectionHeader(
-                title: l10n.todayFeaturedTitle,
-                titleIdentifier: SlotIds.todayFeaturedTitle,
+                title: l10n.todayLuckyTitle,
+                titleIdentifier: SlotIds.todayLuckyTitle,
               ),
               const SizedBox(height: SectionHeader.contentGap),
               SectionCard(
-                key: TodayScreen.featuredCardKey,
-                child: _featuredSection(l10n, display),
-              ),
-            ],
-            const SizedBox(height: SectionHeader.sectionGap),
-            SectionHeader(
-              title: l10n.todayLuckyTitle,
-              titleIdentifier: SlotIds.todayLuckyTitle,
-            ),
-            const SizedBox(height: SectionHeader.contentGap),
-            SectionCard(
-              padding: _luckyCardPadding,
-              child: LuckyCardRow(
-                items: display.lucky,
-                onOpen: (item) => _sheets.openExplain(
-                  context,
-                  ExplainLucky(title: item.name, body: item.explain),
+                padding: _luckyCardPadding,
+                child: LuckyCardRow(
+                  items: display.lucky,
+                  onOpen: (item) => _sheets.openExplain(
+                    context,
+                    ExplainLucky(title: item.name, body: item.explain),
+                  ),
                 ),
               ),
-            ),
-            const _TodayEventSection(),
-            const SizedBox(height: SectionHeader.sectionGap),
-            SectionHeader(
-              title: l10n.todayGuideTitle,
-              titleIdentifier: SlotIds.todayGuideTitle,
-            ),
-            const SizedBox(height: SectionHeader.contentGap),
-            GuideQuestionCard(
-              state: switch (entry) {
-                DiaryWriteEntry.first => GuideQuestionState.before,
-                DiaryWriteEntry.more => GuideQuestionState.after,
-                DiaryWriteEntry.full => GuideQuestionState.full,
-              },
-              question: display.guide,
-              actionLabel: switch (entry) {
-                DiaryWriteEntry.first => l10n.todayGuideCta,
-                DiaryWriteEntry.more => l10n.todayGuideCtaWritten,
-                DiaryWriteEntry.full => l10n.todayGuideCtaFull,
-              },
-              // full이면 카드가 버튼을 막습니다(D83 ②, 눌러도 아무 일 없음).
-              onAction: () => unawaited(_writeDiary()),
-              questionSlotId: SlotIds.todayGuideQuestion,
-              actionSlotId: SlotIds.todayGuideCta,
-            ),
-            // 오늘 쓴 일기 줄(작성 순). 누르면 그 일기의 diary-view이고, 0편이면 그리지 않습니다.
-            DiaryEntries(
-              surface: DiaryEntriesSurface.card,
-              entries: diaryEntriesDataOf(context, diaries),
-            ),
-          ],
+              const _TodayEventSection(),
+              const SizedBox(height: SectionHeader.sectionGap),
+              SectionHeader(
+                title: l10n.todayGuideTitle,
+                titleIdentifier: SlotIds.todayGuideTitle,
+              ),
+              const SizedBox(height: SectionHeader.contentGap),
+              GuideQuestionCard(
+                state: switch (entry) {
+                  DiaryWriteEntry.first => GuideQuestionState.before,
+                  DiaryWriteEntry.more => GuideQuestionState.after,
+                  DiaryWriteEntry.full => GuideQuestionState.full,
+                },
+                question: display.guide,
+                actionLabel: switch (entry) {
+                  DiaryWriteEntry.first => l10n.todayGuideCta,
+                  DiaryWriteEntry.more => l10n.todayGuideCtaWritten,
+                  DiaryWriteEntry.full => l10n.todayGuideCtaFull,
+                },
+                // full이면 카드가 버튼을 막습니다(D83 ②, 눌러도 아무 일 없음).
+                onAction: () => unawaited(_writeDiary()),
+                questionSlotId: SlotIds.todayGuideQuestion,
+                actionSlotId: SlotIds.todayGuideCta,
+              ),
+              // 오늘 쓴 일기 줄(작성 순). 누르면 그 일기의 diary-view이고, 0편이면 그리지 않습니다.
+              DiaryEntries(
+                surface: DiaryEntriesSurface.card,
+                entries: diaryEntriesDataOf(context, diaries),
+              ),
+            ],
+          ),
         ),
       ),
     );
