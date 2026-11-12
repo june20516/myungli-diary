@@ -1,5 +1,5 @@
 {
-  "version": "7.4.0",
+  "version": "7.5.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
