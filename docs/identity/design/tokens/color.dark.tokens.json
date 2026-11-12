@@ -298,6 +298,34 @@
         "$description": "일기 목록 세로 흐름 줄"
       }
     },
+    "time": {
+      "day": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8706,
+            0.651,
+            0.2706
+          ],
+          "hex": "#dea645"
+        },
+        "$description": "집중 시간 낮 칩 앞 채운 해 아이콘(D122, V115, 1.8.0). 칩 바탕 위 비텍스트 대비 3:1 이상"
+      },
+      "night": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5608,
+            0.6627,
+            0.8196
+          ],
+          "hex": "#8fa9d1"
+        },
+        "$description": "집중 시간 밤 칩 앞 채운 달 아이콘(D122, V115, 1.8.0). 칩 바탕 위 비텍스트 대비 3:1 이상"
+      }
+    },
     "chip": {
       "bg": {
         "$type": "color",

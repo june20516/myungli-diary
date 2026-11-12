@@ -1037,5 +1037,26 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 안마다 두 장면(짧은 아래 시트 위 근거 시트, 그날 시트 위 뜻 시트). 사용자 답(2026-11-10): A 아래 시트 머리 보임(V110)"
+  },
+  {
+    "id": "design-lucky-chips-questions",
+    "title": "행운 칩 관문 질문(#982, #1003): 색 칩 둘 구분과 행운 색 시트, 해와 달 아이콘과 색, 밤 칩 07:30 기준 표시, 시간 시트 24시간 띠, 칩 줄 배치",
+    "kind": "concept",
+    "file": "2026-11-11-lucky-chips-questions.html",
+    "source": "2026-11-11-lucky-chips-questions.html",
+    "date": "2026-11-11",
+    "milestone": "DS1",
+    "screens": [
+      "today",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "V114",
+      "V115",
+      "V116",
+      "V117"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 폭 360 오늘 화면 행운 섹션, 새벽 1시와 오후 3시. 사용자 답(2026-11-11): 1C 한 알약 두 칸, 2B 채운 아이콘, 3A 밤 칩 때 낱말, 4A 띠, 5A 이어 흐름, 6A 한 시트에 두 색(갈렸다 대신 추천 둘, 기준 이름 없음), 7B 아이콘 전용 색"
   }
 ]

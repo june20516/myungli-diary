@@ -38,16 +38,31 @@
 * **바탕과 테두리(Q5 ①, 결정 V75):** 반투명 `chip.bg` 대신 `bg.sheet` 바탕에 1px `line` 테두리를 칩 크기 안쪽에 그립니다. 오늘 카드, 나 탭 카드, 공유 이미지(그라데이션 위), 다크 모드 어디서나 테두리로 칩이 구분됩니다.
 * 누르면 칩 테두리가 1.5px `action.primary`로 바뀌고(크기 그대로) 짧은 설명 시트(`explain-sheet`, 제목은 항목 이름, 본문은 설명 문장)가 열립니다(결정 V62). 설명을 칩 줄 아래에 끼워 넣지 않으므로 아래 내용이 밀리지 않습니다. 설명의 용어는 `sentence-block` 문장 조각 규칙을 따릅니다. 시트를 닫으면 테두리가 1px `line`으로 돌아갑니다.
 * 칩 줄은 화면 폭에 따라 다음 줄로 넘어갑니다. 줄 수는 제한하지 않고, 칩 하나는 줄 사이에서 끊지 않습니다.
-* **칩 줄 개수:** today 칩 줄은 행운 4종(`color`·`direction`·`number`·`time`)뿐이고 최대 5개(색, 방향, 숫자 3 + 시간 2)입니다(결정 V52, V78).
+* **칩 줄 개수:** today 칩 줄은 행운 4종(`color`·`direction`·`number`·`time`)뿐이고 최대 5개(색, 방향, 숫자 3 + 시간 2)입니다(결정 V52, V78). 색이 둘인 날도 한 알약이라 개수는 같습니다. 순서는 색, 방향, 숫자, 낮, 밤이고, 시간 칩을 새 줄로 떼지 않고 이어 흐릅니다(관문 답 5A, 결정 V114).
 * **대표 태그 칩 없음:** 옛 변형 `tag`(D76, 결정 V35)는 IA v5(D108, 결정 V78)부터 today 칩 줄에 쓰지 않아 계약 5.0.0에서 지웠습니다. 대표 태그는 사주 기운 섹션의 `hanja-tag`입니다(아래 today 화면 배치 4번). `share-image` 칩 줄도 행운 4종만입니다.
-* **`time`(결정 V52, #546):** 값은 프로필 시간대의 24시간이고 숫자는 `tnum`입니다. 범위 표기는 writing W44를 따라 언어별입니다.
+* **색이 둘인 날 `pair`(#982, D119 ②, 결정 V114):** `DailyResponse.second_color`가 있는 날은 `color` 칩 하나를 1px `line` 세로선(높이 18)으로 나눈 두 칸 알약으로 그립니다. 앞 칸은 `color`(내 균형 기준), 뒤 칸은 `second_color`(원전 기준)이고 칸마다 견본 원 + 색 이름, 좌우 `space.12`입니다. 칩에도 시트에도 기준 이름표(내 균형 기준, 원전 기준)를 두지 않습니다(관문 답 2026-11-11).
+  * 칸마다 누름 자리(44 이상)이지만 어느 칸을 눌러도 같은 행운 색 시트(`colorPairSheet`)가 열리고, 열림 테두리는 알약 전체에 생깁니다.
+  * `colorPairSheet`: `explain-sheet` 제목(항목 이름 "행운 색") 아래 추천 색이 둘이라는 한 줄(`today.lucky-color.pair.intro`, `type.caption.lg` `text.secondary`), 첫째 색(견본 원 + 이름 `type.label.lg`, 아래 `space.8` 풀이 `today.lucky-color.body`), `list.divider`(위아래 `space.16`), 둘째 색(같은 모양, 풀이 `today.lucky-color.second.body`). 두 기준이 갈렸다고 쓰지 않습니다(사용자 결정, D119 ② 개정은 지휘 #1014).
+  * 스크린리더: 칸마다 항목 이름 + 값 + 두 개 중 몇째.
+  * 행운 숫자는 색이 둘인 날 첫째 색의 오행입니다(D119 ③).
+* **`time`(#1003, D122, 결정 V115, V116):** 낮 칩 하나(`DailyResponse.focus_time`)와 밤 칩 하나(`night_focus_time`)입니다. 옛 구간 반복(`repeat`, 최대 2)과 시계 아이콘은 7.0.0에서 지웠습니다. time 칩은 today에만 씁니다.
+  * 앞 아이콘은 채운 해(`sun` Fill, `color.time.day`)와 채운 달(`moon` Fill, `color.time.night`)입니다. Fill을 쓰는 경고 표시 밖의 유일한 자리입니다(요소 `icon` `timeOfDay`). 색은 모드별 아이콘 전용 토큰이고 칩 바탕 위 3:1 이상입니다(토큰 1.8.0, 관문 답 7B).
+  * 값은 프로필 시간대의 24시간이고 숫자는 `tnum`입니다. 범위 표기는 writing W44를 따라 언어별입니다.
   | 언어 | 형식 | 예 |
   | --- | --- | --- |
   | ko | `HH:mm~HH:mm` | `09:30~11:30` |
   | ja | `HH:mm〜HH:mm`(U+301C) | `09:30〜11:30` |
   | en | `HH:mm to HH:mm` | `09:30 to 11:30` |
-  * 구간이 둘이면(계약 `FocusTimeCard.picks` 최대 2) 구간마다 `time` 칩 하나를 계약 순서대로 나란히 둡니다. 두 구간을 글자로 잇지 않습니다(D93, W44 "레이아웃으로 나눔").
-  * 두 칩 중 어느 쪽을 눌러도 같은 설명(`daily.focus_time`) 시트가 열리고, 열림 테두리는 누른 칩에만 생깁니다. 스크린리더 라벨은 칩마다 항목 이름 + 그 구간입니다.
+  * **밤 칩 때 낱말(D122 ⑦, V116, 관문 답 3A):** 밤 칩 값 앞(`space.4`)에 때 낱말을 값과 같은 `type.label.md`로 둡니다. 프로필 시간대 07:30 전에는 `today.lucky-time.night.dawn`(가안 "새벽", 지금 이어지는 전날 밤), 07:30부터는 `today.lucky-time.night.tonight`(가안 "오늘 밤")이고 값과 함께 바뀌어 바뀐 까닭이 읽힙니다. 낮 칩에는 낱말이 없습니다. 스크린리더 라벨은 항목 이름 + 때 낱말 + 값입니다.
+  * 낮 칩과 밤 칩은 각자 시트를 엽니다(본문 `today.lucky-time.day.body`, `today.lucky-time.night.body`). 열림 테두리는 누른 칩에만 생깁니다.
+* **시간 시트 24시간 띠 `timeBand`(결정 V117, 관문 답 4A):** 낮, 밤 시트 모두 본문 아래 `space.20`에 지금 보이는 두 칩이 가리키는 24시간을 그립니다.
+  * 순서: 프로필 시간대 07:30 전에는 밤(전날 21:30~오늘 07:29) 다섯 칸 다음 낮(오늘 07:30~21:29) 일곱 칸, 07:30부터는 낮 일곱 칸 다음 밤(오늘 21:30~내일 07:29) 다섯 칸.
+  * 머리(높이 24, 아래 `space.16`): 낮과 밤 덩어리의 시작에 칩과 같은 채운 해, 달(16) + 낱말(`today.lucky-time.band.day`, `night`, `type.caption.md` `text.secondary`).
+  * 칸: 12칸, 칸 사이 `space.2`, 높이 30, `radius.xs`. 낮 칸은 `ohaeng.earth.bg`/`fg`, 밤 칸은 `ohaeng.water.bg`/`fg`. 칸 안에 시진 지지 이름(`type.caption.sm`, 글자는 writing). 두 칩이 고른 시진에 2px `action.primary` 고리(칸과 사이 2px `bg.sheet` 틈), 그 칸 글자 700.
+  * 지금 줄: 지금 시각 비례 자리에 2px `text.primary` 세로선(칸 위아래 6 넘침), 위에 `inverse.bg`/`inverse.fg` 알약 꼬리표(`today.lucky-time.band.now`, 가안 "지금 {time}", `type.caption.sm`). 시트가 열린 동안 1분마다 옮깁니다.
+  * 눈금(칸 아래 `space.8`, `type.caption.sm` `text.secondary`, `tnum`): 띠 시작, 낮과 밤 경계, 띠 끝 시각. 전날이나 다음 날이면 날 낱말(`today.lucky-time.band.yesterday`, `tomorrow`, 가안 "어제", "내일")을 시각 앞에 둡니다.
+  * 띠는 스크린리더에서 그림으로 숨깁니다. 같은 정보는 칩 라벨과 시트 본문이 말합니다.
+  * 띠 칸은 360 기기 시트 안 폭 312에서 약 24px이라 지지 이름은 한 글자(ko 한글, ja 한자)를 기대합니다. 문구와 en 표기는 writing이 정합니다(#1014).
 
 ## tag-sentence-list
 
@@ -90,7 +105,7 @@
 | `feed` | 4:5, 1080×1350 | 없음 | 두 줄 | 3 |
 | `square` | 1:1, 1080×1080 | 없음 | 첫 문장 | 3 |
 
-* 행운 칩은 `time` 구간이 둘이어도 첫 구간 칩 하나만 넣습니다. 칩 수는 표 그대로입니다(결정 V52).
+* 행운 칩의 색은 첫째 색 칸 하나(D119 ④), 시간은 낮 칩 하나만 넣습니다. 칩 수는 표 그대로입니다(결정 V52, V116).
 * 공유 미리보기 시트 위 segmented로 사용자가 비율을 고릅니다. 바뀔 때 미리보기가 `appear.seep`.
 * 미리보기에는 `shadow.raised`(이 토큰을 쓰는 유일한 곳).
 * 태그라인 자리는 writing W1.
@@ -108,7 +123,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
    * 보조 문장을 정한 사주 기운 태그: 대표 태그 1순위 `hanja-tag` `default`(누르면 `tag-sheet`, 열린 동안 `selected`). 보조 문장은 대표 태그 1순위에서 나오므로 대표 태그가 없는 날에는 태그와 보조 문장을 모두 그리지 않습니다(D112 ③).
    * 보조 문장(`today.fortune.body`): 태그 아래 `space.8`, `sentence-block` `body` + 끝에 `depth-link` `inline-end`.
 4. 사주 기운: `section-header` `plain`(`today.featured.title`). 카드 안에 대표 태그(`Daily.tags.featured`, 최대 둘) `hanja-tag` `default` 줄(사이 `space.8`). 누르면 `tag-sheet`, 열린 동안 `selected`. 대표 태그가 0개인 날은 섹션 제목을 그대로 두고 카드 안에 한 줄 안내(`today.featured.empty`)를 둡니다. 글자는 사주 기운 시트 빈 안내와 같은 `type.body.ui` `text.secondary`(`tag-sentence-list` `empty`와 같은 값, 새 값 없음)이고 누를 수 없습니다(D112 ②, 결정 V95).
-5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`, `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.body`입니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
+5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`(색이 둘인 날은 `colorPairSheet`), `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.day.body`·`night.body`(아래 `timeBand`, IA의 `today.lucky-time.body`를 둘로 나누기를 #1014로 요청)입니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
 6. 일정(있는 날만): `section-header` `plain`(`today.event.title`, 그날 시트 일정 제목과 같은 키). 아래 `event-row` `summary`(`today.event.summary`) 카드, 누르면 `day-sheet`. 일정이 없는 날은 제목까지 섹션째 그리지 않습니다(V97).
 7. 오늘의 질문: `section-header` `plain`(`today.guide.title`). `guide-question-card`(`today.guide.question`, 버튼 `today.guide.cta`). 섹션 제목이 같은 말을 하므로 카드의 `eyebrow`는 그리지 않습니다. 오늘 쓴 일기가 있으면 카드 아래 `space.8`에 `diary-row` `entries` 카드.
 8. `ad-banner`(탭 바 위), `tab-bar`.
