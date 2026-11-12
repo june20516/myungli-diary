@@ -35,7 +35,7 @@
 - {slot: personal.twelve_stage, key: personal.twelve_stage.tae, text: "{place}での自分の気は胎の段階にあり、新しい考えがちょうど生まれてくるところです。この位置の五行は[[{element}]]で、{role}です。"}
 - {slot: personal.twelve_stage, key: personal.twelve_stage.yang, text: "{place}での自分の気は養の段階にあり、急がず内側でじっくり準備するところです。この位置の五行は[[{element}]]で、{role}です。"}
 - {slot: personal.shinsal, key: personal.shinsal.cheoneul_gwiin, text: "{place}に[[天乙貴人|shinsal.cheoneul_gwiin]]があり、困ったときに手を差し伸べてくれる人に出会いやすい土台です。この位置の五行は[[{element}]]で、{role}です。"}
-- {slot: personal.shinsal, key: personal.shinsal.dohwa, text: "{place}に[[咸池|shinsal.dohwa]]があり、人の目を引く魅力があります。この位置の五行は[[{element}]]で、{role}です。"}
+- {slot: personal.shinsal, key: personal.shinsal.dohwa, text: "{place}に[[咸池|shinsal.dohwa]]があり、人の目を引く魅力があるので、異性関係では誤解が生じないようはっきりさせるとよいでしょう。この位置の五行は[[{element}]]で、{role}です。"}
 - {slot: personal.shinsal, key: personal.shinsal.yeokma, text: "{place}の[[駅馬|shinsal.yeokma]]は動きの多い土台なので、移ったり広げたりすることに生かすとよいです。この位置の五行は[[{element}]]で、{role}です。"}
 - {slot: personal.shinsal, key: personal.shinsal.hwagae, text: "{place}に[[華蓋|shinsal.hwagae]]があり、一人で深く掘り下げる学びや芸術に心が向く土台です。この位置の五行は[[{element}]]で、{role}です。"}
 - {slot: personal.shinsal, key: personal.shinsal.yangin, text: "{place}に[[羊刃|shinsal.yangin]]があり、押し進める力と決断が強く表れます。この位置の五行は[[{element}]]で、{role}です。"}

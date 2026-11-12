@@ -3,7 +3,7 @@
 - {slot: term.meaning, key: term.tag.clash, text: "反対の気がぶつかり合うことで、予定が変わったり意見が分かれたりしやすくなります。"}
 - {slot: term.meaning, key: term.tag.clash_day_branch, text: "今日の地支が生まれた日の地支とぶつかり合う関係で、自分自身や身近な人との間柄が揺らぎやすくなります。"}
 - {slot: term.meaning, key: term.tag.clash_month_branch, text: "今日の地支が生まれた月の地支とぶつかり合う関係で、仕事や生活環境に変化が起きやすくなります。"}
-- {slot: term.meaning, key: term.tag.dohwa, text: "人の目を引く気を表す神殺で、魅力が表に出て注目を集めやすくなります。"}
+- {slot: term.meaning, key: term.tag.dohwa, text: "人の目を引く気を表す神殺で、今日は注目を集めやすいぶん、異性関係の噂も立ちやすくなります。"}
 - {slot: term.meaning, key: term.tag.gongmang, text: "空いた席を表す神殺で、努力した分の結果がすぐには手に入らないことがあります。"}
 - {slot: term.meaning, key: term.tag.gosin, text: "孤独な星を表す神殺で、今日は周りから離れて寂しさを感じやすいです。"}
 - {slot: term.meaning, key: term.tag.gwasuk, text: "独りで過ごす星を表す神殺で、今日は近しい人が少し遠く感じられることがあります。"}
@@ -61,7 +61,7 @@
 - {slot: term.meaning, key: term.ten_god_group.gwanseong, text: "偏官と正官をまとめた呼び名で、自分を律する決まりや責任を表します。職場、名誉、守るべき約束がここに入ります。"}
 - {slot: term.meaning, key: term.ten_god_group.inseong, text: "偏印と印綬をまとめた呼び名で、自分を育ててくれる学びや慈しみを表します。勉強、考えごと、受ける助けがここに入ります。"}
 - {slot: term.meaning, key: term.shinsal.cheoneul_gwiin, text: "神殺の中で最も尊い助けを表します。困ったときに、思いがけない人が手を差し伸べてくれる福と見ます。"}
-- {slot: term.meaning, key: term.shinsal.dohwa, text: "人の目を引く魅力を表す神殺です。人気やおしゃれ、異性からの関心として表れやすくなります。"}
+- {slot: term.meaning, key: term.shinsal.dohwa, text: "人の目を引く魅力を表す神殺です。人気として表れることもあれば、異性関係で噂が立ったり、心が乱れたりしやすくもあります。"}
 - {slot: term.meaning, key: term.shinsal.yeokma, text: "遠くへ駆ける馬を表す神殺です。引っ越し、旅行、忙しい移動のように、居場所を移すこととして表れやすくなります。"}
 - {slot: term.meaning, key: term.shinsal.hwagae, text: "内側を深く見つめる力を表す神殺です。勉強や芸術のように、一つのことに打ち込む姿として表れます。"}
 - {slot: term.meaning, key: term.shinsal.yangin, text: "刃のようにとても強い推進力を表す神殺です。押し進める力が大きい分、争いやけがに気をつける必要があります。"}

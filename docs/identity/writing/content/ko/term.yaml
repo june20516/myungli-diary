@@ -3,7 +3,7 @@
 - {slot: term.meaning, key: term.tag.clash, text: "서로 반대되는 기운이 맞부딪히는 것으로, 계획이 바뀌거나 의견이 갈리기 쉬워요."}
 - {slot: term.meaning, key: term.tag.clash_day_branch, text: "오늘의 지지가 태어난 날의 지지와 맞부딪히는 관계예요. 나 자신이나 가까운 사이가 흔들리기 쉬워요."}
 - {slot: term.meaning, key: term.tag.clash_month_branch, text: "오늘의 지지가 태어난 달의 지지와 맞부딪히는 관계예요. 일이나 생활 환경에 변화가 생기기 쉬워요."}
-- {slot: term.meaning, key: term.tag.dohwa, text: "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."}
+- {slot: term.meaning, key: term.tag.dohwa, text: "사람의 눈길을 끄는 기운을 뜻하는 신살로, 오늘은 관심을 받기 쉬운 만큼 이성 관계로 말이 나기도 쉬워요."}
 - {slot: term.meaning, key: term.tag.gongmang, text: "비어 있는 자리를 뜻하는 신살로, 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어요."}
 - {slot: term.meaning, key: term.tag.gosin, text: "외로운 별을 뜻하는 신살로, 오늘은 주변과 떨어져 외로움을 느끼기 쉬워요."}
 - {slot: term.meaning, key: term.tag.gwasuk, text: "홀로 지내는 별을 뜻하는 신살로, 오늘은 가까운 사람과 조금 멀게 느껴질 수 있어요."}
@@ -61,7 +61,7 @@
 - {slot: term.meaning, key: term.ten_god_group.gwanseong, text: "편관과 정관을 함께 부르는 이름으로, 나를 다스리는 규칙과 책임을 뜻해요. 직장, 명예, 지켜야 할 약속이 여기에 들어요."}
 - {slot: term.meaning, key: term.ten_god_group.inseong, text: "편인과 정인을 함께 부르는 이름으로, 나를 길러 주는 배움과 보살핌을 뜻해요. 공부, 생각, 받는 도움이 여기에 들어요."}
 - {slot: term.meaning, key: term.shinsal.cheoneul_gwiin, text: "신살 가운데 가장 귀한 도움을 뜻해요. 어려울 때 뜻밖의 사람이 손을 내밀어 주는 복으로 봐요."}
-- {slot: term.meaning, key: term.shinsal.dohwa, text: "사람의 눈길을 끄는 매력을 뜻하는 신살이에요. 인기와 멋, 이성의 관심으로 드러나기 쉬워요."}
+- {slot: term.meaning, key: term.shinsal.dohwa, text: "사람의 눈길을 끄는 매력을 뜻하는 신살이에요. 인기로 드러나기도 하고, 이성 관계로 말이 나거나 마음이 흐트러지기도 쉬워요."}
 - {slot: term.meaning, key: term.shinsal.yeokma, text: "멀리 달리는 말을 뜻하는 신살이에요. 이사, 여행, 바쁜 이동처럼 자리를 옮기는 일로 나타나기 쉬워요."}
 - {slot: term.meaning, key: term.shinsal.hwagae, text: "혼자 깊이 들여다보는 힘을 뜻하는 신살이에요. 공부나 예술처럼 한곳에 몰두하는 모습으로 드러나요."}
 - {slot: term.meaning, key: term.shinsal.yangin, text: "칼날처럼 아주 센 추진력을 뜻하는 신살이에요. 밀어붙이는 힘이 큰 만큼 다툼이나 다침을 조심해야 해요."}
