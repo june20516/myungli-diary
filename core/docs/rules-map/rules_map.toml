@@ -261,7 +261,7 @@ id = "natal_shinsal"
 group = "natal"
 name = "원국 신살"
 summary = "원국 안에 있는 신살 열아홉(천을귀인, 도화, 역마, 화개, 양인, 공망과 D124 열셋)을 찾고, 그 가운데 오늘 태그로 쓰는 아홉의 지지를 데일리 발동 판정에 넘깁니다."
-decisions = ["D13", "C24", "D124", "C40"]
+decisions = ["D13", "C24", "D124", "C40", "C42"]
 code = ["chart/shinsal.py", "constants/shinsal.py", "constants/gwiin.py"]
 evidence_rules = []
 message_keys = []
@@ -312,6 +312,142 @@ reason = "乙丑은 祿入空亡에 맞지 않고 같은 조목의 다른 문단
 when = "십악대패, 삼기."
 decisions = ["C40"]
 source_status = "principle_selected"
+
+[[items.rules]]
+kind = "added"
+text = "길흉 분류(#1065). 길: 천을귀인, 천덕, 월덕, 금여, 암록, 삼기, 역마. 흉: 고신, 과숙, 원진, 구교, 천라지망, 십악대패, 음착양차, 도화. 섞임: 양인, 공망, 화개, 괴강. 흉 신살 설명 끝의 마무리 줄(D124 ⑦)은 흉과 섞임 열둘에 붙입니다."
+reason = "원문 조목이 그 신살을 길로 보는지 흉으로 보는지로 나눴습니다. 길이나 흉을 말하면서 단서(합을 만나면 길, 길신이 도우면 길 등)만 붙인 것은 본문 쪽으로 두고, 원문이 같은 무게로 양쪽을 말하는 것만 섞임으로 둡니다. 섞임은 결과가 원국 전체에 달렸다는 뜻이라 \"신살만으로 판단하지 않는다\"는 마무리 줄과 맞아 붙입니다. 마무리 줄 원문(若專論神煞則誣矣)은 길흉을 가리지 않는 말이고, 흉에만 붙이는 것은 D124 ⑦의 선택입니다."
+when = "원국 신살 개인 해석과 오늘 태그 설명."
+decisions = ["D124", "C42"]
+source_status = "principle_selected"
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論天乙貴人"
+quote = "天乙貴三命中最吉之神"
+meaning = "천을귀인은 삼명 가운데 가장 길한 신이다."
+interpretation = "길. 충파, 공망, 사절이면 힘이 준다는 단서가 붙지만 흉으로 바뀌지는 않습니다."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論天月徳"
+quote = "縱遇㓙禍自然消散"
+meaning = "흉한 화를 만나도 저절로 흩어진다."
+interpretation = "길(천덕, 월덕)."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論金轝"
+quote = "遇此之人福最殊"
+meaning = "이를 만난 사람은 복이 가장 뛰어나다."
+interpretation = "길."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論驛馬"
+quote = "驛馬者三命中發用喜慶之神"
+meaning = "역마는 삼명 가운데 작용을 일으키는 기쁜 신이다."
+interpretation = "길. 공망, 사절이면 쓸모가 없고 노인과 아이에게는 이롭지 않다는 단서가 있으나 본문은 길로 봅니다(core 판단)."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論三奇"
+quote = "論三奇太歲不帶而月日時帶者孤獨"
+meaning = "삼기를 논할 때 태세(연)에 없고 월일시에 있으면 고독하다."
+interpretation = "길. 엔진이 함께 보는 월일시 삼기에는 원문이 고독을 단서로 답니다(C40은 그대로)."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論孤辰寡宿"
+quote = "不利六親"
+meaning = "육친에게 이롭지 않다."
+interpretation = "흉(고신, 과숙)."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論元辰"
+quote = "不有内疾必有外難"
+meaning = "안의 병이 아니면 반드시 바깥의 어려움이 있다."
+interpretation = "흉. 합을 만나면 길로 본다는 단서(元辰遇合而大亨)가 있습니다."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論勾絞"
+quote = "小人逢之非横災禍"
+meaning = "보통 사람이 만나면 뜻밖의 재앙이 있다."
+interpretation = "흉."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論天羅地網"
+quote = "多主蹇滯"
+meaning = "대개 막히고 지체됨을 주관한다."
+interpretation = "흉."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論十惡大敗"
+quote = "况犯者未必皆㐫若内有吉神相扶貴氣相輔當為吉論"
+meaning = "범한 사람이 다 흉한 것은 아니고, 길신과 귀기가 도우면 길로 논한다."
+interpretation = "흉. 이름 풀이가 지극한 흉(喻極㐫)이고 이 문장은 단서입니다."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "總論諸神煞"
+quote = "其煞不論男女月日時兩重或三重犯之極重"
+meaning = "이 살은 남녀를 가리지 않고 월일시에 두세 번 겹치면 아주 무겁다."
+interpretation = "흉(음착양차)."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol02.wikitext"
+work = "三命通會"
+section = "論咸池"
+quote = "詳諸書見咸池非吉煞日時與水命遇之尢凶"
+meaning = "여러 책을 살피면 함지는 길한 살이 아니며, 일시와 수명이 만나면 더욱 흉하다."
+interpretation = "흉. 한국 통용의 매력, 인기 풀이와 달리 원문은 흉으로 봅니다. 오늘 태그 순서(D125)는 도화를 길 태그로 두어 어긋납니다(#1065에서 지휘에 올림)."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論羊刃"
+quote = "既成而未極則為福已極則將反而為㓙"
+meaning = "이루어졌으되 극에 이르지 않으면 복이고, 이미 극에 이르면 돌아서 흉이 된다."
+interpretation = "섞임. 녹과 관인이 도우면 길로 논하고, 양인만 있으면 흉포하다고 합니다."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol03.wikitext"
+work = "三命通會"
+section = "論空亡"
+quote = "天中一煞不可全以㓙言"
+meaning = "공망 하나를 모두 흉으로 말할 수는 없다."
+interpretation = "섞임. 흉살은 풀고 길신은 흩는다고 같은 조목이 말합니다."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol02.wikitext"
+work = "三命通會"
+section = "論將星華葢"
+quote = "華葢雖吉亦有妨或為孽子或孤孀"
+meaning = "화개는 길하지만 해로움도 있어 서자가 되거나 홀로 된다."
+interpretation = "섞임."
+
+[[items.sources]]
+file = "sammyeong-tonghoe/skqs-vol06.wikitext"
+work = "三命通會"
+section = "魁罡"
+quote = "運行身旺發福百端一見財官禍患立至"
+meaning = "운이 신왕으로 가면 온갖 복이 일어나고, 재관을 한 번 보면 화가 바로 이른다."
+interpretation = "섞임."
 
 [[items.sources]]
 ref = "sammyeong-tonghoe/tags#cheoneul_gwiin"
