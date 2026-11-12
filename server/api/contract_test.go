@@ -692,8 +692,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.11.0" {
-		t.Errorf("info.version = %q, want 1.11.0", doc.Info.Version)
+	if doc.Info.Version != "1.12.0" {
+		t.Errorf("info.version = %q, want 1.12.0", doc.Info.Version)
 	}
 }
 
@@ -2009,6 +2009,29 @@ func TestContract_1_11LuckyCardsAndShinsal(t *testing.T) {
 	at := schemaOf(t, doc, "ShinsalAt")
 	if at.Properties["positions"] == nil || !slices.Contains(at.Required, "positions") {
 		t.Error("ShinsalAt.positions가 필수가 아님")
+	}
+}
+
+// TestContract_1_12FocusHours는 집중 시간 카드의 구간 시진 전부 FocusTimeCard.hours(선택)와 밤 칩 전환 기준 문구를 고정합니다.
+// 전환은 프로필 현재 시간대의 그날 진시 시작이고 한국 시각으로 못 박지 않습니다. (S156, #1064)
+func TestContract_1_12FocusHours(t *testing.T) {
+	doc := loadDoc(t)
+	card := schemaOf(t, doc, "FocusTimeCard")
+	hours := card.Properties["hours"]
+	if hours == nil || hours.Value.Items.Ref != "#/components/schemas/FocusSlot" {
+		t.Fatal("FocusTimeCard.hours가 FocusSlot 배열이 아님")
+	}
+	if slices.Contains(card.Required, "hours") {
+		t.Error("FocusTimeCard.hours는 선택 필드여야 함")
+	}
+	cards := schemaOf(t, doc, "DailyCards")
+	for _, text := range []string{"프로필 현재 시간대에서 그날 진시가 시작하는 시각", "`focusTime.hours[0].start`"} {
+		if !strings.Contains(cards.Description, text) {
+			t.Errorf("DailyCards 설명에 %q가 없음", text)
+		}
+	}
+	if strings.Contains(cards.Description, "한국 시각 07:30 전)") {
+		t.Error("DailyCards 설명이 아직 전환을 한국 시각으로 못 박음")
 	}
 }
 

@@ -3870,11 +3870,15 @@ func (x *NumberCard) GetNumber() int32 {
 // 집중하기 좋은 시간 (D122). 12시진을 원전(協紀辨方書 用時法, 論相主, 黃道黑道) 등급으로 줄 세워
 // 구간(period)마다 1등 하나를 냅니다. 근거 규칙은 focus_time/day_relation, birth_year, huangdao입니다.
 type FocusTimeCard struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Judgment      *Judgment              `protobuf:"bytes,1,opt,name=judgment,proto3" json:"judgment,omitempty"`
-	Picks         []*FocusSlot           `protobuf:"bytes,2,rep,name=picks,proto3" json:"picks,omitempty"`        // 늘 1개 (ruleset 2026.11.4부터, 전에는 1~2개)
-	Fallback      bool                   `protobuf:"varint,3,opt,name=fallback,proto3" json:"fallback,omitempty"` // ruleset 2026.11.4부터 늘 false
-	Period        FocusPeriod            `protobuf:"varint,4,opt,name=period,proto3,enum=myungli.engine.v1.FocusPeriod" json:"period,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Judgment *Judgment              `protobuf:"bytes,1,opt,name=judgment,proto3" json:"judgment,omitempty"`
+	Picks    []*FocusSlot           `protobuf:"bytes,2,rep,name=picks,proto3" json:"picks,omitempty"`        // 늘 1개 (ruleset 2026.11.4부터, 전에는 1~2개)
+	Fallback bool                   `protobuf:"varint,3,opt,name=fallback,proto3" json:"fallback,omitempty"` // ruleset 2026.11.4부터 늘 false
+	Period   FocusPeriod            `protobuf:"varint,4,opt,name=period,proto3,enum=myungli.engine.v1.FocusPeriod" json:"period,omitempty"`
+	// 이 구간의 시진 전부, 시간 순(#1078). 낮은 그날 진시~술시 7개, 밤은 그날 해시와 다음 날 자시~묘시 5개.
+	// 항목 값은 picks와 같은 규칙이고, picks의 시진은 여기 같은 시진과 같은 값입니다. 時破로 고르지 않는 시진도 들어 있습니다.
+	// 밤 칩 전환 시각은 그날 낮 카드 hours[0].start(진시 시작), 24시간 띠는 밤 카드와 낮 카드의 hours입니다.
+	Hours         []*FocusSlot `protobuf:"bytes,5,rep,name=hours,proto3" json:"hours,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3935,6 +3939,13 @@ func (x *FocusTimeCard) GetPeriod() FocusPeriod {
 		return x.Period
 	}
 	return FocusPeriod_FOCUS_PERIOD_UNSPECIFIED
+}
+
+func (x *FocusTimeCard) GetHours() []*FocusSlot {
+	if x != nil {
+		return x.Hours
+	}
+	return nil
 }
 
 // 시진 하나. start(포함)·end(제외)는 절대 시각이며, 요청의 current_timezone으로 바꿔 표시합니다.
@@ -4932,12 +4943,13 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\n" +
 	"NumberCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x12\x16\n" +
-	"\x06number\x18\x02 \x01(\x05R\x06number\"\xd0\x01\n" +
+	"\x06number\x18\x02 \x01(\x05R\x06number\"\x84\x02\n" +
 	"\rFocusTimeCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x122\n" +
 	"\x05picks\x18\x02 \x03(\v2\x1c.myungli.engine.v1.FocusSlotR\x05picks\x12\x1a\n" +
 	"\bfallback\x18\x03 \x01(\bR\bfallback\x126\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x1e.myungli.engine.v1.FocusPeriodR\x06period\"\x9b\x03\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x1e.myungli.engine.v1.FocusPeriodR\x06period\x122\n" +
+	"\x05hours\x18\x05 \x03(\v2\x1c.myungli.engine.v1.FocusSlotR\x05hours\"\x9b\x03\n" +
 	"\tFocusSlot\x121\n" +
 	"\x06branch\x18\x01 \x01(\x0e2\x19.myungli.engine.v1.BranchR\x06branch\x121\n" +
 	"\x06pillar\x18\x02 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x120\n" +
@@ -5427,53 +5439,54 @@ var file_myungli_engine_v1_engine_proto_depIdxs = []int32{
 	32,  // 95: myungli.engine.v1.FocusTimeCard.judgment:type_name -> myungli.engine.v1.Judgment
 	56,  // 96: myungli.engine.v1.FocusTimeCard.picks:type_name -> myungli.engine.v1.FocusSlot
 	20,  // 97: myungli.engine.v1.FocusTimeCard.period:type_name -> myungli.engine.v1.FocusPeriod
-	4,   // 98: myungli.engine.v1.FocusSlot.branch:type_name -> myungli.engine.v1.Branch
-	26,  // 99: myungli.engine.v1.FocusSlot.pillar:type_name -> myungli.engine.v1.Pillar
-	71,  // 100: myungli.engine.v1.FocusSlot.start:type_name -> google.protobuf.Timestamp
-	71,  // 101: myungli.engine.v1.FocusSlot.end:type_name -> google.protobuf.Timestamp
-	24,  // 102: myungli.engine.v1.FocusSlot.day_date:type_name -> myungli.engine.v1.LocalDate
-	26,  // 103: myungli.engine.v1.FocusSlot.day_pillar:type_name -> myungli.engine.v1.Pillar
-	17,  // 104: myungli.engine.v1.Relation.kind:type_name -> myungli.engine.v1.RelationKind
-	10,  // 105: myungli.engine.v1.Relation.natal_position:type_name -> myungli.engine.v1.Position
-	17,  // 106: myungli.engine.v1.Relation.suppressed_by:type_name -> myungli.engine.v1.RelationKind
-	59,  // 107: myungli.engine.v1.MonthResponse.days:type_name -> myungli.engine.v1.MonthDay
-	36,  // 108: myungli.engine.v1.MonthResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	24,  // 109: myungli.engine.v1.MonthDay.date:type_name -> myungli.engine.v1.LocalDate
-	26,  // 110: myungli.engine.v1.MonthDay.pillar:type_name -> myungli.engine.v1.Pillar
-	60,  // 111: myungli.engine.v1.MonthDay.solar_term:type_name -> myungli.engine.v1.SolarTerm
-	12,  // 112: myungli.engine.v1.MonthDay.kind:type_name -> myungli.engine.v1.DayKind
-	15,  // 113: myungli.engine.v1.MonthDay.luck_level:type_name -> myungli.engine.v1.LuckLevel
-	61,  // 114: myungli.engine.v1.MonthDay.score_items:type_name -> myungli.engine.v1.ScoreItem
-	32,  // 115: myungli.engine.v1.MonthDay.judgment:type_name -> myungli.engine.v1.Judgment
-	9,   // 116: myungli.engine.v1.MonthDay.day_virtues:type_name -> myungli.engine.v1.DayVirtue
-	71,  // 117: myungli.engine.v1.SolarTerm.at:type_name -> google.protobuf.Timestamp
-	22,  // 118: myungli.engine.v1.SolarTerm.kind:type_name -> myungli.engine.v1.SolarTermKind
-	28,  // 119: myungli.engine.v1.BirthHourRequest.birth:type_name -> myungli.engine.v1.BirthInfo
-	4,   // 120: myungli.engine.v1.BirthHourResponse.branch:type_name -> myungli.engine.v1.Branch
-	71,  // 121: myungli.engine.v1.BirthHourResponse.start:type_name -> google.protobuf.Timestamp
-	71,  // 122: myungli.engine.v1.BirthHourResponse.end:type_name -> google.protobuf.Timestamp
-	36,  // 123: myungli.engine.v1.BirthHourResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	24,  // 124: myungli.engine.v1.LunarDateRequest.date:type_name -> myungli.engine.v1.LocalDate
-	24,  // 125: myungli.engine.v1.LunarDateResponse.solar:type_name -> myungli.engine.v1.LocalDate
-	36,  // 126: myungli.engine.v1.LunarDateResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	33,  // 127: myungli.engine.v1.Judgment.ParamsEntry.value:type_name -> myungli.engine.v1.Param
-	29,  // 128: myungli.engine.v1.MyungliEngine.GetChart:input_type -> myungli.engine.v1.ChartRequest
-	30,  // 129: myungli.engine.v1.MyungliEngine.GetDaily:input_type -> myungli.engine.v1.DailyRequest
-	31,  // 130: myungli.engine.v1.MyungliEngine.GetMonthCalendar:input_type -> myungli.engine.v1.MonthRequest
-	62,  // 131: myungli.engine.v1.MyungliEngine.GetBirthHour:input_type -> myungli.engine.v1.BirthHourRequest
-	64,  // 132: myungli.engine.v1.MyungliEngine.GetInfo:input_type -> myungli.engine.v1.InfoRequest
-	66,  // 133: myungli.engine.v1.MyungliEngine.ConvertLunarDate:input_type -> myungli.engine.v1.LunarDateRequest
-	37,  // 134: myungli.engine.v1.MyungliEngine.GetChart:output_type -> myungli.engine.v1.ChartResponse
-	50,  // 135: myungli.engine.v1.MyungliEngine.GetDaily:output_type -> myungli.engine.v1.DailyResponse
-	58,  // 136: myungli.engine.v1.MyungliEngine.GetMonthCalendar:output_type -> myungli.engine.v1.MonthResponse
-	63,  // 137: myungli.engine.v1.MyungliEngine.GetBirthHour:output_type -> myungli.engine.v1.BirthHourResponse
-	65,  // 138: myungli.engine.v1.MyungliEngine.GetInfo:output_type -> myungli.engine.v1.InfoResponse
-	67,  // 139: myungli.engine.v1.MyungliEngine.ConvertLunarDate:output_type -> myungli.engine.v1.LunarDateResponse
-	134, // [134:140] is the sub-list for method output_type
-	128, // [128:134] is the sub-list for method input_type
-	128, // [128:128] is the sub-list for extension type_name
-	128, // [128:128] is the sub-list for extension extendee
-	0,   // [0:128] is the sub-list for field type_name
+	56,  // 98: myungli.engine.v1.FocusTimeCard.hours:type_name -> myungli.engine.v1.FocusSlot
+	4,   // 99: myungli.engine.v1.FocusSlot.branch:type_name -> myungli.engine.v1.Branch
+	26,  // 100: myungli.engine.v1.FocusSlot.pillar:type_name -> myungli.engine.v1.Pillar
+	71,  // 101: myungli.engine.v1.FocusSlot.start:type_name -> google.protobuf.Timestamp
+	71,  // 102: myungli.engine.v1.FocusSlot.end:type_name -> google.protobuf.Timestamp
+	24,  // 103: myungli.engine.v1.FocusSlot.day_date:type_name -> myungli.engine.v1.LocalDate
+	26,  // 104: myungli.engine.v1.FocusSlot.day_pillar:type_name -> myungli.engine.v1.Pillar
+	17,  // 105: myungli.engine.v1.Relation.kind:type_name -> myungli.engine.v1.RelationKind
+	10,  // 106: myungli.engine.v1.Relation.natal_position:type_name -> myungli.engine.v1.Position
+	17,  // 107: myungli.engine.v1.Relation.suppressed_by:type_name -> myungli.engine.v1.RelationKind
+	59,  // 108: myungli.engine.v1.MonthResponse.days:type_name -> myungli.engine.v1.MonthDay
+	36,  // 109: myungli.engine.v1.MonthResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	24,  // 110: myungli.engine.v1.MonthDay.date:type_name -> myungli.engine.v1.LocalDate
+	26,  // 111: myungli.engine.v1.MonthDay.pillar:type_name -> myungli.engine.v1.Pillar
+	60,  // 112: myungli.engine.v1.MonthDay.solar_term:type_name -> myungli.engine.v1.SolarTerm
+	12,  // 113: myungli.engine.v1.MonthDay.kind:type_name -> myungli.engine.v1.DayKind
+	15,  // 114: myungli.engine.v1.MonthDay.luck_level:type_name -> myungli.engine.v1.LuckLevel
+	61,  // 115: myungli.engine.v1.MonthDay.score_items:type_name -> myungli.engine.v1.ScoreItem
+	32,  // 116: myungli.engine.v1.MonthDay.judgment:type_name -> myungli.engine.v1.Judgment
+	9,   // 117: myungli.engine.v1.MonthDay.day_virtues:type_name -> myungli.engine.v1.DayVirtue
+	71,  // 118: myungli.engine.v1.SolarTerm.at:type_name -> google.protobuf.Timestamp
+	22,  // 119: myungli.engine.v1.SolarTerm.kind:type_name -> myungli.engine.v1.SolarTermKind
+	28,  // 120: myungli.engine.v1.BirthHourRequest.birth:type_name -> myungli.engine.v1.BirthInfo
+	4,   // 121: myungli.engine.v1.BirthHourResponse.branch:type_name -> myungli.engine.v1.Branch
+	71,  // 122: myungli.engine.v1.BirthHourResponse.start:type_name -> google.protobuf.Timestamp
+	71,  // 123: myungli.engine.v1.BirthHourResponse.end:type_name -> google.protobuf.Timestamp
+	36,  // 124: myungli.engine.v1.BirthHourResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	24,  // 125: myungli.engine.v1.LunarDateRequest.date:type_name -> myungli.engine.v1.LocalDate
+	24,  // 126: myungli.engine.v1.LunarDateResponse.solar:type_name -> myungli.engine.v1.LocalDate
+	36,  // 127: myungli.engine.v1.LunarDateResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	33,  // 128: myungli.engine.v1.Judgment.ParamsEntry.value:type_name -> myungli.engine.v1.Param
+	29,  // 129: myungli.engine.v1.MyungliEngine.GetChart:input_type -> myungli.engine.v1.ChartRequest
+	30,  // 130: myungli.engine.v1.MyungliEngine.GetDaily:input_type -> myungli.engine.v1.DailyRequest
+	31,  // 131: myungli.engine.v1.MyungliEngine.GetMonthCalendar:input_type -> myungli.engine.v1.MonthRequest
+	62,  // 132: myungli.engine.v1.MyungliEngine.GetBirthHour:input_type -> myungli.engine.v1.BirthHourRequest
+	64,  // 133: myungli.engine.v1.MyungliEngine.GetInfo:input_type -> myungli.engine.v1.InfoRequest
+	66,  // 134: myungli.engine.v1.MyungliEngine.ConvertLunarDate:input_type -> myungli.engine.v1.LunarDateRequest
+	37,  // 135: myungli.engine.v1.MyungliEngine.GetChart:output_type -> myungli.engine.v1.ChartResponse
+	50,  // 136: myungli.engine.v1.MyungliEngine.GetDaily:output_type -> myungli.engine.v1.DailyResponse
+	58,  // 137: myungli.engine.v1.MyungliEngine.GetMonthCalendar:output_type -> myungli.engine.v1.MonthResponse
+	63,  // 138: myungli.engine.v1.MyungliEngine.GetBirthHour:output_type -> myungli.engine.v1.BirthHourResponse
+	65,  // 139: myungli.engine.v1.MyungliEngine.GetInfo:output_type -> myungli.engine.v1.InfoResponse
+	67,  // 140: myungli.engine.v1.MyungliEngine.ConvertLunarDate:output_type -> myungli.engine.v1.LunarDateResponse
+	135, // [135:141] is the sub-list for method output_type
+	129, // [129:135] is the sub-list for method input_type
+	129, // [129:129] is the sub-list for extension type_name
+	129, // [129:129] is the sub-list for extension extendee
+	0,   // [0:129] is the sub-list for field type_name
 }
 
 func init() { file_myungli_engine_v1_engine_proto_init() }

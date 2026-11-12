@@ -359,13 +359,18 @@ func (c *converter) colorCard(card *enginev1.ColorCard, text gen.SlotText) gen.C
 	}
 }
 
-// focusTimeCard는 집중 시간 카드 하나를 옮깁니다.
+// focusTimeCard는 집중 시간 카드 하나를 옮깁니다. 구간의 시진 전부(hours)는 엔진이 낼 때만 담습니다(2026.11.8 전에는 없음).
 func (c *converter) focusTimeCard(card *enginev1.FocusTimeCard, text gen.SlotText) gen.FocusTimeCard {
-	return gen.FocusTimeCard{
+	out := gen.FocusTimeCard{
 		Picks:    convertAll(card.GetPicks(), c.focusSlot),
 		Fallback: card.GetFallback(),
 		Text:     text,
 	}
+	if len(card.GetHours()) > 0 {
+		hours := convertAll(card.GetHours(), c.focusSlot)
+		out.Hours = &hours
+	}
+	return out
 }
 
 // focusSlot은 집중 시간 시진 하나를 옮깁니다. 시진이 속한 날짜와 일진은 엔진이 날짜를 줄 때만 담습니다(2026.11.5 전에는 없음).

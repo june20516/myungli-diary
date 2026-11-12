@@ -93,6 +93,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 * **아침 알림 10분 분산(브랜치 `server/817-notify-spread`, #817 ①, D109):** 계정 고정 오프셋 0~10분(`notify.SpreadOffset`), 실행이 다음 5분 안의 보낼 시각까지 기다렸다 보냄(`lookahead`), 실행 상한 8분. 결정 S144.
 * **명리일기 회고 집계(브랜치 `server/862-diary-stats`, #862):** `getDiaryStats`(`GET /v1/diary-stats`)로 살아 있는 편수, 날짜 단위 날의 성격별 수(네 값 모두), 대표 태그 상위 3개(날짜 수 순, 같으면 키 순). 결정 S146.
 * **엔진 2026.11.7 따라잡기와 D124 신살(브랜치 `server/977-972-1031-shinsal-ruleset`, drift #977, #972, #1031):** 계약 1.11.0. 행운 색 둘째 칩 `DailyCards.secondColor`(D119), 밤 집중 시간 `nightFocusTime`과 오늘 07:30 전에 보일 전날 밤 `previousNightFocusTime`(D122 ⑦), `FocusSlot.dayDate`·`dayPillar`, 택일 덕일 `Daily.dayVirtues`·`CalendarDay.dayVirtues`, 원국 신살 열아홉과 `ShinsalAt.positions`, 새 태그 셋 길흉, 지원 엔진 버전 2026.11.7, 시드 재생성(R39~R41 원고). 부속 문장은 선택 기록 없이 같은 슬롯 기록의 시드 버전으로 렌더합니다. 결정 S151~S154.
+* **간지 독음 시드(PR #1077, drift #1075)와 집중 시간 시진 경계, 도화 중립(브랜치 `server/1083-1064-dohwa-hour-bounds`, #1083, #1064, core #1078):** 계약 1.12.0. `FocusTimeCard.hours`, 밤 칩 전환은 프로필 시간대의 그날 진시 시작, 도화 태그 중립(이미 쓴 일기는 쓸 때 값), 지원 엔진 버전 2026.11.8. 결정 S155, S156.
 * 수익화 사이클 M0가 끝나 MVP 범위가 다시 확정됐습니다(D53·D54).
 * 엔진 계약의 상태는 계약 표에 있습니다. 계약 메모는 Issue #3(원문 보관: `docs/coordination/2026-10-10-core-to-server-engine-proto-v1.md`)에 있습니다.
 * 받은 요청: #141·#152 처리(#152 나머지 ③④⑤는 #167), #170 처리, #55(호칭·조사 규칙과 시드 변환)·#129(용어 id, 값 종류 `text`) P4에서 처리, #79(클라이언트 쪽 완료, 배포 설정은 P9). 앞으로 받은 요청은 `gh issue list --label to:server`.
@@ -104,6 +105,6 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 2로 정했습니다(S135). 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
-6. **엔진 배포 순서(S139):** `server/977-972-1031-shinsal-ruleset` 병합 뒤 deploy-server가 staging에 나가면 `deploy-engine`을 dispatch로 돌립니다. 관문이 server `/version`(2026.11.7)을 보고 통과시킵니다. prod는 I4 전이라 승인 대기를 취소합니다.
+6. **엔진 배포 순서(S139):** `server/1083-1064-dohwa-hour-bounds` 병합 뒤 deploy-server가 staging에 나가면 `deploy-engine`을 dispatch로 돌립니다. 관문이 server `/version`(2026.11.8)을 보고 통과시킵니다. prod는 I4 전이라 승인 대기를 취소합니다.
 7. L1(#782, #817): 1회차 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md), 2회차 [`2026-11-09-limit-2/`](docs/load/2026-11-09-limit-2/README.md), 3회차 [`2026-11-09-limit-3/`](docs/load/2026-11-09-limit-3/README.md), 4회차 [`2026-11-09-limit-4/`](docs/load/2026-11-09-limit-4/README.md). S147로 요청당 query 5.9→3.9건, S148로 트랜잭션 약 45% 감소. 한계는 cold, warm 모두 초당 80세션(160에서 멈춤)이고, SQL CPU는 statement나 트랜잭션 수를 따르지 않아 왕복 줄이기는 멈춥니다. 다음 수단은 SQL tier이며 #903(12월 15일까지 tier와 예산 점검)에서 정한 뒤 5회차.
 8. app 질문이 오면 답합니다.

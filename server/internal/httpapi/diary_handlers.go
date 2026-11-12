@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -380,17 +379,23 @@ func featuredTags(c *converter, e diary.Entry) []gen.Tag {
 // allTags는 그날 태그 전부를 계약 Tag로 옮깁니다(D115, S150). 대표 태그를 그 순서대로 앞에 두고, 나머지는 날짜 기록(엔진이 낸) 순서입니다.
 // 지금 엔진은 전체 태그의 앞부분을 대표 태그로 고르므로 결과는 전체 태그 순서와 같지만, 그 사실은 엔진 계약이 아니라 여기서 정합니다.
 // 길흉 표에 없는 키면 c에 오류를 남깁니다(저장할 때 확인하므로 저장된 값이 깨진 경우).
+//
+// 대표 태그는 날짜 기록에 쓸 때의 길흉이 있어 그 값을 그대로 씁니다. 그래서 길흉 표가 바뀐 뒤에도(S155, 도화) 한 요약 안의
+// featuredTags와 allTags에서 같은 태그의 길흉이 같습니다. 나머지 태그는 기록에 키만 있어 지금 길흉 표로 정합니다.
 func allTags(c *converter, e diary.Entry) []gen.Tag {
-	ordered := make([]string, 0, len(e.AllTags))
+	out := make([]gen.Tag, 0, len(e.AllTags))
+	seen := make(map[string]bool, len(e.AllTags))
 	for _, t := range e.Featured {
-		ordered = append(ordered, t.Key)
+		out = append(out, gen.Tag{Key: t.Key, Polarity: contractValue[gen.TagPolarity](c, "Tag.polarity", string(t.Polarity))})
+		seen[t.Key] = true
 	}
 	for _, key := range e.AllTags {
-		if !slices.Contains(ordered, key) {
-			ordered = append(ordered, key)
+		if !seen[key] {
+			out = append(out, c.tag(fortune.TagPrefix+key))
+			seen[key] = true
 		}
 	}
-	return convertAll(ordered, func(key string) gen.Tag { return c.tag(fortune.TagPrefix + key) })
+	return out
 }
 
 // excerpt는 본문 앞 100 code point를 NFC로 합쳐 돌려줍니다.

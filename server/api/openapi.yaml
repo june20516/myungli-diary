@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.11.0
+  version: 1.12.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -3247,7 +3247,9 @@ components:
         두 카드의 `text`는 같은 슬롯 `daily.color`이고 키가 `color.balance.*`, `color.source.*`로 다릅니다. 각 카드 문장의 근거가 그 색의 근거입니다(D123 ②).
         `focusTime`은 낮(진시~술시)의 1등 시진, `nightFocusTime`은 그날 밤(그날 해시와 다음 날 자시~묘시)의 1등 시진입니다(D122, 1.11.0에서 더함).
         `previousNightFocusTime`은 전날 밤의 1등 시진이고, 요청 날짜가 프로필 현재 시간대의 오늘일 때만 있습니다(D122 ⑦, 1.11.0에서 더함).
-        오늘 화면은 그날 낮 구간이 시작하기 전(진시 시작, 한국 시각 07:30 전)에는 `previousNightFocusTime`을, 그 뒤에는 `nightFocusTime`을 보입니다.
+        오늘 화면은 그날 낮 구간이 시작하기 전에는 `previousNightFocusTime`을, 그 뒤에는 `nightFocusTime`을 보입니다(D30, D122 ⑦, #1064).
+        전환 시각은 프로필 현재 시간대에서 그날 진시가 시작하는 시각 `focusTime.hours[0].start`입니다. 시진 경계는 그 시간대 대표 경도의
+        지방평균시로 정해 시간대마다 다릅니다(서울은 07:30). `hours`가 없는 응답(규칙 버전 2026.11.8 전)은 한국 시각 07:30으로 봅니다.
         지난 날짜는 그날 밤(`nightFocusTime`)으로 고정입니다. 두 밤 카드는 엔진이 밤 카드를 내지 않는 규칙 버전(2026.11.5 전)에는 없습니다.
         세 집중 시간 카드의 `text`는 같은 슬롯 `daily.focus_time`이고 키가 `focus_time.day`, `focus_time.night`로 다릅니다.
       required: [color, direction, number, focusTime]
@@ -3296,6 +3298,9 @@ components:
       type: object
       description: |
         `picks`는 규칙 버전 2026.11.4부터 늘 1개이고 `fallback`은 늘 false입니다(D122, 대체가 없어짐). 그 전 규칙 버전은 1~2개입니다.
+        `hours`는 이 구간의 시진 전부를 시간 순으로 담습니다(#1064, 1.12.0에서 더함). 낮 카드는 그날 진시~술시 7개, 밤 카드는 그날 해시와
+        다음 날 자시~묘시 5개이고, 고르지 않는 시진(時破)도 들어 있습니다. 항목 값은 `picks`와 같은 규칙이고 `picks`의 시진은 여기 같은 시진과 같습니다.
+        24시간 띠는 보이는 밤 카드의 `hours`와 그날 낮 카드의 `hours`로 그립니다. 엔진이 이 값을 내지 않는 규칙 버전(2026.11.8 전)에는 없습니다.
       required: [picks, fallback, text]
       properties:
         picks:
@@ -3308,6 +3313,12 @@ components:
           type: boolean
         text:
           $ref: '#/components/schemas/SlotText'
+        hours:
+          type: array
+          minItems: 5
+          maxItems: 7
+          items:
+            $ref: '#/components/schemas/FocusSlot'
     FocusSlot:
       type: object
       description: |

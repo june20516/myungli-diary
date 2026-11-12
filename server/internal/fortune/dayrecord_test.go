@@ -30,7 +30,7 @@ func TestViews_DayRecord(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, []string{"dohwa", "yeokma"}, got.AllTags)
-	assert.Equal(t, []fortune.FeaturedTag{{Key: "dohwa", Polarity: fortune.PolarityGood}}, got.Featured)
+	assert.Equal(t, []fortune.FeaturedTag{{Key: "dohwa", Polarity: fortune.PolarityNeutral}}, got.Featured, "새 날짜 기록은 지금 길흉 표(S155 도화 중립)")
 	assert.Equal(t, "rs-1", got.RulesetVersion)
 	assert.Equal(t, "눈길이 간 사람을 적어 볼까요?", plain(got.GuideQuestion))
 }
