@@ -199,7 +199,7 @@ void main() {
     );
   });
 
-  for (final scale in [1.0, 2.0]) {
+  for (final scale in [1.0, 1.3, 2.0]) {
     testWidgets('지금 꼬리표는 머리 줄(해와 달, 낱말)과 겹치지 않습니다(글자 배율 $scale)', (
       tester,
     ) async {
@@ -230,6 +230,26 @@ void main() {
       }
     });
   }
+
+  testWidgets('글자 배율 1.0에서 머리 아래 간격은 계약 값 16이고 큰 배율에서만 늘어납니다(A134 ⑪)', (
+    tester,
+  ) async {
+    double gap() {
+      final band = tester.getTopLeft(find.byType(TimeBand)).dy;
+      final cells = tester.getTopLeft(find.byKey(TimeBand.cellKey(0))).dy;
+      // 머리 줄은 최소 높이 24이고 배율 2.0 전에는 내용이 그 안에 들어갑니다.
+      return cells - band - TimeBand.headHeight;
+    }
+
+    await tester.pumpWidget(_app(_band()));
+    // 꼬리표(11 x 1.3)와 넘침 6에서 머리 아래 빈 여백 4를 빼면 16을 넘지 않거나 1px 안입니다.
+    expect(gap(), moreOrLessEquals(TimeBand.headGapBelow, epsilon: 0.5));
+
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(_app(_band()));
+    expect(gap(), greaterThan(TimeBand.headGapBelow + 0.5));
+  });
 
   testWidgets('꼬리표가 머리 아래 간격(16)에 들어가면 그 간격은 계약 값 그대로입니다', (tester) async {
     // 꼬리표를 아주 작게 그리면 간격은 heads.gapBelow 16입니다.

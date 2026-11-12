@@ -219,9 +219,7 @@ class TimeBand extends StatelessWidget {
                 },
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: tokens.typography.captionMd.copyWith(
-                  color: tokens.colors.textSecondary,
-                ),
+                style: _headStyle(tokens),
               ),
             ),
           ],
@@ -281,38 +279,62 @@ class TimeBand extends StatelessWidget {
     );
   }
 
-  /// 머리와 칸 사이. 계약 `heads.gapBelow`(16)이 기본이고, 칸 위에 얹는 지금 꼬리표와 줄 넘침이
-  /// 그보다 높으면 그만큼 늘려 꼬리표가 머리 줄을 덮지 않게 합니다(A134 ⑪). 꼬리표 높이는 같은
-  /// 꼬리표를 보이지 않게 놓아 재므로 기기 글자 배율을 따릅니다.
-  Widget _headGap(BuildContext context) => ConstrainedBox(
-    constraints: const BoxConstraints(minHeight: headGapBelow),
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: nowOverhang),
-      child: Visibility.maintain(
-        visible: false,
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: _nowTag(context.tokens, key: null),
-        ),
-      ),
-    ),
-  );
+  /// 머리와 칸 사이(A134 ⑪). 계약 `heads.gapBelow`(16)이 기본이고, 칸 위에 얹는 지금 꼬리표가
+  /// 머리 내용(해, 달과 낱말)에 닿을 만큼 높을 때만 늘립니다. 머리 줄은 최소 높이 24 안에 내용을
+  /// 가운데 두므로 내용 아래 빈 여백((머리 높이 - 내용 높이) / 2)까지는 꼬리표가 올라와도 겹치지
+  /// 않습니다. 그래서 간격은 `max(16, 꼬리표 높이 + 줄 넘침 6 - 머리 아래 여백)`이고, 글자 배율
+  /// 1.0에서는 16에 수렴하고 큰 배율에서만 늘어납니다. 높이는 같은 글자 스타일과 기기 글자 배율로
+  /// 잽니다.
+  Widget _headGap(BuildContext context) {
+    final tokens = context.tokens;
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    double lineHeight(String text, TextStyle style) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final height = painter.height;
+      painter.dispose();
+      return height;
+    }
 
-  Widget _nowTag(MyungliTokens tokens, {Key? key = nowTagKey}) => Container(
-    key: key,
+    final headStyle = _headStyle(tokens);
+    final headContent = math.max(
+      headIconSize.logical,
+      math.max(
+        lineHeight(dayHead, headStyle),
+        lineHeight(nightHead, headStyle),
+      ),
+    );
+    final headBox = math.max(headHeight, headContent);
+    final headSlack = (headBox - headContent) / 2;
+    final tag = lineHeight(nowLabel, _nowTagStyle(tokens));
+    return SizedBox(
+      height: math.max(headGapBelow, tag + nowOverhang - headSlack),
+    );
+  }
+
+  /// 머리 낱말 글자(`heads.type`, `heads.fg`).
+  static TextStyle _headStyle(MyungliTokens tokens) =>
+      tokens.typography.captionMd.copyWith(color: tokens.colors.textSecondary);
+
+  /// 지금 꼬리표 글자(`now.tag.type`, `now.tag.fg`, 시각 tnum).
+  static TextStyle _nowTagStyle(MyungliTokens tokens) => tokens
+      .typography
+      .captionSm
+      .copyWith(color: tokens.colors.inverseFg, fontFeatures: tickFeatures);
+
+  Widget _nowTag(MyungliTokens tokens) => Container(
+    key: nowTagKey,
     padding: const EdgeInsets.symmetric(horizontal: nowTagPaddingX),
     decoration: BoxDecoration(
       color: tokens.colors.inverseBg,
       borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
     ),
-    child: Text(
-      nowLabel,
-      maxLines: 1,
-      style: tokens.typography.captionSm.copyWith(
-        color: tokens.colors.inverseFg,
-        fontFeatures: tickFeatures,
-      ),
-    ),
+    child: Text(nowLabel, maxLines: 1, style: _nowTagStyle(tokens)),
   );
 
   Widget _cell(BuildContext context, TimeBandCell cell) {
