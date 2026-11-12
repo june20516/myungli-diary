@@ -2056,6 +2056,27 @@
   "@explainSheetTermEmpty": {
     "description": "풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)"
   },
+  "ganjiReading": "{stem}{branch}",
+  "@ganjiReading": {
+    "description": "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      },
+      "branch": {
+        "type": "String"
+      }
+    }
+  },
+  "ganjiReadingSuffix": "({reading})",
+  "@ganjiReadingSuffix": {
+    "description": "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리",
+    "placeholders": {
+      "reading": {
+        "type": "String"
+      }
+    }
+  },
   "todayGuideLabel": "일기 질문",
   "@todayGuideLabel": {
     "description": "가이드 질문 카드(guide-question-card)의 스크린리더 문구: 카드 묶음 이름(a11y.label), 일기를 쓴 뒤 상태 알림(stateAnnounced)(#153)"
@@ -2591,6 +2612,94 @@
   "branchHae": "해",
   "@branchHae": {
     "description": "glossary.value_name: branch.hae"
+  },
+  "stemReadingGap": "갑",
+  "@stemReadingGap": {
+    "description": "glossary.value_name: stem_reading.gap"
+  },
+  "stemReadingEul": "을",
+  "@stemReadingEul": {
+    "description": "glossary.value_name: stem_reading.eul"
+  },
+  "stemReadingByeong": "병",
+  "@stemReadingByeong": {
+    "description": "glossary.value_name: stem_reading.byeong"
+  },
+  "stemReadingJeong": "정",
+  "@stemReadingJeong": {
+    "description": "glossary.value_name: stem_reading.jeong"
+  },
+  "stemReadingMu": "무",
+  "@stemReadingMu": {
+    "description": "glossary.value_name: stem_reading.mu"
+  },
+  "stemReadingGi": "기",
+  "@stemReadingGi": {
+    "description": "glossary.value_name: stem_reading.gi"
+  },
+  "stemReadingGyeong": "경",
+  "@stemReadingGyeong": {
+    "description": "glossary.value_name: stem_reading.gyeong"
+  },
+  "stemReadingSin": "신",
+  "@stemReadingSin": {
+    "description": "glossary.value_name: stem_reading.sin"
+  },
+  "stemReadingIm": "임",
+  "@stemReadingIm": {
+    "description": "glossary.value_name: stem_reading.im"
+  },
+  "stemReadingGye": "계",
+  "@stemReadingGye": {
+    "description": "glossary.value_name: stem_reading.gye"
+  },
+  "branchReadingJa": "자",
+  "@branchReadingJa": {
+    "description": "glossary.value_name: branch_reading.ja"
+  },
+  "branchReadingChuk": "축",
+  "@branchReadingChuk": {
+    "description": "glossary.value_name: branch_reading.chuk"
+  },
+  "branchReadingIn": "인",
+  "@branchReadingIn": {
+    "description": "glossary.value_name: branch_reading.in"
+  },
+  "branchReadingMyo": "묘",
+  "@branchReadingMyo": {
+    "description": "glossary.value_name: branch_reading.myo"
+  },
+  "branchReadingJin": "진",
+  "@branchReadingJin": {
+    "description": "glossary.value_name: branch_reading.jin"
+  },
+  "branchReadingSa": "사",
+  "@branchReadingSa": {
+    "description": "glossary.value_name: branch_reading.sa"
+  },
+  "branchReadingO": "오",
+  "@branchReadingO": {
+    "description": "glossary.value_name: branch_reading.o"
+  },
+  "branchReadingMi": "미",
+  "@branchReadingMi": {
+    "description": "glossary.value_name: branch_reading.mi"
+  },
+  "branchReadingShin": "신",
+  "@branchReadingShin": {
+    "description": "glossary.value_name: branch_reading.shin"
+  },
+  "branchReadingYu": "유",
+  "@branchReadingYu": {
+    "description": "glossary.value_name: branch_reading.yu"
+  },
+  "branchReadingSul": "술",
+  "@branchReadingSul": {
+    "description": "glossary.value_name: branch_reading.sul"
+  },
+  "branchReadingHae": "해",
+  "@branchReadingHae": {
+    "description": "glossary.value_name: branch_reading.hae"
   },
   "direction8N": "북",
   "@direction8N": {
