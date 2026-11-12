@@ -133,7 +133,7 @@ def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
     assert slots["daily.number"].keys["number.gwiin_day"] == {
         "number": ParamKind("number"),
         "element": element,
-        "day_stem": none,
+        "day_stem": ParamKind("glossary", ("stem",)),
         "parity": none,
         "pair": none,
     }
@@ -150,7 +150,7 @@ def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
     assert slots["daily.direction"].keys["direction.day_kind.gwiin"] == {
         "direction": ParamKind("glossary", ("direction8",)),
         "rule_id": none,
-        "day_branch": none,
+        "day_branch": ParamKind("glossary", ("branch",)),
     }
 
 
