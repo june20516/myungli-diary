@@ -46,7 +46,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     --dart-define-from-file=config/env/staging.json
   # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
-  상품 id는 스토어 상품이 생긴 뒤(E12, 판매는 E15 뒤) 로컬 값으로 넘깁니다. 그 전 빌드나 id를 빠뜨린 빌드는 상품 목록이 비어, 광고 제거 화면이 가격과 구매 버튼 없는 카드(설명, 기간 고지, 구매 내역, 약관 안내)를 보입니다. 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
+  상품 id는 스토어 상품이 생긴 뒤(E12, 판매는 E15 뒤) 로컬 값으로 넘깁니다. 그 전 빌드나 id를 빠뜨린 빌드는 상품 목록이 비어, 광고 제거 화면이 `offer-card` `unavailable`(가격, 기간 고지, 구매 버튼 대신 안내 한 줄 `ad-free.unavailable.body`, 구매 내역과 약관 안내는 그대로)을 보입니다(V123, A139 ①). 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. 빌드 번호는 아래 "스토어 빌드 번호"를 따릅니다. 앱 서명 키는 Play가 보관합니다(E8).
 * **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 `CLAUDE.md` 현재 상태의 스토어 빌드 줄에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 이 Mac의 Xcode > Settings > Accounts에 팀 Apple ID가 로그인되어 있어야 합니다. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`).
@@ -101,7 +101,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   | `member` | 로그인한 회원. 약관 동의, 프로필 있음. 로그인 수단 연결 목록은 처음 카카오 하나이고, Google 붙이기는 409 `auth.identity_in_use`, 마지막 하나 떼기는 409 `auth.last_identity`, 합치기 인증은 연결된 제공자면 422 `merge.same_account`, Apple이면 422 `merge.no_account`, 그 밖은 요약 200입니다 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
   | `profile-required` | 약관 동의했지만 프로필 없음. 프로필을 저장하면 내 정보가 프로필 있음으로 바뀝니다 |
-  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아니고 프로필 언어가 en이라 앱이 영어입니다(A60) |
+  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아니고 프로필 언어가 en이라 앱이 영어입니다(A60). 오늘 응답은 그 시간대의 엔진 집중 시간(진시 08:00 시작)이고 `tool/gen_daily_fixtures.py`가 만듭니다 |
   | `force-update` | 최소 앱 버전이 99.0.0이라 업데이트 필요 |
   | `offline` | 네트워크에 연결할 수 없음 |
   | `overseas` | 한국 밖(기기 지역 US) 기기에서 처음 설치한 사용자. 시진 확인 줄과 출생지 질문 갈래를 확인합니다 |
