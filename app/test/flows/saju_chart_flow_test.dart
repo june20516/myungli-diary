@@ -251,6 +251,27 @@ Future<GlossaryNames> _glossaryWithoutStages() async {
   return GlossaryNames(values, meanings: _memberGlossaryMeanings());
 }
 
+/// 열린 나의 사주 응답에서 용신 판정 근거 문장(`yongsin.basis`)을 뺍니다(계약상 선택값).
+final class _DropUnlockedBasis extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/chart' &&
+        data is Map &&
+        data['evidenceAccess'] == 'unlocked') {
+      final body = Map<String, Object?>.of(data.cast<String, Object?>());
+      body['yongsin'] = Map<String, Object?>.of(
+        (body['yongsin']! as Map).cast<String, Object?>(),
+      )..remove('basis');
+      response.data = body;
+    }
+    handler.next(response);
+  }
+}
+
 /// 받은 나의 사주에서 원국 개인 해석을 뺍니다(원고가 없는 자리를 흉내 냄).
 final class _DropPersonal extends Interceptor {
   @override
@@ -482,6 +503,40 @@ void main() {
       _inChart(find.textContaining('정했어요', findRichText: true)),
       findsOneWidget,
     );
+  });
+
+  testWidgets('reward-unlock: 열렸는데 용신 판정 문장이 없으면 빈 근거 시트를 남기지 않고 닫습니다(#931)', (
+    tester,
+  ) async {
+    final container = await _openFromMySaju(
+      tester,
+      scenario: 'reward-unlock',
+      network: _DropUnlockedBasis(),
+      overrides: [
+        rewardPollTimingProvider.overrideWithValue((
+          interval: const Duration(milliseconds: 100),
+          timeout: const Duration(minutes: 10),
+        )),
+      ],
+    );
+    await _tapYongsinOpen(tester);
+    final unlock = evidenceUnlockControllerProvider(
+      const ChartEvidenceSubject(),
+    );
+    await pumpUntil(
+      tester,
+      () => container.exists(unlock) && container.read(unlock).adReady,
+    );
+    await tester.tap(_inEvidence(find.byKey(EvidenceLockPanel.ctaKey)));
+    await pumpUntil(
+      tester,
+      () =>
+          container.read(chartControllerProvider).value?.evidenceAccess ==
+          EvidenceAccess.unlocked,
+      allowOngoing: true,
+    );
+    await settleWithIo(tester);
+    expect(_evidenceSheet, findsNothing);
   });
 
   testWidgets('evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)', (

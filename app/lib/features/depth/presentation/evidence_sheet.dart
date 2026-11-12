@@ -103,6 +103,9 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
   /// initState가 끝났는지. 그 전(구독의 첫 알림)에는 setState 없이 값만 둡니다.
   bool _initialized = false;
 
+  /// 문장 자체가 근거인 슬롯이 열렸는데 문장이 없어 시트를 닫았는지(한 번만 닫음).
+  bool _closedWithoutSentence = false;
+
   /// 꼬리표 권한을 기다리는 구독. 권한을 알면 닫습니다.
   ProviderSubscription<AsyncValue<Insight?>>? _tagSubscription;
 
@@ -240,6 +243,11 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         : live
         ? sentence.sentence ?? _heldSentence
         : _heldSentence;
+    // 열렸는데 그 문장이 없으면(계약상 `Yongsin.basis`는 선택값) 보일 것이 없어 시트를 닫고
+    // 사주 표로 돌아갑니다. 빈 시트를 남기지 않기 위해서입니다(A129 ⑤).
+    if (sentence != null && opened && sentenceBody == null) {
+      _closeWithoutSentence();
+    }
     final target = widget.target;
     final unlockTag = opened
         ? unlockUntilText(l10n, _tagInsight, ref.watch(profileTimezoneProvider))
@@ -289,6 +297,14 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         onPass: _openAdFree,
       ),
     );
+  }
+
+  void _closeWithoutSentence() {
+    if (_closedWithoutSentence) return;
+    _closedWithoutSentence = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Navigator.of(context).maybePop();
+    });
   }
 
   /// 그릴 원전 문장. 판정 근거는 근거마다 그리지만, 원전은 같은 `sourceRef`(원전 목록 키)를
