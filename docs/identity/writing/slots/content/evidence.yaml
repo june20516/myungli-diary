@@ -90,7 +90,7 @@
       keys: ["basis.personal/luck_ten_god"]
     - params: {current: none, element: [element, color], role: [role]}
       keys: ["basis.personal/luck_twelve_stage"]
-    - params: {element: [element, color], place: [place], role: [role]}
+    - params: {element: [element, color], part: [part], place: [place], role: [role]}
       keys: ["basis.personal/shinsal"]
     - params: {element: [element, color], group_count: number, place: [place], role: [role], strength: [strength]}
       keys: ["basis.personal/ten_god"]
@@ -120,6 +120,16 @@
       keys: ["basis.tags/ten_god_rush"]
     - params: {day_branch: text, shinsal: [shinsal]}
       keys: ["basis.tags/yeokma"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/gosin"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/gwasuk"]
+    - params: {day_branch: text, shinsal: [shinsal]}
+      keys: ["basis.tags/wonjin"]
+    - params: {day_stem: text, month_branch: text}
+      keys: ["basis.day_virtue/cheondeok"]
+    - params: {day_stem: text, month_branch: text}
+      keys: ["basis.day_virtue/woldeok"]
     - params: {day_kind: [day_kind]}
       keys: ["basis.tags/yongsin_day"]
     - params: {strength_level: [strength], strength_score: none}
@@ -137,6 +147,12 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 문장 그대로 읽습니다.
+  pending:
+    "basis.tags/gosin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "basis.tags/gwasuk": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "basis.tags/wonjin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "basis.day_virtue/cheondeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "basis.day_virtue/woldeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: evidence.source
   where: 근거 시트의 원전 인용 상자
@@ -292,6 +308,19 @@
     - "source.sammyeong-tonghoe/personal#ten_god_group.siksang"
     - "source.sammyeong-tonghoe/personal#twelve_stage"
     - "source.sammyeong-tonghoe/personal#yangin"
+    - "source.sammyeong-tonghoe/shinsal#cheondeok"
+    - "source.sammyeong-tonghoe/shinsal#cheonra_jimang"
+    - "source.sammyeong-tonghoe/shinsal#eumchak_yangcha"
+    - "source.sammyeong-tonghoe/shinsal#geumyeo"
+    - "source.sammyeong-tonghoe/shinsal#goegang"
+    - "source.sammyeong-tonghoe/shinsal#gosin"
+    - "source.sammyeong-tonghoe/shinsal#gugyo"
+    - "source.sammyeong-tonghoe/shinsal#gwasuk"
+    - "source.sammyeong-tonghoe/shinsal#samgi"
+    - "source.sammyeong-tonghoe/shinsal#sipak_daepae"
+    - "source.sammyeong-tonghoe/shinsal#weighing"
+    - "source.sammyeong-tonghoe/shinsal#woldeok"
+    - "source.sammyeong-tonghoe/shinsal#wonjin"
     - "source.sammyeong-tonghoe/tags#branch_hap"
     - "source.sammyeong-tonghoe/tags#cheoneul_gwiin"
     - "source.sammyeong-tonghoe/tags#clash"
@@ -301,14 +330,34 @@
     - "source.sammyeong-tonghoe/tags#hwagae"
     - "source.sammyeong-tonghoe/tags#stem_hap"
     - "source.sammyeong-tonghoe/tags#yeokma"
+    - "source.xieji-bianfang/days#tiande"
+    - "source.xieji-bianfang/days#yuede"
     - "source.xieji-bianfang/hours#birth_year"
     - "source.xieji-bianfang/hours#huangdao"
     - "source.xieji-bianfang/hours#use_hour"
+    - "source.xingxue-dacheng/shinsal#amrok"
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples: {good: [], bad: []}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 뜻, 원문, 출처 순서로 읽습니다.
+  pending:
+    "source.sammyeong-tonghoe/shinsal#cheondeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#cheonra_jimang": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#eumchak_yangcha": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#geumyeo": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#goegang": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#gosin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#gugyo": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#gwasuk": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#samgi": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#sipak_daepae": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#weighing": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#woldeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.sammyeong-tonghoe/shinsal#wonjin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.xieji-bianfang/days#tiande": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.xieji-bianfang/days#yuede": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    "source.xingxue-dacheng/shinsal#amrok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: evidence.no_source
   where: 근거 시트의 원전 인용 상자(원전이 없는 근거)

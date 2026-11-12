@@ -73,7 +73,7 @@ def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
         if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name != "ui"
         for key in slot.keys
     }
-    assert len(message_keys) == 162
+    assert len(message_keys) == 186
     assert covered == message_keys
 
 
@@ -111,8 +111,8 @@ def test_glossary_covers_enums(rules: RuleSet) -> None:
 def test_slot_counts_match_spec(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     assert len(slots["daily.fortune.head"].keys) == 20
-    assert len(slots["daily.fortune.tag"].keys) == 16
-    assert len(slots["daily.guide"].keys) == 21
+    assert len(slots["daily.fortune.tag"].keys) == 19
+    assert len(slots["daily.guide"].keys) == 24
     assert slots["daily.guide"].variants == 2
     assert len(slots["calendar.score_item"].keys) == 7
     assert len(slots["calendar.solar_term"].keys) == 24
@@ -163,7 +163,7 @@ def test_personal_slot_params(rules: RuleSet) -> None:
     assert len(slots["personal.day_master"].keys) == 10
     assert len(slots["personal.ten_god"].keys) == 10
     assert len(slots["personal.twelve_stage"].keys) == 12
-    assert len(slots["personal.shinsal"].keys) == 6
+    assert len(slots["personal.shinsal"].keys) == 19
     assert len(slots["personal.luck"].keys) == 22
     assert slots["personal.day_master"].keys["personal.day_master.gap"] == {
         "strength": strength,

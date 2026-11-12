@@ -275,7 +275,7 @@ def test_glossary_values_personal() -> None:
     assert values["role"] == ("yongsin", "huisin", "gisin", "neutral", "day_master")
     assert values["strength"] == ("very_weak", "weak", "neutral", "strong", "very_strong")
     assert values["luck"] == ("daeun", "seun")
-    assert values["part"] == ("stem", "branch")
+    assert values["part"] == ("stem", "branch", "gou", "jiao", "unknown")
 
 
 def test_placeholder_inside_plural_is_checked() -> None:
