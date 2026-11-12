@@ -459,25 +459,29 @@ func TestListDiaries_SummaryHasIDAndCreatedAt(t *testing.T) {
 
 // 목록 요약의 allTags는 그날 태그 전부이고, 대표 태그가 그 순서대로 앞에 옵니다. 태그가 없는 날은 빈 배열입니다. (D115, S150)
 func TestListDiaries_SummaryAllTags(t *testing.T) {
-	entries := listEntries(2)
+	entries := listEntries(3)
 	entries[0].AllTags = []string{"yeokma", "dohwa", "clash_day_branch"}
 	entries[0].Featured = []fortune.FeaturedTag{
 		{Key: "clash_day_branch", Polarity: fortune.PolarityBad},
 		{Key: "dohwa", Polarity: fortune.PolarityGood},
 	}
-	entries[1].AllTags, entries[1].Featured = nil, nil
+	entries[1].AllTags, entries[1].Featured = []string{"dohwa"}, nil
+	entries[2].AllTags, entries[2].Featured = nil, nil
 	req, rec := sendRequest(t, diaryAPI(&fakeDiaries{list: entries}), http.MethodGet, diariesTarget, "")
 
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	expectFortuneContract(t, req, rec)
 	items := decodeMap(t, rec)["items"].([]any)
-	require.Len(t, items, 2)
+	require.Len(t, items, 3)
+	// 대표 태그는 쓸 때 기록한 길흉을 그대로 씁니다. 길흉 표가 바뀌어도(S155, 도화는 지금 중립) featuredTags와 같습니다.
 	assert.Equal(t, []any{
 		map[string]any{"key": "clash_day_branch", "polarity": "bad"},
 		map[string]any{"key": "dohwa", "polarity": "good"},
 		map[string]any{"key": "yeokma", "polarity": "neutral"},
 	}, items[0].(map[string]any)["allTags"])
-	assert.Equal(t, []any{}, items[1].(map[string]any)["allTags"])
+	// 대표가 아닌 태그는 기록에 키만 있어 지금 길흉 표로 정합니다.
+	assert.Equal(t, []any{map[string]any{"key": "dohwa", "polarity": "neutral"}}, items[1].(map[string]any)["allTags"])
+	assert.Equal(t, []any{}, items[2].(map[string]any)["allTags"])
 }
 
 // 목록 요약의 그날 성격은 일기를 쓸 때 기록한 값이고, 기록이 없는 날은 생략합니다. (D96)

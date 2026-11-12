@@ -28,14 +28,17 @@ func TestTagPolarity(t *testing.T) {
 		"tag.ten_god_rush.gwanseong": fortune.PolarityBad,
 		"tag.ten_god_rush.inseong":   fortune.PolarityGood,
 		"tag.cheoneul_gwiin":         fortune.PolarityGood,
-		"tag.dohwa":                  fortune.PolarityGood,
+		"tag.dohwa":                  fortune.PolarityNeutral, // D125 개정(#1083)
 		"tag.yeokma":                 fortune.PolarityNeutral,
 		"tag.hwagae":                 fortune.PolarityNeutral,
 		"tag.gongmang":               fortune.PolarityBad,
+		"tag.gosin":                  fortune.PolarityBad,
+		"tag.gwasuk":                 fortune.PolarityBad,
+		"tag.wonjin":                 fortune.PolarityBad,
 		"tag.yongsin_day":            fortune.PolarityGood,
 		"tag.gwiin_day":              fortune.PolarityGood,
 	}
-	assert.Len(t, want, 17)
+	assert.Len(t, want, 20)
 	for key, polarity := range want {
 		got, ok := fortune.TagPolarity(key)
 		assert.True(t, ok, key)

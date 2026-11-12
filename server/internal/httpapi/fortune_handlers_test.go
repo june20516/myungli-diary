@@ -264,7 +264,7 @@ func TestGetDaily_Returns200(t *testing.T) {
 	assert.NotContains(t, body, `"basis"`)
 	assert.NotContains(t, body, rawEvidenceRule)
 	// 1.11.0 부속 카드는 엔진과 View에 없으면 생략하고, 덕일은 빈 배열입니다.
-	for _, key := range []string{`"secondColor"`, `"nightFocusTime"`, `"previousNightFocusTime"`, `"dayDate"`} {
+	for _, key := range []string{`"secondColor"`, `"nightFocusTime"`, `"previousNightFocusTime"`, `"dayDate"`, `"hours"`} {
 		assert.NotContains(t, body, key)
 	}
 	assert.Contains(t, body, `"dayVirtues":[]`)
@@ -291,6 +291,22 @@ func TestGetDaily_LuckyCardsAndVirtues(t *testing.T) {
 		Basis: enginev1.ColorBasis_COLOR_BASIS_SOURCE,
 	}
 	view.Response.NightFocusTime = night(13, "focus_time.night")
+	// 구간 시진 전부(#1064): 낮 카드에만 넣어, 없는 카드는 생략하는지도 봅니다.
+	// 낮 일곱 칸(진시~술시), 서울 07:30부터 두 시간씩. 둘째 칸 사시가 고른 시진(picks)입니다.
+	dayBranches := []enginev1.Branch{
+		enginev1.Branch_BRANCH_JIN, enginev1.Branch_BRANCH_SA, enginev1.Branch_BRANCH_O, enginev1.Branch_BRANCH_MI,
+		enginev1.Branch_BRANCH_SHIN, enginev1.Branch_BRANCH_YU, enginev1.Branch_BRANCH_SUL,
+	}
+	for i, branch := range dayBranches {
+		if branch == enginev1.Branch_BRANCH_SA {
+			view.Response.FocusTime.Hours = append(view.Response.FocusTime.Hours, view.Response.FocusTime.Picks[0])
+			continue
+		}
+		start := time.Date(2026, 10, 12, 22, 30, 0, 0, time.UTC).Add(time.Duration(2*i) * time.Hour)
+		view.Response.FocusTime.Hours = append(view.Response.FocusTime.Hours, &enginev1.FocusSlot{
+			Branch: branch, Start: timestamppb.New(start), End: timestamppb.New(start.Add(2 * time.Hour)),
+		})
+	}
 	view.Response.DayVirtues = []*enginev1.DayVirtueCard{
 		{Kind: enginev1.DayVirtue_DAY_VIRTUE_CHEONDEOK_DAY, Judgment: rawJudgment("day_virtue.cheondeok")},
 		{Kind: enginev1.DayVirtue_DAY_VIRTUE_WOLDEOK_DAY, Judgment: rawJudgment("day_virtue.woldeok")},
@@ -329,6 +345,13 @@ func TestGetDaily_LuckyCardsAndVirtues(t *testing.T) {
 	assert.Equal(t, "어젯밤", got.Cards.PreviousNightFocusTime.Text.Text.Segments[0].Text)
 	assert.Equal(t, "2026-10-13", got.Cards.PreviousNightFocusTime.Picks[0].DayDate.String())
 	assert.Nil(t, got.Cards.FocusTime.Picks[0].DayDate, "날짜를 내지 않는 엔진의 시진은 dayDate를 생략합니다")
+	require.NotNil(t, got.Cards.FocusTime.Hours)
+	hours := *got.Cards.FocusTime.Hours
+	require.Len(t, hours, 7)
+	assert.Equal(t, gen.BranchJin, hours[0].Branch)
+	assert.True(t, hours[0].Start.Equal(time.Date(2026, 10, 13, 7, 30, 0, 0, seoulOffset)), "전환 시각은 진시 시작, 프로필 시간대 offset")
+	assert.Equal(t, got.Cards.FocusTime.Picks[0], hours[1])
+	assert.Nil(t, got.Cards.NightFocusTime.Hours, "엔진이 hours를 내지 않은 카드는 생략합니다")
 
 	require.Len(t, got.DayVirtues, 2)
 	assert.Equal(t, gen.CheondeokDay, got.DayVirtues[0].Kind)

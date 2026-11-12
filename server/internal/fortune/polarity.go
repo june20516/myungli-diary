@@ -38,9 +38,9 @@ var tagPolarity = map[string]Polarity{
 	"tag.ten_god_rush.jaeseong":  PolarityGood,
 	"tag.ten_god_rush.gwanseong": PolarityBad,
 	"tag.ten_god_rush.inseong":   PolarityGood,
-	// 3. 신살: 귀인·도화=길, 역마·화개=중립, 공망·고신·과숙·원진=흉
+	// 3. 신살: 귀인=길, 도화·역마·화개=중립, 공망·고신·과숙·원진=흉. 도화는 D125 개정(2026-11-13)으로 길에서 중립입니다(#1083).
 	"tag.cheoneul_gwiin": PolarityGood,
-	"tag.dohwa":          PolarityGood,
+	"tag.dohwa":          PolarityNeutral,
 	"tag.yeokma":         PolarityNeutral,
 	"tag.hwagae":         PolarityNeutral,
 	"tag.gongmang":       PolarityBad,
