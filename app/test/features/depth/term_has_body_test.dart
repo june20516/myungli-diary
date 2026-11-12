@@ -52,6 +52,9 @@ final class _ReasonSubject implements EvidenceSubject {
       null;
 
   @override
+  ProviderListenable<bool> get adUnlockable => throw UnimplementedError();
+
+  @override
   Future<void> reload(Ref ref) async {}
 }
 

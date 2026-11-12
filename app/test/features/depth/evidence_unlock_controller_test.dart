@@ -362,6 +362,8 @@ final _noPersonalProvider = Provider<AsyncValue<RenderedText?>>(
 
 final _noPreviewProvider = Provider<List<EvidencePreview>>((ref) => const []);
 
+final _adUnlockableProvider = Provider<bool>((ref) => true);
+
 /// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
 @immutable
 final class _TestSubject implements EvidenceSubject {
@@ -390,6 +392,9 @@ final class _TestSubject implements EvidenceSubject {
   @override
   ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId) =>
       null;
+
+  @override
+  ProviderListenable<bool> get adUnlockable => _adUnlockableProvider;
 
   @override
   Future<void> reload(Ref ref) async {}
@@ -476,6 +481,48 @@ void main() {
         container.read(subject.previewOf(opened.fortune.head.slot)),
         same(opened.fortune.head.evidencePreview),
       );
+    });
+
+    testWidgets('날짜가 다르면 광고 흐름을 시작하지 않고 버튼은 광고 없음과 같은 꺼짐입니다(A141 ④)', (
+      tester,
+    ) async {
+      final container = await _boot(tester);
+      final opened = openedFrom(container, (json) {
+        json['date'] = '2026-10-12';
+      });
+      final provider = evidenceUnlockControllerProvider(
+        DailyEvidenceSubject(opened: opened),
+      );
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      for (var i = 0; i < 20; i++) {
+        await _spin(tester);
+      }
+      expect(container.read(provider).link, DepthLinkState.lockedNoAd);
+      expect(container.read(provider).adReady, isFalse);
+      final ads = container.read(adsProvider) as FakeAds;
+      expect(ads.rewardedUserIds, isEmpty, reason: '광고를 불러 두지 않습니다');
+
+      // 꺼진 버튼을 우회해 불러도 광고를 보이지 않습니다.
+      await tester.runAsync(() => container.read(provider.notifier).watchAd());
+      await _spin(tester);
+      expect(container.read(provider).link, DepthLinkState.lockedNoAd);
+      expect(ads.rewardedUserIds, isEmpty);
+    });
+
+    testWidgets('같은 날짜면 지금처럼 광고를 불러 두고 버튼이 켜집니다', (tester) async {
+      final container = await _boot(tester);
+      final provider = evidenceUnlockControllerProvider(
+        DailyEvidenceSubject(
+          opened: container.read(dailyControllerProvider).value!.daily,
+        ),
+      );
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      await _until(tester, () => container.read(provider).adReady);
+      expect(container.read(provider).link, DepthLinkState.locked);
+      final ads = container.read(adsProvider) as FakeAds;
+      expect(ads.rewardedUserIds, isNotEmpty);
     });
 
     test('같은 연 때 응답이면 같은 잠금 해제 흐름 키입니다', () {

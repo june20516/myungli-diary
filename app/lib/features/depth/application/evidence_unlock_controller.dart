@@ -83,6 +83,11 @@ abstract interface class EvidenceSubject {
   /// 두지 않습니다.
   ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId);
 
+  /// 이 응답의 잠금을 지금 보상형 광고로 풀 수 있는지. false면 잠금 해제 흐름은 광고를 불러 두지
+  /// 않고 보이지도 않으며, 버튼은 광고가 준비되지 않았을 때와 같은 꺼짐(`lockedNoAd`)입니다(A141 ④,
+  /// D60 "광고가 준비됐을 때만 버튼을 켬"). 풀어도 다시 받는 응답이 이 응답이 아닐 때입니다.
+  ProviderListenable<bool> get adUnlockable;
+
   /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
   /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
   /// 던집니다. 오류는 근거 시트가 보입니다.
@@ -94,8 +99,9 @@ abstract interface class EvidenceSubject {
 /// 시트를 연 화면은 그때의 응답을 [opened]로 담습니다(A134 ⑧, A141). 지금 오늘 응답이 [opened]와
 /// 같은 날짜면 지금 응답을 읽어, 잠금이 풀린 뒤 다시 받은 근거가 바로 보입니다. 시트를 연 채 자정을
 /// 넘겨 지금 응답이 다른 날짜이거나 다음 날 응답을 받는 중, 받지 못한 뒤에는 [opened]에서 근거
-/// 열람 상태, 근거, 앞부분, 오늘 그런 이유를 찾습니다. 그동안 잠금 풀기는 지금 오늘 응답을 다시
-/// 받고, 시트는 연 때 응답의 잠금 그대로입니다. [opened]가 없으면 늘 지금 응답입니다.
+/// 열람 상태, 근거, 앞부분, 오늘 그런 이유를 찾습니다. 그동안은 광고로 풀어도 다시 받는 응답이 다른
+/// 날이라 보상형 광고 흐름을 시작하지 않고 버튼을 끕니다([adUnlockable]). [opened]가 없으면 늘 지금
+/// 응답입니다.
 @immutable
 final class DailyEvidenceSubject implements EvidenceSubject {
   /// 오늘 응답의 근거. [opened]는 시트를 연 때의 응답입니다.
@@ -120,6 +126,17 @@ final class DailyEvidenceSubject implements EvidenceSubject {
       dailyControllerProvider.select(
         (value) => _dailyOf(value).whenData((daily) => daily.evidenceAccess),
       );
+
+  /// 지금 오늘 응답이 연 때 응답과 같은 날짜일 때만 광고로 풉니다. 날짜가 다르거나 지금 응답이
+  /// 없으면(자정 뒤 다음 날을 받는 중) 풀어도 다시 받는 응답이 다른 날이라 광고를 헛되이 봅니다.
+  @override
+  ProviderListenable<bool> get adUnlockable {
+    final opened = this.opened;
+    if (opened == null) return _alwaysAdUnlockableProvider;
+    return dailyControllerProvider.select(
+      (value) => value.value?.daily.date == opened.date,
+    );
+  }
 
   @override
   ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
@@ -185,6 +202,9 @@ RenderedText? _nonBlank(RenderedText? text) =>
 final Provider<List<EvidencePreview>> _noPreviewProvider =
     Provider<List<EvidencePreview>>((_) => const []);
 
+/// 늘 광고로 풀 수 있는 응답이 돌려주는 값.
+final Provider<bool> _alwaysAdUnlockableProvider = Provider<bool>((_) => true);
+
 /// 오늘 그런 이유가 없는 응답이 돌려주는 값.
 final Provider<RenderedText?> _noTodayReasonProvider = Provider<RenderedText?>(
   (_) => null,
@@ -249,6 +269,10 @@ final class ChartEvidenceSubject implements EvidenceSubject {
       )?.text,
     ),
   );
+
+  /// 나의 사주 응답은 날짜에 묶이지 않아 늘 광고로 풉니다.
+  @override
+  ProviderListenable<bool> get adUnlockable => _alwaysAdUnlockableProvider;
 
   @override
   Future<void> reload(Ref ref) =>
@@ -395,7 +419,8 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
           }
         });
       })
-      ..listen(subject.access, _onAccess);
+      ..listen(subject.access, _onAccess)
+      ..listen(subject.adUnlockable, _onAdUnlockable);
     if (ref.read(subject.access).value == EvidenceAccess.unlocked) {
       // 다른 길(오늘 화면의 다시 받기 등)로 이미 열려 있어도 잠긴 달 길흉을 버립니다(A32).
       _forgetLockedCalendars();
@@ -412,7 +437,9 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   /// 끝납니다.
   Future<void> watchAd() async {
     final ad = _ad;
-    if (ad == null || state.link != DepthLinkState.locked) {
+    if (ad == null ||
+        state.link != DepthLinkState.locked ||
+        !ref.read(subject.adUnlockable)) {
       return;
     }
     final flow = ref;
@@ -463,12 +490,30 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   }
 
   /// 광고를 불러 두고, 이미 권한이 있는지 한 번 묻습니다(조용한 확인).
+  ///
+  /// 지금 광고로 풀 수 없는 응답([EvidenceSubject.adUnlockable] false)이면 광고도 권한도 묻지 않고
+  /// 버튼을 끕니다(`lockedNoAd`, A141 ④).
   Future<void> _prepare() async {
     final flow = ref;
     if (!flow.mounted) {
       return;
     }
+    if (!ref.read(subject.adUnlockable)) {
+      _showAdReady(flow);
+      return;
+    }
     await Future.wait([_loadAd(flow), _refreshIfGranted(flow)]);
+  }
+
+  /// 광고로 풀 수 있는지가 바뀌면 버튼을 맞춥니다. 풀 수 없게 되면 꺼짐(`lockedNoAd`), 다시 풀 수
+  /// 있게 되면 광고를 불러 둡니다.
+  void _onAdUnlockable(bool? previous, bool next) {
+    if (previous == next) return;
+    if (next) {
+      unawaited(_prepare());
+    } else {
+      _showAdReady(ref);
+    }
   }
 
   Future<void> _refreshIfGranted(Ref flow) async {
@@ -526,7 +571,7 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
             state.link != DepthLinkState.lockedNoAd)) {
       return;
     }
-    state = _ad == null
+    state = _ad == null || !ref.read(subject.adUnlockable)
         ? const EvidenceUnlockState(link: DepthLinkState.lockedNoAd)
         : const EvidenceUnlockState(link: DepthLinkState.locked, adReady: true);
   }
