@@ -1075,5 +1075,22 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 오후 3시 낮 시트 en, ko 참고. 안 A 칸 이름 없음, B 세 글자 약자, C 지지 한자, D 칸 시작 시. 사용자 답(2026-11-12): C"
+  },
+  {
+    "id": "design-date-virtue-questions",
+    "title": "날짜 머리 덕일 표시 관문 질문(#1029 ①): 천덕일, 월덕일을 음력, 일진과 다른 모양으로 둘 자리",
+    "kind": "concept",
+    "file": "2026-11-12-date-virtue-questions.html",
+    "source": "2026-11-12-date-virtue-questions.html",
+    "date": "2026-11-12",
+    "milestone": "DS1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "V119"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 천덕일만인 날(亥월 乙일), 둘 다인 날(戌월 丙일), en 길이. 안 A 음력, 일진 줄 끝 알약, B 오른쪽 도장, C 셋째 줄 띠, D 오른쪽 한자 태그. 사용자 답(2026-11-12): A"
   }
 ]

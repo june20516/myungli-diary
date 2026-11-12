@@ -1,5 +1,5 @@
 {
-  "version": "7.1.0",
+  "version": "7.2.0",
   "group": "sentence",
   "components": [
     {
@@ -276,7 +276,12 @@
             "note": "알약 바탕과 이름 글자는 그 간지의 오행 bg와 fg. 한자 원은 bg.sheet에 오행 glyph 색. 날의 성격, term 톤은 쓰지 않음" },
           "ganjiGlyphs": {
             "stems": { "甲": "wood", "乙": "wood", "丙": "fire", "丁": "fire", "戊": "earth", "己": "earth", "庚": "metal", "辛": "metal", "壬": "water", "癸": "water" },
-            "branches": { "寅": "wood", "卯": "wood", "巳": "fire", "午": "fire", "辰": "earth", "戌": "earth", "丑": "earth", "未": "earth", "申": "metal", "酉": "metal", "亥": "water", "子": "water" } } } }
+            "branches": { "寅": "wood", "卯": "wood", "巳": "fire", "午": "fire", "辰": "earth", "戌": "earth", "丑": "earth", "未": "earth", "申": "metal", "酉": "metal", "亥": "water", "子": "water" } } } },
+        { "id": "compact", "when": "글줄 안에 놓는 작은 태그. 지금은 오늘 날짜 머리의 덕일(today.date.virtue)뿐 (D124 ⑤, 결정 V119)", "parts": {
+          "pill": { "height": { "value": 22, "unit": "px" }, "paddingStart": "{space.4}", "paddingEnd": "{space.8}", "gap": "{space.2}" },
+          "glyph": { "size": { "value": 16, "unit": "px" }, "fontSize": { "value": 10, "unit": "px" } },
+          "name": { "type": "{type.caption.md}", "maxLines": 1 },
+          "hitSlop": "높이 22에서 위아래로 넓혀 44. 옆 칸과 겹치는 쪽은 넓히지 않음" } }
       ],
       "parts": {
         "pill": { "height": { "value": 30, "unit": "px" }, "radius": "{radius.full}", "paddingStart": "{space.4}", "paddingEnd": "{space.12}", "gap": "{space.4}" },
@@ -286,7 +291,8 @@
           "dayKind": { "貴": "귀인의 날", "用": "용신의 날", "忌": "기신의 날", "平": "평범한 날" },
           "tenGodGroup": { "比": "비겁", "食": "식상", "財": "재성", "官": "관성", "印": "인성" },
           "relation": { "合": "합", "沖": "충, 일지 충, 월지 충", "刑": "형" },
-          "sinsal": { "天": "천을귀인", "桃": "도화", "驛": "역마", "華": "화개", "空": "공망" }
+          "sinsal": { "天": "천을귀인", "桃": "도화", "驛": "역마", "華": "화개", "空": "공망" },
+          "virtueDay": { "德": "천덕일, 월덕일" }
         },
         "tone": {
           "dayKind": {
@@ -297,7 +303,7 @@
           },
           "otherTerms": { "bg": "{color.term.bg}", "fg": "{color.term.fg}" },
           "verdictTone": { "good": { "bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}" }, "bad": { "bg": "{color.tag.bad.bg}", "fg": "{color.tag.bad.fg}" } },
-          "toneAllowedIn": ["fortune-verdict", "score-row"]
+          "toneAllowedIn": ["fortune-verdict", "score-row", "date-header"]
         },
         "opens": { "targets": ["explain-sheet", "tag-sheet"], "rule": "어디서나 누르면 시트(뜻 시트 explain-sheet, 오늘 사주 기운 섹션의 대표 태그는 그 확장인 tag-sheet). 화면 이동 예외 없음(V73). 그 태그의 일기 모아보기는 시트 안 꺾쇠 링크(explain-sheet diaryLink, tag-sheet tag-sentence-list diaryLink)", "notInteractiveIn": [{ "screen": "evidence-sheet", "part": "head" }, { "screen": "tag-sheet", "part": "head" }, { "screen": "color-rule-sheet", "part": "score-row rule" }, { "screen": "saju-chart", "part": "birth-info-row hour" }], "notInteractiveRule": "근거 시트 머리와 사주 기운 시트 머리의 태그, 색 규칙 시트 점수 항목 표의 태그는 누를 수 없는 표시(시트를 더 쌓지 않음, 색 규칙 시트는 IA 출구 없음). 사주 표 출생 정보 줄의 시진 태그(ganji)도 누를 수 없는 표시(시진 뜻 원고가 없음, 결정 V88). 눌림 표시와 터치 넓힘 없음" }
       },
@@ -306,13 +312,14 @@
         "pressed": { "pattern": "press.ink" }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "이름 글자(한자는 읽지 않음)", "toneLabel": "날의 성격과 길흉 톤은 이름 낱말로 전함(색만으로 전하지 않음)", "minTarget": 44, "hitSlop": "높이 30에서 위아래로 넓힘" },
+      "a11y": { "role": "button", "label": "이름 글자(한자는 읽지 않음)", "toneLabel": "날의 성격과 길흉 톤은 이름 낱말로 전함(색만으로 전하지 않음)", "minTarget": 44, "hitSlop": "높이 30에서 위아래로 넓힘(compact는 22에서)" },
       "rules": [
         "날의 성격(貴 用 忌 平)은 길흉 톤(tone.dayKind, V8 배지 매핑)이고, 그 밖의 사주 용어(십성 묶음, 합충형, 신살)는 term 초록(otherTerms)이다(Q4 ③).",
-        "날의 성격 밖 용어의 길흉 톤(verdictTone, 좋음 coral, 나쁨 neutral)은 toneAllowedIn 부모(fortune-verdict, score-row) 안에서만 쓴다. 더함과 뺌을 보이는 자리이기 때문이다(Q4 ①).",
+        "날의 성격 밖 용어의 길흉 톤(verdictTone, 좋음 coral, 나쁨 neutral)은 toneAllowedIn 부모(fortune-verdict, score-row, date-header) 안에서만 쓴다. 앞 둘은 더함과 뺌을 보이는 자리이기 때문이고(Q4 ①), 날짜 머리 덕일은 모두에게 같은 길한 날 정보라 good 톤 하나만 쓴다(결정 V119).",
         "emphasis는 날의 성격 태그에만 쓰고, 용신의 날만 진한 채움이다(V8, D20).",
-        "사주 용어 태그(날의 성격, 십성 묶음, 합충형, 신살)의 한자는 17자(glyphs: D108의 16자와 刑, 사용자 결정 2026-11-07)뿐이다. 같은 글자는 옆 이름으로 구분한다(沖은 충, 일지 충, 월지 충). 목록 밖 용어 글자는 그리지 않고 지휘 확인을 기다린다.",
-        "간지 글자(천간 10자, 지지 12자)는 사주 용어 17자 규칙 밖이고 변형 ganji로 그린다. 알약 바탕과 이름은 그 간지의 오행 색(ohaeng.*.bg, fg), 금과 수 알약은 ohaeng.*.border 테두리, 한자 원은 bg.sheet 바탕에 오행 glyph 색이다(간지와 오행 대응은 변형 ganji의 parts.ganjiGlyphs 표, 결정 V98).",
+        "사주 용어 태그(날의 성격, 십성 묶음, 합충형, 신살)의 한자는 18자(glyphs: D108의 16자와 刑, 사용자 결정 2026-11-07, 덕일의 德, 관문 답 2026-11-12 결정 V119)뿐이다. 같은 글자는 옆 이름으로 구분한다(沖은 충, 일지 충, 월지 충. 德은 천덕일, 월덕일). 목록 밖 용어 글자는 그리지 않고 지휘 확인을 기다린다.",
+        "간지 글자(천간 10자, 지지 12자)는 사주 용어 18자 규칙 밖이고 변형 ganji로 그린다. 알약 바탕과 이름은 그 간지의 오행 색(ohaeng.*.bg, fg), 금과 수 알약은 ohaeng.*.border 테두리, 한자 원은 bg.sheet 바탕에 오행 glyph 색이다(간지와 오행 대응은 변형 ganji의 parts.ganjiGlyphs 표, 결정 V98).",
+        "compact는 글줄 안에 놓는 작은 크기다(알약 22, 한자 원 16, 이름 type.caption.md). 모양, 누름, 스크린리더는 기본과 같고 크기만 다르다. 지금은 날짜 머리 덕일에만 쓴다(결정 V119).",
         "한자 원은 장식이다. 스크린리더는 이름만 읽는다.",
         "누르면 explain-sheet나 tag-sheet가 sheet.enter로 열리고, 열린 동안 selected 테두리가 남는다. 어느 자리에서도 태그에서 바로 화면 이동하지 않는다(일기 줄, 회고 태그, 일기 보기 포함, 관문 답 2026-11-06)."
       ]
