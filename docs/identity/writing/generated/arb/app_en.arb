@@ -440,6 +440,7 @@
   "todayLuckyDirectionName": "Lucky direction",
   "todayLuckyNumberName": "Lucky number",
   "todayLuckyTimeName": "Lucky hours",
+  "todayLuckyPairPosition": "{index} of {total}",
   "mySajuRecordCountUnit": "{count, plural, one{entry} other{entries}}",
   "mySajuRecordDayKindHead": "Kinds of days you wrote on",
   "mySajuRecordTagHead": "Frequent tags",

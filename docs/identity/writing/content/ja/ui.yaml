@@ -415,6 +415,7 @@
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "ラッキー方位"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "ラッキーナンバー"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "吉時"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyPairPosition, text: "{total}つのうち{index}つ目"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "今日の一文の画像プレビュー"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "共有画像の比率"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。"}

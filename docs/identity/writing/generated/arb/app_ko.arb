@@ -2163,19 +2163,31 @@
   },
   "todayLuckyColorName": "행운 색",
   "@todayLuckyColorName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyDirectionName": "행운 방향",
   "@todayLuckyDirectionName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyNumberName": "행운 숫자",
   "@todayLuckyNumberName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyTimeName": "길한 시간",
   "@todayLuckyTimeName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
+  },
+  "todayLuckyPairPosition": "{total}개 중 {index}번째",
+  "@todayLuckyPairPosition": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "mySajuRecordCountUnit": "{count, plural, other{편}}",
   "@mySajuRecordCountUnit": {
