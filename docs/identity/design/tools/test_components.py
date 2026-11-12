@@ -445,11 +445,12 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_2_0():
+def test_contract_version_is_7_3_0():
+    # 7.3.0은 #969, #986(V122): settings-row 변형 readonly 추가와 app 구현에 맞춘 계약 문구라 부 버전.
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.2.0"
+    assert VERSION == "7.3.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1909,6 +1910,24 @@ def test_date_header():
     assert meta["whenEmpty"] == "hide-line-and-gap"
     assert any("meta" in rule and "space.2" in rule and "그리지 않는다" in rule for rule in header["rules"])
     assert "date-header" not in components.IA_PENDING_COMPONENTS and "date-header" in CONTENT_COMPONENTS
+
+
+def test_v122_app_request_wording_and_readonly_row():
+    # #969, #986(2026-11-12): app 구현에 맞춘 계약 문구와 settings-row readonly
+    row = component("action", "settings-row")
+    readonly = next(v for v in row["variants"] if v["id"] == "readonly")
+    assert readonly["parts"]["chevron"] == {"visible": False} and readonly["press"] == "none"
+    assert readonly["a11y"]["role"] == "text" and "preview.used.input" in readonly["when"]
+    assert "`readonly`는 preview" in _md_section("action.md", "## settings-row")
+    interaction = json.loads((COMPONENTS_DIR / "interaction.json").read_text(encoding="utf-8"))
+    text = json.dumps(interaction, ensure_ascii=False)
+    assert "이미 보이던 화면이면 지금 투명도에서 1로" in text and "탭 셸의 갈래가 바뀌는 이동 모두" in text
+    assert "탭 바로 탭 사이 이동만" not in text
+    diary = json.dumps(component("diary", "diary-editor"), ensure_ascii=False)
+    assert "새 일기 쓰기에서 질문이 붙어 있을 때 늘" in diary
+    verdict = json.dumps(component("calendar", "fortune-verdict"), ensure_ascii=False)
+    assert "매개변수 count" not in verdict and "내역 보기" in verdict
+    assert "사용자 영향" in decision_rows()["V122"]["근거"]
 
 
 def test_v121_band_table_shinsal_density_and_positions():

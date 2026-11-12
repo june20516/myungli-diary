@@ -1,5 +1,5 @@
 {
-  "version": "7.2.0",
+  "version": "7.3.0",
   "group": "calendar",
   "components": [
     {
@@ -182,7 +182,7 @@
         },
         "names": { "order": ["caution", "neutral", "good"], "align": ["start", "center", "end"], "type": "{type.caption.md}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "copy": "달력 범례와 같은 단계 이름(calendar.legend.body 낱말). day-sheet에는 이름 슬롯이 없어 IA에 요청" },
         "rows": { "component": "score-row", "variant": "verdict", "marginTop": "{space.12}", "visibleWhen": "expanded", "divider": { "element": "list.divider" }, "dividerBefore": "every-row", "order": "더함 먼저, 뺌 다음(같은 부호 안은 server 순서)", "source": "server #806 길흉 내역(엔진 점수 구성)" },
-        "toggle": { "label": { "collapsed": "슬롯 day-sheet.verdict.expand(가안 \"내역 N개 보기\", 매개변수 count)", "expanded": "슬롯 day-sheet.verdict.collapse(가안 \"접기\")" }, "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "icon": { "collapsed": "caret-down", "expanded": "caret-up", "weight": "regular", "size": "adjacent-text", "color": "{color.text.secondary}", "gap": "{space.4}" }, "align": "center", "minHeight": 44, "marginTop": "{space.8}", "dividerBefore": { "element": "list.divider" }, "role": "카드 전체가 버튼이라는 표시. 이 줄만 따로 누르는 자리가 아님", "note": "카드 안쪽 아래 여백 대신 이 줄이 맨 아래(결정 V108)" }
+        "toggle": { "label": { "collapsed": "슬롯 day-sheet.verdict.expand(원고 \"내역 보기\", 매개변수 없음, writing R36-4, #986 ③)", "expanded": "슬롯 day-sheet.verdict.collapse(가안 \"접기\")" }, "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "icon": { "collapsed": "caret-down", "expanded": "caret-up", "weight": "regular", "size": "adjacent-text", "color": "{color.text.secondary}", "gap": "{space.4}" }, "align": "center", "minHeight": 44, "marginTop": "{space.8}", "dividerBefore": { "element": "list.divider" }, "role": "카드 전체가 버튼이라는 표시. 이 줄만 따로 누르는 자리가 아님", "note": "카드 안쪽 아래 여백 대신 이 줄이 맨 아래(결정 V108)" }
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "track", "shape": "textLine", "note": "막대 자리 한 줄, 이름 셋은 UI 글자라 바로 그림. 처음에는 접혀 있어 내역 뼈는 두지 않음(V108)" }], "parts": { "toggle": { "visible": false } } },

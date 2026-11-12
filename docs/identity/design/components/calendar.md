@@ -61,7 +61,7 @@
 * **세 이름:** 막대 아래 `space.8`, 조심할 날(왼쪽), 무난한 날(가운데), 잘 풀리는 날(오른쪽), `type.caption.md` `text.secondary`. 낱말은 달력 범례와 같습니다. 그날 시트에 이름 슬롯이 없어 IA에 요청합니다.
 * **내역:** 이름 아래 `space.12`부터 `score-row` `verdict` 줄들, 줄마다 위에 `list.divider`. 더함 먼저, 뺌 다음입니다. 내역은 server #806(엔진 점수 구성)이고, 계약에 없으면(`noBreakdown`) 막대와 이름만 그립니다. 내역은 왔지만 항목이 0개인 날(`noItems`, 합 0)도 같은 모양이고 빈 안내 문장은 두지 않습니다.
 * 숫자, 한 줄 요약 문장, 이유 문장을 두지 않습니다(IA day-sheet).
-* **접힘과 펼침(결정 V108, #932 ②):** 처음에는 막대와 세 이름, 맨 아래 안내 줄(`list.divider` 아래, 터치 44, `type.caption.lg` `text.secondary` 가운데, 가안 "내역 N개 보기" + `caret-down`)만 보입니다. 카드 전체가 버튼이고(`press.ink`) 누르면 내역 줄이 `appear.seep`으로 펼쳐지며 안내 줄은 "접기" + `caret-up`이 됩니다. 펼친 내역 줄의 태그는 안쪽 요소라 누르면 뜻 시트만 열리고 카드는 접히지 않습니다(V61 눌림 규칙). 시트를 다시 열면 늘 접힘이고, 내역이 없는 날(`noBreakdown`, `noItems`)은 카드를 누를 수 없고 안내 줄도 없습니다. 안내 줄 문구는 writing 슬롯 `day-sheet.verdict.expand`, `day-sheet.verdict.collapse`. 스크린리더는 안내 줄을 펼침 상태가 있는 버튼으로 읽습니다.
+* **접힘과 펼침(결정 V108, #932 ②):** 처음에는 막대와 세 이름, 맨 아래 안내 줄(`list.divider` 아래, 터치 44, `type.caption.lg` `text.secondary` 가운데, 원고 "내역 보기"(개수 없음, writing R36-4, #986 ③) + `caret-down`)만 보입니다. 카드 전체가 버튼이고(`press.ink`) 누르면 내역 줄이 `appear.seep`으로 펼쳐지며 안내 줄은 "접기" + `caret-up`이 됩니다. 펼친 내역 줄의 태그는 안쪽 요소라 누르면 뜻 시트만 열리고 카드는 접히지 않습니다(V61 눌림 규칙). 시트를 다시 열면 늘 접힘이고, 내역이 없는 날(`noBreakdown`, `noItems`)은 카드를 누를 수 없고 안내 줄도 없습니다. 안내 줄 문구는 writing 슬롯 `day-sheet.verdict.expand`, `day-sheet.verdict.collapse`. 스크린리더는 안내 줄을 펼침 상태가 있는 버튼으로 읽습니다.
 * 불러오는 중: 막대 자리 글줄 하나. 처음에는 접혀 있어 내역 뼈는 두지 않습니다(V108). 세 이름은 UI 글자라 바로 그립니다.
 * 스크린리더: 묶음 하나로 "길흉판정, 무난한 날"처럼 섹션 제목과 단계 이름을 읽고, 점수 숫자는 읽지 않습니다. 이어서 내역 줄을 읽습니다.
 

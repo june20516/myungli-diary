@@ -1,5 +1,5 @@
 {
-  "version": "7.2.0",
+  "version": "7.3.0",
   "group": "diary",
   "components": [
     {
@@ -130,7 +130,7 @@
                 "slot": "diary-edit.guide.remove",
                 "icon": "x", "weight": "light", "size": "{size.icon.20}", "color": "{color.text.secondary}",
                 "minTarget": 44, "align": "first-line", "position": "swap 바로 뒤(오른쪽 끝). swap이 없으면 질문 글 바로 뒤", "gap": "44 터치 영역끼리 붙여 둠(겹치지 않음)",
-                "visibleWhen": "질문이 붙어 있을 때 늘",
+                "visibleWhen": "새 일기 쓰기에서 질문이 붙어 있을 때 늘. 고치기(?id=)에는 떼기와 권유 글자(다시 붙이기)가 없음(REST updateDiary는 질문을 바꾸지 않음, D116, app A123, #986 ②)",
                 "result": "질문 자리가 detached로 바뀌고, 이 편을 저장하면 질문이 붙지 않는다(D116 ①, 일기 보기와 목록에도 없음)",
                 "transition": { "out": "disappear.seep", "in": "appear.seep" },
                 "keepsBody": true,

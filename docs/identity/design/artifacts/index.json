@@ -1129,5 +1129,22 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 예시 원국 셋은 core 엔진 natal_shinsal 값. 사용자 답(2026-11-12): 다섯 질문 모두 추천안(모두 쌓기, 기둥 칸에 천간 것 위로, 걸친 칸마다, 孤 寡 元, 부분 대체 글꼴)"
+  },
+  {
+    "id": "design-preview-used-questions",
+    "title": "미리보기를 이미 쓴 기기의 읽기 전용 정보 줄 관문 질문(#986 ①)",
+    "kind": "concept",
+    "file": "2026-11-12-preview-used-questions.html",
+    "source": "2026-11-12-preview-used-questions.html",
+    "date": "2026-11-12",
+    "milestone": "DS1",
+    "screens": [
+      "preview"
+    ],
+    "decisions": [
+      "V122"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). ko와 en(긴 값). 안 A settings-row 읽기 전용, B 이름 위 값 아래, C 값 흐린 색. 사용자 답(2026-11-12): A"
   }
 ]
