@@ -66,10 +66,10 @@
 | contact.message.field | contact.message.field | guide | - | 1 | 2 | - | ko 29, en 53, ja 23<br>`contactMessageFieldHint` ko 34, en 62, ja 28 |
 | contact.send.cta | contact.send.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | contact.sent.toast | contact.sent.toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
-| daily.color | today.lucky-color.body | info | - | 1 | 12 | `element`: element, color<br>`role`: none<br>`base_element`: element, color<br>`day_branch`: none<br>`shift`: none<br>`twelve_stage`: twelve_stage | ko 36, en 64, ja 36 |
+| daily.color | today.lucky-color.body<br>today.lucky-color.second.body | info | - | 1 | 12 | `element`: element, color<br>`role`: none<br>`base_element`: element, color<br>`day_branch`: none<br>`shift`: none<br>`twelve_stage`: twelve_stage | ko 36, en 64, ja 36 |
 | daily.direction | today.lucky-direction.body | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none<br>`element`: element, color<br>`role`: none<br>`day_branch`: none<br>`deity`: none | ko 36, en 64, ja 36 |
 | daily.focus_reason | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 10, en 18, ja 10 |
-| daily.focus_time | today.lucky-time.body | info | - | 1 | 2 | `hour_branch`: none | ko 36, en 64, ja 36 |
+| daily.focus_time | today.lucky-time.day.body<br>today.lucky-time.night.body | info | - | 1 | 2 | `hour_branch`: none | ko 36, en 64, ja 36 |
 | daily.fortune.head | today.fortune.head<br>preview.fortune.head<br>system-push.morning.body<br>evidence-sheet.target.body | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.fortune.tag | today.fortune.body<br>preview.fortune.body | info | advice, state, care | 1 | 16 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 21 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
@@ -236,6 +236,16 @@
 | today.fortune.title | today.fortune.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | today.guide.title | today.guide.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-color.pair.intro | today.lucky-color.pair.intro | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.band.day | today.lucky-time.band.day | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.band.night | today.lucky-time.band.night | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.band.now | today.lucky-time.band.now | info | - | 1 | 1 | `time`: text | ko -, en -, ja - |
+| today.lucky-time.band.tomorrow | today.lucky-time.band.tomorrow | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.band.yesterday | today.lucky-time.band.yesterday | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.day.title | today.lucky-time.day.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.night.dawn | today.lucky-time.night.dawn | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.night.title | today.lucky-time.night.title | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-time.night.tonight | today.lucky-time.night.tonight | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.lucky.title | today.lucky.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |

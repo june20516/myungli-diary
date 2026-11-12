@@ -182,9 +182,9 @@
   endings: ["~잘 맞아요", "~좋아요", "~을 추천해요", "~챙겨 보세요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: 36, en: 64, ja: 36}
-  ia: [today.lucky-color.body]
+  ia: [today.lucky-color.body, today.lucky-color.second.body]
   keys:
-    # 카드 하나인 날은 color.<날의 성격>, 색이 둘인 날(D119 ②)은 첫째 카드 color.balance.*(내 균형 기준), 둘째 카드 color.source.*(원전 기준)입니다.
+    # 카드 하나인 날은 color.<날의 성격>, 색이 둘인 날(D119 ②)은 첫째 색 color.balance.*(today.lucky-color.body), 둘째 색 color.source.*(today.lucky-color.second.body)입니다.
     - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
       keys:
         - color.gisin_day
@@ -297,7 +297,7 @@
   endings: ["~좋아요", "~잘 돼요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
   max_length: {ko: 36, en: 64, ja: 36}
-  ia: [today.lucky-time.body]
+  ia: [today.lucky-time.day.body, today.lucky-time.night.body]
   keys:
     # 낮 칩(진시~술시)과 밤 칩(해시~묘시)마다 1등 시간 하나(D122). 칩 앞 해와 달 아이콘으로 구분합니다.
     - params: {hour_branch: none}

@@ -409,7 +409,7 @@
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "ラッキーカラー"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "ラッキー方位"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "ラッキーナンバー"}
-- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "集中しやすい時間"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "吉時"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "今日の一文の画像プレビュー"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "共有画像の比率"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。"}
@@ -502,3 +502,13 @@
 - {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "質問なしで書く"}
 - {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "何を書くか迷っていますか?"}
 - {slot: diary-edit.guide.attach, key: diaryEditGuideAttachHint, text: "質問を追加"}
+- {slot: today.lucky-color.pair.intro, key: todayLuckyColorPairIntro, text: "今日はおすすめの色が二つあります"}
+- {slot: today.lucky-time.day.title, key: todayLuckyTimeDayTitle, text: "昼の吉時"}
+- {slot: today.lucky-time.night.title, key: todayLuckyTimeNightTitle, text: "夜の吉時"}
+- {slot: today.lucky-time.night.dawn, key: todayLuckyTimeNightDawn, text: "未明"}
+- {slot: today.lucky-time.night.tonight, key: todayLuckyTimeNightTonight, text: "今夜"}
+- {slot: today.lucky-time.band.day, key: todayLuckyTimeBandDay, text: "昼"}
+- {slot: today.lucky-time.band.night, key: todayLuckyTimeBandNight, text: "夜"}
+- {slot: today.lucky-time.band.now, key: todayLuckyTimeBandNow, text: "今 {time}"}
+- {slot: today.lucky-time.band.yesterday, key: todayLuckyTimeBandYesterday, text: "昨日"}
+- {slot: today.lucky-time.band.tomorrow, key: todayLuckyTimeBandTomorrow, text: "明日"}

@@ -1309,6 +1309,51 @@
   "@todayGuideTitle": {
     "description": "today.guide.title: 섹션 제목 \"오늘의 질문\"(가안, 문구 writing). 아래에 오늘의 질문, 일기 쓰기, 오늘 쓴 일기"
   },
+  "todayLuckyColorPairIntro": "오늘은 추천 색이 두 개예요",
+  "@todayLuckyColorPairIntro": {
+    "description": "today.lucky-color.pair.intro: 색이 둘인 날(D119) 행운 색 시트 맨 위 한 줄(가안 \"오늘은 추천 색이 두 개예요\"). \"기준이 갈렸다\"고 쓰지 않음. 칩과 색 소제목 옆에 기준 이름 부제목을 두지 않음(D123 ①)"
+  },
+  "todayLuckyTimeBandDay": "낮",
+  "@todayLuckyTimeBandDay": {
+    "description": "today.lucky-time.band.day: 시간 칩 시트 24시간 띠의 낮 구간 머리 낱말(가안 \"낮\", D123 ⑤)"
+  },
+  "todayLuckyTimeBandNight": "밤",
+  "@todayLuckyTimeBandNight": {
+    "description": "today.lucky-time.band.night: 24시간 띠의 밤 구간 머리 낱말(가안 \"밤\")"
+  },
+  "todayLuckyTimeBandNow": "지금 {time}",
+  "@todayLuckyTimeBandNow": {
+    "description": "today.lucky-time.band.now: 24시간 띠의 지금 줄 꼬리표(매개변수 time, 가안 \"지금 {time}\")",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayLuckyTimeBandTomorrow": "내일",
+  "@todayLuckyTimeBandTomorrow": {
+    "description": "today.lucky-time.band.tomorrow: 24시간 띠 끝 눈금의 날 낱말, 띠가 다음 날 07:30에서 끝날 때(가안 \"내일\"). 띠 칸 시진 이름은 writing 기존 시진 이름"
+  },
+  "todayLuckyTimeBandYesterday": "어제",
+  "@todayLuckyTimeBandYesterday": {
+    "description": "today.lucky-time.band.yesterday: 24시간 띠 끝 눈금의 날 낱말, 띠가 전날 21:30에서 시작할 때(가안 \"어제\")"
+  },
+  "todayLuckyTimeDayTitle": "낮의 길한 시간",
+  "@todayLuckyTimeDayTitle": {
+    "description": "today.lucky-time.day.title: 낮 시간 칩 시트 제목(가안 \"낮 집중 시간\", D122 ⑤)"
+  },
+  "todayLuckyTimeNightDawn": "새벽",
+  "@todayLuckyTimeNightDawn": {
+    "description": "today.lucky-time.night.dawn: 밤 칩 값 앞 때 낱말, 0:00~07:29에 볼 때(지금 진행 중인 밤, 가안 \"새벽\", D123 ④)"
+  },
+  "todayLuckyTimeNightTitle": "밤의 길한 시간",
+  "@todayLuckyTimeNightTitle": {
+    "description": "today.lucky-time.night.title: 밤 시간 칩 시트 제목(가안 \"밤 집중 시간\", D122 ⑤)"
+  },
+  "todayLuckyTimeNightTonight": "오늘 밤",
+  "@todayLuckyTimeNightTonight": {
+    "description": "today.lucky-time.night.tonight: 밤 칩 값 앞 때 낱말, 07:30부터 볼 때(오늘 밤, 가안 \"오늘 밤\", D123 ④)"
+  },
   "todayLuckyTitle": "행운",
   "@todayLuckyTitle": {
     "description": "today.lucky.title: 섹션 제목 \"행운\"(가안, 문구 writing). 아래에 색(색 견본), 방향(나침반), 숫자(#), 시간(시계) 칩"
@@ -2091,7 +2136,7 @@
   "@todayLuckyNumberName": {
     "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
   },
-  "todayLuckyTimeName": "집중하기 좋은 시간",
+  "todayLuckyTimeName": "길한 시간",
   "@todayLuckyTimeName": {
     "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
   },
