@@ -147,3 +147,4 @@ def test_gugyo_part_follows_original_examples() -> None:
     assert (gugyo_part(gap_ja, B.MYO, Gender.MALE), gugyo_part(gap_ja, B.YU, Gender.MALE)) == ("GOU", "JIAO")
     assert (gugyo_part(eul_chuk, B.JIN, Gender.MALE), gugyo_part(eul_chuk, B.SUL, Gender.MALE)) == ("JIAO", "GOU")
     assert gugyo_part(gap_ja, B.MYO, Gender.FEMALE) == "JIAO"  # 陽女는 陰男과 같다
+    assert gugyo_part(gap_ja, B.MYO, None) == "UNKNOWN"

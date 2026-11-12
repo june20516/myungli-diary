@@ -75,22 +75,24 @@ def shinsal_branches(pillars: FourPillars) -> Mapping[Shinsal, frozenset[Branch]
     return {kind: result[kind] for kind in DAILY_SHINSAL}
 
 
-def gugyo_branches(year_branch: Branch) -> frozenset[Branch]:
-    """구교: 태어난 해 지지의 앞뒤 세 자리. 어느 칸이 勾이고 絞인지는 성별로 갈린다(personal 참고)."""
+def _shift(branch: Branch, steps: int) -> Branch:
     branches = tuple(Branch)  # 子부터 亥까지, index와 같은 순서
-    steps = (table.GUGYO_OFFSET, -table.GUGYO_OFFSET)
-    return frozenset(branches[(year_branch.index + step) % len(branches)] for step in steps)
+    return branches[(branch.index + steps) % len(branches)]
 
 
-def gugyo_part(year: Pillar, branch: Branch, gender: Gender) -> str:
+def gugyo_branches(year_branch: Branch) -> frozenset[Branch]:
+    """구교: 태어난 해 지지의 앞뒤 세 자리. 어느 칸이 勾이고 絞인지는 성별로 갈린다(gugyo_part)."""
+    return frozenset({_shift(year_branch, table.GUGYO_OFFSET), _shift(year_branch, -table.GUGYO_OFFSET)})
+
+
+def gugyo_part(year: Pillar, branch: Branch, gender: Gender | None) -> str:
     """구교 자리 하나가 勾(GOU)인지 絞(JIAO)인지. 「論勾絞」 "陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾".
 
     命은 태어난 해(연간의 음양과 연지)로 본다. 성별을 모르면 UNKNOWN.
     """
-    if gender not in (Gender.MALE, Gender.FEMALE):
+    if gender is None:
         return "UNKNOWN"
-    branches = tuple(Branch)
-    ahead = branches[(year.branch.index + table.GUGYO_OFFSET) % len(branches)] is branch
+    ahead = _shift(year.branch, table.GUGYO_OFFSET) is branch
     yang_male_or_yin_female = year.stem.is_yang == (gender is Gender.MALE)
     return "GOU" if ahead == yang_male_or_yin_female else "JIAO"
 
