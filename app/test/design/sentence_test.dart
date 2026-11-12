@@ -1307,63 +1307,68 @@ void main() {
       );
     });
 
-    testWidgets('원전 세 줄은 한자만 font.family.hanja(대체 글꼴 맨 앞)이고 판정 근거는 그대로입니다', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _app(
-          SizedBox(
-            width: 360,
-            height: 640,
-            child: EvidenceSheetBody(
-              state: DepthLinkState.unlocked,
-              title: '오늘 풀이의 근거',
-              basis: [
-                _text([Segment(text: '근거')]),
-              ],
-              source: [
-                _text([Segment(text: '뜻 한 줄\n以義推之\n궁통보감 「오행총론」')]),
-              ],
+    testWidgets(
+      '원전 세 줄은 한자만 font.family.hanja(대체 글꼴 맨 앞)와 그 대체 글꼴이고 판정 근거는 그대로입니다',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(
+            SizedBox(
+              width: 360,
+              height: 640,
+              child: EvidenceSheetBody(
+                state: DepthLinkState.unlocked,
+                title: '오늘 풀이의 근거',
+                basis: [
+                  _text([Segment(text: '근거')]),
+                ],
+                source: [
+                  _text([Segment(text: '뜻 한 줄\n以義推之\n궁통보감 「오행총론」')]),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Text.rich의 바깥 span은 DefaultTextStyle이고, 문장 스타일은 그 안 첫 span입니다.
-      TextStyle rootStyle(Finder of) {
-        final rich = tester.widget<RichText>(
-          find.descendant(of: of, matching: find.byType(RichText)).first,
         );
-        final outer = rich.text as TextSpan;
-        return (outer.children!.first as TextSpan).style!;
-      }
+        await tester.pumpAndSettle();
 
-      final typography = tester
-          .element(find.byType(EvidenceSheetBody))
-          .tokens
-          .typography;
-      final hanja = typography.hanjaPillar.fontFamily;
-      // 원문 줄(type.body.ui)의 한자가 한자 글꼴로 그려집니다. 뜻과 출처 줄도 같은 대체입니다.
-      final quote = rootStyle(find.byKey(EvidenceSheetBody.sourceQuoteKey));
-      expect(quote.fontFamily, typography.bodyUi.fontFamily);
-      expect(quote.fontFamilyFallback, [
-        hanja,
-        ...?typography.bodyUi.fontFamilyFallback,
-      ]);
-      final meaning = rootStyle(find.byKey(EvidenceSheetBody.sourceMeaningKey));
-      expect(meaning.fontFamily, typography.sentenceBody.fontFamily);
-      expect(meaning.fontFamilyFallback?.first, hanja);
-      final cite = rootStyle(find.byKey(EvidenceSheetBody.sourceCiteKey));
-      expect(cite.fontFamilyFallback?.first, hanja);
-      final basis = rootStyle(
-        find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
-      );
-      expect(
-        basis.fontFamilyFallback,
-        typography.sentenceBody.fontFamilyFallback,
-      );
-    });
+        // Text.rich의 바깥 span은 DefaultTextStyle이고, 문장 스타일은 그 안 첫 span입니다.
+        TextStyle rootStyle(Finder of) {
+          final rich = tester.widget<RichText>(
+            find.descendant(of: of, matching: find.byType(RichText)).first,
+          );
+          final outer = rich.text as TextSpan;
+          return (outer.children!.first as TextSpan).style!;
+        }
+
+        final typography = tester
+            .element(find.byType(EvidenceSheetBody))
+            .tokens
+            .typography;
+        final hanja = typography.hanjaPillar.fontFamily;
+        // 원문 줄(type.body.ui)의 한자가 한자 글꼴로 그려집니다. 뜻과 출처 줄도 같은 대체입니다.
+        final quote = rootStyle(find.byKey(EvidenceSheetBody.sourceQuoteKey));
+        expect(quote.fontFamily, typography.bodyUi.fontFamily);
+        // 한자 family 다음에 그 family의 대체 글꼴(罡 같은 글자, 토큰 1.9.0, A137)이 옵니다.
+        expect(quote.fontFamilyFallback, [
+          hanja,
+          ...?typography.hanjaPillar.fontFamilyFallback,
+          ...?typography.bodyUi.fontFamilyFallback,
+        ]);
+        final meaning = rootStyle(
+          find.byKey(EvidenceSheetBody.sourceMeaningKey),
+        );
+        expect(meaning.fontFamily, typography.sentenceBody.fontFamily);
+        expect(meaning.fontFamilyFallback?.first, hanja);
+        final cite = rootStyle(find.byKey(EvidenceSheetBody.sourceCiteKey));
+        expect(cite.fontFamilyFallback?.first, hanja);
+        final basis = rootStyle(
+          find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
+        );
+        expect(
+          basis.fontFamilyFallback,
+          typography.sentenceBody.fontFamilyFallback,
+        );
+      },
+    );
 
     testWidgets('원전은 상자 없이 뜻, 들여쓴 원문, 출처 순이고 줄 사이 space.4입니다(V113)', (
       tester,

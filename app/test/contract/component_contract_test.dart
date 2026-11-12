@@ -29,6 +29,7 @@ import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/score_item.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/api/gen/model/shinsal_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/ia/ia_model.dart';
@@ -43,6 +44,7 @@ import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/calendar/fortune_verdict.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -83,6 +85,8 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/css_gradient.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/glossary/model/weighing_shinsal.dart';
+import 'package:myungli_diary/features/me/model/shinsal_cells.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -2654,6 +2658,113 @@ void main() {
       // "두 개 중 몇째"는 원고 문구가 없어 칸 라벨에 아직 붙이지 않습니다(A135). 계약 문구가
       // 바뀌면 이 대조가 알려 줍니다.
       expect(_map(luckyCard['a11y'])['pairLabel'], '칸마다 항목 이름 + 값 + 두 개 중 몇째');
+    });
+  });
+
+  group('신살 확장 (7.2.0, D124, V120, V121)', () {
+    final specs = loadSpecComponents();
+
+    test('band-table 신살 칸: 걸친 기둥마다, 천간 자리 → 일주 신살 → 지지 자리, 모두 쌓음', () {
+      final shinsal = _map(
+        _map(_map(specs['band-table']!['parts'])['bands'])['shinsal'],
+      );
+      expect(shinsal['component'], 'term-token');
+      expect(shinsal['variant'], 'label');
+      expect(shinsal['source'], 'Chart.shinsal');
+      expect(
+        shinsal['column'],
+        startsWith('신살이 걸친 자리(ShinsalHit.positions)의 기둥마다'),
+      );
+      // 칸 안 무리 순서는 ShinsalPlace 열거 순서입니다.
+      final order = (shinsal['order']! as List<Object?>).cast<String>();
+      const placeOf = {
+        '천간 자리': ShinsalPlace.stem,
+        '일주 신살': ShinsalPlace.pillar,
+        '지지 자리': ShinsalPlace.branch,
+      };
+      expect([
+        for (final name in order)
+          placeOf.entries.singleWhere((e) => name.startsWith(e.key)).value,
+      ], ShinsalPlace.values);
+      // 무리 안은 계약 열거 순서이고, 생성 enum 순서가 openapi 열거 순서와 같습니다.
+      expect(shinsal['orderWithin'], '무리 안은 계약 Shinsal 열거 순서');
+      final openapi = File('../server/api/openapi.yaml').readAsStringSync();
+      final enumLine = RegExp(
+        r'\n    ShinsalKind:[\s\S]*?\n      enum: \[([^\]]*)\]',
+      ).firstMatch(openapi)!;
+      expect([
+        for (final kind in ShinsalKind.values)
+          if (kind.isKnown) kind.value,
+      ], enumLine.group(1)!.split(',').map((value) => value.trim()).toList());
+      expect(shinsal['overflow'], startsWith('칸마다 모두 쌓음. 셋까지 자르거나 접지 않음'));
+      expect(shinsal['stemMark'], 'none');
+      final stack = _map(shinsal['stack']);
+      expect(stack['direction'], 'vertical');
+      expect(stack['gap'], '{space.4}');
+      expect(BandTable.shinsalGap, Space.s4);
+    });
+
+    test('explain-sheet weighingNote: 대상 신살, 상자, 아이콘, 글자가 계약과 같습니다', () {
+      final note = _map(_map(specs['explain-sheet']!['parts'])['weighingNote']);
+      // 대상 목록: 계약 when 괄호 안 이름을 원고 사전(ko) 이름으로 신살 값에 잇습니다.
+      final when = note['when']! as String;
+      final names = RegExp(r'흉한 신살\(([^)]*)\)')
+          .firstMatch(when)!
+          .group(1)!
+          .split(', ');
+      final glossary = _map(
+        _map(
+          jsonDecode(
+            File('fixtures/member/getGlossary.json').readAsStringSync(),
+          ),
+        )['body'],
+      );
+      final shinsalNames = _map(_map(glossary['values'])['shinsal']);
+      final kindOfName = {
+        for (final MapEntry(:key, :value) in shinsalNames.entries)
+          value! as String: key,
+      };
+      expect(names.map((name) => kindOfName[name]).toSet(), {
+        for (final kind in weighingShinsal) kind.value,
+      });
+      expect(when, contains('사주 기운 시트(tag-sheet)의 뜻 아래에도'));
+      expect(note['slot'], 'ui.shinsal.weighing');
+      expect(note['interactive'], isFalse);
+      expect(note['marginTop'], '{space.12}');
+      expect(WeighingNote.marginTop, Space.s12);
+      final box = _map(note['box']);
+      expect(box['bg'], '{color.fill.soft}');
+      expect(box['radius'], '{radius.md}');
+      expect(box['padding'], '{space.12}');
+      expect(WeighingNote.radius, Radii.md);
+      expect(WeighingNote.padding, Space.s12);
+      final icon = _map(note['icon']);
+      expect(icon['name'], 'check');
+      expect(icon['weight'], 'regular');
+      expect(WeighingNote.glyph.regular, PhosphorIconsRegular.check);
+      expect(WeighingNote.iconWeight, AppIconWeight.regular);
+      expect(icon['size'], 'adjacent-text');
+      expect(icon['color'], '{color.action.primary}');
+      expect(icon['gap'], '{space.8}');
+      expect(WeighingNote.iconGap, Space.s8);
+      expect(icon['align'], '첫 줄 글줄 가운데');
+      expect(icon['decorative'], isTrue);
+      final text = _map(note['text']);
+      expect(text['type'], '{type.caption.lg}');
+      expect(text['fg'], '{color.text.secondary}');
+      expect(text['maxLines'], WeighingNote.maxLines);
+      expect(note['note'], contains('근거 시트와 원국 개인 해석에는 두지 않음'));
+    });
+
+    test('weighingNote 대상 용어: 신살과 같은 신살의 오늘 태그만', () {
+      for (final kind in weighingShinsal) {
+        expect(hasWeighingNote('shinsal.${kind.value}'), isTrue);
+        expect(hasWeighingNote('tag.${kind.value}'), isTrue);
+        expect(hasWeighingNote('twelve_stage.${kind.value}'), isFalse);
+      }
+      expect(hasWeighingNote('shinsal.hwagae'), isFalse);
+      expect(hasWeighingNote('tag.hwagae'), isFalse);
+      expect(hasWeighingNote('gongmang'), isFalse);
     });
   });
 

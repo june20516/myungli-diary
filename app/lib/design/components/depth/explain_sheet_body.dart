@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -21,11 +22,11 @@ enum ExplainTitleSize {
 
 /// 풀이 시트의 내용(`explain-sheet`). 시트 틀(`sheet` `half`) 안에 놓습니다.
 ///
-/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) → 오늘 그런 이유 → [attachment]
-/// (`stage-strip` 등) → 근거 진입점 아이콘 → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에
-/// 본문이 오고, [onEvidence]가 null이면 근거 진입점을 그리지 않습니다(그날 시트처럼 근거 시트로
-/// 이어지지 않는 곳에서 열었을 때). [onDiaryLink]가 null이면 모아보기 링크를 그리지 않습니다
-/// (대표 태그의 뜻 시트에만 있습니다).
+/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) → 흉 신살 마무리 한 줄
+/// ([weighingNote]) → 오늘 그런 이유 → [attachment](`stage-strip` 등) → 근거 진입점 아이콘
+/// → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에 본문이 오고, [onEvidence]가 null이면
+/// 근거 진입점을 그리지 않습니다(그날 시트처럼 근거 시트로 이어지지 않는 곳에서 열었을 때).
+/// [onDiaryLink]가 null이면 모아보기 링크를 그리지 않습니다(대표 태그의 뜻 시트에만 있습니다).
 ///
 /// 한자는 제목 줄 끝에 붙고, 그 줄에 다 들어가지 않으면 통째로 다음 줄로 갑니다. 스크린리더는
 /// 제목과 한자를 한 덩어리로 읽습니다. 오늘 그런 이유는 오늘 화면에서 열었을 때만 있습니다.
@@ -43,6 +44,7 @@ class ExplainSheetBody extends StatelessWidget {
     this.evidenceSubject,
     this.meaning,
     this.meaningSlotId = SlotIds.explainSheetTermMeaning,
+    this.weighingNote,
     this.todayReason,
     this.attachment,
     this.attachmentGap = Space.s12,
@@ -86,6 +88,10 @@ class ExplainSheetBody extends StatelessWidget {
 
   /// [meaning]이 그리는 IA 슬롯 id. 용어 뜻이 아니면 null로 줍니다.
   final String? meaningSlotId;
+
+  /// 뜻 바로 아래 흉 신살 마무리 한 줄([WeighingNote], D124 ⑦, V120). 대상 신살의 용어 풀이만
+  /// 주고, 뜻([meaning])이 없으면 그리지 않습니다. 다음 문장 간격은 이 상자에서 셉니다.
+  final String? weighingNote;
 
   /// 오늘 그런 이유(`explain-sheet.today.reason`). 오늘 화면에서 열지 않았거나 계약에 없으면 `null`입니다.
   final RenderedText? todayReason;
@@ -149,6 +155,7 @@ class ExplainSheetBody extends StatelessWidget {
     final tokens = context.tokens;
     final meaning = this.meaning;
     final todayReason = this.todayReason;
+    final weighingNote = this.weighingNote;
     final attachment = this.attachment;
     final onEvidence = this.onEvidence;
     final diaryLinkLabel = this.diaryLinkLabel;
@@ -184,6 +191,8 @@ class ExplainSheetBody extends StatelessWidget {
                 slotId: meaningSlotId,
               ),
             ),
+          if (meaning != null && weighingNote != null)
+            WeighingNote(text: weighingNote),
           if (todayReason != null)
             Padding(
               padding: EdgeInsets.only(top: gap()),

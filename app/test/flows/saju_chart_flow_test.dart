@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
@@ -754,6 +755,96 @@ void main() {
     );
     // 신살 개인 해석은 writing 원고(`personal.shinsal.hwagae`)를 렌더한 문장입니다.
     expect(_personalText('혼자 깊이 파고드는'), findsOneWidget);
+  });
+
+  testWidgets('D124 ① 신살 띠: 걸친 기둥마다, 천간 자리 → 일주 신살 → 지지 자리로 모두 쌓습니다', (
+    tester,
+  ) async {
+    covers(const Covers(decisions: ['D124']));
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    List<String> names(int column) => [
+      for (final label in _band(manse).columns[column].shinsal) label.text,
+    ];
+    // fixture는 엔진 값입니다. 월덕은 연간과 일간 두 자리, 괴강과 십악대패는 일간과 일지에 걸친
+    // 일주 신살(대표 일지)입니다. 이름은 사전(원고)에서 옵니다.
+    expect(names(0), ['천을귀인']);
+    expect(names(1), ['월덕귀인', '괴강', '십악대패', '화개', '과숙']);
+    expect(names(2), ['천덕귀인', '암록']);
+    expect(names(3), ['월덕귀인']);
+
+    // 일주 신살은 일주 칸 하나뿐이고, 누르면 대표 자리(일지)의 원국 개인 해석입니다.
+    expect(_inBand(find.widgetWithText(TermToken, '괴강')), findsOneWidget);
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, '괴강')).first,
+    );
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+        position: Position.dayBranch,
+        shinsal: ShinsalKind.goegang,
+      ),
+    );
+    expect(_personalText('괴강이 있어 기운이 세고'), findsOneWidget);
+    await closeSheet(tester, _evidenceSheet);
+    // 흉 신살이 아닌 괴강의 풀이 시트에는 마무리 한 줄이 없습니다.
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(
+      find.descendant(of: explain, matching: find.byKey(WeighingNote.boxKey)),
+      findsNothing,
+    );
+    await closeSheet(tester, explain);
+
+    // 같은 신살이 두 기둥에 있으면 칸마다 그 자리의 해석입니다(일간의 월덕).
+    expect(_inBand(find.widgetWithText(TermToken, '월덕귀인')), findsNWidgets(2));
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, '월덕귀인')).first,
+    );
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+        position: Position.dayStem,
+        shinsal: ShinsalKind.woldeok,
+      ),
+    );
+    expect(_personalText('태어난 날의 천간에 월덕귀인'), findsOneWidget);
+  });
+
+  testWidgets('D124 ⑦ 흉 신살 과숙: 풀이 시트 뜻 아래 마무리 한 줄, 근거 시트에는 없음', (tester) async {
+    covers(const Covers(decisions: ['D124']));
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, '과숙')).first,
+    );
+    // 근거 시트(원국 개인 해석 포함)에는 두지 않습니다.
+    expect(_inEvidence(find.byKey(WeighingNote.boxKey)), findsNothing);
+    expect(_personalText('과숙은 가족과의 인연이'), findsOneWidget);
+    await closeSheet(tester, _evidenceSheet);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    final note = find.descendant(
+      of: explain,
+      matching: find.byKey(WeighingNote.boxKey),
+    );
+    expect(note, findsOneWidget);
+    expect(
+      find.descendant(of: note, matching: find.text(_ko.shinsalWeighingNote)),
+      findsOneWidget,
+    );
+    final meaning = find.descendant(
+      of: explain,
+      matching: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+    );
+    expect(
+      tester.getRect(note).top - tester.getRect(meaning).bottom,
+      moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
+    );
   });
 
   testWidgets('모르는 신살(열린 enum)은 사전과 상관없이 그 칸에서 건너뜁니다', (tester) async {

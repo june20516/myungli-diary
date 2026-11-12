@@ -17,6 +17,8 @@ BandColumn _column(
   bool isDay = false,
   bool empty = false,
   bool withShinsal = true,
+  List<String>? shinsal,
+  List<String>? shinsalTaps,
   VoidCallback? onStage,
 }) => BandColumn(
   header: header,
@@ -36,7 +38,11 @@ BandColumn _column(
     ),
   ],
   twelveStage: LuckLabel('$header-운성', onTap: onStage),
-  shinsal: withShinsal ? [LuckLabel('$header-신살', onTap: () {})] : const [],
+  shinsal: [
+    if (withShinsal)
+      for (final name in shinsal ?? ['$header-신살'])
+        LuckLabel(name, onTap: () => shinsalTaps?.add(name)),
+  ],
 );
 
 BandTable _table({
@@ -45,10 +51,18 @@ BandTable _table({
   List<BandKind>? taps,
   VoidCallback? onStage,
   bool shinsalOnDay = true,
+  List<String>? dayShinsal,
+  List<String>? shinsalTaps,
 }) => BandTable(
   columns: [
     _column('시주', empty: hourUnknown),
-    _column('일주', isDay: true, withShinsal: shinsalOnDay),
+    _column(
+      '일주',
+      isDay: true,
+      withShinsal: shinsalOnDay,
+      shinsal: dayShinsal,
+      shinsalTaps: shinsalTaps,
+    ),
     _column('월주', onStage: onStage),
     _column('연주'),
   ],
@@ -271,6 +285,56 @@ void main() {
     // 지장간 칸마다 칩 + 라벨 뼈 둘, 12운성과 신살은 라벨 뼈 하나: (2 + 1 + 1) × 4.
     expect(find.byType(SkeletonBone), findsNWidgets(16));
     expect(find.byType(StemChip), findsNothing);
+  });
+
+  testWidgets('신살 칸은 다섯 넘게도 모두 space.4 간격으로 쌓고 띠는 가장 높은 칸만큼 늘어납니다(V121)', (
+    tester,
+  ) async {
+    const names = ['월덕귀인', '괴강', '십악대패', '화개', '과숙', '암록'];
+    await tester.pumpWidget(
+      inputApp(_wrap(_table(dayShinsal: names), width: 320)),
+    );
+    expect(tester.takeException(), isNull);
+    final rects = [
+      for (final name in names)
+        tester.getRect(find.widgetWithText(TermToken, name)),
+    ];
+    for (var i = 1; i < rects.length; i++) {
+      // 받은 순서 그대로 위에서 아래로, 칩 사이는 space.4입니다.
+      expect(
+        rects[i].top - rects[i - 1].bottom,
+        moreOrLessEquals(BandTable.shinsalGap, epsilon: 0.01),
+      );
+    }
+    // 띠가 가장 높은 칸만큼 늘어나 마지막 칩이 표 안에 있고, 이웃 칸은 그 띠 위쪽에 놓입니다.
+    final table = tester.getRect(find.byType(BandTable));
+    expect(table.bottom, greaterThanOrEqualTo(rects.last.bottom));
+    final neighbor = tester.getRect(find.widgetWithText(TermToken, '월주-신살'));
+    expect(neighbor.top, moreOrLessEquals(rects.first.top, epsilon: 0.01));
+  });
+
+  testWidgets('쌓인 신살 칩은 어느 칩을 눌러도 그 칩이 받습니다(이웃 칩의 넓힌 눌림이 가로채지 않음)', (
+    tester,
+  ) async {
+    const names = ['월덕귀인', '괴강', '십악대패', '화개', '과숙'];
+    final taps = <String>[];
+    await tester.pumpWidget(
+      inputApp(_wrap(_table(dayShinsal: names, shinsalTaps: taps))),
+    );
+    for (final name in names) {
+      final chip = find.widgetWithText(TermToken, name);
+      await tester.ensureVisible(chip);
+      await tester.pumpAndSettle();
+      final rect = tester.getRect(chip);
+      // 칩 가운데와 위아래 가장자리 안쪽.
+      for (final dy in [rect.top + 1, rect.center.dy, rect.bottom - 1]) {
+        await tester.tapAt(Offset(rect.center.dx, dy));
+        await tester.pumpAndSettle();
+      }
+    }
+    expect(taps, [
+      for (final name in names) ...[name, name, name],
+    ]);
   });
 
   testWidgets('글자 배율 2.0은 1.3에서 멈추고 넘치지 않습니다', (tester) async {

@@ -541,10 +541,13 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
   }
 
   /// 원전(열린 줄과 잠긴 앞부분)의 대체 글꼴(`source.fontFallback`). 한자는 문장 글꼴에
-  /// 글리프가 없어 `font.family.hanja`로만 그립니다(한글은 그대로).
+  /// 글리프가 없어 `font.family.hanja`로 그립니다(한글은 그대로). 그 family에도 없는 글자(괴강
+  /// 魁罡의 罡)는 토큰이 정한 그 family의 대체 글꼴(`Myungli Hanja Supplement`, 토큰 1.9.0)로
+  /// 이어 그리므로 family 이름만이 아니라 그 대체 목록까지 붙입니다(A137).
   List<String> _quoteFontFallback(BuildContext context) {
-    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
-    return hanjaFamily == null ? const [] : [hanjaFamily];
+    final hanja = context.tokens.typography.hanjaPillar;
+    final family = hanja.fontFamily;
+    return family == null ? const [] : [family, ...?hanja.fontFamilyFallback];
   }
 
   /// 잠긴 구역의 또렷한 앞부분. 비었으면 자리값만입니다.

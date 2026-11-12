@@ -14,6 +14,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
@@ -59,6 +60,9 @@ final class _Network extends Interceptor {
   String? calendarOverrideKind;
   String calendarOverrideDate = '';
 
+  /// 값이 있으면 목록 응답의 첫 일기 태그(`featuredTags`, `allTags`)를 이 키 하나로 바꿉니다.
+  String? firstRowTag;
+
   /// 하루 범위(`from`==`to`) 일기 목록을 날짜마다 물은 횟수.
   final dayQueries = <String, int>{};
 
@@ -78,6 +82,17 @@ final class _Network extends Interceptor {
           (day as Map)['dayKind'] = override;
         }
       }
+    }
+    final firstTag = firstRowTag;
+    if (firstTag != null &&
+        response.requestOptions.path == '/v1/diaries' &&
+        data is Map) {
+      final first = (data['items'] as List<Object?>).first! as Map;
+      final tags = [
+        {'key': firstTag, 'polarity': 'bad'},
+      ];
+      first['featuredTags'] = tags;
+      first['allTags'] = tags;
     }
     if (kind != null &&
         response.requestOptions.path == '/v1/diaries' &&
@@ -343,6 +358,35 @@ void main() {
     await settleWithIo(tester);
     expect(_locationOf(tester, ScreenIds.tagDiary), '/tag-diary?tag=harmony');
   });
+
+  for (final (key, glyph, label) in [
+    ('gosin', '孤', '고신'),
+    ('gwasuk', '寡', '과숙'),
+    ('wonjin', '元', '원진'),
+  ]) {
+    testWidgets('D124 ③ 일기 줄 태그 $label $glyph: 누르면 뜻 아래 마무리 한 줄과 모아보기 링크', (
+      tester,
+    ) async {
+      covers(const Covers(decisions: ['D124']));
+      await _openDiaryList(tester, network: _Network()..firstRowTag = key);
+      final tag = tester.widget<HanjaTag>(_rowTag(tester, 0));
+      expect((tag.glyph, tag.label), (glyph, label));
+      await tester.tap(_rowTag(tester, 0));
+      await settleWithIo(tester);
+      final sheet = find.byKey(const Key(ScreenIds.explainSheet));
+      expect(
+        find.descendant(of: sheet, matching: find.byKey(WeighingNote.boxKey)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: sheet,
+          matching: find.textContaining(_ko.explainSheetTagDiaryLink(label)),
+        ),
+        findsOneWidget,
+      );
+    });
+  }
 
   testWidgets('날의 성격 태그는 뜻만 있는 뜻 시트이고 모아보기 링크가 없습니다', (tester) async {
     await _openDiaryList(tester);

@@ -28,6 +28,7 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/me/application/luck_years.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
+import 'package:myungli_diary/features/me/model/shinsal_cells.dart';
 import 'package:myungli_diary/features/me/presentation/chart_text.dart';
 import 'package:myungli_diary/features/me/presentation/natal_card.dart';
 
@@ -320,7 +321,6 @@ class SajuChartLuckTab extends ConsumerWidget {
     if (column.of(chart) == null) {
       return BandColumn(header: header, isDay: isDay, empty: true);
     }
-    final positions = {column.stem, column.branch};
     final hidden = chart.hiddenStems
         .where((item) => item.position == column.branch)
         .expand((item) => item.stems);
@@ -360,18 +360,23 @@ class SajuChartLuckTab extends ConsumerWidget {
               ),
             ),
       shinsal: [
-        // 신살은 열린 enum이라 이 app이 모르는 신살은 그 칸에서 건너뜁니다(A66).
-        for (final item in chart.shinsal)
-          if (item.kind.isKnown && positions.contains(item.position))
-            ?text.luckLabel(
-              'shinsal',
-              item.kind.value,
-              PersonalReadingKey(
-                kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
-                position: item.position,
-                shinsal: item.kind,
-              ),
+        // 걸친 기둥마다, 칸 안 순서와 중복 거름은 shinsalInPillar(V121, A137). 모르는
+        // 신살(열린 enum, A66)과 사전에 이름이 없는 신살(A112)은 건너뜁니다. 원국 개인
+        // 해석은 어느 칸에서 눌러도 대표 자리(`position`)로 찾습니다.
+        for (final (:shinsal, place: _) in shinsalInPillar(
+          chart.shinsal,
+          stem: column.stem,
+          branch: column.branch,
+        ))
+          ?text.luckLabel(
+            'shinsal',
+            shinsal.kind.value,
+            PersonalReadingKey(
+              kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+              position: shinsal.position,
+              shinsal: shinsal.kind,
             ),
+          ),
       ],
     );
   }

@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
@@ -18,12 +19,14 @@ import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/weighing_shinsal.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
 /// 사주 기운 시트(`tag-sheet`, D108, 결정 V79) 본문. [daily]의 대표 태그 [rank]순위를 보입니다.
 ///
 /// 위에서부터 머리(누를 수 없는 `hanja-tag` + 오른쪽 끝 근거 아이콘) → `space.12`
-/// 뜻(사전 `tag.<key>`) → `space.24` "이 기운에서 나온 오늘 문장"(`tag-sentence-list`)
+/// 뜻(사전 `tag.<key>`) → (흉 신살 태그면 마무리 한 줄, V120) → `space.24`
+/// "이 기운에서 나온 오늘 문장"(`tag-sentence-list`)
 /// → 그 태그가 붙은 내 일기 보기 링크입니다(today.md "tag-sheet 화면 배치").
 ///
 /// 문장 줄과 근거는 A113을 따릅니다: 1순위(`featured[0]`)는 보조 문장(`fortune.tag`)과 오늘의
@@ -115,6 +118,11 @@ class TagSheet extends ConsumerWidget {
                 termStyle: TermStyle.plain,
               ),
             ),
+          // 흉 신살 태그면 뜻 바로 아래 마무리 한 줄(V120). 다음 구역 간격은 상자에서 셉니다.
+          if (meaning != null &&
+              !isBlankText(meaning) &&
+              isWeighingKey(tag.key))
+            WeighingNote(text: l10n.shinsalWeighingNote),
           Padding(
             padding: const EdgeInsets.only(top: sentencesGap),
             child: TagSentenceList(

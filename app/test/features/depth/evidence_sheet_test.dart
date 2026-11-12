@@ -654,21 +654,19 @@ void main() {
           },
         ]),
       );
-      final hanja = tester
+      final hanjaStyle = tester
           .element(_inSheet(find.byType(EvidenceSheetBody)))
           .tokens
           .typography
-          .hanjaPillar
-          .fontFamily;
+          .hanjaPillar;
+      // 한자 family와 그 family의 대체 글꼴(토큰 1.9.0, A137).
+      final hanja = [hanjaStyle.fontFamily!, ...?hanjaStyle.fontFamilyFallback];
       final veils = tester
           .widgetList<LockVeil>(_inSheet(find.byType(LockVeil)))
           .toList();
       expect(
         [for (final veil in veils) veil.fontFallback],
-        [
-          const <String>[],
-          [hanja],
-        ],
+        [const <String>[], hanja],
       );
       expect(
         veils.last.lead?.segments.map((segment) => segment.text).join(),

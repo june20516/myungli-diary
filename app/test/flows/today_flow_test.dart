@@ -21,6 +21,7 @@ import 'package:myungli_diary/design/components/action/share_button.dart';
 import 'package:myungli_diary/design/components/calendar/event_row.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
 import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
@@ -748,7 +749,7 @@ void main() {
     );
   });
 
-  testWidgets('D124 ② 오늘 태그 고신 孤, 과숙 寡, 원진 元: 대표 태그로 그리고 누르면 사주 기운 시트', (
+  testWidgets('D124 ②⑦ 오늘 태그 고신 孤, 과숙 寡, 원진 元: 대표 태그, 사주 기운 시트 뜻과 마무리', (
     tester,
   ) async {
     covers(const Covers(exits: ['today>tag-sheet'], decisions: ['D124']));
@@ -761,10 +762,10 @@ void main() {
       of: find.byKey(TodayScreen.featuredCardKey),
       matching: find.byType(HanjaTag),
     );
-    for (final (key, glyph, label) in [
-      ('gosin', '孤', '고신'),
-      ('gwasuk', '寡', '과숙'),
-      ('wonjin', '元', '원진'),
+    for (final (key, glyph, label, meaningLead) in [
+      ('gosin', '孤', '고신', '외로운 별을 뜻하는 신살'),
+      ('gwasuk', '寡', '과숙', '홀로 지내는 별을 뜻하는 신살'),
+      ('wonjin', '元', '원진', '띠끼리 서로 꺼리는 사이'),
     ]) {
       server.body['tags'] = {
         'featured': [
@@ -792,6 +793,33 @@ void main() {
         find.descendant(of: sheet, matching: find.byType(HanjaTag)),
       );
       expect((head.glyph, head.label), (glyph, label));
+      // 뜻 줄은 사전(원고 `term.tag.<key>`)의 뜻이고, 흉 신살이라 바로 아래 마무리 한 줄(V120).
+      final meaning = find.descendant(
+        of: sheet,
+        matching: find.byKey(const Key(SlotIds.tagSheetTagMeaning)),
+      );
+      expect(
+        find.descendant(
+          of: meaning,
+          matching: find.textContaining(meaningLead, findRichText: true),
+        ),
+        findsOneWidget,
+        reason: key,
+      );
+      final note = find.descendant(
+        of: sheet,
+        matching: find.byKey(WeighingNote.boxKey),
+      );
+      expect(
+        find.descendant(of: note, matching: find.text(_ko.shinsalWeighingNote)),
+        findsOneWidget,
+        reason: key,
+      );
+      expect(
+        tester.getRect(note).top - tester.getRect(meaning).bottom,
+        moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
+        reason: key,
+      );
       // 1순위라 보조 문장과 오늘의 질문 줄이 있습니다(A113).
       expect(
         tester
@@ -819,6 +847,11 @@ void main() {
     await _openFeaturedTag(tester, 0);
 
     final sheet = find.byKey(const Key(ScreenIds.tagSheet));
+    // 흉 신살이 아닌 태그(fixture 1순위 합)에는 마무리 한 줄이 없습니다(V120).
+    expect(
+      find.descendant(of: sheet, matching: find.byKey(WeighingNote.boxKey)),
+      findsNothing,
+    );
     await tester.tap(depthLinkTarget(of: sheet));
     await tester.pumpAndSettle();
 

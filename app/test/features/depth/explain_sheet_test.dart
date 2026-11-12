@@ -17,6 +17,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -165,6 +166,74 @@ void main() {
       expect(link.variant, DepthLinkVariant.block);
       expect(link.label, isNull, reason: '근거 진입점은 글자가 없는 아이콘');
       expect(link.subject, '식신');
+    });
+
+    group('흉 신살 마무리 한 줄(weighingNote, V120)', () {
+      final meaning = RenderedText(segments: [Segment(text: '뜻 문장이에요.')]);
+      GlossaryNames namesWith(String termId) => GlossaryNames(
+        {
+          'shinsal': const {'gwasuk': '과숙', 'hwagae': '화개'},
+          'tag': const {'gongmang': '공망'},
+        },
+        meanings: {termId: meaning},
+      );
+      Future<void> open(WidgetTester tester, String termId) async {
+        await tester.pumpWidget(
+          _app(
+            ExplainSheet(content: ExplainTerm(termId, origin: _today('a.b'))),
+            glossary: () async => namesWith(termId),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      for (final termId in ['shinsal.gwasuk', 'tag.gongmang']) {
+        testWidgets('$termId: 뜻 바로 아래 space.12에 원고 문장 상자', (tester) async {
+          await open(tester, termId);
+          final box = find.byKey(WeighingNote.boxKey);
+          expect(box, findsOneWidget);
+          expect(
+            find.descendant(
+              of: box,
+              matching: find.text(_ko.shinsalWeighingNote),
+            ),
+            findsOneWidget,
+          );
+          final meaningRect = tester.getRect(
+            find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          );
+          expect(
+            tester.getRect(box).top - meaningRect.bottom,
+            moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
+          );
+          // 상자는 근거 진입점보다 위에 있고 누를 수 없습니다.
+          expect(
+            tester.getRect(box).bottom,
+            lessThanOrEqualTo(tester.getRect(find.byType(DepthLink)).top),
+          );
+          expect(
+            find.descendant(of: box, matching: find.byType(GestureDetector)),
+            findsNothing,
+          );
+        });
+      }
+
+      testWidgets('흉 신살이 아닌 신살 용어에는 두지 않습니다', (tester) async {
+        await open(tester, 'shinsal.hwagae');
+        expect(find.byKey(WeighingNote.boxKey), findsNothing);
+      });
+
+      testWidgets('뜻이 없으면 상자도 두지 않습니다', (tester) async {
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('shinsal.gwasuk')),
+            glossary: () async => namesWith('shinsal.other'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('과숙'), findsOneWidget);
+        expect(find.byKey(WeighingNote.boxKey), findsNothing);
+      });
     });
 
     testWidgets('사전에 한자가 있으면 제목 옆에 한자를 그립니다', (tester) async {
