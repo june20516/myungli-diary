@@ -120,6 +120,33 @@ Spec은 따로 없습니다. 구속력 있는 기준은 계약 파일입니다: 
 * D125(대표 태그는 길 먼저): app은 응답 순서대로 그리므로 변경 없음을 확인하고, fixture의 대표 태그 순서가 새 규칙과 어긋나면 보고만 합니다(fixture는 대역 값).
 * 계약 대조, 위젯과 흐름 테스트(`onboarding`/`preview` 흐름), IA 커버리지.
 
+## Task 6A: main 계약 따라잡기 (컴포넌트 7.4.0~7.6.0, IA v5 보충, 슬롯 v1.44, ruleset 2026.11.8)
+
+main은 controller가 merge해 둠(merge commit). 계약: 컴포넌트 7.4.0(V123 빈 상태 둘), 7.5.0(V124 시간 띠 pick, `list.divider` `inSheet`), 7.6.0(V125 마무리 줄 대상), IA v5 보충(`ad-free` `empty`, `ad-free.unavailable.body`, explain-sheet 12운성 띠 진입점), writing W71~W74(슬롯 v1.44, ARB), core ruleset 2026.11.8(도화 태그 중립), 루트 D124 ⑦ 보충, D125 개정(도화 중립). 받은 확인 답 #922, #957, #1069, #1072, #1073, #1065, #1081, #1090, #1091.
+
+* 생성 코드와 원고 다시 생성: `gen_tokens.dart`, `import_writing_arb.dart` + `flutter gen-l10n`, `gen_ia.dart`, `gen_native_strings.dart`, 사전 fixture(원고에서 생성). 생성 결과가 바뀐 이유를 보고합니다.
+* 광고 제거 빈 상태(#922, V123, W71): `offer-card` `unavailable` 상태와 부품(가격, 기간 고지, 구매 버튼 대신 `adFreeUnavailableBody` 한 줄, `type.body.ui` `text.secondary`, 위 `space.16`, 2줄까지, 아이콘 없음, 누르지 않음). 카드, 아이콘, 주는 것 한 줄, 구매 내역, 약관 안내는 그대로. 이용 중이면 `active`가 먼저. 스크린리더는 주는 것 한 줄 + 안내. A126에서 둔 임시 구현(그 값에 기대는 부분만 그리지 않음)을 이 상태로 바꿉니다.
+* 빈 풀이 시트(#957, V123, W71): `term-token` 풀이 시트 `emptyNote`. 뜻과 오늘 이유가 모두 없고 근거 출처도 없을 때만 제목과 한자 아래 `explainSheetTermEmpty`(위 `space.12`, 2줄까지), 근거 진입점은 그리지 않음. 출처만 있으면 지금처럼 근거 시트를 바로 엶(A130). 칩 모양과 누름은 같음. A130 판단 자리(`DepthSheets.openExplain`) 하나에서 갈립니다.
+* 12운성 띠 진입점(IA 보충, design V91): 12단계 띠는 만세력 띠 머리의 "12운성" 칩으로 열 때만, 값 칩(목욕 등)의 뜻 시트에는 두지 않음. app이 이미 이대로인지 확인하고 어긋나면 고칩니다(#957 나머지).
+* 시간 띠 pick(#1072, V124): 고리를 칸 안쪽에(`placement` `inside`), 연 칩 시진 `opened`(primary 2px, 틈 2px `bg.sheet`, 글자 700), 다른 칩 시진 `other`(`text.secondary` 1px). 옛 `pick.*` 대조 테스트를 새 구조로.
+* `list.divider` `inSheet`(V124): 시트 본문에 바로 놓인 목록과 구역(행운 색 둘 시트 두 색 사이, 사주 기운 시트 문장 목록)은 들임 0. Task 3의 A135 임시 들임 0을 계약 값으로 바꾸고 대조 테스트를 더합니다.
+* 행운 색 두 칸 알약 칸 순서(#1073, W73): `todayLuckyPairPosition({index},{total})`를 칸마다 이름과 값 뒤에. A135 임시(이름과 값만)를 바꿉니다.
+* 간지 독음(#1069, W72): glossary `stem_reading`, `branch_reading`(ARB `stemReading*`, `branchReading*`)과 틀 `ganjiReading`, `ganjiReadingSuffix`. date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table에서 한자 뒤 괄호 독음과 스크린리더 독음. A133 `GanjiReading`의 null(한자만)을 이 값으로 채웁니다. 한자는 틀에 넣지 않고 한자 글꼴로 따로 그립니다. en 앞 한 칸, ja 전각 괄호는 틀이 가짐.
+* 마무리 줄 대상(D124 ⑦, V125, W74): `weighingShinsal`을 design 계약 목록(열하나: 고신, 과숙, 원진, 구교, 천라지망, 십악대패, 음착양차, 도화, 공망, 양인, 괴강)으로. 계약 대조 테스트가 새 `when` 문장 기준인지. 화개, 길 신살은 붙지 않음을 단언.
+* 도화 중립(D125 개정, ruleset 2026.11.8): app이 길흉으로 색이나 순서를 정하는 곳이 있는지 확인하고, fixture는 엔진 값 그대로 다시 받습니다(대역 값을 손으로 고르지 않음).
+* A133, A135, A137의 "확인 필요" 문장을 닫고, 새 판단이 있으면 A138 다음 번호로 행을 더합니다.
+* 계약 대조, 위젯과 흐름 테스트, IA 커버리지, check-arb, fixture 검사.
+
+## Task 6B: REST 1.12.0 집중 시간 시진 경계 (#1064, server PR #1084)
+
+server PR #1084 병합됨(main에 있음, Task 6A 전에 controller가 merge함). 계약: REST 1.12.0 `FocusTime.hours`(5~7개, 시간 순, 時破 포함), openapi 설명(전환 시각은 프로필 현재 시간대 그날 진시 시작 `focusTime.hours[0].start`, `hours` 없는 응답은 한국 시각 07:30), D122 ⑦.
+
+* `gen_api.sh`로 생성 코드 갱신, fixture는 server 시드나 엔진 값 그대로.
+* 밤 칩 전환: Task 2의 `isBeforeDayStart`(07:30 한 곳, `_dayStart`)를 그날 낮 카드 `hours[0].start` 기준으로. `hours`가 없거나 비면 07:30(한국 시각) 대체. 비교는 응답 시각의 오프셋 그대로(기기 시간대로 바꾸지 않음).
+* 24시간 띠: 보이는 밤 카드의 `hours`와 그날 낮 카드의 `hours`로 그립니다. 지금 띠 칸을 고정 시진표로 그리면 응답 값으로 바꾸고, `hours`가 없으면 지금 방식 유지(빈 값은 오류 아님).
+* A134의 07:30 임시 판단을 닫고 결정 행을 고칩니다.
+* 시각 경계 테스트(진시 시작 직전과 직후, 서울 외 시간대 응답, `hours` 없음), 흐름 테스트, 계약 대조.
+
 ## Task 7: 마무리
 
 * `tool/goldens_linux.sh`로 전체 golden 재생성과 확인, 바뀐 화면 스크린샷(`tool/screens_linux.sh`) 갱신(오늘, 행운 색 둘, 시간 시트, 덕일, 만세력 신살 띠, 미리보기 사용함).
