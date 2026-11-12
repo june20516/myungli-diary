@@ -107,6 +107,9 @@
         - fortune.tag.ten_god_rush.jaeseong
         - fortune.tag.ten_god_rush.siksang
         - fortune.tag.yeokma
+        - fortune.tag.gosin
+        - fortune.tag.gwasuk
+        - fortune.tag.wonjin
         - fortune.tag.yongsin_day
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
@@ -119,6 +122,10 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 헤드라인 다음에 이어 읽습니다.
+  pending:
+    fortune.tag.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    fortune.tag.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    fortune.tag.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: daily.guide
   where: 오늘 화면 가이드 질문 (일기 쓰기 전에 보임, D22)
@@ -156,6 +163,9 @@
         - guide.ten_god_rush.jaeseong
         - guide.ten_god_rush.siksang
         - guide.yeokma
+        - guide.gosin
+        - guide.gwasuk
+        - guide.wonjin
         - guide.yongsin_day
   variants: {count: 2, rotation: "같은 키가 나올 때마다 변주 1, 2 순으로 돕니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
@@ -168,6 +178,10 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 질문으로 읽습니다.
+  pending:
+    guide.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    guide.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    guide.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: daily.color
   where: 오늘 화면 행운의 색 카드
@@ -351,6 +365,9 @@
     - tag.ten_god_rush.jaeseong
     - tag.ten_god_rush.siksang
     - tag.yeokma
+    - tag.gosin
+    - tag.gwasuk
+    - tag.wonjin
     - tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.focus_reason]
@@ -362,6 +379,10 @@
   a11y:
     truncation: 칩 안에서 잘리지 않게 짧게 씁니다.
     screen_reader: 칩 이름을 읽고, 탭하면 풀이가 열린다는 것은 app이 알립니다.
+  pending:
+    tag.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    tag.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    tag.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: daily.focus_reason
   where: 오늘 화면 집중 시간 가점 사유 (FocusSlot.reasons)
@@ -389,3 +410,30 @@
   a11y:
     truncation: 칩 안에서 잘리지 않게 짧게 씁니다.
     screen_reader: 칩 이름을 읽습니다.
+
+- id: explain.day_virtue
+  where: 오늘 화면 날짜 머리의 덕일(천덕일, 월덕일)을 누르면 여는 풀이 시트 본문(D124 ⑤)
+  purpose: info
+  user_state: 날짜 머리에 덕일 표시가 보여 무슨 날인지 궁금합니다.
+  components: [explain-sheet]
+  structure: >-
+    택일 원전이 그날을 덕일로 꼽는다는 뜻을 말합니다. 모두에게 같은 날 정보이고(D13 예외), 원국의 천덕귀인, 월덕귀인(태어난 달 기준)과
+    이름과 풀이를 구분합니다. 문구는 #1030에서 씁니다.
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {month_branch: none, day_stem: none}
+      keys:
+        - day_virtue.cheondeok
+        - day_virtue.woldeok
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.
+  pending:
+    day_virtue.cheondeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    day_virtue.woldeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}

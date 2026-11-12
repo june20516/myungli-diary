@@ -18,6 +18,8 @@ PERSONAL_ROLES: tuple[str, ...] = ("yongsin", "huisin", "gisin", "neutral")
 CHART_ROLES: tuple[str, ...] = ("day_master",)
 LUCK_KINDS: tuple[str, ...] = ("daeun", "seun")
 PILLAR_PARTS: tuple[str, ...] = ("stem", "branch")
+# 구교 자리(勾, 絞)는 core가 같은 매개변수 이름 part로 냅니다. 성별을 모르면 unknown입니다(D124 ④, core `gugyo_part`).
+GUGYO_PARTS: tuple[str, ...] = ("gou", "jiao", "unknown")
 # 지장간 자리는 지지 자리 이름에 이 접미사를 붙입니다(core `_place`).
 HIDDEN_SUFFIX = "_hidden"
 # 용어 토큰과 풀이 시트(`term.meaning`)가 다루는 glossary 범주입니다. 태그(`tag.*`)는 `term_ids`가 더합니다.
@@ -70,7 +72,7 @@ def glossary_values() -> dict[str, tuple[str, ...]]:
         "role": PERSONAL_ROLES + CHART_ROLES,
         "strength": _enum_value_names(engine_pb2.StrengthLevel),
         "luck": LUCK_KINDS,
-        "part": PILLAR_PARTS,
+        "part": PILLAR_PARTS + GUGYO_PARTS,
     }
 
 

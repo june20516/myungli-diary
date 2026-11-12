@@ -87,6 +87,19 @@
     - shinsal.hwagae
     - shinsal.yangin
     - shinsal.gongmang
+    - shinsal.cheondeok
+    - shinsal.woldeok
+    - shinsal.geumyeo
+    - shinsal.gosin
+    - shinsal.gwasuk
+    - shinsal.wonjin
+    - shinsal.gugyo
+    - shinsal.cheonra_jimang
+    - shinsal.goegang
+    - shinsal.sipak_daepae
+    - shinsal.eumchak_yangcha
+    - shinsal.samgi
+    - shinsal.amrok
     - twelve_stage.jangsaeng
     - twelve_stage.mokyok
     - twelve_stage.gwandae
@@ -133,6 +146,9 @@
     - luck.seun
     - part.stem
     - part.branch
+    - part.gou
+    - part.jiao
+    - part.unknown
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
@@ -144,3 +160,20 @@
   a11y:
     truncation: 칩이나 표 칸 안에서 잘리지 않게 짧게 씁니다.
     screen_reader: 이름 그대로 읽습니다.
+  pending:
+    part.gou: {ko: "D124 구교 자리 이름 원고 대기, #1030", en: "D124 구교 자리 이름 원고 대기, #1030", ja: "D124 구교 자리 이름 원고 대기, #1030"}
+    part.jiao: {ko: "D124 구교 자리 이름 원고 대기, #1030", en: "D124 구교 자리 이름 원고 대기, #1030", ja: "D124 구교 자리 이름 원고 대기, #1030"}
+    part.unknown: {ko: "D124 구교 자리 이름 원고 대기, #1030", en: "D124 구교 자리 이름 원고 대기, #1030", ja: "D124 구교 자리 이름 원고 대기, #1030"}
+    shinsal.cheondeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.woldeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.geumyeo: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.gugyo: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.cheonra_jimang: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.goegang: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.sipak_daepae: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.eumchak_yangcha: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.samgi: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    shinsal.amrok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}

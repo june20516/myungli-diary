@@ -49,6 +49,19 @@
 - {term: shinsal.hwagae, hanja: "華蓋"}
 - {term: shinsal.yangin, hanja: "羊刃"}
 - {term: shinsal.gongmang, hanja: "空亡"}
+- {term: shinsal.cheondeok, hanja: "天德貴人"}
+- {term: shinsal.woldeok, hanja: "月德貴人"}
+- {term: shinsal.geumyeo, hanja: "金轝祿"}
+- {term: shinsal.gosin, hanja: "孤辰"}
+- {term: shinsal.gwasuk, hanja: "寡宿"}
+- {term: shinsal.wonjin, hanja: "元辰"}
+- {term: shinsal.gugyo, hanja: "勾絞"}
+- {term: shinsal.cheonra_jimang, hanja: "天羅地網"}
+- {term: shinsal.goegang, hanja: "魁罡"}
+- {term: shinsal.sipak_daepae, hanja: "十惡大敗"}
+- {term: shinsal.eumchak_yangcha, hanja: "陰錯陽差"}
+- {term: shinsal.samgi, hanja: "三奇"}
+- {term: shinsal.amrok, hanja: "暗祿"}
 - {term: relation.stem_hap, hanja: "天干合"}
 - {term: relation.branch_hap, hanja: "地支合"}
 - {term: relation.chung, hanja: "沖"}
@@ -77,3 +90,6 @@
 - {term: tag.gongmang, hanja: "空亡"}
 - {term: tag.hwagae, hanja: "華蓋"}
 - {term: tag.yeokma, hanja: "驛馬"}
+- {term: tag.gosin, hanja: "孤辰"}
+- {term: tag.gwasuk, hanja: "寡宿"}
+- {term: tag.wonjin, hanja: "元辰"}
