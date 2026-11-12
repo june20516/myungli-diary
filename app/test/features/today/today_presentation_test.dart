@@ -465,9 +465,10 @@ void main() {
       );
     });
 
-    test('일진은 한자와 사전 독음(괄호)이고, 독음이 없으면 한자만입니다', () {
+    test('일진은 사전 값 이름을 독음으로 쓰지 않아 한자만입니다(A133, #1069 전)', () {
       final daily = Daily.fromJson(memberDailyJson());
-      expect(displayOf(daily).iljinText, _l10n.todayDateIljin('庚申(경신)'));
+      // 사전에 천간, 지지 이름이 있어도 독음 자리에 쓰지 않습니다.
+      expect(displayOf(daily).iljinText, _l10n.todayDateIljin('庚申'));
       expect(displayOf(daily, _names).iljinText, _l10n.todayDateIljin('庚申'));
     });
 

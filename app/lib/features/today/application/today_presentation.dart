@@ -22,6 +22,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/features/glossary/model/ganji_reading.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
 
@@ -399,12 +400,13 @@ String? lunarTextOf(Daily daily, AppLocalizations l10n) {
 String iljinTextOf(Daily daily, GlossaryNames names, AppLocalizations l10n) =>
     l10n.todayDateIljin(pillarTextOf(daily.dayPillar, names));
 
-/// [pillar]의 간지 글자: 한자 뒤 괄호에 사전 독음을 붙이고(`庚申(경신)`), 사전이 없거나
-/// 천간이나 지지 독음이 사전에 없으면 한자만 씁니다(오늘 날짜 머리, 일기 쓰기 날짜 블록).
+/// [pillar]의 간지 글자: 한자 뒤 괄호에 독음을 붙이고(`庚申(경신)`), 천간이나 지지 독음이
+/// 없으면 한자만 씁니다(오늘 날짜 머리, 일기 쓰기 날짜 블록). 독음 원천은 [GanjiReading](A133)이고
+/// #1069 전에는 없어 한자만입니다.
 String pillarTextOf(Pillar pillar, GlossaryNames? names) {
   final hanja = '${stemHanja(pillar.stem)}${branchHanja(pillar.branch)}';
-  final stemReading = names?.valueName('stem', pillar.stem.value);
-  final branchReading = names?.valueName('branch', pillar.branch.value);
+  final stemReading = GanjiReading.stem(pillar.stem, names);
+  final branchReading = GanjiReading.branch(pillar.branch, names);
   return stemReading == null || branchReading == null
       ? hanja
       : '$hanja($stemReading$branchReading)';

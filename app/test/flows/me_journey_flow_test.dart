@@ -361,9 +361,10 @@ void main() {
       find.descendant(of: find.byType(SajuPillars), matching: find.text('甲')),
       findsOneWidget,
     );
+    // 사전 값 이름(갑목)은 독음이 아니라 기둥 아래 독음은 없습니다(A133, #1069 전).
     expect(
-      find.descendant(of: find.byType(SajuPillars), matching: find.text('갑')),
-      findsOneWidget,
+      find.descendant(of: find.byType(SajuPillars), matching: find.text('갑목')),
+      findsNothing,
     );
     // 정보 수정·설정은 스택에서 빠졌습니다(go).
     expect(_screen(ScreenIds.profileEdit), findsNothing);
