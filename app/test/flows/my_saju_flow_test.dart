@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,11 +48,12 @@ Future<ProviderContainer> _openMe(
   Interceptor? network,
   bool settle = true,
   List<Override> overrides = const [],
+  Size physicalSize = const Size(1170, 9000),
 }) async {
-  // 다섯 섹션이 한 번에 놓이게 세로로 긴 화면을 씁니다(ListView는 화면 밖을 그리지 않음).
+  // 기본은 다섯 섹션이 한 번에 놓이게 세로로 긴 화면입니다(ListView는 화면 밖을 그리지 않음).
   tester.view
     ..devicePixelRatio = 3
-    ..physicalSize = const Size(1170, 9000);
+    ..physicalSize = physicalSize;
   addTearDown(tester.view.reset);
   final container = await pumpApp(
     tester,
@@ -117,6 +120,9 @@ final class _DiaryStatsNetwork extends Interceptor {
   /// 성공 응답의 자주 붙은 태그에 사전에 없는 태그([unknownTagKey])를 더할지.
   bool addUnknownTag = false;
 
+  /// 주면 이것이 끝날 때까지 집계 요청을 붙잡아 둡니다.
+  Completer<void>? gate;
+
   @override
   void onResponse(
     Response<Object?> response,
@@ -140,9 +146,13 @@ final class _DiaryStatsNetwork extends Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     if (options.path.endsWith('diary-stats')) {
       requests++;
+      await gate?.future;
       if (fail) {
         handler.reject(serviceUnavailable(options));
         return;
@@ -191,6 +201,39 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
     scrollable: _inScreen(find.byType(Scrollable)).first,
   );
   await tester.pumpAndSettle();
+}
+
+/// 보통 크기 화면(390x844 논리 크기, #936).
+const Size _phone = Size(1170, 2532);
+
+/// 나 탭의 세로 스크롤 위치.
+ScrollPosition _meScroll(WidgetTester tester) => tester
+    .state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byKey(const ValueKey(ScreenIds.mySaju)),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    )
+    .position;
+
+/// 나 탭을 끝까지 내립니다.
+Future<void> _scrollMeToEnd(WidgetTester tester) async {
+  // 지연 생성 목록이라 끝이 늘어날 수 있어 끝에 닿을 때까지 거듭 내립니다.
+  for (var i = 0; i < 10; i++) {
+    final position = _meScroll(tester);
+    if (position.pixels >= position.maxScrollExtent) break;
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pump();
+  }
+}
+
+/// 회고 카드의 아래 끝이 하단 틀 위에 있는지.
+void _expectSummaryAboveBottomBar(WidgetTester tester) {
+  final summary = tester.getRect(find.byType(DiarySummary));
+  final bar = tester.getRect(find.byKey(const ValueKey('bottom-bar.surface')));
+  expect(summary.bottom, lessThanOrEqualTo(bar.top));
 }
 
 void main() {
@@ -519,5 +562,62 @@ void main() {
     );
     await settleWithIo(tester);
     expect(find.byType(OhaengCell), findsWidgets);
+  });
+
+  group('보통 크기 화면(390x844)에서 끝의 회고(#936)', () {
+    testWidgets('탭을 열면 내리지 않아도 집계를 한 번 받고, 위아래로 오가도 다시 받지 않습니다', (
+      tester,
+    ) async {
+      final network = _DiaryStatsNetwork()..fail = false;
+      await _openMe(tester, network: network, physicalSize: _phone);
+      expect(network.requests, 1);
+
+      await _scrollMeToEnd(tester);
+      await settleWithIo(tester);
+      final position = _meScroll(tester);
+      expect(position.pixels, position.maxScrollExtent);
+      _expectSummaryAboveBottomBar(tester);
+
+      position.jumpTo(0);
+      await settleWithIo(tester);
+      await _scrollMeToEnd(tester);
+      await settleWithIo(tester);
+      expect(network.requests, 1);
+      expect(_meScroll(tester).pixels, _meScroll(tester).maxScrollExtent);
+      _expectSummaryAboveBottomBar(tester);
+    });
+
+    testWidgets('응답 전에 끝에 닿아도 응답 뒤 새 끝에 붙어 회고가 하단 틀에 가리지 않습니다', (tester) async {
+      final network = _DiaryStatsNetwork()
+        ..fail = false
+        ..gate = Completer<void>();
+      await _openMe(
+        tester,
+        network: network,
+        physicalSize: _phone,
+        settle: false,
+      );
+      await pumpUntil(
+        tester,
+        () => find.byType(OhaengCell).evaluate().isNotEmpty,
+        allowOngoing: true,
+      );
+      await _scrollMeToEnd(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(DiarySummary), findsNothing);
+      expect(_meScroll(tester).pixels, _meScroll(tester).maxScrollExtent);
+
+      network.gate!.complete();
+      await pumpUntil(
+        tester,
+        () => find.byType(DiarySummary).evaluate().isNotEmpty,
+        allowOngoing: true,
+      );
+      await settleWithIo(tester);
+      final position = _meScroll(tester);
+      expect(position.pixels, position.maxScrollExtent);
+      _expectSummaryAboveBottomBar(tester);
+      expect(network.requests, 1);
+    });
   });
 }

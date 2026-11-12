@@ -18,7 +18,12 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// [SkeletonChip](칩), [SkeletonBone](그 밖의 자리)으로 짭니다.
 class SkeletonBlock extends StatefulWidget {
   /// 자리를 만듭니다.
-  const new({required this.child, this.delay = defaultDelay, super.key});
+  const new({
+    required this.child,
+    this.delay = defaultDelay,
+    this.reserveSpace = false,
+    super.key,
+  });
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('skeleton', {}, {'loading'});
@@ -31,6 +36,11 @@ class SkeletonBlock extends StatefulWidget {
 
   /// 보이기 전 대기. golden·테스트에서는 [Duration.zero]를 줍니다.
   final Duration delay;
+
+  /// true면 [delay] 동안에도 뼈 크기만큼 자리를 비워 둡니다(그리지도 읽지도 않음). 스크롤 끝
+  /// 섹션처럼 자리가 0에서 자라면 끝에 닿은 스크롤 위치가 어긋나는 곳에서 씁니다(#936).
+  /// "300ms 안이면 보이지 않음" 규칙은 그대로입니다.
+  final bool reserveSpace;
 
   @override
   State<SkeletonBlock> createState() => _SkeletonBlockState();
@@ -58,7 +68,17 @@ class _SkeletonBlockState extends State<SkeletonBlock> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_visible) return const SizedBox.shrink();
+    if (!_visible) {
+      return widget.reserveSpace
+          ? Visibility(
+              visible: false,
+              maintainState: true,
+              maintainAnimation: true,
+              maintainSize: true,
+              child: widget.child,
+            )
+          : const SizedBox.shrink();
+    }
     // 명세 role progressbar의 불확정 로딩은 progressBar가 값·범위를 요구해
     // loadingSpinner로 둡니다(값 검사 없음).
     return Semantics(

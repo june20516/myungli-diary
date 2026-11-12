@@ -34,6 +34,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
@@ -92,6 +93,9 @@ class MySajuScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final chart = ref.watch(chartControllerProvider);
+    // 회고 집계는 화면을 열 때 받고 화면이 있는 동안 붙잡아 둡니다. 끝 섹션이 스크롤로 버려졌다
+    // 다시 지어져도 다시 받지 않고, 끝에 닿은 뒤에야 받기 시작해 자리가 자라지 않게 합니다(#936).
+    ref.listen(diaryStatsProvider, (_, _) {});
     return Semantics(
       identifier: ScreenIds.mySaju,
       child: Scaffold(
@@ -165,68 +169,71 @@ class _MySajuBody extends ConsumerWidget {
     );
     final ilgan = _IlganSection(chart: chart, explain: explain);
 
-    return ListView(
-      padding: EdgeInsets.fromLTRB(
-        Space.s20,
-        Space.s8,
-        Space.s20,
-        MediaQuery.paddingOf(context).bottom + Space.s32,
-      ),
-      children: [
-        offlineNotice,
-        if (timeUnknown != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: Space.s16),
-            child: NoticeBanner(
-              variant: NoticeBannerVariant.timeUnknown,
-              message: timeUnknown,
+    // 끝에 닿은 채 회고나 하단 여백이 늦게 자라도 끝에 붙어 있습니다(#936).
+    return StickToEndOnGrow(
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          Space.s20,
+          Space.s8,
+          Space.s20,
+          MediaQuery.paddingOf(context).bottom + Space.s32,
+        ),
+        children: [
+          offlineNotice,
+          if (timeUnknown != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.s16),
+              child: NoticeBanner(
+                variant: NoticeBannerVariant.timeUnknown,
+                message: timeUnknown,
+              ),
+            ),
+          SectionHeader(
+            title: l10n.mySajuChartTitle,
+            titleIdentifier: SlotIds.mySajuChartTitle,
+            trailing: SectionHeaderLink(
+              label: l10n.mySajuChartLink,
+              onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
             ),
           ),
-        SectionHeader(
-          title: l10n.mySajuChartTitle,
-          titleIdentifier: SlotIds.mySajuChartTitle,
-          trailing: SectionHeaderLink(
-            label: l10n.mySajuChartLink,
-            onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
+          const SizedBox(height: SectionHeader.contentGap),
+          SectionCard(
+            child: NatalCard(chart: chart, onTermTap: text.openTerm),
           ),
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        SectionCard(
-          child: NatalCard(chart: chart, onTermTap: text.openTerm),
-        ),
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuIlganTitle,
-          titleIdentifier: SlotIds.mySajuIlganTitle,
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        ilgan,
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuYongsinTitle,
-          titleIdentifier: SlotIds.mySajuYongsinTitle,
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        yongsin,
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuFlowTitle,
-          titleIdentifier: SlotIds.mySajuFlowTitle,
-          trailing: SectionHeaderLink(
-            label: l10n.mySajuFlowLink,
-            onTap: () => context.push<void>(sajuChartLuckPath()),
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuIlganTitle,
+            titleIdentifier: SlotIds.mySajuIlganTitle,
           ),
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        _FlowCard(chart: chart, text: text),
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuRecordTitle,
-          titleIdentifier: SlotIds.mySajuRecordTitle,
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        const _RecordSection(),
-      ],
+          const SizedBox(height: SectionHeader.contentGap),
+          ilgan,
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuYongsinTitle,
+            titleIdentifier: SlotIds.mySajuYongsinTitle,
+          ),
+          const SizedBox(height: SectionHeader.contentGap),
+          yongsin,
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuFlowTitle,
+            titleIdentifier: SlotIds.mySajuFlowTitle,
+            trailing: SectionHeaderLink(
+              label: l10n.mySajuFlowLink,
+              onTap: () => context.push<void>(sajuChartLuckPath()),
+            ),
+          ),
+          const SizedBox(height: SectionHeader.contentGap),
+          _FlowCard(chart: chart, text: text),
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuRecordTitle,
+            titleIdentifier: SlotIds.mySajuRecordTitle,
+          ),
+          const SizedBox(height: SectionHeader.contentGap),
+          const _RecordSection(),
+        ],
+      ),
     );
   }
 }
@@ -552,7 +559,8 @@ class _RecordSection extends ConsumerWidget {
         ),
       );
     }
-    return SkeletonBlock(child: DiarySummary.skeleton());
+    // 대기 중에도 뼈 자리를 남겨 끝 섹션이 0에서 자라지 않게 합니다(#936).
+    return SkeletonBlock(reserveSpace: true, child: DiarySummary.skeleton());
   }
 
   void _reportSkippedTags(

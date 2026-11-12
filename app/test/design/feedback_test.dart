@@ -958,6 +958,38 @@ void main() {
       expect(find.byType(SkeletonBone), findsNWidgets(3));
     });
 
+    testWidgets('reserveSpace면 300ms 안에도 뼈 크기만큼 자리를 두되 그리지도 읽지도 않습니다(#936)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          const Column(
+            children: [
+              SkeletonBlock(
+                key: ValueKey('reserved'),
+                reserveSpace: true,
+                child: _skeleton,
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      final reserved = tester.getSize(find.byKey(const ValueKey('reserved')));
+      expect(reserved.height, greaterThan(0));
+      expect(find.bySemanticsLabel('불러오는 중'), findsNothing);
+      final visibility = tester.widget<Visibility>(find.byType(Visibility));
+      expect(visibility.visible, isFalse);
+
+      await tester.pump(const Duration(milliseconds: 250));
+      expect(
+        tester.getSize(find.byKey(const ValueKey('reserved'))).height,
+        reserved.height,
+      );
+      handle.dispose();
+    });
+
     testWidgets('글줄 뼈 높이는 줄 높이의 60%이고 줄 가운데, 마지막 줄은 너비 60%', (tester) async {
       await tester.pumpWidget(
         _app(
