@@ -411,7 +411,11 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     return ExplainLucky(
       title: item.name,
       body: item.explain,
-      attachment: TodayTimeBand(beforeDayStart: beforeDayStart, opened: period),
+      attachment: TodayTimeBand(
+        daily: daily,
+        beforeDayStart: beforeDayStart,
+        opened: period,
+      ),
       attachmentGap: TimeBand.sheetGap,
       origin: TermOrigin(
         slotId: pick.evidenceSlotId,
@@ -866,13 +870,22 @@ class _TodayEventSectionState extends ConsumerState<_TodayEventSection> {
   }
 }
 
-/// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 시트가 열린 동안 오늘 값과 벽시계를 구독해 지금
-/// 줄을 1분마다 옮깁니다. 칸 순서와 고리는 시트를 연 때의 [beforeDayStart]로 고정해, 열린 채
-/// 낮 구간 시작을 지나도 시트의 본문, 근거와 같은 칩을 그립니다(A134 ⑧). 연 칩([opened])의 시진은 굵은
-/// 고리입니다(V124). 오늘 값이 없으면(다시 받는 중) 그리지 않습니다.
+/// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 시트가 열린 동안 벽시계를 구독해 지금 줄을 1분마다
+/// 옮깁니다. 칸, 순서와 고리는 시트를 연 때의 응답 [daily]와 [beforeDayStart]로 고정해, 열린 채
+/// 낮 구간 시작이나 자정을 지나도 시트의 본문, 근거와 같은 칩을 그립니다(A134 ⑧, A140 ⑤). 연
+/// 칩([opened])의 시진은 굵은 고리입니다(V124). 오늘 값이 없으면(다시 받는 중) 그리지 않습니다.
 class TodayTimeBand extends ConsumerWidget {
-  /// 시트를 연 때의 [beforeDayStart]와 연 칩 [opened]로 띠를 만듭니다.
-  const new({required this.beforeDayStart, required this.opened, super.key});
+  /// 시트를 연 때의 응답 [daily], [beforeDayStart]와 연 칩 [opened]로 띠를 만듭니다.
+  const new({
+    required this.daily,
+    required this.beforeDayStart,
+    required this.opened,
+    super.key,
+  });
+
+  /// 시트를 연 때의 오늘 응답. 열린 채 날이 바뀌어 오늘 값이 다음 날 응답이 되어도 띠는 이 응답의
+  /// 칸과 눈금이고, 지금이 그 띠 밖이면 지금 줄이 없습니다(A140 ⑤).
+  final Daily daily;
 
   /// 시트를 연 때 낮 구간 시작 전이었는지([isBeforeDayStart]).
   final bool beforeDayStart;
@@ -885,7 +898,7 @@ class TodayTimeBand extends ConsumerWidget {
     final content = ref.watch(todayContentProvider).value;
     if (content == null) return const SizedBox.shrink();
     return timeBandOf(
-      daily: content.view.daily,
+      daily: daily,
       names: content.names,
       l10n: AppLocalizations.of(context),
       beforeDayStart: beforeDayStart,

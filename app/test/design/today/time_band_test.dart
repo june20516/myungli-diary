@@ -33,7 +33,7 @@ List<TimeBandCell> _beforeDayStart() => [
 
 TimeBand _band({
   List<TimeBandCell>? cells,
-  double nowFraction = 0.5,
+  double? nowFraction = 0.5,
   bool hanjaLabels = false,
 }) => TimeBand(
   cells: cells ?? _fromDayStart(),
@@ -209,6 +209,22 @@ void main() {
     expect(
       tester.getRect(find.byKey(TimeBand.nowTagKey)).left,
       moreOrLessEquals(band.left),
+    );
+  });
+
+  testWidgets('지금이 띠 밖(nowFraction null)이면 지금 줄과 꼬리표가 없고 머리와 칸 사이는 계약 값입니다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app(_band(nowFraction: null)));
+    expect(find.byKey(TimeBand.nowLineKey), findsNothing);
+    expect(find.byKey(TimeBand.nowTagKey), findsNothing);
+    expect(find.byKey(TimeBand.cellKey(0)), findsOneWidget);
+    final withNow = tester.getSize(find.byType(TimeBand)).height;
+    await tester.pumpWidget(_app(_band()));
+    // 글자 배율 1.0에서는 꼬리표가 있어도 간격이 계약 값(A134 ⑪)이라 높이가 같습니다.
+    expect(
+      tester.getSize(find.byType(TimeBand)).height,
+      moreOrLessEquals(withNow, epsilon: 1),
     );
   });
 

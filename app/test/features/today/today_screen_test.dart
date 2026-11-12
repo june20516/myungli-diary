@@ -1514,6 +1514,15 @@ void main() {
         tester.widget<TimeBand>(find.byType(TimeBand)).nowLabel,
         _ko.todayLuckyTimeBandNow('07:30'),
       );
+
+      // 열린 채 띠 끝(오늘 21:30)을 지나면 칸과 눈금은 연 때 응답 그대로이고 지금 줄만 없습니다
+      // (A140 ⑤).
+      minutes.add(DateTime.utc(2026, 10, 13, 21, 30));
+      await tester.pumpAndSettle();
+      expect(order(), openedOrder);
+      expect(picked(), openedPicks);
+      expect(find.byKey(TimeBand.nowLineKey), findsNothing);
+      expect(find.byKey(TimeBand.nowTagKey), findsNothing);
     });
 
     testWidgets('밤 카드가 응답에 없으면 밤 칩만 그리지 않습니다', (tester) async {

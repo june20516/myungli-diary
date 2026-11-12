@@ -786,32 +786,64 @@ void main() {
         final fromTable = band(wall, from: legacy);
         expect(labels(fromHours), labels(fromTable));
         expect(ticks(fromHours), ticks(fromTable));
-        expect(fromHours.nowFraction, closeTo(fromTable.nowFraction, 1e-9));
+        expect(fromHours.nowFraction, closeTo(fromTable.nowFraction!, 1e-9));
         expect(picksOf(fromHours), picksOf(fromTable));
       }
     });
 
-    test('낮 카드 hours가 없거나 비면 지금 방식(프로필 벽시계 07:30부터 2시간)입니다', () {
+    test('낮 카드 hours가 없거나 비면 전환과 같은 그날 한국 시각 07:30부터 2시간입니다(A140 ③)', () {
       for (final hours in [null, <Object?>[]]) {
+        // LA는 한국 07:30이 전날 15:30이라 그날 내내 낮 구간 시작 뒤입니다.
+        final from = withHours(losAngelesDailyJson(), 'focusTime', hours);
         final shown = band(
           DateTime.utc(2026, 10, 13, 12),
-          from: withHours(losAngelesDailyJson(), 'focusTime', hours),
+          from: from,
           timezone: 'America/Los_Angeles',
-          beforeDayStart: false,
         );
         expect(labels(shown), '진사오미신유술해자축인묘');
         expect(ticks(shown), [
           (
-            '07:30',
+            '15:30',
+            _l10n.todayLuckyTimeBandYesterday,
+            '05:30',
             null,
-            '21:30',
+            '15:30',
             null,
-            '07:30',
-            _l10n.todayLuckyTimeBandTomorrow,
           ),
         ]);
-        expect(shown.nowFraction, closeTo(270 / 1440, 1e-9));
+        // 전날 15:30부터 20시간 30분.
+        expect(shown.nowFraction, closeTo(1230 / 1440, 1e-9));
+        // 새벽 02:00도 같은 띠 안입니다(띠 앞에 붙지 않음).
+        final dawn = band(
+          DateTime.utc(2026, 10, 13, 2),
+          from: from,
+          timezone: 'America/Los_Angeles',
+        );
+        expect(ticks(dawn), ticks(shown));
+        expect(dawn.nowFraction, closeTo(630 / 1440, 1e-9));
+        expect(dawn.nowLabel, _l10n.todayLuckyTimeBandNow('02:00'));
       }
+    });
+
+    test('지금이 띠 밖이면(연 때 응답 그대로 열린 채 날이 바뀜) 지금 줄이 없습니다(A140 ⑤)', () {
+      // 07:30부터 연 띠(오늘 07:30~내일 07:30)를 열어 둔 채 다음 날 07:30, 08:00이 됩니다.
+      final edge = band(
+        DateTime.utc(2026, 10, 14, 7, 29),
+        beforeDayStart: false,
+      );
+      expect(edge.nowFraction, closeTo(1439 / 1440, 1e-9));
+      for (final wall in [
+        DateTime.utc(2026, 10, 14, 7, 30),
+        DateTime.utc(2026, 10, 14, 8),
+        DateTime.utc(2026, 10, 12, 23),
+      ]) {
+        expect(band(wall, beforeDayStart: false).nowFraction, isNull);
+      }
+      // 띠 시작 분은 띠 안입니다.
+      expect(
+        band(DateTime.utc(2026, 10, 13, 7, 30)).nowFraction,
+        closeTo(0, 1e-9),
+      );
     });
 
     test('보이는 밤 카드가 없으면 밤 다섯 칸은 낮 hours에 이어 2시간씩이고 고리가 없습니다', () {

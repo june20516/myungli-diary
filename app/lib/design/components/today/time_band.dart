@@ -90,7 +90,8 @@ final class TimeBandTick {
 /// 머리(덩어리 시작의 해, 달과 낱말) → 시진 12칸(고른 시진 고리) → 눈금 순서이고, 칸 위에 지금
 /// 줄과 꼬리표가 겹칩니다. 칸 순서와 값은 여는 쪽이 정합니다(낮 구간 시작 전에는 밤 다섯 칸이 앞). 지금
 /// 줄은 띠 시작부터 [nowFraction]만큼(지금 시각 비례) 떨어진 자리이고, 꼬리표는 띠 양 끝 가까이에서
-/// 꼬리표만 안쪽으로 밀려 들어오고 선은 제자리입니다.
+/// 꼬리표만 안쪽으로 밀려 들어오고 선은 제자리입니다. [nowFraction]이 null이면(지금이 띠 밖) 지금
+/// 줄과 꼬리표를 그리지 않습니다(A140 ⑤).
 ///
 /// 스크린리더에서는 그림으로 숨깁니다. 시트 본문과 칩 라벨이 같은 정보를 말합니다(`timeBand.a11y`).
 class TimeBand extends StatelessWidget {
@@ -172,8 +173,9 @@ class TimeBand extends StatelessWidget {
   /// 밤 덩어리 머리 낱말(`today.lucky-time.band.night`).
   final String nightHead;
 
-  /// 띠 시작부터 지금까지가 24시간 중 얼마인지(0~1, `now.position`).
-  final double nowFraction;
+  /// 띠 시작부터 지금까지가 24시간 중 얼마인지(0~1, `now.position`). 지금이 띠 밖이면 null이고
+  /// 지금 줄과 꼬리표가 없습니다.
+  final double? nowFraction;
 
   /// 지금 꼬리표 글자(`today.lucky-time.band.now`, "지금 {time}").
   final String nowLabel;
@@ -267,21 +269,24 @@ class TimeBand extends StatelessWidget {
   Widget _cellsWithNow(BuildContext context) {
     final tokens = context.tokens;
     final colors = tokens.colors;
-    final fraction = nowFraction.clamp(0.0, 1.0);
+    // 칸 높이를 가장 높은 칸에 맞춥니다(기기 글자가 커져도 칸 줄이 고르게).
+    final row = IntrinsicHeight(
+      child: Row(
+        spacing: cellGap,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (index, cell) in cells.indexed)
+            Expanded(key: cellKey(index), child: _cell(context, cell)),
+        ],
+      ),
+    );
+    final now = nowFraction;
+    if (now == null) return row;
+    final fraction = now.clamp(0.0, 1.0);
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // 칸 높이를 가장 높은 칸에 맞춥니다(기기 글자가 커져도 칸 줄이 고르게).
-        IntrinsicHeight(
-          child: Row(
-            spacing: cellGap,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (index, cell) in cells.indexed)
-                Expanded(key: cellKey(index), child: _cell(context, cell)),
-            ],
-          ),
-        ),
+        row,
         Positioned.fill(
           top: -nowOverhang,
           bottom: -nowOverhang,
@@ -346,6 +351,7 @@ class TimeBand extends StatelessWidget {
     );
     final headBox = math.max(headHeight, headContent);
     final headSlack = (headBox - headContent) / 2;
+    if (nowFraction == null) return const SizedBox(height: headGapBelow);
     final tag = lineHeight(nowLabel, _nowTagStyle(tokens));
     return SizedBox(
       height: math.max(headGapBelow, tag + nowOverhang - headSlack),

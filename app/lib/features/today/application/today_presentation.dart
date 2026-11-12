@@ -113,8 +113,8 @@ String formatFocusRange(FocusSlot pick, String timezone, String languageCode) =>
 
 /// 낮 카드 `hours`가 없는 응답의 낮 구간 시작 벽시계 시각 07:30. 계약 `openapi.yaml`
 /// `DailyCards`(1.12.0): "`hours`가 없는 응답(규칙 버전 2026.11.8 전)은 한국 시각 07:30으로
-/// 봅니다"(#1064). 밤 칩 전환은 그날 한국 시각 이 시각이고([dayStartOf]), 계약이 그 응답의 띠 칸을
-/// 정하지 않아 띠는 A134 방식대로 프로필 시간대 벽시계 이 시각에서 시진 길이로 셉니다(A140 ①③).
+/// 봅니다"(#1064). 밤 칩 전환과 24시간 띠 모두 그날 한국 시각 이 시각([dayStartOf])을 씁니다
+/// (A140 ①③).
 const Duration _fallbackDayStartWall = Duration(hours: 7, minutes: 30);
 
 /// 한국 시각의 UTC offset(+09:00, 서머타임 없음). [_fallbackDayStartWall]을 순간으로 바꿀 때만
@@ -390,8 +390,9 @@ List<_BandHour> _tableHoursFrom(DateTime start, List<Branch> branches) => [
 /// 벽시계(`nowMinuteProvider` 값)이고 지금 줄과 꼬리표가 됩니다.
 ///
 /// 칸과 눈금은 그날 낮 카드와 보이는 밤 카드의 `hours`입니다(계약 `FocusTimeCard`, #1064). 낮 카드
-/// `hours`가 없으면 띠 전체를 지금 방식(그날 프로필 벽시계 07:30부터 시진 길이)으로 그리고, 보이는 밤
-/// 카드가 없거나 그 `hours`가 없으면 밤 다섯 칸만 낮 칸에 이어 시진 길이로 셉니다(A140 ③).
+/// `hours`가 없으면 띠 전체를 전환 순간([dayStartOf], 그날 한국 시각 07:30)부터 시진 길이로 그리고,
+/// 보이는 밤 카드가 없거나 그 `hours`가 없으면 밤 다섯 칸만 낮 칸에 이어 시진 길이로 셉니다(A140 ③).
+/// 지금([wallNow])이 띠 밖이면 지금 줄이 없습니다(A140 ⑤).
 TimeBand timeBandOf({
   required Daily daily,
   required GlossaryNames names,
@@ -418,17 +419,10 @@ TimeBand timeBandOf({
     _dayBranches.length,
     timezone,
   );
-  final date = CalendarDate.parse(daily.date);
+  // 낮 칸이 지금 방식이면 전환과 같은 순간(그날 한국 시각 07:30, [dayStartOf])에서 셉니다.
   final dayHours =
       dayFromHours ??
-      _tableHoursFrom(
-        DateTime.utc(
-          date.year,
-          date.month,
-          date.day,
-        ).add(_fallbackDayStartWall),
-        _dayBranches,
-      );
+      _tableHoursFrom(_wallClockOf(dayStartOf(daily), timezone), _dayBranches);
   // 낮 칸이 지금 방식이면 밤 칸도 지금 방식이라 칸이 이어집니다.
   final nightFromHours = dayFromHours == null
       ? null
@@ -465,22 +459,36 @@ TimeBand timeBandOf({
       : (dayHours, nightHours);
   final bandStart = first.first.start;
   final bandEnd = second.last.end;
+  // 띠 양 끝 눈금의 날 낱말은 그 눈금 날짜가 응답 날짜의 전날이면 "어제", 다음 날이면 "내일"입니다
+  // (A140 ③). 보통은 낮 구간 시작 전이면 시작에 "어제", 뒤면 끝에 "내일"입니다.
+  final date = CalendarDate.parse(daily.date);
+  final today = DateTime.utc(date.year, date.month, date.day);
+  String? dayWordOf(DateTime wall) {
+    final day = DateTime.utc(wall.year, wall.month, wall.day);
+    if (day.isBefore(today)) return l10n.todayLuckyTimeBandYesterday;
+    if (day.isAfter(today)) return l10n.todayLuckyTimeBandTomorrow;
+    return null;
+  }
+
+  // 지금이 띠 밖이면(시트가 연 때 응답 그대로 열린 채 날이 바뀜 등) 지금 줄을 그리지 않습니다
+  // (A140 ⑤).
+  final inBand = !wallNow.isBefore(bandStart) && wallNow.isBefore(bandEnd);
   final elapsed = wallNow.difference(bandStart).inSeconds;
   final span = bandEnd.difference(bandStart).inSeconds;
   return TimeBand(
     cells: before ? [...nightCells, ...dayCells] : [...dayCells, ...nightCells],
     dayHead: l10n.todayLuckyTimeBandDay,
     nightHead: l10n.todayLuckyTimeBandNight,
-    nowFraction: (elapsed / span).clamp(0.0, 1.0),
+    nowFraction: inBand ? elapsed / span : null,
     nowLabel: l10n.todayLuckyTimeBandNow(_wallText(wallNow)),
     startTick: TimeBandTick(
       time: _wallText(bandStart),
-      dayWord: before ? l10n.todayLuckyTimeBandYesterday : null,
+      dayWord: dayWordOf(bandStart),
     ),
     boundaryTick: TimeBandTick(time: _wallText(second.first.start)),
     endTick: TimeBandTick(
       time: _wallText(bandEnd),
-      dayWord: before ? null : l10n.todayLuckyTimeBandTomorrow,
+      dayWord: dayWordOf(bandEnd),
     ),
     hanjaLabels: hanjaLabels,
   );
