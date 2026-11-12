@@ -36,6 +36,11 @@ enum SettingsRowVariant {
   /// 붙습니다(V58).
   select,
 
+  /// 누를 수 없는 정보 줄(V122). 이름 왼쪽, 값 오른쪽이고 화살표, 눌림 표시, 터치 넓힘이
+  /// 없습니다. 값은 줄 안쪽 폭의 절반까지 쓰고 넘치면 값 쪽이 오른쪽 맞춤으로 줄을 바꿉니다.
+  /// 스크린리더는 버튼이 아닌 글자로 이름 다음에 값을 이어 읽습니다.
+  readonly,
+
   /// 로그아웃·계정 삭제. 경고 표시 없이 자기 앞 아이콘(Regular)과 600 글자로 구분하고
   /// 화살표와 빨간색이 없습니다(V58).
   destructive,
@@ -43,15 +48,18 @@ enum SettingsRowVariant {
 
 /// 설정 한 줄(`settings-row`).
 ///
-/// 줄 전체가 하나의 눌리는 자리(`press.ink`)이고 높이는 52 이상(글자가 커지면 늘어남),
-/// 좌우 16입니다.
-/// 스크린리더는 "글자 + 값"을 버튼으로 읽고, `toggle`은 스위치(켜짐 상태)로 읽습니다.
+/// 줄 전체가 하나의 눌리는 자리(`press.ink`, `readonly`는 없음)이고 높이는 52 이상(글자가
+/// 커지면 늘어남), 좌우 16입니다.
+/// 스크린리더는 "글자 + 값"을 버튼으로 읽고, `toggle`은 스위치(켜짐 상태)로, `readonly`는
+/// 버튼이 아닌 글자로 읽습니다.
 ///
 /// * `navigate`·`value`·`destructive`는 [onTap], `toggle`은 [onToggle]을 씁니다.
 ///   둘 다 null이면 `disabled`(글자 `color.disabled.fg`, 누를 수 없음)입니다.
+/// * `readonly`는 누르는 자리가 없어 [onTap]과 [onToggle]을 받지 않고, 늘 본문색입니다.
 /// * `toggle`을 켜고 끌 때 selection 햅틱이 한 번 나갑니다.
 class SettingsRow extends StatelessWidget {
-  /// 설정 줄을 만듭니다. [value]는 `value` 변형의 값 글자, [toggled]는 `toggle`의 켜짐입니다.
+  /// 설정 줄을 만듭니다. [value]는 `value`, `readonly` 변형의 값 글자, [toggled]는 `toggle`의
+  /// 켜짐입니다.
   const new({
     required this.variant,
     required this.label,
@@ -66,12 +74,17 @@ class SettingsRow extends StatelessWidget {
   }) : assert(
          variant != SettingsRowVariant.toggle || onTap == null,
          'toggle은 onToggle을 씁니다.',
+       ),
+       assert(
+         variant != SettingsRowVariant.readonly ||
+             (onTap == null && onToggle == null),
+         'readonly는 누를 수 없습니다.',
        );
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'settings-row',
-    {'navigate', 'value', 'toggle', 'select', 'destructive'},
+    {'navigate', 'value', 'toggle', 'select', 'readonly', 'destructive'},
     {'pressed', 'disabled'},
   );
 
@@ -90,13 +103,17 @@ class SettingsRow extends StatelessWidget {
   /// 줄 최소 높이(`row.minHeight`).
   static const double minHeight = 52;
 
+  /// 줄 좌우 안쪽 여백(`row.paddingX`).
+  static const double paddingX = Space.s16;
+
   /// 변형.
   final SettingsRowVariant variant;
 
   /// 줄 글자.
   final String label;
 
-  /// `value` 변형의 값 글자. 다른 변형에서는 그리지 않습니다.
+  /// `value`, `readonly` 변형의 값 글자. 다른 변형에서는 그리지 않습니다. 비었으면 이름만
+  /// 그리고 이름만 읽습니다.
   final String? value;
 
   /// `toggle` 변형의 켜짐.
@@ -119,8 +136,15 @@ class SettingsRow extends StatelessWidget {
   /// IA 슬롯 id. 있으면 Semantics `identifier`로 붙입니다.
   final String? identifier;
 
-  bool get _enabled =>
-      variant == SettingsRowVariant.toggle ? onToggle != null : onTap != null;
+  bool get _enabled => switch (variant) {
+    SettingsRowVariant.readonly => true,
+    SettingsRowVariant.toggle => onToggle != null,
+    _ => onTap != null,
+  };
+
+  bool get _showsValue =>
+      variant == SettingsRowVariant.value ||
+      variant == SettingsRowVariant.readonly;
 
   @override
   Widget build(BuildContext context) {
@@ -132,14 +156,16 @@ class SettingsRow extends StatelessWidget {
       color: enabled ? colors.textPrimary : colors.disabledFg,
       fontWeight: destructive ? FontWeight.w600 : null,
     );
-    final valueText = variant == SettingsRowVariant.value ? value : null;
+    final valueText = _showsValue && (value?.isNotEmpty ?? false)
+        ? value
+        : null;
     final chevron =
         variant == SettingsRowVariant.navigate ||
         variant == SettingsRowVariant.value;
 
     final row = LayoutBuilder(
       builder: (context, constraints) => _content(
-        constraints.maxWidth / 2,
+        _maxValueWidth(constraints.maxWidth),
         labelStyle: labelStyle,
         valueText: valueText,
         chevron: chevron,
@@ -149,6 +175,16 @@ class SettingsRow extends StatelessWidget {
     );
 
     final semanticLabel = valueText == null ? label : '$label, $valueText';
+    if (variant == SettingsRowVariant.readonly) {
+      // 누르는 자리 없이 글자 하나로 읽습니다(a11y.role text).
+      return Semantics(
+        identifier: identifier,
+        container: true,
+        label: semanticLabel,
+        excludeSemantics: true,
+        child: row,
+      );
+    }
     if (variant == SettingsRowVariant.toggle) {
       return Semantics(
         identifier: identifier,
@@ -176,6 +212,13 @@ class SettingsRow extends StatelessWidget {
     );
   }
 
+  /// 값 글자가 쓸 수 있는 최대 폭. `readonly`는 계약대로 줄 안쪽 폭(좌우 여백을 뺀 폭)의
+  /// 절반이고, `value`는 줄 너비의 절반입니다.
+  double _maxValueWidth(double rowWidth) =>
+      variant == SettingsRowVariant.readonly
+      ? (rowWidth - paddingX * 2) / 2
+      : rowWidth / 2;
+
   Widget _content(
     double maxValueWidth, {
     required TextStyle labelStyle,
@@ -191,7 +234,7 @@ class SettingsRow extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: minHeight),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: Space.s16,
+            horizontal: paddingX,
             vertical: Space.s12,
           ),
           child: Row(

@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart'
@@ -37,6 +38,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/social_login_button.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
@@ -2765,6 +2767,93 @@ void main() {
       expect(hasWeighingNote('shinsal.hwagae'), isFalse);
       expect(hasWeighingNote('tag.hwagae'), isFalse);
       expect(hasWeighingNote('gongmang'), isFalse);
+    });
+  });
+
+  group('컴포넌트 7.3.0 문구와 settings-row readonly (V122, D117)', () {
+    final specs = loadSpecComponents();
+    final readonly = (specs['settings-row']!['variants']! as List<Object?>)
+        .map(_map)
+        .singleWhere((variant) => variant['id'] == 'readonly');
+
+    test('readonly: 값은 줄 안쪽 폭 절반까지 오른쪽 맞춤, 꺾쇠와 눌림 없음, 글자로 읽음', () {
+      expect(readonly['when'], contains('preview.used.input'));
+      final parts = _map(readonly['parts']);
+      final value = _map(parts['value']);
+      expect(value['visible'], isTrue);
+      expect(value['maxWidth'], '줄 안쪽 폭의 절반. 넘치면 값 쪽이 줄을 바꿈(오른쪽 맞춤)');
+      expect(_map(parts['chevron'])['visible'], isFalse);
+      expect(readonly['press'], 'none');
+      final a11y = _map(readonly['a11y']);
+      expect(a11y['role'], 'text');
+      expect(a11y['label'], '이름 다음에 값을 이어 읽음');
+      // 줄 안쪽 폭은 row.paddingX를 뺀 폭입니다.
+      final row = _map(_map(specs['settings-row']!['parts'])['row']);
+      expect(row['paddingX'], '{space.16}');
+      expect(SettingsRow.paddingX, Space.s16);
+      expect(_num(_map(row['minHeight'])['value']), SettingsRow.minHeight);
+    });
+
+    testWidgets('readonly 줄: 이름 다음 값을 글자로 읽고 누르는 동작이 없습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(
+          const SettingsRow(
+            variant: SettingsRowVariant.readonly,
+            label: '호칭',
+            value: '별님',
+            identifier: SlotIds.previewUsedInput,
+          ),
+        ),
+      );
+      final data = tester
+          .getSemantics(find.bySemanticsIdentifier(SlotIds.previewUsedInput))
+          .getSemanticsData();
+      expect(data.label, '호칭, 별님');
+      expect(data.flagsCollection.isButton, isFalse);
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      expect(find.byKey(SettingsRow.chevronKey), findsNothing);
+      handle.dispose();
+    });
+
+    test('IA preview가 settings-row를 씁니다(IA PR #1049)', () {
+      final ia = jsonDecode(
+        File('../docs/ia/screens.json').readAsStringSync(),
+      ) as Map<String, Object?>;
+      final preview = (ia['screens']! as List<Object?>)
+          .map(_map)
+          .singleWhere((screen) => screen['id'] == ScreenIds.preview);
+      expect(preview['components'], contains('settings-row'));
+    });
+
+    test('tab.switch: 앞 탭으로 돌아가면 지금 투명도에서 이어 올림, 갈래 이동 모두(A122)', () {
+      final tab = _map(_map(_interaction()['patterns'])['tab.switch']);
+      expect(tab['interrupt'], contains('새로 누른 탭 화면은 이미 보이던 화면이면 지금 투명도에서 1로'));
+      expect(tab['scope'], startsWith('탭 셸의 갈래가 바뀌는 이동 모두(탭 바, 알림, 딥링크'));
+    });
+
+    test('diary-editor remove: 새 일기 쓰기에서만, 고치기에는 떼기와 권유 줄 없음(A123)', () {
+      final edit = (specs['diary-editor']!['variants']! as List<Object?>)
+          .map(_map)
+          .firstWhere((variant) => variant['id'] == 'edit');
+      final remove = _map(_map(_map(edit['parts'])['question'])['remove']);
+      expect(remove['visibleWhen'], startsWith('새 일기 쓰기에서 질문이 붙어 있을 때 늘'));
+      expect(
+        remove['visibleWhen'],
+        contains('고치기(?id=)에는 떼기와 권유 글자(다시 붙이기)가 없음'),
+      );
+    });
+
+    test('fortune-verdict 접힘 안내는 매개변수 없는 "내역 보기"입니다', () {
+      final toggle = _map(_map(specs['fortune-verdict']!['parts'])['toggle']);
+      final collapsed = _map(toggle['label'])['collapsed']! as String;
+      expect(collapsed, contains(SlotIds.daySheetVerdictExpand));
+      expect(collapsed, contains('매개변수 없음'));
+      // ARB 문구도 개수 없이 원고 그대로입니다.
+      expect(
+        lookupAppLocalizations(const Locale('ko')).daySheetVerdictExpand,
+        '내역 보기',
+      );
     });
   });
 

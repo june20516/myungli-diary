@@ -15,7 +15,7 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import '../support/golden.dart';
 
 /// settings-row: 묶음 제목 + navigate·value·toggle(켬·끔)·disabled,
-/// 아래 묶음 destructive 둘.
+/// 아래 묶음 destructive 둘, 맨 아래 묶음 readonly 둘(값 줄바꿈 포함).
 Widget _settingsRows() => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
@@ -77,6 +77,21 @@ Widget _settingsRows() => Builder(
               variant: SettingsRowVariant.destructive,
               label: ja ? 'アカウント削除' : '계정 삭제',
               onTap: () {},
+            ),
+          ],
+        ),
+        // readonly(V122): 값이 줄 안쪽 폭 절반을 넘으면 값 쪽이 오른쪽 맞춤으로 줄을 바꿉니다.
+        SettingsGroup(
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.readonly,
+              label: ja ? '呼び名' : '호칭',
+              value: ja ? '星さん' : '별님',
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.readonly,
+              label: ja ? '出生地' : '출생지',
+              value: ja ? 'ロサンゼルス、アメリカ合衆国カリフォルニア州' : '로스앤젤레스, 미국 캘리포니아주',
             ),
           ],
         ),

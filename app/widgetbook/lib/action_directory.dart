@@ -163,6 +163,20 @@ class _SettingsRowsDemoState extends State<_SettingsRowsDemo> {
             ),
           ],
         ),
+        const SettingsGroup(
+          children: [
+            SettingsRow(
+              variant: SettingsRowVariant.readonly,
+              label: '호칭',
+              value: '별님',
+            ),
+            SettingsRow(
+              variant: SettingsRowVariant.readonly,
+              label: '출생지',
+              value: '로스앤젤레스, 미국 캘리포니아주',
+            ),
+          ],
+        ),
       ],
     ),
   );

@@ -287,7 +287,7 @@ class _PreviewSkeleton extends StatelessWidget {
 /// 목록(`preview.used.input`, 호칭, 생일, 태어난 시간, 성별, 출생지 기준).
 ///
 /// 목록은 정보 수정(`profile-edit`)과 같은 `settings-row` 묶음 카드에 같은 항목 순서이고, 줄은
-/// 누를 수 없어 화살표가 없습니다.
+/// 누를 수 없는 `readonly` 변형입니다(V122).
 class _PreviewUsedBody extends StatelessWidget {
   const new({required this.draft, required this.deviceRegionIsKorea});
 
@@ -355,7 +355,11 @@ class _PreviewUsedBody extends StatelessWidget {
               key: const ValueKey(SlotIds.previewUsedInput),
               children: [
                 for (final (label, value) in rows)
-                  PreviewUsedInputRow(label: label, value: value),
+                  SettingsRow(
+                    variant: SettingsRowVariant.readonly,
+                    label: label,
+                    value: value,
+                  ),
               ],
             ),
           ),
@@ -390,65 +394,5 @@ class _PreviewUsedBody extends StatelessWidget {
       return l10n.timeUnknownLabel;
     }
     return formatBirthClock(l10n.localeName, value);
-  }
-}
-
-/// 입력 확인 목록의 읽기 전용 한 줄: `settings-row`의 줄 크기(높이 52 이상, 좌우 16)와 이름, 값
-/// 글자(`body.ui`, 이름 `text.primary`, 값 `text.secondary`, 사이 8)를 따르되 누르는 자리와
-/// 화살표가 없습니다.
-///
-/// 값은 오른쪽 끝에 붙고 줄 너비의 절반까지 쓰며 넘치면 값 쪽이 줄을 바꿉니다. 스크린리더는 항목
-/// 이름 다음에 값을 이어 읽습니다(`preview.used.input` a11y).
-class PreviewUsedInputRow extends StatelessWidget {
-  /// 줄을 만듭니다.
-  const new({required this.label, required this.value, super.key});
-
-  /// 항목 이름.
-  final String label;
-
-  /// 입력한 값.
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final style = tokens.typography.bodyUi;
-    return Semantics(
-      container: true,
-      label: '$label, $value',
-      excludeSemantics: true,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: SettingsRow.minHeight),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Space.s16,
-            vertical: Space.s12,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) => Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: style.copyWith(color: tokens.colors.textPrimary),
-                  ),
-                ),
-                const SizedBox(width: Space.s8),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: constraints.maxWidth / 2,
-                  ),
-                  child: Text(
-                    value,
-                    textAlign: TextAlign.end,
-                    style: style.copyWith(color: tokens.colors.textSecondary),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
