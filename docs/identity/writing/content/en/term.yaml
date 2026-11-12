@@ -5,6 +5,9 @@
 - {slot: term.meaning, key: term.tag.clash_month_branch, text: "Today's branch colliding with the branch of the month you were born, so your work or surroundings are likely to change."}
 - {slot: term.meaning, key: term.tag.dohwa, text: "A shinsal for the pull that draws people's eyes, so your charm shows and attention comes easily."}
 - {slot: term.meaning, key: term.tag.gongmang, text: "A shinsal for an empty seat, so results may not show right away for the effort you put in."}
+- {slot: term.meaning, key: term.tag.gosin, text: "A shinsal for a lone star, so today you may feel apart from those around you."}
+- {slot: term.meaning, key: term.tag.gwasuk, text: "A shinsal for a star that lodges alone, so today close people may feel a little distant."}
+- {slot: term.meaning, key: term.tag.wonjin, text: "A shinsal for signs that don't get along, so today small things may hurt your feelings."}
 - {slot: term.meaning, key: term.tag.gwiin_day, text: "A day when people who help you come close, so it's a good time to ask for help."}
 - {slot: term.meaning, key: term.tag.harmony, text: "Different energies locking together as one, so people and work fit well."}
 - {slot: term.meaning, key: term.tag.hwagae, text: "A shinsal for looking deep within, so your mind turns easily to thoughts and hobbies."}
@@ -63,6 +66,19 @@
 - {slot: term.meaning, key: term.shinsal.hwagae, text: "A shinsal for the power to look deep within on your own. It shows as getting absorbed in one thing, like study or art."}
 - {slot: term.meaning, key: term.shinsal.yangin, text: "A shinsal for drive as strong as a blade. With that much push, it's worth watching out for fights and injuries."}
 - {slot: term.meaning, key: term.shinsal.gongmang, text: "A shinsal for an empty seat. Results may not show right away for the effort you put in, so it's read as a time to want a little less."}
+- {slot: term.meaning, key: term.shinsal.cheondeok, text: "A shinsal for the virtue of heaven. The classics say it turns misfortune toward good."}
+- {slot: term.meaning, key: term.shinsal.woldeok, text: "A shinsal for the virtue of the month. Together with Cheondeok Gwiin, it keeps misfortune from growing severe."}
+- {slot: term.meaning, key: term.shinsal.geumyeo, text: "A shinsal for a carriage trimmed with gold. It's read as a seat where comfort and honor tend to follow."}
+- {slot: term.meaning, key: term.shinsal.gosin, text: "A shinsal for a lone star. The classics say it doesn't favor ties with close family."}
+- {slot: term.meaning, key: term.shinsal.gwasuk, text: "A shinsal for a star that lodges alone. It pairs with Gosin, and ties with close family tend to thin."}
+- {slot: term.meaning, key: term.shinsal.wonjin, text: "A shinsal for zodiac signs that don't get along. We use the pairs common in Korea (Rat and Goat, Ox and Horse, and so on) for everyone, while the classics' section on Wonjin sets different pairs for men and women."}
+- {slot: term.meaning, key: term.shinsal.gugyo, text: "A shinsal for tangling and tightening. It's read as a reason to watch for quarrels and entanglements."}
+- {slot: term.meaning, key: term.shinsal.cheonra_jimang, text: "A shinsal for the nets of heaven and earth. Things tend to stall and move slowly."}
+- {slot: term.meaning, key: term.shinsal.goegang, text: "A shinsal for the lead stars of the Big Dipper. Its energy is strong, so good times and blocked times split sharply."}
+- {slot: term.meaning, key: term.shinsal.sipak_daepae, text: "A shinsal for being born on a day when the seat of your natural fortune is empty. The name sounds heavy, but the classics add that it's read as lucky when lucky energies support it."}
+- {slot: term.meaning, key: term.shinsal.eumchak_yangcha, text: "A shinsal for yin and yang falling out of step. The classics count it as unlucky, but it's weighed together with other energies."}
+- {slot: term.meaning, key: term.shinsal.samgi, text: "A shinsal for three remarkable stems. It's read as lucky when Eul, Byeong, Jeong or Gap, Mu, Gyeong sit in order."}
+- {slot: term.meaning, key: term.shinsal.amrok, text: "A shinsal for hidden fortune. Help tends to come from places you can't see."}
 - {slot: term.meaning, key: term.day_kind.gwiin_day, text: "A day when the day's energy reaches your chart as a helper. People who can help you tend to come close."}
 - {slot: term.meaning, key: term.day_kind.yongsin_day, text: "A day when the energy your chart needs most comes in. It's a good day to work through things you've put off."}
 - {slot: term.meaning, key: term.day_kind.gisin_day, text: "A day when an energy that doesn't suit your chart comes in. It's a good day to keep to what you're already doing without pushing yourself."}

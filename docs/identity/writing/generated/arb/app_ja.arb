@@ -248,6 +248,8 @@
   "todayDateLunar": "旧暦{month}月{day}日",
   "todayDateLunarLeap": "旧暦閏{month}月{day}日",
   "todayDateSolar": "{date}",
+  "todayDateVirtueCheondeok": "天徳日",
+  "todayDateVirtueWoldeok": "月徳日",
   "todayEventSummary": "今日の予定 {count}件・{title}",
   "todayEventSummaryOngoing": "進行中",
   "todayEventSummaryNext": "次",

@@ -438,6 +438,8 @@
 - {slot: today.date.lunar, key: todayDateLunar, text: "Lunar month {month}, day {day}"}
 - {slot: today.date.lunar, key: todayDateLunarLeap, text: "Lunar leap month {month}, day {day}"}
 - {slot: today.date.iljin, key: todayDateIljin, text: "{pillar} day"}
+- {slot: today.date.virtue, key: todayDateVirtueCheondeok, text: "Heavenly Virtue Day"}
+- {slot: today.date.virtue, key: todayDateVirtueWoldeok, text: "Monthly Virtue Day"}
 - {slot: day-sheet.date.solar, key: daySheetDateSolar, text: "{date}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunar, text: "Lunar month {month}, day {day}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunarLeap, text: "Lunar leap month {month}, day {day}"}

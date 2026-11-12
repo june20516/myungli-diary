@@ -1232,6 +1232,14 @@
       }
     }
   },
+  "todayDateVirtueCheondeok": "천덕일",
+  "@todayDateVirtueCheondeok": {
+    "description": "today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)"
+  },
+  "todayDateVirtueWoldeok": "월덕일",
+  "@todayDateVirtueWoldeok": {
+    "description": "today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)"
+  },
   "todayEventSummary": "오늘 일정 {count}개, {title}",
   "@todayEventSummary": {
     "description": "today.event.summary: 오늘 일정 개수와 첫 일정",

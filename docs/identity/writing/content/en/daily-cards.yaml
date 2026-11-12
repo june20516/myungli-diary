@@ -12,6 +12,12 @@
 - {slot: daily.guide, key: guide.dohwa, variant: 2, text: "Is there anything you heard today that stayed with you?"}
 - {slot: daily.guide, key: guide.gongmang, variant: 1, text: "If something didn't go as hoped today, how about writing it down?"}
 - {slot: daily.guide, key: guide.gongmang, variant: 2, text: "On a day things moved slowly, what was fine to let go of?"}
+- {slot: daily.guide, key: guide.gosin, variant: 1, text: "Was there a moment from your time alone today that stayed with you?"}
+- {slot: daily.guide, key: guide.gosin, variant: 2, text: "What thought came to you while you were alone today?"}
+- {slot: daily.guide, key: guide.gwasuk, variant: 1, text: "Who came to mind today, and what did you want to tell them?"}
+- {slot: daily.guide, key: guide.gwasuk, variant: 2, text: "On a day that felt a little empty, what were you still grateful for?"}
+- {slot: daily.guide, key: guide.wonjin, variant: 1, text: "If a remark stuck with you today, how about writing it down?"}
+- {slot: daily.guide, key: guide.wonjin, variant: 2, text: "On a day a little hurt passed through, how did you feel then?"}
 - {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "If someone came to mind today, how about writing about them?"}
 - {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "Was there someone who made you feel at ease today?"}
 - {slot: daily.guide, key: guide.harmony, variant: 1, text: "If a conversation clicked today, how about writing it down?"}
@@ -68,6 +74,11 @@
 - {slot: daily.tag_label, key: tag.clash_month_branch, text: "Month branch clash"}
 - {slot: daily.tag_label, key: tag.dohwa, text: "Peach blossom"}
 - {slot: daily.tag_label, key: tag.gongmang, text: "Void"}
+- {slot: explain.day_virtue, key: day_virtue.cheondeok, text: "Heaven's virtue comes in today."}
+- {slot: explain.day_virtue, key: day_virtue.woldeok, text: "The month's virtue comes in today."}
+- {slot: daily.tag_label, key: tag.gosin, text: "Lone star"}
+- {slot: daily.tag_label, key: tag.gwasuk, text: "Lone lodge"}
+- {slot: daily.tag_label, key: tag.wonjin, text: "Friction"}
 - {slot: daily.tag_label, key: tag.gwiin_day, text: "Day of helpers"}
 - {slot: daily.tag_label, key: tag.harmony, text: "Harmony"}
 - {slot: daily.tag_label, key: tag.hwagae, text: "Canopy star"}

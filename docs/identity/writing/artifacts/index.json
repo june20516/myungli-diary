@@ -679,5 +679,22 @@
     ],
     "status": "chosen",
     "note": "방향은 사용자 문구, 시간과 색 둘인 날은 R37 그대로"
+  },
+  {
+    "id": "round-R40",
+    "title": "라운드 R40: D124 신살 도입 원고, 한자와 ja 표기 (W70)",
+    "kind": "copy-sample",
+    "file": "2026-11-12-round-R40.md",
+    "date": "2026-11-12",
+    "milestone": "A2",
+    "screens": [
+      "today",
+      "my-saju"
+    ],
+    "decisions": [
+      "W70"
+    ],
+    "status": "chosen",
+    "note": "원진 元嗔(표준국어대사전), 덕일 풀이는 사용자 문구, ja 元辰, 金與禄, 陰差陽錯"
   }
 ]

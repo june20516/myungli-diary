@@ -77,6 +77,15 @@
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "새 일을 벌이기보다 하던 일을 마무리해 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "벌인 일이 생각보다 더디게 풀리는 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "결과가 늦어도 조급해하지 않아도 되는 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: advice, text: "혼자 하는 일에 시간을 써 보세요."}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: state, text: "주변과 떨어져 외로움을 느끼기 쉬운 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: care, text: "혼자 있는 시간이 길어도 괜찮은 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: advice, text: "가까운 사람에게 먼저 안부를 건네 보세요."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: state, text: "가까운 사람과 조금 멀게 느껴지기 쉬운 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: care, text: "곁이 조금 허전하게 느껴져도 괜찮은 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: advice, text: "마음에 걸리는 말은 한 번 쉬었다가 꺼내 보세요."}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: state, text: "사소한 일로 마음이 상하기 쉬운 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: care, text: "서운한 마음이 들어도 나를 탓하지 않아도 돼요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: advice, text: "도움이 필요한 일은 오늘 먼저 말을 꺼내 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "필요할 때 도와줄 사람이 가까이 있는 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "혼자 애쓰지 않아도 된다는 안심이 드는 날이에요."}
@@ -119,6 +128,12 @@
 - {slot: daily.guide, key: guide.dohwa, variant: 2, text: "오늘 들은 말 중에 기억에 남는 게 있나요?"}
 - {slot: daily.guide, key: guide.gongmang, variant: 1, text: "오늘 기대와 다르게 흘러간 일이 있었다면 하나 적어 볼까요?"}
 - {slot: daily.guide, key: guide.gongmang, variant: 2, text: "일이 더디게 풀린 하루, 내려놓아도 괜찮았던 일은 뭐였나요?"}
+- {slot: daily.guide, key: guide.gosin, variant: 1, text: "오늘 혼자 보낸 시간 가운데 기억에 남는 순간이 있었나요?"}
+- {slot: daily.guide, key: guide.gosin, variant: 2, text: "혼자였던 시간에 떠오른 생각 하나를 적어 볼까요?"}
+- {slot: daily.guide, key: guide.gwasuk, variant: 1, text: "오늘 떠오른 사람에게 하고 싶던 말이 있었나요?"}
+- {slot: daily.guide, key: guide.gwasuk, variant: 2, text: "곁이 허전했던 하루, 그래도 고마웠던 일은 뭐였나요?"}
+- {slot: daily.guide, key: guide.wonjin, variant: 1, text: "오늘 마음에 걸린 말이 있었다면 하나 적어 볼까요?"}
+- {slot: daily.guide, key: guide.wonjin, variant: 2, text: "서운함이 스친 하루, 그때 내 마음은 어땠나요?"}
 - {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "오늘 떠올랐던 사람이 있었다면 한 명 적어 볼까요?"}
 - {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "오늘 나를 편하게 해 준 사람이 있었나요?"}
 - {slot: daily.guide, key: guide.harmony, variant: 1, text: "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"}
@@ -175,6 +190,11 @@
 - {slot: daily.tag_label, key: tag.clash_month_branch, text: "월지 충"}
 - {slot: daily.tag_label, key: tag.dohwa, text: "도화"}
 - {slot: daily.tag_label, key: tag.gongmang, text: "공망"}
+- {slot: explain.day_virtue, key: day_virtue.cheondeok, text: "하늘의 덕이 들어오는 날이에요."}
+- {slot: explain.day_virtue, key: day_virtue.woldeok, text: "달의 덕이 들어오는 날이에요."}
+- {slot: daily.tag_label, key: tag.gosin, text: "고신"}
+- {slot: daily.tag_label, key: tag.gwasuk, text: "과숙"}
+- {slot: daily.tag_label, key: tag.wonjin, text: "원진"}
 - {slot: daily.tag_label, key: tag.gwiin_day, text: "귀인의 날"}
 - {slot: daily.tag_label, key: tag.harmony, text: "합"}
 - {slot: daily.tag_label, key: tag.hwagae, text: "화개"}

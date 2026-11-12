@@ -147,12 +147,6 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 문장 그대로 읽습니다.
-  pending:
-    "basis.tags/gosin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "basis.tags/gwasuk": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "basis.tags/wonjin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "basis.day_virtue/cheondeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "basis.day_virtue/woldeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: evidence.source
   where: 근거 시트의 원전 인용 상자
@@ -341,23 +335,6 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 뜻, 원문, 출처 순서로 읽습니다.
-  pending:
-    "source.sammyeong-tonghoe/shinsal#cheondeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#cheonra_jimang": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#eumchak_yangcha": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#geumyeo": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#goegang": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#gosin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#gugyo": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#gwasuk": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#samgi": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#sipak_daepae": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#weighing": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#woldeok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.sammyeong-tonghoe/shinsal#wonjin": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.xieji-bianfang/days#tiande": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.xieji-bianfang/days#yuede": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    "source.xingxue-dacheng/shinsal#amrok": {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: evidence.no_source
   where: 근거 시트의 원전 인용 상자(원전이 없는 근거)

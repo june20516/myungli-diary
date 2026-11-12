@@ -78,6 +78,15 @@
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "新しく始めるより、進めていたことを仕上げてみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "始めたことが思ったよりゆっくり進む日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "結果が遅れても、焦らなくていい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: advice, text: "一人でする作業に時間を使ってみてください。"}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: state, text: "周りから離れて寂しさを感じやすい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: care, text: "一人の時間が長くても大丈夫な日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: advice, text: "近しい人に自分から声をかけてみてください。"}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: state, text: "近しい人が少し遠く感じられやすい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: care, text: "そばが少し寂しく感じられても大丈夫な日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: advice, text: "気になる一言は、ひと呼吸おいてから口にしてみてください。"}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: state, text: "ささいなことで気持ちが傷つきやすい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: care, text: "寂しい気持ちになっても、自分を責めなくていい日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: advice, text: "助けが必要なことは、今日は自分から切り出してみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "困ったときに助けてくれる人が近くにいる日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "ひとりで頑張らなくていいと思える日です。"}

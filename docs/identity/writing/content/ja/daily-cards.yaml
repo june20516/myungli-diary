@@ -13,6 +13,12 @@
 - {slot: daily.guide, key: guide.dohwa, variant: 2, text: "今日聞いた言葉で、心に残っているものはありますか？"}
 - {slot: daily.guide, key: guide.gongmang, variant: 1, text: "今日期待と違ったことがあれば、一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.gongmang, variant: 2, text: "進みが遅かった一日、手放せたことは何でしたか？"}
+- {slot: daily.guide, key: guide.gosin, variant: 1, text: "今日一人で過ごした時間の中で、心に残った瞬間はありましたか？"}
+- {slot: daily.guide, key: guide.gosin, variant: 2, text: "一人の時間に浮かんだ考えを一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.gwasuk, variant: 1, text: "今日思い浮かんだ人に、伝えたかったことは何ですか？"}
+- {slot: daily.guide, key: guide.gwasuk, variant: 2, text: "寂しさを感じた一日、ありがたかったことは何でしたか？"}
+- {slot: daily.guide, key: guide.wonjin, variant: 1, text: "今日気になった一言があれば、一つ書いてみませんか？"}
+- {slot: daily.guide, key: guide.wonjin, variant: 2, text: "寂しさがよぎった一日、そのときの気持ちはどうでしたか？"}
 - {slot: daily.guide, key: guide.gwiin_day, variant: 1, text: "今日思い浮かんだ人がいたら、一人書いてみませんか？"}
 - {slot: daily.guide, key: guide.gwiin_day, variant: 2, text: "今日気楽にさせてくれた人はいましたか？"}
 - {slot: daily.guide, key: guide.harmony, variant: 1, text: "今日気持ちが通じ合った会話があれば、書いてみませんか？"}
@@ -69,6 +75,11 @@
 - {slot: daily.tag_label, key: tag.clash_month_branch, text: "月支冲"}
 - {slot: daily.tag_label, key: tag.dohwa, text: "咸池"}
 - {slot: daily.tag_label, key: tag.gongmang, text: "空亡"}
+- {slot: explain.day_virtue, key: day_virtue.cheondeok, text: "天の徳が入ってくる日です。"}
+- {slot: explain.day_virtue, key: day_virtue.woldeok, text: "月の徳が入ってくる日です。"}
+- {slot: daily.tag_label, key: tag.gosin, text: "孤辰"}
+- {slot: daily.tag_label, key: tag.gwasuk, text: "寡宿"}
+- {slot: daily.tag_label, key: tag.wonjin, text: "元辰"}
 - {slot: daily.tag_label, key: tag.gwiin_day, text: "貴人の日"}
 - {slot: daily.tag_label, key: tag.harmony, text: "合"}
 - {slot: daily.tag_label, key: tag.hwagae, text: "華蓋"}

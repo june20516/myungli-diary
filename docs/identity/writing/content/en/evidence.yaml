@@ -26,6 +26,11 @@
 - {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your month branch, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/dohwa", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/gongmang", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/gosin", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/gwasuk", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/wonjin", text: "By your zodiac sign, today's branch {day_branch} falls on the {shinsal} position, so we added this tag. For Wonjin we use the pairs common in Korea for everyone, while the classics set different pairs for men and women."}
+- {slot: evidence.basis, key: "basis.day_virtue/cheondeok", text: "The classic of day selection sets, for each month, the stem where heaven's virtue lies, and counts days with that stem as Heavenly Virtue Days. Today has this month's stem."}
+- {slot: evidence.basis, key: "basis.day_virtue/woldeok", text: "The classic of day selection sets, for each month, the stem where the month's virtue lies, and counts days with that stem as Monthly Virtue Days. Today has this month's stem."}
 - {slot: evidence.basis, key: "basis.tags/gwiin_day", text: "Today is a Day of helpers, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/harmony", text: "Today's day pillar forms {relation_kind} with your {natal_positions}, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/hwagae", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}

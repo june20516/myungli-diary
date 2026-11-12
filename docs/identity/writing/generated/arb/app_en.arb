@@ -248,6 +248,8 @@
   "todayDateLunar": "Lunar month {month}, day {day}",
   "todayDateLunarLeap": "Lunar leap month {month}, day {day}",
   "todayDateSolar": "{date}",
+  "todayDateVirtueCheondeok": "Heavenly Virtue Day",
+  "todayDateVirtueWoldeok": "Monthly Virtue Day",
   "todayEventSummary": "Events today: {count}, {title}",
   "todayEventSummaryOngoing": "Now",
   "todayEventSummaryNext": "Next",

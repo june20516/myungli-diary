@@ -5,6 +5,9 @@
 - {slot: term.meaning, key: term.tag.clash_month_branch, text: "오늘의 지지가 태어난 달의 지지와 맞부딪히는 관계예요. 일이나 생활 환경에 변화가 생기기 쉬워요."}
 - {slot: term.meaning, key: term.tag.dohwa, text: "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."}
 - {slot: term.meaning, key: term.tag.gongmang, text: "비어 있는 자리를 뜻하는 신살로, 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어요."}
+- {slot: term.meaning, key: term.tag.gosin, text: "외로운 별을 뜻하는 신살로, 오늘은 주변과 떨어져 외로움을 느끼기 쉬워요."}
+- {slot: term.meaning, key: term.tag.gwasuk, text: "홀로 지내는 별을 뜻하는 신살로, 오늘은 가까운 사람과 조금 멀게 느껴질 수 있어요."}
+- {slot: term.meaning, key: term.tag.wonjin, text: "띠끼리 서로 꺼리는 사이를 뜻하는 신살로, 오늘은 사소한 일로 마음이 상하기 쉬워요."}
 - {slot: term.meaning, key: term.tag.gwiin_day, text: "나를 돕는 사람이 가까이 오는 날이라, 도움을 청하기 좋아요."}
 - {slot: term.meaning, key: term.tag.harmony, text: "서로 다른 기운이 맞물려 하나가 되는 것으로, 사람과 일이 잘 어울려요."}
 - {slot: term.meaning, key: term.tag.hwagae, text: "혼자 깊이 들여다보는 기운을 뜻하는 신살로, 생각이나 취미에 마음이 가기 쉬워요."}
@@ -63,6 +66,19 @@
 - {slot: term.meaning, key: term.shinsal.hwagae, text: "혼자 깊이 들여다보는 힘을 뜻하는 신살이에요. 공부나 예술처럼 한곳에 몰두하는 모습으로 드러나요."}
 - {slot: term.meaning, key: term.shinsal.yangin, text: "칼날처럼 아주 센 추진력을 뜻하는 신살이에요. 밀어붙이는 힘이 큰 만큼 다툼이나 다침을 조심해야 해요."}
 - {slot: term.meaning, key: term.shinsal.gongmang, text: "비어 있는 자리를 뜻하는 신살이에요. 애쓴 만큼 결과가 바로 손에 잡히지 않을 수 있어, 욕심을 덜어 내는 때로 봐요."}
+- {slot: term.meaning, key: term.shinsal.cheondeok, text: "하늘의 덕을 뜻하는 신살이에요. 원전은 흉한 일을 돌려 좋은 쪽으로 바꾼다고 봐요."}
+- {slot: term.meaning, key: term.shinsal.woldeok, text: "달의 덕을 뜻하는 신살이에요. 천덕귀인과 함께 있으면 흉한 기운이 와도 심해지지 않는다고 봐요."}
+- {slot: term.meaning, key: term.shinsal.geumyeo, text: "금으로 꾸민 수레를 뜻하는 신살이에요. 넉넉함이나 귀함이 따르기 쉬운 자리로 봐요."}
+- {slot: term.meaning, key: term.shinsal.gosin, text: "외로운 별을 뜻하는 신살이에요. 원전은 가까운 가족과의 인연에 이롭지 않다고 봐요."}
+- {slot: term.meaning, key: term.shinsal.gwasuk, text: "홀로 지내는 별을 뜻하는 신살이에요. 고신과 짝을 이루고, 가까운 가족과의 인연이 약해지기 쉽다고 봐요."}
+- {slot: term.meaning, key: term.shinsal.wonjin, text: "띠끼리 서로 꺼리는 사이를 뜻하는 신살이에요. 한국에서 널리 쓰는 쌍(쥐와 양, 소와 말 등)을 남녀 구분 없이 쓰고, 원전 「논원진」은 남녀를 나눠 쌍을 달리 정해요."}
+- {slot: term.meaning, key: term.shinsal.gugyo, text: "얽고 조인다는 뜻의 신살이에요. 말다툼이나 얽히는 일을 조심하라고 봐요."}
+- {slot: term.meaning, key: term.shinsal.cheonra_jimang, text: "하늘의 그물과 땅의 그물을 뜻하는 신살이에요. 일이 막히고 더디게 풀리기 쉽다고 봐요."}
+- {slot: term.meaning, key: term.shinsal.goegang, text: "북두칠성의 우두머리 별을 뜻하는 신살이에요. 기운이 세서, 잘 풀릴 때와 막힐 때가 크게 갈린다고 봐요."}
+- {slot: term.meaning, key: term.shinsal.sipak_daepae, text: "타고난 복록의 자리가 비어 있는 날에 태어났다는 뜻의 신살이에요. 이름은 무겁지만, 원전은 길한 기운이 도우면 길하게 본다고 덧붙여요."}
+- {slot: term.meaning, key: term.shinsal.eumchak_yangcha, text: "음과 양이 어긋난다는 뜻의 신살이에요. 원전은 흉한 신살로 보지만, 다른 기운과 함께 비교해서 봐요."}
+- {slot: term.meaning, key: term.shinsal.samgi, text: "세 가지 기이한 천간을 뜻하는 신살이에요. 을병정이나 갑무경이 차례대로 놓이면 길하게 봐요."}
+- {slot: term.meaning, key: term.shinsal.amrok, text: "드러나지 않는 복록을 뜻하는 신살이에요. 보이지 않는 곳에서 도움이 들어오기 쉽다고 봐요."}
 - {slot: term.meaning, key: term.day_kind.gwiin_day, text: "그날의 기운이 내 사주에 귀인으로 닿는 날이에요. 나를 돕는 사람이 가까이 오기 쉬워요."}
 - {slot: term.meaning, key: term.day_kind.yongsin_day, text: "내 사주에 가장 필요한 기운이 들어오는 날이에요. 미뤄 둔 일을 풀어 보기 좋아요."}
 - {slot: term.meaning, key: term.day_kind.gisin_day, text: "내 사주와 잘 안 맞는 기운이 들어오는 날이에요. 무리하지 않고 하던 일을 지키기 좋아요."}

@@ -449,6 +449,8 @@
 - {slot: today.date.lunar, key: todayDateLunar, text: "음력 {month}월 {day}일"}
 - {slot: today.date.lunar, key: todayDateLunarLeap, text: "음력 윤{month}월 {day}일"}
 - {slot: today.date.iljin, key: todayDateIljin, text: "{pillar}일"}
+- {slot: today.date.virtue, key: todayDateVirtueCheondeok, text: "천덕일"}
+- {slot: today.date.virtue, key: todayDateVirtueWoldeok, text: "월덕일"}
 - {slot: day-sheet.date.solar, key: daySheetDateSolar, text: "{date}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunar, text: "음력 {month}월 {day}일"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunarLeap, text: "음력 윤{month}월 {day}일"}

@@ -463,9 +463,6 @@
   keys:
     - params: {}
       keys: [todayDateVirtueCheondeok, todayDateVirtueWoldeok]
-  pending:
-    todayDateVirtueCheondeok: {ko: "D124 덕일 원고 대기, #1030", en: "D124 덕일 원고 대기, #1030", ja: "D124 덕일 원고 대기, #1030"}
-    todayDateVirtueWoldeok: {ko: "D124 덕일 원고 대기, #1030", en: "D124 덕일 원고 대기, #1030", ja: "D124 덕일 원고 대기, #1030"}
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good: []
