@@ -130,9 +130,10 @@ jobs:
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$'
-          # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고와 ui 원고의 링크 문구(lengths.py). 과정 문서는 writing과 같이 뺍니다.
+          # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고와 ui 원고의 링크 문구(lengths.py),
+          # writing 용어 한자와 원전 원고의 한자(hanja_supplement.py 덮임 검사, V121). 과정 문서는 writing과 같이 뺍니다.
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
-          unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^docs/identity/writing/content/[^/]+/ui\.yaml$'
+          unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^docs/identity/writing/content/[^/]+/ui\.yaml$|^docs/identity/writing/content/hanja\.yaml$|^docs/identity/writing/content/[^/]+/source\.yaml$'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
           contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components)/|^docs/identity/writing/(content|slots|rules|tools)/|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
