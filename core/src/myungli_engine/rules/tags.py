@@ -48,13 +48,13 @@ _AUXILIARY_TAGS: Final[dict[DayKind, str]] = {
     DayKind.YONGSIN_DAY: "tag.yongsin_day",
 }
 # 길 태그(D125 ①). 목록에 하나라도 있으면 그 가운데 맨 앞의 것을 목록 맨 앞으로 옮긴다.
+# 도화는 중립이라 넣지 않는다(원문 흉과 한국 통용 매력 사이, D120 의도적 예외, #1065).
 GOOD_TAGS: Final = frozenset(
     {
         TAG_HARMONY,
         "tag.ten_god_rush.jaeseong",
         "tag.ten_god_rush.inseong",
         "tag.ten_god_rush.siksang",
-        "tag.dohwa",
         "tag.cheoneul_gwiin",
         *_AUXILIARY_TAGS.values(),
     }
