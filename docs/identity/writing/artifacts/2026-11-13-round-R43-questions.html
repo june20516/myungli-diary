@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>간지 독음 언어별 표기 (R43)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="ds1/tokens.css"><style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #f2f1ee; color: #1f1f1e; font-family: var(--type-body-ui-family); font-size: 15px; line-height: 1.55; }
+.page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 72px; }
+h1 { font-size: 24px; margin: 0 0 8px; }
+h2 { font-size: 19px; margin: 44px 0 6px; padding-top: 16px; border-top: 1px solid #dcdad5; }
+.intro, .note { color: #5b5b59; margin: 0 0 14px; max-width: 980px; }
+.row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.opt { width: 360px; }
+.cap { font-size: 15px; font-weight: 700; color: var(--color-action-primary); margin-bottom: 4px; }
+.sub { font-size: 12.5px; color: #5b5b59; margin: 0 0 10px; min-height: 76px; }
+.rec { display: inline-block; font-size: 11px; font-weight: 700; color: var(--color-tag-good-fg); background: var(--color-tag-good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 1px; }
+.phone { width: 360px; background: var(--color-bg-base); border-radius: 22px; border: 1px solid #d6d4cf; padding: 4px 20px 20px; }
+.lab2 { font-size: 11px; color: #8a8985; margin: 14px 0 2px; letter-spacing: .02em; }
+.bar { height: 44px; display: flex; align-items: center; justify-content: space-between; font-size: 18px; font-weight: 700; color: var(--color-text-primary); }
+.share { width: 22px; height: 22px; border: 1.5px solid var(--color-text-primary); border-radius: 5px; }
+.solar { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); letter-spacing: var(--type-subtitle-letter-spacing); line-height: var(--type-subtitle-line-height); color: var(--color-text-primary); }
+.meta { margin-top: 2px; display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 2px; font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); }
+.hj { font-family: 'Noto Serif KR', var(--font-family-hanja); }
+.sr { margin-top: 6px; font-size: 11.5px; color: #8a8985; background: #ecebe7; border-radius: 6px; padding: 3px 8px; display: inline-block; }
+.dblock { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
+.dnum { font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; color: var(--color-text-primary); }
+.dright { display: flex; flex-direction: column; gap: 2px; }
+.dmon { font-size: var(--type-label-lg-size); font-weight: 600; color: var(--color-text-primary); }
+.dil { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); }
+.pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: 8px; }
+.col { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.colh { text-align: center; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); padding: 2px 0; }
+.col.day .colh { color: var(--color-action-primary); font-weight: 700; }
+.pc { height: 66px; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.ph { font-family: 'Noto Serif KR', var(--font-family-hanja); font-size: var(--type-hanja-pillar-size); font-weight: 700; line-height: 1; }
+.rd { font-size: var(--type-caption-sm-size); font-weight: var(--type-caption-sm-weight); letter-spacing: var(--type-caption-sm-letter-spacing); line-height: 1.3; white-space: nowrap; }
+.pc.wood { background: var(--color-ohaeng-wood-bg); color: var(--color-ohaeng-wood-fg); }
+.pc.fire { background: var(--color-ohaeng-fire-bg); color: var(--color-ohaeng-fire-fg); }
+.pc.earth { background: var(--color-ohaeng-earth-bg); color: var(--color-ohaeng-earth-fg); }
+.pc.metal { background: var(--color-ohaeng-metal-bg); color: var(--color-ohaeng-metal-fg); box-shadow: inset 0 0 0 1px var(--color-ohaeng-metal-border); }
+.pc.water { background: var(--color-ohaeng-water-bg); color: var(--color-ohaeng-water-fg); box-shadow: inset 0 0 0 1px var(--color-ohaeng-water-border); }
+table.ev { border-collapse: collapse; font-size: 13px; margin: 6px 0 0; } table.ev td, table.ev th { border: 1px solid #dcdad5; padding: 4px 8px; text-align: left; vertical-align: top; } table.ev th { background: #ebe9e4; }
+</style></head><body><div class="page">
+<h1>간지 독음 언어별 표기 (writing #1069, 라운드 R43)</h1>
+<p class="intro">날짜 머리 일진, 일기 쓰기 날짜, 원국 기둥 칸에 간지를 한자와 독음으로 보입니다. 지금 앱은 독음 자리에 사전 이름을 넣어 ko “辛卯(신금묘)일”, ja는 한자 반복, en은 “Singeum Rabbit” 같은 이름이 나옵니다(버그). writing이 독음 값을 따로 주려고, ja와 en에서 독음을 어떻게 보일지 여쭙니다. 화면은 오늘(2026-11-13, 辛卯일, 음력 10월 5일)과 예시 원국(壬午 庚辰 丙申 辛丑)의 실제 값이고, 색과 글자 크기는 앱 토큰(DS1)입니다. 회색 띠는 화면에 보이지 않고 스크린리더가 읽는 말입니다.</p>
+
+<h2>정할 것 없음: ko</h2>
+<p class="note">한글 독음 하나뿐이라 묻지 않습니다. 스크린리더는 한자를 읽지 않고 독음만 읽습니다(design today.json).</p>
+<div class="row"><div class="opt"><div class="cap">ko (기준)</div><p class="sub">글자마다 한글 독음(경, 신), 기둥은 붙여 씀(신묘).</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>오늘</span><span class="share"></span></div>
+<div class="dh"><div class="solar">11월 13일 금요일</div><div class="meta"><span>음력 10월 5일</span><span><span class="hj">辛卯</span>(신묘)일</span></div></div>
+<div class="sr">스크린리더: “신묘일”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">11월 금요일</span><span class="dil"><span class="hj">辛卯</span>(신묘)일</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">시주</div><span class="pc water"><span class="ph">壬</span><span class="rd">임</span></span><span class="pc fire"><span class="ph">午</span><span class="rd">오</span></span></div><div class="col day"><div class="colh">일주</div><span class="pc metal"><span class="ph">庚</span><span class="rd">경</span></span><span class="pc earth"><span class="ph">辰</span><span class="rd">진</span></span></div><div class="col"><div class="colh">월주</div><span class="pc fire"><span class="ph">丙</span><span class="rd">병</span></span><span class="pc metal"><span class="ph">申</span><span class="rd">신</span></span></div><div class="col"><div class="colh">연주</div><span class="pc metal"><span class="ph">辛</span><span class="rd">신</span></span><span class="pc earth"><span class="ph">丑</span><span class="rd">축</span></span></div></div>
+</div></div></div>
+
+<h2>질문 1: ja에서 간지 옆 읽기</h2>
+<p class="note">근거 용어집(<code>docs/research/ja-terms/stems-branches.json</code>)은 四柱推命에서 십간과 십이지를 훈독(きのえ, ね)으로 읽는 것이 표준이라고 봅니다(longe.jp, デジタル大辞泉, 精選版日本国語大辞典). 음독(こう, し)은 사전의 자음으로 함께 실립니다. 일본 사주 사이트의 명식표는 한자만 두는 곳이 많고, 달력은 일진에 훈독을 붙이는 곳이 많습니다. ja 독자는 한자를 읽을 수 있습니다.</p>
+<div class="row">
+<div class="opt"><div class="cap">A. 훈독<span class="rec">추천</span></div><p class="sub">辛卯（かのとう）. 기둥 칸에 かのと, う. 四柱推命 표준 읽기(용어집 신뢰도 상). 칸에서 가장 긴 읽기는 つちのえ, みずのえ(5자)이고 칸 폭 안에 들어갑니다.</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>今日</span><span class="share"></span></div>
+<div class="dh"><div class="solar">11月13日(金)</div><div class="meta"><span>旧暦10月5日</span><span><span class="hj">辛卯</span>（かのとう）日</span></div></div>
+<div class="sr">스크린리더: “かのとう日”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">11月 金曜日</span><span class="dil"><span class="hj">辛卯</span>（かのとう）日</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">時柱</div><span class="pc water"><span class="ph">壬</span><span class="rd">みずのえ</span></span><span class="pc fire"><span class="ph">午</span><span class="rd">うま</span></span></div><div class="col day"><div class="colh">日柱</div><span class="pc metal"><span class="ph">庚</span><span class="rd">かのえ</span></span><span class="pc earth"><span class="ph">辰</span><span class="rd">たつ</span></span></div><div class="col"><div class="colh">月柱</div><span class="pc fire"><span class="ph">丙</span><span class="rd">ひのえ</span></span><span class="pc metal"><span class="ph">申</span><span class="rd">さる</span></span></div><div class="col"><div class="colh">年柱</div><span class="pc metal"><span class="ph">辛</span><span class="rd">かのと</span></span><span class="pc earth"><span class="ph">丑</span><span class="rd">うし</span></span></div></div>
+</div></div>
+<div class="opt"><div class="cap">B. 음독</div><p class="sub">辛卯（しんぼう）. 기둥 칸에 しん, ぼう. 짧지만 사주에서는 덜 쓰는 읽기이고, 辰과 申이 모두 しん이 됩니다.</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>今日</span><span class="share"></span></div>
+<div class="dh"><div class="solar">11月13日(金)</div><div class="meta"><span>旧暦10月5日</span><span><span class="hj">辛卯</span>（しんぼう）日</span></div></div>
+<div class="sr">스크린리더: “しんぼう日”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">11月 金曜日</span><span class="dil"><span class="hj">辛卯</span>（しんぼう）日</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">時柱</div><span class="pc water"><span class="ph">壬</span><span class="rd">じん</span></span><span class="pc fire"><span class="ph">午</span><span class="rd">ご</span></span></div><div class="col day"><div class="colh">日柱</div><span class="pc metal"><span class="ph">庚</span><span class="rd">こう</span></span><span class="pc earth"><span class="ph">辰</span><span class="rd">しん</span></span></div><div class="col"><div class="colh">月柱</div><span class="pc fire"><span class="ph">丙</span><span class="rd">へい</span></span><span class="pc metal"><span class="ph">申</span><span class="rd">しん</span></span></div><div class="col"><div class="colh">年柱</div><span class="pc metal"><span class="ph">辛</span><span class="rd">しん</span></span><span class="pc earth"><span class="ph">丑</span><span class="rd">ちゅう</span></span></div></div>
+</div></div>
+<div class="opt"><div class="cap">C. 한자만</div><p class="sub">辛卯日. 화면에 읽기를 두지 않습니다. 기둥 칸은 한자만 크게. 스크린리더용 읽기도 따로 두지 않으면 기기 음성이 한자를 그대로 읽습니다.</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>今日</span><span class="share"></span></div>
+<div class="dh"><div class="solar">11月13日(金)</div><div class="meta"><span>旧暦10月5日</span><span><span class="hj">辛卯</span>日</span></div></div>
+<div class="sr">스크린리더: “辛卯日 (기기 음성이 한자를 읽음, 읽기 값을 따로 주면 그 값)”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">11月 金曜日</span><span class="dil"><span class="hj">辛卯</span>日</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">時柱</div><span class="pc water"><span class="ph">壬</span></span><span class="pc fire"><span class="ph">午</span></span></div><div class="col day"><div class="colh">日柱</div><span class="pc metal"><span class="ph">庚</span></span><span class="pc earth"><span class="ph">辰</span></span></div><div class="col"><div class="colh">月柱</div><span class="pc fire"><span class="ph">丙</span></span><span class="pc metal"><span class="ph">申</span></span></div><div class="col"><div class="colh">年柱</div><span class="pc metal"><span class="ph">辛</span></span><span class="pc earth"><span class="ph">丑</span></span></div></div>
+</div></div>
+</div>
+
+<h2>질문 2: en에서 간지 옆 독음</h2>
+<p class="note">en 사용자는 한자를 읽지 못해 독음이 소리의 유일한 단서입니다. 지금 en 천간 이름은 한국어 로마자(Gapmok, Gyeonggeum, writing W47)이고 지지 이름은 동물(Rat, Monkey)입니다. 영어권 BaZi 책은 기둥을 중국어 병음 두 낱말(Xin Mao, Geng Shen)로 씁니다. 두 낱말로 띄어 쓰는 것은 두 안 모두 같습니다.</p>
+<div class="row">
+<div class="opt"><div class="cap">A. 한국어 로마자<span class="rec">추천</span></div><p class="sub">辛卯 (Sin Myo). 기둥 칸에 Sin, Myo. 앱의 en 천간 이름(Singeum)과 같은 소리이고, 한국 명리 앱이라는 결과 맞습니다. 영어권 BaZi를 아는 사람에게는 낯섭니다.</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>Today</span><span class="share"></span></div>
+<div class="dh"><div class="solar">Friday, November 13</div><div class="meta"><span>Lunar month 10, day 5</span><span><span class="hj">辛卯</span> (Sin Myo) day</span></div></div>
+<div class="sr">스크린리더: “Sin Myo day”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">November, Friday</span><span class="dil"><span class="hj">辛卯</span> (Sin Myo) day</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">Hour</div><span class="pc water"><span class="ph">壬</span><span class="rd">Im</span></span><span class="pc fire"><span class="ph">午</span><span class="rd">O</span></span></div><div class="col day"><div class="colh">Day</div><span class="pc metal"><span class="ph">庚</span><span class="rd">Gyeong</span></span><span class="pc earth"><span class="ph">辰</span><span class="rd">Jin</span></span></div><div class="col"><div class="colh">Month</div><span class="pc fire"><span class="ph">丙</span><span class="rd">Byeong</span></span><span class="pc metal"><span class="ph">申</span><span class="rd">Sin</span></span></div><div class="col"><div class="colh">Year</div><span class="pc metal"><span class="ph">辛</span><span class="rd">Sin</span></span><span class="pc earth"><span class="ph">丑</span><span class="rd">Chuk</span></span></div></div>
+</div></div>
+<div class="opt"><div class="cap">B. 중국어 병음</div><p class="sub">辛卯 (Xin Mao). 기둥 칸에 Xin, Mao. 영어권 BaZi 책과 같지만, 같은 앱 안에서 천간 이름 Singeum과 독음 Xin의 소리가 달라집니다.</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>Today</span><span class="share"></span></div>
+<div class="dh"><div class="solar">Friday, November 13</div><div class="meta"><span>Lunar month 10, day 5</span><span><span class="hj">辛卯</span> (Xin Mao) day</span></div></div>
+<div class="sr">스크린리더: “Xin Mao day”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">November, Friday</span><span class="dil"><span class="hj">辛卯</span> (Xin Mao) day</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">Hour</div><span class="pc water"><span class="ph">壬</span><span class="rd">Ren</span></span><span class="pc fire"><span class="ph">午</span><span class="rd">Wu</span></span></div><div class="col day"><div class="colh">Day</div><span class="pc metal"><span class="ph">庚</span><span class="rd">Geng</span></span><span class="pc earth"><span class="ph">辰</span><span class="rd">Chen</span></span></div><div class="col"><div class="colh">Month</div><span class="pc fire"><span class="ph">丙</span><span class="rd">Bing</span></span><span class="pc metal"><span class="ph">申</span><span class="rd">Shen</span></span></div><div class="col"><div class="colh">Year</div><span class="pc metal"><span class="ph">辛</span><span class="rd">Xin</span></span><span class="pc earth"><span class="ph">丑</span><span class="rd">Chou</span></span></div></div>
+</div></div>
+<div class="opt"><div class="cap">C</div><p class="sub">辛卯 (the mystical Metal Rabbit). 기둥 칸에 Metal, Rabbit.</p><div class="phone">
+<div class="lab2">오늘 화면 날짜 머리</div>
+<div class="bar"><span>Today</span><span class="share"></span></div>
+<div class="dh"><div class="solar">Friday, November 13</div><div class="meta"><span>Lunar month 10, day 5</span><span><span class="hj">辛卯</span> (the mystical Metal Rabbit) day</span></div></div>
+<div class="sr">스크린리더: “the mystical Metal Rabbit day”</div>
+<div class="lab2">일기 쓰기 날짜 블록</div>
+<div class="dblock"><span class="dnum">13</span><span class="dright"><span class="dmon">November, Friday</span><span class="dil"><span class="hj">辛卯</span> (the mystical Metal Rabbit) day</span></span></div>
+<div class="lab2">원국 기둥 칸</div>
+<div class="pillars"><div class="col"><div class="colh">Hour</div><span class="pc water"><span class="ph">壬</span><span class="rd">Water</span></span><span class="pc fire"><span class="ph">午</span><span class="rd">Horse</span></span></div><div class="col day"><div class="colh">Day</div><span class="pc metal"><span class="ph">庚</span><span class="rd">Metal</span></span><span class="pc earth"><span class="ph">辰</span><span class="rd">Dragon</span></span></div><div class="col"><div class="colh">Month</div><span class="pc fire"><span class="ph">丙</span><span class="rd">Fire</span></span><span class="pc metal"><span class="ph">申</span><span class="rd">Monkey</span></span></div><div class="col"><div class="colh">Year</div><span class="pc metal"><span class="ph">辛</span><span class="rd">Metal</span></span><span class="pc earth"><span class="ph">丑</span><span class="rd">Ox</span></span></div></div>
+</div></div>
+</div>
+
+<h2>값 모양 (writing 판단, 참고)</h2>
+<table class="ev"><tr><th>무엇</th><th>모양</th></tr>
+<tr><td>글자마다 독음</td><td>glossary 새 범주 <code>stem_reading.*</code> 10개, <code>branch_reading.*</code> 12개. server 사전(<code>Glossary.values</code>)과 ARB로 나감</td></tr>
+<tr><td>기둥 하나로 잇기</td><td>ko, ja 붙여 씀, en 띄어 씀. 언어별 잇는 틀은 writing ui 슬롯으로 줌(괄호도 ja는 전각)</td></tr>
+</table>
+</div></body></html>

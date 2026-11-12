@@ -730,5 +730,23 @@
     ],
     "status": "chosen",
     "note": "design V123 가안 포함, R42-2는 R26-3 우려 확인 뒤 그대로"
+  },
+  {
+    "id": "round-R43",
+    "title": "라운드 R43: 간지 독음 언어별 표기 (W72)",
+    "kind": "copy-sample",
+    "file": "2026-11-13-round-R43.md",
+    "date": "2026-11-13",
+    "milestone": "A2",
+    "screens": [
+      "today",
+      "diary-edit",
+      "my-saju"
+    ],
+    "decisions": [
+      "W72"
+    ],
+    "status": "chosen",
+    "note": "비교 페이지 2026-11-13-round-R43-questions.html, ja 훈독, en 한국어 로마자"
   }
 ]

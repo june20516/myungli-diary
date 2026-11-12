@@ -129,7 +129,7 @@
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 123 | - | ko 10, en 18, ja 10 |
+| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 145 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.error.body | login-methods.error.body | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -286,6 +286,7 @@
 | ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
 | ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 32, ja 14 |
 | ui.explain.term-empty | 컴포넌트 term-token | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
+| ui.ganji.reading | 컴포넌트 date-header<br>컴포넌트 date-block<br>컴포넌트 saju-pillars<br>컴포넌트 luck-pillar<br>컴포넌트 manse-table | info | - | 1 | 2 | `stem`: text<br>`branch`: text<br>`reading`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
 | ui.keyboard.dismiss | 컴포넌트 text-field | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
