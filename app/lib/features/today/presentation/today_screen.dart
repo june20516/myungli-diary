@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
-import 'package:myungli_diary/core/api/gen/model/color_card.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -360,10 +362,8 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
   ) {
     final cards = daily.cards;
     if (item.variant == LuckyCardVariant.color) {
-      final second = item.secondColor;
-      final secondCard = cards.secondColor;
-      if (second != null && secondCard != null) {
-        return _colorPairExplainOf(item, second, secondCard, daily, l10n);
+      if (item.secondColor case final second?) {
+        return _colorPairExplainOf(item, second, cards, l10n);
       }
       return ExplainLucky(
         title: item.name,
@@ -394,36 +394,48 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
   }
 
   /// 색이 둘인 날 행운 색 시트(`colorPairSheet`, D119 ②, D123 ①②, V114). 구역은 첫째 색
-  /// (`color`), 둘째 색(`secondColor`) 순서이고 각 구역의 근거 진입점은 그 카드의 근거입니다.
+  /// (`color`), 둘째 색(`secondColor`) 순서입니다. 보이는 값(오행, 이름, 문장)은 칩 항목
+  /// [item]과 [second]에서, 각 구역 근거 진입점의 카드 id만 [cards]의 그 카드 문장에서 읽습니다.
   ExplainLuckyColorPair _colorPairExplainOf(
     LuckyItem item,
     LuckySecondColor second,
-    ColorCard secondCard,
-    Daily daily,
+    DailyCards cards,
     AppLocalizations l10n,
   ) {
-    final cards = daily.cards;
-    TermOrigin originOf(SlotText text, DailyCardField field) => TermOrigin(
-      slotId: dailyCardSlotId(text, field),
-      subject: const DailyEvidenceSubject(),
+    ExplainColorSection section({
+      required FiveElement element,
+      required String name,
+      required RenderedText body,
+      required String bodySlotId,
+      required DailyCardField field,
+    }) => ExplainColorSection(
+      element: element,
+      name: name,
+      body: body,
+      bodySlotId: bodySlotId,
+      origin: TermOrigin(
+        // 둘째 색 항목은 같은 응답의 secondColor 카드에서 만들어 카드가 늘 있습니다.
+        slotId: dailyCardSlotId(field.textIn(cards)!, field),
+        subject: const DailyEvidenceSubject(),
+      ),
     );
     return ExplainLuckyColorPair(
       title: item.name,
       intro: l10n.todayLuckyColorPairIntro,
       sections: [
-        ExplainColorSection(
-          element: cards.color.element,
+        section(
+          element: item.element!,
           name: item.value,
           body: item.explain,
           bodySlotId: SlotIds.todayLuckyColorBody,
-          origin: originOf(cards.color.text, DailyCardField.color),
+          field: DailyCardField.color,
         ),
-        ExplainColorSection(
+        section(
           element: second.element,
           name: second.value,
           body: second.explain,
           bodySlotId: SlotIds.todayLuckyColorSecondBody,
-          origin: originOf(secondCard.text, DailyCardField.secondColor),
+          field: DailyCardField.secondColor,
         ),
       ],
     );

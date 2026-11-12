@@ -9,8 +9,8 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
-import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
@@ -192,7 +192,6 @@ class LuckyChip extends StatelessWidget {
   static const double _height = 34;
   // 계약 `lucky-card.parts.chip.gap` {space.4}.
   static const double _gap = Space.s4;
-  static const double _swatchSize = 14;
   // 계약 `lucky-card.parts.chip.border.width` 1px.
   static const double _border = 1;
   // 계약 `lucky-card.states.open.parts.chip.border.width` 1.5px.
@@ -243,7 +242,11 @@ class LuckyChip extends StatelessWidget {
       color: colors.textSecondary,
     );
     final lead = switch (item.variant) {
-      LuckyCardVariant.color => _Swatch(element: item.element!),
+      LuckyCardVariant.color => OhaengSwatch(
+        key: swatchKey,
+        element: item.element!,
+        size: OhaengSwatch.luckySize,
+      ),
       LuckyCardVariant.direction => regular(_compass),
       LuckyCardVariant.number => regular(_hash),
       // 해와 달은 periods의 lead가 굵기(fill)와 색을 덮어씁니다(V115).
@@ -269,28 +272,6 @@ class LuckyChip extends StatelessWidget {
           : '${item.name}, $word ${item.value}',
       open: open,
       onTap: onTap,
-    );
-  }
-}
-
-/// 색 견본 원(`ohaeng.swatch`, 14).
-class _Swatch extends StatelessWidget {
-  const new({required this.element});
-
-  final FiveElement element;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.tokens.colors;
-    return Container(
-      key: LuckyChip.swatchKey,
-      width: LuckyChip._swatchSize,
-      height: LuckyChip._swatchSize,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: ohaengSwatchOf(colors, element),
-        border: Border.all(color: colors.swatchBorder),
-      ),
     );
   }
 }
@@ -392,7 +373,11 @@ class _PairChipFrame extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: LuckyChip.pairHalfGap,
           children: [
-            _Swatch(element: half.element),
+            OhaengSwatch(
+              key: LuckyChip.swatchKey,
+              element: half.element,
+              size: OhaengSwatch.luckySize,
+            ),
             Flexible(
               child: Text(
                 half.value,

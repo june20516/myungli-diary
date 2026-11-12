@@ -227,7 +227,15 @@ void main() {
       );
       expect(tester.getSize(swatch), const Size.square(14));
       final decoration =
-          tester.widget<Container>(swatch).decoration! as BoxDecoration;
+          tester
+                  .widget<Container>(
+                    find.descendant(
+                      of: swatch,
+                      matching: find.byType(Container),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
       // 오행 견본 색은 칩이 테마 토큰에서 고릅니다.
       expect(decoration.color, tokens.colors.ohaengWaterSwatch);
       expect(decoration.shape, BoxShape.circle);

@@ -322,7 +322,10 @@ void main() {
       );
       // 색 칩 견본도 라이트 테마 하위 트리에서 고릅니다(LuckyItem은 오행만 줌).
       final swatch = tester.widget<Container>(
-        find.byKey(LuckyChip.swatchKey).first,
+        find.descendant(
+          of: find.byKey(LuckyChip.swatchKey).first,
+          matching: find.byType(Container),
+        ),
       );
       expect(
         (swatch.decoration! as BoxDecoration).color,

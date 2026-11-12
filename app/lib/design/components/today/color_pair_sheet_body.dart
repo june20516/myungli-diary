@@ -5,12 +5,10 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
-import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart'
-    show TermStyle;
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
+import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
-import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 /// 색이 둘인 날 행운 색 시트의 색 하나(`lucky-card` `colorPairSheet.section`).
@@ -59,9 +57,6 @@ class ColorPairSheetBody extends StatelessWidget {
 
   /// 한 줄 안내 아래 첫 구역까지(`intro.gapBelow` {space.12}).
   static const double introGapBelow = Space.s12;
-
-  /// 구역 머리의 견본 크기(`section.head.swatch` `ohaeng.swatch 14`).
-  static const double swatchSize = 14;
 
   /// 견본과 색 이름 사이(`section.head.gap` {space.4}).
   static const double headGap = Space.s4;
@@ -143,14 +138,9 @@ class _Section extends StatelessWidget {
         Row(
           spacing: ColorPairSheetBody.headGap,
           children: [
-            Container(
-              width: ColorPairSheetBody.swatchSize,
-              height: ColorPairSheetBody.swatchSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: ohaengSwatchOf(colors, section.element),
-                border: Border.all(color: colors.swatchBorder),
-              ),
+            OhaengSwatch(
+              element: section.element,
+              size: OhaengSwatch.luckySize,
             ),
             Flexible(
               child: Text(
@@ -163,12 +153,11 @@ class _Section extends StatelessWidget {
           ],
         ),
         const SizedBox(height: ColorPairSheetBody.bodyGapAbove),
+        // 누를 곳이 없어 용어 조각은 누를 수 없는 일반 글자로 그립니다(onTerm 없음).
         SentenceBlock(
           variant: SentenceBlockVariant.body,
           text: section.body,
           slotId: section.bodySlotId,
-          // 색이 하나인 날 시트 본문(`ExplainLucky`)처럼 용어는 일반 글자입니다.
-          termStyle: TermStyle.plain,
         ),
         if (onEvidence != null)
           DepthLink.evidence(subject: section.name, onTap: onEvidence),

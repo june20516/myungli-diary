@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
+import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import '../../support/depth_link_finders.dart';
@@ -63,6 +64,9 @@ void main() {
     expect(divider.top - first.bottom, 16);
     expect(second.top - divider.bottom, 16);
     expect(find.byType(ListDivider), findsOneWidget);
+    // 구역에 좌우 여백이 없어 구분선을 들이지 않습니다(A135 ④, design #1072 답 전 임시값).
+    expect(divider.left, first.left);
+    expect(divider.right, first.right);
     expect(
       find.descendant(
         of: section(0),
@@ -100,12 +104,7 @@ void main() {
     await tester.pumpWidget(body());
     final swatch = find.descendant(
       of: section(0),
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is Container &&
-            widget.decoration is BoxDecoration &&
-            (widget.decoration! as BoxDecoration).shape == BoxShape.circle,
-      ),
+      matching: find.byType(OhaengSwatch),
     );
     expect(tester.getSize(swatch), const Size(14, 14));
     final name = tester.getRect(find.text('검정'));

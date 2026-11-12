@@ -71,6 +71,7 @@ import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
@@ -2424,6 +2425,9 @@ void main() {
     final sheet = _map(parts['colorPairSheet']);
 
     test('pair: 원천 순서, 칸 여백과 간격, 누름 자리, 세로선이 LuckyChip 상수와 같습니다', () {
+      // 칩 앞 견본과 두 색 시트 머리 견본은 같은 크기입니다(`OhaengSwatch.luckySize`).
+      final lead = _map(_map(_map(color['parts'])['lead'])['swatch']);
+      expect(_px(lead['size']), OhaengSwatch.luckySize);
       expect(pair['source'], [
         'DailyResponse.color',
         'DailyResponse.second_color',
@@ -2455,10 +2459,7 @@ void main() {
       expect(ColorPairSheetBody.introGapBelow, Space.s12);
       final section = _map(sheet['section']);
       final head = _map(section['head']);
-      expect(
-        head['swatch'],
-        'ohaeng.swatch ${ColorPairSheetBody.swatchSize.toInt()}',
-      );
+      expect(head['swatch'], 'ohaeng.swatch ${OhaengSwatch.luckySize.toInt()}');
       final name = _map(head['name']);
       expect(name['type'], '{type.label.lg}');
       expect(name['fg'], '{color.text.primary}');
