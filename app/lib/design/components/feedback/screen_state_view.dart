@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 
@@ -32,7 +33,8 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 ///
 /// 다시 시도를 누르면 그 자리에 skeleton을 지연 없이 바로 보이고(error-state 규칙 "다시 시도를
 /// 누르면 그 자리에 skeleton이 다시 나온다"), 결과가 곧바로 와도 [retryMinDuration]만큼은
-/// skeleton을 둡니다. 처음 불러오기의 [skeletonDelay]는 그대로입니다(결정 A126, #922).
+/// skeleton을 둡니다. 처음 불러오기의 [skeletonDelay]는 그대로입니다(결정 A126, #922). 붙잡는
+/// 규칙은 섹션 단위 오류도 함께 쓰는 [RetryHold]입니다.
 ///
 /// 기본 `data` 경로는 높이가 정해진 부모(화면 본문)를 전제로 합니다(`Expanded`를 씁니다).
 /// 스크롤·sliver 안에서 쓰거나 배너를 내용과 함께 스크롤시키려면 `dataWithNotice`를 씁니다.
@@ -100,10 +102,9 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
   /// skeleton을 보이기 전 대기(기본 300ms). golden·테스트에서 줄입니다.
   final Duration skeletonDelay;
 
-  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간의 기본값. skeleton 계약이 "보이지 않을 만큼
-  /// 짧다"고 보는 시간([SkeletonBlock.defaultDelay])과 같게 두어, 곧바로 다시 실패해도 누른 것이
-  /// 눈에 보이게 합니다(결정 A126).
-  static const Duration defaultRetryMinDuration = SkeletonBlock.defaultDelay;
+  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간의 기본값([RetryHold.defaultMinDuration],
+  /// 결정 A126).
+  static const Duration defaultRetryMinDuration = RetryHold.defaultMinDuration;
 
   /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간.
   final Duration retryMinDuration;
@@ -118,55 +119,25 @@ AppError _asAppError(Object? error) =>
 class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   Object? _handledError;
 
-  /// 다시 시도를 누른 뒤 아직 결과를 받지 못했는지.
-  bool _retrying = false;
-
-  /// 다시 시도 skeleton의 최소 시간. 도는 동안은 결과가 와도 skeleton을 둡니다.
-  Timer? _retryHold;
-
-  /// [ScreenStateView.onRetry]가 돌려준 일이 아직 끝나지 않았는지.
-  bool _retryPending = false;
+  /// 다시 시도 skeleton 붙잡기(결정 A126 ①).
+  late final RetryHold _retryHold = RetryHold(
+    onChanged: () {
+      if (mounted) setState(() {});
+    },
+    minDuration: widget.retryMinDuration,
+  );
 
   @override
   void dispose() {
-    _retryHold?.cancel();
+    _retryHold.dispose();
     super.dispose();
   }
 
   void _retry() {
     final onRetry = widget.onRetry;
     if (onRetry == null) return;
-    _retryHold?.cancel();
-    _retryHold = Timer(widget.retryMinDuration, () {
-      _retryHold = null;
-      _settleRetry();
-    });
-    setState(() => _retrying = true);
-    final pending = onRetry();
-    if (pending is Future<void>) {
-      _retryPending = true;
-      unawaited(
-        pending.then<void>((_) {}, onError: (Object _) {}).whenComplete(() {
-          _retryPending = false;
-          _settleRetry();
-        }),
-      );
-    }
+    _retryHold.start(onRetry);
   }
-
-  /// 최소 시간과 돌려준 일이 모두 끝났고 값이 받는 중이 아니면 다시 시도 상태를 풉니다.
-  void _settleRetry() {
-    if (!mounted) return;
-    setState(() {
-      if (_retryHold == null && !_retryPending && !widget.value.isLoading) {
-        _retrying = false;
-      }
-    });
-  }
-
-  /// 다시 시도 skeleton을 지금 보여야 하는지.
-  bool _showsRetrySkeleton(AsyncValue<T> current) =>
-      _retrying && (_retryHold != null || _retryPending || current.isLoading);
 
   @override
   void initState() {
@@ -177,12 +148,6 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   @override
   void didUpdateWidget(ScreenStateView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_retrying &&
-        !widget.value.isLoading &&
-        _retryHold == null &&
-        !_retryPending) {
-      _retrying = false;
-    }
     _handle(widget.value);
   }
 
@@ -215,7 +180,7 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   @override
   Widget build(BuildContext context) {
     final current = widget.value;
-    final retrySkeleton = _showsRetrySkeleton(current);
+    final retrySkeleton = _retryHold.holds(isLoading: current.isLoading);
     if (current.hasValue && !retrySkeleton) {
       return _withValue(context, current.requireValue, current.error);
     }

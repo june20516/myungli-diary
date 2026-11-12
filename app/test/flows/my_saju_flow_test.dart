@@ -29,6 +29,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/saju_chart_screen.dart';
@@ -525,6 +526,46 @@ void main() {
     expect(network.requests, before + 1);
     expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
     expect(find.byType(DiarySummary), findsOneWidget);
+  });
+
+  testWidgets('회고 다시 시도: 누른 직후 skeleton, 곧바로 실패해도 최소 시간 뒤 오류(A126 ①)', (
+    tester,
+  ) async {
+    final network = _DiaryStatsNetwork();
+    await _openMe(tester, network: network);
+    final error = find.byKey(MySajuScreen.recordErrorKey);
+    await _reveal(tester, error);
+    expect(error, findsOneWidget);
+
+    // 받는 동안: 누른 직후부터 skeleton이고 이전 오류를 다시 비추지 않습니다.
+    final gate = Completer<void>();
+    network.gate = gate;
+    await tester.tap(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+    );
+    await tester.pump(Duration.zero);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
+    expect(find.byType(SkeletonBone), findsWidgets);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
+    expect(find.byType(SkeletonBone), findsWidgets);
+    gate.complete();
+    network.gate = null;
+    await settleWithIo(tester);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsOneWidget);
+
+    // 곧바로 실패해도 누른 것이 보이게 최소 시간만큼 skeleton입니다.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(MySajuScreen.recordErrorKey),
+        matching: find.text(_ko.actionRetry),
+      ),
+    );
+    await tester.pump(Duration.zero);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
+    expect(find.byType(SkeletonBone), findsWidgets);
+    await settleWithIo(tester);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsOneWidget);
   });
 
   testWidgets('대운과 세운 기간 줄은 fixture 출생 연도(1990) 기준 한국식 나이입니다', (tester) async {

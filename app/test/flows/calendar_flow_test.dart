@@ -15,6 +15,7 @@ import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -423,6 +424,35 @@ void main() {
     expect(today.luck, DayLuck.good);
     expect(today.eventCount, 3);
     expect(_cell(tester, CalendarDate(2026, 10, 12)).data.diaryWritten, isTrue);
+  });
+
+  testWidgets('달 오류 다시 시도: 누른 직후 격자 skeleton, 곧바로 실패해도 최소 시간 뒤 오류(A126 ①)', (
+    tester,
+  ) async {
+    final network = _Network();
+    final container = await pumpApp(tester, scenario: 'member');
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, network);
+    network.offline = true;
+    await tester.tap(find.byKey(const ValueKey('tab-bar.tab.1')));
+    await settleWithIo(tester);
+    final error = find.byType(ErrorState);
+    expect(error, findsOneWidget);
+
+    await tester.tap(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+    );
+    await tester.pump(Duration.zero);
+    await tester.pump(Duration.zero);
+    expect(find.byType(ErrorState), findsNothing);
+    expect(find.byKey(CalendarMonthView.loadingKey), findsOneWidget);
+    await tester.pump(
+      RetryHold.defaultMinDuration - const Duration(milliseconds: 1),
+    );
+    expect(find.byType(ErrorState), findsNothing);
+    expect(find.byKey(CalendarMonthView.loadingKey), findsOneWidget);
+    await settleWithIo(tester);
+    expect(find.byType(ErrorState), findsOneWidget);
   });
 
   testWidgets('작은 화면에서도 오류와 다시 시도가 스크롤 없이 보입니다', (tester) async {

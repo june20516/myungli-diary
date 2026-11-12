@@ -21,6 +21,8 @@ import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
+import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
@@ -96,6 +98,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// 탭 복귀 듣기를 끝냅니다.
   late final void Function() _stopEntries;
 
+  /// 달 오류 다시 시도의 격자 skeleton 붙잡기(A126 ①, 화면 단위 오류와 같은 규칙).
+  late final RetryHold _retryHold = RetryHold(
+    onChanged: () {
+      if (mounted) setState(() {});
+    },
+  );
+
   @override
   void initState() {
     super.initState();
@@ -117,6 +126,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   void dispose() {
     _stopEntries();
+    _retryHold.dispose();
     super.dispose();
   }
 
@@ -153,13 +163,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     setState(() => _month = month);
   }
 
-  /// 달 오류의 다시 시도: 달과 함께, 같은 연결 오류로 비었을 일정·일기도 다시 받습니다.
-  void _retry(CalendarMonth month) {
+  /// 달 오류의 다시 시도: 달과 함께, 같은 연결 오류로 비었을 일정·일기도 다시 받습니다. 누르면
+  /// 지연 없이 격자 skeleton이고, 곧바로 다시 실패해도 최소 시간만큼 둡니다([RetryHold]).
+  void _retry(CalendarMonth month) => _retryHold.start(() {
     ref
       ..invalidate(calendarMonthProvider(month))
       ..invalidate(diaryDatesProvider(month));
     _refetchFailedSchedules(month);
-  }
+  });
 
   /// 범례 아래 입구를 누르면 색 규칙 시트를 엽니다.
   void _openColorRule() {
@@ -209,7 +220,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final names = ref.watch(glossaryProvider).value;
 
     // 값이 있으면 다시 받는 중이어도 값을 그대로 보입니다(skeleton 깜빡임 없음).
-    final loading = !calendar.hasValue && calendar.isLoading;
+    // 다시 시도를 누른 뒤에는 결과가 곧바로 와도 최소 시간만큼 받는 중으로 둡니다(A126 ①).
+    final retrying = _retryHold.holds(isLoading: calendar.isLoading);
+    final loading = (!calendar.hasValue && calendar.isLoading) || retrying;
     final failure = calendar.hasValue || loading ? null : calendar.error;
     // 값이 있는 달의 다시 받기가 연결 오류가 아닌 오류(5xx 등)로 실패하면 옛 값을 그대로
     // 보이고 따로 알리지 않습니다. 값은 여전히 그 달의 길흉이고, 고칠 수 있는 동작이 없기
@@ -256,6 +269,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   today: today,
                   selected: selected,
                   loading: loading,
+                  retrying: retrying,
                   failure: failure,
                   offline: offline,
                   cellOf: cells.cellOf,
@@ -280,6 +294,7 @@ class _CalendarBody extends StatelessWidget {
     required this.today,
     required this.selected,
     required this.loading,
+    required this.retrying,
     required this.failure,
     required this.offline,
     required this.cellOf,
@@ -293,6 +308,9 @@ class _CalendarBody extends StatelessWidget {
   final CalendarDate today;
   final CalendarDate selected;
   final bool loading;
+
+  /// 다시 시도를 누른 뒤 붙잡는 중인지. 이때 격자 skeleton은 지연 없이 나옵니다.
+  final bool retrying;
 
   /// 값 없이 실패한 오류. null이면 오류가 아닙니다.
   final Object? failure;
@@ -342,6 +360,9 @@ class _CalendarBody extends StatelessWidget {
               weekdayLabels: calendarWeekdayLabels(locale),
               cellOf: cellOf,
               loading: loading,
+              skeletonDelay: retrying
+                  ? Duration.zero
+                  : SkeletonBlock.defaultDelay,
               today: today,
               selected: selected,
               onSelect: onSelect,

@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/l10n/notice_text.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -523,12 +524,41 @@ class _FlowCard extends ConsumerWidget {
 }
 
 /// 명리일기 회고: 집계를 받는 동안 뼈, 받으면 `diary-summary`, 실패하면 이 자리에만 오류와 다시 시도.
-class _RecordSection extends ConsumerWidget {
+///
+/// 다시 시도는 화면 단위 오류와 같은 규칙입니다([RetryHold], A126 ①): 누르면 지연 없이 뼈이고
+/// 곧바로 다시 실패해도 최소 시간만큼 뼈를 둡니다. 다시 받는 동안의 값은 이전 오류를 품은 채
+/// 받는 중이라 오류로 그리지 않습니다.
+class _RecordSection extends ConsumerStatefulWidget {
   const new();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_RecordSection> createState() => _RecordSectionState();
+}
+
+class _RecordSectionState extends ConsumerState<_RecordSection> {
+  late final RetryHold _retryHold = RetryHold(
+    onChanged: () {
+      if (mounted) setState(() {});
+    },
+  );
+
+  @override
+  void dispose() {
+    _retryHold.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final stats = ref.watch(diaryStatsProvider);
+    // 대기 중에도 뼈 자리를 남겨 끝 섹션이 0에서 자라지 않게 합니다(#936).
+    if (_retryHold.holds(isLoading: stats.isLoading)) {
+      return SkeletonBlock(
+        delay: Duration.zero,
+        reserveSpace: true,
+        child: DiarySummary.skeleton(),
+      );
+    }
     final names = ref.watch(glossaryProvider).value;
     final sheets = ref.read(depthSheetsProvider);
     final value = stats.value;
@@ -552,7 +582,7 @@ class _RecordSection extends ConsumerWidget {
         ),
       );
     }
-    if (stats.hasError) {
+    if (stats.hasError && !stats.isLoading) {
       final error = stats.error;
       return KeyedSubtree(
         key: MySajuScreen.recordErrorKey,
@@ -560,11 +590,11 @@ class _RecordSection extends ConsumerWidget {
           error: error is AppError
               ? error
               : UnexpectedError(error ?? 'unknown'),
-          onRetry: () => ref.invalidate(diaryStatsProvider),
+          onRetry: () =>
+              _retryHold.start(() => ref.invalidate(diaryStatsProvider)),
         ),
       );
     }
-    // 대기 중에도 뼈 자리를 남겨 끝 섹션이 0에서 자라지 않게 합니다(#936).
     return SkeletonBlock(reserveSpace: true, child: DiarySummary.skeleton());
   }
 
