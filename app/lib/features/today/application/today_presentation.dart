@@ -331,9 +331,6 @@ TimeBand timeBandOf({
   required DateTime wallNow,
 }) {
   final before = beforeDayStart;
-  TimeBandPick? pickOf(AppTimeOfDay period, {required bool chosen}) => chosen
-      ? (period == opened ? TimeBandPick.opened : TimeBandPick.other)
-      : null;
   final cards = daily.cards;
   final dayPick = cards.focusTime.picks.first.branch;
   final nightPick = focusTimePickOf(
@@ -348,7 +345,11 @@ TimeBand timeBandOf({
       TimeBandCell(
         label: _bandLabelOf(branch, names, hanjaLabels),
         period: AppTimeOfDay.day,
-        pick: pickOf(AppTimeOfDay.day, chosen: branch == dayPick),
+        pick: TimeBandPick.of(
+          AppTimeOfDay.day,
+          opened: opened,
+          chosen: branch == dayPick,
+        ),
       ),
   ];
   final nightCells = [
@@ -356,7 +357,11 @@ TimeBand timeBandOf({
       TimeBandCell(
         label: _bandLabelOf(branch, names, hanjaLabels),
         period: AppTimeOfDay.night,
-        pick: pickOf(AppTimeOfDay.night, chosen: branch == nightPick),
+        pick: TimeBandPick.of(
+          AppTimeOfDay.night,
+          opened: opened,
+          chosen: branch == nightPick,
+        ),
       ),
   ];
   final dayStart = _dayStart.inMinutes;

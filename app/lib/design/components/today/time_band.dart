@@ -34,6 +34,17 @@ enum TimeBandPick {
   /// 칸 글자 굵기(`labelWeight`). null이면 칸 글자 그대로(`inherit`)입니다.
   final FontWeight? labelWeight;
 
+  /// [period] 칸의 고리 종류. [chosen](그 칩이 고른 시진)이 아니면 null이고, 시트를 연 칩
+  /// [opened]의 칸이면 [opened], 다른 칩의 칸이면 [other]입니다.
+  static TimeBandPick? of(
+    AppTimeOfDay period, {
+    required AppTimeOfDay opened,
+    required bool chosen,
+  }) {
+    if (!chosen) return null;
+    return period == opened ? TimeBandPick.opened : TimeBandPick.other;
+  }
+
   /// 고리 색(`ring.color`).
   Color ringColorOf(ColorTokens colors) => switch (this) {
     TimeBandPick.opened => colors.actionPrimary,

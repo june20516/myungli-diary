@@ -128,15 +128,16 @@ Widget _colorPairSheet() {
 /// 낮 칩으로 연 모습이라 연 칩 시진이 굵은 고리입니다(V124).
 TimeBand _timeBand({required bool beforeDayStart}) {
   final opened = beforeDayStart ? AppTimeOfDay.night : AppTimeOfDay.day;
-  TimeBandPick? pickOf(AppTimeOfDay period, {required bool chosen}) => chosen
-      ? (period == opened ? TimeBandPick.opened : TimeBandPick.other)
-      : null;
   final day = [
     for (final (index, label) in '진사오미신유술'.split('').indexed)
       TimeBandCell(
         label: label,
         period: AppTimeOfDay.day,
-        pick: pickOf(AppTimeOfDay.day, chosen: index == 4),
+        pick: TimeBandPick.of(
+          AppTimeOfDay.day,
+          opened: opened,
+          chosen: index == 4,
+        ),
       ),
   ];
   final night = [
@@ -144,7 +145,11 @@ TimeBand _timeBand({required bool beforeDayStart}) {
       TimeBandCell(
         label: label,
         period: AppTimeOfDay.night,
-        pick: pickOf(AppTimeOfDay.night, chosen: index == 2),
+        pick: TimeBandPick.of(
+          AppTimeOfDay.night,
+          opened: opened,
+          chosen: index == 2,
+        ),
       ),
   ];
   return TimeBand(

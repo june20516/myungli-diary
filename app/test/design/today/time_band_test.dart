@@ -300,6 +300,24 @@ void main() {
     );
   });
 
+  test('TimeBandPick.of: 고른 시진만 고리이고 연 칩 칸은 opened, 다른 칩 칸은 other입니다', () {
+    const day = AppTimeOfDay.day;
+    const night = AppTimeOfDay.night;
+    expect(TimeBandPick.of(day, opened: day, chosen: false), isNull);
+    expect(
+      TimeBandPick.of(day, opened: day, chosen: true),
+      TimeBandPick.opened,
+    );
+    expect(
+      TimeBandPick.of(night, opened: day, chosen: true),
+      TimeBandPick.other,
+    );
+    expect(
+      TimeBandPick.of(night, opened: night, chosen: true),
+      TimeBandPick.opened,
+    );
+  });
+
   test('고리와 틈 안쪽 채움 모서리는 칸 모서리에서 고리와 틈을 뺀 값입니다', () {
     for (final pick in TimeBandPick.values) {
       expect(

@@ -393,7 +393,8 @@ LuckGanji luckGanjiOf(Pillar pillar) => LuckGanji(
 /// 일간 표기 "庚(경금)": 한자 뒤 괄호에 천간 이름(사전 `stem` 값 이름, writing 슬롯
 /// `saju-chart.manse.basis`의 "<간>(<이름>)"). 괄호는 간지 독음과 같은 틀
 /// `ganjiReadingSuffix`(ja 전각, en 앞 한 칸)입니다. 이름이 없거나 한자와 같으면(ja 庚) 한자만
-/// 씁니다(A139).
+/// 씁니다(A139 ④). 잇는 틀과 ja 표기는 writing 확인 대상(#1095)이고, 답이 오면 이 함수 한 곳만
+/// 바꿉니다.
 String dayMasterText(ChartText text, Stem stem) {
   final glyph = stemHanja(stem);
   final name = text.names?.valueName('stem', stem.value);
