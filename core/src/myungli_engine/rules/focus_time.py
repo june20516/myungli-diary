@@ -106,9 +106,20 @@ class HourGrade:
 
 
 @dataclass(frozen=True, slots=True)
+class PeriodHour:
+    """구간 안의 시진 하나와 그 시진이 속한 일진(#1078). 時破로 후보에서 빠진 시진도 들어 있다."""
+
+    slot: HourSlot
+    day_date: date
+    day: Pillar
+
+
+@dataclass(frozen=True, slots=True)
 class FocusPick:
     period: FocusPeriod
     grade: HourGrade
+    # 이 구간의 시진 전부, 시간 순. 밤 칩 전환 시각과 24시간 띠가 쓴다(#1078).
+    hours: tuple[PeriodHour, ...]
 
 
 def _pair(first: Branch, second: Branch) -> frozenset[Branch]:
@@ -187,12 +198,16 @@ def pick_focus_times(today: DayHours, tomorrow: DayHours, birth_year: Pillar) ->
     """(낮 1등, 밤 1등). tomorrow는 today 다음 날이다. 時破는 날마다 시진 하나만 빼므로 두 구간 모두 후보가 남는다."""
     picks: list[FocusPick] = []
     for period, order in PERIOD_BRANCHES.items():
-        grades = [
-            grade_hour(slot, hours.pillar, birth_year, hours.date)
-            for slot, hours in _candidates(period, today, tomorrow)
-        ]
+        period_hours = tuple(
+            sorted(
+                (PeriodHour(slot, hours.date, hours.pillar) for slot, hours in _candidates(period, today, tomorrow)),
+                key=lambda hour: hour.slot.start,
+            )
+        )
+        grades = [grade_hour(hour.slot, hour.day, birth_year, hour.day_date) for hour in period_hours]
         candidates = [grade for grade in grades if grade is not None]
         if not candidates:
             raise ValueError(f"{period.name} 시진 후보가 없습니다")
-        picks.append(FocusPick(period, min(candidates, key=lambda grade: grade.key(order))))
+        best = min(candidates, key=lambda grade: grade.key(order))
+        picks.append(FocusPick(period, best, period_hours))
     return tuple(picks)

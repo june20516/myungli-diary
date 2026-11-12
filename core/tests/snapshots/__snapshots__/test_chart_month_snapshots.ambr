@@ -11345,7 +11345,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.dohwa',
+        'featured_tag': 'tag.clash_month_branch',
         'info': dict({
           'date': '2026-10-11',
           'is_leap_month': False,
@@ -11911,7 +11911,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.dohwa',
+        'featured_tag': 'tag.clash_month_branch',
         'info': dict({
           'date': '2026-10-23',
           'is_leap_month': False,
@@ -12383,7 +12383,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.dohwa',
+        'featured_tag': 'tag.clash_month_branch',
         'info': dict({
           'date': '2026-10-02',
           'is_leap_month': False,
@@ -12954,7 +12954,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.dohwa',
+        'featured_tag': 'tag.clash_month_branch',
         'info': dict({
           'date': '2026-10-14',
           'is_leap_month': False,
@@ -15595,7 +15595,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.dohwa',
+        'featured_tag': 'tag.clash_day_branch',
         'info': dict({
           'date': '2026-10-08',
           'is_leap_month': False,
@@ -16151,7 +16151,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.dohwa',
+        'featured_tag': 'tag.clash_day_branch',
         'info': dict({
           'date': '2026-10-20',
           'is_leap_month': False,

@@ -874,16 +874,18 @@ class NumberCard(_message.Message):
     def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., number: _Optional[int] = ...) -> None: ...
 
 class FocusTimeCard(_message.Message):
-    __slots__ = ("judgment", "picks", "fallback", "period")
+    __slots__ = ("judgment", "picks", "fallback", "period", "hours")
     JUDGMENT_FIELD_NUMBER: _ClassVar[int]
     PICKS_FIELD_NUMBER: _ClassVar[int]
     FALLBACK_FIELD_NUMBER: _ClassVar[int]
     PERIOD_FIELD_NUMBER: _ClassVar[int]
+    HOURS_FIELD_NUMBER: _ClassVar[int]
     judgment: Judgment
     picks: _containers.RepeatedCompositeFieldContainer[FocusSlot]
     fallback: bool
     period: FocusPeriod
-    def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., picks: _Optional[_Iterable[_Union[FocusSlot, _Mapping]]] = ..., fallback: _Optional[bool] = ..., period: _Optional[_Union[FocusPeriod, str]] = ...) -> None: ...
+    hours: _containers.RepeatedCompositeFieldContainer[FocusSlot]
+    def __init__(self, judgment: _Optional[_Union[Judgment, _Mapping]] = ..., picks: _Optional[_Iterable[_Union[FocusSlot, _Mapping]]] = ..., fallback: _Optional[bool] = ..., period: _Optional[_Union[FocusPeriod, str]] = ..., hours: _Optional[_Iterable[_Union[FocusSlot, _Mapping]]] = ...) -> None: ...
 
 class FocusSlot(_message.Message):
     __slots__ = ("branch", "pillar", "start", "end", "huangdao_lucky", "score", "reasons", "day_date", "day_pillar")
