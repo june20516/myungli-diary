@@ -310,6 +310,7 @@
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 20, en 37, ja 16 |
 | ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 5 | - | ko 9, en 16, ja 7 |
 | ui.share.a11y | 컴포넌트 share-image<br>컴포넌트 segmented | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.shinsal.weighing | 컴포넌트 explain-sheet | info | - | 1 | 1 | - | ko 52, en 88, ja 38 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-sheet.sentence-kind | 컴포넌트 tag-sentence-list | info | - | 1 | 2 | - | ko -, en -, ja - |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |

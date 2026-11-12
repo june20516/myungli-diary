@@ -2504,6 +2504,10 @@
   "@sharePreviewRatioGroup": {
     "description": "공유 미리보기 화면(share-preview): 이미지 미리보기와 비율 선택 묶음의 스크린리더 이름"
   },
+  "shinsalWeighingNote": "원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.",
+  "@shinsalWeighingNote": {
+    "description": "흉한 신살(공망, 고신, 과숙, 원진, 구교)의 풀이 시트(explain-sheet)와 사주 기운 시트(tag-sheet)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
+  },
   "iosTrackingUsageDescription": "허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요.",
   "@iosTrackingUsageDescription": {
     "description": "iOS 앱 추적 투명성(ATT) 시스템 창의 본문. 제목과 버튼은 iOS가 정하고, UMP IDFA 안내 다음에 나옵니다"

@@ -401,6 +401,7 @@
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "D"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "M"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerYear, text: "Y"}
+- {slot: ui.shinsal.weighing, key: shinsalWeighingNote, text: "In the classics, shinsal are just one of many clues for reading a chart."}
 - {slot: ui.saju.luck-period, key: luckDaeunAgeRange, text: "Ages {startAge} to {endAge}"}
 - {slot: ui.saju.luck-period, key: luckDaeunYearRange, text: "{startYear} to {endYear}"}
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}"}

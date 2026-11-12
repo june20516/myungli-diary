@@ -401,6 +401,7 @@
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "日"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "月"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerYear, text: "年"}
+- {slot: ui.shinsal.weighing, key: shinsalWeighingNote, text: "原典では、神殺は命式を判断する多くの手がかりの一つにすぎません。"}
 - {slot: ui.saju.luck-period, key: luckDaeunAgeRange, text: "{startAge}〜{endAge}歳"}
 - {slot: ui.saju.luck-period, key: luckDaeunYearRange, text: "{startYear}〜{endYear}年"}
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}年"}

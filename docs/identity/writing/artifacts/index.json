@@ -696,5 +696,22 @@
     ],
     "status": "chosen",
     "note": "원진 元嗔(표준국어대사전), 덕일 풀이는 사용자 문구, ja 元辰, 金與禄, 陰差陽錯"
+  },
+  {
+    "id": "round-R41",
+    "title": "라운드 R41: 흉한 신살 마무리 문장 (W70)",
+    "kind": "copy-sample",
+    "file": "2026-11-12-round-R41.md",
+    "date": "2026-11-12",
+    "milestone": "A2",
+    "screens": [
+      "today",
+      "my-saju"
+    ],
+    "decisions": [
+      "W70"
+    ],
+    "status": "chosen",
+    "note": "대화로 정함, 순번 표현의 중의성 지적 뒤 사용자 문구를 다듬은 안"
   }
 ]
