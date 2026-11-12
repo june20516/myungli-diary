@@ -13,6 +13,7 @@ import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
 import 'package:myungli_diary/core/api/gen/model/position.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
@@ -221,12 +222,25 @@ Map<String, Map<String, String>> _memberGlossaryValues() {
   };
 }
 
+/// member 사전의 용어 뜻(`Glossary.meanings`). 뜻이 없으면 표 칸이 근거 시트를 바로 열므로
+/// (A130) 풀이 시트를 거치는 사례는 뜻도 함께 둡니다.
+Map<String, RenderedText> _memberGlossaryMeanings() {
+  final json = jsonDecode(
+    File('fixtures/member/getGlossary.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final body = json['body'] as Map<String, dynamic>;
+  return {
+    for (final entry in (body['meanings'] as Map<String, dynamic>).entries)
+      entry.key: RenderedText.fromJson(entry.value as Map<String, dynamic>),
+  };
+}
+
 /// 12운성·신살 이름을 일부만 둔 사전(이름이 없는 값은 한자 글자로 대신함, A65).
 Future<GlossaryNames> _glossaryWithStages() async {
   final values = _memberGlossaryValues();
   values['twelve_stage'] = const {'yang': '양', 'mokyok': '목욕'};
   values['shinsal'] = const {'hwagae': '화개'};
-  return GlossaryNames(values);
+  return GlossaryNames(values, meanings: _memberGlossaryMeanings());
 }
 
 /// 12운성·신살 범주가 없는 사전(server 시드가 이름을 넣기 전을 흉내 냄).
@@ -234,7 +248,7 @@ Future<GlossaryNames> _glossaryWithoutStages() async {
   final values = _memberGlossaryValues()
     ..remove('twelve_stage')
     ..remove('shinsal');
-  return GlossaryNames(values);
+  return GlossaryNames(values, meanings: _memberGlossaryMeanings());
 }
 
 /// 받은 나의 사주에서 원국 개인 해석을 뺍니다(원고가 없는 자리를 흉내 냄).
@@ -514,7 +528,7 @@ void main() {
           return GlossaryNames({
             ...names.values,
             'role': {...?names.values['role'], 'day_master': '일간'},
-          });
+          }, meanings: names.meanings);
         }),
       ],
     );
@@ -697,7 +711,7 @@ void main() {
               'hwagae': '화개',
               'unknown_default_open_api': '모르는 신살',
             },
-          });
+          }, meanings: names.meanings);
         }),
       ],
     );
