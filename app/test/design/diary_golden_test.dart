@@ -160,7 +160,8 @@ Widget _diaryEntries() => Builder(
   },
 );
 
-/// diary-editor: edit(질문·빈 본문), view(도장·태그), draft-indicator 세 상태.
+/// diary-editor: edit(질문·빈 본문), edit 질문 뗀 자리(권유 줄, V102, #1013), view(도장·태그),
+/// draft-indicator 세 상태.
 Widget _editors() => Builder(
   builder: (context) {
     final ja = Localizations.localeOf(context).languageCode == 'ja';
@@ -196,6 +197,14 @@ Widget _editors() => Builder(
           question: question,
           placeholder: ja ? '今日の出来事を書いてみましょう' : '오늘 있었던 일을 적어 보세요',
         ),
+        DiaryEditor.edit(
+          date: CalendarDate(2026, 10, 13),
+          controller: TextEditingController(),
+          question: question,
+          questionDetached: true,
+          onAttachQuestion: () {},
+          placeholder: ja ? '今日の出来事を書いてみましょう' : '오늘 있었던 일을 적어 보세요',
+        ),
         DiaryEditor.view(
           date: CalendarDate(2026, 10, 13),
           question: question,
@@ -213,7 +222,9 @@ Widget _editors() => Builder(
 );
 
 void main() {
-  goldenTest('diary-editor: edit·view, draft-indicator', (tester) async {
+  goldenTest('diary-editor: edit·질문 뗀 자리·view, draft-indicator', (
+    tester,
+  ) async {
     await goldenMatrix(tester, 'diary_editor', _editors);
   });
 
