@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/diary/diary_editor.dart';
@@ -18,6 +19,7 @@ import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_bar_title.dart';
@@ -104,13 +106,35 @@ final class _Network extends Interceptor {
   }
 }
 
-/// member로 앱을 띄우고 [tag] 모아보기를 엽니다. [network]가 있으면 용어 사전을 다시 받습니다.
+/// member 사전에서 화개 태그의 뜻만 뺀 사전(사전 뜻은 용어마다 비어 있을 수 있음).
+Future<GlossaryNames> _withoutHwagaeMeaning() async {
+  final body =
+      (jsonDecode(File('fixtures/member/getGlossary.json').readAsStringSync())
+              as Map<String, dynamic>)['body']
+          as Map<String, dynamic>;
+  final glossary = Glossary.fromJson(body);
+  return GlossaryNames(
+    glossary.values,
+    meanings: {...glossary.meanings}..remove('tag.hwagae'),
+    hanja: glossary.hanja,
+  );
+}
+
+/// member로 앱을 띄우고 [tag] 모아보기를 엽니다. [network]가 있으면 용어 사전을 다시 받고,
+/// [glossary]가 있으면 그 사전을 씁니다.
 Future<ProviderContainer> _openTagDiary(
   WidgetTester tester, {
   String? tag = _tag,
   _Network? network,
+  Future<GlossaryNames> Function()? glossary,
 }) async {
-  final container = await pumpApp(tester, scenario: 'member');
+  final container = await pumpApp(
+    tester,
+    scenario: 'member',
+    overrides: [
+      if (glossary != null) glossaryProvider.overrideWith((ref) => glossary()),
+    ],
+  );
   if (network != null) {
     final interceptors = container.read(dioProvider).interceptors;
     interceptors.insert(interceptors.length - 1, network);
@@ -231,7 +255,7 @@ void main() {
 
   testWidgets('empty: 그 태그가 붙은 일기가 없으면 안내, 뜻이 없으면 뜻 줄도 없습니다', (tester) async {
     covers(const Covers(states: ['tag-diary:empty']));
-    await _openTagDiary(tester, tag: 'hwagae');
+    await _openTagDiary(tester, tag: 'hwagae', glossary: _withoutHwagaeMeaning);
     expect(find.text(_ko.tagDiaryEmptyBody), findsOneWidget);
     expect(
       find.byKey(const ValueKey(SlotIds.tagDiaryTagMeaning)),
