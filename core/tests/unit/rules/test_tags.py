@@ -233,3 +233,13 @@ def test_d124_shinsal_last_in_group(pillar_of: PillarOf) -> None:
     without_good = _select(natal, pillar_of("丙子"), (), (Shinsal.WONJIN, Shinsal.YEOKMA, Shinsal.GOSIN))
     assert without_good.all_keys == ("tag.yeokma", "tag.gosin", "tag.wonjin")
     assert result.source_refs["tag.wonjin"] == "sammyeong-tonghoe/shinsal#wonjin"
+
+
+def test_dohwa_is_neutral_not_moved_to_front(pillar_of: PillarOf) -> None:
+    """도화는 중립이라 길 먼저(D125)로 옮기지 않는다(#1065). 길 태그가 있으면 그쪽이 앞선다."""
+    natal = _natal(pillar_of, "壬申", "乙巳", "己午")
+    rels = (Relation(RelationKind.CHUNG, Position.HOUR_BRANCH, None),)
+    only_dohwa = _select(natal, pillar_of("丙子"), rels, (Shinsal.DOHWA,))
+    assert only_dohwa.all_keys == ("tag.clash", "tag.dohwa")
+    with_gwiin = _select(natal, pillar_of("丙子"), rels, (Shinsal.DOHWA, Shinsal.CHEONEUL_GWIIN))
+    assert with_gwiin.all_keys == ("tag.cheoneul_gwiin", "tag.clash", "tag.dohwa")

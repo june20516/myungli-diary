@@ -56,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.7"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.8"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -193,6 +193,18 @@ def test_get_daily_has_four_cards_and_tags(stub: pb_grpc.MyungliEngineStub) -> N
     for pick in (*response.focus_time.picks, *response.night_focus_time.picks):
         assert pick.branch == pick.pillar.branch != pb.BRANCH_UNSPECIFIED
         assert pick.end.ToDatetime() > pick.start.ToDatetime()
+    # 구간 시진 전부(#1078): 낮 7개, 밤 5개, 시간 순으로 이어지고 picks는 그 안의 같은 값이다.
+    assert [h.branch for h in response.focus_time.hours] == [
+        pb.BRANCH_JIN, pb.BRANCH_SA, pb.BRANCH_O, pb.BRANCH_MI, pb.BRANCH_SHIN, pb.BRANCH_YU, pb.BRANCH_SUL,
+    ]
+    assert [h.branch for h in response.night_focus_time.hours] == [
+        pb.BRANCH_HAE, pb.BRANCH_JA, pb.BRANCH_CHUK, pb.BRANCH_IN, pb.BRANCH_MYO,
+    ]
+    assert response.night_focus_time.hours[0].start == response.focus_time.hours[-1].end
+    for card in (response.focus_time, response.night_focus_time):
+        for before, after in zip(card.hours, card.hours[1:], strict=False):
+            assert before.end == after.start
+        assert card.picks[0] in card.hours
     assert response.kind != pb.DAY_KIND_UNSPECIFIED
     assert len(response.all_tags) >= 1
     assert set(response.featured_tags) <= set(response.all_tags)
