@@ -327,6 +327,20 @@ void main() {
       expect(row.bottom - lastChip.bottom, LuckyCardRow.hitInset);
     });
 
+    testWidgets(
+      '줄 위아래 판정 여유 자리를 눌러도 가장자리 칩이 받습니다(HitSlopPassage reserveSpace)',
+      (tester) async {
+        final opened = <LuckyItem>[];
+        await tester.pumpWidget(_app(opened: opened));
+        final row = tester.getRect(find.byType(LuckyCardRow));
+        final first = tester.getRect(_surface(LuckyCardVariant.color));
+        expect(first.top - row.top, LuckyCardRow.hitInset);
+        await tester.tapAt(Offset(first.center.dx, row.top + 1));
+        await tester.pumpAndSettle();
+        expect(opened.single.variant, LuckyCardVariant.color);
+      },
+    );
+
     testWidgets('열린 동안에만 누른 칩이 1.5 action.primary 테두리이고 닫히면 1px line으로 돌아옵니다', (
       tester,
     ) async {
@@ -634,9 +648,19 @@ void main() {
           find.descendant(of: half(1), matching: find.text('노랑')),
           findsOneWidget,
         );
+        // 칸마다 다른 견본 키입니다(한 칩 안에서 키가 겹치지 않음).
+        for (final index in [0, 1]) {
+          expect(
+            find.descendant(
+              of: half(index),
+              matching: find.byKey(LuckyChip.pairSwatchKey(index)),
+            ),
+            findsOneWidget,
+          );
+        }
         expect(
           find.descendant(of: chip, matching: find.byKey(LuckyChip.swatchKey)),
-          findsNWidgets(2),
+          findsNothing,
         );
         final divider = find.byKey(LuckyChip.pairDividerKey);
         expect(divider, findsOneWidget);
@@ -667,7 +691,7 @@ void main() {
           final swatch = tester.getRect(
             find.descendant(
               of: half(index),
-              matching: find.byKey(LuckyChip.swatchKey),
+              matching: find.byKey(LuckyChip.pairSwatchKey(index)),
             ),
           );
           final text = tester.getRect(

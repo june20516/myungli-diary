@@ -47,8 +47,10 @@ class _StickToEndOnGrowState extends State<StickToEndOnGrow> {
     final before = _endBeforeGrowth;
     if (notification is ScrollEndNotification && before != null) {
       _endBeforeGrowth = null;
-      if (metrics.pixels >= before - StickToEndOnGrow.tolerance) {
-        _jumpToEnd(Scrollable.maybeOf(notification.context!)?.position);
+      final context = notification.context;
+      if (context != null &&
+          metrics.pixels >= before - StickToEndOnGrow.tolerance) {
+        _jumpToEnd(Scrollable.maybeOf(context)?.position);
       }
     }
     _atEnd = _isEnd(metrics);

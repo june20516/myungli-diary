@@ -111,6 +111,12 @@ class OfferCard extends StatelessWidget {
   }) : assert(
          state != OfferCardState.unavailable || unavailableNote != null,
          'unavailable은 안내 문구가 있어야 합니다.',
+       ),
+       assert(
+         state == OfferCardState.active ||
+             state == OfferCardState.unavailable ||
+             buyLabel != null,
+         '구매 버튼이 있는 상태(available, purchasing, offline)는 buyLabel이 있어야 합니다.',
        );
 
   /// 명세 대조용 요약.

@@ -223,18 +223,28 @@ void main() {
         expect(find.byKey(WeighingNote.boxKey), findsNothing);
       });
 
-      testWidgets('뜻이 빈 문장이면 상자도 두지 않습니다', (tester) async {
+      testWidgets('뜻이 빈 문장이면 뜻 줄도 상자도 두지 않습니다(A139 ②)', (tester) async {
         await tester.pumpWidget(
           _app(
-            ExplainSheetBody(
-              title: '과숙',
-              meaning: RenderedText(segments: [Segment(text: '  ')]),
-              weighingNote: _ko.shinsalWeighingNote,
+            ExplainSheet(
+              content: ExplainTerm('shinsal.gwasuk', origin: _today('a.b')),
             ),
-            glossary: () async => _names,
+            glossary: () async => GlossaryNames(
+              const {
+                'shinsal': {'gwasuk': '과숙'},
+              },
+              meanings: {
+                'shinsal.gwasuk': RenderedText(segments: [Segment(text: '  ')]),
+              },
+            ),
           ),
         );
+        await tester.pumpAndSettle();
         expect(find.byKey(WeighingNote.boxKey), findsNothing);
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          findsNothing,
+        );
       });
 
       testWidgets('뜻이 없으면 상자도 두지 않습니다', (tester) async {
@@ -486,6 +496,11 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsOneWidget);
+        // 빈 문장 뜻은 없는 것이라 안내 아래 빈 뜻 줄이 남지 않습니다(A139 ②).
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          findsNothing,
+        );
       });
 
       testWidgets('출처가 있으면(근거로 넘길 곳이 있음) 빈 안내 대신 근거 진입점입니다', (tester) async {

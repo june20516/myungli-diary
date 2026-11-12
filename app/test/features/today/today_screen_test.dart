@@ -1456,17 +1456,15 @@ void main() {
     testWidgets('LA 프로필은 07:30이 아니라 그 시간대 진시 시작(08:00)에 밤 칩이 바뀝니다(#1064)', (
       tester,
     ) async {
-      // member-overseas: 시간대 America/Los_Angeles, 앱 언어 en.
+      // member-overseas: 시간대 America/Los_Angeles, 앱 언어 en. 오늘 응답은 그 시간대의 엔진 값으로
+      // 만든 시나리오 fixture(`tool/gen_daily_fixtures.py`)입니다.
       final en = AppLocalizationsEn();
       final minutes = StreamController<DateTime>.broadcast();
       addTearDown(minutes.close);
       await pumpApp(
         tester,
         scenario: 'member-overseas',
-        overrides: [
-          _dailyOf(losAngelesDailyJson()),
-          nowMinuteProvider.overrideWith((ref) => minutes.stream),
-        ],
+        overrides: [nowMinuteProvider.overrideWith((ref) => minutes.stream)],
       );
       minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
       await _settleToday(tester);

@@ -390,7 +390,9 @@ List<_BandHour> _tableHoursFrom(DateTime start, List<Branch> branches) => [
 /// 벽시계(`nowMinuteProvider` 값)이고 지금 줄과 꼬리표가 됩니다.
 ///
 /// 칸과 눈금은 그날 낮 카드와 보이는 밤 카드의 `hours`입니다(계약 `FocusTimeCard`, #1064). 낮 카드
-/// `hours`가 없으면 띠 전체를 전환 순간([dayStartOf], 그날 한국 시각 07:30)부터 시진 길이로 그리고,
+/// `hours`를 칸으로 쓸 수 없으면(없거나 남은 수가 7이 아님) 띠 전체를 전환 순간([dayStartOf]:
+/// `hours`가 없으면 그날 한국 시각 07:30, 개수만 다르면 그 `hours`의 가장 이른 시작)부터 시진 길이로
+/// 그리고,
 /// 보이는 밤 카드가 없거나 그 `hours`가 없으면 밤 다섯 칸만 낮 칸에 이어 시진 길이로 셉니다(A140 ③).
 /// 지금([wallNow])이 띠 밖이면 지금 줄이 없습니다(A140 ⑤).
 TimeBand timeBandOf({
@@ -419,7 +421,8 @@ TimeBand timeBandOf({
     _dayBranches.length,
     timezone,
   );
-  // 낮 칸이 지금 방식이면 전환과 같은 순간(그날 한국 시각 07:30, [dayStartOf])에서 셉니다.
+  // 낮 칸을 hours로 그릴 수 없으면 전환과 같은 순간([dayStartOf]: hours가 없으면 그날 한국 시각
+  // 07:30, 개수만 다르면 그 hours의 가장 이른 시작)에서 셉니다.
   final dayHours =
       dayFromHours ??
       _tableHoursFrom(_wallClockOf(dayStartOf(daily), timezone), _dayBranches);

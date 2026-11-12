@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -162,6 +161,11 @@ class LuckyChip extends StatelessWidget {
 
   /// 색 변형 견본 원을 찾는 테스트용 키.
   static const Key swatchKey = ValueKey('lucky-card-swatch');
+
+  /// 색이 둘인 날 알약 [index]째 칸(0이 첫째 색)의 견본 원을 찾는 테스트용 키. 칸마다 다른 키라
+  /// 한 칩 안에서 키가 겹치지 않습니다.
+  static Key pairSwatchKey(int index) =>
+      ValueKey('lucky-card-pair-swatch-$index');
 
   /// 색이 둘인 날 알약의 [index]째 칸(0이 첫째 색)을 찾는 테스트용 키.
   static Key pairHalfKey(int index) => ValueKey('lucky-card-pair-half-$index');
@@ -375,7 +379,7 @@ class _PairChipFrame extends StatelessWidget {
           spacing: LuckyChip.pairHalfGap,
           children: [
             OhaengSwatch(
-              key: LuckyChip.swatchKey,
+              key: LuckyChip.pairSwatchKey(index),
               element: half.element,
               size: OhaengSwatch.luckySize,
             ),
@@ -591,8 +595,12 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
   @override
   Widget build(BuildContext context) {
     final interactive = widget.onOpen != null;
-    return _HitOutset(
-      outset: LuckyCardRow.hitInset,
+    // 줄 위아래 여유 자리의 눌림도 가장자리 칩이 받고, 줄이 넘어가 쌓인 칩끼리는 실제로 덮은 칩이
+    // 먼저 받습니다(HitSlopPassage 두 번 판정).
+    return HitSlopPassage(
+      top: LuckyCardRow.hitInset,
+      bottom: LuckyCardRow.hitInset,
+      reserveSpace: true,
       child: Wrap(
         spacing: LuckyCardRow._rowGap,
         runSpacing: LuckyCardRow._rowGap,
@@ -607,64 +615,5 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
         ],
       ),
     );
-  }
-}
-
-/// [child] 위아래에 [outset]만큼 판정 여유를 두는 상자.
-///
-/// 여유 자리에서 누르면 가장 가까운 child 가장자리로 옮겨 child에 넘기므로, 가장자리 칩의
-/// `VerticalHitSlop`이 부모 경계 밖까지 닿습니다. 여유는 레이아웃 높이에 포함됩니다.
-class _HitOutset extends SingleChildRenderObjectWidget {
-  const new({required this.outset, required super.child});
-
-  final double outset;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderHitOutset(outset);
-
-  @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) =>
-      (renderObject as _RenderHitOutset).outset = outset;
-}
-
-class _RenderHitOutset extends RenderShiftedBox {
-  new(this._outset) : super(null);
-
-  double _outset;
-
-  double get outset => _outset;
-
-  set outset(double value) {
-    if (_outset == value) return;
-    _outset = value;
-    markNeedsLayout();
-  }
-
-  @override
-  void performLayout() {
-    final child = this.child;
-    if (child == null) {
-      size = constraints.constrain(Size(0, _outset * 2));
-      return;
-    }
-    child.layout(constraints, parentUsesSize: true);
-    (child.parentData! as BoxParentData).offset = Offset(0, _outset);
-    size = constraints.constrain(
-      Size(child.size.width, child.size.height + _outset * 2),
-    );
-  }
-
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    final child = this.child;
-    if (child == null || !size.contains(position)) return false;
-    final y = position.dy.clamp(_outset, _outset + child.size.height - 0.01);
-    final hit = child.hitTest(
-      result,
-      position: Offset(position.dx, y - _outset),
-    );
-    if (hit) result.add(BoxHitTestEntry(this, position));
-    return hit;
   }
 }

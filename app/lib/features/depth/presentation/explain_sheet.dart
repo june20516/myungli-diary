@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
@@ -228,6 +229,11 @@ class ExplainSheet extends ConsumerWidget {
     unawaited(router.push<void>(taggedPathOf(tag)));
   }
 
+  /// 빈 문장 뜻은 없는 것으로 봅니다(A139 ②, [termSheetKindOf]와 오늘 그런 이유와 같은 판단).
+  /// 그래서 빈 안내 아래나 이유 위에 빈 뜻 줄이 남지 않습니다.
+  static RenderedText? _nonBlankMeaning(RenderedText? meaning) =>
+      meaning == null || isBlankText(meaning) ? null : meaning;
+
   /// 사전에서 용어 이름·한자·뜻을 찾습니다. 이름이 없는 용어는 값 없는 오류로 바꿔
   /// 상태 뷰가 오류 화면과 오류 요약 보고(D64)를 맡게 합니다.
   AsyncValue<_TermText> _termTextOf(
@@ -242,7 +248,7 @@ class ExplainSheet extends ConsumerWidget {
           : AsyncData((
               title: title,
               hanja: names.hanjaOf(termId),
-              meaning: names.meaningOf(termId),
+              meaning: _nonBlankMeaning(names.meaningOf(termId)),
             ));
     }
     final error = glossary.error;

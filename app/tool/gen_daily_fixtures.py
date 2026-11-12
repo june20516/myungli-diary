@@ -16,6 +16,11 @@ member 프로필(`fixtures/member/updateProfile.json`: 양력 1990-05-15 14:30, 
   (2026-10-13 낮은 신시 15:30~17:30).
 * `fortune.head`, `fortune.tag`의 `reactable`은 server 규칙대로 true입니다(`content.Reactable`).
 
+시나리오 `member-overseas`(프로필 현재 시간대 America/Los_Angeles, 출생은 member와 같음, 오늘 2026-10-13)
+* member 응답(위에서 채운 것)을 바탕으로 `dayVirtues`와 세 집중 시간 카드만 그 시간대의 엔진 값으로 다시 채웁니다
+  (`compose_daily`의 현재 시간대 인자). 진시는 그 시간대 08:00(-07:00)에 시작합니다. 문장은 member 응답(ko)
+  그대로입니다. server가 이 시간대 프로필에 주는 시진 경계(#1064)를 fake 앱과 테스트가 같은 값으로 봅니다.
+
 새 시나리오 `daily-pair-virtue`(근거 잠김)와 `daily-pair-virtue-unlocked`(근거 열림), 오늘 2026-10-19
 * 기존 짝(`member`, `evidence-unlocked`)처럼 같은 날의 잠긴 응답과 열린 응답입니다.
 * 색이 둘인 날(`secondColor`)이면서 천덕일과 월덕일이 함께 드는 날입니다(戌월 丙寅일). 응답 전체가 엔진 값이고,
@@ -48,6 +53,7 @@ from myungli_engine.domain.models import Judgment
 from myungli_engine.rules.focus_time import FocusPick
 
 SEOUL = "Asia/Seoul"
+LOS_ANGELES = "America/Los_Angeles"
 KNOWN = BirthInput(CalendarType.SOLAR, False, date(1990, 5, 15), time(14, 30), Gender.FEMALE, SEOUL, None)
 UNKNOWN = BirthInput(CalendarType.SOLAR, False, date(1990, 5, 15), None, Gender.FEMALE, SEOUL, None)
 
@@ -69,7 +75,7 @@ TAG_POLARITY = {
     "tag.ten_god_rush.gwanseong": "bad",
     "tag.ten_god_rush.inseong": "good",
     "tag.cheoneul_gwiin": "good",
-    "tag.dohwa": "good",
+    "tag.dohwa": "neutral",
     "tag.yeokma": "neutral",
     "tag.hwagae": "neutral",
     "tag.gongmang": "bad",
@@ -126,12 +132,12 @@ def day_virtues(view, *, unlocked: bool) -> list[dict]:
     return out
 
 
-def patch_existing(body: dict, birth: BirthInput) -> dict:
-    """기존 손 fixture에 REST 1.11.0, 1.12.0 값을 엔진으로 채웁니다(위 설명)."""
+def patch_existing(body: dict, birth: BirthInput, timezone: str = SEOUL) -> dict:
+    """기존 손 fixture에 REST 1.11.0, 1.12.0 값을 엔진으로 채웁니다(위 설명). [timezone]은 프로필 현재 시간대입니다."""
     unlocked = body["evidenceAccess"] == "unlocked"
     target = date.fromisoformat(body["date"])
-    view = compose_daily(birth, target, SEOUL)
-    previous = compose_daily(birth, target - timedelta(days=1), SEOUL)
+    view = compose_daily(birth, target, timezone)
+    previous = compose_daily(birth, target - timedelta(days=1), timezone)
     cards = body["cards"]
     day_pick, day_judgment = view.focus[0]
     night_pick, night_judgment = view.focus[1]
@@ -270,6 +276,12 @@ def main(out: Path) -> None:
         else:
             fixture["body"] = patch_existing(fixture["body"], birth)
         write(path, fixture)
+    # 한국 밖 프로필: member 응답에 프로필 현재 시간대 America/Los_Angeles의 엔진 값을 채웁니다(위 설명).
+    member = read(out / "member" / "getDaily.json")
+    write(
+        out / "member-overseas" / "getDaily.json",
+        {**member, "body": patch_existing(member["body"], KNOWN, LOS_ANGELES)},
+    )
     for scenario, unlocked in (("daily-pair-virtue", False), ("daily-pair-virtue-unlocked", True)):
         write(
             out / scenario / "getDaily.json",

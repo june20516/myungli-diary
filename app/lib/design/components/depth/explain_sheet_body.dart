@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
-import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/depth/weighing_note.dart';
@@ -220,8 +219,8 @@ class ExplainSheetBody extends StatelessWidget {
                 slotId: meaningSlotId,
               ),
             ),
-          // 뜻이 없거나 빈 문장이면 상자도 두지 않습니다(사주 기운 시트와 같은 조건).
-          if (meaning != null && !isBlankText(meaning) && weighingNote != null)
+          // 뜻이 없으면 상자도 두지 않습니다. 빈 문장 뜻은 여는 쪽이 없는 것으로 넘깁니다(A139 ②).
+          if (meaning != null && weighingNote != null)
             WeighingNote(text: weighingNote),
           if (todayReason != null)
             Padding(

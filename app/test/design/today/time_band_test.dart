@@ -293,7 +293,7 @@ void main() {
     }
 
     await tester.pumpWidget(_app(_band()));
-    // 꼬리표(11 x 1.3)와 넘침 6에서 머리 아래 빈 여백 4를 빼면 16을 넘지 않거나 1px 안입니다.
+    // 꼬리표(11 x 1.3)와 넘침 6에서 머리 아래 빈 여백 4를 빼면 16.3이라 계약 16에서 0.3 넘습니다(1px 안).
     expect(gap(), moreOrLessEquals(TimeBand.headGapBelow, epsilon: 0.5));
 
     tester.platformDispatcher.textScaleFactorTestValue = 1.3;
