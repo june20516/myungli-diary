@@ -24,7 +24,7 @@
 - {slot: evidence.basis, key: "basis.tags/clash", text: "오늘 지지 {day_branch}(이)가 {natal_positions}(과)와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/clash_day_branch", text: "오늘 지지 {day_branch}(이)가 태어난 날의 지지와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "오늘 지지 {day_branch}(이)가 태어난 달의 지지와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
-- {slot: evidence.basis, key: "basis.tags/dohwa", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/dohwa", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요. 원전은 도화를 길한 신살로 보지 않고 한국에서는 매력과 인기로 풀어, 여기서는 둘을 함께 말해요."}
 - {slot: evidence.basis, key: "basis.tags/gongmang", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/gosin", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/gwasuk", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}

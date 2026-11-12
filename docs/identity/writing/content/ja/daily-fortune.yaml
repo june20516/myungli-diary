@@ -72,9 +72,9 @@
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: advice, text: "大きな決断は急がず、一日置いてみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: state, text: "慣れた環境に変化が起きやすい日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: care, text: "忙しい流れに疲れても、おかしくない日です。"}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "発表や集まりなど、人前に立つことをしてみてください。"}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "人の視線が自分に集まりやすい日です。"}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "誰かに好意的に見てもらえる、ときめきがある日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "注目が集まる日なので、言葉と行動を一度見直してみてください。"}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "目を引きやすいぶん、噂も立ちやすい日です。"}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "気持ちが浮つきやすい日です。ゆっくりで大丈夫です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "新しく始めるより、進めていたことを仕上げてみてください。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "始めたことが思ったよりゆっくり進む日です。"}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "結果が遅れても、焦らなくていい日です。"}
