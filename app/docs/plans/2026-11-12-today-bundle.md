@@ -149,10 +149,11 @@ server PR #1084 병합됨(main에 있음, Task 6A 전에 controller가 merge함)
 
 ## Task 7: 마무리
 
-* `tool/goldens_linux.sh`로 전체 golden 재생성과 확인, 바뀐 화면 스크린샷(`tool/screens_linux.sh`) 갱신(오늘, 행운 색 둘, 시간 시트, 덕일, 만세력 신살 띠, 미리보기 사용함).
-* `flutter analyze`, `dart analyze`, `flutter test --exclude-tags golden`, 계약 테스트, `mlw check-arb`, fixture 검사, `dart run tool/ia_coverage.dart --check`, widgetbook analyze와 test, 생성 코드 차이 없음(CI "생성 코드 차이 확인" 단계와 같은 명령), `dart format --set-exit-if-changed .`.
-* Patrol: 바뀐 흐름(`today_test`, `calendar_test`, `onboarding_test`, `me_test`)을 `PATROL_AVD=Medium_Phone tool/patrol_local.sh`로.
-* `app/CLAUDE.md` 현재 상태 맨 위에 이 PR 항목(결정 A133~, 함께 닫는 #983, #1032, 참고 #1018), 다음 할 일 갱신.
+* `tool/goldens_linux.sh`로 전체 golden 재생성과 확인. 새 사례가 golden에 있는지 봅니다: `hanja-tag` `compact`, 덕일 `date-header`, 행운 색 두 칸 알약, 두 색 시트, `TimeBand`(연 칩과 다른 칩 고리), `sentence_hanja_supplement`(원전 罡 대체 글꼴), `settings-row` `readonly`, `offer-card` `unavailable`. 없는 사례는 더합니다.
+* 바뀐 화면 스크린샷(`tool/screens_linux.sh`) 갱신: 오늘(날짜 머리 덕일과 일진 독음), 행운 색 둘(칩과 두 색 시트), 시간 시트(낮, 밤, 띠 고리), 만세력 신살 띠와 기준 줄 일간 표기, 신살 풀이 시트 마무리 상자(괴강 등 새 대상), 빈 풀이 시트, 일기 쓰기 날짜 블록 일진 독음, 미리보기 사용함(readonly 목록), 광고 제거 상품 없음(`ad-free` `empty`). 스크린샷 사례가 없으면 등록합니다.
+* `flutter analyze`, `dart analyze`, `flutter test --exclude-tags golden`, 계약 테스트, `mlw check-arb`, fixture 검사, `dart run tool/ia_coverage.dart --check`, widgetbook analyze와 test, 생성 코드 차이 없음(CI "생성 코드 차이 확인" 단계와 같은 명령, `gen_api.sh` 포함), `dart format --set-exit-if-changed .`.
+* Patrol: 바뀐 흐름(`today_test`, `calendar_test`, `onboarding_test`, `me_test`, `diary_test`, 광고 제거 화면이 든 흐름)을 `PATROL_AVD=Medium_Phone tool/patrol_local.sh`로.
+* `app/CLAUDE.md` 현재 상태 맨 위에 이 PR 항목을 둡니다. 이 PR은 버그 묶음 `app/bugs-review2`(draft PR #1057, A126~A132)를 아래에 품으므로 두 묶음을 한 항목으로 정리합니다(결정 A126~A140, 함께 닫는 #922, #924, #931, #936, #957, #1013, #983, #1032, drift #1018). 기존 "검수 회차2 버그 묶음" 항목은 이 항목으로 합칩니다. 답을 기다리는 것: writing #1095(만세력 기준 줄 일간 표기), design #1063 문구 보충(밤 칩 전환 "07:30"을 진시 시작으로). 다음 할 일 0번을 갱신합니다.
 
 ## 확인 필요
 
