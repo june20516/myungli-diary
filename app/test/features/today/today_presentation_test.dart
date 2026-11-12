@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
@@ -981,6 +982,81 @@ void main() {
         ).timeUnknown,
         isTrue,
       );
+    });
+  });
+
+  group('덕일 (D124 ⑤, V119)', () {
+    /// daily-pair-virtue(천덕일, 월덕일)의 덕일 목록을 [edit]로 바꾼 응답.
+    Daily virtueDaily(
+      List<Map<String, dynamic>> Function(List<Map<String, dynamic>>) edit,
+    ) {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      final virtues = (json['dayVirtues'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      json['dayVirtues'] = edit(virtues);
+      return Daily.fromJson(json);
+    }
+
+    test('덕일이 아닌 날(빈 배열)은 알약이 없습니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      expect(daily.dayVirtues, isEmpty);
+      expect(_display(daily).virtues, isEmpty);
+    });
+
+    test('하나면 그 덕의 이름, 德, 풀이 문장, 덕일 근거 id입니다', () {
+      final daily = virtueDaily((virtues) => [virtues.last]);
+      final virtue = _display(daily).virtues.single;
+      expect(virtue.kind, DayVirtueKind.woldeokDay);
+      expect(virtue.label, _l10n.todayDateVirtueWoldeok);
+      expect(virtue.glyph, '德');
+      expect(virtue.body, daily.dayVirtues.single.text.text);
+      expect(virtue.evidenceSlotId, 'explain.day_virtue#woldeok_day');
+    });
+
+    test('둘이면 응답 순서(천덕일, 월덕일)대로 둘입니다', () {
+      final daily = Daily.fromJson(dailyFixtureJson('daily-pair-virtue'));
+      expect(_display(daily).virtues.map((virtue) => virtue.label), [
+        _l10n.todayDateVirtueCheondeok,
+        _l10n.todayDateVirtueWoldeok,
+      ]);
+    });
+
+    test('모르는 덕은 건너뛰고 같은 덕이 두 번 오면 한 번만 그립니다', () {
+      final daily = virtueDaily(
+        (virtues) => [
+          {...virtues.first, 'kind': 'samhap_day'},
+          virtues.last,
+          virtues.last,
+        ],
+      );
+      expect(daily.dayVirtues, hasLength(3));
+      expect(_display(daily).virtues.map((virtue) => virtue.kind), [
+        DayVirtueKind.woldeokDay,
+      ]);
+    });
+
+    test('두 덕 문장은 같은 슬롯이라 근거는 덕일 id로 각자의 문장을 찾습니다', () {
+      final daily = Daily.fromJson(dailyFixtureJson('daily-pair-virtue'));
+      final [cheondeok, woldeok] = daily.dayVirtues;
+      expect(cheondeok.text.slot, woldeok.text.slot);
+      expect(
+        dailySlotText(daily, dailyVirtueSlotId(cheondeok)),
+        same(cheondeok.text),
+      );
+      expect(
+        dailySlotText(daily, dailyVirtueSlotId(woldeok)),
+        same(woldeok.text),
+      );
+      final plain = Daily.fromJson(memberDailyJson());
+      expect(dailySlotText(plain, dailyVirtueSlotId(cheondeok)), isNull);
+      // 슬롯이 다르면 같은 덕이어도 찾지 않습니다.
+      expect(dailySlotText(daily, 'daily.color#cheondeok_day'), isNull);
+    });
+
+    test('덕일이 바뀌면 오늘 화면 값도 다릅니다(SeepOnChange)', () {
+      final pair = Daily.fromJson(dailyFixtureJson('daily-pair-virtue'));
+      final one = virtueDaily((virtues) => [virtues.first]);
+      expect(_display(pair), isNot(_display(one)));
     });
   });
 }

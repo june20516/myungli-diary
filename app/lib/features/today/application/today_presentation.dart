@@ -7,6 +7,8 @@ import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
@@ -186,6 +188,12 @@ enum DailyCardField {
 /// 슬롯만으로는 첫 카드(낮)의 근거가 열립니다. [dailySlotText]가 이 id를 읽습니다.
 String dailyCardSlotId(SlotText text, DailyCardField field) =>
     '${text.slot}#${field.name}';
+
+/// 덕일 풀이 문장의 근거 id(`<슬롯>#<덕 종류 값>`, 예 `explain.day_virtue#cheondeok_day`).
+/// 천덕일과 월덕일 문장은 같은 슬롯 `explain.day_virtue`라 카드 id(A134)처럼 덕 종류로 하나를
+/// 찾습니다. [dailySlotText]가 이 id를 읽습니다.
+String dailyVirtueSlotId(DayVirtue virtue) =>
+    '${virtue.text.slot}#${virtue.kind.value}';
 
 /// 오늘 화면 시간 칩 하나가 가리키는 카드와 그 근거 id([dailyCardSlotId]).
 typedef FocusTimePick = ({FocusTimeCard card, String evidenceSlotId});
@@ -404,15 +412,23 @@ List<String> skippedFeaturedTagKeysOf(Daily daily, GlossaryNames names) => [
 ///
 /// 날의 성격 이유·총운(첫 문장·태그 문장)·가이드 질문·행운 카드 문장을 찾습니다. 풀이 시트는
 /// 이 문장의 `todayReason`(오늘 그런 이유)을, 근거 시트는 `evidence`를 씁니다. 카드 id
-/// ([dailyCardSlotId], `<슬롯>#<카드>`)면 그 카드의 문장이고, 카드가 없거나 슬롯이 다르면 null입니다.
+/// ([dailyCardSlotId], `<슬롯>#<카드>`)면 그 카드의 문장이고, 덕일 id([dailyVirtueSlotId],
+/// `<슬롯>#<덕 종류>`)면 그 덕의 풀이 문장입니다. 그 카드나 덕이 없거나 슬롯이 다르면 null입니다.
 SlotText? dailySlotText(Daily daily, String slotId) {
   final cards = daily.cards;
-  final cardMark = slotId.indexOf('#');
-  if (cardMark >= 0) {
-    final field = DailyCardField.values
-        .asNameMap()[slotId.substring(cardMark + 1)];
-    final text = field?.textIn(cards);
-    return text?.slot == slotId.substring(0, cardMark) ? text : null;
+  final mark = slotId.indexOf('#');
+  if (mark >= 0) {
+    final slot = slotId.substring(0, mark);
+    final suffix = slotId.substring(mark + 1);
+    final field = DailyCardField.values.asNameMap()[suffix];
+    final text = field == null
+        ? daily.dayVirtues
+              .where((virtue) => virtue.kind.isKnown)
+              .where((virtue) => virtue.kind.value == suffix)
+              .firstOrNull
+              ?.text
+        : field.textIn(cards);
+    return text?.slot == slot ? text : null;
   }
   final slots = [
     daily.characterReason,
@@ -505,6 +521,7 @@ final class TodayDisplay {
   const new({
     required this.lunarText,
     required this.iljinText,
+    required this.virtues,
     required this.dayKind,
     required this.dayKindLabel,
     required this.tenGodGroup,
@@ -524,6 +541,10 @@ final class TodayDisplay {
 
   /// 날짜 머리의 일진 글자(`today.date.iljin`, 예 `庚申(경신)일`).
   final String iljinText;
+
+  /// 날짜 머리의 덕일 알약(`today.date.virtue`, 응답 순서, [dayVirtuesOf]). 덕일이 아닌 날은
+  /// 비어 있습니다.
+  final List<DayVirtueContent> virtues;
 
   /// 날의 성격(총운 결정 태그 첫째, `today.character.label`).
   final DayKind dayKind;
@@ -572,6 +593,7 @@ final class TodayDisplay {
   List<Object?> get _props => [
     lunarText,
     iljinText,
+    virtues,
     dayKind,
     dayKindLabel,
     tenGodGroup,
@@ -604,6 +626,13 @@ Object? _canonical(Object? value) => switch (value) {
   RenderedText() => value.toJson(),
   SentenceLine() => [value.slot, value.text.toJson()],
   FeaturedTagContent() => [value.rank, value.key, value.glyph, value.label],
+  DayVirtueContent() => [
+    value.kind.value,
+    value.glyph,
+    value.label,
+    value.body.toJson(),
+    value.evidenceSlotId,
+  ],
   LuckyItem() => [
     value.variant.name,
     value.name,
@@ -627,6 +656,69 @@ String? lunarTextOf(Daily daily, AppLocalizations l10n) {
   return lunar.isLeapMonth
       ? l10n.todayDateLunarLeap(lunar.month, lunar.day)
       : l10n.todayDateLunar(lunar.month, lunar.day);
+}
+
+/// 날짜 머리 덕일 알약 하나(`date-header` `parts.virtue`, D124 ⑤, V119)와 그 풀이 시트 값.
+@immutable
+final class DayVirtueContent {
+  /// 덕일 값을 만듭니다.
+  const new({
+    required this.kind,
+    required this.glyph,
+    required this.label,
+    required this.body,
+    required this.evidenceSlotId,
+  });
+
+  /// 덕 종류(같은 날 같은 덕을 한 번만 그리는 식별 키이자, 열린 시트를 가리키는 값).
+  final DayVirtueKind kind;
+
+  /// 원 안 한자(`glyphs.virtueDay`).
+  final String glyph;
+
+  /// 알약 이름이자 풀이 시트 제목(ARB `todayDateVirtue*`).
+  final String label;
+
+  /// 풀이 시트 본문(`DayVirtue.text`, 슬롯 `explain.day_virtue`).
+  final RenderedText body;
+
+  /// 근거 시트가 이 덕의 문장을 찾는 id([dailyVirtueSlotId]).
+  final String evidenceSlotId;
+}
+
+/// 덕 이름(ARB `todayDateVirtueCheondeok`, `todayDateVirtueWoldeok`).
+/// 모르는 값은 null입니다.
+String? dayVirtueName(AppLocalizations l10n, DayVirtueKind kind) =>
+    switch (kind) {
+      DayVirtueKind.cheondeokDay => l10n.todayDateVirtueCheondeok,
+      DayVirtueKind.woldeokDay => l10n.todayDateVirtueWoldeok,
+      DayVirtueKind.unknownDefaultOpenApi => null,
+    };
+
+/// [daily]의 덕일 알약(응답 순서). 열린 enum의 모르는 덕은 이름과 글자가 없어 건너뛰고, 같은
+/// 덕이 두 번 오면 처음 하나만 둡니다(받은 데이터는 그대로, 그리는 단계에서 `kind`로 거름).
+/// 덕일이 아닌 날(빈 배열)은 빈 목록이고 날짜 머리에 칸이 없습니다.
+List<DayVirtueContent> dayVirtuesOf(Daily daily, AppLocalizations l10n) {
+  final virtues = <DayVirtueKind, DayVirtueContent>{};
+  for (final virtue in daily.dayVirtues) {
+    if (virtues.containsKey(virtue.kind)) continue;
+    final content = _dayVirtueContentOf(virtue, l10n);
+    if (content != null) virtues[virtue.kind] = content;
+  }
+  return virtues.values.toList();
+}
+
+DayVirtueContent? _dayVirtueContentOf(DayVirtue virtue, AppLocalizations l10n) {
+  final label = dayVirtueName(l10n, virtue.kind);
+  final glyph = HanjaGlyphs.forDayVirtue(virtue.kind);
+  if (label == null || glyph == null) return null;
+  return DayVirtueContent(
+    kind: virtue.kind,
+    glyph: glyph,
+    label: label,
+    body: virtue.text.text,
+    evidenceSlotId: dailyVirtueSlotId(virtue),
+  );
 }
 
 /// [daily]의 일진 글자(`todayDateIljin`). 간지 글자는 [pillarTextOf]입니다.
@@ -664,6 +756,7 @@ TodayDisplay todayDisplayOf(
   return TodayDisplay(
     lunarText: lunarTextOf(daily, l10n),
     iljinText: iljinTextOf(daily, names, l10n),
+    virtues: dayVirtuesOf(daily, l10n),
     dayKind: daily.dayKind,
     dayKindLabel: dayKindName(l10n, daily.dayKind),
     tenGodGroup: group,

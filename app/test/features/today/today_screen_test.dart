@@ -220,6 +220,19 @@ final class _SheetLog {
   );
 }
 
+/// 오늘 응답을 [json]으로 고정합니다(fixture를 고친 응답).
+Override _dailyOf(Map<String, dynamic> json) =>
+    dailyControllerProvider.overrideWith(
+      () => _StubDaily(
+        () async => DailyView(
+          date: _today,
+          daily: Daily.fromJson(json),
+          stale: false,
+          cacheKey: null,
+        ),
+      ),
+    );
+
 /// [slotId] 자리의 `hanja-tag`.
 Finder _tagIn(String slotId) => find.descendant(
   of: find.byKey(ValueKey(slotId)),
@@ -1354,18 +1367,6 @@ void main() {
       return json;
     }
 
-    Override dailyOf(Map<String, dynamic> json) =>
-        dailyControllerProvider.overrideWith(
-          () => _StubDaily(
-            () async => DailyView(
-              date: _today,
-              daily: Daily.fromJson(json),
-              stale: false,
-              cacheKey: null,
-            ),
-          ),
-        );
-
     testWidgets('07:30을 지나는 순간 밤 칩이 전날 밤 새벽에서 오늘 밤으로 값과 함께 바뀝니다', (
       tester,
     ) async {
@@ -1375,7 +1376,7 @@ void main() {
         tester,
         scenario: 'member',
         overrides: [
-          dailyOf(dailyJson()),
+          _dailyOf(dailyJson()),
           nowMinuteProvider.overrideWith((ref) => minutes.stream),
         ],
       );
@@ -1405,7 +1406,7 @@ void main() {
         tester,
         scenario: 'member',
         overrides: [
-          dailyOf(dailyJson()),
+          _dailyOf(dailyJson()),
           nowMinuteProvider.overrideWith((ref) => minutes.stream),
         ],
       );
@@ -1448,7 +1449,7 @@ void main() {
       (json['cards'] as Map<String, dynamic>)
         ..remove('nightFocusTime')
         ..remove('previousNightFocusTime');
-      await pumpApp(tester, scenario: 'member', overrides: [dailyOf(json)]);
+      await pumpApp(tester, scenario: 'member', overrides: [_dailyOf(json)]);
       await _settleToday(tester);
       expect(chip(AppTimeOfDay.day), findsOneWidget);
       expect(chip(AppTimeOfDay.night), findsNothing);
@@ -1516,18 +1517,6 @@ void main() {
     Finder colorChip() =>
         find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color));
 
-    Override dailyOf(Map<String, dynamic> json) =>
-        dailyControllerProvider.overrideWith(
-          () => _StubDaily(
-            () async => DailyView(
-              date: _today,
-              daily: Daily.fromJson(json),
-              stale: false,
-              cacheKey: null,
-            ),
-          ),
-        );
-
     testWidgets('색이 하나인 날 시트는 본문 아래 첫째 색 카드의 근거 진입점을 둡니다(V118)', (
       tester,
     ) async {
@@ -1553,7 +1542,7 @@ void main() {
       await pumpApp(
         tester,
         scenario: 'member',
-        overrides: [sheets.override, dailyOf(json)],
+        overrides: [sheets.override, _dailyOf(json)],
       );
       await _settleToday(tester);
       final daily = Daily.fromJson(json);
@@ -1587,11 +1576,123 @@ void main() {
     testWidgets('둘째 색이 없는 응답은 한 칸 칩이고 오류가 아닙니다', (tester) async {
       final json = dailyFixtureJson('daily-pair-virtue');
       (json['cards'] as Map<String, dynamic>).remove('secondColor');
-      await pumpApp(tester, scenario: 'member', overrides: [dailyOf(json)]);
+      await pumpApp(tester, scenario: 'member', overrides: [_dailyOf(json)]);
       await _settleToday(tester);
       expect(colorChip(), findsOneWidget);
       expect(find.byKey(LuckyChip.pairHalfKey(0)), findsNothing);
       expect(find.byType(ErrorState), findsNothing);
+    });
+  });
+
+  group('날짜 머리 덕일(D124 ⑤, V119)', () {
+    /// 날짜 머리 안의 덕일 알약.
+    Finder virtuePills() => find.descendant(
+      of: find.byType(DateHeader),
+      matching: find.byType(HanjaTag),
+    );
+
+    HanjaTag pill(WidgetTester tester, int index) =>
+        tester.widget<HanjaTag>(virtuePills().at(index));
+
+    testWidgets('덕일이 아닌 날(member)은 날짜 머리에 알약이 없습니다', (tester) async {
+      await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+      expect(find.byType(DateHeader), findsOneWidget);
+      expect(virtuePills(), findsNothing);
+    });
+
+    testWidgets('천덕일과 월덕일인 날은 일진 뒤 compact 길 톤 알약 둘(응답 순서)입니다', (tester) async {
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [_dailyOf(dailyFixtureJson('daily-pair-virtue'))],
+      );
+      await _settleToday(tester);
+      expect(virtuePills(), findsNWidgets(2));
+      expect(pill(tester, 0).label, _ko.todayDateVirtueCheondeok);
+      expect(pill(tester, 1).label, _ko.todayDateVirtueWoldeok);
+      for (final index in [0, 1]) {
+        expect(pill(tester, index).size, HanjaTagSize.compact);
+        expect(pill(tester, index).tone, HanjaTagTone.good);
+        expect(pill(tester, index).glyph, '德');
+      }
+      final iljin = tester.getRect(find.byKey(DateHeader.iljinKey));
+      expect(
+        tester.getRect(virtuePills().first).left,
+        greaterThan(iljin.right),
+      );
+    });
+
+    testWidgets('모르는 덕은 건너뛰고 오류가 아닙니다', (tester) async {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      final virtues = (json['dayVirtues'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      json['dayVirtues'] = [
+        {...virtues.first, 'kind': 'samhap_day'},
+        virtues.last,
+      ];
+      await pumpApp(tester, scenario: 'member', overrides: [_dailyOf(json)]);
+      await _settleToday(tester);
+      expect(virtuePills(), findsOneWidget);
+      expect(pill(tester, 0).label, _ko.todayDateVirtueWoldeok);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+
+    testWidgets('알약을 누르면 그 덕의 풀이 시트이고 열린 동안 selected입니다', (tester) async {
+      final sheets = _SheetLog();
+      final json = dailyFixtureJson('daily-pair-virtue');
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [sheets.override, _dailyOf(json)],
+      );
+      await _settleToday(tester);
+      final daily = Daily.fromJson(json);
+      for (final (index, label, slotId) in [
+        (0, _ko.todayDateVirtueCheondeok, 'explain.day_virtue#cheondeok_day'),
+        (1, _ko.todayDateVirtueWoldeok, 'explain.day_virtue#woldeok_day'),
+      ]) {
+        await tester.tap(virtuePills().at(index));
+        await tester.pumpAndSettle();
+        final virtue = sheets.explained.last as ExplainDayVirtue;
+        expect(virtue.title, label);
+        expect(
+          virtue.body.toJson(),
+          daily.dayVirtues[index].text.text.toJson(),
+        );
+        expect(virtue.origin.slotId, slotId);
+        expect(virtue.origin.subject, isA<DailyEvidenceSubject>());
+        expect(sheets.explainHeads.last, isNull);
+        expect(pill(tester, index).variant, HanjaTagVariant.selected);
+        expect(pill(tester, 1 - index).variant, HanjaTagVariant.normal);
+        await closeSheet(tester, find.text('explain-body'));
+        expect(pill(tester, index).variant, HanjaTagVariant.normal);
+      }
+    });
+
+    testWidgets('알약 아래 넓힌 자리를 눌러도 풀이 시트가 열립니다(터치 높이 44)', (tester) async {
+      final sheets = _SheetLog();
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          sheets.override,
+          _dailyOf(dailyFixtureJson('daily-pair-virtue')),
+        ],
+      );
+      await _settleToday(tester);
+      final rect = tester.getRect(
+        find.descendant(
+          of: virtuePills().last,
+          matching: find.byKey(HanjaTag.surfaceKey),
+        ),
+      );
+      await tester.tapAt(Offset(rect.center.dx, rect.bottom + 10));
+      await tester.pumpAndSettle();
+      expect(
+        (sheets.explained.last as ExplainDayVirtue).title,
+        _ko.todayDateVirtueWoldeok,
+      );
     });
   });
 

@@ -24,6 +24,7 @@ import 'package:flutter/widgets.dart'
         TextEditingController,
         Widget;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/score_item.dart';
@@ -1041,13 +1042,124 @@ void main() {
     final tag = specs['hanja-tag']!;
     final parts = _map(tag['parts']);
 
-    test('글자표의 값 집합이 계약 parts.glyphs 17자와 같습니다 (A112)', () {
+    test('글자표의 값 집합이 계약 parts.glyphs 21자와 같습니다 (A112, V70 개정)', () {
       final glyphs = _map(parts['glyphs']);
       final contract = <String>{
         for (final group in glyphs.values) ..._map(group).keys,
       };
-      expect(contract, hasLength(17));
+      expect(contract, hasLength(21));
       expect(HanjaGlyphs.allGlyphs, contract);
+    });
+
+    test('덕일 글자는 계약 glyphs.virtueDay 하나이고 두 덕 모두 그 글자입니다 (V119)', () {
+      final virtueDay = _map(_map(parts['glyphs'])['virtueDay']);
+      final glyph = virtueDay.keys.single;
+      for (final kind in DayVirtueKind.values.where((kind) => kind.isKnown)) {
+        expect(HanjaGlyphs.forDayVirtue(kind), glyph, reason: '$kind');
+      }
+      expect(
+        HanjaGlyphs.forDayVirtue(DayVirtueKind.unknownDefaultOpenApi),
+        isNull,
+      );
+    });
+
+    test('compact 치수가 계약 variants.compact와 같습니다 (V119)', () {
+      final compact = _map(
+        (tag['variants']! as List<Object?>)
+            .map(_map)
+            .singleWhere((v) => v['id'] == 'compact')['parts'],
+      );
+      final pill = _map(compact['pill']);
+      final glyph = _map(compact['glyph']);
+      expect(_px(pill['height']), HanjaTag.compactHeight);
+      // 왼쪽 안쪽 여백은 기본과 같은 space.4입니다.
+      expect(pill['paddingStart'], '{space.4}');
+      expect(HanjaTag.paddingStart, Space.s4);
+      expect(pill['paddingEnd'], '{space.8}');
+      expect(HanjaTag.compactPaddingEnd, Space.s8);
+      expect(pill['gap'], '{space.2}');
+      expect(HanjaTag.compactGap, Space.s2);
+      expect(_px(glyph['size']), HanjaTag.compactGlyphSize);
+      expect(_px(glyph['fontSize']), HanjaTag.compactGlyphFontSize);
+      expect(_map(compact['name'])['type'], '{type.caption.md}');
+      expect(_map(compact['name'])['maxLines'], 1);
+      // 높이 22에서 위아래로 넓혀 44(a11y.minTarget과 같음).
+      expect(compact['hitSlop'], contains('44'));
+      expect(
+        HanjaTag.compactHeight + DateHeader.virtueHitSlop * 2,
+        _num(_map(tag['a11y'])['minTarget']),
+      );
+    });
+
+    testWidgets('compact 이름은 type.caption.md이고 한자 원 16 안 10입니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        inputApp(
+          const HanjaTag(
+            glyph: '德',
+            label: '천덕일',
+            tone: HanjaTagTone.good,
+            size: HanjaTagSize.compact,
+          ),
+        ),
+      );
+      final typography = tester
+          .element(find.byKey(HanjaTag.surfaceKey))
+          .tokens
+          .typography;
+      final name = tester.widget<Text>(find.text('천덕일')).style!;
+      expect(name.fontSize, typography.captionMd.fontSize);
+      expect(name.fontWeight, typography.captionMd.fontWeight);
+      expect(tester.widget<Text>(find.text('德')).style!.fontSize, 10);
+      expect(tester.getSize(find.byKey(HanjaTag.glyphKey)), const Size(16, 16));
+      expect(tester.getSize(find.byKey(HanjaTag.surfaceKey)).height, 22);
+    });
+
+    testWidgets('verdictTone은 tag.good, tag.bad이고 date-header에서도 씁니다 (V119)', (
+      tester,
+    ) async {
+      final tone = _map(parts['tone']);
+      expect(
+        tone['toneAllowedIn'],
+        containsAll(<String>['fortune-verdict', 'score-row', 'date-header']),
+      );
+      final verdict = _map(tone['verdictTone']);
+      Color colorOf(ColorTokens c, Object? ref) => switch (ref) {
+        '{color.tag.good.bg}' => c.tagGoodBg,
+        '{color.tag.good.fg}' => c.tagGoodFg,
+        '{color.tag.bad.bg}' => c.tagBadBg,
+        '{color.tag.bad.fg}' => c.tagBadFg,
+        _ => fail('모르는 토큰 $ref'),
+      };
+      for (final (key, hanjaTone) in [
+        ('good', HanjaTagTone.good),
+        ('bad', HanjaTagTone.bad),
+      ]) {
+        final spec = _map(verdict[key]);
+        await tester.pumpWidget(
+          inputApp(
+            HanjaTag(
+              glyph: '德',
+              label: '이름',
+              tone: hanjaTone,
+              size: HanjaTagSize.compact,
+            ),
+          ),
+        );
+        final c = tester.element(find.byKey(HanjaTag.surfaceKey)).tokens.colors;
+        final box =
+            tester
+                    .widget<DecoratedBox>(find.byKey(HanjaTag.surfaceKey))
+                    .decoration
+                as BoxDecoration;
+        expect(box.color, colorOf(c, spec['bg']), reason: key);
+        expect(
+          tester.widget<Text>(find.text('이름')).style!.color,
+          colorOf(c, spec['fg']),
+          reason: key,
+        );
+      }
     });
 
     test('알약·한자 원 치수가 계약과 같습니다', () {
@@ -1760,6 +1872,52 @@ void main() {
       await tester.tap(find.byKey(FortuneVerdict.toggleKey));
       await tester.pumpAndSettle();
       expect(toggleIcon().icon, PhosphorIconsRegular.caretUp);
+    });
+
+    test('date-header virtue: compact 길 톤 德, 일진 뒤, 그날 시트 없음(V119)', () {
+      final parts = _map(specs['date-header']!['parts']);
+      final virtue = _map(parts['virtue']);
+      expect(virtue['component'], 'hanja-tag');
+      expect(virtue['variant'], 'compact');
+      expect(virtue['tone'], 'verdictTone.good');
+      expect(virtue['slot'], SlotIds.todayDateVirtue);
+      for (final kind in DayVirtueKind.values.where((kind) => kind.isKnown)) {
+        expect(HanjaGlyphs.forDayVirtue(kind), virtue['glyph']);
+      }
+      expect(_map(parts['meta'])['order'], ['lunar', 'iljin', 'virtue']);
+      expect(_map(parts['meta'])['gap'], '{space.8}');
+      expect(
+        _map(variantParts('date-header', 'today')['virtue'])['visible'],
+        true,
+      );
+      expect(
+        _map(variantParts('date-header', 'day-sheet')['virtue'])['visible'],
+        false,
+      );
+    });
+
+    test('date-header virtue keys: 덕 종류마다 계약 ARB 키의 문구입니다(V119)', () {
+      final keys = _map(_map(specs['date-header']!['parts'])['virtue'])['keys'];
+      const kindOf = {
+        'CHEONDEOK': DayVirtueKind.cheondeokDay,
+        'WOLDEOK': DayVirtueKind.woldeokDay,
+      };
+      expect(_map(keys).keys, unorderedEquals(kindOf.keys));
+      for (final locale in ['ko', 'en', 'ja']) {
+        final arb = _map(
+          jsonDecode(
+            File('lib/core/l10n/arb/app_$locale.arb').readAsStringSync(),
+          ),
+        );
+        final l10n = lookupAppLocalizations(Locale(locale));
+        for (final MapEntry(key: name, value: kind) in kindOf.entries) {
+          expect(
+            dayVirtueName(l10n, kind),
+            arb[_map(keys)[name]],
+            reason: '$locale $name',
+          );
+        }
+      }
     });
 
     test(

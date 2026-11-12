@@ -8,6 +8,7 @@ import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
@@ -35,6 +36,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
@@ -277,7 +279,31 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
   /// 사주 기운 시트가 열려 있는 대표 태그 순번. 닫혀 있으면 null입니다.
   int? _openTagRank;
 
+  /// 풀이 시트가 열려 있는 덕일. 닫혀 있으면 null입니다.
+  DayVirtueKind? _openVirtue;
+
   DepthSheets get _sheets => widget.sheets;
+
+  /// 덕일 [virtue]의 풀이 시트를 열고, 닫힐 때까지 그 알약을 `selected`로 둡니다. 원국의
+  /// 천덕귀인, 월덕귀인 용어 풀이가 아니라 그날 덕일 문장이고, 근거는 그 문장의 근거입니다.
+  Future<void> _openVirtueSheet(DayVirtueContent virtue) async {
+    setState(() => _openVirtue = virtue.kind);
+    try {
+      await _sheets.openExplain(
+        context,
+        ExplainDayVirtue(
+          title: virtue.label,
+          body: virtue.body,
+          origin: TermOrigin(
+            slotId: virtue.evidenceSlotId,
+            subject: const DailyEvidenceSubject(),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _openVirtue = null);
+    }
+  }
 
   /// 오늘 새 일기를 쓰러 갑니다(A67·A69). 돌아오면 오늘 일기 목록과 달력 도장을 다시 묻습니다
   /// (쓰고 왔으면 줄이 늘고 도장이 찍힘).
@@ -479,13 +505,26 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               widget.offlineNotice,
-              Semantics(
-                identifier: SlotIds.todayDateSolar,
-                container: true,
-                child: DateHeader(
-                  solar: _solarTextOf(context, date),
-                  lunar: display.lunarText,
-                  iljin: display.iljinText,
+              // 덕일 알약의 아래쪽 넓힘이 slot 표시 상자 경계에서 막히지 않게 합니다.
+              HitSlopPassage(
+                bottom: display.virtues.isEmpty ? 0 : DateHeader.virtueHitSlop,
+                child: Semantics(
+                  identifier: SlotIds.todayDateSolar,
+                  container: true,
+                  child: DateHeader(
+                    solar: _solarTextOf(context, date),
+                    lunar: display.lunarText,
+                    iljin: display.iljinText,
+                    virtues: [
+                      for (final virtue in display.virtues)
+                        DateHeaderVirtue(
+                          glyph: virtue.glyph,
+                          label: virtue.label,
+                          selected: _openVirtue == virtue.kind,
+                          onTap: () => unawaited(_openVirtueSheet(virtue)),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               if (display.timeUnknown) ...[

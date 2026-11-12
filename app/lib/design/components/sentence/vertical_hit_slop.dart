@@ -96,3 +96,66 @@ class _RenderVerticalHitSlop extends RenderProxyBox {
     );
   }
 }
+
+/// 자식 안의 [VerticalHitSlop]이 넓힌 눌림이 이 상자 경계에서 막히지 않게, 위 [top]과 아래
+/// [bottom]만큼 바깥의 눌림을 받아 자식 가장자리로 모아 넘깁니다. 모양과 배치는 그대로입니다.
+///
+/// 보통 상자는 자기 영역 밖의 눌림을 자식에게 넘기지 않습니다. 넓힐 자리가 부모 영역 끝에 붙은
+/// 글줄(예: 날짜 머리 맨 아래 줄의 덕일 알약)이면 그 부모를 이것으로 감쌉니다. 자식 영역 안의
+/// 눌림은 그대로 넘기고, 넓힌 부분은 세로만 가장자리로 모으므로(가로 위치 그대로) 그 위치의
+/// 자식이 받습니다. 받는 자식이 없으면 이 상자도 받지 않습니다.
+class HitSlopPassage extends SingleChildRenderObjectWidget {
+  /// 위아래로 눌림을 받는 상자를 만듭니다.
+  const new({required super.child, this.top = 0, this.bottom = 0, super.key});
+
+  /// 위로 더 받는 높이.
+  final double top;
+
+  /// 아래로 더 받는 높이.
+  final double bottom;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderHitSlopPassage(top: top, bottom: bottom);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) =>
+      (renderObject as _RenderHitSlopPassage)
+        ..top = top
+        ..bottom = bottom;
+}
+
+class _RenderHitSlopPassage extends RenderProxyBox {
+  new({required this._top, required this._bottom});
+
+  double _top;
+  double _bottom;
+
+  // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
+  // ignore: avoid_setters_without_getters
+  set top(double value) => _top = value;
+
+  // 눌림 판정에서만 읽는 값이라 getter가 필요 없습니다.
+  // ignore: avoid_setters_without_getters
+  set bottom(double value) => _bottom = value;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    final inside =
+        position.dx >= 0 &&
+        position.dx < size.width &&
+        position.dy >= -_top &&
+        position.dy < size.height + _bottom;
+    if (!inside || size.height <= 0) return false;
+    final clamped = Offset(
+      position.dx,
+      position.dy.clamp(0, size.height - 0.01),
+    );
+    return result.addWithRawTransform(
+      transform: null,
+      position: position,
+      hitTest: (result, _) =>
+          child?.hitTest(result, position: clamped) ?? false,
+    );
+  }
+}

@@ -487,6 +487,115 @@ void main() {
     await _closeSheet(tester);
   });
 
+  /// 덕일인 날 [scenario]에서 날짜 머리의 [index]째 덕일 알약을 눌러 그 덕의 풀이 시트를 열고
+  /// ([label] 제목, [body] 본문), 근거 진입점으로 근거 시트를 엽니다. 근거 시트 본문을 돌려줍니다.
+  Future<EvidenceSheetBody> openVirtueEvidence(
+    WidgetTester tester, {
+    required String scenario,
+    required int index,
+    required String label,
+    required String body,
+  }) async {
+    await _openToday(tester, scenario: scenario);
+    final pills = find.descendant(
+      of: find.byType(DateHeader),
+      matching: find.byType(HanjaTag),
+    );
+    expect(pills, findsNWidgets(2));
+    await tester.tap(pills.at(index));
+    await tester.pumpAndSettle();
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
+    expect(
+      find.descendant(of: explain, matching: find.text(label)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: explain,
+        matching: find.text(body, findRichText: true),
+      ),
+      findsOneWidget,
+    );
+    // 원국의 천덕귀인, 월덕귀인 용어 풀이와 섞이지 않습니다.
+    expect(
+      find.descendant(of: explain, matching: find.byType(TermToken)),
+      findsNothing,
+    );
+    await tester.tap(depthLinkTarget(of: explain));
+    await tester.pumpAndSettle();
+    final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+    expect(evidence, findsOneWidget);
+    return tester.widget<EvidenceSheetBody>(
+      find.descendant(of: evidence, matching: find.byType(EvidenceSheetBody)),
+    );
+  }
+
+  testWidgets('daily-pair-virtue: 천덕일 알약 → 덕일 풀이 시트 → 그 덕 근거(잠김, 앞부분)', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+        decisions: ['D124'],
+      ),
+    );
+    final body = await openVirtueEvidence(
+      tester,
+      scenario: 'daily-pair-virtue',
+      index: 0,
+      label: _ko.todayDateVirtueCheondeok,
+      body: '하늘의 덕이 들어오는 날이에요.',
+    );
+    expect(body.state, DepthLinkState.locked);
+    expect(body.basisLead, isNotNull);
+    // 두 덕 문장은 같은 슬롯이라 덕일 id로 누른 덕의 근거를 엽니다.
+    expect(
+      tester.widget<EvidenceSheet>(find.byType(EvidenceSheet)).slotId,
+      'explain.day_virtue#cheondeok_day',
+    );
+    await _closeSheet(tester);
+  });
+
+  testWidgets('daily-pair-virtue-unlocked: 월덕일 풀이 시트의 근거는 열린 그 덕의 근거', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+        decisions: ['D124'],
+      ),
+    );
+    final body = await openVirtueEvidence(
+      tester,
+      scenario: 'daily-pair-virtue-unlocked',
+      index: 1,
+      label: _ko.todayDateVirtueWoldeok,
+      body: '달의 덕이 들어오는 날이에요.',
+    );
+    expect(body.state, DepthLinkState.unlocked);
+    expect(
+      tester.widget<EvidenceSheet>(find.byType(EvidenceSheet)).slotId,
+      'explain.day_virtue#woldeok_day',
+    );
+    final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+    expect(
+      find.descendant(
+        of: evidence,
+        matching: find.textContaining('달의 덕이 드는 천간', findRichText: true),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: evidence,
+        matching: find.textContaining('하늘의 덕이 드는 천간', findRichText: true),
+      ),
+      findsNothing,
+    );
+    await _closeSheet(tester);
+  });
+
   testWidgets('member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다', (tester) async {
     covers(
       const Covers(

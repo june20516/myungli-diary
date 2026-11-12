@@ -69,6 +69,25 @@ final class ExplainLucky extends ExplainContent {
   final TermOrigin? origin;
 }
 
+/// 날짜 머리 덕일(천덕일, 월덕일, D124 ⑤, V119)의 풀이. 제목은 `type.subtitle`입니다.
+///
+/// 원국의 천덕귀인, 월덕귀인 풀이(사전 용어 [ExplainTerm])와 다른 주제라 사전을 보지 않고, 본문은
+/// 그날 응답의 덕일 문장(`DayVirtue.text`, 슬롯 `explain.day_virtue`)입니다.
+final class ExplainDayVirtue extends ExplainContent {
+  /// [title] 아래에 [body]를 보이고, 맨 끝에 [origin]의 근거 진입점을 둡니다.
+  const new({required this.title, required this.body, required this.origin});
+
+  /// 시트 제목(누른 알약의 덕 이름).
+  final String title;
+
+  /// 덕일 풀이 문장.
+  final RenderedText body;
+
+  /// 근거 진입점이 열 덕일 문장과 그 응답(덕일 id, `dailyVirtueSlotId`). 잠금은 근거 시트가
+  /// 응답의 `evidenceAccess`로 정합니다.
+  final TermOrigin origin;
+}
+
 /// 색이 둘인 날 행운 색 시트(`lucky-card` `colorPairSheet`, D119 ②, D123, V114)의
 /// 내용. 알약의 어느 칸을 눌러도 이 내용 하나입니다. 제목은 항목 이름(행운 색), 그 아래
 /// [intro] 한 줄, 그리고 색마다 구역([sections], 첫째 색 다음 둘째 색)이 구분선 사이로

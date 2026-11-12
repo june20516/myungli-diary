@@ -1,12 +1,13 @@
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 
-/// 사주 용어 한자 글자표(`hanja-tag` `parts.glyphs` 17자, A112).
+/// 사주 용어 한자 글자표(`hanja-tag` `parts.glyphs` 21자, A112, V70 개정).
 ///
 /// 계약은 한자를 이름 기준으로 주고, app이 키 기준 상수 표로 옮깁니다. 표에 없는 키는
 /// null이며, 그리지 않고 비치명 오류로 남기는 일은 부르는 쪽 몫입니다. 표의 값 집합은
-/// 계약 테스트가 `sentence.json`의 17자와 대조합니다.
+/// 계약 테스트가 `sentence.json`의 21자와 대조합니다.
 abstract final class HanjaGlyphs {
   /// 날의 성격(`glyphs.dayKind`). 모든 enum 값에 글자가 있어 null이 없습니다.
   static const Map<DayKind, String> _dayKind = {
@@ -23,6 +24,13 @@ abstract final class HanjaGlyphs {
     TenGodGroup.jaeseong: '財',
     TenGodGroup.gwanseong: '官',
     TenGodGroup.inseong: '印',
+  };
+
+  /// 택일 덕일(`glyphs.virtueDay`, V119). 두 덕 모두 德이고 이름으로 구분합니다.
+  /// 열린 enum의 모르는 값은 표에 없어 null입니다.
+  static const Map<DayVirtueKind, String> _dayVirtue = {
+    DayVirtueKind.cheondeokDay: '德',
+    DayVirtueKind.woldeokDay: '德',
   };
 
   /// 십성 몰림 태그 키의 접두어(`ten_god_rush.<묶음>`).
@@ -45,6 +53,9 @@ abstract final class HanjaGlyphs {
     'yeokma': '驛',
     'hwagae': '華',
     'gongmang': '空',
+    'gosin': '孤',
+    'gwasuk': '寡',
+    'wonjin': '元',
     'yongsin_day': '用',
     'gwiin_day': '貴',
   };
@@ -60,9 +71,10 @@ abstract final class HanjaGlyphs {
     'hyeong': '刑',
   };
 
-  /// 표에 든 글자 전체. 계약 17자와 같아야 합니다(계약 테스트).
+  /// 표에 든 글자 전체. 계약 21자와 같아야 합니다(계약 테스트).
   static Set<String> get allGlyphs => {
     ..._dayKind.values,
+    ..._dayVirtue.values,
     ..._tenGodGroup.values,
     ..._tagKey.values,
     ..._scoreItem.values,
@@ -70,6 +82,9 @@ abstract final class HanjaGlyphs {
 
   /// 날의 성격의 글자.
   static String forDayKind(DayKind kind) => _dayKind[kind]!;
+
+  /// 택일 덕일의 글자. 모르는 값([DayVirtueKind.unknownDefaultOpenApi])은 null입니다.
+  static String? forDayVirtue(DayVirtueKind kind) => _dayVirtue[kind];
 
   /// 십성 묶음의 글자.
   static String forTenGodGroup(TenGodGroup group) => _tenGodGroup[group]!;

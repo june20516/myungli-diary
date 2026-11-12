@@ -205,6 +205,25 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
               ),
             ),
             WidgetbookUseCase(
+              name: 'today: 덕일 둘(천덕일, 월덕일)',
+              builder: (context) => _stage360(
+                DateHeader(
+                  solar: '10월 19일 월요일',
+                  lunar: '음력 8월 30일',
+                  iljin: '丙寅(병인)일',
+                  virtues: [
+                    DateHeaderVirtue(glyph: '德', label: '천덕일', onTap: () {}),
+                    DateHeaderVirtue(
+                      glyph: '德',
+                      label: '월덕일',
+                      selected: true,
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
               name: 'day-sheet: 날짜와 음력',
               builder: (context) => _stage360(
                 const DateHeader(solar: '10월 13일 화요일', lunar: '음력 8월 24일'),

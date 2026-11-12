@@ -30,6 +30,8 @@ typedef _TermText = ({String title, String? hanja, RenderedText? meaning});
 ///   않습니다. 사전·응답에 값이 없으면 그 자리를 그리지 않습니다(A22 남은 규칙). 사전을 받는
 ///   동안은 skeleton, 실패하거나 사전에 없는 용어면 오류 화면과 다시 시도입니다.
 /// * [ExplainUiText], [ExplainLucky]: 사전을 보지 않고 받은 제목과 본문을 그립니다.
+/// * [ExplainDayVirtue]: 받은 덕 이름과 그날 덕일 문장을 그리고, 끝에 그 덕일 문장의 근거
+///   진입점을 둡니다.
 /// * [ExplainLuckyColorPair]: 색이 둘인 날 행운 색 시트([ColorPairSheetBody])를 그립니다.
 ///
 /// [diaryLinkTag]가 있으면 본문 아래에 그 태그(키)의 모아보기 링크를 둡니다. 누르면 시트를 닫고
@@ -89,6 +91,13 @@ class ExplainSheet extends ConsumerWidget {
         attachment: lucky.attachment,
         attachmentGap: lucky.attachmentGap,
         origin: lucky.origin,
+      ),
+      final ExplainDayVirtue virtue => _body(
+        context,
+        ref,
+        title: virtue.title,
+        meaning: virtue.body,
+        origin: virtue.origin,
       ),
       final ExplainLuckyColorPair pair => ColorPairSheetBody(
         title: pair.title,
