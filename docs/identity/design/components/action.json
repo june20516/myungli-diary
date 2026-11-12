@@ -1,5 +1,5 @@
 {
-  "version": "7.2.0",
+  "version": "7.3.0",
   "group": "action",
   "components": [
     {
@@ -121,6 +121,7 @@
         { "id": "value", "when": "값을 고름(시트)", "parts": { "value": { "visible": true }, "chevron": { "visible": true } } },
         { "id": "toggle", "when": "켜고 끔", "parts": { "toggle": { "visible": true }, "chevron": { "visible": false } } },
         { "id": "select", "when": "시트 안 하나 고르기 줄(언어 등). 누르면 바로 값이 바뀌고 다른 화면으로 가지 않음 (결정 V58)", "parts": { "chevron": { "visible": false }, "check": { "icon": "check", "weight": "regular", "size": "{size.icon.20}", "color": "{color.action.primary}", "when": "고른 줄만" } } },
+        { "id": "readonly", "when": "누를 수 없는 정보 줄. 미리보기를 이미 쓴 기기의 입력 정보 목록(preview.used.input, D117) (결정 V122, #986 ①)", "parts": { "value": { "visible": true, "maxWidth": "줄 안쪽 폭의 절반. 넘치면 값 쪽이 줄을 바꿈(오른쪽 맞춤)" }, "chevron": { "visible": false } }, "press": "none", "a11y": { "role": "text", "label": "이름 다음에 값을 이어 읽음" } },
         { "id": "destructive", "when": "로그아웃·계정 삭제. 경고 표시 대신 자기 아이콘(Regular)과 600 글자로 구분 (결정 V58)", "parts": { "label": { "fg": "{color.text.primary}", "fontWeight": 600 }, "leading": { "weight": "regular" }, "chevron": { "visible": false } } }
       ],
       "parts": {
