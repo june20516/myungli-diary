@@ -72,8 +72,8 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 
 ## settings-row
 
-* 쓰는 화면: settings, profile-edit, legal
-* `readonly`는 preview(미리보기를 이미 쓴 기기)에도 씁니다. IA `preview.components`에 `settings-row`를 더하는 일은 지휘 몫이라(#986) 더해지면 위 줄에 옮깁니다.
+* 쓰는 화면: settings, profile-edit, legal, preview(`readonly`, 미리보기를 이미 쓴 기기, IA PR #1049)
+* 불러오는 중 뼈가 없습니다. preview의 읽기 전용 목록 값은 기기에 남은 온보딩 입력이고, preview `loading`(풀이 계산 중)에는 목록이 보이지 않습니다.
 * 묶음 카드(`bg.sheet`, `radius.md`) 안에서 `list.divider`(0.5px, 좌우 같은 16 들임, 앞 아이콘 아래까지)로 나눕니다(결정 V58). 카드 사이 `space.24`, 카드 위 묶음 이름 `type.caption.md`.
 * 변형 `navigate`(화살표) / `value`(오른쪽 값 `text.secondary` + 화살표, 이름과 값 사이 최소 `space.8`) / `toggle`(스위치, 햅틱 selection) / `select`(시트 안 하나 고르기 줄: 화살표 없이 고른 줄 끝에 `check` Regular 20 `action.primary`, 스크린리더는 라디오) / `destructive`(로그아웃·계정 삭제: 본문색 600과 자기 아이콘 Regular, 화살표 없음).
 * **`readonly`(결정 V122, #986 ①, 관문 답 2026-11-12 A):** 누를 수 없는 정보 줄입니다. 이름 왼쪽, 값 오른쪽(`value`와 같은 글자와 간격)이고 화살표, 눌림 표시, 터치 넓힘이 없습니다. 값은 줄 안쪽 폭의 절반까지 쓰고 넘치면 값 쪽이 오른쪽 맞춤으로 줄을 바꿉니다. 스크린리더는 버튼이 아닌 글자로, 이름 다음에 값을 이어 읽습니다. 지금 쓰는 곳은 미리보기를 이미 쓴 기기의 입력 정보 목록(`preview.used.input`, D117) 하나입니다.

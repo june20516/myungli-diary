@@ -1532,6 +1532,7 @@ NO_LOADING_CONTENT = {
     "explain-sheet",  # 틀. 본문은 sentence-block 뼈
     "tag-sentence-list",  # 오늘 화면에서 이미 받은 문장을 다시 보임. tag-sheet에는 loading이 없음 (DS1 2단계 묶음 A)
     "scroll-hint",  # 줄 위에 겹치는 표시. 줄 내용은 luck-pillar 뼈 (DS1 2단계 묶음 E)
+    "settings-row",  # preview readonly 목록은 기기에 남은 온보딩 입력. preview loading(풀이 계산 중)에는 목록이 없음 (#1051, V122)
 }
 
 
@@ -1918,7 +1919,7 @@ def test_v122_app_request_wording_and_readonly_row():
     readonly = next(v for v in row["variants"] if v["id"] == "readonly")
     assert readonly["parts"]["chevron"] == {"visible": False} and readonly["press"] == "none"
     assert readonly["a11y"]["role"] == "text" and "preview.used.input" in readonly["when"]
-    assert "`readonly`는 preview" in _md_section("action.md", "## settings-row")
+    assert "preview(`readonly`, " in _md_section("action.md", "## settings-row")
     interaction = json.loads((COMPONENTS_DIR / "interaction.json").read_text(encoding="utf-8"))
     text = json.dumps(interaction, ensure_ascii=False)
     assert "이미 보이던 화면이면 지금 투명도에서 1로" in text and "탭 셸의 갈래가 바뀌는 이동 모두" in text
