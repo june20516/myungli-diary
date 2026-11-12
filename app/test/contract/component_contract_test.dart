@@ -3,7 +3,6 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart'
@@ -2792,28 +2791,6 @@ void main() {
       expect(row['paddingX'], '{space.16}');
       expect(SettingsRow.paddingX, Space.s16);
       expect(_num(_map(row['minHeight'])['value']), SettingsRow.minHeight);
-    });
-
-    testWidgets('readonly 줄: 이름 다음 값을 글자로 읽고 누르는 동작이 없습니다', (tester) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(
-        inputApp(
-          const SettingsRow(
-            variant: SettingsRowVariant.readonly,
-            label: '호칭',
-            value: '별님',
-            identifier: SlotIds.previewUsedInput,
-          ),
-        ),
-      );
-      final data = tester
-          .getSemantics(find.bySemanticsIdentifier(SlotIds.previewUsedInput))
-          .getSemanticsData();
-      expect(data.label, '호칭, 별님');
-      expect(data.flagsCollection.isButton, isFalse);
-      expect(data.hasAction(SemanticsAction.tap), isFalse);
-      expect(find.byKey(SettingsRow.chevronKey), findsNothing);
-      handle.dispose();
     });
 
     test('IA preview가 settings-row를 씁니다(IA PR #1049)', () {

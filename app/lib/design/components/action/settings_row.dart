@@ -254,7 +254,8 @@ class SettingsRow extends StatelessWidget {
               Expanded(child: Text(label, style: labelStyle)),
               if (valueText != null) ...[
                 const SizedBox(width: Space.s8),
-                // 값은 오른쪽 끝에 붙고 줄 너비의 절반까지만 씁니다(넘으면 줄을 바꿈).
+                // 값은 오른쪽 끝에 붙고 [_maxValueWidth]까지만 씁니다(readonly는 줄 안쪽 폭의
+                // 절반, value는 줄 너비의 절반). 넘으면 오른쪽 맞춤으로 줄을 바꿉니다.
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: maxValueWidth),
                   child: Text(

@@ -75,6 +75,19 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('value: 값이 빈 문자열이면 값 글자 없이 이름만 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(_row(SettingsRowVariant.value, value: '', onTap: () {})),
+      );
+      // 이름 글자 하나뿐이고 화살표는 그대로입니다.
+      expect(find.byType(Text), findsOneWidget);
+      expect(find.byKey(SettingsRow.chevronKey), findsOneWidget);
+      expect(find.bySemanticsLabel('알림 시각'), findsOneWidget);
+      expect(find.bySemanticsLabel('알림 시각, '), findsNothing);
+      handle.dispose();
+    });
+
     testWidgets('value 글자는 다른 변형에서 그리지 않습니다', (tester) async {
       await tester.pumpWidget(
         inputApp(
@@ -300,25 +313,41 @@ void main() {
       expect(tester.getTopLeft(find.text('출생지')).dx, SettingsRow.paddingX);
     });
 
-    testWidgets('큰 글자에서도 값은 절반까지, 줄은 함께 커집니다', (tester) async {
-      await tester.pumpWidget(inputApp(readonly('생일', '양력 1990년 3월 15일')));
-      final base = tester.getSize(find.byType(SettingsRow)).height;
+    testWidgets('큰 글자(배율 2)에서도 값은 절반까지 오른쪽 맞춤으로 줄을 더 바꾸고 줄이 커집니다', (
+      tester,
+    ) async {
+      // 배율 1에서는 한 줄, 배율 2에서는 절반 폭을 넘어 줄을 바꾸는 값입니다.
+      const value = '로스앤젤레스 카운티 산타모니카, 미국';
+      await tester.pumpWidget(inputApp(readonly('출생지', value)));
+      final baseRow = tester.getSize(find.byType(SettingsRow)).height;
+      final baseValue = tester.getSize(find.text(value)).height;
+      final baseLabel = tester.getSize(find.text('출생지')).height;
+      expect(baseValue, baseLabel, reason: '배율 1에서는 한 줄');
+      // 배율 2에서 폭이 두 배가 되면 절반 폭(384)을 넘는 길이입니다.
+      expect(
+        tester.getSize(find.text(value)).width,
+        greaterThan(innerWidth / 4),
+      );
+
       await tester.pumpWidget(
         inputApp(
           MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: readonly('생일', '양력 1990년 3월 15일'),
+            child: readonly('출생지', value),
           ),
         ),
       );
+      final rect = tester.getRect(find.text(value));
+      final label = tester.getSize(find.text('출생지')).height;
       expect(
         tester.getSize(find.byType(SettingsRow)).height,
-        greaterThan(base),
+        greaterThan(baseRow),
       );
-      expect(
-        tester.getSize(find.text('양력 1990년 3월 15일')).width,
-        lessThanOrEqualTo(innerWidth / 2),
-      );
+      expect(rect.width, lessThanOrEqualTo(innerWidth / 2));
+      expect(rect.right, surfaceWidth - SettingsRow.paddingX);
+      expect(tester.widget<Text>(find.text(value)).textAlign, TextAlign.end);
+      // 줄 수가 늘어납니다(값 높이가 같은 배율의 이름 한 줄보다 큼).
+      expect(rect.height, greaterThan(label));
     });
 
     testWidgets('값이 비었으면 이름만 그리고 이름만 읽습니다', (tester) async {
