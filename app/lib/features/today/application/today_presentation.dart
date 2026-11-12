@@ -111,10 +111,15 @@ String formatFocusRange(FocusSlot pick, String timezone, String languageCode) =>
     '${_rangeJoinOf(languageCode)}'
     '${_hourMinute(pick.end, timezone)}';
 
-/// 오늘 화면의 낮 구간 시작(그날 진시 시작)의 프로필 시간대 벽시계 시각(`lucky-card` `time`
-/// night `word.switch`, D122 ⑦). 지휘 답 #1063: 기준은 "프로필 현재 시간대에서 그날 진시가 시작하는
-/// 시각"이고, server #1064가 그 경계 값을 줄 때까지 07:30으로 둡니다(한국 프로필은 결과가 같음, A134).
-const Duration _dayStart = Duration(hours: 7, minutes: 30);
+/// 낮 카드 `hours`가 없는 응답의 낮 구간 시작 벽시계 시각 07:30. 계약 `openapi.yaml`
+/// `DailyCards`(1.12.0): "`hours`가 없는 응답(규칙 버전 2026.11.8 전)은 한국 시각 07:30으로
+/// 봅니다"(#1064). 밤 칩 전환은 그날 한국 시각 이 시각이고([dayStartOf]), 계약이 그 응답의 띠 칸을
+/// 정하지 않아 띠는 A134 방식대로 프로필 시간대 벽시계 이 시각에서 시진 길이로 셉니다(A140 ①③).
+const Duration _fallbackDayStartWall = Duration(hours: 7, minutes: 30);
+
+/// 한국 시각의 UTC offset(+09:00, 서머타임 없음). [_fallbackDayStartWall]을 순간으로 바꿀 때만
+/// 씁니다.
+const Duration _koreaOffset = Duration(hours: 9);
 
 /// 시진 하나의 길이(`timeBand` `cells.unit`).
 const Duration _hourBranchLength = Duration(hours: 2);
@@ -139,14 +144,46 @@ const List<Branch> _nightBranches = [
   Branch.myo,
 ];
 
-/// 하루의 분.
-const int _minutesPerDay = 24 * 60;
+/// [daily]의 낮 구간이 시작하는 순간(그날 진시 시작, D122 ⑦, #1064). 계약 `DailyCards`의 전환
+/// 시각 `focusTime.hours[0].start`이고, 받은 순서를 고치지 않고 가장 이른 시작을 읽습니다. 낮 카드
+/// `hours`가 없거나 비면(규칙 버전 2026.11.8 전) 그날 한국 시각 07:30입니다(A140 ①).
+DateTime dayStartOf(Daily daily) {
+  final hours = daily.cards.focusTime.hours ?? const <FocusSlot>[];
+  if (hours.isEmpty) {
+    final date = CalendarDate.parse(daily.date);
+    return DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).add(_fallbackDayStartWall - _koreaOffset);
+  }
+  return hours
+      .map((hour) => hour.start)
+      .reduce((earliest, start) => start.isBefore(earliest) ? start : earliest);
+}
 
-/// [wallNow](프로필 시간대 벽시계, `nowMinuteProvider` 값처럼 시와 분만 읽음)가 그날 낮 구간 시작
-/// 전인지. 밤 칩 고르기와 때 낱말(D122 ⑦, V116), 24시간 띠 순서(V117)의 판단은 이 함수 하나입니다.
-/// #1064 경계 값이 오면 [_dayStart] 대신 그 값을 보도록 이 함수만 바꿉니다(A134).
-bool isBeforeDayStart(DateTime wallNow) =>
-    Duration(hours: wallNow.hour, minutes: wallNow.minute) < _dayStart;
+/// [wallNow](프로필 시간대 [timezone]의 벽시계, `nowMinuteProvider` 값)가 그날 낮 구간 시작
+/// [dayStart]([dayStartOf]) 전인지. 밤 칩 고르기와 때 낱말(D122 ⑦, V116), 24시간 띠 순서(V117)의
+/// 판단은 이 함수 하나입니다. [dayStart]를 같은 시간대 벽시계로 바꿔 비교하므로 두 순간의 비교와
+/// 같고, 기기 시간대는 쓰지 않습니다(A140 ②).
+bool isBeforeDayStart(
+  DateTime wallNow, {
+  required DateTime dayStart,
+  required String timezone,
+}) => wallNow.isBefore(_wallClockOf(dayStart, timezone));
+
+/// [instant]를 [timezone] 벽시계 숫자로 바꿔 UTC 그릇에 담습니다(`nowMinuteProvider` 값과 같은 모양).
+DateTime _wallClockOf(DateTime instant, String timezone) {
+  final local = localTimeIn(instant, timezone);
+  return DateTime.utc(
+    local.year,
+    local.month,
+    local.day,
+    local.hour,
+    local.minute,
+    local.second,
+  );
+}
 
 /// 계약 `DailyCards`의 카드 필드(`openapi.yaml`). 이름이 계약 필드 이름과 같고, 카드 근거 id
 /// ([dailyCardSlotId])가 이 이름을 씁니다.
@@ -296,12 +333,6 @@ List<LuckyItem> luckyItemsOf(
 String _colorName(GlossaryNames names, FiveElement element) =>
     names.valueName('color', element.value) ?? element.value;
 
-/// 벽시계 [minutes](0시부터, 하루를 넘으면 되감음)의 `HH:mm`.
-String _clockText(int minutes) {
-  final wrapped = minutes % _minutesPerDay;
-  return '${_twoDigits(wrapped ~/ 60)}:${_twoDigits(wrapped % 60)}';
-}
-
 /// [branch]를 띠 칸에 쓸 글자. ko, ja는 사전 지지 이름(writing `glossary.value_name`
 /// `branch.*`, ko "자", ja "子")이고 사전에 없으면 지지 한자입니다. 원고 슬롯
 /// `today.lucky-time.band.tomorrow`가 "띠 칸 시진 이름은 glossary 지지 이름"이라고 정합니다.
@@ -312,84 +343,152 @@ String _bandLabelOf(Branch branch, GlossaryNames names, bool hanjaLabels) =>
     ? branchHanja(branch)
     : names.valueName('branch', branch.value) ?? branchHanja(branch);
 
+/// 띠 칸 하나가 될 시진: 지지와 프로필 시간대 벽시계의 시작, 끝(UTC 그릇, [_wallClockOf]).
+typedef _BandHour = ({Branch branch, DateTime start, DateTime end});
+
+/// 받은 구간 시진 [hours]를 띠 칸 값으로 바꿉니다. 같은 시진이 두 번 오면 시작 순간으로 한 번만 두고
+/// 시작 순서로 놓습니다(받은 값은 고치지 않음). 남은 수가 구간 칸 수 [count]가 아니면(없음, 빈 배열
+/// 포함) null이라 그 구간은 지금 방식으로 그립니다(A140 ③).
+List<_BandHour>? _bandHoursOf(
+  List<FocusSlot>? hours,
+  int count,
+  String timezone,
+) {
+  final byStart = <DateTime, FocusSlot>{};
+  for (final hour in hours ?? const <FocusSlot>[]) {
+    byStart.putIfAbsent(hour.start, () => hour);
+  }
+  if (byStart.length != count) return null;
+  final ordered = byStart.values.toList()
+    ..sort((a, b) => a.start.compareTo(b.start));
+  return [
+    for (final hour in ordered)
+      (
+        branch: hour.branch,
+        start: _wallClockOf(hour.start, timezone),
+        end: _wallClockOf(hour.end, timezone),
+      ),
+  ];
+}
+
+/// [branches]를 [start](벽시계)부터 시진 길이로 이어 붙인 띠 칸 값(지금 방식, A134 ⑦).
+List<_BandHour> _tableHoursFrom(DateTime start, List<Branch> branches) => [
+  for (final (index, branch) in branches.indexed)
+    (
+      branch: branch,
+      start: start.add(_hourBranchLength * index),
+      end: start.add(_hourBranchLength * (index + 1)),
+    ),
+];
+
 /// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 지금 보이는 낮, 밤 칩의 24시간을 시진 12칸으로
-/// 그리고, 낮 구간 시작 전에는 밤(전날 21:30부터) 다섯 칸이 앞, 그 뒤에는 낮(07:30부터) 일곱 칸이
-/// 앞입니다. 고리는 두 칩이 고른 시진(카드 첫 구간의 `branch`)이고, 시트를 연 칩([opened])의
-/// 시진은 [TimeBandPick.opened], 다른 칩의 시진은 [TimeBandPick.other]입니다(V124). 밤 칩이
-/// 없으면 밤 칸에 고리가 없습니다. [beforeDayStart]는 시트를 연 때의 값이라, 시트가 열린 채 07:30을 지나도 칸 순서와
-/// 고리는 연 칩 그대로이고 지금 줄만 움직입니다(A134 ⑧). [wallNow]는 프로필 시간대 벽시계(시와
-/// 분만 읽음)이고 지금 줄과 꼬리표가 됩니다.
+/// 그리고, 낮 구간 시작 전에는 밤 다섯 칸이 앞, 그 뒤에는 낮 일곱 칸이 앞입니다. 고리는 두 칩이 고른
+/// 시진(카드 첫 구간의 `branch`)이고, 시트를 연 칩([opened])의 시진은 [TimeBandPick.opened], 다른
+/// 칩의 시진은 [TimeBandPick.other]입니다(V124). 밤 칩이 없으면 밤 칸에 고리가 없습니다.
+/// [beforeDayStart]는 시트를 연 때의 값이라, 시트가 열린 채 낮 구간 시작을 지나도 칸 순서와 고리는
+/// 연 칩 그대로이고 지금 줄만 움직입니다(A134 ⑧). [wallNow]는 프로필 시간대 [timezone]의
+/// 벽시계(`nowMinuteProvider` 값)이고 지금 줄과 꼬리표가 됩니다.
 ///
-/// 칸 경계와 눈금은 [_dayStart]에서 시진 길이로 셉니다. 시간대가 한국이 아닌 프로필은 칩 값(프로필
-/// 시간대로 바꾼 시진 시각)과 칸 경계가 어긋날 수 있고 #1064 경계 값으로 함께 맞춥니다(A134).
+/// 칸과 눈금은 그날 낮 카드와 보이는 밤 카드의 `hours`입니다(계약 `FocusTimeCard`, #1064). 낮 카드
+/// `hours`가 없으면 띠 전체를 지금 방식(그날 프로필 벽시계 07:30부터 시진 길이)으로 그리고, 보이는 밤
+/// 카드가 없거나 그 `hours`가 없으면 밤 다섯 칸만 낮 칸에 이어 시진 길이로 셉니다(A140 ③).
 TimeBand timeBandOf({
   required Daily daily,
   required GlossaryNames names,
   required AppLocalizations l10n,
   required bool beforeDayStart,
   required AppTimeOfDay opened,
+  required String timezone,
   required DateTime wallNow,
 }) {
   final before = beforeDayStart;
   final cards = daily.cards;
   final dayPick = cards.focusTime.picks.first.branch;
-  final nightPick = focusTimePickOf(
+  final nightCard = focusTimePickOf(
     cards,
     AppTimeOfDay.night,
     beforeDayStart: before,
-  )?.card.picks.first.branch;
+  )?.card;
+  final nightPick = nightCard?.picks.first.branch;
   final language = _languageCodeOf(l10n);
   final hanjaLabels = language != 'ko' && language != 'ja';
-  final dayCells = [
-    for (final branch in _dayBranches)
+
+  final dayFromHours = _bandHoursOf(
+    cards.focusTime.hours,
+    _dayBranches.length,
+    timezone,
+  );
+  final date = CalendarDate.parse(daily.date);
+  final dayHours =
+      dayFromHours ??
+      _tableHoursFrom(
+        DateTime.utc(
+          date.year,
+          date.month,
+          date.day,
+        ).add(_fallbackDayStartWall),
+        _dayBranches,
+      );
+  // 낮 칸이 지금 방식이면 밤 칸도 지금 방식이라 칸이 이어집니다.
+  final nightFromHours = dayFromHours == null
+      ? null
+      : _bandHoursOf(nightCard?.hours, _nightBranches.length, timezone);
+  final nightLength = _hourBranchLength * _nightBranches.length;
+  final nightHours =
+      nightFromHours ??
+      _tableHoursFrom(
+        before ? dayHours.first.start.subtract(nightLength) : dayHours.last.end,
+        _nightBranches,
+      );
+
+  List<TimeBandCell> cellsOf(
+    List<_BandHour> hours,
+    AppTimeOfDay period,
+    Branch? pick,
+  ) => [
+    for (final hour in hours)
       TimeBandCell(
-        label: _bandLabelOf(branch, names, hanjaLabels),
-        period: AppTimeOfDay.day,
+        label: _bandLabelOf(hour.branch, names, hanjaLabels),
+        period: period,
         pick: TimeBandPick.of(
-          AppTimeOfDay.day,
+          period,
           opened: opened,
-          chosen: branch == dayPick,
+          chosen: hour.branch == pick,
         ),
       ),
   ];
-  final nightCells = [
-    for (final branch in _nightBranches)
-      TimeBandCell(
-        label: _bandLabelOf(branch, names, hanjaLabels),
-        period: AppTimeOfDay.night,
-        pick: TimeBandPick.of(
-          AppTimeOfDay.night,
-          opened: opened,
-          chosen: branch == nightPick,
-        ),
-      ),
-  ];
-  final dayStart = _dayStart.inMinutes;
-  final nightStart =
-      dayStart + _hourBranchLength.inMinutes * _dayBranches.length;
-  final bandStart = before ? nightStart : dayStart;
-  final now = wallNow.hour * 60 + wallNow.minute;
-  final elapsed = (now - bandStart) % _minutesPerDay;
+
+  final dayCells = cellsOf(dayHours, AppTimeOfDay.day, dayPick);
+  final nightCells = cellsOf(nightHours, AppTimeOfDay.night, nightPick);
+  final (first, second) = before
+      ? (nightHours, dayHours)
+      : (dayHours, nightHours);
+  final bandStart = first.first.start;
+  final bandEnd = second.last.end;
+  final elapsed = wallNow.difference(bandStart).inSeconds;
+  final span = bandEnd.difference(bandStart).inSeconds;
   return TimeBand(
     cells: before ? [...nightCells, ...dayCells] : [...dayCells, ...nightCells],
     dayHead: l10n.todayLuckyTimeBandDay,
     nightHead: l10n.todayLuckyTimeBandNight,
-    nowFraction: elapsed / _minutesPerDay,
-    nowLabel: l10n.todayLuckyTimeBandNow(_clockText(now)),
+    nowFraction: (elapsed / span).clamp(0.0, 1.0),
+    nowLabel: l10n.todayLuckyTimeBandNow(_wallText(wallNow)),
     startTick: TimeBandTick(
-      time: _clockText(bandStart),
+      time: _wallText(bandStart),
       dayWord: before ? l10n.todayLuckyTimeBandYesterday : null,
     ),
-    boundaryTick: TimeBandTick(
-      time: _clockText(before ? dayStart : nightStart),
-    ),
+    boundaryTick: TimeBandTick(time: _wallText(second.first.start)),
     endTick: TimeBandTick(
-      time: _clockText(bandStart),
+      time: _wallText(bandEnd),
       dayWord: before ? null : l10n.todayLuckyTimeBandTomorrow,
     ),
     hanjaLabels: hanjaLabels,
   );
 }
+
+/// 벽시계 [wall](UTC 그릇)의 `HH:mm`.
+String _wallText(DateTime wall) =>
+    '${_twoDigits(wall.hour)}:${_twoDigits(wall.minute)}';
 
 /// 대표 태그 [tag]를 `hanja-tag`로 그릴 값. 사전에 이름이 없거나 한자 글자표(A112)에 없으면
 /// null입니다. [rank]는 응답 `tags.featured` 안 순번입니다. 오늘 화면과 사주 기운 시트가 함께 씁니다.

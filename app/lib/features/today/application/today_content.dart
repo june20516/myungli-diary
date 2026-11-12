@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderFamily;
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -124,9 +125,15 @@ final todayWallMinuteProvider = Provider<DateTime>((ref) {
   );
 });
 
-/// 지금이 그날 낮 구간 시작 전인지([isBeforeDayStart]). 경계(07:30, A134)를 지날 때만 값이
-/// 바뀌어 오늘 화면이 그때 밤 칩 값과 때 낱말을 함께 바꿉니다(D122 ⑦, V116). 날짜 바뀜
-/// ([todayProvider])처럼 시계 흐름을 구독합니다.
-final beforeDayStartProvider = Provider<bool>(
-  (ref) => isBeforeDayStart(ref.watch(todayWallMinuteProvider)),
-);
+/// 지금이 낮 구간 시작 순간 [dayStart]([dayStartOf], 그날 진시 시작, #1064) 전인지
+/// ([isBeforeDayStart]). 경계를 지날 때만 값이 바뀌어 오늘 화면이 그때 밤 칩 값과 때 낱말을 함께
+/// 바꿉니다(D122 ⑦, V116). 날짜 바뀜([todayProvider])처럼 시계 흐름을 구독합니다.
+final ProviderFamily<bool, DateTime> beforeDayStartProvider = Provider
+    .autoDispose
+    .family<bool, DateTime>(
+      (ref, dayStart) => isBeforeDayStart(
+        ref.watch(todayWallMinuteProvider),
+        dayStart: dayStart,
+        timezone: ref.watch(profileTimezoneProvider),
+      ),
+    );

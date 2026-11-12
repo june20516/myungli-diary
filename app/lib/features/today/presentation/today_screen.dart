@@ -479,7 +479,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
       date,
       daily.fortune.head,
     );
-    final beforeDayStart = ref.watch(beforeDayStartProvider);
+    final beforeDayStart = ref.watch(beforeDayStartProvider(dayStartOf(daily)));
     final display = todayDisplayOf(
       daily,
       content.names,
@@ -868,7 +868,7 @@ class _TodayEventSectionState extends ConsumerState<_TodayEventSection> {
 
 /// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 시트가 열린 동안 오늘 값과 벽시계를 구독해 지금
 /// 줄을 1분마다 옮깁니다. 칸 순서와 고리는 시트를 연 때의 [beforeDayStart]로 고정해, 열린 채
-/// 07:30을 지나도 시트의 본문, 근거와 같은 칩을 그립니다(A134 ⑧). 연 칩([opened])의 시진은 굵은
+/// 낮 구간 시작을 지나도 시트의 본문, 근거와 같은 칩을 그립니다(A134 ⑧). 연 칩([opened])의 시진은 굵은
 /// 고리입니다(V124). 오늘 값이 없으면(다시 받는 중) 그리지 않습니다.
 class TodayTimeBand extends ConsumerWidget {
   /// 시트를 연 때의 [beforeDayStart]와 연 칩 [opened]로 띠를 만듭니다.
@@ -890,6 +890,7 @@ class TodayTimeBand extends ConsumerWidget {
       l10n: AppLocalizations.of(context),
       beforeDayStart: beforeDayStart,
       opened: opened,
+      timezone: ref.watch(profileTimezoneProvider),
       wallNow: ref.watch(todayWallMinuteProvider),
     );
   }

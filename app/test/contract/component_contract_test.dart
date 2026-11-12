@@ -24,6 +24,7 @@ import 'package:flutter/widgets.dart'
         TextEditingController,
         Widget;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
@@ -95,6 +96,7 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../design/input/input_harness.dart';
 import '../support/component_spec_json.dart';
+import '../support/daily_fixture.dart';
 import 'component_pending.dart';
 
 Map<String, Object?> _interaction() =>
@@ -2509,21 +2511,19 @@ void main() {
         'dawn': SlotIds.todayLuckyTimeNightDawn,
         'tonight': SlotIds.todayLuckyTimeNightTonight,
       });
-      // 계약 문구의 경계 시각과 구현 판단(isBeforeDayStart)을 함께 봅니다. #1064 경계 값으로
-      // 바꿀 때 계약과 구현이 함께 바뀌었는지 이 대조가 알려 줍니다(A134 ①).
+      // 계약 문구의 경계 시각(07:30)은 서울 프로필의 진시 시작입니다. 경계는 응답 낮 카드
+      // hours[0].start이고(openapi 1.12.0, #1064) 서울 응답(member)에서 같은 분에 바뀌는지
+      // 봅니다(A140 ①). 서울 밖 시간대는 today_presentation_test가 봅니다.
       final boundary = RegExp(r'(\d{2}):(\d{2})')
           .firstMatch(word['switch']! as String)!;
       final hour = int.parse(boundary.group(1)!);
       final minute = int.parse(boundary.group(2)!);
       expect('${boundary.group(0)}', '07:30');
-      expect(
-        isBeforeDayStart(DateTime.utc(2026, 10, 13, hour, minute - 1)),
-        isTrue,
-      );
-      expect(
-        isBeforeDayStart(DateTime.utc(2026, 10, 13, hour, minute)),
-        isFalse,
-      );
+      final dayStart = dayStartOf(Daily.fromJson(memberDailyJson()));
+      bool before(DateTime wall) =>
+          isBeforeDayStart(wall, dayStart: dayStart, timezone: 'Asia/Seoul');
+      expect(before(DateTime.utc(2026, 10, 13, hour, minute - 1)), isTrue);
+      expect(before(DateTime.utc(2026, 10, 13, hour, minute)), isFalse);
       expect(day.containsKey('word'), isFalse);
     });
 

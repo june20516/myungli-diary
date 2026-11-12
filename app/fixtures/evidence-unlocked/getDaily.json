@@ -329,7 +329,93 @@
               }
             }
           ]
-        }
+        },
+        "hours": [
+          {
+            "branch": "jin",
+            "start": "2026-10-13T07:30:00+09:00",
+            "end": "2026-10-13T09:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "sa",
+            "start": "2026-10-13T09:30:00+09:00",
+            "end": "2026-10-13T11:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "o",
+            "start": "2026-10-13T11:30:00+09:00",
+            "end": "2026-10-13T13:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "mi",
+            "start": "2026-10-13T13:30:00+09:00",
+            "end": "2026-10-13T15:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "shin",
+            "start": "2026-10-13T15:30:00+09:00",
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "yu",
+            "start": "2026-10-13T17:30:00+09:00",
+            "end": "2026-10-13T19:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "sul",
+            "start": "2026-10-13T19:30:00+09:00",
+            "end": "2026-10-13T21:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          }
+        ]
       },
       "nightFocusTime": {
         "picks": [
@@ -430,7 +516,69 @@
               }
             }
           ]
-        }
+        },
+        "hours": [
+          {
+            "branch": "hae",
+            "start": "2026-10-13T21:30:00+09:00",
+            "end": "2026-10-13T23:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "ja",
+            "start": "2026-10-13T23:30:00+09:00",
+            "end": "2026-10-14T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "stem": "sin",
+              "branch": "yu"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "chuk",
+            "start": "2026-10-14T01:30:00+09:00",
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "stem": "sin",
+              "branch": "yu"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "in",
+            "start": "2026-10-14T03:30:00+09:00",
+            "end": "2026-10-14T05:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "stem": "sin",
+              "branch": "yu"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "myo",
+            "start": "2026-10-14T05:30:00+09:00",
+            "end": "2026-10-14T07:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "stem": "sin",
+              "branch": "yu"
+            },
+            "reasons": []
+          }
+        ]
       },
       "previousNightFocusTime": {
         "picks": [
@@ -531,7 +679,69 @@
               }
             }
           ]
-        }
+        },
+        "hours": [
+          {
+            "branch": "hae",
+            "start": "2026-10-12T21:30:00+09:00",
+            "end": "2026-10-12T23:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-12",
+            "dayPillar": {
+              "stem": "gi",
+              "branch": "mi"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "ja",
+            "start": "2026-10-12T23:30:00+09:00",
+            "end": "2026-10-13T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "chuk",
+            "start": "2026-10-13T01:30:00+09:00",
+            "end": "2026-10-13T03:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "in",
+            "start": "2026-10-13T03:30:00+09:00",
+            "end": "2026-10-13T05:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          },
+          {
+            "branch": "myo",
+            "start": "2026-10-13T05:30:00+09:00",
+            "end": "2026-10-13T07:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          }
+        ]
       }
     },
     "tags": {

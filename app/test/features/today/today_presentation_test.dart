@@ -361,11 +361,80 @@ void main() {
   });
 
   group('낮 구간 시작과 밤 카드(D122 ⑦, A134)', () {
-    test('프로필 벽시계 07:30 전이면 낮 구간 시작 전입니다', () {
-      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13)), isTrue);
-      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13, 7, 29)), isTrue);
-      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13, 7, 30)), isFalse);
-      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13, 23, 59)), isFalse);
+    /// [json]에서 낮 카드 `hours`를 [hours]로 바꿉니다(null이면 필드째 지움).
+    Daily withDayHours(Map<String, dynamic> json, List<Object?>? hours) {
+      final day =
+          (json['cards'] as Map<String, dynamic>)['focusTime']
+              as Map<String, dynamic>;
+      if (hours == null) {
+        day.remove('hours');
+      } else {
+        day['hours'] = hours;
+      }
+      return Daily.fromJson(json);
+    }
+
+    test('낮 구간 시작은 낮 카드 hours 첫 시진(진시)의 시작입니다(#1064)', () {
+      final seoul = Daily.fromJson(memberDailyJson());
+      expect(dayStartOf(seoul), DateTime.parse('2026-10-13T07:30:00+09:00'));
+      final losAngeles = Daily.fromJson(losAngelesDailyJson());
+      expect(
+        dayStartOf(losAngeles),
+        DateTime.parse('2026-10-13T08:00:00-07:00'),
+      );
+    });
+
+    test('hours 순서가 섞여 와도 가장 이른 시작입니다(받은 값은 고치지 않음)', () {
+      final json = losAngelesDailyJson();
+      final day =
+          (json['cards'] as Map<String, dynamic>)['focusTime']
+              as Map<String, dynamic>;
+      final hours = day['hours'] as List<Object?>;
+      final daily = withDayHours(json, hours.reversed.toList());
+      expect(dayStartOf(daily), DateTime.parse('2026-10-13T08:00:00-07:00'));
+      expect(daily.cards.focusTime.hours!.first.branch, Branch.sul);
+    });
+
+    test('hours가 없거나 비면 그날 한국 시각 07:30입니다(계약 대체)', () {
+      final kst0730 = DateTime.parse('2026-10-13T07:30:00+09:00');
+      expect(dayStartOf(withDayHours(memberDailyJson(), null)), kst0730);
+      expect(dayStartOf(withDayHours(memberDailyJson(), [])), kst0730);
+      expect(dayStartOf(withDayHours(losAngelesDailyJson(), null)), kst0730);
+    });
+
+    test('서울 응답은 진시 시작 직전까지 낮 구간 시작 전이고 그 분부터 아닙니다', () {
+      final dayStart = dayStartOf(Daily.fromJson(memberDailyJson()));
+      bool before(DateTime wall) =>
+          isBeforeDayStart(wall, dayStart: dayStart, timezone: 'Asia/Seoul');
+      expect(before(DateTime.utc(2026, 10, 13)), isTrue);
+      expect(before(DateTime.utc(2026, 10, 13, 7, 29)), isTrue);
+      expect(before(DateTime.utc(2026, 10, 13, 7, 30)), isFalse);
+      expect(before(DateTime.utc(2026, 10, 13, 23, 59)), isFalse);
+    });
+
+    test('LA 응답은 그 시간대 진시 시작(08:00)이 경계이고 07:30은 아직 전입니다', () {
+      final dayStart = dayStartOf(Daily.fromJson(losAngelesDailyJson()));
+      bool before(DateTime wall) => isBeforeDayStart(
+        wall,
+        dayStart: dayStart,
+        timezone: 'America/Los_Angeles',
+      );
+      expect(before(DateTime.utc(2026, 10, 13, 7, 30)), isTrue);
+      expect(before(DateTime.utc(2026, 10, 13, 7, 59)), isTrue);
+      expect(before(DateTime.utc(2026, 10, 13, 8)), isFalse);
+      expect(before(DateTime.utc(2026, 10, 13, 22)), isFalse);
+    });
+
+    test('hours 없는 LA 응답은 한국 시각 07:30(LA 전날 15:30)이 경계입니다', () {
+      final dayStart = dayStartOf(withDayHours(losAngelesDailyJson(), null));
+      bool before(DateTime wall) => isBeforeDayStart(
+        wall,
+        dayStart: dayStart,
+        timezone: 'America/Los_Angeles',
+      );
+      expect(before(DateTime.utc(2026, 10, 12, 15, 29)), isTrue);
+      expect(before(DateTime.utc(2026, 10, 12, 15, 30)), isFalse);
+      expect(before(DateTime.utc(2026, 10, 13, 7)), isFalse);
     });
 
     test('밤 카드 근거 id는 카드마다 다르고 dailySlotText가 그 카드 문장을 찾습니다', () {
@@ -432,6 +501,40 @@ void main() {
       expect(cards['description'], contains('같은 슬롯 `daily.color`'));
     });
 
+    test(
+      '계약: hours는 선택 필드이고 전환은 hours[0].start, 없으면 한국 시각 07:30입니다(1.12.0)',
+      () {
+        final schemas =
+            (loadOpenApi()['components']! as Map<String, Object?>)['schemas']!
+                as Map<String, Object?>;
+        final card = schemas['FocusTimeCard']! as Map<String, Object?>;
+        expect(card['required'], isNot(contains('hours')));
+        final hours =
+            (card['properties']! as Map<String, Object?>)['hours']!
+                as Map<String, Object?>;
+        expect(hours['items'], {r'$ref': '#/components/schemas/FocusSlot'});
+        // 낮 7칸과 밤 5칸이 띠 12칸입니다.
+        final description = (card['description']! as String).replaceAll(
+          '\n',
+          '',
+        );
+        expect(description, contains('진시~술시 7개'));
+        expect(description, contains('자시~묘시 5개'));
+        expect(TimeBand.cellCount, 7 + 5);
+        expect((hours['minItems'], hours['maxItems']), (5, 7));
+        final cards = schemas['DailyCards']! as Map<String, Object?>;
+        final switching = (cards['description']! as String).replaceAll(
+          '\n',
+          '',
+        );
+        expect(switching, contains('`focusTime.hours[0].start`'));
+        expect(
+          switching,
+          contains('`hours`가 없는 응답(규칙 버전 2026.11.8 전)은 한국 시각 07:30'),
+        );
+      },
+    );
+
     test('카드 필드 이름은 계약 DailyCards의 필드 이름과 같습니다', () {
       final schemas =
           (loadOpenApi()['components']! as Map<String, Object?>)['schemas']!
@@ -478,17 +581,62 @@ void main() {
 
     TimeBand band(
       DateTime wallNow, {
+      Daily? from,
+      String timezone = 'Asia/Seoul',
       AppLocalizations? l10n,
       bool? beforeDayStart,
       AppTimeOfDay opened = AppTimeOfDay.day,
-    }) => timeBandOf(
-      daily: daily,
-      names: names,
-      l10n: l10n ?? _l10n,
-      beforeDayStart: beforeDayStart ?? isBeforeDayStart(wallNow),
-      opened: opened,
-      wallNow: wallNow,
-    );
+    }) {
+      final shown = from ?? daily;
+      return timeBandOf(
+        daily: shown,
+        names: names,
+        l10n: l10n ?? _l10n,
+        beforeDayStart:
+            beforeDayStart ??
+            isBeforeDayStart(
+              wallNow,
+              dayStart: dayStartOf(shown),
+              timezone: timezone,
+            ),
+        opened: opened,
+        timezone: timezone,
+        wallNow: wallNow,
+      );
+    }
+
+    /// [json]의 [field] 카드 `hours`를 [hours]로 바꾼 응답(null이면 필드째 지움).
+    Daily withHours(
+      Map<String, dynamic> json,
+      String field,
+      List<Object?>? hours,
+    ) {
+      final card =
+          (json['cards'] as Map<String, dynamic>)[field]
+              as Map<String, dynamic>;
+      if (hours == null) {
+        card.remove('hours');
+      } else {
+        card['hours'] = hours;
+      }
+      return Daily.fromJson(json);
+    }
+
+    String labels(TimeBand shown) =>
+        shown.cells.map((cell) => cell.label).join();
+
+    List<(String, String?, String, String?, String, String?)> ticks(
+      TimeBand shown,
+    ) => [
+      (
+        shown.startTick.time,
+        shown.startTick.dayWord,
+        shown.boundaryTick.time,
+        shown.boundaryTick.dayWord,
+        shown.endTick.time,
+        shown.endTick.dayWord,
+      ),
+    ];
 
     /// 고리가 있는 칸의 (글자, 고리 종류).
     List<(String, TimeBandPick)> picksOf(TimeBand shown) => [
@@ -568,6 +716,7 @@ void main() {
         l10n: _l10n,
         beforeDayStart: false,
         opened: AppTimeOfDay.day,
+        timezone: 'Asia/Seoul',
         wallNow: DateTime.utc(2026, 10, 13, 12),
       );
       expect(
@@ -577,6 +726,195 @@ void main() {
         ],
         [(AppTimeOfDay.day, TimeBandPick.opened)],
       );
+    });
+
+    test('LA 응답은 칸 경계와 눈금이 hours 시각이고 지금 줄도 그 띠 안 자리입니다(#1064)', () {
+      final losAngeles = Daily.fromJson(losAngelesDailyJson());
+      final after = band(
+        DateTime.utc(2026, 10, 13, 12),
+        from: losAngeles,
+        timezone: 'America/Los_Angeles',
+      );
+      expect(labels(after), '진사오미신유술해자축인묘');
+      expect(ticks(after), [
+        (
+          '08:00',
+          null,
+          '22:00',
+          null,
+          '08:00',
+          _l10n.todayLuckyTimeBandTomorrow,
+        ),
+      ]);
+      // 08:00부터 4시간 = 24시간의 240/1440.
+      expect(after.nowFraction, closeTo(240 / 1440, 1e-9));
+      expect(picksOf(after), [
+        ('신', TimeBandPick.opened),
+        ('축', TimeBandPick.other),
+      ]);
+
+      // 07:30은 LA 진시 시작(08:00) 전이라 전날 밤(전날 22:00부터)이 앞입니다.
+      final before = band(
+        DateTime.utc(2026, 10, 13, 7, 30),
+        from: losAngeles,
+        timezone: 'America/Los_Angeles',
+      );
+      expect(labels(before), '해자축인묘진사오미신유술');
+      expect(ticks(before), [
+        (
+          '22:00',
+          _l10n.todayLuckyTimeBandYesterday,
+          '08:00',
+          null,
+          '22:00',
+          null,
+        ),
+      ]);
+      // 전날 22:00부터 9시간 30분.
+      expect(before.nowFraction, closeTo(570 / 1440, 1e-9));
+    });
+
+    test('서울 응답의 hours 띠는 지금 방식(07:30부터 2시간)과 같습니다', () {
+      final legacy = withHours(memberDailyJson(), 'focusTime', null);
+      for (final wall in [
+        DateTime.utc(2026, 10, 13, 0, 10),
+        DateTime.utc(2026, 10, 13, 7, 29),
+        DateTime.utc(2026, 10, 13, 7, 30),
+        DateTime.utc(2026, 10, 13, 12),
+      ]) {
+        final fromHours = band(wall);
+        final fromTable = band(wall, from: legacy);
+        expect(labels(fromHours), labels(fromTable));
+        expect(ticks(fromHours), ticks(fromTable));
+        expect(fromHours.nowFraction, closeTo(fromTable.nowFraction, 1e-9));
+        expect(picksOf(fromHours), picksOf(fromTable));
+      }
+    });
+
+    test('낮 카드 hours가 없거나 비면 지금 방식(프로필 벽시계 07:30부터 2시간)입니다', () {
+      for (final hours in [null, <Object?>[]]) {
+        final shown = band(
+          DateTime.utc(2026, 10, 13, 12),
+          from: withHours(losAngelesDailyJson(), 'focusTime', hours),
+          timezone: 'America/Los_Angeles',
+          beforeDayStart: false,
+        );
+        expect(labels(shown), '진사오미신유술해자축인묘');
+        expect(ticks(shown), [
+          (
+            '07:30',
+            null,
+            '21:30',
+            null,
+            '07:30',
+            _l10n.todayLuckyTimeBandTomorrow,
+          ),
+        ]);
+        expect(shown.nowFraction, closeTo(270 / 1440, 1e-9));
+      }
+    });
+
+    test('보이는 밤 카드가 없으면 밤 다섯 칸은 낮 hours에 이어 2시간씩이고 고리가 없습니다', () {
+      final json = losAngelesDailyJson();
+      (json['cards'] as Map<String, dynamic>)
+        ..remove('nightFocusTime')
+        ..remove('previousNightFocusTime');
+      final noNight = Daily.fromJson(json);
+      final after = band(
+        DateTime.utc(2026, 10, 13, 12),
+        from: noNight,
+        timezone: 'America/Los_Angeles',
+      );
+      expect(labels(after), '진사오미신유술해자축인묘');
+      expect(ticks(after), [
+        (
+          '08:00',
+          null,
+          '22:00',
+          null,
+          '08:00',
+          _l10n.todayLuckyTimeBandTomorrow,
+        ),
+      ]);
+      expect(picksOf(after), [('신', TimeBandPick.opened)]);
+      final before = band(
+        DateTime.utc(2026, 10, 13, 7),
+        from: noNight,
+        timezone: 'America/Los_Angeles',
+      );
+      expect(ticks(before), [
+        (
+          '22:00',
+          _l10n.todayLuckyTimeBandYesterday,
+          '08:00',
+          null,
+          '22:00',
+          null,
+        ),
+      ]);
+      expect(picksOf(before), [('신', TimeBandPick.opened)]);
+    });
+
+    test('보이는 밤 카드 hours가 없거나 비면 그 다섯 칸만 낮 hours에 이어 2시간씩입니다', () {
+      for (final hours in [null, <Object?>[]]) {
+        final shown = band(
+          DateTime.utc(2026, 10, 13, 12),
+          from: withHours(losAngelesDailyJson(), 'nightFocusTime', hours),
+          timezone: 'America/Los_Angeles',
+        );
+        expect(ticks(shown), [
+          (
+            '08:00',
+            null,
+            '22:00',
+            null,
+            '08:00',
+            _l10n.todayLuckyTimeBandTomorrow,
+          ),
+        ]);
+        // 밤 카드 고른 시진(축)은 지지로 찾습니다.
+        expect(picksOf(shown), [
+          ('신', TimeBandPick.opened),
+          ('축', TimeBandPick.other),
+        ]);
+      }
+    });
+
+    test('같은 시진이 두 번 오면 시작 시각으로 한 번만 그리고, 구간 칸 수가 아니면 그 구간은 지금 방식입니다', () {
+      final json = losAngelesDailyJson();
+      final night =
+          (json['cards'] as Map<String, dynamic>)['nightFocusTime']
+              as Map<String, dynamic>;
+      final hours = night['hours'] as List<Object?>;
+      final repeated = band(
+        DateTime.utc(2026, 10, 13, 12),
+        from: withHours(json, 'nightFocusTime', [hours.last, ...hours]),
+        timezone: 'America/Los_Angeles',
+      );
+      expect(labels(repeated), '진사오미신유술해자축인묘');
+      expect(ticks(repeated).single.$5, '08:00');
+
+      final short = band(
+        DateTime.utc(2026, 10, 13, 12),
+        from: withHours(
+          losAngelesDailyJson(),
+          'nightFocusTime',
+          hours.take(3).toList(),
+        ),
+        timezone: 'America/Los_Angeles',
+      );
+      expect(short.cells, hasLength(TimeBand.cellCount));
+      expect(labels(short), '진사오미신유술해자축인묘');
+      expect(ticks(short), [
+        (
+          '08:00',
+          null,
+          '22:00',
+          null,
+          '08:00',
+          _l10n.todayLuckyTimeBandTomorrow,
+        ),
+      ]);
     });
 
     test('en은 지지 한자이고 한자 글꼴을 쓰며, 사전에 이름이 없으면 ko도 한자입니다', () async {
@@ -590,6 +928,7 @@ void main() {
         l10n: _l10n,
         beforeDayStart: false,
         opened: AppTimeOfDay.day,
+        timezone: 'Asia/Seoul',
         wallNow: DateTime.utc(2026, 10, 13, 12),
       );
       expect(unnamed.cells.first.label, '辰');

@@ -4,13 +4,14 @@ member 프로필(`fixtures/member/updateProfile.json`: 양력 1990-05-15 14:30, 
 `compose_daily`를 돌립니다. 엔진은 규칙 2026.11.7(덕일, 밤 집중 시간, 색 둘)을 냅니다.
 
 기존 시나리오(`member`, `member-time-unknown`, `evidence-unlocked`, `reward-unlock`, 오늘 2026-10-13)
-* 손으로 쓴 응답은 그대로 두고 REST 1.11.0에서 더한 값만 엔진으로 채웁니다. 시나리오의 오늘은
+* 손으로 쓴 응답은 그대로 두고 REST 1.11.0, 1.12.0에서 더한 값만 엔진으로 채웁니다. 시나리오의 오늘은
   `dayKind: yongsin_day`, 행운 색 초록처럼 화면을 보이려고 고른 값이라 엔진 값(보통의 날)과 다릅니다
   (`gen_calendar_fixtures.py`의 2026-10-13 설명과 같음).
 * `dayVirtues`: 엔진 판정 그대로입니다(2026-10-13은 덕일이 없어 빈 배열).
 * `cards.focusTime`, `cards.nightFocusTime`, `cards.previousNightFocusTime`: 엔진의 그날 낮, 그날 밤, 전날 밤
   1등 시진입니다. `picks`는 1개, `fallback` false, `reasons` 빈 배열입니다(규칙 2026.11.4 이후,
-  `FocusTimeCard`, `FocusSlot` 설명). 시나리오의 오늘이 요청 날짜라 전날 밤도 담습니다(server `previousNight`).
+  `FocusTimeCard`, `FocusSlot` 설명). `hours`는 엔진 `FocusPick.hours`(구간의 시진 전부, 시간 순, 時破 포함,
+  규칙 2026.11.8, REST 1.12.0 #1064)입니다. 시나리오의 오늘이 요청 날짜라 전날 밤도 담습니다(server `previousNight`).
   집중 시간은 날의 성격과 상관없이 시진 등급으로 정해지므로 손으로 고른 `dayKind`와 함께 있어도 엔진 값 그대로입니다
   (2026-10-13 낮은 신시 15:30~17:30).
 * `fortune.head`, `fortune.tag`의 `reactable`은 server 규칙대로 true입니다(`content.Reactable`).
@@ -86,23 +87,27 @@ def pillar(p) -> dict:
     return {"stem": p.stem.name.lower(), "branch": p.branch.name.lower()}
 
 
-def focus_card(pick: FocusPick, judgment: Judgment, *, unlocked: bool) -> dict:
-    grade = pick.grade
-    slot = grade.slot
+def focus_slot(slot, day_date: date, day) -> dict:
+    """시진 하나(core `grpc_api/mapping.py` `_focus_slot`, server `focusSlot`). `reasons`는 더 쓰지 않아 빈 배열입니다."""
     return {
-        "picks": [
-            {
-                "branch": slot.branch.name.lower(),
-                "start": slot.start.isoformat(),
-                "end": slot.end.isoformat(),
-                "huangdaoLucky": slot.huangdao_lucky,
-                "dayDate": grade.day_date.isoformat(),
-                "dayPillar": pillar(grade.day),
-                "reasons": [],
-            }
-        ],
+        "branch": slot.branch.name.lower(),
+        "start": slot.start.isoformat(),
+        "end": slot.end.isoformat(),
+        "huangdaoLucky": slot.huangdao_lucky,
+        "dayDate": day_date.isoformat(),
+        "dayPillar": pillar(day),
+        "reasons": [],
+    }
+
+
+def focus_card(pick: FocusPick, judgment: Judgment, *, unlocked: bool) -> dict:
+    """고른 시진 하나(`picks`)와 구간의 시진 전부(`hours`, 시간 순, 時破 포함, REST 1.12.0 #1064)."""
+    grade = pick.grade
+    return {
+        "picks": [focus_slot(grade.slot, grade.day_date, grade.day)],
         "fallback": False,
         "text": slot_text("daily.focus_time", judgment, unlocked=unlocked),
+        "hours": [focus_slot(hour.slot, hour.day_date, hour.day) for hour in pick.hours],
     }
 
 
@@ -122,7 +127,7 @@ def day_virtues(view, *, unlocked: bool) -> list[dict]:
 
 
 def patch_existing(body: dict, birth: BirthInput) -> dict:
-    """기존 손 fixture에 REST 1.11.0 값을 엔진으로 채웁니다(위 설명)."""
+    """기존 손 fixture에 REST 1.11.0, 1.12.0 값을 엔진으로 채웁니다(위 설명)."""
     unlocked = body["evidenceAccess"] == "unlocked"
     target = date.fromisoformat(body["date"])
     view = compose_daily(birth, target, SEOUL)

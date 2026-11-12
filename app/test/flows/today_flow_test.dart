@@ -330,6 +330,12 @@ void main() {
         matching: find.byType(TimeBand),
       );
       expect(band, findsOneWidget);
+      // 칸 눈금은 fixture 낮 카드와 오늘 밤 카드의 hours(서울 진시 07:30, 해시 21:30)입니다(#1064).
+      final shown = tester.widget<TimeBand>(band);
+      expect(
+        (shown.startTick.time, shown.boundaryTick.time, shown.endTick.time),
+        ('07:30', '21:30', '07:30'),
+      );
       // 정오라 낮 일곱 칸이 앞이고, 지금 꼬리표는 프로필 시간대 벽시계입니다.
       expect(
         find.descendant(

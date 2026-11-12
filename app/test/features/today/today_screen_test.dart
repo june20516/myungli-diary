@@ -17,6 +17,7 @@ import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -1397,6 +1398,72 @@ void main() {
       expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsNothing);
       // 낮 칩은 그대로입니다.
       expect(textIn(chip(AppTimeOfDay.day), '15:30~17:30'), findsOneWidget);
+    });
+
+    testWidgets('LA 프로필은 07:30이 아니라 그 시간대 진시 시작(08:00)에 밤 칩이 바뀝니다(#1064)', (
+      tester,
+    ) async {
+      // member-overseas: 시간대 America/Los_Angeles, 앱 언어 en.
+      final en = AppLocalizationsEn();
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member-overseas',
+        overrides: [
+          _dailyOf(losAngelesDailyJson()),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      final night = chip(AppTimeOfDay.night);
+      expect(textIn(night, en.todayLuckyTimeNightDawn), findsOneWidget);
+      expect(textIn(chip(AppTimeOfDay.day), '16:00 to 18:00'), findsOneWidget);
+
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 59));
+      await tester.pumpAndSettle();
+      expect(textIn(night, en.todayLuckyTimeNightDawn), findsOneWidget);
+
+      minutes.add(DateTime.utc(2026, 10, 13, 8));
+      await tester.pumpAndSettle();
+      expect(textIn(night, en.todayLuckyTimeNightTonight), findsOneWidget);
+      expect(textIn(night, en.todayLuckyTimeNightDawn), findsNothing);
+
+      // 띠도 그 시간대 hours 시각입니다(낮 08:00부터).
+      await tester.ensureVisible(chip(AppTimeOfDay.day));
+      await tester.pumpAndSettle();
+      await tester.tap(chip(AppTimeOfDay.day));
+      await tester.pumpAndSettle();
+      final band = tester.widget<TimeBand>(find.byType(TimeBand));
+      expect(band.startTick.time, '08:00');
+      expect(band.boundaryTick.time, '22:00');
+      expect(band.cells.first.period, AppTimeOfDay.day);
+    });
+
+    testWidgets('낮 카드 hours가 없는 응답은 한국 시각 07:30에 밤 칩이 바뀝니다', (tester) async {
+      final json = dailyJson();
+      final cards = json['cards'] as Map<String, dynamic>;
+      (cards['focusTime'] as Map<String, dynamic>).remove('hours');
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          _dailyOf(json),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 29));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      final night = chip(AppTimeOfDay.night);
+      expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsOneWidget);
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await tester.pumpAndSettle();
+      expect(textIn(night, _ko.todayLuckyTimeNightTonight), findsOneWidget);
     });
 
     testWidgets('열린 시간 시트가 07:30을 넘어도 띠 순서와 고리는 연 때 그대로이고 지금 줄만 움직입니다', (

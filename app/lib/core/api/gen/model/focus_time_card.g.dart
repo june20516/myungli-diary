@@ -13,6 +13,8 @@ abstract class _$FocusTimeCardCWProxy {
 
   FocusTimeCard text(SlotText text);
 
+  FocusTimeCard hours(List<FocusSlot>? hours);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `FocusTimeCard(...).copyWith.fieldName(value)`.
@@ -21,7 +23,12 @@ abstract class _$FocusTimeCardCWProxy {
   /// ```dart
   /// FocusTimeCard(...).copyWith(id: 12, name: "My name")
   /// ```
-  FocusTimeCard call({List<FocusSlot> picks, bool fallback, SlotText text});
+  FocusTimeCard call({
+    List<FocusSlot> picks,
+    bool fallback,
+    SlotText text,
+    List<FocusSlot>? hours,
+  });
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -40,6 +47,9 @@ class _$FocusTimeCardCWProxyImpl implements _$FocusTimeCardCWProxy {
   @override
   FocusTimeCard text(SlotText text) => call(text: text);
 
+  @override
+  FocusTimeCard hours(List<FocusSlot>? hours) => call(hours: hours);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `FocusTimeCard(...).copyWith.fieldName(value)`.
@@ -53,6 +63,7 @@ class _$FocusTimeCardCWProxyImpl implements _$FocusTimeCardCWProxy {
     Object? picks = const $CopyWithPlaceholder(),
     Object? fallback = const $CopyWithPlaceholder(),
     Object? text = const $CopyWithPlaceholder(),
+    Object? hours = const $CopyWithPlaceholder(),
   }) {
     return FocusTimeCard(
       picks: picks == const $CopyWithPlaceholder() || picks == null
@@ -67,6 +78,10 @@ class _$FocusTimeCardCWProxyImpl implements _$FocusTimeCardCWProxy {
           ? _value.text
           // ignore: cast_nullable_to_non_nullable
           : text as SlotText,
+      hours: hours == const $CopyWithPlaceholder()
+          ? _value.hours
+          // ignore: cast_nullable_to_non_nullable
+          : hours as List<FocusSlot>?,
     );
   }
 }
@@ -97,6 +112,12 @@ FocusTimeCard _$FocusTimeCardFromJson(Map<String, dynamic> json) =>
           'text',
           (v) => SlotText.fromJson(v as Map<String, dynamic>),
         ),
+        hours: $checkedConvert(
+          'hours',
+          (v) => (v as List<dynamic>?)
+              ?.map((e) => FocusSlot.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
       );
       return val;
     });
@@ -106,4 +127,5 @@ Map<String, dynamic> _$FocusTimeCardToJson(FocusTimeCard instance) =>
       'picks': instance.picks.map((e) => e.toJson()).toList(),
       'fallback': instance.fallback,
       'text': instance.text.toJson(),
+      'hours': ?instance.hours?.map((e) => e.toJson()).toList(),
     };
