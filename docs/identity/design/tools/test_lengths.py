@@ -80,6 +80,11 @@ ISSUE_859 = {"today.event.title", "explain-sheet.tag.diary-link", "tag-sheet.dia
 # 검수 회차2 그날 시트 새 슬롯(#946, V107, V108)과 D118 열림 꼬리표(#950, V112)
 ISSUE_946_950 = {"day-sheet.event.all-day", "day-sheet.verdict.expand", "day-sheet.verdict.collapse",
                  "evidence-sheet.unlock.until"}
+# D123 행운 색 둘인 날과 집중 시간 낮, 밤의 IA 새 ui 슬롯 (#1020, V114~V118)
+ISSUE_1020 = {"today.lucky-color.pair.intro", "today.lucky-time.day.title", "today.lucky-time.night.title",
+              "today.lucky-time.night.dawn", "today.lucky-time.night.tonight", "today.lucky-time.band.day",
+              "today.lucky-time.band.night", "today.lucky-time.band.now", "today.lucky-time.band.yesterday",
+              "today.lucky-time.band.tomorrow"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -203,7 +208,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
         "saju-chart.yongsin.title",
     } | DIALOG_SLOTS_EXPECTED
     requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
-                 | ISSUE_763 | DS1_SCREENS | ISSUE_859 | ISSUE_946_950)
+                 | ISSUE_763 | DS1_SCREENS | ISSUE_859 | ISSUE_946_950 | ISSUE_1020)
     slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
@@ -528,3 +533,19 @@ def test_issue_859_widths_follow_spec():
     note = next(line for line in (TOOLS_DIR.parent / "lengths.md").read_text(encoding="utf-8").splitlines()
                 if line.startswith("  * `explain-sheet.tag.diary-link`"))
     assert "`daily.tag_label`" in note and "보장하지 않습니다" in note  # I1: 태그 이름 상한 끝까지는 보장하지 않음
+
+
+def test_d123_today_ia_slots_are_measured():
+    # #1020: IA v5 보충(D123)의 today 새 슬롯. ui는 칸으로 재고, content 본문 셋은 daily.color, daily.focus_time 칸
+    ia = json.loads((REPO_ROOT / "docs" / "ia" / "screens.json").read_text(encoding="utf-8"))
+    today = next(screen for screen in ia["screens"] if screen["id"] == "today")
+    new = {slot["id"]: slot["source"] for slot in today["slots"]
+           if slot["id"].startswith(("today.lucky-time.", "today.lucky-color.pair", "today.lucky-color.second"))}
+    measured = {slot for target in lengths.TARGETS for slot in target.slots}
+    assert {slot for slot, source in new.items() if source == "ui"} == ISSUE_1020 <= measured
+    assert {slot for slot, source in new.items() if source == "content"} == {
+        "today.lucky-color.second.body", "today.lucky-time.day.body", "today.lucky-time.night.body"}
+    assert {"daily.color", "daily.focus_time"} <= measured
+    by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    assert by_slot["today.lucky-time.band.day"].width == lengths.BAND_NIGHT_SPAN - 16 - 4  # 좁은 밤 다섯 칸
+    assert by_slot["today.lucky-time.night.dawn"].width == 320 - 24 - 16 - 4 - 4 - 88 == 184
