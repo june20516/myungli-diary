@@ -1,5 +1,5 @@
 {
-  "version": "7.5.0",
+  "version": "7.6.0",
   "group": "frame",
   "components": [
     {
@@ -208,7 +208,10 @@
           "note": "시트를 닫고 tag-diary로 page.push. 일기 줄, 일기 쓰기와 보기의 태그, 나 탭 회고 태그에서 연 대표 태그 시트도 같음(관문 답 2026-11-06)"
         },
         "weighingNote": {
-          "when": "흉한 신살(공망, 고신, 과숙, 원진, 구교)의 뜻 시트일 때만 본문 바로 아래. 사주 기운 시트(tag-sheet)의 뜻 아래에도 같은 부품 (D124 ⑦, 결정 V120)",
+          "when": "targets에 든 신살의 뜻 시트일 때만 본문 바로 아래. 사주 기운 시트(tag-sheet)의 뜻 아래에도 같은 부품 (D124 ⑦, 결정 V120, V125)",
+          "targets": ["고신", "과숙", "원진", "구교", "천라지망", "십악대패", "음착양차", "도화", "공망", "양인", "괴강"],
+          "notTargets": ["천을귀인", "천덕", "월덕", "금여", "암록", "삼기", "역마", "화개"],
+          "targetsRule": "앞 일곱(붙임)과 notTargets 앞 일곱(붙이지 않음)은 지휘 확정(D124 ⑦, #1086). 모호한 신살(도화, 화개, 공망, 양인, 괴강)은 writing 판단(슬롯 ui.shinsal.weighing structure, #1090, W74)을 따르고, writing이 뜻 문장을 고쳐 판단이 바뀌면 이 목록도 따라 고침. app은 이 목록을 상수로 씀 (#1091)",
           "slot": "ui.shinsal.weighing",
           "copy": "『三命通會』 卷三 「總論諸神煞」 마무리 문장을 줄인 한 줄. 문구는 writing(#1030, 키 shinsalWeighingNote). 원문과 출처는 보이지 않음",
           "marginTop": "{space.12}",

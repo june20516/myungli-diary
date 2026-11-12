@@ -31,6 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-12, design 세션 작성)
+* **마무리 줄 대상 목록 #1091** (브랜치 `design/weighing-targets-1091`, D124 ⑦, 결정 V125, V120 개정): `weighingNote` `targets` 열하나와 `notTargets` 여덟, 모호한 신살은 writing 판단(#1090). `test_v125_weighing_targets_follow_writing_slot`이 writing 슬롯 문장과 대조하므로 writing이 판단을 바꾸면 이 검사가 걸림.
 * **시간 띠 고른 시진과 시트 구분선 #1072** (브랜치 `design/time-band-pick-1072`, 결정 V124, V117 개정): 고리를 칸 안쪽에 그리고 연 칩 시진은 primary 2px와 700, 다른 칩 시진은 회색 1px(관문 A). `list.divider` `inSheet` 들임 0(관문 A). 시안 `artifacts/2026-11-13-time-band-pick-questions.html`.
 * **빈 상태 둘 #1058** (브랜치 `design/empty-states-1058`, app #1057, 결정 V123, 계약 버전은 계약 목록): #922 광고 제거 상품 목록이 빌 때 `offer-card` `unavailable`(카드 유지, 가격과 구매 버튼 자리에 안내 한 줄 `ad-free.unavailable.body`, 관문 A), #957 뜻도 근거 출처도 없는 용어는 풀이 시트를 열고 이름 아래 `emptyNote`(IA 밖 `ui.explain.term-empty`, 관문 A). 시안 `artifacts/2026-11-12-empty-states-questions.html`. 상한은 `lengths.md`, 문구는 writing.
 * **app 요청 #969, #986** (PR #1048 병합, V122, 컴포넌트 7.3.0): `settings-row` `readonly`(관문 A, 시안 `artifacts/2026-11-12-preview-used-questions.html`), `tab.switch` 끊기와 범위, 질문 떼기 새 일기에서만, 길흉 내역 `count` 없음. IA `preview.components`의 `settings-row`는 지휘 PR #1049로 들어와 drift #1051로 맞춤(뼈 없음 분류).

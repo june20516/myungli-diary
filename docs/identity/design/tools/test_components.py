@@ -445,14 +445,15 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_5_0():
+def test_contract_version_is_7_6_0():
+    # 7.6.0은 #1091(D124 ⑦, V125): weighingNote 대상 목록 targets, notTargets를 writing 판단(#1090)에 맞춰 바꾼 값이라 부 버전.
     # 7.5.0은 #1072(V124): 시간 띠 고른 시진 고리를 칸 안쪽으로 옮기고 연 칩과 다른 칩을 나눈 값, list.divider inSheet 추가라 부 버전.
     # 7.4.0은 #1058(V123): offer-card 상태 unavailable과 term-token 풀이 시트 emptyNote 추가라 부 버전.
     # 7.3.0은 #969, #986(V122): settings-row 변형 readonly 추가와 app 구현에 맞춘 계약 문구라 부 버전.
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.5.0"
+    assert VERSION == "7.6.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -3288,3 +3289,16 @@ def test_v124_time_band_pick_and_sheet_divider():
     assert element["inSheet"]["insetX"] == 0
     assert card["parts"]["colorPairSheet"]["between"]["insetX"] == 0
     assert component("today", "tag-sentence-list")["parts"]["divider"]["insetX"] == 0
+
+
+def test_v125_weighing_targets_follow_writing_slot():
+    # #1091: 대상 목록은 writing 슬롯 ui.shinsal.weighing structure의 붙는 신살, 붙지 않는 신살과 같아야 함
+    note = component("frame", "explain-sheet")["parts"]["weighingNote"]
+    targets, not_targets = note["targets"], note["notTargets"]
+    assert len(targets) == 11 and len(not_targets) == 8 and not set(targets) & set(not_targets)
+    slots = (DESIGN_DIR.parent / "writing" / "slots" / "ui" / "saju.yaml").read_text(encoding="utf-8")
+    structure = next(line for line in slots.splitlines() if "붙는 신살(" in line)
+    attach, detach = structure.split("붙는 신살(", 1)[1].split("붙지 않는 신살:", 1)
+    assert all(name in attach for name in targets), [name for name in targets if name not in attach]
+    assert all(name in detach for name in not_targets), [name for name in not_targets if name not in detach]
+    assert "writing 판단" in note["targetsRule"] and "#1091" in note["targetsRule"]
