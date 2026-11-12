@@ -248,7 +248,7 @@ void main() {
     expect(find.text('나와 잘 맞는 기운'), findsOneWidget);
     expect(find.text('수'), findsWidgets);
     final chip = tester.widget<LuckyChip>(find.byType(LuckyChip));
-    expect(chip.item.value, '남색');
+    expect(chip.item.value, '검정');
   });
 
   testWidgets('섹션 제목 다섯이 위에서 원국, 성향 풀이, 돕는 기운, 올해와 지금, 회고 순서입니다', (

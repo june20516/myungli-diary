@@ -322,7 +322,7 @@ void main() {
     expect(find.text('초록'), findsOneWidget);
     expect(find.text(_ko.direction8E), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
-    expect(find.text('09:30~11:30'), findsOneWidget);
+    expect(find.text('15:30~17:30'), findsOneWidget);
 
     // 오늘의 질문: 섹션 제목이 같은 말을 하므로 카드 머리글은 없습니다.
     final guide = tester.widget<GuideQuestionCard>(

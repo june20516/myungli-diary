@@ -4,10 +4,10 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:yaml/yaml.dart';
+
+import '../support/type_styles.dart';
 
 /// 디자인 토큰 계약 디렉터리(app/ 기준).
 const _tokenDir = '../docs/identity/design/tokens';
@@ -24,13 +24,13 @@ Set<String> _pubspecFamilies() {
   };
 }
 
-/// typography 토큰 파일에서 `$type: fontFamily`인 값의 이름을 모두 모읍니다.
-Set<String> _contractFamilies() {
-  final names = <String>{};
+/// typography 토큰 파일의 `$type: fontFamily` 값(이름 목록) 전부.
+List<List<String>> _contractFamilyLists() {
+  final lists = <List<String>>[];
   void visit(Object? node) {
     if (node is! Map<String, Object?>) return;
     if (node[r'$type'] == 'fontFamily' && node[r'$value'] is List) {
-      names.addAll((node[r'$value']! as List).cast<String>());
+      lists.add((node[r'$value']! as List).cast<String>());
     }
     node.values.forEach(visit);
   }
@@ -41,44 +41,32 @@ Set<String> _contractFamilies() {
   for (final file in files) {
     visit(jsonDecode(file.readAsStringSync()));
   }
-  return names;
+  return lists;
 }
-
-/// 생성 토큰의 모든 글자 스타일.
-List<TextStyle> _generatedStyles() => [
-  for (final t in [koType, jaType]) ...[
-    t.sentenceCard,
-    t.sentenceBody,
-    t.display,
-    t.title,
-    t.subtitle,
-    t.labelLg,
-    t.labelMd,
-    t.captionMd,
-    t.captionSm,
-    t.captionLg,
-    t.numericCalendar,
-    t.numericTable,
-    t.hanjaPillar,
-    t.bodyUi,
-  ],
-];
 
 void main() {
   final declared = _pubspecFamilies();
+  final contractLists = _contractFamilyLists();
 
   test('계약 typography 토큰의 글꼴 이름(일반 이름 제외)이 모두 pubspec family에 있습니다', () {
-    final contract = _contractFamilies().difference(_genericFamilies);
-    // 한자 대체 글꼴(V121, 토큰 1.9.0)이 계약에 있는지도 함께 봅니다.
-    expect(contract, contains('Myungli Hanja Supplement'));
+    final contract = {for (final list in contractLists) ...list}
+        .difference(_genericFamilies);
+    expect(contract, isNotEmpty);
     expect(contract.difference(declared), isEmpty);
   });
 
-  test('생성 토큰의 fontFamilyFallback 이름(일반 이름 제외)이 모두 pubspec family에 있습니다', () {
-    final fallbacks = {
-      for (final style in _generatedStyles()) ...?style.fontFamilyFallback,
-    }.difference(_genericFamilies);
-    expect(fallbacks, contains('Myungli Hanja Supplement'));
-    expect(fallbacks.difference(declared), isEmpty);
-  });
+  test(
+    '생성 토큰의 fontFamilyFallback 이름은 계약의 대체 글꼴 이름이고 모두 pubspec family에 있습니다',
+    () {
+      // 계약 목록의 첫 값은 fontFamily, 나머지가 대체 목록입니다(gen_tokens.dart).
+      final contractFallbacks = {
+        for (final list in contractLists) ...list.skip(1),
+      }.difference(_genericFamilies);
+      final generated = {
+        for (final style in allTypeStyles()) ...?style.fontFamilyFallback,
+      }.difference(_genericFamilies);
+      expect(generated, contractFallbacks);
+      expect(generated.difference(declared), isEmpty);
+    },
+  );
 }

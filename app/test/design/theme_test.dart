@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/fonts.dart';
+import '../support/type_styles.dart';
 
 /// lerp의 "다른 타입" 분기를 검사하려는 다른 ThemeExtension.
 class _OtherExtension extends ThemeExtension<_OtherExtension> {
@@ -135,24 +136,7 @@ void main() {
 
   test('토큰의 fontFamily 첫 값과 대체 목록이 모두 pubspec.yaml에 있습니다', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
-    final styles = [
-      for (final t in [koType, jaType]) ...[
-        t.sentenceCard,
-        t.sentenceBody,
-        t.display,
-        t.title,
-        t.subtitle,
-        t.labelLg,
-        t.labelMd,
-        t.captionMd,
-        t.captionSm,
-        t.captionLg,
-        t.numericCalendar,
-        t.numericTable,
-        t.hanjaPillar,
-        t.bodyUi,
-      ],
-    ];
+    final styles = allTypeStyles();
     final families = {for (final s in styles) s.fontFamily!};
     // 글꼴 대체 목록의 앱 글꼴(일반 이름 `sans-serif` 제외). 한자 대체 글꼴은 첫 값으로
     // 쓰이지 않고 대체 목록에만 있습니다(V121, 토큰 1.9.0).
@@ -180,6 +164,17 @@ void main() {
       {for (final f in bundledFonts) f.family},
       {...families, ...fallbacks},
     );
+  });
+
+  test('typeStylesOf가 생성 TypeTokens의 글자 스타일 필드를 모두 담습니다', () {
+    final source = File('lib/design/tokens/gen/tokens.g.dart')
+        .readAsStringSync();
+    final block = RegExp(
+      r'final class TypeTokens \{(.*?)\n\}',
+      dotAll: true,
+    ).firstMatch(source)!.group(1)!;
+    final fields = RegExp(r'final TextStyle \w+;').allMatches(block).length;
+    expect(typeStylesOf(koType), hasLength(fields));
   });
 
   test('pubspec.yaml이 선언한 글꼴·라이선스 파일이 모두 있습니다', () {

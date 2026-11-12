@@ -132,7 +132,7 @@ void main() {
         '초록',
         l10n.direction8E,
         '3',
-        '09:30~11:30',
+        '15:30~17:30',
       ]);
       expect(items.map((i) => i.name), [
         l10n.todayLuckyColorName,
@@ -168,7 +168,7 @@ void main() {
       final times = items
           .where((item) => item.variant == LuckyCardVariant.time)
           .toList();
-      expect(times.map((item) => item.value), ['09:30~11:30', '13:30~15:30']);
+      expect(times.map((item) => item.value), ['15:30~17:30', '13:30~15:30']);
       expect(times.map((item) => item.ordinal), [0, 1]);
       expect(times.map((item) => item.name).toSet(), {l10n.todayLuckyTimeName});
       expect(times.first.explain, same(times.last.explain));
@@ -180,11 +180,11 @@ void main() {
       final ja = await AppLocalizations.delegate.load(const Locale('ja'));
       expect(
         luckyItemsOf(daily, _names, en, 'Asia/Seoul').last.value,
-        '09:30 to 11:30',
+        '15:30 to 17:30',
       );
       expect(
         luckyItemsOf(daily, _names, ja, 'Asia/Seoul').last.value,
-        '09:30〜11:30',
+        '15:30〜17:30',
       );
     });
 

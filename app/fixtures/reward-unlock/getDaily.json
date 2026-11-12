@@ -94,7 +94,7 @@
             "slot": "daily.fortune.tag",
             "messageKey": "fortune.tag.harmony",
             "variant": "state",
-            "reactable": false,
+            "reactable": true,
             "text": {
               "segments": [
                 {
@@ -224,10 +224,10 @@
           "focusTime": {
             "picks": [
               {
-                "branch": "sa",
-                "start": "2026-10-13T09:30:00+09:00",
-                "end": "2026-10-13T11:30:00+09:00",
-                "huangdaoLucky": true,
+                "branch": "shin",
+                "start": "2026-10-13T15:30:00+09:00",
+                "end": "2026-10-13T17:30:00+09:00",
+                "huangdaoLucky": false,
                 "dayDate": "2026-10-13",
                 "dayPillar": {
                   "stem": "gyeong",
@@ -583,7 +583,7 @@
             "slot": "daily.fortune.tag",
             "messageKey": "fortune.tag.harmony",
             "variant": "state",
-            "reactable": false,
+            "reactable": true,
             "text": {
               "segments": [
                 {
@@ -713,10 +713,10 @@
           "focusTime": {
             "picks": [
               {
-                "branch": "sa",
-                "start": "2026-10-13T09:30:00+09:00",
-                "end": "2026-10-13T11:30:00+09:00",
-                "huangdaoLucky": true,
+                "branch": "shin",
+                "start": "2026-10-13T15:30:00+09:00",
+                "end": "2026-10-13T17:30:00+09:00",
+                "huangdaoLucky": false,
                 "dayDate": "2026-10-13",
                 "dayPillar": {
                   "stem": "gyeong",
@@ -744,7 +744,7 @@
                   "sourceRef": "xieji-bianfang/hours#use_hour",
                   "detail": {
                     "period": "DAY",
-                    "hour_branch": "SA",
+                    "hour_branch": "SHIN",
                     "day_pillar": "庚申"
                   },
                   "basis": {
@@ -767,7 +767,7 @@
                   "sourceRef": "xieji-bianfang/hours#birth_year",
                   "detail": {
                     "period": "DAY",
-                    "hour_branch": "SA",
+                    "hour_branch": "SHIN",
                     "birth_year": "庚午"
                   },
                   "basis": {
@@ -790,8 +790,8 @@
                   "sourceRef": "xieji-bianfang/hours#huangdao",
                   "detail": {
                     "period": "DAY",
-                    "hour_branch": "SA",
-                    "huangdao": "true"
+                    "hour_branch": "SHIN",
+                    "huangdao": "false"
                   },
                   "basis": {
                     "segments": [

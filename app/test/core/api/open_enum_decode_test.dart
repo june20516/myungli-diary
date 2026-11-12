@@ -35,7 +35,7 @@ Map<String, dynamic> _text(String text) => {
 
 void main() {
   group('열린 enum: 모르는 값이 와도 응답 전체 decode가 실패하지 않는다 (A66)', () {
-    test('Daily: NoticeCode·RelationKind·FocusSlot.reasons 항목·SlotText.variant·DayVirtueKind', () {
+    test('Daily: NoticeCode·RelationKind·reasons 항목·variant·DayVirtueKind', () {
       final json = _body('member/getDaily');
       (json['notices'] as List<dynamic>).add({
         'code': _unknown,
@@ -135,15 +135,29 @@ void main() {
 
     test('Calendar: CalendarDay.dayVirtues 항목', () {
       final json = _body('member/getCalendar__2026-10');
-      final day = (json['days'] as List<dynamic>).first as Map<String, dynamic>;
-      day['dayVirtues'] = ['cheondeok_day', _unknown];
+      final days = (json['days'] as List<dynamic>).cast<Map<String, dynamic>>();
+      days.first['dayVirtues'] = ['cheondeok_day', _unknown];
 
       final calendar = Calendar.fromJson(json);
 
+      // 모르는 값은 그 항목만 모르는 값이고 같은 날의 아는 값은 그대로입니다.
       expect(calendar.days.first.dayVirtues, [
         DayVirtueKind.cheondeokDay,
         DayVirtueKind.unknownDefaultOpenApi,
       ]);
+      // 다른 날은 fixture(엔진 판정) 그대로입니다. 10-09는 천덕일과 월덕일, 천덕일 먼저입니다.
+      final byDate = {
+        for (final day in calendar.days) day.date: day.dayVirtues,
+      };
+      expect(byDate['2026-10-09'], [
+        DayVirtueKind.cheondeokDay,
+        DayVirtueKind.woldeokDay,
+      ]);
+      expect(byDate['2026-10-13'], isEmpty);
+      expect(
+        calendar.days.skip(1).expand((day) => day.dayVirtues),
+        everyElement(isNot(DayVirtueKind.unknownDefaultOpenApi)),
+      );
     });
 
     test('Me: ConsentDocument.document·Insight.source', () {

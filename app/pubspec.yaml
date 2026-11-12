@@ -200,5 +200,6 @@ flutter:
     - fixtures/evidence-unlocked/
     - fixtures/reward-unlock/
     - fixtures/daily-pair-virtue/
+    - fixtures/daily-pair-virtue-unlocked/
     - fixtures/calendar-error/
     - fixtures/schedule-save-error/

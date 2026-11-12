@@ -99,7 +99,7 @@
         "slot": "daily.fortune.tag",
         "messageKey": "fortune.tag.harmony",
         "variant": "state",
-        "reactable": false,
+        "reactable": true,
         "text": {
           "segments": [
             {
@@ -229,10 +229,10 @@
       "focusTime": {
         "picks": [
           {
-            "branch": "sa",
-            "start": "2026-10-13T09:30:00+09:00",
-            "end": "2026-10-13T11:30:00+09:00",
-            "huangdaoLucky": true,
+            "branch": "shin",
+            "start": "2026-10-13T15:30:00+09:00",
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
             "dayDate": "2026-10-13",
             "dayPillar": {
               "stem": "gyeong",

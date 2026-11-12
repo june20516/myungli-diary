@@ -17,13 +17,13 @@ core `compose_chart`를 기준일 2026-10-13(시나리오의 오늘)에 돌려 �
 
 엔진 값이 아닌 것
 * 문장(`yongsin.basis.text`, 개인 해석 `text`, 안내 `text`)은 writing 슬롯 형식을 따른
-  대역 문장입니다. 개인 해석은 항목 종류마다 같은 틀에 용어 이름을 넣습니다. server처럼 writing ko 원고
-  (`docs/identity/writing/content/ko/personal.yaml`)에 그 판정의 키가 없는 항목은 뺍니다.
+  대역 문장입니다. 개인 해석은 항목 종류마다 같은 틀에 용어 이름을 넣고, 신살만 writing ko 원고
+  (`docs/identity/writing/content/ko/personal.yaml` `personal.shinsal.<신살>`)를 엔진 매개변수(자리, 오행, 역할)로
+  렌더합니다. server처럼 원고에 그 판정의 키가 없는 항목은 뺍니다.
 * 나의 사주 문장(`ilganHead`·`ilganBody`·`yongsinSummary`, draft.10, 표면 깊이라 잠기지 않음)은
   writing ko 원고(`docs/identity/writing/content/ko/chart.yaml`의 `chart.ilgan_head`·`ilgan_body`·
-  `yongsin_summary`)를 이 도구가 대신 렌더한 것입니다. 호칭은 member 프로필의 "하늘", 오행·색 이름은
-  member 사전 fixture(`getGlossary.json`) 값, 조사 `(이)` 자리는 받침으로 고릅니다. server 렌더와
-  같은 결과를 보장하지는 않습니다.
+  `yongsin_summary`)를 이 도구가 대신 렌더한 것입니다(`fixture_content.py`). 호칭은 member 프로필의 "하늘",
+  오행·색 이름은 writing `glossary.value_name`, 조사는 받침으로 고릅니다. server 렌더와 같은 결과를 보장하지는 않습니다.
 
 core/에서 실행합니다(엔진 가상환경을 씁니다).
     uv run python ../app/tool/gen_chart_fixtures.py ../app/fixtures
@@ -32,11 +32,11 @@ core/에서 실행합니다(엔진 가상환경을 씁니다).
 from __future__ import annotations
 
 import json
-import re
 import sys
 from datetime import date, time
 from pathlib import Path
 
+from fixture_content import LINES, line, preview, render
 from myungli_engine.calendar_core.birth import BirthInput
 from myungli_engine.composers.chart import compose_chart
 from myungli_engine.domain.enums import CalendarType, Gender
@@ -93,32 +93,6 @@ def pillar(p) -> dict:
 
 def rendered(*segments) -> dict:
     return {"segments": list(segments)}
-
-
-def preview(segments: list[dict]) -> list[dict] | None:
-    """잠긴 문장의 앞부분(server `render.Preview` ko 규칙, D106).
-
-    띄어쓰기 단어 3개까지이고 한 단어 이상은 남깁니다. 자를 수 없을 만큼 짧으면 None입니다.
-    경계에 걸려 잘린 조각은 `term`을 빼고 글자만 담습니다.
-    """
-    text = "".join(s["text"] for s in segments)
-    ends = [m.end() for m in re.finditer(r"\S+", text)]
-    count = min(3, len(ends) - 1)
-    if count < 1:
-        return None
-    cut = len(text[: ends[count - 1]].encode("utf-8"))
-    out: list[dict] = []
-    offset = 0
-    for segment in segments:
-        raw = segment["text"].encode("utf-8")
-        if offset >= cut:
-            break
-        if offset + len(raw) <= cut:
-            out.append(segment)
-        else:
-            out.append({"text": raw[: cut - offset].decode("utf-8")})
-        offset += len(raw)
-    return out
 
 
 def notice_body(notice) -> dict:
@@ -234,16 +208,18 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
     return body
 
 
-def _personal_keys() -> set[str]:
-    """writing ko 원고 personal.yaml의 키."""
-    lines = (REPO / "docs/identity/writing/content/ko/personal.yaml").read_text(encoding="utf-8")
-    return set(re.findall(r"key: ([\w.]+),", lines))
-
-
 def readings_with_script(view) -> list:
     """원고가 있는 개인 해석만 남깁니다(server는 원고가 없는 항목을 뺍니다)."""
-    keys = _personal_keys()
-    return [reading for reading in view.personal_readings if reading.judgment.message_key in keys]
+    return [reading for reading in view.personal_readings if personal_template(reading) is not None]
+
+
+def personal_template(reading) -> str | None:
+    """개인 해석 판정의 writing 원고(`personal.*` 슬롯에서 키로 찾음, 대운과 세운은 `personal.luck`)."""
+    key = reading.judgment.message_key
+    for (slot, line_key, _variant), text in LINES.items():
+        if slot.startswith("personal.") and line_key == key:
+            return text
+    return None
 
 
 def unlocked_basis_segments(method: str) -> list[dict]:
@@ -253,37 +229,6 @@ def unlocked_basis_segments(method: str) -> list[dict]:
         {"text": "용신", "term": "role.yongsin"},
         {"text": "을 정했어요."},
     ]
-
-
-def _chart_lines() -> dict[str, str]:
-    """writing ko 원고 chart.yaml의 `key → text`."""
-    lines = (REPO / "docs/identity/writing/content/ko/chart.yaml").read_text(encoding="utf-8")
-    return {
-        m.group(1): m.group(2)
-        for m in re.finditer(r'key: ([\w.]+), text: "([^"]*)"', lines)
-    }
-
-
-def _glossary_values() -> dict:
-    glossary = json.loads(
-        (REPO / "app/fixtures/member/getGlossary.json").read_text(encoding="utf-8")
-    )
-    return glossary["body"]["values"]
-
-
-def _has_final(word: str) -> bool:
-    """마지막 글자에 받침이 있는지(한글이 아니면 없음으로 봄)."""
-    code = ord(word[-1]) - 0xAC00
-    return 0 <= code <= 11171 and code % 28 != 0
-
-
-def _josa(word: str, rest: str) -> str:
-    """`(이)에요`·`(이)가`를 [word]의 받침에 맞춥니다."""
-    if rest.startswith("(이)에요"):
-        return ("이에요" if _has_final(word) else "예요") + rest[len("(이)에요"):]
-    if rest.startswith("(이)가"):
-        return ("이" if _has_final(word) else "가") + rest[len("(이)가"):]
-    return rest
 
 
 def slot_text(slot: str, key: str, segments: list) -> dict:
@@ -297,47 +242,35 @@ def slot_text(slot: str, key: str, segments: list) -> dict:
 
 
 def my_saju_texts(day_stem: str, yongsin: str) -> dict:
-    """`my-saju` 문장 세 필드(A55, draft.10)."""
-    lines = _chart_lines()
-    values = _glossary_values()
-    element = values["element"][yongsin]
-    color = values["color"][yongsin]
-    summary = lines["yongsin.summary"]
-    head, rest = summary.split("[[{yongsin}]]", 1)
-    before_color, after_color = rest.split("{yongsin:color}", 1)
+    """`my-saju` 문장 세 필드(A55, draft.10). writing ko 원고 chart.yaml을 렌더합니다."""
+
+    def chart_text(slot: str, key: str, params: dict[str, str]) -> dict:
+        template = line(slot, key)
+        if template is None:
+            raise KeyError(f"원고가 없습니다: {slot} {key}")
+        return slot_text(slot, key, render(template, params, key))
+
     return {
-        "ilganHead": slot_text(
-            "chart.ilgan_head",
-            f"ilgan.head.{day_stem}",
-            [{"text": lines[f"ilgan.head.{day_stem}"].replace("{name}", HONORIFIC)}],
-        ),
-        "ilganBody": slot_text(
-            "chart.ilgan_body",
-            f"ilgan.body.{day_stem}",
-            [{"text": lines[f"ilgan.body.{day_stem}"]}],
-        ),
-        "yongsinSummary": slot_text(
-            "chart.yongsin_summary",
-            "yongsin.summary",
-            [
-                {"text": head},
-                {"text": element, "term": f"element.{yongsin}"},
-                {"text": _josa(element, before_color) + color + _josa(color, after_color)},
-            ],
-        ),
+        "ilganHead": chart_text("chart.ilgan_head", f"ilgan.head.{day_stem}", {"name": HONORIFIC}),
+        "ilganBody": chart_text("chart.ilgan_body", f"ilgan.body.{day_stem}", {}),
+        "yongsinSummary": chart_text("chart.yongsin_summary", "yongsin.summary", {"yongsin": yongsin.upper()}),
     }
 
 
 def personal(reading) -> dict:
     kind = lower(reading.kind)
-    item: dict = {
-        "kind": kind,
-        "text": rendered(
+    if kind == "shinsal":
+        # 신살은 writing ko 원고(personal.yaml `personal.shinsal.<신살>`)를 엔진 매개변수로 렌더합니다.
+        template = personal_template(reading)
+        params = {k: str(v) for k, v in reading.judgment.params.items()}
+        text = rendered(*render(template, params, reading.judgment.message_key))
+    else:
+        text = rendered(
             {"text": f"내 사주에서 이 {PERSONAL_PREFIX[kind]} 자리는 "},
             {"text": "기운의 균형", "term": "role.yongsin"},
             {"text": "을 돕는 쪽으로 읽어요."},
-        ),
-    }
+        )
+    item: dict = {"kind": kind, "text": text}
     if reading.position is not None:
         item["position"] = lower(reading.position)
     if reading.index is not None:

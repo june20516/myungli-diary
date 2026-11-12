@@ -752,7 +752,8 @@ void main() {
         shinsal: ShinsalKind.hwagae,
       ),
     );
-    expect(_personalText('이 신살 자리는'), findsOneWidget);
+    // 신살 개인 해석은 writing 원고(`personal.shinsal.hwagae`)를 렌더한 문장입니다.
+    expect(_personalText('혼자 깊이 파고드는'), findsOneWidget);
   });
 
   testWidgets('모르는 신살(열린 enum)은 사전과 상관없이 그 칸에서 건너뜁니다', (tester) async {
