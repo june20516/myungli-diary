@@ -63,6 +63,19 @@
     - term.shinsal.hwagae
     - term.shinsal.yangin
     - term.shinsal.gongmang
+    - term.shinsal.cheondeok
+    - term.shinsal.woldeok
+    - term.shinsal.geumyeo
+    - term.shinsal.gosin
+    - term.shinsal.gwasuk
+    - term.shinsal.wonjin
+    - term.shinsal.gugyo
+    - term.shinsal.cheonra_jimang
+    - term.shinsal.goegang
+    - term.shinsal.sipak_daepae
+    - term.shinsal.eumchak_yangcha
+    - term.shinsal.samgi
+    - term.shinsal.amrok
     - term.day_kind.gwiin_day
     - term.day_kind.yongsin_day
     - term.day_kind.gisin_day
@@ -105,6 +118,9 @@
     - term.tag.ten_god_rush.jaeseong
     - term.tag.ten_god_rush.siksang
     - term.tag.yeokma
+    - term.tag.gosin
+    - term.tag.gwasuk
+    - term.tag.wonjin
     - term.tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
@@ -116,3 +132,20 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 문장 그대로 읽습니다.
+  pending:
+    term.shinsal.cheondeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.woldeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.geumyeo: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.gugyo: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.cheonra_jimang: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.goegang: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.sipak_daepae: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.eumchak_yangcha: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.samgi: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.shinsal.amrok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.tag.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.tag.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
+    term.tag.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
