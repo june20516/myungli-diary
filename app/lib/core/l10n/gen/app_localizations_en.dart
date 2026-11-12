@@ -1970,4 +1970,93 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shinsalWeighingNote =>
       'In the classics, shinsal are just one of many clues for reading a chart.';
+
+  @override
+  String get adFreeUnavailableBody =>
+      'The ad-free pass isn\'t available to purchase right now.';
+
+  @override
+  String get explainSheetTermEmpty =>
+      'We\'re preparing an explanation of this term.';
+
+  @override
+  String ganjiReading(String stem, String branch) {
+    return '$stem $branch';
+  }
+
+  @override
+  String ganjiReadingSuffix(String reading) {
+    return ' ($reading)';
+  }
+
+  @override
+  String todayLuckyPairPosition(int index, int total) {
+    return '$index of $total';
+  }
+
+  @override
+  String get stemReadingGap => 'Gap';
+
+  @override
+  String get stemReadingEul => 'Eul';
+
+  @override
+  String get stemReadingByeong => 'Byeong';
+
+  @override
+  String get stemReadingJeong => 'Jeong';
+
+  @override
+  String get stemReadingMu => 'Mu';
+
+  @override
+  String get stemReadingGi => 'Gi';
+
+  @override
+  String get stemReadingGyeong => 'Gyeong';
+
+  @override
+  String get stemReadingSin => 'Sin';
+
+  @override
+  String get stemReadingIm => 'Im';
+
+  @override
+  String get stemReadingGye => 'Gye';
+
+  @override
+  String get branchReadingJa => 'Ja';
+
+  @override
+  String get branchReadingChuk => 'Chuk';
+
+  @override
+  String get branchReadingIn => 'In';
+
+  @override
+  String get branchReadingMyo => 'Myo';
+
+  @override
+  String get branchReadingJin => 'Jin';
+
+  @override
+  String get branchReadingSa => 'Sa';
+
+  @override
+  String get branchReadingO => 'O';
+
+  @override
+  String get branchReadingMi => 'Mi';
+
+  @override
+  String get branchReadingShin => 'Sin';
+
+  @override
+  String get branchReadingYu => 'Yu';
+
+  @override
+  String get branchReadingSul => 'Sul';
+
+  @override
+  String get branchReadingHae => 'Hae';
 }

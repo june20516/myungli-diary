@@ -1076,19 +1076,19 @@
   },
   "todayLuckyColorName": "행운 색",
   "@todayLuckyColorName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyDirectionName": "행운 방향",
   "@todayLuckyDirectionName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyNumberName": "행운 숫자",
   "@todayLuckyNumberName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyTimeName": "길한 시간",
   "@todayLuckyTimeName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "evidenceSheetTitle": "풀이의 근거",
   "@evidenceSheetTitle": {
@@ -2629,6 +2629,135 @@
   },
   "shinsalWeighingNote": "원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.",
   "@shinsalWeighingNote": {
-    "description": "흉한 신살(공망, 고신, 과숙, 원진, 구교)의 풀이 시트(explain-sheet)와 사주 기운 시트(tag-sheet)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
+    "description": "아래 '붙는 신살'의 풀이 시트(explain-sheet, 원국 `term.shinsal.*`)와 사주 기운 시트(tag-sheet, 오늘 태그 `term.tag.*`)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
+  },
+  "adFreeUnavailableBody": "지금은 광고 제거권을 구매할 수 없어요.",
+  "@adFreeUnavailableBody": {
+    "description": "ad-free.unavailable.body: 상품 목록이 비어 있을 때(empty 상태) 제안 카드 자리의 안내: 지금은 광고 제거권을 살 수 없다는 사실. 오류처럼 들리지 않게(모양 design, 문구 writing)"
+  },
+  "explainSheetTermEmpty": "이 용어의 풀이를 준비하고 있어요.",
+  "@explainSheetTermEmpty": {
+    "description": "풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)"
+  },
+  "ganjiReading": "{stem}{branch}",
+  "@ganjiReading": {
+    "description": "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      },
+      "branch": {
+        "type": "String"
+      }
+    }
+  },
+  "ganjiReadingSuffix": "({reading})",
+  "@ganjiReadingSuffix": {
+    "description": "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리",
+    "placeholders": {
+      "reading": {
+        "type": "String"
+      }
+    }
+  },
+  "todayLuckyPairPosition": "{total}개 중 {index}번째",
+  "@todayLuckyPairPosition": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "stemReadingGap": "갑",
+  "@stemReadingGap": {
+    "description": "glossary.value_name: stem_reading.gap"
+  },
+  "stemReadingEul": "을",
+  "@stemReadingEul": {
+    "description": "glossary.value_name: stem_reading.eul"
+  },
+  "stemReadingByeong": "병",
+  "@stemReadingByeong": {
+    "description": "glossary.value_name: stem_reading.byeong"
+  },
+  "stemReadingJeong": "정",
+  "@stemReadingJeong": {
+    "description": "glossary.value_name: stem_reading.jeong"
+  },
+  "stemReadingMu": "무",
+  "@stemReadingMu": {
+    "description": "glossary.value_name: stem_reading.mu"
+  },
+  "stemReadingGi": "기",
+  "@stemReadingGi": {
+    "description": "glossary.value_name: stem_reading.gi"
+  },
+  "stemReadingGyeong": "경",
+  "@stemReadingGyeong": {
+    "description": "glossary.value_name: stem_reading.gyeong"
+  },
+  "stemReadingSin": "신",
+  "@stemReadingSin": {
+    "description": "glossary.value_name: stem_reading.sin"
+  },
+  "stemReadingIm": "임",
+  "@stemReadingIm": {
+    "description": "glossary.value_name: stem_reading.im"
+  },
+  "stemReadingGye": "계",
+  "@stemReadingGye": {
+    "description": "glossary.value_name: stem_reading.gye"
+  },
+  "branchReadingJa": "자",
+  "@branchReadingJa": {
+    "description": "glossary.value_name: branch_reading.ja"
+  },
+  "branchReadingChuk": "축",
+  "@branchReadingChuk": {
+    "description": "glossary.value_name: branch_reading.chuk"
+  },
+  "branchReadingIn": "인",
+  "@branchReadingIn": {
+    "description": "glossary.value_name: branch_reading.in"
+  },
+  "branchReadingMyo": "묘",
+  "@branchReadingMyo": {
+    "description": "glossary.value_name: branch_reading.myo"
+  },
+  "branchReadingJin": "진",
+  "@branchReadingJin": {
+    "description": "glossary.value_name: branch_reading.jin"
+  },
+  "branchReadingSa": "사",
+  "@branchReadingSa": {
+    "description": "glossary.value_name: branch_reading.sa"
+  },
+  "branchReadingO": "오",
+  "@branchReadingO": {
+    "description": "glossary.value_name: branch_reading.o"
+  },
+  "branchReadingMi": "미",
+  "@branchReadingMi": {
+    "description": "glossary.value_name: branch_reading.mi"
+  },
+  "branchReadingShin": "신",
+  "@branchReadingShin": {
+    "description": "glossary.value_name: branch_reading.shin"
+  },
+  "branchReadingYu": "유",
+  "@branchReadingYu": {
+    "description": "glossary.value_name: branch_reading.yu"
+  },
+  "branchReadingSul": "술",
+  "@branchReadingSul": {
+    "description": "glossary.value_name: branch_reading.sul"
+  },
+  "branchReadingHae": "해",
+  "@branchReadingHae": {
+    "description": "glossary.value_name: branch_reading.hae"
   }
 }

@@ -1839,4 +1839,91 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get shinsalWeighingNote => '原典では、神殺は命式を判断する多くの手がかりの一つにすぎません。';
+
+  @override
+  String get adFreeUnavailableBody => '今は広告除去パスを購入できません。';
+
+  @override
+  String get explainSheetTermEmpty => 'この用語の解説を準備しています。';
+
+  @override
+  String ganjiReading(String stem, String branch) {
+    return '$stem$branch';
+  }
+
+  @override
+  String ganjiReadingSuffix(String reading) {
+    return '（$reading）';
+  }
+
+  @override
+  String todayLuckyPairPosition(int index, int total) {
+    return '$totalつのうち$indexつ目';
+  }
+
+  @override
+  String get stemReadingGap => 'きのえ';
+
+  @override
+  String get stemReadingEul => 'きのと';
+
+  @override
+  String get stemReadingByeong => 'ひのえ';
+
+  @override
+  String get stemReadingJeong => 'ひのと';
+
+  @override
+  String get stemReadingMu => 'つちのえ';
+
+  @override
+  String get stemReadingGi => 'つちのと';
+
+  @override
+  String get stemReadingGyeong => 'かのえ';
+
+  @override
+  String get stemReadingSin => 'かのと';
+
+  @override
+  String get stemReadingIm => 'みずのえ';
+
+  @override
+  String get stemReadingGye => 'みずのと';
+
+  @override
+  String get branchReadingJa => 'ね';
+
+  @override
+  String get branchReadingChuk => 'うし';
+
+  @override
+  String get branchReadingIn => 'とら';
+
+  @override
+  String get branchReadingMyo => 'う';
+
+  @override
+  String get branchReadingJin => 'たつ';
+
+  @override
+  String get branchReadingSa => 'み';
+
+  @override
+  String get branchReadingO => 'うま';
+
+  @override
+  String get branchReadingMi => 'ひつじ';
+
+  @override
+  String get branchReadingShin => 'さる';
+
+  @override
+  String get branchReadingYu => 'とり';
+
+  @override
+  String get branchReadingSul => 'いぬ';
+
+  @override
+  String get branchReadingHae => 'い';
 }

@@ -1534,25 +1534,25 @@ abstract class AppLocalizations {
   /// **'{subject} 근거 보기'**
   String depthLinkEvidence(String subject);
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'행운 색'**
   String get todayLuckyColorName;
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'행운 방향'**
   String get todayLuckyDirectionName;
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'행운 숫자'**
   String get todayLuckyNumberName;
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'길한 시간'**
@@ -3300,11 +3300,173 @@ abstract class AppLocalizations {
   /// **'오늘 밤'**
   String get todayLuckyTimeNightTonight;
 
-  /// 흉한 신살(공망, 고신, 과숙, 원진, 구교)의 풀이 시트(explain-sheet)와 사주 기운 시트(tag-sheet)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)
+  /// 아래 '붙는 신살'의 풀이 시트(explain-sheet, 원국 `term.shinsal.*`)와 사주 기운 시트(tag-sheet, 오늘 태그 `term.tag.*`)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)
   ///
   /// In ko, this message translates to:
   /// **'원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.'**
   String get shinsalWeighingNote;
+
+  /// ad-free.unavailable.body: 상품 목록이 비어 있을 때(empty 상태) 제안 카드 자리의 안내: 지금은 광고 제거권을 살 수 없다는 사실. 오류처럼 들리지 않게(모양 design, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'지금은 광고 제거권을 구매할 수 없어요.'**
+  String get adFreeUnavailableBody;
+
+  /// 풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)
+  ///
+  /// In ko, this message translates to:
+  /// **'이 용어의 풀이를 준비하고 있어요.'**
+  String get explainSheetTermEmpty;
+
+  /// date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리
+  ///
+  /// In ko, this message translates to:
+  /// **'{stem}{branch}'**
+  String ganjiReading(String stem, String branch);
+
+  /// date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리
+  ///
+  /// In ko, this message translates to:
+  /// **'({reading})'**
+  String ganjiReadingSuffix(String reading);
+
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
+  ///
+  /// In ko, this message translates to:
+  /// **'{total}개 중 {index}번째'**
+  String todayLuckyPairPosition(int index, int total);
+
+  /// glossary.value_name: stem_reading.gap
+  ///
+  /// In ko, this message translates to:
+  /// **'갑'**
+  String get stemReadingGap;
+
+  /// glossary.value_name: stem_reading.eul
+  ///
+  /// In ko, this message translates to:
+  /// **'을'**
+  String get stemReadingEul;
+
+  /// glossary.value_name: stem_reading.byeong
+  ///
+  /// In ko, this message translates to:
+  /// **'병'**
+  String get stemReadingByeong;
+
+  /// glossary.value_name: stem_reading.jeong
+  ///
+  /// In ko, this message translates to:
+  /// **'정'**
+  String get stemReadingJeong;
+
+  /// glossary.value_name: stem_reading.mu
+  ///
+  /// In ko, this message translates to:
+  /// **'무'**
+  String get stemReadingMu;
+
+  /// glossary.value_name: stem_reading.gi
+  ///
+  /// In ko, this message translates to:
+  /// **'기'**
+  String get stemReadingGi;
+
+  /// glossary.value_name: stem_reading.gyeong
+  ///
+  /// In ko, this message translates to:
+  /// **'경'**
+  String get stemReadingGyeong;
+
+  /// glossary.value_name: stem_reading.sin
+  ///
+  /// In ko, this message translates to:
+  /// **'신'**
+  String get stemReadingSin;
+
+  /// glossary.value_name: stem_reading.im
+  ///
+  /// In ko, this message translates to:
+  /// **'임'**
+  String get stemReadingIm;
+
+  /// glossary.value_name: stem_reading.gye
+  ///
+  /// In ko, this message translates to:
+  /// **'계'**
+  String get stemReadingGye;
+
+  /// glossary.value_name: branch_reading.ja
+  ///
+  /// In ko, this message translates to:
+  /// **'자'**
+  String get branchReadingJa;
+
+  /// glossary.value_name: branch_reading.chuk
+  ///
+  /// In ko, this message translates to:
+  /// **'축'**
+  String get branchReadingChuk;
+
+  /// glossary.value_name: branch_reading.in
+  ///
+  /// In ko, this message translates to:
+  /// **'인'**
+  String get branchReadingIn;
+
+  /// glossary.value_name: branch_reading.myo
+  ///
+  /// In ko, this message translates to:
+  /// **'묘'**
+  String get branchReadingMyo;
+
+  /// glossary.value_name: branch_reading.jin
+  ///
+  /// In ko, this message translates to:
+  /// **'진'**
+  String get branchReadingJin;
+
+  /// glossary.value_name: branch_reading.sa
+  ///
+  /// In ko, this message translates to:
+  /// **'사'**
+  String get branchReadingSa;
+
+  /// glossary.value_name: branch_reading.o
+  ///
+  /// In ko, this message translates to:
+  /// **'오'**
+  String get branchReadingO;
+
+  /// glossary.value_name: branch_reading.mi
+  ///
+  /// In ko, this message translates to:
+  /// **'미'**
+  String get branchReadingMi;
+
+  /// glossary.value_name: branch_reading.shin
+  ///
+  /// In ko, this message translates to:
+  /// **'신'**
+  String get branchReadingShin;
+
+  /// glossary.value_name: branch_reading.yu
+  ///
+  /// In ko, this message translates to:
+  /// **'유'**
+  String get branchReadingYu;
+
+  /// glossary.value_name: branch_reading.sul
+  ///
+  /// In ko, this message translates to:
+  /// **'술'**
+  String get branchReadingSul;
+
+  /// glossary.value_name: branch_reading.hae
+  ///
+  /// In ko, this message translates to:
+  /// **'해'**
+  String get branchReadingHae;
 }
 
 class _AppLocalizationsDelegate

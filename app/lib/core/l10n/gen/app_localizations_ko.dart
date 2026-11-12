@@ -1842,4 +1842,91 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get shinsalWeighingNote => '원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.';
+
+  @override
+  String get adFreeUnavailableBody => '지금은 광고 제거권을 구매할 수 없어요.';
+
+  @override
+  String get explainSheetTermEmpty => '이 용어의 풀이를 준비하고 있어요.';
+
+  @override
+  String ganjiReading(String stem, String branch) {
+    return '$stem$branch';
+  }
+
+  @override
+  String ganjiReadingSuffix(String reading) {
+    return '($reading)';
+  }
+
+  @override
+  String todayLuckyPairPosition(int index, int total) {
+    return '$total개 중 $index번째';
+  }
+
+  @override
+  String get stemReadingGap => '갑';
+
+  @override
+  String get stemReadingEul => '을';
+
+  @override
+  String get stemReadingByeong => '병';
+
+  @override
+  String get stemReadingJeong => '정';
+
+  @override
+  String get stemReadingMu => '무';
+
+  @override
+  String get stemReadingGi => '기';
+
+  @override
+  String get stemReadingGyeong => '경';
+
+  @override
+  String get stemReadingSin => '신';
+
+  @override
+  String get stemReadingIm => '임';
+
+  @override
+  String get stemReadingGye => '계';
+
+  @override
+  String get branchReadingJa => '자';
+
+  @override
+  String get branchReadingChuk => '축';
+
+  @override
+  String get branchReadingIn => '인';
+
+  @override
+  String get branchReadingMyo => '묘';
+
+  @override
+  String get branchReadingJin => '진';
+
+  @override
+  String get branchReadingSa => '사';
+
+  @override
+  String get branchReadingO => '오';
+
+  @override
+  String get branchReadingMi => '미';
+
+  @override
+  String get branchReadingShin => '신';
+
+  @override
+  String get branchReadingYu => '유';
+
+  @override
+  String get branchReadingSul => '술';
+
+  @override
+  String get branchReadingHae => '해';
 }

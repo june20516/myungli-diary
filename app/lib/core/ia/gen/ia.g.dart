@@ -295,6 +295,7 @@ abstract final class SlotIds {
   static const String adFreeOfferPrice = 'ad-free.offer.price';
   static const String adFreeOfferPeriod = 'ad-free.offer.period';
   static const String adFreeBuyCta = 'ad-free.buy.cta';
+  static const String adFreeUnavailableBody = 'ad-free.unavailable.body';
   static const String adFreeStatusRemaining = 'ad-free.status.remaining';
   static const String adFreeHistoryCta = 'ad-free.history.cta';
   static const String adFreeLegalNotice = 'ad-free.legal.notice';
@@ -918,7 +919,7 @@ const List<IaScreen> iaScreens = [
     tab: 'me',
     presentation: IaPresentation.page,
     auth: IaAuth.member,
-    states: ['loading', 'error', 'offline'],
+    states: ['loading', 'error', 'offline', 'empty'],
     exits: [
       IaExit(to: 'system-purchase', trigger: '구매'),
       IaExit(to: 'legal', trigger: '약관·정책 링크'),
