@@ -14,6 +14,8 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -39,13 +41,17 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/today_presentation.dart'
+    show dailySlotText;
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/chart_network.dart' show serviceUnavailable;
 import '../../support/daily_fixture.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
 import '../../support/reaction_not_found.dart';
@@ -117,6 +123,53 @@ final class _DailyHold extends Interceptor {
       await hold?.future;
     }
     handler.next(options);
+  }
+}
+
+/// 다음 날(`/v1/daily/[date]`) 오늘 응답 대역. 대역 서버 바로 앞에 끼웁니다.
+///
+/// [hold]가 있으면 끝날 때까지 붙잡고, [fail]이면 503으로 답하고, 그 밖에는 대역 서버 응답을
+/// [change]로 고칩니다(대역 서버는 날짜와 상관없이 같은 fixture를 주므로 날짜도 여기서 바꿉니다).
+final class _NextDayDaily extends Interceptor {
+  new(this.date, this.change);
+
+  final CalendarDate date;
+  final void Function(Map<String, dynamic> body) change;
+  Completer<void>? hold;
+  bool fail = false;
+  int requests = 0;
+
+  bool _matches(RequestOptions options) =>
+      options.path == '/v1/daily/${date.toIso()}';
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (_matches(options)) {
+      requests += 1;
+      await hold?.future;
+      if (fail) {
+        handler.reject(serviceUnavailable(options), true);
+        return;
+      }
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (_matches(response.requestOptions) && data is Map) {
+      final body = Map<String, dynamic>.of(data.cast<String, dynamic>());
+      change(body);
+      response.data = body;
+    }
+    handler.next(response);
   }
 }
 
@@ -211,7 +264,7 @@ final class _SheetLog {
         explainHeads.add(head);
         return const Text('explain-body');
       },
-      evidenceBody: (_, _, _) => const Text('evidence-body'),
+      evidenceBody: (_, _, _, _) => const Text('evidence-body'),
       shareBody: () => const Text('share-body'),
       tagBody: (daily, rank) {
         if (tagRanks.lastOrNull != rank) tagRanks.add(rank);
@@ -1523,6 +1576,116 @@ void main() {
       expect(picked(), openedPicks);
       expect(find.byKey(TimeBand.nowLineKey), findsNothing);
       expect(find.byKey(TimeBand.nowTagKey), findsNothing);
+    });
+
+    testWidgets('열린 밤 칩 시트가 자정을 넘겨도 띠와 근거는 연 때 응답 그대로입니다(A134 ⑧, A140 ⑤)', (
+      tester,
+    ) async {
+      final tomorrow = CalendarDate(2026, 10, 14);
+      // 다음 날 응답은 날짜가 다르고 근거가 열려 있으며 밤 카드 앞부분이 없습니다. 연 때 응답과
+      // 구별되어야 근거가 어느 응답에서 왔는지 압니다.
+      final nextDay = _NextDayDaily(tomorrow, (body) {
+        body['date'] = tomorrow.toIso();
+        body['evidenceAccess'] = 'unlocked';
+        final cards = Map<String, dynamic>.of(
+          (body['cards'] as Map).cast<String, dynamic>(),
+        );
+        final night = Map<String, dynamic>.of(
+          (cards['nightFocusTime'] as Map).cast<String, dynamic>(),
+        );
+        night['text'] = {
+          ...(night['text'] as Map).cast<String, dynamic>(),
+          'evidencePreview': const <Object?>[],
+        };
+        cards['nightFocusTime'] = night;
+        body['cards'] = cards;
+      });
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        network: nextDay,
+        overrides: [
+          todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 23, 50));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+      await tester.tap(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+
+      final opened = Daily.fromJson(memberDailyJson());
+      final origin =
+          (tester.widget<ExplainSheet>(find.byType(ExplainSheet)).content
+                  as ExplainLucky)
+              .origin!;
+      // 생성 모델은 목록을 값으로 비교하지 않으므로 JSON으로 비교합니다.
+      List<Object?> json(List<EvidencePreview> previews) => [
+        for (final preview in previews) preview.toJson(),
+      ];
+      final openedPreview = json(
+        dailySlotText(opened, origin.slotId)!.evidencePreview!,
+      );
+      expect(openedPreview, isNotEmpty);
+      List<String> band() => [
+        for (final cell in tester.widget<TimeBand>(find.byType(TimeBand)).cells)
+          '${cell.label}:${cell.period}:${cell.pick}',
+      ];
+      final openedBand = band();
+      void expectOpenedDay(String when) {
+        expect(find.byType(TimeBand), findsOneWidget, reason: when);
+        expect(band(), openedBand, reason: when);
+        expect(
+          container.read(origin.subject.access).value,
+          EvidenceAccess.locked,
+          reason: when,
+        );
+        expect(
+          json(container.read(origin.subject.previewOf(origin.slotId))),
+          openedPreview,
+          reason: when,
+        );
+      }
+
+      // 자정: 다음 날 응답을 붙잡아 둔 동안.
+      nextDay
+        ..hold = Completer<void>()
+        ..fail = true;
+      container.read(_testTodayProvider.notifier).moveTo(tomorrow);
+      minutes.add(DateTime.utc(2026, 10, 14));
+      await pumpUntil(tester, () => nextDay.requests > 0, allowOngoing: true);
+      await tester.pump(const Duration(milliseconds: 400));
+      expectOpenedDay('다음 날 응답을 붙잡아 둔 동안');
+
+      // 받기가 실패한 뒤(자정에 오프라인).
+      nextDay.hold!.complete();
+      nextDay.hold = null;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(container.read(dailyControllerProvider).hasError, isTrue);
+      expectOpenedDay('다음 날 응답을 받지 못한 뒤');
+
+      // 다음 날 응답이 온 뒤에도 연 때 응답 그대로입니다.
+      nextDay.fail = false;
+      container.invalidate(dailyControllerProvider);
+      await pumpUntil(
+        tester,
+        () =>
+            container.read(dailyControllerProvider).value?.daily.date ==
+            tomorrow.toIso(),
+        allowOngoing: true,
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        container.read(dailyControllerProvider).value?.daily.evidenceAccess,
+        EvidenceAccess.unlocked,
+      );
+      expectOpenedDay('다음 날 응답이 온 뒤');
     });
 
     testWidgets('밤 카드가 응답에 없으면 밤 칩만 그리지 않습니다', (tester) async {

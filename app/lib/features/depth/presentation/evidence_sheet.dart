@@ -59,6 +59,7 @@ class EvidenceSheet extends ConsumerStatefulWidget {
     required this.slotId,
     this.personal,
     this.target = EvidenceTarget.none,
+    this.subject,
     super.key,
   });
 
@@ -71,15 +72,18 @@ class EvidenceSheet extends ConsumerStatefulWidget {
   /// 시트 위 대상(그 문장을 정한 태그와 대상 문장). 용어나 사주 표에서 열면 없습니다.
   final EvidenceTarget target;
 
+  /// 근거를 담은 응답. 여는 쪽이 시트를 연 때의 응답을 담아 넘기고(A141), 없으면 [slotId]와
+  /// [personal]로 정합니다([evidenceSubjectFor]).
+  final EvidenceSubject? subject;
+
   @override
   ConsumerState<EvidenceSheet> createState() => _EvidenceSheetState();
 }
 
 class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
-  late final EvidenceSubject _subject = evidenceSubjectFor(
-    widget.slotId,
-    personal: widget.personal,
-  );
+  late final EvidenceSubject _subject =
+      widget.subject ??
+      evidenceSubjectFor(widget.slotId, personal: widget.personal);
 
   StreamSubscription<UnlockEvent>? _events;
 

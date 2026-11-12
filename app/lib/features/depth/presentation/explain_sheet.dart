@@ -118,6 +118,7 @@ class ExplainSheet extends ConsumerWidget {
                     context,
                     section.origin.slotId,
                     personal: section.origin.personal,
+                    subject: section.origin.subject,
                   ),
             ),
         ],
@@ -208,6 +209,7 @@ class ExplainSheet extends ConsumerWidget {
                   context,
                   origin.slotId,
                   personal: origin.personal,
+                  subject: origin.subject,
                 ),
       diaryLinkLabel: tag == null || tagName == null
           ? null

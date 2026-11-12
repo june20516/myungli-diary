@@ -31,6 +31,7 @@ import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -48,8 +49,22 @@ final Finder _sheet = find.byKey(const Key(ScreenIds.evidenceSheet));
 Finder _inSheet(Finder matching) =>
     find.descendant(of: _sheet, matching: matching);
 
-final NotifierProvider<EvidenceUnlockController, EvidenceUnlockState>
-_provider = evidenceUnlockControllerProvider(const DailyEvidenceSubject());
+/// 마지막으로 보인 근거 시트의 응답. 시트가 닫힌 뒤에도 [_provider]가 그 흐름을 가리킵니다.
+EvidenceSubject? _lastSubject;
+
+/// 지금(닫혔으면 마지막으로) 보인 근거 시트의 잠금 해제 흐름. 오늘 화면은 시트를 연 때의 응답을
+/// subject로 담으므로(A141) 시트 위젯에서 읽습니다.
+NotifierProvider<EvidenceUnlockController, EvidenceUnlockState> get _provider {
+  final shown = find.byType(EvidenceSheet).evaluate();
+  if (shown.isNotEmpty) {
+    _lastSubject =
+        (shown.first.widget as EvidenceSheet).subject ??
+        const DailyEvidenceSubject();
+  }
+  return evidenceUnlockControllerProvider(
+    _lastSubject ?? const DailyEvidenceSubject(),
+  );
+}
 
 /// 열림을 기대하는 테스트의 확인 간격·시간: 간격은 짧고 마감은 깁니다(마감이 가짜 시계로
 /// 흐르는데 대역 서버 응답은 실제 I/O라, 마감이 짧으면 응답보다 먼저 지납니다).
@@ -262,6 +277,7 @@ Future<void> _tapCta(WidgetTester tester) async {
 
 void main() {
   setUpAll(ensureTimeZonesInitialized);
+  setUp(() => _lastSubject = null);
 
   group('EvidenceSheet', () {
     testWidgets('잠김: 제목, 두 구역의 lock.veil과 아래 잠금 안내', (tester) async {

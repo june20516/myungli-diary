@@ -9,6 +9,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
@@ -40,11 +41,12 @@ final class EvidenceTarget {
 
 /// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id이고, [personal]은 "내 사주에서는"에
 /// 보일 원국 개인 해석의 자리입니다(사주 표 칸 용어에서 열었을 때만, A58). [target]은 시트 위
-/// 대상입니다.
+/// 대상입니다. [subject]는 근거를 담은 응답이고, 없으면 슬롯으로 정합니다([evidenceSubjectFor]).
 typedef EvidenceBodyBuilder = Widget Function(
   String slotId,
   PersonalReadingKey? personal,
   EvidenceTarget target,
+  EvidenceSubject? subject,
 );
 
 /// 공유 미리보기 시트 본문.
@@ -106,7 +108,12 @@ final class DepthSheets {
     String? diaryLinkTag,
   }) {
     if (content case ExplainTerm(:final origin?) when !termHasBody(content)) {
-      return openEvidence(context, origin.slotId, personal: origin.personal);
+      return openEvidence(
+        context,
+        origin.slotId,
+        personal: origin.personal,
+        subject: origin.subject,
+      );
     }
     return _showExplain(
       context,
@@ -137,13 +144,15 @@ final class DepthSheets {
   ///
   /// [personal]을 주면 그 자리의 원국 개인 해석("내 사주에서는") 구역을 함께 둡니다(A58).
   /// [headTags]와 [target]은 시트 위 대상(그 문장을 정한 태그와 대상 문장, 결정 V80)이고, 용어나
-  /// 사주 표에서 연 근거는 주지 않습니다.
+  /// 사주 표에서 연 근거는 주지 않습니다. [subject]는 근거를 담은 응답이고(시트를 연 때의 오늘
+  /// 응답 등, A141), 없으면 슬롯으로 정합니다([evidenceSubjectFor]).
   Future<void> openEvidence(
     BuildContext context,
     String slotId, {
     PersonalReadingKey? personal,
     List<HanjaTag> headTags = const [],
     RenderedText? target,
+    EvidenceSubject? subject,
   }) => showMyungliSheet<void>(
     context,
     size: SheetSize.full,
@@ -155,6 +164,7 @@ final class DepthSheets {
         slotId,
         personal,
         EvidenceTarget(tags: headTags, sentence: target),
+        subject,
       ),
     ),
   );
@@ -207,7 +217,7 @@ final explainBodyProvider = Provider<ExplainBodyBuilder>(
 /// 근거 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
 final evidenceBodyProvider = Provider<EvidenceBodyBuilder>(
   (ref) =>
-      (_, _, _) => throw UnimplementedError(_unwired),
+      (_, _, _, _) => throw UnimplementedError(_unwired),
 );
 
 /// 공유 미리보기 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.

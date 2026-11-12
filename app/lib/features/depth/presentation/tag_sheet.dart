@@ -18,6 +18,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/weighing_shinsal.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
@@ -102,6 +103,8 @@ class TagSheet extends ConsumerWidget {
                             fortuneTag.slot,
                             headTags: [headTag()],
                             target: fortuneTag.text,
+                            // 시트를 연 채 자정을 넘겨도 연 때 응답의 근거입니다(A141).
+                            subject: DailyEvidenceSubject(opened: daily),
                           ),
                     ),
                   ),

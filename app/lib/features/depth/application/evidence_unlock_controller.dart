@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
     show NotifierProviderFamily, ProviderException, ProviderListenable;
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
@@ -89,42 +90,62 @@ abstract interface class EvidenceSubject {
 }
 
 /// 오늘 응답(`getDaily`)의 근거. 잠금이 풀리면 [DailyController.refreshQuietly]로 다시 받습니다.
+///
+/// 시트를 연 화면은 그때의 응답을 [opened]로 담습니다(A134 ⑧, A141). 지금 오늘 응답이 [opened]와
+/// 같은 날짜면 지금 응답을 읽어, 잠금이 풀린 뒤 다시 받은 근거가 바로 보입니다. 시트를 연 채 자정을
+/// 넘겨 지금 응답이 다른 날짜이거나 다음 날 응답을 받는 중, 받지 못한 뒤에는 [opened]에서 근거
+/// 열람 상태, 근거, 앞부분, 오늘 그런 이유를 찾습니다. 그동안 잠금 풀기는 지금 오늘 응답을 다시
+/// 받고, 시트는 연 때 응답의 잠금 그대로입니다. [opened]가 없으면 늘 지금 응답입니다.
 @immutable
 final class DailyEvidenceSubject implements EvidenceSubject {
-  /// 오늘 응답의 근거.
-  const new();
+  /// 오늘 응답의 근거. [opened]는 시트를 연 때의 응답입니다.
+  const new({this.opened});
+
+  /// 시트를 연 때의 오늘 응답. 없으면 늘 지금 응답을 읽습니다.
+  final Daily? opened;
+
+  /// 근거를 찾을 응답. [opened]가 있으면 지금 응답이 같은 날짜일 때만 지금 응답(받는 중, 실패
+  /// 표시 없이 값만)이고, 아니면 [opened]입니다.
+  AsyncValue<Daily> _dailyOf(AsyncValue<DailyView> live) {
+    final opened = this.opened;
+    if (opened == null) return live.whenData((view) => view.daily);
+    final current = live.value?.daily;
+    return AsyncData(
+      current != null && current.date == opened.date ? current : opened,
+    );
+  }
 
   @override
   ProviderListenable<AsyncValue<EvidenceAccess>> get access =>
       dailyControllerProvider.select(
-        (value) => value.whenData((view) => view.daily.evidenceAccess),
+        (value) => _dailyOf(value).whenData((daily) => daily.evidenceAccess),
       );
 
   @override
   ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
       dailyControllerProvider.select(
-        (value) => value.whenData(
-          (view) => dailySlotText(view.daily, slotId)?.evidence ?? const [],
+        (value) => _dailyOf(value).whenData(
+          (daily) => dailySlotText(daily, slotId)?.evidence ?? const [],
         ),
       );
 
   @override
   ProviderListenable<List<EvidencePreview>> previewOf(String slotId) =>
       dailyControllerProvider.select((value) {
-        final view = value.value;
-        return view == null
+        final daily = _dailyOf(value).value;
+        return daily == null
             ? const <EvidencePreview>[]
-            : dailySlotText(view.daily, slotId)?.evidencePreview ??
+            : dailySlotText(daily, slotId)?.evidencePreview ??
                   const <EvidencePreview>[];
       });
 
   @override
   ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>
       dailyControllerProvider.select((value) {
-        final view = value.value;
-        final reason = view == null
+        final daily = _dailyOf(value).value;
+        final reason = daily == null
             ? null
-            : dailySlotText(view.daily, slotId)?.todayReason;
+            : dailySlotText(daily, slotId)?.todayReason;
         return reason == null || isBlankText(reason) ? null : reason;
       });
 
@@ -132,7 +153,9 @@ final class DailyEvidenceSubject implements EvidenceSubject {
   @override
   ProviderListenable<AsyncValue<RenderedText?>> personalOf(
     PersonalReadingKey key,
-  ) => dailyControllerProvider.select((value) => value.whenData((_) => null));
+  ) => dailyControllerProvider.select(
+    (value) => _dailyOf(value).whenData((_) => null),
+  );
 
   /// 오늘 응답의 근거 링크 슬롯은 모두 근거 목록을 가집니다.
   @override
@@ -144,10 +167,11 @@ final class DailyEvidenceSubject implements EvidenceSubject {
       ref.read(dailyControllerProvider.notifier).refreshQuietly();
 
   @override
-  bool operator ==(Object other) => other is DailyEvidenceSubject;
+  bool operator ==(Object other) =>
+      other is DailyEvidenceSubject && other.opened == opened;
 
   @override
-  int get hashCode => (DailyEvidenceSubject).hashCode;
+  int get hashCode => Object.hash(DailyEvidenceSubject, opened);
 }
 
 /// 문장 자체가 근거인 슬롯의 값([EvidenceSubject.sentenceEvidenceOf]). `sentence`는 열린 응답의

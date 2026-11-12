@@ -40,8 +40,12 @@ Widget _explain(ExplainContent content, {Widget? head, String? diaryLinkTag}) {
 /// 오늘 화면 [slotId] 슬롯에서 연 출처.
 TermOrigin _origin(String slotId) =>
     TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
-Widget _evidence(String slotId, PersonalReadingKey? _, EvidenceTarget _) =>
-    _tall('근거 $slotId');
+Widget _evidence(
+  String slotId,
+  PersonalReadingKey? _,
+  EvidenceTarget _,
+  EvidenceSubject? _,
+) => _tall('근거 $slotId');
 Widget _share() => _tall('공유');
 
 bool _noBody(ExplainTerm _) => false;
@@ -209,7 +213,7 @@ void main() {
         throwsUnimplementedError,
       );
       expect(
-        () => sheets.evidenceBody('s.t', null, EvidenceTarget.none),
+        () => sheets.evidenceBody('s.t', null, EvidenceTarget.none, null),
         throwsUnimplementedError,
       );
       expect(sheets.shareBody, throwsUnimplementedError);
@@ -223,9 +227,19 @@ void main() {
       final wired = ProviderContainer(overrides: depthSheetBodyOverrides);
       addTearDown(wired.dispose);
       final sheets = wired.read(depthSheetsProvider);
-      final evidence = sheets.evidenceBody('s.t', null, EvidenceTarget.none);
+      final opened = DailyEvidenceSubject(
+        opened: Daily.fromJson(memberDailyJson()),
+      );
+      final evidence = sheets.evidenceBody(
+        's.t',
+        null,
+        EvidenceTarget.none,
+        opened,
+      );
       expect(evidence, isA<EvidenceSheet>());
       expect((evidence as EvidenceSheet).slotId, 's.t');
+      // 여는 쪽이 담은 응답(시트를 연 때의 오늘 응답)을 그대로 씁니다(A141).
+      expect(evidence.subject, opened);
       final explain = sheets.explainBody(
         ExplainTerm('ten_god.siksin', origin: _origin('s.t')),
       );

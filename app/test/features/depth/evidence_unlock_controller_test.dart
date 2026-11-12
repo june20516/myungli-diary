@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show immutable;
@@ -11,6 +12,7 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
@@ -33,6 +35,7 @@ import 'package:myungli_diary/features/monetization/data/staging_reward_delivery
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/daily_fixture.dart';
 
 /// 열림을 기대하는 테스트의 확인 간격·시간: 간격은 짧고 마감은 깁니다.
 ///
@@ -428,6 +431,66 @@ List<T> _distinct<T>(Iterable<T> values) => [
 
 void main() {
   setUpAll(ensureTimeZonesInitialized);
+
+  group('DailyEvidenceSubject 연 때 응답(A141)', () {
+    /// 지금 오늘 응답을 [change]로 고친 응답(시트를 연 때의 응답 대역).
+    Daily openedFrom(
+      ProviderContainer container,
+      void Function(Map<String, dynamic> json) change,
+    ) {
+      final json = jsonDecode(
+        jsonEncode(container.read(dailyControllerProvider).value!.daily),
+      ) as Map<String, dynamic>;
+      change(json);
+      return Daily.fromJson(json);
+    }
+
+    testWidgets('연 때 응답과 지금 응답의 날짜가 같으면 지금 응답을 읽습니다(풀린 뒤 다시 받은 근거)', (
+      tester,
+    ) async {
+      final container = await _boot(tester);
+      final opened = openedFrom(
+        container,
+        (json) => json['evidenceAccess'] = 'unlocked',
+      );
+      final subject = DailyEvidenceSubject(opened: opened);
+      expect(
+        container.read(subject.access).value,
+        container.read(dailyControllerProvider).value!.daily.evidenceAccess,
+      );
+      expect(container.read(subject.access).value, EvidenceAccess.locked);
+    });
+
+    testWidgets('날짜가 다르면 연 때 응답에서 열람 상태, 앞부분을 찾습니다', (tester) async {
+      final container = await _boot(tester);
+      final live = container.read(dailyControllerProvider).value!.daily;
+      final opened = openedFrom(container, (json) {
+        json['date'] = '2026-10-12';
+        json['evidenceAccess'] = 'unlocked';
+      });
+      final subject = DailyEvidenceSubject(opened: opened);
+      expect(container.read(subject.access).value, EvidenceAccess.unlocked);
+      expect(live.evidenceAccess, EvidenceAccess.locked);
+      // 앞부분은 연 때 응답의 목록 그대로입니다.
+      expect(
+        container.read(subject.previewOf(opened.fortune.head.slot)),
+        same(opened.fortune.head.evidencePreview),
+      );
+    });
+
+    test('같은 연 때 응답이면 같은 잠금 해제 흐름 키입니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      expect(
+        DailyEvidenceSubject(opened: daily),
+        DailyEvidenceSubject(opened: daily),
+      );
+      expect(
+        DailyEvidenceSubject(opened: daily).hashCode,
+        DailyEvidenceSubject(opened: daily).hashCode,
+      );
+      expect(DailyEvidenceSubject(opened: daily), isNot(_subject));
+    });
+  });
 
   group('EvidenceUnlockController', () {
     testWidgets('응답이 unlocked면 처음부터 unlocked', (tester) async {

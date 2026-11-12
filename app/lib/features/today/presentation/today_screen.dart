@@ -54,6 +54,7 @@ import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
@@ -285,6 +286,11 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
 
   DepthSheets get _sheets => widget.sheets;
 
+  /// 이 화면이 연 시트의 근거를 담은 응답: 지금 그린 오늘 응답입니다. 시트를 연 채 자정을 넘겨도
+  /// 근거는 연 때 응답에서 찾습니다(A134 ⑧, A141).
+  DailyEvidenceSubject get _evidenceSubject =>
+      DailyEvidenceSubject(opened: widget.content.view.daily);
+
   /// 덕일 [virtue]의 풀이 시트를 열고, 닫힐 때까지 그 알약을 `selected`로 둡니다. 원국의
   /// 천덕귀인, 월덕귀인 용어 풀이가 아니라 그날 덕일 문장이고, 근거는 그 문장의 근거입니다.
   Future<void> _openVirtueSheet(DayVirtueContent virtue) async {
@@ -297,7 +303,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
           body: virtue.body,
           origin: TermOrigin(
             slotId: virtue.evidenceSlotId,
-            subject: const DailyEvidenceSubject(),
+            subject: _evidenceSubject,
           ),
         ),
       );
@@ -354,10 +360,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
       context,
       ExplainTerm(
         termId,
-        origin: TermOrigin(
-          slotId: slotId,
-          subject: const DailyEvidenceSubject(),
-        ),
+        origin: TermOrigin(slotId: slotId, subject: _evidenceSubject),
       ),
     ),
   );
@@ -397,7 +400,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
         body: item.explain,
         origin: TermOrigin(
           slotId: dailyCardSlotId(cards.color.text, DailyCardField.color),
-          subject: const DailyEvidenceSubject(),
+          subject: _evidenceSubject,
         ),
       );
     }
@@ -413,13 +416,14 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
       body: item.explain,
       attachment: TodayTimeBand(
         daily: daily,
+        names: widget.content.names,
         beforeDayStart: beforeDayStart,
         opened: period,
       ),
       attachmentGap: TimeBand.sheetGap,
       origin: TermOrigin(
         slotId: pick.evidenceSlotId,
-        subject: const DailyEvidenceSubject(),
+        subject: _evidenceSubject,
       ),
     );
   }
@@ -447,7 +451,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
       origin: TermOrigin(
         // 둘째 색 항목은 같은 응답의 secondColor 카드에서 만들어 카드가 늘 있습니다.
         slotId: dailyCardSlotId(field.textIn(cards)!, field),
-        subject: const DailyEvidenceSubject(),
+        subject: _evidenceSubject,
       ),
     );
     return ExplainLuckyColorPair(
@@ -703,6 +707,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                     groupTag(group, groupLabel),
                 ],
                 target: head.text,
+                subject: _evidenceSubject,
               ),
             ),
           ),
@@ -746,6 +751,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                     HanjaTag(glyph: bodyTag.glyph, label: bodyTag.label),
                 ],
                 target: body.text,
+                subject: _evidenceSubject,
               ),
             ),
           ),
@@ -871,13 +877,16 @@ class _TodayEventSectionState extends ConsumerState<_TodayEventSection> {
 }
 
 /// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 시트가 열린 동안 벽시계를 구독해 지금 줄을 1분마다
-/// 옮깁니다. 칸, 순서와 고리는 시트를 연 때의 응답 [daily]와 [beforeDayStart]로 고정해, 열린 채
-/// 낮 구간 시작이나 자정을 지나도 시트의 본문, 근거와 같은 칩을 그립니다(A134 ⑧, A140 ⑤). 연
-/// 칩([opened])의 시진은 굵은 고리입니다(V124). 오늘 값이 없으면(다시 받는 중) 그리지 않습니다.
+/// 옮깁니다. 칸, 순서, 이름과 고리는 시트를 연 때의 응답 [daily], 이름 사전 [names],
+/// [beforeDayStart]로 고정해, 열린 채 낮 구간 시작이나 자정을 지나도(다음 날 응답을 받는 중이거나
+/// 받지 못했어도) 시트의 본문, 근거와 같은 칩을 그립니다(A134 ⑧, A140 ⑤). 연 칩([opened])의
+/// 시진은 굵은 고리입니다(V124).
 class TodayTimeBand extends ConsumerWidget {
-  /// 시트를 연 때의 응답 [daily], [beforeDayStart]와 연 칩 [opened]로 띠를 만듭니다.
+  /// 시트를 연 때의 응답 [daily], 이름 사전 [names], [beforeDayStart]와 연 칩 [opened]로 띠를
+  /// 만듭니다.
   const new({
     required this.daily,
+    required this.names,
     required this.beforeDayStart,
     required this.opened,
     super.key,
@@ -887,6 +896,10 @@ class TodayTimeBand extends ConsumerWidget {
   /// 칸과 눈금이고, 지금이 그 띠 밖이면 지금 줄이 없습니다(A140 ⑤).
   final Daily daily;
 
+  /// 시트를 연 때의 이름 사전(띠 칸의 시진 이름). 오늘 화면 값([todayContentProvider])은 자정을
+  /// 넘기면 다음 날 응답을 받을 때까지 비므로 읽지 않습니다.
+  final GlossaryNames names;
+
   /// 시트를 연 때 낮 구간 시작 전이었는지([isBeforeDayStart]).
   final bool beforeDayStart;
 
@@ -895,11 +908,9 @@ class TodayTimeBand extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final content = ref.watch(todayContentProvider).value;
-    if (content == null) return const SizedBox.shrink();
     return timeBandOf(
       daily: daily,
-      names: content.names,
+      names: names,
       l10n: AppLocalizations.of(context),
       beforeDayStart: beforeDayStart,
       opened: opened,

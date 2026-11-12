@@ -676,7 +676,7 @@ void main() {
               ],
               child: ExplainSheet(content: content),
             ),
-            evidenceBody: (_, _, _) => const SizedBox.shrink(),
+            evidenceBody: (_, _, _, _) => const SizedBox.shrink(),
             shareBody: SizedBox.shrink,
           ),
         ),
@@ -1095,8 +1095,11 @@ void main() {
     final sheet = find.byKey(const Key(ScreenIds.evidenceSheet));
     Finder inSheet(Finder matching) =>
         find.descendant(of: sheet, matching: matching);
+    // 오늘 화면은 시트를 연 때의 응답을 근거 subject로 담습니다(A141).
     final unlock = evidenceUnlockControllerProvider(
-      const DailyEvidenceSubject(),
+      DailyEvidenceSubject(
+        opened: container.read(dailyControllerProvider).value!.daily,
+      ),
     );
 
     await tester.tap(
