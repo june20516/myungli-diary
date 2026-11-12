@@ -93,6 +93,11 @@ class TimeBand extends StatelessWidget {
   /// 고리와 칸 바탕 사이 `bg.sheet` 틈(`cells.pick.gap.width` 2px).
   static const double ringGap = 2;
 
+  /// 고른 시진 칸의 고리와 틈 안쪽 채움 모서리(칸 모서리에서 고리와 틈을 뺀 값, 0 아래면 0).
+  static const double pickedFillRadius = cellRadius > ringWidth + ringGap
+      ? cellRadius - ringWidth - ringGap
+      : 0;
+
   /// 고른 시진 칸 글자 굵기(`cells.pick.labelWeight` 700).
   static const FontWeight pickedLabelWeight = FontWeight.w700;
 
@@ -166,7 +171,7 @@ class TimeBand extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _heads(context, firstLength),
-          const SizedBox(height: headGapBelow),
+          _headGap(context),
           _cellsWithNow(context),
           const SizedBox(height: tickGapAbove),
           _ticks(context, firstLength / cells.length),
@@ -276,8 +281,25 @@ class TimeBand extends StatelessWidget {
     );
   }
 
-  Widget _nowTag(MyungliTokens tokens) => Container(
-    key: nowTagKey,
+  /// 머리와 칸 사이. 계약 `heads.gapBelow`(16)이 기본이고, 칸 위에 얹는 지금 꼬리표와 줄 넘침이
+  /// 그보다 높으면 그만큼 늘려 꼬리표가 머리 줄을 덮지 않게 합니다(A134 ⑪). 꼬리표 높이는 같은
+  /// 꼬리표를 보이지 않게 놓아 재므로 기기 글자 배율을 따릅니다.
+  Widget _headGap(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(minHeight: headGapBelow),
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: nowOverhang),
+      child: Visibility.maintain(
+        visible: false,
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: _nowTag(context.tokens, key: null),
+        ),
+      ),
+    ),
+  );
+
+  Widget _nowTag(MyungliTokens tokens, {Key? key = nowTagKey}) => Container(
+    key: key,
     padding: const EdgeInsets.symmetric(horizontal: nowTagPaddingX),
     decoration: BoxDecoration(
       color: tokens.colors.inverseBg,
@@ -331,7 +353,12 @@ class TimeBand extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(ringWidth + ringGap),
                 child: DecoratedBox(
-                  decoration: BoxDecoration(color: bg),
+                  decoration: BoxDecoration(
+                    color: bg,
+                    // 고리와 틈 안쪽 모서리. radius.xs(4)에서 고리와 틈(4)을 빼면 0이라 지금은 각진
+                    // 채움이고, 토큰이 바뀌면 고리와 같은 중심의 둥근 모서리가 됩니다.
+                    borderRadius: BorderRadius.circular(pickedFillRadius),
+                  ),
                   child: label,
                 ),
               ),

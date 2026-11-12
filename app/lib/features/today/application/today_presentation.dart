@@ -144,23 +144,47 @@ const int _minutesPerDay = 24 * 60;
 bool isBeforeDayStart(DateTime wallNow) =>
     Duration(hours: wallNow.hour, minutes: wallNow.minute) < _dayStart;
 
-/// 같은 writing 슬롯을 여러 카드가 함께 쓰는 자리에서 근거 시트가 카드 하나를 찾는 id
+/// 계약 `DailyCards`의 카드 필드(`openapi.yaml`). 이름이 계약 필드 이름과 같고, 카드 근거 id
+/// ([dailyCardSlotId])가 이 이름을 씁니다.
+enum DailyCardField {
+  /// 첫째 색 카드.
+  color,
+
+  /// 색이 둘인 날의 둘째 색 카드(D119 ②).
+  secondColor,
+
+  /// 방향 카드.
+  direction,
+
+  /// 숫자 카드.
+  number,
+
+  /// 낮 집중 시간 카드.
+  focusTime,
+
+  /// 그날 밤 집중 시간 카드(D122 ⑦).
+  nightFocusTime,
+
+  /// 전날 밤 집중 시간 카드(오늘 요청에만, D122 ⑦).
+  previousNightFocusTime;
+
+  /// [cards]에서 이 카드의 문장. 그 카드가 응답에 없으면 null입니다.
+  SlotText? textIn(DailyCards cards) => switch (this) {
+    color => cards.color.text,
+    secondColor => cards.secondColor?.text,
+    direction => cards.direction.text,
+    number => cards.number.text,
+    focusTime => cards.focusTime.text,
+    nightFocusTime => cards.nightFocusTime?.text,
+    previousNightFocusTime => cards.previousNightFocusTime?.text,
+  };
+}
+
+/// 같은 writing 슬롯을 여러 카드가 함께 쓰는 자리에서 근거 시트가 카드 하나를 찾는 카드 id
 /// (`<슬롯>#<카드 필드 이름>`, A134). 집중 시간 낮과 밤 카드는 모두 `daily.focus_time`이라
 /// 슬롯만으로는 첫 카드(낮)의 근거가 열립니다. [dailySlotText]가 이 id를 읽습니다.
-String dailyCardSlotId(SlotText text, String cardField) =>
-    '${text.slot}#$cardField';
-
-/// 계약 `DailyCards`의 필드 이름(`openapi.yaml`)으로 고른 카드 문장. 그 카드가 응답에 없으면 null입니다.
-SlotText? _cardText(DailyCards cards, String field) => switch (field) {
-  'color' => cards.color.text,
-  'secondColor' => cards.secondColor?.text,
-  'direction' => cards.direction.text,
-  'number' => cards.number.text,
-  'focusTime' => cards.focusTime.text,
-  'nightFocusTime' => cards.nightFocusTime?.text,
-  'previousNightFocusTime' => cards.previousNightFocusTime?.text,
-  _ => null,
-};
+String dailyCardSlotId(SlotText text, DailyCardField field) =>
+    '${text.slot}#${field.name}';
 
 /// 오늘 화면 시간 칩 하나가 가리키는 카드와 그 근거 id([dailyCardSlotId]).
 typedef FocusTimePick = ({FocusTimeCard card, String evidenceSlotId});
@@ -175,12 +199,12 @@ FocusTimePick? focusTimePickOf(
   required bool beforeDayStart,
 }) {
   final (card, field) = switch (period) {
-    AppTimeOfDay.day => (cards.focusTime, 'focusTime'),
+    AppTimeOfDay.day => (cards.focusTime, DailyCardField.focusTime),
     AppTimeOfDay.night when beforeDayStart => (
       cards.previousNightFocusTime,
-      'previousNightFocusTime',
+      DailyCardField.previousNightFocusTime,
     ),
-    AppTimeOfDay.night => (cards.nightFocusTime, 'nightFocusTime'),
+    AppTimeOfDay.night => (cards.nightFocusTime, DailyCardField.nightFocusTime),
   };
   if (card == null) return null;
   return (card: card, evidenceSlotId: dailyCardSlotId(card.text, field));
@@ -267,7 +291,9 @@ String _bandLabelOf(Branch branch, GlossaryNames names, bool hanjaLabels) =>
 /// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 지금 보이는 낮, 밤 칩의 24시간을 시진 12칸으로
 /// 그리고, 낮 구간 시작 전에는 밤(전날 21:30부터) 다섯 칸이 앞, 그 뒤에는 낮(07:30부터) 일곱 칸이
 /// 앞입니다. 고리는 두 칩이 고른 시진(카드 첫 구간의 `branch`)이고, 밤 칩이 없으면 밤 칸에 고리가
-/// 없습니다. [wallNow]는 프로필 시간대 벽시계(시와 분만 읽음)이고 지금 줄과 꼬리표가 됩니다.
+/// 없습니다. [beforeDayStart]는 시트를 연 때의 값이라, 시트가 열린 채 07:30을 지나도 칸 순서와
+/// 고리는 연 칩 그대로이고 지금 줄만 움직입니다(A134 ⑧). [wallNow]는 프로필 시간대 벽시계(시와
+/// 분만 읽음)이고 지금 줄과 꼬리표가 됩니다.
 ///
 /// 칸 경계와 눈금은 [_dayStart]에서 시진 길이로 셉니다. 시간대가 한국이 아닌 프로필은 칩 값(프로필
 /// 시간대로 바꾼 시진 시각)과 칸 경계가 어긋날 수 있고 #1064 경계 값으로 함께 맞춥니다(A134).
@@ -275,9 +301,10 @@ TimeBand timeBandOf({
   required Daily daily,
   required GlossaryNames names,
   required AppLocalizations l10n,
+  required bool beforeDayStart,
   required DateTime wallNow,
 }) {
-  final before = isBeforeDayStart(wallNow);
+  final before = beforeDayStart;
   final cards = daily.cards;
   final dayPick = cards.focusTime.picks.first.branch;
   final nightPick = focusTimePickOf(
@@ -367,7 +394,9 @@ SlotText? dailySlotText(Daily daily, String slotId) {
   final cards = daily.cards;
   final cardMark = slotId.indexOf('#');
   if (cardMark >= 0) {
-    final text = _cardText(cards, slotId.substring(cardMark + 1));
+    final field = DailyCardField.values
+        .asNameMap()[slotId.substring(cardMark + 1)];
+    final text = field?.textIn(cards);
     return text?.slot == slotId.substring(0, cardMark) ? text : null;
   }
   final slots = [
@@ -712,7 +741,8 @@ ShareImageContent shareImageContentOf({
     dayKind: daily.dayKind,
     dayKindLabel: character.label,
     sentence: daily.fortune.head.text,
-    // 공유 이미지는 낮 칩 하나라(V116) 밤 칩을 고르지 않습니다.
+    // 공유 이미지는 낮 칩 하나라(V116) 오늘 화면 칩 줄에서 밤 칩을 거릅니다. 밤 칩은 버리므로
+    // 어느 밤 카드를 고르는지(beforeDayStart)는 결과에 영향이 없습니다.
     items: [
       for (final item in luckyItemsOf(
         daily,

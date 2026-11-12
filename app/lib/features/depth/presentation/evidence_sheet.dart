@@ -25,7 +25,8 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 import 'package:myungli_diary/features/depth/presentation/unlock_until_text.dart';
 import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 
-/// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
+/// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다. [slotId]는 슬롯 id 또는
+/// 오늘 행운 카드의 카드 id(`<슬롯>#<카드 필드>`, `dailyCardSlotId`, A134)입니다.
 ///
 /// 근거를 담은 응답([EvidenceSubject])의 `evidenceAccess`와 잠금 해제 흐름
 /// ([EvidenceUnlockController])을 [EvidenceSheetBody]에 넘깁니다. 시트가 열리면 광고를 미리

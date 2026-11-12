@@ -154,7 +154,13 @@ void main() {
     final tag = tester.getRect(find.byKey(TimeBand.nowTagKey));
     expect(tag.bottom, moreOrLessEquals(line.top));
     expect(tag.center.dx, moreOrLessEquals(line.center.dx));
-    expect(find.text('지금 19:30'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(TimeBand.nowTagKey),
+        matching: find.text('지금 19:30'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('띠 끝 가까이에서는 꼬리표만 안쪽으로 밀리고 줄은 제자리입니다', (tester) async {
@@ -190,6 +196,62 @@ void main() {
     expect(
       tester.getTopLeft(start).dy - cells.bottom,
       moreOrLessEquals(TimeBand.tickGapAbove),
+    );
+  });
+
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('지금 꼬리표는 머리 줄(해와 달, 낱말)과 겹치지 않습니다(글자 배율 $scale)', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      // 07:30 직후처럼 지금 줄이 띠 시작(첫 머리) 바로 위에 있을 때와 가운데일 때.
+      for (final fraction in [0.002, 0.5]) {
+        await tester.pumpWidget(_app(_band(nowFraction: fraction)));
+        final tag = tester.getRect(find.byKey(TimeBand.nowTagKey));
+        final heads = [
+          ...find.byType(Icon).evaluate(),
+          ...find.text('낮').evaluate(),
+          ...find.text('밤').evaluate(),
+        ].map((element) => tester.getRect(find.byWidget(element.widget)));
+        for (final head in heads) {
+          expect(
+            tag.overlaps(head),
+            isFalse,
+            reason: 'fraction $fraction: 꼬리표 $tag, 머리 $head',
+          );
+        }
+        // 꼬리표는 여전히 지금 줄 위 끝에 붙어 있습니다.
+        expect(
+          tag.bottom,
+          moreOrLessEquals(tester.getRect(find.byKey(TimeBand.nowLineKey)).top),
+        );
+        expect(tester.takeException(), isNull);
+      }
+    });
+  }
+
+  testWidgets('꼬리표가 머리 아래 간격(16)에 들어가면 그 간격은 계약 값 그대로입니다', (tester) async {
+    // 꼬리표를 아주 작게 그리면 간격은 heads.gapBelow 16입니다.
+    tester.platformDispatcher.textScaleFactorTestValue = 0.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(_app(_band()));
+    final headBottom = tester.getBottomLeft(find.byType(Icon).first).dy;
+    final cellsTop = tester.getTopLeft(find.byKey(TimeBand.cellKey(0))).dy;
+    // 머리 줄은 최소 높이 24 안 가운데라 아이콘 아래에 (24 - 16) / 2가 남습니다.
+    expect(
+      cellsTop - headBottom,
+      moreOrLessEquals(TimeBand.headGapBelow + (TimeBand.headHeight - 16) / 2),
+    );
+  });
+
+  test('고리와 틈 안쪽 채움 모서리는 칸 모서리에서 고리와 틈을 뺀 값입니다', () {
+    expect(
+      TimeBand.pickedFillRadius,
+      (TimeBand.cellRadius - TimeBand.ringWidth - TimeBand.ringGap).clamp(
+        0,
+        double.infinity,
+      ),
     );
   });
 

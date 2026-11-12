@@ -80,6 +80,7 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
 import 'package:myungli_diary/design/tokens/css_gradient.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:myungli_diary/features/today/application/today_presentation.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 import '../design/input/input_harness.dart';
@@ -2297,7 +2298,21 @@ void main() {
         'dawn': SlotIds.todayLuckyTimeNightDawn,
         'tonight': SlotIds.todayLuckyTimeNightTonight,
       });
-      expect(word['switch'], contains('07:30'));
+      // 계약 문구의 경계 시각과 구현 판단(isBeforeDayStart)을 함께 봅니다. #1064 경계 값으로
+      // 바꿀 때 계약과 구현이 함께 바뀌었는지 이 대조가 알려 줍니다(A134 ①).
+      final boundary = RegExp(r'(\d{2}):(\d{2})')
+          .firstMatch(word['switch']! as String)!;
+      final hour = int.parse(boundary.group(1)!);
+      final minute = int.parse(boundary.group(2)!);
+      expect('${boundary.group(0)}', '07:30');
+      expect(
+        isBeforeDayStart(DateTime.utc(2026, 10, 13, hour, minute - 1)),
+        isTrue,
+      );
+      expect(
+        isBeforeDayStart(DateTime.utc(2026, 10, 13, hour, minute)),
+        isFalse,
+      );
       expect(day.containsKey('word'), isFalse);
     });
 

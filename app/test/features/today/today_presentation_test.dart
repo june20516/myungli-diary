@@ -21,6 +21,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
+import '../../../tool/common/openapi_spec.dart';
 import '../../support/component_spec_json.dart';
 import '../../support/daily_fixture.dart';
 
@@ -320,6 +321,17 @@ void main() {
       expect(dailySlotText(daily, 'daily.focus_time#unknown'), isNull);
     });
 
+    test('카드 필드 이름은 계약 DailyCards의 필드 이름과 같습니다', () {
+      final schemas =
+          (loadOpenApi()['components']! as Map<String, Object?>)['schemas']!
+              as Map<String, Object?>;
+      final cards = schemas['DailyCards']! as Map<String, Object?>;
+      expect(
+        DailyCardField.values.map((field) => field.name).toSet(),
+        (cards['properties']! as Map<String, Object?>).keys.toSet(),
+      );
+    });
+
     test('오늘 화면 값은 낮 구간 시작 전후로 밤 칩이 달라 같은 값이 아닙니다', () {
       final daily = Daily.fromJson(memberDailyJson());
       TodayDisplay at({required bool before}) => todayDisplayOf(
@@ -353,10 +365,15 @@ void main() {
     });
     final daily = Daily.fromJson(memberDailyJson());
 
-    TimeBand band(DateTime wallNow, {AppLocalizations? l10n}) => timeBandOf(
+    TimeBand band(
+      DateTime wallNow, {
+      AppLocalizations? l10n,
+      bool? beforeDayStart,
+    }) => timeBandOf(
       daily: daily,
       names: names,
       l10n: l10n ?? _l10n,
+      beforeDayStart: beforeDayStart ?? isBeforeDayStart(wallNow),
       wallNow: wallNow,
     );
 
@@ -408,6 +425,19 @@ void main() {
       expect(shown.nowFraction, closeTo(160 / 1440, 1e-9));
     });
 
+    test('연 때 07:30 전이면 07:30을 지나도 순서와 고리는 그대로이고 지금 줄만 움직입니다(A134 ⑧)', () {
+      final opened = band(DateTime.utc(2026, 10, 13, 7, 29));
+      final later = band(DateTime.utc(2026, 10, 13, 8), beforeDayStart: true);
+      expect(
+        later.cells.map((cell) => (cell.label, cell.picked)),
+        opened.cells.map((cell) => (cell.label, cell.picked)),
+      );
+      expect(later.startTick.time, opened.startTick.time);
+      // 전날 21:30부터 10시간 30분.
+      expect(later.nowFraction, closeTo(630 / 1440, 1e-9));
+      expect(later.nowLabel, _l10n.todayLuckyTimeBandNow('08:00'));
+    });
+
     test('밤 카드가 없으면 밤 칸에 고리가 없습니다', () {
       final json = memberDailyJson();
       (json['cards']! as Map<String, Object?>).remove('nightFocusTime');
@@ -415,6 +445,7 @@ void main() {
         daily: Daily.fromJson(json),
         names: names,
         l10n: _l10n,
+        beforeDayStart: false,
         wallNow: DateTime.utc(2026, 10, 13, 12),
       );
       expect(
@@ -435,6 +466,7 @@ void main() {
         daily: daily,
         names: const GlossaryNames({}),
         l10n: _l10n,
+        beforeDayStart: false,
         wallNow: DateTime.utc(2026, 10, 13, 12),
       );
       expect(unnamed.cells.first.label, '辰');

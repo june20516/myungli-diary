@@ -1395,6 +1395,53 @@ void main() {
       expect(textIn(chip(AppTimeOfDay.day), '15:30~17:30'), findsOneWidget);
     });
 
+    testWidgets('열린 시간 시트가 07:30을 넘어도 띠 순서와 고리는 연 때 그대로이고 지금 줄만 움직입니다', (
+      tester,
+    ) async {
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyOf(dailyJson()),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 29));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+      await tester.tap(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+      String order() => tester
+          .widget<TimeBand>(find.byType(TimeBand))
+          .cells
+          .map((cell) => cell.label)
+          .join();
+      List<String> picked() => [
+        for (final cell in tester.widget<TimeBand>(find.byType(TimeBand)).cells)
+          if (cell.picked) cell.label,
+      ];
+      final openedOrder = order();
+      final openedPicks = picked();
+      // 연 때는 밤(전날 21:30부터)이 앞입니다.
+      expect(
+        tester.widget<TimeBand>(find.byType(TimeBand)).cells.first.period,
+        AppTimeOfDay.night,
+      );
+
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await tester.pumpAndSettle();
+      expect(order(), openedOrder);
+      expect(picked(), openedPicks);
+      expect(
+        tester.widget<TimeBand>(find.byType(TimeBand)).nowLabel,
+        _ko.todayLuckyTimeBandNow('07:30'),
+      );
+    });
+
     testWidgets('밤 카드가 응답에 없으면 밤 칩만 그리지 않습니다', (tester) async {
       final json = memberDailyJson();
       (json['cards'] as Map<String, dynamic>)
@@ -1434,7 +1481,15 @@ void main() {
         final lucky = sheets.explained.last as ExplainLucky;
         expect(lucky.title, title, reason: period.name);
         expect(lucky.body.toJson(), text.text.toJson(), reason: period.name);
-        expect(lucky.attachment, isA<TodayTimeBand>(), reason: period.name);
+        expect(
+          lucky.attachment,
+          isA<TodayTimeBand>().having(
+            (band) => band.beforeDayStart,
+            'beforeDayStart',
+            isFalse,
+          ),
+          reason: period.name,
+        );
         expect(lucky.attachmentGap, TimeBand.sheetGap, reason: period.name);
         expect(lucky.origin?.slotId, '${text.slot}#$card', reason: period.name);
         await closeSheet(tester, find.text('explain-body'));

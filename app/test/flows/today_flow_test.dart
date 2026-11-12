@@ -330,7 +330,7 @@ void main() {
       // 정오라 낮 일곱 칸이 앞이고, 지금 꼬리표는 프로필 시간대 벽시계입니다.
       expect(
         find.descendant(
-          of: band,
+          of: find.byKey(TimeBand.nowTagKey),
           matching: find.text(_ko.todayLuckyTimeBandNow('12:00')),
         ),
         findsOneWidget,
