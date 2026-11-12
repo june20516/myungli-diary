@@ -692,8 +692,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.10.0" {
-		t.Errorf("info.version = %q, want 1.10.0", doc.Info.Version)
+	if doc.Info.Version != "1.11.0" {
+		t.Errorf("info.version = %q, want 1.11.0", doc.Info.Version)
 	}
 }
 
@@ -702,14 +702,14 @@ func TestContract_VersionIsFrozen(t *testing.T) {
 func TestContract_FreezeOpenEnums(t *testing.T) {
 	doc := loadDoc(t)
 	for _, name := range []string{
-		"NoticeCode", "ShinsalKind", "RelationKind", "PersonalReading.kind", "FocusSlot.reasons", "SlotText.variant", "Insight.source",
+		"NoticeCode", "ShinsalKind", "DayVirtueKind", "RelationKind", "PersonalReading.kind", "FocusSlot.reasons", "SlotText.variant", "Insight.source",
 		"ConsentDocument.document", "Problem.code", "LoginProvider", "PurchaseStatus", "YongsinMethod", "SlotText.reaction", "Language",
 	} {
 		if !strings.Contains(doc.Info.Description, "`"+name+"`") {
 			t.Errorf("info.description의 열린 enum 목록에 %s가 없음", name)
 		}
 	}
-	for _, name := range []string{"YongsinMethod", "Language"} {
+	for _, name := range []string{"YongsinMethod", "Language", "ShinsalKind", "DayVirtueKind"} {
 		if !strings.Contains(schemaOf(t, doc, name).Description, "열린 enum") {
 			t.Errorf("%s 설명에 열린 enum이 없음", name)
 		}
@@ -1960,6 +1960,55 @@ func TestContract_1_10DiaryGuideAndTags(t *testing.T) {
 		if !strings.Contains(summary.Description, text) {
 			t.Errorf("DiarySummary 설명에 %q가 없음", text)
 		}
+	}
+}
+
+// TestContract_1_11LuckyCardsAndShinsal은 1.11.0의 하위 호환 추가를 고정합니다: 행운 색 둘째 칩(D119), 밤 집중 시간과
+// 전날 밤(D122), 시진의 날짜와 일진(#1008), 택일 덕일(D124 ⑤), 원국 신살 열아홉과 걸친 자리(D124 ①). (S151~S154)
+func TestContract_1_11LuckyCardsAndShinsal(t *testing.T) {
+	doc := loadDoc(t)
+	cards := schemaOf(t, doc, "DailyCards")
+	for _, name := range []string{"secondColor", "nightFocusTime", "previousNightFocusTime"} {
+		if cards.Properties[name] == nil {
+			t.Errorf("DailyCards.%s가 없음", name)
+		}
+		if slices.Contains(cards.Required, name) {
+			t.Errorf("DailyCards.%s는 선택 필드여야 함", name)
+		}
+	}
+	for _, text := range []string{"D119", "D122 ⑦", "07:30", "프로필 현재 시간대의 오늘"} {
+		if !strings.Contains(cards.Description, text) {
+			t.Errorf("DailyCards 설명에 %q가 없음", text)
+		}
+	}
+
+	slot := schemaOf(t, doc, "FocusSlot")
+	for _, name := range []string{"dayDate", "dayPillar"} {
+		if slot.Properties[name] == nil || slices.Contains(slot.Required, name) {
+			t.Errorf("FocusSlot.%s가 선택 필드가 아님", name)
+		}
+	}
+
+	daily := schemaOf(t, doc, "Daily")
+	virtues := daily.Properties["dayVirtues"]
+	if virtues == nil || virtues.Value.Items.Ref != "#/components/schemas/DayVirtue" || !slices.Contains(daily.Required, "dayVirtues") {
+		t.Error("Daily.dayVirtues가 필수 DayVirtue 배열이 아님")
+	}
+	sameElements(t, "DayVirtueKind", enumStrings(schemaOf(t, doc, "DayVirtueKind")), []string{"cheondeok_day", "woldeok_day"})
+	day := schemaOf(t, doc, "CalendarDay")
+	calendarVirtues := day.Properties["dayVirtues"]
+	if calendarVirtues == nil || calendarVirtues.Value.Items.Ref != "#/components/schemas/DayVirtueKind" || !slices.Contains(day.Required, "dayVirtues") {
+		t.Error("CalendarDay.dayVirtues가 필수 DayVirtueKind 배열이 아님")
+	}
+
+	sameElements(t, "ShinsalKind", enumStrings(schemaOf(t, doc, "ShinsalKind")), []string{
+		"cheoneul_gwiin", "dohwa", "yeokma", "hwagae", "yangin", "gongmang",
+		"cheondeok", "woldeok", "geumyeo", "gosin", "gwasuk", "wonjin", "gugyo", "cheonra_jimang",
+		"goegang", "sipak_daepae", "eumchak_yangcha", "samgi", "amrok",
+	})
+	at := schemaOf(t, doc, "ShinsalAt")
+	if at.Properties["positions"] == nil || !slices.Contains(at.Required, "positions") {
+		t.Error("ShinsalAt.positions가 필수가 아님")
 	}
 }
 

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.10.0
+  version: 1.11.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -11,7 +11,7 @@ info:
     * 하위 호환을 깨야 하면 `/v2` 경로를 새로 엽니다. v1에서는 하위 호환을 깨는 변경을 하지 않습니다.
     * `info.version`은 freeze 때 `1.0.0`이 되고, 그 뒤 하위 호환 추가마다 minor를, 설명만 바꾸면 patch를 올립니다.
     * 열린 enum: 값이 늘어날 수 있는 응답 enum입니다. app은 모르는 값이 와도 응답 전체를 실패로 보지 않고 그 항목만 건너뛰거나 기본 표시를 씁니다.
-      `NoticeCode`, `ShinsalKind`, `RelationKind`, `PersonalReading.kind`, `FocusSlot.reasons`의 항목, `SlotText.variant`, `Insight.source`,
+      `NoticeCode`, `ShinsalKind`, `DayVirtueKind`, `RelationKind`, `PersonalReading.kind`, `FocusSlot.reasons`의 항목, `SlotText.variant`, `Insight.source`,
       `ConsentDocument.document`, `Problem.code`, `LoginProvider`, `PurchaseStatus`, `YongsinMethod`, `SlotText.reaction`, `Language`입니다. 그 밖의 enum은 닫힌 enum이라 값을 더하면 하위 호환을 깨는 변경으로 봅니다.
 
     공통 규약
@@ -2597,7 +2597,10 @@ components:
       enum: [jangsaeng, mokyok, gwandae, geonrok, jewang, soe, byeong, sa, myo, jeol, tae, yang]
     ShinsalKind:
       type: string
-      enum: [cheoneul_gwiin, dohwa, yeokma, hwagae, yangin, gongmang]
+      description: |
+        원국 신살 종류입니다. 열린 enum입니다. `cheondeok`(천덕귀인)부터 `amrok`(암록)까지 열셋은 D124 ①로 1.11.0에서 더했고,
+        규칙 버전 2026.11.7부터 나옵니다. 이 가운데 고신, 과숙, 원진은 오늘 사주 기운 태그(`gosin`, `gwasuk`, `wonjin`)로도 나옵니다.
+      enum: [cheoneul_gwiin, dohwa, yeokma, hwagae, yangin, gongmang, cheondeok, woldeok, geumyeo, gosin, gwasuk, wonjin, gugyo, cheonra_jimang, goegang, sipak_daepae, eumchak_yangcha, samgi, amrok]
     Position:
       type: string
       enum: [year_stem, year_branch, month_stem, month_branch, day_stem, day_branch, hour_stem, hour_branch]
@@ -3171,7 +3174,9 @@ components:
         일기를 쓸 때 고른 항목의 `messageKey`와 `variant`를 `createDiary`의 `guideQuestion`으로 보냅니다.
         `lunar`는 그날의 한국 음력 날짜이고 같은 날짜의 `CalendarDay.lunar`와 같습니다(#806 ②, 1.8.0에서 더함).
         엔진이 이 값을 내지 않는 규칙 버전(2026.11.1 전)의 응답에는 없습니다.
-      required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, characterReason, fortune, guide, guideCandidates, cards, tags, relations, notices]
+        `dayVirtues`는 그날의 택일 덕일(천덕일, 월덕일)과 풀이 문장입니다(D124 ⑤, 1.11.0에서 더함). 오늘 화면 날짜 머리에 쓰고,
+        모두에게 같은 날 정보입니다. 없는 날과 엔진이 이 값을 내지 않는 규칙 버전(2026.11.7 전)은 빈 배열이고, 둘인 날은 천덕일이 먼저입니다.
+      required: [date, rulesetVersion, evidenceAccess, dayPillar, dayKind, characterReason, fortune, guide, guideCandidates, cards, tags, relations, notices, dayVirtues]
       properties:
         date:
           type: string
@@ -3214,17 +3219,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Notice'
+        dayVirtues:
+          type: array
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/DayVirtue'
+    DayVirtue:
+      type: object
+      description: |
+        택일 덕일 하나입니다(D124 ⑤). `text`는 날짜 머리의 덕일을 누르면 여는 풀이 시트 본문(슬롯 `explain.day_virtue`, 키 `day_virtue.<cheondeok|woldeok>`)이고,
+        근거는 다른 문장과 같이 `evidenceAccess`를 따릅니다. 원고가 없는 항목은 빠집니다. 이름은 app 문구입니다.
+      required: [kind, text]
+      properties:
+        kind:
+          $ref: '#/components/schemas/DayVirtueKind'
+        text:
+          $ref: '#/components/schemas/SlotText'
+    DayVirtueKind:
+      type: string
+      description: 택일 덕일 종류입니다. `cheondeok_day` 천덕일, `woldeok_day` 월덕일. 원국의 천덕귀인, 월덕귀인(`ShinsalKind`의 `cheondeok`, `woldeok`)과 다른 정보입니다. 열린 enum입니다.
+      enum: [cheondeok_day, woldeok_day]
     DailyCards:
       type: object
+      description: |
+        `color`는 첫째 색 카드입니다. 숫자의 오행과 공유 이미지 색은 이 카드를 따릅니다(D119 ③④).
+        `secondColor`는 색이 둘인 날(D119 ②)의 둘째 색(원전 기준)이고 그 밖의 날에는 없습니다(1.11.0에서 더함). 이날 `color`는 내 균형 기준 색입니다.
+        두 카드의 `text`는 같은 슬롯 `daily.color`이고 키가 `color.balance.*`, `color.source.*`로 다릅니다. 각 카드 문장의 근거가 그 색의 근거입니다(D123 ②).
+        `focusTime`은 낮(진시~술시)의 1등 시진, `nightFocusTime`은 그날 밤(그날 해시와 다음 날 자시~묘시)의 1등 시진입니다(D122, 1.11.0에서 더함).
+        `previousNightFocusTime`은 전날 밤의 1등 시진이고, 요청 날짜가 프로필 현재 시간대의 오늘일 때만 있습니다(D122 ⑦, 1.11.0에서 더함).
+        오늘 화면은 그날 낮 구간이 시작하기 전(진시 시작, 한국 시각 07:30 전)에는 `previousNightFocusTime`을, 그 뒤에는 `nightFocusTime`을 보입니다.
+        지난 날짜는 그날 밤(`nightFocusTime`)으로 고정입니다. 두 밤 카드는 엔진이 밤 카드를 내지 않는 규칙 버전(2026.11.5 전)에는 없습니다.
+        세 집중 시간 카드의 `text`는 같은 슬롯 `daily.focus_time`이고 키가 `focus_time.day`, `focus_time.night`로 다릅니다.
       required: [color, direction, number, focusTime]
       properties:
         color:
+          $ref: '#/components/schemas/ColorCard'
+        secondColor:
           $ref: '#/components/schemas/ColorCard'
         direction:
           $ref: '#/components/schemas/DirectionCard'
         number:
           $ref: '#/components/schemas/NumberCard'
         focusTime:
+          $ref: '#/components/schemas/FocusTimeCard'
+        nightFocusTime:
+          $ref: '#/components/schemas/FocusTimeCard'
+        previousNightFocusTime:
           $ref: '#/components/schemas/FocusTimeCard'
     ColorCard:
       type: object
@@ -3254,6 +3294,8 @@ components:
           $ref: '#/components/schemas/SlotText'
     FocusTimeCard:
       type: object
+      description: |
+        `picks`는 규칙 버전 2026.11.4부터 늘 1개이고 `fallback`은 늘 false입니다(D122, 대체가 없어짐). 그 전 규칙 버전은 1~2개입니다.
       required: [picks, fallback, text]
       properties:
         picks:
@@ -3268,6 +3310,10 @@ components:
           $ref: '#/components/schemas/SlotText'
     FocusSlot:
       type: object
+      description: |
+        `dayDate`와 `dayPillar`는 이 시진이 속한 날짜와 그 일진입니다(#1008, 1.11.0에서 더함). 밤 카드의 자시~묘시는 카드 날짜의 다음 날입니다.
+        둘은 함께 담기거나 함께 빠지고, 엔진이 이 값을 내지 않는 규칙 버전(2026.11.5 전)에는 없습니다.
+        `reasons`는 규칙 버전 2026.11.4부터 늘 빈 배열입니다(D122, 가점 점수가 없어짐).
       required: [branch, start, end, huangdaoLucky, reasons]
       properties:
         branch:
@@ -3283,6 +3329,11 @@ components:
         huangdaoLucky:
           type: boolean
           description: 황도길시
+        dayDate:
+          type: string
+          format: date
+        dayPillar:
+          $ref: '#/components/schemas/Pillar'
         reasons:
           type: array
           description: 가점 사유 식별자(glossary `focus_reason` 범주의 키)
@@ -3488,12 +3539,21 @@ components:
           $ref: '#/components/schemas/TwelveStage'
     ShinsalAt:
       type: object
-      required: [kind, position]
+      description: |
+        `position`은 대표 자리이고 원국 개인 해석은 (`shinsal`, `position`)으로 찾습니다. `positions`는 신살이 걸친 자리 전부입니다(D124, 1.11.0에서 더함).
+        한 글자 신살은 `[position]`, 일주 신살(괴강, 십악대패, 음착양차)은 `[day_stem, day_branch]`이고 대표는 `day_branch`,
+        삼기는 세 천간 자리이고 대표는 첫 자리입니다. 늘 `position`을 담습니다.
+      required: [kind, position, positions]
       properties:
         kind:
           $ref: '#/components/schemas/ShinsalKind'
         position:
           $ref: '#/components/schemas/Position'
+        positions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Position'
     ElementWeight:
       type: object
       required: [element, weight]
@@ -3607,7 +3667,9 @@ components:
       description: |
         `solarTerm`은 입절일에만 있습니다. `characterReason`은 슬롯 `character.reason`(키 `character.reason.<dayKind>`)입니다.
         `scoreItems`는 `score`를 이루는 항목(그날 시트의 길흉판정 내역)이고, 합이 `score`입니다. 항목이 없는 날은 빈 배열입니다(#806 ①, 1.6.0에서 더함).
-      required: [date, pillar, lunar, dayKind, characterReason, luckLevel, score, scoreItems, level]
+        `dayVirtues`는 그날의 택일 덕일이고 같은 날짜의 `Daily.dayVirtues`와 같은 판정입니다(D124 ⑤, 1.11.0에서 더함). 없는 날과
+        엔진이 이 값을 내지 않는 규칙 버전(2026.11.7 전)은 빈 배열입니다. 길흉 점수(`score`)에는 들어가지 않습니다(D124 ⑥).
+      required: [date, pillar, lunar, dayKind, characterReason, luckLevel, score, scoreItems, level, dayVirtues]
       properties:
         date:
           type: string
@@ -3632,6 +3694,11 @@ components:
             $ref: '#/components/schemas/ScoreItem'
         level:
           $ref: '#/components/schemas/SlotText'
+        dayVirtues:
+          type: array
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/DayVirtueKind'
     ScoreItem:
       type: object
       description: 길흉 점수의 항목 하나입니다. `id`는 용어 사전 `score_item` 범주의 키(예 `yongsin_day`, `chung_day_or_month`)이고 이름은 거기서 찾습니다.

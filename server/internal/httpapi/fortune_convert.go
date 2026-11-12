@@ -252,6 +252,9 @@ func toDaily(view fortune.DailyView, reactions map[string]string, date openapi_t
 		},
 		Relations: convertAll(r.GetRelations(), c.relation),
 		Notices:   c.notices(view.Notices),
+		DayVirtues: convertAll(view.DayVirtues, func(v fortune.DayVirtueText) gen.DayVirtue {
+			return gen.DayVirtue{Kind: enumValue[gen.DayVirtueKind](c, v.Card.GetKind()), Text: c.slotText(v.Text)}
+		}),
 	}
 	if tag, ok := view.Texts[fortune.SlotFortuneTag]; ok {
 		text := c.slotText(tag)
@@ -316,16 +319,12 @@ func toPreview(view fortune.PreviewView) (gen.Preview, error) {
 	return out, c.err
 }
 
-// dailyCards는 카드 네 장을 옮깁니다.
+// dailyCards는 카드 네 장과, 있을 때만 둘째 색(D119)과 밤 집중 시간 둘(D122)을 옮깁니다.
+// 부속 카드는 엔진 카드와 그 문장이 모두 있어야 담습니다(문장 원고가 없으면 View가 nil로 둠).
 func (c *converter) dailyCards(view fortune.DailyView) gen.DailyCards {
 	r := view.Response
-	focus := r.GetFocusTime()
-	return gen.DailyCards{
-		Color: gen.ColorCard{
-			Element: enumValue[gen.FiveElement](c, r.GetColor().GetElement()),
-			Role:    enumValue[gen.ElementRole](c, r.GetColor().GetRole()),
-			Text:    c.requiredText(view.Texts, fortune.SlotColor),
-		},
+	out := gen.DailyCards{
+		Color: c.colorCard(r.GetColor(), c.requiredText(view.Texts, fortune.SlotColor)),
 		Direction: gen.DirectionCard{
 			Direction: enumValue[gen.Direction](c, r.GetDirection().GetDirection()),
 			Text:      c.requiredText(view.Texts, fortune.SlotDirection),
@@ -334,17 +333,44 @@ func (c *converter) dailyCards(view fortune.DailyView) gen.DailyCards {
 			Number: int(r.GetNumber().GetNumber()),
 			Text:   c.requiredText(view.Texts, fortune.SlotNumber),
 		},
-		FocusTime: gen.FocusTimeCard{
-			Picks:    convertAll(focus.GetPicks(), c.focusSlot),
-			Fallback: focus.GetFallback(),
-			Text:     c.requiredText(view.Texts, fortune.SlotFocusTime),
-		},
+		FocusTime: c.focusTimeCard(r.GetFocusTime(), c.requiredText(view.Texts, fortune.SlotFocusTime)),
+	}
+	if second := r.GetSecondColor(); second != nil && view.SecondColor != nil {
+		card := c.colorCard(second, c.slotText(*view.SecondColor))
+		out.SecondColor = &card
+	}
+	if night := r.GetNightFocusTime(); night != nil && view.NightFocusTime != nil {
+		card := c.focusTimeCard(night, c.slotText(*view.NightFocusTime))
+		out.NightFocusTime = &card
+	}
+	if previous := view.PreviousNight; previous != nil {
+		card := c.focusTimeCard(previous.Card, c.slotText(previous.Text))
+		out.PreviousNightFocusTime = &card
+	}
+	return out
+}
+
+// colorCard는 행운 색 카드 하나를 옮깁니다.
+func (c *converter) colorCard(card *enginev1.ColorCard, text gen.SlotText) gen.ColorCard {
+	return gen.ColorCard{
+		Element: enumValue[gen.FiveElement](c, card.GetElement()),
+		Role:    enumValue[gen.ElementRole](c, card.GetRole()),
+		Text:    text,
 	}
 }
 
-// focusSlot은 집중 시간 시진 하나를 옮깁니다.
+// focusTimeCard는 집중 시간 카드 하나를 옮깁니다.
+func (c *converter) focusTimeCard(card *enginev1.FocusTimeCard, text gen.SlotText) gen.FocusTimeCard {
+	return gen.FocusTimeCard{
+		Picks:    convertAll(card.GetPicks(), c.focusSlot),
+		Fallback: card.GetFallback(),
+		Text:     text,
+	}
+}
+
+// focusSlot은 집중 시간 시진 하나를 옮깁니다. 시진이 속한 날짜와 일진은 엔진이 날짜를 줄 때만 담습니다(2026.11.5 전에는 없음).
 func (c *converter) focusSlot(s *enginev1.FocusSlot) gen.FocusSlot {
-	return gen.FocusSlot{
+	out := gen.FocusSlot{
 		Branch:        enumValue[gen.Branch](c, s.GetBranch()),
 		Start:         c.instant(s.GetStart()),
 		End:           c.instant(s.GetEnd()),
@@ -353,6 +379,13 @@ func (c *converter) focusSlot(s *enginev1.FocusSlot) gen.FocusSlot {
 			return contractValue[gen.FocusSlotReasons](c, "FocusSlot.reasons", reason)
 		}),
 	}
+	if s.GetDayDate() != nil {
+		date := c.localDate(s.GetDayDate())
+		pillar := c.pillar(s.GetDayPillar())
+		out.DayDate = &date
+		out.DayPillar = &pillar
+	}
+	return out
 }
 
 // relation은 일진과 원국의 관계 하나를 옮깁니다. suppressed_by가 UNSPECIFIED가 아니면 무효가 된 관계입니다.
@@ -404,6 +437,9 @@ func (c *converter) calendarDay(d *enginev1.MonthDay, texts fortune.DayTexts) ge
 			return gen.ScoreItem{Id: item.GetId(), Score: int(item.GetScore())}
 		}),
 		Level: c.slotText(texts.Level),
+		DayVirtues: convertAll(d.GetDayVirtues(), func(v enginev1.DayVirtue) gen.DayVirtueKind {
+			return enumValue[gen.DayVirtueKind](c, v)
+		}),
 	}
 	if term := d.GetSolarTerm(); term != nil {
 		out.SolarTerm = &gen.SolarTerm{Kind: enumValue[gen.SolarTermKind](c, term.GetKind()), At: c.instant(term.GetAt())}
@@ -433,9 +469,7 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 		TwelveStages: convertAll(r.GetTwelveStages(), func(s *enginev1.PositionTwelveStage) gen.TwelveStageAt {
 			return gen.TwelveStageAt{Position: enumValue[gen.Position](c, s.GetPosition()), Stage: enumValue[gen.TwelveStage](c, s.GetTwelveStage())}
 		}),
-		Shinsal: convertAll(r.GetShinsal(), func(s *enginev1.ShinsalHit) gen.ShinsalAt {
-			return gen.ShinsalAt{Kind: enumValue[gen.ShinsalKind](c, s.GetKind()), Position: enumValue[gen.Position](c, s.GetPosition())}
-		}),
+		Shinsal:  convertAll(r.GetShinsal(), c.shinsal),
 		Gongmang: convertAll(r.GetGongmang(), func(b enginev1.Branch) gen.Branch { return enumValue[gen.Branch](c, b) }),
 		ElementWeights: convertAll(r.GetElementWeights(), func(w *enginev1.ElementWeight) gen.ElementWeight {
 			return gen.ElementWeight{Element: enumValue[gen.FiveElement](c, w.GetElement()), Weight: float32(w.GetWeight())}
@@ -460,6 +494,16 @@ func toChart(view fortune.ChartView) (gen.Chart, error) {
 		out.PersonalReadingPreviews = &previews
 	}
 	return out, c.err
+}
+
+// shinsal은 원국 신살 하나를 옮깁니다. 걸친 자리(positions)는 2026.11.7 전 엔진이 내지 않아 비어 있으면 대표 자리 하나로 채웁니다.
+func (c *converter) shinsal(s *enginev1.ShinsalHit) gen.ShinsalAt {
+	position := enumValue[gen.Position](c, s.GetPosition())
+	positions := []gen.Position{position}
+	if len(s.GetPositions()) > 0 {
+		positions = convertAll(s.GetPositions(), func(p enginev1.Position) gen.Position { return enumValue[gen.Position](c, p) })
+	}
+	return gen.ShinsalAt{Kind: enumValue[gen.ShinsalKind](c, s.GetKind()), Position: position, Positions: positions}
 }
 
 // optionalSlotText는 선택 문장 필드를 옮깁니다. 문장이 없으면(nil) 필드를 생략합니다.

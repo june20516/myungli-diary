@@ -263,6 +263,92 @@ func TestGetDaily_Returns200(t *testing.T) {
 	assert.NotContains(t, body, `"evidence"`)
 	assert.NotContains(t, body, `"basis"`)
 	assert.NotContains(t, body, rawEvidenceRule)
+	// 1.11.0 부속 카드는 엔진과 View에 없으면 생략하고, 덕일은 빈 배열입니다.
+	for _, key := range []string{`"secondColor"`, `"nightFocusTime"`, `"previousNightFocusTime"`, `"dayDate"`} {
+		assert.NotContains(t, body, key)
+	}
+	assert.Contains(t, body, `"dayVirtues":[]`)
+}
+
+// TestGetDaily_LuckyCardsAndVirtues는 1.11.0의 둘째 색(D119), 밤과 전날 밤 집중 시간(D122), 시진의 날짜와 일진, 택일 덕일(D124 ⑤)을 봅니다.
+func TestGetDaily_LuckyCardsAndVirtues(t *testing.T) {
+	night := func(day int32, key string) *enginev1.FocusTimeCard {
+		return &enginev1.FocusTimeCard{
+			Judgment: rawJudgment(key),
+			Period:   enginev1.FocusPeriod_FOCUS_PERIOD_NIGHT,
+			Picks: []*enginev1.FocusSlot{{
+				Branch:    enginev1.Branch_BRANCH_JA,
+				Start:     timestamppb.New(time.Date(2026, 10, int(day), 14, 30, 0, 0, time.UTC)),
+				End:       timestamppb.New(time.Date(2026, 10, int(day), 16, 30, 0, 0, time.UTC)),
+				DayDate:   &enginev1.LocalDate{Year: 2026, Month: 10, Day: day + 1},
+				DayPillar: pillar(enginev1.Stem_STEM_BYEONG, enginev1.Branch_BRANCH_JA),
+			}},
+		}
+	}
+	view := dailyView()
+	view.Response.SecondColor = &enginev1.ColorCard{
+		Judgment: rawJudgment("color.source.yongsin_day"), Element: enginev1.Element_ELEMENT_FIRE, Role: enginev1.ElementRole_ELEMENT_ROLE_YONGSIN,
+		Basis: enginev1.ColorBasis_COLOR_BASIS_SOURCE,
+	}
+	view.Response.NightFocusTime = night(13, "focus_time.night")
+	view.Response.DayVirtues = []*enginev1.DayVirtueCard{
+		{Kind: enginev1.DayVirtue_DAY_VIRTUE_CHEONDEOK_DAY, Judgment: rawJudgment("day_virtue.cheondeok")},
+		{Kind: enginev1.DayVirtue_DAY_VIRTUE_WOLDEOK_DAY, Judgment: rawJudgment("day_virtue.woldeok")},
+	}
+	second := text(fortune.SlotColor, "color.source.yongsin_day", "single", "빨강")
+	nightText := text(fortune.SlotFocusTime, "focus_time.night", "single", "밤")
+	view.SecondColor = &second
+	view.NightFocusTime = &nightText
+	view.PreviousNight = &fortune.FocusTimeText{Card: night(12, "focus_time.night"), Text: text(fortune.SlotFocusTime, "focus_time.night", "single", "어젯밤")}
+	view.DayVirtues = []fortune.DayVirtueText{
+		{Card: view.Response.DayVirtues[0], Text: text(fortune.SlotDayVirtue, "day_virtue.cheondeok", "single", "천덕일")},
+		{Card: view.Response.DayVirtues[1], Text: text(fortune.SlotDayVirtue, "day_virtue.woldeok", "single", "월덕일")},
+	}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+	req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	var got gen.Daily
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+
+	require.NotNil(t, got.Cards.SecondColor)
+	assert.Equal(t, gen.Fire, got.Cards.SecondColor.Element)
+	assert.Equal(t, "color.source.yongsin_day", got.Cards.SecondColor.Text.MessageKey)
+	assert.Equal(t, "color.wood", got.Cards.Color.Text.MessageKey)
+
+	require.NotNil(t, got.Cards.NightFocusTime)
+	assert.Equal(t, "밤", got.Cards.NightFocusTime.Text.Text.Segments[0].Text)
+	pick := got.Cards.NightFocusTime.Picks[0]
+	require.NotNil(t, pick.DayDate)
+	assert.Equal(t, "2026-10-14", pick.DayDate.String())
+	require.NotNil(t, pick.DayPillar)
+	assert.Equal(t, gen.Pillar{Stem: gen.StemByeong, Branch: gen.BranchJa}, *pick.DayPillar)
+	require.NotNil(t, got.Cards.PreviousNightFocusTime)
+	assert.Equal(t, "어젯밤", got.Cards.PreviousNightFocusTime.Text.Text.Segments[0].Text)
+	assert.Equal(t, "2026-10-13", got.Cards.PreviousNightFocusTime.Picks[0].DayDate.String())
+	assert.Nil(t, got.Cards.FocusTime.Picks[0].DayDate, "날짜를 내지 않는 엔진의 시진은 dayDate를 생략합니다")
+
+	require.Len(t, got.DayVirtues, 2)
+	assert.Equal(t, gen.CheondeokDay, got.DayVirtues[0].Kind)
+	assert.Equal(t, "explain.day_virtue", got.DayVirtues[0].Text.Slot)
+	assert.Equal(t, gen.WoldeokDay, got.DayVirtues[1].Kind)
+}
+
+// TestGetDaily_PartWithoutTextIsOmitted는 엔진이 둘째 색이나 밤 카드를 내도 문장이 없으면(View가 nil) 카드를 생략하는지 봅니다.
+func TestGetDaily_PartWithoutTextIsOmitted(t *testing.T) {
+	view := dailyView()
+	view.Response.SecondColor = &enginev1.ColorCard{Judgment: rawJudgment("color.source.yongsin_day"), Element: enginev1.Element_ELEMENT_FIRE, Role: enginev1.ElementRole_ELEMENT_ROLE_YONGSIN}
+	view.Response.NightFocusTime = &enginev1.FocusTimeCard{Judgment: rawJudgment("focus_time.night")}
+	api := &httpapi.API{Profiles: &fakeProfiles{profile: storedProfile()}, Readings: &fakeReadings{daily: view}, Contents: &fakeContents{}}
+
+	req, rec, _ := getFortune(t, api, "/v1/daily/2026-10-13")
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	expectFortuneContract(t, req, rec)
+	assert.NotContains(t, rec.Body.String(), `"secondColor"`)
+	assert.NotContains(t, rec.Body.String(), `"nightFocusTime"`)
 }
 
 func TestGetDaily_UnlockedIncludesEvidence(t *testing.T) {
@@ -476,6 +562,7 @@ func calendarView() fortune.CalendarView {
 		}
 	}
 	first := day(1)
+	first.DayVirtues = []enginev1.DayVirtue{enginev1.DayVirtue_DAY_VIRTUE_CHEONDEOK_DAY}
 	first.ScoreItems = []*enginev1.ScoreItem{{Id: "yongsin_day", Score: 2}}
 	first.SolarTerm = &enginev1.SolarTerm{
 		Name: "寒露", Kind: enginev1.SolarTermKind_SOLAR_TERM_KIND_HALLO,
@@ -541,6 +628,10 @@ func TestGetCalendar_Returns200(t *testing.T) {
 	// 길흉 내역(#806 ①, 1.6.0)은 항목이 없는 날도 빈 배열로 나갑니다.
 	assert.Contains(t, body, `"scoreItems":[{"id":"yongsin_day","score":2}]`)
 	assert.Contains(t, body, `"scoreItems":[]`)
+	// 택일 덕일(D124 ⑤, 1.11.0)도 없는 날은 빈 배열입니다.
+	assert.Equal(t, []gen.DayVirtueKind{gen.CheondeokDay}, first.DayVirtues)
+	assert.Equal(t, []gen.DayVirtueKind{}, got.Days[1].DayVirtues)
+	assert.Contains(t, body, `"dayVirtues":[]`)
 	assert.NotContains(t, body, `"evidence"`)
 	assert.NotContains(t, body, rawEvidenceRule)
 }
@@ -572,8 +663,15 @@ func chartResponse() *enginev1.ChartResponse {
 			Position: enginev1.Position_POSITION_DAY_BRANCH,
 			Stems:    []*enginev1.HiddenStem{{Stem: enginev1.Stem_STEM_GYE, TenGod: enginev1.TenGod_TEN_GOD_JEONGIN}},
 		}},
-		TwelveStages:   []*enginev1.PositionTwelveStage{{Position: enginev1.Position_POSITION_DAY_BRANCH, TwelveStage: enginev1.TwelveStage_TWELVE_STAGE_MOKYOK}},
-		Shinsal:        []*enginev1.ShinsalHit{{Kind: enginev1.Shinsal_SHINSAL_DOHWA, Position: enginev1.Position_POSITION_DAY_BRANCH}},
+		TwelveStages: []*enginev1.PositionTwelveStage{{Position: enginev1.Position_POSITION_DAY_BRANCH, TwelveStage: enginev1.TwelveStage_TWELVE_STAGE_MOKYOK}},
+		Shinsal: []*enginev1.ShinsalHit{
+			// 2026.11.7 전 엔진은 걸친 자리(positions)를 내지 않습니다.
+			{Kind: enginev1.Shinsal_SHINSAL_DOHWA, Position: enginev1.Position_POSITION_DAY_BRANCH},
+			{
+				Kind: enginev1.Shinsal_SHINSAL_GOEGANG, Position: enginev1.Position_POSITION_DAY_BRANCH,
+				Positions: []enginev1.Position{enginev1.Position_POSITION_DAY_STEM, enginev1.Position_POSITION_DAY_BRANCH},
+			},
+		},
 		Gongmang:       []enginev1.Branch{enginev1.Branch_BRANCH_SUL, enginev1.Branch_BRANCH_HAE},
 		ElementWeights: []*enginev1.ElementWeight{{Element: enginev1.Element_ELEMENT_WOOD, Weight: 1.5}},
 		Strength:       &enginev1.Strength{Score: -0.5, Level: enginev1.StrengthLevel_STRENGTH_LEVEL_WEAK},
@@ -627,7 +725,10 @@ func TestGetChart_Returns200(t *testing.T) {
 	assert.Equal(t, []gen.TenGodAt{{Position: gen.YearStem, TenGod: gen.Pyeongwan}}, got.TenGods)
 	assert.Equal(t, []gen.HiddenStemsAt{{Position: gen.DayBranch, Stems: []gen.HiddenStem{{Stem: gen.StemGye, TenGod: gen.Jeongin}}}}, got.HiddenStems)
 	assert.Equal(t, []gen.TwelveStageAt{{Position: gen.DayBranch, Stage: gen.TwelveStageMokyok}}, got.TwelveStages)
-	assert.Equal(t, []gen.ShinsalAt{{Kind: gen.Dohwa, Position: gen.DayBranch}}, got.Shinsal)
+	assert.Equal(t, []gen.ShinsalAt{
+		{Kind: gen.Dohwa, Position: gen.DayBranch, Positions: []gen.Position{gen.DayBranch}},
+		{Kind: gen.Goegang, Position: gen.DayBranch, Positions: []gen.Position{gen.DayStem, gen.DayBranch}},
+	}, got.Shinsal)
 	assert.Equal(t, []gen.Branch{gen.BranchSul, gen.BranchHae}, got.Gongmang)
 	assert.Equal(t, []gen.ElementWeight{{Element: gen.Wood, Weight: 1.5}}, got.ElementWeights)
 	assert.Equal(t, gen.Strength{Score: -0.5, Level: gen.StrengthLevelWeak}, got.Strength)

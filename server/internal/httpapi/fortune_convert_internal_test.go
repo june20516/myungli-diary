@@ -84,6 +84,7 @@ func TestEnumValue_AllProtoValuesMapToContract(t *testing.T) {
 		convertCase[enginev1.TenGodGroup, gen.TenGodGroup]("TenGodGroup"),
 		convertCase[enginev1.TwelveStage, gen.TwelveStage]("TwelveStage"),
 		convertCase[enginev1.Shinsal, gen.ShinsalKind]("ShinsalKind"),
+		convertCase[enginev1.DayVirtue, gen.DayVirtueKind]("DayVirtueKind"),
 		convertCase[enginev1.Position, gen.Position]("Position"),
 		convertCase[enginev1.Direction8, gen.Direction]("Direction"),
 		convertCase[enginev1.DayKind, gen.DayKind]("DayKind"),

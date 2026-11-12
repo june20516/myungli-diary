@@ -41,6 +41,7 @@ var viewSlots = map[string]seed.Slot{
 	fortune.SlotDirection:       {ID: fortune.SlotDirection, Rotation: seed.RotationNone},
 	fortune.SlotNumber:          {ID: fortune.SlotNumber, Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"number": {Kind: seed.KindNumber}}},
 	fortune.SlotFocusTime:       {ID: fortune.SlotFocusTime, Rotation: seed.RotationNone},
+	fortune.SlotDayVirtue:       {ID: fortune.SlotDayVirtue, Rotation: seed.RotationNone},
 	fortune.SlotCharacterReason: {ID: fortune.SlotCharacterReason, Rotation: seed.RotationNone},
 	fortune.SlotDayLevel:        {ID: fortune.SlotDayLevel, Rotation: seed.RotationNone, Params: map[string]seed.ParamKind{"score": {Kind: seed.KindNumber}}},
 	fortune.SlotYongsinMethod:   {ID: fortune.SlotYongsinMethod, Rotation: seed.RotationNone},
@@ -85,6 +86,10 @@ func viewTemplates(suffix string, skip ...string) []seed.Template {
 		tpl(fortune.SlotNumber, "number.gwiin_day", seed.VariantSingle, "en", "Your number is {number}."+suffix),
 		tpl(fortune.SlotFocusTime, "focus_time.pick", seed.VariantSingle, "ko", "오전에 집중해 보세요."+suffix),
 		tpl(fortune.SlotFocusTime, "focus_time.pick", seed.VariantSingle, "en", "Focus in the morning."+suffix),
+		tpl(fortune.SlotColor, "color.source.gwiin_day", seed.VariantSingle, "ko", "원전으로는 {element}색이에요."+suffix),
+		tpl(fortune.SlotFocusTime, "focus_time.night", seed.VariantSingle, "ko", "밤에는 이 시간이 좋아요."+suffix),
+		// 월덕일 풀이는 원고가 없는 항목을 빼는지 보려고 일부러 두지 않습니다.
+		tpl(fortune.SlotDayVirtue, "day_virtue.cheondeok", seed.VariantSingle, "ko", "택일 원전이 좋은 날로 꼽는 천덕일이에요."+suffix),
 		tpl(fortune.SlotCharacterReason, "character.reason.gwiin_day", seed.VariantSingle, "ko", "도움이 드는 날이에요."+suffix),
 		tpl(fortune.SlotCharacterReason, "character.reason.gwiin_day", seed.VariantSingle, "en", "Help comes your way."+suffix),
 		tpl(fortune.SlotCharacterReason, "character.reason.ordinary_day", seed.VariantSingle, "ko", "평범한 날이에요."+suffix),
@@ -221,6 +226,83 @@ func dailyFake(withTag bool, notices ...enginev1.NoticeCode) *enginetest.Fake {
 	return &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
 		return dailyResponse(withTag, notices...), nil
 	}}
+}
+
+// luckyPartsFake는 둘째 색(D119), 밤 집중 시간(D122), 택일 덕일(D124 ⑤)을 더한 데일리 응답을 냅니다.
+// 밤 카드의 판정 매개변수 day에 요청 날짜의 일을 실어, 어느 날의 밤인지 문장 대신 카드로 구분합니다. calls는 요청 날짜 기록입니다.
+func luckyPartsFake(calls *[]int32) *enginetest.Fake {
+	return &enginetest.Fake{Daily: func(req *enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		day := req.GetDate().GetDay()
+		*calls = append(*calls, day)
+		r := dailyResponse(false)
+		r.SecondColor = &enginev1.ColorCard{Judgment: judgment("color.source.gwiin_day", map[string]*enginev1.Param{"element": textParam("WOOD")})}
+		r.NightFocusTime = &enginev1.FocusTimeCard{
+			Judgment: judgment("focus_time.night", nil),
+			Picks:    []*enginev1.FocusSlot{{DayDate: &enginev1.LocalDate{Year: 2026, Month: 10, Day: day + 1}}},
+		}
+		r.DayVirtues = []*enginev1.DayVirtueCard{
+			{Kind: enginev1.DayVirtue_DAY_VIRTUE_CHEONDEOK_DAY, Judgment: judgment("day_virtue.cheondeok", nil)},
+			{Kind: enginev1.DayVirtue_DAY_VIRTUE_WOLDEOK_DAY, Judgment: judgment("day_virtue.woldeok", nil)},
+		}
+		return r, nil
+	}}
+}
+
+// 부속 문장(둘째 색, 밤 시간, 덕일)은 선택 기록 없이 같은 슬롯 선택 기록의 시드 버전으로 렌더하고, 원고가 없는 덕일은 뺍니다.
+// 요청 날짜가 오늘이면 전날 밤 카드도 담습니다(D122 ⑦).
+func TestViews_DailyLuckyPartsAndPreviousNight(t *testing.T) {
+	var calls []int32
+	f := newViewsFixture(t, luckyPartsFake(&calls), viewSeed(t, ""), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	require.NotNil(t, view.SecondColor)
+	assert.Equal(t, "원전으로는 초록색이에요.", plain(view.SecondColor.Text))
+	assert.Equal(t, fortune.SlotColor, view.SecondColor.Slot)
+	require.NotNil(t, view.NightFocusTime)
+	assert.Equal(t, "밤에는 이 시간이 좋아요.", plain(view.NightFocusTime.Text))
+	require.Len(t, view.DayVirtues, 1)
+	assert.Equal(t, enginev1.DayVirtue_DAY_VIRTUE_CHEONDEOK_DAY, view.DayVirtues[0].Card.GetKind())
+	assert.Equal(t, "택일 원전이 좋은 날로 꼽는 천덕일이에요.", plain(view.DayVirtues[0].Text.Text))
+	assert.Contains(t, f.logs.String(), "key=day_virtue.woldeok")
+
+	require.NotNil(t, view.PreviousNight)
+	assert.EqualValues(t, 16, view.PreviousNight.Card.GetPicks()[0].GetDayDate().GetDay(), "전날(15일) 밤의 자시는 16일")
+	assert.Equal(t, "밤에는 이 시간이 좋아요.", plain(view.PreviousNight.Text.Text))
+	assert.Equal(t, []int32{16, 15}, calls)
+
+	var count int
+	require.NoError(t, f.pool.QueryRow(context.Background(),
+		"SELECT count(*) FROM daily_selections WHERE account_id = $1", f.account).Scan(&count))
+	assert.Equal(t, 7, count, "부속 문장은 선택 기록을 남기지 않습니다")
+}
+
+// 오늘이 아닌 날짜는 그날 밤으로 고정이라 전날 엔진을 부르지 않습니다(D122 ⑦).
+func TestViews_DailyPreviousNightOnlyToday(t *testing.T) {
+	var calls []int32
+	f := newViewsFixture(t, luckyPartsFake(&calls), viewSeed(t, ""), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate.AddDays(-3))
+	require.NoError(t, err)
+
+	assert.Nil(t, view.PreviousNight)
+	assert.NotNil(t, view.NightFocusTime)
+	assert.Equal(t, []int32{13}, calls)
+}
+
+// 엔진이 부속 카드를 내지 않는 규칙 버전이면 부속 문장이 모두 비고, 전날 밤도 없습니다.
+func TestViews_DailyWithoutLuckyParts(t *testing.T) {
+	f := newViewsFixture(t, dailyFake(false), viewSeed(t, ""), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	assert.Nil(t, view.SecondColor)
+	assert.Nil(t, view.NightFocusTime)
+	assert.Nil(t, view.PreviousNight)
+	assert.Empty(t, view.DayVirtues)
+	assert.Empty(t, f.logs.String())
 }
 
 // 오늘의 질문 후보(S140)는 기본 질문, 같은 키의 다른 변주, 엔진 후보의 나머지 키(기본 질문과 같은 변주) 순이고,

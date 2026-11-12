@@ -38,12 +38,16 @@ var tagPolarity = map[string]Polarity{
 	"tag.ten_god_rush.jaeseong":  PolarityGood,
 	"tag.ten_god_rush.gwanseong": PolarityBad,
 	"tag.ten_god_rush.inseong":   PolarityGood,
-	// 3. 신살: 귀인·도화=길, 역마·화개=중립, 공망=흉
+	// 3. 신살: 귀인·도화=길, 역마·화개=중립, 공망·고신·과숙·원진=흉
 	"tag.cheoneul_gwiin": PolarityGood,
 	"tag.dohwa":          PolarityGood,
 	"tag.yeokma":         PolarityNeutral,
 	"tag.hwagae":         PolarityNeutral,
 	"tag.gongmang":       PolarityBad,
+	// D124 ②의 오늘 태그 셋은 흉입니다(D125 ①).
+	"tag.gosin":  PolarityBad,
+	"tag.gwasuk": PolarityBad,
+	"tag.wonjin": PolarityBad,
 	// 보조
 	"tag.yongsin_day": PolarityGood,
 	"tag.gwiin_day":   PolarityGood,
