@@ -10915,7 +10915,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-02',
           'is_leap_month': False,
@@ -11345,7 +11345,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_month_branch',
+        'featured_tag': 'tag.dohwa',
         'info': dict({
           'date': '2026-10-11',
           'is_leap_month': False,
@@ -11482,7 +11482,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-14',
           'is_leap_month': False,
@@ -11580,7 +11580,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gosin',
+        'featured_tag': 'tag.yeokma',
         'info': dict({
           'date': '2026-10-16',
           'is_leap_month': False,
@@ -11911,7 +11911,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_month_branch',
+        'featured_tag': 'tag.dohwa',
         'info': dict({
           'date': '2026-10-23',
           'is_leap_month': False,
@@ -12154,7 +12154,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gosin',
+        'featured_tag': 'tag.yeokma',
         'info': dict({
           'date': '2026-10-28',
           'is_leap_month': False,
@@ -12383,7 +12383,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_month_branch',
+        'featured_tag': 'tag.dohwa',
         'info': dict({
           'date': '2026-10-02',
           'is_leap_month': False,
@@ -12568,7 +12568,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-06',
           'is_leap_month': False,
@@ -12623,7 +12623,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_day_branch',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-07',
           'is_leap_month': False,
@@ -12860,7 +12860,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-12',
           'is_leap_month': False,
@@ -12954,7 +12954,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_month_branch',
+        'featured_tag': 'tag.dohwa',
         'info': dict({
           'date': '2026-10-14',
           'is_leap_month': False,
@@ -13146,7 +13146,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-18',
           'is_leap_month': False,
@@ -13434,7 +13434,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-24',
           'is_leap_month': False,
@@ -13528,7 +13528,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_month_branch',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-26',
           'is_leap_month': False,
@@ -13722,7 +13722,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-30',
           'is_leap_month': False,
@@ -14076,7 +14076,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gwasuk',
+        'featured_tag': 'tag.hwagae',
         'info': dict({
           'date': '2026-10-06',
           'is_leap_month': False,
@@ -14614,7 +14614,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gwasuk',
+        'featured_tag': 'tag.hwagae',
         'info': dict({
           'date': '2026-10-18',
           'is_leap_month': False,
@@ -14788,7 +14788,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gosin',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-22',
           'is_leap_month': False,
@@ -15166,7 +15166,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gwasuk',
+        'featured_tag': 'tag.hwagae',
         'info': dict({
           'date': '2026-10-30',
           'is_leap_month': False,
@@ -15269,7 +15269,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gosin',
+        'featured_tag': 'tag.yeokma',
         'info': dict({
           'date': '2026-10-01',
           'is_leap_month': False,
@@ -15407,7 +15407,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.yeokma',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-04',
           'is_leap_month': False,
@@ -15450,7 +15450,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-05',
           'is_leap_month': False,
@@ -15497,7 +15497,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_month_branch',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-06',
           'is_leap_month': False,
@@ -15595,7 +15595,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_day_branch',
+        'featured_tag': 'tag.dohwa',
         'info': dict({
           'date': '2026-10-08',
           'is_leap_month': False,
@@ -15820,7 +15820,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.gosin',
+        'featured_tag': 'tag.yeokma',
         'info': dict({
           'date': '2026-10-13',
           'is_leap_month': False,
@@ -16004,7 +16004,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash',
+        'featured_tag': 'tag.harmony',
         'info': dict({
           'date': '2026-10-17',
           'is_leap_month': False,
@@ -16151,7 +16151,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.clash_day_branch',
+        'featured_tag': 'tag.dohwa',
         'info': dict({
           'date': '2026-10-20',
           'is_leap_month': False,
@@ -16531,7 +16531,7 @@
       dict({
         'day_virtues': list([
         ]),
-        'featured_tag': 'tag.yeokma',
+        'featured_tag': 'tag.cheoneul_gwiin',
         'info': dict({
           'date': '2026-10-28',
           'is_leap_month': False,

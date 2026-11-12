@@ -34,19 +34,31 @@ _HAP_KINDS: Final = (RelationKind.STEM_HAP, RelationKind.BRANCH_HAP)
 
 _SHINSAL_TAGS: Final[tuple[tuple[Shinsal, str], ...]] = (
     (Shinsal.GONGMANG, "tag.gongmang"),
-    # D124 ② 흉 셋. 같은 묶음 안은 흉 먼저라 공망 바로 뒤에 둔다.
-    (Shinsal.GOSIN, "tag.gosin"),
-    (Shinsal.GWASUK, "tag.gwasuk"),
-    (Shinsal.WONJIN, "tag.wonjin"),
     (Shinsal.YEOKMA, "tag.yeokma"),
     (Shinsal.HWAGAE, "tag.hwagae"),
     (Shinsal.DOHWA, "tag.dohwa"),
     (Shinsal.CHEONEUL_GWIIN, "tag.cheoneul_gwiin"),
+    # D124 ② 새 셋. 원전에 하루 근거가 있는 기존 신살보다 늘 뒤에 둔다(D125 ②).
+    (Shinsal.GOSIN, "tag.gosin"),
+    (Shinsal.GWASUK, "tag.gwasuk"),
+    (Shinsal.WONJIN, "tag.wonjin"),
 )
 _AUXILIARY_TAGS: Final[dict[DayKind, str]] = {
     DayKind.GWIIN_DAY: "tag.gwiin_day",
     DayKind.YONGSIN_DAY: "tag.yongsin_day",
 }
+# 길 태그(D125 ①). 목록에 하나라도 있으면 그 가운데 맨 앞의 것을 목록 맨 앞으로 옮긴다.
+GOOD_TAGS: Final = frozenset(
+    {
+        TAG_HARMONY,
+        "tag.ten_god_rush.jaeseong",
+        "tag.ten_god_rush.inseong",
+        "tag.ten_god_rush.siksang",
+        "tag.dohwa",
+        "tag.cheoneul_gwiin",
+        *_AUXILIARY_TAGS.values(),
+    }
+)
 # 원전이 없는 근거의 source_ref (C28).
 NO_SOURCE: Final = ""
 
@@ -98,13 +110,14 @@ def select_tags(
     *,
     yongsin_ref: str,
 ) -> TagResult:
-    """그룹 우선(합충 > 십성 쏠림 > 신살), 그룹 안은 흉 우선 순서로 정렬한다.
+    """그룹 우선(합충 > 십성 쏠림 > 신살), 그룹 안은 C9 순서로 세운 뒤 첫 길 태그를 맨 앞으로 옮긴다(D125).
 
     근거는 첫째가 선택 결과(`tags/select`), 그 뒤로 태그마다 하나(합은 종류마다 하나)다(C28).
     """
     tags = (*_relation_tags(day, relations), *_rush_tags(natal, day), *_shinsal_tags(day, activated))
     if not tags and kind in _AUXILIARY_TAGS:
         tags = (_auxiliary_tag(kind, yongsin_ref),)
+    tags = _good_first(tags)
     all_keys = tuple(require(tag.key) for tag in tags)
     featured = all_keys[:MAX_FEATURED]
     selection = _evidence(
@@ -113,6 +126,14 @@ def select_tags(
     per_tag = tuple(evidence for tag in tags for evidence in tag.evidence)
     source_refs = MappingProxyType({tag.key: tag.evidence[0].source_ref for tag in tags})
     return TagResult(all_keys=all_keys, featured=featured, evidence=(selection, *per_tag), source_refs=source_refs)
+
+
+def _good_first(tags: tuple[_Tag, ...]) -> tuple[_Tag, ...]:
+    """길 태그가 있으면 그 가운데 맨 앞의 것 하나만 맨 앞으로. 나머지는 순서 그대로라 큰 흉이 둘째에 남는다."""
+    first_good = next((index for index, tag in enumerate(tags) if tag.key in GOOD_TAGS), None)
+    if first_good is None:
+        return tags
+    return (tags[first_good], *tags[:first_good], *tags[first_good + 1 :])
 
 
 def _evidence(rule_id: str, source_ref: str, detail: Mapping[str, str]) -> Evidence:

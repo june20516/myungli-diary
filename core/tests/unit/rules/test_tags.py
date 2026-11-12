@@ -62,7 +62,7 @@ def test_each_tag_has_own_evidence(pillar_of: PillarOf) -> None:
     )
     result = _select(natal, day, rels, (Shinsal.DOHWA,))
     assert [ev.rule_id for ev in result.evidence] == [
-        "tags/select", "tags/clash", "tags/harmony", "tags/harmony", "tags/dohwa",
+        "tags/select", "tags/harmony", "tags/harmony", "tags/clash", "tags/dohwa",
     ]
     harmony = [ev.detail["relation_kind"] for ev in result.evidence if ev.rule_id == "tags/harmony"]
     assert harmony == ["STEM_HAP", "BRANCH_HAP"]
@@ -137,11 +137,12 @@ def test_priority_order(pillar_of: PillarOf) -> None:
     day = pillar_of("戊辰")
     rels = (Relation(RelationKind.CHUNG, Position.DAY_BRANCH, None),)
     result = _select(natal, day, rels, (Shinsal.DOHWA,))
-    assert result.all_keys == ("tag.clash_day_branch", "tag.ten_god_rush.jaeseong", "tag.dohwa")
-    assert result.featured == ("tag.clash_day_branch", "tag.ten_god_rush.jaeseong")
+    # 첫 길 태그(재성 쏠림)만 맨 앞으로, 일지 충은 둘째 대표로 남는다(D125).
+    assert result.all_keys == ("tag.ten_god_rush.jaeseong", "tag.clash_day_branch", "tag.dohwa")
+    assert result.featured == ("tag.ten_god_rush.jaeseong", "tag.clash_day_branch")
 
 
-def test_tie_bad_first(pillar_of: PillarOf) -> None:
+def test_first_good_moves_to_front(pillar_of: PillarOf) -> None:
     natal = _natal(pillar_of, "壬申", "乙巳", "己午")
     day = pillar_of("丙子")
     rels = (
@@ -150,8 +151,17 @@ def test_tie_bad_first(pillar_of: PillarOf) -> None:
     )
     shinsal = (Shinsal.DOHWA, Shinsal.GONGMANG)
     result = _select(natal, day, rels, shinsal)
-    assert result.all_keys == ("tag.clash", "tag.harmony", "tag.gongmang", "tag.dohwa")
-    assert result.featured == ("tag.clash", "tag.harmony")
+    assert result.all_keys == ("tag.harmony", "tag.clash", "tag.gongmang", "tag.dohwa")
+    assert result.featured == ("tag.harmony", "tag.clash")
+
+
+def test_order_kept_without_good_tag(pillar_of: PillarOf) -> None:
+    """길 태그가 없으면 C9 순서 그대로다. 중립(역마, 화개, 비겁 쏠림)은 앞으로 옮기지 않는다."""
+    natal = _natal(pillar_of, "壬申", "乙巳", "己午")
+    rels = (Relation(RelationKind.CHUNG, Position.MONTH_BRANCH, None),)
+    shinsal = (Shinsal.HWAGAE, Shinsal.YEOKMA, Shinsal.GONGMANG)
+    result = _select(natal, pillar_of("丙子"), rels, shinsal)
+    assert result.all_keys == ("tag.clash_month_branch", "tag.gongmang", "tag.yeokma", "tag.hwagae")
 
 
 def test_yangin_has_no_tag(pillar_of: PillarOf) -> None:
@@ -207,17 +217,19 @@ def test_source_refs_map_each_tag_to_its_first_source(pillar_of: PillarOf) -> No
     }
 
 
-def test_d124_bad_shinsal_follow_gongmang(pillar_of: PillarOf) -> None:
-    """고신, 과숙, 원진(D124 ②)은 흉이라 신살 묶음에서 공망 바로 뒤, 길한 신살 앞에 선다."""
+def test_d124_shinsal_last_in_group(pillar_of: PillarOf) -> None:
+    """고신, 과숙, 원진(D124 ②)은 신살 묶음 맨 뒤에 서고, 첫 길 태그 천을귀인이 맨 앞으로 간다(D125)."""
     natal = _natal(pillar_of, "壬申", "乙巳", "己午")
     shinsal = (Shinsal.CHEONEUL_GWIIN, Shinsal.WONJIN, Shinsal.YEOKMA, Shinsal.GOSIN, Shinsal.GONGMANG, Shinsal.GWASUK)
     result = _select(natal, pillar_of("丙子"), (), shinsal)
     assert result.all_keys == (
+        "tag.cheoneul_gwiin",
         "tag.gongmang",
+        "tag.yeokma",
         "tag.gosin",
         "tag.gwasuk",
         "tag.wonjin",
-        "tag.yeokma",
-        "tag.cheoneul_gwiin",
     )
+    without_good = _select(natal, pillar_of("丙子"), (), (Shinsal.WONJIN, Shinsal.YEOKMA, Shinsal.GOSIN))
+    assert without_good.all_keys == ("tag.yeokma", "tag.gosin", "tag.wonjin")
     assert result.source_refs["tag.wonjin"] == "sammyeong-tonghoe/shinsal#wonjin"
