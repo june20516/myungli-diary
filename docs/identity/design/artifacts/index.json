@@ -1058,5 +1058,22 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 폭 360 오늘 화면 행운 섹션, 새벽 1시와 오후 3시. 사용자 답(2026-11-11): 1C 한 알약 두 칸, 2B 채운 아이콘, 3A 밤 칩 때 낱말, 4A 띠, 5A 이어 흐름, 6A 한 시트에 두 색(갈렸다 대신 추천 둘, 기준 이름 없음), 7B 아이콘 전용 색"
+  },
+  {
+    "id": "design-en-band-questions",
+    "title": "en 띠 칸 시진 이름 관문 질문(#1020): 칸 약 24px에 en 동물 이름이 들어가지 않을 때 표시 방식",
+    "kind": "concept",
+    "file": "2026-11-12-en-band-questions.html",
+    "source": "2026-11-12-en-band-questions.html",
+    "date": "2026-11-12",
+    "milestone": "DS1",
+    "screens": [
+      "explain-sheet"
+    ],
+    "decisions": [
+      "V118"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 오후 3시 낮 시트 en, ko 참고. 안 A 칸 이름 없음, B 세 글자 약자, C 지지 한자, D 칸 시작 시. 사용자 답(2026-11-12): C"
   }
 ]

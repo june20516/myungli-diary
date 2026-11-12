@@ -3170,3 +3170,6 @@ def test_v118_lucky_sheets_evidence_and_time_titles():
     assert periods["night"]["sheetTitleSlot"] == "today.lucky-time.night.title"
     band = card["parts"]["timeBand"]
     assert band["heads"]["iconGap"] == "{space.4}" and band["ticks"]["align"] == ["start", "center", "end"]
+    # 관문 답 2026-11-12 C: en 띠 칸은 지지 한자. 시간 칩 스크린리더 이름은 시트 제목 슬롯
+    assert "en은" in band["cells"]["label"]["source"] and "branch.*" in band["cells"]["label"]["source"]
+    assert "today.lucky-time.day.title" in card["a11y"]["timeLabel"] and "때 낱말" in card["a11y"]["timeLabel"]

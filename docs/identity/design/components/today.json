@@ -70,7 +70,7 @@
         "explain": { "component": "explain-sheet", "title": { "source": "항목 이름(칩 스크린리더 라벨의 항목 이름과 같은 낱말). time은 periods의 sheetTitleSlot" }, "body": { "segments": "sentence-block" },
           "evidenceLink": { "when": "color(색이 하나인 날)와 time 시트만. direction, number 시트에는 없음", "order": "본문 아래, time 시트는 timeBand 아래 맨 끝", "component": "depth-link", "variant": "block", "subject": "시트 제목(행운 색, 낮과 밤 시트 제목)", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
         "colorPairSheet": { "when": "pair 알약의 어느 칸이든 누름", "component": "explain-sheet", "title": { "source": "항목 이름(행운 색)" },
-          "intro": { "slot": "today.lucky-color.pair.intro", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "gapBelow": "{space.12}", "note": "추천 색이 둘이라는 것만 알림. 두 기준이 갈렸다고 쓰지 않음(사용자 결정 2026-11-11)" },
+          "intro": { "slot": "today.lucky-color.pair.intro", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "gapBelow": "{space.12}", "note": "추천 색이 둘이라는 것만 알림. 두 기준이 갈렸다고 쓰지 않음(사용자 결정 2026-11-11). 기준 이름 부제목은 칩과 색 소제목 옆에만 두지 않고, 풀이 문장 안 기준 설명은 writing 원고 그대로(D123 ①)" },
           "section": { "head": { "swatch": "ohaeng.swatch 14", "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}" }, "gap": "{space.4}", "basisLabel": false }, "body": { "segments": "sentence-block", "gapAbove": "{space.8}" },
             "evidenceLink": { "component": "depth-link", "variant": "block", "subject": "그 색 이름", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
           "sections": [{ "source": "DailyResponse.color", "bodySlot": "today.lucky-color.body" }, { "source": "DailyResponse.second_color", "bodySlot": "today.lucky-color.second.body" }],
@@ -78,7 +78,7 @@
         "timeBand": { "when": "time 칩 시트(낮, 밤 모두) 본문 아래 space.20", "summary": "지금 보이는 낮, 밤 두 칩이 가리키는 24시간 (결정 V117)",
           "order": { "beforeDayStart": ["night(전날 밤)", "day(오늘 낮)"], "fromDayStart": ["day(오늘 낮)", "night(오늘 밤)"] },
           "heads": { "height": { "value": 24, "unit": "px" }, "iconSource": "periods의 lead 아이콘, size.icon.16", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "iconGap": "{space.4}", "slots": { "day": "today.lucky-time.band.day", "night": "today.lucky-time.band.night" }, "gapBelow": "{space.16}" },
-          "cells": { "count": 12, "unit": "시진 하나(2시간)", "gap": "{space.2}", "height": { "value": 30, "unit": "px" }, "radius": "{radius.xs}", "label": { "source": "시진 지지 이름(writing)", "type": "{type.caption.sm}" },
+          "cells": { "count": 12, "unit": "시진 하나(2시간)", "gap": "{space.2}", "height": { "value": 30, "unit": "px" }, "radius": "{radius.xs}", "label": { "source": "ko, ja는 writing 시진 이름 한 글자. en은 칸에 동물 이름이 들어가지 않아 지지 한자(writing hanja.yaml branch.*, font.family.hanja, 관문 답 2026-11-12 C)", "type": "{type.caption.sm}" },
             "day": { "bg": "{color.ohaeng.earth.bg}", "fg": "{color.ohaeng.earth.fg}" }, "night": { "bg": "{color.ohaeng.water.bg}", "fg": "{color.ohaeng.water.fg}" },
             "pick": { "ring": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": 700, "note": "두 칩의 고른 시진 둘 모두 고리. 연 칩의 시진이 강조 대상" } },
           "now": { "line": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" }, "overhang": { "value": 6, "unit": "px" } }, "tag": { "slot": "today.lucky-time.band.now", "bg": "{color.inverse.bg}", "fg": "{color.inverse.fg}", "type": "{type.caption.sm}", "radius": "{radius.full}", "paddingX": "{space.4}", "edge": "띠 양 끝 가까이에서는 꼬리표만 시트 안쪽으로 밀어 넣고 선은 제자리" }, "position": "지금 시각 비례", "update": "시트가 열려 있는 동안 1분마다" },
@@ -91,7 +91,8 @@
         "closed": { "pattern": "sheet.exit", "parts": { "explain": { "visible": false } } }
       },
       "haptic": [],
-      "a11y": { "role": "button", "label": "항목 이름 + 값", "pairLabel": "칸마다 항목 이름 + 값 + 두 개 중 몇째", "nightLabel": "항목 이름 + 때 낱말 + 값", "opensSheet": true, "minTarget": 44 },
+      "a11y": { "role": "button", "label": "항목 이름 + 값", "pairLabel": "칸마다 항목 이름 + 값 + 두 개 중 몇째", "nightLabel": "항목 이름 + 때 낱말 + 값",
+    "timeLabel": "time 칩의 항목 이름은 그 칩 시트 제목 슬롯(낮 today.lucky-time.day.title, 밤 night.title)이라 두 칩이 다르게 읽힘. 낮은 제목 + 값, 밤은 제목 + 때 낱말 + 값. 해와 달 아이콘은 읽지 않음", "opensSheet": true, "minTarget": 44 },
       "rules": [
         "설명은 explain-sheet로 열고 칩 줄 아래에 끼워 넣지 않는다. 시트가 열린 동안 연 칩의 테두리가 1.5px action.primary로 바뀐다(결정 V62, V75).",
         "칩은 bg.sheet 바탕 + 1px line 테두리다. 반투명 chip.bg를 쓰지 않아 오늘 카드, 나 탭 카드, 공유 이미지 그라데이션, 다크 모드 어디서나 테두리로 구분된다. 테두리는 칩 크기 안쪽에 그려 열려도 크기가 그대로다(Q5 ①, 결정 V75).",
