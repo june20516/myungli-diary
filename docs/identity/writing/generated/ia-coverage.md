@@ -72,6 +72,7 @@
 | today.date.solar | ui | today.date.solar |
 | today.date.lunar | ui | today.date.lunar |
 | today.date.iljin | ui | today.date.iljin |
+| today.date.virtue | ui | today.date.virtue |
 | today.fortune.title | ui | today.fortune.title |
 | today.character.label | content | glossary.value_name |
 | today.ten-god.label | content | glossary.value_name |
