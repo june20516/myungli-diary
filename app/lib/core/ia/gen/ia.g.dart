@@ -122,6 +122,7 @@ abstract final class SlotIds {
   static const String todayDateSolar = 'today.date.solar';
   static const String todayDateLunar = 'today.date.lunar';
   static const String todayDateIljin = 'today.date.iljin';
+  static const String todayDateVirtue = 'today.date.virtue';
   static const String todayFortuneTitle = 'today.fortune.title';
   static const String todayCharacterLabel = 'today.character.label';
   static const String todayTenGodLabel = 'today.ten-god.label';
@@ -131,9 +132,25 @@ abstract final class SlotIds {
   static const String todayFeaturedEmpty = 'today.featured.empty';
   static const String todayLuckyTitle = 'today.lucky.title';
   static const String todayLuckyColorBody = 'today.lucky-color.body';
+  static const String todayLuckyColorPairIntro = 'today.lucky-color.pair.intro';
+  static const String todayLuckyColorSecondBody =
+      'today.lucky-color.second.body';
   static const String todayLuckyDirectionBody = 'today.lucky-direction.body';
   static const String todayLuckyNumberBody = 'today.lucky-number.body';
-  static const String todayLuckyTimeBody = 'today.lucky-time.body';
+  static const String todayLuckyTimeDayTitle = 'today.lucky-time.day.title';
+  static const String todayLuckyTimeDayBody = 'today.lucky-time.day.body';
+  static const String todayLuckyTimeNightTitle = 'today.lucky-time.night.title';
+  static const String todayLuckyTimeNightBody = 'today.lucky-time.night.body';
+  static const String todayLuckyTimeNightDawn = 'today.lucky-time.night.dawn';
+  static const String todayLuckyTimeNightTonight =
+      'today.lucky-time.night.tonight';
+  static const String todayLuckyTimeBandDay = 'today.lucky-time.band.day';
+  static const String todayLuckyTimeBandNight = 'today.lucky-time.band.night';
+  static const String todayLuckyTimeBandNow = 'today.lucky-time.band.now';
+  static const String todayLuckyTimeBandYesterday =
+      'today.lucky-time.band.yesterday';
+  static const String todayLuckyTimeBandTomorrow =
+      'today.lucky-time.band.tomorrow';
   static const String todayEventTitle = 'today.event.title';
   static const String todayGuideTitle = 'today.guide.title';
   static const String todayGuideQuestion = 'today.guide.question';
@@ -278,6 +295,7 @@ abstract final class SlotIds {
   static const String adFreeOfferPrice = 'ad-free.offer.price';
   static const String adFreeOfferPeriod = 'ad-free.offer.period';
   static const String adFreeBuyCta = 'ad-free.buy.cta';
+  static const String adFreeUnavailableBody = 'ad-free.unavailable.body';
   static const String adFreeStatusRemaining = 'ad-free.status.remaining';
   static const String adFreeHistoryCta = 'ad-free.history.cta';
   static const String adFreeLegalNotice = 'ad-free.legal.notice';
@@ -452,6 +470,7 @@ const List<IaScreen> iaScreens = [
       'share-button',
       'primary-button',
       'dialog',
+      'settings-row',
     ],
   ),
   IaScreen(
@@ -536,6 +555,7 @@ const List<IaScreen> iaScreens = [
     exits: [
       IaExit(to: 'diary-edit', trigger: '가이드 질문 카드의 일기 쓰기(새 일기)'),
       IaExit(to: 'diary-view', trigger: '오늘 쓴 일기 줄'),
+      IaExit(to: 'explain-sheet', trigger: '날짜 머리의 덕일 표시(천덕일, 월덕일)'),
       IaExit(
         to: 'explain-sheet',
         trigger: '총운을 결정한 태그(날의 성격, 십성 묶음) 또는 문장 안 용어 토큰',
@@ -574,7 +594,10 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.member,
     states: ['loading', 'error'],
     exits: [
-      IaExit(to: 'evidence-sheet', trigger: '근거 보기'),
+      IaExit(
+        to: 'evidence-sheet',
+        trigger: '근거 보기(행운 색 시트는 색마다, 행운 시간 시트는 낮과 밤마다 자기 근거, D123 ②)',
+      ),
       IaExit(
         to: 'tag-diary',
         trigger: '대표 태그 시트의 "<태그>이 붙은 내 일기 보기" 꺾쇠 링크(page.push). 날의 성격 시트는 뜻만',
@@ -896,7 +919,7 @@ const List<IaScreen> iaScreens = [
     tab: 'me',
     presentation: IaPresentation.page,
     auth: IaAuth.member,
-    states: ['loading', 'error', 'offline'],
+    states: ['loading', 'error', 'offline', 'empty'],
     exits: [
       IaExit(to: 'system-purchase', trigger: '구매'),
       IaExit(to: 'legal', trigger: '약관·정책 링크'),

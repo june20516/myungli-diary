@@ -788,7 +788,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayLuckyNumberName => 'ラッキーナンバー';
 
   @override
-  String get todayLuckyTimeName => '集中しやすい時間';
+  String get todayLuckyTimeName => '吉時';
 
   @override
   String get evidenceSheetTitle => '読み解きの根拠';
@@ -1754,7 +1754,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get daySheetVerdictExpand => '内訳を見る';
 
   @override
-  String get diaryEditGuideAttach => '質問を追加';
+  String get diaryEditGuideAttach => '何を書くか迷っていますか?';
 
   @override
   String get diaryEditGuideRemove => '質問なしで書く';
@@ -1795,4 +1795,135 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get previewUsedNotice =>
       '最初の読み解きは、この端末では一度だけ見られます。情報を変えるには、保存したあとマイページの「情報の変更」で変えてください。';
+
+  @override
+  String get diaryEditGuideAttachHint => '質問を追加';
+
+  @override
+  String get todayDateVirtueCheondeok => '天徳日';
+
+  @override
+  String get todayDateVirtueWoldeok => '月徳日';
+
+  @override
+  String get todayLuckyColorPairIntro => '今日はおすすめの色が二つあります';
+
+  @override
+  String get todayLuckyTimeBandDay => '昼';
+
+  @override
+  String get todayLuckyTimeBandNight => '夜';
+
+  @override
+  String todayLuckyTimeBandNow(String time) {
+    return '今 $time';
+  }
+
+  @override
+  String get todayLuckyTimeBandTomorrow => '明日';
+
+  @override
+  String get todayLuckyTimeBandYesterday => '昨日';
+
+  @override
+  String get todayLuckyTimeDayTitle => '昼の吉時';
+
+  @override
+  String get todayLuckyTimeNightDawn => '未明';
+
+  @override
+  String get todayLuckyTimeNightTitle => '夜の吉時';
+
+  @override
+  String get todayLuckyTimeNightTonight => '今夜';
+
+  @override
+  String get shinsalWeighingNote => '原典では、神殺は命式を判断する多くの手がかりの一つにすぎません。';
+
+  @override
+  String get adFreeUnavailableBody => '今は広告除去パスを購入できません。';
+
+  @override
+  String get explainSheetTermEmpty => 'この用語の解説を準備しています。';
+
+  @override
+  String ganjiReading(String stem, String branch) {
+    return '$stem$branch';
+  }
+
+  @override
+  String ganjiReadingSuffix(String reading) {
+    return '（$reading）';
+  }
+
+  @override
+  String todayLuckyPairPosition(int index, int total) {
+    return '$totalつのうち$indexつ目';
+  }
+
+  @override
+  String get stemReadingGap => 'きのえ';
+
+  @override
+  String get stemReadingEul => 'きのと';
+
+  @override
+  String get stemReadingByeong => 'ひのえ';
+
+  @override
+  String get stemReadingJeong => 'ひのと';
+
+  @override
+  String get stemReadingMu => 'つちのえ';
+
+  @override
+  String get stemReadingGi => 'つちのと';
+
+  @override
+  String get stemReadingGyeong => 'かのえ';
+
+  @override
+  String get stemReadingSin => 'かのと';
+
+  @override
+  String get stemReadingIm => 'みずのえ';
+
+  @override
+  String get stemReadingGye => 'みずのと';
+
+  @override
+  String get branchReadingJa => 'ね';
+
+  @override
+  String get branchReadingChuk => 'うし';
+
+  @override
+  String get branchReadingIn => 'とら';
+
+  @override
+  String get branchReadingMyo => 'う';
+
+  @override
+  String get branchReadingJin => 'たつ';
+
+  @override
+  String get branchReadingSa => 'み';
+
+  @override
+  String get branchReadingO => 'うま';
+
+  @override
+  String get branchReadingMi => 'ひつじ';
+
+  @override
+  String get branchReadingShin => 'さる';
+
+  @override
+  String get branchReadingYu => 'とり';
+
+  @override
+  String get branchReadingSul => 'いぬ';
+
+  @override
+  String get branchReadingHae => 'い';
 }

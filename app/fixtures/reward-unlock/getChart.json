@@ -143,11 +143,68 @@
         "shinsal": [
           {
             "kind": "cheoneul_gwiin",
-            "position": "hour_branch"
+            "position": "hour_branch",
+            "positions": [
+              "hour_branch"
+            ]
           },
           {
             "kind": "hwagae",
-            "position": "day_branch"
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "cheondeok",
+            "position": "month_stem",
+            "positions": [
+              "month_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "year_stem",
+            "positions": [
+              "year_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "day_stem",
+            "positions": [
+              "day_stem"
+            ]
+          },
+          {
+            "kind": "gwasuk",
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "goegang",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "sipak_daepae",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "amrok",
+            "position": "month_branch",
+            "positions": [
+              "month_branch"
+            ]
           }
         ],
         "gongmang": [
@@ -478,7 +535,7 @@
                 "term": "element.water"
               },
               {
-                "text": "예요. 색으로는 남색이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
+                "text": "예요. 색으로는 검정이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
               }
             ]
           },
@@ -766,7 +823,7 @@
             "text": {
               "segments": [
                 {
-                  "text": "내 사주에서 이"
+                  "text": "태어난 시의 지지에"
                 }
               ]
             },
@@ -779,13 +836,104 @@
             "text": {
               "segments": [
                 {
-                  "text": "내 사주에서 이"
+                  "text": "태어난 날의 지지에"
                 }
               ]
             },
             "position": "day_branch",
             "index": 0,
             "shinsal": "hwagae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 달의 천간에"
+                }
+              ]
+            },
+            "position": "month_stem",
+            "index": 0,
+            "shinsal": "cheondeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 해의 천간에"
+                }
+              ]
+            },
+            "position": "year_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 천간에"
+                }
+              ]
+            },
+            "position": "day_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 지지의"
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "gwasuk"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 지지에"
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "goegang"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 지지의"
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "sipak_daepae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 달의 지지에"
+                }
+              ]
+            },
+            "position": "month_branch",
+            "index": 0,
+            "shinsal": "amrok"
           },
           {
             "kind": "daeun_stem_ten_god",
@@ -1373,11 +1521,68 @@
         "shinsal": [
           {
             "kind": "cheoneul_gwiin",
-            "position": "hour_branch"
+            "position": "hour_branch",
+            "positions": [
+              "hour_branch"
+            ]
           },
           {
             "kind": "hwagae",
-            "position": "day_branch"
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "cheondeok",
+            "position": "month_stem",
+            "positions": [
+              "month_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "year_stem",
+            "positions": [
+              "year_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "day_stem",
+            "positions": [
+              "day_stem"
+            ]
+          },
+          {
+            "kind": "gwasuk",
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "goegang",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "sipak_daepae",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "amrok",
+            "position": "month_branch",
+            "positions": [
+              "month_branch"
+            ]
           }
         ],
         "gongmang": [
@@ -1435,20 +1640,7 @@
                 }
               ]
             },
-            "reactable": false,
-            "evidence": [
-              {
-                "ruleId": "yongsin/johu",
-                "sourceRef": "gungtong-bogam/johu_evidence#庚.巳",
-                "basis": {
-                  "segments": [
-                    {
-                      "text": "태어난 달의 기운과 오행 비중을 견주어 정했어요."
-                    }
-                  ]
-                }
-              }
-            ]
+            "reactable": false
           }
         },
         "daeun": {
@@ -1734,7 +1926,7 @@
                 "term": "element.water"
               },
               {
-                "text": "예요. 색으로는 남색이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
+                "text": "예요. 색으로는 검정이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
               }
             ]
           },
@@ -2183,14 +2375,21 @@
             "text": {
               "segments": [
                 {
-                  "text": "내 사주에서 이 신살 자리는 "
+                  "text": "태어난 시의 지지에 "
                 },
                 {
-                  "text": "기운의 균형",
-                  "term": "role.yongsin"
+                  "text": "천을귀인",
+                  "term": "shinsal.cheoneul_gwiin"
                 },
                 {
-                  "text": "을 돕는 쪽으로 읽어요."
+                  "text": "이 있어, 어려울 때 손을 내미는 사람을 만나기 쉬운 바탕이에요. 이 자리의 오행 "
+                },
+                {
+                  "text": "토",
+                  "term": "element.earth"
+                },
+                {
+                  "text": "는 잘 안 맞는 기운이에요."
                 }
               ]
             },
@@ -2203,20 +2402,216 @@
             "text": {
               "segments": [
                 {
-                  "text": "내 사주에서 이 신살 자리는 "
+                  "text": "태어난 날의 지지에 "
                 },
                 {
-                  "text": "기운의 균형",
-                  "term": "role.yongsin"
+                  "text": "화개",
+                  "term": "shinsal.hwagae"
                 },
                 {
-                  "text": "을 돕는 쪽으로 읽어요."
+                  "text": "가 있어, 혼자 깊이 파고드는 공부나 예술에 마음이 가는 바탕이에요. 이 자리의 오행 "
+                },
+                {
+                  "text": "토",
+                  "term": "element.earth"
+                },
+                {
+                  "text": "는 잘 안 맞는 기운이에요."
                 }
               ]
             },
             "position": "day_branch",
             "index": 0,
             "shinsal": "hwagae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 달의 천간에 "
+                },
+                {
+                  "text": "천덕귀인",
+                  "term": "shinsal.cheondeok"
+                },
+                {
+                  "text": "이 있어, 어려운 일을 만나도 누그러져 좋은 쪽으로 풀리기 쉬워요. 이 자리의 오행 "
+                },
+                {
+                  "text": "금",
+                  "term": "element.metal"
+                },
+                {
+                  "text": "은 곁에서 돕는 기운이에요."
+                }
+              ]
+            },
+            "position": "month_stem",
+            "index": 0,
+            "shinsal": "cheondeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 해의 천간에 "
+                },
+                {
+                  "text": "월덕귀인",
+                  "term": "shinsal.woldeok"
+                },
+                {
+                  "text": "이 있어, 흉한 기운이 와도 크게 번지지 않고 가라앉기 쉬워요. 이 자리의 오행 "
+                },
+                {
+                  "text": "금",
+                  "term": "element.metal"
+                },
+                {
+                  "text": "은 곁에서 돕는 기운이에요."
+                }
+              ]
+            },
+            "position": "year_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 천간에 "
+                },
+                {
+                  "text": "월덕귀인",
+                  "term": "shinsal.woldeok"
+                },
+                {
+                  "text": "이 있어, 흉한 기운이 와도 크게 번지지 않고 가라앉기 쉬워요. 이 자리의 오행 "
+                },
+                {
+                  "text": "금",
+                  "term": "element.metal"
+                },
+                {
+                  "text": "은 곁에서 돕는 기운이에요."
+                }
+              ]
+            },
+            "position": "day_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 지지의 "
+                },
+                {
+                  "text": "과숙",
+                  "term": "shinsal.gwasuk"
+                },
+                {
+                  "text": "은 가족과의 인연이 약해지기 쉽다는 뜻이라, 가까운 사람에게 먼저 마음을 표현하면 좋아요. 이 자리의 오행 "
+                },
+                {
+                  "text": "토",
+                  "term": "element.earth"
+                },
+                {
+                  "text": "는 잘 안 맞는 기운이에요."
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "gwasuk"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 지지에 "
+                },
+                {
+                  "text": "괴강",
+                  "term": "shinsal.goegang"
+                },
+                {
+                  "text": "이 있어 기운이 세고 결단이 빨라요. 잘 풀릴 때와 막힐 때가 크게 갈리기 쉬우니 기세를 조절하면 좋아요. 이 자리의 오행 "
+                },
+                {
+                  "text": "토",
+                  "term": "element.earth"
+                },
+                {
+                  "text": "는 잘 안 맞는 기운이에요."
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "goegang"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 날의 지지의 "
+                },
+                {
+                  "text": "십악대패",
+                  "term": "shinsal.sipak_daepae"
+                },
+                {
+                  "text": "는 타고난 복록의 자리가 비어 있다는 뜻이라, 재물을 다룰 때 여유를 두면 좋아요. 이 자리의 오행 "
+                },
+                {
+                  "text": "토",
+                  "term": "element.earth"
+                },
+                {
+                  "text": "는 잘 안 맞는 기운이에요."
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "sipak_daepae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "태어난 달의 지지에 "
+                },
+                {
+                  "text": "암록",
+                  "term": "shinsal.amrok"
+                },
+                {
+                  "text": "이 있어, 드러나지 않는 곳에서 도움이 들어오기 쉬워요. 이 자리의 오행 "
+                },
+                {
+                  "text": "화",
+                  "term": "element.fire"
+                },
+                {
+                  "text": "는 무난한 기운이에요."
+                }
+              ]
+            },
+            "position": "month_branch",
+            "index": 0,
+            "shinsal": "amrok"
           },
           {
             "kind": "daeun_stem_ten_god",

@@ -1,8 +1,9 @@
-import 'dart:ui' show CheckedState;
+import 'dart:ui' show CheckedState, SemanticsAction;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
+import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -71,6 +72,19 @@ void main() {
         closeTo(tester.getTopLeft(find.byKey(SettingsRow.chevronKey)).dx, 8),
       );
       expect(find.bySemanticsLabel('알림 시각, 08:00'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('value: 값이 빈 문자열이면 값 글자 없이 이름만 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(_row(SettingsRowVariant.value, value: '', onTap: () {})),
+      );
+      // 이름 글자 하나뿐이고 화살표는 그대로입니다.
+      expect(find.byType(Text), findsOneWidget);
+      expect(find.byKey(SettingsRow.chevronKey), findsOneWidget);
+      expect(find.bySemanticsLabel('알림 시각'), findsOneWidget);
+      expect(find.bySemanticsLabel('알림 시각, '), findsNothing);
       handle.dispose();
     });
 
@@ -228,6 +242,131 @@ void main() {
         tester.getSize(find.byType(SettingsRow)).height,
         greaterThan(base),
       );
+    });
+  });
+
+  group('settings-row readonly (V122)', () {
+    // 기본 테스트 화면 폭 800: 줄 안쪽 폭은 좌우 16을 뺀 768, 값은 그 절반 384까지입니다.
+    const surfaceWidth = 800.0;
+    const innerWidth = surfaceWidth - SettingsRow.paddingX * 2;
+
+    Widget readonly(String label, String? value, {String? identifier}) =>
+        SettingsRow(
+          variant: SettingsRowVariant.readonly,
+          label: label,
+          value: value,
+          identifier: identifier,
+        );
+
+    testWidgets('이름 왼쪽 text.primary, 값 오른쪽 text.secondary, 꺾쇠와 눌림 없음', (
+      tester,
+    ) async {
+      await tester.pumpWidget(inputApp(readonly('호칭', '별님')));
+      final colors = tester.element(find.byType(SettingsRow)).tokens.colors;
+      // 누를 수 없어도 disabled가 아니라 본문색입니다.
+      expect(
+        tester.widget<Text>(find.text('호칭')).style?.color,
+        colors.textPrimary,
+      );
+      final value = tester.widget<Text>(find.text('별님'));
+      expect(value.style?.color, colors.textSecondary);
+      expect(value.textAlign, TextAlign.end);
+      expect(tester.getTopLeft(find.text('호칭')).dx, SettingsRow.paddingX);
+      expect(
+        tester.getTopRight(find.text('별님')).dx,
+        surfaceWidth - SettingsRow.paddingX,
+      );
+      expect(find.byKey(SettingsRow.chevronKey), findsNothing);
+      expect(find.byType(PressInkTarget), findsNothing);
+      expect(find.byType(InkWell), findsNothing);
+      expect(
+        tester.getSize(find.byType(SettingsRow)).height,
+        greaterThanOrEqualTo(SettingsRow.minHeight),
+      );
+    });
+
+    testWidgets('스크린리더는 버튼이 아닌 글자로 이름 다음 값을 읽고 누를 수 없습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        inputApp(readonly('호칭', '별님', identifier: 'x.input')),
+      );
+      final node = find.bySemanticsIdentifier('x.input');
+      expect(node, findsOneWidget);
+      final data = tester.getSemantics(node).getSemanticsData();
+      expect(data.label, '호칭, 별님');
+      expect(data.flagsCollection.isButton, isFalse);
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      // 이름과 값을 따로 읽지 않습니다.
+      expect(find.bySemanticsLabel('호칭'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('긴 값은 줄 안쪽 폭의 절반까지 쓰고 오른쪽 맞춤으로 줄을 바꿉니다', (tester) async {
+      const long = '로스앤젤레스 카운티 서쪽 끝 바닷가 마을 산타모니카 해변 근처, 미국 캘리포니아';
+      await tester.pumpWidget(inputApp(readonly('출생지', long)));
+      final rect = tester.getRect(find.text(long));
+      expect(rect.width, lessThanOrEqualTo(innerWidth / 2));
+      expect(rect.right, surfaceWidth - SettingsRow.paddingX);
+      final lineHeight = tester.getSize(find.text('출생지')).height;
+      expect(rect.height, greaterThan(lineHeight));
+      // 이름은 줄을 바꾸지 않고 왼쪽에 그대로입니다.
+      expect(tester.getTopLeft(find.text('출생지')).dx, SettingsRow.paddingX);
+    });
+
+    testWidgets('큰 글자(배율 2)에서도 값은 절반까지 오른쪽 맞춤으로 줄을 더 바꾸고 줄이 커집니다', (
+      tester,
+    ) async {
+      // 배율 1에서는 한 줄, 배율 2에서는 절반 폭을 넘어 줄을 바꾸는 값입니다.
+      const value = '로스앤젤레스 카운티 산타모니카, 미국';
+      await tester.pumpWidget(inputApp(readonly('출생지', value)));
+      final baseRow = tester.getSize(find.byType(SettingsRow)).height;
+      final baseValue = tester.getSize(find.text(value)).height;
+      final baseLabel = tester.getSize(find.text('출생지')).height;
+      expect(baseValue, baseLabel, reason: '배율 1에서는 한 줄');
+      // 배율 2에서 폭이 두 배가 되면 절반 폭(384)을 넘는 길이입니다.
+      expect(
+        tester.getSize(find.text(value)).width,
+        greaterThan(innerWidth / 4),
+      );
+
+      await tester.pumpWidget(
+        inputApp(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: readonly('출생지', value),
+          ),
+        ),
+      );
+      final rect = tester.getRect(find.text(value));
+      final label = tester.getSize(find.text('출생지')).height;
+      expect(
+        tester.getSize(find.byType(SettingsRow)).height,
+        greaterThan(baseRow),
+      );
+      expect(rect.width, lessThanOrEqualTo(innerWidth / 2));
+      expect(rect.right, surfaceWidth - SettingsRow.paddingX);
+      expect(tester.widget<Text>(find.text(value)).textAlign, TextAlign.end);
+      // 줄 수가 늘어납니다(값 높이가 같은 배율의 이름 한 줄보다 큼).
+      expect(rect.height, greaterThan(label));
+    });
+
+    testWidgets('값이 비었으면 이름만 그리고 이름만 읽습니다', (tester) async {
+      final handle = tester.ensureSemantics();
+      for (final value in [null, '']) {
+        await tester.pumpWidget(
+          inputApp(readonly('호칭', value, identifier: 'x.input')),
+        );
+        expect(find.byType(Text), findsOneWidget, reason: '$value');
+        expect(
+          tester
+              .getSemantics(find.bySemanticsIdentifier('x.input'))
+              .getSemanticsData()
+              .label,
+          '호칭',
+          reason: '$value',
+        );
+      }
+      handle.dispose();
     });
   });
 

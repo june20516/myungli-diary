@@ -14,9 +14,12 @@ import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations_en.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
@@ -33,18 +36,26 @@ import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
+import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
 import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
+import 'package:myungli_diary/features/today/application/today_presentation.dart'
+    show dailySlotText;
 import 'package:myungli_diary/features/today/presentation/today_screen.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/chart_network.dart' show serviceUnavailable;
 import '../../support/daily_fixture.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
 import '../../support/reaction_not_found.dart';
+import '../../support/sheet_close.dart';
 import '../../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
@@ -112,6 +123,53 @@ final class _DailyHold extends Interceptor {
       await hold?.future;
     }
     handler.next(options);
+  }
+}
+
+/// 다음 날(`/v1/daily/[date]`) 오늘 응답 대역. 대역 서버 바로 앞에 끼웁니다.
+///
+/// [hold]가 있으면 끝날 때까지 붙잡고, [fail]이면 503으로 답하고, 그 밖에는 대역 서버 응답을
+/// [change]로 고칩니다(대역 서버는 날짜와 상관없이 같은 fixture를 주므로 날짜도 여기서 바꿉니다).
+final class _NextDayDaily extends Interceptor {
+  new(this.date, this.change);
+
+  final CalendarDate date;
+  final void Function(Map<String, dynamic> body) change;
+  Completer<void>? hold;
+  bool fail = false;
+  int requests = 0;
+
+  bool _matches(RequestOptions options) =>
+      options.path == '/v1/daily/${date.toIso()}';
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (_matches(options)) {
+      requests += 1;
+      await hold?.future;
+      if (fail) {
+        handler.reject(serviceUnavailable(options), true);
+        return;
+      }
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (_matches(response.requestOptions) && data is Map) {
+      final body = Map<String, dynamic>.of(data.cast<String, dynamic>());
+      change(body);
+      response.data = body;
+    }
+    handler.next(response);
   }
 }
 
@@ -206,7 +264,7 @@ final class _SheetLog {
         explainHeads.add(head);
         return const Text('explain-body');
       },
-      evidenceBody: (_, _, _) => const Text('evidence-body'),
+      evidenceBody: (_, _, _, _) => const Text('evidence-body'),
       shareBody: () => const Text('share-body'),
       tagBody: (daily, rank) {
         if (tagRanks.lastOrNull != rank) tagRanks.add(rank);
@@ -215,6 +273,19 @@ final class _SheetLog {
     ),
   );
 }
+
+/// 오늘 응답을 [json]으로 고정합니다(fixture를 고친 응답).
+Override _dailyOf(Map<String, dynamic> json) =>
+    dailyControllerProvider.overrideWith(
+      () => _StubDaily(
+        () async => DailyView(
+          date: _today,
+          daily: Daily.fromJson(json),
+          stale: false,
+          cacheKey: null,
+        ),
+      ),
+    );
 
 /// [slotId] 자리의 `hanja-tag`.
 Finder _tagIn(String slotId) => find.descendant(
@@ -240,11 +311,13 @@ void main() {
     expect(find.byKey(const ValueKey(ScreenIds.today)), findsOneWidget);
     expect(_id(ScreenIds.today), findsOneWidget);
 
-    // 날짜 머리: 양력과 요일, 음력, 일진(사전 독음).
+    // 날짜 머리: 양력과 요일, 음력, 일진. 일진은 한자 뒤 괄호 독음이고 스크린리더는 독음만입니다
+    // (W72, A133).
     final header = tester.widget<DateHeader>(_content);
     expect(header.solar, _ko.todayDateSolar('10월 13일 화요일'));
     expect(header.lunar, _ko.todayDateLunar(9, 3));
-    expect(header.iljin, _ko.todayDateIljin('庚申(경신)'));
+    expect(header.iljin?.shown, _ko.todayDateIljin('庚申(경신)'));
+    expect(header.iljin?.spoken, _ko.todayDateIljin('경신'));
 
     // 섹션 제목은 위에서부터 총운, 사주 기운, 행운, 일정(있는 날), 오늘의 질문입니다.
     final titles = [
@@ -322,7 +395,7 @@ void main() {
     expect(find.text('초록'), findsOneWidget);
     expect(find.text(_ko.direction8E), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
-    expect(find.text('09:30~11:30'), findsOneWidget);
+    expect(find.text('15:30~17:30'), findsOneWidget);
 
     // 오늘의 질문: 섹션 제목이 같은 말을 하므로 카드 머리글은 없습니다.
     final guide = tester.widget<GuideQuestionCard>(
@@ -1321,6 +1394,567 @@ void main() {
       expect(_id(SlotIds.todayFortuneHead), findsNothing);
       expect(find.byType(ReactionButton), findsNothing);
       expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
+    });
+  });
+
+  group('집중 시간 낮과 밤 칩(D122 ⑦, V116~V118)', () {
+    Finder chip(AppTimeOfDay period) =>
+        find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.time, period: period));
+
+    /// [chip] 안에 [text]가 있는지.
+    Finder textIn(Finder chip, String text) =>
+        find.descendant(of: chip, matching: find.text(text));
+
+    /// member 응답에서 전날 밤 카드만 해시(21:30~23:30)로 바꿔, 07:30 앞뒤 밤 칩 값이 다르게 합니다.
+    Map<String, dynamic> dailyJson() {
+      final json = memberDailyJson();
+      final cards = json['cards'] as Map<String, dynamic>;
+      final previous = cards['previousNightFocusTime'] as Map<String, dynamic>;
+      final pick = (previous['picks'] as List<Object?>).first!;
+      previous['picks'] = [
+        {
+          ...pick as Map<String, Object?>,
+          'branch': 'hae',
+          'start': '2026-10-12T21:30:00+09:00',
+          'end': '2026-10-12T23:30:00+09:00',
+          'dayDate': '2026-10-12',
+        },
+      ];
+      return json;
+    }
+
+    testWidgets('07:30을 지나는 순간 밤 칩이 전날 밤 새벽에서 오늘 밤으로 값과 함께 바뀝니다', (
+      tester,
+    ) async {
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          _dailyOf(dailyJson()),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 29));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      final night = chip(AppTimeOfDay.night);
+      expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsOneWidget);
+      expect(textIn(night, '21:30~23:30'), findsOneWidget);
+      expect(textIn(chip(AppTimeOfDay.day), '15:30~17:30'), findsOneWidget);
+
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await tester.pumpAndSettle();
+      expect(textIn(night, _ko.todayLuckyTimeNightTonight), findsOneWidget);
+      expect(textIn(night, '01:30~03:30'), findsOneWidget);
+      expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsNothing);
+      // 낮 칩은 그대로입니다.
+      expect(textIn(chip(AppTimeOfDay.day), '15:30~17:30'), findsOneWidget);
+    });
+
+    testWidgets('LA 프로필은 07:30이 아니라 그 시간대 진시 시작(08:00)에 밤 칩이 바뀝니다(#1064)', (
+      tester,
+    ) async {
+      // member-overseas: 시간대 America/Los_Angeles, 앱 언어 en. 오늘 응답은 그 시간대의 엔진 값으로
+      // 만든 시나리오 fixture(`tool/gen_daily_fixtures.py`)입니다.
+      final en = AppLocalizationsEn();
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member-overseas',
+        overrides: [nowMinuteProvider.overrideWith((ref) => minutes.stream)],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      final night = chip(AppTimeOfDay.night);
+      expect(textIn(night, en.todayLuckyTimeNightDawn), findsOneWidget);
+      expect(textIn(chip(AppTimeOfDay.day), '16:00 to 18:00'), findsOneWidget);
+
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 59));
+      await tester.pumpAndSettle();
+      expect(textIn(night, en.todayLuckyTimeNightDawn), findsOneWidget);
+
+      minutes.add(DateTime.utc(2026, 10, 13, 8));
+      await tester.pumpAndSettle();
+      expect(textIn(night, en.todayLuckyTimeNightTonight), findsOneWidget);
+      expect(textIn(night, en.todayLuckyTimeNightDawn), findsNothing);
+
+      // 띠도 그 시간대 hours 시각입니다(낮 08:00부터).
+      await tester.ensureVisible(chip(AppTimeOfDay.day));
+      await tester.pumpAndSettle();
+      await tester.tap(chip(AppTimeOfDay.day));
+      await tester.pumpAndSettle();
+      final band = tester.widget<TimeBand>(find.byType(TimeBand));
+      expect(band.startTick.time, '08:00');
+      expect(band.boundaryTick.time, '22:00');
+      expect(band.cells.first.period, AppTimeOfDay.day);
+    });
+
+    testWidgets('낮 카드 hours가 없는 응답은 한국 시각 07:30에 밤 칩이 바뀝니다', (tester) async {
+      final json = dailyJson();
+      final cards = json['cards'] as Map<String, dynamic>;
+      (cards['focusTime'] as Map<String, dynamic>).remove('hours');
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          _dailyOf(json),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 29));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      final night = chip(AppTimeOfDay.night);
+      expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsOneWidget);
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await tester.pumpAndSettle();
+      expect(textIn(night, _ko.todayLuckyTimeNightTonight), findsOneWidget);
+    });
+
+    testWidgets('열린 시간 시트가 07:30을 넘어도 띠 순서와 고리는 연 때 그대로이고 지금 줄만 움직입니다', (
+      tester,
+    ) async {
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          _dailyOf(dailyJson()),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 29));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+      await tester.tap(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+      String order() => tester
+          .widget<TimeBand>(find.byType(TimeBand))
+          .cells
+          .map((cell) => cell.label)
+          .join();
+      List<(String, TimeBandPick)> picked() => [
+        for (final cell in tester.widget<TimeBand>(find.byType(TimeBand)).cells)
+          if (cell.pick case final pick?) (cell.label, pick),
+      ];
+      final openedOrder = order();
+      final openedPicks = picked();
+      // 밤 칩으로 열어 밤 시진이 연 칩 고리입니다(V124).
+      expect(openedPicks.first.$2, TimeBandPick.opened);
+      expect(openedPicks.last.$2, TimeBandPick.other);
+      // 연 때는 밤(전날 21:30부터)이 앞입니다.
+      expect(
+        tester.widget<TimeBand>(find.byType(TimeBand)).cells.first.period,
+        AppTimeOfDay.night,
+      );
+
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await tester.pumpAndSettle();
+      expect(order(), openedOrder);
+      expect(picked(), openedPicks);
+      expect(
+        tester.widget<TimeBand>(find.byType(TimeBand)).nowLabel,
+        _ko.todayLuckyTimeBandNow('07:30'),
+      );
+
+      // 열린 채 띠 끝(오늘 21:30)을 지나면 칸과 눈금은 연 때 응답 그대로이고 지금 줄만 없습니다
+      // (A140 ⑤).
+      minutes.add(DateTime.utc(2026, 10, 13, 21, 30));
+      await tester.pumpAndSettle();
+      expect(order(), openedOrder);
+      expect(picked(), openedPicks);
+      expect(find.byKey(TimeBand.nowLineKey), findsNothing);
+      expect(find.byKey(TimeBand.nowTagKey), findsNothing);
+    });
+
+    testWidgets('열린 밤 칩 시트가 자정을 넘겨도 띠와 근거는 연 때 응답 그대로입니다(A134 ⑧, A140 ⑤)', (
+      tester,
+    ) async {
+      final tomorrow = CalendarDate(2026, 10, 14);
+      // 다음 날 응답은 날짜가 다르고 근거가 열려 있으며 밤 카드 앞부분이 없습니다. 연 때 응답과
+      // 구별되어야 근거가 어느 응답에서 왔는지 압니다.
+      final nextDay = _NextDayDaily(tomorrow, (body) {
+        body['date'] = tomorrow.toIso();
+        body['evidenceAccess'] = 'unlocked';
+        final cards = Map<String, dynamic>.of(
+          (body['cards'] as Map).cast<String, dynamic>(),
+        );
+        final night = Map<String, dynamic>.of(
+          (cards['nightFocusTime'] as Map).cast<String, dynamic>(),
+        );
+        night['text'] = {
+          ...(night['text'] as Map).cast<String, dynamic>(),
+          'evidencePreview': const <Object?>[],
+        };
+        cards['nightFocusTime'] = night;
+        body['cards'] = cards;
+      });
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        network: nextDay,
+        overrides: [
+          todayProvider.overrideWith((ref) => ref.watch(_testTodayProvider)),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 23, 50));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+      await tester.tap(chip(AppTimeOfDay.night));
+      await tester.pumpAndSettle();
+
+      final opened = Daily.fromJson(memberDailyJson());
+      final origin =
+          (tester.widget<ExplainSheet>(find.byType(ExplainSheet)).content
+                  as ExplainLucky)
+              .origin!;
+      // 생성 모델은 목록을 값으로 비교하지 않으므로 JSON으로 비교합니다.
+      List<Object?> json(List<EvidencePreview> previews) => [
+        for (final preview in previews) preview.toJson(),
+      ];
+      final openedPreview = json(
+        dailySlotText(opened, origin.slotId)!.evidencePreview!,
+      );
+      expect(openedPreview, isNotEmpty);
+      List<String> band() => [
+        for (final cell in tester.widget<TimeBand>(find.byType(TimeBand)).cells)
+          '${cell.label}:${cell.period}:${cell.pick}',
+      ];
+      final openedBand = band();
+      // 근거 시트가 열린 것처럼 잠금 해제 흐름을 구독합니다. 연 날에는 광고를 불러 둬 버튼이 켜집니다.
+      final unlock = evidenceUnlockControllerProvider(origin.subject);
+      final unlockSubscription = container.listen(unlock, (_, _) {});
+      addTearDown(unlockSubscription.close);
+      await pumpUntil(
+        tester,
+        () => container.read(unlock).adReady,
+        allowOngoing: true,
+      );
+      final ads = container.read(adsProvider) as FakeAds;
+      final adRequests = ads.rewardedUserIds.length;
+      void expectOpenedDay(String when) {
+        expect(find.byType(TimeBand), findsOneWidget, reason: when);
+        expect(band(), openedBand, reason: when);
+        expect(
+          container.read(origin.subject.access).value,
+          EvidenceAccess.locked,
+          reason: when,
+        );
+        expect(
+          json(container.read(origin.subject.previewOf(origin.slotId))),
+          openedPreview,
+          reason: when,
+        );
+        // 날짜가 바뀐 뒤에는 광고로 풀어도 다른 날 응답이라 버튼을 끄고 광고를 더 묻지 않습니다
+        // (A141 ④, 다음 날을 받는 중이나 받지 못한 뒤에도 Riverpod이 남긴 전날 값과 상관없이).
+        expect(container.read(unlock).adReady, isFalse, reason: when);
+        expect(
+          container.read(unlock).link,
+          DepthLinkState.lockedNoAd,
+          reason: when,
+        );
+        expect(ads.rewardedUserIds, hasLength(adRequests), reason: when);
+      }
+
+      // 자정: 다음 날 응답을 붙잡아 둔 동안.
+      nextDay
+        ..hold = Completer<void>()
+        ..fail = true;
+      container.read(_testTodayProvider.notifier).moveTo(tomorrow);
+      minutes.add(DateTime.utc(2026, 10, 14));
+      await pumpUntil(tester, () => nextDay.requests > 0, allowOngoing: true);
+      await tester.pump(const Duration(milliseconds: 400));
+      expectOpenedDay('다음 날 응답을 붙잡아 둔 동안');
+
+      // 받기가 실패한 뒤(자정에 오프라인).
+      nextDay.hold!.complete();
+      nextDay.hold = null;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(container.read(dailyControllerProvider).hasError, isTrue);
+      expectOpenedDay('다음 날 응답을 받지 못한 뒤');
+
+      // 다음 날 응답이 온 뒤에도 연 때 응답 그대로입니다.
+      nextDay.fail = false;
+      container.invalidate(dailyControllerProvider);
+      await pumpUntil(
+        tester,
+        () =>
+            container.read(dailyControllerProvider).value?.daily.date ==
+            tomorrow.toIso(),
+        allowOngoing: true,
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        container.read(dailyControllerProvider).value?.daily.evidenceAccess,
+        EvidenceAccess.unlocked,
+      );
+      expectOpenedDay('다음 날 응답이 온 뒤');
+    });
+
+    testWidgets('밤 카드가 응답에 없으면 밤 칩만 그리지 않습니다', (tester) async {
+      final json = memberDailyJson();
+      (json['cards'] as Map<String, dynamic>)
+        ..remove('nightFocusTime')
+        ..remove('previousNightFocusTime');
+      await pumpApp(tester, scenario: 'member', overrides: [_dailyOf(json)]);
+      await _settleToday(tester);
+      expect(chip(AppTimeOfDay.day), findsOneWidget);
+      expect(chip(AppTimeOfDay.night), findsNothing);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+
+    testWidgets('낮과 밤 칩은 각자 시트를 열고 띠와 그 카드의 근거 진입점을 둡니다', (tester) async {
+      final sheets = _SheetLog();
+      await pumpApp(tester, scenario: 'member', overrides: [sheets.override]);
+      await _settleToday(tester);
+      final daily = Daily.fromJson(memberDailyJson());
+      for (final (period, title, text, card) in [
+        (
+          AppTimeOfDay.day,
+          _ko.todayLuckyTimeDayTitle,
+          daily.cards.focusTime.text,
+          'focusTime',
+        ),
+        // 정오(대역 시계)라 오늘 밤 카드입니다.
+        (
+          AppTimeOfDay.night,
+          _ko.todayLuckyTimeNightTitle,
+          daily.cards.nightFocusTime!.text,
+          'nightFocusTime',
+        ),
+      ]) {
+        await tester.ensureVisible(chip(period));
+        await tester.pumpAndSettle();
+        await tester.tap(chip(period));
+        await tester.pumpAndSettle();
+        final lucky = sheets.explained.last as ExplainLucky;
+        expect(lucky.title, title, reason: period.name);
+        expect(lucky.body.toJson(), text.text.toJson(), reason: period.name);
+        expect(
+          lucky.attachment,
+          isA<TodayTimeBand>().having(
+            (band) => band.beforeDayStart,
+            'beforeDayStart',
+            isFalse,
+          ),
+          reason: period.name,
+        );
+        expect(lucky.attachmentGap, TimeBand.sheetGap, reason: period.name);
+        expect(lucky.origin?.slotId, '${text.slot}#$card', reason: period.name);
+        await closeSheet(tester, find.text('explain-body'));
+      }
+    });
+
+    testWidgets('방향과 숫자 시트에는 띠와 근거 진입점이 없습니다(V118)', (tester) async {
+      final sheets = _SheetLog();
+      await pumpApp(tester, scenario: 'member', overrides: [sheets.override]);
+      await _settleToday(tester);
+      final number = find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.number));
+      await tester.ensureVisible(number);
+      await tester.pumpAndSettle();
+      await tester.tap(number);
+      await tester.pumpAndSettle();
+      final lucky = sheets.explained.last as ExplainLucky;
+      expect(lucky.attachment, isNull);
+      expect(lucky.origin, isNull);
+    });
+  });
+
+  group('행운 색 시트(D119 ②, D123 ①②, V114, V118)', () {
+    Finder colorChip() =>
+        find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color));
+
+    testWidgets('색이 하나인 날 시트는 본문 아래 첫째 색 카드의 근거 진입점을 둡니다(V118)', (
+      tester,
+    ) async {
+      final sheets = _SheetLog();
+      await pumpApp(tester, scenario: 'member', overrides: [sheets.override]);
+      await _settleToday(tester);
+      await tester.ensureVisible(colorChip());
+      await tester.pumpAndSettle();
+      await tester.tap(colorChip());
+      await tester.pumpAndSettle();
+      final lucky = sheets.explained.last as ExplainLucky;
+      final daily = Daily.fromJson(memberDailyJson());
+      expect(lucky.title, _ko.todayLuckyColorName);
+      expect(lucky.body.toJson(), daily.cards.color.text.text.toJson());
+      expect(lucky.attachment, isNull);
+      expect(lucky.origin?.slotId, 'daily.color#color');
+      expect(lucky.origin?.subject, isA<DailyEvidenceSubject>());
+    });
+
+    testWidgets('색이 둘인 날은 칩 하나가 두 칸이고 어느 칸이든 같은 두 색 시트를 엽니다', (tester) async {
+      final sheets = _SheetLog();
+      final json = dailyFixtureJson('daily-pair-virtue');
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [sheets.override, _dailyOf(json)],
+      );
+      await _settleToday(tester);
+      final daily = Daily.fromJson(json);
+      expect(colorChip(), findsOneWidget);
+      for (final index in [0, 1]) {
+        final half = find.byKey(LuckyChip.pairHalfKey(index));
+        await tester.ensureVisible(half);
+        await tester.pumpAndSettle();
+        await tester.tap(half);
+        await tester.pumpAndSettle();
+        final pair = sheets.explained.last as ExplainLuckyColorPair;
+        expect(pair.title, _ko.todayLuckyColorName, reason: '$index');
+        expect(pair.intro, _ko.todayLuckyColorPairIntro, reason: '$index');
+        final [first, second] = pair.sections;
+        expect(first.element, daily.cards.color.element);
+        expect(first.body.toJson(), daily.cards.color.text.text.toJson());
+        expect(first.bodySlotId, SlotIds.todayLuckyColorBody);
+        expect(first.origin.slotId, 'daily.color#color');
+        expect(second.element, daily.cards.secondColor!.element);
+        expect(
+          second.body.toJson(),
+          daily.cards.secondColor!.text.text.toJson(),
+        );
+        expect(second.bodySlotId, SlotIds.todayLuckyColorSecondBody);
+        expect(second.origin.slotId, 'daily.color#secondColor');
+        expect(first.name, isNot(second.name));
+        await closeSheet(tester, find.text('explain-body'));
+      }
+    });
+
+    testWidgets('둘째 색이 없는 응답은 한 칸 칩이고 오류가 아닙니다', (tester) async {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      (json['cards'] as Map<String, dynamic>).remove('secondColor');
+      await pumpApp(tester, scenario: 'member', overrides: [_dailyOf(json)]);
+      await _settleToday(tester);
+      expect(colorChip(), findsOneWidget);
+      expect(find.byKey(LuckyChip.pairHalfKey(0)), findsNothing);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+  });
+
+  group('날짜 머리 덕일(D124 ⑤, V119)', () {
+    /// 날짜 머리 안의 덕일 알약.
+    Finder virtuePills() => find.descendant(
+      of: find.byType(DateHeader),
+      matching: find.byType(HanjaTag),
+    );
+
+    HanjaTag pill(WidgetTester tester, int index) =>
+        tester.widget<HanjaTag>(virtuePills().at(index));
+
+    testWidgets('덕일이 아닌 날(member)은 날짜 머리에 알약이 없습니다', (tester) async {
+      await pumpApp(tester, scenario: 'member');
+      await _settleToday(tester);
+      expect(find.byType(DateHeader), findsOneWidget);
+      expect(virtuePills(), findsNothing);
+    });
+
+    testWidgets('천덕일과 월덕일인 날은 일진 뒤 compact 길 톤 알약 둘(응답 순서)입니다', (tester) async {
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [_dailyOf(dailyFixtureJson('daily-pair-virtue'))],
+      );
+      await _settleToday(tester);
+      expect(virtuePills(), findsNWidgets(2));
+      expect(pill(tester, 0).label, _ko.todayDateVirtueCheondeok);
+      expect(pill(tester, 1).label, _ko.todayDateVirtueWoldeok);
+      for (final index in [0, 1]) {
+        expect(pill(tester, index).size, HanjaTagSize.compact);
+        expect(pill(tester, index).tone, HanjaTagTone.good);
+        expect(pill(tester, index).glyph, '德');
+      }
+      final iljin = tester.getRect(find.byKey(DateHeader.iljinKey));
+      expect(
+        tester.getRect(virtuePills().first).left,
+        greaterThan(iljin.right),
+      );
+    });
+
+    testWidgets('모르는 덕은 건너뛰고 오류가 아닙니다', (tester) async {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      final virtues = (json['dayVirtues'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      json['dayVirtues'] = [
+        {...virtues.first, 'kind': 'samhap_day'},
+        virtues.last,
+      ];
+      await pumpApp(tester, scenario: 'member', overrides: [_dailyOf(json)]);
+      await _settleToday(tester);
+      expect(virtuePills(), findsOneWidget);
+      expect(pill(tester, 0).label, _ko.todayDateVirtueWoldeok);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+
+    testWidgets('알약을 누르면 그 덕의 풀이 시트이고 열린 동안 selected입니다', (tester) async {
+      final sheets = _SheetLog();
+      final json = dailyFixtureJson('daily-pair-virtue');
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [sheets.override, _dailyOf(json)],
+      );
+      await _settleToday(tester);
+      final daily = Daily.fromJson(json);
+      for (final (index, label, slotId) in [
+        (0, _ko.todayDateVirtueCheondeok, 'explain.day_virtue#cheondeok_day'),
+        (1, _ko.todayDateVirtueWoldeok, 'explain.day_virtue#woldeok_day'),
+      ]) {
+        await tester.tap(virtuePills().at(index));
+        await tester.pumpAndSettle();
+        final virtue = sheets.explained.last as ExplainDayVirtue;
+        expect(virtue.title, label);
+        expect(
+          virtue.body.toJson(),
+          daily.dayVirtues[index].text.text.toJson(),
+        );
+        expect(virtue.origin.slotId, slotId);
+        expect(virtue.origin.subject, isA<DailyEvidenceSubject>());
+        expect(sheets.explainHeads.last, isNull);
+        expect(pill(tester, index).variant, HanjaTagVariant.selected);
+        expect(pill(tester, 1 - index).variant, HanjaTagVariant.normal);
+        await closeSheet(tester, find.text('explain-body'));
+        expect(pill(tester, index).variant, HanjaTagVariant.normal);
+      }
+    });
+
+    testWidgets('알약 아래 넓힌 자리를 눌러도 풀이 시트가 열립니다(터치 높이 44)', (tester) async {
+      final sheets = _SheetLog();
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          sheets.override,
+          _dailyOf(dailyFixtureJson('daily-pair-virtue')),
+        ],
+      );
+      await _settleToday(tester);
+      final rect = tester.getRect(
+        find.descendant(
+          of: virtuePills().last,
+          matching: find.byKey(HanjaTag.surfaceKey),
+        ),
+      );
+      await tester.tapAt(Offset(rect.center.dx, rect.bottom + 10));
+      await tester.pumpAndSettle();
+      expect(
+        (sheets.explained.last as ExplainDayVirtue).title,
+        _ko.todayDateVirtueWoldeok,
+      );
     });
   });
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
@@ -24,14 +25,17 @@ import 'package:myungli_diary/features/depth/application/personal_reading_key.da
 import 'package:myungli_diary/features/depth/presentation/unlock_until_text.dart';
 import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 
-/// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다.
+/// 근거 시트(`evidence-sheet`) 본문. [slotId] 슬롯의 근거를 보입니다. [slotId]는 슬롯 id 또는
+/// 오늘 행운 카드의 카드 id(`<슬롯>#<카드 필드>`, `dailyCardSlotId`, A134)입니다.
 ///
 /// 근거를 담은 응답([EvidenceSubject])의 `evidenceAccess`와 잠금 해제 흐름
 /// ([EvidenceUnlockController])을 [EvidenceSheetBody]에 넘깁니다. 시트가 열리면 광고를 미리
 /// 불러 두고, 닫히면 흐름이 버려져 권한 묻기가 멈추고 toast도 뜨지 않습니다.
 ///
 /// 판정 근거·원전 문장은 [slotId] 슬롯 근거(`evidence[]`)의 `basis`·`source`를 순서대로 넘기고,
-/// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 근거는 열렸을 때(`unlocked`이고 다시
+/// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 원전은 같은 `sourceRef`를 처음
+/// 한 번만 그립니다(#924). 문장 자체가 근거인 슬롯(용신 판정 근거)은 근거 목록 대신 그 문장을
+/// 판정 근거 문단 하나로 보이고 원전 구역을 두지 않습니다(A129, #931). 근거는 열렸을 때(`unlocked`이고 다시
 /// 받는 중이 아님)만 읽으므로 잠긴 시트는 문장을 받지도 그리지도 않습니다(D60).
 ///
 /// [personal]이 있으면(사주 표 칸 용어에서 연 시트, A58) "내 사주에서는" 구역 하나만 두고(판정
@@ -55,6 +59,7 @@ class EvidenceSheet extends ConsumerStatefulWidget {
     required this.slotId,
     this.personal,
     this.target = EvidenceTarget.none,
+    this.subject,
     super.key,
   });
 
@@ -67,15 +72,18 @@ class EvidenceSheet extends ConsumerStatefulWidget {
   /// 시트 위 대상(그 문장을 정한 태그와 대상 문장). 용어나 사주 표에서 열면 없습니다.
   final EvidenceTarget target;
 
+  /// 근거를 담은 응답. 여는 쪽이 시트를 연 때의 응답을 담아 넘기고(A141), 없으면 [slotId]와
+  /// [personal]로 정합니다([evidenceSubjectFor]).
+  final EvidenceSubject? subject;
+
   @override
   ConsumerState<EvidenceSheet> createState() => _EvidenceSheetState();
 }
 
 class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
-  late final EvidenceSubject _subject = evidenceSubjectFor(
-    widget.slotId,
-    personal: widget.personal,
-  );
+  late final EvidenceSubject _subject =
+      widget.subject ??
+      evidenceSubjectFor(widget.slotId, personal: widget.personal);
 
   StreamSubscription<UnlockEvent>? _events;
 
@@ -88,12 +96,20 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
   /// `unlock.glint` `stopWhen`). 다음에 여는 시트는 새 흐름이라 응답대로 잠깁니다.
   List<Evidence> _heldEvidence = const [];
   RenderedText? _heldPersonal;
+  RenderedText? _heldSentence;
+
+  /// 문장 자체가 근거인 슬롯이면 그 문장의 provider(A129, #931). 아니면 null입니다.
+  late final ProviderListenable<SentenceEvidence>? _sentenceSource = _subject
+      .sentenceEvidenceOf(widget.slotId);
 
   /// 열림 꼬리표에 보인 권한. 한 번 알면 시트를 닫을 때까지 그대로 두고 다시 묻지 않습니다.
   Insight? _tagInsight;
 
   /// initState가 끝났는지. 그 전(구독의 첫 알림)에는 setState 없이 값만 둡니다.
   bool _initialized = false;
+
+  /// 문장 자체가 근거인 슬롯이 열렸는데 문장이 없어 시트를 닫았는지(한 번만 닫음).
+  bool _closedWithoutSentence = false;
 
   /// 꼬리표 권한을 기다리는 구독. 권한을 알면 닫습니다.
   ProviderSubscription<AsyncValue<Insight?>>? _tagSubscription;
@@ -106,6 +122,14 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
       final evidence = next.value;
       if (evidence != null && _accessUnlocked) _heldEvidence = evidence;
     }, fireImmediately: true);
+    final sentenceSource = _sentenceSource;
+    if (sentenceSource != null) {
+      ref.listenManual(sentenceSource, (_, next) {
+        if (next.sentence != null && _accessUnlocked) {
+          _heldSentence = next.sentence;
+        }
+      }, fireImmediately: true);
+    }
     final personalKey = widget.personal;
     if (personalKey != null) {
       ref.listenManual(_subject.personalOf(personalKey), (_, next) {
@@ -216,13 +240,26 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     final previews = locked
         ? ref.watch(_subject.previewOf(widget.slotId))
         : const <EvidencePreview>[];
+    // 문장 자체가 근거인 슬롯(용신 판정 근거): 그 문장을 판정 근거 문단으로, 원전 구역은 없음.
+    final sentenceSource = _sentenceSource;
+    final sentence = sentenceSource == null ? null : ref.watch(sentenceSource);
+    final sentenceBody = !opened || sentence == null
+        ? null
+        : live
+        ? sentence.sentence ?? _heldSentence
+        : _heldSentence;
+    // 열렸는데 그 문장이 없으면(계약상 `Yongsin.basis`는 선택값) 보일 것이 없어 시트를 닫고
+    // 사주 표로 돌아갑니다. 빈 시트를 남기지 않기 위해서입니다(A129 ⑤).
+    if (sentence != null && opened && sentenceBody == null) {
+      _closeWithoutSentence();
+    }
     final target = widget.target;
     final unlockTag = opened
         ? unlockUntilText(l10n, _tagInsight, ref.watch(profileTimezoneProvider))
         : null;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
-      onRetry: () => unawaited(controller.retry()),
+      onRetry: controller.retry,
       // 권한을 읽는 동안: 제목과 구역 제목은 UI 글자라 그대로, 구역 본문 자리만 뼈입니다
       // (받는 중 모양과 같은 배치, V66). 열람 상태를 아직 몰라 안내 영역은 두지 않습니다.
       skeleton: EvidenceSheetBody(
@@ -232,6 +269,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         target: target.sentence,
         showPersonal: personalKey != null,
         showJudgment: personalKey == null,
+        showSource: sentenceSource == null,
         loading: true,
       ),
       dataWithNotice: (state, _) => EvidenceSheetBody(
@@ -240,9 +278,13 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         titleSlotId: SlotIds.evidenceSheetSheetTitle,
         targetTags: target.tags,
         target: target.sentence,
-        basis: _sentences(evidence.map((item) => item.basis)),
-        source: _sentences(evidence.map((item) => item.source_)),
-        basisLead: _sentences(previews.map((item) => item.basis)).firstOrNull,
+        basis: sentence != null
+            ? [?sentenceBody]
+            : _sentences(evidence.map((item) => item.basis)),
+        source: sentence != null ? const [] : _sourcesOnce(evidence),
+        basisLead: sentence != null
+            ? (locked ? sentence.lead : null)
+            : _sentences(previews.map((item) => item.basis)).firstOrNull,
         sourceLead: _sentences(previews.map((item) => item.source_))
             .firstOrNull,
         personal: personal == null || isBlankText(personal) ? null : personal,
@@ -250,6 +292,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         // 표 칸의 시트는 판정 근거·원전이 없는 자리라 내 사주에서는 구역 하나이고, 열렸는데
         // 그 자리의 해석이 없으면(원고 없음) 빈 안내를 둡니다.
         showJudgment: personalKey == null,
+        showSource: sentenceSource == null,
         personalEmpty: personalKey == null
             ? null
             : l10n.evidenceSheetPersonalEmpty,
@@ -259,6 +302,29 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         onPass: _openAdFree,
       ),
     );
+  }
+
+  void _closeWithoutSentence() {
+    if (_closedWithoutSentence) return;
+    _closedWithoutSentence = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Navigator.of(context).maybePop();
+    });
+  }
+
+  /// 그릴 원전 문장. 판정 근거는 근거마다 그리지만, 원전은 같은 `sourceRef`(원전 목록 키)를
+  /// 처음 한 번만 그립니다(#924). 용신의 날 보조 문장처럼 서로 다른 판정 둘이 같은 원전에
+  /// 기댈 때 같은 원전 묶음이 두 번 나오지 않게 하기 위해서입니다. 받은 근거 목록은 바꾸지
+  /// 않고 그리는 단계에서만 거르며, 문장끼리 비교하지 않습니다. 원전 문장이 없는 근거는 그
+  /// 키를 차지하지 않아 뒤의 같은 키 근거의 원전이 그려집니다.
+  List<RenderedText> _sourcesOnce(List<Evidence> evidence) {
+    final drawnRefs = <String>{};
+    return [
+      for (final item in evidence)
+        if (item.source_ case final text?
+            when !isBlankText(text) && drawnRefs.add(item.sourceRef))
+          text,
+    ];
   }
 
   /// 근거 순서대로 문장만 남깁니다. 없거나 빈 문장은 건너뜁니다.

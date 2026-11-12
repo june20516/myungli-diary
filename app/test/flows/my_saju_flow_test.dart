@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
@@ -26,6 +29,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/features/me/application/diary_stats_provider.dart';
 import 'package:myungli_diary/features/me/presentation/my_saju_screen.dart';
 import 'package:myungli_diary/features/me/presentation/saju_chart_screen.dart';
@@ -46,11 +50,12 @@ Future<ProviderContainer> _openMe(
   Interceptor? network,
   bool settle = true,
   List<Override> overrides = const [],
+  Size physicalSize = const Size(1170, 9000),
 }) async {
-  // 다섯 섹션이 한 번에 놓이게 세로로 긴 화면을 씁니다(ListView는 화면 밖을 그리지 않음).
+  // 기본은 다섯 섹션이 한 번에 놓이게 세로로 긴 화면입니다(ListView는 화면 밖을 그리지 않음).
   tester.view
     ..devicePixelRatio = 3
-    ..physicalSize = const Size(1170, 9000);
+    ..physicalSize = physicalSize;
   addTearDown(tester.view.reset);
   final container = await pumpApp(
     tester,
@@ -117,12 +122,33 @@ final class _DiaryStatsNetwork extends Interceptor {
   /// 성공 응답의 자주 붙은 태그에 사전에 없는 태그([unknownTagKey])를 더할지.
   bool addUnknownTag = false;
 
+  /// 주면 이것이 끝날 때까지 집계 요청을 붙잡아 둡니다.
+  Completer<void>? gate;
+
+  /// 값이 있으면 성공 응답의 첫 자주 붙은 태그를 이 키(흉 태그)로 바꿉니다.
+  String? firstTagKey;
+
   @override
   void onResponse(
     Response<Object?> response,
     ResponseInterceptorHandler handler,
   ) {
     final data = response.data;
+    final firstTag = firstTagKey;
+    if (firstTag != null &&
+        response.requestOptions.path.endsWith('diary-stats') &&
+        data is Map) {
+      final map = Map<String, Object?>.of(data.cast<String, Object?>());
+      final top = [...(map['topTags']! as List<Object?>)];
+      top[0] = {
+        'tag': {'key': firstTag, 'polarity': 'bad'},
+        'days': 1,
+      };
+      map['topTags'] = top;
+      response.data = map;
+      handler.next(response);
+      return;
+    }
     if (addUnknownTag &&
         response.requestOptions.path.endsWith('diary-stats') &&
         data is Map) {
@@ -140,9 +166,13 @@ final class _DiaryStatsNetwork extends Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     if (options.path.endsWith('diary-stats')) {
       requests++;
+      await gate?.future;
       if (fail) {
         handler.reject(serviceUnavailable(options));
         return;
@@ -193,6 +223,39 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// 보통 크기 화면(390x844 논리 크기, #936).
+const Size _phone = Size(1170, 2532);
+
+/// 나 탭의 세로 스크롤 위치.
+ScrollPosition _meScroll(WidgetTester tester) => tester
+    .state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byKey(const ValueKey(ScreenIds.mySaju)),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    )
+    .position;
+
+/// 나 탭을 끝까지 내립니다.
+Future<void> _scrollMeToEnd(WidgetTester tester) async {
+  // 지연 생성 목록이라 끝이 늘어날 수 있어 끝에 닿을 때까지 거듭 내립니다.
+  for (var i = 0; i < 10; i++) {
+    final position = _meScroll(tester);
+    if (position.pixels >= position.maxScrollExtent) break;
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pump();
+  }
+}
+
+/// 회고 카드의 아래 끝이 하단 틀 위에 있는지.
+void _expectSummaryAboveBottomBar(WidgetTester tester) {
+  final summary = tester.getRect(find.byType(DiarySummary));
+  final bar = tester.getRect(find.byKey(const ValueKey('bottom-bar.surface')));
+  expect(summary.bottom, lessThanOrEqualTo(bar.top));
+}
+
 void main() {
   testWidgets('제목, 원국 카드, 용신 줄과 행운 색', (tester) async {
     covers(const Covers(decisions: ['D16']));
@@ -202,10 +265,14 @@ void main() {
       find.descendant(of: find.byType(SajuPillars), matching: find.text('庚')),
       findsWidgets,
     );
+    // 일주(庚) 칸 아래 원고 독음(경)이고, 스크린리더는 한자와 독음을 읽습니다(A133, W72).
+    final day = tester.widget<SajuPillars>(find.byType(SajuPillars)).day;
+    expect(day.stem?.reading, '경');
+    expect(day.semanticLabel, contains('庚 경'));
     expect(find.text('나와 잘 맞는 기운'), findsOneWidget);
     expect(find.text('수'), findsWidgets);
     final chip = tester.widget<LuckyChip>(find.byType(LuckyChip));
-    expect(chip.item.value, '남색');
+    expect(chip.item.value, '검정');
   });
 
   testWidgets('섹션 제목 다섯이 위에서 원국, 성향 풀이, 돕는 기운, 올해와 지금, 회고 순서입니다', (
@@ -386,10 +453,53 @@ void main() {
     await tester.tap(tag.first);
     await settleWithIo(tester);
     expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+    // 흉 신살이 아닌 태그(천을귀인)에는 마무리 한 줄이 없습니다(V120).
+    expect(find.byKey(WeighingNote.boxKey), findsNothing);
     final diaryLink = find.textContaining(_ko.explainSheetTagDiaryLink(name));
     expect(diaryLink, findsOneWidget);
     await tester.tap(diaryLink);
     await pumpUntilScreen(tester, ScreenIds.tagDiary);
+  });
+
+  testWidgets('D124 ⑦ 회고 태그 원진 元: 뜻 시트 뜻 아래 마무리 한 줄(V120)', (tester) async {
+    covers(const Covers(decisions: ['D124']));
+    await _openMe(
+      tester,
+      network: _DiaryStatsNetwork()
+        ..fail = false
+        ..firstTagKey = 'wonjin',
+    );
+    final summary = find.byType(DiarySummary);
+    await _reveal(tester, summary);
+    final tag = find.descendant(of: summary, matching: find.byType(HanjaTag));
+    final head = tester.widget<HanjaTag>(tag.first);
+    expect((head.glyph, head.label), ('元', '원진'));
+    await tester.tap(tag.first);
+    await settleWithIo(tester);
+    final sheet = find.byKey(const Key(ScreenIds.explainSheet));
+    final note = find.descendant(
+      of: sheet,
+      matching: find.byKey(WeighingNote.boxKey),
+    );
+    expect(
+      find.descendant(of: note, matching: find.text(_ko.shinsalWeighingNote)),
+      findsOneWidget,
+    );
+    final meaning = find.descendant(
+      of: sheet,
+      matching: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+    );
+    expect(
+      find.descendant(
+        of: meaning,
+        matching: find.textContaining('띠끼리 서로 꺼리는 사이', findRichText: true),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      tester.getRect(note).top - tester.getRect(meaning).bottom,
+      moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
+    );
   });
 
   testWidgets('회고 집계 실패: 회고 카드 자리에만 오류와 다시 시도, 다른 섹션은 그대로(A119)', (
@@ -416,6 +526,46 @@ void main() {
     expect(network.requests, before + 1);
     expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
     expect(find.byType(DiarySummary), findsOneWidget);
+  });
+
+  testWidgets('회고 다시 시도: 누른 직후 skeleton, 곧바로 실패해도 최소 시간 뒤 오류(A126 ①)', (
+    tester,
+  ) async {
+    final network = _DiaryStatsNetwork();
+    await _openMe(tester, network: network);
+    final error = find.byKey(MySajuScreen.recordErrorKey);
+    await _reveal(tester, error);
+    expect(error, findsOneWidget);
+
+    // 받는 동안: 누른 직후부터 skeleton이고 이전 오류를 다시 비추지 않습니다.
+    final gate = Completer<void>();
+    network.gate = gate;
+    await tester.tap(
+      find.descendant(of: error, matching: find.text(_ko.actionRetry)),
+    );
+    await tester.pump(Duration.zero);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
+    expect(find.byType(SkeletonBone), findsWidgets);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
+    expect(find.byType(SkeletonBone), findsWidgets);
+    gate.complete();
+    network.gate = null;
+    await settleWithIo(tester);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsOneWidget);
+
+    // 곧바로 실패해도 누른 것이 보이게 최소 시간만큼 skeleton입니다.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(MySajuScreen.recordErrorKey),
+        matching: find.text(_ko.actionRetry),
+      ),
+    );
+    await tester.pump(Duration.zero);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsNothing);
+    expect(find.byType(SkeletonBone), findsWidgets);
+    await settleWithIo(tester);
+    expect(find.byKey(MySajuScreen.recordErrorKey), findsOneWidget);
   });
 
   testWidgets('대운과 세운 기간 줄은 fixture 출생 연도(1990) 기준 한국식 나이입니다', (tester) async {
@@ -519,5 +669,62 @@ void main() {
     );
     await settleWithIo(tester);
     expect(find.byType(OhaengCell), findsWidgets);
+  });
+
+  group('보통 크기 화면(390x844)에서 끝의 회고(#936)', () {
+    testWidgets('탭을 열면 내리지 않아도 집계를 한 번 받고, 위아래로 오가도 다시 받지 않습니다', (
+      tester,
+    ) async {
+      final network = _DiaryStatsNetwork()..fail = false;
+      await _openMe(tester, network: network, physicalSize: _phone);
+      expect(network.requests, 1);
+
+      await _scrollMeToEnd(tester);
+      await settleWithIo(tester);
+      final position = _meScroll(tester);
+      expect(position.pixels, position.maxScrollExtent);
+      _expectSummaryAboveBottomBar(tester);
+
+      position.jumpTo(0);
+      await settleWithIo(tester);
+      await _scrollMeToEnd(tester);
+      await settleWithIo(tester);
+      expect(network.requests, 1);
+      expect(_meScroll(tester).pixels, _meScroll(tester).maxScrollExtent);
+      _expectSummaryAboveBottomBar(tester);
+    });
+
+    testWidgets('응답 전에 끝에 닿아도 응답 뒤 새 끝에 붙어 회고가 하단 틀에 가리지 않습니다', (tester) async {
+      final network = _DiaryStatsNetwork()
+        ..fail = false
+        ..gate = Completer<void>();
+      await _openMe(
+        tester,
+        network: network,
+        physicalSize: _phone,
+        settle: false,
+      );
+      await pumpUntil(
+        tester,
+        () => find.byType(OhaengCell).evaluate().isNotEmpty,
+        allowOngoing: true,
+      );
+      await _scrollMeToEnd(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(DiarySummary), findsNothing);
+      expect(_meScroll(tester).pixels, _meScroll(tester).maxScrollExtent);
+
+      network.gate!.complete();
+      await pumpUntil(
+        tester,
+        () => find.byType(DiarySummary).evaluate().isNotEmpty,
+        allowOngoing: true,
+      );
+      await settleWithIo(tester);
+      final position = _meScroll(tester);
+      expect(position.pixels, position.maxScrollExtent);
+      _expectSummaryAboveBottomBar(tester);
+      expect(network.requests, 1);
+    });
   });
 }

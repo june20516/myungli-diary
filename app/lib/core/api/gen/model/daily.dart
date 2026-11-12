@@ -3,17 +3,18 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
 import 'package:myungli_diary/core/api/gen/model/relation.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
-import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/fortune.dart';
 import 'package:myungli_diary/core/api/gen/model/notice.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god.dart';
-import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/api/gen/model/day_tags.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue.dart';
+import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
+import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -61,6 +62,8 @@ class Daily {
     required this.relations,
 
     required this.notices,
+
+    required this.dayVirtues,
   });
 
   @JsonKey(name: r'date', required: true, includeIfNull: false)
@@ -112,6 +115,9 @@ class Daily {
   @JsonKey(name: r'notices', required: true, includeIfNull: false)
   final List<Notice> notices;
 
+  @JsonKey(name: r'dayVirtues', required: true, includeIfNull: false)
+  final List<DayVirtue> dayVirtues;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -131,7 +137,8 @@ class Daily {
           other.cards == cards &&
           other.tags == tags &&
           other.relations == relations &&
-          other.notices == notices;
+          other.notices == notices &&
+          other.dayVirtues == dayVirtues;
 
   @override
   int get hashCode =>
@@ -150,7 +157,8 @@ class Daily {
       cards.hashCode +
       tags.hashCode +
       relations.hashCode +
-      notices.hashCode;
+      notices.hashCode +
+      dayVirtues.hashCode;
 
   factory Daily.fromJson(Map<String, dynamic> json) => _$DailyFromJson(json);
 

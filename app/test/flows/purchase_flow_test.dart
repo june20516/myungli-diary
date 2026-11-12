@@ -178,6 +178,47 @@ void main() {
     expect(find.text(_ko.noticeOffline), findsOneWidget);
   });
 
+  testWidgets(
+    '살 수 있는 상품이 없으면 오류가 아니고 안내 한 줄의 unavailable 카드, 구매 내역으로 갈 수 있다(#922, V123)',
+    (tester) async {
+      final crash = FakeCrashReporter();
+      final container = await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          purchasesProvider.overrideWithValue(FakePurchases(catalog: const [])),
+          crashReporterProvider.overrideWithValue(crash),
+        ],
+      );
+      unawaited(
+        container.read(routerProvider).push<void>(pathOf(ScreenIds.adFree)),
+      );
+      await pumpUntilScreen(tester, ScreenIds.adFree);
+      await settleWithIo(tester);
+
+      expect(find.byKey(const ValueKey('screen-state.error')), findsNothing);
+      expect(find.text(_ko.actionRetry), findsNothing);
+      expect(find.text(_ko.noticeOffline), findsNothing);
+      expect(find.byKey(OfferCard.cardKey), findsOneWidget);
+      expect(find.byKey(OfferCard.buyKey), findsNothing);
+      expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
+      // 가격과 기간 고지, 구매 버튼 대신 안내 한 줄입니다(IA ad-free empty).
+      expect(find.text(_ko.adFreeOfferPeriod), findsNothing);
+      expect(find.text(_ko.adFreeUnavailableBody), findsOneWidget);
+      expect(
+        find.text(_ko.adFreeLegalNotice, findRichText: true),
+        findsWidgets,
+      );
+      expect(crash.errors, isEmpty);
+
+      await _openHistory(tester);
+      expect(
+        find.byKey(const ValueKey(ScreenIds.purchaseHistory)),
+        findsOneWidget,
+      );
+    },
+  );
+
   testWidgets('광고 제거 구매 성공 뒤 설정 줄이 남은 기간으로 바뀐다', (tester) async {
     covers(const Covers(decisions: ['D53']));
     final purchases = FakePurchases();

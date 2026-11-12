@@ -210,8 +210,9 @@ void main() {
     final block = tester.widget<DateBlock>(find.byType(DateBlock));
     expect(block.day, _ko.diaryEditDateDay('13'));
     expect(block.monthWeekday, _ko.diaryEditDateMonth('10월 화요일'));
-    // member 그날 일진은 경신(庚申)입니다.
-    expect(block.iljin, _ko.diaryEditDateIljin('庚申(경신)'));
+    // member 그날 일진은 庚申입니다. 한자 뒤 괄호 독음, 스크린리더는 독음만입니다(W72, A133).
+    expect(block.iljin?.shown, _ko.diaryEditDateIljin('庚申(경신)'));
+    expect(block.iljin?.spoken, _ko.diaryEditDateIljin('경신'));
     expect(
       tester.getTopLeft(find.byKey(DiaryEditor.paperKey)).dy,
       greaterThan(tester.getBottomLeft(find.byType(DateBlock)).dy),

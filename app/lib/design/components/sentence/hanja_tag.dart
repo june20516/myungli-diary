@@ -26,11 +26,24 @@ enum HanjaTagTone {
   /// 평범한 날(바탕 없음, 1px 테두리).
   ordinary,
 
-  /// 길흉 톤 좋음(`tag.good.*`). `fortune-verdict`와 `score-row` 안에서만 씁니다.
+  /// 길흉 톤 좋음(`tag.good.*`). 계약 `tone.toneAllowedIn` 부모
+  /// (`fortune-verdict`, `score-row`, `date-header`) 안에서만 씁니다. 날짜 머리
+  /// 덕일은 이 톤 하나입니다(V119).
   good,
 
-  /// 길흉 톤 나쁨(`tag.bad.*`). `fortune-verdict`와 `score-row` 안에서만 씁니다.
+  /// 길흉 톤 나쁨(`tag.bad.*`). 계약 `tone.toneAllowedIn` 부모 안에서만 씁니다.
   bad,
+}
+
+/// `hanja-tag` 크기. 계약 변형 `compact`는 모양, 누름, 스크린리더가 기본과 같고 크기만 달라
+/// 색 변형([HanjaTagVariant], 예 열린 동안 `selected`)과 함께 쓸 수 있도록 따로 둡니다.
+enum HanjaTagSize {
+  /// 기본 크기(알약 30, 한자 원 22, 이름 `type.label.md`).
+  regular,
+
+  /// 글줄 안 작은 크기(`compact`, 알약 22, 한자 원 16, 이름 `type.caption.md`). 지금은 오늘 날짜
+  /// 머리의 덕일에만 씁니다(D124 ⑤, V119).
+  compact,
 }
 
 /// `hanja-tag` 변형. 계약 변형 id `default`는 Dart 예약어라 [normal]로 씁니다.
@@ -54,7 +67,8 @@ enum HanjaTagVariant {
 /// (`press.ink`, 눌림 영역은 위아래로 44까지)이고, 없으면 누를 수 없는 표시입니다
 /// (근거 시트·사주 기운 시트 머리, 색 규칙 시트 점수 항목, 시진 태그). 한자 원은
 /// 장식이라 스크린리더는 [label]만 읽습니다. 길흉은 이름 낱말로 전하고 색만으로 전하지
-/// 않습니다.
+/// 않습니다. [size]가 [HanjaTagSize.compact]면 글줄 안 작은 크기(알약 22)이고, 눌림 영역은
+/// 같은 44입니다.
 class HanjaTag extends StatelessWidget {
   /// 태그를 만듭니다.
   const new({
@@ -62,6 +76,7 @@ class HanjaTag extends StatelessWidget {
     required this.label,
     this.tone = HanjaTagTone.term,
     this.variant = HanjaTagVariant.normal,
+    this.size = HanjaTagSize.regular,
     this.trailing,
     this.onTap,
     super.key,
@@ -76,7 +91,7 @@ class HanjaTag extends StatelessWidget {
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec(
     'hanja-tag',
-    {'default', 'emphasis', 'selected', 'ganji'},
+    {'default', 'emphasis', 'selected', 'ganji', 'compact'},
     {'loading', 'pressed'},
   );
 
@@ -104,6 +119,22 @@ class HanjaTag extends StatelessWidget {
 
   /// 한자 원과 이름 사이. 계약 `hanja-tag.parts.pill.gap`(`space.4`).
   static const double gap = Space.s4;
+
+  /// `compact` 알약 높이. 계약 `hanja-tag.variants.compact` `pill.height`.
+  static const double compactHeight = 22;
+
+  /// `compact` 한자 원 지름. 계약 `variants.compact` `glyph.size`.
+  static const double compactGlyphSize = 16;
+
+  /// `compact` 한자 크기. 계약 `variants.compact` `glyph.fontSize`.
+  static const double compactGlyphFontSize = 10;
+
+  /// `compact` 알약 오른쪽 안쪽 여백. 계약 `variants.compact`
+  /// `pill.paddingEnd`(`space.8`). 왼쪽은 기본과 같은 [paddingStart]입니다.
+  static const double compactPaddingEnd = Space.s8;
+
+  /// `compact` 한자 원과 이름 사이. 계약 `variants.compact` `pill.gap`(`space.2`).
+  static const double compactGap = Space.s2;
 
   /// 선택 둘레 굵기. 계약 `hanja-tag.variants.selected` `pill.border.width`.
   static const double selectedBorderWidth = 1.5;
@@ -148,6 +179,9 @@ class HanjaTag extends StatelessWidget {
 
   /// 변형.
   final HanjaTagVariant variant;
+
+  /// 크기. [HanjaTagSize.compact]는 글줄 안 작은 크기입니다.
+  final HanjaTagSize size;
 
   /// 이름 뒤 `space.4`에 붙는 수 글자(`diary-summary` `tags.count`: `type.label.md`
   /// `text.secondary` 고정폭). null이면 그리지 않습니다. 스크린리더는 이름 뒤에 이어 읽습니다.
@@ -218,6 +252,11 @@ class HanjaTag extends StatelessWidget {
     final tokens = context.tokens;
     final colors = _colors(tokens.colors);
     final selected = variant == HanjaTagVariant.selected;
+    final compact = size == HanjaTagSize.compact;
+    final nameStyle = compact
+        ? tokens.typography.captionMd
+        : tokens.typography.labelMd;
+    final gap = compact ? compactGap : HanjaTag.gap;
     const radius = BorderRadius.all(Radius.circular(Radii.full));
 
     final pill = DecoratedBox(
@@ -236,31 +275,38 @@ class HanjaTag extends StatelessWidget {
             : Border.all(color: colors.border!),
       ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: height),
+        constraints: BoxConstraints(
+          minHeight: compact ? compactHeight : height,
+        ),
         child: Padding(
-          padding: const EdgeInsetsDirectional.only(
+          padding: EdgeInsetsDirectional.only(
             start: paddingStart,
-            end: paddingEnd,
+            end: compact ? compactPaddingEnd : paddingEnd,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _GlyphCircle(glyph: glyph, color: colors.glyph),
-              const SizedBox(width: gap),
+              _GlyphCircle(
+                glyph: glyph,
+                color: colors.glyph,
+                diameter: compact ? compactGlyphSize : glyphSize,
+                fontSize: compact ? compactGlyphFontSize : glyphFontSize,
+              ),
+              SizedBox(width: gap),
               Flexible(
                 child: Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: tokens.typography.labelMd.copyWith(color: colors.fg),
+                  style: nameStyle.copyWith(color: colors.fg),
                 ),
               ),
               if (trailing case final trailing?) ...[
-                const SizedBox(width: gap),
+                SizedBox(width: gap),
                 Text(
                   trailing,
                   maxLines: 1,
-                  style: tokens.typography.labelMd.copyWith(
+                  style: nameStyle.copyWith(
                     color: tokens.colors.textSecondary,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
@@ -311,13 +357,20 @@ class _TagColors {
   final Color glyph;
 }
 
-/// 한자 원(지름 22, `bg.sheet`). 장식이라 스크린리더는 읽지 않고, 글자 크기 설정을 따르지
-/// 않아 원 안에 늘 들어갑니다.
+/// 한자 원(`bg.sheet`, 기본 지름 22, `compact` 16). 장식이라 스크린리더는 읽지 않고, 글자 크기
+/// 설정을 따르지 않아 원 안에 늘 들어갑니다.
 class _GlyphCircle extends StatelessWidget {
-  const new({required this.glyph, required this.color});
+  const new({
+    required this.glyph,
+    required this.color,
+    required this.diameter,
+    required this.fontSize,
+  });
 
   final String glyph;
   final Color color;
+  final double diameter;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -329,14 +382,14 @@ class _GlyphCircle extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: SizedBox(
-        width: HanjaTag.glyphSize,
-        height: HanjaTag.glyphSize,
+        width: diameter,
+        height: diameter,
         child: Center(
           child: Text(
             glyph,
             textScaler: TextScaler.noScaling,
             style: tokens.typography.hanjaPillar.copyWith(
-              fontSize: HanjaTag.glyphFontSize,
+              fontSize: fontSize,
               fontWeight: FontWeight.w700,
               color: color,
             ),

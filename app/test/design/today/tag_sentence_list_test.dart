@@ -92,6 +92,10 @@ void main() {
       final second = tester.getRect(find.text(_question, findRichText: true));
       expect(divider.top, greaterThan(first.bottom));
       expect(divider.bottom, lessThan(second.top));
+      // 시트 본문에 바로 놓인 목록이라 들임 0으로 목록 폭 그대로입니다(inSheet, V124).
+      final list = tester.getRect(find.byType(TagSentenceList));
+      expect(divider.left, list.left);
+      expect(divider.right, list.right);
       // 한 줄이면 선이 없습니다.
       await tester.pumpWidget(_app(items: [_items().first]));
       expect(find.byType(ListDivider), findsNothing);

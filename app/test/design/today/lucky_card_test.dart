@@ -40,9 +40,10 @@ List<LuckyItem> _items() => [
   ),
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중 시간',
+    name: '낮의 길한 시간',
     value: '오후 3시',
     explain: _text('오후 3시에 집중이 잘 돼요.'),
+    period: AppTimeOfDay.day,
   ),
 ];
 
@@ -98,9 +99,10 @@ void main() {
             child: LuckyChip(
               item: LuckyItem(
                 variant: LuckyCardVariant.time,
-                name: '집중 시간',
+                name: '낮의 길한 시간',
                 value: '09:30~11:30',
                 explain: _text('오전에 집중이 잘 돼요.'),
+                period: AppTimeOfDay.day,
               ),
               open: false,
               onTap: null,
@@ -190,7 +192,9 @@ void main() {
       expect(value.style?.color, tokens.colors.textPrimary);
     });
 
-    testWidgets('아이콘은 16이고 text.secondary, 색 변형은 14 견본 원입니다', (tester) async {
+    testWidgets('아이콘은 16이고 text.secondary(시간은 해와 달 색), 색 변형은 14 견본 원입니다', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       final tokens = tester.element(_chip(LuckyCardVariant.time)).tokens;
       for (final variant in [
@@ -202,7 +206,13 @@ void main() {
           find.descendant(of: _chip(variant), matching: find.byType(Icon)),
         );
         expect(icon.size, 16, reason: variant.name);
-        expect(icon.color, tokens.colors.textSecondary, reason: variant.name);
+        expect(
+          icon.color,
+          variant == LuckyCardVariant.time
+              ? tokens.colors.timeDay
+              : tokens.colors.textSecondary,
+          reason: variant.name,
+        );
       }
       expect(
         find.descendant(
@@ -217,7 +227,15 @@ void main() {
       );
       expect(tester.getSize(swatch), const Size.square(14));
       final decoration =
-          tester.widget<Container>(swatch).decoration! as BoxDecoration;
+          tester
+                  .widget<Container>(
+                    find.descendant(
+                      of: swatch,
+                      matching: find.byType(Container),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
       // 오행 견본 색은 칩이 테마 토큰에서 고릅니다.
       expect(decoration.color, tokens.colors.ohaengWaterSwatch);
       expect(decoration.shape, BoxShape.circle);
@@ -309,6 +327,20 @@ void main() {
       expect(row.bottom - lastChip.bottom, LuckyCardRow.hitInset);
     });
 
+    testWidgets(
+      '줄 위아래 판정 여유 자리를 눌러도 가장자리 칩이 받습니다(HitSlopPassage reserveSpace)',
+      (tester) async {
+        final opened = <LuckyItem>[];
+        await tester.pumpWidget(_app(opened: opened));
+        final row = tester.getRect(find.byType(LuckyCardRow));
+        final first = tester.getRect(_surface(LuckyCardVariant.color));
+        expect(first.top - row.top, LuckyCardRow.hitInset);
+        await tester.tapAt(Offset(first.center.dx, row.top + 1));
+        await tester.pumpAndSettle();
+        expect(opened.single.variant, LuckyCardVariant.color);
+      },
+    );
+
     testWidgets('열린 동안에만 누른 칩이 1.5 action.primary 테두리이고 닫히면 1px line으로 돌아옵니다', (
       tester,
     ) async {
@@ -333,23 +365,27 @@ void main() {
       expect(closed.top.color, tokens.colors.line);
     });
 
-    testWidgets('시간 칩이 둘이면 같은 설명을 열고 열림 테두리는 누른 칩에만 생깁니다(V52)', (tester) async {
+    testWidgets('낮과 밤 시간 칩은 각자 설명을 열고 열림 테두리는 누른 칩에만 생깁니다(V116)', (
+      tester,
+    ) async {
       final sheet = Completer<void>();
       final opened = <LuckyItem>[];
-      final explain = _text('오전과 오후에 집중이 잘 돼요.');
+      final nightExplain = _text('새벽 1시쯤 마음이 차분해요.');
       final items = [
         LuckyItem(
           variant: LuckyCardVariant.time,
-          name: '집중 시간',
-          value: '09:30~11:30',
-          explain: explain,
+          name: '낮의 길한 시간',
+          value: '15:30~17:30',
+          explain: _text('오후 3시쯤 집중이 잘 돼요.'),
+          period: AppTimeOfDay.day,
         ),
         LuckyItem(
           variant: LuckyCardVariant.time,
-          name: '집중 시간',
-          value: '13:30~15:30',
-          explain: explain,
-          ordinal: 1,
+          name: '밤의 길한 시간',
+          value: '01:30~03:30',
+          explain: nightExplain,
+          period: AppTimeOfDay.night,
+          word: '오늘 밤',
         ),
       ];
       await tester.pumpWidget(
@@ -370,7 +406,7 @@ void main() {
       );
       final first = _chip(LuckyCardVariant.time);
       final second = find.byKey(
-        LuckyCardRow.chipKey(LuckyCardVariant.time, ordinal: 1),
+        LuckyCardRow.chipKey(LuckyCardVariant.time, period: AppTimeOfDay.night),
       );
       double widthOf(Finder chip) =>
           ((tester
@@ -388,8 +424,8 @@ void main() {
               .width;
       await tester.tap(second);
       await tester.pump();
-      expect(opened.single.ordinal, 1);
-      expect(opened.single.explain, same(explain));
+      expect(opened.single.period, AppTimeOfDay.night);
+      expect(opened.single.explain, same(nightExplain));
       expect(widthOf(second), 1.5);
       expect(widthOf(first), 1);
       sheet.complete();
@@ -459,6 +495,314 @@ void main() {
       expect(data.flagsCollection.isButton, isFalse);
       expect(data.hasAction(SemanticsAction.tap), isFalse);
       handle.dispose();
+    });
+
+    group('time 낮과 밤 칩(V115, V116)', () {
+      final day = LuckyItem(
+        variant: LuckyCardVariant.time,
+        name: '낮의 길한 시간',
+        value: '15:30~17:30',
+        explain: _text('오후 3시쯤 집중이 잘 돼요.'),
+        period: AppTimeOfDay.day,
+      );
+      final night = LuckyItem(
+        variant: LuckyCardVariant.time,
+        name: '밤의 길한 시간',
+        value: '01:30~03:30',
+        explain: _text('새벽 1시쯤 마음이 차분해요.'),
+        period: AppTimeOfDay.night,
+        word: '새벽',
+      );
+
+      Widget row(Brightness brightness) => inputApp(
+        Center(
+          child: SizedBox(
+            width: 360,
+            child: LuckyCardRow(items: [day, night], onOpen: (_) {}),
+          ),
+        ),
+        brightness: brightness,
+      );
+
+      Finder chipOf(AppTimeOfDay period) => find.byKey(
+        LuckyCardRow.chipKey(LuckyCardVariant.time, period: period),
+      );
+
+      for (final brightness in Brightness.values) {
+        testWidgets('앞 아이콘은 채운 해와 달이고 색은 color.time.* ($brightness)', (
+          tester,
+        ) async {
+          await tester.pumpWidget(row(brightness));
+          final colors = tester.element(chipOf(AppTimeOfDay.day)).tokens.colors;
+          for (final (period, color) in [
+            (AppTimeOfDay.day, colors.timeDay),
+            (AppTimeOfDay.night, colors.timeNight),
+          ]) {
+            final icon = tester.widget<Icon>(
+              find.descendant(of: chipOf(period), matching: find.byType(Icon)),
+            );
+            expect(icon.icon, period.glyph, reason: period.name);
+            expect(icon.color, color, reason: period.name);
+          }
+        });
+      }
+
+      testWidgets('밤 칩은 때 낱말을 값 앞 space.4에 같은 글자로 두고 낮 칩에는 없습니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(row(Brightness.light));
+        final word = find.descendant(
+          of: chipOf(AppTimeOfDay.night),
+          matching: find.text('새벽'),
+        );
+        final value = find.text('01:30~03:30');
+        expect(word, findsOneWidget);
+        expect(
+          tester.getTopLeft(value).dx - tester.getTopRight(word).dx,
+          moreOrLessEquals(4),
+        );
+        expect(
+          tester.widget<Text>(word).style!.fontSize,
+          tester.widget<Text>(value).style!.fontSize,
+        );
+        expect(
+          find.descendant(
+            of: chipOf(AppTimeOfDay.day),
+            matching: find.text('새벽'),
+          ),
+          findsNothing,
+        );
+      });
+
+      testWidgets('스크린리더는 낮은 제목 + 값, 밤은 제목 + 때 낱말 + 값이고 아이콘은 읽지 않습니다', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(row(Brightness.light));
+        String labelOf(AppTimeOfDay period) => _data(
+          tester,
+          find
+              .descendant(of: chipOf(period), matching: find.byType(Semantics))
+              .first,
+        ).label;
+        expect(labelOf(AppTimeOfDay.day), '낮의 길한 시간, 15:30~17:30');
+        expect(labelOf(AppTimeOfDay.night), '밤의 길한 시간, 새벽 01:30~03:30');
+        handle.dispose();
+      });
+    });
+
+    group('색이 둘인 날 두 칸 알약(D119 ②, V114)', () {
+      final pair = LuckyItem(
+        variant: LuckyCardVariant.color,
+        name: '행운 색',
+        value: '검정',
+        explain: _text('내 사주의 균형으로 보면 검정이 잘 맞아요.'),
+        element: FiveElement.water,
+        secondColor: LuckySecondColor(
+          element: FiveElement.earth,
+          value: '노랑',
+          explain: _text('원전의 해석에 따르면 오늘은 노랑도 어울려요.'),
+        ),
+      );
+
+      Widget row({
+        List<LuckyItem>? opened,
+        Completer<void>? sheet,
+        bool interactive = true,
+        double textScale = 1,
+      }) => inputApp(
+        MediaQuery.withClampedTextScaling(
+          minScaleFactor: textScale,
+          maxScaleFactor: textScale,
+          child: Center(
+            child: SizedBox(
+              width: 360,
+              child: LuckyCardRow(
+                items: [pair, ..._items().skip(1)],
+                onOpen: interactive
+                    ? (item) {
+                        opened?.add(item);
+                        return sheet?.future;
+                      }
+                    : null,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      Finder half(int index) => find.byKey(LuckyChip.pairHalfKey(index));
+
+      testWidgets('칩 하나 안에 첫째, 둘째 순서로 두 칸과 세로선이 있고 이름표가 없습니다', (tester) async {
+        await tester.pumpWidget(row());
+        final chip = _chip(LuckyCardVariant.color);
+        expect(
+          find.descendant(of: chip, matching: find.byKey(LuckyChip.surfaceKey)),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: half(0), matching: find.text('검정')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: half(1), matching: find.text('노랑')),
+          findsOneWidget,
+        );
+        // 칸마다 다른 견본 키입니다(한 칩 안에서 키가 겹치지 않음).
+        for (final index in [0, 1]) {
+          expect(
+            find.descendant(
+              of: half(index),
+              matching: find.byKey(LuckyChip.pairSwatchKey(index)),
+            ),
+            findsOneWidget,
+          );
+        }
+        expect(
+          find.descendant(of: chip, matching: find.byKey(LuckyChip.swatchKey)),
+          findsNothing,
+        );
+        final divider = find.byKey(LuckyChip.pairDividerKey);
+        expect(divider, findsOneWidget);
+        final first = tester.getRect(half(0));
+        final second = tester.getRect(half(1));
+        final line = tester.getRect(divider);
+        expect(first.right, lessThanOrEqualTo(line.left));
+        expect(line.right, lessThanOrEqualTo(second.left));
+        // 칩 안 글자는 두 색 이름뿐입니다(기준 이름표 없음, `pair.basisLabel` false).
+        expect(
+          find.descendant(of: chip, matching: find.byType(Text)),
+          findsNWidgets(2),
+        );
+        // 칩 줄 개수는 색이 하나인 날과 같습니다.
+        expect(find.byKey(LuckyChip.surfaceKey), findsNWidgets(4));
+      });
+
+      testWidgets('세로선은 1 x 18 color.line이고 칸 안은 좌우 12, 견본과 이름 사이 4입니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(row());
+        final tokens = tester.element(half(0)).tokens;
+        final divider = find.byKey(LuckyChip.pairDividerKey);
+        expect(tester.getSize(divider), const Size(1, 18));
+        expect(tester.widget<Container>(divider).color, tokens.colors.line);
+        for (final (index, name) in [(0, '검정'), (1, '노랑')]) {
+          final rect = tester.getRect(half(index));
+          final swatch = tester.getRect(
+            find.descendant(
+              of: half(index),
+              matching: find.byKey(LuckyChip.pairSwatchKey(index)),
+            ),
+          );
+          final text = tester.getRect(
+            find.descendant(of: half(index), matching: find.text(name)),
+          );
+          expect(swatch.left - rect.left, 12, reason: name);
+          expect(rect.right - text.right, 12, reason: name);
+          expect(text.left - swatch.right, 4, reason: name);
+        }
+      });
+
+      testWidgets('칸마다 누름 자리는 폭과 높이 모두 44 이상입니다', (tester) async {
+        final opened = <LuckyItem>[];
+        await tester.pumpWidget(row(opened: opened));
+        for (final index in [0, 1]) {
+          final rect = tester.getRect(half(index));
+          expect(rect.width, greaterThanOrEqualTo(44));
+          // 보이는 칸(34) 위아래 바깥 4px도 그 칸이 받습니다.
+          await tester.tapAt(Offset(rect.center.dx, rect.top - 4));
+          await tester.pumpAndSettle();
+          await tester.tapAt(Offset(rect.center.dx, rect.bottom + 4));
+          await tester.pumpAndSettle();
+        }
+        expect(opened, hasLength(4));
+      });
+
+      testWidgets('어느 칸을 눌러도 같은 색 항목을 열고 열림 테두리는 알약 전체입니다', (tester) async {
+        final opened = <LuckyItem>[];
+        final sheet = Completer<void>();
+        await tester.pumpWidget(row(opened: opened, sheet: sheet));
+        final tokens = tester.element(half(0)).tokens;
+
+        await tester.tap(half(1));
+        await tester.pump();
+        expect(opened.single, same(pair));
+        final open = _borderOf(tester, LuckyCardVariant.color);
+        expect(open.top.width, 1.5);
+        expect(open.top.color, tokens.colors.actionPrimary);
+        // 테두리는 두 칸을 감싼 알약 하나에 그립니다.
+        final surface = tester.getRect(_surface(LuckyCardVariant.color));
+        expect(surface.left, lessThanOrEqualTo(tester.getRect(half(0)).left));
+        expect(
+          surface.right,
+          greaterThanOrEqualTo(tester.getRect(half(1)).right),
+        );
+        sheet.complete();
+        await tester.pumpAndSettle();
+        expect(_borderOf(tester, LuckyCardVariant.color).top.width, 1);
+
+        await tester.tap(half(0));
+        await tester.pumpAndSettle();
+        expect(opened, [pair, pair]);
+      });
+
+      testWidgets('스크린리더는 칸마다 버튼이고 라벨은 항목 이름 + 값 + 칸 순서입니다(W73)', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(row());
+        for (final (index, value) in [(0, '검정'), (1, '노랑')]) {
+          final data = _data(tester, half(index));
+          expect(data.label, '행운 색, $value, 2개 중 ${index + 1}번째');
+          expect(data.flagsCollection.isButton, isTrue);
+          expect(data.hasAction(SemanticsAction.tap), isTrue);
+        }
+        handle.dispose();
+      });
+
+      for (final (locale, expected) in [
+        (const Locale('en'), '행운 색, 노랑, 2 of 2'),
+        (const Locale('ja'), '행운 색, 노랑, 2つのうち2つ目'),
+      ]) {
+        testWidgets('칸 순서는 앱 언어 문구입니다(${locale.languageCode})', (tester) async {
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            inputApp(
+              Center(
+                child: LuckyCardRow(items: [pair], onOpen: (_) => null),
+              ),
+              locale: locale,
+            ),
+          );
+          expect(_data(tester, half(1)).label, expected);
+          handle.dispose();
+        });
+      }
+
+      testWidgets('표시 전용이면 칸이 버튼으로 읽히지 않습니다', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(row(interactive: false));
+        final data = _data(tester, half(1));
+        expect(data.label, '행운 색, 노랑, 2개 중 2번째');
+        expect(data.flagsCollection.isButton, isFalse);
+        handle.dispose();
+      });
+
+      testWidgets('글자 배율 2.0에서도 넘치지 않고 칸은 34 아래로 줄지 않습니다', (tester) async {
+        await tester.pumpWidget(row(textScale: 2));
+        expect(tester.takeException(), isNull);
+        expect(tester.getSize(half(0)).height, greaterThanOrEqualTo(34));
+      });
+
+      test('withoutSecondColor는 둘째 색만 빼고 나머지는 같습니다', () {
+        final first = pair.withoutSecondColor;
+        expect(first.secondColor, isNull);
+        expect(first.value, '검정');
+        expect(first.element, FiveElement.water);
+        expect(first.explain, same(pair.explain));
+        final single = _items().first;
+        expect(single.withoutSecondColor, same(single));
+      });
     });
 
     group('접근성과 인터랙션', () {

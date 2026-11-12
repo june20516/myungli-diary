@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
@@ -188,14 +189,9 @@ class _Legend extends StatelessWidget {
       children: [
         Opacity(
           opacity: zero ? 0.35 : 1,
-          child: Container(
-            width: OhaengBar.swatchSize,
-            height: OhaengBar.swatchSize,
-            decoration: BoxDecoration(
-              color: ohaengSwatchOf(colors, item.element),
-              shape: BoxShape.circle,
-              border: Border.all(color: colors.swatchBorder),
-            ),
+          child: OhaengSwatch(
+            element: item.element,
+            size: OhaengBar.swatchSize,
           ),
         ),
         const SizedBox(height: Space.s4),

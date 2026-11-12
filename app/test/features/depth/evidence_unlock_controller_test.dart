@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show immutable;
@@ -11,12 +12,14 @@ import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/gen/api/default_api.dart';
 import 'package:myungli_diary/core/api/gen/model/ad_free.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -33,6 +36,8 @@ import 'package:myungli_diary/features/monetization/data/staging_reward_delivery
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
+import '../../support/daily_fixture.dart';
+import '../../support/test_today.dart';
 
 /// 열림을 기대하는 테스트의 확인 간격·시간: 간격은 짧고 마감은 깁니다.
 ///
@@ -311,16 +316,20 @@ final class _ThrowingAds implements Ads {
       Future.error(error);
 }
 
-/// 보상형 광고를 [result]가 끝날 때까지 보여 주는 대역.
+/// 보상형 광고를 [result]가 끝날 때까지 보여 주는 대역. 불러온 횟수를 [loads]로 셉니다.
 final class _GatedAds implements Ads {
   final result = Completer<RewardedResult>();
+
+  int loads = 0;
 
   @override
   Future<BannerAdHandle?> loadBanner({required int width}) async => null;
 
   @override
-  Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
-      _GatedAd(result.future);
+  Future<RewardedAdHandle?> loadRewarded({required String userId}) async {
+    loads++;
+    return _GatedAd(result.future);
+  }
 }
 
 final class _GatedAd implements RewardedAdHandle {
@@ -359,6 +368,8 @@ final _noPersonalProvider = Provider<AsyncValue<RenderedText?>>(
 
 final _noPreviewProvider = Provider<List<EvidencePreview>>((ref) => const []);
 
+final _adUnlockableProvider = Provider<bool>((ref) => true);
+
 /// [_accessProvider]를 근거로 보는 응답. 다시 받기는 아무것도 하지 않습니다.
 @immutable
 final class _TestSubject implements EvidenceSubject {
@@ -383,6 +394,13 @@ final class _TestSubject implements EvidenceSubject {
   ProviderListenable<AsyncValue<RenderedText?>> personalOf(
     PersonalReadingKey key,
   ) => _noPersonalProvider;
+
+  @override
+  ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId) =>
+      null;
+
+  @override
+  ProviderListenable<bool> get adUnlockable => _adUnlockableProvider;
 
   @override
   Future<void> reload(Ref ref) async {}
@@ -424,6 +442,142 @@ List<T> _distinct<T>(Iterable<T> values) => [
 
 void main() {
   setUpAll(ensureTimeZonesInitialized);
+
+  group('DailyEvidenceSubject 연 때 응답(A141)', () {
+    /// 지금 오늘 응답을 [change]로 고친 응답(시트를 연 때의 응답 대역).
+    Daily openedFrom(
+      ProviderContainer container,
+      void Function(Map<String, dynamic> json) change,
+    ) {
+      final json = jsonDecode(
+        jsonEncode(container.read(dailyControllerProvider).value!.daily),
+      ) as Map<String, dynamic>;
+      change(json);
+      return Daily.fromJson(json);
+    }
+
+    testWidgets('연 때 응답과 지금 응답의 날짜가 같으면 지금 응답을 읽습니다(풀린 뒤 다시 받은 근거)', (
+      tester,
+    ) async {
+      final container = await _boot(tester);
+      final opened = openedFrom(
+        container,
+        (json) => json['evidenceAccess'] = 'unlocked',
+      );
+      final subject = DailyEvidenceSubject(opened: opened);
+      expect(
+        container.read(subject.access).value,
+        container.read(dailyControllerProvider).value!.daily.evidenceAccess,
+      );
+      expect(container.read(subject.access).value, EvidenceAccess.locked);
+    });
+
+    testWidgets('날짜가 다르면 연 때 응답에서 열람 상태, 앞부분을 찾습니다', (tester) async {
+      final container = await _boot(tester);
+      final live = container.read(dailyControllerProvider).value!.daily;
+      final opened = openedFrom(container, (json) {
+        json['date'] = '2026-10-12';
+        json['evidenceAccess'] = 'unlocked';
+      });
+      final subject = DailyEvidenceSubject(opened: opened);
+      expect(container.read(subject.access).value, EvidenceAccess.unlocked);
+      expect(live.evidenceAccess, EvidenceAccess.locked);
+      // 앞부분은 연 때 응답의 목록 그대로입니다.
+      expect(
+        container.read(subject.previewOf(opened.fortune.head.slot)),
+        same(opened.fortune.head.evidencePreview),
+      );
+    });
+
+    testWidgets('날짜가 다르면 광고 흐름을 시작하지 않고 버튼은 광고 없음과 같은 꺼짐입니다(A141 ④)', (
+      tester,
+    ) async {
+      final container = await _boot(tester);
+      final opened = openedFrom(container, (json) {
+        json['date'] = '2026-10-12';
+      });
+      final provider = evidenceUnlockControllerProvider(
+        DailyEvidenceSubject(opened: opened),
+      );
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      for (var i = 0; i < 20; i++) {
+        await _spin(tester);
+      }
+      expect(container.read(provider).link, DepthLinkState.lockedNoAd);
+      expect(container.read(provider).adReady, isFalse);
+      final ads = container.read(adsProvider) as FakeAds;
+      expect(ads.rewardedUserIds, isEmpty, reason: '광고를 불러 두지 않습니다');
+
+      // 꺼진 버튼을 우회해 불러도 광고를 보이지 않습니다.
+      await tester.runAsync(() => container.read(provider.notifier).watchAd());
+      await _spin(tester);
+      expect(container.read(provider).link, DepthLinkState.lockedNoAd);
+      expect(ads.rewardedUserIds, isEmpty);
+    });
+
+    testWidgets('같은 날짜면 지금처럼 광고를 불러 두고 버튼이 켜집니다', (tester) async {
+      final container = await _boot(tester);
+      final provider = evidenceUnlockControllerProvider(
+        DailyEvidenceSubject(
+          opened: container.read(dailyControllerProvider).value!.daily,
+        ),
+      );
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      await _until(tester, () => container.read(provider).adReady);
+      expect(container.read(provider).link, DepthLinkState.locked);
+      final ads = container.read(adsProvider) as FakeAds;
+      expect(ads.rewardedUserIds, isNotEmpty);
+    });
+
+    testWidgets('광고를 보는 동안 날짜가 바뀌어 닫으면 새 광고를 불러 두지 않습니다(A141 ④)', (
+      tester,
+    ) async {
+      final ads = _GatedAds();
+      final today = testTodayProvider(CalendarDate(2026, 10, 13));
+      final container = await _boot(
+        tester,
+        overrides: [
+          adsProvider.overrideWithValue(ads),
+          todayProvider.overrideWith((ref) => ref.watch(today)),
+        ],
+      );
+      final provider = evidenceUnlockControllerProvider(
+        DailyEvidenceSubject(
+          opened: container.read(dailyControllerProvider).value!.daily,
+        ),
+      );
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      await _until(tester, () => container.read(provider).adReady);
+      expect(ads.loads, 1);
+
+      final watching = container.read(provider.notifier).watchAd();
+      container.read(today.notifier).moveTo(CalendarDate(2026, 10, 14));
+      await _spin(tester);
+      ads.result.complete(const RewardDismissed());
+      await tester.runAsync(() => watching);
+      for (var i = 0; i < 5; i++) {
+        await _spin(tester);
+      }
+      expect(container.read(provider).link, DepthLinkState.lockedNoAd);
+      expect(ads.loads, 1, reason: '닫은 뒤 새 광고를 요청하지 않습니다');
+    });
+
+    test('같은 연 때 응답이면 같은 잠금 해제 흐름 키입니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      expect(
+        DailyEvidenceSubject(opened: daily),
+        DailyEvidenceSubject(opened: daily),
+      );
+      expect(
+        DailyEvidenceSubject(opened: daily).hashCode,
+        DailyEvidenceSubject(opened: daily).hashCode,
+      );
+      expect(DailyEvidenceSubject(opened: daily), isNot(_subject));
+    });
+  });
 
   group('EvidenceUnlockController', () {
     testWidgets('응답이 unlocked면 처음부터 unlocked', (tester) async {

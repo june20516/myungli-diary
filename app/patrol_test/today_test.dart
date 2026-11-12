@@ -11,6 +11,7 @@ import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
+import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 import 'package:myungli_diary/features/today/application/daily_controller.dart';
 import 'package:myungli_diary/testing/covers.dart';
 import 'package:patrol/patrol.dart';
@@ -64,8 +65,10 @@ void main() {
       ).tap();
       await expectScreen($, ScreenIds.evidenceSheet, state: 'locked');
       final sheet = find.byKey(const Key(ScreenIds.evidenceSheet));
+      // 오늘 화면은 시트를 연 때의 응답을 근거 subject로 담으므로(A141) 시트에서 읽습니다.
       final unlock = evidenceUnlockControllerProvider(
-        const DailyEvidenceSubject(),
+        (find.byType(EvidenceSheet).evaluate().first.widget as EvidenceSheet)
+            .subject!,
       );
       await waitUntil(
         $,

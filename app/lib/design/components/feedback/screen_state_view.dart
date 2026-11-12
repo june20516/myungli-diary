@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/feedback/empty_state.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
 import 'package:myungli_diary/design/components/feedback/seep_presence.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 
@@ -28,6 +31,11 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 /// 일반 오류 화면뿐이라 개발자가 알 길이 이것뿐이기 때문입니다([AppError]는 이미 분류된
 /// 통신 실패라 기록하지 않습니다).
 ///
+/// 다시 시도를 누르면 그 자리에 skeleton을 지연 없이 바로 보이고(error-state 규칙 "다시 시도를
+/// 누르면 그 자리에 skeleton이 다시 나온다"), 결과가 곧바로 와도 [retryMinDuration]만큼은
+/// skeleton을 둡니다. 처음 불러오기의 [skeletonDelay]는 그대로입니다(결정 A126, #922). 붙잡는
+/// 규칙은 섹션 단위 오류도 함께 쓰는 [RetryHold]입니다.
+///
 /// 기본 `data` 경로는 높이가 정해진 부모(화면 본문)를 전제로 합니다(`Expanded`를 씁니다).
 /// 스크롤·sliver 안에서 쓰거나 배너를 내용과 함께 스크롤시키려면 `dataWithNotice`를 씁니다.
 class ScreenStateView<T> extends ConsumerStatefulWidget {
@@ -47,6 +55,7 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
     this.empty,
     this.onStaleError,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
+    this.retryMinDuration = defaultRetryMinDuration,
     super.key,
   }) : assert(
          (data == null) != (dataWithNotice == null),
@@ -58,7 +67,11 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
 
   /// 오류 화면의 다시 시도. 호출하는 쪽이 provider를 다시 불러 같은 자리에 skeleton이 나오게 합니다.
   /// null이면 오류 화면에 다시 시도를 그리지 않습니다.
-  final VoidCallback? onRetry;
+  ///
+  /// [Future]를 돌려주면 그 끝까지 skeleton을 둡니다. 받는 동안 값을 loading으로 바꾸지 않는
+  /// 다시 시도(이전 값을 유지하는 controller)가 skeleton 뒤에 이전 오류 화면을 다시 비추지 않게
+  /// 하기 위해서입니다.
+  final FutureOr<void> Function()? onRetry;
 
   /// 값이 있을 때의 내용(높이가 정해진 부모 전제).
   final Widget Function(T value)? data;
@@ -89,6 +102,13 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
   /// skeleton을 보이기 전 대기(기본 300ms). golden·테스트에서 줄입니다.
   final Duration skeletonDelay;
 
+  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간의 기본값([RetryHold.defaultMinDuration],
+  /// 결정 A126).
+  static const Duration defaultRetryMinDuration = RetryHold.defaultMinDuration;
+
+  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간.
+  final Duration retryMinDuration;
+
   @override
   ConsumerState<ScreenStateView<T>> createState() => _ScreenStateViewState<T>();
 }
@@ -98,6 +118,26 @@ AppError _asAppError(Object? error) =>
 
 class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   Object? _handledError;
+
+  /// 다시 시도 skeleton 붙잡기(결정 A126 ①).
+  late final RetryHold _retryHold = RetryHold(
+    onChanged: () {
+      if (mounted) setState(() {});
+    },
+  );
+
+  @override
+  void dispose() {
+    _retryHold.dispose();
+    super.dispose();
+  }
+
+  void _retry() {
+    final onRetry = widget.onRetry;
+    if (onRetry == null) return;
+    // 최소 시간은 누를 때마다 지금 위젯 값을 읽습니다.
+    _retryHold.start(onRetry, minDuration: widget.retryMinDuration);
+  }
 
   @override
   void initState() {
@@ -140,14 +180,15 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   @override
   Widget build(BuildContext context) {
     final current = widget.value;
-    if (current.hasValue) {
+    final retrySkeleton = _retryHold.holds(isLoading: current.isLoading);
+    if (current.hasValue && !retrySkeleton) {
       return _withValue(context, current.requireValue, current.error);
     }
-    if (current.isLoading) {
+    if (current.isLoading || retrySkeleton) {
       return KeyedSubtree(
         key: const ValueKey('screen-state.loading'),
         child: SkeletonBlock(
-          delay: widget.skeletonDelay,
+          delay: retrySkeleton ? Duration.zero : widget.skeletonDelay,
           child: widget.skeleton,
         ),
       );
@@ -157,7 +198,7 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
       present: true,
       child: ErrorState(
         error: _asAppError(current.error),
-        onRetry: widget.onRetry,
+        onRetry: widget.onRetry == null ? null : _retry,
       ),
     );
   }

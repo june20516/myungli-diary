@@ -40,9 +40,15 @@ Widget _explain(ExplainContent content, {Widget? head, String? diaryLinkTag}) {
 /// 오늘 화면 [slotId] 슬롯에서 연 출처.
 TermOrigin _origin(String slotId) =>
     TermOrigin(slotId: slotId, subject: const DailyEvidenceSubject());
-Widget _evidence(String slotId, PersonalReadingKey? _, EvidenceTarget _) =>
-    _tall('근거 $slotId');
+Widget _evidence(
+  String slotId,
+  PersonalReadingKey? _,
+  EvidenceTarget _,
+  EvidenceSubject? _,
+) => _tall('근거 $slotId');
 Widget _share() => _tall('공유');
+
+bool _noBody(ExplainTerm _) => false;
 
 Future<void> _pumpHost(WidgetTester tester) async {
   tester.view
@@ -70,6 +76,37 @@ double _frameHeight(WidgetTester tester) =>
     tester.getSize(find.byType(MyungliSheetFrame).last).height;
 
 void main() {
+  group('본문 없는 용어 풀이 시트(A130, #957)', () {
+    const bodiless = DepthSheets(
+      explainBody: _explain,
+      evidenceBody: _evidence,
+      shareBody: _share,
+      termHasBody: _noBody,
+    );
+
+    testWidgets('출처가 있으면 풀이 시트 대신 그 근거 시트를 바로 엽니다', (tester) async {
+      await _pumpHost(tester);
+      unawaited(
+        bodiless.openExplain(
+          _context,
+          ExplainTerm('ten_god.bigyeop', origin: _origin('today.fortune.head')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('근거 today.fortune.head'), findsOneWidget);
+      expect(find.textContaining('풀이 '), findsNothing);
+    });
+
+    testWidgets('출처가 없으면 갈 곳이 없어 풀이 시트를 엽니다', (tester) async {
+      await _pumpHost(tester);
+      unawaited(
+        bodiless.openExplain(_context, const ExplainTerm('tag.hwagae')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('풀이 tag.hwagae null'), findsOneWidget);
+    });
+  });
+
   group('DepthSheets', () {
     testWidgets('openExplain은 half로 열리고 id가 Key와 Semantics에 붙습니다', (
       tester,
@@ -176,7 +213,7 @@ void main() {
         throwsUnimplementedError,
       );
       expect(
-        () => sheets.evidenceBody('s.t', null, EvidenceTarget.none),
+        () => sheets.evidenceBody('s.t', null, EvidenceTarget.none, null),
         throwsUnimplementedError,
       );
       expect(sheets.shareBody, throwsUnimplementedError);
@@ -190,9 +227,19 @@ void main() {
       final wired = ProviderContainer(overrides: depthSheetBodyOverrides);
       addTearDown(wired.dispose);
       final sheets = wired.read(depthSheetsProvider);
-      final evidence = sheets.evidenceBody('s.t', null, EvidenceTarget.none);
+      final opened = DailyEvidenceSubject(
+        opened: Daily.fromJson(memberDailyJson()),
+      );
+      final evidence = sheets.evidenceBody(
+        's.t',
+        null,
+        EvidenceTarget.none,
+        opened,
+      );
       expect(evidence, isA<EvidenceSheet>());
       expect((evidence as EvidenceSheet).slotId, 's.t');
+      // 여는 쪽이 담은 응답(시트를 연 때의 오늘 응답)을 그대로 씁니다(A141).
+      expect(evidence.subject, opened);
       final explain = sheets.explainBody(
         ExplainTerm('ten_god.siksin', origin: _origin('s.t')),
       );

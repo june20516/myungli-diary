@@ -19,7 +19,13 @@ part 'shinsal_at.g.dart';
 )
 class ShinsalAt {
   /// Returns a new [ShinsalAt] instance.
-  ShinsalAt({required this.kind, required this.position});
+  ShinsalAt({
+    required this.kind,
+
+    required this.position,
+
+    required this.positions,
+  });
 
   @JsonKey(
     name: r'kind',
@@ -32,13 +38,19 @@ class ShinsalAt {
   @JsonKey(name: r'position', required: true, includeIfNull: false)
   final Position position;
 
+  @JsonKey(name: r'positions', required: true, includeIfNull: false)
+  final List<Position> positions;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ShinsalAt && other.kind == kind && other.position == position;
+      other is ShinsalAt &&
+          other.kind == kind &&
+          other.position == position &&
+          other.positions == positions;
 
   @override
-  int get hashCode => kind.hashCode + position.hashCode;
+  int get hashCode => kind.hashCode + position.hashCode + positions.hashCode;
 
   factory ShinsalAt.fromJson(Map<String, dynamic> json) =>
       _$ShinsalAtFromJson(json);

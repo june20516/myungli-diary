@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderFamily;
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_summary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -103,3 +104,36 @@ void _reportUnnamedTags(Ref ref, TodayContent content) {
     todayDictionaryGapsOf(content.view.daily, content.names),
   );
 }
+
+/// 프로필 시간대 벽시계의 지금 분([nowMinuteProvider], 시와 분만 읽음). 분 흐름의 첫 값이 오기
+/// 전에는 시계에서 바로 읽어, 오늘 화면 첫 그림부터 밤 칩과 띠가 맞습니다.
+///
+/// 시간 칩 시트의 24시간 띠가 이 값으로 지금 줄을 1분마다 옮깁니다(`timeBand.now.update`).
+final todayWallMinuteProvider = Provider<DateTime>((ref) {
+  final ticked = ref.watch(nowMinuteProvider).value;
+  if (ticked != null) return ticked;
+  final local = localTimeIn(
+    ref.watch(clockProvider).nowUtc(),
+    ref.watch(profileTimezoneProvider),
+  );
+  return DateTime.utc(
+    local.year,
+    local.month,
+    local.day,
+    local.hour,
+    local.minute,
+  );
+});
+
+/// 지금이 낮 구간 시작 순간 [dayStart]([dayStartOf], 그날 진시 시작, #1064) 전인지
+/// ([isBeforeDayStart]). 경계를 지날 때만 값이 바뀌어 오늘 화면이 그때 밤 칩 값과 때 낱말을 함께
+/// 바꿉니다(D122 ⑦, V116). 날짜 바뀜([todayProvider])처럼 시계 흐름을 구독합니다.
+final ProviderFamily<bool, DateTime> beforeDayStartProvider = Provider
+    .autoDispose
+    .family<bool, DateTime>(
+      (ref, dayStart) => isBeforeDayStart(
+        ref.watch(todayWallMinuteProvider),
+        dayStart: dayStart,
+        timezone: ref.watch(profileTimezoneProvider),
+      ),
+    );

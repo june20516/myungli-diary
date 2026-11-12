@@ -96,7 +96,8 @@ final class FakeDiaryStore {
   /// 태그 키 → 길흉(`Tag.polarity`). 받은 태그의 값이 엔진 표 값보다 앞섭니다.
   final _polarities = Map<String, String>.of(_enginePolarities);
 
-  /// 엔진 태그 표의 길흉(엔진 spec §7.7). 대역이 전체 태그 키에 길흉을 붙일 때만 씁니다.
+  /// 태그 길흉 표(server `fortune/polarity.go`, 엔진 spec §7.7). 대역이 전체 태그 키에 길흉을
+  /// 붙일 때만 씁니다. 도화는 D125 개정(ruleset 2026.11.8)으로 중립입니다.
   static const Map<String, String> _enginePolarities = {
     'clash_day_branch': 'bad',
     'clash_month_branch': 'bad',
@@ -108,10 +109,13 @@ final class FakeDiaryStore {
     'ten_god_rush.siksang': 'good',
     'ten_god_rush.bigyeop': 'neutral',
     'cheoneul_gwiin': 'good',
-    'dohwa': 'good',
+    'dohwa': 'neutral',
     'yeokma': 'neutral',
     'hwagae': 'neutral',
     'gongmang': 'bad',
+    'gosin': 'bad',
+    'gwasuk': 'bad',
+    'wonjin': 'bad',
     'yongsin_day': 'good',
     'gwiin_day': 'good',
   };

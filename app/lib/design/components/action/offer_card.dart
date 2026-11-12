@@ -26,6 +26,10 @@ enum OfferCardState {
 
   /// 오프라인. 구매 버튼이 꺼집니다(화면 위 notice-banner `offline`은 화면이 둠).
   offline,
+
+  /// 살 수 있는 상품이 없음(스토어 상품 목록이 빔, 오류 아님, V123). 가격, 기간 고지, 구매 버튼
+  /// 대신 안내 한 줄([OfferCard.unavailableNote])입니다. 이용 중이면 [active]가 먼저입니다.
+  unavailable,
 }
 
 /// [OfferCard] 부품별 IA 슬롯 id. 있는 것만 그 부품의 Semantics `identifier`로 붙습니다.
@@ -41,6 +45,7 @@ final class OfferCardIdentifiers {
     this.period,
     this.remaining,
     this.buy,
+    this.unavailable,
     this.history,
     this.legal,
   });
@@ -60,6 +65,9 @@ final class OfferCardIdentifiers {
   /// 구매 버튼 슬롯.
   final String? buy;
 
+  /// 상품 없음 안내 슬롯([OfferCardState.unavailable]).
+  final String? unavailable;
+
   /// 구매 내역 버튼 슬롯.
   final String? history;
 
@@ -71,9 +79,11 @@ final class OfferCardIdentifiers {
 ///
 /// 위에서 아래로 아이콘 → [head] → [price] → [period] →
 /// (이용 중이면 [statusLabel]·[remaining], 아니면 구매 버튼) → 구매 내역 조용한 버튼 →
-/// 약관 안내입니다. 가격·기간·자동 갱신 아님 고지([price]·[period])는 구매 버튼보다 위,
-/// 같은 카드 안에 둡니다. 구매 내역 버튼은 [state]와 관계없이 늘 보입니다(따로 누르는
-/// 구매 복원 버튼은 없음, D88 ②).
+/// 약관 안내입니다. 상품이 없으면([OfferCardState.unavailable]) [price], [period], 구매 버튼
+/// 대신 [head] 아래 안내 한 줄([unavailableNote])이고 나머지는 그대로입니다(V123).
+/// 가격·기간·자동 갱신 아님 고지([price]·[period])는 구매 버튼보다 위, 같은 카드 안에
+/// 둡니다. 구매 내역 버튼은 [state]와 관계없이 늘 보입니다(따로 누르는 구매 복원 버튼은
+/// 없음, D88 ②).
 ///
 /// 문구는 모두 화면이 ARB에서 읽어 넘깁니다. 구매 완료 햅틱(light)도 화면의 몫입니다.
 /// 스크린리더는 카드를 한 묶음으로 보고 [head]·[price]·[period]를 함께 읽으며,
@@ -84,20 +94,30 @@ class OfferCard extends StatelessWidget {
   const new({
     required this.state,
     required this.head,
-    required this.buyLabel,
     required this.historyLabel,
     required this.legalNotice,
+    this.buyLabel,
     this.price,
     this.period,
     this.statusLabel,
     this.remaining,
+    this.unavailableNote,
     this.onBuy,
     this.onHistory,
     this.onLegal,
     this.identifiers = const OfferCardIdentifiers(),
     this.animated = true,
     super.key,
-  });
+  }) : assert(
+         state != OfferCardState.unavailable || unavailableNote != null,
+         'unavailable은 안내 문구가 있어야 합니다.',
+       ),
+       assert(
+         state == OfferCardState.active ||
+             state == OfferCardState.unavailable ||
+             buyLabel != null,
+         '구매 버튼이 있는 상태(available, purchasing, offline)는 buyLabel이 있어야 합니다.',
+       );
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('offer-card', {}, {
@@ -106,6 +126,7 @@ class OfferCard extends StatelessWidget {
     'active',
     'purchasing',
     'offline',
+    'unavailable',
   });
 
   /// 카드 묶음을 찾는 테스트용 키.
@@ -167,6 +188,9 @@ class OfferCard extends StatelessWidget {
   /// 약관 안내를 찾는 테스트용 키.
   static const Key legalKey = ValueKey('offer-card-legal');
 
+  /// 상품 없음 안내를 찾는 테스트용 키.
+  static const Key unavailableKey = ValueKey('offer-card-unavailable');
+
   /// 카드 안쪽 여백(`parts.container.padding`, `space.20`).
   static const double padding = Space.s20;
 
@@ -184,7 +208,15 @@ class OfferCard extends StatelessWidget {
   static const double periodGap = Space.s4;
 
   /// 마지막 안내(가격·기간)와 구매 버튼·이용 중 표시 사이(`parts.buy.marginTop`, `space.24`).
+  /// 상품 없음 안내 아래 구매 내역 버튼까지도 같은 간격입니다(구매 버튼이 빠진 자리, A139).
   static const double buyGap = Space.s24;
+
+  /// [head]와 상품 없음 안내 사이(`parts.unavailable.marginTop`, `space.16`).
+  static const double unavailableGap = Space.s16;
+
+  /// 상품 없음 안내의 줄 수(`parts.unavailable.maxLines`). 배율 1.0에서 원고 글자 수 상한을 잰
+  /// 줄 수이고, 큰 글자에서는 자르지 않고 줄이 늡니다(A137 ④와 같은 읽기, A139).
+  static const int unavailableMaxLines = 2;
 
   /// 구매 내역 버튼과 약관 안내 사이(`parts.legal.marginTop`, `space.12`).
   static const double legalGap = Space.s12;
@@ -215,8 +247,8 @@ class OfferCard extends StatelessWidget {
   /// 가격과 상관없는 고지라 [price]가 null이어도 보입니다. null이면 그리지 않습니다.
   final String? period;
 
-  /// 구매 버튼 문구.
-  final String buyLabel;
+  /// 구매 버튼 문구. [OfferCardState.unavailable]에서는 쓰지 않습니다(구매 버튼 없음, V123).
+  final String? buyLabel;
 
   /// 구매 내역 버튼 문구(`ad-free.history.cta`).
   final String historyLabel;
@@ -229,6 +261,9 @@ class OfferCard extends StatelessWidget {
 
   /// 남은 기간·만료일 문장(`ad-free.status.remaining`).
   final String? remaining;
+
+  /// 상품 없음 안내(`ad-free.unavailable.body`). [OfferCardState.unavailable]에서만 씁니다.
+  final String? unavailableNote;
 
   /// 구매 버튼을 눌렀을 때. `purchasing`에서는 불리지 않고 `offline`에서는 버튼이 꺼집니다.
   final VoidCallback? onBuy;
@@ -257,12 +292,22 @@ class OfferCard extends StatelessWidget {
     final colors = tokens.colors;
     final l10n = AppLocalizations.of(context);
     final active = state == OfferCardState.active;
+    // 상품이 없으면 가격, 기간, 구매 버튼 대신 안내 한 줄입니다(이용 중이면 active가 먼저, V123).
+    final unavailable = state == OfferCardState.unavailable;
+    final unavailableNote = unavailable ? this.unavailableNote : null;
+    final price = unavailable ? null : this.price;
+    final period = unavailable ? null : this.period;
 
     return Semantics(
       key: cardKey,
       container: true,
       explicitChildNodes: true,
-      label: [head, ?price, ?period].join(l10n.a11yListSeparator),
+      label: [
+        head,
+        ?price,
+        ?period,
+        ?unavailableNote,
+      ].join(l10n.a11yListSeparator),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.bgSheet,
@@ -301,7 +346,7 @@ class OfferCard extends StatelessWidget {
                   identifiers.price,
                   ExcludeSemantics(
                     child: Text(
-                      price!,
+                      price,
                       style: tokens.typography.title.copyWith(
                         color: colors.textPrimary,
                         fontFeatures: _tabular,
@@ -317,7 +362,7 @@ class OfferCard extends StatelessWidget {
                   identifiers.period,
                   ExcludeSemantics(
                     child: Text(
-                      period!,
+                      period,
                       style: tokens.typography.captionLg.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -325,11 +370,28 @@ class OfferCard extends StatelessWidget {
                   ),
                 ),
               ],
+              if (unavailableNote != null) ...[
+                const SizedBox(height: unavailableGap),
+                // 아이콘 없음, 누르지 않음. 카드 묶음 라벨이 읽으므로 글자는 읽기에서 뺍니다.
+                _identified(
+                  identifiers.unavailable,
+                  ExcludeSemantics(
+                    child: Text(
+                      unavailableNote,
+                      key: unavailableKey,
+                      style: tokens.typography.bodyUi.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: buyGap),
-              SeepOnChange(
-                changeKey: active,
-                child: active ? _activeStatus(context) : _buyButton(),
-              ),
+              if (active)
+                SeepOnChange(changeKey: active, child: _activeStatus(context))
+              else if (!unavailable)
+                if (buyLabel case final label?)
+                  SeepOnChange(changeKey: active, child: _buyButton(label)),
               PrimaryButton(
                 key: historyKey,
                 label: historyLabel,
@@ -347,9 +409,9 @@ class OfferCard extends StatelessWidget {
     );
   }
 
-  Widget _buyButton() => PrimaryButton(
+  Widget _buyButton(String label) => PrimaryButton(
     key: buyKey,
-    label: buyLabel,
+    label: label,
     loading: state == OfferCardState.purchasing,
     identifier: identifiers.buy,
     // offline은 꺼짐(null), purchasing은 PrimaryButton이 눌림을 무시합니다.

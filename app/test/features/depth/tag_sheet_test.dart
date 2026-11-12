@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/glossary.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -51,7 +55,8 @@ final class _StubDaily extends DailyController {
   );
 }
 
-/// member 응답의 대표 태그 2순위를 사전에 뜻이 없는 화개로 바꾼 응답.
+/// member 응답의 대표 태그 2순위를 화개로 바꾼 응답. 뜻이 없는 경우는 [_withoutHwagaeMeaning]
+/// 사전과 함께 씁니다.
 Daily _twoFeatured() {
   final json = memberDailyJson();
   return Daily.fromJson({
@@ -66,11 +71,26 @@ Daily _twoFeatured() {
   });
 }
 
+/// member 사전에서 화개 태그의 뜻만 뺀 사전(사전 뜻은 용어마다 비어 있을 수 있음).
+Future<GlossaryNames> _withoutHwagaeMeaning() async {
+  final body =
+      (jsonDecode(File('fixtures/member/getGlossary.json').readAsStringSync())
+              as Map<String, dynamic>)['body']
+          as Map<String, dynamic>;
+  final glossary = Glossary.fromJson(body);
+  return GlossaryNames(
+    glossary.values,
+    meanings: {...glossary.meanings}..remove('tag.hwagae'),
+    hanja: glossary.hanja,
+  );
+}
+
 /// 오늘 화면을 띄우고 사주 기운 섹션의 [rank] 대표 태그를 눌러 사주 기운 시트를 엽니다.
 Future<ProviderContainer> _openTagSheet(
   WidgetTester tester, {
   int rank = 0,
   Daily? daily,
+  Future<GlossaryNames> Function()? glossary,
 }) async {
   final container = await pumpApp(
     tester,
@@ -78,6 +98,7 @@ Future<ProviderContainer> _openTagSheet(
     overrides: [
       if (daily != null)
         dailyControllerProvider.overrideWith(() => _StubDaily(daily)),
+      if (glossary != null) glossaryProvider.overrideWith((ref) => glossary()),
     ],
   );
   await pumpUntil(tester, () => find.byType(DateHeader).evaluate().isNotEmpty);
@@ -186,7 +207,12 @@ void main() {
     });
 
     testWidgets('2순위: 근거 아이콘 없이 빈 안내(IA empty)', (tester) async {
-      await _openTagSheet(tester, rank: 1, daily: _twoFeatured());
+      await _openTagSheet(
+        tester,
+        rank: 1,
+        daily: _twoFeatured(),
+        glossary: _withoutHwagaeMeaning,
+      );
 
       final head = tester.widget<HanjaTag>(_inSheet(find.byType(HanjaTag)));
       expect(head.label, '화개');

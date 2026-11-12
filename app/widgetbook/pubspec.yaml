@@ -55,3 +55,13 @@ flutter:
           weight: 600
         - asset: ../assets/fonts/pretendard_jp/PretendardJP-Bold.otf
           weight: 700
+    - family: Myungli Hanja Supplement
+      fonts:
+        - asset: ../assets/fonts/hanja_supplement/MyungliHanjaSupplement-Regular.ttf
+          weight: 400
+        - asset: ../assets/fonts/hanja_supplement/MyungliHanjaSupplement-Medium.ttf
+          weight: 500
+        - asset: ../assets/fonts/hanja_supplement/MyungliHanjaSupplement-SemiBold.ttf
+          weight: 600
+        - asset: ../assets/fonts/hanja_supplement/MyungliHanjaSupplement-Bold.ttf
+          weight: 700

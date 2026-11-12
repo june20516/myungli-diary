@@ -257,7 +257,7 @@ void main() {
       }
     });
 
-    test('새 색 5종의 라이트·다크 값이 원본 토큰과 같다', () {
+    test('새 색의 라이트·다크 값이 원본 토큰과 같다', () {
       expect(lightColors.calendarLevelGreat.toARGB32(), 0xFFFFD2CA);
       expect(darkColors.calendarLevelGreat.toARGB32(), 0xFF582720);
       expect(lightColors.calendarLevelGood.toARGB32(), 0xFFFFE4DF);
@@ -266,9 +266,12 @@ void main() {
       expect(darkColors.calendarLevelCaution.toARGB32(), 0xFF2A2A29);
 
       // fillSoft, highlightBg는 원시 팔레트 참조라 원본을 풀어 대조한다.
+      // timeDay, timeNight(1.8.0, D122, V115)도 같은 방식으로 원본과 대조한다.
       for (final (name, light, dark) in [
         ('color.fill.soft', lightColors.fillSoft, darkColors.fillSoft),
         ('color.highlight.bg', lightColors.highlightBg, darkColors.highlightBg),
+        ('color.time.day', lightColors.timeDay, darkColors.timeDay),
+        ('color.time.night', lightColors.timeNight, darkColors.timeNight),
       ]) {
         final lightHex = parseColor(themes.lightKo[name]!.value).hex;
         final darkHex = parseColor(themes.darkKo[name]!.value).hex;

@@ -15,6 +15,7 @@ import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../../support/app_bar_title.dart';
@@ -177,8 +178,55 @@ void main() {
     expect(find.text(_ko.actionRetry), findsOneWidget);
 
     await tester.tap(find.text(_ko.actionRetry));
+    // 곧바로 다시 실패해도 누른 순간 skeleton이 보입니다(#922, design error-state 규칙).
+    await tester.pump(Duration.zero);
+    expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);
+    expect(find.byType(SkeletonBone), findsWidgets);
     await settleWithIo(tester);
     expect(purchases.productsCalls, 2);
+    expect(find.byKey(const ValueKey('screen-state.error')), findsOneWidget);
+  });
+
+  testWidgets('스토어가 빈 목록이면 오류가 아니라 unavailable 카드와 안내 한 줄(V123, A126)', (
+    tester,
+  ) async {
+    covers(const Covers(states: ['ad-free:empty']));
+    await _open(tester, FakePurchases(catalog: const []));
+    expect(find.text(_ko.actionRetry), findsNothing);
+    expect(find.byType(NoticeBanner), findsOneWidget); // present=false: 빈 자리
+    expect(find.text(_ko.noticeOffline), findsNothing);
+    final card = tester.widget<OfferCard>(find.byType(OfferCard));
+    expect(card.state, OfferCardState.unavailable);
+    expect(find.byKey(OfferCard.buyKey), findsNothing);
+    expect(find.text(_ko.adFreeOfferPeriod), findsNothing);
+    expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
+    expect(find.text(_ko.adFreeUnavailableBody), findsOneWidget);
+    expect(
+      find.bySemanticsIdentifier(SlotIds.adFreeUnavailableBody),
+      findsOneWidget,
+    );
+    final history = tester.widget<PrimaryButton>(
+      find.byKey(OfferCard.historyKey),
+    );
+    expect(history.onPressed, isNotNull);
+    expect(find.byKey(OfferCard.legalKey), findsOneWidget);
+  });
+
+  testWidgets('이용 중이면 상품이 없어도 active가 먼저이고 안내는 없다', (tester) async {
+    await _open(
+      tester,
+      FakePurchases(catalog: const []),
+      scenario: 'ad-free-active',
+    );
+    expect(
+      find.bySemanticsIdentifier(SlotIds.adFreeStatusRemaining),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<OfferCard>(find.byType(OfferCard)).state,
+      OfferCardState.active,
+    );
+    expect(find.text(_ko.adFreeUnavailableBody), findsNothing);
   });
 
   testWidgets('오프라인이면 offline 안내와 비활성 구매 버튼, 가격 줄 없음', (tester) async {

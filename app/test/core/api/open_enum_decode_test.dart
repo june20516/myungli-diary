@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:myungli_diary/core/api/gen/model/calendar.dart';
 import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/api/gen/model/consent_document.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/entitlements.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
@@ -33,59 +35,73 @@ Map<String, dynamic> _text(String text) => {
 
 void main() {
   group('열린 enum: 모르는 값이 와도 응답 전체 decode가 실패하지 않는다 (A66)', () {
-    test(
-      'Daily: NoticeCode·RelationKind·FocusSlot.reasons 항목·SlotText.variant',
-      () {
-        final json = _body('member/getDaily');
-        (json['notices'] as List<dynamic>).add({
-          'code': _unknown,
-          'text': _text('새 안내'),
-        });
-        (json['relations'] as List<dynamic>).add({
+    test('Daily: NoticeCode·RelationKind·reasons 항목·variant·DayVirtueKind', () {
+      final json = _body('member/getDaily');
+      (json['notices'] as List<dynamic>).add({
+        'code': _unknown,
+        'text': _text('새 안내'),
+      });
+      (json['relations'] as List<dynamic>).add({
+        'kind': _unknown,
+        'natalPosition': 'day_stem',
+        'suppressed': true,
+        'suppressedBy': _unknown,
+      });
+      final cards = json['cards'] as Map<String, dynamic>;
+      final focus = cards['focusTime'] as Map<String, dynamic>;
+      final pick =
+          (focus['picks'] as List<dynamic>).first as Map<String, dynamic>;
+      // 규칙 2026.11.4부터 reasons는 빈 배열이라(FocusSlot 설명) 그 전 규칙 버전의 값을 넣습니다.
+      pick['reasons'] = ['yongsin', _unknown];
+      (json['guide'] as Map<String, dynamic>)['variant'] = _unknown;
+      json['dayVirtues'] = [
+        {
           'kind': _unknown,
-          'natalPosition': 'day_stem',
-          'suppressed': true,
-          'suppressedBy': _unknown,
-        });
-        final cards = json['cards'] as Map<String, dynamic>;
-        final focus = cards['focusTime'] as Map<String, dynamic>;
-        final pick =
-            (focus['picks'] as List<dynamic>).first as Map<String, dynamic>;
-        (pick['reasons'] as List<dynamic>).add(_unknown);
-        (json['guide'] as Map<String, dynamic>)['variant'] = _unknown;
+          'text': {
+            'slot': 'explain.day_virtue',
+            'messageKey': 'day_virtue.new',
+            'variant': 'single',
+            'reactable': false,
+            'text': _text('새 덕일'),
+          },
+        },
+      ];
 
-        final daily = Daily.fromJson(json);
+      final daily = Daily.fromJson(json);
 
-        final notice = daily.notices.last;
-        expect(notice.code, NoticeCode.unknownDefaultOpenApi);
-        expect(notice.code.isKnown, isFalse);
-        expect(notice.text.segments.single.text, '새 안내');
+      final notice = daily.notices.last;
+      expect(notice.code, NoticeCode.unknownDefaultOpenApi);
+      expect(notice.code.isKnown, isFalse);
+      expect(notice.text.segments.single.text, '새 안내');
 
-        final relation = daily.relations.last;
-        expect(relation.kind, RelationKind.unknownDefaultOpenApi);
-        expect(relation.suppressedBy, RelationKind.unknownDefaultOpenApi);
+      final relation = daily.relations.last;
+      expect(relation.kind, RelationKind.unknownDefaultOpenApi);
+      expect(relation.suppressedBy, RelationKind.unknownDefaultOpenApi);
 
-        // 목록 항목은 그 항목만 모르는 값이고 나머지는 그대로입니다.
-        expect(daily.cards.focusTime.picks.first.reasons, [
-          FocusSlotReasonsEnum.yongsin,
-          FocusSlotReasonsEnum.unknownDefaultOpenApi,
-        ]);
-        expect(
-          daily.cards.focusTime.picks.first.reasons.where((r) => r.isKnown),
-          [FocusSlotReasonsEnum.yongsin],
-        );
+      // 목록 항목은 그 항목만 모르는 값이고 나머지는 그대로입니다.
+      expect(daily.cards.focusTime.picks.first.reasons, [
+        FocusSlotReasonsEnum.yongsin,
+        FocusSlotReasonsEnum.unknownDefaultOpenApi,
+      ]);
+      expect(
+        daily.cards.focusTime.picks.first.reasons.where((r) => r.isKnown),
+        [FocusSlotReasonsEnum.yongsin],
+      );
 
-        // 모르는 variant는 기본 표시: 문장은 그대로 남습니다.
-        expect(daily.guide.variant, SlotTextVariantEnum.unknownDefaultOpenApi);
-        expect(daily.guide.text.segments, isNotEmpty);
-      },
-    );
+      // 모르는 variant는 기본 표시: 문장은 그대로 남습니다.
+      expect(daily.guide.variant, SlotTextVariantEnum.unknownDefaultOpenApi);
+      expect(daily.guide.text.segments, isNotEmpty);
+
+      expect(daily.dayVirtues.single.kind, DayVirtueKind.unknownDefaultOpenApi);
+      expect(daily.dayVirtues.single.kind.isKnown, isFalse);
+    });
 
     test('Chart: ShinsalKind·PersonalReading.kind·세운 RelationKind 항목', () {
       final json = _body('evidence-unlocked/getChart');
       (json['shinsal'] as List<dynamic>).add({
         'kind': _unknown,
         'position': 'day_branch',
+        'positions': ['day_branch'],
       });
       (json['personalReadings'] as List<dynamic>)
         ..add({'kind': _unknown, 'text': _text('새 항목')})
@@ -114,6 +130,33 @@ void main() {
       expect(
         chart.seun.first.relationsWithNatal.last,
         RelationKind.unknownDefaultOpenApi,
+      );
+    });
+
+    test('Calendar: CalendarDay.dayVirtues 항목', () {
+      final json = _body('member/getCalendar__2026-10');
+      final days = (json['days'] as List<dynamic>).cast<Map<String, dynamic>>();
+      days.first['dayVirtues'] = ['cheondeok_day', _unknown];
+
+      final calendar = Calendar.fromJson(json);
+
+      // 모르는 값은 그 항목만 모르는 값이고 같은 날의 아는 값은 그대로입니다.
+      expect(calendar.days.first.dayVirtues, [
+        DayVirtueKind.cheondeokDay,
+        DayVirtueKind.unknownDefaultOpenApi,
+      ]);
+      // 다른 날은 fixture(엔진 판정) 그대로입니다. 10-09는 천덕일과 월덕일, 천덕일 먼저입니다.
+      final byDate = {
+        for (final day in calendar.days) day.date: day.dayVirtues,
+      };
+      expect(byDate['2026-10-09'], [
+        DayVirtueKind.cheondeokDay,
+        DayVirtueKind.woldeokDay,
+      ]);
+      expect(byDate['2026-10-13'], isEmpty);
+      expect(
+        calendar.days.skip(1).expand((day) => day.dayVirtues),
+        everyElement(isNot(DayVirtueKind.unknownDefaultOpenApi)),
       );
     });
 

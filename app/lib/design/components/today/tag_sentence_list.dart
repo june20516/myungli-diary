@@ -130,7 +130,7 @@ class TagSentenceList extends StatelessWidget {
           )
         else
           for (final (index, item) in items.indexed) ...[
-            if (index > 0) const ListDivider(indentStart: 0, indentEnd: 0),
+            if (index > 0) const ListDivider.inSheet(),
             _Row(item: item),
           ],
         _DiaryLink(label: diaryLinkLabel, onTap: onDiaryLink),

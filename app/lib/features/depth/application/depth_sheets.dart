@@ -1,14 +1,18 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/frame/sheet_screen_id.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
+import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 
 /// 풀이 시트 본문. [content]는 풀이할 내용이고, [head]가 있으면 제목 줄 대신 머리로 놓습니다
 /// (`hanja-tag`). [diaryLinkTag]가 있으면 본문 아래에 그 태그(키)의 모아보기 링크를 둡니다.
@@ -37,11 +41,12 @@ final class EvidenceTarget {
 
 /// 근거 시트 본문. [slotId]는 근거를 보는 writing 슬롯 id이고, [personal]은 "내 사주에서는"에
 /// 보일 원국 개인 해석의 자리입니다(사주 표 칸 용어에서 열었을 때만, A58). [target]은 시트 위
-/// 대상입니다.
+/// 대상입니다. [subject]는 근거를 담은 응답이고, 없으면 슬롯으로 정합니다([evidenceSubjectFor]).
 typedef EvidenceBodyBuilder = Widget Function(
   String slotId,
   PersonalReadingKey? personal,
   EvidenceTarget target,
+  EvidenceSubject? subject,
 );
 
 /// 공유 미리보기 시트 본문.
@@ -66,6 +71,7 @@ final class DepthSheets {
     required this.evidenceBody,
     required this.shareBody,
     this.tagBody = _unwiredTagBody,
+    this.termHasBody = _alwaysHasBody,
   });
 
   /// 풀이 시트 본문.
@@ -80,6 +86,9 @@ final class DepthSheets {
   /// 사주 기운 시트 본문.
   final TagBodyBuilder tagBody;
 
+  /// 용어 풀이 시트를 열지(true), 근거 시트를 바로 열지(false). 모르면 true입니다(A130).
+  final TermBodyCheck termHasBody;
+
   /// 풀이 시트(half)를 엽니다. [content]는 풀이할 내용입니다([ExplainTerm]은 용어가 들어 있던
   /// 슬롯과 그 슬롯을 담은 응답을 [ExplainTerm.origin]으로 갖습니다).
   ///
@@ -87,7 +96,34 @@ final class DepthSheets {
   /// 않습니다. 그날 시트(`day-sheet`)는 IA 깊이가 `surface`·`explain`까지라 근거 시트로 이어지지
   /// 않으므로 주지 않습니다. [head]는 제목 자리에 놓을 머리(`hanja-tag`)이고, [diaryLinkTag]는
   /// 대표 태그의 뜻 시트에서만 주는 태그 키입니다(본문 아래 모아보기 링크, `tag-diary` page.push).
+  ///
+  /// 용어([ExplainTerm])에 뜻도 오늘 그런 이유도 없고([termHasBody]가 false) 근거 출처가 있으면,
+  /// 이름과 근거 아이콘만 남는 풀이 시트 대신 그 근거 시트를 바로 엽니다(A130, #957). 시트를 열기
+  /// 전에 정하므로 시트가 겹치지 않습니다. 출처도 없으면 풀이 시트를 열고 제목과 한자 아래 빈
+  /// 안내를 둡니다(V123). 두 갈래 모두 [termSheetKindOf]가 정합니다.
   Future<void> openExplain(
+    BuildContext context,
+    ExplainContent content, {
+    Widget? head,
+    String? diaryLinkTag,
+  }) {
+    if (content case ExplainTerm(:final origin?) when !termHasBody(content)) {
+      return openEvidence(
+        context,
+        origin.slotId,
+        personal: origin.personal,
+        subject: origin.subject,
+      );
+    }
+    return _showExplain(
+      context,
+      content,
+      head: head,
+      diaryLinkTag: diaryLinkTag,
+    );
+  }
+
+  Future<void> _showExplain(
     BuildContext context,
     ExplainContent content, {
     Widget? head,
@@ -103,17 +139,20 @@ final class DepthSheets {
     ),
   );
 
-  /// 근거 시트(full)를 엽니다. [slotId]는 근거를 보는 슬롯 id입니다.
+  /// 근거 시트(full)를 엽니다. [slotId]는 근거를 보는 슬롯 id이고, 같은 슬롯을 여러 카드가 쓰는
+  /// 오늘 행운 카드는 카드 id(`<슬롯>#<카드 필드>`, `dailyCardSlotId`, A134)입니다.
   ///
   /// [personal]을 주면 그 자리의 원국 개인 해석("내 사주에서는") 구역을 함께 둡니다(A58).
   /// [headTags]와 [target]은 시트 위 대상(그 문장을 정한 태그와 대상 문장, 결정 V80)이고, 용어나
-  /// 사주 표에서 연 근거는 주지 않습니다.
+  /// 사주 표에서 연 근거는 주지 않습니다. [subject]는 근거를 담은 응답이고(시트를 연 때의 오늘
+  /// 응답 등, A141), 없으면 슬롯으로 정합니다([evidenceSubjectFor]).
   Future<void> openEvidence(
     BuildContext context,
     String slotId, {
     PersonalReadingKey? personal,
     List<HanjaTag> headTags = const [],
     RenderedText? target,
+    EvidenceSubject? subject,
   }) => showMyungliSheet<void>(
     context,
     size: SheetSize.full,
@@ -125,6 +164,7 @@ final class DepthSheets {
         slotId,
         personal,
         EvidenceTarget(tags: headTags, sentence: target),
+        subject,
       ),
     ),
   );
@@ -177,7 +217,7 @@ final explainBodyProvider = Provider<ExplainBodyBuilder>(
 /// 근거 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
 final evidenceBodyProvider = Provider<EvidenceBodyBuilder>(
   (ref) =>
-      (_, _, _) => throw UnimplementedError(_unwired),
+      (_, _, _, _) => throw UnimplementedError(_unwired),
 );
 
 /// 공유 미리보기 시트 본문 builder. [explainBodyProvider]와 같은 방식으로 연결됩니다.
@@ -196,5 +236,56 @@ final depthSheetsProvider = Provider<DepthSheets>(
     evidenceBody: ref.watch(evidenceBodyProvider),
     shareBody: ref.watch(shareBodyProvider),
     tagBody: ref.watch(tagBodyProvider),
+    termHasBody: (term) => termHasBodyIn(ref.read, term),
   ),
 );
+
+/// 용어 풀이 시트에 보일 본문이 있는지 판단합니다([DepthSheets.termHasBody]).
+typedef TermBodyCheck = bool Function(ExplainTerm term);
+
+bool _alwaysHasBody(ExplainTerm _) => true;
+
+/// 용어 풀이 시트가 보일 것(A130, V123). [termSheetKindOf]가 정합니다.
+enum TermSheetKind {
+  /// 뜻이나 오늘 그런 이유가 있어 풀이 시트를 엽니다.
+  body,
+
+  /// 뜻도 이유도 없고 근거 출처가 있어 풀이 시트 대신 그 근거 시트를 엽니다(A130).
+  evidence,
+
+  /// 뜻도 이유도 근거 출처도 없어 풀이 시트에 빈 안내(`emptyNote`)를 둡니다(V123).
+  empty,
+}
+
+/// 용어 풀이 시트에 무엇을 보일지 정하는 한 곳입니다(`term-token` `explainSheet.emptyNote.when`).
+///
+/// [meaning](사전 뜻)과 [todayReason](오늘 그런 이유)은 계약상 비어 있을 수 있고, 빈 문장도 없는
+/// 것으로 봅니다. [hasOrigin]은 근거로 넘길 출처(`TermOrigin`)가 있는지입니다.
+TermSheetKind termSheetKindOf({
+  required RenderedText? meaning,
+  required RenderedText? todayReason,
+  required bool hasOrigin,
+}) {
+  bool present(RenderedText? text) => text != null && !isBlankText(text);
+  if (present(meaning) || present(todayReason)) return TermSheetKind.body;
+  return hasOrigin ? TermSheetKind.evidence : TermSheetKind.empty;
+}
+
+/// [term]의 풀이 시트를 열지(true), 근거 시트를 바로 열지(false). 사전을 아직 받지 못했으면(뜻을
+/// 모름) true라 풀이 시트가 받는 동안 skeleton을 보입니다. 판단은 [termSheetKindOf]입니다.
+bool termHasBodyIn(
+  T Function<T>(ProviderListenable<T> provider) read,
+  ExplainTerm term,
+) {
+  final names = read(glossaryProvider).value;
+  if (names == null) return true;
+  final origin = term.origin;
+  final kind = termSheetKindOf(
+    meaning: names.meaningOf(term.termId),
+    todayReason: origin == null
+        ? null
+        : read(origin.subject.todayReasonOf(origin.slotId)),
+    hasOrigin: origin != null,
+  );
+  return kind != TermSheetKind.evidence;
+}

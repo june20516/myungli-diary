@@ -6,11 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/frame/scroll_hint.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
+import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/birth_info_row.dart';
 import 'package:myungli_diary/design/components/saju/daeun_table.dart';
 import 'package:myungli_diary/design/components/saju/luck_pillar.dart';
@@ -63,7 +65,13 @@ Future<GlossaryNames> _glossary() async {
     'gwandae': '관대',
     'yang': '양',
   };
-  return GlossaryNames(values);
+  return GlossaryNames(
+    values,
+    meanings: {
+      for (final entry in (body['meanings'] as Map<String, dynamic>).entries)
+        entry.key: RenderedText.fromJson(entry.value as Map<String, dynamic>),
+    },
+  );
 }
 
 /// 받은 나의 사주의 용신에 판정 근거 앞부분(`basisPreview`)을 더합니다.
@@ -115,12 +123,13 @@ Future<void> _openChart(
   bool luck = false,
   String scenario = 'member',
   Interceptor? network,
+  Future<GlossaryNames> Function() glossary = _glossary,
 }) async {
   final container = await pumpApp(
     tester,
     scenario: scenario,
     network: network,
-    overrides: [glossaryProvider.overrideWith((ref) => _glossary())],
+    overrides: [glossaryProvider.overrideWith((ref) => glossary())],
   );
   unawaited(
     container
@@ -314,6 +323,76 @@ void main() {
       find.descendant(of: _explain, matching: find.byType(StageStrip)),
       findsOneWidget,
     );
+  });
+
+  /// 만세력 띠 표의 12운성 값 칩(사전 이름이 있는 첫 칸).
+  Finder stageValueChip() => _inChart(
+    find.descendant(
+      of: find.byType(BandTable),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is TermToken &&
+            const {'장생', '목욕', '관대', '양'}.contains(widget.label),
+      ),
+    ),
+  ).first;
+
+  testWidgets('12운성 값 칩: 뜻이 있으면 풀이 시트에 뜻 문장이 있고 띠는 없습니다(V91, #957)', (
+    tester,
+  ) async {
+    await _openChart(tester, luck: true);
+    final chip = stageValueChip();
+    await tester.ensureVisible(chip);
+    await tester.pumpAndSettle();
+    await tester.tap(chip);
+    await settleWithIo(tester);
+
+    final content = tester
+        .widget<ExplainSheet>(find.byType(ExplainSheet))
+        .content;
+    expect(content, isA<ExplainTerm>());
+    expect((content as ExplainTerm).termId, startsWith('twelve_stage.'));
+    expect(
+      find.descendant(
+        of: _explain,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is SentenceBlock &&
+              widget.slotId == SlotIds.explainSheetTermMeaning,
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: _explain, matching: find.byType(StageStrip)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('표 칸 용어의 뜻이 사전에 없으면 풀이 시트 대신 근거 시트를 바로 엽니다(A130, #957)', (
+    tester,
+  ) async {
+    Future<GlossaryNames> withoutStageMeanings() async {
+      final names = await _glossary();
+      return GlossaryNames(
+        names.values,
+        meanings: {
+          for (final entry in names.meanings.entries)
+            if (!entry.key.startsWith('twelve_stage.')) entry.key: entry.value,
+        },
+        hanja: names.hanja,
+      );
+    }
+
+    await _openChart(tester, luck: true, glossary: withoutStageMeanings);
+    final chip = stageValueChip();
+    await tester.ensureVisible(chip);
+    await tester.pumpAndSettle();
+    await tester.tap(chip);
+    await settleWithIo(tester);
+
+    expect(_explain, findsNothing);
+    expect(find.byKey(const Key(ScreenIds.evidenceSheet)), findsOneWidget);
   });
 
   testWidgets('시간 모름이면 12운성 시트의 stage-strip은 시 자리를 뺀 일, 월, 연 세 자리', (

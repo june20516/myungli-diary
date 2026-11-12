@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/lunar_date.dart';
 import 'package:myungli_diary/core/api/gen/model/solar_term.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
@@ -44,6 +45,8 @@ class CalendarDay {
     required this.scoreItems,
 
     required this.level,
+
+    required this.dayVirtues,
   });
 
   @JsonKey(name: r'date', required: true, includeIfNull: false)
@@ -76,6 +79,14 @@ class CalendarDay {
   @JsonKey(name: r'level', required: true, includeIfNull: false)
   final SlotText level;
 
+  @JsonKey(
+    name: r'dayVirtues',
+    required: true,
+    includeIfNull: false,
+    unknownEnumValue: DayVirtueKind.unknownDefaultOpenApi,
+  )
+  final List<DayVirtueKind> dayVirtues;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -89,7 +100,8 @@ class CalendarDay {
           other.luckLevel == luckLevel &&
           other.score == score &&
           other.scoreItems == scoreItems &&
-          other.level == level;
+          other.level == level &&
+          other.dayVirtues == dayVirtues;
 
   @override
   int get hashCode =>
@@ -102,7 +114,8 @@ class CalendarDay {
       luckLevel.hashCode +
       score.hashCode +
       scoreItems.hashCode +
-      level.hashCode;
+      level.hashCode +
+      dayVirtues.hashCode;
 
   factory CalendarDay.fromJson(Map<String, dynamic> json) =>
       _$CalendarDayFromJson(json);

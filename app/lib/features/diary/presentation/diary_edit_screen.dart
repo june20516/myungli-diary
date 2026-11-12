@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
+import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -21,6 +22,7 @@ import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
 import 'package:myungli_diary/features/diary/model/diary_edit_target.dart';
@@ -254,6 +256,15 @@ String _monthText(AppLocalizations l10n, String locale, CalendarDate date) =>
       ).format(DateTime(date.year, date.month, date.day)),
     );
 
+/// [pillar]의 일진 글자(`diary-edit.date.iljin`, 화면 `癸未(계미)일`, 스크린리더 `계미일`, W72).
+IljinText _iljinOf(AppLocalizations l10n, Pillar pillar) {
+  final ganji = ganjiTextOf(pillar, l10n);
+  return IljinText(
+    shown: l10n.diaryEditDateIljin(ganji.shown),
+    spoken: l10n.diaryEditDateIljin(ganji.spoken),
+  );
+}
+
 /// 날짜 블록, (오프라인이면) 배너, 종이. 스크롤을 끌면 키보드가 내려갑니다(F-013).
 class _DiaryEditBody extends ConsumerWidget {
   const new({
@@ -274,7 +285,6 @@ class _DiaryEditBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final names = ref.watch(glossaryProvider).value;
     final pillar = state.dayPillar;
     final notifier = ref.read(diaryEditProvider(target).notifier);
     return SingleChildScrollView(
@@ -293,9 +303,7 @@ class _DiaryEditBody extends ConsumerWidget {
             child: DateBlock(
               day: _dayText(l10n, state.date),
               monthWeekday: _monthText(l10n, locale, state.date),
-              iljin: pillar == null
-                  ? null
-                  : l10n.diaryEditDateIljin(pillarTextOf(pillar, names)),
+              iljin: pillar == null ? null : _iljinOf(l10n, pillar),
               iljinLoading: state.dayPillarPending,
             ),
           ),

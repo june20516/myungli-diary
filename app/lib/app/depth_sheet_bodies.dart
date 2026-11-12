@@ -19,8 +19,12 @@ final List<Override> depthSheetBodyOverrides = [
         ExplainSheet(content: content, head: head, diaryLinkTag: diaryLinkTag),
   ),
   evidenceBodyProvider.overrideWithValue(
-    (slotId, personal, target) =>
-        EvidenceSheet(slotId: slotId, personal: personal, target: target),
+    (slotId, personal, target, subject) => EvidenceSheet(
+      slotId: slotId,
+      personal: personal,
+      target: target,
+      subject: subject,
+    ),
   ),
   shareBodyProvider.overrideWithValue(SharePreviewSheet.new),
   tagBodyProvider.overrideWithValue(

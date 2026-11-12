@@ -13,12 +13,15 @@ import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/personal_reading.dart';
 import 'package:myungli_diary/core/api/gen/model/position.dart';
+import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_kind.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
+import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
@@ -28,6 +31,7 @@ import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
@@ -219,12 +223,25 @@ Map<String, Map<String, String>> _memberGlossaryValues() {
   };
 }
 
+/// member 사전의 용어 뜻(`Glossary.meanings`). 뜻이 없으면 표 칸이 근거 시트를 바로 열므로
+/// (A130) 풀이 시트를 거치는 사례는 뜻도 함께 둡니다.
+Map<String, RenderedText> _memberGlossaryMeanings() {
+  final json = jsonDecode(
+    File('fixtures/member/getGlossary.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final body = json['body'] as Map<String, dynamic>;
+  return {
+    for (final entry in (body['meanings'] as Map<String, dynamic>).entries)
+      entry.key: RenderedText.fromJson(entry.value as Map<String, dynamic>),
+  };
+}
+
 /// 12운성·신살 이름을 일부만 둔 사전(이름이 없는 값은 한자 글자로 대신함, A65).
 Future<GlossaryNames> _glossaryWithStages() async {
   final values = _memberGlossaryValues();
   values['twelve_stage'] = const {'yang': '양', 'mokyok': '목욕'};
   values['shinsal'] = const {'hwagae': '화개'};
-  return GlossaryNames(values);
+  return GlossaryNames(values, meanings: _memberGlossaryMeanings());
 }
 
 /// 12운성·신살 범주가 없는 사전(server 시드가 이름을 넣기 전을 흉내 냄).
@@ -232,7 +249,28 @@ Future<GlossaryNames> _glossaryWithoutStages() async {
   final values = _memberGlossaryValues()
     ..remove('twelve_stage')
     ..remove('shinsal');
-  return GlossaryNames(values);
+  return GlossaryNames(values, meanings: _memberGlossaryMeanings());
+}
+
+/// 열린 나의 사주 응답에서 용신 판정 근거 문장(`yongsin.basis`)을 뺍니다(계약상 선택값).
+final class _DropUnlockedBasis extends Interceptor {
+  @override
+  void onResponse(
+    Response<Object?> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    final data = response.data;
+    if (response.requestOptions.path == '/v1/chart' &&
+        data is Map &&
+        data['evidenceAccess'] == 'unlocked') {
+      final body = Map<String, Object?>.of(data.cast<String, Object?>());
+      body['yongsin'] = Map<String, Object?>.of(
+        (body['yongsin']! as Map).cast<String, Object?>(),
+      )..remove('basis');
+      response.data = body;
+    }
+    handler.next(response);
+  }
 }
 
 /// 받은 나의 사주에서 원국 개인 해석을 뺍니다(원고가 없는 자리를 흉내 냄).
@@ -263,7 +301,11 @@ final class _AddUnknownShinsal extends Interceptor {
       final body = Map<String, Object?>.of(data.cast<String, Object?>());
       body['shinsal'] = [
         ...body['shinsal']! as List<Object?>,
-        {'kind': 'added_after_freeze', 'position': 'day_branch'},
+        {
+          'kind': 'added_after_freeze',
+          'position': 'day_branch',
+          'positions': ['day_branch'],
+        },
       ];
       response.data = body;
     }
@@ -335,6 +377,8 @@ void main() {
     final band = _band(manse);
     expect(band.columns[3].hiddenStems.map((stem) => stem.hanja), ['丁', '己']);
     expect(manse.basisGlyph, '庚');
+    // "<간>(<이름>)": 한자 뒤 괄호에 사전 천간 이름(A139).
+    expect(manse.basis, _ko.sajuChartManseBasis('庚(경금)'));
     expect(band.tableLabel, _ko.manseTableLabel);
 
     final daeun = tester.widget<DaeunTable>(_inChart(find.byType(DaeunTable)));
@@ -371,6 +415,38 @@ void main() {
     await settleWithIo(tester);
     expect(_evidenceSheet, findsOneWidget);
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsOneWidget);
+    // 용신 판정 근거는 문장 자체가 근거라 원전 구역이 없고, 판정 근거 구역은 사주 표와 같은
+    // 앞부분으로 잠깁니다(#931, A129).
+    final body = tester.widget<EvidenceSheetBody>(
+      _inEvidence(find.byType(EvidenceSheetBody)),
+    );
+    expect(body.showSource, isFalse);
+    expect(body.basisLead, isNotNull);
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionSource)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('evidence-unlocked: 용신 판정 근거 속 용어 시트에는 근거 보기가 없습니다(#931)', (
+    tester,
+  ) async {
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    final term = find.descendant(
+      of: _yongsinBasis,
+      matching: find.byType(TermToken),
+    );
+    expect(term, findsWidgets);
+    await tester.ensureVisible(term.first);
+    await tester.pumpAndSettle();
+    await tester.tap(term.first);
+    await settleWithIo(tester);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
+    expect(
+      find.descendant(of: explain, matching: find.byType(DepthLink)),
+      findsNothing,
+    );
   });
 
   testWidgets('reward-unlock: 광고로 잠금을 풀면 차트를 다시 받아 용신 판정 근거가 열리고 오늘도 열립니다', (
@@ -412,6 +488,19 @@ void main() {
     );
     await settleWithIo(tester);
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsNothing);
+    // 열린 근거 시트는 비지 않고 용신 판정 근거 문장을 판정 근거로 보입니다(#931).
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionBasis)),
+      findsOneWidget,
+    );
+    expect(
+      _inEvidence(find.textContaining('정했어요', findRichText: true)),
+      findsOneWidget,
+    );
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionSource)),
+      findsNothing,
+    );
 
     // 시트를 닫으면 사주 표의 용신 판정 근거가 문장으로 보입니다.
     await closeSheet(tester, _evidenceSheet);
@@ -421,6 +510,40 @@ void main() {
       _inChart(find.textContaining('정했어요', findRichText: true)),
       findsOneWidget,
     );
+  });
+
+  testWidgets('reward-unlock: 열렸는데 용신 판정 문장이 없으면 빈 근거 시트를 남기지 않고 닫습니다(#931)', (
+    tester,
+  ) async {
+    final container = await _openFromMySaju(
+      tester,
+      scenario: 'reward-unlock',
+      network: _DropUnlockedBasis(),
+      overrides: [
+        rewardPollTimingProvider.overrideWithValue((
+          interval: const Duration(milliseconds: 100),
+          timeout: const Duration(minutes: 10),
+        )),
+      ],
+    );
+    await _tapYongsinOpen(tester);
+    final unlock = evidenceUnlockControllerProvider(
+      const ChartEvidenceSubject(),
+    );
+    await pumpUntil(
+      tester,
+      () => container.exists(unlock) && container.read(unlock).adReady,
+    );
+    await tester.tap(_inEvidence(find.byKey(EvidenceLockPanel.ctaKey)));
+    await pumpUntil(
+      tester,
+      () =>
+          container.read(chartControllerProvider).value?.evidenceAccess ==
+          EvidenceAccess.unlocked,
+      allowOngoing: true,
+    );
+    await settleWithIo(tester);
+    expect(_evidenceSheet, findsNothing);
   });
 
   testWidgets('evidence-unlocked: 십성 용어 → 풀이 시트 → 근거 보기 → 내 사주에서는(개인 해석)', (
@@ -467,7 +590,7 @@ void main() {
           return GlossaryNames({
             ...names.values,
             'role': {...?names.values['role'], 'day_master': '일간'},
-          });
+          }, meanings: names.meanings);
         }),
       ],
     );
@@ -632,7 +755,167 @@ void main() {
         shinsal: ShinsalKind.hwagae,
       ),
     );
-    expect(_personalText('이 신살 자리는'), findsOneWidget);
+    // 신살 개인 해석은 writing 원고(`personal.shinsal.hwagae`)를 렌더한 문장입니다.
+    expect(_personalText('혼자 깊이 파고드는'), findsOneWidget);
+  });
+
+  testWidgets('D124 ① 신살 띠: 걸친 기둥마다, 천간 자리 → 일주 신살 → 지지 자리로 모두 쌓습니다', (
+    tester,
+  ) async {
+    covers(const Covers(decisions: ['D124']));
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    List<String> names(int column) => [
+      for (final label in _band(manse).columns[column].shinsal) label.text,
+    ];
+    // fixture는 엔진 값입니다. 월덕은 연간과 일간 두 자리, 괴강과 십악대패는 일간과 일지에 걸친
+    // 일주 신살(대표 일지)입니다. 이름은 사전(원고)에서 옵니다.
+    expect(names(0), ['천을귀인']);
+    expect(names(1), ['월덕귀인', '괴강', '십악대패', '화개', '과숙']);
+    expect(names(2), ['천덕귀인', '암록']);
+    expect(names(3), ['월덕귀인']);
+
+    // 일주 신살은 일주 칸 하나뿐이고, 누르면 대표 자리(일지)의 원국 개인 해석입니다.
+    expect(_inBand(find.widgetWithText(TermToken, '괴강')), findsOneWidget);
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, '괴강')).first,
+    );
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+        position: Position.dayBranch,
+        shinsal: ShinsalKind.goegang,
+      ),
+    );
+    expect(_personalText('괴강이 있어 기운이 세고'), findsOneWidget);
+    await closeSheet(tester, _evidenceSheet);
+    // 괴강은 마무리 한 줄 대상이라(7.6.0 targets, V125) 풀이 시트 뜻 아래에 상자가 있습니다.
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(
+      find.descendant(of: explain, matching: find.byKey(WeighingNote.boxKey)),
+      findsOneWidget,
+    );
+    await closeSheet(tester, explain);
+
+    // 같은 신살이 두 기둥에 있으면 칸마다 그 자리의 해석입니다(일간의 월덕).
+    expect(_inBand(find.widgetWithText(TermToken, '월덕귀인')), findsNWidgets(2));
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, '월덕귀인')).first,
+    );
+    expect(
+      _personalKey(tester),
+      const PersonalReadingKey(
+        kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+        position: Position.dayStem,
+        shinsal: ShinsalKind.woldeok,
+      ),
+    );
+    expect(_personalText('태어난 날의 천간에 월덕귀인'), findsOneWidget);
+  });
+
+  testWidgets('D124 ① 나의 사주 → 사주 표: 띠의 모든 신살(새 신살 포함)이 그 자리 원국 개인 해석으로 이어집니다', (
+    tester,
+  ) async {
+    covers(const Covers(decisions: ['D124']));
+    // fixture의 원국 개인 해석 가운데 신살 항목(server가 원고로 렌더한 문장).
+    final body =
+        (jsonDecode(
+              File('fixtures/evidence-unlocked/getChart.json')
+                  .readAsStringSync(),
+            ) as Map<String, dynamic>)['body']
+            as Map<String, dynamic>;
+    final expected = <PersonalReadingKey, String>{
+      for (final reading in [
+        for (final json in body['personalReadings'] as List<dynamic>)
+          PersonalReading.fromJson(json as Map<String, dynamic>),
+      ])
+        if (reading.kind == PersonalReadingKindEnum.PersonalReadingKindShinsal)
+          PersonalReadingKey(
+            kind: reading.kind,
+            position: reading.position,
+            shinsal: reading.shinsal,
+          ): reading.text.segments
+              .map((segment) => segment.text)
+              .join(),
+    };
+    // 이 task에서 더한 신살(천덕, 월덕, 과숙, 괴강, 십악대패, 암록)이 fixture에 있습니다.
+    expect(
+      {for (final key in expected.keys) key.shinsal},
+      containsAll(<ShinsalKind>{
+        ShinsalKind.cheondeok,
+        ShinsalKind.woldeok,
+        ShinsalKind.gwasuk,
+        ShinsalKind.goegang,
+        ShinsalKind.sipakDaepae,
+        ShinsalKind.amrok,
+      }),
+    );
+
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    final seen = <PersonalReadingKey>{};
+    final shown = <String, int>{};
+    for (final column in _band(manse).columns) {
+      for (final label in column.shinsal) {
+        // 같은 이름 칩이 여러 칸에 있으면 띠 순서(시, 일, 월, 연)대로 차례로 누릅니다.
+        final index = shown.update(label.text, (n) => n + 1, ifAbsent: () => 0);
+        await _openPersonal(
+          tester,
+          _inBand(find.widgetWithText(TermToken, label.text)).at(index),
+        );
+        final key = _personalKey(tester)!;
+        expect(expected, contains(key), reason: label.text);
+        // 근거 시트의 "내 사주에서는"이 그 항목의 원고 문장입니다(앞 스무 자로 확인).
+        final text = expected[key]!;
+        expect(
+          _personalText(text.substring(0, 20)),
+          findsOneWidget,
+          reason: label.text,
+        );
+        seen.add(key);
+        await closeSheet(tester, _evidenceSheet);
+        await closeSheet(tester, find.byKey(const Key(ScreenIds.explainSheet)));
+      }
+    }
+    // 띠의 칩이 fixture의 신살 해석을 빠짐없이 덮습니다.
+    expect(seen, expected.keys.toSet());
+  });
+
+  testWidgets('D124 ⑦ 흉 신살 과숙: 풀이 시트 뜻 아래 마무리 한 줄, 근거 시트에는 없음', (tester) async {
+    covers(const Covers(decisions: ['D124']));
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    await _openPersonal(
+      tester,
+      _inBand(find.widgetWithText(TermToken, '과숙')).first,
+    );
+    // 근거 시트(원국 개인 해석 포함)에는 두지 않습니다.
+    expect(_inEvidence(find.byKey(WeighingNote.boxKey)), findsNothing);
+    expect(_personalText('과숙은 가족과의 인연이'), findsOneWidget);
+    await closeSheet(tester, _evidenceSheet);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    final note = find.descendant(
+      of: explain,
+      matching: find.byKey(WeighingNote.boxKey),
+    );
+    expect(note, findsOneWidget);
+    expect(
+      find.descendant(of: note, matching: find.text(_ko.shinsalWeighingNote)),
+      findsOneWidget,
+    );
+    final meaning = find.descendant(
+      of: explain,
+      matching: find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+    );
+    expect(
+      tester.getRect(note).top - tester.getRect(meaning).bottom,
+      moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
+    );
   });
 
   testWidgets('모르는 신살(열린 enum)은 사전과 상관없이 그 칸에서 건너뜁니다', (tester) async {
@@ -650,7 +933,7 @@ void main() {
               'hwagae': '화개',
               'unknown_default_open_api': '모르는 신살',
             },
-          });
+          }, meanings: names.meanings);
         }),
       ],
     );

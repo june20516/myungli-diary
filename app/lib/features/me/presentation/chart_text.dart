@@ -17,6 +17,7 @@ import 'package:myungli_diary/features/depth/application/evidence_unlock_control
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
+import 'package:myungli_diary/features/glossary/model/ganji_reading.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
 
@@ -94,22 +95,22 @@ final class ChartText {
   String? nameOf(String category, String value) =>
       names?.valueName(category, value) ?? names?.hanjaOf('$category.$value');
 
-  /// 천간 독음. 없으면 null입니다.
-  String? stemReading(Stem stem) => names?.valueName('stem', stem.value);
+  /// 천간 독음(원천은 [GanjiReading], A133, W72).
+  String stemReading(Stem stem) => GanjiReading.stem(stem, l10n);
 
-  /// 지지 독음. 없으면 null입니다.
-  String? branchReading(Branch branch) =>
-      names?.valueName('branch', branch.value);
+  /// 지지 독음(원천은 [GanjiReading], A133, W72).
+  String branchReading(Branch branch) => GanjiReading.branch(branch, l10n);
 
   /// 오행 이름(없으면 사전 한자).
   String? elementName(FiveElement element) => nameOf('element', element.value);
 
-  /// "庚 경"처럼 한자와 독음(있으면).
-  String stemText(Stem stem) => [stemHanja(stem), ?stemReading(stem)].join(' ');
+  /// 표 칸 스크린리더 글자: "庚 경"처럼 한자와 독음(`saju-pillars`, `luck-pillar`,
+  /// `manse-table` `a11y` "한자와 독음").
+  String stemText(Stem stem) => '${stemHanja(stem)} ${stemReading(stem)}';
 
-  /// 지지의 한자와 독음(있으면).
+  /// 지지의 한자와 독음(표 칸 스크린리더 글자).
   String branchText(Branch branch) =>
-      [branchHanja(branch), ?branchReading(branch)].join(' ');
+      '${branchHanja(branch)} ${branchReading(branch)}';
 
   /// 표 칸 용어의 풀이 시트를 엽니다.
   void openTerm(String termId, PersonalReadingKey personal) {

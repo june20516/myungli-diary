@@ -361,8 +361,23 @@ void main() {
       find.descendant(of: find.byType(SajuPillars), matching: find.text('甲')),
       findsOneWidget,
     );
+    // 기둥 아래는 사전 값 이름(갑목)이 아니라 원고 독음(갑)입니다(A133, W72).
+    expect(
+      find.descendant(of: find.byType(SajuPillars), matching: find.text('갑목')),
+      findsNothing,
+    );
+    // 새 원국에서 甲은 일간 하나라 독음 '갑'도 기둥 전체에 하나이고, 그 자리는 일간 칸(테두리와 '나'
+    // 꼬리표를 겹친 칸)입니다. 독음이 두 번 그려지는 회귀를 잡습니다.
     expect(
       find.descendant(of: find.byType(SajuPillars), matching: find.text('갑')),
+      findsOneWidget,
+    );
+    final dayMasterCell = find.ancestor(
+      of: find.byKey(SajuPillars.dayMasterKey),
+      matching: find.byType(Stack),
+    );
+    expect(
+      find.descendant(of: dayMasterCell.first, matching: find.text('갑')),
       findsOneWidget,
     );
     // 정보 수정·설정은 스택에서 빠졌습니다(go).

@@ -46,6 +46,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     --dart-define-from-file=config/env/staging.json
   # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
+  상품 id는 스토어 상품이 생긴 뒤(E12, 판매는 E15 뒤) 로컬 값으로 넘깁니다. 그 전 빌드나 id를 빠뜨린 빌드는 상품 목록이 비어, 광고 제거 화면이 `offer-card` `unavailable`(가격, 기간 고지, 구매 버튼 대신 안내 한 줄 `ad-free.unavailable.body`, 구매 내역과 약관 안내는 그대로)을 보입니다(V123, A139 ①). 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. 빌드 번호는 아래 "스토어 빌드 번호"를 따릅니다. 앱 서명 키는 Play가 보관합니다(E8).
 * **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 `CLAUDE.md` 현재 상태의 스토어 빌드 줄에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 이 Mac의 Xcode > Settings > Accounts에 팀 Apple ID가 로그인되어 있어야 합니다. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`).
@@ -100,7 +101,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   | `member` | 로그인한 회원. 약관 동의, 프로필 있음. 로그인 수단 연결 목록은 처음 카카오 하나이고, Google 붙이기는 409 `auth.identity_in_use`, 마지막 하나 떼기는 409 `auth.last_identity`, 합치기 인증은 연결된 제공자면 422 `merge.same_account`, Apple이면 422 `merge.no_account`, 그 밖은 요약 200입니다 |
   | `consent-required` | 로그인했지만 약관 동의 필요 |
   | `profile-required` | 약관 동의했지만 프로필 없음. 프로필을 저장하면 내 정보가 프로필 있음으로 바뀝니다 |
-  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아니고 프로필 언어가 en이라 앱이 영어입니다(A60) |
+  | `member-overseas` | 한국 밖(America/Los_Angeles) 기기의 회원. 기기 시간대가 한국이 아니고 프로필 언어가 en이라 앱이 영어입니다(A60). 오늘 응답은 그 시간대의 엔진 집중 시간(진시 08:00 시작)이고 `tool/gen_daily_fixtures.py`가 만듭니다 |
   | `force-update` | 최소 앱 버전이 99.0.0이라 업데이트 필요 |
   | `offline` | 네트워크에 연결할 수 없음 |
   | `overseas` | 한국 밖(기기 지역 US) 기기에서 처음 설치한 사용자. 시진 확인 줄과 출생지 질문 갈래를 확인합니다 |
@@ -137,6 +138,8 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   | `reaction-delete-failed` | 로그인한 회원. 총운 문장의 반응을 지우는 요청(deleteReaction)이 503 service.unavailable이라 끈 반응이 다시 켜지고 오류 toast가 뜹니다. 켜진 채로 시작하는 응답은 테스트가 대는 getDaily 대역으로 만듭니다 |
   | `evidence-unlocked` | 로그인한 회원. 근거 열람 권한이 있어(getEntitlements insight 활성) 오늘(getDaily)과 나의 사주(getChart)가 evidenceAccess unlocked로 오고 근거 시트가 처음부터 열려 있습니다. 나의 사주에는 용신 판정 근거와 원국 개인 해석(`personalReadings`)이 있습니다 |
   | `reward-unlock` | 로그인한 회원. 근거 시트에서 보상형 광고를 끝까지 보면 이용권(getEntitlements)이 세 번째 응답부터 insight 활성이 되고, 다시 받은 오늘(getDaily 두 번째 응답부터)과 나의 사주(getChart 두 번째 응답부터)가 unlocked입니다 |
+  | `daily-pair-virtue` | 로그인한 회원. 오늘(2026-10-19, getDaily)이 행운 색이 둘인 날(`secondColor`)이면서 천덕일과 월덕일이 함께 드는 날(`dayVirtues` 둘, 천덕일 먼저)입니다. 근거는 잠겨 있습니다. 응답 전체가 엔진 값이고 문장은 writing ko 원고를 `tool/gen_daily_fixtures.py`가 렌더한 것입니다 |
+  | `daily-pair-virtue-unlocked` | `daily-pair-virtue`와 같은 날의 근거가 열린 응답(`evidence-unlocked`를 이어받음). 덕일과 두 색 문장에 근거 전부(`evidence`)가 있습니다 |
   | `reward-timeout` | 로그인한 회원. 보상형 광고를 끝까지 봐도 이용권(getEntitlements)이 계속 비활성이라 확인 시간(30초)이 지나 잠금 해제 실패 toast를 봅니다 |
   | `reward-unavailable` | 로그인한 회원. 볼 수 있는 보상형 광고가 없어 근거 시트의 광고 버튼이 꺼지고 안내가 보입니다 |
   | `reward-dismissed` | 로그인한 회원. 보상형 광고를 끝까지 보지 않고 닫아 근거 시트가 잠긴 그대로입니다 |
@@ -150,6 +153,8 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   프로필 저장(`updateProfile`)은 시나리오 파일이 200이면 보낸 필드만 그 응답의 프로필에 덮어 답하고(merge-patch) 다음 저장은 그 결과에서 이어 갑니다. 그래서 설정에서 언어·알림을 바꾸면 앱에 그대로 보입니다. 200이 아닌 파일(오류 시나리오)은 파일이 답합니다. 프로필 읽기(`getProfile`)는 파일이 없으면 마지막으로 저장한 프로필, 그것도 없으면 `updateProfile` 200 파일의 프로필입니다.
 
   나의 사주(`getChart`)는 `tool/gen_chart_fixtures.py`가 member 프로필(양력 1990-05-15 14:30, 여성, Asia/Seoul)로 core 엔진을 시나리오의 오늘(2026-10-13)에 돌려 만듭니다. 문장(용신 판정 근거·개인 해석·`ilganHead`·`ilganBody`·`yongsinSummary`)은 writing 슬롯 형식의 대역 문장입니다. `member`는 locked라 판정 근거와 개인 해석이 없습니다. fixture는 입력과 상관없이 같으므로, 정보 수정에서 사주를 바꾼 뒤의 새 원국은 테스트가 응답 대역으로 만듭니다(`test/flows/me_journey_flow_test.dart`). 계정 삭제(`deleteMe`)는 member에서 202(삭제 예정 시각)이고, 진입 설정(`getAppConfig`)의 `legal`은 대역 주소(`example.com`)라 약관 줄이 외부 브라우저 대역으로 열립니다(D80).
+
+  오늘(`getDaily`)은 손으로 쓴 응답(시나리오의 오늘을 용신의 날로 보이려고 고른 값)에 REST 1.11.0 값(`dayVirtues`, 낮과 밤 집중 시간의 `dayDate`·`dayPillar`·문장·근거, `nightFocusTime`, `previousNightFocusTime`)만 `tool/gen_daily_fixtures.py`가 엔진으로 채우고, `daily-pair-virtue`, `daily-pair-virtue-unlocked`는 그 도구가 응답 전체를 엔진 값과 writing ko 원고로 만듭니다. 달력(`getCalendar`)은 `tool/gen_calendar_fixtures.py`, 용어 사전(`member/getGlossary.json`)은 server 규칙대로 writing ko 원고와 `hanja.yaml`에서 만드는 `tool/gen_glossary_fixtures.py`입니다. 원고 읽기와 렌더는 `tool/fixture_content.py`가 함께 맡습니다. 엔진을 쓰는 도구는 core/에서 `uv run python ../app/tool/<도구> <출력 경로>`로 돌립니다(도구 머리 설명).
 
   원본은 `fixtures/scenarios.json`입니다. `extends`로 다른 시나리오의 fixture를 이어받습니다. `rewardedAd`(`earned`·`dismissed`·`unavailable`·`failed`, 생략하면 `earned`)는 보상형 광고 대역의 결과이고, 이어받지 않고 시나리오마다 정합니다.
 * **개발 메뉴:** debug 빌드의 fake 모드에서 화면 왼쪽 위 상태 표시줄 칸을 길게 누르면 시나리오 목록이 열립니다. 고르면 앱이 그 시나리오로 처음부터 다시 시작합니다(로컬 DB도 비웁니다).
@@ -236,7 +241,7 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 
 * **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다. 반복 중에는 바꾼 golden 테스트 파일만 줍니다(`tool/goldens_linux.sh test/design/saju_golden_test.dart`). 이때는 다른 기준 이미지를 지우지 않으므로, golden을 지운 변경은 대상 없이 전체로 돌립니다.
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
-* **Flutter 버전:** golden을 만드는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. 로컬 Flutter와 무관하게 `goldens_linux.sh`와 CI의 `goldens`·`update-goldens` job이 이 값을 읽습니다. Flutter를 올릴 때는 이 값을 올리고 같은 PR에서 golden을 다시 만듭니다.
+* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
 
 ### 화면 스크린샷 (#336)
 화면별·상태별 스크린샷을 golden과 같은 Linux 렌더(Docker)로 그려 `docs/artifacts/`에 등록합니다. 제품 지도가 `index.json`의 `screens`로 화면 카드 그림을 고릅니다.

@@ -6,8 +6,8 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// 아이콘 굵기. 평소·미선택은 [light], 선택은 [regular]입니다.
 ///
-/// Bold·Thin·Duotone은 두지 않습니다. Fill은 경고 표시([AppIcon.caution])만
-/// 쓰므로 이 타입으로는 고를 수 없습니다.
+/// Bold·Thin·Duotone은 두지 않습니다. Fill은 경고 표시([AppIcon.caution])와 낮과 밤 표시
+/// ([AppIcon.timeOfDay])만 쓰므로 이 타입으로는 고를 수 없습니다.
 enum AppIconWeight {
   /// 평소·미선택.
   light,
@@ -46,6 +46,20 @@ enum AppIconSize {
   }
 }
 
+/// 낮과 밤 표시(`elements.json` `icon.weights.timeOfDay`, 결정 V115).
+enum AppTimeOfDay {
+  /// 낮: 채운 해(`sun` Fill).
+  day(PhosphorIconsFill.sun),
+
+  /// 밤: 채운 달(`moon` Fill).
+  night(PhosphorIconsFill.moon);
+
+  new(this.glyph);
+
+  /// Fill 글리프.
+  final IconData glyph;
+}
+
 /// 같은 글리프의 Light·Regular 한 쌍.
 ///
 /// 굵기마다 별도 글꼴이라 `const IconData`로 둬야 릴리스 빌드의 아이콘 트리 셰이킹이
@@ -77,7 +91,8 @@ class AppIcon extends StatelessWidget {
     this.scalesWithText = false,
     this.textScaleMax,
     super.key,
-  }) : _caution = false;
+  }) : _caution = false,
+       _fill = null;
 
   /// 경고 표시(`mark.caution`): `warning-circle` Fill.
   ///
@@ -93,7 +108,23 @@ class AppIcon extends StatelessWidget {
        weight = AppIconWeight.light,
        color = null,
        scalesWithText = false,
-       _caution = true;
+       _caution = true,
+       _fill = null;
+
+  /// 낮과 밤 표시(`icon.weights.timeOfDay`): 채운 해와 달. 경고 표시 밖에서 Fill을 쓰는 유일한
+  /// 자리입니다(행운 시간 칩과 24시간 띠 머리, 결정 V115). 색은 놓는 쪽이 `color.time.*`로 줍니다.
+  const new timeOfDay(
+    AppTimeOfDay period, {
+    required AppIconSize this.size,
+    required Color this.color,
+    this.scalesWithText = false,
+    this.textScaleMax,
+    super.key,
+  }) : icon = _cautionGlyph,
+       weight = AppIconWeight.light,
+       semanticLabel = null,
+       _caution = false,
+       _fill = period;
 
   /// 글자 옆 아이콘의 굵기(`elements.json` `icon.adjacentTextWeight`): 옆 글자가
   /// 400~500이면 [AppIconWeight.light], 600 이상이면 [AppIconWeight.regular]입니다.
@@ -126,6 +157,9 @@ class AppIcon extends StatelessWidget {
 
   final bool _caution;
 
+  /// [AppIcon.timeOfDay]의 낮과 밤. 그 밖에는 null입니다.
+  final AppTimeOfDay? _fill;
+
   @override
   Widget build(BuildContext context) {
     if (_caution) {
@@ -144,10 +178,11 @@ class AppIcon extends StatelessWidget {
     }
     final logical = size!.logical;
     return Icon(
-      switch (weight) {
-        AppIconWeight.light => icon.light,
-        AppIconWeight.regular => icon.regular,
-      },
+      _fill?.glyph ??
+          switch (weight) {
+            AppIconWeight.light => icon.light,
+            AppIconWeight.regular => icon.regular,
+          },
       size: scalesWithText
           ? scaledSize(context, logical, textScaleMax)
           : logical,

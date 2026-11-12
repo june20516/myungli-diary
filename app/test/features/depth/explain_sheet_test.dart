@@ -17,6 +17,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
@@ -44,7 +45,7 @@ const _names = GlossaryNames({
 final _depthSheets = DepthSheets(
   explainBody: (content, {head, diaryLinkTag}) =>
       ExplainSheet(content: content, head: head, diaryLinkTag: diaryLinkTag),
-  evidenceBody: (slotId, personal, _) => Text(
+  evidenceBody: (slotId, personal, _, _) => Text(
     personal == null
         ? '근거 $slotId'
         : '근거 $slotId ${personal.kind.value} ${personal.position?.value}',
@@ -165,6 +166,98 @@ void main() {
       expect(link.variant, DepthLinkVariant.block);
       expect(link.label, isNull, reason: '근거 진입점은 글자가 없는 아이콘');
       expect(link.subject, '식신');
+    });
+
+    group('흉 신살 마무리 한 줄(weighingNote, V120)', () {
+      final meaning = RenderedText(segments: [Segment(text: '뜻 문장이에요.')]);
+      GlossaryNames namesWith(String termId) => GlossaryNames(
+        {
+          'shinsal': const {'gwasuk': '과숙', 'hwagae': '화개'},
+          'tag': const {'gongmang': '공망'},
+        },
+        meanings: {termId: meaning},
+      );
+      Future<void> open(WidgetTester tester, String termId) async {
+        await tester.pumpWidget(
+          _app(
+            ExplainSheet(content: ExplainTerm(termId, origin: _today('a.b'))),
+            glossary: () async => namesWith(termId),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      for (final termId in ['shinsal.gwasuk', 'tag.gongmang']) {
+        testWidgets('$termId: 뜻 바로 아래 space.12에 원고 문장 상자', (tester) async {
+          await open(tester, termId);
+          final box = find.byKey(WeighingNote.boxKey);
+          expect(box, findsOneWidget);
+          expect(
+            find.descendant(
+              of: box,
+              matching: find.text(_ko.shinsalWeighingNote),
+            ),
+            findsOneWidget,
+          );
+          final meaningRect = tester.getRect(
+            find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          );
+          expect(
+            tester.getRect(box).top - meaningRect.bottom,
+            moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
+          );
+          // 상자는 근거 진입점보다 위에 있고 누를 수 없습니다.
+          expect(
+            tester.getRect(box).bottom,
+            lessThanOrEqualTo(tester.getRect(find.byType(DepthLink)).top),
+          );
+          expect(
+            find.descendant(of: box, matching: find.byType(GestureDetector)),
+            findsNothing,
+          );
+        });
+      }
+
+      testWidgets('흉 신살이 아닌 신살 용어에는 두지 않습니다', (tester) async {
+        await open(tester, 'shinsal.hwagae');
+        expect(find.byKey(WeighingNote.boxKey), findsNothing);
+      });
+
+      testWidgets('뜻이 빈 문장이면 뜻 줄도 상자도 두지 않습니다(A139 ②)', (tester) async {
+        await tester.pumpWidget(
+          _app(
+            ExplainSheet(
+              content: ExplainTerm('shinsal.gwasuk', origin: _today('a.b')),
+            ),
+            glossary: () async => GlossaryNames(
+              const {
+                'shinsal': {'gwasuk': '과숙'},
+              },
+              meanings: {
+                'shinsal.gwasuk': RenderedText(segments: [Segment(text: '  ')]),
+              },
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(WeighingNote.boxKey), findsNothing);
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('뜻이 없으면 상자도 두지 않습니다', (tester) async {
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('shinsal.gwasuk')),
+            glossary: () async => namesWith('shinsal.other'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('과숙'), findsOneWidget);
+        expect(find.byKey(WeighingNote.boxKey), findsNothing);
+      });
     });
 
     testWidgets('사전에 한자가 있으면 제목 옆에 한자를 그립니다', (tester) async {
@@ -335,6 +428,110 @@ void main() {
 
       expect(find.text('식신'), findsOneWidget);
       expect(find.byType(DepthLink), findsNothing);
+    });
+
+    group('빈 풀이(emptyNote, V123, #957)', () {
+      testWidgets('뜻도 이유도 출처도 없으면 제목과 한자 아래 12에 빈 안내 한 줄이고 근거 진입점은 없습니다', (
+        tester,
+      ) async {
+        final names = GlossaryNames(
+          _names.values,
+          hanja: const {'ten_god.siksin': '食神'},
+        );
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
+            glossary: () async => names,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final note = find.byKey(ExplainSheetBody.emptyNoteKey);
+        expect(tester.widget<Text>(note).data, _ko.explainSheetTermEmpty);
+        final tokens = tester.element(note).tokens;
+        final style = tester.widget<Text>(note).style!;
+        expect(style.fontSize, tokens.typography.bodyUi.fontSize);
+        expect(style.color, tokens.colors.textSecondary);
+        expect(
+          tester.getTopLeft(note).dy -
+              tester.getBottomLeft(find.byKey(ExplainSheetBody.hanjaKey)).dy,
+          ExplainSheetBody.emptyNoteGap,
+        );
+        expect(find.byType(DepthLink), findsNothing);
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('뜻이 있거나 빈 문장이 아니면 빈 안내가 없습니다', (tester) async {
+        final names = GlossaryNames(
+          _names.values,
+          meanings: {
+            'ten_god.siksin': RenderedText(segments: [Segment(text: '뜻')]),
+          },
+        );
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
+            glossary: () async => names,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsNothing);
+      });
+
+      testWidgets('뜻이 빈 문장이고 출처가 없으면 빈 안내입니다', (tester) async {
+        final names = GlossaryNames(
+          _names.values,
+          meanings: {
+            'ten_god.siksin': RenderedText(segments: [Segment(text: ' ')]),
+          },
+        );
+        await tester.pumpWidget(
+          _app(
+            const ExplainSheet(content: ExplainTerm('ten_god.siksin')),
+            glossary: () async => names,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsOneWidget);
+        // 빈 문장 뜻은 없는 것이라 안내 아래 빈 뜻 줄이 남지 않습니다(A139 ②).
+        expect(
+          find.byKey(const Key(SlotIds.explainSheetTermMeaning)),
+          findsNothing,
+        );
+      });
+
+      testWidgets('출처가 있으면(근거로 넘길 곳이 있음) 빈 안내 대신 근거 진입점입니다', (tester) async {
+        await tester.pumpWidget(_app(_sheet, glossary: () async => _names));
+        await tester.pumpAndSettle();
+        expect(find.byKey(ExplainSheetBody.emptyNoteKey), findsNothing);
+        expect(find.byType(DepthLink), findsOneWidget);
+      });
+    });
+
+    group('termSheetKindOf(A130, V123)', () {
+      final meaning = RenderedText(segments: [Segment(text: '뜻')]);
+      final blank = RenderedText(segments: [Segment(text: '')]);
+      test('뜻이나 이유가 있으면 풀이, 없고 출처가 있으면 근거, 출처도 없으면 빈 안내', () {
+        expect(
+          termSheetKindOf(meaning: meaning, todayReason: null, hasOrigin: true),
+          TermSheetKind.body,
+        );
+        expect(
+          termSheetKindOf(meaning: null, todayReason: meaning, hasOrigin: true),
+          TermSheetKind.body,
+        );
+        expect(
+          termSheetKindOf(meaning: blank, todayReason: null, hasOrigin: true),
+          TermSheetKind.evidence,
+        );
+        expect(
+          termSheetKindOf(meaning: null, todayReason: blank, hasOrigin: false),
+          TermSheetKind.empty,
+        );
+      });
     });
 
     testWidgets('loading: 사전을 받는 동안 skeleton이고 끝나면 내용입니다', (tester) async {
@@ -615,7 +812,7 @@ void main() {
             head: head,
             diaryLinkTag: diaryLinkTag,
           ),
-          evidenceBody: (_, _, _) => const SizedBox.shrink(),
+          evidenceBody: (_, _, _, _) => const SizedBox.shrink(),
           shareBody: SizedBox.shrink,
         );
         final router = GoRouter(

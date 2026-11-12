@@ -5,12 +5,23 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 /// member 시나리오의 `getDaily` 응답 본문. fixture와 테스트가 같은 값을 보게 합니다.
-Map<String, dynamic> memberDailyJson() {
+Map<String, dynamic> memberDailyJson() => dailyFixtureJson('member');
+
+/// [scenario] 시나리오의 `getDaily` 응답 본문(예 `daily-pair-virtue`, 색이 둘인 날).
+Map<String, dynamic> dailyFixtureJson(String scenario) {
   final fixture = jsonDecode(
-    File('fixtures/member/getDaily.json').readAsStringSync(),
+    File('fixtures/$scenario/getDaily.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   return fixture['body'] as Map<String, dynamic>;
 }
+
+/// fake 시나리오 `member-overseas`(프로필 시간대 `America/Los_Angeles`)의 `getDaily` 응답 본문.
+///
+/// 서울 밖 시간대 응답의 시진 경계(#1064)를 보는 테스트가 씁니다. member 응답에 그 시간대의 core
+/// `compose_daily` 값(덕일, 세 집중 시간 카드)을 채운 것이고 `tool/gen_daily_fixtures.py`가 만듭니다.
+/// 진시는 08:00(-07:00)에 시작합니다.
+Map<String, dynamic> losAngelesDailyJson() =>
+    dailyFixtureJson('member-overseas');
 
 /// `/v1/daily/{date}`만 답하는 대역 서버. 대역 서버(fixture) 없이 Dio 하나로 쓸 때 씁니다.
 ///

@@ -76,6 +76,7 @@ class EvidenceSheetBody extends StatefulWidget {
     this.sourceLead,
     this.showPersonal = false,
     this.showJudgment = true,
+    this.showSource = true,
     this.personalEmpty,
     this.unlockTag,
     this.onWatchAd,
@@ -181,7 +182,8 @@ class EvidenceSheetBody extends StatefulWidget {
   /// 판정 근거 본문(`evidence-sheet.basis.body`), 근거마다 한 문단. 잠기면 비어 있습니다.
   final List<RenderedText> basis;
 
-  /// 원전(`evidence-sheet.source.quote`), 근거마다 하나. 문장은 줄바꿈으로 뜻, 원문, 출처를
+  /// 원전(`evidence-sheet.source.quote`), 원전 키(`sourceRef`)마다 하나(같은 원전은 부르는 쪽이
+  /// 처음 한 번만 넘김, #924). 문장은 줄바꿈으로 뜻, 원문, 출처를
   /// 나눈 원고입니다(`evidence.source` structure). 잠기면 비어 있습니다.
   final List<RenderedText> source;
 
@@ -194,6 +196,10 @@ class EvidenceSheetBody extends StatefulWidget {
   /// 판정 근거·원전 구역을 둘지. 표 칸 용어에서 연 시트는 그 칸에 판정 근거가 없으므로 false이고,
   /// 잠겨도 열린 뒤 없을 구역을 약속하지 않습니다(A58).
   final bool showJudgment;
+
+  /// [showJudgment]일 때 원전 구역을 두는지. 문장 자체가 근거라 원전이 오지 않는 자리(용신 판정
+  /// 근거, #931)는 false라 잠겨도 원전 자리값을 그리지 않습니다.
+  final bool showSource;
 
   /// 열렸는데 [personal]이 없을 때(원고 없음) "내 사주에서는" 구역 제목 아래 보일 안내. 없으면
   /// 그 구역을 그리지 않습니다(A22 남은 규칙).
@@ -316,16 +322,17 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
               lockedLines: LockVeilLines.basis,
               lead: widget.basisLead,
             ),
-            _section(
-              context,
-              title: l10n.evidenceSheetSectionSource,
-              texts: widget.source,
-              titleSlotId: SlotIds.evidenceSheetSectionSource,
-              slotId: SlotIds.evidenceSheetSourceQuote,
-              lockedLines: LockVeilLines.source,
-              lead: widget.sourceLead,
-              quote: true,
-            ),
+            if (widget.showSource)
+              _section(
+                context,
+                title: l10n.evidenceSheetSectionSource,
+                texts: widget.source,
+                titleSlotId: SlotIds.evidenceSheetSectionSource,
+                slotId: SlotIds.evidenceSheetSourceQuote,
+                lockedLines: LockVeilLines.source,
+                lead: widget.sourceLead,
+                quote: true,
+              ),
           ],
           if (widget.showPersonal)
             _section(
@@ -534,10 +541,13 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
   }
 
   /// 원전(열린 줄과 잠긴 앞부분)의 대체 글꼴(`source.fontFallback`). 한자는 문장 글꼴에
-  /// 글리프가 없어 `font.family.hanja`로만 그립니다(한글은 그대로).
+  /// 글리프가 없어 `font.family.hanja`로 그립니다(한글은 그대로). 그 family에도 없는 글자(괴강
+  /// 魁罡의 罡)는 토큰이 정한 그 family의 대체 글꼴(`Myungli Hanja Supplement`, 토큰 1.9.0)로
+  /// 이어 그리므로 family 이름만이 아니라 그 대체 목록까지 붙입니다(A137).
   List<String> _quoteFontFallback(BuildContext context) {
-    final hanjaFamily = context.tokens.typography.hanjaPillar.fontFamily;
-    return hanjaFamily == null ? const [] : [hanjaFamily];
+    final hanja = context.tokens.typography.hanjaPillar;
+    final family = hanja.fontFamily;
+    return family == null ? const [] : [family, ...?hanja.fontFamilyFallback];
   }
 
   /// 잠긴 구역의 또렷한 앞부분. 비었으면 자리값만입니다.

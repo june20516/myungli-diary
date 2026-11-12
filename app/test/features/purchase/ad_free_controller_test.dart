@@ -249,17 +249,17 @@ void main() {
     expect(container.read(adFreeControllerProvider), isFalse);
   });
 
-  test('광고 제거권 id가 없으면(E12 전) 상품은 오류 상태이고 보고는 남지 않습니다', () async {
-    final container = await _start(
-      RevenueCatPurchases(apiKey: 'test_key', productIds: const {}),
-    );
-    await expectLater(
-      container.read(adFreeProductProvider.future),
-      throwsA(isA<UnexpectedError>()),
-    );
-    expect(
-      (container.read(crashReporterProvider) as FakeCrashReporter).errors,
-      isEmpty,
-    );
-  });
+  test(
+    '광고 제거권 id가 없으면(E12 전) 상품은 오류가 아니라 없음(null)이고 보고는 남지 않습니다(A126)',
+    () async {
+      final container = await _start(
+        RevenueCatPurchases(apiKey: 'test_key', productIds: const {}),
+      );
+      expect(await container.read(adFreeProductProvider.future), isNull);
+      expect(
+        (container.read(crashReporterProvider) as FakeCrashReporter).errors,
+        isEmpty,
+      );
+    },
+  );
 }

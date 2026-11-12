@@ -22,6 +22,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/birth_format.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
+import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
@@ -290,12 +291,15 @@ void main() {
     };
     final rows = find.descendant(
       of: _slot(SlotIds.previewUsedInput),
-      matching: find.byType(PreviewUsedInputRow),
+      matching: find.byType(SettingsRow),
     );
-    expect({
-      for (final row in tester.widgetList<PreviewUsedInputRow>(rows))
-        row.label: row.value,
-    }, expectedRows);
+    final drawn = tester.widgetList<SettingsRow>(rows);
+    // 줄은 settings-row readonly(V122)이고 정보 수정과 같은 항목 순서입니다.
+    expect(drawn.map((row) => row.variant).toSet(), {
+      SettingsRowVariant.readonly,
+    });
+    expect([for (final row in drawn) row.label], expectedRows.keys.toList());
+    expect({for (final row in drawn) row.label: row.value}, expectedRows);
     // 줄은 항목 이름 다음에 값을 이어 읽고, 누를 수 없습니다.
     final first = tester.getSemantics(rows.first);
     expect(first.label, '${_ko.previewUsedInputName}, 별님');
@@ -348,8 +352,11 @@ void main() {
     await tester.pumpAndSettle();
     await settlePreview(tester);
 
-    final rows = tester.widgetList<PreviewUsedInputRow>(
-      find.byType(PreviewUsedInputRow),
+    final rows = tester.widgetList<SettingsRow>(
+      find.descendant(
+        of: _slot(SlotIds.previewUsedInput),
+        matching: find.byType(SettingsRow),
+      ),
     );
     expect(
       {for (final row in rows) row.label: row.value},

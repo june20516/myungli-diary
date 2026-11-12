@@ -15,6 +15,10 @@ abstract class _$FocusSlotCWProxy {
 
   FocusSlot huangdaoLucky(bool huangdaoLucky);
 
+  FocusSlot dayDate(String? dayDate);
+
+  FocusSlot dayPillar(Pillar? dayPillar);
+
   FocusSlot reasons(List<FocusSlotReasonsEnum> reasons);
 
   /// Creates a new instance with the provided field values.
@@ -30,6 +34,8 @@ abstract class _$FocusSlotCWProxy {
     DateTime start,
     DateTime end,
     bool huangdaoLucky,
+    String? dayDate,
+    Pillar? dayPillar,
     List<FocusSlotReasonsEnum> reasons,
   });
 }
@@ -55,6 +61,12 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
       call(huangdaoLucky: huangdaoLucky);
 
   @override
+  FocusSlot dayDate(String? dayDate) => call(dayDate: dayDate);
+
+  @override
+  FocusSlot dayPillar(Pillar? dayPillar) => call(dayPillar: dayPillar);
+
+  @override
   FocusSlot reasons(List<FocusSlotReasonsEnum> reasons) =>
       call(reasons: reasons);
 
@@ -72,6 +84,8 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
     Object? start = const $CopyWithPlaceholder(),
     Object? end = const $CopyWithPlaceholder(),
     Object? huangdaoLucky = const $CopyWithPlaceholder(),
+    Object? dayDate = const $CopyWithPlaceholder(),
+    Object? dayPillar = const $CopyWithPlaceholder(),
     Object? reasons = const $CopyWithPlaceholder(),
   }) {
     return FocusSlot(
@@ -92,6 +106,14 @@ class _$FocusSlotCWProxyImpl implements _$FocusSlotCWProxy {
           ? _value.huangdaoLucky
           // ignore: cast_nullable_to_non_nullable
           : huangdaoLucky as bool,
+      dayDate: dayDate == const $CopyWithPlaceholder()
+          ? _value.dayDate
+          // ignore: cast_nullable_to_non_nullable
+          : dayDate as String?,
+      dayPillar: dayPillar == const $CopyWithPlaceholder()
+          ? _value.dayPillar
+          // ignore: cast_nullable_to_non_nullable
+          : dayPillar as Pillar?,
       reasons: reasons == const $CopyWithPlaceholder() || reasons == null
           ? _value.reasons
           // ignore: cast_nullable_to_non_nullable
@@ -123,6 +145,11 @@ FocusSlot _$FocusSlotFromJson(
     start: $checkedConvert('start', (v) => DateTime.parse(v as String)),
     end: $checkedConvert('end', (v) => DateTime.parse(v as String)),
     huangdaoLucky: $checkedConvert('huangdaoLucky', (v) => v as bool),
+    dayDate: $checkedConvert('dayDate', (v) => v as String?),
+    dayPillar: $checkedConvert(
+      'dayPillar',
+      (v) => v == null ? null : Pillar.fromJson(v as Map<String, dynamic>),
+    ),
     reasons: $checkedConvert(
       'reasons',
       (v) => (v as List<dynamic>)
@@ -144,6 +171,8 @@ Map<String, dynamic> _$FocusSlotToJson(FocusSlot instance) => <String, dynamic>{
   'start': instance.start.toIso8601String(),
   'end': instance.end.toIso8601String(),
   'huangdaoLucky': instance.huangdaoLucky,
+  'dayDate': ?instance.dayDate,
+  'dayPillar': ?instance.dayPillar?.toJson(),
   'reasons': instance.reasons
       .map((e) => _$FocusSlotReasonsEnumEnumMap[e]!)
       .toList(),

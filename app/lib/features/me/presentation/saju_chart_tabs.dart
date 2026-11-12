@@ -23,13 +23,12 @@ import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/stage_strip.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
-import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
-import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/me/application/luck_years.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
+import 'package:myungli_diary/features/me/model/shinsal_cells.dart';
 import 'package:myungli_diary/features/me/presentation/chart_text.dart';
 import 'package:myungli_diary/features/me/presentation/natal_card.dart';
 
@@ -123,16 +122,10 @@ class _YongsinBasis extends StatelessWidget {
               unlocked: !locked,
               lockedLead: chart.yongsin.basisPreview,
               slotId: SlotIds.sajuChartYongsinBasis,
-              onTerm: (termId) => sheets.openExplain(
-                context,
-                ExplainTerm(
-                  termId,
-                  origin: const TermOrigin(
-                    slotId: SlotIds.sajuChartYongsinBasis,
-                    subject: ChartEvidenceSubject(),
-                  ),
-                ),
-              ),
+              // 이 문장이 곧 판정 근거라(server가 근거 목록을 주지 않음) 용어 시트에서 다시 근거로
+              // 잇지 않습니다(A129, #931).
+              onTerm: (termId) =>
+                  sheets.openExplain(context, ExplainTerm(termId)),
               onOpenLocked: () =>
                   sheets.openEvidence(context, SlotIds.sajuChartYongsinBasis),
             ),
@@ -328,7 +321,6 @@ class SajuChartLuckTab extends ConsumerWidget {
     if (column.of(chart) == null) {
       return BandColumn(header: header, isDay: isDay, empty: true);
     }
-    final positions = {column.stem, column.branch};
     final hidden = chart.hiddenStems
         .where((item) => item.position == column.branch)
         .expand((item) => item.stems);
@@ -368,18 +360,23 @@ class SajuChartLuckTab extends ConsumerWidget {
               ),
             ),
       shinsal: [
-        // 신살은 열린 enum이라 이 app이 모르는 신살은 그 칸에서 건너뜁니다(A66).
-        for (final item in chart.shinsal)
-          if (item.kind.isKnown && positions.contains(item.position))
-            ?text.luckLabel(
-              'shinsal',
-              item.kind.value,
-              PersonalReadingKey(
-                kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
-                position: item.position,
-                shinsal: item.kind,
-              ),
+        // 걸친 기둥마다, 칸 안 순서와 중복 거름은 shinsalInPillar(V121, A137). 모르는
+        // 신살(열린 enum, A66)과 사전에 이름이 없는 신살(A112)은 건너뜁니다. 원국 개인
+        // 해석은 어느 칸에서 눌러도 대표 자리(`position`)로 찾습니다.
+        for (final (:shinsal, place: _) in shinsalInPillar(
+          chart.shinsal,
+          stem: column.stem,
+          branch: column.branch,
+        ))
+          ?text.luckLabel(
+            'shinsal',
+            shinsal.kind.value,
+            PersonalReadingKey(
+              kind: PersonalReadingKindEnum.PersonalReadingKindShinsal,
+              position: shinsal.position,
+              shinsal: shinsal.kind,
             ),
+          ),
       ],
     );
   }
@@ -393,12 +390,14 @@ LuckGanji luckGanjiOf(Pillar pillar) => LuckGanji(
   branchHanja: branchHanja(pillar.branch),
 );
 
-/// 일간 표기 "庚(경금)": 한자 뒤 괄호에 독음과 오행 이름. 독음이 없으면 한자만, 오행 이름이
-/// 없으면 독음까지입니다.
+/// 일간 표기 "庚(경금)": 한자 뒤 괄호에 천간 이름(사전 `stem` 값 이름, writing 슬롯
+/// `saju-chart.manse.basis`의 "<간>(<이름>)"). 괄호는 간지 독음과 같은 틀
+/// `ganjiReadingSuffix`(ja 전각, en 앞 한 칸)입니다. 이름이 없거나 한자와 같으면(ja 庚) 한자만
+/// 씁니다(A139 ④). 잇는 틀과 ja 표기는 writing 확인 대상(#1095)이고, 답이 오면 이 함수 한 곳만
+/// 바꿉니다.
 String dayMasterText(ChartText text, Stem stem) {
   final glyph = stemHanja(stem);
-  final reading = text.stemReading(stem);
-  if (reading == null) return glyph;
-  final element = text.names?.valueName('element', stemElement(stem).value);
-  return '$glyph($reading${element ?? ''})';
+  final name = text.names?.valueName('stem', stem.value);
+  if (name == null || name.isEmpty || name == glyph) return glyph;
+  return '$glyph${text.l10n.ganjiReadingSuffix(name)}';
 }

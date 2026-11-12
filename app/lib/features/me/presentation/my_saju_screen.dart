@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/l10n/notice_text.dart';
 import 'package:myungli_diary/design/components/diary/diary_summary.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
@@ -34,6 +35,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
@@ -92,6 +94,7 @@ class MySajuScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final chart = ref.watch(chartControllerProvider);
+    _keepDiaryStats(ref);
     return Semantics(
       identifier: ScreenIds.mySaju,
       child: Scaffold(
@@ -131,6 +134,13 @@ class MySajuScreen extends ConsumerWidget {
   }
 }
 
+/// 회고 집계(`diaryStatsProvider`)를 화면을 열 때 받기 시작하고 화면이 있는 동안 붙잡아 둡니다
+/// (#936, A131). 값은 회고 섹션이 읽습니다. 끝 섹션이 스크롤로 버려졌다 다시 지어져도 다시 받지
+/// 않고, 끝에 닿은 뒤에야 받기 시작해 자리가 자라는 일이 없습니다. 차트가 오류이거나 오프라인이어도
+/// 탭을 열 때마다 받습니다(A119, 캐시 없음).
+void _keepDiaryStats(WidgetRef ref) =>
+    ref.listen(diaryStatsProvider, (_, _) {});
+
 class _MySajuBody extends ConsumerWidget {
   const new({required this.chart, required this.offlineNotice});
 
@@ -165,68 +175,71 @@ class _MySajuBody extends ConsumerWidget {
     );
     final ilgan = _IlganSection(chart: chart, explain: explain);
 
-    return ListView(
-      padding: EdgeInsets.fromLTRB(
-        Space.s20,
-        Space.s8,
-        Space.s20,
-        MediaQuery.paddingOf(context).bottom + Space.s32,
-      ),
-      children: [
-        offlineNotice,
-        if (timeUnknown != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: Space.s16),
-            child: NoticeBanner(
-              variant: NoticeBannerVariant.timeUnknown,
-              message: timeUnknown,
+    // 끝에 닿은 채 회고나 하단 여백이 늦게 자라도 끝에 붙어 있습니다(#936).
+    return StickToEndOnGrow(
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          Space.s20,
+          Space.s8,
+          Space.s20,
+          MediaQuery.paddingOf(context).bottom + Space.s32,
+        ),
+        children: [
+          offlineNotice,
+          if (timeUnknown != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.s16),
+              child: NoticeBanner(
+                variant: NoticeBannerVariant.timeUnknown,
+                message: timeUnknown,
+              ),
+            ),
+          SectionHeader(
+            title: l10n.mySajuChartTitle,
+            titleIdentifier: SlotIds.mySajuChartTitle,
+            trailing: SectionHeaderLink(
+              label: l10n.mySajuChartLink,
+              onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
             ),
           ),
-        SectionHeader(
-          title: l10n.mySajuChartTitle,
-          titleIdentifier: SlotIds.mySajuChartTitle,
-          trailing: SectionHeaderLink(
-            label: l10n.mySajuChartLink,
-            onTap: () => context.push<void>(pathOf(ScreenIds.sajuChart)),
+          const SizedBox(height: SectionHeader.contentGap),
+          SectionCard(
+            child: NatalCard(chart: chart, onTermTap: text.openTerm),
           ),
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        SectionCard(
-          child: NatalCard(chart: chart, onTermTap: text.openTerm),
-        ),
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuIlganTitle,
-          titleIdentifier: SlotIds.mySajuIlganTitle,
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        ilgan,
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuYongsinTitle,
-          titleIdentifier: SlotIds.mySajuYongsinTitle,
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        yongsin,
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuFlowTitle,
-          titleIdentifier: SlotIds.mySajuFlowTitle,
-          trailing: SectionHeaderLink(
-            label: l10n.mySajuFlowLink,
-            onTap: () => context.push<void>(sajuChartLuckPath()),
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuIlganTitle,
+            titleIdentifier: SlotIds.mySajuIlganTitle,
           ),
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        _FlowCard(chart: chart, text: text),
-        const SizedBox(height: SectionHeader.sectionGap),
-        SectionHeader(
-          title: l10n.mySajuRecordTitle,
-          titleIdentifier: SlotIds.mySajuRecordTitle,
-        ),
-        const SizedBox(height: SectionHeader.contentGap),
-        const _RecordSection(),
-      ],
+          const SizedBox(height: SectionHeader.contentGap),
+          ilgan,
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuYongsinTitle,
+            titleIdentifier: SlotIds.mySajuYongsinTitle,
+          ),
+          const SizedBox(height: SectionHeader.contentGap),
+          yongsin,
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuFlowTitle,
+            titleIdentifier: SlotIds.mySajuFlowTitle,
+            trailing: SectionHeaderLink(
+              label: l10n.mySajuFlowLink,
+              onTap: () => context.push<void>(sajuChartLuckPath()),
+            ),
+          ),
+          const SizedBox(height: SectionHeader.contentGap),
+          _FlowCard(chart: chart, text: text),
+          const SizedBox(height: SectionHeader.sectionGap),
+          SectionHeader(
+            title: l10n.mySajuRecordTitle,
+            titleIdentifier: SlotIds.mySajuRecordTitle,
+          ),
+          const SizedBox(height: SectionHeader.contentGap),
+          const _RecordSection(),
+        ],
+      ),
     );
   }
 }
@@ -511,12 +524,41 @@ class _FlowCard extends ConsumerWidget {
 }
 
 /// 명리일기 회고: 집계를 받는 동안 뼈, 받으면 `diary-summary`, 실패하면 이 자리에만 오류와 다시 시도.
-class _RecordSection extends ConsumerWidget {
+///
+/// 다시 시도는 화면 단위 오류와 같은 규칙입니다([RetryHold], A126 ①): 누르면 지연 없이 뼈이고
+/// 곧바로 다시 실패해도 최소 시간만큼 뼈를 둡니다. 다시 받는 동안의 값은 이전 오류를 품은 채
+/// 받는 중이라 오류로 그리지 않습니다.
+class _RecordSection extends ConsumerStatefulWidget {
   const new();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_RecordSection> createState() => _RecordSectionState();
+}
+
+class _RecordSectionState extends ConsumerState<_RecordSection> {
+  late final RetryHold _retryHold = RetryHold(
+    onChanged: () {
+      if (mounted) setState(() {});
+    },
+  );
+
+  @override
+  void dispose() {
+    _retryHold.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final stats = ref.watch(diaryStatsProvider);
+    // 대기 중에도 뼈 자리를 남겨 끝 섹션이 0에서 자라지 않게 합니다(#936).
+    if (_retryHold.holds(isLoading: stats.isLoading)) {
+      return SkeletonBlock(
+        delay: Duration.zero,
+        reserveSpace: true,
+        child: DiarySummary.skeleton(),
+      );
+    }
     final names = ref.watch(glossaryProvider).value;
     final sheets = ref.read(depthSheetsProvider);
     final value = stats.value;
@@ -540,7 +582,7 @@ class _RecordSection extends ConsumerWidget {
         ),
       );
     }
-    if (stats.hasError) {
+    if (stats.hasError && !stats.isLoading) {
       final error = stats.error;
       return KeyedSubtree(
         key: MySajuScreen.recordErrorKey,
@@ -548,11 +590,12 @@ class _RecordSection extends ConsumerWidget {
           error: error is AppError
               ? error
               : UnexpectedError(error ?? 'unknown'),
-          onRetry: () => ref.invalidate(diaryStatsProvider),
+          onRetry: () =>
+              _retryHold.start(() => ref.invalidate(diaryStatsProvider)),
         ),
       );
     }
-    return SkeletonBlock(child: DiarySummary.skeleton());
+    return SkeletonBlock(reserveSpace: true, child: DiarySummary.skeleton());
   }
 
   void _reportSkippedTags(

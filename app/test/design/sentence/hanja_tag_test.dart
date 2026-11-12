@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
@@ -39,6 +40,66 @@ void main() {
       expect(circle.center.dy, pill.center.dy);
       expect(name.left - circle.right, 4);
       expect(pill.right - name.right, 12);
+    });
+
+    testWidgets('compact는 알약 22, 한자 원 16, 왼쪽 4, 원과 이름 2, 오른쪽 8', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        const HanjaTag(
+          glyph: '德',
+          label: '천덕일',
+          tone: HanjaTagTone.good,
+          size: HanjaTagSize.compact,
+        ),
+      );
+      final pill = tester.getRect(find.byKey(HanjaTag.surfaceKey));
+      final circle = tester.getRect(find.byKey(HanjaTag.glyphKey));
+      final name = tester.getRect(find.text('천덕일'));
+      expect(pill.height, 22);
+      expect(circle.size, const Size(16, 16));
+      expect(circle.left - pill.left, 4);
+      expect(circle.center.dy, pill.center.dy);
+      expect(name.left - circle.right, 2);
+      expect(pill.right - name.right, 8);
+      expect(
+        tester.widget<Text>(find.text('德')).style!.fontWeight,
+        FontWeight.w700,
+      );
+    });
+
+    testWidgets('compact selected는 크기가 그대로이고 선택 테두리입니다', (tester) async {
+      await pump(
+        tester,
+        const HanjaTag(
+          glyph: '德',
+          label: '천덕일',
+          tone: HanjaTagTone.good,
+          size: HanjaTagSize.compact,
+        ),
+      );
+      final plain = tester.getSize(find.byKey(HanjaTag.surfaceKey));
+      await pump(
+        tester,
+        const HanjaTag(
+          glyph: '德',
+          label: '천덕일',
+          tone: HanjaTagTone.good,
+          size: HanjaTagSize.compact,
+          variant: HanjaTagVariant.selected,
+        ),
+      );
+      expect(tester.getSize(find.byKey(HanjaTag.surfaceKey)), plain);
+      final tokens = tester.element(find.byKey(HanjaTag.surfaceKey)).tokens;
+      expect(
+        _decoration(tester).border,
+        Border.all(
+          color: tokens.colors.actionPrimary,
+          width: HanjaTag.selectedBorderWidth,
+        ),
+      );
+      expect(_decoration(tester).color, tokens.colors.tagGoodBg);
     });
 
     testWidgets('한자는 12 700이고 원은 bg.sheet입니다', (tester) async {
@@ -394,6 +455,25 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('compact도 눌리는 영역은 위아래로 44까지 넓습니다', (tester) async {
+      HanjaTag tag(VoidCallback onTap) => HanjaTag(
+        glyph: '德',
+        label: '천덕일',
+        tone: HanjaTagTone.good,
+        size: HanjaTagSize.compact,
+        onTap: onTap,
+      );
+      var taps = 0;
+      await pump(tester, tag(() => taps++));
+      final pill = tester.getRect(find.byKey(HanjaTag.surfaceKey));
+      expect(pill.height, 22);
+      await tester.tapAt(Offset(pill.center.dx, pill.top - 10));
+      await tester.tapAt(Offset(pill.center.dx, pill.bottom + 10));
+      expect(taps, 2);
+      await tester.tapAt(Offset(pill.center.dx, pill.top - 12));
+      expect(taps, 2);
+    });
+
     testWidgets('눌리는 영역은 위아래로 44까지 넓습니다', (tester) async {
       await pump(tester, HanjaTag(glyph: '沖', label: '충', onTap: () {}));
       final pill = tester.getRect(find.byKey(HanjaTag.surfaceKey));
@@ -456,8 +536,20 @@ void main() {
       expect(HanjaGlyphs.forTagKey('yeokma'), '驛');
       expect(HanjaGlyphs.forTagKey('hwagae'), '華');
       expect(HanjaGlyphs.forTagKey('gongmang'), '空');
+      expect(HanjaGlyphs.forTagKey('gosin'), '孤');
+      expect(HanjaGlyphs.forTagKey('gwasuk'), '寡');
+      expect(HanjaGlyphs.forTagKey('wonjin'), '元');
       expect(HanjaGlyphs.forTagKey('yongsin_day'), '用');
       expect(HanjaGlyphs.forTagKey('gwiin_day'), '貴');
+    });
+
+    test('덕일은 두 덕 모두 德이고 모르는 덕은 null입니다', () {
+      expect(HanjaGlyphs.forDayVirtue(DayVirtueKind.cheondeokDay), '德');
+      expect(HanjaGlyphs.forDayVirtue(DayVirtueKind.woldeokDay), '德');
+      expect(
+        HanjaGlyphs.forDayVirtue(DayVirtueKind.unknownDefaultOpenApi),
+        isNull,
+      );
     });
 
     test('십성 몰림 태그는 그 묶음 글자입니다', () {

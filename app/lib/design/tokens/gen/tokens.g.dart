@@ -59,6 +59,8 @@ final class ColorTokens {
     required this.tagNeutralFg,
     required this.timelineEntry,
     required this.timelineLine,
+    required this.timeDay,
+    required this.timeNight,
     required this.chipBg,
     required this.swatchBorder,
     required this.statusBg,
@@ -233,6 +235,12 @@ final class ColorTokens {
   /// 일기 목록 세로 흐름 줄
   final Color timelineLine;
 
+  /// 집중 시간 낮 칩 앞 채운 해 아이콘(D122, V115, 1.8.0). 칩 바탕 위 비텍스트 대비 3:1 이상
+  final Color timeDay;
+
+  /// 집중 시간 밤 칩 앞 채운 달 아이콘(D122, V115, 1.8.0). 칩 바탕 위 비텍스트 대비 3:1 이상
+  final Color timeNight;
+
   /// 칩 바탕 (반투명 흰색)
   final Color chipBg;
 
@@ -356,6 +364,8 @@ const lightColors = ColorTokens(
   tagNeutralFg: Color(0xFF5B5B57),
   timelineEntry: Color(0xFFC7C7C5),
   timelineLine: Color(0xFFDEDEDC),
+  timeDay: Color(0xFFB8811A),
+  timeNight: Color(0xFF355A8F),
   chipBg: Color.from(
     alpha: 0.7,
     red: 0xff / 255,
@@ -461,6 +471,8 @@ const darkColors = ColorTokens(
   tagNeutralFg: Color(0xFFABABA7),
   timelineEntry: Color(0xFF5B5B57),
   timelineLine: Color(0xFF424340),
+  timeDay: Color(0xFFDEA645),
+  timeNight: Color(0xFF8FA9D1),
   chipBg: Color.from(
     alpha: 0.08,
     red: 0xff / 255,
@@ -673,7 +685,7 @@ const koType = TypeTokens(
   ),
   hanjaPillar: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 17,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
@@ -692,7 +704,11 @@ const koType = TypeTokens(
 const jaType = TypeTokens(
   sentenceCard: TextStyle(
     fontFamily: 'Zen Maru Gothic',
-    fontFamilyFallback: ['Pretendard JP', 'sans-serif'],
+    fontFamilyFallback: [
+      'Pretendard JP',
+      'Myungli Hanja Supplement',
+      'sans-serif',
+    ],
     fontSize: 17,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
@@ -700,7 +716,11 @@ const jaType = TypeTokens(
   ),
   sentenceBody: TextStyle(
     fontFamily: 'Zen Maru Gothic',
-    fontFamilyFallback: ['Pretendard JP', 'sans-serif'],
+    fontFamilyFallback: [
+      'Pretendard JP',
+      'Myungli Hanja Supplement',
+      'sans-serif',
+    ],
     fontSize: 15,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
@@ -708,7 +728,7 @@ const jaType = TypeTokens(
   ),
   display: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 24,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
@@ -716,7 +736,7 @@ const jaType = TypeTokens(
   ),
   title: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 20,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
@@ -724,7 +744,7 @@ const jaType = TypeTokens(
   ),
   subtitle: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 16,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
@@ -732,7 +752,7 @@ const jaType = TypeTokens(
   ),
   labelLg: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 14,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
@@ -740,7 +760,7 @@ const jaType = TypeTokens(
   ),
   labelMd: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 13,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
@@ -748,7 +768,7 @@ const jaType = TypeTokens(
   ),
   captionMd: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 12,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
@@ -756,7 +776,7 @@ const jaType = TypeTokens(
   ),
   captionSm: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 11,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
@@ -764,7 +784,7 @@ const jaType = TypeTokens(
   ),
   captionLg: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 13,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
@@ -772,7 +792,7 @@ const jaType = TypeTokens(
   ),
   numericCalendar: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
@@ -781,7 +801,7 @@ const jaType = TypeTokens(
   ),
   numericTable: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 13,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
@@ -790,7 +810,7 @@ const jaType = TypeTokens(
   ),
   hanjaPillar: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 17,
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
@@ -798,7 +818,7 @@ const jaType = TypeTokens(
   ),
   bodyUi: TextStyle(
     fontFamily: 'Pretendard JP',
-    fontFamilyFallback: ['sans-serif'],
+    fontFamilyFallback: ['Myungli Hanja Supplement', 'sans-serif'],
     fontSize: 14,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,

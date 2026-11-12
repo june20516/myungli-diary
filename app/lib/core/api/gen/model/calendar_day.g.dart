@@ -27,6 +27,8 @@ abstract class _$CalendarDayCWProxy {
 
   CalendarDay level(SlotText level);
 
+  CalendarDay dayVirtues(List<DayVirtueKind> dayVirtues);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `CalendarDay(...).copyWith.fieldName(value)`.
@@ -46,6 +48,7 @@ abstract class _$CalendarDayCWProxy {
     int score,
     List<ScoreItem> scoreItems,
     SlotText level,
+    List<DayVirtueKind> dayVirtues,
   });
 }
 
@@ -88,6 +91,10 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
   @override
   CalendarDay level(SlotText level) => call(level: level);
 
+  @override
+  CalendarDay dayVirtues(List<DayVirtueKind> dayVirtues) =>
+      call(dayVirtues: dayVirtues);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `CalendarDay(...).copyWith.fieldName(value)`.
@@ -108,6 +115,7 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
     Object? score = const $CopyWithPlaceholder(),
     Object? scoreItems = const $CopyWithPlaceholder(),
     Object? level = const $CopyWithPlaceholder(),
+    Object? dayVirtues = const $CopyWithPlaceholder(),
   }) {
     return CalendarDay(
       date: date == const $CopyWithPlaceholder() || date == null
@@ -153,6 +161,11 @@ class _$CalendarDayCWProxyImpl implements _$CalendarDayCWProxy {
           ? _value.level
           // ignore: cast_nullable_to_non_nullable
           : level as SlotText,
+      dayVirtues:
+          dayVirtues == const $CopyWithPlaceholder() || dayVirtues == null
+          ? _value.dayVirtues
+          // ignore: cast_nullable_to_non_nullable
+          : dayVirtues as List<DayVirtueKind>,
     );
   }
 }
@@ -182,6 +195,7 @@ CalendarDay _$CalendarDayFromJson(Map<String, dynamic> json) =>
           'score',
           'scoreItems',
           'level',
+          'dayVirtues',
         ],
       );
       final val = CalendarDay(
@@ -222,6 +236,18 @@ CalendarDay _$CalendarDayFromJson(Map<String, dynamic> json) =>
           'level',
           (v) => SlotText.fromJson(v as Map<String, dynamic>),
         ),
+        dayVirtues: $checkedConvert(
+          'dayVirtues',
+          (v) => (v as List<dynamic>)
+              .map(
+                (e) => $enumDecode(
+                  _$DayVirtueKindEnumMap,
+                  e,
+                  unknownValue: DayVirtueKind.unknownDefaultOpenApi,
+                ),
+              )
+              .toList(),
+        ),
       );
       return val;
     });
@@ -238,6 +264,9 @@ Map<String, dynamic> _$CalendarDayToJson(CalendarDay instance) =>
       'score': instance.score,
       'scoreItems': instance.scoreItems.map((e) => e.toJson()).toList(),
       'level': instance.level.toJson(),
+      'dayVirtues': instance.dayVirtues
+          .map((e) => _$DayVirtueKindEnumMap[e]!)
+          .toList(),
     };
 
 const _$DayKindEnumMap = {
@@ -252,4 +281,10 @@ const _$LuckLevelEnumMap = {
   LuckLevel.good: 'good',
   LuckLevel.neutral: 'neutral',
   LuckLevel.caution: 'caution',
+};
+
+const _$DayVirtueKindEnumMap = {
+  DayVirtueKind.cheondeokDay: 'cheondeok_day',
+  DayVirtueKind.woldeokDay: 'woldeok_day',
+  DayVirtueKind.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

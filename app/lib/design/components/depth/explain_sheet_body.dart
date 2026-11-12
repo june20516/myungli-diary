@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
+import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
@@ -21,11 +22,11 @@ enum ExplainTitleSize {
 
 /// 풀이 시트의 내용(`explain-sheet`). 시트 틀(`sheet` `half`) 안에 놓습니다.
 ///
-/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) → 오늘 그런 이유 → [attachment]
-/// (`stage-strip` 등) → 근거 진입점 아이콘 → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에
-/// 본문이 오고, [onEvidence]가 null이면 근거 진입점을 그리지 않습니다(그날 시트처럼 근거 시트로
-/// 이어지지 않는 곳에서 열었을 때). [onDiaryLink]가 null이면 모아보기 링크를 그리지 않습니다
-/// (대표 태그의 뜻 시트에만 있습니다).
+/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) 또는 빈 안내([emptyNote]) →
+/// 흉 신살 마무리 한 줄([weighingNote]) → 오늘 그런 이유 → [attachment](`stage-strip` 등) →
+/// 근거 진입점 아이콘 → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에 본문이 오고, [onEvidence]가 null이면
+/// 근거 진입점을 그리지 않습니다(그날 시트처럼 근거 시트로 이어지지 않는 곳에서 열었을 때).
+/// [onDiaryLink]가 null이면 모아보기 링크를 그리지 않습니다(대표 태그의 뜻 시트에만 있습니다).
 ///
 /// 한자는 제목 줄 끝에 붙고, 그 줄에 다 들어가지 않으면 통째로 다음 줄로 갑니다. 스크린리더는
 /// 제목과 한자를 한 덩어리로 읽습니다. 오늘 그런 이유는 오늘 화면에서 열었을 때만 있습니다.
@@ -43,8 +44,11 @@ class ExplainSheetBody extends StatelessWidget {
     this.evidenceSubject,
     this.meaning,
     this.meaningSlotId = SlotIds.explainSheetTermMeaning,
+    this.emptyNote,
+    this.weighingNote,
     this.todayReason,
     this.attachment,
+    this.attachmentGap = Space.s12,
     this.diaryLinkLabel,
     this.onDiaryLink,
     super.key,
@@ -67,6 +71,17 @@ class ExplainSheetBody extends StatelessWidget {
   /// 일기 모아보기 링크 위 간격. 계약 `explain-sheet.parts.diaryLink.marginTop`(`space.16`).
   static const double diaryLinkGap = Space.s16;
 
+  /// 제목(과 한자) 아래 빈 안내까지. 계약 `term-token.parts.explainSheet.emptyNote.marginTop`
+  /// (`space.12`).
+  static const double emptyNoteGap = Space.s12;
+
+  /// 빈 안내 줄 수(`emptyNote.maxLines`). 배율 1.0에서 원고 글자 수 상한을 잰 줄 수이고, 큰
+  /// 글자에서는 자르지 않고 줄이 늡니다(A137 ④와 같은 읽기, A139).
+  static const int emptyNoteMaxLines = 2;
+
+  /// 빈 안내를 찾는 테스트용 키(IA 밖 슬롯 `ui.explain.term-empty`).
+  static const Key emptyNoteKey = ValueKey('explain-sheet-empty-note');
+
   /// 시트 제목(누른 항목의 이름).
   final String title;
 
@@ -86,11 +101,23 @@ class ExplainSheetBody extends StatelessWidget {
   /// [meaning]이 그리는 IA 슬롯 id. 용어 뜻이 아니면 null로 줍니다.
   final String? meaningSlotId;
 
+  /// 뜻도 오늘 그런 이유도 근거 출처도 없는 용어의 빈 안내(`term-token` `explainSheet.emptyNote`,
+  /// V123). 있으면 뜻 자리(제목 아래 [emptyNoteGap])에 두고 근거 진입점은 그리지 않습니다.
+  final String? emptyNote;
+
+  /// 뜻 바로 아래 흉 신살 마무리 한 줄([WeighingNote], D124 ⑦, V120). 대상 신살의 용어 풀이만
+  /// 주고, 뜻([meaning])이 없거나 빈 문장이면 그리지 않습니다. 다음 문장 간격은 이 상자에서 셉니다.
+  final String? weighingNote;
+
   /// 오늘 그런 이유(`explain-sheet.today.reason`). 오늘 화면에서 열지 않았거나 계약에 없으면 `null`입니다.
   final RenderedText? todayReason;
 
-  /// 본문 아래 `space.12`에 붙일 위젯(`stage-strip` 등).
+  /// 본문 아래 [attachmentGap]에 붙일 위젯(`stage-strip`, 시간 시트의 `timeBand` 등).
   final Widget? attachment;
+
+  /// 위 문장과 [attachment] 사이. 기본은 `space.12`이고 시간 시트의 24시간 띠는 `space.20`입니다
+  /// (`lucky-card` `timeBand.when`).
+  final double attachmentGap;
 
   /// 근거 진입점을 눌렀을 때(근거 시트 열기). null이면 진입점이 없습니다.
   final VoidCallback? onEvidence;
@@ -144,6 +171,8 @@ class ExplainSheetBody extends StatelessWidget {
     final tokens = context.tokens;
     final meaning = this.meaning;
     final todayReason = this.todayReason;
+    final weighingNote = this.weighingNote;
+    final emptyNote = this.emptyNote;
     final attachment = this.attachment;
     final onEvidence = this.onEvidence;
     final diaryLinkLabel = this.diaryLinkLabel;
@@ -170,6 +199,17 @@ class ExplainSheetBody extends StatelessWidget {
                     child: head,
                   ),
           ),
+          if (emptyNote != null)
+            Padding(
+              padding: const EdgeInsets.only(top: emptyNoteGap),
+              child: Text(
+                emptyNote,
+                key: emptyNoteKey,
+                style: tokens.typography.bodyUi.copyWith(
+                  color: tokens.colors.textSecondary,
+                ),
+              ),
+            ),
           if (meaning != null)
             Padding(
               padding: EdgeInsets.only(top: gap()),
@@ -179,6 +219,9 @@ class ExplainSheetBody extends StatelessWidget {
                 slotId: meaningSlotId,
               ),
             ),
+          // 뜻이 없으면 상자도 두지 않습니다. 빈 문장 뜻은 여는 쪽이 없는 것으로 넘깁니다(A139 ②).
+          if (meaning != null && weighingNote != null)
+            WeighingNote(text: weighingNote),
           if (todayReason != null)
             Padding(
               padding: EdgeInsets.only(top: gap()),
@@ -190,10 +233,11 @@ class ExplainSheetBody extends StatelessWidget {
             ),
           if (attachment != null)
             Padding(
-              padding: const EdgeInsets.only(top: Space.s12),
+              padding: EdgeInsets.only(top: attachmentGap),
               child: attachment,
             ),
-          if (onEvidence != null)
+          // 빈 안내가 있으면 근거 진입점 아이콘만 남기지 않습니다(V123).
+          if (onEvidence != null && emptyNote == null)
             DepthLink.evidence(
               subject: evidenceSubject ?? title,
               onTap: onEvidence,

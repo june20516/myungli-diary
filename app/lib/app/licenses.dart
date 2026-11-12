@@ -35,6 +35,8 @@ const bundledFonts = <BundledFont>[
     folder: 'pretendard_jp',
     licenseFiles: ['OFL.txt', 'NOTICE.txt'],
   ),
+  // 한자 대체 글꼴(V121, 토큰 1.9.0). Pretendard JP에 없는 한자만 담은 Noto Sans JP 부분 글꼴입니다.
+  BundledFont(family: 'Myungli Hanja Supplement', folder: 'hanja_supplement'),
 ];
 
 /// 글꼴 OFL 전문과 고지를 오픈소스 고지(`showLicensePage`)에 더합니다.

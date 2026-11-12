@@ -22,6 +22,7 @@ import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind_count.dart';
 import 'package:myungli_diary/core/api/gen/model/day_tags.dart';
+import 'package:myungli_diary/core/api/gen/model/day_virtue.dart';
 import 'package:myungli_diary/core/api/gen/model/device.dart';
 import 'package:myungli_diary/core/api/gen/model/device_input.dart';
 import 'package:myungli_diary/core/api/gen/model/diary.dart';
@@ -182,6 +183,9 @@ ReturnType deserialize<ReturnType, BaseType>(
       return DayKindCount.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DayTags':
       return DayTags.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DayVirtue':
+      return DayVirtue.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DayVirtueKind':
     case 'Device':
       return Device.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DeviceInput':

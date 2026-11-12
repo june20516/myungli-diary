@@ -25,6 +25,8 @@ class FocusTimeCard {
     required this.fallback,
 
     required this.text,
+
+    this.hours,
   });
 
   @JsonKey(name: r'picks', required: true, includeIfNull: false)
@@ -36,16 +38,21 @@ class FocusTimeCard {
   @JsonKey(name: r'text', required: true, includeIfNull: false)
   final SlotText text;
 
+  @JsonKey(name: r'hours', required: false, includeIfNull: false)
+  final List<FocusSlot>? hours;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FocusTimeCard &&
           other.picks == picks &&
           other.fallback == fallback &&
-          other.text == text;
+          other.text == text &&
+          other.hours == hours;
 
   @override
-  int get hashCode => picks.hashCode + fallback.hashCode + text.hashCode;
+  int get hashCode =>
+      picks.hashCode + fallback.hashCode + text.hashCode + hours.hashCode;
 
   factory FocusTimeCard.fromJson(Map<String, dynamic> json) =>
       _$FocusTimeCardFromJson(json);

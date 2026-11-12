@@ -3,13 +3,17 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -55,21 +59,116 @@ final List<LuckyItem> _luckyItems = [
     value: '3',
     explain: RenderedText(segments: [Segment(text: '3이 흐름을 열어 줘요.')]),
   ),
-  // 집중 시간은 구간마다 칩 하나입니다(V52).
+  // 집중 시간은 낮 칩 하나와 밤 칩 하나입니다(V115, V116).
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중하기 좋은 시간',
-    value: '09:30~11:30',
+    name: '낮의 길한 시간',
+    value: '15:30~17:30',
     explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
+    period: AppTimeOfDay.day,
   ),
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중하기 좋은 시간',
-    value: '13:30~15:30',
-    explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
-    ordinal: 1,
+    name: '밤의 길한 시간',
+    value: '01:30~03:30',
+    explain: RenderedText(segments: [Segment(text: '새벽 1시쯤 마음이 차분해요.')]),
+    period: AppTimeOfDay.night,
+    word: '오늘 밤',
   ),
 ];
+
+/// 색이 둘인 날(D119 ②)의 칩 줄: 색 칩 하나가 두 칸 알약입니다(V114).
+final List<LuckyItem> _pairLuckyItems = [
+  LuckyItem(
+    variant: LuckyCardVariant.color,
+    name: '행운 색',
+    value: '검정',
+    explain: RenderedText(
+      segments: [Segment(text: '내 사주의 균형으로 보면 검정이 잘 맞아요.')],
+    ),
+    element: FiveElement.water,
+    secondColor: LuckySecondColor(
+      element: FiveElement.earth,
+      value: '노랑',
+      explain: RenderedText(
+        segments: [Segment(text: '원전의 해석에 따르면 오늘은 노랑도 어울려요.')],
+      ),
+    ),
+  ),
+  ..._luckyItems.skip(1),
+];
+
+/// 색이 둘인 날 행운 색 시트 본문 견본(`colorPairSheet`).
+Widget _colorPairSheet() {
+  final first = _pairLuckyItems.first;
+  final second = first.secondColor!;
+  return ColorPairSheetBody(
+    title: first.name,
+    intro: '오늘은 추천 색이 두 개예요',
+    sections: [
+      ColorPairSection(
+        element: first.element!,
+        name: first.value,
+        body: first.explain,
+        bodySlotId: SlotIds.todayLuckyColorBody,
+        onEvidence: () {},
+      ),
+      ColorPairSection(
+        element: second.element,
+        name: second.value,
+        body: second.explain,
+        bodySlotId: SlotIds.todayLuckyColorSecondBody,
+        onEvidence: () {},
+      ),
+    ],
+  );
+}
+
+/// 시간 칩 시트의 24시간 띠 견본(낮 신시, 밤 축시 고름). 07:30 전 견본은 밤 칩, 그 뒤 견본은
+/// 낮 칩으로 연 모습이라 연 칩 시진이 굵은 고리입니다(V124).
+TimeBand _timeBand({required bool beforeDayStart}) {
+  final opened = beforeDayStart ? AppTimeOfDay.night : AppTimeOfDay.day;
+  final day = [
+    for (final (index, label) in '진사오미신유술'.split('').indexed)
+      TimeBandCell(
+        label: label,
+        period: AppTimeOfDay.day,
+        pick: TimeBandPick.of(
+          AppTimeOfDay.day,
+          opened: opened,
+          chosen: index == 4,
+        ),
+      ),
+  ];
+  final night = [
+    for (final (index, label) in '해자축인묘'.split('').indexed)
+      TimeBandCell(
+        label: label,
+        period: AppTimeOfDay.night,
+        pick: TimeBandPick.of(
+          AppTimeOfDay.night,
+          opened: opened,
+          chosen: index == 2,
+        ),
+      ),
+  ];
+  return TimeBand(
+    cells: beforeDayStart ? [...night, ...day] : [...day, ...night],
+    dayHead: '낮',
+    nightHead: '밤',
+    nowFraction: beforeDayStart ? 160 / 1440 : 270 / 1440,
+    nowLabel: beforeDayStart ? '지금 00:10' : '지금 12:00',
+    startTick: TimeBandTick(
+      time: beforeDayStart ? '21:30' : '07:30',
+      dayWord: beforeDayStart ? '어제' : null,
+    ),
+    boundaryTick: TimeBandTick(time: beforeDayStart ? '07:30' : '21:30'),
+    endTick: TimeBandTick(
+      time: beforeDayStart ? '21:30' : '07:30',
+      dayWord: beforeDayStart ? null : '내일',
+    ),
+  );
+}
 
 String _name(DayKind kind) => switch (kind) {
   DayKind.yongsinDay => '좋은 날',
@@ -115,7 +214,26 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 const DateHeader(
                   solar: '10월 13일 화요일',
                   lunar: '음력 8월 24일',
-                  iljin: '癸未(계미)일',
+                  iljin: IljinText(shown: '癸未(계미)일', spoken: '계미일'),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: 'today: 덕일 둘(천덕일, 월덕일)',
+              builder: (context) => _stage360(
+                DateHeader(
+                  solar: '10월 19일 월요일',
+                  lunar: '음력 8월 30일',
+                  iljin: const IljinText(shown: '丙寅(병인)일', spoken: '병인일'),
+                  virtues: [
+                    DateHeaderVirtue(glyph: '德', label: '천덕일', onTap: () {}),
+                    DateHeaderVirtue(
+                      glyph: '德',
+                      label: '월덕일',
+                      selected: true,
+                      onTap: () {},
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -128,7 +246,10 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
             WidgetbookUseCase(
               name: '음력 없음',
               builder: (context) => _stage360(
-                const DateHeader(solar: '10월 13일 화요일', iljin: '癸未(계미)일'),
+                const DateHeader(
+                  solar: '10월 13일 화요일',
+                  iljin: IljinText(shown: '癸未(계미)일', spoken: '계미일'),
+                ),
               ),
             ),
             WidgetbookUseCase(
@@ -246,6 +367,52 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 child: SizedBox(
                   width: 360,
                   child: LuckyCardRow(items: _luckyItems),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '색이 둘인 날: 두 칸 알약(D119, V114)',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 360,
+                  child: LuckyCardRow(
+                    items: _pairLuckyItems,
+                    onOpen: (_) =>
+                        Future<void>.delayed(const Duration(seconds: 2)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        WidgetbookComponent(
+          name: 'ColorPairSheetBody',
+          useCases: [
+            WidgetbookUseCase(
+              name: '색이 둘인 날 행운 색 시트',
+              builder: (context) =>
+                  Stage(child: SizedBox(width: 360, child: _colorPairSheet())),
+            ),
+          ],
+        ),
+        WidgetbookComponent(
+          name: 'TimeBand',
+          useCases: [
+            WidgetbookUseCase(
+              name: '07:30부터: 낮이 앞',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 312,
+                  child: _timeBand(beforeDayStart: false),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '07:30 전: 밤이 앞',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 312,
+                  child: _timeBand(beforeDayStart: true),
                 ),
               ),
             ),

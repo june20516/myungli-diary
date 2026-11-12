@@ -134,6 +134,16 @@ flutter:
           weight: 600
         - asset: assets/fonts/pretendard_jp/PretendardJP-Bold.otf
           weight: 700
+    - family: Myungli Hanja Supplement
+      fonts:
+        - asset: assets/fonts/hanja_supplement/MyungliHanjaSupplement-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/hanja_supplement/MyungliHanjaSupplement-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/hanja_supplement/MyungliHanjaSupplement-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/hanja_supplement/MyungliHanjaSupplement-Bold.ttf
+          weight: 700
   # 글꼴 라이선스(OFL.txt)는 licenses.dart가 LicenseRegistry에 더합니다.
   assets:
     - assets/brand/kakao/
@@ -149,6 +159,7 @@ flutter:
     - assets/fonts/pretendard/NOTICE.txt
     - assets/fonts/pretendard_jp/OFL.txt
     - assets/fonts/pretendard_jp/NOTICE.txt
+    - assets/fonts/hanja_supplement/OFL.txt
     # 대역 서버 fixture(디렉터리는 하위를 싣지 않으므로 시나리오마다 적습니다).
     - fixtures/
     - fixtures/new-user/
@@ -188,5 +199,7 @@ flutter:
     - fixtures/reaction-delete-failed/
     - fixtures/evidence-unlocked/
     - fixtures/reward-unlock/
+    - fixtures/daily-pair-virtue/
+    - fixtures/daily-pair-virtue-unlocked/
     - fixtures/calendar-error/
     - fixtures/schedule-save-error/

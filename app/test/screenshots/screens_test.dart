@@ -20,6 +20,7 @@ import 'package:myungli_diary/core/api/gen/model/language.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
+import 'package:myungli_diary/core/platform/fakes.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/design/components/action/settings_row.dart';
 import 'package:myungli_diary/design/components/action/share_button.dart';
@@ -28,10 +29,14 @@ import 'package:myungli_diary/design/components/diary/diary_editor.dart';
 import 'package:myungli_diary/design/components/saju/band_table.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/day_sheets.dart';
 import 'package:myungli_diary/features/diary/application/diary_edit.dart';
+import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/presentation/settings_screen.dart';
 import 'package:myungli_diary/features/me/presentation/settings_sheets.dart';
 import 'package:myungli_diary/features/profile/presentation/account_delete_screen.dart';
@@ -259,7 +264,7 @@ _Open _diaryTyping(CalendarDate date) => (tester, container) async {
   await settleWithIo(tester, allowOngoing: true);
 };
 
-/// [date]의 새 일기 쓰기를 열고 질문을 뗍니다(D116, 권유 줄 "질문 추가").
+/// [date]의 새 일기 쓰기를 열고 질문을 뗍니다(D116, 권유 줄 "무엇을 쓸지 고민인가요?").
 _Open _diaryDetached(CalendarDate date) => (tester, container) async {
   unawaited(
     container
@@ -471,6 +476,63 @@ Future<void> _mergeLoading(WidgetTester tester) async {
 Future<void> _mergeNotOther(WidgetTester tester) =>
     _tapProvider(tester, SocialProvider.apple);
 
+/// 오늘 화면의 행운 칩 하나를 눌러 그 시트를 엽니다(시간 칩은 띠). [half]가 있으면 색이 둘인 날
+/// 두 칸 알약의 그 칸을 누릅니다(두 색 시트, 가운데 세로선은 누르는 자리가 아님).
+_Open _todayLucky(
+  LuckyCardVariant variant, {
+  AppTimeOfDay? period,
+  int? half,
+}) => (tester, _) async {
+  await settleWithIo(tester);
+  final chip = find.byKey(LuckyCardRow.chipKey(variant, period: period));
+  await tester.ensureVisible(chip);
+  await settleWithIo(tester);
+  await tester.tap(
+    half == null ? chip : find.byKey(LuckyChip.pairHalfKey(half)),
+  );
+  await settleWithIo(tester);
+  expect(find.byKey(const Key(ScreenIds.explainSheet)), findsOneWidget);
+};
+
+/// "만세력과 대운" 탭 신살 띠의 괴강 칩을 눌러 풀이 시트(마무리 한 줄 상자, V125)를 엽니다.
+Future<void> _sajuGoegangSheet(WidgetTester tester) async {
+  await _sajuLuckTab(tester);
+  final chip = find.descendant(
+    of: find.byType(BandTable),
+    matching: find.widgetWithText(TermToken, '괴강'),
+  );
+  await tester.ensureVisible(chip.first);
+  await settleWithIo(tester);
+  await tester.tap(chip.first);
+  await settleWithIo(tester);
+}
+
+/// 나 탭 용신 이름(`element.water`)의 사전 뜻을 뺀 사전. 그 용어는 근거 출처 없이 열려 풀이
+/// 시트가 빈 안내 한 줄입니다(V123, `termSheetKindOf` empty).
+final Override _glossaryWithoutYongsinMeaning = glossaryProvider.overrideWith((
+  ref,
+) async {
+  final names = await ref.watch(glossaryRepositoryProvider).load(Language.ko);
+  return GlossaryNames(
+    names.values,
+    meanings: {...names.meanings}..remove('element.water'),
+    hanja: names.hanja,
+  );
+});
+
+/// 나 탭 용신 줄의 이름 용어를 눌러 풀이 시트를 엽니다.
+Future<void> _mySajuYongsinTerm(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  await _tab(3, ScreenIds.mySaju)(tester, container);
+  final term = find.widgetWithText(TermToken, '수');
+  await tester.ensureVisible(term.first);
+  await settleWithIo(tester);
+  await tester.tap(term.first);
+  await settleWithIo(tester);
+}
+
 /// 등록할 화면·상태. 계획 2~7에서 만든 화면입니다.
 final List<_Shot> _shots = [
   // 계획 2: 온보딩·로그인
@@ -513,6 +575,33 @@ final List<_Shot> _shots = [
     _todayEvidenceGlint,
   ),
   const _Shot('share-preview', 'default', 'member', _todayShare),
+  // 오늘 묶음: 덕일 날짜 머리와 행운 색 둘(D119 ②, D124 ⑤), 시간 칩 띠(V117), 빈 풀이 시트(V123)
+  const _Shot('today', 'pair-virtue', 'daily-pair-virtue', _arrived),
+  _Shot(
+    'explain-sheet',
+    'lucky-color-pair',
+    'daily-pair-virtue',
+    _todayLucky(LuckyCardVariant.color, half: 0),
+  ),
+  _Shot(
+    'explain-sheet',
+    'lucky-time-day',
+    'member',
+    _todayLucky(LuckyCardVariant.time, period: AppTimeOfDay.day),
+  ),
+  _Shot(
+    'explain-sheet',
+    'lucky-time-night',
+    'member',
+    _todayLucky(LuckyCardVariant.time, period: AppTimeOfDay.night),
+  ),
+  _Shot(
+    'explain-sheet',
+    'empty',
+    'member',
+    _mySajuYongsinTerm,
+    overrides: [_glossaryWithoutYongsinMeaning],
+  ),
   // 계획 4: 달력·일정
   _Shot('calendar', 'default', 'member', _tab(1, ScreenIds.calendar)),
   _Shot('calendar', 'error', 'calendar-error', _tab(1, ScreenIds.calendar)),
@@ -586,6 +675,12 @@ final List<_Shot> _shots = [
     'member',
     _sajuChart(after: _sajuTwelveStageSheet),
   ),
+  _Shot(
+    'explain-sheet',
+    'shinsal-weighing',
+    'member',
+    _sajuChart(after: _sajuGoegangSheet),
+  ),
   _Shot('saju-chart', 'time-unknown', 'member-time-unknown', _sajuChart()),
   _Shot(
     'saju-chart',
@@ -636,6 +731,22 @@ final List<_Shot> _shots = [
     'logout-confirm',
     'member',
     _settings(after: _settingsLogout),
+  ),
+  _Shot(
+    'ad-free',
+    'default',
+    'member',
+    _push(pathOf(ScreenIds.adFree), ScreenIds.adFree),
+  ),
+  // 살 수 있는 상품이 없으면 가격과 구매 버튼 대신 안내 한 줄입니다(#922, V123).
+  _Shot(
+    'ad-free',
+    'empty',
+    'member',
+    _push(pathOf(ScreenIds.adFree), ScreenIds.adFree),
+    overrides: [
+      purchasesProvider.overrideWithValue(FakePurchases(catalog: const [])),
+    ],
   ),
   _Shot('purchase-history', 'default', 'ad-free-active', _purchaseHistory()),
   _Shot('purchase-history', 'empty', 'member', _purchaseHistory()),

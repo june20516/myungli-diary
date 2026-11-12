@@ -165,6 +165,59 @@ Widget _explain({
   ),
 );
 
+/// 괴강 魁罡(D124, 토큰 1.9.0). 罡은 Pretendard JP에 없어 대체 글꼴
+/// `Myungli Hanja Supplement`로 그립니다. 魁罡이 보이는 자리는 풀이 시트 제목 옆 한자(모든 언어),
+/// ja 용어 칩(사전 이름 `shinsal.goegang` 魁罡), 근거 원전 출처 줄(writing 원고
+/// `source.sammyeong-tonghoe/shinsal#goegang`, ja 三命通会「魁罡」)입니다. ko 칩과 출처는 한글입니다.
+Widget _hanjaSupplement() => Builder(
+  builder: (context) {
+    final ja = Localizations.localeOf(context).languageCode == 'ja';
+    final name = ja ? '魁罡' : '괴강';
+    return SizedBox(
+      height: 520,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Space.s20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Space.s12,
+          children: [
+            TermToken(
+              label: name,
+              variant: TermTokenVariant.inline,
+              onTap: () {},
+              textStyle: const TextStyle(fontSize: 15, height: 1.6),
+            ),
+            TermToken(
+              label: name,
+              variant: TermTokenVariant.label,
+              onTap: () {},
+            ),
+            ExplainSheetBody(title: name, hanja: '魁罡'),
+            Expanded(
+              child: EvidenceSheetBody(
+                state: DepthLinkState.unlocked,
+                title: name,
+                source: [
+                  _text([
+                    Segment(
+                      text: ja
+                          ? 'この格には庚辰、壬辰、戊戌、庚戌の四つの日があるという意味です。\n'
+                                '此格有四日庚辰壬辰戊戌庚戌\n三命通会「魁罡」'
+                          : '이 격에는 경진, 임진, 무술, 경술의 네 날이 있다는 뜻이에요.\n'
+                                '此格有四日庚辰壬辰戊戌庚戌\n삼명통회 「괴강」',
+                    ),
+                  ]),
+                ],
+                animated: false,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+);
+
 Widget _reactions() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
   children: [
@@ -229,6 +282,15 @@ void main() {
       tester,
       'sentence_explain_no_evidence',
       () => _explain(withText: true, evidence: false),
+      settle: _settle,
+    );
+  });
+
+  goldenTest('괴강 魁罡 대체 글꼴: term-token과 근거 원전(D124, 토큰 1.9.0)', (tester) async {
+    await goldenMatrix(
+      tester,
+      'sentence_hanja_supplement',
+      _hanjaSupplement,
       settle: _settle,
     );
   });

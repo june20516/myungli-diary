@@ -4,6 +4,7 @@ import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/highlight_current.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/stem_chip.dart';
@@ -121,6 +122,10 @@ class BandTable extends StatelessWidget {
 
   /// 값이 없는 칸의 가로선을 찾는 테스트용 키.
   static const Key emptyLineKey = ValueKey('band-table-empty-line');
+
+  /// 신살 칸에 쌓은 칩 사이. 계약 `band-table.parts.bands.shinsal.stack.gap`(`space.4`).
+  /// 칸마다 모두 쌓고 자르지 않으며, 띠는 가장 높은 칸만큼 늘어납니다(V121).
+  static const double shinsalGap = Space.s4;
 
   /// 값이 없는 칸의 가로선 폭. 계약 `saju.json` `band-table.parts.empty.width`.
   static const double emptyLineWidth = 12;
@@ -443,13 +448,17 @@ class _Cell extends StatelessWidget {
                 label: column.twelveStage!,
                 width: width,
               ),
-              BandKind.shinsal => Column(
-                mainAxisSize: MainAxisSize.min,
-                spacing: Space.s4,
-                children: [
-                  for (final label in column.shinsal)
-                    LuckLabelView(label: label, width: width),
-                ],
+              // 쌓인 칩끼리 아래 칩의 넓힌 눌림이 윗 칩을 가로채지 않게, 칩이 실제로 덮은
+              // 자리를 먼저 판정합니다(A137).
+              BandKind.shinsal => HitSlopPassage(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: BandTable.shinsalGap,
+                  children: [
+                    for (final label in column.shinsal)
+                      LuckLabelView(label: label, width: width),
+                  ],
+                ),
               ),
             },
           ),

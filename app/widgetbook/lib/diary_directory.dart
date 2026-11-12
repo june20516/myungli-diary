@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/components/diary/diary_row.dart';
 import 'package:myungli_diary/design/components/diary/draft_indicator.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
@@ -247,7 +248,7 @@ final WidgetbookFolder diaryDirectory = WidgetbookFolder(
             child: DateBlock(
               day: '5',
               monthWeekday: '11월 목요일',
-              iljin: '癸未(계미)일',
+              iljin: IljinText(shown: '癸未(계미)일', spoken: '계미일'),
             ),
           ),
         ),

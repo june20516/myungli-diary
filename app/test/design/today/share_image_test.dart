@@ -8,6 +8,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -42,9 +43,10 @@ List<LuckyItem> _items() => [
   ),
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중 시간',
+    name: '낮의 길한 시간',
     value: '09:30~11:30',
     explain: _text('오후 3시에 집중이 잘 돼요.'),
+    period: AppTimeOfDay.day,
   ),
 ];
 
@@ -320,7 +322,10 @@ void main() {
       );
       // 색 칩 견본도 라이트 테마 하위 트리에서 고릅니다(LuckyItem은 오행만 줌).
       final swatch = tester.widget<Container>(
-        find.byKey(LuckyChip.swatchKey).first,
+        find.descendant(
+          of: find.byKey(LuckyChip.swatchKey).first,
+          matching: find.byType(Container),
+        ),
       );
       expect(
         (swatch.decoration! as BoxDecoration).color,
@@ -424,16 +429,17 @@ void main() {
       );
     });
 
-    testWidgets('story: 시간 구간이 둘이어도 첫 구간 칩 하나만 넣습니다(V52)', (tester) async {
+    testWidgets('story: 밤 칩이 와도 낮 칩 하나만 넣습니다(V116)', (tester) async {
       await _bigScreen(tester);
       final second = LuckyItem(
         variant: LuckyCardVariant.time,
-        name: '집중 시간',
+        name: '밤의 길한 시간',
         value: '13:30~15:30',
-        explain: _text('오후 3시에 집중이 잘 돼요.'),
-        ordinal: 1,
+        explain: _text('새벽 1시에 마음이 차분해요.'),
+        period: AppTimeOfDay.night,
+        word: '오늘 밤',
       );
-      // 둘째 구간을 앞에 두어도 빠집니다(앞에서 자르는 것에 기대지 않음).
+      // 밤 칩을 앞에 두어도 빠집니다(앞에서 자르는 것에 기대지 않음).
       await tester.pumpWidget(
         _app(_image(ShareImageVariant.story, items: [second, ..._items()])),
       );

@@ -1534,28 +1534,28 @@ abstract class AppLocalizations {
   /// **'{subject} 근거 보기'**
   String depthLinkEvidence(String subject);
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'행운 색'**
   String get todayLuckyColorName;
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'행운 방향'**
   String get todayLuckyDirectionName;
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
   /// **'행운 숫자'**
   String get todayLuckyNumberName;
 
-  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
   ///
   /// In ko, this message translates to:
-  /// **'집중하기 좋은 시간'**
+  /// **'길한 시간'**
   String get todayLuckyTimeName;
 
   /// 근거 시트(sheet) 제목(#153)
@@ -3000,7 +3000,7 @@ abstract class AppLocalizations {
   /// **'일정'**
   String get todayEventTitle;
 
-  /// today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, 표본 기준 약 7%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)
+  /// today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, D124 뒤 표본 기준 약 6%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)
   ///
   /// In ko, this message translates to:
   /// **'오늘은 두드러진 사주 기운이 없어요.'**
@@ -3144,16 +3144,16 @@ abstract class AppLocalizations {
   /// **'접기'**
   String get daySheetVerdictCollapse;
 
-  /// day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)
+  /// day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 없음, 사용자 결정 "내역 보기", writing R36). 카드 전체를 누르면 내역이 펼쳐짐(V108)
   ///
   /// In ko, this message translates to:
   /// **'내역 보기'**
   String get daySheetVerdictExpand;
 
-  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)
+  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)
   ///
   /// In ko, this message translates to:
-  /// **'질문 추가'**
+  /// **'무엇을 쓸지 고민인가요?'**
   String get diaryEditGuideAttach;
 
   /// diary-edit.guide.remove: 질문 떼기 버튼(스크린리더 이름). 떼면 이 편에는 질문이 붙지 않음(D116)
@@ -3221,6 +3221,252 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.'**
   String get previewUsedNotice;
+
+  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)
+  ///
+  /// In ko, this message translates to:
+  /// **'질문 추가'**
+  String get diaryEditGuideAttachHint;
+
+  /// today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)
+  ///
+  /// In ko, this message translates to:
+  /// **'천덕일'**
+  String get todayDateVirtueCheondeok;
+
+  /// today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)
+  ///
+  /// In ko, this message translates to:
+  /// **'월덕일'**
+  String get todayDateVirtueWoldeok;
+
+  /// today.lucky-color.pair.intro: 색이 둘인 날(D119) 행운 색 시트 맨 위 한 줄(가안 "오늘은 추천 색이 두 개예요"). "기준이 갈렸다"고 쓰지 않음. 칩과 색 소제목 옆에 기준 이름 부제목을 두지 않음(D123 ①)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 추천 색이 두 개예요'**
+  String get todayLuckyColorPairIntro;
+
+  /// today.lucky-time.band.day: 시간 칩 시트 24시간 띠의 낮 구간 머리 낱말(가안 "낮", D123 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'낮'**
+  String get todayLuckyTimeBandDay;
+
+  /// today.lucky-time.band.night: 24시간 띠의 밤 구간 머리 낱말(가안 "밤")
+  ///
+  /// In ko, this message translates to:
+  /// **'밤'**
+  String get todayLuckyTimeBandNight;
+
+  /// today.lucky-time.band.now: 24시간 띠의 지금 줄 꼬리표(매개변수 time, 가안 "지금 {time}")
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 {time}'**
+  String todayLuckyTimeBandNow(String time);
+
+  /// today.lucky-time.band.tomorrow: 24시간 띠 끝 눈금의 날 낱말, 띠가 다음 날 07:30에서 끝날 때(가안 "내일"). 띠 칸 시진 이름은 writing 기존 시진 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'내일'**
+  String get todayLuckyTimeBandTomorrow;
+
+  /// today.lucky-time.band.yesterday: 24시간 띠 끝 눈금의 날 낱말, 띠가 전날 21:30에서 시작할 때(가안 "어제")
+  ///
+  /// In ko, this message translates to:
+  /// **'어제'**
+  String get todayLuckyTimeBandYesterday;
+
+  /// today.lucky-time.day.title: 낮 시간 칩 시트 제목(가안 "낮 집중 시간", D122 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'낮의 길한 시간'**
+  String get todayLuckyTimeDayTitle;
+
+  /// today.lucky-time.night.dawn: 밤 칩 값 앞 때 낱말, 0:00~07:29에 볼 때(지금 진행 중인 밤, 가안 "새벽", D123 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'새벽'**
+  String get todayLuckyTimeNightDawn;
+
+  /// today.lucky-time.night.title: 밤 시간 칩 시트 제목(가안 "밤 집중 시간", D122 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'밤의 길한 시간'**
+  String get todayLuckyTimeNightTitle;
+
+  /// today.lucky-time.night.tonight: 밤 칩 값 앞 때 낱말, 07:30부터 볼 때(오늘 밤, 가안 "오늘 밤", D123 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 밤'**
+  String get todayLuckyTimeNightTonight;
+
+  /// 아래 '붙는 신살'의 풀이 시트(explain-sheet, 원국 `term.shinsal.*`)와 사주 기운 시트(tag-sheet, 오늘 태그 `term.tag.*`)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.'**
+  String get shinsalWeighingNote;
+
+  /// ad-free.unavailable.body: 상품 목록이 비어 있을 때(empty 상태) 제안 카드 자리의 안내: 지금은 광고 제거권을 살 수 없다는 사실. 오류처럼 들리지 않게(모양 design, 문구 writing)
+  ///
+  /// In ko, this message translates to:
+  /// **'지금은 광고 제거권을 구매할 수 없어요.'**
+  String get adFreeUnavailableBody;
+
+  /// 풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)
+  ///
+  /// In ko, this message translates to:
+  /// **'이 용어의 풀이를 준비하고 있어요.'**
+  String get explainSheetTermEmpty;
+
+  /// date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리
+  ///
+  /// In ko, this message translates to:
+  /// **'{stem}{branch}'**
+  String ganjiReading(String stem, String branch);
+
+  /// date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리
+  ///
+  /// In ko, this message translates to:
+  /// **'({reading})'**
+  String ganjiReadingSuffix(String reading);
+
+  /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)
+  ///
+  /// In ko, this message translates to:
+  /// **'{total}개 중 {index}번째'**
+  String todayLuckyPairPosition(int index, int total);
+
+  /// glossary.value_name: stem_reading.gap
+  ///
+  /// In ko, this message translates to:
+  /// **'갑'**
+  String get stemReadingGap;
+
+  /// glossary.value_name: stem_reading.eul
+  ///
+  /// In ko, this message translates to:
+  /// **'을'**
+  String get stemReadingEul;
+
+  /// glossary.value_name: stem_reading.byeong
+  ///
+  /// In ko, this message translates to:
+  /// **'병'**
+  String get stemReadingByeong;
+
+  /// glossary.value_name: stem_reading.jeong
+  ///
+  /// In ko, this message translates to:
+  /// **'정'**
+  String get stemReadingJeong;
+
+  /// glossary.value_name: stem_reading.mu
+  ///
+  /// In ko, this message translates to:
+  /// **'무'**
+  String get stemReadingMu;
+
+  /// glossary.value_name: stem_reading.gi
+  ///
+  /// In ko, this message translates to:
+  /// **'기'**
+  String get stemReadingGi;
+
+  /// glossary.value_name: stem_reading.gyeong
+  ///
+  /// In ko, this message translates to:
+  /// **'경'**
+  String get stemReadingGyeong;
+
+  /// glossary.value_name: stem_reading.sin
+  ///
+  /// In ko, this message translates to:
+  /// **'신'**
+  String get stemReadingSin;
+
+  /// glossary.value_name: stem_reading.im
+  ///
+  /// In ko, this message translates to:
+  /// **'임'**
+  String get stemReadingIm;
+
+  /// glossary.value_name: stem_reading.gye
+  ///
+  /// In ko, this message translates to:
+  /// **'계'**
+  String get stemReadingGye;
+
+  /// glossary.value_name: branch_reading.ja
+  ///
+  /// In ko, this message translates to:
+  /// **'자'**
+  String get branchReadingJa;
+
+  /// glossary.value_name: branch_reading.chuk
+  ///
+  /// In ko, this message translates to:
+  /// **'축'**
+  String get branchReadingChuk;
+
+  /// glossary.value_name: branch_reading.in
+  ///
+  /// In ko, this message translates to:
+  /// **'인'**
+  String get branchReadingIn;
+
+  /// glossary.value_name: branch_reading.myo
+  ///
+  /// In ko, this message translates to:
+  /// **'묘'**
+  String get branchReadingMyo;
+
+  /// glossary.value_name: branch_reading.jin
+  ///
+  /// In ko, this message translates to:
+  /// **'진'**
+  String get branchReadingJin;
+
+  /// glossary.value_name: branch_reading.sa
+  ///
+  /// In ko, this message translates to:
+  /// **'사'**
+  String get branchReadingSa;
+
+  /// glossary.value_name: branch_reading.o
+  ///
+  /// In ko, this message translates to:
+  /// **'오'**
+  String get branchReadingO;
+
+  /// glossary.value_name: branch_reading.mi
+  ///
+  /// In ko, this message translates to:
+  /// **'미'**
+  String get branchReadingMi;
+
+  /// glossary.value_name: branch_reading.shin
+  ///
+  /// In ko, this message translates to:
+  /// **'신'**
+  String get branchReadingShin;
+
+  /// glossary.value_name: branch_reading.yu
+  ///
+  /// In ko, this message translates to:
+  /// **'유'**
+  String get branchReadingYu;
+
+  /// glossary.value_name: branch_reading.sul
+  ///
+  /// In ko, this message translates to:
+  /// **'술'**
+  String get branchReadingSul;
+
+  /// glossary.value_name: branch_reading.hae
+  ///
+  /// In ko, this message translates to:
+  /// **'해'**
+  String get branchReadingHae;
 }
 
 class _AppLocalizationsDelegate

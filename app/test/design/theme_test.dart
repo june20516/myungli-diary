@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/fonts.dart';
+import '../support/type_styles.dart';
 
 /// lerp의 "다른 타입" 분기를 검사하려는 다른 ThemeExtension.
 class _OtherExtension extends ThemeExtension<_OtherExtension> {
@@ -133,27 +134,17 @@ void main() {
     });
   });
 
-  test('토큰의 fontFamily 첫 값이 모두 pubspec.yaml에 있습니다', () {
+  test('토큰의 fontFamily 첫 값과 대체 목록이 모두 pubspec.yaml에 있습니다', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
-    final styles = [
-      for (final t in [koType, jaType]) ...[
-        t.sentenceCard,
-        t.sentenceBody,
-        t.display,
-        t.title,
-        t.subtitle,
-        t.labelLg,
-        t.labelMd,
-        t.captionMd,
-        t.captionSm,
-        t.captionLg,
-        t.numericCalendar,
-        t.numericTable,
-        t.hanjaPillar,
-        t.bodyUi,
-      ],
-    ];
+    final styles = allTypeStyles();
     final families = {for (final s in styles) s.fontFamily!};
+    // 글꼴 대체 목록의 앱 글꼴(일반 이름 `sans-serif` 제외). 한자 대체 글꼴은 첫 값으로
+    // 쓰이지 않고 대체 목록에만 있습니다(V121, 토큰 1.9.0).
+    final fallbacks = {
+      for (final s in styles)
+        for (final family in s.fontFamilyFallback ?? const <String>[])
+          if (family != 'sans-serif') family,
+    };
 
     expect(families, {
       'Gowun Dodum',
@@ -161,14 +152,29 @@ void main() {
       'Pretendard',
       'Pretendard JP',
     });
+    expect(fallbacks.difference(families), {'Myungli Hanja Supplement'});
     // 줄 전체 일치: `Pretendard`가 `Pretendard JP` 줄에 걸리지 않게 합니다.
     final declared = RegExp(
       r'^\s*- family: (.+)$',
       multiLine: true,
     ).allMatches(pubspec).map((m) => m.group(1)!.trim()).toSet();
 
-    expect(declared, families);
-    expect({for (final f in bundledFonts) f.family}, families);
+    expect(declared, {...families, ...fallbacks});
+    expect(
+      {for (final f in bundledFonts) f.family},
+      {...families, ...fallbacks},
+    );
+  });
+
+  test('typeStylesOf가 생성 TypeTokens의 글자 스타일 필드를 모두 담습니다', () {
+    final source = File('lib/design/tokens/gen/tokens.g.dart')
+        .readAsStringSync();
+    final block = RegExp(
+      r'final class TypeTokens \{(.*?)\n\}',
+      dotAll: true,
+    ).firstMatch(source)!.group(1)!;
+    final fields = RegExp(r'final TextStyle \w+;').allMatches(block).length;
+    expect(typeStylesOf(koType), hasLength(fields));
   });
 
   test('pubspec.yaml이 선언한 글꼴·라이선스 파일이 모두 있습니다', () {
@@ -198,7 +204,7 @@ void main() {
     }
   });
 
-  test('registerFontLicenses는 네 글꼴의 라이선스 본문을 더합니다', () async {
+  test('registerFontLicenses는 모든 글꼴의 라이선스 본문을 더합니다', () async {
     registerFontLicenses();
     final entries = await LicenseRegistry.licenses.toList();
 
@@ -210,9 +216,10 @@ void main() {
     }
   });
 
-  test('loadBundledFonts 뒤에는 테스트 기본 글꼴(Ahem)과 다른 폭으로 그려집니다', () async {
-    const sample = '명리일기 Hello 123';
-    double widthOf(String family) {
+  test('loadBundledFonts 뒤에는 테스트 기본 글꼴(Ahem)과 다른 크기로 그려집니다', () async {
+    // 한자 대체 글꼴은 Pretendard JP에 없는 한자(罡)만 담아서 그 글자도 넣습니다.
+    const sample = '명리일기 Hello 123 罡';
+    Size sizeOf(String family) {
       final painter = TextPainter(
         text: TextSpan(
           text: sample,
@@ -220,14 +227,14 @@ void main() {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      return painter.width;
+      return painter.size;
     }
 
-    final fallbackWidth = widthOf('NoSuchFamily');
+    final fallbackSize = sizeOf('NoSuchFamily');
     await loadBundledFonts();
 
     for (final font in bundledFonts) {
-      expect(widthOf(font.family), isNot(fallbackWidth), reason: font.family);
+      expect(sizeOf(font.family), isNot(fallbackSize), reason: font.family);
     }
   });
 }

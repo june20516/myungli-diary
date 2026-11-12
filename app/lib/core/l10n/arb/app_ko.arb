@@ -1076,19 +1076,19 @@
   },
   "todayLuckyColorName": "행운 색",
   "@todayLuckyColorName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyDirectionName": "행운 방향",
   "@todayLuckyDirectionName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "todayLuckyNumberName": "행운 숫자",
   "@todayLuckyNumberName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
-  "todayLuckyTimeName": "집중하기 좋은 시간",
+  "todayLuckyTimeName": "길한 시간",
   "@todayLuckyTimeName": {
-    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)"
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)"
   },
   "evidenceSheetTitle": "풀이의 근거",
   "@evidenceSheetTitle": {
@@ -2367,7 +2367,7 @@
   },
   "todayFeaturedEmpty": "오늘은 두드러진 사주 기운이 없어요.",
   "@todayFeaturedEmpty": {
-    "description": "today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, 표본 기준 약 7%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)"
+    "description": "today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, D124 뒤 표본 기준 약 6%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)"
   },
   "todayFeaturedTitle": "사주 기운",
   "@todayFeaturedTitle": {
@@ -2499,11 +2499,11 @@
   },
   "daySheetVerdictExpand": "내역 보기",
   "@daySheetVerdictExpand": {
-    "description": "day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
+    "description": "day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 없음, 사용자 결정 \"내역 보기\", writing R36). 카드 전체를 누르면 내역이 펼쳐짐(V108)"
   },
-  "diaryEditGuideAttach": "질문 추가",
+  "diaryEditGuideAttach": "무엇을 쓸지 고민인가요?",
   "@diaryEditGuideAttach": {
-    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)"
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
   },
   "diaryEditGuideRemove": "질문 없이 쓰기",
   "@diaryEditGuideRemove": {
@@ -2569,5 +2569,195 @@
   "previewUsedNotice": "첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.",
   "@previewUsedNotice": {
     "description": "preview.used.notice: 미리보기를 이미 쓴 화면의 안내. 이 기기에서는 미리보기를 이미 봤고, 저장(로그인)한 뒤 나 탭 정보 수정에서 바꿀 수 있다는 말. 막는다는 말보다 권하는 말(D86 ⑤, D117)"
+  },
+  "diaryEditGuideAttachHint": "질문 추가",
+  "@diaryEditGuideAttachHint": {
+    "description": "diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)"
+  },
+  "todayDateVirtueCheondeok": "천덕일",
+  "@todayDateVirtueCheondeok": {
+    "description": "today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)"
+  },
+  "todayDateVirtueWoldeok": "월덕일",
+  "@todayDateVirtueWoldeok": {
+    "description": "today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)"
+  },
+  "todayLuckyColorPairIntro": "오늘은 추천 색이 두 개예요",
+  "@todayLuckyColorPairIntro": {
+    "description": "today.lucky-color.pair.intro: 색이 둘인 날(D119) 행운 색 시트 맨 위 한 줄(가안 \"오늘은 추천 색이 두 개예요\"). \"기준이 갈렸다\"고 쓰지 않음. 칩과 색 소제목 옆에 기준 이름 부제목을 두지 않음(D123 ①)"
+  },
+  "todayLuckyTimeBandDay": "낮",
+  "@todayLuckyTimeBandDay": {
+    "description": "today.lucky-time.band.day: 시간 칩 시트 24시간 띠의 낮 구간 머리 낱말(가안 \"낮\", D123 ⑤)"
+  },
+  "todayLuckyTimeBandNight": "밤",
+  "@todayLuckyTimeBandNight": {
+    "description": "today.lucky-time.band.night: 24시간 띠의 밤 구간 머리 낱말(가안 \"밤\")"
+  },
+  "todayLuckyTimeBandNow": "지금 {time}",
+  "@todayLuckyTimeBandNow": {
+    "description": "today.lucky-time.band.now: 24시간 띠의 지금 줄 꼬리표(매개변수 time, 가안 \"지금 {time}\")",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayLuckyTimeBandTomorrow": "내일",
+  "@todayLuckyTimeBandTomorrow": {
+    "description": "today.lucky-time.band.tomorrow: 24시간 띠 끝 눈금의 날 낱말, 띠가 다음 날 07:30에서 끝날 때(가안 \"내일\"). 띠 칸 시진 이름은 writing 기존 시진 이름"
+  },
+  "todayLuckyTimeBandYesterday": "어제",
+  "@todayLuckyTimeBandYesterday": {
+    "description": "today.lucky-time.band.yesterday: 24시간 띠 끝 눈금의 날 낱말, 띠가 전날 21:30에서 시작할 때(가안 \"어제\")"
+  },
+  "todayLuckyTimeDayTitle": "낮의 길한 시간",
+  "@todayLuckyTimeDayTitle": {
+    "description": "today.lucky-time.day.title: 낮 시간 칩 시트 제목(가안 \"낮 집중 시간\", D122 ⑤)"
+  },
+  "todayLuckyTimeNightDawn": "새벽",
+  "@todayLuckyTimeNightDawn": {
+    "description": "today.lucky-time.night.dawn: 밤 칩 값 앞 때 낱말, 0:00~07:29에 볼 때(지금 진행 중인 밤, 가안 \"새벽\", D123 ④)"
+  },
+  "todayLuckyTimeNightTitle": "밤의 길한 시간",
+  "@todayLuckyTimeNightTitle": {
+    "description": "today.lucky-time.night.title: 밤 시간 칩 시트 제목(가안 \"밤 집중 시간\", D122 ⑤)"
+  },
+  "todayLuckyTimeNightTonight": "오늘 밤",
+  "@todayLuckyTimeNightTonight": {
+    "description": "today.lucky-time.night.tonight: 밤 칩 값 앞 때 낱말, 07:30부터 볼 때(오늘 밤, 가안 \"오늘 밤\", D123 ④)"
+  },
+  "shinsalWeighingNote": "원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.",
+  "@shinsalWeighingNote": {
+    "description": "아래 '붙는 신살'의 풀이 시트(explain-sheet, 원국 `term.shinsal.*`)와 사주 기운 시트(tag-sheet, 오늘 태그 `term.tag.*`)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
+  },
+  "adFreeUnavailableBody": "지금은 광고 제거권을 구매할 수 없어요.",
+  "@adFreeUnavailableBody": {
+    "description": "ad-free.unavailable.body: 상품 목록이 비어 있을 때(empty 상태) 제안 카드 자리의 안내: 지금은 광고 제거권을 살 수 없다는 사실. 오류처럼 들리지 않게(모양 design, 문구 writing)"
+  },
+  "explainSheetTermEmpty": "이 용어의 풀이를 준비하고 있어요.",
+  "@explainSheetTermEmpty": {
+    "description": "풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)"
+  },
+  "ganjiReading": "{stem}{branch}",
+  "@ganjiReading": {
+    "description": "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      },
+      "branch": {
+        "type": "String"
+      }
+    }
+  },
+  "ganjiReadingSuffix": "({reading})",
+  "@ganjiReadingSuffix": {
+    "description": "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리",
+    "placeholders": {
+      "reading": {
+        "type": "String"
+      }
+    }
+  },
+  "todayLuckyPairPosition": "{total}개 중 {index}번째",
+  "@todayLuckyPairPosition": {
+    "description": "오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)과 행운 색 두 칸 알약의 칸 순서(D119, design V114 `pairLabel`)",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "stemReadingGap": "갑",
+  "@stemReadingGap": {
+    "description": "glossary.value_name: stem_reading.gap"
+  },
+  "stemReadingEul": "을",
+  "@stemReadingEul": {
+    "description": "glossary.value_name: stem_reading.eul"
+  },
+  "stemReadingByeong": "병",
+  "@stemReadingByeong": {
+    "description": "glossary.value_name: stem_reading.byeong"
+  },
+  "stemReadingJeong": "정",
+  "@stemReadingJeong": {
+    "description": "glossary.value_name: stem_reading.jeong"
+  },
+  "stemReadingMu": "무",
+  "@stemReadingMu": {
+    "description": "glossary.value_name: stem_reading.mu"
+  },
+  "stemReadingGi": "기",
+  "@stemReadingGi": {
+    "description": "glossary.value_name: stem_reading.gi"
+  },
+  "stemReadingGyeong": "경",
+  "@stemReadingGyeong": {
+    "description": "glossary.value_name: stem_reading.gyeong"
+  },
+  "stemReadingSin": "신",
+  "@stemReadingSin": {
+    "description": "glossary.value_name: stem_reading.sin"
+  },
+  "stemReadingIm": "임",
+  "@stemReadingIm": {
+    "description": "glossary.value_name: stem_reading.im"
+  },
+  "stemReadingGye": "계",
+  "@stemReadingGye": {
+    "description": "glossary.value_name: stem_reading.gye"
+  },
+  "branchReadingJa": "자",
+  "@branchReadingJa": {
+    "description": "glossary.value_name: branch_reading.ja"
+  },
+  "branchReadingChuk": "축",
+  "@branchReadingChuk": {
+    "description": "glossary.value_name: branch_reading.chuk"
+  },
+  "branchReadingIn": "인",
+  "@branchReadingIn": {
+    "description": "glossary.value_name: branch_reading.in"
+  },
+  "branchReadingMyo": "묘",
+  "@branchReadingMyo": {
+    "description": "glossary.value_name: branch_reading.myo"
+  },
+  "branchReadingJin": "진",
+  "@branchReadingJin": {
+    "description": "glossary.value_name: branch_reading.jin"
+  },
+  "branchReadingSa": "사",
+  "@branchReadingSa": {
+    "description": "glossary.value_name: branch_reading.sa"
+  },
+  "branchReadingO": "오",
+  "@branchReadingO": {
+    "description": "glossary.value_name: branch_reading.o"
+  },
+  "branchReadingMi": "미",
+  "@branchReadingMi": {
+    "description": "glossary.value_name: branch_reading.mi"
+  },
+  "branchReadingShin": "신",
+  "@branchReadingShin": {
+    "description": "glossary.value_name: branch_reading.shin"
+  },
+  "branchReadingYu": "유",
+  "@branchReadingYu": {
+    "description": "glossary.value_name: branch_reading.yu"
+  },
+  "branchReadingSul": "술",
+  "@branchReadingSul": {
+    "description": "glossary.value_name: branch_reading.sul"
+  },
+  "branchReadingHae": "해",
+  "@branchReadingHae": {
+    "description": "glossary.value_name: branch_reading.hae"
   }
 }

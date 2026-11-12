@@ -12,6 +12,7 @@ import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
@@ -203,12 +204,12 @@ class ShareImage extends StatelessWidget {
 
   /// 변형이 보여 줄 칩. story는 앞에서 4개, feed·square는 시간을 뺀 색·방향·숫자 3개입니다.
   List<LuckyItem> _chipsFor() {
-    // 칩 줄에 tag 칩을 넣지 않고(`lucky-card` rules, 행운 4종만), 시간은 구간이 둘이어도
-    // 첫 구간 칩 하나만 넣습니다(칩 수 표 그대로, 결정 V52).
+    // 칩 줄에 tag 칩을 넣지 않고(`lucky-card` rules, 행운 4종만), 시간은 밤 칩이 와도
+    // 낮 칩 하나만 넣습니다(칩 수 표 그대로, 결정 V116).
     final lucky = items.where(
       (item) =>
           LuckyCardVariant.luckyValues.contains(item.variant) &&
-          item.ordinal == 0,
+          item.period != AppTimeOfDay.night,
     );
     return switch (variant) {
       ShareImageVariant.story => lucky.take(4).toList(),
