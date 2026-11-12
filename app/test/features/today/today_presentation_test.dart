@@ -1013,7 +1013,16 @@ void main() {
       expect(virtue.evidenceSlotId, 'explain.day_virtue#woldeok_day');
     });
 
-    test('둘이면 응답 순서(천덕일, 월덕일)대로 둘입니다', () {
+    test('응답이 월덕일, 천덕일 순이어도 계약 순서(천덕일, 월덕일)로 그립니다', () {
+      final daily = virtueDaily((virtues) => virtues.reversed.toList());
+      expect(daily.dayVirtues.first.kind, DayVirtueKind.woldeokDay);
+      expect(_display(daily).virtues.map((virtue) => virtue.kind), [
+        DayVirtueKind.cheondeokDay,
+        DayVirtueKind.woldeokDay,
+      ]);
+    });
+
+    test('둘이면 천덕일, 월덕일 순서로 둘입니다', () {
       final daily = Daily.fromJson(dailyFixtureJson('daily-pair-virtue'));
       expect(_display(daily).virtues.map((virtue) => virtue.label), [
         _l10n.todayDateVirtueCheondeok,

@@ -542,7 +542,7 @@ final class TodayDisplay {
   /// 날짜 머리의 일진 글자(`today.date.iljin`, 예 `庚申(경신)일`).
   final String iljinText;
 
-  /// 날짜 머리의 덕일 알약(`today.date.virtue`, 응답 순서, [dayVirtuesOf]). 덕일이 아닌 날은
+  /// 날짜 머리의 덕일 알약(`today.date.virtue`, 천덕일, 월덕일 순서, [dayVirtuesOf]). 덕일이 아닌 날은
   /// 비어 있습니다.
   final List<DayVirtueContent> virtues;
 
@@ -695,9 +695,17 @@ String? dayVirtueName(AppLocalizations l10n, DayVirtueKind kind) =>
       DayVirtueKind.unknownDefaultOpenApi => null,
     };
 
-/// [daily]의 덕일 알약(응답 순서). 열린 enum의 모르는 덕은 이름과 글자가 없어 건너뛰고, 같은
-/// 덕이 두 번 오면 처음 하나만 둡니다(받은 데이터는 그대로, 그리는 단계에서 `kind`로 거름).
-/// 덕일이 아닌 날(빈 배열)은 빈 목록이고 날짜 머리에 칸이 없습니다.
+/// 덕일 알약 순서(design `date-header` `parts.virtue.perVirtue`, `a11y.virtueLabel`:
+/// 천덕일, 월덕일). `openapi.yaml` `dayVirtues`는 순서를 정하지 않으므로 그리는 단계에서
+/// 이 순서로 둡니다.
+const List<DayVirtueKind> _dayVirtueOrder = [
+  DayVirtueKind.cheondeokDay,
+  DayVirtueKind.woldeokDay,
+];
+
+/// [daily]의 덕일 알약(계약 순서 [_dayVirtueOrder]). 열린 enum의 모르는 덕은 이름과 글자가 없어
+/// 건너뛰고, 같은 덕이 두 번 오면 처음 하나만 둡니다(받은 데이터는 그대로, 그리는 단계에서
+/// `kind`로 거르고 정렬). 덕일이 아닌 날(빈 배열)은 빈 목록이고 날짜 머리에 칸이 없습니다.
 List<DayVirtueContent> dayVirtuesOf(Daily daily, AppLocalizations l10n) {
   final virtues = <DayVirtueKind, DayVirtueContent>{};
   for (final virtue in daily.dayVirtues) {
@@ -705,7 +713,7 @@ List<DayVirtueContent> dayVirtuesOf(Daily daily, AppLocalizations l10n) {
     final content = _dayVirtueContentOf(virtue, l10n);
     if (content != null) virtues[virtue.kind] = content;
   }
-  return virtues.values.toList();
+  return [for (final kind in _dayVirtueOrder) ?virtues[kind]];
 }
 
 DayVirtueContent? _dayVirtueContentOf(DayVirtue virtue, AppLocalizations l10n) {

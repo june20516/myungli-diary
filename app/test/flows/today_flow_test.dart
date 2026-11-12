@@ -748,6 +748,69 @@ void main() {
     );
   });
 
+  testWidgets('D124 ② 오늘 태그 고신 孤, 과숙 寡, 원진 元: 대표 태그로 그리고 누르면 사주 기운 시트', (
+    tester,
+  ) async {
+    covers(const Covers(exits: ['today>tag-sheet'], decisions: ['D124']));
+    final container = await _openToday(tester);
+    // 오늘 응답을 새 태그가 대표 1순위인 응답으로 바꿉니다(fixture 대표 태그는 합, 비겁 몰림).
+    final server = ScriptedDailyServer();
+    final interceptors = container.read(dioProvider).interceptors;
+    interceptors.insert(interceptors.length - 1, server);
+    final featured = find.descendant(
+      of: find.byKey(TodayScreen.featuredCardKey),
+      matching: find.byType(HanjaTag),
+    );
+    for (final (key, glyph, label) in [
+      ('gosin', '孤', '고신'),
+      ('gwasuk', '寡', '과숙'),
+      ('wonjin', '元', '원진'),
+    ]) {
+      server.body['tags'] = {
+        'featured': [
+          {'key': key, 'polarity': 'bad'},
+        ],
+        'all': [key],
+      };
+      container.invalidate(dailyControllerProvider);
+      await pumpUntil(
+        tester,
+        () =>
+            featured.evaluate().length == 1 &&
+            tester.widget<HanjaTag>(featured.first).glyph == glyph,
+      );
+      final tag = tester.widget<HanjaTag>(featured.first);
+      expect(tag.label, label, reason: key);
+      expect(tag.tone, HanjaTagTone.term, reason: key);
+      await tester.ensureVisible(featured.first);
+      await tester.pumpAndSettle();
+      await tester.tap(featured.first);
+      await tester.pumpAndSettle();
+      final sheet = find.byKey(const Key(ScreenIds.tagSheet));
+      expect(sheet, findsOneWidget, reason: key);
+      final head = tester.widget<HanjaTag>(
+        find.descendant(of: sheet, matching: find.byType(HanjaTag)),
+      );
+      expect((head.glyph, head.label), (glyph, label));
+      // 1순위라 보조 문장과 오늘의 질문 줄이 있습니다(A113).
+      expect(
+        tester
+            .widget<TagSentenceList>(
+              find.descendant(
+                of: sheet,
+                matching: find.byType(TagSentenceList),
+              ),
+            )
+            .items,
+        hasLength(2),
+        reason: key,
+      );
+      await tapSheetScrim(tester);
+      await tester.pumpAndSettle();
+      expect(sheet, findsNothing);
+    }
+  });
+
   testWidgets('member: 사주 기운 시트 근거 아이콘 → 그 태그를 머리로 한 근거 시트', (tester) async {
     covers(
       const Covers(exits: ['tag-sheet>evidence-sheet'], decisions: ['D108']),

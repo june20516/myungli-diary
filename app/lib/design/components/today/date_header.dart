@@ -15,8 +15,14 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 /// 끊지 않고 다음 줄로 넘깁니다. 날짜, 음력, 일진은 누를 수 없는 표시입니다.
 ///
 /// 덕일(D124 ⑤, V119)은 일진 뒤에 덕마다 `hanja-tag` `compact` 길 톤(`verdictTone.good`) 알약
-/// 하나이고, 받은 순서대로 둡니다. 알약은 누르면 [DateHeaderVirtue.onTap]이고 터치 높이는 위아래로
-/// 넓혀 44입니다. 덕일은 뼈를 두지 않습니다([skeleton]).
+/// 하나이고, 받은 순서대로 둡니다(계약 순서 천덕일, 월덕일은 값을 만드는 쪽이 맞춤). 알약은 누르면
+/// [DateHeaderVirtue.onTap]이고 터치 높이는 위아래로 넓혀 44입니다. 덕일은 뼈를 두지 않습니다
+/// ([skeleton]).
+///
+/// 알약이 맨 아래 줄이면 아래쪽 넓힘이 날짜 머리 경계 밖으로 나갑니다. 보통 상자는 자기 영역 밖
+/// 눌림을 넘기지 않으므로, 날짜 머리를 감싸는 상자(예: slot 표시 `Semantics`, `SizedBox`)가
+/// 아래 경계를 자르면 그 상자를 `HitSlopPassage(bottom: DateHeader.virtueHitSlop)`로 감쌉니다
+/// (오늘 화면이 그렇게 함).
 ///
 /// 그날 시트는 오른쪽 끝에 날의 성격 태그([trailing])를 둡니다(`parts.trailing`, V109).
 /// 태그는 날짜와 음력 두 줄 묶음의 세로 가운데(음력이 없으면 날짜 줄 가운데)에 날짜 글자와

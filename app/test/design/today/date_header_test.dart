@@ -392,6 +392,32 @@ void main() {
         expect(taps, hasLength(3));
       });
 
+      testWidgets('알약이 위아래로 쌓여도 아래 알약의 넓힘이 윗 알약을 가로채지 않습니다', (tester) async {
+        final taps = <String>[];
+        await tester.pumpWidget(
+          _app(
+            virtues: [
+              _virtue('천덕일', onTap: () => taps.add('천덕일')),
+              _virtue('월덕일', onTap: () => taps.add('월덕일')),
+            ],
+            // 알약 하나만 들어가는 폭이라 둘째 알약이 같은 x의 아래 줄로 넘어갑니다.
+            width: 80,
+          ),
+        );
+        final pills = find.byKey(HanjaTag.surfaceKey);
+        final upper = tester.getRect(pills.at(0));
+        final lower = tester.getRect(pills.at(1));
+        expect(lower.top, upper.bottom);
+        expect(lower.left, upper.left);
+        // 윗 알약의 아래쪽 안은 윗 알약, 아래 알약의 위쪽 안은 아래 알약입니다.
+        await tester.tapAt(Offset(upper.center.dx, upper.bottom - 2));
+        await tester.tapAt(Offset(lower.center.dx, lower.top + 2));
+        // 덮은 알약이 없는 바깥 넓힘은 그대로 받습니다.
+        await tester.tapAt(Offset(upper.center.dx, upper.top - 10));
+        await tester.tapAt(Offset(lower.center.dx, lower.bottom + 10));
+        expect(taps, ['천덕일', '월덕일', '천덕일', '월덕일']);
+      });
+
       testWidgets('넓힌 자리에서도 일진 글자 아래는 누르는 곳이 아닙니다', (tester) async {
         var taps = 0;
         await tester.pumpWidget(
