@@ -713,5 +713,22 @@
     ],
     "status": "chosen",
     "note": "대화로 정함, 순번 표현의 중의성 지적 뒤 사용자 문구를 다듬은 안"
+  },
+  {
+    "id": "round-R42",
+    "title": "라운드 R42: 빈 상태 두 안내 (W71)",
+    "kind": "copy-sample",
+    "file": "2026-11-12-round-R42.md",
+    "date": "2026-11-12",
+    "milestone": "A2",
+    "screens": [
+      "ad-free",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "W71"
+    ],
+    "status": "chosen",
+    "note": "design V123 가안 포함, R42-2는 R26-3 우려 확인 뒤 그대로"
   }
 ]

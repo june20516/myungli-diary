@@ -140,6 +140,7 @@
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
 - {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1 month, no automatic charge"}
 - {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "Buy"}
+- {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "The ad-free pass isn't available to purchase right now."}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
@@ -407,6 +408,7 @@
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}"}
 - {slot: ui.saju.luck-period, key: luckSeunAge, text: "Age {age}"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "There's no separate reading for this spot."}
+- {slot: ui.explain.term-empty, key: explainSheetTermEmpty, text: "We're preparing an explanation of this term."}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "Lucky color"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "Lucky number"}
