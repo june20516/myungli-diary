@@ -155,6 +155,19 @@ class TimeBand extends StatelessWidget {
   /// 눈금 시각의 글꼴 기능(`ticks.fontFeatures` tnum).
   static const List<FontFeature> tickFeatures = [FontFeature.tabularFigures()];
 
+  /// 이웃한 눈금 사이 최소 간격(A143). 이보다 가까우면 눈금을 아랫줄로 내립니다.
+  static const double tickMinGap = Space.s8;
+
+  /// 눈금이 두 줄일 때 줄 사이(A143).
+  static const double tickRowGap = Space.s2;
+
+  /// 시작, 경계, 끝 눈금을 찾는 테스트용 키(이 순서).
+  static const List<Key> tickKeys = [
+    ValueKey('time-band-tick-start'),
+    ValueKey('time-band-tick-boundary'),
+    ValueKey('time-band-tick-end'),
+  ];
+
   /// 지금 줄을 찾는 테스트용 키.
   static const Key nowLineKey = ValueKey('time-band-now-line');
 
@@ -435,15 +448,40 @@ class TimeBand extends StatelessWidget {
   }
 
   /// 시작(왼쪽), 경계(가운데, [boundaryFraction] 자리), 끝(오른쪽) 눈금.
+  ///
+  /// 셋이 한 줄에 [tickMinGap] 이상 떨어져 들어가지 않으면(큰 글자 배율) 들어가지 않는 눈금을
+  /// 아랫줄로 내립니다(A143). 줄을 고르는 순서는 시작, 끝, 경계입니다.
   Widget _ticks(BuildContext context, double boundaryFraction) {
     final tokens = context.tokens;
     final style = tokens.typography.captionSm.copyWith(
       color: tokens.colors.textSecondary,
       fontFeatures: tickFeatures,
     );
-    Widget tick(TimeBandTick tick) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+
+    double widthOf(String text) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final width = painter.width;
+      painter.dispose();
+      return width;
+    }
+
+    double tickWidth(TimeBandTick tick) {
+      final dayWord = tick.dayWord;
+      final time = widthOf(tick.time);
+      return dayWord == null ? time : widthOf(dayWord) + dayWordGap + time;
+    }
+
+    Widget tick(TimeBandTick tick, Key key) {
       final dayWord = tick.dayWord;
       return Row(
+        key: key,
         mainAxisSize: MainAxisSize.min,
         spacing: dayWordGap,
         children: [
@@ -453,16 +491,79 @@ class TimeBand extends StatelessWidget {
       );
     }
 
-    return Stack(
-      children: [
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: tick(startTick),
-        ),
-        Align(alignment: AlignmentDirectional.centerEnd, child: tick(endTick)),
-        _FractionPlaced(fraction: boundaryFraction, child: tick(boundaryTick)),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final startWidth = tickWidth(startTick);
+        final endWidth = tickWidth(endTick);
+        final boundaryWidth = tickWidth(boundaryTick);
+        final boundaryLeft = math
+            .max(
+              0,
+              math.min(
+                width * boundaryFraction - boundaryWidth / 2,
+                width - boundaryWidth,
+              ),
+            )
+            .toDouble();
+        final spans = <(double, double)>[
+          (0, startWidth),
+          (width - endWidth, width),
+          (boundaryLeft, boundaryLeft + boundaryWidth),
+        ];
+        final rowsOf = _tickRows(spans);
+        final children = [
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: tick(startTick, tickKeys[0]),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: tick(endTick, tickKeys[2]),
+          ),
+          _FractionPlaced(
+            fraction: boundaryFraction,
+            child: tick(boundaryTick, tickKeys[1]),
+          ),
+        ];
+        final rowCount = rowsOf.reduce(math.max) + 1;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: tickRowGap,
+          children: [
+            for (var row = 0; row < rowCount; row++)
+              Stack(
+                children: [
+                  for (var i = 0; i < children.length; i++)
+                    if (rowsOf[i] == row) children[i],
+                ],
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  /// [spans](왼쪽, 오른쪽)마다 들어갈 줄 번호. 앞에서부터, 이미 놓인 눈금과 [tickMinGap] 이상
+  /// 떨어지는 가장 위 줄입니다.
+  static List<int> _tickRows(List<(double, double)> spans) {
+    final rows = <int>[];
+    for (final (index, (left, right)) in spans.indexed) {
+      var row = 0;
+      bool clashes(int row) =>
+          [
+            for (var other = 0; other < index; other++)
+              if (rows[other] == row) spans[other],
+          ].any(
+            (span) =>
+                left < span.$2 + tickMinGap && span.$1 < right + tickMinGap,
+          );
+      while (clashes(row)) {
+        row++;
+      }
+      rows.add(row);
+    }
+    return rows;
   }
 }
 

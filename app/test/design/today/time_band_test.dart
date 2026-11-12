@@ -362,6 +362,49 @@ void main() {
     handle.dispose();
   });
 
+  for (final scale in [1.0, 1.3, 2.0]) {
+    testWidgets('눈금 셋은 서로 겹치지 않습니다(글자 배율 $scale, A143)', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      for (final band in [
+        _band(),
+        TimeBand(
+          cells: _beforeDayStart(),
+          dayHead: '낮',
+          nightHead: '밤',
+          nowFraction: null,
+          nowLabel: '지금 07:40',
+          startTick: const TimeBandTick(time: '21:30', dayWord: '어제'),
+          boundaryTick: const TimeBandTick(time: '07:30'),
+          endTick: const TimeBandTick(time: '21:30'),
+        ),
+      ]) {
+        await tester.pumpWidget(_app(band));
+        final ticks = [
+          for (final key in TimeBand.tickKeys) tester.getRect(find.byKey(key)),
+        ];
+        for (var i = 0; i < ticks.length; i++) {
+          for (var j = i + 1; j < ticks.length; j++) {
+            final (a, b) = (ticks[i], ticks[j]);
+            expect(a.overlaps(b), isFalse, reason: '눈금 $i, $j가 겹칩니다($a, $b)');
+            if (a.top == b.top) {
+              final gap = a.left < b.left ? b.left - a.right : a.left - b.right;
+              expect(
+                gap,
+                greaterThanOrEqualTo(TimeBand.tickMinGap - 0.01),
+                reason: '같은 줄 눈금 $i, $j 사이가 좁습니다',
+              );
+            }
+          }
+        }
+        if (scale == 1.0) {
+          // 들어가면 한 줄입니다.
+          expect(ticks.map((rect) => rect.top).toSet(), hasLength(1));
+        }
+      }
+    });
+  }
+
   testWidgets('글자 배율 2.0에서도 넘치지 않습니다', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
