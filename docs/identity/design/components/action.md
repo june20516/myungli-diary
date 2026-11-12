@@ -109,6 +109,7 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 | `active` | 구매 버튼 대신 `tag.status` "이용 중" + 남은 기간·만료일(`appear.seep`) |
 | `purchasing` | 구매 버튼 점 숨쉬기 |
 | `offline` | 구매 버튼 비활성, 화면 위 notice-banner `offline`. 구매 내역 버튼은 누를 수 있음(구매 내역 화면이 자기 `offline` 상태를 가짐) |
+| `unavailable` | 상품 목록이 빔(스토어 상품 전, 지역 미지원 등, app A126). 오류가 아닌 정상 상태입니다. 카드, 아이콘, 주는 것 한 줄은 그대로 두고 가격, 기간 고지, 구매 버튼 자리에 안내 한 줄(`ad-free.unavailable.body`, `type.body.ui` `text.secondary`, 위 `space.16`, 2줄까지). 구매 내역과 약관 안내 그대로. 경고 아이콘, 다시 시도, 배너 없음. 이용 중이면 `active`가 먼저이고 안내는 없습니다(IA `ad-free` `empty`, 관문 답 2026-11-12 A, 결정 V123) |
 
 * 구매 내역 버튼은 상태와 관계없이 늘 보입니다. 따로 누르는 구매 복원 버튼은 없습니다(D88 ②). 구매가 끝나면 햅틱 light.
 * 빨간색·카운트다운·과장 표시를 쓰지 않습니다. 문구는 writing(슬롯 `ad-free.*`).

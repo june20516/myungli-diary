@@ -87,6 +87,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `today.lucky-time.band.now` | timeBand 지금 꼬리표 (밤 다섯 칸 폭 안, 좌우 space.4, time 포함) | 120.8px | 1 | - | 13 | **13** | **9** | **22** |
 | `today.lucky-time.band.yesterday`<br>`today.lucky-time.band.tomorrow` | timeBand 끝 눈금 날 낱말 (밤 다섯 칸 쪽 끝에서 경계 시각 반폭과 간격 8까지, 낱말 뒤 간격 4와 시각 32) | 68.8px | 1 | - | 7 | **7** | **5** | **11** |
 | `ui.shinsal.weighing` | explain-sheet weighingNote 상자 (fill.soft, 안쪽 12, check 16 + 간격 8, type.caption.lg) | 264px | 2 | - | 52 | **52** | **38** | **88** |
+| `ad-free.unavailable.body` | offer-card 상품 없음 안내 (카드 안쪽 20, type.body.ui, 두 줄) | 280px | 2 | - | 50 | **50** | **38** | **86** |
+| `ui.explain.term-empty` | term-token 풀이 시트 빈 안내 (sheet 안쪽 24, type.body.ui, 두 줄) | 312px | 2 | - | 58 | **58** | **42** | **98** |
 | `today.date.virtue` | date-header 덕일 hanja-tag compact (음력, 일진 줄이 칸 단위로 넘겨 혼자 한 줄일 때, type.caption.md) | 290px | 1 | - | 28 | **28** | **23** | **52** |
 | `ui.saju.stage-marker` | stage-strip 자리 표시 원 안 기둥 한 글자 (원 18, caption.sm 700) | 18px | 1 | - | - | **1** | **1** | **1** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
@@ -195,6 +197,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * D124 ⑤ 날짜 머리 덕일(2026-11-12, #1029 ①, #1034, 결정 V119): `today.date.virtue`는 `hanja-tag` `compact` 알약 하나에 덕 이름 하나입니다. 음력, 일진 줄은 칸 단위로 넘기므로 알약이 혼자 한 줄일 때 본문 320px에서 알약 테두리 몫 30(앞 4, 한자 원 16, 간격 2, 뒤 8)을 뺀 290px, `type.caption.md` 한 줄로 잽니다(ko 28, ja 23, en 52). 원고가 아직 없어(writing #1030) 계산값이 확정값입니다. 둘 다인 날은 알약 둘이고 알약마다 같은 상한입니다.
   * D124 ⑦ 흉한 신살 마무리 한 줄(2026-11-12, #1026, 결정 V120): IA 밖 `ui.shinsal.weighing`(키 `shinsalWeighingNote`)은 풀이 시트 뜻 아래 뉴트럴 상자 안 글자입니다. 시트 안 312px에서 상자 안쪽 12씩, 체크 아이콘 16과 간격 8을 뺀 264px, `type.caption.lg` 두 줄로 잽니다. writing 가안(#1030) 셋은 모두 들어갑니다(사용자가 고른 방향 ② 40자는 두 줄).
     * 본문 `today.lucky-color.second.body`, `today.lucky-time.day.body`, `night.body`는 writing content 키 `daily.color`, `daily.focus_time`과 같은 칸(시트 본문 두 줄)이라 그 행 값을 씁니다. 시트 끝 근거 진입점은 아이콘(`block`, 본문 아래 따로)이라 본문 폭을 줄이지 않습니다.
+  * 빈 상태 둘(2026-11-12, #1058, 결정 V123): `ad-free.unavailable.body`(광고 제거 상품 없음 안내, #922)는 `offer-card` 안쪽 20을 뺀 280px, `type.body.ui` 두 줄입니다(ko 50, ja 38, en 86). IA 밖 `ui.explain.term-empty`(뜻도 근거 출처도 없는 용어의 풀이 시트 빈 안내, #957)는 근거 시트 빈 안내 `ui.evidence.personal-empty`와 같은 시트 안 312px 두 줄입니다(ko 58, ja 42, en 98). 둘 다 원고가 아직 없어 계산값이 확정값입니다.
   * `daily.tag_label`은 `lucky-card` `tag` 칩이 지워져(V78) 이름이 놓이는 가장 좁은 자리인 카드 안 `hanja-tag` 이름 칸(246px)으로 다시 잽니다. 확정값(10, 10, 18)은 그대로입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.

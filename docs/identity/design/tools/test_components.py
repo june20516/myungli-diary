@@ -445,12 +445,13 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_3_0():
+def test_contract_version_is_7_4_0():
+    # 7.4.0은 #1058(V123): offer-card 상태 unavailable과 term-token 풀이 시트 emptyNote 추가라 부 버전.
     # 7.3.0은 #969, #986(V122): settings-row 변형 readonly 추가와 app 구현에 맞춘 계약 문구라 부 버전.
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.3.0"
+    assert VERSION == "7.4.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -561,6 +562,8 @@ SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
 # 흉한 신살 뜻 아래 『三命通會』 마무리 한 줄 (D124 ⑦, #1026, V120). writing #1030 새 IA 밖 슬롯
 SLOTS_OUTSIDE_IA |= {"ui.shinsal.weighing"}
+# 뜻도 근거 출처도 없는 용어의 풀이 시트 빈 안내 (#957, #1058, V123). ui.evidence.personal-empty처럼 IA 밖 writing 슬롯
+SLOTS_OUTSIDE_IA |= {"ui.explain.term-empty"}
 
 
 def _slot_values(node):
@@ -3251,3 +3254,19 @@ def test_v118_lucky_sheets_evidence_and_time_titles():
     # 관문 답 2026-11-12 C: en 띠 칸은 지지 한자. 시간 칩 스크린리더 이름은 시트 제목 슬롯
     assert "en은" in band["cells"]["label"]["source"] and "branch.*" in band["cells"]["label"]["source"]
     assert "today.lucky-time.day.title" in card["a11y"]["timeLabel"] and "때 낱말" in card["a11y"]["timeLabel"]
+
+
+def test_v123_empty_states():
+    c = components_by_id(("action", "sentence"))
+    offer = c["offer-card"]
+    unavailable = offer["states"]["unavailable"]["parts"]
+    assert offer["parts"]["unavailable"]["slot"] == "ad-free.unavailable.body"
+    assert unavailable["unavailable"] == {"visible": True}
+    assert all(unavailable[part] == {"visible": False} for part in ("price", "period", "buy", "status", "remaining"))
+    assert "head" not in unavailable and "history" not in unavailable  # 주는 것 한 줄과 구매 내역은 그대로
+    assert offer["states"]["available"]["parts"]["unavailable"] == {"visible": False}
+    note = c["term-token"]["parts"]["explainSheet"]["emptyNote"]
+    assert note["slot"] == "ui.explain.term-empty" and note["interactive"] is False
+    assert "A130" in note["when"]
+    assert "`unavailable`" in _md_section("action.md", "## offer-card")
+    assert "`emptyNote`" in _md_section("sentence.md", "## term-token")
