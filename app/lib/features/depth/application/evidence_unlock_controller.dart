@@ -71,6 +71,14 @@ abstract interface class EvidenceSubject {
     PersonalReadingKey key,
   );
 
+  /// [slotId]가 근거 목록 없이 문장 자체가 근거인 슬롯이면 그 문장과 잠긴 앞부분을, 그런
+  /// 슬롯이 아니면 null(provider 없음)을 줍니다(A129, #931).
+  ///
+  /// server가 근거(`evidence[]`) 없이 문장만 렌더하는 자리입니다(예 용신 판정 근거, 계약
+  /// `Yongsin.basis`는 문장 하나). 근거 시트는 이 문장을 판정 근거 문단으로 보이고 원전 구역은
+  /// 두지 않습니다.
+  ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId);
+
   /// 캐시를 건너뛰고 응답을 다시 받습니다. 받는 동안과 실패 뒤에도 [access]는 이전 값
   /// 그대로이고(응답을 보이는 화면이 같은 실패를 따로 알리지 않게), 실패는 [AppError]로
   /// 던집니다. 오류는 근거 시트가 보입니다.
@@ -123,6 +131,11 @@ final class DailyEvidenceSubject implements EvidenceSubject {
     PersonalReadingKey key,
   ) => dailyControllerProvider.select((value) => value.whenData((_) => null));
 
+  /// 오늘 응답의 근거 링크 슬롯은 모두 근거 목록을 가집니다.
+  @override
+  ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId) =>
+      null;
+
   @override
   Future<void> reload(Ref ref) =>
       ref.read(dailyControllerProvider.notifier).refreshQuietly();
@@ -134,14 +147,28 @@ final class DailyEvidenceSubject implements EvidenceSubject {
   int get hashCode => (DailyEvidenceSubject).hashCode;
 }
 
+/// 문장 자체가 근거인 슬롯의 값([EvidenceSubject.sentenceEvidenceOf]). `sentence`는 열린 응답의
+/// 문장, `lead`는 잠긴 응답의 앞부분(D106)이고 없거나 빈 문장이면 null입니다.
+typedef SentenceEvidence = ({RenderedText? sentence, RenderedText? lead});
+
+RenderedText? _nonBlank(RenderedText? text) =>
+    text == null || isBlankText(text) ? null : text;
+
+/// 잠긴 근거 앞부분이 없는 응답이 돌려주는 값.
+final Provider<List<EvidencePreview>> _noPreviewProvider =
+    Provider<List<EvidencePreview>>((_) => const []);
+
 /// 오늘 그런 이유가 없는 응답이 돌려주는 값.
 final Provider<RenderedText?> _noTodayReasonProvider = Provider<RenderedText?>(
   (_) => null,
 );
 
-/// 나의 사주 응답(`getChart`)의 근거. 슬롯은 용신 판정 근거(`saju-chart.yongsin.basis`) 하나이고,
-/// 잠금이 풀리면 [ChartController.refreshQuietly]로 다시 받습니다(A56·A58). 오늘 그런 이유는
-/// 없습니다.
+/// 나의 사주 응답(`getChart`)의 근거. 근거 시트를 여는 자리는 용신 판정 근거
+/// (`saju-chart.yongsin.basis`)와 표 칸의 원국 개인 해석이고, 잠금이 풀리면
+/// [ChartController.refreshQuietly]로 다시 받습니다(A56·A58). 오늘 그런 이유는 없습니다.
+///
+/// 용신 판정 근거는 문장 자체가 근거라 server가 근거 목록을 주지 않습니다(계약 `Yongsin.basis`).
+/// 그래서 그 슬롯의 근거 목록과 앞부분은 늘 비고, 문장은 [sentenceEvidenceOf]로 줍니다(#931).
 @immutable
 final class ChartEvidenceSubject implements EvidenceSubject {
   /// 나의 사주 응답의 근거.
@@ -153,24 +180,29 @@ final class ChartEvidenceSubject implements EvidenceSubject {
         (value) => value.whenData((chart) => chart.evidenceAccess),
       );
 
+  /// 나의 사주 응답에는 근거 목록이 있는 슬롯이 없습니다(용신 판정 근거는 문장 자체가 근거).
   @override
   ProviderListenable<AsyncValue<List<Evidence>>> evidenceOf(String slotId) =>
       chartControllerProvider.select(
-        (value) => value.whenData(
-          (chart) => slotId == SlotIds.sajuChartYongsinBasis
-              ? chart.yongsin.basis?.evidence ?? const []
-              : const [],
-        ),
+        (value) => value.whenData((_) => const <Evidence>[]),
       );
 
+  /// 나의 사주 응답에는 근거 목록의 앞부분이 없습니다(용신 판정 근거는 [sentenceEvidenceOf]).
   @override
   ProviderListenable<List<EvidencePreview>> previewOf(String slotId) =>
-      chartControllerProvider.select((value) {
-        final chart = value.value;
-        return chart == null || slotId != SlotIds.sajuChartYongsinBasis
-            ? const <EvidencePreview>[]
-            : chart.yongsin.basis?.evidencePreview ?? const <EvidencePreview>[];
-      });
+      _noPreviewProvider;
+
+  @override
+  ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId) =>
+      slotId == SlotIds.sajuChartYongsinBasis
+      ? chartControllerProvider.select((value) {
+          final yongsin = value.value?.yongsin;
+          return (
+            sentence: _nonBlank(yongsin?.basis?.text),
+            lead: _nonBlank(yongsin?.basisPreview),
+          );
+        })
+      : null;
 
   @override
   ProviderListenable<RenderedText?> todayReasonOf(String slotId) =>

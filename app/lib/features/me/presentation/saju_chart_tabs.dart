@@ -23,10 +23,8 @@ import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/stage_strip.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
-import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
-import 'package:myungli_diary/features/depth/application/term_origin.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/me/application/luck_years.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
@@ -123,16 +121,10 @@ class _YongsinBasis extends StatelessWidget {
               unlocked: !locked,
               lockedLead: chart.yongsin.basisPreview,
               slotId: SlotIds.sajuChartYongsinBasis,
-              onTerm: (termId) => sheets.openExplain(
-                context,
-                ExplainTerm(
-                  termId,
-                  origin: const TermOrigin(
-                    slotId: SlotIds.sajuChartYongsinBasis,
-                    subject: ChartEvidenceSubject(),
-                  ),
-                ),
-              ),
+              // 이 문장이 곧 판정 근거라(server가 근거 목록을 주지 않음) 용어 시트에서 다시 근거로
+              // 잇지 않습니다(A129, #931).
+              onTerm: (termId) =>
+                  sheets.openExplain(context, ExplainTerm(termId)),
               onOpenLocked: () =>
                   sheets.openEvidence(context, SlotIds.sajuChartYongsinBasis),
             ),

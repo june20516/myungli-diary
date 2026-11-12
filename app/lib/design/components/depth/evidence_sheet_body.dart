@@ -76,6 +76,7 @@ class EvidenceSheetBody extends StatefulWidget {
     this.sourceLead,
     this.showPersonal = false,
     this.showJudgment = true,
+    this.showSource = true,
     this.personalEmpty,
     this.unlockTag,
     this.onWatchAd,
@@ -195,6 +196,10 @@ class EvidenceSheetBody extends StatefulWidget {
   /// 판정 근거·원전 구역을 둘지. 표 칸 용어에서 연 시트는 그 칸에 판정 근거가 없으므로 false이고,
   /// 잠겨도 열린 뒤 없을 구역을 약속하지 않습니다(A58).
   final bool showJudgment;
+
+  /// [showJudgment]일 때 원전 구역을 두는지. 문장 자체가 근거라 원전이 오지 않는 자리(용신 판정
+  /// 근거, #931)는 false라 잠겨도 원전 자리값을 그리지 않습니다.
+  final bool showSource;
 
   /// 열렸는데 [personal]이 없을 때(원고 없음) "내 사주에서는" 구역 제목 아래 보일 안내. 없으면
   /// 그 구역을 그리지 않습니다(A22 남은 규칙).
@@ -317,16 +322,17 @@ class _EvidenceSheetBodyState extends State<EvidenceSheetBody> {
               lockedLines: LockVeilLines.basis,
               lead: widget.basisLead,
             ),
-            _section(
-              context,
-              title: l10n.evidenceSheetSectionSource,
-              texts: widget.source,
-              titleSlotId: SlotIds.evidenceSheetSectionSource,
-              slotId: SlotIds.evidenceSheetSourceQuote,
-              lockedLines: LockVeilLines.source,
-              lead: widget.sourceLead,
-              quote: true,
-            ),
+            if (widget.showSource)
+              _section(
+                context,
+                title: l10n.evidenceSheetSectionSource,
+                texts: widget.source,
+                titleSlotId: SlotIds.evidenceSheetSectionSource,
+                slotId: SlotIds.evidenceSheetSourceQuote,
+                lockedLines: LockVeilLines.source,
+                lead: widget.sourceLead,
+                quote: true,
+              ),
           ],
           if (widget.showPersonal)
             _section(

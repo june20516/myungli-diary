@@ -19,6 +19,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/depth/evidence_lock_panel.dart';
+import 'package:myungli_diary/design/components/depth/evidence_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
 import 'package:myungli_diary/design/components/input/segmented.dart';
@@ -28,6 +29,7 @@ import 'package:myungli_diary/design/components/saju/luck_label.dart';
 import 'package:myungli_diary/design/components/saju/manse_table.dart';
 import 'package:myungli_diary/design/components/saju/ohaeng_bar.dart';
 import 'package:myungli_diary/design/components/saju/saju_pillars.dart';
+import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
@@ -371,6 +373,38 @@ void main() {
     await settleWithIo(tester);
     expect(_evidenceSheet, findsOneWidget);
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsOneWidget);
+    // 용신 판정 근거는 문장 자체가 근거라 원전 구역이 없고, 판정 근거 구역은 사주 표와 같은
+    // 앞부분으로 잠깁니다(#931, A129).
+    final body = tester.widget<EvidenceSheetBody>(
+      _inEvidence(find.byType(EvidenceSheetBody)),
+    );
+    expect(body.showSource, isFalse);
+    expect(body.basisLead, isNotNull);
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionSource)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('evidence-unlocked: 용신 판정 근거 속 용어 시트에는 근거 보기가 없습니다(#931)', (
+    tester,
+  ) async {
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    final term = find.descendant(
+      of: _yongsinBasis,
+      matching: find.byType(TermToken),
+    );
+    expect(term, findsWidgets);
+    await tester.ensureVisible(term.first);
+    await tester.pumpAndSettle();
+    await tester.tap(term.first);
+    await settleWithIo(tester);
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
+    expect(
+      find.descendant(of: explain, matching: find.byType(DepthLink)),
+      findsNothing,
+    );
   });
 
   testWidgets('reward-unlock: 광고로 잠금을 풀면 차트를 다시 받아 용신 판정 근거가 열리고 오늘도 열립니다', (
@@ -412,6 +446,19 @@ void main() {
     );
     await settleWithIo(tester);
     expect(_inEvidence(find.byType(EvidenceLockPanel)), findsNothing);
+    // 열린 근거 시트는 비지 않고 용신 판정 근거 문장을 판정 근거로 보입니다(#931).
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionBasis)),
+      findsOneWidget,
+    );
+    expect(
+      _inEvidence(find.textContaining('정했어요', findRichText: true)),
+      findsOneWidget,
+    );
+    expect(
+      _inEvidence(find.text(_ko.evidenceSheetSectionSource)),
+      findsNothing,
+    );
 
     // 시트를 닫으면 사주 표의 용신 판정 근거가 문장으로 보입니다.
     await closeSheet(tester, _evidenceSheet);

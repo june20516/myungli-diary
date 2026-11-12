@@ -8,14 +8,14 @@ core `compose_chart`를 기준일 2026-10-13(시나리오의 오늘)에 돌려 �
 * `member`: 근거 열람 권한 없음(`evidenceAccess: locked`). server처럼 잠긴 내용(용신 판정 문장
   `yongsin.basis`, 원국 개인 해석 `personalReadings`)을 담지 않고, 그 앞부분만
   `yongsin.basisPreview`, `personalReadingPreviews`로 담습니다(D106, server 규칙: ko 단어 3개).
-* `evidence-unlocked`: 권한 있음. 용신 판정 문장과 근거(엔진 `evidence`의 `ruleId`·`sourceRef`)와
-  원국 개인 해석을 담습니다.
+* `evidence-unlocked`: 권한 있음. 용신 판정 문장과 원국 개인 해석을 담습니다. 용신 판정 문장은
+  문장 자체가 근거라 server처럼 근거 목록(`evidence`)을 담지 않습니다(#931).
 * `member-time-unknown`: 태어난 시간을 모르는 같은 사람. 시주가 없고 안내 `time_unknown`이 있습니다(잠김).
 * `reward-unlock`: 보상형 광고로 잠금을 푸는 흐름. 첫 응답은 `member`(잠김), 두 번째부터는
   `evidence-unlocked`(열림)인 `sequence`입니다(오늘 `getDaily`와 같은 방식).
 
 엔진 값이 아닌 것
-* 문장(`yongsin.basis.text`, 근거의 `basis`, 개인 해석 `text`, 안내 `text`)은 writing 슬롯 형식을 따른
+* 문장(`yongsin.basis.text`, 개인 해석 `text`, 안내 `text`)은 writing 슬롯 형식을 따른
   대역 문장입니다. 개인 해석은 항목 종류마다 같은 틀에 용어 이름을 넣습니다.
 * 나의 사주 문장(`ilganHead`·`ilganBody`·`yongsinSummary`, draft.10, 표면 깊이라 잠기지 않음)은
   writing ko 원고(`docs/identity/writing/content/ko/chart.yaml`의 `chart.ilgan_head`·`ilgan_body`·
@@ -206,14 +206,7 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
             "variant": "single",
             "text": rendered(*unlocked_basis_segments(method)),
             "reactable": False,
-            "evidence": [
-                {
-                    "ruleId": evidence.rule_id,
-                    "sourceRef": evidence.source_ref,
-                    "basis": rendered({"text": "태어난 달의 기운과 오행 비중을 견주어 정했어요."}),
-                }
-                for evidence in view.yongsin_judgment.evidence
-            ],
+            # server는 이 문장이 곧 근거라 근거 목록을 렌더하지 않습니다(`EvidenceNone`, #931).
         }
         body["personalReadings"] = [personal(reading) for reading in view.personal_readings]
     else:

@@ -1435,20 +1435,7 @@
                 }
               ]
             },
-            "reactable": false,
-            "evidence": [
-              {
-                "ruleId": "yongsin/johu",
-                "sourceRef": "gungtong-bogam/johu_evidence#庚.巳",
-                "basis": {
-                  "segments": [
-                    {
-                      "text": "태어난 달의 기운과 오행 비중을 견주어 정했어요."
-                    }
-                  ]
-                }
-              }
-            ]
+            "reactable": false
           }
         },
         "daeun": {

@@ -197,15 +197,20 @@ void main() {
   test('evidence-unlocked: 용신 판정 근거와 개인 해석을 용어 자리로 찾습니다', () async {
     final (container, chart) = await _load('evidence-unlocked');
     const subject = ChartEvidenceSubject();
+    // 용신 판정 근거는 문장 자체가 근거라 근거 목록이 없고 문장을 따로 줍니다(#931, A129).
     expect(
       container.read(subject.evidenceOf(SlotIds.sajuChartYongsinBasis)).value,
-      isNotEmpty,
+      isEmpty,
     );
-    // 사주 표 슬롯이 아닌 슬롯은 근거가 없습니다.
+    final sentence = subject.sentenceEvidenceOf(SlotIds.sajuChartYongsinBasis);
+    expect(sentence, isNotNull);
+    expect(container.read(sentence!).sentence, isNotNull);
+    // 사주 표 슬롯이 아닌 슬롯은 근거도 문장 근거도 없습니다.
     expect(
       container.read(subject.evidenceOf('today.fortune.head')).value,
       isEmpty,
     );
+    expect(subject.sentenceEvidenceOf('today.fortune.head'), isNull);
 
     final dayMaster = personalReadingOf(
       chart,

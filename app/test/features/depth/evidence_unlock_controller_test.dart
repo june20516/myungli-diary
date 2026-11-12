@@ -385,6 +385,10 @@ final class _TestSubject implements EvidenceSubject {
   ) => _noPersonalProvider;
 
   @override
+  ProviderListenable<SentenceEvidence>? sentenceEvidenceOf(String slotId) =>
+      null;
+
+  @override
   Future<void> reload(Ref ref) async {}
 
   @override
