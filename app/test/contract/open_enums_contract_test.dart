@@ -74,6 +74,7 @@ void main() {
     expect(targets.where((t) => t.isEnum).map((t) => t.name).toSet(), {
       'NoticeCode',
       'ShinsalKind',
+      'DayVirtueKind',
       'RelationKind',
       'PersonalReading.kind',
       'FocusSlot.reasons',
@@ -145,6 +146,8 @@ void main() {
     expect(fields, {
       'notice.dart:code',
       'shinsal_at.dart:kind',
+      'day_virtue.dart:kind',
+      'calendar_day.dart:dayVirtues',
       'relation.dart:kind',
       'relation.dart:suppressedBy',
       'seun_year.dart:relationsWithNatal',

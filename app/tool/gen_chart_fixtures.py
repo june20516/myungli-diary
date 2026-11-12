@@ -10,13 +10,15 @@ core `compose_chart`를 기준일 2026-10-13(시나리오의 오늘)에 돌려 �
   `yongsin.basisPreview`, `personalReadingPreviews`로 담습니다(D106, server 규칙: ko 단어 3개).
 * `evidence-unlocked`: 권한 있음. 용신 판정 문장과 원국 개인 해석을 담습니다. 용신 판정 문장은
   문장 자체가 근거라 server처럼 근거 목록(`evidence`)을 담지 않습니다(#931).
+* 신살(`shinsal`)은 엔진의 대표 자리(`position`)와 걸친 자리 전부(`positions`, 규칙 2026.11.7)를 옮깁니다.
 * `member-time-unknown`: 태어난 시간을 모르는 같은 사람. 시주가 없고 안내 `time_unknown`이 있습니다(잠김).
 * `reward-unlock`: 보상형 광고로 잠금을 푸는 흐름. 첫 응답은 `member`(잠김), 두 번째부터는
   `evidence-unlocked`(열림)인 `sequence`입니다(오늘 `getDaily`와 같은 방식).
 
 엔진 값이 아닌 것
 * 문장(`yongsin.basis.text`, 개인 해석 `text`, 안내 `text`)은 writing 슬롯 형식을 따른
-  대역 문장입니다. 개인 해석은 항목 종류마다 같은 틀에 용어 이름을 넣습니다.
+  대역 문장입니다. 개인 해석은 항목 종류마다 같은 틀에 용어 이름을 넣습니다. server처럼 writing ko 원고
+  (`docs/identity/writing/content/ko/personal.yaml`)에 그 판정의 키가 없는 항목은 뺍니다.
 * 나의 사주 문장(`ilganHead`·`ilganBody`·`yongsinSummary`, draft.10, 표면 깊이라 잠기지 않음)은
   writing ko 원고(`docs/identity/writing/content/ko/chart.yaml`의 `chart.ilgan_head`·`ilgan_body`·
   `yongsin_summary`)를 이 도구가 대신 렌더한 것입니다. 호칭은 member 프로필의 "하늘", 오행·색 이름은
@@ -154,7 +156,14 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
         "twelveStages": [
             {"position": lower(pos), "stage": lower(stage)} for pos, stage in chart.twelve_stages.items()
         ],
-        "shinsal": [{"kind": lower(hit.kind), "position": lower(hit.position)} for hit in chart.shinsal],
+        "shinsal": [
+            {
+                "kind": lower(hit.kind),
+                "position": lower(hit.position),
+                "positions": [lower(position) for position in hit.positions],
+            }
+            for hit in chart.shinsal
+        ],
         "gongmang": sorted(lower(b) for b in chart.gongmang),
         "elementWeights": [
             {"element": ELEMENT[e.name], "weight": round(w, 2)}
@@ -208,14 +217,14 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
             "reactable": False,
             # server는 이 문장이 곧 근거라 근거 목록을 렌더하지 않습니다(`EvidenceNone`, #931).
         }
-        body["personalReadings"] = [personal(reading) for reading in view.personal_readings]
+        body["personalReadings"] = [personal(reading) for reading in readings_with_script(view)]
     else:
         # 잠긴 응답은 열린 응답의 문장 앞부분만 미리보기로 담습니다(D106, server S141).
         basis = preview(unlocked_basis_segments(method))
         if basis is not None:
             body["yongsin"]["basisPreview"] = rendered(*basis)
         previews = []
-        for reading in view.personal_readings:
+        for reading in readings_with_script(view):
             item = personal(reading)
             head = preview(item["text"]["segments"])
             if head is not None:
@@ -223,6 +232,18 @@ def build(birth: BirthInput, *, unlocked: bool) -> dict:
         if previews:
             body["personalReadingPreviews"] = previews
     return body
+
+
+def _personal_keys() -> set[str]:
+    """writing ko 원고 personal.yaml의 키."""
+    lines = (REPO / "docs/identity/writing/content/ko/personal.yaml").read_text(encoding="utf-8")
+    return set(re.findall(r"key: ([\w.]+),", lines))
+
+
+def readings_with_script(view) -> list:
+    """원고가 있는 개인 해석만 남깁니다(server는 원고가 없는 항목을 뺍니다)."""
+    keys = _personal_keys()
+    return [reading for reading in view.personal_readings if reading.judgment.message_key in keys]
 
 
 def unlocked_basis_segments(method: str) -> list[dict]:

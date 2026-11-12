@@ -237,24 +237,300 @@
             "start": "2026-10-13T09:30:00+09:00",
             "end": "2026-10-13T11:30:00+09:00",
             "huangdaoLucky": true,
-            "reasons": [
-              "yongsin"
-            ]
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
           }
         ],
         "fallback": false,
         "text": {
           "slot": "daily.focus_time",
-          "messageKey": "focus_time.yongsin",
+          "messageKey": "focus_time.day",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "이 시간에는 중요한 일을 하면 잘 돼요."
+                "text": "중요한 일은 이 시간에 하면 좋아요."
               }
             ]
+          },
+          "evidence": [
+            {
+              "ruleId": "focus_time/day_relation",
+              "sourceRef": "xieji-bianfang/hours#use_hour",
+              "detail": {
+                "period": "DAY",
+                "hour_branch": "SA",
+                "day_pillar": "庚申"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는 것이라 오로지 날을 돕는 데 달려 있어, 일간이나 일지와 같은 기운이거나 일지와 삼합, 육합이 되면 곧 길하고, 시의 길신과 흉신에 다 얽매일 필요 없이 귀인과 녹마만 길로 본다는 뜻이에요.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n협기변방서 「용시법」"
+                  }
+                ]
+              }
+            },
+            {
+              "ruleId": "focus_time/birth_year",
+              "sourceRef": "xieji-bianfang/hours#birth_year",
+              "detail": {
+                "period": "DAY",
+                "hour_branch": "SA",
+                "birth_year": "庚午"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난 해의 천간을 보고, 관이나 재와 합하거나 비견, 인수, 장생이 되거나 녹마와 귀인을 얻으면서 명을 충하거나 극하지 않는 때를 골랐다는 뜻이에요.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n협기변방서 「논상주」"
+                  }
+                ]
+              }
+            },
+            {
+              "ruleId": "focus_time/huangdao",
+              "sourceRef": "xieji-bianfang/hours#huangdao",
+              "detail": {
+                "period": "DAY",
+                "hour_branch": "SA",
+                "huangdao": "true"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면 자일에는 신시에서 청룡을 시작하고 유시를 명당으로 삼아 차례대로 세어 나간다는 뜻이에요.\n日起時則子日申時起青龍酉時為明堂依次順數\n협기변방서 「황도흑도」"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "nightFocusTime": {
+        "picks": [
+          {
+            "branch": "chuk",
+            "start": "2026-10-14T01:30:00+09:00",
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "stem": "sin",
+              "branch": "yu"
+            },
+            "reasons": []
           }
+        ],
+        "fallback": false,
+        "text": {
+          "slot": "daily.focus_time",
+          "messageKey": "focus_time.night",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "밤에 할 일이 있다면 이 시간이 좋아요."
+              }
+            ]
+          },
+          "evidence": [
+            {
+              "ruleId": "focus_time/day_relation",
+              "sourceRef": "xieji-bianfang/hours#use_hour",
+              "detail": {
+                "period": "NIGHT",
+                "hour_branch": "CHUK",
+                "day_pillar": "辛酉"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는 것이라 오로지 날을 돕는 데 달려 있어, 일간이나 일지와 같은 기운이거나 일지와 삼합, 육합이 되면 곧 길하고, 시의 길신과 흉신에 다 얽매일 필요 없이 귀인과 녹마만 길로 본다는 뜻이에요.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n협기변방서 「용시법」"
+                  }
+                ]
+              }
+            },
+            {
+              "ruleId": "focus_time/birth_year",
+              "sourceRef": "xieji-bianfang/hours#birth_year",
+              "detail": {
+                "period": "NIGHT",
+                "hour_branch": "CHUK",
+                "birth_year": "庚午"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난 해의 천간을 보고, 관이나 재와 합하거나 비견, 인수, 장생이 되거나 녹마와 귀인을 얻으면서 명을 충하거나 극하지 않는 때를 골랐다는 뜻이에요.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n협기변방서 「논상주」"
+                  }
+                ]
+              }
+            },
+            {
+              "ruleId": "focus_time/huangdao",
+              "sourceRef": "xieji-bianfang/hours#huangdao",
+              "detail": {
+                "period": "NIGHT",
+                "hour_branch": "CHUK",
+                "huangdao": "false"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면 자일에는 신시에서 청룡을 시작하고 유시를 명당으로 삼아 차례대로 세어 나간다는 뜻이에요.\n日起時則子日申時起青龍酉時為明堂依次順數\n협기변방서 「황도흑도」"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "previousNightFocusTime": {
+        "picks": [
+          {
+            "branch": "chuk",
+            "start": "2026-10-13T01:30:00+09:00",
+            "end": "2026-10-13T03:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          }
+        ],
+        "fallback": false,
+        "text": {
+          "slot": "daily.focus_time",
+          "messageKey": "focus_time.night",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "밤에 할 일이 있다면 이 시간이 좋아요."
+              }
+            ]
+          },
+          "evidence": [
+            {
+              "ruleId": "focus_time/day_relation",
+              "sourceRef": "xieji-bianfang/hours#use_hour",
+              "detail": {
+                "period": "NIGHT",
+                "hour_branch": "CHUK",
+                "day_pillar": "庚申"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는 것이라 오로지 날을 돕는 데 달려 있어, 일간이나 일지와 같은 기운이거나 일지와 삼합, 육합이 되면 곧 길하고, 시의 길신과 흉신에 다 얽매일 필요 없이 귀인과 녹마만 길로 본다는 뜻이에요.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n협기변방서 「용시법」"
+                  }
+                ]
+              }
+            },
+            {
+              "ruleId": "focus_time/birth_year",
+              "sourceRef": "xieji-bianfang/hours#birth_year",
+              "detail": {
+                "period": "NIGHT",
+                "hour_branch": "CHUK",
+                "birth_year": "庚午"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난 해의 천간을 보고, 관이나 재와 합하거나 비견, 인수, 장생이 되거나 녹마와 귀인을 얻으면서 명을 충하거나 극하지 않는 때를 골랐다는 뜻이에요.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n협기변방서 「논상주」"
+                  }
+                ]
+              }
+            },
+            {
+              "ruleId": "focus_time/huangdao",
+              "sourceRef": "xieji-bianfang/hours#huangdao",
+              "detail": {
+                "period": "NIGHT",
+                "hour_branch": "CHUK",
+                "huangdao": "true"
+              },
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면 자일에는 신시에서 청룡을 시작하고 유시를 명당으로 삼아 차례대로 세어 나간다는 뜻이에요.\n日起時則子日申時起青龍酉時為明堂依次順數\n협기변방서 「황도흑도」"
+                  }
+                ]
+              }
+            }
+          ]
         }
       }
     },
@@ -277,6 +553,7 @@
       ]
     },
     "relations": [],
-    "notices": []
+    "notices": [],
+    "dayVirtues": []
   }
 }

@@ -143,11 +143,68 @@
         "shinsal": [
           {
             "kind": "cheoneul_gwiin",
-            "position": "hour_branch"
+            "position": "hour_branch",
+            "positions": [
+              "hour_branch"
+            ]
           },
           {
             "kind": "hwagae",
-            "position": "day_branch"
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "cheondeok",
+            "position": "month_stem",
+            "positions": [
+              "month_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "year_stem",
+            "positions": [
+              "year_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "day_stem",
+            "positions": [
+              "day_stem"
+            ]
+          },
+          {
+            "kind": "gwasuk",
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "goegang",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "sipak_daepae",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "amrok",
+            "position": "month_branch",
+            "positions": [
+              "month_branch"
+            ]
           }
         ],
         "gongmang": [
@@ -788,6 +845,97 @@
             "shinsal": "hwagae"
           },
           {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "month_stem",
+            "index": 0,
+            "shinsal": "cheondeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "year_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "day_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "gwasuk"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "goegang"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "sipak_daepae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이"
+                }
+              ]
+            },
+            "position": "month_branch",
+            "index": 0,
+            "shinsal": "amrok"
+          },
+          {
             "kind": "daeun_stem_ten_god",
             "text": {
               "segments": [
@@ -1373,11 +1521,68 @@
         "shinsal": [
           {
             "kind": "cheoneul_gwiin",
-            "position": "hour_branch"
+            "position": "hour_branch",
+            "positions": [
+              "hour_branch"
+            ]
           },
           {
             "kind": "hwagae",
-            "position": "day_branch"
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "cheondeok",
+            "position": "month_stem",
+            "positions": [
+              "month_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "year_stem",
+            "positions": [
+              "year_stem"
+            ]
+          },
+          {
+            "kind": "woldeok",
+            "position": "day_stem",
+            "positions": [
+              "day_stem"
+            ]
+          },
+          {
+            "kind": "gwasuk",
+            "position": "day_branch",
+            "positions": [
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "goegang",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "sipak_daepae",
+            "position": "day_branch",
+            "positions": [
+              "day_stem",
+              "day_branch"
+            ]
+          },
+          {
+            "kind": "amrok",
+            "position": "month_branch",
+            "positions": [
+              "month_branch"
+            ]
           }
         ],
         "gongmang": [
@@ -2204,6 +2409,146 @@
             "position": "day_branch",
             "index": 0,
             "shinsal": "hwagae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "month_stem",
+            "index": 0,
+            "shinsal": "cheondeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "year_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "day_stem",
+            "index": 0,
+            "shinsal": "woldeok"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "gwasuk"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "goegang"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "day_branch",
+            "index": 0,
+            "shinsal": "sipak_daepae"
+          },
+          {
+            "kind": "shinsal",
+            "text": {
+              "segments": [
+                {
+                  "text": "내 사주에서 이 신살 자리는 "
+                },
+                {
+                  "text": "기운의 균형",
+                  "term": "role.yongsin"
+                },
+                {
+                  "text": "을 돕는 쪽으로 읽어요."
+                }
+              ]
+            },
+            "position": "month_branch",
+            "index": 0,
+            "shinsal": "amrok"
           },
           {
             "kind": "daeun_stem_ten_god",

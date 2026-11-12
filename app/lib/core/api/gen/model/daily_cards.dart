@@ -24,15 +24,24 @@ class DailyCards {
   DailyCards({
     required this.color,
 
+    this.secondColor,
+
     required this.direction,
 
     required this.number,
 
     required this.focusTime,
+
+    this.nightFocusTime,
+
+    this.previousNightFocusTime,
   });
 
   @JsonKey(name: r'color', required: true, includeIfNull: false)
   final ColorCard color;
+
+  @JsonKey(name: r'secondColor', required: false, includeIfNull: false)
+  final ColorCard? secondColor;
 
   @JsonKey(name: r'direction', required: true, includeIfNull: false)
   final DirectionCard direction;
@@ -43,21 +52,37 @@ class DailyCards {
   @JsonKey(name: r'focusTime', required: true, includeIfNull: false)
   final FocusTimeCard focusTime;
 
+  @JsonKey(name: r'nightFocusTime', required: false, includeIfNull: false)
+  final FocusTimeCard? nightFocusTime;
+
+  @JsonKey(
+    name: r'previousNightFocusTime',
+    required: false,
+    includeIfNull: false,
+  )
+  final FocusTimeCard? previousNightFocusTime;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DailyCards &&
           other.color == color &&
+          other.secondColor == secondColor &&
           other.direction == direction &&
           other.number == number &&
-          other.focusTime == focusTime;
+          other.focusTime == focusTime &&
+          other.nightFocusTime == nightFocusTime &&
+          other.previousNightFocusTime == previousNightFocusTime;
 
   @override
   int get hashCode =>
       color.hashCode +
+      secondColor.hashCode +
       direction.hashCode +
       number.hashCode +
-      focusTime.hashCode;
+      focusTime.hashCode +
+      nightFocusTime.hashCode +
+      previousNightFocusTime.hashCode;
 
   factory DailyCards.fromJson(Map<String, dynamic> json) =>
       _$DailyCardsFromJson(json);

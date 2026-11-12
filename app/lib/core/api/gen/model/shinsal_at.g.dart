@@ -11,6 +11,8 @@ abstract class _$ShinsalAtCWProxy {
 
   ShinsalAt position(Position position);
 
+  ShinsalAt positions(List<Position> positions);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `ShinsalAt(...).copyWith.fieldName(value)`.
@@ -19,7 +21,11 @@ abstract class _$ShinsalAtCWProxy {
   /// ```dart
   /// ShinsalAt(...).copyWith(id: 12, name: "My name")
   /// ```
-  ShinsalAt call({ShinsalKind kind, Position position});
+  ShinsalAt call({
+    ShinsalKind kind,
+    Position position,
+    List<Position> positions,
+  });
 }
 
 /// Callable proxy for `copyWith` functionality.
@@ -35,6 +41,9 @@ class _$ShinsalAtCWProxyImpl implements _$ShinsalAtCWProxy {
   @override
   ShinsalAt position(Position position) => call(position: position);
 
+  @override
+  ShinsalAt positions(List<Position> positions) => call(positions: positions);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `ShinsalAt(...).copyWith.fieldName(value)`.
@@ -47,6 +56,7 @@ class _$ShinsalAtCWProxyImpl implements _$ShinsalAtCWProxy {
   ShinsalAt call({
     Object? kind = const $CopyWithPlaceholder(),
     Object? position = const $CopyWithPlaceholder(),
+    Object? positions = const $CopyWithPlaceholder(),
   }) {
     return ShinsalAt(
       kind: kind == const $CopyWithPlaceholder() || kind == null
@@ -57,6 +67,10 @@ class _$ShinsalAtCWProxyImpl implements _$ShinsalAtCWProxy {
           ? _value.position
           // ignore: cast_nullable_to_non_nullable
           : position as Position,
+      positions: positions == const $CopyWithPlaceholder() || positions == null
+          ? _value.positions
+          // ignore: cast_nullable_to_non_nullable
+          : positions as List<Position>,
     );
   }
 }
@@ -74,7 +88,7 @@ extension $ShinsalAtCopyWith on ShinsalAt {
 
 ShinsalAt _$ShinsalAtFromJson(Map<String, dynamic> json) =>
     $checkedCreate('ShinsalAt', json, ($checkedConvert) {
-      $checkKeys(json, requiredKeys: const ['kind', 'position']);
+      $checkKeys(json, requiredKeys: const ['kind', 'position', 'positions']);
       final val = ShinsalAt(
         kind: $checkedConvert(
           'kind',
@@ -88,6 +102,12 @@ ShinsalAt _$ShinsalAtFromJson(Map<String, dynamic> json) =>
           'position',
           (v) => $enumDecode(_$PositionEnumMap, v),
         ),
+        positions: $checkedConvert(
+          'positions',
+          (v) => (v as List<dynamic>)
+              .map((e) => $enumDecode(_$PositionEnumMap, e))
+              .toList(),
+        ),
       );
       return val;
     });
@@ -95,6 +115,7 @@ ShinsalAt _$ShinsalAtFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ShinsalAtToJson(ShinsalAt instance) => <String, dynamic>{
   'kind': _$ShinsalKindEnumMap[instance.kind]!,
   'position': _$PositionEnumMap[instance.position]!,
+  'positions': instance.positions.map((e) => _$PositionEnumMap[e]!).toList(),
 };
 
 const _$ShinsalKindEnumMap = {
@@ -104,6 +125,19 @@ const _$ShinsalKindEnumMap = {
   ShinsalKind.hwagae: 'hwagae',
   ShinsalKind.yangin: 'yangin',
   ShinsalKind.gongmang: 'gongmang',
+  ShinsalKind.cheondeok: 'cheondeok',
+  ShinsalKind.woldeok: 'woldeok',
+  ShinsalKind.geumyeo: 'geumyeo',
+  ShinsalKind.gosin: 'gosin',
+  ShinsalKind.gwasuk: 'gwasuk',
+  ShinsalKind.wonjin: 'wonjin',
+  ShinsalKind.gugyo: 'gugyo',
+  ShinsalKind.cheonraJimang: 'cheonra_jimang',
+  ShinsalKind.goegang: 'goegang',
+  ShinsalKind.sipakDaepae: 'sipak_daepae',
+  ShinsalKind.eumchakYangcha: 'eumchak_yangcha',
+  ShinsalKind.samgi: 'samgi',
+  ShinsalKind.amrok: 'amrok',
   ShinsalKind.unknownDefaultOpenApi: 'unknown_default_open_api',
 };
 

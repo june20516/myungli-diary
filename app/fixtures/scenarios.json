@@ -419,5 +419,14 @@
     "network": "online",
     "signedIn": true,
     "description": "로그인한 회원. 계정 합치기 확정(mergeAccounts)이 처음 한 번 409 idempotency.in_progress이고 같은 키로 다시 보내면 합쳐집니다."
+  },
+  {
+    "id": "daily-pair-virtue",
+    "extends": "member",
+    "today": "2026-10-19",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "로그인한 회원. 오늘(2026-10-19, 丙寅일, getDaily)이 행운 색이 둘인 날(secondColor, 내 균형 기준 검정과 원전 기준 노랑)이면서 천덕일과 월덕일이 함께 드는 날(dayVirtues 둘, 천덕일 먼저)입니다. 근거는 잠겨 있습니다(evidenceAccess locked)."
   }
 ]

@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -27,6 +28,10 @@ class FocusSlot {
 
     required this.huangdaoLucky,
 
+    this.dayDate,
+
+    this.dayPillar,
+
     required this.reasons,
   });
 
@@ -45,6 +50,12 @@ class FocusSlot {
   @JsonKey(name: r'huangdaoLucky', required: true, includeIfNull: false)
   final bool huangdaoLucky;
 
+  @JsonKey(name: r'dayDate', required: false, includeIfNull: false)
+  final String? dayDate;
+
+  @JsonKey(name: r'dayPillar', required: false, includeIfNull: false)
+  final Pillar? dayPillar;
+
   /// 가점 사유 식별자(glossary `focus_reason` 범주의 키)
   @JsonKey(
     name: r'reasons',
@@ -62,6 +73,8 @@ class FocusSlot {
           other.start == start &&
           other.end == end &&
           other.huangdaoLucky == huangdaoLucky &&
+          other.dayDate == dayDate &&
+          other.dayPillar == dayPillar &&
           other.reasons == reasons;
 
   @override
@@ -70,6 +83,8 @@ class FocusSlot {
       start.hashCode +
       end.hashCode +
       huangdaoLucky.hashCode +
+      dayDate.hashCode +
+      dayPillar.hashCode +
       reasons.hashCode;
 
   factory FocusSlot.fromJson(Map<String, dynamic> json) =>

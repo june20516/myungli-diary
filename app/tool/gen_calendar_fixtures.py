@@ -2,7 +2,7 @@
 
 member 프로필(`fixtures/member/updateProfile.json`: 양력 1990-05-15 14:30, 여성, Asia/Seoul)로
 core `compose_month`를 돌려 2026년 9~11월의 날마다 `pillar`·`lunar`(한국 음력, KASI)·`solarTerm`·
-`dayKind`·`luckLevel`·`score`를 엔진 값 그대로 옮깁니다. 파일 이름의 월은
+`dayKind`·`luckLevel`·`score`·`dayVirtues`(택일 덕일)를 엔진 값 그대로 옮깁니다. 파일 이름의 월은
 생성 클라이언트가 보내는 경로(`/v1/calendar/2026/9`)와 같게 0을 붙이지 않습니다.
 
 엔진 값이 아닌 것
@@ -93,6 +93,8 @@ def _day_json(day) -> dict[str, object]:
             "score": score,
             "scoreItems": score_items,
             "level": _slot("calendar.day_level", f"calendar.{level}", "single", [{"text": LEVEL[level]}]),
+            # 택일 덕일은 엔진 판정 그대로입니다(규칙 2026.11.7, 천덕일 먼저, 없는 날은 빈 배열).
+            "dayVirtues": [virtue.name.lower() for virtue in day.day_virtues],
         }
     )
     return out

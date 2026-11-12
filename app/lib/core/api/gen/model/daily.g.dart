@@ -39,6 +39,8 @@ abstract class _$DailyCWProxy {
 
   Daily notices(List<Notice> notices);
 
+  Daily dayVirtues(List<DayVirtue> dayVirtues);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Daily(...).copyWith.fieldName(value)`.
@@ -64,6 +66,7 @@ abstract class _$DailyCWProxy {
     DayTags tags,
     List<Relation> relations,
     List<Notice> notices,
+    List<DayVirtue> dayVirtues,
   });
 }
 
@@ -128,6 +131,9 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
   @override
   Daily notices(List<Notice> notices) => call(notices: notices);
 
+  @override
+  Daily dayVirtues(List<DayVirtue> dayVirtues) => call(dayVirtues: dayVirtues);
+
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
   /// The public API rejects `null` for non-nullable fields. To update a single field use `Daily(...).copyWith.fieldName(value)`.
@@ -154,6 +160,7 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
     Object? tags = const $CopyWithPlaceholder(),
     Object? relations = const $CopyWithPlaceholder(),
     Object? notices = const $CopyWithPlaceholder(),
+    Object? dayVirtues = const $CopyWithPlaceholder(),
   }) {
     return Daily(
       date: date == const $CopyWithPlaceholder() || date == null
@@ -228,6 +235,11 @@ class _$DailyCWProxyImpl implements _$DailyCWProxy {
           ? _value.notices
           // ignore: cast_nullable_to_non_nullable
           : notices as List<Notice>,
+      dayVirtues:
+          dayVirtues == const $CopyWithPlaceholder() || dayVirtues == null
+          ? _value.dayVirtues
+          // ignore: cast_nullable_to_non_nullable
+          : dayVirtues as List<DayVirtue>,
     );
   }
 }
@@ -261,6 +273,7 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
           'tags',
           'relations',
           'notices',
+          'dayVirtues',
         ],
       );
       final val = Daily(
@@ -329,6 +342,12 @@ Daily _$DailyFromJson(Map<String, dynamic> json) =>
               .map((e) => Notice.fromJson(e as Map<String, dynamic>))
               .toList(),
         ),
+        dayVirtues: $checkedConvert(
+          'dayVirtues',
+          (v) => (v as List<dynamic>)
+              .map((e) => DayVirtue.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
       );
       return val;
     });
@@ -350,6 +369,7 @@ Map<String, dynamic> _$DailyToJson(Daily instance) => <String, dynamic>{
   'tags': instance.tags.toJson(),
   'relations': instance.relations.map((e) => e.toJson()).toList(),
   'notices': instance.notices.map((e) => e.toJson()).toList(),
+  'dayVirtues': instance.dayVirtues.map((e) => e.toJson()).toList(),
 };
 
 const _$EvidenceAccessEnumMap = {

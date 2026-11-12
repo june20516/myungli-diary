@@ -300,7 +300,11 @@ final class _AddUnknownShinsal extends Interceptor {
       final body = Map<String, Object?>.of(data.cast<String, Object?>());
       body['shinsal'] = [
         ...body['shinsal']! as List<Object?>,
-        {'kind': 'added_after_freeze', 'position': 'day_branch'},
+        {
+          'kind': 'added_after_freeze',
+          'position': 'day_branch',
+          'positions': ['day_branch'],
+        },
       ];
       response.data = body;
     }

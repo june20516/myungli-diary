@@ -98,10 +98,12 @@ void main() {
       );
     });
 
-    test('실제 계약에서 14개를 읽는다', () {
+    test('실제 계약에서 15개를 읽는다', () {
       expect(contractOpenEnumNames(loadOpenApi()), [
         'NoticeCode',
         'ShinsalKind',
+        // 1.11.0(D124 ⑤)에서 더한 택일 덕일 종류입니다.
+        'DayVirtueKind',
         'RelationKind',
         'PersonalReading.kind',
         'FocusSlot.reasons',

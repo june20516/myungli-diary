@@ -41,6 +41,8 @@
         "clash_month_branch": "월지 충",
         "dohwa": "도화",
         "gongmang": "공망",
+        "gosin": "고신",
+        "gwasuk": "과숙",
         "gwiin_day": "귀인의 날",
         "harmony": "합",
         "hwagae": "화개",
@@ -49,6 +51,7 @@
         "ten_god_rush.inseong": "인성이 많은 날",
         "ten_god_rush.jaeseong": "재성이 많은 날",
         "ten_god_rush.siksang": "식상이 많은 날",
+        "wonjin": "원진",
         "yeokma": "역마",
         "yongsin_day": "용신의 날"
       },
@@ -145,7 +148,20 @@
         "yeokma": "역마",
         "hwagae": "화개",
         "yangin": "양인",
-        "gongmang": "공망"
+        "gongmang": "공망",
+        "cheondeok": "천덕귀인",
+        "woldeok": "월덕귀인",
+        "geumyeo": "금여록",
+        "gosin": "고신",
+        "gwasuk": "과숙",
+        "wonjin": "원진",
+        "gugyo": "구교",
+        "cheonra_jimang": "천라지망",
+        "goegang": "괴강",
+        "sipak_daepae": "십악대패",
+        "eumchak_yangcha": "음착양차",
+        "samgi": "삼기",
+        "amrok": "암록"
       },
       "twelve_stage": {
         "jangsaeng": "장생",

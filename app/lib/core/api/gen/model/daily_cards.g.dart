@@ -9,11 +9,17 @@ part of 'daily_cards.dart';
 abstract class _$DailyCardsCWProxy {
   DailyCards color(ColorCard color);
 
+  DailyCards secondColor(ColorCard? secondColor);
+
   DailyCards direction(DirectionCard direction);
 
   DailyCards number(NumberCard number);
 
   DailyCards focusTime(FocusTimeCard focusTime);
+
+  DailyCards nightFocusTime(FocusTimeCard? nightFocusTime);
+
+  DailyCards previousNightFocusTime(FocusTimeCard? previousNightFocusTime);
 
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
@@ -25,9 +31,12 @@ abstract class _$DailyCardsCWProxy {
   /// ```
   DailyCards call({
     ColorCard color,
+    ColorCard? secondColor,
     DirectionCard direction,
     NumberCard number,
     FocusTimeCard focusTime,
+    FocusTimeCard? nightFocusTime,
+    FocusTimeCard? previousNightFocusTime,
   });
 }
 
@@ -42,6 +51,10 @@ class _$DailyCardsCWProxyImpl implements _$DailyCardsCWProxy {
   DailyCards color(ColorCard color) => call(color: color);
 
   @override
+  DailyCards secondColor(ColorCard? secondColor) =>
+      call(secondColor: secondColor);
+
+  @override
   DailyCards direction(DirectionCard direction) => call(direction: direction);
 
   @override
@@ -49,6 +62,14 @@ class _$DailyCardsCWProxyImpl implements _$DailyCardsCWProxy {
 
   @override
   DailyCards focusTime(FocusTimeCard focusTime) => call(focusTime: focusTime);
+
+  @override
+  DailyCards nightFocusTime(FocusTimeCard? nightFocusTime) =>
+      call(nightFocusTime: nightFocusTime);
+
+  @override
+  DailyCards previousNightFocusTime(FocusTimeCard? previousNightFocusTime) =>
+      call(previousNightFocusTime: previousNightFocusTime);
 
   /// Creates a new instance with the provided field values.
   /// Omitted fields keep their values; explicit `null` clears nullable fields.
@@ -61,15 +82,22 @@ class _$DailyCardsCWProxyImpl implements _$DailyCardsCWProxy {
   @override
   DailyCards call({
     Object? color = const $CopyWithPlaceholder(),
+    Object? secondColor = const $CopyWithPlaceholder(),
     Object? direction = const $CopyWithPlaceholder(),
     Object? number = const $CopyWithPlaceholder(),
     Object? focusTime = const $CopyWithPlaceholder(),
+    Object? nightFocusTime = const $CopyWithPlaceholder(),
+    Object? previousNightFocusTime = const $CopyWithPlaceholder(),
   }) {
     return DailyCards(
       color: color == const $CopyWithPlaceholder() || color == null
           ? _value.color
           // ignore: cast_nullable_to_non_nullable
           : color as ColorCard,
+      secondColor: secondColor == const $CopyWithPlaceholder()
+          ? _value.secondColor
+          // ignore: cast_nullable_to_non_nullable
+          : secondColor as ColorCard?,
       direction: direction == const $CopyWithPlaceholder() || direction == null
           ? _value.direction
           // ignore: cast_nullable_to_non_nullable
@@ -82,6 +110,15 @@ class _$DailyCardsCWProxyImpl implements _$DailyCardsCWProxy {
           ? _value.focusTime
           // ignore: cast_nullable_to_non_nullable
           : focusTime as FocusTimeCard,
+      nightFocusTime: nightFocusTime == const $CopyWithPlaceholder()
+          ? _value.nightFocusTime
+          // ignore: cast_nullable_to_non_nullable
+          : nightFocusTime as FocusTimeCard?,
+      previousNightFocusTime:
+          previousNightFocusTime == const $CopyWithPlaceholder()
+          ? _value.previousNightFocusTime
+          // ignore: cast_nullable_to_non_nullable
+          : previousNightFocusTime as FocusTimeCard?,
     );
   }
 }
@@ -97,37 +134,55 @@ extension $DailyCardsCopyWith on DailyCards {
 // JsonSerializableGenerator
 // **************************************************************************
 
-DailyCards _$DailyCardsFromJson(Map<String, dynamic> json) =>
-    $checkedCreate('DailyCards', json, ($checkedConvert) {
-      $checkKeys(
-        json,
-        requiredKeys: const ['color', 'direction', 'number', 'focusTime'],
-      );
-      final val = DailyCards(
-        color: $checkedConvert(
-          'color',
-          (v) => ColorCard.fromJson(v as Map<String, dynamic>),
-        ),
-        direction: $checkedConvert(
-          'direction',
-          (v) => DirectionCard.fromJson(v as Map<String, dynamic>),
-        ),
-        number: $checkedConvert(
-          'number',
-          (v) => NumberCard.fromJson(v as Map<String, dynamic>),
-        ),
-        focusTime: $checkedConvert(
-          'focusTime',
-          (v) => FocusTimeCard.fromJson(v as Map<String, dynamic>),
-        ),
-      );
-      return val;
-    });
+DailyCards _$DailyCardsFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('DailyCards', json, ($checkedConvert) {
+  $checkKeys(
+    json,
+    requiredKeys: const ['color', 'direction', 'number', 'focusTime'],
+  );
+  final val = DailyCards(
+    color: $checkedConvert(
+      'color',
+      (v) => ColorCard.fromJson(v as Map<String, dynamic>),
+    ),
+    secondColor: $checkedConvert(
+      'secondColor',
+      (v) => v == null ? null : ColorCard.fromJson(v as Map<String, dynamic>),
+    ),
+    direction: $checkedConvert(
+      'direction',
+      (v) => DirectionCard.fromJson(v as Map<String, dynamic>),
+    ),
+    number: $checkedConvert(
+      'number',
+      (v) => NumberCard.fromJson(v as Map<String, dynamic>),
+    ),
+    focusTime: $checkedConvert(
+      'focusTime',
+      (v) => FocusTimeCard.fromJson(v as Map<String, dynamic>),
+    ),
+    nightFocusTime: $checkedConvert(
+      'nightFocusTime',
+      (v) =>
+          v == null ? null : FocusTimeCard.fromJson(v as Map<String, dynamic>),
+    ),
+    previousNightFocusTime: $checkedConvert(
+      'previousNightFocusTime',
+      (v) =>
+          v == null ? null : FocusTimeCard.fromJson(v as Map<String, dynamic>),
+    ),
+  );
+  return val;
+});
 
 Map<String, dynamic> _$DailyCardsToJson(DailyCards instance) =>
     <String, dynamic>{
       'color': instance.color.toJson(),
+      'secondColor': ?instance.secondColor?.toJson(),
       'direction': instance.direction.toJson(),
       'number': instance.number.toJson(),
       'focusTime': instance.focusTime.toJson(),
+      'nightFocusTime': ?instance.nightFocusTime?.toJson(),
+      'previousNightFocusTime': ?instance.previousNightFocusTime?.toJson(),
     };

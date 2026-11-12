@@ -226,24 +226,237 @@
             "start": "2026-10-13T09:30:00+09:00",
             "end": "2026-10-13T11:30:00+09:00",
             "huangdaoLucky": true,
-            "reasons": [
-              "yongsin"
-            ]
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
           }
         ],
         "fallback": false,
         "text": {
           "slot": "daily.focus_time",
-          "messageKey": "focus_time.yongsin",
+          "messageKey": "focus_time.day",
           "variant": "single",
           "reactable": false,
           "text": {
             "segments": [
               {
-                "text": "이 시간에는 중요한 일을 하면 잘 돼요."
+                "text": "중요한 일은 이 시간에 하면 좋아요."
               }
             ]
+          },
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "nightFocusTime": {
+        "picks": [
+          {
+            "branch": "chuk",
+            "start": "2026-10-14T01:30:00+09:00",
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "stem": "sin",
+              "branch": "yu"
+            },
+            "reasons": []
           }
+        ],
+        "fallback": false,
+        "text": {
+          "slot": "daily.focus_time",
+          "messageKey": "focus_time.night",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "밤에 할 일이 있다면 이 시간이 좋아요."
+              }
+            ]
+          },
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "previousNightFocusTime": {
+        "picks": [
+          {
+            "branch": "chuk",
+            "start": "2026-10-13T01:30:00+09:00",
+            "end": "2026-10-13T03:30:00+09:00",
+            "huangdaoLucky": true,
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "stem": "gyeong",
+              "branch": "shin"
+            },
+            "reasons": []
+          }
+        ],
+        "fallback": false,
+        "text": {
+          "slot": "daily.focus_time",
+          "messageKey": "focus_time.night",
+          "variant": "single",
+          "reactable": false,
+          "text": {
+            "segments": [
+              {
+                "text": "밤에 할 일이 있다면 이 시간이 좋아요."
+              }
+            ]
+          },
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면"
+                  }
+                ]
+              }
+            }
+          ]
         }
       }
     },
@@ -277,6 +490,7 @@
           ]
         }
       }
-    ]
+    ],
+    "dayVirtues": []
   }
 }
