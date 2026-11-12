@@ -431,6 +431,68 @@ void main() {
       expect(_inSheet(find.text('첫째 원전', findRichText: true)), findsOneWidget);
     });
 
+    testWidgets('같은 sourceRef의 원전은 처음 한 번만, 판정 근거는 모두 그립니다(#924)', (
+      tester,
+    ) async {
+      const ref = 'gungtong-bogam/johu_evidence#戊.卯';
+      await _openSheet(
+        tester,
+        daily: _dailyWithEvidence(EvidenceAccess.unlocked, [
+          {
+            'ruleId': 'fortune/tag',
+            'sourceRef': ref,
+            'basis': _sentence('태그 근거'),
+            'source': _sentence('같은 원전'),
+          },
+          {
+            'ruleId': 'yongsin/johu_neutral',
+            'sourceRef': ref,
+            'basis': _sentence('용신 근거'),
+            'source': _sentence('같은 원전'),
+          },
+          {
+            'ruleId': 'yongsin/eokbu',
+            'sourceRef': 'gungtong-bogam/five_elements#balance_principle',
+            'source': _sentence('다른 원전'),
+          },
+        ]),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(_plain(body.basis), ['태그 근거', '용신 근거']);
+      expect(_plain(body.source), ['같은 원전', '다른 원전']);
+      expect(
+        _inSheet(find.byKey(EvidenceSheetBody.sourceMeaningKey)),
+        findsNWidgets(2),
+      );
+    });
+
+    testWidgets('원전 문장이 없는 앞 근거는 키를 차지하지 않아 뒤의 같은 원전을 그립니다(#924)', (
+      tester,
+    ) async {
+      const ref = 'gungtong-bogam/johu_evidence#戊.卯';
+      await _openSheet(
+        tester,
+        daily: _dailyWithEvidence(EvidenceAccess.unlocked, [
+          {'ruleId': 'fortune/tag', 'sourceRef': ref, 'basis': _sentence('앞')},
+          {
+            'ruleId': 'yongsin/johu',
+            'sourceRef': ref,
+            'basis': _sentence('뒤'),
+            'source': _sentence('뒤 원전'),
+          },
+        ]),
+      );
+
+      final body = tester.widget<EvidenceSheetBody>(
+        _inSheet(find.byType(EvidenceSheetBody)),
+      );
+      expect(_plain(body.basis), ['앞', '뒤']);
+      expect(_plain(body.source), ['뒤 원전']);
+    });
+
     testWidgets('문장이 없는 항목은 건너뛰고 모두 없으면 구역이 없습니다', (tester) async {
       await _openSheet(
         tester,

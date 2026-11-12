@@ -31,7 +31,8 @@ import 'package:myungli_diary/features/monetization/application/insight_provider
 /// 불러 두고, 닫히면 흐름이 버려져 권한 묻기가 멈추고 toast도 뜨지 않습니다.
 ///
 /// 판정 근거·원전 문장은 [slotId] 슬롯 근거(`evidence[]`)의 `basis`·`source`를 순서대로 넘기고,
-/// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 근거는 열렸을 때(`unlocked`이고 다시
+/// 문장이 없거나 빈 항목은 건너뜁니다(A42, A22 남은 규칙). 원전은 같은 `sourceRef`를 처음
+/// 한 번만 그립니다(#924). 근거는 열렸을 때(`unlocked`이고 다시
 /// 받는 중이 아님)만 읽으므로 잠긴 시트는 문장을 받지도 그리지도 않습니다(D60).
 ///
 /// [personal]이 있으면(사주 표 칸 용어에서 연 시트, A58) "내 사주에서는" 구역 하나만 두고(판정
@@ -241,7 +242,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         targetTags: target.tags,
         target: target.sentence,
         basis: _sentences(evidence.map((item) => item.basis)),
-        source: _sentences(evidence.map((item) => item.source_)),
+        source: _sourcesOnce(evidence),
         basisLead: _sentences(previews.map((item) => item.basis)).firstOrNull,
         sourceLead: _sentences(previews.map((item) => item.source_))
             .firstOrNull,
@@ -259,6 +260,21 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         onPass: _openAdFree,
       ),
     );
+  }
+
+  /// 그릴 원전 문장. 판정 근거는 근거마다 그리지만, 원전은 같은 `sourceRef`(원전 목록 키)를
+  /// 처음 한 번만 그립니다(#924). 용신의 날 보조 문장처럼 서로 다른 판정 둘이 같은 원전에
+  /// 기댈 때 같은 원전 묶음이 두 번 나오지 않게 하기 위해서입니다. 받은 근거 목록은 바꾸지
+  /// 않고 그리는 단계에서만 거르며, 문장끼리 비교하지 않습니다. 원전 문장이 없는 근거는 그
+  /// 키를 차지하지 않아 뒤의 같은 키 근거의 원전이 그려집니다.
+  List<RenderedText> _sourcesOnce(List<Evidence> evidence) {
+    final drawnRefs = <String>{};
+    return [
+      for (final item in evidence)
+        if (item.source_ case final text?
+            when !isBlankText(text) && drawnRefs.add(item.sourceRef))
+          text,
+    ];
   }
 
   /// 근거 순서대로 문장만 남깁니다. 없거나 빈 문장은 건너뜁니다.

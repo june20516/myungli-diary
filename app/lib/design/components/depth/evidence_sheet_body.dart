@@ -181,7 +181,8 @@ class EvidenceSheetBody extends StatefulWidget {
   /// 판정 근거 본문(`evidence-sheet.basis.body`), 근거마다 한 문단. 잠기면 비어 있습니다.
   final List<RenderedText> basis;
 
-  /// 원전(`evidence-sheet.source.quote`), 근거마다 하나. 문장은 줄바꿈으로 뜻, 원문, 출처를
+  /// 원전(`evidence-sheet.source.quote`), 원전 키(`sourceRef`)마다 하나(같은 원전은 부르는 쪽이
+  /// 처음 한 번만 넘김, #924). 문장은 줄바꿈으로 뜻, 원문, 출처를
   /// 나눈 원고입니다(`evidence.source` structure). 잠기면 비어 있습니다.
   final List<RenderedText> source;
 
