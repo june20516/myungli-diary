@@ -558,6 +558,8 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
+# 흉한 신살 뜻 아래 『三命通會』 마무리 한 줄 (D124 ⑦, #1026, V120). writing #1030 새 IA 밖 슬롯
+SLOTS_OUTSIDE_IA |= {"ui.shinsal.weighing"}
 
 
 def _slot_values(node):
@@ -1907,6 +1909,20 @@ def test_date_header():
     assert meta["whenEmpty"] == "hide-line-and-gap"
     assert any("meta" in rule and "space.2" in rule and "그리지 않는다" in rule for rule in header["rules"])
     assert "date-header" not in components.IA_PENDING_COMPONENTS and "date-header" in CONTENT_COMPONENTS
+
+
+def test_v120_shinsal_weighing_note_in_free_sheets_only():
+    # #1026 관문 답(2026-11-12): 자리 A 풀이 시트에만, 모양은 체크 아이콘 + 뉴트럴 바탕, 문구는 writing
+    note = component("frame", "explain-sheet")["parts"]["weighingNote"]
+    assert note["slot"] == "ui.shinsal.weighing" and note["interactive"] is False
+    assert note["box"] == {"bg": "{color.fill.soft}", "radius": "{radius.md}", "padding": "{space.12}"}
+    assert (note["icon"]["name"], note["icon"]["color"]) == ("check", "{color.action.primary}")
+    assert note["text"] == {"type": "{type.caption.lg}", "fg": "{color.text.secondary}", "maxLines": 2}
+    assert "tag-sheet" in note["when"] and "근거 시트" in note["note"]
+    assert "ui.shinsal.weighing" in _md_section("today.md", "### tag-sheet 화면 배치")
+    assert "weighingNote" in _md_section("frame.md", "## explain-sheet")
+    row = decision_rows()["V120"]
+    assert "사용자 영향" in row["근거"] and "#1026" in row["근거"]
 
 
 def test_v119_date_header_virtue_pill():

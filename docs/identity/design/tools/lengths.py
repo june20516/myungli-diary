@@ -307,6 +307,9 @@ TARGETS = (
     Target(("today.lucky-time.band.yesterday", "today.lucky-time.band.tomorrow"),
            "timeBand 끝 눈금 날 낱말 (밤 다섯 칸 쪽 끝에서 경계 시각 반폭과 간격 8까지, 낱말 뒤 간격 4와 시각 32)",
            "ui-500", 11, -0.22, BAND_NIGHT_SPAN - TICK_TIME_RESERVE / 2 - 8 - 4 - TICK_TIME_RESERVE, 1, False, None),
+    # D124 ⑦ 흉한 신살 뜻 아래 마무리 한 줄 (#1026, 결정 V120). 시트 안 312에서 상자 안쪽 12씩, 체크 16 + 간격 8
+    Target(("ui.shinsal.weighing",), "explain-sheet weighingNote 상자 (fill.soft, 안쪽 12, check 16 + 간격 8, type.caption.lg)",
+           "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH - 2 * 12 - ICON_BESIDE_SMALL_TEXT - 8, 2, True, None),
     # D124 ⑤ 날짜 머리 덕일 (#1029 ①, #1034 drift, 결정 V119). 덕 하나가 알약 하나
     Target(("today.date.virtue",),
            "date-header 덕일 hanja-tag compact (음력, 일진 줄이 칸 단위로 넘겨 혼자 한 줄일 때, type.caption.md)",

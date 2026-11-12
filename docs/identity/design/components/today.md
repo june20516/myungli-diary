@@ -147,6 +147,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
 
 1. 머리: 누른 태그 `hanja-tag` `default`(누를 수 없는 표시) + 오른쪽 끝 `depth-link` `inline-end` 아이콘(누르면 `evidence-sheet`가 `sheet.stack`). 핸들 자리 아래 `space.8`.
 2. 뜻(`tag-sheet.tag.meaning`): 머리 아래 `space.12`, `sentence-block` `body`(용어 풀이 원고 `term.tag.*`).
+   * 흉한 신살(공망, 고신, 과숙, 원진) 태그면 뜻 바로 아래 `space.12`에 `explain-sheet` `weighingNote`와 같은 마무리 상자(`ui.shinsal.weighing`, D124 ⑦, 결정 V120)를 둡니다. 다음 구역 간격은 상자에서 셉니다.
 3. 이 기운에서 나온 오늘 문장: 뜻 아래 `space.24`, `tag-sentence-list`(머리 `tag-sheet.sentences.title`, 줄은 보조 문장과 오늘의 질문, 없으면 `tag-sheet.sentences.empty`).
 4. 출구: `tag-sentence-list` 아래 꺾쇠 링크(`tag-sheet.diary.cta`, 편수 없이 늘 보임) → `tag-diary`.
 

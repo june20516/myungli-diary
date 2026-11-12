@@ -1092,5 +1092,24 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 천덕일만인 날(亥월 乙일), 둘 다인 날(戌월 丙일), en 길이. 안 A 음력, 일진 줄 끝 알약, B 오른쪽 도장, C 셋째 줄 띠, D 오른쪽 한자 태그. 사용자 답(2026-11-12): A"
+  },
+  {
+    "id": "design-shinsal-weighing-questions",
+    "title": "흉한 신살 설명 끝 원전 마무리 문장 관문 질문(#1026): 자리, 모양, 문구 길이",
+    "kind": "concept",
+    "file": "2026-11-12-shinsal-weighing-questions.html",
+    "source": "2026-11-12-shinsal-weighing-questions.html",
+    "date": "2026-11-12",
+    "milestone": "DS1",
+    "screens": [
+      "tag-sheet",
+      "explain-sheet",
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "V120"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 공망 화면 넷(오늘 사주 기운 시트, 오늘 근거 시트, 원국 풀이 시트, 원국 근거 시트). 질문 1 자리 A 풀이 시트에만, 질문 2 체크 아이콘과 뉴트럴 상자(사용자 지시안), 질문 3 writing 가안 셋과 전체 뜻에서 짧은 한두 줄, ② 방향 선호(문구 확정은 writing #1030)"
   }
 ]
