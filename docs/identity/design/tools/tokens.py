@@ -116,16 +116,19 @@ MOTION_EASINGS = {
 # 그림자: 이름 → (neutral 단계, 알파, offsetX, offsetY, blur, spread, 설명) (V2 spec §5.2)
 SHADOWS = {"raised": (900, 0.14, 0, 4, 16, 0, "공유 미리보기 이미지")}
 
+# Pretendard JP 바로 뒤의 Myungli Hanja Supplement는 Pretendard JP에 없는 한자(罡 등)만 담은 부분 글꼴입니다
+# (fonts/hanja-supplement, tools/hanja_supplement.py, #1029, 결정 V121, 토큰 1.9.0)
+HANJA_SUPPLEMENT = "Myungli Hanja Supplement"
 FONT_FAMILIES = {
     "ko": {
         "sentence": ["Gowun Dodum", "Pretendard", "sans-serif"],
         "ui": ["Pretendard", "sans-serif"],
-        "hanja": ["Pretendard JP", "sans-serif"],
+        "hanja": ["Pretendard JP", HANJA_SUPPLEMENT, "sans-serif"],
     },
     "ja": {
-        "sentence": ["Zen Maru Gothic", "Pretendard JP", "sans-serif"],
-        "ui": ["Pretendard JP", "sans-serif"],
-        "hanja": ["Pretendard JP", "sans-serif"],
+        "sentence": ["Zen Maru Gothic", "Pretendard JP", HANJA_SUPPLEMENT, "sans-serif"],
+        "ui": ["Pretendard JP", HANJA_SUPPLEMENT, "sans-serif"],
+        "hanja": ["Pretendard JP", HANJA_SUPPLEMENT, "sans-serif"],
     },
 }
 

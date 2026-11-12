@@ -1111,5 +1111,23 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 공망 화면 넷(오늘 사주 기운 시트, 오늘 근거 시트, 원국 풀이 시트, 원국 근거 시트). 질문 1 자리 A 풀이 시트에만, 질문 2 체크 아이콘과 뉴트럴 상자(사용자 지시안), 질문 3 writing 가안 셋과 전체 뜻에서 짧은 한두 줄, ② 방향 선호(문구 확정은 writing #1030)"
+  },
+  {
+    "id": "design-band-sinsal-questions",
+    "title": "만세력 신살 띠 밀도와 새 태그 관문 질문(#1029 ②③): 칸 넘침, 천간 자리, 삼기, 새 태그 글자, 罡 글꼴",
+    "kind": "concept",
+    "file": "2026-11-12-band-sinsal-questions.html",
+    "source": "2026-11-12-band-sinsal-questions.html",
+    "date": "2026-11-12",
+    "milestone": "DS1",
+    "screens": [
+      "saju-chart",
+      "today"
+    ],
+    "decisions": [
+      "V121"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 예시 원국 셋은 core 엔진 natal_shinsal 값. 사용자 답(2026-11-12): 다섯 질문 모두 추천안(모두 쌓기, 기둥 칸에 천간 것 위로, 걸친 칸마다, 孤 寡 元, 부분 대체 글꼴)"
   }
 ]

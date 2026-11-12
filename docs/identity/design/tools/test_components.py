@@ -1630,7 +1630,7 @@ HANJA_GLYPHS = {
     "dayKind": {"貴", "用", "忌", "平"},
     "tenGodGroup": {"比", "食", "財", "官", "印"},
     "relation": {"合", "沖", "刑"},  # 刑: 사용자 결정 2026-11-07(D108 ② 누락 보완)
-    "sinsal": {"天", "桃", "驛", "華", "空"},
+    "sinsal": {"天", "桃", "驛", "華", "空", "孤", "寡", "元"},  # 孤 寡 元: D124 ② 관문 답 2026-11-12(V121)
     "virtueDay": {"德"},  # 날짜 머리 덕일: 관문 답 2026-11-12(#1029 ①, V119)
 }
 
@@ -1655,7 +1655,7 @@ def test_hanja_tag_component():
     assert parts["name"]["type"] == "{type.label.md}"
     glyphs = parts["glyphs"]
     assert {group: set(names) for group, names in glyphs.items()} == HANJA_GLYPHS
-    assert sum(len(names) for names in glyphs.values()) == 18
+    assert sum(len(names) for names in glyphs.values()) == 21
     # 톤: 날의 성격만 길흉 톤, 그 밖의 용어는 term. 길흉 톤은 더함과 뺌을 보이는 자리에서만(Q4 ③ + ①)
     tone = parts["tone"]
     good = {"bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}"}
@@ -1694,7 +1694,7 @@ def test_hanja_tag_component():
         for element in ("wood", "fire", "earth", "metal", "water")}
     assert ganji["ganjiGlyphs"] == GANJI_ELEMENTS and len(GANJI_ELEMENTS["stems"]) + len(GANJI_ELEMENTS["branches"]) == 22
     assert "stemGlyph" not in parts and "ganjiGlyph" not in ganji and "stem.chip" not in tag["uses"]
-    assert any("18자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
+    assert any("21자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
     assert set(tag["parts"]["opens"]["targets"]) == {"explain-sheet", "tag-sheet"}
     assert tag["a11y"]["role"] == "button" and tag["a11y"]["label"] == "이름 글자(한자는 읽지 않음)"
     assert tag["a11y"]["minTarget"] == 44
@@ -1909,6 +1909,20 @@ def test_date_header():
     assert meta["whenEmpty"] == "hide-line-and-gap"
     assert any("meta" in rule and "space.2" in rule and "그리지 않는다" in rule for rule in header["rules"])
     assert "date-header" not in components.IA_PENDING_COMPONENTS and "date-header" in CONTENT_COMPONENTS
+
+
+def test_v121_band_table_shinsal_density_and_positions():
+    # #1029 ②③ 관문 답(2026-11-12, 모두 추천안)
+    band = component("saju", "band-table")
+    text = json.dumps(band, ensure_ascii=False)
+    assert "ShinsalHit.positions" in text and "모두 쌓음" in text and '"stemMark": "none"' in text
+    assert any("걸친 칸마다" in rule and "천간 자리, 일주 신살, 지지 자리" in rule for rule in band["rules"])
+    body = _md_section("saju.md", "## band-table")
+    assert "V121" in body and "22.5%" in body and "삼기" in body
+    glyphs = component("sentence", "hanja-tag")["parts"]["glyphs"]["sinsal"]
+    assert (glyphs["孤"], glyphs["寡"], glyphs["元"]) == ("고신", "과숙", "원진")
+    row = decision_rows()["V121"]
+    assert "사용자 영향" in row["근거"] and "#1029" in row["근거"] and "Myungli Hanja Supplement" in row["결정"]
 
 
 def test_v120_shinsal_weighing_note_in_free_sheets_only():
@@ -2428,7 +2442,7 @@ def test_hyeong_glyph():
     # 사용자 결정 2026-11-07: 刑(형)도 한자 아이콘. D108 ② 한자 목록 누락 보완, 사주 용어라 기본 term 톤
     tag = component("sentence", "hanja-tag")
     assert tag["parts"]["glyphs"]["relation"]["刑"] == "형"
-    assert any("18자" in rule and "刑" in rule and "德" in rule for rule in tag["rules"])
+    assert any("21자" in rule and "刑" in rule and "德" in rule for rule in tag["rules"])
     row = component("calendar", "score-row")
     text = json.dumps(row, ensure_ascii=False)
     assert "pendingGlyphs" not in row["parts"] and "자리값" not in text
@@ -2832,9 +2846,9 @@ def test_ganji_rule_names_table_path():
 def test_v70_body_states_current_glyph_count():
     row = decision_rows()["V70"]
     body = row["결정"].split("(2026-11-07 개정:", 1)[0]
-    assert "18자" in body and "刑" in body and "德" in body and "16자" not in body and "넣지 않습니다" not in body
+    assert "21자" in body and "刑" in body and "德" in body and "孤" in body and "16자" not in body and "넣지 않습니다" not in body
     assert "16자" in row["결정"].split("(2026-11-07 개정:", 1)[1]  # 옛 값은 개정 괄호에만
-    assert "18자 규칙" in row["근거"] and "17자 규칙" not in row["근거"]
+    assert "21자 규칙" in row["근거"] and "18자 규칙" not in row["근거"]
 
 
 def test_keyboard_dismiss_element_is_recorded():

@@ -234,7 +234,15 @@
             "note": "지장간 하나 = 오행 색 칩 + 십성 한 줄(2026-11-07, V49의 한자와 독음 / 십성 두 줄 묶음을 바꿈). 독음은 스크린리더만"
           },
           "twelveStages": { "component": "term-token", "variant": "label", "source": "Chart.twelveStages" },
-          "shinsal": { "component": "term-token", "variant": "label", "stack": { "direction": "vertical", "gap": "{space.4}" }, "source": "Chart.shinsal", "whenEmpty": "empty" }
+          "shinsal": {
+            "component": "term-token", "variant": "label", "stack": { "direction": "vertical", "gap": "{space.4}" }, "source": "Chart.shinsal", "whenEmpty": "empty",
+            "column": "신살이 걸친 자리(ShinsalHit.positions)의 기둥마다 그 칸에 하나. 천간 자리(천덕, 월덕)도 그 기둥 칸, 일주 신살(괴강, 십악대패, 음착양차)은 일주 칸 하나, 세 기둥에 걸친 삼기는 세 칸마다 하나 (core C40, 결정 V121)",
+            "order": ["천간 자리 신살", "일주 신살(천간과 지지에 걸침)", "지지 자리 신살"],
+            "orderWithin": "무리 안은 계약 Shinsal 열거 순서",
+            "overflow": "칸마다 모두 쌓음. 셋까지 자르거나 접지 않음(칩 18 + 간격 4, 다섯이면 약 106px). 띠는 가장 높은 칸만큼 늘어남",
+            "stemMark": "none",
+            "note": "관문 답 2026-11-12(#1029 ② 질문 1~3 모두 A). 어느 글자에 붙었는지는 칩을 눌러 여는 풀이와 근거가 말함"
+          }
         },
         "cell": { "align": "center", "verticalAlign": "top", "paddingTop": "{space.8}", "paddingBottom": "{space.12}", "rowHeight": "그 띠에서 가장 높은 칸", "note": "아래를 더 띄워 다음 띠 머리줄과 가름" },
         "empty": { "shape": "line", "width": { "value": 12, "unit": "px" }, "height": { "value": 1, "unit": "px" }, "color": "{color.text.secondary}", "a11y": "writing 새 슬롯(없음)", "box": { "offsetTop": "{space.8}", "note": "칸 paddingTop(space.8) 바로 아래에서 시작", "heightByBand": { "twelveStages": "term-token label 칩 한 줄 높이", "shinsal": "term-token label 칩 한 줄 높이", "hiddenStems": { "value": 22, "unit": "px", "note": "stem.chip 크기" } } }, "verticalAlign": "box-center", "note": "글자 '-' 대신 짧은 가로선. 표 안에서 빈 칸임을 보임. 칸 위 space.8 아래에 그 띠 한 줄 높이의 상자를 두고 선을 그 상자 세로 가운데에 둔다. 이웃 칸 첫 줄 글자와 같은 높이에 오고, 띠 줄 높이는 상자 높이 아래로 줄지 않는다(결정 V101)" },
@@ -251,7 +259,8 @@
         "띠 이름은 왼쪽 행 머리가 아니라 네 열에 걸친 가운데 머리줄의 용어 칩이다(누르면 설명 시트).",
         "일주 열은 옅은 바탕과 나 꼬리표로 내 기둥임을 보인다.",
         "같은 띠의 칸은 위로 맞추고 가장 높은 칸만큼 띠가 늘어난다.",
-        "값이 없는 칸은 비워 두지 않고 짧은 가로선을 그린다. 시간 모름의 시주 열도 같다."
+        "값이 없는 칸은 비워 두지 않고 짧은 가로선을 그린다. 시간 모름의 시주 열도 같다.",
+        "신살 칸은 그 기둥에 걸린 신살을 모두 쌓는다. 순서는 천간 자리, 일주 신살, 지지 자리이고 천간 자리를 따로 표시하지 않는다. 여러 기둥에 걸친 신살(삼기)은 걸친 칸마다 하나씩 둔다(결정 V121)."
       ]
     },
     {

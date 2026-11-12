@@ -20,6 +20,7 @@
         "$type": "fontFamily",
         "$value": [
           "Pretendard JP",
+          "Myungli Hanja Supplement",
           "sans-serif"
         ]
       }
