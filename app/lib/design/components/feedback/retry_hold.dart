@@ -27,7 +27,7 @@ final class RetryHold {
   /// 다시 그리기 요청(쓰는 쪽의 `setState`).
   final VoidCallback onChanged;
 
-  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간.
+  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간. [start]가 따로 받으면 그 값을 씁니다.
   final Duration minDuration;
 
   /// 다시 시도를 누른 뒤 아직 결과를 보이지 않았는지.
@@ -41,10 +41,11 @@ final class RetryHold {
 
   bool _disposed = false;
 
-  /// [retry]를 부르고 skeleton 붙잡기를 시작합니다. 부른 쪽이 바로 다시 그립니다.
-  void start(FutureOr<void> Function() retry) {
+  /// [retry]를 부르고 skeleton 붙잡기를 시작합니다. 부른 쪽이 바로 다시 그립니다. 최소 시간은
+  /// [minDuration] 인자가 있으면 그것, 없으면 생성 때 값입니다.
+  void start(FutureOr<void> Function() retry, {Duration? minDuration}) {
     _timer?.cancel();
-    _timer = Timer(minDuration, () {
+    _timer = Timer(minDuration ?? this.minDuration, () {
       _timer = null;
       _changed();
     });

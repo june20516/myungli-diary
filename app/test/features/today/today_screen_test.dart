@@ -1635,6 +1635,17 @@ void main() {
           '${cell.label}:${cell.period}:${cell.pick}',
       ];
       final openedBand = band();
+      // 근거 시트가 열린 것처럼 잠금 해제 흐름을 구독합니다. 연 날에는 광고를 불러 둬 버튼이 켜집니다.
+      final unlock = evidenceUnlockControllerProvider(origin.subject);
+      final unlockSubscription = container.listen(unlock, (_, _) {});
+      addTearDown(unlockSubscription.close);
+      await pumpUntil(
+        tester,
+        () => container.read(unlock).adReady,
+        allowOngoing: true,
+      );
+      final ads = container.read(adsProvider) as FakeAds;
+      final adRequests = ads.rewardedUserIds.length;
       void expectOpenedDay(String when) {
         expect(find.byType(TimeBand), findsOneWidget, reason: when);
         expect(band(), openedBand, reason: when);
@@ -1648,6 +1659,15 @@ void main() {
           openedPreview,
           reason: when,
         );
+        // 날짜가 바뀐 뒤에는 광고로 풀어도 다른 날 응답이라 버튼을 끄고 광고를 더 묻지 않습니다
+        // (A141 ④, 다음 날을 받는 중이나 받지 못한 뒤에도 Riverpod이 남긴 전날 값과 상관없이).
+        expect(container.read(unlock).adReady, isFalse, reason: when);
+        expect(
+          container.read(unlock).link,
+          DepthLinkState.lockedNoAd,
+          reason: when,
+        );
+        expect(ads.rewardedUserIds, hasLength(adRequests), reason: when);
       }
 
       // 자정: 다음 날 응답을 붙잡아 둔 동안.

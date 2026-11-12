@@ -19,6 +19,7 @@ import 'package:myungli_diary/core/api/gen/model/evidence_access.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/fakes.dart';
@@ -36,6 +37,7 @@ import 'package:myungli_diary/features/today/application/daily_controller.dart';
 
 import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
+import '../../support/test_today.dart';
 
 /// 열림을 기대하는 테스트의 확인 간격·시간: 간격은 짧고 마감은 깁니다.
 ///
@@ -314,16 +316,20 @@ final class _ThrowingAds implements Ads {
       Future.error(error);
 }
 
-/// 보상형 광고를 [result]가 끝날 때까지 보여 주는 대역.
+/// 보상형 광고를 [result]가 끝날 때까지 보여 주는 대역. 불러온 횟수를 [loads]로 셉니다.
 final class _GatedAds implements Ads {
   final result = Completer<RewardedResult>();
+
+  int loads = 0;
 
   @override
   Future<BannerAdHandle?> loadBanner({required int width}) async => null;
 
   @override
-  Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
-      _GatedAd(result.future);
+  Future<RewardedAdHandle?> loadRewarded({required String userId}) async {
+    loads++;
+    return _GatedAd(result.future);
+  }
 }
 
 final class _GatedAd implements RewardedAdHandle {
@@ -523,6 +529,40 @@ void main() {
       expect(container.read(provider).link, DepthLinkState.locked);
       final ads = container.read(adsProvider) as FakeAds;
       expect(ads.rewardedUserIds, isNotEmpty);
+    });
+
+    testWidgets('광고를 보는 동안 날짜가 바뀌어 닫으면 새 광고를 불러 두지 않습니다(A141 ④)', (
+      tester,
+    ) async {
+      final ads = _GatedAds();
+      final today = testTodayProvider(CalendarDate(2026, 10, 13));
+      final container = await _boot(
+        tester,
+        overrides: [
+          adsProvider.overrideWithValue(ads),
+          todayProvider.overrideWith((ref) => ref.watch(today)),
+        ],
+      );
+      final provider = evidenceUnlockControllerProvider(
+        DailyEvidenceSubject(
+          opened: container.read(dailyControllerProvider).value!.daily,
+        ),
+      );
+      final subscription = container.listen(provider, (_, _) {});
+      addTearDown(subscription.close);
+      await _until(tester, () => container.read(provider).adReady);
+      expect(ads.loads, 1);
+
+      final watching = container.read(provider.notifier).watchAd();
+      container.read(today.notifier).moveTo(CalendarDate(2026, 10, 14));
+      await _spin(tester);
+      ads.result.complete(const RewardDismissed());
+      await tester.runAsync(() => watching);
+      for (var i = 0; i < 5; i++) {
+        await _spin(tester);
+      }
+      expect(container.read(provider).link, DepthLinkState.lockedNoAd);
+      expect(ads.loads, 1, reason: '닫은 뒤 새 광고를 요청하지 않습니다');
     });
 
     test('같은 연 때 응답이면 같은 잠금 해제 흐름 키입니다', () {

@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart'
-    show NotifierProviderFamily, ProviderException, ProviderListenable;
+    show
+        NotifierProviderFamily,
+        ProviderException,
+        ProviderFamily,
+        ProviderListenable;
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/evidence.dart';
@@ -12,6 +16,7 @@ import 'package:myungli_diary/core/api/gen/model/evidence_preview.dart';
 import 'package:myungli_diary/core/api/gen/model/insight.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/rendered_text_plain.dart';
+import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
@@ -127,15 +132,13 @@ final class DailyEvidenceSubject implements EvidenceSubject {
         (value) => _dailyOf(value).whenData((daily) => daily.evidenceAccess),
       );
 
-  /// 지금 오늘 응답이 연 때 응답과 같은 날짜일 때만 광고로 풉니다. 날짜가 다르거나 지금 응답이
-  /// 없으면(자정 뒤 다음 날을 받는 중) 풀어도 다시 받는 응답이 다른 날이라 광고를 헛되이 봅니다.
+  /// 연 때 응답 날짜가 지금 오늘([todayProvider])이고 지금 응답도 그 날짜일 때만 광고로 풉니다
+  /// ([_adUnlockableOnProvider]). 풀면 오늘을 다시 받으므로, 오늘이 다른 날이면 광고를 헛되이 봅니다.
   @override
   ProviderListenable<bool> get adUnlockable {
     final opened = this.opened;
     if (opened == null) return _alwaysAdUnlockableProvider;
-    return dailyControllerProvider.select(
-      (value) => value.value?.daily.date == opened.date,
-    );
+    return _adUnlockableOnProvider(opened.date);
   }
 
   @override
@@ -204,6 +207,22 @@ final Provider<List<EvidencePreview>> _noPreviewProvider =
 
 /// 늘 광고로 풀 수 있는 응답이 돌려주는 값.
 final Provider<bool> _alwaysAdUnlockableProvider = Provider<bool>((_) => true);
+
+/// [date](`Daily.date`) 응답의 잠금을 지금 광고로 풀 수 있는지(A141 ④).
+///
+/// 오늘 날짜를 함께 봅니다. 자정 뒤 다음 날 응답을 받는 중이거나 받지 못한 뒤에도 Riverpod은 오늘
+/// 응답에 전날 값을 남기므로(`AsyncLoading`, `AsyncError`의 이전 값), 응답 날짜만으로는 날짜가
+/// 바뀐 것을 알 수 없기 때문입니다. 지금 응답의 날짜도 보아, 오늘이 바뀐 뒤 아직 응답이 없을 때와
+/// 그 반대의 짧은 틈에도 켜지지 않습니다.
+final ProviderFamily<bool, String> _adUnlockableOnProvider =
+    Provider.family<bool, String>(
+      (ref, date) =>
+          ref.watch(todayProvider).toIso() == date &&
+          ref.watch(
+                dailyControllerProvider.select((v) => v.value?.daily.date),
+              ) ==
+              date,
+    );
 
 /// 오늘 그런 이유가 없는 응답이 돌려주는 값.
 final Provider<RenderedText?> _noTodayReasonProvider = Provider<RenderedText?>(
@@ -533,6 +552,11 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   /// [DepthLinkState.lockedNoAd]입니다. 그 밖의 예외는 비정상 종료 보고에 요약을 남기고
   /// 마찬가지로 `lockedNoAd`입니다.
   Future<void> _loadAd(Ref flow) async {
+    // 광고로 풀 수 없는 응답이면(A141 ④) 광고를 닫거나 실패한 뒤에도 새로 불러 두지 않습니다.
+    if (!ref.read(subject.adUnlockable)) {
+      _showAdReady(flow);
+      return;
+    }
     if (_ad != null) {
       _showAdReady(flow);
       return;

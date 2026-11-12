@@ -124,7 +124,6 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
     onChanged: () {
       if (mounted) setState(() {});
     },
-    minDuration: widget.retryMinDuration,
   );
 
   @override
@@ -136,7 +135,8 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   void _retry() {
     final onRetry = widget.onRetry;
     if (onRetry == null) return;
-    _retryHold.start(onRetry);
+    // 최소 시간은 누를 때마다 지금 위젯 값을 읽습니다.
+    _retryHold.start(onRetry, minDuration: widget.retryMinDuration);
   }
 
   @override
