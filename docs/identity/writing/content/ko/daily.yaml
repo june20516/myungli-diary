@@ -149,18 +149,18 @@
 - {slot: daily.guide, key: guide.yeokma, variant: 2, text: "발길이 바빠지기 쉬웠던 하루, 기억에 남는 곳이 있나요?"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "오늘 잘 풀린 일이 있었다면 하나 적어 볼까요?"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "오늘 뿌듯했던 순간이 있었나요?"}
-- {slot: daily.direction, key: direction.day_kind.gisin, text: "오늘 움직일 일이 있다면 {direction}쪽이 좋아요."}
-- {slot: daily.direction, key: direction.day_kind.gwiin, text: "사람을 만날 곳을 고른다면 {direction}쪽이 좋아요."}
-- {slot: daily.direction, key: direction.day_kind.ordinary, text: "약속 장소를 고른다면 {direction}쪽이 좋아요."}
-- {slot: daily.direction, key: direction.day_kind.yongsin, text: "새로 가 볼 곳을 고른다면 {direction}쪽이 잘 맞아요."}
-- {slot: daily.number, key: number.gisin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
-- {slot: daily.number, key: number.gwiin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
-- {slot: daily.number, key: number.ordinary_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
-- {slot: daily.number, key: number.yongsin_day, text: "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."}
-- {slot: daily.color, key: color.gisin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
-- {slot: daily.color, key: color.gwiin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
-- {slot: daily.color, key: color.ordinary_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
-- {slot: daily.color, key: color.yongsin_day, text: "오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.direction, key: direction.day_kind.gisin, text: "막힌 흐름을 이어 주는 {element} 기운의 방위인 {direction}쪽이 좋아요."}
+- {slot: daily.direction, key: direction.day_kind.gwiin, text: "귀인의 날이라 오늘 지지 {day_branch}의 방위인 {direction}쪽이 좋아요."}
+- {slot: daily.direction, key: direction.day_kind.ordinary, text: "내 사주에 필요한 {element} 기운의 방위인 {direction}쪽이 좋아요."}
+- {slot: daily.direction, key: direction.day_kind.yongsin, text: "내 사주에 필요한 {element} 기운의 방위인 {direction}쪽이 좋아요."}
+- {slot: daily.number, key: number.gisin_day, text: "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."}
+- {slot: daily.number, key: number.gwiin_day, text: "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."}
+- {slot: daily.number, key: number.ordinary_day, text: "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."}
+- {slot: daily.number, key: number.yongsin_day, text: "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."}
+- {slot: daily.color, key: color.gisin_day, text: "막힌 흐름을 이어 주는 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.gwiin_day, text: "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.ordinary_day, text: "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."}
+- {slot: daily.color, key: color.yongsin_day, text: "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."}
 - {slot: daily.color, key: color.balance.gisin_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}
 - {slot: daily.color, key: color.balance.gwiin_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}
 - {slot: daily.color, key: color.balance.ordinary_day, text: "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."}

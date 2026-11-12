@@ -42,10 +42,10 @@
 - {slot: daily.guide, key: guide.yeokma, variant: 2, text: "On a day made for moving around, is there a place that stuck with you?"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "If something went well today, how about writing it down?"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "Was there a moment today you felt proud of?"}
-- {slot: daily.color, key: color.gisin_day, text: "Today, {element:color} suits you well."}
-- {slot: daily.color, key: color.gwiin_day, text: "Today, {element:color} suits you well."}
-- {slot: daily.color, key: color.ordinary_day, text: "Today, {element:color} suits you well."}
-- {slot: daily.color, key: color.yongsin_day, text: "Today, {element:color} suits you well."}
+- {slot: daily.color, key: color.gisin_day, text: "{base_element} eases the clash in your chart, so {element:color} suits you today."}
+- {slot: daily.color, key: color.gwiin_day, text: "Your chart needs {base_element} energy, so {element:color} suits you today."}
+- {slot: daily.color, key: color.ordinary_day, text: "Your chart needs {base_element} energy, so {element:color} suits you today."}
+- {slot: daily.color, key: color.yongsin_day, text: "Your chart needs {base_element} energy, so {element:color} suits you today."}
 - {slot: daily.color, key: color.balance.gisin_day, text: "By your chart's balance, {element:color} suits you well."}
 - {slot: daily.color, key: color.balance.gwiin_day, text: "By your chart's balance, {element:color} suits you well."}
 - {slot: daily.color, key: color.balance.ordinary_day, text: "By your chart's balance, {element:color} suits you well."}
@@ -54,14 +54,14 @@
 - {slot: daily.color, key: color.source.gwiin_day, text: "According to the classics, {element:color} suits you today too."}
 - {slot: daily.color, key: color.source.ordinary_day, text: "According to the classics, {element:color} suits you today too."}
 - {slot: daily.color, key: color.source.yongsin_day, text: "According to the classics, {element:color} suits you today too."}
-- {slot: daily.direction, key: direction.day_kind.gisin, text: "If you need to head out today, {direction} is a good way to go."}
-- {slot: daily.direction, key: direction.day_kind.gwiin, text: "If you're choosing where to meet someone, {direction} is good."}
-- {slot: daily.direction, key: direction.day_kind.ordinary, text: "If you're picking a place to meet up, {direction} is good."}
-- {slot: daily.direction, key: direction.day_kind.yongsin, text: "If you're choosing somewhere new to go, {direction} suits you."}
-- {slot: daily.number, key: number.gisin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
-- {slot: daily.number, key: number.gwiin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
-- {slot: daily.number, key: number.ordinary_day, text: "{number} is a good fit today. Try it when picking a number or order."}
-- {slot: daily.number, key: number.yongsin_day, text: "{number} is a good fit today. Try it when picking a number or order."}
+- {slot: daily.direction, key: direction.day_kind.gisin, text: "Head {direction}, where {element} eases the clash in your chart."}
+- {slot: daily.direction, key: direction.day_kind.gwiin, text: "On a Day of helpers, head {direction}, the way of today's {day_branch}."}
+- {slot: daily.direction, key: direction.day_kind.ordinary, text: "Head {direction}, the way of the {element} energy your chart needs."}
+- {slot: daily.direction, key: direction.day_kind.yongsin, text: "Head {direction}, the way of the {element} energy your chart needs."}
+- {slot: daily.number, key: number.gisin_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number, key: number.gwiin_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number, key: number.ordinary_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number, key: number.yongsin_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "Noble helper"}
 - {slot: daily.tag_label, key: tag.clash, text: "Clash"}
 - {slot: daily.tag_label, key: tag.clash_day_branch, text: "Day branch clash"}

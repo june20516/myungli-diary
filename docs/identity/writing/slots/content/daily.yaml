@@ -174,9 +174,10 @@
   purpose: info
   user_state: 옷이나 소품을 고르기 전에 훑어봅니다.
   structure: >-
-    한두 문장. 단순형("오늘은 검정이 잘 맞아요"), 쓰임새형("옷이나 소품을 고른다면 검정이 좋아요"),
-    두 문장형("오늘은 검정이 잘 맞아요. 옷이나 소품으로 챙겨 보세요") 중 하나입니다.
-    같은 화면의 다른 카드와 같은 틀을 쓰지 않습니다(W7, limit.L5). 색이 왜 맞는지는 풀이에서 씁니다.
+    한 문장. 색이 하나인 날은 내 값(바탕 오행)으로 "그래서 이 색"이 읽히게 씁니다
+    ("내 사주에 필요한 수 기운에 맞춰 오늘은 검정이 잘 맞아요", R39-1, #971). 바탕 오행은 기신의 날이면 통관 오행이라
+    color.gisin_day만 "막힌 흐름을 이어 주는 수 기운"으로 씁니다. 색이 바뀌는 날도 같은 틀이고 변역 자리(12운성)는 근거에서 말합니다.
+    색이 둘인 날의 두 문장은 R37 그대로입니다(R39-5, R39-6). 점수, 순서 같은 계산 기준은 쓰지 않습니다(D121).
   depth:
     explain: 색과 오행의 관계, 오늘 그 색인 이유
   endings: ["~잘 맞아요", "~좋아요", "~을 추천해요", "~챙겨 보세요"]
@@ -207,14 +208,14 @@
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, text: "오늘은 검정이 잘 맞아요.", why: "단순형", source: round-R1-1}
-      - {lang: ko, text: "옷이나 소품을 고른다면 검정이 좋아요.", why: "쓰임새형", source: round-R2-4}
-      - {lang: ko, text: "오늘은 검정이 잘 맞아요. 옷이나 소품으로 챙겨 보세요.", why: "두 문장형, 같은 틀 반복을 피할 때", source: round-R2-4}
+      - {lang: ko, key: color.yongsin_day, text: "내 사주에 필요한 수 기운에 맞춰 오늘은 검정이 잘 맞아요.", why: "내 값 하나로 왜 이 색인지 읽힘(R39-7 다시 물어도 같음)", source: round-R39-1}
       - {lang: ko, key: color.balance.yongsin_day, text: "내 사주의 균형으로 보면 검정이 잘 맞아요.", why: "색이 둘인 날 첫째 칩, 내 균형 기준임을 밝힘", source: round-R37-1}
       - {lang: ko, key: color.source.yongsin_day, text: "원전의 해석에 따르면 오늘은 흰색도 어울려요.", why: "둘째 칩, 기준이 갈렸음을 '원전'과 '~도'로 알림(사용자 문구)", source: round-R37-2}
     bad:
       - {lang: ko, text: "검정, 오늘 당신을 지켜 줄 색이에요.", why: "사물 주어 slop.P3, 당신", source: round-R1-1}
       - {lang: ko, text: "검정은 차분하게 가라앉은 물의 기운을 끌어당기는 색이에요.", why: "카드에는 과한 효능 설명, 풀이로", source: round-R1-1}
+      - {lang: ko, text: "오늘은 검정이 잘 맞아요.", why: "누구에게나 같은 고정 문장이라 형식적(F-051, #971)", source: round-R39-1}
+      - {lang: ko, text: "내 사주의 기운이 오늘 검정 속에서 빛을 찾아요.", why: "추상 slop.P1, 사물 주어 slop.P3(숨긴 대조군)", source: round-R39-1}
       - {lang: ko, key: color.source.yongsin_day, text: "옛 책의 기준으로는 흰색이 잘 맞아요.", why: "'옛 책'은 어설픈 번역, 한자어 '원전'을 그대로 씀", source: round-R37-2}
   a11y:
     truncation: 잘리지 않게 씁니다.
@@ -224,7 +225,10 @@
   where: 오늘 화면 방향 카드
   purpose: info
   user_state: 약속 장소나 동선을 정할 때 훑어봅니다.
-  structure: 한두 문장. 형태는 daily.color와 같고, 같은 화면에서 같은 틀을 반복하지 않습니다(W7).
+  structure: >-
+    한 문장. 방향을 정한 오행이나 지지를 넣어 "그래서 이 방향"이 읽히게 씁니다(R39-2 사용자 문구, #971).
+    용신과 평범한 날은 "내 사주에 필요한 {element} 기운의 방위인", 기신의 날은 "막힌 흐름을 이어 주는 {element} 기운의 방위인",
+    귀인의 날은 "귀인의 날이라 오늘 지지 {day_branch}의 방위인"입니다.
   depth:
     explain: 방위와 오행, 오늘 그 방향인 이유(날의 성격 규칙)
   endings: ["~잘 맞아요", "~좋아요"]
@@ -236,7 +240,7 @@
       keys:
         - direction.day_kind.gisin
         - direction.day_kind.yongsin
-    - params: {direction: [direction8], rule_id: none, day_branch: none}
+    - params: {direction: [direction8], rule_id: none, day_branch: [branch]}
       keys:
         - direction.day_kind.gwiin
     - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, deity: none}
@@ -246,11 +250,11 @@
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, text: "약속 장소를 고른다면 북쪽이 좋아요.", why: "쓰임새형", source: round-R2-3}
-      - {lang: ko, text: "오늘은 북쪽이 잘 맞아요.", why: "단순형", source: round-R2-3}
+      - {lang: ko, key: direction.day_kind.yongsin, text: "내 사주에 필요한 수 기운의 방위인 북쪽이 좋아요.", why: "사용자 문구, 방위를 정한 오행을 밝힘", source: round-R39-2}
     bad:
       - {lang: ko, text: "북쪽으로 향하는 발걸음이 오늘의 행운을 불러와요.", why: "사물 주어 slop.P3, 추상 slop.P1", source: round-R2-3}
       - {lang: ko, text: "오늘은, 북쪽이 잘 맞아요.", why: "짧은 주제어 뒤 쉼표", source: round-R2-3}
+      - {lang: ko, text: "북쪽에서 오늘의 좋은 기운이 당신을 기다려요.", why: "사물 주어 slop.P3, 당신(숨긴 대조군)", source: round-R39-2}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 방향 칩은 app이 방향 이름으로 읽습니다.
@@ -259,7 +263,9 @@
   where: 오늘 화면 숫자 카드
   purpose: info
   user_state: 번호나 순서를 고를 일이 있을 때 훑어봅니다.
-  structure: 한두 문장. 형태는 daily.color와 같고, 같은 화면에서 같은 틀을 반복하지 않습니다(W7).
+  structure: >-
+    한 문장. 숫자 오행(행운 색 오행)과 오늘 천간을 넣어 "그래서 이 숫자"가 읽히게 씁니다(R39-3, #971).
+    홀짝을 고른 규칙(양이면 홀수)은 근거에서 말합니다.
   depth:
     explain: 하도 수와 오행, 홀짝을 고른 이유
   endings: ["~잘 맞아요", "~좋아요"]
@@ -267,7 +273,7 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-number.body]
   keys:
-    - params: {number: number, element: [element, color], day_stem: none, parity: none, pair: none}
+    - params: {number: number, element: [element, color], day_stem: [stem], parity: none, pair: none}
       keys:
         - number.gisin_day
         - number.gwiin_day
@@ -277,10 +283,10 @@
   co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, text: "오늘은 6이 잘 맞아요.", why: "단순형", source: writing}
-      - {lang: ko, text: "번호를 고를 일이 있다면 6이 좋아요.", why: "쓰임새형 (같은 화면의 다른 카드가 쓰임새형이면 단순형으로)", source: writing}
+      - {lang: ko, text: "수 기운의 수 가운데 오늘 천간 갑목에 맞춰 1을 골랐어요.", why: "숫자 오행과 오늘 천간으로 왜 이 숫자인지 읽힘", source: round-R39-3}
     bad:
       - {lang: ko, text: "6이라는 숫자가 오늘 당신에게 행운을 속삭여요.", why: "사물 주어 slop.P3, 당신", source: writing}
+      - {lang: ko, text: "1이라는 숫자에 오늘 수 기운이 깃들어 있어요.", why: "사물 주어 slop.P3, 근거 없는 신비화(숨긴 대조군)", source: round-R39-3}
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 숫자는 숫자로 읽습니다.

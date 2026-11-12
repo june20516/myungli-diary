@@ -43,10 +43,10 @@
 - {slot: daily.guide, key: guide.yeokma, variant: 2, text: "出歩きがちだった一日、心に残っている場所はありますか？"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 1, text: "今日うまくいったことがあれば、一つ書いてみませんか？"}
 - {slot: daily.guide, key: guide.yongsin_day, variant: 2, text: "今日誇らしく思えた瞬間はありましたか？"}
-- {slot: daily.color, key: color.gisin_day, text: "今日は{element:color}がよく合います。"}
-- {slot: daily.color, key: color.gwiin_day, text: "今日は{element:color}がよく合います。"}
-- {slot: daily.color, key: color.ordinary_day, text: "今日は{element:color}がよく合います。"}
-- {slot: daily.color, key: color.yongsin_day, text: "今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.gisin_day, text: "滞った流れをつなぐ{base_element}の気に合わせて、今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.gwiin_day, text: "あなたの命式に必要な{base_element}の気に合わせて、今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.ordinary_day, text: "あなたの命式に必要な{base_element}の気に合わせて、今日は{element:color}がよく合います。"}
+- {slot: daily.color, key: color.yongsin_day, text: "あなたの命式に必要な{base_element}の気に合わせて、今日は{element:color}がよく合います。"}
 - {slot: daily.color, key: color.balance.gisin_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
 - {slot: daily.color, key: color.balance.gwiin_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
 - {slot: daily.color, key: color.balance.ordinary_day, text: "あなたの命式のバランスで見ると、{element:color}がよく合います。"}
@@ -55,14 +55,14 @@
 - {slot: daily.color, key: color.source.gwiin_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
 - {slot: daily.color, key: color.source.ordinary_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
 - {slot: daily.color, key: color.source.yongsin_day, text: "原典の解釈によると、今日は{element:color}も似合います。"}
-- {slot: daily.direction, key: direction.day_kind.gisin, text: "今日出かけるなら、{direction}の方角がおすすめです。"}
-- {slot: daily.direction, key: direction.day_kind.gwiin, text: "人と会う場所を選ぶなら、{direction}の方角がよいです。"}
-- {slot: daily.direction, key: direction.day_kind.ordinary, text: "待ち合わせ場所を選ぶなら、{direction}の方角がよいです。"}
-- {slot: daily.direction, key: direction.day_kind.yongsin, text: "新しく行く場所を選ぶなら、{direction}の方角が合います。"}
-- {slot: daily.number, key: number.gisin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
-- {slot: daily.number, key: number.gwiin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
-- {slot: daily.number, key: number.ordinary_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
-- {slot: daily.number, key: number.yongsin_day, text: "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"}
+- {slot: daily.direction, key: direction.day_kind.gisin, text: "滞った流れをつなぐ{element}の気の方位、{direction}の方角がよいです。"}
+- {slot: daily.direction, key: direction.day_kind.gwiin, text: "貴人の日なので、今日の地支{day_branch}の方位、{direction}の方角がよいです。"}
+- {slot: daily.direction, key: direction.day_kind.ordinary, text: "あなたの命式に必要な{element}の気の方位、{direction}の方角がよいです。"}
+- {slot: daily.direction, key: direction.day_kind.yongsin, text: "あなたの命式に必要な{element}の気の方位、{direction}の方角がよいです。"}
+- {slot: daily.number, key: number.gisin_day, text: "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"}
+- {slot: daily.number, key: number.gwiin_day, text: "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"}
+- {slot: daily.number, key: number.ordinary_day, text: "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"}
+- {slot: daily.number, key: number.yongsin_day, text: "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "天乙貴人"}
 - {slot: daily.tag_label, key: tag.clash, text: "冲"}
 - {slot: daily.tag_label, key: tag.clash_day_branch, text: "日支冲"}
