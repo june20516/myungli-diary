@@ -1555,7 +1555,7 @@ abstract class AppLocalizations {
   /// 오늘 화면(today): lucky-card 칩의 스크린리더 항목 이름(이름 다음에 값을 읽음)
   ///
   /// In ko, this message translates to:
-  /// **'집중하기 좋은 시간'**
+  /// **'길한 시간'**
   String get todayLuckyTimeName;
 
   /// 근거 시트(sheet) 제목(#153)
@@ -3000,7 +3000,7 @@ abstract class AppLocalizations {
   /// **'일정'**
   String get todayEventTitle;
 
-  /// today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, 표본 기준 약 7%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)
+  /// today.featured.empty: 대표 태그가 하나도 없는 날(합충, 십성 몰림, 신살이 없고 귀인의 날, 용신의 날도 아님, D124 뒤 표본 기준 약 6%) 사주 기운 섹션 제목 아래 한 줄 안내: 오늘은 두드러진 사주 기운이 없다는 사실(D112, 문구 writing)
   ///
   /// In ko, this message translates to:
   /// **'오늘은 두드러진 사주 기운이 없어요.'**
@@ -3144,16 +3144,16 @@ abstract class AppLocalizations {
   /// **'접기'**
   String get daySheetVerdictCollapse;
 
-  /// day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 `count`, 내역 항목 수). 카드 전체를 누르면 내역이 펼쳐짐(V108)
+  /// day-sheet.verdict.expand: 길흉판정 카드가 접혔을 때 맨 아래 안내 줄(매개변수 없음, 사용자 결정 "내역 보기", writing R36). 카드 전체를 누르면 내역이 펼쳐짐(V108)
   ///
   /// In ko, this message translates to:
   /// **'내역 보기'**
   String get daySheetVerdictExpand;
 
-  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 다시 붙이기 링크. 누르면 그날 기본 질문(D116)
+  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)
   ///
   /// In ko, this message translates to:
-  /// **'질문 추가'**
+  /// **'무엇을 쓸지 고민인가요?'**
   String get diaryEditGuideAttach;
 
   /// diary-edit.guide.remove: 질문 떼기 버튼(스크린리더 이름). 떼면 이 편에는 질문이 붙지 않음(D116)
@@ -3221,6 +3221,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.'**
   String get previewUsedNotice;
+
+  /// diary-edit.guide.attach: 질문을 뗀 뒤 그 자리에 남는 권유 글자 줄. 누르면 그날 기본 질문이 다시 붙음. 스크린리더 hint는 질문 추가(D116, V102)
+  ///
+  /// In ko, this message translates to:
+  /// **'질문 추가'**
+  String get diaryEditGuideAttachHint;
+
+  /// today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)
+  ///
+  /// In ko, this message translates to:
+  /// **'천덕일'**
+  String get todayDateVirtueCheondeok;
+
+  /// today.date.virtue: 날짜 머리의 택일 덕일 표시(D124 ⑤): 천덕일, 월덕일 중 그날 해당하는 이름(辰, 未, 戌, 丑 달은 두 덕의 천간이 같아 둘 다인 날이 있음). 해당하지 않는 날은 자리째 없음. 모두에게 같은 날 정보지만 음력, 일진과 위상이 달라 형태를 달리함(design). 누르면 풀이 시트(원국의 천덕귀인, 월덕귀인과 이름과 풀이를 구분)
+  ///
+  /// In ko, this message translates to:
+  /// **'월덕일'**
+  String get todayDateVirtueWoldeok;
+
+  /// today.lucky-color.pair.intro: 색이 둘인 날(D119) 행운 색 시트 맨 위 한 줄(가안 "오늘은 추천 색이 두 개예요"). "기준이 갈렸다"고 쓰지 않음. 칩과 색 소제목 옆에 기준 이름 부제목을 두지 않음(D123 ①)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 추천 색이 두 개예요'**
+  String get todayLuckyColorPairIntro;
+
+  /// today.lucky-time.band.day: 시간 칩 시트 24시간 띠의 낮 구간 머리 낱말(가안 "낮", D123 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'낮'**
+  String get todayLuckyTimeBandDay;
+
+  /// today.lucky-time.band.night: 24시간 띠의 밤 구간 머리 낱말(가안 "밤")
+  ///
+  /// In ko, this message translates to:
+  /// **'밤'**
+  String get todayLuckyTimeBandNight;
+
+  /// today.lucky-time.band.now: 24시간 띠의 지금 줄 꼬리표(매개변수 time, 가안 "지금 {time}")
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 {time}'**
+  String todayLuckyTimeBandNow(String time);
+
+  /// today.lucky-time.band.tomorrow: 24시간 띠 끝 눈금의 날 낱말, 띠가 다음 날 07:30에서 끝날 때(가안 "내일"). 띠 칸 시진 이름은 writing 기존 시진 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'내일'**
+  String get todayLuckyTimeBandTomorrow;
+
+  /// today.lucky-time.band.yesterday: 24시간 띠 끝 눈금의 날 낱말, 띠가 전날 21:30에서 시작할 때(가안 "어제")
+  ///
+  /// In ko, this message translates to:
+  /// **'어제'**
+  String get todayLuckyTimeBandYesterday;
+
+  /// today.lucky-time.day.title: 낮 시간 칩 시트 제목(가안 "낮 집중 시간", D122 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'낮의 길한 시간'**
+  String get todayLuckyTimeDayTitle;
+
+  /// today.lucky-time.night.dawn: 밤 칩 값 앞 때 낱말, 0:00~07:29에 볼 때(지금 진행 중인 밤, 가안 "새벽", D123 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'새벽'**
+  String get todayLuckyTimeNightDawn;
+
+  /// today.lucky-time.night.title: 밤 시간 칩 시트 제목(가안 "밤 집중 시간", D122 ⑤)
+  ///
+  /// In ko, this message translates to:
+  /// **'밤의 길한 시간'**
+  String get todayLuckyTimeNightTitle;
+
+  /// today.lucky-time.night.tonight: 밤 칩 값 앞 때 낱말, 07:30부터 볼 때(오늘 밤, 가안 "오늘 밤", D123 ④)
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 밤'**
+  String get todayLuckyTimeNightTonight;
+
+  /// 흉한 신살(공망, 고신, 과숙, 원진, 구교)의 풀이 시트(explain-sheet)와 사주 기운 시트(tag-sheet)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)
+  ///
+  /// In ko, this message translates to:
+  /// **'원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.'**
+  String get shinsalWeighingNote;
 }
 
 class _AppLocalizationsDelegate

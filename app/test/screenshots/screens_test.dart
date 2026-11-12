@@ -259,7 +259,7 @@ _Open _diaryTyping(CalendarDate date) => (tester, container) async {
   await settleWithIo(tester, allowOngoing: true);
 };
 
-/// [date]의 새 일기 쓰기를 열고 질문을 뗍니다(D116, 권유 줄 "질문 추가").
+/// [date]의 새 일기 쓰기를 열고 질문을 뗍니다(D116, 권유 줄 "무엇을 쓸지 고민인가요?").
 _Open _diaryDetached(CalendarDate date) => (tester, container) async {
   unawaited(
     container

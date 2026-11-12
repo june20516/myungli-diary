@@ -790,7 +790,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todayLuckyNumberName => '행운 숫자';
 
   @override
-  String get todayLuckyTimeName => '집중하기 좋은 시간';
+  String get todayLuckyTimeName => '길한 시간';
 
   @override
   String get evidenceSheetTitle => '풀이의 근거';
@@ -1757,7 +1757,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get daySheetVerdictExpand => '내역 보기';
 
   @override
-  String get diaryEditGuideAttach => '질문 추가';
+  String get diaryEditGuideAttach => '무엇을 쓸지 고민인가요?';
 
   @override
   String get diaryEditGuideRemove => '질문 없이 쓰기';
@@ -1798,4 +1798,48 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get previewUsedNotice =>
       '첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요.';
+
+  @override
+  String get diaryEditGuideAttachHint => '질문 추가';
+
+  @override
+  String get todayDateVirtueCheondeok => '천덕일';
+
+  @override
+  String get todayDateVirtueWoldeok => '월덕일';
+
+  @override
+  String get todayLuckyColorPairIntro => '오늘은 추천 색이 두 개예요';
+
+  @override
+  String get todayLuckyTimeBandDay => '낮';
+
+  @override
+  String get todayLuckyTimeBandNight => '밤';
+
+  @override
+  String todayLuckyTimeBandNow(String time) {
+    return '지금 $time';
+  }
+
+  @override
+  String get todayLuckyTimeBandTomorrow => '내일';
+
+  @override
+  String get todayLuckyTimeBandYesterday => '어제';
+
+  @override
+  String get todayLuckyTimeDayTitle => '낮의 길한 시간';
+
+  @override
+  String get todayLuckyTimeNightDawn => '새벽';
+
+  @override
+  String get todayLuckyTimeNightTitle => '밤의 길한 시간';
+
+  @override
+  String get todayLuckyTimeNightTonight => '오늘 밤';
+
+  @override
+  String get shinsalWeighingNote => '원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.';
 }

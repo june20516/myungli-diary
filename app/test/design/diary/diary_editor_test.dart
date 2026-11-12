@@ -397,7 +397,7 @@ void main() {
       expect(find.byKey(DiaryEditor.swapKey), findsNothing);
       expect(find.byKey(DiaryEditor.removeKey), findsNothing);
 
-      final label = find.text('질문 추가');
+      final label = find.text('무엇을 쓸지 고민인가요?');
       final style = tester.widget<Text>(label).style!;
       expect(style.fontSize, DiaryEditor.questionFontSize);
       expect(style.fontFamily, tokens.typography.sentenceBody.fontFamily);
@@ -465,7 +465,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       // 같은 자리에서 둘 다 그려지는 중(앞 상태는 사라지는 중, 새 상태는 나타나는 중)입니다.
       expect(find.text(questionText), findsOneWidget);
-      expect(find.text('질문 추가'), findsOneWidget);
+      expect(find.text('무엇을 쓸지 고민인가요?'), findsOneWidget);
       expect(
         tester.getTopLeft(find.byKey(DiaryEditor.quoteLineKey)).dy,
         tester.getTopLeft(find.byKey(DiaryEditor.detachedKey)).dy,
@@ -477,15 +477,15 @@ void main() {
           )
           .fold(1, (value, opacity) => value * opacity.opacity);
       final outgoing = opacityOf(find.text(questionText));
-      final incoming = opacityOf(find.text('질문 추가'));
+      final incoming = opacityOf(find.text('무엇을 쓸지 고민인가요?'));
       expect(outgoing, inExclusiveRange(0, 1));
       expect(incoming, inExclusiveRange(0, 1));
       // 사라짐(200ms)이 나타남(320ms)보다 먼저 끝납니다.
       await tester.pump(const Duration(milliseconds: 110));
       expect(find.text(questionText), findsNothing);
-      expect(find.text('질문 추가'), findsOneWidget);
+      expect(find.text('무엇을 쓸지 고민인가요?'), findsOneWidget);
       await tester.pumpAndSettle();
-      expect(opacityOf(find.text('질문 추가')), 1);
+      expect(opacityOf(find.text('무엇을 쓸지 고민인가요?')), 1);
     });
 
     testWidgets('동작 줄이기: 전환은 투명도만(흐림 없음)입니다', (tester) async {
@@ -503,7 +503,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       final filters = tester.widgetList<ImageFiltered>(
         find.ancestor(
-          of: find.text('질문 추가'),
+          of: find.text('무엇을 쓸지 고민인가요?'),
           matching: find.byType(ImageFiltered),
         ),
       );
@@ -551,7 +551,9 @@ void main() {
       expect(find.semantics.byLabel(questionText), findsNothing);
       await tester.pumpAndSettle();
       final attach = tester.getSemantics(find.byKey(DiaryEditor.detachedKey));
-      expect(attach.label, '질문 추가');
+      // 라벨은 권유 글자 그대로, hint는 "질문 추가"입니다(#1013, V102).
+      expect(attach.label, '무엇을 쓸지 고민인가요?');
+      expect(attach.hint, '질문 추가');
       expect(attach.flagsCollection.isButton, isTrue);
       expect(attach.flagsCollection.isEnabled, Tristate.isTrue);
       // 초점 이동이 읽으므로 live region은 두지 않습니다(두 번 읽지 않게).

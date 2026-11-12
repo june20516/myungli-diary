@@ -800,7 +800,8 @@ class _QuestionAction extends StatelessWidget {
 /// `chat-teardrop-dots` Light(옆 글자 크기, 같은 색, 장식)입니다.
 ///
 /// 줄 전체가 버튼(높이 44 이상)이고 누르면 [onTap](그날 기본 질문을 다시 붙임)입니다. 본문
-/// 초점과 키보드는 그대로입니다. 스크린리더는 글자 그대로 읽고(말풍선은 읽지 않음), 질문을 뗀
+/// 초점과 키보드는 그대로입니다. 스크린리더는 글자 그대로 읽고(말풍선은 읽지 않음), hint로
+/// `diaryEditGuideAttachHint`("질문 추가", #1013)를 덧붙입니다. 질문을 뗀
 /// 순간 스크린리더 초점이 이 줄로 와서 읽습니다(`guideStates.focus`,
 /// `remove.a11y.changedAnnounced`). 초점 이동이 읽으므로 live region은 두지 않습니다(두 번
 /// 읽지 않게).
@@ -818,7 +819,8 @@ class _DetachedLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    final label = AppLocalizations.of(context).diaryEditGuideAttach;
+    final l10n = AppLocalizations.of(context);
+    final label = l10n.diaryEditGuideAttach;
     final color = tokens.colors.inviteFg;
     final onTap = this.onTap;
     return TextFieldTapRegion(
@@ -831,6 +833,7 @@ class _DetachedLine extends StatelessWidget {
           // 저장한 뒤(누를 곳 없음)에는 꺼진 버튼으로 읽습니다.
           enabled: onTap != null,
           label: label,
+          hint: l10n.diaryEditGuideAttachHint,
           identifier: identifier,
           onTap: onTap,
           excludeSemantics: true,

@@ -850,7 +850,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayLuckyNumberName => 'Lucky number';
 
   @override
-  String get todayLuckyTimeName => 'Best time to focus';
+  String get todayLuckyTimeName => 'Lucky hours';
 
   @override
   String get evidenceSheetTitle => 'The basis for this reading';
@@ -1884,7 +1884,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daySheetVerdictExpand => 'Show details';
 
   @override
-  String get diaryEditGuideAttach => 'Add a question';
+  String get diaryEditGuideAttach => 'Not sure what to write?';
 
   @override
   String get diaryEditGuideRemove => 'Write without a question';
@@ -1925,4 +1925,49 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get previewUsedNotice =>
       'You can see your first reading only once on this device. To change your details, save first, then go to Edit details in the Me tab.';
+
+  @override
+  String get diaryEditGuideAttachHint => 'Add a question';
+
+  @override
+  String get todayDateVirtueCheondeok => 'Heavenly Virtue Day';
+
+  @override
+  String get todayDateVirtueWoldeok => 'Monthly Virtue Day';
+
+  @override
+  String get todayLuckyColorPairIntro => 'Two colors are recommended today';
+
+  @override
+  String get todayLuckyTimeBandDay => 'Day';
+
+  @override
+  String get todayLuckyTimeBandNight => 'Night';
+
+  @override
+  String todayLuckyTimeBandNow(String time) {
+    return 'Now $time';
+  }
+
+  @override
+  String get todayLuckyTimeBandTomorrow => 'Tomorrow';
+
+  @override
+  String get todayLuckyTimeBandYesterday => 'Yesterday';
+
+  @override
+  String get todayLuckyTimeDayTitle => 'Lucky hours by day';
+
+  @override
+  String get todayLuckyTimeNightDawn => 'Before dawn';
+
+  @override
+  String get todayLuckyTimeNightTitle => 'Lucky hours by night';
+
+  @override
+  String get todayLuckyTimeNightTonight => 'Tonight';
+
+  @override
+  String get shinsalWeighingNote =>
+      'In the classics, shinsal are just one of many clues for reading a chart.';
 }

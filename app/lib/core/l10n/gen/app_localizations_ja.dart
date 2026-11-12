@@ -788,7 +788,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayLuckyNumberName => 'ラッキーナンバー';
 
   @override
-  String get todayLuckyTimeName => '集中しやすい時間';
+  String get todayLuckyTimeName => '吉時';
 
   @override
   String get evidenceSheetTitle => '読み解きの根拠';
@@ -1754,7 +1754,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get daySheetVerdictExpand => '内訳を見る';
 
   @override
-  String get diaryEditGuideAttach => '質問を追加';
+  String get diaryEditGuideAttach => '何を書くか迷っていますか?';
 
   @override
   String get diaryEditGuideRemove => '質問なしで書く';
@@ -1795,4 +1795,48 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get previewUsedNotice =>
       '最初の読み解きは、この端末では一度だけ見られます。情報を変えるには、保存したあとマイページの「情報の変更」で変えてください。';
+
+  @override
+  String get diaryEditGuideAttachHint => '質問を追加';
+
+  @override
+  String get todayDateVirtueCheondeok => '天徳日';
+
+  @override
+  String get todayDateVirtueWoldeok => '月徳日';
+
+  @override
+  String get todayLuckyColorPairIntro => '今日はおすすめの色が二つあります';
+
+  @override
+  String get todayLuckyTimeBandDay => '昼';
+
+  @override
+  String get todayLuckyTimeBandNight => '夜';
+
+  @override
+  String todayLuckyTimeBandNow(String time) {
+    return '今 $time';
+  }
+
+  @override
+  String get todayLuckyTimeBandTomorrow => '明日';
+
+  @override
+  String get todayLuckyTimeBandYesterday => '昨日';
+
+  @override
+  String get todayLuckyTimeDayTitle => '昼の吉時';
+
+  @override
+  String get todayLuckyTimeNightDawn => '未明';
+
+  @override
+  String get todayLuckyTimeNightTitle => '夜の吉時';
+
+  @override
+  String get todayLuckyTimeNightTonight => '今夜';
+
+  @override
+  String get shinsalWeighingNote => '原典では、神殺は命式を判断する多くの手がかりの一つにすぎません。';
 }
