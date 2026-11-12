@@ -226,11 +226,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.diary-edit.detached.2026-11-11",
+    "id": "render.diary-edit.detached.2026-11-12",
     "title": "diary-edit (detached) 화면",
     "kind": "screenshot",
-    "file": "2026-11-11-diary-edit-detached.png",
-    "date": "2026-11-11",
+    "file": "2026-11-12-diary-edit-detached.png",
+    "date": "2026-11-12",
     "milestone": "A1",
     "screens": [
       "diary-edit"
@@ -352,11 +352,11 @@
     "note": "personal 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.unlocked-glint.2026-11-11",
+    "id": "render.evidence-sheet.unlocked-glint.2026-11-12",
     "title": "evidence-sheet (unlocked-glint) 화면",
     "kind": "screenshot",
-    "file": "2026-11-11-evidence-sheet-unlocked-glint.png",
-    "date": "2026-11-11",
+    "file": "2026-11-12-evidence-sheet-unlocked-glint.png",
+    "date": "2026-11-12",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -366,11 +366,11 @@
     "note": "unlocked-glint 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.unlocked.2026-11-11",
+    "id": "render.evidence-sheet.unlocked.2026-11-12",
     "title": "evidence-sheet (unlocked) 화면",
     "kind": "screenshot",
-    "file": "2026-11-11-evidence-sheet-unlocked.png",
-    "date": "2026-11-11",
+    "file": "2026-11-12-evidence-sheet-unlocked.png",
+    "date": "2026-11-12",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -926,11 +926,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.tag-diary.default.2026-11-09",
+    "id": "render.tag-diary.default.2026-11-12",
     "title": "tag-diary (default) 화면",
     "kind": "screenshot",
-    "file": "2026-11-09-tag-diary-default.png",
-    "date": "2026-11-09",
+    "file": "2026-11-12-tag-diary-default.png",
+    "date": "2026-11-12",
     "milestone": "A1",
     "screens": [
       "tag-diary"
