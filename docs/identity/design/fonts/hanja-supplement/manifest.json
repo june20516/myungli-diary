@@ -1,0 +1,25 @@
+{
+  "family": "Myungli Hanja Supplement",
+  "chars": "罡",
+  "base": "PretendardJP-Regular.otf",
+  "source": "NotoSansJP-wght.ttf",
+  "license": "SIL Open Font License 1.1 (OFL.txt). Noto Sans JP의 부분 글꼴이고 예약 이름(Source)을 쓰지 않음",
+  "files": {
+    "MyungliHanjaSupplement-Regular.ttf": {
+      "weight": 400,
+      "sha256": "4ead145e515d0bd77a68c0eaed7938efb3eb50591d507d9714c01673a420e558"
+    },
+    "MyungliHanjaSupplement-Medium.ttf": {
+      "weight": 500,
+      "sha256": "cbecc99ac805842a599a67892ca4feb7fe7abf2d417605e3246bcdd4ca95c209"
+    },
+    "MyungliHanjaSupplement-SemiBold.ttf": {
+      "weight": 600,
+      "sha256": "67506f43c9b840d0ccb0ab257181eb58dc0c2c8404cbffcb7697480ca998f53a"
+    },
+    "MyungliHanjaSupplement-Bold.ttf": {
+      "weight": 700,
+      "sha256": "fb7b4e01a453e49a2ef34b20217faf2f43587dab9ac664c05917684a85492a5f"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "version": "7.1.0",
+  "version": "7.2.0",
   "group": "frame",
   "components": [
     {
@@ -206,6 +206,17 @@
           "target": { "screen": "tag-diary", "presentation": "page", "transition": "page.push" },
           "whenNoDiary": "늘 보임. 그 태그의 일기가 없으면 tag-diary 빈 상태가 맡음(편수를 세지 않음)",
           "note": "시트를 닫고 tag-diary로 page.push. 일기 줄, 일기 쓰기와 보기의 태그, 나 탭 회고 태그에서 연 대표 태그 시트도 같음(관문 답 2026-11-06)"
+        },
+        "weighingNote": {
+          "when": "흉한 신살(공망, 고신, 과숙, 원진, 구교)의 뜻 시트일 때만 본문 바로 아래. 사주 기운 시트(tag-sheet)의 뜻 아래에도 같은 부품 (D124 ⑦, 결정 V120)",
+          "slot": "ui.shinsal.weighing",
+          "copy": "『三命通會』 卷三 「總論諸神煞」 마무리 문장을 줄인 한 줄. 문구는 writing(#1030, 키 shinsalWeighingNote). 원문과 출처는 보이지 않음",
+          "marginTop": "{space.12}",
+          "box": { "bg": "{color.fill.soft}", "radius": "{radius.md}", "padding": "{space.12}" },
+          "icon": { "name": "check", "weight": "regular", "size": "adjacent-text", "color": "{color.action.primary}", "gap": "{space.8}", "align": "첫 줄 글줄 가운데", "decorative": true },
+          "text": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "maxLines": 2 },
+          "interactive": false,
+          "note": "관문 답 2026-11-12(#1026 자리 A 풀이 시트에만, 모양은 사용자 지시안). 근거 시트와 원국 개인 해석에는 두지 않음. 잠기지 않음"
         },
         "dismiss": ["바깥 누르기", "끌어 내리기", "뒤로 가기"]
       },

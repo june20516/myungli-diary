@@ -13,7 +13,14 @@
 * 변형 `today`는 셋 다, `day-sheet`는 날짜와 음력(슬롯 `day-sheet.date.solar`, `day-sheet.date.lunar`)이고 일진이 없습니다.
 * 음력은 server 계약 추가(#806)입니다. 계약에 없으면 음력 칸만 빼고 줄은 일진으로 남깁니다. 두 칸이 모두 없으면(그날 시트에서 음력이 없을 때) 그 줄과 위 `space.2` 여백을 그리지 않습니다.
 * 불러오는 중: 날짜 줄은 기기 날짜라 바로 그리고, 음력과 일진 줄만 글줄 뼈(50%) 하나입니다.
-* 누를 수 없는 표시입니다.
+* 날짜, 음력, 일진은 누를 수 없는 표시입니다.
+* 덕일(D124 ⑤, 결정 V119, 관문 답 2026-11-12 A): 천덕일, 월덕일인 날은 오늘 화면에서만 음력, 일진 줄 끝(일진 뒤 `space.8`)에 `hanja-tag` `compact` 길 색(`tag.good`) 알약을 덕마다 하나씩 둡니다(슬롯 `today.date.virtue`, 키 `todayDateVirtueCheondeok`, `todayDateVirtueWoldeok`).
+  * 모양: 알약 22, 한자 원 16 안 德(10px), 이름 `type.caption.md`. 같은 날 정보 줄에 두되 모양을 길 색 알약으로 달리해 음력, 일진과 위상이 다름을 보입니다. 그 줄은 알약 높이만큼(22) 높아지고 글자는 세로 가운데입니다.
+  * 둘 다인 날(辰, 未, 戌, 丑 달)은 천덕일, 월덕일 순서로 알약 둘입니다. 줄이 넘치면 지금 규칙대로 칸 단위로 다음 줄에 놓습니다(en 이름이 길 때).
+  * 덕일이 아닌 날(1년 약 87%)과 계약에 값이 없을 때(server #1031 전)는 칸째 없어 날짜 머리가 지금과 같습니다. 불러오는 중에는 알약 뼈를 두지 않습니다.
+  * 누르면 그 덕의 `explain-sheet`가 열립니다(원국의 천덕귀인, 월덕귀인 풀이와 다른 원고, writing #1030). 터치 높이는 위아래로 넓혀 44입니다.
+  * 스크린리더: 날짜 머리 덩어리(날짜, 음력, 일진) 뒤에 알약마다 따로 초점이 가는 버튼이고, 이름은 알약 글자 그대로입니다(한자 원은 읽지 않음).
+  * 그날 시트(`day-sheet` 변형)에는 두지 않습니다(IA 슬롯이 오늘 화면뿐).
 
 ## day-character
 
@@ -116,7 +123,7 @@
 IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목과 내용 사이 `space.12`, 섹션 사이 `space.32`, 시작선은 화면 좌우 `space.20`)이고, 섹션 내용은 흰 카드(`bg.sheet`, `radius.lg`, 안쪽 `space.16`)에 담습니다(결정 V78).
 
 1. `app-bar` 탭 루트(`today.bar.title`), 오른쪽 `share-button`.
-2. `date-header` `today`: 날짜와 요일(`today.date.solar`), 그 아래 음력(`today.date.lunar`)과 일진(`today.date.iljin`). 상단 바 아래 `space.8`, 날짜 머리 아래 첫 섹션까지 `space.32`(섹션 사이와 같음).
+2. `date-header` `today`: 날짜와 요일(`today.date.solar`), 그 아래 음력(`today.date.lunar`)과 일진(`today.date.iljin`), 덕일인 날은 그 줄 끝에 덕일 알약(`today.date.virtue`, 누르면 `explain-sheet`, V119). 상단 바 아래 `space.8`, 날짜 머리 아래 첫 섹션까지 `space.32`(섹션 사이와 같음).
 3. 총운: `section-header` `action`(`today.fortune.title`), 오른쪽 자리는 `reaction-button`(좋아요, 스크린리더 `today.reaction.label`). 카드 안은 위에서부터:
    * 총운을 결정한 태그 줄(사이 `space.8`): 날의 성격 `hanja-tag` `emphasis`(`today.character.label`, 용신의 날만 진한 채움, 누르면 `explain-sheet` 뜻), 일진 천간의 십성 묶음 `hanja-tag` `default`(`today.ten-god.label`, `term` 초록, 누르면 `explain-sheet` 뜻). 십성 묶음은 server 계약 추가(#806)이고 없으면 날의 성격 태그 하나입니다.
    * 헤드라인(`today.fortune.head`): 태그 줄 아래 `space.12`, `sentence-block` `card`(화면에서 가장 큰 문장, 호칭 자리) + 끝에 `depth-link` `inline-end`(근거 시트).
@@ -140,6 +147,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
 
 1. 머리: 누른 태그 `hanja-tag` `default`(누를 수 없는 표시) + 오른쪽 끝 `depth-link` `inline-end` 아이콘(누르면 `evidence-sheet`가 `sheet.stack`). 핸들 자리 아래 `space.8`.
 2. 뜻(`tag-sheet.tag.meaning`): 머리 아래 `space.12`, `sentence-block` `body`(용어 풀이 원고 `term.tag.*`).
+   * 흉한 신살(공망, 고신, 과숙, 원진) 태그면 뜻 바로 아래 `space.12`에 `explain-sheet` `weighingNote`와 같은 마무리 상자(`ui.shinsal.weighing`, D124 ⑦, 결정 V120)를 둡니다. 다음 구역 간격은 상자에서 셉니다.
 3. 이 기운에서 나온 오늘 문장: 뜻 아래 `space.24`, `tag-sentence-list`(머리 `tag-sheet.sentences.title`, 줄은 보조 문장과 오늘의 질문, 없으면 `tag-sheet.sentences.empty`).
 4. 출구: `tag-sentence-list` 아래 꺾쇠 링크(`tag-sheet.diary.cta`, 편수 없이 늘 보임) → `tag-diary`.
 

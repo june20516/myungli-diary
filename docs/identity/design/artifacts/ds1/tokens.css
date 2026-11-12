@@ -149,7 +149,7 @@
   --gradient-unlocked: #47634c 0%, #8b640f 50%, #a75c53 100%;
   --font-family-sentence: "Gowun Dodum", "Pretendard", sans-serif;
   --font-family-ui: "Pretendard", sans-serif;
-  --font-family-hanja: "Pretendard JP", sans-serif;
+  --font-family-hanja: "Pretendard JP", "Myungli Hanja Supplement", sans-serif;
   --type-sentence-card-family: var(--font-family-sentence);
   --type-sentence-card-size: 17px;
   --type-sentence-card-weight: 400;
@@ -298,9 +298,9 @@
 }
 
 :lang(ja) {
-  --font-family-sentence: "Zen Maru Gothic", "Pretendard JP", sans-serif;
-  --font-family-ui: "Pretendard JP", sans-serif;
-  --font-family-hanja: "Pretendard JP", sans-serif;
+  --font-family-sentence: "Zen Maru Gothic", "Pretendard JP", "Myungli Hanja Supplement", sans-serif;
+  --font-family-ui: "Pretendard JP", "Myungli Hanja Supplement", sans-serif;
+  --font-family-hanja: "Pretendard JP", "Myungli Hanja Supplement", sans-serif;
   --type-sentence-card-family: var(--font-family-sentence);
   --type-sentence-card-size: 17px;
   --type-sentence-card-weight: 400;

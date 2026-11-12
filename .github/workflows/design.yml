@@ -45,11 +45,13 @@ jobs:
       - name: 테스트 전체
         if: env.OWN == 'true'
         run: uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest docs/identity/design/tools -q
+      # 한자 대체 글꼴 덮임(test_hanja_supplement.py)은 writing 용어 한자와 원전 원고를 읽는다(#1029, V121).
       - name: 계약 테스트
         if: env.OWN != 'true'
         run: >-
           uv run --with pytest==8.3.5 --with fonttools==4.54.1 pytest -q
           docs/identity/design/tools/test_components.py docs/identity/design/tools/test_lengths.py
+          docs/identity/design/tools/test_hanja_supplement.py
       - name: 컴포넌트 명세를 IA·토큰과 대조
         run: python3 docs/identity/design/tools/components.py
       - name: 색 대비 검사

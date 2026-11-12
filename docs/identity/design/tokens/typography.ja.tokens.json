@@ -6,6 +6,7 @@
         "$value": [
           "Zen Maru Gothic",
           "Pretendard JP",
+          "Myungli Hanja Supplement",
           "sans-serif"
         ]
       },
@@ -13,6 +14,7 @@
         "$type": "fontFamily",
         "$value": [
           "Pretendard JP",
+          "Myungli Hanja Supplement",
           "sans-serif"
         ]
       },
@@ -20,6 +22,7 @@
         "$type": "fontFamily",
         "$value": [
           "Pretendard JP",
+          "Myungli Hanja Supplement",
           "sans-serif"
         ]
       }
