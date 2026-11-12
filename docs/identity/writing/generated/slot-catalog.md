@@ -294,7 +294,7 @@
 | ui.login-methods.row | 컴포넌트 social-login-button | guide | - | 1 | 6 | - | ko 10, en 16, ja 7 |
 | ui.login.error | login.error.body<br>컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko 48, en 78, ja 34 |
 | ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 4 | - | ko 19, en 34, ja 15<br>`loginKakaoLabel` ko 19, en 34, ja 34<br>`loginLineLabel` ko 16, en 28, ja 13 |
-| ui.lucky-card.a11y | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.lucky-card.a11y | 컴포넌트 lucky-card | info | - | 1 | 5 | `index`: number<br>`total`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.my-saju.record | 컴포넌트 diary-summary | info | - | 1 | 3 | `count`: number | ko -, en -, ja - |
 | ui.nav.a11y | 컴포넌트 app-bar<br>컴포넌트 sheet | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |

@@ -440,6 +440,7 @@
   "todayLuckyDirectionName": "ラッキー方位",
   "todayLuckyNumberName": "ラッキーナンバー",
   "todayLuckyTimeName": "吉時",
+  "todayLuckyPairPosition": "{total}つのうち{index}つ目",
   "mySajuRecordCountUnit": "{count, plural, other{件}}",
   "mySajuRecordDayKindHead": "書いた日の性格",
   "mySajuRecordTagHead": "よく付いたタグ",

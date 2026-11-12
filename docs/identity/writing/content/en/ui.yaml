@@ -415,6 +415,7 @@
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "Lucky number"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "Lucky hours"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyPairPosition, text: "{index} of {total}"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "Preview of today's sentence image"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "Share image ratio"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way."}
