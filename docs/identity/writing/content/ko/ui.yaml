@@ -409,7 +409,7 @@
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "행운 색"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "행운 방향"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "행운 숫자"}
-- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "집중하기 좋은 시간"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "길한 시간"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "오늘 문장 이미지 미리보기"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "공유 이미지 비율"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "허용하면 광고를 관심사에 맞춰 보여 드려요. 허용하지 않아도 앱은 똑같이 쓸 수 있어요."}
@@ -502,3 +502,13 @@
 - {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "질문 없이 쓰기"}
 - {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "무엇을 쓸지 고민인가요?"}
 - {slot: diary-edit.guide.attach, key: diaryEditGuideAttachHint, text: "질문 추가"}
+- {slot: today.lucky-color.pair.intro, key: todayLuckyColorPairIntro, text: "오늘은 추천 색이 두 개예요"}
+- {slot: today.lucky-time.day.title, key: todayLuckyTimeDayTitle, text: "낮의 길한 시간"}
+- {slot: today.lucky-time.night.title, key: todayLuckyTimeNightTitle, text: "밤의 길한 시간"}
+- {slot: today.lucky-time.night.dawn, key: todayLuckyTimeNightDawn, text: "새벽"}
+- {slot: today.lucky-time.night.tonight, key: todayLuckyTimeNightTonight, text: "오늘 밤"}
+- {slot: today.lucky-time.band.day, key: todayLuckyTimeBandDay, text: "낮"}
+- {slot: today.lucky-time.band.night, key: todayLuckyTimeBandNight, text: "밤"}
+- {slot: today.lucky-time.band.now, key: todayLuckyTimeBandNow, text: "지금 {time}"}
+- {slot: today.lucky-time.band.yesterday, key: todayLuckyTimeBandYesterday, text: "어제"}
+- {slot: today.lucky-time.band.tomorrow, key: todayLuckyTimeBandTomorrow, text: "내일"}

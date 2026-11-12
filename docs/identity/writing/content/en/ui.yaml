@@ -409,7 +409,7 @@
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "Lucky color"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "Lucky number"}
-- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "Best time to focus"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "Lucky hours"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "Preview of today's sentence image"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "Share image ratio"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way."}
@@ -502,3 +502,13 @@
 - {slot: diary-edit.guide.remove, key: diaryEditGuideRemove, text: "Write without a question"}
 - {slot: diary-edit.guide.attach, key: diaryEditGuideAttach, text: "Not sure what to write?"}
 - {slot: diary-edit.guide.attach, key: diaryEditGuideAttachHint, text: "Add a question"}
+- {slot: today.lucky-color.pair.intro, key: todayLuckyColorPairIntro, text: "Two colors are recommended today"}
+- {slot: today.lucky-time.day.title, key: todayLuckyTimeDayTitle, text: "Lucky hours by day"}
+- {slot: today.lucky-time.night.title, key: todayLuckyTimeNightTitle, text: "Lucky hours by night"}
+- {slot: today.lucky-time.night.dawn, key: todayLuckyTimeNightDawn, text: "Before dawn"}
+- {slot: today.lucky-time.night.tonight, key: todayLuckyTimeNightTonight, text: "Tonight"}
+- {slot: today.lucky-time.band.day, key: todayLuckyTimeBandDay, text: "Day"}
+- {slot: today.lucky-time.band.night, key: todayLuckyTimeBandNight, text: "Night"}
+- {slot: today.lucky-time.band.now, key: todayLuckyTimeBandNow, text: "Now {time}"}
+- {slot: today.lucky-time.band.yesterday, key: todayLuckyTimeBandYesterday, text: "Yesterday"}
+- {slot: today.lucky-time.band.tomorrow, key: todayLuckyTimeBandTomorrow, text: "Tomorrow"}

@@ -366,7 +366,7 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: todayLuckyTimeName, text: "집중하기 좋은 시간", why: "IA today.lucky-time.body와 같은 이름", source: writing}
+      - {lang: ko, key: todayLuckyTimeName, text: "길한 시간", why: "시트 제목 낮과 밤의 길한 시간과 같은 이름(R38-4)", source: round-R38-4}
     bad: []
   endings: []
   a11y:
@@ -698,3 +698,197 @@
   a11y:
     truncation: "ko는 칸 안, en과 ja는 제목 위 한 줄로 올라가 잘리지 않습니다."
     screen_reader: "일정 제목 앞에 읽습니다."
+
+- id: today.lucky-color.pair.intro
+  where: "행운 색이 둘인 날(D119) 행운 색 시트 맨 위 한 줄(D123 ①, V114). 어느 칸을 눌러도 같은 시트"
+  purpose: info
+  user_state: "오늘 행운 색이 두 개라 시트를 열었습니다."
+  structure: "한 문장. 추천이 두 개라는 사실만 말하고, 계산 기준이 갈렸다거나 기준 이름(내 균형, 원전)을 쓰지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyColorPairIntro
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyColorPairIntro, text: "오늘은 추천 색이 두 개예요", why: "추천이 두 개라는 사실만(design 가안)", source: round-R38-1}
+    bad:
+      - {lang: ko, key: todayLuckyColorPairIntro, text: "오늘은 행운이 두 갈래로 피어나는 날이에요", why: "꾸민 비유 slop.P1(대조군)", source: round-R38-1}
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "시트 제목 다음에 읽습니다."
+
+- id: today.lucky-time.day.title
+  where: "낮 시간 칩을 누르면 여는 설명 시트 제목(D122 ⑤, V116)"
+  purpose: info
+  user_state: "낮 시간 칩을 눌러 시트를 열었습니다."
+  structure: "명사구 하나. 원전(用時法, 論相主, 黃道)은 길한 시간만 말하므로 집중 같은 성질을 붙이지 않습니다(R37-4, R38-4)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeDayTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeDayTitle, text: "낮의 길한 시간", why: "원전이 말하는 그대로 길한 시간(사용자 문구)", source: round-R38-4}
+    bad:
+      - {lang: ko, key: todayLuckyTimeDayTitle, text: "낮 집중 시간", why: "원전에 없는 성질(집중)을 붙임", source: round-R38-4}
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.lucky-time.night.title
+  where: "밤 시간 칩을 누르면 여는 설명 시트 제목(D122 ⑤, V116)"
+  purpose: info
+  user_state: "밤 시간 칩을 눌러 시트를 열었습니다."
+  structure: "명사구 하나. 원전(用時法, 論相主, 黃道)은 길한 시간만 말하므로 집중 같은 성질을 붙이지 않습니다(R37-4, R38-4)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeNightTitle
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeNightTitle, text: "밤의 길한 시간", why: "원전이 말하는 그대로 길한 시간(사용자 문구)", source: round-R38-4}
+    bad:
+      - {lang: ko, key: todayLuckyTimeNightTitle, text: "밤 집중 시간", why: "원전에 없는 성질(집중)을 붙임", source: round-R38-4}
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: today.lucky-time.night.dawn
+  where: "밤 칩 값 앞 때 낱말, 0:00~07:29에 볼 때(지금 이어지는 전날 밤, D123 ④, V116)"
+  purpose: info
+  user_state: "새벽에 오늘 화면을 봅니다."
+  structure: "낱말 하나. 지금이 밤의 어느 쪽인지만 알립니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeNightDawn
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeNightDawn, text: "새벽", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "칩 값 앞에 이어 읽습니다."
+
+- id: today.lucky-time.night.tonight
+  where: "밤 칩 값 앞 때 낱말, 07:30부터 볼 때(오늘 밤, D123 ④, V116)"
+  purpose: info
+  user_state: "낮이나 저녁에 오늘 화면을 봅니다."
+  structure: "낱말 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeNightTonight
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeNightTonight, text: "오늘 밤", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "칩 값 앞에 이어 읽습니다."
+
+- id: today.lucky-time.band.day
+  where: "시간 칩 시트 24시간 띠의 낮 구간 머리 낱말(D123 ⑤, V117)"
+  purpose: info
+  user_state: "띠에서 낮 구간을 봅니다."
+  structure: "낱말 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeBandDay
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeBandDay, text: "낮", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "띠는 스크린리더에서 그림으로 숨깁니다(V117)."
+
+- id: today.lucky-time.band.night
+  where: "24시간 띠의 밤 구간 머리 낱말(V117)"
+  purpose: info
+  user_state: "띠에서 밤 구간을 봅니다."
+  structure: "낱말 하나."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeBandNight
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeBandNight, text: "밤", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "띠는 스크린리더에서 그림으로 숨깁니다(V117)."
+
+- id: today.lucky-time.band.now
+  where: "24시간 띠의 지금 줄 꼬리표({time}: 지금 시각, V117)"
+  purpose: info
+  user_state: "띠에서 지금이 어디인지 봅니다."
+  structure: "낱말과 시각."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {time: text}
+      keys: [todayLuckyTimeBandNow]
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeBandNow, text: "지금 {time}", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "띠는 스크린리더에서 그림으로 숨깁니다(V117)."
+
+- id: today.lucky-time.band.yesterday
+  where: "24시간 띠 끝 눈금의 날 낱말, 띠가 전날 21:30에서 시작할 때(V117)"
+  purpose: info
+  user_state: "새벽에 띠를 봅니다."
+  structure: "낱말 하나. 눈금 시각 앞에 붙습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeBandYesterday
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeBandYesterday, text: "어제", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "띠는 스크린리더에서 그림으로 숨깁니다(V117)."
+
+- id: today.lucky-time.band.tomorrow
+  where: "24시간 띠 끝 눈금의 날 낱말, 띠가 다음 날 07:30에서 끝날 때(V117). 띠 칸 시진 이름은 glossary 지지 이름(branch.*)"
+  purpose: info
+  user_state: "낮이나 저녁에 띠를 봅니다."
+  structure: "낱말 하나. 눈금 시각 앞에 붙습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - todayLuckyTimeBandTomorrow
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: todayLuckyTimeBandTomorrow, text: "내일", why: "design 가안 그대로", source: writing}
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "띠는 스크린리더에서 그림으로 숨깁니다(V117)."
