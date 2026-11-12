@@ -260,16 +260,16 @@ interpretation = "어느 오행으로 덜고 더할지(인성, 식상, 재성, �
 id = "natal_shinsal"
 group = "natal"
 name = "원국 신살"
-summary = "원국 안에 있는 신살(천을귀인, 도화, 역마, 화개, 양인, 공망)을 찾고, 그 지지를 데일리 발동 판정에 넘깁니다."
-decisions = ["D13", "C24"]
+summary = "원국 안에 있는 신살 열아홉(천을귀인, 도화, 역마, 화개, 양인, 공망과 D124 열셋)을 찾고, 그 가운데 오늘 태그로 쓰는 아홉의 지지를 데일리 발동 판정에 넘깁니다."
+decisions = ["D13", "C24", "D124", "C40"]
 code = ["chart/shinsal.py", "constants/shinsal.py", "constants/gwiin.py"]
 evidence_rules = []
 message_keys = []
 
 [items.steps]
-basis = "천을귀인과 양인은 일간, 도화, 역마, 화개는 연지와 일지 각각, 공망은 일주로 신살 지지를 정합니다."
+basis = "천을귀인과 양인은 일간, 도화, 역마, 화개는 연지와 일지 각각, 공망은 일주로 신살 지지를 정합니다. D124 열셋은 아래 규칙의 기준 자리(월지, 연간, 연지, 일주, 천간 순서)로 정합니다."
 today = "원국 표에서는 쓰지 않습니다. 데일리는 오늘 지지가 신살 지지면 발동으로 봅니다(태그 항목)."
-output = "원국 자리별 신살 목록과 신살 지지 집합."
+output = "원국 신살 목록(대표 자리와 걸친 자리 전부)과 오늘 태그 아홉의 신살 지지 집합."
 evidence = "원국 표에는 근거를 따로 내지 않습니다. 발동 태그와 개인 해석에서 근거가 붙습니다."
 params = "개인 해석 personal.shinsal.*의 키가 됩니다."
 
@@ -281,6 +281,38 @@ when = "모든 원국. 시간 모름이면 시지는 뺍니다."
 decisions = ["C24"]
 source_status = "source"
 
+[[items.rules]]
+kind = "added"
+text = "D124 열셋. 천덕(월지, 천간 또는 申亥寅巳), 월덕(월지 삼합, 丙甲壬庚), 금여(연간 祿 앞 두 자리), 암록(연간 祿과 육합), 고신과 과숙(연지 방합 다음과 앞), 구교(연지 앞뒤 세 자리), 천라지망(戌亥, 辰巳), 괴강, 십악대패, 음착양차(일주), 삼기(乙丙丁, 甲戊庚 順布, 연월일 또는 월일시). 연지 기준 신살은 연지 자리 자신을 보지 않습니다."
+reason = "원문 조목의 정의 그대로입니다. 금여와 암록은 원문 예(如甲子人, 甲生人)대로 연간으로 보고, 한국 통용인 일간 기준은 원문을 찾지 못해 쓰지 않습니다(D120)."
+when = "모든 원국. 시간 모름이면 시주 자리는 뺍니다."
+decisions = ["D124", "C40"]
+source_status = "source"
+
+[[items.rules]]
+kind = "added"
+text = "원진은 한국 통용 쌍(子未, 丑午, 寅酉, 卯申, 辰亥, 巳戌)을 남녀 구분 없이 연지 기준으로 씁니다."
+reason = "원문 「論元辰」은 남녀를 나누고 이 쌍은 원문의 남자 쪽과 같습니다. 원전 우선(D120)의 의도적 예외이고, 근거 원전 note와 설명에 차이를 밝힙니다(D121의 예외)."
+when = "원진."
+decisions = ["D124"]
+source_status = "principle_selected"
+
+[[items.rules]]
+kind = "added"
+text = "구교의 두 자리는 성별과 무관하고, 어느 자리가 勾이고 絞인지는 연간 음양과 성별로 정해 개인 해석 part(GOU, JIAO)로 냅니다."
+reason = "원문 「論勾絞」이 남녀로 勾과 絞를 나눕니다(D124 ④)."
+when = "구교."
+decisions = ["D124", "C40"]
+source_status = "source"
+
+[[items.rules]]
+kind = "added"
+text = "십악대패는 첫 열거의 乙丑을 元白經 문단대로 己丑으로 읽습니다. 삼기의 辛壬癸는 넣지 않습니다."
+reason = "乙丑은 祿入空亡에 맞지 않고 같은 조목의 다른 문단이 己丑입니다. 辛壬癸는 원문이 其說無據라 합니다."
+when = "십악대패, 삼기."
+decisions = ["C40"]
+source_status = "principle_selected"
+
 [[items.sources]]
 ref = "sammyeong-tonghoe/tags#cheoneul_gwiin"
 work = "三命通會"
@@ -288,6 +320,110 @@ section = "论天乙贵人"
 quote = "其神最尊贵，所至之处，一切凶煞隐然而避。"
 meaning = "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다."
 interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#cheondeok"
+work = "三命通會"
+section = "論天月徳"
+quote = "此十二位宫能回㓙作善乃曰天徳也"
+meaning = "이 열두 자리가 흉을 돌려 선으로 만드니 천덕이라 한다."
+interpretation = "坤乾艮巽은 같은 조목대로 申亥寅巳로 봅니다."
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#woldeok"
+work = "三命通會"
+section = "論天月徳"
+quote = "月徳者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月徳"
+meaning = "월덕은 삼합이 비추는 방위이니 壬甲丙庚을 월덕이라 한다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#geumyeo"
+work = "三命通會"
+section = "論金轝"
+quote = "金轝常居祿前二辰如甲子人祿在寅辰為金轝是也"
+meaning = "금여는 늘 녹 앞 두 자리에 있으니, 甲子생이면 녹이 寅이고 辰이 금여다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#gosin"
+work = "三命通會"
+section = "論孤辰寡宿"
+quote = "如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡"
+meaning = "亥子丑처럼 방위 셋에서 한 자리 나아가 寅이 고신, 한 자리 물러나 戌이 과숙이다."
+interpretation = "고신과 과숙이 같은 문장을 씁니다."
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#wonjin"
+work = "三命通會"
+section = "論元辰"
+quote = "是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰"
+meaning = "양남음녀는 충 자리 다음 칸, 음남양녀는 충 자리 앞 칸이 원진이다."
+interpretation = "명리일기는 남녀 구분 없이 한국 통용 쌍을 씁니다(D124 ③)."
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#gugyo"
+work = "三命通會"
+section = "論勾絞"
+quote = "陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾"
+meaning = "양남음녀는 명 앞 세 자리가 구, 뒤 세 자리가 교이고, 음남양녀는 반대다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#cheonra_jimang"
+work = "三命通會"
+section = "論天羅地網"
+quote = "何以戌亥為天羅辰巳為地網"
+meaning = "戌亥가 천라, 辰巳가 지망이다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#goegang"
+work = "三命通會"
+section = "魁罡"
+quote = "此格有四日庚辰壬辰戊戌庚戌"
+meaning = "이 격은 네 날, 庚辰 壬辰 戊戌 庚戌이다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#sipak_daepae"
+work = "三命通會"
+section = "論十惡大敗"
+quote = "六甲旬中十個日値祿入空亡"
+meaning = "육갑의 순 가운데 열 날은 녹이 공망에 든다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#eumchak_yangcha"
+work = "三命通會"
+section = "總論諸神煞"
+quote = "陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也"
+meaning = "음양차착살은 丙子부터 癸亥까지 열두 날이다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#samgi"
+work = "三命通會"
+section = "論三奇"
+quote = "三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉"
+meaning = "삼기는 순서대로 놓여야 하니 乙丙丁, 甲戊庚이 연월일시 천간에 순서대로 놓이면 길하다."
+interpretation = ""
+
+[[items.sources]]
+ref = "xingxue-dacheng/shinsal#amrok"
+work = "星學大成"
+section = "論拱禄交禄暗禄"
+quote = "暗禄者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯"
+meaning = "암록은 甲생이 亥를 만나는 것이니 亥가 寅과 합하기 때문이다."
+interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#weighing"
+work = "三命通會"
+section = "總論諸神煞"
+quote = "右十二宫神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣"
+meaning = "신살은 옛사람이 중히 여겼으나, 왕상휴수와 생극제화를 근본으로 하고 재관인식과 귀인 녹마를 본 뒤에 신살의 무게를 견주어야 한다. 신살만 가지고 논하면 속이는 것이다."
+interpretation = "흉한 신살 설명의 맨 아래에 늘 넣는 문장입니다(D124 ⑦). 엔진 판정이 내지 않고 writing이 인용합니다."
 
 [[items]]
 id = "personal_reading"
@@ -480,6 +616,63 @@ meaning = "합은 화합이니 음양이 서로 어울려 그 기운이 저절�
 interpretation = ""
 
 [[items]]
+id = "day_virtue"
+group = "day_judgment"
+name = "택일 덕일"
+summary = "그날이 속한 달 기준의 천덕일, 월덕일을 오늘 화면 날의 정보로 냅니다. 모두에게 같은 날 정보입니다(D13의 예외)."
+decisions = ["D124", "C40"]
+code = ["rules/day_virtue.py"]
+evidence_rules = ["day_virtue/cheondeok", "day_virtue/woldeok"]
+message_keys = ["day_virtue.*"]
+
+[items.steps]
+basis = "쓰지 않습니다. 원국과 무관합니다."
+today = "그 날짜 정오의 월건 지지와 일진 천간."
+output = "덕일 목록(천덕일 먼저). 데일리는 판정과 근거, 월간 날짜 칸은 종류만."
+evidence = "day_virtue/<종류> 하나. source_ref는 『協紀辨方書』 卷五 조목입니다."
+params = "month_branch, day_stem."
+
+[[items.rules]]
+kind = "base"
+text = "천덕일: 월건마다 정해진 천간의 날(寅 丁, 辰 壬, 巳 辛, 未 甲, 申 癸, 戌 丙, 亥 乙, 丑 庚). 월덕일: 寅午戌 丙, 申子辰 壬, 亥卯未 甲, 巳酉丑 庚의 날."
+reason = "원문 표 그대로입니다."
+when = "모든 날."
+decisions = ["D124"]
+source_status = "source"
+
+[[items.rules]]
+kind = "removed"
+text = "子午卯酉月의 천덕일은 없습니다. 천덕합, 월덕합은 넣지 않습니다."
+reason = "원문이 이 달의 천덕을 괘(坤乾艮巽, 방위)로 적고 지지로 읽는 설은 채택하지 않습니다. 덕합은 날이 넷에 하나 꼴로 늘어 넣지 않기로 했습니다."
+when = "子午卯酉月, 덕합."
+decisions = ["D124"]
+source_status = "source"
+
+[[items.rules]]
+kind = "added"
+text = "달은 그 날짜 정오의 월건으로 봅니다(일진과 같은 기준). 달력 길흉 점수에는 넣지 않습니다."
+reason = "절입일의 경계를 일진 판정과 맞췄습니다. 덕일은 날의 정보라 길흉 점수와 섞지 않습니다(D124 ⑥)."
+when = "모든 날."
+decisions = ["C40", "D124"]
+source_status = "product"
+
+[[items.sources]]
+ref = "xieji-bianfang/days#tiande"
+work = "欽定協紀辨方書"
+section = "天徳"
+quote = "天徳者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚"
+meaning = "천덕은 정월 丁, 2월 坤, 3월 壬, 4월 辛, 5월 乾, 6월 甲, 7월 癸, 8월 艮, 9월 丙, 10월 乙, 11월 巽, 12월 庚이다."
+interpretation = ""
+
+[[items.sources]]
+ref = "xieji-bianfang/days#yuede"
+work = "欽定協紀辨方書"
+section = "月徳"
+quote = "月徳者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚"
+meaning = "월덕은 정월, 5월, 9월은 丙, 2, 6, 10월은 甲, 3, 7, 11월은 壬, 4, 8, 12월은 庚이다."
+interpretation = ""
+
+[[items]]
 id = "calendar_luck"
 group = "day_judgment"
 name = "달력 길흉"
@@ -522,7 +715,7 @@ id = "tags"
 group = "tags_messages"
 name = "사주 기운 태그"
 summary = "오늘 일진과 원국의 합충, 십성 쏠림, 신살 발동을 태그로 고르고 앞의 1~2개를 대표로 둡니다."
-decisions = ["D108", "C9", "C10", "C28", "C29"]
+decisions = ["D108", "C9", "C10", "C28", "C29", "D124"]
 code = ["rules/tags.py", "chart/shinsal.py"]
 values = [
   { name = "MAX_FEATURED", module = "rules/tags.py", value = 2 },
@@ -540,6 +733,9 @@ evidence_rules = [
   "tags/hwagae",
   "tags/dohwa",
   "tags/cheoneul_gwiin",
+  "tags/gosin",
+  "tags/gwasuk",
+  "tags/wonjin",
   "tags/gwiin_day",
   "tags/yongsin_day",
 ]
@@ -554,10 +750,18 @@ params = "태그 키에는 매개변수가 없습니다."
 
 [[items.rules]]
 kind = "base"
-text = "그룹 순서: ① 합충(일지 충, 월지 충, 그 밖 충, 합) ② 십성 쏠림 ③ 신살(공망, 역마, 화개, 도화, 천을귀인). 앞에서 두 개를 대표로 둡니다."
+text = "그룹 순서: ① 합충(일지 충, 월지 충, 그 밖 충, 합) ② 십성 쏠림 ③ 신살(공망, 고신, 과숙, 원진, 역마, 화개, 도화, 천을귀인). 앞에서 두 개를 대표로 둡니다."
 reason = "흉한 관계를 먼저 알려 피하게 한다는 추길피흉을 순서로 정했습니다(C9)."
 when = "모든 날."
 decisions = ["C9", "C29"]
+source_status = "principle_selected"
+
+[[items.rules]]
+kind = "added"
+text = "오늘 태그 신살은 원문이 해나 대운이 그 자리에 오면 작용한다고 적은 것만 둡니다(천을귀인, 도화, 역마, 화개, 공망과 D124 고신, 과숙, 원진). 일진 지지가 원국 신살 자리에 오면 그날 발동입니다."
+reason = "원문은 원국 신살 자리에 해나 대운(歲運, 行年)이 오면 작용한다고 적고, 『協紀辨方書』 「論相主」는 날을 해보다 가볍게 봅니다(日又次之). 이를 날로 넓힌 것은 명리일기 해석이라 태그와 문장으로만 가볍게 씁니다."
+when = "모든 날."
+decisions = ["D124"]
 source_status = "principle_selected"
 
 [[items.rules]]
@@ -655,6 +859,22 @@ section = "论天乙贵人"
 quote = "其神最尊贵，所至之处，一切凶煞隐然而避。"
 meaning = "그 신은 가장 귀해서 이르는 곳마다 모든 흉살이 숨어 피한다."
 interpretation = ""
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#gosin"
+work = "三命通會"
+section = "論孤辰寡宿"
+quote = "如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡"
+meaning = "亥子丑처럼 방위 셋에서 한 자리 나아가 寅이 고신, 한 자리 물러나 戌이 과숙이다."
+interpretation = "고신 태그와 과숙 태그가 같은 문장을 씁니다."
+
+[[items.sources]]
+ref = "sammyeong-tonghoe/shinsal#wonjin"
+work = "三命通會"
+section = "論元辰"
+quote = "是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰"
+meaning = "양남음녀는 충 자리 다음 칸, 음남양녀는 충 자리 앞 칸이 원진이다."
+interpretation = "명리일기는 남녀 구분 없이 한국 통용 쌍을 씁니다(D124 ③)."
 
 [[items]]
 id = "fortune_guide"

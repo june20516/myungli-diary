@@ -52,7 +52,7 @@
 | `personal.day_master.<천간>` | 10 | `strength`, `yongsin`, `gisin` | 일간 |
 | `personal.ten_god.<십성>` | 10 | `place`, `element`, `role`, `group_count`, `strength` | 원국 천간·지지(정기)의 십성, 지장간의 십성 |
 | `personal.twelve_stage.<12운성>` | 12 | `place`, `element`, `role`, `strength` | 원국 지지의 12운성 |
-| `personal.shinsal.<신살>` | 6 | `place`, `element`, `role` | 원국 신살(천을귀인·도화·역마·화개·양인·공망) |
+| `personal.shinsal.<신살>` | 19 | `place`, `element`, `role` (구교만 `part` 더함) | 원국 신살(천을귀인·도화·역마·화개·양인·공망과 D124 열셋). `element`, `role`은 대표 자리 글자(천간 또는 지지)의 오행, 구교 `part`는 GOU(勾), JIAO(絞), UNKNOWN |
 | `personal.luck.ten_god.<십성>` | 10 | `luck`, `part`, `element`, `role`, `current` | 대운 천간·지지 십성, 세운 천간 십성 |
 | `personal.luck.twelve_stage.<12운성>` | 12 | `element`, `role`, `current` | 대운 12운성 |
 
@@ -108,7 +108,7 @@ message ChartResponse {
   * 일간: 『滴天髓』 「衰旺論」(`jeokcheonsu/personal#day_master`)
   * 십성: 『三命通會』 四庫본 卷五 십성별 조목(`sammyeong-tonghoe/personal#ten_god.<십성>`, 比肩과 劫財는 「論建禄」 `ten_god.geonrok`)
   * 12운성: 卷二 「論五行旺相休囚死並寄生十二宫」(`#twelve_stage`)
-  * 신살: 양인은 卷三 「論羊刃」(`#yangin`), 나머지는 태그와 같은 조목(`sammyeong-tonghoe/tags#*`)
+  * 신살: 양인은 卷三 「論羊刃」(`#yangin`), 지금 6개의 나머지는 태그와 같은 조목(`sammyeong-tonghoe/tags#*`), D124 열셋은 `sammyeong-tonghoe/shinsal#*`와 `xingxue-dacheng/shinsal#amrok`(core C40)
   * 대운과 세운: 卷二 「論大運」(`#luck.ten_god`, `#luck.twelve_stage`)
 * 자리(궁위)와 역할(용신, 희신, 기신)의 원전은 매개변수로 넘기는 값의 원전이라 근거에 따로 붙이지 않고, 규칙 지도(`core/docs/rules-map/`)에 적습니다.
 

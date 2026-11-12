@@ -40,6 +40,7 @@ _PREFIX_TEN_GOD = "TEN_GOD"
 _PREFIX_TEN_GOD_GROUP = "TEN_GOD_GROUP"
 _PREFIX_TWELVE_STAGE = "TWELVE_STAGE"
 _PREFIX_SHINSAL = "SHINSAL"
+_PREFIX_DAY_VIRTUE = "DAY_VIRTUE"
 _PREFIX_POSITION = "POSITION"
 _PREFIX_DIRECTION8 = "DIRECTION8"
 _PREFIX_DAY_KIND = "DAY_KIND"
@@ -157,7 +158,11 @@ def chart_to_proto(view: ChartView) -> pb.ChartResponse:
             for position, stage in _by_position(chart.twelve_stages)
         ],
         shinsal=[
-            pb.ShinsalHit(kind=_name(_PREFIX_SHINSAL, hit.kind), position=_name(_PREFIX_POSITION, hit.position))
+            pb.ShinsalHit(
+                kind=_name(_PREFIX_SHINSAL, hit.kind),
+                position=_name(_PREFIX_POSITION, hit.position),
+                positions=[_name(_PREFIX_POSITION, position) for position in hit.positions],
+            )
             for hit in chart.shinsal
         ],
         gongmang=[_name(_PREFIX_BRANCH, branch) for branch in sorted(chart.gongmang, key=lambda b: b.index)],
@@ -252,6 +257,10 @@ def daily_to_proto(view: DailyView) -> pb.DailyResponse:
         lunar_month=view.lunar.month,
         lunar_day=view.lunar.day,
         is_leap_month=view.lunar.is_leap_month,
+        day_virtues=[
+            pb.DayVirtueCard(kind=_name(_PREFIX_DAY_VIRTUE, virtue), judgment=_judgment(judgment))
+            for virtue, judgment in view.day_virtues
+        ],
     )
 
 
@@ -289,6 +298,7 @@ def _month_day(day: MonthDay) -> pb.MonthDay:
         score=day.luck.score,
         score_items=[pb.ScoreItem(id=item_id, score=points) for item_id, points in day.luck.breakdown],
         judgment=_judgment(day.judgment),
+        day_virtues=[_name(_PREFIX_DAY_VIRTUE, virtue) for virtue in day.day_virtues],
     )
     if info.solar_term is not None:
         term = info.solar_term

@@ -141,7 +141,7 @@ enum TwelveStage {
   TWELVE_STAGE_YANG = 12;
 }
 
-// 신살 (spec §5.4 MVP 범위).
+// 신살 (spec §5.4). 7~19는 D124로 더한 원국 표 신살이고, 이 가운데 고신, 과숙, 원진만 오늘 태그로도 발동합니다.
 enum Shinsal {
   SHINSAL_UNSPECIFIED = 0;
   SHINSAL_CHEONEUL_GWIIN = 1;
@@ -150,6 +150,26 @@ enum Shinsal {
   SHINSAL_HWAGAE = 4;
   SHINSAL_YANGIN = 5;
   SHINSAL_GONGMANG = 6;
+  SHINSAL_CHEONDEOK = 7; // 천덕귀인 (태어난 달 기준, 천간 또는 지지 자리)
+  SHINSAL_WOLDEOK = 8; // 월덕귀인 (태어난 달 기준, 천간 자리)
+  SHINSAL_GEUMYEO = 9; // 금여록 (태어난 해 천간 기준)
+  SHINSAL_GOSIN = 10; // 고신 (오늘 태그)
+  SHINSAL_GWASUK = 11; // 과숙 (오늘 태그)
+  SHINSAL_WONJIN = 12; // 원진 (오늘 태그, 한국 통용 쌍)
+  SHINSAL_GUGYO = 13; // 구교
+  SHINSAL_CHEONRA_JIMANG = 14; // 천라지망
+  SHINSAL_GOEGANG = 15; // 괴강 (일주)
+  SHINSAL_SIPAK_DAEPAE = 16; // 십악대패 (일주)
+  SHINSAL_EUMCHAK_YANGCHA = 17; // 음착양차 (일주)
+  SHINSAL_SAMGI = 18; // 삼기 (천간 세 자리)
+  SHINSAL_AMROK = 19; // 암록 (태어난 해 천간 기준)
+}
+
+// 택일 덕일 (D124 ⑤). 『協紀辨方書』 卷五, 그날이 속한 달 기준이라 모두에게 같습니다.
+enum DayVirtue {
+  DAY_VIRTUE_UNSPECIFIED = 0;
+  DAY_VIRTUE_CHEONDEOK_DAY = 1; // 천덕일
+  DAY_VIRTUE_WOLDEOK_DAY = 2; // 월덕일
 }
 
 // 원국의 여덟 자리.
@@ -469,7 +489,11 @@ message PositionTwelveStage {
 
 message ShinsalHit {
   Shinsal kind = 1;
+  // 대표 자리. 개인 해석은 (SHINSAL, position, shinsal)로 찾습니다.
   Position position = 2;
+  // 신살이 걸친 자리 전부(D124). 한 글자 신살은 [position], 일주 신살(괴강, 십악대패, 음착양차)은
+  // [DAY_STEM, DAY_BRANCH]이고 대표는 DAY_BRANCH, 삼기는 세 천간 자리이고 대표는 첫 자리입니다.
+  repeated Position positions = 3;
 }
 
 // 오행 분포. 자리 가중치를 반영한 값입니다.
@@ -554,6 +578,14 @@ message DailyResponse {
   // 밤의 1등 시진 (D122, #1008). 그날 해시(서울 21:30~23:29)와 다음 날 자시~묘시(그날 23:30 ~ 다음 날 07:29)
   // 중에서 고릅니다. 시진이 속한 날짜는 FocusSlot.day_date입니다.
   FocusTimeCard night_focus_time = 21;
+  // 택일 덕일 (D124 ⑤). 없는 날은 비어 있고, 천덕일이면서 월덕일인 날은 둘입니다(천덕일 먼저).
+  repeated DayVirtueCard day_virtues = 22;
+}
+
+// 택일 덕일 하나. judgment의 message_key는 day_virtue.<cheondeok|woldeok>입니다.
+message DayVirtueCard {
+  DayVirtue kind = 1;
+  Judgment judgment = 2;
 }
 
 // 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
@@ -637,6 +669,7 @@ message MonthDay {
   // 길흉 수준 판정. message_key는 calendar.<very_good|good|neutral|caution>, evidence에 점수 구성 근거
   // (Pro 화면의 "왜 좋은 날인가")가 담깁니다.
   Judgment judgment = 12;
+  repeated DayVirtue day_virtues = 13; // 택일 덕일 (D124 ⑤). DailyResponse.day_virtues와 같은 판정
 }
 
 // 절기. at은 입절 절대 시각입니다.

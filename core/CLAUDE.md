@@ -35,11 +35,12 @@
 | 원국 개인 해석·출생 시진·엔진 정보 spec | `core/docs/specs/2026-10-11-personal-reading-design.md` |
 | 원국 개인 해석 구현 계획 | `core/docs/plans/2026-10-11-personal-reading.md` |
 | 태그 근거 다시 세우기 계획 (#804) | `core/docs/plans/2026-11-05-tag-evidence.md` |
+| 신살 도입 D124 계획 (#1028) | `core/docs/plans/2026-11-12-shinsal-d124.md` |
 | 원전 근거 자료 | `core/docs/references/` |
 | 계산 규칙 지도 (#988, 규칙을 바꾸면 함께 고침) | `core/docs/rules-map/rules_map.toml` → `core/rules_map.json` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C39, 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C40, 번호 `C1`부터) |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
-| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108 |
+| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108, D124 |
 
 ## 현재 상태 (엔진 MVP 완료, 원국 개인 해석·음력 변환·근거 목록 추가, 2026-10-21)
 * **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), 음력 변환 RPC(`ConvertLunarDate`, #164), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).

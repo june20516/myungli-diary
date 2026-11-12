@@ -2,7 +2,7 @@
 
 `python -m myungli_engine.references.sources`는 source_ref별 항목 JSON을 낸다.
 * work: 원전 이름(한자)
-* section: 대목 이름. 조후는 원문 항목 제목(예: 正月甲), 오행 근거는 五行總論, 태그 원전, 색 변역 원전, 개인 해석 원전은 조목 제목(예: 论冲击, 論五行, 論正官)
+* section: 대목 이름. 조후는 원문 항목 제목(예: 正月甲), 오행 근거는 五行總論, 그 밖(태그, 색 변역, 개인 해석, 시진, 신살, 덕일)은 조목 제목(예: 论冲击, 論五行, 論正官)
 * quote: 인용할 대표 문장(조후는 첫 문장 key_sentence, 오행 근거는 인용문 전체, 태그 원전은 조목에서 고른 문장)
 * passage: 대목 원문 문단 목록
 * evidence_level: 조후만. month(그 달 항목) 또는 season(계절 총론으로 대신함)
@@ -32,7 +32,15 @@ def source_catalog() -> dict[str, SourceEntry]:
     for ref in loader.FIVE_ELEMENTS_REF.values():
         catalog[ref] = _five_elements_entry(_as_dict(loader.resolve(ref)))
     catalog[loader.COLOR_SHIFT_REF] = _quoted_entry(_as_dict(loader.resolve(loader.COLOR_SHIFT_REF)))
-    for ref in (*loader.TAG_SOURCE_REF.values(), *loader.personal_refs(), *loader.FOCUS_TIME_REF.values()):
+    quoted = (
+        *loader.TAG_SOURCE_REF.values(),
+        *loader.personal_refs(),
+        *loader.FOCUS_TIME_REF.values(),
+        *loader.SHINSAL_SOURCE_REF.values(),
+        loader.SHINSAL_WEIGHING_REF,
+        *loader.DAY_VIRTUE_REF.values(),
+    )
+    for ref in quoted:
         catalog[ref] = _quoted_entry(_as_dict(loader.resolve(ref)))
     return catalog
 

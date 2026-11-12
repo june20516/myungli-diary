@@ -107,6 +107,14 @@
     "shift",
     "twelve_stage"
   ],
+  "day_virtue.cheondeok": [
+    "month_branch",
+    "day_stem"
+  ],
+  "day_virtue.woldeok": [
+    "month_branch",
+    "day_stem"
+  ],
   "direction.day_kind.gisin": [
     "direction",
     "rule_id",
@@ -263,6 +271,18 @@
     "element",
     "emphasis"
   ],
+  "fortune.tag.gosin": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.gwasuk": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
   "fortune.tag.gwiin_day": [
     "day_kind",
     "ten_god",
@@ -306,6 +326,12 @@
     "emphasis"
   ],
   "fortune.tag.ten_god_rush.siksang": [
+    "day_kind",
+    "ten_god",
+    "element",
+    "emphasis"
+  ],
+  "fortune.tag.wonjin": [
     "day_kind",
     "ten_god",
     "element",
@@ -377,6 +403,14 @@
     "ten_god",
     "element"
   ],
+  "guide.gosin": [
+    "ten_god",
+    "element"
+  ],
+  "guide.gwasuk": [
+    "ten_god",
+    "element"
+  ],
   "guide.gwiin_day": [
     "ten_god",
     "element"
@@ -426,6 +460,10 @@
     "element"
   ],
   "guide.ten_god_rush.siksang": [
+    "ten_god",
+    "element"
+  ],
+  "guide.wonjin": [
     "ten_god",
     "element"
   ],
@@ -645,7 +683,22 @@
     "role",
     "current"
   ],
+  "personal.shinsal.amrok": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.cheondeok": [
+    "place",
+    "element",
+    "role"
+  ],
   "personal.shinsal.cheoneul_gwiin": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.cheonra_jimang": [
     "place",
     "element",
     "role"
@@ -655,12 +708,63 @@
     "element",
     "role"
   ],
+  "personal.shinsal.eumchak_yangcha": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.geumyeo": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.goegang": [
+    "place",
+    "element",
+    "role"
+  ],
   "personal.shinsal.gongmang": [
     "place",
     "element",
     "role"
   ],
+  "personal.shinsal.gosin": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.gugyo": [
+    "place",
+    "element",
+    "role",
+    "part"
+  ],
+  "personal.shinsal.gwasuk": [
+    "place",
+    "element",
+    "role"
+  ],
   "personal.shinsal.hwagae": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.samgi": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.sipak_daepae": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.woldeok": [
+    "place",
+    "element",
+    "role"
+  ],
+  "personal.shinsal.wonjin": [
     "place",
     "element",
     "role"
@@ -823,6 +927,8 @@
   "tag.clash_month_branch": [],
   "tag.dohwa": [],
   "tag.gongmang": [],
+  "tag.gosin": [],
+  "tag.gwasuk": [],
   "tag.gwiin_day": [],
   "tag.harmony": [],
   "tag.hwagae": [],
@@ -831,6 +937,7 @@
   "tag.ten_god_rush.inseong": [],
   "tag.ten_god_rush.jaeseong": [],
   "tag.ten_god_rush.siksang": [],
+  "tag.wonjin": [],
   "tag.yeokma": [],
   "tag.yongsin_day": [],
   "yongsin.method.eokbu": [

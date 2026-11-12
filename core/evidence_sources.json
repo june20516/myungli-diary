@@ -1817,6 +1817,136 @@
     "evidence_level": null,
     "note": null
   },
+  "sammyeong-tonghoe/shinsal#cheondeok": {
+    "work": "三命通會",
+    "section": "論天月徳",
+    "quote": "此十二位宫能回㓙作善乃曰天徳也",
+    "passage": [
+      "此十二位宫能回㓙作善乃曰天徳也"
+    ],
+    "evidence_level": null,
+    "note": "천덕은 태어난 달마다 정해진 천간 또는 괘다. 坤乾艮巽은 같은 조목의 \"寅中有艮巳中有巽申中有坤亥中有乾\"에 따라 申亥寅巳 지지로 본다. 같은 조목은 \"凡命中帶㓙煞得此二徳扶化㓙不為甚\"이라 한다."
+  },
+  "sammyeong-tonghoe/shinsal#cheonra_jimang": {
+    "work": "三命通會",
+    "section": "論天羅地網",
+    "quote": "何以戌亥為天羅辰巳為地網",
+    "passage": [
+      "何以戌亥為天羅辰巳為地網"
+    ],
+    "evidence_level": null,
+    "note": "태어난 해 지지가 戌亥나 辰巳이고 원국에 짝 글자가 있으면 본다. 원문은 이어서 男怕天羅女怕地網이라 한다."
+  },
+  "sammyeong-tonghoe/shinsal#eumchak_yangcha": {
+    "work": "三命通會",
+    "section": "總論諸神煞",
+    "quote": "陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也",
+    "passage": [
+      "陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也"
+    ],
+    "evidence_level": null,
+    "note": "總論諸神煞 아래 여러 煞을 나열한 대목이다. 원문은 이어서 \"其煞不論男女月日時兩重或三重\"이라 한다."
+  },
+  "sammyeong-tonghoe/shinsal#geumyeo": {
+    "work": "三命通會",
+    "section": "論金轝",
+    "quote": "金轝常居祿前二辰如甲子人祿在寅辰為金轝是也",
+    "passage": [
+      "金轝常居祿前二辰如甲子人祿在寅辰為金轝是也"
+    ],
+    "evidence_level": null,
+    "note": "원문 예(甲子人)대로 태어난 해 천간의 祿 앞 두 자리로 본다. 같은 조목의 八字金書 설(驛馬 앞 두 자리)은 쓰지 않는다."
+  },
+  "sammyeong-tonghoe/shinsal#goegang": {
+    "work": "三命通會",
+    "section": "魁罡",
+    "quote": "此格有四日庚辰壬辰戊戌庚戌",
+    "passage": [
+      "此格有四日庚辰壬辰戊戌庚戌"
+    ],
+    "evidence_level": null,
+    "note": "일주 네 개로 보는 격이다."
+  },
+  "sammyeong-tonghoe/shinsal#gosin": {
+    "work": "三命通會",
+    "section": "論孤辰寡宿",
+    "quote": "如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡",
+    "passage": [
+      "如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡"
+    ],
+    "evidence_level": null,
+    "note": "태어난 해 지지의 방합 다음 자리가 孤辰이다."
+  },
+  "sammyeong-tonghoe/shinsal#gugyo": {
+    "work": "三命通會",
+    "section": "論勾絞",
+    "quote": "陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾",
+    "passage": [
+      "陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾"
+    ],
+    "evidence_level": null,
+    "note": "태어난 해 지지의 앞뒤 세 자리이고, 어느 쪽이 勾이고 絞인지는 남녀로 갈린다."
+  },
+  "sammyeong-tonghoe/shinsal#gwasuk": {
+    "work": "三命通會",
+    "section": "論孤辰寡宿",
+    "quote": "如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡",
+    "passage": [
+      "如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡"
+    ],
+    "evidence_level": null,
+    "note": "태어난 해 지지의 방합 앞자리가 寡宿이다."
+  },
+  "sammyeong-tonghoe/shinsal#samgi": {
+    "work": "三命通會",
+    "section": "論三奇",
+    "quote": "三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉",
+    "passage": [
+      "三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉"
+    ],
+    "evidence_level": null,
+    "note": "乙丙丁(天上三奇)과 甲戊庚을 순서대로 놓인 것만 본다. 같은 조목이 辛壬癸(人間三奇)는 \"其說無據\"라 하여 쓰지 않는다."
+  },
+  "sammyeong-tonghoe/shinsal#sipak_daepae": {
+    "work": "三命通會",
+    "section": "論十惡大敗",
+    "quote": "六甲旬中十個日値祿入空亡",
+    "passage": [
+      "六甲旬中十個日値祿入空亡"
+    ],
+    "evidence_level": null,
+    "note": "같은 조목의 첫 열거는 己丑 자리에 乙丑을 적었으나 乙丑은 祿入空亡에 맞지 않아, 元白經 문단(乙未年見己丑日)대로 己丑으로 본다(명리일기 해석). 원문은 \"若内有吉神相扶貴氣相輔當為吉論\"이라 덧붙인다."
+  },
+  "sammyeong-tonghoe/shinsal#weighing": {
+    "work": "三命通會",
+    "section": "總論諸神煞",
+    "quote": "右十二宫神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣",
+    "passage": [
+      "右十二宫神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣"
+    ],
+    "evidence_level": null,
+    "note": "應天歌 뒤에 붙은 작은 주다. 흉한 신살 설명의 맨 아래에 늘 이 문장의 뜻을 넣는다(D124 ⑦)."
+  },
+  "sammyeong-tonghoe/shinsal#woldeok": {
+    "work": "三命通會",
+    "section": "論天月徳",
+    "quote": "月徳者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月徳",
+    "passage": [
+      "月徳者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月徳"
+    ],
+    "evidence_level": null,
+    "note": "월덕은 태어난 달의 삼합이 정하는 양간(丙甲壬庚)이다."
+  },
+  "sammyeong-tonghoe/shinsal#wonjin": {
+    "work": "三命通會",
+    "section": "論元辰",
+    "quote": "是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰",
+    "passage": [
+      "是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰"
+    ],
+    "evidence_level": null,
+    "note": "원문은 남녀를 나눈다(양띠 남자와 음띠 여자는 충 자리 다음 칸, 음띠 남자와 양띠 여자는 앞 칸). 명리일기는 한국에서 널리 쓰는 쌍(子未, 丑午, 寅酉, 卯申, 辰亥, 巳戌)을 남녀 구분 없이 띠 기준으로 쓴다(D124 ③). 이 쌍은 원문의 남자 쪽과 같다. 원문은 남녀를 나누지 않는 통속 방식을 \"常術鼠忌羊頭歌未分男女不足憑也\"라 비판한다."
+  },
   "sammyeong-tonghoe/tags#branch_hap": {
     "work": "三命通會",
     "section": "论支元六合",
@@ -1907,6 +2037,26 @@
     "evidence_level": null,
     "note": "문단 안의 甲子辰은 申子辰의 오기로 보인다(수집본 그대로)."
   },
+  "xieji-bianfang/days#tiande": {
+    "work": "欽定協紀辨方書",
+    "section": "天徳",
+    "quote": "天徳者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚",
+    "passage": [
+      "天徳者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚"
+    ],
+    "evidence_level": null,
+    "note": "그날이 속한 달(월건) 기준이다. 2, 5, 8, 11월은 괘(坤乾艮巽, 방위)로 적혀 있어 천덕일이 없다. 같은 조목의 按語는 이를 지지로 읽는 설을 \"聊存以傳一解可也\"라 할 뿐 채택하지 않는다."
+  },
+  "xieji-bianfang/days#yuede": {
+    "work": "欽定協紀辨方書",
+    "section": "月徳",
+    "quote": "月徳者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚",
+    "passage": [
+      "月徳者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚"
+    ],
+    "evidence_level": null,
+    "note": "그날이 속한 달(월건) 기준이다. 천덕합, 월덕합은 쓰지 않는다."
+  },
   "xieji-bianfang/hours#birth_year": {
     "work": "欽定協紀辨方書",
     "section": "論相主",
@@ -1936,5 +2086,15 @@
     ],
     "evidence_level": null,
     "note": "같은 조목이 이어서 時破(일지와 충)를 大凶, 時刑과 五不遇를 次凶으로 둔다. 卷三十二 「日表」는 \"時由日筦選時必根扵日\"(시는 날이 맡는다)이라 한다."
+  },
+  "xingxue-dacheng/shinsal#amrok": {
+    "work": "星學大成",
+    "section": "論拱禄交禄暗禄",
+    "quote": "暗禄者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯",
+    "passage": [
+      "暗禄者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯"
+    ],
+    "evidence_level": null,
+    "note": "원문 예(甲生人)대로 태어난 해 천간의 祿과 육합하는 지지로 본다."
   }
 }

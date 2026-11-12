@@ -109,6 +109,25 @@ class Shinsal(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     SHINSAL_HWAGAE: _ClassVar[Shinsal]
     SHINSAL_YANGIN: _ClassVar[Shinsal]
     SHINSAL_GONGMANG: _ClassVar[Shinsal]
+    SHINSAL_CHEONDEOK: _ClassVar[Shinsal]
+    SHINSAL_WOLDEOK: _ClassVar[Shinsal]
+    SHINSAL_GEUMYEO: _ClassVar[Shinsal]
+    SHINSAL_GOSIN: _ClassVar[Shinsal]
+    SHINSAL_GWASUK: _ClassVar[Shinsal]
+    SHINSAL_WONJIN: _ClassVar[Shinsal]
+    SHINSAL_GUGYO: _ClassVar[Shinsal]
+    SHINSAL_CHEONRA_JIMANG: _ClassVar[Shinsal]
+    SHINSAL_GOEGANG: _ClassVar[Shinsal]
+    SHINSAL_SIPAK_DAEPAE: _ClassVar[Shinsal]
+    SHINSAL_EUMCHAK_YANGCHA: _ClassVar[Shinsal]
+    SHINSAL_SAMGI: _ClassVar[Shinsal]
+    SHINSAL_AMROK: _ClassVar[Shinsal]
+
+class DayVirtue(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    DAY_VIRTUE_UNSPECIFIED: _ClassVar[DayVirtue]
+    DAY_VIRTUE_CHEONDEOK_DAY: _ClassVar[DayVirtue]
+    DAY_VIRTUE_WOLDEOK_DAY: _ClassVar[DayVirtue]
 
 class Position(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -325,6 +344,22 @@ SHINSAL_YEOKMA: Shinsal
 SHINSAL_HWAGAE: Shinsal
 SHINSAL_YANGIN: Shinsal
 SHINSAL_GONGMANG: Shinsal
+SHINSAL_CHEONDEOK: Shinsal
+SHINSAL_WOLDEOK: Shinsal
+SHINSAL_GEUMYEO: Shinsal
+SHINSAL_GOSIN: Shinsal
+SHINSAL_GWASUK: Shinsal
+SHINSAL_WONJIN: Shinsal
+SHINSAL_GUGYO: Shinsal
+SHINSAL_CHEONRA_JIMANG: Shinsal
+SHINSAL_GOEGANG: Shinsal
+SHINSAL_SIPAK_DAEPAE: Shinsal
+SHINSAL_EUMCHAK_YANGCHA: Shinsal
+SHINSAL_SAMGI: Shinsal
+SHINSAL_AMROK: Shinsal
+DAY_VIRTUE_UNSPECIFIED: DayVirtue
+DAY_VIRTUE_CHEONDEOK_DAY: DayVirtue
+DAY_VIRTUE_WOLDEOK_DAY: DayVirtue
 POSITION_UNSPECIFIED: Position
 POSITION_YEAR_STEM: Position
 POSITION_YEAR_BRANCH: Position
@@ -661,12 +696,14 @@ class PositionTwelveStage(_message.Message):
     def __init__(self, position: _Optional[_Union[Position, str]] = ..., twelve_stage: _Optional[_Union[TwelveStage, str]] = ...) -> None: ...
 
 class ShinsalHit(_message.Message):
-    __slots__ = ("kind", "position")
+    __slots__ = ("kind", "position", "positions")
     KIND_FIELD_NUMBER: _ClassVar[int]
     POSITION_FIELD_NUMBER: _ClassVar[int]
+    POSITIONS_FIELD_NUMBER: _ClassVar[int]
     kind: Shinsal
     position: Position
-    def __init__(self, kind: _Optional[_Union[Shinsal, str]] = ..., position: _Optional[_Union[Position, str]] = ...) -> None: ...
+    positions: _containers.RepeatedScalarFieldContainer[Position]
+    def __init__(self, kind: _Optional[_Union[Shinsal, str]] = ..., position: _Optional[_Union[Position, str]] = ..., positions: _Optional[_Iterable[_Union[Position, str]]] = ...) -> None: ...
 
 class ElementWeight(_message.Message):
     __slots__ = ("element", "weight")
@@ -745,7 +782,7 @@ class YearLuck(_message.Message):
     def __init__(self, year: _Optional[int] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., ten_god: _Optional[_Union[TenGod, str]] = ..., relations_with_natal: _Optional[_Iterable[_Union[RelationKind, str]]] = ...) -> None: ...
 
 class DailyResponse(_message.Message):
-    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates", "lunar_month", "lunar_day", "is_leap_month", "second_color", "night_focus_time")
+    __slots__ = ("day", "kind", "color", "direction", "number", "focus_time", "relations", "featured_tags", "all_tags", "tag_evidence", "fortune", "guide", "meta", "day_stem_ten_god", "day_stem_ten_god_group", "guide_candidates", "lunar_month", "lunar_day", "is_leap_month", "second_color", "night_focus_time", "day_virtues")
     DAY_FIELD_NUMBER: _ClassVar[int]
     KIND_FIELD_NUMBER: _ClassVar[int]
     COLOR_FIELD_NUMBER: _ClassVar[int]
@@ -767,6 +804,7 @@ class DailyResponse(_message.Message):
     IS_LEAP_MONTH_FIELD_NUMBER: _ClassVar[int]
     SECOND_COLOR_FIELD_NUMBER: _ClassVar[int]
     NIGHT_FOCUS_TIME_FIELD_NUMBER: _ClassVar[int]
+    DAY_VIRTUES_FIELD_NUMBER: _ClassVar[int]
     day: Pillar
     kind: DayKind
     color: ColorCard
@@ -788,7 +826,16 @@ class DailyResponse(_message.Message):
     is_leap_month: bool
     second_color: ColorCard
     night_focus_time: FocusTimeCard
-    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., second_color: _Optional[_Union[ColorCard, _Mapping]] = ..., night_focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ...) -> None: ...
+    day_virtues: _containers.RepeatedCompositeFieldContainer[DayVirtueCard]
+    def __init__(self, day: _Optional[_Union[Pillar, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., color: _Optional[_Union[ColorCard, _Mapping]] = ..., direction: _Optional[_Union[DirectionCard, _Mapping]] = ..., number: _Optional[_Union[NumberCard, _Mapping]] = ..., focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[Relation, _Mapping]]] = ..., featured_tags: _Optional[_Iterable[str]] = ..., all_tags: _Optional[_Iterable[str]] = ..., tag_evidence: _Optional[_Iterable[_Union[Evidence, _Mapping]]] = ..., fortune: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., guide: _Optional[_Union[Judgment, _Mapping]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ..., day_stem_ten_god: _Optional[_Union[TenGod, str]] = ..., day_stem_ten_god_group: _Optional[_Union[TenGodGroup, str]] = ..., guide_candidates: _Optional[_Iterable[_Union[Judgment, _Mapping]]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., second_color: _Optional[_Union[ColorCard, _Mapping]] = ..., night_focus_time: _Optional[_Union[FocusTimeCard, _Mapping]] = ..., day_virtues: _Optional[_Iterable[_Union[DayVirtueCard, _Mapping]]] = ...) -> None: ...
+
+class DayVirtueCard(_message.Message):
+    __slots__ = ("kind", "judgment")
+    KIND_FIELD_NUMBER: _ClassVar[int]
+    JUDGMENT_FIELD_NUMBER: _ClassVar[int]
+    kind: DayVirtue
+    judgment: Judgment
+    def __init__(self, kind: _Optional[_Union[DayVirtue, str]] = ..., judgment: _Optional[_Union[Judgment, _Mapping]] = ...) -> None: ...
 
 class ColorCard(_message.Message):
     __slots__ = ("judgment", "element", "role", "base_element", "twelve_stage", "shift", "basis")
@@ -879,7 +926,7 @@ class MonthResponse(_message.Message):
     def __init__(self, days: _Optional[_Iterable[_Union[MonthDay, _Mapping]]] = ..., meta: _Optional[_Union[ResponseMeta, _Mapping]] = ...) -> None: ...
 
 class MonthDay(_message.Message):
-    __slots__ = ("date", "pillar", "lunar_month", "lunar_day", "is_leap_month", "solar_term", "kind", "luck_level", "score", "score_items", "featured_tag", "judgment")
+    __slots__ = ("date", "pillar", "lunar_month", "lunar_day", "is_leap_month", "solar_term", "kind", "luck_level", "score", "score_items", "featured_tag", "judgment", "day_virtues")
     DATE_FIELD_NUMBER: _ClassVar[int]
     PILLAR_FIELD_NUMBER: _ClassVar[int]
     LUNAR_MONTH_FIELD_NUMBER: _ClassVar[int]
@@ -892,6 +939,7 @@ class MonthDay(_message.Message):
     SCORE_ITEMS_FIELD_NUMBER: _ClassVar[int]
     FEATURED_TAG_FIELD_NUMBER: _ClassVar[int]
     JUDGMENT_FIELD_NUMBER: _ClassVar[int]
+    DAY_VIRTUES_FIELD_NUMBER: _ClassVar[int]
     date: LocalDate
     pillar: Pillar
     lunar_month: int
@@ -904,7 +952,8 @@ class MonthDay(_message.Message):
     score_items: _containers.RepeatedCompositeFieldContainer[ScoreItem]
     featured_tag: str
     judgment: Judgment
-    def __init__(self, date: _Optional[_Union[LocalDate, _Mapping]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., solar_term: _Optional[_Union[SolarTerm, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., luck_level: _Optional[_Union[LuckLevel, str]] = ..., score: _Optional[int] = ..., score_items: _Optional[_Iterable[_Union[ScoreItem, _Mapping]]] = ..., featured_tag: _Optional[str] = ..., judgment: _Optional[_Union[Judgment, _Mapping]] = ...) -> None: ...
+    day_virtues: _containers.RepeatedScalarFieldContainer[DayVirtue]
+    def __init__(self, date: _Optional[_Union[LocalDate, _Mapping]] = ..., pillar: _Optional[_Union[Pillar, _Mapping]] = ..., lunar_month: _Optional[int] = ..., lunar_day: _Optional[int] = ..., is_leap_month: _Optional[bool] = ..., solar_term: _Optional[_Union[SolarTerm, _Mapping]] = ..., kind: _Optional[_Union[DayKind, str]] = ..., luck_level: _Optional[_Union[LuckLevel, str]] = ..., score: _Optional[int] = ..., score_items: _Optional[_Iterable[_Union[ScoreItem, _Mapping]]] = ..., featured_tag: _Optional[str] = ..., judgment: _Optional[_Union[Judgment, _Mapping]] = ..., day_virtues: _Optional[_Iterable[_Union[DayVirtue, str]]] = ...) -> None: ...
 
 class SolarTerm(_message.Message):
     __slots__ = ("name", "at", "kind")

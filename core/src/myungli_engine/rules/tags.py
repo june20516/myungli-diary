@@ -34,6 +34,10 @@ _HAP_KINDS: Final = (RelationKind.STEM_HAP, RelationKind.BRANCH_HAP)
 
 _SHINSAL_TAGS: Final[tuple[tuple[Shinsal, str], ...]] = (
     (Shinsal.GONGMANG, "tag.gongmang"),
+    # D124 ② 흉 셋. 같은 묶음 안은 흉 먼저라 공망 바로 뒤에 둔다.
+    (Shinsal.GOSIN, "tag.gosin"),
+    (Shinsal.GWASUK, "tag.gwasuk"),
+    (Shinsal.WONJIN, "tag.wonjin"),
     (Shinsal.YEOKMA, "tag.yeokma"),
     (Shinsal.HWAGAE, "tag.hwagae"),
     (Shinsal.DOHWA, "tag.dohwa"),

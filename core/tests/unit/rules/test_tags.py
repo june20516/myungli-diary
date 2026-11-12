@@ -205,3 +205,19 @@ def test_source_refs_map_each_tag_to_its_first_source(pillar_of: PillarOf) -> No
         "tag.harmony": "sammyeong-tonghoe/tags#stem_hap",
         "tag.cheoneul_gwiin": "sammyeong-tonghoe/tags#cheoneul_gwiin",
     }
+
+
+def test_d124_bad_shinsal_follow_gongmang(pillar_of: PillarOf) -> None:
+    """고신, 과숙, 원진(D124 ②)은 흉이라 신살 묶음에서 공망 바로 뒤, 길한 신살 앞에 선다."""
+    natal = _natal(pillar_of, "壬申", "乙巳", "己午")
+    shinsal = (Shinsal.CHEONEUL_GWIIN, Shinsal.WONJIN, Shinsal.YEOKMA, Shinsal.GOSIN, Shinsal.GONGMANG, Shinsal.GWASUK)
+    result = _select(natal, pillar_of("丙子"), (), shinsal)
+    assert result.all_keys == (
+        "tag.gongmang",
+        "tag.gosin",
+        "tag.gwasuk",
+        "tag.wonjin",
+        "tag.yeokma",
+        "tag.cheoneul_gwiin",
+    )
+    assert result.source_refs["tag.wonjin"] == "sammyeong-tonghoe/shinsal#wonjin"

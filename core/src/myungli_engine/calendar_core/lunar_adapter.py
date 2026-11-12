@@ -221,6 +221,11 @@ def day_pillar(civil_date: date) -> Pillar:
     return _pillar(str(lunar.getDayGan()), str(lunar.getDayZhi()))
 
 
+def day_month_branch(civil_date: date) -> Branch:
+    """그 날짜 현지 정오가 속한 달의 월건 지지(절기 기준). 일진과 같은 정오 기준이다 (D124 ⑤ 택일 덕일)."""
+    return Branch.from_hanja(str(_lunar_at_noon(civil_date).getMonthZhiExact()))
+
+
 def deity_directions(civil_date: date) -> tuple[tuple[DeityKind, Direction8], ...]:
     """그날의 길신 방위를 희신·복신·재신·양귀·음귀 순서로 돌려준다 (spec 7.3)."""
     lunar = _lunar_at_noon(civil_date)

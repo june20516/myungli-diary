@@ -56,7 +56,7 @@ def status_of(call: grpc.RpcError) -> grpc.StatusCode:
 def test_get_chart_roundtrip(stub: pb_grpc.MyungliEngineStub) -> None:
     response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
 
-    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.6"
+    assert response.meta.ruleset_version == RULESET_VERSION == "2026.11.7"
     assert response.meta.engine_version == ENGINE_VERSION
     assert response.pillars.HasField("hour")
     assert response.pillars.hour.stem != pb.STEM_UNSPECIFIED
@@ -220,6 +220,32 @@ def test_get_daily_second_color_only_on_split_days(stub: pb_grpc.MyungliEngineSt
         else:
             assert response.color.basis == pb.COLOR_BASIS_SOURCE
     assert split_seen
+
+
+def test_chart_shinsal_positions_include_representative(stub: pb_grpc.MyungliEngineStub) -> None:
+    """D124: 신살마다 걸친 자리 전부(positions)가 있고 대표 자리(position)가 그 안에 있다."""
+    response = stub.GetChart(pb.ChartRequest(birth=solar_birth(1985, 3, 10), as_of=AS_OF))
+    assert response.shinsal
+    for hit in response.shinsal:
+        assert hit.position in hit.positions
+
+
+def test_day_virtues_same_in_daily_and_month(stub: pb_grpc.MyungliEngineStub) -> None:
+    """D124 ⑤: 2026-02-11(寅월 丙辰일)은 월덕일, 02-12(丁巳일)는 천덕일. 데일리 카드와 월간 날짜 칸이 같다."""
+    month = stub.GetMonthCalendar(
+        pb.MonthRequest(birth=solar_birth(1985, 3, 10), year=2026, month=2, current_timezone=SEOUL)
+    )
+    by_day = {day.date.day: list(day.day_virtues) for day in month.days}
+    daily = stub.GetDaily(
+        pb.DailyRequest(
+            birth=solar_birth(1985, 3, 10), date=pb.LocalDate(year=2026, month=2, day=11), current_timezone=SEOUL
+        )
+    )
+    assert [card.kind for card in daily.day_virtues] == by_day[11] == [pb.DAY_VIRTUE_WOLDEOK_DAY]
+    assert by_day[12] == [pb.DAY_VIRTUE_CHEONDEOK_DAY]
+    assert sum(bool(kinds) for kinds in by_day.values()) == 4
+    assert daily.day_virtues[0].judgment.message_key == "day_virtue.woldeok"
+    assert daily.day_virtues[0].judgment.evidence[0].source_ref == "xieji-bianfang/days#yuede"
 
 
 def test_get_month_calendar_day_count(stub: pb_grpc.MyungliEngineStub) -> None:

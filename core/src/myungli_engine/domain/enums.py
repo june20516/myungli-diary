@@ -205,6 +205,27 @@ class Shinsal(Enum):
     HWAGAE = auto()
     YANGIN = auto()
     GONGMANG = auto()
+    # D124 (#1028). 원국 표 열셋. 이 가운데 고신, 과숙, 원진만 오늘 태그로도 발동한다.
+    CHEONDEOK = auto()
+    WOLDEOK = auto()
+    GEUMYEO = auto()
+    GOSIN = auto()
+    GWASUK = auto()
+    WONJIN = auto()
+    GUGYO = auto()
+    CHEONRA_JIMANG = auto()
+    GOEGANG = auto()
+    SIPAK_DAEPAE = auto()
+    EUMCHAK_YANGCHA = auto()
+    SAMGI = auto()
+    AMROK = auto()
+
+
+class DayVirtue(Enum):
+    """택일 덕일(D124 ⑤). 그날이 속한 달 기준이라 모두에게 같다(D13의 예외)."""
+
+    CHEONDEOK_DAY = auto()
+    WOLDEOK_DAY = auto()
 
 
 class PersonalTermKind(Enum):
