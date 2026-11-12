@@ -68,9 +68,18 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
           df -h /
+      # Flutter는 golden과 같은 버전으로 고정한다(tool/golden_flutter_version). stable 최신을 받으면
+      # SDK에 묶인 패키지가 바뀌어 pubspec.lock 생성 코드 차이 검사가 깨진다(Flutter 3.50.0, 2026-11-12).
+      - name: Flutter 버전 읽기
+        id: pinned-flutter
+        working-directory: .
+        run: |
+          version="$(app/tool/golden_flutter_version.sh)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: ${{ steps.pinned-flutter.outputs.version }}
           cache: true
       # flutter build apk는 Java 17이 필요하다.
       - uses: actions/setup-java@v6
@@ -217,9 +226,18 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
           df -h /
+      # Flutter는 golden과 같은 버전으로 고정한다(tool/golden_flutter_version). stable 최신을 받으면
+      # SDK에 묶인 패키지가 바뀌어 pubspec.lock 생성 코드 차이 검사가 깨진다(Flutter 3.50.0, 2026-11-12).
+      - name: Flutter 버전 읽기
+        id: pinned-flutter
+        working-directory: .
+        run: |
+          version="$(app/tool/golden_flutter_version.sh)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: ${{ steps.pinned-flutter.outputs.version }}
           cache: true
       - uses: actions/setup-java@v6
         with:

@@ -241,7 +241,7 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 
 * **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다. 반복 중에는 바꾼 golden 테스트 파일만 줍니다(`tool/goldens_linux.sh test/design/saju_golden_test.dart`). 이때는 다른 기준 이미지를 지우지 않으므로, golden을 지운 변경은 대상 없이 전체로 돌립니다.
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
-* **Flutter 버전:** golden을 만드는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. 로컬 Flutter와 무관하게 `goldens_linux.sh`와 CI의 `goldens`·`update-goldens` job이 이 값을 읽습니다. Flutter를 올릴 때는 이 값을 올리고 같은 PR에서 golden을 다시 만듭니다.
+* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
 
 ### 화면 스크린샷 (#336)
 화면별·상태별 스크린샷을 golden과 같은 Linux 렌더(Docker)로 그려 `docs/artifacts/`에 등록합니다. 제품 지도가 `index.json`의 `screens`로 화면 카드 그림을 고릅니다.

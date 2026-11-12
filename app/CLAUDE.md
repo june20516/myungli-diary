@@ -199,6 +199,7 @@
 0. **오늘 화면 묶음 PR 병합 대기(`app/today-bundle`, 위 현재 상태).** 병합 뒤 남은 것:
    * 답 대기: writing #1095(만세력 기준 줄 일간 표기), design #1063(밤 칩 전환 문구 보충), design #1096(띠 눈금 겹침과 고리, A143). 답이 오면 drift나 요청으로 따라갑니다.
    * #909 앱 아이콘을 design 새 원본으로 다시 만들기, #944(Play 내부 테스트 업로드 자동화)는 사용자 지시로 보류합니다.
+   * Flutter 3.50.0(stable 2026-11-12)으로 올리기: `tool/golden_flutter_version`, 로컬 Flutter, `pubspec.lock`, golden을 한 PR에서(A144). 그 전까지 CI는 3.47.7로 고정입니다.
    * drift #916(PR #993) 남은 사용자 확인: TalkBack이나 VoiceOver를 켜고 일기 쓰기 질문 떼기와 다시 붙이기에서 한 번만 읽히는지.
    * DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.
 1. **계획 7 A2(실제 연동, #311·#387·#484):** A1은 끝났습니다. [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
