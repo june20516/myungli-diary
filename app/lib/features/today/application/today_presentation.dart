@@ -8,6 +8,7 @@ import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
+import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_time_card.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
@@ -212,7 +213,9 @@ FocusTimePick? focusTimePickOf(
 
 /// [daily]의 행운 항목(색, 방향, 숫자, 그리고 시간 낮 칩과 밤 칩, 결정 A27, V115, V116).
 ///
-/// 색 이름은 glossary `color.<오행>`(없으면 값 id 그대로), 방향은 임시 ARB, 숫자는 그대로,
+/// 색 이름은 glossary `color.<오행>`(없으면 값 id 그대로)이고, 색이 둘인 날(`secondColor`, D119 ②)은
+/// 색 항목 하나에 둘째 색을 담아 칩이 두 칸 알약이 됩니다(V114). 숫자는 server가 첫째 색 기준으로
+/// 계산해 주는 값 그대로입니다(D119 ③). 방향은 임시 ARB, 숫자는 그대로,
 /// 시간은 카드마다 첫 구간 하나의 [formatFocusRange]입니다(D122 ⑤ 칩마다 시간 하나). 시간 칩
 /// 이름은 그 칩의 시트 제목이고(`a11y.timeLabel`), 밤 칩은 [beforeDayStart]로 카드와 때 낱말을
 /// 고릅니다([focusTimePickOf]). 색 칩의 견본 색은 칩이 테마에서 고릅니다.
@@ -225,6 +228,7 @@ List<LuckyItem> luckyItemsOf(
 }) {
   final cards = daily.cards;
   final element = cards.color.element;
+  final second = cards.secondColor;
   final language = _languageCodeOf(l10n);
   final night = focusTimePickOf(
     cards,
@@ -235,9 +239,16 @@ List<LuckyItem> luckyItemsOf(
     LuckyItem(
       variant: LuckyCardVariant.color,
       name: l10n.todayLuckyColorName,
-      value: names.valueName('color', element.value) ?? element.value,
+      value: _colorName(names, element),
       explain: cards.color.text.text,
       element: element,
+      secondColor: second == null
+          ? null
+          : LuckySecondColor(
+              element: second.element,
+              value: _colorName(names, second.element),
+              explain: second.text.text,
+            ),
     ),
     LuckyItem(
       variant: LuckyCardVariant.direction,
@@ -271,6 +282,10 @@ List<LuckyItem> luckyItemsOf(
       ),
   ];
 }
+
+/// [element] 색 이름(glossary `color.<오행>`, 없으면 값 id 그대로).
+String _colorName(GlossaryNames names, FiveElement element) =>
+    names.valueName('color', element.value) ?? element.value;
 
 /// 벽시계 [minutes](0시부터, 하루를 넘으면 되감음)의 `HH:mm`.
 String _clockText(int minutes) {
@@ -597,6 +612,9 @@ Object? _canonical(Object? value) => switch (value) {
     value.element?.name,
     value.period?.name,
     value.word,
+    value.secondColor?.element.name,
+    value.secondColor?.value,
+    value.secondColor?.explain.toJson(),
   ],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
   _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),
@@ -713,7 +731,7 @@ final class ShareImageContent {
   /// 총운 첫 문장(호칭 포함).
   final RenderedText sentence;
 
-  /// 행운 항목. 시간은 낮 칩 하나입니다(V116).
+  /// 행운 항목. 색은 첫째 색 칸 하나(D119 ④), 시간은 낮 칩 하나입니다(V116).
   final List<LuckyItem> items;
 
   /// 아래 글(`share-preview.image.footer`).
@@ -742,7 +760,8 @@ ShareImageContent shareImageContentOf({
     dayKindLabel: character.label,
     sentence: daily.fortune.head.text,
     // 공유 이미지는 낮 칩 하나라(V116) 오늘 화면 칩 줄에서 밤 칩을 거릅니다. 밤 칩은 버리므로
-    // 어느 밤 카드를 고르는지(beforeDayStart)는 결과에 영향이 없습니다.
+    // 어느 밤 카드를 고르는지(beforeDayStart)는 결과에 영향이 없습니다. 색이 둘인 날도 첫째 색
+    // 칸 하나입니다(D119 ④).
     items: [
       for (final item in luckyItemsOf(
         daily,
@@ -751,7 +770,7 @@ ShareImageContent shareImageContentOf({
         timezone,
         beforeDayStart: false,
       ))
-        if (item.period != AppTimeOfDay.night) item,
+        if (item.period != AppTimeOfDay.night) item.withoutSecondColor,
     ],
     footer: l10n.sharePreviewImageFooter,
     reason: character.reason,

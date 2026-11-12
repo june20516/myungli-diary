@@ -5,9 +5,12 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 /// member 시나리오의 `getDaily` 응답 본문. fixture와 테스트가 같은 값을 보게 합니다.
-Map<String, dynamic> memberDailyJson() {
+Map<String, dynamic> memberDailyJson() => dailyFixtureJson('member');
+
+/// [scenario] 시나리오의 `getDaily` 응답 본문(예 `daily-pair-virtue`, 색이 둘인 날).
+Map<String, dynamic> dailyFixtureJson(String scenario) {
   final fixture = jsonDecode(
-    File('fixtures/member/getDaily.json').readAsStringSync(),
+    File('fixtures/$scenario/getDaily.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   return fixture['body'] as Map<String, dynamic>;
 }

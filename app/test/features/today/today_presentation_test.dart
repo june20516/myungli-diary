@@ -261,6 +261,101 @@ void main() {
     });
   });
 
+  group('행운 색 둘인 날(D119 ②③④)', () {
+    const names = GlossaryNames({
+      'color': {'water': '검정', 'earth': '노랑', 'wood': '초록'},
+    });
+    final pair = Daily.fromJson(dailyFixtureJson('daily-pair-virtue'));
+
+    List<LuckyItem> items(Daily daily) =>
+        luckyItemsOf(daily, names, _l10n, 'Asia/Seoul', beforeDayStart: false);
+
+    test('secondColor가 있으면 색 항목 하나에 둘째 색이 붙고 칩 수는 같습니다', () {
+      final lucky = items(pair);
+      expect(lucky, hasLength(items(Daily.fromJson(memberDailyJson())).length));
+      final color = lucky.first;
+      expect(color.variant, LuckyCardVariant.color);
+      expect(color.value, '검정');
+      expect(color.element, FiveElement.water);
+      expect(color.explain, pair.cards.color.text.text);
+      final second = color.secondColor!;
+      expect(second.element, FiveElement.earth);
+      expect(second.value, '노랑');
+      expect(second.explain, pair.cards.secondColor!.text.text);
+      // 다른 항목에는 둘째 색이 없습니다.
+      expect(
+        lucky.skip(1).map((item) => item.secondColor),
+        everyElement(isNull),
+      );
+    });
+
+    test('secondColor가 없는 날은 둘째 색이 없습니다(선택 필드, 오류 아님)', () {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      (json['cards'] as Map<String, dynamic>).remove('secondColor');
+      expect(items(Daily.fromJson(json)).first.secondColor, isNull);
+      expect(
+        items(Daily.fromJson(memberDailyJson())).first.secondColor,
+        isNull,
+      );
+    });
+
+    test('숫자는 server가 첫째 색 기준으로 준 값 그대로입니다(D119 ③)', () {
+      final number = items(pair)
+          .singleWhere((item) => item.variant == LuckyCardVariant.number);
+      expect(number.value, '${pair.cards.number.number}');
+    });
+
+    test('공유 이미지 색은 첫째 색 칸 하나입니다(D119 ④)', () async {
+      await initializeDateFormatting('ko');
+      final image = shareImageContentOf(
+        date: CalendarDate(2026, 10, 19),
+        daily: pair,
+        names: names,
+        l10n: _l10n,
+        locale: const Locale('ko'),
+        timezone: 'Asia/Seoul',
+      );
+      final colors = image.items.where(
+        (item) => item.variant == LuckyCardVariant.color,
+      );
+      expect(colors, hasLength(1));
+      expect(colors.single.value, '검정');
+      expect(colors.single.secondColor, isNull);
+    });
+
+    test('두 색 카드는 같은 슬롯이라 근거는 카드 id로 각자의 문장을 찾습니다(A134)', () {
+      final first = dailyCardSlotId(
+        pair.cards.color.text,
+        DailyCardField.color,
+      );
+      final second = dailyCardSlotId(
+        pair.cards.secondColor!.text,
+        DailyCardField.secondColor,
+      );
+      expect(first, 'daily.color#color');
+      expect(second, 'daily.color#secondColor');
+      expect(dailySlotText(pair, first), same(pair.cards.color.text));
+      expect(dailySlotText(pair, second), same(pair.cards.secondColor!.text));
+      final single = Daily.fromJson(memberDailyJson());
+      expect(dailySlotText(single, 'daily.color#secondColor'), isNull);
+    });
+
+    test('둘째 색이 바뀌면 오늘 화면 값도 다릅니다(SeepOnChange)', () {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      ((json['cards'] as Map<String, dynamic>)['secondColor']
+              as Map<String, dynamic>)['element'] =
+          'wood';
+      TodayDisplay display(Daily daily) => todayDisplayOf(
+        daily,
+        names,
+        _l10n,
+        'Asia/Seoul',
+        beforeDayStart: false,
+      );
+      expect(display(Daily.fromJson(json)), isNot(display(pair)));
+    });
+  });
+
   group('낮 구간 시작과 밤 카드(D122 ⑦, A134)', () {
     test('프로필 벽시계 07:30 전이면 낮 구간 시작 전입니다', () {
       expect(isBeforeDayStart(DateTime.utc(2026, 10, 13)), isTrue);
@@ -319,6 +414,18 @@ void main() {
       );
       expect(dailySlotText(daily, 'daily.color#nightFocusTime'), isNull);
       expect(dailySlotText(daily, 'daily.focus_time#unknown'), isNull);
+    });
+
+    test('계약 secondColor는 선택 필드이고 color와 같은 ColorCard입니다(D119 ②)', () {
+      final schemas =
+          (loadOpenApi()['components']! as Map<String, Object?>)['schemas']!
+              as Map<String, Object?>;
+      final cards = schemas['DailyCards']! as Map<String, Object?>;
+      expect(cards['required'], isNot(contains('secondColor')));
+      final properties = cards['properties']! as Map<String, Object?>;
+      expect(properties['secondColor'], properties['color']);
+      // 두 카드는 같은 슬롯이라 카드 id(A134)로 근거를 나눕니다.
+      expect(cards['description'], contains('같은 슬롯 `daily.color`'));
     });
 
     test('카드 필드 이름은 계약 DailyCards의 필드 이름과 같습니다', () {

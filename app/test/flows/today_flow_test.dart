@@ -28,6 +28,7 @@ import 'package:myungli_diary/design/components/feedback/toast.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
@@ -36,6 +37,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
+import 'package:myungli_diary/features/depth/presentation/evidence_sheet.dart';
 import 'package:myungli_diary/features/depth/presentation/explain_sheet.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
@@ -362,6 +364,128 @@ void main() {
       expect(evidence, findsNothing);
     },
   );
+
+  /// 색이 둘인 날 [scenario]에서 알약의 둘째 칸을 눌러 두 색 시트를 열고, [colorIndex]째 색의
+  /// 근거 진입점으로 근거 시트를 엽니다. 열린 근거 시트 본문을 돌려줍니다.
+  Future<EvidenceSheetBody> openPairEvidence(
+    WidgetTester tester, {
+    required String scenario,
+    required int colorIndex,
+  }) async {
+    await _openToday(tester, scenario: scenario);
+    final chip = find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color));
+    expect(chip, findsOneWidget);
+    // 칩 하나에 검정(내 균형 기준)과 노랑(원전 기준) 두 칸이고 이름표는 없습니다.
+    final first = find.byKey(LuckyChip.pairHalfKey(0));
+    final second = find.byKey(LuckyChip.pairHalfKey(1));
+    expect(
+      find.descendant(of: first, matching: find.text('검정')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: second, matching: find.text('노랑')),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(chip);
+    await tester.pumpAndSettle();
+    await tester.tap(second);
+    await tester.pumpAndSettle();
+
+    final explain = find.byKey(const Key(ScreenIds.explainSheet));
+    expect(explain, findsOneWidget);
+    for (final text in [
+      _ko.todayLuckyColorName,
+      _ko.todayLuckyColorPairIntro,
+      '검정',
+      '노랑',
+    ]) {
+      expect(
+        find.descendant(of: explain, matching: find.text(text)),
+        findsOneWidget,
+        reason: text,
+      );
+    }
+    for (final (slot, text) in [
+      (SlotIds.todayLuckyColorBody, '내 사주의 균형으로 보면 검정이 잘 맞아요.'),
+      (SlotIds.todayLuckyColorSecondBody, '원전의 해석에 따르면 오늘은 노랑도 어울려요.'),
+    ]) {
+      expect(
+        find.descendant(
+          of: find.byKey(ValueKey(slot)),
+          matching: find.text(text, findRichText: true),
+        ),
+        findsOneWidget,
+        reason: slot,
+      );
+    }
+    final section = find.byKey(ColorPairSheetBody.sectionKey(colorIndex));
+    expect(depthLinkTarget(of: explain), findsNWidgets(2));
+    await tester.tap(depthLinkTarget(of: section));
+    await tester.pumpAndSettle();
+    final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+    expect(evidence, findsOneWidget);
+    return tester.widget<EvidenceSheetBody>(
+      find.descendant(of: evidence, matching: find.byType(EvidenceSheetBody)),
+    );
+  }
+
+  testWidgets('daily-pair-virtue: 두 칸 알약 → 두 색 시트 → 둘째 색 근거(잠김, 그 카드의 앞부분)', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+        decisions: ['D119', 'D123'],
+      ),
+    );
+    final body = await openPairEvidence(
+      tester,
+      scenario: 'daily-pair-virtue',
+      colorIndex: 1,
+    );
+    expect(body.state, DepthLinkState.locked);
+    expect(body.basisLead, isNotNull);
+    // 두 카드는 같은 슬롯이라 카드 id로 둘째 색 카드의 근거를 엽니다(A134).
+    expect(
+      tester.widget<EvidenceSheet>(find.byType(EvidenceSheet)).slotId,
+      'daily.color#secondColor',
+    );
+    await _closeSheet(tester);
+  });
+
+  testWidgets('daily-pair-virtue-unlocked: 두 색 시트의 첫째 색 근거는 열린 그 카드 근거 전부', (
+    tester,
+  ) async {
+    covers(
+      const Covers(
+        exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+        decisions: ['D119', 'D123'],
+      ),
+    );
+    final body = await openPairEvidence(
+      tester,
+      scenario: 'daily-pair-virtue-unlocked',
+      colorIndex: 0,
+    );
+    expect(body.state, DepthLinkState.unlocked);
+    expect(
+      tester.widget<EvidenceSheet>(find.byType(EvidenceSheet)).slotId,
+      'daily.color#color',
+    );
+    // 첫째 색 카드의 근거 셋(둘째 색은 둘)이고 셋째가 두 기준이 갈린 까닭입니다.
+    expect(body.basis, hasLength(3));
+    expect(
+      find.descendant(
+        of: find.byKey(const Key(ScreenIds.evidenceSheet)),
+        matching: find.textContaining(
+          '내 균형을 기준으로 한 검정을 첫째 색으로',
+          findRichText: true,
+        ),
+      ),
+      findsOneWidget,
+    );
+    await _closeSheet(tester);
+  });
 
   testWidgets('member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다', (tester) async {
     covers(

@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
+import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -29,6 +30,7 @@ typedef _TermText = ({String title, String? hanja, RenderedText? meaning});
 ///   않습니다. 사전·응답에 값이 없으면 그 자리를 그리지 않습니다(A22 남은 규칙). 사전을 받는
 ///   동안은 skeleton, 실패하거나 사전에 없는 용어면 오류 화면과 다시 시도입니다.
 /// * [ExplainUiText], [ExplainLucky]: 사전을 보지 않고 받은 제목과 본문을 그립니다.
+/// * [ExplainLuckyColorPair]: 색이 둘인 날 행운 색 시트([ColorPairSheetBody])를 그립니다.
 ///
 /// [diaryLinkTag]가 있으면 본문 아래에 그 태그(키)의 모아보기 링크를 둡니다. 누르면 시트를 닫고
 /// `tag-diary`로 page.push 합니다. 태그 이름은 사전에서 찾고, 이름을 아직 모르면 링크를
@@ -87,6 +89,26 @@ class ExplainSheet extends ConsumerWidget {
         attachment: lucky.attachment,
         attachmentGap: lucky.attachmentGap,
         origin: lucky.origin,
+      ),
+      final ExplainLuckyColorPair pair => ColorPairSheetBody(
+        title: pair.title,
+        intro: pair.intro,
+        sections: [
+          for (final section in pair.sections)
+            ColorPairSection(
+              element: section.element,
+              name: section.name,
+              body: section.body,
+              bodySlotId: section.bodySlotId,
+              onEvidence: () => ref
+                  .read(depthSheetsProvider)
+                  .openEvidence(
+                    context,
+                    section.origin.slotId,
+                    personal: section.origin.personal,
+                  ),
+            ),
+        ],
       ),
     };
   }

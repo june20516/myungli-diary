@@ -36,6 +36,7 @@ import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
 import 'package:myungli_diary/features/schedule/application/schedule_providers.dart';
@@ -1508,6 +1509,89 @@ void main() {
       final lucky = sheets.explained.last as ExplainLucky;
       expect(lucky.attachment, isNull);
       expect(lucky.origin, isNull);
+    });
+  });
+
+  group('행운 색 시트(D119 ②, D123 ①②, V114, V118)', () {
+    Finder colorChip() =>
+        find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.color));
+
+    Override dailyOf(Map<String, dynamic> json) =>
+        dailyControllerProvider.overrideWith(
+          () => _StubDaily(
+            () async => DailyView(
+              date: _today,
+              daily: Daily.fromJson(json),
+              stale: false,
+              cacheKey: null,
+            ),
+          ),
+        );
+
+    testWidgets('색이 하나인 날 시트는 본문 아래 첫째 색 카드의 근거 진입점을 둡니다(V118)', (
+      tester,
+    ) async {
+      final sheets = _SheetLog();
+      await pumpApp(tester, scenario: 'member', overrides: [sheets.override]);
+      await _settleToday(tester);
+      await tester.ensureVisible(colorChip());
+      await tester.pumpAndSettle();
+      await tester.tap(colorChip());
+      await tester.pumpAndSettle();
+      final lucky = sheets.explained.last as ExplainLucky;
+      final daily = Daily.fromJson(memberDailyJson());
+      expect(lucky.title, _ko.todayLuckyColorName);
+      expect(lucky.body.toJson(), daily.cards.color.text.text.toJson());
+      expect(lucky.attachment, isNull);
+      expect(lucky.origin?.slotId, 'daily.color#color');
+      expect(lucky.origin?.subject, isA<DailyEvidenceSubject>());
+    });
+
+    testWidgets('색이 둘인 날은 칩 하나가 두 칸이고 어느 칸이든 같은 두 색 시트를 엽니다', (tester) async {
+      final sheets = _SheetLog();
+      final json = dailyFixtureJson('daily-pair-virtue');
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [sheets.override, dailyOf(json)],
+      );
+      await _settleToday(tester);
+      final daily = Daily.fromJson(json);
+      expect(colorChip(), findsOneWidget);
+      for (final index in [0, 1]) {
+        final half = find.byKey(LuckyChip.pairHalfKey(index));
+        await tester.ensureVisible(half);
+        await tester.pumpAndSettle();
+        await tester.tap(half);
+        await tester.pumpAndSettle();
+        final pair = sheets.explained.last as ExplainLuckyColorPair;
+        expect(pair.title, _ko.todayLuckyColorName, reason: '$index');
+        expect(pair.intro, _ko.todayLuckyColorPairIntro, reason: '$index');
+        final [first, second] = pair.sections;
+        expect(first.element, daily.cards.color.element);
+        expect(first.body.toJson(), daily.cards.color.text.text.toJson());
+        expect(first.bodySlotId, SlotIds.todayLuckyColorBody);
+        expect(first.origin.slotId, 'daily.color#color');
+        expect(second.element, daily.cards.secondColor!.element);
+        expect(
+          second.body.toJson(),
+          daily.cards.secondColor!.text.text.toJson(),
+        );
+        expect(second.bodySlotId, SlotIds.todayLuckyColorSecondBody);
+        expect(second.origin.slotId, 'daily.color#secondColor');
+        expect(first.name, isNot(second.name));
+        await closeSheet(tester, find.text('explain-body'));
+      }
+    });
+
+    testWidgets('둘째 색이 없는 응답은 한 칸 칩이고 오류가 아닙니다', (tester) async {
+      final json = dailyFixtureJson('daily-pair-virtue');
+      (json['cards'] as Map<String, dynamic>).remove('secondColor');
+      await pumpApp(tester, scenario: 'member', overrides: [dailyOf(json)]);
+      await _settleToday(tester);
+      expect(colorChip(), findsOneWidget);
+      expect(find.byKey(LuckyChip.pairHalfKey(0)), findsNothing);
+      expect(find.byType(ErrorState), findsNothing);
     });
   });
 

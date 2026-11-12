@@ -46,11 +46,33 @@ const AppGlyph _hash = AppGlyph(
   regular: PhosphorIconsRegular.hash,
 );
 
+/// 색이 둘인 날(D119 ②)의 둘째 색(`DailyCards.secondColor`, 원전 기준). 칩은 첫째 색과 한 알약의
+/// 두 칸으로 그립니다(`lucky-card` `color.parts.pair`, V114).
+@immutable
+final class LuckySecondColor {
+  /// 둘째 색 값을 만듭니다.
+  const new({
+    required this.element,
+    required this.value,
+    required this.explain,
+  });
+
+  /// 둘째 색의 오행. 칸 견본 색(`ohaeng.swatch`)이 이 값을 따릅니다.
+  final FiveElement element;
+
+  /// 둘째 칸에 보이는 색 이름("노랑").
+  final String value;
+
+  /// 행운 색 시트 둘째 구역의 풀이 문장(`today.lucky-color.second.body`).
+  final RenderedText explain;
+}
+
 /// 행운 항목 하나. 표시 값 변환은 이 값을 만드는 한 곳에서 합니다.
 @immutable
 final class LuckyItem {
   /// 행운 항목을 만듭니다. [element]는 [LuckyCardVariant.color]에서만, [period]는
-  /// [LuckyCardVariant.time]에서만(필수) 씁니다. [word]는 밤 칩의 때 낱말입니다.
+  /// [LuckyCardVariant.time]에서만(필수) 씁니다. [word]는 밤 칩의 때 낱말이고, [secondColor]는
+  /// 색이 둘인 날 색 칩의 둘째 색입니다.
   const new({
     required this.variant,
     required this.name,
@@ -59,6 +81,7 @@ final class LuckyItem {
     this.element,
     this.period,
     this.word,
+    this.secondColor,
   }) : assert(
          (variant == LuckyCardVariant.color) == (element != null),
          'color 변형은 element가 필수이고, 다른 변형은 element를 줄 수 없습니다.',
@@ -70,6 +93,10 @@ final class LuckyItem {
        assert(
          word == null || period == AppTimeOfDay.night,
          '때 낱말은 밤 칩에만 붙습니다(V116).',
+       ),
+       assert(
+         secondColor == null || variant == LuckyCardVariant.color,
+         '둘째 색은 색 칩에만 붙습니다(D119 ②).',
        );
 
   /// 변형.
@@ -96,6 +123,23 @@ final class LuckyItem {
   /// 밤 칩 값 앞 때 낱말(`time.periods` night `word`, "새벽"이나 "오늘 밤", V116). 낮 칩과 다른
   /// 변형은 null입니다.
   final String? word;
+
+  /// 색이 둘인 날의 둘째 색(D119 ②). 있으면 칩이 두 칸 알약이고([LuckyChip]), 색 하나인 날과
+  /// 다른 변형은 null입니다. 응답의 선택 필드라 없는 것이 오류가 아닙니다.
+  final LuckySecondColor? secondColor;
+
+  /// 둘째 색을 뺀 같은 항목. 공유 이미지는 첫째 색 칸 하나라(D119 ④) 이 값을 씁니다.
+  LuckyItem get withoutSecondColor => secondColor == null
+      ? this
+      : LuckyItem(
+          variant: variant,
+          name: name,
+          value: value,
+          explain: explain,
+          element: element,
+          period: period,
+          word: word,
+        );
 }
 
 /// 행운 칩 하나(`lucky-card` `chip`).
@@ -117,6 +161,28 @@ class LuckyChip extends StatelessWidget {
 
   /// 색 변형 견본 원을 찾는 테스트용 키.
   static const Key swatchKey = ValueKey('lucky-card-swatch');
+
+  /// 색이 둘인 날 알약의 [index]째 칸(0이 첫째 색)을 찾는 테스트용 키.
+  static Key pairHalfKey(int index) => ValueKey('lucky-card-pair-half-$index');
+
+  /// 색이 둘인 날 알약 두 칸 사이 세로선을 찾는 테스트용 키.
+  static const Key pairDividerKey = ValueKey('lucky-card-pair-divider');
+
+  /// 두 칸 알약 칸마다 좌우 여백(`color.parts.pair.half.paddingX` {space.12}).
+  static const double pairHalfPaddingX = Space.s12;
+
+  /// 두 칸 알약 칸 안 견본과 이름 사이(`pair.half.gap` {space.4}).
+  static const double pairHalfGap = Space.s4;
+
+  /// 두 칸 알약 칸마다 누름 자리 최소 크기(`pair.half.minTarget` 44). 높이는 칩 줄의 판정
+  /// 여유([VerticalHitSlop])가, 폭은 칸의 최소 폭이 지킵니다.
+  static const double pairHalfMinTarget = sentenceMinTarget;
+
+  /// 두 칸 사이 세로선 두께(`pair.divider.width` 1px).
+  static const double pairDividerWidth = 1;
+
+  /// 두 칸 사이 세로선 높이(`pair.divider.height` 18px).
+  static const double pairDividerHeight = 18;
 
   /// `time` 값의 글꼴 기능(`time.parts.value.fontFeatures`: tnum).
   static const List<FontFeature> timeValueFeatures = [
@@ -150,6 +216,18 @@ class LuckyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final second = item.secondColor;
+    if (second != null) {
+      return _PairChipFrame(
+        name: item.name,
+        halves: [
+          (element: item.element!, value: item.value),
+          (element: second.element, value: second.value),
+        ],
+        open: open,
+        onTap: onTap,
+      );
+    }
     final colors = context.tokens.colors;
     // `lucky-card` `lead.iconSize`: adjacent-text(옆 글자 label.md).
     final iconSize = AppIconSize.adjacentText(
@@ -165,16 +243,7 @@ class LuckyChip extends StatelessWidget {
       color: colors.textSecondary,
     );
     final lead = switch (item.variant) {
-      LuckyCardVariant.color => Container(
-        key: swatchKey,
-        width: _swatchSize,
-        height: _swatchSize,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: ohaengSwatchOf(colors, item.element!),
-          border: Border.all(color: colors.swatchBorder),
-        ),
-      ),
+      LuckyCardVariant.color => _Swatch(element: item.element!),
       LuckyCardVariant.direction => regular(_compass),
       LuckyCardVariant.number => regular(_hash),
       // 해와 달은 periods의 lead가 굵기(fill)와 색을 덮어씁니다(V115).
@@ -200,6 +269,158 @@ class LuckyChip extends StatelessWidget {
           : '${item.name}, $word ${item.value}',
       open: open,
       onTap: onTap,
+    );
+  }
+}
+
+/// 색 견본 원(`ohaeng.swatch`, 14).
+class _Swatch extends StatelessWidget {
+  const new({required this.element});
+
+  final FiveElement element;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.tokens.colors;
+    return Container(
+      key: LuckyChip.swatchKey,
+      width: LuckyChip._swatchSize,
+      height: LuckyChip._swatchSize,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: ohaengSwatchOf(colors, element),
+        border: Border.all(color: colors.swatchBorder),
+      ),
+    );
+  }
+}
+
+/// 두 칸 알약의 칸 하나가 보일 색.
+typedef _PairHalf = ({FiveElement element, String value});
+
+/// 색이 둘인 날의 두 칸 알약(`lucky-card` `color.parts.pair`, V114).
+///
+/// 바탕과 테두리는 칩([_ChipFrame])과 같고, 안을 세로선으로 나눈 두 칸이 칸마다 누름 자리입니다.
+/// 어느 칸을 눌러도 같은 [onTap](같은 행운 색 시트)이고, 열림 테두리는 알약 전체에 그립니다.
+/// 기준 이름표(내 균형 기준, 원전 기준)는 두지 않습니다(`pair.basisLabel` false). 스크린리더는
+/// 칸마다 "항목 이름, 값"으로 읽습니다. 계약 `a11y.pairLabel`의 "두 개 중 몇째"는 원고 문구가
+/// 없어 아직 읽지 않습니다(A135, writing 몫).
+class _PairChipFrame extends StatelessWidget {
+  const new({
+    required this.name,
+    required this.halves,
+    required this.open,
+    required this.onTap,
+  });
+
+  final String name;
+  final List<_PairHalf> halves;
+  final bool open;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.tokens.colors;
+    const pill = Radius.circular(Radii.full);
+    final halfShapes = [
+      const BorderRadiusDirectional.horizontal(start: pill),
+      const BorderRadiusDirectional.horizontal(end: pill),
+    ];
+    final direction = Directionality.of(context);
+    final surface = Container(
+      key: LuckyChip.surfaceKey,
+      constraints: const BoxConstraints(minHeight: LuckyChip._height),
+      decoration: BoxDecoration(
+        color: colors.bgSheet,
+        borderRadius: const BorderRadius.all(pill),
+      ),
+      // 열림 테두리는 알약 전체입니다(`pair.open`). 칩과 같이 앞에 덧그려 크기를 바꾸지 않습니다.
+      foregroundDecoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(pill),
+        border: Border.all(
+          color: open ? colors.actionPrimary : colors.line,
+          width: open ? LuckyChip._openBorder : LuckyChip._border,
+        ),
+      ),
+      // 두 칸은 같은 글자라 높이가 같고, 세로선은 가운데에 둡니다.
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (index, half) in halves.indexed) ...[
+            if (index > 0)
+              Container(
+                key: LuckyChip.pairDividerKey,
+                width: LuckyChip.pairDividerWidth,
+                height: LuckyChip.pairDividerHeight,
+                color: colors.line,
+              ),
+            Flexible(
+              child: _halfOf(
+                context,
+                index,
+                half,
+                halfShapes[index].resolve(direction),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+    // 칸 위아래 판정 여유는 알약 하나에 둡니다. 넓힌 자리의 눌림은 가로 위치 그대로 알약 안으로
+    // 옮겨지므로 누른 쪽 칸이 받습니다.
+    return onTap == null ? surface : VerticalHitSlop(child: surface);
+  }
+
+  Widget _halfOf(
+    BuildContext context,
+    int index,
+    _PairHalf half,
+    BorderRadius shape,
+  ) {
+    final tokens = context.tokens;
+    final content = ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: LuckyChip.pairHalfMinTarget,
+        minHeight: LuckyChip._height,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: LuckyChip.pairHalfPaddingX,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: LuckyChip.pairHalfGap,
+          children: [
+            _Swatch(element: half.element),
+            Flexible(
+              child: Text(
+                half.value,
+                style: tokens.typography.labelMd.copyWith(
+                  color: tokens.colors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    final label = '$name, ${half.value}';
+    final tap = onTap;
+    if (tap == null) {
+      return Semantics(
+        key: LuckyChip.pairHalfKey(index),
+        container: true,
+        label: label,
+        child: ExcludeSemantics(child: content),
+      );
+    }
+    return PressInkTarget(
+      key: LuckyChip.pairHalfKey(index),
+      semanticLabel: label,
+      onTap: tap,
+      borderRadius: shape,
+      child: content,
     );
   }
 }

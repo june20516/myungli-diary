@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/color_card.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
@@ -347,18 +348,36 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     onTap: () => unawaited(_openTag(tag.rank)),
   );
 
-  /// 행운 칩 [item]의 설명 시트 내용. 시간 칩은 본문 아래 24시간 띠와 맨 끝 그 카드의 근거
-  /// 진입점을 둡니다(V117, V118). 근거는 칩이 가리키는 카드 문장의 근거이고
-  /// ([focusTimePickOf]), 잠금은 근거 시트가 응답의 `evidenceAccess`로 정합니다.
-  ExplainLucky _luckyExplainOf(
+  /// 행운 칩 [item]의 설명 시트 내용. 색 칩과 시간 칩은 맨 끝에 그 카드의 근거 진입점을 두고
+  /// (V118, 시간 칩은 본문 아래 24시간 띠 다음, V117), 방향과 숫자 시트에는 두지 않습니다. 색이
+  /// 둘인 날은 어느 칸을 눌러도 두 색 시트 하나입니다([_colorPairExplainOf]). 근거는 칩이 가리키는
+  /// 카드 문장의 근거이고(카드 id, A134), 잠금은 근거 시트가 응답의 `evidenceAccess`로 정합니다.
+  ExplainContent _luckyExplainOf(
     LuckyItem item,
     Daily daily,
     bool beforeDayStart,
+    AppLocalizations l10n,
   ) {
+    final cards = daily.cards;
+    if (item.variant == LuckyCardVariant.color) {
+      final second = item.secondColor;
+      final secondCard = cards.secondColor;
+      if (second != null && secondCard != null) {
+        return _colorPairExplainOf(item, second, secondCard, daily, l10n);
+      }
+      return ExplainLucky(
+        title: item.name,
+        body: item.explain,
+        origin: TermOrigin(
+          slotId: dailyCardSlotId(cards.color.text, DailyCardField.color),
+          subject: const DailyEvidenceSubject(),
+        ),
+      );
+    }
     final period = item.period;
     final pick = period == null
         ? null
-        : focusTimePickOf(daily.cards, period, beforeDayStart: beforeDayStart);
+        : focusTimePickOf(cards, period, beforeDayStart: beforeDayStart);
     if (pick == null) {
       return ExplainLucky(title: item.name, body: item.explain);
     }
@@ -371,6 +390,42 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
         slotId: pick.evidenceSlotId,
         subject: const DailyEvidenceSubject(),
       ),
+    );
+  }
+
+  /// 색이 둘인 날 행운 색 시트(`colorPairSheet`, D119 ②, D123 ①②, V114). 구역은 첫째 색
+  /// (`color`), 둘째 색(`secondColor`) 순서이고 각 구역의 근거 진입점은 그 카드의 근거입니다.
+  ExplainLuckyColorPair _colorPairExplainOf(
+    LuckyItem item,
+    LuckySecondColor second,
+    ColorCard secondCard,
+    Daily daily,
+    AppLocalizations l10n,
+  ) {
+    final cards = daily.cards;
+    TermOrigin originOf(SlotText text, DailyCardField field) => TermOrigin(
+      slotId: dailyCardSlotId(text, field),
+      subject: const DailyEvidenceSubject(),
+    );
+    return ExplainLuckyColorPair(
+      title: item.name,
+      intro: l10n.todayLuckyColorPairIntro,
+      sections: [
+        ExplainColorSection(
+          element: cards.color.element,
+          name: item.value,
+          body: item.explain,
+          bodySlotId: SlotIds.todayLuckyColorBody,
+          origin: originOf(cards.color.text, DailyCardField.color),
+        ),
+        ExplainColorSection(
+          element: second.element,
+          name: second.value,
+          body: second.explain,
+          bodySlotId: SlotIds.todayLuckyColorSecondBody,
+          origin: originOf(secondCard.text, DailyCardField.secondColor),
+        ),
+      ],
     );
   }
 
@@ -477,7 +532,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                   items: display.lucky,
                   onOpen: (item) => _sheets.openExplain(
                     context,
-                    _luckyExplainOf(item, daily, beforeDayStart),
+                    _luckyExplainOf(item, daily, beforeDayStart, l10n),
                   ),
                 ),
               ),

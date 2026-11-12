@@ -61,6 +61,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
@@ -2410,6 +2411,90 @@ void main() {
       final order = _map(band['order']);
       expect(order['beforeDayStart'], ['night(전날 밤)', 'day(오늘 낮)']);
       expect(order['fromDayStart'], ['day(오늘 낮)', 'night(오늘 밤)']);
+    });
+  });
+
+  group('행운 색 둘인 날 (7.0.0, D119, D123, V114, V118)', () {
+    final luckyCard = loadSpecComponents()['lucky-card']!;
+    final color = (luckyCard['variants']! as List<Object?>)
+        .cast<Map<String, Object?>>()
+        .singleWhere((variant) => variant['id'] == 'color');
+    final pair = _map(_map(color['parts'])['pair']);
+    final parts = _map(luckyCard['parts']);
+    final sheet = _map(parts['colorPairSheet']);
+
+    test('pair: 원천 순서, 칸 여백과 간격, 누름 자리, 세로선이 LuckyChip 상수와 같습니다', () {
+      expect(pair['source'], [
+        'DailyResponse.color',
+        'DailyResponse.second_color',
+      ]);
+      expect(pair['order'], startsWith('color('));
+      final half = _map(pair['half']);
+      expect(half['paddingX'], '{space.12}');
+      expect(LuckyChip.pairHalfPaddingX, Space.s12);
+      expect(half['gap'], '{space.4}');
+      expect(LuckyChip.pairHalfGap, Space.s4);
+      expect(half['minTarget'], LuckyChip.pairHalfMinTarget);
+      final divider = _map(pair['divider']);
+      expect(divider['color'], '{color.line}');
+      expect(_px(divider['width']), LuckyChip.pairDividerWidth);
+      expect(_px(divider['height']), LuckyChip.pairDividerHeight);
+      // 이름표 없음, 어느 칸이든 같은 시트, 열림 테두리는 알약 전체(V114).
+      expect(pair['basisLabel'], isFalse);
+      expect(pair['press'], contains('colorPairSheet'));
+      expect(pair['open'], contains('알약 전체'));
+    });
+
+    test('colorPairSheet 구조와 값이 ColorPairSheetBody와 같습니다', () {
+      expect(sheet['component'], 'explain-sheet');
+      final intro = _map(sheet['intro']);
+      expect(intro['slot'], SlotIds.todayLuckyColorPairIntro);
+      expect(intro['type'], '{type.caption.lg}');
+      expect(intro['fg'], '{color.text.secondary}');
+      expect(intro['gapBelow'], '{space.12}');
+      expect(ColorPairSheetBody.introGapBelow, Space.s12);
+      final section = _map(sheet['section']);
+      final head = _map(section['head']);
+      expect(
+        head['swatch'],
+        'ohaeng.swatch ${ColorPairSheetBody.swatchSize.toInt()}',
+      );
+      final name = _map(head['name']);
+      expect(name['type'], '{type.label.lg}');
+      expect(name['fg'], '{color.text.primary}');
+      expect(head['gap'], '{space.4}');
+      expect(ColorPairSheetBody.headGap, Space.s4);
+      expect(head['basisLabel'], isFalse);
+      final body = _map(section['body']);
+      expect(body['segments'], 'sentence-block');
+      expect(body['gapAbove'], '{space.8}');
+      expect(ColorPairSheetBody.bodyGapAbove, Space.s8);
+      final evidence = _map(section['evidenceLink']);
+      expect(evidence['component'], 'depth-link');
+      expect(evidence['variant'], 'block');
+      expect(evidence['subject'], '그 색 이름');
+      expect(
+        (sheet['sections']! as List<Object?>).cast<Map<String, Object?>>().map(
+          (item) => (item['source'], item['bodySlot']),
+        ),
+        [
+          ('DailyResponse.color', SlotIds.todayLuckyColorBody),
+          ('DailyResponse.second_color', SlotIds.todayLuckyColorSecondBody),
+        ],
+      );
+      final between = _map(sheet['between']);
+      expect(between['divider'], 'list.divider');
+      expect(between['gap'], '{space.16}');
+      expect(ColorPairSheetBody.betweenGap, Space.s16);
+    });
+
+    test('색이 하나인 날 시트의 근거 진입점과 칸 스크린리더 라벨 규칙', () {
+      final evidence = _map(_map(parts['explain'])['evidenceLink']);
+      expect(evidence['when'], startsWith('color(색이 하나인 날)와 time 시트만'));
+      expect(evidence['subject'], contains('행운 색'));
+      // "두 개 중 몇째"는 원고 문구가 없어 칸 라벨에 아직 붙이지 않습니다(A135). 계약 문구가
+      // 바뀌면 이 대조가 알려 줍니다.
+      expect(_map(luckyCard['a11y'])['pairLabel'], '칸마다 항목 이름 + 값 + 두 개 중 몇째');
     });
   });
 

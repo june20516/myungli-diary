@@ -3,7 +3,9 @@ import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
+import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
@@ -74,6 +76,53 @@ final List<LuckyItem> _luckyItems = [
     word: '오늘 밤',
   ),
 ];
+
+/// 색이 둘인 날(D119 ②)의 칩 줄: 색 칩 하나가 두 칸 알약입니다(V114).
+final List<LuckyItem> _pairLuckyItems = [
+  LuckyItem(
+    variant: LuckyCardVariant.color,
+    name: '행운 색',
+    value: '검정',
+    explain: RenderedText(
+      segments: [Segment(text: '내 사주의 균형으로 보면 검정이 잘 맞아요.')],
+    ),
+    element: FiveElement.water,
+    secondColor: LuckySecondColor(
+      element: FiveElement.earth,
+      value: '노랑',
+      explain: RenderedText(
+        segments: [Segment(text: '원전의 해석에 따르면 오늘은 노랑도 어울려요.')],
+      ),
+    ),
+  ),
+  ..._luckyItems.skip(1),
+];
+
+/// 색이 둘인 날 행운 색 시트 본문 견본(`colorPairSheet`).
+Widget _colorPairSheet() {
+  final first = _pairLuckyItems.first;
+  final second = first.secondColor!;
+  return ColorPairSheetBody(
+    title: first.name,
+    intro: '오늘은 추천 색이 두 개예요',
+    sections: [
+      ColorPairSection(
+        element: first.element!,
+        name: first.value,
+        body: first.explain,
+        bodySlotId: SlotIds.todayLuckyColorBody,
+        onEvidence: () {},
+      ),
+      ColorPairSection(
+        element: second.element,
+        name: second.value,
+        body: second.explain,
+        bodySlotId: SlotIds.todayLuckyColorSecondBody,
+        onEvidence: () {},
+      ),
+    ],
+  );
+}
 
 /// 시간 칩 시트의 24시간 띠 견본(낮 신시, 밤 축시 고름).
 TimeBand _timeBand({required bool beforeDayStart}) {
@@ -284,6 +333,29 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                   child: LuckyCardRow(items: _luckyItems),
                 ),
               ),
+            ),
+            WidgetbookUseCase(
+              name: '색이 둘인 날: 두 칸 알약(D119, V114)',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 360,
+                  child: LuckyCardRow(
+                    items: _pairLuckyItems,
+                    onOpen: (_) =>
+                        Future<void>.delayed(const Duration(seconds: 2)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        WidgetbookComponent(
+          name: 'ColorPairSheetBody',
+          useCases: [
+            WidgetbookUseCase(
+              name: '색이 둘인 날 행운 색 시트',
+              builder: (context) =>
+                  Stage(child: SizedBox(width: 360, child: _colorPairSheet())),
             ),
           ],
         ),
