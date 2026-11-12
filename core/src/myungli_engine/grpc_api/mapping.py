@@ -15,6 +15,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from myungli_engine._gen.myungli.engine.v1 import engine_pb2 as pb
 from myungli_engine.calendar_core.birth import BirthHour, BirthInput, LunarDate
+from myungli_engine.calendar_core.lunar_adapter import HourSlot
 from myungli_engine.chart.personal_target import PersonalReading
 from myungli_engine.chart.positions import Position
 from myungli_engine.composers.chart import ChartView
@@ -315,24 +316,24 @@ def _month_day(day: MonthDay) -> pb.MonthDay:
 
 
 def _focus_card(pick: FocusPick, judgment: Judgment) -> pb.FocusTimeCard:
-    """구간마다 시진 하나 (D122). FocusSlot의 score, reasons는 더 쓰지 않는다."""
-    slot = pick.grade.slot
+    """구간마다 고른 시진 하나(D122)와 그 구간의 시진 전부(#1078). FocusSlot의 score, reasons는 더 쓰지 않는다."""
     return pb.FocusTimeCard(
         judgment=_judgment(judgment),
-        picks=[
-            pb.FocusSlot(
-                branch=_name(_PREFIX_BRANCH, slot.branch),
-                pillar=_pillar(slot.pillar),
-                start=_timestamp(slot.start),
-                end=_timestamp(slot.end),
-                huangdao_lucky=slot.huangdao_lucky,
-                day_date=pb.LocalDate(
-                    year=pick.grade.day_date.year, month=pick.grade.day_date.month, day=pick.grade.day_date.day
-                ),
-                day_pillar=_pillar(pick.grade.day),
-            )
-        ],
+        picks=[_focus_slot(pick.grade.slot, pick.grade.day_date, pick.grade.day)],
         period=_name(_PREFIX_FOCUS_PERIOD, pick.period),
+        hours=[_focus_slot(hour.slot, hour.day_date, hour.day) for hour in pick.hours],
+    )
+
+
+def _focus_slot(slot: HourSlot, day_date: date, day: Pillar) -> pb.FocusSlot:
+    return pb.FocusSlot(
+        branch=_name(_PREFIX_BRANCH, slot.branch),
+        pillar=_pillar(slot.pillar),
+        start=_timestamp(slot.start),
+        end=_timestamp(slot.end),
+        huangdao_lucky=slot.huangdao_lucky,
+        day_date=pb.LocalDate(year=day_date.year, month=day_date.month, day=day_date.day),
+        day_pillar=_pillar(day),
     )
 
 

@@ -622,6 +622,10 @@ message FocusTimeCard {
   repeated FocusSlot picks = 2; // 늘 1개 (ruleset 2026.11.4부터, 전에는 1~2개)
   bool fallback = 3; // ruleset 2026.11.4부터 늘 false
   FocusPeriod period = 4;
+  // 이 구간의 시진 전부, 시간 순(#1078). 낮은 그날 진시~술시 7개, 밤은 그날 해시와 다음 날 자시~묘시 5개.
+  // 항목 값은 picks와 같은 규칙이고, picks의 시진은 여기 같은 시진과 같은 값입니다. 時破로 고르지 않는 시진도 들어 있습니다.
+  // 밤 칩 전환 시각은 그날 낮 카드 hours[0].start(진시 시작), 24시간 띠는 밤 카드와 낮 카드의 hours입니다.
+  repeated FocusSlot hours = 5;
 }
 
 // 시진 하나. start(포함)·end(제외)는 절대 시각이며, 요청의 current_timezone으로 바꿔 표시합니다.

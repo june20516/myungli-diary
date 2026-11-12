@@ -28,6 +28,7 @@
 | ad-free.offer.period | ad-free.offer.period<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko 25, en 47, ja 20 |
 | ad-free.offer.price | ad-free.offer.price<br>컴포넌트 offer-card | info | - | 1 | 1 | `price`: text | ko -, en -, ja - |
 | ad-free.status.remaining | ad-free.status.remaining | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
+| ad-free.unavailable.body | ad-free.unavailable.body<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko 50, en 86, ja 38 |
 | birthplace.bar.title | birthplace.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.empty.body | birthplace.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.question.head | birthplace.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -128,7 +129,7 @@
 | force-update.cta.store | force-update.cta.store | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | force-update.notice.body | force-update.notice.body | info | - | 1 | 2 | - | ko -, en -, ja - |
 | force-update.notice.head | force-update.notice.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
-| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 123 | - | ko 10, en 18, ja 10 |
+| glossary.value_name | today.character.label<br>preview.character.label<br>day-sheet.character.label<br>diary-view.character.label<br>today.ten-god.label<br>컴포넌트 lucky-card<br>컴포넌트 saju-pillars<br>컴포넌트 manse-table<br>컴포넌트 daeun-table<br>컴포넌트 ohaeng-bar | info | - | 1 | 145 | - | ko 10, en 18, ja 10 |
 | legal.bar.title | legal.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.bar.title | login-methods.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | login-methods.error.body | login-methods.error.body | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -284,6 +285,8 @@
 | ui.event-row.label | 컴포넌트 event-row | info | - | 1 | 3 | `count`: number<br>`status`: text<br>`time`: text<br>`title`: text | ko -, en -, ja -<br>`eventRowLabel` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
 | ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 32, ja 14 |
+| ui.explain.term-empty | 컴포넌트 term-token | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
+| ui.ganji.reading | 컴포넌트 date-header<br>컴포넌트 date-block<br>컴포넌트 saju-pillars<br>컴포넌트 luck-pillar<br>컴포넌트 manse-table | info | - | 1 | 2 | `stem`: text<br>`branch`: text<br>`reading`: text | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
 | ui.keyboard.dismiss | 컴포넌트 text-field | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -291,7 +294,7 @@
 | ui.login-methods.row | 컴포넌트 social-login-button | guide | - | 1 | 6 | - | ko 10, en 16, ja 7 |
 | ui.login.error | login.error.body<br>컴포넌트 toast<br>컴포넌트 error-state | info | - | 1 | 4 | - | ko 48, en 78, ja 34 |
 | ui.login.provider | 컴포넌트 social-login-button | guide | - | 1 | 4 | - | ko 19, en 34, ja 15<br>`loginKakaoLabel` ko 19, en 34, ja 34<br>`loginLineLabel` ko 16, en 28, ja 13 |
-| ui.lucky-card.a11y | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.lucky-card.a11y | 컴포넌트 lucky-card | info | - | 1 | 5 | `index`: number<br>`total`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.my-saju.record | 컴포넌트 diary-summary | info | - | 1 | 3 | `count`: number | ko -, en -, ja - |
 | ui.nav.a11y | 컴포넌트 app-bar<br>컴포넌트 sheet | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.nav.tab | 컴포넌트 tab-bar | info | - | 1 | 4 | - | ko 9, en 15, ja 7 |

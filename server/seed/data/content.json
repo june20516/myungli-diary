@@ -1,5 +1,5 @@
 {
-  "version": "539717063965f943",
+  "version": "b7fcdf4181396e51",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -3981,63 +3981,63 @@
       "key": "fortune.tag.dohwa",
       "variant": "advice",
       "lang": "en",
-      "body": "Take a turn in front of others, at a talk or a gathering."
+      "body": "Eyes are on you today, so mind your words and actions."
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "advice",
       "lang": "ja",
-      "body": "発表や集まりなど、人前に立つことをしてみてください。"
+      "body": "注目が集まる日なので、言葉と行動を一度見直してみてください。"
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "advice",
       "lang": "ko",
-      "body": "발표나 모임처럼 사람들 앞에 서는 일을 해 보세요."
+      "body": "관심이 모이는 날, 말과 행동은 한 번 더 살펴보세요."
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "care",
       "lang": "en",
-      "body": "It's a nice flutter to feel someone sees you kindly."
+      "body": "Your heart may flutter today. Going slow is fine."
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "care",
       "lang": "ja",
-      "body": "誰かに好意的に見てもらえる、ときめきがある日です。"
+      "body": "気持ちが浮つきやすい日です。ゆっくりで大丈夫です。"
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "care",
       "lang": "ko",
-      "body": "누군가 나를 좋게 봐 주는 설렘이 있는 날이에요."
+      "body": "마음이 들뜨기 쉬운 날이에요. 천천히 가도 괜찮아요."
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "state",
       "lang": "en",
-      "body": "People's attention tends to turn toward you today."
+      "body": "Eyes turn to you easily today, and so does talk."
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "state",
       "lang": "ja",
-      "body": "人の視線が自分に集まりやすい日です。"
+      "body": "目を引きやすいぶん、噂も立ちやすい日です。"
     },
     {
       "slot": "daily.fortune.tag",
       "key": "fortune.tag.dohwa",
       "variant": "state",
       "lang": "ko",
-      "body": "사람들의 눈길이 나에게 모이기 쉬운 날이에요."
+      "body": "눈길을 끌기 쉬운 만큼 말도 따르기 쉬운 날이에요."
     },
     {
       "slot": "daily.fortune.tag",
@@ -7026,21 +7026,21 @@
       "key": "basis.tags/dohwa",
       "variant": "single",
       "lang": "en",
-      "body": "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."
+      "body": "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag. The classics don't count Dohwa as a lucky shinsal, while in Korea it's read as charm and popularity, so we mention both here."
     },
     {
       "slot": "evidence.basis",
       "key": "basis.tags/dohwa",
       "variant": "single",
       "lang": "ja",
-      "body": "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"
+      "body": "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。原典は咸池を吉の神殺とは見ず、韓国では魅力や人気として読むので、ここでは両方を伝えています。"
     },
     {
       "slot": "evidence.basis",
       "key": "basis.tags/dohwa",
       "variant": "single",
       "lang": "ko",
-      "body": "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."
+      "body": "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요. 원전은 도화를 길한 신살로 보지 않고 한국에서는 매력과 인기로 풀어, 여기서는 둘을 함께 말해요."
     },
     {
       "slot": "evidence.basis",
@@ -11496,6 +11496,258 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "branch_reading.chuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "Chuk"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.chuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うし"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.chuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "축"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.hae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Hae"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.hae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "い"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.hae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "해"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.in",
+      "variant": "single",
+      "lang": "en",
+      "body": "In"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.in",
+      "variant": "single",
+      "lang": "ja",
+      "body": "とら"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.in",
+      "variant": "single",
+      "lang": "ko",
+      "body": "인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "Ja"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ね"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "자"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.jin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.jin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "たつ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.jin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "진"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.mi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Mi"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.mi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひつじ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.mi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "미"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.myo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Myo"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.myo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "う"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.myo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "묘"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.o",
+      "variant": "single",
+      "lang": "en",
+      "body": "O"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.o",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うま"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.o",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sa",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sa"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "み"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "사"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.shin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.shin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "さる"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.shin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sul",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sul"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "いぬ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "술"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.yu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yu"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.yu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "とり"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.yu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "유"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "color.earth",
       "variant": "single",
       "lang": "en",
@@ -13155,6 +13407,216 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "stem_reading.byeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Byeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.byeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.byeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "병"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.eul",
+      "variant": "single",
+      "lang": "en",
+      "body": "Eul"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.eul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "きのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.eul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "을"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gap",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gap"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "きのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "갑"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gi"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "つちのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gye",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gye"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gye",
+      "variant": "single",
+      "lang": "ja",
+      "body": "みずのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gye",
+      "variant": "single",
+      "lang": "ko",
+      "body": "계"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gyeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "かのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "경"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.im",
+      "variant": "single",
+      "lang": "en",
+      "body": "Im"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.im",
+      "variant": "single",
+      "lang": "ja",
+      "body": "みずのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.im",
+      "variant": "single",
+      "lang": "ko",
+      "body": "임"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.jeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.jeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.jeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.mu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Mu"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.mu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "つちのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.mu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "무"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.sin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.sin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "かのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.sin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "strength.neutral",
       "variant": "single",
       "lang": "en",
@@ -14586,21 +15048,21 @@
       "key": "personal.shinsal.dohwa",
       "variant": "single",
       "lang": "en",
-      "body": "With [[Dohwa|shinsal.dohwa]] in your {place}, you have a charm that draws people's eyes. The element here, [[{element}]], is {role}."
+      "body": "With [[Dohwa|shinsal.dohwa]] in your {place}, you have a charm that draws people's eyes, so in romance it helps to be clear and leave no room for misunderstanding. The element here, [[{element}]], is {role}."
     },
     {
       "slot": "personal.shinsal",
       "key": "personal.shinsal.dohwa",
       "variant": "single",
       "lang": "ja",
-      "body": "{place}に[[咸池|shinsal.dohwa]]があり、人の目を引く魅力があります。この位置の五行は[[{element}]]で、{role}です。"
+      "body": "{place}に[[咸池|shinsal.dohwa]]があり、人の目を引く魅力があるので、異性関係では誤解が生じないようはっきりさせるとよいでしょう。この位置の五行は[[{element}]]で、{role}です。"
     },
     {
       "slot": "personal.shinsal",
       "key": "personal.shinsal.dohwa",
       "variant": "single",
       "lang": "ko",
-      "body": "{place}에 [[도화|shinsal.dohwa]]가 있어, 사람들의 눈길을 끄는 매력이 있어요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+      "body": "{place}의 [[도화|shinsal.dohwa]]는 사람의 눈길을 끄는 매력이 있다는 뜻이라, 이성 관계에서는 오해가 생기지 않게 분명히 하면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
     },
     {
       "slot": "personal.shinsal",
@@ -16350,21 +16812,21 @@
       "key": "term.shinsal.dohwa",
       "variant": "single",
       "lang": "en",
-      "body": "A shinsal for the charm that draws people's eyes. It often shows as popularity, style, and romantic attention."
+      "body": "A shinsal for the charm that draws people's eyes. It can show as popularity, and also as talk about your love life or a wandering heart."
     },
     {
       "slot": "term.meaning",
       "key": "term.shinsal.dohwa",
       "variant": "single",
       "lang": "ja",
-      "body": "人の目を引く魅力を表す神殺です。人気やおしゃれ、異性からの関心として表れやすくなります。"
+      "body": "人の目を引く魅力を表す神殺です。人気として表れることもあれば、異性関係で噂が立ったり、心が乱れたりしやすくもあります。"
     },
     {
       "slot": "term.meaning",
       "key": "term.shinsal.dohwa",
       "variant": "single",
       "lang": "ko",
-      "body": "사람의 눈길을 끄는 매력을 뜻하는 신살이에요. 인기와 멋, 이성의 관심으로 드러나기 쉬워요."
+      "body": "사람의 눈길을 끄는 매력을 뜻하는 신살이에요. 인기로 드러나기도 하고, 이성 관계로 말이 나거나 마음이 흐트러지기도 쉬워요."
     },
     {
       "slot": "term.meaning",
@@ -16959,21 +17421,21 @@
       "key": "term.tag.dohwa",
       "variant": "single",
       "lang": "en",
-      "body": "A shinsal for the pull that draws people's eyes, so your charm shows and attention comes easily."
+      "body": "A shinsal for the pull that draws people's eyes. Today attention comes easily, and so can talk about romance."
     },
     {
       "slot": "term.meaning",
       "key": "term.tag.dohwa",
       "variant": "single",
       "lang": "ja",
-      "body": "人の目を引く気を表す神殺で、魅力が表に出て注目を集めやすくなります。"
+      "body": "人の目を引く気を表す神殺で、今日は注目を集めやすいぶん、異性関係の噂も立ちやすくなります。"
     },
     {
       "slot": "term.meaning",
       "key": "term.tag.dohwa",
       "variant": "single",
       "lang": "ko",
-      "body": "사람의 눈길을 끄는 기운을 뜻하는 신살로, 매력이 드러나고 관심을 받기 쉬워요."
+      "body": "사람의 눈길을 끄는 기운을 뜻하는 신살로, 오늘은 관심을 받기 쉬운 만큼 이성 관계로 말이 나기도 쉬워요."
     },
     {
       "slot": "term.meaning",

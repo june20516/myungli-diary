@@ -140,6 +140,7 @@
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
 - {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1 month, no automatic charge"}
 - {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "Buy"}
+- {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "The ad-free pass isn't available to purchase right now."}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Please review the Terms of Service and Privacy Policy before purchasing."}
@@ -397,6 +398,8 @@
 - {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}"}
 - {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {weight}"}
 - {slot: ui.saju.a11y, key: bandTableEmptyCell, text: "None"}
+- {slot: ui.ganji.reading, key: ganjiReading, text: "{stem} {branch}"}
+- {slot: ui.ganji.reading, key: ganjiReadingSuffix, text: " ({reading})"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerHour, text: "H"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "D"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "M"}
@@ -407,10 +410,12 @@
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}"}
 - {slot: ui.saju.luck-period, key: luckSeunAge, text: "Age {age}"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "There's no separate reading for this spot."}
+- {slot: ui.explain.term-empty, key: explainSheetTermEmpty, text: "We're preparing an explanation of this term."}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "Lucky color"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "Lucky direction"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "Lucky number"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "Lucky hours"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyPairPosition, text: "{index} of {total}"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "Preview of today's sentence image"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "Share image ratio"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "If you allow this, ads are matched to your interests. If you don't, you can still use the app the same way."}

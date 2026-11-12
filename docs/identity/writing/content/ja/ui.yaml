@@ -140,6 +140,7 @@
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
 - {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1か月、自動決済なし"}
 - {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "購入する"}
+- {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "今は広告除去パスを購入できません。"}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}まで広告なしで使えます"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "購入履歴"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入前に利用規約とプライバシーポリシーをご確認ください。"}
@@ -397,6 +398,8 @@
 - {slot: ui.saju.a11y, key: luckYearLabel, text: "{year}年"}
 - {slot: ui.saju.a11y, key: ohaengBarItem, text: "{element} {weight}"}
 - {slot: ui.saju.a11y, key: bandTableEmptyCell, text: "なし"}
+- {slot: ui.ganji.reading, key: ganjiReading, text: "{stem}{branch}"}
+- {slot: ui.ganji.reading, key: ganjiReadingSuffix, text: "（{reading}）"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerHour, text: "時"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "日"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "月"}
@@ -407,10 +410,12 @@
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}年"}
 - {slot: ui.saju.luck-period, key: luckSeunAge, text: "{age}歳"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "この位置には個別の読み解きがありません。"}
+- {slot: ui.explain.term-empty, key: explainSheetTermEmpty, text: "この用語の解説を準備しています。"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "ラッキーカラー"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "ラッキー方位"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "ラッキーナンバー"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyTimeName, text: "吉時"}
+- {slot: ui.lucky-card.a11y, key: todayLuckyPairPosition, text: "{total}つのうち{index}つ目"}
 - {slot: ui.share.a11y, key: shareImageSemantics, text: "今日の一文の画像プレビュー"}
 - {slot: ui.share.a11y, key: sharePreviewRatioGroup, text: "共有画像の比率"}
 - {slot: ui.system.tracking, key: iosTrackingUsageDescription, text: "許可すると、興味に合わせた広告を表示します。許可しなくても、アプリはこれまでどおり使えます。"}

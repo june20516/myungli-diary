@@ -310,6 +310,12 @@ TARGETS = (
     # D124 ⑦ 흉한 신살 뜻 아래 마무리 한 줄 (#1026, 결정 V120). 시트 안 312에서 상자 안쪽 12씩, 체크 16 + 간격 8
     Target(("ui.shinsal.weighing",), "explain-sheet weighingNote 상자 (fill.soft, 안쪽 12, check 16 + 간격 8, type.caption.lg)",
            "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH - 2 * 12 - ICON_BESIDE_SMALL_TEXT - 8, 2, True, None),
+    # 빈 상태 둘 (#1058, 결정 V123). 광고 제거 상품 없음 안내는 offer-card 안쪽 20에서 가격과 구매 버튼 자리
+    Target(("ad-free.unavailable.body",), "offer-card 상품 없음 안내 (카드 안쪽 20, type.body.ui, 두 줄)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 20, 2, True, None),
+    # 뜻도 근거 출처도 없는 용어의 풀이 시트 빈 안내 (#957), IA 밖 ui 슬롯
+    Target(("ui.explain.term-empty",), "term-token 풀이 시트 빈 안내 (sheet 안쪽 24, type.body.ui, 두 줄)",
+           "ui-400", 14, -0.28, SHEET_CONTENT_WIDTH, 2, True, None),
     # D124 ⑤ 날짜 머리 덕일 (#1029 ①, #1034 drift, 결정 V119). 덕 하나가 알약 하나
     Target(("today.date.virtue",),
            "date-header 덕일 hanja-tag compact (음력, 일진 줄이 칸 단위로 넘겨 혼자 한 줄일 때, type.caption.md)",

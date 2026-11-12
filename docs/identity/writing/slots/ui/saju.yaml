@@ -653,10 +653,10 @@
     screen_reader: "보이는 글자 그대로 읽습니다."
 
 - id: ui.shinsal.weighing
-  where: "흉한 신살(공망, 고신, 과숙, 원진, 구교)의 풀이 시트(explain-sheet)와 사주 기운 시트(tag-sheet)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
+  where: "아래 '붙는 신살'의 풀이 시트(explain-sheet, 원국 `term.shinsal.*`)와 사주 기운 시트(tag-sheet, 오늘 태그 `term.tag.*`)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
   purpose: info
   user_state: "흉한 신살의 뜻을 읽고 불안해질 수 있습니다."
-  structure: "원전 『三命通會』 「總論諸神煞」의 '若專論神煞則誣矣'(신살만 따지면 그릇된다)를 한 문장으로. '일 뿐'은 흉 신살에 대한 불안을 달래려고 둔 것이고(사용자 의도, R41), 순서나 무게(얼마나 크게 볼지)를 말하는 낱말은 다음 궁금증을 부르므로 쓰지 않습니다. 어느 신살에 붙일지는 app이 정합니다."
+  structure: "원전 『三命通會』 「總論諸神煞」의 '若專論神煞則誣矣'(신살만 따지면 그릇된다)를 한 문장으로. '일 뿐'은 흉 신살에 대한 불안을 달래려고 둔 것이고(사용자 의도, R41), 순서나 무게(얼마나 크게 볼지)를 말하는 낱말은 다음 궁금증을 부르므로 쓰지 않습니다. 붙는 신살(D124 ⑦, #1090, W74): 고신, 과숙, 원진, 구교, 천라지망, 십악대패, 음착양차(지휘 확정)와 도화, 공망, 양인, 괴강(writing 판단: 그 자리 뜻 문장이 이성 구설과 흐트러짐, 결과가 손에 잡히지 않음, 다툼과 다침, 막힘을 말해 불안을 줄 수 있음), 모두 열하나. 붙지 않는 신살: 천을귀인, 천덕, 월덕, 금여, 암록, 삼기, 역마(지휘 확정)와 화개(writing 판단: 뜻 문장이 몰두와 혼자 들여다보는 힘만 말함). 뜻 문장을 고치면 다시 판단합니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 52, en: 88, ja: 38}
   components: [explain-sheet]
@@ -672,3 +672,27 @@
   a11y:
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다. 체크 아이콘은 읽지 않습니다."
+
+# IA 밖 간지 독음 틀(#1069, 라운드 R43). 키는 writing이 정한 ARB 이름입니다(W22).
+- id: ui.ganji.reading
+  where: "date-header 일진, date-block 일진, saju-pillars, luck-pillar, manse-table: 간지를 한자와 독음으로 보이거나 스크린리더가 독음으로 읽는 자리"
+  purpose: info
+  user_state: "간지 한자 옆 독음을 보거나, 스크린리더로 간지를 듣습니다."
+  structure: "틀 둘. `ganjiReading`은 천간 독음과 지지 독음을 잇습니다(값은 glossary `stem_reading`, `branch_reading`). `ganjiReadingSuffix`는 app이 한자 글꼴로 그린 간지 한자 바로 뒤에 붙이는 괄호 독음입니다(한자는 틀에 넣지 않음, 괄호 풀이 규칙 style.S1과 글꼴이 다른 두 조각 때문). en은 앞에 한 칸을 둡니다. 스크린리더는 한자를 읽지 않고 `ganjiReading`만 읽습니다(design today.json, diary.json). ko, ja는 붙여 쓰고 en은 두 낱말로 띄어 씁니다. 괄호는 ko, en 반각, ja 전각입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  components: [date-header, date-block, saju-pillars, luck-pillar, manse-table]
+  keys:
+    - {params: {stem: text, branch: text}, keys: [ganjiReading]}
+    - {params: {reading: text}, keys: [ganjiReadingSuffix]}
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: ganjiReading, text: "{stem}{branch}", why: "신묘(라운드 R43)", source: writing}
+      - {lang: ko, key: ganjiReadingSuffix, text: "({reading})", why: "辛卯 뒤에 붙어 辛卯(신묘)", source: writing}
+    bad:
+      - {lang: ko, text: "{ganji}({stem_name}{branch_name})", why: "이름(신금, 묘)을 독음 자리에 넣으면 辛卯(신금묘)가 됨(#1069)", source: writing}
+  endings: []
+  a11y:
+    truncation: "칸 폭은 design 규칙(줄바꿈, 글자 줄임)을 따릅니다."
+    screen_reader: "`ganjiReading`만 읽습니다."

@@ -24,7 +24,7 @@
 - {slot: evidence.basis, key: "basis.tags/clash", text: "今日の地支{day_branch}があなたの{natal_positions}と[[冲|relation.chung]]になるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/clash_day_branch", text: "今日の地支{day_branch}があなたの日支と[[冲|relation.chung]]になるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "今日の地支{day_branch}があなたの月支と[[冲|relation.chung]]になるので、このタグを付けました。"}
-- {slot: evidence.basis, key: "basis.tags/dohwa", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
+- {slot: evidence.basis, key: "basis.tags/dohwa", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。原典は咸池を吉の神殺とは見ず、韓国では魅力や人気として読むので、ここでは両方を伝えています。"}
 - {slot: evidence.basis, key: "basis.tags/gongmang", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/gosin", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/gwasuk", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}

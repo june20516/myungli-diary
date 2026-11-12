@@ -72,9 +72,9 @@
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: advice, text: "Don't rush big decisions. Try giving them a day."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: state, text: "Your familiar surroundings are likely to shift today."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: care, text: "Feeling worn out by a busy pace today is understandable."}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "Take a turn in front of others, at a talk or a gathering."}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "People's attention tends to turn toward you today."}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "It's a nice flutter to feel someone sees you kindly."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "Eyes are on you today, so mind your words and actions."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "Eyes turn to you easily today, and so does talk."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "Your heart may flutter today. Going slow is fine."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "Instead of starting something new, finish what you began."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "Things you've started may move slower than expected."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "If results take time, there's no need to hurry today."}

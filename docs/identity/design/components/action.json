@@ -1,5 +1,5 @@
 {
-  "version": "7.3.0",
+  "version": "7.6.0",
   "group": "action",
   "components": [
     {
@@ -160,23 +160,26 @@
         "status": { "element": "tag.status", "slot": "ad-free.status.remaining" },
         "remaining": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
         "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.24}" },
+        "unavailable": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "slot": "ad-free.unavailable.body", "marginTop": "{space.16}", "maxLines": 2, "note": "상품 목록이 빌 때(unavailable)만 가격, 기간 고지, 구매 버튼 자리에. 아이콘 없음, 누르지 않음 (#922, 결정 V123)" },
         "history": { "component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta" },
         "legal": { "type": "{type.caption.md}", "fg": "{color.text.secondary}", "slot": "ad-free.legal.notice", "marginTop": "{space.12}" }
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "container", "shape": "card" }, { "bone": "icon", "shape": "circle", "size": "{size.icon.28}" }, { "bone": "head", "shape": "textLine", "width": "60%" }, { "bone": "price", "shape": "textLine", "width": "40%" }] },
-        "available": { "parts": { "status": { "visible": false }, "remaining": { "visible": false }, "buy": { "visible": true } } },
+        "available": { "parts": { "status": { "visible": false }, "remaining": { "visible": false }, "buy": { "visible": true }, "unavailable": { "visible": false } } },
         "active": { "pattern": "appear.seep", "parts": { "status": { "visible": true }, "remaining": { "visible": true }, "buy": { "visible": false } }, "note": "이용 중: 꼬리표 + 남은 기간·만료일" },
+        "unavailable": { "parts": { "price": { "visible": false }, "period": { "visible": false }, "buy": { "visible": false }, "status": { "visible": false }, "remaining": { "visible": false }, "unavailable": { "visible": true } }, "note": "상품 목록이 비어 있음(스토어 상품 전, 지역 미지원 등, app A126). 오류가 아닌 정상 상태라 카드 모양은 available과 같고 아이콘과 주는 것 한 줄(head)은 남김. 구매 내역과 약관 안내 그대로. 이용 중이면 active가 먼저이고 안내는 없음 (IA ad-free empty, 관문 답 2026-11-12 A, 결정 V123)" },
         "purchasing": { "parts": { "buy": { "state": "loading" } } },
         "offline": { "parts": { "buy": { "state": "disabled" } }, "note": "화면 위 notice-banner offline. 구매 내역 버튼은 누를 수 있음(purchase-history가 자기 offline 상태를 가짐)" }
       },
       "haptic": [{ "when": "구매 완료", "strength": "light" }],
-      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 기간 고지(ad-free.offer.period)를 함께 읽음" },
+      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 기간 고지(ad-free.offer.period)를 함께 읽음", "unavailableLabel": "unavailable에서는 주는 것 한 줄 + 안내(ad-free.unavailable.body)" },
       "rules": [
         "가격·기간·자동 갱신 아님 고지는 구매 버튼보다 위에, 같은 카드 안에서 보인다.",
         "이용 중에는 구매 버튼 대신 남은 기간을 보이고, 만료되면 available로 돌아간다.",
         "구매 내역 버튼은 상태와 관계없이 늘 보인다(D88 ②, 구매 복원 버튼 없음).",
-        "빨간색·카운트다운·과장 표시를 쓰지 않는다."
+        "빨간색·카운트다운·과장 표시를 쓰지 않는다.",
+        "상품 목록이 비면(unavailable) 오류로 보이지 않게 카드를 그대로 두고 가격과 구매 버튼 자리에 안내 한 줄만 둔다. 경고 아이콘, 다시 시도 버튼, notice-banner를 쓰지 않는다(결정 V123)."
       ]
     },
     {

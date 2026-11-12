@@ -61,6 +61,9 @@ def glossary_values() -> dict[str, tuple[str, ...]]:
         "color": elements,
         "stem": _enum_value_names(engine_pb2.Stem),
         "branch": _enum_value_names(engine_pb2.Branch),
+        # 간지 독음(#1069): 이름(갑목, Rat)과 달리 글자를 읽는 소리입니다. 용어가 아니라 TERM_CATEGORIES에 없습니다.
+        "stem_reading": _enum_value_names(engine_pb2.Stem),
+        "branch_reading": _enum_value_names(engine_pb2.Branch),
         "ten_god": _enum_value_names(engine_pb2.TenGod),
         "ten_god_group": TEN_GOD_GROUPS,
         "direction8": _enum_value_names(engine_pb2.Direction8),

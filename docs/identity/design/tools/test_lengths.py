@@ -89,6 +89,8 @@ ISSUE_1020 = {"today.lucky-color.pair.intro", "today.lucky-time.day.title", "tod
 ISSUE_1029 = {"today.date.virtue"}
 # D124 ⑦ 흉한 신살 마무리 한 줄, IA 밖 ui 슬롯 (#1026, V120)
 ISSUE_1026 = {"ui.shinsal.weighing"}
+# 빈 상태 둘: 광고 제거 상품 없음(IA 슬롯)과 풀이 시트 빈 안내(IA 밖 ui 슬롯) (#1058, V123)
+ISSUE_1058 = {"ad-free.unavailable.body", "ui.explain.term-empty"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -213,7 +215,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
     } | DIALOG_SLOTS_EXPECTED
     requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
                  | ISSUE_763 | DS1_SCREENS | ISSUE_859 | ISSUE_946_950 | ISSUE_1020
-                 | ISSUE_1029 | ISSUE_1026)
+                 | ISSUE_1029 | ISSUE_1026 | ISSUE_1058)
     slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표

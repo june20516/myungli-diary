@@ -11,12 +11,14 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/httpapi/gen"
 )
 
-// TestConvertTag_AllFifteenTags는 계약 Tag 변환이 fortune 길흉 표의 15키를 접두어를 떼고 그대로 옮기는지 고정합니다.
+// TestConvertTag_AllTags는 계약 Tag 변환이 fortune 길흉 표의 20키를 접두어를 떼고 그대로 옮기는지 고정합니다.
 // 표 자체의 값은 fortune.TestTagPolarity가 고정합니다.
-func TestConvertTag_AllFifteenTags(t *testing.T) {
+func TestConvertTag_AllTags(t *testing.T) {
 	want := map[string]gen.TagPolarity{
 		"tag.big_change":             gen.TagPolarityBad,
 		"tag.clash":                  gen.TagPolarityBad,
+		"tag.clash_day_branch":       gen.TagPolarityBad,
+		"tag.clash_month_branch":     gen.TagPolarityBad,
 		"tag.harmony":                gen.TagPolarityGood,
 		"tag.ten_god_rush.bigyeop":   gen.TagPolarityNeutral,
 		"tag.ten_god_rush.siksang":   gen.TagPolarityGood,
@@ -24,14 +26,17 @@ func TestConvertTag_AllFifteenTags(t *testing.T) {
 		"tag.ten_god_rush.gwanseong": gen.TagPolarityBad,
 		"tag.ten_god_rush.inseong":   gen.TagPolarityGood,
 		"tag.cheoneul_gwiin":         gen.TagPolarityGood,
-		"tag.dohwa":                  gen.TagPolarityGood,
+		"tag.dohwa":                  gen.TagPolarityNeutral, // D125 개정(#1083)
 		"tag.yeokma":                 gen.TagPolarityNeutral,
 		"tag.hwagae":                 gen.TagPolarityNeutral,
 		"tag.gongmang":               gen.TagPolarityBad,
+		"tag.gosin":                  gen.TagPolarityBad,
+		"tag.gwasuk":                 gen.TagPolarityBad,
+		"tag.wonjin":                 gen.TagPolarityBad,
 		"tag.yongsin_day":            gen.TagPolarityGood,
 		"tag.gwiin_day":              gen.TagPolarityGood,
 	}
-	assert.Len(t, want, 15)
+	assert.Len(t, want, 20)
 
 	for key, polarity := range want {
 		var c converter

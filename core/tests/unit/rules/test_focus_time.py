@@ -118,3 +118,19 @@ def test_ties_start_from_jin_by_day_and_hae_by_night(pillar_of: PillarOf) -> Non
     assert PERIOD_BRANCHES[FocusPeriod.DAY][0] is Branch.JIN
     assert PERIOD_BRANCHES[FocusPeriod.NIGHT][0] is Branch.HAE
     assert set(PERIOD_BRANCHES[FocusPeriod.DAY]) | set(PERIOD_BRANCHES[FocusPeriod.NIGHT]) == set(Branch)
+
+
+def test_period_hours_cover_whole_period_in_time_order(pillar_of: PillarOf) -> None:
+    """구간 시진 전부(#1078): 낮 7개, 밤 5개가 시간 순으로 이어지고, 고른 시진은 그 안의 같은 값이다."""
+    year = pillar_of("乙亥")
+    for start in range(30):
+        today, tomorrow = _hours(D + timedelta(days=start)), _hours(D + timedelta(days=start + 1))
+        for pick in pick_focus_times(today, tomorrow, year):
+            assert tuple(hour.slot.branch for hour in pick.hours) == PERIOD_BRANCHES[pick.period]
+            for before, after in zip(pick.hours, pick.hours[1:], strict=False):
+                assert before.slot.end == after.slot.start
+            for hour in pick.hours:
+                expected = tomorrow if pick.period is FocusPeriod.NIGHT and hour.slot.branch in NEXT_DAY_NIGHT_BRANCHES else today
+                assert (hour.day_date, hour.day) == (expected.date, expected.pillar)
+            chosen = next(hour for hour in pick.hours if hour.slot == pick.grade.slot)
+            assert (chosen.day_date, chosen.day) == (pick.grade.day_date, pick.grade.day)

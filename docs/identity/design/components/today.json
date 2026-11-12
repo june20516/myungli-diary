@@ -1,5 +1,5 @@
 {
-  "version": "7.3.0",
+  "version": "7.6.0",
   "group": "today",
   "components": [
     {
@@ -85,13 +85,13 @@
           "section": { "head": { "swatch": "ohaeng.swatch 14", "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}" }, "gap": "{space.4}", "basisLabel": false }, "body": { "segments": "sentence-block", "gapAbove": "{space.8}" },
             "evidenceLink": { "component": "depth-link", "variant": "block", "subject": "그 색 이름", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
           "sections": [{ "source": "DailyResponse.color", "bodySlot": "today.lucky-color.body" }, { "source": "DailyResponse.second_color", "bodySlot": "today.lucky-color.second.body" }],
-          "between": { "divider": "list.divider", "gap": "{space.16}" } },
+          "between": { "divider": "list.divider", "gap": "{space.16}", "insetX": 0, "note": "시트 본문 폭 그대로(list.divider inSheet, 결정 V124)" } },
         "timeBand": { "when": "time 칩 시트(낮, 밤 모두) 본문 아래 space.20", "summary": "지금 보이는 낮, 밤 두 칩이 가리키는 24시간 (결정 V117)",
           "order": { "beforeDayStart": ["night(전날 밤)", "day(오늘 낮)"], "fromDayStart": ["day(오늘 낮)", "night(오늘 밤)"] },
           "heads": { "height": { "value": 24, "unit": "px" }, "iconSource": "periods의 lead 아이콘, size.icon.16", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "iconGap": "{space.4}", "slots": { "day": "today.lucky-time.band.day", "night": "today.lucky-time.band.night" }, "gapBelow": "{space.16}" },
           "cells": { "count": 12, "unit": "시진 하나(2시간)", "gap": "{space.2}", "height": { "value": 30, "unit": "px" }, "radius": "{radius.xs}", "label": { "source": "ko, ja는 writing 시진 이름 한 글자. en은 칸에 동물 이름이 들어가지 않아 지지 한자(writing hanja.yaml branch.*, font.family.hanja, 관문 답 2026-11-12 C)", "type": "{type.caption.sm}" },
             "day": { "bg": "{color.ohaeng.earth.bg}", "fg": "{color.ohaeng.earth.fg}" }, "night": { "bg": "{color.ohaeng.water.bg}", "fg": "{color.ohaeng.water.fg}" },
-            "pick": { "ring": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": 700, "note": "두 칩의 고른 시진 둘 모두 고리. 연 칩의 시진이 강조 대상" } },
+            "pick": { "placement": "inside", "placementRule": "고리는 칸 안쪽 가장자리에서 시작(바깥부터 고리, bg.sheet 틈, 칸 색). 칸 밖으로 나가지 않아 칸 사이 space.2를 넘지 않음 (결정 V124, V117 개정)", "opened": { "ring": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": 700, "note": "연 칩(시트를 연 낮 칩 또는 밤 칩)이 고른 시진" }, "other": { "ring": { "color": "{color.text.secondary}", "width": { "value": 1, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": "inherit", "note": "다른 칩이 고른 시진" }, "note": "두 칩의 고른 시진 둘 모두 고리. 연 칩 시진은 굵은 primary 고리와 글자 700, 다른 칩 시진은 가는 text.secondary 고리 (#1072, 관문 답 2026-11-13 A)" } },
           "now": { "line": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" }, "overhang": { "value": 6, "unit": "px" } }, "tag": { "slot": "today.lucky-time.band.now", "bg": "{color.inverse.bg}", "fg": "{color.inverse.fg}", "type": "{type.caption.sm}", "radius": "{radius.full}", "paddingX": "{space.4}", "edge": "띠 양 끝 가까이에서는 꼬리표만 시트 안쪽으로 밀어 넣고 선은 제자리" }, "position": "지금 시각 비례", "update": "시트가 열려 있는 동안 1분마다" },
           "ticks": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "at": ["띠 시작", "낮과 밤 경계", "띠 끝"], "align": ["start", "center", "end"], "dayWordGap": "{space.4}", "dayWords": { "yesterday": "today.lucky-time.band.yesterday", "tomorrow": "today.lucky-time.band.tomorrow" }, "gapAbove": "{space.8}" },
           "a11y": { "role": "image", "label": "띠는 그림으로 숨기고 시트 본문과 칩 라벨이 같은 정보를 말함" } }
@@ -133,7 +133,7 @@
           "label": { "width": { "value": 52, "unit": "px" }, "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "first-baseline", "wrap": { "within": "label", "maxLines": "none", "widthFixed": true, "sentenceWidthKept": true }, "copy": "이름 칸 글자(보조 문장, 오늘의 질문). IA 슬롯 없음(writing 새 슬롯)" },
           "sentence": { "component": "sentence-block", "variant": "body", "marginStart": "{space.8}", "note": "시트 안이라 term 조각은 일반 글자(segments.term.screens 밖)" }
         },
-        "divider": { "element": "list.divider" },
+        "divider": { "element": "list.divider", "insetX": 0, "note": "시트 본문 폭 그대로(list.divider inSheet, 결정 V124)" },
         "empty": { "slot": "tag-sheet.sentences.empty", "type": "{type.body.ui}", "fg": "{color.text.secondary}", "visible": false },
         "diaryLink": {
           "slot": "tag-sheet.diary.cta",
