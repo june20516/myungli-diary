@@ -49,6 +49,32 @@ func TestLoad_TwelveStageMeaningsAndHanja(t *testing.T) {
 	}
 }
 
+// 간지 독음(writing W72, #1075)은 사전 이름 슬롯에 천간 열, 지지 열둘이 세 언어로 있어 Glossary.values의
+// stem_reading, branch_reading 범주로 나갑니다. 앱 날짜 머리 "庚申(경신)일"이 이 값을 씁니다(#1069).
+func TestLoad_GanjiReadings(t *testing.T) {
+	s, err := seed.Load()
+	require.NoError(t, err)
+
+	bodies := map[string]string{}
+	for _, tpl := range s.Templates {
+		if tpl.Slot == "glossary.value_name" {
+			bodies[tpl.Lang+" "+tpl.Key] = tpl.Body
+		}
+	}
+	counts := map[string]int{}
+	for key := range bodies {
+		_, key, _ = strings.Cut(key, " ")
+		category, _, _ := strings.Cut(key, ".")
+		counts[category]++
+	}
+	assert.Equal(t, 10*3, counts["stem_reading"], "천간 독음 열 개, 세 언어")
+	assert.Equal(t, 12*3, counts["branch_reading"], "지지 독음 열둘, 세 언어")
+	assert.Equal(t, "경", bodies["ko stem_reading.gyeong"])
+	assert.Equal(t, "신", bodies["ko branch_reading.shin"])
+	assert.Equal(t, "きのえ", bodies["ja stem_reading.gap"])
+	assert.Equal(t, "Gap", bodies["en stem_reading.gap"])
+}
+
 // 잠긴 원전 미리보기(D106)는 문장 앞부분이라, 원전 원고는 뜻, 원문, 출처 순이어야 미리보기가 뜻이 됩니다(D118, #952).
 // ko 원고의 첫 줄이 원문(한자)도 출처(「편명」)도 아닌지로 순서를 확인합니다.
 func TestLoad_EvidenceSourceStartsWithMeaning(t *testing.T) {

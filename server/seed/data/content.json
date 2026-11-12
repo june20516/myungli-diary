@@ -1,5 +1,5 @@
 {
-  "version": "539717063965f943",
+  "version": "88e07ad3e8e3f410",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -11496,6 +11496,258 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "branch_reading.chuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "Chuk"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.chuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うし"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.chuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "축"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.hae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Hae"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.hae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "い"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.hae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "해"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.in",
+      "variant": "single",
+      "lang": "en",
+      "body": "In"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.in",
+      "variant": "single",
+      "lang": "ja",
+      "body": "とら"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.in",
+      "variant": "single",
+      "lang": "ko",
+      "body": "인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "Ja"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ね"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "자"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.jin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.jin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "たつ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.jin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "진"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.mi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Mi"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.mi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひつじ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.mi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "미"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.myo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Myo"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.myo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "う"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.myo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "묘"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.o",
+      "variant": "single",
+      "lang": "en",
+      "body": "O"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.o",
+      "variant": "single",
+      "lang": "ja",
+      "body": "うま"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.o",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sa",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sa"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sa",
+      "variant": "single",
+      "lang": "ja",
+      "body": "み"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sa",
+      "variant": "single",
+      "lang": "ko",
+      "body": "사"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.shin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.shin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "さる"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.shin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sul",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sul"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "いぬ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.sul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "술"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.yu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yu"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.yu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "とり"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "branch_reading.yu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "유"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "color.earth",
       "variant": "single",
       "lang": "en",
@@ -13152,6 +13404,216 @@
       "variant": "single",
       "lang": "ko",
       "body": "신금"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.byeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Byeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.byeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.byeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "병"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.eul",
+      "variant": "single",
+      "lang": "en",
+      "body": "Eul"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.eul",
+      "variant": "single",
+      "lang": "ja",
+      "body": "きのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.eul",
+      "variant": "single",
+      "lang": "ko",
+      "body": "을"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gap",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gap"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gap",
+      "variant": "single",
+      "lang": "ja",
+      "body": "きのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gap",
+      "variant": "single",
+      "lang": "ko",
+      "body": "갑"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gi"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "つちのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gye",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gye"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gye",
+      "variant": "single",
+      "lang": "ja",
+      "body": "みずのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gye",
+      "variant": "single",
+      "lang": "ko",
+      "body": "계"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gyeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gyeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gyeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "かのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.gyeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "경"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.im",
+      "variant": "single",
+      "lang": "en",
+      "body": "Im"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.im",
+      "variant": "single",
+      "lang": "ja",
+      "body": "みずのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.im",
+      "variant": "single",
+      "lang": "ko",
+      "body": "임"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.jeong",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeong"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.jeong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "ひのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.jeong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.mu",
+      "variant": "single",
+      "lang": "en",
+      "body": "Mu"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.mu",
+      "variant": "single",
+      "lang": "ja",
+      "body": "つちのえ"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.mu",
+      "variant": "single",
+      "lang": "ko",
+      "body": "무"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.sin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.sin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "かのと"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "stem_reading.sin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "신"
     },
     {
       "slot": "glossary.value_name",
