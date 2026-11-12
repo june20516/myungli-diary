@@ -18,6 +18,7 @@ _DATA_PACKAGES: Final[Mapping[str, str]] = {
     "sammyeong-tonghoe": "sammyeong_tonghoe",
     "jeokcheonsu": "jeokcheonsu",
     "xieji-bianfang": "xieji_bianfang",
+    "xingxue-dacheng": "xingxue_dacheng",
 }
 # 파일 이름 → JSON 안에서 키 경로가 시작되는 위치
 _ROOT_KEYS: Final[Mapping[str, str]] = {"johu_evidence": "cells"}
@@ -48,6 +49,37 @@ TAG_SOURCE_REF: Final[Mapping[str, str]] = {
         )
     },
     "clash_month_branch": "jeokcheonsu/tags#clash_month_branch",
+    # D124 ② 오늘 태그 셋은 원국 신살과 같은 조목(四庫본)을 쓴다.
+    **{key: f"sammyeong-tonghoe/shinsal#{key}" for key in ("gosin", "gwasuk", "wonjin")},
+}
+
+# D124 원국 신살 열셋의 원전(#1028). 키는 Shinsal 이름 소문자. 원문 대조: core/docs/references/shinsal-sources-survey.md
+SHINSAL_SOURCE_REF: Final[Mapping[str, str]] = {
+    **{
+        key: f"sammyeong-tonghoe/shinsal#{key}"
+        for key in (
+            "cheondeok",
+            "woldeok",
+            "geumyeo",
+            "gosin",
+            "gwasuk",
+            "wonjin",
+            "gugyo",
+            "cheonra_jimang",
+            "goegang",
+            "sipak_daepae",
+            "eumchak_yangcha",
+            "samgi",
+        )
+    },
+    "amrok": "xingxue-dacheng/shinsal#amrok",
+}
+# 흉한 신살 설명의 맨 아래에 늘 넣는 『三命通會』 卷三 마무리 문장(D124 ⑦). 자리와 모양은 design #1026.
+SHINSAL_WEIGHING_REF: Final = "sammyeong-tonghoe/shinsal#weighing"
+# 택일 덕일(D124 ⑤). 『欽定協紀辨方書』 卷五, 그날이 속한 달 기준.
+DAY_VIRTUE_REF: Final[Mapping[str, str]] = {
+    "cheondeok": "xieji-bianfang/days#tiande",
+    "woldeok": "xieji-bianfang/days#yuede",
 }
 
 
@@ -97,13 +129,17 @@ def johu_ref(stem: Stem, branch: Branch) -> str:
 
 
 def all_refs() -> Iterator[str]:
-    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전, 개인 해석 원전, 시진 원전 전부."""
+    """엔진이 낼 수 있는 모든 source_ref: 조후 120칸, 오행 근거, 색 변역 원전, 태그 원전, 개인 해석 원전, 시진 원전,
+    신살 원전과 마무리 문장, 택일 덕일 원전 전부. 마무리 문장은 엔진 판정이 내지 않고 writing이 인용한다(D124 ⑦)."""
     yield from (johu_ref(stem, branch) for stem in Stem for branch in Branch)
     yield from FIVE_ELEMENTS_REF.values()
     yield COLOR_SHIFT_REF
     yield from TAG_SOURCE_REF.values()
     yield from personal_refs()
     yield from FOCUS_TIME_REF.values()
+    yield from SHINSAL_SOURCE_REF.values()
+    yield SHINSAL_WEIGHING_REF
+    yield from DAY_VIRTUE_REF.values()
 
 
 @cache

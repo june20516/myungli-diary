@@ -13,11 +13,12 @@ from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
 from myungli_engine.composers.chart import NatalContext, merge_notices, prepare_natal
 from myungli_engine.constants.message_keys import require
-from myungli_engine.domain.enums import DayKind
+from myungli_engine.domain.enums import DayKind, DayVirtue
 from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungli_engine.domain.models import Evidence, Judgment, Notice
 from myungli_engine.rules.calendar_luck import LuckScore, score_day
 from myungli_engine.rules.day_kind import classify_day
+from myungli_engine.rules.day_virtue import day_virtues
 from myungli_engine.rules.relations import find_relations
 from myungli_engine.rules.tags import NO_SOURCE, select_tags
 
@@ -32,6 +33,7 @@ class MonthDay:
     luck: LuckScore
     featured_tag: str | None
     judgment: Judgment
+    day_virtues: tuple[DayVirtue, ...]  # 택일 덕일(D124 ⑤). 달력 점수에는 넣지 않는다(D124 ⑥)
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +81,7 @@ def _month_day(info: DayInfo, natal: NatalContext) -> MonthDay:
         luck=luck,
         featured_tag=tags.featured[0] if tags.featured else None,
         judgment=_luck_judgment(luck),
+        day_virtues=day_virtues(lunar_adapter.day_month_branch(info.date), info.pillar),
     )
 
 

@@ -57,7 +57,8 @@ def shinsal_ref(kind: Shinsal) -> str:
     """신살의 뜻을 다룬 원전. 양인은 개인 해석 원전, 나머지는 태그와 같은 조목(#998)."""
     if kind is Shinsal.YANGIN:
         return loader.PERSONAL_YANGIN_REF
-    return loader.TAG_SOURCE_REF[kind.name.lower()]
+    name = kind.name.lower()
+    return loader.SHINSAL_SOURCE_REF.get(name) or loader.TAG_SOURCE_REF[name]
 
 
 def _judgment(bundle: str, key: str, params: _Params, yongsin: YongsinResult, source_ref: str) -> Judgment:
@@ -117,12 +118,17 @@ def twelve_stage_reading(
     return _judgment("twelve_stage", key, params, yongsin, loader.PERSONAL_TWELVE_STAGE_REF)
 
 
-def shinsal_reading(kind: Shinsal, position: Position, branch: Branch, yongsin: YongsinResult) -> Judgment:
+def shinsal_reading(
+    kind: Shinsal, position: Position, element: Element, yongsin: YongsinResult, part: str | None = None
+) -> Judgment:
+    """element는 대표 자리 글자(천간 또는 지지)의 오행이다. part는 구교만(GOU, JIAO, UNKNOWN, D124 ④)."""
     params: _Params = {
         "place": _place(position),
-        "element": branch.element.name,
-        "role": element_role(branch.element, yongsin).name,
+        "element": element.name,
+        "role": element_role(element, yongsin).name,
     }
+    if part is not None:
+        params["part"] = part
     return _judgment("shinsal", f"personal.shinsal.{kind.name.lower()}", params, yongsin, shinsal_ref(kind))
 
 

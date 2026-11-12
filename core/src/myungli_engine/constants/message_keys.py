@@ -40,6 +40,9 @@ TAG_KEYS: frozenset[str] = frozenset(
         "tag.yeokma",
         "tag.hwagae",
         "tag.gongmang",
+        "tag.gosin",
+        "tag.gwasuk",
+        "tag.wonjin",
         "tag.yongsin_day",
         "tag.gwiin_day",
     }
@@ -96,6 +99,10 @@ KEY_PARAMS: dict[str, tuple[str, ...]] = {
         ("place", "element", "role", "strength"),
     ),
     **_declare((f"personal.shinsal.{kind}" for kind in _SHINSALS), ("place", "element", "role")),
+    # 구교는 그 자리가 勾인지 絞인지(part: GOU, JIAO, UNKNOWN)를 더한다. 원문대로 남녀로 갈린다(D124 ④)
+    "personal.shinsal.gugyo": ("place", "element", "role", "part"),
+    # 택일 덕일(D124 ⑤). 그날이 속한 달의 월건 지지와 일진 천간
+    **_declare((f"day_virtue.{name}" for name in ("cheondeok", "woldeok")), ("month_branch", "day_stem")),
     **_declare(
         (f"personal.luck.ten_god.{god}" for god in _TEN_GODS),
         ("luck", "part", "element", "role", "current"),

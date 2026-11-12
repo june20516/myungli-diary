@@ -21,6 +21,14 @@
     "shift",
     "twelve_stage"
   ],
+  "day_virtue/cheondeok": [
+    "day_stem",
+    "month_branch"
+  ],
+  "day_virtue/woldeok": [
+    "day_stem",
+    "month_branch"
+  ],
   "direction/gwiin_branch": [
     "day_branch",
     "day_kind",
@@ -113,6 +121,7 @@
   ],
   "personal/shinsal": [
     "element",
+    "part",
     "place",
     "role"
   ],
@@ -153,6 +162,14 @@
     "day_branch",
     "shinsal"
   ],
+  "tags/gosin": [
+    "day_branch",
+    "shinsal"
+  ],
+  "tags/gwasuk": [
+    "day_branch",
+    "shinsal"
+  ],
   "tags/gwiin_day": [
     "day_kind"
   ],
@@ -174,6 +191,10 @@
     "group",
     "natal_count",
     "stem_ten_god"
+  ],
+  "tags/wonjin": [
+    "day_branch",
+    "shinsal"
   ],
   "tags/yeokma": [
     "day_branch",

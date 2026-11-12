@@ -17,10 +17,10 @@ from myungli_engine.chart.luck_cycles import LuckCycles, build_luck_cycles
 from myungli_engine.chart.personal_target import PersonalReading
 from myungli_engine.chart.pillars import Chart, build_chart
 from myungli_engine.chart.positions import BRANCH_POSITIONS, Position
-from myungli_engine.chart.shinsal import shinsal_branches
+from myungli_engine.chart.shinsal import STEM_POSITIONS, gugyo_part, shinsal_branches
 from myungli_engine.constants.gwiin import CHEONEUL_GWIIN
 from myungli_engine.constants.message_keys import require
-from myungli_engine.domain.enums import Branch, PersonalTermKind, Shinsal
+from myungli_engine.domain.enums import Branch, Gender, PersonalTermKind, Shinsal
 from myungli_engine.domain.errors import InvalidInputError
 from myungli_engine.domain.models import FourPillars, Judgment, Notice, Pillar
 from myungli_engine.rules import personal
@@ -97,7 +97,7 @@ def compose_chart(birth: BirthInput, as_of: date) -> ChartView:
         yongsin_judgment=yongsin_judgment(natal.yongsin),
         luck=luck,
         notices=merge_notices(natal.chart.notices, luck.notices),
-        personal_readings=_personal_readings(natal, luck, as_of),
+        personal_readings=_personal_readings(natal, luck, as_of, birth.gender),
     )
 
 
@@ -119,16 +119,18 @@ def _pillar_at(pillars: FourPillars, position: Position) -> Pillar:
     return pillar
 
 
-def _personal_readings(natal: NatalContext, luck: LuckCycles, as_of: date) -> tuple[PersonalReading, ...]:
+def _personal_readings(
+    natal: NatalContext, luck: LuckCycles, as_of: date, gender: Gender
+) -> tuple[PersonalReading, ...]:
     """일간, 원국 십성, 지장간, 12운성, 신살, 대운, 세운 순서의 개인 해석 목록."""
     return (
-        *_natal_readings(natal),
+        *_natal_readings(natal, gender),
         *_daeun_readings(natal, luck, as_of),
         *_seun_readings(natal, luck, as_of),
     )
 
 
-def _natal_readings(natal: NatalContext) -> tuple[PersonalReading, ...]:
+def _natal_readings(natal: NatalContext, gender: Gender) -> tuple[PersonalReading, ...]:
     chart, strength, yongsin = natal.chart, natal.strength, natal.yongsin
     pillars = chart.pillars
     readings = [
@@ -162,8 +164,10 @@ def _natal_readings(natal: NatalContext) -> tuple[PersonalReading, ...]:
         )
         readings.append(PersonalReading(PersonalTermKind.TWELVE_STAGE, position, 0, None, judgment))
     for hit in chart.shinsal:
-        branch = _pillar_at(pillars, hit.position).branch
-        judgment = personal.shinsal_reading(hit.kind, hit.position, branch, yongsin)
+        pillar = _pillar_at(pillars, hit.position)
+        element = pillar.stem.element if hit.position in STEM_POSITIONS else pillar.branch.element
+        part = gugyo_part(pillars.year, pillar.branch, gender) if hit.kind is Shinsal.GUGYO else None
+        judgment = personal.shinsal_reading(hit.kind, hit.position, element, yongsin, part)
         readings.append(PersonalReading(PersonalTermKind.SHINSAL, hit.position, 0, hit.kind, judgment))
     return tuple(readings)
 

@@ -47,6 +47,13 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "tags/hwagae": _SHINSAL_DETAIL,
     "tags/dohwa": _SHINSAL_DETAIL,
     "tags/cheoneul_gwiin": _SHINSAL_DETAIL,
+    # D124 ② 오늘 태그 셋 (#1028)
+    "tags/gosin": _SHINSAL_DETAIL,
+    "tags/gwasuk": _SHINSAL_DETAIL,
+    "tags/wonjin": _SHINSAL_DETAIL,
+    # D124 ⑤ 택일 덕일. 그날이 속한 달(월건)과 일진 천간
+    "day_virtue/cheondeok": ("day_stem", "month_branch"),
+    "day_virtue/woldeok": ("day_stem", "month_branch"),
     "tags/gwiin_day": ("day_kind",),
     "tags/yongsin_day": ("day_kind",),
     "fortune/day_kind": ("day_kind", "group", "ten_god"),
@@ -56,7 +63,8 @@ RULE_DETAIL_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "personal/day_master": ("gisin", "strength", "yongsin"),
     "personal/ten_god": ("element", "group_count", "place", "role", "strength"),
     "personal/twelve_stage": ("element", "place", "role", "strength"),
-    "personal/shinsal": ("element", "place", "role"),
+    # part는 구교만: 그 자리가 勾인지 絞인지(원문대로 남녀로 갈림, D124 ④)
+    "personal/shinsal": ("element", "part", "place", "role"),
     "personal/luck_ten_god": ("current", "element", "luck", "part", "role"),
     "personal/luck_twelve_stage": ("current", "element", "role"),
     # 용신 (spec 6.2)

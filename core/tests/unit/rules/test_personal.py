@@ -122,10 +122,18 @@ def test_twelve_stage_reading_uses_branch_element():
 
 
 def test_shinsal_reading():
-    judgment = shinsal_reading(Shinsal.DOHWA, Position.YEAR_BRANCH, Branch.JA, make_yongsin())
+    judgment = shinsal_reading(Shinsal.DOHWA, Position.YEAR_BRANCH, Branch.JA.element, make_yongsin())
     assert judgment.message_key == "personal.shinsal.dohwa"
     assert judgment.params == {"place": "YEAR_BRANCH", "element": "WATER", "role": "GISIN"}
     require(judgment.message_key, judgment.params)
+
+
+def test_shinsal_reading_gugyo_part_and_new_source() -> None:
+    """구교는 勾과 絞를 part로 낸다(D124 ④). 새 신살은 신살 원전 조목을 쓴다."""
+    judgment = shinsal_reading(Shinsal.GUGYO, Position.MONTH_BRANCH, Branch.MYO.element, make_yongsin(), "GOU")
+    assert judgment.params["part"] == "GOU"
+    require(judgment.message_key, judgment.params)
+    assert judgment.evidence[0].source_ref == "sammyeong-tonghoe/shinsal#gugyo"
 
 
 def test_luck_reading_current_flag():

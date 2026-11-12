@@ -12,13 +12,14 @@ from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
 from myungli_engine.composers.chart import prepare_natal
 from myungli_engine.constants.message_keys import require
-from myungli_engine.domain.enums import DayKind, TenGod
+from myungli_engine.domain.enums import DayKind, DayVirtue, TenGod
 from myungli_engine.domain.models import Evidence, Judgment, Notice, Pillar
 from myungli_engine.domain.ten_gods import ten_god
 from myungli_engine.references.loader import FIVE_ELEMENTS_REF, FOCUS_TIME_REF
 from myungli_engine.rules import messages
 from myungli_engine.rules.color import ElementPick, lucky_colors
 from myungli_engine.rules.day_kind import classify_day
+from myungli_engine.rules.day_virtue import day_virtue_judgment, day_virtues
 from myungli_engine.rules.direction import DirectionPick, lucky_direction
 from myungli_engine.rules.focus_time import DayHours, FocusPick, pick_focus_times
 from myungli_engine.rules.number import hado_pair, lucky_number
@@ -45,6 +46,7 @@ class DailyView:
     day_stem_ten_god: TenGod
     guide_candidates: tuple[Judgment, ...]
     lunar: KoreanLunarDate  # 그날의 한국 음력 날짜(월간 캘린더와 같은 계산)
+    day_virtues: tuple[tuple[DayVirtue, Judgment], ...]  # 택일 덕일(D124 ⑤), 천덕일 먼저
 
 
 def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> DailyView:
@@ -95,6 +97,14 @@ def compose_daily(birth: BirthInput, target: date, current_timezone: str) -> Dai
         day_stem_ten_god=ten_god(natal_pillars.day.stem, day.stem),
         guide_candidates=guides,
         lunar=korean_lunar.solar_to_lunar(target),
+        day_virtues=_day_virtues(target, day),
+    )
+
+
+def _day_virtues(target: date, day: Pillar) -> tuple[tuple[DayVirtue, Judgment], ...]:
+    month_branch = lunar_adapter.day_month_branch(target)
+    return tuple(
+        (virtue, day_virtue_judgment(virtue, month_branch, day)) for virtue in day_virtues(month_branch, day)
     )
 
 
