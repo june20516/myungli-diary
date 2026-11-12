@@ -1,30 +1,41 @@
 {
-  "version": "7.1.0",
+  "version": "7.2.0",
   "group": "today",
   "components": [
     {
       "id": "date-header",
-      "summary": "날짜 머리: 날짜와 요일, 그 아래 음력과 일진 한 줄 (D108, 결정 V78)",
+      "summary": "날짜 머리: 날짜와 요일, 그 아래 음력과 일진 한 줄, 덕일인 날은 그 줄 끝에 덕일 알약 (D108, D124 ⑤, 결정 V78, V119)",
       "uses": [],
       "variants": [
-        { "id": "today", "when": "오늘 화면: 날짜, 음력, 일진", "parts": { "iljin": { "visible": true } } },
-        { "id": "day-sheet", "when": "그날 시트 머리: 날짜와 음력, 오른쪽에 날의 성격", "parts": { "iljin": { "visible": false }, "trailing": { "component": "hanja-tag", "variant": "emphasis", "slot": "day-sheet.character.label", "position": "날짜 머리 오른쪽 끝", "verticalAlign": "날짜와 음력 두 줄 묶음의 세로 가운데(음력이 없으면 날짜 줄 가운데)", "gapStart": "{space.12}", "overflow": "날짜 글자와 space.12와 태그가 한 줄 폭에 들어가지 않으면(큰 글자 배율) 태그를 날짜 머리 아래 space.12 왼쪽 줄로 내림", "opens": { "sheet": "explain-sheet", "diaryLink": false }, "note": "결정 V109(#932 ③). 전에는 날짜 머리 아래 따로 한 줄" } } }
+        { "id": "today", "when": "오늘 화면: 날짜, 음력, 일진, 덕일(있는 날만)", "parts": { "iljin": { "visible": true }, "virtue": { "visible": true } } },
+        { "id": "day-sheet", "when": "그날 시트 머리: 날짜와 음력, 오른쪽에 날의 성격", "parts": { "iljin": { "visible": false }, "virtue": { "visible": false }, "trailing": { "component": "hanja-tag", "variant": "emphasis", "slot": "day-sheet.character.label", "position": "날짜 머리 오른쪽 끝", "verticalAlign": "날짜와 음력 두 줄 묶음의 세로 가운데(음력이 없으면 날짜 줄 가운데)", "gapStart": "{space.12}", "overflow": "날짜 글자와 space.12와 태그가 한 줄 폭에 들어가지 않으면(큰 글자 배율) 태그를 날짜 머리 아래 space.12 왼쪽 줄로 내림", "opens": { "sheet": "explain-sheet", "diaryLink": false }, "note": "결정 V109(#932 ③). 전에는 날짜 머리 아래 따로 한 줄" } } }
       ],
       "parts": {
         "solar": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "today.date.solar", "daySheetSlot": "day-sheet.date.solar", "source": "기기 날짜(프로필 시간대)" },
-        "meta": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "order": ["lunar", "iljin"], "gap": "{space.8}", "separator": "none", "whenEmpty": "hide-line-and-gap", "wrap": "칸 단위로 다음 줄(칸 하나는 끊지 않음)" },
+        "meta": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.2}", "order": ["lunar", "iljin", "virtue"], "gap": "{space.8}", "separator": "none", "whenEmpty": "hide-line-and-gap", "wrap": "칸 단위로 다음 줄(칸 하나는 끊지 않음)" },
         "lunar": { "slot": "today.date.lunar", "daySheetSlot": "day-sheet.date.lunar", "source": "server 오늘 음력(#806 계약 추가). 달력은 CalendarDay.lunar", "whenMissing": "hide" },
-        "iljin": { "slot": "today.date.iljin", "source": "Daily.dayPillar", "fontFallback": "{font.family.hanja}", "note": "한글은 UI 글꼴, 간지 한자만 font.family.hanja(근거 시트 원전과 같은 방식)" }
+        "iljin": { "slot": "today.date.iljin", "source": "Daily.dayPillar", "fontFallback": "{font.family.hanja}", "note": "한글은 UI 글꼴, 간지 한자만 font.family.hanja(근거 시트 원전과 같은 방식)" },
+        "virtue": {
+          "component": "hanja-tag", "variant": "compact", "tone": "verdictTone.good", "glyph": "德",
+          "slot": "today.date.virtue", "keys": { "CHEONDEOK": "todayDateVirtueCheondeok", "WOLDEOK": "todayDateVirtueWoldeok" },
+          "source": "Daily의 덕일 목록(엔진 DailyResponse.day_virtues, REST는 server #1031 계약 추가). 계약에 없거나 빈 날은 칸째 없음",
+          "perVirtue": "덕 하나가 알약 하나. 둘 다인 날(辰, 未, 戌, 丑 달)은 천덕일, 월덕일 순서로 알약 둘이고 사이는 meta 칸 간격 space.8",
+          "verticalAlign": "meta 줄 글줄의 세로 가운데(알약 22가 caption.lg 줄보다 높아 그 줄 높이가 22가 됨)",
+          "opens": { "sheet": "explain-sheet", "subject": "누른 덕(천덕일 또는 월덕일)의 풀이. 원국의 천덕귀인, 월덕귀인 풀이와 다른 키(writing #1030)" },
+          "whenMissing": "hide",
+          "note": "관문 답 2026-11-12(#1029 ① A, 결정 V119). 음력, 일진과 같은 날 정보 줄에 두고 모양만 길 색 알약으로 달리함(D124 ⑤)"
+        }
       },
-      "states": { "loading": { "skeleton": [{ "bone": "meta", "shape": "textLine", "lines": 1, "width": "50%" }], "note": "날짜 줄은 기기 날짜라 바로 그리고, server 값인 음력과 일진 줄만 뼈" } },
+      "states": { "loading": { "skeleton": [{ "bone": "meta", "shape": "textLine", "lines": 1, "width": "50%" }], "note": "날짜 줄은 기기 날짜라 바로 그리고, server 값인 음력과 일진 줄만 뼈. 덕일 알약은 뼈를 두지 않음(덕일이 없는 날이 대부분이라 뼈가 있다가 사라지면 흔들림)" } },
       "haptic": [],
-      "a11y": { "role": "header", "label": "날짜, 음력, 일진을 한 덩어리로 읽음", "readsHanja": false, "iljinLabel": "일진은 한글 독음만 읽음(예: 경신일)" },
+      "a11y": { "role": "header", "label": "날짜, 음력, 일진을 한 덩어리로 읽음", "readsHanja": false, "iljinLabel": "일진은 한글 독음만 읽음(예: 경신일)", "virtueLabel": "덕일 알약은 머리 덩어리 뒤에 따로 초점이 가는 버튼. 이름은 알약 글자 그대로(todayDateVirtueCheondeok, todayDateVirtueWoldeok, 한자 원은 읽지 않음). 둘 다인 날은 천덕일, 월덕일 순서로 둘" },
       "rules": [
         "날짜 줄(type.subtitle) 아래 space.2에 음력과 일진을 한 줄로 둔다. 두 칸은 간격(space.8)으로만 나누고 쉼표나 기호로 잇지 않는다(V47, V52와 같은 이유).",
         "음력이 계약에 없으면(server #806 전) 음력 칸만 빼고 줄은 일진으로 남긴다.",
         "그날 시트(day-sheet 변형)는 날짜와 음력만이고 일진이 없다.",
         "meta 칸이 모두 없으면(그날 시트에서 음력이 계약에 없을 때) 그 줄과 위 space.2 여백을 그리지 않는다. 날짜 줄 하나만 남는다.",
-        "누를 수 없는 표시다. 눌림 표시를 두지 않는다."
+        "덕일인 날(천덕일, 월덕일, D124 ⑤)은 오늘 화면에서만 meta 줄 일진 뒤에 hanja-tag compact 길 색 알약(德과 덕 이름)을 덕마다 하나씩 둔다. 덕일이 아닌 날은 칸째 없어 날짜 머리가 지금과 같다. 그날 시트에는 두지 않는다(결정 V119).",
+        "날짜, 음력, 일진은 누를 수 없는 표시다. 눌림 표시를 두지 않는다. 덕일 알약만 누르고, 누르면 그 덕의 explain-sheet가 열린다(hanja-tag 누름, 터치 높이 44)."
       ]
     },
     {

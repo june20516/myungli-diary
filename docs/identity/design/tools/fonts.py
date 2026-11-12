@@ -1,6 +1,6 @@
 """측정 글꼴을 고정 주소에서 받아 sha256을 확인합니다 (#362, D81).
 
-글자 수 상한 표(lengths.py)와 워드마크(wordmark.py)가 쓰는 글꼴입니다. 글꼴은 모두 SIL OFL 1.1이고 저장소에는 넣지 않습니다.
+글자 수 상한 표(lengths.py), 워드마크(wordmark.py), 한자 대체 글꼴(hanja_supplement.py)이 쓰는 글꼴입니다. 글꼴은 모두 SIL OFL 1.1이고 저장소에는 넣지 않습니다.
 이미 있고 checksum이 맞는 파일은 받지 않으므로, CI 캐시에서 일부만 복원돼도 결과는 같습니다.
 
     uv run python docs/identity/design/tools/fonts.py --font-dir .suberpowers/fonts
@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 GOOGLE_FONTS = "https://raw.githubusercontent.com/google/fonts"
 PRETENDARD = "https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/public/static"
+PRETENDARD_JP = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-jp/dist/public/static"
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,12 @@ FONTS = (
          "c89bc43027dc7cde5726e96223376f8eec09302b2fc1f8147fd5b57cfc376118"),
     Font("Pretendard-Bold.otf", f"{PRETENDARD}/Pretendard-Bold.otf",
          "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7"),
+    # 한자 글꼴(font.family.hanja)과 빠진 글자를 떼어 낼 원본 (#1029, 결정 V121). Pretendard JP는 app이 묶은 파일과 같은 sha256
+    Font("PretendardJP-Regular.otf", f"{PRETENDARD_JP}/PretendardJP-Regular.otf",
+         "8e45c1999c941e8237e52c650c64667638cff1e50b9492c7b02ee1d380b7d06d"),
+    Font("NotoSansJP-wght.ttf",
+         f"{GOOGLE_FONTS}/66a36c8c94b1a5d992ee4e7f392fccfe4945767c/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+         "c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f"),
 )
 
 

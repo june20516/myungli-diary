@@ -445,10 +445,11 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_1_0():
+def test_contract_version_is_7_2_0():
+    # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.1.0"
+    assert VERSION == "7.2.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -557,6 +558,8 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
+# 흉한 신살 뜻 아래 『三命通會』 마무리 한 줄 (D124 ⑦, #1026, V120). writing #1030 새 IA 밖 슬롯
+SLOTS_OUTSIDE_IA |= {"ui.shinsal.weighing"}
 
 
 def _slot_values(node):
@@ -1627,7 +1630,8 @@ HANJA_GLYPHS = {
     "dayKind": {"貴", "用", "忌", "平"},
     "tenGodGroup": {"比", "食", "財", "官", "印"},
     "relation": {"合", "沖", "刑"},  # 刑: 사용자 결정 2026-11-07(D108 ② 누락 보완)
-    "sinsal": {"天", "桃", "驛", "華", "空"},
+    "sinsal": {"天", "桃", "驛", "華", "空", "孤", "寡", "元"},  # 孤 寡 元: D124 ② 관문 답 2026-11-12(V121)
+    "virtueDay": {"德"},  # 날짜 머리 덕일: 관문 답 2026-11-12(#1029 ①, V119)
 }
 
 
@@ -1651,7 +1655,7 @@ def test_hanja_tag_component():
     assert parts["name"]["type"] == "{type.label.md}"
     glyphs = parts["glyphs"]
     assert {group: set(names) for group, names in glyphs.items()} == HANJA_GLYPHS
-    assert sum(len(names) for names in glyphs.values()) == 17
+    assert sum(len(names) for names in glyphs.values()) == 21
     # 톤: 날의 성격만 길흉 톤, 그 밖의 용어는 term. 길흉 톤은 더함과 뺌을 보이는 자리에서만(Q4 ③ + ①)
     tone = parts["tone"]
     good = {"bg": "{color.tag.good.bg}", "fg": "{color.tag.good.fg}"}
@@ -1661,9 +1665,9 @@ def test_hanja_tag_component():
     assert tone["dayKind"] == {"GWIIN_DAY": good, "YONGSIN_DAY": good, "GISIN_DAY": bad, "ORDINARY_DAY": neutral}
     assert tone["otherTerms"] == {"bg": "{color.term.bg}", "fg": "{color.term.fg}"}
     assert tone["verdictTone"] == {"good": good, "bad": bad}
-    assert tone["toneAllowedIn"] == ["fortune-verdict", "score-row"]
+    assert tone["toneAllowedIn"] == ["fortune-verdict", "score-row", "date-header"]  # date-header: 덕일 good 톤(V119)
     variants = {variant["id"]: variant for variant in tag["variants"]}
-    assert set(variants) == {"default", "emphasis", "selected", "ganji"}
+    assert set(variants) == {"default", "emphasis", "selected", "ganji", "compact"}
     emphasis = variants["emphasis"]["parts"]["tone"]["dayKind"]  # Q4-2 ①: V8 배지 매핑 그대로
     assert emphasis == {
         "YONGSIN_DAY": {"bg": "{color.badge.good.bg}", "fg": "{color.badge.good.fg}"},
@@ -1690,7 +1694,7 @@ def test_hanja_tag_component():
         for element in ("wood", "fire", "earth", "metal", "water")}
     assert ganji["ganjiGlyphs"] == GANJI_ELEMENTS and len(GANJI_ELEMENTS["stems"]) + len(GANJI_ELEMENTS["branches"]) == 22
     assert "stemGlyph" not in parts and "ganjiGlyph" not in ganji and "stem.chip" not in tag["uses"]
-    assert any("17자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
+    assert any("21자" in rule and "사주 용어" in rule and "ganji" in rule for rule in tag["rules"])
     assert set(tag["parts"]["opens"]["targets"]) == {"explain-sheet", "tag-sheet"}
     assert tag["a11y"]["role"] == "button" and tag["a11y"]["label"] == "이름 글자(한자는 읽지 않음)"
     assert tag["a11y"]["minTarget"] == 44
@@ -1888,7 +1892,7 @@ def test_date_header():
     meta = parts["meta"]
     assert (meta["type"], meta["fg"], meta["marginTop"]) == ("{type.caption.lg}", "{color.text.secondary}", "{space.2}")
     # 음력과 일진은 한 줄에 놓고 글자로 잇지 않음(구분은 간격, V47·V52와 같은 이유)
-    assert meta["order"] == ["lunar", "iljin"] and meta["gap"] == "{space.8}" and meta["separator"] == "none"
+    assert meta["order"] == ["lunar", "iljin", "virtue"] and meta["gap"] == "{space.8}" and meta["separator"] == "none"
     lunar, iljin = parts["lunar"], parts["iljin"]
     assert (lunar["slot"], lunar["daySheetSlot"]) == ("today.date.lunar", "day-sheet.date.lunar")
     assert lunar["whenMissing"] == "hide" and "#806" in lunar["source"]  # 음력이 계약에 없으면 일진만
@@ -1905,6 +1909,60 @@ def test_date_header():
     assert meta["whenEmpty"] == "hide-line-and-gap"
     assert any("meta" in rule and "space.2" in rule and "그리지 않는다" in rule for rule in header["rules"])
     assert "date-header" not in components.IA_PENDING_COMPONENTS and "date-header" in CONTENT_COMPONENTS
+
+
+def test_v121_band_table_shinsal_density_and_positions():
+    # #1029 ②③ 관문 답(2026-11-12, 모두 추천안)
+    band = component("saju", "band-table")
+    text = json.dumps(band, ensure_ascii=False)
+    assert "ShinsalHit.positions" in text and "모두 쌓음" in text and '"stemMark": "none"' in text
+    assert any("걸친 칸마다" in rule and "천간 자리, 일주 신살, 지지 자리" in rule for rule in band["rules"])
+    body = _md_section("saju.md", "## band-table")
+    assert "V121" in body and "22.5%" in body and "삼기" in body
+    glyphs = component("sentence", "hanja-tag")["parts"]["glyphs"]["sinsal"]
+    assert (glyphs["孤"], glyphs["寡"], glyphs["元"]) == ("고신", "과숙", "원진")
+    row = decision_rows()["V121"]
+    assert "사용자 영향" in row["근거"] and "#1029" in row["근거"] and "Myungli Hanja Supplement" in row["결정"]
+
+
+def test_v120_shinsal_weighing_note_in_free_sheets_only():
+    # #1026 관문 답(2026-11-12): 자리 A 풀이 시트에만, 모양은 체크 아이콘 + 뉴트럴 바탕, 문구는 writing
+    note = component("frame", "explain-sheet")["parts"]["weighingNote"]
+    assert note["slot"] == "ui.shinsal.weighing" and note["interactive"] is False
+    assert note["box"] == {"bg": "{color.fill.soft}", "radius": "{radius.md}", "padding": "{space.12}"}
+    assert (note["icon"]["name"], note["icon"]["color"]) == ("check", "{color.action.primary}")
+    assert note["text"] == {"type": "{type.caption.lg}", "fg": "{color.text.secondary}", "maxLines": 2}
+    assert "tag-sheet" in note["when"] and "근거 시트" in note["note"]
+    assert "ui.shinsal.weighing" in _md_section("today.md", "### tag-sheet 화면 배치")
+    assert "weighingNote" in _md_section("frame.md", "## explain-sheet")
+    row = decision_rows()["V120"]
+    assert "사용자 영향" in row["근거"] and "#1026" in row["근거"]
+
+
+def test_v119_date_header_virtue_pill():
+    # #1029 ① 관문 답 A(2026-11-12): 덕일은 음력, 일진 줄 끝 hanja-tag compact 길 색 알약, 덕마다 하나
+    header = component("today", "date-header")
+    virtue = header["parts"]["virtue"]
+    assert (virtue["component"], virtue["variant"], virtue["glyph"]) == ("hanja-tag", "compact", "德")
+    assert virtue["tone"] == "verdictTone.good" and virtue["slot"] == "today.date.virtue"
+    assert virtue["keys"] == {"CHEONDEOK": "todayDateVirtueCheondeok", "WOLDEOK": "todayDateVirtueWoldeok"}
+    assert virtue["whenMissing"] == "hide" and "#1031" in virtue["source"] and "day_virtues" in virtue["source"]
+    assert "천덕일, 월덕일 순서" in virtue["perVirtue"] and virtue["opens"]["sheet"] == "explain-sheet"
+    variants = {variant["id"]: variant["parts"] for variant in header["variants"]}
+    assert variants["today"]["virtue"] == {"visible": True} and variants["day-sheet"]["virtue"] == {"visible": False}
+    assert "뼈를 두지 않음" in header["states"]["loading"]["note"]
+    assert "todayDateVirtueCheondeok" in header["a11y"]["virtueLabel"] and "읽지 않음" in header["a11y"]["virtueLabel"]
+    assert any("덕일 알약만 누르고" in rule for rule in header["rules"])
+    tag = component("sentence", "hanja-tag")
+    compact = next(v for v in tag["variants"] if v["id"] == "compact")["parts"]
+    assert compact["pill"]["height"] == {"value": 22, "unit": "px"} and compact["glyph"]["size"] == {"value": 16, "unit": "px"}
+    assert compact["name"]["type"] == "{type.caption.md}" and "44" in compact["hitSlop"]
+    assert tag["parts"]["glyphs"]["virtueDay"] == {"德": "천덕일, 월덕일"}
+    assert "date-header" in tag["parts"]["tone"]["toneAllowedIn"]
+    body = _md_section("today.md", "## date-header")
+    assert "`today.date.virtue`" in body and "V119" in body and "#1031" in body
+    row = decision_rows()["V119"]
+    assert "사용자 영향" in row["근거"] and "#1029" in row["근거"]
 
 
 # DS1 2단계 spec §4 tag-sentence-list, IA tag-sheet (결정 V79)
@@ -2384,7 +2442,7 @@ def test_hyeong_glyph():
     # 사용자 결정 2026-11-07: 刑(형)도 한자 아이콘. D108 ② 한자 목록 누락 보완, 사주 용어라 기본 term 톤
     tag = component("sentence", "hanja-tag")
     assert tag["parts"]["glyphs"]["relation"]["刑"] == "형"
-    assert any("17자" in rule and "刑" in rule for rule in tag["rules"])
+    assert any("21자" in rule and "刑" in rule and "德" in rule for rule in tag["rules"])
     row = component("calendar", "score-row")
     text = json.dumps(row, ensure_ascii=False)
     assert "pendingGlyphs" not in row["parts"] and "자리값" not in text
@@ -2788,9 +2846,9 @@ def test_ganji_rule_names_table_path():
 def test_v70_body_states_current_glyph_count():
     row = decision_rows()["V70"]
     body = row["결정"].split("(2026-11-07 개정:", 1)[0]
-    assert "17자" in body and "刑" in body and "16자" not in body and "넣지 않습니다" not in body
+    assert "21자" in body and "刑" in body and "德" in body and "孤" in body and "16자" not in body and "넣지 않습니다" not in body
     assert "16자" in row["결정"].split("(2026-11-07 개정:", 1)[1]  # 옛 값은 개정 괄호에만
-    assert "17자 규칙" in row["근거"] and "16자 규칙" not in row["근거"]
+    assert "21자 규칙" in row["근거"] and "18자 규칙" not in row["근거"]
 
 
 def test_keyboard_dismiss_element_is_recorded():

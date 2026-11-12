@@ -120,7 +120,7 @@ def test_typography_values():
     assert ko["type.numeric.calendar"]["$extensions"] == {
         "io.github.june20516.myungli-diary": {"fontFeatures": ["tnum"]}}
     assert ko["font.family.sentence"]["$value"] == ["Gowun Dodum", "Pretendard", "sans-serif"]
-    assert ja["font.family.ui"]["$value"] == ["Pretendard JP", "sans-serif"]
+    assert ja["font.family.ui"]["$value"] == ["Pretendard JP", "Myungli Hanja Supplement", "sans-serif"]
     assert set(name for name in ko if name.startswith("type.")) == {
         "type.sentence.card", "type.sentence.body", "type.display", "type.title", "type.subtitle",
         "type.label.lg", "type.label.md", "type.caption.md", "type.caption.sm",
@@ -130,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.8.0" in readme
+    assert "계약 버전: 1.9.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -443,3 +443,21 @@ def test_highlight_bg_is_soft_gray():
         assert oklab_distance(roles["highlight.bg"], roles["bg.sheet"]) >= 0.02, mode  # 카드와 화면 바탕 구분만큼
         assert oklab_distance(roles["highlight.bg"], roles["term.bg"]) >= 0.025, mode  # sage 칩과 꼬리표가 묻히지 않음
         assert contrast_ratio(roles["action.primary"], roles["highlight.bg"]) >= 4.5, mode
+
+
+# 1.9.0 (#1029, 결정 V121): Pretendard JP가 든 글꼴 묶음마다 바로 뒤에 한자 대체 글꼴(罡 등 빠진 글자만)을 더함
+def test_tokens_1_9_0_adds_hanja_supplement_after_pretendard_jp_only():
+    files = build_token_files()
+    for current, frozen in (("typography.tokens.json", "typography-1.8.0.tokens.json"),
+                            ("typography.ja.tokens.json", "typography.ja-1.8.0.tokens.json")):
+        before, after = _frozen(frozen), flatten(files[current])
+        assert set(before) == set(after), current
+        for name, token in before.items():
+            if name.startswith("font.family.") and "Pretendard JP" in token["$value"]:
+                families = list(token["$value"])
+                families.insert(families.index("Pretendard JP") + 1, "Myungli Hanja Supplement")
+                assert after[name]["$value"] == families, (current, name)
+            else:
+                assert after[name] == token, (current, name)
+    assert flatten(files["typography.tokens.json"])["font.family.hanja"]["$value"] == [
+        "Pretendard JP", "Myungli Hanja Supplement", "sans-serif"]

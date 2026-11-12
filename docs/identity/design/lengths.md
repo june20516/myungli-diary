@@ -86,6 +86,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `today.lucky-time.band.day`<br>`today.lucky-time.band.night` | timeBand 머리 낱말 (좁은 밤 다섯 칸 폭, 해와 달 16 + 간격 4) | 108.8px | 1 | - | 10 | **10** | **8** | **17** |
 | `today.lucky-time.band.now` | timeBand 지금 꼬리표 (밤 다섯 칸 폭 안, 좌우 space.4, time 포함) | 120.8px | 1 | - | 13 | **13** | **9** | **22** |
 | `today.lucky-time.band.yesterday`<br>`today.lucky-time.band.tomorrow` | timeBand 끝 눈금 날 낱말 (밤 다섯 칸 쪽 끝에서 경계 시각 반폭과 간격 8까지, 낱말 뒤 간격 4와 시각 32) | 68.8px | 1 | - | 7 | **7** | **5** | **11** |
+| `ui.shinsal.weighing` | explain-sheet weighingNote 상자 (fill.soft, 안쪽 12, check 16 + 간격 8, type.caption.lg) | 264px | 2 | - | 52 | **52** | **38** | **88** |
+| `today.date.virtue` | date-header 덕일 hanja-tag compact (음력, 일진 줄이 칸 단위로 넘겨 혼자 한 줄일 때, type.caption.md) | 290px | 1 | - | 28 | **28** | **23** | **52** |
 | `ui.saju.stage-marker` | stage-strip 자리 표시 원 안 기둥 한 글자 (원 18, caption.sm 700) | 18px | 1 | - | - | **1** | **1** | **1** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
 | `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
@@ -190,6 +192,8 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
     * `today.lucky-color.pair.intro`(색 둘인 날 시트 맨 위)는 시트 안 312px `type.caption.lg` 한 줄(ko 31)이고, `today.lucky-time.day.title`, `night.title`은 `explain-sheet` 제목 312px `type.subtitle` 한 줄입니다.
     * 밤 칩 때 낱말 `night.dawn`, `night.tonight`은 칩이 한 줄에 혼자일 때 달 아이콘과 간격, 낱말 뒤 `space.4`, 시각 값 자리 88(가장 넓은 en "23:00 to 01:00" 실측 83.4px)을 뺀 184px입니다(ko 16).
     * 띠 글자는 좁은 밤 다섯 칸(약 128.8px) 기준입니다. 머리 `band.day`, `band.night`은 해, 달 16과 간격 4를 빼고(ko 10), 지금 꼬리표 `band.now`는 좌우 `space.4`를 빼며 `time`까지 셉니다(ko 13). 날 낱말 `band.yesterday`, `band.tomorrow`는 끝 눈금에서 경계 시각 반폭 16, 간격 8, 낱말 뒤 4, 시각 32를 뺀 68.8px입니다(ko 7, ja 5, en 11).
+  * D124 ⑤ 날짜 머리 덕일(2026-11-12, #1029 ①, #1034, 결정 V119): `today.date.virtue`는 `hanja-tag` `compact` 알약 하나에 덕 이름 하나입니다. 음력, 일진 줄은 칸 단위로 넘기므로 알약이 혼자 한 줄일 때 본문 320px에서 알약 테두리 몫 30(앞 4, 한자 원 16, 간격 2, 뒤 8)을 뺀 290px, `type.caption.md` 한 줄로 잽니다(ko 28, ja 23, en 52). 원고가 아직 없어(writing #1030) 계산값이 확정값입니다. 둘 다인 날은 알약 둘이고 알약마다 같은 상한입니다.
+  * D124 ⑦ 흉한 신살 마무리 한 줄(2026-11-12, #1026, 결정 V120): IA 밖 `ui.shinsal.weighing`(키 `shinsalWeighingNote`)은 풀이 시트 뜻 아래 뉴트럴 상자 안 글자입니다. 시트 안 312px에서 상자 안쪽 12씩, 체크 아이콘 16과 간격 8을 뺀 264px, `type.caption.lg` 두 줄로 잽니다. writing 가안(#1030) 셋은 모두 들어갑니다(사용자가 고른 방향 ② 40자는 두 줄).
     * 본문 `today.lucky-color.second.body`, `today.lucky-time.day.body`, `night.body`는 writing content 키 `daily.color`, `daily.focus_time`과 같은 칸(시트 본문 두 줄)이라 그 행 값을 씁니다. 시트 끝 근거 진입점은 아이콘(`block`, 본문 아래 따로)이라 본문 폭을 줄이지 않습니다.
   * `daily.tag_label`은 `lucky-card` `tag` 칩이 지워져(V78) 이름이 놓이는 가장 좁은 자리인 카드 안 `hanja-tag` 이름 칸(246px)으로 다시 잽니다. 확정값(10, 10, 18)은 그대로입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
