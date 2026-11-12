@@ -28,6 +28,7 @@
 | ad-free.offer.period | ad-free.offer.period<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko 25, en 47, ja 20 |
 | ad-free.offer.price | ad-free.offer.price<br>컴포넌트 offer-card | info | - | 1 | 1 | `price`: text | ko -, en -, ja - |
 | ad-free.status.remaining | ad-free.status.remaining | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
+| ad-free.unavailable.body | ad-free.unavailable.body | info | - | 1 | 0 | - | ko -, en -, ja - |
 | birthplace.bar.title | birthplace.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.empty.body | birthplace.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.question.head | birthplace.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
