@@ -43,6 +43,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 * 제목 옆 한자는 `type.caption.md`·`text.secondary`에 글꼴만 `font.family.hanja`입니다. UI 글꼴(Pretendard)에는 한자 글리프가 없어서이고, 다른 한자 자리(`elements` `ohaeng.cell`, `stem.chip`)와 같습니다(#218).
 * 2.0.0에서 "내 사주에서는" 상자와 잠김 변형을 뺐습니다. 원국 개인 해석은 근거 시트로 옮겨 처음부터 잠긴 기능으로 둡니다(D60 ②, depth-link 참고).
 * 터치 영역: 글자 높이가 작아도 줄 높이까지 위아래로 넓혀 44px를 맞춥니다.
+* **빈 풀이(`emptyNote`, 결정 V123, #957):** 뜻과 오늘 이유가 없고 출처가 있으면 app은 근거 시트를 바로 엽니다(A130). 출처도 없으면 시트는 그대로 열고, 제목과 한자 아래 일반 뜻 자리에 안내 한 줄(IA 밖 `ui.explain.term-empty`, `type.body.ui` `text.secondary`, 위 `space.12`, 2줄까지)을 둡니다. 근거 진입점 아이콘은 그리지 않습니다. 칩 모양과 누름은 뜻이 있을 때와 같습니다(관문 답 2026-11-12 A, 시트를 열지 않는 안과 토스트 안은 고르지 않음). 문구는 writing.
 
 ## depth-link
 

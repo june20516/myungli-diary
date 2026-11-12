@@ -1146,5 +1146,23 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). ko와 en(긴 값). 안 A settings-row 읽기 전용, B 이름 위 값 아래, C 값 흐린 색. 사용자 답(2026-11-12): A"
+  },
+  {
+    "id": "design-empty-states-questions",
+    "title": "빈 상태 둘 관문 질문(#1058): 광고 제거 상품 없음, 뜻도 출처도 없는 풀이 시트",
+    "kind": "concept",
+    "file": "2026-11-12-empty-states-questions.html",
+    "source": "2026-11-12-empty-states-questions.html",
+    "date": "2026-11-12",
+    "milestone": "DS1",
+    "screens": [
+      "ad-free",
+      "explain-sheet"
+    ],
+    "decisions": [
+      "V123"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). ko와 en(긴 문구). 안내 문구는 design 가안(확정 writing), 가격은 자리표시. 사용자 답(2026-11-12): 질문 1 A(카드 유지, 가격과 구매 버튼 자리에 안내), 질문 2 A(시트를 열고 이름 아래 안내 한 줄)"
   }
 ]
