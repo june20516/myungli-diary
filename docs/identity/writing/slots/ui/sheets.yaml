@@ -259,6 +259,28 @@
     truncation: "잘리지 않게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
+# IA 밖 풀이 시트 빈 안내(design V123, #1058, #957). 키는 writing이 정한 ARB 이름입니다(W22).
+- id: ui.explain.term-empty
+  where: "풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)"
+  purpose: info
+  user_state: "용어 칩을 눌러 풀이 시트를 열었는데 이름과 한자만 있습니다. 뜻 원고가 아직 없는 용어에서만 생깁니다."
+  structure: "한 문장. 그 용어의 풀이를 준비하고 있다는 사실. 뜻 원고가 빠진 용어에서만 나와 사실이므로 근거 시트 빈 안내(`ui.evidence.personal-empty`, 풀이를 쓰지 않는 자리)와 달리 준비 중이라고 씁니다(R42-2)."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
+  max_length: {ko: 58, en: 98, ja: 42}
+  components: [term-token]
+  keys:
+    - explainSheetTermEmpty
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: explainSheetTermEmpty, text: "이 용어의 풀이를 준비하고 있어요.", why: "라운드 R42-2(design 가안)", source: writing}
+    bad:
+      - {lang: ko, text: "깊은 의미를 담은 이 용어의 풀이를 정성껏 준비하고 있어요.", why: "꾸밈말로 무게를 얹음(R42-2 대조군)", source: writing}
+  endings: ["~어요"]
+  a11y:
+    truncation: "두 줄 안에 들어가게 씁니다."
+    screen_reader: "문장 그대로 읽습니다."
+
 # IA v5 새 자리(#813)
 
 - id: tag-sheet.sentences.title

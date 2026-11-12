@@ -91,17 +91,21 @@
   where: "광고 제거 화면(ad-free) empty 상태: 상품 목록이 비어 있을 때 제안 카드 자리의 안내(app A126, #922). 남은 기간, 구매 내역, 법적 안내는 그대로 보입니다"
   purpose: info
   user_state: "광고 제거권을 사려고 왔는데 상품이 보이지 않습니다. 스토어 상품 준비 전이거나 지역 미지원일 수 있고, 오류가 아닙니다."
-  structure: "한 문장. 지금은 광고 제거권을 살 수 없다는 사실만. 오류처럼 들리지 않게, 이유를 단정하지 않습니다(#1059). 원고와 키는 design #1058의 모양과 상한 뒤에 씁니다."
+  structure: "한 문장. 지금은 광고 제거권을 살 수 없다는 사실만. 오류처럼 들리지 않게, 이유를 단정하지 않습니다(#1059). 가격, 기간, 구매 버튼 자리에 두 줄까지(design V123)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
-  keys: []
+  max_length: {ko: 50, en: 86, ja: 38}
+  components: [offer-card]
+  keys:
+    - adFreeUnavailableBody
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
-    good: []
-    bad: []
+    good:
+      - {lang: ko, key: adFreeUnavailableBody, text: "지금은 광고 제거권을 구매할 수 없어요.", why: "라운드 R42-1, R42-3(두 번 같은 선택)", source: writing}
+    bad:
+      - {lang: ko, text: "아쉽지만 지금은 광고 제거권을 만나 볼 수 없어요. 곧 다시 찾아올게요!", why: "아쉬움을 얹고 없는 약속과 들뜬 맺음(R42-1 대조군)", source: writing}
   endings: ["~어요"]
   a11y:
-    truncation: "잘리지 않게 씁니다."
+    truncation: "두 줄 안에 들어가게 씁니다."
     screen_reader: "문장 그대로 읽습니다."
 
 - id: ad-free.status.remaining

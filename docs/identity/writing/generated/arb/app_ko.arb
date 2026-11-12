@@ -119,6 +119,10 @@
       }
     }
   },
+  "adFreeUnavailableBody": "지금은 광고 제거권을 구매할 수 없어요.",
+  "@adFreeUnavailableBody": {
+    "description": "ad-free.unavailable.body: 상품 목록이 비어 있을 때(empty 상태) 제안 카드 자리의 안내: 지금은 광고 제거권을 살 수 없다는 사실. 오류처럼 들리지 않게(모양 design, 문구 writing)"
+  },
   "birthplaceBarTitle": "출생지",
   "@birthplaceBarTitle": {
     "description": "birthplace.bar.title: app-bar 제목(화면 이름 \"출생지\")"
@@ -2047,6 +2051,10 @@
   "evidenceSheetTitle": "풀이의 근거",
   "@evidenceSheetTitle": {
     "description": "근거 시트(sheet) 제목(#153)"
+  },
+  "explainSheetTermEmpty": "이 용어의 풀이를 준비하고 있어요.",
+  "@explainSheetTermEmpty": {
+    "description": "풀이 시트(explain-sheet): 용어 칩(term-token)을 눌러 열었는데 뜻과 오늘 이유가 없고 근거로 넘길 원전 출처도 없을 때. 제목과 한자 아래 한 줄, 근거 진입점 없음(design V123, app A130)"
   },
   "todayGuideLabel": "일기 질문",
   "@todayGuideLabel": {

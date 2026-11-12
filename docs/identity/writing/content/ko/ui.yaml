@@ -140,6 +140,7 @@
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
 - {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1개월, 자동 결제 없음"}
 - {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "구매하기"}
+- {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "지금은 광고 제거권을 구매할 수 없어요."}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}까지 광고 없이 볼 수 있어요"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "구매 내역"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요."}
@@ -407,6 +408,7 @@
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}년"}
 - {slot: ui.saju.luck-period, key: luckSeunAge, text: "{age}세"}
 - {slot: ui.evidence.personal-empty, key: evidenceSheetPersonalEmpty, text: "이 자리는 따로 풀이한 내용이 없어요."}
+- {slot: ui.explain.term-empty, key: explainSheetTermEmpty, text: "이 용어의 풀이를 준비하고 있어요."}
 - {slot: ui.lucky-card.a11y, key: todayLuckyColorName, text: "행운 색"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyDirectionName, text: "행운 방향"}
 - {slot: ui.lucky-card.a11y, key: todayLuckyNumberName, text: "행운 숫자"}

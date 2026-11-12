@@ -28,7 +28,7 @@
 | ad-free.offer.period | ad-free.offer.period<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko 25, en 47, ja 20 |
 | ad-free.offer.price | ad-free.offer.price<br>컴포넌트 offer-card | info | - | 1 | 1 | `price`: text | ko -, en -, ja - |
 | ad-free.status.remaining | ad-free.status.remaining | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
-| ad-free.unavailable.body | ad-free.unavailable.body | info | - | 1 | 0 | - | ko -, en -, ja - |
+| ad-free.unavailable.body | ad-free.unavailable.body<br>컴포넌트 offer-card | info | - | 1 | 1 | - | ko 50, en 86, ja 38 |
 | birthplace.bar.title | birthplace.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.empty.body | birthplace.empty.body | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | birthplace.question.head | birthplace.question.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
@@ -285,6 +285,7 @@
 | ui.event-row.label | 컴포넌트 event-row | info | - | 1 | 3 | `count`: number<br>`status`: text<br>`time`: text<br>`title`: text | ko -, en -, ja -<br>`eventRowLabel` ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.evidence.personal-empty | 컴포넌트 sheet | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
 | ui.evidence.title | evidence-sheet.sheet.title<br>컴포넌트 sheet | info | - | 1 | 1 | - | ko 18, en 32, ja 14 |
+| ui.explain.term-empty | 컴포넌트 term-token | info | - | 1 | 1 | - | ko 58, en 98, ja 42 |
 | ui.guide.a11y | 컴포넌트 guide-question-card | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.guide.card | 컴포넌트 guide-question-card | info | - | 1 | 1 | - | ko 27, en 50, ja 22 |
 | ui.keyboard.dismiss | 컴포넌트 text-field | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
