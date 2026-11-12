@@ -445,10 +445,10 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_0_0():
-    # 시트 겹침 표시와 열린 근거 표시(V110~V113): unlock.glint 패턴, unlock.mark 요소, 열림 꼬리표 등 추가라 부 버전.
-    # 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.0.0"
+def test_contract_version_is_7_1_0():
+    # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
+    # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
+    assert VERSION == "7.1.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -557,9 +557,6 @@ SLOTS_OUTSIDE_IA |= {"ui.saju.header", "ui.saju.tag", "ui.evidence.personal-empt
 SLOTS_OUTSIDE_IA |= {"ui.depth.evidence_link"}
 # 키보드 내리기 버튼의 스크린리더 이름 (DS1, V68). writing 새 슬롯 요청
 SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
-# 행운 색 시트와 집중 시간 낮, 밤 시트 (#982, #1003, 결정 V114~V117). IA 슬롯 요청 #1014
-SLOTS_OUTSIDE_IA |= {"today.lucky-color.pair.intro", "today.lucky-color.second.body", "today.lucky-time.day.body",
-                     "today.lucky-time.night.body", "today.lucky-time.band.now"}
 
 
 def _slot_values(node):
@@ -3159,3 +3156,17 @@ def test_v117_time_band():
     assert band["cells"]["day"]["bg"] == "{color.ohaeng.earth.bg}" and band["cells"]["night"]["bg"] == "{color.ohaeng.water.bg}"
     assert band["now"]["tag"]["slot"] == "today.lucky-time.band.now"
     assert band["now"]["tag"]["bg"] == "{color.inverse.bg}"
+
+
+def test_v118_lucky_sheets_evidence_and_time_titles():
+    # #1020 drift(D123 ②): 행운 색, 시간 시트 끝 근거 진입점은 용어 풀이 시트와 같은 depth-link block(V63)
+    card = component("today", "lucky-card")
+    term_link = component("sentence", "term-token")["parts"]["explainSheet"]["evidenceLink"]
+    for link in (card["parts"]["explain"]["evidenceLink"], card["parts"]["colorPairSheet"]["section"]["evidenceLink"]):
+        assert (link["component"], link["variant"]) == (term_link["component"], term_link["variant"])
+    assert "direction, number 시트에는 없음" in card["parts"]["explain"]["evidenceLink"]["when"]
+    periods = {p["id"]: p for p in next(v for v in card["variants"] if v["id"] == "time")["periods"]}
+    assert periods["day"]["sheetTitleSlot"] == "today.lucky-time.day.title"
+    assert periods["night"]["sheetTitleSlot"] == "today.lucky-time.night.title"
+    band = card["parts"]["timeBand"]
+    assert band["heads"]["iconGap"] == "{space.4}" and band["ticks"]["align"] == ["start", "center", "end"]

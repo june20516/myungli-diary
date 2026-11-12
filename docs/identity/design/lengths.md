@@ -80,6 +80,12 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `day-sheet.event.all-day` | event-row list 시각 칸 종일 꼬리표 tag.status (칸 58 − 간격 8, 좌우 8) | 34px | 1 | - | 3 | **3** | **1** | **3** |
 | `day-sheet.verdict.expand`<br>`day-sheet.verdict.collapse` | fortune-verdict 안내 줄 (카드 안쪽 16, 꺾쇠 16 + 간격 4, 가운데) | 260px | 1 | - | 23 | **23** | **19** | **43** |
 | `evidence-sheet.unlock.until` | evidence-sheet 열림 꼬리표 (제목 아래 혼자 한 줄, 좌우 8, 시계 16 + 간격 4) | 276px | 1 | - | 27 | **27** | **22** | **49** |
+| `today.lucky-color.pair.intro` | colorPairSheet 맨 위 한 줄 (sheet 안쪽 24, type.caption.lg) | 312px | 1 | - | 31 | **31** | **23** | **53** |
+| `today.lucky-time.day.title`<br>`today.lucky-time.night.title` | explain-sheet 제목 (sheet 안쪽 24, type.subtitle) | 312px | 1 | - | 23 | **23** | **18** | **40** |
+| `today.lucky-time.night.dawn`<br>`today.lucky-time.night.tonight` | lucky-card 밤 칩 때 낱말 (칩이 한 줄에 혼자일 때, 좌우 12, 달 16 + 간격 4, 낱말 뒤 간격 4, 시각 값 자리 88) | 184px | 1 | - | 16 | **16** | **13** | **29** |
+| `today.lucky-time.band.day`<br>`today.lucky-time.band.night` | timeBand 머리 낱말 (좁은 밤 다섯 칸 폭, 해와 달 16 + 간격 4) | 108.8px | 1 | - | 10 | **10** | **8** | **17** |
+| `today.lucky-time.band.now` | timeBand 지금 꼬리표 (밤 다섯 칸 폭 안, 좌우 space.4, time 포함) | 120.8px | 1 | - | 13 | **13** | **9** | **22** |
+| `today.lucky-time.band.yesterday`<br>`today.lucky-time.band.tomorrow` | timeBand 끝 눈금 날 낱말 (밤 다섯 칸 쪽 끝에서 경계 시각 반폭과 간격 8까지, 낱말 뒤 간격 4와 시각 32) | 68.8px | 1 | - | 7 | **7** | **5** | **11** |
 | `ui.saju.stage-marker` | stage-strip 자리 표시 원 안 기둥 한 글자 (원 18, caption.sm 700) | 18px | 1 | - | - | **1** | **1** | **1** |
 | `chart.yongsin_method` | saju-chart 본문 sentence-block body | 본문 | 제한 없음 | 60 | - | **60** | **60** | **108** |
 | `calc-basis.longitude.body` | calc-basis 본문 sentence-block body | 본문 | 제한 없음 | 120 | - | **120** | **120** | **216** |
@@ -180,6 +186,11 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * `today.event.title`(일정 섹션 제목, #859, 결정 V97)은 오늘 화면 `plain`과 그날 시트 `action`(오른쪽 + 터치 44)이 같은 키라, 좁은 그날 시트 쪽 268px(시트 안쪽 24를 뺀 312에서 44)으로 잽니다. `type.label.lg` 600 한 줄(ko 22, ja 18, en 40). 지금 원고 ko "일정", ja "予定", en "Events"는 들어갑니다.
   * `explain-sheet.tag.diary-link`와 `tag-sheet.diary.cta`(대표 태그 시트의 모아보기 꺾쇠 링크, V73)는 같은 말이라 한 줄로 잽니다. 시트 안 312에서 꺾쇠 16과 간격 2를 뺀 294px, `type.label.lg` 한 줄(ko 24, ja 20, en 44)이고 태그 이름까지 센 글자 수입니다. 지금 원고에 가장 긴 태그 이름을 넣어도 들어갑니다(ko "{tag} 태그가 붙은 내 일기 보기" 15자 + "재성이 많은 날" 8자 = 23, ja 12자 + 6자 = 18, en 20자 + "Month branch clash" 18자 = 38). 태그 이름 상한(`daily.tag_label` ko 10, ja 10, en 18) 끝까지 쓴 이름은 보장하지 않습니다: 틀이 지금 길이면 이름이 ko 9자, ja 8자를 넘을 때 넘칩니다. writing 검사는 `{tag}`를 지금 원고의 가장 긴 이름으로 바꿔 대조하므로, 새 태그 이름이 길어지면 이 슬롯에서 걸립니다. 그때는 틀을 줄이거나 두 줄 칸으로 다시 잽니다.
   * 검수 회차2 그날 시트와 D118 새 슬롯(2026-11-10, #946, #950): `day-sheet.event.all-day`(종일 꼬리표)는 시각 칸 58에서 간격 8과 `tag.status` 좌우 8을 뺀 34px라 ko 3, ja 1, en 3입니다. ja "終日", en "All day"처럼 칸을 넘는 말은 시각이 넘칠 때와 같이 꼬리표를 제목 위 한 줄로 올립니다(`event-row` `allDay.overflow`, V107). `day-sheet.verdict.expand`, `collapse`(길흉 내역 안내 줄)는 카드 안쪽 16과 꺾쇠를 뺀 260px 한 줄이고 `count` 숫자까지 셉니다. `evidence-sheet.unlock.until`(열림 꼬리표)은 제목 아래로 내렸을 때 혼자 쓰는 276px 한 줄이고 `date`까지 셉니다(V112).
+  * D123 행운 색 둘인 날과 집중 시간 낮, 밤 새 슬롯(2026-11-12, #1020): 원고가 아직 없어 계산값이 확정값입니다.
+    * `today.lucky-color.pair.intro`(색 둘인 날 시트 맨 위)는 시트 안 312px `type.caption.lg` 한 줄(ko 31)이고, `today.lucky-time.day.title`, `night.title`은 `explain-sheet` 제목 312px `type.subtitle` 한 줄입니다.
+    * 밤 칩 때 낱말 `night.dawn`, `night.tonight`은 칩이 한 줄에 혼자일 때 달 아이콘과 간격, 낱말 뒤 `space.4`, 시각 값 자리 88(가장 넓은 en "23:00 to 01:00" 실측 83.4px)을 뺀 184px입니다(ko 16).
+    * 띠 글자는 좁은 밤 다섯 칸(약 128.8px) 기준입니다. 머리 `band.day`, `band.night`은 해, 달 16과 간격 4를 빼고(ko 10), 지금 꼬리표 `band.now`는 좌우 `space.4`를 빼며 `time`까지 셉니다(ko 13). 날 낱말 `band.yesterday`, `band.tomorrow`는 끝 눈금에서 경계 시각 반폭 16, 간격 8, 낱말 뒤 4, 시각 32를 뺀 68.8px입니다(ko 7, ja 5, en 11).
+    * 본문 `today.lucky-color.second.body`, `today.lucky-time.day.body`, `night.body`는 writing content 키 `daily.color`, `daily.focus_time`과 같은 칸(시트 본문 두 줄)이라 그 행 값을 씁니다. 시트 끝 근거 진입점은 아이콘(`block`, 본문 아래 따로)이라 본문 폭을 줄이지 않습니다.
   * `daily.tag_label`은 `lucky-card` `tag` 칩이 지워져(V78) 이름이 놓이는 가장 좁은 자리인 카드 안 `hanja-tag` 이름 칸(246px)으로 다시 잽니다. 확정값(10, 10, 18)은 그대로입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.

@@ -54,6 +54,11 @@ SEGMENTED_TRACK_PADDING = 4  # segmented 트랙 안쪽
 ICON_BESIDE_SMALL_TEXT = 16  # 14px 이하 글자 옆 아이콘 단계 (adjacent-text, 결정 V57)
 SECTION_TRAILING_TARGET = 44  # section-header 오른쪽 자리 터치 (action minTarget, 결정 V59)
 LINK_CHEVRON_GAP = 2  # 꺾쇠 링크 글자와 꺾쇠 사이 space.2 (explain-sheet diaryLink, V73)
+# 집중 시간 칩과 24시간 띠 (#1020, D123, 결정 V116, V117)
+TIME_VALUE_RESERVE = 88  # 밤 칩 시각 값 자리: 가장 넓은 en "23:00 to 01:00" 실측 83.4px(label.md 13px 500)
+BAND_CELL = (SHEET_CONTENT_WIDTH - 11 * 2) / 12  # 띠 칸 하나: 시트 안 312에서 칸 사이 space.2 열하나
+BAND_NIGHT_SPAN = 5 * BAND_CELL + 4 * 2  # 밤 덩어리 다섯 칸(낮 일곱 칸보다 좁음)
+TICK_TIME_RESERVE = 32  # 눈금 시각 "00:00" 실측 29px(caption.sm 11px 500)
 # DS1 2단계(#801) 명세 폭 (test_ds1_layout_constants_match_component_spec이 components/*.json과 대조)
 HANJA_TAG_CHROME = 4 + 22 + 4 + 12  # hanja-tag 앞 안쪽 4 + 한자 원 22 + 간격 4 + 뒤 안쪽 12 (결정 V70)
 APP_BAR_TEXT_ACTION_MAX = 2 * 44  # app-bar textAction 최대 폭: 동작 아이콘 둘 자리 (결정 V82, V94)
@@ -285,6 +290,22 @@ TARGETS = (
     # D118 열림 꼬리표 (#950, 결정 V112). 제목과 한 줄에 안 들어가면 제목 아래로 내려 혼자 한 줄
     Target(("evidence-sheet.unlock.until",), "evidence-sheet 열림 꼬리표 (제목 아래 혼자 한 줄, 좌우 8, 시계 16 + 간격 4)",
            "ui-500", 12, -0.24, SHEET_CONTENT_WIDTH - 2 * 8 - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
+    # D123 행운 색 둘인 날과 집중 시간 낮, 밤 (#1020 drift, 결정 V114~V118). 본문 셋은 content 키 daily.color, daily.focus_time 칸
+    Target(("today.lucky-color.pair.intro",), "colorPairSheet 맨 위 한 줄 (sheet 안쪽 24, type.caption.lg)",
+           "ui-400", 13, -0.26, SHEET_CONTENT_WIDTH, 1, True, None),
+    Target(("today.lucky-time.day.title", "today.lucky-time.night.title"), "explain-sheet 제목 (sheet 안쪽 24, type.subtitle)",
+           "ui-600", 16, -0.32, SHEET_CONTENT_WIDTH, 1, False, None),
+    Target(("today.lucky-time.night.dawn", "today.lucky-time.night.tonight"),
+           "lucky-card 밤 칩 때 낱말 (칩이 한 줄에 혼자일 때, 좌우 12, 달 16 + 간격 4, 낱말 뒤 간격 4, 시각 값 자리 88)",
+           "ui-500", 13, -0.26, CONTENT_WIDTH - 2 * CHIP_PADDING - ICON_BESIDE_SMALL_TEXT - LUCKY_CHIP_GAP - 4 - TIME_VALUE_RESERVE,
+           1, False, None),
+    Target(("today.lucky-time.band.day", "today.lucky-time.band.night"), "timeBand 머리 낱말 (좁은 밤 다섯 칸 폭, 해와 달 16 + 간격 4)",
+           "ui-500", 12, -0.24, BAND_NIGHT_SPAN - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
+    Target(("today.lucky-time.band.now",), "timeBand 지금 꼬리표 (밤 다섯 칸 폭 안, 좌우 space.4, time 포함)",
+           "ui-500", 11, -0.22, BAND_NIGHT_SPAN - 2 * 4, 1, False, None),
+    Target(("today.lucky-time.band.yesterday", "today.lucky-time.band.tomorrow"),
+           "timeBand 끝 눈금 날 낱말 (밤 다섯 칸 쪽 끝에서 경계 시각 반폭과 간격 8까지, 낱말 뒤 간격 4와 시각 32)",
+           "ui-500", 11, -0.22, BAND_NIGHT_SPAN - TICK_TIME_RESERVE / 2 - 8 - 4 - TICK_TIME_RESERVE, 1, False, None),
 )
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
