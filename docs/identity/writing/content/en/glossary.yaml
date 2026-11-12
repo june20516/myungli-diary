@@ -63,6 +63,9 @@
 - {slot: glossary.value_name, key: luck.seun, text: "yearly luck cycle"}
 - {slot: glossary.value_name, key: part.stem, text: "stem"}
 - {slot: glossary.value_name, key: part.branch, text: "branch"}
+- {slot: glossary.value_name, key: part.gou, text: "Gu"}
+- {slot: glossary.value_name, key: part.jiao, text: "Gyo"}
+- {slot: glossary.value_name, key: part.unknown, text: "Gugyo"}
 - {slot: glossary.value_name, key: stem.gap, text: "Gapmok"}
 - {slot: glossary.value_name, key: stem.eul, text: "Eulmok"}
 - {slot: glossary.value_name, key: stem.byeong, text: "Byeonghwa"}
@@ -94,6 +97,19 @@
 - {slot: glossary.value_name, key: shinsal.hwagae, text: "Hwagae"}
 - {slot: glossary.value_name, key: shinsal.yangin, text: "Yangin"}
 - {slot: glossary.value_name, key: shinsal.gongmang, text: "Gongmang"}
+- {slot: glossary.value_name, key: shinsal.cheondeok, text: "Cheondeok Gwiin"}
+- {slot: glossary.value_name, key: shinsal.woldeok, text: "Woldeok Gwiin"}
+- {slot: glossary.value_name, key: shinsal.geumyeo, text: "Geumyeorok"}
+- {slot: glossary.value_name, key: shinsal.gosin, text: "Gosin"}
+- {slot: glossary.value_name, key: shinsal.gwasuk, text: "Gwasuk"}
+- {slot: glossary.value_name, key: shinsal.wonjin, text: "Wonjin"}
+- {slot: glossary.value_name, key: shinsal.gugyo, text: "Gugyo"}
+- {slot: glossary.value_name, key: shinsal.cheonra_jimang, text: "Cheonra Jimang"}
+- {slot: glossary.value_name, key: shinsal.goegang, text: "Goegang"}
+- {slot: glossary.value_name, key: shinsal.sipak_daepae, text: "Sipak Daepae"}
+- {slot: glossary.value_name, key: shinsal.eumchak_yangcha, text: "Eumchak Yangcha"}
+- {slot: glossary.value_name, key: shinsal.samgi, text: "Samgi"}
+- {slot: glossary.value_name, key: shinsal.amrok, text: "Amrok"}
 - {slot: glossary.value_name, key: twelve_stage.jangsaeng, text: "Jangsaeng"}
 - {slot: glossary.value_name, key: twelve_stage.mokyok, text: "Mogyok"}
 - {slot: glossary.value_name, key: twelve_stage.gwandae, text: "Gwandae"}

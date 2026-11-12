@@ -401,6 +401,7 @@
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "日"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "月"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerYear, text: "年"}
+- {slot: ui.shinsal.weighing, key: shinsalWeighingNote, text: "原典では、神殺は命式を判断する多くの手がかりの一つにすぎません。"}
 - {slot: ui.saju.luck-period, key: luckDaeunAgeRange, text: "{startAge}〜{endAge}歳"}
 - {slot: ui.saju.luck-period, key: luckDaeunYearRange, text: "{startYear}〜{endYear}年"}
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}年"}
@@ -438,6 +439,8 @@
 - {slot: today.date.lunar, key: todayDateLunar, text: "旧暦{month}月{day}日"}
 - {slot: today.date.lunar, key: todayDateLunarLeap, text: "旧暦閏{month}月{day}日"}
 - {slot: today.date.iljin, key: todayDateIljin, text: "{pillar}日"}
+- {slot: today.date.virtue, key: todayDateVirtueCheondeok, text: "天徳日"}
+- {slot: today.date.virtue, key: todayDateVirtueWoldeok, text: "月徳日"}
 - {slot: day-sheet.date.solar, key: daySheetDateSolar, text: "{date}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunar, text: "旧暦{month}月{day}日"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunarLeap, text: "旧暦閏{month}月{day}日"}

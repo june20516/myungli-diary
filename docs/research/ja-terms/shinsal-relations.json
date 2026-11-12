@@ -351,6 +351,262 @@
       "title": "ウィキペディア日本語版「四柱推命」",
       "url": "https://ja.wikipedia.org/wiki/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
       "accessed": "2026-10-15"
+    },
+    {
+      "id": "sr-ndl-meirigakkai-jissen-9-1936",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『実践命理学講座 第9講』(1936) 国立国会図書館デジタルコレクション 本文(全文テキスト)",
+      "url": "https://dl.ndl.go.jp/pid/1092153",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-ndl-meirigakkai-kakushiki-5-1936",
+      "kind": "book",
+      "publisher": "高木乗（命理学会・高木綜合運命学会）",
+      "title": "高木乗『命理格式秘伝講座 第5講』(1936) 国立国会図書館デジタルコレクション 本文(全文テキスト)",
+      "url": "https://dl.ndl.go.jp/pid/1092162",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-ndl-terada-suimeisho-jo-1884",
+      "kind": "book",
+      "publisher": "寺田栄助",
+      "title": "桜田虎門『推命書 巻上』(寺田栄助、1884) 国立国会図書館デジタルコレクション 本文(全文テキスト)",
+      "url": "https://dl.ndl.go.jp/pid/760478",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-ndl-terada-suimeisho-chu-1884",
+      "kind": "book",
+      "publisher": "寺田栄助",
+      "title": "桜田虎門『推命書 巻中』(寺田栄助、1884) 国立国会図書館デジタルコレクション 本文(全文テキスト)",
+      "url": "https://dl.ndl.go.jp/pid/760479",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-ndl-terada-suimeisho-ge-1884",
+      "kind": "book",
+      "publisher": "寺田栄助",
+      "title": "桜田虎門『推命書 巻下』(寺田栄助、1884) 国立国会図書館デジタルコレクション 本文(全文テキスト)",
+      "url": "https://dl.ndl.go.jp/pid/760480",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-ndl-suimei-houkan-ge-1907",
+      "kind": "book",
+      "publisher": "矢島誠進堂",
+      "title": "山岸弥平『推命宝鑑 : 秘蘊 巻下』(1907) 国立国会図書館デジタルコレクション 本文(全文テキスト)",
+      "url": "https://dl.ndl.go.jp/pid/760486",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-kiwami-kichijin-2",
+      "kind": "school",
+      "publisher": "HARUMI OHARA(鳥海流四柱推命)",
+      "title": "四柱推命の吉神とは？三奇人・将星・暗禄・紅艶・魁罡の意味と調べ方",
+      "url": "https://kiwami611.info/post-2637/",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-kiwami-kinun",
+      "kind": "school",
+      "publisher": "HARUMI OHARA(鳥海流四柱推命)",
+      "title": "四柱推命の金運に関する吉神とは？金輿禄・天厨貴人・福星貴人の意味と調べ方 - オンラインで学ぶ四柱推命講座",
+      "url": "https://kiwami611.info/post-2652/",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-starcrawler-word",
+      "kind": "software",
+      "publisher": "四柱推命スタークローラー（starcrawler.net）",
+      "title": "四柱推命の基礎知識｜四柱推命スタークローラー(用語一覧)",
+      "url": "https://suimei.starcrawler.net/word/",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-tiandeguiren",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "天徳貴人の意味と調べ方｜四柱推命の最強吉星をShunShiで解説",
+      "url": "https://shunshi.ai/ja/wiki/shensha/tiandeguiren",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-yuedeguiren",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "月徳貴人の意味と調べ方｜困難を解決する吉星をShunShiで解説",
+      "url": "https://shunshi.ai/ja/wiki/shensha/yuedeguiren",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-jinyu",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "金輿とは？四柱推命の吉星をShunShiが解説｜配偶者運・財運",
+      "url": "https://shunshi.ai/ja/wiki/shensha/jinyu",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-guchen",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "孤辰とは？四柱推命の孤独を表す神殺｜ShunShiで解説",
+      "url": "https://shunshi.ai/ja/wiki/shensha/guchen",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-guasu",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "寡宿とは？孤独を表す神殺の意味と調べ方｜ShunShi",
+      "url": "https://shunshi.ai/ja/wiki/shensha/guasu",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-yuanchen",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "元辰（大耗）とは？ShunShiが解説する四柱推命の凶星とその影響",
+      "url": "https://shunshi.ai/ja/wiki/shensha/yuanchen",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-yuanzhen",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "怨嗔（怨嗔殺）とは？地支の組み合わせと意味をShunShiが解説",
+      "url": "https://shunshi.ai/ja/wiki/shensha/yuanzhen",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-goujaosha",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "勾絞殺とは？人間関係トラブルの神殺を解説 | ShunShi",
+      "url": "https://shunshi.ai/ja/wiki/shensha/goujaosha",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-tianluodiwang",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "天羅地網とは？四柱推命における意味と確認方法 | ShunShi",
+      "url": "https://shunshi.ai/ja/wiki/shensha/tianluodiwang",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-kuigang",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "魁罡とは？四柱推命の神殺「魁罡」の意味と調べ方｜ShunShi",
+      "url": "https://shunshi.ai/ja/wiki/shensha/kuigang",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-shiedabai",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "十悪大敗とは？ShunShiが解説する四柱推命の凶煞と財運への影響",
+      "url": "https://shunshi.ai/ja/wiki/shensha/shiedabai",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-yinchayangcuo",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "陰差陽錯とは？結婚運への影響をShunShiが解説｜四柱推命の神殺",
+      "url": "https://shunshi.ai/ja/wiki/shensha/yinchayangcuo",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shunshi-sanqiguiren",
+      "kind": "software",
+      "publisher": "Shunshi AI（順時 ShunShi）",
+      "title": "三奇貴人とは？意味と調べ方をShunShiが解説 | 四柱推命",
+      "url": "https://shunshi.ai/ja/wiki/shensha/sanqiguiren",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-sityuu-hosi15",
+      "kind": "blog",
+      "publisher": "リアル四柱推命",
+      "title": "四柱推命の特殊星：墓庫、天羅地網 - リアル四柱推命",
+      "url": "https://sityuu.com/hosi15/",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-pamela-sinsatsu",
+      "kind": "school",
+      "publisher": "東洋占術パメラの館",
+      "title": "四柱推命の神殺について。意味表(四柱推命はじめの一歩)",
+      "url": "http://www3.kannet.ne.jp/~snk/ippo_index/c/index_k.html",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-hiroto-sinsatsu",
+      "kind": "blog",
+      "publisher": "hiroto（個人サイト）",
+      "title": "神殺表",
+      "url": "http://www.t3.rim.or.jp/~hiroto/sinsatsu.html",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-kanshiqsei-juakutaihai",
+      "kind": "school",
+      "publisher": "朱烈の干支九星研究会",
+      "title": "十悪大敗 | 干支九星研究会",
+      "url": "https://kanshiqsei.com/jyuuakutaihai",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-sudechi-kinyoroku",
+      "kind": "blog",
+      "publisher": "てくてくちとせ",
+      "title": "四柱推命‐金輿禄をもつ女性の運勢特徴 - てくてくちとせ",
+      "url": "https://www.sudechi.com/entry/kinyoroku",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-sudechi-taihai",
+      "kind": "blog",
+      "publisher": "てくてくちとせ",
+      "title": "四柱推命-拾悪大敗って何かを解説 - てくてくちとせ",
+      "url": "https://www.sudechi.com/entry/taihaitowa",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-shichulabo-kinyoroku",
+      "kind": "school",
+      "publisher": "四柱推命ラボ（四柱推命鑑定士 雄高）",
+      "title": "金与禄は美人でモテる最強の星！？玉の輿を狙っちゃえ！ | 四柱推命を勉強するためのサイト | 四柱推命ラボ",
+      "url": "https://shichu-suimei.net/kinyoroku/",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-omajinai-tokushusei",
+      "kind": "media",
+      "publisher": "占いおまじないスピリチュアル吉日風水",
+      "title": "特殊星が多い命式は強い？四柱推命で見る金与禄・華蓋・十干禄 | 占いおまじないスピリチュアル吉日風水",
+      "url": "https://omajinai.co.jp/sityusuimeitokushusei/",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-coconala-myoonchou-genshin",
+      "kind": "blog",
+      "publisher": "妙音鳥（coconala）",
+      "title": "元辰｜妙音鳥｜coconalaブログ",
+      "url": "https://coconala.com/blogs/2571369/108678",
+      "accessed": "2026-11-12"
+    },
+    {
+      "id": "sr-akiharu-aisho",
+      "kind": "school",
+      "publisher": "昭晴占い鑑定所",
+      "title": "簡単に相性を見る方法【昭晴占い鑑定所】 新宿 新大久保占い館 - 昭晴占い鑑定所",
+      "url": "https://www.akiharu27.com/2018/07/05/%E7%B0%A1%E5%8D%98%E3%81%AB%E7%9B%B8%E6%80%A7%E3%82%92%E8%A6%8B%E3%82%8B%E6%96%B9%E6%B3%95-%E6%98%AD%E6%99%B4%E5%8D%A0%E3%81%84%E9%91%91%E5%AE%9A%E6%89%80-%E6%96%B0%E5%AE%BF-%E6%96%B0%E5%A4%A7%E4%B9%85%E4%BF%9D%E5%8D%A0%E3%81%84%E9%A4%A8/",
+      "accessed": "2026-11-12"
     }
   ],
   "terms": [
@@ -698,6 +954,719 @@
       ],
       "confidence": "상",
       "note": "현대 일본 표기는 羊刃(ようじん)으로 통일되어 있습니다. 陽刃(陽刄)은 戦前 책에서 \"羊刄は陽刄ともいふ\"처럼 별칭으로만 보이고, 현대 계산 도구·해설에서는 찾지 못했습니다. 羊刄·陽刄의 刄는 刃의 이체자입니다. 읽기 「ようじん」이 用神(ようじん)과 같으므로, 두 말을 한 화면에 함께 쓸 때는 후리가나만으로 구분되지 않는 점에 유의합니다."
+    },
+    {
+      "id": "shinsal.cheondeok",
+      "ko": "천덕귀인",
+      "hanja": "天德貴人",
+      "glossary_key": "shinsal.cheondeok",
+      "ja": "天徳貴人",
+      "reading": "てんとくきじん",
+      "aliases": [
+        "天德貴人"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-8-1936",
+          "form": "天徳貴人",
+          "quote": "○天徳貴人これは正月(四)寅から起す、干支の生旺を見て命じたものである"
+        },
+        {
+          "source": "sr-andyou-tokushusei",
+          "form": "天徳貴人",
+          "quote": "【天徳貴人(てんとくきじん)】を持つ人は、チャンスに恵まれ、災厄を避けられるとされています。"
+        },
+        {
+          "source": "sr-unkoi-telsys-meishiki",
+          "form": "天徳貴人",
+          "quote": "・天徳貴人（てんとくきじん）"
+        },
+        {
+          "source": "sr-kiwami-kichijin",
+          "form": "天徳貴人",
+          "quote": "天徳貴人は、困難が起きたときに助けを得たり、大きな問題を小さくしたりする力があるとされる吉神です。"
+        },
+        {
+          "source": "sr-appstore-sklab-meishikihyo",
+          "form": "天徳貴人",
+          "quote": "天徳貴人,天徳合,月徳貴人,月徳合,華蓋"
+        },
+        {
+          "source": "sr-senjutsu-okubo-calc",
+          "form": "天徳貴人",
+          "quote": "：天徳貴人・月徳貴人"
+        },
+        {
+          "source": "sr-starcrawler-word",
+          "form": "天徳貴人",
+          "quote": "天徳貴人（てんとくきじん）"
+        },
+        {
+          "source": "sr-shunshi-tiandeguiren",
+          "form": "天徳貴人",
+          "quote": "天徳貴人（てんとくきじん）"
+        },
+        {
+          "source": "sr-ndl-tenshokan-okugi-3-1933",
+          "form": "天德貴人",
+          "quote": "一、天德貴人、月德貴人あれば百種の災害を免かる"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자 天德貴人의 일본 신자체가 天徳貴人입니다. 戦前 책은 구자체 天德貴人도 씁니다(松本義亮 1933). 읽기는 「てんとくきじん」으로 출처가 모두 같습니다. 같은 계열의 天徳合(てんとくごう)은 일본 사이트와 앱이 별도 특수성으로 함께 내보이는 일이 많습니다(SkLab, 優しい四柱推命, うらなえる). 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.woldeok",
+      "ko": "월덕귀인",
+      "hanja": "月德貴人",
+      "glossary_key": "shinsal.woldeok",
+      "ja": "月徳貴人",
+      "reading": "げっとくきじん",
+      "aliases": [
+        "月德貴人"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-8-1936",
+          "form": "月徳貴人",
+          "quote": "本來月徳貴人は陽(たとヘビ甲、丙、戌.庚、のみであるが、同位の吉星である故に二つ一しよに見てよい"
+        },
+        {
+          "source": "sr-andyou-tokushusei",
+          "form": "月徳貴人",
+          "quote": "【月徳貴人(げっとくきじん)】を持つ人は、社会的な成功を得ることができるとされています。"
+        },
+        {
+          "source": "sr-unkoi-telsys-meishiki",
+          "form": "月徳貴人",
+          "quote": "・月徳貴人（げっとくきじん）"
+        },
+        {
+          "source": "sr-kiwami-kichijin",
+          "form": "月徳貴人",
+          "quote": "月徳貴人は、人とのつながりの中で助けを得たり、物事を穏やかに進めたりする力があるとされる吉神です。"
+        },
+        {
+          "source": "sr-appstore-sklab-meishikihyo",
+          "form": "月徳貴人",
+          "quote": "天徳貴人,天徳合,月徳貴人,月徳合,華蓋"
+        },
+        {
+          "source": "sr-senjutsu-okubo-calc",
+          "form": "月徳貴人",
+          "quote": "：天徳貴人・月徳貴人"
+        },
+        {
+          "source": "sr-starcrawler-word",
+          "form": "月徳貴人",
+          "quote": "月徳貴人（げっとくきじん）"
+        },
+        {
+          "source": "sr-shunshi-yuedeguiren",
+          "form": "月徳貴人",
+          "quote": "月徳貴人（げっとくきじん）"
+        },
+        {
+          "source": "sr-ndl-tenshokan-okugi-3-1933",
+          "form": "月德貴人",
+          "quote": "一、天德貴人、月德貴人あれば百種の災害を免かる"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자 月德貴人의 일본 신자체가 月徳貴人입니다. 읽기는 「げっとくきじん」입니다. 戦前 책은 구자체 月德貴人도 씁니다(松本義亮 1933). 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.geumyeo",
+      "ko": "금여록",
+      "hanja": "金轝祿",
+      "glossary_key": "shinsal.geumyeo",
+      "ja": "金與禄",
+      "reading": "きんよろく",
+      "aliases": [
+        "金輿禄",
+        "金輿祿",
+        "金與祿",
+        "金与禄",
+        "金輿"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-kakushiki-5-1936",
+          "form": "金輿禄",
+          "quote": "金輿禄は却て男人をして妻の内助を受けしめる。"
+        },
+        {
+          "source": "sr-kiwami-kinun",
+          "form": "金輿禄",
+          "quote": "金輿禄（きんよろく）"
+        },
+        {
+          "source": "sr-sudechi-kinyoroku",
+          "form": "金輿禄",
+          "quote": "■金輿禄をもつ女性の特徴"
+        },
+        {
+          "source": "sr-omajinai-tokushusei",
+          "form": "金輿禄",
+          "quote": "金与禄・金輿禄（きんよろく）"
+        },
+        {
+          "source": "sr-ndl-meirigakkai-jissen-9-1936",
+          "form": "金輿祿",
+          "quote": "○金輿祿これは妻の屋である"
+        },
+        {
+          "source": "chart-ndl-matsumoto-okugi-1",
+          "form": "金輿祿",
+          "quote": "一、金輿祿あるものは妻家の惠福に浴するか、或は其妻賢なるか美なるかにして妻德を有す"
+        },
+        {
+          "source": "chart-ndl-matsumoto-okugi-1",
+          "form": "金與祿",
+          "quote": "庚より戌は金與祿"
+        },
+        {
+          "source": "sr-appstore-sklab-meishikihyo",
+          "form": "金與禄",
+          "quote": "文昌貴人,金與禄,暗禄,羊刃,流霞,飛刃,学士,紅艶殺,節度貴人"
+        },
+        {
+          "source": "sr-starcrawler-word",
+          "form": "金與禄",
+          "quote": "金與禄（きんよろく）"
+        },
+        {
+          "source": "sr-shichulabo-kinyoroku",
+          "form": "金与禄",
+          "quote": "金与禄（きんよろく）とはどんな星なのか？"
+        },
+        {
+          "source": "sr-sityuu-hosi15",
+          "form": "金与禄",
+          "quote": "十干禄、金与禄、紅艶殺、流霞殺"
+        },
+        {
+          "source": "sr-pamela-sinsatsu",
+          "form": "金与禄",
+          "quote": "金与禄"
+        },
+        {
+          "source": "sr-omajinai-tokushusei",
+          "form": "金与禄",
+          "quote": "金与禄は、財の恵み、物質的な豊かさ、援助、良い縁による金運を表す星です。"
+        },
+        {
+          "source": "sr-shunshi-jinyu",
+          "form": "金輿",
+          "quote": "金輿（きんよ）とは？四柱推命における吉星の意味と調べ方"
+        },
+        {
+          "source": "sr-hiroto-sinsatsu",
+          "form": "金輿",
+          "quote": "金輿"
+        }
+      ],
+      "confidence": "중",
+      "note": "일본에서 표기가 셋으로 갈립니다. ① 金輿禄(輿=가마, 원래 글자): 책(高木乗 1936), 鳥海流, 블로그. 戦前 책은 구자체 金輿祿(高木乗, 松本義亮). ② 金與禄(輿 대신 與): 命式 앱 SkLab과 계산 사이트 スタークローラー. 松本義亮 1933 한 책 안에서도 金輿祿과 金與祿이 섞입니다. ③ 金与禄(與의 신자체): 웹 해설에서 가장 흔함(四柱推命ラボ, リアル四柱推命, パメラの館, 吉日風水). 吉日風水는 「金与禄・金輿禄」로 함께 적습니다. 읽기는 모두 「きんよろく」입니다. 與/与는 輿의 대체 글자로 보이므로 뜻이 맞는 金輿禄을 권장하고, 금여(金輿)만 쓰는 곳(ShunShi, 個人サイト 神殺表)은 중국식 이름입니다. 한국 한자 金轝祿의 轝는 輿의 이체자입니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다. 사용자 결정(2026-11-12, writing R40-8): 화면 표기는 일본 앱과 계산 사이트 관례인 金與禄(SkLab, スタークローラー)으로 합니다."
+    },
+    {
+      "id": "shinsal.gosin",
+      "ko": "고신",
+      "hanja": "孤辰",
+      "glossary_key": "shinsal.gosin",
+      "ja": "孤辰",
+      "reading": "こしん",
+      "aliases": [
+        "孤神"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-andyou-tokushusei",
+          "form": "孤辰",
+          "quote": "【孤辰(こしん)】を持つ人は、親や兄弟との縁が薄くなりやすいとされています。"
+        },
+        {
+          "source": "sr-unkoi-telsys-meishiki",
+          "form": "孤辰",
+          "quote": "・孤辰（こしん）、寡宿（かしゅく）"
+        },
+        {
+          "source": "sr-senjutsu-okubo-calc",
+          "form": "孤辰",
+          "quote": "：孤辰・寡宿"
+        },
+        {
+          "source": "sr-shunshi-guchen",
+          "form": "孤辰",
+          "quote": "孤辰（こしん）とは？八字に現れる孤独の神殺"
+        },
+        {
+          "source": "sr-sityuu-hosi15",
+          "form": "孤辰",
+          "quote": "孤辰、寡宿、白虎、血刃、囚獄"
+        },
+        {
+          "source": "sr-omajinai-tokushusei",
+          "form": "孤辰",
+          "quote": "孤辰・寡宿（こしん・かしゅく）"
+        },
+        {
+          "source": "sr-hiroto-sinsatsu",
+          "form": "孤辰",
+          "quote": "孤辰"
+        },
+        {
+          "source": "sr-ndl-meirigakkai-jissen-10-1936",
+          "form": "孤神",
+          "quote": "更に孤神寡宿(比肩劫財)を兼ぬれば孤苦伶行(伶行は孤独をいふ)を主る"
+        },
+        {
+          "source": "sr-ndl-fushodo-suimeisho-chu-1901",
+          "form": "孤神",
+          "quote": "ソノ上孤神寡宿ニアフハ孤獨艱苦落魄沉淪ス"
+        }
+      ],
+      "confidence": "중",
+      "note": "현대 일본 사이트와 계산 도구는 모두 孤辰(こしん)을 씁니다. 책 근거는 찾지 못했습니다. 국립국회도서관 검색에서 『四柱推命学大奥極秘伝』(阿部熹作) 본문이 孤辰으로 걸렸지만 본문이 공개되지 않아 원문을 확인하지 못했고, 공개 본문이 있는 戦前 책(高木乗 1936, 桜田虎門『推命書』)은 「孤神寡宿」처럼 孤神으로 적습니다. 孤神은 『三命通會』 계열 원문에서도 쓰는 이칭으로 보이나 이 자료에서는 기록만 합니다. 책이나 사전 근거를 찾지 못했고 발행처가 2곳 이상이므로 D97 기준으로 쓸 수 있습니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.gwasuk",
+      "ko": "과숙",
+      "hanja": "寡宿",
+      "glossary_key": "shinsal.gwasuk",
+      "ja": "寡宿",
+      "reading": "かしゅく",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-10-1936",
+          "form": "寡宿",
+          "quote": "更に孤神寡宿(比肩劫財)を兼ぬれば孤苦伶行(伶行は孤独をいふ)を主る"
+        },
+        {
+          "source": "sr-ndl-fushodo-suimeisho-chu-1901",
+          "form": "寡宿",
+          "quote": "ソノ上孤神寡宿ニアフハ孤獨艱苦落魄沉淪ス"
+        },
+        {
+          "source": "sr-andyou-tokushusei",
+          "form": "寡宿",
+          "quote": "【寡宿(かしゅく)】を持つ人は、孤独になりやすいとされています。"
+        },
+        {
+          "source": "sr-unkoi-telsys-meishiki",
+          "form": "寡宿",
+          "quote": "・孤辰（こしん）、寡宿（かしゅく）"
+        },
+        {
+          "source": "sr-senjutsu-okubo-calc",
+          "form": "寡宿",
+          "quote": "：孤辰・寡宿"
+        },
+        {
+          "source": "sr-shunshi-guasu",
+          "form": "寡宿",
+          "quote": "寡宿（かしゅく）とは？孤独を象徴する神殺の意味と影響"
+        },
+        {
+          "source": "sr-sityuu-hosi15",
+          "form": "寡宿",
+          "quote": "孤辰、寡宿、白虎、血刃、囚獄"
+        },
+        {
+          "source": "sr-omajinai-tokushusei",
+          "form": "寡宿",
+          "quote": "孤辰・寡宿（こしん・かしゅく）"
+        },
+        {
+          "source": "sr-hiroto-sinsatsu",
+          "form": "寡宿",
+          "quote": "寡宿"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자와 일본 표기가 같습니다. 읽기는 「かしゅく」입니다. 戦前 책은 짝인 고신을 孤神으로 적어 「孤神寡宿」로 함께 씁니다(高木乗 1936, 桜田虎門『推命書』). 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.wonjin",
+      "ko": "원진",
+      "hanja": "元辰",
+      "glossary_key": "shinsal.wonjin",
+      "ja": "元辰",
+      "reading": "げんしん",
+      "aliases": [
+        "元辰殺",
+        "怨嗔"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-9-1936",
+          "form": "元辰",
+          "quote": "また元辰(生日干支)の厄に會ふことがない"
+        },
+        {
+          "source": "sr-shunshi-yuanchen",
+          "form": "元辰",
+          "quote": "元辰（げんしん）とは？四柱推命における凶星「大耗」の意味と影響"
+        },
+        {
+          "source": "sr-coconala-myoonchou-genshin",
+          "form": "元辰",
+          "quote": "元辰という神殺"
+        },
+        {
+          "source": "sr-akiharu-aisho",
+          "form": "元辰殺",
+          "quote": "元辰殺というのは夫婦が何の理由もなくお互いを憎む厄運に相性同士が互いに憚る殺と言います。"
+        },
+        {
+          "source": "sr-akiharu-aisho",
+          "form": "元辰殺",
+          "quote": "犬年生まれと巳年生まれ、丑年と午年、寅年と酉年生まれ、亥年生まれと辰年、ねずみとひつじ年、ウサギ年と申年はお互いに元辰殺に該当されます。"
+        },
+        {
+          "source": "sr-shunshi-yuanzhen",
+          "form": "怨嗔",
+          "quote": "怨嗔は「元嗔」とも書き、韓国では「원진살」と呼ばれる、二つの地支の関係を見る神殺です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "이름과 정의가 함께 갈립니다. 원전 이름 元辰(げんしん)은 ShunShi(대모 大耗와 같은 별, 연지와 양남음녀/음남양녀로 정함)와 블로그가 쓰고, 高木乗 1936도 元辰을 쓰지만 대운 문맥(\"元辰(生日干支)の厄\")이라 정의가 같은지는 확인하지 못했습니다. 우리 엔진이 쓰는 한국 통용 6쌍(子未, 丑午, 寅酉, 卯申, 辰亥, 巳戌, 남녀 구분 없음, core C40·D124 ③)에 대해서는, 昭晴占い鑑定所(新大久保)가 같은 6쌍을 「元辰殺」로 부르고, ShunShi는 같은 6쌍을 元辰과 다른 별 「怨嗔(元嗔)」으로 따로 두면서 한국의 원진살이라고 밝힙니다. 일본 四柱推命 책과 일본 계산 사이트(SkLab, スタークローラー, 優しい四柱推命, うらなえる)에서는 元辰도 怨嗔도 찾지 못했습니다. 일본 독자에게 이 6쌍은 익숙한 신살이 아니므로 이름은 元辰으로 하고 설명에서 지지 짝 관계임을 풀어 주는 편이 안전합니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.gugyo",
+      "ko": "구교",
+      "hanja": "勾絞",
+      "glossary_key": "shinsal.gugyo",
+      "ja": "勾絞",
+      "reading": "こうこう",
+      "aliases": [
+        "勾絞殺"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-10-1936",
+          "form": "勾絞",
+          "quote": "諸凶神悪勾絞空亡吊客墓病死諸官殺に會へば十死に一生である"
+        },
+        {
+          "source": "sr-ndl-terada-suimeisho-chu-1884",
+          "form": "勾絞",
+          "quote": "休囚死絶破敗衰病勾絞元凶空〓ニヲルハ其子不肖又ハ貧賤疾病〓トス"
+        },
+        {
+          "source": "sr-hiroto-sinsatsu",
+          "form": "勾絞",
+          "quote": "勾絞"
+        },
+        {
+          "source": "sr-shunshi-goujaosha",
+          "form": "勾絞殺",
+          "quote": "勾絞殺（こうこうさつ）は、四柱推命における神殺の一つです。"
+        }
+      ],
+      "confidence": "상",
+      "note": "책(高木乗 1936, 桜田虎門『推命書』 1884)은 勾絞를 다른 흉신과 나란히 이름만 들고, 별도 해설은 없습니다. 현대 일본 사이트와 계산 도구에서는 거의 쓰이지 않으며, ShunShi만 勾絞殺(こうこうさつ)로 해설합니다. 읽기 「こうこう」는 ShunShi의 勾絞殺 읽기에서 가져왔습니다. 個人サイト 神殺表는 太陰, 勾絞, 貫索, 卒暴을 한 칸에 묶어 연지 기준으로 둡니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.cheonra_jimang",
+      "ko": "천라지망",
+      "hanja": "天羅地網",
+      "glossary_key": "shinsal.cheonra_jimang",
+      "ja": "天羅地網",
+      "reading": "てんらちもう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-tenshokan-okugi-3-1933",
+          "form": "天羅地網",
+          "quote": "咸池殺の解、天羅地網の解"
+        },
+        {
+          "source": "sr-ndl-suimei-houkan-ge-1907",
+          "form": "天羅地網",
+          "quote": "此殺は一に天羅地網と云"
+        },
+        {
+          "source": "sr-shunshi-tianluodiwang",
+          "form": "天羅地網",
+          "quote": "天羅地網：命理における試練の象徴"
+        },
+        {
+          "source": "sr-sityuu-hosi15",
+          "form": "天羅地網",
+          "quote": "天羅地網（てんらちもう）は超能力や霊感を意味する特殊星です。"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자와 일본 표기가 같고 읽기는 「てんらちもう」입니다. 정의는 갈립니다. 戦前 책(松本義亮 1933, 山岸弥平 1907)과 ShunShi는 원전대로 납음 火命이 戌亥를 만나면 天羅, 水土命이 辰巳를 만나면 地網으로 보고, リアル四柱推命은 \"命式の中に辰と戌を持つ場合に天羅地網となります\"라며 辰戌로 판정하고 초능력, 영감의 별로 풀이합니다. 이름은 같으므로 표기에는 영향이 없습니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.goegang",
+      "ko": "괴강",
+      "hanja": "魁罡",
+      "glossary_key": "shinsal.goegang",
+      "ja": "魁罡",
+      "reading": "かいごう",
+      "aliases": [],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-kakushiki-5-1936",
+          "form": "魁罡",
+          "quote": "魁罡四日最も賢をなし.疊々重ねてこれに逢へば大権を掌り"
+        },
+        {
+          "source": "sr-ndl-tenshokan-okugi-3-1933",
+          "form": "魁罡",
+          "quote": "日刄の解魁罡の解十二運の解"
+        },
+        {
+          "source": "tg-ndl-suimei-houkan-chu",
+          "form": "魁罡",
+          "quote": "日刄か羊及か魁罡か年に傷官在る者に準し"
+        },
+        {
+          "source": "sr-andyou-tokushusei",
+          "form": "魁罡",
+          "quote": "【魁罡(かいごう)】を持つ人は、強烈なカリスマ性と鋭さを持つとされています。"
+        },
+        {
+          "source": "sr-senjutsu-okubo-calc",
+          "form": "魁罡",
+          "quote": "：魁罡（庚辰・庚戌・壬辰・戊戌の日柱）"
+        },
+        {
+          "source": "sr-kiwami-kichijin-2",
+          "form": "魁罡",
+          "quote": "魁罡（かいごう）とは？"
+        },
+        {
+          "source": "sr-starcrawler-word",
+          "form": "魁罡",
+          "quote": "魁罡（かいごう）"
+        },
+        {
+          "source": "sr-shunshi-kuigang",
+          "form": "魁罡",
+          "quote": "魁罡（かいごう）"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자와 일본 표기가 같습니다. 읽기는 「かいごう」로 출처가 모두 같습니다(한국 '괴강'과 음이 다릅니다). 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.sipak_daepae",
+      "ko": "십악대패",
+      "hanja": "十惡大敗",
+      "glossary_key": "shinsal.sipak_daepae",
+      "ja": "十悪大敗",
+      "reading": "じゅうあくたいはい",
+      "aliases": [
+        "十悪大敗日",
+        "拾悪大敗",
+        "拾惡大敗日"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-kakushiki-6-1936",
+          "form": "十悪大敗",
+          "quote": "これは地支二位を以て天干の如何を見て考へたもので、或はこルを「十悪大敗」といふ"
+        },
+        {
+          "source": "sr-kanshiqsei-juakutaihai",
+          "form": "十悪大敗",
+          "quote": "四柱推命で言う十悪大敗は空亡と関係があると言われていますが、どんな関係でしょうか？"
+        },
+        {
+          "source": "sr-shunshi-shiedabai",
+          "form": "十悪大敗",
+          "quote": "十悪大敗（じゅうあくだいはい）"
+        },
+        {
+          "source": "sr-ndl-takagi-hayawakari-ge-body-1936",
+          "form": "十悪大敗日",
+          "quote": "また六十干支日十悪大敗日といふのがある"
+        },
+        {
+          "source": "sr-pamela-sinsatsu",
+          "form": "十悪大敗日",
+          "quote": "十悪大敗日"
+        },
+        {
+          "source": "sr-hiroto-sinsatsu",
+          "form": "十悪大敗日",
+          "quote": "十悪大敗日"
+        },
+        {
+          "source": "sr-sudechi-taihai",
+          "form": "拾悪大敗",
+          "quote": "さて、前置きが長くなったが、拾悪大敗（じゅうあくたいはい） について考えてみた。"
+        },
+        {
+          "source": "sr-ndl-tenshokan-okugi-3-1933",
+          "form": "拾惡大敗日",
+          "quote": "陰錯陽錯の解拾惡大敗日の解飛刄殺の解"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자 十惡大敗의 일본 신자체가 十悪大敗입니다. 일주로 보는 신살이라 「十悪大敗日」처럼 日을 붙이는 쪽도 많고(高木乗 1936, パメラの館, 個人サイト 神殺表), 「拾悪大敗」로 적는 쪽도 있습니다(松本義亮 1933, てくてくちとせ). 읽기는 てくてくちとせ가 「じゅうあくたいはい」, ShunShi가 「じゅうあくだいはい」로 갈립니다. 일본어 大敗의 보통 읽기 たいはい를 권장합니다. 해당 일주 목록도 출처마다 다릅니다(乙巳, 辛巳 대신 乙未, 辛未를 넣는 곳이 있음). 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.eumchak_yangcha",
+      "ko": "음착양차",
+      "hanja": "陰錯陽差",
+      "glossary_key": "shinsal.eumchak_yangcha",
+      "ja": "陰差陽錯",
+      "reading": "いんさようさく",
+      "aliases": [
+        "陰陽差錯日",
+        "陰陽差錯殺",
+        "陰錯陽錯",
+        "陰錯"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-terada-suimeisho-ge-1884",
+          "form": "陰差陽錯",
+          "quote": "○陰差陽錯ハ早ク夫ニ別ル"
+        },
+        {
+          "source": "sr-shunshi-yinchayangcuo",
+          "form": "陰差陽錯",
+          "quote": "陰差陽錯（いんさようさく）とは？結婚・家庭運に影響する神殺の意味と調べ方"
+        },
+        {
+          "source": "sr-ndl-takagi-hayawakari-ge-body-1936",
+          "form": "陰陽差錯日",
+          "quote": "又金性生れ辛卯は陽錯、陰錯、一名陰陽差錯日といふものになり"
+        },
+        {
+          "source": "sr-ndl-meirigakkai-jissen-9-1936",
+          "form": "陰陽差錯殺",
+          "quote": "陰陽差錯殺は陽陽備へ交はるの象"
+        },
+        {
+          "source": "sr-ndl-tenshokan-okugi-3-1933",
+          "form": "陰錯陽錯",
+          "quote": "訣「陰錯陽錯」=の解一、男子は陽錯を用ゐ女子は陰錯を用ゆ"
+        },
+        {
+          "source": "sr-hiroto-sinsatsu",
+          "form": "陰錯",
+          "quote": "陰錯"
+        }
+      ],
+      "confidence": "상",
+      "note": "이름이 넷으로 갈립니다. ① 陰差陽錯: 桜田虎門『推命書』(1884, 1901년 風祥堂판도 같은 문장)와 ShunShi(いんさようさく). ② 陰陽差錯: 高木乗 1936이 「陰陽差錯日」「陰陽差錯殺」로 씀(원문 陰陽差錯煞과 가장 가까움). ③ 陰錯陽錯: 松本義亮 1933(1912년판도 같음). ④ 陰錯과 陽差를 따로 두는 표(個人サイト 神殺表). 한국식 陰錯陽差 표기는 일본 출처에서 찾지 못했습니다. 현대 일본 사이트와 계산 도구(SkLab, スタークローラー, 優しい四柱推命, うらなえる)에서는 이 신살 자체를 찾지 못했습니다. 근거 수로는 陰差陽錯이 앞서지만 접미 없는 「陰陽差錯」을 쓴 출처는 찾지 못했으므로, 원문 이름을 따르려면 「陰陽差錯」(근거 없음)이나 「陰陽差錯日」(高木乗 1곳)을 고르는 판단이 필요합니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.samgi",
+      "ko": "삼기",
+      "hanja": "三奇",
+      "glossary_key": "shinsal.samgi",
+      "ja": "三奇貴人",
+      "reading": "さんききじん",
+      "aliases": [
+        "三奇人",
+        "三奇"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-8-1936",
+          "form": "三奇貴人",
+          "quote": "○三奇貴人これは表には示きなかつた。"
+        },
+        {
+          "source": "sr-shunshi-sanqiguiren",
+          "form": "三奇貴人",
+          "quote": "三奇貴人（さんききじん）とは？その意味と調べ方"
+        },
+        {
+          "source": "sr-kiwami-kichijin-2",
+          "form": "三奇人",
+          "quote": "三奇人（さんきじん）とは？"
+        },
+        {
+          "source": "sr-ndl-meirigakkai-kakushiki-6-1936",
+          "form": "三奇",
+          "quote": "○三奇天三奇は甲戊庚。地三奇は乙丙丁。人三奇は辛壬癸である。"
+        },
+        {
+          "source": "sr-pamela-sinsatsu",
+          "form": "三奇",
+          "quote": "天上三奇"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 '삼기'에 해당하는 일본 이름은 「三奇貴人(さんききじん)」입니다(高木乗 1936, ShunShi). 鳥海流는 「三奇人(さんきじん)」으로 적습니다. 三奇만 쓰면 天上三奇, 地下三奇, 人中三奇처럼 하위 종류 이름이나 기문둔갑의 三奇로 읽히기 쉽습니다. 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
+    },
+    {
+      "id": "shinsal.amrok",
+      "ko": "암록",
+      "hanja": "暗祿",
+      "glossary_key": "shinsal.amrok",
+      "ja": "暗禄",
+      "reading": "あんろく",
+      "aliases": [
+        "暗祿"
+      ],
+      "coined": false,
+      "evidence": [
+        {
+          "source": "sr-ndl-meirigakkai-jissen-2-1936",
+          "form": "暗禄",
+          "quote": "四柱に亥あれば暗禄をつける.財様の厚きを至す生れである。"
+        },
+        {
+          "source": "sr-ndl-terada-suimeisho-jo-1884",
+          "form": "暗禄",
+          "quote": "○暗禄ハ四柱中ニ禄ナクシテコレニアフハ人シアヌ禄福アリ"
+        },
+        {
+          "source": "sr-andyou-tokushusei",
+          "form": "暗禄",
+          "quote": "【暗禄(あんろく)】を持つ人は、困ったときに誰かの助けを受けられるとされています。"
+        },
+        {
+          "source": "sr-unkoi-telsys-meishiki",
+          "form": "暗禄",
+          "quote": "・暗禄（あんろく）"
+        },
+        {
+          "source": "sr-appstore-sklab-meishikihyo",
+          "form": "暗禄",
+          "quote": "文昌貴人,金與禄,暗禄,羊刃,流霞,飛刃,学士,紅艶殺,節度貴人"
+        },
+        {
+          "source": "sr-kiwami-kichijin-2",
+          "form": "暗禄",
+          "quote": "暗禄（あんろく）とは？"
+        },
+        {
+          "source": "sr-starcrawler-word",
+          "form": "暗禄",
+          "quote": "暗禄（あんろく）"
+        },
+        {
+          "source": "chart-ndl-matsumoto-okugi-1",
+          "form": "暗祿",
+          "quote": "一、暗祿ありて、四柱中に建祿なきものは、人の知らざる暗々の福祿を有するが故に"
+        }
+      ],
+      "confidence": "상",
+      "note": "한국 한자 暗祿의 일본 신자체가 暗禄입니다. 읽기는 「あんろく」로 출처가 모두 같습니다. 戦前 책 일부는 구자체 暗祿을 씁니다(松本義亮 1933). 고서 OCR 본문은 원문 글자와 다를 수 있습니다."
     },
     {
       "id": "shinsal.gongmang",

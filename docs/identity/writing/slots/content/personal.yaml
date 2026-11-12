@@ -173,20 +173,6 @@
   a11y:
     truncation: 시트 안에서 잘리지 않습니다. 글자 수 상한은 design과 조정합니다.
     screen_reader: 문장 그대로 읽습니다.
-  pending:
-    personal.shinsal.cheondeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.woldeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.geumyeo: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.gugyo: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.cheonra_jimang: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.goegang: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.sipak_daepae: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.eumchak_yangcha: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.samgi: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    personal.shinsal.amrok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: personal.luck
   where: 근거 시트 "내 사주에서는" 구역(IA evidence-sheet.personal.body). 대운 표·세운 표에서 십성이나 대운 12운성을 눌러 열었을 때

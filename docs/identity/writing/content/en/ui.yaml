@@ -401,6 +401,7 @@
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "D"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "M"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerYear, text: "Y"}
+- {slot: ui.shinsal.weighing, key: shinsalWeighingNote, text: "In the classics, shinsal are just one of many clues for reading a chart."}
 - {slot: ui.saju.luck-period, key: luckDaeunAgeRange, text: "Ages {startAge} to {endAge}"}
 - {slot: ui.saju.luck-period, key: luckDaeunYearRange, text: "{startYear} to {endYear}"}
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}"}
@@ -438,6 +439,8 @@
 - {slot: today.date.lunar, key: todayDateLunar, text: "Lunar month {month}, day {day}"}
 - {slot: today.date.lunar, key: todayDateLunarLeap, text: "Lunar leap month {month}, day {day}"}
 - {slot: today.date.iljin, key: todayDateIljin, text: "{pillar} day"}
+- {slot: today.date.virtue, key: todayDateVirtueCheondeok, text: "Heavenly Virtue Day"}
+- {slot: today.date.virtue, key: todayDateVirtueWoldeok, text: "Monthly Virtue Day"}
 - {slot: day-sheet.date.solar, key: daySheetDateSolar, text: "{date}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunar, text: "Lunar month {month}, day {day}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunarLeap, text: "Lunar leap month {month}, day {day}"}

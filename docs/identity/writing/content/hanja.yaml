@@ -54,7 +54,7 @@
 - {term: shinsal.geumyeo, hanja: "金轝祿"}
 - {term: shinsal.gosin, hanja: "孤辰"}
 - {term: shinsal.gwasuk, hanja: "寡宿"}
-- {term: shinsal.wonjin, hanja: "元辰"}
+- {term: shinsal.wonjin, hanja: "元嗔"}
 - {term: shinsal.gugyo, hanja: "勾絞"}
 - {term: shinsal.cheonra_jimang, hanja: "天羅地網"}
 - {term: shinsal.goegang, hanja: "魁罡"}
@@ -92,4 +92,4 @@
 - {term: tag.yeokma, hanja: "驛馬"}
 - {term: tag.gosin, hanja: "孤辰"}
 - {term: tag.gwasuk, hanja: "寡宿"}
-- {term: tag.wonjin, hanja: "元辰"}
+- {term: tag.wonjin, hanja: "元嗔"}

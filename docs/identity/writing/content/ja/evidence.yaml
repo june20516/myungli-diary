@@ -26,6 +26,11 @@
 - {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "今日の地支{day_branch}があなたの月支と[[冲|relation.chung]]になるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/dohwa", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/gongmang", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
+- {slot: evidence.basis, key: "basis.tags/gosin", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
+- {slot: evidence.basis, key: "basis.tags/gwasuk", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
+- {slot: evidence.basis, key: "basis.tags/wonjin", text: "あなたの生まれ年の干支で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。元辰は韓国で広く使われる組み合わせを男女の区別なく使い、原典は男女で組み合わせを分けます。"}
+- {slot: evidence.basis, key: "basis.day_virtue/cheondeok", text: "択日の原典は月ごとに天の徳が宿る天干を定め、その天干の日を天徳日とします。今日は今月のその天干の日です。"}
+- {slot: evidence.basis, key: "basis.day_virtue/woldeok", text: "択日の原典は月ごとに月の徳が宿る天干を定め、その天干の日を月徳日とします。今日は今月のその天干の日です。"}
 - {slot: evidence.basis, key: "basis.tags/gwiin_day", text: "今日は貴人の日なので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/harmony", text: "今日の干支があなたの{natal_positions}と{relation_kind}になるので、このタグを付けました。"}
 - {slot: evidence.basis, key: "basis.tags/hwagae", text: "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"}
