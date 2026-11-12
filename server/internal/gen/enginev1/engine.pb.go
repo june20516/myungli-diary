@@ -575,38 +575,77 @@ func (TwelveStage) EnumDescriptor() ([]byte, []int) {
 	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{7}
 }
 
-// 신살 (spec §5.4 MVP 범위).
+// 신살 (spec §5.4). 7~19는 D124로 더한 원국 표 신살이고, 이 가운데 고신, 과숙, 원진만 오늘 태그로도 발동합니다.
 type Shinsal int32
 
 const (
-	Shinsal_SHINSAL_UNSPECIFIED    Shinsal = 0
-	Shinsal_SHINSAL_CHEONEUL_GWIIN Shinsal = 1
-	Shinsal_SHINSAL_DOHWA          Shinsal = 2
-	Shinsal_SHINSAL_YEOKMA         Shinsal = 3
-	Shinsal_SHINSAL_HWAGAE         Shinsal = 4
-	Shinsal_SHINSAL_YANGIN         Shinsal = 5
-	Shinsal_SHINSAL_GONGMANG       Shinsal = 6
+	Shinsal_SHINSAL_UNSPECIFIED     Shinsal = 0
+	Shinsal_SHINSAL_CHEONEUL_GWIIN  Shinsal = 1
+	Shinsal_SHINSAL_DOHWA           Shinsal = 2
+	Shinsal_SHINSAL_YEOKMA          Shinsal = 3
+	Shinsal_SHINSAL_HWAGAE          Shinsal = 4
+	Shinsal_SHINSAL_YANGIN          Shinsal = 5
+	Shinsal_SHINSAL_GONGMANG        Shinsal = 6
+	Shinsal_SHINSAL_CHEONDEOK       Shinsal = 7  // 천덕귀인 (태어난 달 기준, 천간 또는 지지 자리)
+	Shinsal_SHINSAL_WOLDEOK         Shinsal = 8  // 월덕귀인 (태어난 달 기준, 천간 자리)
+	Shinsal_SHINSAL_GEUMYEO         Shinsal = 9  // 금여록 (태어난 해 천간 기준)
+	Shinsal_SHINSAL_GOSIN           Shinsal = 10 // 고신 (오늘 태그)
+	Shinsal_SHINSAL_GWASUK          Shinsal = 11 // 과숙 (오늘 태그)
+	Shinsal_SHINSAL_WONJIN          Shinsal = 12 // 원진 (오늘 태그, 한국 통용 쌍)
+	Shinsal_SHINSAL_GUGYO           Shinsal = 13 // 구교
+	Shinsal_SHINSAL_CHEONRA_JIMANG  Shinsal = 14 // 천라지망
+	Shinsal_SHINSAL_GOEGANG         Shinsal = 15 // 괴강 (일주)
+	Shinsal_SHINSAL_SIPAK_DAEPAE    Shinsal = 16 // 십악대패 (일주)
+	Shinsal_SHINSAL_EUMCHAK_YANGCHA Shinsal = 17 // 음착양차 (일주)
+	Shinsal_SHINSAL_SAMGI           Shinsal = 18 // 삼기 (천간 세 자리)
+	Shinsal_SHINSAL_AMROK           Shinsal = 19 // 암록 (태어난 해 천간 기준)
 )
 
 // Enum value maps for Shinsal.
 var (
 	Shinsal_name = map[int32]string{
-		0: "SHINSAL_UNSPECIFIED",
-		1: "SHINSAL_CHEONEUL_GWIIN",
-		2: "SHINSAL_DOHWA",
-		3: "SHINSAL_YEOKMA",
-		4: "SHINSAL_HWAGAE",
-		5: "SHINSAL_YANGIN",
-		6: "SHINSAL_GONGMANG",
+		0:  "SHINSAL_UNSPECIFIED",
+		1:  "SHINSAL_CHEONEUL_GWIIN",
+		2:  "SHINSAL_DOHWA",
+		3:  "SHINSAL_YEOKMA",
+		4:  "SHINSAL_HWAGAE",
+		5:  "SHINSAL_YANGIN",
+		6:  "SHINSAL_GONGMANG",
+		7:  "SHINSAL_CHEONDEOK",
+		8:  "SHINSAL_WOLDEOK",
+		9:  "SHINSAL_GEUMYEO",
+		10: "SHINSAL_GOSIN",
+		11: "SHINSAL_GWASUK",
+		12: "SHINSAL_WONJIN",
+		13: "SHINSAL_GUGYO",
+		14: "SHINSAL_CHEONRA_JIMANG",
+		15: "SHINSAL_GOEGANG",
+		16: "SHINSAL_SIPAK_DAEPAE",
+		17: "SHINSAL_EUMCHAK_YANGCHA",
+		18: "SHINSAL_SAMGI",
+		19: "SHINSAL_AMROK",
 	}
 	Shinsal_value = map[string]int32{
-		"SHINSAL_UNSPECIFIED":    0,
-		"SHINSAL_CHEONEUL_GWIIN": 1,
-		"SHINSAL_DOHWA":          2,
-		"SHINSAL_YEOKMA":         3,
-		"SHINSAL_HWAGAE":         4,
-		"SHINSAL_YANGIN":         5,
-		"SHINSAL_GONGMANG":       6,
+		"SHINSAL_UNSPECIFIED":     0,
+		"SHINSAL_CHEONEUL_GWIIN":  1,
+		"SHINSAL_DOHWA":           2,
+		"SHINSAL_YEOKMA":          3,
+		"SHINSAL_HWAGAE":          4,
+		"SHINSAL_YANGIN":          5,
+		"SHINSAL_GONGMANG":        6,
+		"SHINSAL_CHEONDEOK":       7,
+		"SHINSAL_WOLDEOK":         8,
+		"SHINSAL_GEUMYEO":         9,
+		"SHINSAL_GOSIN":           10,
+		"SHINSAL_GWASUK":          11,
+		"SHINSAL_WONJIN":          12,
+		"SHINSAL_GUGYO":           13,
+		"SHINSAL_CHEONRA_JIMANG":  14,
+		"SHINSAL_GOEGANG":         15,
+		"SHINSAL_SIPAK_DAEPAE":    16,
+		"SHINSAL_EUMCHAK_YANGCHA": 17,
+		"SHINSAL_SAMGI":           18,
+		"SHINSAL_AMROK":           19,
 	}
 )
 
@@ -635,6 +674,56 @@ func (x Shinsal) Number() protoreflect.EnumNumber {
 // Deprecated: Use Shinsal.Descriptor instead.
 func (Shinsal) EnumDescriptor() ([]byte, []int) {
 	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{8}
+}
+
+// 택일 덕일 (D124 ⑤). 『協紀辨方書』 卷五, 그날이 속한 달 기준이라 모두에게 같습니다.
+type DayVirtue int32
+
+const (
+	DayVirtue_DAY_VIRTUE_UNSPECIFIED   DayVirtue = 0
+	DayVirtue_DAY_VIRTUE_CHEONDEOK_DAY DayVirtue = 1 // 천덕일
+	DayVirtue_DAY_VIRTUE_WOLDEOK_DAY   DayVirtue = 2 // 월덕일
+)
+
+// Enum value maps for DayVirtue.
+var (
+	DayVirtue_name = map[int32]string{
+		0: "DAY_VIRTUE_UNSPECIFIED",
+		1: "DAY_VIRTUE_CHEONDEOK_DAY",
+		2: "DAY_VIRTUE_WOLDEOK_DAY",
+	}
+	DayVirtue_value = map[string]int32{
+		"DAY_VIRTUE_UNSPECIFIED":   0,
+		"DAY_VIRTUE_CHEONDEOK_DAY": 1,
+		"DAY_VIRTUE_WOLDEOK_DAY":   2,
+	}
+)
+
+func (x DayVirtue) Enum() *DayVirtue {
+	p := new(DayVirtue)
+	*p = x
+	return p
+}
+
+func (x DayVirtue) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DayVirtue) Descriptor() protoreflect.EnumDescriptor {
+	return file_myungli_engine_v1_engine_proto_enumTypes[9].Descriptor()
+}
+
+func (DayVirtue) Type() protoreflect.EnumType {
+	return &file_myungli_engine_v1_engine_proto_enumTypes[9]
+}
+
+func (x DayVirtue) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DayVirtue.Descriptor instead.
+func (DayVirtue) EnumDescriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{9}
 }
 
 // 원국의 여덟 자리.
@@ -689,11 +778,11 @@ func (x Position) String() string {
 }
 
 func (Position) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[9].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[10].Descriptor()
 }
 
 func (Position) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[9]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[10]
 }
 
 func (x Position) Number() protoreflect.EnumNumber {
@@ -702,7 +791,7 @@ func (x Position) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Position.Descriptor instead.
 func (Position) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{9}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{10}
 }
 
 // 8방위.
@@ -757,11 +846,11 @@ func (x Direction8) String() string {
 }
 
 func (Direction8) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[10].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[11].Descriptor()
 }
 
 func (Direction8) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[10]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[11]
 }
 
 func (x Direction8) Number() protoreflect.EnumNumber {
@@ -770,7 +859,7 @@ func (x Direction8) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Direction8.Descriptor instead.
 func (Direction8) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{10}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{11}
 }
 
 // 날의 성격 (spec §7.1).
@@ -813,11 +902,11 @@ func (x DayKind) String() string {
 }
 
 func (DayKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[11].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[12].Descriptor()
 }
 
 func (DayKind) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[11]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[12]
 }
 
 func (x DayKind) Number() protoreflect.EnumNumber {
@@ -826,7 +915,7 @@ func (x DayKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DayKind.Descriptor instead.
 func (DayKind) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{11}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{12}
 }
 
 // 신강·신약 등급 (spec §6.1).
@@ -872,11 +961,11 @@ func (x StrengthLevel) String() string {
 }
 
 func (StrengthLevel) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[12].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[13].Descriptor()
 }
 
 func (StrengthLevel) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[12]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[13]
 }
 
 func (x StrengthLevel) Number() protoreflect.EnumNumber {
@@ -885,7 +974,7 @@ func (x StrengthLevel) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use StrengthLevel.Descriptor instead.
 func (StrengthLevel) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{12}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{13}
 }
 
 // 용신 판정 방식 (spec §6.2).
@@ -925,11 +1014,11 @@ func (x YongsinMethod) String() string {
 }
 
 func (YongsinMethod) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[13].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[14].Descriptor()
 }
 
 func (YongsinMethod) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[13]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[14]
 }
 
 func (x YongsinMethod) Number() protoreflect.EnumNumber {
@@ -938,7 +1027,7 @@ func (x YongsinMethod) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use YongsinMethod.Descriptor instead.
 func (YongsinMethod) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{13}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{14}
 }
 
 // 월간 캘린더 길흉 수준 (spec §8). 점수 3 이상 VERY_GOOD, 2 GOOD, -2 이하 CAUTION, 그 밖 NEUTRAL.
@@ -982,11 +1071,11 @@ func (x LuckLevel) String() string {
 }
 
 func (LuckLevel) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[14].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[15].Descriptor()
 }
 
 func (LuckLevel) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[14]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[15]
 }
 
 func (x LuckLevel) Number() protoreflect.EnumNumber {
@@ -995,7 +1084,7 @@ func (x LuckLevel) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use LuckLevel.Descriptor instead.
 func (LuckLevel) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{14}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{15}
 }
 
 // 계산은 되지만 민감한 상황 (spec §9.1).
@@ -1009,7 +1098,7 @@ const (
 	NoticeCode_NOTICE_CODE_TIME_UNKNOWN            NoticeCode = 4
 	NoticeCode_NOTICE_CODE_NEAR_SOLAR_TERM         NoticeCode = 5
 	NoticeCode_NOTICE_CODE_DAYUN_START_APPROXIMATE NoticeCode = 6
-	NoticeCode_NOTICE_CODE_FOCUS_TIME_FALLBACK     NoticeCode = 7
+	NoticeCode_NOTICE_CODE_FOCUS_TIME_FALLBACK     NoticeCode = 7 // ruleset 2026.11.4부터 나오지 않습니다(D122, 집중 시간 대체가 없어짐)
 )
 
 // Enum value maps for NoticeCode.
@@ -1047,11 +1136,11 @@ func (x NoticeCode) String() string {
 }
 
 func (NoticeCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[15].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[16].Descriptor()
 }
 
 func (NoticeCode) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[15]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[16]
 }
 
 func (x NoticeCode) Number() protoreflect.EnumNumber {
@@ -1060,7 +1149,7 @@ func (x NoticeCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NoticeCode.Descriptor instead.
 func (NoticeCode) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{15}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{16}
 }
 
 // 합·충·형 종류 (spec §7.6).
@@ -1103,11 +1192,11 @@ func (x RelationKind) String() string {
 }
 
 func (RelationKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[16].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[17].Descriptor()
 }
 
 func (RelationKind) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[16]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[17]
 }
 
 func (x RelationKind) Number() protoreflect.EnumNumber {
@@ -1116,10 +1205,10 @@ func (x RelationKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RelationKind.Descriptor instead.
 func (RelationKind) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{16}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{17}
 }
 
-// 행운 컬러·숫자 오행의 역할 (spec §7.2).
+// 행운 컬러 바탕 오행과 숫자 오행의 역할 (spec §7.2).
 type ElementRole int32
 
 const (
@@ -1153,11 +1242,11 @@ func (x ElementRole) String() string {
 }
 
 func (ElementRole) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[17].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[18].Descriptor()
 }
 
 func (ElementRole) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[17]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[18]
 }
 
 func (x ElementRole) Number() protoreflect.EnumNumber {
@@ -1166,7 +1255,167 @@ func (x ElementRole) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ElementRole.Descriptor instead.
 func (ElementRole) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{17}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{18}
+}
+
+// 행운 색 변역(變易): 바탕 오행이 그날 일지의 12운성 자리에 따라 따르는 색 (core C33).
+// 『三命通會』 「論五行」 生旺從正色，死絶從母色，成形冠帶從妻色，病敗從鬼色，旺墓從子色.
+type ColorShift int32
+
+const (
+	ColorShift_COLOR_SHIFT_UNSPECIFIED ColorShift = 0
+	ColorShift_COLOR_SHIFT_JEONG       ColorShift = 1 // 正色: 제 색
+	ColorShift_COLOR_SHIFT_MO          ColorShift = 2 // 母色: 나를 생하는 오행의 색
+	ColorShift_COLOR_SHIFT_CHEO        ColorShift = 3 // 妻色: 내가 극하는 오행의 색
+	ColorShift_COLOR_SHIFT_GWI         ColorShift = 4 // 鬼色: 나를 극하는 오행의 색
+	ColorShift_COLOR_SHIFT_JA          ColorShift = 5 // 子色: 내가 생하는 오행의 색
+)
+
+// Enum value maps for ColorShift.
+var (
+	ColorShift_name = map[int32]string{
+		0: "COLOR_SHIFT_UNSPECIFIED",
+		1: "COLOR_SHIFT_JEONG",
+		2: "COLOR_SHIFT_MO",
+		3: "COLOR_SHIFT_CHEO",
+		4: "COLOR_SHIFT_GWI",
+		5: "COLOR_SHIFT_JA",
+	}
+	ColorShift_value = map[string]int32{
+		"COLOR_SHIFT_UNSPECIFIED": 0,
+		"COLOR_SHIFT_JEONG":       1,
+		"COLOR_SHIFT_MO":          2,
+		"COLOR_SHIFT_CHEO":        3,
+		"COLOR_SHIFT_GWI":         4,
+		"COLOR_SHIFT_JA":          5,
+	}
+)
+
+func (x ColorShift) Enum() *ColorShift {
+	p := new(ColorShift)
+	*p = x
+	return p
+}
+
+func (x ColorShift) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ColorShift) Descriptor() protoreflect.EnumDescriptor {
+	return file_myungli_engine_v1_engine_proto_enumTypes[19].Descriptor()
+}
+
+func (ColorShift) Type() protoreflect.EnumType {
+	return &file_myungli_engine_v1_engine_proto_enumTypes[19]
+}
+
+func (x ColorShift) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ColorShift.Descriptor instead.
+func (ColorShift) EnumDescriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{19}
+}
+
+// 행운 색 카드의 계산 기준 (D119, core C34).
+// 집중 시간 카드의 구간 (D122). 낮은 그날 진시~술시, 밤은 그날 해시와 다음 날 자시~묘시입니다(#1008).
+type FocusPeriod int32
+
+const (
+	FocusPeriod_FOCUS_PERIOD_UNSPECIFIED FocusPeriod = 0
+	FocusPeriod_FOCUS_PERIOD_DAY         FocusPeriod = 1
+	FocusPeriod_FOCUS_PERIOD_NIGHT       FocusPeriod = 2
+)
+
+// Enum value maps for FocusPeriod.
+var (
+	FocusPeriod_name = map[int32]string{
+		0: "FOCUS_PERIOD_UNSPECIFIED",
+		1: "FOCUS_PERIOD_DAY",
+		2: "FOCUS_PERIOD_NIGHT",
+	}
+	FocusPeriod_value = map[string]int32{
+		"FOCUS_PERIOD_UNSPECIFIED": 0,
+		"FOCUS_PERIOD_DAY":         1,
+		"FOCUS_PERIOD_NIGHT":       2,
+	}
+)
+
+func (x FocusPeriod) Enum() *FocusPeriod {
+	p := new(FocusPeriod)
+	*p = x
+	return p
+}
+
+func (x FocusPeriod) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FocusPeriod) Descriptor() protoreflect.EnumDescriptor {
+	return file_myungli_engine_v1_engine_proto_enumTypes[20].Descriptor()
+}
+
+func (FocusPeriod) Type() protoreflect.EnumType {
+	return &file_myungli_engine_v1_engine_proto_enumTypes[20]
+}
+
+func (x FocusPeriod) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FocusPeriod.Descriptor instead.
+func (FocusPeriod) EnumDescriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{20}
+}
+
+type ColorBasis int32
+
+const (
+	ColorBasis_COLOR_BASIS_UNSPECIFIED ColorBasis = 0
+	ColorBasis_COLOR_BASIS_SOURCE      ColorBasis = 1 // 원전 기준: 변역 뒤 색
+	ColorBasis_COLOR_BASIS_BALANCE     ColorBasis = 2 // 내 균형 기준: 바탕 오행의 제 색(변역 없음)
+)
+
+// Enum value maps for ColorBasis.
+var (
+	ColorBasis_name = map[int32]string{
+		0: "COLOR_BASIS_UNSPECIFIED",
+		1: "COLOR_BASIS_SOURCE",
+		2: "COLOR_BASIS_BALANCE",
+	}
+	ColorBasis_value = map[string]int32{
+		"COLOR_BASIS_UNSPECIFIED": 0,
+		"COLOR_BASIS_SOURCE":      1,
+		"COLOR_BASIS_BALANCE":     2,
+	}
+)
+
+func (x ColorBasis) Enum() *ColorBasis {
+	p := new(ColorBasis)
+	*p = x
+	return p
+}
+
+func (x ColorBasis) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ColorBasis) Descriptor() protoreflect.EnumDescriptor {
+	return file_myungli_engine_v1_engine_proto_enumTypes[21].Descriptor()
+}
+
+func (ColorBasis) Type() protoreflect.EnumType {
+	return &file_myungli_engine_v1_engine_proto_enumTypes[21]
+}
+
+func (x ColorBasis) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ColorBasis.Descriptor instead.
+func (ColorBasis) EnumDescriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{21}
 }
 
 // 24절기. 번호는 양력 1월의 소한(1)부터 12월의 동지(24)까지 한 해 순서입니다.
@@ -1270,11 +1519,11 @@ func (x SolarTermKind) String() string {
 }
 
 func (SolarTermKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[18].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[22].Descriptor()
 }
 
 func (SolarTermKind) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[18]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[22]
 }
 
 func (x SolarTermKind) Number() protoreflect.EnumNumber {
@@ -1283,7 +1532,7 @@ func (x SolarTermKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SolarTermKind.Descriptor instead.
 func (SolarTermKind) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{18}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{22}
 }
 
 // 원국 개인 해석("내 사주에서는")이 가리키는 용어 (D60).
@@ -1341,11 +1590,11 @@ func (x PersonalTermKind) String() string {
 }
 
 func (PersonalTermKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_myungli_engine_v1_engine_proto_enumTypes[19].Descriptor()
+	return file_myungli_engine_v1_engine_proto_enumTypes[23].Descriptor()
 }
 
 func (PersonalTermKind) Type() protoreflect.EnumType {
-	return &file_myungli_engine_v1_engine_proto_enumTypes[19]
+	return &file_myungli_engine_v1_engine_proto_enumTypes[23]
 }
 
 func (x PersonalTermKind) Number() protoreflect.EnumNumber {
@@ -1354,7 +1603,7 @@ func (x PersonalTermKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PersonalTermKind.Descriptor instead.
 func (PersonalTermKind) EnumDescriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{19}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{23}
 }
 
 // 현지 달력 날짜.
@@ -2644,9 +2893,13 @@ func (x *PositionTwelveStage) GetTwelveStage() TwelveStage {
 }
 
 type ShinsalHit struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Kind          Shinsal                `protobuf:"varint,1,opt,name=kind,proto3,enum=myungli.engine.v1.Shinsal" json:"kind,omitempty"`
-	Position      Position               `protobuf:"varint,2,opt,name=position,proto3,enum=myungli.engine.v1.Position" json:"position,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Kind  Shinsal                `protobuf:"varint,1,opt,name=kind,proto3,enum=myungli.engine.v1.Shinsal" json:"kind,omitempty"`
+	// 대표 자리. 개인 해석은 (SHINSAL, position, shinsal)로 찾습니다.
+	Position Position `protobuf:"varint,2,opt,name=position,proto3,enum=myungli.engine.v1.Position" json:"position,omitempty"`
+	// 신살이 걸친 자리 전부(D124). 한 글자 신살은 [position], 일주 신살(괴강, 십악대패, 음착양차)은
+	// [DAY_STEM, DAY_BRANCH]이고 대표는 DAY_BRANCH, 삼기는 세 천간 자리이고 대표는 첫 자리입니다.
+	Positions     []Position `protobuf:"varint,3,rep,packed,name=positions,proto3,enum=myungli.engine.v1.Position" json:"positions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2693,6 +2946,13 @@ func (x *ShinsalHit) GetPosition() Position {
 		return x.Position
 	}
 	return Position_POSITION_UNSPECIFIED
+}
+
+func (x *ShinsalHit) GetPositions() []Position {
+	if x != nil {
+		return x.Positions
+	}
+	return nil
 }
 
 // 오행 분포. 자리 가중치를 반영한 값입니다.
@@ -3124,20 +3384,21 @@ func (x *YearLuck) GetRelationsWithNatal() []RelationKind {
 }
 
 type DailyResponse struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	Day          *Pillar                `protobuf:"bytes,1,opt,name=day,proto3" json:"day,omitempty"` // 일진 (그 날짜 정오 기준)
-	Kind         DayKind                `protobuf:"varint,2,opt,name=kind,proto3,enum=myungli.engine.v1.DayKind" json:"kind,omitempty"`
-	Color        *ColorCard             `protobuf:"bytes,3,opt,name=color,proto3" json:"color,omitempty"`
-	Direction    *DirectionCard         `protobuf:"bytes,4,opt,name=direction,proto3" json:"direction,omitempty"`
-	Number       *NumberCard            `protobuf:"bytes,5,opt,name=number,proto3" json:"number,omitempty"`
-	FocusTime    *FocusTimeCard         `protobuf:"bytes,6,opt,name=focus_time,json=focusTime,proto3" json:"focus_time,omitempty"`
-	Relations    []*Relation            `protobuf:"bytes,7,rep,name=relations,proto3" json:"relations,omitempty"`                           // 일진 × 원국. 탐합망충으로 무효가 된 충도 포함
-	FeaturedTags []string               `protobuf:"bytes,8,rep,name=featured_tags,json=featuredTags,proto3" json:"featured_tags,omitempty"` // 대표 태그 키 0~2개 (화면 표시용)
-	AllTags      []string               `protobuf:"bytes,9,rep,name=all_tags,json=allTags,proto3" json:"all_tags,omitempty"`                // 전체 태그 키 (일기 저장용)
-	TagEvidence  []*Evidence            `protobuf:"bytes,10,rep,name=tag_evidence,json=tagEvidence,proto3" json:"tag_evidence,omitempty"`
-	Fortune      []*Judgment            `protobuf:"bytes,11,rep,name=fortune,proto3" json:"fortune,omitempty"` // 총운. 첫 항목이 본문, 대표 태그가 있으면 보조 문장이 뒤따름
-	Guide        *Judgment              `protobuf:"bytes,12,opt,name=guide,proto3" json:"guide,omitempty"`     // 가이드 질문(기본). guide_candidates의 첫 항목과 같음
-	Meta         *ResponseMeta          `protobuf:"bytes,13,opt,name=meta,proto3" json:"meta,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Day   *Pillar                `protobuf:"bytes,1,opt,name=day,proto3" json:"day,omitempty"` // 일진 (그 날짜 정오 기준)
+	Kind  DayKind                `protobuf:"varint,2,opt,name=kind,proto3,enum=myungli.engine.v1.DayKind" json:"kind,omitempty"`
+	// 첫째 색 카드. 숫자 오행과 공유 이미지 색은 이 카드를 따릅니다(D119).
+	Color        *ColorCard     `protobuf:"bytes,3,opt,name=color,proto3" json:"color,omitempty"`
+	Direction    *DirectionCard `protobuf:"bytes,4,opt,name=direction,proto3" json:"direction,omitempty"`
+	Number       *NumberCard    `protobuf:"bytes,5,opt,name=number,proto3" json:"number,omitempty"`
+	FocusTime    *FocusTimeCard `protobuf:"bytes,6,opt,name=focus_time,json=focusTime,proto3" json:"focus_time,omitempty"`          // 낮(진시~술시)의 1등 시진 (D122)
+	Relations    []*Relation    `protobuf:"bytes,7,rep,name=relations,proto3" json:"relations,omitempty"`                           // 일진 × 원국. 탐합망충으로 무효가 된 충도 포함
+	FeaturedTags []string       `protobuf:"bytes,8,rep,name=featured_tags,json=featuredTags,proto3" json:"featured_tags,omitempty"` // 대표 태그 키 0~2개 (화면 표시용)
+	AllTags      []string       `protobuf:"bytes,9,rep,name=all_tags,json=allTags,proto3" json:"all_tags,omitempty"`                // 전체 태그 키 (일기 저장용)
+	TagEvidence  []*Evidence    `protobuf:"bytes,10,rep,name=tag_evidence,json=tagEvidence,proto3" json:"tag_evidence,omitempty"`
+	Fortune      []*Judgment    `protobuf:"bytes,11,rep,name=fortune,proto3" json:"fortune,omitempty"` // 총운. 첫 항목이 본문, 대표 태그가 있으면 보조 문장이 뒤따름
+	Guide        *Judgment      `protobuf:"bytes,12,opt,name=guide,proto3" json:"guide,omitempty"`     // 가이드 질문(기본). guide_candidates의 첫 항목과 같음
+	Meta         *ResponseMeta  `protobuf:"bytes,13,opt,name=meta,proto3" json:"meta,omitempty"`
 	// 일진 천간의 십성과 그 묶음(원국 일간 기준). 총운 판정 근거의 ten_god·group과 같은 값입니다(#804).
 	DayStemTenGod      TenGod      `protobuf:"varint,14,opt,name=day_stem_ten_god,json=dayStemTenGod,proto3,enum=myungli.engine.v1.TenGod" json:"day_stem_ten_god,omitempty"`
 	DayStemTenGodGroup TenGodGroup `protobuf:"varint,15,opt,name=day_stem_ten_god_group,json=dayStemTenGodGroup,proto3,enum=myungli.engine.v1.TenGodGroup" json:"day_stem_ten_god_group,omitempty"`
@@ -3145,9 +3406,16 @@ type DailyResponse struct {
 	// 첫 항목은 guide와 같습니다. 같은 키의 원고 변주는 콘텐츠 쪽이 펼칩니다(#804).
 	GuideCandidates []*Judgment `protobuf:"bytes,16,rep,name=guide_candidates,json=guideCandidates,proto3" json:"guide_candidates,omitempty"`
 	// 그날의 한국 음력 날짜. 같은 날짜의 MonthDay.lunar_month, lunar_day, is_leap_month와 같습니다(#834).
-	LunarMonth    int32 `protobuf:"varint,17,opt,name=lunar_month,json=lunarMonth,proto3" json:"lunar_month,omitempty"`
-	LunarDay      int32 `protobuf:"varint,18,opt,name=lunar_day,json=lunarDay,proto3" json:"lunar_day,omitempty"`
-	IsLeapMonth   bool  `protobuf:"varint,19,opt,name=is_leap_month,json=isLeapMonth,proto3" json:"is_leap_month,omitempty"`
+	LunarMonth  int32 `protobuf:"varint,17,opt,name=lunar_month,json=lunarMonth,proto3" json:"lunar_month,omitempty"`
+	LunarDay    int32 `protobuf:"varint,18,opt,name=lunar_day,json=lunarDay,proto3" json:"lunar_day,omitempty"`
+	IsLeapMonth bool  `protobuf:"varint,19,opt,name=is_leap_month,json=isLeapMonth,proto3" json:"is_leap_month,omitempty"`
+	// 둘째 색 카드. 원전 기준 색이 기신의 색인 날만 있고, 그날 color는 내 균형 기준, second_color는 원전 기준입니다(D119).
+	SecondColor *ColorCard `protobuf:"bytes,20,opt,name=second_color,json=secondColor,proto3,oneof" json:"second_color,omitempty"`
+	// 밤의 1등 시진 (D122, #1008). 그날 해시(서울 21:30~23:29)와 다음 날 자시~묘시(그날 23:30 ~ 다음 날 07:29)
+	// 중에서 고릅니다. 시진이 속한 날짜는 FocusSlot.day_date입니다.
+	NightFocusTime *FocusTimeCard `protobuf:"bytes,21,opt,name=night_focus_time,json=nightFocusTime,proto3" json:"night_focus_time,omitempty"`
+	// 택일 덕일 (D124 ⑤). 없는 날은 비어 있고, 천덕일이면서 월덕일인 날은 둘입니다(천덕일 먼저).
+	DayVirtues    []*DayVirtueCard `protobuf:"bytes,22,rep,name=day_virtues,json=dayVirtues,proto3" json:"day_virtues,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3315,19 +3583,101 @@ func (x *DailyResponse) GetIsLeapMonth() bool {
 	return false
 }
 
-// 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
-type ColorCard struct {
+func (x *DailyResponse) GetSecondColor() *ColorCard {
+	if x != nil {
+		return x.SecondColor
+	}
+	return nil
+}
+
+func (x *DailyResponse) GetNightFocusTime() *FocusTimeCard {
+	if x != nil {
+		return x.NightFocusTime
+	}
+	return nil
+}
+
+func (x *DailyResponse) GetDayVirtues() []*DayVirtueCard {
+	if x != nil {
+		return x.DayVirtues
+	}
+	return nil
+}
+
+// 택일 덕일 하나. judgment의 message_key는 day_virtue.<cheondeok|woldeok>입니다.
+type DayVirtueCard struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Judgment      *Judgment              `protobuf:"bytes,1,opt,name=judgment,proto3" json:"judgment,omitempty"`
-	Element       Element                `protobuf:"varint,2,opt,name=element,proto3,enum=myungli.engine.v1.Element" json:"element,omitempty"`
-	Role          ElementRole            `protobuf:"varint,3,opt,name=role,proto3,enum=myungli.engine.v1.ElementRole" json:"role,omitempty"`
+	Kind          DayVirtue              `protobuf:"varint,1,opt,name=kind,proto3,enum=myungli.engine.v1.DayVirtue" json:"kind,omitempty"`
+	Judgment      *Judgment              `protobuf:"bytes,2,opt,name=judgment,proto3" json:"judgment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DayVirtueCard) Reset() {
+	*x = DayVirtueCard{}
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DayVirtueCard) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DayVirtueCard) ProtoMessage() {}
+
+func (x *DayVirtueCard) ProtoReflect() protoreflect.Message {
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DayVirtueCard.ProtoReflect.Descriptor instead.
+func (*DayVirtueCard) Descriptor() ([]byte, []int) {
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *DayVirtueCard) GetKind() DayVirtue {
+	if x != nil {
+		return x.Kind
+	}
+	return DayVirtue_DAY_VIRTUE_UNSPECIFIED
+}
+
+func (x *DayVirtueCard) GetJudgment() *Judgment {
+	if x != nil {
+		return x.Judgment
+	}
+	return nil
+}
+
+// 행운 컬러: 오행과 그 역할. 색 이름·색 값은 앱이 오행 팔레트로 정합니다.
+// element는 이 카드의 색 오행입니다. 원전 기준(SOURCE)은 변역 뒤 색, 내 균형 기준(BALANCE)은 바탕 오행과 같습니다.
+// role은 바탕 오행(base_element)의 역할이고, twelve_stage와 shift는 두 카드 모두 그날 계산한 변역입니다(core C33, C34).
+type ColorCard struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Judgment *Judgment              `protobuf:"bytes,1,opt,name=judgment,proto3" json:"judgment,omitempty"`
+	Element  Element                `protobuf:"varint,2,opt,name=element,proto3,enum=myungli.engine.v1.Element" json:"element,omitempty"`
+	Role     ElementRole            `protobuf:"varint,3,opt,name=role,proto3,enum=myungli.engine.v1.ElementRole" json:"role,omitempty"`
+	// 날의 성격으로 고른 바탕 오행. 기신의 날은 통관 오행, 그 밖은 용신 오행.
+	BaseElement Element `protobuf:"varint,4,opt,name=base_element,json=baseElement,proto3,enum=myungli.engine.v1.Element" json:"base_element,omitempty"`
+	// 바탕 오행이 그날 일지에서 놓인 12운성 자리(오행의 양간 기준).
+	TwelveStage   TwelveStage `protobuf:"varint,5,opt,name=twelve_stage,json=twelveStage,proto3,enum=myungli.engine.v1.TwelveStage" json:"twelve_stage,omitempty"`
+	Shift         ColorShift  `protobuf:"varint,6,opt,name=shift,proto3,enum=myungli.engine.v1.ColorShift" json:"shift,omitempty"`
+	Basis         ColorBasis  `protobuf:"varint,7,opt,name=basis,proto3,enum=myungli.engine.v1.ColorBasis" json:"basis,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ColorCard) Reset() {
 	*x = ColorCard{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[27]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3339,7 +3689,7 @@ func (x *ColorCard) String() string {
 func (*ColorCard) ProtoMessage() {}
 
 func (x *ColorCard) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[27]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3352,7 +3702,7 @@ func (x *ColorCard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ColorCard.ProtoReflect.Descriptor instead.
 func (*ColorCard) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{27}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ColorCard) GetJudgment() *Judgment {
@@ -3376,6 +3726,34 @@ func (x *ColorCard) GetRole() ElementRole {
 	return ElementRole_ELEMENT_ROLE_UNSPECIFIED
 }
 
+func (x *ColorCard) GetBaseElement() Element {
+	if x != nil {
+		return x.BaseElement
+	}
+	return Element_ELEMENT_UNSPECIFIED
+}
+
+func (x *ColorCard) GetTwelveStage() TwelveStage {
+	if x != nil {
+		return x.TwelveStage
+	}
+	return TwelveStage_TWELVE_STAGE_UNSPECIFIED
+}
+
+func (x *ColorCard) GetShift() ColorShift {
+	if x != nil {
+		return x.Shift
+	}
+	return ColorShift_COLOR_SHIFT_UNSPECIFIED
+}
+
+func (x *ColorCard) GetBasis() ColorBasis {
+	if x != nil {
+		return x.Basis
+	}
+	return ColorBasis_COLOR_BASIS_UNSPECIFIED
+}
+
 // 행운 방향. rule_id는 적용한 규칙 식별자입니다.
 type DirectionCard struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -3388,7 +3766,7 @@ type DirectionCard struct {
 
 func (x *DirectionCard) Reset() {
 	*x = DirectionCard{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[28]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3400,7 +3778,7 @@ func (x *DirectionCard) String() string {
 func (*DirectionCard) ProtoMessage() {}
 
 func (x *DirectionCard) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[28]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3413,7 +3791,7 @@ func (x *DirectionCard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DirectionCard.ProtoReflect.Descriptor instead.
 func (*DirectionCard) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{28}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *DirectionCard) GetJudgment() *Judgment {
@@ -3447,7 +3825,7 @@ type NumberCard struct {
 
 func (x *NumberCard) Reset() {
 	*x = NumberCard{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[29]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3459,7 +3837,7 @@ func (x *NumberCard) String() string {
 func (*NumberCard) ProtoMessage() {}
 
 func (x *NumberCard) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[29]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3472,7 +3850,7 @@ func (x *NumberCard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NumberCard.ProtoReflect.Descriptor instead.
 func (*NumberCard) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{29}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *NumberCard) GetJudgment() *Judgment {
@@ -3489,19 +3867,21 @@ func (x *NumberCard) GetNumber() int32 {
 	return 0
 }
 
-// 집중하기 좋은 시간. fallback이면 모든 후보가 제외되어 황도길시로 대신한 결과입니다.
+// 집중하기 좋은 시간 (D122). 12시진을 원전(協紀辨方書 用時法, 論相主, 黃道黑道) 등급으로 줄 세워
+// 구간(period)마다 1등 하나를 냅니다. 근거 규칙은 focus_time/day_relation, birth_year, huangdao입니다.
 type FocusTimeCard struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Judgment      *Judgment              `protobuf:"bytes,1,opt,name=judgment,proto3" json:"judgment,omitempty"`
-	Picks         []*FocusSlot           `protobuf:"bytes,2,rep,name=picks,proto3" json:"picks,omitempty"` // 1~2개
-	Fallback      bool                   `protobuf:"varint,3,opt,name=fallback,proto3" json:"fallback,omitempty"`
+	Picks         []*FocusSlot           `protobuf:"bytes,2,rep,name=picks,proto3" json:"picks,omitempty"`        // 늘 1개 (ruleset 2026.11.4부터, 전에는 1~2개)
+	Fallback      bool                   `protobuf:"varint,3,opt,name=fallback,proto3" json:"fallback,omitempty"` // ruleset 2026.11.4부터 늘 false
+	Period        FocusPeriod            `protobuf:"varint,4,opt,name=period,proto3,enum=myungli.engine.v1.FocusPeriod" json:"period,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FocusTimeCard) Reset() {
 	*x = FocusTimeCard{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[30]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3513,7 +3893,7 @@ func (x *FocusTimeCard) String() string {
 func (*FocusTimeCard) ProtoMessage() {}
 
 func (x *FocusTimeCard) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[30]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3526,7 +3906,7 @@ func (x *FocusTimeCard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FocusTimeCard.ProtoReflect.Descriptor instead.
 func (*FocusTimeCard) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{30}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *FocusTimeCard) GetJudgment() *Judgment {
@@ -3550,6 +3930,13 @@ func (x *FocusTimeCard) GetFallback() bool {
 	return false
 }
 
+func (x *FocusTimeCard) GetPeriod() FocusPeriod {
+	if x != nil {
+		return x.Period
+	}
+	return FocusPeriod_FOCUS_PERIOD_UNSPECIFIED
+}
+
 // 시진 하나. start(포함)·end(제외)는 절대 시각이며, 요청의 current_timezone으로 바꿔 표시합니다.
 type FocusSlot struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -3558,15 +3945,18 @@ type FocusSlot struct {
 	Start         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start,proto3" json:"start,omitempty"`
 	End           *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end,proto3" json:"end,omitempty"`
 	HuangdaoLucky bool                   `protobuf:"varint,5,opt,name=huangdao_lucky,json=huangdaoLucky,proto3" json:"huangdao_lucky,omitempty"` // 황도길시
-	Score         int32                  `protobuf:"varint,6,opt,name=score,proto3" json:"score,omitempty"`
-	Reasons       []string               `protobuf:"bytes,7,rep,name=reasons,proto3" json:"reasons,omitempty"` // 가점 사유 식별자: gwiin, yongsin, huisin, hap
+	Score         int32                  `protobuf:"varint,6,opt,name=score,proto3" json:"score,omitempty"`                                      // ruleset 2026.11.4부터 쓰지 않음(0). 가중치 점수가 없어짐(D122)
+	Reasons       []string               `protobuf:"bytes,7,rep,name=reasons,proto3" json:"reasons,omitempty"`                                   // ruleset 2026.11.4부터 쓰지 않음(빈 목록)
+	// 이 시진이 속한 일진의 날짜와 일진 (#1008). 밤의 자시~묘시는 요청 날짜의 다음 날입니다.
+	DayDate       *LocalDate `protobuf:"bytes,8,opt,name=day_date,json=dayDate,proto3" json:"day_date,omitempty"`
+	DayPillar     *Pillar    `protobuf:"bytes,9,opt,name=day_pillar,json=dayPillar,proto3" json:"day_pillar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FocusSlot) Reset() {
 	*x = FocusSlot{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[31]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3578,7 +3968,7 @@ func (x *FocusSlot) String() string {
 func (*FocusSlot) ProtoMessage() {}
 
 func (x *FocusSlot) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[31]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3591,7 +3981,7 @@ func (x *FocusSlot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FocusSlot.ProtoReflect.Descriptor instead.
 func (*FocusSlot) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{31}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *FocusSlot) GetBranch() Branch {
@@ -3643,6 +4033,20 @@ func (x *FocusSlot) GetReasons() []string {
 	return nil
 }
 
+func (x *FocusSlot) GetDayDate() *LocalDate {
+	if x != nil {
+		return x.DayDate
+	}
+	return nil
+}
+
+func (x *FocusSlot) GetDayPillar() *Pillar {
+	if x != nil {
+		return x.DayPillar
+	}
+	return nil
+}
+
 // 일진과 원국 한 자리 사이의 관계. suppressed_by가 UNSPECIFIED가 아니면 무효가 된 관계입니다.
 type Relation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -3655,7 +4059,7 @@ type Relation struct {
 
 func (x *Relation) Reset() {
 	*x = Relation{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[32]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3667,7 +4071,7 @@ func (x *Relation) String() string {
 func (*Relation) ProtoMessage() {}
 
 func (x *Relation) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[32]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3680,7 +4084,7 @@ func (x *Relation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Relation.ProtoReflect.Descriptor instead.
 func (*Relation) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{32}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *Relation) GetKind() RelationKind {
@@ -3714,7 +4118,7 @@ type MonthResponse struct {
 
 func (x *MonthResponse) Reset() {
 	*x = MonthResponse{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[33]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3726,7 +4130,7 @@ func (x *MonthResponse) String() string {
 func (*MonthResponse) ProtoMessage() {}
 
 func (x *MonthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[33]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3739,7 +4143,7 @@ func (x *MonthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MonthResponse.ProtoReflect.Descriptor instead.
 func (*MonthResponse) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{33}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MonthResponse) GetDays() []*MonthDay {
@@ -3771,14 +4175,15 @@ type MonthDay struct {
 	FeaturedTag *string                `protobuf:"bytes,11,opt,name=featured_tag,json=featuredTag,proto3,oneof" json:"featured_tag,omitempty"` // 대표 태그 키
 	// 길흉 수준 판정. message_key는 calendar.<very_good|good|neutral|caution>, evidence에 점수 구성 근거
 	// (Pro 화면의 "왜 좋은 날인가")가 담깁니다.
-	Judgment      *Judgment `protobuf:"bytes,12,opt,name=judgment,proto3" json:"judgment,omitempty"`
+	Judgment      *Judgment   `protobuf:"bytes,12,opt,name=judgment,proto3" json:"judgment,omitempty"`
+	DayVirtues    []DayVirtue `protobuf:"varint,13,rep,packed,name=day_virtues,json=dayVirtues,proto3,enum=myungli.engine.v1.DayVirtue" json:"day_virtues,omitempty"` // 택일 덕일 (D124 ⑤). DailyResponse.day_virtues와 같은 판정
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MonthDay) Reset() {
 	*x = MonthDay{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[34]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3790,7 +4195,7 @@ func (x *MonthDay) String() string {
 func (*MonthDay) ProtoMessage() {}
 
 func (x *MonthDay) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[34]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3803,7 +4208,7 @@ func (x *MonthDay) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MonthDay.ProtoReflect.Descriptor instead.
 func (*MonthDay) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{34}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *MonthDay) GetDate() *LocalDate {
@@ -3890,6 +4295,13 @@ func (x *MonthDay) GetJudgment() *Judgment {
 	return nil
 }
 
+func (x *MonthDay) GetDayVirtues() []DayVirtue {
+	if x != nil {
+		return x.DayVirtues
+	}
+	return nil
+}
+
 // 절기. at은 입절 절대 시각입니다.
 type SolarTerm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -3902,7 +4314,7 @@ type SolarTerm struct {
 
 func (x *SolarTerm) Reset() {
 	*x = SolarTerm{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[35]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3914,7 +4326,7 @@ func (x *SolarTerm) String() string {
 func (*SolarTerm) ProtoMessage() {}
 
 func (x *SolarTerm) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[35]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3927,7 +4339,7 @@ func (x *SolarTerm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SolarTerm.ProtoReflect.Descriptor instead.
 func (*SolarTerm) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{35}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *SolarTerm) GetName() string {
@@ -3963,7 +4375,7 @@ type ScoreItem struct {
 
 func (x *ScoreItem) Reset() {
 	*x = ScoreItem{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[36]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3975,7 +4387,7 @@ func (x *ScoreItem) String() string {
 func (*ScoreItem) ProtoMessage() {}
 
 func (x *ScoreItem) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[36]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3988,7 +4400,7 @@ func (x *ScoreItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScoreItem.ProtoReflect.Descriptor instead.
 func (*ScoreItem) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{36}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ScoreItem) GetId() string {
@@ -4016,7 +4428,7 @@ type BirthHourRequest struct {
 
 func (x *BirthHourRequest) Reset() {
 	*x = BirthHourRequest{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[37]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4028,7 +4440,7 @@ func (x *BirthHourRequest) String() string {
 func (*BirthHourRequest) ProtoMessage() {}
 
 func (x *BirthHourRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[37]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4041,7 +4453,7 @@ func (x *BirthHourRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BirthHourRequest.ProtoReflect.Descriptor instead.
 func (*BirthHourRequest) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{37}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *BirthHourRequest) GetBirth() *BirthInfo {
@@ -4064,7 +4476,7 @@ type BirthHourResponse struct {
 
 func (x *BirthHourResponse) Reset() {
 	*x = BirthHourResponse{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[38]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4076,7 +4488,7 @@ func (x *BirthHourResponse) String() string {
 func (*BirthHourResponse) ProtoMessage() {}
 
 func (x *BirthHourResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[38]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4089,7 +4501,7 @@ func (x *BirthHourResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BirthHourResponse.ProtoReflect.Descriptor instead.
 func (*BirthHourResponse) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{38}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *BirthHourResponse) GetBranch() Branch {
@@ -4128,7 +4540,7 @@ type InfoRequest struct {
 
 func (x *InfoRequest) Reset() {
 	*x = InfoRequest{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[39]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4140,7 +4552,7 @@ func (x *InfoRequest) String() string {
 func (*InfoRequest) ProtoMessage() {}
 
 func (x *InfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[39]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4153,7 +4565,7 @@ func (x *InfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InfoRequest.ProtoReflect.Descriptor instead.
 func (*InfoRequest) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{39}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{40}
 }
 
 type InfoResponse struct {
@@ -4166,7 +4578,7 @@ type InfoResponse struct {
 
 func (x *InfoResponse) Reset() {
 	*x = InfoResponse{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[40]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4178,7 +4590,7 @@ func (x *InfoResponse) String() string {
 func (*InfoResponse) ProtoMessage() {}
 
 func (x *InfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[40]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4191,7 +4603,7 @@ func (x *InfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InfoResponse.ProtoReflect.Descriptor instead.
 func (*InfoResponse) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{40}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *InfoResponse) GetEngineVersion() string {
@@ -4219,7 +4631,7 @@ type LunarDateRequest struct {
 
 func (x *LunarDateRequest) Reset() {
 	*x = LunarDateRequest{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[41]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4231,7 +4643,7 @@ func (x *LunarDateRequest) String() string {
 func (*LunarDateRequest) ProtoMessage() {}
 
 func (x *LunarDateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[41]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4244,7 +4656,7 @@ func (x *LunarDateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LunarDateRequest.ProtoReflect.Descriptor instead.
 func (*LunarDateRequest) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{41}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *LunarDateRequest) GetDate() *LocalDate {
@@ -4274,7 +4686,7 @@ type LunarDateResponse struct {
 
 func (x *LunarDateResponse) Reset() {
 	*x = LunarDateResponse{}
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[42]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4286,7 +4698,7 @@ func (x *LunarDateResponse) String() string {
 func (*LunarDateResponse) ProtoMessage() {}
 
 func (x *LunarDateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_myungli_engine_v1_engine_proto_msgTypes[42]
+	mi := &file_myungli_engine_v1_engine_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4299,7 +4711,7 @@ func (x *LunarDateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LunarDateResponse.ProtoReflect.Descriptor instead.
 func (*LunarDateResponse) Descriptor() ([]byte, []int) {
-	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{42}
+	return file_myungli_engine_v1_engine_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *LunarDateResponse) GetSolar() *LocalDate {
@@ -4431,11 +4843,12 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\aten_god\x18\x02 \x01(\x0e2\x19.myungli.engine.v1.TenGodR\x06tenGod\"\x91\x01\n" +
 	"\x13PositionTwelveStage\x127\n" +
 	"\bposition\x18\x01 \x01(\x0e2\x1b.myungli.engine.v1.PositionR\bposition\x12A\n" +
-	"\ftwelve_stage\x18\x02 \x01(\x0e2\x1e.myungli.engine.v1.TwelveStageR\vtwelveStage\"u\n" +
+	"\ftwelve_stage\x18\x02 \x01(\x0e2\x1e.myungli.engine.v1.TwelveStageR\vtwelveStage\"\xb0\x01\n" +
 	"\n" +
 	"ShinsalHit\x12.\n" +
 	"\x04kind\x18\x01 \x01(\x0e2\x1a.myungli.engine.v1.ShinsalR\x04kind\x127\n" +
-	"\bposition\x18\x02 \x01(\x0e2\x1b.myungli.engine.v1.PositionR\bposition\"]\n" +
+	"\bposition\x18\x02 \x01(\x0e2\x1b.myungli.engine.v1.PositionR\bposition\x129\n" +
+	"\tpositions\x18\x03 \x03(\x0e2\x1b.myungli.engine.v1.PositionR\tpositions\"]\n" +
 	"\rElementWeight\x124\n" +
 	"\aelement\x18\x01 \x01(\x0e2\x1a.myungli.engine.v1.ElementR\aelement\x12\x16\n" +
 	"\x06weight\x18\x02 \x01(\x01R\x06weight\"X\n" +
@@ -4472,7 +4885,7 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\x04year\x18\x01 \x01(\x05R\x04year\x121\n" +
 	"\x06pillar\x18\x02 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x122\n" +
 	"\aten_god\x18\x03 \x01(\x0e2\x19.myungli.engine.v1.TenGodR\x06tenGod\x12Q\n" +
-	"\x14relations_with_natal\x18\x04 \x03(\x0e2\x1f.myungli.engine.v1.RelationKindR\x12relationsWithNatal\"\xf4\a\n" +
+	"\x14relations_with_natal\x18\x04 \x03(\x0e2\x1f.myungli.engine.v1.RelationKindR\x12relationsWithNatal\"\xda\t\n" +
 	"\rDailyResponse\x12+\n" +
 	"\x03day\x18\x01 \x01(\v2\x19.myungli.engine.v1.PillarR\x03day\x12.\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x1a.myungli.engine.v1.DayKindR\x04kind\x122\n" +
@@ -4495,11 +4908,23 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\vlunar_month\x18\x11 \x01(\x05R\n" +
 	"lunarMonth\x12\x1b\n" +
 	"\tlunar_day\x18\x12 \x01(\x05R\blunarDay\x12\"\n" +
-	"\ris_leap_month\x18\x13 \x01(\bR\visLeapMonth\"\xae\x01\n" +
+	"\ris_leap_month\x18\x13 \x01(\bR\visLeapMonth\x12D\n" +
+	"\fsecond_color\x18\x14 \x01(\v2\x1c.myungli.engine.v1.ColorCardH\x00R\vsecondColor\x88\x01\x01\x12J\n" +
+	"\x10night_focus_time\x18\x15 \x01(\v2 .myungli.engine.v1.FocusTimeCardR\x0enightFocusTime\x12A\n" +
+	"\vday_virtues\x18\x16 \x03(\v2 .myungli.engine.v1.DayVirtueCardR\n" +
+	"dayVirtuesB\x0f\n" +
+	"\r_second_color\"z\n" +
+	"\rDayVirtueCard\x120\n" +
+	"\x04kind\x18\x01 \x01(\x0e2\x1c.myungli.engine.v1.DayVirtueR\x04kind\x127\n" +
+	"\bjudgment\x18\x02 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\"\x9a\x03\n" +
 	"\tColorCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x124\n" +
 	"\aelement\x18\x02 \x01(\x0e2\x1a.myungli.engine.v1.ElementR\aelement\x122\n" +
-	"\x04role\x18\x03 \x01(\x0e2\x1e.myungli.engine.v1.ElementRoleR\x04role\"\x9e\x01\n" +
+	"\x04role\x18\x03 \x01(\x0e2\x1e.myungli.engine.v1.ElementRoleR\x04role\x12=\n" +
+	"\fbase_element\x18\x04 \x01(\x0e2\x1a.myungli.engine.v1.ElementR\vbaseElement\x12A\n" +
+	"\ftwelve_stage\x18\x05 \x01(\x0e2\x1e.myungli.engine.v1.TwelveStageR\vtwelveStage\x123\n" +
+	"\x05shift\x18\x06 \x01(\x0e2\x1d.myungli.engine.v1.ColorShiftR\x05shift\x123\n" +
+	"\x05basis\x18\a \x01(\x0e2\x1d.myungli.engine.v1.ColorBasisR\x05basis\"\x9e\x01\n" +
 	"\rDirectionCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x12;\n" +
 	"\tdirection\x18\x02 \x01(\x0e2\x1d.myungli.engine.v1.Direction8R\tdirection\x12\x17\n" +
@@ -4507,11 +4932,12 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\n" +
 	"NumberCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x12\x16\n" +
-	"\x06number\x18\x02 \x01(\x05R\x06number\"\x98\x01\n" +
+	"\x06number\x18\x02 \x01(\x05R\x06number\"\xd0\x01\n" +
 	"\rFocusTimeCard\x127\n" +
 	"\bjudgment\x18\x01 \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x122\n" +
 	"\x05picks\x18\x02 \x03(\v2\x1c.myungli.engine.v1.FocusSlotR\x05picks\x12\x1a\n" +
-	"\bfallback\x18\x03 \x01(\bR\bfallback\"\xa8\x02\n" +
+	"\bfallback\x18\x03 \x01(\bR\bfallback\x126\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x1e.myungli.engine.v1.FocusPeriodR\x06period\"\x9b\x03\n" +
 	"\tFocusSlot\x121\n" +
 	"\x06branch\x18\x01 \x01(\x0e2\x19.myungli.engine.v1.BranchR\x06branch\x121\n" +
 	"\x06pillar\x18\x02 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x120\n" +
@@ -4519,14 +4945,17 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\x03end\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12%\n" +
 	"\x0ehuangdao_lucky\x18\x05 \x01(\bR\rhuangdaoLucky\x12\x14\n" +
 	"\x05score\x18\x06 \x01(\x05R\x05score\x12\x18\n" +
-	"\areasons\x18\a \x03(\tR\areasons\"\xc9\x01\n" +
+	"\areasons\x18\a \x03(\tR\areasons\x127\n" +
+	"\bday_date\x18\b \x01(\v2\x1c.myungli.engine.v1.LocalDateR\adayDate\x128\n" +
+	"\n" +
+	"day_pillar\x18\t \x01(\v2\x19.myungli.engine.v1.PillarR\tdayPillar\"\xc9\x01\n" +
 	"\bRelation\x123\n" +
 	"\x04kind\x18\x01 \x01(\x0e2\x1f.myungli.engine.v1.RelationKindR\x04kind\x12B\n" +
 	"\x0enatal_position\x18\x02 \x01(\x0e2\x1b.myungli.engine.v1.PositionR\rnatalPosition\x12D\n" +
 	"\rsuppressed_by\x18\x03 \x01(\x0e2\x1f.myungli.engine.v1.RelationKindR\fsuppressedBy\"u\n" +
 	"\rMonthResponse\x12/\n" +
 	"\x04days\x18\x01 \x03(\v2\x1b.myungli.engine.v1.MonthDayR\x04days\x123\n" +
-	"\x04meta\x18\x02 \x01(\v2\x1f.myungli.engine.v1.ResponseMetaR\x04meta\"\xc2\x04\n" +
+	"\x04meta\x18\x02 \x01(\v2\x1f.myungli.engine.v1.ResponseMetaR\x04meta\"\x81\x05\n" +
 	"\bMonthDay\x120\n" +
 	"\x04date\x18\x01 \x01(\v2\x1c.myungli.engine.v1.LocalDateR\x04date\x121\n" +
 	"\x06pillar\x18\x02 \x01(\v2\x19.myungli.engine.v1.PillarR\x06pillar\x12\x1f\n" +
@@ -4544,7 +4973,9 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	" \x03(\v2\x1c.myungli.engine.v1.ScoreItemR\n" +
 	"scoreItems\x12&\n" +
 	"\ffeatured_tag\x18\v \x01(\tH\x00R\vfeaturedTag\x88\x01\x01\x127\n" +
-	"\bjudgment\x18\f \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgmentB\x0f\n" +
+	"\bjudgment\x18\f \x01(\v2\x1b.myungli.engine.v1.JudgmentR\bjudgment\x12=\n" +
+	"\vday_virtues\x18\r \x03(\x0e2\x1c.myungli.engine.v1.DayVirtueR\n" +
+	"dayVirtuesB\x0f\n" +
 	"\r_featured_tag\"\x81\x01\n" +
 	"\tSolarTerm\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12*\n" +
@@ -4653,7 +5084,7 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\x11TWELVE_STAGE_JEOL\x10\n" +
 	"\x12\x14\n" +
 	"\x10TWELVE_STAGE_TAE\x10\v\x12\x15\n" +
-	"\x11TWELVE_STAGE_YANG\x10\f*\xa3\x01\n" +
+	"\x11TWELVE_STAGE_YANG\x10\f*\xc0\x03\n" +
 	"\aShinsal\x12\x17\n" +
 	"\x13SHINSAL_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16SHINSAL_CHEONEUL_GWIIN\x10\x01\x12\x11\n" +
@@ -4661,7 +5092,25 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\x0eSHINSAL_YEOKMA\x10\x03\x12\x12\n" +
 	"\x0eSHINSAL_HWAGAE\x10\x04\x12\x12\n" +
 	"\x0eSHINSAL_YANGIN\x10\x05\x12\x14\n" +
-	"\x10SHINSAL_GONGMANG\x10\x06*\xec\x01\n" +
+	"\x10SHINSAL_GONGMANG\x10\x06\x12\x15\n" +
+	"\x11SHINSAL_CHEONDEOK\x10\a\x12\x13\n" +
+	"\x0fSHINSAL_WOLDEOK\x10\b\x12\x13\n" +
+	"\x0fSHINSAL_GEUMYEO\x10\t\x12\x11\n" +
+	"\rSHINSAL_GOSIN\x10\n" +
+	"\x12\x12\n" +
+	"\x0eSHINSAL_GWASUK\x10\v\x12\x12\n" +
+	"\x0eSHINSAL_WONJIN\x10\f\x12\x11\n" +
+	"\rSHINSAL_GUGYO\x10\r\x12\x1a\n" +
+	"\x16SHINSAL_CHEONRA_JIMANG\x10\x0e\x12\x13\n" +
+	"\x0fSHINSAL_GOEGANG\x10\x0f\x12\x18\n" +
+	"\x14SHINSAL_SIPAK_DAEPAE\x10\x10\x12\x1b\n" +
+	"\x17SHINSAL_EUMCHAK_YANGCHA\x10\x11\x12\x11\n" +
+	"\rSHINSAL_SAMGI\x10\x12\x12\x11\n" +
+	"\rSHINSAL_AMROK\x10\x13*a\n" +
+	"\tDayVirtue\x12\x1a\n" +
+	"\x16DAY_VIRTUE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18DAY_VIRTUE_CHEONDEOK_DAY\x10\x01\x12\x1a\n" +
+	"\x16DAY_VIRTUE_WOLDEOK_DAY\x10\x02*\xec\x01\n" +
 	"\bPosition\x12\x18\n" +
 	"\x14POSITION_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12POSITION_YEAR_STEM\x10\x01\x12\x18\n" +
@@ -4726,7 +5175,24 @@ const file_myungli_engine_v1_engine_proto_rawDesc = "" +
 	"\vElementRole\x12\x1c\n" +
 	"\x18ELEMENT_ROLE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14ELEMENT_ROLE_YONGSIN\x10\x01\x12\x19\n" +
-	"\x15ELEMENT_ROLE_TONGGWAN\x10\x02*\xd4\x05\n" +
+	"\x15ELEMENT_ROLE_TONGGWAN\x10\x02*\x93\x01\n" +
+	"\n" +
+	"ColorShift\x12\x1b\n" +
+	"\x17COLOR_SHIFT_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11COLOR_SHIFT_JEONG\x10\x01\x12\x12\n" +
+	"\x0eCOLOR_SHIFT_MO\x10\x02\x12\x14\n" +
+	"\x10COLOR_SHIFT_CHEO\x10\x03\x12\x13\n" +
+	"\x0fCOLOR_SHIFT_GWI\x10\x04\x12\x12\n" +
+	"\x0eCOLOR_SHIFT_JA\x10\x05*Y\n" +
+	"\vFocusPeriod\x12\x1c\n" +
+	"\x18FOCUS_PERIOD_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10FOCUS_PERIOD_DAY\x10\x01\x12\x16\n" +
+	"\x12FOCUS_PERIOD_NIGHT\x10\x02*Z\n" +
+	"\n" +
+	"ColorBasis\x12\x1b\n" +
+	"\x17COLOR_BASIS_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12COLOR_BASIS_SOURCE\x10\x01\x12\x17\n" +
+	"\x13COLOR_BASIS_BALANCE\x10\x02*\xd4\x05\n" +
 	"\rSolarTermKind\x12\x1f\n" +
 	"\x1bSOLAR_TERM_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15SOLAR_TERM_KIND_SOHAN\x10\x01\x12\x1a\n" +
@@ -4786,8 +5252,8 @@ func file_myungli_engine_v1_engine_proto_rawDescGZIP() []byte {
 	return file_myungli_engine_v1_engine_proto_rawDescData
 }
 
-var file_myungli_engine_v1_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 20)
-var file_myungli_engine_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_myungli_engine_v1_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 24)
+var file_myungli_engine_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_myungli_engine_v1_engine_proto_goTypes = []any{
 	(CalendarType)(0),             // 0: myungli.engine.v1.CalendarType
 	(Gender)(0),                   // 1: myungli.engine.v1.Gender
@@ -4798,197 +5264,216 @@ var file_myungli_engine_v1_engine_proto_goTypes = []any{
 	(TenGodGroup)(0),              // 6: myungli.engine.v1.TenGodGroup
 	(TwelveStage)(0),              // 7: myungli.engine.v1.TwelveStage
 	(Shinsal)(0),                  // 8: myungli.engine.v1.Shinsal
-	(Position)(0),                 // 9: myungli.engine.v1.Position
-	(Direction8)(0),               // 10: myungli.engine.v1.Direction8
-	(DayKind)(0),                  // 11: myungli.engine.v1.DayKind
-	(StrengthLevel)(0),            // 12: myungli.engine.v1.StrengthLevel
-	(YongsinMethod)(0),            // 13: myungli.engine.v1.YongsinMethod
-	(LuckLevel)(0),                // 14: myungli.engine.v1.LuckLevel
-	(NoticeCode)(0),               // 15: myungli.engine.v1.NoticeCode
-	(RelationKind)(0),             // 16: myungli.engine.v1.RelationKind
-	(ElementRole)(0),              // 17: myungli.engine.v1.ElementRole
-	(SolarTermKind)(0),            // 18: myungli.engine.v1.SolarTermKind
-	(PersonalTermKind)(0),         // 19: myungli.engine.v1.PersonalTermKind
-	(*LocalDate)(nil),             // 20: myungli.engine.v1.LocalDate
-	(*LocalTime)(nil),             // 21: myungli.engine.v1.LocalTime
-	(*Pillar)(nil),                // 22: myungli.engine.v1.Pillar
-	(*FourPillars)(nil),           // 23: myungli.engine.v1.FourPillars
-	(*BirthInfo)(nil),             // 24: myungli.engine.v1.BirthInfo
-	(*ChartRequest)(nil),          // 25: myungli.engine.v1.ChartRequest
-	(*DailyRequest)(nil),          // 26: myungli.engine.v1.DailyRequest
-	(*MonthRequest)(nil),          // 27: myungli.engine.v1.MonthRequest
-	(*Judgment)(nil),              // 28: myungli.engine.v1.Judgment
-	(*Param)(nil),                 // 29: myungli.engine.v1.Param
-	(*Evidence)(nil),              // 30: myungli.engine.v1.Evidence
-	(*Notice)(nil),                // 31: myungli.engine.v1.Notice
-	(*ResponseMeta)(nil),          // 32: myungli.engine.v1.ResponseMeta
-	(*ChartResponse)(nil),         // 33: myungli.engine.v1.ChartResponse
-	(*PersonalReading)(nil),       // 34: myungli.engine.v1.PersonalReading
-	(*PositionTenGod)(nil),        // 35: myungli.engine.v1.PositionTenGod
-	(*PositionHiddenStems)(nil),   // 36: myungli.engine.v1.PositionHiddenStems
-	(*HiddenStem)(nil),            // 37: myungli.engine.v1.HiddenStem
-	(*PositionTwelveStage)(nil),   // 38: myungli.engine.v1.PositionTwelveStage
-	(*ShinsalHit)(nil),            // 39: myungli.engine.v1.ShinsalHit
-	(*ElementWeight)(nil),         // 40: myungli.engine.v1.ElementWeight
-	(*Strength)(nil),              // 41: myungli.engine.v1.Strength
-	(*YongsinInfo)(nil),           // 42: myungli.engine.v1.YongsinInfo
-	(*DaeunTable)(nil),            // 43: myungli.engine.v1.DaeunTable
-	(*LuckPeriod)(nil),            // 44: myungli.engine.v1.LuckPeriod
-	(*YearLuck)(nil),              // 45: myungli.engine.v1.YearLuck
-	(*DailyResponse)(nil),         // 46: myungli.engine.v1.DailyResponse
-	(*ColorCard)(nil),             // 47: myungli.engine.v1.ColorCard
-	(*DirectionCard)(nil),         // 48: myungli.engine.v1.DirectionCard
-	(*NumberCard)(nil),            // 49: myungli.engine.v1.NumberCard
-	(*FocusTimeCard)(nil),         // 50: myungli.engine.v1.FocusTimeCard
-	(*FocusSlot)(nil),             // 51: myungli.engine.v1.FocusSlot
-	(*Relation)(nil),              // 52: myungli.engine.v1.Relation
-	(*MonthResponse)(nil),         // 53: myungli.engine.v1.MonthResponse
-	(*MonthDay)(nil),              // 54: myungli.engine.v1.MonthDay
-	(*SolarTerm)(nil),             // 55: myungli.engine.v1.SolarTerm
-	(*ScoreItem)(nil),             // 56: myungli.engine.v1.ScoreItem
-	(*BirthHourRequest)(nil),      // 57: myungli.engine.v1.BirthHourRequest
-	(*BirthHourResponse)(nil),     // 58: myungli.engine.v1.BirthHourResponse
-	(*InfoRequest)(nil),           // 59: myungli.engine.v1.InfoRequest
-	(*InfoResponse)(nil),          // 60: myungli.engine.v1.InfoResponse
-	(*LunarDateRequest)(nil),      // 61: myungli.engine.v1.LunarDateRequest
-	(*LunarDateResponse)(nil),     // 62: myungli.engine.v1.LunarDateResponse
-	nil,                           // 63: myungli.engine.v1.Judgment.ParamsEntry
-	nil,                           // 64: myungli.engine.v1.Evidence.DetailEntry
-	nil,                           // 65: myungli.engine.v1.Notice.DetailEntry
-	(*timestamppb.Timestamp)(nil), // 66: google.protobuf.Timestamp
+	(DayVirtue)(0),                // 9: myungli.engine.v1.DayVirtue
+	(Position)(0),                 // 10: myungli.engine.v1.Position
+	(Direction8)(0),               // 11: myungli.engine.v1.Direction8
+	(DayKind)(0),                  // 12: myungli.engine.v1.DayKind
+	(StrengthLevel)(0),            // 13: myungli.engine.v1.StrengthLevel
+	(YongsinMethod)(0),            // 14: myungli.engine.v1.YongsinMethod
+	(LuckLevel)(0),                // 15: myungli.engine.v1.LuckLevel
+	(NoticeCode)(0),               // 16: myungli.engine.v1.NoticeCode
+	(RelationKind)(0),             // 17: myungli.engine.v1.RelationKind
+	(ElementRole)(0),              // 18: myungli.engine.v1.ElementRole
+	(ColorShift)(0),               // 19: myungli.engine.v1.ColorShift
+	(FocusPeriod)(0),              // 20: myungli.engine.v1.FocusPeriod
+	(ColorBasis)(0),               // 21: myungli.engine.v1.ColorBasis
+	(SolarTermKind)(0),            // 22: myungli.engine.v1.SolarTermKind
+	(PersonalTermKind)(0),         // 23: myungli.engine.v1.PersonalTermKind
+	(*LocalDate)(nil),             // 24: myungli.engine.v1.LocalDate
+	(*LocalTime)(nil),             // 25: myungli.engine.v1.LocalTime
+	(*Pillar)(nil),                // 26: myungli.engine.v1.Pillar
+	(*FourPillars)(nil),           // 27: myungli.engine.v1.FourPillars
+	(*BirthInfo)(nil),             // 28: myungli.engine.v1.BirthInfo
+	(*ChartRequest)(nil),          // 29: myungli.engine.v1.ChartRequest
+	(*DailyRequest)(nil),          // 30: myungli.engine.v1.DailyRequest
+	(*MonthRequest)(nil),          // 31: myungli.engine.v1.MonthRequest
+	(*Judgment)(nil),              // 32: myungli.engine.v1.Judgment
+	(*Param)(nil),                 // 33: myungli.engine.v1.Param
+	(*Evidence)(nil),              // 34: myungli.engine.v1.Evidence
+	(*Notice)(nil),                // 35: myungli.engine.v1.Notice
+	(*ResponseMeta)(nil),          // 36: myungli.engine.v1.ResponseMeta
+	(*ChartResponse)(nil),         // 37: myungli.engine.v1.ChartResponse
+	(*PersonalReading)(nil),       // 38: myungli.engine.v1.PersonalReading
+	(*PositionTenGod)(nil),        // 39: myungli.engine.v1.PositionTenGod
+	(*PositionHiddenStems)(nil),   // 40: myungli.engine.v1.PositionHiddenStems
+	(*HiddenStem)(nil),            // 41: myungli.engine.v1.HiddenStem
+	(*PositionTwelveStage)(nil),   // 42: myungli.engine.v1.PositionTwelveStage
+	(*ShinsalHit)(nil),            // 43: myungli.engine.v1.ShinsalHit
+	(*ElementWeight)(nil),         // 44: myungli.engine.v1.ElementWeight
+	(*Strength)(nil),              // 45: myungli.engine.v1.Strength
+	(*YongsinInfo)(nil),           // 46: myungli.engine.v1.YongsinInfo
+	(*DaeunTable)(nil),            // 47: myungli.engine.v1.DaeunTable
+	(*LuckPeriod)(nil),            // 48: myungli.engine.v1.LuckPeriod
+	(*YearLuck)(nil),              // 49: myungli.engine.v1.YearLuck
+	(*DailyResponse)(nil),         // 50: myungli.engine.v1.DailyResponse
+	(*DayVirtueCard)(nil),         // 51: myungli.engine.v1.DayVirtueCard
+	(*ColorCard)(nil),             // 52: myungli.engine.v1.ColorCard
+	(*DirectionCard)(nil),         // 53: myungli.engine.v1.DirectionCard
+	(*NumberCard)(nil),            // 54: myungli.engine.v1.NumberCard
+	(*FocusTimeCard)(nil),         // 55: myungli.engine.v1.FocusTimeCard
+	(*FocusSlot)(nil),             // 56: myungli.engine.v1.FocusSlot
+	(*Relation)(nil),              // 57: myungli.engine.v1.Relation
+	(*MonthResponse)(nil),         // 58: myungli.engine.v1.MonthResponse
+	(*MonthDay)(nil),              // 59: myungli.engine.v1.MonthDay
+	(*SolarTerm)(nil),             // 60: myungli.engine.v1.SolarTerm
+	(*ScoreItem)(nil),             // 61: myungli.engine.v1.ScoreItem
+	(*BirthHourRequest)(nil),      // 62: myungli.engine.v1.BirthHourRequest
+	(*BirthHourResponse)(nil),     // 63: myungli.engine.v1.BirthHourResponse
+	(*InfoRequest)(nil),           // 64: myungli.engine.v1.InfoRequest
+	(*InfoResponse)(nil),          // 65: myungli.engine.v1.InfoResponse
+	(*LunarDateRequest)(nil),      // 66: myungli.engine.v1.LunarDateRequest
+	(*LunarDateResponse)(nil),     // 67: myungli.engine.v1.LunarDateResponse
+	nil,                           // 68: myungli.engine.v1.Judgment.ParamsEntry
+	nil,                           // 69: myungli.engine.v1.Evidence.DetailEntry
+	nil,                           // 70: myungli.engine.v1.Notice.DetailEntry
+	(*timestamppb.Timestamp)(nil), // 71: google.protobuf.Timestamp
 }
 var file_myungli_engine_v1_engine_proto_depIdxs = []int32{
 	3,   // 0: myungli.engine.v1.Pillar.stem:type_name -> myungli.engine.v1.Stem
 	4,   // 1: myungli.engine.v1.Pillar.branch:type_name -> myungli.engine.v1.Branch
-	22,  // 2: myungli.engine.v1.FourPillars.year:type_name -> myungli.engine.v1.Pillar
-	22,  // 3: myungli.engine.v1.FourPillars.month:type_name -> myungli.engine.v1.Pillar
-	22,  // 4: myungli.engine.v1.FourPillars.day:type_name -> myungli.engine.v1.Pillar
-	22,  // 5: myungli.engine.v1.FourPillars.hour:type_name -> myungli.engine.v1.Pillar
+	26,  // 2: myungli.engine.v1.FourPillars.year:type_name -> myungli.engine.v1.Pillar
+	26,  // 3: myungli.engine.v1.FourPillars.month:type_name -> myungli.engine.v1.Pillar
+	26,  // 4: myungli.engine.v1.FourPillars.day:type_name -> myungli.engine.v1.Pillar
+	26,  // 5: myungli.engine.v1.FourPillars.hour:type_name -> myungli.engine.v1.Pillar
 	0,   // 6: myungli.engine.v1.BirthInfo.calendar:type_name -> myungli.engine.v1.CalendarType
-	20,  // 7: myungli.engine.v1.BirthInfo.date:type_name -> myungli.engine.v1.LocalDate
-	21,  // 8: myungli.engine.v1.BirthInfo.time:type_name -> myungli.engine.v1.LocalTime
+	24,  // 7: myungli.engine.v1.BirthInfo.date:type_name -> myungli.engine.v1.LocalDate
+	25,  // 8: myungli.engine.v1.BirthInfo.time:type_name -> myungli.engine.v1.LocalTime
 	1,   // 9: myungli.engine.v1.BirthInfo.gender:type_name -> myungli.engine.v1.Gender
-	24,  // 10: myungli.engine.v1.ChartRequest.birth:type_name -> myungli.engine.v1.BirthInfo
-	20,  // 11: myungli.engine.v1.ChartRequest.as_of:type_name -> myungli.engine.v1.LocalDate
-	24,  // 12: myungli.engine.v1.DailyRequest.birth:type_name -> myungli.engine.v1.BirthInfo
-	20,  // 13: myungli.engine.v1.DailyRequest.date:type_name -> myungli.engine.v1.LocalDate
-	24,  // 14: myungli.engine.v1.MonthRequest.birth:type_name -> myungli.engine.v1.BirthInfo
-	63,  // 15: myungli.engine.v1.Judgment.params:type_name -> myungli.engine.v1.Judgment.ParamsEntry
-	30,  // 16: myungli.engine.v1.Judgment.evidence:type_name -> myungli.engine.v1.Evidence
-	64,  // 17: myungli.engine.v1.Evidence.detail:type_name -> myungli.engine.v1.Evidence.DetailEntry
-	15,  // 18: myungli.engine.v1.Notice.code:type_name -> myungli.engine.v1.NoticeCode
-	65,  // 19: myungli.engine.v1.Notice.detail:type_name -> myungli.engine.v1.Notice.DetailEntry
-	31,  // 20: myungli.engine.v1.ResponseMeta.notices:type_name -> myungli.engine.v1.Notice
-	23,  // 21: myungli.engine.v1.ChartResponse.pillars:type_name -> myungli.engine.v1.FourPillars
-	35,  // 22: myungli.engine.v1.ChartResponse.ten_gods:type_name -> myungli.engine.v1.PositionTenGod
-	36,  // 23: myungli.engine.v1.ChartResponse.hidden_stems:type_name -> myungli.engine.v1.PositionHiddenStems
-	38,  // 24: myungli.engine.v1.ChartResponse.twelve_stages:type_name -> myungli.engine.v1.PositionTwelveStage
-	39,  // 25: myungli.engine.v1.ChartResponse.shinsal:type_name -> myungli.engine.v1.ShinsalHit
+	28,  // 10: myungli.engine.v1.ChartRequest.birth:type_name -> myungli.engine.v1.BirthInfo
+	24,  // 11: myungli.engine.v1.ChartRequest.as_of:type_name -> myungli.engine.v1.LocalDate
+	28,  // 12: myungli.engine.v1.DailyRequest.birth:type_name -> myungli.engine.v1.BirthInfo
+	24,  // 13: myungli.engine.v1.DailyRequest.date:type_name -> myungli.engine.v1.LocalDate
+	28,  // 14: myungli.engine.v1.MonthRequest.birth:type_name -> myungli.engine.v1.BirthInfo
+	68,  // 15: myungli.engine.v1.Judgment.params:type_name -> myungli.engine.v1.Judgment.ParamsEntry
+	34,  // 16: myungli.engine.v1.Judgment.evidence:type_name -> myungli.engine.v1.Evidence
+	69,  // 17: myungli.engine.v1.Evidence.detail:type_name -> myungli.engine.v1.Evidence.DetailEntry
+	16,  // 18: myungli.engine.v1.Notice.code:type_name -> myungli.engine.v1.NoticeCode
+	70,  // 19: myungli.engine.v1.Notice.detail:type_name -> myungli.engine.v1.Notice.DetailEntry
+	35,  // 20: myungli.engine.v1.ResponseMeta.notices:type_name -> myungli.engine.v1.Notice
+	27,  // 21: myungli.engine.v1.ChartResponse.pillars:type_name -> myungli.engine.v1.FourPillars
+	39,  // 22: myungli.engine.v1.ChartResponse.ten_gods:type_name -> myungli.engine.v1.PositionTenGod
+	40,  // 23: myungli.engine.v1.ChartResponse.hidden_stems:type_name -> myungli.engine.v1.PositionHiddenStems
+	42,  // 24: myungli.engine.v1.ChartResponse.twelve_stages:type_name -> myungli.engine.v1.PositionTwelveStage
+	43,  // 25: myungli.engine.v1.ChartResponse.shinsal:type_name -> myungli.engine.v1.ShinsalHit
 	4,   // 26: myungli.engine.v1.ChartResponse.gongmang:type_name -> myungli.engine.v1.Branch
-	40,  // 27: myungli.engine.v1.ChartResponse.element_weights:type_name -> myungli.engine.v1.ElementWeight
-	41,  // 28: myungli.engine.v1.ChartResponse.strength:type_name -> myungli.engine.v1.Strength
-	42,  // 29: myungli.engine.v1.ChartResponse.yongsin:type_name -> myungli.engine.v1.YongsinInfo
-	43,  // 30: myungli.engine.v1.ChartResponse.daeun:type_name -> myungli.engine.v1.DaeunTable
-	45,  // 31: myungli.engine.v1.ChartResponse.seun:type_name -> myungli.engine.v1.YearLuck
-	32,  // 32: myungli.engine.v1.ChartResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	34,  // 33: myungli.engine.v1.ChartResponse.personal_readings:type_name -> myungli.engine.v1.PersonalReading
-	19,  // 34: myungli.engine.v1.PersonalReading.kind:type_name -> myungli.engine.v1.PersonalTermKind
-	9,   // 35: myungli.engine.v1.PersonalReading.position:type_name -> myungli.engine.v1.Position
+	44,  // 27: myungli.engine.v1.ChartResponse.element_weights:type_name -> myungli.engine.v1.ElementWeight
+	45,  // 28: myungli.engine.v1.ChartResponse.strength:type_name -> myungli.engine.v1.Strength
+	46,  // 29: myungli.engine.v1.ChartResponse.yongsin:type_name -> myungli.engine.v1.YongsinInfo
+	47,  // 30: myungli.engine.v1.ChartResponse.daeun:type_name -> myungli.engine.v1.DaeunTable
+	49,  // 31: myungli.engine.v1.ChartResponse.seun:type_name -> myungli.engine.v1.YearLuck
+	36,  // 32: myungli.engine.v1.ChartResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	38,  // 33: myungli.engine.v1.ChartResponse.personal_readings:type_name -> myungli.engine.v1.PersonalReading
+	23,  // 34: myungli.engine.v1.PersonalReading.kind:type_name -> myungli.engine.v1.PersonalTermKind
+	10,  // 35: myungli.engine.v1.PersonalReading.position:type_name -> myungli.engine.v1.Position
 	8,   // 36: myungli.engine.v1.PersonalReading.shinsal:type_name -> myungli.engine.v1.Shinsal
-	28,  // 37: myungli.engine.v1.PersonalReading.judgment:type_name -> myungli.engine.v1.Judgment
-	9,   // 38: myungli.engine.v1.PositionTenGod.position:type_name -> myungli.engine.v1.Position
+	32,  // 37: myungli.engine.v1.PersonalReading.judgment:type_name -> myungli.engine.v1.Judgment
+	10,  // 38: myungli.engine.v1.PositionTenGod.position:type_name -> myungli.engine.v1.Position
 	5,   // 39: myungli.engine.v1.PositionTenGod.ten_god:type_name -> myungli.engine.v1.TenGod
-	9,   // 40: myungli.engine.v1.PositionHiddenStems.position:type_name -> myungli.engine.v1.Position
-	37,  // 41: myungli.engine.v1.PositionHiddenStems.stems:type_name -> myungli.engine.v1.HiddenStem
+	10,  // 40: myungli.engine.v1.PositionHiddenStems.position:type_name -> myungli.engine.v1.Position
+	41,  // 41: myungli.engine.v1.PositionHiddenStems.stems:type_name -> myungli.engine.v1.HiddenStem
 	3,   // 42: myungli.engine.v1.HiddenStem.stem:type_name -> myungli.engine.v1.Stem
 	5,   // 43: myungli.engine.v1.HiddenStem.ten_god:type_name -> myungli.engine.v1.TenGod
-	9,   // 44: myungli.engine.v1.PositionTwelveStage.position:type_name -> myungli.engine.v1.Position
+	10,  // 44: myungli.engine.v1.PositionTwelveStage.position:type_name -> myungli.engine.v1.Position
 	7,   // 45: myungli.engine.v1.PositionTwelveStage.twelve_stage:type_name -> myungli.engine.v1.TwelveStage
 	8,   // 46: myungli.engine.v1.ShinsalHit.kind:type_name -> myungli.engine.v1.Shinsal
-	9,   // 47: myungli.engine.v1.ShinsalHit.position:type_name -> myungli.engine.v1.Position
-	2,   // 48: myungli.engine.v1.ElementWeight.element:type_name -> myungli.engine.v1.Element
-	12,  // 49: myungli.engine.v1.Strength.level:type_name -> myungli.engine.v1.StrengthLevel
-	2,   // 50: myungli.engine.v1.YongsinInfo.yongsin:type_name -> myungli.engine.v1.Element
-	2,   // 51: myungli.engine.v1.YongsinInfo.huisin:type_name -> myungli.engine.v1.Element
-	2,   // 52: myungli.engine.v1.YongsinInfo.gisin:type_name -> myungli.engine.v1.Element
-	2,   // 53: myungli.engine.v1.YongsinInfo.tonggwan:type_name -> myungli.engine.v1.Element
-	13,  // 54: myungli.engine.v1.YongsinInfo.method:type_name -> myungli.engine.v1.YongsinMethod
-	3,   // 55: myungli.engine.v1.YongsinInfo.johu_stem:type_name -> myungli.engine.v1.Stem
-	28,  // 56: myungli.engine.v1.YongsinInfo.judgment:type_name -> myungli.engine.v1.Judgment
-	44,  // 57: myungli.engine.v1.DaeunTable.periods:type_name -> myungli.engine.v1.LuckPeriod
-	22,  // 58: myungli.engine.v1.LuckPeriod.pillar:type_name -> myungli.engine.v1.Pillar
-	5,   // 59: myungli.engine.v1.LuckPeriod.stem_ten_god:type_name -> myungli.engine.v1.TenGod
-	5,   // 60: myungli.engine.v1.LuckPeriod.branch_ten_god:type_name -> myungli.engine.v1.TenGod
-	7,   // 61: myungli.engine.v1.LuckPeriod.twelve_stage:type_name -> myungli.engine.v1.TwelveStage
-	22,  // 62: myungli.engine.v1.YearLuck.pillar:type_name -> myungli.engine.v1.Pillar
-	5,   // 63: myungli.engine.v1.YearLuck.ten_god:type_name -> myungli.engine.v1.TenGod
-	16,  // 64: myungli.engine.v1.YearLuck.relations_with_natal:type_name -> myungli.engine.v1.RelationKind
-	22,  // 65: myungli.engine.v1.DailyResponse.day:type_name -> myungli.engine.v1.Pillar
-	11,  // 66: myungli.engine.v1.DailyResponse.kind:type_name -> myungli.engine.v1.DayKind
-	47,  // 67: myungli.engine.v1.DailyResponse.color:type_name -> myungli.engine.v1.ColorCard
-	48,  // 68: myungli.engine.v1.DailyResponse.direction:type_name -> myungli.engine.v1.DirectionCard
-	49,  // 69: myungli.engine.v1.DailyResponse.number:type_name -> myungli.engine.v1.NumberCard
-	50,  // 70: myungli.engine.v1.DailyResponse.focus_time:type_name -> myungli.engine.v1.FocusTimeCard
-	52,  // 71: myungli.engine.v1.DailyResponse.relations:type_name -> myungli.engine.v1.Relation
-	30,  // 72: myungli.engine.v1.DailyResponse.tag_evidence:type_name -> myungli.engine.v1.Evidence
-	28,  // 73: myungli.engine.v1.DailyResponse.fortune:type_name -> myungli.engine.v1.Judgment
-	28,  // 74: myungli.engine.v1.DailyResponse.guide:type_name -> myungli.engine.v1.Judgment
-	32,  // 75: myungli.engine.v1.DailyResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	5,   // 76: myungli.engine.v1.DailyResponse.day_stem_ten_god:type_name -> myungli.engine.v1.TenGod
-	6,   // 77: myungli.engine.v1.DailyResponse.day_stem_ten_god_group:type_name -> myungli.engine.v1.TenGodGroup
-	28,  // 78: myungli.engine.v1.DailyResponse.guide_candidates:type_name -> myungli.engine.v1.Judgment
-	28,  // 79: myungli.engine.v1.ColorCard.judgment:type_name -> myungli.engine.v1.Judgment
-	2,   // 80: myungli.engine.v1.ColorCard.element:type_name -> myungli.engine.v1.Element
-	17,  // 81: myungli.engine.v1.ColorCard.role:type_name -> myungli.engine.v1.ElementRole
-	28,  // 82: myungli.engine.v1.DirectionCard.judgment:type_name -> myungli.engine.v1.Judgment
-	10,  // 83: myungli.engine.v1.DirectionCard.direction:type_name -> myungli.engine.v1.Direction8
-	28,  // 84: myungli.engine.v1.NumberCard.judgment:type_name -> myungli.engine.v1.Judgment
-	28,  // 85: myungli.engine.v1.FocusTimeCard.judgment:type_name -> myungli.engine.v1.Judgment
-	51,  // 86: myungli.engine.v1.FocusTimeCard.picks:type_name -> myungli.engine.v1.FocusSlot
-	4,   // 87: myungli.engine.v1.FocusSlot.branch:type_name -> myungli.engine.v1.Branch
-	22,  // 88: myungli.engine.v1.FocusSlot.pillar:type_name -> myungli.engine.v1.Pillar
-	66,  // 89: myungli.engine.v1.FocusSlot.start:type_name -> google.protobuf.Timestamp
-	66,  // 90: myungli.engine.v1.FocusSlot.end:type_name -> google.protobuf.Timestamp
-	16,  // 91: myungli.engine.v1.Relation.kind:type_name -> myungli.engine.v1.RelationKind
-	9,   // 92: myungli.engine.v1.Relation.natal_position:type_name -> myungli.engine.v1.Position
-	16,  // 93: myungli.engine.v1.Relation.suppressed_by:type_name -> myungli.engine.v1.RelationKind
-	54,  // 94: myungli.engine.v1.MonthResponse.days:type_name -> myungli.engine.v1.MonthDay
-	32,  // 95: myungli.engine.v1.MonthResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	20,  // 96: myungli.engine.v1.MonthDay.date:type_name -> myungli.engine.v1.LocalDate
-	22,  // 97: myungli.engine.v1.MonthDay.pillar:type_name -> myungli.engine.v1.Pillar
-	55,  // 98: myungli.engine.v1.MonthDay.solar_term:type_name -> myungli.engine.v1.SolarTerm
-	11,  // 99: myungli.engine.v1.MonthDay.kind:type_name -> myungli.engine.v1.DayKind
-	14,  // 100: myungli.engine.v1.MonthDay.luck_level:type_name -> myungli.engine.v1.LuckLevel
-	56,  // 101: myungli.engine.v1.MonthDay.score_items:type_name -> myungli.engine.v1.ScoreItem
-	28,  // 102: myungli.engine.v1.MonthDay.judgment:type_name -> myungli.engine.v1.Judgment
-	66,  // 103: myungli.engine.v1.SolarTerm.at:type_name -> google.protobuf.Timestamp
-	18,  // 104: myungli.engine.v1.SolarTerm.kind:type_name -> myungli.engine.v1.SolarTermKind
-	24,  // 105: myungli.engine.v1.BirthHourRequest.birth:type_name -> myungli.engine.v1.BirthInfo
-	4,   // 106: myungli.engine.v1.BirthHourResponse.branch:type_name -> myungli.engine.v1.Branch
-	66,  // 107: myungli.engine.v1.BirthHourResponse.start:type_name -> google.protobuf.Timestamp
-	66,  // 108: myungli.engine.v1.BirthHourResponse.end:type_name -> google.protobuf.Timestamp
-	32,  // 109: myungli.engine.v1.BirthHourResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	20,  // 110: myungli.engine.v1.LunarDateRequest.date:type_name -> myungli.engine.v1.LocalDate
-	20,  // 111: myungli.engine.v1.LunarDateResponse.solar:type_name -> myungli.engine.v1.LocalDate
-	32,  // 112: myungli.engine.v1.LunarDateResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
-	29,  // 113: myungli.engine.v1.Judgment.ParamsEntry.value:type_name -> myungli.engine.v1.Param
-	25,  // 114: myungli.engine.v1.MyungliEngine.GetChart:input_type -> myungli.engine.v1.ChartRequest
-	26,  // 115: myungli.engine.v1.MyungliEngine.GetDaily:input_type -> myungli.engine.v1.DailyRequest
-	27,  // 116: myungli.engine.v1.MyungliEngine.GetMonthCalendar:input_type -> myungli.engine.v1.MonthRequest
-	57,  // 117: myungli.engine.v1.MyungliEngine.GetBirthHour:input_type -> myungli.engine.v1.BirthHourRequest
-	59,  // 118: myungli.engine.v1.MyungliEngine.GetInfo:input_type -> myungli.engine.v1.InfoRequest
-	61,  // 119: myungli.engine.v1.MyungliEngine.ConvertLunarDate:input_type -> myungli.engine.v1.LunarDateRequest
-	33,  // 120: myungli.engine.v1.MyungliEngine.GetChart:output_type -> myungli.engine.v1.ChartResponse
-	46,  // 121: myungli.engine.v1.MyungliEngine.GetDaily:output_type -> myungli.engine.v1.DailyResponse
-	53,  // 122: myungli.engine.v1.MyungliEngine.GetMonthCalendar:output_type -> myungli.engine.v1.MonthResponse
-	58,  // 123: myungli.engine.v1.MyungliEngine.GetBirthHour:output_type -> myungli.engine.v1.BirthHourResponse
-	60,  // 124: myungli.engine.v1.MyungliEngine.GetInfo:output_type -> myungli.engine.v1.InfoResponse
-	62,  // 125: myungli.engine.v1.MyungliEngine.ConvertLunarDate:output_type -> myungli.engine.v1.LunarDateResponse
-	120, // [120:126] is the sub-list for method output_type
-	114, // [114:120] is the sub-list for method input_type
-	114, // [114:114] is the sub-list for extension type_name
-	114, // [114:114] is the sub-list for extension extendee
-	0,   // [0:114] is the sub-list for field type_name
+	10,  // 47: myungli.engine.v1.ShinsalHit.position:type_name -> myungli.engine.v1.Position
+	10,  // 48: myungli.engine.v1.ShinsalHit.positions:type_name -> myungli.engine.v1.Position
+	2,   // 49: myungli.engine.v1.ElementWeight.element:type_name -> myungli.engine.v1.Element
+	13,  // 50: myungli.engine.v1.Strength.level:type_name -> myungli.engine.v1.StrengthLevel
+	2,   // 51: myungli.engine.v1.YongsinInfo.yongsin:type_name -> myungli.engine.v1.Element
+	2,   // 52: myungli.engine.v1.YongsinInfo.huisin:type_name -> myungli.engine.v1.Element
+	2,   // 53: myungli.engine.v1.YongsinInfo.gisin:type_name -> myungli.engine.v1.Element
+	2,   // 54: myungli.engine.v1.YongsinInfo.tonggwan:type_name -> myungli.engine.v1.Element
+	14,  // 55: myungli.engine.v1.YongsinInfo.method:type_name -> myungli.engine.v1.YongsinMethod
+	3,   // 56: myungli.engine.v1.YongsinInfo.johu_stem:type_name -> myungli.engine.v1.Stem
+	32,  // 57: myungli.engine.v1.YongsinInfo.judgment:type_name -> myungli.engine.v1.Judgment
+	48,  // 58: myungli.engine.v1.DaeunTable.periods:type_name -> myungli.engine.v1.LuckPeriod
+	26,  // 59: myungli.engine.v1.LuckPeriod.pillar:type_name -> myungli.engine.v1.Pillar
+	5,   // 60: myungli.engine.v1.LuckPeriod.stem_ten_god:type_name -> myungli.engine.v1.TenGod
+	5,   // 61: myungli.engine.v1.LuckPeriod.branch_ten_god:type_name -> myungli.engine.v1.TenGod
+	7,   // 62: myungli.engine.v1.LuckPeriod.twelve_stage:type_name -> myungli.engine.v1.TwelveStage
+	26,  // 63: myungli.engine.v1.YearLuck.pillar:type_name -> myungli.engine.v1.Pillar
+	5,   // 64: myungli.engine.v1.YearLuck.ten_god:type_name -> myungli.engine.v1.TenGod
+	17,  // 65: myungli.engine.v1.YearLuck.relations_with_natal:type_name -> myungli.engine.v1.RelationKind
+	26,  // 66: myungli.engine.v1.DailyResponse.day:type_name -> myungli.engine.v1.Pillar
+	12,  // 67: myungli.engine.v1.DailyResponse.kind:type_name -> myungli.engine.v1.DayKind
+	52,  // 68: myungli.engine.v1.DailyResponse.color:type_name -> myungli.engine.v1.ColorCard
+	53,  // 69: myungli.engine.v1.DailyResponse.direction:type_name -> myungli.engine.v1.DirectionCard
+	54,  // 70: myungli.engine.v1.DailyResponse.number:type_name -> myungli.engine.v1.NumberCard
+	55,  // 71: myungli.engine.v1.DailyResponse.focus_time:type_name -> myungli.engine.v1.FocusTimeCard
+	57,  // 72: myungli.engine.v1.DailyResponse.relations:type_name -> myungli.engine.v1.Relation
+	34,  // 73: myungli.engine.v1.DailyResponse.tag_evidence:type_name -> myungli.engine.v1.Evidence
+	32,  // 74: myungli.engine.v1.DailyResponse.fortune:type_name -> myungli.engine.v1.Judgment
+	32,  // 75: myungli.engine.v1.DailyResponse.guide:type_name -> myungli.engine.v1.Judgment
+	36,  // 76: myungli.engine.v1.DailyResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	5,   // 77: myungli.engine.v1.DailyResponse.day_stem_ten_god:type_name -> myungli.engine.v1.TenGod
+	6,   // 78: myungli.engine.v1.DailyResponse.day_stem_ten_god_group:type_name -> myungli.engine.v1.TenGodGroup
+	32,  // 79: myungli.engine.v1.DailyResponse.guide_candidates:type_name -> myungli.engine.v1.Judgment
+	52,  // 80: myungli.engine.v1.DailyResponse.second_color:type_name -> myungli.engine.v1.ColorCard
+	55,  // 81: myungli.engine.v1.DailyResponse.night_focus_time:type_name -> myungli.engine.v1.FocusTimeCard
+	51,  // 82: myungli.engine.v1.DailyResponse.day_virtues:type_name -> myungli.engine.v1.DayVirtueCard
+	9,   // 83: myungli.engine.v1.DayVirtueCard.kind:type_name -> myungli.engine.v1.DayVirtue
+	32,  // 84: myungli.engine.v1.DayVirtueCard.judgment:type_name -> myungli.engine.v1.Judgment
+	32,  // 85: myungli.engine.v1.ColorCard.judgment:type_name -> myungli.engine.v1.Judgment
+	2,   // 86: myungli.engine.v1.ColorCard.element:type_name -> myungli.engine.v1.Element
+	18,  // 87: myungli.engine.v1.ColorCard.role:type_name -> myungli.engine.v1.ElementRole
+	2,   // 88: myungli.engine.v1.ColorCard.base_element:type_name -> myungli.engine.v1.Element
+	7,   // 89: myungli.engine.v1.ColorCard.twelve_stage:type_name -> myungli.engine.v1.TwelveStage
+	19,  // 90: myungli.engine.v1.ColorCard.shift:type_name -> myungli.engine.v1.ColorShift
+	21,  // 91: myungli.engine.v1.ColorCard.basis:type_name -> myungli.engine.v1.ColorBasis
+	32,  // 92: myungli.engine.v1.DirectionCard.judgment:type_name -> myungli.engine.v1.Judgment
+	11,  // 93: myungli.engine.v1.DirectionCard.direction:type_name -> myungli.engine.v1.Direction8
+	32,  // 94: myungli.engine.v1.NumberCard.judgment:type_name -> myungli.engine.v1.Judgment
+	32,  // 95: myungli.engine.v1.FocusTimeCard.judgment:type_name -> myungli.engine.v1.Judgment
+	56,  // 96: myungli.engine.v1.FocusTimeCard.picks:type_name -> myungli.engine.v1.FocusSlot
+	20,  // 97: myungli.engine.v1.FocusTimeCard.period:type_name -> myungli.engine.v1.FocusPeriod
+	4,   // 98: myungli.engine.v1.FocusSlot.branch:type_name -> myungli.engine.v1.Branch
+	26,  // 99: myungli.engine.v1.FocusSlot.pillar:type_name -> myungli.engine.v1.Pillar
+	71,  // 100: myungli.engine.v1.FocusSlot.start:type_name -> google.protobuf.Timestamp
+	71,  // 101: myungli.engine.v1.FocusSlot.end:type_name -> google.protobuf.Timestamp
+	24,  // 102: myungli.engine.v1.FocusSlot.day_date:type_name -> myungli.engine.v1.LocalDate
+	26,  // 103: myungli.engine.v1.FocusSlot.day_pillar:type_name -> myungli.engine.v1.Pillar
+	17,  // 104: myungli.engine.v1.Relation.kind:type_name -> myungli.engine.v1.RelationKind
+	10,  // 105: myungli.engine.v1.Relation.natal_position:type_name -> myungli.engine.v1.Position
+	17,  // 106: myungli.engine.v1.Relation.suppressed_by:type_name -> myungli.engine.v1.RelationKind
+	59,  // 107: myungli.engine.v1.MonthResponse.days:type_name -> myungli.engine.v1.MonthDay
+	36,  // 108: myungli.engine.v1.MonthResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	24,  // 109: myungli.engine.v1.MonthDay.date:type_name -> myungli.engine.v1.LocalDate
+	26,  // 110: myungli.engine.v1.MonthDay.pillar:type_name -> myungli.engine.v1.Pillar
+	60,  // 111: myungli.engine.v1.MonthDay.solar_term:type_name -> myungli.engine.v1.SolarTerm
+	12,  // 112: myungli.engine.v1.MonthDay.kind:type_name -> myungli.engine.v1.DayKind
+	15,  // 113: myungli.engine.v1.MonthDay.luck_level:type_name -> myungli.engine.v1.LuckLevel
+	61,  // 114: myungli.engine.v1.MonthDay.score_items:type_name -> myungli.engine.v1.ScoreItem
+	32,  // 115: myungli.engine.v1.MonthDay.judgment:type_name -> myungli.engine.v1.Judgment
+	9,   // 116: myungli.engine.v1.MonthDay.day_virtues:type_name -> myungli.engine.v1.DayVirtue
+	71,  // 117: myungli.engine.v1.SolarTerm.at:type_name -> google.protobuf.Timestamp
+	22,  // 118: myungli.engine.v1.SolarTerm.kind:type_name -> myungli.engine.v1.SolarTermKind
+	28,  // 119: myungli.engine.v1.BirthHourRequest.birth:type_name -> myungli.engine.v1.BirthInfo
+	4,   // 120: myungli.engine.v1.BirthHourResponse.branch:type_name -> myungli.engine.v1.Branch
+	71,  // 121: myungli.engine.v1.BirthHourResponse.start:type_name -> google.protobuf.Timestamp
+	71,  // 122: myungli.engine.v1.BirthHourResponse.end:type_name -> google.protobuf.Timestamp
+	36,  // 123: myungli.engine.v1.BirthHourResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	24,  // 124: myungli.engine.v1.LunarDateRequest.date:type_name -> myungli.engine.v1.LocalDate
+	24,  // 125: myungli.engine.v1.LunarDateResponse.solar:type_name -> myungli.engine.v1.LocalDate
+	36,  // 126: myungli.engine.v1.LunarDateResponse.meta:type_name -> myungli.engine.v1.ResponseMeta
+	33,  // 127: myungli.engine.v1.Judgment.ParamsEntry.value:type_name -> myungli.engine.v1.Param
+	29,  // 128: myungli.engine.v1.MyungliEngine.GetChart:input_type -> myungli.engine.v1.ChartRequest
+	30,  // 129: myungli.engine.v1.MyungliEngine.GetDaily:input_type -> myungli.engine.v1.DailyRequest
+	31,  // 130: myungli.engine.v1.MyungliEngine.GetMonthCalendar:input_type -> myungli.engine.v1.MonthRequest
+	62,  // 131: myungli.engine.v1.MyungliEngine.GetBirthHour:input_type -> myungli.engine.v1.BirthHourRequest
+	64,  // 132: myungli.engine.v1.MyungliEngine.GetInfo:input_type -> myungli.engine.v1.InfoRequest
+	66,  // 133: myungli.engine.v1.MyungliEngine.ConvertLunarDate:input_type -> myungli.engine.v1.LunarDateRequest
+	37,  // 134: myungli.engine.v1.MyungliEngine.GetChart:output_type -> myungli.engine.v1.ChartResponse
+	50,  // 135: myungli.engine.v1.MyungliEngine.GetDaily:output_type -> myungli.engine.v1.DailyResponse
+	58,  // 136: myungli.engine.v1.MyungliEngine.GetMonthCalendar:output_type -> myungli.engine.v1.MonthResponse
+	63,  // 137: myungli.engine.v1.MyungliEngine.GetBirthHour:output_type -> myungli.engine.v1.BirthHourResponse
+	65,  // 138: myungli.engine.v1.MyungliEngine.GetInfo:output_type -> myungli.engine.v1.InfoResponse
+	67,  // 139: myungli.engine.v1.MyungliEngine.ConvertLunarDate:output_type -> myungli.engine.v1.LunarDateResponse
+	134, // [134:140] is the sub-list for method output_type
+	128, // [128:134] is the sub-list for method input_type
+	128, // [128:128] is the sub-list for extension type_name
+	128, // [128:128] is the sub-list for extension extendee
+	0,   // [0:128] is the sub-list for field type_name
 }
 
 func init() { file_myungli_engine_v1_engine_proto_init() }
@@ -5003,14 +5488,15 @@ func file_myungli_engine_v1_engine_proto_init() {
 		(*Param_Number)(nil),
 		(*Param_Flag)(nil),
 	}
-	file_myungli_engine_v1_engine_proto_msgTypes[34].OneofWrappers = []any{}
+	file_myungli_engine_v1_engine_proto_msgTypes[26].OneofWrappers = []any{}
+	file_myungli_engine_v1_engine_proto_msgTypes[35].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_myungli_engine_v1_engine_proto_rawDesc), len(file_myungli_engine_v1_engine_proto_rawDesc)),
-			NumEnums:      20,
-			NumMessages:   46,
+			NumEnums:      24,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,5 +1,5 @@
 {
-  "version": "cece14ff57a1146a",
+  "version": "539717063965f943",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -82,6 +82,16 @@
       "id": "daily.color",
       "rotation": "none",
       "params": {
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "day_branch": {
+          "kind": "none"
+        },
         "element": {
           "kind": "category",
           "categories": [
@@ -91,6 +101,15 @@
         },
         "role": {
           "kind": "none"
+        },
+        "shift": {
+          "kind": "none"
+        },
+        "twelve_stage": {
+          "kind": "category",
+          "categories": [
+            "twelve_stage"
+          ]
         }
       }
     },
@@ -98,11 +117,30 @@
       "id": "daily.direction",
       "rotation": "none",
       "params": {
+        "day_branch": {
+          "kind": "category",
+          "categories": [
+            "branch"
+          ]
+        },
+        "deity": {
+          "kind": "none"
+        },
         "direction": {
           "kind": "category",
           "categories": [
             "direction8"
           ]
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "role": {
+          "kind": "none"
         },
         "rule_id": {
           "kind": "none"
@@ -117,12 +155,8 @@
       "id": "daily.focus_time",
       "rotation": "none",
       "params": {
-        "branches": {
-          "kind": "list",
-          "list_category": "branch"
-        },
-        "score": {
-          "kind": "number"
+        "hour_branch": {
+          "kind": "none"
         }
       }
     },
@@ -209,6 +243,12 @@
       "id": "daily.number",
       "rotation": "none",
       "params": {
+        "day_stem": {
+          "kind": "category",
+          "categories": [
+            "stem"
+          ]
+        },
         "element": {
           "kind": "category",
           "categories": [
@@ -218,6 +258,12 @@
         },
         "number": {
           "kind": "number"
+        },
+        "pair": {
+          "kind": "none"
+        },
+        "parity": {
+          "kind": "none"
         }
       }
     },
@@ -232,7 +278,17 @@
         "all": {
           "kind": "none"
         },
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
         "basis": {
+          "kind": "none"
+        },
+        "birth_year": {
           "kind": "none"
         },
         "branch_ten_god": {
@@ -256,6 +312,9 @@
           "categories": [
             "day_kind"
           ]
+        },
+        "day_pillar": {
+          "kind": "none"
         },
         "day_stem": {
           "kind": "text"
@@ -295,6 +354,12 @@
         "group_count": {
           "kind": "number"
         },
+        "hour_branch": {
+          "kind": "none"
+        },
+        "huangdao": {
+          "kind": "none"
+        },
         "luck": {
           "kind": "category",
           "categories": [
@@ -326,7 +391,7 @@
             "part"
           ]
         },
-        "picks": {
+        "period": {
           "kind": "none"
         },
         "place": {
@@ -352,6 +417,16 @@
         },
         "share": {
           "kind": "none"
+        },
+        "shift": {
+          "kind": "none"
+        },
+        "shifted_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
         },
         "shinsal": {
           "kind": "category",
@@ -391,6 +466,12 @@
         "threshold": {
           "kind": "none"
         },
+        "twelve_stage": {
+          "kind": "category",
+          "categories": [
+            "twelve_stage"
+          ]
+        },
         "yongsin": {
           "kind": "category",
           "categories": [
@@ -407,6 +488,18 @@
     "evidence.source": {
       "id": "evidence.source",
       "rotation": "none"
+    },
+    "explain.day_virtue": {
+      "id": "explain.day_virtue",
+      "rotation": "none",
+      "params": {
+        "day_stem": {
+          "kind": "none"
+        },
+        "month_branch": {
+          "kind": "none"
+        }
+      }
     },
     "explain.today_reason": {
       "id": "explain.today_reason",
@@ -485,6 +578,12 @@
           "categories": [
             "element",
             "color"
+          ]
+        },
+        "part": {
+          "kind": "category",
+          "categories": [
+            "part"
           ]
         },
         "place": {
@@ -1905,171 +2004,339 @@
     },
     {
       "slot": "daily.color",
+      "key": "color.balance.gisin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your chart's balance, {element:color} suits you well."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.gisin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式のバランスで見ると、{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.gisin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.gwiin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your chart's balance, {element:color} suits you well."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.gwiin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式のバランスで見ると、{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.gwiin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.ordinary_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your chart's balance, {element:color} suits you well."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.ordinary_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式のバランスで見ると、{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.ordinary_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.yongsin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your chart's balance, {element:color} suits you well."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.yongsin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式のバランスで見ると、{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.balance.yongsin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주의 균형으로 보면 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
       "key": "color.gisin_day",
       "variant": "single",
       "lang": "en",
-      "body": "Today, {element:color} suits you well."
+      "body": "{base_element} eases the clash in your chart, so {element:color} suits you today."
     },
     {
       "slot": "daily.color",
       "key": "color.gisin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "今日は{element:color}がよく合います。"
+      "body": "滞った流れをつなぐ{base_element}の気に合わせて、今日は{element:color}がよく合います。"
     },
     {
       "slot": "daily.color",
       "key": "color.gisin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {element:color}(이)가 잘 맞아요."
+      "body": "막힌 흐름을 이어 주는 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."
     },
     {
       "slot": "daily.color",
       "key": "color.gwiin_day",
       "variant": "single",
       "lang": "en",
-      "body": "Today, {element:color} suits you well."
+      "body": "Your chart needs {base_element} energy, so {element:color} suits you today."
     },
     {
       "slot": "daily.color",
       "key": "color.gwiin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "今日は{element:color}がよく合います。"
+      "body": "あなたの命式に必要な{base_element}の気に合わせて、今日は{element:color}がよく合います。"
     },
     {
       "slot": "daily.color",
       "key": "color.gwiin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {element:color}(이)가 잘 맞아요."
+      "body": "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."
     },
     {
       "slot": "daily.color",
       "key": "color.ordinary_day",
       "variant": "single",
       "lang": "en",
-      "body": "Today, {element:color} suits you well."
+      "body": "Your chart needs {base_element} energy, so {element:color} suits you today."
     },
     {
       "slot": "daily.color",
       "key": "color.ordinary_day",
       "variant": "single",
       "lang": "ja",
-      "body": "今日は{element:color}がよく合います。"
+      "body": "あなたの命式に必要な{base_element}の気に合わせて、今日は{element:color}がよく合います。"
     },
     {
       "slot": "daily.color",
       "key": "color.ordinary_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {element:color}(이)가 잘 맞아요."
+      "body": "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.gisin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "According to the classics, {element:color} suits you today too."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.gisin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "原典の解釈によると、今日は{element:color}も似合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.gisin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.gwiin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "According to the classics, {element:color} suits you today too."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.gwiin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "原典の解釈によると、今日は{element:color}も似合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.gwiin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.ordinary_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "According to the classics, {element:color} suits you today too."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.ordinary_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "原典の解釈によると、今日は{element:color}も似合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.ordinary_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.yongsin_day",
+      "variant": "single",
+      "lang": "en",
+      "body": "According to the classics, {element:color} suits you today too."
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.yongsin_day",
+      "variant": "single",
+      "lang": "ja",
+      "body": "原典の解釈によると、今日は{element:color}も似合います。"
+    },
+    {
+      "slot": "daily.color",
+      "key": "color.source.yongsin_day",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원전의 해석에 따르면 오늘은 {element:color}도 어울려요."
     },
     {
       "slot": "daily.color",
       "key": "color.yongsin_day",
       "variant": "single",
       "lang": "en",
-      "body": "Today, {element:color} suits you well."
+      "body": "Your chart needs {base_element} energy, so {element:color} suits you today."
     },
     {
       "slot": "daily.color",
       "key": "color.yongsin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "今日は{element:color}がよく合います。"
+      "body": "あなたの命式に必要な{base_element}の気に合わせて、今日は{element:color}がよく合います。"
     },
     {
       "slot": "daily.color",
       "key": "color.yongsin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {element:color}(이)가 잘 맞아요."
+      "body": "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.gisin",
       "variant": "single",
       "lang": "en",
-      "body": "If you need to head out today, {direction} is a good way to go."
+      "body": "Head {direction}, where {element} eases the clash in your chart."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.gisin",
       "variant": "single",
       "lang": "ja",
-      "body": "今日出かけるなら、{direction}の方角がおすすめです。"
+      "body": "滞った流れをつなぐ{element}の気の方位、{direction}の方角がよいです。"
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.gisin",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘 움직일 일이 있다면 {direction}쪽이 좋아요."
+      "body": "막힌 흐름을 이어 주는 {element} 기운의 방위인 {direction}쪽이 좋아요."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.gwiin",
       "variant": "single",
       "lang": "en",
-      "body": "If you're choosing where to meet someone, {direction} is good."
+      "body": "On a Day of helpers, head {direction}, the way of today's {day_branch}."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.gwiin",
       "variant": "single",
       "lang": "ja",
-      "body": "人と会う場所を選ぶなら、{direction}の方角がよいです。"
+      "body": "貴人の日なので、今日の地支{day_branch}の方位、{direction}の方角がよいです。"
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.gwiin",
       "variant": "single",
       "lang": "ko",
-      "body": "사람을 만날 곳을 고른다면 {direction}쪽이 좋아요."
+      "body": "귀인의 날이라 오늘 지지 {day_branch}의 방위인 {direction}쪽이 좋아요."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.ordinary",
       "variant": "single",
       "lang": "en",
-      "body": "If you're picking a place to meet up, {direction} is good."
+      "body": "Head {direction}, the way of the {element} energy your chart needs."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.ordinary",
       "variant": "single",
       "lang": "ja",
-      "body": "待ち合わせ場所を選ぶなら、{direction}の方角がよいです。"
+      "body": "あなたの命式に必要な{element}の気の方位、{direction}の方角がよいです。"
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.ordinary",
       "variant": "single",
       "lang": "ko",
-      "body": "약속 장소를 고른다면 {direction}쪽이 좋아요."
+      "body": "내 사주에 필요한 {element} 기운의 방위인 {direction}쪽이 좋아요."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.yongsin",
       "variant": "single",
       "lang": "en",
-      "body": "If you're choosing somewhere new to go, {direction} suits you."
+      "body": "Head {direction}, the way of the {element} energy your chart needs."
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.yongsin",
       "variant": "single",
       "lang": "ja",
-      "body": "新しく行く場所を選ぶなら、{direction}の方角が合います。"
+      "body": "あなたの命式に必要な{element}の気の方位、{direction}の方角がよいです。"
     },
     {
       "slot": "daily.direction",
       "key": "direction.day_kind.yongsin",
       "variant": "single",
       "lang": "ko",
-      "body": "새로 가 볼 곳을 고른다면 {direction}쪽이 잘 맞아요."
+      "body": "내 사주에 필요한 {element} 기운의 방위인 {direction}쪽이 좋아요."
     },
     {
       "slot": "daily.focus_reason",
@@ -2157,108 +2424,45 @@
     },
     {
       "slot": "daily.focus_time",
-      "key": "focus_time.fallback",
+      "key": "focus_time.day",
       "variant": "single",
       "lang": "en",
-      "body": "This is a good time to focus today."
+      "body": "This is a good time for important things."
     },
     {
       "slot": "daily.focus_time",
-      "key": "focus_time.fallback",
+      "key": "focus_time.day",
       "variant": "single",
       "lang": "ja",
-      "body": "今日はこの時間に集中しやすいです。"
+      "body": "大事なことはこの時間にするとよいです。"
     },
     {
       "slot": "daily.focus_time",
-      "key": "focus_time.fallback",
+      "key": "focus_time.day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 이 시간에 집중이 잘 돼요."
+      "body": "중요한 일은 이 시간에 하면 좋아요."
     },
     {
       "slot": "daily.focus_time",
-      "key": "focus_time.gwiin",
+      "key": "focus_time.night",
       "variant": "single",
       "lang": "en",
-      "body": "Asking for help tends to go well at this time."
+      "body": "If you have something to do at night, this is a good time."
     },
     {
       "slot": "daily.focus_time",
-      "key": "focus_time.gwiin",
+      "key": "focus_time.night",
       "variant": "single",
       "lang": "ja",
-      "body": "この時間は、助けを頼むと通じやすいです。"
+      "body": "夜にすることがあるなら、この時間がよいです。"
     },
     {
       "slot": "daily.focus_time",
-      "key": "focus_time.gwiin",
+      "key": "focus_time.night",
       "variant": "single",
       "lang": "ko",
-      "body": "이 시간에는 도움을 청하면 잘 통해요."
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.hap",
-      "variant": "single",
-      "lang": "en",
-      "body": "This is a good time to meet people and talk."
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.hap",
-      "variant": "single",
-      "lang": "ja",
-      "body": "この時間は、人と会って話すのに向いています。"
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.hap",
-      "variant": "single",
-      "lang": "ko",
-      "body": "이 시간에는 사람을 만나 이야기하기 좋아요."
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.huisin",
-      "variant": "single",
-      "lang": "en",
-      "body": "This is a good time to pick up tasks you've put off."
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.huisin",
-      "variant": "single",
-      "lang": "ja",
-      "body": "この時間は、後回しにしたことを進めるのに向いています。"
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.huisin",
-      "variant": "single",
-      "lang": "ko",
-      "body": "이 시간에는 미뤄 둔 일을 이어 가기 좋아요."
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.yongsin",
-      "variant": "single",
-      "lang": "en",
-      "body": "Important work tends to go well at this time."
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.yongsin",
-      "variant": "single",
-      "lang": "ja",
-      "body": "この時間は、大事なことに取り組むとうまくいきます。"
-    },
-    {
-      "slot": "daily.focus_time",
-      "key": "focus_time.yongsin",
-      "variant": "single",
-      "lang": "ko",
-      "body": "이 시간에는 중요한 일을 하면 잘 돼요."
+      "body": "밤에 할 일이 있다면 이 시간이 좋아요."
     },
     {
       "slot": "daily.fortune.head",
@@ -3900,6 +4104,132 @@
     },
     {
       "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "advice",
+      "lang": "en",
+      "body": "Spend some time on things you do on your own."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "advice",
+      "lang": "ja",
+      "body": "一人でする作業に時間を使ってみてください。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "advice",
+      "lang": "ko",
+      "body": "혼자 하는 일에 시간을 써 보세요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "care",
+      "lang": "en",
+      "body": "It's fine if you spend a long stretch on your own today."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "care",
+      "lang": "ja",
+      "body": "一人の時間が長くても大丈夫な日です。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "care",
+      "lang": "ko",
+      "body": "혼자 있는 시간이 길어도 괜찮은 날이에요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "state",
+      "lang": "en",
+      "body": "You may feel apart from others and a bit lonely today."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "state",
+      "lang": "ja",
+      "body": "周りから離れて寂しさを感じやすい日です。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gosin",
+      "variant": "state",
+      "lang": "ko",
+      "body": "주변과 떨어져 외로움을 느끼기 쉬운 날이에요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "advice",
+      "lang": "en",
+      "body": "Reach out to someone close and say hello first."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "advice",
+      "lang": "ja",
+      "body": "近しい人に自分から声をかけてみてください。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "advice",
+      "lang": "ko",
+      "body": "가까운 사람에게 먼저 안부를 건네 보세요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "care",
+      "lang": "en",
+      "body": "It's fine if things feel a little empty around you today."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "care",
+      "lang": "ja",
+      "body": "そばが少し寂しく感じられても大丈夫な日です。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "care",
+      "lang": "ko",
+      "body": "곁이 조금 허전하게 느껴져도 괜찮은 날이에요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "state",
+      "lang": "en",
+      "body": "Close people may feel a little distant today."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "state",
+      "lang": "ja",
+      "body": "近しい人が少し遠く感じられやすい日です。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.gwasuk",
+      "variant": "state",
+      "lang": "ko",
+      "body": "가까운 사람과 조금 멀게 느껴지기 쉬운 날이에요."
+    },
+    {
+      "slot": "daily.fortune.tag",
       "key": "fortune.tag.gwiin_day",
       "variant": "advice",
       "lang": "en",
@@ -4404,6 +4734,69 @@
     },
     {
       "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "advice",
+      "lang": "en",
+      "body": "If a remark bothers you, pause before you bring it up."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "advice",
+      "lang": "ja",
+      "body": "気になる一言は、ひと呼吸おいてから口にしてみてください。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "advice",
+      "lang": "ko",
+      "body": "마음에 걸리는 말은 한 번 쉬었다가 꺼내 보세요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "care",
+      "lang": "en",
+      "body": "If you feel let down today, don't blame yourself."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "care",
+      "lang": "ja",
+      "body": "寂しい気持ちになっても、自分を責めなくていい日です。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "care",
+      "lang": "ko",
+      "body": "서운한 마음이 들어도 나를 탓하지 않아도 돼요."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "state",
+      "lang": "en",
+      "body": "Small things may hurt your feelings today."
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "state",
+      "lang": "ja",
+      "body": "ささいなことで気持ちが傷つきやすい日です。"
+    },
+    {
+      "slot": "daily.fortune.tag",
+      "key": "fortune.tag.wonjin",
+      "variant": "state",
+      "lang": "ko",
+      "body": "사소한 일로 마음이 상하기 쉬운 날이에요."
+    },
+    {
+      "slot": "daily.fortune.tag",
       "key": "fortune.tag.yeokma",
       "variant": "advice",
       "lang": "en",
@@ -4779,6 +5172,90 @@
       "variant": "2",
       "lang": "ko",
       "body": "일이 더디게 풀린 하루, 내려놓아도 괜찮았던 일은 뭐였나요?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gosin",
+      "variant": "1",
+      "lang": "en",
+      "body": "Was there a moment from your time alone today that stayed with you?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gosin",
+      "variant": "1",
+      "lang": "ja",
+      "body": "今日一人で過ごした時間の中で、心に残った瞬間はありましたか？"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gosin",
+      "variant": "1",
+      "lang": "ko",
+      "body": "오늘 혼자 보낸 시간 가운데 기억에 남는 순간이 있었나요?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gosin",
+      "variant": "2",
+      "lang": "en",
+      "body": "What thought came to you while you were alone today?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gosin",
+      "variant": "2",
+      "lang": "ja",
+      "body": "一人の時間に浮かんだ考えを一つ書いてみませんか？"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gosin",
+      "variant": "2",
+      "lang": "ko",
+      "body": "혼자였던 시간에 떠오른 생각 하나를 적어 볼까요?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gwasuk",
+      "variant": "1",
+      "lang": "en",
+      "body": "Who came to mind today, and what did you want to tell them?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gwasuk",
+      "variant": "1",
+      "lang": "ja",
+      "body": "今日思い浮かんだ人に、伝えたかったことは何ですか？"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gwasuk",
+      "variant": "1",
+      "lang": "ko",
+      "body": "오늘 떠오른 사람에게 하고 싶던 말이 있었나요?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gwasuk",
+      "variant": "2",
+      "lang": "en",
+      "body": "On a day that felt a little empty, what were you still grateful for?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gwasuk",
+      "variant": "2",
+      "lang": "ja",
+      "body": "寂しさを感じた一日、ありがたかったことは何でしたか？"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.gwasuk",
+      "variant": "2",
+      "lang": "ko",
+      "body": "곁이 허전했던 하루, 그래도 고마웠던 일은 뭐였나요?"
     },
     {
       "slot": "daily.guide",
@@ -5328,6 +5805,48 @@
     },
     {
       "slot": "daily.guide",
+      "key": "guide.wonjin",
+      "variant": "1",
+      "lang": "en",
+      "body": "If a remark stuck with you today, how about writing it down?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.wonjin",
+      "variant": "1",
+      "lang": "ja",
+      "body": "今日気になった一言があれば、一つ書いてみませんか？"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.wonjin",
+      "variant": "1",
+      "lang": "ko",
+      "body": "오늘 마음에 걸린 말이 있었다면 하나 적어 볼까요?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.wonjin",
+      "variant": "2",
+      "lang": "en",
+      "body": "On a day a little hurt passed through, how did you feel then?"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.wonjin",
+      "variant": "2",
+      "lang": "ja",
+      "body": "寂しさがよぎった一日、そのときの気持ちはどうでしたか？"
+    },
+    {
+      "slot": "daily.guide",
+      "key": "guide.wonjin",
+      "variant": "2",
+      "lang": "ko",
+      "body": "서운함이 스친 하루, 그때 내 마음은 어땠나요?"
+    },
+    {
+      "slot": "daily.guide",
       "key": "guide.yeokma",
       "variant": "1",
       "lang": "en",
@@ -5415,84 +5934,84 @@
       "key": "number.gisin_day",
       "variant": "single",
       "lang": "en",
-      "body": "{number} is a good fit today. Try it when picking a number or order."
+      "body": "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."
     },
     {
       "slot": "daily.number",
       "key": "number.gisin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"
+      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.gisin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."
+      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.number",
       "key": "number.gwiin_day",
       "variant": "single",
       "lang": "en",
-      "body": "{number} is a good fit today. Try it when picking a number or order."
+      "body": "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."
     },
     {
       "slot": "daily.number",
       "key": "number.gwiin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"
+      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.gwiin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."
+      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.number",
       "key": "number.ordinary_day",
       "variant": "single",
       "lang": "en",
-      "body": "{number} is a good fit today. Try it when picking a number or order."
+      "body": "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."
     },
     {
       "slot": "daily.number",
       "key": "number.ordinary_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"
+      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.ordinary_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."
+      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.number",
       "key": "number.yongsin_day",
       "variant": "single",
       "lang": "en",
-      "body": "{number} is a good fit today. Try it when picking a number or order."
+      "body": "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."
     },
     {
       "slot": "daily.number",
       "key": "number.yongsin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{number}が今日の数字です。番号や順番を決めるときにどうぞ。"
+      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.yongsin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 {number}(이)가 잘 맞아요. 번호나 순서를 정할 때 떠올려 보세요."
+      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.tag_label",
@@ -5619,6 +6138,48 @@
       "variant": "single",
       "lang": "ko",
       "body": "공망"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Lone star"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "孤辰"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "고신"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "Lone lodge"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "寡宿"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "과숙"
     },
     {
       "slot": "daily.tag_label",
@@ -5790,6 +6351,27 @@
     },
     {
       "slot": "daily.tag_label",
+      "key": "tag.wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Friction"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "元辰"
+    },
+    {
+      "slot": "daily.tag_label",
+      "key": "tag.wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원진"
+    },
+    {
+      "slot": "daily.tag_label",
       "key": "tag.yeokma",
       "variant": "single",
       "lang": "en",
@@ -5853,24 +6435,108 @@
     },
     {
       "slot": "evidence.basis",
+      "key": "basis.color/balance",
+      "variant": "single",
+      "lang": "en",
+      "body": "According to the classics, today's color would be {shifted_element:color}, but that energy pulls against your chart's balance, so we also show {element:color}, based on your balance, as the first color."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/balance",
+      "variant": "single",
+      "lang": "ja",
+      "body": "原典の解釈によると今日の色は{shifted_element:color}ですが、その気はあなたの命式のバランスと反対側なので、バランスを基準にした{element:color}を一つ目の色として一緒に示します。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/balance",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원전의 해석에 따르면 오늘 색은 {shifted_element:color} 쪽이지만, 그 기운은 내 사주의 균형과 반대쪽이라 내 균형을 기준으로 한 {element:color}(을)를 첫째 색으로 함께 보여요."
+    },
+    {
+      "slot": "evidence.basis",
       "key": "basis.color/lucky_element",
       "variant": "single",
       "lang": "en",
-      "body": "On a Day to go gently, we took your lucky color from the element that reconnects a blocked flow, and on other days from your [[Yongsin|role.yongsin]] element. Today it's the color of {element} energy."
+      "body": "On a Day to go gently, we based your lucky color on the element that reconnects a blocked flow, and on other days on your [[Yongsin|role.yongsin]] element. Your lucky direction follows this base element as it is."
     },
     {
       "slot": "evidence.basis",
       "key": "basis.color/lucky_element",
       "variant": "single",
       "lang": "ja",
-      "body": "忌神の日には滞った流れをつなぐ五行を、それ以外の日にはあなたの[[用神|role.yongsin]]の五行を、今日の色と見ました。今日は{element}の気の色です。"
+      "body": "忌神の日には滞った流れをつなぐ五行を、それ以外の日にはあなたの[[用神|role.yongsin]]の五行を、今日の色のもとと見ました。今日の方角も、このもとの五行にそのまま従います。"
     },
     {
       "slot": "evidence.basis",
       "key": "basis.color/lucky_element",
       "variant": "single",
       "lang": "ko",
-      "body": "기신의 날에는 막힌 흐름을 이어 주는 오행을, 그 밖의 날에는 내 [[용신|role.yongsin]] 오행을 행운 색으로 봤어요. 오늘은 {element} 기운의 색이에요."
+      "body": "기신의 날에는 막힌 흐름을 이어 주는 오행을, 그 밖의 날에는 내 [[용신|role.yongsin]] 오행을 행운 색의 바탕으로 봤어요. 행운 방향도 이 바탕 오행을 그대로 따라요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/shift",
+      "variant": "single",
+      "lang": "en",
+      "body": "The classics hold that an element's color changes with the stage it sits in that day. Today {base_element} sits at {twelve_stage} on the branch {day_branch}, so we chose {element:color}. Your direction doesn't change this way and follows the base element."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/shift",
+      "variant": "single",
+      "lang": "ja",
+      "body": "原典は、五行の色がその日に置かれた位置によって変わると見ます。今日の{base_element}の気は地支{day_branch}で{twelve_stage}の位置にあるので、{element:color}を選びました。方角はこのように変わらず、もとの五行に従います。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.color/shift",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원전은 오행의 색이 그날 놓인 자리에 따라 바뀐다고 봐요. 오늘 {base_element} 기운은 지지 {day_branch}에서 {twelve_stage} 자리라 {element:color}(을)를 골랐어요. 방향은 이렇게 바뀌지 않고 바탕 오행을 따라요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.day_virtue/cheondeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "The classic of day selection sets, for each month, the stem where heaven's virtue lies, and counts days with that stem as Heavenly Virtue Days. Today has this month's stem."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.day_virtue/cheondeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "択日の原典は月ごとに天の徳が宿る天干を定め、その天干の日を天徳日とします。今日は今月のその天干の日です。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.day_virtue/cheondeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "택일 원전은 달마다 하늘의 덕이 드는 천간을 정해 두고, 그 천간이 든 날을 천덕일로 꼽아요. 오늘은 이달의 그 천간이 든 날이에요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.day_virtue/woldeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "The classic of day selection sets, for each month, the stem where the month's virtue lies, and counts days with that stem as Monthly Virtue Days. Today has this month's stem."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.day_virtue/woldeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "択日の原典は月ごとに月の徳が宿る天干を定め、その天干の日を月徳日とします。今日は今月のその天干の日です。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.day_virtue/woldeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "택일 원전은 달마다 달의 덕이 드는 천간을 정해 두고, 그 천간이 든 날을 월덕일로 꼽아요. 오늘은 이달의 그 천간이 든 날이에요."
     },
     {
       "slot": "evidence.basis",
@@ -6000,45 +6666,66 @@
     },
     {
       "slot": "evidence.basis",
-      "key": "basis.focus_time/fallback",
+      "key": "basis.focus_time/birth_year",
       "variant": "single",
       "lang": "en",
-      "body": "Today every candidate hour formed [[Chung|relation.chung]] with your chart, so we chose the earliest of the hours traditionally seen as lucky."
+      "body": "We favored hours that support or join with the heavenly stem of your birth year, and avoided hours that clash with your birth year."
     },
     {
       "slot": "evidence.basis",
-      "key": "basis.focus_time/fallback",
+      "key": "basis.focus_time/birth_year",
       "variant": "single",
       "lang": "ja",
-      "body": "今日は候補の時間がすべてあなたの命式と[[冲|relation.chung]]になるので、昔から吉とされてきた時間のうち、最も早い時間を選びました。"
+      "body": "生まれ年の天干を助けるか、それと合する時間を吉と見て、生まれ年とぶつかる時間は避けました。"
     },
     {
       "slot": "evidence.basis",
-      "key": "basis.focus_time/fallback",
+      "key": "basis.focus_time/birth_year",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘은 모든 후보 시간이 내 사주와 [[충|relation.chung]]이 되어, 예부터 길하다고 본 시간 가운데 가장 이른 때를 골랐어요."
+      "body": "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."
     },
     {
       "slot": "evidence.basis",
-      "key": "basis.focus_time/score",
+      "key": "basis.focus_time/day_relation",
       "variant": "single",
       "lang": "en",
-      "body": "We gave points to hours that bring helpers, hours that bring your Yongsin or Huisin, and hours that form Hap with your chart, and took points off hours that form [[Chung|relation.chung]] with it. Then we chose the highest-scoring hour."
+      "body": "We favored hours that support today's day pillar or join with it, and left out hours that clash with it."
     },
     {
       "slot": "evidence.basis",
-      "key": "basis.focus_time/score",
+      "key": "basis.focus_time/day_relation",
       "variant": "single",
       "lang": "ja",
-      "body": "貴人が巡る時間、用神や喜神が巡る時間、あなたの命式と合になる時間に点数をつけ、あなたの命式と[[冲|relation.chung]]になる時間は差し引いて、最も点数の高い時間を選びました。"
+      "body": "今日の日柱を助けるか日柱と合する時間を吉と見て、日柱とぶつかる時間は外しました。"
     },
     {
       "slot": "evidence.basis",
-      "key": "basis.focus_time/score",
+      "key": "basis.focus_time/day_relation",
       "variant": "single",
       "lang": "ko",
-      "body": "귀인이 드는 시간, 용신이나 희신이 드는 시간, 내 사주와 합이 되는 시간에 점수를 주고, 내 사주와 [[충|relation.chung]]이 되는 시간은 빼서 가장 높은 시간을 골랐어요."
+      "body": "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/huangdao",
+      "variant": "single",
+      "lang": "en",
+      "body": "We also checked whether the hour is one the classic almanac marks as a lucky Hwangdo hour."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/huangdao",
+      "variant": "single",
+      "lang": "ja",
+      "body": "択日の原典が黄道として吉とする時間かどうかも合わせて見ました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.focus_time/huangdao",
+      "variant": "single",
+      "lang": "ko",
+      "body": "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."
     },
     {
       "slot": "evidence.basis",
@@ -6378,6 +7065,48 @@
     },
     {
       "slot": "evidence.basis",
+      "key": "basis.tags/gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."
+    },
+    {
+      "slot": "evidence.basis",
       "key": "basis.tags/gwiin_day",
       "variant": "single",
       "lang": "en",
@@ -6480,6 +7209,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "오늘 천간은 {stem_ten_god}, 지지는 {branch_ten_god}(으)로 둘 다 {group}인데, 내 사주에도 {group}(이)가 {natal_count}개 있어 이 태그를 붙였어요."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "By your zodiac sign, today's branch {day_branch} falls on the {shinsal} position, so we added this tag. For Wonjin we use the pairs common in Korea for everyone, while the classics set different pairs for men and women."
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの生まれ年の干支で見ると、今日の地支{day_branch}が{shinsal}の位置に当たるので、このタグを付けました。元辰は韓国で広く使われる組み合わせを男女の区別なく使い、原典は男女で組み合わせを分けます。"
+    },
+    {
+      "slot": "evidence.basis",
+      "key": "basis.tags/wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 띠로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요. 원진은 한국에서 널리 쓰는 쌍을 남녀 구분 없이 썼고, 원전은 남녀를 나눠 쌍을 달리 정해요."
     },
     {
       "slot": "evidence.basis",
@@ -6696,63 +7446,63 @@
       "key": "source.gungtong-bogam/johu_evidence#丁.丑",
       "variant": "single",
       "lang": "en",
-      "body": "For a Jeonghwa Day Master born in the twelfth month, Gyeonggeum and Gapmok are used.\n三冬丁火微寒，專用庚甲。\nGungtong Bogam, 三冬丁"
+      "body": "For a Jeonghwa Day Master born in the three winter months, Gapmok comes first with Gyeonggeum assisting, and Gyesu and Muto are used as circumstances allow.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\nGungtong Bogam, 三冬丁"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.丑",
       "variant": "single",
       "lang": "ja",
-      "body": "十二月生まれの丁の日干には、庚と甲を用いるという意味です。\n三冬丁火微寒，專用庚甲。\n窮通宝鑑「三冬丁」"
+      "body": "冬の三か月に生まれた丁の日干には、甲が第一で庚が助け、癸と戊は状況に応じて用いるという意味です。\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n窮通宝鑑「三冬丁」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.丑",
       "variant": "single",
       "lang": "ko",
-      "body": "12월에 태어난 정화 일간에게는 경금과 갑목을 쓴다는 뜻이에요.\n三冬丁火微寒，專用庚甲。\n궁통보감 「삼동정」"
+      "body": "겨울 석 달에 태어난 정화 일간에게는 갑목이 으뜸이고 경금이 도우며, 계수와 무토는 형편에 맞게 쓴다는 뜻이에요.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n궁통보감 「삼동정」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.亥",
       "variant": "single",
       "lang": "en",
-      "body": "For a Jeonghwa Day Master born in the tenth month, Gyeonggeum and Gapmok are used.\n三冬丁火微寒，專用庚甲。\nGungtong Bogam, 三冬丁"
+      "body": "For a Jeonghwa Day Master born in the three winter months, Gapmok comes first with Gyeonggeum assisting, and Gyesu and Muto are used as circumstances allow.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\nGungtong Bogam, 三冬丁"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.亥",
       "variant": "single",
       "lang": "ja",
-      "body": "十月生まれの丁の日干には、庚と甲を用いるという意味です。\n三冬丁火微寒，專用庚甲。\n窮通宝鑑「三冬丁」"
+      "body": "冬の三か月に生まれた丁の日干には、甲が第一で庚が助け、癸と戊は状況に応じて用いるという意味です。\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n窮通宝鑑「三冬丁」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.亥",
       "variant": "single",
       "lang": "ko",
-      "body": "10월에 태어난 정화 일간에게는 경금과 갑목을 쓴다는 뜻이에요.\n三冬丁火微寒，專用庚甲。\n궁통보감 「삼동정」"
+      "body": "겨울 석 달에 태어난 정화 일간에게는 갑목이 으뜸이고 경금이 도우며, 계수와 무토는 형편에 맞게 쓴다는 뜻이에요.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n궁통보감 「삼동정」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.午",
       "variant": "single",
       "lang": "en",
-      "body": "In the fifth month, Jeonghwa is strong on its own, so Gapmok should not be used carelessly.\n五月丁火，時歸建祿，不宜亂用甲木。\nGungtong Bogam, 五月丁"
+      "body": "For a Jeonghwa Day Master born in the fifth month whose branches form a fire frame with fire showing in the stems, having both Gyeonggeum and Imsu revealed means certain success in the exams.\n或支成火局，干見火出，得庚壬兩透者，科甲定然。\nGungtong Bogam, 五月丁"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.午",
       "variant": "single",
       "lang": "ja",
-      "body": "五月の丁は自ら力が強い時期なので、甲をむやみに用いてはいけないという意味です。\n五月丁火，時歸建祿，不宜亂用甲木。\n窮通宝鑑「五月丁」"
+      "body": "五月生まれの丁の日干で、地支が火局をなし天干に火が現れるとき、庚と壬がともに透れば科挙に必ず受かるという意味です。\n或支成火局，干見火出，得庚壬兩透者，科甲定然。\n窮通宝鑑「五月丁」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.午",
       "variant": "single",
       "lang": "ko",
-      "body": "5월의 정화는 스스로 힘이 강한 때라 갑목을 함부로 쓰면 안 된다는 뜻이에요.\n五月丁火，時歸建祿，不宜亂用甲木。\n궁통보감 「오월정」"
+      "body": "5월에 태어난 정화 일간이 지지에 화국을 이루고 천간에 화가 드러났을 때, 경금과 임수가 함께 드러나면 과거에 반드시 붙는다는 뜻이에요.\n或支成火局，干見火出，得庚壬兩透者，科甲定然。\n궁통보감 「오월정」"
     },
     {
       "slot": "evidence.source",
@@ -6780,21 +7530,21 @@
       "key": "source.gungtong-bogam/johu_evidence#丁.子",
       "variant": "single",
       "lang": "en",
-      "body": "In the eleventh month, when water runs over and no energy helps it, Jeonghwa forms a chart that follows the force pressing on it and makes its name by another path.\n十一月丁火，或仲冬水多癸旺，全無比印，此作棄命從殺，亦有異途功名。\nGungtong Bogam, 十一月丁"
+      "body": "For a Jeonghwa Day Master born in the three winter months, Gapmok comes first with Gyeonggeum assisting, and Gyesu and Muto are used as circumstances allow.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\nGungtong Bogam, 十一月丁"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.子",
       "variant": "single",
       "lang": "ja",
-      "body": "十一月の丁は、水があふれて助けとなる気がなければ、抑える力に従う命式となり、別の道で名を上げるという意味です。\n十一月丁火，或仲冬水多癸旺，全無比印，此作棄命從殺，亦有異途功名。\n窮通宝鑑「十一月丁」"
+      "body": "冬の三か月に生まれた丁の日干には、甲が第一で庚が助け、癸と戊は状況に応じて用いるという意味です。\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n窮通宝鑑「十一月丁」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.子",
       "variant": "single",
       "lang": "ko",
-      "body": "11월의 정화는 물이 넘치고 도울 기운이 없으면 누르는 힘을 따르는 사주가 되어 다른 길로 이름을 낸다는 뜻이에요.\n十一月丁火，或仲冬水多癸旺，全無比印，此作棄命從殺，亦有異途功名。\n궁통보감 「십일월정」"
+      "body": "겨울 석 달에 태어난 정화 일간에게는 갑목이 으뜸이고 경금이 도우며, 계수와 무토는 형편에 맞게 쓴다는 뜻이에요.\n三冬丁火，甲木爲尊，庚金佐之，癸戊權宜酌用可也。\n궁통보감 「십일월정」"
     },
     {
       "slot": "evidence.source",
@@ -6843,21 +7593,21 @@
       "key": "source.gungtong-bogam/johu_evidence#丁.戌",
       "variant": "single",
       "lang": "en",
-      "body": "In the ninth month, Muto fills the chart and drains Jeonghwa's fire, and if there is no Gapmok, it becomes an unusual chart instead.\n或九月一派戊土，洩丁火之氣，不見甲木，爲傷官傷盡，非尋常可比。\nGungtong Bogam, 九月丁"
+      "body": "For a Jeonghwa Day Master born in the ninth month, when Gapmok is used, Gyeonggeum cannot be left out.\n用甲者，庚不可少。\nGungtong Bogam, 九月丁"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.戌",
       "variant": "single",
       "lang": "ja",
-      "body": "九月の丁は、戊が多くて火の気を奪い、甲がなければ、かえって並外れた命式になるという意味です。\n或九月一派戊土，洩丁火之氣，不見甲木，爲傷官傷盡，非尋常可比。\n窮通宝鑑「九月丁」"
+      "body": "九月生まれの丁の日干が甲を用いるときは、庚が欠かせないという意味です。\n用甲者，庚不可少。\n窮通宝鑑「九月丁」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.戌",
       "variant": "single",
       "lang": "ko",
-      "body": "9월의 정화는 무토가 가득해 불기운을 빼앗고 갑목이 없으면 오히려 남다른 사주가 된다는 뜻이에요.\n或九月一派戊土，洩丁火之氣，不見甲木，爲傷官傷盡，非尋常可比。\n궁통보감 「구월정」"
+      "body": "9월에 태어난 정화 일간이 갑목을 쓸 때는 경금이 빠질 수 없다는 뜻이에요.\n用甲者，庚不可少。\n궁통보감 「구월정」"
     },
     {
       "slot": "evidence.source",
@@ -6927,21 +7677,21 @@
       "key": "source.gungtong-bogam/johu_evidence#丁.酉",
       "variant": "single",
       "lang": "en",
-      "body": "In the eighth month, if Singeum fills the chart and there is no Gyeonggeum and no fire to help, Jeonghwa forms a chart that follows wealth and becomes rich and honored.\n或八月一派辛金，不見庚金，又無比劫，此棄命從財，富而且貴，雖不科甲，亦有異途。\nGungtong Bogam, 八月丁"
+      "body": "The eighth-month entry has no line on what to use, so this is the line for the seventh month of the same autumn: Jeonghwa is receding and weak, so Gapmok is used, and Gyeonggeum splits Gapmok to kindle the fire.\n七月丁火，退氣柔弱，端用甲木，金雖乘旺司權，無傷丁之理，仍取庚劈甲，爲引火之物\nGungtong Bogam, 八月丁"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.酉",
       "variant": "single",
       "lang": "ja",
-      "body": "八月の丁は、辛が多く、庚も助けとなる火もなければ、財に従う命式となり、豊かで尊くなるという意味です。\n或八月一派辛金，不見庚金，又無比劫，此棄命從財，富而且貴，雖不科甲，亦有異途。\n窮通宝鑑「八月丁」"
+      "body": "八月の項には用いる気を述べた文がないため同じ秋の七月の文で、丁は気が退いて弱いので甲を用い、庚で甲を割って火を引くという意味です。\n七月丁火，退氣柔弱，端用甲木，金雖乘旺司權，無傷丁之理，仍取庚劈甲，爲引火之物\n窮通宝鑑「八月丁」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丁.酉",
       "variant": "single",
       "lang": "ko",
-      "body": "8월의 정화는 신금이 가득하고 경금도 도울 불도 없으면 재물을 따르는 사주가 되어 부유하고 귀하다는 뜻이에요.\n或八月一派辛金，不見庚金，又無比劫，此棄命從財，富而且貴，雖不科甲，亦有異途。\n궁통보감 「팔월정」"
+      "body": "8월 항목에는 쓸 기운을 말한 문장이 없어 같은 가을 7월의 문장으로, 정화는 기운이 물러나 약하니 갑목을 쓰고 경금으로 갑목을 쪼개 불을 붙인다는 뜻이에요.\n七月丁火，退氣柔弱，端用甲木，金雖乘旺司權，無傷丁之理，仍取庚劈甲，爲引火之物\n궁통보감 「팔월정」"
     },
     {
       "slot": "evidence.source",
@@ -7137,21 +7887,21 @@
       "key": "source.gungtong-bogam/johu_evidence#丙.申",
       "variant": "single",
       "lang": "en",
-      "body": "In the seventh month, Byeonghwa weakens as the sun sinks toward the west.\n七月丙火，太陽轉西，陽氣衰矣。\nGungtong Bogam, 七月丙"
+      "body": "In the seventh month, Byeonghwa is a sun nearing the western hills: earth dims it, but shining on lakes and seas it lights the evening sky, so Imsu is still used to set off its glow.\n日近西山，見土皆晦，惟日照湖海，暮夜光天，故仍用壬水，輔映光輝。\nGungtong Bogam, 七月丙"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丙.申",
       "variant": "single",
       "lang": "ja",
-      "body": "七月の丙は、日が西に傾いて気が弱まるという意味です。\n七月丙火，太陽轉西，陽氣衰矣。\n窮通宝鑑「七月丙」"
+      "body": "七月の丙は西の山に近い日で、土に会えば暗くなるが、湖や海を照らせば夜空まで明るむので、やはり壬を用いて輝きを添えるという意味です。\n日近西山，見土皆晦，惟日照湖海，暮夜光天，故仍用壬水，輔映光輝。\n窮通宝鑑「七月丙」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#丙.申",
       "variant": "single",
       "lang": "ko",
-      "body": "7월의 병화는 해가 서쪽으로 기울어 기운이 약해진다는 뜻이에요.\n七月丙火，太陽轉西，陽氣衰矣。\n궁통보감 「칠월병」"
+      "body": "7월의 병화는 서산에 가까운 해라 토를 만나면 빛이 흐려지고, 호수와 바다를 비추면 밤하늘까지 밝히니 그대로 임수를 써서 빛을 돋운다는 뜻이에요.\n日近西山，見土皆晦，惟日照湖海，暮夜光天，故仍用壬水，輔映光輝。\n궁통보감 「칠월병」"
     },
     {
       "slot": "evidence.source",
@@ -7242,21 +7992,21 @@
       "key": "source.gungtong-bogam/johu_evidence#乙.午",
       "variant": "single",
       "lang": "en",
-      "body": "For Eulmok, the fifth month is a time when Jeonghwa holds power and all the grain is parched.\n五月乙木，丁火司權，禾稼俱旱。\nGungtong Bogam, 五月乙"
+      "body": "For an Eulmok Day Master born in the fifth month, Byeonghwa comes first if the chart has much metal and water, and otherwise Gyesu always comes first.\n柱多金水，丙火爲先，餘皆用癸水爲先。\nGungtong Bogam, 五月乙"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.午",
       "variant": "single",
       "lang": "ja",
-      "body": "五月の乙は、丁が力を握り、穀物がみな日照りに遭う時期だという意味です。\n五月乙木，丁火司權，禾稼俱旱。\n窮通宝鑑「五月乙」"
+      "body": "五月生まれの乙の日干には、命式に金と水が多ければ丙を先に、それ以外はすべて癸を先に用いるという意味です。\n柱多金水，丙火爲先，餘皆用癸水爲先。\n窮通宝鑑「五月乙」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.午",
       "variant": "single",
       "lang": "ko",
-      "body": "5월의 을목은 정화가 힘을 쥐어 곡식이 모두 가문 때라는 뜻이에요.\n五月乙木，丁火司權，禾稼俱旱。\n궁통보감 「오월을」"
+      "body": "5월에 태어난 을목 일간에게는 사주에 금과 수가 많으면 병화를 먼저 쓰고, 그 밖에는 모두 계수를 먼저 쓴다는 뜻이에요.\n柱多金水，丙火爲先，餘皆用癸水爲先。\n궁통보감 「오월을」"
     },
     {
       "slot": "evidence.source",
@@ -7368,42 +8118,42 @@
       "key": "source.gungtong-bogam/johu_evidence#乙.未",
       "variant": "single",
       "lang": "en",
-      "body": "For an Eulmok Day Master born in the sixth month, Byeonghwa is needed first if the chart has a lot of Metal and Water.\n六月乙木，木性且寒，柱多金水，丙火爲尊。\nGungtong Bogam, 六月乙"
+      "body": "For an Eulmok Day Master born in summer, Gyesu is used above all, Byeonghwa as circumstances allow, and Gyeonggeum and Singeum after that.\n總之夏月之乙木，專用癸水，丙火酌用，庚辛次之。\nGungtong Bogam, 六月乙"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.未",
       "variant": "single",
       "lang": "ja",
-      "body": "六月生まれの乙の日干は、命式に金と水が多ければ、まず丙が必要だという意味です。\n六月乙木，木性且寒，柱多金水，丙火爲尊。\n窮通宝鑑「六月乙」"
+      "body": "夏生まれの乙の日干には、もっぱら癸を用い、丙は状況に応じて用い、庚と辛はその次だという意味です。\n總之夏月之乙木，專用癸水，丙火酌用，庚辛次之。\n窮通宝鑑「六月乙」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.未",
       "variant": "single",
       "lang": "ko",
-      "body": "6월에 태어난 을목 일간은 사주에 금과 물이 많으면 병화가 먼저 필요하다는 뜻이에요.\n六月乙木，木性且寒，柱多金水，丙火爲尊。\n궁통보감 「유월을」"
+      "body": "여름에 태어난 을목 일간에게는 오로지 계수를 쓰고 병화는 형편에 맞게 쓰며, 경금과 신금은 그다음이라는 뜻이에요.\n總之夏月之乙木，專用癸水，丙火酌用，庚辛次之。\n궁통보감 「유월을」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.申",
       "variant": "single",
       "lang": "en",
-      "body": "In the seventh month, Gyeonggeum holds power and is drawn to Eulmok, but it is hard to join with the metal hidden in the earth.\n七月乙木，庚金乘令，庚雖輸情於乙妹，怎奈干乙難合支金。\nGungtong Bogam, 七月乙"
+      "body": "For an Eulmok Day Master born in the seventh month, Gito is the element to use, even when Byeonghwa and Gyesu are absent.\n七月喜己土爲用，或不見丙癸。\nGungtong Bogam, 七月乙"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.申",
       "variant": "single",
       "lang": "ja",
-      "body": "七月の乙は、庚が力を握って乙に惹かれるものの、地中の金とは合しにくいという意味です。\n七月乙木，庚金乘令，庚雖輸情於乙妹，怎奈干乙難合支金。\n窮通宝鑑「七月乙」"
+      "body": "七月生まれの乙の日干には己を用いるのがよく、丙や癸が見えなくてもよいという意味です。\n七月喜己土爲用，或不見丙癸。\n窮通宝鑑「七月乙」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.申",
       "variant": "single",
       "lang": "ko",
-      "body": "7월의 을목은 경금이 힘을 쥐고 을목에 끌리지만, 땅속의 쇠와는 합하기 어렵다는 뜻이에요.\n七月乙木，庚金乘令，庚雖輸情於乙妹，怎奈干乙難合支金。\n궁통보감 「칠월을」"
+      "body": "7월에 태어난 을목 일간에게는 기토를 쓰는 것이 좋고, 병화와 계수가 보이지 않아도 된다는 뜻이에요.\n七月喜己土爲用，或不見丙癸。\n궁통보감 「칠월을」"
     },
     {
       "slot": "evidence.source",
@@ -7431,21 +8181,21 @@
       "key": "source.gungtong-bogam/johu_evidence#乙.酉",
       "variant": "single",
       "lang": "en",
-      "body": "For Eulmok, the eighth month is a time when flowers and grain alike have lost their energy.\n八月乙木，芝蘭禾稼均退。\nGungtong Bogam, 八月乙"
+      "body": "For Eulmok in the eighth month after Baengno, the osmanthus has not yet bloomed, so Gyesu alone is used to moisten its calyx.\n在白露之後，桂蕊未開，專用癸水以滋桂萼。\nGungtong Bogam, 八月乙"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.酉",
       "variant": "single",
       "lang": "ja",
-      "body": "八月の乙は、花も穀物もみな気が退いた時期だという意味です。\n八月乙木，芝蘭禾稼均退。\n窮通宝鑑「八月乙」"
+      "body": "八月白露の後の乙は、桂の花がまだ開かない時なので、もっぱら癸を用いて萼を潤すという意味です。\n在白露之後，桂蕊未開，專用癸水以滋桂萼。\n窮通宝鑑「八月乙」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#乙.酉",
       "variant": "single",
       "lang": "ko",
-      "body": "8월의 을목은 꽃과 곡식이 모두 기운이 물러간 때라는 뜻이에요.\n八月乙木，芝蘭禾稼均退。\n궁통보감 「팔월을」"
+      "body": "8월 백로 뒤의 을목은 목서 꽃이 아직 피지 않은 때라, 오로지 계수를 써서 꽃받침을 적신다는 뜻이에요.\n在白露之後，桂蕊未開，專用癸水以滋桂萼。\n궁통보감 「팔월을」"
     },
     {
       "slot": "evidence.source",
@@ -7851,21 +8601,21 @@
       "key": "source.gungtong-bogam/johu_evidence#己.戌",
       "variant": "single",
       "lang": "en",
-      "body": "For a Gito Day Master born in the ninth month, Byeonghwa to warm it and Gyesu to moisten it are used.\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\nGungtong Bogam, 三秋己"
+      "body": "For a Gito Day Master born in the three autumn months, Gyesu comes first and Byeonghwa next, with Singeum supporting Gyesu.\n總之，三秋己土，先癸後丙，取辛輔癸。\nGungtong Bogam, 三秋己"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#己.戌",
       "variant": "single",
       "lang": "ja",
-      "body": "九月生まれの己の日干には、温める丙と潤す癸を用いるという意味です。\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\n窮通宝鑑「三秋己」"
+      "body": "秋の三か月に生まれた己の日干には、まず癸、次に丙で、辛で癸を助けるという意味です。\n總之，三秋己土，先癸後丙，取辛輔癸。\n窮通宝鑑「三秋己」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#己.戌",
       "variant": "single",
       "lang": "ko",
-      "body": "9월에 태어난 기토 일간에게는 따뜻하게 할 병화와 적셔 줄 계수를 쓴다는 뜻이에요.\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\n궁통보감 「삼추기」"
+      "body": "가을 석 달에 태어난 기토 일간에게는 계수가 먼저, 병화가 그다음이고, 신금으로 계수를 돕는다는 뜻이에요.\n總之，三秋己土，先癸後丙，取辛輔癸。\n궁통보감 「삼추기」"
     },
     {
       "slot": "evidence.source",
@@ -7893,21 +8643,21 @@
       "key": "source.gungtong-bogam/johu_evidence#己.申",
       "variant": "single",
       "lang": "en",
-      "body": "For a Gito Day Master born in the seventh month, Byeonghwa to warm it and Gyesu to moisten it are used.\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\nGungtong Bogam, 三秋己"
+      "body": "For a Gito Day Master born in the three autumn months, Gyesu comes first and Byeonghwa next, with Singeum supporting Gyesu.\n總之，三秋己土，先癸後丙，取辛輔癸。\nGungtong Bogam, 三秋己"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#己.申",
       "variant": "single",
       "lang": "ja",
-      "body": "七月生まれの己の日干には、温める丙と潤す癸を用いるという意味です。\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\n窮通宝鑑「三秋己」"
+      "body": "秋の三か月に生まれた己の日干には、まず癸、次に丙で、辛で癸を助けるという意味です。\n總之，三秋己土，先癸後丙，取辛輔癸。\n窮通宝鑑「三秋己」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#己.申",
       "variant": "single",
       "lang": "ko",
-      "body": "7월에 태어난 기토 일간에게는 따뜻하게 할 병화와 적셔 줄 계수를 쓴다는 뜻이에요.\n三秋己土，萬物收藏之際，外虛內實，寒氣漸升，須丙火溫之，癸水潤之，不特此也，且癸能洩金，丙能制金，補土精神，則秋生之物咸茂矣。\n궁통보감 「삼추기」"
+      "body": "가을 석 달에 태어난 기토 일간에게는 계수가 먼저, 병화가 그다음이고, 신금으로 계수를 돕는다는 뜻이에요.\n總之，三秋己土，先癸後丙，取辛輔癸。\n궁통보감 「삼추기」"
     },
     {
       "slot": "evidence.source",
@@ -7935,21 +8685,21 @@
       "key": "source.gungtong-bogam/johu_evidence#己.酉",
       "variant": "single",
       "lang": "en",
-      "body": "In the eighth month, metal energy gathers in the earth of Gito, and without Byeonghwa or Jeonghwa to rescue it, life is lonely and hard.\n八月支成金局，無丙丁出救，此人零丁孤苦。\nGungtong Bogam, 八月己"
+      "body": "For a Gito Day Master born in the three autumn months, Gyesu comes first and Byeonghwa next, with Singeum supporting Gyesu.\n總之，三秋己土，先癸後丙，取辛輔癸。\nGungtong Bogam, 八月己"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#己.酉",
       "variant": "single",
       "lang": "ja",
-      "body": "八月の己は、地に金の気が固まり、丙や丁が救わなければ、孤独で苦労するという意味です。\n八月支成金局，無丙丁出救，此人零丁孤苦。\n窮通宝鑑「八月己」"
+      "body": "秋の三か月に生まれた己の日干には、まず癸、次に丙で、辛で癸を助けるという意味です。\n總之，三秋己土，先癸後丙，取辛輔癸。\n窮通宝鑑「八月己」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#己.酉",
       "variant": "single",
       "lang": "ko",
-      "body": "8월의 기토는 땅에 쇠 기운이 뭉쳤는데 병화나 정화가 구해 주지 않으면 외롭고 고생한다는 뜻이에요.\n八月支成金局，無丙丁出救，此人零丁孤苦。\n궁통보감 「팔월기」"
+      "body": "가을 석 달에 태어난 기토 일간에게는 계수가 먼저, 병화가 그다음이고, 신금으로 계수를 돕는다는 뜻이에요.\n總之，三秋己土，先癸後丙，取辛輔癸。\n궁통보감 「팔월기」"
     },
     {
       "slot": "evidence.source",
@@ -8082,21 +8832,21 @@
       "key": "source.gungtong-bogam/johu_evidence#庚.巳",
       "variant": "single",
       "lang": "en",
-      "body": "In the fourth month, Gyeonggeum first gains strength, and Muto lies hidden within the month.\n四月庚金，長生於巳，巳內有戊。\nGungtong Bogam, 四月庚"
+      "body": "For a Gyeonggeum Day Master born in the fourth month, Byeonghwa does not melt metal, so the flames are no threat and Byeonghwa can be used too, but Imsu must come first to reach balance; hence metal born in summer welcomes earth.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\nGungtong Bogam, 四月庚"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#庚.巳",
       "variant": "single",
       "lang": "ja",
-      "body": "四月の庚は、この月に初めて力を得て、月の中に戊が隠れているという意味です。\n四月庚金，長生於巳，巳內有戊。\n窮通宝鑑「四月庚」"
+      "body": "四月生まれの庚の日干には、丙は金を溶かさないので炎を恐れず丙も用いられるが、まず壬を用いてこそ中和を得るので、夏に生まれた金は土を喜ぶという意味です。\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n窮通宝鑑「四月庚」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#庚.巳",
       "variant": "single",
       "lang": "ko",
-      "body": "4월의 경금은 이 달에 처음 힘을 받고, 달 안에 무토가 숨어 있다는 뜻이에요.\n四月庚金，長生於巳，巳內有戊。\n궁통보감 「사월경」"
+      "body": "4월에 태어난 경금 일간에게 병화는 금을 녹이지 않아 불길을 두려워하지 않고 병화도 쓸 수 있지만, 임수를 먼저 써야 중화를 이루니, 여름에 난 금은 토를 반긴다는 뜻이에요.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n궁통보감 「사월경」"
     },
     {
       "slot": "evidence.source",
@@ -8145,21 +8895,21 @@
       "key": "source.gungtong-bogam/johu_evidence#庚.申",
       "variant": "single",
       "lang": "en",
-      "body": "In the seventh month, Gyeonggeum is at its hardest and sharpest.\n七月庚金，剛銳極矣。\nGungtong Bogam, 七月庚"
+      "body": "For a Gyeonggeum Day Master born in the seventh month, Jeonghwa alone is used to forge it, then Gapmok to feed Jeonghwa.\n專用丁火鍛煉，次取甲木引丁\nGungtong Bogam, 七月庚"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#庚.申",
       "variant": "single",
       "lang": "ja",
-      "body": "七月の庚は、かたさと鋭さが最も強いという意味です。\n七月庚金，剛銳極矣。\n窮通宝鑑「七月庚」"
+      "body": "七月生まれの庚の日干には、もっぱら丁で鍛え、次に甲で丁を引き出すという意味です。\n專用丁火鍛煉，次取甲木引丁\n窮通宝鑑「七月庚」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#庚.申",
       "variant": "single",
       "lang": "ko",
-      "body": "7월의 경금은 단단하고 날카로움이 가장 강하다는 뜻이에요.\n七月庚金，剛銳極矣。\n궁통보감 「칠월경」"
+      "body": "7월에 태어난 경금 일간에게는 오로지 정화로 단련하고, 그다음 갑목으로 정화를 이끈다는 뜻이에요.\n專用丁火鍛煉，次取甲木引丁\n궁통보감 「칠월경」"
     },
     {
       "slot": "evidence.source",
@@ -8502,21 +9252,21 @@
       "key": "source.gungtong-bogam/johu_evidence#甲.午",
       "variant": "single",
       "lang": "en",
-      "body": "In the fifth month, Gapmok is hollow and dry inside, so it is read by the same principle as the sixth month.\n五六月甲木，木性虛焦，一理共推。\nGungtong Bogam, 五六月甲"
+      "body": "For a Gapmok Day Master born in the fifth month, Gyesu comes first, then Jeonghwa, and Gyeonggeum after that.\n五月先癸後丁庚金次之。\nGungtong Bogam, 五六月甲"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.午",
       "variant": "single",
       "lang": "ja",
-      "body": "五月の甲は、木の中が空いて乾いているので、六月と同じ理屈で見るという意味です。\n五六月甲木，木性虛焦，一理共推。\n窮通宝鑑「五六月甲」"
+      "body": "五月生まれの甲の日干には、まず癸、次に丁で、庚はその次だという意味です。\n五月先癸後丁庚金次之。\n窮通宝鑑「五六月甲」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.午",
       "variant": "single",
       "lang": "ko",
-      "body": "5월의 갑목은 나무가 속이 비고 말라 있어 6월과 같은 이치로 본다는 뜻이에요.\n五六月甲木，木性虛焦，一理共推。\n궁통보감 「오뉴월갑」"
+      "body": "5월에 태어난 갑목 일간에게는 계수가 먼저, 정화가 그다음이고 경금은 그 뒤라는 뜻이에요.\n五月先癸後丁庚金次之。\n궁통보감 「오뉴월갑」"
     },
     {
       "slot": "evidence.source",
@@ -8628,21 +9378,21 @@
       "key": "source.gungtong-bogam/johu_evidence#甲.未",
       "variant": "single",
       "lang": "en",
-      "body": "In the sixth month, Gapmok is hollow and dry inside, so it is read by the same principle as the fifth month.\n五六月甲木，木性虛焦，一理共推。\nGungtong Bogam, 五六月甲"
+      "body": "For a Gapmok Day Master born in the sixth month, Jeonghwa comes first and Gyeonggeum next, and Gyesu can be done without.\n先丁後庚，無癸亦可。\nGungtong Bogam, 五六月甲"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.未",
       "variant": "single",
       "lang": "ja",
-      "body": "六月の甲は、木の中が空いて乾いているので、五月と同じ理屈で見るという意味です。\n五六月甲木，木性虛焦，一理共推。\n窮通宝鑑「五六月甲」"
+      "body": "六月生まれの甲の日干には、まず丁、次に庚で、癸はなくてもよいという意味です。\n先丁後庚，無癸亦可。\n窮通宝鑑「五六月甲」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.未",
       "variant": "single",
       "lang": "ko",
-      "body": "6월의 갑목은 나무가 속이 비고 말라 있어 5월과 같은 이치로 본다는 뜻이에요.\n五六月甲木，木性虛焦，一理共推。\n궁통보감 「오뉴월갑」"
+      "body": "6월에 태어난 갑목 일간에게는 정화가 먼저, 경금이 그다음이고 계수는 없어도 된다는 뜻이에요.\n先丁後庚，無癸亦可。\n궁통보감 「오뉴월갑」"
     },
     {
       "slot": "evidence.source",
@@ -8670,42 +9420,42 @@
       "key": "source.gungtong-bogam/johu_evidence#甲.辰",
       "variant": "single",
       "lang": "en",
-      "body": "In the third month, Gapmok's wood energy is running out.\n三月甲木，木氣相竭。\nGungtong Bogam, 三月甲"
+      "body": "For a Gapmok Day Master born in the third month, Gyeonggeum is taken first and Imsu next.\n先取庚金，次用壬水。\nGungtong Bogam, 三月甲"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.辰",
       "variant": "single",
       "lang": "ja",
-      "body": "三月の甲は、木の気が尽きていくという意味です。\n三月甲木，木氣相竭。\n窮通宝鑑「三月甲」"
+      "body": "三月生まれの甲の日干には、まず庚を取り、次に壬を用いるという意味です。\n先取庚金，次用壬水。\n窮通宝鑑「三月甲」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.辰",
       "variant": "single",
       "lang": "ko",
-      "body": "3월의 갑목은 나무의 기운이 다해 간다는 뜻이에요.\n三月甲木，木氣相竭。\n궁통보감 「삼월갑」"
+      "body": "3월에 태어난 갑목 일간에게는 경금을 먼저 쓰고 임수를 그다음에 쓴다는 뜻이에요.\n先取庚金，次用壬水。\n궁통보감 「삼월갑」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.酉",
       "variant": "single",
       "lang": "en",
-      "body": "In the eighth month, Gapmok's wood energy is shut in and metal energy is strong.\n八月甲木，木囚金旺。\nGungtong Bogam, 八月甲"
+      "body": "For a Gapmok Day Master born in the eighth month, Jeonghwa comes first, Byeonghwa next and Gyeonggeum after that.\n丁火爲先，次用丙火，庚金再次。\nGungtong Bogam, 八月甲"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.酉",
       "variant": "single",
       "lang": "ja",
-      "body": "八月の甲は、木の気が閉じ込められ、金の気が強いという意味です。\n八月甲木，木囚金旺。\n窮通宝鑑「八月甲」"
+      "body": "八月生まれの甲の日干には、まず丁、次に丙、さらに庚だという意味です。\n丁火爲先，次用丙火，庚金再次。\n窮通宝鑑「八月甲」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#甲.酉",
       "variant": "single",
       "lang": "ko",
-      "body": "8월의 갑목은 나무 기운이 갇히고 쇠 기운이 강하다는 뜻이에요.\n八月甲木，木囚金旺。\n궁통보감 「팔월갑」"
+      "body": "8월에 태어난 갑목 일간에게는 정화가 먼저, 병화가 그다음, 경금이 그 뒤라는 뜻이에요.\n丁火爲先，次用丙火，庚金再次。\n궁통보감 「팔월갑」"
     },
     {
       "slot": "evidence.source",
@@ -8880,63 +9630,63 @@
       "key": "source.gungtong-bogam/johu_evidence#癸.未",
       "variant": "single",
       "lang": "en",
-      "body": "In the sixth month, Gyesu is read separately for the early and late parts of the month.\n六月癸水，有上下月之分。\nGungtong Bogam, 六月癸"
+      "body": "For a Gyesu Day Master born in the sixth month, Mi holds both Eulmok and Gito, so it is broken yet not broken and Gyesu cannot follow the killer, and Gyeonggeum and Singeum alone are used.\n因未中有乙己同宮，破而不破，故癸水不能從殺，所以專用庚辛。\nGungtong Bogam, 六月癸"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.未",
       "variant": "single",
       "lang": "ja",
-      "body": "六月の癸は、月の前半と後半に分けて見るという意味です。\n六月癸水，有上下月之分。\n窮通宝鑑「六月癸」"
+      "body": "六月生まれの癸の日干は、未の中に乙と己が同居して破れて破れず、癸は殺に従えないので、もっぱら庚と辛を用いるという意味です。\n因未中有乙己同宮，破而不破，故癸水不能從殺，所以專用庚辛。\n窮通宝鑑「六月癸」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.未",
       "variant": "single",
       "lang": "ko",
-      "body": "6월의 계수는 달 초반과 후반을 나눠서 본다는 뜻이에요.\n六月癸水，有上下月之分。\n궁통보감 「유월계」"
+      "body": "6월에 태어난 계수 일간은 미 안에 을목과 기토가 함께 있어 깨질 듯 깨지지 않으니 칠살을 따를 수 없어, 오로지 경금과 신금을 쓴다는 뜻이에요.\n因未中有乙己同宮，破而不破，故癸水不能從殺，所以專用庚辛。\n궁통보감 「유월계」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.申",
       "variant": "single",
       "lang": "en",
-      "body": "In the seventh month, Gyesu may look weak, but the Gyeonggeum within the month keeps it alive, so it grows strong instead.\n七月癸水，正母旺子相之時，癸雖死申，殊不知申中有庚生之，名死處逢生，弱中復強，即運行西北，亦不死也。\nGungtong Bogam, 七月癸"
+      "body": "For a Gyesu Day Master born in the seventh month, Gyeonggeum rules the season and is extremely hard and sharp, so Jeonghwa must be used.\n但庚司令剛銳極矣，必取丁火爲用。\nGungtong Bogam, 七月癸"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.申",
       "variant": "single",
       "lang": "ja",
-      "body": "七月の癸は、弱く見えても、この月の中の庚が生かしてくれるので、かえって強くなるという意味です。\n七月癸水，正母旺子相之時，癸雖死申，殊不知申中有庚生之，名死處逢生，弱中復強，即運行西北，亦不死也。\n窮通宝鑑「七月癸」"
+      "body": "七月生まれの癸の日干は、庚が令を司って剛く鋭いので、必ず丁を用いるという意味です。\n但庚司令剛銳極矣，必取丁火爲用。\n窮通宝鑑「七月癸」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.申",
       "variant": "single",
       "lang": "ko",
-      "body": "7월의 계수는 약해 보여도 이 달 안의 경금이 살려 주어 오히려 강해진다는 뜻이에요.\n七月癸水，正母旺子相之時，癸雖死申，殊不知申中有庚生之，名死處逢生，弱中復強，即運行西北，亦不死也。\n궁통보감 「칠월계」"
+      "body": "7월에 태어난 계수 일간은 경금이 때를 맡아 몹시 굳세고 날카로우니, 반드시 정화를 쓴다는 뜻이에요.\n但庚司令剛銳極矣，必取丁火爲用。\n궁통보감 「칠월계」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.辰",
       "variant": "single",
       "lang": "en",
-      "body": "In the third month, Gyesu is read differently depending on whether the birth falls near the solar term Cheongmyeong or near Gogu.\n三月癸水，要分清明穀雨。\nGungtong Bogam, 三月癸"
+      "body": "For a Gyesu Day Master born in the third month after Cheongmyeong, fire is not yet strong, so Byeonghwa alone is used to bring yin and yang into harmony.\n清明後、火氣未熾，專用丙火，爲陰陽合諧。\nGungtong Bogam, 三月癸"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.辰",
       "variant": "single",
       "lang": "ja",
-      "body": "三月の癸は、清明のころか穀雨のころかを分けて見るという意味です。\n三月癸水，要分清明穀雨。\n窮通宝鑑「三月癸」"
+      "body": "三月清明の後に生まれた癸の日干は、火の気がまだ盛んでないので、もっぱら丙を用いて陰陽を調和させるという意味です。\n清明後、火氣未熾，專用丙火，爲陰陽合諧。\n窮通宝鑑「三月癸」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#癸.辰",
       "variant": "single",
       "lang": "ko",
-      "body": "3월의 계수는 청명 무렵인지 곡우 무렵인지 나눠서 본다는 뜻이에요.\n三月癸水，要分清明穀雨。\n궁통보감 「삼월계」"
+      "body": "3월 청명 뒤에 태어난 계수 일간은 아직 불기운이 세지 않아, 오로지 병화를 써서 음양을 어울리게 한다는 뜻이에요.\n清明後、火氣未熾，專用丙火，爲陰陽合諧。\n궁통보감 「삼월계」"
     },
     {
       "slot": "evidence.source",
@@ -9048,21 +9798,21 @@
       "key": "source.gungtong-bogam/johu_evidence#辛.子",
       "variant": "single",
       "lang": "en",
-      "body": "A Singeum Day Master born in the eleventh month dislikes Gyesu showing in the chart, and gains great honor when Imsu and Byeonghwa show together.\n十一月辛金，癸水司令，爲寒冬雨露，切忌癸出凍金，而困丙火，壬丙兩透，不見戊癸，衣錦腰金。\nGungtong Bogam, 十一月辛"
+      "body": "For a Singeum Day Master born in winter, Byeonghwa is needed to warm it.\n冬月辛金，須丙溫暖方妙。\nGungtong Bogam, 十一月辛"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#辛.子",
       "variant": "single",
       "lang": "ja",
-      "body": "十一月生まれの辛の日干は、癸が現れるのを嫌い、壬と丙が共に現れれば大いに尊くなるという意味です。\n十一月辛金，癸水司令，爲寒冬雨露，切忌癸出凍金，而困丙火，壬丙兩透，不見戊癸，衣錦腰金。\n窮通宝鑑「十一月辛」"
+      "body": "冬生まれの辛の日干には、丙で温めてこそよいという意味です。\n冬月辛金，須丙溫暖方妙。\n窮通宝鑑「十一月辛」"
     },
     {
       "slot": "evidence.source",
       "key": "source.gungtong-bogam/johu_evidence#辛.子",
       "variant": "single",
       "lang": "ko",
-      "body": "11월에 태어난 신금 일간은 계수가 드러나면 꺼리고, 임수와 병화가 함께 드러나면 크게 귀해진다는 뜻이에요.\n十一月辛金，癸水司令，爲寒冬雨露，切忌癸出凍金，而困丙火，壬丙兩透，不見戊癸，衣錦腰金。\n궁통보감 「십일월신」"
+      "body": "겨울에 태어난 신금 일간에게는 병화로 따뜻하게 해야 좋다는 뜻이에요.\n冬月辛金，須丙溫暖方妙。\n궁통보감 「십일월신」"
     },
     {
       "slot": "evidence.source",
@@ -9213,6 +9963,27 @@
     },
     {
       "slot": "evidence.source",
+      "key": "source.jeokcheonsu/personal#day_master",
+      "variant": "single",
+      "lang": "en",
+      "body": "When energy is strong it should be drained and reduced, and when weak it welcomes help and support; this is the principle of Ziping.\n旺則宜洩宜傷，衰則喜幇喜助，子平之理也\nJeokcheonsu, 衰旺論"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.jeokcheonsu/personal#day_master",
+      "variant": "single",
+      "lang": "ja",
+      "body": "気が旺じていれば漏らし削るのがよく、衰えていれば助け支えるのを喜ぶ、それが子平の理だという意味です。\n旺則宜洩宜傷，衰則喜幇喜助，子平之理也\n滴天髄「衰旺論」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.jeokcheonsu/personal#day_master",
+      "variant": "single",
+      "lang": "ko",
+      "body": "기운이 왕하면 빼고 덜어 내는 것이 알맞고, 쇠하면 돕고 북돋는 것을 좋아한다는 것이 자평의 이치라는 뜻이에요.\n旺則宜洩宜傷，衰則喜幇喜助，子平之理也\n적천수 「쇠왕론」"
+    },
+    {
+      "slot": "evidence.source",
       "key": "source.jeokcheonsu/tags#clash_month_branch",
       "variant": "single",
       "lang": "en",
@@ -9231,6 +10002,657 @@
       "variant": "single",
       "lang": "ko",
       "body": "월령은 집과 같고 그 안에서 일을 맡은 기운은 집의 방향과 같아, 반드시 살펴야 한다는 뜻이에요.\n月令提綱，譬之宅也，人元用事之神，宅之向也，不可以不卜。\n적천수 「월령론」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/five_elements#color_change",
+      "variant": "single",
+      "lang": "en",
+      "body": "The true colors are black for water, red for fire, blue-green for wood, white for metal and yellow for earth, but when they change, growth and peak follow the true color, death and severance the color of the element that gives birth to it, formation and capping the color of the element it overcomes, sickness and decay the color of the element that overcomes it, and the tomb after the peak the color of the element it gives birth to.\n推其形色則水黑火赤木青金白土黃此正色也及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色\nSammyeong Tonghoe, 論五行"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/five_elements#color_change",
+      "variant": "single",
+      "lang": "ja",
+      "body": "五行の正色は水が黒、火が赤、木が青、金が白、土が黄色だが、変わるときは生旺なら正色、死絶なら自分を生む五行の色、成形と冠帯なら自分が剋す五行の色、病敗なら自分を剋す五行の色、旺墓なら自分が生む五行の色に従うという意味です。\n推其形色則水黑火赤木青金白土黃此正色也及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色\n三命通会「論五行」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/five_elements#color_change",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오행의 제 색은 수 검정, 화 빨강, 목 푸른색, 금 흰색, 토 노랑이지만, 바뀔 때는 생왕이면 제 색, 사절이면 나를 낳는 오행의 색, 성형과 관대면 내가 이기는 오행의 색, 병패면 나를 이기는 오행의 색, 왕묘면 내가 낳는 오행의 색을 따른다는 뜻이에요.\n推其形色則水黑火赤木青金白土黃此正色也及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色\n삼명통회 「논오행」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#luck.ten_god",
+      "variant": "single",
+      "lang": "en",
+      "body": "In the luck cycles, the officer wants to be nourished, not harmed; the killer wants to be restrained, not aided; wealth wants support, not robbery; the seal wants strength, not decline; and the eating god wants nourishment, not to be cut off by the owl.\n官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運劫印欲運旺不欲運衰食欲運生不欲運梟絶\nSammyeong Tonghoe, 論大運"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#luck.ten_god",
+      "variant": "single",
+      "lang": "ja",
+      "body": "大運では、官は生じられるのを望み傷つけられるのを望まず、煞は制されるのを望み助けられるのを望まず、財は扶けられるのを望み劫されるのを望まず、印は旺じるのを望み衰えるのを望まず、食は生じられるのを望み梟に絶たれるのを望まないという意味です。\n官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運劫印欲運旺不欲運衰食欲運生不欲運梟絶\n三命通会「論大運」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#luck.ten_god",
+      "variant": "single",
+      "lang": "ko",
+      "body": "운에서 관은 생해 주기를 바라고 상하기를 바라지 않으며, 살은 눌러 주기를 바라고 돕기를 바라지 않고, 재는 받쳐 주기를 바라고 빼앗기를 바라지 않으며, 인은 왕해지기를 바라고 쇠하기를 바라지 않고, 식은 생해 주기를 바라고 효에 끊기기를 바라지 않는다는 뜻이에요.\n官欲運生不欲運傷煞欲運制不欲運助財欲運扶不欲運劫印欲運旺不欲運衰食欲運生不欲運梟絶\n삼명통회 「논대운」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#luck.twelve_stage",
+      "variant": "single",
+      "lang": "en",
+      "body": "When a luck cycle reaches Jangsaeng, there is something new to found or start, and at Geonrok and Jewang things flourish, bring joy and add fortune and wealth.\n凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財\nSammyeong Tonghoe, 論大運"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#luck.twelve_stage",
+      "variant": "single",
+      "lang": "ja",
+      "body": "運が長生に入ると新しく興し始める事があり、建禄と帝旺に至ると盛んで楽しく、福と財が増すという意味です。\n凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財\n三命通会「論大運」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#luck.twelve_stage",
+      "variant": "single",
+      "lang": "ko",
+      "body": "운이 장생에 들면 새로 세우고 시작하는 일이 있고, 건록과 제왕에 이르면 일이 성하고 즐거우며 복과 재물이 늘어난다는 뜻이에요.\n凡行運長生主有創建作新之事到臨官帝旺主興盛快樂發福進財\n삼명통회 「논대운」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.geonrok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yangin, Bigyeon, Paejae and Geonrok have different names but are really one family of the same energy.\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\nSammyeong Tonghoe, 論建祿"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.geonrok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "陽刃、比肩、敗財、建禄は名は違っても、実は一家の同じ気の神だという意味です。\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\n三命通会「論建禄」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.geonrok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양인, 비견, 패재, 건록은 이름은 달라도 실은 한집안처럼 같은 기운이라는 뜻이에요.\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\n삼명통회 「논건록」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "Jeonggwan is like Gap meeting Sin or Eul meeting Gyeong, where yin and yang pair up and regulate each other, proving useful and fulfilling their way.\n正官者乃甲見辛乙見庚之例陰陽配合相制有用成其道也\nSammyeong Tonghoe, 論正官"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "正官とは甲が辛に、乙が庚に会うように、陰陽が組み合わさって互いを制し、用をなしてその道を成すものだという意味です。\n正官者乃甲見辛乙見庚之例陰陽配合相制有用成其道也\n三命通会「論正官」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeonggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정관은 갑이 신을, 을이 경을 만나는 경우처럼 음양이 짝을 이루어 서로 다스리며 쓰임이 있어 제 도리를 이룬다는 뜻이에요.\n正官者乃甲見辛乙見庚之例陰陽配合相制有用成其道也\n삼명통회 「논정관」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeongin",
+      "variant": "single",
+      "lang": "en",
+      "body": "This pattern points to someone bright and wise, kind by nature and good-hearted in speech though slow and halting, with a full, sturdy build.\n此格主聰明多智慧性慈惠語善良遲訥體貌豐厚\nSammyeong Tonghoe, 論印綬"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeongin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "この格は聡明で知恵が多く、性は慈しみ深く、言葉は善良だが遅く訥々とし、体つきは豊かだという意味です。\n此格主聰明多智慧性慈惠語善良遲訥體貌豐厚\n三命通会「論印綬」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeongin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "이 격은 총명하고 지혜가 많으며, 성품이 자애롭고 말이 선량하되 느리고 서툴며, 체격이 넉넉하다는 뜻이에요.\n此格主聰明多智慧性慈惠語善良遲訥體貌豐厚\n삼명통회 「논인수」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeongjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "The Jeongjae pattern points to someone sincere, frugal in how they act and bright by nature, if a little stingy.\n正財之格主人誠實行事儉約賦性聰明惟有慳吝\nSammyeong Tonghoe, 論正財"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeongjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "正財の格は人が誠実で、事を倹約に行い、生まれつき聡明だが、ただ吝嗇なところがあるという意味です。\n正財之格主人誠實行事儉約賦性聰明惟有慳吝\n三命通会「論正財」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.jeongjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "정재격은 사람이 성실하고 일을 검소하게 하며 타고난 성품이 총명하지만, 다만 인색한 면이 있다는 뜻이에요.\n正財之格主人誠實行事儉約賦性聰明惟有慳吝\n삼명통회 「논정재」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "When it is held in check it is called Pyeongwan, and when it is not, it is called Chilsal.\n故有制謂之偏官無制謂之七煞\nSammyeong Tonghoe, 論偏官"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "制があれば偏官といい、制がなければ七煞と呼ぶという意味です。\n故有制謂之偏官無制謂之七煞\n三命通会「論偏官」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeongwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "다스림이 있으면 편관이라 하고, 다스림이 없으면 칠살이라 한다는 뜻이에요.\n故有制謂之偏官無制謂之七煞\n삼명통회 「논편관」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeonin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Dosik is another name for Pyeonin, also called Tandamsal, and it is what Siksin dreads most.\n倒食即偏印之謂一名吞啖煞食神最忌見之\nSammyeong Tonghoe, 論倒食"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeonin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "倒食とは偏印のことで、呑啖煞ともいい、食神が最も嫌うものだという意味です。\n倒食即偏印之謂一名吞啖煞食神最忌見之\n三命通会「論倒食」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeonin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "도식은 곧 편인을 이르는 말로 탄담살이라고도 하며, 식신이 가장 꺼리는 것이라는 뜻이에요.\n倒食即偏印之謂一名吞啖煞食神最忌見之\n삼명통회 「논도식」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "en",
+      "body": "The Pyeonjae pattern points to someone open-handed and not tight with money, warm toward others but full of schemes.\n偏財格主人慷慨不甚吝財與人有情而多詐\nSammyeong Tonghoe, 論偏財"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "偏財の格は人が気前よく財にさほど吝嗇でなく、人に情があるが、偽りも多いという意味です。\n偏財格主人慷慨不甚吝財與人有情而多詐\n三命通会「論偏財」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.pyeonjae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "편재격은 사람이 시원시원해 재물에 그리 인색하지 않고 남에게 정이 있지만, 꾀가 많다는 뜻이에요.\n偏財格主人慷慨不甚吝財與人有情而多詐\n삼명통회 「논편재」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.sanggwan",
+      "variant": "single",
+      "lang": "en",
+      "body": "This pattern points to someone of many talents who looks down on others, proud and hard-hearted, without restraint, full of plans but achieving few, whose cleverness backfires.\n此格主多材藝傲物氣高心險無忌憚多謀少遂弄巧成拙\nSammyeong Tonghoe, 論傷官"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.sanggwan",
+      "variant": "single",
+      "lang": "ja",
+      "body": "この格は才芸が多いが人を侮り、気位が高く心が険しく、はばかることがなく、謀は多いが遂げることは少なく、巧みを弄して拙を成すという意味です。\n此格主多材藝傲物氣高心險無忌憚多謀少遂弄巧成拙\n三命通会「論傷官」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.sanggwan",
+      "variant": "single",
+      "lang": "ko",
+      "body": "이 격은 재주가 많지만 남을 얕보고 기세가 높으며 속이 험해 거리낌이 없고, 꾀는 많으나 이루는 것이 적어 재주를 부리다 일을 그르친다는 뜻이에요.\n此格主多材藝傲物氣高心險無忌憚多謀少遂弄巧成拙\n삼명통회 「논상관」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.siksin",
+      "variant": "single",
+      "lang": "en",
+      "body": "It points to ample wealth and plenty to eat, great fortune and generosity, a well-fed body, a relaxed and contented life, children and long life.\n主人財厚食豐福量寛弘肌體肥大優游自足有子息有壽考\nSammyeong Tonghoe, 論食神"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.siksin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "財が厚く食が豊かで、福と度量が広く、体が肥え、ゆったりと自ら足り、子があり長寿だという意味です。\n主人財厚食豐福量寛弘肌體肥大優游自足有子息有壽考\n三命通会「論食神」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god.siksin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "재물이 넉넉하고 먹을 것이 풍성하며 복과 도량이 크고, 몸이 넉넉하며 여유롭게 스스로 만족하고, 자식과 장수가 있다는 뜻이에요.\n主人財厚食豐福量寛弘肌體肥大優游自足有子息有壽考\n삼명통회 「논식신」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "What overcomes me stands for my being governed by others, so it was named Gwansal.\n尅我者我受制於人之義故立名官煞\nSammyeong Tonghoe, 論古人立印食官財名義"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "我を剋すものは、我が人に制される意であるから、官煞と名づけたという意味です。\n尅我者我受制於人之義故立名官煞\n三命通会「論古人立印食官財名義」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.gwanseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나를 극하는 것은 내가 남에게 다스림을 받는 셈이라 관살이라는 이름을 붙였다는 뜻이에요.\n尅我者我受制於人之義故立名官煞\n삼명통회 「논고인립인식관재명의」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.inseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "What gives birth to me stands for a parent, so it was named Insu.\n生我者有父母之義故立名印綬\nSammyeong Tonghoe, 論古人立印食官財名義"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.inseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "我を生むものは父母の意があるから、印綬と名づけたという意味です。\n生我者有父母之義故立名印綬\n三命通会「論古人立印食官財名義」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.inseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "나를 낳는 것은 부모와 같은 셈이라 인수라는 이름을 붙였다는 뜻이에요.\n生我者有父母之義故立名印綬\n삼명통회 「논고인립인식관재명의」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "en",
+      "body": "What I overcome stands for others being governed by me, so it was named Cheojae.\n我尅者是人受制於我之義故立名妻財\nSammyeong Tonghoe, 論古人立印食官財名義"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "ja",
+      "body": "我が剋すものは、人が我に制される意であるから、妻財と名づけたという意味です。\n我尅者是人受制於我之義故立名妻財\n三命通会「論古人立印食官財名義」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.jaeseong",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내가 극하는 것은 남이 나에게 다스림을 받는 셈이라 처재라는 이름을 붙였다는 뜻이에요.\n我尅者是人受制於我之義故立名妻財\n삼명통회 「논고인립인식관재명의」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.siksang",
+      "variant": "single",
+      "lang": "en",
+      "body": "What I give birth to stands for children and grandchildren, so it was named Siksin.\n我生者有子孫之義故立名食神\nSammyeong Tonghoe, 論古人立印食官財名義"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.siksang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "我が生むものは子孫の意があるから、食神と名づけたという意味です。\n我生者有子孫之義故立名食神\n三命通会「論古人立印食官財名義」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#ten_god_group.siksang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내가 낳는 것은 자손과 같은 셈이라 식신이라는 이름을 붙였다는 뜻이에요.\n我生者有子孫之義故立名食神\n삼명통회 「논고인립인식관재명의」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#twelve_stage",
+      "variant": "single",
+      "lang": "en",
+      "body": "The five elements move through twelve stages, Jangsaeng, Mogyok, Gwandae, Geonrok, Jewang, Soe, Byeong, Sa, Myo, Jeol, Tae and Yang, circling endlessly and starting over, much like the turning of a human life.\n夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎養循環無端週而復始造物大體與人相似循環十二宮亦若人世輪迴也\nSammyeong Tonghoe, 論五行旺相休囚死並寄生十二宮"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#twelve_stage",
+      "variant": "single",
+      "lang": "ja",
+      "body": "五行は長生、沐浴、冠帯、建禄、帝旺、衰、病、死、墓、絶、胎、養の十二の段階を果てしなく巡ってまた始まり、それは人の一生の巡りに似ているという意味です。\n夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎養循環無端週而復始造物大體與人相似循環十二宮亦若人世輪迴也\n三命通会「論五行旺相休囚死並寄生十二宮」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#twelve_stage",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오행은 장생, 목욕, 관대, 건록, 제왕, 쇠, 병, 사, 묘, 절, 태, 양의 열두 자리를 끝없이 돌아 다시 시작하는데, 이는 사람의 한살이가 돌고 도는 것과 같다는 뜻이에요.\n夫五行寄生十二官長生沐浴冠帶臨官帝旺衰病死墓絶胎養循環無端週而復始造物大體與人相似循環十二宮亦若人世輪迴也\n삼명통회 「논오행왕상휴수사병기생십이궁」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#yangin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Yang stands for firmness and in for cutting apart, and Yangin arises just past the Rok position.\n羊言剛也刃者取宰割之義祿過則刃生\nSammyeong Tonghoe, 論羊刃"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#yangin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "羊は剛を言い、刃は切り分ける意を取ったもので、禄を過ぎると刃が生じるという意味です。\n羊言剛也刃者取宰割之義祿過則刃生\n三命通会「論羊刃」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/personal#yangin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양은 굳셈을 말하고 인은 베고 가른다는 뜻을 취한 것으로, 녹을 지나면 양인이 생긴다는 뜻이에요.\n羊言剛也刃者取宰割之義祿過則刃生\n삼명통회 「논양인」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#cheondeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "These twelve seats can turn misfortune into good, so they are called Cheondeok.\n此十二位宮能回凶作善乃曰天德也\nSammyeong Tonghoe, 論天月德"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#cheondeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "この十二の位置は凶を転じて善とすることができるので、天徳というという意味です。\n此十二位宮能回凶作善乃曰天德也\n三命通会「論天月徳」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#cheondeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "이 열두 자리는 흉을 돌려 선으로 만들 수 있어 천덕이라 한다는 뜻이에요.\n此十二位宮能回凶作善乃曰天德也\n삼명통회 「논천월덕」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#cheonra_jimang",
+      "variant": "single",
+      "lang": "en",
+      "body": "This passage asks why Sul and Hae are called Cheonra and Jin and Sa are called Jimang.\n何以戌亥為天羅辰巳為地網\nSammyeong Tonghoe, 論天羅地網"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#cheonra_jimang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "なぜ戌亥を天羅、辰巳を地網というのか、そのわけを問う一節です。\n何以戌亥為天羅辰巳為地網\n三命通会「論天羅地網」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#cheonra_jimang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "어째서 술과 해를 천라, 진과 사를 지망이라 하는지 그 까닭을 묻는 대목이에요.\n何以戌亥為天羅辰巳為地網\n삼명통회 「논천라지망」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#eumchak_yangcha",
+      "variant": "single",
+      "lang": "en",
+      "body": "Eumyang Chachak Sal falls on twelve days: Byeongja, Jeongchuk, Muin, Sinmyo, Imjin, Gyesa, Byeongo, Jeongmi, Musin, Sinyu, Imsul and Gyehae.\n陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也\nSammyeong Tonghoe, 總論諸神煞"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#eumchak_yangcha",
+      "variant": "single",
+      "lang": "ja",
+      "body": "陰陽差錯殺は丙子、丁丑、戊寅、辛卯、壬辰、癸巳、丙午、丁未、戊申、辛酉、壬戌、癸亥の十二の日だという意味です。\n陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也\n三命通会「総論諸神殺」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#eumchak_yangcha",
+      "variant": "single",
+      "lang": "ko",
+      "body": "음양차착살은 병자, 정축, 무인, 신묘, 임진, 계사, 병오, 정미, 무신, 신유, 임술, 계해의 열두 날이라는 뜻이에요.\n陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也\n삼명통회 「총론제신살」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#geumyeo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Geumyeo always sits two seats ahead of the Rok position: for someone born in Gapja, Rok is at In, so Jin is Geumyeo.\n金轝常居祿前二辰如甲子人祿在寅辰為金轝是也\nSammyeong Tonghoe, 論金轝"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#geumyeo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "金與は常に禄の二つ前の位置にあり、甲子生まれなら禄が寅にあるので辰が金與だという意味です。\n金轝常居祿前二辰如甲子人祿在寅辰為金轝是也\n三命通会「論金轝」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#geumyeo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "금여는 늘 녹 앞 두 자리에 있으니, 갑자생은 녹이 인에 있어 진이 금여라는 뜻이에요.\n金轝常居祿前二辰如甲子人祿在寅辰為金轝是也\n삼명통회 「논금여」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#goegang",
+      "variant": "single",
+      "lang": "en",
+      "body": "This pattern has four days: Gyeongjin, Imjin, Musul and Gyeongsul.\n此格有四日庚辰壬辰戊戌庚戌\nSammyeong Tonghoe, 魁罡"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#goegang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "この格には庚辰、壬辰、戊戌、庚戌の四つの日があるという意味です。\n此格有四日庚辰壬辰戊戌庚戌\n三命通会「魁罡」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#goegang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "이 격에는 경진, 임진, 무술, 경술의 네 날이 있다는 뜻이에요.\n此格有四日庚辰壬辰戊戌庚戌\n삼명통회 「괴강」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Taking the three seats of one direction, such as Hae, Ja and Chuk, the seat one step ahead, In, is Go, and the seat one step back, Sul, is Gwa.\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\nSammyeong Tonghoe, 論孤辰寡宿"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "亥子丑のように一つの方位の三つの位置から、一つ進んで寅に当たれば孤、一つ退いて戌に当たれば寡という意味です。\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\n三命通会「論孤辰寡宿」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "해자축처럼 한 방위의 세 자리에서 앞으로 한 자리 나아가 인을 만나면 고, 뒤로 한 자리 물러나 술을 만나면 과라는 뜻이에요.\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\n삼명통회 「논고신과숙」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gugyo",
+      "variant": "single",
+      "lang": "en",
+      "body": "For a yang man or yin woman, the third seat ahead is Gu and the third seat behind is Gyo; for a yin man or yang woman, ahead is Gyo and behind is Gu.\n陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾\nSammyeong Tonghoe, 論勾絞"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gugyo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "陽男陰女は命の三つ前が勾、三つ後ろが絞で、陰男陽女は前が絞、後ろが勾だという意味です。\n陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾\n三命通会「論勾絞」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gugyo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양남음녀는 명 앞 세 번째 자리가 구, 뒤 세 번째 자리가 교이고, 음남양녀는 앞이 교, 뒤가 구라는 뜻이에요.\n陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾\n삼명통회 「논구교」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "Taking the three seats of one direction, such as Hae, Ja and Chuk, the seat one step ahead, In, is Go, and the seat one step back, Sul, is Gwa.\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\nSammyeong Tonghoe, 論孤辰寡宿"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "亥子丑のように一つの方位の三つの位置から、一つ進んで寅に当たれば孤、一つ退いて戌に当たれば寡という意味です。\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\n三命通会「論孤辰寡宿」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "해자축처럼 한 방위의 세 자리에서 앞으로 한 자리 나아가 인을 만나면 고, 뒤로 한 자리 물러나 술을 만나면 과라는 뜻이에요.\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\n삼명통회 「논고신과숙」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#samgi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Samgi must sit in order and not be reversed: it is lucky when Eul, Byeong, Jeong or Gap, Mu, Gyeong sit in order across the year, month, day and hour stems.\n三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉\nSammyeong Tonghoe, 論三奇"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#samgi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "三奇は順に並ぶべきで逆に乱れてはならず、乙丙丁や甲戊庚が年月日時の天干に順に並べば吉だという意味です。\n三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉\n三命通会「論三奇」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#samgi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "삼기는 차례대로 놓여야 하고 거꾸로 어지러우면 안 되니, 을병정이나 갑무경이 연, 월, 일, 시 천간에 차례대로 놓이면 길하다는 뜻이에요.\n三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉\n삼명통회 「논삼기」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#sipak_daepae",
+      "variant": "single",
+      "lang": "en",
+      "body": "These are the ten days in the sixty-day cycle when Rok falls into Gongmang.\n六甲旬中十個日値祿入空亡\nSammyeong Tonghoe, 論十惡大敗"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#sipak_daepae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "六甲旬のうち、禄が空亡に入る十の日だという意味です。\n六甲旬中十個日値祿入空亡\n三命通会「論十悪大敗」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#sipak_daepae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "육갑순 가운데 녹이 공망에 드는 열 날이라는 뜻이에요.\n六甲旬中十個日値祿入空亡\n삼명통회 「논십악대패」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#weighing",
+      "variant": "single",
+      "lang": "en",
+      "body": "The ancients valued these shinsal, but you must start from the strength of the day master and how the elements feed and check each other, consider wealth, officer, resource and output along with Gwiin, Rok and Ma, and only then weigh the shinsal; judging by shinsal alone leads you astray.\n右十二宮神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣\nSammyeong Tonghoe, 總論諸神煞"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#weighing",
+      "variant": "single",
+      "lang": "ja",
+      "body": "これらの神殺は昔の人が重んじたものですが、必ず日主の強弱と五行の生剋を土台に、財官印食と貴人、禄馬を合わせて見たうえで神殺の重さを比べるべきで、神殺だけで論じれば誤るという意味です。\n右十二宮神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣\n三命通会「総論諸神殺」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#weighing",
+      "variant": "single",
+      "lang": "ko",
+      "body": "앞의 신살들은 옛사람이 중히 여겼지만, 반드시 일간의 강약과 오행의 생극을 바탕으로 재관인식과 귀인, 녹마를 함께 본 뒤에 신살이 얼마나 무거운지 따져 봐야 하고, 신살만 보고 판단하면 틀린다는 뜻이에요.\n右十二宮神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣\n삼명통회 「총론제신살」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#woldeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Woldeok is the direction lit by a three-way union: Sin, Ja and Jin settle in Im, Hae, Myo and Mi in Gap, In, O and Sul in Byeong, and Sa, Yu and Chuk in Gyeong, so Im, Gap, Byeong and Gyeong are called Woldeok.\n月德者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月德\nSammyeong Tonghoe, 論天月德"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#woldeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月徳は三合が照らす方位で、申子辰は壬、亥卯未は甲、寅午戌は丙、巳酉丑は庚に入るので、壬甲丙庚を月徳というという意味です。\n月德者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月德\n三命通会「論天月徳」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#woldeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "월덕은 삼합이 비추는 방위로, 신자진은 임, 해묘미는 갑, 인오술은 병, 사유축은 경에 드니 임, 갑, 병, 경을 월덕이라 한다는 뜻이에요.\n月德者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月德\n삼명통회 「논천월덕」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "For a yang man or yin woman it is the branch one seat ahead of the clash, and for a yin man or yang woman one seat behind. Myungli Diary uses the pairs common in Korea for everyone.\n是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰\nSammyeong Tonghoe, 論元辰"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "陽男陰女は冲の位置の一つ前、陰男陽女は冲の位置の一つ後ろの地支だという意味です。命理日記は韓国で広く使われる組み合わせを男女の区別なく使います。\n是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰\n三命通会「論元辰」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.sammyeong-tonghoe/shinsal#wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "양남음녀는 충 자리 앞 한 칸, 음남양녀는 충 자리 뒤 한 칸의 지지라는 뜻이에요. 명리일기는 한국에서 널리 쓰는 쌍을 남녀 구분 없이 써요.\n是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰\n삼명통회 「논원진」"
     },
     {
       "slot": "evidence.source",
@@ -9422,6 +10844,174 @@
       "body": "역마는 선천수로 따진 삼합의 수에서 나온다는 뜻이에요.\n所謂驛馬者，乃先天三合數也\n삼명통회 「논역마」"
     },
     {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/days#tiande",
+      "variant": "single",
+      "lang": "en",
+      "body": "Heavenly virtue is Jeong in the first month, Gon in the second, Im in the third, Sin in the fourth, Geon in the fifth, Gap in the sixth, Gye in the seventh, Gan in the eighth, Byeong in the ninth, Eul in the tenth, Son in the eleventh and Gyeong in the twelfth.\n天德者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚\nHyeopgi Byeonbangseo, 天德"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/days#tiande",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天徳は正月丁、二月坤、三月壬、四月辛、五月乾、六月甲、七月癸、八月艮、九月丙、十月乙、十一月巽、十二月庚だという意味です。\n天德者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚\n協紀弁方書「天徳」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/days#tiande",
+      "variant": "single",
+      "lang": "ko",
+      "body": "천덕은 정월 정, 2월 곤, 3월 임, 4월 신, 5월 건, 6월 갑, 7월 계, 8월 간, 9월 병, 10월 을, 11월 손, 12월 경이라는 뜻이에요.\n天德者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚\n협기변방서 「천덕」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/days#yuede",
+      "variant": "single",
+      "lang": "en",
+      "body": "Monthly virtue lies in Byeong in the first, fifth and ninth months, Gap in the second, sixth and tenth, Im in the third, seventh and eleventh, and Gyeong in the fourth, eighth and twelfth.\n月德者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚\nHyeopgi Byeonbangseo, 月德"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/days#yuede",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月徳は正月、五月、九月は丙、二月、六月、十月は甲、三月、七月、十一月は壬、四月、八月、十二月は庚にあるという意味です。\n月德者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚\n協紀弁方書「月徳」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/days#yuede",
+      "variant": "single",
+      "lang": "ko",
+      "body": "월덕은 1, 5, 9월은 병, 2, 6, 10월은 갑, 3, 7, 11월은 임, 4, 8, 12월은 경에 있다는 뜻이에요.\n月德者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚\n협기변방서 「월덕」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#birth_year",
+      "variant": "single",
+      "lang": "en",
+      "body": "People of old all looked at the heavenly stem of the birth year, choosing times that join with its officer or wealth, act as its peer or seal, sit at its growth stage, or bring its Rok, Ma and Gwiin, without clashing with or overcoming the birth chart.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\nHyeopgi Byeonbangseo, 論相主"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#birth_year",
+      "variant": "single",
+      "lang": "ja",
+      "body": "昔の人は皆、生まれ年の天干を見て、官や財と合し、あるいは比肩、印綬、長生となり、あるいは禄馬貴人を取り、命を衝いたり剋したりしない時を選んだという意味です。\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n協紀弁方書「論相主」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#birth_year",
+      "variant": "single",
+      "lang": "ko",
+      "body": "옛사람들은 모두 태어난 해의 천간을 보고, 관이나 재와 합하거나 비견, 인수, 장생이 되거나 녹마와 귀인을 얻으면서 명을 충하거나 극하지 않는 때를 골랐다는 뜻이에요.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n협기변방서 「논상주」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#huangdao",
+      "variant": "single",
+      "lang": "en",
+      "body": "When counting hours from the day, on a Ja day Cheongnyong starts at the Sin hour and Myeongdang falls at the Yu hour, and the rest follow in order.\n日起時則子日申時起青龍酉時為明堂依次順數\nHyeopgi Byeonbangseo, 黃道黑道"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#huangdao",
+      "variant": "single",
+      "lang": "ja",
+      "body": "日から時を起こすと、子の日は申の時に青龍を起こし、酉の時を明堂とし、順に数えていくという意味です。\n日起時則子日申時起青龍酉時為明堂依次順數\n協紀弁方書「黄道黒道」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#huangdao",
+      "variant": "single",
+      "lang": "ko",
+      "body": "날로 시를 일으키면 자일에는 신시에서 청룡을 시작하고 유시를 명당으로 삼아 차례대로 세어 나간다는 뜻이에요.\n日起時則子日申時起青龍酉時為明堂依次順數\n협기변방서 「황도흑도」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#use_hour",
+      "variant": "single",
+      "lang": "en",
+      "body": "The hour serves the day, so all that matters is whether it supports the day: if it shares the energy of the day stem or branch or forms a three-way or six-way union with the day branch, it is lucky, and rather than following every lucky and unlucky spirit of the hour, only Gwiin, Rok and Ma count as lucky.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\nHyeopgi Byeonbangseo, 用時法"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#use_hour",
+      "variant": "single",
+      "lang": "ja",
+      "body": "時は日の用であるから、すべては日を助けるかにかかっており、日の干支と比和するか日支と三合、六合すれば吉で、時の吉凶神にすべてこだわらず、貴人と禄馬だけを吉とするという意味です。\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n協紀弁方書「用時法」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xieji-bianfang/hours#use_hour",
+      "variant": "single",
+      "lang": "ko",
+      "body": "시는 날을 쓰는 것이라 오로지 날을 돕는 데 달려 있어, 일간이나 일지와 같은 기운이거나 일지와 삼합, 육합이 되면 곧 길하고, 시의 길신과 흉신에 다 얽매일 필요 없이 귀인과 녹마만 길로 본다는 뜻이에요.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n협기변방서 「용시법」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xingxue-dacheng/shinsal#amrok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Amrok is when someone born in Gap meets Hae, since Hae unites with In, or someone born in Eul meets Sul, since Sul unites with Myo.\n暗祿者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯\nSeonghak Daeseong, 論拱祿交祿暗祿"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xingxue-dacheng/shinsal#amrok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "暗禄とは、甲生まれが亥に会うことで亥は寅と合し、乙生まれが戌に会うことで戌は卯と合するという意味です。\n暗祿者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯\n星学大成「論拱禄交禄暗禄」"
+    },
+    {
+      "slot": "evidence.source",
+      "key": "source.xingxue-dacheng/shinsal#amrok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "암록은 갑생이 해를 만나는 것이니 해가 인과 합하고, 을생이 술을 만나는 것이니 술이 묘와 합한다는 뜻이에요.\n暗祿者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯\n성학대성 「논공록교록암록」"
+    },
+    {
+      "slot": "explain.day_virtue",
+      "key": "day_virtue.cheondeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Heaven's virtue comes in today."
+    },
+    {
+      "slot": "explain.day_virtue",
+      "key": "day_virtue.cheondeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天の徳が入ってくる日です。"
+    },
+    {
+      "slot": "explain.day_virtue",
+      "key": "day_virtue.cheondeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "하늘의 덕이 들어오는 날이에요."
+    },
+    {
+      "slot": "explain.day_virtue",
+      "key": "day_virtue.woldeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "The month's virtue comes in today."
+    },
+    {
+      "slot": "explain.day_virtue",
+      "key": "day_virtue.woldeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月の徳が入ってくる日です。"
+    },
+    {
+      "slot": "explain.day_virtue",
+      "key": "day_virtue.woldeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "달의 덕이 들어오는 날이에요."
+    },
+    {
       "slot": "explain.today_reason",
       "key": "reason.color/lucky_element",
       "variant": "single",
@@ -9567,48 +11157,6 @@
       "variant": "single",
       "lang": "ko",
       "body": "오늘 힘을 얻은, 내 사주를 돕는 기운의 방향을 골라서 그래요."
-    },
-    {
-      "slot": "explain.today_reason",
-      "key": "reason.focus_time/fallback",
-      "variant": "single",
-      "lang": "en",
-      "body": "Every candidate hour clashed with your chart, so we chose a lucky hour from that day's calendar."
-    },
-    {
-      "slot": "explain.today_reason",
-      "key": "reason.focus_time/fallback",
-      "variant": "single",
-      "lang": "ja",
-      "body": "候補の時間がすべて命式とぶつかるので、その日の暦で吉とされる時間を選んだからです。"
-    },
-    {
-      "slot": "explain.today_reason",
-      "key": "reason.focus_time/fallback",
-      "variant": "single",
-      "lang": "ko",
-      "body": "후보 시간이 모두 내 사주와 부딪혀, 그날 달력의 길한 시간을 골라서 그래요."
-    },
-    {
-      "slot": "explain.today_reason",
-      "key": "reason.focus_time/score",
-      "variant": "single",
-      "lang": "en",
-      "body": "Of the hours that don't clash with your chart, we chose the one where helpers, Yongsin, and Hap overlap the most."
-    },
-    {
-      "slot": "explain.today_reason",
-      "key": "reason.focus_time/score",
-      "variant": "single",
-      "lang": "ja",
-      "body": "命式とぶつからない時間のうち、貴人・用神・合が多く重なる時を選んだからです。"
-    },
-    {
-      "slot": "explain.today_reason",
-      "key": "reason.focus_time/score",
-      "variant": "single",
-      "lang": "ko",
-      "body": "내 사주와 부딪히지 않는 시간 가운데 귀인, 용신, 합이 많이 겹치는 때를 골라서 그래요."
     },
     {
       "slot": "explain.today_reason",
@@ -10473,6 +12021,48 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "part.gou",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gu"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.gou",
+      "variant": "single",
+      "lang": "ja",
+      "body": "勾"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.gou",
+      "variant": "single",
+      "lang": "ko",
+      "body": "구"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.jiao",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gyo"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.jiao",
+      "variant": "single",
+      "lang": "ja",
+      "body": "絞"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.jiao",
+      "variant": "single",
+      "lang": "ko",
+      "body": "교"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "part.stem",
       "variant": "single",
       "lang": "en",
@@ -10491,6 +12081,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "천간"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.unknown",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gugyo"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.unknown",
+      "variant": "single",
+      "lang": "ja",
+      "body": "勾絞"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "part.unknown",
+      "variant": "single",
+      "lang": "ko",
+      "body": "구교"
     },
     {
       "slot": "glossary.value_name",
@@ -10935,6 +12546,48 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "shinsal.amrok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Amrok"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.amrok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "暗禄"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.amrok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "암록"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheondeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Cheondeok Gwiin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheondeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天徳貴人"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheondeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "천덕귀인"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "shinsal.cheoneul_gwiin",
       "variant": "single",
       "lang": "en",
@@ -10953,6 +12606,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "천을귀인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Cheonra Jimang"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天羅地網"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "천라지망"
     },
     {
       "slot": "glossary.value_name",
@@ -10977,6 +12651,69 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "en",
+      "body": "Eumchak Yangcha"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "ja",
+      "body": "陰差陽錯"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "ko",
+      "body": "음착양차"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.geumyeo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Geumyeorok"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.geumyeo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "金與禄"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.geumyeo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "금여록"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.goegang",
+      "variant": "single",
+      "lang": "en",
+      "body": "Goegang"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.goegang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "魁罡"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.goegang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "괴강"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "shinsal.gongmang",
       "variant": "single",
       "lang": "en",
@@ -10998,6 +12735,69 @@
     },
     {
       "slot": "glossary.value_name",
+      "key": "shinsal.gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gosin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "孤辰"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "고신"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gugyo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gugyo"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gugyo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "勾絞"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gugyo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "구교"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "Gwasuk"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "寡宿"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "과숙"
+    },
+    {
+      "slot": "glossary.value_name",
       "key": "shinsal.hwagae",
       "variant": "single",
       "lang": "en",
@@ -11016,6 +12816,90 @@
       "variant": "single",
       "lang": "ko",
       "body": "화개"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.samgi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Samgi"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.samgi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "三奇貴人"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.samgi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "삼기"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "en",
+      "body": "Sipak Daepae"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "十悪大敗"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "십악대패"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.woldeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "Woldeok Gwiin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.woldeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月徳貴人"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.woldeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "월덕귀인"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "Wonjin"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "元辰"
+    },
+    {
+      "slot": "glossary.value_name",
+      "key": "shinsal.wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "원진"
     },
     {
       "slot": "glossary.value_name",
@@ -12615,6 +14499,48 @@
     },
     {
       "slot": "personal.shinsal",
+      "key": "personal.shinsal.amrok",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Amrok|shinsal.amrok]] in your {place}, help tends to come from places you can't see. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.amrok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}に[[暗禄|shinsal.amrok]]があり、表に出ないところから助けが入りやすいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.amrok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}에 [[암록|shinsal.amrok]]이 있어, 드러나지 않는 곳에서 도움이 들어오기 쉬워요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.cheondeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Cheondeok Gwiin|shinsal.cheondeok]] in your {place}, even hard times tend to ease and turn toward good. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.cheondeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}に[[天徳貴人|shinsal.cheondeok]]があり、困難に出会っても和らいで良い方へ向かいやすいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.cheondeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}에 [[천덕귀인|shinsal.cheondeok]]이 있어, 어려운 일을 만나도 누그러져 좋은 쪽으로 풀리기 쉬워요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
       "key": "personal.shinsal.cheoneul_gwiin",
       "variant": "single",
       "lang": "en",
@@ -12633,6 +14559,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "{place}에 [[천을귀인|shinsal.cheoneul_gwiin]]이 있어, 어려울 때 손을 내미는 사람을 만나기 쉬운 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Cheonra Jimang|shinsal.cheonra_jimang]] in your {place}, things may stall and move slowly, so it helps to work through them one step at a time. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[天羅地網|shinsal.cheonra_jimang]]は物事が滞りゆっくり進みやすいという意味なので、急がず一歩ずつほどいていくとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[천라지망|shinsal.cheonra_jimang]]은 일이 막히고 더디게 풀리기 쉽다는 뜻이라, 서두르기보다 한 걸음씩 풀어 가면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
     },
     {
       "slot": "personal.shinsal",
@@ -12657,6 +14604,69 @@
     },
     {
       "slot": "personal.shinsal",
+      "key": "personal.shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Eumchak Yangcha|shinsal.eumchak_yangcha]] in your {place}, yin and yang fall out of step here, so when close people miss each other it helps to take your time and adjust. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[陰差陽錯|shinsal.eumchak_yangcha]]は陰と陽が食い違う位置という意味なので、近しい間柄ですれ違いが起きたら急がず合わせていくとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[음착양차|shinsal.eumchak_yangcha]]는 음과 양이 어긋난 자리라는 뜻이라, 가까운 사이에서 엇갈림이 생기면 서두르지 않고 맞춰 가면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.geumyeo",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Geumyeorok|shinsal.geumyeo]] in your {place}, you tend to live with some ease and be treated with respect. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.geumyeo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}に[[金與禄|shinsal.geumyeo]]があり、暮らしにゆとりが生まれ、人から大切にされやすいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.geumyeo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}에 [[금여록|shinsal.geumyeo]]이 있어, 살림에 여유가 생기고 사람들에게 귀하게 대접받기 쉬워요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.goegang",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Goegang|shinsal.goegang]] in your {place}, your energy is strong and you decide fast. Good and blocked times may split sharply, so it helps to pace yourself. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.goegang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}に[[魁罡|shinsal.goegang]]があり、気が強く決断が早いです。うまくいくときと行き詰まるときが大きく分かれやすいので、勢いを調整するとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.goegang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}에 [[괴강|shinsal.goegang]]이 있어 기운이 세고 결단이 빨라요. 잘 풀릴 때와 막힐 때가 크게 갈리기 쉬우니 기세를 조절하면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
       "key": "personal.shinsal.gongmang",
       "variant": "single",
       "lang": "en",
@@ -12678,6 +14688,69 @@
     },
     {
       "slot": "personal.shinsal",
+      "key": "personal.shinsal.gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Gosin|shinsal.gosin]] in your {place}, you may often spend time alone, so it helps to use that in work you can focus on by yourself. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[孤辰|shinsal.gosin]]は一人で過ごす時間が多くなりやすいという意味なので、一人で打ち込むことにその力を使うとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[고신|shinsal.gosin]]은 홀로 지내는 시간이 많아지기 쉽다는 뜻이라, 혼자 몰두하는 일에서 그 힘을 쓰면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gugyo",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Gugyo|shinsal.gugyo]] in your {place}, quarrels and entanglements may come up, so it helps to choose your words with care. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gugyo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[勾絞|shinsal.gugyo]]は口論や面倒な絡みが起きやすいという意味なので、言葉を選ぶときにもう一度確かめるとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gugyo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[구교|shinsal.gugyo]]는 말다툼이나 얽히는 일이 생기기 쉽다는 뜻이라, 말을 고를 때 한 번 더 살피면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Gwasuk|shinsal.gwasuk]] in your {place}, family ties may thin, so it helps to show your feelings to close people first. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[寡宿|shinsal.gwasuk]]は家族との縁が薄くなりやすいという意味なので、近しい人に自分から気持ちを伝えるとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[과숙|shinsal.gwasuk]]은 가족과의 인연이 약해지기 쉽다는 뜻이라, 가까운 사람에게 먼저 마음을 표현하면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
       "key": "personal.shinsal.hwagae",
       "variant": "single",
       "lang": "en",
@@ -12696,6 +14769,90 @@
       "variant": "single",
       "lang": "ko",
       "body": "{place}에 [[화개|shinsal.hwagae]]가 있어, 혼자 깊이 파고드는 공부나 예술에 마음이 가는 바탕이에요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.samgi",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Samgi|shinsal.samgi]] in your {place}, a special talent tends to show. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.samgi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}に[[三奇貴人|shinsal.samgi]]があり、人とは違う才能が表れやすいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.samgi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}에 [[삼기|shinsal.samgi]]가 있어, 남다른 재주가 드러나기 쉬워요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Sipak Daepae|shinsal.sipak_daepae]] in your {place}, the seat of your natural fortune is empty, so it helps to leave some room when handling money. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[十悪大敗|shinsal.sipak_daepae]]は生まれ持った福禄の位置が空いているという意味なので、お金を扱うときにゆとりを持つとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[십악대패|shinsal.sipak_daepae]]는 타고난 복록의 자리가 비어 있다는 뜻이라, 재물을 다룰 때 여유를 두면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.woldeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Woldeok Gwiin|shinsal.woldeok]] in your {place}, unlucky energy tends to settle rather than spread. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.woldeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}に[[月徳貴人|shinsal.woldeok]]があり、凶の気が来ても大きく広がらず収まりやすいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.woldeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}에 [[월덕귀인|shinsal.woldeok]]이 있어, 흉한 기운이 와도 크게 번지지 않고 가라앉기 쉬워요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "With [[Wonjin|shinsal.wonjin]] in your {place}, this spot doesn't get along with your zodiac sign, so with people close to you it helps not to let small hurts pile up. The element here, [[{element}]], is {role}."
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "{place}の[[元辰|shinsal.wonjin]]は生まれ年の干支と避け合う位置という意味なので、近しい間柄ほど寂しさをため込まないとよいです。この位置の五行は[[{element}]]で、{role}です。"
+    },
+    {
+      "slot": "personal.shinsal",
+      "key": "personal.shinsal.wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "{place}의 [[원진|shinsal.wonjin]]은 띠와 서로 꺼리는 자리라는 뜻이라, 가까운 사이일수록 서운함을 쌓아 두지 않으면 좋아요. 이 자리의 오행 [[{element}]](은)는 {role}(이)에요."
     },
     {
       "slot": "personal.shinsal",
@@ -14106,6 +16263,48 @@
     },
     {
       "slot": "term.meaning",
+      "key": "term.shinsal.amrok",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for hidden fortune. Help tends to come from places you can't see."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.amrok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "表に出ない福禄を表す神殺です。見えないところから助けが入りやすいと見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.amrok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "드러나지 않는 복록을 뜻하는 신살이에요. 보이지 않는 곳에서 도움이 들어오기 쉽다고 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheondeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for the virtue of heaven. The classics say it turns misfortune toward good."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheondeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天の徳を表す神殺です。原典は、凶を転じて善とすると見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheondeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "하늘의 덕을 뜻하는 신살이에요. 원전은 흉한 일을 돌려 좋은 쪽으로 바꾼다고 봐요."
+    },
+    {
+      "slot": "term.meaning",
       "key": "term.shinsal.cheoneul_gwiin",
       "variant": "single",
       "lang": "en",
@@ -14124,6 +16323,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "신살 가운데 가장 귀한 도움을 뜻해요. 어려울 때 뜻밖의 사람이 손을 내밀어 주는 복으로 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for the nets of heaven and earth. Things tend to stall and move slowly."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "天の網と地の網を表す神殺です。物事が滞り、ゆっくり進みやすいと見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.cheonra_jimang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "하늘의 그물과 땅의 그물을 뜻하는 신살이에요. 일이 막히고 더디게 풀리기 쉽다고 봐요."
     },
     {
       "slot": "term.meaning",
@@ -14148,6 +16368,69 @@
     },
     {
       "slot": "term.meaning",
+      "key": "term.shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for yin and yang falling out of step. The classics count it as unlucky, but it's weighed together with other energies."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "ja",
+      "body": "陰と陽が食い違うという意味の神殺です。原典は凶の神殺と見ますが、ほかの気と合わせて比べて読みます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.eumchak_yangcha",
+      "variant": "single",
+      "lang": "ko",
+      "body": "음과 양이 어긋난다는 뜻의 신살이에요. 원전은 흉한 신살로 보지만, 다른 기운과 함께 비교해서 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.geumyeo",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for a carriage trimmed with gold. It's read as a seat where comfort and honor tend to follow."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.geumyeo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "金で飾った車を表す神殺です。豊かさや尊さが伴いやすい位置と見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.geumyeo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "금으로 꾸민 수레를 뜻하는 신살이에요. 넉넉함이나 귀함이 따르기 쉬운 자리로 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.goegang",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for the lead stars of the Big Dipper. Its energy is strong, so good times and blocked times split sharply."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.goegang",
+      "variant": "single",
+      "lang": "ja",
+      "body": "北斗七星の先頭の星を表す神殺です。気が強く、うまくいくときと行き詰まるときが大きく分かれると見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.goegang",
+      "variant": "single",
+      "lang": "ko",
+      "body": "북두칠성의 우두머리 별을 뜻하는 신살이에요. 기운이 세서, 잘 풀릴 때와 막힐 때가 크게 갈린다고 봐요."
+    },
+    {
+      "slot": "term.meaning",
       "key": "term.shinsal.gongmang",
       "variant": "single",
       "lang": "en",
@@ -14169,6 +16452,69 @@
     },
     {
       "slot": "term.meaning",
+      "key": "term.shinsal.gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for a lone star. The classics say it doesn't favor ties with close family."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "孤独な星を表す神殺です。原典は、近しい家族との縁に良くないと見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "외로운 별을 뜻하는 신살이에요. 원전은 가까운 가족과의 인연에 이롭지 않다고 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gugyo",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for tangling and tightening. It's read as a reason to watch for quarrels and entanglements."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gugyo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "絡めて締めつけるという意味の神殺です。口論や面倒な絡みに気をつけるよう見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gugyo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "얽고 조인다는 뜻의 신살이에요. 말다툼이나 얽히는 일을 조심하라고 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for a star that lodges alone. It pairs with Gosin, and ties with close family tend to thin."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "独りで過ごす星を表す神殺です。孤辰と対になり、近しい家族との縁が薄くなりやすいと見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "홀로 지내는 별을 뜻하는 신살이에요. 고신과 짝을 이루고, 가까운 가족과의 인연이 약해지기 쉽다고 봐요."
+    },
+    {
+      "slot": "term.meaning",
       "key": "term.shinsal.hwagae",
       "variant": "single",
       "lang": "en",
@@ -14187,6 +16533,90 @@
       "variant": "single",
       "lang": "ko",
       "body": "혼자 깊이 들여다보는 힘을 뜻하는 신살이에요. 공부나 예술처럼 한곳에 몰두하는 모습으로 드러나요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.samgi",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for three remarkable stems. It's read as lucky when Eul, Byeong, Jeong or Gap, Mu, Gyeong sit in order."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.samgi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "三つの優れた天干を表す神殺です。乙丙丁や甲戊庚が順に並ぶと吉と見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.samgi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "세 가지 기이한 천간을 뜻하는 신살이에요. 을병정이나 갑무경이 차례대로 놓이면 길하게 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for being born on a day when the seat of your natural fortune is empty. The name sounds heavy, but the classics add that it's read as lucky when lucky energies support it."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "ja",
+      "body": "生まれ持った福禄の位置が空いた日に生まれたという意味の神殺です。名前は重いですが、原典は吉の気が助ければ吉と見ると付け加えています。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.sipak_daepae",
+      "variant": "single",
+      "lang": "ko",
+      "body": "타고난 복록의 자리가 비어 있는 날에 태어났다는 뜻의 신살이에요. 이름은 무겁지만, 원전은 길한 기운이 도우면 길하게 본다고 덧붙여요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.woldeok",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for the virtue of the month. Together with Cheondeok Gwiin, it keeps misfortune from growing severe."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.woldeok",
+      "variant": "single",
+      "lang": "ja",
+      "body": "月の徳を表す神殺です。天徳貴人とともにあると、凶の気が来てもひどくならないと見ます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.woldeok",
+      "variant": "single",
+      "lang": "ko",
+      "body": "달의 덕을 뜻하는 신살이에요. 천덕귀인과 함께 있으면 흉한 기운이 와도 심해지지 않는다고 봐요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for zodiac signs that don't get along. We use the pairs common in Korea (Rat and Goat, Ox and Horse, and so on) for everyone, while the classics' section on Wonjin sets different pairs for men and women."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "干支どうしが互いに避け合う間柄を表す神殺です。韓国で広く使われる組み合わせ(子と未、丑と午など)を男女の区別なく使い、原典「論元辰」は男女で組み合わせを分けます。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.shinsal.wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "띠끼리 서로 꺼리는 사이를 뜻하는 신살이에요. 한국에서 널리 쓰는 쌍(쥐와 양, 소와 말 등)을 남녀 구분 없이 쓰고, 원전 「논원진」은 남녀를 나눠 쌍을 달리 정해요."
     },
     {
       "slot": "term.meaning",
@@ -14568,6 +16998,48 @@
     },
     {
       "slot": "term.meaning",
+      "key": "term.tag.gosin",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for a lone star, so today you may feel apart from those around you."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.gosin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "孤独な星を表す神殺で、今日は周りから離れて寂しさを感じやすいです。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.gosin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "외로운 별을 뜻하는 신살로, 오늘은 주변과 떨어져 외로움을 느끼기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.gwasuk",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for a star that lodges alone, so today close people may feel a little distant."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.gwasuk",
+      "variant": "single",
+      "lang": "ja",
+      "body": "独りで過ごす星を表す神殺で、今日は近しい人が少し遠く感じられることがあります。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.gwasuk",
+      "variant": "single",
+      "lang": "ko",
+      "body": "홀로 지내는 별을 뜻하는 신살로, 오늘은 가까운 사람과 조금 멀게 느껴질 수 있어요."
+    },
+    {
+      "slot": "term.meaning",
       "key": "term.tag.gwiin_day",
       "variant": "single",
       "lang": "en",
@@ -14733,6 +17205,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "내 사주에 이미 많은 식상이 그날 또 들어온 것으로, 말과 표현이 넘치기 쉬워요."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.wonjin",
+      "variant": "single",
+      "lang": "en",
+      "body": "A shinsal for signs that don't get along, so today small things may hurt your feelings."
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.wonjin",
+      "variant": "single",
+      "lang": "ja",
+      "body": "干支どうしが避け合う間柄を表す神殺で、今日はささいなことで気持ちが傷つきやすいです。"
+    },
+    {
+      "slot": "term.meaning",
+      "key": "term.tag.wonjin",
+      "variant": "single",
+      "lang": "ko",
+      "body": "띠끼리 서로 꺼리는 사이를 뜻하는 신살로, 오늘은 사소한 일로 마음이 상하기 쉬워요."
     },
     {
       "slot": "term.meaning",
@@ -15373,10 +17866,23 @@
     "role.huisin": "喜神",
     "role.neutral": "閑神",
     "role.yongsin": "用神",
+    "shinsal.amrok": "暗祿",
+    "shinsal.cheondeok": "天德貴人",
     "shinsal.cheoneul_gwiin": "天乙貴人",
+    "shinsal.cheonra_jimang": "天羅地網",
     "shinsal.dohwa": "桃花",
+    "shinsal.eumchak_yangcha": "陰錯陽差",
+    "shinsal.geumyeo": "金轝祿",
+    "shinsal.goegang": "魁罡",
     "shinsal.gongmang": "空亡",
+    "shinsal.gosin": "孤辰",
+    "shinsal.gugyo": "勾絞",
+    "shinsal.gwasuk": "寡宿",
     "shinsal.hwagae": "華蓋",
+    "shinsal.samgi": "三奇",
+    "shinsal.sipak_daepae": "十惡大敗",
+    "shinsal.woldeok": "月德貴人",
+    "shinsal.wonjin": "元嗔",
     "shinsal.yangin": "羊刃",
     "shinsal.yeokma": "驛馬",
     "stem.byeong": "丙",
@@ -15392,7 +17898,10 @@
     "tag.cheoneul_gwiin": "天乙貴人",
     "tag.dohwa": "桃花",
     "tag.gongmang": "空亡",
+    "tag.gosin": "孤辰",
+    "tag.gwasuk": "寡宿",
     "tag.hwagae": "華蓋",
+    "tag.wonjin": "元嗔",
     "tag.yeokma": "驛馬",
     "ten_god.bigyeon": "比肩",
     "ten_god.geopjae": "劫財",

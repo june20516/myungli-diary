@@ -12,6 +12,7 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/content/render"
+	"github.com/june20516/myungli-diary/server/internal/engine"
 	"github.com/june20516/myungli-diary/server/internal/gen/enginev1"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/profile"
@@ -34,6 +35,7 @@ const (
 	SlotIlganBody       = "chart.ilgan_body"
 	SlotYongsinSummary  = "chart.yongsin_summary"
 	SlotNotice          = "system.notice"
+	SlotDayVirtue       = "explain.day_virtue"
 )
 
 // characterReasonPrefix는 날의 성격 이유 키의 앞부분입니다. 키는 character.reason.<day_kind>입니다(슬롯 명세 select).
@@ -75,6 +77,27 @@ type DailyView struct {
 	// SelectionIDs는 슬롯 id → 그 슬롯 선택 기록(daily_selections)의 ID입니다. 문장 반응을 표시·저장할 때 씁니다.
 	// 선택 기록은 문장 슬롯마다 남으므로, 원고가 없어 Texts에서 빠진 선택 슬롯도 여기에는 있습니다.
 	SelectionIDs map[string]int64
+	// SecondColor는 색이 둘인 날(D119 ②)의 둘째 색(원전 기준) 문장입니다. 엔진이 second_color를 주지 않았거나 원고가 없으면 nil입니다.
+	SecondColor *content.SlotText
+	// NightFocusTime은 밤 집중 시간(D122) 문장입니다. 엔진이 night_focus_time을 주지 않았거나(2026.11.5 전) 원고가 없으면 nil입니다.
+	NightFocusTime *content.SlotText
+	// PreviousNight는 전날 밤 집중 시간입니다(D122 ⑦). 요청 날짜가 프로필 현재 시간대의 오늘일 때만 있고,
+	// 앱은 그날 낮 구간이 시작하기 전(07:30 전)에 Night 대신 이것을 보입니다.
+	PreviousNight *FocusTimeText
+	// DayVirtues는 택일 덕일(D124 ⑤)과 그 풀이 문장입니다. 엔진 순서(천덕일 먼저)이고 원고가 없는 항목은 뺍니다.
+	DayVirtues []DayVirtueText
+}
+
+// FocusTimeText는 집중 시간 카드 하나와 그 문장입니다.
+type FocusTimeText struct {
+	Card *enginev1.FocusTimeCard
+	Text content.SlotText
+}
+
+// DayVirtueText는 택일 덕일 하나와 그 풀이 문장(explain.day_virtue)입니다.
+type DayVirtueText struct {
+	Card *enginev1.DayVirtueCard
+	Text content.SlotText
 }
 
 // DayTexts는 달력 하루의 문장입니다. 계약에서 둘 다 필수라 원고가 없으면 Text가 빈 조각 배열입니다.
@@ -186,7 +209,8 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	byVersion := map[string]content.Templates{}
 	texts := make(map[string]content.SlotText, len(slots))
 	ids := make(map[string]int64, len(selections))
-	var guideTemplates content.Templates
+	// tplBySlot은 슬롯 id → 그 슬롯 선택 기록의 문장 틀입니다. 선택 기록이 없는 부속 문장(둘째 색, 밤 시간, 덕일)이 씁니다.
+	tplBySlot := make(map[string]content.Templates, len(selections))
 	for i, sel := range selections {
 		ids[sel.Slot] = sel.ID
 		tpl, ok := byVersion[sel.SeedVersion]
@@ -197,9 +221,7 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 			}
 			byVersion[sel.SeedVersion] = tpl
 		}
-		if sel.Slot == SlotGuide {
-			guideTemplates = tpl
-		}
+		tplBySlot[sel.Slot] = tpl
 		text, ok := v.renderDaily(ctx, tpl, slots[i], sel.Variant, p.Honorific, unlocked)
 		if !ok {
 			// 실패 로그는 Renderer가 이미 남겼습니다.
@@ -214,14 +236,76 @@ func (v *Views) Daily(ctx context.Context, accountID uuid.UUID, p profile.Profil
 	if err != nil {
 		return DailyView{}, err
 	}
-	return DailyView{
+	view := DailyView{
 		Response:        response,
 		Texts:           texts,
-		GuideCandidates: v.guideCandidates(ctx, guideTemplates, response, texts[SlotGuide], unlocked),
+		GuideCandidates: v.guideCandidates(ctx, tplBySlot[SlotGuide], response, texts[SlotGuide], unlocked),
 		Notices:         notices,
 		Unlocked:        unlocked,
 		SelectionIDs:    ids,
-	}, nil
+	}
+	view.SecondColor = v.renderPart(ctx, tplBySlot[SlotColor], SlotColor, response.GetSecondColor().GetJudgment(), unlocked)
+	view.NightFocusTime = v.renderPart(ctx, tplBySlot[SlotFocusTime], SlotFocusTime, response.GetNightFocusTime().GetJudgment(), unlocked)
+	view.DayVirtues = v.renderDayVirtues(ctx, tplBySlot[SlotFortuneHead], response.GetDayVirtues(), unlocked)
+	if view.NightFocusTime != nil {
+		view.PreviousNight, err = v.previousNight(ctx, tplBySlot[SlotFocusTime], p, date, unlocked)
+		if err != nil {
+			return DailyView{}, err
+		}
+	}
+	return view, nil
+}
+
+// renderPart는 선택 기록 없이 렌더하는 부속 문장입니다. 같은 writing 슬롯을 쓰는 앞 문장(첫째 색, 낮 시간)의 선택 기록이
+// 이미 그 슬롯 자리를 쓰므로, 그 기록이 정한 시드 버전(tpl)의 single 변주로 렌더합니다. 이 슬롯들은 변주가 하나라 결과가 같습니다.
+// 판정이 없거나(엔진이 이 값을 내지 않는 규칙 버전, 그날 해당 없음) 원고가 없으면 nil입니다(로그는 Renderer가 남김).
+func (v *Views) renderPart(ctx context.Context, tpl content.Templates, slot string, j *enginev1.Judgment, unlocked bool) *content.SlotText {
+	if tpl == nil || j == nil {
+		return nil
+	}
+	text, ok := v.renderer.Slot(ctx, tpl, slot, seed.VariantSingle, j, "", content.EvidenceFor(unlocked))
+	if !ok {
+		return nil
+	}
+	return &text
+}
+
+// renderDayVirtues는 택일 덕일마다 풀이 문장을 렌더합니다. 문장 틀은 총운 선택 기록의 시드 버전입니다. 원고가 없는 항목은 뺍니다.
+func (v *Views) renderDayVirtues(ctx context.Context, tpl content.Templates, cards []*enginev1.DayVirtueCard, unlocked bool) []DayVirtueText {
+	out := make([]DayVirtueText, 0, len(cards))
+	for _, card := range cards {
+		if text := v.renderPart(ctx, tpl, SlotDayVirtue, card.GetJudgment(), unlocked); text != nil {
+			out = append(out, DayVirtueText{Card: card, Text: *text})
+		}
+	}
+	return out
+}
+
+// previousNight는 date가 프로필 현재 시간대의 오늘일 때 전날의 밤 집중 시간을 만듭니다(D122 ⑦).
+// 오늘 화면은 07:30 전에는 지금 진행 중인 밤(전날의 밤)을 보이므로, 앱이 다시 요청하지 않게 함께 담습니다.
+// 지난 날짜나 다른 날은 그날의 밤으로 고정이라 nil입니다. 그날 밤 문장이 없으면(밤 카드를 내지 않는 엔진, 원고 없음) 부르지 않습니다. 전날 엔진 응답은 대개 결과 캐시에 있습니다(전날 화면, 미리 계산).
+// 전날이 지원 범위 밖이면(422) nil이고, 엔진이 밤 카드를 내지 않거나 원고가 없어도 nil입니다. 그 밖의 엔진 오류는 그대로 돌려줍니다.
+func (v *Views) previousNight(ctx context.Context, tpl content.Templates, p profile.Profile, date profile.LocalDate, unlocked bool) (*FocusTimeText, error) {
+	today, err := v.today(p.CurrentTimezone)
+	if err != nil {
+		return nil, err
+	}
+	if date != today {
+		return nil, nil
+	}
+	response, err := v.service.Daily(ctx, p.Birth, date.AddDays(-1), p.CurrentTimezone)
+	if errors.Is(err, engine.ErrOutOfRange) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	card := response.GetNightFocusTime()
+	text := v.renderPart(ctx, tpl, SlotFocusTime, card.GetJudgment(), unlocked)
+	if text == nil {
+		return nil, nil
+	}
+	return &FocusTimeText{Card: card, Text: *text}, nil
 }
 
 // guideCandidates는 오늘의 질문 후보를 만듭니다(S140). 첫 항목은 이미 렌더한 기본 질문(guide, 선택 기록의 변주)입니다.
