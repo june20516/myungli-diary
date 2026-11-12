@@ -230,7 +230,7 @@
 | today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
-| today.date.virtue | today.date.virtue | info | - | 1 | 2 | - | ko -, en -, ja - |
+| today.date.virtue | today.date.virtue | info | - | 1 | 2 | - | ko 28, en 52, ja 23 |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
 | today.event.title | today.event.title<br>day-sheet.event.title | info | - | 1 | 1 | - | ko 22, en 40, ja 18 |
 | today.featured.empty | today.featured.empty | info | - | 1 | 1 | - | ko 24, en 45, ja 19 |
