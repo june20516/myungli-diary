@@ -24,7 +24,7 @@
 - {slot: evidence.basis, key: "basis.tags/clash", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your {natal_positions}, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/clash_day_branch", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your day branch, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "Today's branch {day_branch} forms [[Chung|relation.chung]] with your month branch, so we added this tag."}
-- {slot: evidence.basis, key: "basis.tags/dohwa", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
+- {slot: evidence.basis, key: "basis.tags/dohwa", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag. The classics don't count Dohwa as a lucky shinsal, while in Korea it's read as charm and popularity, so we mention both here."}
 - {slot: evidence.basis, key: "basis.tags/gongmang", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/gosin", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}
 - {slot: evidence.basis, key: "basis.tags/gwasuk", text: "By your chart, today's branch {day_branch} falls on the {shinsal} position, so we added this tag."}

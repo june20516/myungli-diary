@@ -71,9 +71,9 @@
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: advice, text: "큰 결정은 서두르지 말고 하루 미뤄 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: state, text: "익숙한 환경에 변화가 생기기 쉬운 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.clash_month_branch, type: care, text: "바쁜 흐름에 지쳐도 이상하지 않은 날이에요."}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "발표나 모임처럼 사람들 앞에 서는 일을 해 보세요."}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "사람들의 눈길이 나에게 모이기 쉬운 날이에요."}
-- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "누군가 나를 좋게 봐 주는 설렘이 있는 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: advice, text: "관심이 모이는 날, 말과 행동은 한 번 더 살펴보세요."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: state, text: "눈길을 끌기 쉬운 만큼 말도 따르기 쉬운 날이에요."}
+- {slot: daily.fortune.tag, key: fortune.tag.dohwa, type: care, text: "마음이 들뜨기 쉬운 날이에요. 천천히 가도 괜찮아요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "새 일을 벌이기보다 하던 일을 마무리해 보세요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "벌인 일이 생각보다 더디게 풀리는 날이에요."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "결과가 늦어도 조급해하지 않아도 되는 날이에요."}

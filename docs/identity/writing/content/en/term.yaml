@@ -3,7 +3,7 @@
 - {slot: term.meaning, key: term.tag.clash, text: "Opposing energies colliding, so plans may change or opinions may split."}
 - {slot: term.meaning, key: term.tag.clash_day_branch, text: "Today's branch colliding with the branch of the day you were born, so you and those close to you are easily shaken."}
 - {slot: term.meaning, key: term.tag.clash_month_branch, text: "Today's branch colliding with the branch of the month you were born, so your work or surroundings are likely to change."}
-- {slot: term.meaning, key: term.tag.dohwa, text: "A shinsal for the pull that draws people's eyes, so your charm shows and attention comes easily."}
+- {slot: term.meaning, key: term.tag.dohwa, text: "A shinsal for the pull that draws people's eyes. Today attention comes easily, and so can talk about romance."}
 - {slot: term.meaning, key: term.tag.gongmang, text: "A shinsal for an empty seat, so results may not show right away for the effort you put in."}
 - {slot: term.meaning, key: term.tag.gosin, text: "A shinsal for a lone star, so today you may feel apart from those around you."}
 - {slot: term.meaning, key: term.tag.gwasuk, text: "A shinsal for a star that lodges alone, so today close people may feel a little distant."}
@@ -61,7 +61,7 @@
 - {slot: term.meaning, key: term.ten_god_group.gwanseong, text: "The name for Pyeongwan and Jeonggwan together, the rules and duties that keep you in line. It covers your job, your good name, and promises you need to keep."}
 - {slot: term.meaning, key: term.ten_god_group.inseong, text: "The name for Pyeonin and Jeongin together, the learning and care that help you grow. It covers study, thinking, and the help you receive."}
 - {slot: term.meaning, key: term.shinsal.cheoneul_gwiin, text: "The shinsal for the most valued kind of help. It's read as the luck of someone unexpected lending you a hand when things are hard."}
-- {slot: term.meaning, key: term.shinsal.dohwa, text: "A shinsal for the charm that draws people's eyes. It often shows as popularity, style, and romantic attention."}
+- {slot: term.meaning, key: term.shinsal.dohwa, text: "A shinsal for the charm that draws people's eyes. It can show as popularity, and also as talk about your love life or a wandering heart."}
 - {slot: term.meaning, key: term.shinsal.yeokma, text: "A shinsal that means a horse running far. It often shows as moving house, travel, or a busy stretch of getting from place to place."}
 - {slot: term.meaning, key: term.shinsal.hwagae, text: "A shinsal for the power to look deep within on your own. It shows as getting absorbed in one thing, like study or art."}
 - {slot: term.meaning, key: term.shinsal.yangin, text: "A shinsal for drive as strong as a blade. With that much push, it's worth watching out for fights and injuries."}
