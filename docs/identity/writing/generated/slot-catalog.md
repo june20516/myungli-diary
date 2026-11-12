@@ -229,6 +229,7 @@
 | today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
+| today.date.virtue | today.date.virtue | info | - | 1 | 2 | - | ko -, en -, ja - |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
 | today.event.title | today.event.title<br>day-sheet.event.title | info | - | 1 | 1 | - | ko 22, en 40, ja 18 |
 | today.featured.empty | today.featured.empty | info | - | 1 | 1 | - | ko 24, en 45, ja 19 |
@@ -236,16 +237,16 @@
 | today.fortune.title | today.fortune.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.guide.cta | today.guide.cta | guide | - | 1 | 3 | - | ko 23, en 42, ja 19 |
 | today.guide.title | today.guide.title | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-color.pair.intro | today.lucky-color.pair.intro | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.band.day | today.lucky-time.band.day | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.band.night | today.lucky-time.band.night | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.band.now | today.lucky-time.band.now | info | - | 1 | 1 | `time`: text | ko -, en -, ja - |
-| today.lucky-time.band.tomorrow | today.lucky-time.band.tomorrow | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.band.yesterday | today.lucky-time.band.yesterday | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.day.title | today.lucky-time.day.title | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.night.dawn | today.lucky-time.night.dawn | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.night.title | today.lucky-time.night.title | info | - | 1 | 1 | - | ko -, en -, ja - |
-| today.lucky-time.night.tonight | today.lucky-time.night.tonight | info | - | 1 | 1 | - | ko -, en -, ja - |
+| today.lucky-color.pair.intro | today.lucky-color.pair.intro | info | - | 1 | 1 | - | ko 31, en 53, ja 23 |
+| today.lucky-time.band.day | today.lucky-time.band.day | info | - | 1 | 1 | - | ko 10, en 17, ja 8 |
+| today.lucky-time.band.night | today.lucky-time.band.night | info | - | 1 | 1 | - | ko 10, en 17, ja 8 |
+| today.lucky-time.band.now | today.lucky-time.band.now | info | - | 1 | 1 | `time`: text | ko 13, en 22, ja 9 |
+| today.lucky-time.band.tomorrow | today.lucky-time.band.tomorrow | info | - | 1 | 1 | - | ko 7, en 11, ja 5 |
+| today.lucky-time.band.yesterday | today.lucky-time.band.yesterday | info | - | 1 | 1 | - | ko 7, en 11, ja 5 |
+| today.lucky-time.day.title | today.lucky-time.day.title | info | - | 1 | 1 | - | ko 23, en 40, ja 18 |
+| today.lucky-time.night.dawn | today.lucky-time.night.dawn | info | - | 1 | 1 | - | ko 16, en 29, ja 13 |
+| today.lucky-time.night.title | today.lucky-time.night.title | info | - | 1 | 1 | - | ko 23, en 40, ja 18 |
+| today.lucky-time.night.tonight | today.lucky-time.night.tonight | info | - | 1 | 1 | - | ko 16, en 29, ja 13 |
 | today.lucky.title | today.lucky.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | today.reaction.label | today.reaction.label | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |

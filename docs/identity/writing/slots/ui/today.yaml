@@ -453,6 +453,28 @@
     truncation: "design 상한 측정 전입니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
 
+- id: today.date.virtue
+  where: "오늘 화면 날짜 머리의 택일 덕일 표시(D124 ⑤). 해당하지 않는 날은 자리째 없음"
+  purpose: info
+  user_state: "날짜 머리에서 오늘이 택일 원전이 꼽는 덕일인지 봅니다."
+  structure: "그날 해당하는 덕일 이름. 원국의 천덕귀인, 월덕귀인과 이름을 구분합니다. 둘 다인 날의 형태와 키는 design #1029와 #1030에서 정합니다(지금 키는 가안)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {}
+      keys: [todayDateVirtueCheondeok, todayDateVirtueWoldeok]
+  pending:
+    todayDateVirtueCheondeok: {ko: "D124 덕일 원고 대기, #1030", en: "D124 덕일 원고 대기, #1030", ja: "D124 덕일 원고 대기, #1030"}
+    todayDateVirtueWoldeok: {ko: "D124 덕일 원고 대기, #1030", en: "D124 덕일 원고 대기, #1030", ja: "D124 덕일 원고 대기, #1030"}
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good: []
+    bad: []
+  endings: []
+  a11y:
+    truncation: "design 상한 측정 전입니다."
+    screen_reader: "design #1029 규칙을 따릅니다(#1030)."
+
 - id: today.fortune.title
   where: "오늘 화면 총운 섹션 제목(오른쪽에 좋아요)"
   purpose: info
@@ -705,7 +727,7 @@
   user_state: "오늘 행운 색이 두 개라 시트를 열었습니다."
   structure: "한 문장. 추천이 두 개라는 사실만 말하고, 계산 기준이 갈렸다거나 기준 이름(내 균형, 원전)을 쓰지 않습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 31, en: 53, ja: 23}
   keys:
     - todayLuckyColorPairIntro
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -725,7 +747,7 @@
   user_state: "낮 시간 칩을 눌러 시트를 열었습니다."
   structure: "명사구 하나. 원전(用時法, 論相主, 黃道)은 길한 시간만 말하므로 집중 같은 성질을 붙이지 않습니다(R37-4, R38-4)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 40, ja: 18}
   keys:
     - todayLuckyTimeDayTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -745,7 +767,7 @@
   user_state: "밤 시간 칩을 눌러 시트를 열었습니다."
   structure: "명사구 하나. 원전(用時法, 論相主, 黃道)은 길한 시간만 말하므로 집중 같은 성질을 붙이지 않습니다(R37-4, R38-4)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 23, en: 40, ja: 18}
   keys:
     - todayLuckyTimeNightTitle
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -765,7 +787,7 @@
   user_state: "새벽에 오늘 화면을 봅니다."
   structure: "낱말 하나. 지금이 밤의 어느 쪽인지만 알립니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 16, en: 29, ja: 13}
   keys:
     - todayLuckyTimeNightDawn
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -784,7 +806,7 @@
   user_state: "낮이나 저녁에 오늘 화면을 봅니다."
   structure: "낱말 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 16, en: 29, ja: 13}
   keys:
     - todayLuckyTimeNightTonight
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -803,7 +825,7 @@
   user_state: "띠에서 낮 구간을 봅니다."
   structure: "낱말 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 17, ja: 8}
   keys:
     - todayLuckyTimeBandDay
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -822,7 +844,7 @@
   user_state: "띠에서 밤 구간을 봅니다."
   structure: "낱말 하나."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 10, en: 17, ja: 8}
   keys:
     - todayLuckyTimeBandNight
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -841,7 +863,7 @@
   user_state: "띠에서 지금이 어디인지 봅니다."
   structure: "낱말과 시각."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 13, en: 22, ja: 9}
   keys:
     - params: {time: text}
       keys: [todayLuckyTimeBandNow]
@@ -861,7 +883,7 @@
   user_state: "새벽에 띠를 봅니다."
   structure: "낱말 하나. 눈금 시각 앞에 붙습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 7, en: 11, ja: 5}
   keys:
     - todayLuckyTimeBandYesterday
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -880,7 +902,7 @@
   user_state: "낮이나 저녁에 띠를 봅니다."
   structure: "낱말 하나. 눈금 시각 앞에 붙습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 7, en: 11, ja: 5}
   keys:
     - todayLuckyTimeBandTomorrow
   variants: {count: 1, rotation: "변주가 하나입니다"}
