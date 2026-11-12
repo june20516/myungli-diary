@@ -246,7 +246,7 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
         : null;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),
-      onRetry: () => unawaited(controller.retry()),
+      onRetry: controller.retry,
       // 권한을 읽는 동안: 제목과 구역 제목은 UI 글자라 그대로, 구역 본문 자리만 뼈입니다
       // (받는 중 모양과 같은 배치, V66). 열람 상태를 아직 몰라 안내 영역은 두지 않습니다.
       skeleton: EvidenceSheetBody(

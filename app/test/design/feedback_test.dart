@@ -171,13 +171,14 @@ Widget _view(
   bool Function(String)? isEmpty,
   bool Function(String)? isStale,
   VoidCallback? onRetry,
+  Future<void> Function()? onRetryAsync,
   void Function(AppError)? onStaleError,
   FakeCrashReporter? crash,
 }) => _app(
   crash: crash,
   ScreenStateView<String>(
     value: value,
-    onRetry: onRetry ?? () {},
+    onRetry: onRetryAsync ?? onRetry ?? () {},
     isEmpty: isEmpty,
     isStale: isStale,
     onStaleError: onStaleError,
@@ -1430,6 +1431,41 @@ void main() {
         );
         expect(find.byType(SkeletonBone), findsNothing);
         expect(calls, 2);
+      },
+    );
+
+    testWidgets(
+      '값을 loading으로 바꾸지 않는 다시 시도는 돌려준 일이 끝날 때까지 skeleton이고 이전 오류를 다시 비추지 않습니다',
+      (tester) async {
+        final done = Completer<void>();
+        await tester.pumpWidget(
+          _view(
+            const AsyncError<String>(TimeoutError(), StackTrace.empty),
+            onRetryAsync: () => done.future,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('다시 시도'));
+        await tester.pump(Duration.zero);
+        expect(
+          find.byKey(const ValueKey('screen-state.loading')),
+          findsOneWidget,
+        );
+
+        // 최소 시간이 지나도 일이 끝나지 않았으면 오류로 돌아가지 않습니다.
+        await tester.pump(const Duration(seconds: 1));
+        expect(
+          find.byKey(const ValueKey('screen-state.loading')),
+          findsOneWidget,
+        );
+        expect(find.byKey(const ValueKey('screen-state.error')), findsNothing);
+
+        done.complete();
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('screen-state.error')),
+          findsOneWidget,
+        );
       },
     );
 

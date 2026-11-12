@@ -65,7 +65,11 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
 
   /// 오류 화면의 다시 시도. 호출하는 쪽이 provider를 다시 불러 같은 자리에 skeleton이 나오게 합니다.
   /// null이면 오류 화면에 다시 시도를 그리지 않습니다.
-  final VoidCallback? onRetry;
+  ///
+  /// [Future]를 돌려주면 그 끝까지 skeleton을 둡니다. 받는 동안 값을 loading으로 바꾸지 않는
+  /// 다시 시도(이전 값을 유지하는 controller)가 skeleton 뒤에 이전 오류 화면을 다시 비추지 않게
+  /// 하기 위해서입니다.
+  final FutureOr<void> Function()? onRetry;
 
   /// 값이 있을 때의 내용(높이가 정해진 부모 전제).
   final Widget Function(T value)? data;
@@ -120,6 +124,9 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   /// 다시 시도 skeleton의 최소 시간. 도는 동안은 결과가 와도 skeleton을 둡니다.
   Timer? _retryHold;
 
+  /// [ScreenStateView.onRetry]가 돌려준 일이 아직 끝나지 않았는지.
+  bool _retryPending = false;
+
   @override
   void dispose() {
     _retryHold?.cancel();
@@ -132,18 +139,34 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
     _retryHold?.cancel();
     _retryHold = Timer(widget.retryMinDuration, () {
       _retryHold = null;
-      if (!mounted) return;
-      setState(() {
-        if (!widget.value.isLoading) _retrying = false;
-      });
+      _settleRetry();
     });
     setState(() => _retrying = true);
-    onRetry();
+    final pending = onRetry();
+    if (pending is Future<void>) {
+      _retryPending = true;
+      unawaited(
+        pending.then<void>((_) {}, onError: (Object _) {}).whenComplete(() {
+          _retryPending = false;
+          _settleRetry();
+        }),
+      );
+    }
+  }
+
+  /// 최소 시간과 돌려준 일이 모두 끝났고 값이 받는 중이 아니면 다시 시도 상태를 풉니다.
+  void _settleRetry() {
+    if (!mounted) return;
+    setState(() {
+      if (_retryHold == null && !_retryPending && !widget.value.isLoading) {
+        _retrying = false;
+      }
+    });
   }
 
   /// 다시 시도 skeleton을 지금 보여야 하는지.
   bool _showsRetrySkeleton(AsyncValue<T> current) =>
-      _retrying && (_retryHold != null || current.isLoading);
+      _retrying && (_retryHold != null || _retryPending || current.isLoading);
 
   @override
   void initState() {
@@ -154,7 +177,10 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   @override
   void didUpdateWidget(ScreenStateView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_retrying && !widget.value.isLoading && _retryHold == null) {
+    if (_retrying &&
+        !widget.value.isLoading &&
+        _retryHold == null &&
+        !_retryPending) {
       _retrying = false;
     }
     _handle(widget.value);
