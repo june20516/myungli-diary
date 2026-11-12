@@ -29,7 +29,12 @@ const Set<String> adFreeExits = {
 };
 
 /// IA `ad-free`에서 이 화면이 처리하는 상태.
-const Set<String> adFreeHandledStates = {'loading', 'error', 'offline'};
+const Set<String> adFreeHandledStates = {
+  'loading',
+  'error',
+  'offline',
+  'empty',
+};
 
 /// 광고 제거(`ad-free`, 결정 A75, D53·D88).
 ///
@@ -38,9 +43,10 @@ const Set<String> adFreeHandledStates = {'loading', 'error', 'offline'};
 /// 구매 버튼만 꺼진 카드를 보입니다(가격은 받지 못해 가격 줄을 뺍니다). 오프라인은 연결이
 /// 돌아와도 따로 감시하지 않고 화면에 다시 들어올 때 다시 받습니다.
 ///
-/// 스토어가 빈 목록을 주면(살 수 있는 상품 없음) 오류가 아니라 정상 값입니다. 상품에 기대는
-/// 가격과 구매 버튼만 그리지 않고 설명, 기간 고지, 구매 내역, 약관 안내는 그대로 보입니다.
-/// IA에 이 상태가 아직 없어 따로 안내 문구는 두지 않습니다(결정 A126, #922).
+/// 스토어가 빈 목록을 주면(살 수 있는 상품 없음) 오류가 아니라 정상 값이고 IA `empty`
+/// 상태입니다. 카드는 `unavailable`로 가격, 기간 고지, 구매 버튼 대신 안내 한 줄
+/// (`ad-free.unavailable.body`)을 두고 주는 것 한 줄, 구매 내역, 약관 안내는 그대로입니다. 이용
+/// 중이면 `active`가 먼저입니다(결정 A126, V123, #922).
 ///
 /// * `Me.adFree`가 활성이면 카드가 `active`(사용 중 꼬리표와 만료일 "까지")입니다.
 /// * 구매 버튼 → OS 결제 시트. 성공하면 [AdFreeController]가 햅틱·장부 맞추기·`Me` 갱신을 하고,
@@ -156,19 +162,18 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
             offline: offer.offline,
             active: expiry != null,
             purchasing: purchasing,
+            hasProduct: product != null,
           ),
           head: l10n.adFreeOfferHead,
           // 가격은 스토어 문자열 그대로, 기간·자동 갱신 아님은 가격과 상관없이 늘 보입니다.
           price: product?.priceLabel,
           period: l10n.adFreeOfferPeriod,
-          // 살 수 있는 상품이 없으면(오프라인 아님) 구매 버튼을 그리지 않습니다(A126).
-          buyLabel: product == null && !offer.offline
-              ? null
-              : l10n.adFreeBuyCta,
+          buyLabel: l10n.adFreeBuyCta,
           historyLabel: l10n.adFreeHistoryCta,
           legalNotice: l10n.adFreeLegalNotice,
           statusLabel: l10n.purchaseStatusActive,
           remaining: expiry == null ? null : l10n.adFreeStatusRemaining(expiry),
+          unavailableNote: l10n.adFreeUnavailableBody,
           onBuy: product == null ? null : () => _buy(product),
           onHistory: () => _open(ScreenIds.purchaseHistory),
           onLegal: () => _open(ScreenIds.legal),
@@ -178,6 +183,7 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
             period: SlotIds.adFreeOfferPeriod,
             remaining: SlotIds.adFreeStatusRemaining,
             buy: SlotIds.adFreeBuyCta,
+            unavailable: SlotIds.adFreeUnavailableBody,
             history: SlotIds.adFreeHistoryCta,
             legal: SlotIds.adFreeLegalNotice,
           ),
@@ -193,16 +199,22 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
       ? const AsyncData<_Offer>((product: null, offline: true))
       : product.whenData((value) => (product: value, offline: false));
 
+  /// 카드 상태. 이용 중이면 상품이 없어도 active가 먼저이고, 오프라인이 아닌데 살 수 있는 상품이
+  /// 없으면(스토어 빈 목록, 오류 아님) unavailable입니다(IA `ad-free` `empty`, V123, A126).
   OfferCardState _cardState({
     required bool offline,
     required bool active,
     required bool purchasing,
+    required bool hasProduct,
   }) {
     if (active) {
       return OfferCardState.active;
     }
     if (offline) {
       return OfferCardState.offline;
+    }
+    if (!hasProduct) {
+      return OfferCardState.unavailable;
     }
     return purchasing ? OfferCardState.purchasing : OfferCardState.available;
   }

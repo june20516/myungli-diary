@@ -13,6 +13,7 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 const _head = '한 달 동안 광고 없이 봐요';
 const _price = '가격';
 const _period = '1개월, 자동 갱신 없음';
+const _unavailable = '지금은 광고 제거권을 구매할 수 없어요.';
 
 /// 카드 라벨의 항목 구분자(ko).
 final String _separator = AppLocalizationsKo().a11yListSeparator;
@@ -40,6 +41,7 @@ OfferCard _card(
   legalNotice: '구매 전에 약관을 확인해 주세요.',
   statusLabel: '사용 중',
   remaining: '11월 23일까지 광고 없이 볼 수 있어요',
+  unavailableNote: _unavailable,
   onBuy: onBuy,
   onHistory: onHistory,
   onLegal: onLegal,
@@ -98,7 +100,59 @@ void main() {
       expect(history, 1);
     });
 
-    testWidgets('구매 내역 버튼은 네 상태 모두 보인다', (tester) async {
+    testWidgets('unavailable은 가격, 기간, 구매 버튼 대신 안내 한 줄이고 나머지는 그대로다(V123)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      var history = 0;
+      await tester.pumpWidget(
+        _app(_card(OfferCardState.unavailable, onHistory: () => history++)),
+      );
+      final tokens = tester.element(find.byType(OfferCard)).tokens;
+      expect(find.text(_price), findsNothing);
+      expect(find.text(_period), findsNothing);
+      expect(find.byKey(OfferCard.buyKey), findsNothing);
+      expect(find.byType(StatusTag), findsNothing);
+      expect(find.text(_head), findsOneWidget);
+      expect(find.byType(AppIcon), findsOneWidget);
+      expect(find.byKey(OfferCard.legalKey), findsOneWidget);
+      final note = find.byKey(OfferCard.unavailableKey);
+      final text = tester.widget<Text>(note);
+      expect(text.data, _unavailable);
+      expect(text.style!.fontSize, tokens.typography.bodyUi.fontSize);
+      expect(text.style!.color, tokens.colors.textSecondary);
+      // 주는 것 한 줄 아래 16에 놓이고 누를 수 없습니다.
+      expect(
+        tester.getTopLeft(note).dy - tester.getBottomLeft(find.text(_head)).dy,
+        OfferCard.unavailableGap,
+      );
+      expect(
+        find.ancestor(of: note, matching: find.byType(GestureDetector)),
+        findsNothing,
+      );
+      // 스크린리더는 카드 묶음에서 주는 것 한 줄 + 안내를 읽습니다.
+      expect(
+        tester.getSemantics(find.byKey(OfferCard.cardKey)).label,
+        [_head, _unavailable].join(_separator),
+      );
+      await tester.tap(find.byKey(OfferCard.historyKey));
+      await tester.pumpAndSettle();
+      expect(history, 1);
+      handle.dispose();
+    });
+
+    testWidgets('unavailable 안내는 큰 글자에서도 자르지 않고 넘치지 않는다', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(
+        _app(SizedBox(width: 320, child: _card(OfferCardState.unavailable))),
+      );
+      expect(tester.takeException(), isNull);
+      final text = tester.widget<Text>(find.byKey(OfferCard.unavailableKey));
+      expect(text.overflow, isNot(TextOverflow.ellipsis));
+    });
+
+    testWidgets('구매 내역 버튼은 모든 상태에서 보인다', (tester) async {
       for (final state in OfferCardState.values) {
         await tester.pumpWidget(_app(_card(state, onHistory: () {})));
         await tester.pump(const Duration(seconds: 1));

@@ -722,24 +722,44 @@ void main() {
         expect(opened, [pair, pair]);
       });
 
-      testWidgets('스크린리더는 칸마다 버튼이고 라벨은 항목 이름 + 그 칸의 값입니다', (tester) async {
+      testWidgets('스크린리더는 칸마다 버튼이고 라벨은 항목 이름 + 값 + 칸 순서입니다(W73)', (
+        tester,
+      ) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(row());
         for (final (index, value) in [(0, '검정'), (1, '노랑')]) {
           final data = _data(tester, half(index));
-          // "두 개 중 몇째"는 원고 문구가 없어 아직 붙이지 않습니다(A135, writing 몫).
-          expect(data.label, '행운 색, $value');
+          expect(data.label, '행운 색, $value, 2개 중 ${index + 1}번째');
           expect(data.flagsCollection.isButton, isTrue);
           expect(data.hasAction(SemanticsAction.tap), isTrue);
         }
         handle.dispose();
       });
 
+      for (final (locale, expected) in [
+        (const Locale('en'), '행운 색, 노랑, 2 of 2'),
+        (const Locale('ja'), '행운 색, 노랑, 2つのうち2つ目'),
+      ]) {
+        testWidgets('칸 순서는 앱 언어 문구입니다(${locale.languageCode})', (tester) async {
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            inputApp(
+              Center(
+                child: LuckyCardRow(items: [pair], onOpen: (_) => null),
+              ),
+              locale: locale,
+            ),
+          );
+          expect(_data(tester, half(1)).label, expected);
+          handle.dispose();
+        });
+      }
+
       testWidgets('표시 전용이면 칸이 버튼으로 읽히지 않습니다', (tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(row(interactive: false));
         final data = _data(tester, half(1));
-        expect(data.label, '행운 색, 노랑');
+        expect(data.label, '행운 색, 노랑, 2개 중 2번째');
         expect(data.flagsCollection.isButton, isFalse);
         handle.dispose();
       });

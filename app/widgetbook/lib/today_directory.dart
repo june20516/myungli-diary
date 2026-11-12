@@ -124,18 +124,27 @@ Widget _colorPairSheet() {
   );
 }
 
-/// 시간 칩 시트의 24시간 띠 견본(낮 신시, 밤 축시 고름).
+/// 시간 칩 시트의 24시간 띠 견본(낮 신시, 밤 축시 고름). 07:30 전 견본은 밤 칩, 그 뒤 견본은
+/// 낮 칩으로 연 모습이라 연 칩 시진이 굵은 고리입니다(V124).
 TimeBand _timeBand({required bool beforeDayStart}) {
+  final opened = beforeDayStart ? AppTimeOfDay.night : AppTimeOfDay.day;
+  TimeBandPick? pickOf(AppTimeOfDay period, {required bool chosen}) => chosen
+      ? (period == opened ? TimeBandPick.opened : TimeBandPick.other)
+      : null;
   final day = [
     for (final (index, label) in '진사오미신유술'.split('').indexed)
-      TimeBandCell(label: label, period: AppTimeOfDay.day, picked: index == 4),
+      TimeBandCell(
+        label: label,
+        period: AppTimeOfDay.day,
+        pick: pickOf(AppTimeOfDay.day, chosen: index == 4),
+      ),
   ];
   final night = [
     for (final (index, label) in '해자축인묘'.split('').indexed)
       TimeBandCell(
         label: label,
         period: AppTimeOfDay.night,
-        picked: index == 2,
+        pick: pickOf(AppTimeOfDay.night, chosen: index == 2),
       ),
   ];
   return TimeBand(

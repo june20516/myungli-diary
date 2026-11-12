@@ -972,6 +972,35 @@ void main() {
       expect(_map(parts['legal'])['type'], '{type.caption.md}');
       expect(_map(parts['legal'])['marginTop'], '{space.12}');
       expect(OfferCard.legalGap, Space.s12);
+      // unavailable(7.4.0, V123): 가격, 기간, 구매 버튼 자리의 안내 한 줄.
+      final unavailable = _map(parts['unavailable']);
+      expect(unavailable['type'], '{type.body.ui}');
+      expect(unavailable['fg'], '{color.text.secondary}');
+      expect(unavailable['slot'], SlotIds.adFreeUnavailableBody);
+      expect(unavailable['marginTop'], '{space.16}');
+      expect(OfferCard.unavailableGap, Space.s16);
+      expect(unavailable['maxLines'], OfferCard.unavailableMaxLines);
+      final states = _map(offer['states']);
+      expect(
+        _map(_map(states['unavailable'])['parts'])
+            .map((part, value) => MapEntry(part, _map(value)['visible'])),
+        {
+          'price': false,
+          'period': false,
+          'buy': false,
+          'status': false,
+          'remaining': false,
+          'unavailable': true,
+        },
+      );
+      expect(
+        _map(states['unavailable'])['note'],
+        contains('이용 중이면 active가 먼저'),
+      );
+      expect(
+        _map(offer['a11y'])['unavailableLabel'],
+        'unavailable에서는 주는 것 한 줄 + 안내(ad-free.unavailable.body)',
+      );
 
       expect(_map(parts['buy'])['variant'], 'filled');
       expect(_map(parts['history'])['variant'], 'quiet');
@@ -2682,8 +2711,7 @@ void main() {
       final evidence = _map(_map(parts['explain'])['evidenceLink']);
       expect(evidence['when'], startsWith('color(색이 하나인 날)와 time 시트만'));
       expect(evidence['subject'], contains('행운 색'));
-      // "두 개 중 몇째"는 원고 문구가 없어 칸 라벨에 아직 붙이지 않습니다(A135). 계약 문구가
-      // 바뀌면 이 대조가 알려 줍니다.
+      // "두 개 중 몇째"는 writing `todayLuckyPairPosition`(W73)으로 칸 라벨 끝에 붙습니다.
       expect(_map(luckyCard['a11y'])['pairLabel'], '칸마다 항목 이름 + 값 + 두 개 중 몇째');
     });
   });

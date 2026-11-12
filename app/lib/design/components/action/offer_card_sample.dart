@@ -26,6 +26,7 @@ OfferCard offerCardSample(
   remaining: l10n.adFreeStatusRemaining(
     DateFormat.yMMMd(localeTag).format(DateTime(2026, 11, 23)),
   ),
+  unavailableNote: l10n.adFreeUnavailableBody,
   onBuy: () {},
   onHistory: () {},
   onLegal: () {},

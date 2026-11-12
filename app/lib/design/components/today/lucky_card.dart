@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
@@ -284,8 +285,8 @@ typedef _PairHalf = ({FiveElement element, String value});
 /// 바탕과 테두리는 칩([_ChipFrame])과 같고, 안을 세로선으로 나눈 두 칸이 칸마다 누름 자리입니다.
 /// 어느 칸을 눌러도 같은 [onTap](같은 행운 색 시트)이고, 열림 테두리는 알약 전체에 그립니다.
 /// 기준 이름표(내 균형 기준, 원전 기준)는 두지 않습니다(`pair.basisLabel` false). 스크린리더는
-/// 칸마다 "항목 이름, 값"으로 읽습니다. 계약 `a11y.pairLabel`의 "두 개 중 몇째"는 원고 문구가
-/// 없어 아직 읽지 않습니다(A135, writing 몫).
+/// 칸마다 "항목 이름, 값, 칸 순서"로 읽습니다(`a11y.pairLabel`, 순서 문구
+/// `todayLuckyPairPosition`, W73). 순서만 말하고 기준 이름은 넣지 않습니다(D123 ①).
 class _PairChipFrame extends StatelessWidget {
   const new({
     required this.name,
@@ -390,7 +391,9 @@ class _PairChipFrame extends StatelessWidget {
         ),
       ),
     );
-    final label = '$name, ${half.value}';
+    final position = AppLocalizations.of(context)
+        .todayLuckyPairPosition(index + 1, halves.length);
+    final label = '$name, ${half.value}, $position';
     final tap = onTap;
     if (tap == null) {
       return Semantics(

@@ -187,20 +187,32 @@ void main() {
     expect(find.byKey(const ValueKey('screen-state.error')), findsOneWidget);
   });
 
-  testWidgets('스토어가 빈 목록이면 오류가 아니라 가격과 구매 버튼 없는 카드(A126)', (tester) async {
+  testWidgets('스토어가 빈 목록이면 오류가 아니라 unavailable 카드와 안내 한 줄(V123, A126)', (
+    tester,
+  ) async {
+    covers(const Covers(states: ['ad-free:empty']));
     await _open(tester, FakePurchases(catalog: const []));
     expect(find.text(_ko.actionRetry), findsNothing);
     expect(find.byType(NoticeBanner), findsOneWidget); // present=false: 빈 자리
     expect(find.text(_ko.noticeOffline), findsNothing);
+    final card = tester.widget<OfferCard>(find.byType(OfferCard));
+    expect(card.state, OfferCardState.unavailable);
     expect(find.byKey(OfferCard.buyKey), findsNothing);
-    expect(tester.widget<OfferCard>(find.byType(OfferCard)).price, isNull);
+    expect(find.text(_ko.adFreeOfferPeriod), findsNothing);
+    expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
+    expect(find.text(_ko.adFreeUnavailableBody), findsOneWidget);
+    expect(
+      find.bySemanticsIdentifier(SlotIds.adFreeUnavailableBody),
+      findsOneWidget,
+    );
     final history = tester.widget<PrimaryButton>(
       find.byKey(OfferCard.historyKey),
     );
     expect(history.onPressed, isNotNull);
+    expect(find.byKey(OfferCard.legalKey), findsOneWidget);
   });
 
-  testWidgets('이용 중이면 상품이 없어도 남은 기간을 보인다', (tester) async {
+  testWidgets('이용 중이면 상품이 없어도 active가 먼저이고 안내는 없다', (tester) async {
     await _open(
       tester,
       FakePurchases(catalog: const []),
@@ -210,6 +222,11 @@ void main() {
       find.bySemanticsIdentifier(SlotIds.adFreeStatusRemaining),
       findsOneWidget,
     );
+    expect(
+      tester.widget<OfferCard>(find.byType(OfferCard)).state,
+      OfferCardState.active,
+    );
+    expect(find.text(_ko.adFreeUnavailableBody), findsNothing);
   });
 
   testWidgets('오프라인이면 offline 안내와 비활성 구매 버튼, 가격 줄 없음', (tester) async {

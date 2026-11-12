@@ -179,7 +179,7 @@ void main() {
   });
 
   testWidgets(
-    '살 수 있는 상품이 없으면 오류가 아니고 가격과 구매 버튼만 빠진 카드, 구매 내역으로 갈 수 있다(#922, A126)',
+    '살 수 있는 상품이 없으면 오류가 아니고 안내 한 줄의 unavailable 카드, 구매 내역으로 갈 수 있다(#922, V123)',
     (tester) async {
       final crash = FakeCrashReporter();
       final container = await pumpApp(
@@ -201,9 +201,10 @@ void main() {
       expect(find.text(_ko.noticeOffline), findsNothing);
       expect(find.byKey(OfferCard.cardKey), findsOneWidget);
       expect(find.byKey(OfferCard.buyKey), findsNothing);
-      expect(tester.widget<OfferCard>(find.byType(OfferCard)).price, isNull);
       expect(find.text(_ko.adFreeOfferHead), findsOneWidget);
-      expect(find.text(_ko.adFreeOfferPeriod), findsOneWidget);
+      // 가격과 기간 고지, 구매 버튼 대신 안내 한 줄입니다(IA ad-free empty).
+      expect(find.text(_ko.adFreeOfferPeriod), findsNothing);
+      expect(find.text(_ko.adFreeUnavailableBody), findsOneWidget);
       expect(
         find.text(_ko.adFreeLegalNotice, findRichText: true),
         findsWidgets,

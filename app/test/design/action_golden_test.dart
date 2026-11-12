@@ -207,7 +207,7 @@ Widget _socialConnected() => Builder(
   },
 );
 
-/// offer-card: available·active·purchasing·offline.
+/// offer-card: available·active·purchasing·offline·unavailable.
 /// 견본은 앱 lib의 `offerCardSample`(widgetbook과 공용)입니다.
 Widget _offerCards() => Builder(
   builder: (context) {
