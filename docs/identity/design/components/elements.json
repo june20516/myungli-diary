@@ -1,5 +1,5 @@
 {
-  "version": "7.4.0",
+  "version": "7.5.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -168,6 +168,7 @@
       "width": "{border.width.hairline}",
       "insetX": "{space.16}",
       "insetRule": "묶음 좌우에서 같은 거리. 줄 안쪽 여백(paddingX)과 같음",
+      "inSheet": { "insetX": 0, "rule": "묶음 카드 없이 시트 본문에 바로 놓인 목록과 구역(색 둘 시트 두 색 사이, 사주 기운 시트 문장 목록)은 줄 안쪽 여백이 없으므로 들임 0. 선은 시트 본문 폭(시트 안쪽 24 안) 그대로 (결정 V124, #1072)" },
       "underLeading": true,
       "between": "rows-only",
       "note": "첫 줄 위와 끝 줄 아래에는 없음. 묶음과 묶음은 선 없이 간격으로 나눔"
