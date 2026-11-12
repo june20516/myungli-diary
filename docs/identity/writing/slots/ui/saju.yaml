@@ -651,3 +651,24 @@
   a11y:
     truncation: "칸 안에서 잘리지 않게 짧게 씁니다."
     screen_reader: "보이는 글자 그대로 읽습니다."
+
+- id: ui.shinsal.weighing
+  where: "흉한 신살(공망, 고신, 과숙, 원진, 구교)의 풀이 시트(explain-sheet)와 사주 기운 시트(tag-sheet)에서 뜻 바로 아래 뉴트럴 상자 한두 줄(D124 ⑦, design V120, IA 밖)"
+  purpose: info
+  user_state: "흉한 신살의 뜻을 읽고 불안해질 수 있습니다."
+  structure: "원전 『三命通會』 「總論諸神煞」의 '若專論神煞則誣矣'(신살만 따지면 그릇된다)를 한 문장으로. '일 뿐'은 흉 신살에 대한 불안을 달래려고 둔 것이고(사용자 의도, R41), 순서나 무게(얼마나 크게 볼지)를 말하는 낱말은 다음 궁금증을 부르므로 쓰지 않습니다. 어느 신살에 붙일지는 app이 정합니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 52, en: 88, ja: 38}
+  components: [explain-sheet]
+  keys:
+    - shinsalWeighingNote
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: shinsalWeighingNote, text: "원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요.", why: "결론을 닫아 '얼마나 크게 봐야 하나'를 남기지 않음, 사용자 문구를 다듬음", source: round-R41-1}
+    bad:
+      - {lang: ko, key: shinsalWeighingNote, text: "원전은 사주의 바탕을 먼저 보고, 신살의 무게는 그다음에 따지라고 해요.", why: "순서만 말해 덜 중요하다는 뜻인지 보조 수단이라는 뜻인지 갈림(사용자 지적)", source: round-R41-1}
+  endings: []
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "문장 그대로 읽습니다. 체크 아이콘은 읽지 않습니다."

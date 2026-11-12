@@ -78,6 +78,15 @@
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: advice, text: "Instead of starting something new, finish what you began."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: state, text: "Things you've started may move slower than expected."}
 - {slot: daily.fortune.tag, key: fortune.tag.gongmang, type: care, text: "If results take time, there's no need to hurry today."}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: advice, text: "Spend some time on things you do on your own."}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: state, text: "You may feel apart from others and a bit lonely today."}
+- {slot: daily.fortune.tag, key: fortune.tag.gosin, type: care, text: "It's fine if you spend a long stretch on your own today."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: advice, text: "Reach out to someone close and say hello first."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: state, text: "Close people may feel a little distant today."}
+- {slot: daily.fortune.tag, key: fortune.tag.gwasuk, type: care, text: "It's fine if things feel a little empty around you today."}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: advice, text: "If a remark bothers you, pause before you bring it up."}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: state, text: "Small things may hurt your feelings today."}
+- {slot: daily.fortune.tag, key: fortune.tag.wonjin, type: care, text: "If you feel let down today, don't blame yourself."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: advice, text: "If you need help with something, ask for it first today."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: state, text: "Someone who can help is close by when you need it."}
 - {slot: daily.fortune.tag, key: fortune.tag.gwiin_day, type: care, text: "It's a relief to know you don't have to do it alone."}

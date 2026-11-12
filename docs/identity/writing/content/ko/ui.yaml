@@ -401,6 +401,7 @@
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerDay, text: "일"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerMonth, text: "월"}
 - {slot: ui.saju.stage-marker, key: sajuStageMarkerYear, text: "연"}
+- {slot: ui.shinsal.weighing, key: shinsalWeighingNote, text: "원전에서 신살은 사주를 판단하는 여러 단서 중 하나일 뿐이에요."}
 - {slot: ui.saju.luck-period, key: luckDaeunAgeRange, text: "{startAge}~{endAge}세"}
 - {slot: ui.saju.luck-period, key: luckDaeunYearRange, text: "{startYear}~{endYear}년"}
 - {slot: ui.saju.luck-period, key: luckSeunYear, text: "{year}년"}
@@ -449,6 +450,8 @@
 - {slot: today.date.lunar, key: todayDateLunar, text: "음력 {month}월 {day}일"}
 - {slot: today.date.lunar, key: todayDateLunarLeap, text: "음력 윤{month}월 {day}일"}
 - {slot: today.date.iljin, key: todayDateIljin, text: "{pillar}일"}
+- {slot: today.date.virtue, key: todayDateVirtueCheondeok, text: "천덕일"}
+- {slot: today.date.virtue, key: todayDateVirtueWoldeok, text: "월덕일"}
 - {slot: day-sheet.date.solar, key: daySheetDateSolar, text: "{date}"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunar, text: "음력 {month}월 {day}일"}
 - {slot: day-sheet.date.lunar, key: daySheetDateLunarLeap, text: "음력 윤{month}월 {day}일"}

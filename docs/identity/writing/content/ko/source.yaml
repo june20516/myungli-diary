@@ -130,6 +130,22 @@
 - {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#clash_day_branch", text: "일주 자리가 상하면 나 자신에게 이롭지 않으니, 이를 절요살이라 부른다는 뜻이에요.\n傷日不利己身，名折腰煞\n삼명통회 「논년월일시」"}
 - {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#dohwa", text: "인오술은 묘, 사유축은 오, 신자진은 유, 해묘미는 자가 장생 다음 목욕 자리이고, 패신이나 도화살이라고도 부른다는 뜻이에요.\n寅午戌卯、已酉丑午、申子辰酉、亥卯未子即長生第二位沐浴之宮是也。一名敗神，一名桃花煞\n삼명통회 「논함지」"}
 - {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#gongmang", text: "갑으로 시작하는 열흘이 끝나고 남는 자리를 공망이라 하니, 자리는 있으나 녹이 없어 공, 지지는 있으나 천간이 없어 망이라는 뜻이에요.\n故以甲旬盡處曰空亡，蓋有是位而無祿，曰空；有支而無干，曰亡。\n삼명통회 「논공망」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#cheondeok", text: "이 열두 자리는 흉을 돌려 선으로 만들 수 있어 천덕이라 한다는 뜻이에요.\n此十二位宮能回凶作善乃曰天德也\n삼명통회 「논천월덕」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#woldeok", text: "월덕은 삼합이 비추는 방위로, 신자진은 임, 해묘미는 갑, 인오술은 병, 사유축은 경에 드니 임, 갑, 병, 경을 월덕이라 한다는 뜻이에요.\n月德者乃三合所照之方日月會合之辰申子辰會酉出庚入垣於壬亥卯未會午出丙入垣於甲寅午戌會卯出甲入垣於丙巳酉丑會子出壬入垣於庚故壬甲丙庚謂之月德\n삼명통회 「논천월덕」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#geumyeo", text: "금여는 늘 녹 앞 두 자리에 있으니, 갑자생은 녹이 인에 있어 진이 금여라는 뜻이에요.\n金轝常居祿前二辰如甲子人祿在寅辰為金轝是也\n삼명통회 「논금여」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#gosin", text: "해자축처럼 한 방위의 세 자리에서 앞으로 한 자리 나아가 인을 만나면 고, 뒤로 한 자리 물러나 술을 만나면 과라는 뜻이에요.\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\n삼명통회 「논고신과숙」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#gwasuk", text: "해자축처럼 한 방위의 세 자리에서 앞으로 한 자리 나아가 인을 만나면 고, 뒤로 한 자리 물러나 술을 만나면 과라는 뜻이에요.\n如亥子丑逐方三位進前一辰見寅為孤退後一辰見戌為寡\n삼명통회 「논고신과숙」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#wonjin", text: "양남음녀는 충 자리 앞 한 칸, 음남양녀는 충 자리 뒤 한 칸의 지지라는 뜻이에요. 명리일기는 한국에서 널리 쓰는 쌍을 남녀 구분 없이 써요.\n是以陽男陰女在衝前一位支辰陰男陽女在衝後一位支辰\n삼명통회 「논원진」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#gugyo", text: "양남음녀는 명 앞 세 번째 자리가 구, 뒤 세 번째 자리가 교이고, 음남양녀는 앞이 교, 뒤가 구라는 뜻이에요.\n陽男陰女命前三辰為勾命後三辰為絞陰男陽女命前三辰為絞命後三辰為勾\n삼명통회 「논구교」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#cheonra_jimang", text: "어째서 술과 해를 천라, 진과 사를 지망이라 하는지 그 까닭을 묻는 대목이에요.\n何以戌亥為天羅辰巳為地網\n삼명통회 「논천라지망」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#goegang", text: "이 격에는 경진, 임진, 무술, 경술의 네 날이 있다는 뜻이에요.\n此格有四日庚辰壬辰戊戌庚戌\n삼명통회 「괴강」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#sipak_daepae", text: "육갑순 가운데 녹이 공망에 드는 열 날이라는 뜻이에요.\n六甲旬中十個日値祿入空亡\n삼명통회 「논십악대패」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#eumchak_yangcha", text: "음양차착살은 병자, 정축, 무인, 신묘, 임진, 계사, 병오, 정미, 무신, 신유, 임술, 계해의 열두 날이라는 뜻이에요.\n陰陽差錯煞乃丙子丁丑戊寅辛卯壬辰癸巳丙午丁未戊申辛酉壬戌癸亥十二日也\n삼명통회 「총론제신살」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#samgi", text: "삼기는 차례대로 놓여야 하고 거꾸로 어지러우면 안 되니, 을병정이나 갑무경이 연, 월, 일, 시 천간에 차례대로 놓이면 길하다는 뜻이에요.\n三奇要順布不欲倒亂如乙丙丁甲戊庚天干年月日時順布為吉\n삼명통회 「논삼기」"}
+- {slot: evidence.source, key: "source.sammyeong-tonghoe/shinsal#weighing", text: "앞의 신살들은 옛사람이 중히 여겼지만, 반드시 일간의 강약과 오행의 생극을 바탕으로 재관인식과 귀인, 녹마를 함께 본 뒤에 신살이 얼마나 무거운지 따져 봐야 하고, 신살만 보고 판단하면 틀린다는 뜻이에요.\n右十二宮神煞古人所重然必以主本旺相休囚五行生尅制化本之以財官印食參之以貴人祿馬然後看神煞輕重較量可也若專論神煞則誣矣\n삼명통회 「총론제신살」"}
+- {slot: evidence.source, key: "source.xieji-bianfang/days#tiande", text: "천덕은 정월 정, 2월 곤, 3월 임, 4월 신, 5월 건, 6월 갑, 7월 계, 8월 간, 9월 병, 10월 을, 11월 손, 12월 경이라는 뜻이에요.\n天德者正月丁二月坤三月壬四月辛五月乾六月甲七月癸八月艮九月丙十月乙十一月巽十二月庚\n협기변방서 「천덕」"}
+- {slot: evidence.source, key: "source.xieji-bianfang/days#yuede", text: "월덕은 1, 5, 9월은 병, 2, 6, 10월은 갑, 3, 7, 11월은 임, 4, 8, 12월은 경에 있다는 뜻이에요.\n月德者正五九月在丙二六十月在甲三七十一月在壬四八十二月在庚\n협기변방서 「월덕」"}
+- {slot: evidence.source, key: "source.xingxue-dacheng/shinsal#amrok", text: "암록은 갑생이 해를 만나는 것이니 해가 인과 합하고, 을생이 술을 만나는 것이니 술이 묘와 합한다는 뜻이에요.\n暗祿者甲生人逢亥是亥能合寅乙生人逢戌是戌能合卯\n성학대성 「논공록교록암록」"}
 - {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#hwagae", text: "삼합의 마지막 자리인 창고 자리를 화개라 부른다는 뜻이에요.\n故以三合底處得庫謂之華蓋。\n삼명통회 「논장성화개」"}
 - {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#stem_hap", text: "음이 양을, 양이 음을 만나야 합이 되니, 남녀가 만나 부부가 되는 것과 같다는 뜻이에요.\n唯陰見陽，陽見陰爲合，亦如男女相合而成夫婦之道。\n삼명통회 「논십간합」"}
 - {slot: evidence.source, key: "source.sammyeong-tonghoe/tags#yeokma", text: "역마는 선천수로 따진 삼합의 수에서 나온다는 뜻이에요.\n所謂驛馬者，乃先天三合數也\n삼명통회 「논역마」"}

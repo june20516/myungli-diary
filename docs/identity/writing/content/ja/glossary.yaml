@@ -65,6 +65,19 @@
 - {slot: glossary.value_name, key: shinsal.hwagae, text: "華蓋"}
 - {slot: glossary.value_name, key: shinsal.yangin, text: "羊刃"}
 - {slot: glossary.value_name, key: shinsal.gongmang, text: "空亡"}
+- {slot: glossary.value_name, key: shinsal.cheondeok, text: "天徳貴人"}
+- {slot: glossary.value_name, key: shinsal.woldeok, text: "月徳貴人"}
+- {slot: glossary.value_name, key: shinsal.geumyeo, text: "金與禄"}
+- {slot: glossary.value_name, key: shinsal.gosin, text: "孤辰"}
+- {slot: glossary.value_name, key: shinsal.gwasuk, text: "寡宿"}
+- {slot: glossary.value_name, key: shinsal.wonjin, text: "元辰"}
+- {slot: glossary.value_name, key: shinsal.gugyo, text: "勾絞"}
+- {slot: glossary.value_name, key: shinsal.cheonra_jimang, text: "天羅地網"}
+- {slot: glossary.value_name, key: shinsal.goegang, text: "魁罡"}
+- {slot: glossary.value_name, key: shinsal.sipak_daepae, text: "十悪大敗"}
+- {slot: glossary.value_name, key: shinsal.eumchak_yangcha, text: "陰差陽錯"}
+- {slot: glossary.value_name, key: shinsal.samgi, text: "三奇貴人"}
+- {slot: glossary.value_name, key: shinsal.amrok, text: "暗禄"}
 - {slot: glossary.value_name, key: twelve_stage.jangsaeng, text: "長生"}
 - {slot: glossary.value_name, key: twelve_stage.mokyok, text: "沐浴"}
 - {slot: glossary.value_name, key: twelve_stage.gwandae, text: "冠帯"}
@@ -111,3 +124,6 @@
 - {slot: glossary.value_name, key: luck.seun, text: "年運"}
 - {slot: glossary.value_name, key: part.stem, text: "天干"}
 - {slot: glossary.value_name, key: part.branch, text: "地支"}
+- {slot: glossary.value_name, key: part.gou, text: "勾"}
+- {slot: glossary.value_name, key: part.jiao, text: "絞"}
+- {slot: glossary.value_name, key: part.unknown, text: "勾絞"}

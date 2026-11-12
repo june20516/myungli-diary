@@ -230,7 +230,7 @@
 | today.date.iljin | today.date.iljin | info | - | 1 | 1 | `pillar`: text | ko -, en -, ja - |
 | today.date.lunar | today.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | today.date.solar | today.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |
-| today.date.virtue | today.date.virtue | info | - | 1 | 2 | - | ko -, en -, ja - |
+| today.date.virtue | today.date.virtue | info | - | 1 | 2 | - | ko 28, en 52, ja 23 |
 | today.event.summary | today.event.summary | info | - | 1 | 6 | `count`: number<br>`title`: text<br>`time`: text | ko -, en -, ja - |
 | today.event.title | today.event.title<br>day-sheet.event.title | info | - | 1 | 1 | - | ko 22, en 40, ja 18 |
 | today.featured.empty | today.featured.empty | info | - | 1 | 1 | - | ko 24, en 45, ja 19 |
@@ -310,6 +310,7 @@
 | ui.settings.login-methods | 컴포넌트 settings-row | guide | - | 1 | 1 | - | ko 20, en 37, ja 16 |
 | ui.settings.row | 컴포넌트 settings-row | info | - | 1 | 5 | - | ko 9, en 16, ja 7 |
 | ui.share.a11y | 컴포넌트 share-image<br>컴포넌트 segmented | info | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| ui.shinsal.weighing | 컴포넌트 explain-sheet | info | - | 1 | 1 | - | ko 52, en 88, ja 38 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-sheet.sentence-kind | 컴포넌트 tag-sentence-list | info | - | 1 | 2 | - | ko -, en -, ja - |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |

@@ -122,10 +122,6 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 헤드라인 다음에 이어 읽습니다.
-  pending:
-    fortune.tag.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    fortune.tag.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    fortune.tag.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: daily.guide
   where: 오늘 화면 가이드 질문 (일기 쓰기 전에 보임, D22)
@@ -178,10 +174,6 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 질문으로 읽습니다.
-  pending:
-    guide.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    guide.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    guide.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: daily.color
   where: 오늘 화면 행운의 색 카드
@@ -379,10 +371,6 @@
   a11y:
     truncation: 칩 안에서 잘리지 않게 짧게 씁니다.
     screen_reader: 칩 이름을 읽고, 탭하면 풀이가 열린다는 것은 app이 알립니다.
-  pending:
-    tag.gosin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    tag.gwasuk: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    tag.wonjin: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
 
 - id: daily.focus_reason
   where: 오늘 화면 집중 시간 가점 사유 (FocusSlot.reasons)
@@ -434,6 +422,3 @@
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 문장 그대로 읽습니다.
-  pending:
-    day_virtue.cheondeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}
-    day_virtue.woldeok: {ko: "D124 신살 원고 대기, #1030", en: "D124 신살 원고 대기, #1030", ja: "D124 신살 원고 대기, #1030"}

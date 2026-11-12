@@ -26,6 +26,11 @@
 - {slot: evidence.basis, key: "basis.tags/clash_month_branch", text: "오늘 지지 {day_branch}(이)가 태어난 달의 지지와 [[충|relation.chung]]이라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/dohwa", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/gongmang", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/gosin", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/gwasuk", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}
+- {slot: evidence.basis, key: "basis.tags/wonjin", text: "내 띠로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요. 원진은 한국에서 널리 쓰는 쌍을 남녀 구분 없이 썼고, 원전은 남녀를 나눠 쌍을 달리 정해요."}
+- {slot: evidence.basis, key: "basis.day_virtue/cheondeok", text: "택일 원전은 달마다 하늘의 덕이 드는 천간을 정해 두고, 그 천간이 든 날을 천덕일로 꼽아요. 오늘은 이달의 그 천간이 든 날이에요."}
+- {slot: evidence.basis, key: "basis.day_virtue/woldeok", text: "택일 원전은 달마다 달의 덕이 드는 천간을 정해 두고, 그 천간이 든 날을 월덕일로 꼽아요. 오늘은 이달의 그 천간이 든 날이에요."}
 - {slot: evidence.basis, key: "basis.tags/gwiin_day", text: "오늘이 귀인의 날이라 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/harmony", text: "오늘 일진이 {natal_positions}(과)와 {relation_kind}(을)를 이뤄 이 태그를 붙였어요."}
 - {slot: evidence.basis, key: "basis.tags/hwagae", text: "내 사주로 따지면 오늘 지지 {day_branch}(이)가 {shinsal} 자리라 이 태그를 붙였어요."}

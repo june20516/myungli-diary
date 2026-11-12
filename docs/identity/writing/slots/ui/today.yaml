@@ -459,20 +459,17 @@
   user_state: "날짜 머리에서 오늘이 택일 원전이 꼽는 덕일인지 봅니다."
   structure: "그날 해당하는 덕일 이름. 원국의 천덕귀인, 월덕귀인과 이름을 구분합니다. 둘 다인 날의 형태와 키는 design #1029와 #1030에서 정합니다(지금 키는 가안)."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 28, en: 52, ja: 23}
   keys:
     - params: {}
       keys: [todayDateVirtueCheondeok, todayDateVirtueWoldeok]
-  pending:
-    todayDateVirtueCheondeok: {ko: "D124 덕일 원고 대기, #1030", en: "D124 덕일 원고 대기, #1030", ja: "D124 덕일 원고 대기, #1030"}
-    todayDateVirtueWoldeok: {ko: "D124 덕일 원고 대기, #1030", en: "D124 덕일 원고 대기, #1030", ja: "D124 덕일 원고 대기, #1030"}
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good: []
     bad: []
   endings: []
   a11y:
-    truncation: "design 상한 측정 전입니다."
+    truncation: "알약이 혼자 한 줄일 때 290px 한 줄(design V119). 덕 이름은 상한보다 짧습니다."
     screen_reader: "design #1029 규칙을 따릅니다(#1030)."
 
 - id: today.fortune.title

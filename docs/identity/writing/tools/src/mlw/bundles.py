@@ -33,6 +33,8 @@ COMMON_TAGS: tuple[str, ...] = (
     "clash_month_branch",
     "dohwa",
     "gongmang",
+    "gosin",
+    "gwasuk",
     "harmony",
     "hwagae",
     "ten_god_rush.bigyeop",
@@ -40,6 +42,7 @@ COMMON_TAGS: tuple[str, ...] = (
     "ten_god_rush.inseong",
     "ten_god_rush.jaeseong",
     "ten_god_rush.siksang",
+    "wonjin",
     "yeokma",
 )
 # 해당 날의 성격에서만 대표 태그가 되는 태그입니다.
