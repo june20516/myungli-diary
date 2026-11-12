@@ -7,7 +7,6 @@ import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/position.dart';
 import 'package:myungli_diary/core/api/gen/model/stem.dart';
-import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/saju/luck_label.dart';
@@ -122,23 +121,7 @@ final class ChartText {
     }
   }
 
-  /// 사전에 그 용어의 뜻이 없으면(`Glossary.meanings`는 용어마다 비어 있을 수 있음) 풀이
-  /// 시트는 이름과 근거 아이콘만 남으므로, 근거 시트("내 사주에서는")를 바로 엽니다(A130, #957).
   Future<void> _openExplain(String termId, PersonalReadingKey personal) =>
-      _hasMeaning(termId)
-      ? _openExplainSheet(termId, personal)
-      : sheets.openEvidence(
-          context,
-          SlotIds.evidenceSheetPersonalBody,
-          personal: personal,
-        );
-
-  bool _hasMeaning(String termId) {
-    final meaning = names?.meaningOf(termId);
-    return meaning != null && !isBlankText(meaning);
-  }
-
-  Future<void> _openExplainSheet(String termId, PersonalReadingKey personal) =>
       sheets.openExplain(
         context,
         ExplainTerm(

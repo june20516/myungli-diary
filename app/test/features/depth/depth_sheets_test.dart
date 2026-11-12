@@ -44,6 +44,8 @@ Widget _evidence(String slotId, PersonalReadingKey? _, EvidenceTarget _) =>
     _tall('근거 $slotId');
 Widget _share() => _tall('공유');
 
+bool _noBody(ExplainTerm _) => false;
+
 Future<void> _pumpHost(WidgetTester tester) async {
   tester.view
     ..physicalSize = const Size(400, 900)
@@ -70,6 +72,37 @@ double _frameHeight(WidgetTester tester) =>
     tester.getSize(find.byType(MyungliSheetFrame).last).height;
 
 void main() {
+  group('본문 없는 용어 풀이 시트(A130, #957)', () {
+    const bodiless = DepthSheets(
+      explainBody: _explain,
+      evidenceBody: _evidence,
+      shareBody: _share,
+      termHasBody: _noBody,
+    );
+
+    testWidgets('출처가 있으면 풀이 시트 대신 그 근거 시트를 바로 엽니다', (tester) async {
+      await _pumpHost(tester);
+      unawaited(
+        bodiless.openExplain(
+          _context,
+          ExplainTerm('ten_god.bigyeop', origin: _origin('today.fortune.head')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('근거 today.fortune.head'), findsOneWidget);
+      expect(find.textContaining('풀이 '), findsNothing);
+    });
+
+    testWidgets('출처가 없으면 갈 곳이 없어 풀이 시트를 엽니다', (tester) async {
+      await _pumpHost(tester);
+      unawaited(
+        bodiless.openExplain(_context, const ExplainTerm('tag.hwagae')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('풀이 tag.hwagae null'), findsOneWidget);
+    });
+  });
+
   group('DepthSheets', () {
     testWidgets('openExplain은 half로 열리고 id가 Key와 Semantics에 붙습니다', (
       tester,
