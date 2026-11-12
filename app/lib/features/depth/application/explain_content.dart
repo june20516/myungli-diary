@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
 
 /// 풀이 시트(`explain-sheet`)가 보여 줄 내용. 시트를 여는 쪽이 무엇을 풀이할지만 고르고,
@@ -41,12 +42,28 @@ final class ExplainUiText extends ExplainContent {
 
 /// 행운 칩(`lucky-card`)의 설명. 제목은 `type.subtitle`입니다.
 final class ExplainLucky extends ExplainContent {
-  /// [title] 아래에 [body] 문장을 보입니다.
-  const new({required this.title, required this.body});
+  /// [title] 아래에 [body] 문장을 보입니다. [attachment]가 있으면 본문 아래 [attachmentGap]에
+  /// 붙이고, [origin]이 있으면 맨 끝에 그 카드의 근거 진입점을 둡니다(`explain.evidenceLink`, V118).
+  const new({
+    required this.title,
+    required this.body,
+    this.attachment,
+    this.attachmentGap = Space.s12,
+    this.origin,
+  });
 
   /// 시트 제목(칩 이름).
   final String title;
 
   /// 설명 문장(콘텐츠 문장, 용어 조각 포함 가능).
   final RenderedText body;
+
+  /// 본문 아래에 붙일 위젯(시간 시트의 24시간 띠 `timeBand`).
+  final Widget? attachment;
+
+  /// 본문과 [attachment] 사이.
+  final double attachmentGap;
+
+  /// 근거 진입점이 열 카드 문장과 그 응답. null이면 근거 진입점이 없습니다(방향, 숫자 시트).
+  final TermOrigin? origin;
 }

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/diary_entry_data.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
+import 'package:myungli_diary/core/api/gen/model/daily.dart';
 import 'package:myungli_diary/core/api/gen/model/slot_text.dart';
 import 'package:myungli_diary/core/api/gen/model/ten_god_group.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
@@ -34,6 +35,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -345,6 +347,33 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     onTap: () => unawaited(_openTag(tag.rank)),
   );
 
+  /// 행운 칩 [item]의 설명 시트 내용. 시간 칩은 본문 아래 24시간 띠와 맨 끝 그 카드의 근거
+  /// 진입점을 둡니다(V117, V118). 근거는 칩이 가리키는 카드 문장의 근거이고
+  /// ([focusTimePickOf]), 잠금은 근거 시트가 응답의 `evidenceAccess`로 정합니다.
+  ExplainLucky _luckyExplainOf(
+    LuckyItem item,
+    Daily daily,
+    bool beforeDayStart,
+  ) {
+    final period = item.period;
+    final pick = period == null
+        ? null
+        : focusTimePickOf(daily.cards, period, beforeDayStart: beforeDayStart);
+    if (pick == null) {
+      return ExplainLucky(title: item.name, body: item.explain);
+    }
+    return ExplainLucky(
+      title: item.name,
+      body: item.explain,
+      attachment: const TodayTimeBand(),
+      attachmentGap: TimeBand.sheetGap,
+      origin: TermOrigin(
+        slotId: pick.evidenceSlotId,
+        subject: const DailyEvidenceSubject(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -356,11 +385,13 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
       date,
       daily.fortune.head,
     );
+    final beforeDayStart = ref.watch(beforeDayStartProvider);
     final display = todayDisplayOf(
       daily,
       content.names,
       l10n,
       ref.watch(profileTimezoneProvider),
+      beforeDayStart: beforeDayStart,
     );
     final diaries = content.diaries;
     final entry = diaryWriteEntryOf(diaries.length);
@@ -446,7 +477,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
                   items: display.lucky,
                   onOpen: (item) => _sheets.openExplain(
                     context,
-                    ExplainLucky(title: item.name, body: item.explain),
+                    _luckyExplainOf(item, daily, beforeDayStart),
                   ),
                 ),
               ),
@@ -724,6 +755,26 @@ class _TodayEventSectionState extends ConsumerState<_TodayEventSection> {
                 SectionCard(child: _row(l10n, shown)),
               ],
             ),
+    );
+  }
+}
+
+/// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 시트가 열린 동안 오늘 값과 벽시계를 구독해 지금
+/// 줄을 1분마다 옮기고, 낮 구간 시작(07:30, A134)을 지나면 칸 순서와 밤 고리도 바꿉니다. 오늘 값이
+/// 없으면(다시 받는 중) 그리지 않습니다.
+class TodayTimeBand extends ConsumerWidget {
+  /// 띠를 만듭니다.
+  const new({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final content = ref.watch(todayContentProvider).value;
+    if (content == null) return const SizedBox.shrink();
+    return timeBandOf(
+      daily: content.view.daily,
+      names: content.names,
+      l10n: AppLocalizations.of(context),
+      wallNow: ref.watch(todayWallMinuteProvider),
     );
   }
 }

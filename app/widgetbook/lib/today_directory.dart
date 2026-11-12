@@ -10,6 +10,8 @@ import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -55,21 +57,55 @@ final List<LuckyItem> _luckyItems = [
     value: '3',
     explain: RenderedText(segments: [Segment(text: '3이 흐름을 열어 줘요.')]),
   ),
-  // 집중 시간은 구간마다 칩 하나입니다(V52).
+  // 집중 시간은 낮 칩 하나와 밤 칩 하나입니다(V115, V116).
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중하기 좋은 시간',
-    value: '09:30~11:30',
+    name: '낮의 길한 시간',
+    value: '15:30~17:30',
     explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
+    period: AppTimeOfDay.day,
   ),
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중하기 좋은 시간',
-    value: '13:30~15:30',
-    explain: RenderedText(segments: [Segment(text: '오후 3시쯤 집중이 잘 돼요.')]),
-    ordinal: 1,
+    name: '밤의 길한 시간',
+    value: '01:30~03:30',
+    explain: RenderedText(segments: [Segment(text: '새벽 1시쯤 마음이 차분해요.')]),
+    period: AppTimeOfDay.night,
+    word: '오늘 밤',
   ),
 ];
+
+/// 시간 칩 시트의 24시간 띠 견본(낮 신시, 밤 축시 고름).
+TimeBand _timeBand({required bool beforeDayStart}) {
+  final day = [
+    for (final (index, label) in '진사오미신유술'.split('').indexed)
+      TimeBandCell(label: label, period: AppTimeOfDay.day, picked: index == 4),
+  ];
+  final night = [
+    for (final (index, label) in '해자축인묘'.split('').indexed)
+      TimeBandCell(
+        label: label,
+        period: AppTimeOfDay.night,
+        picked: index == 2,
+      ),
+  ];
+  return TimeBand(
+    cells: beforeDayStart ? [...night, ...day] : [...day, ...night],
+    dayHead: '낮',
+    nightHead: '밤',
+    nowFraction: beforeDayStart ? 160 / 1440 : 270 / 1440,
+    nowLabel: beforeDayStart ? '지금 00:10' : '지금 12:00',
+    startTick: TimeBandTick(
+      time: beforeDayStart ? '21:30' : '07:30',
+      dayWord: beforeDayStart ? '어제' : null,
+    ),
+    boundaryTick: TimeBandTick(time: beforeDayStart ? '07:30' : '21:30'),
+    endTick: TimeBandTick(
+      time: beforeDayStart ? '21:30' : '07:30',
+      dayWord: beforeDayStart ? null : '내일',
+    ),
+  );
+}
 
 String _name(DayKind kind) => switch (kind) {
   DayKind.yongsinDay => '좋은 날',
@@ -246,6 +282,29 @@ final WidgetbookFolder todayDirectory = WidgetbookFolder(
                 child: SizedBox(
                   width: 360,
                   child: LuckyCardRow(items: _luckyItems),
+                ),
+              ),
+            ),
+          ],
+        ),
+        WidgetbookComponent(
+          name: 'TimeBand',
+          useCases: [
+            WidgetbookUseCase(
+              name: '07:30부터: 낮이 앞',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 312,
+                  child: _timeBand(beforeDayStart: false),
+                ),
+              ),
+            ),
+            WidgetbookUseCase(
+              name: '07:30 전: 밤이 앞',
+              builder: (context) => Stage(
+                child: SizedBox(
+                  width: 312,
+                  child: _timeBand(beforeDayStart: true),
                 ),
               ),
             ),

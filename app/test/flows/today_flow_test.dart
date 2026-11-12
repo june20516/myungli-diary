@@ -29,7 +29,10 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
+import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -283,6 +286,82 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'evidence-unlocked: 밤 시간 칩 → 시트 본문, 24시간 띠, 맨 끝 근거 보기 → 그 카드의 근거',
+    (tester) async {
+      covers(
+        const Covers(
+          exits: ['today>explain-sheet', 'explain-sheet>evidence-sheet'],
+          decisions: ['D122', 'D123'],
+        ),
+      );
+      await _openToday(tester, scenario: 'evidence-unlocked');
+
+      // 대역 시계는 정오라 밤 칩은 오늘 밤 카드이고 때 낱말은 "오늘 밤"입니다.
+      final night = find.byKey(
+        LuckyCardRow.chipKey(LuckyCardVariant.time, period: AppTimeOfDay.night),
+      );
+      await tester.ensureVisible(night);
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: night,
+          matching: find.text(_ko.todayLuckyTimeNightTonight),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(night);
+      await tester.pumpAndSettle();
+      final explain = find.byKey(const Key(ScreenIds.explainSheet));
+      expect(explain, findsOneWidget);
+      expect(
+        find.descendant(
+          of: explain,
+          matching: find.text(_ko.todayLuckyTimeNightTitle),
+        ),
+        findsOneWidget,
+      );
+      final band = find.descendant(
+        of: explain,
+        matching: find.byType(TimeBand),
+      );
+      expect(band, findsOneWidget);
+      // 정오라 낮 일곱 칸이 앞이고, 지금 꼬리표는 프로필 시간대 벽시계입니다.
+      expect(
+        find.descendant(
+          of: band,
+          matching: find.text(_ko.todayLuckyTimeBandNow('12:00')),
+        ),
+        findsOneWidget,
+      );
+      final link = depthLinkTarget(of: explain);
+      expect(link, findsOneWidget);
+      // 근거 진입점은 띠 아래 맨 끝입니다(V118).
+      expect(
+        tester.getTopLeft(link).dy,
+        greaterThan(tester.getBottomLeft(band).dy),
+      );
+
+      await tester.tap(link);
+      await tester.pumpAndSettle();
+      final evidence = find.byKey(const Key(ScreenIds.evidenceSheet));
+      expect(evidence, findsOneWidget);
+      // 밤 카드 문장의 근거입니다(같은 슬롯의 낮 카드가 아니라 카드로 찾음, A134).
+      expect(
+        find.descendant(
+          of: evidence,
+          matching: find.text(
+            '택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요.',
+            findRichText: true,
+          ),
+        ),
+        findsOneWidget,
+      );
+      await _closeSheet(tester);
+      expect(evidence, findsNothing);
+    },
+  );
 
   testWidgets('member: 공유 미리보기에서 비율을 고르고 공유하면 기기 공유 시트로 넘어갑니다', (tester) async {
     covers(

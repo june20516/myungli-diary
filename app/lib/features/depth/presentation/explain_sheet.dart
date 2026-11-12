@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/depth/explain_sheet_body.dart';
 import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/term_origin.dart';
@@ -83,6 +84,9 @@ class ExplainSheet extends ConsumerWidget {
         ref,
         title: lucky.title,
         meaning: lucky.body,
+        attachment: lucky.attachment,
+        attachmentGap: lucky.attachmentGap,
+        origin: lucky.origin,
       ),
     };
   }
@@ -126,6 +130,7 @@ class ExplainSheet extends ConsumerWidget {
     String? meaningSlotId,
     RenderedText? todayReason,
     Widget? attachment,
+    double attachmentGap = Space.s12,
     String? evidenceSubject,
     TermOrigin? origin,
   }) {
@@ -142,6 +147,7 @@ class ExplainSheet extends ConsumerWidget {
       meaningSlotId: meaningSlotId,
       todayReason: todayReason,
       attachment: attachment,
+      attachmentGap: attachmentGap,
       evidenceSubject: evidenceSubject,
       onEvidence: origin == null
           ? null

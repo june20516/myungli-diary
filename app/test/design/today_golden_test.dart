@@ -12,6 +12,7 @@ import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
 import '../support/golden.dart';
@@ -55,7 +56,7 @@ Widget _dayCharacters() => Builder(
   },
 );
 
-/// lucky-card golden의 네 변형 항목(집중 시간은 구간 둘, V52). 언어별로 값을 줍니다.
+/// lucky-card golden의 네 변형 항목(집중 시간은 낮 칩과 밤 칩, V115, V116). 언어별로 값을 줍니다.
 List<LuckyItem> _goldenLuckyItems({required bool ja}) {
   RenderedText text(String ko, String jp) =>
       RenderedText(segments: [Segment(text: ja ? jp : ko)]);
@@ -81,16 +82,18 @@ List<LuckyItem> _goldenLuckyItems({required bool ja}) {
     ),
     LuckyItem(
       variant: LuckyCardVariant.time,
-      name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-      value: ja ? '09:30〜11:30' : '09:30~11:30',
+      name: ja ? '昼の吉時' : '낮의 길한 시간',
+      value: ja ? '15:30〜17:30' : '15:30~17:30',
       explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+      period: AppTimeOfDay.day,
     ),
     LuckyItem(
       variant: LuckyCardVariant.time,
-      name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-      value: ja ? '13:30〜15:30' : '13:30~15:30',
-      explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
-      ordinal: 1,
+      name: ja ? '夜の吉時' : '밤의 길한 시간',
+      value: ja ? '01:30〜03:30' : '01:30~03:30',
+      explain: text('새벽 1시쯤 마음이 차분해요.', '午前1時ごろ心が落ち着きます。'),
+      period: AppTimeOfDay.night,
+      word: ja ? '今夜' : '오늘 밤',
     ),
   ];
 }
@@ -174,16 +177,18 @@ Widget _shareImage(ShareImageVariant variant) => Builder(
           ),
           LuckyItem(
             variant: LuckyCardVariant.time,
-            name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-            value: ja ? '09:30〜11:30' : '09:30~11:30',
+            name: ja ? '昼の吉時' : '낮의 길한 시간',
+            value: ja ? '15:30〜17:30' : '15:30~17:30',
             explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
+            period: AppTimeOfDay.day,
           ),
           LuckyItem(
             variant: LuckyCardVariant.time,
-            name: ja ? '集中できる時間' : '집중하기 좋은 시간',
-            value: ja ? '13:30〜15:30' : '13:30~15:30',
-            explain: text('오후 3시쯤 집중이 잘 돼요.', '午後3時ごろ集中しやすくなります。'),
-            ordinal: 1,
+            name: ja ? '夜の吉時' : '밤의 길한 시간',
+            value: ja ? '01:30〜03:30' : '01:30~03:30',
+            explain: text('새벽 1시쯤 마음이 차분해요.', '午前1時ごろ心が落ち着きます。'),
+            period: AppTimeOfDay.night,
+            word: ja ? '今夜' : '오늘 밤',
           ),
         ],
         footer: ja ? '命理日記' : '명리일기',

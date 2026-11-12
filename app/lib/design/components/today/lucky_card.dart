@@ -25,7 +25,7 @@ enum LuckyCardVariant {
   /// 행운 숫자. 앞 아이콘 `hash`.
   number,
 
-  /// 행운 시간. 앞 아이콘 `clock`.
+  /// 행운 시간. 낮 칩과 밤 칩이 하나씩이고 앞 아이콘은 채운 해와 달입니다(`time.periods`, V115).
   time;
 
   /// 행운 4종(칩 줄 순서). 대표 태그 칩은 5.0.0에서 지웠습니다(V78, 사주 기운 섹션의 `hanja-tag`).
@@ -45,36 +45,38 @@ const AppGlyph _hash = AppGlyph(
   light: PhosphorIconsLight.hash,
   regular: PhosphorIconsRegular.hash,
 );
-const AppGlyph _clock = AppGlyph(
-  light: PhosphorIconsLight.clock,
-  regular: PhosphorIconsRegular.clock,
-);
 
 /// 행운 항목 하나. 표시 값 변환은 이 값을 만드는 한 곳에서 합니다.
 @immutable
 final class LuckyItem {
-  /// 행운 항목을 만듭니다. [element]는 [LuckyCardVariant.color]에서만 씁니다.
-  /// [ordinal]은 [LuckyCardVariant.time]에서만 0이 아닐 수 있습니다(구간마다 칩 하나, V52).
+  /// 행운 항목을 만듭니다. [element]는 [LuckyCardVariant.color]에서만, [period]는
+  /// [LuckyCardVariant.time]에서만(필수) 씁니다. [word]는 밤 칩의 때 낱말입니다.
   const new({
     required this.variant,
     required this.name,
     required this.value,
     required this.explain,
     this.element,
-    this.ordinal = 0,
+    this.period,
+    this.word,
   }) : assert(
          (variant == LuckyCardVariant.color) == (element != null),
          'color 변형은 element가 필수이고, 다른 변형은 element를 줄 수 없습니다.',
        ),
        assert(
-         ordinal >= 0 && (ordinal == 0 || variant == LuckyCardVariant.time),
-         '순번은 0 이상이고, 칩이 여럿일 수 있는 time 변형만 0이 아닐 수 있습니다.',
+         (variant == LuckyCardVariant.time) == (period != null),
+         'time 변형은 period가 필수이고, 다른 변형은 period를 줄 수 없습니다.',
+       ),
+       assert(
+         word == null || period == AppTimeOfDay.night,
+         '때 낱말은 밤 칩에만 붙습니다(V116).',
        );
 
   /// 변형.
   final LuckyCardVariant variant;
 
-  /// 항목 이름("행운 색"). 스크린리더가 값 앞에 읽고, 설명 시트의 제목이 됩니다.
+  /// 항목 이름("행운 색"). 스크린리더가 값 앞에 읽고, 설명 시트의 제목이 됩니다. 시간 칩은 그
+  /// 칩의 시트 제목 슬롯이라 낮과 밤이 다르게 읽힙니다(`a11y.timeLabel`).
   final String name;
 
   /// 칩에 보이는 값("파랑").
@@ -87,9 +89,13 @@ final class LuckyItem {
   /// [LuckyCardVariant.color]에서만 주고(필수), 다른 변형에서는 줄 수 없습니다(assert).
   final FiveElement? element;
 
-  /// 같은 변형 안의 순번(0부터). 집중 시간 구간이 둘이면 시간 칩이 0, 1입니다(계약 순서, V52).
-  /// 다른 변형은 0입니다.
-  final int ordinal;
+  /// 시간 칩의 낮과 밤(`time.periods`). 앞 아이콘(채운 해와 달)과 칩 구분이 이 값을 따릅니다.
+  /// [LuckyCardVariant.time]에서만 주고(필수), 다른 변형에서는 줄 수 없습니다(assert).
+  final AppTimeOfDay? period;
+
+  /// 밤 칩 값 앞 때 낱말(`time.periods` night `word`, "새벽"이나 "오늘 밤", V116). 낮 칩과 다른
+  /// 변형은 null입니다.
+  final String? word;
 }
 
 /// 행운 칩 하나(`lucky-card` `chip`).
@@ -135,48 +141,63 @@ class LuckyChip extends StatelessWidget {
   /// 눌렀을 때. null이면 표시 전용입니다.
   final VoidCallback? onTap;
 
-  AppGlyph? get _glyph => switch (item.variant) {
-    LuckyCardVariant.color => null,
-    LuckyCardVariant.direction => _compass,
-    LuckyCardVariant.number => _hash,
-    LuckyCardVariant.time => _clock,
-  };
+  /// 시간 칩 [period]의 앞 아이콘 색(`time.periods` `lead.iconColor`, 토큰 1.8.0).
+  static Color timeIconColorOf(ColorTokens colors, AppTimeOfDay period) =>
+      switch (period) {
+        AppTimeOfDay.day => colors.timeDay,
+        AppTimeOfDay.night => colors.timeNight,
+      };
 
   @override
   Widget build(BuildContext context) {
     final colors = context.tokens.colors;
-    final glyph = _glyph;
-    final lead = glyph == null
-        ? Container(
-            key: swatchKey,
-            width: _swatchSize,
-            height: _swatchSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: ohaengSwatchOf(colors, item.element!),
-              border: Border.all(color: colors.swatchBorder),
-            ),
-          )
-        : AppIcon(
-            glyph,
-            // `lucky-card` `lead.iconSize`: adjacent-text(옆 글자 label.md).
-            size: AppIconSize.adjacentText(
-              context.tokens.typography.labelMd.fontSize!,
-            ),
-            // `lucky-card` `lead.iconWeight`가 regular로 못박혀 있어 짝 규칙보다 우선합니다.
-            weight: AppIconWeight.regular,
-            // 칩 높이는 최소 높이라 배율만큼 늘어납니다.
-            scalesWithText: true,
-            color: colors.textSecondary,
-          );
+    // `lucky-card` `lead.iconSize`: adjacent-text(옆 글자 label.md).
+    final iconSize = AppIconSize.adjacentText(
+      context.tokens.typography.labelMd.fontSize!,
+    );
+    AppIcon regular(AppGlyph glyph) => AppIcon(
+      glyph,
+      size: iconSize,
+      // `lucky-card` `lead.iconWeight`가 regular로 못박혀 있어 짝 규칙보다 우선합니다.
+      weight: AppIconWeight.regular,
+      // 칩 높이는 최소 높이라 배율만큼 늘어납니다.
+      scalesWithText: true,
+      color: colors.textSecondary,
+    );
+    final lead = switch (item.variant) {
+      LuckyCardVariant.color => Container(
+        key: swatchKey,
+        width: _swatchSize,
+        height: _swatchSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: ohaengSwatchOf(colors, item.element!),
+          border: Border.all(color: colors.swatchBorder),
+        ),
+      ),
+      LuckyCardVariant.direction => regular(_compass),
+      LuckyCardVariant.number => regular(_hash),
+      // 해와 달은 periods의 lead가 굵기(fill)와 색을 덮어씁니다(V115).
+      LuckyCardVariant.time => AppIcon.timeOfDay(
+        item.period!,
+        size: iconSize,
+        scalesWithText: true,
+        color: timeIconColorOf(colors, item.period!),
+      ),
+    };
+    final word = item.word;
     return _ChipFrame(
       lead: lead,
+      word: word,
       value: item.value,
       // 시간 값(`09:30~11:30`)은 숫자 폭을 고르게 둡니다(`time.parts.value` tnum).
       valueFeatures: item.variant == LuckyCardVariant.time
           ? timeValueFeatures
           : null,
-      label: '${item.name}, ${item.value}',
+      // 해와 달은 읽지 않고, 밤 칩은 항목 이름 + 때 낱말 + 값입니다(`a11y.nightLabel`).
+      label: word == null
+          ? '${item.name}, ${item.value}'
+          : '${item.name}, $word ${item.value}',
       open: open,
       onTap: onTap,
     );
@@ -187,6 +208,7 @@ class LuckyChip extends StatelessWidget {
 class _ChipFrame extends StatelessWidget {
   const new({
     required this.lead,
+    required this.word,
     required this.value,
     required this.valueFeatures,
     required this.label,
@@ -195,6 +217,7 @@ class _ChipFrame extends StatelessWidget {
   });
 
   final Widget? lead;
+  final String? word;
   final String value;
   final List<FontFeature>? valueFeatures;
   final String label;
@@ -206,6 +229,10 @@ class _ChipFrame extends StatelessWidget {
     final tokens = context.tokens;
     final colors = tokens.colors;
     final lead = this.lead;
+    final word = this.word;
+    final valueStyle = tokens.typography.labelMd.copyWith(
+      color: colors.textPrimary,
+    );
     final surface = Container(
       key: LuckyChip.surfaceKey,
       constraints: const BoxConstraints(minHeight: LuckyChip._height),
@@ -229,13 +256,12 @@ class _ChipFrame extends StatelessWidget {
         spacing: LuckyChip._gap,
         children: [
           ?lead,
+          // 밤 칩 때 낱말은 값과 같은 글자로 값 앞 space.4에 둡니다(`periods` night `word`).
+          if (word != null) Text(word, style: valueStyle),
           Flexible(
             child: Text(
               value,
-              style: tokens.typography.labelMd.copyWith(
-                color: colors.textPrimary,
-                fontFeatures: valueFeatures,
-              ),
+              style: valueStyle.copyWith(fontFeatures: valueFeatures),
             ),
           ),
         ],
@@ -265,7 +291,7 @@ class _ChipFrame extends StatelessWidget {
 /// 칩을 누르면 [onOpen]이 설명 시트(`explain-sheet`)를 엽니다. 계약 `a11y.opensSheet`는 별도 힌트 없이
 /// 시트 route가 열릴 때 제목으로 알려지는 것으로 충족합니다(depth-link와 같은 원칙). 설명을 줄 아래에 끼워 넣지
 /// 않습니다. [onOpen]이 끝날 때까지(시트가 닫힐 때까지) 누른 칩에만 열림 테두리(1.5px
-/// `action.primary`)가 생기고, 시간 칩 둘은 같은 설명을 열어도 누른 칩만 테두리가 바뀝니다(V52).
+/// `action.primary`)가 생기고, 낮과 밤 시간 칩은 각자의 시트를 엽니다(V116).
 /// 햅틱은 없습니다(명세 `haptic` 비어 있음). 칩 수 상한(색, 방향, 숫자 3 + 시간 2, V52)은 값을
 /// 만드는 쪽이 지키고 줄은 따로 자르지 않으며, 폭이 모자라면 칩 하나를 끊지 않고 다음 줄로
 /// 넘깁니다.
@@ -305,13 +331,14 @@ class LuckyCardRow extends StatefulWidget {
     ],
   );
 
-  /// 행운 4종 [variant]의 칩을 찾는 테스트용 키. 시간 칩은 구간마다 하나라 [ordinal]
-  /// (0이면 첫 구간)로 나눕니다.
-  static Key chipKey(LuckyCardVariant variant, {int ordinal = 0}) => ValueKey(
-    ordinal == 0
-        ? 'lucky-card-chip-${variant.name}'
-        : 'lucky-card-chip-${variant.name}-$ordinal',
-  );
+  /// 행운 4종 [variant]의 칩을 찾는 테스트용 키. 시간 칩은 낮과 밤이 하나씩이라 [period]로
+  /// 나눕니다(낮이나 null이면 `time` 칩 그대로).
+  static Key chipKey(LuckyCardVariant variant, {AppTimeOfDay? period}) =>
+      ValueKey(
+        period == AppTimeOfDay.night
+            ? 'lucky-card-chip-${variant.name}-${period!.name}'
+            : 'lucky-card-chip-${variant.name}',
+      );
 
   static const double _rowGap = Space.s8;
 
@@ -320,7 +347,7 @@ class LuckyCardRow extends StatefulWidget {
   /// 생기므로 쓰는 화면이 위 간격에서 그만큼 뺍니다.
   static const double hitInset = (sentenceMinTarget - LuckyChip._height) / 2;
 
-  /// 보여 줄 칩 항목(앞에서부터 그립니다). 칩은 변형과 순번([LuckyItem.ordinal])으로 나뉘어
+  /// 보여 줄 칩 항목(앞에서부터 그립니다). 칩은 변형과 낮과 밤([LuckyItem.period])으로 나뉘어
   /// 따로 열립니다.
   final List<LuckyItem> items;
 
@@ -333,11 +360,11 @@ class LuckyCardRow extends StatefulWidget {
 }
 
 class _LuckyCardRowState extends State<LuckyCardRow> {
-  // 지금 열려 있는 칩의 id(`<변형>:<순번>`).
+  // 지금 열려 있는 칩의 id(`<변형>:<낮과 밤>`).
   String? _openId;
 
   static String _itemId(LuckyItem item) =>
-      '${item.variant.name}:${item.ordinal}';
+      '${item.variant.name}:${item.period?.name}';
 
   Future<void> _open(LuckyItem item) async {
     final onOpen = widget.onOpen;
@@ -363,7 +390,7 @@ class _LuckyCardRowState extends State<LuckyCardRow> {
         children: [
           for (final item in widget.items)
             LuckyChip(
-              key: LuckyCardRow.chipKey(item.variant, ordinal: item.ordinal),
+              key: LuckyCardRow.chipKey(item.variant, period: item.period),
               item: item,
               open: _openId == _itemId(item),
               onTap: interactive ? () => unawaited(_open(item)) : null,

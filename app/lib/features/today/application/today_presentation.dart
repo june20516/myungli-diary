@@ -3,10 +3,13 @@ import 'dart:ui' show Locale;
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:intl/intl.dart';
+import 'package:myungli_diary/core/api/gen/model/branch.dart';
 import 'package:myungli_diary/core/api/gen/model/daily.dart';
+import 'package:myungli_diary/core/api/gen/model/daily_cards.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/direction.dart';
 import 'package:myungli_diary/core/api/gen/model/focus_slot.dart';
+import 'package:myungli_diary/core/api/gen/model/focus_time_card.dart';
 import 'package:myungli_diary/core/api/gen/model/notice_code.dart';
 import 'package:myungli_diary/core/api/gen/model/pillar.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
@@ -22,6 +25,8 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/glossary/model/ganji_reading.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
@@ -80,10 +85,6 @@ String _hourMinute(DateTime instant, String timezone) {
   return '${_twoDigits(local.hour)}:${_twoDigits(local.minute)}';
 }
 
-/// 집중 시간 구간 상한(계약 `FocusTimeCard.picks` maxItems,
-/// `lucky-card` `time.repeat.max`).
-const int maxFocusTimePicks = 2;
-
 /// 언어별 시간 범위의 시작과 끝 사이 글자(`lucky-card` `time.parts.value.format`, 결정 V52,
 /// writing W44). 앱 언어는 ko, en, ja이고 그 밖의 언어는 앱이 en으로 보이므로 en을 씁니다.
 String _rangeJoinOf(String languageCode) => switch (languageCode) {
@@ -106,19 +107,106 @@ String formatFocusRange(FocusSlot pick, String timezone, String languageCode) =>
     '${_rangeJoinOf(languageCode)}'
     '${_hourMinute(pick.end, timezone)}';
 
-/// [daily]의 행운 항목(색, 방향, 숫자, 그리고 집중 시간 구간마다 시간 하나, 결정 A27·V52).
+/// 오늘 화면의 낮 구간 시작(그날 진시 시작)의 프로필 시간대 벽시계 시각(`lucky-card` `time`
+/// night `word.switch`, D122 ⑦). 지휘 답 #1063: 기준은 "프로필 현재 시간대에서 그날 진시가 시작하는
+/// 시각"이고, server #1064가 그 경계 값을 줄 때까지 07:30으로 둡니다(한국 프로필은 결과가 같음, A134).
+const Duration _dayStart = Duration(hours: 7, minutes: 30);
+
+/// 시진 하나의 길이(`timeBand` `cells.unit`).
+const Duration _hourBranchLength = Duration(hours: 2);
+
+/// 낮 구간의 시진(진시~술시, D122 ①). 띠의 낮 일곱 칸 순서입니다.
+const List<Branch> _dayBranches = [
+  Branch.jin,
+  Branch.sa,
+  Branch.o,
+  Branch.mi,
+  Branch.shin,
+  Branch.yu,
+  Branch.sul,
+];
+
+/// 밤 구간의 시진(해시~묘시, D122 ①). 띠의 밤 다섯 칸 순서입니다.
+const List<Branch> _nightBranches = [
+  Branch.hae,
+  Branch.ja,
+  Branch.chuk,
+  Branch.in_,
+  Branch.myo,
+];
+
+/// 하루의 분.
+const int _minutesPerDay = 24 * 60;
+
+/// [wallNow](프로필 시간대 벽시계, `nowMinuteProvider` 값처럼 시와 분만 읽음)가 그날 낮 구간 시작
+/// 전인지. 밤 칩 고르기와 때 낱말(D122 ⑦, V116), 24시간 띠 순서(V117)의 판단은 이 함수 하나입니다.
+/// #1064 경계 값이 오면 [_dayStart] 대신 그 값을 보도록 이 함수만 바꿉니다(A134).
+bool isBeforeDayStart(DateTime wallNow) =>
+    Duration(hours: wallNow.hour, minutes: wallNow.minute) < _dayStart;
+
+/// 같은 writing 슬롯을 여러 카드가 함께 쓰는 자리에서 근거 시트가 카드 하나를 찾는 id
+/// (`<슬롯>#<카드 필드 이름>`, A134). 집중 시간 낮과 밤 카드는 모두 `daily.focus_time`이라
+/// 슬롯만으로는 첫 카드(낮)의 근거가 열립니다. [dailySlotText]가 이 id를 읽습니다.
+String dailyCardSlotId(SlotText text, String cardField) =>
+    '${text.slot}#$cardField';
+
+/// 계약 `DailyCards`의 필드 이름(`openapi.yaml`)으로 고른 카드 문장. 그 카드가 응답에 없으면 null입니다.
+SlotText? _cardText(DailyCards cards, String field) => switch (field) {
+  'color' => cards.color.text,
+  'secondColor' => cards.secondColor?.text,
+  'direction' => cards.direction.text,
+  'number' => cards.number.text,
+  'focusTime' => cards.focusTime.text,
+  'nightFocusTime' => cards.nightFocusTime?.text,
+  'previousNightFocusTime' => cards.previousNightFocusTime?.text,
+  _ => null,
+};
+
+/// 오늘 화면 시간 칩 하나가 가리키는 카드와 그 근거 id([dailyCardSlotId]).
+typedef FocusTimePick = ({FocusTimeCard card, String evidenceSlotId});
+
+/// 오늘 화면의 [period] 시간 칩 카드. 낮은 `focusTime`, 밤은 낮 구간 시작 전이면
+/// `previousNightFocusTime`(지금 이어지는 전날 밤), 그 뒤면 `nightFocusTime`(오늘 밤)입니다
+/// (D122 ⑦, `DailyCards` 설명). 고른 밤 카드가 응답에 없으면 null이고 밤 칩을 그리지 않습니다.
+/// 낮 구간 시작 전에 전날 밤이 없을 때 오늘 밤으로 대신하지 않습니다(때 낱말과 띠 순서가 어긋남, A134).
+FocusTimePick? focusTimePickOf(
+  DailyCards cards,
+  AppTimeOfDay period, {
+  required bool beforeDayStart,
+}) {
+  final (card, field) = switch (period) {
+    AppTimeOfDay.day => (cards.focusTime, 'focusTime'),
+    AppTimeOfDay.night when beforeDayStart => (
+      cards.previousNightFocusTime,
+      'previousNightFocusTime',
+    ),
+    AppTimeOfDay.night => (cards.nightFocusTime, 'nightFocusTime'),
+  };
+  if (card == null) return null;
+  return (card: card, evidenceSlotId: dailyCardSlotId(card.text, field));
+}
+
+/// [daily]의 행운 항목(색, 방향, 숫자, 그리고 시간 낮 칩과 밤 칩, 결정 A27, V115, V116).
 ///
 /// 색 이름은 glossary `color.<오행>`(없으면 값 id 그대로), 방향은 임시 ARB, 숫자는 그대로,
-/// 시간은 구간마다 [formatFocusRange]이고 계약 순서로 앞 [maxFocusTimePicks]개입니다. 두 시간
-/// 칩은 같은 설명을 열고 [LuckyItem.ordinal]로 나뉩니다. 색 칩의 견본 색은 칩이 테마에서 고릅니다.
+/// 시간은 카드마다 첫 구간 하나의 [formatFocusRange]입니다(D122 ⑤ 칩마다 시간 하나). 시간 칩
+/// 이름은 그 칩의 시트 제목이고(`a11y.timeLabel`), 밤 칩은 [beforeDayStart]로 카드와 때 낱말을
+/// 고릅니다([focusTimePickOf]). 색 칩의 견본 색은 칩이 테마에서 고릅니다.
 List<LuckyItem> luckyItemsOf(
   Daily daily,
   GlossaryNames names,
   AppLocalizations l10n,
-  String timezone,
-) {
+  String timezone, {
+  required bool beforeDayStart,
+}) {
   final cards = daily.cards;
   final element = cards.color.element;
+  final language = _languageCodeOf(l10n);
+  final night = focusTimePickOf(
+    cards,
+    AppTimeOfDay.night,
+    beforeDayStart: beforeDayStart,
+  );
   return [
     LuckyItem(
       variant: LuckyCardVariant.color,
@@ -139,16 +227,107 @@ List<LuckyItem> luckyItemsOf(
       value: '${cards.number.number}',
       explain: cards.number.text.text,
     ),
-    for (final (index, pick)
-        in cards.focusTime.picks.take(maxFocusTimePicks).indexed)
+    LuckyItem(
+      variant: LuckyCardVariant.time,
+      name: l10n.todayLuckyTimeDayTitle,
+      value: formatFocusRange(cards.focusTime.picks.first, timezone, language),
+      explain: cards.focusTime.text.text,
+      period: AppTimeOfDay.day,
+    ),
+    if (night != null)
       LuckyItem(
         variant: LuckyCardVariant.time,
-        name: l10n.todayLuckyTimeName,
-        value: formatFocusRange(pick, timezone, _languageCodeOf(l10n)),
-        explain: cards.focusTime.text.text,
-        ordinal: index,
+        name: l10n.todayLuckyTimeNightTitle,
+        word: beforeDayStart
+            ? l10n.todayLuckyTimeNightDawn
+            : l10n.todayLuckyTimeNightTonight,
+        value: formatFocusRange(night.card.picks.first, timezone, language),
+        explain: night.card.text.text,
+        period: AppTimeOfDay.night,
       ),
   ];
+}
+
+/// 벽시계 [minutes](0시부터, 하루를 넘으면 되감음)의 `HH:mm`.
+String _clockText(int minutes) {
+  final wrapped = minutes % _minutesPerDay;
+  return '${_twoDigits(wrapped ~/ 60)}:${_twoDigits(wrapped % 60)}';
+}
+
+/// [branch]를 띠 칸에 쓸 글자. ko, ja는 사전 지지 이름(writing `glossary.value_name`
+/// `branch.*`, ko "자", ja "子")이고 사전에 없으면 지지 한자입니다. 원고 슬롯
+/// `today.lucky-time.band.tomorrow`가 "띠 칸 시진 이름은 glossary 지지 이름"이라고 정합니다.
+/// en과 그 밖의 언어는 지지 한자입니다(동물 이름은 칸에 들어가지 않음, `timeBand`
+/// `cells.label`, V118 ⑤).
+String _bandLabelOf(Branch branch, GlossaryNames names, bool hanjaLabels) =>
+    hanjaLabels
+    ? branchHanja(branch)
+    : names.valueName('branch', branch.value) ?? branchHanja(branch);
+
+/// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 지금 보이는 낮, 밤 칩의 24시간을 시진 12칸으로
+/// 그리고, 낮 구간 시작 전에는 밤(전날 21:30부터) 다섯 칸이 앞, 그 뒤에는 낮(07:30부터) 일곱 칸이
+/// 앞입니다. 고리는 두 칩이 고른 시진(카드 첫 구간의 `branch`)이고, 밤 칩이 없으면 밤 칸에 고리가
+/// 없습니다. [wallNow]는 프로필 시간대 벽시계(시와 분만 읽음)이고 지금 줄과 꼬리표가 됩니다.
+///
+/// 칸 경계와 눈금은 [_dayStart]에서 시진 길이로 셉니다. 시간대가 한국이 아닌 프로필은 칩 값(프로필
+/// 시간대로 바꾼 시진 시각)과 칸 경계가 어긋날 수 있고 #1064 경계 값으로 함께 맞춥니다(A134).
+TimeBand timeBandOf({
+  required Daily daily,
+  required GlossaryNames names,
+  required AppLocalizations l10n,
+  required DateTime wallNow,
+}) {
+  final before = isBeforeDayStart(wallNow);
+  final cards = daily.cards;
+  final dayPick = cards.focusTime.picks.first.branch;
+  final nightPick = focusTimePickOf(
+    cards,
+    AppTimeOfDay.night,
+    beforeDayStart: before,
+  )?.card.picks.first.branch;
+  final language = _languageCodeOf(l10n);
+  final hanjaLabels = language != 'ko' && language != 'ja';
+  final dayCells = [
+    for (final branch in _dayBranches)
+      TimeBandCell(
+        label: _bandLabelOf(branch, names, hanjaLabels),
+        period: AppTimeOfDay.day,
+        picked: branch == dayPick,
+      ),
+  ];
+  final nightCells = [
+    for (final branch in _nightBranches)
+      TimeBandCell(
+        label: _bandLabelOf(branch, names, hanjaLabels),
+        period: AppTimeOfDay.night,
+        picked: branch == nightPick,
+      ),
+  ];
+  final dayStart = _dayStart.inMinutes;
+  final nightStart =
+      dayStart + _hourBranchLength.inMinutes * _dayBranches.length;
+  final bandStart = before ? nightStart : dayStart;
+  final now = wallNow.hour * 60 + wallNow.minute;
+  final elapsed = (now - bandStart) % _minutesPerDay;
+  return TimeBand(
+    cells: before ? [...nightCells, ...dayCells] : [...dayCells, ...nightCells],
+    dayHead: l10n.todayLuckyTimeBandDay,
+    nightHead: l10n.todayLuckyTimeBandNight,
+    nowFraction: elapsed / _minutesPerDay,
+    nowLabel: l10n.todayLuckyTimeBandNow(_clockText(now)),
+    startTick: TimeBandTick(
+      time: _clockText(bandStart),
+      dayWord: before ? l10n.todayLuckyTimeBandYesterday : null,
+    ),
+    boundaryTick: TimeBandTick(
+      time: _clockText(before ? dayStart : nightStart),
+    ),
+    endTick: TimeBandTick(
+      time: _clockText(bandStart),
+      dayWord: before ? null : l10n.todayLuckyTimeBandTomorrow,
+    ),
+    hanjaLabels: hanjaLabels,
+  );
 }
 
 /// 대표 태그 [tag]를 `hanja-tag`로 그릴 값. 사전에 이름이 없거나 한자 글자표(A112)에 없으면
@@ -182,9 +361,15 @@ List<String> skippedFeaturedTagKeysOf(Daily daily, GlossaryNames names) => [
 /// [daily]에서 writing 슬롯 id가 [slotId]인 문장. 응답에 없는 슬롯이면 null입니다.
 ///
 /// 날의 성격 이유·총운(첫 문장·태그 문장)·가이드 질문·행운 카드 문장을 찾습니다. 풀이 시트는
-/// 이 문장의 `todayReason`(오늘 그런 이유)을, 근거 시트는 `evidence`를 씁니다.
+/// 이 문장의 `todayReason`(오늘 그런 이유)을, 근거 시트는 `evidence`를 씁니다. 카드 id
+/// ([dailyCardSlotId], `<슬롯>#<카드>`)면 그 카드의 문장이고, 카드가 없거나 슬롯이 다르면 null입니다.
 SlotText? dailySlotText(Daily daily, String slotId) {
   final cards = daily.cards;
+  final cardMark = slotId.indexOf('#');
+  if (cardMark >= 0) {
+    final text = _cardText(cards, slotId.substring(cardMark + 1));
+    return text?.slot == slotId.substring(0, cardMark) ? text : null;
+  }
   final slots = [
     daily.characterReason,
     daily.fortune.head,
@@ -328,7 +513,7 @@ final class TodayDisplay {
   /// [featured]만 빈 날은 false이고, 그날은 D112 안내 없이 사주 기운 섹션째 두지 않습니다.
   final bool featuredEmpty;
 
-  /// 행운 항목 4개.
+  /// 행운 항목(색, 방향, 숫자, 시간 낮과 밤). 밤 카드가 없으면 시간은 낮 하나입니다.
   final List<LuckyItem> lucky;
 
   /// 가이드 질문.
@@ -381,7 +566,8 @@ Object? _canonical(Object? value) => switch (value) {
     value.value,
     value.explain.toJson(),
     value.element?.name,
-    value.ordinal,
+    value.period?.name,
+    value.word,
   ],
   Iterable<Object?>() => [for (final item in value) _canonical(item)],
   _ => throw ArgumentError.value(value, 'value', '비교 방식을 정하지 않은 타입입니다'),
@@ -412,13 +598,15 @@ String pillarTextOf(Pillar pillar, GlossaryNames? names) {
       : '$hanja($stemReading$branchReading)';
 }
 
-/// [daily]를 오늘 화면 값으로 바꿉니다. 이름은 [names]·[l10n], 시각은 [timezone](프로필 시간대)입니다.
+/// [daily]를 오늘 화면 값으로 바꿉니다. 이름은 [names]·[l10n], 시각은 [timezone](프로필 시간대)이고,
+/// [beforeDayStart]([isBeforeDayStart])가 밤 칩을 고릅니다.
 TodayDisplay todayDisplayOf(
   Daily daily,
   GlossaryNames names,
   AppLocalizations l10n,
-  String timezone,
-) {
+  String timezone, {
+  required bool beforeDayStart,
+}) {
   final featuredTags = daily.tags.featured;
   final tag = daily.fortune.tag;
   final group = daily.dayStemTenGodGroup;
@@ -447,7 +635,13 @@ TodayDisplay todayDisplayOf(
         ?featuredTagContentOf(featured, rank, names),
     ],
     featuredEmpty: featuredTags.isEmpty,
-    lucky: luckyItemsOf(daily, names, l10n, timezone),
+    lucky: luckyItemsOf(
+      daily,
+      names,
+      l10n,
+      timezone,
+      beforeDayStart: beforeDayStart,
+    ),
     guide: daily.guide.text,
   );
 }
@@ -490,7 +684,7 @@ final class ShareImageContent {
   /// 총운 첫 문장(호칭 포함).
   final RenderedText sentence;
 
-  /// 행운 항목.
+  /// 행운 항목. 시간은 낮 칩 하나입니다(V116).
   final List<LuckyItem> items;
 
   /// 아래 글(`share-preview.image.footer`).
@@ -518,7 +712,17 @@ ShareImageContent shareImageContentOf({
     dayKind: daily.dayKind,
     dayKindLabel: character.label,
     sentence: daily.fortune.head.text,
-    items: luckyItemsOf(daily, names, l10n, timezone),
+    // 공유 이미지는 낮 칩 하나라(V116) 밤 칩을 고르지 않습니다.
+    items: [
+      for (final item in luckyItemsOf(
+        daily,
+        names,
+        l10n,
+        timezone,
+        beforeDayStart: false,
+      ))
+        if (item.period != AppTimeOfDay.night) item,
+    ],
     footer: l10n.sharePreviewImageFooter,
     reason: character.reason,
   );

@@ -16,6 +16,8 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/glossary/model/glossary_names.dart';
 import 'package:myungli_diary/features/today/application/today_presentation.dart';
 
@@ -41,7 +43,7 @@ late AppLocalizations _l10n;
 
 /// [daily]의 오늘 화면 값(서울 시간대).
 TodayDisplay _display(Daily daily) =>
-    todayDisplayOf(daily, _names, _l10n, 'Asia/Seoul');
+    todayDisplayOf(daily, _names, _l10n, 'Asia/Seoul', beforeDayStart: false);
 
 void main() {
   setUpAll(ensureTimeZonesInitialized);
@@ -84,36 +86,40 @@ void main() {
       expect(formatFocusRange(morning, 'Asia/Seoul', 'fr'), '09:30 to 11:30');
     });
 
-    test(
-      '명세 lucky-card time의 clock, timeZone, 언어별 format, repeat를 따릅니다(V52)',
-      () {
-        final variants =
-            loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
-        final time = variants.cast<Map<String, Object?>>().singleWhere(
-          (variant) => variant['id'] == 'time',
-        );
-        final value =
-            (time['parts']! as Map<String, Object?>)['value']!
-                as Map<String, Object?>;
-        expect(value['clock'], '24h');
-        expect(value['timeZone'], 'profile');
-        expect(value.containsKey('join'), isFalse);
+    test('명세 time의 clock, timeZone, format, periods를 따릅니다(V52, V115)', () {
+      final variants =
+          loadSpecComponents()['lucky-card']!['variants']! as List<Object?>;
+      final time = variants.cast<Map<String, Object?>>().singleWhere(
+        (variant) => variant['id'] == 'time',
+      );
+      final value =
+          (time['parts']! as Map<String, Object?>)['value']!
+              as Map<String, Object?>;
+      expect(value['clock'], '24h');
+      expect(value['timeZone'], 'profile');
+      expect(value.containsKey('join'), isFalse);
+      // 구간 반복(repeat)은 7.0.0에서 지웠고 낮 칩 하나, 밤 칩 하나입니다(V115).
+      expect(time.containsKey('repeat'), isFalse);
+      final periods = (time['periods']! as List<Object?>)
+          .cast<Map<String, Object?>>();
+      expect(periods.map((period) => period['id']), [
+        for (final period in AppTimeOfDay.values) period.name,
+      ]);
+      expect(periods.map((period) => period['source']), [
+        'DailyResponse.focus_time',
+        'DailyResponse.night_focus_time',
+      ]);
+      final format = value['format']! as Map<String, Object?>;
+      for (final MapEntry(key: language, value: pattern) in format.entries) {
         expect(
-          (time['repeat']! as Map<String, Object?>)['max'],
-          maxFocusTimePicks,
+          formatFocusRange(morning, 'Asia/Seoul', language),
+          (pattern! as String)
+              .replaceFirst('HH:mm', '09:30')
+              .replaceFirst('HH:mm', '11:30'),
+          reason: language,
         );
-        final format = value['format']! as Map<String, Object?>;
-        for (final MapEntry(key: language, value: pattern) in format.entries) {
-          expect(
-            formatFocusRange(morning, 'Asia/Seoul', language),
-            (pattern! as String)
-                .replaceFirst('HH:mm', '09:30')
-                .replaceFirst('HH:mm', '11:30'),
-            reason: language,
-          );
-        }
-      },
-    );
+      }
+    });
   });
 
   group('luckyItemsOf', () {
@@ -125,27 +131,81 @@ void main() {
       daily = Daily.fromJson(memberDailyJson());
     });
 
-    test('색은 glossary, 방향은 ARB, 숫자는 그대로, 시간은 프로필 시간대 범위입니다', () {
-      final items = luckyItemsOf(daily, _names, l10n, 'Asia/Seoul');
-      expect(items.map((i) => i.variant), LuckyCardVariant.luckyValues);
-      expect(items.map((i) => i.value), [
+    List<LuckyItem> items({required bool beforeDayStart, Daily? from}) =>
+        luckyItemsOf(
+          from ?? daily,
+          _names,
+          l10n,
+          'Asia/Seoul',
+          beforeDayStart: beforeDayStart,
+        );
+
+    test('색은 glossary, 방향은 ARB, 숫자는 그대로, 시간은 낮과 밤 칩의 프로필 시간대 범위입니다', () {
+      final lucky = items(beforeDayStart: false);
+      expect(lucky.map((i) => i.variant), [
+        ...LuckyCardVariant.luckyValues,
+        LuckyCardVariant.time,
+      ]);
+      expect(lucky.map((i) => i.value), [
         '초록',
         l10n.direction8E,
         '3',
         '15:30~17:30',
+        '01:30~03:30',
       ]);
-      expect(items.map((i) => i.name), [
+      // 시간 칩 이름은 그 칩의 시트 제목입니다(a11y.timeLabel).
+      expect(lucky.map((i) => i.name), [
         l10n.todayLuckyColorName,
         l10n.todayLuckyDirectionName,
         l10n.todayLuckyNumberName,
-        l10n.todayLuckyTimeName,
+        l10n.todayLuckyTimeDayTitle,
+        l10n.todayLuckyTimeNightTitle,
       ]);
-      expect(items.first.element, FiveElement.wood);
-      expect(items.first.explain, daily.cards.color.text.text);
-      expect(items.last.explain, daily.cards.focusTime.text.text);
+      expect(lucky.first.element, FiveElement.wood);
+      expect(lucky.first.explain, daily.cards.color.text.text);
+      final [_, _, _, day, night] = lucky;
+      expect(day.period, AppTimeOfDay.day);
+      expect(day.word, isNull);
+      expect(day.explain, daily.cards.focusTime.text.text);
+      expect(night.period, AppTimeOfDay.night);
+      expect(night.word, l10n.todayLuckyTimeNightTonight);
+      expect(night.explain, daily.cards.nightFocusTime!.text.text);
     });
 
-    test('집중 시간 구간이 둘이면 구간마다 시간 칩 하나를 계약 순서대로 만듭니다(V52)', () {
+    test('낮 구간 시작 전에는 밤 칩이 전날 밤 카드이고 때 낱말이 새벽입니다(D122 ⑦, V116)', () {
+      final night = items(beforeDayStart: true).last;
+      final previous = daily.cards.previousNightFocusTime!;
+      expect(night.period, AppTimeOfDay.night);
+      expect(night.word, l10n.todayLuckyTimeNightDawn);
+      expect(
+        night.value,
+        formatFocusRange(previous.picks.first, 'Asia/Seoul', 'ko'),
+      );
+      expect(night.explain, previous.text.text);
+    });
+
+    test('고른 밤 카드가 응답에 없으면 밤 칩만 없습니다(선택 필드)', () {
+      final json = memberDailyJson();
+      final cards = (json['cards']! as Map<String, Object?>)
+        ..remove('previousNightFocusTime');
+      final withoutPrevious = Daily.fromJson(json);
+      // 07:30 전에는 전날 밤이 없으면 오늘 밤으로 대신하지 않습니다(A134).
+      expect(
+        items(beforeDayStart: true, from: withoutPrevious).map((i) => i.period),
+        [null, null, null, AppTimeOfDay.day],
+      );
+      expect(
+        items(beforeDayStart: false, from: withoutPrevious).last.period,
+        AppTimeOfDay.night,
+      );
+      cards.remove('nightFocusTime');
+      final dayOnly = Daily.fromJson(json);
+      for (final before in [true, false]) {
+        expect(items(beforeDayStart: before, from: dayOnly), hasLength(4));
+      }
+    });
+
+    test('구간이 둘인 옛 규칙 버전 카드도 칩마다 첫 구간 하나입니다(D122 ⑤)', () {
       final json = memberDailyJson();
       final cards = json['cards']! as Map<String, Object?>;
       final focus = cards['focusTime']! as Map<String, Object?>;
@@ -159,33 +219,25 @@ void main() {
           'end': '2026-10-13T15:30:00+09:00',
         },
       ];
-      final items = luckyItemsOf(
-        Daily.fromJson(json),
-        _names,
-        l10n,
-        'Asia/Seoul',
-      );
-      final times = items
-          .where((item) => item.variant == LuckyCardVariant.time)
-          .toList();
-      expect(times.map((item) => item.value), ['15:30~17:30', '13:30~15:30']);
-      expect(times.map((item) => item.ordinal), [0, 1]);
-      expect(times.map((item) => item.name).toSet(), {l10n.todayLuckyTimeName});
-      expect(times.first.explain, same(times.last.explain));
-      expect(items, hasLength(5));
+      final times = items(
+        beforeDayStart: false,
+        from: Daily.fromJson(json),
+      ).where((item) => item.variant == LuckyCardVariant.time).toList();
+      expect(times.map((item) => item.value), ['15:30~17:30', '01:30~03:30']);
     });
 
     test('en, ja 문구면 시간 칩 값도 그 언어의 범위 표기입니다', () async {
       final en = await AppLocalizations.delegate.load(const Locale('en'));
       final ja = await AppLocalizations.delegate.load(const Locale('ja'));
-      expect(
-        luckyItemsOf(daily, _names, en, 'Asia/Seoul').last.value,
-        '15:30 to 17:30',
-      );
-      expect(
-        luckyItemsOf(daily, _names, ja, 'Asia/Seoul').last.value,
-        '15:30〜17:30',
-      );
+      List<LuckyItem> times(AppLocalizations l10n) => luckyItemsOf(
+        daily,
+        _names,
+        l10n,
+        'Asia/Seoul',
+        beforeDayStart: false,
+      ).where((item) => item.variant == LuckyCardVariant.time).toList();
+      expect(times(en).first.value, '15:30 to 17:30');
+      expect(times(ja).first.value, '15:30〜17:30');
     });
 
     test('glossary에 색 이름이 없으면 값 id를 그대로 씁니다', () {
@@ -194,6 +246,7 @@ void main() {
         const GlossaryNames({}),
         l10n,
         'Asia/Seoul',
+        beforeDayStart: false,
       );
       expect(items.first.value, 'wood');
     });
@@ -204,6 +257,188 @@ void main() {
           directionName(l10n, direction),
       };
       expect(names, hasLength(8));
+    });
+  });
+
+  group('낮 구간 시작과 밤 카드(D122 ⑦, A134)', () {
+    test('프로필 벽시계 07:30 전이면 낮 구간 시작 전입니다', () {
+      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13)), isTrue);
+      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13, 7, 29)), isTrue);
+      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13, 7, 30)), isFalse);
+      expect(isBeforeDayStart(DateTime.utc(2026, 10, 13, 23, 59)), isFalse);
+    });
+
+    test('밤 카드 근거 id는 카드마다 다르고 dailySlotText가 그 카드 문장을 찾습니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      final cards = daily.cards;
+      final day = focusTimePickOf(
+        cards,
+        AppTimeOfDay.day,
+        beforeDayStart: true,
+      )!;
+      final tonight = focusTimePickOf(
+        cards,
+        AppTimeOfDay.night,
+        beforeDayStart: false,
+      )!;
+      final previous = focusTimePickOf(
+        cards,
+        AppTimeOfDay.night,
+        beforeDayStart: true,
+      )!;
+      // 세 카드가 같은 슬롯이라 슬롯만으로는 낮 카드가 찾아집니다.
+      expect(
+        {cards.focusTime.text.slot, tonight.card.text.slot},
+        {'daily.focus_time'},
+      );
+      expect(day.card, same(cards.focusTime));
+      expect(tonight.card, same(cards.nightFocusTime));
+      expect(previous.card, same(cards.previousNightFocusTime));
+      expect({
+        day.evidenceSlotId,
+        tonight.evidenceSlotId,
+        previous.evidenceSlotId,
+      }, hasLength(3));
+      expect(
+        dailySlotText(daily, day.evidenceSlotId),
+        same(cards.focusTime.text),
+      );
+      expect(
+        dailySlotText(daily, tonight.evidenceSlotId),
+        same(cards.nightFocusTime!.text),
+      );
+      expect(
+        dailySlotText(daily, previous.evidenceSlotId),
+        same(cards.previousNightFocusTime!.text),
+      );
+      // 슬롯 id만 주면 이전처럼 그 슬롯의 첫 카드(낮)입니다.
+      expect(
+        dailySlotText(daily, 'daily.focus_time'),
+        same(cards.focusTime.text),
+      );
+      expect(dailySlotText(daily, 'daily.color#nightFocusTime'), isNull);
+      expect(dailySlotText(daily, 'daily.focus_time#unknown'), isNull);
+    });
+
+    test('오늘 화면 값은 낮 구간 시작 전후로 밤 칩이 달라 같은 값이 아닙니다', () {
+      final daily = Daily.fromJson(memberDailyJson());
+      TodayDisplay at({required bool before}) => todayDisplayOf(
+        daily,
+        _names,
+        _l10n,
+        'Asia/Seoul',
+        beforeDayStart: before,
+      );
+      expect(at(before: true), isNot(at(before: false)));
+      expect(at(before: false), at(before: false));
+    });
+  });
+
+  group('timeBandOf(V117)', () {
+    const names = GlossaryNames({
+      'branch': {
+        'ja': '자',
+        'chuk': '축',
+        'in': '인',
+        'myo': '묘',
+        'jin': '진',
+        'sa': '사',
+        'o': '오',
+        'mi': '미',
+        'shin': '신',
+        'yu': '유',
+        'sul': '술',
+        'hae': '해',
+      },
+    });
+    final daily = Daily.fromJson(memberDailyJson());
+
+    TimeBand band(DateTime wallNow, {AppLocalizations? l10n}) => timeBandOf(
+      daily: daily,
+      names: names,
+      l10n: l10n ?? _l10n,
+      wallNow: wallNow,
+    );
+
+    test('07:30부터는 낮 일곱 칸 다음 밤 다섯 칸이고 두 칩의 시진에 고리입니다', () {
+      final shown = band(DateTime.utc(2026, 10, 13, 12));
+      expect(shown.cells.map((cell) => cell.label).join(), '진사오미신유술해자축인묘');
+      expect(shown.cells.map((cell) => cell.period), [
+        for (var i = 0; i < 7; i++) AppTimeOfDay.day,
+        for (var i = 0; i < 5; i++) AppTimeOfDay.night,
+      ]);
+      // 낮 신시(fixture 15:30~17:30)와 오늘 밤 축시(01:30~03:30).
+      expect(
+        [
+          for (final cell in shown.cells)
+            if (cell.picked) cell.label,
+        ],
+        ['신', '축'],
+      );
+      expect(shown.startTick.time, '07:30');
+      expect(shown.startTick.dayWord, isNull);
+      expect(shown.boundaryTick.time, '21:30');
+      expect(shown.endTick.time, '07:30');
+      expect(shown.endTick.dayWord, _l10n.todayLuckyTimeBandTomorrow);
+      expect(shown.dayHead, _l10n.todayLuckyTimeBandDay);
+      expect(shown.nightHead, _l10n.todayLuckyTimeBandNight);
+      expect(shown.nowLabel, _l10n.todayLuckyTimeBandNow('12:00'));
+      // 07:30부터 4시간 30분 = 24시간의 270/1440.
+      expect(shown.nowFraction, closeTo(270 / 1440, 1e-9));
+      expect(shown.hanjaLabels, isFalse);
+    });
+
+    test('07:30 전에는 전날 21:30부터 밤 다섯 칸이 앞이고 고리는 전날 밤 카드 시진입니다', () {
+      final shown = band(DateTime.utc(2026, 10, 13, 0, 10));
+      expect(shown.cells.map((cell) => cell.label).join(), '해자축인묘진사오미신유술');
+      expect(shown.startTick.time, '21:30');
+      expect(shown.startTick.dayWord, _l10n.todayLuckyTimeBandYesterday);
+      expect(shown.boundaryTick.time, '07:30');
+      expect(shown.endTick.time, '21:30');
+      expect(shown.endTick.dayWord, isNull);
+      final previous = daily.cards.previousNightFocusTime!.picks.first.branch;
+      expect(
+        [
+          for (final cell in shown.cells)
+            if (cell.picked) cell.label,
+        ],
+        [names.valueName('branch', previous.value), '신'],
+      );
+      // 전날 21:30부터 2시간 40분.
+      expect(shown.nowFraction, closeTo(160 / 1440, 1e-9));
+    });
+
+    test('밤 카드가 없으면 밤 칸에 고리가 없습니다', () {
+      final json = memberDailyJson();
+      (json['cards']! as Map<String, Object?>).remove('nightFocusTime');
+      final shown = timeBandOf(
+        daily: Daily.fromJson(json),
+        names: names,
+        l10n: _l10n,
+        wallNow: DateTime.utc(2026, 10, 13, 12),
+      );
+      expect(
+        [
+          for (final cell in shown.cells)
+            if (cell.picked) cell.period,
+        ],
+        [AppTimeOfDay.day],
+      );
+    });
+
+    test('en은 지지 한자이고 한자 글꼴을 쓰며, 사전에 이름이 없으면 ko도 한자입니다', () async {
+      final en = await AppLocalizations.delegate.load(const Locale('en'));
+      final english = band(DateTime.utc(2026, 10, 13, 12), l10n: en);
+      expect(english.cells.map((cell) => cell.label).join(), '辰巳午未申酉戌亥子丑寅卯');
+      expect(english.hanjaLabels, isTrue);
+      final unnamed = timeBandOf(
+        daily: daily,
+        names: const GlossaryNames({}),
+        l10n: _l10n,
+        wallNow: DateTime.utc(2026, 10, 13, 12),
+      );
+      expect(unnamed.cells.first.label, '辰');
+      expect(unnamed.hanjaLabels, isFalse);
     });
   });
 
@@ -238,6 +473,23 @@ void main() {
         timezone: 'Asia/Seoul',
       );
       expect(image.reason?.toJson(), daily.characterReason.text.toJson());
+    });
+
+    test('공유 이미지 시간은 밤 카드가 있어도 낮 칩 하나입니다(V116)', () async {
+      await initializeDateFormatting('ko');
+      final l10n = await AppLocalizations.delegate.load(const Locale('ko'));
+      final image = shareImageContentOf(
+        date: CalendarDate(2026, 10, 13),
+        daily: Daily.fromJson(memberDailyJson()),
+        names: _names,
+        l10n: l10n,
+        locale: const Locale('ko'),
+        timezone: 'Asia/Seoul',
+      );
+      final times = image.items.where(
+        (item) => item.variant == LuckyCardVariant.time,
+      );
+      expect(times.map((item) => item.period), [AppTimeOfDay.day]);
     });
 
     test('time_unknown notice가 있으면 true이고 문장이 비어도 true입니다', () {
@@ -434,7 +686,13 @@ void main() {
     });
 
     TodayDisplay displayOf(Daily daily, [GlossaryNames names = readings]) =>
-        todayDisplayOf(daily, names, _l10n, 'Asia/Seoul');
+        todayDisplayOf(
+          daily,
+          names,
+          _l10n,
+          'Asia/Seoul',
+          beforeDayStart: false,
+        );
 
     test('음력은 ARB 틀이고 윤달이면 윤달 틀, 응답에 없으면 null입니다', () {
       expect(

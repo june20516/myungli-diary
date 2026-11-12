@@ -45,6 +45,7 @@ class ExplainSheetBody extends StatelessWidget {
     this.meaningSlotId = SlotIds.explainSheetTermMeaning,
     this.todayReason,
     this.attachment,
+    this.attachmentGap = Space.s12,
     this.diaryLinkLabel,
     this.onDiaryLink,
     super.key,
@@ -89,8 +90,12 @@ class ExplainSheetBody extends StatelessWidget {
   /// 오늘 그런 이유(`explain-sheet.today.reason`). 오늘 화면에서 열지 않았거나 계약에 없으면 `null`입니다.
   final RenderedText? todayReason;
 
-  /// 본문 아래 `space.12`에 붙일 위젯(`stage-strip` 등).
+  /// 본문 아래 [attachmentGap]에 붙일 위젯(`stage-strip`, 시간 시트의 `timeBand` 등).
   final Widget? attachment;
+
+  /// 위 문장과 [attachment] 사이. 기본은 `space.12`이고 시간 시트의 24시간 띠는 `space.20`입니다
+  /// (`lucky-card` `timeBand.when`).
+  final double attachmentGap;
 
   /// 근거 진입점을 눌렀을 때(근거 시트 열기). null이면 진입점이 없습니다.
   final VoidCallback? onEvidence;
@@ -190,7 +195,7 @@ class ExplainSheetBody extends StatelessWidget {
             ),
           if (attachment != null)
             Padding(
-              padding: const EdgeInsets.only(top: Space.s12),
+              padding: EdgeInsets.only(top: attachmentGap),
               child: attachment,
             ),
           if (onEvidence != null)

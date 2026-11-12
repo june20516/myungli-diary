@@ -33,6 +33,8 @@ import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/diary/application/diary_providers.dart';
@@ -45,6 +47,7 @@ import '../../support/app_harness.dart';
 import '../../support/daily_fixture.dart';
 import '../../support/onboarding_steps.dart' show pumpUntil;
 import '../../support/reaction_not_found.dart';
+import '../../support/sheet_close.dart';
 import '../../support/test_today.dart';
 
 final _ko = AppLocalizationsKo();
@@ -1321,6 +1324,135 @@ void main() {
       expect(_id(SlotIds.todayFortuneHead), findsNothing);
       expect(find.byType(ReactionButton), findsNothing);
       expect(_id(SlotIds.todayFortuneBody), findsOneWidget);
+    });
+  });
+
+  group('집중 시간 낮과 밤 칩(D122 ⑦, V116~V118)', () {
+    Finder chip(AppTimeOfDay period) =>
+        find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.time, period: period));
+
+    /// [chip] 안에 [text]가 있는지.
+    Finder textIn(Finder chip, String text) =>
+        find.descendant(of: chip, matching: find.text(text));
+
+    /// member 응답에서 전날 밤 카드만 해시(21:30~23:30)로 바꿔, 07:30 앞뒤 밤 칩 값이 다르게 합니다.
+    Map<String, dynamic> dailyJson() {
+      final json = memberDailyJson();
+      final cards = json['cards'] as Map<String, dynamic>;
+      final previous = cards['previousNightFocusTime'] as Map<String, dynamic>;
+      final pick = (previous['picks'] as List<Object?>).first!;
+      previous['picks'] = [
+        {
+          ...pick as Map<String, Object?>,
+          'branch': 'hae',
+          'start': '2026-10-12T21:30:00+09:00',
+          'end': '2026-10-12T23:30:00+09:00',
+          'dayDate': '2026-10-12',
+        },
+      ];
+      return json;
+    }
+
+    Override dailyOf(Map<String, dynamic> json) =>
+        dailyControllerProvider.overrideWith(
+          () => _StubDaily(
+            () async => DailyView(
+              date: _today,
+              daily: Daily.fromJson(json),
+              stale: false,
+              cacheKey: null,
+            ),
+          ),
+        );
+
+    testWidgets('07:30을 지나는 순간 밤 칩이 전날 밤 새벽에서 오늘 밤으로 값과 함께 바뀝니다', (
+      tester,
+    ) async {
+      final minutes = StreamController<DateTime>.broadcast();
+      addTearDown(minutes.close);
+      await pumpApp(
+        tester,
+        scenario: 'member',
+        overrides: [
+          dailyOf(dailyJson()),
+          nowMinuteProvider.overrideWith((ref) => minutes.stream),
+        ],
+      );
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 29));
+      await _settleToday(tester);
+      await tester.pumpAndSettle();
+      final night = chip(AppTimeOfDay.night);
+      expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsOneWidget);
+      expect(textIn(night, '21:30~23:30'), findsOneWidget);
+      expect(textIn(chip(AppTimeOfDay.day), '15:30~17:30'), findsOneWidget);
+
+      minutes.add(DateTime.utc(2026, 10, 13, 7, 30));
+      await tester.pumpAndSettle();
+      expect(textIn(night, _ko.todayLuckyTimeNightTonight), findsOneWidget);
+      expect(textIn(night, '01:30~03:30'), findsOneWidget);
+      expect(textIn(night, _ko.todayLuckyTimeNightDawn), findsNothing);
+      // 낮 칩은 그대로입니다.
+      expect(textIn(chip(AppTimeOfDay.day), '15:30~17:30'), findsOneWidget);
+    });
+
+    testWidgets('밤 카드가 응답에 없으면 밤 칩만 그리지 않습니다', (tester) async {
+      final json = memberDailyJson();
+      (json['cards'] as Map<String, dynamic>)
+        ..remove('nightFocusTime')
+        ..remove('previousNightFocusTime');
+      await pumpApp(tester, scenario: 'member', overrides: [dailyOf(json)]);
+      await _settleToday(tester);
+      expect(chip(AppTimeOfDay.day), findsOneWidget);
+      expect(chip(AppTimeOfDay.night), findsNothing);
+      expect(find.byType(ErrorState), findsNothing);
+    });
+
+    testWidgets('낮과 밤 칩은 각자 시트를 열고 띠와 그 카드의 근거 진입점을 둡니다', (tester) async {
+      final sheets = _SheetLog();
+      await pumpApp(tester, scenario: 'member', overrides: [sheets.override]);
+      await _settleToday(tester);
+      final daily = Daily.fromJson(memberDailyJson());
+      for (final (period, title, text, card) in [
+        (
+          AppTimeOfDay.day,
+          _ko.todayLuckyTimeDayTitle,
+          daily.cards.focusTime.text,
+          'focusTime',
+        ),
+        // 정오(대역 시계)라 오늘 밤 카드입니다.
+        (
+          AppTimeOfDay.night,
+          _ko.todayLuckyTimeNightTitle,
+          daily.cards.nightFocusTime!.text,
+          'nightFocusTime',
+        ),
+      ]) {
+        await tester.ensureVisible(chip(period));
+        await tester.pumpAndSettle();
+        await tester.tap(chip(period));
+        await tester.pumpAndSettle();
+        final lucky = sheets.explained.last as ExplainLucky;
+        expect(lucky.title, title, reason: period.name);
+        expect(lucky.body.toJson(), text.text.toJson(), reason: period.name);
+        expect(lucky.attachment, isA<TodayTimeBand>(), reason: period.name);
+        expect(lucky.attachmentGap, TimeBand.sheetGap, reason: period.name);
+        expect(lucky.origin?.slotId, '${text.slot}#$card', reason: period.name);
+        await closeSheet(tester, find.text('explain-body'));
+      }
+    });
+
+    testWidgets('방향과 숫자 시트에는 띠와 근거 진입점이 없습니다(V118)', (tester) async {
+      final sheets = _SheetLog();
+      await pumpApp(tester, scenario: 'member', overrides: [sheets.override]);
+      await _settleToday(tester);
+      final number = find.byKey(LuckyCardRow.chipKey(LuckyCardVariant.number));
+      await tester.ensureVisible(number);
+      await tester.pumpAndSettle();
+      await tester.tap(number);
+      await tester.pumpAndSettle();
+      final lucky = sheets.explained.last as ExplainLucky;
+      expect(lucky.attachment, isNull);
+      expect(lucky.origin, isNull);
     });
   });
 

@@ -67,6 +67,7 @@ import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
+import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -2249,6 +2250,151 @@ void main() {
       final reduce = _map(unlocked['reduceMotion']);
       expect(reduce['element'], 'unlock.mark');
       expect(reduce['part'], 'rule');
+    });
+  });
+
+  group('집중 시간 낮과 밤 칩과 24시간 띠 (7.0.0, V115~V118)', () {
+    final luckyCard = loadSpecComponents()['lucky-card']!;
+    final time = (luckyCard['variants']! as List<Object?>)
+        .cast<Map<String, Object?>>()
+        .singleWhere((variant) => variant['id'] == 'time');
+    final periods = (time['periods']! as List<Object?>)
+        .cast<Map<String, Object?>>();
+    final parts = _map(luckyCard['parts']);
+    final band = _map(parts['timeBand']);
+
+    test('icon.weights.timeOfDay는 Fill이고 해와 달은 Phosphor Fill 글리프입니다', () {
+      expect(_map(_map(_elements()['icon'])['weights'])['timeOfDay'], 'fill');
+      expect(AppTimeOfDay.day.glyph, PhosphorIconsFill.sun);
+      expect(AppTimeOfDay.night.glyph, PhosphorIconsFill.moon);
+    });
+
+    test('time.periods: 낮과 밤의 원천, 아이콘, 색, 시트 슬롯, 때 낱말이 구현과 같습니다', () {
+      expect(time.containsKey('repeat'), isFalse);
+      expect(time['screens'], ['today']);
+      expect(periods.map((period) => period['id']), [
+        for (final period in AppTimeOfDay.values) period.name,
+      ]);
+      final [day, night] = periods;
+      for (final (period, icon, color) in [
+        (day, 'sun', '{color.time.day}'),
+        (night, 'moon', '{color.time.night}'),
+      ]) {
+        final lead = _map(period['lead']);
+        expect(lead['icon'], icon, reason: period['id'] as String?);
+        expect(lead['iconWeight'], 'fill', reason: period['id'] as String?);
+        expect(lead['iconColor'], color, reason: period['id'] as String?);
+      }
+      expect(day['sheetTitleSlot'], SlotIds.todayLuckyTimeDayTitle);
+      expect(day['sheetBodySlot'], SlotIds.todayLuckyTimeDayBody);
+      expect(night['sheetTitleSlot'], SlotIds.todayLuckyTimeNightTitle);
+      expect(night['sheetBodySlot'], SlotIds.todayLuckyTimeNightBody);
+      final word = _map(night['word']);
+      expect(word['type'], '{type.label.md}');
+      expect(word['fg'], '{color.text.primary}');
+      expect(word['position'], contains('space.4'));
+      expect(_map(word['slots']), {
+        'dawn': SlotIds.todayLuckyTimeNightDawn,
+        'tonight': SlotIds.todayLuckyTimeNightTonight,
+      });
+      expect(word['switch'], contains('07:30'));
+      expect(day.containsKey('word'), isFalse);
+    });
+
+    test('row.order와 근거 진입점 자리, a11y 시간 라벨이 구현 순서와 같습니다', () {
+      expect(_map(parts['row'])['order'], [
+        for (final variant in LuckyCardVariant.luckyValues)
+          if (variant == LuckyCardVariant.time) ...[
+            for (final period in AppTimeOfDay.values) 'time.${period.name}',
+          ] else
+            variant.name,
+      ]);
+      final evidence = _map(_map(parts['explain'])['evidenceLink']);
+      expect(evidence['component'], 'depth-link');
+      expect(evidence['variant'], 'block');
+      expect(evidence['order'], contains('timeBand 아래 맨 끝'));
+      final a11y = _map(luckyCard['a11y']);
+      expect(a11y['nightLabel'], '항목 이름 + 때 낱말 + 값');
+      expect(a11y['timeLabel'], contains('해와 달 아이콘은 읽지 않음'));
+    });
+
+    test('timeBand 숫자 값과 토큰이 TimeBand 상수와 같습니다', () {
+      expect(band['when'], contains('space.20'));
+      expect(TimeBand.sheetGap, Space.s20);
+      final heads = _map(band['heads']);
+      expect(_px(heads['height']), TimeBand.headHeight);
+      expect(heads['iconSource'], contains('size.icon.16'));
+      expect(TimeBand.headIconSize, AppIconSize.s16);
+      expect(heads['type'], '{type.caption.md}');
+      expect(heads['fg'], '{color.text.secondary}');
+      expect(heads['iconGap'], '{space.4}');
+      expect(TimeBand.headIconGap, Space.s4);
+      expect(heads['gapBelow'], '{space.16}');
+      expect(TimeBand.headGapBelow, Space.s16);
+      expect(_map(heads['slots']), {
+        'day': SlotIds.todayLuckyTimeBandDay,
+        'night': SlotIds.todayLuckyTimeBandNight,
+      });
+      final cells = _map(band['cells']);
+      expect(cells['count'], TimeBand.cellCount);
+      expect(cells['gap'], '{space.2}');
+      expect(TimeBand.cellGap, Space.s2);
+      expect(_px(cells['height']), TimeBand.cellHeight);
+      expect(cells['radius'], '{radius.xs}');
+      expect(TimeBand.cellRadius, Radii.xs);
+      expect(_map(cells['label'])['type'], '{type.caption.sm}');
+      expect(_map(cells['day']), {
+        'bg': '{color.ohaeng.earth.bg}',
+        'fg': '{color.ohaeng.earth.fg}',
+      });
+      expect(_map(cells['night']), {
+        'bg': '{color.ohaeng.water.bg}',
+        'fg': '{color.ohaeng.water.fg}',
+      });
+      final pick = _map(cells['pick']);
+      final ring = _map(pick['ring']);
+      expect(ring['color'], '{color.action.primary}');
+      expect(_px(ring['width']), TimeBand.ringWidth);
+      final gap = _map(pick['gap']);
+      expect(gap['color'], '{color.bg.sheet}');
+      expect(_px(gap['width']), TimeBand.ringGap);
+      expect(pick['labelWeight'], TimeBand.pickedLabelWeight.value);
+      final now = _map(band['now']);
+      final line = _map(now['line']);
+      expect(line['color'], '{color.text.primary}');
+      expect(_px(line['width']), TimeBand.nowLineWidth);
+      expect(_px(line['overhang']), TimeBand.nowOverhang);
+      final tag = _map(now['tag']);
+      expect(tag['slot'], SlotIds.todayLuckyTimeBandNow);
+      expect(tag['bg'], '{color.inverse.bg}');
+      expect(tag['fg'], '{color.inverse.fg}');
+      expect(tag['type'], '{type.caption.sm}');
+      expect(tag['radius'], '{radius.full}');
+      expect(tag['paddingX'], '{space.4}');
+      expect(TimeBand.nowTagPaddingX, Space.s4);
+      expect(now['update'], contains('1분마다'));
+      final ticks = _map(band['ticks']);
+      expect(ticks['type'], '{type.caption.sm}');
+      expect(ticks['fg'], '{color.text.secondary}');
+      expect(ticks['fontFeatures'], ['tnum']);
+      // 칩 시간 값과 같은 tnum입니다(`time.parts.value.fontFeatures`).
+      expect(TimeBand.tickFeatures, LuckyChip.timeValueFeatures);
+      expect(ticks['align'], ['start', 'center', 'end']);
+      expect(ticks['dayWordGap'], '{space.4}');
+      expect(TimeBand.dayWordGap, Space.s4);
+      expect(_map(ticks['dayWords']), {
+        'yesterday': SlotIds.todayLuckyTimeBandYesterday,
+        'tomorrow': SlotIds.todayLuckyTimeBandTomorrow,
+      });
+      expect(ticks['gapAbove'], '{space.8}');
+      expect(TimeBand.tickGapAbove, Space.s8);
+      expect(_map(band['a11y'])['role'], 'image');
+    });
+
+    test('timeBand 순서는 07:30 전 밤이 앞, 07:30부터 낮이 앞입니다', () {
+      final order = _map(band['order']);
+      expect(order['beforeDayStart'], ['night(전날 밤)', 'day(오늘 낮)']);
+      expect(order['fromDayStart'], ['day(오늘 낮)', 'night(오늘 밤)']);
     });
   });
 

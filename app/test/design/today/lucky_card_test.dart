@@ -40,9 +40,10 @@ List<LuckyItem> _items() => [
   ),
   LuckyItem(
     variant: LuckyCardVariant.time,
-    name: '집중 시간',
+    name: '낮의 길한 시간',
     value: '오후 3시',
     explain: _text('오후 3시에 집중이 잘 돼요.'),
+    period: AppTimeOfDay.day,
   ),
 ];
 
@@ -98,9 +99,10 @@ void main() {
             child: LuckyChip(
               item: LuckyItem(
                 variant: LuckyCardVariant.time,
-                name: '집중 시간',
+                name: '낮의 길한 시간',
                 value: '09:30~11:30',
                 explain: _text('오전에 집중이 잘 돼요.'),
+                period: AppTimeOfDay.day,
               ),
               open: false,
               onTap: null,
@@ -190,7 +192,9 @@ void main() {
       expect(value.style?.color, tokens.colors.textPrimary);
     });
 
-    testWidgets('아이콘은 16이고 text.secondary, 색 변형은 14 견본 원입니다', (tester) async {
+    testWidgets('아이콘은 16이고 text.secondary(시간은 해와 달 색), 색 변형은 14 견본 원입니다', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       final tokens = tester.element(_chip(LuckyCardVariant.time)).tokens;
       for (final variant in [
@@ -202,7 +206,13 @@ void main() {
           find.descendant(of: _chip(variant), matching: find.byType(Icon)),
         );
         expect(icon.size, 16, reason: variant.name);
-        expect(icon.color, tokens.colors.textSecondary, reason: variant.name);
+        expect(
+          icon.color,
+          variant == LuckyCardVariant.time
+              ? tokens.colors.timeDay
+              : tokens.colors.textSecondary,
+          reason: variant.name,
+        );
       }
       expect(
         find.descendant(
@@ -333,23 +343,27 @@ void main() {
       expect(closed.top.color, tokens.colors.line);
     });
 
-    testWidgets('시간 칩이 둘이면 같은 설명을 열고 열림 테두리는 누른 칩에만 생깁니다(V52)', (tester) async {
+    testWidgets('낮과 밤 시간 칩은 각자 설명을 열고 열림 테두리는 누른 칩에만 생깁니다(V116)', (
+      tester,
+    ) async {
       final sheet = Completer<void>();
       final opened = <LuckyItem>[];
-      final explain = _text('오전과 오후에 집중이 잘 돼요.');
+      final nightExplain = _text('새벽 1시쯤 마음이 차분해요.');
       final items = [
         LuckyItem(
           variant: LuckyCardVariant.time,
-          name: '집중 시간',
-          value: '09:30~11:30',
-          explain: explain,
+          name: '낮의 길한 시간',
+          value: '15:30~17:30',
+          explain: _text('오후 3시쯤 집중이 잘 돼요.'),
+          period: AppTimeOfDay.day,
         ),
         LuckyItem(
           variant: LuckyCardVariant.time,
-          name: '집중 시간',
-          value: '13:30~15:30',
-          explain: explain,
-          ordinal: 1,
+          name: '밤의 길한 시간',
+          value: '01:30~03:30',
+          explain: nightExplain,
+          period: AppTimeOfDay.night,
+          word: '오늘 밤',
         ),
       ];
       await tester.pumpWidget(
@@ -370,7 +384,7 @@ void main() {
       );
       final first = _chip(LuckyCardVariant.time);
       final second = find.byKey(
-        LuckyCardRow.chipKey(LuckyCardVariant.time, ordinal: 1),
+        LuckyCardRow.chipKey(LuckyCardVariant.time, period: AppTimeOfDay.night),
       );
       double widthOf(Finder chip) =>
           ((tester
@@ -388,8 +402,8 @@ void main() {
               .width;
       await tester.tap(second);
       await tester.pump();
-      expect(opened.single.ordinal, 1);
-      expect(opened.single.explain, same(explain));
+      expect(opened.single.period, AppTimeOfDay.night);
+      expect(opened.single.explain, same(nightExplain));
       expect(widthOf(second), 1.5);
       expect(widthOf(first), 1);
       sheet.complete();
@@ -459,6 +473,100 @@ void main() {
       expect(data.flagsCollection.isButton, isFalse);
       expect(data.hasAction(SemanticsAction.tap), isFalse);
       handle.dispose();
+    });
+
+    group('time 낮과 밤 칩(V115, V116)', () {
+      final day = LuckyItem(
+        variant: LuckyCardVariant.time,
+        name: '낮의 길한 시간',
+        value: '15:30~17:30',
+        explain: _text('오후 3시쯤 집중이 잘 돼요.'),
+        period: AppTimeOfDay.day,
+      );
+      final night = LuckyItem(
+        variant: LuckyCardVariant.time,
+        name: '밤의 길한 시간',
+        value: '01:30~03:30',
+        explain: _text('새벽 1시쯤 마음이 차분해요.'),
+        period: AppTimeOfDay.night,
+        word: '새벽',
+      );
+
+      Widget row(Brightness brightness) => inputApp(
+        Center(
+          child: SizedBox(
+            width: 360,
+            child: LuckyCardRow(items: [day, night], onOpen: (_) {}),
+          ),
+        ),
+        brightness: brightness,
+      );
+
+      Finder chipOf(AppTimeOfDay period) => find.byKey(
+        LuckyCardRow.chipKey(LuckyCardVariant.time, period: period),
+      );
+
+      for (final brightness in Brightness.values) {
+        testWidgets('앞 아이콘은 채운 해와 달이고 색은 color.time.* ($brightness)', (
+          tester,
+        ) async {
+          await tester.pumpWidget(row(brightness));
+          final colors = tester.element(chipOf(AppTimeOfDay.day)).tokens.colors;
+          for (final (period, color) in [
+            (AppTimeOfDay.day, colors.timeDay),
+            (AppTimeOfDay.night, colors.timeNight),
+          ]) {
+            final icon = tester.widget<Icon>(
+              find.descendant(of: chipOf(period), matching: find.byType(Icon)),
+            );
+            expect(icon.icon, period.glyph, reason: period.name);
+            expect(icon.color, color, reason: period.name);
+          }
+        });
+      }
+
+      testWidgets('밤 칩은 때 낱말을 값 앞 space.4에 같은 글자로 두고 낮 칩에는 없습니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(row(Brightness.light));
+        final word = find.descendant(
+          of: chipOf(AppTimeOfDay.night),
+          matching: find.text('새벽'),
+        );
+        final value = find.text('01:30~03:30');
+        expect(word, findsOneWidget);
+        expect(
+          tester.getTopLeft(value).dx - tester.getTopRight(word).dx,
+          moreOrLessEquals(4),
+        );
+        expect(
+          tester.widget<Text>(word).style!.fontSize,
+          tester.widget<Text>(value).style!.fontSize,
+        );
+        expect(
+          find.descendant(
+            of: chipOf(AppTimeOfDay.day),
+            matching: find.text('새벽'),
+          ),
+          findsNothing,
+        );
+      });
+
+      testWidgets('스크린리더는 낮은 제목 + 값, 밤은 제목 + 때 낱말 + 값이고 아이콘은 읽지 않습니다', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(row(Brightness.light));
+        String labelOf(AppTimeOfDay period) => _data(
+          tester,
+          find
+              .descendant(of: chipOf(period), matching: find.byType(Semantics))
+              .first,
+        ).label;
+        expect(labelOf(AppTimeOfDay.day), '낮의 길한 시간, 15:30~17:30');
+        expect(labelOf(AppTimeOfDay.night), '밤의 길한 시간, 새벽 01:30~03:30');
+        handle.dispose();
+      });
     });
 
     group('접근성과 인터랙션', () {
