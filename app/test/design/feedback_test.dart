@@ -1345,6 +1345,92 @@ void main() {
       await tester.tap(find.text('다시 시도'));
       expect(retried, 1);
     });
+
+    testWidgets(
+      '곧바로 다시 실패해도 다시 시도를 누르면 skeleton이 바로 나오고 최소 시간 뒤 오류로 돌아옵니다(#922)',
+      (tester) async {
+        var calls = 0;
+        final instantFailure = FutureProvider.autoDispose<String>((ref) {
+          calls++;
+          return Future<String>.error(const TimeoutError());
+        }, retry: (_, _) => null);
+        await tester.pumpWidget(
+          _app(
+            Consumer(
+              builder: (context, ref, _) => ScreenStateView<String>(
+                value: ref.watch(instantFailure),
+                onRetry: () => ref.invalidate(instantFailure),
+                skeleton: _skeleton,
+                data: (v) => Text('값:$v'),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('screen-state.error')),
+          findsOneWidget,
+        );
+
+        await tester.tap(find.text('다시 시도'));
+        await tester.pump(Duration.zero);
+        expect(
+          find.byKey(const ValueKey('screen-state.loading')),
+          findsOneWidget,
+        );
+        expect(find.byType(SkeletonBone), findsWidgets);
+
+        await tester.pump(
+          ScreenStateView.defaultRetryMinDuration -
+              const Duration(milliseconds: 1),
+        );
+        expect(
+          find.byKey(const ValueKey('screen-state.loading')),
+          findsOneWidget,
+        );
+        expect(find.byType(SkeletonBone), findsWidgets);
+
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('screen-state.error')),
+          findsOneWidget,
+        );
+        expect(find.byType(SkeletonBone), findsNothing);
+        expect(calls, 2);
+      },
+    );
+
+    testWidgets('다시 시도 뒤 값이 오면 최소 시간이 지난 뒤 데이터를 보입니다', (tester) async {
+      var calls = 0;
+      final recovering = FutureProvider.autoDispose<String>((ref) {
+        calls++;
+        return calls == 1
+            ? Future<String>.error(const TimeoutError())
+            : Future.value('ok');
+      }, retry: (_, _) => null);
+      await tester.pumpWidget(
+        _app(
+          Consumer(
+            builder: (context, ref, _) => ScreenStateView<String>(
+              value: ref.watch(recovering),
+              onRetry: () => ref.invalidate(recovering),
+              skeleton: _skeleton,
+              data: (v) => Text('값:$v'),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('다시 시도'));
+      await tester.pump(Duration.zero);
+      expect(find.byType(SkeletonBone), findsWidgets);
+      expect(find.text('값:ok'), findsNothing);
+
+      await tester.pump(ScreenStateView.defaultRetryMinDuration);
+      await tester.pumpAndSettle();
+      expect(find.text('값:ok'), findsOneWidget);
+    });
   });
 
   group('a11y role (명세) + 모바일 liveRegion', () {

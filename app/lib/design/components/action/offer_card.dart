@@ -84,9 +84,9 @@ class OfferCard extends StatelessWidget {
   const new({
     required this.state,
     required this.head,
-    required this.buyLabel,
     required this.historyLabel,
     required this.legalNotice,
+    this.buyLabel,
     this.price,
     this.period,
     this.statusLabel,
@@ -215,8 +215,10 @@ class OfferCard extends StatelessWidget {
   /// 가격과 상관없는 고지라 [price]가 null이어도 보입니다. null이면 그리지 않습니다.
   final String? period;
 
-  /// 구매 버튼 문구.
-  final String buyLabel;
+  /// 구매 버튼 문구. null이면 구매 버튼을 그리지 않습니다. 살 수 있는 상품이 없을 때(스토어가
+  /// 빈 목록을 줌) 화면이 null을 줍니다. 상품이 없으면 그 상품에 기대는 자리(가격, 구매 버튼)만
+  /// 빼고 나머지는 그대로 둡니다(결정 A126, #922).
+  final String? buyLabel;
 
   /// 구매 내역 버튼 문구(`ad-free.history.cta`).
   final String historyLabel;
@@ -326,10 +328,10 @@ class OfferCard extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: buyGap),
-              SeepOnChange(
-                changeKey: active,
-                child: active ? _activeStatus(context) : _buyButton(),
-              ),
+              if (active)
+                SeepOnChange(changeKey: active, child: _activeStatus(context))
+              else if (buyLabel case final label?)
+                SeepOnChange(changeKey: active, child: _buyButton(label)),
               PrimaryButton(
                 key: historyKey,
                 label: historyLabel,
@@ -347,9 +349,9 @@ class OfferCard extends StatelessWidget {
     );
   }
 
-  Widget _buyButton() => PrimaryButton(
+  Widget _buyButton(String label) => PrimaryButton(
     key: buyKey,
-    label: buyLabel,
+    label: label,
     loading: state == OfferCardState.purchasing,
     identifier: identifiers.buy,
     // offline은 꺼짐(null), purchasing은 PrimaryButton이 눌림을 무시합니다.

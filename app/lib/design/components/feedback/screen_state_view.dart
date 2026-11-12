@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +30,10 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 /// 일반 오류 화면뿐이라 개발자가 알 길이 이것뿐이기 때문입니다([AppError]는 이미 분류된
 /// 통신 실패라 기록하지 않습니다).
 ///
+/// 다시 시도를 누르면 그 자리에 skeleton을 지연 없이 바로 보이고(error-state 규칙 "다시 시도를
+/// 누르면 그 자리에 skeleton이 다시 나온다"), 결과가 곧바로 와도 [retryMinDuration]만큼은
+/// skeleton을 둡니다. 처음 불러오기의 [skeletonDelay]는 그대로입니다(결정 A126, #922).
+///
 /// 기본 `data` 경로는 높이가 정해진 부모(화면 본문)를 전제로 합니다(`Expanded`를 씁니다).
 /// 스크롤·sliver 안에서 쓰거나 배너를 내용과 함께 스크롤시키려면 `dataWithNotice`를 씁니다.
 class ScreenStateView<T> extends ConsumerStatefulWidget {
@@ -47,6 +53,7 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
     this.empty,
     this.onStaleError,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
+    this.retryMinDuration = defaultRetryMinDuration,
     super.key,
   }) : assert(
          (data == null) != (dataWithNotice == null),
@@ -89,6 +96,14 @@ class ScreenStateView<T> extends ConsumerStatefulWidget {
   /// skeleton을 보이기 전 대기(기본 300ms). golden·테스트에서 줄입니다.
   final Duration skeletonDelay;
 
+  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간의 기본값. skeleton 계약이 "보이지 않을 만큼
+  /// 짧다"고 보는 시간([SkeletonBlock.defaultDelay])과 같게 두어, 곧바로 다시 실패해도 누른 것이
+  /// 눈에 보이게 합니다(결정 A126).
+  static const Duration defaultRetryMinDuration = SkeletonBlock.defaultDelay;
+
+  /// 다시 시도를 누른 뒤 skeleton을 두는 최소 시간.
+  final Duration retryMinDuration;
+
   @override
   ConsumerState<ScreenStateView<T>> createState() => _ScreenStateViewState<T>();
 }
@@ -99,6 +114,37 @@ AppError _asAppError(Object? error) =>
 class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   Object? _handledError;
 
+  /// 다시 시도를 누른 뒤 아직 결과를 받지 못했는지.
+  bool _retrying = false;
+
+  /// 다시 시도 skeleton의 최소 시간. 도는 동안은 결과가 와도 skeleton을 둡니다.
+  Timer? _retryHold;
+
+  @override
+  void dispose() {
+    _retryHold?.cancel();
+    super.dispose();
+  }
+
+  void _retry() {
+    final onRetry = widget.onRetry;
+    if (onRetry == null) return;
+    _retryHold?.cancel();
+    _retryHold = Timer(widget.retryMinDuration, () {
+      _retryHold = null;
+      if (!mounted) return;
+      setState(() {
+        if (!widget.value.isLoading) _retrying = false;
+      });
+    });
+    setState(() => _retrying = true);
+    onRetry();
+  }
+
+  /// 다시 시도 skeleton을 지금 보여야 하는지.
+  bool _showsRetrySkeleton(AsyncValue<T> current) =>
+      _retrying && (_retryHold != null || current.isLoading);
+
   @override
   void initState() {
     super.initState();
@@ -108,6 +154,9 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   @override
   void didUpdateWidget(ScreenStateView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (_retrying && !widget.value.isLoading && _retryHold == null) {
+      _retrying = false;
+    }
     _handle(widget.value);
   }
 
@@ -140,14 +189,15 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
   @override
   Widget build(BuildContext context) {
     final current = widget.value;
-    if (current.hasValue) {
+    final retrySkeleton = _showsRetrySkeleton(current);
+    if (current.hasValue && !retrySkeleton) {
       return _withValue(context, current.requireValue, current.error);
     }
-    if (current.isLoading) {
+    if (current.isLoading || retrySkeleton) {
       return KeyedSubtree(
         key: const ValueKey('screen-state.loading'),
         child: SkeletonBlock(
-          delay: widget.skeletonDelay,
+          delay: retrySkeleton ? Duration.zero : widget.skeletonDelay,
           child: widget.skeleton,
         ),
       );
@@ -157,7 +207,7 @@ class _ScreenStateViewState<T> extends ConsumerState<ScreenStateView<T>> {
       present: true,
       child: ErrorState(
         error: _asAppError(current.error),
-        onRetry: widget.onRetry,
+        onRetry: widget.onRetry == null ? null : _retry,
       ),
     );
   }

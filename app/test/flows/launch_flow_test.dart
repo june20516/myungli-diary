@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/clock/clock.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/feedback/error_state.dart';
+import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../support/app_harness.dart';
@@ -80,6 +81,9 @@ void main() {
     expect(counter.requests, 0);
     await tester.tap(find.text(_ko.actionRetry));
     await settleEntry(tester, container);
+    // 다시 시도 skeleton은 최소 시간 동안 남습니다(A126).
+    await tester.pump(ScreenStateView.defaultRetryMinDuration);
+    await tester.pump();
     expect(counter.requests, greaterThan(0));
     expect(container.read(entryStateProvider).hasError, isTrue);
     expect(find.byType(ErrorState), findsOneWidget);

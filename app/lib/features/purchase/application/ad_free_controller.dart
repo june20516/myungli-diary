@@ -9,10 +9,12 @@ import 'package:myungli_diary/features/purchase/application/purchase_providers.d
 
 /// `ad-free` 화면에서 살 수 있는 광고 제거권 상품(`products()`의 광고 제거권 첫 상품).
 ///
-/// 빌드 설정의 광고 제거권 id에 드는 첫 상품이고, 없으면 목록의 첫 상품입니다. 목록이 비면
-/// [UnexpectedError]입니다. 자동 재시도 없이 화면의 다시 시도로만 다시 받습니다.
-final FutureProvider<StoreProduct> adFreeProductProvider =
-    FutureProvider.autoDispose<StoreProduct>((ref) async {
+/// 빌드 설정의 광고 제거권 id에 드는 첫 상품이고, 없으면 목록의 첫 상품입니다. 스토어가 준
+/// 목록이 비면 오류가 아니라 null(살 수 있는 상품 없음)입니다. 스토어 상품 준비 전이나 판매
+/// 지역 밖처럼 받는 값은 비어 있을 수 있기 때문입니다(결정 A126, #922). 자동 재시도 없이
+/// 화면의 다시 시도로만 다시 받습니다.
+final FutureProvider<StoreProduct?> adFreeProductProvider =
+    FutureProvider.autoDispose<StoreProduct?>((ref) async {
       final products = await ref.read(purchasesProvider).products();
       final adFreeIds = ref.read(adFreeProductIdsProvider);
       for (final product in products) {
@@ -20,10 +22,7 @@ final FutureProvider<StoreProduct> adFreeProductProvider =
           return product;
         }
       }
-      if (products.isEmpty) {
-        throw UnexpectedError(StateError('살 수 있는 상품이 없음'));
-      }
-      return products.first;
+      return products.firstOrNull;
     }, retry: (_, _) => null);
 
 /// 광고 제거 구매(A75). 상태는 구매 중인지입니다.

@@ -18,6 +18,9 @@ import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/purchase/application/ad_free_controller.dart';
 import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
 
+/// 받은 상품(살 수 있는 상품이 없으면 null)과 오프라인이라 받지 못했는지.
+typedef _Offer = ({StoreProduct? product, bool offline});
+
 /// IA `ad-free`의 출구 대상. 구매는 OS 결제 시트(`system-purchase`)가 맡습니다.
 const Set<String> adFreeExits = {
   ScreenIds.systemPurchase,
@@ -34,6 +37,10 @@ const Set<String> adFreeHandledStates = {'loading', 'error', 'offline'};
 /// skeleton, 실패하면 error-state(다시 시도)이고, 오프라인이면 notice-banner `offline`과 함께
 /// 구매 버튼만 꺼진 카드를 보입니다(가격은 받지 못해 가격 줄을 뺍니다). 오프라인은 연결이
 /// 돌아와도 따로 감시하지 않고 화면에 다시 들어올 때 다시 받습니다.
+///
+/// 스토어가 빈 목록을 주면(살 수 있는 상품 없음) 오류가 아니라 정상 값입니다. 상품에 기대는
+/// 가격과 구매 버튼만 그리지 않고 설명, 기간 고지, 구매 내역, 약관 안내는 그대로 보입니다.
+/// IA에 이 상태가 아직 없어 따로 안내 문구는 두지 않습니다(결정 A126, #922).
 ///
 /// * `Me.adFree`가 활성이면 카드가 `active`(사용 중 꼬리표와 만료일 "까지")입니다.
 /// * 구매 버튼 → OS 결제 시트. 성공하면 [AdFreeController]가 햅틱·장부 맞추기·`Me` 갱신을 하고,
@@ -75,6 +82,7 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
       ref.watch(profileTimezoneProvider),
     );
     final product = ref.watch(adFreeProductProvider);
+    final offer = _offerOf(product);
 
     return Semantics(
       identifier: ScreenIds.adFree,
@@ -93,11 +101,16 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
               Expanded(
                 // 이용 중이면 상품을 받지 못해도 카드(이용 중 표시, 구매 내역 출구)를 보입니다.
                 child: expiry != null
-                    ? _content(l10n, product.value, expiry, purchasing)
-                    : ScreenStateView<StoreProduct?>(
-                        value: _offlineAsEmpty(product),
+                    ? _content(
+                        l10n,
+                        (product: product.value, offline: false),
+                        expiry,
+                        purchasing,
+                      )
+                    : ScreenStateView<_Offer>(
+                        value: offer,
                         onRetry: () => ref.invalidate(adFreeProductProvider),
-                        isStale: (product) => product == null,
+                        isStale: (offer) => offer.offline,
                         // 카드와 같은 자리(화면 좌우 20, 위 8)의 offer-card 뼈(V66).
                         skeleton: Padding(
                           padding: const EdgeInsets.fromLTRB(
@@ -111,8 +124,8 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
                             child: OfferCard.skeleton(),
                           ),
                         ),
-                        data: (product) =>
-                            _content(l10n, product, expiry, purchasing),
+                        data: (offer) =>
+                            _content(l10n, offer, expiry, purchasing),
                       ),
               ),
             ],
@@ -124,10 +137,11 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
 
   Widget _content(
     AppLocalizations l10n,
-    StoreProduct? product,
+    _Offer offer,
     String? expiry,
     bool purchasing,
   ) {
+    final product = offer.product;
     final bottom = MediaQuery.viewPaddingOf(context).bottom;
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -139,7 +153,7 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
       children: [
         OfferCard(
           state: _cardState(
-            product: product,
+            offline: offer.offline,
             active: expiry != null,
             purchasing: purchasing,
           ),
@@ -147,7 +161,10 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
           // 가격은 스토어 문자열 그대로, 기간·자동 갱신 아님은 가격과 상관없이 늘 보입니다.
           price: product?.priceLabel,
           period: l10n.adFreeOfferPeriod,
-          buyLabel: l10n.adFreeBuyCta,
+          // 살 수 있는 상품이 없으면(오프라인 아님) 구매 버튼을 그리지 않습니다(A126).
+          buyLabel: product == null && !offer.offline
+              ? null
+              : l10n.adFreeBuyCta,
           historyLabel: l10n.adFreeHistoryCta,
           legalNotice: l10n.adFreeLegalNotice,
           statusLabel: l10n.purchaseStatusActive,
@@ -169,21 +186,22 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
     );
   }
 
-  /// 오프라인 오류를 값 없는 데이터(null)로 바꿔 notice-banner와 꺼진 구매 버튼으로 보입니다.
-  AsyncValue<StoreProduct?> _offlineAsEmpty(AsyncValue<StoreProduct> product) =>
+  /// 오프라인 오류는 상품 없는 오프라인 값으로 바꿔 notice-banner와 꺼진 구매 버튼으로
+  /// 보입니다. 그 밖의 값과 오류는 그대로입니다.
+  AsyncValue<_Offer> _offerOf(AsyncValue<StoreProduct?> product) =>
       product.hasError && product.error is OfflineError
-      ? const AsyncData<StoreProduct?>(null)
-      : product;
+      ? const AsyncData<_Offer>((product: null, offline: true))
+      : product.whenData((value) => (product: value, offline: false));
 
   OfferCardState _cardState({
-    required StoreProduct? product,
+    required bool offline,
     required bool active,
     required bool purchasing,
   }) {
     if (active) {
       return OfferCardState.active;
     }
-    if (product == null) {
+    if (offline) {
       return OfferCardState.offline;
     }
     return purchasing ? OfferCardState.purchasing : OfferCardState.available;

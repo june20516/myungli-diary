@@ -15,6 +15,7 @@ import 'package:myungli_diary/core/platform/purchases.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/components/feedback/notice_banner.dart';
+import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/testing/covers.dart';
 
 import '../../support/app_bar_title.dart';
@@ -177,8 +178,38 @@ void main() {
     expect(find.text(_ko.actionRetry), findsOneWidget);
 
     await tester.tap(find.text(_ko.actionRetry));
+    // 곧바로 다시 실패해도 누른 순간 skeleton이 보입니다(#922, design error-state 규칙).
+    await tester.pump(Duration.zero);
+    expect(find.byKey(const ValueKey('screen-state.loading')), findsOneWidget);
+    expect(find.byType(SkeletonBone), findsWidgets);
     await settleWithIo(tester);
     expect(purchases.productsCalls, 2);
+    expect(find.byKey(const ValueKey('screen-state.error')), findsOneWidget);
+  });
+
+  testWidgets('스토어가 빈 목록이면 오류가 아니라 가격과 구매 버튼 없는 카드(A126)', (tester) async {
+    await _open(tester, FakePurchases(catalog: const []));
+    expect(find.text(_ko.actionRetry), findsNothing);
+    expect(find.byType(NoticeBanner), findsOneWidget); // present=false: 빈 자리
+    expect(find.text(_ko.noticeOffline), findsNothing);
+    expect(find.byKey(OfferCard.buyKey), findsNothing);
+    expect(tester.widget<OfferCard>(find.byType(OfferCard)).price, isNull);
+    final history = tester.widget<PrimaryButton>(
+      find.byKey(OfferCard.historyKey),
+    );
+    expect(history.onPressed, isNotNull);
+  });
+
+  testWidgets('이용 중이면 상품이 없어도 남은 기간을 보인다', (tester) async {
+    await _open(
+      tester,
+      FakePurchases(catalog: const []),
+      scenario: 'ad-free-active',
+    );
+    expect(
+      find.bySemanticsIdentifier(SlotIds.adFreeStatusRemaining),
+      findsOneWidget,
+    );
   });
 
   testWidgets('오프라인이면 offline 안내와 비활성 구매 버튼, 가격 줄 없음', (tester) async {
