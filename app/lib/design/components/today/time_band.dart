@@ -7,11 +7,49 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
+/// 고른 시진 고리의 종류(`lucky-card` `timeBand.cells.pick`, 결정 V124).
+///
+/// 고리는 칸 안쪽 가장자리에서 시작합니다(`placement` `inside`): 바깥부터 고리, `bg.sheet` 틈,
+/// 칸 색입니다. 칸 밖으로 나가지 않아 칸 사이 `space.2`를 넘지 않습니다.
+enum TimeBandPick {
+  /// 시트를 연 칩(낮 칩 또는 밤 칩)이 고른 시진(`pick.opened`): 2px `action.primary` 고리,
+  /// 글자 700.
+  opened(ringWidth: 2, gapWidth: 2, labelWeight: FontWeight.w700),
+
+  /// 다른 칩이 고른 시진(`pick.other`): 1px `text.secondary` 고리, 글자 굵기는 칸 그대로.
+  other(ringWidth: 1, gapWidth: 2, labelWeight: null);
+
+  new({
+    required this.ringWidth,
+    required this.gapWidth,
+    required this.labelWeight,
+  });
+
+  /// 고리 굵기(`ring.width`).
+  final double ringWidth;
+
+  /// 고리와 칸 색 사이 `bg.sheet` 틈(`gap.width`).
+  final double gapWidth;
+
+  /// 칸 글자 굵기(`labelWeight`). null이면 칸 글자 그대로(`inherit`)입니다.
+  final FontWeight? labelWeight;
+
+  /// 고리 색(`ring.color`).
+  Color ringColorOf(ColorTokens colors) => switch (this) {
+    TimeBandPick.opened => colors.actionPrimary,
+    TimeBandPick.other => colors.textSecondary,
+  };
+
+  /// 고리와 틈 안쪽 채움 모서리(칸 모서리에서 고리와 틈을 뺀 값, 0 아래면 0).
+  double get fillRadius =>
+      math.max(0, TimeBand.cellRadius - ringWidth - gapWidth);
+}
+
 /// 24시간 띠의 칸 하나(시진 하나, 2시간).
 @immutable
 final class TimeBandCell {
-  /// [label] 글자를 [period] 색 칸에 그립니다. [picked]면 고른 시진 고리를 두릅니다.
-  const new({required this.label, required this.period, this.picked = false});
+  /// [label] 글자를 [period] 색 칸에 그립니다. [pick]이 있으면 그 종류의 고리를 두릅니다.
+  const new({required this.label, required this.period, this.pick});
 
   /// 칸 안 시진 이름 한 글자(ko, ja) 또는 지지 한자(en).
   final String label;
@@ -19,8 +57,8 @@ final class TimeBandCell {
   /// 낮 칸인지 밤 칸인지(`cells.day`, `cells.night`).
   final AppTimeOfDay period;
 
-  /// 지금 보이는 낮, 밤 칩이 고른 시진인지(`cells.pick`).
-  final bool picked;
+  /// 낮, 밤 칩이 고른 시진이면 그 고리 종류(`cells.pick`). 고르지 않은 칸은 null입니다.
+  final TimeBandPick? pick;
 }
 
 /// 띠 아래 눈금 하나: 시각과, 전날이나 다음 날이면 그 앞의 날 낱말.
@@ -86,20 +124,6 @@ class TimeBand extends StatelessWidget {
 
   /// 칸 모서리(`cells.radius` radius.xs).
   static const double cellRadius = Radii.xs;
-
-  /// 고른 시진 고리 굵기(`cells.pick.ring.width` 2px).
-  static const double ringWidth = 2;
-
-  /// 고리와 칸 바탕 사이 `bg.sheet` 틈(`cells.pick.gap.width` 2px).
-  static const double ringGap = 2;
-
-  /// 고른 시진 칸의 고리와 틈 안쪽 채움 모서리(칸 모서리에서 고리와 틈을 뺀 값, 0 아래면 0).
-  static const double pickedFillRadius = cellRadius > ringWidth + ringGap
-      ? cellRadius - ringWidth - ringGap
-      : 0;
-
-  /// 고른 시진 칸 글자 굵기(`cells.pick.labelWeight` 700).
-  static const FontWeight pickedLabelWeight = FontWeight.w700;
 
   /// 지금 줄 굵기(`now.line.width` 2px).
   static const double nowLineWidth = 2;
@@ -345,9 +369,10 @@ class TimeBand extends StatelessWidget {
       AppTimeOfDay.night => (colors.ohaengWaterBg, colors.ohaengWaterFg),
     };
     final hanja = tokens.typography.hanjaPillar;
+    final pick = cell.pick;
     var style = tokens.typography.captionSm.copyWith(
       color: fg,
-      fontWeight: cell.picked ? pickedLabelWeight : null,
+      fontWeight: pick?.labelWeight,
     );
     if (hanjaLabels) {
       style = style.copyWith(
@@ -359,27 +384,27 @@ class TimeBand extends StatelessWidget {
       child: Text(cell.label, maxLines: 1, softWrap: false, style: style),
     );
     const radius = BorderRadius.all(Radius.circular(cellRadius));
-    // 고리와 틈은 칸 크기 안쪽에 그려 이웃 칸과 겹치지 않고 칸 크기가 같습니다.
+    // 고리와 틈은 칸 크기 안쪽에 그려(placement inside) 이웃 칸과 겹치지 않고 칸 크기가 같습니다.
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: cellHeight),
-      child: cell.picked
+      child: pick != null
           ? DecoratedBox(
               decoration: BoxDecoration(
                 color: colors.bgSheet,
                 borderRadius: radius,
                 border: Border.all(
-                  color: colors.actionPrimary,
-                  width: ringWidth,
+                  color: pick.ringColorOf(colors),
+                  width: pick.ringWidth,
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(ringWidth + ringGap),
+                padding: EdgeInsets.all(pick.ringWidth + pick.gapWidth),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: bg,
-                    // 고리와 틈 안쪽 모서리. radius.xs(4)에서 고리와 틈(4)을 빼면 0이라 지금은 각진
-                    // 채움이고, 토큰이 바뀌면 고리와 같은 중심의 둥근 모서리가 됩니다.
-                    borderRadius: BorderRadius.circular(pickedFillRadius),
+                    // 고리와 틈 안쪽 모서리. radius.xs(4)에서 고리와 틈을 빼고 남은 값이라 고리와
+                    // 같은 중심의 모서리가 됩니다(0 아래면 각진 채움).
+                    borderRadius: BorderRadius.circular(pick.fillRadius),
                   ),
                   child: label,
                 ),

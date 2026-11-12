@@ -1422,12 +1422,15 @@ void main() {
           .cells
           .map((cell) => cell.label)
           .join();
-      List<String> picked() => [
+      List<(String, TimeBandPick)> picked() => [
         for (final cell in tester.widget<TimeBand>(find.byType(TimeBand)).cells)
-          if (cell.picked) cell.label,
+          if (cell.pick case final pick?) (cell.label, pick),
       ];
       final openedOrder = order();
       final openedPicks = picked();
+      // 밤 칩으로 열어 밤 시진이 연 칩 고리입니다(V124).
+      expect(openedPicks.first.$2, TimeBandPick.opened);
+      expect(openedPicks.last.$2, TimeBandPick.other);
       // 연 때는 밤(전날 21:30부터)이 앞입니다.
       expect(
         tester.widget<TimeBand>(find.byType(TimeBand)).cells.first.period,

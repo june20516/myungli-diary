@@ -313,8 +313,9 @@ String _bandLabelOf(Branch branch, GlossaryNames names, bool hanjaLabels) =>
 
 /// 시간 칩 시트의 24시간 띠(`timeBand`, V117). 지금 보이는 낮, 밤 칩의 24시간을 시진 12칸으로
 /// 그리고, 낮 구간 시작 전에는 밤(전날 21:30부터) 다섯 칸이 앞, 그 뒤에는 낮(07:30부터) 일곱 칸이
-/// 앞입니다. 고리는 두 칩이 고른 시진(카드 첫 구간의 `branch`)이고, 밤 칩이 없으면 밤 칸에 고리가
-/// 없습니다. [beforeDayStart]는 시트를 연 때의 값이라, 시트가 열린 채 07:30을 지나도 칸 순서와
+/// 앞입니다. 고리는 두 칩이 고른 시진(카드 첫 구간의 `branch`)이고, 시트를 연 칩([opened])의
+/// 시진은 [TimeBandPick.opened], 다른 칩의 시진은 [TimeBandPick.other]입니다(V124). 밤 칩이
+/// 없으면 밤 칸에 고리가 없습니다. [beforeDayStart]는 시트를 연 때의 값이라, 시트가 열린 채 07:30을 지나도 칸 순서와
 /// 고리는 연 칩 그대로이고 지금 줄만 움직입니다(A134 ⑧). [wallNow]는 프로필 시간대 벽시계(시와
 /// 분만 읽음)이고 지금 줄과 꼬리표가 됩니다.
 ///
@@ -325,9 +326,13 @@ TimeBand timeBandOf({
   required GlossaryNames names,
   required AppLocalizations l10n,
   required bool beforeDayStart,
+  required AppTimeOfDay opened,
   required DateTime wallNow,
 }) {
   final before = beforeDayStart;
+  TimeBandPick? pickOf(AppTimeOfDay period, {required bool chosen}) => chosen
+      ? (period == opened ? TimeBandPick.opened : TimeBandPick.other)
+      : null;
   final cards = daily.cards;
   final dayPick = cards.focusTime.picks.first.branch;
   final nightPick = focusTimePickOf(
@@ -342,7 +347,7 @@ TimeBand timeBandOf({
       TimeBandCell(
         label: _bandLabelOf(branch, names, hanjaLabels),
         period: AppTimeOfDay.day,
-        picked: branch == dayPick,
+        pick: pickOf(AppTimeOfDay.day, chosen: branch == dayPick),
       ),
   ];
   final nightCells = [
@@ -350,7 +355,7 @@ TimeBand timeBandOf({
       TimeBandCell(
         label: _bandLabelOf(branch, names, hanjaLabels),
         period: AppTimeOfDay.night,
-        picked: branch == nightPick,
+        pick: pickOf(AppTimeOfDay.night, chosen: branch == nightPick),
       ),
   ];
   final dayStart = _dayStart.inMinutes;

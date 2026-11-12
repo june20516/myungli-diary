@@ -8,12 +8,21 @@ import '../input/input_harness.dart';
 
 const double _width = 312;
 
-/// 07:30부터 보이는 띠(낮 일곱 칸 다음 밤 다섯 칸). 낮 신시와 밤 축시에 고리.
+/// 07:30부터 보이는 띠(낮 일곱 칸 다음 밤 다섯 칸). 낮 칩을 열어 낮 신시는 연 칩 고리, 밤 축시는
+/// 다른 칩 고리입니다.
 List<TimeBandCell> _fromDayStart() => [
   for (final (index, label) in '진사오미신유술'.split('').indexed)
-    TimeBandCell(label: label, period: AppTimeOfDay.day, picked: index == 4),
+    TimeBandCell(
+      label: label,
+      period: AppTimeOfDay.day,
+      pick: index == 4 ? TimeBandPick.opened : null,
+    ),
   for (final (index, label) in '해자축인묘'.split('').indexed)
-    TimeBandCell(label: label, period: AppTimeOfDay.night, picked: index == 2),
+    TimeBandCell(
+      label: label,
+      period: AppTimeOfDay.night,
+      pick: index == 2 ? TimeBandPick.other : null,
+    ),
 ];
 
 /// 07:30 전에 보이는 띠(밤 다섯 칸 다음 낮 일곱 칸).
@@ -79,42 +88,68 @@ void main() {
     );
   });
 
-  testWidgets('고른 시진은 2px action.primary 고리와 2px bg.sheet 틈, 글자 700입니다', (
+  testWidgets('연 칩 시진은 2px primary 고리와 글자 700, 다른 칩 시진은 1px 고리(V124)', (
     tester,
   ) async {
     await tester.pumpWidget(_app(_band()));
     final colors = tester.element(find.byType(TimeBand)).tokens.colors;
-    final ring =
+    BoxDecoration ringOf(int index) =>
         tester
                 .widgetList<DecoratedBox>(
                   find.descendant(
-                    of: find.byKey(TimeBand.cellKey(4)),
+                    of: find.byKey(TimeBand.cellKey(index)),
                     matching: find.byType(DecoratedBox),
                   ),
                 )
                 .first
                 .decoration
             as BoxDecoration;
-    final border = ring.border! as Border;
-    expect(border.top.color, colors.actionPrimary);
-    expect(border.top.width, TimeBand.ringWidth);
-    expect(ring.color, colors.bgSheet);
-    // 고리와 틈은 칸 안쪽이라 칸 크기가 같습니다.
-    expect(
-      tester.getSize(find.byKey(TimeBand.cellKey(4))),
-      tester.getSize(find.byKey(TimeBand.cellKey(3))),
-    );
+    final opened = ringOf(4);
+    final openedBorder = opened.border! as Border;
+    expect(openedBorder.top.color, colors.actionPrimary);
+    expect(openedBorder.top.width, 2);
+    expect(opened.color, colors.bgSheet);
+    // 칸 9(밤 축시)는 다른 칩이 고른 시진입니다.
+    final other = ringOf(9);
+    final otherBorder = other.border! as Border;
+    expect(otherBorder.top.color, colors.textSecondary);
+    expect(otherBorder.top.width, 1);
+    expect(other.color, colors.bgSheet);
+    // 고리와 틈은 칸 안쪽이라(placement inside) 칸 크기가 같고 칸 사이 2를 넘지 않습니다.
+    final plain = tester.getRect(find.byKey(TimeBand.cellKey(3)));
+    final openedRect = tester.getRect(find.byKey(TimeBand.cellKey(4)));
+    final next = tester.getRect(find.byKey(TimeBand.cellKey(5)));
+    for (final size in [
+      openedRect.size,
+      tester.getSize(find.byKey(TimeBand.cellKey(9))),
+    ]) {
+      expect(size.width, moreOrLessEquals(plain.width));
+      expect(size.height, moreOrLessEquals(plain.height));
+    }
+    expect(openedRect.left - plain.right, moreOrLessEquals(TimeBand.cellGap));
+    expect(next.left - openedRect.right, moreOrLessEquals(TimeBand.cellGap));
+    // 칸 색은 고리와 틈만큼 안쪽에서 시작합니다.
+    final inset = tester
+        .widgetList<Padding>(
+          find.descendant(
+            of: find.byKey(TimeBand.cellKey(9)),
+            matching: find.byType(Padding),
+          ),
+        )
+        .first;
+    expect(inset.padding, const EdgeInsets.all(1 + 2));
     expect(
       tester.widget<Text>(find.text('신')).style!.fontWeight,
       FontWeight.w700,
     );
     expect(
-      tester.widget<Text>(find.text('축')).style!.fontWeight,
-      FontWeight.w700,
-    );
-    expect(
       tester.widget<Text>(find.text('사')).style!.fontWeight,
       isNot(FontWeight.w700),
+    );
+    // 다른 칩 시진 글자는 칸 글자 그대로(inherit)입니다.
+    expect(
+      tester.widget<Text>(find.text('축')).style!.fontWeight,
+      tester.widget<Text>(find.text('묘')).style!.fontWeight,
     );
   });
 
@@ -266,13 +301,15 @@ void main() {
   });
 
   test('고리와 틈 안쪽 채움 모서리는 칸 모서리에서 고리와 틈을 뺀 값입니다', () {
-    expect(
-      TimeBand.pickedFillRadius,
-      (TimeBand.cellRadius - TimeBand.ringWidth - TimeBand.ringGap).clamp(
-        0,
-        double.infinity,
-      ),
-    );
+    for (final pick in TimeBandPick.values) {
+      expect(
+        pick.fillRadius,
+        (TimeBand.cellRadius - pick.ringWidth - pick.gapWidth).clamp(
+          0,
+          double.infinity,
+        ),
+      );
+    }
   });
 
   testWidgets('en은 지지 한자를 한자 글꼴로 그립니다', (tester) async {

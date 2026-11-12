@@ -477,13 +477,21 @@ void main() {
       DateTime wallNow, {
       AppLocalizations? l10n,
       bool? beforeDayStart,
+      AppTimeOfDay opened = AppTimeOfDay.day,
     }) => timeBandOf(
       daily: daily,
       names: names,
       l10n: l10n ?? _l10n,
       beforeDayStart: beforeDayStart ?? isBeforeDayStart(wallNow),
+      opened: opened,
       wallNow: wallNow,
     );
+
+    /// 고리가 있는 칸의 (글자, 고리 종류).
+    List<(String, TimeBandPick)> picksOf(TimeBand shown) => [
+      for (final cell in shown.cells)
+        if (cell.pick case final pick?) (cell.label, pick),
+    ];
 
     test('07:30부터는 낮 일곱 칸 다음 밤 다섯 칸이고 두 칩의 시진에 고리입니다', () {
       final shown = band(DateTime.utc(2026, 10, 13, 12));
@@ -492,13 +500,18 @@ void main() {
         for (var i = 0; i < 7; i++) AppTimeOfDay.day,
         for (var i = 0; i < 5; i++) AppTimeOfDay.night,
       ]);
-      // 낮 신시(fixture 15:30~17:30)와 오늘 밤 축시(01:30~03:30).
+      // 낮 신시(fixture 15:30~17:30)와 오늘 밤 축시(01:30~03:30). 낮 칩으로 열어 낮 시진이 연
+      // 칩 고리, 밤 시진이 다른 칩 고리입니다(V124).
+      expect(picksOf(shown), [
+        ('신', TimeBandPick.opened),
+        ('축', TimeBandPick.other),
+      ]);
+      // 밤 칩으로 열면 두 고리가 뒤바뀝니다.
       expect(
-        [
-          for (final cell in shown.cells)
-            if (cell.picked) cell.label,
-        ],
-        ['신', '축'],
+        picksOf(
+          band(DateTime.utc(2026, 10, 13, 12), opened: AppTimeOfDay.night),
+        ),
+        [('신', TimeBandPick.other), ('축', TimeBandPick.opened)],
       );
       expect(shown.startTick.time, '07:30');
       expect(shown.startTick.dayWord, isNull);
@@ -522,13 +535,10 @@ void main() {
       expect(shown.endTick.time, '21:30');
       expect(shown.endTick.dayWord, isNull);
       final previous = daily.cards.previousNightFocusTime!.picks.first.branch;
-      expect(
-        [
-          for (final cell in shown.cells)
-            if (cell.picked) cell.label,
-        ],
-        [names.valueName('branch', previous.value), '신'],
-      );
+      expect(picksOf(shown), [
+        (names.valueName('branch', previous.value)!, TimeBandPick.other),
+        ('신', TimeBandPick.opened),
+      ]);
       // 전날 21:30부터 2시간 40분.
       expect(shown.nowFraction, closeTo(160 / 1440, 1e-9));
     });
@@ -537,8 +547,8 @@ void main() {
       final opened = band(DateTime.utc(2026, 10, 13, 7, 29));
       final later = band(DateTime.utc(2026, 10, 13, 8), beforeDayStart: true);
       expect(
-        later.cells.map((cell) => (cell.label, cell.picked)),
-        opened.cells.map((cell) => (cell.label, cell.picked)),
+        later.cells.map((cell) => (cell.label, cell.pick)),
+        opened.cells.map((cell) => (cell.label, cell.pick)),
       );
       expect(later.startTick.time, opened.startTick.time);
       // 전날 21:30부터 10시간 30분.
@@ -554,14 +564,15 @@ void main() {
         names: names,
         l10n: _l10n,
         beforeDayStart: false,
+        opened: AppTimeOfDay.day,
         wallNow: DateTime.utc(2026, 10, 13, 12),
       );
       expect(
         [
           for (final cell in shown.cells)
-            if (cell.picked) cell.period,
+            if (cell.pick != null) (cell.period, cell.pick),
         ],
-        [AppTimeOfDay.day],
+        [(AppTimeOfDay.day, TimeBandPick.opened)],
       );
     });
 
@@ -575,6 +586,7 @@ void main() {
         names: const GlossaryNames({}),
         l10n: _l10n,
         beforeDayStart: false,
+        opened: AppTimeOfDay.day,
         wallNow: DateTime.utc(2026, 10, 13, 12),
       );
       expect(unnamed.cells.first.label, '辰');

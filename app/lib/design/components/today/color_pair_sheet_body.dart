@@ -108,8 +108,8 @@ class ColorPairSheetBody extends StatelessWidget {
           for (final (index, section) in sections.indexed) ...[
             if (index > 0) ...[
               const SizedBox(height: betweenGap),
-              // 구역에는 좌우 여백이 없어 선도 들이지 않습니다(A135).
-              const ListDivider(key: dividerKey, indentStart: 0, indentEnd: 0),
+              // 시트 본문에 바로 놓인 구역 사이라 들임 0입니다(`between.insetX`, V124).
+              const ListDivider.inSheet(key: dividerKey),
               const SizedBox(height: betweenGap),
             ],
             _Section(key: sectionKey(index), section: section),

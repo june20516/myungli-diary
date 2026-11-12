@@ -74,6 +74,7 @@ import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
@@ -2064,6 +2065,21 @@ void main() {
       expect(chip['bg'], '{color.bg.sheet}');
     });
 
+    test('list.divider: 묶음 안 들임 16, 시트 본문(inSheet) 들임 0 (V58, V124)', () {
+      final divider = _map(_elements()['list.divider']);
+      expect(divider['insetX'], '{space.16}');
+      expect(ListDivider.insetX, Space.s16);
+      final inSheet = _map(divider['inSheet']);
+      expect(inSheet['insetX'], ListDivider.inSheetInsetX);
+      expect(ListDivider.inSheetInsetX, 0);
+      expect(inSheet['rule'], contains('색 둘 시트 두 색 사이, 사주 기운 시트 문장 목록'));
+      final tagDivider = _map(
+        _map(loadSpecComponents()['tag-sentence-list']!['parts'])['divider'],
+      );
+      expect(tagDivider['element'], 'list.divider');
+      expect(tagDivider['insetX'], ListDivider.inSheetInsetX);
+    });
+
     test('tag-sentence-list: diaryLink 간격과 꺾쇠 gap이 구현 상수와 같습니다', () {
       final spec = loadSpecComponents()['tag-sentence-list']!;
       final link = _map(_map(spec['parts'])['diaryLink']);
@@ -2531,14 +2547,22 @@ void main() {
         'bg': '{color.ohaeng.water.bg}',
         'fg': '{color.ohaeng.water.fg}',
       });
+      // 고른 시진 고리(7.5.0, V124): 칸 안쪽, 연 칩 시진과 다른 칩 시진.
       final pick = _map(cells['pick']);
-      final ring = _map(pick['ring']);
-      expect(ring['color'], '{color.action.primary}');
-      expect(_px(ring['width']), TimeBand.ringWidth);
-      final gap = _map(pick['gap']);
-      expect(gap['color'], '{color.bg.sheet}');
-      expect(_px(gap['width']), TimeBand.ringGap);
-      expect(pick['labelWeight'], TimeBand.pickedLabelWeight.value);
+      expect(pick['placement'], 'inside');
+      final opened = _map(pick['opened']);
+      expect(_map(opened['ring'])['color'], '{color.action.primary}');
+      expect(_px(_map(opened['ring'])['width']), TimeBandPick.opened.ringWidth);
+      expect(_map(opened['gap'])['color'], '{color.bg.sheet}');
+      expect(_px(_map(opened['gap'])['width']), TimeBandPick.opened.gapWidth);
+      expect(opened['labelWeight'], TimeBandPick.opened.labelWeight!.value);
+      final other = _map(pick['other']);
+      expect(_map(other['ring'])['color'], '{color.text.secondary}');
+      expect(_px(_map(other['ring'])['width']), TimeBandPick.other.ringWidth);
+      expect(_map(other['gap'])['color'], '{color.bg.sheet}');
+      expect(_px(_map(other['gap'])['width']), TimeBandPick.other.gapWidth);
+      expect(other['labelWeight'], 'inherit');
+      expect(TimeBandPick.other.labelWeight, isNull);
       final now = _map(band['now']);
       final line = _map(now['line']);
       expect(line['color'], '{color.text.primary}');
@@ -2648,6 +2672,8 @@ void main() {
       );
       final between = _map(sheet['between']);
       expect(between['divider'], 'list.divider');
+      // 시트 본문에 바로 놓인 구역 사이라 들임 0(list.divider inSheet, V124).
+      expect(between['insetX'], ListDivider.inSheetInsetX);
       expect(between['gap'], '{space.16}');
       expect(ColorPairSheetBody.betweenGap, Space.s16);
     });
@@ -2707,12 +2733,10 @@ void main() {
 
     test('explain-sheet weighingNote: 대상 신살, 상자, 아이콘, 글자가 계약과 같습니다', () {
       final note = _map(_map(specs['explain-sheet']!['parts'])['weighingNote']);
-      // 대상 목록: 계약 when 괄호 안 이름을 원고 사전(ko) 이름으로 신살 값에 잇습니다.
+      // 대상 목록(7.6.0, V125): 계약 targets와 notTargets 이름을 원고 사전(ko) 이름으로 신살 값에
+      // 잇습니다. notTargets는 줄인 이름(천덕, 금여)이라 사전 이름의 앞부분으로 찾습니다.
       final when = note['when']! as String;
-      final names = RegExp(r'흉한 신살\(([^)]*)\)')
-          .firstMatch(when)!
-          .group(1)!
-          .split(', ');
+      expect(when, contains('targets에 든 신살의 뜻 시트일 때만'));
       final glossary = _map(
         _map(
           jsonDecode(
@@ -2721,13 +2745,26 @@ void main() {
         )['body'],
       );
       final shinsalNames = _map(_map(glossary['values'])['shinsal']);
-      final kindOfName = {
-        for (final MapEntry(:key, :value) in shinsalNames.entries)
-          value! as String: key,
+      String kindOf(String name) => shinsalNames.entries
+          .singleWhere((entry) => (entry.value! as String).startsWith(name))
+          .key;
+      final targets = {
+        for (final name in note['targets']! as List<Object?>)
+          kindOf(name! as String),
       };
-      expect(names.map((name) => kindOfName[name]).toSet(), {
-        for (final kind in weighingShinsal) kind.value,
+      final notTargets = {
+        for (final name in note['notTargets']! as List<Object?>)
+          kindOf(name! as String),
+      };
+      expect(targets, {for (final kind in weighingShinsal) kind.value});
+      expect(targets, hasLength(11));
+      // 두 목록이 겹치지 않고 계약 ShinsalKind 전부를 나눕니다(새 신살이 더해지면 여기서 드러남).
+      expect(targets.intersection(notTargets), isEmpty);
+      expect(targets.union(notTargets), {
+        for (final kind in ShinsalKind.values)
+          if (kind.isKnown) kind.value,
       });
+      expect(note['targetsRule'], contains('app은 이 목록을 상수로 씀'));
       expect(when, contains('사주 기운 시트(tag-sheet)의 뜻 아래에도'));
       expect(note['slot'], 'ui.shinsal.weighing');
       expect(note['interactive'], isFalse);
@@ -2763,8 +2800,22 @@ void main() {
         expect(hasWeighingNote('tag.${kind.value}'), isTrue);
         expect(hasWeighingNote('twelve_stage.${kind.value}'), isFalse);
       }
-      expect(hasWeighingNote('shinsal.hwagae'), isFalse);
-      expect(hasWeighingNote('tag.hwagae'), isFalse);
+      // 화개와 길 신살은 붙지 않습니다(V125, W74).
+      for (final kind in const [
+        ShinsalKind.hwagae,
+        ShinsalKind.cheoneulGwiin,
+        ShinsalKind.cheondeok,
+        ShinsalKind.woldeok,
+        ShinsalKind.geumyeo,
+        ShinsalKind.amrok,
+        ShinsalKind.samgi,
+        ShinsalKind.yeokma,
+      ]) {
+        expect(hasWeighingNote('shinsal.${kind.value}'), isFalse);
+        expect(hasWeighingNote('tag.${kind.value}'), isFalse);
+      }
+      // 도화는 오늘 태그로도 붙습니다(W74).
+      expect(hasWeighingNote('tag.dohwa'), isTrue);
       expect(hasWeighingNote('gongmang'), isFalse);
     });
   });

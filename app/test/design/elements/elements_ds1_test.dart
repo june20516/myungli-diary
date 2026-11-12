@@ -85,6 +85,22 @@ void main() {
     });
   });
 
+  group('list.divider inSheet', () {
+    testWidgets('시트 본문에 바로 놓인 목록은 들임 0으로 본문 폭 그대로입니다(V124)', (tester) async {
+      await tester.pumpWidget(_app(const Center(child: ListDivider.inSheet())));
+      final screen = tester.getRect(find.byType(Scaffold));
+      final line = tester.getRect(
+        find.descendant(
+          of: find.byType(ListDivider),
+          matching: find.byType(ColoredBox),
+        ),
+      );
+      expect(line.left, screen.left);
+      expect(line.right, screen.right);
+      expect(line.height, BorderTokens.hairline);
+    });
+  });
+
   group('button.pair', () {
     testWidgets('filled가 위, quiet가 아래, 사이 8', (tester) async {
       await tester.pumpWidget(
