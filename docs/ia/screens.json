@@ -804,7 +804,8 @@
     "sentence-block",
     "share-button",
     "primary-button",
-    "dialog"
+    "dialog",
+    "settings-row"
    ],
    "exits": [
     {
