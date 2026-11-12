@@ -223,6 +223,20 @@ void main() {
         expect(find.byKey(WeighingNote.boxKey), findsNothing);
       });
 
+      testWidgets('뜻이 빈 문장이면 상자도 두지 않습니다', (tester) async {
+        await tester.pumpWidget(
+          _app(
+            ExplainSheetBody(
+              title: '과숙',
+              meaning: RenderedText(segments: [Segment(text: '  ')]),
+              weighingNote: _ko.shinsalWeighingNote,
+            ),
+            glossary: () async => _names,
+          ),
+        );
+        expect(find.byKey(WeighingNote.boxKey), findsNothing);
+      });
+
       testWidgets('뜻이 없으면 상자도 두지 않습니다', (tester) async {
         await tester.pumpWidget(
           _app(

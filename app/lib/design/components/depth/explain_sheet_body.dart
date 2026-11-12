@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
+import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/depth/weighing_note.dart';
@@ -90,7 +91,7 @@ class ExplainSheetBody extends StatelessWidget {
   final String? meaningSlotId;
 
   /// 뜻 바로 아래 흉 신살 마무리 한 줄([WeighingNote], D124 ⑦, V120). 대상 신살의 용어 풀이만
-  /// 주고, 뜻([meaning])이 없으면 그리지 않습니다. 다음 문장 간격은 이 상자에서 셉니다.
+  /// 주고, 뜻([meaning])이 없거나 빈 문장이면 그리지 않습니다. 다음 문장 간격은 이 상자에서 셉니다.
   final String? weighingNote;
 
   /// 오늘 그런 이유(`explain-sheet.today.reason`). 오늘 화면에서 열지 않았거나 계약에 없으면 `null`입니다.
@@ -191,7 +192,8 @@ class ExplainSheetBody extends StatelessWidget {
                 slotId: meaningSlotId,
               ),
             ),
-          if (meaning != null && weighingNote != null)
+          // 뜻이 없거나 빈 문장이면 상자도 두지 않습니다(사주 기운 시트와 같은 조건).
+          if (meaning != null && !isBlankText(meaning) && weighingNote != null)
             WeighingNote(text: weighingNote),
           if (todayReason != null)
             Padding(

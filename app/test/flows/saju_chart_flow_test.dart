@@ -815,6 +815,75 @@ void main() {
     expect(_personalText('태어난 날의 천간에 월덕귀인'), findsOneWidget);
   });
 
+  testWidgets('D124 ① 나의 사주 → 사주 표: 띠의 모든 신살(새 신살 포함)이 그 자리 원국 개인 해석으로 이어집니다', (
+    tester,
+  ) async {
+    covers(const Covers(decisions: ['D124']));
+    // fixture의 원국 개인 해석 가운데 신살 항목(server가 원고로 렌더한 문장).
+    final body =
+        (jsonDecode(
+              File('fixtures/evidence-unlocked/getChart.json')
+                  .readAsStringSync(),
+            ) as Map<String, dynamic>)['body']
+            as Map<String, dynamic>;
+    final expected = <PersonalReadingKey, String>{
+      for (final reading in [
+        for (final json in body['personalReadings'] as List<dynamic>)
+          PersonalReading.fromJson(json as Map<String, dynamic>),
+      ])
+        if (reading.kind == PersonalReadingKindEnum.PersonalReadingKindShinsal)
+          PersonalReadingKey(
+            kind: reading.kind,
+            position: reading.position,
+            shinsal: reading.shinsal,
+          ): reading.text.segments
+              .map((segment) => segment.text)
+              .join(),
+    };
+    // 이 task에서 더한 신살(천덕, 월덕, 과숙, 괴강, 십악대패, 암록)이 fixture에 있습니다.
+    expect(
+      {for (final key in expected.keys) key.shinsal},
+      containsAll(<ShinsalKind>{
+        ShinsalKind.cheondeok,
+        ShinsalKind.woldeok,
+        ShinsalKind.gwasuk,
+        ShinsalKind.goegang,
+        ShinsalKind.sipakDaepae,
+        ShinsalKind.amrok,
+      }),
+    );
+
+    await _openFromMySaju(tester, scenario: 'evidence-unlocked');
+    await _openLuckTab(tester);
+    final manse = tester.widget<ManseTable>(_inChart(find.byType(ManseTable)));
+    final seen = <PersonalReadingKey>{};
+    final shown = <String, int>{};
+    for (final column in _band(manse).columns) {
+      for (final label in column.shinsal) {
+        // 같은 이름 칩이 여러 칸에 있으면 띠 순서(시, 일, 월, 연)대로 차례로 누릅니다.
+        final index = shown.update(label.text, (n) => n + 1, ifAbsent: () => 0);
+        await _openPersonal(
+          tester,
+          _inBand(find.widgetWithText(TermToken, label.text)).at(index),
+        );
+        final key = _personalKey(tester)!;
+        expect(expected, contains(key), reason: label.text);
+        // 근거 시트의 "내 사주에서는"이 그 항목의 원고 문장입니다(앞 스무 자로 확인).
+        final text = expected[key]!;
+        expect(
+          _personalText(text.substring(0, 20)),
+          findsOneWidget,
+          reason: label.text,
+        );
+        seen.add(key);
+        await closeSheet(tester, _evidenceSheet);
+        await closeSheet(tester, find.byKey(const Key(ScreenIds.explainSheet)));
+      }
+    }
+    // 띠의 칩이 fixture의 신살 해석을 빠짐없이 덮습니다.
+    expect(seen, expected.keys.toSet());
+  });
+
   testWidgets('D124 ⑦ 흉 신살 과숙: 풀이 시트 뜻 아래 마무리 한 줄, 근거 시트에는 없음', (tester) async {
     covers(const Covers(decisions: ['D124']));
     await _openFromMySaju(tester, scenario: 'evidence-unlocked');

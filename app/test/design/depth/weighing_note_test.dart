@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/depth/weighing_note.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -24,7 +25,7 @@ Widget _note({double width = 312, double scale = 1}) => inputApp(
 
 void main() {
   testWidgets(
-    'fill.soft 상자, radius.md, 안쪽 space.12, caption.lg text.secondary 두 줄까지',
+    'fill.soft 상자, radius.md, 안쪽 space.12, caption.lg text.secondary',
     (tester) async {
       await tester.pumpWidget(_note());
       final tokens = tester.element(find.byType(WeighingNote)).tokens;
@@ -42,7 +43,9 @@ void main() {
       final caption = tokens.typography.captionLg;
       expect(text.style!.fontSize, caption.fontSize);
       expect(text.style!.color, tokens.colors.textSecondary);
-      expect(text.maxLines, WeighingNote.maxLines);
+      // 줄 수를 막지 않습니다(자르지 않음).
+      expect(text.maxLines, isNull);
+      expect(text.overflow, isNull);
       final box = tester.getRect(find.byKey(WeighingNote.boxKey));
       final textRect = tester.getRect(find.text(_text));
       expect(textRect.top - box.top, moreOrLessEquals(WeighingNote.padding));
@@ -79,8 +82,25 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('글자 배율 2.0에서도 넘치지 않습니다', (tester) async {
+  testWidgets('글자 배율 2.0에서는 두 줄을 넘어도 자르지 않고 문장 끝까지 보입니다', (tester) async {
     await tester.pumpWidget(_note(scale: 2));
     expect(tester.takeException(), isNull);
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.descendant(of: find.text(_text), matching: find.byType(RichText)),
+    );
+    expect(paragraph.didExceedMaxLines, isFalse);
+    final tokens = tester.element(find.byType(WeighingNote)).tokens;
+    final lineHeight = lineHeightOf(
+      tokens.typography.captionLg,
+      const TextScaler.linear(2),
+    );
+    // 두 줄 상한을 넘어 줄이 늘고, 상자도 그만큼 커집니다.
+    final textRect = tester.getRect(find.text(_text));
+    expect(textRect.height, greaterThan(lineHeight * 2.5));
+    final box = tester.getRect(find.byKey(WeighingNote.boxKey));
+    expect(
+      box.bottom - textRect.bottom,
+      moreOrLessEquals(WeighingNote.padding),
+    );
   });
 }

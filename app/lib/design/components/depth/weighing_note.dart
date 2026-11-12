@@ -9,8 +9,9 @@ import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 ///
 /// 뜻 바로 아래 [marginTop]에 뉴트럴 상자(`fill.soft`, `radius.md`, 안쪽 `space.12`)를 두고,
 /// 앞에 `check` Regular(옆 글자 단계, `action.primary`, 첫 줄 글줄 가운데, 간격 `space.8`)와
-/// 글자(`type.caption.lg` `text.secondary`, 두 줄까지)를 둡니다. 누를 수 없고 잠기지 않으며,
-/// 아이콘은 장식이라 스크린리더는 글자만 읽습니다. 어느 시트에 둘지는 놓는 쪽이 정합니다
+/// 글자(`type.caption.lg` `text.secondary`)를 둡니다. 글자는 자르지 않고 줄바꿈으로 모두
+/// 보입니다(writing `ui.shinsal.weighing` `a11y.truncation` "잘리지 않게"). 누를 수 없고
+/// 잠기지 않으며, 아이콘은 장식이라 스크린리더는 글자만 읽습니다. 어느 시트에 둘지는 놓는 쪽이 정합니다
 /// (풀이 시트와 사주 기운 시트의 뜻 아래만, 근거 시트와 원국 개인 해석에는 두지 않음).
 class WeighingNote extends StatelessWidget {
   /// [text](원고 `shinsalWeighingNote`)를 담은 마무리 상자를 만듭니다.
@@ -28,7 +29,9 @@ class WeighingNote extends StatelessWidget {
   /// 아이콘과 글자 사이. 계약 `weighingNote.icon.gap`(`space.8`).
   static const double iconGap = Space.s8;
 
-  /// 글자 최대 줄 수. 계약 `weighingNote.text.maxLines`.
+  /// 계약 `weighingNote.text.maxLines`. 배율 1.0에서 원고 글자 수 상한을 잰 줄 수이고
+  /// (`lengths.md` `ui.shinsal.weighing`), 그리기는 줄 수를 막지 않습니다. 큰 글자 배율에서는
+  /// 줄이 늘어나 문장 끝까지 보입니다(A137 ④, design 확인 #1072).
   static const int maxLines = 2;
 
   /// 앞 아이콘. 계약 `weighingNote.icon`(`check`, `regular`).
@@ -83,14 +86,7 @@ class WeighingNote extends StatelessWidget {
                   ),
                 ),
               ),
-              Expanded(
-                child: Text(
-                  text,
-                  maxLines: maxLines,
-                  overflow: TextOverflow.ellipsis,
-                  style: style,
-                ),
-              ),
+              Expanded(child: Text(text, style: style)),
             ],
           ),
         ),

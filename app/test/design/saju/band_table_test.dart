@@ -335,6 +335,21 @@ void main() {
     expect(taps, [
       for (final name in names) ...[name, name, name],
     ]);
+
+    // 칩 사이 틈(space.4)은 아무 칩도 덮지 않아 넓힌 판정으로 넘어가고, 하나만 받습니다(아래
+    // 칩, Column은 뒤 자식부터 판정). 같은 틈을 두 칩이 함께 받거나 아무도 받지 않으면 안 됩니다.
+    taps.clear();
+    for (var i = 0; i < names.length - 1; i++) {
+      final upper = tester.getRect(find.widgetWithText(TermToken, names[i]));
+      final lower = tester.getRect(
+        find.widgetWithText(TermToken, names[i + 1]),
+      );
+      await tester.tapAt(
+        Offset(lower.center.dx, (upper.bottom + lower.top) / 2),
+      );
+      await tester.pumpAndSettle();
+    }
+    expect(taps, names.skip(1).toList());
   });
 
   testWidgets('글자 배율 2.0은 1.3에서 멈추고 넘치지 않습니다', (tester) async {

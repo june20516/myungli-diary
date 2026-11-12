@@ -2,15 +2,16 @@ import 'package:myungli_diary/core/api/gen/model/position.dart';
 import 'package:myungli_diary/core/api/gen/model/shinsal_at.dart';
 
 /// 만세력 신살 칸 안의 무리. 열거 순서가 칸 안 순서입니다(`band-table`
-/// `bands.shinsal.order`, 결정 V121).
+/// `bands.shinsal.order`, 결정 V121). 무리는 신살 이름이 아니라 그 기둥에 걸친 자리로 정하므로
+/// 아래 이름은 설명용 예입니다(계약 `bands.shinsal.column`).
 enum ShinsalPlace {
-  /// 천간 자리 신살(천덕, 월덕, 삼기).
+  /// 천간 자리에만 걸친 신살(예: 천덕귀인, 월덕귀인).
   stem,
 
-  /// 일주 신살(천간과 지지에 걸침: 괴강, 십악대패, 음착양차).
+  /// 그 기둥의 천간과 지지에 함께 걸친 일주 신살(예: 괴강).
   pillar,
 
-  /// 지지 자리 신살.
+  /// 지지 자리에만 걸친 신살.
   branch,
 }
 

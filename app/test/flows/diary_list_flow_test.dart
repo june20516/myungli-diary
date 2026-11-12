@@ -364,7 +364,7 @@ void main() {
     ('gwasuk', '寡', '과숙'),
     ('wonjin', '元', '원진'),
   ]) {
-    testWidgets('D124 ③ 일기 줄 태그 $label $glyph: 누르면 뜻 아래 마무리 한 줄과 모아보기 링크', (
+    testWidgets('D124 ③ 일기 줄 태그 $label $glyph: 뜻 시트 마무리 한 줄, 모아보기 제목과 뜻', (
       tester,
     ) async {
       covers(const Covers(decisions: ['D124']));
@@ -378,12 +378,35 @@ void main() {
         find.descendant(of: sheet, matching: find.byKey(WeighingNote.boxKey)),
         findsOneWidget,
       );
+      final link = find.descendant(
+        of: sheet,
+        matching: find.textContaining(_ko.explainSheetTagDiaryLink(label)),
+      );
+      expect(link, findsOneWidget);
+
+      // 모아보기(tag-diary): 제목과 뜻은 같은 태그 키의 사전 값이고, 마무리 한 줄은 풀이
+      // 시트와 사주 기운 시트에만 있어 여기에는 없습니다(V120).
+      await tester.tap(link);
+      await settleWithIo(tester);
+      expect(_locationOf(tester, ScreenIds.tagDiary), '/tag-diary?tag=$key');
+      final screen = find.byKey(const ValueKey(ScreenIds.tagDiary));
       expect(
         find.descendant(
-          of: sheet,
-          matching: find.textContaining(_ko.explainSheetTagDiaryLink(label)),
+          of: screen,
+          matching: find.text(_ko.tagDiaryBarTitle(label)),
         ),
         findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: screen,
+          matching: find.bySemanticsIdentifier(SlotIds.tagDiaryTagMeaning),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: screen, matching: find.byKey(WeighingNote.boxKey)),
+        findsNothing,
       );
     });
   }
