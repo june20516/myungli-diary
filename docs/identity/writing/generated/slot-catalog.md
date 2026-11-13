@@ -68,13 +68,16 @@
 | contact.send.cta | contact.send.cta | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
 | contact.sent.toast | contact.sent.toast | info | - | 1 | 1 | - | ko 48, en 78, ja 34 |
 | daily.color | today.lucky-color.body<br>today.lucky-color.second.body | info | - | 1 | 12 | `element`: element, color<br>`role`: none<br>`base_element`: element, color<br>`day_branch`: none<br>`relation`: none<br>`shift`: none<br>`twelve_stage`: twelve_stage | ko 36, en 64, ja 36 |
+| daily.color_relation | today.lucky-color.body | info | - | 1 | 16 | `element`: element, color<br>`role`: none<br>`base_element`: element, color<br>`day_branch`: none<br>`relation`: none<br>`shift`: none<br>`twelve_stage`: twelve_stage | ko -, en -, ja - |
 | daily.direction | today.lucky-direction.body | info | - | 1 | 4 | `direction`: direction8<br>`rule_id`: none<br>`element`: element, color<br>`role`: none<br>`base_element`: element, color<br>`relation`: none<br>`day_branch`: branch<br>`deity`: none | ko 36, en 64, ja 36 |
+| daily.direction_relation | today.lucky-direction.body | info | - | 1 | 1 | `direction`: direction8<br>`rule_id`: none<br>`element`: element, color<br>`role`: none<br>`deity`: none<br>`base_element`: element, color<br>`relation`: none | ko -, en -, ja - |
 | daily.focus_reason | 컴포넌트 lucky-card | info | - | 1 | 4 | - | ko 10, en 18, ja 10 |
 | daily.focus_time | today.lucky-time.day.body<br>today.lucky-time.night.body | info | - | 1 | 2 | `hour_branch`: none | ko 36, en 64, ja 36 |
 | daily.fortune.head | today.fortune.head<br>preview.fortune.head<br>system-push.morning.body<br>evidence-sheet.target.body | info | advice, state, care | 1 | 20 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.fortune.tag | today.fortune.body<br>preview.fortune.body | info | advice, state, care | 1 | 19 | `day_kind`: day_kind<br>`ten_god`: ten_god, ten_god_group<br>`element`: element, color<br>`emphasis`: none | ko 32, en 57, ja 32 |
 | daily.guide | today.guide.question<br>diary-edit.guide.question | guide | - | 2 | 24 | `ten_god`: ten_god, ten_god_group<br>`element`: element, color | ko 36, en 70, ja 30 |
 | daily.number | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color<br>`day_stem`: stem<br>`parity`: none<br>`pair`: none<br>`base_element`: element, color<br>`relation`: none | ko 36, en 64, ja 36 |
+| daily.number_relation | today.lucky-number.body | info | - | 1 | 4 | `number`: number<br>`element`: element, color<br>`day_stem`: stem<br>`parity`: none<br>`pair`: none<br>`base_element`: element, color<br>`relation`: none | ko -, en -, ja - |
 | daily.tag_label | 컴포넌트 hanja-tag<br>컴포넌트 lucky-card | info | - | 1 | 19 | - | ko 10, en 18, ja 10 |
 | day-sheet.date.lunar | day-sheet.date.lunar | info | - | 1 | 2 | `month`: number<br>`day`: number | ko -, en -, ja - |
 | day-sheet.date.solar | day-sheet.date.solar | info | - | 1 | 1 | `date`: text | ko -, en -, ja - |

@@ -12,7 +12,7 @@
 - {slot: evidence.basis, key: "basis.fortune/day_kind", text: "오늘은 {day_kind}이고 오늘 천간이 내 일간에게 {ten_god}에 해당해서, 이 둘을 바탕으로 총운을 골랐어요."}
 - {slot: evidence.basis, key: "basis.fortune/tag", text: "오늘 붙은 태그 가운데 가장 앞선 것을 바탕으로 총운 아래 문장을 골랐어요."}
 - {slot: evidence.basis, key: "basis.guide/question", text: "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 {ten_god:ten_god_group}(으)로 가이드 질문을 골랐어요."}
-- {slot: evidence.basis, key: "basis.number/hado", text: "행운 색과 같은 오행인 {element}의 하도 수 두 개 가운데, 오늘 천간 {day_stem}의 음양에 따라 양이면 홀수, 음이면 짝수를 골랐어요."}
+- {slot: evidence.basis, key: "basis.number/hado", text: "행운 색과 같은 오행인 {element}의 하도 수 두 개 중에서, 오늘 천간 {day_stem}의 음양에 따라 양이면 홀수, 음이면 짝수를 골랐어요."}
 - {slot: evidence.basis, key: "basis.personal/day_master", text: "일간을 돕는 오행과 누르는 오행의 무게를 견줘 내 일간의 힘을 {strength}(으)로 봤어요. 그래서 {yongsin}(을)를 [[용신|role.yongsin]], {gisin}(을)를 [[기신|role.gisin]](으)로 봤어요."}
 - {slot: evidence.basis, key: "basis.personal/ten_god", text: "{place}의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 같은 묶음 십성의 수와 일간의 힘을 더해 풀이를 골랐어요."}
 - {slot: evidence.basis, key: "basis.personal/twelve_stage", text: "{place}의 오행 {element}(은)는 내 사주에서 {role}(이)에요. 이 역할에 일간의 힘을 더해 12운성 풀이를 골랐어요."}

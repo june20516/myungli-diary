@@ -81,11 +81,11 @@
 | today.featured.title | ui | today.featured.title |
 | today.featured.empty | ui | today.featured.empty |
 | today.lucky.title | ui | today.lucky.title |
-| today.lucky-color.body | content | daily.color |
+| today.lucky-color.body | content | daily.color, daily.color_relation |
 | today.lucky-color.pair.intro | ui | today.lucky-color.pair.intro |
 | today.lucky-color.second.body | content | daily.color |
-| today.lucky-direction.body | content | daily.direction |
-| today.lucky-number.body | content | daily.number |
+| today.lucky-direction.body | content | daily.direction, daily.direction_relation |
+| today.lucky-number.body | content | daily.number, daily.number_relation |
 | today.lucky-time.day.title | ui | today.lucky-time.day.title |
 | today.lucky-time.day.body | content | daily.focus_time |
 | today.lucky-time.night.title | ui | today.lucky-time.night.title |

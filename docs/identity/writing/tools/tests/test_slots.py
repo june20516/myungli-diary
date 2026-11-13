@@ -17,6 +17,9 @@ EVIDENCE_RULES_PATH = MESSAGE_KEYS_PATH.with_name("evidence_rules.json")
 # 메시지 키가 아니라 식별자를 키로 갖는 슬롯입니다.
 IDENTIFIER_SLOTS = {
     "daily.focus_reason",
+    "daily.color_relation",
+    "daily.direction_relation",
+    "daily.number_relation",
     "calendar.score_item",
     "calendar.solar_term",
     "glossary.value_name",
