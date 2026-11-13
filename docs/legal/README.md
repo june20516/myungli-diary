@@ -7,4 +7,4 @@
 * **주소:** server가 `/legal/terms`·`/legal/privacy`(`?lang=ko|en|ja`)로 내주고, `getAppConfig`가 그 주소를 알려 줍니다. app은 주소를 상수로 두지 않습니다.
 * **검토 기준(D126 ①):** 개인정보보호위원회 처리방침 작성지침, 공정거래위원회 표준약관, 법령 원문. 유료 법률 검토는 받지 않습니다.
 * **사업자 정보(D126 ②):** 상호, 대표자, 주소, 사업자등록번호, 통신판매업 신고번호는 원문에 빈자리만 두고 server가 페이지를 내줄 때 로컬 값으로 채웁니다. 원문과 `server/legal/data/`에 값을 적지 않습니다. 빈자리 표기는 server가 정합니다.
-* **아직 원문이 없습니다.** 개인정보 처리방침에 들어갈 수집·보관 항목은 대장 [`data-inventory.md`](data-inventory.md)에 모읍니다(D86 ⑧). 출시 전에 ko·en·ja 원문을 모두 갖춥니다(D86 ⑥).
+* **원문 상태:** ko, en, ja 처리방침과 이용약관 초안이 있습니다(시행일은 확정 때). 빈자리 표기는 server S157(`{{business.name}}`, `{{business.representative}}`, `{{business.address}}`, `{{business.registrationNumber}}`, `{{business.mailOrderNumber}}`)입니다. 스토어 양식 답안은 [`store-disclosures.md`](store-disclosures.md)입니다.
