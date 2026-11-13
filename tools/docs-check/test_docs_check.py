@@ -5,6 +5,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import docs_check
 
@@ -707,6 +708,42 @@ class MainTests(RepoTestCase):
     def test_main_returns_one_on_problem(self) -> None:
         write(self.root, "a.md", "[x](missing.md)")
         self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
+
+
+class SizeLimitTest(RepoTestCase):
+    """처음 읽는 문서 크기 상한(H1, D131)."""
+
+    def check(self, limits: dict[str, int], exempt: frozenset[str] = frozenset()) -> list[str]:
+        with mock.patch.object(docs_check, "SIZE_LIMITS", limits), mock.patch.object(
+            docs_check, "SIZE_EXEMPT", exempt
+        ):
+            return docs_check.check_size_limits(self.root)
+
+    def test_over_limit_reports_path_and_sizes(self) -> None:
+        write(self.root, "docs/a.md", "x" * 11)
+        problems = self.check({"docs/a.md": 10})
+        self.assertEqual(len(problems), 1)
+        for part in ("docs/a.md", "11", "10", "경과"):
+            self.assertIn(part, problems[0])
+
+    def test_within_limit_passes(self) -> None:
+        write(self.root, "docs/a.md", "x" * 10)
+        self.assertEqual(self.check({"docs/a.md": 10}), [])
+
+    def test_exempt_over_limit_passes(self) -> None:
+        write(self.root, "docs/a.md", "x" * 11)
+        self.assertEqual(self.check({"docs/a.md": 10}, frozenset({"docs/a.md"})), [])
+
+    def test_exempt_within_limit_asks_to_remove_exemption(self) -> None:
+        write(self.root, "docs/a.md", "x" * 10)
+        problems = self.check({"docs/a.md": 10}, frozenset({"docs/a.md"}))
+        self.assertEqual(len(problems), 1)
+        self.assertIn("면제를 지우세요", problems[0])
+
+    def test_missing_listed_file_reports(self) -> None:
+        problems = self.check({"docs/missing.md": 10})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("상한표의 파일이 없습니다", problems[0])
 
 
 if __name__ == "__main__":

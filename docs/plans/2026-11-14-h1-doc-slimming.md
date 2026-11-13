@@ -60,7 +60,7 @@
 - Create: `docs/contracts/CHANGELOG.md`
 - Modify: `docs/contracts/README.md`
 
-- [ ] **Step 1:** README 표의 각 행에서 "상태" 칸을 지금 버전과 상태 한 줄(예: "**v1.13.1 구현 완료**, 받는 쪽 app 대응 완료")로 줄이고, 그 밖의 변경 이력 문장을 `CHANGELOG.md`의 `## <계약 이름>` 절로 그대로 옮깁니다. 절 안에서는 최신이 위입니다. README 맨 위에 "변경 이력은 [`CHANGELOG.md`](CHANGELOG.md)" 한 줄.
+- [ ] **Step 1:** README 표의 각 행에서 "상태" 칸을 지금 버전과 상태 한 줄(예: "**v1.13.1 구현 완료**, 받는 쪽 app 대응 완료")로 줄이고, 그 밖의 변경 이력 문장을 `CHANGELOG.md`의 `## <계약 이름>` 절로 그대로 옮깁니다. 절 안에서는 최신이 위입니다. README 맨 위에 변경 이력은 `CHANGELOG.md`에 있다는 링크 한 줄.
 - [ ] **Step 2:** "생성 코드" 절은 지금 규칙만 남기고 경과는 CHANGELOG 맨 아래 `## 생성 코드` 절로.
 - [ ] **Step 3: 검증** — Run: `wc -c < docs/contracts/README.md` / Expected: 12288 이하. Run: `python3 -I tools/docs-check/docs_check.py . | grep -E "contracts/(README|CHANGELOG)"` / Expected: 출력 없음.
 - [ ] **Step 4: Commit** — `docs(root): 계약 목록은 지금 버전만, 이력은 CHANGELOG (H1)`

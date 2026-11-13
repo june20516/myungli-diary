@@ -1,4 +1,4 @@
-"""저장소 문서 검사: 상대 링크, artifacts/index.json 형식, 결정 번호 중복, IA 계약, 아이디어 함, ja 근거 용어집.
+"""저장소 문서 검사: 상대 링크, artifacts/index.json 형식, 결정 번호 중복, IA 계약, 아이디어 함, ja 근거 용어집, 처음 읽는 문서 크기 상한.
 
 실행: python3 -I tools/docs-check/docs_check.py [저장소 루트]
 규칙 근거: docs/workflow.md §7, docs/specs/2026-10-10-collab-workflow-design.md §4.1,
@@ -12,6 +12,24 @@ import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
+
+# 세션이 처음 읽는 문서의 크기 상한(바이트, H1, D131). 결정 로그와 history 파일에는 두지 않습니다.
+UNIT_CLAUDE_FILES = (
+    "core/CLAUDE.md",
+    "server/CLAUDE.md",
+    "app/CLAUDE.md",
+    "docs/identity/writing/CLAUDE.md",
+    "docs/identity/design/CLAUDE.md",
+)
+SIZE_LIMITS: dict[str, int] = {
+    "CLAUDE.md": 10240,
+    "docs/workflow.md": 22528,
+    "docs/roadmap.md": 10240,
+    "docs/contracts/README.md": 12288,
+    **{path: 16384 for path in UNIT_CLAUDE_FILES},
+}
+# 아직 정리하지 않은 파일. 상한 아래로 내려오면 검사가 면제를 지우라고 알립니다.
+SIZE_EXEMPT: frozenset[str] = frozenset(path for path in UNIT_CLAUDE_FILES if path != "core/CLAUDE.md")
 
 SKIPPED_DIRS = {".git", ".suberpowers", ".venv", "node_modules"}
 LINK_PATTERN = re.compile(r'\]\(([^)\s]+?)(?:\s+"[^"]*")?\)')
@@ -625,11 +643,29 @@ def check_ja_terms(root: Path) -> list[str]:
     return problems
 
 
+def check_size_limits(root: Path) -> list[str]:
+    problems = []
+    for relative, limit in SIZE_LIMITS.items():
+        path = root / relative
+        if not path.is_file():
+            problems.append(f"{relative}: 상한표의 파일이 없습니다. 경로가 바뀌었으면 SIZE_LIMITS를 고치세요(H1, D131)")
+            continue
+        size = path.stat().st_size
+        if relative in SIZE_EXEMPT:
+            if size <= limit:
+                problems.append(f"{relative}: {size}바이트로 상한 {limit}바이트 안입니다. SIZE_EXEMPT에서 면제를 지우세요(H1, D131)")
+        elif size > limit:
+            problems.append(
+                f"{relative}: {size}바이트, 상한 {limit}바이트. 경과를 history 파일로 옮기거나 병합된 현재 상태를 지우세요(H1, D131)"
+            )
+    return problems
+
+
 def main(argv: list[str]) -> int:
     root = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     problems = (
         check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_ledger_ids(root) + check_user_impact(root) + check_ia(root)
-        + check_ideas(root) + check_review_items(root) + check_ja_terms(root)
+        + check_ideas(root) + check_review_items(root) + check_ja_terms(root) + check_size_limits(root)
     )
     if problems:
         print("\n".join(problems))
