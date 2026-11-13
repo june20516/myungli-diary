@@ -61,6 +61,7 @@
   "consentCtaAgree": "Agree and continue",
   "consentRequiredLabelTerms": "(Required) Terms of Service",
   "consentRequiredLabelPrivacy": "(Required) Collection and use of personal information",
+  "consentRequiredLabelAge": "(Required) I am 14 or older",
   "consentTitleHead": "Please review and agree",
   "contactAddressNote": "If sending doesn't work, email us at this address.\n{email}",
   "contactAttachedNotice": "Your account ID, app version, and device info (OS, model) are sent along. They are used only to handle your inquiry.",

@@ -672,17 +672,19 @@
   where: "약관 동의 화면(consent): 필수 동의 항목 이름"
   purpose: info
   user_state: "필수 동의 항목을 봅니다."
-  structure: "항목마다 \"(필수)\" 뒤에 문서 이름."
+  structure: "항목마다 \"(필수)\" 뒤에 문서 이름. 나이 확인 항목(D127 ④, #1113)은 문서 이름 대신 확인 문장이고 \"보기\" 링크가 없습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 34, en: 64, ja: 28}
   keys:
     - consentRequiredLabelTerms
     - consentRequiredLabelPrivacy
+    - consentRequiredLabelAge
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
       - {lang: ko, key: consentRequiredLabelTerms, text: "(필수) 이용약관", why: "가이드 규칙(W6·W10)으로 쓴 원고", source: writing}
       - {lang: ko, key: consentRequiredLabelPrivacy, text: "(필수) 개인정보 수집 및 이용", why: "가이드 규칙(W6·W10)으로 쓴 원고, 가운뎃점 대신 \"및\"(W44)", source: writing}
+      - {lang: ko, key: consentRequiredLabelAge, text: "(필수) 만 14세 이상입니다", why: "지휘 가안, 라운드 R46에서 사용자가 고름(D127 ④)", source: round}
     bad: []
   endings: []
   a11y:

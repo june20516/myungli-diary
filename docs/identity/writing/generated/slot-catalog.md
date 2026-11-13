@@ -57,7 +57,7 @@
 | color-rule-sheet.sheet.title | color-rule-sheet.sheet.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | consent.bar.title | consent.bar.title | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | consent.cta.agree | consent.cta.agree | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |
-| consent.required.label | consent.required.label | info | - | 1 | 2 | - | ko 34, en 64, ja 28 |
+| consent.required.label | consent.required.label | info | - | 1 | 3 | - | ko 34, en 64, ja 28 |
 | consent.title.head | consent.title.head | guide | - | 1 | 1 | - | ko -, en -, ja - |
 | contact.address.note | contact.address.note | guide | - | 1 | 1 | `email`: text | ko 64, en 108, ja 46 |
 | contact.attached.notice | contact.attached.notice | info | - | 1 | 1 | - | ko 96, en 162, ja 69 |
