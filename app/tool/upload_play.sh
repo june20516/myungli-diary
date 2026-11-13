@@ -25,7 +25,7 @@ upload_api="https://androidpublisher.googleapis.com/upload/androidpublisher/v3/a
 
 [[ -f "$aab" ]] || { echo "AAB가 없습니다: $aab" >&2; exit 2; }
 for tool in gcloud bundletool jq curl; do
-  command -v "$tool" >/dev/null || { echo "$tool이 없습니다." >&2; exit 3; }
+  command -v "$tool" >/dev/null || { echo "${tool}이 없습니다." >&2; exit 3; }
 done
 
 version_code="$(bundletool dump manifest --bundle "$aab" \
@@ -75,7 +75,7 @@ uploaded="$(call GET "$api/edits/$edit_id/bundles" | jq -r '.bundles[]?.versionC
 in_tracks="$(call GET "$api/edits/$edit_id/tracks" |
   jq -r '.tracks[]?.releases[]?.versionCodes[]?')"
 if grep -qx "$version_code" <<<"$uploaded"$'\n'"$in_tracks"; then
-  echo "빌드 번호 $version_code는 이미 Play에 있습니다. pubspec.yaml의 +N을 올려 다시 빌드하세요(A104)." >&2
+  echo "빌드 번호 ${version_code}는 이미 Play에 있습니다. pubspec.yaml의 +N을 올려 다시 빌드하세요(A104)." >&2
   exit 1
 fi
 
@@ -90,4 +90,4 @@ call PUT "$api/edits/$edit_id/tracks/$track" \
 
 call POST "$api/edits/$edit_id:commit" >/dev/null
 edit_id=""
-echo "Play $track 트랙에 versionCode $version_code를 올렸습니다."
+echo "Play ${track} 트랙에 versionCode ${version_code}를 올렸습니다."
