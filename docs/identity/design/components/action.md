@@ -139,6 +139,6 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 2. 위 `space.12`에 `purchase-row` 묶음 카드
 3. `purchase-history.missing.notice`: 위 `space.16`, `type.caption.lg`, `text.secondary`, 좌우 안쪽 `space.4`. 목록이 있든 비었든(`empty`) 늘 보입니다. 결제했는데 목록에 없을 수 있기 때문입니다. `loading`·`error`·`offline`에서는 `stateMap` 화면만 보이고 이 안내는 없습니다.
 
-* `empty`: 화면 상태 대응표(`stateMap`)대로 `empty-state`입니다. 아이콘은 Phosphor `receipt`, 문장은 `purchase-history.empty.body`이고 주 버튼은 없습니다. `missing.notice`는 그 문장 아래 `space.16`에 둡니다.
+* `empty`: 화면 상태 대응표(`stateMap`)대로 `empty-state`입니다. 아이콘은 Phosphor `receipt`, 문장은 `purchase-history.empty.body`이고 주 버튼은 없습니다. `missing.notice`는 그 문장 아래 `space.16`에 두고 **`empty-state` 문장처럼 가운데 맞춤**입니다(좌우 안쪽 `space.4` 없이 문장과 같은 폭, 누르면 `contact`로 가는 자리도 같은 가운데, 결정 V128, #1136). 목록이 있을 때는 위 3번처럼 왼쪽 맞춤 그대로입니다.
 * `loading`·`error`·`offline`은 `stateMap` 그대로입니다. 들어갈 때 결제 기록을 다시 불러오는 동안(D88 ②)이 `loading`입니다.
 * 입구는 지금 `ad-free`의 구매 내역 버튼뿐입니다. 상품이 둘 이상이 되면 설정에도 둡니다(D88 ②).

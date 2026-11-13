@@ -130,7 +130,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.9.0" in readme
+    assert "계약 버전: 1.10.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -212,7 +212,7 @@ def test_tokens_1_3_0_additions_only():
         if name in TOKENS_1_5_0_CHANGED:  # 1.5.0에서 값만 바뀜(아래 test_tokens_1_5_0이 검사)
             continue
         assert after.get(name) == token, name
-    added = {name: (after[name]["$type"], after[name]["$value"]) for name in after.keys() - before.keys()}
+    added = {name: (after[name]["$type"], after[name]["$value"]) for name in after.keys() - before.keys() - TOKENS_1_10_0_ADDED}
     assert added == TOKENS_1_3_0_ADDED
 
 
@@ -240,7 +240,7 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
         expected = TOKENS_1_5_0_ADDED_COLOR | TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED
-        assert added == (set() if current.startswith("primitive") else expected), current
+        assert added == (TOKENS_1_10_0_ADDED if current.startswith("primitive") else expected), current
     for mode, cell in (("light", "tint"), ("dark", "tint_dark")):
         tokens = flatten(files[f"color.{mode}.tokens.json"])
         for element in ("metal", "water"):
@@ -262,6 +262,7 @@ def test_tokens_1_5_0_changes_only_metal_and_water():
 
 # 1.8.0 (#1003, D122, 결정 V115): 집중 시간 해와 달 아이콘 color.time.day, color.time.night 추가만
 TOKENS_1_8_0_ADDED = {"color.time.day", "color.time.night"}
+TOKENS_1_10_0_ADDED = {"motion.duration.glint"}  # primitive 추가(#1141, V131). 옛 판 검사는 이 나중 추가분을 뺌
 
 
 def test_tokens_1_8_0_adds_only_time_icons():
@@ -274,7 +275,7 @@ def test_tokens_1_8_0_adds_only_time_icons():
         for name, token in before.items():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_8_0_ADDED), current
+        assert added == (TOKENS_1_10_0_ADDED if current.startswith("primitive") else TOKENS_1_8_0_ADDED), current
     expected = {"light": ("#b8811a", "#355a8f"), "dark": ("#dea645", "#8fa9d1")}
     for mode, (day, night) in expected.items():
         tokens = flatten(files[f"color.{mode}.tokens.json"])
@@ -299,7 +300,7 @@ def test_tokens_1_7_0_adds_only_unlocked_gradient():
         for name, token in before.items():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), current
+        assert added == (TOKENS_1_10_0_ADDED if current.startswith("primitive") else TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), current
     for mode in ("light", "dark"):
         token = flatten(files[f"color.{mode}.tokens.json"])["gradient.unlocked"]
         assert token["$type"] == "gradient"
@@ -324,7 +325,7 @@ def test_tokens_1_6_0_adds_only_invite_fg():
         for name, token in before.items():
             assert after.get(name) == token, (current, name)
         added = after.keys() - before.keys()
-        assert added == (set() if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), current
+        assert added == (TOKENS_1_10_0_ADDED if current.startswith("primitive") else TOKENS_1_6_0_ADDED_COLOR | TOKENS_1_7_0_ADDED | TOKENS_1_8_0_ADDED), current
     light, dark = (flatten(files[f"color.{mode}.tokens.json"]) for mode in ("light", "dark"))
     assert light["color.invite.fg"]["$value"] == "{color.sage.600}"
     assert dark["color.invite.fg"]["$value"] == "{color.sage.400}"
@@ -351,7 +352,7 @@ def test_tokens_1_4_0_additions_only():
         if name in TOKENS_1_5_0_CHANGED:
             continue
         assert after_primitive.get(name) == token, name
-    assert after_primitive.keys() == before_primitive.keys()  # primitive는 추가 없음
+    assert after_primitive.keys() - TOKENS_1_10_0_ADDED == before_primitive.keys()  # 1.4.0은 primitive 추가 없음(1.10.0 glint는 나중 추가)
 
     for mode in ("light", "dark"):
         before = _frozen(f"color.{mode}-1.3.0.tokens.json")
@@ -461,3 +462,14 @@ def test_tokens_1_9_0_adds_hanja_supplement_after_pretendard_jp_only():
                 assert after[name] == token, (current, name)
     assert flatten(files["typography.tokens.json"])["font.family.hanja"]["$value"] == [
         "Pretendard JP", "Myungli Hanja Supplement", "sans-serif"]
+
+
+# 1.10.0 (#1141, 결정 V131): 반짝임 지나감 전용 motion.duration.glint 추가만(breathe는 그대로)
+def test_tokens_1_10_0_adds_only_glint_duration():
+    files = build_token_files()
+    before, after = _frozen("primitive-1.9.0.tokens.json"), flatten(files["primitive.tokens.json"])
+    for name, token in before.items():
+        assert after.get(name) == token, name
+    assert after.keys() - before.keys() == {"motion.duration.glint"}
+    assert after["motion.duration.glint"]["$value"] == {"value": 2600, "unit": "ms"}
+    assert after["motion.duration.breathe"]["$value"] == {"value": 1800, "unit": "ms"}

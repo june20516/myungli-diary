@@ -31,6 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-12, design 세션 작성)
+* **빌드 7 검수 묶음 #1133, #1136, #1139, #1140, #1141** (브랜치 `design/build7-review`, 결정 V127~V131, 주 버전): 달력 탭 다시 누르면 오늘(`todayReselect`), 빈 상태 아래 줄 가운데, 요소 `open.ring`과 `term-token` `open`(시트를 연 칩 표시), 근거 진입점은 시트 안 `head-end`(머리 오른쪽 끝)와 시트 밖 `inline-end` 둘뿐(`block` 지움), 반짝임 2600ms와 10초. 관문 시안 `artifacts/2026-11-13-glint-speed-questions.html`.
 * **옛 앱 아이콘, 가로 조합 SVG 정리 #1103** (브랜치 `design/old-logo-svg-1103`, app #1099 뒤): `logo/icon-*.svg`, `lockup*.svg`와 그것만 쓰던 `logo_sheet.py`, `svg_markup.py`, `test_markup.py`, `wordmark.py` 가로 조합, `test_logo.py` SVG 절을 지움. 낙관 경로 대조는 명세 값 기준. 계약 값 변경 없음.
 * **시간 띠 큰 글자 #1096과 전환 기준 문구 #1063** (브랜치 `design/time-band-scale-1096`, 결정 V126): `timeBand` 글자 1.3배 상한(`a11y.textScaleMax`, V36과 같은 갈래)과 눈금 겹침 줄 내림 `ticks.overlap`(app A143과 같음, 1.3배 en만 경계 눈금이 내려감). 밤 칩 때 낱말과 띠 순서 기준은 프로필 시간대의 그날 진시 시작(서울 07:30, 낮 카드 `hours[0].start`). 시안 `artifacts/2026-11-13-time-band-scale-questions.html`.
 * **마무리 줄 대상 목록 #1091** (브랜치 `design/weighing-targets-1091`, D124 ⑦, 결정 V125, V120 개정): `weighingNote` `targets` 열하나와 `notTargets` 여덟, 모호한 신살은 writing 판단(#1090). `test_v125_weighing_targets_follow_writing_slot`이 writing 슬롯 문장과 대조하므로 writing이 판단을 바꾸면 이 검사가 걸림.

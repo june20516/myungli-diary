@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>열린 근거 반짝임 속도 관문 질문 (#1141)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ds1/tokens.css"><style>
+body { margin: 0; background: #f2f1ee; color: #1f1f1e; font-family: "Pretendard", sans-serif; font-size: 15px; line-height: 1.55; }
+.page { max-width: 1560px; margin: 0 auto; padding: 32px 20px 72px; }
+h1 { font-size: 24px; margin: 0 0 8px; } h2 { font-size: 19px; margin: 40px 0 6px; padding-top: 16px; border-top: 1px solid #dcdad5; }
+.intro { color: #5b5b59; margin: 0 0 14px; max-width: 920px; }
+.row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.opt { width: 340px; } .cap { font-size: 14px; font-weight: 700; color: #47634c; margin-bottom: 8px; }
+.rec { display: inline-block; font-size: 11px; font-weight: 700; color: #7a3d36; background: #ffe9e5; border-radius: 999px; padding: 0 8px; margin-left: 8px; }
+.onote { font-size: 13.5px; color: #5b5b59; margin: 10px 0 0; }
+.sheet { background: var(--color-bg-sheet); border: 1px solid #d6d4cf; border-radius: 20px; padding: 20px 24px; --fg: var(--color-text-primary); }
+.gl { color: transparent; -webkit-background-clip: text; background-clip: text; background-size: 300% 100%; background-position: 100% 0;
+  background-image: linear-gradient(100deg, var(--fg) 0%, var(--fg) 44%, var(--gradient-unlocked), var(--fg) 56%, var(--fg) 100%); }
+.t { font-size: 15px; font-weight: 700; }
+.b { font-family: var(--font-family-sentence); font-size: 15px; line-height: 1.6; margin: 8px 0 0; }
+@media (prefers-reduced-motion: reduce) { .gl { animation: none !important; } }
+@keyframes g-now { 0% { background-position: 100% 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 12.00% { background-position: 0% 0; } 100% { background-position: 0% 0; } }
+.o-now .gl { animation: g-now 15000ms linear infinite; }
+@keyframes g-a { 0% { background-position: 100% 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 26.00% { background-position: 0% 0; } 100% { background-position: 0% 0; } }
+.o-a .gl { animation: g-a 10000ms linear infinite; }
+@keyframes g-b { 0% { background-position: 100% 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 40.00% { background-position: 0% 0; } 100% { background-position: 0% 0; } }
+.o-b .gl { animation: g-b 8000ms linear infinite; }
+@keyframes g-c { 0% { background-position: 100% 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 18.33% { background-position: 0% 0; } 100% { background-position: 0% 0; } }
+.o-c .gl { animation: g-c 12000ms linear infinite; }
+</style></head><body><div class="page">
+<h1>열린 근거 반짝임 속도 (#1141)</h1>
+<p class="intro">빌드 7 검수에서 사용자가 열린 근거와 해석 글자에 지나가는 빛(<code>unlock.glint</code>, V112)을 "지나가는 시간은 더 느리게, 반복 간격은 더 짧게" 해 달라고 했습니다. 값은 주지 않았습니다. 아래 넷은 페이지를 열면 같은 순간에 처음 한 번 지나가고, 각자 간격마다 다시 지나갑니다. 띠는 토큰 <code>gradient.unlocked</code>, 글자 상자 폭 30%, 100°, <code>standard</code> 곡선이고 글자 모양 안에만 칠합니다. 간격을 비교하려면 15초 넘게 지켜봐 주세요.</p>
+<p class="intro">공통: 지나감 시간을 <code>motion.duration.breathe</code>(1800, 불러오는 중 뼈 숨쉬기와 같이 씀)에서 떼어 반짝임 전용 값으로 둡니다. 어느 안이든 지나감이 간격보다 짧아 띠가 겹치지 않고, 동작 줄이기 대체(<code>unlock.mark</code>)는 그대로입니다.</p>
+<h2>라이트</h2><div class="row"><div class="opt o-now"><div class="cap">지금 (V112)</div><div class="sheet" data-theme="light"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">지나감 1800ms(breathe), 15초마다.</p></div><div class="opt o-a"><div class="cap">A. 2600ms, 10초마다<span class="rec">추천</span></div><div class="sheet" data-theme="light"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">지휘 출발 제안. 지나감은 약 1.4배 느리고 간격은 2/3. 10초 중 약 4분의 1 동안 빛이 지나갑니다.</p></div><div class="opt o-b"><div class="cap">B. 3200ms, 8초마다</div><div class="sheet" data-theme="light"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">더 느리고 더 잦게. 8초 중 40% 동안 빛이 지나가 늘 움직이는 글자처럼 보일 수 있습니다.</p></div><div class="opt o-c"><div class="cap">C. 2200ms, 12초마다</div><div class="sheet" data-theme="light"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">조금만 바꿈. 지금과 차이가 작습니다.</p></div></div>
+<h2>다크</h2><div class="row"><div class="opt o-now"><div class="cap">지금 (V112)</div><div class="sheet" data-theme="dark"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">지나감 1800ms(breathe), 15초마다.</p></div><div class="opt o-a"><div class="cap">A. 2600ms, 10초마다<span class="rec">추천</span></div><div class="sheet" data-theme="dark"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">지휘 출발 제안. 지나감은 약 1.4배 느리고 간격은 2/3. 10초 중 약 4분의 1 동안 빛이 지나갑니다.</p></div><div class="opt o-b"><div class="cap">B. 3200ms, 8초마다</div><div class="sheet" data-theme="dark"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">더 느리고 더 잦게. 8초 중 40% 동안 빛이 지나가 늘 움직이는 글자처럼 보일 수 있습니다.</p></div><div class="opt o-c"><div class="cap">C. 2200ms, 12초마다</div><div class="sheet" data-theme="dark"><div class="sec"><span class="gl t">판정 근거</span></div><p class="gl b">오늘 일진의 천간이 내 사주의 용신 오행을 생해 주어, 하루의 흐름이 내 쪽으로 기울기 쉬운 날로 보았습니다. 지지끼리 부딪히는 자리는 없습니다.</p></div><p class="onote">조금만 바꿈. 지금과 차이가 작습니다.</p></div></div>
+<p class="onote" style="margin-top:40px">글꼴: Pretendard, Gowun Dodum. 기기 동작 줄이기가 켜져 있으면 이 페이지의 빛도 멈춥니다.</p>
+</div></body></html>

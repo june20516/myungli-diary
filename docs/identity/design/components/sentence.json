@@ -1,5 +1,5 @@
 {
-  "version": "7.7.0",
+  "version": "8.0.0",
   "group": "sentence",
   "components": [
     {
@@ -75,18 +75,19 @@
           "hanja": { "type": "{type.caption.md}", "fontFamily": "{font.family.hanja}", "fg": "{color.text.secondary}" },
           "general": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.term.meaning" },
           "todayReason": { "component": "sentence-block", "variant": "body", "slot": "explain-sheet.today.reason", "marginTop": "{space.12}", "when": "오늘 화면에서 열었을 때만" },
-          "evidenceLink": { "component": "depth-link", "variant": "block" },
+          "evidenceLink": { "component": "depth-link", "variant": "head-end", "position": "제목 줄(제목 + 한자) 오른쪽 끝", "notWith": "emptyNote를 그릴 때는 그리지 않음(V123 그대로)" },
           "emptyNote": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "slot": "ui.explain.term-empty", "marginTop": "{space.12}", "maxLines": 2, "when": "용어 뜻과 오늘 이유가 모두 없고 근거로 넘길 출처도 없을 때만 일반 뜻 자리에. 이때 근거 진입점은 그리지 않음. 뜻이나 이유가 없고 출처만 있으면 시트 대신 근거 시트를 바로 엶(app A130)", "interactive": false, "note": "IA 밖 ui 슬롯(근거 시트 빈 안내 ui.evidence.personal-empty와 같은 방식), 문구 writing. 칩은 늘 같은 방식으로 눌림 (#957, 관문 답 2026-11-12 A, 결정 V123)" }
         }
       },
       "states": {
-        "pressed": { "pattern": "press.ink" }
+        "pressed": { "pattern": "press.ink" },
+        "open": { "element": "open.ring", "when": "이 용어로 연 풀이 시트(또는 근거 시트, app A130)가 열린 동안. inline, label 모두", "inline": "줄에서 나뉜 용어는 조각마다 닫힌 테두리", "label": "글자와 테두리 사이는 paddingX space.4에서 테두리 1.5를 뺀 약 2.5px. 값은 그대로", "note": "#1139, 결정 V129" }
       },
       "haptic": [],
       "a11y": { "role": "button", "label": "용어 + '풀이 보기'", "minTarget": 44, "hitSlop": "줄 높이까지 위아래로 넓힘" },
       "rules": [
         "용어를 굵게 하지 않는다(결정 V0). 바탕과 글자색으로만 구분한다.",
-        "풀이 시트는 제목·한자 → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때) → 근거 보기. 모두 무료이고 잠기지 않는다(D60).",
+        "풀이 시트는 제목·한자(오른쪽 끝에 근거 보기 head-end, 결정 V130) → 일반 뜻 → 오늘 그런 이유(오늘 화면에서 열었을 때). 모두 무료이고 잠기지 않는다(D60).",
         "원국 개인 해석('내 사주에서는')은 풀이 시트에 두지 않는다. 근거 시트(depth-link evidenceSheet)에 있다.",
         "뜻도 근거 출처도 없는 용어도 칩 모양과 누름은 같다. 시트를 열고 이름과 한자 아래 빈 안내(emptyNote)를 둔다. 근거 아이콘만 남기지 않는다(결정 V123)."
       ]
@@ -97,7 +98,7 @@
       "uses": ["press.ink", "sheet.enter", "sheet.stack", "lock.veil", "appear.seep", "disappear.seep", "loading.breathe", "page.push", "unlock.glint", "unlock.mark"],
       "variants": [
         { "id": "inline-end", "when": "이유 문장 끝에 붙임", "parts": { "icon": { "joinBefore": "U+00A0", "wrap": "with-last-word", "note": "문장 마지막 낱말과 줄바꿈 없이 붙음. 아이콘이 다음 줄로 혼자 넘어가지 않음" } } },
-        { "id": "block", "when": "나 탭·풀이 시트처럼 문단 아래 따로 놓임", "parts": { "icon": { "align": "start" }, "container": { "marginTop": "{space.12}" } } },
+        { "id": "head-end", "when": "시트 머리 또는 시트 안 구역 머리(colorPairSheet 색 구역) 오른쪽 끝. 시트 안 근거 진입점은 모두 이 자리 (#1140, 결정 V130)", "parts": { "icon": { "placement": "머리 줄 오른쪽 끝", "gapStart": "{space.12}", "verticalAlign": "머리 첫 줄 가운데. 제목이 길거나 큰 글자 배율로 여러 줄이 되어도 첫 줄에 맞추고 아래로 내려가지 않음", "titleWidth": "제목(과 한자, 견본)은 아이콘 폭 20과 gapStart를 뺀 폭 안에서 줄바꿈", "note": "터치 48은 배치 밖으로 넓힘(icon minTarget)" } } },
         { "id": "navigate", "when": "다른 페이지로 이동(출생지 → 계산 기준). 시트를 열지 않음. 근거 진입점이 아니라 글자 링크", "parts": {
           "icon": { "visible": false },
           "label": { "type": "{type.label.lg}", "fg": "{color.action.primary}", "align": "start", "slot": "birthplace.standard.link" },
@@ -208,14 +209,15 @@
         }
       },
       "haptic": [{ "when": "locked → unlocked 전환(광고 시청 뒤 열림)", "strength": "light" }],
-      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "block": "그 시트 제목(용어 이름) 또는 구역 이름" }, "navigateRole": "link", "unlockTagRead": "열림 꼬리표는 시트 제목 다음에 이어 읽음(장식 시계 아이콘은 읽지 않음). 반짝임과 unlock.mark는 읽지 않음", "unlockedIconLabel": "열린 날에도 근거 아이콘 이름은 같음", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 제목 + 앞부분 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
+      "a11y": { "role": "button", "announce": "근거 시트가 열림", "labelSlot": "ui.depth.evidence_link", "labelTemplate": "[subject] 근거 보기(writing 틀에 항목 이름 자리)", "subject": { "inline-end": "앞 문장이 속한 항목 이름(day-character면 배지 글자)", "head-end": "그 시트 제목(용어 이름, 사주 기운 태그 이름) 또는 구역 이름(색 이름)" }, "navigateRole": "link", "unlockTagRead": "열림 꼬리표는 시트 제목 다음에 이어 읽음(장식 시계 아이콘은 읽지 않음). 반짝임과 unlock.mark는 읽지 않음", "unlockedIconLabel": "열린 날에도 근거 아이콘 이름은 같음", "label": "근거 진입점은 labelTemplate, navigate는 글자 그대로", "separateFocus": true, "minTarget": 48, "lockedLabel": "구역 제목 + 앞부분 + '잠김'", "unlockingLabel": "확인 중", "unlockedAnnouncement": "근거와 해석이 열렸다고 한 번 알림", "lockedLabelSlot": "evidence-sheet.a11y.locked", "unlockingLabelSlot": "evidence-sheet.a11y.checking", "unlockedAnnouncementSlot": "evidence-sheet.a11y.unlocked" },
       "rules": [
-        "근거 진입점(inline-end, block)은 primary 아이콘 book-open-text 하나이고 글자를 쓰지 않는다. 모든 곳이 같은 모양이다(결정 V63).",
+        "근거 진입점(inline-end, head-end)은 primary 아이콘 book-open-text 하나이고 글자를 쓰지 않는다. 모든 곳이 같은 모양이다(결정 V63).",
         "그날 근거와 해석이 열려 있으면 근거 아이콘 선을 gradient.unlocked로 칠한다. 모양, 크기, 터치는 그대로다(결정 V112, V63 개정).",
         "unlocked 근거 시트는 제목 줄 오른쪽에 열림 꼬리표(evidence-sheet.unlock.until)를 두고, 열려서 보이게 된 구역 제목과 본문에 unlock.glint가 지나간다. 동작 줄이기면 빛 대신 unlock.mark(구역 제목 그라데이션 글자와 왼쪽 세로선)다. 부정 신호가 든 문장도 같다(D118, 결정 V112).",
         "원전은 상자 없이 원전마다 뜻 한 줄, 들여쓴 원문 한자 구절(text.secondary), 출처(caption.md) 순이다. 원전 사이는 space.16이다(결정 V113, D118 ③).",
         "inline-end 아이콘은 문장 마지막 낱말과 줄바꿈 없는 공백(U+00A0)으로 붙는다. 줄 끝에 들어가지 않으면 마지막 낱말과 함께 다음 줄로 넘어간다.",
-        "inline-end·block은 누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack).",
+        "근거 진입점 자리는 둘이다. 시트 안에서는 head-end(시트 머리, 색 구역 머리 오른쪽 끝), 시트 밖에서는 inline-end(문장 끝). 문단 아래 따로 놓는 자리는 없다(#1140, 결정 V130).",
+        "inline-end·head-end는 누르면 evidence-sheet 등 한 단계 깊은 시트를 연다(sheet.enter, 이미 시트 안이면 sheet.stack).",
         "navigate는 시트를 열지 않고 페이지로 이동한다(page.push, 결정 V67). sheet.enter·sheet.stack을 쓰지 않는다.",
         "navigate의 화살표(chevron)는 원고에 넣지 않고 컴포넌트가 그린다. 아이콘 caret-right, 옆 글자 기준 크기, 스크린리더는 읽지 않음, 링크가 감기면 마지막 줄 끝에 붙는다(결정 V29).",
         "unlocked에서 본문이 없는 구역은 제목까지 그리지 않고 자리도 남기지 않는다. locked의 lock.veil은 그대로 그린다.",
@@ -261,7 +263,7 @@
           "GWIIN_DAY": { "bg": "{color.badge.gwiin.bg}", "fg": "{color.badge.gwiin.fg}" },
           "GISIN_DAY": { "bg": "{color.badge.gisin.bg}", "fg": "{color.badge.gisin.fg}" },
           "ORDINARY_DAY": { "bg": "transparent", "border": { "color": "{color.badge.ordinary.border}", "width": { "value": 1, "unit": "px" } }, "fg": "{color.badge.ordinary.fg}" } } } } },
-        { "id": "selected", "when": "고른 태그(태그 시트에서 연 태그, 설명 시트가 열린 동안)", "parts": { "pill": { "border": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" }, "placement": "inside" }, "note": "selected 테두리가 톤 테두리(평범한 날 1px)를 대신한다. 안쪽에 그려 크기는 그대로" } } },
+        { "id": "selected", "when": "고른 태그(태그 시트에서 연 태그, 설명 시트가 열린 동안)", "parts": { "pill": { "border": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" }, "placement": "inside" }, "note": "selected 테두리가 톤 테두리(평범한 날 1px)를 대신한다. 안쪽에 그려 크기는 그대로", "element": "open.ring", "scope": "모든 자리의 hanja-tag(오늘, 나 탭, 사주 표, 달력 그날 시트와 점수 줄, 일기 목록과 보기, 태그 모아보기)에서 그 태그로 연 시트가 열린 동안. 위에 시트가 쌓여도 남음(결정 V129)" } } },
         { "id": "ganji", "when": "간지 한 글자(천간, 지지)를 보이는 태그. 쓰는 자리는 IA가 정함(예: 사주 표 출생 정보 줄의 시진 태그 未 미시)", "parts": {
           "glyph": { "bg": "{color.bg.sheet}", "fg": { "byElement": {
             "wood": "{color.ohaeng.wood.glyph}", "fire": "{color.ohaeng.fire.glyph}", "earth": "{color.ohaeng.earth.glyph}",

@@ -1,5 +1,5 @@
 {
-  "version": "7.7.0",
+  "version": "8.0.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
@@ -182,11 +182,12 @@
       "lowEnd": "same"
     },
     "unlock.glint": {
-      "summary": "열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(D118 ②, 결정 V112)",
-      "duration": "{motion.duration.breathe}",
+      "summary": "열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(D118 ②, 결정 V112, 값은 V131)",
+      "duration": "{motion.duration.glint}",
+      "durationNote": "반짝임 전용 토큰 motion.duration.glint(2600, 토큰 1.10.0). motion.duration.breathe(1800, loading.breathe 뼈 숨쉬기)와 떼어 둠. 지나감 2600 < 간격 10000이라 띠가 겹치지 않음 (#1141, 관문 답 2026-11-13 A, 결정 V131)",
       "easing": "{motion.easing.standard}",
-      "interval": { "value": 15000, "unit": "ms" },
-      "first": "열린 내용이 appear.seep으로 다 나타난 직후 한 번, 그 뒤 앞 반짝임 시작에서 15초마다",
+      "interval": { "value": 10000, "unit": "ms" },
+      "first": "열린 내용이 appear.seep으로 다 나타난 직후 한 번, 그 뒤 앞 반짝임 시작에서 10초마다",
       "band": { "fill": "{gradient.unlocked}", "width": "글자 상자 너비의 30%", "angle": 100, "path": "글자 상자 왼쪽 밖에서 오른쪽 밖으로", "edge": "띠 양 끝은 글자 기본색으로 부드럽게 이어짐", "multiline": "여러 줄 문단은 문단 상자 전체를 한 띠가 한 번에 비스듬히 지나감(줄마다 따로 돌리거나 시차를 두지 않음)" },
       "base": "글자 기본색(그 자리 fg)은 그대로이고 띠는 글자 모양 안에만 칠함(text mask)",
       "together": "한 시트 안 대상 글자 모두 같은 때에 지나감",
