@@ -245,7 +245,7 @@ def test_seal_element_matches_logo():
     seal = load_documents(COMPONENTS_DIR)["elements"]["elements"]["seal"]
     assert seal["path"] == "M1.2 1.5 q8.8 -1.3 17.6 0 q1.2 8.5 0 17 q-8.8 1.3 -17.6 0 q-1.2 -8.5 0 -17 z"
     assert seal["rotate"] == -8 and set(seal["variants"]) == {"fill", "soft", "outline"}
-    assert seal["path"] in (DESIGN_DIR / "logo" / "icon-large.svg").read_text(encoding="utf-8")
+    # 경로 값은 옛 도형판 앱 아이콘 낙관에서 왔고, 그 SVG를 지운 뒤(#1103)에는 이 명세 값이 기준입니다(V16, V99)
     assert seal["variants"]["soft"]["color"] == "{color.seal.soft}"
     assert seal["contentAlign"] == "center"
 

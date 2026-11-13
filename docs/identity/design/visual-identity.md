@@ -251,6 +251,6 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 * 배치는 V7 SVG 비율입니다: 책 몸통(리본 뺀) 높이가 큰 원형 72%, 작은 원형 76%. Android 전경은 100 단위 큰 원형 배치를 0.66배로 줄여 108 캔버스 가운데에 둡니다(옛 SVG `translate(21 21) scale(0.66)`과 같음). 책과 그림자 끝은 가운데 66dp 안전 원 안이고, 측정값은 `app-icon.json`에 있고 `test_logo.py`가 PNG 픽셀로 다시 잽니다.
 * 원본 PNG를 다시 만들 때(저장소 루트에서, resvg 필요): `uv run --with pillow==11.0.0 --with numpy==2.1.3 --with scipy==1.14.1 python docs/identity/design/tools/app_icon.py`. 같은 원본과 같은 도구 버전이면 같은 파일이고, `test_logo.py`가 `app-icon.json`과 대조합니다. 원본 PNG는 바이너리라 저장소 이력이 커지므로, 그림을 바꾸는 의도가 있는 PR에서만 다시 만들어 커밋합니다.
 * 크기별 PNG 내보내기는 app이 앱 빌드 설정에서 합니다.
-* **정본은 위 PNG입니다.** 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`, 이 표에는 없음)는 app이 래스터 원본으로 옮길 때(#909)까지만 남겨 두고, 옮긴 뒤 지웁니다. 새 아이콘 낙관은 그림이라 경로가 없고, UI의 낙관 도장 모양(V16)은 지금처럼 컴포넌트 명세의 경로 값이 기준입니다(그 값은 옛 SVG 낙관에서 왔음).
+* **정본은 위 PNG입니다.** 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`)는 app이 래스터 원본으로 옮긴 뒤(#909) 지웠습니다(#1103, git 이력과 옛 시안에 남음). 새 아이콘 낙관은 그림이라 경로가 없고, UI의 낙관 도장 모양(V16)은 지금처럼 컴포넌트 명세의 경로 값이 기준입니다(그 값은 옛 SVG 낙관에서 왔음).
 * 워드마크는 글꼴로 다시 쓰지 않고 SVG 파일을 그대로 씁니다. 다크 바탕에는 `-dark` 파일을 씁니다.
-* 워드마크·가로 조합을 다시 만들 때: `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font <GowunDodum-Regular.ttf> --out-dir docs/identity/design/logo`
+* 워드마크를 다시 만들 때: `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font <GowunDodum-Regular.ttf> --out-dir docs/identity/design/logo`. 가로 조합 PNG는 그 뒤 `tools/app_icon.py`로 다시 만듭니다.

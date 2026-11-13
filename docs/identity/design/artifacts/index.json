@@ -108,7 +108,7 @@
       "V7"
     ],
     "status": "chosen",
-    "note": "logo/ 원본을 인라인한 사본(tools/logo_sheet.py로 재생성). 모서리는 미리보기용 마스크"
+    "note": "logo/ 원본을 인라인한 사본. 모서리는 미리보기용 마스크. 기록 고정본: 옛 도형판 SVG와 생성기 tools/logo_sheet.py는 #1103에서 지움"
   },
   {
     "id": "design-v1-day-badges-luck-dots",

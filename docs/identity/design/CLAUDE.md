@@ -31,6 +31,7 @@
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 
 ## 현재 상태 (2026-11-12, design 세션 작성)
+* **옛 앱 아이콘, 가로 조합 SVG 정리 #1103** (브랜치 `design/old-logo-svg-1103`, app #1099 뒤): `logo/icon-*.svg`, `lockup*.svg`와 그것만 쓰던 `logo_sheet.py`, `svg_markup.py`, `test_markup.py`, `wordmark.py` 가로 조합, `test_logo.py` SVG 절을 지움. 낙관 경로 대조는 명세 값 기준. 계약 값 변경 없음.
 * **시간 띠 큰 글자 #1096과 전환 기준 문구 #1063** (브랜치 `design/time-band-scale-1096`, 결정 V126): `timeBand` 글자 1.3배 상한(`a11y.textScaleMax`, V36과 같은 갈래)과 눈금 겹침 줄 내림 `ticks.overlap`(app A143과 같음, 1.3배 en만 경계 눈금이 내려감). 밤 칩 때 낱말과 띠 순서 기준은 프로필 시간대의 그날 진시 시작(서울 07:30, 낮 카드 `hours[0].start`). 시안 `artifacts/2026-11-13-time-band-scale-questions.html`.
 * **마무리 줄 대상 목록 #1091** (브랜치 `design/weighing-targets-1091`, D124 ⑦, 결정 V125, V120 개정): `weighingNote` `targets` 열하나와 `notTargets` 여덟, 모호한 신살은 writing 판단(#1090). `test_v125_weighing_targets_follow_writing_slot`이 writing 슬롯 문장과 대조하므로 writing이 판단을 바꾸면 이 검사가 걸림.
 * **시간 띠 고른 시진과 시트 구분선 #1072** (브랜치 `design/time-band-pick-1072`, 결정 V124, V117 개정): 고리를 칸 안쪽에 그리고 연 칩 시진은 primary 2px와 700, 다른 칩 시진은 회색 1px(관문 A). `list.divider` `inSheet` 들임 0(관문 A). 시안 `artifacts/2026-11-13-time-band-pick-questions.html`.
@@ -143,14 +144,12 @@
 * 측정 글꼴(고운돋움·Zen Maru Gothic·Pretendard)은 저장소에 넣지 않습니다. 받기: `python3 docs/identity/design/tools/fonts.py --font-dir .suberpowers/fonts`(주소·sha256 고정).
   * 로컬에서 글꼴이 없으면 글자 수 표 비교·워드마크 테스트 4개가 **skip**됩니다. CI는 글꼴을 받아 돌리고, 없으면 실패합니다(`DESIGN_FONTS_REQUIRED=1`).
 * 앱 아이콘 래스터 원본(`logo/*.png`, V99)은 `logo/source/` 그림에서 만듭니다: `uv run --with pillow==11.0.0 --with numpy==2.1.3 --with scipy==1.14.1 python docs/identity/design/tools/app_icon.py`(resvg 필요). `logo/app-icon.json`을 함께 고칩니다. PNG는 바이너리라 이력이 커지므로 그림을 바꾸는 의도가 있는 PR에서만 다시 만들어 커밋합니다.
-* 로고 원본(`logo/`)을 바꾸면 순서대로 다시 만듭니다.
-  1. 워드마크·가로 조합: `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo`
-  2. 로고 모음 산출물: `python3 docs/identity/design/tools/logo_sheet.py`. 다시 만들지 않으면 `test_logo_sheet_matches_committed_artifact`가 실패합니다.
+* 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다. 옛 로고 모음(`artifacts/2026-10-10-v0-logo-final.*`)은 기록 고정본이고 생성기 `logo_sheet.py`는 #1103에서 지웠습니다.
 
 ## 다음 할 일
 1. **D124 신살(#1029, #1026):** V119~V121 끝. PR 병합 뒤 ci-gate design drift 경로에 writing `hanja.yaml`, `*/source.yaml`을 더해 달라는 요청(지휘)과 app #1032의 대체 글꼴 묶기를 봅니다. writing #1030이 덕일 원고(상한 ko 28, ja 23, en 52)와 마무리 한 줄(ko 52, ja 38, en 88)을 쓰면 상한 안인지 봅니다. writing이 Pretendard JP에 없는 한자를 새로 쓰면 `hanja_supplement.py`로 대체 글꼴을 다시 만듭니다.
 2. **#982, #1003 뒤:** #1015(V114~V117)와 #1020 drift(D123, V118: 시트 끝 근거 진입점, 시간 시트 제목, 새 슬롯 상한)는 끝남. writing이 새 슬롯 원고를 쓰면 `lengths.md` 상한(때 낱말 ko 16, 띠 날 낱말 ko 7 등) 안인지 봅니다. app은 컴포넌트 7.x와 토큰 1.8.0 drift로 따라잡습니다. 회차2 덧붙임(#962)은 병합됨: writing #951이 열림 꼬리표 문구를 쓰면 상한(27, 22, 49) 안인지 봅니다.
-3. **#908 마무리:** #942가 병합되어 app #909가 래스터 원본(`logo/*.png`)과 공유 이미지 `lockup.png`로 옮깁니다. app이 옮긴 뒤 옛 도형판 SVG(`icon-*.svg`, `lockup*.svg`)와 그 검사(`test_logo.py` SVG 절, `logo_sheet.py`, `wordmark.py` 가로 조합)를 지우고, 낙관 도장 경로(V16) 대조를 컴포넌트 명세 값 기준으로 바꿉니다.
+3. **#908 마무리:** 끝남. 옛 도형판 SVG와 그 검사, `logo_sheet.py`, `svg_markup.py`, `wordmark.py` 가로 조합을 지웠습니다(#1103). 낙관 도장 경로(V16)는 컴포넌트 명세 값이 기준입니다.
 4. **2단계 후속:** app이 컴포넌트 주 버전과 토큰 부 버전을 따라잡는지(#851) 봅니다.
 5. **#763 마무리:** writing이 문의 화면 상한과 키별 상한을 넣으면 #763이 닫힙니다.
 
