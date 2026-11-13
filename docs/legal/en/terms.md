@@ -51,9 +51,9 @@ The Company may temporarily suspend the Service when there is an unavoidable rea
 
 ## Article 9 (Withdrawal of Subscription and Refunds)
 
-1. The ad-free pass is digital content that removes ads and unlocks the basis and interpretation immediately upon purchase, so its provision begins at the time of purchase. Under Article 17(2)5 of the Act on the Consumer Protection in Electronic Commerce, etc. (「전자상거래 등에서의 소비자보호에 관한 법률」), withdrawal of subscription may be restricted once provision has begun.
+1. Among paid products, digital content whose provision begins at the time of purchase (products that take effect immediately upon purchase, such as the ad-free pass) may be subject to restrictions on withdrawal of subscription once provision has begun, under Article 17(2)5 of the Act on the Consumer Protection in Electronic Commerce, etc. (「전자상거래 등에서의 소비자보호에 관한 법률」). The Company informs users of this on the purchase screen. Products whose provision does not begin at the time of purchase may be withdrawn in accordance with the relevant laws.
 2. However, if the product is defective or is provided differently from its labeling or advertising, the user may withdraw the subscription within 30 days from the date the user became aware of that fact, and within 3 months from the date of provision.
-3. Refunds are requested through the refund procedure of the store where payment was made (Apple App Store or Google Play). If the store issues a refund, the Company withdraws the remaining period of use of that purchase.
+3. Refunds are requested through the refund procedure of the store where payment was made (Apple App Store or Google Play). If the store issues a refund, the Company withdraws the usage rights provided through that purchase (for the ad-free pass, the remaining period of use).
 4. If the user also reports a refund request or a payment problem through Contact us in the app, the Company will help check it.
 
 ## Article 10 (User Obligations)
