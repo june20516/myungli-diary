@@ -38,6 +38,7 @@
    - 자기 `CLAUDE.md`(현재 상태와 다음 할 일)
    - `docs/roadmap.md`(자기 마일스톤)
    - `docs/contracts/README.md`(쓰고 제공하는 계약)
+   - 처음 읽는 문서(`CLAUDE.md`들, 이 문서, 로드맵, 계약 목록)에는 지금 사실만 두고 크기 상한을 `docs-check`가 지킵니다(D131). 경과는 각 history 파일에 둡니다.
    - `git fetch origin && git merge origin/main` (§6)
    - 자기 앞으로 온 열린 Issue: `gh issue list --label to:<단위>`. `drift` 라벨이 있으면 다른 일보다 먼저 합니다(§6.1)
 2. **설계:** brainstorming → spec 작성 → 사용자 승인. spec은 `<서브 프로젝트>/docs/specs/YYYY-MM-DD-<주제>-design.md`에 둡니다.
@@ -45,7 +46,7 @@
 4. **구현:** 계획을 실행합니다(subagent-driven 또는 executing-plans).
 5. **마무리 (세션이 끝날 때마다, 결론이 나지 않은 작업도):**
    1. `git merge origin/main`
-   2. 자기 `CLAUDE.md`의 "현재 상태"·"다음 할 일" 갱신. 제공 계약이 바뀌었으면 `docs/contracts/README.md`의 자기 행 버전·상태를 같은 PR에서 고칩니다(지휘에게 따로 요청하지 않습니다).
+   2. 자기 `CLAUDE.md`의 "현재 상태"·"다음 할 일" 갱신. 현재 상태에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 두고 병합된 일은 지웁니다. 제공 계약이 바뀌었으면 같은 PR에서 `docs/contracts/README.md` 자기 행의 버전과 상태 한 줄을 고치고, 바뀐 내용은 `docs/contracts/CHANGELOG.md` 자기 절 맨 위에 적습니다(지휘에게 따로 요청하지 않습니다, D131).
    3. 산출물을 `artifacts/index.json`에 등록(§7)
    4. 관련 Issue 닫기(닫는 조건은 §5.2). 마일스톤을 끝냈으면 `kind:report` Issue로 완료 보고
    5. 공개 저장소 확인(D74): 바뀐 파일·PR 본문·Issue에 가격·수익 수치나 비공개 저장소 경로 링크가 없는지
@@ -57,6 +58,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **둘 이상의 서브 프로젝트나 제품 전체에 걸친 결정:** `docs/decisions.md` (번호 `D<n>`, 지휘 세션만 기록)
 * **한 서브 프로젝트 안의 결정:** `<서브 프로젝트>/docs/decisions.md` (번호 core `C<n>`, server `S<n>`, app `A<n>`). 작업 단위는 `docs/identity/<writing|design>/decisions.md` (번호 writing `W<n>`, design `V<n>`)
 * 서브 프로젝트 결정이 루트 결정과 부딪히면 구현을 멈추고 요청함으로 올립니다.
+* **대체된 결정(D131):** 뒤 결정이 통째로 바꾼 행은 번호, 날짜, "→ <새 번호>로 대체" 한 줄만 남기고 원문 행은 같은 폴더 `decisions-history.md`로 옮깁니다. 일부 항목만 대체되면 행을 남기고 그 항목만 "→ <새 번호>"로 줄입니다.
 * **사용자에게 보이는 동작은 루트를 거칩니다(D87).** 단위 결정이 보관·복구·한도·자동 상태 변화·사용자 선택·안내가 필요한 상태·개인정보 수집이나 보관을 새로 정하면, 부딪히지 않아도 `to:root` Issue로 올립니다. 지휘가 루트 결정·IA·원고 요청·수집·보관 대장(`docs/legal/data-inventory.md`)에 반영합니다.
 * **`사용자 영향` 표시(D87):** 2026-10-24 이후 단위 결정 표에 쓰는 행은 근거 칸에 `사용자 영향: 없음`, `사용자 영향: D<n>`(이미 반영된 루트 결정), `사용자 영향: #<n>`(올린 Issue) 중 하나를 적습니다. 없으면 `docs-check`가 실패합니다.
 * **번호가 마일스톤 ID와 겹칠 때(D46):** 결정 C1과 마일스톤 C1처럼 글자가 같을 수 있습니다. 문장에서는 "결정 V1", "마일스톤 V1"처럼 종류를 앞에 붙여 씁니다. 표 안에서는 열 이름이 종류를 정하므로 붙이지 않아도 됩니다.
@@ -81,7 +83,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   | `kind:task` | 작업이 끝났을 때 | 받는 쪽 |
 * **받는 쪽에 일을 시키는 공지는 `kind:request`로 엽니다.** 공지(`kind:notice`)는 알리기만 합니다. 수령으로 닫혀도 남은 일이 목록에서 사라지지 않게 하려는 것입니다.
 * **일부만 처리했으면** 처리한 부분으로 닫고, 남은 부분은 새 Issue로 엽니다. 새 Issue 번호를 닫는 코멘트에 남깁니다.
-* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. `pr-body` 검사(`ci-gate`와 나란한 필수 검사, D81)가 둘 중 하나가 있는지 확인합니다. 본문만 고치면 `pr-body`만 다시 돕니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다. `pr-body` 검사는 `Closes`, `참고 #`, `처리한 Issue: 없음` 가운데 하나를 요구합니다(D78 ③).
+* **PR 본문:** 처리한 Issue마다 `Closes #<번호>`를 한 줄씩 적습니다(문장 안에 있어도 GitHub과 검사 모두 인정합니다). 처리한 Issue가 없으면 `처리한 Issue: 없음`이라고 적습니다. 일부만 처리한 Issue는 `Closes`가 아니라 `참고 #<번호>`로 적고 위 규칙대로 나눕니다. `pr-body` 검사(`ci-gate`와 나란한 필수 검사, D81)는 `Closes`, `참고 #`, `처리한 Issue: 없음` 가운데 하나를 요구하고(D78 ③), 본문만 고치면 이것만 다시 돕니다.
 * **라벨:** `from:<단위>`, `to:<단위>`(단위: `root`, `core`, `server`, `app`, `writing`, `design`), `kind:request`·`kind:report`·`kind:notice`·`kind:task`, `blocking`(다른 작업을 막음)
 * **상태:** 열림 → 지휘 세션이 `accepted` 또는 `rejected` 라벨(거절은 닫음) → 받는 쪽이 처리하고 닫음. 완료 보고(`kind:report`)는 지휘 세션이 확인하고 닫습니다.
 * **마일스톤 = 로드맵 ID**(`docs/roadmap.md`). 진행 중인 Issue는 해당 마일스톤에 붙입니다. `ci-gate`가 자동으로 여는 `drift` Issue는 마일스톤 없이 열리고, `accepted`는 지휘가 정기 일과에서 붙입니다.
@@ -131,11 +133,11 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 
 * **판별:** PR이 그 단위의 소유 경로(또는 그 단위 workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다. 그 단위의 소유·계약 경로는 바뀌지 않았고 `ci-gate.yml`이 바뀌었으면 `gate`입니다. 실패하면 막지만, 그 단위 앞으로 열린 `drift` Issue가 있으면 알려진 실패로 보고 경고만 남깁니다. 단위들이 병렬로 일하는 동안 drift가 0이 되는 때는 드물어, workflow 수정이 그때를 기다리지 않게 하려는 것입니다.
 * **과정 문서:** writing·design의 `CLAUDE.md`·`decisions.md`·`specs/`·`plans/`·`artifacts/`는 자기 검사기가 읽지 않아 그 단위 검사를 고르지 않습니다(writing `artifacts/`의 라운드 원고는 design 검사가 읽으므로 design에는 계약입니다)(core·server·app은 `.md`만 바뀌면 고르지 않습니다). 그래서 지휘가 단위 `CLAUDE.md`를 고쳐도 그 단위의 열린 drift에 막히지 않습니다.
-* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 그 단위 앞으로 열린 `drift` Issue가 이미 있으면 새로 열지 않고, 가장 오래된 Issue 본문에 `* 더해진 원인: PR #M(…)` 줄을 더하고 코멘트로 알립니다(단위마다 열린 drift는 하나, 로직은 `tools/drift/drift.sh`). 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에는 `Closes`가 아니라 `참고 #<drift Issue>`를 적습니다. drift Issue는 아래처럼 `drift-close`가 닫습니다. `Closes`로 닫으면 아직 따라잡지 않은 더해진 원인이 함께 사라집니다(PR #512가 원인 PR #511 몫을 남긴 채 #480을 닫은 일, 2026-10-23). 주는 쪽이 같은 PR 안에서 고쳐 다음 실행의 drift가 통과하면 `drift-report`가 그 Issue를 닫습니다. `main` push에서는 drift를 돌리지 않습니다(결과를 판정에도 Issue에도 쓰지 않으므로). `main` push에서 그 단위 검사가 통과하면 `ci-gate`(`drift-close` job)가 그 단위 앞 drift Issue를 닫습니다. 그 커밋에서 통과했다는 것이 곧 그 커밋의 계약을 모두 따라잡았다는 뜻이기 때문입니다. 단, 원인 PR(제목과 더해진 원인 모두)이 그 커밋에 들어 있는 Issue만 닫습니다(원인 PR이 열린 채 다른 PR이 먼저 병합되거나, 예전 실행을 다시 돌린 경우를 거릅니다). 병합 없이 닫힌 원인 PR은 따라잡을 것이 없으므로 셈에서 빼고, 원인 PR이 모두 병합 없이 닫혔으면 이후 `main`에서 그 단위 검사가 통과할 때 not planned로 닫습니다(그 단위 검사가 돌지 않으면 남습니다). 주는 쪽이 같은 PR 안에서 고친 경우 `drift-report`는 그 PR이 연 Issue를 닫되, 다른 원인이 더해진 Issue는 남깁니다.
+* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 그 단위 앞으로 열린 `drift` Issue가 이미 있으면 새로 열지 않고, 가장 오래된 Issue 본문에 `* 더해진 원인: PR #M(…)` 줄을 더하고 코멘트로 알립니다(단위마다 열린 drift는 하나, 로직은 `tools/drift/drift.sh`). 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에는 `Closes`가 아니라 `참고 #<drift Issue>`를 적습니다. drift Issue는 원인 PR이 모두 들어간 `main` 커밋에서 그 단위 검사가 통과하면 `drift-close`가 닫습니다. 주는 쪽이 같은 PR 안에서 고치면 `drift-report`가 그 PR이 연 Issue를 닫습니다(세부 동작과 경위는 [`workflow-history.md`](workflow-history.md) §6.1).
 * **작은 요청 묶기(D100 ①):** 통합 마일스톤을 막지 않는 작은 요청(문구, 접근성 라벨, 표기)은 받는 단위의 다음 정기 작업 PR에 함께 넣고, 그로 인한 `drift`도 따라잡기만을 위한 PR을 따로 열지 않고 다음 작업 PR에서 맞춥니다. `blocking`이거나 통합 마일스톤의 선행이면 바로 처리합니다.
 * **통합 시점:** 통합 마일스톤(I1~I4)은 열린 `drift` Issue가 0이어야 시작합니다. 지휘는 정기 일과에서 `drift` Issue를 확인합니다.
 * **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 §5.1대로 사용하는 쪽마다 `kind:request`로 알립니다(D78). REST는 S3 freeze 뒤에는 추가 변경만 합니다.
-* **쌓아서 함께 병합하기**(예: IA v2 #133 → #138 → #149)는 더 이상 기본이 아닙니다. 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
+* **기본으로 쌓아서 함께 병합하지 않습니다.** 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
 
 ### 6.2 검사 범위와 시점 (D81)
 검사가 쌓일수록 바뀐 것과 상관없는 검사가 자원과 시간을 씁니다. 검사는 **변경에 맞는 범위**만, **작업 단계에 맞는 시점**에 돌립니다.
@@ -182,14 +184,11 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **용량:** 이미지 한 장 2MB 이하. Git LFS는 쓰지 않습니다.
 
 ## 8. 운영 확장 메모
-지금은 도입하지 않고, 아래 시점에 도입합니다(협업 워크플로 spec §4.2).
+아직 도입하지 않았고, 아래 시점에 도입합니다(협업 워크플로 spec §4.2). 이미 도입된 항목과 경위는 [`workflow-history.md`](workflow-history.md) §8에 있습니다.
 
 | 항목 | 도입 기준 |
 | --- | --- |
 | merge queue | 동시에 열린 PR끼리 병합 순서 충돌이 잦아질 때 |
 | 서비스 간 통합 테스트(docker compose로 server ↔ core gRPC 실호출) | I1 시점에 `ci-gate`에 추가 |
-| 배포 파이프라인(환경별 시크릿, 접두어 태그 릴리스) | 배포 플랫폼 결정 뒤(S1) |
-| iOS 빌드 | A1·I4. 로컬 Mac 또는 자체 러너. 호스티드 macOS는 분 단위 비용 10배 |
 | 의존성 자동 갱신(Dependabot) | MVP 안정화 뒤 |
 | `main` 보호 규칙 강제 | 공개 전환(D74)으로 조건이 됐습니다. `ci-gate`를 필수 검사로 지정할지 사용자가 정합니다 |
-
