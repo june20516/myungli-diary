@@ -103,10 +103,10 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 ## 다음 할 일
 1. P8 끝. staging에서 app 실제 FCM adapter(#603)와 함께 알림 하나가 오고 누르면 `today`로 가는지 확인합니다.
 2. **REST v1은 freeze(S3, 1.0.0)입니다.** 계약은 하위 호환 추가만 하고(S93), 점검 목록의 "freeze 뒤 할 일"(계산 기준 값, 날짜 기록 읽기, 구매 종류, 예시)을 P8과 함께 minor·patch로 넣습니다.
-3. 원문 `docs/legal/<언어>/`가 들어오면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
+3. 법적 문서 원문(ko, en, ja의 이용약관과 처리방침, #1120)이 내장됐습니다. 원문이 바뀌면 drift Issue로 옵니다. `go generate ./legal/`로 내장 문서를 다시 만듭니다.
 4. writing W1 원고가 다 오면 시드 CI의 `--partial`을 빼고 변환 도구에 `-strict`를 켭니다(S38).
 5. P9 남은 일: 사용자 준비(bootstrap, GitHub 변수와 environment, Secret 값, `deploy/terraform/README.md`)와 남은 tfvars 값을 받으면 tfvars PR로 채웁니다. staging 첫 배포에서 엔진 비공개 DNS 경로와 h2c·probe(#79), Cloud SQL IAM 연결, `job retention`의 엔진 호출(S120, Job도 같은 env로 `ENGINE_ADDR`를 받음), 두 결정 행의 확인 항목(S117 프록시 홉·`assetlinks.json`·Apple 복귀, S118 Play 테스트 구매)을 확인하고, 확인되면 #79를 닫습니다. `TRUSTED_PROXY_HOPS`는 2로 정했습니다(S135). 남은 P9: OpenTelemetry. 로그 제외 필터는 S136, 알림 발송 Job은 P8-4, migration 전용 계정 분리는 S137로 끝났습니다.
 6. **엔진 배포 순서(S139):** 엔진 규칙 버전을 올리는 PR은 병합 뒤 deploy-server가 staging에 나간 다음 `deploy-engine`을 dispatch로 돌립니다. 관문이 server `/version`을 보고 통과시킵니다. prod는 I4 전이라 승인 대기를 취소합니다.
-7. **`LEGAL_BUSINESS_INFO`(S157):** `server/1107-1112-legal-business-age14` 병합 뒤 첫 deploy-server가 Secret 틀을 만들고 server 배포를 건너뜁니다. 사용자가 staging, prod, load에 값을 넣은 뒤(`deploy/terraform/README.md`) deploy-server를 다시 돌립니다.
+7. **`LEGAL_BUSINESS_INFO`(S157):** staging 값은 들어 있습니다. prod와 load는 그 환경을 배포하기 전에 값을 넣어야 server가 뜹니다(`deploy/terraform/README.md`).
 8. L1(#782, #817): 1회차 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md), 2회차 [`2026-11-09-limit-2/`](docs/load/2026-11-09-limit-2/README.md), 3회차 [`2026-11-09-limit-3/`](docs/load/2026-11-09-limit-3/README.md), 4회차 [`2026-11-09-limit-4/`](docs/load/2026-11-09-limit-4/README.md). S147로 요청당 query 5.9→3.9건, S148로 트랜잭션 약 45% 감소. 한계는 cold, warm 모두 초당 80세션(160에서 멈춤)이고, SQL CPU는 statement나 트랜잭션 수를 따르지 않아 왕복 줄이기는 멈춥니다. 다음 수단은 SQL tier이며 #903(12월 15일까지 tier와 예산 점검)에서 정한 뒤 5회차.
 9. app 질문이 오면 답합니다.
