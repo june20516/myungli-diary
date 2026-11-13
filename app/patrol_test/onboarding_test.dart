@@ -65,8 +65,12 @@ void main() {
     await $(SocialLoginButton).first.tap();
 
     await expectScreen($, ScreenIds.consent);
-    await $(CheckRow).at(0).tap();
-    await $(CheckRow).at(1).tap();
+    // 필수 동의 줄(이용약관, 개인정보, 만 14세 확인)을 모두 체크합니다.
+    final rows = find.byType(CheckRow).evaluate().length;
+    expect(rows, 3);
+    for (var index = 0; index < rows; index++) {
+      await $(CheckRow).at(index).tap();
+    }
     await $(
       find.descendant(
         of: find.byKey(const ValueKey(ScreenIds.consent)),

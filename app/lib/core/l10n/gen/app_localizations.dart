@@ -1129,7 +1129,7 @@ abstract class AppLocalizations {
   /// ad-free.legal.notice: 이용약관·개인정보처리방침 링크 안내
   ///
   /// In ko, this message translates to:
-  /// **'구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.'**
+  /// **'구매와 함께 바로 이용이 시작되는 상품은 청약철회가 제한될 수 있습니다. 자세한 내용은 이용약관과 개인정보 처리방침에서 확인할 수 있습니다.'**
   String get adFreeLegalNotice;
 
   /// ad-free.offer.head: 광고 제거권이 주는 것 한 줄(배너 제거, 근거·해석 열림, D60)
@@ -3473,6 +3473,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'({stemName})'**
   String sajuChartManseBasisStemSuffix(String stemName, String reading);
+
+  /// consent.required.label: 필수 동의 항목 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'(필수) 만 14세 이상입니다'**
+  String get consentRequiredLabelAge;
 }
 
 class _AppLocalizationsDelegate

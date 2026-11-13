@@ -99,5 +99,6 @@ Map<String, dynamic> _$ConsentDocumentToJson(ConsentDocument instance) =>
 const _$ConsentDocumentDocumentEnumEnumMap = {
   ConsentDocumentDocumentEnum.terms: 'terms',
   ConsentDocumentDocumentEnum.privacy: 'privacy',
+  ConsentDocumentDocumentEnum.age14: 'age_14',
   ConsentDocumentDocumentEnum.unknownDefaultOpenApi: 'unknown_default_open_api',
 };

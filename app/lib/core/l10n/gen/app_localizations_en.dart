@@ -611,7 +611,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adFreeLegalNotice =>
-      'Please review the Terms of Service and Privacy Policy before purchasing.';
+      'Withdrawal of subscription may be restricted for products whose use begins immediately upon purchase. Details are in the Terms of Service and Privacy Policy.';
 
   @override
   String get adFreeOfferHead =>
@@ -2064,4 +2064,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String sajuChartManseBasisStemSuffix(String stemName, String reading) {
     return ' ($stemName)';
   }
+
+  @override
+  String get consentRequiredLabelAge => '(Required) I am 14 or older';
 }

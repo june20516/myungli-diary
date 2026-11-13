@@ -171,7 +171,7 @@
   "accountDeleteDeleteConfirmDelete": "Delete",
   "accountDeleteDeleteConfirmCancel": "Cancel",
   "accountDeleteTitleHead": "Delete account",
-  "adFreeLegalNotice": "Please review the Terms of Service and Privacy Policy before purchasing.",
+  "adFreeLegalNotice": "Withdrawal of subscription may be restricted for products whose use begins immediately upon purchase. Details are in the Terms of Service and Privacy Policy.",
   "adFreeOfferHead": "One month with no ads, and the basis and interpretation fully unlocked.",
   "adFreeOfferPrice": "{price}",
   "adFreeStatusRemaining": "Ad-free until {date}",
@@ -560,5 +560,6 @@
   "branchReadingYu": "Yu",
   "branchReadingSul": "Sul",
   "branchReadingHae": "Hae",
-  "sajuChartManseBasisStemSuffix": " ({stemName})"
+  "sajuChartManseBasisStemSuffix": " ({stemName})",
+  "consentRequiredLabelAge": "(Required) I am 14 or older"
 }
