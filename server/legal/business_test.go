@@ -2,6 +2,7 @@ package legal_test
 
 import (
 	"encoding/json"
+	"html"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -114,4 +115,23 @@ func TestFill_WithoutBusinessDropsPlaceholderDocuments(t *testing.T) {
 
 	_, ok = docs.Get("ko", legal.Terms)
 	assert.True(t, ok, "원래 묶음은 바꾸지 않음")
+}
+
+// 내장 원문(docs/legal)의 빈자리는 모두 채워지고, 값이 없으면 그 문서는 내지 않습니다(D126 ②).
+func TestLoad_EmbeddedDocumentsFillCompletely(t *testing.T) {
+	docs, err := legal.Load()
+	require.NoError(t, err)
+
+	filled, dropped := docs.Fill(fullBusiness())
+	assert.Empty(t, dropped)
+	for _, lang := range legal.Languages {
+		for _, name := range legal.Names {
+			doc, ok := filled.Get(lang, name)
+			if !ok {
+				continue
+			}
+			assert.NotContains(t, doc.Title+doc.HTML, "{{", "%s/%s에 채우지 못한 빈자리", lang, name)
+			assert.Contains(t, doc.HTML, html.EscapeString(businessInfo(lang).Name), "%s/%s에 상호가 들어감", lang, name)
+		}
+	}
 }
