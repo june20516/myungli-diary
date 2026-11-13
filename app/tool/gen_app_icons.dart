@@ -1,8 +1,7 @@
-// design 로고 원본(docs/identity/design/logo/, 결정 V7)에서
+// design 로고 원본 PNG(docs/identity/design/logo/, 결정 V7, V99)에서
 // 앱 아이콘 PNG를 만듭니다(결정 A102).
 // 실행(app/에서): dart run tool/gen_app_icons.dart
-// 필요: resvg(SVG 렌더링, `brew install resvg`),
-//       ImageMagick `magick`(알파 제거, 메타데이터 정리)
+// 필요: ImageMagick `magick`(축소, 알파 제거, 메타데이터 정리)
 //
 // * iOS: ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json의 자리마다 그립니다.
 //   픽셀 60 이상은 큰 원형, 그보다 작으면 작은 원형입니다(V7). App Store가 알파 채널을
@@ -15,10 +14,10 @@ import 'dart:convert';
 import 'dart:io';
 
 const _logoDir = '../docs/identity/design/logo';
-const _largeIcon = '$_logoDir/icon-large.svg';
-const _smallIcon = '$_logoDir/icon-small.svg';
-const _androidForeground = '$_logoDir/icon-android-foreground.svg';
-const _androidBackground = '$_logoDir/icon-android-background.svg';
+const _largeIcon = '$_logoDir/icon-large.png';
+const _smallIcon = '$_logoDir/icon-small.png';
+const _androidForeground = '$_logoDir/icon-android-foreground.png';
+const _androidBackground = '$_logoDir/icon-android-background.png';
 
 /// 이 픽셀 크기 이상은 큰 원형을 씁니다(V7: 큰 원형은 60px 이상).
 const _largeIconMinPx = 60;
@@ -49,7 +48,6 @@ const _adaptiveIconXml =
     '</adaptive-icon>\n';
 
 void main() {
-  _requireTool('resvg', ['--version']);
   _requireTool('magick', ['-version']);
 
   _writeIosIcons();
@@ -67,7 +65,7 @@ void _writeIosIcons() {
     final scale = double.parse((image['scale']! as String).replaceAll('x', ''));
     final px = (points * scale).round();
     _render(
-      svg: px >= _largeIconMinPx ? _largeIcon : _smallIcon,
+      source: px >= _largeIconMinPx ? _largeIcon : _smallIcon,
       px: px,
       output: '$_iosIconSet/${image['filename']}',
       keepAlpha: false,
@@ -82,19 +80,19 @@ void _writeAndroidIcons() {
     final legacyPx = (_legacyIconDp * scale).round();
     final layerPx = (_adaptiveLayerDp * scale).round();
     _render(
-      svg: legacyPx >= _largeIconMinPx ? _largeIcon : _smallIcon,
+      source: legacyPx >= _largeIconMinPx ? _largeIcon : _smallIcon,
       px: legacyPx,
       output: '$dir/ic_launcher.png',
       keepAlpha: false,
     );
     _render(
-      svg: _androidForeground,
+      source: _androidForeground,
       px: layerPx,
       output: '$dir/ic_launcher_foreground.png',
       keepAlpha: true,
     );
     _render(
-      svg: _androidBackground,
+      source: _androidBackground,
       px: layerPx,
       output: '$dir/ic_launcher_background.png',
       keepAlpha: false,
@@ -105,18 +103,21 @@ void _writeAndroidIcons() {
     ..writeAsStringSync(_adaptiveIconXml);
 }
 
-/// [svg]를 [px] 정사각으로 그려 [output]에 씁니다. [keepAlpha]가 아니면 알파 채널을 뺍니다.
+/// 1024 정사각 원본 [source]를 [px] 정사각으로 줄여 [output]에 씁니다.
+/// [keepAlpha]가 아니면 알파 채널을 뺍니다.
 void _render({
-  required String svg,
+  required String source,
   required int px,
   required String output,
   required bool keepAlpha,
 }) {
-  final rendered = '${Directory.systemTemp.path}/myungli_icon_$px.png';
-  _run('resvg', ['-w', '$px', '-h', '$px', svg, rendered]);
   File(output).parent.createSync(recursive: true);
   _run('magick', [
-    rendered,
+    source,
+    '-filter',
+    'Lanczos',
+    '-resize',
+    '${px}x$px',
     if (!keepAlpha) ...[
       '-background',
       'white',
@@ -130,7 +131,6 @@ void _render({
     'png:exclude-chunks=date,time',
     output,
   ]);
-  File(rendered).deleteSync();
 }
 
 void _requireTool(String executable, List<String> versionArgs) {
