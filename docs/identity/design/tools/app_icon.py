@@ -10,7 +10,7 @@ Android 전경은 100 단위 큰 원형 배치를 0.66배로 줄여 108 캔버�
 배경은 대각선 그라데이션 + 옅은 종이 결.
 작은 원형은 낙관을 SMALL_SEAL_SCALE배로 키워 20~48px에서 日이 읽히게 합니다(V7 작은 원형과 같은 생각).
 
-가로 조합(logo/lockup.png, lockup-dark.png)은 큰 원형 마스터와 워드마크 SVG를 lockup.svg와 같은 비율로
+가로 조합(logo/lockup.png, lockup-dark.png)은 큰 원형 마스터와 워드마크 SVG를 spec §6.2 비율(옛 lockup.svg와 같음)로
 붙인 PNG입니다(공유 이미지 로고, V99 관문 Q2 ②). 워드마크는 resvg로 그립니다.
 
 같은 원본과 같은 도구 버전(아래 pillow, numpy, scipy 고정, resvg는 app-icon.json에 기록)이면 같은 파일입니다
@@ -57,12 +57,12 @@ SEAL_OVERHANG_PX = 12  # 키운 낙관 bbox 오른쪽 아래가 원래 낙관 bb
 SEAL_WIDTH_RATIO = (0.25, 0.50)  # 낙관 덩어리 bbox 폭 / 책 몸통 폭이 이 범위여야 낙관으로 봄(원본은 0.38)
 BODY_ALPHA = 200  # 책 몸통으로 보는 알파 (255 기준)
 
-# 가로 조합: wordmark.lockup_svg와 같은 비율(아이콘 150, 간격 37.5, 워드마크 높이 100, 모서리 22%)
+# 가로 조합: spec §6.2 비율(아이콘 150, 간격 37.5, 워드마크 높이 100, 모서리 22%). 옛 도형판 lockup.svg와 같은 비율
 LOCKUP_ICON_PX = 288  # 1080 공유 캔버스에 넉넉한 높이
 LOCKUP_ICON_UNITS = 150.0
 LOCKUP_GAP_UNITS = 37.5
 LOCKUP_WORDMARK_UNITS = 100.0
-LOCKUP_CORNER_RATIO = 0.22  # wordmark.ICON_CORNER_RATIO와 같음(test_logo.py가 대조)
+LOCKUP_CORNER_RATIO = 0.22  # 플랫폼이 깎는 모서리와 비슷하게 보여줍니다
 LOCKUPS = {"lockup.png": "wordmark.svg", "lockup-dark.png": "wordmark-dark.svg"}
 
 

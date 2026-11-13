@@ -1,4 +1,7 @@
-"""고운돋움 글리프를 아웃라인 path로 바꿔 워드마크와 가로 조합 SVG를 만듭니다.
+"""고운돋움 글리프를 아웃라인 path로 바꿔 워드마크 SVG를 만듭니다.
+
+가로 조합은 tools/app_icon.py가 래스터 아이콘과 이 워드마크로 만드는 PNG(logo/lockup.png, 결정 V99)입니다.
+옛 도형판 가로 조합 SVG와 그 생성은 #1103에서 지웠습니다.
 
 spec: docs/identity/design/specs/2026-10-10-visual-identity-design.md §6.2
 
@@ -10,18 +13,15 @@ from __future__ import annotations
 
 import argparse
 import pathlib
-import xml.etree.ElementTree as ET
 
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.ttLib import TTFont
 
 from palette import build_palette
-from svg_markup import inner_markup
 
 WORDMARK_TEXT = "명리일기"
 WORDMARK_HEIGHT_PX = 64
-ICON_CORNER_RATIO = 0.22  # 플랫폼이 깎는 모서리와 비슷하게 보여줍니다
 SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 
 
@@ -70,43 +70,17 @@ def wordmark_svg(font_path: pathlib.Path, text: str, fill: str, letter_spacing_e
     )
 
 
-def lockup_svg(icon_svg: str, wordmark: str, gap_ratio: float = 0.25, icon_to_cap_ratio: float = 1.5) -> str:
-    """아이콘 + 워드마크 가로 조합. 아이콘 높이는 워드마크 높이의 icon_to_cap_ratio배입니다."""
-    wordmark_root = ET.fromstring(wordmark)
-    _, _, viewbox_width, viewbox_height = (float(value) for value in wordmark_root.get("viewBox").split())
-    wordmark_height = 100.0
-    wordmark_width = wordmark_height * viewbox_width / viewbox_height
-    icon_size = wordmark_height * icon_to_cap_ratio
-    gap = icon_size * gap_ratio
-    total_width = icon_size + gap + wordmark_width
-    corner = 100 * ICON_CORNER_RATIO
-    return (
-        f'<svg xmlns="{SVG_NAMESPACE}" viewBox="0 0 {_number(total_width)} {_number(icon_size)}" '
-        f'width="{_number(total_width * 0.64)}" height="{_number(icon_size * 0.64)}">\n'
-        f'  <title>명리일기</title>\n'
-        f'  <defs><clipPath id="icon-corner"><rect width="100" height="100" rx="{_number(corner)}"/></clipPath></defs>\n'
-        f'  <svg x="0" y="0" width="{_number(icon_size)}" height="{_number(icon_size)}" viewBox="0 0 100 100">\n'
-        f'    <g clip-path="url(#icon-corner)">\n{inner_markup(icon_svg)}\n    </g>\n  </svg>\n'
-        f'  <svg x="{_number(icon_size + gap)}" y="{_number((icon_size - wordmark_height) / 2)}" '
-        f'width="{_number(wordmark_width)}" height="{_number(wordmark_height)}" '
-        f'viewBox="{wordmark_root.get("viewBox")}">\n{inner_markup(wordmark)}\n  </svg>\n'
-        f"</svg>\n"
-    )
-
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="워드마크와 가로 조합 SVG를 만듭니다.")
+    parser = argparse.ArgumentParser(description="워드마크 SVG를 만듭니다.")
     parser.add_argument("--font", type=pathlib.Path, required=True)
     parser.add_argument("--out-dir", type=pathlib.Path, required=True)
     arguments = parser.parse_args()
 
     roles = build_palette()["roles"]
-    icon = (arguments.out_dir / "icon-large.svg").read_text(encoding="utf-8")
     for suffix, mode in (("", "light"), ("-dark", "dark")):
         wordmark = wordmark_svg(arguments.font, WORDMARK_TEXT, roles[mode]["text.primary"])
         (arguments.out_dir / f"wordmark{suffix}.svg").write_text(wordmark, encoding="utf-8")
-        (arguments.out_dir / f"lockup{suffix}.svg").write_text(lockup_svg(icon, wordmark), encoding="utf-8")
-        print(f"wordmark{suffix}.svg, lockup{suffix}.svg")
+        print(f"wordmark{suffix}.svg")
 
 
 if __name__ == "__main__":

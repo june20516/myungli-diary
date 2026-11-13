@@ -173,10 +173,10 @@ V0는 다음이 모두 있을 때 끝납니다.
 | `visual-identity.md` | 정체성 기준 문서. 받는 쪽(app, writing, 지휘)이 읽습니다. 규칙과 최종 값만 담고, 왜 그렇게 정했는지는 이 spec을 가리킵니다 |
 | `tools/palette.py` | §3의 생성 규칙으로 원시 팔레트·오행 팔레트를 만들고, §3.2·§3.3·§4의 글자 조합 대비를 검사합니다. 생성 결과를 JSON으로 출력합니다(V1 토큰 생성의 출발점). 기준 미달 조합이 있으면 0이 아닌 코드로 끝납니다 |
 | `tools/test_palette.py` | `palette.py`의 변환·대비 계산을 알려진 값으로 확인하는 테스트 |
-| `logo/icon-large.svg`, `logo/icon-small.svg` | 앱 아이콘 원형 두 개 (풀블리드 정사각) |
-| `logo/icon-android-background.svg`, `logo/icon-android-foreground.svg` | Android 적응형 아이콘 레이어 (큰 원형 기준) |
+| `logo/icon-large.svg`, `logo/icon-small.svg` | 앱 아이콘 원형 두 개 (풀블리드 정사각). 2026-11-13 지움: V99 래스터 원본(`logo/icon-*.png`)으로 바뀜(#1103) |
+| `logo/icon-android-background.svg`, `logo/icon-android-foreground.svg` | Android 적응형 아이콘 레이어 (큰 원형 기준). 2026-11-13 지움(#1103) |
 | `logo/wordmark.svg`, `logo/wordmark-dark.svg` | 워드마크 아웃라인 |
-| `logo/lockup.svg`, `logo/lockup-dark.svg` | 가로 조합 |
+| `logo/lockup.svg`, `logo/lockup-dark.svg` | 가로 조합. 2026-11-13 지움: `logo/lockup.png`로 바뀜(V99, #1103) |
 | `specimen/index.html` | 견본 페이지: 원시 팔레트, 의미 역할(라이트·다크), 오행 팔레트, 그라데이션, 타이포 크기표(한·영·일), 데일리 카드 L1(라이트·다크), 로고 일체 |
 | `artifacts/` | 견본 페이지·로고의 PNG와 `index.json` 갱신 (`docs/workflow.md` §7) |
 | `decisions.md` | V0 결정 기록 (§9) |
