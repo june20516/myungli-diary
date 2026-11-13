@@ -262,7 +262,7 @@ class SajuChartLuckTab extends ConsumerWidget {
           for (final column in ChartColumn.values) _bandColumn(text, column),
         ],
         bandLabels: _bandLabels(l10n),
-        onBandTap: (kind) => unawaited(_openBand(context, text, kind)),
+        onBandTap: (kind) => _openBand(context, text, kind),
         meLabel: l10n.sajuTagMe,
         emptyLabel: l10n.bandTableEmptyCell,
         tableLabel: l10n.manseTableLabel,

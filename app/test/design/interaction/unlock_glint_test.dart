@@ -17,8 +17,8 @@ const _reduce = MotionPrefs(
   lowEnd: false,
 );
 
-/// `breathe`(1800ms) 한 번.
-const Duration _sweep = Duration(milliseconds: 1800);
+/// `glint`(2600ms) 한 번(V131).
+const Duration _sweep = Duration(milliseconds: 2600);
 
 /// 띠가 지나가는 중인 대상 수.
 int _glinting(WidgetTester tester) =>
@@ -61,7 +61,7 @@ Widget _app({
 
 void main() {
   group('unlock.glint 박자', () {
-    testWidgets('처음 한 번, 그 뒤 앞 반짝임 시작에서 15초마다 대상 모두 함께 지나갑니다', (tester) async {
+    testWidgets('처음 한 번, 그 뒤 앞 반짝임 시작에서 10초마다 대상 모두 함께 지나갑니다', (tester) async {
       await tester.pumpWidget(_app());
       // 보이는지 알리는 프레임 뒤 첫 박자(첫 기다림 0)가 잡힙니다.
       await tester.pump();
@@ -70,9 +70,9 @@ void main() {
       expect(_glinting(tester), 2, reason: '첫 반짝임, 두 대상 함께');
 
       await tester.pump(_sweep);
-      expect(_glinting(tester), 0, reason: '1800ms 뒤 끝남');
+      expect(_glinting(tester), 0, reason: '2600ms 뒤 끝남');
 
-      // 첫 반짝임 시작에서 15초 직전에는 아직 지나가지 않습니다.
+      // 첫 반짝임 시작에서 10초 직전에는 아직 지나가지 않습니다.
       await tester.pump(
         PatternValues.glintInterval -
             _sweep -
@@ -81,7 +81,7 @@ void main() {
       expect(_glinting(tester), 0);
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 900));
-      expect(_glinting(tester), 2, reason: '15초 박자');
+      expect(_glinting(tester), 2, reason: '10초 박자');
     });
 
     testWidgets('첫 기다림(appear.seep)이 있으면 그 뒤에 첫 반짝임입니다', (tester) async {
@@ -99,7 +99,7 @@ void main() {
       expect(_glinting(tester), 2);
     });
 
-    testWidgets('앱이 배경으로 가면 멈추고, 돌아오면 다음 15초 박자에 지나갑니다', (tester) async {
+    testWidgets('앱이 배경으로 가면 멈추고, 돌아오면 다음 10초 박자에 지나갑니다', (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1));
@@ -120,7 +120,7 @@ void main() {
       expect(_glinting(tester), 0);
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 500));
-      expect(_glinting(tester), 2, reason: '돌아온 뒤 15초 박자');
+      expect(_glinting(tester), 2, reason: '돌아온 뒤 10초 박자');
     });
 
     testWidgets('위 route에 덮이면 멈추고, 닫히면 다시 이어집니다', (tester) async {
@@ -143,7 +143,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(PatternValues.glintInterval);
       await tester.pump(const Duration(milliseconds: 500));
-      expect(_glinting(tester), 2, reason: '다시 보이면 15초 박자');
+      expect(_glinting(tester), 2, reason: '다시 보이면 10초 박자');
     });
 
     testWidgets('대상이 모두 화면 밖으로 스크롤되면 멈추고, 돌아오면 이어집니다', (tester) async {

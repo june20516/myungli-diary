@@ -2,7 +2,14 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart'
-    show RenderBox, Scrollable, SingleChildScrollView, TextDirection, ValueKey;
+    show
+        RenderBox,
+        Scrollable,
+        SingleChildScrollView,
+        Text,
+        TextAlign,
+        TextDirection,
+        ValueKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -159,6 +166,8 @@ void main() {
     );
     _expectMeta(_meta('2026. 7. 1.'));
     expect(_notice, findsOneWidget);
+    // 목록 아래 안내는 왼쪽 맞춤 그대로입니다(V128).
+    expect(tester.widget<Text>(_notice).textAlign, TextAlign.start);
   });
 
   testWidgets('missing.notice 아래 문의하기 버튼으로 contact에 갑니다(D89 ④, D102)', (
@@ -432,5 +441,7 @@ void main() {
       expect(rect.right, lessThanOrEqualTo(width - Space.s20 + 0.01));
       expect(rect.center.dx, closeTo(width / 2, 0.5));
     }
+    // 빈 상태 아래 줄은 문장처럼 가운데 맞춤입니다(empty-state 규칙, V128).
+    expect(tester.widget<Text>(_notice).textAlign, TextAlign.center);
   });
 }

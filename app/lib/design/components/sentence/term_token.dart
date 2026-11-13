@@ -3,6 +3,7 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -23,6 +24,10 @@ enum TermTokenVariant {
 /// "용어 + 풀이 보기"이며 풀이를 찾는 `term` 값은 읽지 않습니다.
 ///
 /// 명세 2.0.0에서 `locked` 상태는 빠졌습니다. 풀이 시트는 무료라 늘 눌립니다(D60).
+///
+/// [onTap]이 연 시트(풀이 시트, 또는 근거 시트를 바로 여는 용어 A130)가 열린 동안 용어 바탕
+/// 조각에 열림 표시(`open`, 요소 `open.ring`)를 그립니다(V129). [onTap]이 시트가 닫힐 때
+/// 끝나는 Future를 돌려주면 됩니다.
 class TermToken extends StatelessWidget {
   /// 용어 토큰을 만듭니다.
   const new({
@@ -41,7 +46,7 @@ class TermToken extends StatelessWidget {
   static const ComponentSpec spec = ComponentSpec(
     'term-token',
     {'inline', 'label'},
-    {'pressed'},
+    {'pressed', 'open'},
   );
 
   /// 화면에 보이는 용어 글자(풀이 키가 아닙니다).
@@ -50,8 +55,8 @@ class TermToken extends StatelessWidget {
   /// 변형.
   final TermTokenVariant variant;
 
-  /// 눌렀을 때(풀이 시트 열기).
-  final VoidCallback onTap;
+  /// 눌렀을 때(풀이 시트 열기). 시트 Future를 돌려주면 열린 동안 `open`입니다.
+  final SheetTap onTap;
 
   /// 글자 스타일. `inline`은 문장 스타일을 넘기고, 없으면 주변 [DefaultTextStyle]입니다.
   /// `label`은 없으면 `type.caption.md`이고, 칸 폭 라벨이 글자를 줄일 때(V49) 넘깁니다.
@@ -85,15 +90,19 @@ class TermToken extends StatelessWidget {
       TermTokenVariant.label => 4.0,
     };
     const radius = BorderRadius.all(Radius.circular(Radii.xs));
-    final chip = PressInkTarget(
+    Widget chip(SheetOpenState state) => PressInkTarget(
       // 붙은 글자(조사)도 칩과 같은 낭독 정지점에 묶어 따로 읽히지 않게 합니다.
       semanticLabel: AppLocalizations.of(context)
           .termTokenSemantics('${before ?? ''}$label${after ?? ''}'),
-      onTap: onTap,
+      onTap: state.onTap,
       borderRadius: radius,
       inkColor: colors.termFg,
       child: DecoratedBox(
-        decoration: BoxDecoration(color: colors.termBg, borderRadius: radius),
+        decoration: BoxDecoration(
+          color: colors.termBg,
+          borderRadius: radius,
+          border: state.open ? OpenRing.border(context) : null,
+        ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: paddingX),
           // 한국어는 어절 안에서 줄을 바꾸지 않습니다(칸 폭 라벨이 두 줄이 될 때, V49).
@@ -107,6 +116,14 @@ class TermToken extends StatelessWidget {
         ),
       ),
     );
+    return SheetOpenTracker(
+      onTap: onTap,
+      builder: (context, state) => _withAttached(locale, base, chip(state)),
+    );
+  }
+
+  /// 칩과 붙은 글자([before], [after])를 한 덩어리로 놓습니다.
+  Widget _withAttached(Locale locale, TextStyle base, Widget chip) {
     // 눌림 영역을 넓히는 상자는 조상이 가로채지 못하도록 가장 바깥에 둡니다.
     if (before == null && after == null) return VerticalHitSlop(child: chip);
     return VerticalHitSlop(

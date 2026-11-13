@@ -67,6 +67,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/link_label.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
+import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
@@ -79,6 +80,7 @@ import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
 import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
@@ -111,6 +113,7 @@ const _durations = <String, Duration>{
   'long': Motion.long,
   'stamp': Motion.stamp,
   'breathe': Motion.breathe,
+  'glint': Motion.glint,
   'page': Motion.pageDuration,
 };
 const _easings = <String, Cubic>{
@@ -2318,7 +2321,7 @@ void main() {
       expect(pauseWhen[2], contains('스크롤'));
       expect(glint['stopWhen'], contains('닫힐 때'));
       expect(glint['stopWhen'], contains('그대로'));
-      expect(glint['first'], contains('15초마다'));
+      expect(glint['first'], contains('10초마다'));
       expect(glint['together'], contains('같은 때'));
       expect(band['edge'], contains('부드럽게'));
       expect(band['multiline'], contains('한 띠'));
@@ -2539,8 +2542,8 @@ void main() {
       ]);
       final evidence = _map(_map(parts['explain'])['evidenceLink']);
       expect(evidence['component'], 'depth-link');
-      expect(evidence['variant'], 'block');
-      expect(evidence['order'], contains('timeBand 아래 맨 끝'));
+      expect(evidence['variant'], DepthLinkVariant.headEnd.id);
+      expect(evidence['order'], startsWith('시트 제목 줄 오른쪽 끝'));
       final a11y = _map(luckyCard['a11y']);
       expect(a11y['nightLabel'], '항목 이름 + 때 낱말 + 값');
       expect(a11y['timeLabel'], contains('해와 달 아이콘은 읽지 않음'));
@@ -2702,7 +2705,8 @@ void main() {
       expect(ColorPairSheetBody.bodyGapAbove, Space.s8);
       final evidence = _map(section['evidenceLink']);
       expect(evidence['component'], 'depth-link');
-      expect(evidence['variant'], 'block');
+      expect(evidence['variant'], DepthLinkVariant.headEnd.id);
+      expect(evidence['position'], contains('색 구역 머리(견본 원 + 색 이름 줄) 오른쪽 끝'));
       expect(evidence['subject'], '그 색 이름');
       expect(
         (sheet['sections']! as List<Object?>).cast<Map<String, Object?>>().map(
@@ -3086,6 +3090,80 @@ void main() {
         PatternValues.focusFromWidth,
       );
       expect(_px(_map(focus['to'])['borderWidth']), PatternValues.focusToWidth);
+    });
+  });
+
+  group('빌드 7 검수 묶음 (8.0.0, V127~V131)', () {
+    final specs = loadSpecComponents();
+
+    test('depth-link: block이 빠지고 시트 안 근거 진입점은 head-end, 간격 space.12', () {
+      final variants = (specs['depth-link']!['variants']! as List<Object?>)
+          .cast<Map<String, Object?>>();
+      final ids = variants.map((v) => v['id']).toSet();
+      expect(ids, isNot(contains('block')));
+      final headEnd = _map(
+        _map(
+          variants.firstWhere((v) => v['id'] == 'head-end')['parts'],
+        )['icon'],
+      );
+      expect(headEnd['gapStart'], '{space.12}');
+      expect(EvidenceHeadRow.gap, Space.s12);
+      expect(headEnd['verticalAlign'], contains('머리 첫 줄 가운데'));
+      expect(DepthLinkVariant.headEnd.id, 'head-end');
+    });
+
+    test('term-token 풀이 시트의 근거 진입점은 제목 줄 head-end, 빈 풀이에는 없음', () {
+      final explain = _map(_map(specs['term-token']!['parts'])['explainSheet']);
+      final link = _map(explain['evidenceLink']);
+      expect(link['variant'], DepthLinkVariant.headEnd.id);
+      expect(link['notWith'], contains('emptyNote'));
+    });
+
+    test('open.ring: 안쪽 1.5px action.primary이고 쓰는 자리가 구현과 같습니다', () {
+      final ring = _map(_elements()['open.ring']);
+      final border = _map(ring['border']);
+      expect(border['color'], '{color.action.primary}');
+      expect(_px(border['width']), OpenRing.width);
+      expect(border['placement'], 'inside');
+      expect(HanjaTag.selectedBorderWidth, OpenRing.width);
+      final appliesTo = (ring['appliesTo']! as List<Object?>).join(' ');
+      for (final user in [
+        'hanja-tag',
+        'term-token',
+        'lucky-card',
+        'calendar-month ruleEntry',
+      ]) {
+        expect(appliesTo, contains(user));
+      }
+      final open = _map(_map(specs['term-token']!['states'])['open']);
+      expect(open['element'], 'open.ring');
+      expect(TermToken.spec.states, contains('open'));
+    });
+
+    test('calendar-month todayReselect: 시트 열지 않음, 초점은 오늘 칸, 새 문구 없음', () {
+      final reselect = _map(
+        _map(specs['calendar-month']!['states'])['todayReselect'],
+      );
+      expect((reselect['steps']! as List<Object?>).last, '그날 시트는 열지 않음');
+      expect(reselect['a11y'], contains('오늘 칸으로 옮김'));
+      expect(reselect['a11y'], contains('새 문구 없음'));
+      expect(CalendarMonthView.spec.states, contains('todayReselect'));
+    });
+
+    test('empty-state 아래 줄 규칙에 구매 내역 안내 줄이 있습니다', () {
+      final rules = (specs['empty-state']!['rules']! as List<Object?>).join(
+        ' ',
+      );
+      expect(rules, contains('purchase-history missing.notice'));
+      expect(rules, contains('가운데 맞춤'));
+    });
+
+    test('unlock.glint 지나감은 motion.duration.glint(2600)입니다', () {
+      final glint = _map(_map(_interaction()['patterns'])['unlock.glint']);
+      expect(glint['duration'], '{motion.duration.glint}');
+      expect(InteractionPattern.unlockGlint.duration, Motion.glint);
+      expect(Motion.glint, const Duration(milliseconds: 2600));
+      expect(PatternValues.glintInterval, const Duration(seconds: 10));
     });
   });
 }

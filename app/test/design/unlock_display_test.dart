@@ -332,7 +332,11 @@ void main() {
   group('depth-link icon.unlocked', () {
     Widget link({required bool unlocked}) => EvidenceUnlockedScope(
       unlocked: unlocked,
-      child: DepthLink.evidence(subject: '총운', onTap: () {}),
+      child: DepthLink.evidence(
+        subject: '총운',
+        placement: DepthLinkPlacement.headEnd,
+        onTap: () {},
+      ),
     );
 
     testWidgets('열람 권한이 있으면 아이콘 선을 135° gradient.unlocked로 칠합니다', (
@@ -370,7 +374,13 @@ void main() {
         findsNothing,
       );
       await tester.pumpWidget(
-        _app(DepthLink.evidence(subject: '총운', onTap: () {})),
+        _app(
+          DepthLink.evidence(
+            subject: '총운',
+            placement: DepthLinkPlacement.headEnd,
+            onTap: () {},
+          ),
+        ),
       );
       expect(find.byType(ShaderMask), findsNothing);
     });

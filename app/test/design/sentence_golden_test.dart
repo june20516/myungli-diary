@@ -84,7 +84,11 @@ Widget _termsAndLinks() => Column(
       textStyle: const TextStyle(fontSize: 15, height: 1.6),
     ),
     TermToken(label: '정관', variant: TermTokenVariant.label, onTap: () {}),
-    DepthLink.evidence(subject: '총운', onTap: () {}),
+    DepthLink.evidence(
+      subject: '총운',
+      placement: DepthLinkPlacement.headEnd,
+      onTap: () {},
+    ),
     DepthLink(
       variant: DepthLinkVariant.navigate,
       label: '계산 기준 보기',

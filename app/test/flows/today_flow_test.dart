@@ -35,6 +35,7 @@ import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -291,7 +292,7 @@ void main() {
   });
 
   testWidgets(
-    'evidence-unlocked: 밤 시간 칩 → 시트 본문, 24시간 띠, 맨 끝 근거 보기 → 그 카드의 근거',
+    'evidence-unlocked: 밤 시간 칩 → 시트 본문, 24시간 띠, 제목 줄 끝 근거 보기 → 그 카드의 근거',
     (tester) async {
       covers(
         const Covers(
@@ -346,10 +347,10 @@ void main() {
       );
       final link = depthLinkTarget(of: explain);
       expect(link, findsOneWidget);
-      // 근거 진입점은 띠 아래 맨 끝입니다(V118).
+      // 근거 진입점은 시트 제목 줄 오른쪽 끝이라 띠보다 위입니다(V130).
       expect(
-        tester.getTopLeft(link).dy,
-        greaterThan(tester.getBottomLeft(band).dy),
+        tester.getBottomLeft(link).dy,
+        lessThan(tester.getTopLeft(band).dy),
       );
 
       await tester.tap(link);
@@ -741,18 +742,25 @@ void main() {
           .items,
       hasLength(2),
     );
-    expect(
-      tester.widget<HanjaTag>(featured.first).variant,
-      HanjaTagVariant.selected,
-    );
+    // 연 태그는 시트가 열린 동안 open.ring(selected 테두리)을 그립니다(V129).
+    bool open() {
+      final surface = tester.widget<DecoratedBox>(
+        find.descendant(
+          of: featured.first,
+          matching: find.byKey(HanjaTag.surfaceKey),
+        ),
+      );
+      final border = (surface.decoration as BoxDecoration).border as Border?;
+      return border?.top.color ==
+          tester.element(featured.first).tokens.colors.actionPrimary;
+    }
+
+    expect(open(), isTrue);
 
     await tapSheetScrim(tester);
     await tester.pumpAndSettle();
     expect(sheet, findsNothing);
-    expect(
-      tester.widget<HanjaTag>(featured.first).variant,
-      HanjaTagVariant.normal,
-    );
+    expect(open(), isFalse);
   });
 
   testWidgets('D124 ②⑦ 오늘 태그 고신 孤, 과숙 寡, 원진 元: 대표 태그, 사주 기운 시트 뜻과 마무리', (

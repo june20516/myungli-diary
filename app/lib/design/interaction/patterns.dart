@@ -165,14 +165,14 @@ enum InteractionPattern {
     LowEndRule.same,
   ),
 
-  /// 열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(V112).
+  /// 열려서 보이게 된 근거와 해석 글자 위로 금빛 띠가 지나감(V112, 값은 V131).
   ///
-  /// 띠 그리기와 15초 박자, 멈춤, 동작 줄이기 대체(`unlock.mark`)는 `UnlockGlintScope`와
+  /// 띠 그리기와 10초 박자, 멈춤, 동작 줄이기 대체(`unlock.mark`)는 `UnlockGlintScope`와
   /// `UnlockGlint`(`unlock_glint.dart`)가 맡습니다. 한 번 지나가는 진행이 아니라 박자가 있는
   /// 반복이라 [animate]는 이 패턴에서 받은 위젯을 그대로 둡니다.
   unlockGlint(
     'unlock.glint',
-    Motion.breathe,
+    Motion.glint,
     Motion.standard,
     ReduceMotionRule.replace,
     LowEndRule.same,
@@ -301,7 +301,7 @@ abstract final class PatternValues {
   static const double stackPeekHeight = 14;
 
   /// `unlock.glint` 박자(`interval`): 앞 반짝임 시작에서 다음 반짝임 시작까지.
-  static const Duration glintInterval = Duration(milliseconds: 15000);
+  static const Duration glintInterval = Duration(milliseconds: 10000);
 
   /// `unlock.glint` 띠 너비(`band.width`): 글자 상자 너비에 대한 비율(30%).
   static const double glintBandWidth = 0.3;

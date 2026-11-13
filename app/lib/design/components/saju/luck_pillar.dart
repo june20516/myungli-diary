@@ -7,6 +7,7 @@ import 'package:myungli_diary/design/components/saju/tag_slot.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/highlight_current.dart';
 import 'package:myungli_diary/design/elements/ohaeng_cell.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -230,7 +231,7 @@ class LuckPillar extends StatelessWidget {
   final String? kindLabel;
 
   /// 용어 칩을 누르면(`compact`).
-  final VoidCallback? onKindTap;
+  final SheetTap? onKindTap;
 
   /// 기간 줄 글자(`compact`).
   final String? period;
@@ -379,7 +380,7 @@ class LuckPillar extends StatelessWidget {
 
   /// 용어 칩. [onTap]이 없으면(한자 대체 등) 글자만 두고 그룹 라벨이 읽습니다. 누를 수 있으면
   /// 별도 포커스(button)로 남습니다.
-  static Widget _chip(String text, VoidCallback? onTap, MyungliTokens tokens) {
+  static Widget _chip(String text, SheetTap? onTap, MyungliTokens tokens) {
     if (onTap == null) {
       return ExcludeSemantics(
         child: Text(

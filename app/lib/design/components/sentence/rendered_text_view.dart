@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 
 /// `term` 조각을 그리는 방식(결정 V28).
@@ -56,7 +57,7 @@ class RenderedTextView extends StatelessWidget {
   final TermStyle termStyle;
 
   /// 칩을 눌렀을 때 `term` 값을 받습니다. [TermStyle.chip]이면 필요합니다.
-  final ValueChanged<String>? onTerm;
+  final TermTap? onTerm;
 
   /// 문장 끝에 붙는 위젯(`depth-link` `inline-end`). 줄 끝에 다 들어가지 않으면
   /// 통째로 다음 줄로 넘어갑니다.

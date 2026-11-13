@@ -43,6 +43,7 @@ import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -278,9 +279,6 @@ class _TodayBody extends ConsumerStatefulWidget {
 }
 
 class _TodayBodyState extends ConsumerState<_TodayBody> {
-  /// 사주 기운 시트가 열려 있는 대표 태그 순번. 닫혀 있으면 null입니다.
-  int? _openTagRank;
-
   /// 풀이 시트가 열려 있는 덕일. 닫혀 있으면 null입니다.
   DayVirtueKind? _openVirtue;
 
@@ -340,44 +338,30 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     }
   }
 
-  /// [rank] 대표 태그의 사주 기운 시트를 열고, 닫힐 때까지 그 태그를 `selected`로 둡니다.
-  Future<void> _openTag(int rank) async {
-    setState(() => _openTagRank = rank);
-    try {
-      await _sheets.openTag(
-        context,
-        daily: widget.content.view.daily,
-        rank: rank,
-      );
-    } finally {
-      if (mounted) setState(() => _openTagRank = null);
-    }
-  }
-
   /// 오늘 응답 슬롯 [slotId] 문장 속 용어 [termId]의 풀이 시트를 엽니다(출처는 오늘 응답).
-  void _openTermInSentence(String termId, String slotId) => unawaited(
-    _sheets.openExplain(
-      context,
-      ExplainTerm(
-        termId,
-        origin: TermOrigin(slotId: slotId, subject: _evidenceSubject),
-      ),
-    ),
-  );
+  Future<void> _openTermInSentence(String termId, String slotId) =>
+      _sheets.openExplain(
+        context,
+        ExplainTerm(
+          termId,
+          origin: TermOrigin(slotId: slotId, subject: _evidenceSubject),
+        ),
+      );
 
   /// 총운 결정 태그(날의 성격, 십성 묶음)의 뜻 시트를 엽니다. 머리는 누른 태그 모양이고
   /// 누를 수 없습니다.
-  void _openTermTag(String termId, HanjaTag head) =>
-      unawaited(_sheets.openExplain(context, ExplainTerm(termId), head: head));
+  Future<void> _openTermTag(String termId, HanjaTag head) =>
+      _sheets.openExplain(context, ExplainTerm(termId), head: head);
 
-  /// 대표 태그 [tag]의 `hanja-tag`(누르면 사주 기운 시트, 열린 동안 `selected`).
+  /// 대표 태그 [tag]의 `hanja-tag`(누르면 사주 기운 시트, 열린 동안 `selected`, V129).
   Widget _featuredTag(FeaturedTagContent tag) => HanjaTag(
     glyph: tag.glyph,
     label: tag.label,
-    variant: _openTagRank == tag.rank
-        ? HanjaTagVariant.selected
-        : HanjaTagVariant.normal,
-    onTap: () => unawaited(_openTag(tag.rank)),
+    onTap: () => _sheets.openTag(
+      context,
+      daily: widget.content.view.daily,
+      rank: tag.rank,
+    ),
   );
 
   /// 행운 칩 [item]의 설명 시트 내용. 색 칩과 시간 칩은 맨 끝에 그 카드의 근거 진입점을 두고
@@ -641,7 +625,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     final bodyTag = display.bodyTag;
     // 같은 태그를 화면(누를 수 있음)과 뜻 시트 머리(누를 수 없음)에 함께 씁니다.
     HanjaTag dayKindTag({
-      VoidCallback? onTap,
+      SheetTap? onTap,
       HanjaTagVariant variant = HanjaTagVariant.emphasis,
     }) => dayKindHanjaTag(
       kind: display.dayKind,
@@ -651,7 +635,7 @@ class _TodayBodyState extends ConsumerState<_TodayBody> {
     );
     final group = display.tenGodGroup;
     final groupLabel = display.tenGodGroupLabel;
-    HanjaTag groupTag(TenGodGroup group, String label, {VoidCallback? onTap}) =>
+    HanjaTag groupTag(TenGodGroup group, String label, {SheetTap? onTap}) =>
         HanjaTag(
           glyph: HanjaGlyphs.forTenGodGroup(group),
           label: label,

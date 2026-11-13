@@ -22,10 +22,11 @@ enum ExplainTitleSize {
 
 /// 풀이 시트의 내용(`explain-sheet`). 시트 틀(`sheet` `half`) 안에 놓습니다.
 ///
-/// 제목(또는 [head])과 한자 → 본문(`sentence-block` `body`) 또는 빈 안내([emptyNote]) →
-/// 흉 신살 마무리 한 줄([weighingNote]) → 오늘 그런 이유 → [attachment](`stage-strip` 등) →
-/// 근거 진입점 아이콘 → 일기 모아보기 링크 순서입니다. 제목 아래 `space.8`에 본문이 오고, [onEvidence]가 null이면
-/// 근거 진입점을 그리지 않습니다(그날 시트처럼 근거 시트로 이어지지 않는 곳에서 열었을 때).
+/// 제목(또는 [head])과 한자, 그 줄 오른쪽 끝 근거 진입점 아이콘(`depth-link` `head-end`, V130)
+/// → 본문(`sentence-block` `body`) 또는 빈 안내([emptyNote]) → 흉 신살 마무리 한 줄
+/// ([weighingNote]) → 오늘 그런 이유 → [attachment](`stage-strip` 등) → 일기 모아보기 링크
+/// 순서입니다. 제목 아래 `space.8`에 본문이 오고, [onEvidence]가 null이면 근거 진입점을 그리지
+/// 않습니다(그날 시트처럼 근거 시트로 이어지지 않는 곳에서 열었을 때).
 /// [onDiaryLink]가 null이면 모아보기 링크를 그리지 않습니다(대표 태그의 뜻 시트에만 있습니다).
 ///
 /// 한자는 제목 줄 끝에 붙고, 그 줄에 다 들어가지 않으면 통째로 다음 줄로 갑니다. 스크린리더는
@@ -119,7 +120,7 @@ class ExplainSheetBody extends StatelessWidget {
   /// (`lucky-card` `timeBand.when`).
   final double attachmentGap;
 
-  /// 근거 진입점을 눌렀을 때(근거 시트 열기). null이면 진입점이 없습니다.
+  /// 제목 줄 끝 근거 진입점을 눌렀을 때(근거 시트 열기). null이면 진입점이 없습니다.
   final VoidCallback? onEvidence;
 
   /// 근거 진입점의 스크린리더 항목 이름. null이면 [title]입니다.
@@ -191,13 +192,28 @@ class ExplainSheetBody extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SheetHeading(
-            child: head == null
-                ? _titleLine(tokens)
-                : Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: head,
+          EvidenceHeadRow(
+            head: SheetHeading(
+              child: head == null
+                  ? _titleLine(tokens)
+                  : Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: head,
+                    ),
+            ),
+            // 빈 안내가 있으면 근거 진입점 아이콘만 남기지 않습니다(V123).
+            link: onEvidence == null || emptyNote != null
+                ? null
+                : DepthLink.evidence(
+                    subject: evidenceSubject ?? title,
+                    placement: DepthLinkPlacement.headEnd,
+                    onTap: onEvidence,
                   ),
+            // 제목 글자는 여러 줄이 될 수 있어 첫 줄에 맞추고, 머리 태그는 늘 한 줄입니다.
+            firstLineHeight: head == null
+                ? EvidenceHeadRow.lineHeightOf(context, _titleStyle(tokens))
+                : null,
+            linkTop: SheetHeading.topGap,
           ),
           if (emptyNote != null)
             Padding(
@@ -236,12 +252,6 @@ class ExplainSheetBody extends StatelessWidget {
               padding: EdgeInsets.only(top: attachmentGap),
               child: attachment,
             ),
-          // 빈 안내가 있으면 근거 진입점 아이콘만 남기지 않습니다(V123).
-          if (onEvidence != null && emptyNote == null)
-            DepthLink.evidence(
-              subject: evidenceSubject ?? title,
-              onTap: onEvidence,
-            ),
           if (diaryLinkLabel != null && onDiaryLink != null)
             DepthLink(
               variant: DepthLinkVariant.navigate,
@@ -255,13 +265,15 @@ class ExplainSheetBody extends StatelessWidget {
   }
 
   /// 제목 줄. 한자가 있으면 같은 줄 끝에 두고, 줄이 모자라면 한자만 다음 줄로 보냅니다.
+  TextStyle _titleStyle(MyungliTokens tokens) => switch (titleSize) {
+    ExplainTitleSize.subtitle => tokens.typography.subtitle,
+    ExplainTitleSize.title => tokens.typography.title,
+  };
+
   Widget _titleLine(MyungliTokens tokens) {
     final titleText = Text(
       title,
-      style: switch (titleSize) {
-        ExplainTitleSize.subtitle => tokens.typography.subtitle,
-        ExplainTitleSize.title => tokens.typography.title,
-      }.copyWith(color: tokens.colors.textPrimary),
+      style: _titleStyle(tokens).copyWith(color: tokens.colors.textPrimary),
     );
     final hanja = this.hanja;
     if (hanja == null || hanja.isEmpty) {

@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/design/components/calendar/calendar_month.dart';
 import 'package:myungli_diary/design/components/calendar/day_cell.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
@@ -717,8 +720,99 @@ void main() {
     expect(tester.getRect(find.text('잘 풀리는 날')), whileLoading);
   });
 
+  testWidgets('규칙 입구: 연 색 규칙 시트가 열린 동안 칩에 open.ring(openState, V129)', (
+    tester,
+  ) async {
+    final sheet = Completer<void>();
+    await pumpLegend(
+      tester,
+      ruleEntry: CalendarRuleEntry(
+        label: '길흉은 어떻게 정해지나요',
+        onTap: () => sheet.future,
+      ),
+    );
+    final tokens = tester.element(find.byType(CalendarMonthView)).tokens;
+    Border? border() =>
+        (tester
+                        .widget<DecoratedBox>(
+                          find.byKey(CalendarMonthView.ruleChipKey),
+                        )
+                        .decoration
+                    as BoxDecoration)
+                .border
+            as Border?;
+    expect(border(), isNull);
+    await tester.tap(find.byKey(CalendarMonthView.ruleEntryKey));
+    await tester.pump();
+    expect(border()!.top.color, tokens.colors.actionPrimary);
+    expect(border()!.top.width, OpenRing.width);
+    sheet.complete();
+    await tester.pump();
+    expect(border(), isNull);
+  });
+
+  testWidgets(
+    'todayFocusRequest가 바뀌면 스크린리더 초점이 오늘 칸으로 갑니다(todayReselect, V127)',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final focused = <Object?>[];
+      tester.binding.defaultBinaryMessenger
+          .setMockDecodedMessageHandler<dynamic>(SystemChannels.accessibility, (
+            message,
+          ) async {
+            if (message is Map && message['type'] == 'focus') {
+              focused.add(message['nodeId']);
+            }
+            return null;
+          });
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<dynamic>(
+              SystemChannels.accessibility,
+              null,
+            ),
+      );
+      final today = CalendarDate(2026, 10, 16);
+      Widget view(int request) => inputApp(
+        SizedBox(
+          width: 336,
+          child: CalendarMonthView(
+            month: const CalendarMonth(2026, 10),
+            title: '2026년 10월',
+            weekdayLabels: _weekdays,
+            cellOf: _cellOf,
+            loading: false,
+            today: today,
+            selected: today,
+            todayFocusRequest: request,
+            onSelect: (_) {},
+            onMonthChange: (_) {},
+          ),
+        ),
+      );
+      await tester.pumpWidget(view(0));
+      await tester.pump();
+      expect(focused, isEmpty, reason: '처음 그릴 때는 초점을 옮기지 않음');
+
+      await tester.pumpWidget(view(1));
+      await tester.pump();
+      final todayNode = tester.getSemantics(
+        find.descendant(
+          of: find.byKey(CalendarMonthView.cellKey(today)),
+          matching: find.byType(DayCell),
+        ),
+      );
+      expect(focused, [todayNode.id]);
+      handle.dispose();
+    },
+  );
+
   test('명세 상태 id', () {
     expect(CalendarMonthView.spec.id, 'calendar-month');
-    expect(CalendarMonthView.spec.states, {'monthChanged', 'loading'});
+    expect(CalendarMonthView.spec.states, {
+      'monthChanged',
+      'todayReselect',
+      'loading',
+    });
   });
 }

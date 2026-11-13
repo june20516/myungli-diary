@@ -725,7 +725,13 @@ void main() {
       final handle = tester.ensureSemantics();
       var taps = 0;
       await tester.pumpWidget(
-        _app(DepthLink.evidence(subject: '총운', onTap: () => taps++)),
+        _app(
+          DepthLink.evidence(
+            subject: '총운',
+            placement: DepthLinkPlacement.headEnd,
+            onTap: () => taps++,
+          ),
+        ),
       );
       final data = _semantics(
         tester,
@@ -738,26 +744,64 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('block은 위에 space.12, inline-end는 여백이 없습니다', (tester) async {
-      Future<double> topOf(DepthLinkPlacement placement) async {
-        await tester.pumpWidget(
-          _app(
-            DepthLink.evidence(
-              subject: '총운',
-              placement: placement,
-              onTap: () {},
+    group('head-end 머리 줄(EvidenceHeadRow, V130)', () {
+      const lineHeight = 30.0;
+      Widget row(String title, {double width = 320}) => _app(
+        Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: width,
+            child: EvidenceHeadRow(
+              head: Text(
+                title,
+                key: const ValueKey('title'),
+                style: const TextStyle(fontSize: 20, height: 1.5),
+              ),
+              link: DepthLink.evidence(
+                subject: '식신',
+                placement: DepthLinkPlacement.headEnd,
+                onTap: () {},
+              ),
+              firstLineHeight: lineHeight,
             ),
           ),
-        );
-        return tester.getTopLeft(find.byType(Icon)).dy;
-      }
+        ),
+      );
 
-      final blockTop = await topOf(DepthLinkPlacement.block);
-      final inlineTop = await topOf(DepthLinkPlacement.inlineEnd);
-      expect(blockTop - inlineTop, Space.s12);
+      testWidgets('아이콘은 오른쪽 끝이고 제목과 space.12 이상 떨어지며 첫 줄 가운데입니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(row('식신'));
+        final icon = tester.getRect(find.byType(Icon));
+        expect(icon.right, 320);
+        expect(icon.center.dy, lineHeight / 2);
+        final title = tester.getRect(find.byKey(const ValueKey('title')));
+        expect(icon.left - title.right, greaterThanOrEqualTo(Space.s12));
+      });
+
+      testWidgets('제목이 여러 줄이면 아이콘 자리를 뺀 폭에서 줄을 바꾸고 아이콘은 첫 줄에 남습니다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(row('아주 긴 제목이 줄을 바꿉니다', width: 160));
+        final title = tester.getRect(find.byKey(const ValueKey('title')));
+        expect(title.height, greaterThan(lineHeight), reason: '여러 줄');
+        final icon = tester.getRect(find.byType(Icon));
+        expect(title.right, lessThanOrEqualTo(icon.left - Space.s12));
+        expect(icon.center.dy, lineHeight / 2);
+      });
+
+      testWidgets('link가 없으면 머리만 그립니다', (tester) async {
+        await tester.pumpWidget(
+          _app(const EvidenceHeadRow(head: Text('식신'), link: null)),
+        );
+        expect(find.byType(Icon), findsNothing);
+        expect(find.byType(Row), findsNothing);
+      });
     });
 
-    testWidgets('터치 48은 배치 밖으로 넓어지고 inline-end는 왼쪽으로만 넓어집니다', (tester) async {
+    testWidgets('터치 48은 배치 밖으로 넓어지고 inline-end, head-end는 왼쪽으로만 넓어집니다', (
+      tester,
+    ) async {
       var taps = 0;
       await tester.pumpWidget(
         _app(
@@ -780,13 +824,19 @@ void main() {
       await tester.pumpWidget(
         _app(
           Center(
-            child: DepthLink.evidence(subject: '총운', onTap: () => taps++),
+            child: DepthLink.evidence(
+              subject: '총운',
+              placement: DepthLinkPlacement.headEnd,
+              onTap: () => taps++,
+            ),
           ),
         ),
       );
-      final block = tester.getRect(find.byType(PressInkTarget));
-      await tester.tapAt(block.centerRight + const Offset(10, 0));
-      expect(taps, 2, reason: 'block은 좌우 모두 넓어짐');
+      final headEnd = tester.getRect(find.byType(PressInkTarget));
+      await tester.tapAt(headEnd.centerLeft + const Offset(-20, 0));
+      expect(taps, 2, reason: 'head-end도 왼쪽으로 넓어짐');
+      await tester.tapAt(headEnd.centerRight + const Offset(10, 0));
+      expect(taps, 2, reason: 'head-end 오른쪽은 시트 경계라 넓히지 않음');
     });
 
     testWidgets('inline-end 아이콘은 문장 끝 WidgetSpan 하나에 담기고 글자가 없습니다', (

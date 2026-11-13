@@ -158,8 +158,8 @@ EdgeInsets _contentPadding(BuildContext context) => EdgeInsets.fromLTRB(
 
 /// 빈 목록: `empty-state`와 `missing.notice`를 한 묶음으로 화면 세로 40% 지점에 둡니다.
 ///
-/// `empty-state`가 좌우 `space.20`을 스스로 두므로 바깥 여백은 세로만 두고, notice에만
-/// 좌우 `space.20`을 줘 둘의 글자 시작을 맞춥니다.
+/// `empty-state`가 좌우 `space.20`을 스스로 두므로 바깥 여백은 세로만 두고, notice에도
+/// 좌우 `space.20`을 줘 문장과 같은 폭에서 가운데 맞춤으로 둡니다(`empty-state` 규칙, V128).
 class _EmptyWithNotice extends StatelessWidget {
   const new({required this.body});
 
@@ -184,7 +184,7 @@ class _EmptyWithNotice extends StatelessWidget {
             ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: Space.s20),
-              child: _MissingNotice(),
+              child: _MissingNotice(centered: true),
             ),
           ],
         ),
@@ -245,9 +245,13 @@ class _PurchaseList extends ConsumerWidget {
 /// 결제한 상품이 안 보일 때의 안내(`purchase-history.missing.notice`)와 문의하기 버튼.
 ///
 /// 목록이든 빈 목록이든 바로 위 묶음과 [gap]만큼 떨어집니다. 안내가 가리키는 문의하기(D89 ④)로
-/// 가는 길은 `primary-button` `quiet`입니다(안내 글자는 누를 수 없는 글자 그대로).
+/// 가는 길은 `primary-button` `quiet`입니다(안내 글자는 누를 수 없는 글자 그대로). 목록 아래에서는
+/// 왼쪽 맞춤이고, 빈 상태 아래에서는 [centered]로 문장처럼 가운데 맞춤입니다(V128).
 class _MissingNotice extends StatelessWidget {
-  const new();
+  const new({this.centered = false});
+
+  /// 빈 상태 아래라 가운데 맞춤인지.
+  final bool centered;
 
   /// 위 묶음(`purchase-row` 카드나 `empty-state`)과의 간격.
   static const double gap = Space.s16;
@@ -265,6 +269,7 @@ class _MissingNotice extends StatelessWidget {
             identifier: SlotIds.purchaseHistoryMissingNotice,
             child: Text(
               l10n.purchaseHistoryMissingNotice,
+              textAlign: centered ? TextAlign.center : TextAlign.start,
               style: tokens.typography.captionMd.copyWith(
                 color: tokens.colors.textSecondary,
               ),
