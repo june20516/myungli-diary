@@ -14,7 +14,7 @@ import (
 // SupportedRulesetVersion은 이 server 빌드가 값과 메시지 키를 모두 다루는 엔진 ruleset_version의 가장 높은 값입니다(D110 ③).
 // 엔진 계약을 따라잡는 PR에서 함께 올립니다. 실행 중인 server는 GET /version(getServerVersion) 응답으로 이 값을 내놓고,
 // deploy-engine workflow는 배포할 엔진의 RULESET_VERSION이 이 값보다 높으면 배포하지 않습니다(D110 ④).
-const SupportedRulesetVersion = "2026.11.8"
+const SupportedRulesetVersion = "2026.11.9"
 
 // ErrVersionUnknown은 엔진 ruleset_version을 아직 한 번도 받지 못했을 때의 오류입니다.
 var ErrVersionUnknown = errors.New("engine ruleset version unknown")

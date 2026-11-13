@@ -1,5 +1,5 @@
 {
-  "version": "b7fcdf4181396e51",
+  "version": "c7be1abef8bb689f",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -99,6 +99,47 @@
             "color"
           ]
         },
+        "relation": {
+          "kind": "none"
+        },
+        "role": {
+          "kind": "none"
+        },
+        "shift": {
+          "kind": "none"
+        },
+        "twelve_stage": {
+          "kind": "category",
+          "categories": [
+            "twelve_stage"
+          ]
+        }
+      }
+    },
+    "daily.color_relation": {
+      "id": "daily.color_relation",
+      "rotation": "none",
+      "params": {
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "day_branch": {
+          "kind": "none"
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "relation": {
+          "kind": "none"
+        },
         "role": {
           "kind": "none"
         },
@@ -117,6 +158,13 @@
       "id": "daily.direction",
       "rotation": "none",
       "params": {
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
         "day_branch": {
           "kind": "category",
           "categories": [
@@ -138,6 +186,47 @@
             "element",
             "color"
           ]
+        },
+        "relation": {
+          "kind": "none"
+        },
+        "role": {
+          "kind": "none"
+        },
+        "rule_id": {
+          "kind": "none"
+        }
+      }
+    },
+    "daily.direction_relation": {
+      "id": "daily.direction_relation",
+      "rotation": "none",
+      "params": {
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "deity": {
+          "kind": "none"
+        },
+        "direction": {
+          "kind": "category",
+          "categories": [
+            "direction8"
+          ]
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "relation": {
+          "kind": "none"
         },
         "role": {
           "kind": "none"
@@ -243,6 +332,13 @@
       "id": "daily.number",
       "rotation": "none",
       "params": {
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
         "day_stem": {
           "kind": "category",
           "categories": [
@@ -263,6 +359,47 @@
           "kind": "none"
         },
         "parity": {
+          "kind": "none"
+        },
+        "relation": {
+          "kind": "none"
+        }
+      }
+    },
+    "daily.number_relation": {
+      "id": "daily.number_relation",
+      "rotation": "none",
+      "params": {
+        "base_element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "day_stem": {
+          "kind": "category",
+          "categories": [
+            "stem"
+          ]
+        },
+        "element": {
+          "kind": "category",
+          "categories": [
+            "element",
+            "color"
+          ]
+        },
+        "number": {
+          "kind": "number"
+        },
+        "pair": {
+          "kind": "none"
+        },
+        "parity": {
+          "kind": "none"
+        },
+        "relation": {
           "kind": "none"
         }
       }
@@ -2255,6 +2392,342 @@
       "body": "내 사주에 필요한 {base_element} 기운에 맞춰 오늘은 {element:color}(이)가 잘 맞아요."
     },
     {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.cheo",
+      "variant": "single",
+      "lang": "en",
+      "body": "{base_element} eases the clash in your chart, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.cheo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "滞った流れをつなぐ{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.cheo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "막힌 흐름을 이어 주는 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.gwi",
+      "variant": "single",
+      "lang": "en",
+      "body": "{base_element} eases the clash in your chart, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.gwi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "滞った流れをつなぐ{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}を剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.gwi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "막힌 흐름을 이어 주는 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(을)를 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "{base_element} eases the clash in your chart, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "滞った流れをつなぐ{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が生じる{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "막힌 흐름을 이어 주는 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 생해 주는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.mo",
+      "variant": "single",
+      "lang": "en",
+      "body": "{base_element} eases the clash in your chart, and {element} generates it, so {element:color} suits you today."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.mo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "滞った流れをつなぐ{base_element}の気を生じる{element}の色、{element:color}が今日はよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gisin_day.mo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "막힌 흐름을 이어 주는 {base_element} 기운을 생해 주는 {element}의 색, {element:color}(이)가 오늘 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.cheo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.cheo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.cheo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.gwi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.gwi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}を剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.gwi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(을)를 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が生じる{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 생해 주는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.mo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and {element} generates it, so {element:color} suits you today."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.mo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気を生じる{element}の色、{element:color}が今日はよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.gwiin_day.mo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element} 기운을 생해 주는 {element}의 색, {element:color}(이)가 오늘 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.cheo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.cheo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.cheo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.gwi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.gwi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}を剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.gwi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(을)를 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が生じる{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 생해 주는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.mo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and {element} generates it, so {element:color} suits you today."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.mo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気を生じる{element}の色、{element:color}が今日はよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.ordinary_day.mo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element} 기운을 생해 주는 {element}의 색, {element:color}(이)가 오늘 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.cheo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.cheo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.cheo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.gwi",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.gwi",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}を剋す{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.gwi",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(을)를 극하는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.ja",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.ja",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気は、今日は違う読み方をする位置にあります。{base_element}が生じる{element}の{element:color}がよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.ja",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {base_element}(이)가 생해 주는 {element}의 {element:color}(이)가 잘 맞아요."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.mo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Your chart needs {base_element} energy, and {element} generates it, so {element:color} suits you today."
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.mo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気を生じる{element}の色、{element:color}が今日はよく合います。"
+    },
+    {
+      "slot": "daily.color_relation",
+      "key": "color.yongsin_day.mo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element} 기운을 생해 주는 {element}의 색, {element:color}(이)가 오늘 잘 맞아요."
+    },
+    {
       "slot": "daily.direction",
       "key": "direction.day_kind.gisin",
       "variant": "single",
@@ -2337,6 +2810,27 @@
       "variant": "single",
       "lang": "ko",
       "body": "내 사주에 필요한 {element} 기운의 방위인 {direction}쪽이 좋아요."
+    },
+    {
+      "slot": "daily.direction_relation",
+      "key": "direction.day_kind.ordinary.mo",
+      "variant": "single",
+      "lang": "en",
+      "body": "Head {direction}, the way of {element}, which generates the {base_element} energy your chart needs."
+    },
+    {
+      "slot": "daily.direction_relation",
+      "key": "direction.day_kind.ordinary.mo",
+      "variant": "single",
+      "lang": "ja",
+      "body": "あなたの命式に必要な{base_element}の気を生じる{element}の方位、{direction}の方角がよいです。"
+    },
+    {
+      "slot": "daily.direction_relation",
+      "key": "direction.day_kind.ordinary.mo",
+      "variant": "single",
+      "lang": "ko",
+      "body": "내 사주에 필요한 {base_element} 기운을 생해 주는 {element}의 방위, {direction}쪽이 좋아요."
     },
     {
       "slot": "daily.focus_reason",
@@ -5941,14 +6435,14 @@
       "key": "number.gisin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
+      "body": "{element}の数字のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.gisin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+      "body": "{element} 기운의 숫자 중에서 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.number",
@@ -5962,14 +6456,14 @@
       "key": "number.gwiin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
+      "body": "{element}の数字のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.gwiin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+      "body": "{element} 기운의 숫자 중에서 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.number",
@@ -5983,14 +6477,14 @@
       "key": "number.ordinary_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
+      "body": "{element}の数字のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.ordinary_day",
       "variant": "single",
       "lang": "ko",
-      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+      "body": "{element} 기운의 숫자 중에서 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.number",
@@ -6004,14 +6498,98 @@
       "key": "number.yongsin_day",
       "variant": "single",
       "lang": "ja",
-      "body": "{element}の数のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
+      "body": "{element}の数字のうち、今日の天干{day_stem}に合わせて{number}を選びました。"
     },
     {
       "slot": "daily.number",
       "key": "number.yongsin_day",
       "variant": "single",
       "lang": "ko",
-      "body": "{element} 기운의 수 가운데 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+      "body": "{element} 기운의 숫자 중에서 오늘 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.gisin_day.related",
+      "variant": "single",
+      "lang": "en",
+      "body": "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.gisin_day.related",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日の色と同じ{element}の数字のうち、天干{day_stem}に合わせて{number}を選びました。"
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.gisin_day.related",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 색과 같은 {element} 기운의 숫자 중에서 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.gwiin_day.related",
+      "variant": "single",
+      "lang": "en",
+      "body": "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.gwiin_day.related",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日の色と同じ{element}の数字のうち、天干{day_stem}に合わせて{number}を選びました。"
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.gwiin_day.related",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 색과 같은 {element} 기운의 숫자 중에서 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.ordinary_day.related",
+      "variant": "single",
+      "lang": "en",
+      "body": "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.ordinary_day.related",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日の色と同じ{element}の数字のうち、天干{day_stem}に合わせて{number}を選びました。"
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.ordinary_day.related",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 색과 같은 {element} 기운의 숫자 중에서 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.yongsin_day.related",
+      "variant": "single",
+      "lang": "en",
+      "body": "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.yongsin_day.related",
+      "variant": "single",
+      "lang": "ja",
+      "body": "今日の色と同じ{element}の数字のうち、天干{day_stem}に合わせて{number}を選びました。"
+    },
+    {
+      "slot": "daily.number_relation",
+      "key": "number.yongsin_day.related",
+      "variant": "single",
+      "lang": "ko",
+      "body": "오늘 색과 같은 {element} 기운의 숫자 중에서 천간 {day_stem}에 맞춰 {number}(을)를 골랐어요."
     },
     {
       "slot": "daily.tag_label",
@@ -6809,7 +7387,7 @@
       "key": "basis.number/hado",
       "variant": "single",
       "lang": "ko",
-      "body": "행운 색과 같은 오행인 {element}의 하도 수 두 개 가운데, 오늘 천간 {day_stem}의 음양에 따라 양이면 홀수, 음이면 짝수를 골랐어요."
+      "body": "행운 색과 같은 오행인 {element}의 하도 수 두 개 중에서, 오늘 천간 {day_stem}의 음양에 따라 양이면 홀수, 음이면 짝수를 골랐어요."
     },
     {
       "slot": "evidence.basis",
@@ -11219,7 +11797,7 @@
       "key": "reason.number/hado",
       "variant": "single",
       "lang": "ko",
-      "body": "오늘의 색과 같은 기운의 수 가운데, 오늘 천간의 음양에 맞는 수를 골라서 그래요."
+      "body": "오늘의 색과 같은 기운의 숫자 중에서, 오늘 천간의 음양에 맞는 숫자를 골라서 그래요."
     },
     {
       "slot": "explain.today_reason",

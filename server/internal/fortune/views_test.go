@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -960,4 +961,94 @@ func TestViews_ChartTextsMissing(t *testing.T) {
 			assert.Nil(t, view.YongsinSummary)
 		})
 	}
+}
+
+// relationSeed는 행운 카드 관계 문장 슬롯(D130)과 원고를 더한 테스트 시드입니다. 방위 관계 원고는 일부러 뺍니다.
+func relationSeed(t *testing.T) seed.Seed {
+	t.Helper()
+	elements := map[string]seed.ParamKind{
+		"element":      {Kind: seed.KindCategory, Categories: []string{"element"}},
+		"base_element": {Kind: seed.KindCategory, Categories: []string{"element"}},
+	}
+	slots := maps.Clone(viewSlots)
+	slots[fortune.SlotColorRelation] = seed.Slot{ID: fortune.SlotColorRelation, Rotation: seed.RotationNone, Params: elements}
+	slots[fortune.SlotDirectionRelation] = seed.Slot{ID: fortune.SlotDirectionRelation, Rotation: seed.RotationNone, Params: elements}
+	numberParams := maps.Clone(elements)
+	numberParams["number"] = seed.ParamKind{Kind: seed.KindNumber}
+	slots[fortune.SlotNumberRelation] = seed.Slot{ID: fortune.SlotNumberRelation, Rotation: seed.RotationNone, Params: numberParams}
+	slots[fortune.SlotNumber] = seed.Slot{ID: fortune.SlotNumber, Rotation: seed.RotationNone, Params: numberParams}
+
+	templates := append(viewTemplates(""),
+		tpl("glossary.value_name", "element.water", seed.VariantSingle, "ko", "수"),
+		tpl(fortune.SlotColorRelation, "color.gwiin_day.gwi", seed.VariantSingle, "ko", "{base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요. {element}이 잘 맞아요."),
+		tpl(fortune.SlotDirection, "direction.day_kind.ordinary", seed.VariantSingle, "ko", "필요한 기운의 방위가 좋아요."),
+		tpl(fortune.SlotNumberRelation, "number.gwiin_day.related", seed.VariantSingle, "ko", "오늘 색과 같은 {element} 기운의 숫자 중에서 {number}를 골랐어요."),
+	)
+	s := seed.Seed{Slots: slots, Templates: templates}
+	require.NoError(t, s.Normalize())
+	return s
+}
+
+// 행운 카드의 relation이 SAME이 아니면 본문을 관계 문장으로 바꾸고, 근거와 선택 기록은 core 판정 그대로입니다(D130, #1153).
+// 관계 원고가 없으면 로그를 남기고 core 키 문장을 둡니다.
+func TestViews_DailyLuckyRelation(t *testing.T) {
+	ctx := context.Background()
+	related := func(key string, params map[string]*enginev1.Param, relation string) *enginev1.Judgment {
+		params["base_element"] = textParam("WATER")
+		params["relation"] = textParam(relation)
+		return judgment(key, params)
+	}
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		r := dailyResponse(false)
+		r.Color.Judgment = related("color.gwiin_day", map[string]*enginev1.Param{"element": textParam("WOOD")}, "GWI")
+		r.Direction.Judgment = related("direction.day_kind.ordinary", map[string]*enginev1.Param{"element": textParam("WOOD")}, "MO")
+		r.Number.Judgment = related("number.gwiin_day", map[string]*enginev1.Param{"element": textParam("WOOD"), "number": intParam(3)}, "CHEO")
+		return r, nil
+	}}
+	f := newViewsFixture(t, fake, relationSeed(t), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(ctx, f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	color := view.Texts[fortune.SlotColor]
+	assert.Equal(t, fortune.SlotColorRelation, color.Slot)
+	assert.Equal(t, "color.gwiin_day.gwi", color.MessageKey)
+	assert.Equal(t, "수의 기운이 오늘은 다르게 읽는 자리에 있어요. 초록이 잘 맞아요.", plain(color.Text))
+	assert.Equal(t, "오늘 그런 이유예요.", plain(color.TodayReason), "오늘 이유는 core 판정 것")
+	assert.NotEmpty(t, color.EvidencePreview, "근거는 core 판정 것")
+
+	number := view.Texts[fortune.SlotNumber]
+	assert.Equal(t, fortune.SlotNumberRelation, number.Slot)
+	assert.Equal(t, "오늘 색과 같은 초록 기운의 숫자 중에서 3를 골랐어요.", plain(number.Text))
+
+	direction := view.Texts[fortune.SlotDirection]
+	assert.Equal(t, fortune.SlotDirection, direction.Slot, "관계 원고가 없으면 core 키 문장")
+	assert.Equal(t, "필요한 기운의 방위가 좋아요.", plain(direction.Text))
+	assert.Contains(t, f.logs.String(), "key=direction.day_kind.ordinary.mo")
+
+	rows, err := f.pool.Query(ctx, "SELECT message_key FROM daily_selections WHERE account_id = $1 AND slot IN ($2, $3) ORDER BY slot",
+		f.account, fortune.SlotColor, fortune.SlotNumber)
+	require.NoError(t, err)
+	keys, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	require.NoError(t, err)
+	assert.Equal(t, []string{"color.gwiin_day", "number.gwiin_day"}, keys, "선택 기록은 core 키")
+}
+
+// relation이 SAME이거나, 관계 문장을 쓰지 않는 카드(색이 둘인 날의 색, 희신이 아닌 방위)는 core 키 문장입니다.
+func TestViews_DailyLuckySameRelationKeepsCoreText(t *testing.T) {
+	fake := &enginetest.Fake{Daily: func(*enginev1.DailyRequest) (*enginev1.DailyResponse, error) {
+		r := dailyResponse(false)
+		r.Color.Judgment.Params["relation"] = textParam("SAME")
+		r.Direction.Judgment.Params = map[string]*enginev1.Param{"relation": textParam("GWI")}
+		return r, nil
+	}}
+	f := newViewsFixture(t, fake, relationSeed(t), fortune.AlwaysLocked{})
+
+	view, err := f.views.Daily(context.Background(), f.account, viewProfile("ko"), viewDate)
+	require.NoError(t, err)
+
+	assert.Equal(t, fortune.SlotColor, view.Texts[fortune.SlotColor].Slot)
+	assert.Equal(t, "초록색이 잘 맞아요.", plain(view.Texts[fortune.SlotColor].Text))
+	assert.Equal(t, fortune.SlotDirection, view.Texts[fortune.SlotDirection].Slot)
+	assert.NotContains(t, f.logs.String(), "relation")
 }
