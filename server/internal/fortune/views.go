@@ -341,13 +341,23 @@ func (v *Views) guideCandidates(ctx context.Context, tpl content.Templates, r *e
 	return out
 }
 
-// renderDaily는 슬롯 하나를 렌더합니다. 호칭은 Renderer가 호칭 슬롯에만 씁니다.
+// renderDaily는 슬롯 하나를 렌더합니다. 호칭은 Renderer가 호칭 슬롯에만 씁니다. 행운 색, 방위, 숫자는 관계 문장(relationKey)으로 바꿀 수 있습니다.
 // 근거는 권한이 있을 때(unlocked)만 렌더합니다. 식별자 키 슬롯에는 근거가 없습니다.
 func (v *Views) renderDaily(ctx context.Context, tpl content.Templates, s dailySlot, variant, name string, unlocked bool) (content.SlotText, bool) {
 	if s.judgment == nil {
 		return v.renderer.Identifier(ctx, tpl, s.id, s.key, nil, "")
 	}
-	return v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name, content.EvidenceFor(unlocked))
+	text, ok := v.renderer.Slot(ctx, tpl, s.id, variant, s.judgment, name, content.EvidenceFor(unlocked))
+	if !ok {
+		return text, false
+	}
+	// 행운 카드의 결과 오행이 바탕 오행과 다르면 본문을 관계 문장으로 바꿉니다(D130). 관계 원고가 없으면 core 키 문장을 둡니다.
+	if slot, key, related := relationKey(s.id, s.judgment); related {
+		if relatedText, ok := v.renderer.Relation(ctx, tpl, text, slot, key, s.judgment); ok {
+			return relatedText, true
+		}
+	}
+	return text, true
 }
 
 // dailySlots는 데일리 응답에서 문장 슬롯 목록을 만듭니다(P4-3의 8개 슬롯).

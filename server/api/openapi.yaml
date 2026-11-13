@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.13.0
+  version: 1.13.1
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -3246,6 +3246,9 @@ components:
         `color`는 첫째 색 카드입니다. 숫자의 오행과 공유 이미지 색은 이 카드를 따릅니다(D119 ③④).
         `secondColor`는 색이 둘인 날(D119 ②)의 둘째 색(원전 기준)이고 그 밖의 날에는 없습니다(1.11.0에서 더함). 이날 `color`는 내 균형 기준 색입니다.
         두 카드의 `text`는 같은 슬롯 `daily.color`이고 키가 `color.balance.*`, `color.source.*`로 다릅니다. 각 카드 문장의 근거가 그 색의 근거입니다(D123 ②).
+        색이 하나인 날의 `color`, `direction`, `number` 문장은 결과 오행이 그날 필요한 기운(바탕 오행)과 다르면 그 관계를 말하는 문장이고(D130, 1.13.1에서 적음),
+        그때 `text.slot`은 `daily.color_relation`, `daily.direction_relation`, `daily.number_relation`, `text.messageKey`는 그 슬롯의 키입니다.
+        근거와 오늘 이유는 같은 판정의 것이라 그대로입니다. app은 카드 자리로 문장을 고르고 `slot` 값으로 고르지 않습니다.
         `focusTime`은 낮(진시~술시)의 1등 시진, `nightFocusTime`은 그날 밤(그날 해시와 다음 날 자시~묘시)의 1등 시진입니다(D122, 1.11.0에서 더함).
         `previousNightFocusTime`은 전날 밤의 1등 시진이고, 요청 날짜가 프로필 현재 시간대의 오늘일 때만 있습니다(D122 ⑦, 1.11.0에서 더함).
         오늘 화면은 그날 낮 구간이 시작하기 전에는 `previousNightFocusTime`을, 그 뒤에는 `nightFocusTime`을 보입니다(D30, D122 ⑦, #1064).

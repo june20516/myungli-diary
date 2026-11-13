@@ -149,6 +149,32 @@ func (r *Renderer) Slot(ctx context.Context, tpl Templates, slot, variant string
 	return out, true
 }
 
+// Relation은 base(판정 j를 core 키로 렌더한 카드 문장)의 본문만 writing 식별자 슬롯 slot의 key 문장으로 바꿉니다(D130).
+// 매개변수는 같은 판정 j의 것을 그 슬롯 명세대로 쓰고, 오늘 이유와 근거는 base 것을 그대로 둡니다(근거는 같은 판정).
+// Slot과 MessageKey는 실제로 렌더한 slot, key입니다. 원고가 없거나 렌더에 실패하면 Error 로그를 남기고 false입니다.
+func (r *Renderer) Relation(ctx context.Context, tpl Templates, base SlotText, slot, key string, j *enginev1.Judgment) (SlotText, bool) {
+	def, ok := tpl.Slot(slot)
+	if !ok {
+		r.logFailure(ctx, tpl, slot, key, seed.VariantSingle)
+		return SlotText{}, false
+	}
+	params, err := ParamValues(j, def.Params)
+	if err != nil {
+		r.logFailure(ctx, tpl, slot, key, seed.VariantSingle, err)
+		return SlotText{}, false
+	}
+	text, ok := r.render(ctx, tpl, def, key, seed.VariantSingle, params, "")
+	if !ok {
+		return SlotText{}, false
+	}
+	base.Slot = slot
+	base.MessageKey = key
+	base.Variant = seed.VariantSingle
+	base.Text = text
+	base.Reactable = Reactable(slot)
+	return base, true
+}
+
 // evidencePreviews는 렌더한 근거 문장을 앞부분만 남깁니다. 두 문장 모두 자를 수 없는 근거는 뺍니다.
 func evidencePreviews(lang string, evidence []Evidence) []EvidencePreview {
 	var out []EvidencePreview

@@ -692,8 +692,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.13.0" {
-		t.Errorf("info.version = %q, want 1.13.0", doc.Info.Version)
+	if doc.Info.Version != "1.13.1" {
+		t.Errorf("info.version = %q, want 1.13.1", doc.Info.Version)
 	}
 }
 
@@ -2045,6 +2045,17 @@ func TestContract_1_13ConsentAge14(t *testing.T) {
 	legal := schemaOf(t, doc, "LegalLinks")
 	if _, ok := legal.Properties["age_14"]; ok {
 		t.Error("age_14는 법적 문서 페이지가 없어 LegalLinks에 없어야 함")
+	}
+}
+
+// TestContract_1_13_1LuckyRelation은 행운 카드 관계 문장의 슬롯 id 설명을 고정합니다. (S159, #1153, D130)
+func TestContract_1_13_1LuckyRelation(t *testing.T) {
+	doc := loadDoc(t)
+	cards := schemaOf(t, doc, "DailyCards")
+	for _, slot := range []string{"`daily.color_relation`", "`daily.direction_relation`", "`daily.number_relation`"} {
+		if !strings.Contains(cards.Description, slot) {
+			t.Errorf("DailyCards 설명에 %s가 없음", slot)
+		}
 	}
 }
 
