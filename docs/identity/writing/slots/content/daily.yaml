@@ -304,7 +304,7 @@
 
 # 행운 색, 방위, 숫자의 관계 문장(D130, #1132, 라운드 R48). core 메시지 키가 아니라 writing 식별자 키이고,
 # server가 판정의 relation 값으로 `select`대로 고릅니다. relation이 SAME이면 위 core 키 문장을 그대로 씁니다.
-# 상한은 카드 두 줄(36자)을 넘어 design 측정 전입니다(#1132 후속 design 요청).
+# 상한은 같은 본문 칸을 네 줄로 잰 design 값입니다(design #1157, #1154).
 
 - id: daily.color_relation
   where: 오늘 화면 행운의 색 카드(색이 하나인 날, 색 오행이 바탕 오행과 다른 날)
@@ -321,7 +321,7 @@
     explain: 색과 오행의 관계, 오늘 그 색인 이유
   endings: ["~잘 맞아요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 92, en: 156, ja: 76}
   keys:
     - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, relation: none, shift: none, twelve_stage: [twelve_stage]}
       keys:
@@ -367,7 +367,7 @@
     explain: 방위와 오행, 오늘 그 방향인 이유(날의 성격 규칙)
   endings: ["~좋아요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 92, en: 156, ja: 76}
   keys:
     - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, deity: none, base_element: [element, color], relation: none}
       keys:
@@ -395,7 +395,7 @@
     explain: 하도 수와 오행, 홀짝을 고른 이유
   endings: ["~골랐어요"]
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
-  max_length: {ko: null, en: null, ja: null}
+  max_length: {ko: 92, en: 156, ja: 76}
   keys:
     - params: {number: number, element: [element, color], day_stem: [stem], parity: none, pair: none, base_element: [element, color], relation: none}
       keys:
