@@ -192,19 +192,19 @@
   ia: [today.lucky-color.body, today.lucky-color.second.body]
   keys:
     # 카드 하나인 날은 color.<날의 성격>, 색이 둘인 날(D119 ②)은 첫째 색 color.balance.*(today.lucky-color.body), 둘째 색 color.source.*(today.lucky-color.second.body)입니다.
-    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, relation: none, shift: none, twelve_stage: [twelve_stage]}
       keys:
         - color.gisin_day
         - color.gwiin_day
         - color.ordinary_day
         - color.yongsin_day
-    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, relation: none, shift: none, twelve_stage: [twelve_stage]}
       keys:
         - color.balance.gisin_day
         - color.balance.gwiin_day
         - color.balance.ordinary_day
         - color.balance.yongsin_day
-    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, shift: none, twelve_stage: [twelve_stage]}
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, relation: none, shift: none, twelve_stage: [twelve_stage]}
       keys:
         - color.source.gisin_day
         - color.source.gwiin_day
@@ -242,14 +242,14 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-direction.body]
   keys:
-    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none}
+    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, base_element: [element, color], relation: none}
       keys:
         - direction.day_kind.gisin
         - direction.day_kind.yongsin
     - params: {direction: [direction8], rule_id: none, day_branch: [branch]}
       keys:
         - direction.day_kind.gwiin
-    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, deity: none}
+    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, deity: none, base_element: [element, color], relation: none}
       keys:
         - direction.day_kind.ordinary
   variants: {count: 1, rotation: "변주가 하나입니다"}
@@ -279,7 +279,7 @@
   max_length: {ko: 36, en: 64, ja: 36}
   ia: [today.lucky-number.body]
   keys:
-    - params: {number: number, element: [element, color], day_stem: [stem], parity: none, pair: none}
+    - params: {number: number, element: [element, color], day_stem: [stem], parity: none, pair: none, base_element: [element, color], relation: none}
       keys:
         - number.gisin_day
         - number.gwiin_day

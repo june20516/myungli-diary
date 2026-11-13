@@ -136,12 +136,15 @@ def test_param_kinds_follow_engine_values(rules: RuleSet) -> None:
         "day_stem": ParamKind("glossary", ("stem",)),
         "parity": none,
         "pair": none,
+        "base_element": element,
+        "relation": none,
     }
     color_params = {
         "element": element,
         "role": none,
         "base_element": element,
         "day_branch": none,
+        "relation": none,
         "shift": none,
         "twelve_stage": ParamKind("glossary", ("twelve_stage",)),
     }
