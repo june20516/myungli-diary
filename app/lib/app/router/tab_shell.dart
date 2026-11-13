@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myungli_diary/app/entry/entry_providers.dart';
+import 'package:myungli_diary/app/router/tab_reselect.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar.dart';
 import 'package:myungli_diary/design/components/frame/bottom_bar_inset_scope.dart';
@@ -72,8 +73,13 @@ class _TabShellState extends ConsumerState<TabShell> {
               child: MyungliBottomBar(
                 index: shell.currentIndex,
                 onSelect: shell.goBranch,
-                onScrollToTop: () =>
-                    shell.goBranch(shell.currentIndex, initialLocation: true),
+                onScrollToTop: () {
+                  // 쌓인 화면을 걷고, 첫 화면이 맨 위(달력은 오늘)로 가게 알립니다(V104, V127).
+                  shell.goBranch(shell.currentIndex, initialLocation: true);
+                  ref
+                      .read(tabReselectProvider.notifier)
+                      .reselect(tabRoots[shell.currentIndex]);
+                },
                 showAd: _isTabRoot,
                 adFree: adFree,
                 consentGiven: consentGiven,

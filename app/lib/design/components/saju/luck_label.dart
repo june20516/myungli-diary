@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
@@ -14,7 +15,7 @@ final class LuckLabel {
   final String text;
 
   /// 누르면 풀이 시트를 엽니다. null이면 칩 없이 글자만 둡니다(한자 대체).
-  final VoidCallback? onTap;
+  final SheetTap? onTap;
 }
 
 /// 칸 폭 라벨의 최대 줄 수.

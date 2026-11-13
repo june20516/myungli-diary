@@ -926,6 +926,7 @@ abstract final class Motion {
   static const Duration breathe = Duration(milliseconds: 1800);
   static const Duration toastHold = Duration(milliseconds: 2500);
   static const Duration pageDuration = Duration(milliseconds: 320);
+  static const Duration glint = Duration(milliseconds: 2600);
   static const Cubic seep = Cubic(0.2, 0.7, 0.2, 1);
   static const Cubic enter = Cubic(0.2, 0.8, 0.2, 1);
   static const Cubic exit = Cubic(0.4, 0, 1, 1);

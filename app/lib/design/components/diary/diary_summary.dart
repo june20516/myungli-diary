@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_stats.dart';
@@ -87,7 +89,7 @@ class DiarySummary extends StatelessWidget {
   final DiaryTagNameOf tagNameOf;
 
   /// 태그를 눌렀을 때.
-  final void Function(Tag tag) onTagTap;
+  final FutureOr<void> Function(Tag tag) onTagTap;
 
   /// 보일 태그: 수 많은 순(같으면 응답 순서) 가운데 이름과 한자가 있는 앞의 [maxTags]개.
   ///

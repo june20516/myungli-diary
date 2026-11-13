@@ -78,23 +78,18 @@ class TagSheet extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: SheetHeading(
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: headTag(),
-                  ),
-                ),
+          EvidenceHeadRow(
+            head: SheetHeading(
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: headTag(),
               ),
-              if (first && fortuneTag != null)
-                // SheetHeading의 위 여백과 같은 자리에서 태그와 가운데를 맞춥니다.
-                Padding(
-                  padding: const EdgeInsets.only(top: SheetHeading.topGap),
-                  child: DepthLink.evidence(
+            ),
+            link: !first || fortuneTag == null
+                ? null
+                : DepthLink.evidence(
                     subject: tag.label,
-                    placement: DepthLinkPlacement.inlineEnd,
+                    placement: DepthLinkPlacement.headEnd,
                     onTap: () => unawaited(
                       ref
                           .read(depthSheetsProvider)
@@ -108,8 +103,7 @@ class TagSheet extends ConsumerWidget {
                           ),
                     ),
                   ),
-                ),
-            ],
+            linkTop: SheetHeading.topGap,
           ),
           if (meaning != null && !isBlankText(meaning))
             Padding(

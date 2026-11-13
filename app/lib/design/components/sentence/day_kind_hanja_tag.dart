@@ -1,7 +1,7 @@
-import 'package:flutter/widgets.dart';
 import 'package:myungli_diary/core/api/gen/model/day_kind.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 
 /// 날의 성격 [kind]의 `hanja-tag`: 한자 글자표와 길흉 톤은 [kind]에서 정하고 글자는 [label]입니다.
 ///
@@ -11,7 +11,7 @@ HanjaTag dayKindHanjaTag({
   required DayKind kind,
   required String label,
   HanjaTagVariant variant = HanjaTagVariant.normal,
-  VoidCallback? onTap,
+  SheetTap? onTap,
 }) => HanjaTag(
   glyph: HanjaGlyphs.forDayKind(kind),
   label: label,

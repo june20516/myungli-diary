@@ -122,7 +122,9 @@ void main() {
     }
   });
 
-  testWidgets('색마다 풀이 아래 그 색의 근거 진입점이 있고 그 색 이름으로 읽힙니다', (tester) async {
+  testWidgets('색마다 구역 머리 오른쪽 끝에 그 색의 근거 진입점이 있고 그 색 이름으로 읽힙니다(V130)', (
+    tester,
+  ) async {
     await tester.pumpWidget(body());
     for (final (index, name) in [(0, '검정'), (1, '노랑')]) {
       final link = depthLinkTarget(of: section(index));
@@ -150,7 +152,20 @@ void main() {
           ),
         ),
       );
-      expect(tester.getTopLeft(link).dy, greaterThan(sentence.top));
+      // 견본과 이름 줄의 오른쪽 끝, 이름 줄 가운데이고 풀이 문장보다 위입니다.
+      final icon = tester.getRect(
+        find.descendant(
+          of: section(index),
+          matching: find.byIcon(DepthLink.evidenceGlyph.regular),
+        ),
+      );
+      final nameRect = tester.getRect(find.text(name));
+      expect(icon.right, tester.getRect(section(index)).right);
+      expect(
+        icon.center.dy,
+        moreOrLessEquals(nameRect.center.dy, epsilon: 0.5),
+      );
+      expect(icon.bottom, lessThanOrEqualTo(sentence.top));
       await tester.tap(link);
       await tester.pump();
     }

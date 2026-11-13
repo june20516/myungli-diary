@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -114,7 +115,7 @@ class ScoreRow extends StatelessWidget {
   final HanjaTagTone? tone;
 
   /// 태그를 눌렀을 때(`verdict`만).
-  final VoidCallback? onTagTap;
+  final SheetTap? onTagTap;
 
   /// 점수 [score]의 점 개수(`min(|score|, 3)`).
   static int dotCountOf(int score) => math.min(score.abs(), maxDots);

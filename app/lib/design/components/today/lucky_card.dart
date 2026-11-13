@@ -10,6 +10,7 @@ import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/ohaeng_swatch.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -200,7 +201,7 @@ class LuckyChip extends StatelessWidget {
   // 계약 `lucky-card.parts.chip.border.width` 1px.
   static const double _border = 1;
   // 계약 `lucky-card.states.open.parts.chip.border.width` 1.5px.
-  static const double _openBorder = 1.5;
+  static const double _openBorder = OpenRing.width;
 
   /// 보여 줄 항목.
   final LuckyItem item;

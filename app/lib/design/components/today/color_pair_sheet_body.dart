@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
 import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
@@ -120,7 +122,7 @@ class ColorPairSheetBody extends StatelessWidget {
   }
 }
 
-/// 색 하나의 구역: 머리(견본과 이름), 풀이 문장, 근거 진입점.
+/// 색 하나의 구역: 머리(견본과 이름, 오른쪽 끝에 근거 진입점), 풀이 문장.
 class _Section extends StatelessWidget {
   const new({required this.section, super.key});
 
@@ -135,22 +137,37 @@ class _Section extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          spacing: ColorPairSheetBody.headGap,
-          children: [
-            OhaengSwatch(
-              element: section.element,
-              size: OhaengSwatch.luckySize,
-            ),
-            Flexible(
-              child: Text(
-                section.name,
-                style: tokens.typography.labelLg.copyWith(
-                  color: colors.textPrimary,
+        // 근거 진입점은 구역 머리(견본 + 이름 줄) 오른쪽 끝입니다(V130).
+        EvidenceHeadRow(
+          head: Row(
+            spacing: ColorPairSheetBody.headGap,
+            children: [
+              OhaengSwatch(
+                element: section.element,
+                size: OhaengSwatch.luckySize,
+              ),
+              Flexible(
+                child: Text(
+                  section.name,
+                  style: tokens.typography.labelLg.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          link: onEvidence == null
+              ? null
+              : DepthLink.evidence(
+                  subject: section.name,
+                  placement: DepthLinkPlacement.headEnd,
+                  onTap: onEvidence,
+                ),
+          // 이름이 큰 글자에서 여러 줄이 되어도 아이콘은 첫 줄(견본과 이름 중 높은 쪽)에 둡니다.
+          firstLineHeight: math.max(
+            OhaengSwatch.luckySize,
+            EvidenceHeadRow.lineHeightOf(context, tokens.typography.labelLg),
+          ),
         ),
         const SizedBox(height: ColorPairSheetBody.bodyGapAbove),
         // 누를 곳이 없어 용어 조각은 누를 수 없는 일반 글자로 그립니다(onTerm 없음).
@@ -159,8 +176,6 @@ class _Section extends StatelessWidget {
           text: section.body,
           slotId: section.bodySlotId,
         ),
-        if (onEvidence != null)
-          DepthLink.evidence(subject: section.name, onTap: onEvidence),
       ],
     );
   }

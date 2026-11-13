@@ -15,11 +15,12 @@ enum DepthLinkVariant {
   /// 이유 문장 끝에 붙는 근거 진입점 아이콘.
   inlineEnd('inline-end'),
 
-  /// 나 탭·풀이 시트처럼 문단 아래 따로 놓이는 근거 진입점 아이콘(위 `space.12`).
-  block('block'),
+  /// 시트 머리(또는 시트 안 구역 머리) 오른쪽 끝의 근거 진입점 아이콘(V130). 머리와 함께
+  /// [EvidenceHeadRow]로 놓습니다.
+  headEnd('head-end'),
 
-  /// 다른 페이지로 이동(출생지 → 계산 기준, 결정 V32). 배치는 [block]과 같고, 시트를 열지
-  /// 않고 플랫폼 기본 페이지 전환으로 이동합니다(`sheet.enter`·`sheet.stack` 없음).
+  /// 다른 페이지로 이동(출생지 → 계산 기준, 결정 V32). 문단 아래 따로 놓이고(위 `space.12`),
+  /// 시트를 열지 않고 플랫폼 기본 페이지 전환으로 이동합니다(`sheet.enter`·`sheet.stack` 없음).
   navigate('navigate');
 
   new(this.id);
@@ -46,13 +47,14 @@ enum DepthLinkState {
   unlocked,
 }
 
-/// 근거 진입점 아이콘이 놓이는 자리(`depth-link` 변형 `inline-end`, `block`).
+/// 근거 진입점 아이콘이 놓이는 자리(`depth-link` 변형 `inline-end`, `head-end`, V130).
+/// 시트 밖은 문장 끝, 시트 안은 머리 오른쪽 끝 둘뿐입니다.
 enum DepthLinkPlacement {
-  /// 이유 문장 끝에 붙임.
+  /// 이유 문장 끝에 붙임(시트 밖).
   inlineEnd(DepthLinkVariant.inlineEnd),
 
-  /// 문단 아래 따로 놓임(위 `space.12`).
-  block(DepthLinkVariant.block);
+  /// 시트 머리 또는 구역 머리 오른쪽 끝([EvidenceHeadRow], 시트 안).
+  headEnd(DepthLinkVariant.headEnd);
 
   new(this.variant);
 
@@ -93,7 +95,8 @@ class EvidenceUnlockedScope extends InheritedWidget {
 /// 위 [EvidenceUnlockedScope]가 열람 권한이 있다고 하면 아이콘 선을 `gradient.unlocked`
 /// ([unlockedIconAngle]°)로 칠하고, 모양, 크기, 터치, 이름은 그대로입니다(V112, V63 개정).
 /// [DepthLinkVariant.inlineEnd]는 문장 끝 `WidgetSpan` 하나에 담겨 마지막 낱말과 함께 줄을
-/// 바꾸고, 터치는 물리적 왼쪽으로만 넓혀 오른쪽 부모 경계를 넘지 않습니다.
+/// 바꾸고, [DepthLinkVariant.headEnd]는 [EvidenceHeadRow]가 머리 오른쪽 끝에 둡니다. 둘 다
+/// 오른쪽이 부모 경계라 터치는 물리적 왼쪽으로만 넓힙니다.
 ///
 /// 글자 링크는 `action.primary` `type.label.lg`이고 눌림은 글자 둘레에서만 번지는
 /// `press.ink`입니다. 끝 화살표(`caret-right`)는 원고가 아니라 [LinkLabel]이 그립니다
@@ -113,20 +116,20 @@ class DepthLink extends StatelessWidget {
     super.key,
   }) : subject = null,
        assert(
-         variant != DepthLinkVariant.block,
-         '근거 진입점(block)은 DepthLink.evidence를 씁니다',
+         variant != DepthLinkVariant.headEnd,
+         '근거 진입점(head-end)은 DepthLink.evidence를 씁니다',
        );
 
   /// 근거 진입점 아이콘을 만듭니다. [subject]는 스크린리더가 읽을 항목 이름입니다
-  /// (`inline-end`면 앞 문장이 속한 항목, `block`이면 시트 제목이나 구역 이름).
+  /// (`inline-end`면 앞 문장이 속한 항목, `head-end`면 시트 제목이나 구역 이름).
   const new evidence({
     required String this.subject,
     required this.onTap,
-    DepthLinkPlacement placement = DepthLinkPlacement.block,
+    required DepthLinkPlacement placement,
     this.slotId,
     super.key,
-  }) : variant = placement == DepthLinkPlacement.block
-           ? DepthLinkVariant.block
+  }) : variant = placement == DepthLinkPlacement.headEnd
+           ? DepthLinkVariant.headEnd
            : DepthLinkVariant.inlineEnd,
        label = null,
        marginTop = Space.s12;
@@ -135,7 +138,7 @@ class DepthLink extends StatelessWidget {
   /// (`DepthLinkState`, 그리는 쪽은 `EvidenceSheetBody`). 링크 자신의 상태는 `pressed`뿐입니다.
   static const ComponentSpec spec = ComponentSpec(
     'depth-link',
-    {'inline-end', 'block', 'navigate'},
+    {'inline-end', 'head-end', 'navigate'},
     {'pressed', 'locked', 'lockedNoAd', 'unlocking', 'unlocked'},
   );
 
@@ -170,7 +173,7 @@ class DepthLink extends StatelessWidget {
   /// 이 링크가 그리는 IA 슬롯 id(`SlotIds`). 있으면 Key와 Semantics `identifier`로 붙습니다.
   final String? slotId;
 
-  /// 글자 링크가 block·navigate일 때 위 여백(기본 `space.12`).
+  /// 글자 링크(navigate)의 위 여백(기본 `space.12`).
   final double marginTop;
 
   @override
@@ -184,8 +187,8 @@ class DepthLink extends StatelessWidget {
         ? link
         : KeyedSubtree(key: ValueKey(id), child: link);
     return switch (variant) {
-      DepthLinkVariant.inlineEnd => keyed,
-      DepthLinkVariant.block || DepthLinkVariant.navigate => Padding(
+      DepthLinkVariant.inlineEnd || DepthLinkVariant.headEnd => keyed,
+      DepthLinkVariant.navigate => Padding(
         padding: EdgeInsets.only(top: marginTop),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
@@ -209,8 +212,8 @@ class DepthLink extends StatelessWidget {
     return VerticalHitSlop(
       minHeight: minTarget,
       minWidth: minTarget,
-      // 문장 끝 아이콘은 오른쪽이 부모 경계라 왼쪽으로만 넓힙니다.
-      widenLeftOnly: variant == DepthLinkVariant.inlineEnd,
+      // 문장 끝과 머리 끝 아이콘은 오른쪽이 부모 경계라 왼쪽으로만 넓힙니다.
+      widenLeftOnly: variant != DepthLinkVariant.navigate,
       child: PressInkTarget(
         semanticLabel: AppLocalizations.of(context).depthLinkEvidence(subject),
         identifier: slotId,
@@ -255,6 +258,80 @@ class DepthLink extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 시트 머리(또는 시트 안 구역 머리)와 그 오른쪽 끝 근거 진입점(`depth-link` `head-end`, V130).
+///
+/// 머리는 아이콘 폭(20)과 [gap](`space.12`)을 뺀 폭 안에서 줄을 바꾸고, 아이콘은 머리 첫 줄
+/// 가운데에 남습니다. [firstLineHeight]를 주면 머리 위에서 그 높이의 가운데에 아이콘을 두고(제목
+/// 글자처럼 여러 줄이 될 수 있는 머리), null이면 머리 전체 높이의 가운데입니다(태그처럼 늘 한
+/// 줄인 머리). [linkTop]은 머리 위젯 안쪽 위 여백(`SheetHeading.topGap` 등)이라 아이콘도 그만큼
+/// 내립니다. [link]가 null이면 머리만 그립니다(근거가 없거나 빈 풀이, V123).
+class EvidenceHeadRow extends StatelessWidget {
+  /// 머리와 근거 진입점을 한 줄로 놓습니다.
+  const new({
+    required this.head,
+    required this.link,
+    this.firstLineHeight,
+    this.linkTop = 0,
+    super.key,
+  });
+
+  /// 머리와 아이콘 사이 최소 간격(`head-end.parts.icon.gapStart`, `space.12`).
+  static const double gap = Space.s12;
+
+  /// 머리(제목 줄, `hanja-tag`, 견본과 이름 줄).
+  final Widget head;
+
+  /// 근거 진입점(`DepthLink.evidence`, 자리 `headEnd`). null이면 없음.
+  final Widget? link;
+
+  /// 머리 첫 줄 높이(글자 배율 반영). null이면 머리 전체 높이에 맞춥니다.
+  final double? firstLineHeight;
+
+  /// 머리 위젯 안쪽 위 여백. 아이콘의 세로 자리도 이만큼 내립니다.
+  final double linkTop;
+
+  /// [style] 글자 한 줄의 높이(지금 글자 배율 반영). [firstLineHeight]에 씁니다.
+  static double lineHeightOf(BuildContext context, TextStyle style) {
+    // Text와 같은 배치기로 재야 머리 높이와 어긋나지 않습니다.
+    final painter = TextPainter(
+      text: TextSpan(text: ' ', style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final height = painter.height;
+    painter.dispose();
+    return height;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final link = this.link;
+    if (link == null) {
+      return head;
+    }
+    final lineHeight = firstLineHeight;
+    return Row(
+      crossAxisAlignment: lineHeight == null
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
+      children: [
+        Expanded(child: head),
+        const SizedBox(width: gap),
+        Padding(
+          padding: EdgeInsets.only(top: linkTop),
+          child: lineHeight == null
+              ? link
+              : SizedBox(
+                  height: lineHeight,
+                  child: Center(child: link),
+                ),
+        ),
+      ],
     );
   }
 }

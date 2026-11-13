@@ -38,6 +38,7 @@ import 'package:myungli_diary/design/components/today/guide_question_card.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -635,22 +636,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key(ScreenIds.tagSheet)), findsOneWidget);
       expect(sheets.tagRanks, [1]);
-      List<HanjaTagVariant> featuredVariants() => [
-        for (final tag in tester.widgetList<HanjaTag>(_featuredTags()))
-          tag.variant,
+      // 열린 동안 표시는 태그가 스스로 그리는 open.ring(selected 테두리)입니다(V129).
+      List<bool> featuredOpen() => [
+        for (var i = 0; i < 2; i++) _tagOpen(tester, _featuredTags().at(i)),
       ];
-      expect(featuredVariants(), [
-        HanjaTagVariant.normal,
-        HanjaTagVariant.selected,
-      ]);
+      expect(featuredOpen(), [false, true]);
 
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key(ScreenIds.tagSheet)), findsNothing);
-      expect(featuredVariants(), [
-        HanjaTagVariant.normal,
-        HanjaTagVariant.normal,
-      ]);
+      expect(featuredOpen(), [false, false]);
 
       // 보조 문장 위 태그는 1순위 시트를 엽니다.
       final bodyTag = _tagIn(TodayScreen.bodyTagKeyValue);
@@ -659,10 +654,7 @@ void main() {
       await tester.tap(bodyTag);
       await tester.pumpAndSettle();
       expect(sheets.tagRanks, [1, 0]);
-      expect(
-        tester.widget<HanjaTag>(_tagIn(TodayScreen.bodyTagKeyValue)).variant,
-        HanjaTagVariant.selected,
-      );
+      expect(_tagOpen(tester, _tagIn(TodayScreen.bodyTagKeyValue)), isTrue);
     });
 
     testWidgets('행운 칩은 행운 섹션 카드 안에 있고 누르면 그 칩 설명 시트입니다', (tester) async {
@@ -2149,4 +2141,13 @@ final class _SchedulesUnavailable extends Interceptor {
       true,
     );
   }
+}
+
+/// [tag](`hanja-tag`)가 열림 표시(open.ring, `action.primary` 테두리)를 그리고 있는지.
+bool _tagOpen(WidgetTester tester, Finder tag) {
+  final surface = tester.widget<DecoratedBox>(
+    find.descendant(of: tag, matching: find.byKey(HanjaTag.surfaceKey)),
+  );
+  final border = (surface.decoration as BoxDecoration).border as Border?;
+  return border?.top.color == tester.element(tag).tokens.colors.actionPrimary;
 }

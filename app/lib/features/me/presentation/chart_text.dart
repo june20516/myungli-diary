@@ -61,7 +61,7 @@ enum ChartColumn {
 }
 
 /// 표 칸 용어를 눌렀을 때 부르는 함수. [personal]은 그 칸의 원국 개인 해석 자리입니다.
-typedef TermTapHandler = void Function(
+typedef TermTapHandler = FutureOr<void> Function(
   String termId,
   PersonalReadingKey personal,
 );
@@ -112,14 +112,12 @@ final class ChartText {
   String branchText(Branch branch) =>
       '${branchHanja(branch)} ${branchReading(branch)}';
 
-  /// 표 칸 용어의 풀이 시트를 엽니다.
-  void openTerm(String termId, PersonalReadingKey personal) {
+  /// 표 칸 용어의 풀이 시트를 엽니다. 시트가 닫힐 때 끝나 누른 칩에 열림 표시가 남습니다(V129).
+  FutureOr<void> openTerm(String termId, PersonalReadingKey personal) {
     final handler = onTermTap;
-    if (handler != null) {
-      handler(termId, personal);
-    } else {
-      unawaited(_openExplain(termId, personal));
-    }
+    return handler != null
+        ? handler(termId, personal)
+        : _openExplain(termId, personal);
   }
 
   Future<void> _openExplain(String termId, PersonalReadingKey personal) =>

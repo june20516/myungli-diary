@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
     show HitTestResult, RenderPointerListener;
@@ -121,7 +123,7 @@ class FortuneVerdict extends StatefulWidget {
   final List<ScoreItem>? items;
 
   /// 내역 줄의 태그를 눌렀을 때.
-  final void Function(ScoreItem item)? onItemTap;
+  final FutureOr<void> Function(ScoreItem item)? onItemTap;
 
   /// 그릴 수 없어 건너뛴 항목 id(이름이나 글자표가 없음)를 알립니다. 다시 그릴 때마다
   /// 호출될 수 있으니 부르는 쪽이 중복을 제거합니다.

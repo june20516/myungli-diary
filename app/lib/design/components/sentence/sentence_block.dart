@@ -10,6 +10,7 @@ import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/unlock_mark.dart';
 import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
@@ -42,7 +43,7 @@ enum SentenceBlockVariant {
 /// (V73). 잠긴 내용은 server가 보내지 않으므로 [text]는 트리에도 스크린리더에도 들어가지 않습니다.
 ///
 /// [unlocked]면 열람 권한이 있어 보이게 된 문장(사주 표 용신 판정 근거, D118 ②, V112)이라
-/// 보통 문장에 `unlock.glint`를 더합니다(나타난 직후 한 번, 그 뒤 15초마다). 동작 줄이기면
+/// 보통 문장에 `unlock.glint`를 더합니다(나타난 직후 한 번, 그 뒤 10초마다). 동작 줄이기면
 /// 반짝임 대신 문장 왼쪽 밖 `unlock.mark` 세로선만 둡니다(구역 제목이 없음).
 class SentenceBlock extends StatelessWidget {
   /// 문장 덩어리를 만듭니다.
@@ -148,7 +149,7 @@ class SentenceBlock extends StatelessWidget {
 
   /// 용어 칩을 눌렀을 때. 칩으로 그려질 때(term-token 화면 슬롯의 문장에 `term` 조각이
   /// 있을 때) 필요합니다. 용어가 없는 문장에는 주지 않아도 됩니다.
-  final ValueChanged<String>? onTerm;
+  final TermTap? onTerm;
 
   /// 잠긴 문장의 "열기" 링크를 눌렀을 때(근거 시트를 잠김 상태로 엽니다).
   final VoidCallback? onOpenLocked;

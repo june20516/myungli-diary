@@ -15,11 +15,12 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 /// * 처음: 지나갈 수 있게 되면(아래 멈춤 조건이 모두 풀리면) [firstDelay] 뒤 한 번. 열린
 ///   내용이 `appear.seep`으로 나타나는 시트는 그 시간을 주고, 처음부터 열려 있던 시트는 0이라
 ///   시트가 다 올라온 직후입니다.
-/// * 그 뒤: 앞 반짝임 시작에서 [PatternValues.glintInterval]마다 `breathe`(1800ms) 동안 한 번.
+/// * 그 뒤: 앞 반짝임 시작에서 [PatternValues.glintInterval]마다
+///   `glint`(2600ms) 동안 한 번(V131).
 ///
 /// 멈춤(`pauseWhen`): 앱이 배경으로 감, 이 화면 route가 아직 들어오는 중이거나 위 route에
 /// 덮임(`sheet.stack` 아래 층, route의 `secondaryAnimation`), `TickerMode`가 꺼짐, 대상이
-/// 모두 스크롤 영역 밖. 멈추면 지나가던 띠를 지우고, 다시 지나갈 수 있게 되면 다음 15초 박자에
+/// 모두 스크롤 영역 밖. 멈추면 지나가던 띠를 지우고, 다시 지나갈 수 있게 되면 다음 10초 박자에
 /// 지나갑니다(아직 한 번도 지나가지 않았으면 [firstDelay]). 이 위젯이 빠지면(시트 닫힘) 끝납니다.
 ///
 /// 동작 줄이기면(`reduceMotion: replace`) 박자를 돌리지 않고, 대상은 띠를 그리지 않습니다.
@@ -53,7 +54,7 @@ class _UnlockGlintScopeState extends State<UnlockGlintScope>
   /// 다음 반짝임.
   Timer? _next;
 
-  /// 한 번이라도 지나갔는지. 다시 이어질 때 첫 기다림 대신 15초 박자를 씁니다.
+  /// 한 번이라도 지나갔는지. 다시 이어질 때 첫 기다림 대신 10초 박자를 씁니다.
   bool _glinted = false;
 
   /// 지금 박자가 돌고 있는지.

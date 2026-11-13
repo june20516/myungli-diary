@@ -35,6 +35,7 @@ import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -152,7 +153,7 @@ class _MySajuBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final names = ref.watch(glossaryProvider).value;
     final sheets = ref.read(depthSheetsProvider);
-    void explain(String termId) =>
+    Future<void> explain(String termId) =>
         sheets.openExplain(context, ExplainTerm(termId));
 
     // 판정은 사주 표와 같은 [chartTimeUnknown]이고, 문구는 이 화면에 ui 슬롯이 없어 server 안내
@@ -255,7 +256,7 @@ class _IlganSection extends StatelessWidget {
   const new({required this.chart, required this.explain});
 
   final Chart chart;
-  final void Function(String termId) explain;
+  final TermTap explain;
 
   @override
   Widget build(BuildContext context) {
@@ -297,7 +298,7 @@ class _YongsinSection extends ConsumerWidget {
   });
 
   final Chart chart;
-  final void Function(String termId) explain;
+  final TermTap explain;
 
   /// 행운 색 칩을 눌렀을 때 설명 시트를 엽니다(시트가 닫히면 끝나는 Future).
   final Future<void> Function(LuckyItem item) explainLucky;
@@ -481,7 +482,7 @@ class _FlowCard extends ConsumerWidget {
     );
   }
 
-  void _explainKind(
+  Future<void> _explainKind(
     BuildContext context, {
     required String title,
     required String body,

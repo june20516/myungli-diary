@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
@@ -163,7 +164,7 @@ void main() {
         findsNothing,
       );
       final link = tester.widget<DepthLink>(find.byType(DepthLink));
-      expect(link.variant, DepthLinkVariant.block);
+      expect(link.variant, DepthLinkVariant.headEnd);
       expect(link.label, isNull, reason: '근거 진입점은 글자가 없는 아이콘');
       expect(link.subject, '식신');
     });
@@ -206,10 +207,10 @@ void main() {
             tester.getRect(box).top - meaningRect.bottom,
             moreOrLessEquals(WeighingNote.marginTop, epsilon: 0.01),
           );
-          // 상자는 근거 진입점보다 위에 있고 누를 수 없습니다.
+          // 근거 진입점은 제목 줄 끝(V130)이라 상자보다 위이고, 상자는 누를 수 없습니다.
           expect(
-            tester.getRect(box).bottom,
-            lessThanOrEqualTo(tester.getRect(find.byType(DepthLink)).top),
+            tester.getRect(find.byType(DepthLink)).bottom,
+            lessThanOrEqualTo(tester.getRect(box).top),
           );
           expect(
             find.descendant(of: box, matching: find.byType(GestureDetector)),
@@ -649,11 +650,15 @@ void main() {
         find.byKey(const Key(SlotIds.explainSheetTodayReason)),
         findsOneWidget,
       );
-      final title = tester.getTopLeft(find.text('식신')).dy;
+      final title = tester.getRect(find.text('식신'));
       final meaning = tester.getTopLeft(find.textContaining('흐르는')).dy;
       final reason = tester.getTopLeft(find.textContaining('월지')).dy;
-      final link = tester.getTopLeft(find.byType(DepthLink)).dy;
-      expect(title < meaning && meaning < reason && reason < link, isTrue);
+      expect(title.top < meaning && meaning < reason, isTrue);
+      // 근거 진입점은 제목 줄 오른쪽 끝, 제목 첫 줄 가운데입니다(head-end, V130).
+      final icon = tester.getRect(find.byIcon(DepthLink.evidenceGlyph.regular));
+      expect(icon.center.dy, moreOrLessEquals(title.center.dy, epsilon: 0.5));
+      expect(icon.left - title.right, greaterThanOrEqualTo(Space.s12));
+      expect(icon.right, tester.getRect(find.byType(ExplainSheetBody)).right);
     });
 
     testWidgets('한자는 caption.md 크기·색에 한자 글꼴(font.family.hanja)입니다', (

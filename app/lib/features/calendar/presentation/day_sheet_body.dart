@@ -29,6 +29,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_glyphs.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/calendar/application/calendar_providers.dart';
@@ -151,7 +152,7 @@ class _DayKindTag extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    HanjaTag tag({VoidCallback? onTap}) => dayKindHanjaTag(
+    HanjaTag tag({SheetTap? onTap}) => dayKindHanjaTag(
       kind: dayKind,
       label: dayKindName(l10n, dayKind),
       variant: HanjaTagVariant.emphasis,
@@ -163,15 +164,13 @@ class _DayKindTag extends ConsumerWidget {
       child: KeyedSubtree(
         key: const ValueKey(SlotIds.daySheetCharacterLabel),
         child: tag(
-          onTap: () => unawaited(
-            ref
-                .read(depthSheetsProvider)
-                .openExplain(
-                  context,
-                  ExplainTerm('day_kind.${dayKind.value}'),
-                  head: tag(),
-                ),
-          ),
+          onTap: () => ref
+              .read(depthSheetsProvider)
+              .openExplain(
+                context,
+                ExplainTerm('day_kind.${dayKind.value}'),
+                head: tag(),
+              ),
         ),
       ),
     );
@@ -243,7 +242,8 @@ class _VerdictSection extends ConsumerWidget {
     return meaning == _tagNameOf(names, id) ? null : meaning;
   }
 
-  void _openItem(
+  /// 내역 줄 태그의 뜻 시트를 엽니다. 시트가 닫힐 때 끝나 그 태그에 열림 표시가 남습니다.
+  Future<void>? _openItem(
     BuildContext context,
     WidgetRef ref,
     GlossaryNames? names,
@@ -252,16 +252,14 @@ class _VerdictSection extends ConsumerWidget {
     final termId = ScoreItemMeta.termIdOf(item.id);
     final glyph = HanjaGlyphs.forScoreItem(item.id);
     final name = _tagNameOf(names, item.id);
-    if (termId == null || glyph == null || name == null) return;
-    unawaited(
-      ref
-          .read(depthSheetsProvider)
-          .openExplain(
-            context,
-            ExplainTerm(termId),
-            head: HanjaTag(glyph: glyph, label: name),
-          ),
-    );
+    if (termId == null || glyph == null || name == null) return null;
+    return ref
+        .read(depthSheetsProvider)
+        .openExplain(
+          context,
+          ExplainTerm(termId),
+          head: HanjaTag(glyph: glyph, label: name),
+        );
   }
 }
 

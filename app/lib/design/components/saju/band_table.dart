@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:myungli_diary/core/api/gen/model/five_element.dart';
@@ -174,7 +176,7 @@ class BandTable extends StatelessWidget {
   final Map<BandKind, String> bandLabels;
 
   /// 띠 머리줄의 용어 칩을 눌렀을 때(설명 시트 열기).
-  final void Function(BandKind kind) onBandTap;
+  final FutureOr<void> Function(BandKind kind) onBandTap;
 
   /// 일주 열 머리 뒤 `tag.me` 꼬리표 글자.
   final String meLabel;

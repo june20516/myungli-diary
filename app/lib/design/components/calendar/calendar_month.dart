@@ -13,6 +13,7 @@ import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/text/line_height.dart';
@@ -50,8 +51,9 @@ final class CalendarRuleEntry {
   /// 칩 글자(스크린리더 이름도 같음).
   final String label;
 
-  /// 눌렀을 때(색 규칙 시트 열기).
-  final VoidCallback onTap;
+  /// 눌렀을 때(색 규칙 시트 열기). 시트 Future를 돌려주면 열린 동안 칩에 열림 표시
+  /// (`openState`, 요소 `open.ring`)가 남습니다(V129).
+  final SheetTap onTap;
 }
 
 /// 한 달 격자(`calendar-month`): 달 제목·이전·다음, 요일 머리, 일요일 시작 6주 42칸, 범례와 규칙 입구.
@@ -95,12 +97,14 @@ class CalendarMonthView extends StatefulWidget {
     this.lastMonth,
     this.skeletonDelay = SkeletonBlock.defaultDelay,
     this.skeletonAnimated = true,
+    this.todayFocusRequest = 0,
     super.key,
   }) : assert(weekdayLabels.length == 7, '요일 머리는 일~토 7개입니다.');
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('calendar-month', {}, {
     'monthChanged',
+    'todayReselect',
     'loading',
   });
 
@@ -163,6 +167,11 @@ class CalendarMonthView extends StatefulWidget {
 
   /// 범례 견본.
   static const Key legendSwatchKey = ValueKey('calendar-month-legend-swatch');
+
+  /// 이 값이 바뀌면 다음 프레임에 스크린리더 초점을 오늘 칸으로 옮깁니다(`todayReselect.a11y`,
+  /// V127). 달력 탭을 다시 누를 때마다 쓰는 쪽이 늘립니다. 새 문구 없이 칸 이름("…, 오늘")을
+  /// 읽습니다.
+  final int todayFocusRequest;
 
   /// [date] 칸을 감싼 자리의 키.
   static Key cellKey(CalendarDate date) =>
@@ -229,6 +238,9 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   bool _skeletonVisible = false;
   double _dragDx = 0;
 
+  /// 오늘 칸([DayCell]). 스크린리더 초점을 옮길 때 찾습니다. 격자에 오늘은 한 칸뿐입니다.
+  final GlobalKey _todayCellKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -239,12 +251,25 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   void didUpdateWidget(CalendarMonthView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.month != widget.month) _announceMonth();
+    if (oldWidget.todayFocusRequest != widget.todayFocusRequest) {
+      _focusTodayAfterFrame();
+    }
     if (widget.loading && !oldWidget.loading) {
       _startSkeleton();
     } else if (!widget.loading) {
       _skeletonTimer?.cancel();
       _skeletonVisible = false;
     }
+  }
+
+  /// 다음 프레임(오늘이 든 달이 그려진 뒤)에 오늘 칸으로 스크린리더 초점을 옮깁니다.
+  void _focusTodayAfterFrame() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _todayCellKey.currentContext?.findRenderObject()?.sendSemanticsEvent(
+        const FocusSemanticEvent(),
+      );
+    });
   }
 
   /// 달이 바뀌면 새 제목을 한 번 알립니다. 격자를 live region으로 두면 처음 열 때도 알리고
@@ -485,9 +510,11 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
     final outside = date.year != month.year || date.month != month.month;
     final enabled =
         date.isSupported && (widget.isDateEnabled?.call(date) ?? true);
+    final isToday = date == widget.today;
     final dayCell = DayCell(
+      key: isToday ? _todayCellKey : null,
       data: widget.cellOf(date),
-      isToday: date == widget.today,
+      isToday: isToday,
       isSelected: date == widget.selected,
       outsideMonth: outside,
       disabled: !enabled,
@@ -609,29 +636,33 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
           top: CalendarMonthView.ruleEntryTop,
           bottom: reach,
         ),
-        child: VerticalHitSlop(
-          key: CalendarMonthView.ruleEntryKey,
-          child: PressInkTarget(
-            semanticLabel: entry.label,
-            identifier: widget.ruleEntryIdentifier,
-            onTap: entry.onTap,
-            borderRadius: radius,
-            inkColor: colors.termFg,
-            child: DecoratedBox(
-              key: CalendarMonthView.ruleChipKey,
-              decoration: BoxDecoration(
-                color: colors.termBg,
-                borderRadius: radius,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Space.s8,
-                  vertical: Space.s4,
+        child: SheetOpenTracker(
+          onTap: entry.onTap,
+          builder: (context, state) => VerticalHitSlop(
+            key: CalendarMonthView.ruleEntryKey,
+            child: PressInkTarget(
+              semanticLabel: entry.label,
+              identifier: widget.ruleEntryIdentifier,
+              onTap: state.onTap,
+              borderRadius: radius,
+              inkColor: colors.termFg,
+              child: DecoratedBox(
+                key: CalendarMonthView.ruleChipKey,
+                decoration: BoxDecoration(
+                  color: colors.termBg,
+                  borderRadius: radius,
+                  border: state.open ? OpenRing.border(context) : null,
                 ),
-                child: Text(
-                  entry.label,
-                  style: tokens.typography.labelMd.copyWith(
-                    color: colors.termFg,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Space.s8,
+                    vertical: Space.s4,
+                  ),
+                  child: Text(
+                    entry.label,
+                    style: tokens.typography.labelMd.copyWith(
+                      color: colors.termFg,
+                    ),
                   ),
                 ),
               ),

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/app/router/screen_breadcrumbs.dart';
+import 'package:myungli_diary/app/router/tab_reselect.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar.dart';
 import 'package:myungli_diary/core/api/gen/model/calendar_day.dart';
@@ -25,6 +26,7 @@ import 'package:myungli_diary/design/components/feedback/retry_hold.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/interaction/stick_to_end_on_grow.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -91,9 +93,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// 사용자가 고른 날. null이면 오늘입니다.
   CalendarDate? _picked;
 
+  /// 달력 탭을 다시 누른 차례. 바뀌면 격자가 오늘 칸으로 스크린리더 초점을 옮깁니다(V127).
+  int _todayFocusRequest = 0;
+
   /// [month] 격자의 일정 범위. 지원 날짜 밖은 자릅니다(D41).
   static ScheduleRange _rangeOf(CalendarMonth month) =>
       (from: month.supportedGridStart, to: month.supportedGridEnd);
+
+  /// 달력 탭을 다시 누르면 오늘이 든 달로 돌아가 오늘 칸을 고릅니다(`todayReselect`, V127).
+  /// 쌓인 화면은 탭 셸이 이미 걷었고, 그날 시트는 열지 않습니다. 오늘 달을 보고 있고 오늘이
+  /// 골라져 있으면 그림은 그대로이고 초점만 오늘 칸으로 갑니다.
+  void _returnToToday() {
+    setState(() {
+      _month = null;
+      _picked = null;
+      _todayFocusRequest++;
+    });
+  }
 
   /// 탭 복귀 듣기를 끝냅니다.
   late final void Function() _stopEntries;
@@ -173,9 +189,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   });
 
   /// 범례 아래 입구를 누르면 색 규칙 시트를 엽니다.
-  void _openColorRule() {
-    unawaited(ref.read(colorRuleSheetsProvider).open(context));
-  }
+  /// 시트가 닫힐 때 끝나 입구 칩에 열림 표시가 남습니다(`openState`, V129).
+  Future<void> _openColorRule() =>
+      ref.read(colorRuleSheetsProvider).open(context);
 
   /// 고른 날(없으면 오늘)의 새 일정 화면으로 갑니다.
   void _addEvent(CalendarDate selected) {
@@ -203,6 +219,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(tabReselectProvider, (_, reselect) {
+      if (reselect?.root == ScreenIds.calendar) _returnToToday();
+    });
     final l10n = AppLocalizations.of(context);
     final today = ref.watch(todayProvider);
     final month = _month ?? CalendarMonth.of(today);
@@ -277,6 +296,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   onMonthChange: _changeMonth,
                   onRetry: () => _retry(month),
                   onRuleEntry: _openColorRule,
+                  todayFocusRequest: _todayFocusRequest,
                 ),
               ),
             ],
@@ -302,6 +322,7 @@ class _CalendarBody extends StatelessWidget {
     required this.onMonthChange,
     required this.onRetry,
     required this.onRuleEntry,
+    required this.todayFocusRequest,
   });
 
   final CalendarMonth month;
@@ -319,7 +340,10 @@ class _CalendarBody extends StatelessWidget {
   final ValueChanged<CalendarDate> onSelect;
   final ValueChanged<CalendarMonth> onMonthChange;
   final VoidCallback onRetry;
-  final VoidCallback onRuleEntry;
+  final SheetTap onRuleEntry;
+
+  /// 오늘 칸 초점 요청 차례([CalendarMonthView.todayFocusRequest]).
+  final int todayFocusRequest;
 
   @override
   Widget build(BuildContext context) {
@@ -365,6 +389,7 @@ class _CalendarBody extends StatelessWidget {
                   : SkeletonBlock.defaultDelay,
               today: today,
               selected: selected,
+              todayFocusRequest: todayFocusRequest,
               onSelect: onSelect,
               onMonthChange: onMonthChange,
               // 범례와 규칙 입구는 늘 보입니다. 오류와 받는 중에도 같은 자리입니다(V84).

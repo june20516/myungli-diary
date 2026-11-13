@@ -4,6 +4,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/theme/ohaeng_colors.dart';
@@ -69,6 +70,9 @@ enum HanjaTagVariant {
 /// 장식이라 스크린리더는 [label]만 읽습니다. 길흉은 이름 낱말로 전하고 색만으로 전하지
 /// 않습니다. [size]가 [HanjaTagSize.compact]면 글줄 안 작은 크기(알약 22)이고, 눌림 영역은
 /// 같은 44입니다.
+///
+/// [onTap]이 시트가 닫힐 때 끝나는 Future를 돌려주면 그 시트가 열린 동안 [variant]와 상관없이
+/// `selected` 테두리(요소 `open.ring`)를 그립니다. 모든 자리가 같습니다(V129).
 class HanjaTag extends StatelessWidget {
   /// 태그를 만듭니다.
   const new({
@@ -137,7 +141,7 @@ class HanjaTag extends StatelessWidget {
   static const double compactGap = Space.s2;
 
   /// 선택 둘레 굵기. 계약 `hanja-tag.variants.selected` `pill.border.width`.
-  static const double selectedBorderWidth = 1.5;
+  static const double selectedBorderWidth = OpenRing.width;
 
   /// skeleton 알약 폭. 계약 `hanja-tag.states.loading.skeleton`.
   static const double skeletonWidth = 64;
@@ -187,8 +191,9 @@ class HanjaTag extends StatelessWidget {
   /// `text.secondary` 고정폭). null이면 그리지 않습니다. 스크린리더는 이름 뒤에 이어 읽습니다.
   final String? trailing;
 
-  /// 눌렀을 때(`explain-sheet`나 `tag-sheet` 열기). null이면 누를 수 없는 표시입니다.
-  final VoidCallback? onTap;
+  /// 눌렀을 때(`explain-sheet`나 `tag-sheet` 열기). null이면 누를 수 없는 표시입니다. 시트
+  /// Future를 돌려주면 열린 동안 `selected`입니다.
+  final SheetTap? onTap;
 
   /// 로딩 자리(`states.loading.skeleton`): 폭 64, 높이 30의 알약 뼈.
   static Widget skeleton({int index = 0, bool animated = true}) => SkeletonBone(
@@ -249,9 +254,22 @@ class HanjaTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (onTap == null) return _build(context, open: false, onTap: null);
+    return SheetOpenTracker(
+      onTap: onTap,
+      builder: (context, state) =>
+          _build(context, open: state.open, onTap: state.onTap),
+    );
+  }
+
+  Widget _build(
+    BuildContext context, {
+    required bool open,
+    required VoidCallback? onTap,
+  }) {
     final tokens = context.tokens;
     final colors = _colors(tokens.colors);
-    final selected = variant == HanjaTagVariant.selected;
+    final selected = open || variant == HanjaTagVariant.selected;
     final compact = size == HanjaTagSize.compact;
     final nameStyle = compact
         ? tokens.typography.captionMd
@@ -266,10 +284,7 @@ class HanjaTag extends StatelessWidget {
         borderRadius: radius,
         // 테두리는 안쪽에 그려 크기가 그대로입니다. 선택 테두리가 톤 테두리를 대신합니다.
         border: selected
-            ? Border.all(
-                color: tokens.colors.actionPrimary,
-                width: selectedBorderWidth,
-              )
+            ? OpenRing.border(context)
             : colors.border == null
             ? null
             : Border.all(color: colors.border!),
@@ -318,7 +333,6 @@ class HanjaTag extends StatelessWidget {
       ),
     );
 
-    final onTap = this.onTap;
     if (onTap == null) {
       return Semantics(
         container: true,

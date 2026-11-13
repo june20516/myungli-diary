@@ -352,11 +352,11 @@
     "note": "locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.personal-locked.2026-11-11",
+    "id": "render.evidence-sheet.personal-locked.2026-11-13",
     "title": "evidence-sheet (personal-locked) 화면",
     "kind": "screenshot",
-    "file": "2026-11-11-evidence-sheet-personal-locked.png",
-    "date": "2026-11-11",
+    "file": "2026-11-13-evidence-sheet-personal-locked.png",
+    "date": "2026-11-13",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -366,11 +366,11 @@
     "note": "personal-locked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.personal.2026-11-11",
+    "id": "render.evidence-sheet.personal.2026-11-13",
     "title": "evidence-sheet (personal) 화면",
     "kind": "screenshot",
-    "file": "2026-11-11-evidence-sheet-personal.png",
-    "date": "2026-11-11",
+    "file": "2026-11-13-evidence-sheet-personal.png",
+    "date": "2026-11-13",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -380,11 +380,11 @@
     "note": "personal 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.evidence-sheet.unlocked-glint.2026-11-12",
+    "id": "render.evidence-sheet.unlocked-glint.2026-11-13",
     "title": "evidence-sheet (unlocked-glint) 화면",
     "kind": "screenshot",
-    "file": "2026-11-12-evidence-sheet-unlocked-glint.png",
-    "date": "2026-11-12",
+    "file": "2026-11-13-evidence-sheet-unlocked-glint.png",
+    "date": "2026-11-13",
     "milestone": "A1",
     "screens": [
       "evidence-sheet"
@@ -408,11 +408,11 @@
     "note": "unlocked 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.explain-sheet.default.2026-11-09",
+    "id": "render.explain-sheet.default.2026-11-13",
     "title": "explain-sheet (default) 화면",
     "kind": "screenshot",
-    "file": "2026-11-09-explain-sheet-default.png",
-    "date": "2026-11-09",
+    "file": "2026-11-13-explain-sheet-default.png",
+    "date": "2026-11-13",
     "milestone": "A1",
     "screens": [
       "explain-sheet"
@@ -786,11 +786,11 @@
     "note": "default 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.purchase-history.empty.2026-11-09",
+    "id": "render.purchase-history.empty.2026-11-13",
     "title": "purchase-history (empty) 화면",
     "kind": "screenshot",
-    "file": "2026-11-09-purchase-history-empty.png",
-    "date": "2026-11-09",
+    "file": "2026-11-13-purchase-history-empty.png",
+    "date": "2026-11-13",
     "milestone": "A1",
     "screens": [
       "purchase-history"
