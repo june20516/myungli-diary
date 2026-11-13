@@ -703,7 +703,9 @@ class LedgerIdTests(RepoTestCase):
 class MainTests(RepoTestCase):
     def test_main_returns_zero_on_clean_repo(self) -> None:
         write(self.root, "a.md", "# a")
-        self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 0)
+        # 빈 임시 저장소에는 처음 읽는 문서가 없어 크기 상한표를 비웁니다(SizeLimitTest가 따로 검사).
+        with mock.patch.object(docs_check, "SIZE_LIMITS", {}):
+            self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 0)
 
     def test_main_returns_one_on_problem(self) -> None:
         write(self.root, "a.md", "[x](missing.md)")
