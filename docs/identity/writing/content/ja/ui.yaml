@@ -484,6 +484,7 @@
 - {slot: saju-chart.ohaeng.title, key: sajuChartOhaengTitle, text: "五行の分布"}
 - {slot: saju-chart.ohaeng.desc, key: sajuChartOhaengDesc, text: "命式に木、火、土、金、水の気がどれだけあるかを示します。"}
 - {slot: saju-chart.manse.basis, key: sajuChartManseBasis, text: "自分の日干{stem}が基準"}
+- {slot: saju-chart.manse.basis, key: sajuChartManseBasisStemSuffix, text: "（{reading}）"}
 - {slot: saju-chart.jijanggan.desc, key: sajuChartJijangganDesc, text: "地支の中に隠れている天干です。表に見えなくても、その位置の気を形づくります。"}
 - {slot: saju-chart.unseong.desc, key: sajuChartUnseongDesc, text: "日干の気がその位置でどれだけ力を出せるかを十二段階で表します。"}
 - {slot: saju-chart.sinsal.desc, key: sajuChartSinsalDesc, text: "特定の文字の組み合わせから生まれる固有の性質です。ない場合もあります。"}

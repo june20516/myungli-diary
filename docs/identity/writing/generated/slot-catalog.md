@@ -197,7 +197,7 @@
 | saju-chart.daeun.title | saju-chart.daeun.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.head.title | saju-chart.head.title | info | - | 1 | 1 | `nickname`: text | ko -, en -, ja - |
 | saju-chart.jijanggan.desc | saju-chart.jijanggan.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
-| saju-chart.manse.basis | saju-chart.manse.basis | info | - | 1 | 1 | `stem`: text | ko -, en -, ja - |
+| saju-chart.manse.basis | saju-chart.manse.basis | info | - | 1 | 2 | `stem`: text<br>`stemName`: text<br>`reading`: text | ko -, en -, ja - |
 | saju-chart.ohaeng.desc | saju-chart.ohaeng.desc | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.ohaeng.title | saju-chart.ohaeng.title | info | - | 1 | 1 | - | ko -, en -, ja - |
 | saju-chart.pillars.desc | saju-chart.pillars.desc | info | - | 1 | 1 | - | ko -, en -, ja - |

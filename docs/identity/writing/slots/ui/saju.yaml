@@ -488,12 +488,14 @@
   where: "만세력과 대운 탭 위 \"내 일간 <간>(<이름>) 기준\""
   purpose: info
   user_state: "만세력의 십성이 무엇을 기준으로 붙었는지 봅니다."
-  structure: "틀 하나. 일간 글자와 이름은 app이 `stem`으로 채웁니다."
+  structure: "틀 둘(#1095, 라운드 R45). `sajuChartManseBasis`의 `{stem}` 자리에 app이 일간 한자(한자 글꼴)와 그 바로 뒤 `sajuChartManseBasisStemSuffix`를 이어 채웁니다. 뒤붙이 틀은 app이 늘 `stemName`(glossary `stem` 이름)과 `reading`(glossary `stem_reading` 독음)을 함께 넘기고, 언어마다 하나만 씁니다: ko, en은 이름(庚(경금), 庚 (Gyeonggeum)), ja는 이름이 한자와 같아 훈독(庚（かのえ）). 한자를 틀에 넣지 않는 까닭은 `ui.ganji.reading`과 같습니다(style.S1, 글꼴이 다른 두 조각). 괄호는 ko, en 반각, ja 전각이고 en은 앞에 한 칸을 둡니다. 간지 독음 틀 `ganjiReadingSuffix`는 빌려 쓰지 않습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
     - params: {stem: text}
       keys: [sajuChartManseBasis]
+    - params: {stemName: text, reading: text}
+      keys: [sajuChartManseBasisStemSuffix]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good: []

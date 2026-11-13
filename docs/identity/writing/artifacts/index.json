@@ -765,5 +765,21 @@
     ],
     "status": "chosen",
     "note": "마무리 줄 대상 모호한 다섯 판단(#1090) 함께, 화개는 붙이지 않음"
+  },
+  {
+    "id": "round-R45",
+    "title": "라운드 R45: 만세력 기준 줄 일간 표기 (W75)",
+    "kind": "copy-sample",
+    "file": "2026-11-13-round-R45.md",
+    "date": "2026-11-13",
+    "milestone": "A2",
+    "screens": [
+      "my-saju"
+    ],
+    "decisions": [
+      "W75"
+    ],
+    "status": "chosen",
+    "note": "추천안 그대로, 다시 묻기 문항은 사용자 요청으로 생략"
   }
 ]

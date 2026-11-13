@@ -1047,6 +1047,18 @@
       }
     }
   },
+  "sajuChartManseBasisStemSuffix": "({stemName})",
+  "@sajuChartManseBasisStemSuffix": {
+    "description": "saju-chart.manse.basis: 만세력과 대운 탭 위 \"내 일간 <간>(<이름>) 기준\" 틀(매개변수 stem)",
+    "placeholders": {
+      "stemName": {
+        "type": "String"
+      },
+      "reading": {
+        "type": "String"
+      }
+    }
+  },
   "sajuChartOhaengDesc": "내 사주에 나무, 불, 흙, 쇠, 물 기운이 얼마나 있는지를 보여 줘요.",
   "@sajuChartOhaengDesc": {
     "description": "saju-chart.ohaeng.desc: 오행 분포 섹션 제목 아래 한 줄 설명(늘 보임)"
