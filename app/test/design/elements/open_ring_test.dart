@@ -82,11 +82,7 @@ void main() {
       await tester.pumpWidget(
         inputApp(
           Center(
-            child: HanjaTag(
-              glyph: '食',
-              label: '식신',
-              onTap: () => sheet.future,
-            ),
+            child: HanjaTag(glyph: '食', label: '식신', onTap: () => sheet.future),
           ),
         ),
       );
