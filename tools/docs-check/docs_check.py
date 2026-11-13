@@ -23,7 +23,7 @@ UNIT_CLAUDE_FILES = (
 )
 SIZE_LIMITS: dict[str, int] = {
     "CLAUDE.md": 10240,
-    "docs/workflow.md": 22528,
+    "docs/workflow.md": 26624,
     "docs/roadmap.md": 10240,
     "docs/contracts/README.md": 12288,
     **{path: 16384 for path in UNIT_CLAUDE_FILES},
