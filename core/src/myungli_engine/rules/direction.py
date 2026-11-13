@@ -26,7 +26,10 @@ ROLE_TONGGWAN: Final = "TONGGWAN"
 
 @dataclass(frozen=True, slots=True)
 class DirectionPick:
-    """deity는 보통의 날 길신 방위를 따랐을 때만 있다."""
+    """deity는 보통의 날 길신 방위를 따랐을 때만 있다.
+
+    base_element는 그날 "필요한 기운"(기신의 날 통관, 그 밖 용신)이고, 귀인의 날은 None이다(D130).
+    """
 
     direction: Direction8
     rule_id: str
@@ -34,6 +37,7 @@ class DirectionPick:
     element: Element | None = None
     role: str | None = None
     deity: DeityKind | None = None
+    base_element: Element | None = None
 
 
 def _clashes_with_any(branch: Branch, others: tuple[Branch, ...]) -> bool:
@@ -67,6 +71,7 @@ def _pick(
     element: Element | None = None,
     role: str | None = None,
     deity: DeityKind | None = None,
+    base_element: Element | None = None,
 ) -> DirectionPick:
     detail = {"direction": direction.name, "day_kind": kind.name, "day_branch": day.branch.hanja}
     if element is not None:
@@ -75,7 +80,13 @@ def _pick(
         detail["deity"] = deity.name
     evidence = Evidence(rule_id=rule_id, source_ref=FIVE_ELEMENTS_REF["direction"], detail=detail)
     return DirectionPick(
-        direction=direction, rule_id=rule_id, evidence=(evidence,), element=element, role=role, deity=deity
+        direction=direction,
+        rule_id=rule_id,
+        evidence=(evidence,),
+        element=element,
+        role=role,
+        deity=deity,
+        base_element=base_element,
     )
 
 
@@ -89,10 +100,26 @@ def lucky_direction(
         return _pick(BRANCH_DIRECTION[day.branch], "direction/gwiin_branch", kind, day)
     if kind is DayKind.YONGSIN_DAY:
         direction = _element_direction(yongsin.yongsin, day.branch)
-        return _pick(direction, "direction/yongsin", kind, day, yongsin.yongsin, ROLE_YONGSIN)
+        return _pick(
+            direction,
+            "direction/yongsin",
+            kind,
+            day,
+            yongsin.yongsin,
+            ROLE_YONGSIN,
+            base_element=yongsin.yongsin,
+        )
     if kind is DayKind.GISIN_DAY:
         direction = _element_direction(yongsin.tonggwan, day.branch)
-        return _pick(direction, "direction/tonggwan", kind, day, yongsin.tonggwan, ROLE_TONGGWAN)
+        return _pick(
+            direction,
+            "direction/tonggwan",
+            kind,
+            day,
+            yongsin.tonggwan,
+            ROLE_TONGGWAN,
+            base_element=yongsin.tonggwan,
+        )
 
     for element, role, rule_id in (
         (yongsin.yongsin, ROLE_YONGSIN, "direction/ordinary_deity_yongsin"),
@@ -101,6 +128,16 @@ def lucky_direction(
         found = _first_deity_direction(deities, element)
         if found is not None:
             deity_kind, direction = found
-            return _pick(direction, rule_id, kind, day, element, role, deity_kind)
+            return _pick(
+                direction, rule_id, kind, day, element, role, deity_kind, base_element=yongsin.yongsin
+            )
     direction = _element_direction(yongsin.yongsin, day.branch)
-    return _pick(direction, "direction/ordinary_fallback", kind, day, yongsin.yongsin, ROLE_YONGSIN)
+    return _pick(
+        direction,
+        "direction/ordinary_fallback",
+        kind,
+        day,
+        yongsin.yongsin,
+        ROLE_YONGSIN,
+        base_element=yongsin.yongsin,
+    )

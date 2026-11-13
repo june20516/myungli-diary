@@ -114,9 +114,20 @@ def test_message_params_declared_per_key():
         "rule_id",
         "element",
         "role",
+        "base_element",
+        "relation",
         "deity",
     )
-    assert message_keys.KEY_PARAMS["number.ordinary_day"] == ("number", "element", "day_stem", "parity", "pair")
+    assert message_keys.KEY_PARAMS["number.ordinary_day"] == (
+        "number",
+        "element",
+        "day_stem",
+        "parity",
+        "pair",
+        "base_element",
+        "relation",
+    )
+    assert "relation" in message_keys.KEY_PARAMS["color.ordinary_day"]
     assert message_keys.KEY_PARAMS["color.balance.gisin_day"] == message_keys.KEY_PARAMS["color.gisin_day"]
     assert message_keys.KEY_PARAMS["calendar.good"] == ("score",)
     assert message_keys.KEY_PARAMS["tag.clash"] == ()
