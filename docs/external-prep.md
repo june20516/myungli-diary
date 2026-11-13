@@ -34,7 +34,7 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 | id | 항목 | 막는 것 | 전제 | 오래 걸림 | 넘길 값 (공개 / 비밀) | 받는 단위 | 상태 | Issue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | E1 | **개인·사업자(조직) 중 어느 이름으로 낼지 정하기.** Apple·Google Play 판매자 이름, 사업자등록과 묶입니다 | E2·E3·E15 | - | - | 결정 | 지휘(결정으로 적음) | 완료: 개인사업자(D92) | - |
-| E15 | 사업자등록, 통신판매업 신고, 스토어 세금·정산 정보 (D53) | E2·E3의 판매 설정(세금·정산), E12, I4 | E1 | 처리 기간(확인 못 함) | - | - | 진행 중(2026-11-10 사업자등록 완료, 일반 과세. 2026-11-12 통신판매업 신고증 받음. 다음(사용자): Play 결제 프로필과 세금 정보, 신고번호와 신고 기관, 정산 계좌, App Store Paid Apps 계약과 Tax Forms, 정산 계좌. 끝나면 E12 스토어 상품) | #534 |
+| E15 | 사업자등록, 통신판매업 신고, 스토어 세금·정산 정보 (D53) | E2·E3의 판매 설정(세금·정산), E12, I4 | E1 | 처리 기간(확인 못 함) | - | - | 진행 중(2026-11-10 사업자등록 완료, 일반 과세. 2026-11-12 통신판매업 신고증 받음. 2026-11-13 Play Console 계정 세부정보에 사업자등록번호, 통신판매업 신고번호, 신고 기관 등록. 다음(사용자): Play 결제 프로필과 세금 정보, 정산 계좌, App Store Paid Apps 계약과 Tax Forms, 정산 계좌. 끝나면 E12 스토어 상품) | #534 |
 | E2 | Apple Developer Program 가입 | E7·E12, P9, I4 | E1 | 본인 확인·심사 | 공개: Team ID | server, app | 완료(활성화 2026-10-29, Team ID `7JGP3D7B3Z`, 값은 server #607·app #311) | #536 |
 | E3 | Google Play Console 개발자 계정과 앱 만들기 | E8·E11·E12, P9, T1(비공개 테스트 트랙, 새 개인 계정의 출시 전 비공개 테스트 의무), I4 | E1 | 본인 확인, 비공개 테스트(테스터 12명 이상 14일 연속 + 심사 약 7일) | 공개: 패키지 이름 확인 (보관: K1) | server, app | 진행 중(계정, 본인 인증, 앱 만듦. 기존 계정은 미사용 해지로 새로 등록. 테스터 모집) | #535 |
 | E4 | GCP 프로젝트: 결제 계정, Cloud Run·Cloud SQL·Artifact Registry·Secret Manager API, GitHub Actions용 Workload Identity Federation (D56) | P9 → I1·I2 | - | - | 공개: 프로젝트 id, 리전 | server(절차는 server가 함께 안내) | 완료(prod `myungli-diary`, staging `myungli-diary-staging`, 값은 server #607) | #537 |

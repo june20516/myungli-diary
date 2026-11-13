@@ -61,6 +61,7 @@
   "consentCtaAgree": "同意して続ける",
   "consentRequiredLabelTerms": "(必須)利用規約",
   "consentRequiredLabelPrivacy": "(必須)個人情報の収集・利用",
+  "consentRequiredLabelAge": "(必須)満14歳以上です",
   "consentTitleHead": "規約に同意してください",
   "contactAddressNote": "送信できない場合は、このアドレスにメールをお送りください。\n{email}",
   "contactAttachedNotice": "アカウントID、アプリのバージョン、端末情報（OS、機種）も一緒に送信します。お問い合わせの対応にのみ使用します。",
