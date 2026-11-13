@@ -781,5 +781,21 @@
     ],
     "status": "chosen",
     "note": "추천안 그대로, 다시 묻기 문항은 사용자 요청으로 생략"
+  },
+  {
+    "id": "round-R46",
+    "title": "라운드 R46: 동의 화면 만 14세 이상 확인 항목 (W76)",
+    "kind": "copy-sample",
+    "file": "2026-11-13-round-R46.md",
+    "date": "2026-11-13",
+    "milestone": "A2",
+    "screens": [
+      "consent"
+    ],
+    "decisions": [
+      "W76"
+    ],
+    "status": "chosen",
+    "note": "지휘 가안 그대로, 다시 묻기 문항 없음"
   }
 ]

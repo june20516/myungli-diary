@@ -312,6 +312,10 @@
   "@consentRequiredLabelPrivacy": {
     "description": "consent.required.label: 필수 동의 항목 이름"
   },
+  "consentRequiredLabelAge": "(필수) 만 14세 이상입니다",
+  "@consentRequiredLabelAge": {
+    "description": "consent.required.label: 필수 동의 항목 이름"
+  },
   "consentTitleHead": "약관에 동의해 주세요",
   "@consentTitleHead": {
     "description": "consent.title.head: 동의 화면 제목"
