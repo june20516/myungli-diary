@@ -162,8 +162,8 @@
 * 상호: {{business.name}}
 * 대표자: {{business.representative}}
 * 사업장 주소: {{business.address}}
-* 사업자등록번호: {{business.registration_number}}
-* 통신판매업 신고번호: {{business.mail_order_number}}
+* 사업자등록번호: {{business.registrationNumber}}
+* 통신판매업 신고번호: {{business.mailOrderNumber}}
 
 ## 15. 이 방침의 변경
 
