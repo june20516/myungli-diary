@@ -8,6 +8,8 @@ const (
 	Terms Document = "terms"
 	// Privacy는 개인정보 처리방침입니다.
 	Privacy Document = "privacy"
+	// Age14는 만 14세 이상 확인입니다(D127 ④, S158). 법적 문서 페이지는 없습니다.
+	Age14 Document = "age_14"
 )
 
 // CurrentDocuments는 지금 유효한 문서별 버전입니다.
@@ -15,4 +17,4 @@ const (
 // 계정은 다시 동의해야 합니다(Access.ConsentRequired가 true가 됩니다).
 //
 // 전역 변수이므로 테스트에서 바꿔 끼울 때는 t.Parallel을 쓰지 말고 끝나면 원복해야 합니다.
-var CurrentDocuments = map[Document]string{Terms: "1", Privacy: "1"}
+var CurrentDocuments = map[Document]string{Terms: "1", Privacy: "1", Age14: "1"}

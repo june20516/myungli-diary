@@ -21,7 +21,7 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 		AccountID: fixedAccountID,
 		Access:    account.Access{Status: account.StatusActive, ConsentRequired: true},
 		RequiredConsents: []account.ConsentDocument{
-			{Document: account.Privacy, Version: "1"}, {Document: account.Terms, Version: "1"},
+			{Document: account.Age14, Version: "1"}, {Document: account.Privacy, Version: "1"}, {Document: account.Terms, Version: "1"},
 		},
 	}}
 	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Entitlements: fakeEntitlements{}, Profiles: &fakeProfiles{}})
@@ -33,7 +33,8 @@ func TestGetMe_ActiveShowsRequiredConsents(t *testing.T) {
 	expectContractResponse(t, spec, req, rec)
 	var got gen.Me
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
-	assert.Len(t, got.RequiredConsents, 2)
+	require.Len(t, got.RequiredConsents, 3)
+	assert.Equal(t, gen.ConsentDocument{Document: "age_14", Version: "1"}, got.RequiredConsents[0])
 	assert.False(t, got.HasProfile)
 	assert.False(t, got.AdFree.Active)
 	assert.False(t, got.Insight.Active)
@@ -106,12 +107,14 @@ func TestAgreeConsents_Returns204(t *testing.T) {
 	handler, spec := newHandlerAPI(t, &httpapi.API{Accounts: accts, Profiles: &fakeProfiles{}})
 
 	req := newBodyRequest(t, http.MethodPost, "/v1/me/consents", contentTypeJSON,
-		`{"documents":[{"document":"terms","version":"1"},{"document":"privacy","version":"1"}]}`)
+		`{"documents":[{"document":"terms","version":"1"},{"document":"privacy","version":"1"},{"document":"age_14","version":"1"}]}`)
 	rec := serve(handler, req)
 
 	require.Equal(t, http.StatusNoContent, rec.Code, rec.Body.String())
 	expectContractResponse(t, spec, req, rec)
-	assert.Equal(t, []account.ConsentDocument{{Document: account.Terms, Version: "1"}, {Document: account.Privacy, Version: "1"}}, accts.gotDocs)
+	assert.Equal(t, []account.ConsentDocument{
+		{Document: account.Terms, Version: "1"}, {Document: account.Privacy, Version: "1"}, {Document: account.Age14, Version: "1"},
+	}, accts.gotDocs)
 }
 
 func TestAgreeConsents_StaleVersionIs422WithPointer(t *testing.T) {

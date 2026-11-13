@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.12.0
+  version: 1.13.0
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -2939,11 +2939,12 @@ components:
         동의할 문서. `document`는 열린 enum이지만 app은 받은 `document`·`version`을 해석하지 않고 `agreeConsents`로 그대로 돌려보냅니다.
         새 문서를 필수 동의로 더할 때 server는 그 문서를 아는 앱 버전으로 `AppConfig.minimumVersion`을 함께 올립니다.
         이전 app은 모르는 필수 문서가 있으면 동의 화면 대신 강제 업데이트 화면으로 보냅니다.
+        `age_14`는 만 14세 이상 확인입니다(1.13.0). 법적 문서 페이지가 없어 `AppConfig.legal`에 주소가 없습니다.
       required: [document, version]
       properties:
         document:
           type: string
-          enum: [terms, privacy]
+          enum: [terms, privacy, age_14]
         version:
           type: string
     ConsentRequest:

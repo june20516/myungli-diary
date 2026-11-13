@@ -661,3 +661,37 @@ func TestLoadSupport_ValidatesAddresses(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadLegalBusiness(t *testing.T) {
+	const valid = `{"ko":{"name":"상호","representative":"대표","address":"주소","registrationNumber":"1","mailOrderNumber":"2"},` +
+		`"en":{"name":"Name","representative":"Rep","address":"Addr","registrationNumber":"1","mailOrderNumber":"2"},` +
+		`"ja":{"name":"商号","representative":"代表","address":"住所","registrationNumber":"1","mailOrderNumber":"2"}}`
+
+	t.Run("local은 비워 둘 수 있음", func(t *testing.T) {
+		business, err := LoadLegalBusiness(fakeEnv(nil))
+		if err != nil || business != nil {
+			t.Errorf("LoadLegalBusiness() = %v, %v, want nil, nil", business, err)
+		}
+	})
+	t.Run("배포 환경은 필수", func(t *testing.T) {
+		_, err := LoadLegalBusiness(fakeEnv(map[string]string{"APP_ENV": "staging"}))
+		if err == nil || !strings.Contains(err.Error(), "LEGAL_BUSINESS_INFO가 필요합니다") {
+			t.Errorf("LoadLegalBusiness() error = %v, want 필요 오류", err)
+		}
+	})
+	t.Run("값 읽기", func(t *testing.T) {
+		business, err := LoadLegalBusiness(fakeEnv(map[string]string{"APP_ENV": "prod", "LEGAL_BUSINESS_INFO": valid}))
+		if err != nil {
+			t.Fatalf("LoadLegalBusiness() error = %v", err)
+		}
+		if got := business["ja"].Name; got != "商号" {
+			t.Errorf("ja name = %q, want 商号", got)
+		}
+	})
+	t.Run("형식 오류에 값을 담지 않음", func(t *testing.T) {
+		_, err := LoadLegalBusiness(fakeEnv(map[string]string{"LEGAL_BUSINESS_INFO": `{"ko":{"name":"비밀상호"}}`}))
+		if err == nil || strings.Contains(err.Error(), "비밀상호") {
+			t.Errorf("LoadLegalBusiness() error = %v, want 값 없는 오류", err)
+		}
+	})
+}
