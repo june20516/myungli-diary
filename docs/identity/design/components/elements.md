@@ -24,6 +24,7 @@
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
 | `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 또렷한 앞 2~3 단어 + 흐린 자리값 본문(6px, 0.5, G1), 여는 입구 `open`(자물쇠 + 열기) | 근거 시트 세 구역, 잠긴 용신 근거 |
+| `open.ring` 시트를 연 칩 표시 | 누른 칩이나 용어 안쪽 둘레 1.5px `action.primary`(크기 그대로), 그 시트가 열린 동안(위에 시트가 쌓여도), 문장 안 용어는 줄 조각마다 닫힌 테두리 | `hanja-tag` 전부, `term-token` `inline`·`label`, `lucky-card` 칩, 달력 규칙 입구 칩 (V129) |
 | `unlock.mark` 열린 구역 표시 | 동작 줄이기에서 `unlock.glint` 대신: 구역 제목 글자를 `gradient.unlocked`로, 구역 왼쪽 밖 12에 2px 세로선(제목 첫 줄 위 ~ 본문 끝) | 근거 시트 열린 세 구역, 열린 용신 근거(선만) |
 
 ## 낙관 도장 `seal`

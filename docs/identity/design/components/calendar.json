@@ -1,5 +1,5 @@
 {
-  "version": "7.7.0",
+  "version": "8.0.0",
   "group": "calendar",
   "components": [
     {
@@ -41,11 +41,13 @@
           "align": "start",
           "minTarget": { "value": 44, "unit": "px" },
           "target": { "screen": "color-rule-sheet", "presentation": "sheet", "variant": "half", "transition": "sheet.enter" },
+          "openState": { "element": "open.ring", "when": "color-rule-sheet가 열린 동안(#1139, 결정 V129)" },
           "copy": "그날의 길흉을 가리키는 물음(writing, 가안 '길흉은 어떻게 정해지나요'). IA 가안의 '색'은 쓰지 않음(Q2 ②)"
         }
       },
       "states": {
         "monthChanged": { "pattern": "appear.seep", "note": "격자만 바뀜, 머리는 그대로" },
+        "todayReselect": { "trigger": "달력 탭을 보고 있을 때 tab-bar의 달력 탭을 다시 누름(frame tab-bar 규칙)", "steps": ["열린 시트는 sheet.exit, 쌓인 화면은 걷어 달력 첫 화면으로(한 번 누름에 모두)", "오늘이 든 달이 아니면 그 달로 바꿈(monthChanged와 같은 appear.seep)", "오늘 칸을 day-cell selected로(mark.underline-grow). 다른 칸의 선택은 풀림", "그날 시트는 열지 않음"], "alreadyToday": "이미 오늘 달이면 달은 그대로이고 오늘 칸 선택만. 오늘 칸이 이미 선택돼 있으면 아무것도 바뀌지 않음", "a11y": "스크린리더 초점을 오늘 칸으로 옮김. 칸 이름이 이미 '오늘'로 끝나므로 새 문구 없음", "reduceMotion": "appear.seep 규칙 그대로", "note": "#1133, 결정 V127" },
         "loading": { "skeleton": [{ "bone": "cellFill", "shape": "날짜 칸 채우기와 도장 자리", "note": "숫자, 요일 머리, 달 머리는 바로 그림" }], "note": "길흉 채우기·도장 자리만 skeleton, 숫자는 바로" }
       },
       "haptic": [],
@@ -54,6 +56,7 @@
         "요일 머리만 일(화 ink)·토(토 ink) 색을 쓴다. 날짜 숫자에는 요일 색을 넣지 않는다.",
         "좌우로 밀거나 이전·다음을 누르면 달이 넘어간다. 움직임은 appear.seep(가로 이동 없음).",
         "주 시작은 일요일.",
+        "달력 탭을 다시 누르면 첫 화면으로 돌아가 오늘이 든 달을 보이고 오늘 칸을 선택한다. 그날 시트는 열지 않는다(todayReselect, 결정 V127).",
         "격자 아래 범례는 늘 보인다. 아주 잘 풀리는 날, 잘 풀리는 날, 조심할 날 셋의 견본과 이름이고, 채우지 않는 무난한 날은 견본이 없다(결정 V84).",
         "server #806 전(아주 잘 풀리는 날이 오지 않는 동안)에도 범례에 아주 잘 풀리는 날 견본을 보인다. 색 규칙 시트의 네 단계와 맞추고, 수준이 더해질 때 범례가 바뀌지 않게 하기 위해서다.",
         "범례 아래 입구는 용어 칩 모양(term.bg 바탕, term.fg 글자, radius.xs)이고 누르면 color-rule-sheet가 half로 열린다. ⓘ 아이콘과 꺾쇠를 두지 않는다(Q2 ②)."

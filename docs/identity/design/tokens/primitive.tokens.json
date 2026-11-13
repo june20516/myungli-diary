@@ -689,6 +689,13 @@
           "value": 320,
           "unit": "ms"
         }
+      },
+      "glint": {
+        "$type": "duration",
+        "$value": {
+          "value": 2600,
+          "unit": "ms"
+        }
       }
     },
     "easing": {

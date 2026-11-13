@@ -21,7 +21,7 @@
 | `sheet.enter` | 시트 열림 | 아래에서 올라옴. 바깥 덮개 `fade`(280ms) 투명도 | `long`(420) `enter` |
 | `sheet.exit` | 시트 닫힘 | 아래로 내려감. 바깥 덮개 `fade`(280ms) 투명도 | `medium`(320) `exit` |
 | `sheet.stack` 겹쳐 쌓기 | 시트 깊어짐 | 새 시트가 위에 쌓입니다. 뒤 앱 화면은 크기와 밝기가 그대로(덮개만)이고, 아래 시트는 둥근 윗변과 핸들이 위 시트 위로 14px 보이게 위로 이동만 하며 밝기 0.92가 됩니다. 아래 시트가 이미 더 크면 움직이지 않고 어두워지기만 합니다(결정 V110, V17 개정) | `long`(420) `enter` |
-| `unlock.glint` 열림 반짝임 | 열려서 보이게 된 근거와 해석 글자 | 글자 기본색 위로 `gradient.unlocked` 띠(글자 상자 너비 30%, 100°)가 왼쪽 밖에서 오른쪽 밖으로 지나갑니다. 띠는 글자 모양 안에만 칠합니다. 열린 내용이 나타난 직후 한 번, 그 뒤 15초마다, 한 시트 안 대상이 함께(결정 V112, D118 ②) | `breathe`(1800) `standard`, 간격 15000ms |
+| `unlock.glint` 열림 반짝임 | 열려서 보이게 된 근거와 해석 글자 | 글자 기본색 위로 `gradient.unlocked` 띠(글자 상자 너비 30%, 100°)가 왼쪽 밖에서 오른쪽 밖으로 지나갑니다. 띠는 글자 모양 안에만 칠합니다. 열린 내용이 나타난 직후 한 번, 그 뒤 10초마다, 한 시트 안 대상이 함께(결정 V112, 값은 V131, D118 ②) | `glint`(2600, 반짝임 전용, `breathe`와 뗌) `standard`, 간격 10000ms |
 | `focus.ring` | 입력 포커스 | 테두리 1px `line` → 2px `action.primary`. 바탕은 바뀌지 않음 | `short`(200) `standard` |
 
 곡선: `seep` (0.2, 0.7, 0.2, 1), `enter` (0.2, 0.8, 0.2, 1), `exit` (0.4, 0, 1, 1), `stamp-press` (0.5, 0, 0.9, 0.6), `standard` (0.4, 0, 0.2, 1).
@@ -62,7 +62,7 @@
 * `page.push`: 앱의 `PageRoute` 전환 하나(`PageTransitionsTheme`에 두 플랫폼 같은 builder)로, 새 화면을 `SlideTransition`(24px) + `FadeTransition`으로 감쌉니다. 이전 화면에는 secondary 애니메이션을 주지 않습니다. iOS 가장자리 밀어 뒤로 가기 제스처는 남깁니다.
 * `tab.switch`: 탭 갈래 화면(`StatefulShellRoute` 같은 탭 셸)에서 앞 화면과 새 화면을 겹쳐 두고 각각 `FadeTransition`(앞 1→0, 새 0→1, 200ms standard)으로 감쌉니다. 탭 바는 셸 바깥이라 움직이지 않습니다. 각 탭의 화면 상태(스크롤 위치 등)는 지금처럼 유지합니다. 전환 중에는 새 화면만 터치를 받고 앞 화면은 스크린리더에서도 숨깁니다. 전환 중에 다른 탭을 누르면 지금 투명도에서 멈추고 새로 누른 탭이 아닌 보이는 화면들을 0으로, 새로 누른 탭 화면은 이미 보이던 화면이면 지금 투명도에서 1로(앞 탭으로 돌아갈 때 깜빡임 방지), 안 보이던 화면이면 0에서 1로 다시 200ms 돌립니다(app A122, #969). 알림이나 딥링크로 다른 탭 화면에 갈 때도 같은 전환입니다(사용자 결정 2026-11-10). 같은 탭을 다시 누르면 무시합니다.
 * `sheet.stack`: 새 시트는 새 route. 아래 시트는 `Transform.translate`(세로)와 덮개 투명도만 바꿉니다(높이와 크기를 움직이지 않음). 뒤 앱 화면에는 변환을 주지 않습니다(V110). 올릴 거리는 위 시트 높이를 안 뒤 정합니다.
-* `unlock.glint`: 글자 위젯을 `ShaderMask`(`BlendMode.srcATop`)로 감싸 `LinearGradient`(멈춤 `[기본색, 띠 색 셋, 기본색]`)의 위치를 `AnimationController`(1800ms, 15초 `Timer` 박자)로 옮깁니다. 한 시트의 대상은 컨트롤러 하나를 함께 씁니다. `TickerMode`로 화면 밖이나 덮인 시트에서는 멈춥니다.
+* `unlock.glint`: 글자 위젯을 `ShaderMask`(`BlendMode.srcATop`)로 감싸 `LinearGradient`(멈춤 `[기본색, 띠 색 셋, 기본색]`)의 위치를 `AnimationController`(2600ms, 10초 `Timer` 박자, V131)로 옮깁니다. 한 시트의 대상은 컨트롤러 하나를 함께 씁니다. `TickerMode`로 화면 밖이나 덮인 시트에서는 멈춥니다.
 * 반투명 탭 바: `BackdropFilter`(탭 바 뒤 흐림)는 이 한 곳에만 씁니다.
 * 동작 줄이기: `MediaQuery.disableAnimations`, 투명도 줄이기: 플랫폼 접근성 설정(iOS `UIAccessibility.isReduceTransparencyEnabled`).
 * 햅틱: `HapticFeedback.selectionClick` / `lightImpact` / `mediumImpact`.

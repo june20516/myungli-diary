@@ -1,5 +1,5 @@
 {
-  "version": "7.7.0",
+  "version": "8.0.0",
   "group": "today",
   "components": [
     {
@@ -79,11 +79,11 @@
         "value": { "type": "{type.label.md}", "fg": "{color.text.primary}" },
         "row": { "gap": "{space.8}", "wrap": true, "order": ["color", "direction", "number", "time.day", "time.night"] },
         "explain": { "component": "explain-sheet", "title": { "source": "항목 이름(칩 스크린리더 라벨의 항목 이름과 같은 낱말). time은 periods의 sheetTitleSlot" }, "body": { "segments": "sentence-block" },
-          "evidenceLink": { "when": "color(색이 하나인 날)와 time 시트만. direction, number 시트에는 없음", "order": "본문 아래, time 시트는 timeBand 아래 맨 끝", "component": "depth-link", "variant": "block", "subject": "시트 제목(행운 색, 낮과 밤 시트 제목)", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
+          "evidenceLink": { "when": "color(색이 하나인 날)와 time 시트만. direction, number 시트에는 없음", "order": "시트 제목 줄 오른쪽 끝(결정 V130, #1140. 전에는 본문 아래, time 시트는 timeBand 아래)", "component": "depth-link", "variant": "head-end", "subject": "시트 제목(행운 색, 낮과 밤 시트 제목)", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
         "colorPairSheet": { "when": "pair 알약의 어느 칸이든 누름", "component": "explain-sheet", "title": { "source": "항목 이름(행운 색)" },
           "intro": { "slot": "today.lucky-color.pair.intro", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "gapBelow": "{space.12}", "note": "추천 색이 둘이라는 것만 알림. 두 기준이 갈렸다고 쓰지 않음(사용자 결정 2026-11-11). 기준 이름 부제목은 칩과 색 소제목 옆에만 두지 않고, 풀이 문장 안 기준 설명은 writing 원고 그대로(D123 ①)" },
           "section": { "head": { "swatch": "ohaeng.swatch 14", "name": { "type": "{type.label.lg}", "fg": "{color.text.primary}" }, "gap": "{space.4}", "basisLabel": false }, "body": { "segments": "sentence-block", "gapAbove": "{space.8}" },
-            "evidenceLink": { "component": "depth-link", "variant": "block", "subject": "그 색 이름", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
+            "evidenceLink": { "component": "depth-link", "variant": "head-end", "position": "그 색 구역 머리(견본 원 + 색 이름 줄) 오른쪽 끝(결정 V130, #1140). 시트 제목 줄에는 두지 않음", "subject": "그 색 이름", "note": "D123 ②. 용어 풀이 시트와 같은 근거 진입점(V63 아이콘). 근거 시트로 sheet.stack" } },
           "sections": [{ "source": "DailyResponse.color", "bodySlot": "today.lucky-color.body" }, { "source": "DailyResponse.second_color", "bodySlot": "today.lucky-color.second.body" }],
           "between": { "divider": "list.divider", "gap": "{space.16}", "insetX": 0, "note": "시트 본문 폭 그대로(list.divider inSheet, 결정 V124)" } },
         "timeBand": { "when": "time 칩 시트(낮, 밤 모두) 본문 아래 space.20", "summary": "지금 보이는 낮, 밤 두 칩이 가리키는 24시간 (결정 V117)",
@@ -99,7 +99,7 @@
       },
       "states": { "loading": { "skeleton": [{ "bone": "chip", "shape": "chip", "count": 3, "widths": ["72px", "56px", "64px"], "gap": "{space.8}" }] },
         "pressed": { "pattern": "press.ink" },
-        "open": { "pattern": "sheet.enter", "parts": { "chip": { "border": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" }, "placement": "inside" } }, "explain": { "visible": true } } },
+        "open": { "pattern": "sheet.enter", "parts": { "chip": { "border": { "color": "{color.action.primary}", "width": { "value": 1.5, "unit": "px" }, "placement": "inside" }, "element": "open.ring" }, "explain": { "visible": true } } },
         "closed": { "pattern": "sheet.exit", "parts": { "explain": { "visible": false } } }
       },
       "haptic": [],
@@ -110,13 +110,13 @@
         "칩은 bg.sheet 바탕 + 1px line 테두리다. 반투명 chip.bg를 쓰지 않아 오늘 카드, 나 탭 카드, 공유 이미지 그라데이션, 다크 모드 어디서나 테두리로 구분된다. 테두리는 칩 크기 안쪽에 그려 열려도 크기가 그대로다(Q5 ①, 결정 V75).",
         "칩 줄은 화면 폭에 따라 다음 줄로 넘어간다(줄 수 제한 없음, 칩 하나는 끊지 않음). 시간 칩을 새 줄로 떼지 않는다(관문 답 5A, 결정 V114).",
         "today 칩 줄은 행운 4종(color·direction·number·time)뿐이고 tag 칩을 두지 않는다(IA v5, D108, 결정 V78). 대표 태그는 사주 기운 섹션의 hanja-tag다. 옛 변형 tag(V35)는 계약 5.0.0에서 지웠다. 칩 줄 전체 최대 5개(색, 방향, 숫자 3 + 시간 2). 색이 둘인 날도 한 알약이라 개수는 같다.",
-        "색이 둘인 날(second_color)은 color 칩 하나를 세로선으로 나눈 두 칸 알약으로 그린다. 이름표(내 균형 기준, 원전 기준)를 두지 않고 순서는 color, second_color. 어느 칸을 눌러도 같은 행운 색 시트(colorPairSheet)가 열리고 열림 테두리는 알약 전체다. 시트는 추천 색이 둘이라는 한 줄, 첫째 색, 구분선, 둘째 색 순서이고 두 기준이 갈렸다고 쓰지 않는다. 색마다 풀이 아래에 그 색의 근거 진입점(depth-link block)이 있다(D119 ②, D123 ②, 결정 V114, V118).",
+        "색이 둘인 날(second_color)은 color 칩 하나를 세로선으로 나눈 두 칸 알약으로 그린다. 이름표(내 균형 기준, 원전 기준)를 두지 않고 순서는 color, second_color. 어느 칸을 눌러도 같은 행운 색 시트(colorPairSheet)가 열리고 열림 테두리는 알약 전체다. 시트는 추천 색이 둘이라는 한 줄, 첫째 색, 구분선, 둘째 색 순서이고 두 기준이 갈렸다고 쓰지 않는다. 색마다 그 색 구역 머리 오른쪽 끝에 그 색의 근거 진입점(depth-link head-end)이 있다(D119 ②, D123 ②, 결정 V114, V118, 자리는 V130).",
         "share-image의 칩 줄도 행운 4종만이다. 색은 첫째 색 칸 하나(D119 ④), 시간은 낮 칩 하나만 넣는다(칩 수 표 그대로, 결정 V116).",
         "time 칩은 낮(focus_time) 하나와 밤(night_focus_time) 하나다. 앞 아이콘은 채운 해(sun Fill, color.time.day)와 채운 달(moon Fill, color.time.night)이고 Fill을 쓰는 경고 표시 밖의 유일한 자리다(elements icon timeOfDay, 결정 V115).",
         "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간을 글자로 잇지 않는다(D93, 결정 V52).",
         "밤 칩 값 앞에는 때 낱말이 붙는다. 프로필 시간대의 그날 진시 시작(서울 07:30, 다른 시간대는 그 시간대의 진시 시작 시각, #1063) 전에는 dawn(지금 이어지는 전날 밤), 진시 시작부터는 tonight(오늘 밤)이고 값과 함께 바뀐다. 낮 칩에는 낱말이 없다(D122 ⑦, 결정 V116).",
         "낮 칩과 밤 칩은 각자 시트를 연다(제목 today.lucky-time.day.title, night.title, 본문 day.body, night.body). 두 시트 모두 본문 아래 timeBand를 둔다: 지금 보이는 두 칩의 24시간을 시진 12칸으로, 그날 진시 시작(서울 07:30) 전에는 밤이 앞, 진시 시작부터는 낮이 앞. 고른 시진 고리와 지금 줄(결정 V117). 띠 글자는 1.3배까지만 키우고 그래도 겹치는 눈금은 줄을 내린다(결정 V126).",
-        "행운 색 시트(색 하나인 날)와 낮, 밤 시트는 맨 끝에 자기 근거 진입점(depth-link block, 용어 풀이 시트와 같음)을 둔다. 시간 시트는 timeBand 아래다. 방향과 숫자 시트에는 없다(D123 ②, 결정 V118)."
+        "행운 색 시트(색 하나인 날)와 낮, 밤 시트는 시트 제목 줄 오른쪽 끝에 자기 근거 진입점(depth-link head-end, 용어 풀이 시트, 사주 기운 시트와 같음)을 둔다. 색이 둘인 날은 색 구역 머리 오른쪽 끝에 색마다 둔다. 방향과 숫자 시트에는 없다(D123 ②, 결정 V118, 자리는 V130)."
       ]
     },
     {

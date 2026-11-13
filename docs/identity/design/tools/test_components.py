@@ -238,7 +238,8 @@ def test_common_files_define_spec_ids():
         "list.divider", "button.pair",  # DS1 V58·V60. section.header·explain.sheet는 컴포넌트로 옮김(V69·V71)
         "stem.chip",  # DS1 2단계 V72
         "keyboard.dismiss",  # 5.0.0: text-field와 diary-editor에 겹친 값을 뺌(V68, V83)
-        "unlock.mark"}  # V112(#950) 동작 줄이기 때 열린 구역 표시
+        "unlock.mark",  # V112(#950) 동작 줄이기 때 열린 구역 표시
+        "open.ring"}  # V129(#1139) 시트를 연 칩 표시
 
 
 def test_seal_element_matches_logo():
@@ -358,7 +359,7 @@ def test_brand_spec_values():
     assert variant_ids(c["term-token"]) >= {"inline", "label"}
     assert variant_ids(c["event-row"]) == {"summary", "list"}
     assert variant_ids(c["lucky-card"]) == {"color", "direction", "number", "time"}  # tag는 5.0.0에서 지움(V78)
-    assert variant_ids(c["depth-link"]) == {"inline-end", "block", "navigate"}
+    assert variant_ids(c["depth-link"]) == {"inline-end", "head-end", "navigate"}  # V130: block 지움
     assert set(c["guide-question-card"]["states"]) >= {"before", "after"}
     assert set(c["draft-indicator"]["states"]) == {"local", "saving", "saved"}
     day = json.dumps(c["day-cell"])
@@ -445,7 +446,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_7_0():
+def test_contract_version_is_8_0_0():
+    # 8.0.0은 빌드 7 검수 묶음(V127~V131): depth-link block을 지워 주 버전. head-end, open.ring, term-token open, todayReselect 추가.
     # 7.7.0은 #1096(V126): timeBand 글자 1.3배 상한과 눈금 겹침 줄 내림 추가, #1063 전환 기준 문구라 부 버전.
     # 7.6.0은 #1091(D124 ⑦, V125): weighingNote 대상 목록 targets, notTargets를 writing 판단(#1090)에 맞춰 바꾼 값이라 부 버전.
     # 7.5.0은 #1072(V124): 시간 띠 고른 시진 고리를 칸 안쪽으로 옮기고 연 칩과 다른 칩을 나눈 값, list.divider inSheet 추가라 부 버전.
@@ -454,7 +456,7 @@ def test_contract_version_is_7_7_0():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.7.0"
+    assert VERSION == "8.0.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -1463,7 +1465,7 @@ def test_evidence_entry_is_icon():
         "minTarget": 48, "layoutWidth": "{size.icon.20}"}  # 줄 배치 폭은 그림 20, 터치 48은 밖으로 (리뷰 I4)
     assert "label" not in link["parts"] and "chevron" not in link["parts"]
     variants = {variant["id"]: variant for variant in link["variants"]}
-    for evidence in ("inline-end", "block"):
+    for evidence in ("inline-end", "head-end"):
         assert "label" not in variants[evidence].get("parts", {}), evidence
     assert variants["inline-end"]["parts"]["icon"]["joinBefore"] == "U+00A0"
     navigate = variants["navigate"]["parts"]
@@ -1604,7 +1606,7 @@ def test_evidence_entry_names_its_subject():
     a11y = next(c for c in all_components() if c["id"] == "depth-link")["a11y"]
     assert a11y["role"] == "button" and a11y["announce"] == "근거 시트가 열림"
     assert a11y["labelSlot"] == "ui.depth.evidence_link" and "[subject]" in a11y["labelTemplate"]
-    assert set(a11y["subject"]) == {"inline-end", "block"}
+    assert set(a11y["subject"]) == {"inline-end", "head-end"}
 
 
 # 리뷰 I6: space.20은 쓰임표가 허용한 자리만
@@ -1808,7 +1810,8 @@ def test_lucky_chip_outline():
     assert chip["border"] == {"color": "{color.line}", "width": {"value": 1, "unit": "px"}, "placement": "inside"}
     assert chip["height"] == {"value": 34, "unit": "px"} and chip["radius"] == "{radius.full}"
     opened = lucky["states"]["open"]["parts"]["chip"]
-    assert opened == {"border": {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"}, "placement": "inside"}}
+    assert opened == {"border": {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"}, "placement": "inside"},
+                      "element": "open.ring"}  # V129
     assert "innerBorder" not in json.dumps(lucky)
 
 
@@ -2029,7 +2032,7 @@ def test_tag_sentence_list():
     # tag-sheet 배치: IA 슬롯이 모두 나오고, 머리 태그는 누를 수 없는 default
     layout = _md_section("today.md", "### tag-sheet 화면 배치")
     assert all(f"`{slot}`" in layout for slot in ia_slot_ids("tag-sheet"))
-    assert "`tag-sentence-list`" in layout and "`hanja-tag` `default`" in layout and "`depth-link` `inline-end`" in layout
+    assert "`tag-sentence-list`" in layout and "`hanja-tag` `default`" in layout and "`depth-link` `head-end`" in layout  # V130
 
 
 # DS1 2단계 spec §4 lock.veil G1, D106 (결정 V80)
@@ -3128,13 +3131,13 @@ def test_v110_sheet_stack_keeps_screen_size_and_peeks_lower_sheet():
 def test_v112_unlocked_evidence_glints_and_marks():
     documents = load_documents(COMPONENTS_DIR)
     glint = documents["interaction"]["patterns"]["unlock.glint"]
-    assert glint["duration"] == "{motion.duration.breathe}" and glint["interval"] == {"value": 15000, "unit": "ms"}
+    assert glint["duration"] == "{motion.duration.glint}" and glint["interval"] == {"value": 10000, "unit": "ms"}  # V131
     assert glint["band"]["fill"] == "{gradient.unlocked}" and glint["reduceMotion"] == "replace"
     assert "한 번에" in glint["band"]["multiline"] and "닫을 때까지" in glint["stopWhen"]
     primitive = json.loads((DESIGN_DIR / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
     assert primitive["motion"]["duration"]["breathe"]["$value"] == {"value": 1800, "unit": "ms"}  # 시안 1.9초를 맞춘 값
     interaction_md = (COMPONENTS_DIR / "interaction.md").read_text(encoding="utf-8")
-    assert "`breathe`(1800)" in interaction_md and "15000ms" in interaction_md and "`replace`" in interaction_md
+    assert "2600ms" in interaction_md and "10000ms" in interaction_md and "`replace`" in interaction_md
     assert glint["reduceMotionAlternative"]["element"] == "unlock.mark"
     mark = documents["elements"]["elements"]["unlock.mark"]
     assert mark["title"]["fill"] == mark["rule"]["fill"] == "{gradient.unlocked}"
@@ -3243,7 +3246,7 @@ def test_v117_time_band():
 
 
 def test_v118_lucky_sheets_evidence_and_time_titles():
-    # #1020 drift(D123 ②): 행운 색, 시간 시트 끝 근거 진입점은 용어 풀이 시트와 같은 depth-link block(V63)
+    # #1020 drift(D123 ②): 행운 색, 시간 시트 근거 진입점은 용어 풀이 시트와 같은 depth-link(V63). 자리는 V130 head-end
     card = component("today", "lucky-card")
     term_link = component("sentence", "term-token")["parts"]["explainSheet"]["evidenceLink"]
     for link in (card["parts"]["explain"]["evidenceLink"], card["parts"]["colorPairSheet"]["section"]["evidenceLink"]):
@@ -3319,3 +3322,62 @@ def test_v126_time_band_text_scale_and_tick_overlap():
     today_md = (DESIGN_DIR / "components" / "today.md").read_text(encoding="utf-8")
     assert "프로필 시간대 07:30" not in today_json and "프로필 시간대 07:30" not in today_md
     assert "hours[0].start" in band["order"]["dayStart"]
+
+
+def test_v127_calendar_tab_reselect_goes_to_today():
+    # #1133: 달력의 맨 위는 오늘. 한 번 누름에 첫 화면, 오늘 달, 오늘 칸 selected, 그날 시트는 열지 않음
+    month = component("calendar", "calendar-month")
+    reselect = month["states"]["todayReselect"]
+    assert "sheet.exit" in reselect["steps"][0] and "appear.seep" in reselect["steps"][1]
+    assert "selected" in reselect["steps"][2] and "열지 않음" in reselect["steps"][3]
+    assert "새 문구 없음" in reselect["a11y"]
+    rules = component("frame", "tab-bar")["rules"]
+    assert any("달력 탭의 첫 화면 맨 위는 오늘" in rule and "V127" in rule for rule in rules)
+
+
+def test_v128_empty_state_trailing_lines_center():
+    # #1136: 빈 상태 아래 줄은 empty-state 문장처럼 가운데
+    rules = component("feedback", "empty-state")["rules"]
+    assert any("가운데 맞춤" in rule and "missing.notice" in rule for rule in rules)
+    action_md = (COMPONENTS_DIR / "action.md").read_text(encoding="utf-8")
+    assert "**`empty-state` 문장처럼 가운데 맞춤**" in action_md and "V128" in action_md
+
+
+def test_v129_open_ring_marks_chip_that_opened_sheet():
+    # #1139: 시트를 연 칩 표시는 요소 open.ring 하나. hanja-tag selected, term-token open, lucky-card open, 달력 규칙 입구
+    ring = load_documents(COMPONENTS_DIR)["elements"]["elements"]["open.ring"]
+    assert ring["border"] == {"color": "{color.action.primary}", "width": {"value": 1.5, "unit": "px"}, "placement": "inside"}
+    assert "쌓여 덮여도 남음" in ring["while"] and "A130" in ring["directEvidence"] and "조각마다" in ring["inlineText"]
+    term_open = component("sentence", "term-token")["states"]["open"]
+    assert term_open["element"] == "open.ring"
+    hanja = {v["id"]: v for v in component("sentence", "hanja-tag")["variants"]}
+    assert hanja["selected"]["parts"]["pill"]["element"] == "open.ring"
+    assert hanja["selected"]["parts"]["pill"]["border"] == ring["border"]
+    lucky = component("today", "lucky-card")["states"]["open"]["parts"]["chip"]
+    assert lucky["element"] == "open.ring" and lucky["border"] == ring["border"]
+    rule_entry = component("calendar", "calendar-month")["parts"]["ruleEntry"]
+    assert rule_entry["openState"]["element"] == "open.ring"
+
+
+def test_v130_evidence_entry_in_sheet_heads():
+    # #1140: 시트 안 근거 진입점은 head-end(머리 오른쪽 끝, 첫 줄 가운데), 시트 밖은 inline-end. block 없음
+    variants = {v["id"]: v for v in component("sentence", "depth-link")["variants"]}
+    assert "block" not in variants
+    icon = variants["head-end"]["parts"]["icon"]
+    assert icon["gapStart"] == "{space.12}" and "첫 줄" in icon["verticalAlign"]
+    card = component("today", "lucky-card")
+    term_link = component("sentence", "term-token")["parts"]["explainSheet"]["evidenceLink"]
+    for link in (term_link, card["parts"]["explain"]["evidenceLink"], card["parts"]["colorPairSheet"]["section"]["evidenceLink"]):
+        assert link["variant"] == "head-end"
+    assert "색 구역 머리" in card["parts"]["colorPairSheet"]["section"]["evidenceLink"]["position"]
+    today_md = (COMPONENTS_DIR / "today.md").read_text(encoding="utf-8")
+    assert "`depth-link` `head-end` 아이콘(V130" in today_md
+
+
+def test_v131_glint_has_own_duration():
+    # #1141: 반짝임은 breathe와 뗀 전용 값. 지나감 < 간격
+    glint = load_documents(COMPONENTS_DIR)["interaction"]["patterns"]["unlock.glint"]
+    primitive = json.loads((DESIGN_DIR / "tokens" / "primitive.tokens.json").read_text(encoding="utf-8"))
+    assert primitive["motion"]["duration"]["glint"]["$value"]["value"] == 2600 < glint["interval"]["value"]
+    assert "breathe" in glint["durationNote"] and "V131" in glint["durationNote"]
+    assert "10초마다" in glint["first"]

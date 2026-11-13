@@ -49,7 +49,7 @@
 * **대표 태그 칩 없음:** 옛 변형 `tag`(D76, 결정 V35)는 IA v5(D108, 결정 V78)부터 today 칩 줄에 쓰지 않아 계약 5.0.0에서 지웠습니다. 대표 태그는 사주 기운 섹션의 `hanja-tag`입니다(아래 today 화면 배치 4번). `share-image` 칩 줄도 행운 4종만입니다.
 * **색이 둘인 날 `pair`(#982, D119 ②, 결정 V114):** `DailyResponse.second_color`가 있는 날은 `color` 칩 하나를 1px `line` 세로선(높이 18)으로 나눈 두 칸 알약으로 그립니다. 앞 칸은 `color`(내 균형 기준), 뒤 칸은 `second_color`(원전 기준)이고 칸마다 견본 원 + 색 이름, 좌우 `space.12`입니다. 칩에도 시트에도 기준 이름표(내 균형 기준, 원전 기준)를 두지 않습니다(관문 답 2026-11-11).
   * 칸마다 누름 자리(44 이상)이지만 어느 칸을 눌러도 같은 행운 색 시트(`colorPairSheet`)가 열리고, 열림 테두리는 알약 전체에 생깁니다.
-  * `colorPairSheet`: `explain-sheet` 제목(항목 이름 "행운 색") 아래 추천 색이 둘이라는 한 줄(`today.lucky-color.pair.intro`, `type.caption.lg` `text.secondary`), 첫째 색(견본 원 + 이름 `type.label.lg`, 아래 `space.8` 풀이 `today.lucky-color.body`), `list.divider`(위아래 `space.16`, 들임 0으로 시트 본문 폭 그대로, V124), 둘째 색(같은 모양, 풀이 `today.lucky-color.second.body`). 색마다 풀이 아래에 그 색의 근거 진입점(`depth-link` `block`, 스크린리더 이름 "그 색 이름 + 근거 보기")이 있습니다(D123 ②, V118). 두 기준이 갈렸다고 쓰지 않고 칩과 색 소제목 옆에 기준 이름 부제목을 두지 않습니다. 풀이 문장 안 기준 설명("내 사주의 균형으로 보면" 등)은 writing 원고 그대로입니다(D123 ①, #1025).
+  * `colorPairSheet`: `explain-sheet` 제목(항목 이름 "행운 색") 아래 추천 색이 둘이라는 한 줄(`today.lucky-color.pair.intro`, `type.caption.lg` `text.secondary`), 첫째 색(견본 원 + 이름 `type.label.lg`, 아래 `space.8` 풀이 `today.lucky-color.body`), `list.divider`(위아래 `space.16`, 들임 0으로 시트 본문 폭 그대로, V124), 둘째 색(같은 모양, 풀이 `today.lucky-color.second.body`). 색마다 그 색 구역 머리(견본 원 + 이름 줄) 오른쪽 끝에 그 색의 근거 진입점(`depth-link` `head-end`, 스크린리더 이름 "그 색 이름 + 근거 보기")이 있습니다(D123 ②, V118, 자리는 V130). 두 기준이 갈렸다고 쓰지 않고 칩과 색 소제목 옆에 기준 이름 부제목을 두지 않습니다. 풀이 문장 안 기준 설명("내 사주의 균형으로 보면" 등)은 writing 원고 그대로입니다(D123 ①, #1025).
   * 스크린리더: 칸마다 항목 이름 + 값 + 두 개 중 몇째.
   * 행운 숫자는 색이 둘인 날 첫째 색의 오행입니다(D119 ③).
 * **`time`(#1003, D122, 결정 V115, V116):** 낮 칩 하나(`DailyResponse.focus_time`)와 밤 칩 하나(`night_focus_time`)입니다. 옛 구간 반복(`repeat`, 최대 2)과 시계 아이콘은 7.0.0에서 지웠습니다. time 칩은 today에만 씁니다.
@@ -71,7 +71,7 @@
   * 띠는 스크린리더에서 그림으로 숨깁니다. 같은 정보는 칩 라벨과 시트 본문이 말합니다.
   * 큰 글자(결정 V126, #1096, 관문 답 1A, 2A): 띠 글자(머리, 칸 글자, 지금 꼬리표, 눈금)는 기기 배율을 1.3배까지만 따릅니다(`a11y.textScaleMax`, 표와 달력과 같은 V36). 1.3배 칸 글자 14.3px는 고른 칸 안쪽 고리 안 약 16px에 들어갑니다. 그래도 이웃 눈금 사이가 `space.8`보다 가까우면 시작, 끝, 경계 순서로 겹치지 않는 가장 위 줄에 둡니다(줄 사이 `space.2`, 가로 자리는 그대로, `ticks.overlap`). 1.3배에서 en만 경계 눈금이 아랫줄로 내려가고 ko, ja는 한 줄입니다.
   * 띠 칸은 360 기기 시트 안 폭 312에서 약 24px이라 이름은 한 글자입니다(ko 한글, ja와 en 한자).
-* **근거 보기(D123 ②, 결정 V118):** 행운 색 시트(색이 하나인 날)와 낮, 밤 시트는 맨 끝에 자기 근거 진입점(`depth-link` `block`, 용어 풀이 시트와 같은 아이콘, V63)을 두고 근거 시트를 겹쳐 엽니다. 시간 시트는 `timeBand` 아래입니다. 색이 둘인 날은 위 `colorPairSheet`처럼 색마다 둡니다. 방향과 숫자 시트에는 없습니다.
+* **근거 보기(D123 ②, 결정 V118, 자리는 V130):** 행운 색 시트(색이 하나인 날)와 낮, 밤 시트는 시트 제목 줄 오른쪽 끝에 자기 근거 진입점(`depth-link` `head-end`, 용어 풀이 시트와 같은 아이콘, V63)을 두고 근거 시트를 겹쳐 엽니다. 색이 둘인 날은 `colorPairSheet`의 색 구역 머리(견본 원 + 색 이름 줄) 오른쪽 끝에 색마다 둡니다(시트 제목 줄에는 없음). 방향과 숫자 시트에는 없습니다(#1140).
 
 ## tag-sentence-list
 
@@ -132,7 +132,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
    * 보조 문장을 정한 사주 기운 태그: 대표 태그 1순위 `hanja-tag` `default`(누르면 `tag-sheet`, 열린 동안 `selected`). 보조 문장은 대표 태그 1순위에서 나오므로 대표 태그가 없는 날에는 태그와 보조 문장을 모두 그리지 않습니다(D112 ③).
    * 보조 문장(`today.fortune.body`): 태그 아래 `space.8`, `sentence-block` `body` + 끝에 `depth-link` `inline-end`.
 4. 사주 기운: `section-header` `plain`(`today.featured.title`). 카드 안에 대표 태그(`Daily.tags.featured`, 최대 둘) `hanja-tag` `default` 줄(사이 `space.8`). 누르면 `tag-sheet`, 열린 동안 `selected`. 대표 태그가 0개인 날은 섹션 제목을 그대로 두고 카드 안에 한 줄 안내(`today.featured.empty`)를 둡니다. 글자는 사주 기운 시트 빈 안내와 같은 `type.body.ui` `text.secondary`(`tag-sentence-list` `empty`와 같은 값, 새 값 없음)이고 누를 수 없습니다(D112 ②, 결정 V95).
-5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`(색이 둘인 날은 `colorPairSheet`: 맨 위 `today.lucky-color.pair.intro`, 둘째 색 `today.lucky-color.second.body`), `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.day.body`·`today.lucky-time.night.body`(제목 `today.lucky-time.day.title`·`today.lucky-time.night.title`, 밤 칩 때 낱말 `today.lucky-time.night.dawn`·`today.lucky-time.night.tonight`, 아래 `timeBand` 머리 `today.lucky-time.band.day`·`today.lucky-time.band.night`, 지금 꼬리표 `today.lucky-time.band.now`, 날 낱말 `today.lucky-time.band.yesterday`·`today.lucky-time.band.tomorrow`, IA v5 보충 D123)입니다. 색과 시간 시트 끝에는 근거 진입점이 있습니다. 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
+5. 행운: `section-header` `plain`(`today.lucky.title`). 카드 안에 `lucky-card` 칩 줄(색, 방향, 숫자, 시간). 칩을 누르면 `explain-sheet`가 열리고 본문은 `today.lucky-color.body`(색이 둘인 날은 `colorPairSheet`: 맨 위 `today.lucky-color.pair.intro`, 둘째 색 `today.lucky-color.second.body`), `today.lucky-direction.body`, `today.lucky-number.body`, `today.lucky-time.day.body`·`today.lucky-time.night.body`(제목 `today.lucky-time.day.title`·`today.lucky-time.night.title`, 밤 칩 때 낱말 `today.lucky-time.night.dawn`·`today.lucky-time.night.tonight`, 아래 `timeBand` 머리 `today.lucky-time.band.day`·`today.lucky-time.band.night`, 지금 꼬리표 `today.lucky-time.band.now`, 날 낱말 `today.lucky-time.band.yesterday`·`today.lucky-time.band.tomorrow`, IA v5 보충 D123)입니다. 색과 시간 시트 제목 줄 오른쪽 끝(색이 둘인 날은 색 구역 머리 오른쪽 끝)에는 근거 진입점이 있습니다(V130). 대표 태그는 4번 섹션에 있으므로 이 줄에 대표 태그 칩을 두지 않습니다.
 6. 일정(있는 날만): `section-header` `plain`(`today.event.title`, 그날 시트 일정 제목과 같은 키). 아래 `event-row` `summary`(`today.event.summary`) 카드, 누르면 `day-sheet`. 일정이 없는 날은 제목까지 섹션째 그리지 않습니다(V97).
 7. 오늘의 질문: `section-header` `plain`(`today.guide.title`). `guide-question-card`(`today.guide.question`, 버튼 `today.guide.cta`). 섹션 제목이 같은 말을 하므로 카드의 `eyebrow`는 그리지 않습니다. 오늘 쓴 일기가 있으면 카드 아래 `space.8`에 `diary-row` `entries` 카드.
 8. `ad-banner`(탭 바 위), `tab-bar`.
@@ -146,7 +146,7 @@ IA v5 `today`(D108). 위에서부터입니다. 섹션은 `section-header`(제목
 
 사주 기운 시트(IA v5 `tag-sheet`, D108, 결정 V79). 오늘 화면의 사주 기운 태그(4번 섹션, 3번 보조 문장 위 태그)를 누르면 `sheet` `half`(내용 높이)로 아래에서 엽니다. 화면이 밀리지 않습니다(F-008).
 
-1. 머리: 누른 태그 `hanja-tag` `default`(누를 수 없는 표시) + 오른쪽 끝 `depth-link` `inline-end` 아이콘(누르면 `evidence-sheet`가 `sheet.stack`). 핸들 자리 아래 `space.8`.
+1. 머리: 누른 태그 `hanja-tag` `default`(누를 수 없는 표시) + 오른쪽 끝 `depth-link` `head-end` 아이콘(V130, 시트 안 근거 진입점의 기준 자리)(누르면 `evidence-sheet`가 `sheet.stack`). 핸들 자리 아래 `space.8`.
 2. 뜻(`tag-sheet.tag.meaning`): 머리 아래 `space.12`, `sentence-block` `body`(용어 풀이 원고 `term.tag.*`).
    * `explain-sheet` `weighingNote` `targets`에 든 신살 태그면 뜻 바로 아래 `space.12`에 `explain-sheet` `weighingNote`와 같은 마무리 상자(`ui.shinsal.weighing`, D124 ⑦, 결정 V120)를 둡니다. 다음 구역 간격은 상자에서 셉니다.
 3. 이 기운에서 나온 오늘 문장: 뜻 아래 `space.24`, `tag-sentence-list`(머리 `tag-sheet.sentences.title`, 줄은 보조 문장과 오늘의 질문, 없으면 `tag-sheet.sentences.empty`).

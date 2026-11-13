@@ -104,7 +104,8 @@ BLACK = "#000000"
 
 # 움직임 (V2 spec §5.1)
 MOTION_DURATIONS = {"short": 200, "fade": 280, "medium": 320, "select": 340, "long": 420, "stamp": 520,
-                    "breathe": 1800, "toast-hold": 2500, "page": 320}
+                    "breathe": 1800, "toast-hold": 2500, "page": 320,
+                    "glint": 2600}  # 1.10.0: unlock.glint 지나감 전용(breathe와 뗌, #1141, 결정 V131)
 MOTION_EASINGS = {
     "seep": [0.2, 0.7, 0.2, 1],
     "enter": [0.2, 0.8, 0.2, 1],

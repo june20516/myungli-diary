@@ -67,6 +67,7 @@
   --motion-duration-breathe: 1800ms;
   --motion-duration-toast-hold: 2500ms;
   --motion-duration-page: 320ms;
+  --motion-duration-glint: 2600ms;
   --motion-easing-seep: cubic-bezier(0.2, 0.7, 0.2, 1);
   --motion-easing-enter: cubic-bezier(0.2, 0.8, 0.2, 1);
   --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);

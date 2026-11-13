@@ -1,5 +1,5 @@
 {
-  "version": "7.7.0",
+  "version": "8.0.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -133,7 +133,7 @@
       "states": {},
       "haptic": [],
       "a11y": { "role": "group", "label": "문장 그대로", "decorativeIcon": true },
-      "rules": ["화면 가운데보다 조금 위(세로 40%)에 둔다."]
+      "rules": ["화면 가운데보다 조금 위(세로 40%)에 둔다.", "빈 상태 아래에 붙는 줄(그 화면이 늘 두는 안내 줄, 링크, 버튼)은 empty-state 문장과 같은 가운데 맞춤과 같은 폭이다. 목록이 있을 때 쓰는 왼쪽 맞춤을 빈 상태에 그대로 쓰지 않는다. 지금은 purchase-history missing.notice, diary-list 쓰기 버튼(#1136, 결정 V128)."]
     },
     {
       "id": "error-state",
