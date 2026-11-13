@@ -2059,4 +2059,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get branchReadingHae => 'Hae';
+
+  @override
+  String sajuChartManseBasisStemSuffix(String stemName, String reading) {
+    return ' ($stemName)';
+  }
 }

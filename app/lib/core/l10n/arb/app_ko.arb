@@ -2759,5 +2759,17 @@
   "branchReadingHae": "해",
   "@branchReadingHae": {
     "description": "glossary.value_name: branch_reading.hae"
+  },
+  "sajuChartManseBasisStemSuffix": "({stemName})",
+  "@sajuChartManseBasisStemSuffix": {
+    "description": "saju-chart.manse.basis: 만세력과 대운 탭 위 \"내 일간 <간>(<이름>) 기준\" 틀(매개변수 stem)",
+    "placeholders": {
+      "stemName": {
+        "type": "String"
+      },
+      "reading": {
+        "type": "String"
+      }
+    }
   }
 }

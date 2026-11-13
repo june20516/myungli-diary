@@ -26,6 +26,7 @@ import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
 import 'package:myungli_diary/features/depth/application/explain_content.dart';
 import 'package:myungli_diary/features/depth/application/personal_reading_key.dart';
 import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/glossary/model/ganji_reading.dart';
 import 'package:myungli_diary/features/me/application/luck_years.dart';
 import 'package:myungli_diary/features/me/model/ganji.dart';
 import 'package:myungli_diary/features/me/model/shinsal_cells.dart';
@@ -248,7 +249,13 @@ class SajuChartLuckTab extends ConsumerWidget {
     final dayStem = chart.pillars.day.stem;
     final glyph = stemHanja(dayStem);
     return ManseTable(
-      basis: l10n.sajuChartManseBasis(dayMasterText(text, dayStem)),
+      basis: l10n.sajuChartManseBasis(
+        dayMasterText(
+          l10n,
+          dayStem,
+          name: text.names?.valueName('stem', dayStem.value),
+        ),
+      ),
       basisGlyph: glyph,
       table: BandTable(
         columns: [
@@ -390,14 +397,16 @@ LuckGanji luckGanjiOf(Pillar pillar) => LuckGanji(
   branchHanja: branchHanja(pillar.branch),
 );
 
-/// 일간 표기 "庚(경금)": 한자 뒤 괄호에 천간 이름(사전 `stem` 값 이름, writing 슬롯
-/// `saju-chart.manse.basis`의 "<간>(<이름>)"). 괄호는 간지 독음과 같은 틀
-/// `ganjiReadingSuffix`(ja 전각, en 앞 한 칸)입니다. 이름이 없거나 한자와 같으면(ja 庚) 한자만
-/// 씁니다(A139 ④). 잇는 틀과 ja 표기는 writing 확인 대상(#1095)이고, 답이 오면 이 함수 한 곳만
-/// 바꿉니다.
-String dayMasterText(ChartText text, Stem stem) {
-  final glyph = stemHanja(stem);
-  final name = text.names?.valueName('stem', stem.value);
-  if (name == null || name.isEmpty || name == glyph) return glyph;
-  return '$glyph${text.l10n.ganjiReadingSuffix(name)}';
+/// 만세력 기준 줄의 일간 표기(writing `saju-chart.manse.basis`, W75): 한자 뒤에
+/// 틀 `sajuChartManseBasisStemSuffix`를 잇습니다(ko 庚(경금), en 庚 (Gyeonggeum),
+/// ja 庚（かのえ）).
+/// 틀에는 사전 천간 이름 [name](`Glossary.values` `stem`)과 독음(glossary
+/// `stem_reading`)을 늘 함께 넘기고, 어느 쪽을 쓸지는 언어별 원고가 정합니다. 사전 이름이 없거나 빈 문장이면 이름 자리에도
+/// 독음을 넘깁니다(괄호가 비지 않게, A145 ②). 한자는 틀에 넣지 않고 부르는 쪽이 한자 글꼴로
+/// 그립니다(`basisGlyph`). 스크린리더는 보이는 글자 그대로 읽습니다(슬롯 `a11y.screen_reader`).
+String dayMasterText(AppLocalizations l10n, Stem stem, {String? name}) {
+  final reading = GanjiReading.stem(stem, l10n);
+  final stemName = (name == null || name.isEmpty) ? reading : name;
+  return '${stemHanja(stem)}'
+      '${l10n.sajuChartManseBasisStemSuffix(stemName, reading)}';
 }

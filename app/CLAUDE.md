@@ -60,7 +60,7 @@
   * 나의 사주: 신살 `positions`로 기둥마다 펼치고 `(kind, 기둥)`으로 한 번만, 일주 신살은 대표 일지, 새 신살 13개와 대체 글꼴 `Myungli Hanja Supplement`(罡), 흉 신살 풀이 시트와 사주 기운 시트 마무리 한 줄(`WeighingNote`, 대상 열하나 `weighingShinsal`), 만세력 기준 줄 일간 표기 "庚(경금)".
   * 일기 쓰기 날짜 블록 일진 독음, 미리보기 사용함 목록은 `settings-row` `readonly`(V122), 다시 시도는 공용 `RetryHold`, 이전 캐시 하위 호환(A142).
   * 산출물: golden 새 사례 `today_date_header`, `today_hanja_tag_compact`, `today_lucky_card_pair_closed`/`open`, `today_color_pair_sheet`, `today_time_band`, `sentence_hanja_supplement`. 화면 스크린샷에 `today` `pair-virtue`, `explain-sheet` `lucky-color-pair`/`lucky-time-day`/`lucky-time-night`/`shinsal-weighing`/`empty`, `ad-free` `default`/`empty`를 더했습니다.
-  * 답을 기다리는 것: writing #1095(만세력 기준 줄 일간 표기의 잇는 틀과 ja 표기), design #1063(밤 칩 전환 문구 "07:30"을 진시 시작으로 보충), design #1096(24시간 띠 큰 글자 배율의 눈금 겹침과 고리, app A143).
+  * 답을 기다리던 #1095, #1063, #1096은 계약(W75, V126)으로 확정되어 #1102에서 따라잡았습니다(A145).
 * **drift #916(design PR #915 계약 변경) 따라잡기**, 브랜치 `app/drift-916`. 계획 [`docs/plans/2026-11-10-drift-916.md`](docs/plans/2026-11-10-drift-916.md), 결정 A122~A125. 함께 닫는 요청 #921(겹친 시트 바깥 누르기 한 단계씩), #959(시트 겹침 뒤 축소 없앰), #919(notify-ask 맨 아래 버튼 여백), #935(일기 줄 태그 모두, D115), #930(질문 떼기, D116), #953(열린 근거 표시, D118), #926(미리보기를 이미 쓴 기기, D117).
   * 토큰과 자산: 오행 금과 수 색, 테두리, glyph, 공유 이미지 로고 PNG. 생성 코드와 fixture를 새 계약으로 다시 만들었습니다.
   * 그날 시트와 피드백: 일정 줄 시각 굵게, 종일 꼬리표, 메모 줄, 길흉판정 접힘, 안쪽 태그를 눌러도 카드 잉크가 번지지 않음. error-state 기본 아이콘과 notice-banner error 아이콘.
@@ -197,8 +197,8 @@
 
 ## 다음 할 일
 0. **오늘 화면 묶음(PR #1097)은 병합되었습니다.** 남은 것:
-   * 답 대기: writing #1095(만세력 기준 줄 일간 표기), design #1063(밤 칩 전환 문구 보충), design #1096(띠 눈금 겹침과 고리, A143). 답이 오면 drift나 요청으로 따라갑니다.
-   * #909 앱 아이콘 다시 만들기는 `app/icon-png-source` PR입니다(A102 갱신). 새 아이콘은 다음 스토어 빌드에 들어갑니다. #944(Play 내부 테스트 업로드 자동화)와 스토어 빌드는 사용자 지시로 보류합니다.
+   * #1102(띠 글자 1.3배 상한, 일간 표기 틀) 따라잡기는 `app/timeband-scale-stem-suffix` PR입니다(A145).
+   * #909 앱 아이콘은 PR #1099로 병합되었습니다(A102 갱신). 새 아이콘은 다음 스토어 빌드에 들어갑니다. #944(Play 내부 테스트 업로드 자동화)와 스토어 빌드는 사용자 지시로 보류합니다.
    * Flutter 3.50.0(stable 2026-11-12)으로 올리기: `tool/golden_flutter_version`, 로컬 Flutter, `pubspec.lock`, golden을 한 PR에서(A144). 그 전까지 CI는 3.47.7로 고정입니다.
    * drift #916(PR #993) 남은 사용자 확인: TalkBack이나 VoiceOver를 켜고 일기 쓰기 질문 떼기와 다시 붙이기에서 한 번만 읽히는지.
    * DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.

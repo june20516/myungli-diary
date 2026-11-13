@@ -559,5 +559,6 @@
   "branchReadingShin": "さる",
   "branchReadingYu": "とり",
   "branchReadingSul": "いぬ",
-  "branchReadingHae": "い"
+  "branchReadingHae": "い",
+  "sajuChartManseBasisStemSuffix": "（{reading}）"
 }
