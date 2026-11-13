@@ -445,7 +445,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_7_6_0():
+def test_contract_version_is_7_7_0():
+    # 7.7.0은 #1096(V126): timeBand 글자 1.3배 상한과 눈금 겹침 줄 내림 추가, #1063 전환 기준 문구라 부 버전.
     # 7.6.0은 #1091(D124 ⑦, V125): weighingNote 대상 목록 targets, notTargets를 writing 판단(#1090)에 맞춰 바꾼 값이라 부 버전.
     # 7.5.0은 #1072(V124): 시간 띠 고른 시진 고리를 칸 안쪽으로 옮기고 연 칩과 다른 칩을 나눈 값, list.divider inSheet 추가라 부 버전.
     # 7.4.0은 #1058(V123): offer-card 상태 unavailable과 term-token 풀이 시트 emptyNote 추가라 부 버전.
@@ -453,7 +454,7 @@ def test_contract_version_is_7_6_0():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "7.6.0"
+    assert VERSION == "7.7.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -3302,3 +3303,19 @@ def test_v125_weighing_targets_follow_writing_slot():
     assert all(name in attach for name in targets), [name for name in targets if name not in attach]
     assert all(name in detach for name in not_targets), [name for name in not_targets if name not in detach]
     assert "writing 판단" in note["targetsRule"] and "#1091" in note["targetsRule"]
+
+
+def test_v126_time_band_text_scale_and_tick_overlap():
+    # #1096: 띠는 칸 폭이 고정된 그림이라 표, 달력처럼 1.3배 상한. 그래도 겹치는 눈금은 줄 내림(app A143과 같음)
+    band = component("today", "lucky-card")["parts"]["timeBand"]
+    assert band["a11y"]["textScaleMax"] == 1.3 and "V126" in band["a11y"]["textScaleRule"]
+    overlap = band["ticks"]["overlap"]
+    assert overlap["minGap"] == "{space.8}" and overlap["lineGap"] == "{space.2}"
+    assert overlap["placeOrder"] == ["띠 시작", "띠 끝", "낮과 밤 경계"]
+    readme = (DESIGN_DIR / "components" / "README.md").read_text(encoding="utf-8")
+    assert "`timeBand`, V126" in readme
+    # #1063: 전환 기준은 프로필 시간대의 그날 진시 시작. "프로필 시간대 07:30"만 적힌 문구가 남지 않음
+    today_json = (DESIGN_DIR / "components" / "today.json").read_text(encoding="utf-8")
+    today_md = (DESIGN_DIR / "components" / "today.md").read_text(encoding="utf-8")
+    assert "프로필 시간대 07:30" not in today_json and "프로필 시간대 07:30" not in today_md
+    assert "hours[0].start" in band["order"]["dayStart"]
