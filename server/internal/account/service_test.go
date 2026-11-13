@@ -117,6 +117,7 @@ func allCurrent() []account.ConsentDocument {
 	return []account.ConsentDocument{
 		{Document: account.Terms, Version: account.CurrentDocuments[account.Terms]},
 		{Document: account.Privacy, Version: account.CurrentDocuments[account.Privacy]},
+		{Document: account.Age14, Version: account.CurrentDocuments[account.Age14]},
 	}
 }
 
@@ -151,13 +152,13 @@ func TestMe_ListsOnlyMissingCurrentDocuments(t *testing.T) {
 	before, err := f.service.Me(f.ctx, f.id)
 	require.NoError(t, err)
 	assert.Equal(t, f.id, before.AccountID)
-	assert.Equal(t, []account.ConsentDocument{{Document: account.Privacy, Version: "1"}, {Document: account.Terms, Version: "1"}}, before.RequiredConsents)
+	assert.Equal(t, []account.ConsentDocument{{Document: account.Age14, Version: "1"}, {Document: account.Privacy, Version: "1"}, {Document: account.Terms, Version: "1"}}, before.RequiredConsents)
 
 	require.NoError(t, f.service.AgreeConsents(f.ctx, f.id, []account.ConsentDocument{{Document: account.Terms, Version: "1"}}))
 
 	got, err := f.service.Me(f.ctx, f.id)
 	require.NoError(t, err)
-	assert.Equal(t, []account.ConsentDocument{{Document: account.Privacy, Version: "1"}}, got.RequiredConsents)
+	assert.Equal(t, []account.ConsentDocument{{Document: account.Age14, Version: "1"}, {Document: account.Privacy, Version: "1"}}, got.RequiredConsents)
 	assert.True(t, got.ConsentRequired)
 }
 
@@ -171,7 +172,7 @@ func TestAgreeConsents_AllCurrentClearsRequirement(t *testing.T) {
 	got, err := f.service.Access(f.ctx, f.id)
 	require.NoError(t, err)
 	assert.False(t, got.ConsentRequired)
-	assert.Equal(t, 2, f.consentCount(t))
+	assert.Equal(t, 3, f.consentCount(t))
 }
 
 func TestAgreeConsents_StaleVersionStoresNothing(t *testing.T) {

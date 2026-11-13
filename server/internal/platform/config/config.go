@@ -11,6 +11,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/june20516/myungli-diary/server/legal"
 )
 
 // 기본값입니다.
@@ -321,6 +323,26 @@ func LoadAppCheck(getenv func(string) string) (AppCheckConfig, error) {
 		return AppCheckConfig{}, errors.New("FIREBASE_PROJECT_NUMBER는 숫자만으로 된 프로젝트 번호여야 합니다")
 	}
 	return AppCheckConfig{ProjectNumber: number}, nil
+}
+
+// LoadLegalBusiness는 getenv로 LEGAL_BUSINESS_INFO(법적 문서 사업자 정보 JSON, legal.ParseBusiness 형식)를 읽습니다(D126 ②).
+// 값의 원본은 Secret Manager이고 공개 저장소에는 두지 않습니다(D74, D98). APP_ENV가 local(기본값)이 아니면 필수입니다.
+// local에서 비어 있으면 nil이고, 빈자리가 있는 문서는 준비 중 페이지가 됩니다(legal.Documents.Fill).
+// 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadLegalBusiness(getenv func(string) string) (legal.Business, error) {
+	getenv = trimmedEnv(getenv)
+	raw := getenv("LEGAL_BUSINESS_INFO")
+	if raw == "" {
+		if orDefault(getenv("APP_ENV"), defaultEnv) != defaultEnv {
+			return nil, errors.New("LEGAL_BUSINESS_INFO가 필요합니다(APP_ENV가 local일 때만 비워 둘 수 있습니다)")
+		}
+		return nil, nil
+	}
+	business, err := legal.ParseBusiness([]byte(raw))
+	if err != nil {
+		return nil, fmt.Errorf("LEGAL_BUSINESS_INFO: %w", err)
+	}
+	return business, nil
 }
 
 // defaultTrustedProxyHops는 TRUSTED_PROXY_HOPS의 기본값입니다(Cloud Run 앞단 하나).

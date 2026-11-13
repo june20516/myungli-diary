@@ -70,7 +70,7 @@ func checkNames(langDir string) error {
 	return nil
 }
 
-// Convert는 원문 하나를 HTML로 바꾸고 첫 1단계 제목을 Title로 뽑습니다.
+// Convert는 원문 하나를 HTML로 바꾸고 첫 1단계 제목을 Title로 뽑습니다. 모르는 빈자리 표기가 있으면 오류입니다.
 func Convert(lang, name string, source []byte) (legal.Document, error) {
 	root := markdown.Parser().Parse(text.NewReader(source))
 	title := firstTitle(root, source)
@@ -80,6 +80,10 @@ func Convert(lang, name string, source []byte) (legal.Document, error) {
 	var html bytes.Buffer
 	if err := markdown.Renderer().Render(&html, source, root); err != nil {
 		return legal.Document{}, fmt.Errorf("%s/%s 변환: %w", lang, name, err)
+	}
+	// 빈자리 표기는 변환 뒤에도 그대로 남아야 server가 채울 수 있습니다(D126 ②).
+	if err := legal.CheckPlaceholders(title + "\n" + html.String()); err != nil {
+		return legal.Document{}, fmt.Errorf("%s/%s: %w", lang, name, err)
 	}
 	return legal.Document{Lang: lang, Name: name, Title: title, HTML: html.String()}, nil
 }

@@ -12,8 +12,9 @@ locals {
   migrator_db_user = trimsuffix(google_service_account.migrator.email, ".gserviceaccount.com")
 
   # 비밀은 Secret Manager에 두고 환경 변수 이름을 Secret id로 씁니다(spec §5).
+  # LEGAL_BUSINESS_INFO는 비밀은 아니지만 공개 저장소에 두지 않는 법적 문서 사업자 정보입니다(D126 ②, D74, S157).
   secret_ids = concat(
-    ["JWT_SIGNING_KEY", "TOKEN_ENCRYPTION_KEY", "KAKAO_ADMIN_KEY", "APPLE_PRIVATE_KEY", "REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH", "RESEND_API_KEY"],
+    ["JWT_SIGNING_KEY", "TOKEN_ENCRYPTION_KEY", "KAKAO_ADMIN_KEY", "APPLE_PRIVATE_KEY", "REVENUECAT_API_KEY", "REVENUECAT_WEBHOOK_AUTH", "RESEND_API_KEY", "LEGAL_BUSINESS_INFO"],
     var.test_login_enabled ? ["TEST_LOGIN_SECRET"] : [],
     var.jwt_previous_key_id != "" ? ["JWT_PREVIOUS_KEY"] : [],
     var.token_previous_key_id != "" ? ["TOKEN_PREVIOUS_KEY"] : [],
