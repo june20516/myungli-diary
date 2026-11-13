@@ -13,6 +13,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `daily.fortune.head`<br>`daily.fortune.tag` | today sentence-block card (상자 없이 본문 폭, 시안 design-v2-today) | 320px | 2 | 32 | 42 | **32** | **32** | **57** |
 | `daily.guide` | guide-question-card question (안쪽 space.20) | 280px | 2 | 40 | 36 | **36** | **30** | **70** |
 | `daily.color`<br>`daily.direction`<br>`daily.number`<br>`daily.focus_time` | lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body) | 312px | 2 | 36 | 46 | **36** | **36** | **64** |
+| `daily.color_relation`<br>`daily.direction_relation`<br>`daily.number_relation` | lucky-card 설명 시트 본문, 오행 관계 문장 (explain-sheet, sheet 안쪽 24, sentence-block body, 네 줄) | 312px | 4 | - | 92 | **92** | **76** | **156** |
 | `daily.focus_reason` | lucky-card 설명 시트 안 한 줄 | 312px | 1 | 10 | 22 | **10** | **10** | **18** |
 | `daily.tag_label` | hanja-tag 이름 (카드 안 한 줄, 카드 안쪽 16, 앞 4 + 한자 원 22 + 간격 4, 뒤 12. diary-summary, diary-row 카드가 가장 좁음) | 246px | 1 | 10 | 22 | **10** | **10** | **18** |
 | `calendar.day_level` | day-character badge (좌우 12px, day-sheet 안이 가장 좁음) | 288px | 1 | 10 | 26 | **10** | **10** | **18** |
@@ -198,6 +199,9 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * D124 ⑦ 흉한 신살 마무리 한 줄(2026-11-12, #1026, 결정 V120): IA 밖 `ui.shinsal.weighing`(키 `shinsalWeighingNote`)은 풀이 시트 뜻 아래 뉴트럴 상자 안 글자입니다. 시트 안 312px에서 상자 안쪽 12씩, 체크 아이콘 16과 간격 8을 뺀 264px, `type.caption.lg` 두 줄로 잽니다. writing 가안(#1030) 셋은 모두 들어갑니다(사용자가 고른 방향 ② 40자는 두 줄).
     * 본문 `today.lucky-color.second.body`, `today.lucky-time.day.body`, `night.body`는 writing content 키 `daily.color`, `daily.focus_time`과 같은 칸(시트 본문 두 줄)이라 그 행 값을 씁니다. 시트 끝 근거 진입점은 아이콘(`block`, 본문 아래 따로)이라 본문 폭을 줄이지 않습니다.
   * 빈 상태 둘(2026-11-12, #1058, 결정 V123): `ad-free.unavailable.body`(광고 제거 상품 없음 안내, #922)는 `offer-card` 안쪽 20을 뺀 280px, `type.body.ui` 두 줄입니다(ko 50, ja 38, en 86). IA 밖 `ui.explain.term-empty`(뜻도 근거 출처도 없는 용어의 풀이 시트 빈 안내, #957)는 근거 시트 빈 안내 `ui.evidence.personal-empty`와 같은 시트 안 312px 두 줄입니다(ko 58, ja 42, en 98). 둘 다 원고가 아직 없어 계산값이 확정값입니다.
+  * D130 오행 관계 문장(2026-11-13, #1154, writing W78, 라운드 R48): `daily.color_relation`, `daily.direction_relation`, `daily.number_relation`은 바탕 오행과 다른 오행을 고른 날 `daily.color` 등과 같은 본문 자리(`today.lucky-color.body` 등)를 바꿔 쓰는 문장이라 칸은 같고 줄 수만 네 줄로 잽니다. 子, 妻, 鬼 색 문장이 두 문장이기 때문입니다. 문장 칸은 자르지 않고 시트가 늘어나므로 컴포넌트 명세는 그대로입니다.
+    * 지금 원고를 writing 검사기와 같은 가장 긴 값(숫자는 두 자리)으로 채워 칸에 줄바꿈하면 가장 긴 문장이 ko 3줄(62자), ja 3줄(51자), en 4줄(156자)입니다. 방위와 숫자 관계 문장은 ko, ja 2줄, en 숫자 3줄입니다.
+    * ko 92, ja 76은 네 줄 계산값입니다. en은 추정식(줄당 32자, 네 줄 128자)이 실제 줄바꿈(줄당 45자 안팎)보다 훨씬 좁아 지금 원고를 넘기므로, 네 줄 안에 든 가장 긴 en 문장 글자 수 156을 실측 상한으로 씁니다(`lengths.py` `Target.measured`).
   * `daily.tag_label`은 `lucky-card` `tag` 칩이 지워져(V78) 이름이 놓이는 가장 좁은 자리인 카드 안 `hanja-tag` 이름 칸(246px)으로 다시 잽니다. 확정값(10, 10, 18)은 그대로입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.

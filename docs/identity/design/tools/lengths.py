@@ -107,6 +107,8 @@ class Target:
     reserve_slot: str | None = None  # 같은 줄 오른쪽 값 자리. 그 슬롯의 ko 확정 글자 수만큼 폭을 뺌
     trailing_link: str | None = None  # 문장 끝에 붙는 링크 슬롯. 그 원고 폭만큼 마지막 줄에서 뺌(언어별)
     trailing_icon: float = 0  # 문장 끝에 붙는 아이콘 폭(px). 앞 U+00A0과 함께 마지막 줄에서 뺌 (결정 V63)
+    # 추정식 대신 원고를 칸에 줄바꿈해 잰 상한: (언어, 상한, 실측 근거). 그 언어의 확정값을 대신함 (#1154)
+    measured: tuple[tuple[str, int, str], ...] = ()
 
 
 # 한 슬롯에 제목·본문·버튼 키가 함께 있는 확인 창. 제목 키와 버튼 키에만 상한을 둡니다(본문은 창이 늘어남).
@@ -122,6 +124,12 @@ TARGETS = (
     Target(("daily.guide",), "guide-question-card question (안쪽 space.20)", "sentence", 17, 0, CONTENT_WIDTH - 40, 2, True, 40),
     Target(("daily.color", "daily.direction", "daily.number", "daily.focus_time"), "lucky-card 설명 시트 본문 (explain-sheet, sheet 안쪽 24, sentence-block body)",
            "sentence", 15, 0, SHEET_CONTENT_WIDTH, 2, True, 36),
+    # D130 관계 문장(W78)은 같은 본문 자리를 바꿔 쓰고 두 문장이라 네 줄로 잼. en 추정식(줄당 32자)은 실제 줄바꿈(줄당 45자 안팎)보다
+    # 훨씬 좁아, 지금 원고를 칸에 줄바꿈해 네 줄 안인 가장 긴 문장 글자 수를 씀 (#1154)
+    Target(("daily.color_relation", "daily.direction_relation", "daily.number_relation"),
+           "lucky-card 설명 시트 본문, 오행 관계 문장 (explain-sheet, sheet 안쪽 24, sentence-block body, 네 줄)",
+           "sentence", 15, 0, SHEET_CONTENT_WIDTH, 4, True, None,
+           measured=(("en", 156, "가장 긴 子, 妻, 鬼 색 문장(가장 긴 값 Earth, yellow로 156자)이 문장 글꼴 15px, 312px에서 네 줄"),)),
     Target(("daily.focus_reason",), "lucky-card 설명 시트 안 한 줄", "sentence", 15, 0, SHEET_CONTENT_WIDTH, 1, False, 10),
     # 5.0.0(DS1): 대표 태그는 lucky-card tag 칩이 아니라 hanja-tag. 카드 안 태그가 가장 좁음 (결정 V70, V78)
     Target(("daily.tag_label",), "hanja-tag 이름 (카드 안 한 줄, 카드 안쪽 16, 앞 4 + 한자 원 22 + 간격 4, 뒤 12. diary-summary, diary-row 카드가 가장 좁음)",
@@ -546,7 +554,10 @@ class Result:
     en: int
 
     def final(self, language: str) -> int:
-        """writing 초안과 레이아웃 계산 중 작은 값. ja·en 초안은 ko 초안(ja 같음, en 1.8배)에서 옵니다."""
+        """실측 상한이 있으면 그 값, 없으면 writing 초안과 레이아웃 계산 중 작은 값. ja·en 초안은 ko 초안(ja 같음, en 1.8배)에서 옵니다."""
+        for measured_language, limit, _reason in self.target.measured:
+            if measured_language == language:
+                return limit
         computed = getattr(self, language)
         if self.target.draft is None:
             return computed
