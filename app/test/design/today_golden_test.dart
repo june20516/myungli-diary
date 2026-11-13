@@ -473,8 +473,10 @@ void main() {
     await goldenMatrix(tester, 'today_color_pair_sheet', _colorPairSheet);
   });
 
-  goldenTest('lucky-card: 시간 칩 시트 24시간 띠(연 칩·다른 칩 고리, 지금 줄)', (tester) async {
-    await goldenMatrix(tester, 'today_time_band', _timeBands);
+  goldenTest('lucky-card: 시간 칩 시트 24시간 띠(연 칩·다른 칩 고리, 지금 줄, 글자 1.3배 상한)', (
+    tester,
+  ) async {
+    await goldenMatrix(tester, 'today_time_band', _timeBands, fixedCells: true);
   });
 
   goldenTest('date-header: 덕일 둘·열린 덕·덕일 없음(일진 독음)', (tester) async {

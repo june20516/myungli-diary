@@ -405,6 +405,28 @@ void main() {
     });
   }
 
+  testWidgets('띠 글자는 기기 배율을 1.3배까지만 따릅니다(V126)', (tester) async {
+    Future<List<Rect>> textRects(double scale) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      await tester.pumpWidget(_app(_band()));
+      return [
+        for (final key in [...TimeBand.tickKeys, TimeBand.nowTagKey])
+          tester.getRect(find.byKey(key)),
+      ];
+    }
+
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    expect(TimeBand.textScaleMax, 1.3);
+    final atMax = await textRects(TimeBand.textScaleMax);
+    final atTwo = await textRects(2);
+    expect(
+      [for (final rect in atTwo) rect.size],
+      [for (final rect in atMax) rect.size],
+    );
+    final atOne = await textRects(1);
+    expect(atMax.first.height, greaterThan(atOne.first.height));
+  });
+
   testWidgets('글자 배율 2.0에서도 넘치지 않습니다', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);

@@ -3467,6 +3467,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'해'**
   String get branchReadingHae;
+
+  /// saju-chart.manse.basis: 만세력과 대운 탭 위 "내 일간 <간>(<이름>) 기준" 틀(매개변수 stem)
+  ///
+  /// In ko, this message translates to:
+  /// **'({stemName})'**
+  String sajuChartManseBasisStemSuffix(String stemName, String reading);
 }
 
 class _AppLocalizationsDelegate

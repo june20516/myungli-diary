@@ -1929,4 +1929,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get branchReadingHae => '해';
+
+  @override
+  String sajuChartManseBasisStemSuffix(String stemName, String reading) {
+    return '($stemName)';
+  }
 }

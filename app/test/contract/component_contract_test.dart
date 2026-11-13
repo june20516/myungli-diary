@@ -2511,14 +2511,16 @@ void main() {
         'dawn': SlotIds.todayLuckyTimeNightDawn,
         'tonight': SlotIds.todayLuckyTimeNightTonight,
       });
-      // 계약 문구의 경계 시각(07:30)은 서울 프로필의 진시 시작입니다. 경계는 응답 낮 카드
-      // hours[0].start이고(openapi 1.12.0, #1064) 서울 응답(member)에서 같은 분에 바뀌는지
-      // 봅니다(A140 ①). 서울 밖 시간대는 today_presentation_test가 봅니다.
-      final boundary = RegExp(r'(\d{2}):(\d{2})')
-          .firstMatch(word['switch']! as String)!;
+      // 경계는 프로필 시간대의 그날 진시 시작이고 app은 응답 낮 카드 hours[0].start를 씁니다
+      // (#1063, openapi 1.12.0, A140 ①). 계약 문구의 서울 예(07:30)에서 같은 분에 바뀌는지
+      // 서울 응답(member)으로 봅니다. 서울 밖 시간대는 today_presentation_test가 봅니다.
+      final switchRule = word['switch']! as String;
+      expect(switchRule, contains('프로필 시간대의 그날 진시 시작'));
+      expect(switchRule, contains('FocusTimeCard.hours[0].start'));
+      final boundary = RegExp(r'서울 (\d{2}):(\d{2})').firstMatch(switchRule)!;
       final hour = int.parse(boundary.group(1)!);
       final minute = int.parse(boundary.group(2)!);
-      expect('${boundary.group(0)}', '07:30');
+      expect('${boundary.group(1)}:${boundary.group(2)}', '07:30');
       final dayStart = dayStartOf(Daily.fromJson(memberDailyJson()));
       bool before(DateTime wall) =>
           isBeforeDayStart(wall, dayStart: dayStart, timezone: 'Asia/Seoul');
@@ -2622,11 +2624,22 @@ void main() {
       });
       expect(ticks['gapAbove'], '{space.8}');
       expect(TimeBand.tickGapAbove, Space.s8);
-      expect(_map(band['a11y'])['role'], 'image');
+      // 겹치는 눈금 줄 내림(V126)은 A143과 같습니다: 간격, 놓는 순서, 줄 사이.
+      final overlap = _map(ticks['overlap']);
+      expect(overlap['minGap'], '{space.8}');
+      expect(TimeBand.tickMinGap, Space.s8);
+      expect(overlap['placeOrder'], ['띠 시작', '띠 끝', '낮과 밤 경계']);
+      // 놓는 순서는 tickKeys(시작, 경계, 끝)의 0, 2, 1번입니다(time_band_test가 겹침을 봄).
+      expect(overlap['lineGap'], '{space.2}');
+      expect(TimeBand.tickRowGap, Space.s2);
+      final a11y = _map(band['a11y']);
+      expect(a11y['role'], 'image');
+      expect(a11y['textScaleMax'], TimeBand.textScaleMax);
     });
 
-    test('timeBand 순서는 07:30 전 밤이 앞, 07:30부터 낮이 앞입니다', () {
+    test('timeBand 순서는 그날 진시 시작 전 밤이 앞, 진시 시작부터 낮이 앞입니다', () {
       final order = _map(band['order']);
+      expect(order['dayStart'], contains('FocusTimeCard.hours[0].start'));
       expect(order['beforeDayStart'], ['night(전날 밤)', 'day(오늘 낮)']);
       expect(order['fromDayStart'], ['day(오늘 낮)', 'night(오늘 밤)']);
     });

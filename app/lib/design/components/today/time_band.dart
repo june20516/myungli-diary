@@ -94,6 +94,7 @@ final class TimeBandTick {
 /// 줄과 꼬리표를 그리지 않습니다(A140 ⑤).
 ///
 /// 스크린리더에서는 그림으로 숨깁니다. 시트 본문과 칩 라벨이 같은 정보를 말합니다(`timeBand.a11y`).
+/// 글자는 기기 배율을 [textScaleMax]까지만 따릅니다(V126).
 class TimeBand extends StatelessWidget {
   /// 띠를 만듭니다. [cells]는 계약 순서의 12칸이고 같은 [TimeBandCell.period]끼리 이어져
   /// 있어야 합니다(덩어리 둘).
@@ -155,10 +156,15 @@ class TimeBand extends StatelessWidget {
   /// 눈금 시각의 글꼴 기능(`ticks.fontFeatures` tnum).
   static const List<FontFeature> tickFeatures = [FontFeature.tabularFigures()];
 
-  /// 이웃한 눈금 사이 최소 간격(A143). 이보다 가까우면 눈금을 아랫줄로 내립니다.
+  /// 띠 글자(머리, 칸 글자, 지금 꼬리표, 눈금)가 따르는 기기 글자 배율의 상한
+  /// (`timeBand.a11y.textScaleMax`, 결정 V126). 칸 높이와 눈금 줄은 그 글자가 들어가는 만큼만
+  /// 늘어납니다.
+  static const double textScaleMax = 1.3;
+
+  /// 이웃한 눈금 사이 최소 간격(A143, 계약 `ticks.overlap.minGap`). 이보다 가까우면 눈금을 아랫줄로 내립니다.
   static const double tickMinGap = Space.s8;
 
-  /// 눈금이 두 줄일 때 줄 사이(A143).
+  /// 눈금이 두 줄일 때 줄 사이(A143, 계약 `ticks.overlap.lineGap`).
   static const double tickRowGap = Space.s2;
 
   /// 시작, 경계, 끝 눈금을 찾는 테스트용 키(이 순서).
@@ -215,17 +221,24 @@ class TimeBand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final firstLength = _firstBlockLength;
-    return ExcludeSemantics(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _heads(context, firstLength),
-          _headGap(context),
-          _cellsWithNow(context),
-          const SizedBox(height: tickGapAbove),
-          _ticks(context, firstLength / cells.length),
-        ],
+    // 칸 폭이 고정된 그림이라 글자 배율을 textScaleMax에서 멈춥니다. 아래 측정이 멈춘 배율을
+    // 읽도록 Builder로 context를 다시 받습니다.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: textScaleMax,
+      child: Builder(
+        builder: (context) => ExcludeSemantics(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _heads(context, firstLength),
+              _headGap(context),
+              _cellsWithNow(context),
+              const SizedBox(height: tickGapAbove),
+              _ticks(context, firstLength / cells.length),
+            ],
+          ),
+        ),
       ),
     );
   }

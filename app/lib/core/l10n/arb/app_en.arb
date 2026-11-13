@@ -559,5 +559,6 @@
   "branchReadingShin": "Sin",
   "branchReadingYu": "Yu",
   "branchReadingSul": "Sul",
-  "branchReadingHae": "Hae"
+  "branchReadingHae": "Hae",
+  "sajuChartManseBasisStemSuffix": " ({stemName})"
 }
