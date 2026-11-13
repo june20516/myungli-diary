@@ -61,22 +61,22 @@ def _declare(keys: Iterable[str], params: tuple[str, ...]) -> dict[str, tuple[st
     return dict.fromkeys(keys, params)
 
 
-_COLOR_PARAMS = ("base_element", "day_branch", "element", "role", "shift", "twelve_stage")
+# relation은 바탕 오행(base_element)에서 본 결과 오행(element)의 관계: SAME, MO, JA, CHEO, GWI (D130)
+_COLOR_PARAMS = ("base_element", "day_branch", "element", "relation", "role", "shift", "twelve_stage")
 _DIRECTION_PARAMS = ("direction", "rule_id")
+_ELEMENT_DIRECTION_PARAMS = (*_DIRECTION_PARAMS, "element", "role", "base_element", "relation")
 
 KEY_PARAMS: dict[str, tuple[str, ...]] = {
     # 색 카드가 하나인 날은 color.<날의 성격>, 둘인 날은 color.balance.*(첫째)와 color.source.*(둘째) (D119)
     **_declare((f"color.{kind}" for kind in _DAY_KINDS), _COLOR_PARAMS),
     **_declare((f"color.{basis}.{kind}" for basis in _COLOR_BASES for kind in _DAY_KINDS), _COLOR_PARAMS),
     **_declare(
-        (f"number.{kind}" for kind in _DAY_KINDS), ("number", "element", "day_stem", "parity", "pair")
+        (f"number.{kind}" for kind in _DAY_KINDS),
+        ("number", "element", "day_stem", "parity", "pair", "base_element", "relation"),
     ),
     "direction.day_kind.gwiin": (*_DIRECTION_PARAMS, "day_branch"),
-    **_declare(
-        (f"direction.day_kind.{kind}" for kind in ("yongsin", "gisin")),
-        (*_DIRECTION_PARAMS, "element", "role"),
-    ),
-    "direction.day_kind.ordinary": (*_DIRECTION_PARAMS, "element", "role", "deity"),
+    **_declare((f"direction.day_kind.{kind}" for kind in ("yongsin", "gisin")), _ELEMENT_DIRECTION_PARAMS),
+    "direction.day_kind.ordinary": (*_ELEMENT_DIRECTION_PARAMS, "deity"),
     # 집중 시간은 낮과 밤 각각 하나(D122). 이유는 "오늘 일진과 태어난 해를 보고 고른 시간" 수준까지(D121)
     **_declare((f"focus_time.{period}" for period in ("day", "night")), ("hour_branch",)),
     **_declare(TAG_KEYS, ()),

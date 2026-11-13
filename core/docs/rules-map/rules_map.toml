@@ -1072,7 +1072,7 @@ basis = "바탕 오행: 기신의 날은 통관, 그 밖은 용신(D19)."
 today = "바탕 오행(양간 기준, 土는 戊)이 오늘 일지에서 놓인 12운성 자리."
 output = "12운성 자리로 변역해 색 오행을 정하고, 오방색(목 청, 화 적, 토 황, 금 백, 수 흑, D114)으로 보입니다. 색 이름과 값은 design."
 evidence = "color/lucky_element(바탕 오행, 五行總論 색 대응), color/shift(변역, 三命通會 論五行), 균형 카드는 color/balance(용신 근거 원전)."
-params = "color.<날의 성격>(카드 하나), color.balance.*와 color.source.*(카드 둘)에 element, base_element, role, day_branch, twelve_stage, shift."
+params = "color.<날의 성격>(카드 하나), color.balance.*와 color.source.*(카드 둘)에 element, base_element, role, day_branch, twelve_stage, shift, relation(바탕 오행에서 본 색 오행: SAME, MO, JA, CHEO, GWI, D130)."
 
 [[items.rules]]
 kind = "added"
@@ -1128,7 +1128,7 @@ basis = "귀인의 날은 오늘 지지(귀인 지지), 용신의 날 용신, �
 today = "날의 성격, 오늘 지지(토의 방위와 귀인 방위), 그날의 길신 방위(희신, 복신, 재신, 양귀, 음귀, lunar-python)."
 output = "8방위. 오행 대표 방위는 수 북, 화 남, 목 동, 금 서이고, 토는 오늘 지지와의 충으로 북동과 남서 중에서 고릅니다. 지지 방위는 子 북, 丑寅 북동, 卯 동, 辰巳 남동, 午 남, 未申 남서, 酉 서, 戌亥 북서."
 evidence = "적용한 규칙 id(direction/*)와 五行總論 방위 대목."
-params = "direction, rule_id, 그리고 날의 성격에 따라 day_branch 또는 element, role(YONGSIN, TONGGWAN, HUISIN), deity."
+params = "direction, rule_id, 그리고 날의 성격에 따라 day_branch 또는 element, role(YONGSIN, TONGGWAN, HUISIN), base_element(필요한 기운), relation(SAME, MO 등, D130), deity."
 
 [[items.rules]]
 kind = "base"
@@ -1177,7 +1177,7 @@ basis = "색과 같습니다(바탕 오행)."
 today = "색과 같습니다(변역). 둘인 날은 첫째 카드(내 균형 기준) 오행."
 output = "하도 수 한 쌍(수 1, 6, 화 2, 7, 목 3, 8, 금 4, 9, 토 5, 10)에서 오늘 천간 음양으로 하나."
 evidence = "number/hado, 五行總論 수 대목."
-params = "number, element, day_stem, parity(ODD, EVEN), pair."
+params = "number, element, day_stem, parity(ODD, EVEN), pair, base_element, relation(첫째 색 카드와 같음, D130)."
 
 [[items.rules]]
 kind = "base"

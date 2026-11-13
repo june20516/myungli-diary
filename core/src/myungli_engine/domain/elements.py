@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from myungli_engine.domain.enums import Element
+from myungli_engine.domain.enums import Element, ElementRelation
 
 _CYCLE: tuple[Element, ...] = (Element.WOOD, Element.FIRE, Element.EARTH, Element.METAL, Element.WATER)
 
@@ -29,3 +29,16 @@ def controls(element: Element) -> Element:
 def controlled_by(element: Element) -> Element:
     """나를 극하는 오행."""
     return _shift(element, -2)
+
+
+def relation_to(base: Element, other: Element) -> ElementRelation:
+    """바탕 오행(base)에서 본 other의 관계(D130)."""
+    if other is base:
+        return ElementRelation.SAME
+    if other is generated_by(base):
+        return ElementRelation.MO
+    if other is generates(base):
+        return ElementRelation.JA
+    if other is controls(base):
+        return ElementRelation.CHEO
+    return ElementRelation.GWI

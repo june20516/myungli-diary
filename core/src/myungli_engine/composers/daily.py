@@ -12,6 +12,7 @@ from myungli_engine.calendar_core.time_basis import load_zone
 from myungli_engine.chart.shinsal import activated
 from myungli_engine.composers.chart import prepare_natal
 from myungli_engine.constants.message_keys import require
+from myungli_engine.domain.elements import relation_to
 from myungli_engine.domain.enums import DayKind, DayVirtue, TenGod
 from myungli_engine.domain.models import Evidence, Judgment, Notice, Pillar
 from myungli_engine.domain.ten_gods import ten_god
@@ -121,6 +122,7 @@ def _color_judgment(kind: DayKind, pick: ElementPick, day: Pillar, *, split: boo
         "day_branch": day.branch.name,
         "shift": pick.shift.name,
         "twelve_stage": pick.stage.name,
+        "relation": relation_to(pick.base_element, pick.element).name,
     }
     key = f"color.{pick.basis.name.lower()}.{_kind_key(kind)}" if split else f"color.{_kind_key(kind)}"
     return Judgment(message_key=require(key, params), params=params, evidence=pick.evidence)
@@ -130,14 +132,20 @@ def _direction_judgment(kind: DayKind, pick: DirectionPick, day: Pillar) -> Judg
     """귀인의 날은 오늘 일지, 그 밖은 방위를 정한 오행과 역할, 보통의 날은 길신 종류도 넣는다 (#970).
 
     보통의 날에 길신 방위가 없어 대표 방위로 돌아가면 deity는 NONE이다.
+    귀인의 날이 아니면 바탕 오행과 방위 오행의 관계(희신이면 보통 MO)를 넣는다 (D130).
     """
     params: dict[str, str | int | float | bool] = {"direction": pick.direction.name, "rule_id": pick.rule_id}
     if kind is DayKind.GWIIN_DAY:
         params["day_branch"] = day.branch.name
     else:
-        if pick.element is None or pick.role is None:
-            raise ValueError(f"방향 {pick.rule_id}에 오행과 역할이 없습니다")
-        params |= {"element": pick.element.name, "role": pick.role}
+        if pick.element is None or pick.role is None or pick.base_element is None:
+            raise ValueError(f"방향 {pick.rule_id}에 오행, 역할, 바탕 오행이 없습니다")
+        params |= {
+            "element": pick.element.name,
+            "role": pick.role,
+            "base_element": pick.base_element.name,
+            "relation": relation_to(pick.base_element, pick.element).name,
+        }
         if kind is DayKind.ORDINARY_DAY:
             params["deity"] = pick.deity.name if pick.deity is not None else DEITY_NONE
     return Judgment(
@@ -148,7 +156,10 @@ def _direction_judgment(kind: DayKind, pick: DirectionPick, day: Pillar) -> Judg
 
 
 def _number_judgment(kind: DayKind, number: int, color: ElementPick, day: Pillar) -> Judgment:
-    """숫자 오행은 첫째 색 카드의 오행이고, 홀짝은 오늘 일진 천간의 음양으로 정한다 (spec 7.4, D119)."""
+    """숫자 오행은 첫째 색 카드의 오행이고, 홀짝은 오늘 일진 천간의 음양으로 정한다 (spec 7.4, D119).
+
+    바탕 오행과 관계는 첫째 색 카드와 같다 (D130).
+    """
     parity = "odd" if day.stem.is_yang else "even"
     evidence = Evidence(
         rule_id="number/hado",
@@ -166,6 +177,8 @@ def _number_judgment(kind: DayKind, number: int, color: ElementPick, day: Pillar
         "day_stem": day.stem.name,
         "parity": parity.upper(),
         "pair": hado_pair(color.element, number),
+        "base_element": color.base_element.name,
+        "relation": relation_to(color.base_element, color.element).name,
     }
     return Judgment(
         message_key=require(f"number.{_kind_key(kind)}", params),

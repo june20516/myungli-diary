@@ -257,6 +257,16 @@ class TwelveStage(Enum):
     YANG = auto()
 
 
+class ElementRelation(Enum):
+    """바탕 오행에서 본 결과 오행의 관계(D130). 이름은 변역 원문의 母, 子, 妻, 鬼를 따른다."""
+
+    SAME = auto()  # 같은 오행
+    MO = auto()  # 바탕을 생해 주는 오행
+    JA = auto()  # 바탕이 생해 주는 오행
+    CHEO = auto()  # 바탕이 극하는 오행
+    GWI = auto()  # 바탕을 극하는 오행
+
+
 class ColorShift(Enum):
     """행운 색 변역(變易): 오행이 12운성 자리에 따라 따르는 색 (#937, C33). 정의 순서는 원문 순서."""
 

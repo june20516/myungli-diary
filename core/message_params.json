@@ -15,6 +15,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -23,6 +24,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -31,6 +33,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -39,6 +42,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -47,6 +51,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -55,6 +60,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -63,6 +69,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -71,6 +78,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -79,6 +87,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -87,6 +96,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -95,6 +105,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -103,6 +114,7 @@
     "base_element",
     "day_branch",
     "element",
+    "relation",
     "role",
     "shift",
     "twelve_stage"
@@ -119,7 +131,9 @@
     "direction",
     "rule_id",
     "element",
-    "role"
+    "role",
+    "base_element",
+    "relation"
   ],
   "direction.day_kind.gwiin": [
     "direction",
@@ -131,13 +145,17 @@
     "rule_id",
     "element",
     "role",
+    "base_element",
+    "relation",
     "deity"
   ],
   "direction.day_kind.yongsin": [
     "direction",
     "rule_id",
     "element",
-    "role"
+    "role",
+    "base_element",
+    "relation"
   ],
   "focus_time.day": [
     "hour_branch"
@@ -480,28 +498,36 @@
     "element",
     "day_stem",
     "parity",
-    "pair"
+    "pair",
+    "base_element",
+    "relation"
   ],
   "number.gwiin_day": [
     "number",
     "element",
     "day_stem",
     "parity",
-    "pair"
+    "pair",
+    "base_element",
+    "relation"
   ],
   "number.ordinary_day": [
     "number",
     "element",
     "day_stem",
     "parity",
-    "pair"
+    "pair",
+    "base_element",
+    "relation"
   ],
   "number.yongsin_day": [
     "number",
     "element",
     "day_stem",
     "parity",
-    "pair"
+    "pair",
+    "base_element",
+    "relation"
   ],
   "personal.day_master.byeong": [
     "strength",

@@ -252,7 +252,7 @@ BirthInfo
 | 둘인 날 첫째 | `BALANCE` | 바탕 오행 | `color.balance.<날의 성격>` | 위 둘 + `color/balance`(변역 뒤 색과 기신, 용신 근거의 원전) |
 | 둘인 날 둘째 | `SOURCE` | 변역 뒤 색 | `color.source.<날의 성격>` | `color/lucky_element`, `color/shift` |
 
-* 두 카드의 `base_element`, `role`, `twelve_stage`, `shift`와 매개변수 이름은 같습니다. proto는 첫째를 `DailyResponse.color`, 둘째를 `second_color`(둘인 날만)에 담습니다.
+* 두 카드의 `base_element`, `role`, `twelve_stage`, `shift`와 매개변수 이름은 같습니다. 카드마다 `relation`(바탕 오행에서 본 결과 오행 `element`의 관계: `SAME` 같음, `MO` 바탕을 생해 줌, `JA` 바탕이 생해 줌, `CHEO` 바탕이 극함, `GWI` 바탕을 극함, D130, core C44)를 더합니다. 원전 기준 카드는 변역과 같은 관계이고(正色은 `SAME`), 내 균형 기준 카드는 늘 `SAME`입니다. proto는 첫째를 `DailyResponse.color`, 둘째를 `second_color`(둘인 날만)에 담습니다.
 * 엔진은 카드마다 **색 오행(`element`), 계산 기준(`basis`), 바탕 오행(`base_element`)과 그 역할(용신·통관), 12운성, 변역**을 반환합니다. 색 이름과 색 값은 design 작업 단위의 디자인 토큰(V1, D38)이 정하고, 앱이 오행 코드로 찾아 씁니다.
 * 근거: `color/lucky_element`(바탕 오행, `gungtong-bogam/five_elements#color`, 바탕 오행이 금이면 金白이 수집본에서 빠졌다는 `note`)와 `color/shift`(변역, `sammyeong-tonghoe/five_elements#color_change`).
 
@@ -271,12 +271,13 @@ BirthInfo
 * **§7.3.1 지지 방위표:** 子=북, 丑·寅=북동, 卯=동, 辰·巳=남동, 午=남, 未·申=남서, 酉=서, 戌·亥=북서.
 * 근거: `five_elements#direction`, 그리고 적용한 규칙(`day_kind/*`)입니다.
 * 메시지 매개변수(#970, core C34): 모두 `direction`, `rule_id`. 귀인의 날은 `day_branch`(오늘 일지), 용신의 날과 기신의 날은 `element`, `role`(`YONGSIN`, `TONGGWAN`), 평범한 날은 `element`, `role`(`YONGSIN`, `HUISIN`), `deity`(`XI`, `FU`, `CAI`, `YANG_GUI`, `YIN_GUI`, 용신 대표 방위로 돌아가면 `NONE`)를 더합니다.
+* 귀인의 날이 아니면 `base_element`(그날 필요한 기운: 기신의 날 통관, 그 밖 용신. 색의 바탕 오행과 같음)와 `relation`(바탕 오행에서 본 결과 오행 `element`의 관계: `SAME` 같음, `MO` 바탕을 생해 줌, `JA` 바탕이 생해 줌, `CHEO` 바탕이 극함, `GWI` 바탕을 극함, D130, core C44)를 더합니다. 희신 방위는 보통 `MO`이고, 용신, 통관 방위는 `SAME`입니다. 귀인의 날 지지 방위는 오행으로 고르지 않아 둘 다 없습니다.
 
 ### 7.4. 행운의 숫자 (`rules/number.py`) — D25, D119
 * 오행은 §7.2의 **첫째 색 카드의 오행**입니다. 카드가 하나인 날은 변역 뒤 색, 둘인 날은 바탕 오행입니다(D119, core C34).
 * 숫자는 그 오행의 하도 수 한 쌍(수 1·6, 화 2·7, 목 3·8, 금 4·9, 토 5·10) 중에서 고릅니다. 일진 천간이 양간이면 홀수, 음간이면 짝수입니다.
 * 근거: `five_elements#number`(생수 1~5)와 하도 성수입니다.
-* 메시지 매개변수(#970): `number`, `element`, `day_stem`(오늘 천간), `parity`(`ODD`, `EVEN`), `pair`(하도 짝 수의 다른 하나).
+* 메시지 매개변수(#970): `number`, `element`, `day_stem`(오늘 천간), `parity`(`ODD`, `EVEN`), `pair`(하도 짝 수의 다른 하나), `base_element`, `relation`(첫째 색 카드와 같음, D130, core C44).
 
 ### 7.5. 집중하기 좋은 시간 (`rules/focus_time.py`) — D21, D122, core C36
 그날 일진의 12시진을 원전 등급으로 줄 세워 **낮(진시~술시)과 밤(해시~묘시) 각각 1등 하나**를 냅니다. 원전은 『欽定協紀辨方書』 卷三十四 「用時法」(그날 일진을 돕는 시), 卷三十三 「論相主」(태어난 해 기준), 卷七 「黄道黒道」입니다(`core/docs/references/hour-sources-survey.md`). 가중치 점수는 쓰지 않습니다.

@@ -9,6 +9,7 @@ from myungli_engine.composers.daily import DailyView, compose_daily
 from myungli_engine.composers.month import compose_month
 from myungli_engine.constants.message_keys import ALL_KEYS
 from myungli_engine.constants.numbers import HADO
+from myungli_engine.domain.elements import relation_to
 from myungli_engine.domain.enums import NoticeCode
 from myungli_engine.domain.errors import InvalidInputError, OutOfRangeError
 from myungli_engine.domain.models import Judgment
@@ -126,3 +127,26 @@ def test_daily_number_params(spring_birth: BirthInput) -> None:
     assert params["day_stem"] == view.day.stem.name
     assert params["parity"] == ("ODD" if view.day.stem.is_yang else "EVEN")
     assert {params["number"], params["pair"]} == set(HADO[view.colors[0][0].element])
+
+
+def test_lucky_params_carry_base_element_and_relation(spring_birth: BirthInput) -> None:
+    """D130: 색, 방위, 숫자는 바탕 오행과 결과 오행(element)의 관계를 매개변수로 낸다(#1131)."""
+    seen: set[str] = set()
+    for offset in range(60):
+        view = compose_daily(spring_birth, date.fromordinal(TARGET.toordinal() + offset), SEOUL)
+        first_color, first_judgment = view.colors[0]
+        base = first_color.base_element
+        for pick, judgment in view.colors:
+            assert judgment.params["base_element"] == base.name
+            assert judgment.params["relation"] == relation_to(base, pick.element).name
+        number = view.number[1].params
+        assert number["base_element"] == base.name
+        assert number["relation"] == first_judgment.params["relation"]
+        direction_pick, direction = view.direction
+        if direction_pick.element is None:
+            assert "base_element" not in direction.params and "relation" not in direction.params
+            continue
+        assert direction.params["base_element"] == base.name
+        assert direction.params["relation"] == relation_to(base, direction_pick.element).name
+        seen.add(str(direction.params["relation"]))
+    assert "SAME" in seen
