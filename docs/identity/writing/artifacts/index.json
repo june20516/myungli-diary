@@ -797,5 +797,21 @@
     ],
     "status": "chosen",
     "note": "지휘 가안 그대로, 다시 묻기 문항 없음"
+  },
+  {
+    "id": "round-R47",
+    "title": "라운드 R47: 구매 화면 청약철회 제한 고지 (W77)",
+    "kind": "copy-sample",
+    "file": "2026-11-13-round-R47.md",
+    "date": "2026-11-13",
+    "milestone": "A2",
+    "screens": [
+      "ad-free"
+    ],
+    "decisions": [
+      "W77"
+    ],
+    "status": "chosen",
+    "note": "해요체로 냈다가 합니다체로 다시 냄, 약관 제9조와 같은 뜻"
   }
 ]

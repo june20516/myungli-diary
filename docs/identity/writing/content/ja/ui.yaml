@@ -144,7 +144,7 @@
 - {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "今は広告除去パスを購入できません。"}
 - {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}まで広告なしで使えます"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "購入履歴"}
-- {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入前に利用規約とプライバシーポリシーをご確認ください。"}
+- {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入と同時に利用が始まる商品は、申込みの撤回が制限されることがあります。詳しくは利用規約とプライバシーポリシーでご確認いただけます。"}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "購入履歴はありません。"}
 - {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、「お問い合わせ」からお知らせください。"}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "利用中"}
