@@ -56,6 +56,8 @@ enum ConsentDocumentDocumentEnum {
   terms(r'terms'),
   @JsonValue(r'privacy')
   privacy(r'privacy'),
+  @JsonValue(r'age_14')
+  age14(r'age_14'),
 
   /// 계약에 아직 없는 값. 열린 enum이라 모르는 값은 응답 decode를 실패시키지 않고 이 값이 됩니다(결정 A66).
   @JsonValue(r'unknown_default_open_api')

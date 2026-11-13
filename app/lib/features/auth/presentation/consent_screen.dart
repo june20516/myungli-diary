@@ -40,7 +40,7 @@ Key consentDocumentKey(ConsentDocumentDocumentEnum document) =>
 /// 동의 줄의 Semantics identifier.
 ///
 /// IA에는 필수 항목 슬롯(`consent.required.label`)이 하나뿐인데 줄은 문서마다 있어,
-/// E2E가 줄을 구분할 수 있게 슬롯 id에 문서 값(`terms`·`privacy`)을 붙입니다.
+/// E2E가 줄을 구분할 수 있게 슬롯 id에 문서 값(`terms`, `privacy`, `age_14`)을 붙입니다.
 String consentRowIdentifier(ConsentDocumentDocumentEnum document) =>
     '${SlotIds.consentRequiredLabel}.${document.value}';
 
@@ -154,9 +154,15 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                               ? null
                               : (value) =>
                                     _toggle(document.document, value: value),
-                          viewLabel: l10n.consentView,
-                          onView: () =>
-                              context.push<void>(pathOf(ScreenIds.legal)),
+                          // 만 14세 확인은 법적 문서 페이지가 없어 '보기'를 두지
+                          // 않습니다(D127 ④, A146).
+                          viewLabel: _hasDocumentPage(document.document)
+                              ? l10n.consentView
+                              : null,
+                          onView: _hasDocumentPage(document.document)
+                              ? () =>
+                                    context.push<void>(pathOf(ScreenIds.legal))
+                              : null,
                           identifier: consentRowIdentifier(document.document),
                         ),
                       ),
@@ -201,8 +207,19 @@ String _requiredLabel(
 ) => switch (document) {
   ConsentDocumentDocumentEnum.terms => l10n.consentRequiredLabelTerms,
   ConsentDocumentDocumentEnum.privacy => l10n.consentRequiredLabelPrivacy,
+  ConsentDocumentDocumentEnum.age14 => l10n.consentRequiredLabelAge,
   // 모르는 문서는 displayableConsents가 걸러 내 여기에 오지 않습니다(A66).
   ConsentDocumentDocumentEnum.unknownDefaultOpenApi => throw StateError(
     '모르는 동의 문서는 그리지 않습니다',
   ),
 };
+
+/// 법적 문서 페이지가 있어 '보기'로 열 수 있는 동의 문서인지. 만 14세 확인(`age_14`)은
+/// 페이지가 없습니다(openapi 1.13.0 `ConsentDocument`, `AppConfig.legal`에 주소 없음).
+bool _hasDocumentPage(ConsentDocumentDocumentEnum document) =>
+    switch (document) {
+      ConsentDocumentDocumentEnum.terms ||
+      ConsentDocumentDocumentEnum.privacy => true,
+      ConsentDocumentDocumentEnum.age14 ||
+      ConsentDocumentDocumentEnum.unknownDefaultOpenApi => false,
+    };

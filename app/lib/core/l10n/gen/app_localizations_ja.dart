@@ -559,7 +559,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get accountDeleteTitleHead => 'アカウント削除';
 
   @override
-  String get adFreeLegalNotice => '購入前に利用規約とプライバシーポリシーをご確認ください。';
+  String get adFreeLegalNotice =>
+      '購入と同時に利用が始まる商品は、申込みの撤回が制限されることがあります。詳しくは利用規約とプライバシーポリシーでご確認いただけます。';
 
   @override
   String get adFreeOfferHead => '1か月間、広告なしで、根拠と解釈まですべて開いて見られます。';
@@ -1931,4 +1932,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String sajuChartManseBasisStemSuffix(String stemName, String reading) {
     return '（$reading）';
   }
+
+  @override
+  String get consentRequiredLabelAge => '(必須)満14歳以上です';
 }

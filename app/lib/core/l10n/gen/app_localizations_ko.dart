@@ -561,7 +561,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountDeleteTitleHead => '계정 삭제';
 
   @override
-  String get adFreeLegalNotice => '구매 전에 이용약관과 개인정보 처리방침을 확인해 주세요.';
+  String get adFreeLegalNotice =>
+      '구매와 함께 바로 이용이 시작되는 상품은 청약철회가 제한될 수 있습니다. 자세한 내용은 이용약관과 개인정보 처리방침에서 확인할 수 있습니다.';
 
   @override
   String get adFreeOfferHead => '한 달 동안 광고 없이, 근거와 해석까지 모두 열어 봐요.';
@@ -1934,4 +1935,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String sajuChartManseBasisStemSuffix(String stemName, String reading) {
     return '($stemName)';
   }
+
+  @override
+  String get consentRequiredLabelAge => '(필수) 만 14세 이상입니다';
 }

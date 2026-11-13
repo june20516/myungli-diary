@@ -67,19 +67,30 @@ Future<void> _check(
   await tester.tap(
     find.descendant(
       of: _row(document),
-      matching: find.text(
-        document == ConsentDocumentDocumentEnum.terms
-            ? _ko.consentRequiredLabelTerms
-            : _ko.consentRequiredLabelPrivacy,
-      ),
+      matching: find.text(switch (document) {
+        ConsentDocumentDocumentEnum.terms => _ko.consentRequiredLabelTerms,
+        ConsentDocumentDocumentEnum.privacy => _ko.consentRequiredLabelPrivacy,
+        ConsentDocumentDocumentEnum.age14 => _ko.consentRequiredLabelAge,
+        ConsentDocumentDocumentEnum.unknownDefaultOpenApi => throw StateError(
+          '모르는 문서는 그리지 않습니다',
+        ),
+      }),
     ),
   );
   await tester.pumpAndSettle();
 }
 
+/// 화면에 그려진 동의 줄을 모두 체크합니다(시나리오마다 받는 문서가 다름).
 Future<void> _checkAll(WidgetTester tester) async {
-  await _check(tester, ConsentDocumentDocumentEnum.terms);
-  await _check(tester, ConsentDocumentDocumentEnum.privacy);
+  for (final document in [
+    ConsentDocumentDocumentEnum.terms,
+    ConsentDocumentDocumentEnum.privacy,
+    ConsentDocumentDocumentEnum.age14,
+  ]) {
+    if (find.byKey(consentDocumentKey(document)).evaluate().isNotEmpty) {
+      await _check(tester, document);
+    }
+  }
 }
 
 /// login 화면에서 카카오로 로그인해 consent에 닿을 때까지 기다립니다.
@@ -171,13 +182,16 @@ void main() {
     expect(_screen(SlotIds.consentTitleHead), findsOneWidget);
     // 갈래의 첫 화면이라 돌아갈 곳이 없어 뒤로 버튼을 두지 않습니다.
     expect(find.byKey(const ValueKey('app-bar.back')), findsNothing);
-    expect(find.byType(CheckRow), findsNWidgets(2));
+    expect(find.byType(CheckRow), findsNWidgets(3));
     expect(find.text(_ko.consentRequiredLabelTerms), findsOneWidget);
     expect(find.text(_ko.consentRequiredLabelPrivacy), findsOneWidget);
+    expect(find.text(_ko.consentRequiredLabelAge), findsOneWidget);
     expect(_agreeEnabled(tester), isFalse);
     await _check(tester, ConsentDocumentDocumentEnum.terms);
     expect(_agreeEnabled(tester), isFalse);
     await _check(tester, ConsentDocumentDocumentEnum.privacy);
+    expect(_agreeEnabled(tester), isFalse);
+    await _check(tester, ConsentDocumentDocumentEnum.age14);
     expect(_agreeEnabled(tester), isTrue);
 
     await _agreeUntil(tester, ScreenIds.notifyAsk);
@@ -187,6 +201,7 @@ void main() {
       'documents': [
         {'document': 'terms', 'version': '2026-10-01'},
         {'document': 'privacy', 'version': '2026-10-01'},
+        {'document': 'age_14', 'version': '2026-10-01'},
       ],
     });
     expect(fake.callCountOf('createProfile'), 1);
@@ -340,6 +355,20 @@ void main() {
     expect(_checked(tester, ConsentDocumentDocumentEnum.privacy), isFalse);
   });
 
+  testWidgets("만 14세 확인 줄에는 법적 문서 페이지가 없어 '보기'가 없습니다(D127 ④)", (tester) async {
+    await pumpApp(tester, scenario: 'consent-required');
+    Finder viewIn(ConsentDocumentDocumentEnum document) => find.descendant(
+      of: find.byKey(consentDocumentKey(document)),
+      matching: find.text(_ko.consentView),
+    );
+    expect(viewIn(ConsentDocumentDocumentEnum.terms), findsOneWidget);
+    expect(viewIn(ConsentDocumentDocumentEnum.privacy), findsOneWidget);
+    expect(viewIn(ConsentDocumentDocumentEnum.age14), findsNothing);
+    // 줄 자체를 눌러 체크합니다.
+    await _check(tester, ConsentDocumentDocumentEnum.age14);
+    expect(_checked(tester, ConsentDocumentDocumentEnum.age14), isTrue);
+  });
+
   testWidgets('동의 줄의 Semantics identifier는 문서별로 다릅니다', (tester) async {
     final handle = tester.ensureSemantics();
     await pumpApp(tester, scenario: 'consent-required');
@@ -349,6 +378,10 @@ void main() {
     );
     expect(
       find.bySemanticsIdentifier('consent.required.label.privacy'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier('consent.required.label.age_14'),
       findsOneWidget,
     );
     handle.dispose();
@@ -459,6 +492,7 @@ void main() {
     expect(find.text(_ko.errorConsentVersionMismatch), findsOneWidget);
     expect(_checked(tester, ConsentDocumentDocumentEnum.terms), isFalse);
     expect(_checked(tester, ConsentDocumentDocumentEnum.privacy), isFalse);
+    expect(_checked(tester, ConsentDocumentDocumentEnum.age14), isFalse);
     expect(_agreeEnabled(tester), isFalse);
 
     // 다시 동의하면 새로 받은 버전을 보냅니다.
@@ -472,6 +506,7 @@ void main() {
     expect(second['documents'], [
       {'document': 'terms', 'version': '2026-10-10'},
       {'document': 'privacy', 'version': '2026-10-01'},
+      {'document': 'age_14', 'version': '2026-10-01'},
     ]);
   });
 

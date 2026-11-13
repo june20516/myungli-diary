@@ -81,7 +81,9 @@ Future<void> goldenMatrix(
       (goldenTextScales.length + 1) * _gap;
   tester.view
     ..devicePixelRatio = 1
-    ..physicalSize = Size(width, 12000);
+    // 세로는 가장 긴 격자(offer-card 다섯 상태 × 네 줄)가 들어가는 상한입니다. 저장은
+    // gridKey 영역만이라 이 값은 이미지 크기에 들어가지 않습니다.
+    ..physicalSize = Size(width, 16000);
   addTearDown(tester.view.reset);
 
   final rows = <Widget>[

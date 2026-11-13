@@ -103,6 +103,7 @@ void main() {
     await pumpUntilScreen(tester, ScreenIds.consent);
     await _checkDocument(tester, ConsentDocumentDocumentEnum.terms);
     await _checkDocument(tester, ConsentDocumentDocumentEnum.privacy);
+    await _checkDocument(tester, ConsentDocumentDocumentEnum.age14);
 
     // 동의 → 프로필 저장 → 알림 → 광고 동의 → today
     await tester.tap(

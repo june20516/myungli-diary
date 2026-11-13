@@ -184,11 +184,11 @@
     "note": "error 상태. 대역 데이터로 그린 화면(tool/screens_linux.sh)"
   },
   {
-    "id": "render.consent.default.2026-11-11",
+    "id": "render.consent.default.2026-11-13",
     "title": "consent (default) 화면",
     "kind": "screenshot",
-    "file": "2026-11-11-consent-default.png",
-    "date": "2026-11-11",
+    "file": "2026-11-13-consent-default.png",
+    "date": "2026-11-13",
     "milestone": "A1",
     "screens": [
       "consent"

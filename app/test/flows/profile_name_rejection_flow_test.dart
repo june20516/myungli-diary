@@ -46,6 +46,7 @@ Future<void> _signInAndAgree(WidgetTester tester) async {
   for (final label in [
     _ko.consentRequiredLabelTerms,
     _ko.consentRequiredLabelPrivacy,
+    _ko.consentRequiredLabelAge,
   ]) {
     await tester.tap(find.text(label));
     await tester.pumpAndSettle();

@@ -13,6 +13,10 @@
           {
             "document": "privacy",
             "version": "2026-10-01"
+          },
+          {
+            "document": "age_14",
+            "version": "2026-10-01"
           }
         ],
         "hasProfile": false,
