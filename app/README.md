@@ -174,7 +174,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 | `config/auth.json` | `dart run tool/gen_native_config.dart` | `ios/Flutter/Auth.xcconfig` (카카오 키, Google reversed client id). CI는 `--check`. Android는 `build.gradle.kts`가 같은 파일을 바로 읽습니다 |
 | drift·json 직렬화 | `dart run build_runner build --delete-conflicting-outputs` | `*.g.dart` |
 | `lib/core/l10n/arb/*.arb`의 `appTitle`, `iosTrackingUsageDescription` | `dart run tool/gen_native_strings.dart` | iOS `ios/Runner/<en\|ko\|ja>.lproj/InfoPlist.strings`(홈 화면 앱 이름 `CFBundleDisplayName`, ATT 권한 창 문구)와 Info.plist 기본값, Android `res/values(-ko, -ja)/strings.xml`(`app_name`). 기본 언어는 앱 화면과 같은 en입니다(A101). CI는 다시 만들어 차이를 봅니다 |
-| `../docs/identity/design/logo/icon-*.svg`(design V7) | `dart run tool/gen_app_icons.dart` | iOS `AppIcon.appiconset`, Android `mipmap-*/ic_launcher*.png`, `mipmap-anydpi-v26/ic_launcher.xml`. 아래 "앱 아이콘" |
+| `../docs/identity/design/logo/icon-*.png`(design V7, V99) | `dart run tool/gen_app_icons.dart` | iOS `AppIcon.appiconset`, Android `mipmap-*/ic_launcher*.png`, `mipmap-anydpi-v26/ic_launcher.xml`. 아래 "앱 아이콘" |
 
 * REST 클라이언트는 openapi-generator 7.26.0 `dart-dio`이며 이미지 버전은 `tool/gen_api.sh`에 고정되어 있습니다(결정 A16).
 * 계약의 열린 enum(`info.description` "호환과 버전" 절)만 모르는 값을 `unknownDefaultOpenApi`로 읽습니다(`isKnown`으로 거름). `gen_api.sh`가 계약 사본에 표시를 달고(`tool/mark_open_enums.dart`) 생성기 기본 템플릿에 `tool/openapi-templates/open_enum.patch`를 적용해 만듭니다. 생성기 버전을 올려 patch가 맞지 않으면 새 기본 템플릿에서 같은 변경으로 patch를 다시 만듭니다. 대조는 `test/contract/open_enums_contract_test.dart`입니다(결정 A66).
@@ -183,16 +183,16 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 * CI의 `checks` job이 위 명령을 모두 다시 돌린 뒤 `git status`가 깨끗하지 않으면 실패합니다. 원본을 고치고 생성물을 commit하지 않으면 CI가 잡습니다.
 
 ### 앱 아이콘 (A102)
-원본은 design 로고(`docs/identity/design/logo/`, 결정 V7)이고, 크기별 PNG는 app이 만들어 commit합니다. 원본이 바뀌면 다시 만듭니다.
+원본은 design 로고의 1024 PNG(`docs/identity/design/logo/`, 결정 V7, V99)이고, 크기별 PNG는 app이 만들어 commit합니다. 원본이 바뀌면 다시 만듭니다.
 
 ```sh
-brew install resvg imagemagick   # 한 번만. resvg는 SVG 렌더링, magick은 알파 제거와 메타데이터 정리
+brew install imagemagick   # 한 번만. 축소(Lanczos), 알파 제거, 메타데이터 정리
 dart run tool/gen_app_icons.dart
 ```
 
-* 픽셀 60 이상은 큰 원형(`icon-large.svg`), 그보다 작으면 작은 원형(`icon-small.svg`)입니다. iOS는 `AppIcon.appiconset/Contents.json`의 자리마다 그리고 모두 알파 없이 씁니다(App Store 1024는 알파 채널이 있으면 거부됨). 모서리는 OS가 깎습니다.
-* Android는 이전 기기용 `ic_launcher.png`(48dp)와 Android 8 이상 adaptive 아이콘(전경 `icon-android-foreground.svg`, 배경 `icon-android-background.svg`, 108dp)입니다. 테마 아이콘(monochrome)과 스플래시는 아직 없습니다.
-* 같은 원본과 도구 버전이면 결과 파일이 같습니다(PNG 시각 정보를 넣지 않음). ImageMagick 내장 SVG 렌더러는 그라데이션과 상대 곡선을 틀리게 그려 쓰지 않습니다.
+* 픽셀 60 이상은 큰 원형(`icon-large.png`), 그보다 작으면 작은 원형(`icon-small.png`)입니다. iOS는 `AppIcon.appiconset/Contents.json`의 자리마다 그리고 모두 알파 없이 씁니다(App Store 1024는 알파 채널이 있으면 거부됨). 모서리는 OS가 깎습니다.
+* Android는 이전 기기용 `ic_launcher.png`(48dp)와 Android 8 이상 adaptive 아이콘(전경 `icon-android-foreground.png`, 배경 `icon-android-background.png`, 108dp)입니다. 테마 아이콘(monochrome)과 스플래시는 아직 없습니다.
+* 같은 원본과 도구 버전이면 결과 파일이 같습니다(PNG 시각 정보를 넣지 않음).
 
 ## ui 원고 가져오기
 화면 문구 원고는 writing이 만든 ARB(`../docs/identity/writing/generated/arb/app_{ko,en,ja}.arb`, #128)입니다. 원고가 바뀌면 `app/`에서 다시 가져옵니다. 같은 원고로 다시 돌려도 결과가 같습니다.

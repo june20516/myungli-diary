@@ -88,7 +88,7 @@
   * V54(표 칸 근거 시트 빈 해석 안내)와 `settings-row` 값 앞 `space.8`은 이미 구현과 같아 대조만 했습니다. 빌드 번호 규칙(#735)은 A104입니다.
 * **실기기 배포 빌드(#714)**, 브랜치 `app/store-builds`(PR #718 위). 결정 A101~A103.
   * OS 문구(A101): 홈 화면 앱 이름(`appTitle`)과 iOS ATT 문구(`iosTrackingUsageDescription`)를 `tool/gen_native_strings.dart`가 iOS `InfoPlist.strings`(en, ko, ja)와 Android `strings.xml`로 만듭니다(기본 en, CI가 차이 검사). ATT 창은 UMP 동의 창이 IDFA 안내 다음에 띄우고, 동의 결과는 iOS에서 ATT 허용일 때만 맞춤입니다(`TrackingAuthorization`, AppDelegate 채널).
-  * 앱 아이콘(A102): design V7 SVG에서 `tool/gen_app_icons.dart`(resvg, ImageMagick).
+  * 앱 아이콘(A102): design V99 PNG 원본에서 `tool/gen_app_icons.dart`(ImageMagick 축소).
   * App Store 주소 `https://apps.apple.com/app/id6829967838`. Xcode 팀 `7JGP3D7B3Z`, `ITSAppUsesNonExemptEncryption` false, `CFBundleLocalizations`.
   * Android AAB `1.0.0+2`: 업로드 키(K1) 지문 일치, 아이콘과 세 언어 앱 이름 포함을 확인했습니다. Play 업로드는 사용자 몫입니다.
   * iOS 1.0.0 (2): Apple Distribution 서명, `aps-environment` production, 세 언어 앱 이름과 ATT 문구를 IPA에서 확인하고 TestFlight에 올렸습니다(2026-11-03, A103). 내부 테스터 추가와 사용권 계약 동의는 사용자 몫입니다.
@@ -196,9 +196,9 @@
 * 반응 버튼(`reaction-button`)은 총운 문장에만 붙습니다(D57).
 
 ## 다음 할 일
-0. **오늘 화면 묶음 PR 병합 대기(`app/today-bundle`, 위 현재 상태).** 병합 뒤 남은 것:
+0. **오늘 화면 묶음(PR #1097)은 병합되었습니다.** 남은 것:
    * 답 대기: writing #1095(만세력 기준 줄 일간 표기), design #1063(밤 칩 전환 문구 보충), design #1096(띠 눈금 겹침과 고리, A143). 답이 오면 drift나 요청으로 따라갑니다.
-   * #909 앱 아이콘을 design 새 원본으로 다시 만들기, #944(Play 내부 테스트 업로드 자동화)는 사용자 지시로 보류합니다.
+   * #909 앱 아이콘 다시 만들기는 `app/icon-png-source` PR입니다(A102 갱신). 새 아이콘은 다음 스토어 빌드에 들어갑니다. #944(Play 내부 테스트 업로드 자동화)와 스토어 빌드는 사용자 지시로 보류합니다.
    * Flutter 3.50.0(stable 2026-11-12)으로 올리기: `tool/golden_flutter_version`, 로컬 Flutter, `pubspec.lock`, golden을 한 PR에서(A144). 그 전까지 CI는 3.47.7로 고정입니다.
    * drift #916(PR #993) 남은 사용자 확인: TalkBack이나 VoiceOver를 켜고 일기 쓰기 질문 떼기와 다시 붙이기에서 한 번만 읽히는지.
    * DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.
