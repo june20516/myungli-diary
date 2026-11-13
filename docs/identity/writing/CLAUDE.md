@@ -55,6 +55,7 @@
 * **행운 색 둘인 날과 집중 시간 낮과 밤**(drift #978, 라운드 R37 `artifacts/2026-11-11-round-R37.md`, W65): 색 칩 둘인 날 문장 2벌, 집중 시간 낮과 밤 문장, 근거 6개, 새 원전 22편, 조후 24칸 원문과 뜻(core #1010, #1012). 집중 시간에는 원전에 없는 성질(집중 등)을 붙이지 않고, "옛 책" 대신 "원전"을 씁니다. 칩 이름표는 design #982 뒤, 낮과 밤 이유 문장은 #971.
 * **질문 뗀 자리 권유 글자 정정**(W66): `diaryEditGuideAttach` "무엇을 쓸지 고민인가요?"(design V102 사용자 문구), "질문 추가"는 스크린리더 hint 키 `diaryEditGuideAttachHint`로.
 * **행운 색 둘인 날 시트와 길한 시간**(#1017, drift #1019, 라운드 R38 `artifacts/2026-11-12-round-R38.md`, W67): IA 새 ui 슬롯 10자리, 시간 시트 제목 "낮의 길한 시간", "밤의 길한 시간", 칩 이름 "길한 시간". 색 둘인 날 두 풀이는 R37 문장 그대로. 띠 칸 en 시진 이름은 design 판단 대기.
+* **구매 화면 청약철회 제한 고지**(#1125, D129, 라운드 R47 `artifacts/2026-11-13-round-R47.md`, W77): `adFreeLegalNotice`를 합니다체 두 문장으로(청약철회가 제한될 수 있음, 약관과 처리방침 안내). 공적 고지는 해요체를 쓰지 않음.
 * **동의 화면 만 14세 이상 항목**(#1113, D127 ④, 라운드 R46 `artifacts/2026-11-13-round-R46.md`, W76): `consentRequiredLabelAge` "(필수) 만 14세 이상입니다". 문서 값 이름은 server가 정함.
 * **만세력 기준 줄 일간 표기**(#1095, 라운드 R45 `artifacts/2026-11-13-round-R45.md`, W75): 뒤붙이 틀 `sajuChartManseBasisStemSuffix({stemName},{reading})`. ko 庚(경금), en 庚 (Gyeonggeum), ja 庚（かのえ）. app은 독음 틀 대신 이 틀로 바꿈.
 * **도화 중립과 마무리 줄 대상**(#1081, #1090, drift #1088, 라운드 R44 `artifacts/2026-11-13-round-R44.md`, W74): 도화 원고를 매력과 이성 구설을 함께로. 마무리 줄은 확정 일곱에 도화, 공망, 양인, 괴강을 더한 열하나에 붙이고 화개는 붙이지 않음(`ui.shinsal.weighing` structure). proto 생성 코드 재생성(집중 시간 `hours`).
