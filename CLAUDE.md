@@ -8,6 +8,7 @@
 * 작업 디렉터리가 `docs/identity/writing/` 또는 `docs/identity/design/` 아래면 → 그 **작업 단위 세션**(writing / design)입니다. 서브 프로젝트 세션과 같은 규칙을 따릅니다.
 
 ## 공통 규칙
+* **사용자에게 답할 때 결정 번호(D·C·S·A·W·V)와 Issue·PR 번호(`#n`)에는 맥락에 맞는 짧은 요약을 붙입니다.** 예: "D90 ①(일기 보기의 그날 성격은 쓸 때 기록한 값)", "#564(구매 줄 구분자 삭제와 새 슬롯 상한)". 사용자가 번호를 따로 찾아보지 않아도 대화만으로 알 수 있게 합니다. 같은 답에서 다시 나오면 번호만 써도 됩니다. Issue, PR, commit, 문서처럼 링크로 따라갈 수 있는 글에는 붙이지 않아도 됩니다.
 * 서브 프로젝트끼리는 **계약 파일**(`docs/contracts/README.md`)과 **요청함**(GitHub Issues, `docs/workflow.md` §5.2)으로만 주고받습니다. 상대 서브 프로젝트의 코드를 직접 고치지 않습니다.
 * 제품 결정의 기준은 [`docs/decisions.md`](docs/decisions.md)(D1~)입니다. 서브 프로젝트 결정이 이와 부딪히면 구현을 멈추고 요청함으로 올립니다.
 * spec과 계획은 서브 프로젝트의 `docs/specs/`, `docs/plans/`에 둡니다. 작업 단위는 `docs/identity/<writing|design>/specs/`, `plans/`에 둡니다. suberpowers 기본 경로(`docs/suberpowers/…`)는 쓰지 않습니다.
@@ -16,8 +17,7 @@
 * **로컬 값(D98):** 저장소에 넣지 않는 비밀, 설정 파일, 개발용 키의 원본은 저장소 밖 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/<단위>/<환경>/`에 두고, 단위 `.local/`에는 버려도 되는 산출물만 둡니다. 세션은 비밀 파일을 경로로만 다루고 내용을 출력하지 않습니다. 규칙과 대장은 [`docs/local-values.md`](docs/local-values.md)입니다.
 * **공개 저장소(D74):** Issue·PR·커밋·문서·코드(fixture 포함)에 가격·수익 수치 같은 내부 정보를 적지 않습니다. 제품 배경 원문·수익화 기록·아이디어 함은 비공개 저장소에 있고, 링크하지 않고 "비공개 기록 `…`"으로 글로만 적습니다. 근거가 필요하면 지휘에게 Issue로 묻습니다.
 * **세션을 열면:** `git fetch origin && git merge origin/main` 뒤 `gh issue list --label to:<단위>`를 봅니다. 그중 `drift` Issue(계약 변경 따라잡기)가 있으면 다른 일보다 먼저, 다음 PR에서 맞춥니다(`docs/workflow.md` §6.1).
-* **사용자에게 답할 때 결정 번호(D·C·S·A·W·V)와 Issue·PR 번호(`#n`)에는 맥락에 맞는 짧은 요약을 붙입니다.** 예: "D90 ①(일기 보기의 그날 성격은 쓸 때 기록한 값)", "#564(구매 줄 구분자 삭제와 새 슬롯 상한)". 사용자가 번호를 따로 찾아보지 않아도 대화만으로 알 수 있게 합니다. 같은 답에서 다시 나오면 번호만 써도 됩니다. Issue, PR, commit, 문서처럼 링크로 따라갈 수 있는 글에는 붙이지 않아도 됩니다.
-* **계약 버전과 상태의 기준은 `docs/contracts/README.md` 하나입니다.** 단위 `CLAUDE.md`에는 버전을 적지 않습니다. 주는 쪽은 계약을 바꾸는 PR에서 그 표의 자기 행을 직접 고칩니다.
+* **계약 버전과 상태의 기준은 `docs/contracts/README.md` 하나입니다.** 단위 `CLAUDE.md`에는 버전을 적지 않습니다. 주는 쪽은 계약을 바꾸는 PR에서 그 표의 자기 행을 직접 고칩니다. 바뀐 내용은 `docs/contracts/CHANGELOG.md` 자기 절 맨 위에 적습니다(D131).
 * **병합:** 단위 PR은 사용자가 병합합니다. 지휘가 올린 `root/` PR은 `ci-gate` 통과 뒤 지휘가 병합합니다. 저장소 auto-merge가 켜져 있어, 사용자는 PR에 auto-merge를 걸어 두고 기다리지 않아도 되고 지휘는 `root/` PR에 `gh pr merge --auto --merge`를 겁니다(D100 ②). 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①).
 * **GitHub API 한도:** 모든 세션이 `gh` 토큰 하나의 시간당 한도를 나눠 씁니다. CI를 기다릴 때 `gh run watch`(몇 초마다 조회)를 쓰지 않고, 상태 확인은 60초 이상 간격으로 합니다.
 
@@ -50,6 +50,7 @@
 | 제품 아이디어 함 | 내부 저장소 `ideas.md` |
 | 수익화 결정 체계·시장 조사 | 내부 저장소 `business/` |
 | 계약 목록 | `docs/contracts/README.md` |
+| 처음 읽는 문서의 경과 (D131) | `docs/contracts/CHANGELOG.md`, `docs/workflow-history.md`, `docs/roadmap-history.md`, 각 결정 로그 옆 `decisions-history.md` |
 | 제품 지도 (비공개 페이지) | https://claude.ai/artifact/GFLHjAufPE6F4qPyssdfsC (갱신: `tools/product-map/README.md`) |
 | 요청함 | GitHub Issues (이관 전 문서 보관: `docs/coordination/`) |
 | 엔진 위키·spec·계획·원전 근거 | `core/docs/` |
