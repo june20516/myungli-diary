@@ -91,6 +91,8 @@ ISSUE_1029 = {"today.date.virtue"}
 ISSUE_1026 = {"ui.shinsal.weighing"}
 # 빈 상태 둘: 광고 제거 상품 없음(IA 슬롯)과 풀이 시트 빈 안내(IA 밖 ui 슬롯) (#1058, V123)
 ISSUE_1058 = {"ad-free.unavailable.body", "ui.explain.term-empty"}
+# D130 오행 관계 문장 새 슬롯 (#1154, writing W78)
+ISSUE_1154 = {"daily.color_relation", "daily.direction_relation", "daily.number_relation"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -215,7 +217,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
     } | DIALOG_SLOTS_EXPECTED
     requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
                  | ISSUE_763 | DS1_SCREENS | ISSUE_859 | ISSUE_946_950 | ISSUE_1020
-                 | ISSUE_1029 | ISSUE_1026 | ISSUE_1058)
+                 | ISSUE_1029 | ISSUE_1026 | ISSUE_1058 | ISSUE_1154)
     slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
@@ -569,3 +571,19 @@ def test_d123_today_ia_slots_are_measured():
     by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
     assert by_slot["today.lucky-time.band.day"].width == lengths.BAND_NIGHT_SPAN - 16 - 4  # 좁은 밤 다섯 칸
     assert by_slot["today.lucky-time.night.dawn"].width == 320 - 24 - 16 - 4 - 4 - 88 == 184
+
+
+def test_issue_1154_relation_sentences_use_lucky_body_cell_in_four_lines():
+    # D130 관계 문장은 daily.color 등과 같은 본문 자리를 바꿔 쓰는 두 문장이라 같은 칸 네 줄 (#1154, writing W78)
+    by_slot = {slot: target for target in lengths.TARGETS for slot in target.slots}
+    relation = tuple(sorted(ISSUE_1154))
+    target, body = by_slot[relation[0]], by_slot["daily.color"]
+    assert target.slots == relation and target.lines == 4 and target.sentence and target.draft is None
+    assert (target.font, target.size, target.width) == (body.font, body.size, body.width)
+    slot_text = (REPO_ROOT / "docs/identity/writing/slots/content/daily.yaml").read_text(encoding="utf-8")
+    for slot, ia in zip(relation, ("today.lucky-color.body", "today.lucky-direction.body", "today.lucky-number.body")):
+        assert re.search(rf"- id: {re.escape(slot)}\n  where: [^\n]*\n  ia: \[{re.escape(ia)}\]", slot_text), slot
+    # en은 추정식 대신 실측 상한이 확정값을 대신함
+    assert [language for language, _limit, _reason in target.measured] == ["en"]
+    result = lengths.Result(target, ko=92, ja=76, en=128)
+    assert (result.final("ko"), result.final("ja"), result.final("en")) == (92, 76, 156)
