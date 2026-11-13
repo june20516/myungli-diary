@@ -108,7 +108,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 * **`main` 중심, 짧은 브랜치 (D44):** 브랜치는 마일스톤 하나나 task 몇 개 단위로 짧게 씁니다. 이름은 `<단위>/<주제>`(예: `core/engine-mvp`, `writing/rounds-2026-10-11`). 지휘 세션은 `root/<주제>`.
 * **세션 시작:** `git fetch origin && git merge origin/main`.
 * **계약 먼저 병합:** 다른 단위가 기대는 계약(proto, `message_keys.json`, 디자인 토큰, IA, 슬롯 명세, 호칭·조사 규칙, REST API 명세)이 확정되면, 구현 브랜치 전체를 기다리지 않고 **계약 파일만 담은 작은 PR**로 먼저 `main`에 넣습니다. 받는 쪽 검사는 이 PR에서 경고만 내고(§6.1), 받는 쪽이 다음 PR에서 따라잡습니다. **예외(D78):** 설명·주석만 바뀌고 동작이 같은 계약 변경은 구현 PR에 함께 담아도 됩니다(예: REST draft.7, S64).
-* **병합:** 모든 변경은 PR → `ci-gate` 통과 → merge commit으로 합칩니다. 단위 PR은 사용자가, 지휘의 `root/` PR은 지휘가 병합합니다. **`main`에 직접 push하지 않습니다**(D43). 보호 규칙은 아직 걸지 않아 규약으로 지키고, `ci-gate`가 `main` push에서도 돌아 사후에 잡습니다(보호 규칙을 걸지는 사용자가 정함).
+* **병합:** 모든 변경은 PR → `ci-gate` 통과 → merge commit으로 합칩니다. 단위 PR은 사용자가, 지휘의 `root/` PR은 지휘가 병합합니다. **`main`에 직접 push하지 않습니다**(D43). 보호 규칙은 아직 걸지 않아 규약으로 지키고, `ci-gate`가 `main` push에서도 돌아 사후에 잡습니다(공개 전환 뒤 보호 규칙은 §8).
 * 브랜치를 만들 때 공용 원격 브랜치를 upstream으로 걸지 않습니다. 예: `git worktree add ../myungli-diary-core -b core/<주제> --no-track origin/main`. 만든 직후 `git push -u origin <브랜치>`로 같은 이름의 원격을 추적하게 하고 `git status -sb`로 확인합니다.
 * push는 대상 브랜치를 명시합니다: `git push -u origin <브랜치>`.
 * commit 메시지의 범위 표기: `feat(core): …`, `fix(server): …`, `docs(root): …`.
@@ -133,11 +133,11 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
 
 * **판별:** PR이 그 단위의 소유 경로(또는 그 단위 workflow)를 바꿨으면 그 단위 검사는 `own`이라 실패하면 막습니다. 그 단위가 쓰는 계약 파일만 바뀌었으면 `drift`라 실패해도 판정에서 빼고 경고로 남깁니다. 그 단위의 소유·계약 경로는 바뀌지 않았고 `ci-gate.yml`이 바뀌었으면 `gate`입니다. 실패하면 막지만, 그 단위 앞으로 열린 `drift` Issue가 있으면 알려진 실패로 보고 경고만 남깁니다. 단위들이 병렬로 일하는 동안 drift가 0이 되는 때는 드물어, workflow 수정이 그때를 기다리지 않게 하려는 것입니다.
 * **과정 문서:** writing·design의 `CLAUDE.md`·`decisions.md`·`specs/`·`plans/`·`artifacts/`는 자기 검사기가 읽지 않아 그 단위 검사를 고르지 않습니다(writing `artifacts/`의 라운드 원고는 design 검사가 읽으므로 design에는 계약입니다)(core·server·app은 `.md`만 바뀌면 고르지 않습니다). 그래서 지휘가 단위 `CLAUDE.md`를 고쳐도 그 단위의 열린 drift에 막히지 않습니다.
-* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 그 단위 앞으로 열린 `drift` Issue가 이미 있으면 새로 열지 않고, 가장 오래된 Issue 본문에 `* 더해진 원인: PR #M(…)` 줄을 더하고 코멘트로 알립니다(단위마다 열린 drift는 하나, 로직은 `tools/drift/drift.sh`). 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에는 `Closes`가 아니라 `참고 #<drift Issue>`를 적습니다. drift Issue는 `main`에서 그 단위 검사가 통과하면 `drift-close`가 닫습니다(세부 동작과 경위는 [`workflow-history.md`](workflow-history.md) §6.1).
+* **따라잡기:** `drift`가 실패하면 `ci-gate`가 받는 쪽 앞으로 `drift` 라벨 Issue(`[drift] <단위>: PR #N 계약 변경 따라잡기`)를 엽니다. 그 단위 앞으로 열린 `drift` Issue가 이미 있으면 새로 열지 않고, 가장 오래된 Issue 본문에 `* 더해진 원인: PR #M(…)` 줄을 더하고 코멘트로 알립니다(단위마다 열린 drift는 하나, 로직은 `tools/drift/drift.sh`). 받는 쪽은 **다음 PR에서** 맞춥니다. 맞추지 않으면 그 단위의 PR은 `own`으로 막히므로 다른 일보다 먼저 합니다. 맞춘 PR 본문에는 `Closes`가 아니라 `참고 #<drift Issue>`를 적습니다. drift Issue는 원인 PR이 모두 들어간 `main` 커밋에서 그 단위 검사가 통과하면 `drift-close`가 닫습니다. 주는 쪽이 같은 PR 안에서 고치면 `drift-report`가 그 PR이 연 Issue를 닫습니다(세부 동작과 경위는 [`workflow-history.md`](workflow-history.md) §6.1).
 * **작은 요청 묶기(D100 ①):** 통합 마일스톤을 막지 않는 작은 요청(문구, 접근성 라벨, 표기)은 받는 단위의 다음 정기 작업 PR에 함께 넣고, 그로 인한 `drift`도 따라잡기만을 위한 PR을 따로 열지 않고 다음 작업 PR에서 맞춥니다. `blocking`이거나 통합 마일스톤의 선행이면 바로 처리합니다.
 * **통합 시점:** 통합 마일스톤(I1~I4)은 열린 `drift` Issue가 0이어야 시작합니다. 지휘는 정기 일과에서 `drift` Issue를 확인합니다.
 * **계약 변경의 조건:** 주는 쪽은 계약만 먼저 병합할 수 있지만, 하위 호환을 깨는 변경은 §5.1대로 사용하는 쪽마다 `kind:request`로 알립니다(D78). REST는 S3 freeze 뒤에는 추가 변경만 합니다.
-* **쌓아서 함께 병합하지 않습니다.** 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
+* **기본으로 쌓아서 함께 병합하지 않습니다.** 각 단위 PR을 순서대로 병합하고 받는 쪽이 drift를 따라잡습니다. 계약과 받는 쪽 구현이 한 번에 바뀌어야 의미가 맞는 경우(하위 호환을 깨는 변경 등)에만 쌓습니다.
 
 ### 6.2 검사 범위와 시점 (D81)
 검사가 쌓일수록 바뀐 것과 상관없는 검사가 자원과 시간을 씁니다. 검사는 **변경에 맞는 범위**만, **작업 단계에 맞는 시점**에 돌립니다.
@@ -182,3 +182,13 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   * 필드: `id`, `title`, `kind`(`concept`·`mockup`·`component`·`screenshot`·`token-sheet`·`copy-sample`), `file`, `source`(선택), `date`, `milestone`, `screens`(IA 화면 id, IA 전에는 빈 배열), `decisions`, `status`(`draft`·`chosen`·`rejected`·`superseded`), `note`(한 줄)
 * **탈락한 시안도 지우지 않고** `status: rejected`로 남깁니다.
 * **용량:** 이미지 한 장 2MB 이하. Git LFS는 쓰지 않습니다.
+
+## 8. 운영 확장 메모
+아직 도입하지 않았고, 아래 시점에 도입합니다(협업 워크플로 spec §4.2). 이미 도입된 항목과 경위는 [`workflow-history.md`](workflow-history.md) §8에 있습니다.
+
+| 항목 | 도입 기준 |
+| --- | --- |
+| merge queue | 동시에 열린 PR끼리 병합 순서 충돌이 잦아질 때 |
+| 서비스 간 통합 테스트(docker compose로 server ↔ core gRPC 실호출) | I1 시점에 `ci-gate`에 추가 |
+| 의존성 자동 갱신(Dependabot) | MVP 안정화 뒤 |
+| `main` 보호 규칙 강제 | 공개 전환(D74)으로 조건이 됐습니다. `ci-gate`를 필수 검사로 지정할지 사용자가 정합니다 |

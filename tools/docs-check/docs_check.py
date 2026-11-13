@@ -23,7 +23,7 @@ UNIT_CLAUDE_FILES = (
 )
 SIZE_LIMITS: dict[str, int] = {
     "CLAUDE.md": 10240,
-    "docs/workflow.md": 26624,
+    "docs/workflow.md": 28672,
     "docs/roadmap.md": 10240,
     "docs/contracts/README.md": 12288,
     **{path: 16384 for path in UNIT_CLAUDE_FILES},
@@ -644,7 +644,10 @@ def check_ja_terms(root: Path) -> list[str]:
 
 
 def check_size_limits(root: Path) -> list[str]:
-    problems = []
+    problems = [
+        f"{relative}: 상한표에 없는 면제입니다. SIZE_LIMITS의 경로와 맞추거나 SIZE_EXEMPT에서 지우세요(H1, D131)"
+        for relative in sorted(SIZE_EXEMPT - SIZE_LIMITS.keys())
+    ]
     for relative, limit in SIZE_LIMITS.items():
         path = root / relative
         if not path.is_file():

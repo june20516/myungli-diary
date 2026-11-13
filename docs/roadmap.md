@@ -46,14 +46,15 @@
 * **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②). CI는 `gh run watch` 없이 60초 이상 간격으로 확인합니다.
 * **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** H1(기준 문서 정리) → bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. DS1은 검수 회차2와 빌드 7 항목까지 끝났습니다.
 * **실기기:** 빌드 8(app #1162 기록)로 빌드 7 검수 반영(F-053~F-058)을 확인합니다.
-* **staging:** REST 1.13.1, 엔진 ruleset 2026.11.9, 법적 문서 게시(사업자 정보는 서버가 로컬 값으로 채움, D126).
+* **staging 상태:** server(REST 1.13.1), 엔진(ruleset 2026.11.9), Test Store 결제(D99), AdMob SSV(S126), health(S127), 미리 계산(S128), 아침 알림(S129), O1 알림(S133), 문의 메일(S134), 클라이언트 IP `TRUSTED_PROXY_HOPS=2`(S135), 런타임 DB 권한 분리(S137), 법적 문서 게시(사업자 정보는 server가 로컬 값으로 채움, D126)까지 배포됐습니다. prod 엔진도 2026.11.1입니다. prod server는 설정이 비어 배포를 건너뛰므로, 그동안 생기는 server prod 승인 대기는 지휘가 취소합니다. staging E2E는 `app/tool/patrol_staging.sh`로 돌리며, 실행마다 `support@`로 `[E2E]` 문의 메일이 한 통 옵니다.
+* **2026-12-15: Cloud SQL tier와 예산 점검(#903, 사용자 일정).** 그날 활성 사용자와 알림 켠 사용자 추이, L1 측정 결과를 보고 1월 최고 부하(L-1월) 전에 prod tier를 올릴지와 지출 범위를 사용자가 정합니다. I4가 1월 뒤로 가면 "I4 2주 전"으로 옮깁니다. 금액은 비공개 L1 리포트에 있습니다(D74).
 * **T1 전에 정할 것: server → app 관문(D110 ⑦).** 실기기 빌드(5)는 REST 1.5.0의 `LuckLevel.very_good`을 몰라 staging 달력 월 응답을 읽지 못했습니다(닫힌 enum). 테스터 기기에는 옛 빌드가 남으므로 T1 전에 앱 지원 REST 버전과 최소 지원 버전(업데이트 안내)을 server, app 설계로 정합니다.
 * **Q1로 넘긴 것:** server 직접 주소(run.app)가 열려 있어 IP 한도를 우회할 수 있음(S135, 직접 주소를 끄면 Hosting 공개 주소도 끊김).
-* **I4 전에 남은 일:** prod server 설정과 비밀 값, prod `RESEND_API_KEY`, SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 스토어 지원 연락처 `support@`, 법적 문서 원문(E16).
+* **I4 전에 남은 일:** prod server 설정과 비밀 값, prod `RESEND_API_KEY`, SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 스토어 지원 연락처 `support@`, 법적 문서 시행일과 prod 사업자 정보 비밀 값(E16, 원문은 게시됨).
 
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
-| 1 | 지휘 | H1 루트 몫(계약 목록, workflow, 로드맵, 결정 로그, 크기 상한 검사) → 단위 요청 다섯 | H1 단위 몫 |
+| 1 | 지휘 | H1 루트 몫 → 단위 요청 다섯 | H1 단위 몫 |
 | 2 | 각 단위 | H1 단위 몫: 자기 `CLAUDE.md` 현재 상태 정리, 결정 로그 대체 원문을 history로 | H1 끝, bootstrap |
 | 3 | 사용자 + 지휘 | bootstrap 묶음 apply(D103) | Q1 |
 | 4 | 지휘 + 각 단위 | Q1 보안 점검 | T1 |

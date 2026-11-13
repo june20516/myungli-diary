@@ -14,7 +14,7 @@
 
 * 내용은 바꾸지 않고 옮기거나 지웁니다. 옮기다 모순을 찾으면 고치지 않고 `to:root` Issue로 올립니다(spec §4).
 * D, C, S, A, W, V, E, K 번호와 Issue 링크는 그대로 둡니다.
-* 상한(바이트): 루트 `CLAUDE.md` 10240, 단위 `CLAUDE.md` 각 16384, `docs/workflow.md` 26624(실행 중 22528에서 올림), `docs/roadmap.md` 10240, `docs/contracts/README.md` 12288(spec §5).
+* 상한(바이트): 루트 `CLAUDE.md` 10240, 단위 `CLAUDE.md` 각 16384, `docs/workflow.md` 28672(실행 중 22528에서 올림), `docs/roadmap.md` 10240, `docs/contracts/README.md` 12288(spec §5).
 * 결정 로그와 history 파일에는 상한을 두지 않습니다.
 * 지휘는 루트 소유 경로만 고칩니다. 단위 `CLAUDE.md`와 `<단위>/docs/decisions.md`는 요청으로 보냅니다(`docs/workflow.md` §2).
 * 사용자에게 보이는 글 규칙(D93)은 이 문서들에 해당하지 않습니다(작업 문서).
@@ -74,7 +74,7 @@
 - [ ] **Step 1:** 각 절에서 도입 경위와 "처음엔", "PR #n으로 바뀜" 같은 경과 문장을 `workflow-history.md`의 같은 절 번호 아래로 옮깁니다. 규칙 문장 끝 결정 번호(Dnn)는 남깁니다.
 - [ ] **Step 2:** §3 5단계 마무리 2번을 바꿉니다: "현재 상태에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 둡니다. 병합된 일은 지웁니다. 계약을 바꿨으면 `docs/contracts/README.md` 자기 행의 버전과 상태 한 줄을 고치고, 바뀐 내용은 `docs/contracts/CHANGELOG.md` 자기 절 맨 위에 적습니다(D131)."
 - [ ] **Step 3:** §4 결정 로그에 "대체된 결정은 번호, 날짜, '→ <새 번호>로 대체' 한 줄만 남기고 원문 행은 같은 폴더 `decisions-history.md`로 옮깁니다. 일부 항목만 대체되면 행을 남기고 그 항목만 줄입니다(D131)."를 더합니다.
-- [ ] **Step 4: 검증** — `wc -c < docs/workflow.md` ≤ 26624, docs-check에 workflow 관련 오류 없음.
+- [ ] **Step 4: 검증** — `wc -c < docs/workflow.md` ≤ 28672, docs-check에 workflow 관련 오류 없음.
 - [ ] **Step 5: Commit** — `docs(root): workflow 지금 규칙만, 경과는 workflow-history (H1)`
 
 ### Task 4: 로드맵과 history

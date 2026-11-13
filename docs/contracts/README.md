@@ -23,7 +23,7 @@
 | 계산 규칙 지도 (공통 틀, 그룹, 항목별 규칙과 원전, 바탕지식, 불일치 목록) | `core/rules_map.json` (원본 `core/docs/rules-map/rules_map.toml`, 생성 `core/tools/rules_map.py`) | core | root (제품 지도 "계산 규칙" 탭) | `meta.version` 2 | **구현 완료** | Issue #988 |
 | 메시지 키별 매개변수 | `core/message_params.json` (키 → 매개변수 이름 목록) | core | writing (슬롯 `params` 대조), server | - | **구현 완료** | D27, `writing-to-root-contracts`, Issue #38 |
 | 라운드 원고 (글자 수 측정 근거) | `docs/identity/writing/artifacts/*-round-R*.md` | writing | design (`tools/lengths.py`가 선택 문장으로 상한을 잼) | - | **사용 중** | design `lengths.md`, D73 |
-| 법적 문서 원문 (이용약관·개인정보 처리방침) | `docs/legal/<언어>/{terms,privacy}.md` (읽는 문서 `docs/legal/README.md`) | 지휘 | server (`/legal/*` 정적 페이지), app (`getAppConfig`의 주소로 엶) | - | **원문 있음** (시행일은 출시 때 적음) | D80, D64, D74 |
+| 법적 문서 원문 (이용약관·개인정보 처리방침) | `docs/legal/<언어>/{terms,privacy}.md` (읽는 문서 `docs/legal/README.md`) | 지휘 | server (`/legal/*` 정적 페이지), app (`getAppConfig`의 주소로 엶) | - | **원문 있음** (시행일은 출시 때 적음. 원문이 바뀌면 `ci-gate` server drift로 알림, #341) | D80, D64, D74 |
 | 글자 수 상한 표 | `docs/identity/design/lengths.md` | design | writing (슬롯 `max_length` 대조 테스트) | - | **사용 중** | design `lengths.md`, writing W26 |
 
 ## 생성 코드

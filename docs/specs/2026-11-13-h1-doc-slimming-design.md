@@ -74,7 +74,7 @@ app 세션은 시작 때 약 186KB(루트 `CLAUDE.md` + `app/CLAUDE.md` + workfl
 | --- | --- |
 | 루트 `CLAUDE.md` | 10,240 |
 | 단위 `CLAUDE.md` 5개 | 각 16,384 |
-| `docs/workflow.md` | 26,624 (처음 22,528에서 실행 중 올림: 경과를 옮긴 뒤 남은 25.9KB가 모두 지금 규칙이라, 2026-11-14) |
+| `docs/workflow.md` | 28,672 (처음 22,528에서 실행 중 올림: 경과를 옮긴 뒤 남은 약 26.7KB가 모두 지금 규칙이고 여유 2KB를 둠, 2026-11-14) |
 | `docs/roadmap.md` | 10,240 |
 | `docs/contracts/README.md` | 12,288 |
 

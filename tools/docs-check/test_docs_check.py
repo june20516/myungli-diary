@@ -704,12 +704,14 @@ class MainTests(RepoTestCase):
     def test_main_returns_zero_on_clean_repo(self) -> None:
         write(self.root, "a.md", "# a")
         # 빈 임시 저장소에는 처음 읽는 문서가 없어 크기 상한표를 비웁니다(SizeLimitTest가 따로 검사).
-        with mock.patch.object(docs_check, "SIZE_LIMITS", {}):
+        with mock.patch.object(docs_check, "SIZE_LIMITS", {}), mock.patch.object(docs_check, "SIZE_EXEMPT", frozenset()):
             self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 0)
 
     def test_main_returns_one_on_problem(self) -> None:
         write(self.root, "a.md", "[x](missing.md)")
-        self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
+        # 크기 상한표를 비워 링크 오류만으로 1이 되는지 봅니다.
+        with mock.patch.object(docs_check, "SIZE_LIMITS", {}), mock.patch.object(docs_check, "SIZE_EXEMPT", frozenset()):
+            self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
 
 
 class SizeLimitTest(RepoTestCase):
@@ -741,6 +743,13 @@ class SizeLimitTest(RepoTestCase):
         problems = self.check({"docs/a.md": 10}, frozenset({"docs/a.md"}))
         self.assertEqual(len(problems), 1)
         self.assertIn("면제를 지우세요", problems[0])
+
+    def test_exempt_path_not_in_limits_reports(self) -> None:
+        write(self.root, "docs/a.md", "x")
+        problems = self.check({"docs/a.md": 10}, frozenset({"docs/old.md"}))
+        self.assertEqual(len(problems), 1)
+        self.assertIn("docs/old.md", problems[0])
+        self.assertIn("상한표에 없는 면제", problems[0])
 
     def test_missing_listed_file_reports(self) -> None:
         problems = self.check({"docs/missing.md": 10})
