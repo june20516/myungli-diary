@@ -63,7 +63,35 @@ func TestRun_EmptyDirectoryHasNoDocuments(t *testing.T) {
 	assert.Empty(t, docs)
 }
 
+// 빈자리 표기는 본문, 표 칸, 목록 어디서든 변환 뒤에도 글자 그대로 남습니다(D126 ②).
+func TestConvert_KeepsBusinessPlaceholders(t *testing.T) {
+	source := "# 이용약관\n\n상호: {{business.name}}, 대표자 **{{business.representative}}**\n\n" +
+		"| 주소 | 번호 |\n| --- | --- |\n| {{business.address}} | {{business.registrationNumber}} |\n\n" +
+		"* 통신판매업 신고번호 {{business.mailOrderNumber}}\n"
+	doc, err := convert.Convert("ko", legal.Terms, []byte(source))
+	require.NoError(t, err)
+	for _, placeholder := range []string{
+		legal.PlaceholderName, legal.PlaceholderRepresentative, legal.PlaceholderAddress,
+		legal.PlaceholderRegistrationNumber, legal.PlaceholderMailOrderNumber,
+	} {
+		assert.Contains(t, doc.HTML, placeholder)
+	}
+	assert.Contains(t, doc.HTML, "<td>{{business.address}}</td>")
+}
+
 func TestRun_Rejects(t *testing.T) {
+	t.Run("모르는 빈자리 표기", func(t *testing.T) {
+		dir := t.TempDir()
+		write(t, dir, "ko/terms.md", "# 약관\n\n{{business.phone}}\n")
+		_, err := convert.Run(dir)
+		assert.ErrorContains(t, err, "모르는 빈자리 표기 {{business.phone}}")
+	})
+	t.Run("표기 밖 중괄호", func(t *testing.T) {
+		dir := t.TempDir()
+		write(t, dir, "ko/terms.md", "# 약관\n\n{{ business.name }\n")
+		_, err := convert.Run(dir)
+		assert.ErrorContains(t, err, "빈자리 표기 밖")
+	})
 	t.Run("디렉터리 없음", func(t *testing.T) {
 		_, err := convert.Run(filepath.Join(t.TempDir(), "nope"))
 		assert.Error(t, err)

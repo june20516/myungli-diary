@@ -36,7 +36,7 @@ type Documents struct {
 	docs map[[2]string]Document
 }
 
-// New는 문서 목록으로 Documents를 만듭니다. 모르는 언어·이름이나 겹치는 조합이면 오류입니다.
+// New는 문서 목록으로 Documents를 만듭니다. 모르는 언어·이름이나 겹치는 조합, 모르는 빈자리 표기가 있으면 오류입니다.
 func New(docs []Document) (Documents, error) {
 	out := Documents{docs: make(map[[2]string]Document, len(docs))}
 	for _, d := range docs {
@@ -49,6 +49,9 @@ func New(docs []Document) (Documents, error) {
 		}
 		if d.Title == "" || d.HTML == "" {
 			return Documents{}, fmt.Errorf("문서 %s/%s의 제목이나 본문이 비었습니다", d.Lang, d.Name)
+		}
+		if err := CheckPlaceholders(d.Title + "\n" + d.HTML); err != nil {
+			return Documents{}, fmt.Errorf("문서 %s/%s: %w", d.Lang, d.Name, err)
 		}
 		out.docs[key] = d
 	}

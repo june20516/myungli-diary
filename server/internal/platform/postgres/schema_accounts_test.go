@@ -261,6 +261,9 @@ func TestSchema_ConsentDocumentAndUniqueness(t *testing.T) {
 	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c3", accountA, "privacy", "v1"); err != nil {
 		t.Fatalf("다른 document는 저장돼야 합니다: %v", err)
 	}
+	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c6", accountA, "age_14", "1"); err != nil {
+		t.Fatalf("만 14세 이상 확인(age_14, migration 00027)은 저장돼야 합니다: %v", err)
+	}
 	if _, err := pool.Exec(ctx, insert, "00000000-0000-7000-8000-0000000000c4", accountA, "terms", "v2"); err != nil {
 		t.Fatalf("다른 version은 저장돼야 합니다: %v", err)
 	}

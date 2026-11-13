@@ -692,8 +692,8 @@ func TestContract_ProblemCodesSurviveLoad(t *testing.T) {
 // 1.5.0의 LuckLevel very_good은 출시 전이라 닫힌 enum에 값을 더한 예외입니다(S138).
 func TestContract_VersionIsFrozen(t *testing.T) {
 	doc := loadDoc(t)
-	if doc.Info.Version != "1.12.0" {
-		t.Errorf("info.version = %q, want 1.12.0", doc.Info.Version)
+	if doc.Info.Version != "1.13.0" {
+		t.Errorf("info.version = %q, want 1.13.0", doc.Info.Version)
 	}
 }
 
@@ -2032,6 +2032,19 @@ func TestContract_1_12FocusHours(t *testing.T) {
 	}
 	if strings.Contains(cards.Description, "한국 시각 07:30 전)") {
 		t.Error("DailyCards 설명이 아직 전환을 한국 시각으로 못 박음")
+	}
+}
+
+// TestContract_1_13ConsentAge14는 만 14세 이상 확인 동의 문서(age_14)를 고정합니다. (S158, #1112, D127 ④)
+func TestContract_1_13ConsentAge14(t *testing.T) {
+	doc := loadDoc(t)
+	consent := schemaOf(t, doc, "ConsentDocument")
+	if !slices.Contains(consent.Properties["document"].Value.Enum, any("age_14")) {
+		t.Error("ConsentDocument.document에 age_14가 없음")
+	}
+	legal := schemaOf(t, doc, "LegalLinks")
+	if _, ok := legal.Properties["age_14"]; ok {
+		t.Error("age_14는 법적 문서 페이지가 없어 LegalLinks에 없어야 함")
 	}
 }
 

@@ -109,6 +109,10 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	if err != nil {
 		return err
 	}
+	legalBusiness, err := config.LoadLegalBusiness(getenv)
+	if err != nil {
+		return err
+	}
 	supportCfg, err := config.LoadSupport(getenv)
 	if err != nil {
 		return err
@@ -197,11 +201,12 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 		Clock:        clock.System{},
 		HTTP:         providerHTTP,
 		// 비워 두면 provider가 실제 제공자 주소를 씁니다.
-		Providers: providerURLs{},
-		TestLogin: testLogin,
-		AppCheck:  appCheck,
-		ProxyHops: proxyHops,
-		AppConfig: httpapi.AppConfig{MinIOS: appVersions.MinIOS, MinAndroid: appVersions.MinAndroid},
+		Providers:     providerURLs{},
+		TestLogin:     testLogin,
+		AppCheck:      appCheck,
+		ProxyHops:     proxyHops,
+		AppConfig:     httpapi.AppConfig{MinIOS: appVersions.MinIOS, MinAndroid: appVersions.MinAndroid},
+		LegalBusiness: legalBusiness,
 	})
 	if err != nil {
 		logger.ErrorContext(ctx, "서버 조립 실패", "error", err)
@@ -394,6 +399,8 @@ type serverDeps struct {
 	ProxyHops int
 	// AppConfig는 getAppConfig가 돌려주는 최소 앱 버전입니다.
 	AppConfig httpapi.AppConfig
+	// LegalBusiness는 법적 문서 빈자리를 채울 사업자 정보입니다(LEGAL_BUSINESS_INFO, D126 ②). nil이면 빈자리가 있는 문서는 준비 중 페이지입니다.
+	LegalBusiness legal.Business
 	// Readings는 운세 operation의 화면 묶음입니다(fortune.Views). 비어 있으면 운세 operation은 503입니다.
 	Readings httpapi.Readings
 	// Contents는 용어 사전과 문장 반응의 콘텐츠 저장소입니다(content.Store). 비어 있으면 그 operation과 getDaily는 503입니다.
@@ -593,6 +600,11 @@ func newServer(settings authSettings, deps serverDeps) (http.Handler, error) {
 	legalDocs, err := legal.Load()
 	if err != nil {
 		return nil, err
+	}
+	// 사업자 정보 빈자리는 저장소 밖 값으로 여기서 채웁니다(D126 ②). 값이 없으면(local) 그 문서는 준비 중 페이지입니다.
+	legalDocs, dropped := legalDocs.Fill(deps.LegalBusiness)
+	if len(dropped) > 0 {
+		deps.Logger.Warn("사업자 정보가 없어 법적 문서를 준비 중으로 둡니다", "documents", dropped)
 	}
 	httpDeps := httpapi.Deps{Logger: deps.Logger, Clock: deps.Clock, DB: deps.Pool}
 	routes := httpapi.Routes{
