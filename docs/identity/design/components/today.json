@@ -1,5 +1,5 @@
 {
-  "version": "7.6.0",
+  "version": "7.7.0",
   "group": "today",
   "components": [
     {
@@ -69,7 +69,7 @@
         { "id": "time", "when": "집중 시간. 낮 칩 하나, 밤 칩 하나 (D122, 결정 V115, V116)", "screens": ["today"], "periods": [
             { "id": "day", "source": "DailyResponse.focus_time", "lead": { "icon": "sun", "iconWeight": "fill", "iconColor": "{color.time.day}" }, "sheetTitleSlot": "today.lucky-time.day.title", "sheetBodySlot": "today.lucky-time.day.body" },
             { "id": "night", "source": "DailyResponse.night_focus_time", "lead": { "icon": "moon", "iconWeight": "fill", "iconColor": "{color.time.night}" }, "sheetTitleSlot": "today.lucky-time.night.title", "sheetBodySlot": "today.lucky-time.night.body",
-              "word": { "position": "값 앞, 간격 space.4", "type": "{type.label.md}", "fg": "{color.text.primary}", "slots": { "dawn": "today.lucky-time.night.dawn", "tonight": "today.lucky-time.night.tonight" }, "switch": "프로필 시간대 07:30 전에는 dawn(지금 이어지는 전날 밤), 07:30부터는 tonight(오늘 밤). 값과 낱말이 함께 바뀐다(D122 ⑦)" } }
+              "word": { "position": "값 앞, 간격 space.4", "type": "{type.label.md}", "fg": "{color.text.primary}", "slots": { "dawn": "today.lucky-time.night.dawn", "tonight": "today.lucky-time.night.tonight" }, "switch": "프로필 시간대의 그날 진시 시작(서울 07:30, 다른 시간대는 그 시간대의 진시 시작 시각, #1063) 전에는 dawn(지금 이어지는 전날 밤), 진시 시작부터는 tonight(오늘 밤). app은 그날 낮 카드 FocusTimeCard.hours[0].start를 씀. 값과 낱말이 함께 바뀐다(D122 ⑦)" } }
           ],
           "parts": { "value": { "format": { "ko": "HH:mm~HH:mm", "ja": "HH:mm〜HH:mm", "en": "HH:mm to HH:mm" }, "clock": "24h", "timeZone": "profile", "fontFeatures": ["tnum"] } } }
       ],
@@ -87,14 +87,15 @@
           "sections": [{ "source": "DailyResponse.color", "bodySlot": "today.lucky-color.body" }, { "source": "DailyResponse.second_color", "bodySlot": "today.lucky-color.second.body" }],
           "between": { "divider": "list.divider", "gap": "{space.16}", "insetX": 0, "note": "시트 본문 폭 그대로(list.divider inSheet, 결정 V124)" } },
         "timeBand": { "when": "time 칩 시트(낮, 밤 모두) 본문 아래 space.20", "summary": "지금 보이는 낮, 밤 두 칩이 가리키는 24시간 (결정 V117)",
-          "order": { "beforeDayStart": ["night(전날 밤)", "day(오늘 낮)"], "fromDayStart": ["day(오늘 낮)", "night(오늘 밤)"] },
+          "order": { "beforeDayStart": ["night(전날 밤)", "day(오늘 낮)"], "fromDayStart": ["day(오늘 낮)", "night(오늘 밤)"], "dayStart": "프로필 시간대의 그날 진시 시작(서울 07:30). 그날 낮 카드 FocusTimeCard.hours[0].start (#1063)" },
           "heads": { "height": { "value": 24, "unit": "px" }, "iconSource": "periods의 lead 아이콘, size.icon.16", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "iconGap": "{space.4}", "slots": { "day": "today.lucky-time.band.day", "night": "today.lucky-time.band.night" }, "gapBelow": "{space.16}" },
           "cells": { "count": 12, "unit": "시진 하나(2시간)", "gap": "{space.2}", "height": { "value": 30, "unit": "px" }, "radius": "{radius.xs}", "label": { "source": "ko, ja는 writing 시진 이름 한 글자. en은 칸에 동물 이름이 들어가지 않아 지지 한자(writing hanja.yaml branch.*, font.family.hanja, 관문 답 2026-11-12 C)", "type": "{type.caption.sm}" },
             "day": { "bg": "{color.ohaeng.earth.bg}", "fg": "{color.ohaeng.earth.fg}" }, "night": { "bg": "{color.ohaeng.water.bg}", "fg": "{color.ohaeng.water.fg}" },
             "pick": { "placement": "inside", "placementRule": "고리는 칸 안쪽 가장자리에서 시작(바깥부터 고리, bg.sheet 틈, 칸 색). 칸 밖으로 나가지 않아 칸 사이 space.2를 넘지 않음 (결정 V124, V117 개정)", "opened": { "ring": { "color": "{color.action.primary}", "width": { "value": 2, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": 700, "note": "연 칩(시트를 연 낮 칩 또는 밤 칩)이 고른 시진" }, "other": { "ring": { "color": "{color.text.secondary}", "width": { "value": 1, "unit": "px" } }, "gap": { "color": "{color.bg.sheet}", "width": { "value": 2, "unit": "px" } }, "labelWeight": "inherit", "note": "다른 칩이 고른 시진" }, "note": "두 칩의 고른 시진 둘 모두 고리. 연 칩 시진은 굵은 primary 고리와 글자 700, 다른 칩 시진은 가는 text.secondary 고리 (#1072, 관문 답 2026-11-13 A)" } },
           "now": { "line": { "color": "{color.text.primary}", "width": { "value": 2, "unit": "px" }, "overhang": { "value": 6, "unit": "px" } }, "tag": { "slot": "today.lucky-time.band.now", "bg": "{color.inverse.bg}", "fg": "{color.inverse.fg}", "type": "{type.caption.sm}", "radius": "{radius.full}", "paddingX": "{space.4}", "edge": "띠 양 끝 가까이에서는 꼬리표만 시트 안쪽으로 밀어 넣고 선은 제자리" }, "position": "지금 시각 비례", "update": "시트가 열려 있는 동안 1분마다" },
-          "ticks": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "at": ["띠 시작", "낮과 밤 경계", "띠 끝"], "align": ["start", "center", "end"], "dayWordGap": "{space.4}", "dayWords": { "yesterday": "today.lucky-time.band.yesterday", "tomorrow": "today.lucky-time.band.tomorrow" }, "gapAbove": "{space.8}" },
-          "a11y": { "role": "image", "label": "띠는 그림으로 숨기고 시트 본문과 칩 라벨이 같은 정보를 말함" } }
+          "ticks": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "fontFeatures": ["tnum"], "at": ["띠 시작", "낮과 밤 경계", "띠 끝"], "align": ["start", "center", "end"], "dayWordGap": "{space.4}", "dayWords": { "yesterday": "today.lucky-time.band.yesterday", "tomorrow": "today.lucky-time.band.tomorrow" }, "gapAbove": "{space.8}",
+            "overlap": { "minGap": "{space.8}", "placeOrder": ["띠 시작", "띠 끝", "낮과 밤 경계"], "lineGap": "{space.2}", "rule": "이웃 눈금 사이가 minGap보다 가까우면 placeOrder 순서로 겹치지 않는 가장 위 줄에 둔다. 가로 자리는 그대로. 1.3배 en에서 경계 눈금이 아랫줄로 내려감. ko, ja는 1.3배까지 한 줄 (#1096, 결정 V126, app A143과 같음)" } },
+          "a11y": { "role": "image", "label": "띠는 그림으로 숨기고 시트 본문과 칩 라벨이 같은 정보를 말함", "textScaleMax": 1.3, "textScaleRule": "머리, 칸 글자, 지금 꼬리표, 눈금 모두 기기 글자 배율을 1.3배까지만 따름. 칸 폭이 고정된 그림이라 표, 달력과 같은 규칙(결정 V36). 1.3배 칸 글자 14.3px는 고른 칸 안쪽 고리 안(약 16px)에 듦. 칸 높이와 눈금 줄은 그 글자가 들어가는 만큼만 늘어남 (#1096, 결정 V126)" } }
       },
       "states": { "loading": { "skeleton": [{ "bone": "chip", "shape": "chip", "count": 3, "widths": ["72px", "56px", "64px"], "gap": "{space.8}" }] },
         "pressed": { "pattern": "press.ink" },
@@ -113,8 +114,8 @@
         "share-image의 칩 줄도 행운 4종만이다. 색은 첫째 색 칸 하나(D119 ④), 시간은 낮 칩 하나만 넣는다(칩 수 표 그대로, 결정 V116).",
         "time 칩은 낮(focus_time) 하나와 밤(night_focus_time) 하나다. 앞 아이콘은 채운 해(sun Fill, color.time.day)와 채운 달(moon Fill, color.time.night)이고 Fill을 쓰는 경고 표시 밖의 유일한 자리다(elements icon timeOfDay, 결정 V115).",
         "time 값은 프로필 시간대 24시간이고, 범위 표기는 언어별이다(ko HH:mm~HH:mm, ja HH:mm〜HH:mm, en HH:mm to HH:mm, writing W44). 구간을 글자로 잇지 않는다(D93, 결정 V52).",
-        "밤 칩 값 앞에는 때 낱말이 붙는다. 프로필 시간대 07:30 전에는 dawn(지금 이어지는 전날 밤), 07:30부터는 tonight(오늘 밤)이고 값과 함께 바뀐다. 낮 칩에는 낱말이 없다(D122 ⑦, 결정 V116).",
-        "낮 칩과 밤 칩은 각자 시트를 연다(제목 today.lucky-time.day.title, night.title, 본문 day.body, night.body). 두 시트 모두 본문 아래 timeBand를 둔다: 지금 보이는 두 칩의 24시간을 시진 12칸으로, 07:30 전에는 밤이 앞, 07:30부터는 낮이 앞. 고른 시진 고리와 지금 줄(결정 V117).",
+        "밤 칩 값 앞에는 때 낱말이 붙는다. 프로필 시간대의 그날 진시 시작(서울 07:30, 다른 시간대는 그 시간대의 진시 시작 시각, #1063) 전에는 dawn(지금 이어지는 전날 밤), 진시 시작부터는 tonight(오늘 밤)이고 값과 함께 바뀐다. 낮 칩에는 낱말이 없다(D122 ⑦, 결정 V116).",
+        "낮 칩과 밤 칩은 각자 시트를 연다(제목 today.lucky-time.day.title, night.title, 본문 day.body, night.body). 두 시트 모두 본문 아래 timeBand를 둔다: 지금 보이는 두 칩의 24시간을 시진 12칸으로, 그날 진시 시작(서울 07:30) 전에는 밤이 앞, 진시 시작부터는 낮이 앞. 고른 시진 고리와 지금 줄(결정 V117). 띠 글자는 1.3배까지만 키우고 그래도 겹치는 눈금은 줄을 내린다(결정 V126).",
         "행운 색 시트(색 하나인 날)와 낮, 밤 시트는 맨 끝에 자기 근거 진입점(depth-link block, 용어 풀이 시트와 같음)을 둔다. 시간 시트는 timeBand 아래다. 방향과 숫자 시트에는 없다(D123 ②, 결정 V118)."
       ]
     },

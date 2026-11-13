@@ -1181,5 +1181,22 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 지금 명세 바깥 고리와 고친 안쪽 고리 비교, ko ja en 띠. 사용자 답(2026-11-13): 질문 1 A(연 칩 primary 2px, 다른 칩 회색 1px, 안쪽 고리), 질문 2 A(시트 본문 폭, 들임 0)"
+  },
+  {
+    "id": "design-time-band-scale-questions",
+    "title": "24시간 띠 큰 글자 배율 관문 질문(#1096)",
+    "kind": "concept",
+    "file": "2026-11-13-time-band-scale-questions.html",
+    "source": "2026-11-13-time-band-scale-questions.html",
+    "date": "2026-11-13",
+    "milestone": "DS1",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "V126"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 페이지 안 스크립트가 실제 글꼴로 눈금 겹침과 칸 글자 여유를 재고 줄 내림을 계산. ko ja en, 띠 앞뒤 두 순서, 배율 2.0과 1.3. 사용자 답(2026-11-13): 질문 1 A(1.3배 상한, 그래도 겹치면 줄 내림), 질문 2 A(칸 글자도 1.3배 상한)"
   }
 ]
