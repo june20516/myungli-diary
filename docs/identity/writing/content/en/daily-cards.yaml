@@ -60,14 +60,35 @@
 - {slot: daily.color, key: color.source.gwiin_day, text: "According to the classics, {element:color} suits you today too."}
 - {slot: daily.color, key: color.source.ordinary_day, text: "According to the classics, {element:color} suits you today too."}
 - {slot: daily.color, key: color.source.yongsin_day, text: "According to the classics, {element:color} suits you today too."}
+- {slot: daily.color_relation, key: color.gisin_day.mo, text: "{base_element} eases the clash in your chart, and {element} generates it, so {element:color} suits you today."}
+- {slot: daily.color_relation, key: color.gisin_day.ja, text: "{base_element} eases the clash in your chart, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."}
+- {slot: daily.color_relation, key: color.gisin_day.cheo, text: "{base_element} eases the clash in your chart, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."}
+- {slot: daily.color_relation, key: color.gisin_day.gwi, text: "{base_element} eases the clash in your chart, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."}
+- {slot: daily.color_relation, key: color.gwiin_day.mo, text: "Your chart needs {base_element} energy, and {element} generates it, so {element:color} suits you today."}
+- {slot: daily.color_relation, key: color.gwiin_day.ja, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."}
+- {slot: daily.color_relation, key: color.gwiin_day.cheo, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."}
+- {slot: daily.color_relation, key: color.gwiin_day.gwi, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."}
+- {slot: daily.color_relation, key: color.ordinary_day.mo, text: "Your chart needs {base_element} energy, and {element} generates it, so {element:color} suits you today."}
+- {slot: daily.color_relation, key: color.ordinary_day.ja, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."}
+- {slot: daily.color_relation, key: color.ordinary_day.cheo, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."}
+- {slot: daily.color_relation, key: color.ordinary_day.gwi, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."}
+- {slot: daily.color_relation, key: color.yongsin_day.mo, text: "Your chart needs {base_element} energy, and {element} generates it, so {element:color} suits you today."}
+- {slot: daily.color_relation, key: color.yongsin_day.ja, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} generates, suits you."}
+- {slot: daily.color_relation, key: color.yongsin_day.cheo, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which {base_element} overcomes, suits you."}
+- {slot: daily.color_relation, key: color.yongsin_day.gwi, text: "Your chart needs {base_element} energy, and today it sits in a position that is read differently. {element:color}, the color of {element}, which overcomes {base_element}, suits you."}
 - {slot: daily.direction, key: direction.day_kind.gisin, text: "Head {direction}, where {element} eases the clash in your chart."}
 - {slot: daily.direction, key: direction.day_kind.gwiin, text: "On a Day of helpers, head {direction}, the way of today's {day_branch}."}
 - {slot: daily.direction, key: direction.day_kind.ordinary, text: "Head {direction}, the way of the {element} energy your chart needs."}
 - {slot: daily.direction, key: direction.day_kind.yongsin, text: "Head {direction}, the way of the {element} energy your chart needs."}
+- {slot: daily.direction_relation, key: direction.day_kind.ordinary.mo, text: "Head {direction}, the way of {element}, which generates the {base_element} energy your chart needs."}
 - {slot: daily.number, key: number.gisin_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
 - {slot: daily.number, key: number.gwiin_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
 - {slot: daily.number, key: number.ordinary_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
 - {slot: daily.number, key: number.yongsin_day, text: "Of the {element} numbers, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number_relation, key: number.gisin_day.related, text: "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number_relation, key: number.gwiin_day.related, text: "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number_relation, key: number.ordinary_day.related, text: "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."}
+- {slot: daily.number_relation, key: number.yongsin_day.related, text: "Of the {element} numbers, the same element as today's color, {number} fits today's heavenly stem {day_stem}."}
 - {slot: daily.tag_label, key: tag.cheoneul_gwiin, text: "Noble helper"}
 - {slot: daily.tag_label, key: tag.clash, text: "Clash"}
 - {slot: daily.tag_label, key: tag.clash_day_branch, text: "Day branch clash"}

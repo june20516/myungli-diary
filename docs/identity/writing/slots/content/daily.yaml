@@ -50,7 +50,7 @@
         - fortune.yongsin_day.jaeseong
         - fortune.yongsin_day.siksang
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
-  co_display: [daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: fortune.yongsin_day.siksang, type: advice, text: "[[식상]]이 살아나니, 회의에서 먼저 의견을 꺼내 보세요.", why: "토큰이 이유, 행동 하나", source: round-R4-1}
@@ -112,7 +112,7 @@
         - fortune.tag.wonjin
         - fortune.tag.yongsin_day
   variants: {count: 1, rotation: "같은 키가 나올 때마다 advice, state, care 순으로 돕니다"}
-  co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: fortune.tag.dohwa, type: advice, text: "발표나 모임처럼 사람들 앞에 서는 일을 해 보세요.", why: "태그가 뜻하는 일을 행동 하나로, 토큰 없음(W28)", source: round-R9-4}
@@ -164,7 +164,7 @@
         - guide.wonjin
         - guide.yongsin_day
   variants: {count: 2, rotation: "같은 키가 나올 때마다 변주 1, 2 순으로 돕니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: guide.dohwa, variant: 1, text: "오늘 눈길이 갔던 사람이나 장면을 하나 적어 볼까요?", why: "하나만 고르게 하는 권유형", source: round-R6-1}
@@ -184,6 +184,7 @@
     ("내 사주에 필요한 수 기운에 맞춰 오늘은 검정이 잘 맞아요", R39-1, #971). 바탕 오행은 기신의 날이면 통관 오행이라
     color.gisin_day만 "막힌 흐름을 이어 주는 수 기운"으로 씁니다. 색이 바뀌는 날도 같은 틀이고 변역 자리(12운성)는 근거에서 말합니다.
     색이 둘인 날의 두 문장은 R37 그대로입니다(R39-5, R39-6). 점수, 순서 같은 계산 기준은 쓰지 않습니다(D121).
+    이 키들은 relation이 SAME인 날의 문장이고, 색 오행이 바탕 오행과 다른 날은 daily.color_relation입니다(D130).
   depth:
     explain: 색과 오행의 관계, 오늘 그 색인 이유
   endings: ["~잘 맞아요", "~좋아요", "~을 추천해요", "~챙겨 보세요"]
@@ -211,7 +212,7 @@
         - color.source.ordinary_day
         - color.source.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.direction, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: color.yongsin_day, text: "내 사주에 필요한 수 기운에 맞춰 오늘은 검정이 잘 맞아요.", why: "내 값 하나로 왜 이 색인지 읽힘(R39-7 다시 물어도 같음)", source: round-R39-1}
@@ -235,6 +236,7 @@
     한 문장. 방향을 정한 오행이나 지지를 넣어 "그래서 이 방향"이 읽히게 씁니다(R39-2 사용자 문구, #971).
     용신과 평범한 날은 "내 사주에 필요한 {element} 기운의 방위인", 기신의 날은 "막힌 흐름을 이어 주는 {element} 기운의 방위인",
     귀인의 날은 "귀인의 날이라 오늘 지지 {day_branch}의 방위인"입니다.
+    평범한 날 희신 방위(relation MO)는 daily.direction_relation입니다(D130).
   depth:
     explain: 방위와 오행, 오늘 그 방향인 이유(날의 성격 규칙)
   endings: ["~잘 맞아요", "~좋아요"]
@@ -253,7 +255,7 @@
       keys:
         - direction.day_kind.ordinary
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.number, daily.focus_time, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: direction.day_kind.yongsin, text: "내 사주에 필요한 수 기운의 방위인 북쪽이 좋아요.", why: "사용자 문구, 방위를 정한 오행을 밝힘", source: round-R39-2}
@@ -272,6 +274,8 @@
   structure: >-
     한 문장. 숫자 오행(행운 색 오행)과 오늘 천간을 넣어 "그래서 이 숫자"가 읽히게 씁니다(R39-3, #971).
     홀짝을 고른 규칙(양이면 홀수)은 근거에서 말합니다.
+    여러 수에서 고르는 말은 "숫자 중에서"입니다("수 가운데"는 오행 수와 헷갈림, R48).
+    숫자 오행이 바탕 오행과 다른 날(relation이 SAME 아님)은 daily.number_relation입니다(D130).
   depth:
     explain: 하도 수와 오행, 홀짝을 고른 이유
   endings: ["~잘 맞아요", "~좋아요"]
@@ -286,13 +290,125 @@
         - number.ordinary_day
         - number.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.focus_time, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
   examples:
     good:
-      - {lang: ko, text: "수 기운의 수 가운데 오늘 천간 갑목에 맞춰 1을 골랐어요.", why: "숫자 오행과 오늘 천간으로 왜 이 숫자인지 읽힘", source: round-R39-3}
+      - {lang: ko, text: "수 기운의 숫자 중에서 오늘 천간 갑목에 맞춰 1을 골랐어요.", why: "숫자 오행과 오늘 천간으로 왜 이 숫자인지 읽힘, \"수 가운데\"를 \"숫자 중에서\"로(R48)", source: round-R39-3}
     bad:
       - {lang: ko, text: "6이라는 숫자가 오늘 당신에게 행운을 속삭여요.", why: "사물 주어 slop.P3, 당신", source: writing}
       - {lang: ko, text: "1이라는 숫자에 오늘 수 기운이 깃들어 있어요.", why: "사물 주어 slop.P3, 근거 없는 신비화(숨긴 대조군)", source: round-R39-3}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 숫자는 숫자로 읽습니다.
+
+
+# 행운 색, 방위, 숫자의 관계 문장(D130, #1132, 라운드 R48). core 메시지 키가 아니라 writing 식별자 키이고,
+# server가 판정의 relation 값으로 `select`대로 고릅니다. relation이 SAME이면 위 core 키 문장을 그대로 씁니다.
+# 상한은 카드 두 줄(36자)을 넘어 design 측정 전입니다(#1132 후속 design 요청).
+
+- id: daily.color_relation
+  where: 오늘 화면 행운의 색 카드(색이 하나인 날, 색 오행이 바탕 오행과 다른 날)
+  ia: [today.lucky-color.body]
+  select: "카드 하나인 날 color.<날의 성격> 판정의 relation r이 SAME이 아니면 키 color.<날의 성격>.<r 소문자>(mo, ja, cheo, gwi). 색이 둘인 날(color.balance.*, color.source.*)은 쓰지 않음"
+  purpose: info
+  user_state: 옷이나 소품을 고르기 전에 훑어봅니다. 필요한 기운과 다른 오행의 색이 왜 맞는지 알고 싶습니다.
+  structure: >-
+    "내 사주에 필요한 기운"은 바탕 오행 하나에만 씁니다(기신의 날은 "막힌 흐름을 이어 주는"). 관계를 생략하지 않습니다(D130).
+    母(mo)는 한 문장 "{base_element} 기운을 생해 주는 {element}의 색, {element:color}"(D130 사용자 예문).
+    子(ja), 妻(cheo), 鬼(gwi)는 두 문장으로, 첫 문장 "…{base_element}의 기운이 오늘은 다르게 읽는 자리에 있어요"가 이유,
+    둘째 문장이 관계와 색입니다(R48 사용자 문구). 자리(12운성) 이름과 원전은 근거 시트(basis.color/shift)가 말하고 카드에는 쓰지 않습니다(1depth).
+  depth:
+    explain: 색과 오행의 관계, 오늘 그 색인 이유
+  endings: ["~잘 맞아요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {element: [element, color], role: none, base_element: [element, color], day_branch: none, relation: none, shift: none, twelve_stage: [twelve_stage]}
+      keys:
+        - color.gisin_day.mo
+        - color.gisin_day.ja
+        - color.gisin_day.cheo
+        - color.gisin_day.gwi
+        - color.gwiin_day.mo
+        - color.gwiin_day.ja
+        - color.gwiin_day.cheo
+        - color.gwiin_day.gwi
+        - color.ordinary_day.mo
+        - color.ordinary_day.ja
+        - color.ordinary_day.cheo
+        - color.ordinary_day.gwi
+        - color.yongsin_day.mo
+        - color.yongsin_day.ja
+        - color.yongsin_day.cheo
+        - color.yongsin_day.gwi
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
+  examples:
+    good:
+      - {lang: ko, key: color.yongsin_day.mo, text: "내 사주에 필요한 수 기운을 생해 주는 금의 색, 흰색이 오늘 잘 맞아요.", why: "관계를 생략하지 않음(D130 사용자 예문)", source: user}
+      - {lang: ko, key: color.yongsin_day.gwi, text: "내 사주에 필요한 수의 기운이 오늘은 다르게 읽는 자리에 있어요. 수를 극하는 토의 노랑이 잘 맞아요.", why: "이유와 관계를 두 문장으로, 원전과 자리 이름은 근거로(사용자 문구)", source: round-R48-1}
+      - {lang: ko, key: color.yongsin_day.gwi, text: "내 사주에 필요한 수 기운이 오늘 병 자리라, 원전대로 수를 극하는 토의 색, 노랑이 잘 맞아요.", why: "1depth 카드에 원전과 자리 이름은 과함(근거 시트 몫)", source: round-R48-1}
+    bad:
+      - {lang: ko, key: color.yongsin_day.gwi, text: "내 사주에 필요한 수 기운이 오늘 병 자리라, 원전대로 수를 극하는 토의 색, 노랑이 잘 맞아요.", why: "1depth 카드에 원전과 자리 이름은 과함(근거 시트 몫)", source: round-R48-1}
+      - {lang: ko, key: color.yongsin_day.gwi, text: "내 사주에 필요한 수 기운을 극하는 토의 색, 노랑이 오늘 잘 맞아요.", why: "필요한 기운을 극하는데 왜 맞는지 비어 있음(이유 생략)", source: round-R48-1}
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 문장 그대로 읽습니다.
+
+- id: daily.direction_relation
+  where: 오늘 화면 방향 카드(평범한 날 희신 방위)
+  ia: [today.lucky-direction.body]
+  select: "direction.day_kind.ordinary 판정의 relation이 MO(희신 방위)면 키 direction.day_kind.ordinary.mo. 용신, 기신의 날은 늘 SAME, 귀인의 날은 relation 없음"
+  purpose: info
+  user_state: 약속 장소나 동선을 정할 때 훑어봅니다.
+  structure: >-
+    한 문장. "내 사주에 필요한 {base_element} 기운을 생해 주는 {element}의 방위"(D130 사용자 예문, D19 ④ 희신).
+  depth:
+    explain: 방위와 오행, 오늘 그 방향인 이유(날의 성격 규칙)
+  endings: ["~좋아요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {direction: [direction8], rule_id: none, element: [element, color], role: none, deity: none, base_element: [element, color], relation: none}
+      keys:
+        - direction.day_kind.ordinary.mo
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.number_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
+  examples:
+    good:
+      - {lang: ko, key: direction.day_kind.ordinary.mo, text: "내 사주에 필요한 수 기운을 생해 주는 금의 방위, 북서쪽이 좋아요.", why: "희신 방위, 필요한 기운은 바탕 하나로(D130 사용자 예문)", source: user}
+    bad: []
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 방향 칩은 app이 방향 이름으로 읽습니다.
+
+- id: daily.number_relation
+  where: 오늘 화면 숫자 카드(숫자 오행이 바탕 오행과 다른 날)
+  ia: [today.lucky-number.body]
+  select: "number.<날의 성격> 판정의 relation이 SAME이 아니면 키 number.<날의 성격>.related"
+  purpose: info
+  user_state: 번호나 순서를 고를 일이 있을 때 훑어봅니다.
+  structure: >-
+    한 문장. "오늘 색과 같은 {element} 기운의 숫자 중에서"로 색과 잇습니다. 이런 날은 늘 색이 하나이고 숫자 오행은
+    첫째 색 오행과 같습니다(D119 ③, core #1149). 여러 수에서 고르는 말은 "숫자 중에서"입니다(R48).
+  depth:
+    explain: 하도 수와 오행, 홀짝을 고른 이유
+  endings: ["~골랐어요"]
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: null, en: null, ja: null}
+  keys:
+    - params: {number: number, element: [element, color], day_stem: [stem], parity: none, pair: none, base_element: [element, color], relation: none}
+      keys:
+        - number.gisin_day.related
+        - number.gwiin_day.related
+        - number.ordinary_day.related
+        - number.yongsin_day.related
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.focus_time, daily.tag_label, daily.focus_reason]
+  examples:
+    good:
+      - {lang: ko, key: number.yongsin_day.related, text: "오늘 색과 같은 금 기운의 숫자 중에서 천간 갑목에 맞춰 1을 골랐어요.", why: "숫자 오행이 바탕과 다른 날 색과 이어 왜 금인지 읽힘", source: round-R48-2}
+    bad: []
   a11y:
     truncation: 잘리지 않게 씁니다.
     screen_reader: 숫자는 숫자로 읽습니다.
@@ -317,7 +433,7 @@
         - focus_time.day
         - focus_time.night
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.tag_label, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.tag_label, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: focus_time.day, text: "중요한 일은 이 시간에 하면 좋아요.", why: "일을 벌일 때를 고르는 택일의 뜻 그대로", source: round-R37-3}
@@ -362,7 +478,7 @@
     - tag.wonjin
     - tag.yongsin_day
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.focus_reason]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.focus_reason]
   examples:
     good:
       - {lang: ko, key: tag.dohwa, text: "도화", why: "이름 그대로", source: writing}
@@ -389,7 +505,7 @@
     - huisin
     - hap
   variants: {count: 1, rotation: "변주가 하나입니다"}
-  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.focus_time, daily.tag_label]
+  co_display: [daily.fortune.head, daily.fortune.tag, daily.guide, daily.color, daily.direction, daily.number, daily.color_relation, daily.direction_relation, daily.number_relation, daily.focus_time, daily.tag_label]
   examples:
     good:
       - {lang: ko, key: gwiin, text: "귀인 시간", why: "이름 그대로", source: writing}

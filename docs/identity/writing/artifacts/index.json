@@ -813,5 +813,21 @@
     ],
     "status": "chosen",
     "note": "해요체로 냈다가 합니다체로 다시 냄, 약관 제9조와 같은 뜻"
+  },
+  {
+    "id": "round-R48",
+    "title": "라운드 R48: 행운 색, 방위, 숫자의 오행 관계 문장 (W78)",
+    "kind": "copy-sample",
+    "file": "2026-11-13-round-R48.md",
+    "date": "2026-11-13",
+    "milestone": "A2",
+    "screens": [
+      "today"
+    ],
+    "decisions": [
+      "W78"
+    ],
+    "status": "chosen",
+    "note": "子妻鬼 색은 사용자 문구(다르게 읽는 자리), 원전과 자리 이름은 근거 시트로, 숫자 중에서"
   }
 ]
