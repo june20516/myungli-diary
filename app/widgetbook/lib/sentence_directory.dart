@@ -9,6 +9,7 @@ import 'package:myungli_diary/design/components/sentence/reaction_button.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
 import 'package:myungli_diary/design/components/sentence/sentence_block.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
+import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary_widgetbook/stage.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -76,13 +77,27 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
           WidgetbookUseCase(
             name: variant.id,
             builder: (context) => Stage(
-              child: DepthLink(
-                variant: variant,
-                label: variant == DepthLinkVariant.navigate
-                    ? '계산 기준 보기'
-                    : '근거 보기',
-                onTap: () {},
-              ),
+              // head-end는 글자 링크가 없고 시트 머리 오른쪽 끝 아이콘입니다(V130).
+              child: variant == DepthLinkVariant.headEnd
+                  ? EvidenceHeadRow(
+                      head: Text('식신', style: context.tokens.typography.title),
+                      link: DepthLink.evidence(
+                        subject: '식신',
+                        placement: DepthLinkPlacement.headEnd,
+                        onTap: () {},
+                      ),
+                      firstLineHeight: EvidenceHeadRow.lineHeightOf(
+                        context,
+                        context.tokens.typography.title,
+                      ),
+                    )
+                  : DepthLink(
+                      variant: variant,
+                      label: variant == DepthLinkVariant.navigate
+                          ? '계산 기준 보기'
+                          : '근거 보기',
+                      onTap: () {},
+                    ),
             ),
           ),
         for (final state in DepthLinkState.values)
@@ -129,7 +144,11 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
           builder: (context) => Stage(
             child: EvidenceUnlockedScope(
               unlocked: true,
-              child: DepthLink.evidence(subject: '총운', onTap: () {}),
+              child: DepthLink.evidence(
+                subject: '총운',
+                placement: DepthLinkPlacement.inlineEnd,
+                onTap: () {},
+              ),
             ),
           ),
         ),
