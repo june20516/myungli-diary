@@ -486,6 +486,7 @@
 - {slot: saju-chart.pillars.desc, key: sajuChartPillarsDesc, text: "태어난 연, 월, 일, 시를 천간과 지지 한 쌍으로 나타낸 것이에요. 일간이 '나'예요."}
 - {slot: saju-chart.ohaeng.desc, key: sajuChartOhaengDesc, text: "내 사주에 나무, 불, 흙, 쇠, 물 기운이 얼마나 있는지를 보여 줘요."}
 - {slot: saju-chart.manse.basis, key: sajuChartManseBasis, text: "내 일간 {stem} 기준"}
+- {slot: saju-chart.manse.basis, key: sajuChartManseBasisStemSuffix, text: "({stemName})"}
 - {slot: saju-chart.jijanggan.desc, key: sajuChartJijangganDesc, text: "지지 속에 숨어 있는 천간이에요. 겉으로 보이지 않아도 그 자리의 기운을 구성해요."}
 - {slot: saju-chart.unseong.desc, key: sajuChartUnseongDesc, text: "일간의 기운이 그 자리에서 얼마나 힘을 쓰는지 열두 단계로 나타냅니다."}
 - {slot: saju-chart.sinsal.desc, key: sajuChartSinsalDesc, text: "특정 글자의 조합으로 생기는 고유 성질이에요. 없는 경우도 있어요."}

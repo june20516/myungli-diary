@@ -484,6 +484,7 @@
 - {slot: saju-chart.ohaeng.title, key: sajuChartOhaengTitle, text: "Five elements"}
 - {slot: saju-chart.ohaeng.desc, key: sajuChartOhaengDesc, text: "Shows how much wood, fire, earth, metal, and water your chart holds."}
 - {slot: saju-chart.manse.basis, key: sajuChartManseBasis, text: "Based on your day master {stem}"}
+- {slot: saju-chart.manse.basis, key: sajuChartManseBasisStemSuffix, text: " ({stemName})"}
 - {slot: saju-chart.jijanggan.desc, key: sajuChartJijangganDesc, text: "Heavenly stems hidden inside an earthly branch. Even unseen, they make up the energy of that seat."}
 - {slot: saju-chart.unseong.desc, key: sajuChartUnseongDesc, text: "Shows in twelve stages how much strength your day master has in that seat."}
 - {slot: saju-chart.sinsal.desc, key: sajuChartSinsalDesc, text: "A distinct trait formed by certain combinations of characters. Some charts have none."}

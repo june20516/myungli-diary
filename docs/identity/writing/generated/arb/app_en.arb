@@ -212,6 +212,7 @@
   "sajuChartHeadTitle": "{nickname}'s chart",
   "sajuChartJijangganDesc": "Heavenly stems hidden inside an earthly branch. Even unseen, they make up the energy of that seat.",
   "sajuChartManseBasis": "Based on your day master {stem}",
+  "sajuChartManseBasisStemSuffix": " ({stemName})",
   "sajuChartOhaengDesc": "Shows how much wood, fire, earth, metal, and water your chart holds.",
   "sajuChartOhaengTitle": "Five elements",
   "sajuChartPillarsDesc": "Your birth year, month, day, and hour, each written as a pair of a heavenly stem and an earthly branch. The day master is you.",

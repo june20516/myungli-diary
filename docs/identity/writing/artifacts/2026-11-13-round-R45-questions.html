@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>만세력 기준 줄 일간 표기 (R45)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="ds1/tokens.css"><style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #f2f1ee; color: #1f1f1e; font-family: var(--type-body-ui-family); font-size: 15px; line-height: 1.55; }
+.page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 72px; }
+h1 { font-size: 24px; margin: 0 0 8px; }
+h2 { font-size: 19px; margin: 44px 0 6px; padding-top: 16px; border-top: 1px solid #dcdad5; }
+.intro, .note { color: #5b5b59; margin: 0 0 14px; max-width: 980px; }
+.row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.opt { width: 360px; }
+.cap { font-size: 15px; font-weight: 700; color: var(--color-action-primary); margin-bottom: 4px; }
+.sub { font-size: 12.5px; color: #5b5b59; margin: 0 0 10px; min-height: 76px; }
+.rec { display: inline-block; font-size: 11px; font-weight: 700; color: var(--color-tag-good-fg); background: var(--color-tag-good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 1px; }
+.phone { width: 360px; background: var(--color-bg-base); border-radius: 22px; border: 1px solid #d6d4cf; padding: 4px 20px 20px; }
+.lab2 { font-size: 11px; color: #8a8985; margin: 14px 0 2px; letter-spacing: .02em; }
+.bar { height: 44px; display: flex; align-items: center; justify-content: space-between; font-size: 18px; font-weight: 700; color: var(--color-text-primary); }
+.share { width: 22px; height: 22px; border: 1.5px solid var(--color-text-primary); border-radius: 5px; }
+.solar { font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); letter-spacing: var(--type-subtitle-letter-spacing); line-height: var(--type-subtitle-line-height); color: var(--color-text-primary); }
+.meta { margin-top: 2px; display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 2px; font-size: var(--type-caption-lg-size); color: var(--color-text-secondary); }
+.hj { font-family: 'Noto Serif KR', var(--font-family-hanja); }
+.sr { margin-top: 6px; font-size: 11.5px; color: #8a8985; background: #ecebe7; border-radius: 6px; padding: 3px 8px; display: inline-block; }
+.dblock { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
+.dnum { font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; color: var(--color-text-primary); }
+.dright { display: flex; flex-direction: column; gap: 2px; }
+.dmon { font-size: var(--type-label-lg-size); font-weight: 600; color: var(--color-text-primary); }
+.dil { font-size: var(--type-caption-md-size); color: var(--color-text-secondary); }
+.pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: 8px; }
+.col { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.colh { text-align: center; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); padding: 2px 0; }
+.col.day .colh { color: var(--color-action-primary); font-weight: 700; }
+.pc { height: 66px; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.ph { font-family: 'Noto Serif KR', var(--font-family-hanja); font-size: var(--type-hanja-pillar-size); font-weight: 700; line-height: 1; }
+.rd { font-size: var(--type-caption-sm-size); font-weight: var(--type-caption-sm-weight); letter-spacing: var(--type-caption-sm-letter-spacing); line-height: 1.3; white-space: nowrap; }
+.pc.wood { background: var(--color-ohaeng-wood-bg); color: var(--color-ohaeng-wood-fg); }
+.pc.fire { background: var(--color-ohaeng-fire-bg); color: var(--color-ohaeng-fire-fg); }
+.pc.earth { background: var(--color-ohaeng-earth-bg); color: var(--color-ohaeng-earth-fg); }
+.pc.metal { background: var(--color-ohaeng-metal-bg); color: var(--color-ohaeng-metal-fg); box-shadow: inset 0 0 0 1px var(--color-ohaeng-metal-border); }
+.pc.water { background: var(--color-ohaeng-water-bg); color: var(--color-ohaeng-water-fg); box-shadow: inset 0 0 0 1px var(--color-ohaeng-water-border); }
+table.ev { border-collapse: collapse; font-size: 13px; margin: 6px 0 0; } table.ev td, table.ev th { border: 1px solid #dcdad5; padding: 4px 8px; text-align: left; vertical-align: top; } table.ev th { background: #ebe9e4; }
+
+.appbar { height: 44px; display: flex; align-items: center; font-size: var(--type-subtitle-size); font-weight: var(--type-subtitle-weight); color: var(--color-text-primary); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; height: 40px; padding: 4px; background: var(--color-bg-sheet); box-shadow: inset 0 0 0 1px var(--color-line); border-radius: var(--radius-full); margin-top: 8px; }
+.seg span { display: flex; align-items: center; justify-content: center; border-radius: var(--radius-full); font-size: var(--type-label-lg-size); font-weight: var(--type-label-lg-weight); color: var(--color-text-secondary); }
+.seg span.on { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+.basis { font-size: var(--type-caption-lg-size); line-height: var(--type-caption-lg-line-height); color: var(--color-text-secondary); margin: 24px 0 12px; }
+.band { background: var(--color-bg-sheet); border-radius: var(--radius-lg); padding: 8px 12px; display: grid; grid-template-columns: repeat(4,1fr); text-align: center; font-size: var(--type-caption-md-size); color: var(--color-text-secondary); }
+.band .day { color: var(--color-action-primary); font-weight: 700; }
+.ctl { font-size: 11px; font-weight: 700; color: #8a8985; background: #ecebe7; border-radius: 999px; padding: 0 8px; margin-left: 6px; }
+</style></head><body><div class="page">
+<h1>만세력 기준 줄 일간 표기 (writing #1095, 라운드 R45)</h1>
+<p class="intro">사주 표의 만세력과 대운 탭 위 기준 줄은 내 일간 한자 뒤에 괄호로 풀이를 붙입니다. design 가안은 “내 일간 <span class="hj">庚</span>(경금) 기준”입니다. 지금 app은 독음 틀(<code>ganjiReadingSuffix</code>)을 빌려 이름을 넣고 있고, ja는 이름이 한자 그대로(庚)라 괄호 없이 나옵니다. writing이 이 자리 전용 틀을 만들려고, 괄호 안에 무엇을 둘지 여쭙니다. 예시는 design 화면 E의 원국(일간 庚)이고 색과 글자 크기는 앱 토큰(DS1)입니다. 한자는 한자 글꼴로 따로 그립니다.</p>
+
+<h2>질문 1: ko, en 괄호 안에 무엇을 둘지</h2>
+<p class="note">이름(경금)은 천간 글자와 오행을 함께 말해 일간이 어떤 기운인지 바로 보입니다. 앱의 다른 화면과 용어 풀이도 일간을 이 이름으로 부릅니다(용어집 <code>stem</code>, en은 한국어 로마자 W47). 독음(경)은 날짜 머리, 기둥 칸의 간지 독음(R43)과 같은 모양입니다.</p>
+<div class="row">
+<div class="opt"><div class="cap">A 이름<span class="rec">추천</span></div><p class="sub">design 가안 그대로. ko 庚(경금), en 庚 (Gyeonggeum).</p><div class="phone"><div class="lab2">ko</div><div class="appbar">사주 표</div><div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div><div class="basis">내 일간 <span class="hj">庚</span>(경금) 기준</div><div class="band"><span class="">시주</span><span class="day">일주</span><span class="">월주</span><span class="">연주</span></div><div class="lab2">en</div><div class="appbar">Saju chart</div><div class="seg"><span>Natal chart</span><span class="on">Calendar and cycles</span></div><div class="basis">Based on your day master <span class="hj">庚</span> (Gyeonggeum)</div><div class="band"><span class="">Hour</span><span class="day">Day</span><span class="">Month</span><span class="">Year</span></div></div></div>
+<div class="opt"><div class="cap">B 독음</div><p class="sub">간지 독음과 같은 값. ko 庚(경), en 庚 (Gyeong).</p><div class="phone"><div class="lab2">ko</div><div class="appbar">사주 표</div><div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div><div class="basis">내 일간 <span class="hj">庚</span>(경) 기준</div><div class="band"><span class="">시주</span><span class="day">일주</span><span class="">월주</span><span class="">연주</span></div><div class="lab2">en</div><div class="appbar">Saju chart</div><div class="seg"><span>Natal chart</span><span class="on">Calendar and cycles</span></div><div class="basis">Based on your day master <span class="hj">庚</span> (Gyeong)</div><div class="band"><span class="">Hour</span><span class="day">Day</span><span class="">Month</span><span class="">Year</span></div></div></div>
+<div class="opt"><div class="cap">C 풀어 쓴 이름</div><p class="sub">오행 뜻을 말로 풀어 붙임.</p><div class="phone"><div class="lab2">ko</div><div class="appbar">사주 표</div><div class="seg"><span>원국</span><span class="on">만세력과 대운</span></div><div class="basis">내 일간 <span class="hj">庚</span>(단단한 쇠의 기운, 경금) 기준</div><div class="band"><span class="">시주</span><span class="day">일주</span><span class="">월주</span><span class="">연주</span></div><div class="lab2">en</div><div class="appbar">Saju chart</div><div class="seg"><span>Natal chart</span><span class="on">Calendar and cycles</span></div><div class="basis">Based on your day master <span class="hj">庚</span> (Gyeonggeum, the steel of destiny)</div><div class="band"><span class="">Hour</span><span class="day">Day</span><span class="">Month</span><span class="">Year</span></div></div></div>
+</div>
+
+<h2>질문 2: ja 괄호 안에 무엇을 둘지</h2>
+<p class="note">ja 이름은 한자 그대로(庚)라 이름을 넣으면 같은 글자가 두 번 나옵니다. 근거 용어집(<code>docs/research/ja-terms/stems-branches.json</code>)의 사전 인용은 “庚(かのえ)”처럼 훈독을 괄호로 붙이고, 四柱推命은 훈독이 표준입니다. 날짜 머리, 기둥 칸의 ja 독음도 훈독으로 정했습니다(R43). ja 독자는 한자를 읽을 수 있어 한자만 두어도 뜻은 통합니다.</p>
+<div class="row">
+<div class="opt"><div class="cap">A 훈독<span class="rec">추천</span></div><p class="sub">庚（かのえ）. 전각 괄호, 간지 독음(R43)과 같은 모양.</p><div class="phone"><div class="lab2">ja</div><div class="appbar">命式</div><div class="seg"><span>命式</span><span class="on">万年暦と大運</span></div><div class="basis">自分の日干<span class="hj">庚</span>（かのえ）が基準</div><div class="band"><span class="">時柱</span><span class="day">日柱</span><span class="">月柱</span><span class="">年柱</span></div></div></div>
+<div class="opt"><div class="cap">B 한자만</div><p class="sub">庚. 괄호 없이 한자만, 지금 app 임시 표기와 같음.</p><div class="phone"><div class="lab2">ja</div><div class="appbar">命式</div><div class="seg"><span>命式</span><span class="on">万年暦と大運</span></div><div class="basis">自分の日干<span class="hj">庚</span>が基準</div><div class="band"><span class="">時柱</span><span class="day">日柱</span><span class="">月柱</span><span class="">年柱</span></div></div></div>
+<div class="opt"><div class="cap">C 음독</div><p class="sub">庚（こう）. 사전의 자음.</p><div class="phone"><div class="lab2">ja</div><div class="appbar">命式</div><div class="seg"><span>命式</span><span class="on">万年暦と大運</span></div><div class="basis">自分の日干<span class="hj">庚</span>（こう）が基準</div><div class="band"><span class="">時柱</span><span class="day">日柱</span><span class="">月柱</span><span class="">年柱</span></div></div></div>
+</div>
+
+<h2>질문 3: 질문 2를 다시 묻습니다</h2>
+<p class="note">같은 질문을 순서를 바꿔 다시 냅니다. 안은 질문 2와 같습니다.</p>
+<div class="row">
+<div class="opt"><div class="cap">C 한자만</div><p class="sub">庚.</p><div class="phone"><div class="lab2">ja</div><div class="appbar">命式</div><div class="seg"><span>命式</span><span class="on">万年暦と大運</span></div><div class="basis">自分の日干<span class="hj">庚</span>が基準</div><div class="band"><span class="">時柱</span><span class="day">日柱</span><span class="">月柱</span><span class="">年柱</span></div></div></div>
+<div class="opt"><div class="cap">A 음독</div><p class="sub">庚（こう）.</p><div class="phone"><div class="lab2">ja</div><div class="appbar">命式</div><div class="seg"><span>命式</span><span class="on">万年暦と大運</span></div><div class="basis">自分の日干<span class="hj">庚</span>（こう）が基準</div><div class="band"><span class="">時柱</span><span class="day">日柱</span><span class="">月柱</span><span class="">年柱</span></div></div></div>
+<div class="opt"><div class="cap">B 훈독</div><p class="sub">庚（かのえ）.</p><div class="phone"><div class="lab2">ja</div><div class="appbar">命式</div><div class="seg"><span>命式</span><span class="on">万年暦と大運</span></div><div class="basis">自分の日干<span class="hj">庚</span>（かのえ）が基準</div><div class="band"><span class="">時柱</span><span class="day">日柱</span><span class="">月柱</span><span class="">年柱</span></div></div></div>
+</div>
+</div></body></html>
